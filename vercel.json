@@ -1,0 +1,14 @@
+{
+  "functions": {
+    "api/china-stock.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/china-stock",
+      "destination": "/api/china-stock.js"
+    }
+  ]
+}
+
