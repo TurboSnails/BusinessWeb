@@ -9,7 +9,7 @@ import Pulse from './pages/Pulse'
 export default function App(): JSX.Element {
   return (
     <div className="app">
-      <BrowserRouter basename="/BusinessWeb">
+      <BrowserRouter>
         <Header />
         <Routes>
           <Route path="/" element={<Home />} />
