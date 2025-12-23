@@ -27,6 +27,30 @@ npm run build
 npm run preview
 ```
 
+部署到 GitHub Pages
+
+项目已配置为部署到 `https://turbosnails.github.io/a/`
+
+1. 确保已安装 gh-pages（已在 devDependencies 中）：
+```bash
+npm install
+```
+
+2. 构建并部署：
+```bash
+npm run deploy
+```
+
+这会自动：
+- 运行 `npm run build` 构建项目
+- 将 `dist` 目录推送到 GitHub 的 `gh-pages` 分支
+- 项目将在 `https://turbosnails.github.io/a/` 可访问
+
+**重要配置说明：**
+- `vite.config.js` 中设置了 `base: '/a/'`
+- `App.tsx` 中设置了 `basename="/a"`
+- 确保 GitHub 仓库名称为 `turbosnails.github.io`（用户或组织页面）
+
 文件
 
 - [package.json](study01/package.json) — 项目依赖与脚本
