@@ -10,6 +10,7 @@ export type StockQuote = {
   changePercent: number
   volume?: number
   market?: string
+  rsi?: number // RSI 指数
 }
 
 export type MarketData = {

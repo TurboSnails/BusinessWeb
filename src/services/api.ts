@@ -1,33 +1,93 @@
 import type { MarketData, StockQuote } from '../types'
 
+// 计算 RSI 指数（14周期）
+function calculateRSI(prices: number[], period = 14): number | null {
+  if (prices.length < period + 1) {
+    return null
+  }
+  
+  const changes: number[] = []
+  for (let i = 1; i < prices.length; i++) {
+    changes.push(prices[i] - prices[i - 1])
+  }
+  
+  // 分离上涨和下跌
+  const gains = changes.map(change => change > 0 ? change : 0)
+  const losses = changes.map(change => change < 0 ? Math.abs(change) : 0)
+  
+  // 计算初始平均收益和平均损失
+  let avgGain = gains.slice(0, period).reduce((a, b) => a + b, 0) / period
+  let avgLoss = losses.slice(0, period).reduce((a, b) => a + b, 0) / period
+  
+  // 如果平均损失为0，RSI为100
+  if (avgLoss === 0) {
+    return 100
+  }
+  
+  // 使用 Wilder's Smoothing 方法计算后续值
+  for (let i = period; i < changes.length; i++) {
+    avgGain = (avgGain * (period - 1) + gains[i]) / period
+    avgLoss = (avgLoss * (period - 1) + losses[i]) / period
+  }
+  
+  // 计算 RS 和 RSI
+  const rs = avgGain / avgLoss
+  const rsi = 100 - (100 / (1 + rs))
+  
+  return Math.round(rsi * 100) / 100 // 保留两位小数
+}
+
 export async function fetchExample(): Promise<{ message: string }> {
   // placeholder for real API calls
   return new Promise((resolve) => setTimeout(() => resolve({ message: 'hello from api' }), 300))
 }
 
-// 带超时的 fetch 包装函数
-async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout = 10000): Promise<Response> {
-  const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), timeout)
-  
-  try {
-    const response = await fetch(url, {
-      ...options,
-      signal: controller.signal
-    })
-    clearTimeout(timeoutId)
-    return response
-  } catch (error) {
-    clearTimeout(timeoutId)
-    throw error
+// 带超时和重试的 fetch 包装函数
+async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout = 15000, retries = 2): Promise<Response> {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), timeout)
+    
+    try {
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal
+      })
+      clearTimeout(timeoutId)
+      
+      if (response.ok) {
+        return response
+      }
+      
+      // 如果不是最后一次尝试，继续重试
+      if (attempt < retries) {
+        clearTimeout(timeoutId)
+        await new Promise(resolve => setTimeout(resolve, 500 * (attempt + 1))) // 递增延迟
+        continue
+      }
+      
+      return response
+    } catch (error) {
+      clearTimeout(timeoutId)
+      
+      // 如果是最后一次尝试，抛出错误
+      if (attempt === retries) {
+        throw error
+      }
+      
+      // 等待后重试
+      await new Promise(resolve => setTimeout(resolve, 500 * (attempt + 1)))
+    }
   }
+  
+  throw new Error('请求失败')
 }
 
 // 获取美股数据（尝试多个免费 API）
 async function fetchUSStock(symbol: string): Promise<StockQuote | null> {
-  // 方案1：尝试使用 CORS 代理访问 Yahoo Finance
+  // 方案1：尝试使用 CORS 代理访问 Yahoo Finance（获取15天数据用于计算RSI）
   try {
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`)}`
+    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=15d`)}`
     
     const response = await fetchWithTimeout(
       proxyUrl,
@@ -37,7 +97,7 @@ async function fetchUSStock(symbol: string): Promise<StockQuote | null> {
           'Accept': 'application/json',
         },
       },
-      8000
+      12000 // 增加超时时间到12秒
     )
     
     if (response.ok) {
@@ -46,6 +106,14 @@ async function fetchUSStock(symbol: string): Promise<StockQuote | null> {
       if (result) {
         const meta = result.meta
         const indicators = result.indicators
+        
+        // 获取历史价格数据用于计算 RSI
+        let historicalPrices: number[] = []
+        if (indicators?.adjclose && indicators.adjclose[0]?.adjclose) {
+          historicalPrices = indicators.adjclose[0].adjclose.filter((p: number | null) => p !== null && p > 0) as number[]
+        } else if (indicators?.quote && indicators.quote[0]?.close) {
+          historicalPrices = indicators.quote[0].close.filter((p: number | null) => p !== null && p > 0) as number[]
+        }
         
         // 尝试从 indicators 中获取最新价格数据
         let currentPrice = meta.regularMarketPrice
@@ -93,6 +161,12 @@ async function fetchUSStock(symbol: string): Promise<StockQuote | null> {
           }
         }
         
+        // 计算 RSI
+        let rsi: number | null = null
+        if (historicalPrices.length >= 15) {
+          rsi = calculateRSI(historicalPrices)
+        }
+        
         return {
           symbol: symbol,
           name: meta.shortName || meta.longName || symbol,
@@ -100,7 +174,8 @@ async function fetchUSStock(symbol: string): Promise<StockQuote | null> {
           change: change || 0,
           changePercent: changePercent || 0,
           volume: meta.regularMarketVolume,
-          market: 'US'
+          market: 'US',
+          rsi: rsi || undefined
         }
       }
     }
@@ -111,7 +186,7 @@ async function fetchUSStock(symbol: string): Promise<StockQuote | null> {
   // 方案2：尝试直接访问（可能因 CORS 失败，但不影响其他请求）
   try {
     const response = await fetchWithTimeout(
-      `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`,
+      `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=15d`,
       {
         method: 'GET',
         headers: {
@@ -128,6 +203,14 @@ async function fetchUSStock(symbol: string): Promise<StockQuote | null> {
         const meta = result.meta
         const indicators = result.indicators
         
+        // 获取历史价格数据用于计算 RSI
+        let historicalPrices: number[] = []
+        if (indicators?.adjclose && indicators.adjclose[0]?.adjclose) {
+          historicalPrices = indicators.adjclose[0].adjclose.filter((p: number | null) => p !== null && p > 0) as number[]
+        } else if (indicators?.quote && indicators.quote[0]?.close) {
+          historicalPrices = indicators.quote[0].close.filter((p: number | null) => p !== null && p > 0) as number[]
+        }
+        
         // 尝试从 indicators 中获取最新价格数据
         let currentPrice = meta.regularMarketPrice
         let previousClose = meta.previousClose || meta.chartPreviousClose
@@ -174,6 +257,12 @@ async function fetchUSStock(symbol: string): Promise<StockQuote | null> {
           }
         }
         
+        // 计算 RSI
+        let rsi: number | null = null
+        if (historicalPrices.length >= 15) {
+          rsi = calculateRSI(historicalPrices)
+        }
+        
         return {
           symbol: symbol,
           name: meta.shortName || meta.longName || symbol,
@@ -181,7 +270,8 @@ async function fetchUSStock(symbol: string): Promise<StockQuote | null> {
           change: change || 0,
           changePercent: changePercent || 0,
           volume: meta.regularMarketVolume,
-          market: 'US'
+          market: 'US',
+          rsi: rsi || undefined
         }
       }
     }
@@ -210,7 +300,7 @@ async function fetchChinaIndex(symbol: string, name: string): Promise<StockQuote
           'Accept': '*/*'
         }
       },
-      8000
+      12000 // 增加超时时间到12秒
     )
     
     if (response.ok) {
@@ -262,7 +352,82 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
   ])
 }
 
-// 获取所有市场数据
+// 获取单个市场的数据（支持增量更新）
+export async function fetchMarketDataByType(type: 'us' | 'cn' | 'hk'): Promise<StockQuote[]> {
+  const usIndices = [
+    { symbol: '^DJI', name: '道琼斯指数' },
+    { symbol: '^GSPC', name: '标普500' },
+    { symbol: '^IXIC', name: '纳斯达克' },
+    { symbol: '^VIX', name: '恐慌指数(VIX)' }
+  ]
+  
+  const chinaIndices = [
+    { symbol: 'sh000001', name: '上证指数' },
+    { symbol: 'sz399001', name: '深证成指' },
+    { symbol: 'sz399006', name: '创业板指' },
+    { symbol: 'sh000300', name: '沪深300' }
+  ]
+  
+  const hkIndices = [
+    { symbol: '^HSI', name: '恒生指数' },
+    { symbol: '^HSCE', name: '恒生国企指数' },
+    { symbol: '^HSTECH', name: '恒生科技指数' }
+  ]
+  
+  const ftseA50Symbols = [
+    { symbol: 'XIN9.F', name: '富时中国A50' },
+    { symbol: '^FTXIN25', name: '富时中国A50' },
+    { symbol: 'CN50.F', name: '富时中国A50' }
+  ]
+
+  try {
+    if (type === 'us') {
+      const results = await Promise.allSettled(
+        usIndices.map(({ symbol, name }) => fetchUSStock(symbol).then(stock => {
+          if (stock) stock.name = name
+          return stock
+        }))
+      )
+      return results.map(r => r.status === 'fulfilled' ? r.value : null).filter((stock): stock is StockQuote => stock !== null)
+    } else if (type === 'cn') {
+      const results = await Promise.allSettled(
+        chinaIndices.map(({ symbol, name }) => fetchChinaIndex(symbol, name))
+      )
+      return results.map(r => r.status === 'fulfilled' ? r.value : null).filter((stock): stock is StockQuote => stock !== null)
+    } else if (type === 'hk') {
+      const [hkResults, ftseResults] = await Promise.allSettled([
+        Promise.allSettled(hkIndices.map(({ symbol, name }) => fetchUSStock(symbol).then(stock => {
+          if (stock) {
+            stock.name = name
+            stock.market = 'HK'
+          }
+          return stock
+        }))).then(results => results.map(r => r.status === 'fulfilled' ? r.value : null)),
+        Promise.allSettled(ftseA50Symbols.map(({ symbol, name }) => fetchUSStock(symbol).then(stock => {
+          if (stock && stock.price > 0) {
+            stock.name = name
+            stock.market = 'HK'
+            return stock
+          }
+          return null
+        }))).then(results => {
+          const successful = results.find(r => r.status === 'fulfilled' && r.value !== null && r.value.price > 0)
+          return successful ? [successful.value] : []
+        })
+      ])
+      
+      const hkData = hkResults.status === 'fulfilled' ? hkResults.value.filter((s): s is StockQuote => s !== null) : []
+      const ftseData = ftseResults.status === 'fulfilled' ? ftseResults.value.filter((s): s is StockQuote => s !== null) : []
+      return [...hkData, ...ftseData]
+    }
+    return []
+  } catch (error) {
+    console.error(`获取${type}数据失败:`, error)
+    return []
+  }
+}
+
+// 获取所有市场数据（保持向后兼容）
 export async function fetchMarketData(): Promise<MarketData> {
   // 美股主要指数 + 恐慌指数
   const usIndices = [
@@ -297,10 +462,11 @@ export async function fetchMarketData(): Promise<MarketData> {
   ]
   
   try {
-    // 为整个请求添加总超时（10秒）
+    // 为整个请求添加总超时（20秒，给更多时间）
     return await withTimeout(
       (async () => {
         // 并行获取所有数据，即使部分失败也继续
+        // 使用 Promise.allSettled 确保即使部分失败也能继续
         const [usIndicesData, chinaData, hkData, ftseA50Data] = await Promise.allSettled([
           Promise.allSettled(usIndices.map(({ symbol, name }) => fetchUSStock(symbol).then(stock => {
             // 使用中文名称覆盖
@@ -355,18 +521,16 @@ export async function fetchMarketData(): Promise<MarketData> {
           ? ftseA50Data.value.filter((stock): stock is StockQuote => stock !== null)
           : []
         
-        // 调试日志
-        console.log('香港指数数据:', {
-          hkDataStatus: hkData.status,
-          hkDataResult,
-          ftseA50Result,
-          hkIndicesCount: hkIndices.length
-        })
-        
         // 将富时中国A50添加到香港指数列表中
         const allHkIndices = [...hkDataResult, ...ftseA50Result]
         
-        console.log('最终香港指数:', allHkIndices)
+        // 调试日志 - 显示获取到的数据统计
+        console.log('数据获取统计:', {
+          美股: usIndicesResult.length,
+          中国: chinaDataResult.length,
+          香港: allHkIndices.length,
+          总计: usIndicesResult.length + chinaDataResult.length + allHkIndices.length
+        })
         
         // 即使所有请求都失败，也返回空数组而不是抛出错误
         return {
@@ -376,7 +540,7 @@ export async function fetchMarketData(): Promise<MarketData> {
           timestamp: new Date().toISOString()
         }
       })(),
-      10000 // 10秒总超时
+      20000 // 20秒总超时，给更多时间
     )
   } catch (error) {
     // 如果超时或发生其他错误，返回空数据

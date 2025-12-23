@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { fetchMarketData } from '../services/api'
+import { fetchMarketDataByType } from '../services/api'
 import type { MarketData, StockQuote } from '../types'
 
 export default function Pulse(): JSX.Element {
@@ -16,46 +16,102 @@ export default function Pulse(): JSX.Element {
     setError(null)
     setData(null)
 
-    // 添加超时处理（10秒，快速反馈）
+    // 添加超时处理（25秒，给更多时间）
     timeoutId = setTimeout(() => {
       if (mounted) {
         console.warn('请求超时')
-        setError(new Error('请求超时（10秒），可能是 CORS 限制或网络问题'))
+        setError(new Error('请求超时（25秒），可能是网络问题'))
         setLoading(false)
         // 即使超时也设置空数据，避免一直显示加载中
         setData({
           usStocks: [],
           chinaIndices: [],
+          hkIndices: [],
           timestamp: new Date().toISOString()
         })
       }
-    }, 10000)
+    }, 25000)
 
     const fetchData = async () => {
-      try {
-        const result = await fetchMarketData()
-        clearTimeout(timeoutId)
-        if (mounted) {
-          console.log('数据获取成功:', result)
-          setData(result)
-          setLoading(false)
+      // 初始化数据
+      if (mounted) {
+        setData({
+          usStocks: [],
+          chinaIndices: [],
+          hkIndices: [],
+          timestamp: new Date().toISOString()
+        })
+      }
+
+      // 分别获取各个市场的数据，每获取到一个就立即更新
+      const fetchUS = async () => {
+        try {
+          const usData = await fetchMarketDataByType('us')
+          if (mounted) {
+            setData(prev => prev ? { ...prev, usStocks: usData } : {
+              usStocks: usData,
+              chinaIndices: [],
+              hkIndices: [],
+              timestamp: new Date().toISOString()
+            })
+          }
+        } catch (e) {
+          console.error('获取美股数据失败:', e)
         }
-      } catch (e) {
+      }
+
+      const fetchCN = async () => {
+        try {
+          const cnData = await fetchMarketDataByType('cn')
+          if (mounted) {
+            setData(prev => prev ? { ...prev, chinaIndices: cnData } : {
+              usStocks: [],
+              chinaIndices: cnData,
+              hkIndices: [],
+              timestamp: new Date().toISOString()
+            })
+          }
+        } catch (e) {
+          console.error('获取中国数据失败:', e)
+        }
+      }
+
+      const fetchHK = async () => {
+        try {
+          const hkData = await fetchMarketDataByType('hk')
+          if (mounted) {
+            setData(prev => prev ? { ...prev, hkIndices: hkData } : {
+              usStocks: [],
+              chinaIndices: [],
+              hkIndices: hkData,
+              timestamp: new Date().toISOString()
+            })
+          }
+        } catch (e) {
+          console.error('获取香港数据失败:', e)
+        }
+      }
+
+      // 并行获取所有数据，但每个市场独立更新
+      Promise.allSettled([fetchUS(), fetchCN(), fetchHK()]).then(() => {
         clearTimeout(timeoutId)
         if (mounted) {
-          console.error('数据获取失败:', e)
-          const errorMessage = e instanceof Error ? e.message : '获取数据失败，可能是 CORS 限制或网络问题'
-          setError(new Error(errorMessage))
           setLoading(false)
-          // 即使出错也设置空数据
-          setData({
+          setData(prev => prev ? { ...prev, timestamp: new Date().toISOString() } : {
             usStocks: [],
             chinaIndices: [],
             hkIndices: [],
             timestamp: new Date().toISOString()
           })
         }
-      }
+      }).catch((e) => {
+        clearTimeout(timeoutId)
+        if (mounted) {
+          console.error('数据获取失败:', e)
+          setError(new Error('部分数据获取失败'))
+          setLoading(false)
+        }
+      })
     }
 
     fetchData()
@@ -165,13 +221,14 @@ export default function Pulse(): JSX.Element {
           </div>
         ) : allIndices.length > 0 ? (
           <div style={{ overflowX: 'auto', marginTop: '12px', WebkitOverflowScrolling: 'touch', borderRadius: '8px', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', minWidth: '500px', backgroundColor: 'white' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', minWidth: '600px', backgroundColor: 'white' }}>
               <thead>
                 <tr style={{ backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
                   <th style={{ textAlign: 'left', padding: '10px 12px', fontWeight: '600', color: '#475569', fontSize: '0.8rem', letterSpacing: '0.3px' }}>指数</th>
                   <th style={{ textAlign: 'right', padding: '10px 12px', fontWeight: '600', color: '#475569', fontSize: '0.8rem', letterSpacing: '0.3px' }}>价格</th>
                   <th style={{ textAlign: 'right', padding: '10px 12px', fontWeight: '600', color: '#475569', fontSize: '0.8rem', letterSpacing: '0.3px' }}>涨跌</th>
                   <th style={{ textAlign: 'right', padding: '10px 12px', fontWeight: '600', color: '#475569', fontSize: '0.8rem', letterSpacing: '0.3px' }}>涨跌幅</th>
+                  <th style={{ textAlign: 'right', padding: '10px 12px', fontWeight: '600', color: '#475569', fontSize: '0.8rem', letterSpacing: '0.3px' }}>RSI</th>
                 </tr>
               </thead>
               <tbody>
@@ -213,6 +270,18 @@ export default function Pulse(): JSX.Element {
                       </td>
                       <td style={{ textAlign: 'right', padding: '10px 12px', fontWeight: '600', color: color, fontSize: '0.85rem' }}>
                         {formatPercent(stock.changePercent)}
+                      </td>
+                      <td style={{ textAlign: 'right', padding: '10px 12px', fontSize: '0.85rem' }}>
+                        {stock.rsi !== undefined ? (
+                          <span style={{ 
+                            color: stock.rsi >= 70 ? '#dc2626' : stock.rsi <= 30 ? '#059669' : '#6b7280',
+                            fontWeight: '500'
+                          }}>
+                            {stock.rsi.toFixed(1)}
+                          </span>
+                        ) : (
+                          <span style={{ color: '#9ca3af' }}>--</span>
+                        )}
                       </td>
                     </tr>
                   )
