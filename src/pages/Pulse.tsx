@@ -944,11 +944,17 @@ export default function Pulse(): JSX.Element {
                 style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }}
               />
               <div style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: '6px', lineHeight: '1.6' }}>
-                <strong>Classic Token:</strong> GitHub → Settings → Developer settings → Personal access tokens → Generate new token (classic)
+                <strong>推荐：Classic Token</strong>
+                <br />
+                GitHub → Settings → Developer settings → Personal access tokens → Generate new token (classic)
                 <br />
                 权限：勾选 <code style={{ background: '#f3f4f6', padding: '2px 4px', borderRadius: '3px' }}>gist</code>
                 <br /><br />
-                <strong>Fine-grained Token:</strong> 支持，但需要确保有 <code style={{ background: '#f3f4f6', padding: '2px 4px', borderRadius: '3px' }}>Gists</code> 权限
+                <strong>Fine-grained Token（如遇到权限错误）：</strong>
+                <br />
+                1. 资源范围：选择 <code style={{ background: '#f3f4f6', padding: '2px 4px', borderRadius: '3px' }}>All repositories</code> 或 <code style={{ background: '#f3f4f6', padding: '2px 4px', borderRadius: '3px' }}>Only select repositories</code>
+                <br />
+                2. 权限：在 Repository permissions 下找到 <code style={{ background: '#f3f4f6', padding: '2px 4px', borderRadius: '3px' }}>Gists</code>，设置为 <code style={{ background: '#f3f4f6', padding: '2px 4px', borderRadius: '3px' }}>Read and write</code>
               </div>
             </div>
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
