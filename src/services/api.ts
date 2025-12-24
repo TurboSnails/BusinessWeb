@@ -138,11 +138,16 @@ function parseYahooData(data: any, symbol: string): StockQuote | null {
   }
 }
 
-// 多个 CORS 代理，竞速获取
-const CORS_PROXIES = [
-  (url: string) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-  (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-]
+// CORS 代理配置
+// corsproxy.io 对东方财富和 Yahoo 都能用
+// allorigins 只对 Yahoo 能用，东方财富会返回 HTML
+const CORS_PROXY_MAIN = (url: string) => `https://corsproxy.io/?${encodeURIComponent(url)}`
+const CORS_PROXY_BACKUP = (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
+
+// Yahoo Finance 用的代理（两个都行）
+const YAHOO_PROXIES = [CORS_PROXY_MAIN, CORS_PROXY_BACKUP]
+// 东方财富用的代理（只有 corsproxy.io 能用）
+const EASTMONEY_PROXIES = [CORS_PROXY_MAIN]
 
 // 获取美股数据 - 竞速模式
 async function fetchUSStock(symbol: string): Promise<StockQuote | null> {
@@ -168,7 +173,7 @@ async function fetchUSStock(symbol: string): Promise<StockQuote | null> {
   try {
     // 竞速：哪个代理先返回用哪个
     const result = await Promise.any(
-      CORS_PROXIES.map(proxy => fetchFromProxy(proxy))
+      YAHOO_PROXIES.map(proxy => fetchFromProxy(proxy))
     )
     if (result) {
       setCache(cacheKey, result)
@@ -230,7 +235,7 @@ async function fetchChinaIndex(symbol: string, name: string): Promise<StockQuote
     const response = await fetchWithTimeout(proxyFn(eastMoneyUrl), {
       method: 'GET',
       headers: { 'Accept': 'application/json' }
-    }, 6000)
+    }, 10000)  // 增加超时到10秒
     
     if (!response.ok) throw new Error('Response not ok')
     const data = await response.json()
@@ -239,16 +244,17 @@ async function fetchChinaIndex(symbol: string, name: string): Promise<StockQuote
     return result
   }
   
-  try {
-    const result = await Promise.any(
-      CORS_PROXIES.map(proxy => fetchFromProxy(proxy))
-    )
-    if (result) {
-      setCache(cacheKey, result)
-      return result
+  // 串行尝试代理（东方财富只有一个代理能用，增加超时容错）
+  for (const proxy of EASTMONEY_PROXIES) {
+    try {
+      const result = await fetchFromProxy(proxy)
+      if (result) {
+        setCache(cacheKey, result)
+        return result
+      }
+    } catch (error) {
+      console.warn(`Proxy failed for CN ${symbol}:`, error)
     }
-  } catch (error) {
-    console.warn(`All proxies failed for CN ${symbol}:`, error)
   }
   
   return null
