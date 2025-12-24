@@ -181,56 +181,89 @@ async function fetchUSStock(symbol: string): Promise<StockQuote | null> {
   return null
 }
 
-// 获取中国指数数据
+// 解析新浪财经数据
+function parseSinaData(text: string, symbol: string, name: string): StockQuote | null {
+  const match = text.match(/="([^"]+)"/)
+  if (match && match[1]) {
+    const parts = match[1].split(',')
+    if (parts.length >= 3) {
+      const currentPrice = parseFloat(parts[1])
+      const previousClose = parseFloat(parts[2])
+      
+      if (isNaN(currentPrice) || isNaN(previousClose) || currentPrice === 0 || previousClose === 0) {
+        return null
+      }
+      
+      const change = currentPrice - previousClose
+      const changePercent = previousClose ? (change / previousClose) * 100 : 0
+      
+      return {
+        symbol,
+        name,
+        price: currentPrice,
+        change,
+        changePercent,
+        market: 'CN'
+      }
+    }
+  }
+  return null
+}
+
+// 获取中国指数数据 - 竞速模式
 async function fetchChinaIndex(symbol: string, name: string): Promise<StockQuote | null> {
-  // 检查缓存
   const cacheKey = `cn_${symbol}`
   const cached = getCached<StockQuote>(cacheKey)
   if (cached) return cached
   
-  try {
-    const isDev = import.meta.env.DEV
-    const proxyUrl = isDev 
-      ? `/api/proxy/list=${symbol}`
-      : `/api/china-stock?symbol=${symbol}`
-    
-    const response = await fetchWithTimeout(proxyUrl, { 
-      method: 'GET',
-      headers: { 'Accept': '*/*' }
-    }, 6000)
-    
-    if (response.ok) {
-      const text = await response.text()
-      const match = text.match(/="([^"]+)"/)
-      if (match && match[1]) {
-        const parts = match[1].split(',')
-        
-        if (parts.length >= 3) {
-          const currentPrice = parseFloat(parts[1])
-          const previousClose = parseFloat(parts[2])
-          
-          if (isNaN(currentPrice) || isNaN(previousClose) || currentPrice === 0 || previousClose === 0) {
-            return null
-          }
-          
-          const change = currentPrice - previousClose
-          const changePercent = previousClose ? (change / previousClose) * 100 : 0
-          
-          const result: StockQuote = {
-            symbol,
-            name,
-            price: currentPrice,
-            change,
-            changePercent,
-            market: 'CN'
-          }
+  const sinaUrl = `https://hq.sinajs.cn/list=${symbol}`
+  
+  // 开发环境用 Vite proxy
+  if (import.meta.env.DEV) {
+    try {
+      const response = await fetchWithTimeout(`/api/proxy/list=${symbol}`, { 
+        method: 'GET',
+        headers: { 'Accept': '*/*' }
+      }, 6000)
+      
+      if (response.ok) {
+        const text = await response.text()
+        const result = parseSinaData(text, symbol, name)
+        if (result) {
           setCache(cacheKey, result)
           return result
         }
       }
+    } catch (error) {
+      console.warn(`Dev proxy failed for ${symbol}:`, error)
+    }
+    return null
+  }
+  
+  // 生产环境用 CORS 代理竞速
+  const fetchFromProxy = async (proxyFn: (url: string) => string): Promise<StockQuote | null> => {
+    const response = await fetchWithTimeout(proxyFn(sinaUrl), {
+      method: 'GET',
+      headers: { 'Accept': '*/*' }
+    }, 6000)
+    
+    if (!response.ok) throw new Error('Response not ok')
+    const text = await response.text()
+    const result = parseSinaData(text, symbol, name)
+    if (!result) throw new Error('Parse failed')
+    return result
+  }
+  
+  try {
+    const result = await Promise.any(
+      CORS_PROXIES.map(proxy => fetchFromProxy(proxy))
+    )
+    if (result) {
+      setCache(cacheKey, result)
+      return result
     }
   } catch (error) {
-    console.warn(`Failed to fetch ${symbol}:`, error)
+    console.warn(`All proxies failed for CN ${symbol}:`, error)
   }
   
   return null
