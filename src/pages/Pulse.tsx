@@ -18,6 +18,8 @@ type DailyReview = {
   lbRate: string         // 连板晋级率
   lbCount: number        // 连板数量
   maxBoard: number       // 最高板
+  top5Amount: number     // 成交金额前五
+  top5Turnover: number   // 换手率前五
   inflow: string         // 流入板块
   outflow: string        // 流出板块
 }
@@ -140,6 +142,8 @@ export default function Pulse(): JSX.Element {
       lbRate: formData.lbRate || '',
       lbCount: formData.lbCount || 0,
       maxBoard: formData.maxBoard || 0,
+      top5Amount: formData.top5Amount || 0,
+      top5Turnover: formData.top5Turnover || 0,
       inflow: formData.inflow || '',
       outflow: formData.outflow || '',
     }
@@ -311,10 +315,10 @@ export default function Pulse(): JSX.Element {
       
       {reviews.length > 0 ? (
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem', minWidth: '1000px' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem', minWidth: '1200px' }}>
             <thead>
               <tr style={{ background: '#f8fafc' }}>
-                {['日期', '周', '涨停', '封板率', '打开', '跌停', '封板率', '打开', '量能', '涨-跌', '沪深创', '连板晋级', '连板数', '最高板', '流入', '流出', '操作'].map(h => (
+                {['日期', '周', '涨停', '封板率', '打开', '跌停', '封板率', '打开', '量能', '涨-跌', '沪深创', '连板晋级', '连板数', '最高板', '成交前五', '换手前五', '流入', '流出', '操作'].map(h => (
                   <th key={h} style={{ padding: '8px 6px', textAlign: 'center', fontWeight: '600', color: '#64748b', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>{h}</th>
                 ))}
               </tr>
@@ -336,6 +340,8 @@ export default function Pulse(): JSX.Element {
                   <td style={{ padding: '8px 6px', textAlign: 'center' }}>{r.lbRate}</td>
                   <td style={{ padding: '8px 6px', textAlign: 'center', color: '#8b5cf6', fontWeight: '600' }}>{r.lbCount}</td>
                   <td style={{ padding: '8px 6px', textAlign: 'center', color: '#dc2626', fontWeight: '700' }}>{r.maxBoard}</td>
+                  <td style={{ padding: '8px 6px', textAlign: 'center', color: '#0ea5e9', fontWeight: '600' }}>{r.top5Amount || '--'}</td>
+                  <td style={{ padding: '8px 6px', textAlign: 'center', color: '#0ea5e9', fontWeight: '600' }}>{r.top5Turnover || '--'}</td>
                   <td style={{ padding: '8px 6px', textAlign: 'left', maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#dc2626' }} title={r.inflow}>{r.inflow}</td>
                   <td style={{ padding: '8px 6px', textAlign: 'left', maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#16a34a' }} title={r.outflow}>{r.outflow}</td>
                   <td style={{ padding: '8px 6px', textAlign: 'center' }}>
@@ -564,6 +570,16 @@ export default function Pulse(): JSX.Element {
           <div>
             <label style={{ fontSize: '0.8rem', color: '#64748b' }}>最高板</label>
             <input type="number" value={formData.maxBoard || ''} onChange={e => setFormData({ ...formData, maxBoard: +e.target.value })}
+              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }} />
+          </div>
+          <div>
+            <label style={{ fontSize: '0.8rem', color: '#64748b' }}>成交金额前五</label>
+            <input type="number" value={formData.top5Amount || ''} onChange={e => setFormData({ ...formData, top5Amount: +e.target.value })}
+              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }} />
+          </div>
+          <div>
+            <label style={{ fontSize: '0.8rem', color: '#64748b' }}>换手率前五</label>
+            <input type="number" value={formData.top5Turnover || ''} onChange={e => setFormData({ ...formData, top5Turnover: +e.target.value })}
               style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }} />
           </div>
           <div style={{ gridColumn: '1 / -1' }}>
