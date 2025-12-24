@@ -48,6 +48,9 @@ type MarketCategory = {
 // localStorage 操作
 const STORAGE_KEY_REVIEWS = 'pulse_daily_reviews'
 const STORAGE_KEY_NEWS = 'pulse_important_news'
+const STORAGE_KEY_GIST_TOKEN = 'pulse_gist_token'
+const STORAGE_KEY_GIST_ID = 'pulse_gist_id'
+
 const loadReviews = (): DailyReview[] => {
   try {
     const data = localStorage.getItem(STORAGE_KEY_REVIEWS)
@@ -64,7 +67,102 @@ const loadNews = (): ImportantNews[] => {
   } catch { return [] }
 }
 const saveNews = (news: ImportantNews[]) => {
-  localStorage.setItem(STORAGE_KEY_NEWS, JSON.stringify(news.slice(0, 200))) // 最多200条
+  localStorage.setItem(STORAGE_KEY_NEWS, JSON.stringify(news.slice(0, 200)))
+}
+
+// GitHub Gist 同步
+const getGistToken = (): string | null => {
+  return localStorage.getItem(STORAGE_KEY_GIST_TOKEN)
+}
+const getGistId = (): string | null => {
+  return localStorage.getItem(STORAGE_KEY_GIST_ID)
+}
+const saveGistConfig = (token: string, gistId: string | null) => {
+  localStorage.setItem(STORAGE_KEY_GIST_TOKEN, token)
+  if (gistId) localStorage.setItem(STORAGE_KEY_GIST_ID, gistId)
+}
+
+// 同步到 Gist
+const syncToGist = async (reviews: DailyReview[], news: ImportantNews[]): Promise<boolean> => {
+  const token = getGistToken()
+  if (!token) return false
+  
+  try {
+    const data = {
+      reviews,
+      news,
+      syncDate: new Date().toISOString(),
+      version: '1.0'
+    }
+    const content = JSON.stringify(data, null, 2)
+    
+    const gistId = getGistId()
+    const url = gistId 
+      ? `https://api.github.com/gists/${gistId}`  // 更新现有
+      : 'https://api.github.com/gists'            // 创建新
+    
+    const response = await fetch(url, {
+      method: gistId ? 'PATCH' : 'POST',
+      headers: {
+        'Authorization': `token ${token}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        description: '经济脉搏 - 每日复盘数据',
+        public: false,
+        files: {
+          'pulse-data.json': {
+            content
+          }
+        }
+      })
+    })
+    
+    if (response.ok) {
+      const result = await response.json()
+      if (!gistId && result.id) {
+        saveGistConfig(token, result.id)
+      }
+      return true
+    }
+    return false
+  } catch (error) {
+    console.error('Gist sync failed:', error)
+    return false
+  }
+}
+
+// 从 Gist 同步
+const syncFromGist = async (): Promise<{ reviews: DailyReview[], news: ImportantNews[] } | null> => {
+  const token = getGistToken()
+  const gistId = getGistId()
+  if (!token || !gistId) return null
+  
+  try {
+    const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+      headers: {
+        'Authorization': `token ${token}`,
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    })
+    
+    if (response.ok) {
+      const gist = await response.json()
+      const file = gist.files['pulse-data.json']
+      if (file) {
+        const data = JSON.parse(file.content)
+        return {
+          reviews: data.reviews || [],
+          news: data.news || []
+        }
+      }
+    }
+    return null
+  } catch (error) {
+    console.error('Gist fetch failed:', error)
+    return null
+  }
 }
 
 // 获取周几
@@ -88,11 +186,34 @@ export default function Pulse(): JSX.Element {
   const [newsList, setNewsList] = useState<ImportantNews[]>([])
   const [showNewsForm, setShowNewsForm] = useState(false)
   const [newsFormData, setNewsFormData] = useState<Partial<ImportantNews>>({})
+  
+  // 云端同步状态
+  const [showSettings, setShowSettings] = useState(false)
+  const [gistTokenInput, setGistTokenInput] = useState('')
+  const [syncing, setSyncing] = useState(false)
 
   useEffect(() => {
     // 加载本地数据
     setReviews(loadReviews())
     setNewsList(loadNews())
+    setGistTokenInput(getGistToken() || '')
+    
+    // 尝试从云端同步
+    const loadFromCloud = async () => {
+      const cloudData = await syncFromGist()
+      if (cloudData) {
+        // 合并数据：云端优先
+        if (cloudData.reviews.length > 0) {
+          setReviews(cloudData.reviews)
+          saveReviews(cloudData.reviews)
+        }
+        if (cloudData.news.length > 0) {
+          setNewsList(cloudData.news)
+          saveNews(cloudData.news)
+        }
+      }
+    }
+    loadFromCloud()
     
     let mounted = true
     const fetchAllData = async () => {
@@ -163,6 +284,8 @@ export default function Pulse(): JSX.Element {
     
     setReviews(newReviews)
     saveReviews(newReviews)
+    // 自动同步到云端
+    syncToGist(newReviews, newsList).catch(() => {})
     setShowForm(false)
     setFormData({})
     setEditDate('')
@@ -277,6 +400,8 @@ export default function Pulse(): JSX.Element {
     
     setNewsList(newNewsList)
     saveNews(newNewsList)
+    // 自动同步到云端
+    syncToGist(reviews, newNewsList).catch(() => {})
     setShowNewsForm(false)
     setNewsFormData({})
   }
@@ -287,6 +412,8 @@ export default function Pulse(): JSX.Element {
       const newNewsList = newsList.filter(n => n.id !== id)
       setNewsList(newNewsList)
       saveNews(newNewsList)
+      // 自动同步到云端
+      syncToGist(reviews, newNewsList).catch(() => {})
     }
   }
 
@@ -298,6 +425,52 @@ export default function Pulse(): JSX.Element {
   }
 
   const handleRefresh = () => window.location.reload()
+
+  // 保存 GitHub Token
+  const handleSaveGistToken = () => {
+    if (gistTokenInput.trim()) {
+      saveGistConfig(gistTokenInput.trim(), null)
+      alert('Token 已保存！')
+      setShowSettings(false)
+      // 立即同步
+      handleSyncToCloud()
+    } else {
+      alert('请输入 Token')
+    }
+  }
+
+  // 手动同步到云端
+  const handleSyncToCloud = async () => {
+    setSyncing(true)
+    const success = await syncToGist(reviews, newsList)
+    setSyncing(false)
+    if (success) {
+      alert('✅ 同步成功！')
+    } else {
+      alert('❌ 同步失败，请检查 Token 是否正确')
+    }
+  }
+
+  // 手动从云端同步
+  const handleSyncFromCloud = async () => {
+    setSyncing(true)
+    const cloudData = await syncFromGist()
+    setSyncing(false)
+    if (cloudData) {
+      if (cloudData.reviews.length > 0) {
+        setReviews(cloudData.reviews)
+        saveReviews(cloudData.reviews)
+      }
+      if (cloudData.news.length > 0) {
+        setNewsList(cloudData.news)
+        saveNews(cloudData.news)
+      }
+      alert('✅ 从云端同步成功！')
+      window.location.reload()
+    } else {
+      alert('❌ 同步失败，请检查 Token 和网络')
+    }
+  }
 
   const formatPrice = (price: number, symbol?: string) => {
     if (symbol === 'BTC-USD') return price.toLocaleString('en-US', { maximumFractionDigits: 0 })
@@ -679,6 +852,22 @@ export default function Pulse(): JSX.Element {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '0.75rem', color: '#9ca3af' }}>{timestamp || '--'}</span>
+          {getGistToken() && (
+            <>
+              <button onClick={handleSyncToCloud} disabled={syncing} style={{
+                padding: '6px 12px', background: syncing ? '#e5e7eb' : '#0ea5e9', color: syncing ? '#9ca3af' : 'white', border: 'none',
+                borderRadius: '6px', cursor: syncing ? 'not-allowed' : 'pointer', fontSize: '0.8rem', fontWeight: '500'
+              }}>{syncing ? '⏳' : '☁️'} {syncing ? '同步中' : '上传'}</button>
+              <button onClick={handleSyncFromCloud} disabled={syncing} style={{
+                padding: '6px 12px', background: syncing ? '#e5e7eb' : '#06b6d4', color: syncing ? '#9ca3af' : 'white', border: 'none',
+                borderRadius: '6px', cursor: syncing ? 'not-allowed' : 'pointer', fontSize: '0.8rem', fontWeight: '500'
+              }}>{syncing ? '⏳' : '⬇️'} {syncing ? '同步中' : '下载'}</button>
+            </>
+          )}
+          <button onClick={() => setShowSettings(true)} style={{
+            padding: '6px 12px', background: getGistToken() ? '#10b981' : '#f59e0b', color: 'white', border: 'none',
+            borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
+          }}>⚙️ {getGistToken() ? '已配置' : '云端设置'}</button>
           <button onClick={handleExport} style={{
             padding: '6px 12px', background: '#10b981', color: 'white', border: 'none',
             borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
@@ -725,6 +914,50 @@ export default function Pulse(): JSX.Element {
       {/* 录入表单弹窗 */}
       {renderForm()}
       {renderNewsForm()}
+      
+      {/* 云端设置弹窗 */}
+      {showSettings && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: 'white', borderRadius: '12px', padding: '20px', width: '90%', maxWidth: '500px' }}>
+            <h3 style={{ margin: '0 0 16px', fontSize: '1.1rem' }}>☁️ 云端同步设置</h3>
+            <p style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '16px' }}>
+              使用 GitHub Gist 免费存储数据，实现跨设备同步
+            </p>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ fontSize: '0.8rem', color: '#64748b', display: 'block', marginBottom: '6px' }}>
+                GitHub Personal Access Token
+              </label>
+              <input 
+                type="password"
+                value={gistTokenInput}
+                onChange={e => setGistTokenInput(e.target.value)}
+                placeholder="ghp_xxxxxxxxxxxx"
+                style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }}
+              />
+              <div style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: '6px' }}>
+                获取方式：GitHub → Settings → Developer settings → Personal access tokens → Generate new token (classic)
+                <br />
+                权限：勾选 <code style={{ background: '#f3f4f6', padding: '2px 4px', borderRadius: '3px' }}>gist</code>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+              <button onClick={() => { setShowSettings(false); setGistTokenInput(getGistToken() || '') }}
+                style={{ padding: '8px 16px', background: '#f3f4f6', color: '#4b5563', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
+                取消
+              </button>
+              <button onClick={handleSaveGistToken}
+                style={{ padding: '8px 16px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' }}>
+                保存
+              </button>
+            </div>
+            {getGistToken() && (
+              <div style={{ marginTop: '16px', padding: '12px', background: '#f0fdf4', borderRadius: '6px', fontSize: '0.85rem', color: '#166534' }}>
+                ✅ 已配置云端同步，数据会自动保存到你的 GitHub Gist
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
