@@ -22,6 +22,18 @@ type DailyReview = {
   outflow: string        // 流出板块
 }
 
+// 重要消息类型
+type ImportantNews = {
+  id: string
+  date: string           // 日期 YYYY-MM-DD
+  title: string          // 消息标题
+  impact: 'high' | 'medium' | 'low'  // 影响程度
+  category: string       // 分类：美联储/经济数据/地缘政治/财报/其他
+  source?: string        // 来源
+  link?: string          // 链接
+  notes?: string         // 备注
+}
+
 type MarketCategory = {
   key: string
   title: string
@@ -32,15 +44,25 @@ type MarketCategory = {
 }
 
 // localStorage 操作
-const STORAGE_KEY = 'pulse_daily_reviews'
+const STORAGE_KEY_REVIEWS = 'pulse_daily_reviews'
+const STORAGE_KEY_NEWS = 'pulse_important_news'
 const loadReviews = (): DailyReview[] => {
   try {
-    const data = localStorage.getItem(STORAGE_KEY)
+    const data = localStorage.getItem(STORAGE_KEY_REVIEWS)
     return data ? JSON.parse(data) : []
   } catch { return [] }
 }
 const saveReviews = (reviews: DailyReview[]) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(reviews.slice(0, 30))) // 最多保存30天
+  localStorage.setItem(STORAGE_KEY_REVIEWS, JSON.stringify(reviews.slice(0, 30)))
+}
+const loadNews = (): ImportantNews[] => {
+  try {
+    const data = localStorage.getItem(STORAGE_KEY_NEWS)
+    return data ? JSON.parse(data) : []
+  } catch { return [] }
+}
+const saveNews = (news: ImportantNews[]) => {
+  localStorage.setItem(STORAGE_KEY_NEWS, JSON.stringify(news.slice(0, 200))) // 最多200条
 }
 
 // 获取周几
@@ -59,10 +81,16 @@ export default function Pulse(): JSX.Element {
   const [showForm, setShowForm] = useState(false)
   const [editDate, setEditDate] = useState<string>('')
   const [formData, setFormData] = useState<Partial<DailyReview>>({})
+  
+  // 重要消息状态
+  const [newsList, setNewsList] = useState<ImportantNews[]>([])
+  const [showNewsForm, setShowNewsForm] = useState(false)
+  const [newsFormData, setNewsFormData] = useState<Partial<ImportantNews>>({})
 
   useEffect(() => {
     // 加载本地数据
     setReviews(loadReviews())
+    setNewsList(loadNews())
     
     let mounted = true
     const fetchAllData = async () => {
@@ -158,6 +186,55 @@ export default function Pulse(): JSX.Element {
     setFormData({ date: today })
     setEditDate('')
     setShowForm(true)
+  }
+
+  // 保存重要消息
+  const handleSaveNews = () => {
+    if (!newsFormData.title || !newsFormData.date) return
+    
+    const newNews: ImportantNews = {
+      id: newsFormData.id || Date.now().toString(),
+      date: newsFormData.date,
+      title: newsFormData.title,
+      impact: newsFormData.impact || 'medium',
+      category: newsFormData.category || '其他',
+      source: newsFormData.source,
+      link: newsFormData.link,
+      notes: newsFormData.notes,
+    }
+    
+    const existingIndex = newsList.findIndex(n => n.id === newNews.id)
+    let newNewsList: ImportantNews[]
+    if (existingIndex >= 0) {
+      newNewsList = [...newsList]
+      newNewsList[existingIndex] = newNews
+    } else {
+      newNewsList = [newNews, ...newsList]
+    }
+    
+    // 按日期排序
+    newNewsList.sort((a, b) => b.date.localeCompare(a.date))
+    
+    setNewsList(newNewsList)
+    saveNews(newNewsList)
+    setShowNewsForm(false)
+    setNewsFormData({})
+  }
+
+  // 删除消息
+  const handleDeleteNews = (id: string) => {
+    if (confirm('确定删除这条消息吗？')) {
+      const newNewsList = newsList.filter(n => n.id !== id)
+      setNewsList(newNewsList)
+      saveNews(newNewsList)
+    }
+  }
+
+  // 新增今日消息
+  const handleAddTodayNews = () => {
+    const today = new Date().toISOString().split('T')[0]
+    setNewsFormData({ date: today, impact: 'medium', category: '其他' })
+    setShowNewsForm(true)
   }
 
   const handleRefresh = () => window.location.reload()
@@ -276,6 +353,148 @@ export default function Pulse(): JSX.Element {
     </div>
   )
 
+  // 渲染重要消息区块
+  const renderNewsSection = () => {
+    const today = new Date().toISOString().split('T')[0]
+    const todayNews = newsList.filter(n => n.date === today)
+    const recentNews = newsList.slice(0, 10)
+    
+    return (
+      <div style={{ marginBottom: '24px', padding: '16px', background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+          <h3 style={{ margin: 0, fontSize: '1rem', color: '#374151', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            📰 每日重要消息 <span style={{ fontSize: '0.8rem', color: '#9ca3af', fontWeight: 'normal' }}>影响美股的关键事件</span>
+          </h3>
+          <button onClick={handleAddTodayNews} style={{
+            padding: '6px 12px', background: '#3b82f6', color: 'white', border: 'none',
+            borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
+          }}>+ 添加消息</button>
+        </div>
+        
+        {todayNews.length > 0 && (
+          <div style={{ marginBottom: '16px', padding: '12px', background: '#fef3c7', borderRadius: '8px', borderLeft: '4px solid #f59e0b' }}>
+            <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#92400e', marginBottom: '8px' }}>今日消息 ({todayNews.length}条)</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {todayNews.map(news => (
+                <div key={news.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', padding: '8px', background: 'white', borderRadius: '6px' }}>
+                  <span style={{ 
+                    fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', fontWeight: '500',
+                    background: news.impact === 'high' ? '#fee2e2' : news.impact === 'medium' ? '#fef3c7' : '#e0f2fe',
+                    color: news.impact === 'high' ? '#dc2626' : news.impact === 'medium' ? '#d97706' : '#0369a1',
+                    whiteSpace: 'nowrap'
+                  }}>
+                    {news.impact === 'high' ? '🔥高' : news.impact === 'medium' ? '⚡中' : '📌低'}
+                  </span>
+                  <span style={{ fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', background: '#f3f4f6', color: '#6b7280' }}>
+                    {news.category}
+                  </span>
+                  <span style={{ flex: 1, fontSize: '0.85rem', color: '#1f2937' }}>{news.title}</span>
+                  {news.link && (
+                    <a href={news.link} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.7rem', color: '#3b82f6' }}>🔗</a>
+                  )}
+                  <button onClick={() => handleDeleteNews(news.id)} style={{ fontSize: '0.7rem', padding: '2px 6px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '3px', cursor: 'pointer' }}>删除</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {recentNews.length > 0 && (
+          <div>
+            <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#64748b', marginBottom: '8px' }}>最近消息</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              {recentNews.map(news => (
+                <div key={news.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px', background: news.date === today ? '#fef3c7' : '#f9fafb', borderRadius: '6px', fontSize: '0.8rem' }}>
+                  <span style={{ color: '#9ca3af', minWidth: '70px' }}>{news.date.slice(5)}</span>
+                  <span style={{ 
+                    fontSize: '0.7rem', padding: '2px 5px', borderRadius: '3px',
+                    background: news.impact === 'high' ? '#fee2e2' : news.impact === 'medium' ? '#fef3c7' : '#e0f2fe',
+                    color: news.impact === 'high' ? '#dc2626' : news.impact === 'medium' ? '#d97706' : '#0369a1'
+                  }}>
+                    {news.impact === 'high' ? '高' : news.impact === 'medium' ? '中' : '低'}
+                  </span>
+                  <span style={{ fontSize: '0.7rem', color: '#9ca3af', minWidth: '60px' }}>{news.category}</span>
+                  <span style={{ flex: 1, color: '#374151' }}>{news.title}</span>
+                  {news.link && (
+                    <a href={news.link} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.7rem', color: '#3b82f6' }}>🔗</a>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {newsList.length === 0 && (
+          <div style={{ padding: '24px', textAlign: 'center', color: '#9ca3af' }}>暂无消息，点击"添加消息"开始记录</div>
+        )}
+      </div>
+    )
+  }
+
+  // 渲染消息录入表单
+  const renderNewsForm = () => showNewsForm && (
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+      <div style={{ background: 'white', borderRadius: '12px', padding: '20px', width: '90%', maxWidth: '500px', maxHeight: '80vh', overflow: 'auto' }}>
+        <h3 style={{ margin: '0 0 16px', fontSize: '1.1rem' }}>添加重要消息</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div>
+            <label style={{ fontSize: '0.8rem', color: '#64748b' }}>日期</label>
+            <input type="date" value={newsFormData.date || ''} onChange={e => setNewsFormData({ ...newsFormData, date: e.target.value })}
+              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }} />
+          </div>
+          <div>
+            <label style={{ fontSize: '0.8rem', color: '#64748b' }}>消息标题 *</label>
+            <input type="text" placeholder="如：美联储宣布加息25个基点" value={newsFormData.title || ''} onChange={e => setNewsFormData({ ...newsFormData, title: e.target.value })}
+              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }} />
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div>
+              <label style={{ fontSize: '0.8rem', color: '#64748b' }}>影响程度</label>
+              <select value={newsFormData.impact || 'medium'} onChange={e => setNewsFormData({ ...newsFormData, impact: e.target.value as any })}
+                style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }}>
+                <option value="high">🔥 高影响</option>
+                <option value="medium">⚡ 中影响</option>
+                <option value="low">📌 低影响</option>
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: '0.8rem', color: '#64748b' }}>分类</label>
+              <select value={newsFormData.category || '其他'} onChange={e => setNewsFormData({ ...newsFormData, category: e.target.value })}
+                style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }}>
+                <option value="美联储">美联储</option>
+                <option value="经济数据">经济数据</option>
+                <option value="地缘政治">地缘政治</option>
+                <option value="财报">财报</option>
+                <option value="其他">其他</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label style={{ fontSize: '0.8rem', color: '#64748b' }}>来源（可选）</label>
+            <input type="text" placeholder="如：华尔街日报" value={newsFormData.source || ''} onChange={e => setNewsFormData({ ...newsFormData, source: e.target.value })}
+              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }} />
+          </div>
+          <div>
+            <label style={{ fontSize: '0.8rem', color: '#64748b' }}>链接（可选）</label>
+            <input type="url" placeholder="https://..." value={newsFormData.link || ''} onChange={e => setNewsFormData({ ...newsFormData, link: e.target.value })}
+              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }} />
+          </div>
+          <div>
+            <label style={{ fontSize: '0.8rem', color: '#64748b' }}>备注（可选）</label>
+            <textarea placeholder="补充说明..." value={newsFormData.notes || ''} onChange={e => setNewsFormData({ ...newsFormData, notes: e.target.value })}
+              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem', minHeight: '60px' }} />
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: '12px', marginTop: '20px', justifyContent: 'flex-end' }}>
+          <button onClick={() => { setShowNewsForm(false); setNewsFormData({}) }}
+            style={{ padding: '8px 16px', background: '#f3f4f6', color: '#4b5563', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>取消</button>
+          <button onClick={handleSaveNews}
+            style={{ padding: '8px 16px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' }}>保存</button>
+        </div>
+      </div>
+    </div>
+  )
+
   // 渲染录入表单
   const renderForm = () => showForm && (
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
@@ -388,6 +607,9 @@ export default function Pulse(): JSX.Element {
       {/* 复盘表格 */}
       {renderReviewTable()}
 
+      {/* 重要消息 */}
+      {renderNewsSection()}
+
       {/* 数据分类 */}
       {categories.map(renderCategory)}
 
@@ -412,6 +634,7 @@ export default function Pulse(): JSX.Element {
 
       {/* 录入表单弹窗 */}
       {renderForm()}
+      {renderNewsForm()}
     </div>
   )
 }
