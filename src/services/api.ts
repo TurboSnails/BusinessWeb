@@ -197,6 +197,9 @@ const EASTMONEY_SECID_MAP: Record<string, string> = {
   // 港股
   '^HSI': '100.HSI',       // 恒生指数
   '^HSCE': '100.HSCEI',    // 恒生国企
+  '^HSTECH': '124.HSTECH', // 恒生科技
+  // 其他
+  'FTSE_A50': '100.XIN9',  // 富时中国A50
 }
 
 // 获取东方财富历史K线数据（用于计算 RSI）
@@ -299,16 +302,6 @@ async function fetchStockSmart(symbol: string, name: string, market: string): Pr
   return null
 }
 
-// 带超时的 Promise 包装
-function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
-  return Promise.race([
-    promise,
-    new Promise<T>((_, reject) => 
-      setTimeout(() => reject(new Error('请求超时')), timeoutMs)
-    )
-  ])
-}
-
 // 获取单个市场的数据（支持增量更新）
 export async function fetchMarketDataByType(type: 'us' | 'cn' | 'hk'): Promise<StockQuote[]> {
   // 美股指数（纳斯达克用 NDX 因为东方财富没有 IXIC）
@@ -326,16 +319,12 @@ export async function fetchMarketDataByType(type: 'us' | 'cn' | 'hk'): Promise<S
     { symbol: 'sh000300', name: '沪深300' }
   ]
   
+  // 港股 + 富时A50（全部用东方财富）
   const hkIndices = [
     { symbol: '^HSI', name: '恒生指数' },
     { symbol: '^HSCE', name: '恒生国企指数' },
-    { symbol: '^HSTECH', name: '恒生科技指数' }
-  ]
-  
-  const ftseA50Symbols = [
-    { symbol: 'XIN9.F', name: '富时中国A50' },
-    { symbol: '^FTXIN25', name: '富时中国A50' },
-    { symbol: 'CN50.F', name: '富时中国A50' }
+    { symbol: '^HSTECH', name: '恒生科技指数' },
+    { symbol: 'FTSE_A50', name: '富时中国A50' }
   ]
 
   try {
@@ -352,29 +341,11 @@ export async function fetchMarketDataByType(type: 'us' | 'cn' | 'hk'): Promise<S
       )
       return results.map(r => r.status === 'fulfilled' ? r.value : null).filter((stock): stock is StockQuote => stock !== null)
     } else if (type === 'hk') {
-      // 港股：恒生指数和恒生国企用东方财富，恒生科技用 Yahoo
-      const hkResults = await Promise.allSettled(
+      // 港股：全部用东方财富
+      const results = await Promise.allSettled(
         hkIndices.map(({ symbol, name }) => fetchStockSmart(symbol, name, 'HK'))
       )
-      const hkData = hkResults.map(r => r.status === 'fulfilled' ? r.value : null).filter((s): s is StockQuote => s !== null)
-      
-      // 富时A50 用 Yahoo（东方财富没有）
-      const ftseResults = await Promise.allSettled(
-        ftseA50Symbols.map(({ symbol, name }) => fetchUSStock(symbol).then(stock => {
-          if (stock && stock.price > 0) {
-            stock.name = name
-            stock.market = 'HK'
-            return stock
-          }
-          return null
-        }))
-      )
-      const ftseData = ftseResults
-        .map(r => r.status === 'fulfilled' ? r.value : null)
-        .filter((s): s is StockQuote => s !== null && s.price > 0)
-        .slice(0, 1)  // 只取第一个成功的
-      
-      return [...hkData, ...ftseData]
+      return results.map(r => r.status === 'fulfilled' ? r.value : null).filter((s): s is StockQuote => s !== null)
     }
     return []
   } catch (error) {
@@ -385,125 +356,25 @@ export async function fetchMarketDataByType(type: 'us' | 'cn' | 'hk'): Promise<S
 
 // 获取所有市场数据（保持向后兼容）
 export async function fetchMarketData(): Promise<MarketData> {
-  // 美股主要指数 + 恐慌指数
-  const usIndices = [
-    { symbol: '^DJI', name: '道琼斯指数' },
-    { symbol: '^GSPC', name: '标普500' },
-    { symbol: '^IXIC', name: '纳斯达克' },
-    { symbol: '^VIX', name: '恐慌指数(VIX)' }
-  ]
-  
-  // 中国主要指数
-  const chinaIndices = [
-    { symbol: 'sh000001', name: '上证指数' },
-    { symbol: 'sz399001', name: '深证成指' },
-    { symbol: 'sz399006', name: '创业板指' },
-    { symbol: 'sh000300', name: '沪深300' }
-  ]
-  
-  // 香港主要指数
-  const hkIndices = [
-    { symbol: '^HSI', name: '恒生指数' },
-    { symbol: '^HSCE', name: '恒生国企指数' },
-    { symbol: '^HSTECH', name: '恒生科技指数' }
-  ]
-  
-  // 富时中国A50 - 尝试多个可能的符号
-  // 注意：Yahoo Finance 可能没有直接的富时中国A50指数
-  // 可以使用期货合约 XIN9.F 或其他符号
-  const ftseA50Symbols = [
-    { symbol: 'XIN9.F', name: '富时中国A50' }, // 富时中国A50期货
-    { symbol: '^FTXIN25', name: '富时中国A50' }, // 备用符号
-    { symbol: 'CN50.F', name: '富时中国A50' } // 另一个可能的符号
-  ]
-  
   try {
-    // 为整个请求添加总超时（20秒，给更多时间）
-    return await withTimeout(
-      (async () => {
-        // 并行获取所有数据，即使部分失败也继续
-        // 使用 Promise.allSettled 确保即使部分失败也能继续
-        const [usIndicesData, chinaData, hkData, ftseA50Data] = await Promise.allSettled([
-          Promise.allSettled(usIndices.map(({ symbol, name }) => fetchUSStock(symbol).then(stock => {
-            // 使用中文名称覆盖
-            if (stock) {
-              stock.name = name
-            }
-            return stock
-          }))).then(results =>
-            results.map(r => r.status === 'fulfilled' ? r.value : null)
-          ),
-          Promise.allSettled(chinaIndices.map(({ symbol, name }) => fetchFromEastMoney(symbol, name, 'CN'))).then(results =>
-            results.map(r => r.status === 'fulfilled' ? r.value : null)
-          ),
-          Promise.allSettled(hkIndices.map(({ symbol, name }) => fetchUSStock(symbol).then(stock => {
-            // 使用中文名称覆盖，并设置市场为 HK
-            if (stock) {
-              stock.name = name
-              stock.market = 'HK'
-            }
-            return stock
-          }))).then(results =>
-            results.map(r => r.status === 'fulfilled' ? r.value : null)
-          ),
-          // 富时中国A50 - 尝试多个符号，取第一个成功的
-          Promise.allSettled(ftseA50Symbols.map(({ symbol, name }) => fetchUSStock(symbol).then(stock => {
-            if (stock && stock.price > 0) {
-              stock.name = name
-              stock.market = 'HK'
-              return stock
-            }
-            return null
-          }))).then(results => {
-            // 只返回第一个成功的结果
-            const successful = results.find(r => r.status === 'fulfilled' && r.value !== null && r.value.price > 0)
-            return successful ? [successful.value] : []
-          })
-        ])
-        
-        const usIndicesResult = usIndicesData.status === 'fulfilled' 
-          ? usIndicesData.value.filter((stock): stock is StockQuote => stock !== null)
-          : []
-        
-        const chinaDataResult = chinaData.status === 'fulfilled'
-          ? chinaData.value.filter((stock): stock is StockQuote => stock !== null)
-          : []
-        
-        const hkDataResult = hkData.status === 'fulfilled'
-          ? hkData.value.filter((stock): stock is StockQuote => stock !== null)
-          : []
-        
-        const ftseA50Result = ftseA50Data.status === 'fulfilled'
-          ? ftseA50Data.value.filter((stock): stock is StockQuote => stock !== null)
-          : []
-        
-        // 将富时中国A50添加到香港指数列表中
-        const allHkIndices = [...hkDataResult, ...ftseA50Result]
-        
-        // 调试日志 - 显示获取到的数据统计
-        console.log('数据获取统计:', {
-          美股: usIndicesResult.length,
-          中国: chinaDataResult.length,
-          香港: allHkIndices.length,
-          总计: usIndicesResult.length + chinaDataResult.length + allHkIndices.length
-        })
-        
-        // 即使所有请求都失败，也返回空数组而不是抛出错误
-        return {
-          usStocks: usIndicesResult,
-          chinaIndices: chinaDataResult,
-          hkIndices: allHkIndices,
-          timestamp: new Date().toISOString()
-        }
-      })(),
-      20000 // 20秒总超时，给更多时间
-    )
+    const [usStocks, chinaIndices, hkIndices] = await Promise.all([
+      fetchMarketDataByType('us'),
+      fetchMarketDataByType('cn'),
+      fetchMarketDataByType('hk')
+    ])
+    
+    return {
+      usStocks,
+      chinaIndices,
+      hkIndices,
+      timestamp: new Date().toISOString()
+    }
   } catch (error) {
-    // 如果超时或发生其他错误，返回空数据
     console.error('Error in fetchMarketData:', error)
     return {
       usStocks: [],
       chinaIndices: [],
+      hkIndices: [],
       timestamp: new Date().toISOString()
     }
   }
