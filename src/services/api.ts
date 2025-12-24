@@ -139,13 +139,12 @@ function parseYahooData(data: any, symbol: string): StockQuote | null {
 }
 
 // CORS 代理配置
-// corsproxy.io 对东方财富和 Yahoo 都能用
-// allorigins 只对 Yahoo 能用，东方财富会返回 HTML
 const CORS_PROXY_MAIN = (url: string) => `https://corsproxy.io/?${encodeURIComponent(url)}`
 const CORS_PROXY_BACKUP = (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
+const CORS_PROXY_THIRD = (url: string) => `https://proxy.cors.sh/${url}`
 
-// Yahoo Finance 用的代理（两个都行）
-const YAHOO_PROXIES = [CORS_PROXY_MAIN, CORS_PROXY_BACKUP]
+// Yahoo Finance 用的代理（多个备选）
+const YAHOO_PROXIES = [CORS_PROXY_MAIN, CORS_PROXY_BACKUP, CORS_PROXY_THIRD]
 
 // 获取美股数据 - 竞速模式
 async function fetchUSStock(symbol: string): Promise<StockQuote | null> {
@@ -161,7 +160,7 @@ async function fetchUSStock(symbol: string): Promise<StockQuote | null> {
     const response = await fetchWithTimeout(proxyFn(yahooUrl), {
       method: 'GET',
       headers: { 'Accept': 'application/json' }
-    }, 6000)
+    }, 12000)  // Yahoo 超时 12 秒
     
     if (!response.ok) throw new Error('Response not ok')
     const data = await response.json()

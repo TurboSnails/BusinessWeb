@@ -16,14 +16,14 @@ export default function Pulse(): JSX.Element {
     setError(null)
     setData(null)
 
-    // 超时处理（12秒，API 已优化）
+    // 超时处理（20秒）
     timeoutId = setTimeout(() => {
       if (mounted) {
         console.warn('请求超时')
         setError(new Error('部分数据获取超时'))
         setLoading(false)
       }
-    }, 12000)
+    }, 20000)
 
     const fetchData = async () => {
       // 初始化数据
