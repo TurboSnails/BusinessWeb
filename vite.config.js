@@ -4,6 +4,17 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   base: '/BusinessWeb/',
+  define: {
+    __BUILD_TIME__: JSON.stringify(new Date().toLocaleString('zh-CN', { 
+      timeZone: 'Asia/Shanghai',
+      year: 'numeric',
+      month: '2-digit', 
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    })),
+    __VERSION__: JSON.stringify(process.env.npm_package_version || '0.1.0')
+  },
   server: { 
     host: true,
     proxy: {
