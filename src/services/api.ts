@@ -194,25 +194,26 @@ const CN_SYMBOL_MAP: Record<string, string> = {
   'sh000300': '1.000300',  // 沪深300
 }
 
-// 解析东方财富数据
-function parseEastMoneyData(data: any, symbol: string, name: string): StockQuote | null {
-  const d = data?.data
-  if (!d) return null
+// 获取东方财富历史K线数据（用于计算 RSI）
+async function fetchEastMoneyHistory(secid: string): Promise<number[]> {
+  const historyUrl = `https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=${secid}&fields1=f1,f2,f3&fields2=f51,f52,f53,f54,f55,f56&klt=101&fqt=1&end=20500101&lmt=20`
   
-  const currentPrice = d.f43 / 100  // 当前价（需要除以100）
-  const previousClose = d.f60 / 100 // 昨收
-  const change = d.f169 / 100       // 涨跌额
-  const changePercent = d.f170 / 100 // 涨跌幅
-  
-  if (!currentPrice || currentPrice === 0) return null
-  
-  return {
-    symbol,
-    name,
-    price: currentPrice,
-    change: change || (currentPrice - previousClose),
-    changePercent: changePercent || (previousClose ? ((currentPrice - previousClose) / previousClose) * 100 : 0),
-    market: 'CN'
+  try {
+    const response = await fetchWithTimeout(CORS_PROXY_MAIN(historyUrl), {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' }
+    }, 8000)
+    
+    if (!response.ok) return []
+    const data = await response.json()
+    const klines = data?.data?.klines
+    if (!klines || !Array.isArray(klines)) return []
+    
+    // 提取收盘价（格式：日期,开盘,收盘,最高,最低,成交量）
+    return klines.map((k: string) => parseFloat(k.split(',')[2])).filter((p: number) => !isNaN(p) && p > 0)
+  } catch (error) {
+    console.warn('Failed to fetch history:', error)
+    return []
   }
 }
 
@@ -228,36 +229,53 @@ async function fetchChinaIndex(symbol: string, name: string): Promise<StockQuote
     return null
   }
   
-  // 东方财富 API（不需要 Referer，CORS 友好）
-  const eastMoneyUrl = `https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&fields=f43,f57,f58,f60,f169,f170`
+  // 并行获取实时数据和历史数据
+  const realTimeUrl = `https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&fields=f43,f57,f58,f60,f169,f170`
   
-  const fetchFromProxy = async (proxyFn: (url: string) => string): Promise<StockQuote | null> => {
-    const response = await fetchWithTimeout(proxyFn(eastMoneyUrl), {
-      method: 'GET',
-      headers: { 'Accept': 'application/json' }
-    }, 10000)  // 增加超时到10秒
+  try {
+    const [realTimeRes, historyPrices] = await Promise.all([
+      fetchWithTimeout(CORS_PROXY_MAIN(realTimeUrl), {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+      }, 10000),
+      fetchEastMoneyHistory(secid)
+    ])
     
-    if (!response.ok) throw new Error('Response not ok')
-    const data = await response.json()
-    const result = parseEastMoneyData(data, symbol, name)
-    if (!result) throw new Error('Parse failed')
-    return result
-  }
-  
-  // 串行尝试代理（东方财富只有一个代理能用，增加超时容错）
-  for (const proxy of EASTMONEY_PROXIES) {
-    try {
-      const result = await fetchFromProxy(proxy)
-      if (result) {
-        setCache(cacheKey, result)
-        return result
-      }
-    } catch (error) {
-      console.warn(`Proxy failed for CN ${symbol}:`, error)
+    if (!realTimeRes.ok) return null
+    const data = await realTimeRes.json()
+    const d = data?.data
+    if (!d) return null
+    
+    const currentPrice = d.f43 / 100
+    const previousClose = d.f60 / 100
+    const change = d.f169 / 100
+    const changePercent = d.f170 / 100
+    
+    if (!currentPrice || currentPrice === 0) return null
+    
+    // 计算 RSI
+    let rsi: number | undefined
+    if (historyPrices.length >= 15) {
+      const rsiValue = calculateRSI(historyPrices)
+      if (rsiValue !== null) rsi = rsiValue
     }
+    
+    const result: StockQuote = {
+      symbol,
+      name,
+      price: currentPrice,
+      change: change || (currentPrice - previousClose),
+      changePercent: changePercent || (previousClose ? ((currentPrice - previousClose) / previousClose) * 100 : 0),
+      market: 'CN',
+      rsi
+    }
+    
+    setCache(cacheKey, result)
+    return result
+  } catch (error) {
+    console.warn(`Failed to fetch CN ${symbol}:`, error)
+    return null
   }
-  
-  return null
 }
 
 // 带超时的 Promise 包装
