@@ -183,7 +183,7 @@ async function fetchUSStock(symbol: string): Promise<StockQuote | null> {
   return null
 }
 
-// 东方财富 secid 映射（支持 A股、港股、美股）
+// 东方财富 secid 映射
 const EASTMONEY_SECID_MAP: Record<string, string> = {
   // 中国 A 股
   'sh000001': '1.000001',  // 上证指数
@@ -198,8 +198,14 @@ const EASTMONEY_SECID_MAP: Record<string, string> = {
   '^HSI': '100.HSI',       // 恒生指数
   '^HSCE': '100.HSCEI',    // 恒生国企
   '^HSTECH': '124.HSTECH', // 恒生科技
-  // 其他
   'FTSE_A50': '100.XIN9',  // 富时中国A50
+  // 大宗商品
+  'GOLD': '101.GC00Y',     // COMEX黄金
+  'SILVER': '101.SI00Y',   // COMEX白银
+  'COPPER': '101.HG00Y',   // COMEX铜
+  // 外汇
+  'DXY': '100.UDI',        // 美元指数
+  'USDCNH': '133.USDCNH',  // 离岸人民币
 }
 
 // 获取东方财富历史K线数据（用于计算 RSI）
@@ -302,52 +308,52 @@ async function fetchStockSmart(symbol: string, name: string, market: string): Pr
   return null
 }
 
-// 获取单个市场的数据（支持增量更新）
-export async function fetchMarketDataByType(type: 'us' | 'cn' | 'hk'): Promise<StockQuote[]> {
-  // 美股指数（纳斯达克用 NDX 因为东方财富没有 IXIC）
-  const usIndices = [
-    { symbol: '^DJI', name: '道琼斯指数' },
-    { symbol: '^GSPC', name: '标普500' },
-    { symbol: '^NDX', name: '纳斯达克100' },
-    { symbol: '^VIX', name: '恐慌指数(VIX)' }
-  ]
+// 获取单个市场的数据
+export async function fetchMarketDataByType(type: 'us' | 'cn' | 'hk' | 'commodity' | 'forex'): Promise<StockQuote[]> {
+  const dataConfig: Record<string, Array<{ symbol: string; name: string }>> = {
+    us: [
+      { symbol: '^DJI', name: '道琼斯' },
+      { symbol: '^GSPC', name: '标普500' },
+      { symbol: '^NDX', name: '纳斯达克' },
+      { symbol: '^VIX', name: 'VIX恐慌' }
+    ],
+    cn: [
+      { symbol: 'sh000001', name: '上证指数' },
+      { symbol: 'sz399001', name: '深证成指' },
+      { symbol: 'sz399006', name: '创业板指' },
+      { symbol: 'sh000300', name: '沪深300' }
+    ],
+    hk: [
+      { symbol: '^HSI', name: '恒生指数' },
+      { symbol: '^HSCE', name: '恒生国企' },
+      { symbol: '^HSTECH', name: '恒生科技' },
+      { symbol: 'FTSE_A50', name: '富时A50' }
+    ],
+    commodity: [
+      { symbol: 'GOLD', name: '黄金' },
+      { symbol: 'SILVER', name: '白银' },
+      { symbol: 'CL=F', name: 'WTI原油' },      // Yahoo
+      { symbol: 'BTC-USD', name: '比特币' }     // Yahoo
+    ],
+    forex: [
+      { symbol: 'DXY', name: '美元指数' },
+      { symbol: 'USDCNH', name: '离岸人民币' },
+      { symbol: '^TNX', name: '10Y美债' }       // Yahoo
+    ]
+  }
   
-  const chinaIndices = [
-    { symbol: 'sh000001', name: '上证指数' },
-    { symbol: 'sz399001', name: '深证成指' },
-    { symbol: 'sz399006', name: '创业板指' },
-    { symbol: 'sh000300', name: '沪深300' }
-  ]
-  
-  // 港股 + 富时A50（全部用东方财富）
-  const hkIndices = [
-    { symbol: '^HSI', name: '恒生指数' },
-    { symbol: '^HSCE', name: '恒生国企指数' },
-    { symbol: '^HSTECH', name: '恒生科技指数' },
-    { symbol: 'FTSE_A50', name: '富时中国A50' }
-  ]
+  const indices = dataConfig[type] || []
+  const marketMap: Record<string, string> = {
+    us: 'US', cn: 'CN', hk: 'HK', commodity: 'COMMODITY', forex: 'FOREX'
+  }
 
   try {
-    if (type === 'us') {
-      // 美股：优先东方财富，VIX 用 Yahoo
-      const results = await Promise.allSettled(
-        usIndices.map(({ symbol, name }) => fetchStockSmart(symbol, name, 'US'))
-      )
-      return results.map(r => r.status === 'fulfilled' ? r.value : null).filter((stock): stock is StockQuote => stock !== null)
-    } else if (type === 'cn') {
-      // 中国：全部用东方财富
-      const results = await Promise.allSettled(
-        chinaIndices.map(({ symbol, name }) => fetchFromEastMoney(symbol, name, 'CN'))
-      )
-      return results.map(r => r.status === 'fulfilled' ? r.value : null).filter((stock): stock is StockQuote => stock !== null)
-    } else if (type === 'hk') {
-      // 港股：全部用东方财富
-      const results = await Promise.allSettled(
-        hkIndices.map(({ symbol, name }) => fetchStockSmart(symbol, name, 'HK'))
-      )
-      return results.map(r => r.status === 'fulfilled' ? r.value : null).filter((s): s is StockQuote => s !== null)
-    }
-    return []
+    const results = await Promise.allSettled(
+      indices.map(({ symbol, name }) => fetchStockSmart(symbol, name, marketMap[type]))
+    )
+    return results
+      .map(r => r.status === 'fulfilled' ? r.value : null)
+      .filter((stock): stock is StockQuote => stock !== null)
   } catch (error) {
     console.error(`获取${type}数据失败:`, error)
     return []

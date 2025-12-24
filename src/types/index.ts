@@ -17,5 +17,7 @@ export type MarketData = {
   usStocks: StockQuote[]
   chinaIndices: StockQuote[]
   hkIndices: StockQuote[]
+  commodities?: StockQuote[]
+  forex?: StockQuote[]
   timestamp: string
 }

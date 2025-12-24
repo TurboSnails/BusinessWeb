@@ -1,126 +1,64 @@
 import React, { useEffect, useState } from 'react'
 import { fetchMarketDataByType } from '../services/api'
-import type { MarketData, StockQuote } from '../types'
+import type { StockQuote } from '../types'
+
+type MarketCategory = {
+  key: string
+  title: string
+  icon: string
+  color: string
+  bgColor: string
+  data: StockQuote[]
+}
 
 export default function Pulse(): JSX.Element {
-  const [data, setData] = useState<MarketData | null>(null)
+  const [categories, setCategories] = useState<MarketCategory[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<Error | null>(null)
-  const [refreshKey, setRefreshKey] = useState(0)
+  const [timestamp, setTimestamp] = useState<string>('')
 
   useEffect(() => {
     let mounted = true
-    let timeoutId: ReturnType<typeof setTimeout>
 
-    setLoading(true)
-    setError(null)
-    setData(null)
-
-    // 超时处理（20秒）
-    timeoutId = setTimeout(() => {
+    const fetchAllData = async () => {
+      setLoading(true)
+      
+      // 初始化分类
+      const categoryConfig = [
+        { key: 'us', title: '美股指数', icon: '🇺🇸', color: '#3b82f6', bgColor: '#eff6ff' },
+        { key: 'cn', title: '中国A股', icon: '🇨🇳', color: '#ef4444', bgColor: '#fef2f2' },
+        { key: 'hk', title: '港股指数', icon: '🇭🇰', color: '#22c55e', bgColor: '#f0fdf4' },
+        { key: 'commodity', title: '大宗商品', icon: '📦', color: '#f59e0b', bgColor: '#fffbeb' },
+        { key: 'forex', title: '外汇债券', icon: '💱', color: '#8b5cf6', bgColor: '#faf5ff' },
+      ]
+      
+      // 并行获取所有数据
+      const results = await Promise.all(
+        categoryConfig.map(async (cat) => {
+          const data = await fetchMarketDataByType(cat.key as any)
+          return { ...cat, data }
+        })
+      )
+      
       if (mounted) {
-        console.warn('请求超时')
-        setError(new Error('部分数据获取超时'))
+        setCategories(results)
+        setTimestamp(new Date().toLocaleString('zh-CN'))
         setLoading(false)
       }
-    }, 20000)
-
-    const fetchData = async () => {
-      // 初始化数据
-      if (mounted) {
-        setData({
-          usStocks: [],
-          chinaIndices: [],
-          hkIndices: [],
-          timestamp: new Date().toISOString()
-        })
-      }
-
-      // 分别获取各个市场的数据，每获取到一个就立即更新
-      const fetchUS = async () => {
-        try {
-          const usData = await fetchMarketDataByType('us')
-          if (mounted) {
-            setData(prev => prev ? { ...prev, usStocks: usData } : {
-              usStocks: usData,
-              chinaIndices: [],
-              hkIndices: [],
-              timestamp: new Date().toISOString()
-            })
-          }
-        } catch (e) {
-          console.error('获取美股数据失败:', e)
-        }
-      }
-
-      const fetchCN = async () => {
-        try {
-          const cnData = await fetchMarketDataByType('cn')
-          if (mounted) {
-            setData(prev => prev ? { ...prev, chinaIndices: cnData } : {
-              usStocks: [],
-              chinaIndices: cnData,
-              hkIndices: [],
-              timestamp: new Date().toISOString()
-            })
-          }
-        } catch (e) {
-          console.error('获取中国数据失败:', e)
-        }
-      }
-
-      const fetchHK = async () => {
-        try {
-          const hkData = await fetchMarketDataByType('hk')
-          if (mounted) {
-            setData(prev => prev ? { ...prev, hkIndices: hkData } : {
-              usStocks: [],
-              chinaIndices: [],
-              hkIndices: hkData,
-              timestamp: new Date().toISOString()
-            })
-          }
-        } catch (e) {
-          console.error('获取香港数据失败:', e)
-        }
-      }
-
-      // 并行获取所有数据，但每个市场独立更新
-      Promise.allSettled([fetchUS(), fetchCN(), fetchHK()]).then(() => {
-        clearTimeout(timeoutId)
-        if (mounted) {
-          setLoading(false)
-          setData(prev => prev ? { ...prev, timestamp: new Date().toISOString() } : {
-            usStocks: [],
-            chinaIndices: [],
-            hkIndices: [],
-            timestamp: new Date().toISOString()
-          })
-        }
-      }).catch((e) => {
-        clearTimeout(timeoutId)
-        if (mounted) {
-          console.error('数据获取失败:', e)
-          setError(new Error('部分数据获取失败'))
-          setLoading(false)
-        }
-      })
     }
 
-    fetchData()
+    fetchAllData()
 
-    return () => {
-      mounted = false
-      clearTimeout(timeoutId)
-    }
-  }, [refreshKey])
+    return () => { mounted = false }
+  }, [])
 
   const handleRefresh = () => {
-    setRefreshKey(prev => prev + 1)
+    window.location.reload()
   }
 
-  const formatPrice = (price: number) => {
-    return price.toFixed(2)
+  const formatPrice = (price: number, symbol?: string) => {
+    // 比特币显示整数，其他保留2位
+    if (symbol === 'BTC-USD') return price.toLocaleString('en-US', { maximumFractionDigits: 0 })
+    return price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
   }
 
   const formatPercent = (percent: number) => {
@@ -128,211 +66,239 @@ export default function Pulse(): JSX.Element {
     return `${sign}${percent.toFixed(2)}%`
   }
 
-  // 合并所有指数数据，并添加分组信息
-  const allIndices = data ? [
-    ...data.usStocks.map(s => ({ ...s, category: '美股', groupColor: '#dbeafe' })),
-    ...data.chinaIndices.map(s => ({ ...s, category: '中国', groupColor: '#fef3c7' })),
-    ...data.hkIndices.map(s => ({ ...s, category: '香港', groupColor: '#d1fae5' }))
-  ] : []
-  
-  // 调试日志
-  console.log('页面数据:', {
-    usStocks: data?.usStocks?.length || 0,
-    chinaIndices: data?.chinaIndices?.length || 0,
-    hkIndices: data?.hkIndices?.length || 0,
-    allIndices: allIndices.length
-  })
-  
-  // 获取分组边框颜色
-  const getGroupBorderColor = (category: string) => {
-    switch(category) {
-      case '美股': return '#3b82f6' // 蓝色
-      case '中国': return '#f59e0b' // 黄色/橙色
-      case '香港': return '#10b981' // 绿色
-      default: return '#e5e7eb'
-    }
+  // 渲染单个数据卡片
+  const renderCard = (stock: StockQuote, color: string) => {
+    const isPositive = stock.change >= 0
+    const changeColor = isPositive ? '#16a34a' : '#dc2626'
+    
+    return (
+      <div 
+        key={stock.symbol}
+        style={{
+          background: 'white',
+          borderRadius: '12px',
+          padding: '16px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+          borderLeft: `4px solid ${color}`,
+          transition: 'transform 0.2s, box-shadow 0.2s',
+          cursor: 'default'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'translateY(-2px)'
+          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'translateY(0)'
+          e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <span style={{ fontWeight: '600', fontSize: '0.95rem', color: '#1f2937' }}>
+            {stock.name}
+          </span>
+          {stock.rsi !== undefined && (
+            <span style={{ 
+              fontSize: '0.75rem', 
+              padding: '2px 6px', 
+              borderRadius: '4px',
+              background: stock.rsi >= 70 ? '#fef2f2' : stock.rsi <= 30 ? '#f0fdf4' : '#f3f4f6',
+              color: stock.rsi >= 70 ? '#dc2626' : stock.rsi <= 30 ? '#16a34a' : '#6b7280',
+              fontWeight: '500'
+            }}>
+              RSI {stock.rsi.toFixed(0)}
+            </span>
+          )}
+        </div>
+        
+        <div style={{ fontSize: '1.5rem', fontWeight: '700', color: changeColor }}>
+          {formatPrice(stock.price, stock.symbol)}
+        </div>
+        
+        <div style={{ display: 'flex', gap: '12px', fontSize: '0.85rem' }}>
+          <span style={{ color: changeColor, fontWeight: '500' }}>
+            {isPositive ? '↑' : '↓'} {formatPrice(Math.abs(stock.change))}
+          </span>
+          <span style={{ 
+            color: changeColor, 
+            fontWeight: '600',
+            padding: '1px 6px',
+            borderRadius: '4px',
+            background: isPositive ? '#f0fdf4' : '#fef2f2'
+          }}>
+            {formatPercent(stock.changePercent)}
+          </span>
+        </div>
+      </div>
+    )
   }
 
-  return (
-    <div className="container" style={{ maxWidth: '100%', padding: '12px' }}>
-      <div className="card" style={{ padding: '12px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
-          <h2 style={{ margin: 0, fontSize: '1.1rem' }}>经济脉搏</h2>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-            <span style={{ color: '#6b7280', fontSize: '0.8rem', fontWeight: '400' }}>
-              {data?.timestamp ? new Date(data.timestamp).toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : '--'}
-            </span>
-            <button
-              onClick={handleRefresh}
-              disabled={loading}
-              style={{
-                padding: '6px 12px',
-                background: loading ? '#e5e7eb' : '#ffffff',
-                color: loading ? '#9ca3af' : '#2563eb',
-                border: loading ? '1px solid #e5e7eb' : '1px solid #dbeafe',
-                borderRadius: '6px',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                fontSize: '0.8rem',
-                fontWeight: '500',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-                transition: 'all 0.2s ease',
-                boxShadow: loading ? 'none' : '0 1px 2px rgba(0, 0, 0, 0.05)'
-              }}
-              onMouseEnter={(e) => {
-                if (!loading) {
-                  e.currentTarget.style.background = '#eff6ff'
-                  e.currentTarget.style.borderColor = '#93c5fd'
-                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!loading) {
-                  e.currentTarget.style.background = '#ffffff'
-                  e.currentTarget.style.borderColor = '#dbeafe'
-                  e.currentTarget.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.05)'
-                }
-              }}
-            >
-              <span style={{ fontSize: '0.9rem' }}>{loading ? '⏳' : '🔄'}</span>
-              <span>{loading ? '加载中' : '刷新'}</span>
-            </button>
-          </div>
-        </div>
-
-        {error && (
-          <div style={{ padding: '8px 12px', background: '#fef3c7', borderRadius: '4px', color: '#92400e', marginBottom: '12px', fontSize: '0.8rem' }}>
-            ⚠️ {error.message}
-          </div>
-        )}
-
-        {/* 表格展示所有指数 */}
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: '20px', color: '#6b7280', fontSize: '0.9rem' }}>
+  // 渲染分类区块
+  const renderCategory = (category: MarketCategory) => (
+    <div key={category.key} style={{ marginBottom: '24px' }}>
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: '8px', 
+        marginBottom: '12px',
+        padding: '8px 12px',
+        background: category.bgColor,
+        borderRadius: '8px',
+        borderLeft: `4px solid ${category.color}`
+      }}>
+        <span style={{ fontSize: '1.2rem' }}>{category.icon}</span>
+        <span style={{ fontWeight: '600', color: category.color, fontSize: '1rem' }}>
+          {category.title}
+        </span>
+        <span style={{ fontSize: '0.8rem', color: '#9ca3af', marginLeft: 'auto' }}>
+          {category.data.length} 项
+        </span>
+      </div>
+      
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+        gap: '12px'
+      }}>
+        {category.data.map(stock => renderCard(stock, category.color))}
+        {category.data.length === 0 && (
+          <div style={{ 
+            padding: '20px', 
+            color: '#9ca3af', 
+            fontSize: '0.9rem',
+            gridColumn: '1 / -1',
+            textAlign: 'center'
+          }}>
             加载中...
           </div>
-        ) : allIndices.length > 0 ? (
-          <div style={{ overflowX: 'auto', marginTop: '12px', WebkitOverflowScrolling: 'touch', borderRadius: '8px', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', minWidth: '600px', backgroundColor: 'white' }}>
-              <thead>
-                <tr style={{ backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', fontWeight: '600', color: '#475569', fontSize: '0.8rem', letterSpacing: '0.3px' }}>指数</th>
-                  <th style={{ textAlign: 'right', padding: '10px 12px', fontWeight: '600', color: '#475569', fontSize: '0.8rem', letterSpacing: '0.3px' }}>价格</th>
-                  <th style={{ textAlign: 'right', padding: '10px 12px', fontWeight: '600', color: '#475569', fontSize: '0.8rem', letterSpacing: '0.3px' }}>涨跌</th>
-                  <th style={{ textAlign: 'right', padding: '10px 12px', fontWeight: '600', color: '#475569', fontSize: '0.8rem', letterSpacing: '0.3px' }}>涨跌幅</th>
-                  <th style={{ textAlign: 'right', padding: '10px 12px', fontWeight: '600', color: '#475569', fontSize: '0.8rem', letterSpacing: '0.3px' }}>RSI</th>
-                </tr>
-              </thead>
-              <tbody>
-                {allIndices.map((stock, index) => {
-                  const isPositive = stock.change >= 0
-                  const color = isPositive ? '#059669' : '#dc2626'
-                  const groupBorderColor = getGroupBorderColor(stock.category)
-                  const isFirstInGroup = index === 0 || allIndices[index - 1].category !== stock.category
-                  
-                  return (
-                    <tr 
-                      key={stock.symbol} 
-                      style={{ 
-                        borderBottom: '1px solid #f1f5f9',
-                        backgroundColor: stock.groupColor || '#ffffff',
-                        borderLeft: `4px solid ${groupBorderColor}`,
-                        borderTop: isFirstInGroup ? `2px solid ${groupBorderColor}` : 'none',
-                        transition: 'background-color 0.2s ease'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = stock.groupColor ? 
-                          (stock.category === '美股' ? '#bfdbfe' : stock.category === '中国' ? '#fde68a' : '#a7f3d0') : 
-                          '#f8fafc'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = stock.groupColor || '#ffffff'
-                      }}
-                    >
-                      <td style={{ padding: '10px 12px', lineHeight: '1.4' }}>
-                        <div style={{ fontWeight: '600', fontSize: '0.9rem', color: '#1e293b' }}>{stock.name}</div>
-                      </td>
-                      <td style={{ textAlign: 'right', padding: '10px 12px', fontWeight: '600', color: color, fontSize: '0.9rem' }}>
-                        {formatPrice(stock.price)}
-                      </td>
-                      <td style={{ textAlign: 'right', padding: '10px 12px', fontSize: '0.85rem' }}>
-                        <span style={{ color: color, fontWeight: '500' }}>
-                          {stock.change >= 0 ? '↑' : '↓'} {formatPrice(Math.abs(stock.change))}
-                        </span>
-                      </td>
-                      <td style={{ textAlign: 'right', padding: '10px 12px', fontWeight: '600', color: color, fontSize: '0.85rem' }}>
-                        {formatPercent(stock.changePercent)}
-                      </td>
-                      <td style={{ textAlign: 'right', padding: '10px 12px', fontSize: '0.85rem' }}>
-                        {stock.rsi !== undefined ? (
-                          <span style={{ 
-                            color: stock.rsi >= 70 ? '#dc2626' : stock.rsi <= 30 ? '#059669' : '#6b7280',
-                            fontWeight: '500'
-                          }}>
-                            {stock.rsi.toFixed(1)}
-                          </span>
-                        ) : (
-                          <span style={{ color: '#9ca3af' }}>--</span>
-                        )}
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div style={{ padding: '12px', background: '#f3f4f6', borderRadius: '4px', color: '#6b7280', fontSize: '0.85rem', textAlign: 'center' }}>
-            暂无数据
-          </div>
         )}
+      </div>
+    </div>
+  )
 
-        {/* 其他资源链接 */}
-        <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #e5e7eb' }}>
-          <h3 style={{ fontSize: '0.9rem', marginBottom: '8px', color: '#1f2937' }}>📊 其他资源</h3>
-          <div style={{ display: 'grid', gap: '6px' }}>
-            <a 
-              href="https://stcn.com/article/search.html?keyword=%E6%8F%AD%E7%A7%98%E6%B6%A8%E5%81%9C" 
-              target="_blank" 
+  return (
+    <div style={{ 
+      maxWidth: '1200px', 
+      margin: '0 auto', 
+      padding: '16px',
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)'
+    }}>
+      {/* Header */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        marginBottom: '24px',
+        padding: '16px 20px',
+        background: 'white',
+        borderRadius: '12px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+      }}>
+        <div>
+          <h1 style={{ 
+            margin: 0, 
+            fontSize: '1.5rem', 
+            fontWeight: '700',
+            background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent'
+          }}>
+            📊 经济脉搏
+          </h1>
+          <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: '#6b7280' }}>
+            每日市场数据一览
+          </p>
+        </div>
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span style={{ fontSize: '0.8rem', color: '#9ca3af' }}>
+            {timestamp || '--'}
+          </span>
+          <button
+            onClick={handleRefresh}
+            disabled={loading}
+            style={{
+              padding: '8px 16px',
+              background: loading ? '#e5e7eb' : 'linear-gradient(135deg, #3b82f6, #2563eb)',
+              color: loading ? '#9ca3af' : 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              fontSize: '0.9rem',
+              fontWeight: '500',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              transition: 'all 0.2s'
+            }}
+          >
+            {loading ? '⏳' : '🔄'} {loading ? '加载中' : '刷新'}
+          </button>
+        </div>
+      </div>
+
+      {/* 数据分类 */}
+      {categories.map(renderCategory)}
+
+      {/* 其他资源链接 */}
+      <div style={{ 
+        marginTop: '24px', 
+        padding: '20px',
+        background: 'white',
+        borderRadius: '12px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+      }}>
+        <h3 style={{ 
+          fontSize: '1rem', 
+          marginBottom: '12px', 
+          color: '#374151',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          🔗 常用资源
+        </h3>
+        <div style={{ 
+          display: 'flex', 
+          flexWrap: 'wrap',
+          gap: '8px'
+        }}>
+          {[
+            { name: '证券时报', url: 'https://stcn.com/article/search.html?keyword=%E6%8F%AD%E7%A7%98%E6%B6%A8%E5%81%9C' },
+            { name: '选股通', url: 'https://xuangutong.com.cn/jingxuan' },
+            { name: 'Yahoo Finance', url: 'https://finance.yahoo.com' },
+            { name: '财联社', url: 'https://www.cls.cn/' },
+            { name: '东方财富', url: 'https://www.eastmoney.com/' },
+          ].map(link => (
+            <a
+              key={link.name}
+              href={link.url}
+              target="_blank"
               rel="noopener noreferrer"
-              style={{ color: '#2563eb', textDecoration: 'none', fontSize: '0.85rem' }}
+              style={{
+                padding: '6px 12px',
+                background: '#f3f4f6',
+                color: '#4b5563',
+                textDecoration: 'none',
+                borderRadius: '6px',
+                fontSize: '0.85rem',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#3b82f6'
+                e.currentTarget.style.color = 'white'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#f3f4f6'
+                e.currentTarget.style.color = '#4b5563'
+              }}
             >
-              → 证券时报 — 搜索：揭秘涨停
+              {link.name}
             </a>
-            <a 
-              href="https://xuangutong.com.cn/jingxuan" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              style={{ color: '#2563eb', textDecoration: 'none', fontSize: '0.85rem' }}
-            >
-              → 选股通 — 精选
-            </a>
-            <a 
-              href="http://csme.cnthesims.com/pages/index/index" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              style={{ color: '#2563eb', textDecoration: 'none', fontSize: '0.85rem' }}
-            >
-              → cs财经
-            </a>
-            <a 
-              href="https://finance.yahoo.com" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              style={{ color: '#2563eb', textDecoration: 'none', fontSize: '0.85rem' }}
-            >
-              → Yahoo Finance
-            </a>
-            <a 
-              href="https://www.cls.cn/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              style={{ color: '#2563eb', textDecoration: 'none', fontSize: '0.85rem' }}
-            >
-              → 财联社
-            </a>
-          </div>
+          ))}
         </div>
       </div>
     </div>
