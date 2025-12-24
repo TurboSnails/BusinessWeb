@@ -192,6 +192,62 @@ export default function Pulse(): JSX.Element {
     setShowForm(true)
   }
 
+  // 导出数据
+  const handleExport = () => {
+    const data = {
+      reviews,
+      news: newsList,
+      exportDate: new Date().toISOString(),
+      version: '1.0'
+    }
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `pulse-backup-${new Date().toISOString().split('T')[0]}.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    alert('数据已导出！')
+  }
+
+  // 导入数据
+  const handleImport = () => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'application/json'
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0]
+      if (!file) return
+      
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        try {
+          const data = JSON.parse(event.target?.result as string)
+          
+          if (data.reviews && Array.isArray(data.reviews)) {
+            setReviews(data.reviews)
+            saveReviews(data.reviews)
+          }
+          
+          if (data.news && Array.isArray(data.news)) {
+            setNewsList(data.news)
+            saveNews(data.news)
+          }
+          
+          alert('数据导入成功！')
+          window.location.reload()
+        } catch (error) {
+          alert('导入失败：文件格式错误')
+          console.error(error)
+        }
+      }
+      reader.readAsText(file)
+    }
+    input.click()
+  }
+
   // 保存重要消息
   const handleSaveNews = () => {
     if (!newsFormData.title || !newsFormData.date) return
@@ -303,14 +359,24 @@ export default function Pulse(): JSX.Element {
   // 渲染复盘表格
   const renderReviewTable = () => (
     <div style={{ marginBottom: '24px', padding: '16px', background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
         <h3 style={{ margin: 0, fontSize: '1rem', color: '#374151', display: 'flex', alignItems: 'center', gap: '8px' }}>
           📝 每日复盘 <span style={{ fontSize: '0.8rem', color: '#9ca3af', fontWeight: 'normal' }}>最近{reviews.length}天</span>
         </h3>
-        <button onClick={handleAddToday} style={{
-          padding: '6px 12px', background: '#3b82f6', color: 'white', border: 'none',
-          borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
-        }}>+ 录入今日</button>
+        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+          <button onClick={handleExport} style={{
+            padding: '6px 12px', background: '#10b981', color: 'white', border: 'none',
+            borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
+          }}>📥 导出</button>
+          <button onClick={handleImport} style={{
+            padding: '6px 12px', background: '#8b5cf6', color: 'white', border: 'none',
+            borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
+          }}>📤 导入</button>
+          <button onClick={handleAddToday} style={{
+            padding: '6px 12px', background: '#3b82f6', color: 'white', border: 'none',
+            borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
+          }}>+ 录入今日</button>
+        </div>
       </div>
       
       {reviews.length > 0 ? (
@@ -611,8 +677,16 @@ export default function Pulse(): JSX.Element {
           <h1 style={{ margin: 0, fontSize: '1.4rem', fontWeight: '700', background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>📊 经济脉搏</h1>
           <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: '#6b7280' }}>每日市场数据 & 复盘记录</p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '0.75rem', color: '#9ca3af' }}>{timestamp || '--'}</span>
+          <button onClick={handleExport} style={{
+            padding: '6px 12px', background: '#10b981', color: 'white', border: 'none',
+            borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
+          }}>📥 导出</button>
+          <button onClick={handleImport} style={{
+            padding: '6px 12px', background: '#8b5cf6', color: 'white', border: 'none',
+            borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
+          }}>📤 导入</button>
           <button onClick={handleRefresh} disabled={loading}
             style={{ padding: '6px 14px', background: loading ? '#e5e7eb' : 'linear-gradient(135deg, #3b82f6, #2563eb)', color: loading ? '#9ca3af' : 'white', border: 'none', borderRadius: '6px', cursor: loading ? 'not-allowed' : 'pointer', fontSize: '0.85rem', fontWeight: '500' }}>
             {loading ? '⏳' : '🔄'} {loading ? '加载' : '刷新'}
