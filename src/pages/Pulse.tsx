@@ -121,12 +121,31 @@ const syncToGist = async (reviews: DailyReview[], news: ImportantNews[]): Promis
     
     if (response.ok) {
       const result = await response.json()
-      if (!gistId && result.id) {
-        saveGistConfig(token, result.id)
+      const newGistId = result.id
+      
+      // 保存或更新 gistId
+      if (newGistId) {
+        if (!gistId) {
+          // 首次创建，保存 gistId
+          saveGistConfig(token, newGistId)
+          console.log('Created new Gist:', newGistId)
+        } else if (newGistId !== gistId) {
+          // gistId 变化了（不应该发生，但保险起见）
+          saveGistConfig(token, newGistId)
+          console.log('Gist ID updated:', newGistId)
+        }
       }
+      
+      console.log('Uploaded to Gist:', {
+        gistId: newGistId || gistId,
+        reviews: reviews.length,
+        news: news.length
+      })
+      
       return { success: true }
     } else {
       const errorData = await response.json().catch(() => ({ message: response.statusText }))
+      console.error('Upload failed:', response.status, errorData)
       return { success: false, error: errorData.message || `HTTP ${response.status}` }
     }
   } catch (error: any) {
@@ -139,7 +158,14 @@ const syncToGist = async (reviews: DailyReview[], news: ImportantNews[]): Promis
 const syncFromGist = async (): Promise<{ reviews: DailyReview[], news: ImportantNews[] } | null> => {
   const token = getGistToken()
   const gistId = getGistId()
-  if (!token || !gistId) return null
+  if (!token) {
+    console.warn('No token configured')
+    return null
+  }
+  if (!gistId) {
+    console.warn('No gistId found, need to upload first')
+    return null
+  }
   
   try {
     const response = await fetch(`https://api.github.com/gists/${gistId}`, {
@@ -154,15 +180,25 @@ const syncFromGist = async (): Promise<{ reviews: DailyReview[], news: Important
       const file = gist.files['pulse-data.json']
       if (file) {
         const data = JSON.parse(file.content)
+        console.log('Downloaded from Gist:', {
+          reviews: data.reviews?.length || 0,
+          news: data.news?.length || 0
+        })
         return {
           reviews: data.reviews || [],
           news: data.news || []
         }
+      } else {
+        console.warn('Gist file not found')
+        return null
       }
+    } else {
+      const errorData = await response.json().catch(() => ({ message: response.statusText }))
+      console.error('Gist fetch failed:', response.status, errorData)
+      return null
     }
-    return null
-  } catch (error) {
-    console.error('Gist fetch failed:', error)
+  } catch (error: any) {
+    console.error('Gist fetch error:', error)
     return null
   }
 }
@@ -192,6 +228,7 @@ export default function Pulse(): JSX.Element {
   // 云端同步状态
   const [showSettings, setShowSettings] = useState(false)
   const [gistTokenInput, setGistTokenInput] = useState('')
+  const [gistIdInput, setGistIdInput] = useState('')
   const [syncing, setSyncing] = useState(false)
 
   useEffect(() => {
@@ -199,6 +236,7 @@ export default function Pulse(): JSX.Element {
     setReviews(loadReviews())
     setNewsList(loadNews())
     setGistTokenInput(getGistToken() || '')
+    setGistIdInput(getGistId() || '')
     
     // 尝试从云端同步
     const loadFromCloud = async () => {
@@ -437,11 +475,15 @@ export default function Pulse(): JSX.Element {
   // 保存 GitHub Token
   const handleSaveGistToken = () => {
     if (gistTokenInput.trim()) {
-      saveGistConfig(gistTokenInput.trim(), null)
-      alert('Token 已保存！')
+      // 如果输入了 gistId，使用输入的；否则保留现有的
+      const gistId = gistIdInput.trim() || getGistId()
+      saveGistConfig(gistTokenInput.trim(), gistId)
+      alert('Token 已保存！' + (gistId ? `\n\nGist ID: ${gistId}` : '\n\n提示：上传一次数据后会自动保存 Gist ID'))
       setShowSettings(false)
-      // 立即同步
-      handleSyncToCloud()
+      // 如果有 gistId，立即尝试同步；否则提示先上传
+      if (gistId) {
+        handleSyncToCloud()
+      }
     } else {
       alert('请输入 Token')
     }
@@ -449,35 +491,66 @@ export default function Pulse(): JSX.Element {
 
   // 手动同步到云端
   const handleSyncToCloud = async () => {
+    if (!getGistToken()) {
+      alert('❌ 请先配置 Token（点击"云端设置"）')
+      return
+    }
+    
     setSyncing(true)
     const result = await syncToGist(reviews, newsList)
     setSyncing(false)
     if (result.success) {
-      alert('✅ 同步成功！')
+      const reviewCount = reviews.length
+      const newsCount = newsList.length
+      const currentGistId = getGistId()
+      const message = currentGistId 
+        ? `✅ 上传成功！\n\n复盘数据：${reviewCount} 条\n重要消息：${newsCount} 条\n\nGist ID: ${currentGistId}\n\n（可在其他设备输入此 ID 同步）`
+        : `✅ 上传成功！\n\n复盘数据：${reviewCount} 条\n重要消息：${newsCount} 条`
+      alert(message)
     } else {
       const errorMsg = result.error || '未知错误'
-      alert(`❌ 同步失败\n\n错误：${errorMsg}\n\n请检查：\n1. Token 是否正确\n2. Token 是否有 gist 权限\n3. 网络连接是否正常`)
+      alert(`❌ 上传失败\n\n错误：${errorMsg}\n\n请检查：\n1. Token 是否正确\n2. Token 是否有 gist 权限\n3. 网络连接是否正常`)
     }
   }
 
   // 手动从云端同步
   const handleSyncFromCloud = async () => {
+    if (!getGistToken()) {
+      alert('❌ 请先配置 Token（点击"云端设置"）')
+      return
+    }
+    
+    if (!getGistId()) {
+      alert('❌ 云端还没有数据\n\n请先在电脑上上传一次数据，然后再下载')
+      return
+    }
+    
     setSyncing(true)
     const cloudData = await syncFromGist()
     setSyncing(false)
+    
     if (cloudData) {
-      if (cloudData.reviews.length > 0) {
+      const reviewCount = cloudData.reviews.length
+      const newsCount = cloudData.news.length
+      
+      if (reviewCount === 0 && newsCount === 0) {
+        alert('⚠️ 云端数据为空\n\n请先在电脑上上传数据')
+        return
+      }
+      
+      // 合并数据：云端优先
+      if (reviewCount > 0) {
         setReviews(cloudData.reviews)
         saveReviews(cloudData.reviews)
       }
-      if (cloudData.news.length > 0) {
+      if (newsCount > 0) {
         setNewsList(cloudData.news)
         saveNews(cloudData.news)
       }
-      alert('✅ 从云端同步成功！数据已更新')
-      // 不刷新页面，数据已通过 state 更新
+      
+      alert(`✅ 下载成功！\n\n复盘数据：${reviewCount} 条\n重要消息：${newsCount} 条\n\n数据已更新到本地`)
     } else {
-      alert('❌ 同步失败，请检查 Token 和网络')
+      alert('❌ 下载失败\n\n可能原因：\n1. Token 权限不足\n2. Gist 不存在或已删除\n3. 网络连接问题\n\n请检查 Token 配置或先上传一次数据')
     }
   }
 
@@ -957,8 +1030,27 @@ export default function Pulse(): JSX.Element {
                 2. 权限：在 Repository permissions 下找到 <code style={{ background: '#f3f4f6', padding: '2px 4px', borderRadius: '3px' }}>Gists</code>，设置为 <code style={{ background: '#f3f4f6', padding: '2px 4px', borderRadius: '3px' }}>Read and write</code>
               </div>
             </div>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ fontSize: '0.8rem', color: '#64748b', display: 'block', marginBottom: '6px' }}>
+                Gist ID（可选，跨设备同步时需要）
+              </label>
+              <input 
+                type="text"
+                value={gistIdInput}
+                onChange={e => setGistIdInput(e.target.value)}
+                placeholder="如果已在电脑上上传过，请输入 Gist ID"
+                style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }}
+              />
+              <div style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: '6px' }}>
+                提示：在电脑上上传一次数据后，Gist ID 会自动保存。如果要在手机上同步，可以：
+                <br />
+                1. 在电脑上查看 Gist ID（上传成功后会显示）
+                <br />
+                2. 或者先上传一次，系统会自动创建并保存
+              </div>
+            </div>
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-              <button onClick={() => { setShowSettings(false); setGistTokenInput(getGistToken() || '') }}
+              <button onClick={() => { setShowSettings(false); setGistTokenInput(getGistToken() || ''); setGistIdInput(getGistId() || '') }}
                 style={{ padding: '8px 16px', background: '#f3f4f6', color: '#4b5563', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
                 取消
               </button>
