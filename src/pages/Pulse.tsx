@@ -363,8 +363,8 @@ export default function Pulse(): JSX.Element {
             saveNews(data.news)
           }
           
-          alert('数据导入成功！')
-          window.location.reload()
+          alert('数据导入成功！数据已更新')
+          // 不刷新页面，数据已通过 state 更新
         } catch (error) {
           alert('导入失败：文件格式错误')
           console.error(error)
@@ -474,8 +474,8 @@ export default function Pulse(): JSX.Element {
         setNewsList(cloudData.news)
         saveNews(cloudData.news)
       }
-      alert('✅ 从云端同步成功！')
-      window.location.reload()
+      alert('✅ 从云端同步成功！数据已更新')
+      // 不刷新页面，数据已通过 state 更新
     } else {
       alert('❌ 同步失败，请检查 Token 和网络')
     }
