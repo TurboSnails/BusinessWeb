@@ -83,9 +83,9 @@ const saveGistConfig = (token: string, gistId: string | null) => {
 }
 
 // 同步到 Gist
-const syncToGist = async (reviews: DailyReview[], news: ImportantNews[]): Promise<boolean> => {
+const syncToGist = async (reviews: DailyReview[], news: ImportantNews[]): Promise<{ success: boolean; error?: string }> => {
   const token = getGistToken()
-  if (!token) return false
+  if (!token) return { success: false, error: '未配置 Token' }
   
   try {
     const data = {
@@ -104,7 +104,7 @@ const syncToGist = async (reviews: DailyReview[], news: ImportantNews[]): Promis
     const response = await fetch(url, {
       method: gistId ? 'PATCH' : 'POST',
       headers: {
-        'Authorization': `token ${token}`,
+        'Authorization': token.startsWith('ghp_') ? `token ${token}` : `Bearer ${token}`,
         'Accept': 'application/vnd.github.v3+json',
         'Content-Type': 'application/json'
       },
@@ -124,12 +124,14 @@ const syncToGist = async (reviews: DailyReview[], news: ImportantNews[]): Promis
       if (!gistId && result.id) {
         saveGistConfig(token, result.id)
       }
-      return true
+      return { success: true }
+    } else {
+      const errorData = await response.json().catch(() => ({ message: response.statusText }))
+      return { success: false, error: errorData.message || `HTTP ${response.status}` }
     }
-    return false
-  } catch (error) {
+  } catch (error: any) {
     console.error('Gist sync failed:', error)
-    return false
+    return { success: false, error: error.message || '网络错误' }
   }
 }
 
@@ -142,7 +144,7 @@ const syncFromGist = async (): Promise<{ reviews: DailyReview[], news: Important
   try {
     const response = await fetch(`https://api.github.com/gists/${gistId}`, {
       headers: {
-        'Authorization': `token ${token}`,
+        'Authorization': token.startsWith('ghp_') ? `token ${token}` : `Bearer ${token}`,
         'Accept': 'application/vnd.github.v3+json'
       }
     })
@@ -285,7 +287,9 @@ export default function Pulse(): JSX.Element {
     setReviews(newReviews)
     saveReviews(newReviews)
     // 自动同步到云端
-    syncToGist(newReviews, newsList).catch(() => {})
+    syncToGist(newReviews, newsList).then(result => {
+      if (!result.success) console.warn('自动同步失败:', result.error)
+    }).catch(() => {})
     setShowForm(false)
     setFormData({})
     setEditDate('')
@@ -401,7 +405,9 @@ export default function Pulse(): JSX.Element {
     setNewsList(newNewsList)
     saveNews(newNewsList)
     // 自动同步到云端
-    syncToGist(reviews, newNewsList).catch(() => {})
+    syncToGist(reviews, newNewsList).then(result => {
+      if (!result.success) console.warn('自动同步失败:', result.error)
+    }).catch(() => {})
     setShowNewsForm(false)
     setNewsFormData({})
   }
@@ -413,7 +419,9 @@ export default function Pulse(): JSX.Element {
       setNewsList(newNewsList)
       saveNews(newNewsList)
       // 自动同步到云端
-      syncToGist(reviews, newNewsList).catch(() => {})
+      syncToGist(reviews, newNewsList).then(result => {
+        if (!result.success) console.warn('自动同步失败:', result.error)
+      }).catch(() => {})
     }
   }
 
@@ -442,12 +450,13 @@ export default function Pulse(): JSX.Element {
   // 手动同步到云端
   const handleSyncToCloud = async () => {
     setSyncing(true)
-    const success = await syncToGist(reviews, newsList)
+    const result = await syncToGist(reviews, newsList)
     setSyncing(false)
-    if (success) {
+    if (result.success) {
       alert('✅ 同步成功！')
     } else {
-      alert('❌ 同步失败，请检查 Token 是否正确')
+      const errorMsg = result.error || '未知错误'
+      alert(`❌ 同步失败\n\n错误：${errorMsg}\n\n请检查：\n1. Token 是否正确\n2. Token 是否有 gist 权限\n3. 网络连接是否正常`)
     }
   }
 
@@ -931,13 +940,15 @@ export default function Pulse(): JSX.Element {
                 type="password"
                 value={gistTokenInput}
                 onChange={e => setGistTokenInput(e.target.value)}
-                placeholder="ghp_xxxxxxxxxxxx"
+                placeholder="ghp_xxx 或 github_pat_xxx"
                 style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }}
               />
-              <div style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: '6px' }}>
-                获取方式：GitHub → Settings → Developer settings → Personal access tokens → Generate new token (classic)
+              <div style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: '6px', lineHeight: '1.6' }}>
+                <strong>Classic Token:</strong> GitHub → Settings → Developer settings → Personal access tokens → Generate new token (classic)
                 <br />
                 权限：勾选 <code style={{ background: '#f3f4f6', padding: '2px 4px', borderRadius: '3px' }}>gist</code>
+                <br /><br />
+                <strong>Fine-grained Token:</strong> 支持，但需要确保有 <code style={{ background: '#f3f4f6', padding: '2px 4px', borderRadius: '3px' }}>Gists</code> 权限
               </div>
             </div>
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
