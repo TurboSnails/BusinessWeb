@@ -16,21 +16,14 @@ export default function Pulse(): JSX.Element {
     setError(null)
     setData(null)
 
-    // 添加超时处理（25秒，给更多时间）
+    // 超时处理（12秒，API 已优化）
     timeoutId = setTimeout(() => {
       if (mounted) {
         console.warn('请求超时')
-        setError(new Error('请求超时（25秒），可能是网络问题'))
+        setError(new Error('部分数据获取超时'))
         setLoading(false)
-        // 即使超时也设置空数据，避免一直显示加载中
-        setData({
-          usStocks: [],
-          chinaIndices: [],
-          hkIndices: [],
-          timestamp: new Date().toISOString()
-        })
       }
-    }, 25000)
+    }, 12000)
 
     const fetchData = async () => {
       // 初始化数据

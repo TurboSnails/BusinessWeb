@@ -42,242 +42,140 @@ export async function fetchExample(): Promise<{ message: string }> {
   return new Promise((resolve) => setTimeout(() => resolve({ message: 'hello from api' }), 300))
 }
 
-// 带超时和重试的 fetch 包装函数
-async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout = 15000, retries = 2): Promise<Response> {
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), timeout)
-    
-    try {
-      const response = await fetch(url, {
-        ...options,
-        signal: controller.signal
-      })
-      clearTimeout(timeoutId)
-      
-      if (response.ok) {
-        return response
-      }
-      
-      // 如果不是最后一次尝试，继续重试
-      if (attempt < retries) {
-        clearTimeout(timeoutId)
-        await new Promise(resolve => setTimeout(resolve, 500 * (attempt + 1))) // 递增延迟
-        continue
-      }
-      
-      return response
-    } catch (error) {
-      clearTimeout(timeoutId)
-      
-      // 如果是最后一次尝试，抛出错误
-      if (attempt === retries) {
-        throw error
-      }
-      
-      // 等待后重试
-      await new Promise(resolve => setTimeout(resolve, 500 * (attempt + 1)))
-    }
+// 简单缓存：避免短时间内重复请求
+const cache = new Map<string, { data: any; timestamp: number }>()
+const CACHE_TTL = 30000 // 30秒缓存
+
+function getCached<T>(key: string): T | null {
+  const cached = cache.get(key)
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return cached.data as T
   }
-  
-  throw new Error('请求失败')
+  return null
 }
 
-// 获取美股数据（尝试多个免费 API）
-async function fetchUSStock(symbol: string): Promise<StockQuote | null> {
-  // 方案1：尝试使用 CORS 代理访问 Yahoo Finance（获取15天数据用于计算RSI）
+function setCache(key: string, data: any) {
+  cache.set(key, { data, timestamp: Date.now() })
+}
+
+// 带超时的 fetch（不重试，快速失败）
+async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout = 8000): Promise<Response> {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), timeout)
+  
   try {
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=15d`)}`
-    
-    const response = await fetchWithTimeout(
-      proxyUrl,
-      {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-        },
-      },
-      12000 // 增加超时时间到12秒
-    )
-    
-    if (response.ok) {
-      const data = await response.json()
-      const result = data.chart?.result?.[0]
-      if (result) {
-        const meta = result.meta
-        const indicators = result.indicators
-        
-        // 获取历史价格数据用于计算 RSI
-        let historicalPrices: number[] = []
-        if (indicators?.adjclose && indicators.adjclose[0]?.adjclose) {
-          historicalPrices = indicators.adjclose[0].adjclose.filter((p: number | null) => p !== null && p > 0) as number[]
-        } else if (indicators?.quote && indicators.quote[0]?.close) {
-          historicalPrices = indicators.quote[0].close.filter((p: number | null) => p !== null && p > 0) as number[]
-        }
-        
-        // 尝试从 indicators 中获取最新价格数据
-        let currentPrice = meta.regularMarketPrice
-        let previousClose = meta.previousClose || meta.chartPreviousClose
-        
-        // 如果 meta 中没有价格，尝试从 indicators.quote 获取
-        if (!currentPrice && indicators?.quote && indicators.quote[0]?.close) {
-          const closes = indicators.quote[0].close
-          currentPrice = closes[closes.length - 1] || closes[0] || 0
-        }
-        
-        // 如果 meta 中没有前收盘价，尝试从 indicators.adjclose 获取
-        if (!previousClose && indicators?.adjclose && indicators.adjclose[0]?.adjclose) {
-          const adjcloses = indicators.adjclose[0].adjclose
-          previousClose = adjcloses[adjcloses.length - 2] || adjcloses[0] || currentPrice
-        }
-        
-        // 确保有有效数据
-        if (!currentPrice || currentPrice === 0) {
-          currentPrice = previousClose || 0
-        }
-        if (!previousClose || previousClose === 0) {
-          previousClose = currentPrice
-        }
-        
-        // 优先使用 API 返回的涨跌幅
-        let change = meta.regularMarketChange
-        let changePercent = meta.regularMarketChangePercent
-        
-        // 如果没有直接返回涨跌幅，或者涨跌幅为 0 但价格不同，则重新计算
-        if (change === undefined || change === null || changePercent === undefined || changePercent === null) {
-          change = currentPrice - previousClose
-          changePercent = previousClose && previousClose !== currentPrice ? (change / previousClose) * 100 : 0
-        } else {
-          // 如果 API 返回的涨跌幅为 0，但价格不同，重新计算
-          if (change === 0 && changePercent === 0 && currentPrice !== previousClose) {
-            change = currentPrice - previousClose
-            changePercent = previousClose ? (change / previousClose) * 100 : 0
-            console.log(`Recalculated for ${symbol}: change=${change}, changePercent=${changePercent}`)
-          } else {
-            // 确保 changePercent 是百分比格式（如果小于 1 可能是小数格式）
-            if (Math.abs(changePercent) < 1 && Math.abs(changePercent) > 0) {
-              changePercent = changePercent * 100
-            }
-          }
-        }
-        
-        // 计算 RSI
-        let rsi: number | null = null
-        if (historicalPrices.length >= 15) {
-          rsi = calculateRSI(historicalPrices)
-        }
-        
-        return {
-          symbol: symbol,
-          name: meta.shortName || meta.longName || symbol,
-          price: currentPrice,
-          change: change || 0,
-          changePercent: changePercent || 0,
-          volume: meta.regularMarketVolume,
-          market: 'US',
-          rsi: rsi || undefined
-        }
-      }
-    }
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal
+    })
+    clearTimeout(timeoutId)
+    return response
   } catch (error) {
-    console.warn(`Failed to fetch ${symbol} via proxy:`, error)
+    clearTimeout(timeoutId)
+    throw error
+  }
+}
+
+// 解析 Yahoo Finance 数据
+function parseYahooData(data: any, symbol: string): StockQuote | null {
+  const result = data.chart?.result?.[0]
+  if (!result) return null
+  
+  const meta = result.meta
+  const indicators = result.indicators
+  
+  // 获取历史价格数据用于计算 RSI
+  let historicalPrices: number[] = []
+  if (indicators?.adjclose && indicators.adjclose[0]?.adjclose) {
+    historicalPrices = indicators.adjclose[0].adjclose.filter((p: number | null) => p !== null && p > 0) as number[]
+  } else if (indicators?.quote && indicators.quote[0]?.close) {
+    historicalPrices = indicators.quote[0].close.filter((p: number | null) => p !== null && p > 0) as number[]
   }
   
-  // 方案2：尝试直接访问（可能因 CORS 失败，但不影响其他请求）
-  try {
-    const response = await fetchWithTimeout(
-      `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=15d`,
-      {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-        },
-      },
-      5000
-    )
+  let currentPrice = meta.regularMarketPrice
+  let previousClose = meta.previousClose || meta.chartPreviousClose
+  
+  if (!currentPrice && indicators?.quote && indicators.quote[0]?.close) {
+    const closes = indicators.quote[0].close
+    currentPrice = closes[closes.length - 1] || closes[0] || 0
+  }
+  
+  if (!previousClose && indicators?.adjclose && indicators.adjclose[0]?.adjclose) {
+    const adjcloses = indicators.adjclose[0].adjclose
+    previousClose = adjcloses[adjcloses.length - 2] || adjcloses[0] || currentPrice
+  }
+  
+  if (!currentPrice || currentPrice === 0) currentPrice = previousClose || 0
+  if (!previousClose || previousClose === 0) previousClose = currentPrice
+  
+  let change = meta.regularMarketChange
+  let changePercent = meta.regularMarketChangePercent
+  
+  if (change === undefined || change === null || changePercent === undefined || changePercent === null) {
+    change = currentPrice - previousClose
+    changePercent = previousClose && previousClose !== currentPrice ? (change / previousClose) * 100 : 0
+  } else if (change === 0 && changePercent === 0 && currentPrice !== previousClose) {
+    change = currentPrice - previousClose
+    changePercent = previousClose ? (change / previousClose) * 100 : 0
+  } else if (Math.abs(changePercent) < 1 && Math.abs(changePercent) > 0) {
+    changePercent = changePercent * 100
+  }
+  
+  let rsi: number | null = null
+  if (historicalPrices.length >= 15) {
+    rsi = calculateRSI(historicalPrices)
+  }
+  
+  return {
+    symbol,
+    name: meta.shortName || meta.longName || symbol,
+    price: currentPrice,
+    change: change || 0,
+    changePercent: changePercent || 0,
+    volume: meta.regularMarketVolume,
+    market: 'US',
+    rsi: rsi || undefined
+  }
+}
+
+// 多个 CORS 代理，竞速获取
+const CORS_PROXIES = [
+  (url: string) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+]
+
+// 获取美股数据 - 竞速模式
+async function fetchUSStock(symbol: string): Promise<StockQuote | null> {
+  // 检查缓存
+  const cacheKey = `us_${symbol}`
+  const cached = getCached<StockQuote>(cacheKey)
+  if (cached) return cached
+  
+  const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=15d`
+  
+  // 创建多个代理请求，竞速返回
+  const fetchFromProxy = async (proxyFn: (url: string) => string): Promise<StockQuote | null> => {
+    const response = await fetchWithTimeout(proxyFn(yahooUrl), {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' }
+    }, 6000)
     
-    if (response.ok) {
-      const data = await response.json()
-      const result = data.chart?.result?.[0]
-      if (result) {
-        const meta = result.meta
-        const indicators = result.indicators
-        
-        // 获取历史价格数据用于计算 RSI
-        let historicalPrices: number[] = []
-        if (indicators?.adjclose && indicators.adjclose[0]?.adjclose) {
-          historicalPrices = indicators.adjclose[0].adjclose.filter((p: number | null) => p !== null && p > 0) as number[]
-        } else if (indicators?.quote && indicators.quote[0]?.close) {
-          historicalPrices = indicators.quote[0].close.filter((p: number | null) => p !== null && p > 0) as number[]
-        }
-        
-        // 尝试从 indicators 中获取最新价格数据
-        let currentPrice = meta.regularMarketPrice
-        let previousClose = meta.previousClose || meta.chartPreviousClose
-        
-        // 如果 meta 中没有价格，尝试从 indicators.quote 获取
-        if (!currentPrice && indicators?.quote && indicators.quote[0]?.close) {
-          const closes = indicators.quote[0].close
-          currentPrice = closes[closes.length - 1] || closes[0] || 0
-        }
-        
-        // 如果 meta 中没有前收盘价，尝试从 indicators.adjclose 获取
-        if (!previousClose && indicators?.adjclose && indicators.adjclose[0]?.adjclose) {
-          const adjcloses = indicators.adjclose[0].adjclose
-          previousClose = adjcloses[adjcloses.length - 2] || adjcloses[0] || currentPrice
-        }
-        
-        // 确保有有效数据
-        if (!currentPrice || currentPrice === 0) {
-          currentPrice = previousClose || 0
-        }
-        if (!previousClose || previousClose === 0) {
-          previousClose = currentPrice
-        }
-        
-        // 优先使用 API 返回的涨跌幅
-        let change = meta.regularMarketChange
-        let changePercent = meta.regularMarketChangePercent
-        
-        // 如果没有直接返回涨跌幅，或者涨跌幅为 0 但价格不同，则重新计算
-        if (change === undefined || change === null || changePercent === undefined || changePercent === null) {
-          change = currentPrice - previousClose
-          changePercent = previousClose && previousClose !== currentPrice ? (change / previousClose) * 100 : 0
-        } else {
-          // 如果 API 返回的涨跌幅为 0，但价格不同，重新计算
-          if (change === 0 && changePercent === 0 && currentPrice !== previousClose) {
-            change = currentPrice - previousClose
-            changePercent = previousClose ? (change / previousClose) * 100 : 0
-            console.log(`Recalculated for ${symbol}: change=${change}, changePercent=${changePercent}`)
-          } else {
-            // 确保 changePercent 是百分比格式（如果小于 1 可能是小数格式）
-            if (Math.abs(changePercent) < 1 && Math.abs(changePercent) > 0) {
-              changePercent = changePercent * 100
-            }
-          }
-        }
-        
-        // 计算 RSI
-        let rsi: number | null = null
-        if (historicalPrices.length >= 15) {
-          rsi = calculateRSI(historicalPrices)
-        }
-        
-        return {
-          symbol: symbol,
-          name: meta.shortName || meta.longName || symbol,
-          price: currentPrice,
-          change: change || 0,
-          changePercent: changePercent || 0,
-          volume: meta.regularMarketVolume,
-          market: 'US',
-          rsi: rsi || undefined
-        }
-      }
+    if (!response.ok) throw new Error('Response not ok')
+    const data = await response.json()
+    return parseYahooData(data, symbol)
+  }
+  
+  try {
+    // 竞速：哪个代理先返回用哪个
+    const result = await Promise.any(
+      CORS_PROXIES.map(proxy => fetchFromProxy(proxy))
+    )
+    if (result) {
+      setCache(cacheKey, result)
+      return result
     }
   } catch (error) {
-    // CORS 错误，忽略
-    console.warn(`Direct fetch failed for ${symbol} (likely CORS):`, error)
+    console.warn(`All proxies failed for ${symbol}:`, error)
   }
   
   return null
@@ -285,23 +183,21 @@ async function fetchUSStock(symbol: string): Promise<StockQuote | null> {
 
 // 获取中国指数数据
 async function fetchChinaIndex(symbol: string, name: string): Promise<StockQuote | null> {
+  // 检查缓存
+  const cacheKey = `cn_${symbol}`
+  const cached = getCached<StockQuote>(cacheKey)
+  if (cached) return cached
+  
   try {
-    // 开发环境使用 Vite proxy，生产环境使用相对路径（如果部署到 Vercel）
     const isDev = import.meta.env.DEV
     const proxyUrl = isDev 
-      ? `/api/proxy/list=${symbol}`  // 开发环境：Vite proxy
-      : `/api/china-stock?symbol=${symbol}` // 生产环境：相对路径（部署到 Vercel 时）
+      ? `/api/proxy/list=${symbol}`
+      : `/api/china-stock?symbol=${symbol}`
     
-    const response = await fetchWithTimeout(
-      proxyUrl,
-      { 
-        method: 'GET',
-        headers: {
-          'Accept': '*/*'
-        }
-      },
-      12000 // 增加超时时间到12秒
-    )
+    const response = await fetchWithTimeout(proxyUrl, { 
+      method: 'GET',
+      headers: { 'Accept': '*/*' }
+    }, 6000)
     
     if (response.ok) {
       const text = await response.text()
@@ -310,11 +206,9 @@ async function fetchChinaIndex(symbol: string, name: string): Promise<StockQuote
         const parts = match[1].split(',')
         
         if (parts.length >= 3) {
-          // 新浪财经格式：名称,当前价,昨收,今开,最高,最低...
           const currentPrice = parseFloat(parts[1])
           const previousClose = parseFloat(parts[2])
           
-          // 检查数据有效性
           if (isNaN(currentPrice) || isNaN(previousClose) || currentPrice === 0 || previousClose === 0) {
             return null
           }
@@ -322,18 +216,18 @@ async function fetchChinaIndex(symbol: string, name: string): Promise<StockQuote
           const change = currentPrice - previousClose
           const changePercent = previousClose ? (change / previousClose) * 100 : 0
           
-          return {
-            symbol: symbol,
-            name: name,
+          const result: StockQuote = {
+            symbol,
+            name,
             price: currentPrice,
-            change: change,
-            changePercent: changePercent,
+            change,
+            changePercent,
             market: 'CN'
           }
+          setCache(cacheKey, result)
+          return result
         }
       }
-    } else {
-      console.warn(`Failed to fetch ${symbol}: ${response.status}`)
     }
   } catch (error) {
     console.warn(`Failed to fetch ${symbol}:`, error)
