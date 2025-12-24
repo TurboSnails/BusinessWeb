@@ -181,75 +181,60 @@ async function fetchUSStock(symbol: string): Promise<StockQuote | null> {
   return null
 }
 
-// 解析新浪财经数据
-function parseSinaData(text: string, symbol: string, name: string): StockQuote | null {
-  const match = text.match(/="([^"]+)"/)
-  if (match && match[1]) {
-    const parts = match[1].split(',')
-    if (parts.length >= 3) {
-      const currentPrice = parseFloat(parts[1])
-      const previousClose = parseFloat(parts[2])
-      
-      if (isNaN(currentPrice) || isNaN(previousClose) || currentPrice === 0 || previousClose === 0) {
-        return null
-      }
-      
-      const change = currentPrice - previousClose
-      const changePercent = previousClose ? (change / previousClose) * 100 : 0
-      
-      return {
-        symbol,
-        name,
-        price: currentPrice,
-        change,
-        changePercent,
-        market: 'CN'
-      }
-    }
-  }
-  return null
+// 中国指数符号映射到东方财富 secid
+const CN_SYMBOL_MAP: Record<string, string> = {
+  'sh000001': '1.000001',  // 上证指数
+  'sz399001': '0.399001',  // 深证成指
+  'sz399006': '0.399006',  // 创业板指
+  'sh000300': '1.000300',  // 沪深300
 }
 
-// 获取中国指数数据 - 竞速模式
+// 解析东方财富数据
+function parseEastMoneyData(data: any, symbol: string, name: string): StockQuote | null {
+  const d = data?.data
+  if (!d) return null
+  
+  const currentPrice = d.f43 / 100  // 当前价（需要除以100）
+  const previousClose = d.f60 / 100 // 昨收
+  const change = d.f169 / 100       // 涨跌额
+  const changePercent = d.f170 / 100 // 涨跌幅
+  
+  if (!currentPrice || currentPrice === 0) return null
+  
+  return {
+    symbol,
+    name,
+    price: currentPrice,
+    change: change || (currentPrice - previousClose),
+    changePercent: changePercent || (previousClose ? ((currentPrice - previousClose) / previousClose) * 100 : 0),
+    market: 'CN'
+  }
+}
+
+// 获取中国指数数据 - 使用东方财富 API
 async function fetchChinaIndex(symbol: string, name: string): Promise<StockQuote | null> {
   const cacheKey = `cn_${symbol}`
   const cached = getCached<StockQuote>(cacheKey)
   if (cached) return cached
   
-  const sinaUrl = `https://hq.sinajs.cn/list=${symbol}`
-  
-  // 开发环境用 Vite proxy
-  if (import.meta.env.DEV) {
-    try {
-      const response = await fetchWithTimeout(`/api/proxy/list=${symbol}`, { 
-        method: 'GET',
-        headers: { 'Accept': '*/*' }
-      }, 6000)
-      
-      if (response.ok) {
-        const text = await response.text()
-        const result = parseSinaData(text, symbol, name)
-        if (result) {
-          setCache(cacheKey, result)
-          return result
-        }
-      }
-    } catch (error) {
-      console.warn(`Dev proxy failed for ${symbol}:`, error)
-    }
+  const secid = CN_SYMBOL_MAP[symbol]
+  if (!secid) {
+    console.warn(`Unknown CN symbol: ${symbol}`)
     return null
   }
   
-  // 生产环境用 CORS 代理竞速
+  // 东方财富 API（不需要 Referer，CORS 友好）
+  const eastMoneyUrl = `https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&fields=f43,f57,f58,f60,f169,f170`
+  
   const fetchFromProxy = async (proxyFn: (url: string) => string): Promise<StockQuote | null> => {
-    const response = await fetchWithTimeout(proxyFn(sinaUrl), {
+    const response = await fetchWithTimeout(proxyFn(eastMoneyUrl), {
       method: 'GET',
-      headers: { 'Accept': '*/*' }
+      headers: { 'Accept': 'application/json' }
     }, 6000)
     
     if (!response.ok) throw new Error('Response not ok')
-    const text = await response.text()
-    const result = parseSinaData(text, symbol, name)
+    const data = await response.json()
+    const result = parseEastMoneyData(data, symbol, name)
     if (!result) throw new Error('Parse failed')
     return result
   }
