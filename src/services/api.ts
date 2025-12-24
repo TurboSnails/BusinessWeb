@@ -199,6 +199,20 @@ const EASTMONEY_SECID_MAP: Record<string, string> = {
   '^HSCE': '100.HSCEI',    // 恒生国企
   '^HSTECH': '124.HSTECH', // 恒生科技
   'FTSE_A50': '100.XIN9',  // 富时中国A50
+  // 全球股市
+  'N225': '100.N225',      // 日经225
+  'DAX': '100.GDAXI',      // 德国DAX
+  'FTSE': '100.FTSE',      // 英国富时100
+  'CAC40': '100.FCHI',     // 法国CAC40
+  'KOSPI': '100.KS11',     // 韩国KOSPI
+  'SENSEX': '100.SENSEX',  // 印度SENSEX
+  'ASX200': '100.AS51',    // 澳洲ASX200
+  'TSX': '100.TSX',        // 加拿大TSX
+  'BVSP': '100.BVSP',      // 巴西BOVESPA
+  'RTS': '100.RTS',        // 俄罗斯RTS
+  'STOXX50': '100.SX5E',   // 欧洲斯托克50
+  'TWII': '100.TWII',      // 台湾加权
+  'VNINDEX': '100.VNINDEX', // 越南胡志明
   // 大宗商品
   'GOLD': '101.GC00Y',     // COMEX黄金
   'SILVER': '101.SI00Y',   // COMEX白银
@@ -309,7 +323,7 @@ async function fetchStockSmart(symbol: string, name: string, market: string): Pr
 }
 
 // 获取单个市场的数据
-export async function fetchMarketDataByType(type: 'us' | 'cn' | 'hk' | 'commodity' | 'forex'): Promise<StockQuote[]> {
+export async function fetchMarketDataByType(type: 'us' | 'cn' | 'hk' | 'commodity' | 'forex' | 'global'): Promise<StockQuote[]> {
   const dataConfig: Record<string, Array<{ symbol: string; name: string }>> = {
     us: [
       { symbol: '^DJI', name: '道琼斯' },
@@ -329,6 +343,21 @@ export async function fetchMarketDataByType(type: 'us' | 'cn' | 'hk' | 'commodit
       { symbol: '^HSTECH', name: '恒生科技' },
       { symbol: 'FTSE_A50', name: '富时A50' }
     ],
+    global: [
+      { symbol: 'N225', name: '🇯🇵 日经225' },
+      { symbol: 'DAX', name: '🇩🇪 德国DAX' },
+      { symbol: 'FTSE', name: '🇬🇧 英国富时' },
+      { symbol: 'CAC40', name: '🇫🇷 法国CAC' },
+      { symbol: 'STOXX50', name: '🇪🇺 欧洲50' },
+      { symbol: 'KOSPI', name: '🇰🇷 韩国KOSPI' },
+      { symbol: 'TWII', name: '🇹🇼 台湾加权' },
+      { symbol: 'SENSEX', name: '🇮🇳 印度SENSEX' },
+      { symbol: 'ASX200', name: '🇦🇺 澳洲ASX' },
+      { symbol: 'TSX', name: '🇨🇦 加拿大TSX' },
+      { symbol: 'BVSP', name: '🇧🇷 巴西BOVESPA' },
+      { symbol: 'RTS', name: '🇷🇺 俄罗斯RTS' },
+      { symbol: 'VNINDEX', name: '🇻🇳 越南胡志明' },
+    ],
     commodity: [
       { symbol: 'GOLD', name: '黄金' },
       { symbol: 'SILVER', name: '白银' },
@@ -344,7 +373,7 @@ export async function fetchMarketDataByType(type: 'us' | 'cn' | 'hk' | 'commodit
   
   const indices = dataConfig[type] || []
   const marketMap: Record<string, string> = {
-    us: 'US', cn: 'CN', hk: 'HK', commodity: 'COMMODITY', forex: 'FOREX'
+    us: 'US', cn: 'CN', hk: 'HK', commodity: 'COMMODITY', forex: 'FOREX', global: 'GLOBAL'
   }
 
   try {
