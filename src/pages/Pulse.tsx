@@ -604,7 +604,7 @@ export default function Pulse(): JSX.Element {
   )
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '16px', minHeight: '100vh', background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)' }}>
+    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '16px', minHeight: '100vh', background: '#e0f2fe' }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', padding: '14px 18px', background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
         <div>
