@@ -146,8 +146,6 @@ const CORS_PROXY_BACKUP = (url: string) => `https://api.allorigins.win/raw?url=$
 
 // Yahoo Finance 用的代理（两个都行）
 const YAHOO_PROXIES = [CORS_PROXY_MAIN, CORS_PROXY_BACKUP]
-// 东方财富用的代理（只有 corsproxy.io 能用）
-const EASTMONEY_PROXIES = [CORS_PROXY_MAIN]
 
 // 获取美股数据 - 竞速模式
 async function fetchUSStock(symbol: string): Promise<StockQuote | null> {
@@ -186,12 +184,20 @@ async function fetchUSStock(symbol: string): Promise<StockQuote | null> {
   return null
 }
 
-// 中国指数符号映射到东方财富 secid
-const CN_SYMBOL_MAP: Record<string, string> = {
+// 东方财富 secid 映射（支持 A股、港股、美股）
+const EASTMONEY_SECID_MAP: Record<string, string> = {
+  // 中国 A 股
   'sh000001': '1.000001',  // 上证指数
   'sz399001': '0.399001',  // 深证成指
   'sz399006': '0.399006',  // 创业板指
   'sh000300': '1.000300',  // 沪深300
+  // 美股
+  '^DJI': '100.DJIA',      // 道琼斯
+  '^GSPC': '100.SPX',      // 标普500
+  '^NDX': '100.NDX',       // 纳斯达克100
+  // 港股
+  '^HSI': '100.HSI',       // 恒生指数
+  '^HSCE': '100.HSCEI',    // 恒生国企
 }
 
 // 获取东方财富历史K线数据（用于计算 RSI）
@@ -217,17 +223,14 @@ async function fetchEastMoneyHistory(secid: string): Promise<number[]> {
   }
 }
 
-// 获取中国指数数据 - 使用东方财富 API
-async function fetchChinaIndex(symbol: string, name: string): Promise<StockQuote | null> {
-  const cacheKey = `cn_${symbol}`
+// 通用东方财富数据获取函数（支持所有市场）
+async function fetchFromEastMoney(symbol: string, name: string, market: string): Promise<StockQuote | null> {
+  const cacheKey = `em_${symbol}`
   const cached = getCached<StockQuote>(cacheKey)
   if (cached) return cached
   
-  const secid = CN_SYMBOL_MAP[symbol]
-  if (!secid) {
-    console.warn(`Unknown CN symbol: ${symbol}`)
-    return null
-  }
+  const secid = EASTMONEY_SECID_MAP[symbol]
+  if (!secid) return null  // 不支持的符号，返回 null 让调用方用 Yahoo
   
   // 并行获取实时数据和历史数据
   const realTimeUrl = `https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&fields=f43,f57,f58,f60,f169,f170`
@@ -244,7 +247,7 @@ async function fetchChinaIndex(symbol: string, name: string): Promise<StockQuote
     if (!realTimeRes.ok) return null
     const data = await realTimeRes.json()
     const d = data?.data
-    if (!d) return null
+    if (!d || !d.f43) return null
     
     const currentPrice = d.f43 / 100
     const previousClose = d.f60 / 100
@@ -266,16 +269,35 @@ async function fetchChinaIndex(symbol: string, name: string): Promise<StockQuote
       price: currentPrice,
       change: change || (currentPrice - previousClose),
       changePercent: changePercent || (previousClose ? ((currentPrice - previousClose) / previousClose) * 100 : 0),
-      market: 'CN',
+      market,
       rsi
     }
     
     setCache(cacheKey, result)
     return result
   } catch (error) {
-    console.warn(`Failed to fetch CN ${symbol}:`, error)
+    console.warn(`EastMoney failed for ${symbol}:`, error)
     return null
   }
+}
+
+// 智能获取数据：优先东方财富，不支持的用 Yahoo
+async function fetchStockSmart(symbol: string, name: string, market: string): Promise<StockQuote | null> {
+  // 东方财富支持的，优先用东方财富
+  if (EASTMONEY_SECID_MAP[symbol]) {
+    const result = await fetchFromEastMoney(symbol, name, market)
+    if (result) return result
+  }
+  
+  // 东方财富不支持或失败，用 Yahoo Finance
+  const yahooResult = await fetchUSStock(symbol)
+  if (yahooResult) {
+    yahooResult.name = name
+    yahooResult.market = market
+    return yahooResult
+  }
+  
+  return null
 }
 
 // 带超时的 Promise 包装
@@ -290,10 +312,11 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
 
 // 获取单个市场的数据（支持增量更新）
 export async function fetchMarketDataByType(type: 'us' | 'cn' | 'hk'): Promise<StockQuote[]> {
+  // 美股指数（纳斯达克用 NDX 因为东方财富没有 IXIC）
   const usIndices = [
     { symbol: '^DJI', name: '道琼斯指数' },
     { symbol: '^GSPC', name: '标普500' },
-    { symbol: '^IXIC', name: '纳斯达克' },
+    { symbol: '^NDX', name: '纳斯达克100' },
     { symbol: '^VIX', name: '恐慌指数(VIX)' }
   ]
   
@@ -318,42 +341,40 @@ export async function fetchMarketDataByType(type: 'us' | 'cn' | 'hk'): Promise<S
 
   try {
     if (type === 'us') {
+      // 美股：优先东方财富，VIX 用 Yahoo
       const results = await Promise.allSettled(
-        usIndices.map(({ symbol, name }) => fetchUSStock(symbol).then(stock => {
-          if (stock) stock.name = name
-          return stock
-        }))
+        usIndices.map(({ symbol, name }) => fetchStockSmart(symbol, name, 'US'))
       )
       return results.map(r => r.status === 'fulfilled' ? r.value : null).filter((stock): stock is StockQuote => stock !== null)
     } else if (type === 'cn') {
+      // 中国：全部用东方财富
       const results = await Promise.allSettled(
-        chinaIndices.map(({ symbol, name }) => fetchChinaIndex(symbol, name))
+        chinaIndices.map(({ symbol, name }) => fetchFromEastMoney(symbol, name, 'CN'))
       )
       return results.map(r => r.status === 'fulfilled' ? r.value : null).filter((stock): stock is StockQuote => stock !== null)
     } else if (type === 'hk') {
-      const [hkResults, ftseResults] = await Promise.allSettled([
-        Promise.allSettled(hkIndices.map(({ symbol, name }) => fetchUSStock(symbol).then(stock => {
-          if (stock) {
-            stock.name = name
-            stock.market = 'HK'
-          }
-          return stock
-        }))).then(results => results.map(r => r.status === 'fulfilled' ? r.value : null)),
-        Promise.allSettled(ftseA50Symbols.map(({ symbol, name }) => fetchUSStock(symbol).then(stock => {
+      // 港股：恒生指数和恒生国企用东方财富，恒生科技用 Yahoo
+      const hkResults = await Promise.allSettled(
+        hkIndices.map(({ symbol, name }) => fetchStockSmart(symbol, name, 'HK'))
+      )
+      const hkData = hkResults.map(r => r.status === 'fulfilled' ? r.value : null).filter((s): s is StockQuote => s !== null)
+      
+      // 富时A50 用 Yahoo（东方财富没有）
+      const ftseResults = await Promise.allSettled(
+        ftseA50Symbols.map(({ symbol, name }) => fetchUSStock(symbol).then(stock => {
           if (stock && stock.price > 0) {
             stock.name = name
             stock.market = 'HK'
             return stock
           }
           return null
-        }))).then(results => {
-          const successful = results.find(r => r.status === 'fulfilled' && r.value !== null && r.value.price > 0)
-          return successful ? [successful.value] : []
-        })
-      ])
+        }))
+      )
+      const ftseData = ftseResults
+        .map(r => r.status === 'fulfilled' ? r.value : null)
+        .filter((s): s is StockQuote => s !== null && s.price > 0)
+        .slice(0, 1)  // 只取第一个成功的
       
-      const hkData = hkResults.status === 'fulfilled' ? hkResults.value.filter((s): s is StockQuote => s !== null) : []
-      const ftseData = ftseResults.status === 'fulfilled' ? ftseResults.value.filter((s): s is StockQuote => s !== null) : []
       return [...hkData, ...ftseData]
     }
     return []
@@ -413,7 +434,7 @@ export async function fetchMarketData(): Promise<MarketData> {
           }))).then(results =>
             results.map(r => r.status === 'fulfilled' ? r.value : null)
           ),
-          Promise.allSettled(chinaIndices.map(({ symbol, name }) => fetchChinaIndex(symbol, name))).then(results =>
+          Promise.allSettled(chinaIndices.map(({ symbol, name }) => fetchFromEastMoney(symbol, name, 'CN'))).then(results =>
             results.map(r => r.status === 'fulfilled' ? r.value : null)
           ),
           Promise.allSettled(hkIndices.map(({ symbol, name }) => fetchUSStock(symbol).then(stock => {
