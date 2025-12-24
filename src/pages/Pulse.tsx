@@ -486,8 +486,8 @@ export default function Pulse(): JSX.Element {
   const renderCard = (stock: StockQuote, color: string) => {
     const isPositive = stock.change >= 0
     const changeColor = isPositive ? '#16a34a' : '#dc2626'
-    
-    return (
+
+  return (
       <div key={stock.symbol} style={{
         background: 'white', borderRadius: '12px', padding: '14px',
         boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column',
@@ -504,7 +504,7 @@ export default function Pulse(): JSX.Element {
               color: stock.rsi >= 70 ? '#dc2626' : stock.rsi <= 30 ? '#16a34a' : '#6b7280', fontWeight: '500'
             }}>RSI {stock.rsi.toFixed(0)}</span>
           )}
-        </div>
+          </div>
         <div style={{ fontSize: '1.3rem', fontWeight: '700', color: changeColor }}>{formatPrice(stock.price, stock.symbol)}</div>
         <div style={{ display: 'flex', gap: '8px', fontSize: '0.8rem' }}>
           <span style={{ color: changeColor, fontWeight: '500' }}>{isPositive ? '↑' : '↓'} {formatPrice(Math.abs(stock.change))}</span>
@@ -526,7 +526,7 @@ export default function Pulse(): JSX.Element {
         {category.data.map(stock => renderCard(stock, category.color))}
         {category.data.length === 0 && <div style={{ padding: '16px', color: '#9ca3af', fontSize: '0.85rem', gridColumn: '1 / -1', textAlign: 'center' }}>加载中...</div>}
       </div>
-    </div>
+          </div>
   )
 
   // 渲染复盘表格
@@ -550,19 +550,19 @@ export default function Pulse(): JSX.Element {
             borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
           }}>+ 录入今日</button>
         </div>
-      </div>
+          </div>
       
       {reviews.length > 0 ? (
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem', minWidth: '1200px' }}>
-            <thead>
+              <thead>
               <tr style={{ background: '#f8fafc' }}>
                 {['日期', '周', '涨停', '封板率', '打开', '跌停', '封板率', '打开', '量能', '涨-跌', '沪深创', '连板晋级', '连板数', '最高板', '成交前五', '换手前五', '流入', '流出', '操作'].map(h => (
                   <th key={h} style={{ padding: '8px 6px', textAlign: 'center', fontWeight: '600', color: '#64748b', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>{h}</th>
                 ))}
-              </tr>
-            </thead>
-            <tbody>
+                </tr>
+              </thead>
+              <tbody>
               {reviews.slice(0, 10).map((r, i) => (
                 <tr key={r.date} style={{ background: i % 2 === 0 ? 'white' : '#fafafa' }}>
                   <td style={{ padding: '8px 6px', textAlign: 'center', fontWeight: '500' }}>{r.date.slice(5)}</td>
@@ -586,13 +586,13 @@ export default function Pulse(): JSX.Element {
                   <td style={{ padding: '8px 6px', textAlign: 'center' }}>
                     <button onClick={() => handleEdit(r)} style={{ padding: '2px 6px', marginRight: '4px', background: '#e0f2fe', color: '#0369a1', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '0.7rem' }}>编辑</button>
                     <button onClick={() => handleDelete(r.date)} style={{ padding: '2px 6px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '0.7rem' }}>删除</button>
-                  </td>
-                </tr>
+                      </td>
+                    </tr>
               ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
+              </tbody>
+            </table>
+          </div>
+        ) : (
         <div style={{ padding: '24px', textAlign: 'center', color: '#9ca3af' }}>暂无数据，点击"录入今日"开始记录</div>
       )}
     </div>
@@ -617,15 +617,15 @@ export default function Pulse(): JSX.Element {
         </div>
         
         {todayNews.length > 0 && (
-          <div style={{ marginBottom: '16px', padding: '12px', background: '#fef3c7', borderRadius: '8px', borderLeft: '4px solid #f59e0b' }}>
-            <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#92400e', marginBottom: '8px' }}>今日消息 ({todayNews.length}条)</div>
+          <div style={{ marginBottom: '16px', padding: '12px', background: 'white', borderRadius: '8px', borderLeft: '4px solid #f59e0b' }}>
+            <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>今日消息 ({todayNews.length}条)</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {todayNews.map(news => (
                 <div key={news.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', padding: '8px', background: 'white', borderRadius: '6px' }}>
                   <span style={{ 
                     fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', fontWeight: '500',
-                    background: news.impact === 'high' ? '#fee2e2' : news.impact === 'medium' ? '#fef3c7' : '#e0f2fe',
-                    color: news.impact === 'high' ? '#dc2626' : news.impact === 'medium' ? '#d97706' : '#0369a1',
+                    background: news.impact === 'high' ? '#fee2e2' : news.impact === 'medium' ? '#f3f4f6' : '#e0f2fe',
+                    color: news.impact === 'high' ? '#dc2626' : news.impact === 'medium' ? '#6b7280' : '#0369a1',
                     whiteSpace: 'nowrap'
                   }}>
                     {news.impact === 'high' ? '🔥高' : news.impact === 'medium' ? '⚡中' : '📌低'}
@@ -643,18 +643,18 @@ export default function Pulse(): JSX.Element {
             </div>
           </div>
         )}
-        
+
         {recentNews.length > 0 && (
           <div>
             <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#64748b', marginBottom: '8px' }}>最近消息</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               {recentNews.map(news => (
-                <div key={news.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px', background: news.date === today ? '#fef3c7' : '#f9fafb', borderRadius: '6px', fontSize: '0.8rem' }}>
+                <div key={news.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px', background: news.date === today ? '#f0f9ff' : '#f9fafb', borderRadius: '6px', fontSize: '0.8rem' }}>
                   <span style={{ color: '#9ca3af', minWidth: '70px' }}>{news.date.slice(5)}</span>
                   <span style={{ 
                     fontSize: '0.7rem', padding: '2px 5px', borderRadius: '3px',
-                    background: news.impact === 'high' ? '#fee2e2' : news.impact === 'medium' ? '#fef3c7' : '#e0f2fe',
-                    color: news.impact === 'high' ? '#dc2626' : news.impact === 'medium' ? '#d97706' : '#0369a1'
+                    background: news.impact === 'high' ? '#fee2e2' : news.impact === 'medium' ? '#f3f4f6' : '#e0f2fe',
+                    color: news.impact === 'high' ? '#dc2626' : news.impact === 'medium' ? '#6b7280' : '#0369a1'
                   }}>
                     {news.impact === 'high' ? '高' : news.impact === 'medium' ? '中' : '低'}
                   </span>
@@ -668,7 +668,7 @@ export default function Pulse(): JSX.Element {
             </div>
           </div>
         )}
-        
+
         {newsList.length === 0 && (
           <div style={{ padding: '24px', textAlign: 'center', color: '#9ca3af' }}>暂无消息，点击"添加消息"开始记录</div>
         )}
