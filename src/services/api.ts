@@ -1,4 +1,4 @@
-import type { MarketData, StockQuote } from '../types'
+import type { MarketData, StockQuote, SectorData, SectorCategory } from '../types'
 
 // 计算 RSI 指数（14周期）
 function calculateRSI(prices: number[], period = 14): number | null {
@@ -412,5 +412,247 @@ export async function fetchMarketData(): Promise<MarketData> {
       hkIndices: [],
       timestamp: new Date().toISOString()
     }
+  }
+}
+
+// 获取板块数据（行业板块或概念板块）- 获取更多数据以便筛选
+async function fetchSectorData(type: 'industry' | 'concept', limit = 100): Promise<SectorData[]> {
+  const cacheKey = `sector_${type}_${limit}`
+  const cached = getCached<SectorData[]>(cacheKey)
+  if (cached) return cached
+
+  // 行业板块: m:90+t:2, 概念板块: m:90+t:3
+  const fs = type === 'industry' ? 'm:90+t:2' : 'm:90+t:3'
+  const url = `https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=${limit}&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=${fs}`
+
+  try {
+    const response = await fetchWithTimeout(CORS_PROXY_MAIN(url), {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' }
+    }, 10000)
+
+    if (!response.ok) {
+      console.warn(`Failed to fetch ${type} sectors: HTTP ${response.status}`)
+      return []
+    }
+    const data = await response.json()
+    const diff = data?.data?.diff
+    if (!diff || !Array.isArray(diff)) {
+      console.warn(`Failed to fetch ${type} sectors: invalid data format`, data)
+      return []
+    }
+    
+    console.log(`获取${type === 'industry' ? '行业' : '概念'}板块数据: ${diff.length}条`)
+
+    const sectors: SectorData[] = diff.map((item: any) => ({
+      code: item.f12 || '',           // 板块代码
+      name: item.f14 || '',           // 板块名称
+      price: (item.f2 || 0) / 100,   // 最新价（需要除以100）
+      change: (item.f4 || 0) / 100,   // 涨跌额
+      changePercent: item.f3 || 0,   // 涨跌幅（百分比）
+      volume: item.f5 || 0,           // 成交量
+      // f6字段单位是元，需要转换为万元
+      // 例如：388763590000元 = 38876359万元 = 3887.6亿
+      amount: (item.f6 || 0) / 10000,  // 成交额（从元转换为万元）
+      stockCount: item.f104 || 0,      // 成分股数量
+      upCount: item.f105 || 0,         // 上涨家数
+      downCount: item.f106 || 0,       // 下跌家数
+      rsi: undefined                   // RSI 稍后计算
+    })).filter((s: SectorData) => s.name && s.code)
+    
+    // 为前10个板块计算RSI（避免请求过多）
+    const topSectors = sectors.slice(0, 10)
+    const rsiPromises = topSectors.map(async (sector) => {
+      try {
+        // 板块代码格式：BK0737，需要转换为secid格式
+        // 板块secid格式：90.BK0737
+        const secid = `90.${sector.code}`
+        const historyPrices = await fetchEastMoneyHistory(secid)
+        if (historyPrices.length >= 15) {
+          const rsiValue = calculateRSI(historyPrices)
+          if (rsiValue !== null) {
+            sector.rsi = rsiValue
+          }
+        }
+      } catch (error) {
+        // 忽略RSI计算错误
+      }
+      return sector
+    })
+    
+    await Promise.allSettled(rsiPromises)
+
+    // 按涨跌幅排序（降序）
+    sectors.sort((a, b) => b.changePercent - a.changePercent)
+    
+    setCache(cacheKey, sectors)
+    return sectors
+  } catch (error) {
+    console.warn(`Failed to fetch ${type} sectors:`, error)
+    return []
+  }
+}
+
+// 获取美股板块数据（使用行业ETF和主题ETF）
+async function fetchUSSectorData(): Promise<SectorData[]> {
+  const cacheKey = 'us_sectors'
+  const cached = getCached<SectorData[]>(cacheKey)
+  if (cached) return cached
+
+  // 美股主要行业和主题ETF列表
+  const usSectors = [
+    { symbol: 'XLK', name: '科技' },      // Technology Select Sector SPDR
+    { symbol: 'XLF', name: '金融' },      // Financial Select Sector SPDR
+    { symbol: 'XLV', name: '医疗' },      // Health Care Select Sector SPDR
+    { symbol: 'XLE', name: '能源' },      // Energy Select Sector SPDR
+    { symbol: 'XLI', name: '工业' },      // Industrial Select Sector SPDR
+    { symbol: 'XLP', name: '消费必需品' }, // Consumer Staples Select Sector SPDR
+    { symbol: 'XLY', name: '消费可选' },  // Consumer Discretionary Select Sector SPDR
+    { symbol: 'XLB', name: '材料' },      // Materials Select Sector SPDR
+    { symbol: 'XLU', name: '公用事业' },   // Utilities Select Sector SPDR
+    { symbol: 'XLRE', name: '房地产' },   // Real Estate Select Sector SPDR
+    { symbol: 'XLC', name: '通信服务' },   // Communication Services Select Sector SPDR
+    { symbol: 'ARKK', name: '创新科技' }, // ARK Innovation ETF
+    { symbol: 'SOXX', name: '半导体' },   // iShares Semiconductor ETF
+    { symbol: 'IBB', name: '生物科技' },  // iShares Biotechnology ETF
+    { symbol: 'XOP', name: '油气勘探' },  // SPDR S&P Oil & Gas Exploration & Production ETF
+    { symbol: 'GDX', name: '黄金矿业' },  // VanEck Gold Miners ETF
+    { symbol: 'XRT', name: '零售' },      // SPDR S&P Retail ETF
+    { symbol: 'ITB', name: '建筑' },      // iShares U.S. Home Construction ETF
+    { symbol: 'XES', name: '油气设备' },  // SPDR S&P Oil & Gas Equipment & Services ETF
+    { symbol: 'XHB', name: '房屋建筑' },  // SPDR S&P Homebuilders ETF
+    { symbol: 'XME', name: '金属矿业' },  // SPDR S&P Metals & Mining ETF
+    { symbol: 'XPH', name: '制药' },      // SPDR S&P Pharmaceuticals ETF
+    { symbol: 'XSW', name: '软件' },       // SPDR S&P Software & Services ETF
+    { symbol: 'XWEB', name: '互联网' },   // SPDR S&P Internet ETF
+    { symbol: 'XHS', name: '医疗设备' },   // SPDR S&P Health Care Equipment ETF
+    { symbol: 'XAR', name: '航空航天' },   // SPDR S&P Aerospace & Defense ETF
+    { symbol: 'XNTK', name: '网络安全' }, // SPDR NYSE Technology ETF
+    { symbol: 'XHE', name: '医疗保健' },   // SPDR S&P Health Care Equipment ETF
+    { symbol: 'XSD', name: '半导体设备' }, // SPDR S&P Semiconductor ETF
+    { symbol: 'XTL', name: '电信' },      // SPDR S&P Telecom ETF
+  ]
+
+  try {
+    const results = await Promise.allSettled(
+      usSectors.map(async ({ symbol, name }) => {
+        const stock = await fetchUSStock(symbol)
+        if (!stock) return null
+        
+        return {
+          code: symbol,
+          name: name,
+          price: stock.price,
+          change: stock.change,
+          changePercent: stock.changePercent,
+          volume: stock.volume || 0,
+          amount: 0, // Yahoo Finance 不提供成交额
+          stockCount: 0, // 需要额外API获取
+          upCount: 0,
+          downCount: 0,
+          rsi: stock.rsi // 使用ETF的RSI
+        } as SectorData
+      })
+    )
+
+    const sectors: SectorData[] = results
+      .map(r => r.status === 'fulfilled' ? r.value : null)
+      .filter((s): s is SectorData => s !== null && s.name !== undefined)
+
+    // 按涨跌幅排序（降序）
+    sectors.sort((a, b) => b.changePercent - a.changePercent)
+    
+    setCache(cacheKey, sectors)
+    return sectors
+  } catch (error) {
+    console.warn('Failed to fetch US sectors:', error)
+    return []
+  }
+}
+
+// 获取板块数据（包含行业和概念，分别显示上涨和下跌前15）
+export async function fetchSectorCategories(): Promise<SectorCategory[]> {
+  try {
+    const [industryData, conceptData] = await Promise.all([
+      fetchSectorData('industry', 100),  // 获取更多数据以便筛选（确保有足够的下跌板块）
+      fetchSectorData('concept', 100)
+    ])
+
+    // 分别筛选上涨和下跌的板块
+    const getTopSectors = (data: SectorData[], count = 15) => {
+      // 上涨板块：按涨幅降序，取前count个
+      const up = data
+        .filter(s => s.changePercent > 0)
+        .sort((a, b) => b.changePercent - a.changePercent)
+        .slice(0, count)
+      
+      // 下跌板块：按跌幅升序（最跌的在前面），取前count个
+      const down = data
+        .filter(s => s.changePercent < 0)
+        .sort((a, b) => a.changePercent - b.changePercent)
+        .slice(0, count)
+      
+      return { up, down }
+    }
+
+    const industry = getTopSectors(industryData, 15)
+    const concept = getTopSectors(conceptData, 15)
+
+    console.log('板块数据统计:', {
+      industry: { total: industryData.length, up: industry.up.length, down: industry.down.length },
+      concept: { total: conceptData.length, up: concept.up.length, down: concept.down.length }
+    })
+
+    return [
+      {
+        type: 'industry',
+        title: '行业板块',
+        icon: '🏭',
+        color: '#3b82f6',
+        bgColor: '#eff6ff',
+        data: [...industry.up, ...industry.down]  // 先显示上涨，再显示下跌
+      },
+      {
+        type: 'concept',
+        title: '概念板块',
+        icon: '💡',
+        color: '#8b5cf6',
+        bgColor: '#faf5ff',
+        data: [...concept.up, ...concept.down]  // 先显示上涨，再显示下跌
+      }
+    ]
+  } catch (error) {
+    console.error('Failed to fetch sector categories:', error)
+    return []
+  }
+}
+
+// 获取美股板块数据（包含行业和主题）
+export async function fetchUSSectorCategories(): Promise<SectorCategory[]> {
+  try {
+    const usSectorData = await fetchUSSectorData()
+    
+    // 分别筛选上涨和下跌的板块
+    const getTopSectors = (data: SectorData[], count = 15) => {
+      const up = data.filter(s => s.changePercent > 0).slice(0, count)
+      const down = data.filter(s => s.changePercent < 0).slice(-count).reverse()
+      return { up, down }
+    }
+
+    const sectors = getTopSectors(usSectorData, 15)
+
+    return [
+      {
+        type: 'industry',
+        title: '美股行业板块',
+        icon: '🇺🇸',
+        color: '#3b82f6',
+        bgColor: '#eff6ff',
+        data: [...sectors.up, ...sectors.down]
+      }
+    ]
+  } catch (error) {
+    console.error('Failed to fetch US sector categories:', error)
+    return []
   }
 }

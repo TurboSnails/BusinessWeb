@@ -1,216 +1,17 @@
 import React, { useEffect, useState } from 'react'
-import { fetchMarketDataByType } from '../services/api'
-import type { StockQuote } from '../types'
-
-// 复盘数据类型
-type DailyReview = {
-  date: string           // 日期 YYYY-MM-DD
-  weekday: string        // 周几
-  ztCount: number        // 涨停板数
-  ztSealRate: string     // 涨停封板率
-  ztOpen: number         // 涨停打开数
-  dtCount: number        // 跌停板数
-  dtSealRate: string     // 跌停封板率
-  dtOpen: number         // 跌停打开数
-  volume: number         // 量能（亿）
-  upDown: string         // 涨-跌
-  shszcy: string         // 沪深创
-  lbRate: string         // 连板晋级率
-  lbCount: number        // 连板数量
-  maxBoard: number       // 最高板
-  top5Amount: number     // 成交金额前五
-  top5Turnover: number   // 换手率前五
-  inflow: string         // 流入板块
-  outflow: string        // 流出板块
-}
-
-// 重要消息类型
-type ImportantNews = {
-  id: string
-  date: string           // 日期 YYYY-MM-DD
-  title: string          // 消息标题
-  impact: 'high' | 'medium' | 'low'  // 影响程度
-  category: string       // 分类：美联储/经济数据/地缘政治/财报/其他
-  source?: string        // 来源
-  link?: string          // 链接
-  notes?: string         // 备注
-}
-
-type MarketCategory = {
-  key: string
-  title: string
-  icon: string
-  color: string
-  bgColor: string
-  data: StockQuote[]
-}
-
-// localStorage 操作
-const STORAGE_KEY_REVIEWS = 'pulse_daily_reviews'
-const STORAGE_KEY_NEWS = 'pulse_important_news'
-const STORAGE_KEY_GIST_TOKEN = 'pulse_gist_token'
-const STORAGE_KEY_GIST_ID = 'pulse_gist_id'
-
-const loadReviews = (): DailyReview[] => {
-  try {
-    const data = localStorage.getItem(STORAGE_KEY_REVIEWS)
-    return data ? JSON.parse(data) : []
-  } catch { return [] }
-}
-const saveReviews = (reviews: DailyReview[]) => {
-  localStorage.setItem(STORAGE_KEY_REVIEWS, JSON.stringify(reviews.slice(0, 30)))
-}
-const loadNews = (): ImportantNews[] => {
-  try {
-    const data = localStorage.getItem(STORAGE_KEY_NEWS)
-    return data ? JSON.parse(data) : []
-  } catch { return [] }
-}
-const saveNews = (news: ImportantNews[]) => {
-  localStorage.setItem(STORAGE_KEY_NEWS, JSON.stringify(news.slice(0, 200)))
-}
-
-// GitHub Gist 同步
-const getGistToken = (): string | null => {
-  return localStorage.getItem(STORAGE_KEY_GIST_TOKEN)
-}
-const getGistId = (): string | null => {
-  return localStorage.getItem(STORAGE_KEY_GIST_ID)
-}
-const saveGistConfig = (token: string, gistId: string | null) => {
-  localStorage.setItem(STORAGE_KEY_GIST_TOKEN, token)
-  if (gistId) localStorage.setItem(STORAGE_KEY_GIST_ID, gistId)
-}
-
-// 同步到 Gist
-const syncToGist = async (reviews: DailyReview[], news: ImportantNews[]): Promise<{ success: boolean; error?: string }> => {
-  const token = getGistToken()
-  if (!token) return { success: false, error: '未配置 Token' }
-  
-  try {
-    const data = {
-      reviews,
-      news,
-      syncDate: new Date().toISOString(),
-      version: '1.0'
-    }
-    const content = JSON.stringify(data, null, 2)
-    
-    const gistId = getGistId()
-    const url = gistId 
-      ? `https://api.github.com/gists/${gistId}`  // 更新现有
-      : 'https://api.github.com/gists'            // 创建新
-    
-    const response = await fetch(url, {
-      method: gistId ? 'PATCH' : 'POST',
-      headers: {
-        'Authorization': token.startsWith('ghp_') ? `token ${token}` : `Bearer ${token}`,
-        'Accept': 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        description: '经济脉搏 - 每日复盘数据',
-        public: false,
-        files: {
-          'pulse-data.json': {
-            content
-          }
-        }
-      })
-    })
-    
-    if (response.ok) {
-      const result = await response.json()
-      const newGistId = result.id
-      
-      // 保存或更新 gistId
-      if (newGistId) {
-        if (!gistId) {
-          // 首次创建，保存 gistId
-          saveGistConfig(token, newGistId)
-          console.log('Created new Gist:', newGistId)
-        } else if (newGistId !== gistId) {
-          // gistId 变化了（不应该发生，但保险起见）
-          saveGistConfig(token, newGistId)
-          console.log('Gist ID updated:', newGistId)
-        }
-      }
-      
-      console.log('Uploaded to Gist:', {
-        gistId: newGistId || gistId,
-        reviews: reviews.length,
-        news: news.length
-      })
-      
-      return { success: true }
-    } else {
-      const errorData = await response.json().catch(() => ({ message: response.statusText }))
-      console.error('Upload failed:', response.status, errorData)
-      return { success: false, error: errorData.message || `HTTP ${response.status}` }
-    }
-  } catch (error: any) {
-    console.error('Gist sync failed:', error)
-    return { success: false, error: error.message || '网络错误' }
-  }
-}
-
-// 从 Gist 同步
-const syncFromGist = async (): Promise<{ reviews: DailyReview[], news: ImportantNews[] } | null> => {
-  const token = getGistToken()
-  const gistId = getGistId()
-  if (!token) {
-    console.warn('No token configured')
-    return null
-  }
-  if (!gistId) {
-    console.warn('No gistId found, need to upload first')
-    return null
-  }
-  
-  try {
-    const response = await fetch(`https://api.github.com/gists/${gistId}`, {
-      headers: {
-        'Authorization': token.startsWith('ghp_') ? `token ${token}` : `Bearer ${token}`,
-        'Accept': 'application/vnd.github.v3+json'
-      }
-    })
-    
-    if (response.ok) {
-      const gist = await response.json()
-      const file = gist.files['pulse-data.json']
-      if (file) {
-        const data = JSON.parse(file.content)
-        console.log('Downloaded from Gist:', {
-          reviews: data.reviews?.length || 0,
-          news: data.news?.length || 0
-        })
-        return {
-          reviews: data.reviews || [],
-          news: data.news || []
-        }
-      } else {
-        console.warn('Gist file not found')
-        return null
-      }
-    } else {
-      const errorData = await response.json().catch(() => ({ message: response.statusText }))
-      console.error('Gist fetch failed:', response.status, errorData)
-      return null
-    }
-  } catch (error: any) {
-    console.error('Gist fetch error:', error)
-    return null
-  }
-}
-
-// 获取周几
-const getWeekday = (dateStr: string) => {
-  const days = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
-  return days[new Date(dateStr).getDay()]
-}
+import { fetchMarketDataByType, fetchSectorCategories, fetchUSSectorCategories } from '../services/api'
+import type { DailyReview, ImportantNews, MarketCategory, SectorCategory } from '../types'
+import { loadReviews, saveReviews, loadNews, saveNews, getGistToken, getGistId, saveGistConfig } from '../utils/storage'
+import { syncToGist, syncFromGist } from '../utils/gist'
+import { getWeekday, getToday } from '../utils/date'
+import { ReviewTable } from '../components/pulse/ReviewTable'
+import { NewsSection } from '../components/pulse/NewsSection'
+import { MarketCategory as MarketCategoryComponent } from '../components/pulse/MarketCategory'
+import { SectorSection } from '../components/pulse/SectorSection'
 
 export default function Pulse(): JSX.Element {
   const [categories, setCategories] = useState<MarketCategory[]>([])
+  const [sectorCategories, setSectorCategories] = useState<SectorCategory[]>([])
   const [loading, setLoading] = useState(true)
   const [timestamp, setTimestamp] = useState<string>('')
   
@@ -267,15 +68,20 @@ export default function Pulse(): JSX.Element {
         { key: 'forex', title: '外汇债券', icon: '💱', color: '#8b5cf6', bgColor: '#faf5ff' },
       ]
       
-      const results = await Promise.all(
-        categoryConfig.map(async (cat) => {
-          const data = await fetchMarketDataByType(cat.key as any)
-          return { ...cat, data }
-        })
-      )
+      const [results, cnSectors, usSectors] = await Promise.all([
+        Promise.all(
+          categoryConfig.map(async (cat) => {
+            const data = await fetchMarketDataByType(cat.key as any)
+            return { ...cat, data }
+          })
+        ),
+        fetchSectorCategories(),  // 获取中国板块数据
+        fetchUSSectorCategories()  // 获取美股板块数据
+      ])
       
       if (mounted) {
         setCategories(results)
+        setSectorCategories([...cnSectors, ...usSectors])  // 合并中国和美股板块
         setTimestamp(new Date().toLocaleString('zh-CN'))
         setLoading(false)
       }
@@ -351,8 +157,7 @@ export default function Pulse(): JSX.Element {
 
   // 新增今日数据
   const handleAddToday = () => {
-    const today = new Date().toISOString().split('T')[0]
-    setFormData({ date: today })
+    setFormData({ date: getToday() })
     setEditDate('')
     setShowForm(true)
   }
@@ -465,8 +270,7 @@ export default function Pulse(): JSX.Element {
 
   // 新增今日消息
   const handleAddTodayNews = () => {
-    const today = new Date().toISOString().split('T')[0]
-    setNewsFormData({ date: today, impact: 'medium', category: '其他' })
+    setNewsFormData({ date: getToday(), impact: 'medium', category: '其他' })
     setShowNewsForm(true)
   }
 
@@ -554,209 +358,26 @@ export default function Pulse(): JSX.Element {
     }
   }
 
-  const formatPrice = (price: number, symbol?: string) => {
-    if (symbol === 'BTC-USD') return price.toLocaleString('en-US', { maximumFractionDigits: 0 })
-    return price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-  }
-
-  const formatPercent = (percent: number) => {
-    const sign = percent >= 0 ? '+' : ''
-    return `${sign}${percent.toFixed(2)}%`
-  }
-
-  // 渲染数据卡片
-  const renderCard = (stock: StockQuote, color: string) => {
-    const isPositive = stock.change >= 0
-    const changeColor = isPositive ? '#16a34a' : '#dc2626'
-
-  return (
-      <div key={stock.symbol} style={{
-        background: 'white', borderRadius: '12px', padding: '14px',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column',
-        gap: '6px', borderLeft: `4px solid ${color}`, transition: 'transform 0.2s, box-shadow 0.2s'
-      }}
-        onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)' }}
-        onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)' }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <span style={{ fontWeight: '600', fontSize: '0.9rem', color: '#1f2937' }}>{stock.name}</span>
-          {stock.rsi !== undefined && (
-            <span style={{ fontSize: '0.7rem', padding: '2px 5px', borderRadius: '4px',
-              background: stock.rsi >= 70 ? '#fef2f2' : stock.rsi <= 30 ? '#f0fdf4' : '#f3f4f6',
-              color: stock.rsi >= 70 ? '#dc2626' : stock.rsi <= 30 ? '#16a34a' : '#6b7280', fontWeight: '500'
-            }}>RSI {stock.rsi.toFixed(0)}</span>
-          )}
-          </div>
-        <div style={{ fontSize: '1.3rem', fontWeight: '700', color: changeColor }}>{formatPrice(stock.price, stock.symbol)}</div>
-        <div style={{ display: 'flex', gap: '8px', fontSize: '0.8rem' }}>
-          <span style={{ color: changeColor, fontWeight: '500' }}>{isPositive ? '↑' : '↓'} {formatPrice(Math.abs(stock.change))}</span>
-          <span style={{ color: changeColor, fontWeight: '600', padding: '1px 5px', borderRadius: '4px', background: isPositive ? '#f0fdf4' : '#fef2f2' }}>{formatPercent(stock.changePercent)}</span>
-        </div>
-      </div>
-    )
-  }
-
-  // 渲染分类
-  const renderCategory = (category: MarketCategory) => (
-    <div key={category.key} style={{ marginBottom: '20px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', padding: '6px 10px',
-        background: category.bgColor, borderRadius: '6px', borderLeft: `3px solid ${category.color}` }}>
-        <span style={{ fontSize: '1rem' }}>{category.icon}</span>
-        <span style={{ fontWeight: '600', color: category.color, fontSize: '0.9rem' }}>{category.title}</span>
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '10px' }}>
-        {category.data.map(stock => renderCard(stock, category.color))}
-        {category.data.length === 0 && <div style={{ padding: '16px', color: '#9ca3af', fontSize: '0.85rem', gridColumn: '1 / -1', textAlign: 'center' }}>加载中...</div>}
-      </div>
-          </div>
-  )
-
-  // 渲染复盘表格
+  // 渲染复盘表格 - 使用组件
   const renderReviewTable = () => (
-    <div style={{ marginBottom: '24px', padding: '16px', background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
-        <h3 style={{ margin: 0, fontSize: '1rem', color: '#374151', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          📝 每日复盘 <span style={{ fontSize: '0.8rem', color: '#9ca3af', fontWeight: 'normal' }}>最近{reviews.length}天</span>
-        </h3>
-        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-          <button onClick={handleExport} style={{
-            padding: '6px 12px', background: '#10b981', color: 'white', border: 'none',
-            borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
-          }}>📥 导出</button>
-          <button onClick={handleImport} style={{
-            padding: '6px 12px', background: '#8b5cf6', color: 'white', border: 'none',
-            borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
-          }}>📤 导入</button>
-          <button onClick={handleAddToday} style={{
-            padding: '6px 12px', background: '#3b82f6', color: 'white', border: 'none',
-            borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
-          }}>+ 录入今日</button>
-        </div>
-          </div>
-      
-      {reviews.length > 0 ? (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem', minWidth: '1200px' }}>
-              <thead>
-              <tr style={{ background: '#f8fafc' }}>
-                {['日期', '周', '涨停', '封板率', '打开', '跌停', '封板率', '打开', '量能', '涨-跌', '沪深创', '连板晋级', '连板数', '最高板', '成交前五', '换手前五', '流入', '流出', '操作'].map(h => (
-                  <th key={h} style={{ padding: '8px 6px', textAlign: 'center', fontWeight: '600', color: '#64748b', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>{h}</th>
-                ))}
-                </tr>
-              </thead>
-              <tbody>
-              {reviews.slice(0, 10).map((r, i) => (
-                <tr key={r.date} style={{ background: i % 2 === 0 ? 'white' : '#fafafa' }}>
-                  <td style={{ padding: '8px 6px', textAlign: 'center', fontWeight: '500' }}>{r.date.slice(5)}</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'center' }}>{r.weekday}</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'center', color: '#dc2626', fontWeight: '600' }}>{r.ztCount}</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'center' }}>{r.ztSealRate}</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'center' }}>{r.ztOpen}</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'center', color: '#16a34a', fontWeight: '600' }}>{r.dtCount}</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'center' }}>{r.dtSealRate}</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'center' }}>{r.dtOpen}</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'center', color: '#f59e0b', fontWeight: '600' }}>{r.volume}</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'center' }}>{r.upDown}</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'center' }}>{r.shszcy}</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'center' }}>{r.lbRate}</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'center', color: '#8b5cf6', fontWeight: '600' }}>{r.lbCount}</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'center', color: '#dc2626', fontWeight: '700' }}>{r.maxBoard}</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'center', color: '#0ea5e9', fontWeight: '600' }}>{r.top5Amount || '--'}</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'center', color: '#0ea5e9', fontWeight: '600' }}>{r.top5Turnover || '--'}</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'left', maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#dc2626' }} title={r.inflow}>{r.inflow}</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'left', maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#16a34a' }} title={r.outflow}>{r.outflow}</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'center' }}>
-                    <button onClick={() => handleEdit(r)} style={{ padding: '2px 6px', marginRight: '4px', background: '#e0f2fe', color: '#0369a1', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '0.7rem' }}>编辑</button>
-                    <button onClick={() => handleDelete(r.date)} style={{ padding: '2px 6px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '0.7rem' }}>删除</button>
-                      </td>
-                    </tr>
-              ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-        <div style={{ padding: '24px', textAlign: 'center', color: '#9ca3af' }}>暂无数据，点击"录入今日"开始记录</div>
-      )}
-    </div>
+    <ReviewTable
+      reviews={reviews}
+      onEdit={handleEdit}
+      onDelete={handleDelete}
+      onExport={handleExport}
+      onImport={handleImport}
+      onAddToday={handleAddToday}
+    />
   )
 
-  // 渲染重要消息区块
-  const renderNewsSection = () => {
-    const today = new Date().toISOString().split('T')[0]
-    const todayNews = newsList.filter(n => n.date === today)
-    const recentNews = newsList.slice(0, 10)
-    
-    return (
-      <div style={{ marginBottom: '24px', padding: '16px', background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-          <h3 style={{ margin: 0, fontSize: '1rem', color: '#374151', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            📰 每日重要消息 <span style={{ fontSize: '0.8rem', color: '#9ca3af', fontWeight: 'normal' }}>影响美股的关键事件</span>
-          </h3>
-          <button onClick={handleAddTodayNews} style={{
-            padding: '6px 12px', background: '#3b82f6', color: 'white', border: 'none',
-            borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
-          }}>+ 添加消息</button>
-        </div>
-        
-        {todayNews.length > 0 && (
-          <div style={{ marginBottom: '16px', padding: '12px', background: 'white', borderRadius: '8px', borderLeft: '4px solid #f59e0b' }}>
-            <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>今日消息 ({todayNews.length}条)</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {todayNews.map(news => (
-                <div key={news.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', padding: '8px', background: 'white', borderRadius: '6px' }}>
-                  <span style={{ 
-                    fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', fontWeight: '500',
-                    background: news.impact === 'high' ? '#fee2e2' : news.impact === 'medium' ? '#f3f4f6' : '#e0f2fe',
-                    color: news.impact === 'high' ? '#dc2626' : news.impact === 'medium' ? '#6b7280' : '#0369a1',
-                    whiteSpace: 'nowrap'
-                  }}>
-                    {news.impact === 'high' ? '🔥高' : news.impact === 'medium' ? '⚡中' : '📌低'}
-                  </span>
-                  <span style={{ fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', background: '#f3f4f6', color: '#6b7280' }}>
-                    {news.category}
-                  </span>
-                  <span style={{ flex: 1, fontSize: '0.85rem', color: '#1f2937' }}>{news.title}</span>
-                  {news.link && (
-                    <a href={news.link} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.7rem', color: '#3b82f6' }}>🔗</a>
-                  )}
-                  <button onClick={() => handleDeleteNews(news.id)} style={{ fontSize: '0.7rem', padding: '2px 6px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '3px', cursor: 'pointer' }}>删除</button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {recentNews.length > 0 && (
-          <div>
-            <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#64748b', marginBottom: '8px' }}>最近消息</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              {recentNews.map(news => (
-                <div key={news.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px', background: news.date === today ? '#f0f9ff' : '#f9fafb', borderRadius: '6px', fontSize: '0.8rem' }}>
-                  <span style={{ color: '#9ca3af', minWidth: '70px' }}>{news.date.slice(5)}</span>
-                  <span style={{ 
-                    fontSize: '0.7rem', padding: '2px 5px', borderRadius: '3px',
-                    background: news.impact === 'high' ? '#fee2e2' : news.impact === 'medium' ? '#f3f4f6' : '#e0f2fe',
-                    color: news.impact === 'high' ? '#dc2626' : news.impact === 'medium' ? '#6b7280' : '#0369a1'
-                  }}>
-                    {news.impact === 'high' ? '高' : news.impact === 'medium' ? '中' : '低'}
-                  </span>
-                  <span style={{ fontSize: '0.7rem', color: '#9ca3af', minWidth: '60px' }}>{news.category}</span>
-                  <span style={{ flex: 1, color: '#374151' }}>{news.title}</span>
-                  {news.link && (
-                    <a href={news.link} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.7rem', color: '#3b82f6' }}>🔗</a>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {newsList.length === 0 && (
-          <div style={{ padding: '24px', textAlign: 'center', color: '#9ca3af' }}>暂无消息，点击"添加消息"开始记录</div>
-        )}
-      </div>
-    )
-  }
+  // 渲染重要消息区块 - 使用组件
+  const renderNewsSection = () => (
+    <NewsSection
+      newsList={newsList}
+      onAdd={handleAddTodayNews}
+      onDelete={handleDeleteNews}
+    />
+  )
 
   // 渲染消息录入表单
   const renderNewsForm = () => showNewsForm && (
@@ -972,7 +593,18 @@ export default function Pulse(): JSX.Element {
       {renderNewsSection()}
 
       {/* 数据分类 */}
-      {categories.map(renderCategory)}
+      {categories.map(category => (
+        <MarketCategoryComponent key={category.key} category={category} />
+      ))}
+
+      {/* 板块数据 */}
+      {sectorCategories.length > 0 && (
+        <>
+          {sectorCategories.map(category => (
+            <SectorSection key={category.type} category={category} />
+          ))}
+        </>
+      )}
 
       {/* 资源链接 */}
       <div style={{ marginTop: '20px', padding: '16px', background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
@@ -984,6 +616,14 @@ export default function Pulse(): JSX.Element {
             { name: '东方财富', url: 'https://www.eastmoney.com/' },
             { name: '同花顺', url: 'https://www.10jqka.com.cn/' },
             { name: '财联社', url: 'https://www.cls.cn/' },
+            { name: 'Yahoo Finance - NAVI', url: 'https://finance.yahoo.com/quote/NAVI/' },
+            { name: '美联储官网', url: 'https://www.federalreserve.gov/' },
+            { name: '劳工统计局', url: 'https://www.bls.gov/' },
+            { name: 'Bloomberg', url: 'https://www.bloomberg.com/' },
+            { name: 'Reuters', url: 'https://www.reuters.com/' },
+            { name: '经济日历', url: 'https://www.investing.com/economic-calendar/' },
+            { name: '恐慌贪婪指数', url: 'https://www.cnn.com/markets/fear-and-greed' },
+            { name: 'CBOE 每日市场统计', url: 'https://www.cboe.com/us/options/market_statistics/daily/' },
           ].map(link => (
             <a key={link.name} href={link.url} target="_blank" rel="noopener noreferrer"
               style={{ padding: '5px 10px', background: '#f3f4f6', color: '#4b5563', textDecoration: 'none', borderRadius: '5px', fontSize: '0.8rem', transition: 'all 0.2s' }}
