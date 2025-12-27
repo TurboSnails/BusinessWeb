@@ -306,13 +306,103 @@ const InvestmentPlan2026 = () => {
       ]
     },
     {
-      category: '2026年5-9月',
+      category: '2026年5-9月 - 止盈与减仓规则（量化标准）',
       items: [
-        { id: 'may-sep-1', text: '持有做空仓位,设置止盈点(纳指-25%)' },
-        { id: 'may-sep-2', text: '每月1日评估是否满足抄底条件' },
-        { id: 'may-sep-3', text: '关注商业地产违约新闻' },
-        { id: 'may-sep-4', text: '关注美联储降息动态' },
-        { id: 'may-sep-5', text: '准备Q3-Q4抄底资金(不要提前动用)' }
+        { 
+          id: 'may-sep-1', 
+          text: '📊 基准点：以2026年纳指高点为基准（记录具体点位）',
+          detail: '例如：纳指2026年高点为18,000点，以此为基准计算回撤'
+        },
+        { 
+          id: 'may-sep-2', 
+          text: '💰 纳指从高点回撤20%：止盈空头仓位30%',
+          detail: '触发条件：纳指跌至14,400点（假设高点18,000）。执行：卖出30% PSQ/SH仓位，锁定利润'
+        },
+        { 
+          id: 'may-sep-3', 
+          text: '💰 纳指从高点回撤30%：再止盈空头仓位30%',
+          detail: '触发条件：纳指跌至12,600点。执行：再卖出30%空头仓位，累计已止盈60%'
+        },
+        { 
+          id: 'may-sep-4', 
+          text: '💰 纳指从高点回撤40%：择机平掉大部分空头',
+          detail: '触发条件：纳指跌至10,800点。执行：平掉剩余空头的70-80%，保留10-20%作为对冲'
+        },
+        { 
+          id: 'may-sep-5', 
+          text: '⚠️ 恐慌加速规则：VIX>40 或信用利差(IG/HY)极度走阔时，加快平仓节奏',
+          detail: '触发条件：VIX>40 或 IG信用利差>200bp / HY利差>800bp。执行：在达到上述回撤点位时，提前5-10%止盈'
+        }
+      ]
+    },
+    {
+      category: '2026年5-9月 - 每月1日评估表（量化Checklist）',
+      items: [
+        { 
+          id: 'may-sep-6', 
+          text: '✅ 失业率评估：是否连续3个月上升且合计≥0.5个百分点？',
+          detail: '数据源：BLS每月第一个周五8:30发布。阈值：连续上升+合计≥0.5% = 满足'
+        },
+        { 
+          id: 'may-sep-7', 
+          text: '✅ 银行拨备评估：拨备增速是否连续两季>30%或相对历史分位>75%？',
+          detail: '数据源：JPM/BAC/WFC/C季度财报。阈值：连续两季>30%或分位>75% = 满足'
+        },
+        { 
+          id: 'may-sep-8', 
+          text: '✅ 科技指引评估：3家以上科技龙头指引是否继续下修？',
+          detail: '数据源：MSFT/GOOGL/META/AAPL季度指引。阈值：≥3家下修 = 满足'
+        },
+        { 
+          id: 'may-sep-9', 
+          text: '✅ 信用利差评估：IG/HY信用利差是否继续走阔？',
+          detail: '数据源：Bloomberg/FRED。阈值：IG>150bp或HY>600bp且继续上升 = 满足'
+        },
+        { 
+          id: 'may-sep-10', 
+          text: '📊 综合判断：满足≥3项 = 危机仍在演化，空头不大幅减仓；满足≤2项 = 逐步锁定利润',
+          detail: '执行规则：≥3项满足→保持空头仓位；≤2项满足→开始分批止盈，每月减仓10-15%'
+        }
+      ]
+    },
+    {
+      category: '2026年5-9月 - 商业地产与美联储联动规则',
+      items: [
+        { 
+          id: 'may-sep-11', 
+          text: '🚨 商业地产危机信号：大型REIT/区域银行被迫救助或破产 + 信贷紧缩',
+          detail: '数据源：每日监控KRE ETF、区域银行新闻、商业地产REIT财报。触发动作：出现上述情况→将空头止盈节奏前移10%，同时更积极准备债券和优质股抄底名单'
+        },
+        { 
+          id: 'may-sep-12', 
+          text: '📉 美联储连续降息信号：2次以上降息但股指暂未大跌',
+          detail: '数据源：FOMC会议声明（每6-8周一次）。触发动作：连续2次降息但纳指跌幅<15%→减少新开空头，更多等待抄底机会，将抄底资金准备比例提升至70%'
+        },
+        { 
+          id: 'may-sep-13', 
+          text: '📊 信息跟踪频率：每周一、三、五监控KRE走势；每月1日评估上述指标；FOMC会议日重点关注',
+          detail: '数据源清单：KRE ETF（Yahoo Finance）、银行财报（公司官网）、FOMC声明（Fed官网）、信用利差（FRED/Bloomberg）'
+        }
+      ]
+    },
+    {
+      category: '2026年5-9月 - 抄底资金管理（量化规则）',
+      items: [
+        { 
+          id: 'may-sep-14', 
+          text: '💰 锁仓比例：Q3-Q4抄底资金至少保留60%，除非抄底条件满足≥4条才可以动用超过一半资金',
+          detail: '抄底条件（需满足≥4条）：1)标普回撤>30% 2)美联储降息至2%以下 3)政府万亿级刺激 4)VIX从50+回落至35以下 5)信贷数据连续两周正增长 6)信用利差收窄'
+        },
+        { 
+          id: 'may-sep-15', 
+          text: '📊 资金分配规则：满足≥4条→可动用60-80%抄底资金；满足3条→可动用30-50%；满足≤2条→仅动用10-20%',
+          detail: '执行：分批抄底，每批间隔1-2周，观察市场反应后再决定下一批'
+        },
+        { 
+          id: 'may-sep-16', 
+          text: '⚠️ 提前动用条件：仅在出现"极端恐慌"信号时可提前动用部分资金（不超过30%）',
+          detail: '极端恐慌定义：Equity P/C>1.3 + VIX>50 + 标普单日跌幅>5%。满足后可提前动用30%资金买入优质债和蓝筹股'
+        }
       ]
     }
   ];
@@ -1016,39 +1106,91 @@ const InvestmentPlan2026 = () => {
                   {section.category}
                 </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {section.items.map((item) => (
-                    <div key={item.id} style={{ 
-                      display: 'flex', 
-                      alignItems: 'flex-start', 
-                      gap: '12px', 
-                      padding: '8px',
-                      borderRadius: '6px',
-                      transition: 'background 0.2s'
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = '#f9fafb' }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
-                    >
-                      <input
-                        type="checkbox"
-                        id={item.id}
-                        checked={checkedItems[item.id] || false}
-                        onChange={() => toggleCheck(item.id)}
-                        style={{ marginTop: '2px', width: '20px', height: '20px', cursor: 'pointer' }}
-                      />
-                      <label
-                        htmlFor={item.id}
-                        style={{
-                          flex: 1,
-                          cursor: 'pointer',
-                          textDecoration: checkedItems[item.id] ? 'line-through' : 'none',
-                          color: checkedItems[item.id] ? '#9ca3af' : '#374151',
-                          fontSize: '0.9rem'
-                        }}
+                  {section.items.map((item) => {
+                    const hasDetail = 'detail' in item && item.detail
+                    const detailId = `${item.id}-detail`
+                    const isDetailExpanded = checkedItems[detailId] || false
+                    return (
+                      <div key={item.id} style={{ 
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        padding: '12px',
+                        background: '#fafafa',
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = '#f9fafb' }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = '#fafafa' }}
                       >
-                        {item.text}
-                      </label>
-                    </div>
-                  ))}
+                        <div style={{ 
+                          display: 'flex', 
+                          alignItems: 'flex-start', 
+                          gap: '12px'
+                        }}>
+                          <input
+                            type="checkbox"
+                            id={item.id}
+                            checked={checkedItems[item.id] || false}
+                            onChange={() => toggleCheck(item.id)}
+                            style={{ marginTop: '2px', width: '20px', height: '20px', cursor: 'pointer' }}
+                          />
+                          <div style={{ flex: 1 }}>
+                            <label
+                              htmlFor={item.id}
+                              style={{
+                                cursor: 'pointer',
+                                textDecoration: checkedItems[item.id] ? 'line-through' : 'none',
+                                color: checkedItems[item.id] ? '#9ca3af' : '#374151',
+                                fontSize: '0.95rem',
+                                fontWeight: '500',
+                                lineHeight: '1.5',
+                                display: 'block'
+                              }}
+                            >
+                              {item.text}
+                            </label>
+                            {hasDetail && (
+                              <div style={{ marginTop: '8px' }}>
+                                <button
+                                  onClick={() => toggleCheck(detailId)}
+                                  style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: '#3b82f6',
+                                    cursor: 'pointer',
+                                    fontSize: '0.85rem',
+                                    padding: '4px 8px',
+                                    borderRadius: '4px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '4px',
+                                    fontWeight: '500'
+                                  }}
+                                  onMouseEnter={(e) => { e.currentTarget.style.background = '#eff6ff' }}
+                                  onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
+                                >
+                                  {isDetailExpanded ? '▼ 收起详情' : '▶ 查看详情'}
+                                </button>
+                                {isDetailExpanded && (
+                                  <div style={{
+                                    marginTop: '8px',
+                                    padding: '12px',
+                                    background: 'white',
+                                    borderRadius: '6px',
+                                    border: '1px solid #e5e7eb',
+                                    fontSize: '0.85rem',
+                                    color: '#4b5563',
+                                    lineHeight: '1.6'
+                                  }}>
+                                    {item.detail}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
             ))}
