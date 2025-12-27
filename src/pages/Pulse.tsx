@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { fetchMarketDataByType, fetchSectorCategories, fetchUSSectorCategories } from '../services/api'
-import type { DailyReview, ImportantNews, MarketCategory, SectorCategory, NewsSource } from '../types'
-import { loadReviews, saveReviews, loadNews, saveNews, loadNewsSources, saveNewsSources, getGistToken, getGistId, saveGistConfig } from '../utils/storage'
+import type { DailyReview, MarketCategory, SectorCategory, NewsSource } from '../types'
+import { loadReviews, saveReviews, loadNewsSources, saveNewsSources, getGistToken, getGistId, saveGistConfig } from '../utils/storage'
 import { syncToGist, syncFromGist } from '../utils/gist'
 import { getWeekday, getToday } from '../utils/date'
 import { ReviewTable } from '../components/pulse/ReviewTable'
-import { NewsSection } from '../components/pulse/NewsSection'
 import { NewsSourceSection } from '../components/pulse/NewsSourceSection'
 import { MarketCategory as MarketCategoryComponent } from '../components/pulse/MarketCategory'
 import { SectorSection } from '../components/pulse/SectorSection'
@@ -22,11 +21,6 @@ export default function Pulse(): JSX.Element {
   const [editDate, setEditDate] = useState<string>('')
   const [formData, setFormData] = useState<Partial<DailyReview>>({})
   
-  // 重要消息状态
-  const [newsList, setNewsList] = useState<ImportantNews[]>([])
-  const [showNewsForm, setShowNewsForm] = useState(false)
-  const [newsFormData, setNewsFormData] = useState<Partial<ImportantNews>>({})
-  
   // 消息源状态
   const [newsSources, setNewsSources] = useState<NewsSource[]>([])
   
@@ -39,7 +33,6 @@ export default function Pulse(): JSX.Element {
   useEffect(() => {
     // 加载本地数据
     setReviews(loadReviews())
-    setNewsList(loadNews())
     setNewsSources(loadNewsSources())
     setGistTokenInput(getGistToken() || '')
     setGistIdInput(getGistId() || '')
@@ -52,10 +45,6 @@ export default function Pulse(): JSX.Element {
         if (cloudData.reviews.length > 0) {
           setReviews(cloudData.reviews)
           saveReviews(cloudData.reviews)
-        }
-        if (cloudData.news.length > 0) {
-          setNewsList(cloudData.news)
-          saveNews(cloudData.news)
         }
       }
     }
@@ -136,7 +125,7 @@ export default function Pulse(): JSX.Element {
     setReviews(newReviews)
     saveReviews(newReviews)
     // 自动同步到云端
-    syncToGist(newReviews, newsList).then(result => {
+    syncToGist(newReviews).then(result => {
       if (!result.success) console.warn('自动同步失败:', result.error)
     }).catch(() => {})
     setShowForm(false)
@@ -171,7 +160,6 @@ export default function Pulse(): JSX.Element {
   const handleExport = () => {
     const data = {
       reviews,
-      news: newsList,
       exportDate: new Date().toISOString(),
       version: '1.0'
     }
@@ -206,10 +194,6 @@ export default function Pulse(): JSX.Element {
             saveReviews(data.reviews)
           }
           
-          if (data.news && Array.isArray(data.news)) {
-            setNewsList(data.news)
-            saveNews(data.news)
-          }
           
           alert('数据导入成功！数据已更新')
           // 不刷新页面，数据已通过 state 更新
@@ -223,61 +207,6 @@ export default function Pulse(): JSX.Element {
     input.click()
   }
 
-  // 保存重要消息
-  const handleSaveNews = () => {
-    if (!newsFormData.title || !newsFormData.date) return
-    
-    const newNews: ImportantNews = {
-      id: newsFormData.id || Date.now().toString(),
-      date: newsFormData.date,
-      title: newsFormData.title,
-      impact: newsFormData.impact || 'medium',
-      category: newsFormData.category || '其他',
-      source: newsFormData.source,
-      link: newsFormData.link,
-      notes: newsFormData.notes,
-    }
-    
-    const existingIndex = newsList.findIndex(n => n.id === newNews.id)
-    let newNewsList: ImportantNews[]
-    if (existingIndex >= 0) {
-      newNewsList = [...newsList]
-      newNewsList[existingIndex] = newNews
-    } else {
-      newNewsList = [newNews, ...newsList]
-    }
-    
-    // 按日期排序
-    newNewsList.sort((a, b) => b.date.localeCompare(a.date))
-    
-    setNewsList(newNewsList)
-    saveNews(newNewsList)
-    // 自动同步到云端
-    syncToGist(reviews, newNewsList).then(result => {
-      if (!result.success) console.warn('自动同步失败:', result.error)
-    }).catch(() => {})
-    setShowNewsForm(false)
-    setNewsFormData({})
-  }
-
-  // 删除消息
-  const handleDeleteNews = (id: string) => {
-    if (confirm('确定删除这条消息吗？')) {
-      const newNewsList = newsList.filter(n => n.id !== id)
-      setNewsList(newNewsList)
-      saveNews(newNewsList)
-      // 自动同步到云端
-      syncToGist(reviews, newNewsList).then(result => {
-        if (!result.success) console.warn('自动同步失败:', result.error)
-      }).catch(() => {})
-    }
-  }
-
-  // 新增今日消息
-  const handleAddTodayNews = () => {
-    setNewsFormData({ date: getToday(), impact: 'medium', category: '其他' })
-    setShowNewsForm(true)
-  }
 
   const handleRefresh = () => window.location.reload()
 
@@ -306,15 +235,14 @@ export default function Pulse(): JSX.Element {
     }
     
     setSyncing(true)
-    const result = await syncToGist(reviews, newsList)
+    const result = await syncToGist(reviews)
     setSyncing(false)
     if (result.success) {
       const reviewCount = reviews.length
-      const newsCount = newsList.length
       const currentGistId = getGistId()
       const message = currentGistId 
-        ? `✅ 上传成功！\n\n复盘数据：${reviewCount} 条\n重要消息：${newsCount} 条\n\nGist ID: ${currentGistId}\n\n（可在其他设备输入此 ID 同步）`
-        : `✅ 上传成功！\n\n复盘数据：${reviewCount} 条\n重要消息：${newsCount} 条`
+        ? `✅ 上传成功！\n\n复盘数据：${reviewCount} 条\n\nGist ID: ${currentGistId}\n\n（可在其他设备输入此 ID 同步）`
+        : `✅ 上传成功！\n\n复盘数据：${reviewCount} 条`
       alert(message)
     } else {
       const errorMsg = result.error || '未知错误'
@@ -340,9 +268,8 @@ export default function Pulse(): JSX.Element {
     
     if (cloudData) {
       const reviewCount = cloudData.reviews.length
-      const newsCount = cloudData.news.length
       
-      if (reviewCount === 0 && newsCount === 0) {
+      if (reviewCount === 0) {
         alert('⚠️ 云端数据为空\n\n请先在电脑上上传数据')
         return
       }
@@ -352,12 +279,8 @@ export default function Pulse(): JSX.Element {
         setReviews(cloudData.reviews)
         saveReviews(cloudData.reviews)
       }
-      if (newsCount > 0) {
-        setNewsList(cloudData.news)
-        saveNews(cloudData.news)
-      }
       
-      alert(`✅ 下载成功！\n\n复盘数据：${reviewCount} 条\n重要消息：${newsCount} 条\n\n数据已更新到本地`)
+      alert(`✅ 下载成功！\n\n复盘数据：${reviewCount} 条\n\n数据已更新到本地`)
     } else {
       alert('❌ 下载失败\n\n可能原因：\n1. Token 权限不足\n2. Gist 不存在或已删除\n3. 网络连接问题\n\n请检查 Token 配置或先上传一次数据')
     }
@@ -375,78 +298,6 @@ export default function Pulse(): JSX.Element {
     />
   )
 
-  // 渲染重要消息区块 - 使用组件
-  const renderNewsSection = () => (
-    <NewsSection
-      newsList={newsList}
-      onAdd={handleAddTodayNews}
-      onDelete={handleDeleteNews}
-    />
-  )
-
-  // 渲染消息录入表单
-  const renderNewsForm = () => showNewsForm && (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-      <div style={{ background: 'white', borderRadius: '12px', padding: '20px', width: '90%', maxWidth: '500px', maxHeight: '80vh', overflow: 'auto' }}>
-        <h3 style={{ margin: '0 0 16px', fontSize: '1.1rem' }}>添加重要消息</h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div>
-            <label style={{ fontSize: '0.8rem', color: '#64748b' }}>日期</label>
-            <input type="date" value={newsFormData.date || ''} onChange={e => setNewsFormData({ ...newsFormData, date: e.target.value })}
-              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }} />
-          </div>
-          <div>
-            <label style={{ fontSize: '0.8rem', color: '#64748b' }}>消息标题 *</label>
-            <input type="text" placeholder="如：美联储宣布加息25个基点" value={newsFormData.title || ''} onChange={e => setNewsFormData({ ...newsFormData, title: e.target.value })}
-              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }} />
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-            <div>
-              <label style={{ fontSize: '0.8rem', color: '#64748b' }}>影响程度</label>
-              <select value={newsFormData.impact || 'medium'} onChange={e => setNewsFormData({ ...newsFormData, impact: e.target.value as any })}
-                style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }}>
-                <option value="high">🔥 高影响</option>
-                <option value="medium">⚡ 中影响</option>
-                <option value="low">📌 低影响</option>
-              </select>
-            </div>
-            <div>
-              <label style={{ fontSize: '0.8rem', color: '#64748b' }}>分类</label>
-              <select value={newsFormData.category || '其他'} onChange={e => setNewsFormData({ ...newsFormData, category: e.target.value })}
-                style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }}>
-                <option value="美联储">美联储</option>
-                <option value="经济数据">经济数据</option>
-                <option value="地缘政治">地缘政治</option>
-                <option value="财报">财报</option>
-                <option value="其他">其他</option>
-              </select>
-            </div>
-          </div>
-          <div>
-            <label style={{ fontSize: '0.8rem', color: '#64748b' }}>来源（可选）</label>
-            <input type="text" placeholder="如：华尔街日报" value={newsFormData.source || ''} onChange={e => setNewsFormData({ ...newsFormData, source: e.target.value })}
-              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }} />
-          </div>
-          <div>
-            <label style={{ fontSize: '0.8rem', color: '#64748b' }}>链接（可选）</label>
-            <input type="url" placeholder="https://..." value={newsFormData.link || ''} onChange={e => setNewsFormData({ ...newsFormData, link: e.target.value })}
-              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }} />
-          </div>
-          <div>
-            <label style={{ fontSize: '0.8rem', color: '#64748b' }}>备注（可选）</label>
-            <textarea placeholder="补充说明..." value={newsFormData.notes || ''} onChange={e => setNewsFormData({ ...newsFormData, notes: e.target.value })}
-              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem', minHeight: '60px' }} />
-          </div>
-        </div>
-        <div style={{ display: 'flex', gap: '12px', marginTop: '20px', justifyContent: 'flex-end' }}>
-          <button onClick={() => { setShowNewsForm(false); setNewsFormData({}) }}
-            style={{ padding: '8px 16px', background: '#f3f4f6', color: '#4b5563', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>取消</button>
-          <button onClick={handleSaveNews}
-            style={{ padding: '8px 16px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' }}>保存</button>
-        </div>
-      </div>
-    </div>
-  )
 
   // 渲染录入表单
   const renderForm = () => showForm && (
@@ -594,9 +445,6 @@ export default function Pulse(): JSX.Element {
       {/* 复盘表格 */}
       {renderReviewTable()}
 
-      {/* 重要消息 */}
-      {renderNewsSection()}
-
       {/* 消息源管理 */}
       <NewsSourceSection
         sources={newsSources}
@@ -649,8 +497,6 @@ export default function Pulse(): JSX.Element {
 
       {/* 录入表单弹窗 */}
       {renderForm()}
-      {renderNewsForm()}
-      
       {/* 云端设置弹窗 */}
       {showSettings && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>

@@ -66,6 +66,8 @@ const getDefaultNewsSources = (): NewsSource[] => {
     { id: '9', name: 'CNN 恐慌贪婪指数', url: 'https://www.cnn.com/markets/fear-and-greed', category: 'data', priority: 'medium', description: '市场情绪指标', icon: '😱', enabled: true },
     { id: '10', name: '财联社', url: 'https://www.cls.cn/', category: 'news', priority: 'medium', description: '中国财经新闻', icon: '📰', enabled: true },
     { id: '11', name: '东方财富', url: 'https://www.eastmoney.com/', category: 'news', priority: 'low', description: '中国股市资讯', icon: '📊', enabled: true },
+    { id: '12', name: '涨停揭秘', url: 'https://www.eastmoney.com/', category: 'data', priority: 'medium', description: '涨停板分析工具', icon: '📈', enabled: true },
+    { id: '13', name: '选股通', url: 'https://www.eastmoney.com/', category: 'data', priority: 'medium', description: '股票筛选工具', icon: '🔍', enabled: true },
   ]
 }
 

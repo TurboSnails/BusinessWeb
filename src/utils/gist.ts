@@ -1,10 +1,9 @@
-import type { DailyReview, ImportantNews } from '../types'
+import type { DailyReview } from '../types'
 import { getGistToken, getGistId, saveGistConfig } from './storage'
 
 // 同步到 Gist
 export const syncToGist = async (
-  reviews: DailyReview[], 
-  news: ImportantNews[]
+  reviews: DailyReview[]
 ): Promise<{ success: boolean; error?: string }> => {
   const token = getGistToken()
   if (!token) {
@@ -14,7 +13,6 @@ export const syncToGist = async (
   try {
     const data = {
       reviews,
-      news,
       syncDate: new Date().toISOString(),
       version: '1.0'
     }
@@ -62,8 +60,7 @@ export const syncToGist = async (
       
       console.log('Uploaded to Gist:', {
         gistId: newGistId || gistId,
-        reviews: reviews.length,
-        news: news.length
+        reviews: reviews.length
       })
       
       return { success: true }
@@ -79,7 +76,7 @@ export const syncToGist = async (
 }
 
 // 从 Gist 同步
-export const syncFromGist = async (): Promise<{ reviews: DailyReview[], news: ImportantNews[] } | null> => {
+export const syncFromGist = async (): Promise<{ reviews: DailyReview[] } | null> => {
   const token = getGistToken()
   const gistId = getGistId()
   
@@ -106,12 +103,10 @@ export const syncFromGist = async (): Promise<{ reviews: DailyReview[], news: Im
       if (file) {
         const data = JSON.parse(file.content)
         console.log('Downloaded from Gist:', {
-          reviews: data.reviews?.length || 0,
-          news: data.news?.length || 0
+          reviews: data.reviews?.length || 0
         })
         return {
-          reviews: data.reviews || [],
-          news: data.news || []
+          reviews: data.reviews || []
         }
       } else {
         console.warn('Gist file not found')

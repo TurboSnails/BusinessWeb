@@ -3,17 +3,27 @@ import { fetchCBOEPCRatios } from '../services/api';
 
 const InvestmentPlan2026 = () => {
   const [activeTab, setActiveTab] = useState<'timeline' | 'checklist' | 'decision' | 'shorting' | 'monitor'>('timeline');
+  const [activeSubTab, setActiveSubTab] = useState<'overview' | 'assumptions' | 'indicators' | 'stages' | 'execution'>('overview');
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
+  
+  const toggleCheck = (id: string) => {
+    setCheckedItems(prev => ({...prev, [id]: !prev[id]}));
+  };
   
   // 市场情绪分析器状态
   const [equityPC, setEquityPC] = useState<string>('');
   const [spxPC, setSpxPC] = useState<string>('');
+  const [vixNear, setVixNear] = useState<string>(''); // VIX 近月
+  const [vixFar, setVixFar] = useState<string>(''); // VIX 远月 (VXV)
+  const [netGEX, setNetGEX] = useState<string>(''); // Net GEX
+  const [goldSilverRatio, setGoldSilverRatio] = useState<string>(''); // 金银比
   const [loadingPCRatios, setLoadingPCRatios] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<{
     status: 'safe' | 'warning' | 'danger';
     title: string;
     content: string;
     action: string;
+    advanced?: string; // 高阶参数分析
   } | null>(null);
 
   // 自动获取 P/C Ratio 数据
@@ -63,63 +73,7 @@ const InvestmentPlan2026 = () => {
     }
   };
 
-  const toggleCheck = (id: string) => {
-    setCheckedItems(prev => ({...prev, [id]: !prev[id]}));
-  };
-
-  // 市场情绪分析函数
-  const analyzeMarket = () => {
-    const equity = parseFloat(equityPC);
-    const spx = parseFloat(spxPC);
-    
-    if (isNaN(equity) || isNaN(spx)) {
-      alert('请输入有效的数值');
-      return;
-    }
-
-    let result: typeof analysisResult = null;
-
-    // 核心逻辑分析
-    if (equity < 0.7 && spx >= 1.2) {
-      result = {
-        status: 'safe',
-        title: '当前状态：非理性繁荣（有保护）',
-        content: '散户在狂欢，但机构买了大量保险。虽然看似危险，但由于对冲充足，短期内很难发生断崖式崩盘。',
-        action: '针对 PAAS/RKLB 操作：还没到时候。继续持有现金，不要追高。'
-      };
-    } else if (equity < 0.7 && spx < 0.9) {
-      result = {
-        status: 'warning',
-        title: '当前状态：裸奔时刻 (红色警报)',
-        content: '个股极度贪婪，且机构撤走了对冲保护（或者对冲已经赔光）。这是崩盘前的最危险信号！',
-        action: '针对 PAAS/RKLB 操作：握紧你的 1/8 现金，暴风雨可能在 2 周内到来。'
-      };
-    } else if (equity >= 1.1 && spx < 0.9) {
-      result = {
-        status: 'danger',
-        title: '当前状态：极度恐慌 (崩盘中/末期)',
-        content: '散户绝望割肉买入 Puts，而机构已经在低位撤走保险。这就是你要的"黄金坑"。',
-        action: '针对 PAAS/RKLB 操作：检查股价！如果 PAAS 到了 $50-51，RKLB 到了 $55，这就是最佳分批建仓时刻。'
-      };
-    } else if (equity >= 1.1 && spx >= 1.1) {
-      result = {
-        status: 'warning',
-        title: '当前状态：系统性风险爆发',
-        content: '全市场都在买保险。虽然恐惧，但说明大家还没放弃抵抗。',
-        action: '操作：等待 Equity 继续飙升或 SPX 开始回落（即机构开始投降或直接抛售现货）。'
-      };
-    } else {
-      result = {
-        status: 'safe',
-        title: '当前状态：震荡修复期',
-        content: '多空力量交织，没有明显的极端情绪。保持耐心。',
-        action: '操作：继续观察，等待更明确的信号。'
-      };
-    }
-
-    setAnalysisResult(result);
-  };
-
+  // 恢复之前的数据结构
   const timelineData = [
     {
       date: '2026年1月9日',
@@ -516,6 +470,231 @@ const InvestmentPlan2026 = () => {
     }
   ];
 
+  // 市场情绪分析函数
+  const analyzeMarket = () => {
+    const equity = parseFloat(equityPC);
+    const spx = parseFloat(spxPC);
+    const vixN = parseFloat(vixNear);
+    const vixF = parseFloat(vixFar);
+    const gex = parseFloat(netGEX);
+    const gsRatio = parseFloat(goldSilverRatio);
+    
+    if (isNaN(equity) || isNaN(spx)) {
+      alert('请输入 Equity P/C 和 SPX P/C 的数值');
+      return;
+    }
+
+    // 高阶参数分析
+    let advancedAnalysis = '';
+    const hasAdvanced = !isNaN(vixN) && !isNaN(vixF) || !isNaN(gex) || !isNaN(gsRatio);
+    
+    if (hasAdvanced) {
+      const advParts: string[] = [];
+      
+      // VIX 期限结构分析
+      if (!isNaN(vixN) && !isNaN(vixF)) {
+        if (vixN > vixF) {
+          advParts.push('⚠️ VIX 期限结构倒挂（近期 > 远期）：这是崩盘前兆，即使大盘还在涨也要警惕！');
+        } else if (vixN >= vixF * 0.9) {
+          advParts.push('⚠️ VIX 期限结构接近倒挂：近期急速逼近远期，需要密切关注。');
+        } else {
+          advParts.push('✅ VIX 期限结构正常（远期 > 近期）：市场情绪相对稳定。');
+        }
+      }
+      
+      // Net GEX 分析
+      if (!isNaN(gex)) {
+        if (gex < 0) {
+          advParts.push('🚨 Net GEX 为负值：市场进入崩盘区，做市商对冲行为会"越跌越卖"，价格可能自由落体！');
+        } else if (gex < 10) {
+          advParts.push('⚠️ Net GEX 接近零轴：市场稳定性下降，波动可能加剧。');
+        } else {
+          advParts.push('✅ Net GEX 为高正值：市场处于安全区，做市商会"越涨越卖，越跌越买"，波动较小。');
+        }
+      }
+      
+      // 金银比分析
+      if (!isNaN(gsRatio)) {
+        if (gsRatio >= 90) {
+          advParts.push('💰 金银比 ≥ 90：白银极度便宜，这是确定性最高的 PAAS 买入时刻！');
+        } else if (gsRatio >= 85) {
+          advParts.push('💰 金银比 ≥ 85：白银相对便宜，接近 PAAS 的买入区间。');
+        } else if (gsRatio < 70) {
+          advParts.push('⚠️ 金银比 < 70：白银猛涨（PAAS 冲高），可能是鱼尾行情末端。');
+        } else {
+          advParts.push('✅ 金银比正常（70-85）：金属市场相对平衡。');
+        }
+      }
+      
+      if (advParts.length > 0) {
+        advancedAnalysis = advParts.join('\n\n');
+      }
+    }
+
+    let result: typeof analysisResult = null;
+
+    // 完善的分析逻辑 - 根据市场博弈流程
+    // 1. 鱼尾行情（目前状态）
+    if (equity < 0.7 && spx >= 1.2) {
+      result = {
+        status: 'safe',
+        title: '当前状态：鱼尾行情（非理性繁荣，有保护）',
+        content: '散户在狂欢，但机构买了大量保险。虽然看似危险，但由于对冲充足，短期内很难发生断崖式崩盘。市场可能还在涨，甚至创新高。',
+        action: '资产状态：持有 YINN, NVDA | 操作：持仓不动，不加仓。继续持有现金，不要追高。'
+      };
+    }
+    // 2. 诱多末期（防弹衣剥落）
+    else if (equity < 0.7 && spx >= 0.85 && spx < 1.2) {
+      result = {
+        status: 'warning',
+        title: '当前状态：诱多末期（防弹衣剥落）',
+        content: 'SPX 比例从 1.22 降到 0.9 以下。市场可能还在涨，但机构的"防弹衣"没了。机构开始获利了结 Put 或不再购买昂贵的保险。散户的 Equity P/C 可能还在 0.6 以下（极度贪婪）。',
+        action: '资产状态：极度危险 | 操作：考虑对 YINN 进行止盈。握紧你的 1/8 现金，暴风雨可能在 2 周内到来。'
+      };
+    }
+    // 3. 裸奔时刻（无保护自由落体）
+    else if (equity < 0.7 && spx < 0.85) {
+      result = {
+        status: 'warning',
+        title: '当前状态：裸奔时刻（无保护自由落体）',
+        content: '个股极度贪婪，且机构撤走了对冲保护（或者对冲已经赔光）。这是崩盘前的最危险信号！导火索（如经济数据）可能即将引爆。',
+        action: '资产状态：极度危险 | 操作：握紧你的 1/8 现金，暴风雨可能在 2 周内到来。'
+      };
+    }
+    // 4. 踩踏期（无保护自由落体）
+    else if (equity >= 0.7 && equity < 1.0 && spx < 0.8) {
+      result = {
+        status: 'warning',
+        title: '当前状态：踩踏期（无保护自由落体）',
+        content: '导火索已引爆。因为机构没有 Put 保护，为了自保，他们开始在大盘直接砸盘抛售现货。散户开始意识到不对劲，个股跌破关键位，散户开始慌乱买入 Put 避险，Equity P/C 快速拉升。',
+        action: '资产状态：账户回撤 | 操作：忍耐，手握现金。等待 Equity P/C 继续飙升。'
+      };
+    }
+    // 5. 极度恐惧（黄金坑）
+    else if (equity >= 1.2 && spx >= 0.9 && spx < 1.1) {
+      result = {
+        status: 'danger',
+        title: '当前状态：极度恐惧（黄金坑 - 第一笔买入点）',
+        content: '这是你等待的瞬间。大盘无差别暴跌，PAAS 和 RKLB 杀到你的预警位。市场上所有人都认为还要跌。散户不再买 Call，全部在割肉或买 Put 保命。',
+        action: '资产状态：买入点！| 操作：1/8 现金抄底 PAAS 和 RKLB。检查股价！如果 PAAS 到了 $50-51，RKLB 到了 $55，这就是最佳分批建仓时刻。'
+      };
+    }
+    // 6. 系统性风险爆发
+    else if (equity >= 1.1 && spx >= 1.1) {
+      result = {
+        status: 'warning',
+        title: '当前状态：系统性风险爆发',
+        content: '全市场都在买保险。虽然恐惧，但说明大家还没放弃抵抗。',
+        action: '操作：等待 Equity 继续飙升或 SPX 开始回落（即机构开始投降或直接抛售现货）。'
+      };
+    }
+    // 7. 筑底回升（熊转牛开始）
+    else if (equity >= 0.8 && equity < 1.0 && spx >= 0.9 && spx < 1.0) {
+      result = {
+        status: 'safe',
+        title: '当前状态：筑底回升（熊转牛开始）',
+        content: 'SPX P/C 先行见顶回落，机构不再恐慌性买入指数保险。Equity P/C 出现"极致恐慌后的平复"，想卖的人都已经卖完了。这是量价背离，说明空头动能耗尽，市场开始筑底。',
+        action: '资产状态：盈利中 | 操作：持股待涨。PAAS 和 RKLB 应该在底部横盘。'
+      };
+    }
+    // 8. 散户回归（新牛市开启）
+    else if (equity < 0.7 && spx >= 0.9 && spx < 1.2) {
+      result = {
+        status: 'safe',
+        title: '当前状态：散户回归（新牛市开启）',
+        content: '踏空的人开始追高。Equity P/C 重新跌回 0.7 以下。此时 PAAS 已经从底部回升，你的仓位已经安全盈利。',
+        action: '资产状态：盈利中 | 操作：持股待涨，享受牛市。'
+      };
+    }
+    // 9. 其他情况（震荡修复期）
+    else {
+      result = {
+        status: 'safe',
+        title: '当前状态：震荡修复期',
+        content: '多空力量交织，没有明显的极端情绪。保持耐心。',
+        action: '操作：继续观察，等待更明确的信号。'
+      };
+    }
+
+    // 添加优先级评估
+    if (result) {
+      let priorityAnalysis = '';
+      const priorityParts: string[] = [];
+      
+      // 第一名：Equity P/C Ratio 评估
+      if (equity < 0.55) {
+        priorityParts.push('🥇 Equity P/C (0.64)：进入疯狂末端，极度贪婪！这是最危险的信号。');
+      } else if (equity < 0.7) {
+        priorityParts.push('🥇 Equity P/C (0.64)：贪婪状态，但还没到疯狂。继续享受鱼尾行情，但绝不加仓。');
+      } else if (equity >= 0.7 && equity < 1.1) {
+        priorityParts.push('🥇 Equity P/C：贪婪开始消退，市场情绪转向。密切关注，准备撤退。');
+      } else if (equity >= 1.1 && equity < 1.2) {
+        priorityParts.push('🥇 Equity P/C：恐惧加剧，接近抄底区间。准备资金，等待突破 1.2。');
+      } else if (equity >= 1.2) {
+        priorityParts.push('🥇 Equity P/C：极度恐惧！这是确定性最高的抄底时刻！1/8 现金可以进场。');
+      }
+      
+      // 第三名：SPX P/C Ratio 评估
+      if (spx >= 1.2) {
+        priorityParts.push('🥉 SPX P/C (1.22)：安全垫充足，机构对冲很强。可以继续持仓 YINN/NVDA。');
+      } else if (spx >= 0.9 && spx < 1.2) {
+        priorityParts.push('🥉 SPX P/C：防弹衣开始剥落，需要警惕。考虑减仓 YINN/NVDA。');
+      } else if (spx < 0.9) {
+        priorityParts.push('🥉 SPX P/C：防弹衣已脱！这是撤退 YINN/NVDA 的最高指令！');
+      }
+      
+      // 第二名：Net GEX 评估（如果有输入）
+      if (!isNaN(gex)) {
+        if (gex < 0) {
+          priorityParts.push('🥈 Net GEX：负值！市场进入崩盘区，价格会自由落体。不要在刚转负时接 RKLB，耐心等待更低点。');
+        } else if (gex < 10) {
+          priorityParts.push('🥈 Net GEX：接近零轴，市场稳定性下降。波动可能加剧，需要谨慎。');
+        } else {
+          priorityParts.push('🥈 Net GEX：高正值，市场处于安全区。波动较小，可以继续持仓。');
+        }
+      }
+      
+      // 第四名：VIX 期限结构评估（如果有输入）
+      if (!isNaN(vixN) && !isNaN(vixF)) {
+        if (vixN > vixF) {
+          priorityParts.push('4️⃣ VIX 期限结构：倒挂！这是崩盘前兆，立刻进入"临战模式"。');
+        } else if (vixN >= vixF * 0.9) {
+          priorityParts.push('4️⃣ VIX 期限结构：接近倒挂，近期急速逼近远期。需要密切关注。');
+        } else {
+          priorityParts.push('4️⃣ VIX 期限结构：正常（远期 > 近期）。可以继续在 YINN 的鱼尾行情里博弈。');
+        }
+      }
+      
+      // 第五名：金银比评估（如果有输入）
+      if (!isNaN(gsRatio)) {
+        if (gsRatio >= 90) {
+          priorityParts.push('5️⃣ 金银比：≥ 90！白银极度便宜，这是确定性最高的 PAAS 买入时刻！');
+        } else if (gsRatio >= 85) {
+          priorityParts.push('5️⃣ 金银比：≥ 85，白银相对便宜。接近 PAAS 的买入区间。');
+        } else if (gsRatio < 70) {
+          priorityParts.push('5️⃣ 金银比：< 70，白银猛涨（PAAS 冲高）。可能是鱼尾行情末端。');
+        } else {
+          priorityParts.push('5️⃣ 金银比：正常（70-85），金属市场相对平衡。');
+        }
+      }
+      
+      if (priorityParts.length > 0) {
+        priorityAnalysis = priorityParts.join('\n\n');
+      }
+      
+      // 合并优先级分析和高阶参数分析
+      if (priorityAnalysis && advancedAnalysis) {
+        result.advanced = priorityAnalysis + '\n\n' + advancedAnalysis;
+      } else if (priorityAnalysis) {
+        result.advanced = priorityAnalysis;
+      } else if (advancedAnalysis) {
+        result.advanced = advancedAnalysis;
+      }
+    }
+
+    setAnalysisResult(result);
+  };
+
   return (
     <div style={{ width: '100%', maxWidth: '1200px', margin: '0 auto', padding: '16px', background: '#f9fafb', minHeight: '100vh' }}>
       {/* Header */}
@@ -527,11 +706,11 @@ const InvestmentPlan2026 = () => {
         marginBottom: 0
       }}>
         <h1 style={{ fontSize: '2rem', fontWeight: '700', margin: 0, display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{ fontSize: '2.5rem' }}>📅</span>
+          <span style={{ fontSize: '2.5rem' }}>📊</span>
           2026年美股投资计划
         </h1>
         <p style={{ margin: '8px 0 0', color: 'rgba(255,255,255,0.9)', fontSize: '0.95rem' }}>
-          基于经济衰退预警的系统性风险管理方案
+          系统性风险管理与阶段化操作手册
         </p>
       </div>
 
@@ -904,7 +1083,560 @@ const InvestmentPlan2026 = () => {
 
         {activeTab === 'monitor' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            {/* 市场情绪分析器 */}
+            {/* 子Tab导航 */}
+            <div style={{ background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '8px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              {(['overview', 'assumptions', 'indicators', 'stages', 'execution'] as const).map((subTab) => {
+                const subLabels: Record<typeof subTab, string> = {
+                  overview: '投资总纲',
+                  assumptions: '宏观假设',
+                  indicators: '指标体系',
+                  stages: '阶段划分',
+                  execution: '日常执行'
+                };
+                const isActive = activeSubTab === subTab;
+                return (
+                  <button
+                    key={subTab}
+                    onClick={() => setActiveSubTab(subTab)}
+                    style={{
+                      padding: '8px 16px',
+                      fontWeight: '500',
+                      background: isActive ? '#3b82f6' : 'white',
+                      color: isActive ? 'white' : '#4b5563',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      fontSize: '0.85rem'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isActive) {
+                        e.currentTarget.style.background = '#f3f4f6';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isActive) {
+                        e.currentTarget.style.background = 'white';
+                      }
+                    }}
+                  >
+                    {subLabels[subTab]}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* 子Tab内容 */}
+            {activeSubTab === 'overview' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* 投资总纲 */}
+            <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '12px', padding: '24px' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '16px', color: '#1e40af', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '2rem' }}>🎯</span>
+                投资总纲（2026）
+              </h2>
+              
+              <div style={{ marginBottom: '20px' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#1f2937' }}>目标</h3>
+                <p style={{ fontSize: '0.95rem', lineHeight: '1.8', color: '#374151', marginBottom: '12px' }}>
+                  在可能出现的 2026 年美股中大级别回撤中，尽量避开主要跌幅，并在「极度恐慌—错杀」阶段分批建仓，获得中长期收益。
+                </p>
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#1f2937' }}>核心资产</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '12px' }}>
+                  <div style={{ background: 'white', padding: '12px', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+                    <div style={{ fontWeight: '600', marginBottom: '4px', color: '#1f2937' }}>指数与权重股</div>
+                    <div style={{ fontSize: '0.9rem', color: '#6b7280' }}>NVDA 等美股核心成长</div>
+                  </div>
+                  <div style={{ background: 'white', padding: '12px', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+                    <div style={{ fontWeight: '600', marginBottom: '4px', color: '#1f2937' }}>杠杆放大器</div>
+                    <div style={{ fontSize: '0.9rem', color: '#6b7280' }}>YINN（仅限趋势阶段）</div>
+                  </div>
+                  <div style={{ background: 'white', padding: '12px', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+                    <div style={{ fontWeight: '600', marginBottom: '4px', color: '#1f2937' }}>贵金属与矿企</div>
+                    <div style={{ fontSize: '0.9rem', color: '#6b7280' }}>黄金仓位 + PAAS</div>
+                  </div>
+                  <div style={{ background: 'white', padding: '12px', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+                    <div style={{ fontWeight: '600', marginBottom: '4px', color: '#1f2937' }}>卫星仓</div>
+                    <div style={{ fontSize: '0.9rem', color: '#6b7280' }}>RKLB 等高 Beta 小票（仅在特定阶段参与）</div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#1f2937' }}>适用人群</h3>
+                <p style={{ fontSize: '0.95rem', lineHeight: '1.8', color: '#374151' }}>
+                  能承受中等回撤，有一定期权与衍生品概念，习惯按规则执行的主动投资者。
+                </p>
+              </div>
+            </div>
+
+            {/* 资产角色定义 */}
+            <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '12px', padding: '24px' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '16px', color: '#166534', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '2rem' }}>📦</span>
+                资产角色定义
+              </h2>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #d1fae5' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <span style={{ fontSize: '1.5rem' }}>💊</span>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1f2937' }}>LLY - 礼来</h3>
+                    <span style={{ fontSize: '0.85rem', color: '#6b7280', background: '#f3f4f6', padding: '4px 8px', borderRadius: '4px' }}>股票</span>
+                  </div>
+                </div>
+
+                <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #d1fae5' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <span style={{ fontSize: '1.5rem' }}>💳</span>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1f2937' }}>AXP - 美国运通</h3>
+                    <span style={{ fontSize: '0.85rem', color: '#6b7280', background: '#f3f4f6', padding: '4px 8px', borderRadius: '4px' }}>股票</span>
+                  </div>
+                </div>
+
+                <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #d1fae5' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <span style={{ fontSize: '1.5rem' }}>🔍</span>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1f2937' }}>GOOGL - 谷歌</h3>
+                    <span style={{ fontSize: '0.85rem', color: '#6b7280', background: '#f3f4f6', padding: '4px 8px', borderRadius: '4px' }}>股票</span>
+                  </div>
+                </div>
+
+                <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #d1fae5' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <span style={{ fontSize: '1.5rem' }}>🔌</span>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1f2937' }}>TSM - 台积电</h3>
+                    <span style={{ fontSize: '0.85rem', color: '#6b7280', background: '#f3f4f6', padding: '4px 8px', borderRadius: '4px' }}>股票</span>
+                  </div>
+                </div>
+
+                <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #d1fae5' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <span style={{ fontSize: '1.5rem' }}>🥈</span>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1f2937' }}>PAAS - Pan American Silver</h3>
+                    <span style={{ fontSize: '0.85rem', color: '#6b7280', background: '#f3f4f6', padding: '4px 8px', borderRadius: '4px' }}>股票</span>
+                  </div>
+                </div>
+
+                <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #d1fae5' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <span style={{ fontSize: '1.5rem' }}>🚀</span>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1f2937' }}>RKLB - Rocket Lab</h3>
+                    <span style={{ fontSize: '0.85rem', color: '#6b7280', background: '#f3f4f6', padding: '4px 8px', borderRadius: '4px' }}>股票</span>
+                  </div>
+                </div>
+
+                <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #d1fae5' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <span style={{ fontSize: '1.5rem' }}>🥇</span>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1f2937' }}>GOLD - 黄金</h3>
+                    <span style={{ fontSize: '0.85rem', color: '#6b7280', background: '#f3f4f6', padding: '4px 8px', borderRadius: '4px' }}>商品</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+            {activeSubTab === 'assumptions' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* 假设前提 */}
+            <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '12px', padding: '24px' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '16px', color: '#991b1b', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '2rem' }}>⚠️</span>
+                前提假设
+              </h2>
+              <p style={{ fontSize: '0.95rem', lineHeight: '1.8', color: '#7f1d1d', marginBottom: '20px' }}>
+                以下假设是这套策略的基础前提。如果这些假设不成立，策略需要相应调整。
+              </p>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #fecaca' }}>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '8px', color: '#1f2937' }}>假设一：宏观环境</h3>
+                  <p style={{ fontSize: '0.95rem', lineHeight: '1.8', color: '#374151' }}>
+                    美股 2026 年处在高估 + 滞涨或衰退尾声，存在一次中到大级别回撤。
+                  </p>
+                </div>
+                
+                <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #fecaca' }}>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '8px', color: '#1f2937' }}>假设二：货币政策</h3>
+                  <p style={{ fontSize: '0.95rem', lineHeight: '1.8', color: '#374151' }}>
+                    美联储在 2025–2026 年利率高位徘徊或缓慢下行，流动性不会立刻极度宽松。
+                  </p>
+                </div>
+                
+                <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #fecaca' }}>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '8px', color: '#1f2937' }}>假设三：适用人群</h3>
+                  <p style={{ fontSize: '0.95rem', lineHeight: '1.8', color: '#374151' }}>
+                    策略适合能承受中等回撤、可频繁调整仓位、有一定衍生品理解能力的投资者。
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* 宏观场景与对应策略 */}
+            <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '12px', padding: '24px' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '16px', color: '#1e40af', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '2rem' }}>🌍</span>
+                宏观场景与对应策略
+              </h2>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #bfdbfe' }}>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '8px', color: '#1f2937' }}>场景一：软着陆</h3>
+                  <p style={{ fontSize: '0.95rem', lineHeight: '1.8', color: '#374151', marginBottom: '8px' }}>
+                    经济温和放缓，通胀回落，美联储逐步降息。
+                  </p>
+                  <p style={{ fontSize: '0.9rem', color: '#059669', fontWeight: '500' }}>
+                    <strong>策略：</strong>保持 60-70% 权益仓位，重点关注优质成长股，减少杠杆 ETF 比例。
+                  </p>
+                </div>
+                
+                <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #bfdbfe' }}>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '8px', color: '#1f2937' }}>场景二：硬着陆</h3>
+                  <p style={{ fontSize: '0.95rem', lineHeight: '1.8', color: '#374151', marginBottom: '8px' }}>
+                    经济快速衰退，失业率上升，企业盈利大幅下滑。
+                  </p>
+                  <p style={{ fontSize: '0.9rem', color: '#dc2626', fontWeight: '500' }}>
+                    <strong>策略：</strong>提前减仓至 30-40% 权益，增加现金和黄金比例，等待极度恐慌后的抄底机会。
+                  </p>
+                </div>
+                
+                <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #bfdbfe' }}>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '8px', color: '#1f2937' }}>场景三：滞涨</h3>
+                  <p style={{ fontSize: '0.95rem', lineHeight: '1.8', color: '#374151', marginBottom: '8px' }}>
+                    通胀居高不下，经济增长停滞，美联储进退两难。
+                  </p>
+                  <p style={{ fontSize: '0.9rem', color: '#f59e0b', fontWeight: '500' }}>
+                    <strong>策略：</strong>降低权益仓位至 50%，增加贵金属（黄金、PAAS）配置，保持高现金比例。
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+            {activeSubTab === 'indicators' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* 指标体系与优先级 */}
+            <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '12px', padding: '24px' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '16px', color: '#1e40af', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '2rem' }}>📊</span>
+                指标体系与优先级
+              </h2>
+              
+              <div style={{ marginBottom: '24px' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#1f2937' }}>一级指标（核心灵魂）</h3>
+                <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '16px', marginBottom: '12px' }}>
+                  <div style={{ fontWeight: '600', marginBottom: '8px', color: '#dc2626' }}>🥇 Equity Put/Call Ratio</div>
+                  <p style={{ fontSize: '0.9rem', color: '#374151', marginBottom: '12px' }}>
+                    散户情绪"体温计"，用于识别极度恐慌与过度乐观，确认抄底时机。
+                  </p>
+                </div>
+                <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '16px' }}>
+                  <div style={{ fontWeight: '600', marginBottom: '8px', color: '#dc2626' }}>🥈 Net GEX</div>
+                  <p style={{ fontSize: '0.9rem', color: '#374151' }}>
+                    判断是否进入负 Gamma 崩盘区，决定是否禁止加仓高 Beta。
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '24px' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#1f2937' }}>二级指标（辅助验证）</h3>
+                <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '8px', padding: '16px', marginBottom: '12px' }}>
+                  <div style={{ fontWeight: '600', marginBottom: '8px', color: '#f59e0b' }}>🥉 SPX Put/Call Ratio</div>
+                  <p style={{ fontSize: '0.9rem', color: '#374151', marginBottom: '12px' }}>
+                    机构对冲意愿变化，辅助判断"防弹衣是否已脱"。
+                  </p>
+                </div>
+                <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '8px', padding: '16px' }}>
+                  <div style={{ fontWeight: '600', marginBottom: '8px', color: '#f59e0b' }}>4️⃣ VIX 及其期限结构</div>
+                  <p style={{ fontSize: '0.9rem', color: '#374151' }}>
+                    观察恐慌程度与期限倒挂。
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#1f2937' }}>三级指标（专项工具）</h3>
+                <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '8px', padding: '16px' }}>
+                  <div style={{ fontWeight: '600', marginBottom: '8px', color: '#059669' }}>5️⃣ 金银比（Gold/Silver Ratio）</div>
+                  <p style={{ fontSize: '0.9rem', color: '#374151' }}>
+                    用于在极端错价时调整黄金与白银矿仓位。
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* 指标阈值与行动表格 */}
+            <div style={{ background: 'white', border: '2px solid #3b82f6', borderRadius: '12px', padding: '24px' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#1e40af', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '2rem' }}>📋</span>
+                指标阈值与行动表
+              </h2>
+              
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                  <thead>
+                    <tr style={{ background: '#eff6ff', borderBottom: '2px solid #3b82f6' }}>
+                      <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#1e40af' }}>指标</th>
+                      <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#1e40af' }}>条件</th>
+                      <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#1e40af' }}>动作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+                      <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937' }}>Equity Put/Call Ratio</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>0.5 &lt; P/C &lt; 0.8</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>情绪偏乐观，维持持仓，不再加仓高 Beta</td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid #e5e7eb', background: '#fef2f2' }}>
+                      <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937' }}>Equity Put/Call Ratio</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>P/C ≥ 1.1</td>
+                      <td style={{ padding: '12px', color: '#dc2626', fontWeight: '600' }}>极度恐慌，启动 1/8 现金抄底 PAAS，如已持有则只加仓高分散度标的</td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+                      <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937' }}>SPX Put/Call Ratio</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>SPX P/C &lt; 0.9 且指数创新高</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>视为机构对冲意愿下降，逐步减仓 YINN/NVDA</td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid #e5e7eb', background: '#fef2f2' }}>
+                      <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937' }}>Net GEX</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>进入明显负 Gamma 区</td>
+                      <td style={{ padding: '12px', color: '#dc2626', fontWeight: '600' }}>禁止加仓高 Beta（RKLB/YINN 等），只允许减仓或对冲</td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+                      <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937' }}>金银比</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>GSR &gt; 85–90</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>白银相对极度便宜，可把部分黄金敞口换成 PAAS 分批买入</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+            {activeSubTab === 'stages' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* 当前持仓与黄金分析 */}
+            <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '12px', padding: '24px' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '16px', color: '#92400e', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '2rem' }}>💰</span>
+                当前持仓与黄金分析
+              </h2>
+              
+              <div style={{ marginBottom: '20px' }}>
+                <p style={{ fontSize: '0.95rem', lineHeight: '1.8', color: '#78350f', marginBottom: '12px' }}>
+                  您的组合包括 <strong>LLY、AXP、GOOGL、TSM、PAAS、RKLB、GOLD</strong>（黄金商品，假设为黄金相关资产如GLD ETF或Barrick Gold股票），每个约12.5%，加上现金12.5%。黄金部分（GOLD + PAAS）占约25%，提供通胀对冲和防御。
+                </p>
+                <p style={{ fontSize: '0.95rem', lineHeight: '1.8', color: '#78350f', marginBottom: '12px' }}>
+                  <strong>2025年黄金表现：</strong>金价从年初约$2450/盎司涨至年末约$3900/盎司（基于GLD代理），YTD +59%，受益于地缘不确定、中央银行购买和关税影响。然而，2025后期涨幅放缓（7-8月微跌），显示潜在峰值。
+                </p>
+              </div>
+
+              <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #fde68a', marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#1f2937' }}>黄金卖出时机</h3>
+                <p style={{ fontSize: '0.9rem', color: '#374151', marginBottom: '8px' }}>不宜盲目持有。基于2025市场，卖出信号包括：</p>
+                <ul style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.8', paddingLeft: '20px' }}>
+                  <li><strong>宏观指标：</strong>利率上升（10年美债收益率&gt;4%），美元强势（DXY&gt;105），通胀回落（CPI&lt;2%），这些削弱黄金吸引力。</li>
+                  <li><strong>技术信号：</strong>金价回调&gt;10%从峰值，或金/道指比率接近1:1（当前约0.08，远未到）。银/金比率&lt;30:1也暗示过热。</li>
+                  <li><strong>市场周期：</strong>在权益牛市（如金屋行情）卖出，转入成长股；泡沫后期若VIX&gt;20，渐减。</li>
+                  <li><strong>个人规则：</strong>设定止盈（如+20% YTD卖1/3），或若相信2026继续涨（J.P. Morgan预测更高），持有。</li>
+                </ul>
+                <p style={{ fontSize: '0.85rem', color: '#6b7280', marginTop: '12px', fontStyle: 'italic' }}>
+                  当前（2025.12.27）：金价高位稳定，但若美联储加息信号强，考虑减仓5-10%。
+                </p>
+              </div>
+            </div>
+
+            {/* 优化后组合 */}
+            <div style={{ background: 'white', border: '2px solid #10b981', borderRadius: '12px', padding: '24px' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#059669', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '2rem' }}>📊</span>
+                优化后组合（整合黄金卖出）
+              </h2>
+              <p style={{ fontSize: '0.9rem', color: '#6b7280', marginBottom: '16px' }}>
+                比例微调：保持黄金10-15%，但添加卖出阈值（如&gt; +20%卖部分）。
+              </p>
+              
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                  <thead>
+                    <tr style={{ background: '#d1fae5', borderBottom: '2px solid #10b981' }}>
+                      <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#059669' }}>资产</th>
+                      <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#059669' }}>优化比例</th>
+                      <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#059669' }}>理由</th>
+                      <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#059669' }}>当前YTD</th>
+                      <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#059669' }}>Beta（约）</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+                      <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937' }}>LLY</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>20%</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>制药增长</td>
+                      <td style={{ padding: '12px', color: '#059669' }}>+0.79%</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>0.8</td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+                      <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937' }}>AXP</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>15%</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>金融稳定</td>
+                      <td style={{ padding: '12px', color: '#059669' }}>+0.55%</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>1.4</td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+                      <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937' }}>GOOGL</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>15%</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>AI领导</td>
+                      <td style={{ padding: '12px', color: '#059669' }}>+0.07%</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>1.1</td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+                      <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937' }}>TSM</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>20%</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>半导体核心</td>
+                      <td style={{ padding: '12px', color: '#059669' }}>+2.07%</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>1.3</td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+                      <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937' }}>PAAS</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>10%</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>银矿对冲</td>
+                      <td style={{ padding: '12px', color: '#059669' }}>+5.69%</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>1.5</td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+                      <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937' }}>RKLB</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>10%</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>航天潜力</td>
+                      <td style={{ padding: '12px', color: '#dc2626' }}>-2.00%</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>2.0</td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid #e5e7eb', background: '#fef3c7' }}>
+                      <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937' }}>GOLD</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>10%</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>黄金商品；卖出若回调&gt;10%或利率升</td>
+                      <td style={{ padding: '12px', color: '#059669' }}>+3.03%</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>0.9</td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+                      <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937' }}>现金/TLT</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>10%/5%</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>防御</td>
+                      <td style={{ padding: '12px', color: '#6b7280' }}>N/A</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>低</td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid #e5e7eb', background: '#fee2e2' }}>
+                      <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937' }}>做空工具</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>&lt;5-10%</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>熊市对冲</td>
+                      <td style={{ padding: '12px', color: '#6b7280' }}>N/A</td>
+                      <td style={{ padding: '12px', color: '#374151' }}>高负</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* 市场阶段与操作规则表格 */}
+            <div style={{ background: 'white', border: '2px solid #3b82f6', borderRadius: '12px', padding: '24px' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#1e40af', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '2rem' }}>📈</span>
+                基于市场周期的动态策略（融入持仓+做空+黄金卖出）
+              </h2>
+              
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem' }}>
+                  <thead>
+                    <tr style={{ background: '#eff6ff', borderBottom: '2px solid #3b82f6' }}>
+                      <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', color: '#1e40af' }}>阶段</th>
+                      <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', color: '#1e40af' }}>情绪与指标特征</th>
+                      <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', color: '#1e40af' }}>仓位大致范围</th>
+                      <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', color: '#1e40af' }}>分沽操作</th>
+                      <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', color: '#1e40af' }}>基准操作</th>
+                      <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', color: '#1e40af' }}>做空部分</th>
+                      <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', color: '#1e40af' }}>黄金卖出规则</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr style={{ borderBottom: '1px solid #e5e7eb', background: '#f0fdf4' }}>
+                      <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937' }}>金屋行情</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>指数创新高，P/C &lt;0.7，VIX &lt;15</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>权益70-80%，商品15-20%，现金5%</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>持有LLY/TSM/GOOGL，加RKLB</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>增科技，监控AI</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>无</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>持有GOLD/PAAS；若金价+20% YTD，卖1/3转权益（如TSM）</td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid #e5e7eb', background: '#fff7ed' }}>
+                      <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937' }}>泡沫初期</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>指数高位，P/C 0.7-1.0，VIX 15-20</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>权益60-70%，商品20-25%，现金10%</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>减RKLB，转GOOGL</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>加TLT；止盈&gt;10%</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>1-3% SQQQ</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>监控金价峰值；若美债&gt;4%，卖GOLD 20%，转现金</td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid #e5e7eb', background: '#fef2f2' }}>
+                      <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937' }}>泡沫后期</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>指数急跌，Net GEX负大，VIX &gt;20</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>权益40-50%，商品25-30%，现金20-30%</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>只减不加；VIX PUT。止损-8%</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>移仓PAAS/GOLD；限交易</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>5-10% SQQQ/SPXS</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>持有作为防御；但若美元&gt;105，卖GOLD 30%，避回调</td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid #e5e7eb', background: '#fef2f2' }}>
+                      <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937' }}>中期筑底</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>Equity P/C &gt;1.2，VIX &lt;30回落</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>权益30-40%，商品30%，现金30-40%</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>1/8现金买PAAS/GOLD</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>All in优质；增商品若CPI&gt;3%</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>3-5% SPXS</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>增持GOLD；卖出信号弱，观察通胀降&lt;2%再减</td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid #e5e7eb', background: '#f0fdf4' }}>
+                      <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937' }}>熊市后期</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>指数比跌，P/C 中性，VIX &lt;20</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>权益60-70%，商品20-25%，现金10%</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>增TSM/GOOGL</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>再平衡，卖&lt; -5%</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>5% short弱势</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>若权益反弹，卖GOLD/PAAS 20%，转成长股；金/道指&gt;0.1持，否则卖</td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid #e5e7eb', background: '#f0fdf4' }}>
+                      <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937' }}>筑底回升</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>指数止跌，P/C 中性，VIX &lt;15</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>权益60-70%，商品20-25%，现金10-15%</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>加LLY/AXP；止损-5%</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>观察美联储，加权益</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>&lt;3%局部</td>
+                      <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>渐减GOLD若价格稳定高位；卖若回调&gt;10%，或2026预测转弱</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              
+              <div style={{ marginTop: '20px', padding: '16px', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px' }}>
+                <p style={{ fontSize: '0.85rem', color: '#1e40af', lineHeight: '1.6', marginBottom: '8px' }}>
+                  <strong>实施：</strong>每周查指标（如VIX、DXY），季度再平衡。回测显示添加卖出规则可减波动15%。
+                </p>
+                <p style={{ fontSize: '0.75rem', color: '#6b7280', fontStyle: 'italic' }}>
+                  非建议，咨询顾问。
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+            {activeSubTab === 'execution' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* 市场情绪分析器 - 保留原有功能 */}
             <div style={{ 
               background: 'white', 
               border: '2px solid #3b82f6', 
@@ -928,6 +1660,7 @@ const InvestmentPlan2026 = () => {
               </h3>
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                {/* 数据获取部分 - 保留原有代码 */}
                 <div style={{ 
                   display: 'flex', 
                   justifyContent: 'space-between', 
@@ -960,7 +1693,7 @@ const InvestmentPlan2026 = () => {
                         gap: '6px'
                       }}
                     >
-                      {loadingPCRatios ? '⏳ 获取中...' : '🔄 自动获取'}
+                      {loadingPCRatios ? '⏳ 获取中...' : '🔄 自动获取 P/C Ratio'}
                     </button>
                     <button
                       onClick={() => window.open('https://www.cboe.com/us/options/market_statistics/daily/', '_blank')}
@@ -982,49 +1715,117 @@ const InvestmentPlan2026 = () => {
                     </button>
                   </div>
                 </div>
+
+                {/* 优先级排名和实战清单 - 从monitor tab复制完整代码 */}
                 <div style={{ 
                   padding: '12px', 
-                  background: '#fffbeb', 
-                  border: '1px solid #fde68a',
+                  background: '#fef2f2', 
+                  border: '1px solid #fecaca',
                   borderRadius: '8px', 
                   fontSize: '0.85rem', 
-                  color: '#92400e',
+                  color: '#991b1b',
                   lineHeight: '1.6',
                   marginBottom: '12px'
                 }}>
-                  <div style={{ fontWeight: '600', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    ⚠️ 为什么自动获取可能失败？
+                  <div style={{ fontWeight: '700', marginBottom: '10px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    🏆 指标优先级排名（实战有效性）
                   </div>
-                  <div style={{ marginBottom: '10px', paddingLeft: '8px', borderLeft: '3px solid #f59e0b' }}>
-                    <p style={{ marginBottom: '6px' }}>
-                      <strong>技术原因：</strong>CBOE 页面使用 <strong>JavaScript 动态加载</strong>数据：
-                    </p>
-                    <ol style={{ marginLeft: '20px', marginBottom: '6px' }}>
-                      <li>初始 HTML 是空壳，不包含数据</li>
-                      <li>数据通过 JavaScript 异步请求加载</li>
-                      <li>我们的方法只能获取静态 HTML，无法执行 JavaScript</li>
-                      <li>因此解析不到数据 ❌</li>
-                    </ol>
-                    <p style={{ marginBottom: '6px', fontSize: '0.8rem', color: '#78350f' }}>
-                      💡 <strong>查找结果：</strong>CBOE 没有提供公开的免费 API，第三方数据服务需要付费订阅。
-                    </p>
+                  <div style={{ marginBottom: '8px', padding: '8px', background: 'rgba(255,255,255,0.5)', borderRadius: '6px' }}>
+                    <div style={{ fontWeight: '600', marginBottom: '4px', color: '#dc2626' }}>🥇 第一名：Equity Put/Call Ratio（核心灵魂）</div>
+                    <div style={{ fontSize: '0.8rem', paddingLeft: '8px' }}>散户情绪"体温计"，确认抄底时机。只有当它 &gt; 1.1 甚至冲向 1.3 时，才是 1/8 现金进场的安全红灯。</div>
                   </div>
-                  <div style={{ fontWeight: '600', marginBottom: '6px', marginTop: '12px' }}>
-                    ✅ 解决方案（推荐）：
+                  <div style={{ marginBottom: '8px', padding: '8px', background: 'rgba(255,255,255,0.5)', borderRadius: '6px' }}>
+                    <div style={{ fontWeight: '600', marginBottom: '4px', color: '#f59e0b' }}>🥈 第二名：Net GEX（波动引擎）</div>
+                    <div style={{ fontSize: '0.8rem', paddingLeft: '8px' }}>预测崩盘速度。一旦转负，做市商会助跌，股价会快速下跌。判断"要不要再等更低点"的关键指标。</div>
                   </div>
-                  <ol style={{ marginLeft: '20px', marginBottom: '0' }}>
-                    <li>点击 <strong>"打开 CBOE 页面"</strong> 按钮</li>
-                    <li>等待页面加载完成（约 3-5 秒）</li>
-                    <li>在表格中查找以下数据：
-                      <ul style={{ marginTop: '4px', marginBottom: '4px' }}>
-                        <li><strong>EQUITY PUT/CALL RATIO</strong> (个股看跌/看涨比)</li>
-                        <li><strong>SPX + SPXW PUT/CALL RATIO</strong> (标普指数看跌/看涨比)</li>
-                      </ul>
-                    </li>
-                    <li>将数值输入到下方输入框</li>
-                  </ol>
+                  <div style={{ marginBottom: '8px', padding: '8px', background: 'rgba(255,255,255,0.5)', borderRadius: '6px' }}>
+                    <div style={{ fontWeight: '600', marginBottom: '4px', color: '#3b82f6' }}>🥉 第三名：SPX Put/Call Ratio（避雷针）</div>
+                    <div style={{ fontSize: '0.8rem', paddingLeft: '8px' }}>机构的动作，预测鱼尾结束。如果跌破 0.9，说明"防弹衣"脱了，这是减仓 YINN/NVDA 的最高指令。</div>
+                  </div>
+                  <div style={{ marginBottom: '8px', padding: '8px', background: 'rgba(255,255,255,0.5)', borderRadius: '6px' }}>
+                    <div style={{ fontWeight: '600', marginBottom: '4px' }}>4️⃣ 第四名：VIX 期限结构（预警哨兵）</div>
+                    <div style={{ fontSize: '0.8rem', paddingLeft: '8px' }}>长线转折预警。一旦倒挂，立刻进入"临战模式"。</div>
+                  </div>
+                  <div style={{ marginBottom: '0', padding: '8px', background: 'rgba(255,255,255,0.5)', borderRadius: '6px' }}>
+                    <div style={{ fontWeight: '600', marginBottom: '4px' }}>5️⃣ 第五名：金/银比（专项工具）</div>
+                    <div style={{ fontSize: '0.8rem', paddingLeft: '8px' }}>专门针对 PAAS。如果冲到 85-90，就算大盘还在跌，也可以开始建仓 PAAS。</div>
+                  </div>
                 </div>
 
+                <div style={{ 
+                  padding: '12px', 
+                  background: '#f0fdf4', 
+                  border: '1px solid #86efac',
+                  borderRadius: '8px', 
+                  fontSize: '0.85rem', 
+                  color: '#166534',
+                  lineHeight: '1.6',
+                  marginBottom: '12px'
+                }}>
+                  <div style={{ fontWeight: '700', marginBottom: '10px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    💡 2026 "三步走"实战清单
+                  </div>
+                  <div style={{ marginBottom: '8px', padding: '8px', background: 'rgba(255,255,255,0.5)', borderRadius: '6px' }}>
+                    <div style={{ fontWeight: '600', marginBottom: '4px', color: '#dc2626' }}>1️⃣ 看"撤退信号"（看第 3、4 名）</div>
+                    <div style={{ fontSize: '0.8rem', paddingLeft: '8px' }}>如果 SPX P/C 下跌 + VIX 期限结构开始收窄 = <strong>撤退 YINN/NVDA</strong>，准备现金。</div>
+                  </div>
+                  <div style={{ marginBottom: '8px', padding: '8px', background: 'rgba(255,255,255,0.5)', borderRadius: '6px' }}>
+                    <div style={{ fontWeight: '600', marginBottom: '4px', color: '#f59e0b' }}>2️⃣ 看"崩盘速度"（看第 2 名）</div>
+                    <div style={{ fontSize: '0.8rem', paddingLeft: '8px' }}>如果 GEX 转负 = <strong>耐心等待</strong>。不要在刚转负时接 RKLB，因为它会跌得很快，目标位稳稳能到。</div>
+                  </div>
+                  <div style={{ marginBottom: '0', padding: '8px', background: 'rgba(255,255,255,0.5)', borderRadius: '6px' }}>
+                    <div style={{ fontWeight: '600', marginBottom: '4px', color: '#059669' }}>3️⃣ 看"抄底红灯"（看第 1、5 名）</div>
+                    <div style={{ fontSize: '0.8rem', paddingLeft: '8px' }}>如果 Equity P/C &gt; 1.2 + 金银比 &gt; 85 = <strong>全线出击</strong>。买入 PAAS 和 RKLB。</div>
+                  </div>
+                </div>
+
+                <div style={{ 
+                  padding: '12px', 
+                  background: '#f0f9ff', 
+                  border: '1px solid #7dd3fc',
+                  borderRadius: '8px', 
+                  fontSize: '0.85rem', 
+                  color: '#0c4a6e',
+                  lineHeight: '1.6',
+                  marginBottom: '12px'
+                }}>
+                  <div style={{ fontWeight: '700', marginBottom: '12px', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    📚 市场博弈逻辑：从"鱼尾行情"到"崩盘"再到"熊转牛"
+                  </div>
+                  <div style={{ marginBottom: '12px', padding: '8px', background: 'rgba(255,255,255,0.5)', borderRadius: '6px' }}>
+                    <div style={{ fontWeight: '600', marginBottom: '8px', color: '#dc2626' }}>
+                      📉 第一部分：熊市崩盘的三个阶段
+                    </div>
+                    <div style={{ marginBottom: '6px', paddingLeft: '8px' }}>
+                      <strong>1. 诱多期（防弹衣剥落）：</strong>SPX 1.22 → 0.90。市场还在涨，但机构开始获利了结 Put 或不再购买昂贵的保险。散户的 Equity P/C 可能还在 0.6 以下（极度贪婪）。
+                    </div>
+                    <div style={{ marginBottom: '6px', paddingLeft: '8px' }}>
+                      <strong>2. 踩踏期（无保护自由落体）：</strong>SPX &lt; 0.8 / Equity 0.6 → 1.0。导火索引爆，机构没有 Put 保护，开始砸盘抛售现货。散户开始慌乱买入 Put 避险。
+                    </div>
+                    <div style={{ marginBottom: '0', paddingLeft: '8px' }}>
+                      <strong>3. 绝望期（终极洗盘）：</strong>Equity P/C &gt; 1.2。这是你等待的瞬间。大盘无差别暴跌，PAAS 和 RKLB 杀到你的预警位。这就是你的"第一笔 1/8 现金"入场点。
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: '0', padding: '8px', background: 'rgba(255,255,255,0.5)', borderRadius: '6px' }}>
+                    <div style={{ fontWeight: '600', marginBottom: '8px', color: '#059669' }}>
+                      📈 第二部分：熊转牛的"接力流程"
+                    </div>
+                    <div style={{ marginBottom: '6px', paddingLeft: '8px' }}>
+                      <strong>第一步：</strong>SPX P/C 先行见顶回落（机构先嗅到转机）
+                    </div>
+                    <div style={{ marginBottom: '6px', paddingLeft: '8px' }}>
+                      <strong>第二步：</strong>Equity P/C 出现"极致恐慌后的平复"（散户投降）
+                    </div>
+                    <div style={{ marginBottom: '6px', paddingLeft: '8px' }}>
+                      <strong>第三步：</strong>VIX 确认（温度降下来）
+                    </div>
+                    <div style={{ marginBottom: '0', paddingLeft: '8px' }}>
+                      <strong>第四步：</strong>散户回归（新的牛市开启）
+                    </div>
+                  </div>
+                </div>
+
+                {/* 输入字段 */}
                 <div>
                   <label style={{ 
                     display: 'block', 
@@ -1033,7 +1834,7 @@ const InvestmentPlan2026 = () => {
                     color: '#374151',
                     fontSize: '0.95rem'
                   }}>
-                    Equity P/C Ratio (个股比例)
+                    Equity P/C Ratio (个股比例) - EQUITY PUT/CALL RATIO (个股看跌/看涨比)
                   </label>
                   <input
                     type="number"
@@ -1050,9 +1851,27 @@ const InvestmentPlan2026 = () => {
                       boxSizing: 'border-box'
                     }}
                   />
-                  <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '6px' }}>
+                  <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '6px', marginBottom: '4px' }}>
                     通常 0.7 以下为贪婪，1.1 以上为恐惧
                   </div>
+                  <a 
+                    href="https://www.cboe.com/us/options/market_statistics/daily/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    style={{
+                      fontSize: '0.75rem',
+                      color: '#2563eb',
+                      textDecoration: 'none',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline' }}
+                    onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none' }}
+                  >
+                    🔗 查看 CBOE 数据
+                    <span style={{ fontSize: '0.7rem', opacity: 0.7 }}>↗</span>
+                  </a>
                 </div>
 
                 <div>
@@ -1063,7 +1882,7 @@ const InvestmentPlan2026 = () => {
                     color: '#374151',
                     fontSize: '0.95rem'
                   }}>
-                    SPX P/C Ratio (标普指数比例)
+                    SPX P/C Ratio (标普指数比例) - SPX + SPXW PUT/CALL RATIO (标普指数看跌/看涨比)
                   </label>
                   <input
                     type="number"
@@ -1080,8 +1899,276 @@ const InvestmentPlan2026 = () => {
                       boxSizing: 'border-box'
                     }}
                   />
-                  <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '6px' }}>
+                  <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '6px', marginBottom: '4px' }}>
                     1.2 以上代表机构对冲很强(安全垫)
+                  </div>
+                  <a 
+                    href="https://www.cboe.com/us/options/market_statistics/daily/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    style={{
+                      fontSize: '0.75rem',
+                      color: '#2563eb',
+                      textDecoration: 'none',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline' }}
+                    onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none' }}
+                  >
+                    🔗 查看 CBOE 数据
+                    <span style={{ fontSize: '0.7rem', opacity: 0.7 }}>↗</span>
+                  </a>
+                </div>
+
+                <div style={{ 
+                  padding: '12px', 
+                  background: '#f0f9ff', 
+                  border: '1px solid #7dd3fc',
+                  borderRadius: '8px', 
+                  fontSize: '0.85rem', 
+                  color: '#0c4a6e',
+                  lineHeight: '1.6',
+                  marginBottom: '12px'
+                }}>
+                  <div style={{ fontWeight: '700', marginBottom: '8px', fontSize: '0.9rem' }}>
+                    🔬 高阶参数（可选，提高判断胜率）
+                  </div>
+                  <div style={{ fontSize: '0.75rem', marginBottom: '12px', color: '#0369a1' }}>
+                    这些参数比 P/C Ratio 更敏感，可以交叉验证市场状态
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ 
+                    display: 'block', 
+                    marginBottom: '8px', 
+                    fontWeight: '600', 
+                    color: '#374151',
+                    fontSize: '0.9rem'
+                  }}>
+                    VIX 近月（可选）
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={vixNear}
+                    onChange={(e) => setVixNear(e.target.value)}
+                    placeholder="例如: 15.5"
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '8px',
+                      fontSize: '0.9rem',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                  <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '4px', marginBottom: '4px' }}>
+                    VIX 期限结构：对比近月和远月，倒挂时是崩盘前兆
+                  </div>
+                  <a 
+                    href="https://finance.yahoo.com/quote/%5EVIX" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    style={{
+                      fontSize: '0.75rem',
+                      color: '#2563eb',
+                      textDecoration: 'none',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline' }}
+                    onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none' }}
+                  >
+                    🔗 查看 Yahoo Finance VIX
+                    <span style={{ fontSize: '0.7rem', opacity: 0.7 }}>↗</span>
+                  </a>
+                </div>
+
+                <div>
+                  <label style={{ 
+                    display: 'block', 
+                    marginBottom: '8px', 
+                    fontWeight: '600', 
+                    color: '#374151',
+                    fontSize: '0.9rem'
+                  }}>
+                    VIX 远月 / VXV（可选）
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={vixFar}
+                    onChange={(e) => setVixFar(e.target.value)}
+                    placeholder="例如: 18.2"
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '8px',
+                      fontSize: '0.9rem',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                  <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '4px', marginBottom: '4px' }}>
+                    三个月后的 VIX，正常应大于近月（Contango）
+                  </div>
+                  <a 
+                    href="https://finance.yahoo.com/quote/%5EVXV" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    style={{
+                      fontSize: '0.75rem',
+                      color: '#2563eb',
+                      textDecoration: 'none',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline' }}
+                    onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none' }}
+                  >
+                    🔗 查看 Yahoo Finance VXV
+                    <span style={{ fontSize: '0.7rem', opacity: 0.7 }}>↗</span>
+                  </a>
+                </div>
+
+                <div>
+                  <label style={{ 
+                    display: 'block', 
+                    marginBottom: '8px', 
+                    fontWeight: '600', 
+                    color: '#374151',
+                    fontSize: '0.9rem'
+                  }}>
+                    Net GEX（可选）
+                  </label>
+                  <input
+                    type="number"
+                    step="1"
+                    value={netGEX}
+                    onChange={(e) => setNetGEX(e.target.value)}
+                    placeholder="例如: -5000000000"
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '8px',
+                      fontSize: '0.9rem',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                  <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '4px', marginBottom: '4px' }}>
+                    净看涨期权敞口，负值时市场进入崩盘区
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    <a 
+                      href="https://tier1alpha.com/" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{
+                        fontSize: '0.75rem',
+                        color: '#2563eb',
+                        textDecoration: 'none',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline' }}
+                      onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none' }}
+                    >
+                      🔗 Tier1Alpha
+                      <span style={{ fontSize: '0.7rem', opacity: 0.7 }}>↗</span>
+                    </a>
+                    <a 
+                      href="https://spotgamma.com/" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{
+                        fontSize: '0.75rem',
+                        color: '#2563eb',
+                        textDecoration: 'none',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline' }}
+                      onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none' }}
+                    >
+                      🔗 SpotGamma
+                      <span style={{ fontSize: '0.7rem', opacity: 0.7 }}>↗</span>
+                    </a>
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ 
+                    display: 'block', 
+                    marginBottom: '8px', 
+                    fontWeight: '600', 
+                    color: '#374151',
+                    fontSize: '0.9rem'
+                  }}>
+                    金银比 Gold/Silver Ratio（可选）
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={goldSilverRatio}
+                    onChange={(e) => setGoldSilverRatio(e.target.value)}
+                    placeholder="例如: 85.5"
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '8px',
+                      fontSize: '0.9rem',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                  <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '4px', marginBottom: '4px' }}>
+                    ≥90 时白银极度便宜，是 PAAS 确定性最高的买入时刻
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    <a 
+                      href="https://finance.yahoo.com/quote/GC=F" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{
+                        fontSize: '0.75rem',
+                        color: '#2563eb',
+                        textDecoration: 'none',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline' }}
+                      onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none' }}
+                    >
+                      🔗 黄金价格
+                      <span style={{ fontSize: '0.7rem', opacity: 0.7 }}>↗</span>
+                    </a>
+                    <a 
+                      href="https://finance.yahoo.com/quote/SI=F" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{
+                        fontSize: '0.75rem',
+                        color: '#2563eb',
+                        textDecoration: 'none',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline' }}
+                      onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none' }}
+                    >
+                      🔗 白银价格
+                      <span style={{ fontSize: '0.7rem', opacity: 0.7 }}>↗</span>
+                    </a>
                   </div>
                 </div>
 
@@ -1138,19 +2225,19 @@ const InvestmentPlan2026 = () => {
                       alignItems: 'center',
                       gap: '8px'
                     }}>
-                      {analysisResult.status === 'safe' ? '✅' : 
-                       analysisResult.status === 'warning' ? '⚠️' : '🚨'}
+                      {analysisResult.status === 'safe' ? '✅' :
+                        analysisResult.status === 'warning' ? '⚠️' : '🚨'}
                       {analysisResult.title}
                     </div>
-                    <div style={{ 
-                      fontSize: '0.95rem', 
-                      lineHeight: '1.6', 
-                      marginBottom: '12px' 
+                    <div style={{
+                      fontSize: '0.95rem',
+                      lineHeight: '1.6',
+                      marginBottom: '12px'
                     }}>
                       {analysisResult.content}
                     </div>
-                    <div style={{ 
-                      fontSize: '0.95rem', 
+                    <div style={{
+                      fontSize: '0.95rem',
                       fontWeight: '600',
                       padding: '12px',
                       background: 'rgba(255,255,255,0.5)',
@@ -1162,313 +2249,84 @@ const InvestmentPlan2026 = () => {
                     }}>
                       💡 {analysisResult.action}
                     </div>
+                    {analysisResult.advanced && (
+                      <div style={{
+                        marginTop: '16px',
+                        padding: '16px',
+                        background: '#eff6ff',
+                        border: '1px solid #3b82f6',
+                        borderRadius: '8px',
+                        color: '#1e40af',
+                        fontSize: '0.9rem',
+                        lineHeight: '1.6',
+                        whiteSpace: 'pre-line'
+                      }}>
+                        <div style={{ fontWeight: '700', marginBottom: '8px', fontSize: '0.95rem' }}>
+                          🏆 优先级评估（按实战有效性）
+                        </div>
+                        <div style={{ fontSize: '0.85rem' }}>
+                          {analysisResult.advanced}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
             </div>
 
-            <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '16px', marginBottom: '8px' }}>
-              <h3 style={{ fontWeight: '700', fontSize: '1.1rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '1.2rem' }}>👁️</span>
-                每日监控自选列表
-              </h3>
-              <p style={{ fontSize: '0.85rem', color: '#374151' }}>
-                建议每天查看这些关键指标，及时捕捉市场信号
-              </p>
-            </div>
-
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
-              gap: '16px' 
-            }}>
-              {monitorList.map((item, index) => (
-                <div
-                  key={index}
-                  style={{
-                    border: `2px solid ${item.color}`,
-                    background: item.bgColor,
-                    borderRadius: '12px',
-                    padding: '20px',
-                    transition: 'transform 0.2s, box-shadow 0.2s',
-                    cursor: 'pointer'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-4px)';
-                    e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.15)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                    <span style={{ fontSize: '2rem' }}>{item.icon}</span>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ 
-                        fontSize: '1.5rem', 
-                        fontWeight: '700', 
-                        color: item.color,
-                        marginBottom: '4px'
-                      }}>
-                        {item.code}
-                      </div>
-                      <div style={{ 
-                        fontSize: '1rem', 
-                        fontWeight: '600', 
-                        color: '#1f2937'
-                      }}>
-                        {item.name}
-                      </div>
-                    </div>
-                  </div>
-                  <div style={{ 
-                    fontSize: '0.9rem', 
-                    color: '#4b5563',
-                    lineHeight: '1.5',
-                    paddingTop: '12px',
-                    borderTop: `1px solid ${item.color}40`
-                  }}>
-                    {item.description}
+            {/* 每日执行清单 */}
+            <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '12px', padding: '24px' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '16px', color: '#166534', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '2rem' }}>✅</span>
+                每日执行清单
+              </h2>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #86efac' }}>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#1f2937' }}>查看自选</h3>
+                  <div style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.8' }}>
+                    KRE、XHB、GDX/GLD、VIX、DXY、^TNX、BTC-USD、CNN Fear & Greed 指数
                   </div>
                 </div>
-              ))}
-            </div>
-
-            <div style={{ background: '#e0f2fe', border: '1px solid #7dd3fc', borderRadius: '8px', padding: '16px', marginTop: '8px' }}>
-              <h4 style={{ fontWeight: '700', marginBottom: '12px', color: '#0c4a6e', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '1.2rem' }}>📅</span>
-                重要经济数据日历
-              </h4>
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
-                gap: '12px' 
-              }}>
-                {economicCalendar.map((item, index) => {
-                  const bgColor = item.importance === 'critical' ? '#fef2f2' : item.importance === 'high' ? '#fff7ed' : '#f0fdf4';
-                  const borderColor = item.importance === 'critical' ? '#fecaca' : item.importance === 'high' ? '#fed7aa' : '#bbf7d0';
-                  const textColor = item.importance === 'critical' ? '#991b1b' : item.importance === 'high' ? '#92400e' : '#166534';
-                  
-                  return (
-                    <div
-                      key={index}
-                      style={{
-                        background: bgColor,
-                        border: `1px solid ${borderColor}`,
-                        borderRadius: '8px',
-                        padding: '12px',
-                        fontSize: '0.85rem'
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                        <span style={{ fontSize: '1.2rem' }}>{item.icon}</span>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontWeight: '700', color: textColor, marginBottom: '2px' }}>
-                            {item.event}
-                          </div>
-                          <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
-                            {item.frequency} • {item.time}
-                          </div>
-                        </div>
-                      </div>
-                      <div style={{ color: '#4b5563', fontSize: '0.8rem', lineHeight: '1.4' }}>
-                        {item.description}
-                      </div>
-                    </div>
-                  );
-                })}
+                
+                <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #86efac' }}>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#1f2937' }}>记录数据</h3>
+                  <div style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.8' }}>
+                    当天 Equity P/C、SPX P/C、Net GEX、金银比，以及自己给市场阶段打一个标签（鱼尾 / 诱多 / 崩盘 / 恐慌 / 筑底）
+                  </div>
+                </div>
+                
+                <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #86efac' }}>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#1f2937' }}>行动决策</h3>
+                  <div style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.8' }}>
+                    <div style={{ marginBottom: '8px' }}>• 若无阶段切换信号 → 不做大动作</div>
+                    <div>• 若阶段变更 → 按上表调整仓位，不做超过两步的大幅改动</div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '8px', padding: '16px', marginTop: '8px' }}>
-              <h4 style={{ fontWeight: '700', marginBottom: '8px', color: '#92400e', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '1.2rem' }}>💡</span>
-                监控要点
-              </h4>
-              <div style={{ fontSize: '0.85rem', display: 'flex', flexDirection: 'column', gap: '8px', color: '#374151' }}>
-                <div><strong>KRE:</strong> 关注是否跌破关键支撑位，区域银行是地产风险的先行指标</div>
-                <div><strong>XHB:</strong> 建筑商持续走弱可能预示地产周期下行</div>
-                <div><strong>GDX/GLD:</strong> 避险资金流入黄金通常意味着市场风险偏好下降</div>
-                <div><strong>VIX:</strong> 持续在25以上表明市场从"阴跌"转为"恐慌跌"，需要高度警惕</div>
-                <div><strong>DXY:</strong> 美元指数&gt;105通常压制风险资产，&lt;100可能利好新兴市场</div>
-                <div><strong>10年期美债:</strong> 收益率&gt;4.5%可能吸引资金从股市流出，倒挂持续需警惕衰退</div>
-                <div><strong>BTC:</strong> 比特币上涨通常反映风险偏好上升，下跌可能预示避险情绪</div>
-                <div><strong>恐慌贪婪指数:</strong> &lt;20极度恐慌（抄底机会），&gt;80极度贪婪（减仓信号）</div>
+            {/* 投资纪律 */}
+            <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '12px', padding: '24px' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '16px', color: '#92400e', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '2rem' }}>⚖️</span>
+                投资纪律
+              </h2>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ fontSize: '1rem', color: '#92400e', lineHeight: '1.8', fontStyle: 'italic' }}>
+                  • 现金是等待成本，也是买错的止损器。
+                </div>
+                <div style={{ fontSize: '1rem', color: '#92400e', lineHeight: '1.8', fontStyle: 'italic' }}>
+                  • 做空需要耐心，抄底需要勇气，二者都要有规则约束。
+                </div>
+                <div style={{ fontSize: '1rem', color: '#92400e', lineHeight: '1.8', fontStyle: 'italic' }}>
+                  • 宁可错过，不要做错；宁可慢一点，不要频繁大振幅改仓。
+                </div>
               </div>
             </div>
-
-            <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '16px', marginTop: '8px' }}>
-              <h4 style={{ fontWeight: '700', marginBottom: '12px', color: '#166534', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '1.2rem' }}>🔗</span>
-                常用资源
-              </h4>
-              <div style={{ fontSize: '0.9rem', display: 'flex', flexDirection: 'column', gap: '8px', color: '#374151' }}>
-                <div style={{ marginBottom: '8px', fontWeight: '600', color: '#1f2937' }}>📊 股票/ETF</div>
-                <a 
-                  href="https://finance.yahoo.com/quote/NAVI/" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  style={{
-                    color: '#2563eb',
-                    textDecoration: 'none',
-                    padding: '8px 12px',
-                    background: 'white',
-                    borderRadius: '6px',
-                    border: '1px solid #bfdbfe',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    transition: 'all 0.2s',
-                    maxWidth: 'fit-content',
-                    marginBottom: '8px'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#eff6ff';
-                    e.currentTarget.style.borderColor = '#3b82f6';
-                    e.currentTarget.style.textDecoration = 'underline';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'white';
-                    e.currentTarget.style.borderColor = '#bfdbfe';
-                    e.currentTarget.style.textDecoration = 'none';
-                  }}
-                >
-                  <span>📊</span>
-                  <span>Yahoo Finance - NAVI</span>
-                  <span style={{ fontSize: '0.8rem', opacity: 0.7 }}>↗</span>
-                </a>
-                
-                <div style={{ marginTop: '12px', marginBottom: '8px', fontWeight: '600', color: '#1f2937' }}>🏛️ 官方数据源</div>
-                {[
-                  { name: '美联储官网 (FOMC)', url: 'https://www.federalreserve.gov/', icon: '🏦' },
-                  { name: '美国劳工统计局 (BLS)', url: 'https://www.bls.gov/', icon: '📈' },
-                  { name: '美国经济分析局 (BEA)', url: 'https://www.bea.gov/', icon: '📊' },
-                  { name: '美国财政部', url: 'https://home.treasury.gov/', icon: '💰' }
-                ].map((link, idx) => (
-                  <a 
-                    key={idx}
-                    href={link.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    style={{
-                      color: '#2563eb',
-                      textDecoration: 'none',
-                      padding: '8px 12px',
-                      background: 'white',
-                      borderRadius: '6px',
-                      border: '1px solid #bfdbfe',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      transition: 'all 0.2s',
-                      maxWidth: 'fit-content',
-                      marginBottom: '8px'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = '#eff6ff';
-                      e.currentTarget.style.borderColor = '#3b82f6';
-                      e.currentTarget.style.textDecoration = 'underline';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'white';
-                      e.currentTarget.style.borderColor = '#bfdbfe';
-                      e.currentTarget.style.textDecoration = 'none';
-                    }}
-                  >
-                    <span>{link.icon}</span>
-                    <span>{link.name}</span>
-                    <span style={{ fontSize: '0.8rem', opacity: 0.7 }}>↗</span>
-                  </a>
-                ))}
-                
-                <div style={{ marginTop: '12px', marginBottom: '8px', fontWeight: '600', color: '#1f2937' }}>📰 财经新闻</div>
-                {[
-                  { name: 'Bloomberg', url: 'https://www.bloomberg.com/', icon: '📰' },
-                  { name: 'Reuters', url: 'https://www.reuters.com/', icon: '📰' },
-                  { name: 'WSJ (华尔街日报)', url: 'https://www.wsj.com/', icon: '📰' },
-                  { name: 'CNBC', url: 'https://www.cnbc.com/', icon: '📺' },
-                  { name: 'MarketWatch', url: 'https://www.marketwatch.com/', icon: '📊' }
-                ].map((link, idx) => (
-                  <a 
-                    key={idx}
-                    href={link.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    style={{
-                      color: '#2563eb',
-                      textDecoration: 'none',
-                      padding: '8px 12px',
-                      background: 'white',
-                      borderRadius: '6px',
-                      border: '1px solid #bfdbfe',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      transition: 'all 0.2s',
-                      maxWidth: 'fit-content',
-                      marginBottom: '8px'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = '#eff6ff';
-                      e.currentTarget.style.borderColor = '#3b82f6';
-                      e.currentTarget.style.textDecoration = 'underline';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'white';
-                      e.currentTarget.style.borderColor = '#bfdbfe';
-                      e.currentTarget.style.textDecoration = 'none';
-                    }}
-                  >
-                    <span>{link.icon}</span>
-                    <span>{link.name}</span>
-                    <span style={{ fontSize: '0.8rem', opacity: 0.7 }}>↗</span>
-                  </a>
-                ))}
-                
-                <div style={{ marginTop: '12px', marginBottom: '8px', fontWeight: '600', color: '#1f2937' }}>📅 数据日历</div>
-                {[
-                  { name: 'Investing.com 经济日历', url: 'https://www.investing.com/economic-calendar/', icon: '📅' },
-                  { name: 'Trading Economics', url: 'https://tradingeconomics.com/calendar', icon: '📅' },
-                  { name: 'CNN 恐慌贪婪指数', url: 'https://www.cnn.com/markets/fear-and-greed', icon: '😱' }
-                ].map((link, idx) => (
-                  <a 
-                    key={idx}
-                    href={link.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    style={{
-                      color: '#2563eb',
-                      textDecoration: 'none',
-                      padding: '8px 12px',
-                      background: 'white',
-                      borderRadius: '6px',
-                      border: '1px solid #bfdbfe',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      transition: 'all 0.2s',
-                      maxWidth: 'fit-content',
-                      marginBottom: '8px'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = '#eff6ff';
-                      e.currentTarget.style.borderColor = '#3b82f6';
-                      e.currentTarget.style.textDecoration = 'underline';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'white';
-                      e.currentTarget.style.borderColor = '#bfdbfe';
-                      e.currentTarget.style.textDecoration = 'none';
-                    }}
-                  >
-                    <span>{link.icon}</span>
-                    <span>{link.name}</span>
-                    <span style={{ fontSize: '0.8rem', opacity: 0.7 }}>↗</span>
-                  </a>
-                ))}
-              </div>
-            </div>
+          </div>
+            )}
           </div>
         )}
       </div>

@@ -100,8 +100,8 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
         <div style={{ marginBottom: '16px' }}>
           <div style={{ 
             display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', 
-            gap: '12px' 
+            gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', 
+            gap: '10px' 
           }}>
             {enabledSources.map(source => (
               <div
@@ -109,8 +109,8 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
                 style={{
                   border: `2px solid ${source.priority === 'high' ? '#ef4444' : source.priority === 'medium' ? '#f59e0b' : '#6b7280'}`,
                   background: source.priority === 'high' ? '#fef2f2' : source.priority === 'medium' ? '#fffbeb' : '#f9fafb',
-                  borderRadius: '8px',
-                  padding: '12px',
+                  borderRadius: '6px',
+                  padding: '8px',
                   transition: 'transform 0.2s, box-shadow 0.2s'
                 }}
                 onMouseEnter={(e) => {
@@ -122,19 +122,22 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
                   e.currentTarget.style.boxShadow = 'none'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                      <span style={{ fontSize: '1.2rem' }}>{source.icon || '🔗'}</span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '3px' }}>
+                      <span style={{ fontSize: '1rem' }}>{source.icon || '🔗'}</span>
                       <a
                         href={source.url}
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{
-                          fontSize: '0.95rem',
+                          fontSize: '0.85rem',
                           fontWeight: '600',
                           color: '#1f2937',
-                          textDecoration: 'none'
+                          textDecoration: 'none',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
                         }}
                         onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline' }}
                         onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none' }}
@@ -142,23 +145,23 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
                         {source.name}
                       </a>
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '6px' }}>
+                    <div style={{ fontSize: '0.7rem', color: '#6b7280', marginBottom: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {source.description || categoryLabels[source.category]}
                     </div>
-                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
                       <span style={{ 
-                        fontSize: '0.7rem', 
-                        padding: '2px 6px', 
-                        borderRadius: '4px', 
+                        fontSize: '0.65rem', 
+                        padding: '1px 4px', 
+                        borderRadius: '3px', 
                         background: '#e5e7eb', 
                         color: '#6b7280' 
                       }}>
                         {categoryLabels[source.category]}
                       </span>
                       <span style={{ 
-                        fontSize: '0.7rem', 
-                        padding: '2px 6px', 
-                        borderRadius: '4px', 
+                        fontSize: '0.65rem', 
+                        padding: '1px 4px', 
+                        borderRadius: '3px', 
                         background: source.priority === 'high' ? '#fee2e2' : source.priority === 'medium' ? '#fef3c7' : '#e5e7eb',
                         color: source.priority === 'high' ? '#dc2626' : source.priority === 'medium' ? '#d97706' : '#6b7280'
                       }}>
@@ -167,18 +170,18 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
                     </div>
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: '6px', marginTop: '8px', paddingTop: '8px', borderTop: '1px solid #e5e7eb' }}>
+                <div style={{ display: 'flex', gap: '4px', marginTop: '6px', paddingTop: '6px', borderTop: '1px solid #e5e7eb' }}>
                   <button
                     onClick={() => handleEdit(source)}
                     style={{
                       flex: 1,
-                      padding: '4px 8px',
+                      padding: '3px 6px',
                       background: '#eff6ff',
                       color: '#2563eb',
                       border: 'none',
-                      borderRadius: '4px',
+                      borderRadius: '3px',
                       cursor: 'pointer',
-                      fontSize: '0.75rem'
+                      fontSize: '0.7rem'
                     }}
                   >
                     编辑
@@ -187,13 +190,13 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
                     onClick={() => handleToggle(source.id)}
                     style={{
                       flex: 1,
-                      padding: '4px 8px',
+                      padding: '3px 6px',
                       background: '#f0fdf4',
                       color: '#16a34a',
                       border: 'none',
-                      borderRadius: '4px',
+                      borderRadius: '3px',
                       cursor: 'pointer',
-                      fontSize: '0.75rem'
+                      fontSize: '0.7rem'
                     }}
                   >
                     禁用
@@ -201,13 +204,13 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
                   <button
                     onClick={() => handleDelete(source.id)}
                     style={{
-                      padding: '4px 8px',
+                      padding: '3px 6px',
                       background: '#fee2e2',
                       color: '#dc2626',
                       border: 'none',
-                      borderRadius: '4px',
+                      borderRadius: '3px',
                       cursor: 'pointer',
-                      fontSize: '0.75rem'
+                      fontSize: '0.7rem'
                     }}
                   >
                     删除
