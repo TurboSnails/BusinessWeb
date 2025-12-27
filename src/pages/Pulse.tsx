@@ -29,6 +29,10 @@ export default function Pulse(): JSX.Element {
   const [gistTokenInput, setGistTokenInput] = useState('')
   const [gistIdInput, setGistIdInput] = useState('')
   const [syncing, setSyncing] = useState(false)
+  
+  // 筛选状态
+  const [showFilter, setShowFilter] = useState(false)
+  const [filterCategories, setFilterCategories] = useState<Set<string>>(new Set(['us', 'cn', 'hk', 'global', 'commodity', 'forex']))
 
   useEffect(() => {
     // 加载本地数据
@@ -216,18 +220,45 @@ export default function Pulse(): JSX.Element {
       // 如果输入了 gistId，使用输入的；否则保留现有的
       const gistId = gistIdInput.trim() || getGistId()
       saveGistConfig(gistTokenInput.trim(), gistId)
-      alert('Token 已保存！' + (gistId ? `\n\nGist ID: ${gistId}` : '\n\n提示：上传一次数据后会自动保存 Gist ID'))
+      alert('Token 已保存！' + (gistId ? `\n\nGist ID: ${gistId}\n\n提示：配置完成后，请手动点击"上传"按钮同步数据` : '\n\n提示：上传一次数据后会自动保存 Gist ID'))
       setShowSettings(false)
-      // 如果有 gistId，立即尝试同步；否则提示先上传
-      if (gistId) {
-        handleSyncToCloud()
-      }
+      // 不再自动上传，避免上传空数据
     } else {
       alert('请输入 Token')
     }
   }
 
-  // 手动同步到云端
+  // 合并数据：智能合并本地和云端数据（类似 Git merge）
+  const mergeData = <T extends { id?: string; date?: string }>(local: T[], cloud: T[], keyField: string = 'id'): T[] => {
+    const merged = new Map<string, T>()
+    
+    // 先添加云端数据（云端优先）
+    cloud.forEach(item => {
+      const key = item[keyField as keyof T] as string || `${item.date || ''}_${JSON.stringify(item).slice(0, 50)}`
+      merged.set(key, item)
+    })
+    
+    // 再添加本地数据（如果本地有新的或更新的）
+    local.forEach(item => {
+      const key = item[keyField as keyof T] as string || `${item.date || ''}_${JSON.stringify(item).slice(0, 50)}`
+      const existing = merged.get(key)
+      if (!existing) {
+        // 本地有新的数据，添加
+        merged.set(key, item)
+      } else {
+        // 如果本地数据更新（通过时间戳判断），使用本地数据
+        const localDate = item.date || ''
+        const cloudDate = existing.date || ''
+        if (localDate > cloudDate) {
+          merged.set(key, item)
+        }
+      }
+    })
+    
+    return Array.from(merged.values())
+  }
+
+  // 手动同步到云端（先下载再上传，类似 Git pull before push）
   const handleSyncToCloud = async () => {
     if (!getGistToken()) {
       alert('❌ 请先配置 Token（点击"云端设置"）')
@@ -235,18 +266,56 @@ export default function Pulse(): JSX.Element {
     }
     
     setSyncing(true)
-    const result = await syncToGist(reviews)
-    setSyncing(false)
-    if (result.success) {
-      const reviewCount = reviews.length
-      const currentGistId = getGistId()
-      const message = currentGistId 
-        ? `✅ 上传成功！\n\n复盘数据：${reviewCount} 条\n\nGist ID: ${currentGistId}\n\n（可在其他设备输入此 ID 同步）`
-        : `✅ 上传成功！\n\n复盘数据：${reviewCount} 条`
-      alert(message)
-    } else {
-      const errorMsg = result.error || '未知错误'
-      alert(`❌ 上传失败\n\n错误：${errorMsg}\n\n请检查：\n1. Token 是否正确\n2. Token 是否有 gist 权限\n3. 网络连接是否正常`)
+    
+    try {
+      // 如果有 Gist ID，先下载云端数据（类似 Git pull）
+      const gistId = getGistId()
+      let cloudReviews: DailyReview[] = []
+      
+      if (gistId) {
+        try {
+          const cloudData = await syncFromGist()
+          if (cloudData) {
+            cloudReviews = cloudData.reviews
+            console.log('📥 已下载云端数据:', { reviews: cloudReviews.length })
+          }
+        } catch (error) {
+          console.warn('下载云端数据失败，继续使用本地数据上传:', error)
+          // 如果下载失败，继续使用本地数据上传（可能是首次上传或网络问题）
+        }
+      }
+      
+      // 合并数据：本地 + 云端（避免覆盖）
+      const mergedReviews = mergeData(reviews, cloudReviews, 'date')
+      
+      // 如果有新数据合并进来，更新本地状态
+      if (mergedReviews.length > reviews.length) {
+        setReviews(mergedReviews)
+        saveReviews(mergedReviews)
+      }
+      
+      // 上传合并后的数据（类似 Git push）
+      const result = await syncToGist(mergedReviews)
+      
+      if (result.success) {
+        const reviewCount = mergedReviews.length
+        const currentGistId = getGistId()
+        const mergeInfo = cloudReviews.length > 0
+          ? `\n\n✅ 已合并云端数据（避免覆盖）`
+          : ''
+        const message = currentGistId 
+          ? `✅ 上传成功！\n\n复盘数据：${reviewCount} 条${mergeInfo}\n\nGist ID: ${currentGistId}\n\n（可在其他设备输入此 ID 同步）`
+          : `✅ 上传成功！\n\n复盘数据：${reviewCount} 条${mergeInfo}`
+        alert(message)
+      } else {
+        const errorMsg = result.error || '未知错误'
+        alert(`❌ 上传失败\n\n错误：${errorMsg}\n\n请检查：\n1. Token 是否正确\n2. Token 是否有 gist 权限\n3. 网络连接是否正常`)
+      }
+    } catch (error) {
+      console.error('上传过程出错:', error)
+      alert(`❌ 上传失败\n\n错误：${error instanceof Error ? error.message : '未知错误'}`)
+    } finally {
+      setSyncing(false)
     }
   }
 
@@ -286,7 +355,85 @@ export default function Pulse(): JSX.Element {
     }
   }
 
-  // 渲染复盘表格 - 使用组件
+  const formatPrice = (price: number, symbol?: string) => {
+    if (symbol === 'BTC-USD') return price.toLocaleString('en-US', { maximumFractionDigits: 0 })
+    return price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  }
+
+  const formatPercent = (percent: number) => {
+    const sign = percent >= 0 ? '+' : ''
+    return `${sign}${percent.toFixed(2)}%`
+  }
+
+  // 渲染数据卡片
+  const renderCard = (stock: StockQuote, color: string) => {
+    const isPositive = stock.change >= 0
+    const changeColor = isPositive ? '#16a34a' : '#dc2626'
+
+  return (
+      <div key={stock.symbol} style={{
+        background: 'white', borderRadius: '12px', padding: '14px',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column',
+        gap: '6px', borderLeft: `4px solid ${color}`, transition: 'transform 0.2s, box-shadow 0.2s'
+      }}
+        onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)' }}
+        onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)' }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <span style={{ fontWeight: '600', fontSize: '0.9rem', color: '#1f2937' }}>{stock.name}</span>
+          {stock.rsi !== undefined && (
+            <span style={{ fontSize: '0.7rem', padding: '2px 5px', borderRadius: '4px',
+              background: stock.rsi >= 70 ? '#fef2f2' : stock.rsi <= 30 ? '#f0fdf4' : '#f3f4f6',
+              color: stock.rsi >= 70 ? '#dc2626' : stock.rsi <= 30 ? '#16a34a' : '#6b7280', fontWeight: '500'
+            }}>RSI {stock.rsi.toFixed(0)}</span>
+          )}
+          </div>
+        <div style={{ fontSize: '1.3rem', fontWeight: '700', color: changeColor }}>{formatPrice(stock.price, stock.symbol)}</div>
+        <div style={{ display: 'flex', gap: '8px', fontSize: '0.8rem' }}>
+          <span style={{ color: changeColor, fontWeight: '500' }}>{isPositive ? '↑' : '↓'} {formatPrice(Math.abs(stock.change))}</span>
+          <span style={{ color: changeColor, fontWeight: '600', padding: '1px 5px', borderRadius: '4px', background: isPositive ? '#f0fdf4' : '#fef2f2' }}>{formatPercent(stock.changePercent)}</span>
+        </div>
+      </div>
+    )
+  }
+
+  // 切换筛选分类
+  const toggleFilterCategory = (key: string) => {
+    const newFilter = new Set(filterCategories)
+    if (newFilter.has(key)) {
+      newFilter.delete(key)
+    } else {
+      newFilter.add(key)
+    }
+    setFilterCategories(newFilter)
+  }
+
+  // 重置筛选
+  const resetFilter = () => {
+    setFilterCategories(new Set(['us', 'cn', 'hk', 'global', 'commodity', 'forex']))
+  }
+
+  // 渲染分类
+  const renderCategory = (category: MarketCategory) => {
+    if (!filterCategories.has(category.key)) {
+      return null
+    }
+    return (
+      <div key={category.key} style={{ marginBottom: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', padding: '6px 10px',
+          background: category.bgColor, borderRadius: '6px', borderLeft: `3px solid ${category.color}` }}>
+          <span style={{ fontSize: '1rem' }}>{category.icon}</span>
+          <span style={{ fontWeight: '600', color: category.color, fontSize: '0.9rem' }}>{category.title}</span>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '10px' }}>
+          {category.data.map(stock => renderCard(stock, category.color))}
+          {category.data.length === 0 && <div style={{ padding: '16px', color: '#9ca3af', fontSize: '0.85rem', gridColumn: '1 / -1', textAlign: 'center' }}>加载中...</div>}
+        </div>
+      </div>
+    )
+  }
+
+  // 渲染复盘表格
   const renderReviewTable = () => (
     <ReviewTable
       reviews={reviews}
@@ -423,6 +570,10 @@ export default function Pulse(): JSX.Element {
               }}>{syncing ? '⏳' : '⬇️'} {syncing ? '同步中' : '下载'}</button>
             </>
           )}
+          <button onClick={() => setShowFilter(true)} style={{
+            padding: '6px 12px', background: '#6366f1', color: 'white', border: 'none',
+            borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
+          }}>🔍 筛选</button>
           <button onClick={() => setShowSettings(true)} style={{
             padding: '6px 12px', background: getGistToken() ? '#10b981' : '#f59e0b', color: 'white', border: 'none',
             borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
@@ -497,7 +648,48 @@ export default function Pulse(): JSX.Element {
 
       {/* 录入表单弹窗 */}
       {renderForm()}
-      {/* 云端设置弹窗 */}
+      
+      {/* 筛选弹窗 */}
+      {showFilter && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: 'white', borderRadius: '12px', padding: '20px', width: '90%', maxWidth: '400px' }}>
+            <h3 style={{ margin: '0 0 16px', fontSize: '1.1rem' }}>🔍 筛选数据分类</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
+              {[
+                { key: 'us', title: '美股指数', icon: '🇺🇸' },
+                { key: 'cn', title: '中国A股', icon: '🇨🇳' },
+                { key: 'hk', title: '港股指数', icon: '🇭🇰' },
+                { key: 'global', title: 'G20全球股市', icon: '🌍' },
+                { key: 'commodity', title: '大宗商品', icon: '📦' },
+                { key: 'forex', title: '外汇债券', icon: '💱' },
+              ].map(cat => (
+                <label key={cat.key} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', padding: '8px', borderRadius: '6px', background: filterCategories.has(cat.key) ? '#f0f9ff' : '#f9fafb' }}>
+                  <input
+                    type="checkbox"
+                    checked={filterCategories.has(cat.key)}
+                    onChange={() => toggleFilterCategory(cat.key)}
+                    style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                  />
+                  <span style={{ fontSize: '1rem' }}>{cat.icon}</span>
+                  <span style={{ fontSize: '0.9rem', color: '#374151' }}>{cat.title}</span>
+                </label>
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+              <button onClick={resetFilter}
+                style={{ padding: '8px 16px', background: '#f3f4f6', color: '#4b5563', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
+                重置
+              </button>
+              <button onClick={() => setShowFilter(false)}
+                style={{ padding: '8px 16px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' }}>
+                确定
+              </button>
+            </div>
+          </div>
+        </div>
+        )}
+        
+        {/* 云端设置弹窗 */}
       {showSettings && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ background: 'white', borderRadius: '12px', padding: '20px', width: '90%', maxWidth: '500px' }}>
