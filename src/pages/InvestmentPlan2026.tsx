@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { fetchCBOEPCRatios } from '../services/api';
 
 const InvestmentPlan2026 = () => {
-  const [activeTab, setActiveTab] = useState<'timeline' | 'checklist' | 'decision' | 'shorting' | 'monitor'>('timeline');
+  const [activeTab, setActiveTab] = useState<'timeline' | 'checklist' | 'decision' | 'shorting' | 'profit-taking' | 'monitor'>('timeline');
   const [activeSubTab, setActiveSubTab] = useState<'overview' | 'assumptions' | 'indicators' | 'stages' | 'execution'>('overview');
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
   
@@ -786,10 +786,11 @@ const InvestmentPlan2026 = () => {
             }}>
               ⚖️ 决策策略
             </div>
-            {(['decision', 'shorting'] as const).map((tab) => {
+            {(['decision', 'shorting', 'profit-taking'] as const).map((tab) => {
               const labels: Record<typeof tab, string> = {
                 decision: '决策矩阵',
-                shorting: '做空条件'
+                shorting: '做空条件',
+                'profit-taking': '止盈策略'
               };
               const isActive = activeTab === tab;
               return (
@@ -1196,6 +1197,498 @@ const InvestmentPlan2026 = () => {
                 <div>• PSQ仓位: 如纳指反弹+10%，先减仓30%</div>
                 <div>• 纳指跌幅达25%时，可兑现30%利润</div>
                 <div>• 剩余70%持有至8-9月寻找抄底机会</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'profit-taking' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* 核心止盈策略 */}
+            <div style={{ background: '#f0fdf4', border: '2px solid #10b981', borderRadius: '12px', padding: '24px' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '16px', color: '#059669', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '2rem' }}>💰</span>
+                核心止盈策略
+              </h2>
+              
+              <div style={{ 
+                background: '#fef3c7', 
+                border: '1px solid #fbbf24', 
+                borderRadius: '8px', 
+                padding: '16px',
+                marginBottom: '24px'
+              }}>
+                <p style={{ fontSize: '0.95rem', color: '#92400e', lineHeight: '1.6', margin: 0 }}>
+                  为了让这套逻辑适用于<strong>任何</strong>普通股票、加密货币或其它金融资产，我们将其去标的化，转化为一套通用的<strong>"心态+技术"</strong>双驱动止盈模型。
+                </p>
+              </div>
+              
+              {/* 分批止盈法 */}
+              <div style={{ marginBottom: '24px' }}>
+                <div style={{ 
+                  background: '#d1fae5', 
+                  border: '1px solid #10b981', 
+                  borderRadius: '8px', 
+                  padding: '16px',
+                  marginBottom: '16px'
+                }}>
+                  <h3 style={{ 
+                    fontSize: '1.2rem', 
+                    fontWeight: '700', 
+                    marginBottom: '12px', 
+                    color: '#065f46',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}>
+                    <span style={{ fontSize: '1.5rem' }}>1️⃣</span>
+                    分批止盈法：动态减仓策略
+                  </h3>
+                  <p style={{ fontSize: '0.95rem', color: '#047857', marginBottom: '16px', lineHeight: '1.6' }}>
+                    这种方法的核心在于<strong>"心理建设"</strong>，通过逐步锁定胜果，对抗贪婪与恐惧。
+                  </p>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ 
+                      background: 'white', 
+                      border: '1px solid #86efac', 
+                      borderRadius: '8px', 
+                      padding: '16px' 
+                    }}>
+                      <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '8px', 
+                        marginBottom: '8px' 
+                      }}>
+                        <span style={{ 
+                          fontSize: '1.2rem', 
+                          background: '#10b981', 
+                          color: 'white', 
+                          width: '32px', 
+                          height: '32px', 
+                          borderRadius: '50%', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center',
+                          fontWeight: '700'
+                        }}>
+                          1
+                        </span>
+                        <h4 style={{ 
+                          fontSize: '1rem', 
+                          fontWeight: '600', 
+                          color: '#065f46',
+                          margin: 0
+                        }}>
+                          第一阶段：落袋为安（心理脱敏）
+                        </h4>
+                      </div>
+                      <div style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '8px' }}>
+                        <strong>触发点：</strong>当盈利达到 <strong style={{ color: '#059669' }}>15% - 20%</strong>（或达到一个让你感到"开心但怕跌回去"的数字）。
+                      </div>
+                      <div style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '8px' }}>
+                        <strong>操作：</strong>卖出 <strong style={{ color: '#059669' }}>20% - 30%</strong> 的仓位。
+                      </div>
+                      <p style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.6', margin: 0 }}>
+                        <strong>目的：</strong>确保即便后续价格跌回成本，你这笔交易整体也是盈利的，从而获得极其冷静的心态去持仓。
+                      </p>
+                    </div>
+
+                    <div style={{ 
+                      background: 'white', 
+                      border: '1px solid #86efac', 
+                      borderRadius: '8px', 
+                      padding: '16px' 
+                    }}>
+                      <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '8px', 
+                        marginBottom: '8px' 
+                      }}>
+                        <span style={{ 
+                          fontSize: '1.2rem', 
+                          background: '#10b981', 
+                          color: 'white', 
+                          width: '32px', 
+                          height: '32px', 
+                          borderRadius: '50%', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center',
+                          fontWeight: '700'
+                        }}>
+                          2
+                        </span>
+                        <h4 style={{ 
+                          fontSize: '1rem', 
+                          fontWeight: '600', 
+                          color: '#065f46',
+                          margin: 0
+                        }}>
+                          第二阶段：关键位减仓（尊重市场）
+                        </h4>
+                      </div>
+                      <div style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '8px' }}>
+                        <strong>触发点：</strong>价格到达<strong>历史高点、强阻力位</strong>，或对应的<strong>估值高位</strong>（如市盈率达到历史 80% 分位）。
+                      </div>
+                      <div style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '8px' }}>
+                        <strong>操作：</strong>再卖出 <strong style={{ color: '#059669' }}>30% - 40%</strong>。
+                      </div>
+                      <p style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.6', margin: 0 }}>
+                        <strong>目的：</strong>阻力位通常会有大量抛压，在此处减仓可以规避大幅回撤的风险。
+                      </p>
+                    </div>
+
+                    <div style={{ 
+                      background: 'white', 
+                      border: '1px solid #86efac', 
+                      borderRadius: '8px', 
+                      padding: '16px' 
+                    }}>
+                      <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '8px', 
+                        marginBottom: '8px' 
+                      }}>
+                        <span style={{ 
+                          fontSize: '1.2rem', 
+                          background: '#10b981', 
+                          color: 'white', 
+                          width: '32px', 
+                          height: '32px', 
+                          borderRadius: '50%', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center',
+                          fontWeight: '700'
+                        }}>
+                          3
+                        </span>
+                        <h4 style={{ 
+                          fontSize: '1rem', 
+                          fontWeight: '600', 
+                          color: '#065f46',
+                          margin: 0
+                        }}>
+                          第三阶段：剩余仓位博弈（寻找惊喜）
+                        </h4>
+                      </div>
+                      <div style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '8px' }}>
+                        <strong>操作：</strong>剩下的 <strong style={{ color: '#059669' }}>30%</strong> 仓位不再设止盈目标。
+                      </div>
+                      <div style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '8px' }}>
+                        <strong>离场条件：</strong>只有当<strong>大趋势彻底走坏</strong>（如跌破重要长期均线）时才全额清仓。
+                      </div>
+                      <p style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.6', margin: 0 }}>
+                        <strong>目的：</strong>捕获那种翻倍甚至数倍的"超级行情"。
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 移动止盈法 */}
+              <div style={{ marginBottom: '24px' }}>
+                <div style={{ 
+                  background: '#dbeafe', 
+                  border: '1px solid #3b82f6', 
+                  borderRadius: '8px', 
+                  padding: '16px' 
+                }}>
+                  <h3 style={{ 
+                    fontSize: '1.2rem', 
+                    fontWeight: '700', 
+                    marginBottom: '12px', 
+                    color: '#1e40af',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}>
+                    <span style={{ fontSize: '1.5rem' }}>2️⃣</span>
+                    移动止盈法：跟踪止损策略（Trailing Stop）
+                  </h3>
+                  <p style={{ fontSize: '0.95rem', color: '#1e3a8a', marginBottom: '16px', lineHeight: '1.6' }}>
+                    这种方法的核心在于<strong>"不预测顶部"</strong>，只根据市场的真实走势被动离场。
+                  </p>
+                  
+                  <div style={{ 
+                    background: 'white', 
+                    border: '1px solid #93c5fd', 
+                    borderRadius: '8px', 
+                    padding: '16px',
+                    marginBottom: '12px'
+                  }}>
+                    <h4 style={{ 
+                      fontSize: '1rem', 
+                      fontWeight: '600', 
+                      color: '#1e40af',
+                      marginBottom: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}>
+                      <span style={{ fontSize: '1.2rem' }}>⚙️</span>
+                      核心规则：设定回撤阈值
+                    </h4>
+                    <div style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.6', marginBottom: '12px' }}>
+                      <strong>操作：</strong>随着价格不断创出新高，你同步<strong>向上平移</strong>你的止损线。
+                    </div>
+                    <div style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.6' }}>
+                      <strong>设定参考：</strong>
+                      <ul style={{ margin: '8px 0 0 20px', padding: 0 }}>
+                        <li style={{ marginBottom: '4px' }}>
+                          <strong>稳健型：</strong>从最高点回撤 <strong style={{ color: '#2563eb' }}>5% - 8%</strong> 离场。
+                        </li>
+                        <li>
+                          <strong>进攻型：</strong>从最高点回撤 <strong style={{ color: '#2563eb' }}>10% - 15%</strong> 离场（适合波动巨大的个股）。
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div style={{ 
+                    background: '#f0fdf4', 
+                    border: '1px solid #86efac', 
+                    borderRadius: '8px', 
+                    padding: '16px' 
+                  }}>
+                    <h4 style={{ 
+                      fontSize: '1rem', 
+                      fontWeight: '600', 
+                      color: '#059669',
+                      marginBottom: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}>
+                      <span style={{ fontSize: '1.2rem' }}>📊</span>
+                      应用场景
+                    </h4>
+                    <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9rem', color: '#374151', lineHeight: '1.6' }}>
+                      <li style={{ marginBottom: '8px' }}>
+                        <strong>单边上涨行情：</strong>只要股票每天都在创新高，你就一直持有，不设上限。
+                      </li>
+                      <li>
+                        <strong>锁住大头利润：</strong>比如股价从 10 元涨到 20 元，止盈线自动跟进到 18 元；即使后来跌了，你也远比在 12 元卖出赚得多。
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {/* 通用止盈公式建议 */}
+              <div style={{ 
+                background: '#fef3c7', 
+                border: '1px solid #fbbf24', 
+                borderRadius: '8px', 
+                padding: '16px' 
+              }}>
+                <h3 style={{ 
+                  fontSize: '1.2rem', 
+                  fontWeight: '700', 
+                  marginBottom: '16px', 
+                  color: '#92400e',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  <span style={{ fontSize: '1.5rem' }}>3️⃣</span>
+                  通用止盈公式建议
+                </h3>
+                <p style={{ fontSize: '0.95rem', color: '#92400e', marginBottom: '16px', lineHeight: '1.6' }}>
+                  将上述两者结合，你可以得到一个最稳健的<strong>通用公式</strong>：
+                </p>
+                
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ 
+                    width: '100%', 
+                    borderCollapse: 'collapse',
+                    background: 'white',
+                    borderRadius: '8px',
+                    overflow: 'hidden'
+                  }}>
+                    <thead>
+                      <tr style={{ background: '#fbbf24' }}>
+                        <th style={{ 
+                          padding: '12px', 
+                          textAlign: 'left', 
+                          fontWeight: '700', 
+                          color: '#78350f',
+                          border: '1px solid #f59e0b',
+                          fontSize: '0.9rem'
+                        }}>
+                          阶段
+                        </th>
+                        <th style={{ 
+                          padding: '12px', 
+                          textAlign: 'left', 
+                          fontWeight: '700', 
+                          color: '#78350f',
+                          border: '1px solid #f59e0b',
+                          fontSize: '0.9rem'
+                        }}>
+                          仓位操作
+                        </th>
+                        <th style={{ 
+                          padding: '12px', 
+                          textAlign: 'left', 
+                          fontWeight: '700', 
+                          color: '#78350f',
+                          border: '1px solid #f59e0b',
+                          fontSize: '0.9rem'
+                        }}>
+                          判定逻辑
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td style={{ 
+                          padding: '12px', 
+                          border: '1px solid #fde68a',
+                          fontWeight: '600',
+                          color: '#374151',
+                          fontSize: '0.9rem'
+                        }}>
+                          初期
+                        </td>
+                        <td style={{ 
+                          padding: '12px', 
+                          border: '1px solid #fde68a',
+                          color: '#374151',
+                          fontSize: '0.9rem'
+                        }}>
+                          持仓不动
+                        </td>
+                        <td style={{ 
+                          padding: '12px', 
+                          border: '1px solid #fde68a',
+                          color: '#374151',
+                          fontSize: '0.9rem'
+                        }}>
+                          股价在成本价上方震荡，耐心等待
+                        </td>
+                      </tr>
+                      <tr style={{ background: '#fef9c3' }}>
+                        <td style={{ 
+                          padding: '12px', 
+                          border: '1px solid #fde68a',
+                          fontWeight: '600',
+                          color: '#374151',
+                          fontSize: '0.9rem'
+                        }}>
+                          中期
+                        </td>
+                        <td style={{ 
+                          padding: '12px', 
+                          border: '1px solid #fde68a',
+                          color: '#374151',
+                          fontSize: '0.9rem'
+                        }}>
+                          <strong style={{ color: '#059669' }}>卖出 1/3</strong>
+                        </td>
+                        <td style={{ 
+                          padding: '12px', 
+                          border: '1px solid #fde68a',
+                          color: '#374151',
+                          fontSize: '0.9rem'
+                        }}>
+                          盈利覆盖了心理预期，先拿回一部分现金
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style={{ 
+                          padding: '12px', 
+                          border: '1px solid #fde68a',
+                          fontWeight: '600',
+                          color: '#374151',
+                          fontSize: '0.9rem'
+                        }}>
+                          高潮期
+                        </td>
+                        <td style={{ 
+                          padding: '12px', 
+                          border: '1px solid #fde68a',
+                          color: '#374151',
+                          fontSize: '0.9rem'
+                        }}>
+                          <strong style={{ color: '#2563eb' }}>启动移动止盈</strong>
+                        </td>
+                        <td style={{ 
+                          padding: '12px', 
+                          border: '1px solid #fde68a',
+                          color: '#374151',
+                          fontSize: '0.9rem'
+                        }}>
+                          不再手动卖出，改为设置一个回撤 % 的自动单
+                        </td>
+                      </tr>
+                      <tr style={{ background: '#fef9c3' }}>
+                        <td style={{ 
+                          padding: '12px', 
+                          border: '1px solid #fde68a',
+                          fontWeight: '600',
+                          color: '#374151',
+                          fontSize: '0.9rem'
+                        }}>
+                          末期
+                        </td>
+                        <td style={{ 
+                          padding: '12px', 
+                          border: '1px solid #fde68a',
+                          color: '#374151',
+                          fontSize: '0.9rem'
+                        }}>
+                          <strong style={{ color: '#dc2626' }}>全线离场</strong>
+                        </td>
+                        <td style={{ 
+                          padding: '12px', 
+                          border: '1px solid #fde68a',
+                          color: '#374151',
+                          fontSize: '0.9rem'
+                        }}>
+                          股价跌破移动止盈线，或跌破 20 日/60 日关键均线
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* 下一步操作建议 */}
+              <div style={{ 
+                background: '#e0e7ff', 
+                border: '1px solid #818cf8', 
+                borderRadius: '8px', 
+                padding: '16px',
+                marginTop: '24px'
+              }}>
+                <h4 style={{ 
+                  fontSize: '1rem', 
+                  fontWeight: '600', 
+                  color: '#3730a3',
+                  marginBottom: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  <span style={{ fontSize: '1.2rem' }}>💡</span>
+                  你的下一步操作
+                </h4>
+                <p style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.6', marginBottom: '12px' }}>
+                  你可以先检查一下你手头的股票：<strong>目前的盈利百分比是多少？</strong>
+                </p>
+                <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9rem', color: '#374151', lineHeight: '1.8' }}>
+                  <li>
+                    如果是 <strong style={{ color: '#2563eb' }}>0%-10%</strong>：建议先不急着卖，观察是否能站稳。
+                  </li>
+                  <li>
+                    如果是 <strong style={{ color: '#059669' }}>20% 以上</strong>：可以考虑先执行"第一批"卖出，锁定一部分利润，剩下的用"移动止盈法"跟踪。
+                  </li>
+                </ul>
               </div>
             </div>
           </div>
