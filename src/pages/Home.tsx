@@ -4,10 +4,70 @@ import { Link } from 'react-router-dom'
 export default function Home(): JSX.Element {
   const [isExpanded, setIsExpanded] = useState(false)
 
+  const cardStyle: React.CSSProperties = {
+    background: 'white',
+    padding: '24px',
+    borderRadius: '16px',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)',
+    marginBottom: '20px',
+    transition: 'all 0.3s ease',
+    border: '1px solid rgba(0,0,0,0.05)'
+  }
+
+  const linkCardStyle: React.CSSProperties = {
+    ...cardStyle,
+    cursor: 'pointer',
+    textDecoration: 'none',
+    color: 'inherit',
+    display: 'block',
+    position: 'relative',
+    overflow: 'hidden'
+  }
+
+  const linkCardHoverStyle: React.CSSProperties = {
+    transform: 'translateY(-4px)',
+    boxShadow: '0 8px 24px rgba(0,0,0,0.12), 0 4px 8px rgba(0,0,0,0.08)'
+  }
+
+  const menuItems = [
+    {
+      to: '/investment-targets',
+      icon: '📈',
+      title: '长期看好的公司',
+      description: '投资标的列表',
+      gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      color: '#667eea'
+    },
+    {
+      to: '/pulse',
+      icon: '📊',
+      title: '经济脉搏',
+      description: '每日经济分析(机构+游资)',
+      gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+      color: '#f5576c'
+    },
+    {
+      to: '/monitor',
+      icon: '📈',
+      title: '每日监控',
+      description: '投资总纲、宏观假设、指标体系、阶段划分、日常之行',
+      gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+      color: '#4facfe'
+    },
+    {
+      to: '/investment-plan-2026',
+      icon: '📅',
+      title: '2026年美股投资计划',
+      description: '基于经济衰退预警的系统性风险管理方案',
+      gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+      color: '#43e97b'
+    }
+  ]
+
   return (
-    <main className="container">
+    <main className="container" style={{ padding: '20px 16px', maxWidth: '900px', margin: '0 auto' }}>
       {/* 段永平思想精髓 */}
-      <section className="card">
+      <section style={cardStyle}>
         <div
           onClick={() => setIsExpanded(!isExpanded)}
           style={{
@@ -15,133 +75,204 @@ export default function Home(): JSX.Element {
             alignItems: 'center',
             justifyContent: 'space-between',
             cursor: 'pointer',
-            padding: '4px 0'
+            padding: '8px 0',
+            userSelect: 'none'
           }}
         >
           <h2 style={{
-            fontSize: '1.25rem',
-            fontWeight: '600',
+            fontSize: '1.5rem',
+            fontWeight: '700',
             margin: 0,
             color: '#1f2937',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px'
+            gap: '12px',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text'
           }}>
-            <span style={{ fontSize: '1.5rem' }}>💡</span>
+            <span style={{ fontSize: '2rem', WebkitTextFillColor: 'initial' }}>💡</span>
             段永平30年思想精髓
           </h2>
           <span style={{
-            fontSize: '1.2rem',
-            color: '#6b7280',
-            transition: 'transform 0.2s',
-            transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'
+            fontSize: '1.5rem',
+            color: '#9ca3af',
+            transition: 'transform 0.3s ease',
+            transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+            display: 'inline-block'
           }}>
             ▼
           </span>
         </div>
         {isExpanded && (
           <div style={{
-            marginTop: '16px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '10px',
+            marginTop: '20px',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: '16px',
             animation: 'fadeIn 0.3s ease-in'
           }}>
-            <div style={{
-              padding: '14px 16px',
-              background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
-              borderRadius: '10px',
-              borderLeft: '4px solid #0ea5e9',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-            }}>
-              <div style={{ fontSize: '0.95rem', lineHeight: '1.7', color: '#0c4a6e' }}>
-                <strong style={{ color: '#075985', fontSize: '1rem' }}>以"本分"为核心：</strong>
-                <span style={{ marginLeft: '4px' }}>主张诚信为本、不做过分事</span>
+            {[
+              { 
+                title: '以"本分"为核心', 
+                content: '主张诚信为本、不做过分事',
+                gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                icon: '🎯'
+              },
+              { 
+                title: '"足够最小发展速度"理念', 
+                content: '企业经营如开车不必飙150码',
+                gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                icon: '🚗'
+              },
+              { 
+                title: '焦点法则', 
+                content: '强调做对的事、把事做对',
+                gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                icon: '🎯'
+              },
+              { 
+                title: '消费者导向 > 赚钱导向', 
+                content: '',
+                gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                icon: '👥'
+              },
+              { 
+                title: '人生哲学', 
+                content: '应做喜欢且擅长的事，保持松弛心态，不与他人比较',
+                gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+                icon: '🌟'
+              }
+            ].map((item, index) => (
+              <div
+                key={index}
+                style={{
+                  padding: '20px',
+                  background: item.gradient,
+                  borderRadius: '12px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                  color: 'white',
+                  transition: 'transform 0.2s ease',
+                  cursor: 'default'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-4px)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                }}
+              >
+                <div style={{ 
+                  fontSize: '1.5rem', 
+                  marginBottom: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  <span>{item.icon}</span>
+                  <strong style={{ fontSize: '1rem', fontWeight: '600' }}>{item.title}</strong>
+                </div>
+                {item.content && (
+                  <div style={{ 
+                    fontSize: '0.9rem', 
+                    lineHeight: '1.6',
+                    opacity: 0.95,
+                    marginTop: '8px'
+                  }}>
+                    {item.content}
+                  </div>
+                )}
               </div>
-            </div>
-            <div style={{
-              padding: '14px 16px',
-              background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
-              borderRadius: '10px',
-              borderLeft: '4px solid #10b981',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-            }}>
-              <div style={{ fontSize: '0.95rem', lineHeight: '1.7', color: '#14532d' }}>
-                <strong style={{ color: '#166534', fontSize: '1rem' }}>"足够最小发展速度"理念：</strong>
-                <span style={{ marginLeft: '4px' }}>企业经营如开车不必飙150码</span>
-              </div>
-            </div>
-            <div style={{
-              padding: '14px 16px',
-              background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
-              borderRadius: '10px',
-              borderLeft: '4px solid #f59e0b',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-            }}>
-              <div style={{ fontSize: '0.95rem', lineHeight: '1.7', color: '#78350f' }}>
-                <strong style={{ color: '#92400e', fontSize: '1rem' }}>焦点法则：</strong>
-                <span style={{ marginLeft: '4px' }}>强调做对的事、把事做对</span>
-              </div>
-            </div>
-            <div style={{
-              padding: '14px 16px',
-              background: 'linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%)',
-              borderRadius: '10px',
-              borderLeft: '4px solid #8b5cf6',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-            }}>
-              <div style={{ fontSize: '0.95rem', lineHeight: '1.7', color: '#581c87' }}>
-                <strong style={{ color: '#6b21a8', fontSize: '1rem' }}>消费者导向 &gt; 赚钱导向</strong>
-              </div>
-            </div>
-            <div style={{
-              padding: '14px 16px',
-              background: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
-              borderRadius: '10px',
-              borderLeft: '4px solid #ef4444',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-            }}>
-              <div style={{ fontSize: '0.95rem', lineHeight: '1.7', color: '#7f1d1d' }}>
-                <strong style={{ color: '#991b1b', fontSize: '1rem' }}>人生哲学：</strong>
-                <span style={{ marginLeft: '4px' }}>应做喜欢且擅长的事，保持松弛心态，不与他人比较</span>
-              </div>
-            </div>
+            ))}
           </div>
         )}
       </section>
 
-      <section className="card">
-        <Link to="/investment-targets" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
-          <h2>📈 长期看好的公司</h2>
-          <p>投资标的列表</p>
-        </Link>
-      </section>
-
-      <section className="card">
-        <Link to="/pulse" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
-          <h2>📊 经济脉搏</h2>
-          <p>每日经济分析(机构+游资)</p>
-        </Link>
-      </section>
-
-      <section className="card">
-        <Link to="/monitor" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
-          <h2>📈 每日监控</h2>
-          <p>投资总纲、宏观假设、指标体系、阶段划分、日常之行</p>
-        </Link>
-      </section>
-
-      <section className="card">
-        <Link to="/investment-plan-2026" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
-          <h2>📅 2026年美股投资计划</h2>
-          <p>基于经济衰退预警的系统性风险管理方案</p>
-        </Link>
-      </section>
-
-      <section className="card">
-        <h2>跨设备支持</h2>
-        <p>这是一个移动优先的响应式布局，适应手机和平板与桌面屏幕。</p>
-      </section>
+      {/* 功能菜单卡片 */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+        gap: '20px',
+        marginTop: '8px'
+      }}>
+        {menuItems.map((item, index) => (
+          <Link
+            key={index}
+            to={item.to}
+            style={linkCardStyle}
+            onMouseEnter={(e) => {
+              Object.assign(e.currentTarget.style, linkCardHoverStyle)
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = cardStyle.boxShadow as string
+            }}
+          >
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '4px',
+              background: item.gradient,
+              borderRadius: '16px 16px 0 0'
+            }} />
+            <div style={{ paddingTop: '8px' }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                marginBottom: '12px'
+              }}>
+                <span style={{
+                  fontSize: '2rem',
+                  width: '48px',
+                  height: '48px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: item.gradient,
+                  borderRadius: '12px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                }}>
+                  {item.icon}
+                </span>
+                <h2 style={{
+                  fontSize: '1.25rem',
+                  fontWeight: '700',
+                  margin: 0,
+                  color: '#1f2937',
+                  lineHeight: '1.3'
+                }}>
+                  {item.title}
+                </h2>
+              </div>
+              <p style={{
+                fontSize: '0.95rem',
+                color: '#6b7280',
+                margin: 0,
+                lineHeight: '1.6'
+              }}>
+                {item.description}
+              </p>
+              <div style={{
+                marginTop: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                color: item.color,
+                fontSize: '0.9rem',
+                fontWeight: '600'
+              }}>
+                查看详情
+                <span style={{ marginLeft: '8px', transition: 'transform 0.2s' }}>
+                  →
+                </span>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
     </main>
   )
 }
