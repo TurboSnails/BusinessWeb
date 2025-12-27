@@ -2,6 +2,20 @@ export type ExampleData = {
   message: string
 }
 
+// 投资标的数据类型
+export type InvestmentTarget = {
+  symbol: string
+  name: string
+  currentPrice: number
+  targetPrice2026: number
+  currentPE: number | null
+  forwardPE: number | null
+  priceToSales: number | null
+  investmentTargetPrice: number
+  description?: string
+  category: 'stock' | 'commodity'
+}
+
 export type StockQuote = {
   symbol: string
   name: string
@@ -54,6 +68,18 @@ export type ImportantNews = {
   source?: string        // 来源
   link?: string          // 链接
   notes?: string         // 备注
+}
+
+// 消息源类型
+export type NewsSource = {
+  id: string
+  name: string           // 消息源名称
+  url: string            // 网址
+  category: 'official' | 'news' | 'data' | 'social' | 'other'  // 分类
+  priority: 'high' | 'medium' | 'low'  // 优先级
+  description?: string   // 描述
+  icon?: string          // 图标
+  enabled: boolean       // 是否启用
 }
 
 // 市场分类

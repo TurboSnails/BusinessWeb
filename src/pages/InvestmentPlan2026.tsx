@@ -1,11 +1,123 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { fetchCBOEPCRatios } from '../services/api';
 
 const InvestmentPlan2026 = () => {
   const [activeTab, setActiveTab] = useState<'timeline' | 'checklist' | 'decision' | 'shorting' | 'monitor'>('timeline');
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
+  
+  // 市场情绪分析器状态
+  const [equityPC, setEquityPC] = useState<string>('');
+  const [spxPC, setSpxPC] = useState<string>('');
+  const [loadingPCRatios, setLoadingPCRatios] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<{
+    status: 'safe' | 'warning' | 'danger';
+    title: string;
+    content: string;
+    action: string;
+  } | null>(null);
+
+  // 自动获取 P/C Ratio 数据
+  const handleFetchPCRatios = async () => {
+    setLoadingPCRatios(true);
+    try {
+      console.log('开始获取 CBOE P/C Ratio 数据...');
+      const data = await fetchCBOEPCRatios();
+      console.log('获取到的数据:', data);
+      
+      let successCount = 0;
+      if (data.equityPC !== null) {
+        setEquityPC(data.equityPC.toFixed(2));
+        successCount++;
+      }
+      if (data.spxPC !== null) {
+        setSpxPC(data.spxPC.toFixed(2));
+        successCount++;
+      }
+      
+      if (successCount === 0) {
+        // 提供更友好的提示和快速打开 CBOE 页面的选项
+        const openCBOE = confirm('⚠️ 无法自动获取数据\n\nCBOE 页面使用动态加载，无法直接解析。\n\n是否在新窗口打开 CBOE 页面？\n\n（打开后，请查找 "Equity Put/Call Ratio" 和 "SPX Put/Call Ratio" 数据）');
+        if (openCBOE) {
+          window.open('https://www.cboe.com/us/options/market_statistics/daily/', '_blank');
+        }
+      } else if (successCount === 1) {
+        const missing = [];
+        if (data.equityPC === null) missing.push('Equity P/C Ratio');
+        if (data.spxPC === null) missing.push('SPX P/C Ratio');
+        const openCBOE = confirm(`✅ 已获取部分数据\n\n缺失：${missing.join('、')}\n\n是否打开 CBOE 页面补充缺失数据？`);
+        if (openCBOE) {
+          window.open('https://www.cboe.com/us/options/market_statistics/daily/', '_blank');
+        }
+      } else {
+        // 两个数据都获取成功，显示成功提示
+        alert('✅ 数据获取成功！');
+      }
+    } catch (error) {
+      console.error('Failed to fetch P/C Ratios:', error);
+      const openCBOE = confirm('❌ 获取数据失败\n\nCBOE 页面使用动态加载，无法直接解析。\n\n是否在新窗口打开 CBOE 页面手动获取？');
+      if (openCBOE) {
+        window.open('https://www.cboe.com/us/options/market_statistics/daily/', '_blank');
+      }
+    } finally {
+      setLoadingPCRatios(false);
+    }
+  };
 
   const toggleCheck = (id: string) => {
     setCheckedItems(prev => ({...prev, [id]: !prev[id]}));
+  };
+
+  // 市场情绪分析函数
+  const analyzeMarket = () => {
+    const equity = parseFloat(equityPC);
+    const spx = parseFloat(spxPC);
+    
+    if (isNaN(equity) || isNaN(spx)) {
+      alert('请输入有效的数值');
+      return;
+    }
+
+    let result: typeof analysisResult = null;
+
+    // 核心逻辑分析
+    if (equity < 0.7 && spx >= 1.2) {
+      result = {
+        status: 'safe',
+        title: '当前状态：非理性繁荣（有保护）',
+        content: '散户在狂欢，但机构买了大量保险。虽然看似危险，但由于对冲充足，短期内很难发生断崖式崩盘。',
+        action: '针对 PAAS/RKLB 操作：还没到时候。继续持有现金，不要追高。'
+      };
+    } else if (equity < 0.7 && spx < 0.9) {
+      result = {
+        status: 'warning',
+        title: '当前状态：裸奔时刻 (红色警报)',
+        content: '个股极度贪婪，且机构撤走了对冲保护（或者对冲已经赔光）。这是崩盘前的最危险信号！',
+        action: '针对 PAAS/RKLB 操作：握紧你的 1/8 现金，暴风雨可能在 2 周内到来。'
+      };
+    } else if (equity >= 1.1 && spx < 0.9) {
+      result = {
+        status: 'danger',
+        title: '当前状态：极度恐慌 (崩盘中/末期)',
+        content: '散户绝望割肉买入 Puts，而机构已经在低位撤走保险。这就是你要的"黄金坑"。',
+        action: '针对 PAAS/RKLB 操作：检查股价！如果 PAAS 到了 $50-51，RKLB 到了 $55，这就是最佳分批建仓时刻。'
+      };
+    } else if (equity >= 1.1 && spx >= 1.1) {
+      result = {
+        status: 'warning',
+        title: '当前状态：系统性风险爆发',
+        content: '全市场都在买保险。虽然恐惧，但说明大家还没放弃抵抗。',
+        action: '操作：等待 Equity 继续飙升或 SPX 开始回落（即机构开始投降或直接抛售现货）。'
+      };
+    } else {
+      result = {
+        status: 'safe',
+        title: '当前状态：震荡修复期',
+        content: '多空力量交织，没有明显的极端情绪。保持耐心。',
+        action: '操作：继续观察，等待更明确的信号。'
+      };
+    }
+
+    setAnalysisResult(result);
   };
 
   const timelineData = [
@@ -792,6 +904,269 @@ const InvestmentPlan2026 = () => {
 
         {activeTab === 'monitor' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* 市场情绪分析器 */}
+            <div style={{ 
+              background: 'white', 
+              border: '2px solid #3b82f6', 
+              borderRadius: '12px', 
+              padding: '24px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+            }}>
+              <h3 style={{ 
+                fontWeight: '700', 
+                fontSize: '1.2rem', 
+                marginBottom: '16px', 
+                color: '#1f2937',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                borderBottom: '2px solid #3b82f6',
+                paddingBottom: '12px'
+              }}>
+                <span style={{ fontSize: '1.5rem' }}>📈</span>
+                市场情绪与崩盘信号分析器
+              </h3>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center', 
+                  marginBottom: '12px',
+                  padding: '12px',
+                  background: '#eff6ff',
+                  borderRadius: '8px',
+                  flexWrap: 'wrap',
+                  gap: '8px'
+                }}>
+                  <span style={{ fontSize: '0.9rem', fontWeight: '600', color: '#1e40af' }}>
+                    📊 数据获取
+                  </span>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    <button
+                      onClick={handleFetchPCRatios}
+                      disabled={loadingPCRatios}
+                      style={{
+                        padding: '8px 16px',
+                        background: loadingPCRatios ? '#9ca3af' : '#3b82f6',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontSize: '0.85rem',
+                        fontWeight: '500',
+                        cursor: loadingPCRatios ? 'not-allowed' : 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}
+                    >
+                      {loadingPCRatios ? '⏳ 获取中...' : '🔄 自动获取'}
+                    </button>
+                    <button
+                      onClick={() => window.open('https://www.cboe.com/us/options/market_statistics/daily/', '_blank')}
+                      style={{
+                        padding: '8px 16px',
+                        background: '#10b981',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontSize: '0.85rem',
+                        fontWeight: '500',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}
+                    >
+                      🔗 打开 CBOE 页面
+                    </button>
+                  </div>
+                </div>
+                <div style={{ 
+                  padding: '12px', 
+                  background: '#fffbeb', 
+                  border: '1px solid #fde68a',
+                  borderRadius: '8px', 
+                  fontSize: '0.85rem', 
+                  color: '#92400e',
+                  lineHeight: '1.6',
+                  marginBottom: '12px'
+                }}>
+                  <div style={{ fontWeight: '600', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    ⚠️ 为什么自动获取可能失败？
+                  </div>
+                  <div style={{ marginBottom: '10px', paddingLeft: '8px', borderLeft: '3px solid #f59e0b' }}>
+                    <p style={{ marginBottom: '6px' }}>
+                      <strong>技术原因：</strong>CBOE 页面使用 <strong>JavaScript 动态加载</strong>数据：
+                    </p>
+                    <ol style={{ marginLeft: '20px', marginBottom: '6px' }}>
+                      <li>初始 HTML 是空壳，不包含数据</li>
+                      <li>数据通过 JavaScript 异步请求加载</li>
+                      <li>我们的方法只能获取静态 HTML，无法执行 JavaScript</li>
+                      <li>因此解析不到数据 ❌</li>
+                    </ol>
+                    <p style={{ marginBottom: '6px', fontSize: '0.8rem', color: '#78350f' }}>
+                      💡 <strong>查找结果：</strong>CBOE 没有提供公开的免费 API，第三方数据服务需要付费订阅。
+                    </p>
+                  </div>
+                  <div style={{ fontWeight: '600', marginBottom: '6px', marginTop: '12px' }}>
+                    ✅ 解决方案（推荐）：
+                  </div>
+                  <ol style={{ marginLeft: '20px', marginBottom: '0' }}>
+                    <li>点击 <strong>"打开 CBOE 页面"</strong> 按钮</li>
+                    <li>等待页面加载完成（约 3-5 秒）</li>
+                    <li>在表格中查找以下数据：
+                      <ul style={{ marginTop: '4px', marginBottom: '4px' }}>
+                        <li><strong>EQUITY PUT/CALL RATIO</strong> (个股看跌/看涨比)</li>
+                        <li><strong>SPX + SPXW PUT/CALL RATIO</strong> (标普指数看跌/看涨比)</li>
+                      </ul>
+                    </li>
+                    <li>将数值输入到下方输入框</li>
+                  </ol>
+                </div>
+
+                <div>
+                  <label style={{ 
+                    display: 'block', 
+                    marginBottom: '8px', 
+                    fontWeight: '600', 
+                    color: '#374151',
+                    fontSize: '0.95rem'
+                  }}>
+                    Equity P/C Ratio (个股比例)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={equityPC}
+                    onChange={(e) => setEquityPC(e.target.value)}
+                    placeholder="例如: 0.64"
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '8px',
+                      fontSize: '1rem',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                  <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '6px' }}>
+                    通常 0.7 以下为贪婪，1.1 以上为恐惧
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ 
+                    display: 'block', 
+                    marginBottom: '8px', 
+                    fontWeight: '600', 
+                    color: '#374151',
+                    fontSize: '0.95rem'
+                  }}>
+                    SPX P/C Ratio (标普指数比例)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={spxPC}
+                    onChange={(e) => setSpxPC(e.target.value)}
+                    placeholder="例如: 1.22"
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '8px',
+                      fontSize: '1rem',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                  <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '6px' }}>
+                    1.2 以上代表机构对冲很强(安全垫)
+                  </div>
+                </div>
+
+                <button
+                  onClick={analyzeMarket}
+                  style={{
+                    width: '100%',
+                    padding: '14px',
+                    background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.3)';
+                  }}
+                >
+                  🔍 点击生成分析结果
+                </button>
+
+                {analysisResult && (
+                  <div
+                    style={{
+                      marginTop: '20px',
+                      padding: '20px',
+                      borderRadius: '8px',
+                      borderLeft: `5px solid ${
+                        analysisResult.status === 'safe' ? '#28a745' :
+                        analysisResult.status === 'warning' ? '#ffc107' : '#dc3545'
+                      }`,
+                      background:
+                        analysisResult.status === 'safe' ? '#d4edda' :
+                        analysisResult.status === 'warning' ? '#fff3cd' : '#f8d7da',
+                      color:
+                        analysisResult.status === 'safe' ? '#155724' :
+                        analysisResult.status === 'warning' ? '#856404' : '#721c24'
+                    }}
+                  >
+                    <div style={{ 
+                      fontWeight: '700', 
+                      fontSize: '1.1rem', 
+                      marginBottom: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}>
+                      {analysisResult.status === 'safe' ? '✅' : 
+                       analysisResult.status === 'warning' ? '⚠️' : '🚨'}
+                      {analysisResult.title}
+                    </div>
+                    <div style={{ 
+                      fontSize: '0.95rem', 
+                      lineHeight: '1.6', 
+                      marginBottom: '12px' 
+                    }}>
+                      {analysisResult.content}
+                    </div>
+                    <div style={{ 
+                      fontSize: '0.95rem', 
+                      fontWeight: '600',
+                      padding: '12px',
+                      background: 'rgba(255,255,255,0.5)',
+                      borderRadius: '6px',
+                      border: `1px solid ${
+                        analysisResult.status === 'safe' ? '#28a745' :
+                        analysisResult.status === 'warning' ? '#ffc107' : '#dc3545'
+                      }`
+                    }}>
+                      💡 {analysisResult.action}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '16px', marginBottom: '8px' }}>
               <h3 style={{ fontWeight: '700', fontSize: '1.1rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{ fontSize: '1.2rem' }}>👁️</span>

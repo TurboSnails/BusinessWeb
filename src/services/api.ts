@@ -147,7 +147,7 @@ const CORS_PROXY_THIRD = (url: string) => `https://proxy.cors.sh/${url}`
 const YAHOO_PROXIES = [CORS_PROXY_MAIN, CORS_PROXY_BACKUP, CORS_PROXY_THIRD]
 
 // 获取美股数据 - 竞速模式
-async function fetchUSStock(symbol: string): Promise<StockQuote | null> {
+export async function fetchUSStock(symbol: string): Promise<StockQuote | null> {
   // 检查缓存
   const cacheKey = `us_${symbol}`
   const cached = getCached<StockQuote>(cacheKey)
@@ -169,12 +169,17 @@ async function fetchUSStock(symbol: string): Promise<StockQuote | null> {
   
   try {
     // 竞速：哪个代理先返回用哪个
-    const result = await Promise.any(
+    // 使用 Promise.allSettled 替代 Promise.any（兼容性更好）
+    const results = await Promise.allSettled(
       YAHOO_PROXIES.map(proxy => fetchFromProxy(proxy))
     )
-    if (result) {
-      setCache(cacheKey, result)
-      return result
+    
+    // 找到第一个成功的结果
+    for (const result of results) {
+      if (result.status === 'fulfilled' && result.value) {
+        setCache(cacheKey, result.value)
+        return result.value
+      }
     }
   } catch (error) {
     console.warn(`All proxies failed for ${symbol}:`, error)
@@ -628,6 +633,223 @@ export async function fetchSectorCategories(): Promise<SectorCategory[]> {
 }
 
 // 获取美股板块数据（包含行业和主题）
+// 延迟函数
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
+// 获取 CBOE P/C Ratio 数据
+export async function fetchCBOEPCRatios(): Promise<{ equityPC: number | null; spxPC: number | null }> {
+  const cacheKey = 'cboe_pc_ratios'
+  const cached = getCached<{ equityPC: number | null; spxPC: number | null }>(cacheKey)
+  if (cached) return cached
+
+  // CBOE 每日市场统计页面
+  const cboeUrl = 'https://www.cboe.com/us/options/market_statistics/daily/'
+  
+  // 尝试多个 CORS 代理，并多次重试（等待页面动态加载）
+  const proxies = [CORS_PROXY_MAIN, CORS_PROXY_BACKUP, CORS_PROXY_THIRD]
+  let equityPC: number | null = null
+  let spxPC: number | null = null
+  
+  // 最多尝试 3 次，每次间隔 2 秒（等待页面加载）
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (attempt > 0) {
+      console.log(`等待页面加载... (尝试 ${attempt + 1}/3)`)
+      await delay(2000) // 等待 2 秒让页面加载数据
+    }
+    
+    for (const proxy of proxies) {
+      try {
+        console.log(`尝试使用代理获取 CBOE 数据 (尝试 ${attempt + 1}/3)...`)
+        const response = await fetchWithTimeout(proxy(cboeUrl), {
+          method: 'GET',
+          headers: { 'Accept': 'text/html' }
+        }, 20000) // 增加超时时间到 20 秒
+
+        if (response.ok) {
+          const html = await response.text()
+          console.log(`成功获取 CBOE 页面，HTML 长度: ${html.length}`)
+          
+          // 解析数据
+          const result = parseCBOEHTML(html)
+          
+          // 如果找到了数据，直接返回
+          if (result.equityPC !== null && result.spxPC !== null) {
+            console.log('成功解析数据:', result)
+            const finalResult = { equityPC: result.equityPC, spxPC: result.spxPC }
+            setCache(cacheKey, finalResult)
+            return finalResult
+          }
+          
+          // 如果部分找到，保存并继续尝试
+          if (result.equityPC !== null) equityPC = result.equityPC
+          if (result.spxPC !== null) spxPC = result.spxPC
+        } else {
+          console.warn('代理返回 HTTP', response.status)
+        }
+      } catch (error) {
+        console.warn('代理请求失败:', error)
+        continue
+      }
+    }
+    
+    // 如果已经找到部分数据，可以提前返回
+    if (equityPC !== null && spxPC !== null) {
+      break
+    }
+  }
+
+  const result = { equityPC, spxPC }
+  if (equityPC !== null || spxPC !== null) {
+    setCache(cacheKey, result)
+  }
+  return result
+}
+
+// 解析 CBOE HTML 的函数
+function parseCBOEHTML(html: string): { equityPC: number | null; spxPC: number | null } {
+  let equityPC: number | null = null
+  let spxPC: number | null = null
+
+  // 方法1: 查找 "EQUITY PUT/CALL RATIO" 和 "SPX + SPXW PUT/CALL RATIO"（根据实际表格）
+  // 表格格式可能是：EQUITY PUT/CALL RATIO 后面跟着数值，或者在同一行
+  const equityPatterns = [
+    // 精确匹配：EQUITY PUT/CALL RATIO 后面跟着数值（可能在同一行或下一行）
+    /EQUITY\s+PUT[\/\s]?CALL\s+RATIO[\s\S]{0,500}?(\d+\.\d{2,3})/i,
+    /EQUITY\s+P\/C\s+RATIO[\s\S]{0,500}?(\d+\.\d{2,3})/i,
+    // 匹配表格单元格：<td>EQUITY PUT/CALL RATIO</td><td>0.64</td>
+    /<td[^>]*>[\s]*EQUITY\s+PUT[\/\s]?CALL\s+RATIO[\s]*<\/td>[\s\S]{0,200}?<td[^>]*>[\s]*(\d+\.\d{2,3})[\s]*<\/td>/i,
+    // 匹配表格行：<tr>...EQUITY...0.64...</tr>
+    /<tr[^>]*>[\s\S]{0,500}?EQUITY[\s\S]{0,200}?PUT[\/\s]?CALL[\s\S]{0,200}?RATIO[\s\S]{0,500}?(\d+\.\d{2,3})[\s\S]{0,500}?<\/tr>/i,
+    // 宽松匹配
+    /Equity\s+Put[\/\s]?Call\s+Ratio[\s\S]{0,500}?(\d+\.\d{2,3})/i
+  ]
+  
+  for (const pattern of equityPatterns) {
+    const match = html.match(pattern)
+    if (match && match[1]) {
+      const value = parseFloat(match[1])
+      if (value > 0 && value < 10) {
+        equityPC = value
+        console.log('找到 Equity P/C Ratio:', equityPC, '使用模式:', pattern.source.substring(0, 50))
+        break
+      }
+    }
+  }
+
+  const spxPatterns = [
+    // 精确匹配：SPX + SPXW PUT/CALL RATIO
+    /SPX\s*\+\s*SPXW\s+PUT[\/\s]?CALL\s+RATIO[\s\S]{0,500}?(\d+\.\d{2,3})/i,
+    /SPX\s*\+\s*SPXW\s+P\/C\s+RATIO[\s\S]{0,500}?(\d+\.\d{2,3})/i,
+    // 匹配表格单元格
+    /<td[^>]*>[\s]*SPX\s*\+\s*SPXW\s+PUT[\/\s]?CALL\s+RATIO[\s]*<\/td>[\s\S]{0,200}?<td[^>]*>[\s]*(\d+\.\d{2,3})[\s]*<\/td>/i,
+    // 匹配表格行
+    /<tr[^>]*>[\s\S]{0,500}?SPX[\s\S]{0,100}?\+[\s\S]{0,100}?SPXW[\s\S]{0,200}?PUT[\/\s]?CALL[\s\S]{0,200}?RATIO[\s\S]{0,500}?(\d+\.\d{2,3})[\s\S]{0,500}?<\/tr>/i,
+    // 备用匹配
+    /SPX.*?PUT[\/\s]?CALL\s+RATIO[\s\S]{0,500}?(\d+\.\d{2,3})/i,
+    /INDEX\s+PUT[\/\s]?CALL\s+RATIO[\s\S]{0,500}?(\d+\.\d{2,3})/i
+  ]
+  
+  for (const pattern of spxPatterns) {
+    const match = html.match(pattern)
+    if (match && match[1]) {
+      const value = parseFloat(match[1])
+      if (value > 0 && value < 10) {
+        spxPC = value
+        console.log('找到 SPX P/C Ratio:', spxPC, '使用模式:', pattern.source.substring(0, 50))
+        break
+      }
+    }
+  }
+
+  // 方法2: 查找表格中的 P/C Ratio 数据（更精确的匹配）
+  // 尝试匹配表格行，包含 "Equity" 或 "SPX" 以及数值
+  if (!equityPC || !spxPC) {
+    const tableRowPattern = /<tr[^>]*>[\s\S]*?(?:Equity|SPX|Index)[\s\S]*?(\d+\.\d{2,3})[\s\S]*?<\/tr>/gi
+    let match
+    while ((match = tableRowPattern.exec(html)) !== null) {
+      const row = match[0]
+      const value = parseFloat(match[1])
+      
+      if (value > 0 && value < 10) {
+        if (row.match(/Equity/i) && !equityPC) {
+          equityPC = value
+        } else if ((row.match(/SPX/i) || row.match(/Index/i)) && !spxPC) {
+          spxPC = value
+        }
+      }
+    }
+  }
+
+  // 方法3: 查找包含 "Equity" 和 "P/C" 或 "Put/Call" 的行（更宽松的匹配）
+  if (!equityPC) {
+    const equityPatterns2 = [
+      /Equity[\s\S]{0,200}?Put[\/\s]?Call[\s\S]{0,200}?(\d+\.\d{2,3})/i,
+      /Equity[\s\S]{0,200}?P\/C[\s\S]{0,200}?(\d+\.\d{2,3})/i,
+      /Equity[\s\S]{0,500}?(\d+\.\d{2,3})/i
+    ]
+    
+    for (const pattern of equityPatterns2) {
+      const match = html.match(pattern)
+      if (match && match[1]) {
+        const value = parseFloat(match[1])
+        if (value > 0 && value < 10) {
+          equityPC = value
+          break
+        }
+      }
+    }
+  }
+
+  // 方法4: 查找包含 "SPX" 或 "Index" 和 "P/C" 的行
+  if (!spxPC) {
+    const spxPatterns2 = [
+      /SPX[\s\S]{0,200}?Put[\/\s]?Call[\s\S]{0,200}?(\d+\.\d{2,3})/i,
+      /SPX[\s\S]{0,200}?P\/C[\s\S]{0,200}?(\d+\.\d{2,3})/i,
+      /Index[\s\S]{0,200}?Put[\/\s]?Call[\s\S]{0,200}?(\d+\.\d{2,3})/i,
+      /Index[\s\S]{0,200}?P\/C[\s\S]{0,200}?(\d+\.\d{2,3})/i
+    ]
+    
+    for (const pattern of spxPatterns2) {
+      const match = html.match(pattern)
+      if (match && match[1]) {
+        const value = parseFloat(match[1])
+        if (value > 0 && value < 10) {
+          spxPC = value
+          break
+        }
+      }
+    }
+  }
+
+  // 方法5: 查找所有可能的数值，然后根据上下文判断
+  if (!equityPC || !spxPC) {
+    const numberMatches = html.match(/\b(\d+\.\d{2,3})\b/g)
+    if (numberMatches) {
+      const values = [...new Set(numberMatches.map(m => parseFloat(m)))]
+        .filter(v => v > 0 && v < 10 && v.toString().split('.')[1]?.length >= 2)
+        .sort((a, b) => a - b)
+      
+      // 查找这些数值附近的上下文
+      for (const value of values) {
+        const valueStr = value.toString()
+        const index = html.indexOf(valueStr)
+        if (index > -1) {
+          const context = html.substring(Math.max(0, index - 100), Math.min(html.length, index + 100))
+          
+          if (!equityPC && context.match(/Equity/i)) {
+            equityPC = value
+          }
+          if (!spxPC && (context.match(/SPX/i) || context.match(/Index/i))) {
+            spxPC = value
+          }
+        }
+      }
+    }
+  }
+
+  return { equityPC, spxPC }
+}
+
 export async function fetchUSSectorCategories(): Promise<SectorCategory[]> {
   try {
     const usSectorData = await fetchUSSectorData()

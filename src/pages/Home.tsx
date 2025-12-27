@@ -5,6 +5,13 @@ export default function Home(): JSX.Element {
   return (
     <main className="container">
       <section className="card">
+        <Link to="/investment-targets" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+          <h2>📈 长期看好的公司</h2>
+          <p>投资标的列表</p>
+        </Link>
+      </section>
+
+      <section className="card">
         <Link to="/pulse" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
           <h2>📊 经济脉搏</h2>
           <p>每日经济分析(机构+游资)</p>

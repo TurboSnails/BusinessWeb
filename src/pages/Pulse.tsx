@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { fetchMarketDataByType, fetchSectorCategories, fetchUSSectorCategories } from '../services/api'
-import type { DailyReview, ImportantNews, MarketCategory, SectorCategory } from '../types'
-import { loadReviews, saveReviews, loadNews, saveNews, getGistToken, getGistId, saveGistConfig } from '../utils/storage'
+import type { DailyReview, ImportantNews, MarketCategory, SectorCategory, NewsSource } from '../types'
+import { loadReviews, saveReviews, loadNews, saveNews, loadNewsSources, saveNewsSources, getGistToken, getGistId, saveGistConfig } from '../utils/storage'
 import { syncToGist, syncFromGist } from '../utils/gist'
 import { getWeekday, getToday } from '../utils/date'
 import { ReviewTable } from '../components/pulse/ReviewTable'
 import { NewsSection } from '../components/pulse/NewsSection'
+import { NewsSourceSection } from '../components/pulse/NewsSourceSection'
 import { MarketCategory as MarketCategoryComponent } from '../components/pulse/MarketCategory'
 import { SectorSection } from '../components/pulse/SectorSection'
 
@@ -26,6 +27,9 @@ export default function Pulse(): JSX.Element {
   const [showNewsForm, setShowNewsForm] = useState(false)
   const [newsFormData, setNewsFormData] = useState<Partial<ImportantNews>>({})
   
+  // 消息源状态
+  const [newsSources, setNewsSources] = useState<NewsSource[]>([])
+  
   // 云端同步状态
   const [showSettings, setShowSettings] = useState(false)
   const [gistTokenInput, setGistTokenInput] = useState('')
@@ -36,6 +40,7 @@ export default function Pulse(): JSX.Element {
     // 加载本地数据
     setReviews(loadReviews())
     setNewsList(loadNews())
+    setNewsSources(loadNewsSources())
     setGistTokenInput(getGistToken() || '')
     setGistIdInput(getGistId() || '')
     
@@ -591,6 +596,15 @@ export default function Pulse(): JSX.Element {
 
       {/* 重要消息 */}
       {renderNewsSection()}
+
+      {/* 消息源管理 */}
+      <NewsSourceSection
+        sources={newsSources}
+        onUpdate={(sources) => {
+          setNewsSources(sources)
+          saveNewsSources(sources)
+        }}
+      />
 
       {/* 数据分类 */}
       {categories.map(category => (
