@@ -714,49 +714,169 @@ const InvestmentPlan2026 = () => {
         </p>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs - 分类显示 */}
       <div style={{ background: 'white', borderLeft: '1px solid #e5e7eb', borderRight: '1px solid #e5e7eb' }}>
-        <div style={{ display: 'flex', borderBottom: '1px solid #e5e7eb', flexWrap: 'wrap' }}>
-          {(['timeline', 'checklist', 'decision', 'shorting', 'monitor'] as const).map((tab) => {
-            const labels: Record<typeof tab, string> = {
-              timeline: '时间轴',
-              checklist: '执行清单',
-              decision: '决策矩阵',
-              shorting: '做空条件',
-              monitor: '每日监控'
-            };
-            const isActive = activeTab === tab;
-            return (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                style={{
-                  flex: 1,
-                  padding: '12px 16px',
-                  fontWeight: '500',
-                  background: isActive ? '#eff6ff' : 'transparent',
-                  color: isActive ? '#2563eb' : '#4b5563',
-                  border: 'none',
-                  borderBottom: isActive ? '2px solid #2563eb' : '2px solid transparent',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  fontSize: '0.9rem'
-                }}
-                onMouseEnter={(e) => {
-                  if (!isActive) {
-                    e.currentTarget.style.background = '#f9fafb';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isActive) {
-                    e.currentTarget.style.background = 'transparent';
-                  }
-                }}
-              >
-                {labels[tab]}
-              </button>
-            );
-          })}
+        <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #e5e7eb' }}>
+          {/* 计划执行类 */}
+          <div style={{ display: 'flex', borderBottom: '1px solid #f3f4f6', flexWrap: 'wrap' }}>
+            <div style={{ 
+              padding: '8px 12px', 
+              fontSize: '0.75rem', 
+              color: '#6b7280', 
+              fontWeight: '600',
+              background: '#f9fafb',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              minWidth: '80px'
+            }}>
+              📅 计划执行
+            </div>
+            {(['timeline', 'checklist'] as const).map((tab) => {
+              const labels: Record<typeof tab, string> = {
+                timeline: '时间轴',
+                checklist: '执行清单'
+              };
+              const isActive = activeTab === tab;
+              return (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  style={{
+                    flex: 1,
+                    padding: '12px 16px',
+                    fontWeight: '500',
+                    background: isActive ? '#eff6ff' : 'transparent',
+                    color: isActive ? '#2563eb' : '#4b5563',
+                    border: 'none',
+                    borderBottom: isActive ? '2px solid #2563eb' : '2px solid transparent',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    fontSize: '0.9rem'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.background = '#f9fafb';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.background = 'transparent';
+                    }
+                  }}
+                >
+                  {labels[tab]}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* 决策策略类 */}
+          <div style={{ display: 'flex', borderBottom: '1px solid #f3f4f6', flexWrap: 'wrap' }}>
+            <div style={{ 
+              padding: '8px 12px', 
+              fontSize: '0.75rem', 
+              color: '#6b7280', 
+              fontWeight: '600',
+              background: '#f9fafb',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              minWidth: '80px'
+            }}>
+              ⚖️ 决策策略
+            </div>
+            {(['decision', 'shorting'] as const).map((tab) => {
+              const labels: Record<typeof tab, string> = {
+                decision: '决策矩阵',
+                shorting: '做空条件'
+              };
+              const isActive = activeTab === tab;
+              return (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  style={{
+                    flex: 1,
+                    padding: '12px 16px',
+                    fontWeight: '500',
+                    background: isActive ? '#eff6ff' : 'transparent',
+                    color: isActive ? '#2563eb' : '#4b5563',
+                    border: 'none',
+                    borderBottom: isActive ? '2px solid #2563eb' : '2px solid transparent',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    fontSize: '0.9rem'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.background = '#f9fafb';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.background = 'transparent';
+                    }
+                  }}
+                >
+                  {labels[tab]}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* 监控分析类 */}
+          <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+            <div style={{ 
+              padding: '8px 12px', 
+              fontSize: '0.75rem', 
+              color: '#6b7280', 
+              fontWeight: '600',
+              background: '#f9fafb',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              minWidth: '80px'
+            }}>
+              📊 监控分析
+            </div>
+            {(['monitor'] as const).map((tab) => {
+              const labels: Record<typeof tab, string> = {
+                monitor: '每日监控'
+              };
+              const isActive = activeTab === tab;
+              return (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  style={{
+                    flex: 1,
+                    padding: '12px 16px',
+                    fontWeight: '500',
+                    background: isActive ? '#eff6ff' : 'transparent',
+                    color: isActive ? '#2563eb' : '#4b5563',
+                    border: 'none',
+                    borderBottom: isActive ? '2px solid #2563eb' : '2px solid transparent',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    fontSize: '0.9rem'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.background = '#f9fafb';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.background = 'transparent';
+                    }
+                  }}
+                >
+                  {labels[tab]}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
@@ -1083,47 +1203,141 @@ const InvestmentPlan2026 = () => {
 
         {activeTab === 'monitor' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            {/* 子Tab导航 */}
-            <div style={{ background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '8px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              {(['overview', 'assumptions', 'indicators', 'stages', 'execution'] as const).map((subTab) => {
-                const subLabels: Record<typeof subTab, string> = {
-                  overview: '投资总纲',
-                  assumptions: '宏观假设',
-                  indicators: '指标体系',
-                  stages: '阶段划分',
-                  execution: '日常执行'
-                };
-                const isActive = activeSubTab === subTab;
-                return (
-                  <button
-                    key={subTab}
-                    onClick={() => setActiveSubTab(subTab)}
-                    style={{
-                      padding: '8px 16px',
-                      fontWeight: '500',
-                      background: isActive ? '#3b82f6' : 'white',
-                      color: isActive ? 'white' : '#4b5563',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      fontSize: '0.85rem'
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!isActive) {
-                        e.currentTarget.style.background = '#f3f4f6';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!isActive) {
-                        e.currentTarget.style.background = 'white';
-                      }
-                    }}
-                  >
-                    {subLabels[subTab]}
-                  </button>
-                );
-              })}
+            {/* 子Tab导航 - 分类显示 */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {/* 基础理论 */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <div style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: '600', paddingLeft: '4px' }}>
+                  📚 基础理论
+                </div>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  {(['overview', 'assumptions'] as const).map((subTab) => {
+                    const subLabels: Record<typeof subTab, string> = {
+                      overview: '投资总纲',
+                      assumptions: '宏观假设'
+                    };
+                    const isActive = activeSubTab === subTab;
+                    return (
+                      <button
+                        key={subTab}
+                        onClick={() => setActiveSubTab(subTab)}
+                        style={{
+                          padding: '8px 16px',
+                          fontWeight: '500',
+                          background: isActive ? '#3b82f6' : 'white',
+                          color: isActive ? 'white' : '#4b5563',
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          fontSize: '0.85rem'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isActive) {
+                            e.currentTarget.style.background = '#f3f4f6';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isActive) {
+                            e.currentTarget.style.background = 'white';
+                          }
+                        }}
+                      >
+                        {subLabels[subTab]}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 工具方法 */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <div style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: '600', paddingLeft: '4px' }}>
+                  🔧 工具方法
+                </div>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  {(['indicators', 'stages'] as const).map((subTab) => {
+                    const subLabels: Record<typeof subTab, string> = {
+                      indicators: '指标体系',
+                      stages: '阶段划分'
+                    };
+                    const isActive = activeSubTab === subTab;
+                    return (
+                      <button
+                        key={subTab}
+                        onClick={() => setActiveSubTab(subTab)}
+                        style={{
+                          padding: '8px 16px',
+                          fontWeight: '500',
+                          background: isActive ? '#3b82f6' : 'white',
+                          color: isActive ? 'white' : '#4b5563',
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          fontSize: '0.85rem'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isActive) {
+                            e.currentTarget.style.background = '#f3f4f6';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isActive) {
+                            e.currentTarget.style.background = 'white';
+                          }
+                        }}
+                      >
+                        {subLabels[subTab]}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 执行工具 */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <div style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: '600', paddingLeft: '4px' }}>
+                  ⚡ 执行工具
+                </div>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  {(['execution'] as const).map((subTab) => {
+                    const subLabels: Record<typeof subTab, string> = {
+                      execution: '日常执行'
+                    };
+                    const isActive = activeSubTab === subTab;
+                    return (
+                      <button
+                        key={subTab}
+                        onClick={() => setActiveSubTab(subTab)}
+                        style={{
+                          padding: '8px 16px',
+                          fontWeight: '500',
+                          background: isActive ? '#3b82f6' : 'white',
+                          color: isActive ? 'white' : '#4b5563',
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          fontSize: '0.85rem'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isActive) {
+                            e.currentTarget.style.background = '#f3f4f6';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isActive) {
+                            e.currentTarget.style.background = 'white';
+                          }
+                        }}
+                      >
+                        {subLabels[subTab]}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
 
             {/* 子Tab内容 */}
