@@ -285,7 +285,7 @@ export default function Monitor(): JSX.Element {
   const [data, setData] = useState<InvestmentFramework[]>([])
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editContent, setEditContent] = useState('')
-  const [activeSubTab, setActiveSubTab] = useState<'overview' | 'assumptions' | 'indicators' | 'temperature' | 'china-temperature' | 'stages' | 'execution'>('execution')
+  const [activeSubTab, setActiveSubTab] = useState<'overview' | 'assumptions' | 'indicators' | 'temperature' | 'china-temperature' | 'stages' | 'execution' | 'us-monitor'>('execution')
   
   // 市场情绪分析器状态
   const [equityPC, setEquityPC] = useState<string>('')
@@ -567,10 +567,11 @@ export default function Monitor(): JSX.Element {
             }}>
               📅 计划执行
             </div>
-            {(['stages', 'execution'] as const).map((subTab) => {
+            {(['stages', 'execution', 'us-monitor'] as const).map((subTab) => {
               const subLabels: Record<typeof subTab, string> = {
                 stages: '阶段划分',
-                execution: '日常执行'
+                execution: '日常执行',
+                'us-monitor': '美经监控'
               }
               const isActive = activeSubTab === subTab
               return (
@@ -2495,6 +2496,272 @@ export default function Monitor(): JSX.Element {
                 • 宁可错过，不要做错；宁可慢一点，不要频繁大振幅改仓。
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {activeSubTab === 'us-monitor' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          {/* 三色预警仪表盘 */}
+          <div style={{ 
+            background: 'white', 
+            border: '2px solid #6366f1', 
+            borderRadius: '12px', 
+            padding: '24px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+          }}>
+            <h2 style={{ 
+              fontSize: '1.5rem', 
+              fontWeight: '700', 
+              marginBottom: '8px', 
+              color: '#1f2937',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <span style={{ fontSize: '2rem' }}>📉</span>
+              衰退确认仪表盘 (Recession Checklist)
+            </h2>
+            <p style={{ fontSize: '0.9rem', color: '#6b7280', marginBottom: '24px', lineHeight: '1.6' }}>
+              核心逻辑：<strong>不看预测，只看事实。</strong> 每月第一个周五（非农数据公布日）更新一次。
+            </p>
+
+            {/* 仪表盘表格 */}
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                <thead>
+                  <tr style={{ background: '#f3f4f6', borderBottom: '2px solid #d1d5db' }}>
+                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#1f2937', border: '1px solid #e5e7eb' }}>维度</th>
+                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#1f2937', border: '1px solid #e5e7eb' }}>核心指标</th>
+                    <th style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#059669', border: '1px solid #e5e7eb' }}>绿灯<br/>(正常)</th>
+                    <th style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#f59e0b', border: '1px solid #e5e7eb' }}>黄灯<br/>(警示)</th>
+                    <th style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#dc2626', border: '1px solid #e5e7eb' }}>红灯<br/>(衰退确认)</th>
+                    <th style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#1f2937', border: '1px solid #e5e7eb' }}>当前状态</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style={{ background: '#fef2f2' }}>
+                    <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>劳动力</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>失业率 vs 12月低点</td>
+                    <td style={{ padding: '12px', textAlign: 'center', color: '#059669', border: '1px solid #e5e7eb' }}>差值 &lt; 0.3%</td>
+                    <td style={{ padding: '12px', textAlign: 'center', color: '#f59e0b', border: '1px solid #e5e7eb' }}>0.3% - 0.5%</td>
+                    <td style={{ padding: '12px', textAlign: 'center', color: '#dc2626', fontWeight: '600', border: '1px solid #e5e7eb' }}>差值 &gt; 0.5%</td>
+                    <td style={{ padding: '12px', textAlign: 'center', border: '1px solid #e5e7eb' }}>
+                      <span style={{ 
+                        display: 'inline-block', 
+                        padding: '4px 12px', 
+                        borderRadius: '6px', 
+                        background: '#fee2e2', 
+                        color: '#dc2626', 
+                        fontWeight: '600',
+                        fontSize: '0.8rem'
+                      }}>🔴 红灯 (+1.0%)</span>
+                    </td>
+                  </tr>
+                  <tr style={{ background: '#fffbeb' }}>
+                    <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>流动性</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>10Y-2Y 利差</td>
+                    <td style={{ padding: '12px', textAlign: 'center', color: '#059669', border: '1px solid #e5e7eb' }}>倒挂中 或 &gt; 0.5%</td>
+                    <td style={{ padding: '12px', textAlign: 'center', color: '#f59e0b', fontWeight: '600', border: '1px solid #e5e7eb' }}>0% - 0.2% (趋平)</td>
+                    <td style={{ padding: '12px', textAlign: 'center', color: '#dc2626', fontWeight: '600', border: '1px solid #e5e7eb' }}>由负转正并拉升</td>
+                    <td style={{ padding: '12px', textAlign: 'center', border: '1px solid #e5e7eb' }}>
+                      <span style={{ 
+                        display: 'inline-block', 
+                        padding: '4px 12px', 
+                        borderRadius: '6px', 
+                        background: '#fef3c7', 
+                        color: '#f59e0b', 
+                        fontWeight: '600',
+                        fontSize: '0.8rem'
+                      }}>🟡 黄灯 (接近 0%)</span>
+                    </td>
+                  </tr>
+                  <tr style={{ background: '#fffbeb' }}>
+                    <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>生产力</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>ISM 制造业 PMI</td>
+                    <td style={{ padding: '12px', textAlign: 'center', color: '#059669', border: '1px solid #e5e7eb' }}>&gt; 50 (扩张)</td>
+                    <td style={{ padding: '12px', textAlign: 'center', color: '#f59e0b', fontWeight: '600', border: '1px solid #e5e7eb' }}>48 - 50</td>
+                    <td style={{ padding: '12px', textAlign: 'center', color: '#dc2626', fontWeight: '600', border: '1px solid #e5e7eb' }}>连续 3 个月 &lt; 48</td>
+                    <td style={{ padding: '12px', textAlign: 'center', border: '1px solid #e5e7eb' }}>
+                      <span style={{ 
+                        display: 'inline-block', 
+                        padding: '4px 12px', 
+                        borderRadius: '6px', 
+                        background: '#fef3c7', 
+                        color: '#f59e0b', 
+                        fontWeight: '600',
+                        fontSize: '0.8rem'
+                      }}>🟡 黄灯 (48.2)</span>
+                    </td>
+                  </tr>
+                  <tr style={{ background: '#fef2f2' }}>
+                    <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>杠杆率</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>融资余额同比增速</td>
+                    <td style={{ padding: '12px', textAlign: 'center', color: '#059669', border: '1px solid #e5e7eb' }}>&lt; 15%</td>
+                    <td style={{ padding: '12px', textAlign: 'center', color: '#f59e0b', border: '1px solid #e5e7eb' }}>15% - 30%</td>
+                    <td style={{ padding: '12px', textAlign: 'center', color: '#dc2626', fontWeight: '600', border: '1px solid #e5e7eb' }}>&gt; 35% 或 突然掉头</td>
+                    <td style={{ padding: '12px', textAlign: 'center', border: '1px solid #e5e7eb' }}>
+                      <span style={{ 
+                        display: 'inline-block', 
+                        padding: '4px 12px', 
+                        borderRadius: '6px', 
+                        background: '#fee2e2', 
+                        color: '#dc2626', 
+                        fontWeight: '600',
+                        fontSize: '0.8rem'
+                      }}>🔴 红灯 (+38.5%)</span>
+                    </td>
+                  </tr>
+                  <tr style={{ background: '#f0fdf4' }}>
+                    <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>情绪面</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>VIX 指数 (月均)</td>
+                    <td style={{ padding: '12px', textAlign: 'center', color: '#059669', fontWeight: '600', border: '1px solid #e5e7eb' }}>&lt; 18</td>
+                    <td style={{ padding: '12px', textAlign: 'center', color: '#f59e0b', border: '1px solid #e5e7eb' }}>18 - 25</td>
+                    <td style={{ padding: '12px', textAlign: 'center', color: '#dc2626', fontWeight: '600', border: '1px solid #e5e7eb' }}>持续站稳 25 以上</td>
+                    <td style={{ padding: '12px', textAlign: 'center', border: '1px solid #e5e7eb' }}>
+                      <span style={{ 
+                        display: 'inline-block', 
+                        padding: '4px 12px', 
+                        borderRadius: '6px', 
+                        background: '#d1fae5', 
+                        color: '#059669', 
+                        fontWeight: '600',
+                        fontSize: '0.8rem'
+                      }}>🟢 绿灯 (14)</span>
+                    </td>
+                  </tr>
+                  <tr style={{ background: '#fef2f2' }}>
+                    <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>信用面</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>商业地产逾期率</td>
+                    <td style={{ padding: '12px', textAlign: 'center', color: '#059669', border: '1px solid #e5e7eb' }}>&lt; 3%</td>
+                    <td style={{ padding: '12px', textAlign: 'center', color: '#f59e0b', border: '1px solid #e5e7eb' }}>3% - 5%</td>
+                    <td style={{ padding: '12px', textAlign: 'center', color: '#dc2626', fontWeight: '600', border: '1px solid #e5e7eb' }}>&gt; 5% 且加速上升</td>
+                    <td style={{ padding: '12px', textAlign: 'center', border: '1px solid #e5e7eb' }}>
+                      <span style={{ 
+                        display: 'inline-block', 
+                        padding: '4px 12px', 
+                        borderRadius: '6px', 
+                        background: '#fee2e2', 
+                        color: '#dc2626', 
+                        fontWeight: '600',
+                        fontSize: '0.8rem'
+                      }}>🔴 红灯 (5.7%-6.3%)</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* 解读与操作建议 */}
+          <div style={{ 
+            background: '#fef2f2', 
+            border: '1px solid #fecaca', 
+            borderRadius: '12px', 
+            padding: '20px'
+          }}>
+            <h3 style={{ 
+              fontSize: '1.2rem', 
+              fontWeight: '700', 
+              marginBottom: '16px', 
+              color: '#991b1b',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <span style={{ fontSize: '1.5rem' }}>💡</span>
+              当前状态解读
+            </h3>
+            <div style={{ 
+              background: 'white', 
+              padding: '16px', 
+              borderRadius: '8px', 
+              marginBottom: '16px',
+              border: '1px solid #fecaca'
+            }}>
+              <div style={{ fontWeight: '700', marginBottom: '8px', color: '#dc2626', fontSize: '1rem' }}>
+                "自满式"危机（当前状态）
+              </div>
+              <p style={{ fontSize: '0.9rem', lineHeight: '1.8', color: '#374151', marginBottom: '12px' }}>
+                你的仪表盘出现了极其诡异的组合：<strong>基本面/杠杆（红灯）+ 情绪（绿灯）</strong>。
+              </p>
+              <p style={{ fontSize: '0.9rem', lineHeight: '1.8', color: '#374151' }}>
+                这在历史上通常是"崩盘前夜"。因为数据已经烂了，但 VIX 依然很低，说明市场还没开始计价（Pricing-in）风险。这种"无声的雷"一旦爆了，威力最大。
+              </p>
+            </div>
+          </div>
+
+          {/* 关键信号 */}
+          <div style={{ 
+            background: '#eff6ff', 
+            border: '1px solid #bfdbfe', 
+            borderRadius: '12px', 
+            padding: '20px'
+          }}>
+            <h3 style={{ 
+              fontSize: '1.2rem', 
+              fontWeight: '700', 
+              marginBottom: '16px', 
+              color: '#1e40af',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <span style={{ fontSize: '1.5rem' }}>⚠️</span>
+              关键信号：10Y-2Y 利差转正
+            </h3>
+            <div style={{ fontSize: '0.9rem', lineHeight: '1.8', color: '#374151' }}>
+              <p style={{ marginBottom: '12px' }}>
+                <strong>核心规律：</strong> 倒挂是告诉你病了，而转正是告诉你该进 ICU 了。
+              </p>
+              <p style={{ marginBottom: '12px' }}>
+                <strong>历史数据：</strong> 从曲线转正（回到 0 以上）到股市最终见底，通常有 <strong>3-12 个月</strong> 的时滞，且中间往往伴随着 <strong>20% 以上</strong> 的跌幅。
+              </p>
+              <div style={{ 
+                background: 'white', 
+                padding: '12px', 
+                borderRadius: '8px', 
+                marginTop: '12px',
+                border: '1px solid #bfdbfe'
+              }}>
+                <div style={{ fontWeight: '600', marginBottom: '8px', color: '#1e40af' }}>观察顺序：</div>
+                <ol style={{ paddingLeft: '20px', margin: 0, lineHeight: '2' }}>
+                  <li>2 年期国债收益率快速下行（市场开始定价降息）</li>
+                  <li>10Y-2Y 突破 0 轴（转正确认）</li>
+                  <li>失业率确认破位</li>
+                  <li>股市在高位停留极短时间后，开始出现 2% 以上的大阴线跌破 200 日线</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+
+          {/* 抄底时机 */}
+          <div style={{ 
+            background: '#f0fdf4', 
+            border: '1px solid #86efac', 
+            borderRadius: '12px', 
+            padding: '20px'
+          }}>
+            <h3 style={{ 
+              fontSize: '1.2rem', 
+              fontWeight: '700', 
+              marginBottom: '16px', 
+              color: '#166534',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <span style={{ fontSize: '1.5rem' }}>🎯</span>
+              抄底时机
+            </h3>
+            <p style={{ fontSize: '0.9rem', lineHeight: '1.8', color: '#374151', marginBottom: '12px' }}>
+              <strong>不要在红灯刚亮时抄底。</strong> 要等到：
+            </p>
+            <ul style={{ paddingLeft: '20px', margin: 0, lineHeight: '2', fontSize: '0.9rem', color: '#374151' }}>
+              <li><strong>融资余额同比增速</strong>从 +38% 暴跌到负数（杠杆清算完毕）</li>
+              <li><strong>VIX</strong>出现一个极高的尖峰（如 &gt;40）后回落</li>
+              <li>那才是买入 PAAS 或 RKLB 的"带血筹码"时机</li>
+            </ul>
           </div>
         </div>
       )}
