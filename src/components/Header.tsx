@@ -87,18 +87,17 @@ export default function Header(): JSX.Element {
           </span>
         </Link>
 
-        {/* 当前页面标题 - 居中显示 */}
+        {/* 当前页面标题 - 居中显示（仅移动端） */}
         {location.pathname !== '/' && (
-          <div style={{
-            position: 'absolute',
-            left: '50%',
-            transform: 'translateX(-50%)',
+          <div className="page-title-mobile" style={{
+            flex: 1,
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            margin: '0 12px'
           }}>
             <div style={{
-              fontSize: '1.1rem',
+              fontSize: '0.95rem',
               fontWeight: '600',
               color: 'white',
               whiteSpace: 'nowrap',
@@ -113,7 +112,9 @@ export default function Header(): JSX.Element {
         <nav style={{
           display: 'none',
           alignItems: 'center',
-          gap: '8px'
+          gap: '8px',
+          flex: 1,
+          justifyContent: 'center'
         }}
         className="desktop-nav"
         >
@@ -275,8 +276,8 @@ export default function Header(): JSX.Element {
           .mobile-menu-btn {
             display: flex !important;
           }
-          .page-title-desktop {
-            display: none !important;
+          .page-title-mobile {
+            display: flex !important;
           }
         }
         @keyframes slideDown {
