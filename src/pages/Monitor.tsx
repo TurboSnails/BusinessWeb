@@ -3051,7 +3051,7 @@ export default function Monitor(): JSX.Element {
             </div>
           </div>
 
-          {/* 关键时间节点 */}
+          {/* 2026年关键时间线与做空条件 */}
           <div style={{ 
             background: '#eff6ff', 
             border: '1px solid #bfdbfe', 
@@ -3061,52 +3061,230 @@ export default function Monitor(): JSX.Element {
             <h3 style={{ 
               fontSize: '1.2rem', 
               fontWeight: '700', 
-              marginBottom: '16px', 
+              marginBottom: '8px', 
               color: '#1e40af',
               display: 'flex',
               alignItems: 'center',
               gap: '8px'
             }}>
               <span style={{ fontSize: '1.5rem' }}>📅</span>
-              关键时间节点与行动阈值
+              2026年关键时间线与做空条件
             </h3>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+            <p style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '16px', lineHeight: '1.6' }}>
+              基于BLS、Fed、Yahoo Finance财报日历和CRE报告。重点事件包括失业报告、Fed会议、科技财报和CRE到期高峰。做空条件基于指标阈值，可通过反向ETF（如PSQ -1x或SQQQ -3x）实现，但杠杆产品仅限短期，风险包括复合效应和市场反弹。
+            </p>
+            <div style={{ overflowX: 'auto', marginBottom: '16px' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
                 <thead>
                   <tr style={{ background: '#dbeafe', borderBottom: '2px solid #3b82f6' }}>
-                    <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', color: '#1f2937', border: '1px solid #bfdbfe' }}>日期</th>
-                    <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', color: '#1f2937', border: '1px solid #bfdbfe' }}>事件</th>
-                    <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', color: '#dc2626', border: '1px solid #bfdbfe' }}>红灯阈值（衰退概率跃升）</th>
-                    <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', color: '#059669', border: '1px solid #bfdbfe' }}>绿灯阈值（软着陆确认）</th>
+                    <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', color: '#1f2937', border: '1px solid #bfdbfe', fontSize: '0.75rem', whiteSpace: 'nowrap' }}>日期</th>
+                    <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', color: '#1f2937', border: '1px solid #bfdbfe', fontSize: '0.75rem' }}>事件</th>
+                    <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', color: '#dc2626', border: '1px solid #bfdbfe', fontSize: '0.75rem' }}>做空条件（潜在触发器）</th>
+                    <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', color: '#1f2937', border: '1px solid #bfdbfe', fontSize: '0.75rem' }}>注意事项/参考</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>2026-01-10</td>
-                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb' }}>12月非农就业</td>
-                    <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.85rem' }}>失业率≥4.7% or 新增失业&gt;20万</td>
-                    <td style={{ padding: '10px', color: '#059669', border: '1px solid #e5e7eb', fontSize: '0.85rem' }}>失业率≤4.4%</td>
+                  <tr style={{ background: '#fff' }}>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-01-07</td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>JOLTS及州就业数据（11月2025）</td>
+                    <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>职位空缺率&lt;5%或流动率上升，预示劳动力市场疲软</td>
+                    <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>领先失业率指标；若与消费者信心&lt;80叠加，可推动纳斯达克广度&lt;30%</td>
                   </tr>
-                  <tr>
-                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>2026-02-12</td>
-                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb' }}>美联储FOMC会议</td>
-                    <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.85rem' }}>点阵图2026降息≥100bp</td>
-                    <td style={{ padding: '10px', color: '#059669', border: '1px solid #e5e7eb', fontSize: '0.85rem' }}>维持利率+缩表加速</td>
+                  <tr style={{ background: '#fef2f2' }}>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-01-09</td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业情况报告（2025年12月）</td>
+                    <td style={{ padding: '10px', color: '#dc2626', fontWeight: '600', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>失业率≥4.7%或过去6个月+0.6ppt，萨姆规则正式触发</td>
+                    <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>关键观察窗口；若触发，衰退概率升至70%，先影响科技就业（IT部门已负）</td>
                   </tr>
-                  <tr>
-                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>2026-03-20</td>
-                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb' }}>CRE Q1逾期率报告</td>
-                    <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.85rem' }}>&gt;7.0%</td>
-                    <td style={{ padding: '10px', color: '#059669', border: '1px solid #e5e7eb', fontSize: '0.85rem' }}>≤5.0%</td>
+                  <tr style={{ background: '#fff' }}>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-01-27</td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>州就业与职位空缺数据（12月2025）</td>
+                    <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>州级数据显示区域衰退（如CRE重镇），可能扩散信用风险</td>
+                    <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>补充全国数据；关注办公LTV&gt;80%的地区</td>
                   </tr>
-                  <tr>
-                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>2026-04-15</td>
-                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb' }}>企业Q1财报季启动</td>
-                    <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.85rem' }}>科技资本支出指引下调&gt;15%</td>
-                    <td style={{ padding: '10px', color: '#059669', border: '1px solid #e5e7eb', fontSize: '0.85rem' }}>消费板块盈利超预期</td>
+                  <tr style={{ background: '#fff' }}>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-01-27/28</td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>FOMC会议</td>
+                    <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>Fed暗示紧缩或无进一步降息，利差扩200bp，触发CRE违约</td>
+                    <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>无经济预测；关注利率决策对科技融资影响</td>
+                  </tr>
+                  <tr style={{ background: '#fef2f2' }}>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-01-28</td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>微软（MSFT）财报（Q2 2026财季）</td>
+                    <td style={{ padding: '10px', color: '#dc2626', fontWeight: '600', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>AI Capex指引下修&gt;10%，或回报率&lt;8%，预示投资疲劳</td>
+                    <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>关注服务器/云预算；若与NVDA叠加，纳斯达克可能下跌10-15%</td>
+                  </tr>
+                  <tr style={{ background: '#fff' }}>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-02-06</td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业情况报告（1月2026）</td>
+                    <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>失业率续升0.1-0.2ppt，确认"信心断崖"</td>
+                    <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>监测青年（16.3%）/黑人（8.3%）细分；单变量衰退概率35%</td>
+                  </tr>
+                  <tr style={{ background: '#fff' }}>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-02-10</td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业成本指数（Q4 2025）</td>
+                    <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>工资增长&lt;3%，信号经济冷却，影响消费者支出</td>
+                    <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>领先指标；叠加CPI可放大科技需求风险</td>
+                  </tr>
+                  <tr style={{ background: '#fef2f2' }}>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-02-25</td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>英伟达（NVDA）财报（Q4 2025）</td>
+                    <td style={{ padding: '10px', color: '#dc2626', fontWeight: '600', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>DOJO/服务器预算下修，增长&lt;折旧率，触发AI叙事反转</td>
+                    <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>关键窗口；若合计MSFT下修&gt;10%，VIX&gt;25，纳斯达克广度崩</td>
+                  </tr>
+                  <tr style={{ background: '#fff' }}>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-03-06</td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业情况报告（2月2026）</td>
+                    <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>累计+0.5ppt/6个月，强化萨姆陷阱</td>
+                    <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>评估前期触发持续性</td>
+                  </tr>
+                  <tr style={{ background: '#fff' }}>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-03-17/18</td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>FOMC会议（带经济预测）</td>
+                    <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>预测下修增长，或利率持稳，CRE压力放大</td>
+                    <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>关注SEP；可能影响高收益利差（当前2.84%）</td>
+                  </tr>
+                  <tr style={{ background: '#fff' }}>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-04-03</td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业情况报告（3月2026）</td>
+                    <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>Q1平均失业&gt;4.8%，确认衰退路径</td>
+                    <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>季度评估点</td>
+                  </tr>
+                  <tr style={{ background: '#fff' }}>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-04-28/29</td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>FOMC会议</td>
+                    <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>无降息，信用债违约率&gt;5%，拖累银行Tier 1资本</td>
+                    <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>监测流动性注入</td>
+                  </tr>
+                  <tr style={{ background: '#fff' }}>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-04-30</td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业成本指数（Q1 2026）</td>
+                    <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>成本上升但盈利滞后，放大投资-盈利剪刀差</td>
+                    <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>AI相关</td>
+                  </tr>
+                  <tr style={{ background: '#fef2f2' }}>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026全年</td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>CRE贷款到期高峰（约9360亿美元）</td>
+                    <td style={{ padding: '10px', color: '#dc2626', fontWeight: '600', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>办公贷款LTV&gt;80%违约扩散，利差&gt;400bp，系统风险溢价+200bp</td>
+                    <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>"慢炖"转为快变量；关注季度末（如Q2/Q4）。2026年高于2025年19%</td>
+                  </tr>
+                  <tr style={{ background: '#fff' }}>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-05-08</td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业情况报告（4月2026）</td>
+                    <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>IT就业续负，AI Capex现实检查加速</td>
+                    <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>科技部门焦点</td>
+                  </tr>
+                  <tr style={{ background: '#fff' }}>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-06-05</td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业情况报告（5月2026）</td>
+                    <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>Q2平均&gt;5%，衰退概率&gt;50%</td>
+                    <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>中期评估</td>
+                  </tr>
+                  <tr style={{ background: '#fff' }}>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-06-16/17</td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>FOMC会议（带经济预测）</td>
+                    <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>预测衰退，纳斯达克杠杆踩踏</td>
+                    <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>SEP更新</td>
+                  </tr>
+                  <tr style={{ background: '#fff' }}>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-07-02</td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业情况报告（6月2026）</td>
+                    <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>折旧曲线显示AI增长&lt;折旧，Q2触发</td>
+                    <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>用户提及Q2</td>
+                  </tr>
+                  <tr style={{ background: '#fff' }}>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-07-28/29</td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>FOMC会议</td>
+                    <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>中性利率调整，影响信用债</td>
+                    <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>夏季会议</td>
+                  </tr>
+                  <tr style={{ background: '#fff' }}>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-07-31</td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业成本指数（Q2 2026）</td>
+                    <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>成本压力上升，盈利剪刀差扩大</td>
+                    <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>AI投资效率</td>
+                  </tr>
+                  <tr style={{ background: '#fff' }}>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-08-07</td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业情况报告（7月2026）</td>
+                    <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>夏季疲软确认，衰退路径锁定</td>
+                    <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>季节调整</td>
+                  </tr>
+                  <tr style={{ background: '#fff' }}>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-09-04</td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业情况报告（8月2026）</td>
+                    <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>Q3起始弱，年度风险峰值</td>
+                    <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>关注信心指数</td>
+                  </tr>
+                  <tr style={{ background: '#fff' }}>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-09-15/16</td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>FOMC会议（带经济预测）</td>
+                    <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>尾部风险（如地缘/关税）上调，溢价上升</td>
+                    <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>SEP焦点</td>
+                  </tr>
+                  <tr style={{ background: '#fff' }}>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-10-02</td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业情况报告（9月2026）</td>
+                    <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>Q3平均&gt;5.5%，系统衰退确认</td>
+                    <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>后期指标</td>
+                  </tr>
+                  <tr style={{ background: '#fff' }}>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-10-27/28</td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>FOMC会议</td>
+                    <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>年末紧缩，CRE"成熟墙"放大</td>
+                    <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>秋季会议</td>
+                  </tr>
+                  <tr style={{ background: '#fff' }}>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-10-30</td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业成本指数（Q3 2026）</td>
+                    <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>成本-盈利分歧，投资回报率&lt;8%</td>
+                    <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>年度回顾</td>
+                  </tr>
+                  <tr style={{ background: '#fff' }}>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-11-06</td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业情况报告（10月2026）</td>
+                    <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>晚期上升，衰退概率&gt;70%</td>
+                    <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>选举后影响</td>
+                  </tr>
+                  <tr style={{ background: '#fff' }}>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-12-04</td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业情况报告（11月2026）</td>
+                    <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>全年趋势确认，2027延续风险</td>
+                    <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>年末总结</td>
+                  </tr>
+                  <tr style={{ background: '#fff' }}>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-12-08/09</td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>FOMC会议（带经济预测）</td>
+                    <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>预测2027衰退，市场提前反应</td>
+                    <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>最终SEP</td>
                   </tr>
                 </tbody>
               </table>
+            </div>
+            <div style={{ 
+              background: '#fef2f2', 
+              padding: '16px', 
+              borderRadius: '8px',
+              border: '1px solid #fecaca',
+              marginTop: '16px'
+            }}>
+              <div style={{ fontWeight: '700', marginBottom: '12px', color: '#dc2626', fontSize: '1rem' }}>
+                ⚠️ 做空策略的额外注意
+              </div>
+              <div style={{ fontSize: '0.9rem', lineHeight: '1.8', color: '#374151' }}>
+                <p style={{ marginBottom: '8px' }}>
+                  <strong>触发概率：</strong>萨姆规则~35%单独，AI~18%，CRE&lt;10%；叠加可达52%。贝叶斯更新基准25%，调整后~38%。
+                </p>
+                <p style={{ marginBottom: '8px' }}>
+                  <strong>参考指标：</strong>高收益违约率（当前2.8%）、消费者信心（89.1，预期&lt;80 11个月）、AI Capex（2026预计5270亿美元）。
+                </p>
+                <p style={{ marginBottom: '8px' }}>
+                  <strong>风险管理：</strong>使用无杠杆ETF如PSQ长期持有风险高；监控VIX和纳斯达克广度。地缘/关税等尾部风险+4%。
+                </p>
+                <p style={{ margin: 0, fontSize: '0.85rem', color: '#6b7280', fontStyle: 'italic' }}>
+                  <strong>免责声明：</strong>做空策略高风险，需咨询财务顾问。反向ETF（PSQ -1x或SQQQ -3x）仅限短期，风险包括复合效应和市场反弹。本表格仅供参考，不构成投资建议。
+                </p>
+              </div>
             </div>
           </div>
 
