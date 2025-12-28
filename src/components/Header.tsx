@@ -38,7 +38,7 @@ export default function Header(): JSX.Element {
       background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       color: '#fff',
       padding: '0',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
       position: 'sticky',
       top: 0,
       zIndex: 1000
@@ -46,7 +46,7 @@ export default function Header(): JSX.Element {
       <div style={{
         maxWidth: '1400px',
         margin: '0 auto',
-        padding: '12px 20px',
+        padding: '8px 20px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -59,28 +59,33 @@ export default function Header(): JSX.Element {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            width: '40px',
-            height: '40px',
+            width: '36px',
+            height: '36px',
             textDecoration: 'none',
             color: 'white',
-            transition: 'all 0.2s',
-            borderRadius: '10px',
-            background: location.pathname === '/' ? 'rgba(255,255,255,0.2)' : 'transparent',
-            backdropFilter: location.pathname === '/' ? 'blur(10px)' : 'none'
+            transition: 'all 0.2s ease',
+            borderRadius: '8px',
+            background: location.pathname === '/' 
+              ? 'rgba(255,255,255,0.15)' 
+              : 'rgba(255,255,255,0.05)',
+            backdropFilter: 'blur(8px)',
+            border: location.pathname === '/' 
+              ? '1px solid rgba(255,255,255,0.2)' 
+              : '1px solid rgba(255,255,255,0.08)'
           }}
           onMouseEnter={(e) => { 
-            if (location.pathname !== '/') {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.1)'
-            }
+            e.currentTarget.style.background = 'rgba(255,255,255,0.12)'
+            e.currentTarget.style.transform = 'scale(1.05)'
           }}
           onMouseLeave={(e) => { 
-            if (location.pathname !== '/') {
-              e.currentTarget.style.background = 'transparent'
-            }
+            e.currentTarget.style.background = location.pathname === '/' 
+              ? 'rgba(255,255,255,0.15)' 
+              : 'rgba(255,255,255,0.05)'
+            e.currentTarget.style.transform = 'scale(1)'
           }}
         >
           <span style={{
-            fontSize: '1.8rem',
+            fontSize: '1.4rem',
             display: 'inline-block'
           }}>
             🏠
@@ -97,11 +102,12 @@ export default function Header(): JSX.Element {
             margin: '0 12px'
           }}>
             <div style={{
-              fontSize: '0.95rem',
+              fontSize: '0.9rem',
               fontWeight: '600',
               color: 'white',
               whiteSpace: 'nowrap',
-              textAlign: 'center'
+              textAlign: 'center',
+              letterSpacing: '0.2px'
             }}>
               {getCurrentPageTitle()}
             </div>
@@ -127,28 +133,34 @@ export default function Header(): JSX.Element {
                 style={{
                   color: active ? '#fff' : 'rgba(255,255,255,0.9)',
                   textDecoration: 'none',
-                  padding: '10px 16px',
-                  borderRadius: '10px',
-                  fontSize: '0.95rem',
+                  padding: '6px 14px',
+                  borderRadius: '8px',
+                  fontSize: '0.9rem',
                   fontWeight: active ? '600' : '500',
-                  background: active ? 'rgba(255,255,255,0.2)' : 'transparent',
-                  backdropFilter: active ? 'blur(10px)' : 'none',
-                  transition: 'all 0.2s',
+                  background: active 
+                    ? 'rgba(255,255,255,0.15)' 
+                    : 'rgba(255,255,255,0.05)',
+                  backdropFilter: 'blur(8px)',
+                  transition: 'all 0.2s ease',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px',
-                  border: active ? '1px solid rgba(255,255,255,0.3)' : '1px solid transparent'
+                  border: active 
+                    ? '1px solid rgba(255,255,255,0.2)' 
+                    : '1px solid rgba(255,255,255,0.08)'
                 }}
                 onMouseEnter={(e) => {
                   if (!active) {
                     e.currentTarget.style.background = 'rgba(255,255,255,0.1)'
-                    e.currentTarget.style.transform = 'translateY(-2px)'
+                    e.currentTarget.style.transform = 'translateY(-1px)'
+                    e.currentTarget.style.border = '1px solid rgba(255,255,255,0.15)'
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!active) {
-                    e.currentTarget.style.background = 'transparent'
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.05)'
                     e.currentTarget.style.transform = 'translateY(0)'
+                    e.currentTarget.style.border = '1px solid rgba(255,255,255,0.08)'
                   }
                 }}
               >
@@ -165,16 +177,33 @@ export default function Header(): JSX.Element {
           style={{
             display: 'flex',
             flexDirection: 'column',
-            gap: '4px',
-            background: 'rgba(255,255,255,0.2)',
-            border: 'none',
+            gap: '3px',
+            background: isMobileMenuOpen 
+              ? 'rgba(255,255,255,0.15)' 
+              : 'rgba(255,255,255,0.08)',
+            border: '1px solid rgba(255,255,255,0.15)',
             borderRadius: '8px',
             padding: '8px',
             cursor: 'pointer',
-            backdropFilter: 'blur(10px)'
+            backdropFilter: 'blur(8px)',
+            transition: 'all 0.2s ease',
+            width: '36px',
+            height: '36px',
+            alignItems: 'center',
+            justifyContent: 'center'
           }}
           className="mobile-menu-btn"
           aria-label="菜单"
+          onMouseEnter={(e) => {
+            if (!isMobileMenuOpen) {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.12)'
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isMobileMenuOpen) {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.08)'
+            }
+          }}
         >
           <span style={{
             width: '24px',
@@ -225,16 +254,21 @@ export default function Header(): JSX.Element {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '12px',
+                gap: '10px',
                 color: active ? '#fff' : 'rgba(255,255,255,0.9)',
                 textDecoration: 'none',
-                padding: '14px 16px',
-                borderRadius: '10px',
-                fontSize: '1rem',
+                padding: '10px 14px',
+                borderRadius: '8px',
+                fontSize: '0.95rem',
                 fontWeight: active ? '600' : '500',
-                background: active ? 'rgba(255,255,255,0.2)' : 'transparent',
+                background: active 
+                  ? 'rgba(255,255,255,0.15)' 
+                  : 'rgba(255,255,255,0.05)',
                 marginBottom: '8px',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s ease',
+                border: active 
+                  ? '1px solid rgba(255,255,255,0.2)' 
+                  : '1px solid rgba(255,255,255,0.08)'
               }}
               onMouseEnter={(e) => {
                 if (!active) {
