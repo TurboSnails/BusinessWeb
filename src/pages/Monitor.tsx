@@ -2502,6 +2502,180 @@ export default function Monitor(): JSX.Element {
 
       {activeSubTab === 'us-monitor' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          {/* 非农数据发布规则说明 - 放在最前面 */}
+          <div style={{ 
+            background: '#f0fdf4', 
+            border: '2px solid #86efac', 
+            borderRadius: '12px', 
+            padding: '20px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+          }}>
+            <h3 style={{ 
+              fontSize: '1.3rem', 
+              fontWeight: '700', 
+              marginBottom: '12px', 
+              color: '#166534',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <span style={{ fontSize: '1.8rem' }}>📊</span>
+              非农数据发布规则
+            </h3>
+            <div style={{ color: '#374151', lineHeight: '1.8', fontSize: '0.9rem' }}>
+              <p style={{ margin: '0 0 12px 0' }}>
+                <strong style={{ color: '#059669' }}>发布时间：</strong>每月第一个周五，北京时间<strong>21:30</strong>（冬令时，11月-3月）或<strong>20:30</strong>（夏令时，4月-10月）。
+              </p>
+              
+              {/* 2026年全年发布时间表 */}
+              <div style={{ 
+                background: 'white', 
+                border: '1px solid #86efac', 
+                borderRadius: '8px', 
+                padding: '16px',
+                marginBottom: '16px'
+              }}>
+                <h4 style={{ 
+                  fontSize: '1rem', 
+                  fontWeight: '700', 
+                  marginBottom: '12px', 
+                  color: '#059669'
+                }}>
+                  2026年全年发布时间表
+                </h4>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                    <thead>
+                      <tr style={{ background: '#d1fae5', borderBottom: '2px solid #10b981' }}>
+                        <th style={{ padding: '8px', textAlign: 'left', fontWeight: '700', color: '#059669', border: '1px solid #86efac' }}>序号</th>
+                        <th style={{ padding: '8px', textAlign: 'left', fontWeight: '700', color: '#059669', border: '1px solid #86efac' }}>数据月份</th>
+                        <th style={{ padding: '8px', textAlign: 'left', fontWeight: '700', color: '#059669', border: '1px solid #86efac' }}>发布日期</th>
+                        <th style={{ padding: '8px', textAlign: 'center', fontWeight: '700', color: '#059669', border: '1px solid #86efac' }}>北京时间</th>
+                        <th style={{ padding: '8px', textAlign: 'center', fontWeight: '700', color: '#059669', border: '1px solid #86efac' }}>时令</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr style={{ background: '#fef2f2', borderTop: '2px solid #fecaca' }}>
+                        <td style={{ padding: '8px', fontWeight: '600', border: '1px solid #e5e7eb' }}>0</td>
+                        <td style={{ padding: '8px', fontWeight: '600', border: '1px solid #e5e7eb' }}>2025年12月</td>
+                        <td style={{ padding: '8px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>2026年1月9日（周五）</td>
+                        <td style={{ padding: '8px', textAlign: 'center', fontWeight: '600', color: '#dc2626', border: '1px solid #e5e7eb' }}>21:30</td>
+                        <td style={{ padding: '8px', textAlign: 'center', border: '1px solid #e5e7eb' }}>冬令时</td>
+                      </tr>
+                      <tr style={{ background: '#fff' }}>
+                        <td style={{ padding: '8px', fontWeight: '600', border: '1px solid #e5e7eb' }}>1</td>
+                        <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>2026年1月</td>
+                        <td style={{ padding: '8px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>2026年2月6日（周五）</td>
+                        <td style={{ padding: '8px', textAlign: 'center', fontWeight: '600', color: '#dc2626', border: '1px solid #e5e7eb' }}>21:30</td>
+                        <td style={{ padding: '8px', textAlign: 'center', border: '1px solid #e5e7eb' }}>冬令时</td>
+                      </tr>
+                      <tr style={{ background: '#fff' }}>
+                        <td style={{ padding: '8px', fontWeight: '600', border: '1px solid #e5e7eb' }}>2</td>
+                        <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>2026年2月</td>
+                        <td style={{ padding: '8px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>2026年3月6日（周五）</td>
+                        <td style={{ padding: '8px', textAlign: 'center', fontWeight: '600', color: '#dc2626', border: '1px solid #e5e7eb' }}>21:30</td>
+                        <td style={{ padding: '8px', textAlign: 'center', border: '1px solid #e5e7eb' }}>冬令时</td>
+                      </tr>
+                      <tr style={{ background: '#f9fafb' }}>
+                        <td style={{ padding: '8px', fontWeight: '600', border: '1px solid #e5e7eb' }}>3</td>
+                        <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>2026年3月</td>
+                        <td style={{ padding: '8px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>2026年4月3日（周五）</td>
+                        <td style={{ padding: '8px', textAlign: 'center', fontWeight: '600', color: '#2563eb', border: '1px solid #e5e7eb' }}>20:30</td>
+                        <td style={{ padding: '8px', textAlign: 'center', border: '1px solid #e5e7eb' }}>夏令时</td>
+                      </tr>
+                      <tr style={{ background: '#f9fafb' }}>
+                        <td style={{ padding: '8px', fontWeight: '600', border: '1px solid #e5e7eb' }}>4</td>
+                        <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>2026年4月</td>
+                        <td style={{ padding: '8px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>2026年5月1日（周五）</td>
+                        <td style={{ padding: '8px', textAlign: 'center', fontWeight: '600', color: '#2563eb', border: '1px solid #e5e7eb' }}>20:30</td>
+                        <td style={{ padding: '8px', textAlign: 'center', border: '1px solid #e5e7eb' }}>夏令时</td>
+                      </tr>
+                      <tr style={{ background: '#fff' }}>
+                        <td style={{ padding: '8px', fontWeight: '600', border: '1px solid #e5e7eb' }}>5</td>
+                        <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>2026年5月</td>
+                        <td style={{ padding: '8px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>2026年6月5日（周五）</td>
+                        <td style={{ padding: '8px', textAlign: 'center', fontWeight: '600', color: '#2563eb', border: '1px solid #e5e7eb' }}>20:30</td>
+                        <td style={{ padding: '8px', textAlign: 'center', border: '1px solid #e5e7eb' }}>夏令时</td>
+                      </tr>
+                      <tr style={{ background: '#f9fafb' }}>
+                        <td style={{ padding: '8px', fontWeight: '600', border: '1px solid #e5e7eb' }}>6</td>
+                        <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>2026年6月</td>
+                        <td style={{ padding: '8px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>2026年7月3日（周五）</td>
+                        <td style={{ padding: '8px', textAlign: 'center', fontWeight: '600', color: '#2563eb', border: '1px solid #e5e7eb' }}>20:30</td>
+                        <td style={{ padding: '8px', textAlign: 'center', border: '1px solid #e5e7eb' }}>夏令时</td>
+                      </tr>
+                      <tr style={{ background: '#fff' }}>
+                        <td style={{ padding: '8px', fontWeight: '600', border: '1px solid #e5e7eb' }}>7</td>
+                        <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>2026年7月</td>
+                        <td style={{ padding: '8px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>2026年8月7日（周五）</td>
+                        <td style={{ padding: '8px', textAlign: 'center', fontWeight: '600', color: '#2563eb', border: '1px solid #e5e7eb' }}>20:30</td>
+                        <td style={{ padding: '8px', textAlign: 'center', border: '1px solid #e5e7eb' }}>夏令时</td>
+                      </tr>
+                      <tr style={{ background: '#f9fafb' }}>
+                        <td style={{ padding: '8px', fontWeight: '600', border: '1px solid #e5e7eb' }}>8</td>
+                        <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>2026年8月</td>
+                        <td style={{ padding: '8px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>2026年9月4日（周五）</td>
+                        <td style={{ padding: '8px', textAlign: 'center', fontWeight: '600', color: '#2563eb', border: '1px solid #e5e7eb' }}>20:30</td>
+                        <td style={{ padding: '8px', textAlign: 'center', border: '1px solid #e5e7eb' }}>夏令时</td>
+                      </tr>
+                      <tr style={{ background: '#fff' }}>
+                        <td style={{ padding: '8px', fontWeight: '600', border: '1px solid #e5e7eb' }}>9</td>
+                        <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>2026年9月</td>
+                        <td style={{ padding: '8px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>2026年10月2日（周五）</td>
+                        <td style={{ padding: '8px', textAlign: 'center', fontWeight: '600', color: '#2563eb', border: '1px solid #e5e7eb' }}>20:30</td>
+                        <td style={{ padding: '8px', textAlign: 'center', border: '1px solid #e5e7eb' }}>夏令时</td>
+                      </tr>
+                      <tr style={{ background: '#f9fafb' }}>
+                        <td style={{ padding: '8px', fontWeight: '600', border: '1px solid #e5e7eb' }}>10</td>
+                        <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>2026年10月</td>
+                        <td style={{ padding: '8px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>2026年11月6日（周五）</td>
+                        <td style={{ padding: '8px', textAlign: 'center', fontWeight: '600', color: '#dc2626', border: '1px solid #e5e7eb' }}>21:30</td>
+                        <td style={{ padding: '8px', textAlign: 'center', border: '1px solid #e5e7eb' }}>冬令时</td>
+                      </tr>
+                      <tr style={{ background: '#fff' }}>
+                        <td style={{ padding: '8px', fontWeight: '600', border: '1px solid #e5e7eb' }}>11</td>
+                        <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>2026年11月</td>
+                        <td style={{ padding: '8px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>2026年12月4日（周五）</td>
+                        <td style={{ padding: '8px', textAlign: 'center', fontWeight: '600', color: '#dc2626', border: '1px solid #e5e7eb' }}>21:30</td>
+                        <td style={{ padding: '8px', textAlign: 'center', border: '1px solid #e5e7eb' }}>冬令时</td>
+                      </tr>
+                      <tr style={{ background: '#fef2f2', borderTop: '2px solid #fecaca' }}>
+                        <td style={{ padding: '8px', fontWeight: '600', border: '1px solid #e5e7eb' }}>12</td>
+                        <td style={{ padding: '8px', fontWeight: '600', border: '1px solid #e5e7eb' }}>2026年12月</td>
+                        <td style={{ padding: '8px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>2027年1月8日（周五）</td>
+                        <td style={{ padding: '8px', textAlign: 'center', fontWeight: '600', color: '#dc2626', border: '1px solid #e5e7eb' }}>21:30</td>
+                        <td style={{ padding: '8px', textAlign: 'center', border: '1px solid #e5e7eb' }}>冬令时</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p style={{ margin: '12px 0 0 0', fontSize: '0.8rem', color: '#6b7280', fontStyle: 'italic' }}>
+                  <strong>说明：</strong>1月数据（2月6日发布）往往有"年度基准修正"，历史数据可能被大幅调整，市场波动更剧烈。
+                </p>
+              </div>
+
+              <p style={{ margin: '0 0 12px 0' }}>
+                <strong style={{ color: '#059669' }}>判断标准：</strong>关键看"实际值 vs 预期值"：
+              </p>
+              <ul style={{ margin: '4px 0 12px 24px', padding: 0, lineHeight: '2' }}>
+                <li><strong>新增就业</strong>：实际&gt;预期 → 利好美元/利空黄金；实际&lt;预期 → 利空美元/利好黄金</li>
+                <li><strong>失业率</strong>：上升 → 利空美元/利好黄金；下降 → 利好美元/利空黄金</li>
+                <li><strong>平均时薪</strong>：增长快 → 利好美元（通胀担忧）；增长慢 → 利空美元</li>
+              </ul>
+              <div style={{ 
+                background: '#fffbeb', 
+                border: '1px solid #fcd34d', 
+                borderRadius: '6px', 
+                padding: '10px',
+                marginTop: '12px'
+              }}>
+                <p style={{ margin: 0, fontSize: '0.85rem', color: '#92400e', fontStyle: 'italic' }}>
+                  <strong>⚠️ 注意：</strong>避开数据发布后前5-15分钟，程序化交易会导致反复横跳。
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* 三色预警仪表盘 */}
           <div style={{ 
             background: 'white', 
@@ -3091,10 +3265,16 @@ export default function Monitor(): JSX.Element {
                     <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>领先失业率指标；若与消费者信心&lt;80叠加，可推动纳斯达克广度&lt;30%</td>
                   </tr>
                   <tr style={{ background: '#fef2f2' }}>
-                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-01-09</td>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-01-09<br/><span style={{ fontSize: '0.7rem', color: '#6b7280' }}>21:30</span></td>
                     <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业情况报告（2025年12月）</td>
                     <td style={{ padding: '10px', color: '#dc2626', fontWeight: '600', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>失业率≥4.7%或过去6个月+0.6ppt，萨姆规则正式触发</td>
                     <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>关键观察窗口；若触发，衰退概率升至70%，先影响科技就业（IT部门已负）</td>
+                  </tr>
+                  <tr style={{ background: '#fef2f2' }}>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-02-07<br/><span style={{ fontSize: '0.7rem', color: '#6b7280' }}>21:30</span></td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业情况报告（2026年1月）</td>
+                    <td style={{ padding: '10px', color: '#dc2626', fontWeight: '600', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>失业率≥4.7%或过去6个月+0.6ppt，萨姆规则正式触发</td>
+                    <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>关键观察窗口；若触发，衰退概率升至70%，先影响科技就业（IT部门已负）。注意：1月数据有年度基准修正，波动更剧烈</td>
                   </tr>
                   <tr style={{ background: '#fff' }}>
                     <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-01-27</td>
@@ -3115,8 +3295,8 @@ export default function Monitor(): JSX.Element {
                     <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>关注服务器/云预算；若与NVDA叠加，纳斯达克可能下跌10-15%</td>
                   </tr>
                   <tr style={{ background: '#fff' }}>
-                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-02-06</td>
-                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业情况报告（1月2026）</td>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-03-06<br/><span style={{ fontSize: '0.7rem', color: '#6b7280' }}>21:30</span></td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业情况报告（2月2026）</td>
                     <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>失业率续升0.1-0.2ppt，确认"信心断崖"</td>
                     <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>监测青年（16.3%）/黑人（8.3%）细分；单变量衰退概率35%</td>
                   </tr>
@@ -3133,8 +3313,8 @@ export default function Monitor(): JSX.Element {
                     <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>关键窗口；若合计MSFT下修&gt;10%，VIX&gt;25，纳斯达克广度崩</td>
                   </tr>
                   <tr style={{ background: '#fff' }}>
-                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-03-06</td>
-                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业情况报告（2月2026）</td>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-04-03<br/><span style={{ fontSize: '0.7rem', color: '#6b7280' }}>20:30</span></td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业情况报告（3月2026）</td>
                     <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>累计+0.5ppt/6个月，强化萨姆陷阱</td>
                     <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>评估前期触发持续性</td>
                   </tr>
@@ -3145,8 +3325,8 @@ export default function Monitor(): JSX.Element {
                     <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>关注SEP；可能影响高收益利差（当前2.84%）</td>
                   </tr>
                   <tr style={{ background: '#fff' }}>
-                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-04-03</td>
-                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业情况报告（3月2026）</td>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-05-08<br/><span style={{ fontSize: '0.7rem', color: '#6b7280' }}>20:30</span></td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业情况报告（4月2026）</td>
                     <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>Q1平均失业&gt;4.8%，确认衰退路径</td>
                     <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>季度评估点</td>
                   </tr>
@@ -3169,14 +3349,14 @@ export default function Monitor(): JSX.Element {
                     <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>"慢炖"转为快变量；关注季度末（如Q2/Q4）。2026年高于2025年19%</td>
                   </tr>
                   <tr style={{ background: '#fff' }}>
-                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-05-08</td>
-                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业情况报告（4月2026）</td>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-06-05<br/><span style={{ fontSize: '0.7rem', color: '#6b7280' }}>20:30</span></td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业情况报告（5月2026）</td>
                     <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>IT就业续负，AI Capex现实检查加速</td>
                     <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>科技部门焦点</td>
                   </tr>
                   <tr style={{ background: '#fff' }}>
-                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-06-05</td>
-                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业情况报告（5月2026）</td>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-07-02<br/><span style={{ fontSize: '0.7rem', color: '#6b7280' }}>20:30</span></td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业情况报告（6月2026）</td>
                     <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>Q2平均&gt;5%，衰退概率&gt;50%</td>
                     <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>中期评估</td>
                   </tr>
@@ -3187,8 +3367,8 @@ export default function Monitor(): JSX.Element {
                     <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>SEP更新</td>
                   </tr>
                   <tr style={{ background: '#fff' }}>
-                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-07-02</td>
-                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业情况报告（6月2026）</td>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-08-07<br/><span style={{ fontSize: '0.7rem', color: '#6b7280' }}>20:30</span></td>
+                    <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业情况报告（7月2026）</td>
                     <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>折旧曲线显示AI增长&lt;折旧，Q2触发</td>
                     <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>用户提及Q2</td>
                   </tr>
@@ -3205,13 +3385,13 @@ export default function Monitor(): JSX.Element {
                     <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>AI投资效率</td>
                   </tr>
                   <tr style={{ background: '#fff' }}>
-                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-08-07</td>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-08-07<br/><span style={{ fontSize: '0.7rem', color: '#6b7280' }}>20:30</span></td>
                     <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业情况报告（7月2026）</td>
                     <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>夏季疲软确认，衰退路径锁定</td>
                     <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>季节调整</td>
                   </tr>
                   <tr style={{ background: '#fff' }}>
-                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-09-04</td>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-09-04<br/><span style={{ fontSize: '0.7rem', color: '#6b7280' }}>20:30</span></td>
                     <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业情况报告（8月2026）</td>
                     <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>Q3起始弱，年度风险峰值</td>
                     <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>关注信心指数</td>
@@ -3223,7 +3403,7 @@ export default function Monitor(): JSX.Element {
                     <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>SEP焦点</td>
                   </tr>
                   <tr style={{ background: '#fff' }}>
-                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-10-02</td>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-10-02<br/><span style={{ fontSize: '0.7rem', color: '#6b7280' }}>20:30</span></td>
                     <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业情况报告（9月2026）</td>
                     <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>Q3平均&gt;5.5%，系统衰退确认</td>
                     <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>后期指标</td>
@@ -3241,13 +3421,13 @@ export default function Monitor(): JSX.Element {
                     <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>年度回顾</td>
                   </tr>
                   <tr style={{ background: '#fff' }}>
-                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-11-06</td>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-11-06<br/><span style={{ fontSize: '0.7rem', color: '#6b7280' }}>20:30</span></td>
                     <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业情况报告（10月2026）</td>
                     <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>晚期上升，衰退概率&gt;70%</td>
                     <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>选举后影响</td>
                   </tr>
                   <tr style={{ background: '#fff' }}>
-                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-12-04</td>
+                    <td style={{ padding: '10px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>2026-12-04<br/><span style={{ fontSize: '0.7rem', color: '#6b7280' }}>20:30</span></td>
                     <td style={{ padding: '10px', color: '#374151', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>就业情况报告（11月2026）</td>
                     <td style={{ padding: '10px', color: '#dc2626', border: '1px solid #e5e7eb', fontSize: '0.8rem' }}>全年趋势确认，2027延续风险</td>
                     <td style={{ padding: '10px', color: '#6b7280', border: '1px solid #e5e7eb', fontSize: '0.75rem' }}>年末总结</td>
