@@ -6,10 +6,7 @@ declare const __VERSION__: string
 export default function Footer(): JSX.Element {
   return (
     <footer className="footer">
-      © 2025 Study01 
-      <span style={{ marginLeft: '12px', fontSize: '0.75rem', color: '#9ca3af' }}>
-        v{__VERSION__} · {__BUILD_TIME__}
-      </span>
+      © Hassan投资 v1.0.0
     </footer>
   )
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { fetchMarketDataByType, fetchSectorCategories, fetchUSSectorCategories } from '../services/api'
-import type { DailyReview, MarketCategory, SectorCategory, NewsSource } from '../types'
+import type { DailyReview, MarketCategory, SectorCategory, NewsSource, StockQuote } from '../types'
 import { loadReviews, saveReviews, loadNewsSources, saveNewsSources, getGistToken, getGistId, saveGistConfig } from '../utils/storage'
 import { syncToGist, syncFromGist } from '../utils/gist'
 import { getWeekday, getToday } from '../utils/date'
@@ -66,22 +66,32 @@ export default function Pulse(): JSX.Element {
         { key: 'forex', title: '外汇债券', icon: '💱', color: '#8b5cf6', bgColor: '#faf5ff' },
       ]
       
-      const [results, cnSectors, usSectors] = await Promise.all([
-        Promise.all(
-          categoryConfig.map(async (cat) => {
-            const data = await fetchMarketDataByType(cat.key as any)
-            return { ...cat, data }
-          })
-        ),
-        fetchSectorCategories(),  // 获取中国板块数据
-        fetchUSSectorCategories()  // 获取美股板块数据
-      ])
-      
-      if (mounted) {
-        setCategories(results)
-        setSectorCategories([...cnSectors, ...usSectors])  // 合并中国和美股板块
-        setTimestamp(new Date().toLocaleString('zh-CN'))
-        setLoading(false)
+      try {
+        const [results, cnSectors, usSectors] = await Promise.all([
+          Promise.all(
+            categoryConfig.map(async (cat) => {
+              const data = await fetchMarketDataByType(cat.key as any)
+              console.log(`获取 ${cat.title} 数据:`, data.length, '条')
+              return { ...cat, data }
+            })
+          ),
+          fetchSectorCategories(),  // 获取中国板块数据
+          fetchUSSectorCategories()  // 获取美股板块数据
+        ])
+        
+        if (mounted) {
+          console.log('所有分类数据:', results)
+          console.log('筛选条件:', Array.from(filterCategories))
+          setCategories(results)
+          setSectorCategories([...cnSectors, ...usSectors])  // 合并中国和美股板块
+          setTimestamp(new Date().toLocaleString('zh-CN'))
+          setLoading(false)
+        }
+      } catch (error) {
+        console.error('获取数据失败:', error)
+        if (mounted) {
+          setLoading(false)
+        }
       }
     }
     fetchAllData()
@@ -606,9 +616,24 @@ export default function Pulse(): JSX.Element {
       />
 
       {/* 数据分类 */}
-      {categories.map(category => (
-        <MarketCategoryComponent key={category.key} category={category} />
-      ))}
+      {loading ? (
+        <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>
+          ⏳ 数据加载中...
+        </div>
+      ) : categories.length === 0 ? (
+        <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>
+          ⚠️ 暂无数据，请检查网络连接或刷新页面
+        </div>
+      ) : (
+        categories
+          .filter(category => filterCategories.has(category.key))
+          .map(category => {
+            console.log('渲染分类:', category.key, category.title, '数据条数:', category.data.length)
+            return (
+              <MarketCategoryComponent key={category.key} category={category} />
+            )
+          })
+      )}
 
       {/* 板块数据 */}
       {sectorCategories.length > 0 && (

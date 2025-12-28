@@ -285,7 +285,7 @@ export default function Monitor(): JSX.Element {
   const [data, setData] = useState<InvestmentFramework[]>([])
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editContent, setEditContent] = useState('')
-  const [activeSubTab, setActiveSubTab] = useState<'overview' | 'assumptions' | 'indicators' | 'stages' | 'execution'>('execution')
+  const [activeSubTab, setActiveSubTab] = useState<'overview' | 'assumptions' | 'indicators' | 'temperature' | 'china-temperature' | 'stages' | 'execution'>('execution')
   
   // 市场情绪分析器状态
   const [equityPC, setEquityPC] = useState<string>('')
@@ -573,14 +573,24 @@ export default function Monitor(): JSX.Element {
         </p>
       </div>
 
-      {/* 子Tab导航 - 与主tab分类一致 */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
-        {/* 计划执行 */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <div style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: '600', paddingLeft: '4px' }}>
-            📅 计划执行
-          </div>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+      {/* 子Tab导航 - 参考 InvestmentPlan2026 的样式 */}
+      <div style={{ background: 'white', borderLeft: '1px solid #e5e7eb', borderRight: '1px solid #e5e7eb' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #e5e7eb' }}>
+          {/* 计划执行类 */}
+          <div style={{ display: 'flex', borderBottom: '1px solid #f3f4f6', flexWrap: 'wrap' }}>
+            <div style={{ 
+              padding: '8px 12px', 
+              fontSize: '0.75rem', 
+              color: '#6b7280', 
+              fontWeight: '600',
+              background: '#f9fafb',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              minWidth: '80px'
+            }}>
+              📅 计划执行
+            </div>
             {(['stages', 'execution'] as const).map((subTab) => {
               const subLabels: Record<typeof subTab, string> = {
                 stages: '阶段划分',
@@ -592,24 +602,25 @@ export default function Monitor(): JSX.Element {
                   key={subTab}
                   onClick={() => setActiveSubTab(subTab)}
                   style={{
-                    padding: '8px 16px',
+                    flex: 1,
+                    padding: '12px 16px',
                     fontWeight: '500',
-                    background: isActive ? '#3b82f6' : 'white',
-                    color: isActive ? 'white' : '#4b5563',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '6px',
+                    background: isActive ? '#eff6ff' : 'transparent',
+                    color: isActive ? '#2563eb' : '#4b5563',
+                    border: 'none',
+                    borderBottom: isActive ? '2px solid #2563eb' : '2px solid transparent',
                     cursor: 'pointer',
                     transition: 'all 0.2s',
-                    fontSize: '0.85rem'
+                    fontSize: '0.9rem'
                   }}
                   onMouseEnter={(e) => {
                     if (!isActive) {
-                      e.currentTarget.style.background = '#f3f4f6'
+                      e.currentTarget.style.background = '#f9fafb'
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (!isActive) {
-                      e.currentTarget.style.background = 'white'
+                      e.currentTarget.style.background = 'transparent'
                     }
                   }}
                 >
@@ -618,14 +629,22 @@ export default function Monitor(): JSX.Element {
               )
             })}
           </div>
-        </div>
 
-        {/* 决策策略 */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <div style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: '600', paddingLeft: '4px' }}>
-            ⚖️ 决策策略
-          </div>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          {/* 决策策略类 */}
+          <div style={{ display: 'flex', borderBottom: '1px solid #f3f4f6', flexWrap: 'wrap' }}>
+            <div style={{ 
+              padding: '8px 12px', 
+              fontSize: '0.75rem', 
+              color: '#6b7280', 
+              fontWeight: '600',
+              background: '#f9fafb',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              minWidth: '80px'
+            }}>
+              ⚖️ 决策策略
+            </div>
             {(['overview', 'assumptions'] as const).map((subTab) => {
               const subLabels: Record<typeof subTab, string> = {
                 overview: '投资总纲',
@@ -637,24 +656,25 @@ export default function Monitor(): JSX.Element {
                   key={subTab}
                   onClick={() => setActiveSubTab(subTab)}
                   style={{
-                    padding: '8px 16px',
+                    flex: 1,
+                    padding: '12px 16px',
                     fontWeight: '500',
-                    background: isActive ? '#8b5cf6' : 'white',
-                    color: isActive ? 'white' : '#4b5563',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '6px',
+                    background: isActive ? '#eff6ff' : 'transparent',
+                    color: isActive ? '#2563eb' : '#4b5563',
+                    border: 'none',
+                    borderBottom: isActive ? '2px solid #2563eb' : '2px solid transparent',
                     cursor: 'pointer',
                     transition: 'all 0.2s',
-                    fontSize: '0.85rem'
+                    fontSize: '0.9rem'
                   }}
                   onMouseEnter={(e) => {
                     if (!isActive) {
-                      e.currentTarget.style.background = '#f3f4f6'
+                      e.currentTarget.style.background = '#f9fafb'
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (!isActive) {
-                      e.currentTarget.style.background = 'white'
+                      e.currentTarget.style.background = 'transparent'
                     }
                   }}
                 >
@@ -663,17 +683,27 @@ export default function Monitor(): JSX.Element {
               )
             })}
           </div>
-        </div>
 
-        {/* 监控分析 */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <div style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: '600', paddingLeft: '4px' }}>
-            📊 监控分析
-          </div>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            {(['indicators'] as const).map((subTab) => {
+          {/* 监控分析类 */}
+          <div style={{ display: 'flex', borderBottom: '1px solid #f3f4f6', flexWrap: 'wrap' }}>
+            <div style={{ 
+              padding: '8px 12px', 
+              fontSize: '0.75rem', 
+              color: '#6b7280', 
+              fontWeight: '600',
+              background: '#f9fafb',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              minWidth: '80px'
+            }}>
+              📊 监控分析
+            </div>
+            {(['indicators', 'temperature', 'china-temperature'] as const).map((subTab) => {
               const subLabels: Record<typeof subTab, string> = {
-                indicators: '指标体系'
+                indicators: '指标体系',
+                temperature: '美经温度',
+                'china-temperature': '中经温度'
               }
               const isActive = activeSubTab === subTab
               return (
@@ -681,24 +711,25 @@ export default function Monitor(): JSX.Element {
                   key={subTab}
                   onClick={() => setActiveSubTab(subTab)}
                   style={{
-                    padding: '8px 16px',
+                    flex: 1,
+                    padding: '12px 16px',
                     fontWeight: '500',
-                    background: isActive ? '#10b981' : 'white',
-                    color: isActive ? 'white' : '#4b5563',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '6px',
+                    background: isActive ? '#eff6ff' : 'transparent',
+                    color: isActive ? '#2563eb' : '#4b5563',
+                    border: 'none',
+                    borderBottom: isActive ? '2px solid #2563eb' : '2px solid transparent',
                     cursor: 'pointer',
                     transition: 'all 0.2s',
-                    fontSize: '0.85rem'
+                    fontSize: '0.9rem'
                   }}
                   onMouseEnter={(e) => {
                     if (!isActive) {
-                      e.currentTarget.style.background = '#f3f4f6'
+                      e.currentTarget.style.background = '#f9fafb'
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (!isActive) {
-                      e.currentTarget.style.background = 'white'
+                      e.currentTarget.style.background = 'transparent'
                     }
                   }}
                 >
@@ -710,8 +741,8 @@ export default function Monitor(): JSX.Element {
         </div>
       </div>
 
-
       {/* 子Tab内容 */}
+      <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '0 0 12px 12px', padding: '24px' }}>
       {activeSubTab === 'overview' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {/* 投资总纲 */}
@@ -1004,6 +1035,574 @@ export default function Monitor(): JSX.Element {
           </div>
         </div>
       )}
+      {activeSubTab === 'temperature' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          {/* 周期温度总表 */}
+          <div style={{ background: 'white', border: '2px solid #10b981', borderRadius: '12px', padding: '24px' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#059669', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '2rem' }}>🌡️</span>
+              周期温度总表（含当前评分）
+            </h2>
+            
+            <div style={{ 
+              background: '#f0fdf4', 
+              border: '1px solid #86efac', 
+              borderRadius: '8px', 
+              padding: '16px',
+              marginBottom: '20px'
+            }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '8px', color: '#166534' }}>
+                评分规则统一
+              </h3>
+              <div style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.8' }}>
+                <div><strong>-2</strong>：非常差 / 高风险</div>
+                <div><strong>-1</strong>：偏差</div>
+                <div><strong>0</strong>：中性</div>
+                <div><strong>+1</strong>：偏好</div>
+                <div><strong>+2</strong>：非常好</div>
+              </div>
+            </div>
+
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                <thead>
+                  <tr style={{ background: '#d1fae5', borderBottom: '2px solid #10b981' }}>
+                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#059669', border: '1px solid #86efac' }}>模块</th>
+                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#059669', border: '1px solid #86efac' }}>指标</th>
+                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#059669', border: '1px solid #86efac' }}>时间点</th>
+                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#059669', border: '1px solid #86efac' }}>当前大致数据/状态</th>
+                    <th style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#059669', border: '1px solid #86efac' }}>单项分数</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* 宏观增长 */}
+                  <tr style={{ background: '#f9fafb' }}>
+                    <td rowSpan={4} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', verticalAlign: 'top' }}>宏观增长</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>实质 GDP 增速（同比）</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025 Q3</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>约 2.3% 同比，温和扩张，高于衰退边缘 0–1%。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#059669', border: '1px solid #e5e7eb' }}>+1</td>
+                  </tr>
+                  <tr style={{ background: '#f9fafb' }}>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>失业率相对低点变化</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025-11</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>失业率约 4.6%，较疫情后低点抬升约 1 个百分点，明显降温。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#dc2626', border: '1px solid #e5e7eb' }}>-1</td>
+                  </tr>
+                  <tr style={{ background: '#f9fafb' }}>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>ISM 制造业（+服务）</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025-11</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>制造业约 48.2（连月&lt;50，收缩），服务在 50 上方，结构性偏弱。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#dc2626', border: '1px solid #e5e7eb' }}>-1</td>
+                  </tr>
+                  <tr style={{ background: '#fee2e2', borderTop: '2px solid #dc2626' }}>
+                    <td colSpan={3} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>宏观小计</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>温和放缓，尚未到衰退。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#dc2626', border: '1px solid #e5e7eb' }}>-1</td>
+                  </tr>
+
+                  {/* 通胀&政策 */}
+                  <tr>
+                    <td rowSpan={3} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', verticalAlign: 'top' }}>通胀&政策</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>核心 PCE（同比）</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025（预估区间）</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>约 2.5–3%，明显低于高通胀期，但略高于 2% 目标，通胀基本受控未完全"安全"。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#6b7280', border: '1px solid #e5e7eb' }}>0</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>实际利率（联邦基金-核心PCE）</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025 Q4</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>名义利率约 4.75–5%，实际利率约 +1.5%，偏紧但不极端。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#6b7280', border: '1px solid #e5e7eb' }}>0</td>
+                  </tr>
+                  <tr style={{ background: '#f3f4f6', borderTop: '2px solid #6b7280' }}>
+                    <td colSpan={3} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>通胀小计</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>通胀回落 + 实际利率为正，偏紧环境。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#6b7280', border: '1px solid #e5e7eb' }}>0</td>
+                  </tr>
+
+                  {/* 金融风险 */}
+                  <tr style={{ background: '#f9fafb' }}>
+                    <td rowSpan={4} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', verticalAlign: 'top' }}>金融风险</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>收益率曲线 10Y–2Y 利差</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025-12</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>接近 0%，从深度倒挂向趋平过渡，处在敏感阶段。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#dc2626', border: '1px solid #e5e7eb' }}>-1</td>
+                  </tr>
+                  <tr style={{ background: '#f9fafb' }}>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>银行整体 NPL 比率</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025-09</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>不良贷款约 1.5%，远低于 2008 高位 &gt;7%，系统性风险低。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#059669', border: '1px solid #e5e7eb' }}>+1</td>
+                  </tr>
+                  <tr style={{ background: '#f9fafb' }}>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>商业地产/消费坏账</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025 Q3 / 2025-11</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>CRE 逾期约 5.7–6.3%，明显高于疫情前；信用卡、汽车贷拖欠上升。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#dc2626', border: '1px solid #e5e7eb' }}>-1</td>
+                  </tr>
+                  <tr style={{ background: '#fee2e2', borderTop: '2px solid #dc2626' }}>
+                    <td colSpan={3} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>金融小计</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>系统稳健、局部（CRE & 弱信用消费）压力较大。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#dc2626', border: '1px solid #e5e7eb' }}>-1</td>
+                  </tr>
+
+                  {/* 盈利&估值 */}
+                  <tr>
+                    <td rowSpan={4} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', verticalAlign: 'top' }}>盈利&估值</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>S&P 500 EPS 增速</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025 Q3</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>一致预期 2025 EPS 同比约 +10–12%，由 AI/科技权重股强力驱动。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#059669', border: '1px solid #e5e7eb' }}>+2</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>TTM / 前瞻 P/E 分位</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025-12</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>TTM 约 28–30 倍，前瞻 22–23 倍，明显高于 10–30 年历史中值，高位估值。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#dc2626', border: '1px solid #e5e7eb' }}>-1</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>CAPE（席勒市盈率）</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025-12</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>约 35–40，接近历史高位区间，长期回报隐含偏低。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#dc2626', border: '1px solid #e5e7eb' }}>-1</td>
+                  </tr>
+                  <tr style={{ background: '#f3f4f6', borderTop: '2px solid #6b7280' }}>
+                    <td colSpan={3} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>盈利小计</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>盈利强但估值明显偏贵，整体互相抵消。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#6b7280', border: '1px solid #e5e7eb' }}>0</td>
+                  </tr>
+
+                  {/* 情绪&结构 */}
+                  <tr style={{ background: '#f9fafb' }}>
+                    <td rowSpan={6} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', verticalAlign: 'top' }}>情绪&结构</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>VIX</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025-12</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>约 14，低于长期均值 18–20，在高估值背景下偏自满。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#dc2626', border: '1px solid #e5e7eb' }}>-1</td>
+                  </tr>
+                  <tr style={{ background: '#f9fafb' }}>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>市场广度</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025 Q3–Q4</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>Great 8 对 EPS 和指数贡献极大，其余板块滞后，上涨高度集中。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#dc2626', border: '1px solid #e5e7eb' }}>-1</td>
+                  </tr>
+                  <tr style={{ background: '#f9fafb' }}>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>Put/Call 比</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025-12</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>中性偏乐观，没有明显恐慌对冲，偏"相信软着陆"。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#6b7280', border: '1px solid #e5e7eb' }}>0</td>
+                  </tr>
+                  <tr style={{ background: '#f9fafb' }}>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>股市占家庭金融资产比重</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025-09 左右</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>股票占家庭金融资产 &gt;50%，高于 2000 与 2021 高点，历史极高。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#991b1b', border: '1px solid #e5e7eb' }}>-2</td>
+                  </tr>
+                  <tr style={{ background: '#f9fafb' }}>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>保证金融资余额（同比）</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025-10</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>融资余额约 1.13 万亿美元，同比增约 38.5%，创历史新高且加速加杠杆。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#991b1b', border: '1px solid #e5e7eb' }}>-2</td>
+                  </tr>
+                  <tr style={{ background: '#fee2e2', borderTop: '2px solid #dc2626' }}>
+                    <td colSpan={3} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>情绪小计（内部合计 -6，映射到 -2）</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>极度拥挤：家庭高配股权 + 高杠杆 + 低波动 + 头部抱团。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#991b1b', border: '1px solid #e5e7eb' }}>-2</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* 汇总打分与解读 */}
+          <div style={{ background: '#fffbeb', border: '2px solid #fbbf24', borderRadius: '12px', padding: '24px' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#92400e', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '2rem' }}>📊</span>
+              汇总打分与解读
+            </h2>
+            
+            <div style={{ marginBottom: '24px' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#1f2937' }}>各模块得分</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+                <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #fee2e2' }}>
+                  <div style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '4px' }}>宏观增长</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#dc2626' }}>-1</div>
+                </div>
+                <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+                  <div style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '4px' }}>通胀&政策</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#6b7280' }}>0</div>
+                </div>
+                <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #fee2e2' }}>
+                  <div style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '4px' }}>金融风险</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#dc2626' }}>-1</div>
+                </div>
+                <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+                  <div style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '4px' }}>盈利&估值</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#6b7280' }}>0</div>
+                </div>
+                <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #fee2e2' }}>
+                  <div style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '4px' }}>情绪&结构</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#991b1b' }}>-2</div>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ background: 'white', padding: '20px', borderRadius: '8px', border: '2px solid #fbbf24', marginBottom: '20px' }}>
+              <div style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#1f2937' }}>
+                总分 = -1 + 0 -1 + 0 -2 = <strong style={{ fontSize: '1.5rem', color: '#dc2626' }}>-4</strong>
+              </div>
+              <div style={{ fontSize: '0.9rem', color: '#6b7280', marginBottom: '16px' }}>
+                （理论总区间为 -10 ～ +10）
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#1f2937' }}>简化区间解读</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '12px' }}>
+                <div style={{ background: '#d1fae5', padding: '12px', borderRadius: '8px', border: '1px solid #86efac' }}>
+                  <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#166534', marginBottom: '4px' }}>+6 ～ +10</div>
+                  <div style={{ fontSize: '0.8rem', color: '#374151' }}>景气偏高 + 估值不贵，适合偏多头</div>
+                </div>
+                <div style={{ background: '#dbeafe', padding: '12px', borderRadius: '8px', border: '1px solid #93c5fd' }}>
+                  <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#1e40af', marginBottom: '4px' }}>+1 ～ +5</div>
+                  <div style={{ fontSize: '0.8rem', color: '#374151' }}>中性偏好，重择股与结构</div>
+                </div>
+                <div style={{ background: '#f3f4f6', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db' }}>
+                  <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#374151', marginBottom: '4px' }}>-1 ～ 0</div>
+                  <div style={{ fontSize: '0.8rem', color: '#374151' }}>中性偏防守</div>
+                </div>
+                <div style={{ background: '#fee2e2', padding: '12px', borderRadius: '8px', border: '1px solid #fecaca' }}>
+                  <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#991b1b', marginBottom: '4px' }}>-5 ～ -2</div>
+                  <div style={{ fontSize: '0.8rem', color: '#374151' }}>高风险晚周期，适合降风险/降杠杆</div>
+                </div>
+                <div style={{ background: '#fef2f2', padding: '12px', borderRadius: '8px', border: '1px solid #fecaca' }}>
+                  <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#991b1b', marginBottom: '4px' }}>&lt; -5</div>
+                  <div style={{ fontSize: '0.8rem', color: '#374151' }}>极高风险，通常对应衰退或泡沫尾声/危机前后</div>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ background: '#fef2f2', padding: '20px', borderRadius: '8px', border: '2px solid #dc2626' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#991b1b' }}>
+                当前约 -4，对应：
+              </h3>
+              <ul style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.8', paddingLeft: '20px', margin: 0 }}>
+                <li style={{ marginBottom: '8px' }}>
+                  <strong>宏观：</strong>放缓但未崩（不像已在衰退）
+                </li>
+                <li style={{ marginBottom: '8px' }}>
+                  <strong>通胀&政策：</strong>通胀可控但利率偏紧，对估值与边缘主体构成压制
+                </li>
+                <li style={{ marginBottom: '8px' }}>
+                  <strong>金融：</strong>系统稳，局部（CRE+弱信用消费）有压力，是潜在放大器
+                </li>
+                <li>
+                  <strong>美股：</strong>盈利好、估值贵、情绪乐观、家户与杠杆暴露极高，典型晚周期画像
+                </li>
+              </ul>
+            </div>
+
+            <div style={{ marginTop: '20px', padding: '16px', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '8px', color: '#1e40af' }}>
+                💡 进一步量化建议
+              </h3>
+              <p style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.6', margin: 0 }}>
+                如果你希望进一步量化，可以给每个模块设权重（例如宏观 25%，金融风险 25%，估值 25%，情绪&结构 25% 或你自定义），
+                按权重计算加权总分，把这张表变成一个可回测/可更新的小模型。
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+      {activeSubTab === 'china-temperature' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          {/* 中国周期温度总表 */}
+          <div style={{ background: 'white', border: '2px solid #ef4444', borderRadius: '12px', padding: '24px' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#dc2626', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '2rem' }}>🌡️</span>
+              中国周期温度总表（升级版，含新增杠杆/地产/两融）
+            </h2>
+            
+            <div style={{ 
+              background: '#fef2f2', 
+              border: '1px solid #fecaca', 
+              borderRadius: '8px', 
+              padding: '16px',
+              marginBottom: '20px'
+            }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '8px', color: '#991b1b' }}>
+                评分规则统一
+              </h3>
+              <div style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.8' }}>
+                <div><strong>-2</strong>：非常差 / 高风险</div>
+                <div><strong>-1</strong>：偏差</div>
+                <div><strong>0</strong>：中性</div>
+                <div><strong>+1</strong>：偏好</div>
+                <div><strong>+2</strong>：非常好</div>
+              </div>
+            </div>
+
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                <thead>
+                  <tr style={{ background: '#fee2e2', borderBottom: '2px solid #ef4444' }}>
+                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#dc2626', border: '1px solid #fecaca' }}>模块</th>
+                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#dc2626', border: '1px solid #fecaca' }}>指标</th>
+                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#dc2626', border: '1px solid #fecaca' }}>时间点</th>
+                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#dc2626', border: '1px solid #fecaca' }}>当前大致数据/状态</th>
+                    <th style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#dc2626', border: '1px solid #fecaca' }}>单项分数</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* 宏观增长 */}
+                  <tr style={{ background: '#f9fafb' }}>
+                    <td rowSpan={4} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', verticalAlign: 'top' }}>宏观增长</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>实质 GDP 增速（同比）</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025 Q3</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>同比约 4.8%，全年接近官方"5% 左右"目标，靠政策托底维持中高速。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#059669', border: '1px solid #e5e7eb' }}>+1</td>
+                  </tr>
+                  <tr style={{ background: '#f9fafb' }}>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>失业率（城镇调查）</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025-11</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>约 5.1%，略低于历史均值 5.24%，较年内高点 5.4% 有小幅回落，就业偏弱但未恶化失控。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#6b7280', border: '1px solid #e5e7eb' }}>0</td>
+                  </tr>
+                  <tr style={{ background: '#f9fafb' }}>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>制造业 PMI</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025-11</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>49.2，连续在 50 下方，略有改善但仍为收缩，高技术制造 PMI 在 50 上方。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#dc2626', border: '1px solid #e5e7eb' }}>-1</td>
+                  </tr>
+                  <tr style={{ background: '#f3f4f6', borderTop: '2px solid #6b7280' }}>
+                    <td colSpan={3} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>宏观小计</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>增速尚可，就业稳定，但制造业偏弱，整体为"温和复苏、非高景气"。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#6b7280', border: '1px solid #e5e7eb' }}>0</td>
+                  </tr>
+
+                  {/* 通胀&政策 */}
+                  <tr>
+                    <td rowSpan={3} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', verticalAlign: 'top' }}>通胀&政策</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>核心 CPI（同比）</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025-11</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>核心 CPI 同比约 1.2%，通胀压力极低，略有通缩风险，但为宽松货币与财政政策提供空间。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#059669', border: '1px solid #e5e7eb' }}>+1</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>利率 & 实际利率（LPR vs 通胀）</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025-11</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>1 年期 LPR 约 3.0%，通胀约 0.7–1.2%，实际利率为正但不高，整体偏宽松。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#059669', border: '1px solid #e5e7eb' }}>+1</td>
+                  </tr>
+                  <tr style={{ background: '#d1fae5', borderTop: '2px solid #10b981' }}>
+                    <td colSpan={3} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>通胀小计</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>通胀温和 + 利率不高，政策宽松空间充足，相比美国环境友好。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#059669', border: '1px solid #e5e7eb' }}>+2</td>
+                  </tr>
+
+                  {/* 制造业&利润 */}
+                  <tr style={{ background: '#f9fafb' }}>
+                    <td rowSpan={3} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', verticalAlign: 'top' }}>制造业&利润</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>规上工业营业收入利润率</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025 H1</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>利润率约 5.15%，较 2021 高位持续下滑，说明制造业盈利能力在低位徘徊。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#dc2626', border: '1px solid #e5e7eb' }}>-1</td>
+                  </tr>
+                  <tr style={{ background: '#f9fafb' }}>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>工业利润增速</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025-11（1–11 月）</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2024 年下滑后，2025 年恢复小幅正增长，属于"低位修复"，远未回归高景气。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#6b7280', border: '1px solid #e5e7eb' }}>0</td>
+                  </tr>
+                  <tr style={{ background: '#fee2e2', borderTop: '2px solid #dc2626' }}>
+                    <td colSpan={3} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>制造业小计</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>利润率连续几年走弱，目前是"低位企稳"，对整体经济是拖累而不是引擎。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#dc2626', border: '1px solid #e5e7eb' }}>-1</td>
+                  </tr>
+
+                  {/* 金融&信用 */}
+                  <tr>
+                    <td rowSpan={5} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', verticalAlign: 'top' }}>金融&信用</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>房地产投资/销售 & 库存（新增维度）</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025 Q1–Q3</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>房地产投资占 GDP 比例自 2014 年近 15% 降至 2024 年约 7.4%；新开工、销售面积持续同比负增长，库存创 2018 来新高。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#dc2626', border: '1px solid #e5e7eb' }}>-1</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>居民部门杠杆率（新增）</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025 Q3</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>居民债务/GDP 约 60.4%，接近 2024 年 62% 的历史高位，近一年略有回落但处高杠杆平台。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#dc2626', border: '1px solid #e5e7eb' }}>-1</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>整体非金融部门债务（新增）</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2024 末</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>非金融部门债务约 312% GDP，高于多数新兴经济体，去杠杆与增长之间存在长期拉扯。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#dc2626', border: '1px solid #e5e7eb' }}>-1</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>银行体系稳定性（含地产风险）</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>银行资本充足率尚可，通过展期、再融资等方式部分"软着陆"地产风险，未出现系统性挤兑/银行危机。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#6b7280', border: '1px solid #e5e7eb' }}>0</td>
+                  </tr>
+                  <tr style={{ background: '#fee2e2', borderTop: '2px solid #dc2626' }}>
+                    <td colSpan={3} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>金融小计</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>高杠杆+地产深度调整，但通过行政和金融工具缓冲，系统性风险暂可控，属于"慢修复 + 高杠杆"。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#991b1b', border: '1px solid #e5e7eb' }}>-2</td>
+                  </tr>
+
+                  {/* 估值&股市 */}
+                  <tr style={{ background: '#f9fafb' }}>
+                    <td rowSpan={4} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', verticalAlign: 'top' }}>估值&股市</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>A 股估值：CSI 300 TTM P/E</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025-12</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>约 15.2 倍，接近或略低于近 10 年中值，远低于美股，属于"估值便宜至中性"。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#059669', border: '1px solid #e5e7eb' }}>+1</td>
+                  </tr>
+                  <tr style={{ background: '#f9fafb' }}>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>中小盘估值（中证 500/1000）（新增）</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025-12</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>中证 500/1000 P/E 普遍低于自身历史中枢，PB 多在 1 倍附近，体现出"深折价+情绪冷"。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#059669', border: '1px solid #e5e7eb' }}>+1</td>
+                  </tr>
+                  <tr style={{ background: '#f9fafb' }}>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>A 股盈利与 ROE</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>指数层面盈利增速中低个位数，ROE 中枢不高，更多是"低估值补偿"而非高质量成长溢价。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#6b7280', border: '1px solid #e5e7eb' }}>0</td>
+                  </tr>
+                  <tr style={{ background: '#d1fae5', borderTop: '2px solid #10b981' }}>
+                    <td colSpan={3} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>估值小计</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>整体估值不贵甚至偏便宜，尤其是中小盘与部分价值板块；盈利和 ROE 中枢一般。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#059669', border: '1px solid #e5e7eb' }}>+2</td>
+                  </tr>
+
+                  {/* 情绪&资金结构 */}
+                  <tr>
+                    <td rowSpan={4} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb', verticalAlign: 'top' }}>情绪&资金结构</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>市场情绪（波动、成交）（定性）</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>大部分时间波动率不高，成交偏低迷，居民入市热情不高，缺乏"全民炒股"特征。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#059669', border: '1px solid #e5e7eb' }}>+1</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>两融余额 / 杠杆水平（新增）</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025-08</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>融资融券余额约 2.01 万亿元，时隔多年首次重回 2 万亿以上，但相对总市值占比仍低于 2015 杠杆牛阶段。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#6b7280', border: '1px solid #e5e7eb' }}>0</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>居民直接持股/基金参与（新增，定性）</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>2025</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>居民财富主要仍集中在地产和理财，股权配置占比低于美国家庭资产结构，A 股并未高配到极端。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#059669', border: '1px solid #e5e7eb' }}>+1</td>
+                  </tr>
+                  <tr style={{ background: '#d1fae5', borderTop: '2px solid #10b981' }}>
+                    <td colSpan={3} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>情绪小计</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>相对美股：情绪偏冷、杠杆适中、居民股权暴露不高，更像"低位磨底中的市场"。</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#059669', border: '1px solid #e5e7eb' }}>+2</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* 汇总打分与解读 */}
+          <div style={{ background: '#fffbeb', border: '2px solid #fbbf24', borderRadius: '12px', padding: '24px' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#92400e', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '2rem' }}>📊</span>
+              更新后中国"周期温度"综合评分
+            </h2>
+            
+            <div style={{ marginBottom: '24px' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#1f2937' }}>各模块得分</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+                <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+                  <div style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '4px' }}>宏观增长</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#6b7280' }}>0</div>
+                </div>
+                <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #d1fae5' }}>
+                  <div style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '4px' }}>通胀&政策</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#059669' }}>+2</div>
+                </div>
+                <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #fee2e2' }}>
+                  <div style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '4px' }}>制造业&利润</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#dc2626' }}>-1</div>
+                </div>
+                <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #fee2e2' }}>
+                  <div style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '4px' }}>金融&信用</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#991b1b' }}>-2</div>
+                </div>
+                <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #d1fae5' }}>
+                  <div style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '4px' }}>估值&股市</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#059669' }}>+2</div>
+                </div>
+                <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #d1fae5' }}>
+                  <div style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '4px' }}>情绪&资金结构</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#059669' }}>+2</div>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ background: 'white', padding: '20px', borderRadius: '8px', border: '2px solid #fbbf24', marginBottom: '20px' }}>
+              <div style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#1f2937' }}>
+                总分 = 0 + 2 - 1 - 2 + 2 + 2 = <strong style={{ fontSize: '1.5rem', color: '#059669' }}>+3</strong>
+              </div>
+              <div style={{ fontSize: '0.9rem', color: '#6b7280', marginBottom: '16px' }}>
+                （理论总区间为 -10 ～ +10）
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#1f2937' }}>结构分析</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
+                <div style={{ background: '#d1fae5', padding: '16px', borderRadius: '8px', border: '1px solid #86efac' }}>
+                  <h4 style={{ fontSize: '0.95rem', fontWeight: '600', color: '#166534', marginBottom: '8px' }}>✅ 正向支撑</h4>
+                  <ul style={{ fontSize: '0.85rem', color: '#374151', lineHeight: '1.8', paddingLeft: '20px', margin: 0 }}>
+                    <li>通胀低+政策空间大（+2）</li>
+                    <li>A 股整体估值不贵/中小盘深折价（+2）</li>
+                    <li>市场情绪偏冷+杠杆不高（+2）</li>
+                  </ul>
+                </div>
+                <div style={{ background: '#fee2e2', padding: '16px', borderRadius: '8px', border: '1px solid #fecaca' }}>
+                  <h4 style={{ fontSize: '0.95rem', fontWeight: '600', color: '#991b1b', marginBottom: '8px' }}>⚠️ 负向拖累</h4>
+                  <ul style={{ fontSize: '0.85rem', color: '#374151', lineHeight: '1.8', paddingLeft: '20px', margin: 0 }}>
+                    <li>制造业利润率偏弱（-1）</li>
+                    <li>高杠杆+地产长周期调整（-2）</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ background: '#eff6ff', padding: '20px', borderRadius: '8px', border: '2px solid #3b82f6', marginBottom: '20px' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#1e40af' }}>
+                🌍 中美对比
+              </h3>
+              <div style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.8' }}>
+                <p style={{ marginBottom: '12px' }}>
+                  <strong>美国（总分约 -4）：</strong>景气&gt;估值&gt;风险 —— 当前盈利不错，但估值贵、杠杆高、情绪偏乐观。
+                </p>
+                <p style={{ margin: 0 }}>
+                  <strong>中国（总分约 +3）：</strong>估值/政策&gt;景气 —— 当前景气一般甚至偏弱，但估值低、情绪冷、政策空间大，杠杆/地产是主要"尾部风险来源"。
+                </p>
+              </div>
+            </div>
+
+            <div style={{ marginTop: '20px', padding: '16px', background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '8px' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '8px', color: '#166534' }}>
+                💡 后续建议
+              </h3>
+              <p style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.6', margin: 0 }}>
+                可以基于这两张表设定权重（例如更看重"金融&信用"和"估值&股市"），做一个"中美相对吸引力分数"，直接指导大类资产/地区的 Beta 配置。
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+
 
       {activeSubTab === 'stages' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -1912,6 +2511,7 @@ export default function Monitor(): JSX.Element {
           </div>
         </div>
       )}
+      </div>
     </div>
   )
 }
