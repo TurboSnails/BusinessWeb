@@ -15,6 +15,17 @@ export default function Header(): JSX.Element {
     { path: '/about', label: '关于', icon: 'ℹ️' }
   ]
 
+  // 获取当前页面标题
+  const getCurrentPageTitle = () => {
+    const currentItem = navItems.find(item => {
+      if (item.path === '/') {
+        return location.pathname === '/'
+      }
+      return location.pathname.startsWith(item.path)
+    })
+    return currentItem ? currentItem.label : 'Hassan投资'
+  }
+
   const isActive = (path: string) => {
     if (path === '/') {
       return location.pathname === '/'
@@ -35,43 +46,68 @@ export default function Header(): JSX.Element {
       <div style={{
         maxWidth: '1400px',
         margin: '0 auto',
-        padding: '16px 20px',
+        padding: '12px 20px',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        position: 'relative'
       }}>
-        {/* Logo/Title */}
+        {/* 首页图标 - 左侧 */}
         <Link
           to="/"
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '12px',
+            justifyContent: 'center',
+            width: '40px',
+            height: '40px',
             textDecoration: 'none',
             color: 'white',
-            fontWeight: '700',
-            fontSize: '1.5rem',
-            transition: 'opacity 0.2s'
+            transition: 'all 0.2s',
+            borderRadius: '10px',
+            background: location.pathname === '/' ? 'rgba(255,255,255,0.2)' : 'transparent',
+            backdropFilter: location.pathname === '/' ? 'blur(10px)' : 'none'
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.9' }}
-          onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
+          onMouseEnter={(e) => { 
+            if (location.pathname !== '/') {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.1)'
+            }
+          }}
+          onMouseLeave={(e) => { 
+            if (location.pathname !== '/') {
+              e.currentTarget.style.background = 'transparent'
+            }
+          }}
         >
           <span style={{
-            fontSize: '2rem',
-            display: 'inline-block',
-            transform: 'rotate(-5deg)'
+            fontSize: '1.8rem',
+            display: 'inline-block'
           }}>
-            💼
-          </span>
-          <span style={{
-            background: 'rgba(255,255,255,0.2)',
-            padding: '8px 16px',
-            borderRadius: '12px',
-            backdropFilter: 'blur(10px)'
-          }}>
-            Hassan投资
+            🏠
           </span>
         </Link>
+
+        {/* 当前页面标题 - 居中显示 */}
+        {location.pathname !== '/' && (
+          <div style={{
+            position: 'absolute',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <div style={{
+              fontSize: '1.1rem',
+              fontWeight: '600',
+              color: 'white',
+              whiteSpace: 'nowrap',
+              textAlign: 'center'
+            }}>
+              {getCurrentPageTitle()}
+            </div>
+          </div>
+        )}
 
         {/* Desktop Navigation */}
         <nav style={{
@@ -228,6 +264,9 @@ export default function Header(): JSX.Element {
           .mobile-nav {
             display: none !important;
           }
+          .page-title-mobile {
+            display: none !important;
+          }
         }
         @media (max-width: 767px) {
           .desktop-nav {
@@ -235,6 +274,9 @@ export default function Header(): JSX.Element {
           }
           .mobile-menu-btn {
             display: flex !important;
+          }
+          .page-title-desktop {
+            display: none !important;
           }
         }
         @keyframes slideDown {

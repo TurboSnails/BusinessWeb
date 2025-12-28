@@ -549,30 +549,6 @@ export default function Monitor(): JSX.Element {
 
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '16px', minHeight: '100vh' }}>
-      {/* Header */}
-      <div style={{
-        marginBottom: '24px',
-        padding: '18px 20px',
-        background: 'white',
-        borderRadius: '12px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
-      }}>
-        <h1 style={{
-          margin: 0,
-          fontSize: '1.5rem',
-          fontWeight: '700',
-          background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          marginBottom: '8px'
-        }}>
-          📈 每日监控
-        </h1>
-        <p style={{ margin: 0, fontSize: '0.85rem', color: '#6b7280' }}>
-          投资总纲、宏观假设、指标体系、阶段划分、日常之行
-        </p>
-      </div>
-
       {/* 子Tab导航 - 参考 InvestmentPlan2026 的样式 */}
       <div style={{ background: 'white', borderLeft: '1px solid #e5e7eb', borderRight: '1px solid #e5e7eb' }}>
         <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #e5e7eb' }}>
@@ -1096,7 +1072,8 @@ export default function Monitor(): JSX.Element {
                     <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#dc2626', border: '1px solid #e5e7eb' }}>-1</td>
                   </tr>
                   <tr style={{ background: '#fee2e2', borderTop: '2px solid #dc2626' }}>
-                    <td colSpan={3} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>宏观小计</td>
+                    <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>宏观小计</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}></td>
                     <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>温和放缓，尚未到衰退。</td>
                     <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#dc2626', border: '1px solid #e5e7eb' }}>-1</td>
                   </tr>
@@ -1116,7 +1093,8 @@ export default function Monitor(): JSX.Element {
                     <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#6b7280', border: '1px solid #e5e7eb' }}>0</td>
                   </tr>
                   <tr style={{ background: '#f3f4f6', borderTop: '2px solid #6b7280' }}>
-                    <td colSpan={3} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>通胀小计</td>
+                    <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>通胀小计</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}></td>
                     <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>通胀回落 + 实际利率为正，偏紧环境。</td>
                     <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#6b7280', border: '1px solid #e5e7eb' }}>0</td>
                   </tr>
@@ -1142,7 +1120,8 @@ export default function Monitor(): JSX.Element {
                     <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#dc2626', border: '1px solid #e5e7eb' }}>-1</td>
                   </tr>
                   <tr style={{ background: '#fee2e2', borderTop: '2px solid #dc2626' }}>
-                    <td colSpan={3} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>金融小计</td>
+                    <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>金融小计</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}></td>
                     <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>系统稳健、局部（CRE & 弱信用消费）压力较大。</td>
                     <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#dc2626', border: '1px solid #e5e7eb' }}>-1</td>
                   </tr>
@@ -1168,7 +1147,8 @@ export default function Monitor(): JSX.Element {
                     <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#dc2626', border: '1px solid #e5e7eb' }}>-1</td>
                   </tr>
                   <tr style={{ background: '#f3f4f6', borderTop: '2px solid #6b7280' }}>
-                    <td colSpan={3} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>盈利小计</td>
+                    <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>盈利小计</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}></td>
                     <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>盈利强但估值明显偏贵，整体互相抵消。</td>
                     <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#6b7280', border: '1px solid #e5e7eb' }}>0</td>
                   </tr>
@@ -1206,7 +1186,8 @@ export default function Monitor(): JSX.Element {
                     <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#991b1b', border: '1px solid #e5e7eb' }}>-2</td>
                   </tr>
                   <tr style={{ background: '#fee2e2', borderTop: '2px solid #dc2626' }}>
-                    <td colSpan={3} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>情绪小计（内部合计 -6，映射到 -2）</td>
+                    <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>情绪小计（内部合计 -6，映射到 -2）</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}></td>
                     <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>极度拥挤：家庭高配股权 + 高杠杆 + 低波动 + 头部抱团。</td>
                     <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#991b1b', border: '1px solid #e5e7eb' }}>-2</td>
                   </tr>
@@ -1376,7 +1357,8 @@ export default function Monitor(): JSX.Element {
                     <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#dc2626', border: '1px solid #e5e7eb' }}>-1</td>
                   </tr>
                   <tr style={{ background: '#f3f4f6', borderTop: '2px solid #6b7280' }}>
-                    <td colSpan={3} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>宏观小计</td>
+                    <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>宏观小计</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}></td>
                     <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>增速尚可，就业稳定，但制造业偏弱，整体为"温和复苏、非高景气"。</td>
                     <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#6b7280', border: '1px solid #e5e7eb' }}>0</td>
                   </tr>
@@ -1396,7 +1378,8 @@ export default function Monitor(): JSX.Element {
                     <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#059669', border: '1px solid #e5e7eb' }}>+1</td>
                   </tr>
                   <tr style={{ background: '#d1fae5', borderTop: '2px solid #10b981' }}>
-                    <td colSpan={3} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>通胀小计</td>
+                    <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>通胀小计</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}></td>
                     <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>通胀温和 + 利率不高，政策宽松空间充足，相比美国环境友好。</td>
                     <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#059669', border: '1px solid #e5e7eb' }}>+2</td>
                   </tr>
@@ -1416,7 +1399,8 @@ export default function Monitor(): JSX.Element {
                     <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#6b7280', border: '1px solid #e5e7eb' }}>0</td>
                   </tr>
                   <tr style={{ background: '#fee2e2', borderTop: '2px solid #dc2626' }}>
-                    <td colSpan={3} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>制造业小计</td>
+                    <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>制造业小计</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}></td>
                     <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>利润率连续几年走弱，目前是"低位企稳"，对整体经济是拖累而不是引擎。</td>
                     <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#dc2626', border: '1px solid #e5e7eb' }}>-1</td>
                   </tr>
@@ -1448,7 +1432,8 @@ export default function Monitor(): JSX.Element {
                     <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#6b7280', border: '1px solid #e5e7eb' }}>0</td>
                   </tr>
                   <tr style={{ background: '#fee2e2', borderTop: '2px solid #dc2626' }}>
-                    <td colSpan={3} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>金融小计</td>
+                    <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>金融小计</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}></td>
                     <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>高杠杆+地产深度调整，但通过行政和金融工具缓冲，系统性风险暂可控，属于"慢修复 + 高杠杆"。</td>
                     <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#991b1b', border: '1px solid #e5e7eb' }}>-2</td>
                   </tr>
@@ -1474,7 +1459,8 @@ export default function Monitor(): JSX.Element {
                     <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#6b7280', border: '1px solid #e5e7eb' }}>0</td>
                   </tr>
                   <tr style={{ background: '#d1fae5', borderTop: '2px solid #10b981' }}>
-                    <td colSpan={3} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>估值小计</td>
+                    <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>估值小计</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}></td>
                     <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>整体估值不贵甚至偏便宜，尤其是中小盘与部分价值板块；盈利和 ROE 中枢一般。</td>
                     <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#059669', border: '1px solid #e5e7eb' }}>+2</td>
                   </tr>
@@ -1500,7 +1486,8 @@ export default function Monitor(): JSX.Element {
                     <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#059669', border: '1px solid #e5e7eb' }}>+1</td>
                   </tr>
                   <tr style={{ background: '#d1fae5', borderTop: '2px solid #10b981' }}>
-                    <td colSpan={3} style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>情绪小计</td>
+                    <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937', border: '1px solid #e5e7eb' }}>情绪小计</td>
+                    <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}></td>
                     <td style={{ padding: '12px', color: '#374151', border: '1px solid #e5e7eb' }}>相对美股：情绪偏冷、杠杆适中、居民股权暴露不高，更像"低位磨底中的市场"。</td>
                     <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#059669', border: '1px solid #e5e7eb' }}>+2</td>
                   </tr>

@@ -803,23 +803,6 @@ const InvestmentPlan2026 = () => {
 
   return (
     <div style={{ width: '100%', maxWidth: '1200px', margin: '0 auto', padding: '16px', background: '#f9fafb', minHeight: '100vh' }}>
-      {/* Header */}
-      <div style={{ 
-        background: 'linear-gradient(135deg, #2563eb, #9333ea)', 
-        color: 'white', 
-        padding: '24px', 
-        borderRadius: '12px 12px 0 0',
-        marginBottom: 0
-      }}>
-        <h1 style={{ fontSize: '2rem', fontWeight: '700', margin: 0, display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{ fontSize: '2.5rem' }}>📊</span>
-          2026年美股投资计划
-        </h1>
-        <p style={{ margin: '8px 0 0', color: 'rgba(255,255,255,0.9)', fontSize: '0.95rem' }}>
-          系统性风险管理与阶段化操作手册
-        </p>
-      </div>
-
       {/* Tabs - 分类显示 */}
       <div style={{ background: 'white', borderLeft: '1px solid #e5e7eb', borderRight: '1px solid #e5e7eb' }}>
         <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #e5e7eb' }}>
