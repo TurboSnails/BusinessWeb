@@ -1,16 +1,6 @@
-import React, { useState, useEffect } from 'react'
-import { SilverMonitor } from '../components/monitor/SilverMonitor'
-import { OverviewTab } from '../components/monitor/OverviewTab'
-import { AssumptionsTab } from '../components/monitor/AssumptionsTab'
-import { IndicatorsTab } from '../components/monitor/IndicatorsTab'
-import { TemperatureTab } from '../components/monitor/TemperatureTab'
-import { ChinaTemperatureTab } from '../components/monitor/ChinaTemperatureTab'
-import { StagesTab } from '../components/monitor/StagesTab'
-import { ExecutionTab } from '../components/monitor/ExecutionTab'
-import { USMonitorTab } from '../components/monitor/USMonitorTab'
+// 监控页面数据定义
 
-// 数据类型定义
-type InvestmentFramework = {
+export type InvestmentFramework = {
   id: string
   title: string
   content: string
@@ -18,23 +8,9 @@ type InvestmentFramework = {
   lastUpdated: string
 }
 
-// localStorage 操作
-const STORAGE_KEY = 'monitor_data'
+export const STORAGE_KEY = 'monitor_data'
 
-const loadData = (): InvestmentFramework[] => {
-  try {
-    const data = localStorage.getItem(STORAGE_KEY)
-    return data ? JSON.parse(data) : getDefaultData()
-  } catch {
-    return getDefaultData()
-  }
-}
-
-const saveData = (data: InvestmentFramework[]) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
-}
-
-const getDefaultData = (): InvestmentFramework[] => [
+export const getDefaultData = (): InvestmentFramework[] => [
   {
     id: '1',
     title: '投资总纲',
@@ -283,263 +259,22 @@ KRE、XHB、GDX/GLD、VIX、DXY、^TNX、BTC-USD、CNN Fear & Greed 指数
   }
 ]
 
-
-export default function Monitor(): JSX.Element {
-  const [data, setData] = useState<InvestmentFramework[]>([])
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [editContent, setEditContent] = useState('')
-  const [activeSubTab, setActiveSubTab] = useState<'overview' | 'assumptions' | 'indicators' | 'temperature' | 'china-temperature' | 'stages' | 'execution' | 'us-monitor' | 'silver-monitor'>('execution')
-
-  useEffect(() => {
-    // 初始化数据，确保分类正确
-    const currentData = loadData()
-    const defaultData = getDefaultData()
-    
-    // 创建分类映射表（用于迁移旧数据）
-    const categoryMap: Record<string, 'plan' | 'strategy' | 'monitor'> = {
-      '投资总纲': 'strategy',
-      '宏观假设': 'strategy',
-      '指标体系': 'monitor',
-      '阶段划分': 'plan',
-      '日常之行': 'plan'
-    }
-    
-    // 合并数据：保留已有内容，更新分类
-    const updatedData = defaultData.map(defaultItem => {
-      const existing = currentData.find(item => item.id === defaultItem.id || item.title === defaultItem.title)
-      if (existing) {
-        // 如果已有数据，保留内容，但更新分类
-        return {
-          ...existing,
-          category: categoryMap[defaultItem.title] || defaultItem.category,
-          id: defaultItem.id // 确保ID一致
-        }
-      }
-      return defaultItem
-    })
-    
-    setData(updatedData)
-    saveData(updatedData)
-  }, [])
-
-  useEffect(() => {
-    if (data.length > 0) {
-      saveData(data)
-    }
-  }, [data])
-
-  const handleEdit = (item: InvestmentFramework) => {
-    setEditingId(item.id)
-    setEditContent(item.content)
-  }
-
-  const handleSave = (id: string) => {
-    setData(data.map(item => 
-      item.id === id 
-        ? { ...item, content: editContent, lastUpdated: new Date().toISOString().split('T')[0] }
-        : item
-    ))
-    setEditingId(null)
-    setEditContent('')
-  }
-
-  const handleCancel = () => {
-    setEditingId(null)
-    setEditContent('')
-  }
-
-  return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '16px', minHeight: '100vh' }}>
-      {/* 子Tab导航 - 参考 InvestmentPlan2026 的样式 */}
-      <div style={{ background: 'white', borderLeft: '1px solid #e5e7eb', borderRight: '1px solid #e5e7eb' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #e5e7eb' }}>
-          {/* 计划执行类 */}
-          <div style={{ display: 'flex', borderBottom: '1px solid #f3f4f6', flexWrap: 'wrap' }}>
-            <div style={{ 
-              padding: '8px 12px', 
-              fontSize: '0.75rem', 
-              color: '#6b7280', 
-              fontWeight: '600',
-              background: '#f9fafb',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              minWidth: '80px'
-            }}>
-              📅 计划执行
-            </div>
-            {(['stages', 'execution', 'us-monitor'] as const).map((subTab) => {
-              const subLabels: Record<typeof subTab, string> = {
-                stages: '阶段划分',
-                execution: '日常执行',
-                'us-monitor': '美经监控'
-              }
-              const isActive = activeSubTab === subTab
-              return (
-                <button
-                  key={subTab}
-                  onClick={() => setActiveSubTab(subTab)}
-                  style={{
-                    flex: 1,
-                    padding: '12px 16px',
-                    fontWeight: '500',
-                    background: isActive ? '#eff6ff' : 'transparent',
-                    color: isActive ? '#2563eb' : '#4b5563',
-                    border: 'none',
-                    borderBottom: isActive ? '2px solid #2563eb' : '2px solid transparent',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    fontSize: '0.9rem'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.background = '#f9fafb'
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.background = 'transparent'
-                    }
-                  }}
-                >
-                  {subLabels[subTab]}
-                </button>
-              )
-            })}
-          </div>
-
-          {/* 决策策略类 */}
-          <div style={{ display: 'flex', borderBottom: '1px solid #f3f4f6', flexWrap: 'wrap' }}>
-            <div style={{ 
-              padding: '8px 12px', 
-              fontSize: '0.75rem', 
-              color: '#6b7280', 
-              fontWeight: '600',
-              background: '#f9fafb',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              minWidth: '80px'
-            }}>
-              ⚖️ 决策策略
-            </div>
-            {(['overview', 'assumptions'] as const).map((subTab) => {
-              const subLabels: Record<typeof subTab, string> = {
-                overview: '投资总纲',
-                assumptions: '宏观假设'
-              }
-              const isActive = activeSubTab === subTab
-              return (
-                <button
-                  key={subTab}
-                  onClick={() => setActiveSubTab(subTab)}
-                  style={{
-                    flex: 1,
-                    padding: '12px 16px',
-                    fontWeight: '500',
-                    background: isActive ? '#eff6ff' : 'transparent',
-                    color: isActive ? '#2563eb' : '#4b5563',
-                    border: 'none',
-                    borderBottom: isActive ? '2px solid #2563eb' : '2px solid transparent',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    fontSize: '0.9rem'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.background = '#f9fafb'
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.background = 'transparent'
-                    }
-                  }}
-                >
-                  {subLabels[subTab]}
-                </button>
-              )
-            })}
-          </div>
-
-          {/* 监控分析类 */}
-          <div style={{ display: 'flex', borderBottom: '1px solid #f3f4f6', flexWrap: 'wrap' }}>
-            <div style={{ 
-              padding: '8px 12px', 
-              fontSize: '0.75rem', 
-              color: '#6b7280', 
-              fontWeight: '600',
-              background: '#f9fafb',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              minWidth: '80px'
-            }}>
-              📊 监控分析
-            </div>
-            {(['indicators', 'temperature', 'china-temperature', 'silver-monitor'] as const).map((subTab) => {
-              const subLabels: Record<typeof subTab, string> = {
-                indicators: '指标体系',
-                temperature: '美经温度',
-                'china-temperature': '中经温度',
-                'silver-monitor': '白银监控'
-              }
-              const isActive = activeSubTab === subTab
-              return (
-                <button
-                  key={subTab}
-                  onClick={() => setActiveSubTab(subTab)}
-                  style={{
-                    flex: 1,
-                    padding: '12px 16px',
-                    fontWeight: '500',
-                    background: isActive ? '#eff6ff' : 'transparent',
-                    color: isActive ? '#2563eb' : '#4b5563',
-                    border: 'none',
-                    borderBottom: isActive ? '2px solid #2563eb' : '2px solid transparent',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    fontSize: '0.9rem'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.background = '#f9fafb'
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.background = 'transparent'
-                    }
-                  }}
-                >
-                  {subLabels[subTab]}
-                </button>
-              )
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* 子Tab内容 */}
-      <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '0 0 12px 12px', padding: '24px' }}>
-      {activeSubTab === 'overview' && <OverviewTab />}
-
-      {activeSubTab === 'assumptions' && <AssumptionsTab />}
-
-      {activeSubTab === 'indicators' && <IndicatorsTab />}
-      {activeSubTab === 'temperature' && <TemperatureTab />}
-      {activeSubTab === 'china-temperature' && <ChinaTemperatureTab />}
-
-
-
-      {activeSubTab === 'stages' && <StagesTab />}
-
-      {activeSubTab === 'execution' && <ExecutionTab />}
-
-      {activeSubTab === 'us-monitor' && <USMonitorTab />}
-
-      {activeSubTab === 'silver-monitor' && <SilverMonitor />}
-      </div>
-    </div>
-  )
+export const categoryConfig = {
+  plan: { title: '计划执行', icon: '📋', color: '#3b82f6', bgColor: '#eff6ff' },
+  strategy: { title: '决策策略', icon: '🎯', color: '#8b5cf6', bgColor: '#faf5ff' },
+  monitor: { title: '监控分析', icon: '📊', color: '#10b981', bgColor: '#f0fdf4' }
 }
+
+export const loadData = (): InvestmentFramework[] => {
+  try {
+    const data = localStorage.getItem(STORAGE_KEY)
+    return data ? JSON.parse(data) : getDefaultData()
+  } catch {
+    return getDefaultData()
+  }
+}
+
+export const saveData = (data: InvestmentFramework[]): void => {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+}
+
