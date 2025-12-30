@@ -8,9 +8,10 @@ import { ChinaTemperatureTab } from '../components/monitor/ChinaTemperatureTab'
 import { StagesTab } from '../components/monitor/StagesTab'
 import { ExecutionTab } from '../components/monitor/ExecutionTab'
 import { USMonitorTab } from '../components/monitor/USMonitorTab'
+import { ChinaStockTab } from '../components/monitor/ChinaStockTab'
 
 export default function Monitor(): JSX.Element {
-  const [activeSubTab, setActiveSubTab] = useState<'overview' | 'assumptions' | 'indicators' | 'temperature' | 'china-temperature' | 'stages' | 'execution' | 'us-monitor' | 'silver-monitor'>('execution')
+  const [activeSubTab, setActiveSubTab] = useState<'overview' | 'assumptions' | 'china-stock' | 'indicators' | 'temperature' | 'china-temperature' | 'stages' | 'execution' | 'us-monitor' | 'silver-monitor'>('execution')
 
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '16px', minHeight: '100vh' }}>
@@ -87,10 +88,11 @@ export default function Monitor(): JSX.Element {
             }}>
               ⚖️ 决策策略
             </div>
-            {(['overview', 'assumptions'] as const).map((subTab) => {
+            {(['overview', 'assumptions', 'china-stock'] as const).map((subTab) => {
               const subLabels: Record<typeof subTab, string> = {
                 overview: '投资总纲',
-                assumptions: '宏观假设'
+                assumptions: '宏观假设',
+                'china-stock': '中股投资'
               }
               const isActive = activeSubTab === subTab
               return (
@@ -188,6 +190,7 @@ export default function Monitor(): JSX.Element {
       <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '0 0 12px 12px', padding: '24px' }}>
         {activeSubTab === 'overview' && <OverviewTab />}
         {activeSubTab === 'assumptions' && <AssumptionsTab />}
+        {activeSubTab === 'china-stock' && <ChinaStockTab />}
         {activeSubTab === 'indicators' && <IndicatorsTab />}
         {activeSubTab === 'temperature' && <TemperatureTab />}
         {activeSubTab === 'china-temperature' && <ChinaTemperatureTab />}

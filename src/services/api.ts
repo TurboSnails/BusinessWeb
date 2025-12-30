@@ -372,7 +372,8 @@ export async function fetchMarketDataByType(type: 'us' | 'cn' | 'hk' | 'commodit
     forex: [
       { symbol: 'DXY', name: '美元指数' },
       { symbol: 'USDCNH', name: '离岸人民币' },
-      { symbol: '^TNX', name: '10Y美债' }       // Yahoo
+      { symbol: '^IRX', name: '2Y美债' },      // Yahoo Finance - 2年期美债
+      { symbol: '^TNX', name: '10Y美债' }       // Yahoo Finance - 10年期美债
     ]
   }
   
