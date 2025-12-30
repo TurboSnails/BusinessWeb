@@ -73,8 +73,8 @@ export const OverviewTab: React.FC = () => {
 
           <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #d1fae5' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <span style={{ fontSize: '1.5rem' }}>🔍</span>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1f2937' }}>GOOGL - 谷歌</h3>
+              <span style={{ fontSize: '1.5rem' }}>📦</span>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1f2937' }}>AMZN - 亚马逊</h3>
               <span style={{ fontSize: '0.85rem', color: '#6b7280', background: '#f3f4f6', padding: '4px 8px', borderRadius: '4px' }}>股票</span>
             </div>
           </div>
@@ -89,9 +89,9 @@ export const OverviewTab: React.FC = () => {
 
           <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #d1fae5' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <span style={{ fontSize: '1.5rem' }}>🥈</span>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1f2937' }}>PAAS - Pan American Silver</h3>
-              <span style={{ fontSize: '0.85rem', color: '#6b7280', background: '#f3f4f6', padding: '4px 8px', borderRadius: '4px' }}>股票</span>
+              <span style={{ fontSize: '1.5rem' }}>📈</span>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1f2937' }}>QQQ/SPY - 纳指/标普ETF</h3>
+              <span style={{ fontSize: '0.85rem', color: '#6b7280', background: '#f3f4f6', padding: '4px 8px', borderRadius: '4px' }}>ETF</span>
             </div>
           </div>
 

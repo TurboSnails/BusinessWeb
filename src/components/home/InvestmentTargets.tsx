@@ -16,37 +16,37 @@ const InvestmentTargets: React.FC = () => {
   // 投资标的列表（按优先级排序）
   const targets: InvestmentTarget[] = [
     {
+      symbol: 'AMZN',
+      name: '亚马逊',
+      category: 'stock',
+      priority: 1,
+      allocation: 20,
+      beta: 1.1,
+      role: '电商云服务',
+      icon: '📦',
+      evaluation: '核心建议：将谷歌换为亚马逊，并利用从贵金属/RKLB减仓的资金增持。捕捉其50%的潜在涨幅。全球电商和云计算（AWS）领导者，AWS是主要利润来源。Prime会员和物流网络护城河强。'
+    },
+    {
       symbol: 'TSM',
       name: '台积电',
       category: 'stock',
-      priority: 1,
+      priority: 2,
       allocation: 20,
       beta: 1.3,
       role: '半导体核心',
       icon: '🔌',
-      evaluation: '全球半导体代工龙头，AI芯片需求的核心受益者。技术护城河深厚，3nm/5nm制程领先。受益于AI、数据中心、汽车电子长期增长。风险：地缘政治、周期性波动。建议：核心持仓，长期持有。'
+      evaluation: '维持不变。AI芯片制造垄断地位，是2026年算力需求的"卖铲人"。全球半导体代工龙头，技术护城河深厚，3nm/5nm制程领先。'
     },
     {
       symbol: 'LLY',
       name: '礼来',
       category: 'stock',
-      priority: 2,
-      allocation: 20,
+      priority: 3,
+      allocation: 15,
       beta: 0.8,
       role: '制药增长',
       icon: '💊',
-      evaluation: 'GLP-1药物（Mounjaro/Zepbound）市场领导者，糖尿病和肥胖症治疗领域增长强劲。研发管线丰富，现金流优秀。防御性强，Beta低。风险：专利到期、竞争加剧。建议：稳健增长型，适合防御配置。'
-    },
-    {
-      symbol: 'GOOGL',
-      name: '谷歌',
-      category: 'stock',
-      priority: 3,
-      allocation: 15,
-      beta: 1.1,
-      role: 'AI领导',
-      icon: '🔍',
-      evaluation: '搜索广告业务稳定，AI（Gemini）和云计算（GCP）增长潜力大。YouTube、Android生态护城河强。估值相对合理。风险：监管压力、AI竞争。建议：科技核心持仓，关注AI进展。'
+      evaluation: '稍作减仓，锁定部分利润，降低单一医药股风险，但仍保留核心增长头寸。GLP-1药物（Mounjaro/Zepbound）市场领导者，研发管线丰富，现金流优秀。'
     },
     {
       symbol: 'AXP',
@@ -57,29 +57,29 @@ const InvestmentTargets: React.FC = () => {
       beta: 1.4,
       role: '金融稳定',
       icon: '💳',
-      evaluation: '高端信用卡市场领导者，高净值客户粘性强。商业模式优秀（闭环网络），费率收入稳定。受益于消费升级和旅游复苏。风险：经济衰退影响消费、竞争。建议：金融板块核心，Beta较高需注意。'
+      evaluation: '维持不变。作为消费和金融的稳定器，提供分红和抗跌性。高端信用卡市场领导者，高净值客户粘性强，商业模式优秀。'
     },
     {
-      symbol: 'PAAS',
-      name: 'Pan American Silver',
-      category: 'stock',
+      symbol: 'QQQ',
+      name: '纳指ETF',
+      category: 'etf',
       priority: 5,
-      allocation: 10,
-      beta: 1.5,
-      role: '银矿对冲',
-      icon: '🥈',
-      evaluation: '全球主要银矿生产商，受益于白银工业需求和通胀对冲。金银比高时（>85）买入机会。与黄金联动，但波动更大。风险：金属价格波动、开采成本。建议：通胀对冲工具，阶段性配置。'
+      allocation: 15,
+      beta: 1.0,
+      role: '市场Beta',
+      icon: '📈',
+      evaluation: '新增：将部分个股风险转化为市场Beta收益。QQQ/SPY纳指/标普ETF。如果不想选ETF，可考虑微软(MSFT)以补充软件端。'
     },
     {
       symbol: 'RKLB',
       name: 'Rocket Lab',
       category: 'stock',
       priority: 6,
-      allocation: 10,
+      allocation: 5,
       beta: 2.0,
       role: '航天潜力',
       icon: '🚀',
-      evaluation: '小型卫星发射服务商，商业航天赛道高成长。技术领先，订单增长。但行业早期，盈利不稳定。Beta极高（2.0），波动大。风险：技术失败、竞争、资金需求。建议：卫星仓位，高风险高收益，仅适合风险承受能力强的投资者。'
+      evaluation: '降至5%。保留"彩票"性质的爆发力，但控制回撤风险。小型卫星发射服务商，商业航天赛道高成长，但行业早期，盈利不稳定。'
     },
     {
       symbol: 'GOLD',
@@ -90,7 +90,7 @@ const InvestmentTargets: React.FC = () => {
       beta: 0.9,
       role: '通胀对冲',
       icon: '🥇',
-      evaluation: '传统避险资产，通胀对冲工具。受益于地缘政治、央行购买、美元走弱。但无股息，机会成本高。卖出信号：利率上升（10年美债>4%）、美元强势（DXY>105）、回调>10%。建议：防御配置，动态调整。'
+      evaluation: '合并PAAS和GOLD，仅保留10%作为纯粹的对冲工具。传统避险资产，通胀对冲工具。受益于地缘政治、央行购买、美元走弱。'
     }
   ]
 

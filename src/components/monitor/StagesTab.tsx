@@ -20,7 +20,7 @@ export const StagesTab: React.FC = () => {
 
     <p style={{ fontSize: '0.95rem', lineHeight: '1.8', color: '#78350f', marginBottom: '12px' }}>
 
-    您的组合包括 <strong>LLY、AXP、GOOGL、TSM、PAAS、RKLB、GOLD</strong>（黄金商品，假设为黄金相关资产如GLD ETF或Barrick Gold股票），每个约12.5%，加上现金12.5%。黄金部分（GOLD + PAAS）占约25%，提供通胀对冲和防御。
+    您的组合包括 <strong>AMZN(20%)、TSM(20%)、LLY(15%)、AXP(15%)、QQQ/SPY(15%)、RKLB(5%)、GOLD(10%)</strong>。合并PAAS和GOLD，仅保留10%作为纯粹的对冲工具。
 
     </p>
 
@@ -104,11 +104,11 @@ export const StagesTab: React.FC = () => {
 
     <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
 
-    <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937' }}>LLY</td>
+    <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937' }}>AMZN</td>
 
     <td style={{ padding: '12px', color: '#374151' }}>20%</td>
 
-    <td style={{ padding: '12px', color: '#374151' }}>制药增长</td>
+    <td style={{ padding: '12px', color: '#374151' }}>电商云服务 - 核心建议：将谷歌换为亚马逊，捕捉其50%的潜在涨幅</td>
 
     <td style={{ padding: '12px', color: '#059669' }}>+0.79%</td>
 
@@ -122,7 +122,7 @@ export const StagesTab: React.FC = () => {
 
     <td style={{ padding: '12px', color: '#374151' }}>15%</td>
 
-    <td style={{ padding: '12px', color: '#374151' }}>金融稳定</td>
+    <td style={{ padding: '12px', color: '#374151' }}>金融稳定 - 维持不变，作为消费和金融的稳定器，提供分红和抗跌性</td>
 
     <td style={{ padding: '12px', color: '#059669' }}>+0.55%</td>
 
@@ -132,11 +132,11 @@ export const StagesTab: React.FC = () => {
 
     <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
 
-    <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937' }}>GOOGL</td>
+    <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937' }}>TSM</td>
 
-    <td style={{ padding: '12px', color: '#374151' }}>15%</td>
+    <td style={{ padding: '12px', color: '#374151' }}>20%</td>
 
-    <td style={{ padding: '12px', color: '#374151' }}>AI领导</td>
+    <td style={{ padding: '12px', color: '#374151' }}>半导体核心 - 维持不变，AI芯片制造垄断地位，是2026年算力需求的"卖铲人"</td>
 
     <td style={{ padding: '12px', color: '#059669' }}>+0.07%</td>
 
@@ -146,11 +146,11 @@ export const StagesTab: React.FC = () => {
 
     <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
 
-    <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937' }}>TSM</td>
+    <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937' }}>LLY</td>
 
-    <td style={{ padding: '12px', color: '#374151' }}>20%</td>
+    <td style={{ padding: '12px', color: '#374151' }}>15%</td>
 
-    <td style={{ padding: '12px', color: '#374151' }}>半导体核心</td>
+    <td style={{ padding: '12px', color: '#374151' }}>制药增长 - 稍作减仓，锁定部分利润，降低单一医药股风险</td>
 
     <td style={{ padding: '12px', color: '#059669' }}>+2.07%</td>
 
@@ -160,15 +160,15 @@ export const StagesTab: React.FC = () => {
 
     <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
 
-    <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937' }}>PAAS</td>
+    <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937' }}>QQQ/SPY</td>
 
-    <td style={{ padding: '12px', color: '#374151' }}>10%</td>
+    <td style={{ padding: '12px', color: '#374151' }}>15%</td>
 
-    <td style={{ padding: '12px', color: '#374151' }}>银矿对冲</td>
+    <td style={{ padding: '12px', color: '#374151' }}>市场Beta - 新增：将部分个股风险转化为市场Beta收益，如果不想选ETF，可考虑微软(MSFT)</td>
 
-    <td style={{ padding: '12px', color: '#059669' }}>+5.69%</td>
+    <td style={{ padding: '12px', color: '#6b7280' }}>N/A</td>
 
-    <td style={{ padding: '12px', color: '#374151' }}>1.5</td>
+    <td style={{ padding: '12px', color: '#374151' }}>1.0</td>
 
     </tr>
 
@@ -176,9 +176,9 @@ export const StagesTab: React.FC = () => {
 
     <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937' }}>RKLB</td>
 
-    <td style={{ padding: '12px', color: '#374151' }}>10%</td>
+    <td style={{ padding: '12px', color: '#374151' }}>5%</td>
 
-    <td style={{ padding: '12px', color: '#374151' }}>航天潜力</td>
+    <td style={{ padding: '12px', color: '#374151' }}>航天潜力 - 降至5%，保留"彩票"性质的爆发力，但控制回撤风险</td>
 
     <td style={{ padding: '12px', color: '#dc2626' }}>-2.00%</td>
 
@@ -192,7 +192,7 @@ export const StagesTab: React.FC = () => {
 
     <td style={{ padding: '12px', color: '#374151' }}>10%</td>
 
-    <td style={{ padding: '12px', color: '#374151' }}>黄金商品；卖出若回调&gt;10%或利率升</td>
+    <td style={{ padding: '12px', color: '#374151' }}>黄金商品 - 合并PAAS和GOLD，仅保留10%作为纯粹的对冲工具</td>
 
     <td style={{ padding: '12px', color: '#059669' }}>+3.03%</td>
 
@@ -284,13 +284,13 @@ export const StagesTab: React.FC = () => {
 
     <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>权益70-80%，商品15-20%，现金5%</td>
 
-    <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>持有LLY/TSM/GOOGL，加RKLB</td>
+    <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>持有LLY/TSM/AMZN，加RKLB</td>
 
     <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>增科技，监控AI</td>
 
     <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>无</td>
 
-    <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>持有GOLD/PAAS；若金价+20% YTD，卖1/3转权益（如TSM）</td>
+    <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>持有GOLD；若金价+20% YTD，卖1/3转权益（如TSM）</td>
 
     </tr>
 
@@ -302,7 +302,7 @@ export const StagesTab: React.FC = () => {
 
     <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>权益60-70%，商品20-25%，现金10%</td>
 
-    <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>减RKLB，转GOOGL</td>
+    <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>减RKLB，转AMZN</td>
 
     <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>加TLT；止盈&gt;10%</td>
 
@@ -322,7 +322,7 @@ export const StagesTab: React.FC = () => {
 
     <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>只减不加；VIX PUT。止损-8%</td>
 
-    <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>移仓PAAS/GOLD；限交易</td>
+    <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>移仓GOLD；限交易</td>
 
     <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>5-10% SQQQ/SPXS</td>
 
@@ -338,7 +338,7 @@ export const StagesTab: React.FC = () => {
 
     <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>权益30-40%，商品30%，现金30-40%</td>
 
-    <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>1/8现金买PAAS/GOLD</td>
+    <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>1/8现金买GOLD</td>
 
     <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>All in优质；增商品若CPI&gt;3%</td>
 
@@ -356,13 +356,13 @@ export const StagesTab: React.FC = () => {
 
     <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>权益60-70%，商品20-25%，现金10%</td>
 
-    <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>增TSM/GOOGL</td>
+    <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>增TSM/AMZN</td>
 
     <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>再平衡，卖&lt; -5%</td>
 
     <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>5% short弱势</td>
 
-    <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>若权益反弹，卖GOLD/PAAS 20%，转成长股；金/道指&gt;0.1持，否则卖</td>
+    <td style={{ padding: '10px', color: '#374151', fontSize: '0.7rem' }}>若权益反弹，卖GOLD 20%，转成长股；金/道指&gt;0.1持，否则卖</td>
 
     </tr>
 
