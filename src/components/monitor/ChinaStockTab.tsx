@@ -185,12 +185,13 @@ export const ChinaStockTab: React.FC = () => {
         </h2>
         
         <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '16px', marginBottom: '20px' }}>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#991b1b' }}>四大候选板块（单选持有）</h3>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#991b1b' }}>五大候选板块（单选持有）</h3>
           <div style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.8' }}>
             <div>1. 半导体ETF（512480）</div>
             <div>2. 机器人ETF（562500）</div>
             <div>3. AI ETF（515980）</div>
             <div>4. 军工ETF（512710）</div>
+            <div>5. 数据要素ETF（516003）← 新政策方向</div>
           </div>
         </div>
 
