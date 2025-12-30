@@ -612,52 +612,75 @@ const InvestmentTargets: React.FC = () => {
               {/* 第二个表格的统计行 */}
               <tr style={{ background: '#fef2f2', borderTop: '2px solid #fca5a5' }}>
                 <td colSpan={6} style={{ padding: '16px' }}>
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(4, 1fr)',
-                    gap: '16px'
-                  }}>
-                    <div style={{
-                      padding: '12px',
-                      background: 'white',
-                      borderRadius: '8px',
-                      border: '1px solid #fee2e2',
-                      textAlign: 'center'
-                    }}>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '4px' }}>总仓位</div>
-                      <div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1e293b' }}>100%</div>
-                    </div>
-                    <div style={{
-                      padding: '12px',
-                      background: 'white',
-                      borderRadius: '8px',
-                      border: '1px solid #fee2e2',
-                      textAlign: 'center'
-                    }}>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '4px' }}>平均Beta</div>
-                      <div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1e293b' }}>1.15</div>
-                    </div>
-                    <div style={{
-                      padding: '12px',
-                      background: 'white',
-                      borderRadius: '8px',
-                      border: '1px solid #fee2e2',
-                      textAlign: 'center'
-                    }}>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '4px' }}>股票数量</div>
-                      <div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1e293b' }}>5</div>
-                    </div>
-                    <div style={{
-                      padding: '12px',
-                      background: 'white',
-                      borderRadius: '8px',
-                      border: '1px solid #fee2e2',
-                      textAlign: 'center'
-                    }}>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '4px' }}>商品数量</div>
-                      <div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1e293b' }}>1</div>
-                    </div>
-                  </div>
+                  {(() => {
+                    // 危机应对版数据：建议权重
+                    const crisisData = [
+                      { symbol: 'GOLD', weight: 20, category: 'commodity', beta: 0.9 },
+                      { symbol: 'SGOV', weight: 15, category: 'bond', beta: 0 },
+                      { symbol: 'AMZN', weight: 15, category: 'stock', beta: 1.1 },
+                      { symbol: 'TSM', weight: 15, category: 'stock', beta: 1.3 },
+                      { symbol: 'XLP/XLV', weight: 15, category: 'etf', beta: 0.8 }, // 必需消费/医药ETF，beta估算0.8
+                      { symbol: 'LLY', weight: 15, category: 'stock', beta: 0.8 },
+                      { symbol: 'RKLB', weight: 5, category: 'stock', beta: 2.0 },
+                      { symbol: 'QQQ', weight: 0, category: 'etf', beta: 1.0 } // 权重为0，不计入
+                    ]
+                    
+                    // 只计算权重>0的
+                    const activeData = crisisData.filter(d => d.weight > 0)
+                    const totalWeight = activeData.reduce((sum, d) => sum + d.weight, 0)
+                    const stockCount = activeData.filter(d => d.category === 'stock' || d.category === 'etf').length
+                    const commodityCount = activeData.filter(d => d.category === 'commodity').length
+                    const avgBeta = activeData.reduce((sum, d) => sum + d.beta * d.weight, 0) / totalWeight
+                    
+                    return (
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(4, 1fr)',
+                        gap: '16px'
+                      }}>
+                        <div style={{
+                          padding: '12px',
+                          background: 'white',
+                          borderRadius: '8px',
+                          border: '1px solid #fee2e2',
+                          textAlign: 'center'
+                        }}>
+                          <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '4px' }}>总仓位</div>
+                          <div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1e293b' }}>{totalWeight}%</div>
+                        </div>
+                        <div style={{
+                          padding: '12px',
+                          background: 'white',
+                          borderRadius: '8px',
+                          border: '1px solid #fee2e2',
+                          textAlign: 'center'
+                        }}>
+                          <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '4px' }}>平均Beta</div>
+                          <div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1e293b' }}>{avgBeta.toFixed(2)}</div>
+                        </div>
+                        <div style={{
+                          padding: '12px',
+                          background: 'white',
+                          borderRadius: '8px',
+                          border: '1px solid #fee2e2',
+                          textAlign: 'center'
+                        }}>
+                          <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '4px' }}>股票数量</div>
+                          <div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1e293b' }}>{stockCount}</div>
+                        </div>
+                        <div style={{
+                          padding: '12px',
+                          background: 'white',
+                          borderRadius: '8px',
+                          border: '1px solid #fee2e2',
+                          textAlign: 'center'
+                        }}>
+                          <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '4px' }}>商品数量</div>
+                          <div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1e293b' }}>{commodityCount}</div>
+                        </div>
+                      </div>
+                    )
+                  })()}
                 </td>
               </tr>
             </tbody>
