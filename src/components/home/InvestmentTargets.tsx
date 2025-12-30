@@ -398,61 +398,219 @@ const InvestmentTargets: React.FC = () => {
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* 危机应对版：2026 防御性组合调整建议 */}
+      <div style={{
+        marginTop: '32px',
+        background: 'white',
+        borderRadius: '16px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+        overflow: 'hidden'
+      }}>
+        <div style={{
+          background: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
+          padding: '20px 24px',
+          color: 'white'
+        }}>
+          <h2 style={{
+            fontSize: '1.5rem',
+            fontWeight: '700',
+            margin: '0 0 8px 0',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
+            <span>🛡️</span>
+            危机应对版：2026 防御性组合调整建议
+          </h2>
+          <p style={{ margin: 0, opacity: 0.9, fontSize: '0.95rem' }}>
+            针对潜在经济危机、滞胀或地缘政治风险的防御性配置调整
+          </p>
+        </div>
 
         <div style={{
-          padding: '20px',
-          background: '#f8fafc',
-          borderTop: '2px solid #e2e8f0'
+          background: 'white',
+          borderRadius: '0 0 16px 16px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+          overflow: 'hidden'
         }}>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '16px'
-          }}>
-            <div style={{
-              padding: '16px',
-              background: 'white',
-              borderRadius: '12px',
-              border: '1px solid #e2e8f0'
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{
+              width: '100%',
+              borderCollapse: 'collapse',
+              fontSize: '0.9rem'
             }}>
-              <div style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '4px' }}>总仓位</div>
-              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1e293b' }}>
-                {targets.reduce((sum, t) => sum + t.allocation, 0)}%
-              </div>
-            </div>
-            <div style={{
-              padding: '16px',
-              background: 'white',
-              borderRadius: '12px',
-              border: '1px solid #e2e8f0'
-            }}>
-              <div style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '4px' }}>平均Beta</div>
-              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1e293b' }}>
-                {(targets.reduce((sum, t) => sum + t.beta * t.allocation, 0) / targets.reduce((sum, t) => sum + t.allocation, 0)).toFixed(2)}
-              </div>
-            </div>
-            <div style={{
-              padding: '16px',
-              background: 'white',
-              borderRadius: '12px',
-              border: '1px solid #e2e8f0'
-            }}>
-              <div style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '4px' }}>股票数量</div>
-              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1e293b' }}>
-                {targets.filter(t => t.category === 'stock').length}
-              </div>
-            </div>
-            <div style={{
-              padding: '16px',
-              background: 'white',
-              borderRadius: '12px',
-              border: '1px solid #e2e8f0'
-            }}>
-              <div style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '4px' }}>商品数量</div>
-              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1e293b' }}>
-                {targets.filter(t => t.category === 'commodity').length}
-              </div>
-            </div>
+              <thead>
+                <tr style={{
+                  background: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
+                  borderBottom: '2px solid #fecaca'
+                }}>
+                  <th style={{
+                    padding: '16px 12px',
+                    textAlign: 'left',
+                    fontWeight: '700',
+                    color: '#991b1b',
+                    fontSize: '0.85rem',
+                    whiteSpace: 'nowrap'
+                  }}>代码</th>
+                  <th style={{
+                    padding: '16px 12px',
+                    textAlign: 'left',
+                    fontWeight: '700',
+                    color: '#991b1b',
+                    fontSize: '0.85rem'
+                  }}>名称</th>
+                  <th style={{
+                    padding: '16px 12px',
+                    textAlign: 'center',
+                    fontWeight: '700',
+                    color: '#991b1b',
+                    fontSize: '0.85rem'
+                  }}>原权重</th>
+                  <th style={{
+                    padding: '16px 12px',
+                    textAlign: 'center',
+                    fontWeight: '700',
+                    color: '#991b1b',
+                    fontSize: '0.85rem'
+                  }}>建议权重</th>
+                  <th style={{
+                    padding: '16px 12px',
+                    textAlign: 'center',
+                    fontWeight: '700',
+                    color: '#991b1b',
+                    fontSize: '0.85rem'
+                  }}>调整动作</th>
+                  <th style={{
+                    padding: '16px 12px',
+                    textAlign: 'left',
+                    fontWeight: '700',
+                    color: '#991b1b',
+                    fontSize: '0.85rem'
+                  }}>防守逻辑</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style={{ borderBottom: '1px solid #fee2e2', background: '#fef2f2' }}>
+                  <td style={{ padding: '14px 12px', fontWeight: '600', color: '#1f2937' }}>GOLD</td>
+                  <td style={{ padding: '14px 12px', color: '#374151' }}>黄金</td>
+                  <td style={{ padding: '14px 12px', textAlign: 'center', color: '#374151' }}>10%</td>
+                  <td style={{ padding: '14px 12px', textAlign: 'center', color: '#dc2626', fontWeight: '600' }}>20%</td>
+                  <td style={{ padding: '14px 12px', textAlign: 'center', color: '#dc2626', fontWeight: '600' }}>🔼 大幅增持</td>
+                  <td style={{ padding: '14px 12px', color: '#374151', fontSize: '0.85rem' }}>核心防守。多家机构预测2026年金价将冲击$4000-$5000，是对抗滞胀、货币贬值和地缘政治危机的最佳资产。</td>
+                </tr>
+                <tr style={{ borderBottom: '1px solid #fee2e2' }}>
+                  <td style={{ padding: '14px 12px', fontWeight: '600', color: '#1f2937' }}>SGOV</td>
+                  <td style={{ padding: '14px 12px', color: '#374151' }}>美债/现金</td>
+                  <td style={{ padding: '14px 12px', textAlign: 'center', color: '#374151' }}>0%</td>
+                  <td style={{ padding: '14px 12px', textAlign: 'center', color: '#059669', fontWeight: '600' }}>15%</td>
+                  <td style={{ padding: '14px 12px', textAlign: 'center', color: '#059669', fontWeight: '600' }}>🆕 新增配置</td>
+                  <td style={{ padding: '14px 12px', color: '#374151', fontSize: '0.85rem' }}>流动性之王。危机时刻"现金为王"，短债ETF提供约4-5%的无风险收益，且能在大跌时提供抄底资金（"干火药"）。</td>
+                </tr>
+                <tr style={{ borderBottom: '1px solid #fee2e2', background: '#fef2f2' }}>
+                  <td style={{ padding: '14px 12px', fontWeight: '600', color: '#1f2937' }}>AMZN</td>
+                  <td style={{ padding: '14px 12px', color: '#374151' }}>亚马逊</td>
+                  <td style={{ padding: '14px 12px', textAlign: 'center', color: '#374151' }}>20%</td>
+                  <td style={{ padding: '14px 12px', textAlign: 'center', color: '#f59e0b', fontWeight: '600' }}>15%</td>
+                  <td style={{ padding: '14px 12px', textAlign: 'center', color: '#f59e0b', fontWeight: '600' }}>🔽 适度减仓</td>
+                  <td style={{ padding: '14px 12px', color: '#374151', fontSize: '0.85rem' }}>保留核心增长逻辑，但降低单一科技股暴露。AWS在危机中比纯消费业务更有韧性。</td>
+                </tr>
+                <tr style={{ borderBottom: '1px solid #fee2e2' }}>
+                  <td style={{ padding: '14px 12px', fontWeight: '600', color: '#1f2937' }}>TSM</td>
+                  <td style={{ padding: '14px 12px', color: '#374151' }}>台积电</td>
+                  <td style={{ padding: '14px 12px', textAlign: 'center', color: '#374151' }}>20%</td>
+                  <td style={{ padding: '14px 12px', textAlign: 'center', color: '#f59e0b', fontWeight: '600' }}>15%</td>
+                  <td style={{ padding: '14px 12px', textAlign: 'center', color: '#f59e0b', fontWeight: '600' }}>🔽 适度减仓</td>
+                  <td style={{ padding: '14px 12px', color: '#374151', fontSize: '0.85rem' }}>半导体是周期之母，危机中需求可能骤降。保留15%以享受AI长期红利，但需控制回撤。</td>
+                </tr>
+                <tr style={{ borderBottom: '1px solid #fee2e2', background: '#fef2f2' }}>
+                  <td style={{ padding: '14px 12px', fontWeight: '600', color: '#1f2937' }}>XLP/XLV</td>
+                  <td style={{ padding: '14px 12px', color: '#374151' }}>必需消费/医药</td>
+                  <td style={{ padding: '14px 12px', textAlign: 'center', color: '#374151' }}>0%</td>
+                  <td style={{ padding: '14px 12px', textAlign: 'center', color: '#059669', fontWeight: '600' }}>15%</td>
+                  <td style={{ padding: '14px 12px', textAlign: 'center', color: '#059669', fontWeight: '600' }}>🆕 新增/替换</td>
+                  <td style={{ padding: '14px 12px', color: '#374151', fontSize: '0.85rem' }}>替换 AXP。将美国运通（周期性金融）替换为必需消费品(XLP)或扩大医药(XLV)。无论经济多差，人们都要吃药和买日用品。</td>
+                </tr>
+                <tr style={{ borderBottom: '1px solid #fee2e2' }}>
+                  <td style={{ padding: '14px 12px', fontWeight: '600', color: '#1f2937' }}>LLY</td>
+                  <td style={{ padding: '14px 12px', color: '#374151' }}>礼来</td>
+                  <td style={{ padding: '14px 12px', textAlign: 'center', color: '#374151' }}>15%</td>
+                  <td style={{ padding: '14px 12px', textAlign: 'center', color: '#6b7280', fontWeight: '600' }}>15%</td>
+                  <td style={{ padding: '14px 12px', textAlign: 'center', color: '#6b7280', fontWeight: '600' }}>➖ 维持不变</td>
+                  <td style={{ padding: '14px 12px', color: '#374151', fontSize: '0.85rem' }}>医药属防御板块，且减肥药需求受经济周期影响较小，具有独立行情潜力。</td>
+                </tr>
+                <tr style={{ borderBottom: '1px solid #fee2e2', background: '#fef2f2' }}>
+                  <td style={{ padding: '14px 12px', fontWeight: '600', color: '#1f2937' }}>RKLB</td>
+                  <td style={{ padding: '14px 12px', color: '#374151' }}>Rocket Lab</td>
+                  <td style={{ padding: '14px 12px', textAlign: 'center', color: '#374151' }}>5%</td>
+                  <td style={{ padding: '14px 12px', textAlign: 'center', color: '#6b7280', fontWeight: '600' }}>5%</td>
+                  <td style={{ padding: '14px 12px', textAlign: 'center', color: '#6b7280', fontWeight: '600' }}>➖ 维持不变</td>
+                  <td style={{ padding: '14px 12px', color: '#374151', fontSize: '0.85rem' }}>仓位较小，作为"彩票"保留。但在极端危机下，此类未盈利成长股可能归零，需设好止损。</td>
+                </tr>
+                <tr style={{ borderBottom: '1px solid #fee2e2' }}>
+                  <td style={{ padding: '14px 12px', fontWeight: '600', color: '#1f2937' }}>QQQ</td>
+                  <td style={{ padding: '14px 12px', color: '#374151' }}>纳指ETF</td>
+                  <td style={{ padding: '14px 12px', textAlign: 'center', color: '#374151' }}>15%</td>
+                  <td style={{ padding: '14px 12px', textAlign: 'center', color: '#dc2626', fontWeight: '600' }}>0%</td>
+                  <td style={{ padding: '14px 12px', textAlign: 'center', color: '#dc2626', fontWeight: '600' }}>⛔ 清仓</td>
+                  <td style={{ padding: '14px 12px', color: '#374151', fontSize: '0.85rem' }}>去重叠。QQQ与AMZN/TSM高度重叠。在防御模式下，应剔除指数Beta，换成现金或黄金。</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      {/* 统计卡片 */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        gap: '16px',
+        marginTop: '24px'
+      }}>
+        <div style={{
+          padding: '16px',
+          background: 'white',
+          borderRadius: '12px',
+          border: '1px solid #e2e8f0'
+        }}>
+          <div style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '4px' }}>总仓位</div>
+          <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1e293b' }}>
+            {targets.reduce((sum, t) => sum + t.allocation, 0)}%
+          </div>
+        </div>
+        <div style={{
+          padding: '16px',
+          background: 'white',
+          borderRadius: '12px',
+          border: '1px solid #e2e8f0'
+        }}>
+          <div style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '4px' }}>平均Beta</div>
+          <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1e293b' }}>
+            {(targets.reduce((sum, t) => sum + t.beta * t.allocation, 0) / targets.reduce((sum, t) => sum + t.allocation, 0)).toFixed(2)}
+          </div>
+        </div>
+        <div style={{
+          padding: '16px',
+          background: 'white',
+          borderRadius: '12px',
+          border: '1px solid #e2e8f0'
+        }}>
+          <div style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '4px' }}>股票数量</div>
+          <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1e293b' }}>
+            {targets.filter(t => t.category === 'stock').length}
+          </div>
+        </div>
+        <div style={{
+          padding: '16px',
+          background: 'white',
+          borderRadius: '12px',
+          border: '1px solid #e2e8f0'
+        }}>
+          <div style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '4px' }}>商品数量</div>
+          <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1e293b' }}>
+            {targets.filter(t => t.category === 'commodity').length}
           </div>
         </div>
       </div>
