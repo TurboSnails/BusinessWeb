@@ -7,7 +7,7 @@ export const ChinaStockTab: React.FC = () => {
       <div style={{ background: 'white', border: '2px solid #3b82f6', borderRadius: '12px', padding: '24px' }}>
         <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#1e40af', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '2rem' }}>📊</span>
-          一、资产配置（总仓位85%，现金15%）
+          一、资产配置（总仓位90%，现金10%）
         </h2>
         
         <div style={{ overflowX: 'auto' }}>
@@ -16,46 +16,52 @@ export const ChinaStockTab: React.FC = () => {
               <tr style={{ background: '#eff6ff', borderBottom: '2px solid #3b82f6' }}>
                 <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#1e40af' }}>资产类别</th>
                 <th style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#1e40af' }}>比例</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#1e40af' }}>核心标的</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#1e40af' }}>目标</th>
+                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#1e40af' }}>核心标的与逻辑</th>
+                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#1e40af' }}>优化理由</th>
               </tr>
             </thead>
             <tbody>
               <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
                 <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937' }}>稳健股票</td>
                 <td style={{ padding: '12px', textAlign: 'center', color: '#374151' }}>30%</td>
-                <td style={{ padding: '12px', color: '#374151' }}>财务筛选个股</td>
-                <td style={{ padding: '12px', color: '#374151' }}>长期跑赢大盘</td>
+                <td style={{ padding: '12px', color: '#374151' }}>财务筛选个股（ROE&gt;15%+FCF/市值&gt;3%+股息率&gt;1.5%）</td>
+                <td style={{ padding: '12px', color: '#374151' }}>保持核心，跑赢大盘</td>
               </tr>
               <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
                 <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937' }}>红利防御</td>
-                <td style={{ padding: '12px', textAlign: 'center', color: '#374151' }}>25%</td>
-                <td style={{ padding: '12px', color: '#374151' }}>515300(15%) + 513690(10%)</td>
-                <td style={{ padding: '12px', color: '#374151' }}>降低波动，稳定分红</td>
+                <td style={{ padding: '12px', textAlign: 'center', color: '#374151' }}>20%</td>
+                <td style={{ padding: '12px', color: '#374151' }}>515300(15%) + 513690(5%) → 降低港股占比（汇率风险）</td>
+                <td style={{ padding: '12px', color: '#374151' }}>避免港股波动拖累，聚焦A股高股息</td>
               </tr>
               <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
-                <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937' }}>宽基成长</td>
+                <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937' }}>债券</td>
                 <td style={{ padding: '12px', textAlign: 'center', color: '#374151' }}>15%</td>
-                <td style={{ padding: '12px', color: '#374151' }}>510300(10%) + 588000(5%)</td>
-                <td style={{ padding: '12px', color: '#374151' }}>捕捉市场Beta+创新红利</td>
+                <td style={{ padding: '12px', color: '#374151' }}>511520(10%) + 511060(5%) → 短久期政金债+中长久期国债</td>
+                <td style={{ padding: '12px', color: '#374151' }}>替换宽基成长，解决重复+增强防御</td>
               </tr>
               <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
                 <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937' }}>板块轮动</td>
-                <td style={{ padding: '12px', textAlign: 'center', color: '#374151' }}>10%</td>
-                <td style={{ padding: '12px', color: '#374151' }}>半导体/数据要素/储能/创新药</td>
-                <td style={{ padding: '12px', color: '#374151' }}>捕捉热点超额收益</td>
+                <td style={{ padding: '12px', textAlign: 'center', color: '#374151' }}>5%</td>
+                <td style={{ padding: '12px', color: '#374151' }}>4选1 ETF（半导体512480/机器人562500/AI 515980/军工512710），严格按信号交易</td>
+                <td style={{ padding: '12px', color: '#374151' }}>降低风险，保留弹性</td>
+              </tr>
+              <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+                <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937' }}>全球资产</td>
+                <td style={{ padding: '12px', textAlign: 'center', color: '#374151' }}>5%</td>
+                <td style={{ padding: '12px', color: '#374151' }}>159980(5%) → 独立类别，分散地域风险（与A股相关系数0.5）</td>
+                <td style={{ padding: '12px', color: '#374151' }}>修正原「避险资产」错误归类</td>
               </tr>
               <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
                 <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937' }}>避险资产</td>
                 <td style={{ padding: '12px', textAlign: 'center', color: '#374151' }}>5%</td>
-                <td style={{ padding: '12px', color: '#374151' }}>518880(3%) + 159980(2%)</td>
-                <td style={{ padding: '12px', color: '#374151' }}>对冲系统性风险</td>
+                <td style={{ padding: '12px', color: '#374151' }}>518880(5%) → 纯黄金ETF，对冲黑天鹅（股灾/地缘冲突）</td>
+                <td style={{ padding: '12px', color: '#374151' }}>专注真正避险工具</td>
               </tr>
               <tr style={{ borderBottom: '1px solid #e5e7eb', background: '#f0fdf4' }}>
                 <td style={{ padding: '12px', fontWeight: '600', color: '#1f2937' }}>现金储备</td>
-                <td style={{ padding: '12px', textAlign: 'center', color: '#374151' }}>15%</td>
+                <td style={{ padding: '12px', textAlign: 'center', color: '#374151' }}>10%</td>
                 <td style={{ padding: '12px', color: '#374151' }}>国债逆回购</td>
-                <td style={{ padding: '12px', color: '#374151' }}>机动+逆回购收益</td>
+                <td style={{ padding: '12px', color: '#374151' }}>降至10%，5%转债券提升收益</td>
               </tr>
             </tbody>
           </table>
@@ -115,7 +121,7 @@ export const ChinaStockTab: React.FC = () => {
       <div style={{ background: 'white', border: '2px solid #f59e0b', borderRadius: '12px', padding: '24px' }}>
         <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#d97706', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '2rem' }}>🛡️</span>
-          红利防御配置（25%压舱石）
+          红利防御配置（20%压舱石）
         </h2>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -128,10 +134,10 @@ export const ChinaStockTab: React.FC = () => {
           </div>
           
           <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px', padding: '16px' }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '8px', color: '#92400e' }}>2. 恒生高股息ETF（513690）—— 10%</h3>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '8px', color: '#92400e' }}>2. 恒生高股息ETF（513690）—— 5%</h3>
             <div style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.8' }}>
-              <div>• 港股通红利，分散地域风险</div>
-              <div>• 人民币计价，无换汇成本</div>
+              <div>• 降低港股占比（汇率风险）</div>
+              <div>• 避免港股波动拖累，聚焦A股高股息</div>
             </div>
           </div>
         </div>
@@ -145,27 +151,27 @@ export const ChinaStockTab: React.FC = () => {
         </div>
       </div>
 
-      {/* 宽基+成长配置 */}
+      {/* 债券配置 */}
       <div style={{ background: 'white', border: '2px solid #8b5cf6', borderRadius: '12px', padding: '24px' }}>
         <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#7c3aed', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '2rem' }}>📈</span>
-          宽基+成长配置（15%基础仓）
+          债券配置（15%防御仓）
         </h2>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <div style={{ background: '#faf5ff', border: '1px solid #e9d5ff', borderRadius: '8px', padding: '16px' }}>
             <div style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.8' }}>
-              <div><strong>• 沪深300ETF（510300）—— 10%</strong>（市场基准）</div>
-              <div><strong>• 科创50ETF（588000）—— 5%</strong>（创新成长）</div>
+              <div><strong>• 短久期政金债ETF（511520）—— 10%</strong></div>
+              <div><strong>• 中长久期国债ETF（511060）—— 5%</strong></div>
             </div>
           </div>
           
           <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '8px', padding: '16px' }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '8px', color: '#166534' }}>作用</h3>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '8px', color: '#166534' }}>优化理由</h3>
             <div style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.8' }}>
-              <div>• 捕捉市场平均收益</div>
-              <div>• 参与科创板硬科技红利</div>
-              <div>• 长期持有，季度再平衡</div>
+              <div>• 替换宽基成长，解决重复+增强防御</div>
+              <div>• 5%现金转债券提升收益</div>
+              <div>• 短久期+中长久期组合，平衡收益与风险</div>
             </div>
           </div>
         </div>
@@ -175,16 +181,16 @@ export const ChinaStockTab: React.FC = () => {
       <div style={{ background: 'white', border: '2px solid #ef4444', borderRadius: '12px', padding: '24px' }}>
         <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#dc2626', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '2rem' }}>🚀</span>
-          板块轮动策略（10%卫星仓）
+          板块轮动策略（5%卫星仓）
         </h2>
         
         <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '16px', marginBottom: '20px' }}>
           <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#991b1b' }}>四大候选板块（单选持有）</h3>
           <div style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.8' }}>
             <div>1. 半导体ETF（512480）</div>
-            <div>2. 数据要素ETF（516003）← 新政策方向</div>
-            <div>3. 储能ETF（159566）</div>
-            <div>4. 创新药ETF（515120）</div>
+            <div>2. 机器人ETF（562500）</div>
+            <div>3. AI ETF（515980）</div>
+            <div>4. 军工ETF（512710）</div>
           </div>
         </div>
 
@@ -211,6 +217,29 @@ export const ChinaStockTab: React.FC = () => {
         </div>
       </div>
 
+      {/* 全球资产配置 */}
+      <div style={{ background: 'white', border: '2px solid #6366f1', borderRadius: '12px', padding: '24px' }}>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#4f46e5', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontSize: '2rem' }}>🌍</span>
+          全球资产配置（5%分散风险）
+        </h2>
+        
+        <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '16px', marginBottom: '20px' }}>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#1e40af' }}>组合配置</h3>
+          <div style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.8' }}>
+            <div>• 中概互联商品ETF（159980）—— 5%</div>
+          </div>
+        </div>
+
+        <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '8px', padding: '16px' }}>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '8px', color: '#166534' }}>优化理由</h3>
+          <div style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.8' }}>
+            <div>• 独立类别，分散地域风险（与A股相关系数0.5）</div>
+            <div>• 修正原「避险资产」错误归类</div>
+          </div>
+        </div>
+      </div>
+
       {/* 避险资产配置 */}
       <div style={{ background: 'white', border: '2px solid #f59e0b', borderRadius: '12px', padding: '24px' }}>
         <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#d97706', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -221,8 +250,7 @@ export const ChinaStockTab: React.FC = () => {
         <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px', padding: '16px', marginBottom: '20px' }}>
           <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#92400e' }}>组合配置</h3>
           <div style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.8' }}>
-            <div>• 华安黄金ETF（518880）—— 3%</div>
-            <div>• 中概互联商品ETF（159980）—— 2%</div>
+            <div>• 华安黄金ETF（518880）—— 5%</div>
           </div>
         </div>
 
@@ -235,7 +263,14 @@ export const ChinaStockTab: React.FC = () => {
           </div>
         </div>
 
-        <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '16px' }}>
+        <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '8px', padding: '16px' }}>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '8px', color: '#166534' }}>优化理由</h3>
+          <div style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.8' }}>
+            专注真正避险工具，对冲黑天鹅（股灾/地缘冲突）
+          </div>
+        </div>
+
+        <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '16px', marginTop: '16px' }}>
           <div style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.8', fontWeight: '600' }}>
             正常持有：5%，极端行情可加至10%
           </div>
@@ -246,15 +281,22 @@ export const ChinaStockTab: React.FC = () => {
       <div style={{ background: 'white', border: '2px solid #10b981', borderRadius: '12px', padding: '24px' }}>
         <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#059669', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '2rem' }}>💰</span>
-          现金管理（15%机动资金）
+          现金管理（10%机动资金）
         </h2>
         
         <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '8px', padding: '16px' }}>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#166534' }}>三层用途</h3>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#166534' }}>用途</h3>
           <div style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.8' }}>
-            <div><strong>1. 逆回购收益（8%）：</strong>日常用国债逆回购增厚收益（年化2%+）</div>
-            <div><strong>2. 补仓资金（5%）：</strong>沪深300单月跌&gt;8%时定投</div>
-            <div><strong>3. 自主交易（2%）：</strong>仅买符合8项筛选标准的个股</div>
+            <div>• 国债逆回购：日常增厚收益（年化2%+）</div>
+            <div>• 补仓资金：沪深300单月跌&gt;8%时定投</div>
+            <div>• 自主交易：仅买符合8项筛选标准的个股</div>
+          </div>
+        </div>
+
+        <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px', padding: '16px', marginTop: '16px' }}>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '8px', color: '#92400e' }}>优化理由</h3>
+          <div style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.8' }}>
+            降至10%，5%转债券提升收益
           </div>
         </div>
 
