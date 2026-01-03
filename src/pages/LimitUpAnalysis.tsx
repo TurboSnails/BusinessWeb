@@ -6,7 +6,7 @@ export default function LimitUpAnalysis(): JSX.Element {
   const [selectedConcept, setSelectedConcept] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [onlyLimitUp, setOnlyLimitUp] = useState(false) // 默认不勾选"只看涨停"
+  const [onlyLimitUp, setOnlyLimitUp] = useState(true) // 默认勾选"只看涨停"
   const [expandedStocks, setExpandedStocks] = useState<Set<string>>(new Set()) // 记录展开的股票代码
 
   // 尝试从财联社API获取数据
