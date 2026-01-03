@@ -687,6 +687,71 @@ const InvestmentTargets: React.FC = () => {
           </table>
         </div>
       </div>
+
+      {/* 可靠防守表格 */}
+      <div style={{
+        marginTop: '40px',
+        background: 'white',
+        borderRadius: '12px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+        padding: '24px',
+        overflowX: 'auto'
+      }}>
+        <h2 style={{
+          margin: '0 0 20px',
+          fontSize: '1.3rem',
+          fontWeight: '700',
+          color: '#1f2937',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          🛡️ 可靠防守
+        </h2>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ background: '#f9fafb', borderBottom: '2px solid #e5e7eb' }}>
+              <th style={{ padding: '12px', textAlign: 'left', fontSize: '0.9rem', fontWeight: '600', color: '#6b7280' }}>标的</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontSize: '0.9rem', fontWeight: '600', color: '#6b7280' }}>份额</th>
+              <th style={{ padding: '12px', textAlign: 'left', fontSize: '0.9rem', fontWeight: '600', color: '#6b7280' }}>备注</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              { name: '黄金ETF', share: 2, note: '如518880' },
+              { name: 'UNH', share: 2, note: '联合健康（美股）' },
+              { name: 'AMZN', share: 1, note: '亚马逊（美股）' },
+              { name: 'OKE', share: 1, note: 'Oneok能源（美股）' },
+              { name: 'BYD', share: 1, note: '比亚迪（A股或港股）' },
+              { name: '美债ETF', share: 1, note: '如513500' }
+            ].map((item, index) => (
+              <tr
+                key={index}
+                style={{
+                  borderBottom: '1px solid #e5e7eb',
+                  transition: 'background 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#f9fafb'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'white'
+                }}
+              >
+                <td style={{ padding: '12px', fontSize: '0.9rem', fontWeight: '600', color: '#1f2937' }}>
+                  {item.name}
+                </td>
+                <td style={{ padding: '12px', textAlign: 'center', fontSize: '0.9rem', color: '#374151' }}>
+                  {item.share}
+                </td>
+                <td style={{ padding: '12px', fontSize: '0.9rem', color: '#6b7280' }}>
+                  {item.note}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }
