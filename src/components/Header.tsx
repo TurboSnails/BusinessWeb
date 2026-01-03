@@ -11,6 +11,7 @@ export default function Header(): JSX.Element {
     { path: '/investment-targets', label: '投资标的', icon: '📈' },
     { path: '/pulse', label: '经济脉搏', icon: '📊' },
     { path: '/monitor', label: '每日监控', icon: '📈' },
+    { path: '/limit-up-analysis', label: '涨停分析', icon: '🚀' },
     { path: '/investment-plan-2026', label: '投资计划', icon: '📅' },
     { path: '/about', label: '关于', icon: 'ℹ️' }
   ]

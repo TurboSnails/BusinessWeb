@@ -8,6 +8,7 @@ import Pulse from './pages/Pulse'
 import Monitor from './pages/Monitor'
 import InvestmentPlan2026 from './pages/InvestmentPlan2026'
 import InvestmentTargetsPage from './pages/InvestmentTargetsPage'
+import LimitUpAnalysis from './pages/LimitUpAnalysis'
 
 export default function App(): JSX.Element {
   return (
@@ -21,6 +22,7 @@ export default function App(): JSX.Element {
           <Route path="/monitor" element={<Monitor />} />
           <Route path="/investment-plan-2026" element={<InvestmentPlan2026 />} />
           <Route path="/investment-targets" element={<InvestmentTargetsPage />} />
+          <Route path="/limit-up-analysis" element={<LimitUpAnalysis />} />
         </Routes>
         <Footer />
       </BrowserRouter>

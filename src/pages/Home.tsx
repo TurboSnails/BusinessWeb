@@ -55,6 +55,14 @@ export default function Home(): JSX.Element {
       color: '#4facfe'
     },
     {
+      to: '/limit-up-analysis',
+      icon: '🚀',
+      title: '每日板块涨停',
+      description: '实时追踪A股涨停板，按概念分类展示',
+      gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+      color: '#fa709a'
+    },
+    {
       to: '/investment-plan-2026',
       icon: '📅',
       title: '2026年美股投资计划',
