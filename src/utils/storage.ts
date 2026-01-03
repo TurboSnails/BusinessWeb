@@ -68,6 +68,7 @@ const getDefaultNewsSources = (): NewsSource[] => {
     { id: '11', name: '东方财富', url: 'https://www.eastmoney.com/', category: 'news', priority: 'low', description: '中国股市资讯', icon: '📊', enabled: true },
     { id: '12', name: '涨停揭秘', url: 'https://www.eastmoney.com/', category: 'data', priority: 'medium', description: '涨停板分析工具', icon: '📈', enabled: true },
     { id: '13', name: '选股通', url: 'https://www.eastmoney.com/', category: 'data', priority: 'medium', description: '股票筛选工具', icon: '🔍', enabled: true },
+    { id: '14', name: '每日板块涨停', url: 'https://api3.cls.cn/share/quote/analysis?os=ios&sv=8.6.9', category: 'data', priority: 'medium', description: '每日板块涨停分析', icon: '📈', enabled: true },
   ]
 }
 
