@@ -692,84 +692,172 @@ const InvestmentTargets: React.FC = () => {
       <div style={{
         marginTop: '40px',
         background: 'white',
-        borderRadius: '12px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+        borderRadius: '16px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
         padding: '24px',
         overflowX: 'auto'
       }}>
         <h2 style={{
-          margin: '0 0 20px',
-          fontSize: '1.3rem',
+          margin: '0 0 24px',
+          fontSize: '1.5rem',
           fontWeight: '700',
-          color: '#1f2937',
+          color: '#1e293b',
           display: 'flex',
           alignItems: 'center',
-          gap: '8px'
+          gap: '12px',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text'
         }}>
-          🛡️ 可靠防守
+          <span style={{ fontSize: '1.8rem', WebkitTextFillColor: 'initial' }}>🛡️</span>
+          可靠防守
         </h2>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
-            <tr style={{ background: '#f9fafb', borderBottom: '2px solid #e5e7eb' }}>
-              <th style={{ padding: '12px', textAlign: 'left', fontSize: '0.9rem', fontWeight: '600', color: '#6b7280' }}>标的</th>
-              <th style={{ padding: '12px', textAlign: 'center', fontSize: '0.9rem', fontWeight: '600', color: '#6b7280' }}>份额</th>
-              <th style={{ padding: '12px', textAlign: 'left', fontSize: '0.9rem', fontWeight: '600', color: '#6b7280' }}>备注</th>
+            <tr style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)', borderBottom: '2px solid #e2e8f0' }}>
+              <th style={{
+                padding: '16px 12px',
+                textAlign: 'left',
+                fontWeight: '700',
+                color: '#1e293b',
+                fontSize: '0.85rem'
+              }}>
+                标的
+              </th>
+              <th style={{
+                padding: '16px 12px',
+                textAlign: 'center',
+                fontWeight: '700',
+                color: '#1e293b',
+                fontSize: '0.85rem'
+              }}>
+                份额
+              </th>
+              <th style={{
+                padding: '16px 12px',
+                textAlign: 'left',
+                fontWeight: '700',
+                color: '#1e293b',
+                fontSize: '0.85rem'
+              }}>
+                投资逻辑
+              </th>
             </tr>
           </thead>
           <tbody>
             {[
               { 
-                name: '黄金ETF（华安黄金）', 
+                symbol: '518880',
+                name: '黄金ETF',
+                chineseName: '华安黄金',
+                icon: '🥇',
                 share: 2, 
-                note: '如518880。投资逻辑：通胀对冲工具，地缘政治风险下的避险资产。当市场波动加剧、美元走弱或通胀预期上升时，黄金通常表现良好。作为防御性资产，在投资组合中起到稳定器作用。'
+                logic: '通胀对冲工具，地缘政治风险下的避险资产。当市场波动加剧、美元走弱或通胀预期上升时，黄金通常表现良好。作为防御性资产，在投资组合中起到稳定器作用，适合在不确定性增加时配置。'
               },
               { 
-                name: 'UNH（联合健康）', 
+                symbol: 'UNH',
+                name: 'UNH',
+                chineseName: '联合健康',
+                icon: '🏥',
                 share: 2, 
-                note: '联合健康（美股）。投资逻辑：美国最大健康保险公司，业务模式稳定，现金流充沛。医疗健康是刚需行业，受经济周期影响小。公司通过垂直整合（保险+医疗服务+药房）形成护城河，长期增长确定性高。'
+                logic: '美国最大健康保险公司，业务模式稳定，现金流充沛。医疗健康是刚需行业，受经济周期影响小。公司通过垂直整合（保险+医疗服务+药房）形成护城河，长期增长确定性高，是防御性配置的优质选择。'
               },
               { 
-                name: 'AMZN（亚马逊）', 
+                symbol: 'AMZN',
+                name: 'AMZN',
+                chineseName: '亚马逊',
+                icon: '📦',
                 share: 1, 
-                note: '亚马逊（美股）。投资逻辑：云计算AWS是核心增长引擎，提供稳定高利润。电商业务虽增长放缓但仍是现金牛。AI时代的基础设施提供商，在AI训练和推理领域具有先发优势。'
+                logic: '云计算AWS是核心增长引擎，提供稳定高利润。电商业务虽增长放缓但仍是现金牛。AI时代的基础设施提供商，在AI训练和推理领域具有先发优势。作为科技巨头，具备强大的护城河和长期增长潜力。'
               },
               { 
-                name: 'OKE（Oneok能源）', 
+                symbol: 'OKE',
+                name: 'OKE',
+                chineseName: 'Oneok能源',
+                icon: '⚡',
                 share: 1, 
-                note: 'Oneok能源（美股）。投资逻辑：美国中游能源基础设施公司，主营天然气管道和存储。业务模式类似"收费站"，收入稳定。受益于美国页岩气产量增长和能源出口需求，分红率较高，适合防御性配置。'
+                logic: '美国中游能源基础设施公司，主营天然气管道和存储。业务模式类似"收费站"，收入稳定可预测。受益于美国页岩气产量增长和能源出口需求，分红率较高，适合防御性配置和稳定现金流需求。'
               },
               { 
-                name: 'BYD（比亚迪）', 
+                symbol: 'BYD',
+                name: 'BYD',
+                chineseName: '比亚迪',
+                icon: '🚗',
                 share: 1, 
-                note: '比亚迪（A股或港股）。投资逻辑：全球新能源汽车龙头，垂直整合产业链（电池+整车+半导体）。在电动车和储能领域技术领先，成本控制能力强。受益于全球电动化趋势和中国制造业优势。'
+                logic: '全球新能源汽车龙头，垂直整合产业链（电池+整车+半导体）。在电动车和储能领域技术领先，成本控制能力强。受益于全球电动化趋势和中国制造业优势，长期增长空间大，是成长性防御标的。'
               },
               { 
-                name: '美债ETF（中证美债）', 
+                symbol: '513500',
+                name: '美债ETF',
+                chineseName: '中证美债',
+                icon: '📊',
                 share: 1, 
-                note: '如513500。投资逻辑：投资美国国债，信用风险极低。当市场风险偏好下降时，美债通常上涨。可作为组合的"压舱石"，提供稳定收益和流动性。在降息周期中，债券价格通常上涨。'
+                logic: '投资美国国债，信用风险极低。当市场风险偏好下降时，美债通常上涨，与股票负相关。可作为组合的"压舱石"，提供稳定收益和流动性。在降息周期中，债券价格通常上涨，是防御性配置的核心资产。'
               }
             ].map((item, index) => (
               <tr
                 key={index}
                 style={{
-                  borderBottom: '1px solid #e5e7eb',
-                  transition: 'background 0.2s'
+                  borderBottom: '1px solid #e2e8f0',
+                  transition: 'background 0.2s',
+                  background: index % 2 === 0 ? 'white' : '#f8fafc'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#f9fafb'
+                  e.currentTarget.style.background = '#f1f5f9'
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'white'
+                  e.currentTarget.style.background = index % 2 === 0 ? 'white' : '#f8fafc'
                 }}
               >
-                <td style={{ padding: '12px', fontSize: '0.9rem', fontWeight: '600', color: '#1f2937' }}>
-                  {item.name}
+                <td style={{ padding: '16px 12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <span style={{ fontSize: '1.5rem' }}>{item.icon}</span>
+                    <div>
+                      <div style={{ 
+                        fontWeight: '700', 
+                        color: '#1e293b', 
+                        fontSize: '0.95rem',
+                        marginBottom: '4px'
+                      }}>
+                        {item.name}
+                      </div>
+                      <div style={{ 
+                        color: '#64748b', 
+                        fontSize: '0.8rem',
+                        fontWeight: '500'
+                      }}>
+                        {item.chineseName} ({item.symbol})
+                      </div>
+                    </div>
+                  </div>
                 </td>
-                <td style={{ padding: '12px', textAlign: 'center', fontSize: '0.9rem', color: '#374151' }}>
-                  {item.share}
+                <td style={{ 
+                  padding: '16px 12px', 
+                  textAlign: 'center'
+                }}>
+                  <span style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '6px 12px',
+                    background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+                    borderRadius: '8px',
+                    fontWeight: '700',
+                    color: '#166534',
+                    fontSize: '0.9rem',
+                    minWidth: '50px'
+                  }}>
+                    {item.share}
+                  </span>
                 </td>
-                <td style={{ padding: '12px', fontSize: '0.9rem', color: '#6b7280' }}>
-                  {item.note}
+                <td style={{ 
+                  padding: '16px 12px',
+                  color: '#475569',
+                  fontSize: '0.9rem',
+                  lineHeight: '1.6'
+                }}>
+                  {item.logic}
                 </td>
               </tr>
             ))}
