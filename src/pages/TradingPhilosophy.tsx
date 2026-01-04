@@ -5,7 +5,8 @@ export default function TradingPhilosophy(): JSX.Element {
   const [activeSection, setActiveSection] = useState<string>('dao') // 默认选中第一个章节
 
   useEffect(() => {
-    // 页面加载时，默认选中第一个章节
+    // 页面加载时，滚动到顶部并默认选中第一个章节
+    window.scrollTo(0, 0)
     setActiveSection('dao')
     
     const handleScroll = () => {
@@ -24,7 +25,11 @@ export default function TradingPhilosophy(): JSX.Element {
       if (current) setActiveSection(current)
     }
 
-    window.addEventListener('scroll', handleScroll)
+    // 延迟一下再添加滚动监听，确保初始状态正确
+    setTimeout(() => {
+      window.addEventListener('scroll', handleScroll)
+    }, 100)
+
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
