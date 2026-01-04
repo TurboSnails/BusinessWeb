@@ -537,7 +537,7 @@ export default function TradingPhilosophy(): JSX.Element {
                 <div>1. 单笔亏损 ≤ 5%（无条件止损）</div>
                 <div>2. 总仓位 ≤ 80%（永留20%现金）</div>
                 <div>3. 不符合策略 → 空仓</div>
-                <div>4. 情绪过热（连板率>45%）→ 只卖不买</div>
+                <div>4. 情绪过热（连板率{'>'}45%）→ 只卖不买</div>
               </div>
             </div>
           </div>
@@ -822,7 +822,7 @@ export default function TradingPhilosophy(): JSX.Element {
                   { 
                     type: '防守型', 
                     cycle: '高潮/退潮', 
-                    signal: '情绪过热(连板率>45%)或系统性风险', 
+                    signal: '情绪过热(连板率{'>'}45%)或系统性风险', 
                     position: '0%-10%',
                     color: '#dc2626'
                   }
