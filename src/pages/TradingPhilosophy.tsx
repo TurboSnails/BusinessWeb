@@ -264,9 +264,9 @@ export default function TradingPhilosophy(): JSX.Element {
               </thead>
               <tbody>
                 {[
-                  { principle: '资产确定性', method: 'ROE/FCF筛选优质标的', icon: '💎' },
-                  { principle: '资金确定性', method: 'OBV识别真金白银流向', icon: '💰' },
-                  { principle: '情绪确定性', method: '30%冰点捕捉周期拐点', icon: '🌡️' }
+                  { principle: '节奏确定性', method: '大盘+板块轮动(题材新)', icon: '🎯' },
+                  { principle: '情绪确定性', method: '板块持续时间+空间(持续性)', icon: '🌡️' },
+                  { principle: '资金确定性', method: 'OBV识别真金白银流向（筹码干净+强势）', icon: '💰' }
                 ].map((row, index) => (
                   <tr
                     key={index}
