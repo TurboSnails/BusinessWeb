@@ -289,6 +289,38 @@ export default function Home(): JSX.Element {
           </Link>
         ))}
       </div>
+
+      {/* 好友链接 */}
+      <div style={{
+        marginTop: '40px',
+        padding: '20px',
+        textAlign: 'center',
+        borderTop: '1px solid #e5e7eb'
+      }}>
+        <a
+          href="https://cuchiscastagne277-crypto.github.io/website"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            color: '#6b7280',
+            textDecoration: 'none',
+            fontSize: '0.9rem',
+            transition: 'color 0.2s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = '#3b82f6'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = '#6b7280'
+          }}
+        >
+          <span>🔗</span>
+          <span>Train的网页</span>
+        </a>
+      </div>
     </main>
   )
 }
