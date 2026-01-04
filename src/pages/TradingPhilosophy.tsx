@@ -1991,11 +1991,6 @@ export default function TradingPhilosophy(): JSX.Element {
           <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
             🎓 进阶修炼路径（三个阶段升级）
           </h3>
-
-        <div>
-          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
-            🎓 三个阶段升级
-          </h3>
           <div style={{
             background: '#f8fafc',
             padding: '20px',
