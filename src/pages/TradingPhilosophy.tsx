@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react'
 
 export default function TradingPhilosophy(): JSX.Element {
   const [showBackToTop, setShowBackToTop] = useState(false)
-  const [activeSection, setActiveSection] = useState<string>('')
+  const [activeSection, setActiveSection] = useState<string>('dao') // 默认选中第一个章节
 
   useEffect(() => {
+    // 页面加载时，默认选中第一个章节
+    setActiveSection('dao')
+    
     const handleScroll = () => {
       setShowBackToTop(window.scrollY > 400)
       
