@@ -16,7 +16,7 @@ export default function TradingPhilosophy(): JSX.Element {
       setShowBackToTop(window.scrollY > 400)
       
       // 检测当前激活的章节
-      const sections = ['dao', 'shu', 'execution', 'time', 'risk', 'path', 'understanding', 'action']
+      const sections = ['dao', 'optimization', 'shu', 'execution', 'time', 'risk', 'path', 'understanding', 'action']
       const current = sections.find(section => {
         const element = document.getElementById(section)
         if (element) {
@@ -49,11 +49,12 @@ export default function TradingPhilosophy(): JSX.Element {
 
   const sections = [
     { id: 'dao', title: '一、投资之"道"', icon: '🧠' },
+    { id: 'optimization', title: '体系评估与优化', icon: '✨' },
     { id: 'shu', title: '二、投资之"术"', icon: '⚙️' },
     { id: 'execution', title: '三、实战执行方案', icon: '🎯' },
     { id: 'time', title: '四、时间分配', icon: '⏰' },
     { id: 'risk', title: '五、风险控制', icon: '🛡️' },
-    { id: 'path', title: '六、进阶修炼路径', icon: '📈' },
+    { id: 'path', title: '六、复盘与迭代', icon: '📊' },
     { id: 'understanding', title: '七、我的深度理解', icon: '💡' },
     { id: 'action', title: '八、立即行动清单', icon: '✅' }
   ]
@@ -421,6 +422,128 @@ export default function TradingPhilosophy(): JSX.Element {
         </div>
       </section>
 
+      {/* 体系评估与优化建议 */}
+      <section id="optimization" style={{
+        background: 'white',
+        borderRadius: '12px',
+        padding: '24px',
+        marginBottom: '24px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+      }}>
+        <h2 style={{
+          fontSize: '1.5rem',
+          fontWeight: '700',
+          color: '#1e293b',
+          margin: '0 0 20px 0',
+          paddingBottom: '12px',
+          borderBottom: '2px solid #e2e8f0'
+        }}>
+          体系评估与优化建议
+        </h2>
+
+        <div style={{ marginBottom: '24px' }}>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
+            ✨ 体系亮点（已具备的核心优势）
+          </h3>
+          <div style={{
+            background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+            padding: '20px',
+            borderRadius: '12px',
+            borderLeft: '4px solid #16a34a'
+          }}>
+            <div style={{ display: 'grid', gap: '12px' }}>
+              {[
+                { 
+                  title: '系统性思维', 
+                  desc: '从"道"（投资哲学）到"术"（技术指标）再到"执行"（纪律与仓位），逻辑连贯，层次清晰。' 
+                },
+                { 
+                  title: '客观化决策', 
+                  desc: '强调"不预测，只跟随"，通过OBV、量价、情绪周期等客观信号过滤主观情绪。' 
+                },
+                { 
+                  title: '风险意识强', 
+                  desc: '设有红线纪律、三层止损、仓位分级，体现了"生存第一"的交易观。' 
+                },
+                { 
+                  title: '反人性设计', 
+                  desc: '"在没人要时买入，人人抢时卖出""97%时间空仓"等理念，直击散户痛点。' 
+                }
+              ].map((item, index) => (
+                <div 
+                  key={index}
+                  style={{
+                    background: 'white',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: '1px solid #bbf7d0'
+                  }}
+                >
+                  <div style={{ fontWeight: '600', color: '#166534', marginBottom: '4px' }}>
+                    {index + 1}. {item.title}
+                  </div>
+                  <div style={{ color: '#15803d', fontSize: '0.9rem', lineHeight: '1.6' }}>
+                    {item.desc}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
+            🎯 优化后体系框架（汇总版）
+          </h3>
+          <div style={{
+            background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+            padding: '20px',
+            borderRadius: '12px',
+            borderLeft: '4px solid #3b82f6'
+          }}>
+            <div style={{ marginBottom: '16px' }}>
+              <div style={{ fontWeight: '700', color: '#1e40af', marginBottom: '8px', fontSize: '1rem' }}>
+                🌟 核心理念
+              </div>
+              <div style={{ color: '#1e293b', fontSize: '0.95rem', lineHeight: '1.8' }}>
+                "等资金留下证据，等情绪给出窗口，等策略匹配行情"
+              </div>
+            </div>
+            <div style={{ marginBottom: '16px' }}>
+              <div style={{ fontWeight: '700', color: '#1e40af', marginBottom: '8px', fontSize: '1rem' }}>
+                📊 核心武器
+              </div>
+              <div style={{ color: '#1e293b', fontSize: '0.9rem', lineHeight: '1.8' }}>
+                <div>• <strong>主要指标：</strong>OBV + 量价 + 板块热度</div>
+                <div>• <strong>辅助验证：</strong>筹码峰 + 大单资金流 + 情绪指数</div>
+                <div>• <strong>周期判断：</strong>连板率 + 涨跌家数比 + 昨日涨停表现</div>
+              </div>
+            </div>
+            <div style={{ marginBottom: '16px' }}>
+              <div style={{ fontWeight: '700', color: '#1e40af', marginBottom: '8px', fontSize: '1rem' }}>
+                ⏰ 每日执行流程
+              </div>
+              <div style={{ color: '#1e293b', fontSize: '0.9rem', lineHeight: '1.8' }}>
+                <div><strong>盘前（5分钟）：</strong>计算情绪指数，判断周期，选择今日适用策略</div>
+                <div><strong>盘中（关键时段9:30-10:30, 14:00-15:00）：</strong>只观察策略内的标的，信号符合则按计划买入</div>
+                <div><strong>盘后（15分钟）：</strong>复盘交易执行情况，更新观察池，标注明日关键点位</div>
+              </div>
+            </div>
+            <div>
+              <div style={{ fontWeight: '700', color: '#1e40af', marginBottom: '8px', fontSize: '1rem' }}>
+                🛡️ 风控铁律
+              </div>
+              <div style={{ color: '#1e293b', fontSize: '0.9rem', lineHeight: '1.8' }}>
+                <div>1. 单笔亏损 ≤ 5%（无条件止损）</div>
+                <div>2. 总仓位 ≤ 80%（永留20%现金）</div>
+                <div>3. 不符合策略 → 空仓</div>
+                <div>4. 情绪过热（连板率>45%）→ 只卖不买</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 二、投资之"术" */}
       <section id="shu" style={{
         background: 'white',
@@ -542,11 +665,27 @@ export default function TradingPhilosophy(): JSX.Element {
           </div>
         </div>
 
-        {/* OBV三重验证升级 */}
+        {/* OBV局限性及补充验证 */}
         <div style={{ marginBottom: '32px' }}>
           <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
-            🔺 OBV三重验证升级
+            🔺 OBV局限性及补充验证
           </h3>
+          <div style={{
+            background: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
+            padding: '16px',
+            borderRadius: '8px',
+            marginBottom: '16px',
+            borderLeft: '4px solid #dc2626'
+          }}>
+            <p style={{ margin: '0 0 12px', fontWeight: '600', color: '#991b1b', fontSize: '0.95rem' }}>
+              ⚠️ OBV在震荡市或庄股中对倒交易容易失真，必须多重验证：
+            </p>
+            <ul style={{ margin: 0, paddingLeft: '20px', color: '#7f1d1d', lineHeight: '1.8', fontSize: '0.9rem' }}>
+              <li>增加<strong>资金流强度指标</strong>（如大单净量、主力资金连续流入天数）</li>
+              <li>配合<strong>筹码峰</strong>观察关键价位筹码锁定情况</li>
+              <li>结合<strong>板块OBV</strong>，避免个股被板块带动而误判</li>
+            </ul>
+          </div>
           <div style={{
             background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
             padding: '20px',
@@ -555,7 +694,7 @@ export default function TradingPhilosophy(): JSX.Element {
             marginBottom: '16px'
           }}>
             <p style={{ margin: '0 0 12px', fontWeight: '600', color: '#1e40af', fontSize: '0.95rem' }}>
-              单一OBV指标可能被主力对倒干扰，建议三重验证：
+              三重验证体系：
             </p>
             <div style={{ overflowX: 'auto' }}>
               <table style={{ 
@@ -576,8 +715,9 @@ export default function TradingPhilosophy(): JSX.Element {
                 <tbody>
                   {[
                     { dim: 'OBV趋势', indicator: 'OBV翘头', standard: '幅度 > 3日均量的1.5倍' },
-                    { dim: '主力资金', indicator: 'Level2资金流', standard: '连续3日净流入' },
-                    { dim: '筹码结构', indicator: '筹码集中度', standard: '90%成本集中度 < 20%' }
+                    { dim: '主力资金', indicator: '大单净量/Level2资金流', standard: '连续3日净流入' },
+                    { dim: '筹码结构', indicator: '筹码峰集中度', standard: '90%成本集中度 < 20%' },
+                    { dim: '板块验证', indicator: '板块OBV同步', standard: '个股OBV与板块OBV同向' }
                   ].map((row, index) => (
                     <tr key={index} style={{ borderBottom: '1px solid #e2e8f0' }}>
                       <td style={{ padding: '10px 12px', fontWeight: '600', color: '#1e293b' }}>{row.dim}</td>
@@ -604,7 +744,7 @@ export default function TradingPhilosophy(): JSX.Element {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
             <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', margin: 0 }}>
-              🎯 五大策略适用场景
+              🎯 三类策略体系（精简优化版）
             </h3>
             <button
               onClick={() => {
@@ -630,38 +770,62 @@ export default function TradingPhilosophy(): JSX.Element {
               {expandedTables.has('strategy-table') ? '收起表格' : '展开表格'}
             </button>
           </div>
-          <p style={{ 
-            fontSize: '0.9rem', 
-            color: '#64748b', 
-            marginBottom: '12px',
-            lineHeight: '1.6',
-            padding: '12px',
-            background: '#f8fafc',
+          <div style={{
+            background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+            padding: '16px',
             borderRadius: '8px',
-            borderLeft: '3px solid #f59e0b'
+            marginBottom: '16px',
+            borderLeft: '4px solid #3b82f6'
           }}>
-            <strong>核心要点：</strong>根据市场环境（连板率、情绪）选择最适合的策略，五星策略可重仓，三星策略需谨慎。
-          </p>
+            <p style={{ margin: '0 0 12px', fontWeight: '600', color: '#1e40af', fontSize: '0.95rem' }}>
+              💡 精简逻辑：基于"行情温度"和"资金姿态"两个维度，将原五大策略重组为三类，决策更清晰，执行更果断。
+            </p>
+            <div style={{ color: '#1e293b', lineHeight: '1.8', fontSize: '0.9rem' }}>
+              <div style={{ marginBottom: '8px' }}>
+                <strong>主攻型：</strong>在"悲观/犹豫"期主动布局，买在启动前（融合冰点破冰+龙头回踩）
+              </div>
+              <div style={{ marginBottom: '8px' }}>
+                <strong>跟随型：</strong>在"已热"期确认跟随，买在强度上（融合短线中军+弱转强）
+              </div>
+              <div>
+                <strong>防守型：</strong>在"过度高潮/退潮"期战略放弃，空仓即赢
+              </div>
+            </div>
+          </div>
           {expandedTables.has('strategy-table') && (
           <div style={{ overflowX: 'auto', marginTop: '12px' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
               <thead>
                 <tr style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)', borderBottom: '2px solid #e2e8f0' }}>
-                  <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#1e293b' }}>策略</th>
-                  <th style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#1e293b' }}>推荐等级</th>
-                  <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#1e293b' }}>适用行情</th>
+                  <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#1e293b' }}>策略类型</th>
+                  <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#1e293b' }}>适用周期</th>
                   <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#1e293b' }}>核心信号</th>
-                  <th style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#1e293b' }}>仓位上限</th>
-                  <th style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#1e293b' }}>止损线</th>
+                  <th style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#1e293b' }}>仓位</th>
                 </tr>
               </thead>
               <tbody>
                 {[
-                  { strategy: '冰点破冰', level: '⭐⭐⭐⭐⭐', market: '连板率<25%', signal: '新题材首板+机构加持+OBV新高', position: '5成', stop: '次日不连板' },
-                  { strategy: '龙头回踩', level: '⭐⭐⭐⭐⭐', market: '25%<连板率<45%', signal: '龙头股+OBV回踩支撑', position: '5成', stop: '破支撑位' },
-                  { strategy: '短线中军', level: '⭐⭐⭐⭐⭐', market: '主升浪', signal: 'ROE高+缩量回踩+OBV上行', position: '满仓', stop: '破20日线' },
-                  { strategy: '弱转强', level: '⭐⭐⭐', market: '情绪高涨', signal: '断板次日超预期+换手充分', position: '2成', stop: '盘中跌破前低' },
-                  { strategy: '防守空仓', level: '⭐⭐⭐⭐⭐', market: '连板率>45%', signal: '情绪过热', position: '空仓或低吸', stop: '观望为主' }
+                  { 
+                    type: '主攻型', 
+                    cycle: '冰点→回暖', 
+                    signal: '新题材首板+OBV底背离 / 老龙头回踩+OBV支撑', 
+                    position: '30%-50%',
+                    color: '#16a34a'
+                  },
+                  { 
+                    type: '跟随型', 
+                    cycle: '主升/分歧', 
+                    signal: '板块强势+缩量回踩+OBV支撑 / 弱转强确认', 
+                    position: '10%-20%',
+                    color: '#3b82f6'
+                  },
+                  { 
+                    type: '防守型', 
+                    cycle: '高潮/退潮', 
+                    signal: '情绪过热(连板率>45%)或系统性风险', 
+                    position: '0%-10%',
+                    color: '#dc2626'
+                  }
                 ].map((row, index) => (
                   <tr
                     key={index}
@@ -670,12 +834,10 @@ export default function TradingPhilosophy(): JSX.Element {
                       background: index % 2 === 0 ? 'white' : '#f8fafc'
                     }}
                   >
-                    <td style={{ padding: '12px', fontWeight: '600', color: '#1e293b' }}>{row.strategy}</td>
-                    <td style={{ padding: '12px', textAlign: 'center', color: '#475569' }}>{row.level}</td>
-                    <td style={{ padding: '12px', color: '#475569' }}>{row.market}</td>
+                    <td style={{ padding: '12px', fontWeight: '600', color: row.color }}>{row.type}</td>
+                    <td style={{ padding: '12px', color: '#475569' }}>{row.cycle}</td>
                     <td style={{ padding: '12px', color: '#475569' }}>{row.signal}</td>
-                    <td style={{ padding: '12px', textAlign: 'center', color: '#475569' }}>{row.position}</td>
-                    <td style={{ padding: '12px', textAlign: 'center', color: '#475569' }}>{row.stop}</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '600', color: row.color }}>{row.position}</td>
                   </tr>
                 ))}
               </tbody>
@@ -1107,9 +1269,37 @@ export default function TradingPhilosophy(): JSX.Element {
           </div>
         </div>
 
+        {/* 选股池初步筛选 */}
         <div style={{ marginBottom: '24px' }}>
           <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
-            🎯 三问买入法(必须全部满足)
+            📋 选股池初步筛选（盘后必做）
+          </h3>
+          <div style={{
+            background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+            padding: '16px',
+            borderRadius: '8px',
+            marginBottom: '16px',
+            borderLeft: '4px solid #16a34a'
+          }}>
+            <p style={{ margin: '0 0 12px', fontWeight: '600', color: '#166534', fontSize: '0.95rem' }}>
+              体系未提及如何从全市场选出观察标的，建议建立"策略观察池"：
+            </p>
+            <div style={{ color: '#15803d', lineHeight: '1.8', fontSize: '0.9rem' }}>
+              <div style={{ marginBottom: '8px' }}>
+                <strong>每日收盘后条件选股：</strong>
+              </div>
+              <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                <li>OBV创20日新高 + 成交量缩至1/3 + 板块热度前5</li>
+                <li>建立"策略观察池"，避免盘中临时选股</li>
+                <li>池内标的按"主攻型/跟随型/防守型"分类标记</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ marginBottom: '24px' }}>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
+            🎯 三问买入法(优化优先级版)
           </h3>
           
           {/* 前提条件：情绪周期 */}
@@ -1121,8 +1311,18 @@ export default function TradingPhilosophy(): JSX.Element {
             borderLeft: '4px solid #f59e0b'
           }}>
             <p style={{ margin: '0 0 12px', fontWeight: '700', color: '#92400e' }}>
-              ⚡ 前提条件：先判断情绪周期
+              ⚡ 前提条件：先判断情绪周期（精细化量化）
             </p>
+            <div style={{
+              background: 'rgba(255,255,255,0.6)',
+              padding: '12px',
+              borderRadius: '6px',
+              marginBottom: '12px',
+              fontSize: '0.85rem',
+              color: '#92400e'
+            }}>
+              <strong>💡 优化建议：</strong>加入更多维度（涨跌家数比、昨日涨停表现、炸板率、封板成功率），形成<strong>情绪指数</strong>，提高周期判断的稳定性。
+            </div>
             <div style={{ overflowX: 'auto' }}>
               <table style={{ 
                 width: '100%', 
@@ -1135,17 +1335,37 @@ export default function TradingPhilosophy(): JSX.Element {
                 <thead>
                   <tr style={{ background: '#fef3c7', borderBottom: '2px solid #fde68a' }}>
                     <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', color: '#92400e' }}>周期</th>
-                    <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', color: '#92400e' }}>特征</th>
+                    <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', color: '#92400e' }}>量化指标</th>
                     <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', color: '#92400e' }}>三问适用性</th>
                   </tr>
                 </thead>
                 <tbody>
                   {[
-                    { cycle: '🧊 冰点期', feature: '连板率<25%，市场恐慌', apply: '✅ 最佳，三问筛选新题材首板' },
-                    { cycle: '🌱 回暖期', feature: '25%<连板率<45%', apply: '✅ 适用，三问筛选龙头回踩' },
-                    { cycle: '🔥 主升期', feature: '龙头连板，板块轮动', apply: '⚠️ 谨慎，只做强势股低吸' },
-                    { cycle: '⚡ 分歧期', feature: '龙头断板，情绪分歧', apply: '✅ 适用，老龙头修复策略' },
-                    { cycle: '❄️ 退潮期', feature: '连板率持续下降', apply: '❌ 不适用，空仓观望' }
+                    { 
+                      cycle: '🧊 冰点期', 
+                      feature: '连板率<25% / 涨跌家数比<0.5 / 昨日涨停表现<0%', 
+                      apply: '✅ 最佳，三问筛选新题材首板' 
+                    },
+                    { 
+                      cycle: '🌱 回暖期', 
+                      feature: '25%<连板率<45% / 涨跌家数比0.5-1.0 / 封板成功率>70%', 
+                      apply: '✅ 适用，三问筛选龙头回踩' 
+                    },
+                    { 
+                      cycle: '🔥 主升期', 
+                      feature: '龙头连板 / 板块轮动 / 昨日涨停表现>5%', 
+                      apply: '⚠️ 谨慎，只做强势股低吸' 
+                    },
+                    { 
+                      cycle: '⚡ 分歧期', 
+                      feature: '龙头断板 / 炸板率>30% / 情绪分歧', 
+                      apply: '✅ 适用，老龙头修复策略' 
+                    },
+                    { 
+                      cycle: '❄️ 退潮期', 
+                      feature: '连板率持续下降 / 跌停数>涨停数', 
+                      apply: '❌ 不适用，空仓观望' 
+                    }
                   ].map((row, index) => (
                     <tr key={index} style={{ borderBottom: '1px solid #fef3c7' }}>
                       <td style={{ padding: '8px 10px', fontWeight: '600', color: '#78350f' }}>{row.cycle}</td>
@@ -1165,38 +1385,55 @@ export default function TradingPhilosophy(): JSX.Element {
             background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
             padding: '20px',
             borderRadius: '12px',
-            borderLeft: '4px solid #3b82f6'
+            borderLeft: '4px solid #3b82f6',
+            marginBottom: '16px'
           }}>
+            <div style={{
+              background: 'rgba(255,255,255,0.6)',
+              padding: '12px',
+              borderRadius: '8px',
+              marginBottom: '16px',
+              border: '2px solid #3b82f6'
+            }}>
+              <p style={{ margin: 0, fontWeight: '700', color: '#1e40af', fontSize: '0.95rem' }}>
+                💡 优化后的优先级：先看板块强度 → 再看个股筹码 → 最后看盘面强度
+              </p>
+              <p style={{ margin: '8px 0 0', fontSize: '0.85rem', color: '#1e40af' }}>
+                理由：板块若不持续，个股难独立走强；筹码是持续性基础；强度是启动信号。
+              </p>
+            </div>
             <p style={{ margin: '0 0 16px', fontWeight: '600', color: '#1e40af' }}>
-              确认处于进攻窗口期后,按顺序问自己:
+              确认处于进攻窗口期后,按优化后的顺序问自己:
             </p>
             <div style={{ marginBottom: '16px' }}>
               <div style={{ fontWeight: '600', color: '#1e293b', marginBottom: '8px' }}>
-                Q1: 题材够不够新?（看板块）
+                Q1: 板块强度够不够?（优先判断）
               </div>
               <div style={{ paddingLeft: '20px', color: '#475569', lineHeight: '1.8' }}>
-                <div>├─ 是否属于当前市场热点板块?</div>
+                <div>├─ 是否属于当前主流热点板块?</div>
                 <div>├─ 板块是否有政策/事件催化?</div>
-                <div>└─ 是否是新题材或老题材回流?</div>
+                <div>├─ 板块涨停家数≥3?</div>
+                <div>└─ 板块是否具备持续性（持续时间+空间）?</div>
               </div>
             </div>
             <div style={{ marginBottom: '16px' }}>
               <div style={{ fontWeight: '600', color: '#1e293b', marginBottom: '8px' }}>
-                Q2: 筹码是否干净?（看量价）
+                Q2: 个股筹码是否干净?（基础验证）
               </div>
               <div style={{ paddingLeft: '20px', color: '#475569', lineHeight: '1.8' }}>
                 <div>├─ 没人卖了吗? 成交量缩到近期1/3以下?</div>
                 <div>├─ 资金回来了吗? OBV是否翘头向上?</div>
-                <div>└─ 筹码集中度是否提高? 主力是否在吸筹?</div>
+                <div>├─ 筹码集中度是否提高? 主力是否在吸筹?</div>
+                <div>└─ 是否出现地量(近20日最低)?</div>
               </div>
             </div>
             <div style={{ marginBottom: '16px' }}>
               <div style={{ fontWeight: '600', color: '#1e293b', marginBottom: '8px' }}>
-                Q3: 盘面是否强势?（看个股热度）
+                Q3: 盘面是否强势?（启动信号）
               </div>
               <div style={{ paddingLeft: '20px', color: '#475569', lineHeight: '1.8' }}>
                 <div>├─ 是否板块内涨幅靠前(前3)?</div>
-                <div>├─ 封单是否强劲? 换手是否充分?</div>
+                <div>├─ 封单是否强劲? 换手是否充分(15-30%)?</div>
                 <div>└─ 是否有龙头特征(涨停时间早、身位优势)?</div>
               </div>
             </div>
@@ -1273,6 +1510,72 @@ export default function TradingPhilosophy(): JSX.Element {
               <div style={{ color: '#15803d', fontSize: '0.95rem' }}>
                 "看板块定方向，看量价判筹码，看热度定仓位"
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 出场策略 */}
+        <div style={{ marginBottom: '24px' }}>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
+            🚪 出场策略（主动止盈+被动止损）
+          </h3>
+          <div style={{
+            background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+            padding: '16px',
+            borderRadius: '8px',
+            marginBottom: '16px',
+            borderLeft: '4px solid #f59e0b'
+          }}>
+            <p style={{ margin: '0 0 12px', fontWeight: '600', color: '#92400e', fontSize: '0.95rem' }}>
+              当前强调"顶背离预警""放量不涨卖出"，建议更明确区分：
+            </p>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ 
+                width: '100%', 
+                borderCollapse: 'collapse', 
+                fontSize: '0.9rem',
+                background: 'white',
+                borderRadius: '8px',
+                overflow: 'hidden'
+              }}>
+                <thead>
+                  <tr style={{ background: '#fef3c7', borderBottom: '2px solid #fde68a' }}>
+                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#92400e' }}>出场类型</th>
+                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#92400e' }}>触发条件</th>
+                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#92400e' }}>操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { 
+                      type: '主动止盈', 
+                      trigger: '3日不创新高 / 板块退潮 / 顶背离预警', 
+                      action: '减半仓或清仓' 
+                    },
+                    { 
+                      type: '移动止盈', 
+                      trigger: '收盘价跌破5日线 / 跌破10日线', 
+                      action: '减半仓 / 清仓' 
+                    },
+                    { 
+                      type: '被动止损', 
+                      trigger: '破关键支撑位(20日线) / 单笔亏损≥5%', 
+                      action: '立即平仓' 
+                    },
+                    { 
+                      type: '时间止损', 
+                      trigger: '买入后3天不涨反跌', 
+                      action: '无条件止损' 
+                    }
+                  ].map((row, index) => (
+                    <tr key={index} style={{ borderBottom: '1px solid #fde68a' }}>
+                      <td style={{ padding: '12px', fontWeight: '600', color: '#78350f' }}>{row.type}</td>
+                      <td style={{ padding: '12px', color: '#92400e' }}>{row.trigger}</td>
+                      <td style={{ padding: '12px', fontWeight: '600', color: '#dc2626' }}>{row.action}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -1487,13 +1790,16 @@ export default function TradingPhilosophy(): JSX.Element {
           </h3>
           {[
             {
-              title: '1. 系统性风险红线',
+              title: '1. 系统性风险红线（极端行情应对）',
               content: [
-                '当大盘出现:',
+                '定义"极端行情"信号:',
+                '- 千股跌停 / 流动性枯竭',
+                '- 重大政策黑天鹅',
+                '- 北向单日净流出>100亿 + 大盘放量下跌',
                 '- 政策性利空(如加息、监管)',
                 '- 外部冲击(战争、疫情)',
-                '- 流动性危机',
                 '',
+                '→ 此时无条件清仓，不等待任何技术反弹',
                 '→ 所有技术信号失效 → 立即空仓'
               ]
             },
@@ -1592,7 +1898,7 @@ export default function TradingPhilosophy(): JSX.Element {
         </div>
       </section>
 
-      {/* 六、进阶修炼路径 */}
+      {/* 六、复盘与迭代机制 */}
       <section id="path" style={{
         background: 'white',
         borderRadius: '12px',
@@ -1608,8 +1914,83 @@ export default function TradingPhilosophy(): JSX.Element {
           paddingBottom: '12px',
           borderBottom: '2px solid #e2e8f0'
         }}>
-          六、进阶修炼路径
+          六、复盘与迭代机制
         </h2>
+
+        <div style={{ marginBottom: '24px' }}>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
+            📊 复盘体系（从错误中学习）
+          </h3>
+          <div style={{
+            background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+            padding: '20px',
+            borderRadius: '12px',
+            borderLeft: '4px solid #3b82f6',
+            marginBottom: '16px'
+          }}>
+            <p style={{ margin: '0 0 16px', fontWeight: '600', color: '#1e40af', fontSize: '0.95rem' }}>
+              体系强调执行，但未明确如何从错误中学习，建议建立复盘机制：
+            </p>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ 
+                width: '100%', 
+                borderCollapse: 'collapse', 
+                fontSize: '0.9rem',
+                background: 'white',
+                borderRadius: '8px',
+                overflow: 'hidden'
+              }}>
+                <thead>
+                  <tr style={{ background: '#eff6ff', borderBottom: '2px solid #dbeafe' }}>
+                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#1e40af' }}>复盘维度</th>
+                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#1e40af' }}>记录内容</th>
+                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#1e40af' }}>分析目标</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { 
+                      dim: '每笔交易记录', 
+                      content: '执行评分(是否按计划买卖) + 结果评分(盈亏)', 
+                      target: '识别执行偏差' 
+                    },
+                    { 
+                      dim: '每月分析', 
+                      content: '哪些信号胜率高? 哪些行情下策略失效?', 
+                      target: '优化策略匹配' 
+                    },
+                    { 
+                      dim: '季度迭代', 
+                      content: '根据个人性格微调仓位比例 / 开发个性化指标组合', 
+                      target: '形成个人交易系统' 
+                    }
+                  ].map((row, index) => (
+                    <tr key={index} style={{ borderBottom: '1px solid #dbeafe' }}>
+                      <td style={{ padding: '12px', fontWeight: '600', color: '#1e40af' }}>{row.dim}</td>
+                      <td style={{ padding: '12px', color: '#475569' }}>{row.content}</td>
+                      <td style={{ padding: '12px', color: '#16a34a', fontWeight: '500' }}>{row.target}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div style={{
+              marginTop: '16px',
+              padding: '12px',
+              background: 'rgba(255,255,255,0.6)',
+              borderRadius: '8px',
+              fontSize: '0.85rem',
+              color: '#1e40af'
+            }}>
+              <strong>💡 核心原则：</strong>交易的最高境界不是抓住所有机会，而是放弃大多数机会，只做那3%的完美匹配。
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
+            🎓 进阶修炼路径（三个阶段升级）
+          </h3>
 
         <div>
           <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
