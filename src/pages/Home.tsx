@@ -63,6 +63,14 @@ export default function Home(): JSX.Element {
       color: '#fa709a'
     },
     {
+      to: '/trading-philosophy',
+      icon: '⚔️',
+      title: '短线的道与术',
+      description: '股票投资的"道与术"终极归总，完整的投资哲学与实战方案',
+      gradient: 'linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%)',
+      color: '#7c3aed'
+    },
+    {
       to: '/investment-plan-2026',
       icon: '📅',
       title: '2026年美股投资计划',
