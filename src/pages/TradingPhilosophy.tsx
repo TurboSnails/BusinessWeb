@@ -542,6 +542,65 @@ export default function TradingPhilosophy(): JSX.Element {
           </div>
         </div>
 
+        {/* OBV三重验证升级 */}
+        <div style={{ marginBottom: '32px' }}>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
+            🔺 OBV三重验证升级
+          </h3>
+          <div style={{
+            background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+            padding: '20px',
+            borderRadius: '12px',
+            borderLeft: '4px solid #3b82f6',
+            marginBottom: '16px'
+          }}>
+            <p style={{ margin: '0 0 12px', fontWeight: '600', color: '#1e40af', fontSize: '0.95rem' }}>
+              单一OBV指标可能被主力对倒干扰，建议三重验证：
+            </p>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ 
+                width: '100%', 
+                borderCollapse: 'collapse', 
+                fontSize: '0.85rem',
+                background: 'white',
+                borderRadius: '8px',
+                overflow: 'hidden'
+              }}>
+                <thead>
+                  <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '700', color: '#1e293b' }}>验证维度</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '700', color: '#1e293b' }}>具体指标</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '700', color: '#1e293b' }}>有效标准</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { dim: 'OBV趋势', indicator: 'OBV翘头', standard: '幅度 > 3日均量的1.5倍' },
+                    { dim: '主力资金', indicator: 'Level2资金流', standard: '连续3日净流入' },
+                    { dim: '筹码结构', indicator: '筹码集中度', standard: '90%成本集中度 < 20%' }
+                  ].map((row, index) => (
+                    <tr key={index} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                      <td style={{ padding: '10px 12px', fontWeight: '600', color: '#1e293b' }}>{row.dim}</td>
+                      <td style={{ padding: '10px 12px', color: '#475569' }}>{row.indicator}</td>
+                      <td style={{ padding: '10px 12px', color: '#16a34a', fontWeight: '500' }}>{row.standard}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div style={{ 
+              marginTop: '12px', 
+              padding: '10px', 
+              background: 'rgba(255,255,255,0.6)', 
+              borderRadius: '6px',
+              fontSize: '0.85rem',
+              color: '#1e40af'
+            }}>
+              <strong>⏰ 时段过滤：</strong>只在 <strong>9:30-10:30</strong>、<strong>14:00-15:00</strong> 关键时段观察OBV信号，避免盘中噪音干扰。
+            </div>
+          </div>
+        </div>
+
         <div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
             <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', margin: 0 }}>
@@ -598,11 +657,11 @@ export default function TradingPhilosophy(): JSX.Element {
               </thead>
               <tbody>
                 {[
-                  { strategy: '冰点破冰', level: '⭐⭐⭐⭐⭐', market: '连板率<30%', signal: '新题材首板+OBV新高', position: '5成', stop: '次日不连板' },
-                  { strategy: '老热点回流', level: '⭐⭐⭐⭐⭐', market: '震荡市', signal: '前龙头+地量+OBV翘头', position: '5成', stop: '再放量下跌' },
+                  { strategy: '冰点破冰', level: '⭐⭐⭐⭐⭐', market: '连板率<25%', signal: '新题材首板+机构加持+OBV新高', position: '5成', stop: '次日不连板' },
+                  { strategy: '龙头回踩', level: '⭐⭐⭐⭐⭐', market: '25%<连板率<45%', signal: '龙头股+OBV回踩支撑', position: '5成', stop: '破支撑位' },
                   { strategy: '短线中军', level: '⭐⭐⭐⭐⭐', market: '主升浪', signal: 'ROE高+缩量回踩+OBV上行', position: '满仓', stop: '破20日线' },
                   { strategy: '弱转强', level: '⭐⭐⭐', market: '情绪高涨', signal: '断板次日超预期+换手充分', position: '2成', stop: '盘中跌破前低' },
-                  { strategy: '缩量止跌', level: '⭐⭐⭐⭐⭐', market: '所有策略', signal: '地量+OBV走平或翘头', position: '底仓技术', stop: '结合大盘' }
+                  { strategy: '防守空仓', level: '⭐⭐⭐⭐⭐', market: '连板率>45%', signal: '情绪过热', position: '空仓或低吸', stop: '观望为主' }
                 ].map((row, index) => (
                   <tr
                     key={index}
@@ -1022,34 +1081,28 @@ export default function TradingPhilosophy(): JSX.Element {
               <span style={{ color: '#94a3b8' }}>连板率</span> = <span style={{ color: '#34d399' }}>统计连板率()</span>
             </div>
             <div style={{ paddingLeft: '20px', marginBottom: '8px' }}>
-              <span style={{ color: '#c084fc' }}>if</span> <span style={{ color: '#94a3b8' }}>连板率</span> {'<'} <span style={{ color: '#fbbf24' }}>30</span>:
+              <span style={{ color: '#c084fc' }}>if</span> <span style={{ color: '#94a3b8' }}>连板率</span> {'<'} <span style={{ color: '#fbbf24' }}>25</span>:  <span style={{ color: '#64748b' }}># 市场冰点</span>
             </div>
             <div style={{ paddingLeft: '40px', marginBottom: '8px', color: '#34d399' }}>
-              return "冰点破冰模式 - 寻找新题材首板"
+              return "冰点破冰模式 - 新题材首板+机构加持"
             </div>
             <div style={{ paddingLeft: '20px', marginBottom: '8px' }}>
-              <span style={{ color: '#c084fc' }}>elif</span> <span style={{ color: '#fbbf24' }}>30</span> {'<='} <span style={{ color: '#94a3b8' }}>连板率</span> {'<='} <span style={{ color: '#fbbf24' }}>50</span>:
+              <span style={{ color: '#c084fc' }}>elif</span> <span style={{ color: '#fbbf24' }}>25</span> {'<='} <span style={{ color: '#94a3b8' }}>连板率</span> {'<='} <span style={{ color: '#fbbf24' }}>45</span>:  <span style={{ color: '#64748b' }}># 市场回暖</span>
             </div>
             <div style={{ paddingLeft: '40px', marginBottom: '8px', color: '#34d399' }}>
-              return "中军趋势模式 - 持有核心资产+缩量加仓"
+              return "龙头+OBV模式 - 龙头股回踩支撑"
             </div>
             <div style={{ paddingLeft: '20px', marginBottom: '8px' }}>
-              <span style={{ color: '#c084fc' }}>elif</span> <span style={{ color: '#fbbf24' }}>50</span> {'<'} <span style={{ color: '#94a3b8' }}>连板率</span> <span style={{ color: '#c084fc' }}>and</span> <span style={{ color: '#94a3b8' }}>情绪稳定</span>:
-            </div>
-            <div style={{ paddingLeft: '40px', marginBottom: '8px', color: '#34d399' }}>
-              return "老热点回流模式 - 前龙头地量埋伏"
-            </div>
-            <div style={{ paddingLeft: '20px', marginBottom: '8px' }}>
-              <span style={{ color: '#c084fc' }}>elif</span> <span style={{ color: '#94a3b8' }}>跌停数</span> {'>'} <span style={{ color: '#94a3b8' }}>涨停数</span> <span style={{ color: '#c084fc' }}>and</span> <span style={{ color: '#94a3b8' }}>连板率持续下降</span>:
+              <span style={{ color: '#c084fc' }}>elif</span> <span style={{ color: '#94a3b8' }}>连板率</span> {'>'} <span style={{ color: '#fbbf24' }}>45</span>:  <span style={{ color: '#64748b' }}># 市场高潮</span>
             </div>
             <div style={{ paddingLeft: '40px', marginBottom: '8px', color: '#f87171' }}>
-              return "空仓模式 - 关机保本金"
+              return "防守模式 - 空仓或只做龙头低吸"
             </div>
             <div style={{ paddingLeft: '20px' }}>
               <span style={{ color: '#c084fc' }}>else</span>:
             </div>
             <div style={{ paddingLeft: '40px', color: '#94a3b8' }}>
-              return "观望模式 - 不符合任何策略特征"
+              return "观望模式 - 等待明确信号"
             </div>
           </div>
         </div>
@@ -1058,6 +1111,56 @@ export default function TradingPhilosophy(): JSX.Element {
           <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
             🎯 三问买入法(必须全部满足)
           </h3>
+          
+          {/* 前提条件：情绪周期 */}
+          <div style={{
+            background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+            padding: '16px',
+            borderRadius: '8px',
+            marginBottom: '16px',
+            borderLeft: '4px solid #f59e0b'
+          }}>
+            <p style={{ margin: '0 0 12px', fontWeight: '700', color: '#92400e' }}>
+              ⚡ 前提条件：先判断情绪周期
+            </p>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ 
+                width: '100%', 
+                borderCollapse: 'collapse', 
+                fontSize: '0.85rem',
+                background: 'white',
+                borderRadius: '6px',
+                overflow: 'hidden'
+              }}>
+                <thead>
+                  <tr style={{ background: '#fef3c7', borderBottom: '2px solid #fde68a' }}>
+                    <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', color: '#92400e' }}>周期</th>
+                    <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', color: '#92400e' }}>特征</th>
+                    <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', color: '#92400e' }}>三问适用性</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { cycle: '🧊 冰点期', feature: '连板率<25%，市场恐慌', apply: '✅ 最佳，三问筛选新题材首板' },
+                    { cycle: '🌱 回暖期', feature: '25%<连板率<45%', apply: '✅ 适用，三问筛选龙头回踩' },
+                    { cycle: '🔥 主升期', feature: '龙头连板，板块轮动', apply: '⚠️ 谨慎，只做强势股低吸' },
+                    { cycle: '⚡ 分歧期', feature: '龙头断板，情绪分歧', apply: '✅ 适用，老龙头修复策略' },
+                    { cycle: '❄️ 退潮期', feature: '连板率持续下降', apply: '❌ 不适用，空仓观望' }
+                  ].map((row, index) => (
+                    <tr key={index} style={{ borderBottom: '1px solid #fef3c7' }}>
+                      <td style={{ padding: '8px 10px', fontWeight: '600', color: '#78350f' }}>{row.cycle}</td>
+                      <td style={{ padding: '8px 10px', color: '#92400e', fontSize: '0.8rem' }}>{row.feature}</td>
+                      <td style={{ padding: '8px 10px', color: '#78350f' }}>{row.apply}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p style={{ margin: '12px 0 0', fontSize: '0.85rem', color: '#92400e' }}>
+              <strong>记住：</strong>冰点/回暖/分歧期是进攻窗口，退潮期再好的标的也别碰！
+            </p>
+          </div>
+
           <div style={{
             background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
             padding: '20px',
@@ -1065,33 +1168,36 @@ export default function TradingPhilosophy(): JSX.Element {
             borderLeft: '4px solid #3b82f6'
           }}>
             <p style={{ margin: '0 0 16px', fontWeight: '600', color: '#1e40af' }}>
-              盯住任何一只股票时,按顺序问自己:
+              确认处于进攻窗口期后,按顺序问自己:
             </p>
             <div style={{ marginBottom: '16px' }}>
               <div style={{ fontWeight: '600', color: '#1e293b', marginBottom: '8px' }}>
-                Q1: 跌够了吗?(价格)
+                Q1: 题材够不够新?（看板块）
               </div>
               <div style={{ paddingLeft: '20px', color: '#475569', lineHeight: '1.8' }}>
-                <div>├─ 是否回踩关键支撑位(5/10/20日线)?</div>
-                <div>└─ 是否调整足够多天?(通常≥3天)?</div>
+                <div>├─ 是否属于当前市场热点板块?</div>
+                <div>├─ 板块是否有政策/事件催化?</div>
+                <div>└─ 是否是新题材或老题材回流?</div>
               </div>
             </div>
             <div style={{ marginBottom: '16px' }}>
               <div style={{ fontWeight: '600', color: '#1e293b', marginBottom: '8px' }}>
-                Q2: 没人卖了吗?(成交量)
+                Q2: 筹码是否干净?（看量价）
               </div>
               <div style={{ paddingLeft: '20px', color: '#475569', lineHeight: '1.8' }}>
-                <div>├─ 成交量是否缩到近期1/3以下?</div>
-                <div>└─ 是否出现地量(近20日最低)?</div>
+                <div>├─ 没人卖了吗? 成交量缩到近期1/3以下?</div>
+                <div>├─ 资金回来了吗? OBV是否翘头向上?</div>
+                <div>└─ 筹码集中度是否提高? 主力是否在吸筹?</div>
               </div>
             </div>
             <div style={{ marginBottom: '16px' }}>
               <div style={{ fontWeight: '600', color: '#1e293b', marginBottom: '8px' }}>
-                Q3: 资金回来了吗?(OBV)
+                Q3: 盘面是否强势?（看个股热度）
               </div>
               <div style={{ paddingLeft: '20px', color: '#475569', lineHeight: '1.8' }}>
-                <div>├─ OBV是否拒绝创新低(底背离)?</div>
-                <div>└─ OBV是否提前翘头向上?</div>
+                <div>├─ 是否板块内涨幅靠前(前3)?</div>
+                <div>├─ 封单是否强劲? 换手是否充分?</div>
+                <div>└─ 是否有龙头特征(涨停时间早、身位优势)?</div>
               </div>
             </div>
             <div style={{
@@ -1106,6 +1212,66 @@ export default function TradingPhilosophy(): JSX.Element {
               </div>
               <div style={{ color: '#dc2626' }}>
                 如果任何一个是"否" → 继续等待或放弃
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 三问量化验证标准 */}
+        <div style={{ marginBottom: '24px' }}>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
+            📋 三问量化验证标准
+          </h3>
+          <div style={{
+            background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+            padding: '20px',
+            borderRadius: '12px',
+            borderLeft: '4px solid #16a34a'
+          }}>
+            <p style={{ margin: '0 0 16px', fontWeight: '600', color: '#166534' }}>
+              将三问转化为可量化的具体指标：
+            </p>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ 
+                width: '100%', 
+                borderCollapse: 'collapse', 
+                fontSize: '0.9rem',
+                background: 'white',
+                borderRadius: '8px',
+                overflow: 'hidden'
+              }}>
+                <thead>
+                  <tr style={{ background: '#f0fdf4', borderBottom: '2px solid #bbf7d0' }}>
+                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#166534', width: '25%' }}>三问</th>
+                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#166534' }}>量化标准</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { q: '题材新不新', check: '板块涨停家数≥3 / 有政策事件催化 / 连板率处于回升阶段' },
+                    { q: '筹码干不干净', check: '成交量<近期均量1/3 + OBV翘头 + 主力资金连续3日净流入' },
+                    { q: '盘面强不强', check: '板块内涨幅前3 + 封单比>10% + 换手率15-30%' }
+                  ].map((row, index) => (
+                    <tr key={index} style={{ borderBottom: '1px solid #dcfce7' }}>
+                      <td style={{ padding: '12px', fontWeight: '600', color: '#166534' }}>{row.q}</td>
+                      <td style={{ padding: '12px', color: '#15803d' }}>{row.check}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div style={{
+              marginTop: '16px',
+              padding: '12px',
+              background: 'white',
+              borderRadius: '8px',
+              border: '2px solid #16a34a'
+            }}>
+              <div style={{ fontWeight: '700', color: '#166534', marginBottom: '8px' }}>
+                💡 核心逻辑：
+              </div>
+              <div style={{ color: '#15803d', fontSize: '0.95rem' }}>
+                "看板块定方向，看量价判筹码，看热度定仓位"
               </div>
             </div>
           </div>
@@ -1163,6 +1329,51 @@ export default function TradingPhilosophy(): JSX.Element {
               <div style={{ marginTop: '8px' }}>底仓(40%): 长期持有ROE{'>'}15%的核心资产</div>
               <div>灵活仓(40%): 根据五大策略信号机动操作</div>
               <div>现金(20%): 永久保留,用于极端机会或止损后修复</div>
+            </div>
+          </div>
+          
+          {/* 简化仓位公式 */}
+          <div style={{
+            background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+            padding: '16px',
+            borderRadius: '8px',
+            marginTop: '16px',
+            borderLeft: '4px solid #f59e0b'
+          }}>
+            <p style={{ margin: '0 0 12px', fontWeight: '700', color: '#92400e' }}>
+              📋 简化仓位公式（易执行版）
+            </p>
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+              gap: '12px' 
+            }}>
+              {[
+                { signal: '五星信号', desc: '冰点+龙头+三重验证', position: '50%', color: '#16a34a' },
+                { signal: '三星信号', desc: '单一验证通过', position: '10%', color: '#f59e0b' },
+                { signal: '其他情况', desc: '不符合条件', position: '0%', color: '#dc2626' }
+              ].map((item, index) => (
+                <div 
+                  key={index}
+                  style={{
+                    background: 'white',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    textAlign: 'center',
+                    border: `2px solid ${item.color}`
+                  }}
+                >
+                  <div style={{ fontWeight: '700', color: item.color, fontSize: '1.2rem' }}>
+                    {item.position}
+                  </div>
+                  <div style={{ fontWeight: '600', color: '#1e293b', fontSize: '0.9rem', marginTop: '4px' }}>
+                    {item.signal}
+                  </div>
+                  <div style={{ color: '#64748b', fontSize: '0.8rem', marginTop: '4px' }}>
+                    {item.desc}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -1339,6 +1550,45 @@ export default function TradingPhilosophy(): JSX.Element {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* 保命三原则 */}
+        <div style={{ marginBottom: '24px' }}>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
+            🚨 保命三原则（铁律）
+          </h3>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ 
+              width: '100%', 
+              borderCollapse: 'collapse', 
+              fontSize: '0.9rem',
+              background: 'white',
+              borderRadius: '8px',
+              overflow: 'hidden',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+            }}>
+              <thead>
+                <tr style={{ background: '#fef2f2', borderBottom: '2px solid #fecaca' }}>
+                  <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#991b1b' }}>风险类型</th>
+                  <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#991b1b' }}>触发条件</th>
+                  <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#991b1b' }}>立即行动</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { type: '系统性风险', trigger: '北向单日净流出 >100亿 + 大盘放量下跌', action: '⚠️ 立即空仓' },
+                  { type: '个股止损', trigger: '单笔亏损 ≥5% 或 破20日线且3日不收回', action: '❌ 无条件止损' },
+                  { type: '情绪过热', trigger: '龙头股换手率 >35%', action: '🔻 强制减仓50%' }
+                ].map((row, index) => (
+                  <tr key={index} style={{ borderBottom: '1px solid #fecaca', background: index % 2 === 0 ? 'white' : '#fff7f7' }}>
+                    <td style={{ padding: '12px', fontWeight: '600', color: '#991b1b' }}>{row.type}</td>
+                    <td style={{ padding: '12px', color: '#7f1d1d' }}>{row.trigger}</td>
+                    <td style={{ padding: '12px', fontWeight: '600', color: '#dc2626' }}>{row.action}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
 
