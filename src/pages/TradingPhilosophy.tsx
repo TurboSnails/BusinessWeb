@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react'
 export default function TradingPhilosophy(): JSX.Element {
   const [showBackToTop, setShowBackToTop] = useState(false)
   const [activeSection, setActiveSection] = useState<string>('dao') // 默认选中第一个章节
+  const [expandedTables, setExpandedTables] = useState<Set<string>>(new Set(['obv-table', 'strategy-table'])) // 默认展开关键表格
+  const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set()) // 已勾选的行动项
 
   useEffect(() => {
     // 页面加载时，滚动到顶部并默认选中第一个章节
@@ -63,7 +65,7 @@ export default function TradingPhilosophy(): JSX.Element {
         color: 'white',
         padding: '32px 24px',
         borderRadius: '16px',
-        marginBottom: '32px',
+        marginBottom: '24px',
         boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
       }}>
         <h1 style={{
@@ -77,9 +79,32 @@ export default function TradingPhilosophy(): JSX.Element {
           <span>⚔️</span>
           股票投资的"道与术"终极归总
         </h1>
-        <p style={{ margin: 0, opacity: 0.95, fontSize: '1rem', lineHeight: '1.6' }}>
+        <p style={{ margin: '0 0 16px', opacity: 0.95, fontSize: '1rem', lineHeight: '1.6' }}>
           完整的投资哲学与实战方案
         </p>
+        <div style={{
+          background: 'rgba(255,255,255,0.15)',
+          padding: '12px 16px',
+          borderRadius: '8px',
+          fontSize: '0.9rem',
+          lineHeight: '1.6',
+          backdropFilter: 'blur(8px)'
+        }}>
+          <div style={{ marginBottom: '8px', fontWeight: '600' }}>📖 使用指南</div>
+          <div style={{ fontSize: '0.85rem', opacity: 0.95 }}>
+            <div style={{ marginBottom: '4px' }}>• <strong>适合人群：</strong>有一定交易经验，希望建立系统化投资框架的投资者</div>
+            <div style={{ marginBottom: '4px' }}>• <strong>核心价值：</strong>从"赌"到"算"，从"追"到"等"，构建完整的认知框架</div>
+            <div>• <strong>阅读建议：</strong>按顺序阅读，重点掌握"量价OBV三位一体"和"三问买入法"</div>
+          </div>
+        </div>
+        <div style={{
+          marginTop: '12px',
+          fontSize: '0.8rem',
+          opacity: 0.85,
+          fontStyle: 'italic'
+        }}>
+          Hassan投资 v1.0.0 · 此页面会随实盘迭代更新版本
+        </div>
       </div>
 
       {/* 目录导航 */}
@@ -277,10 +302,48 @@ export default function TradingPhilosophy(): JSX.Element {
         </h2>
 
         <div style={{ marginBottom: '32px' }}>
-          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
-            📊 量价OBV三位一体口诀(核心技术)
-          </h3>
-          <div style={{ overflowX: 'auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', margin: 0 }}>
+              📊 量价OBV三位一体口诀(核心技术)
+            </h3>
+            <button
+              onClick={() => {
+                const newSet = new Set(expandedTables)
+                if (newSet.has('obv-table')) {
+                  newSet.delete('obv-table')
+                } else {
+                  newSet.add('obv-table')
+                }
+                setExpandedTables(newSet)
+              }}
+              style={{
+                padding: '4px 12px',
+                background: '#f8fafc',
+                border: '1px solid #e2e8f0',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '0.8rem',
+                color: '#64748b',
+                fontWeight: '500'
+              }}
+            >
+              {expandedTables.has('obv-table') ? '收起表格' : '展开表格'}
+            </button>
+          </div>
+          <p style={{ 
+            fontSize: '0.9rem', 
+            color: '#64748b', 
+            marginBottom: '12px',
+            lineHeight: '1.6',
+            padding: '12px',
+            background: '#f8fafc',
+            borderRadius: '8px',
+            borderLeft: '3px solid #3b82f6'
+          }}>
+            <strong>核心要点：</strong>通过价格、成交量、OBV三个维度识别资金流向，在"没人要"时买入，"人人抢"时卖出。
+          </p>
+          {expandedTables.has('obv-table') && (
+          <div style={{ overflowX: 'auto', marginTop: '12px' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
               <thead>
                 <tr style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)', borderBottom: '2px solid #e2e8f0' }}>
@@ -320,6 +383,7 @@ export default function TradingPhilosophy(): JSX.Element {
               </tbody>
             </table>
           </div>
+          )}
           <div style={{
             background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
             padding: '16px',
@@ -340,10 +404,48 @@ export default function TradingPhilosophy(): JSX.Element {
         </div>
 
         <div>
-          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
-            🎯 五大策略适用场景
-          </h3>
-          <div style={{ overflowX: 'auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', margin: 0 }}>
+              🎯 五大策略适用场景
+            </h3>
+            <button
+              onClick={() => {
+                const newSet = new Set(expandedTables)
+                if (newSet.has('strategy-table')) {
+                  newSet.delete('strategy-table')
+                } else {
+                  newSet.add('strategy-table')
+                }
+                setExpandedTables(newSet)
+              }}
+              style={{
+                padding: '4px 12px',
+                background: '#f8fafc',
+                border: '1px solid #e2e8f0',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '0.8rem',
+                color: '#64748b',
+                fontWeight: '500'
+              }}
+            >
+              {expandedTables.has('strategy-table') ? '收起表格' : '展开表格'}
+            </button>
+          </div>
+          <p style={{ 
+            fontSize: '0.9rem', 
+            color: '#64748b', 
+            marginBottom: '12px',
+            lineHeight: '1.6',
+            padding: '12px',
+            background: '#f8fafc',
+            borderRadius: '8px',
+            borderLeft: '3px solid #f59e0b'
+          }}>
+            <strong>核心要点：</strong>根据市场环境（连板率、情绪）选择最适合的策略，五星策略可重仓，三星策略需谨慎。
+          </p>
+          {expandedTables.has('strategy-table') && (
+          <div style={{ overflowX: 'auto', marginTop: '12px' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
               <thead>
                 <tr style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)', borderBottom: '2px solid #e2e8f0' }}>
@@ -381,6 +483,7 @@ export default function TradingPhilosophy(): JSX.Element {
               </tbody>
             </table>
           </div>
+          )}
         </div>
 
         <div style={{ marginTop: '32px' }}>
@@ -775,38 +878,38 @@ export default function TradingPhilosophy(): JSX.Element {
             overflowX: 'auto'
           }}>
             <div style={{ color: '#3b82f6', marginBottom: '8px' }}># 伪代码逻辑</div>
-            <div style={{ color: '#8b5cf6', marginBottom: '8px' }}>def 今日策略():</div>
+            <div style={{ color: '#c084fc', marginBottom: '8px' }}>def 今日策略():</div>
             <div style={{ paddingLeft: '20px', marginBottom: '8px' }}>
-              <span style={{ color: '#64748b' }}>连板率</span> = <span style={{ color: '#10b981' }}>统计连板率()</span>
+              <span style={{ color: '#94a3b8' }}>连板率</span> = <span style={{ color: '#34d399' }}>统计连板率()</span>
             </div>
             <div style={{ paddingLeft: '20px', marginBottom: '8px' }}>
-              <span style={{ color: '#8b5cf6' }}>if</span> <span style={{ color: '#64748b' }}>连板率</span> {'<'} <span style={{ color: '#f59e0b' }}>30</span>:
+              <span style={{ color: '#c084fc' }}>if</span> <span style={{ color: '#94a3b8' }}>连板率</span> {'<'} <span style={{ color: '#fbbf24' }}>30</span>:
             </div>
-            <div style={{ paddingLeft: '40px', marginBottom: '8px', color: '#10b981' }}>
+            <div style={{ paddingLeft: '40px', marginBottom: '8px', color: '#34d399' }}>
               return "冰点破冰模式 - 寻找新题材首板"
             </div>
             <div style={{ paddingLeft: '20px', marginBottom: '8px' }}>
-              <span style={{ color: '#8b5cf6' }}>elif</span> <span style={{ color: '#f59e0b' }}>30</span> {'<='} <span style={{ color: '#64748b' }}>连板率</span> {'<='} <span style={{ color: '#f59e0b' }}>50</span>:
+              <span style={{ color: '#c084fc' }}>elif</span> <span style={{ color: '#fbbf24' }}>30</span> {'<='} <span style={{ color: '#94a3b8' }}>连板率</span> {'<='} <span style={{ color: '#fbbf24' }}>50</span>:
             </div>
-            <div style={{ paddingLeft: '40px', marginBottom: '8px', color: '#10b981' }}>
+            <div style={{ paddingLeft: '40px', marginBottom: '8px', color: '#34d399' }}>
               return "中军趋势模式 - 持有核心资产+缩量加仓"
             </div>
             <div style={{ paddingLeft: '20px', marginBottom: '8px' }}>
-              <span style={{ color: '#8b5cf6' }}>elif</span> <span style={{ color: '#f59e0b' }}>50</span> {'<'} <span style={{ color: '#64748b' }}>连板率</span> <span style={{ color: '#8b5cf6' }}>and</span> <span style={{ color: '#64748b' }}>情绪稳定</span>:
+              <span style={{ color: '#c084fc' }}>elif</span> <span style={{ color: '#fbbf24' }}>50</span> {'<'} <span style={{ color: '#94a3b8' }}>连板率</span> <span style={{ color: '#c084fc' }}>and</span> <span style={{ color: '#94a3b8' }}>情绪稳定</span>:
             </div>
-            <div style={{ paddingLeft: '40px', marginBottom: '8px', color: '#10b981' }}>
+            <div style={{ paddingLeft: '40px', marginBottom: '8px', color: '#34d399' }}>
               return "老热点回流模式 - 前龙头地量埋伏"
             </div>
             <div style={{ paddingLeft: '20px', marginBottom: '8px' }}>
-              <span style={{ color: '#8b5cf6' }}>elif</span> <span style={{ color: '#64748b' }}>跌停数</span> {'>'} <span style={{ color: '#64748b' }}>涨停数</span> <span style={{ color: '#8b5cf6' }}>and</span> <span style={{ color: '#64748b' }}>连板率持续下降</span>:
+              <span style={{ color: '#c084fc' }}>elif</span> <span style={{ color: '#94a3b8' }}>跌停数</span> {'>'} <span style={{ color: '#94a3b8' }}>涨停数</span> <span style={{ color: '#c084fc' }}>and</span> <span style={{ color: '#94a3b8' }}>连板率持续下降</span>:
             </div>
-            <div style={{ paddingLeft: '40px', marginBottom: '8px', color: '#dc2626' }}>
+            <div style={{ paddingLeft: '40px', marginBottom: '8px', color: '#f87171' }}>
               return "空仓模式 - 关机保本金"
             </div>
             <div style={{ paddingLeft: '20px' }}>
-              <span style={{ color: '#8b5cf6' }}>else</span>:
+              <span style={{ color: '#c084fc' }}>else</span>:
             </div>
-            <div style={{ paddingLeft: '40px', color: '#64748b' }}>
+            <div style={{ paddingLeft: '40px', color: '#94a3b8' }}>
               return "观望模式 - 不符合任何策略特征"
             </div>
           </div>
@@ -1364,11 +1467,53 @@ export default function TradingPhilosophy(): JSX.Element {
             borderRadius: '8px',
             borderLeft: '4px solid #16a34a'
           }}>
-            <ol style={{ margin: 0, paddingLeft: '20px', color: '#166534', lineHeight: '2' }}>
-              <li>打印"三问买入法"贴在显示器上</li>
-              <li>统计2024年1-4月所有连板率{'<'}30%的日期</li>
-              <li>选3只ROE{'>'}15%的股票加入自选池</li>
-            </ol>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {[
+                { id: 'action-1', text: '打印"三问买入法"贴在显示器上' }
+              ].map((item) => (
+                <label
+                  key={item.id}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    cursor: 'pointer',
+                    padding: '8px',
+                    borderRadius: '6px',
+                    transition: 'background 0.2s',
+                    textDecoration: checkedItems.has(item.id) ? 'line-through' : 'none',
+                    opacity: checkedItems.has(item.id) ? 0.6 : 1
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.5)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'transparent'
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={checkedItems.has(item.id)}
+                    onChange={(e) => {
+                      const newSet = new Set(checkedItems)
+                      if (e.target.checked) {
+                        newSet.add(item.id)
+                      } else {
+                        newSet.delete(item.id)
+                      }
+                      setCheckedItems(newSet)
+                    }}
+                    style={{
+                      width: '20px',
+                      height: '20px',
+                      cursor: 'pointer',
+                      accentColor: '#16a34a'
+                    }}
+                  />
+                  <span style={{ color: '#166534', lineHeight: '1.6' }}>{item.text}</span>
+                </label>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -1382,11 +1527,55 @@ export default function TradingPhilosophy(): JSX.Element {
             borderRadius: '8px',
             borderLeft: '4px solid #3b82f6'
           }}>
-            <ol style={{ margin: 0, paddingLeft: '20px', color: '#1e40af', lineHeight: '2' }}>
-              <li>复盘当日涨停板,标注符合哪个策略</li>
-              <li>找出1个OBV底背离+1个顶背离实例</li>
-              <li>模拟盘用100股验证一次买入信号</li>
-            </ol>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {[
+                { id: 'action-4', text: '复盘当日涨停板,标注符合哪个策略' },
+                { id: 'action-5', text: '找出1个OBV底背离+1个顶背离实例' },
+                { id: 'action-6', text: '模拟盘用100股验证一次买入信号' }
+              ].map((item) => (
+                <label
+                  key={item.id}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    cursor: 'pointer',
+                    padding: '8px',
+                    borderRadius: '6px',
+                    transition: 'background 0.2s',
+                    textDecoration: checkedItems.has(item.id) ? 'line-through' : 'none',
+                    opacity: checkedItems.has(item.id) ? 0.6 : 1
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.5)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'transparent'
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={checkedItems.has(item.id)}
+                    onChange={(e) => {
+                      const newSet = new Set(checkedItems)
+                      if (e.target.checked) {
+                        newSet.add(item.id)
+                      } else {
+                        newSet.delete(item.id)
+                      }
+                      setCheckedItems(newSet)
+                    }}
+                    style={{
+                      width: '20px',
+                      height: '20px',
+                      cursor: 'pointer',
+                      accentColor: '#3b82f6'
+                    }}
+                  />
+                  <span style={{ color: '#1e40af', lineHeight: '1.6' }}>{item.text}</span>
+                </label>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -1400,11 +1589,55 @@ export default function TradingPhilosophy(): JSX.Element {
             borderRadius: '8px',
             borderLeft: '4px solid #f59e0b'
           }}>
-            <ol style={{ margin: 0, paddingLeft: '20px', color: '#92400e', lineHeight: '2' }}>
-              <li>完成20笔小仓位实盘交易(盈亏不重要)</li>
-              <li>建立交易日志,每笔打分(策略执行vs最终盈亏)</li>
-              <li>统计自己最擅长哪个策略,最容易在哪里犯错</li>
-            </ol>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {[
+                { id: 'action-7', text: '完成20笔小仓位实盘交易(盈亏不重要)' },
+                { id: 'action-8', text: '建立交易日志,每笔打分(策略执行vs最终盈亏)' },
+                { id: 'action-9', text: '统计自己最擅长哪个策略,最容易在哪里犯错' }
+              ].map((item) => (
+                <label
+                  key={item.id}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    cursor: 'pointer',
+                    padding: '8px',
+                    borderRadius: '6px',
+                    transition: 'background 0.2s',
+                    textDecoration: checkedItems.has(item.id) ? 'line-through' : 'none',
+                    opacity: checkedItems.has(item.id) ? 0.6 : 1
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.5)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'transparent'
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={checkedItems.has(item.id)}
+                    onChange={(e) => {
+                      const newSet = new Set(checkedItems)
+                      if (e.target.checked) {
+                        newSet.add(item.id)
+                      } else {
+                        newSet.delete(item.id)
+                      }
+                      setCheckedItems(newSet)
+                    }}
+                    style={{
+                      width: '20px',
+                      height: '20px',
+                      cursor: 'pointer',
+                      accentColor: '#f59e0b'
+                    }}
+                  />
+                  <span style={{ color: '#92400e', lineHeight: '1.6' }}>{item.text}</span>
+                </label>
+              ))}
+            </div>
           </div>
         </div>
       </section>
