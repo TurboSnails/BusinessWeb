@@ -5,6 +5,7 @@ export default function TradingPhilosophy(): JSX.Element {
   const [activeSection, setActiveSection] = useState<string>('dao') // 默认选中第一个章节
   const [expandedTables, setExpandedTables] = useState<Set<string>>(new Set(['obv-table', 'strategy-table'])) // 默认展开关键表格
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set()) // 已勾选的行动项
+  const [showGuide, setShowGuide] = useState(false) // 使用指南折叠状态
 
   useEffect(() => {
     // 页面加载时，滚动到顶部并默认选中第一个章节
@@ -79,31 +80,63 @@ export default function TradingPhilosophy(): JSX.Element {
           <span>⚔️</span>
           股票投资的"道与术"终极归总
         </h1>
-        <p style={{ margin: '0 0 16px', opacity: 0.95, fontSize: '1rem', lineHeight: '1.6' }}>
+        <p style={{ margin: '0 0 12px', opacity: 0.95, fontSize: '1rem', lineHeight: '1.6' }}>
           完整的投资哲学与实战方案
         </p>
         <div style={{
           background: 'rgba(255,255,255,0.15)',
-          padding: '12px 16px',
           borderRadius: '8px',
-          fontSize: '0.9rem',
-          lineHeight: '1.6',
-          backdropFilter: 'blur(8px)'
+          backdropFilter: 'blur(8px)',
+          overflow: 'hidden'
         }}>
-          <div style={{ marginBottom: '8px', fontWeight: '600' }}>📖 使用指南</div>
-          <div style={{ fontSize: '0.85rem', opacity: 0.95 }}>
-            <div style={{ marginBottom: '4px' }}>• <strong>适合人群：</strong>有一定交易经验，希望建立系统化投资框架的投资者</div>
-            <div style={{ marginBottom: '4px' }}>• <strong>核心价值：</strong>从"赌"到"算"，从"追"到"等"，构建完整的认知框架</div>
-            <div>• <strong>阅读建议：</strong>按顺序阅读，重点掌握"量价OBV三位一体"和"三问买入法"</div>
-          </div>
-        </div>
-        <div style={{
-          marginTop: '12px',
-          fontSize: '0.8rem',
-          opacity: 0.85,
-          fontStyle: 'italic'
-        }}>
-          Hassan投资 v1.0.0 · 此页面会随实盘迭代更新版本
+          <button
+            onClick={() => setShowGuide(!showGuide)}
+            style={{
+              width: '100%',
+              padding: '10px 16px',
+              background: 'transparent',
+              border: 'none',
+              color: 'white',
+              fontSize: '0.9rem',
+              fontWeight: '600',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              textAlign: 'left'
+            }}
+          >
+            <span>📖 使用指南</span>
+            <span style={{
+              fontSize: '0.8rem',
+              transition: 'transform 0.2s',
+              transform: showGuide ? 'rotate(180deg)' : 'rotate(0deg)'
+            }}>
+              ▼
+            </span>
+          </button>
+          {showGuide && (
+            <div style={{
+              padding: '12px 16px',
+              fontSize: '0.85rem',
+              opacity: 0.95,
+              borderTop: '1px solid rgba(255,255,255,0.2)'
+            }}>
+              <div style={{ marginBottom: '4px' }}>• <strong>适合人群：</strong>有一定交易经验，希望建立系统化投资框架的投资者</div>
+              <div style={{ marginBottom: '4px' }}>• <strong>核心价值：</strong>从"赌"到"算"，从"追"到"等"，构建完整的认知框架</div>
+              <div style={{ marginBottom: '8px' }}>• <strong>阅读建议：</strong>按顺序阅读，重点掌握"量价OBV三位一体"和"三问买入法"</div>
+              <div style={{
+                fontSize: '0.75rem',
+                opacity: 0.85,
+                fontStyle: 'italic',
+                marginTop: '8px',
+                paddingTop: '8px',
+                borderTop: '1px solid rgba(255,255,255,0.1)'
+              }}>
+                Hassan投资 v1.0.0 · 此页面会随实盘迭代更新版本
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -194,21 +227,83 @@ export default function TradingPhilosophy(): JSX.Element {
           <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
             1. 三大确定性原则
           </h3>
-          <div style={{
-            background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-            padding: '20px',
-            borderRadius: '12px',
-            border: '2px solid #e2e8f0',
-            fontFamily: 'monospace',
-            fontSize: '0.9rem',
-            lineHeight: '1.8',
-            marginBottom: '16px'
-          }}>
-            <div style={{ marginBottom: '8px' }}>┌─────────────────────────────────────┐</div>
-            <div style={{ marginBottom: '8px' }}>│  资产确定性 → ROE/FCF筛选优质标的    │</div>
-            <div style={{ marginBottom: '8px' }}>│  资金确定性 → OBV识别真金白银流向    │</div>
-            <div style={{ marginBottom: '8px' }}>│  情绪确定性 → 30%冰点捕捉周期拐点    │</div>
-            <div>└─────────────────────────────────────┘</div>
+          <div style={{ overflowX: 'auto', marginBottom: '16px' }}>
+            <table style={{ 
+              width: '100%', 
+              borderCollapse: 'collapse', 
+              fontSize: '0.95rem',
+              background: 'white',
+              borderRadius: '8px',
+              overflow: 'hidden',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+            }}>
+              <thead>
+                <tr style={{ 
+                  background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+                  borderBottom: '2px solid #e2e8f0'
+                }}>
+                  <th style={{ 
+                    padding: '14px 16px', 
+                    textAlign: 'left', 
+                    fontWeight: '700', 
+                    color: '#1e293b',
+                    fontSize: '0.9rem'
+                  }}>
+                    原则
+                  </th>
+                  <th style={{ 
+                    padding: '14px 16px', 
+                    textAlign: 'left', 
+                    fontWeight: '700', 
+                    color: '#1e293b',
+                    fontSize: '0.9rem'
+                  }}>
+                    核心方法
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { principle: '资产确定性', method: 'ROE/FCF筛选优质标的', icon: '💎' },
+                  { principle: '资金确定性', method: 'OBV识别真金白银流向', icon: '💰' },
+                  { principle: '情绪确定性', method: '30%冰点捕捉周期拐点', icon: '🌡️' }
+                ].map((row, index) => (
+                  <tr
+                    key={index}
+                    style={{
+                      borderBottom: index < 2 ? '1px solid #e2e8f0' : 'none',
+                      background: index % 2 === 0 ? 'white' : '#f8fafc',
+                      transition: 'background 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = '#f1f5f9'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = index % 2 === 0 ? 'white' : '#f8fafc'
+                    }}
+                  >
+                    <td style={{ 
+                      padding: '14px 16px', 
+                      fontWeight: '600', 
+                      color: '#1e293b',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}>
+                      <span style={{ fontSize: '1.2rem' }}>{row.icon}</span>
+                      {row.principle}
+                    </td>
+                    <td style={{ 
+                      padding: '14px 16px', 
+                      color: '#475569',
+                      lineHeight: '1.5'
+                    }}>
+                      {row.method}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
           <div style={{ paddingLeft: '16px', borderLeft: '4px solid #3b82f6' }}>
             <p style={{ margin: '8px 0', color: '#475569', lineHeight: '1.8' }}>
@@ -226,58 +321,102 @@ export default function TradingPhilosophy(): JSX.Element {
           <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
             2. 交易的本质转变
           </h3>
-          <div style={{
-            background: '#f8fafc',
-            padding: '16px',
-            borderRadius: '8px',
-            marginBottom: '12px'
-          }}>
-            <div style={{ marginBottom: '12px' }}>
-              <span style={{ color: '#64748b', fontSize: '0.9rem' }}>从:</span>
-              <span style={{ color: '#dc2626', marginLeft: '8px' }}>"我今天要赚多少钱?"</span>
-            </div>
-            <div style={{ marginBottom: '12px', paddingLeft: '24px' }}>
-              <span style={{ fontSize: '1.2rem', color: '#3b82f6' }}>→</span>
-            </div>
-            <div>
-              <span style={{ color: '#64748b', fontSize: '0.9rem' }}>到:</span>
-              <span style={{ color: '#16a34a', marginLeft: '8px' }}>"当前行情最适合哪个策略?"</span>
-            </div>
-          </div>
-          <div style={{
-            background: '#f8fafc',
-            padding: '16px',
-            borderRadius: '8px',
-            marginBottom: '12px'
-          }}>
-            <div style={{ marginBottom: '12px' }}>
-              <span style={{ color: '#64748b', fontSize: '0.9rem' }}>从:</span>
-              <span style={{ color: '#dc2626', marginLeft: '8px' }}>"这只股票会涨吗?"</span>
-            </div>
-            <div style={{ marginBottom: '12px', paddingLeft: '24px' }}>
-              <span style={{ fontSize: '1.2rem', color: '#3b82f6' }}>→</span>
-            </div>
-            <div>
-              <span style={{ color: '#64748b', fontSize: '0.9rem' }}>到:</span>
-              <span style={{ color: '#16a34a', marginLeft: '8px' }}>"资金证据是否充分?"</span>
-            </div>
-          </div>
-          <div style={{
-            background: '#f8fafc',
-            padding: '16px',
-            borderRadius: '8px'
-          }}>
-            <div style={{ marginBottom: '12px' }}>
-              <span style={{ color: '#64748b', fontSize: '0.9rem' }}>从:</span>
-              <span style={{ color: '#dc2626', marginLeft: '8px' }}>"为什么又亏了?"</span>
-            </div>
-            <div style={{ marginBottom: '12px', paddingLeft: '24px' }}>
-              <span style={{ fontSize: '1.2rem', color: '#3b82f6' }}>→</span>
-            </div>
-            <div>
-              <span style={{ color: '#64748b', fontSize: '0.9rem' }}>到:</span>
-              <span style={{ color: '#16a34a', marginLeft: '8px' }}>"策略执行是否完美?"</span>
-            </div>
+          <div style={{ overflowX: 'auto', marginBottom: '16px' }}>
+            <table style={{ 
+              width: '100%', 
+              borderCollapse: 'collapse', 
+              fontSize: '0.9rem',
+              background: 'white',
+              borderRadius: '8px',
+              overflow: 'hidden',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+            }}>
+              <thead>
+                <tr style={{ 
+                  background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+                  borderBottom: '2px solid #e2e8f0'
+                }}>
+                  <th style={{ 
+                    padding: '12px 16px', 
+                    textAlign: 'left', 
+                    fontWeight: '700', 
+                    color: '#1e293b',
+                    fontSize: '0.85rem',
+                    width: '45%'
+                  }}>
+                    从（旧思维）
+                  </th>
+                  <th style={{ 
+                    padding: '12px 16px', 
+                    textAlign: 'center', 
+                    fontWeight: '700', 
+                    color: '#1e293b',
+                    fontSize: '0.85rem',
+                    width: '10%'
+                  }}>
+                    →
+                  </th>
+                  <th style={{ 
+                    padding: '12px 16px', 
+                    textAlign: 'left', 
+                    fontWeight: '700', 
+                    color: '#1e293b',
+                    fontSize: '0.85rem',
+                    width: '45%'
+                  }}>
+                    到（新思维）
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { from: '"我今天要赚多少钱?"', to: '"当前行情最适合哪个策略?"' },
+                  { from: '"这只股票会涨吗?"', to: '"资金证据是否充分?"' },
+                  { from: '"为什么又亏了?"', to: '"策略执行是否完美?"' }
+                ].map((row, index) => (
+                  <tr
+                    key={index}
+                    style={{
+                      borderBottom: index < 2 ? '1px solid #e2e8f0' : 'none',
+                      background: index % 2 === 0 ? 'white' : '#f8fafc',
+                      transition: 'background 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = '#f1f5f9'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = index % 2 === 0 ? 'white' : '#f8fafc'
+                    }}
+                  >
+                    <td style={{ 
+                      padding: '12px 16px', 
+                      color: '#dc2626',
+                      fontWeight: '500',
+                      lineHeight: '1.5'
+                    }}>
+                      {row.from}
+                    </td>
+                    <td style={{ 
+                      padding: '12px 16px', 
+                      textAlign: 'center',
+                      color: '#3b82f6',
+                      fontSize: '1.1rem',
+                      fontWeight: '600'
+                    }}>
+                      →
+                    </td>
+                    <td style={{ 
+                      padding: '12px 16px', 
+                      color: '#16a34a',
+                      fontWeight: '500',
+                      lineHeight: '1.5'
+                    }}>
+                      {row.to}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </section>
