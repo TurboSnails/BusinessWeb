@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import type { LimitUpConcept, LimitUpStock } from '../types'
 
 export default function LimitUpAnalysis(): JSX.Element {
@@ -8,12 +8,11 @@ export default function LimitUpAnalysis(): JSX.Element {
   const [error, setError] = useState<string | null>(null)
   const [onlyLimitUp, setOnlyLimitUp] = useState(true) // 默认勾选"只看涨停"
   const [expandedStocks, setExpandedStocks] = useState<Set<string>>(new Set()) // 记录展开的股票代码
-
-  // 尝试从财联社API获取数据
-  // 当 onlyLimitUp 状态改变时，重新获取数据
-  useEffect(() => {
-    fetchLimitUpData()
-  }, [onlyLimitUp])
+  // 日期选择：默认今天，格式 YYYY-MM-DD
+  const [selectedDate, setSelectedDate] = useState<string>(() => {
+    const today = new Date()
+    return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+  })
 
   // 解析API返回的数据，转换为 LimitUpConcept[] 格式
   // API返回格式：{ code: 200, data: { plate_stock: [...] } }
@@ -127,25 +126,33 @@ export default function LimitUpAnalysis(): JSX.Element {
     }
   }
 
+  // 模拟数据（仅作为fallback，实际应从API获取）
+  const getMockData = (): LimitUpConcept[] => {
+    console.warn('⚠️ 使用空数据作为fallback，请检查API调用')
+    return []
+  }
+
   // CORS代理配置
   const CORS_PROXY_MAIN = (url: string) => `https://corsproxy.io/?${encodeURIComponent(url)}`
   const CORS_PROXY_BACKUP = (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
   const CORS_PROXY_THIRD = (url: string) => `https://proxy.cors.sh/${url}`
   const CORS_PROXIES = [CORS_PROXY_MAIN, CORS_PROXY_BACKUP, CORS_PROXY_THIRD]
 
-  const fetchLimitUpData = async () => {
+  // 使用 useCallback 确保函数使用最新的 selectedDate 和 onlyLimitUp
+  const fetchLimitUpData = useCallback(async () => {
     setLoading(true)
     setError(null)
     
-    // 获取当前日期，格式：YYYYMMDD
-    const today = new Date()
-    const dateStr = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}`
+    // 将 selectedDate (YYYY-MM-DD) 转换为 API 需要的格式 (YYYYMMDD)
+    const dateStr = selectedDate.replace(/-/g, '')
+    console.log('📅 获取数据，日期:', selectedDate, '转换后:', dateStr)
     
     // 实际API地址：https://x-quote.cls.cn/v2/quote/a/plate/up_down_analysis?up_limit=0&date=20251231&sign=...
     // up_limit=1 表示只看涨停（只返回涨停股票）
     // up_limit=0 表示取消只看涨停（返回所有股票，包括非涨停）
     const upLimit = onlyLimitUp ? 1 : 0
     const apiUrl = `https://x-quote.cls.cn/v2/quote/a/plate/up_down_analysis?up_limit=${upLimit}&date=${dateStr}`
+    console.log('🌐 API URL:', apiUrl)
     
     // 尝试使用多个代理，哪个先成功用哪个
     const fetchFromProxy = async (proxyFn: (url: string) => string): Promise<any> => {
@@ -194,11 +201,12 @@ export default function LimitUpAnalysis(): JSX.Element {
         if (result.status === 'fulfilled') {
           const { type, data } = result.value
           
-          if (type === 'json') {
+            if (type === 'json') {
             parsedConcepts = parseApiData(data)
             if (parsedConcepts && parsedConcepts.length > 0) {
               console.log('✅ 成功解析JSON数据，概念数量:', parsedConcepts.length)
               setConcepts(parsedConcepts)
+              setSelectedConcept(null) // 重置选中概念，让默认选中第一个
               setLoading(false)
               return
             }
@@ -219,6 +227,7 @@ export default function LimitUpAnalysis(): JSX.Element {
                 if (parsedConcepts && parsedConcepts.length > 0) {
                   console.log('✅ 成功解析HTML中的JSON数据，概念数量:', parsedConcepts.length)
                   setConcepts(parsedConcepts)
+                  setSelectedConcept(null) // 重置选中概念，让默认选中第一个
                   setLoading(false)
                   return
                 }
@@ -238,21 +247,23 @@ export default function LimitUpAnalysis(): JSX.Element {
       if (!parsedConcepts || parsedConcepts.length === 0) {
         console.warn('⚠️ 所有代理都失败，使用模拟数据')
         setConcepts(getMockData())
+        setSelectedConcept(null) // 重置选中概念
       }
     } catch (err) {
       console.error('❌ API调用异常:', err)
       setError('获取数据失败，已切换到模拟数据')
       setConcepts(getMockData())
+      setSelectedConcept(null) // 重置选中概念
     } finally {
       setLoading(false)
     }
-  }
+  }, [selectedDate, onlyLimitUp]) // 依赖项：当日期或只看涨停状态改变时，重新创建函数
 
-  // 模拟数据（仅作为fallback，实际应从API获取）
-  const getMockData = (): LimitUpConcept[] => {
-    console.warn('⚠️ 使用空数据作为fallback，请检查API调用')
-    return []
-  }
+  // 尝试从财联社API获取数据
+  // 当 onlyLimitUp 或 selectedDate 状态改变时，重新获取数据
+  useEffect(() => {
+    fetchLimitUpData()
+  }, [fetchLimitUpData])
 
   // API已经根据 up_limit 参数返回了对应的数据：
   // - up_limit=1: 只返回涨停股票
@@ -288,7 +299,7 @@ export default function LimitUpAnalysis(): JSX.Element {
             实时追踪A股涨停板，按概念分类展示
           </p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
           <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.9rem', color: '#374151' }}>
             <input
               type="checkbox"
@@ -297,6 +308,26 @@ export default function LimitUpAnalysis(): JSX.Element {
               style={{ width: '18px', height: '18px', cursor: 'pointer' }}
             />
             只看涨停
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', color: '#374151' }}>
+            <span>📅</span>
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              max={(() => {
+                const today = new Date()
+                return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+              })()}
+              style={{
+                padding: '6px 10px',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                fontSize: '0.9rem',
+                cursor: 'pointer',
+                outline: 'none'
+              }}
+            />
           </label>
           <button
             onClick={fetchLimitUpData}
