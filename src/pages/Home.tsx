@@ -63,6 +63,14 @@ export default function Home(): JSX.Element {
       color: '#fa709a'
     },
     {
+      to: '/sector-rotation',
+      icon: '🔄',
+      title: '板块轮动',
+      description: '追踪各板块在不同日期的涨幅排名，识别市场热点轮动',
+      gradient: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%)',
+      color: '#ff6b6b'
+    },
+    {
       to: '/trading-philosophy',
       icon: '⚔️',
       title: '短线的道与术',

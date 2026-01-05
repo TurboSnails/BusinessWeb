@@ -20,7 +20,7 @@ export default function Monitor(): JSX.Element {
         <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #e5e7eb' }}>
           {/* 计划执行类 */}
           <div style={{ display: 'flex', borderBottom: '1px solid #f3f4f6', flexWrap: 'wrap' }}>
-            <div style={{ 
+      <div style={{
               padding: '8px 12px', 
               fontSize: '0.75rem', 
               color: '#6b7280', 
@@ -31,8 +31,8 @@ export default function Monitor(): JSX.Element {
               gap: '4px',
               minWidth: '80px'
             }}>
-              📅 计划执行
-            </div>
+            📅 计划执行
+          </div>
             {(['stages', 'execution', 'us-monitor'] as const).map((subTab) => {
               const subLabels: Record<typeof subTab, string> = {
                 stages: '阶段划分',
@@ -71,7 +71,7 @@ export default function Monitor(): JSX.Element {
                 </button>
               )
             })}
-          </div>
+        </div>
 
           {/* 决策策略类 */}
           <div style={{ display: 'flex', borderBottom: '1px solid #f3f4f6', flexWrap: 'wrap' }}>
@@ -86,8 +86,8 @@ export default function Monitor(): JSX.Element {
               gap: '4px',
               minWidth: '80px'
             }}>
-              ⚖️ 决策策略
-            </div>
+            ⚖️ 决策策略
+          </div>
             {(['overview', 'assumptions', 'china-stock'] as const).map((subTab) => {
               const subLabels: Record<typeof subTab, string> = {
                 overview: '投资总纲',
@@ -126,7 +126,7 @@ export default function Monitor(): JSX.Element {
                 </button>
               )
             })}
-          </div>
+        </div>
 
           {/* 监控分析类 */}
           <div style={{ display: 'flex', borderBottom: '1px solid #f3f4f6', flexWrap: 'wrap' }}>
@@ -141,8 +141,8 @@ export default function Monitor(): JSX.Element {
               gap: '4px',
               minWidth: '80px'
             }}>
-              📊 监控分析
-            </div>
+            📊 监控分析
+          </div>
             {(['indicators', 'temperature', 'china-temperature', 'silver-monitor'] as const).map((subTab) => {
               const subLabels: Record<typeof subTab, string> = {
                 indicators: '指标体系',
@@ -198,7 +198,7 @@ export default function Monitor(): JSX.Element {
         {activeSubTab === 'execution' && <ExecutionTab />}
         {activeSubTab === 'us-monitor' && <USMonitorTab />}
         {activeSubTab === 'silver-monitor' && <SilverMonitor />}
-      </div>
+            </div>
     </div>
   )
 }

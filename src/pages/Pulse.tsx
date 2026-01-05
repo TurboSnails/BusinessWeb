@@ -89,8 +89,8 @@ export default function Pulse(): JSX.Element {
         }
       } catch (error) {
         console.error('获取数据失败:', error)
-        if (mounted) {
-          setLoading(false)
+      if (mounted) {
+        setLoading(false)
         }
       }
     }
@@ -187,7 +187,7 @@ export default function Pulse(): JSX.Element {
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
     alert('数据已导出！')
-  }
+        }
 
   // 导入数据
   const handleImport = () => {
@@ -294,7 +294,7 @@ export default function Pulse(): JSX.Element {
           // 如果下载失败，继续使用本地数据上传（可能是首次上传或网络问题）
         }
       }
-      
+
       // 合并数据：本地 + 云端（避免覆盖）
       const mergedReviews = mergeData(reviews, cloudReviews, 'date')
       
@@ -326,7 +326,7 @@ export default function Pulse(): JSX.Element {
       alert(`❌ 上传失败\n\n错误：${error instanceof Error ? error.message : '未知错误'}`)
     } finally {
       setSyncing(false)
-    }
+        }
   }
 
   // 手动从云端同步
@@ -428,7 +428,7 @@ export default function Pulse(): JSX.Element {
     if (!filterCategories.has(category.key)) {
       return null
     }
-    return (
+  return (
       <div key={category.key} style={{ marginBottom: '20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', padding: '6px 10px',
           background: category.bgColor, borderRadius: '6px', borderLeft: `3px solid ${category.color}` }}>
@@ -536,7 +536,7 @@ export default function Pulse(): JSX.Element {
             <label style={{ fontSize: '0.8rem', color: '#64748b' }}>换手率前五</label>
             <input type="number" value={formData.top5Turnover || ''} onChange={e => setFormData({ ...formData, top5Turnover: +e.target.value })}
               style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }} />
-          </div>
+        </div>
           <div style={{ gridColumn: '1 / -1' }}>
             <label style={{ fontSize: '0.8rem', color: '#64748b' }}>流入板块</label>
             <input type="text" placeholder="如 航天、消费电子" value={formData.inflow || ''} onChange={e => setFormData({ ...formData, inflow: e.target.value })}
@@ -557,8 +557,8 @@ export default function Pulse(): JSX.Element {
       </div>
     </div>
   )
-
-  return (
+                  
+                  return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '16px', minHeight: '100vh' }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '20px', padding: '14px 18px', background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
@@ -619,8 +619,8 @@ export default function Pulse(): JSX.Element {
       ) : categories.length === 0 ? (
         <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>
           ⚠️ 暂无数据，请检查网络连接或刷新页面
-        </div>
-      ) : (
+          </div>
+        ) : (
         categories
           .filter(category => filterCategories.has(category.key))
           .map(category => {
@@ -707,9 +707,9 @@ export default function Pulse(): JSX.Element {
               </button>
             </div>
           </div>
-        </div>
+          </div>
         )}
-        
+
         {/* 云端设置弹窗 */}
       {showSettings && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>

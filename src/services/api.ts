@@ -60,20 +60,20 @@ function setCache(key: string, data: any) {
 
 // 带超时的 fetch（不重试，快速失败）
 async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout = 8000): Promise<Response> {
-  const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), timeout)
-  
-  try {
-    const response = await fetch(url, {
-      ...options,
-      signal: controller.signal
-    })
-    clearTimeout(timeoutId)
-    return response
-  } catch (error) {
-    clearTimeout(timeoutId)
-    throw error
-  }
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), timeout)
+    
+    try {
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal
+      })
+      clearTimeout(timeoutId)
+      return response
+    } catch (error) {
+      clearTimeout(timeoutId)
+        throw error
+      }
 }
 
 // 解析 Yahoo Finance 数据
@@ -81,62 +81,62 @@ function parseYahooData(data: any, symbol: string): StockQuote | null {
   const result = data.chart?.result?.[0]
   if (!result) return null
   
-  const meta = result.meta
-  const indicators = result.indicators
-  
-  // 获取历史价格数据用于计算 RSI
-  let historicalPrices: number[] = []
-  if (indicators?.adjclose && indicators.adjclose[0]?.adjclose) {
-    historicalPrices = indicators.adjclose[0].adjclose.filter((p: number | null) => p !== null && p > 0) as number[]
-  } else if (indicators?.quote && indicators.quote[0]?.close) {
-    historicalPrices = indicators.quote[0].close.filter((p: number | null) => p !== null && p > 0) as number[]
-  }
-  
-  let currentPrice = meta.regularMarketPrice
-  let previousClose = meta.previousClose || meta.chartPreviousClose
-  
-  if (!currentPrice && indicators?.quote && indicators.quote[0]?.close) {
-    const closes = indicators.quote[0].close
-    currentPrice = closes[closes.length - 1] || closes[0] || 0
-  }
-  
-  if (!previousClose && indicators?.adjclose && indicators.adjclose[0]?.adjclose) {
-    const adjcloses = indicators.adjclose[0].adjclose
-    previousClose = adjcloses[adjcloses.length - 2] || adjcloses[0] || currentPrice
-  }
-  
+        const meta = result.meta
+        const indicators = result.indicators
+        
+        // 获取历史价格数据用于计算 RSI
+        let historicalPrices: number[] = []
+        if (indicators?.adjclose && indicators.adjclose[0]?.adjclose) {
+          historicalPrices = indicators.adjclose[0].adjclose.filter((p: number | null) => p !== null && p > 0) as number[]
+        } else if (indicators?.quote && indicators.quote[0]?.close) {
+          historicalPrices = indicators.quote[0].close.filter((p: number | null) => p !== null && p > 0) as number[]
+        }
+        
+        let currentPrice = meta.regularMarketPrice
+        let previousClose = meta.previousClose || meta.chartPreviousClose
+        
+        if (!currentPrice && indicators?.quote && indicators.quote[0]?.close) {
+          const closes = indicators.quote[0].close
+          currentPrice = closes[closes.length - 1] || closes[0] || 0
+        }
+        
+        if (!previousClose && indicators?.adjclose && indicators.adjclose[0]?.adjclose) {
+          const adjcloses = indicators.adjclose[0].adjclose
+          previousClose = adjcloses[adjcloses.length - 2] || adjcloses[0] || currentPrice
+        }
+        
   if (!currentPrice || currentPrice === 0) currentPrice = previousClose || 0
   if (!previousClose || previousClose === 0) previousClose = currentPrice
   
-  let change = meta.regularMarketChange
-  let changePercent = meta.regularMarketChangePercent
-  
-  if (change === undefined || change === null || changePercent === undefined || changePercent === null) {
-    change = currentPrice - previousClose
-    changePercent = previousClose && previousClose !== currentPrice ? (change / previousClose) * 100 : 0
+        let change = meta.regularMarketChange
+        let changePercent = meta.regularMarketChangePercent
+        
+        if (change === undefined || change === null || changePercent === undefined || changePercent === null) {
+          change = currentPrice - previousClose
+          changePercent = previousClose && previousClose !== currentPrice ? (change / previousClose) * 100 : 0
   } else if (change === 0 && changePercent === 0 && currentPrice !== previousClose) {
-    change = currentPrice - previousClose
-    changePercent = previousClose ? (change / previousClose) * 100 : 0
+            change = currentPrice - previousClose
+            changePercent = previousClose ? (change / previousClose) * 100 : 0
   } else if (Math.abs(changePercent) < 1 && Math.abs(changePercent) > 0) {
-    changePercent = changePercent * 100
-  }
-  
-  let rsi: number | null = null
-  if (historicalPrices.length >= 15) {
-    rsi = calculateRSI(historicalPrices)
-  }
-  
-  return {
+              changePercent = changePercent * 100
+        }
+        
+        let rsi: number | null = null
+        if (historicalPrices.length >= 15) {
+          rsi = calculateRSI(historicalPrices)
+        }
+        
+        return {
     symbol,
-    name: meta.shortName || meta.longName || symbol,
-    price: currentPrice,
-    change: change || 0,
-    changePercent: changePercent || 0,
-    volume: meta.regularMarketVolume,
-    market: 'US',
-    rsi: rsi || undefined
-  }
-}
+          name: meta.shortName || meta.longName || symbol,
+          price: currentPrice,
+          change: change || 0,
+          changePercent: changePercent || 0,
+          volume: meta.regularMarketVolume,
+          market: 'US',
+          rsi: rsi || undefined
+        }
+      }
 
 // CORS 代理配置
 const CORS_PROXY_MAIN = (url: string) => `https://corsproxy.io/?${encodeURIComponent(url)}`
@@ -293,7 +293,7 @@ async function fetchFromEastMoney(symbol: string, name: string, market: string):
     const result: StockQuote = {
       symbol,
       name,
-      price: currentPrice,
+            price: currentPrice,
       change: change || (currentPrice - previousClose),
       changePercent: changePercent || (previousClose ? ((currentPrice - previousClose) / previousClose) * 100 : 0),
       market,
@@ -332,18 +332,18 @@ export async function fetchMarketDataByType(type: 'us' | 'cn' | 'hk' | 'commodit
   const dataConfig: Record<string, Array<{ symbol: string; name: string }>> = {
     us: [
       { symbol: '^DJI', name: '道琼斯' },
-      { symbol: '^GSPC', name: '标普500' },
+    { symbol: '^GSPC', name: '标普500' },
       { symbol: '^NDX', name: '纳斯达克' },
       { symbol: '^VIX', name: 'VIX恐慌' }
     ],
     cn: [
-      { symbol: 'sh000001', name: '上证指数' },
-      { symbol: 'sz399001', name: '深证成指' },
-      { symbol: 'sz399006', name: '创业板指' },
-      { symbol: 'sh000300', name: '沪深300' }
+    { symbol: 'sh000001', name: '上证指数' },
+    { symbol: 'sz399001', name: '深证成指' },
+    { symbol: 'sz399006', name: '创业板指' },
+    { symbol: 'sh000300', name: '沪深300' }
     ],
     hk: [
-      { symbol: '^HSI', name: '恒生指数' },
+    { symbol: '^HSI', name: '恒生指数' },
       { symbol: '^HSCE', name: '恒生国企' },
       { symbol: '^HSTECH', name: '恒生科技' },
       { symbol: 'FTSE_A50', name: '富时A50' }
@@ -383,7 +383,7 @@ export async function fetchMarketDataByType(type: 'us' | 'cn' | 'hk' | 'commodit
   }
 
   try {
-    const results = await Promise.allSettled(
+      const results = await Promise.allSettled(
       indices.map(({ symbol, name }) => fetchStockSmart(symbol, name, marketMap[type]))
     )
     return results
@@ -404,12 +404,12 @@ export async function fetchMarketData(): Promise<MarketData> {
       fetchMarketDataByType('hk')
     ])
     
-    return {
+        return {
       usStocks,
       chinaIndices,
       hkIndices,
-      timestamp: new Date().toISOString()
-    }
+          timestamp: new Date().toISOString()
+        }
   } catch (error) {
     console.error('Error in fetchMarketData:', error)
     return {

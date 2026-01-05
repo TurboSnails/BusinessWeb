@@ -5,11 +5,11 @@ const InvestmentPlan2026 = () => {
   const [activeTab, setActiveTab] = useState<'timeline' | 'checklist' | 'decision' | 'shorting' | 'profit-taking'>('timeline');
   const [activeSubTab, setActiveSubTab] = useState<'overview' | 'assumptions' | 'indicators' | 'stages' | 'execution'>('overview');
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
-  
+
   const toggleCheck = (id: string) => {
     setCheckedItems(prev => ({...prev, [id]: !prev[id]}));
   };
-  
+
   // 市场情绪分析器状态
   const [equityPC, setEquityPC] = useState<string>('');
   const [spxPC, setSpxPC] = useState<string>('');
@@ -820,7 +820,7 @@ const InvestmentPlan2026 = () => {
               minWidth: '80px'
             }}>
               📅 计划执行
-            </div>
+      </div>
             {(['timeline', 'checklist'] as const).map((tab) => {
               const labels: Record<typeof tab, string> = {
                 timeline: '时间轴',
@@ -828,7 +828,7 @@ const InvestmentPlan2026 = () => {
               };
               const isActive = activeTab === tab;
               return (
-                <button
+          <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   style={{
@@ -853,9 +853,9 @@ const InvestmentPlan2026 = () => {
                       e.currentTarget.style.background = 'transparent';
                     }
                   }}
-                >
+          >
                   {labels[tab]}
-                </button>
+          </button>
               );
             })}
           </div>
@@ -883,7 +883,7 @@ const InvestmentPlan2026 = () => {
               };
               const isActive = activeTab === tab;
               return (
-                <button
+          <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   style={{
@@ -908,9 +908,9 @@ const InvestmentPlan2026 = () => {
                       e.currentTarget.style.background = 'transparent';
                     }
                   }}
-                >
+          >
                   {labels[tab]}
-                </button>
+          </button>
               );
             })}
           </div>
@@ -927,8 +927,8 @@ const InvestmentPlan2026 = () => {
               const bgColor = item.priority === 'critical' ? '#fef2f2' : item.priority === 'high' ? '#fff7ed' : '#eff6ff';
               
               return (
-                <div
-                  key={index}
+              <div
+                key={index}
                   style={{
                     borderLeft: `4px solid ${borderColor}`,
                     paddingLeft: '16px',
@@ -936,13 +936,13 @@ const InvestmentPlan2026 = () => {
                     background: bgColor,
                     borderRadius: '8px'
                   }}
-                >
+              >
                   <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
                         <span style={{ fontWeight: '700', fontSize: '1.1rem' }}>{item.date}</span>
                         <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>{item.day}</span>
-                        {item.time && (
+                      {item.time && (
                           <span style={{ 
                             fontSize: '0.8rem', 
                             background: 'white', 
@@ -950,25 +950,25 @@ const InvestmentPlan2026 = () => {
                             borderRadius: '4px',
                             color: '#4b5563'
                           }}>
-                            {item.time}
-                          </span>
-                        )}
-                      </div>
+                          {item.time}
+                        </span>
+                      )}
+                    </div>
                       <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1f2937', margin: '8px 0' }}>
-                        {item.event}
-                      </h3>
+                      {item.event}
+                    </h3>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '12px' }}>
-                        {item.actions.map((action) => (
+                      {item.actions.map((action) => (
                           <div key={action.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                            <input
-                              type="checkbox"
-                              id={action.id}
-                              checked={checkedItems[action.id] || false}
-                              onChange={() => toggleCheck(action.id)}
+                          <input
+                            type="checkbox"
+                            id={action.id}
+                            checked={checkedItems[action.id] || false}
+                            onChange={() => toggleCheck(action.id)}
                               style={{ marginTop: '4px', width: '16px', height: '16px', cursor: 'pointer' }}
-                            />
-                            <label
-                              htmlFor={action.id}
+                          />
+                          <label
+                            htmlFor={action.id}
                               style={{
                                 fontSize: '0.9rem',
                                 textDecoration: checkedItems[action.id] ? 'line-through' : 'none',
@@ -976,12 +976,12 @@ const InvestmentPlan2026 = () => {
                                 cursor: 'pointer',
                                 flex: 1
                               }}
-                            >
-                              {action.text}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
+                          >
+                            {action.text}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
                       <div style={{ 
                         display: 'flex', 
                         alignItems: 'flex-start', 
@@ -994,14 +994,14 @@ const InvestmentPlan2026 = () => {
                         marginTop: '8px'
                       }}>
                         <span style={{ fontSize: '1rem' }}>⚠️</span>
-                        <span>{item.notes}</span>
-                      </div>
+                      <span>{item.notes}</span>
                     </div>
-                    {item.priority === 'critical' && (
-                      <span style={{ fontSize: '1.5rem', marginLeft: '16px', flexShrink: 0 }}>🔔</span>
-                    )}
                   </div>
+                  {item.priority === 'critical' && (
+                      <span style={{ fontSize: '1.5rem', marginLeft: '16px', flexShrink: 0 }}>🔔</span>
+                  )}
                 </div>
+              </div>
               );
             })}
           </div>
@@ -1057,16 +1057,16 @@ const InvestmentPlan2026 = () => {
                           alignItems: 'flex-start', 
                           gap: '12px'
                         }}>
-                          <input
-                            type="checkbox"
-                            id={item.id}
-                            checked={checkedItems[item.id] || false}
-                            onChange={() => toggleCheck(item.id)}
+                      <input
+                        type="checkbox"
+                        id={item.id}
+                        checked={checkedItems[item.id] || false}
+                        onChange={() => toggleCheck(item.id)}
                             style={{ marginTop: '2px', width: '20px', height: '20px', cursor: 'pointer' }}
-                          />
+                      />
                           <div style={{ flex: 1 }}>
-                            <label
-                              htmlFor={item.id}
+                      <label
+                        htmlFor={item.id}
                               style={{
                                 cursor: 'pointer',
                                 textDecoration: checkedItems[item.id] ? 'line-through' : 'none',
@@ -1076,9 +1076,9 @@ const InvestmentPlan2026 = () => {
                                 lineHeight: '1.5',
                                 display: 'block'
                               }}
-                            >
-                              {item.text}
-                            </label>
+                      >
+                        {item.text}
+                      </label>
                             {hasDetail && (
                               <div style={{ marginTop: '8px' }}>
                                 <button
@@ -1113,7 +1113,7 @@ const InvestmentPlan2026 = () => {
                                     lineHeight: '1.6'
                                   }}>
                                     {item.detail}
-                                  </div>
+                    </div>
                                 )}
                               </div>
                             )}
@@ -1310,8 +1310,8 @@ const InvestmentPlan2026 = () => {
                 <p style={{ fontSize: '0.95rem', color: '#92400e', lineHeight: '1.6', margin: 0 }}>
                   为了让这套逻辑适用于<strong>任何</strong>普通股票、加密货币或其它金融资产，我们将其去标的化，转化为一套通用的<strong>"心态+技术"</strong>双驱动止盈模型。
                 </p>
-              </div>
-              
+      </div>
+
               {/* 分批止盈法 */}
               <div style={{ marginBottom: '24px' }}>
                 <div style={{ 
