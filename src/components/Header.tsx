@@ -8,7 +8,8 @@ export default function Header(): JSX.Element {
 
   const navItems = [
     { path: '/', label: '首页', icon: '🏠' },
-    { path: '/investment-targets', label: '投资标的', icon: '📈' },
+    { path: '/investment-targets', label: '美股投资', icon: '📈' },
+    { path: '/mainland-investment-targets', label: '大陆投资', icon: '🇨🇳' },
     { path: '/pulse', label: '经济脉搏', icon: '📊' },
     { path: '/monitor', label: '每日监控', icon: '📈' },
     { path: '/limit-up-analysis', label: '涨停分析', icon: '🚀' },

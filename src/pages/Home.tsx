@@ -33,10 +33,18 @@ export default function Home(): JSX.Element {
     {
       to: '/investment-targets',
       icon: '📈',
-      title: '长期看好的公司',
-      description: '投资标的列表',
+      title: '美股投资',
+      description: '长期看好的公司',
       gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       color: '#667eea'
+    },
+    {
+      to: '/mainland-investment-targets',
+      icon: '🇨🇳',
+      title: '大陆投资',
+      description: '2026AI投资组合',
+      gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+      color: '#f59e0b'
     },
     {
       to: '/pulse',

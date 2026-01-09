@@ -11,6 +11,7 @@ import InvestmentTargetsPage from './pages/InvestmentTargetsPage'
 import LimitUpAnalysis from './pages/LimitUpAnalysis'
 import TradingPhilosophy from './pages/TradingPhilosophy'
 import SectorRotation from './pages/SectorRotation'
+import MainlandInvestmentTargets from './pages/MainlandInvestmentTargets'
 
 export default function App(): JSX.Element {
   return (
@@ -27,6 +28,7 @@ export default function App(): JSX.Element {
           <Route path="/limit-up-analysis" element={<LimitUpAnalysis />} />
           <Route path="/trading-philosophy" element={<TradingPhilosophy />} />
           <Route path="/sector-rotation" element={<SectorRotation />} />
+          <Route path="/mainland-investment-targets" element={<MainlandInvestmentTargets />} />
         </Routes>
         <Footer />
       </BrowserRouter>
