@@ -22,7 +22,7 @@ export const tableStyle: React.CSSProperties = {
 }
 
 export const thStyle: React.CSSProperties = {
-  background: 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #3b82f6 100%)',
+  background: 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 50%, #93c5fd 100%)',
   color: '#ffffff',
   padding: '16px 12px',
   textAlign: 'left',
@@ -32,10 +32,10 @@ export const thStyle: React.CSSProperties = {
   position: 'sticky',
   top: 0,
   zIndex: 10,
-  boxShadow: '0 4px 12px rgba(30, 58, 138, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+  boxShadow: '0 2px 8px rgba(59, 130, 246, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
   whiteSpace: 'nowrap',
   letterSpacing: '0.3px',
-  textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+  textShadow: '0 1px 2px rgba(0, 0, 0, 0.08)'
 }
 
 export const tdStyle: React.CSSProperties = {
