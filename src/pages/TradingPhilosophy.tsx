@@ -793,51 +793,173 @@ export default function TradingPhilosophy(): JSX.Element {
             </div>
           </div>
           {expandedTables.has('strategy-table') && (
-          <div style={{ overflowX: 'auto', marginTop: '12px' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+          <div style={{ 
+            overflowX: 'auto', 
+            marginTop: '20px',
+            borderRadius: '12px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            border: '1px solid #e2e8f0'
+          }}>
+            <table style={{ 
+              width: '100%', 
+              borderCollapse: 'separate',
+              borderSpacing: 0,
+              fontSize: '0.95rem',
+              background: 'white',
+              borderRadius: '12px',
+              overflow: 'hidden'
+            }}>
               <thead>
-                <tr style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)', borderBottom: '2px solid #e2e8f0' }}>
-                  <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#1e293b' }}>策略类型</th>
-                  <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#1e293b' }}>适用周期</th>
-                  <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#1e293b' }}>核心信号</th>
-                  <th style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#1e293b' }}>仓位</th>
+                <tr style={{ 
+                  background: 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 50%, #93c5fd 100%)',
+                  color: '#ffffff'
+                }}>
+                  <th style={{ 
+                    padding: '18px 16px', 
+                    textAlign: 'left', 
+                    fontWeight: '700', 
+                    color: '#ffffff',
+                    fontSize: '1rem',
+                    letterSpacing: '0.3px',
+                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+                  }}>
+                    策略类型
+                  </th>
+                  <th style={{ 
+                    padding: '18px 16px', 
+                    textAlign: 'left', 
+                    fontWeight: '700', 
+                    color: '#ffffff',
+                    fontSize: '1rem',
+                    letterSpacing: '0.3px',
+                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+                  }}>
+                    适用周期
+                  </th>
+                  <th style={{ 
+                    padding: '18px 16px', 
+                    textAlign: 'left', 
+                    fontWeight: '700', 
+                    color: '#ffffff',
+                    fontSize: '1rem',
+                    letterSpacing: '0.3px',
+                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+                  }}>
+                    核心信号
+                  </th>
+                  <th style={{ 
+                    padding: '18px 16px', 
+                    textAlign: 'center', 
+                    fontWeight: '700', 
+                    color: '#ffffff',
+                    fontSize: '1rem',
+                    letterSpacing: '0.3px',
+                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+                  }}>
+                    仓位
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {[
                   { 
                     type: '主攻型', 
-                    cycle: '冰点→回暖', 
+                    icon: '⚔️',
+                    cycle: '切新热点 / 老龙修复(需预埋)', 
                     signal: '新题材首板+OBV底背离 / 老龙头回踩+OBV支撑', 
                     position: '30%-50%',
-                    color: '#16a34a'
+                    rowBg: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+                    borderColor: '#10b981',
+                    textColor: '#065f46',
+                    typeColor: '#10b981'
                   },
                   { 
                     type: '跟随型', 
+                    icon: '🎯',
                     cycle: '主升/分歧', 
                     signal: '板块强势+缩量回踩+OBV支撑 / 弱转强确认', 
                     position: '10%-20%',
-                    color: '#3b82f6'
+                    rowBg: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+                    borderColor: '#3b82f6',
+                    textColor: '#1e40af',
+                    typeColor: '#3b82f6'
                   },
                   { 
                     type: '防守型', 
+                    icon: '🛡️',
                     cycle: '高潮/退潮', 
                     signal: '情绪过热(连板率{'>'}45%)或系统性风险', 
                     position: '0%-10%',
-                    color: '#dc2626'
+                    rowBg: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
+                    borderColor: '#ef4444',
+                    textColor: '#991b1b',
+                    typeColor: '#ef4444'
                   }
                 ].map((row, index) => (
                   <tr
                     key={index}
                     style={{
-                      borderBottom: '1px solid #e2e8f0',
-                      background: index % 2 === 0 ? 'white' : '#f8fafc'
+                      background: row.rowBg,
+                      borderLeft: `4px solid ${row.borderColor}`,
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'white'
+                      e.currentTarget.style.boxShadow = `0 4px 12px ${row.borderColor}40`
+                      e.currentTarget.style.transform = 'scale(1.01)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = row.rowBg
+                      e.currentTarget.style.boxShadow = 'none'
+                      e.currentTarget.style.transform = 'scale(1)'
                     }}
                   >
-                    <td style={{ padding: '12px', fontWeight: '600', color: row.color }}>{row.type}</td>
-                    <td style={{ padding: '12px', color: '#475569' }}>{row.cycle}</td>
-                    <td style={{ padding: '12px', color: '#475569' }}>{row.signal}</td>
-                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '600', color: row.color }}>{row.position}</td>
+                    <td style={{ 
+                      padding: '18px 16px', 
+                      fontWeight: '700', 
+                      color: row.typeColor,
+                      fontSize: '1.05rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}>
+                      <span style={{ fontSize: '1.3rem' }}>{row.icon}</span>
+                      {row.type}
+                    </td>
+                    <td style={{ 
+                      padding: '18px 16px', 
+                      color: '#1e293b',
+                      lineHeight: '1.6',
+                      fontWeight: '500'
+                    }}>
+                      {row.cycle}
+                    </td>
+                    <td style={{ 
+                      padding: '18px 16px', 
+                      color: '#475569',
+                      lineHeight: '1.7',
+                      maxWidth: '500px'
+                    }}>
+                      {row.signal}
+                    </td>
+                    <td style={{ 
+                      padding: '18px 16px', 
+                      textAlign: 'center', 
+                      fontWeight: '700', 
+                      color: row.typeColor,
+                      fontSize: '1.1rem'
+                    }}>
+                      <span style={{
+                        background: 'white',
+                        padding: '6px 14px',
+                        borderRadius: '8px',
+                        display: 'inline-block',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                        border: `2px solid ${row.borderColor}`
+                      }}>
+                        {row.position}
+                      </span>
+                    </td>
                   </tr>
                 ))}
               </tbody>
