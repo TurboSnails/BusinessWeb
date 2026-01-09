@@ -313,9 +313,12 @@ export default function Pulse(): JSX.Element {
         const mergeInfo = cloudReviews.length > 0
           ? `\n\n✅ 已合并云端数据（避免覆盖）`
           : ''
+        const publicSyncInfo = result.publicSync
+          ? `\n\n🌐 已同步到公共 Gist（其他人可读取）`
+          : `\n\nℹ️ 未同步到公共 Gist（无权限或非所有者）`
         const message = currentGistId 
-          ? `✅ 上传成功！\n\n复盘数据：${reviewCount} 条${mergeInfo}\n\nGist ID: ${currentGistId}\n\n（可在其他设备输入此 ID 同步）`
-          : `✅ 上传成功！\n\n复盘数据：${reviewCount} 条${mergeInfo}`
+          ? `✅ 上传成功！\n\n复盘数据：${reviewCount} 条${mergeInfo}${publicSyncInfo}\n\nGist ID: ${currentGistId}\n\n（可在其他设备输入此 ID 同步）`
+          : `✅ 上传成功！\n\n复盘数据：${reviewCount} 条${mergeInfo}${publicSyncInfo}`
         alert(message)
       } else {
         const errorMsg = result.error || '未知错误'
@@ -331,13 +334,12 @@ export default function Pulse(): JSX.Element {
 
   // 手动从云端同步
   const handleSyncFromCloud = async () => {
-    if (!getGistToken()) {
-      alert('❌ 请先配置 Token（点击"云端设置"）')
-      return
-    }
+    const hasToken = getGistToken()
+    const hasGistId = getGistId()
     
-    if (!getGistId()) {
-      alert('❌ 云端还没有数据\n\n请先在电脑上上传一次数据，然后再下载')
+    // 如果用户配置了 token 但没有 gistId，提示需要先上传
+    if (hasToken && !hasGistId) {
+      alert('❌ 云端还没有数据\n\n请先上传一次数据，然后再下载\n\n（如果没有配置，将使用默认公共数据）')
       return
     }
     
@@ -349,7 +351,7 @@ export default function Pulse(): JSX.Element {
       const reviewCount = cloudData.reviews.length
       
       if (reviewCount === 0) {
-        alert('⚠️ 云端数据为空\n\n请先在电脑上上传数据')
+        alert('⚠️ 云端数据为空')
         return
       }
       
@@ -359,9 +361,10 @@ export default function Pulse(): JSX.Element {
         saveReviews(cloudData.reviews)
       }
       
-      alert(`✅ 下载成功！\n\n复盘数据：${reviewCount} 条\n\n数据已更新到本地`)
+      const source = hasGistId ? '你的云端数据' : '默认公共数据'
+      alert(`✅ 下载成功！\n\n数据来源：${source}\n复盘数据：${reviewCount} 条\n\n数据已更新到本地`)
     } else {
-      alert('❌ 下载失败\n\n可能原因：\n1. Token 权限不足\n2. Gist 不存在或已删除\n3. 网络连接问题\n\n请检查 Token 配置或先上传一次数据')
+      alert('❌ 下载失败\n\n可能原因：\n1. 网络连接问题\n2. Gist 不存在或已删除\n3. Token 权限不足（如果已配置）\n\n提示：未配置时会自动使用默认公共数据')
     }
   }
 
@@ -565,17 +568,15 @@ export default function Pulse(): JSX.Element {
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '0.75rem', color: '#9ca3af' }}>{timestamp || '--'}</span>
           {getGistToken() && (
-            <>
-              <button onClick={handleSyncToCloud} disabled={syncing} style={{
-                padding: '6px 12px', background: syncing ? '#e5e7eb' : '#0ea5e9', color: syncing ? '#9ca3af' : 'white', border: 'none',
-                borderRadius: '6px', cursor: syncing ? 'not-allowed' : 'pointer', fontSize: '0.8rem', fontWeight: '500'
-              }}>{syncing ? '⏳' : '☁️'} {syncing ? '同步中' : '上传'}</button>
-              <button onClick={handleSyncFromCloud} disabled={syncing} style={{
-                padding: '6px 12px', background: syncing ? '#e5e7eb' : '#06b6d4', color: syncing ? '#9ca3af' : 'white', border: 'none',
-                borderRadius: '6px', cursor: syncing ? 'not-allowed' : 'pointer', fontSize: '0.8rem', fontWeight: '500'
-              }}>{syncing ? '⏳' : '⬇️'} {syncing ? '同步中' : '下载'}</button>
-            </>
+            <button onClick={handleSyncToCloud} disabled={syncing} style={{
+              padding: '6px 12px', background: syncing ? '#e5e7eb' : '#0ea5e9', color: syncing ? '#9ca3af' : 'white', border: 'none',
+              borderRadius: '6px', cursor: syncing ? 'not-allowed' : 'pointer', fontSize: '0.8rem', fontWeight: '500'
+            }}>{syncing ? '⏳' : '☁️'} {syncing ? '同步中' : '上传'}</button>
           )}
+          <button onClick={handleSyncFromCloud} disabled={syncing} style={{
+            padding: '6px 12px', background: syncing ? '#e5e7eb' : '#06b6d4', color: syncing ? '#9ca3af' : 'white', border: 'none',
+            borderRadius: '6px', cursor: syncing ? 'not-allowed' : 'pointer', fontSize: '0.8rem', fontWeight: '500'
+          }}>{syncing ? '⏳' : '⬇️'} {syncing ? '同步中' : '下载'}</button>
           <button onClick={() => setShowFilter(true)} style={{
             padding: '6px 12px', background: '#6366f1', color: 'white', border: 'none',
             borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
@@ -717,6 +718,8 @@ export default function Pulse(): JSX.Element {
             <h3 style={{ margin: '0 0 16px', fontSize: '1.1rem' }}>☁️ 云端同步设置</h3>
             <p style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '16px' }}>
               使用 GitHub Gist 免费存储数据，实现跨设备同步
+              <br />
+              <span style={{ color: '#3b82f6', fontWeight: '500' }}>💡 提示：未配置时会自动使用默认公共数据源</span>
             </p>
             <div style={{ marginBottom: '16px' }}>
               <label style={{ fontSize: '0.8rem', color: '#64748b', display: 'block', marginBottom: '6px' }}>
@@ -772,9 +775,15 @@ export default function Pulse(): JSX.Element {
                 保存
               </button>
             </div>
-            {getGistToken() && (
+            {getGistToken() ? (
               <div style={{ marginTop: '16px', padding: '12px', background: '#f0fdf4', borderRadius: '6px', fontSize: '0.85rem', color: '#166534' }}>
                 ✅ 已配置云端同步，数据会自动保存到你的 GitHub Gist
+              </div>
+            ) : (
+              <div style={{ marginTop: '16px', padding: '12px', background: '#eff6ff', borderRadius: '6px', fontSize: '0.85rem', color: '#1e40af' }}>
+                ℹ️ 未配置时，下载功能会使用默认公共数据源（无需 Token）
+                <br />
+                配置 Token 后，可以上传和同步你自己的数据
               </div>
             )}
           </div>
