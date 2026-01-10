@@ -1494,7 +1494,12 @@ export default function SectorRotation(): JSX.Element {
         // amount: 成交额（可能需要转换单位）
         const stocks: HotStock[] = matchedPlate.stock_list
           .map((stock: any) => {
-            const code = stock.secu_code || ''
+            // 股票代码可能是6位数字，需要确保格式正确
+            let code = String(stock.secu_code || stock.code || '').trim()
+            // 如果代码包含非数字字符，只保留数字部分
+            const codeDigits = code.replace(/[^0-9]/g, '')
+            // 如果提取到6位数字，使用提取的数字；否则使用原始代码
+            code = codeDigits.length === 6 ? codeDigits : code
             const name = stock.secu_name || ''
             const price = parseFloat(stock.last_px || stock.price || 0)
             // change 是小数形式，如 0.0997 表示 9.97%，需要乘以100
@@ -1582,6 +1587,180 @@ export default function SectorRotation(): JSX.Element {
   const formatFullDate = (date: string): string => {
     return date
   }
+
+  // 根据股票代码生成K线图URL（使用同花顺）
+  const getStockKLineUrl = (code: string, name?: string): string => {
+    if (!code) {
+      console.warn(`⚠️ 股票代码为空`)
+      return ''
+    }
+    
+    console.log(`🔍 处理股票代码: ${code}, 名称: ${name}`)
+    
+    // 清理代码，移除所有非数字字符，只保留数字
+    let cleanCode = code.replace(/[^0-9]/g, '')
+    console.log(`🔍 清理后的代码: ${cleanCode}`)
+    
+    // 如果代码长度不足6位，尝试补齐前导0
+    if (cleanCode.length > 0 && cleanCode.length < 6) {
+      cleanCode = cleanCode.padStart(6, '0')
+      console.log(`🔍 补齐后的代码: ${cleanCode}`)
+    }
+    
+    if (!cleanCode || cleanCode.length !== 6) {
+      console.warn(`⚠️ 股票代码格式不正确: ${code} -> ${cleanCode}`)
+      // 如果代码格式不对，尝试使用股票名称搜索（雪球）
+      if (name) {
+        return `https://xueqiu.com/S/${encodeURIComponent(name)}`
+      }
+      return ''
+    }
+    
+    // 判断交易所并生成URL（优先使用新浪，备用雪球）
+    // 上交所：60开头（主板）或688开头（科创板）
+    // 深交所：00开头（主板）或30开头（创业板）
+    // 北交所：920开头（如920207）
+    let url = ''
+    
+    // 检查是否是北交所（920开头）
+    if (cleanCode.startsWith('920')) {
+      // 北交所 - 确保代码有效（至少6位）
+      if (cleanCode.length >= 6) {
+        // 新浪格式：bj{code}（小写bj前缀）
+        url = `https://quotes.sina.cn/hs/company/quotes/view/bj${cleanCode}`
+      } else {
+        // 备用雪球格式：BJ{code}（大写BJ前缀）
+        url = `https://xueqiu.com/S/BJ${cleanCode}`
+      }
+    } else if (cleanCode.startsWith('60') || cleanCode.startsWith('688')) {
+      // 上交所 - 新浪格式：sh{code}
+      url = `https://quotes.sina.cn/hs/company/quotes/view/sh${cleanCode}`
+    } else if (cleanCode.startsWith('00') || cleanCode.startsWith('30')) {
+      // 深交所 - 新浪格式：sz{code}
+      url = `https://quotes.sina.cn/hs/company/quotes/view/sz${cleanCode}`
+    } else {
+      // 其他情况，使用雪球搜索
+      console.warn(`⚠️ 无法识别股票代码格式: ${code} -> ${cleanCode}`)
+      if (cleanCode.length === 6) {
+        // 尝试使用雪球格式
+        url = `https://xueqiu.com/S/SH${cleanCode}`
+      } else {
+        url = `https://xueqiu.com/S/${cleanCode}`
+      }
+    }
+    
+    console.log(`✅ 生成的URL: ${url}`)
+    return url
+  }
+
+  // 处理股票点击
+  const handleStockClick = (stock: HotStock) => {
+    console.log(`🖱️ 点击股票: ${stock.name} (${stock.code})`)
+    const url = getStockKLineUrl(stock.code, stock.name)
+    console.log(`🔗 生成的K线图URL: ${url}`)
+    if (url) {
+      window.open(url, '_blank')
+    } else {
+      console.warn(`⚠️ 无法生成股票K线图URL: ${stock.name} (${stock.code})`)
+    }
+  }
+
+  // 计算板块在已有数据中涨幅超过1%的次数（从右往左，最多统计7个有数据的日期）
+  const getOver1PercentCount = useCallback((sectorName: string, sectorCode: string): number => {
+    let count = 0
+    let foundCount = 0 // 已找到的有数据的日期数量（最多7个）
+    
+    // 获取所有有数据的日期，按日期从新到旧排序
+    const allDates = Object.keys(plateRawDataByDate)
+      .filter(date => plateRawDataByDate[date] && plateRawDataByDate[date].length > 0)
+      .sort((a, b) => b.localeCompare(a)) // 从新到旧排序（从右往左）
+    
+    // 从右往左遍历，找到该板块出现且涨幅超过1%的日期
+    for (const date of allDates) {
+      if (foundCount >= 7) break // 最多统计7个有数据的日期
+      
+      // 先从筛选后的数据中查找（前N名）
+      let sectors = sectorDataByDate[date] || []
+      let sector = sectors.find(s => s.name === sectorName && s.code === sectorCode)
+      
+      // 如果在前N名中没找到，从原始数据中查找
+      if (!sector) {
+        const rawData = plateRawDataByDate[date] || []
+        const matchedPlate = rawData.find((plate: any) => {
+          const plateCode = String(plate.secu_code || plate.code || plate.plate_code || '').trim()
+          const plateName = String(plate.secu_name || plate.name || '').trim()
+          return (sectorCode && plateCode === sectorCode) || (sectorName && plateName === sectorName)
+        })
+        
+        if (matchedPlate) {
+          // 计算涨幅
+          const changeValue = matchedPlate.change_percent || matchedPlate.change || matchedPlate.changePercent || 0
+          const changePercent = Math.abs(changeValue) > 1 ? changeValue : changeValue * 100
+          
+          sector = {
+            name: sectorName,
+            code: sectorCode,
+            changePercent: parseFloat(String(changePercent)) || 0
+          }
+        }
+      }
+      
+      if (sector) {
+        foundCount++ // 找到了该板块的数据
+        if (sector.changePercent > 1) {
+          count++ // 涨幅超过1%，计数+1
+        }
+      }
+    }
+    
+    return count
+  }, [sectorDataByDate, plateRawDataByDate])
+
+  // 获取涨幅超过1%次数的颜色（次数越多颜色越深）
+  const getCountColor = (count: number): string => {
+    if (count === 0) return '#9ca3af' // 灰色
+    if (count === 1) return '#ffffff' // 白色
+    if (count === 2) return '#fbbf24' // 浅黄色
+    if (count === 3) return '#f59e0b' // 橙色
+    if (count === 4) return '#f97316' // 橙红色
+    if (count === 5) return '#ef4444' // 红色
+    if (count === 6) return '#dc2626' // 深红色
+    if (count >= 7) return '#991b1b' // 最深红色
+    return '#9ca3af'
+  }
+
+  // 获取最近7天的日期列表（用于显示涨停板数量）
+  const getLast7Days = useCallback((): string[] => {
+    const dates: string[] = []
+    const today = new Date()
+    
+    // 获取最近7天的日期
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(today)
+      date.setDate(today.getDate() - i)
+      const dateStr = date.toISOString().split('T')[0]
+      dates.push(dateStr)
+    }
+    
+    return dates.reverse() // 从最早到最新
+  }, [])
+
+  // 获取某个板块在某个日期的涨停板数量
+  const getSectorLimitUpCount = useCallback((sectorName: string, sectorCode: string, date: string): number => {
+    const rawData = plateRawDataByDate[date] || []
+    // 查找匹配的板块
+    const matchedPlate = rawData.find((plate: any) => {
+      const plateCode = String(plate.secu_code || plate.code || plate.plate_code || '').trim()
+      const plateName = String(plate.secu_name || plate.name || '').trim()
+      return (sectorCode && plateCode === sectorCode) || (sectorName && plateName === sectorName)
+    })
+    
+    if (matchedPlate) {
+      return parseInt(matchedPlate.plate_stock_up_num || '0', 10)
+    }
+    
+    return 0
+  }, [plateRawDataByDate])
 
   return (
     <main className="container" style={{ padding: '20px 16px', maxWidth: '1400px', margin: '0 auto' }}>
@@ -1679,6 +1858,7 @@ export default function SectorRotation(): JSX.Element {
           </select>
         </div>
       </div>
+
 
       {error && (
         <div style={{
@@ -1789,39 +1969,204 @@ export default function SectorRotation(): JSX.Element {
                             const sectors = sectorDataByDate[date] || []
                             const sector = sectors[rank - 1]
                         return (
-                          <td key={date} style={{ padding: '12px', textAlign: 'center' }}>
+                          <td key={date} style={{ padding: '12px', textAlign: 'center', verticalAlign: 'top' }}>
                             {sector ? (
-                              <div
-                                onClick={() => handleSectorClick(sector)}
-                                style={{
-                                  cursor: 'pointer',
-                                  padding: '8px',
-                                  borderRadius: '6px',
-                                  transition: 'background 0.2s',
-                                  background: selectedSector?.name === sector.name && selectedSector?.date === date ? '#eff6ff' : 'transparent'
-                                }}
-                                onMouseEnter={(e) => {
-                                  if (!(selectedSector?.name === sector.name && selectedSector?.date === date)) {
-                                    e.currentTarget.style.background = '#f9fafb'
-                                  }
-                                }}
-                                onMouseLeave={(e) => {
-                                  if (!(selectedSector?.name === sector.name && selectedSector?.date === date)) {
-                                    e.currentTarget.style.background = 'transparent'
-                                  }
-                                }}
-                              >
-                                <div style={{ fontSize: '0.85rem', fontWeight: '500', color: '#1f2937', marginBottom: '4px' }}>
-                                  {sector.name}
+                              <>
+                                <div
+                                  onClick={() => handleSectorClick(sector)}
+                                  style={{
+                                    cursor: 'pointer',
+                                    padding: '8px',
+                                    borderRadius: '6px',
+                                    transition: 'background 0.2s',
+                                    background: selectedSector?.name === sector.name && selectedSector?.date === date ? '#eff6ff' : 'transparent',
+                                    marginBottom: '8px'
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    if (!(selectedSector?.name === sector.name && selectedSector?.date === date)) {
+                                      e.currentTarget.style.background = '#f9fafb'
+                                    }
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    if (!(selectedSector?.name === sector.name && selectedSector?.date === date)) {
+                                      e.currentTarget.style.background = 'transparent'
+                                    }
+                                  }}
+                                >
+                                  <div style={{ fontSize: '0.85rem', fontWeight: '500', color: '#1f2937', marginBottom: '4px', position: 'relative' }}>
+                                    {sector.name}
+                                    {(() => {
+                                      const count = getOver1PercentCount(sector.name, sector.code)
+                                      if (count > 0) {
+                                        return (
+                                          <span style={{
+                                            position: 'absolute',
+                                            top: '-6px',
+                                            right: '-6px',
+                                            background: getCountColor(count),
+                                            color: count === 1 ? '#6b7280' : 'white',
+                                            fontSize: '0.65rem',
+                                            fontWeight: '700',
+                                            padding: '2px 5px',
+                                            borderRadius: '10px',
+                                            minWidth: '18px',
+                                            textAlign: 'center',
+                                            lineHeight: '1.2',
+                                            boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+                                          }}>
+                                            {count}
+                                          </span>
+                                        )
+                                      }
+                                      return null
+                                    })()}
+                                  </div>
+                                  <div style={{
+                                    fontSize: '0.9rem',
+                                    fontWeight: '600',
+                                    color: '#dc2626'
+                                  }}>
+                                    +{sector.changePercent.toFixed(2)}%
+                                  </div>
                                 </div>
-                                <div style={{
-                                  fontSize: '0.9rem',
-                                  fontWeight: '600',
-                                  color: '#dc2626'
-                                }}>
-                                  +{sector.changePercent.toFixed(2)}%
-                                </div>
-                              </div>
+                                {/* 最近7天涨停家数 */}
+                                {(() => {
+                                  // 获取所有有数据的日期，按日期从新到旧排序
+                                  const allDates = Object.keys(sectorDataByDate)
+                                    .filter(d => sectorDataByDate[d] && sectorDataByDate[d].length > 0)
+                                    .sort((a, b) => b.localeCompare(a)) // 从新到旧
+                                  
+                                  // 找到当前日期在排序后的位置
+                                  const currentDateIndex = allDates.indexOf(date)
+                                  
+                                  let displayDates: string[] = []
+                                  
+                                  if (currentDateIndex >= 0) {
+                                    // 以当前日期为中心，当前日期在中间（第4个位置，索引3）
+                                    // allDates 是从新到旧排序的（索引0是最新，索引越大越旧）
+                                    // 位置0,1,2: 后面（更新的日期，索引更小）最多3天
+                                    // 位置3: 当前日期
+                                    // 位置4,5,6: 前面（更旧的日期，索引更大）至少3天
+                                    
+                                    // 先确定前面3天的范围（更旧的日期，索引更大）
+                                    let endIndex = Math.min(allDates.length - 1, currentDateIndex + 3) // 前面3天的结束索引
+                                    
+                                    // 检查前面是否有3天
+                                    const beforeCount = endIndex - currentDateIndex
+                                    
+                                    // 确定后面3天的范围（更新的日期，索引更小）
+                                    let startIndex = currentDateIndex - 3 // 后面3天的起始索引
+                                    
+                                    if (beforeCount < 3) {
+                                      // 前面不足3天，用后面补齐
+                                      const needMore = 3 - beforeCount
+                                      startIndex = Math.max(0, startIndex - needMore)
+                                    } else {
+                                      // 前面有3天，后面最多3天
+                                      startIndex = Math.max(0, currentDateIndex - 3)
+                                    }
+                                    
+                                    displayDates = allDates.slice(startIndex, endIndex + 1)
+                                    
+                                    // 确保当前日期在中间位置（第4个，索引3）
+                                    const currentInSlice = displayDates.indexOf(date)
+                                    if (currentInSlice >= 0) {
+                                      if (currentInSlice !== 3) {
+                                        // 需要调整，让当前日期在位置3（中间）
+                                        const needMove = 3 - currentInSlice
+                                        
+                                        if (needMove > 0) {
+                                          // 当前日期太靠前，需要往前取更多数据（索引更大）
+                                          const canAdd = Math.min(needMove, allDates.length - 1 - endIndex)
+                                          if (canAdd > 0) {
+                                            endIndex = endIndex + canAdd
+                                            displayDates = allDates.slice(startIndex, endIndex + 1)
+                                          }
+                                        } else if (needMove < 0) {
+                                          // 当前日期太靠后，需要往后取更多数据（索引更小）
+                                          const canAdd = Math.min(-needMove, startIndex)
+                                          if (canAdd > 0) {
+                                            startIndex = startIndex - canAdd
+                                            displayDates = allDates.slice(startIndex, endIndex + 1)
+                                          }
+                                        }
+                                      }
+                                      
+                                      // 确保正好7天
+                                      if (displayDates.length > 7) {
+                                        // 以当前日期为中心，取前后各3天
+                                        const currentInSlice2 = displayDates.indexOf(date)
+                                        if (currentInSlice2 >= 0) {
+                                          startIndex = startIndex + (currentInSlice2 - 3)
+                                          endIndex = startIndex + 6
+                                          displayDates = allDates.slice(startIndex, endIndex + 1)
+                                        }
+                                      } else if (displayDates.length < 7) {
+                                        // 如果不足7天，尽量保持当前日期在中间
+                                        const currentInSlice3 = displayDates.indexOf(date)
+                                        if (currentInSlice3 >= 0) {
+                                          const needBefore = 3 - currentInSlice3
+                                          if (needBefore > 0 && endIndex < allDates.length - 1) {
+                                            // 需要往前取更多
+                                            const canAdd = Math.min(needBefore, allDates.length - 1 - endIndex)
+                                            endIndex = endIndex + canAdd
+                                            displayDates = allDates.slice(startIndex, endIndex + 1)
+                                          } else if (needBefore < 0 && startIndex > 0) {
+                                            // 需要往后取更多
+                                            const canAdd = Math.min(-needBefore, startIndex)
+                                            startIndex = startIndex - canAdd
+                                            displayDates = allDates.slice(startIndex, endIndex + 1)
+                                          }
+                                        }
+                                      }
+                                    }
+                                  } else {
+                                    // 如果当前日期不在数据中，取最近7天
+                                    displayDates = allDates.slice(0, 7)
+                                  }
+                                  
+                                  return (
+                                    <div style={{ 
+                                      display: 'flex', 
+                                      gap: '2px', 
+                                      justifyContent: 'center',
+                                      flexWrap: 'wrap',
+                                      marginTop: '4px'
+                                    }}>
+                                      {displayDates.map((d) => {
+                                        const limitUpCount = getSectorLimitUpCount(sector.name, sector.code, d)
+                                        const isCurrentDate = d === date
+                                        const hasData = !!sectorDataByDate[d]
+                                        
+                                        return (
+                                          <div
+                                            key={d}
+                                            style={{
+                                              padding: '3px 5px',
+                                              background: isCurrentDate ? '#eff6ff' : hasData ? '#f9fafb' : '#f3f4f6',
+                                              border: isCurrentDate ? '1px solid #3b82f6' : '1px solid #e5e7eb',
+                                              borderRadius: '4px',
+                                              fontSize: '0.7rem',
+                                              minWidth: '24px',
+                                              textAlign: 'center',
+                                              lineHeight: '1.2'
+                                            }}
+                                            title={`${formatDateDisplay(d)}: ${limitUpCount}家`}
+                                          >
+                                            <div style={{ 
+                                              fontSize: '0.75rem', 
+                                              fontWeight: '600', 
+                                              color: hasData && limitUpCount > 0 ? '#dc2626' : '#9ca3af' 
+                                            }}>
+                                              {hasData ? limitUpCount : '-'}
+                                            </div>
+                                          </div>
+                                        )
+                                      })}
+                                    </div>
+                                  )
+                                })()}
+                              </>
                             ) : (
                               <span style={{ fontSize: '0.85rem', color: '#9ca3af' }}>-</span>
                             )}
@@ -1933,6 +2278,77 @@ export default function SectorRotation(): JSX.Element {
                     </div>
                   </div>
                   
+                  {/* 最近7天涨停板数量 */}
+                  <div style={{ marginBottom: '20px' }}>
+                    <div style={{ fontSize: '1rem', fontWeight: '600', color: '#1f2937', marginBottom: '12px' }}>
+                      📊 最近7天涨停板数量
+                    </div>
+                    {(() => {
+                      const last7Days = getLast7Days()
+                      const today = new Date().toISOString().split('T')[0]
+                      const todayIndex = last7Days.indexOf(today)
+                      
+                      // 如果今天有数据，从今天开始显示；如果没有，找到最近有数据的日期
+                      let displayDates: string[] = []
+                      if (todayIndex >= 0 && sectorDataByDate[today]) {
+                        // 今天有数据，从今天往前显示7天
+                        displayDates = last7Days.slice(Math.max(0, todayIndex - 6), todayIndex + 1).reverse()
+                      } else {
+                        // 今天没有数据，找到最近有数据的日期
+                        let latestDateIndex = -1
+                        for (let i = last7Days.length - 1; i >= 0; i--) {
+                          if (sectorDataByDate[last7Days[i]]) {
+                            latestDateIndex = i
+                            break
+                          }
+                        }
+                        
+                        if (latestDateIndex >= 0) {
+                          // 找到最近有数据的日期，前后各显示3天
+                          const start = Math.max(0, latestDateIndex - 3)
+                          const end = Math.min(last7Days.length - 1, latestDateIndex + 3)
+                          displayDates = last7Days.slice(start, end + 1).reverse()
+                        } else {
+                          // 没有数据，显示最近7天
+                          displayDates = last7Days.reverse()
+                        }
+                      }
+                      
+                      return (
+                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                          {displayDates.map((date) => {
+                            const count = getSectorLimitUpCount(selectedSector.name, selectedSector.code, date)
+                            const isToday = date === today
+                            const hasData = !!sectorDataByDate[date]
+                            
+                            return (
+                              <div
+                                key={date}
+                                style={{
+                                  padding: '8px 12px',
+                                  background: isToday ? '#eff6ff' : hasData ? '#f9fafb' : '#f3f4f6',
+                                  border: isToday ? '2px solid #3b82f6' : '1px solid #e5e7eb',
+                                  borderRadius: '8px',
+                                  fontSize: '0.85rem',
+                                  minWidth: '90px',
+                                  textAlign: 'center'
+                                }}
+                              >
+                                <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '4px' }}>
+                                  {formatDateDisplay(date)}
+                                  {isToday && <span style={{ marginLeft: '4px', color: '#3b82f6', fontWeight: '600' }}>今天</span>}
+                                </div>
+                                <div style={{ fontSize: '1rem', fontWeight: '700', color: hasData && count > 0 ? '#dc2626' : '#9ca3af' }}>
+                                  {hasData ? count : '-'}
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      )
+                    })()}
+                  </div>
+                  
                   {/* 热门股票列表 */}
                   <div>
                     <div style={{ fontSize: '1rem', fontWeight: '600', color: '#1f2937', marginBottom: '12px' }}>
@@ -1969,7 +2385,19 @@ export default function SectorRotation(): JSX.Element {
                               e.currentTarget.style.background = 'white'
                             }}
                           >
-                            <td style={{ padding: '10px' }}>
+                            <td 
+                              style={{ 
+                                padding: '10px',
+                                cursor: 'pointer'
+                              }}
+                              onClick={() => handleStockClick(stock)}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.background = '#eff6ff'
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.background = 'transparent'
+                              }}
+                            >
                               <div style={{ fontSize: '0.9rem', fontWeight: '500', color: '#1f2937' }}>
                                 {stock.name}
                               </div>
