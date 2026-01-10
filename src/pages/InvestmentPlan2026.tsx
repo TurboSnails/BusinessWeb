@@ -78,16 +78,19 @@ const InvestmentPlan2026 = () => {
     {
       date: '2026年1月9日',
       day: '周五',
-      event: '12月失业率报告',
+      event: '12月非农就业报告',
       time: '美东8:30',
       priority: 'critical',
+      completed: true, // 已发生的事件，不需要勾选框
       actions: [
-        { id: 'jan9-1', text: '📊 观察失业率趋势(连续3个月上升且合计≥0.5个百分点) + 非农新增就业 + 劳动参与率' },
-        { id: 'jan9-2', text: '⚠️ 趋势恶化(连续上升) → 减仓30-50% YINN,设置止损:标普回撤10%且VIX>25时强制再减30%' },
-        { id: 'jan9-3', text: '✅ 单月点位异常但趋势未恶化 → 暂缓操作,继续观察(避免季节性/统计修订误判)' },
-        { id: 'jan9-4', text: '📈 技术面辅助:纳指/标普是否跌破200日均线,跌幅与乖离度' }
+        { id: 'jan9-1', text: '📊 新增非农就业：5万人（远低于预期，前值11月修正后5.6万人，10月修正为减少17.3万人，两月合计下修7.6万人）' },
+        { id: 'jan9-2', text: '📈 失业率：4.4%（预期4.5%，前值4.6%，环比下降0.2个百分点，意外下降）' },
+        { id: 'jan9-3', text: '💰 平均时薪：37.02美元，环比涨12美分，同比增3.8%（通胀顽固信号）' },
+        { id: 'jan9-4', text: '🔍 核心经济信号：就业增长放缓至月均4.9万，全年仅58.4万（2003年来最低），主要受科技巨头AI驱动裁员影响（超18万岗位），但结构性转移至服务/医疗业，参与率下滑掩盖失业压力，无衰退迹象' },
+        { id: 'jan9-5', text: '🏦 美联储政策含义：时薪涨3.8%显示通胀顽固，强化高利率维持（1月降息概率<5%），市场解读为"软着陆"——招聘疲软而非裁员潮，支持观望而非紧急行动' },
+        { id: 'jan9-6', text: '📈 市场即时反应：美股上涨创纪录（道指+0.48%、标普+0.65%、纳指+0.81%），投资者视AI重塑生产力为利好，消退衰退担忧，转向韧性叙事和板块轮动' }
       ],
-      notes: '第一道防线:从硬阈值改为趋势+多指标综合判断,避免假信号'
+      notes: '数据解读：美国12月非农就业数据显示新增岗位仅5万（远低于预期），失业率意外降至4.4%，前值大幅下修，反映劳动力市场降温但稳定。核心信号是就业增长放缓但无衰退迹象，结构性转移明显（科技→服务/医疗）。美联储政策立场强化，1月降息概率极低。市场反应积极，视为"软着陆"确认，AI生产力叙事推动科技股上涨。'
     },
     {
       date: '2026年1月12-16日',
@@ -960,20 +963,22 @@ const InvestmentPlan2026 = () => {
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '12px' }}>
                       {item.actions.map((action) => (
                           <div key={action.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                          <input
-                            type="checkbox"
-                            id={action.id}
-                            checked={checkedItems[action.id] || false}
-                            onChange={() => toggleCheck(action.id)}
+                          {!item.completed && (
+                            <input
+                              type="checkbox"
+                              id={action.id}
+                              checked={checkedItems[action.id] || false}
+                              onChange={() => toggleCheck(action.id)}
                               style={{ marginTop: '4px', width: '16px', height: '16px', cursor: 'pointer' }}
-                          />
+                            />
+                          )}
                           <label
-                            htmlFor={action.id}
+                            htmlFor={item.completed ? undefined : action.id}
                               style={{
                                 fontSize: '0.9rem',
                                 textDecoration: checkedItems[action.id] ? 'line-through' : 'none',
-                                color: checkedItems[action.id] ? '#9ca3af' : '#374151',
-                                cursor: 'pointer',
+                                color: item.completed ? '#374151' : (checkedItems[action.id] ? '#9ca3af' : '#374151'),
+                                cursor: item.completed ? 'default' : 'pointer',
                                 flex: 1
                               }}
                           >

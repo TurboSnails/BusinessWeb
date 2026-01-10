@@ -29,16 +29,20 @@ interface HotStock {
 export default function SectorRotation(): JSX.Element {
   const [selectedDates, setSelectedDates] = useState<string[]>([])
   const [sectorDataByDate, setSectorDataByDate] = useState<Record<string, SectorData[]>>({})
+  // 保存财联社返回的原始板块数据（包含stock_list），用于获取热门股票
+  const [plateRawDataByDate, setPlateRawDataByDate] = useState<Record<string, any[]>>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedSector, setSelectedSector] = useState<SectorDetail | null>(null)
   const [hotStocks, setHotStocks] = useState<HotStock[]>([])
   const [loadingHotStocks, setLoadingHotStocks] = useState(false)
-  const [filterType, setFilterType] = useState<'industry' | 'concept'>('industry')
+  const [filterType, setFilterType] = useState<'industry' | 'concept'>('concept')
   const [sortBy, setSortBy] = useState<'change' | 'rank'>('change')
   const [topN, setTopN] = useState<number>(10)
-  // 存储东方财富的概念板块列表（用于匹配）
-  const [eastMoneyConceptList, setEastMoneyConceptList] = useState<Array<{code: string, name: string}>>([])
+  
+  // 从东方财富接口获取的板块类型映射（板块名称 -> 类型）
+  const [sectorTypeMap, setSectorTypeMap] = useState<Map<string, 'industry' | 'concept'>>(new Map())
+  const [sectorTypeMapLoaded, setSectorTypeMapLoaded] = useState(false)
 
   // CORS代理配置
   const CORS_PROXY_MAIN = (url: string) => `https://corsproxy.io/?${encodeURIComponent(url)}`
@@ -46,48 +50,112 @@ export default function SectorRotation(): JSX.Element {
   const CORS_PROXY_THIRD = (url: string) => `https://proxy.cors.sh/${url}`
   const CORS_PROXIES = [CORS_PROXY_MAIN, CORS_PROXY_BACKUP, CORS_PROXY_THIRD]
 
-  // 获取东方财富的概念板块列表
-  const fetchEastMoneyConceptList = useCallback(async (): Promise<Array<{code: string, name: string}>> => {
+  // 从东方财富接口获取板块类型映射
+  const fetchSectorTypeMap = useCallback(async () => {
+    if (sectorTypeMapLoaded) return
+    
     try {
-      const url = `https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=1000&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m:90+t:3`
-      const proxyUrl = CORS_PROXY_MAIN(url)
-      const response = await fetch(proxyUrl, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }
+      console.log('🔄 从东方财富接口获取板块类型映射...')
+      const typeMap = new Map<string, 'industry' | 'concept'>()
+      
+      // 获取行业板块列表 (m:90+t:2)
+      const industryUrl = `https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=500&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m:90+t:2`
+      const industryProxyUrl = CORS_PROXY_MAIN(industryUrl)
+      const industryResponse = await fetch(industryProxyUrl, {
+        headers: { 'Accept': 'application/json' }
       })
       
-      if (response.ok) {
-        const data = await response.json()
-        if (data?.data?.diff && Array.isArray(data.data.diff)) {
-          const conceptList = data.data.diff.map((item: any) => ({
-            code: item.f12 || '',
-            name: item.f14 || ''
-          })).filter((item: {code: string, name: string}) => item.name && item.code)
-          
-          console.log(`✅ 获取到 ${conceptList.length} 个东方财富概念板块`)
-          return conceptList
+      if (industryResponse.ok) {
+        const industryData = await industryResponse.json()
+        const industryList = industryData?.data?.diff || []
+        industryList.forEach((item: any) => {
+          const name = (item.f14 || item.name || '').trim()
+          if (name) {
+            // 添加原始名称
+            typeMap.set(name, 'industry')
+            // 添加去掉"行业"、"板块"后缀的版本
+            const nameClean = name.replace(/行业$|板块$/, '').trim()
+            if (nameClean && nameClean !== name && nameClean.length > 0) {
+              typeMap.set(nameClean, 'industry')
+            }
+            // 如果原名称没有"行业"后缀，也添加带"行业"的版本
+            if (!name.includes('行业') && !name.includes('板块')) {
+              typeMap.set(name + '行业', 'industry')
+            }
+          }
+        })
+        console.log(`✅ 获取到 ${industryList.length} 个行业板块，映射表大小: ${typeMap.size}`)
+        // 显示前10个行业板块名称
+        const industryNames = industryList.slice(0, 10).map((item: any) => item.f14 || item.name)
+        console.log(`  行业板块示例（前10个）:`, industryNames)
+        // 检查"纺织服装"是否在映射表中
+        if (typeMap.has('纺织服装')) {
+          console.log(`  ✅ "纺织服装"在映射表中，类型: ${typeMap.get('纺织服装')}`)
+        } else {
+          console.log(`  ⚠️ "纺织服装"不在映射表中`)
+          // 查找包含"纺织"的键
+          const textileKeys = Array.from(typeMap.keys()).filter(k => k.includes('纺织'))
+          console.log(`  包含"纺织"的键:`, textileKeys)
+        }
+        // 检查"有色金属"是否在映射表中
+        if (typeMap.has('有色金属')) {
+          console.log(`  ✅ "有色金属"在映射表中，类型: ${typeMap.get('有色金属')}`)
+        } else {
+          console.log(`  ⚠️ "有色金属"不在映射表中`)
+          // 查找包含"有色"的键
+          const metalKeys = Array.from(typeMap.keys()).filter(k => k.includes('有色'))
+          console.log(`  包含"有色"的键:`, metalKeys)
         }
       }
-    } catch (err) {
-      console.warn('获取东方财富概念板块列表失败:', err)
-    }
-    return []
-  }, [])
-
-  // 初始化时获取东方财富概念板块列表
-  useEffect(() => {
-    if (filterType === 'concept') {
-      fetchEastMoneyConceptList().then(list => {
-        setEastMoneyConceptList(list)
+      
+      // 获取概念板块列表 (m:90+t:3) - 获取更多数据
+      const conceptUrl = `https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=1000&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m:90+t:3`
+      const conceptProxyUrl = CORS_PROXY_MAIN(conceptUrl)
+      const conceptResponse = await fetch(conceptProxyUrl, {
+        headers: { 'Accept': 'application/json' }
       })
-    } else {
-      // 切换到行业时清空概念列表
-      setEastMoneyConceptList([])
+      
+      if (conceptResponse.ok) {
+        const conceptData = await conceptResponse.json()
+        const conceptList = conceptData?.data?.diff || []
+        conceptList.forEach((item: any) => {
+          const name = (item.f14 || item.name || '').trim()
+          if (name) {
+            // 添加原始名称
+            typeMap.set(name, 'concept')
+            // 添加去掉"概念"后缀的版本
+            const nameClean = name.replace(/概念$|题材$|主题$/, '').trim()
+            if (nameClean && nameClean !== name) {
+              typeMap.set(nameClean, 'concept')
+            }
+            // 添加"概念"后缀的版本（如果原名称没有）
+            if (!name.includes('概念') && !name.includes('题材') && !name.includes('主题')) {
+              typeMap.set(name + '概念', 'concept')
+            }
+          }
+        })
+        console.log(`✅ 获取到 ${conceptList.length} 个概念板块，映射表大小: ${typeMap.size}`)
+        // 显示前10个概念板块名称
+        const conceptNames = conceptList.slice(0, 10).map((item: any) => item.f14 || item.name)
+        console.log(`  概念板块示例（前10个）:`, conceptNames)
+      }
+      
+      setSectorTypeMap(typeMap)
+      setSectorTypeMapLoaded(true)
+      console.log(`✅ 板块类型映射加载完成，共 ${typeMap.size} 个板块`)
+      // 显示所有映射的键（前30个）
+      const allKeys = Array.from(typeMap.keys()).slice(0, 30)
+      console.log(`  映射表键示例（前30个）:`, allKeys)
+    } catch (error) {
+      console.warn('⚠️ 获取板块类型映射失败，将使用关键词匹配:', error)
+      setSectorTypeMapLoaded(true) // 标记为已加载，避免重复请求
     }
-  }, [filterType, fetchEastMoneyConceptList])
+  }, [sectorTypeMapLoaded])
+  
+  // 初始化时获取板块类型映射
+  useEffect(() => {
+    fetchSectorTypeMap()
+  }, [fetchSectorTypeMap])
 
   // 初始化日期列表（最近7个交易日，跳过周末和节假日）
   useEffect(() => {
@@ -132,7 +200,8 @@ export default function SectorRotation(): JSX.Element {
   }, [])
 
   // 获取单个日期的板块数据（使用财联社API，支持历史日期）
-  const fetchSectorData = useCallback(async (date: string): Promise<SectorData[]> => {
+  // 返回处理后的板块数据和原始数据
+  const fetchSectorData = useCallback(async (date: string): Promise<{sectors: SectorData[], rawData: any[]}> => {
     const dateStr = date.replace(/-/g, '')
     // 财联社API支持历史日期参数
     const apiUrl = `https://x-quote.cls.cn/v2/quote/a/plate/up_down_analysis?up_limit=0&date=${dateStr}`
@@ -182,125 +251,454 @@ export default function SectorRotation(): JSX.Element {
           const plateStockData = data.data.plate_stock
           
           // 根据类型过滤板块数据
-          // 使用反向逻辑：先定义明确的行业板块，剩下的都算概念板块
+          // 优先检查API返回的字段，如果没有类型字段，则使用智能匹配
+          let matchMethod = 'name' // 记录使用的匹配方法：'api', 'code', 'name'
+          let hasApiTypeField = false
+          
           const filteredData = plateStockData.filter((plate: any) => {
             const name = String(plate.secu_name || plate.name || '').trim()
+            const code = String(plate.secu_code || plate.code || plate.plate_code || '').trim()
+            
+            // 方法1：检查API是否有类型字段（最可靠）
+            const plateType = plate.plate_type || plate.type || plate.category || plate.kind || plate.class
+            if (plateType) {
+              matchMethod = 'api'
+              const typeStr = String(plateType).toLowerCase()
+              if (filterType === 'industry') {
+                return typeStr.includes('industry') || typeStr.includes('行业') || typeStr === '2'
+              } else {
+                return typeStr.includes('concept') || typeStr.includes('概念') || typeStr === '3'
+              }
+            }
+            
+            // 方法2：使用从东方财富接口获取的板块类型映射（最可靠，不依赖本地关键词）
+            if (sectorTypeMapLoaded && sectorTypeMap.size > 0) {
+              // 清理名称：去掉常见后缀，用于匹配
+              const cleanName = (n: string) => {
+                return n
+                  .replace(/概念$|题材$|主题$|行业$|板块$|产业链$/, '')
+                  .trim()
+              }
+              
+              const nameCleaned = cleanName(name)
+              
+              // 调试：只在第一个板块时输出详细信息
+              const isFirstPlate = plateStockData.indexOf(plate) === 0
+              
+              // 调试：输出匹配尝试信息（仅对特定板块）
+              if (isFirstPlate || name === '纺织服装' || name === '有色金属概念') {
+                console.log(`  🔍 尝试匹配板块: "${name}" (清理后: "${nameCleaned}"), 目标类型: ${filterType}`)
+              }
+              
+              // 1. 精确匹配
+              let mappedType = sectorTypeMap.get(name)
+              if (mappedType) {
+                matchMethod = 'apiMap'
+                if (isFirstPlate || name === '纺织服装' || name === '有色金属概念') {
+                  console.log(`  ✅ 精确匹配: "${name}" -> ${mappedType}`)
+                }
+                return mappedType === filterType
+              }
+              
+              // 2. 清理后的名称匹配（去掉"概念"等后缀后匹配）
+              mappedType = sectorTypeMap.get(nameCleaned)
+              if (mappedType) {
+                matchMethod = 'apiMap'
+                if (isFirstPlate || name === '纺织服装' || name === '有色金属概念') {
+                  console.log(`  ✅ 清理后匹配: "${nameCleaned}" -> ${mappedType}`)
+                }
+                return mappedType === filterType
+              }
+              
+              // 调试：如果"纺织服装"或"有色金属概念"没有匹配上，输出详细信息
+              if (name === '纺织服装' || name === '有色金属概念') {
+                console.log(`  ⚠️ "${name}" 未在步骤1-2中匹配`)
+                console.log(`  检查映射表: has("${name}") = ${sectorTypeMap.has(name)}, has("${nameCleaned}") = ${sectorTypeMap.has(nameCleaned)}`)
+                if (name === '有色金属概念') {
+                  console.log(`  检查"有色金属": has("有色金属") = ${sectorTypeMap.has('有色金属')}, type = ${sectorTypeMap.get('有色金属')}`)
+                }
+              }
+              
+              // 3. 反向清理匹配（映射表中的名称去掉后缀后，与财联社名称匹配）
+              for (const [mappedName, mappedType] of sectorTypeMap.entries()) {
+                const mappedNameCleaned = cleanName(mappedName)
+                // 如果财联社名称（清理后）等于映射表名称（清理后），则匹配
+                if (nameCleaned === mappedNameCleaned && nameCleaned.length > 0) {
+                  matchMethod = 'apiMap'
+                  if (isFirstPlate) {
+                    console.log(`  ✅ 反向清理匹配: "${nameCleaned}" <-> "${mappedNameCleaned}" -> ${mappedType}`)
+                  }
+                  return mappedType === filterType
+                }
+                // 如果财联社名称（清理后）等于映射表原始名称，也匹配
+                if (nameCleaned === mappedName && nameCleaned.length > 0) {
+                  matchMethod = 'apiMap'
+                  if (isFirstPlate) {
+                    console.log(`  ✅ 反向清理匹配2: "${nameCleaned}" <-> "${mappedName}" -> ${mappedType}`)
+                  }
+                  return mappedType === filterType
+                }
+                // 如果财联社原始名称等于映射表名称（清理后），也匹配
+                if (name === mappedNameCleaned && mappedNameCleaned.length > 0) {
+                  matchMethod = 'apiMap'
+                  if (isFirstPlate) {
+                    console.log(`  ✅ 反向清理匹配3: "${name}" <-> "${mappedNameCleaned}" -> ${mappedType}`)
+                  }
+                  return mappedType === filterType
+                }
+                // 如果财联社原始名称等于映射表原始名称，也匹配（这个应该在步骤1就匹配了，但为了保险再加一次）
+                if (name === mappedName) {
+                  matchMethod = 'apiMap'
+                  if (isFirstPlate) {
+                    console.log(`  ✅ 反向清理匹配4: "${name}" <-> "${mappedName}" -> ${mappedType}`)
+                  }
+                  return mappedType === filterType
+                }
+              }
+              
+              // 4. 双向包含匹配（更宽松）
+              for (const [mappedName, mappedType] of sectorTypeMap.entries()) {
+                const mappedNameCleaned = cleanName(mappedName)
+                
+                // 双向包含匹配（原始名称和清理后的名称都尝试）
+                if (name === mappedName || nameCleaned === mappedNameCleaned ||
+                    name.includes(mappedName) || mappedName.includes(name) ||
+                    nameCleaned.includes(mappedNameCleaned) || mappedNameCleaned.includes(nameCleaned) ||
+                    name.includes(mappedNameCleaned) || mappedNameCleaned.includes(name) ||
+                    mappedName.includes(nameCleaned) || nameCleaned.includes(mappedName)) {
+                  matchMethod = 'apiMap'
+                  if (isFirstPlate) {
+                    console.log(`  ✅ 包含匹配: "${name}" <-> "${mappedName}" -> ${mappedType}`)
+                  }
+                  return mappedType === filterType
+                }
+              }
+              
+              // 4. 关键词匹配（提取核心关键词，至少3个字）
+              const extractKeywords = (n: string) => {
+                const keywords: string[] = []
+                // 提取3-6字的关键词（更精确）
+                for (let len = 6; len >= 3; len--) {
+                  for (let i = 0; i <= n.length - len; i++) {
+                    const keyword = n.substring(i, i + len)
+                    if (keyword.length >= 3) {
+                      keywords.push(keyword)
+                    }
+                  }
+                }
+                return keywords
+              }
+              
+              const nameKeywords = extractKeywords(nameCleaned)
+              for (const [mappedName, mappedType] of sectorTypeMap.entries()) {
+                const mappedNameCleaned = cleanName(mappedName)
+                const mappedKeywords = extractKeywords(mappedNameCleaned)
+                
+                // 检查是否有共同的关键词（至少3个字匹配）
+                const commonKeywords = nameKeywords.filter(k => 
+                  mappedKeywords.some(mk => k === mk && k.length >= 3)
+                )
+                
+                if (commonKeywords.length > 0) {
+                  matchMethod = 'apiMap'
+                  if (isFirstPlate) {
+                    console.log(`  ✅ 关键词匹配: "${name}" <-> "${mappedName}" (共同关键词: ${commonKeywords.join(', ')}) -> ${mappedType}`)
+                  }
+                  return mappedType === filterType
+                }
+              }
+              
+              // 如果所有匹配都失败，输出调试信息
+              if (isFirstPlate) {
+                console.log(`  ⚠️ 板块 "${name}" 未在映射表中找到匹配`)
+                console.log(`  映射表大小: ${sectorTypeMap.size}`)
+                // 显示映射表中的前20个板块名称作为参考
+                const sampleNames = Array.from(sectorTypeMap.keys()).slice(0, 20)
+                console.log(`  映射表示例（前20个）:`, sampleNames)
+                // 显示财联社的板块名称
+                const clsNames = plateStockData.slice(0, 10).map((p: any) => p.secu_name || p.name)
+                console.log(`  财联社板块名称（前10个）:`, clsNames)
+              }
+            }
+            
+            // 方法3：根据板块代码模式判断（如果有规律）
+            // 财联社代码格式可能是：cls80290（概念）、cls80123（行业）等
+            // 如果代码有规律，可以根据代码范围判断
+            // 注意：这个需要根据实际数据调整
+            // TODO: 分析板块代码规律，如果发现规律，可以添加代码模式匹配
+            
+            // 方法4：使用名称关键词匹配（fallback，仅在接口映射未加载时使用）
+            // 先定义概念和行业关键词列表（两个分支都需要用到）
+            const conceptKeywords = [
+              // AI相关
+              'AI', '人工智能', 'ChatGPT', 'Sora', 'Kimi', 'AIGC', '多模态', '文生视频', '文生图', '大模型',
+              'AI制药', 'AI语料', 'AI芯片', '智谱AI',
+              // 芯片相关
+              '存储芯片', '汽车芯片', '第三代半导体', '第四代半导体', '芯片产业链',
+              // 机器人相关
+              '机器人', '人形机器人', '工业机器人', '服务机器人', '机器人执行器',
+              // 智能相关
+              '智能驾驶', '自动驾驶', '无人驾驶', '车联网', '智能汽车',
+              // 新能源相关
+              '光伏', '风电', '储能', '氢能', '锂电池', '钠电池', '固态电池', '钙钛矿', 'HJT', 'TOPCon', 'BC电池',
+              // 数字相关
+              '数字货币', '数字人民币', '区块链', '元宇宙', 'Web3', 'NFT',
+              // 数据相关
+              '数据要素', '数据确权', '数据安全', '数据交易', '数据资产',
+              // 信创相关
+              '信创', '国产软件', '国产芯片', '国产替代', '自主可控',
+              // 航天相关
+              '卫星', '卫星互联网', '卫星导航', '空间站', '商业航天',
+              // 医疗生物相关
+              '人脑工程', 'CAR-T', '细胞疗法', '重组蛋白', '基因测序',
+              // 其他新兴概念
+              '同步磁阻电机', '减速器', '3D玻璃', '噪声防治',
+              'UWB', '碳纤', 'PEEK', '华为', '跨境', '支付',
+              '飞行汽车', '低空经济', 'eVTOL',
+              '量子', '量子通信', '量子计算',
+              '6G', 'MR', 'VR', 'AR', 'XR',
+              '超导', '室温超导', '可控核聚变',
+              '减肥药', '创新药', 'CRO', 'CDMO',
+              '辅助生殖', '养老', '医美', '医疗美容',
+              'PLC', '产业链'
+            ]
+            
+            const industryKeywords = [
+              '银行', '保险', '证券', '房地产开发', '建筑', '建材', '水泥', '钢铁', '有色金属', '煤炭', '石油',
+              '电力', '公用事业', '交通运输', '物流', '港口', '航运', '航空机场', '铁路公路',
+              '汽车整车', '汽车零部件', '家电', '食品饮料', '酿酒', '餐饮', '旅游酒店', '商业百货', '商业零售',
+              '纺织服装', '轻工', '造纸', '印刷', '包装', '家具', '装饰', '装修', '机械', '设备',
+              '医药商业', '医疗服务', '医疗器械', '农业', '畜牧', '渔业', '林业', '种植', '化肥', '农药', '种子',
+              '通信服务', '通信设备', '电子元件', '电子化学品', '计算机设备', '文化传媒', '教育', '体育', '娱乐', '影视',
+              '船舶制造', '贵金属', '生物制品', '化学制药', '互联网服务', '能源金属', '软件开发',
+              '专业服务', '装修装饰', '中药', '消费电子', '美容护理', '风电设备', '装修建材', '非金属材料',
+              '仪器仪表', '玻璃玻纤', '小金属', '采掘行业', '环保行业', '房地产服务', '贸易行业', '电网设备',
+              '电源设备', '化学制品', '光伏设备', '专用设备', '工程建设', '燃气', '包装材料',
+              '化学原料', '综合行业', '光学光电子', '塑料制品', '珠宝首饰', '通用设备', '工程咨询服务',
+              '交运设备', '化纤行业', '工程机械', '农牧饲渔', '造纸印刷', '水泥建材', '多元金融',
+              '汽车服务', '钢铁行业', '石油行业', '航运港口', '电机', '铁路公路',
+              '化工', '化学', '零售', '百货', '传媒', '文化', '影视', '娱乐', '体育'
+            ]
+            
+            // 特殊的"工程"相关处理
+            const engineeringConceptKeywords = ['算力', '光通信', '智能', 'AI', '芯片', '机器人', '新能源', '储能', '氢能']
+            const hasEngineeringConcept = name.includes('工程') && engineeringConceptKeywords.some(ck => name.includes(ck))
             
             if (filterType === 'industry') {
-              // 行业板块：名称不包含"概念"、"题材"、"主题"
-              return !name.includes('概念') && !name.includes('题材') && !name.includes('主题')
+              // 行业板块过滤逻辑：
+              // 1. 如果包含"概念"、"题材"、"主题"，肯定不是行业
+              if (name.includes('概念') || name.includes('题材') || name.includes('主题')) {
+                return false
+              }
+              // 2. 如果包含概念关键词，不是行业
+              if (conceptKeywords.some(keyword => name.includes(keyword))) {
+                return false
+              }
+              // 3. 如果包含行业关键词，且不包含概念关键词，是行业
+              const isInIndustryList = industryKeywords.some(keyword => {
+                if (name.includes(keyword)) {
+                  // 特殊处理：如果包含"工程"且前面有概念关键词，则不是行业
+                  if (hasEngineeringConcept) {
+                    return false
+                  }
+                  return true
+                }
+                return false
+              })
+              if (isInIndustryList) {
+                return true
+              }
+              // 4. 如果既不在行业列表也不在概念列表，且不包含"概念"等，也认为是行业（默认）
+              return true
             } else {
-              // 概念板块：包含"概念"、"题材"、"主题"的，或者不在明确行业列表中的
-              // 先检查是否明确包含概念标识
+              // 概念板块过滤逻辑：
+              // 1. 如果包含"概念"、"题材"、"主题"，肯定是概念
               if (name.includes('概念') || name.includes('题材') || name.includes('主题')) {
                 return true
               }
-              
-              // 如果已获取东方财富概念板块列表，优先使用列表匹配
-              if (eastMoneyConceptList.length > 0) {
-                // 尝试匹配：精确匹配或包含匹配（双向）
-                const matched = eastMoneyConceptList.some(concept => {
-                  const conceptName = concept.name.trim()
-                  // 精确匹配
-                  if (conceptName === name) return true
-                  // 包含匹配（双向）
-                  if (conceptName.includes(name) || name.includes(conceptName)) return true
-                  // 去掉"概念"后缀后匹配
-                  const conceptNameWithoutSuffix = conceptName.replace(/概念$/, '').trim()
-                  const nameWithoutSuffix = name.replace(/概念$/, '').trim()
-                  if (conceptNameWithoutSuffix && nameWithoutSuffix && 
-                      (conceptNameWithoutSuffix === nameWithoutSuffix || 
-                       conceptNameWithoutSuffix.includes(nameWithoutSuffix) || 
-                       nameWithoutSuffix.includes(conceptNameWithoutSuffix))) {
-                    return true
-                  }
-                  return false
-                })
-                if (matched) return true
-              }
-              
-              // 明确的概念板块关键词（从东方财富APP截图中提取）
-              const conceptKeywords = [
-                // AI相关
-                'AI', '人工智能', 'ChatGPT', 'Sora', 'Kimi', 'AIGC', '多模态', '文生视频', '文生图', '大模型',
-                'AI制药', 'AI语料', 'AI芯片', '智谱AI',
-                // 芯片相关
-                '存储芯片', '汽车芯片', '第三代半导体', '第四代半导体', '芯片产业链',
-                // 机器人相关
-                '机器人', '人形机器人', '工业机器人', '服务机器人', '机器人执行器', '机器人扶',
-                // 智能相关
-                '智能驾驶', '自动驾驶', '无人驾驶', '车联网', '智能汽车',
-                // 新能源相关
-                '光伏', '风电', '储能', '氢能', '锂电池', '钠电池', '固态电池', '钙钛矿', 'HJT', 'TOPCon', 'BC电池',
-                // 数字相关
-                '数字货币', '数字人民币', '区块链', '元宇宙', 'Web3', 'NFT', '数字货',
-                // 数据相关
-                '数据要素', '数据确权', '数据安全', '数据交易', '数据资产',
-                // 信创相关
-                '信创', '国产软件', '国产芯片', '国产替代', '自主可控',
-                // 航天相关
-                '卫星', '卫星互联网', '卫星导航', '空间站', '商业航天',
-                // 医疗生物相关
-                '人脑工程', 'CAR-T', '细胞疗法', '重组蛋白', '基因测序',
-                // 其他新兴概念
-                '同步磁阻电机', '减速器', '减速', '3D玻璃', '噪声防治', '噪声防',
-                'UWB', '碳纤', 'PEEK', '材米', '华为', '跨境', '支付',
-                '飞行汽车', '低空经济', 'eVTOL',
-                '量子', '量子通信', '量子计算',
-                '6G', 'MR', 'VR', 'AR', 'XR',
-                '超导', '室温超导', '可控核聚变',
-                '减肥药', '创新药', 'CRO', 'CDMO',
-                '辅助生殖', '养老', '医美', '医疗美容',
-                'PLC', '产业链', '快手'
-              ]
-              
-              // 检查是否是概念板块关键词
+              // 2. 如果包含概念关键词，是概念
               if (conceptKeywords.some(keyword => name.includes(keyword))) {
                 return true
               }
-              
-              // 明确的行业板块关键词（如果匹配这些，则不是概念板块）
-              const industryKeywords = [
-                '银行', '保险', '证券', '房地产', '建筑', '建材', '水泥', '钢铁', '有色', '煤炭', '石油', '化工',
-                '电力', '公用事业', '交通运输', '物流', '港口', '航运', '航空', '机场', '铁路', '公路',
-                '汽车整车', '汽车零部件', '家电', '食品', '饮料', '酒', '餐饮', '旅游', '酒店', '零售', '商业',
-                '纺织', '服装', '轻工', '造纸', '印刷', '包装', '家具', '装饰', '装修', '工程', '机械', '设备',
-                '医药', '医疗', '生物', '农业', '畜牧', '渔业', '林业', '种植', '化肥', '农药', '种子',
-                '通信', '电子', '半导体', '计算机', '软件', '互联网', '传媒', '文化', '教育', '体育', '娱乐'
-              ]
-              
-              // 如果不在明确的行业列表中，就认为是概念板块
-              const isIndustry = industryKeywords.some(keyword => name.includes(keyword))
-              return !isIndustry
+              // 3. 如果包含行业关键词，且不包含概念关键词，不是概念
+              const isInIndustryList = industryKeywords.some(keyword => {
+                if (name.includes(keyword)) {
+                  // 特殊处理：如果包含"工程"且前面有概念关键词，则不是行业（是概念）
+                  if (hasEngineeringConcept) {
+                    return false
+                  }
+                  return true
+                }
+                return false
+              })
+              if (isInIndustryList) {
+                return false
+              }
+              // 4. 如果既不在行业列表也不在概念列表，且不包含"概念"等，也认为是概念（默认）
+              return true
             }
           })
           
+          // 调试信息：显示过滤前后的对比
+          if (filterType === 'concept') {
+            console.log(`🔍 概念板块过滤详情 (日期: ${date}):`)
+            console.log(`  原始数据: ${plateStockData.length} 个`)
+            console.log(`  过滤后: ${filteredData.length} 个`)
+            if (matchMethod === 'api') {
+              console.log(`  匹配方法: API类型字段`)
+            } else if (matchMethod === 'apiMap') {
+              console.log(`  匹配方法: 东方财富接口映射 (映射表: ${sectorTypeMap.size}个板块)`)
+            } else {
+              console.log(`  匹配方法: 名称关键词匹配 (fallback)`)
+            }
+            
+            // 调试：如果使用apiMap但匹配失败，记录详细信息
+            if (sectorTypeMapLoaded && sectorTypeMap.size > 0 && matchMethod !== 'apiMap' && matchMethod !== 'api') {
+              // 只在第一个板块时输出，避免日志过多
+              if (plateStockData.indexOf(plate) === 0) {
+                console.log(`  ⚠️ 板块 "${name}" 未在映射表中找到匹配，映射表大小: ${sectorTypeMap.size}`)
+                // 显示映射表中的前10个板块名称作为参考
+                const sampleNames = Array.from(sectorTypeMap.keys()).slice(0, 10)
+                console.log(`  映射表示例:`, sampleNames)
+              }
+            }
+            if (plateStockData.length > 0) {
+              const sampleNames = plateStockData.slice(0, 20).map((p: any) => p.secu_name || p.name)
+              console.log(`  前20个原始板块:`, sampleNames)
+              
+              // 分析哪些被过滤掉了
+              const filteredOut = plateStockData.filter((plate: any) => {
+                const name = String(plate.secu_name || plate.name || '').trim()
+                // 检查是否被过滤掉（不在filteredData中）
+                return !filteredData.some((f: any) => (f.secu_name || f.name || '').trim() === name)
+              }).slice(0, 10)
+              
+              if (filteredOut.length > 0) {
+                console.log(`  被过滤掉的板块（前10个）:`, filteredOut.map((p: any) => p.secu_name || p.name))
+              }
+            }
+            if (filteredData.length > 0) {
+              const filteredNames = filteredData.slice(0, 20).map((p: any) => p.secu_name || p.name)
+              console.log(`  前20个过滤后板块:`, filteredNames)
+            } else {
+              console.warn(`  ⚠️ 过滤后无数据！`)
+              console.warn(`  匹配策略说明：`)
+              console.warn(`    1. 检查是否包含"概念"、"题材"、"主题"`)
+              console.warn(`    2. 检查是否包含概念关键词（如"智能驾驶"、"AI"等）`)
+              console.warn(`    3. 排除明确的行业板块（如"银行"、"保险"等）`)
+              console.warn(`    4. 其他情况都认为是概念板块`)
+              console.warn(`  ⚠️ 过滤后无数据，请检查关键词列表是否完整`)
+            }
+          }
+          
           console.log(`📊 ${filterType === 'industry' ? '行业' : '概念'}板块过滤: ${filteredData.length} 个 (总共 ${plateStockData.length} 个)`)
+          
+          // 数据量检查：如果过滤后数据太少，使用降级方案
+          if (filteredData.length === 0) {
+            console.warn(`⚠️ 过滤后无数据！类型: ${filterType}, 日期: ${date}`)
+            console.warn(`原始数据量: ${plateStockData.length}`)
+            if (plateStockData.length > 0) {
+              console.warn(`前10个板块名称:`, plateStockData.slice(0, 10).map((p: any) => p.secu_name || p.name || '未知'))
+            }
+            
+            // 降级方案：如果概念板块过滤后为空，使用更宽松的策略
+            if (filterType === 'concept' && plateStockData.length > 0) {
+              console.warn(`🔄 概念板块过滤后为空，使用降级方案：显示所有非明确行业板块`)
+              // 使用更宽松的过滤：只要不是明确的行业板块，都显示
+              const fallbackData = plateStockData.filter((plate: any) => {
+                const name = String(plate.secu_name || plate.name || '').trim()
+                // 排除明确的行业板块（只排除精确匹配的）
+                const strictIndustryKeywords = [
+                  '银行', '保险', '证券', '房地产开发', '建筑', '建材', '水泥', '钢铁', '有色金属', '煤炭', '石油',
+                  '电力', '公用事业', '交通运输', '物流', '港口', '航运', '航空机场', '铁路公路',
+                  '汽车整车', '汽车零部件', '家电', '食品饮料', '酿酒', '餐饮', '旅游酒店', '商业百货',
+                  '纺织服装', '轻工', '造纸', '印刷', '包装', '家具', '装饰', '装修', '工程', '机械', '设备',
+                  '医药商业', '医疗服务', '医疗器械', '农业', '畜牧', '渔业', '林业', '种植', '化肥', '农药', '种子',
+                  '通信服务', '通信设备', '电子元件', '电子化学品', '计算机设备', '文化传媒', '教育', '体育', '娱乐'
+                ]
+                // 只排除精确匹配的行业板块
+                return !strictIndustryKeywords.includes(name)
+              })
+              
+              if (fallbackData.length > 0) {
+                console.log(`✅ 降级方案获取到 ${fallbackData.length} 个板块`)
+                // 使用降级数据
+                const fallbackSectors = fallbackData
+                  .map((plate: any) => {
+                    const name = plate.secu_name || plate.name || plate.plate_name || ''
+                    const code = plate.secu_code || plate.code || plate.plate_code || ''
+                    const changeValue = plate.change_percent || plate.change || plate.changePercent || 0
+                    const changePercent = Math.abs(changeValue) > 1 ? changeValue : changeValue * 100
+                    
+                    return {
+                      name: String(name).trim(),
+                      code: String(code).trim(),
+                      changePercent: parseFloat(String(changePercent)) || 0,
+                      rank: 0,
+                      date: date
+                    }
+                  })
+                  .filter((s: SectorData) => s.name && s.name.length > 0)
+                  .sort((a: SectorData, b: SectorData) => b.changePercent - a.changePercent)
+                  .map((sector: SectorData, index: number) => ({
+                    ...sector,
+                    rank: index + 1
+                  }))
+                  .slice(0, topN)
+                
+                return fallbackSectors
+              }
+            }
+            
+            // 如果原始数据有，但过滤后为空，可能是过滤逻辑太严格
+            // 返回空数组，让用户知道需要调整过滤条件
+          } else if (filteredData.length < plateStockData.length * 0.1) {
+            // 如果过滤后数据少于总数的10%，给出警告
+            console.warn(`⚠️ 过滤后数据较少！类型: ${filterType}, 日期: ${date}`)
+            console.warn(`过滤后: ${filteredData.length} 个，原始: ${plateStockData.length} 个 (${(filteredData.length / plateStockData.length * 100).toFixed(1)}%)`)
+          }
           
           // 解析板块数据
           const sectors: SectorData[] = filteredData
             .map((plate: any) => {
               // 财联社API可能返回的字段：secu_code, code, plate_code等
-              // 打印第一个板块的完整数据用于调试
+              // 打印第一个板块的完整数据用于调试，检查是否有类型字段
               if (filteredData.indexOf(plate) === 0) {
-                console.log('📊 财联社板块数据结构示例:', {
-                  secu_name: plate.secu_name,
-                  secu_code: plate.secu_code,
-                  code: plate.code,
-                  plate_code: plate.plate_code,
-                  allKeys: Object.keys(plate)
-                })
+                console.log('📊 财联社板块完整数据结构:', plate)
+                console.log('📊 财联社板块所有字段:', Object.keys(plate))
+                // 检查是否有类型相关字段
+                const typeRelatedFields = Object.keys(plate).filter(key => 
+                  key.toLowerCase().includes('type') || 
+                  key.toLowerCase().includes('category') || 
+                  key.toLowerCase().includes('kind') ||
+                  key.toLowerCase().includes('class')
+                )
+                if (typeRelatedFields.length > 0) {
+                  console.log('✅ 发现可能的类型字段:', typeRelatedFields)
+                  typeRelatedFields.forEach(field => {
+                    console.log(`  ${field}:`, plate[field])
+                  })
+                } else {
+                  console.log('ℹ️ API未返回类型字段，使用接口映射或关键词匹配')
+                }
               }
               
+              // 尝试多种可能的字段名
+              const name = plate.secu_name || plate.name || plate.plate_name || ''
+              const code = plate.secu_code || plate.code || plate.plate_code || ''
+              // 涨跌幅可能是百分比（如 5.2 表示 5.2%）或小数（如 0.052 表示 5.2%）
+              const changeValue = plate.change_percent || plate.change || plate.changePercent || 0
+              const changePercent = Math.abs(changeValue) > 1 ? changeValue : changeValue * 100
+              
               return {
-                name: plate.secu_name || '',
-                code: plate.secu_code || plate.code || plate.plate_code || '', // 板块代码
-                changePercent: parseFloat(plate.change || 0) * 100, // 转换为百分比
+                name: String(name).trim(),
+                code: String(code).trim(),
+                changePercent: parseFloat(String(changePercent)) || 0,
                 rank: 0, // 稍后排序后设置
                 date: date
               }
             })
-            .filter((s: SectorData) => s.name) // 过滤掉空名称
+            .filter((s: SectorData) => s.name && s.name.length > 0) // 过滤掉空名称
             .sort((a: SectorData, b: SectorData) => b.changePercent - a.changePercent)
             .map((sector: SectorData, index: number) => ({
               ...sector,
@@ -313,7 +711,8 @@ export default function SectorRotation(): JSX.Element {
             console.log('📊 前3个板块代码:', sectors.slice(0, 3).map(s => ({ name: s.name, code: s.code })))
           }
           
-          return sectors
+          // 返回处理后的板块数据和原始数据
+          return { sectors, rawData: filteredData }
         }
       } catch (err) {
         console.warn(`代理 ${proxy} 失败:`, err)
@@ -321,8 +720,8 @@ export default function SectorRotation(): JSX.Element {
       }
     }
     
-    return []
-  }, [topN, filterType, eastMoneyConceptList])
+    return { sectors: [], rawData: [] }
+  }, [topN, filterType, sectorTypeMap, sectorTypeMapLoaded])
 
   // 获取所有日期的数据
   useEffect(() => {
@@ -334,18 +733,23 @@ export default function SectorRotation(): JSX.Element {
       setError(null)
       // 清空旧数据，避免显示混合数据
       setSectorDataByDate({})
+      setPlateRawDataByDate({})
       
       try {
+        // 直接获取数据，不依赖外部概念列表
         const dataPromises = selectedDates.map(date => fetchSectorData(date))
         const results = await Promise.allSettled(dataPromises)
         
         const dataByDate: Record<string, SectorData[]> = {}
+        const rawDataByDate: Record<string, any[]> = {}
         
         results.forEach((result, index) => {
-          if (result.status === 'fulfilled' && result.value && result.value.length > 0) {
+          if (result.status === 'fulfilled' && result.value && result.value.sectors && result.value.sectors.length > 0) {
             // 只保留有数据的日期
-            dataByDate[selectedDates[index]] = result.value
-            console.log(`✅ ${selectedDates[index]} 获取到 ${result.value.length} 个${filterType === 'industry' ? '行业' : '概念'}板块`)
+            dataByDate[selectedDates[index]] = result.value.sectors
+            // 同时保存原始数据
+            rawDataByDate[selectedDates[index]] = result.value.rawData || []
+            console.log(`✅ ${selectedDates[index]} 获取到 ${result.value.sectors.length} 个${filterType === 'industry' ? '行业' : '概念'}板块`)
           } else {
             console.warn(`获取 ${selectedDates[index]} 的数据失败或无数据:`, result.status === 'fulfilled' ? '空数据' : result.reason)
             // 不添加到 dataByDate，这样渲染时就不会显示该列
@@ -354,6 +758,7 @@ export default function SectorRotation(): JSX.Element {
         
         console.log(`📊 所有日期数据获取完成，共 ${Object.keys(dataByDate).length} 个日期有数据`)
         setSectorDataByDate(dataByDate)
+        setPlateRawDataByDate(rawDataByDate)
         
       } catch (err) {
         console.error('获取数据失败:', err)
@@ -363,313 +768,72 @@ export default function SectorRotation(): JSX.Element {
       }
     }
 
-    fetchAllDates()
-  }, [selectedDates, fetchSectorData, filterType])
+    // 等待板块类型映射加载完成后再获取数据
+    if (sectorTypeMapLoaded) {
+      fetchAllDates()
+    }
+  }, [selectedDates, fetchSectorData, filterType, sectorTypeMapLoaded])
 
-  // 获取板块热门股票
+  // 获取板块热门股票（直接使用财联社返回的stock_list）
   const fetchHotStocks = useCallback(async (sectorCode: string, sectorName: string): Promise<HotStock[]> => {
     console.log(`🔍 获取热门股票，板块代码: ${sectorCode}, 板块名称: ${sectorName}`)
     
-    // 板块代码映射表缓存（财联社代码 -> 东方财富代码）
-    const CACHE_KEY = 'sector_code_mapping'
-    const getCachedMapping = (): Record<string, string> => {
-      try {
-        const cached = localStorage.getItem(CACHE_KEY)
-        return cached ? JSON.parse(cached) : {}
-      } catch {
-        return {}
-      }
-    }
-    
-    const saveMapping = (clsCode: string, emCode: string) => {
-      try {
-        const mapping = getCachedMapping()
-        mapping[clsCode] = emCode
-        localStorage.setItem(CACHE_KEY, JSON.stringify(mapping))
-        console.log(`💾 保存板块代码映射: ${clsCode} -> ${emCode}`)
-      } catch {
-        // 忽略存储错误
-      }
-    }
-    
-    // 如果财联社返回的代码为空或格式不对，尝试通过名称查找东方财富的板块代码
-    let eastMoneyCode = sectorCode
-    
-    // 先检查缓存映射表
-    if (sectorCode && !sectorCode.startsWith('BK') && !sectorCode.startsWith('GN')) {
-      const mapping = getCachedMapping()
-      if (mapping[sectorCode]) {
-        eastMoneyCode = mapping[sectorCode]
-        console.log(`✅ 从缓存获取板块代码映射: ${sectorCode} -> ${eastMoneyCode}`)
-      }
-    }
-    
-    // 如果代码为空或不是BK/GN开头，尝试通过名称查找
-    if (!eastMoneyCode || (!eastMoneyCode.startsWith('BK') && !eastMoneyCode.startsWith('GN'))) {
-      console.warn(`⚠️ 板块代码格式可能不对: ${eastMoneyCode}，尝试通过名称查找`)
+    // 从已保存的财联社原始数据中查找对应的板块
+    // 遍历所有日期的原始数据，查找匹配的板块
+    for (const date in plateRawDataByDate) {
+      const rawData = plateRawDataByDate[date]
+      if (!rawData || !Array.isArray(rawData)) continue
       
-      // 同义词映射表（财联社名称 -> 可能的东方财富名称）
-      const synonymMap: Record<string, string[]> = {
-        '智能驾驶': ['自动驾驶', '无人驾驶', '车联网', '智能汽车', '汽车电子'],
-        '锂电池': ['电池', '动力电池', '锂电'],
-        '新能源': ['新能源车', '新能源汽车', '新能源'],
-        '人工智能': ['AI', '人工智能', '智能', '机器视觉'],
-        '芯片': ['半导体', '芯片', '集成电路', 'AI芯片', '存储芯片', '汽车芯片'],
-        '芯片产业链': ['芯片', '半导体', '集成电路', 'AI芯片', '存储芯片', '汽车芯片', '中芯概念'],
-        '5G': ['5G', '通信', '通信设备'],
-        '光伏': ['光伏', '太阳能', '光伏设备'],
-        '风电': ['风电', '风电设备', '风力发电'],
-        '储能': ['储能', '储能设备', '电池'],
-        '氢能源': ['氢能', '氢能源', '燃料电池'],
-        '数字货币': ['数字货币', '数字人民币', '区块链', '金融科技', '移动支付', '支付'],
-        '石英': ['石英', '石英石', '石英材料', '非金属材料', '玻璃玻纤']
-      }
+      // 查找匹配的板块（通过代码或名称）
+      const matchedPlate = rawData.find((plate: any) => {
+        const plateCode = String(plate.secu_code || plate.code || plate.plate_code || '').trim()
+        const plateName = String(plate.secu_name || plate.name || '').trim()
+        return (sectorCode && plateCode === sectorCode) || (sectorName && plateName === sectorName)
+      })
       
-      // 同时搜索行业和概念板块列表（因为财联社可能返回混合数据）
-      const searchTypes = [
-        { type: 'industry', fs: 'm:90+t:2' },
-        { type: 'concept', fs: 'm:90+t:3' }
-      ]
-      
-      let allConceptNames: string[] = []
-      
-      for (const { type, fs } of searchTypes) {
-        try {
-          const searchUrl = `https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=500&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=${fs}`
-          const searchProxyUrl = CORS_PROXY_MAIN(searchUrl)
-          const searchResponse = await fetch(searchProxyUrl, {
-            method: 'GET',
-            headers: {
-              'Accept': 'application/json',
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      if (matchedPlate && matchedPlate.stock_list && Array.isArray(matchedPlate.stock_list)) {
+        console.log(`✅ 从财联社数据中找到板块，股票数量: ${matchedPlate.stock_list.length}`)
+        
+        // 解析财联社返回的股票数据
+        // secu_code: 股票代码
+        // secu_name: 股票名称
+        // last_px: 最新价
+        // change: 涨跌幅（小数形式，需要乘以100）
+        // volume: 成交量（可能需要转换单位）
+        // amount: 成交额（可能需要转换单位）
+        const stocks: HotStock[] = matchedPlate.stock_list
+          .map((stock: any) => {
+            const code = stock.secu_code || ''
+            const name = stock.secu_name || ''
+            const price = parseFloat(stock.last_px || stock.price || 0)
+            // change 是小数形式，如 0.0997 表示 9.97%，需要乘以100
+            const changePercent = parseFloat(stock.change || 0) * 100
+            // 成交量单位可能是手，需要确认
+            const volume = parseFloat(stock.volume || stock.vol || 0)
+            // 成交额单位可能是元，需要转换为万元
+            const amount = parseFloat(stock.amount || stock.amt || 0) / 10000
+            
+            return {
+              code,
+              name,
+              price,
+              changePercent,
+              volume,
+              amount
             }
           })
-          
-          if (searchResponse.ok) {
-            const searchData = await searchResponse.json()
-            if (searchData?.data?.diff && Array.isArray(searchData.data.diff)) {
-              const sectorList = searchData.data.diff
-              
-              // 保存概念板块名称用于调试
-              if (type === 'concept') {
-                allConceptNames = sectorList.map((item: any) => item.f14)
-              }
-              
-              // 通过名称匹配找到对应的板块代码
-              // 1. 优先精确匹配
-              let matched = sectorList.find((item: any) => item.f14 === sectorName)
-              
-              // 2. 如果精确匹配失败，尝试包含匹配（双向）
-              if (!matched) {
-                matched = sectorList.find((item: any) => 
-                  item.f14?.includes(sectorName) || sectorName.includes(item.f14)
-                )
-              }
-              
-              // 3. 尝试同义词匹配
-              if (!matched && synonymMap[sectorName]) {
-                for (const synonym of synonymMap[sectorName]) {
-                  matched = sectorList.find((item: any) => 
-                    item.f14?.includes(synonym) || synonym.includes(item.f14)
-                  )
-                  if (matched) {
-                    console.log(`🔍 通过同义词匹配: "${sectorName}" -> "${synonym}" -> "${matched.f14}"`)
-                    break
-                  }
-                }
-              }
-              
-              // 4. 尝试去掉"概念"、"行业"、"产业链"等后缀后匹配
-              if (!matched) {
-                const cleanSectorName = sectorName.replace(/概念|行业|板块|产业链|链|产业/g, '').trim()
-                matched = sectorList.find((item: any) => {
-                  const cleanItemName = item.f14?.replace(/概念|行业|板块|产业链|链|产业/g, '').trim()
-                  return cleanItemName === cleanSectorName || 
-                         cleanItemName?.includes(cleanSectorName) || 
-                         cleanSectorName.includes(cleanItemName)
-                })
-                if (matched) {
-                  console.log(`🔍 通过去除后缀匹配: "${sectorName}" -> "${cleanSectorName}" -> "${matched.f14}"`)
-                }
-              }
-              
-              // 5. 尝试提取核心关键词匹配
-              if (!matched) {
-                const stopWords = ['概念', '行业', '板块', '产业链', '链', '产业']
-                const keywords: string[] = []
-                
-                // 先提取核心词（去掉后缀后的完整词）
-                let coreName = sectorName
-                for (const suffix of ['产业链', '链', '产业', '概念', '行业', '板块']) {
-                  if (coreName.endsWith(suffix)) {
-                    coreName = coreName.slice(0, -suffix.length).trim()
-                    break
-                  }
-                }
-                if (coreName.length >= 2 && !stopWords.includes(coreName)) {
-                  keywords.push(coreName)
-                }
-                
-                // 提取完整词（按分隔符拆分）
-                const words = sectorName.split(/[智能新数字AI人工产业链]/).filter(w => w.length >= 2)
-                words.forEach(word => {
-                  if (word.length >= 2 && !stopWords.includes(word) && !keywords.includes(word)) {
-                    keywords.push(word)
-                  }
-                })
-                
-                // 提取2-4字符的子串（优先长词）
-                for (let len = 4; len >= 2; len--) {
-                  for (let i = 0; i <= sectorName.length - len; i++) {
-                    const keyword = sectorName.substr(i, len)
-                    if (keyword.length >= 2 && !stopWords.includes(keyword) && !keywords.includes(keyword)) {
-                      keywords.push(keyword)
-                    }
-                  }
-                }
-                
-                // 按长度倒序，优先匹配长关键词
-                keywords.sort((a, b) => b.length - a.length)
-                
-                // 对于短词（2-3个字符），尝试更严格的匹配（必须完全包含）
-                // 对于长词（4+字符），尝试更宽松的匹配（包含即可）
-                for (const keyword of keywords.slice(0, 15)) {
-                  if (keyword.length <= 3) {
-                    // 短词：尝试精确匹配或作为完整词的一部分
-                    matched = sectorList.find((item: any) => 
-                      item.f14 === keyword || 
-                      item.f14?.startsWith(keyword) || 
-                      item.f14?.endsWith(keyword) ||
-                      item.f14?.includes(keyword)
-                    )
-                  } else {
-                    // 长词：包含匹配即可
-                    matched = sectorList.find((item: any) => 
-                      item.f14?.includes(keyword)
-                    )
-                  }
-                  if (matched) {
-                    console.log(`🔍 通过关键词匹配: "${sectorName}" -> "${keyword}" -> "${matched.f14}"`)
-                    break
-                  }
-                }
-              }
-              
-              if (matched && matched.f12) {
-                eastMoneyCode = matched.f12
-                console.log(`✅ 在${type === 'industry' ? '行业' : '概念'}板块中通过名称匹配找到代码: ${eastMoneyCode} (${matched.f14})`)
-                // 保存映射关系到缓存
-                if (sectorCode && sectorCode !== eastMoneyCode) {
-                  saveMapping(sectorCode, eastMoneyCode)
-                }
-                break // 找到了就退出循环
-              }
-            }
-          }
-        } catch (err) {
-          console.warn(`通过${type === 'industry' ? '行业' : '概念'}板块名称查找失败:`, err)
-        }
-      }
-      
-      // 如果还是没找到，打印调试信息
-      if (!eastMoneyCode || (!eastMoneyCode.startsWith('BK') && !eastMoneyCode.startsWith('GN'))) {
-        console.warn(`⚠️ 在行业和概念板块中都未找到匹配的板块: ${sectorName}`)
+          .filter((s: HotStock) => s.name && s.code)
+          .sort((a: HotStock, b: HotStock) => b.changePercent - a.changePercent) // 按涨跌幅排序
+          .slice(0, 20) // 只取前20只
         
-        // 动态提取关键词用于调试
-        const debugKeywords: string[] = []
-        // 提取板块名称中的关键词（去除常见修饰词）
-        const cleanName = sectorName.replace(/概念|行业|板块/g, '')
-        // 提取2-3个字符的关键词
-        for (let i = 0; i < cleanName.length - 1; i++) {
-          for (let len = 2; len <= Math.min(3, cleanName.length - i); len++) {
-            const keyword = cleanName.substr(i, len)
-            if (keyword.length >= 2 && !['概念', '行业', '板块'].includes(keyword)) {
-              debugKeywords.push(keyword)
-            }
-          }
-        }
-        
-        // 打印包含相关关键词的概念板块，方便调试
-        if (debugKeywords.length > 0 && allConceptNames.length > 0) {
-          const relatedConcepts = allConceptNames.filter(name => 
-            debugKeywords.some(keyword => name.includes(keyword))
-          )
-          if (relatedConcepts.length > 0) {
-            console.log(`💡 相关概念板块（包含关键词"${debugKeywords.join('"、"')}"）:`, relatedConcepts.slice(0, 20))
-          } else {
-            // 如果没找到，打印所有概念板块名称的前50个，方便查找
-            console.log(`💡 所有概念板块（前50个）:`, allConceptNames.slice(0, 50))
-          }
-        }
+        console.log(`✅ 成功解析 ${stocks.length} 只热门股票`)
+        return stocks
       }
     }
     
-    // 如果还是没有找到代码，返回空数组
-    if (!eastMoneyCode || (!eastMoneyCode.startsWith('BK') && !eastMoneyCode.startsWith('GN'))) {
-      console.error(`❌ 无法获取有效的板块代码: ${eastMoneyCode}`)
-      return []
-    }
-    
-    // 东方财富板块成分股API
-    // fs=b:板块代码，例如 b:BK0478
-    const apiUrl = `https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=20&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=b:${eastMoneyCode}`
-    
-    const fetchFromProxy = async (proxyFn: (url: string) => string): Promise<any> => {
-      const proxyUrl = proxyFn(apiUrl)
-      const response = await fetch(proxyUrl, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }
-      })
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`)
-      }
-
-      return await response.json()
-    }
-
-    // 尝试多个代理
-    for (const proxy of CORS_PROXIES) {
-      try {
-        const data = await fetchFromProxy(proxy)
-        
-        if (data?.data?.diff && Array.isArray(data.data.diff)) {
-          const diff = data.data.diff
-          
-          console.log(`✅ 获取到 ${diff.length} 只热门股票`)
-          
-          // 解析股票数据
-          // f12: 股票代码
-          // f14: 股票名称
-          // f2: 最新价（需要除以100）
-          // f3: 涨跌幅（百分比）
-          // f5: 成交量
-          // f6: 成交额（元，需要转换为万元）
-          const stocks: HotStock[] = diff
-            .map((item: any) => ({
-              code: item.f12 || '',
-              name: item.f14 || '',
-              price: (item.f2 || 0) / 100,
-              changePercent: item.f3 || 0,
-              volume: item.f5 || 0,
-              amount: (item.f6 || 0) / 10000 // 转换为万元
-            }))
-            .filter((s: HotStock) => s.name && s.code)
-            .sort((a: HotStock, b: HotStock) => b.changePercent - a.changePercent) // 按涨跌幅排序
-          
-          return stocks
-        }
-      } catch (err) {
-        console.warn(`获取热门股票失败 (代理 ${proxy}):`, err)
-        continue
-      }
-    }
-    
+    console.warn(`⚠️ 未在财联社数据中找到板块: ${sectorName} (代码: ${sectorCode})`)
     return []
-  }, [filterType])
+  }, [plateRawDataByDate])
 
   // 处理板块点击
   const handleSectorClick = async (sector: SectorData) => {
@@ -862,7 +1026,26 @@ export default function SectorRotation(): JSX.Element {
                   color: '#9ca3af',
                   fontSize: '0.9rem'
                 }}>
-                  暂无数据
+                  <div style={{ marginBottom: '12px', fontSize: '1.1rem', fontWeight: '600', color: '#6b7280' }}>
+                    暂无数据
+                  </div>
+                  <div style={{ fontSize: '0.85rem', lineHeight: '1.6', color: '#9ca3af' }}>
+                    {loading ? (
+                      '正在加载数据...'
+                    ) : (
+                      <>
+                        <div>可能原因：</div>
+                        <div style={{ marginTop: '8px', paddingLeft: '20px', textAlign: 'left', display: 'inline-block' }}>
+                          <div>• 所选日期没有交易数据（周末或节假日）</div>
+                          <div>• 网络请求失败，请刷新重试</div>
+                          <div>• 过滤条件过于严格，请尝试切换"行业/概念"类型</div>
+                        </div>
+                        <div style={{ marginTop: '16px', fontSize: '0.8rem', color: '#d1d5db' }}>
+                          提示：请打开浏览器控制台（F12）查看详细日志
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
               )
             }
