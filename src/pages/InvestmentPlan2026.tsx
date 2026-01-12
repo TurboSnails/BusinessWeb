@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { fetchCBOEPCRatios } from '../services/api';
 
 const InvestmentPlan2026 = () => {
-  const [activeTab, setActiveTab] = useState<'timeline' | 'checklist' | 'decision' | 'shorting' | 'profit-taking'>('timeline');
+  const [activeTab, setActiveTab] = useState<'timeline' | 'checklist' | 'macro' | 'decision' | 'shorting' | 'profit-taking'>('timeline');
   const [activeSubTab, setActiveSubTab] = useState<'overview' | 'assumptions' | 'indicators' | 'stages' | 'execution'>('overview');
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
 
@@ -824,10 +824,11 @@ const InvestmentPlan2026 = () => {
             }}>
               📅 计划执行
       </div>
-            {(['timeline', 'checklist'] as const).map((tab) => {
+            {(['timeline', 'checklist', 'macro'] as const).map((tab) => {
               const labels: Record<typeof tab, string> = {
                 timeline: '时间轴',
-                checklist: '执行清单'
+                checklist: '执行清单',
+                macro: '宏观时间'
               };
               const isActive = activeTab === tab;
               return (
@@ -1009,6 +1010,641 @@ const InvestmentPlan2026 = () => {
               </div>
               );
             })}
+          </div>
+        )}
+
+        {activeTab === 'macro' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+            {/* 标题 */}
+            <div style={{ 
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
+              borderRadius: '12px', 
+              padding: '24px',
+              color: 'white'
+            }}>
+              <h1 style={{ fontSize: '1.8rem', fontWeight: '700', marginBottom: '8px' }}>
+                🎯 2026年终稿版：宏观数据 + 逻辑推演 + 实战策略
+              </h1>
+              <p style={{ fontSize: '0.95rem', opacity: 0.95 }}>
+                基准日期：2026年1月12日
+              </p>
+            </div>
+
+            {/* 第一层：核心宏观数据现状 */}
+            <div style={{ border: '2px solid #3b82f6', borderRadius: '12px', padding: '24px', background: '#eff6ff' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#1e40af', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '2rem' }}>💰</span>
+                第一层：核心宏观数据现状（基于2026年1月真实数据）
+              </h2>
+
+              {/* 联储政策 */}
+              <div style={{ marginBottom: '24px' }}>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '16px', color: '#1e40af' }}>
+                  💰 联储政策：已接近中性利率
+                </h3>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white', borderRadius: '8px', overflow: 'hidden' }}>
+                    <thead>
+                      <tr style={{ background: '#3b82f6', color: 'white' }}>
+                        <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', fontSize: '0.9rem' }}>指标</th>
+                        <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', fontSize: '0.9rem' }}>当前值</th>
+                        <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', fontSize: '0.9rem' }}>市场预期</th>
+                        <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', fontSize: '0.9rem' }}>关键解读</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontWeight: '600' }}>联邦基金利率</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>4.25-4.50%</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>-</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>⚠️ Fed已暂停降息</td>
+                      </tr>
+                      <tr style={{ background: '#f9fafb' }}>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontWeight: '600' }}>2026降息预期</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>1-2次（共50bp）</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>CBO预计年底3.4%</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>市场押注4月或6月首次降息</td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontWeight: '600' }}>中性利率估计</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>2.5-3.0%</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>实际+通胀≈4.5-5%</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}><strong>已非常接近中性</strong></td>
+                      </tr>
+                      <tr style={{ background: '#fef2f2' }}>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontWeight: '600' }}>Fed内部分歧</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>极度分裂</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>特朗普任命Miran主张降息150bp</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>🔴 罕见政治化</td>
+                      </tr>
+                      <tr style={{ background: '#fef2f2' }}>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontWeight: '600' }}>Powell任期</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>2026年5月到期</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>新主席上任</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>🔴 <strong>最大不确定性</strong></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div style={{ marginTop: '16px', padding: '16px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px' }}>
+                  <p style={{ fontSize: '0.9rem', color: '#92400e', lineHeight: '1.6', margin: 0 }}>
+                    <strong>📌 核心判断：</strong>
+                  </p>
+                  <ul style={{ margin: '8px 0 0 20px', padding: 0, fontSize: '0.9rem', color: '#92400e', lineHeight: '1.8' }}>
+                    <li>国会预算办公室（CBO）预计Fed将在2026年降息，关键利率到2028年将降至3.4%左右</li>
+                    <li>Fed理事Stephen Miran主张2026年降息150个基点（1.5个百分点），但大多数官员支持谨慎的观望态度</li>
+                    <li>市场预期4月有45%概率降息，9月再次降息</li>
+                    <li><strong>5月Fed主席换届是最大政治风险</strong></li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* AI Capex */}
+              <div style={{ marginBottom: '24px' }}>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '16px', color: '#1e40af' }}>
+                  📊 AI Capex：已进入验证期
+                </h3>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white', borderRadius: '8px', overflow: 'hidden' }}>
+                    <thead>
+                      <tr style={{ background: '#8b5cf6', color: 'white' }}>
+                        <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', fontSize: '0.9rem' }}>公司</th>
+                        <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', fontSize: '0.9rem' }}>2025年Capex</th>
+                        <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', fontSize: '0.9rem' }}>YoY增速</th>
+                        <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', fontSize: '0.9rem' }}>2026年指引</th>
+                        <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', fontSize: '0.9rem' }}>关键信号</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontWeight: '600' }}>Amazon</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>$125B</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>+83%</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>&gt;$125B持续增长</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>2025年Capex将达到1000亿美元，预计2026年将继续增加</td>
+                      </tr>
+                      <tr style={{ background: '#f9fafb' }}>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontWeight: '600' }}>Google</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>$91-93B</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>+57%</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>持续高位</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>将Capex指引从750-850亿美元上调至910-930亿美元</td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontWeight: '600' }}>Microsoft</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>$80B (FY26)</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>+74%</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>增速<strong>高于</strong>FY25</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>CFO表示FY26的Capex增速将高于FY25</td>
+                      </tr>
+                      <tr style={{ background: '#f9fafb' }}>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontWeight: '600' }}>Meta</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>$70-72B</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>+111%</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>2026年类似增长</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>将Capex指引收窄至700-720亿美元，从之前的660-720亿美元</td>
+                      </tr>
+                      <tr style={{ background: '#fef3c7', fontWeight: '700' }}>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>合计</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>~$380B</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>+64%</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>持续增长</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>🔴 <strong>仍在加速，未见顶</strong></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div style={{ marginTop: '16px', padding: '16px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px' }}>
+                  <p style={{ fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.6', marginBottom: '12px', fontWeight: '700' }}>
+                    💣 隐藏炸弹已引爆：
+                  </p>
+                  <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.8' }}>
+                    <li><strong>会计操作公开化：</strong>Amazon在Q4完成服务器使用寿命研究后，将部分服务器和网络设备的使用寿命从6年缩短至5年，预计将使2025年运营收入减少约7亿美元。这是<strong>反向操作</strong>：折旧加速 = 利润减少 = 为未来腾出空间</li>
+                    <li><strong>Capex增速 vs 收入增速剪刀差：</strong>AWS收入增速：19% YoY，AWS Capex增速：<strong>83% YoY</strong>，<strong>ROI已严重稀释</strong></li>
+                    <li><strong>自由现金流压力：</strong>Meta FCF过去一年下降20%，Amazon FCF明显收缩，只有Google/MSFT勉强维持</li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* NVIDIA */}
+              <div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '16px', color: '#1e40af' }}>
+                  🎮 NVIDIA：需求依然强劲但增速放缓
+                </h3>
+                <div style={{ padding: '16px', background: 'white', borderRadius: '8px', border: '1px solid #e5e7eb', marginBottom: '16px' }}>
+                  <p style={{ fontSize: '0.95rem', color: '#374151', lineHeight: '1.6', marginBottom: '16px' }}>
+                    NVIDIA报告截至2025年1月26日的第四财季营收393亿美元，环比增长12%，同比增长78%。全年财年2025营收1305亿美元，同比增长114%
+                  </p>
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', background: '#f9fafb', borderRadius: '8px', overflow: 'hidden' }}>
+                      <thead>
+                        <tr style={{ background: '#6366f1', color: 'white' }}>
+                          <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', fontSize: '0.9rem' }}>指标</th>
+                          <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', fontSize: '0.9rem' }}>Q4 FY25数据</th>
+                          <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', fontSize: '0.9rem' }}>解读</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontWeight: '600' }}>数据中心收入</td>
+                          <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>$356亿（+93% YoY）</td>
+                          <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>仍强劲</td>
+                        </tr>
+                        <tr style={{ background: 'white' }}>
+                          <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontWeight: '600' }}>环比增速</td>
+                          <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>+12%</td>
+                          <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>⚠️ <strong>明显放缓</strong>（Q3是+22%）</td>
+                        </tr>
+                        <tr>
+                          <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontWeight: '600' }}>Blackwell首季收入</td>
+                          <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>$110亿</td>
+                          <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>新品爆发</td>
+                        </tr>
+                        <tr style={{ background: 'white' }}>
+                          <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontWeight: '600' }}>Q1指引</td>
+                          <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>$430亿（±2%）</td>
+                          <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>继续增长但边际递减</td>
+                        </tr>
+                        <tr>
+                          <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontWeight: '600' }}>毛利率</td>
+                          <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>73.5%</td>
+                          <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>⚠️ 从75%下降（Blackwell成本压力）</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div style={{ marginTop: '16px', padding: '12px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px' }}>
+                    <p style={{ fontSize: '0.9rem', color: '#92400e', lineHeight: '1.6', margin: 0 }}>
+                      <strong>📌 关键信号：</strong>增速从Q3的62% → Q4的78%，<strong>看起来加速</strong>；但环比从+22% → +12%，<strong>实际在减速</strong>。CEO黄仁勋称"对Blackwell的需求惊人"，推理AI增加了另一个扩展定律。<strong>这是典型的"叙事强化，数据走弱"信号</strong>。
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 第二层：三条核心逻辑链 */}
+            <div style={{ border: '2px solid #10b981', borderRadius: '12px', padding: '24px', background: '#f0fdf4' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#059669', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '2rem' }}>🧵</span>
+                第二层：三条核心逻辑链（基于2026年1月现实）
+              </h2>
+
+              {/* 逻辑链1 */}
+              <div style={{ marginBottom: '24px', padding: '20px', background: 'white', borderRadius: '8px', border: '1px solid #86efac' }}>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '16px', color: '#059669' }}>
+                  🧵 逻辑链1：AI Capex已进入"验证窗口"
+                </h3>
+                <div style={{ padding: '16px', background: '#f0fdf4', borderRadius: '8px', fontFamily: 'monospace', fontSize: '0.85rem', lineHeight: '1.8', color: '#065f46' }}>
+                  <div>2023-2024: Capex暴增 + 市场给溢价</div>
+                  <div style={{ marginLeft: '20px' }}>↓</div>
+                  <div>2025全年: Capex继续暴增（+64%达$380B）</div>
+                  <div style={{ marginLeft: '20px' }}>↓</div>
+                  <div>2026 Q1-Q2: ⚠️ 验证期到来</div>
+                  <div style={{ marginLeft: '20px' }}>↓</div>
+                  <div>关键指标：AI收入增速 vs Capex增速比值</div>
+                  <div style={{ marginLeft: '20px' }}>↓</div>
+                  <div>当前状态：</div>
+                  <div style={{ marginLeft: '40px' }}>• AWS: 19% vs 83% = 0.23 ❌</div>
+                  <div style={{ marginLeft: '40px' }}>• 全行业：&lt;30% vs 60%+ = &lt;0.5 ❌</div>
+                  <div style={{ marginLeft: '20px' }}>↓</div>
+                  <div>= 市场会在2026上半年"投票"</div>
+                </div>
+                <div style={{ marginTop: '16px', padding: '16px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px' }}>
+                  <p style={{ fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.6', marginBottom: '12px', fontWeight: '700' }}>
+                    🔴 触发条件（满足2条立即防守）：
+                  </p>
+                  <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.8' }}>
+                    <li>Q1财报：任意2家Mag7的FCF同比下降</li>
+                    <li>NVDA Q1/Q2指引低于预期（&lt;$430B）</li>
+                    <li>利好财报后股价不涨累计3次</li>
+                    <li>黄金/纳指比突破0.030（当前约0.025）</li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* 逻辑链2 */}
+              <div style={{ marginBottom: '24px', padding: '20px', background: 'white', borderRadius: '8px', border: '1px solid #86efac' }}>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '16px', color: '#059669' }}>
+                  🧵 逻辑链2：Fed主席换届 = 最大政治黑天鹅
+                </h3>
+                <div style={{ padding: '16px', background: '#f0fdf4', borderRadius: '8px', fontFamily: 'monospace', fontSize: '0.85rem', lineHeight: '1.8', color: '#065f46' }}>
+                  <div>2026年5月Powell离任</div>
+                  <div style={{ marginLeft: '20px' }}>↓</div>
+                  <div>特朗普任命新主席</div>
+                  <div style={{ marginLeft: '20px' }}>↓</div>
+                  <div>三种情景：</div>
+                  <div style={{ marginLeft: '40px' }}>A. 鸽派主席（如Miran） → 降息加速 → 通胀反弹风险</div>
+                  <div style={{ marginLeft: '40px' }}>B. 鹰派主席 → 维持高利率 → 股市估值压缩</div>
+                  <div style={{ marginLeft: '40px' }}>C. 政治化主席 → 市场信心崩塌 → VIX飙升</div>
+                  <div style={{ marginLeft: '20px' }}>↓</div>
+                  <div>= 4-6月是年内最大不确定性窗口</div>
+                </div>
+                <div style={{ marginTop: '16px', padding: '16px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px' }}>
+                  <p style={{ fontSize: '0.9rem', color: '#92400e', lineHeight: '1.6', marginBottom: '12px', fontWeight: '700' }}>
+                    💡 对冲策略：
+                  </p>
+                  <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9rem', color: '#92400e', lineHeight: '1.8' }}>
+                    <li>5月前现金+短债维持25%以上</li>
+                    <li>黄金底仓15-20%（避险+对冲通胀）</li>
+                    <li>不加杠杆、不追高</li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* 逻辑链3 */}
+              <div style={{ padding: '20px', background: 'white', borderRadius: '8px', border: '1px solid #86efac' }}>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '16px', color: '#059669' }}>
+                  🧵 逻辑链3：K型复苏的尾部风险
+                </h3>
+                <div style={{ padding: '16px', background: '#f0fdf4', borderRadius: '8px', fontFamily: 'monospace', fontSize: '0.85rem', lineHeight: '1.8', color: '#065f46' }}>
+                  <div>当前：股市高位 + 消费强劲</div>
+                  <div style={{ marginLeft: '20px' }}>↓</div>
+                  <div>但结构性脆弱：</div>
+                  <div style={{ marginLeft: '40px' }}>• 前20%家庭：财富在股市</div>
+                  <div style={{ marginLeft: '40px' }}>• 中产：房产冻结+储蓄耗尽</div>
+                  <div style={{ marginLeft: '40px' }}>• 青年：就业结构性困难</div>
+                  <div style={{ marginLeft: '20px' }}>↓</div>
+                  <div>如果股市回调15-20%：</div>
+                  <div style={{ marginLeft: '20px' }}>↓</div>
+                  <div>高端消费断崖（负财富效应）</div>
+                  <div style={{ marginLeft: '20px' }}>↓</div>
+                  <div>企业盈利下调</div>
+                  <div style={{ marginLeft: '20px' }}>↓</div>
+                  <div>失业率突破4.5%</div>
+                  <div style={{ marginLeft: '20px' }}>↓</div>
+                  <div>第二波下跌</div>
+                  <div style={{ marginLeft: '20px' }}>↓</div>
+                  <div>= 正反馈崩塌</div>
+                </div>
+                <div style={{ marginTop: '16px', padding: '16px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px' }}>
+                  <p style={{ fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.6', marginBottom: '12px', fontWeight: '700' }}>
+                    📊 监控红线：
+                  </p>
+                  <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.8' }}>
+                    <li>失业率 &gt; 4.5%</li>
+                    <li>高端消费股（奢侈品、旅游）单季度收入下降</li>
+                    <li>信用卡违约率突破5%</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* 第三层：四个阶段实战策略 */}
+            <div style={{ border: '2px solid #f59e0b', borderRadius: '12px', padding: '24px', background: '#fffbeb' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#92400e', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '2rem' }}>📅</span>
+                第三层：2026年四个阶段实战策略
+              </h2>
+
+              {/* Q1 */}
+              <div style={{ marginBottom: '24px', padding: '20px', background: 'white', borderRadius: '8px', border: '2px solid #f97316' }}>
+                <h3 style={{ fontSize: '1.3rem', fontWeight: '700', marginBottom: '16px', color: '#ea580c', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '1.5rem' }}>🟧</span>
+                  Q1（1-3月）：财报验身期 ⚠️ 当前阶段
+                </h3>
+                
+                <div style={{ marginBottom: '16px' }}>
+                  <h4 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '12px', color: '#ea580c' }}>关键时间节点</h4>
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', background: '#fff7ed', borderRadius: '8px', overflow: 'hidden' }}>
+                      <thead>
+                        <tr style={{ background: '#f97316', color: 'white' }}>
+                          <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', fontSize: '0.85rem' }}>日期</th>
+                          <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', fontSize: '0.85rem' }}>事件</th>
+                          <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', fontSize: '0.85rem' }}>监控重点</th>
+                          <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', fontSize: '0.85rem' }}>行动</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td style={{ padding: '10px', border: '1px solid #e5e7eb', fontWeight: '600', fontSize: '0.85rem' }}>1月27-28日</td>
+                          <td style={{ padding: '10px', border: '1px solid #e5e7eb', fontSize: '0.85rem' }}>Fed会议</td>
+                          <td style={{ padding: '10px', border: '1px solid #e5e7eb', fontSize: '0.85rem' }}>降息概率16%，大概率按兵不动</td>
+                          <td style={{ padding: '10px', border: '1px solid #e5e7eb', fontSize: '0.85rem' }}>关注会议纪要的分歧程度</td>
+                        </tr>
+                        <tr style={{ background: 'white' }}>
+                          <td style={{ padding: '10px', border: '1px solid #e5e7eb', fontWeight: '600', fontSize: '0.85rem' }}>2月末</td>
+                          <td style={{ padding: '10px', border: '1px solid #e5e7eb', fontSize: '0.85rem' }}>Mag7 Q4财报季</td>
+                          <td style={{ padding: '10px', border: '1px solid #e5e7eb', fontSize: '0.85rem' }}>FCF/净利润比、Capex指引、AI收入</td>
+                          <td style={{ padding: '10px', border: '1px solid #e5e7eb', fontSize: '0.85rem' }}>🔴 <strong>最关键验证窗口</strong></td>
+                        </tr>
+                        <tr>
+                          <td style={{ padding: '10px', border: '1px solid #e5e7eb', fontWeight: '600', fontSize: '0.85rem' }}>3月18日</td>
+                          <td style={{ padding: '10px', border: '1px solid #e5e7eb', fontSize: '0.85rem' }}>FOMC会议+点阵图</td>
+                          <td style={{ padding: '10px', border: '1px solid #e5e7eb', fontSize: '0.85rem' }}>2026降息次数预期</td>
+                          <td style={{ padding: '10px', border: '1px solid #e5e7eb', fontSize: '0.85rem' }}>如果&lt;2次降息，股债双杀</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: '16px', padding: '16px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px' }}>
+                  <h4 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '12px', color: '#991b1b' }}>🚨 Q1必须完成的动作</h4>
+                  <div style={{ fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.8' }}>
+                    <p style={{ marginBottom: '8px', fontWeight: '700' }}>立即执行（本周内）：</p>
+                    <ul style={{ margin: '0 0 12px 20px', padding: 0 }}>
+                      <li>✅ 建立黄金底仓 15%（10%黄金ETF + 5%黄金矿业股）</li>
+                      <li>✅ 减持会计"水分"大的公司至目标仓位（Google: 20% → 10%，Meta: 15% → 8%）</li>
+                      <li>✅ 清空雷区（区域银行、纯算力硬件代工、传统地产REITs）</li>
+                      <li>✅ 保留现金+短债 25%（等待3月或5月的波动抄底）</li>
+                    </ul>
+                    <p style={{ marginBottom: '8px', fontWeight: '700' }}>2月财报季核心检查清单：</p>
+                    <div style={{ overflowX: 'auto', marginTop: '8px' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white', borderRadius: '8px', fontSize: '0.85rem' }}>
+                        <thead>
+                          <tr style={{ background: '#dc2626', color: 'white' }}>
+                            <th style={{ padding: '8px', textAlign: 'left', fontWeight: '700' }}>公司</th>
+                            <th style={{ padding: '8px', textAlign: 'left', fontWeight: '700' }}>检查项</th>
+                            <th style={{ padding: '8px', textAlign: 'left', fontWeight: '700' }}>红线</th>
+                            <th style={{ padding: '8px', textAlign: 'left', fontWeight: '700' }}>触发动作</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td style={{ padding: '8px', border: '1px solid #e5e7eb', fontWeight: '600' }}>所有Mag7</td>
+                            <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>FCF/净利润</td>
+                            <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>&lt;0.6连续2季</td>
+                            <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>立即减仓50%</td>
+                          </tr>
+                          <tr style={{ background: '#f9fafb' }}>
+                            <td style={{ padding: '8px', border: '1px solid #e5e7eb', fontWeight: '600' }}>NVDA</td>
+                            <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>环比增速</td>
+                            <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>&lt;10%</td>
+                            <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>减持上游算力链</td>
+                          </tr>
+                          <tr>
+                            <td style={{ padding: '8px', border: '1px solid #e5e7eb', fontWeight: '600' }}>AWS</td>
+                            <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>收入增速/Capex增速</td>
+                            <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>&lt;0.3</td>
+                            <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>清仓纯云基础设施股</td>
+                          </tr>
+                          <tr style={{ background: '#f9fafb' }}>
+                            <td style={{ padding: '8px', border: '1px solid #e5e7eb', fontWeight: '600' }}>所有</td>
+                            <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>财报后48小时股价</td>
+                            <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>利好不涨或下跌</td>
+                            <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>计入"利好不涨"次数</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ padding: '16px', background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '8px' }}>
+                  <h4 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '12px', color: '#059669' }}>当前推荐配置（Q1）：平衡型偏防守</h4>
+                  <div style={{ fontFamily: 'monospace', fontSize: '0.85rem', lineHeight: '2', color: '#065f46' }}>
+                    <div>🟢 AI核心（20%）</div>
+                    <div style={{ marginLeft: '20px' }}>├─ Apple 8%（现金流最强）</div>
+                    <div style={{ marginLeft: '20px' }}>├─ MSFT 7%（云+Office）</div>
+                    <div style={{ marginLeft: '20px' }}>└─ NVDA 5%（底仓，设止损）</div>
+                    <div style={{ marginTop: '8px' }}>🟡 AI应用（15%）</div>
+                    <div style={{ marginLeft: '20px' }}>├─ ServiceNow 5%（企业SaaS）</div>
+                    <div style={{ marginLeft: '20px' }}>├─ Adobe 5%（创意+AI）</div>
+                    <div style={{ marginLeft: '20px' }}>└─ 垂直AI应用 5%（医疗/法律）</div>
+                    <div style={{ marginTop: '8px' }}>🟠 防御红利（20%）</div>
+                    <div style={{ marginLeft: '20px' }}>├─ 医疗设备 8%</div>
+                    <div style={{ marginLeft: '20px' }}>├─ 必需消费 7%</div>
+                    <div style={{ marginLeft: '20px' }}>└─ 公用事业 5%</div>
+                    <div style={{ marginTop: '8px' }}>🟡 黄金（15%）</div>
+                    <div style={{ marginLeft: '20px' }}>├─ 黄金ETF 10%</div>
+                    <div style={{ marginLeft: '20px' }}>└─ 矿业股 5%</div>
+                    <div style={{ marginTop: '8px' }}>🔵 债券（20%）</div>
+                    <div style={{ marginLeft: '20px' }}>├─ 7-10年美债 12%</div>
+                    <div style={{ marginLeft: '20px' }}>└─ 短债/货基 8%</div>
+                    <div style={{ marginTop: '8px' }}>💵 现金（10%）</div>
+                    <div style={{ marginLeft: '20px' }}>└─ 机动资金，等待抄底</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Q2-Q4 简化展示 */}
+              <div style={{ marginBottom: '24px', padding: '20px', background: 'white', borderRadius: '8px', border: '2px solid #dc2626' }}>
+                <h3 style={{ fontSize: '1.3rem', fontWeight: '700', marginBottom: '16px', color: '#991b1b', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '1.5rem' }}>🟥</span>
+                  Q2（4-6月）：政治动荡期 🔴 最危险
+                </h3>
+                <div style={{ padding: '16px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px' }}>
+                  <p style={{ fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.6', marginBottom: '12px', fontWeight: '700' }}>
+                    三大风险集中爆发：
+                  </p>
+                  <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.8' }}>
+                    <li><strong>风险1：</strong>4月末税务季流动性抽水 - 美国纳税截止日导致现金回流国库，逆回购（RRP）池已接近枯竭</li>
+                    <li><strong>风险2：</strong>5月Fed主席换届 - Powell离任，新主席上任，市场对新主席政治化立场存疑，VIX可能飙升至30+</li>
+                    <li><strong>风险3：</strong>Q1财报验证结果传导 - 如果2月财报季不佳，4-5月会出现延迟抛售</li>
+                  </ul>
+                  <p style={{ fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.6', marginTop: '16px', fontWeight: '700' }}>
+                    🛡️ Q2防御策略：满足以下任意2条，立即切换防守型
+                  </p>
+                  <ul style={{ margin: '8px 0 0 20px', padding: 0, fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.8' }}>
+                    <li>Fed新主席人选公布后，市场单日跌幅&gt;3%</li>
+                    <li>VIX连续5日&gt;25</li>
+                    <li>10年期美债收益率&gt;4.5%（避险需求激增）</li>
+                    <li>黄金突破$2,400/盎司</li>
+                    <li>"利好不涨"累计次数≥3</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '24px', padding: '20px', background: 'white', borderRadius: '8px', border: '2px solid #fbbf24' }}>
+                <h3 style={{ fontSize: '1.3rem', fontWeight: '700', marginBottom: '16px', color: '#92400e', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '1.5rem' }}>🟨</span>
+                  Q3（7-9月）：衰退还是软着陆？
+                </h3>
+                <div style={{ padding: '16px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px' }}>
+                  <p style={{ fontSize: '0.9rem', color: '#92400e', lineHeight: '1.6', marginBottom: '12px' }}>
+                    <strong>关键判断窗口：</strong>7月Q2财报季 - 这是新Fed主席上任后的第一次财报季，市场会验证：AI投资到底换回了什么？
+                  </p>
+                  <p style={{ fontSize: '0.9rem', color: '#92400e', lineHeight: '1.6', marginBottom: '12px', fontWeight: '700' }}>
+                    监控指标（满足3条=经济衰退）：
+                  </p>
+                  <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9rem', color: '#92400e', lineHeight: '1.8' }}>
+                    <li>标普500剔除科技七巨头后EPS负增长</li>
+                    <li>失业率突破4.5%</li>
+                    <li>消费信贷违约率&gt;5%</li>
+                    <li>ISM制造业PMI&lt;45</li>
+                    <li>10年期/2年期美债收益率倒挂加深</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div style={{ padding: '20px', background: 'white', borderRadius: '8px', border: '2px solid #10b981' }}>
+                <h3 style={{ fontSize: '1.3rem', fontWeight: '700', marginBottom: '16px', color: '#059669', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '1.5rem' }}>🟩</span>
+                  Q4（10-12月）：分水岭确认期
+                </h3>
+                <div style={{ padding: '16px', background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '8px' }}>
+                  <p style={{ fontSize: '0.9rem', color: '#065f46', lineHeight: '1.6', marginBottom: '12px', fontWeight: '700' }}>
+                    核心判断：AI是"电力"还是"郁金香"
+                  </p>
+                  <p style={{ fontSize: '0.9rem', color: '#065f46', lineHeight: '1.6', marginBottom: '12px' }}>
+                    <strong>重新进攻信号（满足4条以上）：</strong>
+                  </p>
+                  <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9rem', color: '#065f46', lineHeight: '1.8' }}>
+                    <li>Mag7连续2季FCF转正且增长</li>
+                    <li>AI应用收入占比超Capex的30%</li>
+                    <li>NVDA股价突破并站稳120日均线</li>
+                    <li>失业率回落至4.2%以下</li>
+                    <li>Fed重启降息且通胀&lt;2.5%</li>
+                    <li>黄金/纳指比开始回落</li>
+                    <li>新Fed主席获市场认可</li>
+                  </ul>
+                  <p style={{ fontSize: '0.9rem', color: '#065f46', lineHeight: '1.6', marginTop: '16px', fontWeight: '700' }}>
+                    📊 12月最关键：2027年Capex指引
+                  </p>
+                  <p style={{ fontSize: '0.9rem', color: '#065f46', lineHeight: '1.6', marginTop: '8px' }}>
+                    如果Mag7宣布2027年Capex维持高位 → AI进入应用爆发期<br/>
+                    如果Capex集体下调&gt;20% → 进入漫长调整期
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* 第四层：实战工具与纪律 */}
+            <div style={{ border: '2px solid #8b5cf6', borderRadius: '12px', padding: '24px', background: '#faf5ff' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#6d28d9', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '2rem' }}>📱</span>
+                第四层：实战工具与纪律
+              </h2>
+              <div style={{ padding: '16px', background: 'white', borderRadius: '8px', marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '12px', color: '#6d28d9' }}>每周监控清单（15分钟）</h3>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', background: '#faf5ff', borderRadius: '8px', fontSize: '0.85rem' }}>
+                    <thead>
+                      <tr style={{ background: '#8b5cf6', color: 'white' }}>
+                        <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700' }}>时间</th>
+                        <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700' }}>监控项</th>
+                        <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700' }}>数据源</th>
+                        <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700' }}>预警阈值</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>周一开盘</td>
+                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>NVDA周涨跌</td>
+                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>Yahoo Finance</td>
+                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>单周跌&gt;7%警惕</td>
+                      </tr>
+                      <tr style={{ background: 'white' }}>
+                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>周三</td>
+                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>黄金/纳指比</td>
+                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>TradingView</td>
+                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>突破0.030趋势线</td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>周五收盘</td>
+                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>VIX</td>
+                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>CBOE</td>
+                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>&gt;25连续3日</td>
+                      </tr>
+                      <tr style={{ background: 'white' }}>
+                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>财报日后48h</td>
+                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>利好不涨次数</td>
+                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>自制表格</td>
+                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>累计≥3次防守</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div style={{ padding: '16px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '12px', color: '#991b1b' }}>🛡️ 铁律（永不违反）</h3>
+                <div style={{ fontFamily: 'monospace', fontSize: '0.85rem', lineHeight: '2', color: '#991b1b' }}>
+                  <div>1. 财报前48小时不交易</div>
+                  <div>2. 单日亏损&gt;5%停止操作</div>
+                  <div>3. 每月最多调仓1次</div>
+                  <div>4. 现金底仓≥10%</div>
+                  <div>5. 黄金底仓≥10%</div>
+                  <div>6. 5月前杠杆率=0</div>
+                  <div>7. 利好不涨≥3次立即防守</div>
+                </div>
+              </div>
+            </div>
+
+            {/* 最终总结 */}
+            <div style={{ border: '2px solid #ec4899', borderRadius: '12px', padding: '24px', background: '#fdf2f8' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#be185d', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '2rem' }}>🎯</span>
+                最终总结：一句话记住
+              </h2>
+              <div style={{ padding: '20px', background: 'white', borderRadius: '8px', border: '2px solid #ec4899', marginBottom: '20px' }}>
+                <p style={{ fontSize: '1.1rem', color: '#be185d', lineHeight: '1.8', fontStyle: 'italic', textAlign: 'center', fontWeight: '600' }}>
+                  "2026年不是预测AI成败，而是管理'资本预期透支'风险。你的任务是在市场投票前完成防守，在恐慌后重新布局真正的赢家。"
+                </p>
+              </div>
+              <div style={{ padding: '16px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '12px', color: '#991b1b' }}>当前（2026年1月12日）最紧急的三个动作</h3>
+                <div style={{ fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.8' }}>
+                  <p style={{ fontWeight: '700', marginBottom: '8px' }}>本周必须完成：</p>
+                  <ol style={{ margin: '0 0 16px 20px', padding: 0 }}>
+                    <li>建立黄金底仓15%</li>
+                    <li>减持Google/Meta至目标仓位</li>
+                    <li>清空区域银行和CRE相关</li>
+                  </ol>
+                  <p style={{ fontWeight: '700', marginBottom: '8px' }}>2月财报季前：</p>
+                  <ol style={{ margin: '0 0 16px 20px', padding: 0 }}>
+                    <li>制作监控表格（FCF、Capex、利好不涨次数）</li>
+                    <li>设置价格提醒（VIX&gt;25、黄金&gt;$2,400）</li>
+                    <li>准备防守型配置方案</li>
+                  </ol>
+                  <p style={{ fontWeight: '700', marginBottom: '8px' }}>5月前必须做到：</p>
+                  <ol style={{ margin: '0 0 0 20px', padding: 0 }}>
+                    <li>现金+短债≥25%</li>
+                    <li>杠杆率=0</li>
+                    <li>黄金≥15%</li>
+                  </ol>
+                </div>
+              </div>
+              <div style={{ padding: '16px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '12px', color: '#92400e' }}>如果只能记住一个信号</h3>
+                <p style={{ fontSize: '1rem', color: '#92400e', lineHeight: '1.8', fontWeight: '700', marginBottom: '8px' }}>
+                  连续3次"利好不涨" = 无条件进入防守态
+                </p>
+                <p style={{ fontSize: '0.9rem', color: '#92400e', lineHeight: '1.6' }}>
+                  含义：当NVDA/Mag7发布超预期财报，但股价48小时内不涨或下跌，这是机构用散户接盘的最明显信号。
+                </p>
+              </div>
+            </div>
           </div>
         )}
 
