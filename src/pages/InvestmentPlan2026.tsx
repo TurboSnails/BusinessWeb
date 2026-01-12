@@ -181,53 +181,63 @@ const InvestmentPlan2026 = () => {
       notes: '历史上危机初期常有15-20%假反弹:增加技术面和情绪指标验证,避免过早入场'
     },
     {
+      date: '2026年3月18日',
+      day: '周三',
+      event: 'FOMC会议+点阵图（做空关键触发点）',
+      time: '美东14:00',
+      priority: 'critical',
+      actions: [
+        { id: 'mar18-1', text: '📊 核心监控:2026年降息次数预期（点阵图）' },
+        { id: 'mar18-2', text: '🚨 如果点阵图显示<2次降息 → 股债双杀信号，立即准备第一批做空20%' },
+        { id: 'mar18-3', text: '⚠️ 这是做空的最关键触发点，不要等到4月底' },
+        { id: 'mar18-4', text: '📈 同时观察:VIX水平、10年期美债收益率、黄金/纳指比' }
+      ],
+      notes: '修正:3月18日FOMC会议是真正的做空触发点，而非4月底。如果<2次降息，市场会立即反应，这是最高效的做空窗口。'
+    },
+    {
+      date: '2026年3月末-4月初',
+      day: '关键窗口',
+      event: '基于3月就业数据做空建仓',
+      time: '4月初公布3月数据',
+      priority: 'critical',
+      actions: [
+        { id: 'mar-end-1', text: '📊 4月初关注3月失业率趋势:连续3个月上升且合计≥0.5个百分点' },
+        { id: 'mar-end-2', text: '✅ 如果失业率趋势恶化 → 第二批做空30%（基于3月数据，而非等到4月数据）' },
+        { id: 'mar-end-3', text: '⚠️ 注意:4月公布的失业数据反映3月情况，此时宏观预期已在3月18日被确认' },
+        { id: 'mar-end-4', text: '📈 同时观察:银行拨备趋势、科技股财报指引、技术面破位' }
+      ],
+      notes: '修正:基于3月就业数据（4月初公布）进行第二批建仓，不要等到4月数据。失业率数据有滞后性，需要提前布局。'
+    },
+    {
       date: '2026年4月15-30日',
       day: '关键月',
-      event: 'Q1财报季+做空窗口期',
+      event: 'Q1财报季+做空补充建仓',
       time: '盘后',
-      priority: 'critical',
+      priority: 'high',
       actions: [
         { id: 'apr-1', text: '4/20-25: 特斯拉、Netflix财报(看消费意愿)' },
         { id: 'apr-2', text: '4/27-30: 微软、谷歌、Meta(看AI投入产出)' },
         { id: 'apr-3', text: '📊 重点关注富国银行商业地产计提趋势(同比增速和分位)' },
         { id: 'apr-4', text: '📈 观察KRE是否跌破2023年低点($40),技术面确认' },
-        { id: 'apr-5', text: '📊 4月初关注3月失业率趋势:连续3个月上升且合计≥0.5个百分点(而非单月≥5.0%硬阈值)' },
+        { id: 'apr-5', text: '💼 4月20日:第三批做空20%（补充机会，如果前两批未完全建仓）' },
         { id: 'apr-6', text: '📈 情绪指标:VIX水平、信用利差(IG/HY)是否恶化' }
       ],
-      notes: '做空入场的黄金时机:从硬阈值改为趋势+多指标综合判断'
-    },
-    {
-      date: '2026年4月底',
-      day: '决策点',
-      event: '做空入场判断',
-      time: '财报季后',
-      priority: 'critical',
-      actions: [
-        { id: 'apr-end-1', text: '✅条件1: 失业率连续3个月上升且合计≥0.5个百分点(趋势而非单月点位)' },
-        { id: 'apr-end-2', text: '✅条件2: 银行拨备增速连续两季>30%或相对历史分位>75%' },
-        { id: 'apr-end-3', text: '✅条件3: 科技股财报指引向下(3家以上)' },
-        { id: 'apr-end-4', text: '📈 辅助条件:技术面破位(200日均线)+VIX>25+信用利差扩大' },
-        { id: 'apr-end-5', text: '🚨 三个核心条件全满足→买入PSQ; 仅两个→减少仓位至50%,继续观察' },
-        { id: 'apr-end-6', text: '⚠️ 仓位上限:单一做空ETF不超过总资产40%,总空头(名义)不超过80%' },
-        { id: 'apr-end-7', text: '📊 分批入场规则:每次加仓前纳指需新破阶段低点或信用/恐慌指标再恶化一档' },
-        { id: 'apr-end-8', text: '💼 做空工具:激进60%PSQ+40%TLT; 稳健40%PSQ+40%SH+20%TLT; 保留10%多因子对冲(低波ETF)' },
-        { id: 'apr-end-9', text: '🛡️ 硬风控:组合最大回撤15%必须减仓30%空头,单笔止损规则明确' }
-      ],
-      notes: '做空入场:从硬阈值改为趋势+多指标,增加仓位上限和风控规则,避免过度杠杆'
+      notes: '修正:4月是补充建仓期，而非首次建仓期。主要建仓应在3月18日后和3月末-4月初完成。'
     },
     {
       date: '2026年5月初',
-      day: '财报尾声',
-      event: '苹果、亚马逊、英伟达财报',
-      time: '盘后',
-      priority: 'high',
+      day: '风险释放期',
+      event: 'Fed主席换届+财报尾声',
+      time: '全天',
+      priority: 'critical',
       actions: [
-        { id: 'may-1', text: '苹果:全球供应链健康度' },
-        { id: 'may-2', text: '亚马逊:消费者支出数据' },
-        { id: 'may-3', text: '英伟达(5/20左右):AI最终审判日' },
-        { id: 'may-4', text: '如出现恐慌性下跌→追加做空仓位' }
+        { id: 'may-1', text: '🚨 5月Fed主席换届: Powell离任，新主席上任，VIX可能飙升至30+' },
+        { id: 'may-2', text: '⚠️ 关键策略:只保留10%做空仓位应对黑天鹅，不继续建仓' },
+        { id: 'may-3', text: '📊 如果已建仓70%以上，5月初减仓至10%，避免极端波动清仓' },
+        { id: 'may-4', text: '📈 财报:苹果、亚马逊、英伟达(5/20左右) - AI最终审判日' },
+        { id: 'may-5', text: '❌ 不要因为恐慌性下跌而追加做空仓位，5月是风险释放期而非建仓期' }
       ],
-      notes: '英伟达因财年不同,总是最后出场'
+      notes: '修正:5月Fed换届是风险释放期而非建仓期。此时做空容易被极端波动清仓，应在5月前完成主要建仓。'
     },
     {
       date: '2026年6-7月',
@@ -305,7 +315,8 @@ const InvestmentPlan2026 = () => {
         { id: 'mar-apr-3', text: '4月1日查看3月失业率报告' },
         { id: 'mar-apr-4', text: '4月15日开始每天关注银行财报' },
         { id: 'mar-apr-5', text: '4月27日重点关注微软、谷歌财报和指引' },
-        { id: 'mar-apr-6', text: '4月底评估是否满足3个做空条件' }
+        { id: 'mar-apr-6', text: '3月18日FOMC会议后评估是否满足做空条件，开始第一批建仓' },
+        { id: 'mar-apr-7', text: '3月末-4月初基于3月就业数据评估第二批建仓' }
       ]
     },
     {
@@ -438,11 +449,11 @@ const InvestmentPlan2026 = () => {
   ];
 
   const shortingConditions = [
-    { id: 'short-1', condition: '失业率 ≥ 5.0% (萨姆规则触发)', weight: '必要条件1' },
-    { id: 'short-2', condition: '银行Q1计提 > 50亿美元', weight: '必要条件2' },
-    { id: 'short-3', condition: '科技股Q1财报集体指引向下', weight: '必要条件3' },
-    { id: 'short-4', condition: 'KRE跌破2023年低点($40)', weight: '加强信号' },
-    { id: 'short-5', condition: '出现首个中型银行限制提款', weight: '加强信号' }
+    { id: 'short-1', condition: '3月18日FOMC会议：2026年降息预期 < 2次', weight: '核心触发条件1（股债双杀信号）' },
+    { id: 'short-2', condition: '失业率连续3个月上升且合计≥0.5个百分点', weight: '核心触发条件2（趋势判断，非单月点位）' },
+    { id: 'short-3', condition: '银行拨备增速连续两季>30%或相对历史分位>75%', weight: '核心触发条件3' },
+    { id: 'short-4', condition: '科技股Q1财报集体指引向下（3家以上）', weight: '加强信号' },
+    { id: 'short-5', condition: 'KRE跌破2023年低点($40)或出现中型银行限制提款', weight: '加强信号' }
   ];
 
   const monitorList = [
@@ -1831,10 +1842,23 @@ const InvestmentPlan2026 = () => {
             <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '16px' }}>
               <h3 style={{ fontWeight: '700', fontSize: '1.1rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{ fontSize: '1.2rem' }}>📉</span>
-                4月底做空入场条件检查表
+                做空入场条件检查表（修正版：结合宏观时间表）
               </h3>
+              <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px', padding: '12px', marginBottom: '16px' }}>
+                <p style={{ fontSize: '0.85rem', color: '#92400e', lineHeight: '1.6', marginBottom: '8px', fontWeight: '700' }}>
+                  ⚠️ 关键修正：时间错位问题
+                </p>
+                <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.85rem', color: '#92400e', lineHeight: '1.8' }}>
+                  <li><strong>原计划问题：</strong>4月20日开始做空太晚，会错过3月18日FOMC会议的关键信号</li>
+                  <li><strong>失业率滞后性：</strong>4月公布的失业数据反映3月情况，等到4月时宏观预期已在3月被确认</li>
+                  <li><strong>5月Fed换届：</strong>是风险释放期而非建仓期，此时做空容易被极端波动清仓</li>
+                </ul>
+                <p style={{ fontSize: '0.85rem', color: '#92400e', lineHeight: '1.6', marginTop: '8px', fontWeight: '700' }}>
+                  ✅ 修正策略：3月中旬开始布局，5月前完成主要建仓
+                </p>
+              </div>
               <p style={{ fontSize: '0.85rem', color: '#374151', marginBottom: '16px' }}>
-                必须同时满足前3个条件才能开始做空,后2个为加强信号
+                必须同时满足前3个核心条件才能开始做空，后2个为加强信号。注意：<strong>不是"4月底开始做空"，而是"3月中旬开始布局"</strong>
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {shortingConditions.map((item) => (
@@ -1910,23 +1934,36 @@ const InvestmentPlan2026 = () => {
             </div>
 
             <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px', padding: '16px' }}>
-              <h4 style={{ fontWeight: '700', marginBottom: '8px', color: '#92400e' }}>分批入场节奏</h4>
+              <h4 style={{ fontWeight: '700', marginBottom: '8px', color: '#92400e' }}>修正后的分批入场节奏</h4>
               <div style={{ fontSize: '0.85rem', display: 'flex', flexDirection: 'column', gap: '8px', color: '#374151' }}>
-                <div>• 4月20日: 投入30%资金 (试探性)</div>
-                <div>• 4月25日: 如纳指跌破16000，追加30%</div>
-                <div>• 5月初: 如出现恐慌性下跌，追加40%</div>
+                <div style={{ fontWeight: '600', color: '#991b1b' }}>• <strong>3月中旬：</strong>开始监控FOMC会议，准备资金</div>
+                <div style={{ fontWeight: '600', color: '#991b1b' }}>• <strong>3月18日后：</strong>如果FOMC点阵图显示&lt;2次降息 → 第一批做空20%（股债双杀信号）</div>
+                <div style={{ fontWeight: '600', color: '#991b1b' }}>• <strong>3月末-4月初：</strong>基于3月就业数据（4月初公布），如果失业率趋势恶化 → 第二批做空30%</div>
+                <div>• <strong>4月20日：</strong>第三批做空20%（补充机会，如果前两批未完全建仓）</div>
+                <div style={{ color: '#6b7280', fontStyle: 'italic' }}>• <strong>5月初：</strong>只保留10%仓位应对黑天鹅，<strong>不继续建仓</strong>（5月Fed换届是风险释放期，极端波动容易清仓）</div>
+              </div>
+              <div style={{ marginTop: '12px', padding: '12px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '6px' }}>
+                <p style={{ fontSize: '0.85rem', color: '#991b1b', lineHeight: '1.6', margin: 0, fontWeight: '700' }}>
+                  📌 核心原则：在最大黑天鹅（5月Fed换届）前抢占位置，而不是等到黑天鹅发生后再建仓
+                </p>
               </div>
             </div>
 
             <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '16px' }}>
               <h4 style={{ fontWeight: '700', marginBottom: '8px', color: '#991b1b', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{ fontSize: '1.2rem' }}>⚠️</span>
-                止损线设置
+                止损线设置与5月特殊处理
               </h4>
               <div style={{ fontSize: '0.85rem', display: 'flex', flexDirection: 'column', gap: '8px', color: '#374151' }}>
                 <div>• PSQ仓位: 如纳指反弹+10%，先减仓30%</div>
                 <div>• 纳指跌幅达25%时，可兑现30%利润</div>
-                <div>• 剩余70%持有至8-9月寻找抄底机会</div>
+                <div>• <strong>5月Fed换届前：</strong>如果已建仓70%以上，5月初减仓至10%，避免极端波动清仓</div>
+                <div>• <strong>5月后：</strong>剩余仓位持有至8-9月寻找抄底机会</div>
+              </div>
+              <div style={{ marginTop: '12px', padding: '12px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '6px' }}>
+                <p style={{ fontSize: '0.85rem', color: '#92400e', lineHeight: '1.6', margin: 0 }}>
+                  <strong>💡 5月策略：</strong>5月Fed主席换届会造成VIX极度波动和非理性抛售。此时做空不是为了获利，而是被迫应对"黑天鹅"。因此5月前应完成主要建仓，5月只保留少量仓位应对极端情况。
+                </p>
               </div>
             </div>
           </div>
