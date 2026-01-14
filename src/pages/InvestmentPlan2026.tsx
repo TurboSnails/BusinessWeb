@@ -1042,6 +1042,67 @@ const InvestmentPlan2026 = () => {
                             }
                             
                             return item.actions.map((action, index) => {
+                            // 先检查是否是表格行
+                            if (action.isTableRow) {
+                              currentTableRowIndex++
+                              const parts = action.text.split('|').map(p => p.trim())
+                              if (parts.length >= 5) {
+                                const result = []
+                                const isLastRow = currentTableRowIndex === lastTableRowIndex
+                                
+                                // 在第一个表格行之前添加表头
+                                if (!tableHeaderAdded) {
+                                  tableHeaderAdded = true
+                                  result.push(
+                                    <div key={`table-header-${action.id}`} style={{
+                                      display: 'grid',
+                                      gridTemplateColumns: '1.5fr 1fr 1fr 1.2fr 0.5fr',
+                                      gap: '8px',
+                                      padding: '12px',
+                                      fontSize: '0.85rem',
+                                      fontWeight: '600',
+                                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                      color: 'white',
+                                      borderRadius: '8px 8px 0 0',
+                                      marginTop: '12px',
+                                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                    }}>
+                                      <div>指标</div>
+                                      <div>当前值</div>
+                                      <div>Q3值</div>
+                                      <div>危险阈值</div>
+                                      <div style={{ textAlign: 'center' }}>警示</div>
+                                    </div>
+                                  )
+                                }
+                                result.push(
+                                  <div key={action.id} style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: '1.5fr 1fr 1fr 1.2fr 0.5fr',
+                                    gap: '8px',
+                                    padding: '10px 12px',
+                                    fontSize: '0.85rem',
+                                    background: currentTableRowIndex % 2 === 0 ? '#ffffff' : '#f9fafb',
+                                    borderBottom: isLastRow ? 'none' : '1px solid #e5e7eb',
+                                    borderRadius: isLastRow ? '0 0 8px 8px' : '0',
+                                    alignItems: 'center',
+                                    transition: 'background 0.2s',
+                                    boxShadow: isLastRow ? '0 2px 4px rgba(0,0,0,0.05)' : 'none'
+                                  }}>
+                                    <div style={{ fontWeight: '500', color: '#1f2937' }}>{renderText(parts[0] || '')}</div>
+                                    <div style={{ color: '#374151' }}>{parts[1] || ''}</div>
+                                    <div style={{ color: '#6b7280', fontSize: '0.8rem' }}>{parts[2] || ''}</div>
+                                    <div style={{ color: '#dc2626', fontSize: '0.8rem', fontWeight: '500' }}>{parts[3] || ''}</div>
+                                    <div style={{ textAlign: 'center', fontSize: '1.1rem' }}>{parts[4] || ''}</div>
+                                  </div>
+                                )
+                                return <React.Fragment key={`fragment-${action.id}`}>{result}</React.Fragment>
+                              }
+                              // 如果表格行格式不正确，返回 null
+                              return null
+                            }
+                            
+                            // 然后检查是否是标题
                             if (action.isHeader) {
                               const text = action.text.trim()
                               
@@ -1106,61 +1167,6 @@ const InvestmentPlan2026 = () => {
                                   {renderText(text)}
                                 </div>
                               )
-                            } else if (action.isTableRow) {
-                              currentTableRowIndex++
-                              const parts = action.text.split('|')
-                              if (parts.length >= 5) {
-                                const result = []
-                                const isLastRow = currentTableRowIndex === lastTableRowIndex
-                                
-                                // 在第一个表格行之前添加表头
-                                if (!tableHeaderAdded) {
-                                  tableHeaderAdded = true
-                                  result.push(
-                                    <div key={`table-header-${action.id}`} style={{
-                                      display: 'grid',
-                                      gridTemplateColumns: '1.5fr 1fr 1fr 1.2fr 0.5fr',
-                                      gap: '8px',
-                                      padding: '12px',
-                                      fontSize: '0.85rem',
-                                      fontWeight: '600',
-                                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                      color: 'white',
-                                      borderRadius: '8px 8px 0 0',
-                                      marginTop: '12px',
-                                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                                    }}>
-                                      <div>指标</div>
-                                      <div>当前值</div>
-                                      <div>Q3值</div>
-                                      <div>危险阈值</div>
-                                      <div style={{ textAlign: 'center' }}>警示</div>
-                                    </div>
-                                  )
-                                }
-                                result.push(
-                                  <div key={action.id} style={{
-                                    display: 'grid',
-                                    gridTemplateColumns: '1.5fr 1fr 1fr 1.2fr 0.5fr',
-                                    gap: '8px',
-                                    padding: '10px 12px',
-                                    fontSize: '0.85rem',
-                                    background: currentTableRowIndex % 2 === 0 ? '#ffffff' : '#f9fafb',
-                                    borderBottom: isLastRow ? 'none' : '1px solid #e5e7eb',
-                                    borderRadius: isLastRow ? '0 0 8px 8px' : '0',
-                                    alignItems: 'center',
-                                    transition: 'background 0.2s',
-                                    boxShadow: isLastRow ? '0 2px 4px rgba(0,0,0,0.05)' : 'none'
-                                  }}>
-                                    <div style={{ fontWeight: '500', color: '#1f2937' }}>{renderText(parts[0])}</div>
-                                    <div style={{ color: '#374151' }}>{parts[1]}</div>
-                                    <div style={{ color: '#6b7280', fontSize: '0.8rem' }}>{parts[2]}</div>
-                                    <div style={{ color: '#dc2626', fontSize: '0.8rem', fontWeight: '500' }}>{parts[3]}</div>
-                                    <div style={{ textAlign: 'center', fontSize: '1.1rem' }}>{parts[4]}</div>
-                                  </div>
-                                )
-                                return <React.Fragment key={`fragment-${action.id}`}>{result}</React.Fragment>
-                              }
                             }
                             
                             // 处理代码块
