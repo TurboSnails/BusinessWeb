@@ -115,39 +115,44 @@ const InvestmentPlan2026 = () => {
     {
       date: '2026年1月12-16日',
       day: '周一至周五',
-      event: '信贷拐点速查表',
+      event: '📊 信贷拐点速查表',
       time: '盘后发布',
       priority: 'critical',
       completed: true, // 速查表内容，不需要勾选框
       isTable: true, // 标记为表格类型，使用特殊渲染
       actions: [
-        { id: 'jan12-header-1', text: '📊 一、关键数据监控（每周更新）', isHeader: true },
-        { id: 'jan12-table-1', text: 'HY OAS|~270bps|~260bps|>320bps|🟢', isTableRow: true },
-        { id: 'jan12-table-2', text: 'IG OAS|~80bps|~85bps|>150bps|🟢', isTableRow: true },
-        { id: 'jan12-table-3', text: 'VIX|14-15|13-14|>20|🟢', isTableRow: true },
-        { id: 'jan12-table-4', text: 'XLF跑输SPY|1周|0周|≥4周|🟡', isTableRow: true },
-        { id: 'jan12-table-5', text: 'JPM 拨备|$46.6bn (+77%)|$35bn (+32%)|连续2季>+30%|🟡', isTableRow: true },
-        { id: 'jan12-table-6', text: 'BAC 拨备|$13-14bn (-10%)|$15bn (+18%)|连续2季>+30%|🟢', isTableRow: true },
-        { id: 'jan12-table-7', text: 'WFC 拨备|$10.4bn (-5%)|$11bn (负)|连续2季>+30%|🟢', isTableRow: true },
-        { id: 'jan12-table-8', text: 'C 拨备|$22bn (-14%)|$18bn (+22%)|连续2季>+30%|🟢', isTableRow: true },
-        { id: 'jan12-table-9', text: '信用卡违约|2.1-2.3%|2.0-2.2%|>3.5%|🟢', isTableRow: true },
-        { id: 'jan12-table-10', text: 'CRE违约|~1.2%|~1.1%|>2.5%|🟢', isTableRow: true },
-        { id: 'jan12-table-11', text: 'SLOOS 消费贷|+2~+4|+3~+5|>+10|🟢', isTableRow: true },
-        { id: 'jan12-table-12', text: 'SLOOS 商业贷|~+5|~+6|>+15|🟢', isTableRow: true },
-        { id: 'jan12-stage', text: '🟡 当前阶段：Stage 1 - 预警期 | 数据更新日期：2026-01-14', isHeader: true },
-        { id: 'jan12-header-2', text: '📍 二、执行操作表 - Stage 1（当前）防守配置', isHeader: true },
-        { id: 'jan12-config-1', text: '总仓位：70-75% | 现金：15-20% | 对冲：SPY Put 3-5% | 防御：国债5-10% + 黄金5%' },
-        { id: 'jan12-config-2', text: '✅ 减持：高Beta股、金融股 | ✅ 保留：龙头蓝筹 | ❌ 禁止：指数级做空、加杠杆' },
-        { id: 'jan12-header-3', text: '🔴 升级到 Stage 2 触发条件（任意2项同时触发即执行）', isHeader: true },
-        { id: 'jan12-trigger-1', text: '• HY OAS >320bps' },
-        { id: 'jan12-trigger-2', text: '• ≥2家银行连续2季拨备>+30%' },
-        { id: 'jan12-trigger-3', text: '• 信用卡违约率QoQ转正增长' },
-        { id: 'jan12-trigger-4', text: '• SLOOS净收紧>+10' },
-        { id: 'jan12-trigger-5', text: '• XLF跑输SPY ≥4周' },
-        { id: 'jan12-header-4', text: '📍 Stage 2 - 进攻配置', isHeader: true },
-        { id: 'jan12-config-3', text: '总仓位：40-50% | 现金：30-40% | 空头：SPY Put 10-15% | 防御：国债20% + 黄金10%' }
+        { id: 'jan12-header-1', text: '## 一、关键数据监控（每周更新）', isHeader: true },
+        { id: 'jan12-table-1', text: '**HY OAS**|~270bps|~260bps|>320bps|🟢', isTableRow: true },
+        { id: 'jan12-table-2', text: '**IG OAS**|~80bps|~85bps|>150bps|🟢', isTableRow: true },
+        { id: 'jan12-table-3', text: '**VIX**|14-15|13-14|>20|🟢', isTableRow: true },
+        { id: 'jan12-table-4', text: '**XLF跑输SPY**|1周|0周|≥4周|🟡', isTableRow: true },
+        { id: 'jan12-table-5', text: '**JPM 拨备**|$46.6bn (+77%)|$35bn (+32%)|连续2季>+30%|🟡', isTableRow: true },
+        { id: 'jan12-table-6', text: '**BAC 拨备**|$13-14bn (-10%)|$15bn (+18%)|连续2季>+30%|🟢', isTableRow: true },
+        { id: 'jan12-table-7', text: '**WFC 拨备**|$10.4bn (-5%)|$11bn (负)|连续2季>+30%|🟢', isTableRow: true },
+        { id: 'jan12-table-8', text: '**C 拨备**|$22bn (-14%)|$18bn (+22%)|连续2季>+30%|🟢', isTableRow: true },
+        { id: 'jan12-table-9', text: '**信用卡违约**|2.1-2.3%|2.0-2.2%|>3.5%|🟢', isTableRow: true },
+        { id: 'jan12-table-10', text: '**CRE违约**|~1.2%|~1.1%|>2.5%|🟢', isTableRow: true },
+        { id: 'jan12-table-11', text: '**SLOOS 消费贷**|+2~+4|+3~+5|>+10|🟢', isTableRow: true },
+        { id: 'jan12-table-12', text: '**SLOOS 商业贷**|~+5|~+6|>+15|🟢', isTableRow: true },
+        { id: 'jan12-stage', text: '**当前阶段：🟡 Stage 1 - 预警期**\n**数据更新日期：2026-01-14**', isHeader: true },
+        { id: 'jan12-divider', text: '---', isHeader: true },
+        { id: 'jan12-header-2', text: '## 二、执行操作表', isHeader: true },
+        { id: 'jan12-header-2-1', text: '### 📍 Stage 1（当前）- 防守配置', isHeader: true },
+        { id: 'jan12-config-1', text: '```\n总仓位：70-75%\n现金：  15-20%\n对冲：  SPY Put 3-5%\n防御：  国债5-10% + 黄金5%\n\n✅ 减持：高Beta股、金融股\n✅ 保留：龙头蓝筹\n❌ 禁止：指数级做空、加杠杆\n```' },
+        { id: 'jan12-header-3', text: '### 🔴 升级到 Stage 2 触发条件', isHeader: true },
+        { id: 'jan12-trigger-desc', text: '**任意2项同时触发即执行：**' },
+        { id: 'jan12-trigger-1', text: '- [ ] HY OAS >320bps' },
+        { id: 'jan12-trigger-2', text: '- [ ] ≥2家银行连续2季拨备>+30%' },
+        { id: 'jan12-trigger-3', text: '- [ ] 信用卡违约率QoQ转正增长' },
+        { id: 'jan12-trigger-4', text: '- [ ] SLOOS净收紧>+10' },
+        { id: 'jan12-trigger-5', text: '- [ ] XLF跑输SPY ≥4周' },
+        { id: 'jan12-header-4', text: '### 📍 Stage 2 - 进攻配置', isHeader: true },
+        { id: 'jan12-config-3', text: '```\n总仓位：40-50%\n现金：  30-40%\n空头：  SPY Put 10-15%\n防御：  国债20% + 黄金10%\n```' },
+        { id: 'jan12-divider-2', text: '---', isHeader: true },
+        { id: 'jan12-header-5', text: '## 三、一句话原则', isHeader: true },
+        { id: 'jan12-principle', text: '> **当前数据支持「降仓+防守」  \n> 不支持「方向性做空」  \n> 等市场用钱投票**' }
       ],
-      notes: '一句话原则：当前数据支持「降仓+防守」，不支持「方向性做空」，等市场用钱投票。'
+      notes: ''
     },
     {
       date: '2026年1月17日',
@@ -1021,23 +1026,93 @@ const InvestmentPlan2026 = () => {
                         <>
                           {(() => {
                             let tableHeaderAdded = false
+                            const tableRows = item.actions.filter(a => a.isTableRow)
+                            const lastTableRowIndex = tableRows.length - 1
+                            let currentTableRowIndex = -1
+                            
+                            // 渲染文本内容（支持粗体）
+                            const renderText = (text: string) => {
+                              const parts = text.split(/(\*\*.*?\*\*)/g)
+                              return parts.map((part, i) => {
+                                if (part.startsWith('**') && part.endsWith('**')) {
+                                  return <strong key={i}>{part.slice(2, -2)}</strong>
+                                }
+                                return <span key={i}>{part}</span>
+                              })
+                            }
+                            
                             return item.actions.map((action, index) => {
                             if (action.isHeader) {
+                              const text = action.text.trim()
+                              
+                              // 分隔线
+                              if (text === '---') {
+                                return (
+                                  <div key={action.id} style={{
+                                    height: '1px',
+                                    background: 'linear-gradient(to right, transparent, #d1d5db, transparent)',
+                                    margin: '20px 0',
+                                    width: '100%'
+                                  }} />
+                                )
+                              }
+                              
+                              // Markdown 标题
+                              if (text.startsWith('## ')) {
+                                return (
+                                  <h2 key={action.id} style={{ 
+                                    marginTop: action.id.includes('header-1') ? '0' : '24px',
+                                    marginBottom: '12px',
+                                    fontSize: '1.25rem',
+                                    fontWeight: '700',
+                                    color: '#1f2937',
+                                    borderBottom: '2px solid #e5e7eb',
+                                    paddingBottom: '8px'
+                                  }}>
+                                    {renderText(text.replace('## ', ''))}
+                                  </h2>
+                                )
+                              }
+                              
+                              if (text.startsWith('### ')) {
+                                return (
+                                  <h3 key={action.id} style={{ 
+                                    marginTop: '16px',
+                                    marginBottom: '8px',
+                                    fontSize: '1.1rem',
+                                    fontWeight: '600',
+                                    color: '#374151'
+                                  }}>
+                                    {renderText(text.replace('### ', ''))}
+                                  </h3>
+                                )
+                              }
+                              
+                              // 普通标题
                               return (
                                 <div key={action.id} style={{ 
                                   marginTop: action.id.includes('header-1') ? '0' : '16px',
                                   marginBottom: '8px',
                                   fontSize: '1rem',
                                   fontWeight: '600',
-                                  color: '#1f2937'
+                                  color: '#1f2937',
+                                  whiteSpace: 'pre-line',
+                                  lineHeight: '1.6',
+                                  background: action.id.includes('stage') ? 'linear-gradient(90deg, #fef3c7 0%, #ffffff 100%)' : 'transparent',
+                                  padding: action.id.includes('stage') ? '12px 16px' : '0',
+                                  borderRadius: action.id.includes('stage') ? '8px' : '0',
+                                  border: action.id.includes('stage') ? '1px solid #fcd34d' : 'none'
                                 }}>
-                                  {action.text}
+                                  {renderText(text)}
                                 </div>
                               )
                             } else if (action.isTableRow) {
+                              currentTableRowIndex++
                               const parts = action.text.split('|')
                               if (parts.length >= 5) {
                                 const result = []
+                                const isLastRow = currentTableRowIndex === lastTableRowIndex
+                                
                                 // 在第一个表格行之前添加表头
                                 if (!tableHeaderAdded) {
                                   tableHeaderAdded = true
@@ -1046,13 +1121,14 @@ const InvestmentPlan2026 = () => {
                                       display: 'grid',
                                       gridTemplateColumns: '1.5fr 1fr 1fr 1.2fr 0.5fr',
                                       gap: '8px',
-                                      padding: '8px',
-                                      fontSize: '0.8rem',
+                                      padding: '12px',
+                                      fontSize: '0.85rem',
                                       fontWeight: '600',
-                                      background: '#f3f4f6',
-                                      borderBottom: '2px solid #d1d5db',
-                                      color: '#374151',
-                                      marginTop: '8px'
+                                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                      color: 'white',
+                                      borderRadius: '8px 8px 0 0',
+                                      marginTop: '12px',
+                                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                                     }}>
                                       <div>指标</div>
                                       <div>当前值</div>
@@ -1067,22 +1143,89 @@ const InvestmentPlan2026 = () => {
                                     display: 'grid',
                                     gridTemplateColumns: '1.5fr 1fr 1fr 1.2fr 0.5fr',
                                     gap: '8px',
-                                    padding: '6px 8px',
+                                    padding: '10px 12px',
                                     fontSize: '0.85rem',
-                                    background: 'transparent',
-                                    borderBottom: '1px solid #e5e7eb',
-                                    alignItems: 'center'
+                                    background: currentTableRowIndex % 2 === 0 ? '#ffffff' : '#f9fafb',
+                                    borderBottom: isLastRow ? 'none' : '1px solid #e5e7eb',
+                                    borderRadius: isLastRow ? '0 0 8px 8px' : '0',
+                                    alignItems: 'center',
+                                    transition: 'background 0.2s',
+                                    boxShadow: isLastRow ? '0 2px 4px rgba(0,0,0,0.05)' : 'none'
                                   }}>
-                                    <div style={{ fontWeight: '500', color: '#1f2937' }}>{parts[0]}</div>
+                                    <div style={{ fontWeight: '500', color: '#1f2937' }}>{renderText(parts[0])}</div>
                                     <div style={{ color: '#374151' }}>{parts[1]}</div>
                                     <div style={{ color: '#6b7280', fontSize: '0.8rem' }}>{parts[2]}</div>
-                                    <div style={{ color: '#dc2626', fontSize: '0.8rem' }}>{parts[3]}</div>
-                                    <div style={{ textAlign: 'center', fontSize: '1rem' }}>{parts[4]}</div>
+                                    <div style={{ color: '#dc2626', fontSize: '0.8rem', fontWeight: '500' }}>{parts[3]}</div>
+                                    <div style={{ textAlign: 'center', fontSize: '1.1rem' }}>{parts[4]}</div>
                                   </div>
                                 )
                                 return <React.Fragment key={`fragment-${action.id}`}>{result}</React.Fragment>
                               }
                             }
+                            
+                            // 处理代码块
+                            if (action.text.trim().startsWith('```')) {
+                              const codeContent = action.text.trim().replace(/^```\n?/, '').replace(/\n?```$/, '')
+                              return (
+                                <div key={action.id} style={{
+                                  background: 'linear-gradient(135deg, #1f2937 0%, #111827 100%)',
+                                  color: '#f3f4f6',
+                                  padding: '16px',
+                                  borderRadius: '8px',
+                                  fontSize: '0.85rem',
+                                  fontFamily: 'Monaco, "Courier New", monospace',
+                                  lineHeight: '1.8',
+                                  margin: '12px 0',
+                                  overflowX: 'auto',
+                                  whiteSpace: 'pre',
+                                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                  border: '1px solid #374151'
+                                }}>
+                                  {codeContent}
+                                </div>
+                              )
+                            }
+                            
+                            // 处理引用块
+                            if (action.text.trim().startsWith('>')) {
+                              const quoteContent = action.text.trim().replace(/^>\s*\*\*/, '**').replace(/\n>\s*/g, '\n')
+                              return (
+                                <div key={action.id} style={{
+                                  borderLeft: '4px solid #667eea',
+                                  background: 'linear-gradient(90deg, #f0f4ff 0%, #ffffff 100%)',
+                                  padding: '16px 20px',
+                                  margin: '16px 0',
+                                  borderRadius: '6px',
+                                  fontSize: '1rem',
+                                  color: '#1f2937',
+                                  fontWeight: '500',
+                                  lineHeight: '1.8',
+                                  whiteSpace: 'pre-line',
+                                  boxShadow: '0 2px 8px rgba(102, 126, 234, 0.1)'
+                                }}>
+                                  {renderText(quoteContent)}
+                                </div>
+                              )
+                            }
+                            
+                            // 处理复选框
+                            if (action.text.trim().startsWith('- [ ]')) {
+                              return (
+                                <div key={action.id} style={{ 
+                                  display: 'flex', 
+                                  alignItems: 'flex-start', 
+                                  gap: '8px',
+                                  fontSize: '0.9rem',
+                                  color: '#374151',
+                                  padding: '6px 0',
+                                  marginLeft: '8px'
+                                }}>
+                                  <span style={{ fontSize: '1rem', marginRight: '4px' }}>☐</span>
+                                  <span>{renderText(action.text.replace('- [ ]', '').trim())}</span>
+                                </div>
+                              )
+                            }
+                            
                             // 普通文本
                             return (
                               <div key={action.id} style={{ 
@@ -1091,9 +1234,10 @@ const InvestmentPlan2026 = () => {
                                 gap: '8px',
                                 fontSize: '0.9rem',
                                 color: '#374151',
-                                padding: '4px 0'
+                                padding: '4px 0',
+                                lineHeight: '1.6'
                               }}>
-                                {action.text}
+                                {renderText(action.text)}
                               </div>
                             )
                           })
