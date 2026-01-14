@@ -119,14 +119,33 @@ const InvestmentPlan2026 = () => {
       time: '盘后发布',
       priority: 'critical',
       completed: true, // 速查表内容，不需要勾选框
+      isTable: true, // 标记为表格类型，使用特殊渲染
       actions: [
-        { id: 'jan12-1', text: '📊 关键数据监控（每周更新）：HY OAS ~270bps（危险>320bps🟢）、IG OAS ~80bps（危险>150bps🟢）、VIX 14-15（危险>20🟢）、XLF跑输SPY 1周（危险≥4周🟡）' },
-        { id: 'jan12-2', text: '📈 银行拨备数据：JPM $46.6bn +77%🟡（Q3 $35bn +32%，连续2季>+30%危险）、BAC $13-14bn -10%🟢（Q3 $15bn +18%）、WFC $10.4bn -5%🟢（Q3 $11bn负）、C $22bn -14%🟢（Q3 $18bn +22%）' },
-        { id: 'jan12-3', text: '🔍 违约率监控：信用卡违约2.1-2.3%🟢（危险>3.5%）、CRE违约~1.2%🟢（危险>2.5%）、SLOOS消费贷+2~+4🟢（危险>+10）、SLOOS商业贷~+5🟢（危险>+15）' },
-        { id: 'jan12-4', text: '🟡 当前阶段：Stage 1 - 预警期（数据更新：2026-01-14）' },
-        { id: 'jan12-5', text: '📍 Stage 1防守配置：总仓位70-75%、现金15-20%、对冲SPY Put 3-5%、防御国债5-10%+黄金5%、✅减持高Beta股/金融股、✅保留龙头蓝筹、❌禁止指数级做空/加杠杆' },
-        { id: 'jan12-6', text: '🔴 升级到Stage 2触发条件（任意2项同时触发）：HY OAS >320bps、≥2家银行连续2季拨备>+30%、信用卡违约率QoQ转正增长、SLOOS净收紧>+10、XLF跑输SPY ≥4周' },
-        { id: 'jan12-7', text: '📍 Stage 2进攻配置：总仓位40-50%、现金30-40%、空头SPY Put 10-15%、防御国债20%+黄金10%' }
+        { id: 'jan12-header-1', text: '📊 一、关键数据监控（每周更新）', isHeader: true },
+        { id: 'jan12-table-1', text: 'HY OAS|~270bps|~260bps|>320bps|🟢', isTableRow: true },
+        { id: 'jan12-table-2', text: 'IG OAS|~80bps|~85bps|>150bps|🟢', isTableRow: true },
+        { id: 'jan12-table-3', text: 'VIX|14-15|13-14|>20|🟢', isTableRow: true },
+        { id: 'jan12-table-4', text: 'XLF跑输SPY|1周|0周|≥4周|🟡', isTableRow: true },
+        { id: 'jan12-table-5', text: 'JPM 拨备|$46.6bn (+77%)|$35bn (+32%)|连续2季>+30%|🟡', isTableRow: true },
+        { id: 'jan12-table-6', text: 'BAC 拨备|$13-14bn (-10%)|$15bn (+18%)|连续2季>+30%|🟢', isTableRow: true },
+        { id: 'jan12-table-7', text: 'WFC 拨备|$10.4bn (-5%)|$11bn (负)|连续2季>+30%|🟢', isTableRow: true },
+        { id: 'jan12-table-8', text: 'C 拨备|$22bn (-14%)|$18bn (+22%)|连续2季>+30%|🟢', isTableRow: true },
+        { id: 'jan12-table-9', text: '信用卡违约|2.1-2.3%|2.0-2.2%|>3.5%|🟢', isTableRow: true },
+        { id: 'jan12-table-10', text: 'CRE违约|~1.2%|~1.1%|>2.5%|🟢', isTableRow: true },
+        { id: 'jan12-table-11', text: 'SLOOS 消费贷|+2~+4|+3~+5|>+10|🟢', isTableRow: true },
+        { id: 'jan12-table-12', text: 'SLOOS 商业贷|~+5|~+6|>+15|🟢', isTableRow: true },
+        { id: 'jan12-stage', text: '🟡 当前阶段：Stage 1 - 预警期 | 数据更新日期：2026-01-14', isHeader: true },
+        { id: 'jan12-header-2', text: '📍 二、执行操作表 - Stage 1（当前）防守配置', isHeader: true },
+        { id: 'jan12-config-1', text: '总仓位：70-75% | 现金：15-20% | 对冲：SPY Put 3-5% | 防御：国债5-10% + 黄金5%' },
+        { id: 'jan12-config-2', text: '✅ 减持：高Beta股、金融股 | ✅ 保留：龙头蓝筹 | ❌ 禁止：指数级做空、加杠杆' },
+        { id: 'jan12-header-3', text: '🔴 升级到 Stage 2 触发条件（任意2项同时触发即执行）', isHeader: true },
+        { id: 'jan12-trigger-1', text: '• HY OAS >320bps' },
+        { id: 'jan12-trigger-2', text: '• ≥2家银行连续2季拨备>+30%' },
+        { id: 'jan12-trigger-3', text: '• 信用卡违约率QoQ转正增长' },
+        { id: 'jan12-trigger-4', text: '• SLOOS净收紧>+10' },
+        { id: 'jan12-trigger-5', text: '• XLF跑输SPY ≥4周' },
+        { id: 'jan12-header-4', text: '📍 Stage 2 - 进攻配置', isHeader: true },
+        { id: 'jan12-config-3', text: '总仓位：40-50% | 现金：30-40% | 空头：SPY Put 10-15% | 防御：国债20% + 黄金10%' }
       ],
       notes: '一句话原则：当前数据支持「降仓+防守」，不支持「方向性做空」，等市场用钱投票。'
     },
@@ -997,31 +1016,117 @@ const InvestmentPlan2026 = () => {
                       {item.event}
                     </h3>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '12px' }}>
-                      {item.actions.map((action) => (
-                          <div key={action.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                          {!item.completed && (
-                            <input
-                              type="checkbox"
-                              id={action.id}
-                              checked={checkedItems[action.id] || false}
-                              onChange={() => toggleCheck(action.id)}
-                              style={{ marginTop: '4px', width: '16px', height: '16px', cursor: 'pointer' }}
-                            />
-                          )}
-                          <label
-                            htmlFor={item.completed ? undefined : action.id}
-                              style={{
+                      {item.isTable ? (
+                        // 表格类型特殊渲染
+                        <>
+                          {(() => {
+                            let tableHeaderAdded = false
+                            return item.actions.map((action, index) => {
+                            if (action.isHeader) {
+                              return (
+                                <div key={action.id} style={{ 
+                                  marginTop: action.id.includes('header-1') ? '0' : '16px',
+                                  marginBottom: '8px',
+                                  fontSize: '1rem',
+                                  fontWeight: '600',
+                                  color: '#1f2937'
+                                }}>
+                                  {action.text}
+                                </div>
+                              )
+                            } else if (action.isTableRow) {
+                              const parts = action.text.split('|')
+                              if (parts.length >= 5) {
+                                const result = []
+                                // 在第一个表格行之前添加表头
+                                if (!tableHeaderAdded) {
+                                  tableHeaderAdded = true
+                                  result.push(
+                                    <div key={`table-header-${action.id}`} style={{
+                                      display: 'grid',
+                                      gridTemplateColumns: '1.5fr 1fr 1fr 1.2fr 0.5fr',
+                                      gap: '8px',
+                                      padding: '8px',
+                                      fontSize: '0.8rem',
+                                      fontWeight: '600',
+                                      background: '#f3f4f6',
+                                      borderBottom: '2px solid #d1d5db',
+                                      color: '#374151',
+                                      marginTop: '8px'
+                                    }}>
+                                      <div>指标</div>
+                                      <div>当前值</div>
+                                      <div>Q3值</div>
+                                      <div>危险阈值</div>
+                                      <div style={{ textAlign: 'center' }}>警示</div>
+                                    </div>
+                                  )
+                                }
+                                result.push(
+                                  <div key={action.id} style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: '1.5fr 1fr 1fr 1.2fr 0.5fr',
+                                    gap: '8px',
+                                    padding: '6px 8px',
+                                    fontSize: '0.85rem',
+                                    background: 'transparent',
+                                    borderBottom: '1px solid #e5e7eb',
+                                    alignItems: 'center'
+                                  }}>
+                                    <div style={{ fontWeight: '500', color: '#1f2937' }}>{parts[0]}</div>
+                                    <div style={{ color: '#374151' }}>{parts[1]}</div>
+                                    <div style={{ color: '#6b7280', fontSize: '0.8rem' }}>{parts[2]}</div>
+                                    <div style={{ color: '#dc2626', fontSize: '0.8rem' }}>{parts[3]}</div>
+                                    <div style={{ textAlign: 'center', fontSize: '1rem' }}>{parts[4]}</div>
+                                  </div>
+                                )
+                                return <React.Fragment key={`fragment-${action.id}`}>{result}</React.Fragment>
+                              }
+                            }
+                            // 普通文本
+                            return (
+                              <div key={action.id} style={{ 
+                                display: 'flex', 
+                                alignItems: 'flex-start', 
+                                gap: '8px',
                                 fontSize: '0.9rem',
-                                textDecoration: checkedItems[action.id] ? 'line-through' : 'none',
-                                color: item.completed ? '#374151' : (checkedItems[action.id] ? '#9ca3af' : '#374151'),
-                                cursor: item.completed ? 'default' : 'pointer',
-                                flex: 1
-                              }}
-                          >
-                            {action.text}
-                          </label>
-                        </div>
-                      ))}
+                                color: '#374151',
+                                padding: '4px 0'
+                              }}>
+                                {action.text}
+                              </div>
+                            )
+                          })
+                          })}
+                        </>
+                      ) : (
+                        // 普通类型渲染
+                        item.actions.map((action) => (
+                          <div key={action.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                            {!item.completed && (
+                              <input
+                                type="checkbox"
+                                id={action.id}
+                                checked={checkedItems[action.id] || false}
+                                onChange={() => toggleCheck(action.id)}
+                                style={{ marginTop: '4px', width: '16px', height: '16px', cursor: 'pointer' }}
+                              />
+                            )}
+                            <label
+                              htmlFor={item.completed ? undefined : action.id}
+                                style={{
+                                  fontSize: '0.9rem',
+                                  textDecoration: checkedItems[action.id] ? 'line-through' : 'none',
+                                  color: item.completed ? '#374151' : (checkedItems[action.id] ? '#9ca3af' : '#374151'),
+                                  cursor: item.completed ? 'default' : 'pointer',
+                                  flex: 1
+                                }}
+                            >
+                              {action.text}
+                            </label>
+                          </div>
+                        ))
+                      )}
                     </div>
                       <div style={{ 
                         display: 'flex', 
