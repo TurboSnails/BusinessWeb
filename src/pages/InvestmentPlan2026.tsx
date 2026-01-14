@@ -1023,37 +1023,44 @@ const InvestmentPlan2026 = () => {
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '12px' }}>
                       {item.isTable ? (
                         // 表格类型特殊渲染
-                        <>
-                          {(() => {
-                            let tableHeaderAdded = false
-                            const tableRows = item.actions.filter(a => a.isTableRow)
-                            const lastTableRowIndex = tableRows.length - 1
-                            let currentTableRowIndex = -1
+                        (() => {
+                          if (!item.actions || item.actions.length === 0) {
+                            return null
+                          }
+                          
+                          let tableHeaderAdded = false
+                          const tableRows = item.actions.filter(a => a.isTableRow)
+                          const lastTableRowIndex = tableRows.length - 1
+                          let currentTableRowIndex = -1
+                          
+                          // 渲染文本内容（支持粗体）
+                          const renderText = (text: string | undefined | null): React.ReactNode => {
+                            if (!text || typeof text !== 'string') return <span></span>
+                            const parts = text.split(/(\*\*.*?\*\*)/g).filter(p => p && p.length > 0)
+                            if (parts.length === 0) return <span></span>
+                            return parts.map((part, i) => {
+                              if (part.startsWith('**') && part.endsWith('**')) {
+                                return <strong key={i}>{part.slice(2, -2)}</strong>
+                              }
+                              return <span key={i}>{part}</span>
+                            })
+                          }
+                          
+                          const renderedItems: React.ReactElement[] = []
+                          
+                          item.actions.forEach((action) => {
+                            if (!action || !action.id) return
                             
-                            // 渲染文本内容（支持粗体）
-                            const renderText = (text: string) => {
-                              const parts = text.split(/(\*\*.*?\*\*)/g)
-                              return parts.map((part, i) => {
-                                if (part.startsWith('**') && part.endsWith('**')) {
-                                  return <strong key={i}>{part.slice(2, -2)}</strong>
-                                }
-                                return <span key={i}>{part}</span>
-                              })
-                            }
-                            
-                            return item.actions.map((action, index) => {
-                            // 先检查是否是表格行
-                            if (action.isTableRow) {
+                            // 表格行
+                            if (action.isTableRow && action.text && typeof action.text === 'string') {
                               currentTableRowIndex++
-                              const parts = action.text.split('|').map(p => p.trim())
+                              const parts = action.text.split('|').map(p => String(p || '').trim()).filter(p => p.length > 0)
+                              
                               if (parts.length >= 5) {
-                                const result = []
-                                const isLastRow = currentTableRowIndex === lastTableRowIndex
-                                
-                                // 在第一个表格行之前添加表头
+                                // 添加表头
                                 if (!tableHeaderAdded) {
                                   tableHeaderAdded = true
-                                  result.push(
+                                  renderedItems.push(
                                     <div key={`table-header-${action.id}`} style={{
                                       display: 'grid',
                                       gridTemplateColumns: '1.5fr 1fr 1fr 1.2fr 0.5fr',
@@ -1075,7 +1082,9 @@ const InvestmentPlan2026 = () => {
                                     </div>
                                   )
                                 }
-                                result.push(
+                                
+                                const isLastRow = currentTableRowIndex === lastTableRowIndex
+                                renderedItems.push(
                                   <div key={action.id} style={{
                                     display: 'grid',
                                     gridTemplateColumns: '1.5fr 1fr 1fr 1.2fr 0.5fr',
@@ -1089,26 +1098,24 @@ const InvestmentPlan2026 = () => {
                                     transition: 'background 0.2s',
                                     boxShadow: isLastRow ? '0 2px 4px rgba(0,0,0,0.05)' : 'none'
                                   }}>
-                                    <div style={{ fontWeight: '500', color: '#1f2937' }}>{renderText(parts[0] || '')}</div>
-                                    <div style={{ color: '#374151' }}>{parts[1] || ''}</div>
-                                    <div style={{ color: '#6b7280', fontSize: '0.8rem' }}>{parts[2] || ''}</div>
-                                    <div style={{ color: '#dc2626', fontSize: '0.8rem', fontWeight: '500' }}>{parts[3] || ''}</div>
-                                    <div style={{ textAlign: 'center', fontSize: '1.1rem' }}>{parts[4] || ''}</div>
+                                    <div style={{ fontWeight: '500', color: '#1f2937' }}>{renderText(parts[0])}</div>
+                                    <div style={{ color: '#374151' }}>{parts[1]}</div>
+                                    <div style={{ color: '#6b7280', fontSize: '0.8rem' }}>{parts[2]}</div>
+                                    <div style={{ color: '#dc2626', fontSize: '0.8rem', fontWeight: '500' }}>{parts[3]}</div>
+                                    <div style={{ textAlign: 'center', fontSize: '1.1rem' }}>{parts[4]}</div>
                                   </div>
                                 )
-                                return <React.Fragment key={`fragment-${action.id}`}>{result}</React.Fragment>
                               }
-                              // 如果表格行格式不正确，返回 null
-                              return null
+                              return
                             }
                             
-                            // 然后检查是否是标题
-                            if (action.isHeader) {
+                            // 标题
+                            if (action.isHeader && action.text && typeof action.text === 'string') {
                               const text = action.text.trim()
                               
                               // 分隔线
                               if (text === '---') {
-                                return (
+                                renderedItems.push(
                                   <div key={action.id} style={{
                                     height: '1px',
                                     background: 'linear-gradient(to right, transparent, #d1d5db, transparent)',
@@ -1116,11 +1123,12 @@ const InvestmentPlan2026 = () => {
                                     width: '100%'
                                   }} />
                                 )
+                                return
                               }
                               
                               // Markdown 标题
                               if (text.startsWith('## ')) {
-                                return (
+                                renderedItems.push(
                                   <h2 key={action.id} style={{ 
                                     marginTop: action.id.includes('header-1') ? '0' : '24px',
                                     marginBottom: '12px',
@@ -1133,10 +1141,11 @@ const InvestmentPlan2026 = () => {
                                     {renderText(text.replace('## ', ''))}
                                   </h2>
                                 )
+                                return
                               }
                               
                               if (text.startsWith('### ')) {
-                                return (
+                                renderedItems.push(
                                   <h3 key={action.id} style={{ 
                                     marginTop: '16px',
                                     marginBottom: '8px',
@@ -1147,10 +1156,11 @@ const InvestmentPlan2026 = () => {
                                     {renderText(text.replace('### ', ''))}
                                   </h3>
                                 )
+                                return
                               }
                               
                               // 普通标题
-                              return (
+                              renderedItems.push(
                                 <div key={action.id} style={{ 
                                   marginTop: action.id.includes('header-1') ? '0' : '16px',
                                   marginBottom: '8px',
@@ -1167,12 +1177,13 @@ const InvestmentPlan2026 = () => {
                                   {renderText(text)}
                                 </div>
                               )
+                              return
                             }
                             
-                            // 处理代码块
-                            if (action.text.trim().startsWith('```')) {
+                            // 代码块
+                            if (action.text && typeof action.text === 'string' && action.text.trim().startsWith('```')) {
                               const codeContent = action.text.trim().replace(/^```\n?/, '').replace(/\n?```$/, '')
-                              return (
+                              renderedItems.push(
                                 <div key={action.id} style={{
                                   background: 'linear-gradient(135deg, #1f2937 0%, #111827 100%)',
                                   color: '#f3f4f6',
@@ -1187,15 +1198,16 @@ const InvestmentPlan2026 = () => {
                                   boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
                                   border: '1px solid #374151'
                                 }}>
-                                  {codeContent}
+                                  {String(codeContent)}
                                 </div>
                               )
+                              return
                             }
                             
-                            // 处理引用块
-                            if (action.text.trim().startsWith('>')) {
+                            // 引用块
+                            if (action.text && typeof action.text === 'string' && action.text.trim().startsWith('>')) {
                               const quoteContent = action.text.trim().replace(/^>\s*\*\*/, '**').replace(/\n>\s*/g, '\n')
-                              return (
+                              renderedItems.push(
                                 <div key={action.id} style={{
                                   borderLeft: '4px solid #667eea',
                                   background: 'linear-gradient(90deg, #f0f4ff 0%, #ffffff 100%)',
@@ -1212,11 +1224,12 @@ const InvestmentPlan2026 = () => {
                                   {renderText(quoteContent)}
                                 </div>
                               )
+                              return
                             }
                             
-                            // 处理复选框
-                            if (action.text.trim().startsWith('- [ ]')) {
-                              return (
+                            // 复选框
+                            if (action.text && typeof action.text === 'string' && action.text.trim().startsWith('- [ ]')) {
+                              renderedItems.push(
                                 <div key={action.id} style={{ 
                                   display: 'flex', 
                                   alignItems: 'flex-start', 
@@ -1230,25 +1243,35 @@ const InvestmentPlan2026 = () => {
                                   <span>{renderText(action.text.replace('- [ ]', '').trim())}</span>
                                 </div>
                               )
+                              return
                             }
                             
                             // 普通文本
-                            return (
-                              <div key={action.id} style={{ 
-                                display: 'flex', 
-                                alignItems: 'flex-start', 
-                                gap: '8px',
-                                fontSize: '0.9rem',
-                                color: '#374151',
-                                padding: '4px 0',
-                                lineHeight: '1.6'
-                              }}>
-                                {renderText(action.text)}
-                              </div>
-                            )
+                            if (action.text && typeof action.text === 'string') {
+                              renderedItems.push(
+                                <div key={action.id} style={{ 
+                                  display: 'flex', 
+                                  alignItems: 'flex-start', 
+                                  gap: '8px',
+                                  fontSize: '0.9rem',
+                                  color: '#374151',
+                                  padding: '4px 0',
+                                  lineHeight: '1.6'
+                                }}>
+                                  {renderText(action.text)}
+                                </div>
+                              )
+                            }
                           })
-                          })}
-                        </>
+                          
+                          // 如果没有任何内容被渲染，可能是数据格式问题
+                          if (renderedItems.length === 0) {
+                            console.warn('没有渲染任何内容，actions:', item.actions?.length, item.actions)
+                            return null
+                          }
+                          
+                          return <>{renderedItems}</>
+                        })()
                       ) : (
                         // 普通类型渲染
                         item.actions.map((action) => (
@@ -1272,7 +1295,7 @@ const InvestmentPlan2026 = () => {
                                   flex: 1
                                 }}
                             >
-                              {action.text}
+                              {typeof action.text === 'string' ? action.text : String(action.text)}
                             </label>
                           </div>
                         ))

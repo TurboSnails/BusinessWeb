@@ -14,9 +14,21 @@ import SectorRotation from './pages/SectorRotation'
 import MainlandInvestmentTargets from './pages/MainlandInvestmentTargets'
 
 export default function App(): JSX.Element {
+  // 开发环境检测：如果 URL 包含 /BusinessWeb，使用 basename
+  const getBasename = () => {
+    if (process.env.NODE_ENV === 'production') {
+      return '/BusinessWeb'
+    }
+    // 开发环境：检查当前路径
+    if (typeof window !== 'undefined' && window.location.pathname.startsWith('/BusinessWeb')) {
+      return '/BusinessWeb'
+    }
+    return ''
+  }
+
   return (
     <div className="app">
-      <BrowserRouter basename="/BusinessWeb">
+      <BrowserRouter basename={getBasename()}>
         <Header />
         <Routes>
           <Route path="/" element={<Home />} />
