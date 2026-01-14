@@ -1084,6 +1084,12 @@ const InvestmentPlan2026 = () => {
                                 }
                                 
                                 const isLastRow = currentTableRowIndex === lastTableRowIndex
+                                // 检查是否是拨备相关的行（需要淡蓝色背景）
+                                const isProvisionRow = ['jan12-table-5', 'jan12-table-6', 'jan12-table-7', 'jan12-table-8'].includes(action.id)
+                                const backgroundColor = isProvisionRow 
+                                  ? '#e0f2fe' // 淡蓝色
+                                  : (currentTableRowIndex % 2 === 0 ? '#ffffff' : '#f9fafb')
+                                
                                 renderedItems.push(
                                   <div key={action.id} style={{
                                     display: 'grid',
@@ -1091,7 +1097,7 @@ const InvestmentPlan2026 = () => {
                                     gap: '8px',
                                     padding: '10px 12px',
                                     fontSize: '0.85rem',
-                                    background: currentTableRowIndex % 2 === 0 ? '#ffffff' : '#f9fafb',
+                                    background: backgroundColor,
                                     borderBottom: isLastRow ? 'none' : '1px solid #e5e7eb',
                                     borderRadius: isLastRow ? '0 0 8px 8px' : '0',
                                     alignItems: 'center',
