@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { fetchCBOEPCRatios } from '../services/api';
+import { fetchCBOEPCRatios, fetchEarningsCalendar, type EarningsCalendarItem } from '../services/api';
 
 const InvestmentPlan2026 = () => {
-  const [activeTab, setActiveTab] = useState<'timeline' | 'checklist' | 'macro' | 'decision' | 'shorting' | 'profit-taking'>('timeline');
+  const [activeTab, setActiveTab] = useState<'timeline' | 'checklist' | 'macro' | 'earnings' | 'decision' | 'shorting' | 'profit-taking'>('timeline');
   const [activeSubTab, setActiveSubTab] = useState<'overview' | 'assumptions' | 'indicators' | 'stages' | 'execution'>('overview');
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
 
@@ -18,6 +18,9 @@ const InvestmentPlan2026 = () => {
   const [netGEX, setNetGEX] = useState<string>(''); // Net GEX
   const [goldSilverRatio, setGoldSilverRatio] = useState<string>(''); // 金银比
   const [loadingPCRatios, setLoadingPCRatios] = useState(false);
+  // 财报日历状态
+  const [earningsData, setEarningsData] = useState<EarningsCalendarItem[]>([]);
+  const [loadingEarnings, setLoadingEarnings] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<{
     status: 'safe' | 'warning' | 'danger';
     title: string;
@@ -72,6 +75,25 @@ const InvestmentPlan2026 = () => {
       setLoadingPCRatios(false);
     }
   };
+
+  // 自动加载财报日历数据
+  useEffect(() => {
+    if (activeTab === 'earnings' && earningsData.length === 0 && !loadingEarnings) {
+      setLoadingEarnings(true);
+      fetchEarningsCalendar(7)
+        .then(data => {
+          console.log('获取到财报数据:', data.length, '条');
+          setEarningsData(data);
+        })
+        .catch(error => {
+          console.error('Failed to fetch earnings calendar:', error);
+          setEarningsData([]);
+        })
+        .finally(() => {
+          setLoadingEarnings(false);
+        });
+    }
+  }, [activeTab]);
 
   // 恢复之前的数据结构
   const timelineData = [
@@ -883,11 +905,12 @@ const InvestmentPlan2026 = () => {
             }}>
               📅 计划执行
       </div>
-            {(['timeline', 'checklist', 'macro'] as const).map((tab) => {
+            {(['timeline', 'checklist', 'macro', 'earnings'] as const).map((tab) => {
               const labels: Record<typeof tab, string> = {
                 timeline: '时间轴',
                 checklist: '执行清单',
-                macro: '宏观时间'
+                macro: '宏观时间',
+                earnings: '财报日历'
               };
               const isActive = activeTab === tab;
               return (
@@ -2085,6 +2108,415 @@ const InvestmentPlan2026 = () => {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {activeTab === 'earnings' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* 标题 */}
+            <div style={{ 
+              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', 
+              borderRadius: '12px', 
+              padding: '24px',
+              color: 'white'
+            }}>
+              <h1 style={{ fontSize: '1.8rem', fontWeight: '700', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                📊 财报日历
+              </h1>
+              <p style={{ fontSize: '0.95rem', opacity: 0.95 }}>
+                查看未来一周的财报发布时间，点击股票名称查看详情
+              </p>
+            </div>
+
+            {/* 数据来源链接 */}
+            <div style={{ 
+              marginBottom: '16px', 
+              padding: '12px 16px', 
+              background: '#f0f9ff', 
+              border: '1px solid #bae6fd', 
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <span style={{ fontSize: '0.9rem', color: '#0369a1', fontWeight: '500' }}>
+                数据来源：
+              </span>
+              <a 
+                href="https://cn.investing.com/earnings-calendar/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{ 
+                  fontSize: '0.9rem', 
+                  color: '#0284c7', 
+                  textDecoration: 'none',
+                  fontWeight: '500',
+                  transition: 'color 0.2s'
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = '#0369a1'; e.currentTarget.style.textDecoration = 'underline'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = '#0284c7'; e.currentTarget.style.textDecoration = 'none'; }}
+              >
+                https://cn.investing.com/earnings-calendar/
+              </a>
+            </div>
+
+            {/* 刷新按钮 */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+              <button
+                onClick={async () => {
+                  setLoadingEarnings(true);
+                  try {
+                    const data = await fetchEarningsCalendar(7);
+                    setEarningsData(data);
+                  } catch (error) {
+                    console.error('Failed to fetch earnings:', error);
+                  } finally {
+                    setLoadingEarnings(false);
+                  }
+                }}
+                disabled={loadingEarnings}
+                style={{
+                  padding: '10px 20px',
+                  background: loadingEarnings ? '#9ca3af' : '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: loadingEarnings ? 'not-allowed' : 'pointer',
+                  fontWeight: '600',
+                  fontSize: '0.9rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  if (!loadingEarnings) {
+                    e.currentTarget.style.background = '#2563eb';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!loadingEarnings) {
+                    e.currentTarget.style.background = '#3b82f6';
+                  }
+                }}
+              >
+                {loadingEarnings ? '⏳ 加载中...' : '🔄 刷新数据'}
+              </button>
+            </div>
+
+            {/* 财报列表 */}
+            {loadingEarnings ? (
+              <div style={{ 
+                textAlign: 'center', 
+                padding: '40px', 
+                color: '#6b7280',
+                fontSize: '1rem'
+              }}>
+                ⏳ 正在加载财报数据...
+              </div>
+            ) : earningsData.length === 0 ? (
+              <div style={{ 
+                textAlign: 'center', 
+                padding: '40px', 
+                color: '#6b7280',
+                fontSize: '1rem',
+                background: '#f9fafb',
+                borderRadius: '8px',
+                border: '1px solid #e5e7eb'
+              }}>
+                📭 暂无财报数据，请点击"刷新数据"按钮获取
+              </div>
+            ) : (
+              (() => {
+                // 按日期分组
+                const groupedByDate: Record<string, EarningsCalendarItem[]> = {};
+                earningsData.forEach(item => {
+                  const dateKey = item.date || '未知日期';
+                  if (!groupedByDate[dateKey]) {
+                    groupedByDate[dateKey] = [];
+                  }
+                  groupedByDate[dateKey].push(item);
+                });
+
+                // 按日期排序
+                const sortedDates = Object.keys(groupedByDate).sort((a, b) => {
+                  if (a === '未知日期') return 1;
+                  if (b === '未知日期') return -1;
+                  return new Date(a).getTime() - new Date(b).getTime();
+                });
+
+                // 国家代码到国旗的映射
+                const getCountryFlag = (country?: string) => {
+                  if (!country) return '🌐';
+                  const flagMap: Record<string, string> = {
+                    'US': '🇺🇸', 'USA': '🇺🇸',
+                    'CN': '🇨🇳', 'CHN': '🇨🇳',
+                    'HK': '🇭🇰', 'HKG': '🇭🇰',
+                    'UK': '🇬🇧', 'GBR': '🇬🇧',
+                    'IN': '🇮🇳', 'IND': '🇮🇳',
+                    'JP': '🇯🇵', 'JPN': '🇯🇵',
+                    'KR': '🇰🇷', 'KOR': '🇰🇷',
+                    'DE': '🇩🇪', 'DEU': '🇩🇪',
+                    'FR': '🇫🇷', 'FRA': '🇫🇷',
+                  };
+                  return flagMap[country.toUpperCase()] || '🌐';
+                };
+
+                return (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                    {sortedDates.map((dateKey) => {
+                      const items = groupedByDate[dateKey];
+                      const dateObj = dateKey !== '未知日期' ? new Date(dateKey) : null;
+                      const dateStr = dateObj ? dateObj.toLocaleDateString('zh-CN', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        weekday: 'long'
+                      }).replace(/\s+/g, ' ') : '未知日期';
+
+                      return (
+                        <div key={dateKey} style={{ 
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '12px',
+                          background: 'white',
+                          overflow: 'hidden'
+                        }}>
+                          {/* 日期标题 */}
+                          <div style={{
+                            background: '#f9fafb',
+                            padding: '16px 20px',
+                            borderBottom: '2px solid #e5e7eb',
+                            fontWeight: '700',
+                            fontSize: '1.1rem',
+                            color: '#1f2937'
+                          }}>
+                            {dateStr}
+                          </div>
+
+                          {/* 表格 */}
+                          <div style={{ overflowX: 'auto' }}>
+                            <table style={{ 
+                              width: '100%', 
+                              borderCollapse: 'collapse',
+                              minWidth: '900px'
+                            }}>
+                              <thead>
+                                <tr style={{ 
+                                  background: '#f3f4f6',
+                                  borderBottom: '1px solid #e5e7eb'
+                                }}>
+                                  <th style={{ 
+                                    padding: '12px 16px', 
+                                    textAlign: 'left', 
+                                    fontWeight: '600', 
+                                    fontSize: '0.9rem',
+                                    color: '#374151'
+                                  }}>
+                                    公司
+                                  </th>
+                                  <th style={{ 
+                                    padding: '12px 16px', 
+                                    textAlign: 'left', 
+                                    fontWeight: '600', 
+                                    fontSize: '0.9rem',
+                                    color: '#374151'
+                                  }}>
+                                    每股收益 / 预测值
+                                  </th>
+                                  <th style={{ 
+                                    padding: '12px 16px', 
+                                    textAlign: 'left', 
+                                    fontWeight: '600', 
+                                    fontSize: '0.9rem',
+                                    color: '#374151'
+                                  }}>
+                                    营收 / 预测值
+                                  </th>
+                                  <th style={{ 
+                                    padding: '12px 16px', 
+                                    textAlign: 'left', 
+                                    fontWeight: '600', 
+                                    fontSize: '0.9rem',
+                                    color: '#374151'
+                                  }}>
+                                    市值
+                                  </th>
+                                  <th style={{ 
+                                    padding: '12px 16px', 
+                                    textAlign: 'left', 
+                                    fontWeight: '600', 
+                                    fontSize: '0.9rem',
+                                    color: '#374151'
+                                  }}>
+                                    时间
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {items.map((item, index) => (
+                                  <tr 
+                                    key={`${item.symbol}-${index}`}
+                                    style={{
+                                      borderBottom: index < items.length - 1 ? '1px solid #f3f4f6' : 'none',
+                                      transition: 'background 0.2s'
+                                    }}
+                                    onMouseEnter={(e) => {
+                                      e.currentTarget.style.background = '#f9fafb';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      e.currentTarget.style.background = 'white';
+                                    }}
+                                  >
+                                    <td style={{ 
+                                      padding: '8px 12px',
+                                      borderRight: '1px solid #e5e7eb'
+                                    }}>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                        <span style={{ fontSize: '0.9rem' }}>
+                                          {getCountryFlag(item.country)}
+                                        </span>
+                                        <div style={{ flex: 1 }}>
+                                          {item.url ? (
+                                            <a
+                                              href={item.url}
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              style={{
+                                                color: '#3b82f6',
+                                                textDecoration: 'none',
+                                                fontWeight: '500',
+                                                fontSize: '0.85rem',
+                                                cursor: 'pointer',
+                                                display: 'inline',
+                                                transition: 'color 0.2s',
+                                                lineHeight: '1.4'
+                                              }}
+                                              onMouseEnter={(e) => {
+                                                e.currentTarget.style.color = '#2563eb';
+                                                e.currentTarget.style.textDecoration = 'underline';
+                                              }}
+                                              onMouseLeave={(e) => {
+                                                e.currentTarget.style.color = '#3b82f6';
+                                                e.currentTarget.style.textDecoration = 'none';
+                                              }}
+                                            >
+                                              {(() => {
+                                                // 格式：中文名 (英文代码)
+                                                const hasChinese = /[\u4e00-\u9fa5]/.test(item.name || '');
+                                                if (hasChinese && item.symbol && item.symbol !== item.name) {
+                                                  return `${item.name} (${item.symbol})`;
+                                                } else if (hasChinese) {
+                                                  return item.name;
+                                                } else if (item.symbol) {
+                                                  return item.symbol;
+                                                } else {
+                                                  return item.name || '-';
+                                                }
+                                              })()}
+                                            </a>
+                                          ) : (
+                                            <span style={{ 
+                                              fontWeight: '500',
+                                              fontSize: '0.85rem',
+                                              color: '#1f2937',
+                                              lineHeight: '1.4'
+                                            }}>
+                                              {(() => {
+                                                // 格式：中文名 (英文代码)
+                                                const hasChinese = /[\u4e00-\u9fa5]/.test(item.name || '');
+                                                if (hasChinese && item.symbol && item.symbol !== item.name) {
+                                                  return `${item.name} (${item.symbol})`;
+                                                } else if (hasChinese) {
+                                                  return item.name;
+                                                } else if (item.symbol) {
+                                                  return item.symbol;
+                                                } else {
+                                                  return item.name || '-';
+                                                }
+                                              })()}
+                                            </span>
+                                          )}
+                                        </div>
+                                      </div>
+                                    </td>
+                                    <td style={{ 
+                                      padding: '8px 12px', 
+                                      color: '#4b5563',
+                                      fontSize: '0.8rem',
+                                      borderRight: '1px solid #e5e7eb',
+                                      lineHeight: '1.4'
+                                    }}>
+                                      {item.epsActual ? (
+                                        <span>
+                                          <span style={{ color: '#1f2937' }}>{item.epsActual}</span>
+                                          {' / '}
+                                          <span style={{ color: '#6b7280' }}>{item.epsEstimate || '--'}</span>
+                                        </span>
+                                      ) : (
+                                        <span style={{ color: '#6b7280' }}>
+                                          -- / {item.epsEstimate || '--'}
+                                        </span>
+                                      )}
+                                    </td>
+                                    <td style={{ 
+                                      padding: '8px 12px', 
+                                      color: '#4b5563',
+                                      fontSize: '0.8rem',
+                                      borderRight: '1px solid #e5e7eb',
+                                      lineHeight: '1.4'
+                                    }}>
+                                      {item.revenueActual ? (
+                                        <span>
+                                          <span style={{ color: '#1f2937' }}>{item.revenueActual}</span>
+                                          {' / '}
+                                          <span style={{ color: '#6b7280' }}>{item.revenueEstimate || '--'}</span>
+                                        </span>
+                                      ) : (
+                                        <span style={{ color: '#6b7280' }}>
+                                          -- / {item.revenueEstimate || '--'}
+                                        </span>
+                                      )}
+                                    </td>
+                                    <td style={{ 
+                                      padding: '8px 12px', 
+                                      color: '#1f2937',
+                                      fontSize: '0.8rem',
+                                      borderRight: '1px solid #e5e7eb',
+                                      fontWeight: '500',
+                                      lineHeight: '1.4'
+                                    }}>
+                                      {item.marketCap || ''}
+                                    </td>
+                                    <td style={{ padding: '8px 12px', lineHeight: '1.4' }}>
+                                      {item.time ? (
+                                        <span style={{
+                                          display: 'inline-flex',
+                                          alignItems: 'center',
+                                          gap: '4px',
+                                          fontSize: '0.8rem',
+                                          color: '#4b5563'
+                                        }}>
+                                          <span style={{ fontSize: '0.75rem' }}>
+                                            {item.time === '盘前' ? '☀️' : item.time === '盘后' ? '🌙' : '🌤️'}
+                                          </span>
+                                          <span>{item.time}</span>
+                                        </span>
+                                      ) : (
+                                        <span style={{ color: '#9ca3af', fontSize: '0.8rem' }}>--</span>
+                                      )}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()
+            )}
           </div>
         )}
 

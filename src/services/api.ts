@@ -879,3 +879,642 @@ export async function fetchUSSectorCategories(): Promise<SectorCategory[]> {
     return []
   }
 }
+
+// 财报日历数据类型
+export interface EarningsCalendarItem {
+  symbol: string
+  name: string
+  date: string
+  time: string // '盘前' | '盘后' | '盘中' | ''
+  epsEstimate?: string
+  epsActual?: string
+  revenueEstimate?: string
+  revenueActual?: string
+  marketCap?: string
+  country?: string // 国家代码，用于显示国旗
+  url?: string
+}
+
+// 获取财报日历数据
+export async function fetchEarningsCalendar(days: number = 7): Promise<EarningsCalendarItem[]> {
+  const cacheKey = `earnings_calendar_${days}`
+  const cached = getCached<EarningsCalendarItem[]>(cacheKey)
+  if (cached) return cached
+
+  // Investing.com 财报日历页面
+  const url = `https://cn.investing.com/earnings-calendar/`
+  
+  try {
+    // 尝试使用 CORS 代理获取数据
+    console.log('开始获取财报日历数据...')
+    const response = await fetchWithTimeout(CORS_PROXY_MAIN(url), {
+      method: 'GET',
+      headers: { 'Accept': 'text/html' }
+    }, 20000) // 增加到20秒，因为HTML解析可能需要更长时间
+
+    if (!response.ok) {
+      console.warn('Failed to fetch earnings calendar:', response.status)
+      return []
+    }
+
+    const html = await response.text()
+    console.log('获取到 HTML，长度:', html.length)
+    
+    const earnings = parseEarningsCalendarHTML(html, days)
+    console.log('解析结果:', earnings.length, '条数据')
+    
+    if (earnings.length > 0) {
+      setCache(cacheKey, earnings)
+      return earnings
+    } else {
+      console.warn('解析后没有找到财报数据')
+      return []
+    }
+  } catch (error) {
+    console.warn('Failed to fetch earnings calendar:', error)
+    return []
+  }
+}
+
+// 辅助函数：从URL路径中提取股票代码
+function extractStockSymbol(urlPath: string): string {
+  // 排除EARNINGS、INC等后缀，提取真正的股票代码
+  const parts = urlPath.split(/[-,\s]/)
+  for (const part of parts) {
+    const cleanPart = part.toUpperCase().replace(/[^A-Z0-9]/g, '')
+    // 股票代码通常是2-5个字符，不包含EARNINGS、INC等
+    if (cleanPart.length >= 2 && cleanPart.length <= 5 && 
+        !cleanPart.includes('EARNINGS') && 
+        !cleanPart.includes('INC') && 
+        !cleanPart.includes('FIN') &&
+        !cleanPart.includes('SERV') &&
+        !cleanPart.includes('CO') &&
+        !cleanPart.includes('CORP')) {
+      return cleanPart
+    }
+  }
+  // 如果没找到，返回第一部分（去掉特殊字符）
+  return parts[0].toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 5)
+}
+
+// 解析 Investing.com 财报日历 HTML
+function parseEarningsCalendarHTML(html: string, days: number): EarningsCalendarItem[] {
+  const earnings: EarningsCalendarItem[] = []
+  
+  try {
+    console.log('开始解析财报日历 HTML，长度:', html.length)
+    
+    // 先检查是否包含财报相关的关键词
+    if (!html.includes('earnings') && !html.includes('财报') && !html.includes('equities')) {
+      console.warn('HTML中未找到财报相关关键词')
+    }
+    
+    // 方法1: 尝试匹配表格行（多种模式）
+    const patterns = [
+      // 模式1: data-pair-id（最精确）
+      /<tr[^>]*data-pair-id="(\d+)"[^>]*>[\s\S]*?<\/tr>/gi,
+      // 模式2: 包含 earnings 相关的 tr
+      /<tr[^>]*class="[^"]*earnings[^"]*"[^>]*>[\s\S]*?<\/tr>/gi,
+      // 模式3: 包含股票链接的 tr（更宽松）
+      /<tr[^>]*>[\s\S]*?<a[^>]*href="[^"]*equities[^"]*"[^>]*>[\s\S]*?<\/tr>/gi,
+      // 模式4: 包含 rev_actual 或 eps_actual 的行（根据用户提供的HTML结构）
+      /<tr[^>]*>[\s\S]*?rev_actual[\s\S]*?<\/tr>/gi,
+      // 模式5: 通用表格行（包含日期格式）
+      /<tr[^>]*>[\s\S]*?\d{4}-\d{2}-\d{2}[\s\S]*?<\/tr>/gi,
+      // 模式6: 任何包含多个td的行（最宽松）
+      /<tr[^>]*>[\s\S]{200,}?<\/tr>/gi
+    ]
+    
+    for (let patternIndex = 0; patternIndex < patterns.length; patternIndex++) {
+      const pattern = patterns[patternIndex]
+      let match
+      let count = 0
+      const foundRows: string[] = []
+      
+      console.log(`尝试模式 ${patternIndex + 1}/${patterns.length}`)
+      
+      while ((match = pattern.exec(html)) !== null && count < 100) {
+        count++
+        const row = match[0]
+        foundRows.push(row.substring(0, 200)) // 保存前200字符用于调试
+        
+        // 提取股票代码和名称 - 多种方式
+        let symbol = ''
+        let name = ''
+        let date = ''
+        let time = ''
+        let epsEstimate = ''
+        let revenueEstimate = ''
+        let marketCap = ''
+        
+        // 先提取日期，避免日期被误认为是公司名称
+        // 提取日期 - 多种格式
+        const datePatterns = [
+          /data-date="([^"]+)"/i,
+          /(\d{4}-\d{2}-\d{2})/,
+          /(\d{2}\/\d{2}\/\d{4})/,
+          /(\d{4}\.\d{2}\.\d{2})/
+        ]
+        for (const dp of datePatterns) {
+          const dm = row.match(dp)
+          if (dm) {
+            date = dm[1]
+            break
+          }
+        }
+        
+        // 优先从特定字段提取中文名称（这些字段通常更可靠）
+        // 根据HTML结构：<td title="3M公司"> 或 <span class="earnCalCompanyName">3M公司</span>
+        
+        // 1. 优先从 title 属性提取（最可靠）
+        // 匹配模式：title="..." 中的内容，可能包含中文
+        const titleMatches = [
+          row.match(/title="([^"]+)"/i), // 标准格式
+          row.match(/title='([^']+)'/i),  // 单引号格式
+        ]
+        
+        for (const titleMatch of titleMatches) {
+          if (titleMatch && titleMatch[1]) {
+            const titleName = titleMatch[1].trim().replace(/&nbsp;/g, ' ')
+            console.log('🔍 找到title属性:', titleName, '包含中文:', /[\u4e00-\u9fa5]/.test(titleName))
+            
+            // 如果包含中文，直接使用
+            if (/[\u4e00-\u9fa5]/.test(titleName)) {
+              const countryNames = ['美国', '英国', '中国', '日本', '韩国', '德国', '法国', '印度', '香港', '台湾', '年', '月', '日', '星期', '公司']
+              const isDate = titleName.match(/\d{4}年|\d{1,2}月|\d{1,2}日|星期/i)
+              const isCountry = countryNames.some(country => titleName === country)
+              
+              if (!isDate && !isCountry && titleName.length > 1) {
+                name = titleName
+                console.log('✅ 从title属性提取中文名称:', titleName)
+                break
+              }
+            }
+          }
+        }
+        
+        // 2. 如果title没有中文，从 earnCalCompanyName span 提取
+        if (!name || !/[\u4e00-\u9fa5]/.test(name)) {
+          // 匹配 <span class="...earnCalCompanyName...">内容</span>
+          const spanMatches = [
+            row.match(/<span[^>]*class="[^"]*earnCalCompanyName[^"]*"[^>]*>([^<]+)<\/span>/i),
+            row.match(/<span[^>]*class='[^']*earnCalCompanyName[^']*'[^>]*>([^<]+)<\/span>/i),
+            row.match(/<span[^>]*>([^<]*[\u4e00-\u9fa5][^<]*)<\/span>/i), // 任何包含中文的span
+          ]
+          
+          for (const spanMatch of spanMatches) {
+            if (spanMatch && spanMatch[1]) {
+              const spanName = spanMatch[1].trim().replace(/&nbsp;/g, ' ')
+              console.log('🔍 找到span内容:', spanName, '包含中文:', /[\u4e00-\u9fa5]/.test(spanName))
+              
+              if (/[\u4e00-\u9fa5]/.test(spanName)) {
+                const countryNames = ['美国', '英国', '中国', '日本', '韩国', '德国', '法国', '印度', '香港', '台湾', '年', '月', '日', '星期', '公司']
+                const isDate = spanName.match(/\d{4}年|\d{1,2}月|\d{1,2}日|星期/i)
+                const isCountry = countryNames.some(country => spanName === country)
+                
+                if (!isDate && !isCountry && spanName.length > 1) {
+                  name = spanName
+                  console.log('✅ 从span提取中文名称:', spanName)
+                  break
+                }
+              }
+            }
+          }
+        }
+        
+        // 3. 其他可能的字段（作为后备）
+        if (!name || !/[\u4e00-\u9fa5]/.test(name)) {
+          const chineseNamePatterns = [
+            { pattern: /data-name-zh="([^"]+)"/i, name: 'data-name-zh' },
+            { pattern: /data-chinese-name="([^"]+)"/i, name: 'data-chinese-name' },
+            { pattern: /data-cn-name="([^"]+)"/i, name: 'data-cn-name' },
+            { pattern: /data-name-cn="([^"]+)"/i, name: 'data-name-cn' },
+            { pattern: /data-zh="([^"]+)"/i, name: 'data-zh' },
+            { pattern: /data-full-name="([^"]*[\u4e00-\u9fa5][^"]*)"/i, name: 'data-full-name' },
+            { pattern: /data-company-name="([^"]*[\u4e00-\u9fa5][^"]*)"/i, name: 'data-company-name' },
+            { pattern: /data-company="([^"]*[\u4e00-\u9fa5][^"]*)"/i, name: 'data-company' },
+            { pattern: /data-stock-name="([^"]*[\u4e00-\u9fa5][^"]*)"/i, name: 'data-stock-name' },
+            { pattern: /data-text="([^"]*[\u4e00-\u9fa5][^"]*)"/i, name: 'data-text' },
+            { pattern: /aria-label="([^"]*[\u4e00-\u9fa5][^"]*)"/i, name: 'aria-label' },
+          ]
+          
+          for (const { pattern, name: fieldName } of chineseNamePatterns) {
+            const match = row.match(pattern)
+            if (match && match[1]) {
+              const candidateName = match[1].trim().replace(/&nbsp;/g, ' ')
+              const countryNames = ['美国', '英国', '中国', '日本', '韩国', '德国', '法国', '印度', '香港', '台湾', '年', '月', '日', '星期']
+              const isDate = candidateName.match(/\d{4}年|\d{1,2}月|\d{1,2}日|星期/i)
+              const isCountry = countryNames.some(country => candidateName === country)
+              
+              if (!isDate && !isCountry && candidateName.length > 1 && /[\u4e00-\u9fa5]/.test(candidateName)) {
+                name = candidateName
+                console.log('✅ 从特定字段提取中文名称:', candidateName, '字段:', fieldName)
+                break
+              }
+            }
+          }
+        }
+        
+        // 从链接中提取股票代码（但不覆盖已找到的中文名称）
+        // 格式可能是：<a href="...">PNC金融服务集团</a> 或 <a href="...">MMM</a>
+        const linkMatch = row.match(/<a[^>]*href="[^"]*equities\/([^"\/\?]+)[^"]*"[^>]*>([^<]+)<\/a>/i)
+        if (linkMatch) {
+          let linkSymbol = linkMatch[1].toUpperCase()
+          // 清理URL中的参数
+          linkSymbol = linkSymbol.split('?')[0].split('&')[0]
+          let linkName = linkMatch[2].trim().replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ')
+          
+          // 排除日期格式的内容
+          if (linkName.match(/\d{4}年|\d{1,2}月|\d{1,2}日|星期|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday/i)) {
+            linkName = ''
+          }
+          
+          // 从URL中提取股票代码
+          if (!symbol) {
+            symbol = extractStockSymbol(linkSymbol)
+          }
+          
+          // 如果链接文本包含中文，且还没有中文名称，则使用
+          if (linkName && linkName.length > 0 && /[\u4e00-\u9fa5]/.test(linkName)) {
+            // 排除单独的"公司"字
+            if (linkName !== '公司' && linkName.length > 1) {
+              if (!name || !/[\u4e00-\u9fa5]/.test(name)) {
+                name = linkName
+                console.log('✅ 从链接提取中文名称:', linkName)
+              }
+            }
+          } else if (linkName && linkName.length > 0) {
+            // 如果链接文本是英文，且还没有找到任何名称，才使用英文作为后备
+            if (!name || name.length === 0) {
+              name = linkName
+              console.log('⚠️ 使用链接中的英文名称作为后备:', linkName)
+            }
+          }
+        }
+        
+        // 如果链接中没有找到名称，尝试从第一个td单元格中提取
+        if (!name || name.length === 0) {
+          // 查找第一个包含链接的td
+          const firstTdWithLink = row.match(/<td[^>]*>([\s\S]*?<a[^>]*>([^<]+)<\/a>[\s\S]*?)<\/td>/i)
+          if (firstTdWithLink && firstTdWithLink[2]) {
+            const cellLinkText = firstTdWithLink[2].trim().replace(/&nbsp;/g, ' ')
+            if (cellLinkText && cellLinkText !== '公司' && cellLinkText.length > 1) {
+              name = cellLinkText
+              console.log('从td中的链接提取公司名称:', cellLinkText)
+            }
+          }
+        }
+        
+        // 如果还是没有，尝试从span标签中提取（但排除单独的"公司"）
+        if (!name || name.length === 0) {
+          const spanMatch = row.match(/<span[^>]*>([^<]+)<\/span>/i)
+          if (spanMatch && spanMatch[1]) {
+            const spanText = spanMatch[1].trim().replace(/&nbsp;/g, ' ')
+            // 排除日期、国家名称和单独的"公司"
+            const countryNames = ['美国', '英国', '中国', '日本', '韩国', '德国', '法国', '印度', '香港', '台湾', '年', '月', '日', '星期', '公司']
+            const isDate = spanText.match(/\d{4}年|\d{1,2}月|\d{1,2}日|星期/i)
+            const isCountry = countryNames.some(country => spanText === country)
+            
+            if (!isDate && !isCountry && spanText.length > 1) {
+              name = spanText
+              console.log('从span提取公司名称:', spanText)
+            }
+          }
+        }
+        
+        // 尝试从 data 属性提取（优先中文）
+        const dataNameMatch = row.match(/data-name="([^"]+)"/i)
+        if (dataNameMatch) {
+          const dataName = dataNameMatch[1].trim().replace(/&nbsp;/g, ' ')
+          // 排除日期和国家名称
+          const countryNames = ['美国', '英国', '中国', '日本', '韩国', '德国', '法国', '印度', '香港', '台湾', '年', '月', '日', '星期']
+          const isDate = dataName.match(/\d{4}年|\d{1,2}月|\d{1,2}日|星期/i)
+          const isCountry = countryNames.some(country => dataName === country || dataName.startsWith(country + ' '))
+          
+          if (!isDate && !isCountry) {
+            // 如果data-name包含中文，优先使用
+            if (/[\u4e00-\u9fa5]/.test(dataName)) {
+              if (!name || !/[\u4e00-\u9fa5]/.test(name)) {
+                name = dataName
+              }
+            } else if (!name) {
+              name = dataName
+            }
+          }
+        }
+        
+        // 如果还没有中文名称，尝试从表格单元格中提取（排除日期列）
+        if (!name || !/[\u4e00-\u9fa5]/.test(name)) {
+          // 查找包含中文的单元格内容（排除日期格式）
+          // 优先查找第一个td（通常是公司名称列）
+          // 匹配格式：<td>中文名称 (SYMBOL)</td> 或 <td>中文名称</td>
+          const firstTdMatch = row.match(/<td[^>]*>([^<]*[\u4e00-\u9fa5][^<]*)<\/td>/i)
+          if (firstTdMatch) {
+            const cellContent = firstTdMatch[1].trim().replace(/&nbsp;/g, ' ')
+            // 排除日期格式
+            if (!cellContent.match(/\d{4}年|\d{1,2}月|\d{1,2}日|星期/i)) {
+              // 提取中文部分（去除括号和英文）
+              // 匹配：中文名称 (代码) 或 中文名称
+              const chinesePart = cellContent.match(/([\u4e00-\u9fa5]+[^()]*?)(?:\s*\([^)]*\)|$)/)
+              if (chinesePart) {
+                name = chinesePart[1].trim()
+              } else {
+                // 如果没有括号，直接取所有中文部分
+                const chineseOnly = cellContent.match(/[\u4e00-\u9fa5]+[^<]*?/)
+                if (chineseOnly) {
+                  name = chineseOnly[0].trim()
+                }
+              }
+            }
+          }
+          
+          // 如果还是没找到，尝试从整个行中提取中文（在链接之前）
+          if (!name || !/[\u4e00-\u9fa5]/.test(name)) {
+            // 查找链接之前的中文文本
+            if (linkMatch) {
+              const linkIndex = row.indexOf(linkMatch[0])
+              const beforeLink = row.substring(Math.max(0, linkIndex - 500), linkIndex)
+              // 查找中文文本，可能在 <td> 标签内
+              const chineseInTd = beforeLink.match(/<td[^>]*>([^<]*[\u4e00-\u9fa5]+[^<]*)<\/td>/i)
+              if (chineseInTd) {
+                const chineseText = chineseInTd[1].trim().replace(/&nbsp;/g, ' ')
+                if (!chineseText.match(/\d{4}年|\d{1,2}月|\d{1,2}日|星期/i)) {
+                  const chineseName = chineseText.match(/([\u4e00-\u9fa5]+[^()]*?)(?:\s*\(|$)/)
+                  if (chineseName) {
+                    name = chineseName[1].trim()
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+        // 提取股票代码（从括号中，排除EARNINGS等后缀）
+        // 格式可能是：(NFLX) 或 (NETFLIX,-INC.-EARNINGS) 需要提取真正的股票代码
+        if (!symbol) {
+          // 先尝试从链接URL中提取（最准确）
+          if (linkMatch) {
+            const urlSymbol = linkMatch[1].toUpperCase().split('?')[0] // 去掉URL参数
+            symbol = extractStockSymbol(urlSymbol)
+          }
+          
+          // 如果还没有，从括号中提取
+          if (!symbol) {
+            const symbolMatch = row.match(/\(([A-Z0-9]+(?:[-,\s][A-Z0-9]+)*)\)/i)
+            if (symbolMatch) {
+              const potentialSymbol = symbolMatch[1].toUpperCase()
+              // 排除EARNINGS等后缀，提取真正的股票代码
+              if (potentialSymbol.includes('EARNINGS') || potentialSymbol.includes('FIN-SERV') || potentialSymbol.includes('INC')) {
+                // 如果包含这些词，尝试从URL中提取
+                if (linkMatch) {
+                  const urlSymbol = linkMatch[1].toUpperCase().split('?')[0]
+                  symbol = extractStockSymbol(urlSymbol)
+                }
+              } else {
+                // 如果没有EARNINGS等，直接使用
+                symbol = potentialSymbol.split('-')[0].split(',')[0].replace(/[^A-Z0-9]/g, '') // 只取第一部分
+              }
+            }
+          }
+        }
+        
+        // 如果还是没有symbol，从URL中提取（最后的后备方案）
+        if (!symbol && linkMatch) {
+          const urlSymbol = linkMatch[1].toUpperCase().split('?')[0]
+          symbol = extractStockSymbol(urlSymbol)
+        }
+        
+        // 辅助函数：从URL路径中提取股票代码
+        function extractStockSymbol(urlPath: string): string {
+          // 排除EARNINGS、INC等后缀，提取真正的股票代码
+          const parts = urlPath.split(/[-,\s]/)
+          for (const part of parts) {
+            const cleanPart = part.toUpperCase().replace(/[^A-Z0-9]/g, '')
+            // 股票代码通常是2-5个字符，不包含EARNINGS、INC等
+            if (cleanPart.length >= 2 && cleanPart.length <= 5 && 
+                !cleanPart.includes('EARNINGS') && 
+                !cleanPart.includes('INC') && 
+                !cleanPart.includes('FIN') &&
+                !cleanPart.includes('SERV') &&
+                !cleanPart.includes('CO') &&
+                !cleanPart.includes('CORP')) {
+              return cleanPart
+            }
+          }
+          // 如果没找到，返回第一部分（去掉特殊字符）
+          return parts[0].toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 5)
+        }
+        
+        // 提取时间
+        const timePatterns = [
+          /(盘前|盘后|盘中)/i,
+          /(Before Market|After Market|During Market)/i,
+          /(BMO|AMC|DM)/i
+        ]
+        for (const tp of timePatterns) {
+          const tm = row.match(tp)
+          if (tm) {
+            const timeStr = tm[1]
+            if (timeStr.includes('Before') || timeStr === 'BMO') {
+              time = '盘前'
+            } else if (timeStr.includes('After') || timeStr === 'AMC') {
+              time = '盘后'
+            } else if (timeStr.includes('During') || timeStr === 'DM') {
+              time = '盘中'
+            } else {
+              time = timeStr
+            }
+            break
+          }
+        }
+        
+        // 提取 EPS 实际值和预测值
+        // 格式可能是：<td class="...eps_actual">--</td><td class="leftStrong">/ 4.19</td>
+        const epsActualMatch = row.match(/<td[^>]*class="[^"]*eps[^"]*actual[^"]*"[^>]*>([^<]*)<\/td>/i)
+        const epsEstimateMatch = row.match(/<td[^>]*class="[^"]*leftStrong[^"]*"[^>]*>\/\s*&nbsp;*([^<]*)<\/td>/i)
+        
+        if (epsEstimateMatch) {
+          epsEstimate = epsEstimateMatch[1].trim().replace(/&nbsp;/g, ' ').trim()
+        } else {
+          // 备用方法：查找包含 EPS 数据的单元格（两个相邻的td）
+          const epsMatch = row.match(/<td[^>]*>([^<]*)<\/td>\s*<td[^>]*class="[^"]*leftStrong[^"]*"[^>]*>\/\s*&nbsp;*([^<]*)<\/td>/i)
+          if (epsMatch && epsMatch[2]) {
+            epsEstimate = epsMatch[2].trim().replace(/&nbsp;/g, ' ').trim()
+          }
+        }
+        
+        // 提取营收实际值和预测值
+        // 格式：<td class="...rev_actual">--</td><td class="leftStrong">/&nbsp;&nbsp;5.95B</td>
+        // 或者：<td class=" pid-8057-2026-01-16-122025-rev_actual ">--</td> <td class="leftStrong">/&nbsp;&nbsp;5.95B</td>
+        // 需要找到包含 rev_actual 的单元格和紧随其后的 leftStrong 单元格
+        const revCells = row.match(/<td[^>]*class="[^"]*rev[^"]*"[^>]*>([^<]*)<\/td>/gi)
+        if (revCells && revCells.length > 0) {
+          // 找到 rev_actual 后面的 leftStrong 单元格
+          const revActualIndex = row.indexOf(revCells[0])
+          const afterRevActual = row.substring(revActualIndex + revCells[0].length)
+          const revEstimateMatch = afterRevActual.match(/<td[^>]*class="[^"]*leftStrong[^"]*"[^>]*>\/\s*&nbsp;*([^<]*)<\/td>/i)
+          if (revEstimateMatch) {
+            revenueEstimate = revEstimateMatch[1].trim().replace(/&nbsp;/g, ' ').trim()
+          }
+        }
+        
+        // 备用方法：直接匹配两个相邻的单元格
+        if (!revenueEstimate) {
+          const revMatch = row.match(/<td[^>]*class="[^"]*rev_actual[^"]*"[^>]*>([^<]*)<\/td>\s*<td[^>]*class="[^"]*leftStrong[^"]*"[^>]*>\/\s*&nbsp;*([^<]*)<\/td>/i)
+          if (revMatch && revMatch[2]) {
+            revenueEstimate = revMatch[2].trim().replace(/&nbsp;/g, ' ').trim()
+          }
+        }
+        
+        // 提取市值 - 查找单独的市值单元格
+        const marketCapMatch = row.match(/<td[^>]*>(\d+\.?\d*[BMK]?)<\/td>/i)
+        if (marketCapMatch) {
+          marketCap = marketCapMatch[1].trim()
+        }
+        
+        // 提取国家代码（从国旗图标或数据属性）
+        let country = ''
+        const countryPatterns = [
+          /data-country="([^"]+)"/i,
+          /country="([^"]+)"/i,
+          /<span[^>]*class="[^"]*flag[^"]*"[^>]*data-country="([^"]+)"/i,
+          /<i[^>]*class="[^"]*flag[^"]*"[^>]*data-country="([^"]+)"/i,
+          /<img[^>]*alt="([^"]*flag[^"]*)"[^>]*>/i
+        ]
+        for (const cp of countryPatterns) {
+          const cm = row.match(cp)
+          if (cm && cm.length >= 2) {
+            country = cm[1].toUpperCase()
+            // 标准化国家代码
+            if (country.includes('US') || country.includes('USA') || country.includes('UNITED STATES')) {
+              country = 'US'
+            } else if (country.includes('UK') || country.includes('GB') || country.includes('UNITED KINGDOM')) {
+              country = 'UK'
+            } else if (country.includes('CN') || country.includes('CHINA')) {
+              country = 'CN'
+            } else if (country.includes('HK') || country.includes('HONG KONG')) {
+              country = 'HK'
+            } else if (country.includes('IN') || country.includes('INDIA')) {
+              country = 'IN'
+            }
+            break
+          }
+        }
+        
+        // 如果还没找到，尝试从第一个td中的文本推断（如果包含国家名称）
+        if (!country) {
+          const countryTextMatch = row.match(/(美国|英国|中国|日本|韩国|德国|法国|印度|香港|台湾)/i)
+          if (countryTextMatch) {
+            const countryText = countryTextMatch[1]
+            const countryMap: Record<string, string> = {
+              '美国': 'US', '英国': 'UK', '中国': 'CN', '日本': 'JP',
+              '韩国': 'KR', '德国': 'DE', '法国': 'FR', '印度': 'IN',
+              '香港': 'HK', '台湾': 'TW'
+            }
+            country = countryMap[countryText] || ''
+          }
+        }
+        
+        // 如果有股票名称或代码，就添加
+        console.log('📊 准备添加财报项，当前值:', { 
+          name, 
+          symbol, 
+          nameHasChinese: name ? /[\u4e00-\u9fa5]/.test(name) : false,
+          nameLength: name ? name.length : 0
+        })
+        
+        if (name || symbol) {
+          // 构建 Investing.com 股票详情页 URL
+          const stockUrl = symbol 
+            ? `https://cn.investing.com/equities/${symbol.toLowerCase()}` 
+            : name 
+              ? `https://cn.investing.com/equities/${encodeURIComponent(name.toLowerCase().replace(/\s+/g, '-'))}`
+              : undefined
+          
+          // 确保name不为空，如果有中文名称优先使用，否则使用symbol
+          const finalName = name || symbol || ''
+          const finalSymbol = symbol || (name && /[\u4e00-\u9fa5]/.test(name) ? '' : name.substring(0, 10)) || ''
+          
+          const earningsItem: EarningsCalendarItem = {
+            symbol: finalSymbol,
+            name: finalName,
+            date,
+            time,
+            epsEstimate: epsEstimate || undefined,
+            revenueEstimate: revenueEstimate || undefined,
+            marketCap: marketCap || undefined,
+            country: country || undefined,
+            url: stockUrl
+          }
+          
+          earnings.push(earningsItem)
+          console.log('✅ 添加财报项:', { 
+            symbol: finalSymbol, 
+            name: finalName, 
+            hasChinese: /[\u4e00-\u9fa5]/.test(finalName),
+            date, 
+            time
+          })
+        } else {
+          console.log('跳过行：未找到名称或代码', row.substring(0, 100))
+        }
+      }
+      
+      if (earnings.length > 0) {
+        console.log(`✅ 使用模式 ${patternIndex + 1} 找到 ${earnings.length} 条财报数据`)
+        break
+      } else {
+        console.log(`❌ 模式 ${patternIndex + 1} 未找到数据，匹配了 ${count} 行`)
+        if (foundRows.length > 0) {
+          console.log('示例行（前200字符）:', foundRows[0])
+        }
+      }
+    }
+    
+    // 如果还是没找到，尝试更宽松的匹配
+    if (earnings.length === 0) {
+      console.log('⚠️ 所有模式都未找到数据，尝试更宽松的匹配...')
+      // 查找所有包含股票相关关键词的行
+      const allRows = html.match(/<tr[^>]*>[\s\S]{100,2000}?<\/tr>/gi)
+      if (allRows) {
+        console.log(`找到 ${allRows.length} 个表格行，开始筛选...`)
+        for (const row of allRows.slice(0, 50)) {
+          // 检查是否包含股票相关关键词或中文
+          if (row.match(/(股票|equities|earnings|财报|公司|[\u4e00-\u9fa5])/i)) {
+            const linkMatch = row.match(/<a[^>]*href="[^"]*equities[^"]*"[^>]*>([^<]+)<\/a>/i)
+            if (linkMatch) {
+              const name = linkMatch[1].trim()
+              if (name.length > 0 && name.length < 50) {
+                // 提取日期
+                const dateMatch = row.match(/data-date="([^"]+)"/i) || row.match(/(\d{4}-\d{2}-\d{2})/)
+                const date = dateMatch ? dateMatch[1] : ''
+                
+                // 提取股票代码
+                const symbolMatch = row.match(/<a[^>]*href="[^"]*equities\/([^"\/]+)[^"]*"/i)
+                const symbol = symbolMatch ? symbolMatch[1].toUpperCase() : name.substring(0, 10)
+                
+                earnings.push({
+                  symbol,
+                  name,
+                  date,
+                  time: '',
+                  url: `https://cn.investing.com/equities/${symbol.toLowerCase()}`
+                })
+              }
+            }
+          }
+        }
+        console.log(`宽松匹配找到 ${earnings.length} 条数据`)
+      } else {
+        console.warn('未找到任何表格行')
+      }
+    }
+    
+    console.log('解析完成，找到', earnings.length, '条财报数据')
+    
+  } catch (error) {
+    console.warn('Error parsing earnings calendar HTML:', error)
+  }
+  
+  return earnings
+}
