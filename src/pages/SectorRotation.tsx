@@ -1,4 +1,20 @@
 import React, { useState, useEffect, useCallback } from 'react'
+import {
+  AlertTriangle,
+  BarChart2,
+  Flame,
+  Tag,
+  ArrowRight,
+  ChevronDown,
+  TrendingUp,
+  TrendingDown,
+  Target,
+  Clock,
+  RefreshCcw,
+  Calendar,
+  Info,
+  ChevronUp
+} from 'lucide-react'
 
 interface SectorData {
   name: string
@@ -40,11 +56,11 @@ export default function SectorRotation(): JSX.Element {
   const [sortBy, setSortBy] = useState<'change' | 'rank'>('change')
   const [topN, setTopN] = useState<number>(10)
   const [matchWarning, setMatchWarning] = useState<string | null>(null) // 匹配度警告
-  
+
   // 从东方财富接口获取的板块类型映射（板块名称 -> 类型）（已注释）
   const [sectorTypeMap, setSectorTypeMap] = useState<Map<string, 'industry' | 'concept'>>(new Map())
   const [sectorTypeMapLoaded, setSectorTypeMapLoaded] = useState(false)
-  
+
   // 从财联社接口获取的板块类型映射（优先使用）
   const [caiLianSheTypeMap, setCaiLianSheTypeMap] = useState<Map<string, 'industry' | 'concept'>>(new Map())
   const [caiLianSheTypeMapLoaded, setCaiLianSheTypeMapLoaded] = useState(false)
@@ -156,7 +172,7 @@ export default function SectorRotation(): JSX.Element {
   //     setSectorTypeMapLoaded(true) // 标记为已加载，避免重复请求
   //   }
   // }, [sectorTypeMapLoaded])
-  
+
   // 初始化时获取板块类型映射（优先使用财联社接口）
   // 注意：这个 useEffect 会在 fetchCaiLianSheSectorTypeMap 定义之后执行
 
@@ -185,12 +201,12 @@ export default function SectorRotation(): JSX.Element {
     const today = new Date()
     let count = 0
     let currentDate = new Date(today)
-    
+
     // 获取最近7个交易日（跳过周末和节假日）
     while (dates.length < 7 && count < 21) {
       const dayOfWeek = currentDate.getDay()
       const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`
-      
+
       // 跳过周末和节假日
       if (dayOfWeek !== 0 && dayOfWeek !== 6 && !holidays.includes(dateStr)) {
         dates.push(dateStr)
@@ -198,7 +214,7 @@ export default function SectorRotation(): JSX.Element {
       currentDate.setDate(currentDate.getDate() - 1)
       count++
     }
-    
+
     setSelectedDates(dates)
   }, [])
 
@@ -207,12 +223,12 @@ export default function SectorRotation(): JSX.Element {
   // 注意：财联社接口可能不直接返回类型信息，这里尝试从接口返回的数据中提取
   const fetchCaiLianSheSectorTypeMap = useCallback(async (): Promise<Map<string, 'industry' | 'concept'>> => {
     const typeMap = new Map<string, 'industry' | 'concept'>()
-    
+
     try {
       // 尝试获取财联社的板块列表接口，看是否有类型信息
       const today = new Date().toISOString().split('T')[0].replace(/-/g, '')
       const apiUrl = `https://x-quote.cls.cn/v2/quote/a/plate/up_down_analysis?up_limit=0&date=${today}`
-      
+
       for (const proxy of CORS_PROXIES) {
         try {
           const proxyUrl = proxy(apiUrl)
@@ -223,42 +239,42 @@ export default function SectorRotation(): JSX.Element {
               'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15'
             }
           })
-          
+
           if (response.ok) {
             const contentType = response.headers.get('content-type') || ''
             let data: any
-            
+
             if (contentType.includes('application/json')) {
               data = await response.json()
             } else {
               const html = await response.text()
-              const scriptMatch = 
+              const scriptMatch =
                 html.match(/<script[^>]*>[\s\S]*?window\.__INITIAL_STATE__\s*=\s*({[\s\S]*?});/i) ||
                 html.match(/<script[^>]*>[\s\S]*?var\s+data\s*=\s*({[\s\S]*?});/i) ||
                 html.match(/<script[^>]*type=["']application\/json["'][^>]*>([\s\S]*?)<\/script>/i)
-              
+
               if (scriptMatch && scriptMatch[1]) {
                 data = JSON.parse(scriptMatch[1])
               } else {
                 continue
               }
             }
-            
+
             if (data?.code === 200 && data?.data?.plate_stock) {
               const plateStockData = data.data.plate_stock
-              
+
               // 检查财联社返回的数据是否有类型字段
               if (plateStockData.length > 0) {
                 const firstPlate = plateStockData[0]
                 console.log('🔍 检查财联社板块数据结构:', firstPlate)
                 console.log('🔍 财联社板块所有字段:', Object.keys(firstPlate))
-                
+
                 // 检查所有可能的类型字段
-                const typeFields = ['plate_type', 'type', 'category', 'kind', 'class', 
-                                   'plate_category', 'plate_kind', 'secu_type', 'secu_category',
-                                   'plate_class', 'plateType', 'plateCategory']
+                const typeFields = ['plate_type', 'type', 'category', 'kind', 'class',
+                  'plate_category', 'plate_kind', 'secu_type', 'secu_category',
+                  'plate_class', 'plateType', 'plateCategory']
                 let foundTypeField = false
-                
+
                 for (const field of typeFields) {
                   if (firstPlate[field] !== undefined && firstPlate[field] !== null) {
                     console.log(`✅ 发现类型字段: ${field} = ${firstPlate[field]}`)
@@ -266,13 +282,13 @@ export default function SectorRotation(): JSX.Element {
                     break
                   }
                 }
-                
+
                 if (foundTypeField) {
                   // 如果财联社返回了类型字段，使用它
                   plateStockData.forEach((plate: any) => {
                     const name = String(plate.secu_name || plate.name || '').trim()
                     const plateType = plate.plate_type || plate.type || plate.category || plate.kind || plate.class ||
-                                    plate.plate_category || plate.plate_kind || plate.secu_type || plate.secu_category
+                      plate.plate_category || plate.plate_kind || plate.secu_type || plate.secu_category
                     if (name && plateType) {
                       const typeStr = String(plateType).toLowerCase()
                       if (typeStr.includes('industry') || typeStr.includes('行业') || typeStr === '2') {
@@ -298,10 +314,10 @@ export default function SectorRotation(): JSX.Element {
     } catch (error) {
       console.warn('⚠️ 无法从财联社接口获取板块类型映射:', error)
     }
-    
+
     return typeMap
   }, [])
-  
+
   // 初始化时获取板块类型映射（优先使用财联社接口）
   useEffect(() => {
     const loadTypeMaps = async () => {
@@ -325,19 +341,19 @@ export default function SectorRotation(): JSX.Element {
   }, [fetchCaiLianSheSectorTypeMap])
 
   // 返回处理后的板块数据和原始数据
-  const fetchSectorData = useCallback(async (date: string): Promise<{sectors: SectorData[], rawData: any[]}> => {
+  const fetchSectorData = useCallback(async (date: string): Promise<{ sectors: SectorData[], rawData: any[] }> => {
     // 暂时禁用行业板块，只显示概念板块
     if (filterType === 'industry') {
       console.log(`⚠️ 行业板块暂时禁用，只显示概念板块`)
       return { sectors: [], rawData: [] }
     }
-    
+
     const dateStr = date.replace(/-/g, '')
     // 财联社API支持历史日期参数
     const apiUrl = `https://x-quote.cls.cn/v2/quote/a/plate/up_down_analysis?up_limit=0&date=${dateStr}`
-    
-    console.log(`📅 获取${filterType === 'industry' ? '行业' : '概念'}板块数据，日期: ${date}`)
-    
+
+    console.log(`📅 获取概念板块数据，日期: ${date}`)
+
     const fetchFromProxy = async (proxyFn: (url: string) => string): Promise<any> => {
       const proxyUrl = proxyFn(apiUrl)
       const response = await fetch(proxyUrl, {
@@ -353,17 +369,17 @@ export default function SectorRotation(): JSX.Element {
       }
 
       const contentType = response.headers.get('content-type') || ''
-      
+
       if (contentType.includes('application/json')) {
         return await response.json()
       } else {
         const html = await response.text()
         // 尝试从HTML中提取JSON
-        const scriptMatch = 
+        const scriptMatch =
           html.match(/<script[^>]*>[\s\S]*?window\.__INITIAL_STATE__\s*=\s*({[\s\S]*?});/i) ||
           html.match(/<script[^>]*>[\s\S]*?var\s+data\s*=\s*({[\s\S]*?});/i) ||
           html.match(/<script[^>]*type=["']application\/json["'][^>]*>([\s\S]*?)<\/script>/i)
-        
+
         if (scriptMatch && scriptMatch[1]) {
           return JSON.parse(scriptMatch[1])
         }
@@ -375,39 +391,40 @@ export default function SectorRotation(): JSX.Element {
     for (const proxy of CORS_PROXIES) {
       try {
         const data = await fetchFromProxy(proxy)
-        
+
         // 财联社API返回格式：{ code: 200, data: { plate_stock: [...] } }
         if (data?.code === 200 && data?.data?.plate_stock) {
           const plateStockData = data.data.plate_stock
-          
+
           // 根据类型过滤板块数据
           // 优先检查API返回的字段，如果没有类型字段，则使用智能匹配
           let hasApiMatch = false // 记录是否有板块使用了API类型字段匹配
           let hasApiMapMatch = false // 记录是否有板块使用了接口映射匹配
           let matchMethod = 'keywordFallback' // 记录使用的匹配方法：'api', 'apiMap', 'keywordFallback'
-          
+
           const filteredData = plateStockData.filter((plate: any) => {
             const name = String(plate.secu_name || plate.name || '').trim()
             const code = String(plate.secu_code || plate.code || plate.plate_code || '').trim()
-            
+
             // 记录该板块使用的匹配方法（用于统计）
             let plateMatchMethod: 'api' | 'apiMap' | 'keyword' = 'keyword'
-            
+
             // 方法1：检查API是否有类型字段（最可靠，优先使用财联社自己的类型字段）
             // 检查所有可能的类型字段
-            const plateType = plate.plate_type || plate.type || plate.category || plate.kind || plate.class || 
-                             plate.plate_category || plate.plate_kind || plate.secu_type || plate.secu_category
+            const plateType = plate.plate_type || plate.type || plate.category || plate.kind || plate.class ||
+              plate.plate_category || plate.plate_kind || plate.secu_type || plate.secu_category
             if (plateType) {
               hasApiMatch = true
               plateMatchMethod = 'api'
               const typeStr = String(plateType).toLowerCase()
-              if (filterType === 'industry') {
+              const isIndustry = (filterType as string) === 'industry'
+              if (isIndustry) {
                 return typeStr.includes('industry') || typeStr.includes('行业') || typeStr === '2' || typeStr === 'industry'
               } else {
                 return typeStr.includes('concept') || typeStr.includes('概念') || typeStr === '3' || typeStr === 'concept'
               }
             }
-            
+
             // 方法1.5：尝试从财联社板块代码推断类型（如果代码有规律）
             // 财联社代码格式：cls80290, cls80123 等
             // 如果代码有规律，可以根据代码范围判断
@@ -421,12 +438,12 @@ export default function SectorRotation(): JSX.Element {
             //     return true
             //   }
             // }
-            
+
             // 方法2：优先使用财联社自己的类型映射（如果可用）
             if (caiLianSheTypeMapLoaded && caiLianSheTypeMap.size > 0) {
               const cleanName = (n: string) => n.replace(/概念$|题材$|主题$|行业$|板块$|产业链$/, '').trim()
               const nameCleaned = cleanName(name)
-              
+
               // 1. 精确匹配
               let mappedType = caiLianSheTypeMap.get(name)
               if (mappedType) {
@@ -434,7 +451,7 @@ export default function SectorRotation(): JSX.Element {
                 plateMatchMethod = 'apiMap'
                 return mappedType === filterType
               }
-              
+
               // 2. 清理后的名称匹配
               mappedType = caiLianSheTypeMap.get(nameCleaned)
               if (mappedType) {
@@ -442,20 +459,20 @@ export default function SectorRotation(): JSX.Element {
                 plateMatchMethod = 'apiMap'
                 return mappedType === filterType
               }
-              
+
               // 3. 包含匹配
               for (const [mappedName, mappedType] of caiLianSheTypeMap.entries()) {
                 const mappedNameCleaned = cleanName(mappedName)
                 if (name === mappedName || nameCleaned === mappedNameCleaned ||
-                    name.includes(mappedName) || mappedName.includes(name) ||
-                    nameCleaned.includes(mappedNameCleaned) || mappedNameCleaned.includes(nameCleaned)) {
+                  name.includes(mappedName) || mappedName.includes(name) ||
+                  nameCleaned.includes(mappedNameCleaned) || mappedNameCleaned.includes(nameCleaned)) {
                   hasApiMapMatch = true
                   plateMatchMethod = 'apiMap'
                   return mappedType === filterType
                 }
               }
             }
-            
+
             // 方法3：使用从东方财富接口获取的板块类型映射（已注释，暂时不使用）
             // if (sectorTypeMapLoaded && sectorTypeMap.size > 0) {
             if (false) { // 暂时禁用东方财富接口
@@ -465,17 +482,17 @@ export default function SectorRotation(): JSX.Element {
                   .replace(/概念$|题材$|主题$|行业$|板块$|产业链$/, '')
                   .trim()
               }
-              
+
               const nameCleaned = cleanName(name)
-              
+
               // 调试：只在第一个板块时输出详细信息
               const isFirstPlate = plateStockData.indexOf(plate) === 0
-              
+
               // 调试：输出匹配尝试信息（仅对特定板块）
               if (isFirstPlate || name === '纺织服装' || name === '有色金属概念') {
                 console.log(`  🔍 尝试匹配板块: "${name}" (清理后: "${nameCleaned}"), 目标类型: ${filterType}`)
               }
-              
+
               // 1. 精确匹配
               let mappedType = sectorTypeMap.get(name)
               if (mappedType) {
@@ -486,7 +503,7 @@ export default function SectorRotation(): JSX.Element {
                 }
                 return mappedType === filterType
               }
-              
+
               // 2. 清理后的名称匹配（去掉"概念"等后缀后匹配）
               mappedType = sectorTypeMap.get(nameCleaned)
               if (mappedType) {
@@ -497,7 +514,7 @@ export default function SectorRotation(): JSX.Element {
                 }
                 return mappedType === filterType
               }
-              
+
               // 调试：如果"纺织服装"或"有色金属概念"没有匹配上，输出详细信息
               if (name === '纺织服装' || name === '有色金属概念') {
                 console.log(`  ⚠️ "${name}" 未在步骤1-2中匹配`)
@@ -506,7 +523,7 @@ export default function SectorRotation(): JSX.Element {
                   console.log(`  检查"有色金属": has("有色金属") = ${sectorTypeMap.has('有色金属')}, type = ${sectorTypeMap.get('有色金属')}`)
                 }
               }
-              
+
               // 3. 反向清理匹配（映射表中的名称去掉后缀后，与财联社名称匹配）
               for (const [mappedName, mappedType] of sectorTypeMap.entries()) {
                 const mappedNameCleaned = cleanName(mappedName)
@@ -547,17 +564,17 @@ export default function SectorRotation(): JSX.Element {
                   return mappedType === filterType
                 }
               }
-              
+
               // 4. 双向包含匹配（更宽松）
               for (const [mappedName, mappedType] of sectorTypeMap.entries()) {
                 const mappedNameCleaned = cleanName(mappedName)
-                
+
                 // 双向包含匹配（原始名称和清理后的名称都尝试）
                 if (name === mappedName || nameCleaned === mappedNameCleaned ||
-                    name.includes(mappedName) || mappedName.includes(name) ||
-                    nameCleaned.includes(mappedNameCleaned) || mappedNameCleaned.includes(nameCleaned) ||
-                    name.includes(mappedNameCleaned) || mappedNameCleaned.includes(name) ||
-                    mappedName.includes(nameCleaned) || nameCleaned.includes(mappedName)) {
+                  name.includes(mappedName) || mappedName.includes(name) ||
+                  nameCleaned.includes(mappedNameCleaned) || mappedNameCleaned.includes(nameCleaned) ||
+                  name.includes(mappedNameCleaned) || mappedNameCleaned.includes(name) ||
+                  mappedName.includes(nameCleaned) || nameCleaned.includes(mappedName)) {
                   hasApiMapMatch = true
                   plateMatchMethod = 'apiMap'
                   if (isFirstPlate) {
@@ -566,7 +583,7 @@ export default function SectorRotation(): JSX.Element {
                   return mappedType === filterType
                 }
               }
-              
+
               // 4. 关键词匹配（提取核心关键词，至少3个字）
               const extractKeywords = (n: string) => {
                 const keywords: string[] = []
@@ -581,17 +598,17 @@ export default function SectorRotation(): JSX.Element {
                 }
                 return keywords
               }
-              
+
               const nameKeywords = extractKeywords(nameCleaned)
               for (const [mappedName, mappedType] of sectorTypeMap.entries()) {
                 const mappedNameCleaned = cleanName(mappedName)
                 const mappedKeywords = extractKeywords(mappedNameCleaned)
-                
+
                 // 检查是否有共同的关键词（至少3个字匹配）
-                const commonKeywords = nameKeywords.filter(k => 
+                const commonKeywords = nameKeywords.filter(k =>
                   mappedKeywords.some(mk => k === mk && k.length >= 3)
                 )
-                
+
                 if (commonKeywords.length > 0) {
                   hasApiMapMatch = true
                   plateMatchMethod = 'apiMap'
@@ -601,7 +618,7 @@ export default function SectorRotation(): JSX.Element {
                   return mappedType === filterType
                 }
               }
-              
+
               // 如果所有匹配都失败，输出调试信息
               if (isFirstPlate) {
                 console.log(`  ⚠️ 板块 "${name}" 未在映射表中找到匹配`)
@@ -618,13 +635,13 @@ export default function SectorRotation(): JSX.Element {
             } else {
               // 如果接口映射未加载，继续执行到降级方案
             }
-            
+
             // 方法3：根据板块代码模式判断（如果有规律）
             // 财联社代码格式可能是：cls80290（概念）、cls80123（行业）等
             // 如果代码有规律，可以根据代码范围判断
             // 注意：这个需要根据实际数据调整
             // TODO: 分析板块代码规律，如果发现规律，可以添加代码模式匹配
-            
+
             // 方法4：降级方案（在正常过滤阶段就使用，而不是等到filteredData为空）
             // 如果所有方法都没有匹配到，使用降级方案
             if (filterType === 'industry') {
@@ -652,7 +669,7 @@ export default function SectorRotation(): JSX.Element {
             } else {
               // 概念板块：优先检查是否包含概念关键词，然后排除明确的行业板块
               const name = String(plate.secu_name || plate.name || '').trim()
-              
+
               // 明确的概念关键词列表（如果包含这些关键词，肯定是概念）
               const conceptKeywords = [
                 // AI相关
@@ -719,12 +736,12 @@ export default function SectorRotation(): JSX.Element {
                 '人脑', '商业', '航天', '智能', '驾驶', '数字', '货币', '创新', '药', '金融', '科技',
                 '芯片', '产业', '链', '机器人', '概念', '核电', '军工', '石英', '面板', '高铁', '轨交'
               ]
-              
+
               // 如果包含概念关键词，肯定是概念
               if (conceptKeywords.some(keyword => name.includes(keyword))) {
                 return true
               }
-              
+
               // 排除行业关键词列表中的板块
               const strictIndustryKeywords = [
                 // 金融业
@@ -807,7 +824,7 @@ export default function SectorRotation(): JSX.Element {
               // 排除行业关键词列表中的板块
               return !strictIndustryKeywords.includes(name)
             }
-            
+
             // 方法5：使用名称关键词匹配（已注释，暂时不使用）
             // const conceptKeywords = [
             //   // AI相关
@@ -917,11 +934,11 @@ export default function SectorRotation(): JSX.Element {
             //   // 4. 如果既不在行业列表也不在概念列表，且不包含"概念"等，也认为是概念（默认）
             //   return true
             // }
-            
+
             // 如果所有方法都没有匹配到，返回false（不使用关键词匹配）
             return false
           })
-          
+
           // 确定最终使用的匹配方法
           if (hasApiMatch) {
             matchMethod = 'api'
@@ -930,7 +947,7 @@ export default function SectorRotation(): JSX.Element {
           } else {
             matchMethod = 'keywordFallback'
           }
-          
+
           // 调试信息：显示过滤前后的对比
           if (filterType === 'concept') {
             console.log(`🔍 概念板块过滤详情 (日期: ${date}):`)
@@ -947,14 +964,14 @@ export default function SectorRotation(): JSX.Element {
             if (plateStockData.length > 0) {
               const sampleNames = plateStockData.slice(0, 20).map((p: any) => p.secu_name || p.name)
               console.log(`  前20个原始板块:`, sampleNames)
-              
+
               // 分析哪些被过滤掉了
               const filteredOut = plateStockData.filter((plate: any) => {
                 const name = String(plate.secu_name || plate.name || '').trim()
                 // 检查是否被过滤掉（不在filteredData中）
                 return !filteredData.some((f: any) => (f.secu_name || f.name || '').trim() === name)
               }).slice(0, 10)
-              
+
               if (filteredOut.length > 0) {
                 console.log(`  被过滤掉的板块（前10个）:`, filteredOut.map((p: any) => p.secu_name || p.name))
               }
@@ -972,9 +989,9 @@ export default function SectorRotation(): JSX.Element {
               console.warn(`  ⚠️ 过滤后无数据，请检查关键词列表是否完整`)
             }
           }
-          
-          console.log(`📊 ${filterType === 'industry' ? '行业' : '概念'}板块过滤: ${filteredData.length} 个 (总共 ${plateStockData.length} 个)`)
-          
+
+          console.log(`📊 ${(filterType as string) === 'industry' ? '行业' : '概念'}板块过滤: ${filteredData.length} 个 (总共 ${plateStockData.length} 个)`)
+
           // 计算匹配度：使用接口映射匹配的板块数量 / 总板块数量
           let matchedByApiMapCount = 0
           if (sectorTypeMapLoaded && sectorTypeMap.size > 0) {
@@ -983,7 +1000,7 @@ export default function SectorRotation(): JSX.Element {
               const name = String(plate.secu_name || plate.name || '').trim()
               const cleanName = (n: string) => n.replace(/概念$|题材$|主题$|行业$|板块$|产业链$/, '').trim()
               const nameCleaned = cleanName(name)
-              
+
               // 检查是否在映射表中
               if (sectorTypeMap.has(name) || sectorTypeMap.has(nameCleaned)) {
                 matchedByApiMapCount++
@@ -992,8 +1009,8 @@ export default function SectorRotation(): JSX.Element {
                 for (const [mappedName] of sectorTypeMap.entries()) {
                   const mappedNameCleaned = cleanName(mappedName)
                   if (name === mappedName || nameCleaned === mappedNameCleaned ||
-                      name.includes(mappedName) || mappedName.includes(name) ||
-                      nameCleaned.includes(mappedNameCleaned) || mappedNameCleaned.includes(nameCleaned)) {
+                    name.includes(mappedName) || mappedName.includes(name) ||
+                    nameCleaned.includes(mappedNameCleaned) || mappedNameCleaned.includes(nameCleaned)) {
                     matchedByApiMapCount++
                     break
                   }
@@ -1001,10 +1018,10 @@ export default function SectorRotation(): JSX.Element {
               }
             })
           }
-          
+
           const matchRatio = filteredData.length > 0 ? (matchedByApiMapCount / filteredData.length) : 0
           const isLowMatchRatio = matchRatio < 0.5 && sectorTypeMapLoaded && sectorTypeMap.size > 0
-          
+
           // 数据量检查：如果过滤后数据太少，使用降级方案
           if (filteredData.length === 0) {
             console.warn(`⚠️ 过滤后无数据！类型: ${filterType}, 日期: ${date}`)
@@ -1012,11 +1029,11 @@ export default function SectorRotation(): JSX.Element {
             if (plateStockData.length > 0) {
               console.warn(`前10个板块名称:`, plateStockData.slice(0, 10).map((p: any) => p.secu_name || p.name || '未知'))
             }
-            
+
             // 降级方案：如果过滤后为空，使用更宽松的策略
             if (plateStockData.length > 0) {
               let fallbackData: any[] = []
-              
+
               if (filterType === 'concept') {
                 // 概念板块降级方案：排除明确的行业板块，剩下的都当作概念
                 console.warn(`🔄 概念板块过滤后为空，使用降级方案：显示所有非明确行业板块`)
@@ -1208,7 +1225,7 @@ export default function SectorRotation(): JSX.Element {
                   return true
                 })
               }
-              
+
               if (fallbackData.length > 0) {
                 console.log(`✅ 降级方案获取到 ${fallbackData.length} 个板块`)
                 // 使用降级数据
@@ -1218,7 +1235,7 @@ export default function SectorRotation(): JSX.Element {
                     const code = plate.secu_code || plate.code || plate.plate_code || ''
                     const changeValue = plate.change_percent || plate.change || plate.changePercent || 0
                     const changePercent = Math.abs(changeValue) > 1 ? changeValue : changeValue * 100
-                    
+
                     return {
                       name: String(name).trim(),
                       code: String(code).trim(),
@@ -1234,12 +1251,12 @@ export default function SectorRotation(): JSX.Element {
                     rank: index + 1
                   }))
                   .slice(0, topN)
-                
+
                 // 返回正确格式：{ sectors, rawData }
                 return { sectors: fallbackSectors, rawData: fallbackData }
               }
             }
-            
+
             // 如果原始数据有，但过滤后为空，可能是过滤逻辑太严格
             // 返回空数组，让用户知道需要调整过滤条件
           } else if (filteredData.length < plateStockData.length * 0.1) {
@@ -1247,7 +1264,7 @@ export default function SectorRotation(): JSX.Element {
             console.warn(`⚠️ 过滤后数据较少！类型: ${filterType}, 日期: ${date}`)
             console.warn(`过滤后: ${filteredData.length} 个，原始: ${plateStockData.length} 个 (${(filteredData.length / plateStockData.length * 100).toFixed(1)}%)`)
           }
-          
+
           // 解析板块数据
           const sectors: SectorData[] = filteredData
             .map((plate: any) => {
@@ -1257,9 +1274,9 @@ export default function SectorRotation(): JSX.Element {
                 console.log('📊 财联社板块完整数据结构:', plate)
                 console.log('📊 财联社板块所有字段:', Object.keys(plate))
                 // 检查是否有类型相关字段
-                const typeRelatedFields = Object.keys(plate).filter(key => 
-                  key.toLowerCase().includes('type') || 
-                  key.toLowerCase().includes('category') || 
+                const typeRelatedFields = Object.keys(plate).filter(key =>
+                  key.toLowerCase().includes('type') ||
+                  key.toLowerCase().includes('category') ||
                   key.toLowerCase().includes('kind') ||
                   key.toLowerCase().includes('class')
                 )
@@ -1272,14 +1289,14 @@ export default function SectorRotation(): JSX.Element {
                   console.log('ℹ️ API未返回类型字段，使用接口映射或关键词匹配')
                 }
               }
-              
+
               // 尝试多种可能的字段名
               const name = plate.secu_name || plate.name || plate.plate_name || ''
               const code = plate.secu_code || plate.code || plate.plate_code || ''
               // 涨跌幅可能是百分比（如 5.2 表示 5.2%）或小数（如 0.052 表示 5.2%）
               const changeValue = plate.change_percent || plate.change || plate.changePercent || 0
               const changePercent = Math.abs(changeValue) > 1 ? changeValue : changeValue * 100
-              
+
               return {
                 name: String(name).trim(),
                 code: String(code).trim(),
@@ -1295,12 +1312,12 @@ export default function SectorRotation(): JSX.Element {
               rank: index + 1
             }))
             .slice(0, topN) // 只取前N名
-          
-          console.log(`✅ ${filterType === 'industry' ? '行业' : '概念'}板块数据: ${sectors.length} 个`)
+
+          console.log(`✅ ${(filterType as string) === 'industry' ? '行业' : '概念'}板块数据: ${sectors.length} 个`)
           if (sectors.length > 0) {
             console.log('📊 前3个板块代码:', sectors.slice(0, 3).map(s => ({ name: s.name, code: s.code })))
           }
-          
+
           // 返回处理后的板块数据和原始数据
           return { sectors, rawData: filteredData }
         }
@@ -1309,7 +1326,7 @@ export default function SectorRotation(): JSX.Element {
         continue
       }
     }
-    
+
     return { sectors: [], rawData: [] }
   }, [topN, filterType, sectorTypeMap, sectorTypeMapLoaded])
 
@@ -1324,15 +1341,15 @@ export default function SectorRotation(): JSX.Element {
       // 清空旧数据，避免显示混合数据
       setSectorDataByDate({})
       setPlateRawDataByDate({})
-      
+
       try {
         // 直接获取数据，不依赖外部概念列表
         const dataPromises = selectedDates.map(date => fetchSectorData(date))
         const results = await Promise.allSettled(dataPromises)
-        
+
         const dataByDate: Record<string, SectorData[]> = {}
         const rawDataByDate: Record<string, any[]> = {}
-        
+
         results.forEach((result, index) => {
           if (result.status === 'fulfilled' && result.value && result.value.sectors && result.value.sectors.length > 0) {
             // 只保留有数据的日期
@@ -1345,27 +1362,27 @@ export default function SectorRotation(): JSX.Element {
             // 不添加到 dataByDate，这样渲染时就不会显示该列
           }
         })
-        
+
         console.log(`📊 所有日期数据获取完成，共 ${Object.keys(dataByDate).length} 个日期有数据`)
         setSectorDataByDate(dataByDate)
         setPlateRawDataByDate(rawDataByDate)
-        
+
         // 检查匹配度：统计所有日期中使用接口映射匹配的板块比例
         // 注意：这里统计的是"通过接口映射匹配"的板块，不包括使用关键词匹配的板块
         let totalFiltered = 0
         let totalMatchedByApiMap = 0
         let unmatchedSectors: string[] = [] // 记录未匹配的板块名称，用于调试
         const cleanName = (n: string) => n.replace(/概念$|题材$|主题$|行业$|板块$|产业链$/, '').trim()
-        
+
         Object.values(dataByDate).forEach((sectors: SectorData[]) => {
           totalFiltered += sectors.length
           sectors.forEach(sector => {
             const name = sector.name
             const nameCleaned = cleanName(name)
-            
+
             // 检查是否通过接口映射匹配（使用与过滤逻辑一致的匹配方式）
             let matched = false
-            
+
             // 1. 精确匹配
             if (sectorTypeMap.has(name) || sectorTypeMap.has(nameCleaned)) {
               matched = true
@@ -1373,17 +1390,17 @@ export default function SectorRotation(): JSX.Element {
               // 2. 包含匹配（更宽松）
               for (const [mappedName] of sectorTypeMap.entries()) {
                 const mappedNameCleaned = cleanName(mappedName)
-                
+
                 // 双向包含匹配（与过滤逻辑一致）
                 if (name === mappedName || nameCleaned === mappedNameCleaned ||
-                    name.includes(mappedName) || mappedName.includes(name) ||
-                    nameCleaned.includes(mappedNameCleaned) || mappedNameCleaned.includes(nameCleaned) ||
-                    name.includes(mappedNameCleaned) || mappedNameCleaned.includes(name) ||
-                    mappedName.includes(nameCleaned) || nameCleaned.includes(mappedName)) {
+                  name.includes(mappedName) || mappedName.includes(name) ||
+                  nameCleaned.includes(mappedNameCleaned) || mappedNameCleaned.includes(nameCleaned) ||
+                  name.includes(mappedNameCleaned) || mappedNameCleaned.includes(name) ||
+                  mappedName.includes(nameCleaned) || nameCleaned.includes(mappedName)) {
                   matched = true
                   break
                 }
-                
+
                 // 3. 关键词匹配（至少3个字，与过滤逻辑一致）
                 const extractKeywords = (n: string) => {
                   const keywords: string[] = []
@@ -1397,20 +1414,20 @@ export default function SectorRotation(): JSX.Element {
                   }
                   return keywords
                 }
-                
+
                 const nameKeywords = extractKeywords(nameCleaned)
                 const mappedKeywords = extractKeywords(mappedNameCleaned)
-                const commonKeywords = nameKeywords.filter(k => 
+                const commonKeywords = nameKeywords.filter(k =>
                   mappedKeywords.some(mk => k === mk && k.length >= 3)
                 )
-                
+
                 if (commonKeywords.length > 0) {
                   matched = true
                   break
                 }
               }
             }
-            
+
             if (matched) {
               totalMatchedByApiMap++
             } else {
@@ -1421,7 +1438,7 @@ export default function SectorRotation(): JSX.Element {
             }
           })
         })
-        
+
         const overallMatchRatio = totalFiltered > 0 ? (totalMatchedByApiMap / totalFiltered) : 0
         const unmatchedCount = totalFiltered - totalMatchedByApiMap
         console.log(`📊 匹配度统计: ${totalMatchedByApiMap}/${totalFiltered} = ${(overallMatchRatio * 100).toFixed(1)}%`)
@@ -1430,7 +1447,7 @@ export default function SectorRotation(): JSX.Element {
         if (unmatchedSectors.length > 0) {
           console.log(`  ⚠️ 使用关键词匹配的板块示例（前10个）:`, unmatchedSectors)
         }
-        
+
         // 如果匹配度低于90%，显示警告（已注释东方财富接口，暂时不显示匹配度警告）
         // if (overallMatchRatio < 0.9 && sectorTypeMapLoaded && sectorTypeMap.size > 0 && totalFiltered > 0) {
         //   const matchPercent = (overallMatchRatio * 100).toFixed(1)
@@ -1440,7 +1457,7 @@ export default function SectorRotation(): JSX.Element {
         // }
         // 暂时禁用匹配度警告（因为不使用东方财富接口）
         setMatchWarning(null)
-        
+
       } catch (err) {
         console.error('获取数据失败:', err)
         setError('获取数据失败，请稍后重试')
@@ -1468,23 +1485,23 @@ export default function SectorRotation(): JSX.Element {
   // 获取板块热门股票（直接使用财联社返回的stock_list）
   const fetchHotStocks = useCallback(async (sectorCode: string, sectorName: string): Promise<HotStock[]> => {
     console.log(`🔍 获取热门股票，板块代码: ${sectorCode}, 板块名称: ${sectorName}`)
-    
+
     // 从已保存的财联社原始数据中查找对应的板块
     // 遍历所有日期的原始数据，查找匹配的板块
     for (const date in plateRawDataByDate) {
       const rawData = plateRawDataByDate[date]
       if (!rawData || !Array.isArray(rawData)) continue
-      
+
       // 查找匹配的板块（通过代码或名称）
       const matchedPlate = rawData.find((plate: any) => {
         const plateCode = String(plate.secu_code || plate.code || plate.plate_code || '').trim()
         const plateName = String(plate.secu_name || plate.name || '').trim()
         return (sectorCode && plateCode === sectorCode) || (sectorName && plateName === sectorName)
       })
-      
+
       if (matchedPlate && matchedPlate.stock_list && Array.isArray(matchedPlate.stock_list)) {
         console.log(`✅ 从财联社数据中找到板块，股票数量: ${matchedPlate.stock_list.length}`)
-        
+
         // 解析财联社返回的股票数据
         // secu_code: 股票代码
         // secu_name: 股票名称
@@ -1508,7 +1525,7 @@ export default function SectorRotation(): JSX.Element {
             const volume = parseFloat(stock.volume || stock.vol || 0)
             // 成交额单位可能是元，需要转换为万元
             const amount = parseFloat(stock.amount || stock.amt || 0) / 10000
-            
+
             return {
               code,
               name,
@@ -1521,12 +1538,12 @@ export default function SectorRotation(): JSX.Element {
           .filter((s: HotStock) => s.name && s.code)
           .sort((a: HotStock, b: HotStock) => b.changePercent - a.changePercent) // 按涨跌幅排序
           .slice(0, 20) // 只取前20只
-        
+
         console.log(`✅ 成功解析 ${stocks.length} 只热门股票`)
         return stocks
       }
     }
-    
+
     console.warn(`⚠️ 未在财联社数据中找到板块: ${sectorName} (代码: ${sectorCode})`)
     return []
   }, [plateRawDataByDate])
@@ -1534,7 +1551,7 @@ export default function SectorRotation(): JSX.Element {
   // 处理板块点击
   const handleSectorClick = async (sector: SectorData) => {
     console.log('🖱️ 点击板块:', { name: sector.name, code: sector.code, date: sector.date })
-    
+
     // 计算该板块在已获取的日期中排进前N名的次数
     // 注意：这里统计的是已获取的日期，不是真正的"近1个月"
     let timesInTopN = 0
@@ -1545,7 +1562,7 @@ export default function SectorRotation(): JSX.Element {
         timesInTopN++
       }
     })
-    
+
     setSelectedSector({
       name: sector.name,
       code: sector.code,
@@ -1554,7 +1571,7 @@ export default function SectorRotation(): JSX.Element {
       rank: sector.rank,
       timesInTop10: timesInTopN
     })
-    
+
     // 获取该板块的热门股票
     if (sector.code || sector.name) {
       console.log('📥 开始获取热门股票，参数:', { code: sector.code, name: sector.name })
@@ -1594,19 +1611,19 @@ export default function SectorRotation(): JSX.Element {
       console.warn(`⚠️ 股票代码为空`)
       return ''
     }
-    
+
     console.log(`🔍 处理股票代码: ${code}, 名称: ${name}`)
-    
+
     // 清理代码，移除所有非数字字符，只保留数字
     let cleanCode = code.replace(/[^0-9]/g, '')
     console.log(`🔍 清理后的代码: ${cleanCode}`)
-    
+
     // 如果代码长度不足6位，尝试补齐前导0
     if (cleanCode.length > 0 && cleanCode.length < 6) {
       cleanCode = cleanCode.padStart(6, '0')
       console.log(`🔍 补齐后的代码: ${cleanCode}`)
     }
-    
+
     if (!cleanCode || cleanCode.length !== 6) {
       console.warn(`⚠️ 股票代码格式不正确: ${code} -> ${cleanCode}`)
       // 如果代码格式不对，尝试使用股票名称搜索（雪球）
@@ -1615,13 +1632,13 @@ export default function SectorRotation(): JSX.Element {
       }
       return ''
     }
-    
+
     // 判断交易所并生成URL（优先使用新浪，备用雪球）
     // 上交所：60开头（主板）或688开头（科创板）
     // 深交所：00开头（主板）或30开头（创业板）
     // 北交所：920开头（如920207）
     let url = ''
-    
+
     // 检查是否是北交所（920开头）
     if (cleanCode.startsWith('920')) {
       // 北交所 - 确保代码有效（至少6位）
@@ -1648,7 +1665,7 @@ export default function SectorRotation(): JSX.Element {
         url = `https://xueqiu.com/S/${cleanCode}`
       }
     }
-    
+
     console.log(`✅ 生成的URL: ${url}`)
     return url
   }
@@ -1669,20 +1686,20 @@ export default function SectorRotation(): JSX.Element {
   const getOver1PercentCount = useCallback((sectorName: string, sectorCode: string): number => {
     let count = 0
     let foundCount = 0 // 已找到的有数据的日期数量（最多7个）
-    
+
     // 获取所有有数据的日期，按日期从新到旧排序
     const allDates = Object.keys(plateRawDataByDate)
       .filter(date => plateRawDataByDate[date] && plateRawDataByDate[date].length > 0)
       .sort((a, b) => b.localeCompare(a)) // 从新到旧排序（从右往左）
-    
+
     // 从右往左遍历，找到该板块出现且涨幅超过1%的日期
     for (const date of allDates) {
       if (foundCount >= 7) break // 最多统计7个有数据的日期
-      
+
       // 先从筛选后的数据中查找（前N名）
       let sectors = sectorDataByDate[date] || []
       let sector = sectors.find(s => s.name === sectorName && s.code === sectorCode)
-      
+
       // 如果在前N名中没找到，从原始数据中查找
       if (!sector) {
         const rawData = plateRawDataByDate[date] || []
@@ -1691,20 +1708,22 @@ export default function SectorRotation(): JSX.Element {
           const plateName = String(plate.secu_name || plate.name || '').trim()
           return (sectorCode && plateCode === sectorCode) || (sectorName && plateName === sectorName)
         })
-        
+
         if (matchedPlate) {
           // 计算涨幅
           const changeValue = matchedPlate.change_percent || matchedPlate.change || matchedPlate.changePercent || 0
           const changePercent = Math.abs(changeValue) > 1 ? changeValue : changeValue * 100
-          
+
           sector = {
             name: sectorName,
             code: sectorCode,
-            changePercent: parseFloat(String(changePercent)) || 0
+            changePercent: parseFloat(String(changePercent)) || 0,
+            rank: 0,
+            date: date
           }
         }
       }
-      
+
       if (sector) {
         foundCount++ // 找到了该板块的数据
         if (sector.changePercent > 1) {
@@ -1712,7 +1731,7 @@ export default function SectorRotation(): JSX.Element {
         }
       }
     }
-    
+
     return count
   }, [sectorDataByDate, plateRawDataByDate])
 
@@ -1733,7 +1752,7 @@ export default function SectorRotation(): JSX.Element {
   const getLast7Days = useCallback((): string[] => {
     const dates: string[] = []
     const today = new Date()
-    
+
     // 获取最近7天的日期
     for (let i = 0; i < 7; i++) {
       const date = new Date(today)
@@ -1741,7 +1760,7 @@ export default function SectorRotation(): JSX.Element {
       const dateStr = date.toISOString().split('T')[0]
       dates.push(dateStr)
     }
-    
+
     return dates.reverse() // 从最早到最新
   }, [])
 
@@ -1754,11 +1773,11 @@ export default function SectorRotation(): JSX.Element {
       const plateName = String(plate.secu_name || plate.name || '').trim()
       return (sectorCode && plateCode === sectorCode) || (sectorName && plateName === sectorName)
     })
-    
+
     if (matchedPlate) {
       return parseInt(matchedPlate.plate_stock_up_num || '0', 10)
     }
-    
+
     return 0
   }, [plateRawDataByDate])
 
@@ -1818,7 +1837,7 @@ export default function SectorRotation(): JSX.Element {
             <option value="concept">概念</option>
           </select>
         </div>
-        
+
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '0.9rem', color: '#6b7280' }}>排序:</span>
           <select
@@ -1837,7 +1856,7 @@ export default function SectorRotation(): JSX.Element {
             <option value="rank">排名</option>
           </select>
         </div>
-        
+
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '0.9rem', color: '#6b7280' }}>显示:</span>
           <select
@@ -1867,9 +1886,12 @@ export default function SectorRotation(): JSX.Element {
           padding: '12px',
           borderRadius: '8px',
           marginBottom: '20px',
-          fontSize: '0.9rem'
+          fontSize: '0.9rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
         }}>
-          ⚠️ {error}
+          <AlertTriangle size={16} /> {error}
         </div>
       )}
 
@@ -1888,7 +1910,7 @@ export default function SectorRotation(): JSX.Element {
           {(() => {
             // 只显示有数据的日期列
             const validDates = selectedDates.filter(date => sectorDataByDate[date] && sectorDataByDate[date].length > 0)
-            
+
             if (validDates.length === 0) {
               return (
                 <div style={{
@@ -1920,7 +1942,7 @@ export default function SectorRotation(): JSX.Element {
                 </div>
               )
             }
-            
+
             return (
               <div style={{
                 background: 'white',
@@ -1968,217 +1990,217 @@ export default function SectorRotation(): JSX.Element {
                           {validDates.map(date => {
                             const sectors = sectorDataByDate[date] || []
                             const sector = sectors[rank - 1]
-                        return (
-                          <td key={date} style={{ padding: '12px', textAlign: 'center', verticalAlign: 'top' }}>
-                            {sector ? (
-                              <>
-                                <div
-                                  onClick={() => handleSectorClick(sector)}
-                                  style={{
-                                    cursor: 'pointer',
-                                    padding: '8px',
-                                    borderRadius: '6px',
-                                    transition: 'background 0.2s',
-                                    background: selectedSector?.name === sector.name && selectedSector?.date === date ? '#eff6ff' : 'transparent',
-                                    marginBottom: '8px'
-                                  }}
-                                  onMouseEnter={(e) => {
-                                    if (!(selectedSector?.name === sector.name && selectedSector?.date === date)) {
-                                      e.currentTarget.style.background = '#f9fafb'
-                                    }
-                                  }}
-                                  onMouseLeave={(e) => {
-                                    if (!(selectedSector?.name === sector.name && selectedSector?.date === date)) {
-                                      e.currentTarget.style.background = 'transparent'
-                                    }
-                                  }}
-                                >
-                                  <div style={{ fontSize: '0.85rem', fontWeight: '500', color: '#1f2937', marginBottom: '4px', position: 'relative' }}>
-                                    {sector.name}
-                                    {(() => {
-                                      const count = getOver1PercentCount(sector.name, sector.code)
-                                      if (count > 0) {
-                                        return (
-                                          <span style={{
-                                            position: 'absolute',
-                                            top: '-6px',
-                                            right: '-6px',
-                                            background: getCountColor(count),
-                                            color: count === 1 ? '#6b7280' : 'white',
-                                            fontSize: '0.65rem',
-                                            fontWeight: '700',
-                                            padding: '2px 5px',
-                                            borderRadius: '10px',
-                                            minWidth: '18px',
-                                            textAlign: 'center',
-                                            lineHeight: '1.2',
-                                            boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
-                                          }}>
-                                            {count}
-                                          </span>
-                                        )
-                                      }
-                                      return null
-                                    })()}
-                                  </div>
-                                  <div style={{
-                                    fontSize: '0.9rem',
-                                    fontWeight: '600',
-                                    color: '#dc2626'
-                                  }}>
-                                    +{sector.changePercent.toFixed(2)}%
-                                  </div>
-                                </div>
-                                {/* 最近7天涨停家数 */}
-                                {(() => {
-                                  // 获取所有有数据的日期，按日期从新到旧排序
-                                  const allDates = Object.keys(sectorDataByDate)
-                                    .filter(d => sectorDataByDate[d] && sectorDataByDate[d].length > 0)
-                                    .sort((a, b) => b.localeCompare(a)) // 从新到旧
-                                  
-                                  // 找到当前日期在排序后的位置
-                                  const currentDateIndex = allDates.indexOf(date)
-                                  
-                                  let displayDates: string[] = []
-                                  
-                                  if (currentDateIndex >= 0) {
-                                    // 以当前日期为中心，当前日期在中间（第4个位置，索引3）
-                                    // allDates 是从新到旧排序的（索引0是最新，索引越大越旧）
-                                    // 位置0,1,2: 后面（更新的日期，索引更小）最多3天
-                                    // 位置3: 当前日期
-                                    // 位置4,5,6: 前面（更旧的日期，索引更大）至少3天
-                                    
-                                    // 先确定前面3天的范围（更旧的日期，索引更大）
-                                    let endIndex = Math.min(allDates.length - 1, currentDateIndex + 3) // 前面3天的结束索引
-                                    
-                                    // 检查前面是否有3天
-                                    const beforeCount = endIndex - currentDateIndex
-                                    
-                                    // 确定后面3天的范围（更新的日期，索引更小）
-                                    let startIndex = currentDateIndex - 3 // 后面3天的起始索引
-                                    
-                                    if (beforeCount < 3) {
-                                      // 前面不足3天，用后面补齐
-                                      const needMore = 3 - beforeCount
-                                      startIndex = Math.max(0, startIndex - needMore)
-                                    } else {
-                                      // 前面有3天，后面最多3天
-                                      startIndex = Math.max(0, currentDateIndex - 3)
-                                    }
-                                    
-                                    displayDates = allDates.slice(startIndex, endIndex + 1)
-                                    
-                                    // 确保当前日期在中间位置（第4个，索引3）
-                                    const currentInSlice = displayDates.indexOf(date)
-                                    if (currentInSlice >= 0) {
-                                      if (currentInSlice !== 3) {
-                                        // 需要调整，让当前日期在位置3（中间）
-                                        const needMove = 3 - currentInSlice
-                                        
-                                        if (needMove > 0) {
-                                          // 当前日期太靠前，需要往前取更多数据（索引更大）
-                                          const canAdd = Math.min(needMove, allDates.length - 1 - endIndex)
-                                          if (canAdd > 0) {
-                                            endIndex = endIndex + canAdd
-                                            displayDates = allDates.slice(startIndex, endIndex + 1)
-                                          }
-                                        } else if (needMove < 0) {
-                                          // 当前日期太靠后，需要往后取更多数据（索引更小）
-                                          const canAdd = Math.min(-needMove, startIndex)
-                                          if (canAdd > 0) {
-                                            startIndex = startIndex - canAdd
-                                            displayDates = allDates.slice(startIndex, endIndex + 1)
-                                          }
+                            return (
+                              <td key={date} style={{ padding: '12px', textAlign: 'center', verticalAlign: 'top' }}>
+                                {sector ? (
+                                  <>
+                                    <div
+                                      onClick={() => handleSectorClick(sector)}
+                                      style={{
+                                        cursor: 'pointer',
+                                        padding: '8px',
+                                        borderRadius: '6px',
+                                        transition: 'background 0.2s',
+                                        background: selectedSector?.name === sector.name && selectedSector?.date === date ? '#eff6ff' : 'transparent',
+                                        marginBottom: '8px'
+                                      }}
+                                      onMouseEnter={(e) => {
+                                        if (!(selectedSector?.name === sector.name && selectedSector?.date === date)) {
+                                          e.currentTarget.style.background = '#f9fafb'
                                         }
-                                      }
-                                      
-                                      // 确保正好7天
-                                      if (displayDates.length > 7) {
-                                        // 以当前日期为中心，取前后各3天
-                                        const currentInSlice2 = displayDates.indexOf(date)
-                                        if (currentInSlice2 >= 0) {
-                                          startIndex = startIndex + (currentInSlice2 - 3)
-                                          endIndex = startIndex + 6
-                                          displayDates = allDates.slice(startIndex, endIndex + 1)
+                                      }}
+                                      onMouseLeave={(e) => {
+                                        if (!(selectedSector?.name === sector.name && selectedSector?.date === date)) {
+                                          e.currentTarget.style.background = 'transparent'
                                         }
-                                      } else if (displayDates.length < 7) {
-                                        // 如果不足7天，尽量保持当前日期在中间
-                                        const currentInSlice3 = displayDates.indexOf(date)
-                                        if (currentInSlice3 >= 0) {
-                                          const needBefore = 3 - currentInSlice3
-                                          if (needBefore > 0 && endIndex < allDates.length - 1) {
-                                            // 需要往前取更多
-                                            const canAdd = Math.min(needBefore, allDates.length - 1 - endIndex)
-                                            endIndex = endIndex + canAdd
-                                            displayDates = allDates.slice(startIndex, endIndex + 1)
-                                          } else if (needBefore < 0 && startIndex > 0) {
-                                            // 需要往后取更多
-                                            const canAdd = Math.min(-needBefore, startIndex)
-                                            startIndex = startIndex - canAdd
-                                            displayDates = allDates.slice(startIndex, endIndex + 1)
+                                      }}
+                                    >
+                                      <div style={{ fontSize: '0.85rem', fontWeight: '500', color: '#1f2937', marginBottom: '4px', position: 'relative' }}>
+                                        {sector.name}
+                                        {(() => {
+                                          const count = getOver1PercentCount(sector.name, sector.code)
+                                          if (count > 0) {
+                                            return (
+                                              <span style={{
+                                                position: 'absolute',
+                                                top: '-6px',
+                                                right: '-6px',
+                                                background: getCountColor(count),
+                                                color: count === 1 ? '#6b7280' : 'white',
+                                                fontSize: '0.65rem',
+                                                fontWeight: '700',
+                                                padding: '2px 5px',
+                                                borderRadius: '10px',
+                                                minWidth: '18px',
+                                                textAlign: 'center',
+                                                lineHeight: '1.2',
+                                                boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+                                              }}>
+                                                {count}
+                                              </span>
+                                            )
                                           }
-                                        }
-                                      }
-                                    }
-                                  } else {
-                                    // 如果当前日期不在数据中，取最近7天
-                                    displayDates = allDates.slice(0, 7)
-                                  }
-                                  
-                                  return (
-                                    <div style={{ 
-                                      display: 'flex', 
-                                      gap: '2px', 
-                                      justifyContent: 'center',
-                                      flexWrap: 'wrap',
-                                      marginTop: '4px'
-                                    }}>
-                                      {displayDates.map((d) => {
-                                        const limitUpCount = getSectorLimitUpCount(sector.name, sector.code, d)
-                                        const isCurrentDate = d === date
-                                        const hasData = !!sectorDataByDate[d]
-                                        
-                                        return (
-                                          <div
-                                            key={d}
-                                            style={{
-                                              padding: '3px 5px',
-                                              background: isCurrentDate ? '#eff6ff' : hasData ? '#f9fafb' : '#f3f4f6',
-                                              border: isCurrentDate ? '1px solid #3b82f6' : '1px solid #e5e7eb',
-                                              borderRadius: '4px',
-                                              fontSize: '0.7rem',
-                                              minWidth: '24px',
-                                              textAlign: 'center',
-                                              lineHeight: '1.2'
-                                            }}
-                                            title={`${formatDateDisplay(d)}: ${limitUpCount}家`}
-                                          >
-                                            <div style={{ 
-                                              fontSize: '0.75rem', 
-                                              fontWeight: '600', 
-                                              color: hasData && limitUpCount > 0 ? '#dc2626' : '#9ca3af' 
-                                            }}>
-                                              {hasData ? limitUpCount : '-'}
-                                            </div>
-                                          </div>
-                                        )
-                                      })}
+                                          return null
+                                        })()}
+                                      </div>
+                                      <div style={{
+                                        fontSize: '0.9rem',
+                                        fontWeight: '600',
+                                        color: '#dc2626'
+                                      }}>
+                                        +{sector.changePercent.toFixed(2)}%
+                                      </div>
                                     </div>
-                                  )
-                                })()}
-                              </>
-                            ) : (
-                              <span style={{ fontSize: '0.85rem', color: '#9ca3af' }}>-</span>
-                            )}
-                          </td>
-                        )
-                      })}
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
+                                    {/* 最近7天涨停家数 */}
+                                    {(() => {
+                                      // 获取所有有数据的日期，按日期从新到旧排序
+                                      const allDates = Object.keys(sectorDataByDate)
+                                        .filter(d => sectorDataByDate[d] && sectorDataByDate[d].length > 0)
+                                        .sort((a, b) => b.localeCompare(a)) // 从新到旧
+
+                                      // 找到当前日期在排序后的位置
+                                      const currentDateIndex = allDates.indexOf(date)
+
+                                      let displayDates: string[] = []
+
+                                      if (currentDateIndex >= 0) {
+                                        // 以当前日期为中心，当前日期在中间（第4个位置，索引3）
+                                        // allDates 是从新到旧排序的（索引0是最新，索引越大越旧）
+                                        // 位置0,1,2: 后面（更新的日期，索引更小）最多3天
+                                        // 位置3: 当前日期
+                                        // 位置4,5,6: 前面（更旧的日期，索引更大）至少3天
+
+                                        // 先确定前面3天的范围（更旧的日期，索引更大）
+                                        let endIndex = Math.min(allDates.length - 1, currentDateIndex + 3) // 前面3天的结束索引
+
+                                        // 检查前面是否有3天
+                                        const beforeCount = endIndex - currentDateIndex
+
+                                        // 确定后面3天的范围（更新的日期，索引更小）
+                                        let startIndex = currentDateIndex - 3 // 后面3天的起始索引
+
+                                        if (beforeCount < 3) {
+                                          // 前面不足3天，用后面补齐
+                                          const needMore = 3 - beforeCount
+                                          startIndex = Math.max(0, startIndex - needMore)
+                                        } else {
+                                          // 前面有3天，后面最多3天
+                                          startIndex = Math.max(0, currentDateIndex - 3)
+                                        }
+
+                                        displayDates = allDates.slice(startIndex, endIndex + 1)
+
+                                        // 确保当前日期在中间位置（第4个，索引3）
+                                        const currentInSlice = displayDates.indexOf(date)
+                                        if (currentInSlice >= 0) {
+                                          if (currentInSlice !== 3) {
+                                            // 需要调整，让当前日期在位置3（中间）
+                                            const needMove = 3 - currentInSlice
+
+                                            if (needMove > 0) {
+                                              // 当前日期太靠前，需要往前取更多数据（索引更大）
+                                              const canAdd = Math.min(needMove, allDates.length - 1 - endIndex)
+                                              if (canAdd > 0) {
+                                                endIndex = endIndex + canAdd
+                                                displayDates = allDates.slice(startIndex, endIndex + 1)
+                                              }
+                                            } else if (needMove < 0) {
+                                              // 当前日期太靠后，需要往后取更多数据（索引更小）
+                                              const canAdd = Math.min(-needMove, startIndex)
+                                              if (canAdd > 0) {
+                                                startIndex = startIndex - canAdd
+                                                displayDates = allDates.slice(startIndex, endIndex + 1)
+                                              }
+                                            }
+                                          }
+
+                                          // 确保正好7天
+                                          if (displayDates.length > 7) {
+                                            // 以当前日期为中心，取前后各3天
+                                            const currentInSlice2 = displayDates.indexOf(date)
+                                            if (currentInSlice2 >= 0) {
+                                              startIndex = startIndex + (currentInSlice2 - 3)
+                                              endIndex = startIndex + 6
+                                              displayDates = allDates.slice(startIndex, endIndex + 1)
+                                            }
+                                          } else if (displayDates.length < 7) {
+                                            // 如果不足7天，尽量保持当前日期在中间
+                                            const currentInSlice3 = displayDates.indexOf(date)
+                                            if (currentInSlice3 >= 0) {
+                                              const needBefore = 3 - currentInSlice3
+                                              if (needBefore > 0 && endIndex < allDates.length - 1) {
+                                                // 需要往前取更多
+                                                const canAdd = Math.min(needBefore, allDates.length - 1 - endIndex)
+                                                endIndex = endIndex + canAdd
+                                                displayDates = allDates.slice(startIndex, endIndex + 1)
+                                              } else if (needBefore < 0 && startIndex > 0) {
+                                                // 需要往后取更多
+                                                const canAdd = Math.min(-needBefore, startIndex)
+                                                startIndex = startIndex - canAdd
+                                                displayDates = allDates.slice(startIndex, endIndex + 1)
+                                              }
+                                            }
+                                          }
+                                        }
+                                      } else {
+                                        // 如果当前日期不在数据中，取最近7天
+                                        displayDates = allDates.slice(0, 7)
+                                      }
+
+                                      return (
+                                        <div style={{
+                                          display: 'flex',
+                                          gap: '2px',
+                                          justifyContent: 'center',
+                                          flexWrap: 'wrap',
+                                          marginTop: '4px'
+                                        }}>
+                                          {displayDates.map((d) => {
+                                            const limitUpCount = getSectorLimitUpCount(sector.name, sector.code, d)
+                                            const isCurrentDate = d === date
+                                            const hasData = !!sectorDataByDate[d]
+
+                                            return (
+                                              <div
+                                                key={d}
+                                                style={{
+                                                  padding: '3px 5px',
+                                                  background: isCurrentDate ? '#eff6ff' : hasData ? '#f9fafb' : '#f3f4f6',
+                                                  border: isCurrentDate ? '1px solid #3b82f6' : '1px solid #e5e7eb',
+                                                  borderRadius: '4px',
+                                                  fontSize: '0.7rem',
+                                                  minWidth: '24px',
+                                                  textAlign: 'center',
+                                                  lineHeight: '1.2'
+                                                }}
+                                                title={`${formatDateDisplay(d)}: ${limitUpCount}家`}
+                                              >
+                                                <div style={{
+                                                  fontSize: '0.75rem',
+                                                  fontWeight: '600',
+                                                  color: hasData && limitUpCount > 0 ? '#dc2626' : '#9ca3af'
+                                                }}>
+                                                  {hasData ? limitUpCount : '-'}
+                                                </div>
+                                              </div>
+                                            )
+                                          })}
+                                        </div>
+                                      )
+                                    })()}
+                                  </>
+                                ) : (
+                                  <span style={{ fontSize: '0.85rem', color: '#9ca3af' }}>-</span>
+                                )}
+                              </td>
+                            )
+                          })}
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
             )
           })()}
 
@@ -2199,7 +2221,7 @@ export default function SectorRotation(): JSX.Element {
                   animation: 'fadeIn 0.3s ease-out'
                 }}
               />
-              
+
               {/* 悬浮框 */}
               <div style={{
                 position: 'fixed',
@@ -2229,7 +2251,7 @@ export default function SectorRotation(): JSX.Element {
                     cursor: 'pointer'
                   }}
                 />
-                
+
                 {/* 关闭按钮 */}
                 <div
                   onClick={() => setSelectedSector(null)}
@@ -2258,7 +2280,7 @@ export default function SectorRotation(): JSX.Element {
                 >
                   ×
                 </div>
-                
+
                 {/* 内容区域（可滚动） */}
                 <div style={{
                   overflowY: 'auto',
@@ -2277,17 +2299,17 @@ export default function SectorRotation(): JSX.Element {
                       已获取日期中 {selectedSector.timesInTop10} 次排进前{topN}
                     </div>
                   </div>
-                  
+
                   {/* 最近7天涨停板数量 */}
                   <div style={{ marginBottom: '20px' }}>
-                    <div style={{ fontSize: '1rem', fontWeight: '600', color: '#1f2937', marginBottom: '12px' }}>
-                      📊 最近7天涨停板数量
+                    <div style={{ fontSize: '1rem', fontWeight: '600', color: '#1f2937', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <BarChart2 size={18} /> 最近7天涨停板数量
                     </div>
                     {(() => {
                       const last7Days = getLast7Days()
                       const today = new Date().toISOString().split('T')[0]
                       const todayIndex = last7Days.indexOf(today)
-                      
+
                       // 如果今天有数据，从今天开始显示；如果没有，找到最近有数据的日期
                       let displayDates: string[] = []
                       if (todayIndex >= 0 && sectorDataByDate[today]) {
@@ -2302,7 +2324,7 @@ export default function SectorRotation(): JSX.Element {
                             break
                           }
                         }
-                        
+
                         if (latestDateIndex >= 0) {
                           // 找到最近有数据的日期，前后各显示3天
                           const start = Math.max(0, latestDateIndex - 3)
@@ -2313,14 +2335,14 @@ export default function SectorRotation(): JSX.Element {
                           displayDates = last7Days.reverse()
                         }
                       }
-                      
+
                       return (
                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                           {displayDates.map((date) => {
                             const count = getSectorLimitUpCount(selectedSector.name, selectedSector.code, date)
                             const isToday = date === today
                             const hasData = !!sectorDataByDate[date]
-                            
+
                             return (
                               <div
                                 key={date}
@@ -2348,95 +2370,95 @@ export default function SectorRotation(): JSX.Element {
                       )
                     })()}
                   </div>
-                  
+
                   {/* 热门股票列表 */}
                   <div>
-                    <div style={{ fontSize: '1rem', fontWeight: '600', color: '#1f2937', marginBottom: '12px' }}>
-                      🔥 热门股票
+                    <div style={{ fontSize: '1rem', fontWeight: '600', color: '#1f2937', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Flame size={18} /> 热门股票
                     </div>
-                {loadingHotStocks ? (
-                  <div style={{ padding: '20px', textAlign: 'center', color: '#6b7280', fontSize: '0.9rem' }}>
-                    加载中...
-                  </div>
-                ) : hotStocks.length > 0 ? (
-                  <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                      <thead>
-                        <tr style={{ background: '#f9fafb', borderBottom: '2px solid #e5e7eb' }}>
-                          <th style={{ padding: '10px', textAlign: 'left', fontSize: '0.85rem', fontWeight: '600', color: '#6b7280' }}>股票名称</th>
-                          <th style={{ padding: '10px', textAlign: 'right', fontSize: '0.85rem', fontWeight: '600', color: '#6b7280' }}>最新价</th>
-                          <th style={{ padding: '10px', textAlign: 'right', fontSize: '0.85rem', fontWeight: '600', color: '#6b7280' }}>涨跌幅</th>
-                          <th style={{ padding: '10px', textAlign: 'right', fontSize: '0.85rem', fontWeight: '600', color: '#6b7280' }}>成交量</th>
-                          <th style={{ padding: '10px', textAlign: 'right', fontSize: '0.85rem', fontWeight: '600', color: '#6b7280' }}>成交额(万)</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {hotStocks.map((stock, index) => (
-                          <tr 
-                            key={stock.code}
-                            style={{ 
-                              borderBottom: '1px solid #e5e7eb',
-                              transition: 'background 0.2s'
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.background = '#f9fafb'
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.background = 'white'
-                            }}
-                          >
-                            <td 
-                              style={{ 
-                                padding: '10px',
-                                cursor: 'pointer'
-                              }}
-                              onClick={() => handleStockClick(stock)}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.background = '#eff6ff'
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.style.background = 'transparent'
-                              }}
-                            >
-                              <div style={{ fontSize: '0.9rem', fontWeight: '500', color: '#1f2937' }}>
-                                {stock.name}
-                              </div>
-                              <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
-                                {stock.code}
-                              </div>
-                            </td>
-                            <td style={{ padding: '10px', textAlign: 'right', fontSize: '0.9rem', color: '#1f2937' }}>
-                              {stock.price.toFixed(2)}
-                            </td>
-                            <td style={{ padding: '10px', textAlign: 'right' }}>
-                              <span style={{
-                                fontSize: '0.9rem',
-                                fontWeight: '600',
-                                color: stock.changePercent >= 0 ? '#dc2626' : '#16a34a'
-                              }}>
-                                {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
-                              </span>
-                            </td>
-                            <td style={{ padding: '10px', textAlign: 'right', fontSize: '0.85rem', color: '#6b7280' }}>
-                              {(stock.volume / 10000).toFixed(2)}万手
-                            </td>
-                            <td style={{ padding: '10px', textAlign: 'right', fontSize: '0.85rem', color: '#6b7280' }}>
-                              {stock.amount.toFixed(2)}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <div style={{ padding: '20px', textAlign: 'center', color: '#9ca3af', fontSize: '0.9rem' }}>
-                    暂无热门股票数据
-                  </div>
-                )}
+                    {loadingHotStocks ? (
+                      <div style={{ padding: '20px', textAlign: 'center', color: '#6b7280', fontSize: '0.9rem' }}>
+                        加载中...
+                      </div>
+                    ) : hotStocks.length > 0 ? (
+                      <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                          <thead>
+                            <tr style={{ background: '#f9fafb', borderBottom: '2px solid #e5e7eb' }}>
+                              <th style={{ padding: '10px', textAlign: 'left', fontSize: '0.85rem', fontWeight: '600', color: '#6b7280' }}>股票名称</th>
+                              <th style={{ padding: '10px', textAlign: 'right', fontSize: '0.85rem', fontWeight: '600', color: '#6b7280' }}>最新价</th>
+                              <th style={{ padding: '10px', textAlign: 'right', fontSize: '0.85rem', fontWeight: '600', color: '#6b7280' }}>涨跌幅</th>
+                              <th style={{ padding: '10px', textAlign: 'right', fontSize: '0.85rem', fontWeight: '600', color: '#6b7280' }}>成交量</th>
+                              <th style={{ padding: '10px', textAlign: 'right', fontSize: '0.85rem', fontWeight: '600', color: '#6b7280' }}>成交额(万)</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {hotStocks.map((stock, index) => (
+                              <tr
+                                key={stock.code}
+                                style={{
+                                  borderBottom: '1px solid #e5e7eb',
+                                  transition: 'background 0.2s'
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.background = '#f9fafb'
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.background = 'white'
+                                }}
+                              >
+                                <td
+                                  style={{
+                                    padding: '10px',
+                                    cursor: 'pointer'
+                                  }}
+                                  onClick={() => handleStockClick(stock)}
+                                  onMouseEnter={(e) => {
+                                    e.currentTarget.style.background = '#eff6ff'
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = 'transparent'
+                                  }}
+                                >
+                                  <div style={{ fontSize: '0.9rem', fontWeight: '500', color: '#1f2937' }}>
+                                    {stock.name}
+                                  </div>
+                                  <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
+                                    {stock.code}
+                                  </div>
+                                </td>
+                                <td style={{ padding: '10px', textAlign: 'right', fontSize: '0.9rem', color: '#1f2937' }}>
+                                  {stock.price.toFixed(2)}
+                                </td>
+                                <td style={{ padding: '10px', textAlign: 'right' }}>
+                                  <span style={{
+                                    fontSize: '0.9rem',
+                                    fontWeight: '600',
+                                    color: stock.changePercent >= 0 ? '#dc2626' : '#16a34a'
+                                  }}>
+                                    {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
+                                  </span>
+                                </td>
+                                <td style={{ padding: '10px', textAlign: 'right', fontSize: '0.85rem', color: '#6b7280' }}>
+                                  {(stock.volume / 10000).toFixed(2)}万手
+                                </td>
+                                <td style={{ padding: '10px', textAlign: 'right', fontSize: '0.85rem', color: '#6b7280' }}>
+                                  {stock.amount.toFixed(2)}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <div style={{ padding: '20px', textAlign: 'center', color: '#9ca3af', fontSize: '0.9rem' }}>
+                        暂无热门股票数据
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
-              
+
               {/* 添加CSS动画 */}
               <style>{`
                 @keyframes slideUp {
@@ -2488,14 +2510,20 @@ export default function SectorRotation(): JSX.Element {
         textAlign: 'center',
         lineHeight: '1.6'
       }}>
-          <div style={{ marginBottom: '8px', fontWeight: '500' }}>
-            数据来源：财联社
+        <div style={{ marginBottom: '8px', fontWeight: '500' }}>
+          数据来源：财联社
+        </div>
+        <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '4px' }}>
+            <BarChart2 size={14} /> 板块数据（排名、涨跌幅、历史数据）：财联社
           </div>
-          <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
-            <div>📊 板块数据（排名、涨跌幅、历史数据）：财联社</div>
-            <div>🏷️ 板块分类（行业/概念区分）：{caiLianSheTypeMapLoaded && caiLianSheTypeMap.size > 0 ? '财联社接口' : '关键词匹配'}</div>
-            <div>🔥 热门股票：财联社</div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '4px' }}>
+            <Tag size={14} /> 板块分类（行业/概念区分）：{caiLianSheTypeMapLoaded && caiLianSheTypeMap.size > 0 ? '财联社接口' : '关键词匹配'}
           </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+            <Flame size={14} /> 热门股票：财联社
+          </div>
+        </div>
         <div style={{ marginTop: '8px', fontSize: '0.75rem', color: '#9ca3af' }}>
           更新时间：{new Date().toLocaleString('zh-CN')}
         </div>

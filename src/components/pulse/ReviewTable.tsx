@@ -1,5 +1,5 @@
-import React from 'react'
 import type { DailyReview } from '../../types'
+import { History, Download, Upload, Plus } from 'lucide-react'
 
 interface ReviewTableProps {
   reviews: DailyReview[]
@@ -24,7 +24,7 @@ export const ReviewTable: React.FC<ReviewTableProps> = ({
     <div style={{ marginBottom: '24px', padding: '16px', background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
         <h3 style={{ margin: 0, fontSize: '1rem', color: '#374151', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          📝 每日复盘 <span style={{ fontSize: '0.8rem', color: '#9ca3af', fontWeight: 'normal' }}>最近{reviews.length}天</span>
+          <History size={18} /> 每日复盘 <span style={{ fontSize: '0.8rem', color: '#9ca3af', fontWeight: 'normal' }}>最近{reviews.length}天</span>
         </h3>
         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
           <button onClick={onExport} style={{
@@ -36,12 +36,15 @@ export const ReviewTable: React.FC<ReviewTableProps> = ({
             borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
           }}>📤 导入</button>
           <button onClick={onAddToday} style={{
+            display: 'flex', alignItems: 'center', gap: '4px',
             padding: '6px 12px', background: '#3b82f6', color: 'white', border: 'none',
             borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
-          }}>+ 录入今日</button>
+          }}>
+            <Plus size={14} /> 录入今日
+          </button>
         </div>
       </div>
-      
+
       {reviews.length > 0 ? (
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem', minWidth: '1200px' }}>

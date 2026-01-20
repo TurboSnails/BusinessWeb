@@ -8,28 +8,50 @@ import { ReviewTable } from '../components/pulse/ReviewTable'
 import { NewsSourceSection } from '../components/pulse/NewsSourceSection'
 import { MarketCategory as MarketCategoryComponent } from '../components/pulse/MarketCategory'
 import { SectorSection } from '../components/pulse/SectorSection'
+import {
+  TrendingUp,
+  Globe,
+  Globe2,
+  Box,
+  Repeat,
+  ArrowUp,
+  ArrowDown,
+  Cloud,
+  Download,
+  Search,
+  Settings,
+  Upload,
+  ArrowRight,
+  RefreshCw,
+  Link as LinkIcon,
+  ShieldCheck,
+  Target,
+  BarChart2,
+  AlertTriangle,
+  History
+} from 'lucide-react'
 
 export default function Pulse(): JSX.Element {
   const [categories, setCategories] = useState<MarketCategory[]>([])
   const [sectorCategories, setSectorCategories] = useState<SectorCategory[]>([])
   const [loading, setLoading] = useState(true)
   const [timestamp, setTimestamp] = useState<string>('')
-  
+
   // 复盘表格状态
   const [reviews, setReviews] = useState<DailyReview[]>([])
   const [showForm, setShowForm] = useState(false)
   const [editDate, setEditDate] = useState<string>('')
   const [formData, setFormData] = useState<Partial<DailyReview>>({})
-  
+
   // 消息源状态
   const [newsSources, setNewsSources] = useState<NewsSource[]>([])
-  
+
   // 云端同步状态
   const [showSettings, setShowSettings] = useState(false)
   const [gistTokenInput, setGistTokenInput] = useState('')
   const [gistIdInput, setGistIdInput] = useState('')
   const [syncing, setSyncing] = useState(false)
-  
+
   // 筛选状态
   const [showFilter, setShowFilter] = useState(false)
   const [filterCategories, setFilterCategories] = useState<Set<string>>(new Set(['us', 'cn', 'hk', 'global', 'commodity', 'forex']))
@@ -40,7 +62,7 @@ export default function Pulse(): JSX.Element {
     setNewsSources(loadNewsSources())
     setGistTokenInput(getGistToken() || '')
     setGistIdInput(getGistId() || '')
-    
+
     // 尝试从云端同步
     const loadFromCloud = async () => {
       const cloudData = await syncFromGist()
@@ -53,19 +75,19 @@ export default function Pulse(): JSX.Element {
       }
     }
     loadFromCloud()
-    
+
     let mounted = true
     const fetchAllData = async () => {
       setLoading(true)
       const categoryConfig = [
-        { key: 'us', title: '美股指数', icon: '🇺🇸', color: '#3b82f6', bgColor: '#eff6ff' },
-        { key: 'cn', title: '中国A股', icon: '🇨🇳', color: '#ef4444', bgColor: '#fef2f2' },
-        { key: 'hk', title: '港股指数', icon: '🇭🇰', color: '#22c55e', bgColor: '#f0fdf4' },
-        { key: 'global', title: 'G20全球股市', icon: '🌍', color: '#0ea5e9', bgColor: '#f0f9ff' },
-        { key: 'commodity', title: '大宗商品', icon: '📦', color: '#f59e0b', bgColor: '#fffbeb' },
-        { key: 'forex', title: '外汇债券', icon: '💱', color: '#8b5cf6', bgColor: '#faf5ff' },
+        { key: 'us', title: '美股指数', icon: <TrendingUp size={18} />, color: '#3b82f6', bgColor: '#eff6ff' },
+        { key: 'cn', title: '中国A股', icon: <Globe size={18} />, color: '#ef4444', bgColor: '#fef2f2' },
+        { key: 'hk', title: '港股指数', icon: <Globe2 size={18} />, color: '#22c55e', bgColor: '#f0fdf4' },
+        { key: 'global', title: 'G20全球股市', icon: <Globe size={18} />, color: '#0ea5e9', bgColor: '#f0f9ff' },
+        { key: 'commodity', title: '大宗商品', icon: <Box size={18} />, color: '#f59e0b', bgColor: '#fffbeb' },
+        { key: 'forex', title: '外汇债券', icon: <Repeat size={18} />, color: '#8b5cf6', bgColor: '#faf5ff' },
       ]
-      
+
       try {
         const [results, cnSectors, usSectors] = await Promise.all([
           Promise.all(
@@ -78,7 +100,7 @@ export default function Pulse(): JSX.Element {
           fetchSectorCategories(),  // 获取中国板块数据
           fetchUSSectorCategories()  // 获取美股板块数据
         ])
-        
+
         if (mounted) {
           console.log('所有分类数据:', results)
           console.log('筛选条件:', Array.from(filterCategories))
@@ -89,8 +111,8 @@ export default function Pulse(): JSX.Element {
         }
       } catch (error) {
         console.error('获取数据失败:', error)
-      if (mounted) {
-        setLoading(false)
+        if (mounted) {
+          setLoading(false)
         }
       }
     }
@@ -101,7 +123,7 @@ export default function Pulse(): JSX.Element {
   // 保存复盘数据
   const handleSaveReview = () => {
     if (!formData.date) return
-    
+
     const newReview: DailyReview = {
       date: formData.date,
       weekday: getWeekday(formData.date),
@@ -122,7 +144,7 @@ export default function Pulse(): JSX.Element {
       inflow: formData.inflow || '',
       outflow: formData.outflow || '',
     }
-    
+
     // 更新或新增
     const existingIndex = reviews.findIndex(r => r.date === newReview.date)
     let newReviews: DailyReview[]
@@ -132,16 +154,16 @@ export default function Pulse(): JSX.Element {
     } else {
       newReviews = [newReview, ...reviews]
     }
-    
+
     // 按日期排序
     newReviews.sort((a, b) => b.date.localeCompare(a.date))
-    
+
     setReviews(newReviews)
     saveReviews(newReviews)
     // 自动同步到云端
     syncToGist(newReviews).then(result => {
       if (!result.success) console.warn('自动同步失败:', result.error)
-    }).catch(() => {})
+    }).catch(() => { })
     setShowForm(false)
     setFormData({})
     setEditDate('')
@@ -187,7 +209,7 @@ export default function Pulse(): JSX.Element {
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
     alert('数据已导出！')
-        }
+  }
 
   // 导入数据
   const handleImport = () => {
@@ -197,18 +219,18 @@ export default function Pulse(): JSX.Element {
     input.onchange = (e) => {
       const file = (e.target as HTMLInputElement).files?.[0]
       if (!file) return
-      
+
       const reader = new FileReader()
       reader.onload = (event) => {
         try {
           const data = JSON.parse(event.target?.result as string)
-          
+
           if (data.reviews && Array.isArray(data.reviews)) {
             setReviews(data.reviews)
             saveReviews(data.reviews)
           }
-          
-          
+
+
           alert('数据导入成功！数据已更新')
           // 不刷新页面，数据已通过 state 更新
         } catch (error) {
@@ -241,13 +263,13 @@ export default function Pulse(): JSX.Element {
   // 合并数据：智能合并本地和云端数据（类似 Git merge）
   const mergeData = <T extends { id?: string; date?: string }>(local: T[], cloud: T[], keyField: string = 'id'): T[] => {
     const merged = new Map<string, T>()
-    
+
     // 先添加云端数据（云端优先）
     cloud.forEach(item => {
       const key = item[keyField as keyof T] as string || `${item.date || ''}_${JSON.stringify(item).slice(0, 50)}`
       merged.set(key, item)
     })
-    
+
     // 再添加本地数据（如果本地有新的或更新的）
     local.forEach(item => {
       const key = item[keyField as keyof T] as string || `${item.date || ''}_${JSON.stringify(item).slice(0, 50)}`
@@ -264,7 +286,7 @@ export default function Pulse(): JSX.Element {
         }
       }
     })
-    
+
     return Array.from(merged.values())
   }
 
@@ -274,14 +296,14 @@ export default function Pulse(): JSX.Element {
       alert('❌ 请先配置 Token（点击"云端设置"）')
       return
     }
-    
+
     setSyncing(true)
-    
+
     try {
       // 如果有 Gist ID，先下载云端数据（类似 Git pull）
       const gistId = getGistId()
       let cloudReviews: DailyReview[] = []
-      
+
       if (gistId) {
         try {
           const cloudData = await syncFromGist()
@@ -297,16 +319,16 @@ export default function Pulse(): JSX.Element {
 
       // 合并数据：本地 + 云端（避免覆盖）
       const mergedReviews = mergeData(reviews, cloudReviews, 'date')
-      
+
       // 如果有新数据合并进来，更新本地状态
       if (mergedReviews.length > reviews.length) {
         setReviews(mergedReviews)
         saveReviews(mergedReviews)
       }
-      
+
       // 上传合并后的数据（类似 Git push）
       const result = await syncToGist(mergedReviews)
-      
+
       if (result.success) {
         const reviewCount = mergedReviews.length
         const currentGistId = getGistId()
@@ -316,7 +338,7 @@ export default function Pulse(): JSX.Element {
         const publicSyncInfo = result.publicSync
           ? `\n\n🌐 已同步到公共 Gist（其他人可读取）`
           : `\n\nℹ️ 未同步到公共 Gist（无权限或非所有者）`
-        const message = currentGistId 
+        const message = currentGistId
           ? `✅ 上传成功！\n\n复盘数据：${reviewCount} 条${mergeInfo}${publicSyncInfo}\n\nGist ID: ${currentGistId}\n\n（可在其他设备输入此 ID 同步）`
           : `✅ 上传成功！\n\n复盘数据：${reviewCount} 条${mergeInfo}${publicSyncInfo}`
         alert(message)
@@ -329,38 +351,38 @@ export default function Pulse(): JSX.Element {
       alert(`❌ 上传失败\n\n错误：${error instanceof Error ? error.message : '未知错误'}`)
     } finally {
       setSyncing(false)
-        }
+    }
   }
 
   // 手动从云端同步
   const handleSyncFromCloud = async () => {
     const hasToken = getGistToken()
     const hasGistId = getGistId()
-    
+
     // 如果用户配置了 token 但没有 gistId，提示需要先上传
     if (hasToken && !hasGistId) {
       alert('❌ 云端还没有数据\n\n请先上传一次数据，然后再下载\n\n（如果没有配置，将使用默认公共数据）')
       return
     }
-    
+
     setSyncing(true)
     const cloudData = await syncFromGist()
     setSyncing(false)
-    
+
     if (cloudData) {
       const reviewCount = cloudData.reviews.length
-      
+
       if (reviewCount === 0) {
         alert('⚠️ 云端数据为空')
         return
       }
-      
+
       // 合并数据：云端优先
       if (reviewCount > 0) {
         setReviews(cloudData.reviews)
         saveReviews(cloudData.reviews)
       }
-      
+
       const source = hasGistId ? '你的云端数据' : '默认公共数据'
       alert(`✅ 下载成功！\n\n数据来源：${source}\n复盘数据：${reviewCount} 条\n\n数据已更新到本地`)
     } else {
@@ -383,7 +405,7 @@ export default function Pulse(): JSX.Element {
     const isPositive = stock.change >= 0
     const changeColor = isPositive ? '#16a34a' : '#dc2626'
 
-  return (
+    return (
       <div key={stock.symbol} style={{
         background: 'white', borderRadius: '12px', padding: '14px',
         boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column',
@@ -395,15 +417,18 @@ export default function Pulse(): JSX.Element {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <span style={{ fontWeight: '600', fontSize: '0.9rem', color: '#1f2937' }}>{stock.name}</span>
           {stock.rsi !== undefined && (
-            <span style={{ fontSize: '0.7rem', padding: '2px 5px', borderRadius: '4px',
+            <span style={{
+              fontSize: '0.7rem', padding: '2px 5px', borderRadius: '4px',
               background: stock.rsi >= 70 ? '#fef2f2' : stock.rsi <= 30 ? '#f0fdf4' : '#f3f4f6',
               color: stock.rsi >= 70 ? '#dc2626' : stock.rsi <= 30 ? '#16a34a' : '#6b7280', fontWeight: '500'
             }}>RSI {stock.rsi.toFixed(0)}</span>
           )}
-          </div>
+        </div>
         <div style={{ fontSize: '1.3rem', fontWeight: '700', color: changeColor }}>{formatPrice(stock.price, stock.symbol)}</div>
-        <div style={{ display: 'flex', gap: '8px', fontSize: '0.8rem' }}>
-          <span style={{ color: changeColor, fontWeight: '500' }}>{isPositive ? '↑' : '↓'} {formatPrice(Math.abs(stock.change))}</span>
+        <div style={{ display: 'flex', gap: '8px', fontSize: '0.8rem', alignItems: 'center' }}>
+          <span style={{ color: changeColor, fontWeight: '500', display: 'flex', alignItems: 'center', gap: '2px' }}>
+            {isPositive ? <ArrowUp size={12} /> : <ArrowDown size={12} />} {formatPrice(Math.abs(stock.change))}
+          </span>
           <span style={{ color: changeColor, fontWeight: '600', padding: '1px 5px', borderRadius: '4px', background: isPositive ? '#f0fdf4' : '#fef2f2' }}>{formatPercent(stock.changePercent)}</span>
         </div>
       </div>
@@ -431,10 +456,12 @@ export default function Pulse(): JSX.Element {
     if (!filterCategories.has(category.key)) {
       return null
     }
-  return (
+    return (
       <div key={category.key} style={{ marginBottom: '20px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', padding: '6px 10px',
-          background: category.bgColor, borderRadius: '6px', borderLeft: `3px solid ${category.color}` }}>
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', padding: '6px 10px',
+          background: category.bgColor, borderRadius: '6px', borderLeft: `3px solid ${category.color}`
+        }}>
           <span style={{ fontSize: '1rem' }}>{category.icon}</span>
           <span style={{ fontWeight: '600', color: category.color, fontSize: '0.9rem' }}>{category.title}</span>
         </div>
@@ -539,7 +566,7 @@ export default function Pulse(): JSX.Element {
             <label style={{ fontSize: '0.8rem', color: '#64748b' }}>换手率前五</label>
             <input type="number" value={formData.top5Turnover || ''} onChange={e => setFormData({ ...formData, top5Turnover: +e.target.value })}
               style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }} />
-        </div>
+          </div>
           <div style={{ gridColumn: '1 / -1' }}>
             <label style={{ fontSize: '0.8rem', color: '#64748b' }}>流入板块</label>
             <input type="text" placeholder="如 航天、消费电子" value={formData.inflow || ''} onChange={e => setFormData({ ...formData, inflow: e.target.value })}
@@ -560,8 +587,8 @@ export default function Pulse(): JSX.Element {
       </div>
     </div>
   )
-                  
-                  return (
+
+  return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '16px', minHeight: '100vh' }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '20px', padding: '14px 18px', background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
@@ -620,8 +647,8 @@ export default function Pulse(): JSX.Element {
       ) : categories.length === 0 ? (
         <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>
           ⚠️ 暂无数据，请检查网络连接或刷新页面
-          </div>
-        ) : (
+        </div>
+      ) : (
         categories
           .filter(category => filterCategories.has(category.key))
           .map(category => {
@@ -643,7 +670,9 @@ export default function Pulse(): JSX.Element {
 
       {/* 资源链接 */}
       <div style={{ marginTop: '20px', padding: '16px', background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-        <h3 style={{ fontSize: '0.9rem', marginBottom: '10px', color: '#374151' }}>🔗 常用资源</h3>
+        <h3 style={{ fontSize: '0.9rem', marginBottom: '10px', color: '#374151', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <LinkIcon size={16} /> 常用资源
+        </h3>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
           {[
             { name: '涨停揭秘', url: 'https://stcn.com/article/search.html?keyword=%E6%8F%AD%E7%A7%98%E6%B6%A8%E5%81%9C' },
@@ -670,20 +699,22 @@ export default function Pulse(): JSX.Element {
 
       {/* 录入表单弹窗 */}
       {renderForm()}
-      
+
       {/* 筛选弹窗 */}
       {showFilter && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ background: 'white', borderRadius: '12px', padding: '20px', width: '90%', maxWidth: '400px' }}>
-            <h3 style={{ margin: '0 0 16px', fontSize: '1.1rem' }}>🔍 筛选数据分类</h3>
+            <h3 style={{ margin: '0 0 16px', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Search size={20} /> 筛选数据分类
+            </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
               {[
-                { key: 'us', title: '美股指数', icon: '🇺🇸' },
-                { key: 'cn', title: '中国A股', icon: '🇨🇳' },
-                { key: 'hk', title: '港股指数', icon: '🇭🇰' },
-                { key: 'global', title: 'G20全球股市', icon: '🌍' },
-                { key: 'commodity', title: '大宗商品', icon: '📦' },
-                { key: 'forex', title: '外汇债券', icon: '💱' },
+                { key: 'us', title: '美股指数', icon: <TrendingUp size={16} /> },
+                { key: 'cn', title: '中国A股', icon: <Globe size={16} /> },
+                { key: 'hk', title: '港股指数', icon: <Globe2 size={16} /> },
+                { key: 'global', title: 'G20全球股市', icon: <Globe size={16} /> },
+                { key: 'commodity', title: '大宗商品', icon: <Box size={16} /> },
+                { key: 'forex', title: '外汇债券', icon: <Repeat size={16} /> },
               ].map(cat => (
                 <label key={cat.key} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', padding: '8px', borderRadius: '6px', background: filterCategories.has(cat.key) ? '#f0f9ff' : '#f9fafb' }}>
                   <input
@@ -692,7 +723,7 @@ export default function Pulse(): JSX.Element {
                     onChange={() => toggleFilterCategory(cat.key)}
                     style={{ width: '18px', height: '18px', cursor: 'pointer' }}
                   />
-                  <span style={{ fontSize: '1rem' }}>{cat.icon}</span>
+                  <span style={{ fontSize: '1rem', display: 'flex' }}>{cat.icon}</span>
                   <span style={{ fontSize: '0.9rem', color: '#374151' }}>{cat.title}</span>
                 </label>
               ))}
@@ -708,14 +739,16 @@ export default function Pulse(): JSX.Element {
               </button>
             </div>
           </div>
-          </div>
-        )}
+        </div>
+      )}
 
-        {/* 云端设置弹窗 */}
+      {/* 云端设置弹窗 */}
       {showSettings && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ background: 'white', borderRadius: '12px', padding: '20px', width: '90%', maxWidth: '500px' }}>
-            <h3 style={{ margin: '0 0 16px', fontSize: '1.1rem' }}>☁️ 云端同步设置</h3>
+            <h3 style={{ margin: '0 0 16px', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Cloud size={20} /> 云端同步设置
+            </h3>
             <p style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '16px' }}>
               使用 GitHub Gist 免费存储数据，实现跨设备同步
               <br />
@@ -725,7 +758,7 @@ export default function Pulse(): JSX.Element {
               <label style={{ fontSize: '0.8rem', color: '#64748b', display: 'block', marginBottom: '6px' }}>
                 GitHub Personal Access Token
               </label>
-              <input 
+              <input
                 type="password"
                 value={gistTokenInput}
                 onChange={e => setGistTokenInput(e.target.value)}
@@ -750,7 +783,7 @@ export default function Pulse(): JSX.Element {
               <label style={{ fontSize: '0.8rem', color: '#64748b', display: 'block', marginBottom: '6px' }}>
                 Gist ID（可选，跨设备同步时需要）
               </label>
-              <input 
+              <input
                 type="text"
                 value={gistIdInput}
                 onChange={e => setGistIdInput(e.target.value)}

@@ -1,22 +1,45 @@
-import React, { useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { Link, useLocation } from 'react-router-dom'
+import {
+  Home,
+  TrendingUp,
+  Globe,
+  BarChart2,
+  Activity,
+  Rocket,
+  RefreshCw,
+  Shield,
+  Calendar,
+  Info,
+  Menu,
+  X
+} from 'lucide-react'
 
 export default function Header(): JSX.Element {
   const location = useLocation()
-  const navigate = useNavigate()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+
+  // Handle scroll effect for glass header
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const navItems = [
-    { path: '/', label: '首页', icon: '🏠' },
-    { path: '/investment-targets', label: '美股投资', icon: '📈' },
-    { path: '/mainland-investment-targets', label: '大陆投资', icon: '🇨🇳' },
-    { path: '/pulse', label: '经济脉搏', icon: '📊' },
-    { path: '/monitor', label: '每日监控', icon: '📈' },
-    { path: '/limit-up-analysis', label: '涨停分析', icon: '🚀' },
-    { path: '/sector-rotation', label: '板块轮动', icon: '🔄' },
-    { path: '/trading-philosophy', label: '道与术', icon: '⚔️' },
-    { path: '/investment-plan-2026', label: '投资计划', icon: '📅' },
-    { path: '/about', label: '关于', icon: 'ℹ️' }
+    { path: '/', label: '首页', icon: Home },
+    { path: '/investment-targets', label: '美股投资', icon: TrendingUp },
+    { path: '/mainland-investment-targets', label: '大陆投资', icon: Globe },
+    { path: '/pulse', label: '经济脉搏', icon: BarChart2 },
+    { path: '/monitor', label: '每日监控', icon: Activity },
+    { path: '/limit-up-analysis', label: '涨停分析', icon: Rocket },
+    { path: '/sector-rotation', label: '板块轮动', icon: RefreshCw },
+    { path: '/trading-philosophy', label: '道与术', icon: Shield },
+    { path: '/investment-plan-2026', label: '投资计划', icon: Calendar },
+    { path: '/about', label: '关于', icon: Info }
   ]
 
   // 获取当前页面标题
@@ -38,297 +61,185 @@ export default function Header(): JSX.Element {
   }
 
   return (
-    <header style={{
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      color: '#fff',
-      padding: '0',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-      position: 'sticky',
-      top: 0,
-      zIndex: 1000
-    }}>
-      <div style={{
-        maxWidth: '1400px',
-        margin: '0 auto',
-        padding: '8px 20px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        position: 'relative'
-      }}>
-        {/* 首页图标 - 左侧 */}
-        <Link
-          to="/"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '36px',
-            height: '36px',
-            textDecoration: 'none',
-            color: 'white',
-            transition: 'all 0.2s ease',
-            borderRadius: '8px',
-            background: location.pathname === '/' 
-              ? 'rgba(255,255,255,0.15)' 
-              : 'rgba(255,255,255,0.05)',
-            backdropFilter: 'blur(8px)',
-            border: location.pathname === '/' 
-              ? '1px solid rgba(255,255,255,0.2)' 
-              : '1px solid rgba(255,255,255,0.08)'
-          }}
-          onMouseEnter={(e) => { 
-            e.currentTarget.style.background = 'rgba(255,255,255,0.12)'
-            e.currentTarget.style.transform = 'scale(1.05)'
-          }}
-          onMouseLeave={(e) => { 
-            e.currentTarget.style.background = location.pathname === '/' 
-              ? 'rgba(255,255,255,0.15)' 
-              : 'rgba(255,255,255,0.05)'
-            e.currentTarget.style.transform = 'scale(1)'
-          }}
-        >
-          <span style={{
-            fontSize: '1.4rem',
-            display: 'inline-block'
-          }}>
-            🏠
-          </span>
-        </Link>
+    <>
+      <header
+        className={`glass-panel ${scrolled ? 'scrolled' : ''}`}
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 1000,
+          transition: 'all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1)',
+          padding: scrolled ? '8px 0' : '16px 0',
+          background: scrolled ? 'var(--glass-bg)' : 'transparent',
+          borderBottom: scrolled ? '0.5px solid rgba(0, 0, 0, 0.1)' : '0.5px solid transparent',
+        }}
+      >
+        <div style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          padding: '0 24px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}>
+          {/* Logo / Home */}
+          <Link
+            to="/"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '40px',
+              height: '40px',
+              textDecoration: 'none',
+              color: scrolled ? 'var(--system-blue)' : 'var(--text-primary)',
+              background: scrolled ? 'rgba(0, 122, 255, 0.1)' : 'rgba(255, 255, 255, 0.2)',
+              borderRadius: '12px',
+              transition: 'all 0.3s ease',
+            }}
+          >
+            <Home size={20} />
+          </Link>
 
-        {/* 当前页面标题 - 居中显示（仅移动端） */}
-        {location.pathname !== '/' && (
+          {/* Mobile Title */}
           <div className="page-title-mobile" style={{
             flex: 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            margin: '0 12px'
+            textAlign: 'center',
+            fontWeight: 600,
+            fontSize: '1rem',
+            color: 'var(--text-primary)',
+            opacity: isMobileMenuOpen ? 0 : 1,
+            transition: 'opacity 0.2s'
           }}>
-            <div style={{
-              fontSize: '0.9rem',
-              fontWeight: '600',
-              color: 'white',
-              whiteSpace: 'nowrap',
-              textAlign: 'center',
-              letterSpacing: '0.2px'
-            }}>
-              {getCurrentPageTitle()}
-            </div>
+            {getCurrentPageTitle()}
           </div>
-        )}
 
-        {/* Desktop Navigation */}
-        <nav style={{
-          display: 'none',
-          alignItems: 'center',
-          gap: '8px',
-          flex: 1,
-          justifyContent: 'center'
-        }}
-        className="desktop-nav"
-        >
-          {navItems.map((item) => {
-            const active = isActive(item.path)
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                style={{
-                  color: active ? '#fff' : 'rgba(255,255,255,0.9)',
-                  textDecoration: 'none',
-                  padding: '6px 14px',
-                  borderRadius: '8px',
-                  fontSize: '0.9rem',
-                  fontWeight: active ? '600' : '500',
-                  background: active 
-                    ? 'rgba(255,255,255,0.15)' 
-                    : 'rgba(255,255,255,0.05)',
-                  backdropFilter: 'blur(8px)',
-                  transition: 'all 0.2s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  border: active 
-                    ? '1px solid rgba(255,255,255,0.2)' 
-                    : '1px solid rgba(255,255,255,0.08)'
-                }}
-                onMouseEnter={(e) => {
-                  if (!active) {
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.1)'
-                    e.currentTarget.style.transform = 'translateY(-1px)'
-                    e.currentTarget.style.border = '1px solid rgba(255,255,255,0.15)'
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!active) {
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.05)'
-                    e.currentTarget.style.transform = 'translateY(0)'
-                    e.currentTarget.style.border = '1px solid rgba(255,255,255,0.08)'
-                  }
-                }}
-              >
-                <span>{item.icon}</span>
-                <span>{item.label}</span>
-              </Link>
-            )
-          })}
-        </nav>
+          {/* Desktop Nav */}
+          <nav className="desktop-nav" style={{ gap: '2px' }}>
+            {navItems.map((item) => {
+              const active = isActive(item.path)
+              const Icon = item.icon
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  style={{
+                    color: active ? '#fff' : 'var(--text-secondary)',
+                    background: active ? 'var(--system-blue)' : 'transparent',
+                    textDecoration: 'none',
+                    padding: '8px 14px',
+                    borderRadius: 'var(--radius-full)',
+                    fontSize: '0.85rem',
+                    fontWeight: 500,
+                    transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!active) {
+                      e.currentTarget.style.background = 'rgba(0, 0, 0, 0.04)'
+                      e.currentTarget.style.color = 'var(--text-primary)'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!active) {
+                      e.currentTarget.style.background = 'transparent'
+                      e.currentTarget.style.color = 'var(--text-secondary)'
+                    }
+                  }}
+                >
+                  <Icon size={16} strokeWidth={active ? 2.5 : 2} />
+                  <span>{item.label}</span>
+                </Link>
+              )
+            })}
+          </nav>
 
-        {/* Mobile Menu Button */}
-        <button
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="mobile-menu-btn"
+            style={{
+              background: 'transparent',
+              border: 'none',
+              padding: '8px',
+              cursor: 'pointer',
+              color: 'var(--text-primary)',
+              zIndex: 1100,
+            }}
+          >
+            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
+
+        {/* Mobile Dropdown */}
+        <div
+          className="mobile-nav"
           style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '3px',
-            background: isMobileMenuOpen 
-              ? 'rgba(255,255,255,0.15)' 
-              : 'rgba(255,255,255,0.08)',
-            border: '1px solid rgba(255,255,255,0.15)',
-            borderRadius: '8px',
-            padding: '8px',
-            cursor: 'pointer',
-            backdropFilter: 'blur(8px)',
-            transition: 'all 0.2s ease',
-            width: '36px',
-            height: '36px',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-          className="mobile-menu-btn"
-          aria-label="菜单"
-          onMouseEnter={(e) => {
-            if (!isMobileMenuOpen) {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.12)'
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!isMobileMenuOpen) {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.08)'
-            }
+            display: isMobileMenuOpen ? 'block' : 'none',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(255, 255, 255, 0.8)',
+            backdropFilter: 'blur(30px)',
+            WebkitBackdropFilter: 'blur(30px)',
+            padding: '80px 24px 24px',
+            zIndex: 1050,
+            animation: 'fadeIn 0.3s ease-out'
           }}
         >
-          <span style={{
-            width: '24px',
-            height: '2px',
-            background: 'white',
-            borderRadius: '2px',
-            transition: 'all 0.3s',
-            transform: isMobileMenuOpen ? 'rotate(45deg) translate(6px, 6px)' : 'none'
-          }} />
-          <span style={{
-            width: '24px',
-            height: '2px',
-            background: 'white',
-            borderRadius: '2px',
-            transition: 'all 0.3s',
-            opacity: isMobileMenuOpen ? 0 : 1
-          }} />
-          <span style={{
-            width: '24px',
-            height: '2px',
-            background: 'white',
-            borderRadius: '2px',
-            transition: 'all 0.3s',
-            transform: isMobileMenuOpen ? 'rotate(-45deg) translate(6px, -6px)' : 'none'
-          }} />
-        </button>
-      </div>
-
-      {/* Mobile Navigation Menu */}
-      <div
-        style={{
-          display: isMobileMenuOpen ? 'block' : 'none',
-          background: 'rgba(102, 126, 234, 0.98)',
-          backdropFilter: 'blur(10px)',
-          borderTop: '1px solid rgba(255,255,255,0.2)',
-          padding: '16px 20px',
-          animation: isMobileMenuOpen ? 'slideDown 0.3s ease-out' : 'none'
-        }}
-        className="mobile-nav"
-      >
-        {navItems.map((item) => {
-          const active = isActive(item.path)
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              onClick={() => setIsMobileMenuOpen(false)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                color: active ? '#fff' : 'rgba(255,255,255,0.9)',
-                textDecoration: 'none',
-                padding: '10px 14px',
-                borderRadius: '8px',
-                fontSize: '0.95rem',
-                fontWeight: active ? '600' : '500',
-                background: active 
-                  ? 'rgba(255,255,255,0.15)' 
-                  : 'rgba(255,255,255,0.05)',
-                marginBottom: '8px',
-                transition: 'all 0.2s ease',
-                border: active 
-                  ? '1px solid rgba(255,255,255,0.2)' 
-                  : '1px solid rgba(255,255,255,0.08)'
-              }}
-              onMouseEnter={(e) => {
-                if (!active) {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.1)'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!active) {
-                  e.currentTarget.style.background = 'transparent'
-                }
-              }}
-            >
-              <span style={{ fontSize: '1.2rem' }}>{item.icon}</span>
-              <span>{item.label}</span>
-            </Link>
-          )
-        })}
-      </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+            {navItems.map((item) => {
+              const active = isActive(item.path)
+              const Icon = item.icon
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    padding: '20px 12px',
+                    borderRadius: '20px',
+                    textDecoration: 'none',
+                    color: active ? '#fff' : 'var(--text-primary)',
+                    background: active ? 'var(--system-blue)' : 'rgba(255, 255, 255, 0.5)',
+                    border: '1px solid rgba(255, 255, 255, 0.3)',
+                    fontSize: '0.9rem',
+                    fontWeight: 600,
+                    boxShadow: active ? '0 8px 16px rgba(0, 122, 255, 0.3)' : 'var(--shadow-sm)',
+                  }}
+                >
+                  <Icon size={24} strokeWidth={2} />
+                  <span>{item.label}</span>
+                </Link>
+              )
+            })}
+          </div>
+        </div>
+      </header>
 
       <style>{`
-        @media (min-width: 768px) {
-          .desktop-nav {
-            display: flex !important;
-          }
-          .mobile-menu-btn {
-            display: none !important;
-          }
-          .mobile-nav {
-            display: none !important;
-          }
-          .page-title-mobile {
-            display: none !important;
-          }
+        @media (min-width: 1024px) {
+          .desktop-nav { display: flex !important; }
+          .mobile-menu-btn, .mobile-nav, .page-title-mobile { display: none !important; }
         }
-        @media (max-width: 767px) {
-          .desktop-nav {
-            display: none !important;
-          }
-          .mobile-menu-btn {
-            display: flex !important;
-          }
-          .page-title-mobile {
-            display: flex !important;
-          }
+        @media (max-width: 1023px) {
+          .desktop-nav { display: none !important; }
+          .mobile-menu-btn, .page-title-mobile { display: flex !important; }
         }
-        @keyframes slideDown {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: scale(1.05); }
+          to { opacity: 1; transform: scale(1); }
         }
       `}</style>
-    </header>
+    </>
   )
 }

@@ -1,4 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react'
+import {
+  TrendingUp,
+  Calendar,
+  RefreshCcw,
+  AlertTriangle,
+  BarChart2,
+  TrendingDown,
+  Info,
+  ChevronDown,
+  ChevronUp,
+  ArrowRight
+} from 'lucide-react'
 import type { LimitUpConcept, LimitUpStock } from '../types'
 
 export default function LimitUpAnalysis(): JSX.Element {
@@ -24,25 +36,25 @@ export default function LimitUpAnalysis(): JSX.Element {
         plateStockLength: data?.data?.plate_stock?.length,
         sample: JSON.stringify(data).substring(0, 1000)
       })
-      
+
       // 检查API返回状态
       if (data?.code !== 200) {
         console.warn('⚠️ API返回错误码:', data?.code, data?.msg)
         return getMockData()
       }
-      
+
       // 从 data.plate_stock 获取板块数据
       const plateStockData = data?.data?.plate_stock
-      
+
       if (!Array.isArray(plateStockData) || plateStockData.length === 0) {
         console.warn('⚠️ 无法提取板块数据，使用模拟数据')
         return getMockData()
       }
-      
+
       console.log(`📊 提取到的板块数据，数量: ${plateStockData.length}`)
-      
+
       // 解析每个板块
-      const parsedConcepts: LimitUpConcept[] = plateStockData.map((plate: any, index: number) => {
+      const mappedConcepts = plateStockData.map((plate: any, index: number): LimitUpConcept | null => {
         try {
           // 解析股票列表 - API字段名是 stock_list
           const stocksArray = plate.stock_list || []
@@ -56,7 +68,7 @@ export default function LimitUpAnalysis(): JSX.Element {
             // cmc -> marketCap (可能是以分为单位，需要转换为亿元)
             // up_num -> consecutiveDays (需要解析"10天9板"这样的字符串)
             // up_reason -> description
-            
+
             const code = stock.secu_code || ''
             const name = stock.secu_name || ''
             const currentPrice = parseFloat(stock.last_px || stock.price || 0)
@@ -79,7 +91,7 @@ export default function LimitUpAnalysis(): JSX.Element {
               }
             }
             const description = stock.up_reason || ''
-            
+
             return {
               code,
               name,
@@ -91,7 +103,7 @@ export default function LimitUpAnalysis(): JSX.Element {
               description
             }
           }) : []
-          
+
           // 获取板块信息
           const conceptName = plate.secu_name || `板块${index + 1}`
           // plate_stock_up_num 是涨停股票数量，stock_list.length 是总股票数量
@@ -99,9 +111,9 @@ export default function LimitUpAnalysis(): JSX.Element {
           // change 是小数形式，需要转换为百分比
           const changePercent = parseFloat(plate.change || 0) * 100
           const drivingFactor = plate.up_reason || ''
-          
+
           console.log(`  ✓ 板块 ${index + 1}: ${conceptName}, 涨停数: ${stockCount}, 涨幅: ${changePercent.toFixed(2)}%, 股票列表长度: ${stocks.length}`)
-          
+
           return {
             name: conceptName,
             stockCount: stockCount, // 涨停股票数量
@@ -113,12 +125,14 @@ export default function LimitUpAnalysis(): JSX.Element {
           console.warn(`解析板块 ${index} 失败:`, itemError, plate)
           return null
         }
-      }).filter((item: LimitUpConcept | null): item is LimitUpConcept => item !== null)
-      
-      console.log(`✅ 成功解析 ${parsedConcepts.length} 个板块`)
-      console.log('解析后的板块列表:', parsedConcepts.map(c => ({ name: c.name, stockCount: c.stockCount, stocksCount: c.stocks.length })))
-      
-      return parsedConcepts.length > 0 ? parsedConcepts : getMockData()
+      })
+
+      const concepts: LimitUpConcept[] = mappedConcepts.filter((item): item is LimitUpConcept => item !== null)
+
+      console.log(`✅ 成功解析 ${concepts.length} 个板块`)
+      console.log('解析后的板块列表:', concepts.map(c => ({ name: c.name, stockCount: c.stockCount, stocksCount: c.stocks.length })))
+
+      return concepts.length > 0 ? concepts : getMockData()
     } catch (error) {
       console.error('❌ 解析API数据失败:', error)
       console.error('错误堆栈:', error instanceof Error ? error.stack : '')
@@ -142,23 +156,23 @@ export default function LimitUpAnalysis(): JSX.Element {
   const fetchLimitUpData = useCallback(async () => {
     setLoading(true)
     setError(null)
-    
+
     // 将 selectedDate (YYYY-MM-DD) 转换为 API 需要的格式 (YYYYMMDD)
     const dateStr = selectedDate.replace(/-/g, '')
     console.log('📅 获取数据，日期:', selectedDate, '转换后:', dateStr)
-    
+
     // 实际API地址：https://x-quote.cls.cn/v2/quote/a/plate/up_down_analysis?up_limit=0&date=20251231&sign=...
     // up_limit=1 表示只看涨停（只返回涨停股票）
     // up_limit=0 表示取消只看涨停（返回所有股票，包括非涨停）
     const upLimit = onlyLimitUp ? 1 : 0
     const apiUrl = `https://x-quote.cls.cn/v2/quote/a/plate/up_down_analysis?up_limit=${upLimit}&date=${dateStr}`
     console.log('🌐 API URL:', apiUrl)
-    
+
     // 尝试使用多个代理，哪个先成功用哪个
     const fetchFromProxy = async (proxyFn: (url: string) => string): Promise<any> => {
       const proxyUrl = proxyFn(apiUrl)
       console.log('尝试使用代理:', proxyUrl)
-      
+
       const response = await fetch(proxyUrl, {
         method: 'GET',
         headers: {
@@ -173,7 +187,7 @@ export default function LimitUpAnalysis(): JSX.Element {
 
       const contentType = response.headers.get('content-type') || ''
       console.log('响应Content-Type:', contentType)
-      
+
       // 检查返回的是JSON还是HTML
       if (contentType.includes('application/json')) {
         const data = await response.json()
@@ -200,8 +214,8 @@ export default function LimitUpAnalysis(): JSX.Element {
       for (const result of results) {
         if (result.status === 'fulfilled') {
           const { type, data } = result.value
-          
-            if (type === 'json') {
+
+          if (type === 'json') {
             parsedConcepts = parseApiData(data)
             if (parsedConcepts && parsedConcepts.length > 0) {
               console.log('✅ 成功解析JSON数据，概念数量:', parsedConcepts.length)
@@ -212,13 +226,13 @@ export default function LimitUpAnalysis(): JSX.Element {
             }
           } else if (type === 'html') {
             // 尝试从HTML中提取JSON数据
-            const scriptMatch = 
+            const scriptMatch =
               data.match(/<script[^>]*>[\s\S]*?window\.__INITIAL_STATE__\s*=\s*({[\s\S]*?});/i) ||
               data.match(/<script[^>]*>[\s\S]*?var\s+data\s*=\s*({[\s\S]*?});/i) ||
               data.match(/<script[^>]*type=["']application\/json["'][^>]*>([\s\S]*?)<\/script>/i) ||
               data.match(/<script[^>]*>[\s\S]*?const\s+data\s*=\s*({[\s\S]*?});/i) ||
               data.match(/<script[^>]*>[\s\S]*?let\s+data\s*=\s*({[\s\S]*?});/i)
-            
+
             if (scriptMatch && scriptMatch[1]) {
               try {
                 const jsonData = JSON.parse(scriptMatch[1])
@@ -271,7 +285,7 @@ export default function LimitUpAnalysis(): JSX.Element {
   // 所以不需要在前端再次过滤，直接使用API返回的数据
   const filteredConcepts = concepts
 
-  const currentConcept = selectedConcept 
+  const currentConcept = selectedConcept
     ? filteredConcepts.find(c => c.name === selectedConcept) || filteredConcepts[0]
     : filteredConcepts[0]
 
@@ -292,7 +306,7 @@ export default function LimitUpAnalysis(): JSX.Element {
       }}>
         <div>
           <h1 style={{ margin: 0, fontSize: '1.5rem', color: '#1f2937', display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ fontSize: '2rem' }}>📈</span>
+            <TrendingUp size={28} color="#dc2626" />
             每日板块涨停分析
           </h1>
           <p style={{ margin: '8px 0 0', fontSize: '0.9rem', color: '#6b7280' }}>
@@ -310,7 +324,7 @@ export default function LimitUpAnalysis(): JSX.Element {
             只看涨停
           </label>
           <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', color: '#374151' }}>
-            <span>📅</span>
+            <Calendar size={16} color="#6b7280" />
             <input
               type="date"
               value={selectedDate}
@@ -340,10 +354,14 @@ export default function LimitUpAnalysis(): JSX.Element {
               borderRadius: '6px',
               cursor: loading ? 'not-allowed' : 'pointer',
               fontSize: '0.9rem',
-              fontWeight: '500'
+              fontWeight: '500',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
             }}
           >
-            {loading ? '刷新中...' : '🔄 刷新数据'}
+            <RefreshCcw size={16} className={loading ? 'animate-spin' : ''} />
+            {loading ? '刷新中...' : '刷新数据'}
           </button>
         </div>
       </div>
@@ -355,9 +373,12 @@ export default function LimitUpAnalysis(): JSX.Element {
           padding: '12px',
           borderRadius: '8px',
           marginBottom: '20px',
-          fontSize: '0.9rem'
+          fontSize: '0.9rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
         }}>
-          ⚠️ {error}
+          <AlertTriangle size={16} /> {error}
         </div>
       )}
 
@@ -444,8 +465,8 @@ export default function LimitUpAnalysis(): JSX.Element {
               marginBottom: '20px',
               borderLeft: '4px solid #3b82f6'
             }}>
-              <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#1e40af', marginBottom: '8px' }}>
-                📊 驱动因素
+              <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#1e40af', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <BarChart2 size={16} /> 驱动因素
               </div>
               <div style={{ fontSize: '0.9rem', color: '#1e3a8a', lineHeight: '1.6' }}>
                 {currentConcept.drivingFactor}

@@ -5,9 +5,10 @@ export const tableWrapperStyle: React.CSSProperties = {
   overflowX: 'auto',
   marginTop: '24px',
   WebkitOverflowScrolling: 'touch',
-  borderRadius: '12px',
-  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-  border: '1px solid #e5e7eb'
+  borderRadius: '16px',
+  boxShadow: '0 4px 12px rgba(0,0,0,0.04)',
+  border: '1px solid rgba(0,0,0,0.05)',
+  background: 'white'
 }
 
 export const tableStyle: React.CSSProperties = {
@@ -16,68 +17,65 @@ export const tableStyle: React.CSSProperties = {
   borderSpacing: 0,
   marginTop: '0',
   fontSize: '0.9rem',
-  background: 'white',
-  borderRadius: '12px',
+  background: 'transparent',
   overflow: 'hidden'
 }
 
 export const thStyle: React.CSSProperties = {
-  background: 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 50%, #93c5fd 100%)',
-  color: '#ffffff',
-  padding: '16px 12px',
+  background: 'var(--system-gray6)',
+  color: 'var(--text-secondary)',
+  padding: '16px 20px',
   textAlign: 'left',
   fontWeight: '600',
-  fontSize: '0.9rem',
-  border: 'none',
+  fontSize: '0.8rem',
+  textTransform: 'uppercase',
+  letterSpacing: '0.05em',
+  borderBottom: '1px solid rgba(0,0,0,0.05)',
   position: 'sticky',
   top: 0,
   zIndex: 10,
-  boxShadow: '0 2px 8px rgba(59, 130, 246, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
-  whiteSpace: 'nowrap',
-  letterSpacing: '0.3px',
-  textShadow: '0 1px 2px rgba(0, 0, 0, 0.08)'
+  whiteSpace: 'nowrap'
 }
 
 export const tdStyle: React.CSSProperties = {
-  padding: '14px 12px',
-  border: 'none',
-  borderBottom: '1px solid #f0f0f0',
+  padding: '16px 20px',
+  borderBottom: '1px solid rgba(0,0,0,0.05)',
   textAlign: 'left',
-  background: 'white',
-  transition: 'all 0.2s ease'
+  color: 'var(--text-primary)',
+  background: 'transparent',
+  transition: 'background 0.2s ease',
+  verticalAlign: 'middle'
 }
 
 export const trHoverStyle: React.CSSProperties = {
-  background: '#f8f9fa',
-  cursor: 'pointer',
-  transform: 'scale(1.01)'
+  cursor: 'default'
 }
 
 export const highlightStyle: React.CSSProperties = {
-  background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+  background: 'rgba(255, 149, 0, 0.1)', // System Orange low opacity
   fontWeight: '600',
-  color: '#92400e',
+  color: 'var(--system-orange)',
   borderRadius: '6px',
   padding: '4px 8px',
   display: 'inline-block'
 }
 
 export const contentStyle: React.CSSProperties = {
-  background: 'white',
+  background: 'var(--bg-card)',
   padding: '32px',
-  borderRadius: '16px',
-  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-  lineHeight: '1.8'
+  borderRadius: '24px',
+  boxShadow: '0 2px 20px rgba(0,0,0,0.02)',
+  lineHeight: '1.6',
+  border: '1px solid rgba(0,0,0,0.04)'
 }
 
-// 表格行样式（带 hover 效果）
+// Helper to get row style
 export const getTrStyle = (isEven: boolean): React.CSSProperties => ({
-  background: isEven ? '#fafafa' : 'white',
+  background: isEven ? 'rgba(0,0,0,0.01)' : 'transparent',
   transition: 'all 0.2s ease'
 })
 
+// Using a class for hover would be better, but if inline is needed:
 export const getTrHoverStyle = (): React.CSSProperties => ({
-  background: '#f0f4ff',
-  transform: 'scale(1.002)',
-  boxShadow: '0 2px 8px rgba(102, 126, 234, 0.1)'
+  background: 'var(--system-gray6)', // subtle highlight
 })

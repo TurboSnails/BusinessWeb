@@ -86,7 +86,7 @@ export type NewsSource = {
 export type MarketCategory = {
   key: string
   title: string
-  icon: string
+  icon: string | React.ReactNode
   color: string
   bgColor: string
   data: StockQuote[]
@@ -111,7 +111,7 @@ export type SectorData = {
 export type SectorCategory = {
   type: 'industry' | 'concept'  // 行业板块 | 概念板块
   title: string
-  icon: string
+  icon: string | React.ReactNode
   color: string
   bgColor: string
   data: SectorData[]

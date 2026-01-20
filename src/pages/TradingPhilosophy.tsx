@@ -1,4 +1,38 @@
 import React, { useState, useEffect } from 'react'
+import {
+  Brain,
+  Sparkles,
+  Settings,
+  Target,
+  Clock,
+  Shield,
+  BarChart2,
+  Lightbulb,
+  CheckCircle2,
+  Sword,
+  BookOpen,
+  ChevronDown,
+  ChevronUp,
+  FileText,
+  Thermometer,
+  Coins,
+  History,
+  Plus,
+  ArrowRight,
+  ArrowDown,
+  TrendingUp,
+  TrendingDown,
+  AlertTriangle,
+  XCircle,
+  Star,
+  Zap,
+  Flame,
+  Pin,
+  Link,
+  Info,
+  ShieldAlert,
+  Rocket
+} from 'lucide-react'
 
 export default function TradingPhilosophy(): JSX.Element {
   const [showBackToTop, setShowBackToTop] = useState(false)
@@ -11,10 +45,10 @@ export default function TradingPhilosophy(): JSX.Element {
     // 页面加载时，滚动到顶部并默认选中第一个章节
     window.scrollTo(0, 0)
     setActiveSection('dao')
-    
+
     const handleScroll = () => {
       setShowBackToTop(window.scrollY > 400)
-      
+
       // 检测当前激活的章节
       const sections = ['dao', 'optimization', 'shu', 'execution', 'time', 'risk', 'path', 'understanding', 'action']
       const current = sections.find(section => {
@@ -48,15 +82,15 @@ export default function TradingPhilosophy(): JSX.Element {
   }
 
   const sections = [
-    { id: 'dao', title: '一、投资之"道"', icon: '🧠' },
-    { id: 'optimization', title: '体系评估与优化', icon: '✨' },
-    { id: 'shu', title: '二、投资之"术"', icon: '⚙️' },
-    { id: 'execution', title: '三、实战执行方案', icon: '🎯' },
-    { id: 'time', title: '四、时间分配', icon: '⏰' },
-    { id: 'risk', title: '五、风险控制', icon: '🛡️' },
-    { id: 'path', title: '六、复盘与迭代', icon: '📊' },
-    { id: 'understanding', title: '七、我的深度理解', icon: '💡' },
-    { id: 'action', title: '八、立即行动清单', icon: '✅' }
+    { id: 'dao', title: '一、投资之"道"', icon: <Brain size={18} /> },
+    { id: 'optimization', title: '体系评估与优化', icon: <Sparkles size={18} /> },
+    { id: 'shu', title: '二、投资之"术"', icon: <Settings size={18} /> },
+    { id: 'execution', title: '三、实战执行方案', icon: <Target size={18} /> },
+    { id: 'time', title: '四、时间分配', icon: <Clock size={18} /> },
+    { id: 'risk', title: '五、风险控制', icon: <Shield size={18} /> },
+    { id: 'path', title: '六、复盘与迭代', icon: <BarChart2 size={18} /> },
+    { id: 'understanding', title: '七、我的深度理解', icon: <Lightbulb size={18} /> },
+    { id: 'action', title: '八、立即行动清单', icon: <CheckCircle2 size={18} /> }
   ]
 
   return (
@@ -78,7 +112,7 @@ export default function TradingPhilosophy(): JSX.Element {
           alignItems: 'center',
           gap: '12px'
         }}>
-          <span>⚔️</span>
+          <Sword size={32} />
           股票投资的"道与术"终极归总
         </h1>
         <p style={{ margin: '0 0 12px', opacity: 0.95, fontSize: '1rem', lineHeight: '1.6' }}>
@@ -107,14 +141,8 @@ export default function TradingPhilosophy(): JSX.Element {
               textAlign: 'left'
             }}
           >
-            <span>📖 使用指南</span>
-            <span style={{
-              fontSize: '0.8rem',
-              transition: 'transform 0.2s',
-              transform: showGuide ? 'rotate(180deg)' : 'rotate(0deg)'
-            }}>
-              ▼
-            </span>
+            <span><BookOpen size={18} style={{ verticalAlign: 'middle', marginRight: '6px' }} /> 使用指南</span>
+            <ChevronDown size={16} />
           </button>
           {showGuide && (
             <div style={{
@@ -153,22 +181,22 @@ export default function TradingPhilosophy(): JSX.Element {
         boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
         border: '1px solid #e2e8f0'
       }}>
-        <div style={{ 
-          fontSize: '0.9rem', 
-          fontWeight: '600', 
-          color: '#64748b', 
+        <div style={{
+          fontSize: '0.9rem',
+          fontWeight: '600',
+          color: '#64748b',
           marginBottom: '12px',
           display: 'flex',
           alignItems: 'center',
           gap: '8px'
         }}>
-          <span>📑</span>
+          <FileText size={18} />
           目录导航
         </div>
-        <div style={{ 
-          display: 'flex', 
-          flexWrap: 'wrap', 
-          gap: '8px' 
+        <div style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '8px'
         }}>
           {sections.map((section) => (
             <button
@@ -176,7 +204,7 @@ export default function TradingPhilosophy(): JSX.Element {
               onClick={() => scrollToSection(section.id)}
               style={{
                 padding: '6px 12px',
-                background: activeSection === section.id 
+                background: activeSection === section.id
                   ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
                   : '#f8fafc',
                 color: activeSection === section.id ? 'white' : '#475569',
@@ -229,9 +257,9 @@ export default function TradingPhilosophy(): JSX.Element {
             1. 三大确定性原则
           </h3>
           <div style={{ overflowX: 'auto', marginBottom: '16px' }}>
-            <table style={{ 
-              width: '100%', 
-              borderCollapse: 'collapse', 
+            <table style={{
+              width: '100%',
+              borderCollapse: 'collapse',
               fontSize: '0.95rem',
               background: 'white',
               borderRadius: '8px',
@@ -239,23 +267,23 @@ export default function TradingPhilosophy(): JSX.Element {
               boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
             }}>
               <thead>
-                <tr style={{ 
+                <tr style={{
                   background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
                   borderBottom: '2px solid #e2e8f0'
                 }}>
-                  <th style={{ 
-                    padding: '14px 16px', 
-                    textAlign: 'left', 
-                    fontWeight: '700', 
+                  <th style={{
+                    padding: '14px 16px',
+                    textAlign: 'left',
+                    fontWeight: '700',
                     color: '#1e293b',
                     fontSize: '0.9rem'
                   }}>
                     原则
                   </th>
-                  <th style={{ 
-                    padding: '14px 16px', 
-                    textAlign: 'left', 
-                    fontWeight: '700', 
+                  <th style={{
+                    padding: '14px 16px',
+                    textAlign: 'left',
+                    fontWeight: '700',
                     color: '#1e293b',
                     fontSize: '0.9rem'
                   }}>
@@ -265,9 +293,9 @@ export default function TradingPhilosophy(): JSX.Element {
               </thead>
               <tbody>
                 {[
-                  { principle: '节奏确定性', method: '大盘+板块轮动(题材新)', icon: '🎯' },
-                  { principle: '情绪确定性', method: '板块持续时间+空间(持续性)', icon: '🌡️' },
-                  { principle: '资金确定性', method: 'OBV识别真金白银流向（筹码干净+强势）', icon: '💰' }
+                  { principle: '节奏确定性', method: '大盘+板块轮动(题材新)', icon: <Target size={18} /> },
+                  { principle: '情绪确定性', method: '板块持续时间+空间(持续性)', icon: <Thermometer size={18} /> },
+                  { principle: '资金确定性', method: 'OBV识别真金白银流向（筹码干净+强势）', icon: <Coins size={18} /> }
                 ].map((row, index) => (
                   <tr
                     key={index}
@@ -283,19 +311,19 @@ export default function TradingPhilosophy(): JSX.Element {
                       e.currentTarget.style.background = index % 2 === 0 ? 'white' : '#f8fafc'
                     }}
                   >
-                    <td style={{ 
-                      padding: '14px 16px', 
-                      fontWeight: '600', 
+                    <td style={{
+                      padding: '14px 16px',
+                      fontWeight: '600',
                       color: '#1e293b',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '8px'
+                      gap: '12px'
                     }}>
-                      <span style={{ fontSize: '1.2rem' }}>{row.icon}</span>
+                      <span style={{ color: '#3b82f6', display: 'flex' }}>{row.icon}</span>
                       {row.principle}
                     </td>
-                    <td style={{ 
-                      padding: '14px 16px', 
+                    <td style={{
+                      padding: '14px 16px',
                       color: '#475569',
                       lineHeight: '1.5'
                     }}>
@@ -323,9 +351,9 @@ export default function TradingPhilosophy(): JSX.Element {
             2. 交易的本质转变
           </h3>
           <div style={{ overflowX: 'auto', marginBottom: '16px' }}>
-            <table style={{ 
-              width: '100%', 
-              borderCollapse: 'collapse', 
+            <table style={{
+              width: '100%',
+              borderCollapse: 'collapse',
               fontSize: '0.9rem',
               background: 'white',
               borderRadius: '8px',
@@ -333,34 +361,34 @@ export default function TradingPhilosophy(): JSX.Element {
               boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
             }}>
               <thead>
-                <tr style={{ 
+                <tr style={{
                   background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
                   borderBottom: '2px solid #e2e8f0'
                 }}>
-                  <th style={{ 
-                    padding: '12px 16px', 
-                    textAlign: 'left', 
-                    fontWeight: '700', 
+                  <th style={{
+                    padding: '12px 16px',
+                    textAlign: 'left',
+                    fontWeight: '700',
                     color: '#1e293b',
                     fontSize: '0.85rem',
                     width: '45%'
                   }}>
                     从（旧思维）
                   </th>
-                  <th style={{ 
-                    padding: '12px 16px', 
-                    textAlign: 'center', 
-                    fontWeight: '700', 
+                  <th style={{
+                    padding: '12px 16px',
+                    textAlign: 'center',
+                    fontWeight: '700',
                     color: '#1e293b',
                     fontSize: '0.85rem',
                     width: '10%'
                   }}>
                     →
                   </th>
-                  <th style={{ 
-                    padding: '12px 16px', 
-                    textAlign: 'left', 
-                    fontWeight: '700', 
+                  <th style={{
+                    padding: '12px 16px',
+                    textAlign: 'left',
+                    fontWeight: '700',
                     color: '#1e293b',
                     fontSize: '0.85rem',
                     width: '45%'
@@ -389,16 +417,16 @@ export default function TradingPhilosophy(): JSX.Element {
                       e.currentTarget.style.background = index % 2 === 0 ? 'white' : '#f8fafc'
                     }}
                   >
-                    <td style={{ 
-                      padding: '12px 16px', 
+                    <td style={{
+                      padding: '12px 16px',
                       color: '#dc2626',
                       fontWeight: '500',
                       lineHeight: '1.5'
                     }}>
                       {row.from}
                     </td>
-                    <td style={{ 
-                      padding: '12px 16px', 
+                    <td style={{
+                      padding: '12px 16px',
                       textAlign: 'center',
                       color: '#3b82f6',
                       fontSize: '1.1rem',
@@ -406,8 +434,8 @@ export default function TradingPhilosophy(): JSX.Element {
                     }}>
                       →
                     </td>
-                    <td style={{ 
-                      padding: '12px 16px', 
+                    <td style={{
+                      padding: '12px 16px',
                       color: '#16a34a',
                       fontWeight: '500',
                       lineHeight: '1.5'
@@ -442,8 +470,8 @@ export default function TradingPhilosophy(): JSX.Element {
         </h2>
 
         <div style={{ marginBottom: '24px' }}>
-          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
-            ✨ 体系亮点（已具备的核心优势）
+          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Sparkles size={20} /> 体系亮点（已具备的核心优势）
           </h3>
           <div style={{
             background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
@@ -453,24 +481,24 @@ export default function TradingPhilosophy(): JSX.Element {
           }}>
             <div style={{ display: 'grid', gap: '12px' }}>
               {[
-                { 
-                  title: '系统性思维', 
-                  desc: '从"道"（投资哲学）到"术"（技术指标）再到"执行"（纪律与仓位），逻辑连贯，层次清晰。' 
+                {
+                  title: '系统性思维',
+                  desc: '从"道"（投资哲学）到"术"（技术指标）再到"执行"（纪律与仓位），逻辑连贯，层次清晰。'
                 },
-                { 
-                  title: '客观化决策', 
-                  desc: '强调"不预测，只跟随"，通过OBV、量价、情绪周期等客观信号过滤主观情绪。' 
+                {
+                  title: '客观化决策',
+                  desc: '强调"不预测，只跟随"，通过OBV、量价、情绪周期等客观信号过滤主观情绪。'
                 },
-                { 
-                  title: '风险意识强', 
-                  desc: '设有红线纪律、三层止损、仓位分级，体现了"生存第一"的交易观。' 
+                {
+                  title: '风险意识强',
+                  desc: '设有红线纪律、三层止损、仓位分级，体现了"生存第一"的交易观。'
                 },
-                { 
-                  title: '反人性设计', 
-                  desc: '"在没人要时买入，人人抢时卖出""97%时间空仓"等理念，直击散户痛点。' 
+                {
+                  title: '反人性设计',
+                  desc: '"在没人要时买入，人人抢时卖出""97%时间空仓"等理念，直击散户痛点。'
                 }
               ].map((item, index) => (
-                <div 
+                <div
                   key={index}
                   style={{
                     background: 'white',
@@ -492,8 +520,8 @@ export default function TradingPhilosophy(): JSX.Element {
         </div>
 
         <div>
-          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
-            🎯 优化后体系框架（汇总版）
+          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Target size={20} /> 🎯 优化后体系框架（汇总版）
           </h3>
           <div style={{
             background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
@@ -502,16 +530,16 @@ export default function TradingPhilosophy(): JSX.Element {
             borderLeft: '4px solid #3b82f6'
           }}>
             <div style={{ marginBottom: '16px' }}>
-              <div style={{ fontWeight: '700', color: '#1e40af', marginBottom: '8px', fontSize: '1rem' }}>
-                🌟 核心理念
+              <div style={{ fontWeight: '700', color: '#1e40af', marginBottom: '8px', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Star size={18} /> 核心理念
               </div>
               <div style={{ color: '#1e293b', fontSize: '0.95rem', lineHeight: '1.8' }}>
                 "等资金留下证据，等情绪给出窗口，等策略匹配行情"
               </div>
             </div>
             <div style={{ marginBottom: '16px' }}>
-              <div style={{ fontWeight: '700', color: '#1e40af', marginBottom: '8px', fontSize: '1rem' }}>
-                📊 核心武器
+              <div style={{ fontWeight: '700', color: '#1e40af', marginBottom: '8px', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <BarChart2 size={18} /> 核心武器
               </div>
               <div style={{ color: '#1e293b', fontSize: '0.9rem', lineHeight: '1.8' }}>
                 <div>• <strong>主要指标：</strong>OBV + 量价 + 板块热度</div>
@@ -520,8 +548,8 @@ export default function TradingPhilosophy(): JSX.Element {
               </div>
             </div>
             <div style={{ marginBottom: '16px' }}>
-              <div style={{ fontWeight: '700', color: '#1e40af', marginBottom: '8px', fontSize: '1rem' }}>
-                ⏰ 每日执行流程
+              <div style={{ fontWeight: '700', color: '#1e40af', marginBottom: '8px', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Clock size={18} /> 每日执行流程
               </div>
               <div style={{ color: '#1e293b', fontSize: '0.9rem', lineHeight: '1.8' }}>
                 <div><strong>盘前（5分钟）：</strong>计算情绪指数，判断周期，选择今日适用策略</div>
@@ -530,8 +558,8 @@ export default function TradingPhilosophy(): JSX.Element {
               </div>
             </div>
             <div>
-              <div style={{ fontWeight: '700', color: '#1e40af', marginBottom: '8px', fontSize: '1rem' }}>
-                🛡️ 风控铁律
+              <div style={{ fontWeight: '700', color: '#1e40af', marginBottom: '8px', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Shield size={18} /> 风控铁律
               </div>
               <div style={{ color: '#1e293b', fontSize: '0.9rem', lineHeight: '1.8' }}>
                 <div>1. 单笔亏损 ≤ 5%（无条件止损）</div>
@@ -565,8 +593,8 @@ export default function TradingPhilosophy(): JSX.Element {
 
         <div style={{ marginBottom: '32px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', margin: 0 }}>
-              📊 量价OBV三位一体口诀(核心技术)
+            <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <BarChart2 size={20} /> 量价OBV三位一体口诀(核心技术)
             </h3>
             <button
               onClick={() => {
@@ -592,9 +620,9 @@ export default function TradingPhilosophy(): JSX.Element {
               {expandedTables.has('obv-table') ? '收起表格' : '展开表格'}
             </button>
           </div>
-          <p style={{ 
-            fontSize: '0.9rem', 
-            color: '#64748b', 
+          <p style={{
+            fontSize: '0.9rem',
+            color: '#64748b',
             marginBottom: '12px',
             lineHeight: '1.6',
             padding: '12px',
@@ -605,46 +633,46 @@ export default function TradingPhilosophy(): JSX.Element {
             <strong>核心要点：</strong>通过价格、成交量、OBV三个维度识别资金流向，在"没人要"时买入，"人人抢"时卖出。
           </p>
           {expandedTables.has('obv-table') && (
-          <div style={{ overflowX: 'auto', marginTop: '12px' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-              <thead>
-                <tr style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)', borderBottom: '2px solid #e2e8f0' }}>
-                  <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#1e293b' }}>阶段</th>
-                  <th style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#1e293b' }}>价格</th>
-                  <th style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#1e293b' }}>成交量</th>
-                  <th style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#1e293b' }}>OBV</th>
-                  <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#1e293b' }}>资金真相</th>
-                  <th style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#1e293b' }}>操作</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  { stage: '建仓启动', price: '横盘/微跌', volume: '缩量', obv: '稳步上升', truth: '主力偷偷吸筹', action: '⭐⭐⭐⭐⭐ 潜伏' },
-                  { stage: '突破确认', price: '放量突破', volume: '放大', obv: '同步新高', truth: '主力志在必得', action: '⭐⭐⭐⭐⭐ 买入' },
-                  { stage: '稳健上涨', price: '缩量上涨', volume: '缩小', obv: '持续上行', truth: '筹码锁死', action: '⭐⭐⭐⭐⭐ 持股' },
-                  { stage: '顶背离预警', price: '缩量上涨', volume: '缩小', obv: '拐头向下', truth: '买家枯竭', action: '⚠️ 第一天卖出' },
-                  { stage: '派发阶段', price: '放量不涨', volume: '放大', obv: '走平', truth: '主力换手跑路', action: '⚠️ 立即清仓' },
-                  { stage: '杀跌阶段', price: '放量下跌', volume: '放大', obv: '飞流直下', truth: '资金仓皇出逃', action: '❌ 不接飞刀' },
-                  { stage: '底背离', price: '创新低', volume: '缩量', obv: '拒绝新低', truth: '主力提前抄底', action: '⭐⭐⭐⭐⭐ 第三天买回' }
-                ].map((row, index) => (
-                  <tr
-                    key={index}
-                    style={{
-                      borderBottom: '1px solid #e2e8f0',
-                      background: index % 2 === 0 ? 'white' : '#f8fafc'
-                    }}
-                  >
-                    <td style={{ padding: '12px', fontWeight: '600', color: '#1e293b' }}>{row.stage}</td>
-                    <td style={{ padding: '12px', textAlign: 'center', color: '#475569' }}>{row.price}</td>
-                    <td style={{ padding: '12px', textAlign: 'center', color: '#475569' }}>{row.volume}</td>
-                    <td style={{ padding: '12px', textAlign: 'center', color: '#475569' }}>{row.obv}</td>
-                    <td style={{ padding: '12px', color: '#475569' }}>{row.truth}</td>
-                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: '600', color: '#1e293b' }}>{row.action}</td>
+            <div style={{ overflowX: 'auto', marginTop: '12px' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                <thead>
+                  <tr style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)', borderBottom: '2px solid #e2e8f0' }}>
+                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#1e293b' }}>阶段</th>
+                    <th style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#1e293b' }}>价格</th>
+                    <th style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#1e293b' }}>成交量</th>
+                    <th style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#1e293b' }}>OBV</th>
+                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: '#1e293b' }}>资金真相</th>
+                    <th style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: '#1e293b' }}>操作</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {[
+                    { stage: '建仓启动', price: '横盘/微跌', volume: '缩量', obv: '稳步上升', truth: '主力偷偷吸筹', action: <div style={{ display: 'flex', gap: '2px', alignItems: 'center' }}><Star size={12} fill="#f59e0b" color="#f59e0b" /><Star size={12} fill="#f59e0b" color="#f59e0b" /><Star size={12} fill="#f59e0b" color="#f59e0b" /><Star size={12} fill="#f59e0b" color="#f59e0b" /><Star size={12} fill="#f59e0b" color="#f59e0b" /> <span style={{ marginLeft: '4px' }}>潜伏</span></div> },
+                    { stage: '突破确认', price: '放量突破', volume: '放大', obv: '同步新高', truth: '主力志在必得', action: <div style={{ display: 'flex', gap: '2px', alignItems: 'center' }}><Star size={12} fill="#f59e0b" color="#f59e0b" /><Star size={12} fill="#f59e0b" color="#f59e0b" /><Star size={12} fill="#f59e0b" color="#f59e0b" /><Star size={12} fill="#f59e0b" color="#f59e0b" /><Star size={12} fill="#f59e0b" color="#f59e0b" /> <span style={{ marginLeft: '4px' }}>买入</span></div> },
+                    { stage: '稳健上涨', price: '缩量上涨', volume: '缩小', obv: '持续上行', truth: '筹码锁死', action: <div style={{ display: 'flex', gap: '2px', alignItems: 'center' }}><Star size={12} fill="#f59e0b" color="#f59e0b" /><Star size={12} fill="#f59e0b" color="#f59e0b" /><Star size={12} fill="#f59e0b" color="#f59e0b" /><Star size={12} fill="#f59e0b" color="#f59e0b" /><Star size={12} fill="#f59e0b" color="#f59e0b" /> <span style={{ marginLeft: '4px' }}>持股</span></div> },
+                    { stage: '顶背离预警', price: '缩量上涨', volume: '缩小', obv: '拐头向下', truth: '买家枯竭', action: <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}><AlertTriangle size={14} color="#dc2626" /> <span>第一天卖出</span></div> },
+                    { stage: '派发阶段', price: '放量不涨', volume: '放大', obv: '走平', truth: '主力换手跑路', action: <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}><AlertTriangle size={14} color="#dc2626" /> <span>立即清仓</span></div> },
+                    { stage: '杀跌阶段', price: '放量下跌', volume: '放大', obv: '飞流直下', truth: '资金仓皇出逃', action: <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}><XCircle size={14} color="#dc2626" /> <span>不接飞刀</span></div> },
+                    { stage: '底背离', price: '创新低', volume: '缩量', obv: '拒绝新低', truth: '主力提前抄底', action: <div style={{ display: 'flex', gap: '2px', alignItems: 'center' }}><Star size={12} fill="#f59e0b" color="#f59e0b" /><Star size={12} fill="#f59e0b" color="#f59e0b" /><Star size={12} fill="#f59e0b" color="#f59e0b" /><Star size={12} fill="#f59e0b" color="#f59e0b" /><Star size={12} fill="#f59e0b" color="#f59e0b" /> <span style={{ marginLeft: '4px' }}>第三天买回</span></div> }
+                  ].map((row, index) => (
+                    <tr
+                      key={index}
+                      style={{
+                        borderBottom: '1px solid #e2e8f0',
+                        background: index % 2 === 0 ? 'white' : '#f8fafc'
+                      }}
+                    >
+                      <td style={{ padding: '12px', fontWeight: '600', color: '#1e293b' }}>{row.stage}</td>
+                      <td style={{ padding: '12px', textAlign: 'center', color: '#475569' }}>{row.price}</td>
+                      <td style={{ padding: '12px', textAlign: 'center', color: '#475569' }}>{row.volume}</td>
+                      <td style={{ padding: '12px', textAlign: 'center', color: '#475569' }}>{row.obv}</td>
+                      <td style={{ padding: '12px', color: '#475569' }}>{row.truth}</td>
+                      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '600', color: '#1e293b' }}>{row.action}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
           <div style={{
             background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
@@ -667,8 +695,8 @@ export default function TradingPhilosophy(): JSX.Element {
 
         {/* OBV局限性及补充验证 */}
         <div style={{ marginBottom: '32px' }}>
-          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
-            🔺 OBV局限性及补充验证
+          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <AlertTriangle size={20} /> OBV局限性及补充验证
           </h3>
           <div style={{
             background: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
@@ -677,8 +705,8 @@ export default function TradingPhilosophy(): JSX.Element {
             marginBottom: '16px',
             borderLeft: '4px solid #dc2626'
           }}>
-            <p style={{ margin: '0 0 12px', fontWeight: '600', color: '#991b1b', fontSize: '0.95rem' }}>
-              ⚠️ OBV在震荡市或庄股中对倒交易容易失真，必须多重验证：
+            <p style={{ margin: '0 0 12px', fontWeight: '600', color: '#991b1b', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <AlertTriangle size={16} /> OBV在震荡市或庄股中对倒交易容易失真，必须多重验证：
             </p>
             <ul style={{ margin: 0, paddingLeft: '20px', color: '#7f1d1d', lineHeight: '1.8', fontSize: '0.9rem' }}>
               <li>增加<strong>资金流强度指标</strong>（如大单净量、主力资金连续流入天数）</li>
@@ -697,9 +725,9 @@ export default function TradingPhilosophy(): JSX.Element {
               三重验证体系：
             </p>
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ 
-                width: '100%', 
-                borderCollapse: 'collapse', 
+              <table style={{
+                width: '100%',
+                borderCollapse: 'collapse',
                 fontSize: '0.85rem',
                 background: 'white',
                 borderRadius: '8px',
@@ -728,10 +756,10 @@ export default function TradingPhilosophy(): JSX.Element {
                 </tbody>
               </table>
             </div>
-            <div style={{ 
-              marginTop: '12px', 
-              padding: '10px', 
-              background: 'rgba(255,255,255,0.6)', 
+            <div style={{
+              marginTop: '12px',
+              padding: '10px',
+              background: 'rgba(255,255,255,0.6)',
               borderRadius: '6px',
               fontSize: '0.85rem',
               color: '#1e40af'
@@ -793,178 +821,178 @@ export default function TradingPhilosophy(): JSX.Element {
             </div>
           </div>
           {expandedTables.has('strategy-table') && (
-          <div style={{ 
-            overflowX: 'auto', 
-            marginTop: '20px',
-            borderRadius: '12px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-            border: '1px solid #e2e8f0'
-          }}>
-            <table style={{ 
-              width: '100%', 
-              borderCollapse: 'separate',
-              borderSpacing: 0,
-              fontSize: '0.95rem',
-              background: 'white',
+            <div style={{
+              overflowX: 'auto',
+              marginTop: '20px',
               borderRadius: '12px',
-              overflow: 'hidden'
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              border: '1px solid #e2e8f0'
             }}>
-              <thead>
-                <tr style={{ 
-                  background: 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 50%, #93c5fd 100%)',
-                  color: '#ffffff'
-                }}>
-                  <th style={{ 
-                    padding: '18px 16px', 
-                    textAlign: 'left', 
-                    fontWeight: '700', 
-                    color: '#ffffff',
-                    fontSize: '1rem',
-                    letterSpacing: '0.3px',
-                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+              <table style={{
+                width: '100%',
+                borderCollapse: 'separate',
+                borderSpacing: 0,
+                fontSize: '0.95rem',
+                background: 'white',
+                borderRadius: '12px',
+                overflow: 'hidden'
+              }}>
+                <thead>
+                  <tr style={{
+                    background: 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 50%, #93c5fd 100%)',
+                    color: '#ffffff'
                   }}>
-                    策略类型
-                  </th>
-                  <th style={{ 
-                    padding: '18px 16px', 
-                    textAlign: 'left', 
-                    fontWeight: '700', 
-                    color: '#ffffff',
-                    fontSize: '1rem',
-                    letterSpacing: '0.3px',
-                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
-                  }}>
-                    适用周期
-                  </th>
-                  <th style={{ 
-                    padding: '18px 16px', 
-                    textAlign: 'left', 
-                    fontWeight: '700', 
-                    color: '#ffffff',
-                    fontSize: '1rem',
-                    letterSpacing: '0.3px',
-                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
-                  }}>
-                    核心信号
-                  </th>
-                  <th style={{ 
-                    padding: '18px 16px', 
-                    textAlign: 'center', 
-                    fontWeight: '700', 
-                    color: '#ffffff',
-                    fontSize: '1rem',
-                    letterSpacing: '0.3px',
-                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
-                  }}>
-                    仓位
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  { 
-                    type: '主攻型', 
-                    icon: '⚔️',
-                    cycle: '切新热点 / 老龙修复(需预埋)', 
-                    signal: '新题材首板+OBV底背离 / 老龙头回踩+OBV支撑', 
-                    position: '30%-50%',
-                    rowBg: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
-                    borderColor: '#10b981',
-                    textColor: '#065f46',
-                    typeColor: '#10b981'
-                  },
-                  { 
-                    type: '跟随型', 
-                    icon: '🎯',
-                    cycle: '主升/分歧', 
-                    signal: '板块强势+缩量回踩+OBV支撑 / 弱转强确认', 
-                    position: '10%-20%',
-                    rowBg: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
-                    borderColor: '#3b82f6',
-                    textColor: '#1e40af',
-                    typeColor: '#3b82f6'
-                  },
-                  { 
-                    type: '防守型', 
-                    icon: '🛡️',
-                    cycle: '高潮/退潮', 
-                    signal: '情绪过热(连板率{'>'}45%)或系统性风险', 
-                    position: '0%-10%',
-                    rowBg: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
-                    borderColor: '#ef4444',
-                    textColor: '#991b1b',
-                    typeColor: '#ef4444'
-                  }
-                ].map((row, index) => (
-                  <tr
-                    key={index}
-                    style={{
-                      background: row.rowBg,
-                      borderLeft: `4px solid ${row.borderColor}`,
-                      transition: 'all 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'white'
-                      e.currentTarget.style.boxShadow = `0 4px 12px ${row.borderColor}40`
-                      e.currentTarget.style.transform = 'scale(1.01)'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = row.rowBg
-                      e.currentTarget.style.boxShadow = 'none'
-                      e.currentTarget.style.transform = 'scale(1)'
-                    }}
-                  >
-                    <td style={{ 
-                      padding: '18px 16px', 
-                      fontWeight: '700', 
-                      color: row.typeColor,
-                      fontSize: '1.05rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px'
+                    <th style={{
+                      padding: '18px 16px',
+                      textAlign: 'left',
+                      fontWeight: '700',
+                      color: '#ffffff',
+                      fontSize: '1rem',
+                      letterSpacing: '0.3px',
+                      textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
                     }}>
-                      <span style={{ fontSize: '1.3rem' }}>{row.icon}</span>
-                      {row.type}
-                    </td>
-                    <td style={{ 
-                      padding: '18px 16px', 
-                      color: '#1e293b',
-                      lineHeight: '1.6',
-                      fontWeight: '500'
+                      策略类型
+                    </th>
+                    <th style={{
+                      padding: '18px 16px',
+                      textAlign: 'left',
+                      fontWeight: '700',
+                      color: '#ffffff',
+                      fontSize: '1rem',
+                      letterSpacing: '0.3px',
+                      textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
                     }}>
-                      {row.cycle}
-                    </td>
-                    <td style={{ 
-                      padding: '18px 16px', 
-                      color: '#475569',
-                      lineHeight: '1.7',
-                      maxWidth: '500px'
+                      适用周期
+                    </th>
+                    <th style={{
+                      padding: '18px 16px',
+                      textAlign: 'left',
+                      fontWeight: '700',
+                      color: '#ffffff',
+                      fontSize: '1rem',
+                      letterSpacing: '0.3px',
+                      textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
                     }}>
-                      {row.signal}
-                    </td>
-                    <td style={{ 
-                      padding: '18px 16px', 
-                      textAlign: 'center', 
-                      fontWeight: '700', 
-                      color: row.typeColor,
-                      fontSize: '1.1rem'
+                      核心信号
+                    </th>
+                    <th style={{
+                      padding: '18px 16px',
+                      textAlign: 'center',
+                      fontWeight: '700',
+                      color: '#ffffff',
+                      fontSize: '1rem',
+                      letterSpacing: '0.3px',
+                      textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
                     }}>
-                      <span style={{
-                        background: 'white',
-                        padding: '6px 14px',
-                        borderRadius: '8px',
-                        display: 'inline-block',
-                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                        border: `2px solid ${row.borderColor}`
-                      }}>
-                        {row.position}
-                      </span>
-                    </td>
+                      仓位
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {[
+                    {
+                      type: '主攻型',
+                      icon: '⚔️',
+                      cycle: '切新热点 / 老龙修复(需预埋)',
+                      signal: '新题材首板+OBV底背离 / 老龙头回踩+OBV支撑',
+                      position: '30%-50%',
+                      rowBg: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+                      borderColor: '#10b981',
+                      textColor: '#065f46',
+                      typeColor: '#10b981'
+                    },
+                    {
+                      type: '跟随型',
+                      icon: '🎯',
+                      cycle: '主升/分歧',
+                      signal: '板块强势+缩量回踩+OBV支撑 / 弱转强确认',
+                      position: '10%-20%',
+                      rowBg: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+                      borderColor: '#3b82f6',
+                      textColor: '#1e40af',
+                      typeColor: '#3b82f6'
+                    },
+                    {
+                      type: '防守型',
+                      icon: '🛡️',
+                      cycle: '高潮/退潮',
+                      signal: '情绪过热(连板率{' > '}45%)或系统性风险',
+                      position: '0%-10%',
+                      rowBg: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
+                      borderColor: '#ef4444',
+                      textColor: '#991b1b',
+                      typeColor: '#ef4444'
+                    }
+                  ].map((row, index) => (
+                    <tr
+                      key={index}
+                      style={{
+                        background: row.rowBg,
+                        borderLeft: `4px solid ${row.borderColor}`,
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'white'
+                        e.currentTarget.style.boxShadow = `0 4px 12px ${row.borderColor}40`
+                        e.currentTarget.style.transform = 'scale(1.01)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = row.rowBg
+                        e.currentTarget.style.boxShadow = 'none'
+                        e.currentTarget.style.transform = 'scale(1)'
+                      }}
+                    >
+                      <td style={{
+                        padding: '18px 16px',
+                        fontWeight: '700',
+                        color: row.typeColor,
+                        fontSize: '1.05rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
+                      }}>
+                        <span style={{ fontSize: '1.3rem' }}>{row.icon}</span>
+                        {row.type}
+                      </td>
+                      <td style={{
+                        padding: '18px 16px',
+                        color: '#1e293b',
+                        lineHeight: '1.6',
+                        fontWeight: '500'
+                      }}>
+                        {row.cycle}
+                      </td>
+                      <td style={{
+                        padding: '18px 16px',
+                        color: '#475569',
+                        lineHeight: '1.7',
+                        maxWidth: '500px'
+                      }}>
+                        {row.signal}
+                      </td>
+                      <td style={{
+                        padding: '18px 16px',
+                        textAlign: 'center',
+                        fontWeight: '700',
+                        color: row.typeColor,
+                        fontSize: '1.1rem'
+                      }}>
+                        <span style={{
+                          background: 'white',
+                          padding: '6px 14px',
+                          borderRadius: '8px',
+                          display: 'inline-block',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                          border: `2px solid ${row.borderColor}`
+                        }}>
+                          {row.position}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
 
@@ -1221,23 +1249,23 @@ export default function TradingPhilosophy(): JSX.Element {
                       </thead>
                       <tbody>
                         {[
-                          { 
-                            phenomenon: '炸板后高位横盘', 
-                            obv: 'OBV 持续走高', 
-                            intent: '说明炸板释放的筹码很快被新资金接走了', 
-                            conclusion: '真试盘，后市大涨' 
+                          {
+                            phenomenon: '炸板后高位横盘',
+                            obv: 'OBV 持续走高',
+                            intent: '说明炸板释放的筹码很快被新资金接走了',
+                            conclusion: '真试盘，后市大涨'
                           },
-                          { 
-                            phenomenon: '炸板后一路走低', 
-                            obv: 'OBV 掉头向下', 
-                            intent: '庄家利用涨停吸引散户入场，然后自己大肆派发', 
-                            conclusion: '真出货，快跑' 
+                          {
+                            phenomenon: '炸板后一路走低',
+                            obv: 'OBV 掉头向下',
+                            intent: '庄家利用涨停吸引散户入场，然后自己大肆派发',
+                            conclusion: '真出货，快跑'
                           },
-                          { 
-                            phenomenon: '炸板后缩量震荡', 
-                            obv: 'OBV 平稳', 
-                            intent: '庄家在观察市场反应，既不抢筹也不砸盘', 
-                            conclusion: '继续观察' 
+                          {
+                            phenomenon: '炸板后缩量震荡',
+                            obv: 'OBV 平稳',
+                            intent: '庄家在观察市场反应，既不抢筹也不砸盘',
+                            conclusion: '继续观察'
                           }
                         ].map((row, index) => (
                           <tr
@@ -1250,8 +1278,8 @@ export default function TradingPhilosophy(): JSX.Element {
                             <td style={{ padding: '12px', color: '#475569' }}>{row.phenomenon}</td>
                             <td style={{ padding: '12px', color: '#475569' }}>{row.obv}</td>
                             <td style={{ padding: '12px', color: '#475569' }}>{row.intent}</td>
-                            <td style={{ 
-                              padding: '12px', 
+                            <td style={{
+                              padding: '12px',
                               fontWeight: '600',
                               color: row.conclusion.includes('大涨') ? '#16a34a' : row.conclusion.includes('快跑') ? '#dc2626' : '#f59e0b'
                             }}>
@@ -1271,7 +1299,7 @@ export default function TradingPhilosophy(): JSX.Element {
                   <p style={{ margin: '0 0 12px', color: '#475569', fontWeight: '600' }}>
                     这是最关键的技巧：看"炸板"当天的 OBV 增量与之后几天的回撤比例。
                   </p>
-                  
+
                   <div style={{
                     background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
                     padding: '16px',
@@ -1423,7 +1451,7 @@ export default function TradingPhilosophy(): JSX.Element {
           <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
             🎯 三问买入法(优化优先级版)
           </h3>
-          
+
           {/* 前提条件：情绪周期 */}
           <div style={{
             background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
@@ -1446,9 +1474,9 @@ export default function TradingPhilosophy(): JSX.Element {
               <strong>💡 优化建议：</strong>加入更多维度（涨跌家数比、昨日涨停表现、炸板率、封板成功率），形成<strong>情绪指数</strong>，提高周期判断的稳定性。
             </div>
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ 
-                width: '100%', 
-                borderCollapse: 'collapse', 
+              <table style={{
+                width: '100%',
+                borderCollapse: 'collapse',
                 fontSize: '0.85rem',
                 background: 'white',
                 borderRadius: '6px',
@@ -1463,30 +1491,30 @@ export default function TradingPhilosophy(): JSX.Element {
                 </thead>
                 <tbody>
                   {[
-                    { 
-                      cycle: '🧊 冰点期', 
-                      feature: '连板率<25% / 涨跌家数比<0.5 / 昨日涨停表现<0%', 
-                      apply: '✅ 最佳，三问筛选新题材首板' 
+                    {
+                      cycle: '🧊 冰点期',
+                      feature: '连板率<25% / 涨跌家数比<0.5 / 昨日涨停表现<0%',
+                      apply: '✅ 最佳，三问筛选新题材首板'
                     },
-                    { 
-                      cycle: '🌱 回暖期', 
-                      feature: '25%<连板率<45% / 涨跌家数比0.5-1.0 / 封板成功率>70%', 
-                      apply: '✅ 适用，三问筛选龙头回踩' 
+                    {
+                      cycle: '🌱 回暖期',
+                      feature: '25%<连板率<45% / 涨跌家数比0.5-1.0 / 封板成功率>70%',
+                      apply: '✅ 适用，三问筛选龙头回踩'
                     },
-                    { 
-                      cycle: '🔥 主升期', 
-                      feature: '龙头连板 / 板块轮动 / 昨日涨停表现>5%', 
-                      apply: '⚠️ 谨慎，只做强势股低吸' 
+                    {
+                      cycle: '🔥 主升期',
+                      feature: '龙头连板 / 板块轮动 / 昨日涨停表现>5%',
+                      apply: '⚠️ 谨慎，只做强势股低吸'
                     },
-                    { 
-                      cycle: '⚡ 分歧期', 
-                      feature: '龙头断板 / 炸板率>30% / 情绪分歧', 
-                      apply: '✅ 适用，老龙头修复策略' 
+                    {
+                      cycle: '⚡ 分歧期',
+                      feature: '龙头断板 / 炸板率>30% / 情绪分歧',
+                      apply: '✅ 适用，老龙头修复策略'
                     },
-                    { 
-                      cycle: '❄️ 退潮期', 
-                      feature: '连板率持续下降 / 跌停数>涨停数', 
-                      apply: '❌ 不适用，空仓观望' 
+                    {
+                      cycle: '❄️ 退潮期',
+                      feature: '连板率持续下降 / 跌停数>涨停数',
+                      apply: '❌ 不适用，空仓观望'
                     }
                   ].map((row, index) => (
                     <tr key={index} style={{ borderBottom: '1px solid #fef3c7' }}>
@@ -1591,9 +1619,9 @@ export default function TradingPhilosophy(): JSX.Element {
               将三问转化为可量化的具体指标：
             </p>
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ 
-                width: '100%', 
-                borderCollapse: 'collapse', 
+              <table style={{
+                width: '100%',
+                borderCollapse: 'collapse',
                 fontSize: '0.9rem',
                 background: 'white',
                 borderRadius: '8px',
@@ -1652,9 +1680,9 @@ export default function TradingPhilosophy(): JSX.Element {
               当前强调"顶背离预警""放量不涨卖出"，建议更明确区分：
             </p>
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ 
-                width: '100%', 
-                borderCollapse: 'collapse', 
+              <table style={{
+                width: '100%',
+                borderCollapse: 'collapse',
                 fontSize: '0.9rem',
                 background: 'white',
                 borderRadius: '8px',
@@ -1669,25 +1697,25 @@ export default function TradingPhilosophy(): JSX.Element {
                 </thead>
                 <tbody>
                   {[
-                    { 
-                      type: '主动止盈', 
-                      trigger: '3日不创新高 / 板块退潮 / 顶背离预警', 
-                      action: '减半仓或清仓' 
+                    {
+                      type: '主动止盈',
+                      trigger: '3日不创新高 / 板块退潮 / 顶背离预警',
+                      action: '减半仓或清仓'
                     },
-                    { 
-                      type: '移动止盈', 
-                      trigger: '收盘价跌破5日线 / 跌破10日线', 
-                      action: '减半仓 / 清仓' 
+                    {
+                      type: '移动止盈',
+                      trigger: '收盘价跌破5日线 / 跌破10日线',
+                      action: '减半仓 / 清仓'
                     },
-                    { 
-                      type: '被动止损', 
-                      trigger: '破关键支撑位(20日线) / 单笔亏损≥5%', 
-                      action: '立即平仓' 
+                    {
+                      type: '被动止损',
+                      trigger: '破关键支撑位(20日线) / 单笔亏损≥5%',
+                      action: '立即平仓'
                     },
-                    { 
-                      type: '时间止损', 
-                      trigger: '买入后3天不涨反跌', 
-                      action: '无条件止损' 
+                    {
+                      type: '时间止损',
+                      trigger: '买入后3天不涨反跌',
+                      action: '无条件止损'
                     }
                   ].map((row, index) => (
                     <tr key={index} style={{ borderBottom: '1px solid #fde68a' }}>
@@ -1756,7 +1784,7 @@ export default function TradingPhilosophy(): JSX.Element {
               <div>现金(20%): 永久保留,用于极端机会或止损后修复</div>
             </div>
           </div>
-          
+
           {/* 简化仓位公式 */}
           <div style={{
             background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
@@ -1768,17 +1796,17 @@ export default function TradingPhilosophy(): JSX.Element {
             <p style={{ margin: '0 0 12px', fontWeight: '700', color: '#92400e' }}>
               📋 简化仓位公式（易执行版）
             </p>
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-              gap: '12px' 
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: '12px'
             }}>
               {[
                 { signal: '五星信号', desc: '冰点+龙头+三重验证', position: '50%', color: '#16a34a' },
                 { signal: '三星信号', desc: '单一验证通过', position: '10%', color: '#f59e0b' },
                 { signal: '其他情况', desc: '不符合条件', position: '0%', color: '#dc2626' }
               ].map((item, index) => (
-                <div 
+                <div
                   key={index}
                   style={{
                     background: 'white',
@@ -1982,13 +2010,13 @@ export default function TradingPhilosophy(): JSX.Element {
 
         {/* 保命三原则 */}
         <div style={{ marginBottom: '24px' }}>
-          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
-            🚨 保命三原则（铁律）
+          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <ShieldAlert size={18} /> 保命三原则（铁律）
           </h3>
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ 
-              width: '100%', 
-              borderCollapse: 'collapse', 
+            <table style={{
+              width: '100%',
+              borderCollapse: 'collapse',
               fontSize: '0.9rem',
               background: 'white',
               borderRadius: '8px',
@@ -2004,9 +2032,9 @@ export default function TradingPhilosophy(): JSX.Element {
               </thead>
               <tbody>
                 {[
-                  { type: '系统性风险', trigger: '北向单日净流出 >100亿 + 大盘放量下跌', action: '⚠️ 立即空仓' },
-                  { type: '个股止损', trigger: '单笔亏损 ≥5% 或 破20日线且3日不收回', action: '❌ 无条件止损' },
-                  { type: '情绪过热', trigger: '龙头股换手率 >35%', action: '🔻 强制减仓50%' }
+                  { type: '系统性风险', trigger: '北向单日净流出 >100亿 + 大盘放量下跌', action: <><AlertTriangle size={14} style={{ verticalAlign: 'middle', marginRight: '4px' }} /> 立即空仓</> },
+                  { type: '个股止损', trigger: '单笔亏损 ≥5% 或 破20日线且3日不收回', action: <><XCircle size={14} style={{ verticalAlign: 'middle', marginRight: '4px' }} /> 无条件止损</> },
+                  { type: '情绪过热', trigger: '龙头股换手率 >35%', action: <><ArrowDown size={14} style={{ verticalAlign: 'middle', marginRight: '4px' }} /> 强制减仓50%</> }
                 ].map((row, index) => (
                   <tr key={index} style={{ borderBottom: '1px solid #fecaca', background: index % 2 === 0 ? 'white' : '#fff7f7' }}>
                     <td style={{ padding: '12px', fontWeight: '600', color: '#991b1b' }}>{row.type}</td>
@@ -2040,8 +2068,8 @@ export default function TradingPhilosophy(): JSX.Element {
         </h2>
 
         <div style={{ marginBottom: '24px' }}>
-          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
-            📊 复盘体系（从错误中学习）
+          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <BarChart2 size={18} /> 复盘体系（从错误中学习）
           </h3>
           <div style={{
             background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
@@ -2054,9 +2082,9 @@ export default function TradingPhilosophy(): JSX.Element {
               体系强调执行，但未明确如何从错误中学习，建议建立复盘机制：
             </p>
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ 
-                width: '100%', 
-                borderCollapse: 'collapse', 
+              <table style={{
+                width: '100%',
+                borderCollapse: 'collapse',
                 fontSize: '0.9rem',
                 background: 'white',
                 borderRadius: '8px',
@@ -2071,20 +2099,20 @@ export default function TradingPhilosophy(): JSX.Element {
                 </thead>
                 <tbody>
                   {[
-                    { 
-                      dim: '每笔交易记录', 
-                      content: '执行评分(是否按计划买卖) + 结果评分(盈亏)', 
-                      target: '识别执行偏差' 
+                    {
+                      dim: '每笔交易记录',
+                      content: '执行评分(是否按计划买卖) + 结果评分(盈亏)',
+                      target: '识别执行偏差'
                     },
-                    { 
-                      dim: '每月分析', 
-                      content: '哪些信号胜率高? 哪些行情下策略失效?', 
-                      target: '优化策略匹配' 
+                    {
+                      dim: '每月分析',
+                      content: '哪些信号胜率高? 哪些行情下策略失效?',
+                      target: '优化策略匹配'
                     },
-                    { 
-                      dim: '季度迭代', 
-                      content: '根据个人性格微调仓位比例 / 开发个性化指标组合', 
-                      target: '形成个人交易系统' 
+                    {
+                      dim: '季度迭代',
+                      content: '根据个人性格微调仓位比例 / 开发个性化指标组合',
+                      target: '形成个人交易系统'
                     }
                   ].map((row, index) => (
                     <tr key={index} style={{ borderBottom: '1px solid #dbeafe' }}>
@@ -2104,14 +2132,14 @@ export default function TradingPhilosophy(): JSX.Element {
               fontSize: '0.85rem',
               color: '#1e40af'
             }}>
-              <strong>💡 核心原则：</strong>交易的最高境界不是抓住所有机会，而是放弃大多数机会，只做那3%的完美匹配。
+              <strong><Lightbulb size={14} style={{ verticalAlign: 'middle', marginRight: '4px' }} /> 核心原则：</strong>交易的最高境界不是抓住所有机会，而是放弃大多数机会，只做那3%的完美匹配。
             </div>
           </div>
         </div>
 
         <div>
-          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
-            🎓 进阶修炼路径（三个阶段升级）
+          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Zap size={18} /> 进阶修炼路径（三个阶段升级）
           </h3>
           <div style={{
             background: '#f8fafc',
@@ -2176,13 +2204,13 @@ export default function TradingPhilosophy(): JSX.Element {
         </h2>
 
         <div style={{ marginBottom: '24px' }}>
-          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
-            🧠 这套体系的本质是什么?
+          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Brain size={18} /> 这套体系的本质是什么?
           </h3>
           <p style={{ color: '#475569', lineHeight: '1.8', marginBottom: '16px' }}>
             经过对多份文档的研究,我认为这套体系的真正价值不在于具体的技术指标,而在于它构建了一个<strong>完整的认知框架</strong>:
           </p>
-          
+
           <div style={{ marginBottom: '20px' }}>
             <div style={{
               background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
@@ -2255,8 +2283,8 @@ export default function TradingPhilosophy(): JSX.Element {
         </div>
 
         <div style={{ marginBottom: '24px' }}>
-          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
-            💡 关键洞察:空仓是最高级的策略
+          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Lightbulb size={18} /> 关键洞察:空仓是最高级的策略
           </h3>
           <div style={{
             background: '#fef2f2',
@@ -2290,8 +2318,8 @@ export default function TradingPhilosophy(): JSX.Element {
         </div>
 
         <div>
-          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
-            🎯 执行力才是最大瓶颈
+          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Target size={18} /> 执行力才是最大瓶颈
           </h3>
           <div style={{
             background: '#f8fafc',
@@ -2345,8 +2373,8 @@ export default function TradingPhilosophy(): JSX.Element {
         </h2>
 
         <div style={{ marginBottom: '24px' }}>
-          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
-            ✅ 今晚必做(2小时)
+          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <CheckCircle2 size={18} /> 今晚必做(2小时)
           </h3>
           <div style={{
             background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
@@ -2405,8 +2433,8 @@ export default function TradingPhilosophy(): JSX.Element {
         </div>
 
         <div style={{ marginBottom: '24px' }}>
-          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
-            ✅ 本周必做(每天1小时)
+          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Clock size={18} /> 本周必做(每天1小时)
           </h3>
           <div style={{
             background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
@@ -2467,8 +2495,8 @@ export default function TradingPhilosophy(): JSX.Element {
         </div>
 
         <div>
-          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px' }}>
-            ✅ 本月必做
+          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#334155', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <CheckCircle2 size={18} /> 本月必做
           </h3>
           <div style={{
             background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
@@ -2554,7 +2582,7 @@ export default function TradingPhilosophy(): JSX.Element {
           fontSize: '1rem',
           fontWeight: '600'
         }}>
-          现在,关掉所有学习资料,打开行情软件,开始你的1万小时刻意练习吧! 🚀
+          现在,关掉所有学习资料,打开行情软件,开始你的1万小时刻意练习吧! <Rocket size={20} style={{ verticalAlign: 'middle' }} />
         </div>
       </div>
 
@@ -2590,7 +2618,7 @@ export default function TradingPhilosophy(): JSX.Element {
             e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
           }}
         >
-          ↑
+          <ChevronUp size={24} />
         </button>
       )}
     </main>

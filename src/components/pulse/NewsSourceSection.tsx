@@ -1,5 +1,22 @@
 import React, { useState } from 'react'
 import type { NewsSource } from '../../types'
+import {
+  Radio,
+  Newspaper,
+  Database,
+  MessageSquare,
+  Link,
+  Zap,
+  Flame,
+  Pin,
+  Plus,
+  RadioTower,
+  ShieldAlert,
+  Edit2,
+  Trash2,
+  EyeOff,
+  Eye
+} from 'lucide-react'
 
 interface NewsSourceSectionProps {
   sources: NewsSource[]
@@ -20,17 +37,17 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
   })
 
   const categoryLabels: Record<NewsSource['category'], string> = {
-    official: '🏛️ 官方数据',
-    news: '📰 财经新闻',
-    data: '📊 数据平台',
-    social: '💬 社交媒体',
-    other: '🔗 其他'
+    official: '官方数据',
+    news: '财经新闻',
+    data: '数据平台',
+    social: '社交媒体',
+    other: '其他'
   }
 
   const priorityLabels: Record<NewsSource['priority'], string> = {
-    high: '🔥 高',
-    medium: '⚡ 中',
-    low: '📌 低'
+    high: '高',
+    medium: '中',
+    low: '低'
   }
 
   const handleSave = () => {
@@ -98,10 +115,10 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
       {/* 启用的消息源 */}
       {enabledSources.length > 0 && (
         <div style={{ marginBottom: '16px' }}>
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', 
-            gap: '10px' 
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
+            gap: '10px'
           }}>
             {enabledSources.map(source => (
               <div
@@ -125,7 +142,7 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '3px' }}>
-                      <span style={{ fontSize: '1rem' }}>{source.icon || '🔗'}</span>
+                      <Link size={14} />
                       <a
                         href={source.url}
                         target="_blank"
@@ -148,23 +165,35 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
                     <div style={{ fontSize: '0.7rem', color: '#6b7280', marginBottom: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {source.description || categoryLabels[source.category]}
                     </div>
-                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                      <span style={{ 
-                        fontSize: '0.65rem', 
-                        padding: '1px 4px', 
-                        borderRadius: '3px', 
-                        background: '#e5e7eb', 
-                        color: '#6b7280' 
+                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', alignItems: 'center' }}>
+                      <span style={{
+                        display: 'flex', alignItems: 'center', gap: '4px',
+                        fontSize: '0.65rem',
+                        padding: '1px 6px',
+                        borderRadius: '4px',
+                        background: '#f3f4f6',
+                        color: '#6b7280',
+                        border: '1px solid #e5e7eb'
                       }}>
+                        {source.category === 'official' && <RadioTower size={10} />}
+                        {source.category === 'news' && <Newspaper size={10} />}
+                        {source.category === 'data' && <Database size={10} />}
+                        {source.category === 'social' && <MessageSquare size={10} />}
+                        {source.category === 'other' && <Link size={10} />}
                         {categoryLabels[source.category]}
                       </span>
-                      <span style={{ 
-                        fontSize: '0.65rem', 
-                        padding: '1px 4px', 
-                        borderRadius: '3px', 
-                        background: source.priority === 'high' ? '#fee2e2' : source.priority === 'medium' ? '#fef3c7' : '#e5e7eb',
-                        color: source.priority === 'high' ? '#dc2626' : source.priority === 'medium' ? '#d97706' : '#6b7280'
+                      <span style={{
+                        display: 'flex', alignItems: 'center', gap: '4px',
+                        fontSize: '0.65rem',
+                        padding: '1px 6px',
+                        borderRadius: '4px',
+                        background: source.priority === 'high' ? '#fee2e2' : source.priority === 'medium' ? '#fef3c7' : '#f3f4f6',
+                        color: source.priority === 'high' ? '#dc2626' : source.priority === 'medium' ? '#d97706' : '#6b7280',
+                        border: `1px solid ${source.priority === 'high' ? '#fecaca' : source.priority === 'medium' ? '#fde68a' : '#e5e7eb'}`
                       }}>
+                        {source.priority === 'high' && <Flame size={10} />}
+                        {source.priority === 'medium' && <Zap size={10} />}
+                        {source.priority === 'low' && <Pin size={10} />}
                         {priorityLabels[source.priority]}
                       </span>
                     </div>
@@ -225,19 +254,19 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
       {/* 禁用的消息源 */}
       {disabledSources.length > 0 && (
         <details style={{ marginTop: '16px' }}>
-          <summary style={{ 
-            fontSize: '0.85rem', 
-            color: '#9ca3af', 
-            cursor: 'pointer', 
+          <summary style={{
+            fontSize: '0.85rem',
+            color: '#9ca3af',
+            cursor: 'pointer',
             padding: '8px',
             background: '#f9fafb',
             borderRadius: '6px'
           }}>
             已禁用的消息源 ({disabledSources.length})
           </summary>
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', 
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
             gap: '12px',
             marginTop: '12px'
           }}>
@@ -302,26 +331,26 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
 
       {/* 添加/编辑表单 */}
       {showForm && (
-        <div style={{ 
-          position: 'fixed', 
-          top: 0, 
-          left: 0, 
-          right: 0, 
-          bottom: 0, 
-          background: 'rgba(0,0,0,0.5)', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          zIndex: 1000 
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
         }}>
-          <div style={{ 
-            background: 'white', 
-            borderRadius: '12px', 
-            padding: '20px', 
-            width: '90%', 
-            maxWidth: '500px', 
-            maxHeight: '80vh', 
-            overflow: 'auto' 
+          <div style={{
+            background: 'white',
+            borderRadius: '12px',
+            padding: '20px',
+            width: '90%',
+            maxWidth: '500px',
+            maxHeight: '80vh',
+            overflow: 'auto'
           }}>
             <h3 style={{ margin: '0 0 16px', fontSize: '1.1rem' }}>
               {editingSource ? '编辑消息源' : '添加消息源'}
@@ -355,11 +384,11 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
                     onChange={e => setFormData({ ...formData, category: e.target.value as NewsSource['category'] })}
                     style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }}
                   >
-                    <option value="official">🏛️ 官方数据</option>
-                    <option value="news">📰 财经新闻</option>
-                    <option value="data">📊 数据平台</option>
-                    <option value="social">💬 社交媒体</option>
-                    <option value="other">🔗 其他</option>
+                    <option value="official">官方数据</option>
+                    <option value="news">财经新闻</option>
+                    <option value="data">数据平台</option>
+                    <option value="social">社交媒体</option>
+                    <option value="other">其他</option>
                   </select>
                 </div>
                 <div>
@@ -369,9 +398,9 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
                     onChange={e => setFormData({ ...formData, priority: e.target.value as NewsSource['priority'] })}
                     style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }}
                   >
-                    <option value="high">🔥 高</option>
-                    <option value="medium">⚡ 中</option>
-                    <option value="low">📌 低</option>
+                    <option value="high">高</option>
+                    <option value="medium">中</option>
+                    <option value="low">低</option>
                   </select>
                 </div>
               </div>

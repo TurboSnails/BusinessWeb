@@ -1,5 +1,77 @@
 import React, { useState, useEffect } from 'react';
 import { fetchCBOEPCRatios, fetchEarningsCalendar, type EarningsCalendarItem } from '../services/api';
+import {
+  Calendar,
+  ListTodo,
+  Activity,
+  CircleDollarSign,
+  ClipboardCheck,
+  TrendingDown,
+  Target,
+  ShieldCheck,
+  AlertTriangle,
+  TrendingUp,
+  BarChart2,
+  Search,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  Briefcase,
+  Wallet,
+  Coins,
+  ArrowRight,
+  Info,
+  Shield,
+  Zap,
+  Cpu,
+  FileText,
+  Building2,
+  Construction,
+  Trophy,
+  DollarSign,
+  AlertCircle
+} from 'lucide-react';
+import {
+  tableWrapperStyle,
+  tableStyle,
+  thStyle,
+  tdStyle,
+  getTrStyle,
+  contentStyle
+} from '../components/TableStyles';
+
+const StatusBadge: React.FC<{ type: 'red' | 'orange' | 'green' | 'blue', text: string }> = ({ type, text }) => {
+  const styles = {
+    red: { bg: 'rgba(255, 59, 48, 0.1)', color: 'var(--system-red)', glow: 'var(--system-red)' },
+    orange: { bg: 'rgba(255, 149, 0, 0.1)', color: 'var(--system-orange)', glow: 'var(--system-orange)' },
+    green: { bg: 'rgba(34, 199, 89, 0.1)', color: 'var(--system-green)', glow: 'var(--system-green)' },
+    blue: { bg: 'rgba(0, 122, 255, 0.1)', color: 'var(--system-blue)', glow: 'var(--system-blue)' }
+  }
+  const current = styles[type]
+  return (
+    <div style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '6px',
+      padding: '4px 10px',
+      borderRadius: '8px',
+      background: current.bg,
+      color: current.color,
+      fontWeight: '600',
+      fontSize: '0.75rem',
+      whiteSpace: 'nowrap'
+    }}>
+      <div style={{
+        width: '6px',
+        height: '6px',
+        borderRadius: '50%',
+        background: current.color,
+        boxShadow: `0 0 6px ${current.glow}`
+      }} />
+      {text}
+    </div>
+  )
+}
 
 const InvestmentPlan2026 = () => {
   const [activeTab, setActiveTab] = useState<'timeline' | 'checklist' | 'macro' | 'earnings' | 'decision' | 'shorting' | 'profit-taking'>('timeline');
@@ -7,7 +79,7 @@ const InvestmentPlan2026 = () => {
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
 
   const toggleCheck = (id: string) => {
-    setCheckedItems(prev => ({...prev, [id]: !prev[id]}));
+    setCheckedItems(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
   // 市场情绪分析器状态
@@ -36,7 +108,7 @@ const InvestmentPlan2026 = () => {
       console.log('开始获取 CBOE P/C Ratio 数据...');
       const data = await fetchCBOEPCRatios();
       console.log('获取到的数据:', data);
-      
+
       let successCount = 0;
       if (data.equityPC !== null) {
         setEquityPC(data.equityPC.toFixed(2));
@@ -46,7 +118,7 @@ const InvestmentPlan2026 = () => {
         setSpxPC(data.spxPC.toFixed(2));
         successCount++;
       }
-      
+
       if (successCount === 0) {
         // 提供更友好的提示和快速打开 CBOE 页面的选项
         const openCBOE = confirm('⚠️ 无法自动获取数据\n\nCBOE 页面使用动态加载，无法直接解析。\n\n是否在新窗口打开 CBOE 页面？\n\n（打开后，请查找 "Equity Put/Call Ratio" 和 "SPX Put/Call Ratio" 数据）');
@@ -392,28 +464,28 @@ const InvestmentPlan2026 = () => {
     {
       category: '2026年5-9月 - 止盈与减仓规则（量化标准）',
       items: [
-        { 
-          id: 'may-sep-1', 
+        {
+          id: 'may-sep-1',
           text: '📊 基准点：以2026年纳指高点为基准（记录具体点位）',
           detail: '例如：纳指2026年高点为18,000点，以此为基准计算回撤'
         },
-        { 
-          id: 'may-sep-2', 
+        {
+          id: 'may-sep-2',
           text: '💰 纳指从高点回撤20%：止盈空头仓位30%',
           detail: '触发条件：纳指跌至14,400点（假设高点18,000）。执行：卖出30% PSQ/SH仓位，锁定利润'
         },
-        { 
-          id: 'may-sep-3', 
+        {
+          id: 'may-sep-3',
           text: '💰 纳指从高点回撤30%：再止盈空头仓位30%',
           detail: '触发条件：纳指跌至12,600点。执行：再卖出30%空头仓位，累计已止盈60%'
         },
-        { 
-          id: 'may-sep-4', 
+        {
+          id: 'may-sep-4',
           text: '💰 纳指从高点回撤40%：择机平掉大部分空头',
           detail: '触发条件：纳指跌至10,800点。执行：平掉剩余空头的70-80%，保留10-20%作为对冲'
         },
-        { 
-          id: 'may-sep-5', 
+        {
+          id: 'may-sep-5',
           text: '⚠️ 恐慌加速规则：VIX>40 或信用利差(IG/HY)极度走阔时，加快平仓节奏',
           detail: '触发条件：VIX>40 或 IG信用利差>200bp / HY利差>800bp。执行：在达到上述回撤点位时，提前5-10%止盈'
         }
@@ -422,28 +494,28 @@ const InvestmentPlan2026 = () => {
     {
       category: '2026年5-9月 - 每月1日评估表（量化Checklist）',
       items: [
-        { 
-          id: 'may-sep-6', 
+        {
+          id: 'may-sep-6',
           text: '✅ 失业率评估：是否连续3个月上升且合计≥0.5个百分点？',
           detail: '数据源：BLS每月第一个周五8:30发布。阈值：连续上升+合计≥0.5% = 满足'
         },
-        { 
-          id: 'may-sep-7', 
-          text: '✅ 银行拨备评估：拨备增速是否连续两季>30%或相对历史分位>75%？',
+        {
+          id: 'may-sep-7',
+          text: '银行拨备评估：拨备增速是否连续两季>30%或相对历史分位>75%？',
           detail: '数据源：JPM/BAC/WFC/C季度财报。阈值：连续两季>30%或分位>75% = 满足'
         },
-        { 
-          id: 'may-sep-8', 
+        {
+          id: 'may-sep-8',
           text: '✅ 科技指引评估：3家以上科技龙头指引是否继续下修？',
           detail: '数据源：MSFT/GOOGL/META/AAPL季度指引。阈值：≥3家下修 = 满足'
         },
-        { 
-          id: 'may-sep-9', 
+        {
+          id: 'may-sep-9',
           text: '✅ 信用利差评估：IG/HY信用利差是否继续走阔？',
           detail: '数据源：Bloomberg/FRED。阈值：IG>150bp或HY>600bp且继续上升 = 满足'
         },
-        { 
-          id: 'may-sep-10', 
+        {
+          id: 'may-sep-10',
           text: '📊 综合判断：满足≥3项 = 危机仍在演化，空头不大幅减仓；满足≤2项 = 逐步锁定利润',
           detail: '执行规则：≥3项满足→保持空头仓位；≤2项满足→开始分批止盈，每月减仓10-15%'
         }
@@ -452,18 +524,18 @@ const InvestmentPlan2026 = () => {
     {
       category: '2026年5-9月 - 商业地产与美联储联动规则',
       items: [
-        { 
-          id: 'may-sep-11', 
+        {
+          id: 'may-sep-11',
           text: '🚨 商业地产危机信号：大型REIT/区域银行被迫救助或破产 + 信贷紧缩',
           detail: '数据源：每日监控KRE ETF、区域银行新闻、商业地产REIT财报。触发动作：出现上述情况→将空头止盈节奏前移10%，同时更积极准备债券和优质股抄底名单'
         },
-        { 
-          id: 'may-sep-12', 
+        {
+          id: 'may-sep-12',
           text: '📉 美联储连续降息信号：2次以上降息但股指暂未大跌',
           detail: '数据源：FOMC会议声明（每6-8周一次）。触发动作：连续2次降息但纳指跌幅<15%→减少新开空头，更多等待抄底机会，将抄底资金准备比例提升至70%'
         },
-        { 
-          id: 'may-sep-13', 
+        {
+          id: 'may-sep-13',
           text: '📊 信息跟踪频率：每周一、三、五监控KRE走势；每月1日评估上述指标；FOMC会议日重点关注',
           detail: '数据源清单：KRE ETF（Yahoo Finance）、银行财报（公司官网）、FOMC声明（Fed官网）、信用利差（FRED/Bloomberg）'
         }
@@ -472,18 +544,18 @@ const InvestmentPlan2026 = () => {
     {
       category: '2026年5-9月 - 抄底资金管理（量化规则）',
       items: [
-        { 
-          id: 'may-sep-14', 
+        {
+          id: 'may-sep-14',
           text: '💰 锁仓比例：Q3-Q4抄底资金至少保留60%，除非抄底条件满足≥4条才可以动用超过一半资金',
           detail: '抄底条件（需满足≥4条）：1)标普回撤>30% 2)美联储降息至2%以下 3)政府万亿级刺激 4)VIX从50+回落至35以下 5)信贷数据连续两周正增长 6)信用利差收窄'
         },
-        { 
-          id: 'may-sep-15', 
+        {
+          id: 'may-sep-15',
           text: '📊 资金分配规则：满足≥4条→可动用60-80%抄底资金；满足3条→可动用30-50%；满足≤2条→仅动用10-20%',
           detail: '执行：分批抄底，每批间隔1-2周，观察市场反应后再决定下一批'
         },
-        { 
-          id: 'may-sep-16', 
+        {
+          id: 'may-sep-16',
           text: '⚠️ 提前动用条件：仅在出现"极端恐慌"信号时可提前动用部分资金（不超过30%）',
           detail: '极端恐慌定义：Equity P/C>1.3 + VIX>50 + 标普单日跌幅>5%。满足后可提前动用30%资金买入优质债和蓝筹股'
         }
@@ -494,25 +566,25 @@ const InvestmentPlan2026 = () => {
   const decisionMatrix = [
     {
       scenario: '失业率≥4.8% 且 银行计提>50亿',
-      signal: '🔴 双重红灯',
+      signal: <StatusBadge type="red" text="双重红灯" />,
       action: '清仓75% YINN',
       allocation: '50%现金 + 25%黄金 + 15%美债 + 10%观察仓'
     },
     {
       scenario: '失业率4.6-4.7% 或 银行计提30-50亿',
-      signal: '🟡 单一警告',
+      signal: <StatusBadge type="orange" text="单一警告" />,
       action: '清仓50% YINN',
       allocation: '40%现金 + 20%黄金 + 15%美债 + 25%观察仓'
     },
     {
       scenario: '失业率<4.5% 且 银行计提<25亿',
-      signal: '🟢 暂时安全',
+      signal: <StatusBadge type="green" text="暂时安全" />,
       action: '仅清仓25% YINN',
       allocation: '25%现金 + 10%黄金 + 10%美债 + 55%保留仓位'
     },
     {
       scenario: '科技股财报3家以上超预期',
-      signal: '🟢 AI续命',
+      signal: <StatusBadge type="blue" text="AI续命" />,
       action: '取消做空计划',
       allocation: '可考虑2月底重新买入YINN'
     }
@@ -531,7 +603,7 @@ const InvestmentPlan2026 = () => {
       code: 'KRE',
       name: '区域银行',
       description: '看地产雷什么时候炸',
-      icon: '🏦',
+      icon: <Building2 size={20} />,
       color: '#ef4444',
       bgColor: '#fef2f2'
     },
@@ -539,7 +611,7 @@ const InvestmentPlan2026 = () => {
       code: 'XHB',
       name: '建筑商',
       description: '确认地产板块是否持续走弱',
-      icon: '🏗️',
+      icon: <Construction size={20} />,
       color: '#f97316',
       bgColor: '#fff7ed'
     },
@@ -547,7 +619,7 @@ const InvestmentPlan2026 = () => {
       code: 'GDX / GLD',
       name: '黄金相关',
       description: '确认避险资金流向',
-      icon: '🥇',
+      icon: <Trophy size={20} />,
       color: '#eab308',
       bgColor: '#fefce8'
     },
@@ -555,7 +627,7 @@ const InvestmentPlan2026 = () => {
       code: 'VIX',
       name: '恐慌指数',
       description: '如果 VIX 持续站稳在 25 以上，说明"阴跌"转为"恐慌跌"',
-      icon: '📊',
+      icon: <Activity size={20} />,
       color: '#8b5cf6',
       bgColor: '#faf5ff'
     },
@@ -563,7 +635,7 @@ const InvestmentPlan2026 = () => {
       code: 'DXY',
       name: '美元指数',
       description: '美元强弱反映全球资金流向，强势美元通常压制风险资产',
-      icon: '💵',
+      icon: <DollarSign size={20} />,
       color: '#3b82f6',
       bgColor: '#eff6ff'
     },
@@ -571,7 +643,7 @@ const InvestmentPlan2026 = () => {
       code: '^TNX',
       name: '10年期美债收益率',
       description: '收益率倒挂（2年>10年）是衰退预警信号，持续倒挂需警惕',
-      icon: '📈',
+      icon: <TrendingUp size={20} />,
       color: '#10b981',
       bgColor: '#f0fdf4'
     },
@@ -579,7 +651,7 @@ const InvestmentPlan2026 = () => {
       code: 'BTC-USD',
       name: '比特币',
       description: '风险偏好指标，BTC上涨通常意味着市场风险偏好上升',
-      icon: '₿',
+      icon: <Zap size={20} />,
       color: '#f59e0b',
       bgColor: '#fffbeb'
     },
@@ -587,7 +659,7 @@ const InvestmentPlan2026 = () => {
       code: 'Fear & Greed',
       name: '恐慌贪婪指数',
       description: 'CNN恐慌贪婪指数，<20极度恐慌（抄底信号），>80极度贪婪（减仓信号）',
-      icon: '😱',
+      icon: <AlertCircle size={20} />,
       color: '#ec4899',
       bgColor: '#fdf2f8'
     }
@@ -600,7 +672,7 @@ const InvestmentPlan2026 = () => {
       time: '美东14:00',
       importance: 'critical',
       description: '美联储货币政策决定，直接影响市场',
-      icon: '🏦'
+      icon: <Building2 size={20} />
     },
     {
       event: '非农就业数据 (NFP)',
@@ -608,7 +680,7 @@ const InvestmentPlan2026 = () => {
       time: '美东8:30',
       importance: 'critical',
       description: '就业市场健康度，影响美联储政策预期',
-      icon: '👔'
+      icon: <Briefcase size={20} />
     },
     {
       event: 'CPI通胀数据',
@@ -616,7 +688,7 @@ const InvestmentPlan2026 = () => {
       time: '美东8:30',
       importance: 'high',
       description: '通胀水平，影响利率预期',
-      icon: '📈'
+      icon: <Activity size={20} />
     },
     {
       event: 'PPI生产者价格指数',
@@ -624,7 +696,7 @@ const InvestmentPlan2026 = () => {
       time: '美东8:30',
       importance: 'high',
       description: '上游通胀压力，CPI先行指标',
-      icon: '🏭'
+      icon: <Construction size={20} />
     },
     {
       event: 'GDP初值/终值',
@@ -632,7 +704,7 @@ const InvestmentPlan2026 = () => {
       time: '美东8:30',
       importance: 'high',
       description: '经济增长速度，衰退预警指标',
-      icon: '📊'
+      icon: <BarChart2 size={20} />
     },
     {
       event: '消费者信心指数',
@@ -640,7 +712,7 @@ const InvestmentPlan2026 = () => {
       time: '美东10:00',
       importance: 'medium',
       description: '消费意愿，影响经济预期',
-      icon: '🛒'
+      icon: <Wallet size={20} />
     },
     {
       event: 'ISM制造业PMI',
@@ -648,7 +720,7 @@ const InvestmentPlan2026 = () => {
       time: '美东10:00',
       importance: 'high',
       description: '制造业景气度，<50表示收缩',
-      icon: '🏭'
+      icon: <Cpu size={20} />
     },
     {
       event: '失业率报告',
@@ -656,7 +728,7 @@ const InvestmentPlan2026 = () => {
       time: '美东8:30',
       importance: 'critical',
       description: '萨姆规则触发条件（失业率≥5.0%）',
-      icon: '📉'
+      icon: <TrendingDown size={20} />
     }
   ];
 
@@ -668,7 +740,7 @@ const InvestmentPlan2026 = () => {
     const vixF = parseFloat(vixFar);
     const gex = parseFloat(netGEX);
     const gsRatio = parseFloat(goldSilverRatio);
-    
+
     if (isNaN(equity) || isNaN(spx)) {
       alert('请输入 Equity P/C 和 SPX P/C 的数值');
       return;
@@ -677,10 +749,10 @@ const InvestmentPlan2026 = () => {
     // 高阶参数分析
     let advancedAnalysis = '';
     const hasAdvanced = !isNaN(vixN) && !isNaN(vixF) || !isNaN(gex) || !isNaN(gsRatio);
-    
+
     if (hasAdvanced) {
       const advParts: string[] = [];
-      
+
       // VIX 期限结构分析
       if (!isNaN(vixN) && !isNaN(vixF)) {
         if (vixN > vixF) {
@@ -691,7 +763,7 @@ const InvestmentPlan2026 = () => {
           advParts.push('✅ VIX 期限结构正常（远期 > 近期）：市场情绪相对稳定。');
         }
       }
-      
+
       // Net GEX 分析
       if (!isNaN(gex)) {
         if (gex < 0) {
@@ -702,7 +774,7 @@ const InvestmentPlan2026 = () => {
           advParts.push('✅ Net GEX 为高正值：市场处于安全区，做市商会"越涨越卖，越跌越买"，波动较小。');
         }
       }
-      
+
       // 金银比分析
       if (!isNaN(gsRatio)) {
         if (gsRatio >= 90) {
@@ -715,7 +787,7 @@ const InvestmentPlan2026 = () => {
           advParts.push('✅ 金银比正常（70-85）：金属市场相对平衡。');
         }
       }
-      
+
       if (advParts.length > 0) {
         advancedAnalysis = advParts.join('\n\n');
       }
@@ -810,7 +882,7 @@ const InvestmentPlan2026 = () => {
     if (result) {
       let priorityAnalysis = '';
       const priorityParts: string[] = [];
-      
+
       // 第一名：Equity P/C Ratio 评估
       if (equity < 0.55) {
         priorityParts.push('🥇 Equity P/C (0.64)：进入疯狂末端，极度贪婪！这是最危险的信号。');
@@ -823,7 +895,7 @@ const InvestmentPlan2026 = () => {
       } else if (equity >= 1.2) {
         priorityParts.push('🥇 Equity P/C：极度恐惧！这是确定性最高的抄底时刻！1/8 现金可以进场。');
       }
-      
+
       // 第三名：SPX P/C Ratio 评估
       if (spx >= 1.2) {
         priorityParts.push('🥉 SPX P/C (1.22)：安全垫充足，机构对冲很强。可以继续持仓 YINN/NVDA。');
@@ -832,7 +904,7 @@ const InvestmentPlan2026 = () => {
       } else if (spx < 0.9) {
         priorityParts.push('🥉 SPX P/C：防弹衣已脱！这是撤退 YINN/NVDA 的最高指令！');
       }
-      
+
       // 第二名：Net GEX 评估（如果有输入）
       if (!isNaN(gex)) {
         if (gex < 0) {
@@ -843,7 +915,7 @@ const InvestmentPlan2026 = () => {
           priorityParts.push('🥈 Net GEX：高正值，市场处于安全区。波动较小，可以继续持仓。');
         }
       }
-      
+
       // 第四名：VIX 期限结构评估（如果有输入）
       if (!isNaN(vixN) && !isNaN(vixF)) {
         if (vixN > vixF) {
@@ -854,7 +926,7 @@ const InvestmentPlan2026 = () => {
           priorityParts.push('4️⃣ VIX 期限结构：正常（远期 > 近期）。可以继续在 YINN 的鱼尾行情里博弈。');
         }
       }
-      
+
       // 第五名：金银比评估（如果有输入）
       if (!isNaN(gsRatio)) {
         if (gsRatio >= 90) {
@@ -867,11 +939,11 @@ const InvestmentPlan2026 = () => {
           priorityParts.push('5️⃣ 金银比：正常（70-85），金属市场相对平衡。');
         }
       }
-      
+
       if (priorityParts.length > 0) {
         priorityAnalysis = priorityParts.join('\n\n');
       }
-      
+
       // 合并优先级分析和高阶参数分析
       if (priorityAnalysis && advancedAnalysis) {
         result.advanced = priorityAnalysis + '\n\n' + advancedAnalysis;
@@ -892,10 +964,10 @@ const InvestmentPlan2026 = () => {
         <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #e5e7eb' }}>
           {/* 计划执行类 */}
           <div style={{ display: 'flex', borderBottom: '1px solid #f3f4f6', flexWrap: 'wrap' }}>
-            <div style={{ 
-              padding: '8px 12px', 
-              fontSize: '0.75rem', 
-              color: '#6b7280', 
+            <div style={{
+              padding: '8px 12px',
+              fontSize: '0.75rem',
+              color: '#6b7280',
               fontWeight: '600',
               background: '#f9fafb',
               display: 'flex',
@@ -904,7 +976,7 @@ const InvestmentPlan2026 = () => {
               minWidth: '80px'
             }}>
               📅 计划执行
-      </div>
+            </div>
             {(['timeline', 'checklist', 'macro', 'earnings'] as const).map((tab) => {
               const labels: Record<typeof tab, string> = {
                 timeline: '时间轴',
@@ -914,7 +986,7 @@ const InvestmentPlan2026 = () => {
               };
               const isActive = activeTab === tab;
               return (
-          <button
+                <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   style={{
@@ -939,19 +1011,19 @@ const InvestmentPlan2026 = () => {
                       e.currentTarget.style.background = 'transparent';
                     }
                   }}
-          >
+                >
                   {labels[tab]}
-          </button>
+                </button>
               );
             })}
           </div>
 
           {/* 决策策略类 */}
           <div style={{ display: 'flex', borderBottom: '1px solid #f3f4f6', flexWrap: 'wrap' }}>
-            <div style={{ 
-              padding: '8px 12px', 
-              fontSize: '0.75rem', 
-              color: '#6b7280', 
+            <div style={{
+              padding: '8px 12px',
+              fontSize: '0.75rem',
+              color: '#6b7280',
               fontWeight: '600',
               background: '#f9fafb',
               display: 'flex',
@@ -969,7 +1041,7 @@ const InvestmentPlan2026 = () => {
               };
               const isActive = activeTab === tab;
               return (
-          <button
+                <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   style={{
@@ -994,9 +1066,9 @@ const InvestmentPlan2026 = () => {
                       e.currentTarget.style.background = 'transparent';
                     }
                   }}
-          >
+                >
                   {labels[tab]}
-          </button>
+                </button>
               );
             })}
           </div>
@@ -1005,16 +1077,24 @@ const InvestmentPlan2026 = () => {
       </div>
 
       {/* Content */}
-      <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '0 0 12px 12px', padding: '24px' }}>
+      <div style={{
+        background: 'var(--bg-card)',
+        backdropFilter: 'var(--glass-blur)',
+        border: '1px solid var(--border-light)',
+        borderRadius: '0 0 24px 24px',
+        padding: '32px',
+        boxShadow: 'var(--shadow-subtle)',
+        marginTop: '-1px'
+      }}>
         {activeTab === 'timeline' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             {timelineData.map((item, index) => {
               const borderColor = item.priority === 'critical' ? '#ef4444' : item.priority === 'high' ? '#f97316' : '#3b82f6';
               const bgColor = item.priority === 'critical' ? '#fef2f2' : item.priority === 'high' ? '#fff7ed' : '#eff6ff';
-              
+
               return (
-              <div
-                key={index}
+                <div
+                  key={index}
                   style={{
                     borderLeft: `4px solid ${borderColor}`,
                     paddingLeft: '16px',
@@ -1022,300 +1102,302 @@ const InvestmentPlan2026 = () => {
                     background: bgColor,
                     borderRadius: '8px'
                   }}
-              >
+                >
                   <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
                         <span style={{ fontWeight: '700', fontSize: '1.1rem' }}>{item.date}</span>
                         <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>{item.day}</span>
-                      {item.time && (
-                          <span style={{ 
-                            fontSize: '0.8rem', 
-                            background: 'white', 
-                            padding: '4px 8px', 
+                        {item.time && (
+                          <span style={{
+                            fontSize: '0.8rem',
+                            background: 'white',
+                            padding: '4px 8px',
                             borderRadius: '4px',
                             color: '#4b5563'
                           }}>
-                          {item.time}
-                        </span>
-                      )}
-                    </div>
+                            {item.time}
+                          </span>
+                        )}
+                      </div>
                       <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1f2937', margin: '8px 0' }}>
-                      {item.event}
-                    </h3>
+                        {item.event}
+                      </h3>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '12px' }}>
-                      {item.isTable ? (
-                        // 表格类型特殊渲染
-                        (() => {
-                          if (!item.actions || item.actions.length === 0) {
-                            return null
-                          }
-                          
-                          let tableHeaderAdded = false
-                          const tableRows = item.actions.filter(a => a.isTableRow)
-                          const lastTableRowIndex = tableRows.length - 1
-                          let currentTableRowIndex = -1
-                          
-                          // 渲染文本内容（支持粗体）
-                          const renderText = (text: string | undefined | null): React.ReactNode => {
-                            if (!text || typeof text !== 'string') return <span></span>
-                            const parts = text.split(/(\*\*.*?\*\*)/g).filter(p => p && p.length > 0)
-                            if (parts.length === 0) return <span></span>
-                            return parts.map((part, i) => {
-                              if (part.startsWith('**') && part.endsWith('**')) {
-                                return <strong key={i}>{part.slice(2, -2)}</strong>
-                              }
-                              return <span key={i}>{part}</span>
-                            })
-                          }
-                          
-                          const renderedItems: React.ReactElement[] = []
-                          
-                          item.actions.forEach((action) => {
-                            if (!action || !action.id) return
-                            
-                            // 表格行
-                            if (action.isTableRow && action.text && typeof action.text === 'string') {
-                              currentTableRowIndex++
-                              const parts = action.text.split('|').map(p => String(p || '').trim()).filter(p => p.length > 0)
-                              
-                              if (parts.length >= 5) {
-                                // 添加表头
-                                if (!tableHeaderAdded) {
-                                  tableHeaderAdded = true
+                        {item.isTable ? (
+                          // 表格类型特殊渲染
+                          (() => {
+                            if (!item.actions || item.actions.length === 0) {
+                              return null
+                            }
+
+                            let tableHeaderAdded = false
+                            const tableRows = item.actions.filter(a => a.isTableRow)
+                            const lastTableRowIndex = tableRows.length - 1
+                            let currentTableRowIndex = -1
+
+                            // 渲染文本内容（支持粗体）
+                            const renderText = (text: string | undefined | null): React.ReactNode => {
+                              if (!text || typeof text !== 'string') return <span></span>
+                              const parts = text.split(/(\*\*.*?\*\*)/g).filter(p => p && p.length > 0)
+                              if (parts.length === 0) return <span></span>
+                              return parts.map((part, i) => {
+                                if (part.startsWith('**') && part.endsWith('**')) {
+                                  return <strong key={i}>{part.slice(2, -2)}</strong>
+                                }
+                                return <span key={i}>{part}</span>
+                              })
+                            }
+
+                            const renderedItems: React.ReactElement[] = []
+
+                            item.actions.forEach((action) => {
+                              if (!action || !action.id) return
+
+                              // 表格行
+                              if (action.isTableRow && action.text && typeof action.text === 'string') {
+                                currentTableRowIndex++
+                                const parts = action.text.split('|').map(p => String(p || '').trim()).filter(p => p.length > 0)
+
+                                if (parts.length >= 5) {
+                                  // 添加表头
+                                  if (!tableHeaderAdded) {
+                                    tableHeaderAdded = true
+                                    renderedItems.push(
+                                      <div key={`table-header-${action.id}`} style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: '1.5fr 1fr 1fr 1.2fr 0.5fr',
+                                        gap: '8px',
+                                        padding: '16px 20px',
+                                        fontSize: '0.8rem',
+                                        fontWeight: '600',
+                                        background: 'var(--system-gray6)',
+                                        color: 'var(--text-secondary)',
+                                        borderRadius: '16px 16px 0 0',
+                                        marginTop: '16px',
+                                        borderBottom: '1px solid var(--border-light)',
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.05em'
+                                      }}>
+                                        <div>指标</div>
+                                        <div>当前值</div>
+                                        <div>Q3值</div>
+                                        <div>危险阈值</div>
+                                        <div style={{ textAlign: 'center' }}>警示</div>
+                                      </div>
+                                    )
+                                  }
+
+                                  const isLastRow = currentTableRowIndex === lastTableRowIndex
+                                  // 检查是否是拨备相关的行（需要淡蓝色背景）
+                                  const isProvisionRow = ['jan12-table-5', 'jan12-table-6', 'jan12-table-7', 'jan12-table-8'].includes(action.id)
+                                  const backgroundColor = isProvisionRow
+                                    ? 'rgba(0, 122, 255, 0.05)' // Subtle System Blue
+                                    : (currentTableRowIndex % 2 === 0 ? 'transparent' : 'rgba(0,0,0,0.01)')
+
                                   renderedItems.push(
-                                    <div key={`table-header-${action.id}`} style={{
+                                    <div key={action.id} style={{
                                       display: 'grid',
                                       gridTemplateColumns: '1.5fr 1fr 1fr 1.2fr 0.5fr',
                                       gap: '8px',
-                                      padding: '12px',
-                                      fontSize: '0.85rem',
-                                      fontWeight: '600',
-                                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                      color: 'white',
-                                      borderRadius: '8px 8px 0 0',
-                                      marginTop: '12px',
-                                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                      padding: '14px 20px',
+                                      fontSize: '0.9rem',
+                                      background: backgroundColor,
+                                      borderBottom: isLastRow ? 'none' : '1px solid var(--border-light)',
+                                      borderRadius: isLastRow ? '0 0 16px 16px' : '0',
+                                      alignItems: 'center',
+                                      transition: 'background 0.2s ease',
+                                      color: 'var(--text-primary)'
                                     }}>
-                                      <div>指标</div>
-                                      <div>当前值</div>
-                                      <div>Q3值</div>
-                                      <div>危险阈值</div>
-                                      <div style={{ textAlign: 'center' }}>警示</div>
+                                      <div style={{ fontWeight: '500' }}>{renderText(parts[0])}</div>
+                                      <div>{parts[1]}</div>
+                                      <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{parts[2]}</div>
+                                      <div style={{ color: 'var(--system-red)', fontSize: '0.85rem', fontWeight: '500' }}>{parts[3]}</div>
+                                      <div style={{ textAlign: 'center', fontSize: '1.1rem' }}>{parts[4]}</div>
                                     </div>
                                   )
                                 }
-                                
-                                const isLastRow = currentTableRowIndex === lastTableRowIndex
-                                // 检查是否是拨备相关的行（需要淡蓝色背景）
-                                const isProvisionRow = ['jan12-table-5', 'jan12-table-6', 'jan12-table-7', 'jan12-table-8'].includes(action.id)
-                                const backgroundColor = isProvisionRow 
-                                  ? '#e0f2fe' // 淡蓝色
-                                  : (currentTableRowIndex % 2 === 0 ? '#ffffff' : '#f9fafb')
-                                
+                                return
+                              }
+
+                              // 标题
+                              if (action.isHeader && action.text && typeof action.text === 'string') {
+                                const text = action.text.trim()
+
+                                // 分隔线
+                                if (text === '---') {
+                                  renderedItems.push(
+                                    <div key={action.id} style={{
+                                      height: '1px',
+                                      background: 'linear-gradient(to right, transparent, #d1d5db, transparent)',
+                                      margin: '20px 0',
+                                      width: '100%'
+                                    }} />
+                                  )
+                                  return
+                                }
+
+                                // Markdown 标题
+                                if (text.startsWith('## ')) {
+                                  renderedItems.push(
+                                    <h2 key={action.id} style={{
+                                      marginTop: action.id.includes('header-1') ? '0' : '24px',
+                                      marginBottom: '12px',
+                                      fontSize: '1.25rem',
+                                      fontWeight: '700',
+                                      color: '#1f2937',
+                                      borderBottom: '2px solid #e5e7eb',
+                                      paddingBottom: '8px'
+                                    }}>
+                                      {renderText(text.replace('## ', ''))}
+                                    </h2>
+                                  )
+                                  return
+                                }
+
+                                if (text.startsWith('### ')) {
+                                  renderedItems.push(
+                                    <h3 key={action.id} style={{
+                                      marginTop: '16px',
+                                      marginBottom: '8px',
+                                      fontSize: '1.1rem',
+                                      fontWeight: '600',
+                                      color: '#374151'
+                                    }}>
+                                      {renderText(text.replace('### ', ''))}
+                                    </h3>
+                                  )
+                                  return
+                                }
+
+                                // 普通标题
                                 renderedItems.push(
                                   <div key={action.id} style={{
-                                    display: 'grid',
-                                    gridTemplateColumns: '1.5fr 1fr 1fr 1.2fr 0.5fr',
-                                    gap: '8px',
-                                    padding: '10px 12px',
-                                    fontSize: '0.85rem',
-                                    background: backgroundColor,
-                                    borderBottom: isLastRow ? 'none' : '1px solid #e5e7eb',
-                                    borderRadius: isLastRow ? '0 0 8px 8px' : '0',
-                                    alignItems: 'center',
-                                    transition: 'background 0.2s',
-                                    boxShadow: isLastRow ? '0 2px 4px rgba(0,0,0,0.05)' : 'none'
+                                    marginTop: action.id.includes('header-1') ? '0' : '16px',
+                                    marginBottom: '8px',
+                                    fontSize: '1rem',
+                                    fontWeight: '600',
+                                    color: '#1f2937',
+                                    whiteSpace: 'pre-line',
+                                    lineHeight: '1.6',
+                                    background: action.id.includes('stage') ? 'linear-gradient(90deg, #fef3c7 0%, #ffffff 100%)' : 'transparent',
+                                    padding: action.id.includes('stage') ? '12px 16px' : '0',
+                                    borderRadius: action.id.includes('stage') ? '8px' : '0',
+                                    border: action.id.includes('stage') ? '1px solid #fcd34d' : 'none'
                                   }}>
-                                    <div style={{ fontWeight: '500', color: '#1f2937' }}>{renderText(parts[0])}</div>
-                                    <div style={{ color: '#374151' }}>{parts[1]}</div>
-                                    <div style={{ color: '#6b7280', fontSize: '0.8rem' }}>{parts[2]}</div>
-                                    <div style={{ color: '#dc2626', fontSize: '0.8rem', fontWeight: '500' }}>{parts[3]}</div>
-                                    <div style={{ textAlign: 'center', fontSize: '1.1rem' }}>{parts[4]}</div>
+                                    {renderText(text)}
+                                  </div>
+                                )
+                                return
+                              }
+
+                              // 代码块
+                              if (action.text && typeof action.text === 'string' && action.text.trim().startsWith('```')) {
+                                const codeContent = action.text.trim().replace(/^```\n?/, '').replace(/\n?```$/, '')
+                                renderedItems.push(
+                                  <div key={action.id} style={{
+                                    background: 'linear-gradient(135deg, #1f2937 0%, #111827 100%)',
+                                    color: '#f3f4f6',
+                                    padding: '16px',
+                                    borderRadius: '8px',
+                                    fontSize: '0.85rem',
+                                    fontFamily: 'Monaco, "Courier New", monospace',
+                                    lineHeight: '1.8',
+                                    margin: '12px 0',
+                                    overflowX: 'auto',
+                                    whiteSpace: 'pre',
+                                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                    border: '1px solid #374151'
+                                  }}>
+                                    {String(codeContent)}
+                                  </div>
+                                )
+                                return
+                              }
+
+                              // 引用块
+                              if (action.text && typeof action.text === 'string' && action.text.trim().startsWith('>')) {
+                                const quoteContent = action.text.trim().replace(/^>\s*\*\*/, '**').replace(/\n>\s*/g, '\n')
+                                renderedItems.push(
+                                  <div key={action.id} style={{
+                                    borderLeft: '4px solid #667eea',
+                                    background: 'linear-gradient(90deg, #f0f4ff 0%, #ffffff 100%)',
+                                    padding: '16px 20px',
+                                    margin: '16px 0',
+                                    borderRadius: '6px',
+                                    fontSize: '1rem',
+                                    color: '#1f2937',
+                                    fontWeight: '500',
+                                    lineHeight: '1.8',
+                                    whiteSpace: 'pre-line',
+                                    boxShadow: '0 2px 8px rgba(102, 126, 234, 0.1)'
+                                  }}>
+                                    {renderText(quoteContent)}
+                                  </div>
+                                )
+                                return
+                              }
+
+                              // 复选框
+                              if (action.text && typeof action.text === 'string' && action.text.trim().startsWith('- [ ]')) {
+                                renderedItems.push(
+                                  <div key={action.id} style={{
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    gap: '8px',
+                                    fontSize: '0.9rem',
+                                    color: '#374151',
+                                    padding: '6px 0',
+                                    marginLeft: '8px'
+                                  }}>
+                                    <span style={{ fontSize: '1rem', marginRight: '4px' }}>☐</span>
+                                    <span>{renderText(action.text.replace('- [ ]', '').trim())}</span>
+                                  </div>
+                                )
+                                return
+                              }
+
+                              // 普通文本
+                              if (action.text && typeof action.text === 'string') {
+                                renderedItems.push(
+                                  <div key={action.id} style={{
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    gap: '8px',
+                                    fontSize: '0.9rem',
+                                    color: '#374151',
+                                    padding: '4px 0',
+                                    lineHeight: '1.6'
+                                  }}>
+                                    {renderText(action.text)}
                                   </div>
                                 )
                               }
-                              return
+                            })
+
+                            // 如果没有任何内容被渲染，可能是数据格式问题
+                            if (renderedItems.length === 0) {
+                              console.warn('没有渲染任何内容，actions:', item.actions?.length, item.actions)
+                              return null
                             }
-                            
-                            // 标题
-                            if (action.isHeader && action.text && typeof action.text === 'string') {
-                              const text = action.text.trim()
-                              
-                              // 分隔线
-                              if (text === '---') {
-                                renderedItems.push(
-                                  <div key={action.id} style={{
-                                    height: '1px',
-                                    background: 'linear-gradient(to right, transparent, #d1d5db, transparent)',
-                                    margin: '20px 0',
-                                    width: '100%'
-                                  }} />
-                                )
-                                return
-                              }
-                              
-                              // Markdown 标题
-                              if (text.startsWith('## ')) {
-                                renderedItems.push(
-                                  <h2 key={action.id} style={{ 
-                                    marginTop: action.id.includes('header-1') ? '0' : '24px',
-                                    marginBottom: '12px',
-                                    fontSize: '1.25rem',
-                                    fontWeight: '700',
-                                    color: '#1f2937',
-                                    borderBottom: '2px solid #e5e7eb',
-                                    paddingBottom: '8px'
-                                  }}>
-                                    {renderText(text.replace('## ', ''))}
-                                  </h2>
-                                )
-                                return
-                              }
-                              
-                              if (text.startsWith('### ')) {
-                                renderedItems.push(
-                                  <h3 key={action.id} style={{ 
-                                    marginTop: '16px',
-                                    marginBottom: '8px',
-                                    fontSize: '1.1rem',
-                                    fontWeight: '600',
-                                    color: '#374151'
-                                  }}>
-                                    {renderText(text.replace('### ', ''))}
-                                  </h3>
-                                )
-                                return
-                              }
-                              
-                              // 普通标题
-                              renderedItems.push(
-                                <div key={action.id} style={{ 
-                                  marginTop: action.id.includes('header-1') ? '0' : '16px',
-                                  marginBottom: '8px',
-                                  fontSize: '1rem',
-                                  fontWeight: '600',
-                                  color: '#1f2937',
-                                  whiteSpace: 'pre-line',
-                                  lineHeight: '1.6',
-                                  background: action.id.includes('stage') ? 'linear-gradient(90deg, #fef3c7 0%, #ffffff 100%)' : 'transparent',
-                                  padding: action.id.includes('stage') ? '12px 16px' : '0',
-                                  borderRadius: action.id.includes('stage') ? '8px' : '0',
-                                  border: action.id.includes('stage') ? '1px solid #fcd34d' : 'none'
-                                }}>
-                                  {renderText(text)}
-                                </div>
-                              )
-                              return
-                            }
-                            
-                            // 代码块
-                            if (action.text && typeof action.text === 'string' && action.text.trim().startsWith('```')) {
-                              const codeContent = action.text.trim().replace(/^```\n?/, '').replace(/\n?```$/, '')
-                              renderedItems.push(
-                                <div key={action.id} style={{
-                                  background: 'linear-gradient(135deg, #1f2937 0%, #111827 100%)',
-                                  color: '#f3f4f6',
-                                  padding: '16px',
-                                  borderRadius: '8px',
-                                  fontSize: '0.85rem',
-                                  fontFamily: 'Monaco, "Courier New", monospace',
-                                  lineHeight: '1.8',
-                                  margin: '12px 0',
-                                  overflowX: 'auto',
-                                  whiteSpace: 'pre',
-                                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                                  border: '1px solid #374151'
-                                }}>
-                                  {String(codeContent)}
-                                </div>
-                              )
-                              return
-                            }
-                            
-                            // 引用块
-                            if (action.text && typeof action.text === 'string' && action.text.trim().startsWith('>')) {
-                              const quoteContent = action.text.trim().replace(/^>\s*\*\*/, '**').replace(/\n>\s*/g, '\n')
-                              renderedItems.push(
-                                <div key={action.id} style={{
-                                  borderLeft: '4px solid #667eea',
-                                  background: 'linear-gradient(90deg, #f0f4ff 0%, #ffffff 100%)',
-                                  padding: '16px 20px',
-                                  margin: '16px 0',
-                                  borderRadius: '6px',
-                                  fontSize: '1rem',
-                                  color: '#1f2937',
-                                  fontWeight: '500',
-                                  lineHeight: '1.8',
-                                  whiteSpace: 'pre-line',
-                                  boxShadow: '0 2px 8px rgba(102, 126, 234, 0.1)'
-                                }}>
-                                  {renderText(quoteContent)}
-                                </div>
-                              )
-                              return
-                            }
-                            
-                            // 复选框
-                            if (action.text && typeof action.text === 'string' && action.text.trim().startsWith('- [ ]')) {
-                              renderedItems.push(
-                                <div key={action.id} style={{ 
-                                  display: 'flex', 
-                                  alignItems: 'flex-start', 
-                                  gap: '8px',
-                                  fontSize: '0.9rem',
-                                  color: '#374151',
-                                  padding: '6px 0',
-                                  marginLeft: '8px'
-                                }}>
-                                  <span style={{ fontSize: '1rem', marginRight: '4px' }}>☐</span>
-                                  <span>{renderText(action.text.replace('- [ ]', '').trim())}</span>
-                                </div>
-                              )
-                              return
-                            }
-                            
-                            // 普通文本
-                            if (action.text && typeof action.text === 'string') {
-                              renderedItems.push(
-                                <div key={action.id} style={{ 
-                                  display: 'flex', 
-                                  alignItems: 'flex-start', 
-                                  gap: '8px',
-                                  fontSize: '0.9rem',
-                                  color: '#374151',
-                                  padding: '4px 0',
-                                  lineHeight: '1.6'
-                                }}>
-                                  {renderText(action.text)}
-                                </div>
-                              )
-                            }
-                          })
-                          
-                          // 如果没有任何内容被渲染，可能是数据格式问题
-                          if (renderedItems.length === 0) {
-                            console.warn('没有渲染任何内容，actions:', item.actions?.length, item.actions)
-                            return null
-                          }
-                          
-                          return <>{renderedItems}</>
-                        })()
-                      ) : (
-                        // 普通类型渲染
-                        item.actions.map((action) => (
-                          <div key={action.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                            {!item.completed && (
-                              <input
-                                type="checkbox"
-                                id={action.id}
-                                checked={checkedItems[action.id] || false}
-                                onChange={() => toggleCheck(action.id)}
-                                style={{ marginTop: '4px', width: '16px', height: '16px', cursor: 'pointer' }}
-                              />
-                            )}
-                            <label
-                              htmlFor={item.completed ? undefined : action.id}
+
+                            return <>{renderedItems}</>
+                          })()
+                        ) : (
+                          // 普通类型渲染
+                          item.actions.map((action) => (
+                            <div key={action.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                              {!item.completed && (
+                                <input
+                                  type="checkbox"
+                                  id={action.id}
+                                  checked={checkedItems[action.id] || false}
+                                  onChange={() => toggleCheck(action.id)}
+                                  style={{ marginTop: '4px', width: '16px', height: '16px', cursor: 'pointer' }}
+                                />
+                              )}
+                              <label
+                                htmlFor={item.completed ? undefined : action.id}
                                 style={{
                                   fontSize: '0.9rem',
                                   textDecoration: checkedItems[action.id] ? 'line-through' : 'none',
@@ -1323,33 +1405,33 @@ const InvestmentPlan2026 = () => {
                                   cursor: item.completed ? 'default' : 'pointer',
                                   flex: 1
                                 }}
-                            >
-                              {typeof action.text === 'string' ? action.text : String(action.text)}
-                            </label>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                      <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'flex-start', 
-                        gap: '8px', 
-                        fontSize: '0.85rem', 
-                        color: '#4b5563', 
-                        background: 'rgba(255,255,255,0.7)', 
-                        padding: '8px', 
+                              >
+                                {typeof action.text === 'string' ? action.text : String(action.text)}
+                              </label>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '8px',
+                        fontSize: '0.85rem',
+                        color: '#4b5563',
+                        background: 'rgba(255,255,255,0.7)',
+                        padding: '8px',
                         borderRadius: '6px',
                         marginTop: '8px'
                       }}>
                         <span style={{ fontSize: '1rem' }}>⚠️</span>
-                      <span>{item.notes}</span>
+                        <span>{item.notes}</span>
+                      </div>
                     </div>
-                  </div>
-                  {item.priority === 'critical' && (
+                    {item.priority === 'critical' && (
                       <span style={{ fontSize: '1.5rem', marginLeft: '16px', flexShrink: 0 }}>🔔</span>
-                  )}
+                    )}
+                  </div>
                 </div>
-              </div>
               );
             })}
           </div>
@@ -1358,9 +1440,9 @@ const InvestmentPlan2026 = () => {
         {activeTab === 'macro' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
             {/* 标题 */}
-            <div style={{ 
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
-              borderRadius: '12px', 
+            <div style={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              borderRadius: '12px',
               padding: '24px',
               color: 'white'
             }}>
@@ -1443,8 +1525,8 @@ const InvestmentPlan2026 = () => {
 
               {/* AI Capex */}
               <div style={{ marginBottom: '24px' }}>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '16px', color: '#1e40af' }}>
-                  📊 AI Capex：已进入验证期
+                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '16px', color: '#1e40af', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <BarChart2 size={24} /> AI Capex：已进入验证期
                 </h3>
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white', borderRadius: '8px', overflow: 'hidden' }}>
@@ -1491,14 +1573,16 @@ const InvestmentPlan2026 = () => {
                         <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>~$380B</td>
                         <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>+64%</td>
                         <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>持续增长</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>🔴 <strong>仍在加速，未见顶</strong></td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>
+                          <StatusBadge type="red" text="仍在加速，未见顶" />
+                        </td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
                 <div style={{ marginTop: '16px', padding: '16px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px' }}>
-                  <p style={{ fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.6', marginBottom: '12px', fontWeight: '700' }}>
-                    💣 隐藏炸弹已引爆：
+                  <p style={{ fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.6', marginBottom: '12px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <AlertTriangle size={18} /> 隐藏炸弹已引爆：
                   </p>
                   <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.8' }}>
                     <li><strong>会计操作公开化：</strong>Amazon在Q4完成服务器使用寿命研究后，将部分服务器和网络设备的使用寿命从6年缩短至5年，预计将使2025年运营收入减少约7亿美元。这是<strong>反向操作</strong>：折旧加速 = 利润减少 = 为未来腾出空间</li>
@@ -1535,7 +1619,10 @@ const InvestmentPlan2026 = () => {
                         <tr style={{ background: 'white' }}>
                           <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontWeight: '600' }}>环比增速</td>
                           <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>+12%</td>
-                          <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>⚠️ <strong>明显放缓</strong>（Q3是+22%）</td>
+                          <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>
+                            <StatusBadge type="orange" text="明显放缓" />
+                            <span style={{ fontSize: '0.75rem', color: '#6b7280', display: 'block' }}>（Q3是+22%）</span>
+                          </td>
                         </tr>
                         <tr>
                           <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontWeight: '600' }}>Blackwell首季收入</td>
@@ -1567,21 +1654,21 @@ const InvestmentPlan2026 = () => {
             {/* 第二层：三条核心逻辑链 */}
             <div style={{ border: '2px solid #10b981', borderRadius: '12px', padding: '24px', background: '#f0fdf4' }}>
               <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#059669', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '2rem' }}>🧵</span>
+                <Activity size={32} />
                 第二层：三条核心逻辑链（基于2026年1月现实）
               </h2>
 
               {/* 逻辑链1 */}
               <div style={{ marginBottom: '24px', padding: '20px', background: 'white', borderRadius: '8px', border: '1px solid #86efac' }}>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '16px', color: '#059669' }}>
-                  🧵 逻辑链1：AI Capex已进入"验证窗口"
+                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '16px', color: '#059669', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <TrendingUp size={20} /> 逻辑链1：AI Capex已进入"验证窗口"
                 </h3>
                 <div style={{ padding: '16px', background: '#f0fdf4', borderRadius: '8px', fontFamily: 'monospace', fontSize: '0.85rem', lineHeight: '1.8', color: '#065f46' }}>
                   <div>2023-2024: Capex暴增 + 市场给溢价</div>
                   <div style={{ marginLeft: '20px' }}>↓</div>
                   <div>2025全年: Capex继续暴增（+64%达$380B）</div>
                   <div style={{ marginLeft: '20px' }}>↓</div>
-                  <div>2026 Q1-Q2: ⚠️ 验证期到来</div>
+                  <div>2026 Q1-Q2: <StatusBadge type="orange" text="验证期到来" /></div>
                   <div style={{ marginLeft: '20px' }}>↓</div>
                   <div>关键指标：AI收入增速 vs Capex增速比值</div>
                   <div style={{ marginLeft: '20px' }}>↓</div>
@@ -1592,8 +1679,8 @@ const InvestmentPlan2026 = () => {
                   <div>= 市场会在2026上半年"投票"</div>
                 </div>
                 <div style={{ marginTop: '16px', padding: '16px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px' }}>
-                  <p style={{ fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.6', marginBottom: '12px', fontWeight: '700' }}>
-                    🔴 触发条件（满足2条立即防守）：
+                  <p style={{ fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.6', marginBottom: '12px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <AlertTriangle size={18} /> 触发条件（满足2条立即防守）：
                   </p>
                   <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.8' }}>
                     <li>Q1财报：任意2家Mag7的FCF同比下降</li>
@@ -1635,8 +1722,8 @@ const InvestmentPlan2026 = () => {
 
               {/* 逻辑链3 */}
               <div style={{ padding: '20px', background: 'white', borderRadius: '8px', border: '1px solid #86efac' }}>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '16px', color: '#059669' }}>
-                  🧵 逻辑链3：K型复苏的尾部风险
+                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '16px', color: '#059669', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <TrendingDown size={20} /> 逻辑链3：K型复苏的尾部风险
                 </h3>
                 <div style={{ padding: '16px', background: '#f0fdf4', borderRadius: '8px', fontFamily: 'monospace', fontSize: '0.85rem', lineHeight: '1.8', color: '#065f46' }}>
                   <div>当前：股市高位 + 消费强劲</div>
@@ -1659,8 +1746,8 @@ const InvestmentPlan2026 = () => {
                   <div>= 正反馈崩塌</div>
                 </div>
                 <div style={{ marginTop: '16px', padding: '16px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px' }}>
-                  <p style={{ fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.6', marginBottom: '12px', fontWeight: '700' }}>
-                    📊 监控红线：
+                  <p style={{ fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.6', marginBottom: '12px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <BarChart2 size={18} /> 监控红线：
                   </p>
                   <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.8' }}>
                     <li>失业率 &gt; 4.5%</li>
@@ -1674,17 +1761,18 @@ const InvestmentPlan2026 = () => {
             {/* 第三层：四个阶段实战策略 */}
             <div style={{ border: '2px solid #f59e0b', borderRadius: '12px', padding: '24px', background: '#fffbeb' }}>
               <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#92400e', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '2rem' }}>📅</span>
+                <Calendar size={32} />
                 第三层：2026年四个阶段实战策略
               </h2>
 
               {/* Q1 */}
               <div style={{ marginBottom: '24px', padding: '20px', background: 'white', borderRadius: '8px', border: '2px solid #f97316' }}>
                 <h3 style={{ fontSize: '1.3rem', fontWeight: '700', marginBottom: '16px', color: '#ea580c', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '1.5rem' }}>🟧</span>
-                  Q1（1-3月）：财报验身期 ⚠️ 当前阶段
+                  <div style={{ width: '12px', height: '12px', background: '#f97316', borderRadius: '3px' }} />
+                  Q1（1-3月）：财报验身期
+                  <StatusBadge type="orange" text="当前阶段" />
                 </h3>
-                
+
                 <div style={{ marginBottom: '16px' }}>
                   <h4 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '12px', color: '#ea580c' }}>关键时间节点</h4>
                   <div style={{ overflowX: 'auto' }}>
@@ -1722,7 +1810,9 @@ const InvestmentPlan2026 = () => {
                 </div>
 
                 <div style={{ marginBottom: '16px', padding: '16px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px' }}>
-                  <h4 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '12px', color: '#991b1b' }}>🚨 Q1必须完成的动作</h4>
+                  <h4 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '12px', color: '#991b1b', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <AlertTriangle size={20} /> Q1必须完成的动作
+                  </h4>
                   <div style={{ fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.8' }}>
                     <p style={{ marginBottom: '8px', fontWeight: '700' }}>立即执行（本周内）：</p>
                     <ul style={{ margin: '0 0 12px 20px', padding: 0 }}>
@@ -1875,7 +1965,7 @@ const InvestmentPlan2026 = () => {
                     📊 12月最关键：2027年Capex指引
                   </p>
                   <p style={{ fontSize: '0.9rem', color: '#065f46', lineHeight: '1.6', marginTop: '8px' }}>
-                    如果Mag7宣布2027年Capex维持高位 → AI进入应用爆发期<br/>
+                    如果Mag7宣布2027年Capex维持高位 → AI进入应用爆发期<br />
                     如果Capex集体下调&gt;20% → 进入漫长调整期
                   </p>
                 </div>
@@ -1930,7 +2020,9 @@ const InvestmentPlan2026 = () => {
                 </div>
               </div>
               <div style={{ padding: '16px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px' }}>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '12px', color: '#991b1b' }}>🛡️ 铁律（永不违反）</h3>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '12px', color: '#991b1b', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <ShieldCheck size={20} /> 铁律（永不违反）
+                </h3>
                 <div style={{ fontFamily: 'monospace', fontSize: '0.85rem', lineHeight: '2', color: '#991b1b' }}>
                   <div>1. 财报前48小时不交易</div>
                   <div>2. 单日亏损&gt;5%停止操作</div>
@@ -1945,8 +2037,8 @@ const InvestmentPlan2026 = () => {
 
             {/* 最终总结 */}
             <div style={{ border: '2px solid #ec4899', borderRadius: '12px', padding: '24px', background: '#fdf2f8' }}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#be185d', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '2rem' }}>🎯</span>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#be185d', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <Target size={32} />
                 最终总结：一句话记住
               </h2>
               <div style={{ padding: '20px', background: 'white', borderRadius: '8px', border: '2px solid #ec4899', marginBottom: '20px' }}>
@@ -1994,24 +2086,24 @@ const InvestmentPlan2026 = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             {checklistData.map((section, index) => (
               <div key={index} style={{ border: '1px solid #e5e7eb', borderRadius: '8px', padding: '16px' }}>
-                <h3 style={{ 
-                  fontSize: '1.1rem', 
-                  fontWeight: '700', 
-                  color: '#1f2937', 
-                  marginBottom: '12px', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '8px' 
+                <h3 style={{
+                  fontSize: '1.1rem',
+                  fontWeight: '700',
+                  color: '#1f2937',
+                  marginBottom: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
                 }}>
-                  <div style={{ 
-                    width: '32px', 
-                    height: '32px', 
-                    background: '#dbeafe', 
-                    color: '#2563eb', 
-                    borderRadius: '50%', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center', 
+                  <div style={{
+                    width: '32px',
+                    height: '32px',
+                    background: '#dbeafe',
+                    color: '#2563eb',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                     fontWeight: '700',
                     fontSize: '0.9rem'
                   }}>
@@ -2025,31 +2117,31 @@ const InvestmentPlan2026 = () => {
                     const detailId = `${item.id}-detail`
                     const isDetailExpanded = checkedItems[detailId] || false
                     return (
-                      <div key={item.id} style={{ 
+                      <div key={item.id} style={{
                         border: '1px solid #e5e7eb',
                         borderRadius: '8px',
                         padding: '12px',
                         background: '#fafafa',
                         transition: 'all 0.2s'
                       }}
-                      onMouseEnter={(e) => { e.currentTarget.style.background = '#f9fafb' }}
-                      onMouseLeave={(e) => { e.currentTarget.style.background = '#fafafa' }}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = '#f9fafb' }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = '#fafafa' }}
                       >
-                        <div style={{ 
-                          display: 'flex', 
-                          alignItems: 'flex-start', 
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'flex-start',
                           gap: '12px'
                         }}>
-                      <input
-                        type="checkbox"
-                        id={item.id}
-                        checked={checkedItems[item.id] || false}
-                        onChange={() => toggleCheck(item.id)}
+                          <input
+                            type="checkbox"
+                            id={item.id}
+                            checked={checkedItems[item.id] || false}
+                            onChange={() => toggleCheck(item.id)}
                             style={{ marginTop: '2px', width: '20px', height: '20px', cursor: 'pointer' }}
-                      />
+                          />
                           <div style={{ flex: 1 }}>
-                      <label
-                        htmlFor={item.id}
+                            <label
+                              htmlFor={item.id}
                               style={{
                                 cursor: 'pointer',
                                 textDecoration: checkedItems[item.id] ? 'line-through' : 'none',
@@ -2059,9 +2151,9 @@ const InvestmentPlan2026 = () => {
                                 lineHeight: '1.5',
                                 display: 'block'
                               }}
-                      >
-                        {item.text}
-                      </label>
+                            >
+                              {item.text}
+                            </label>
                             {hasDetail && (
                               <div style={{ marginTop: '8px' }}>
                                 <button
@@ -2096,7 +2188,7 @@ const InvestmentPlan2026 = () => {
                                     lineHeight: '1.6'
                                   }}>
                                     {item.detail}
-                    </div>
+                                  </div>
                                 )}
                               </div>
                             )}
@@ -2114,14 +2206,14 @@ const InvestmentPlan2026 = () => {
         {activeTab === 'earnings' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             {/* 标题 */}
-            <div style={{ 
-              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', 
-              borderRadius: '12px', 
+            <div style={{
+              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+              borderRadius: '12px',
               padding: '24px',
               color: 'white'
             }}>
               <h1 style={{ fontSize: '1.8rem', fontWeight: '700', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                📊 财报日历
+                <BarChart2 size={32} /> 财报日历
               </h1>
               <p style={{ fontSize: '0.95rem', opacity: 0.95 }}>
                 查看未来一周的财报发布时间，点击股票名称查看详情
@@ -2129,11 +2221,11 @@ const InvestmentPlan2026 = () => {
             </div>
 
             {/* 数据来源链接 */}
-            <div style={{ 
-              marginBottom: '16px', 
-              padding: '12px 16px', 
-              background: '#f0f9ff', 
-              border: '1px solid #bae6fd', 
+            <div style={{
+              marginBottom: '16px',
+              padding: '12px 16px',
+              background: '#f0f9ff',
+              border: '1px solid #bae6fd',
               borderRadius: '8px',
               display: 'flex',
               alignItems: 'center',
@@ -2142,13 +2234,13 @@ const InvestmentPlan2026 = () => {
               <span style={{ fontSize: '0.9rem', color: '#0369a1', fontWeight: '500' }}>
                 数据来源：
               </span>
-              <a 
-                href="https://cn.investing.com/earnings-calendar/" 
-                target="_blank" 
+              <a
+                href="https://cn.investing.com/earnings-calendar/"
+                target="_blank"
                 rel="noopener noreferrer"
-                style={{ 
-                  fontSize: '0.9rem', 
-                  color: '#0284c7', 
+                style={{
+                  fontSize: '0.9rem',
+                  color: '#0284c7',
                   textDecoration: 'none',
                   fontWeight: '500',
                   transition: 'color 0.2s'
@@ -2206,25 +2298,26 @@ const InvestmentPlan2026 = () => {
 
             {/* 财报列表 */}
             {loadingEarnings ? (
-              <div style={{ 
-                textAlign: 'center', 
-                padding: '40px', 
+              <div style={{
+                textAlign: 'center',
+                padding: '40px',
                 color: '#6b7280',
                 fontSize: '1rem'
               }}>
                 ⏳ 正在加载财报数据...
               </div>
             ) : earningsData.length === 0 ? (
-              <div style={{ 
-                textAlign: 'center', 
-                padding: '40px', 
+              <div style={{
+                textAlign: 'center',
+                padding: '40px',
                 color: '#6b7280',
                 fontSize: '1rem',
                 background: '#f9fafb',
                 borderRadius: '8px',
                 border: '1px solid #e5e7eb'
               }}>
-                📭 暂无财报数据，请点击"刷新数据"按钮获取
+                <Search size={40} style={{ marginBottom: '16px', color: '#9ca3af' }} />
+                <p>暂无财报数据，请点击"刷新数据"按钮获取</p>
               </div>
             ) : (
               (() => {
@@ -2275,7 +2368,7 @@ const InvestmentPlan2026 = () => {
                       }).replace(/\s+/g, ' ') : '未知日期';
 
                       return (
-                        <div key={dateKey} style={{ 
+                        <div key={dateKey} style={{
                           border: '1px solid #e5e7eb',
                           borderRadius: '12px',
                           background: 'white',
@@ -2295,56 +2388,56 @@ const InvestmentPlan2026 = () => {
 
                           {/* 表格 */}
                           <div style={{ overflowX: 'auto' }}>
-                            <table style={{ 
-                              width: '100%', 
+                            <table style={{
+                              width: '100%',
                               borderCollapse: 'collapse',
                               minWidth: '900px'
                             }}>
                               <thead>
-                                <tr style={{ 
+                                <tr style={{
                                   background: '#f3f4f6',
                                   borderBottom: '1px solid #e5e7eb'
                                 }}>
-                                  <th style={{ 
-                                    padding: '12px 16px', 
-                                    textAlign: 'left', 
-                                    fontWeight: '600', 
+                                  <th style={{
+                                    padding: '12px 16px',
+                                    textAlign: 'left',
+                                    fontWeight: '600',
                                     fontSize: '0.9rem',
                                     color: '#374151'
                                   }}>
                                     公司
                                   </th>
-                                  <th style={{ 
-                                    padding: '12px 16px', 
-                                    textAlign: 'left', 
-                                    fontWeight: '600', 
+                                  <th style={{
+                                    padding: '12px 16px',
+                                    textAlign: 'left',
+                                    fontWeight: '600',
                                     fontSize: '0.9rem',
                                     color: '#374151'
                                   }}>
                                     每股收益 / 预测值
                                   </th>
-                                  <th style={{ 
-                                    padding: '12px 16px', 
-                                    textAlign: 'left', 
-                                    fontWeight: '600', 
+                                  <th style={{
+                                    padding: '12px 16px',
+                                    textAlign: 'left',
+                                    fontWeight: '600',
                                     fontSize: '0.9rem',
                                     color: '#374151'
                                   }}>
                                     营收 / 预测值
                                   </th>
-                                  <th style={{ 
-                                    padding: '12px 16px', 
-                                    textAlign: 'left', 
-                                    fontWeight: '600', 
+                                  <th style={{
+                                    padding: '12px 16px',
+                                    textAlign: 'left',
+                                    fontWeight: '600',
                                     fontSize: '0.9rem',
                                     color: '#374151'
                                   }}>
                                     市值
                                   </th>
-                                  <th style={{ 
-                                    padding: '12px 16px', 
-                                    textAlign: 'left', 
-                                    fontWeight: '600', 
+                                  <th style={{
+                                    padding: '12px 16px',
+                                    textAlign: 'left',
+                                    fontWeight: '600',
                                     fontSize: '0.9rem',
                                     color: '#374151'
                                   }}>
@@ -2354,7 +2447,7 @@ const InvestmentPlan2026 = () => {
                               </thead>
                               <tbody>
                                 {items.map((item, index) => (
-                                  <tr 
+                                  <tr
                                     key={`${item.symbol}-${index}`}
                                     style={{
                                       borderBottom: index < items.length - 1 ? '1px solid #f3f4f6' : 'none',
@@ -2367,7 +2460,7 @@ const InvestmentPlan2026 = () => {
                                       e.currentTarget.style.background = 'white';
                                     }}
                                   >
-                                    <td style={{ 
+                                    <td style={{
                                       padding: '8px 12px',
                                       borderRight: '1px solid #e5e7eb'
                                     }}>
@@ -2415,7 +2508,7 @@ const InvestmentPlan2026 = () => {
                                               })()}
                                             </a>
                                           ) : (
-                                            <span style={{ 
+                                            <span style={{
                                               fontWeight: '500',
                                               fontSize: '0.85rem',
                                               color: '#1f2937',
@@ -2439,8 +2532,8 @@ const InvestmentPlan2026 = () => {
                                         </div>
                                       </div>
                                     </td>
-                                    <td style={{ 
-                                      padding: '8px 12px', 
+                                    <td style={{
+                                      padding: '8px 12px',
                                       color: '#4b5563',
                                       fontSize: '0.8rem',
                                       borderRight: '1px solid #e5e7eb',
@@ -2458,8 +2551,8 @@ const InvestmentPlan2026 = () => {
                                         </span>
                                       )}
                                     </td>
-                                    <td style={{ 
-                                      padding: '8px 12px', 
+                                    <td style={{
+                                      padding: '8px 12px',
                                       color: '#4b5563',
                                       fontSize: '0.8rem',
                                       borderRight: '1px solid #e5e7eb',
@@ -2477,8 +2570,8 @@ const InvestmentPlan2026 = () => {
                                         </span>
                                       )}
                                     </td>
-                                    <td style={{ 
-                                      padding: '8px 12px', 
+                                    <td style={{
+                                      padding: '8px 12px',
                                       color: '#1f2937',
                                       fontSize: '0.8rem',
                                       borderRight: '1px solid #e5e7eb',
@@ -2524,7 +2617,7 @@ const InvestmentPlan2026 = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '16px', marginBottom: '24px' }}>
               <h3 style={{ fontWeight: '700', fontSize: '1.1rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '1.2rem' }}>⚠️</span>
+                <AlertTriangle size={20} />
                 1月20日决策矩阵
               </h3>
               <p style={{ fontSize: '0.85rem', color: '#374151' }}>
@@ -2546,17 +2639,14 @@ const InvestmentPlan2026 = () => {
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                      <span style={{ fontSize: '1.5rem' }}>{item.signal.split(' ')[0]}</span>
-                      <span style={{ fontWeight: '700', color: '#1f2937', fontSize: '1rem' }}>
-                        {item.signal.split(' ')[1]}
-                      </span>
+                      {item.signal}
                     </div>
                     <div style={{ fontSize: '0.85rem', color: '#4b5563', marginBottom: '12px' }}>
                       <strong>场景:</strong> {item.scenario}
                     </div>
                     <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '6px', padding: '12px', marginBottom: '8px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                        <span style={{ fontSize: '1.2rem' }}>📉</span>
+                        <TrendingDown size={18} style={{ color: 'var(--system-orange)' }} />
                         <strong style={{ color: '#1f2937' }}>操作:</strong>
                       </div>
                       <div style={{ fontSize: '1.1rem', fontWeight: '700', color: '#ea580c' }}>
@@ -2565,7 +2655,7 @@ const InvestmentPlan2026 = () => {
                     </div>
                     <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '6px', padding: '12px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                        <span style={{ fontSize: '1.2rem' }}>💰</span>
+                        <CircleDollarSign size={18} style={{ color: 'var(--system-green)' }} />
                         <strong style={{ color: '#1f2937' }}>资金配置:</strong>
                       </div>
                       <div style={{ fontSize: '0.85rem', color: '#374151' }}>{item.allocation}</div>
@@ -2581,7 +2671,7 @@ const InvestmentPlan2026 = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '16px' }}>
               <h3 style={{ fontWeight: '700', fontSize: '1.1rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '1.2rem' }}>📉</span>
+                <TrendingDown size={24} />
                 做空入场条件检查表（修正版：结合宏观时间表）
               </h3>
               <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px', padding: '12px', marginBottom: '16px' }}>
@@ -2643,10 +2733,10 @@ const InvestmentPlan2026 = () => {
               </div>
             </div>
 
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-              gap: '16px' 
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: '16px'
             }}>
               <div style={{ border: '1px solid #fed7aa', background: '#fff7ed', borderRadius: '8px', padding: '16px' }}>
                 <h4 style={{ fontWeight: '700', marginBottom: '8px', color: '#9a3412' }}>激进策略</h4>
@@ -2691,7 +2781,7 @@ const InvestmentPlan2026 = () => {
 
             <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '16px' }}>
               <h4 style={{ fontWeight: '700', marginBottom: '8px', color: '#991b1b', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '1.2rem' }}>⚠️</span>
+                <AlertTriangle size={20} />
                 止损线设置与5月特殊处理
               </h4>
               <div style={{ fontSize: '0.85rem', display: 'flex', flexDirection: 'column', gap: '8px', color: '#374151' }}>
@@ -2717,32 +2807,32 @@ const InvestmentPlan2026 = () => {
                 <span style={{ fontSize: '2rem' }}>💰</span>
                 核心止盈策略
               </h2>
-              
-              <div style={{ 
-                background: '#fef3c7', 
-                border: '1px solid #fbbf24', 
-                borderRadius: '8px', 
+
+              <div style={{
+                background: '#fef3c7',
+                border: '1px solid #fbbf24',
+                borderRadius: '8px',
                 padding: '16px',
                 marginBottom: '24px'
               }}>
                 <p style={{ fontSize: '0.95rem', color: '#92400e', lineHeight: '1.6', margin: 0 }}>
                   为了让这套逻辑适用于<strong>任何</strong>普通股票、加密货币或其它金融资产，我们将其去标的化，转化为一套通用的<strong>"心态+技术"</strong>双驱动止盈模型。
                 </p>
-      </div>
+              </div>
 
               {/* 分批止盈法 */}
               <div style={{ marginBottom: '24px' }}>
-                <div style={{ 
-                  background: '#d1fae5', 
-                  border: '1px solid #10b981', 
-                  borderRadius: '8px', 
+                <div style={{
+                  background: '#d1fae5',
+                  border: '1px solid #10b981',
+                  borderRadius: '8px',
                   padding: '16px',
                   marginBottom: '16px'
                 }}>
-                  <h3 style={{ 
-                    fontSize: '1.2rem', 
-                    fontWeight: '700', 
-                    marginBottom: '12px', 
+                  <h3 style={{
+                    fontSize: '1.2rem',
+                    fontWeight: '700',
+                    marginBottom: '12px',
                     color: '#065f46',
                     display: 'flex',
                     alignItems: 'center',
@@ -2754,37 +2844,37 @@ const InvestmentPlan2026 = () => {
                   <p style={{ fontSize: '0.95rem', color: '#047857', marginBottom: '16px', lineHeight: '1.6' }}>
                     这种方法的核心在于<strong>"心理建设"</strong>，通过逐步锁定胜果，对抗贪婪与恐惧。
                   </p>
-                  
+
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    <div style={{ 
-                      background: 'white', 
-                      border: '1px solid #86efac', 
-                      borderRadius: '8px', 
-                      padding: '16px' 
+                    <div style={{
+                      background: 'white',
+                      border: '1px solid #86efac',
+                      borderRadius: '8px',
+                      padding: '16px'
                     }}>
-                      <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: '8px', 
-                        marginBottom: '8px' 
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        marginBottom: '8px'
                       }}>
-                        <span style={{ 
-                          fontSize: '1.2rem', 
-                          background: '#10b981', 
-                          color: 'white', 
-                          width: '32px', 
-                          height: '32px', 
-                          borderRadius: '50%', 
-                          display: 'flex', 
-                          alignItems: 'center', 
+                        <span style={{
+                          fontSize: '1.2rem',
+                          background: '#10b981',
+                          color: 'white',
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
                           justifyContent: 'center',
                           fontWeight: '700'
                         }}>
                           1
                         </span>
-                        <h4 style={{ 
-                          fontSize: '1rem', 
-                          fontWeight: '600', 
+                        <h4 style={{
+                          fontSize: '1rem',
+                          fontWeight: '600',
                           color: '#065f46',
                           margin: 0
                         }}>
@@ -2802,35 +2892,35 @@ const InvestmentPlan2026 = () => {
                       </p>
                     </div>
 
-                    <div style={{ 
-                      background: 'white', 
-                      border: '1px solid #86efac', 
-                      borderRadius: '8px', 
-                      padding: '16px' 
+                    <div style={{
+                      background: 'white',
+                      border: '1px solid #86efac',
+                      borderRadius: '8px',
+                      padding: '16px'
                     }}>
-                      <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: '8px', 
-                        marginBottom: '8px' 
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        marginBottom: '8px'
                       }}>
-                        <span style={{ 
-                          fontSize: '1.2rem', 
-                          background: '#10b981', 
-                          color: 'white', 
-                          width: '32px', 
-                          height: '32px', 
-                          borderRadius: '50%', 
-                          display: 'flex', 
-                          alignItems: 'center', 
+                        <span style={{
+                          fontSize: '1.2rem',
+                          background: '#10b981',
+                          color: 'white',
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
                           justifyContent: 'center',
                           fontWeight: '700'
                         }}>
                           2
                         </span>
-                        <h4 style={{ 
-                          fontSize: '1rem', 
-                          fontWeight: '600', 
+                        <h4 style={{
+                          fontSize: '1rem',
+                          fontWeight: '600',
                           color: '#065f46',
                           margin: 0
                         }}>
@@ -2848,35 +2938,35 @@ const InvestmentPlan2026 = () => {
                       </p>
                     </div>
 
-                    <div style={{ 
-                      background: 'white', 
-                      border: '1px solid #86efac', 
-                      borderRadius: '8px', 
-                      padding: '16px' 
+                    <div style={{
+                      background: 'white',
+                      border: '1px solid #86efac',
+                      borderRadius: '8px',
+                      padding: '16px'
                     }}>
-                      <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: '8px', 
-                        marginBottom: '8px' 
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        marginBottom: '8px'
                       }}>
-                        <span style={{ 
-                          fontSize: '1.2rem', 
-                          background: '#10b981', 
-                          color: 'white', 
-                          width: '32px', 
-                          height: '32px', 
-                          borderRadius: '50%', 
-                          display: 'flex', 
-                          alignItems: 'center', 
+                        <span style={{
+                          fontSize: '1.2rem',
+                          background: '#10b981',
+                          color: 'white',
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
                           justifyContent: 'center',
                           fontWeight: '700'
                         }}>
                           3
                         </span>
-                        <h4 style={{ 
-                          fontSize: '1rem', 
-                          fontWeight: '600', 
+                        <h4 style={{
+                          fontSize: '1rem',
+                          fontWeight: '600',
                           color: '#065f46',
                           margin: 0
                         }}>
@@ -2899,16 +2989,16 @@ const InvestmentPlan2026 = () => {
 
               {/* 移动止盈法 */}
               <div style={{ marginBottom: '24px' }}>
-                <div style={{ 
-                  background: '#dbeafe', 
-                  border: '1px solid #3b82f6', 
-                  borderRadius: '8px', 
-                  padding: '16px' 
+                <div style={{
+                  background: '#dbeafe',
+                  border: '1px solid #3b82f6',
+                  borderRadius: '8px',
+                  padding: '16px'
                 }}>
-                  <h3 style={{ 
-                    fontSize: '1.2rem', 
-                    fontWeight: '700', 
-                    marginBottom: '12px', 
+                  <h3 style={{
+                    fontSize: '1.2rem',
+                    fontWeight: '700',
+                    marginBottom: '12px',
                     color: '#1e40af',
                     display: 'flex',
                     alignItems: 'center',
@@ -2920,17 +3010,17 @@ const InvestmentPlan2026 = () => {
                   <p style={{ fontSize: '0.95rem', color: '#1e3a8a', marginBottom: '16px', lineHeight: '1.6' }}>
                     这种方法的核心在于<strong>"不预测顶部"</strong>，只根据市场的真实走势被动离场。
                   </p>
-                  
-                  <div style={{ 
-                    background: 'white', 
-                    border: '1px solid #93c5fd', 
-                    borderRadius: '8px', 
+
+                  <div style={{
+                    background: 'white',
+                    border: '1px solid #93c5fd',
+                    borderRadius: '8px',
                     padding: '16px',
                     marginBottom: '12px'
                   }}>
-                    <h4 style={{ 
-                      fontSize: '1rem', 
-                      fontWeight: '600', 
+                    <h4 style={{
+                      fontSize: '1rem',
+                      fontWeight: '600',
                       color: '#1e40af',
                       marginBottom: '12px',
                       display: 'flex',
@@ -2956,15 +3046,15 @@ const InvestmentPlan2026 = () => {
                     </div>
                   </div>
 
-                  <div style={{ 
-                    background: '#f0fdf4', 
-                    border: '1px solid #86efac', 
-                    borderRadius: '8px', 
-                    padding: '16px' 
+                  <div style={{
+                    background: '#f0fdf4',
+                    border: '1px solid #86efac',
+                    borderRadius: '8px',
+                    padding: '16px'
                   }}>
-                    <h4 style={{ 
-                      fontSize: '1rem', 
-                      fontWeight: '600', 
+                    <h4 style={{
+                      fontSize: '1rem',
+                      fontWeight: '600',
                       color: '#059669',
                       marginBottom: '12px',
                       display: 'flex',
@@ -2987,16 +3077,16 @@ const InvestmentPlan2026 = () => {
               </div>
 
               {/* 通用止盈公式建议 */}
-              <div style={{ 
-                background: '#fef3c7', 
-                border: '1px solid #fbbf24', 
-                borderRadius: '8px', 
-                padding: '16px' 
+              <div style={{
+                background: '#fef3c7',
+                border: '1px solid #fbbf24',
+                borderRadius: '8px',
+                padding: '16px'
               }}>
-                <h3 style={{ 
-                  fontSize: '1.2rem', 
-                  fontWeight: '700', 
-                  marginBottom: '16px', 
+                <h3 style={{
+                  fontSize: '1.2rem',
+                  fontWeight: '700',
+                  marginBottom: '16px',
                   color: '#92400e',
                   display: 'flex',
                   alignItems: 'center',
@@ -3008,10 +3098,10 @@ const InvestmentPlan2026 = () => {
                 <p style={{ fontSize: '0.95rem', color: '#92400e', marginBottom: '16px', lineHeight: '1.6' }}>
                   将上述两者结合，你可以得到一个最稳健的<strong>通用公式</strong>：
                 </p>
-                
+
                 <div style={{ overflowX: 'auto' }}>
-                  <table style={{ 
-                    width: '100%', 
+                  <table style={{
+                    width: '100%',
                     borderCollapse: 'collapse',
                     background: 'white',
                     borderRadius: '8px',
@@ -3019,30 +3109,30 @@ const InvestmentPlan2026 = () => {
                   }}>
                     <thead>
                       <tr style={{ background: '#fbbf24' }}>
-                        <th style={{ 
-                          padding: '12px', 
-                          textAlign: 'left', 
-                          fontWeight: '700', 
+                        <th style={{
+                          padding: '12px',
+                          textAlign: 'left',
+                          fontWeight: '700',
                           color: '#78350f',
                           border: '1px solid #f59e0b',
                           fontSize: '0.9rem'
                         }}>
                           阶段
                         </th>
-                        <th style={{ 
-                          padding: '12px', 
-                          textAlign: 'left', 
-                          fontWeight: '700', 
+                        <th style={{
+                          padding: '12px',
+                          textAlign: 'left',
+                          fontWeight: '700',
                           color: '#78350f',
                           border: '1px solid #f59e0b',
                           fontSize: '0.9rem'
                         }}>
                           仓位操作
                         </th>
-                        <th style={{ 
-                          padding: '12px', 
-                          textAlign: 'left', 
-                          fontWeight: '700', 
+                        <th style={{
+                          padding: '12px',
+                          textAlign: 'left',
+                          fontWeight: '700',
                           color: '#78350f',
                           border: '1px solid #f59e0b',
                           fontSize: '0.9rem'
@@ -3053,8 +3143,8 @@ const InvestmentPlan2026 = () => {
                     </thead>
                     <tbody>
                       <tr>
-                        <td style={{ 
-                          padding: '12px', 
+                        <td style={{
+                          padding: '12px',
                           border: '1px solid #fde68a',
                           fontWeight: '600',
                           color: '#374151',
@@ -3062,16 +3152,16 @@ const InvestmentPlan2026 = () => {
                         }}>
                           初期
                         </td>
-                        <td style={{ 
-                          padding: '12px', 
+                        <td style={{
+                          padding: '12px',
                           border: '1px solid #fde68a',
                           color: '#374151',
                           fontSize: '0.9rem'
                         }}>
                           持仓不动
                         </td>
-                        <td style={{ 
-                          padding: '12px', 
+                        <td style={{
+                          padding: '12px',
                           border: '1px solid #fde68a',
                           color: '#374151',
                           fontSize: '0.9rem'
@@ -3080,8 +3170,8 @@ const InvestmentPlan2026 = () => {
                         </td>
                       </tr>
                       <tr style={{ background: '#fef9c3' }}>
-                        <td style={{ 
-                          padding: '12px', 
+                        <td style={{
+                          padding: '12px',
                           border: '1px solid #fde68a',
                           fontWeight: '600',
                           color: '#374151',
@@ -3089,16 +3179,16 @@ const InvestmentPlan2026 = () => {
                         }}>
                           中期
                         </td>
-                        <td style={{ 
-                          padding: '12px', 
+                        <td style={{
+                          padding: '12px',
                           border: '1px solid #fde68a',
                           color: '#374151',
                           fontSize: '0.9rem'
                         }}>
                           <strong style={{ color: '#059669' }}>卖出 1/3</strong>
                         </td>
-                        <td style={{ 
-                          padding: '12px', 
+                        <td style={{
+                          padding: '12px',
                           border: '1px solid #fde68a',
                           color: '#374151',
                           fontSize: '0.9rem'
@@ -3107,8 +3197,8 @@ const InvestmentPlan2026 = () => {
                         </td>
                       </tr>
                       <tr>
-                        <td style={{ 
-                          padding: '12px', 
+                        <td style={{
+                          padding: '12px',
                           border: '1px solid #fde68a',
                           fontWeight: '600',
                           color: '#374151',
@@ -3116,16 +3206,16 @@ const InvestmentPlan2026 = () => {
                         }}>
                           高潮期
                         </td>
-                        <td style={{ 
-                          padding: '12px', 
+                        <td style={{
+                          padding: '12px',
                           border: '1px solid #fde68a',
                           color: '#374151',
                           fontSize: '0.9rem'
                         }}>
                           <strong style={{ color: '#2563eb' }}>启动移动止盈</strong>
                         </td>
-                        <td style={{ 
-                          padding: '12px', 
+                        <td style={{
+                          padding: '12px',
                           border: '1px solid #fde68a',
                           color: '#374151',
                           fontSize: '0.9rem'
@@ -3134,8 +3224,8 @@ const InvestmentPlan2026 = () => {
                         </td>
                       </tr>
                       <tr style={{ background: '#fef9c3' }}>
-                        <td style={{ 
-                          padding: '12px', 
+                        <td style={{
+                          padding: '12px',
                           border: '1px solid #fde68a',
                           fontWeight: '600',
                           color: '#374151',
@@ -3143,16 +3233,16 @@ const InvestmentPlan2026 = () => {
                         }}>
                           末期
                         </td>
-                        <td style={{ 
-                          padding: '12px', 
+                        <td style={{
+                          padding: '12px',
                           border: '1px solid #fde68a',
                           color: '#374151',
                           fontSize: '0.9rem'
                         }}>
                           <strong style={{ color: '#dc2626' }}>全线离场</strong>
                         </td>
-                        <td style={{ 
-                          padding: '12px', 
+                        <td style={{
+                          padding: '12px',
                           border: '1px solid #fde68a',
                           color: '#374151',
                           fontSize: '0.9rem'
@@ -3166,16 +3256,16 @@ const InvestmentPlan2026 = () => {
               </div>
 
               {/* 下一步操作建议 */}
-              <div style={{ 
-                background: '#e0e7ff', 
-                border: '1px solid #818cf8', 
-                borderRadius: '8px', 
+              <div style={{
+                background: '#e0e7ff',
+                border: '1px solid #818cf8',
+                borderRadius: '8px',
                 padding: '16px',
                 marginTop: '24px'
               }}>
-                <h4 style={{ 
-                  fontSize: '1rem', 
-                  fontWeight: '600', 
+                <h4 style={{
+                  fontSize: '1rem',
+                  fontWeight: '600',
                   color: '#3730a3',
                   marginBottom: '12px',
                   display: 'flex',
@@ -3204,20 +3294,20 @@ const InvestmentPlan2026 = () => {
       </div>
 
       {/* Footer */}
-      <div style={{ 
-        background: '#f3f4f6', 
-        borderTop: '1px solid #e5e7eb', 
-        padding: '16px', 
-        borderRadius: '0 0 12px 12px', 
-        marginTop: '24px' 
+      <div style={{
+        background: '#f3f4f6',
+        borderTop: '1px solid #e5e7eb',
+        padding: '16px',
+        borderRadius: '0 0 12px 12px',
+        marginTop: '24px'
       }}>
         <div style={{ textAlign: 'center', fontSize: '0.85rem', color: '#6b7280' }}>
           <p style={{ fontWeight: '600', marginBottom: '8px' }}>💡 核心投资纪律</p>
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-            gap: '8px', 
-            marginTop: '12px' 
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '8px',
+            marginTop: '12px'
           }}>
             <div style={{ background: 'white', padding: '8px', borderRadius: '6px', fontSize: '0.8rem' }}>
               现金不是垃圾，是等待的成本
