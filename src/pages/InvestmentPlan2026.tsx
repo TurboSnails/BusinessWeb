@@ -84,6 +84,11 @@ const InvestmentPlan2026 = () => {
   const [activeSubTab, setActiveSubTab] = useState<'overview' | 'assumptions' | 'indicators' | 'stages' | 'execution'>('overview');
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
 
+  // 页面加载时滚动到顶部
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const toggleCheck = (id: string) => {
     setCheckedItems(prev => ({ ...prev, [id]: !prev[id] }));
   };
