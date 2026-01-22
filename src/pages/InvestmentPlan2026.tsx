@@ -213,47 +213,24 @@ const InvestmentPlan2026 = () => {
     {
       date: '2026年1月11日',
       day: '周四',
-      event: '12月CPI+非农综合判断',
+      event: '12月CPI通胀数据',
       time: '美东8:30',
       priority: 'critical',
       completed: true,
-      isTable: true,
       actions: [
-        { id: 'jan11-header-1', text: '## 🎯 核心结论', isHeader: true },
-        { id: 'jan11-conclusion', text: '> **软着陆确认，但通胀仍顽固 → 维持中性偏防御配置（75-80%仓位）**' },
-        { id: 'jan11-divider-1', text: '---', isHeader: true },
-        { id: 'jan11-header-2', text: '## 📈 关键数据对比', isHeader: true },
-        { id: 'jan11-table-1', text: '**核心CPI环比**|0.2%|0.3%|✅ 低于预期', isTableRow: true },
-        { id: 'jan11-table-2', text: '**核心CPI同比**|2.6%|3.0%|✅ 低于预期', isTableRow: true },
-        { id: 'jan11-table-3', text: '**时薪同比**|3.8%|<3.8%|⚠️ 触及阈值', isTableRow: true },
-        { id: 'jan11-table-4', text: '**非农新增**|5万|16.8万|⚠️ 显著低于预期', isTableRow: true },
-        { id: 'jan11-table-5', text: '**失业率**|4.4%|4.5%|✅ 好于预期', isTableRow: true },
-        { id: 'jan11-table-6', text: '**超级核心通胀**|环比<0.4%|-|✅ 温和', isTableRow: true },
-        { id: 'jan11-divider-2', text: '---', isHeader: true },
-        { id: 'jan11-header-3', text: '## 🏦 Fed政策路径', isHeader: true },
-        { id: 'jan11-fed-1', text: '📅 **降息时间**：可能延后至2026年Q2（6月），1月暂停几乎确定' },
-        { id: 'jan11-fed-2', text: '📊 **政策逻辑**：劳动力市场冷却 + 通胀降温 = 软着陆路径确认' },
-        { id: 'jan11-fed-3', text: '⚠️ **制约因素**：时薪3.8%仍高 → Fed不会激进降息' },
-        { id: 'jan11-divider-3', text: '---', isHeader: true },
-        { id: 'jan11-header-4', text: '## ⚠️ 阈值触发分析', isHeader: true },
-        { id: 'jan11-thresh-1', text: '- [ ] 核心CPI环比 > 0.4% → ❌ 未触发' },
-        { id: 'jan11-thresh-2', text: '- [ ] 核心CPI环比 > 0.3% → ❌ 未触发' },
-        { id: 'jan11-thresh-3', text: '- [x] **时薪同比 > 3.8%** → ⚠️ **临界，警惕工资-物价螺旋**' },
-        { id: 'jan11-thresh-4', text: '- [x] 非农 < 6万 → ✅ 触发，劳动力市场降温' },
-        { id: 'jan11-thresh-5', text: '- [ ] VIX>20 且 SPY跌>1% → ❌ 未触发' },
-        { id: 'jan11-divider-4', text: '---', isHeader: true },
-        { id: 'jan11-header-5', text: '## 💡 操作建议', isHeader: true },
-        { id: 'jan11-op-1', text: '```\n当前配置：75-80%风险资产\n\n✅ 核心CPI 0.2% 低于预期 → 通胀压力缓解\n✅ 超级核心温和 → 服务需求未失控\n⚠️ 时薪 3.8% 临界 → 工资压力仍存\n⚠️ 非农仅5万 → 软着陆而非衰退\n```' },
-        { id: 'jan11-header-6', text: '### 防御触发条件（下次数据）', isHeader: true },
-        { id: 'jan11-defense-1', text: '🔴 **减仓至70%**：1月CPI环比>0.3% 且 时薪>4%' },
-        { id: 'jan11-defense-2', text: '🟢 **加仓至85%**：1月CPI环比<0.2% 且 非农反弹>10万' },
-        { id: 'jan11-defense-3', text: '🟡 **增持现金至30%**：VIX>20 + SPY单日跌>1%' },
-        { id: 'jan11-divider-5', text: '---', isHeader: true },
-        { id: 'jan11-header-7', text: '## 🔥 核心逻辑链', isHeader: true },
-        { id: 'jan11-logic', text: '```\n弱就业(5万) + 低失业(4.4%) + 高时薪(3.8%) + 温和CPI(0.2%)\n    ↓\n劳动力市场降温但未崩溃 + 通胀放缓但工资顽固\n    ↓\nFed政策：暂停降息但保留Q2降息选项\n    ↓\n市场反应：风险资产获支撑（SPY创新高）但上行受限\n    ↓\n操作：维持中性偏防御，警惕时薪→服务通胀传导\n```' },
-        { id: 'jan11-summary', text: '> **⚡ 一句话总结**：CPI温和+非农疲软确认软着陆，时薪临界阈值警示通胀未死，**维持75-80%仓位，观察1月数据再调整**' }
+        { id: 'jan11-alert', text: '🎯 **核心结论：软着陆确认，但通胀仍顽固 → 维持中性偏防御配置（75-80%仓位）**', isAlert: true },
+        { id: 'jan11-1', text: '📊 整体CPI：核心CPI环比+0.2%（预期+0.3%，✅低于预期），同比+2.6%（预期+3.0%，✅低于预期），通胀压力缓解' },
+        { id: 'jan11-2', text: '🎯 核心CPI（剔除食品和能源）：重点关注服务通胀（住房、医疗、教育等），这是Fed最关心的指标，本次数据温和' },
+        { id: 'jan11-3', text: '💰 住房成本（Shelter）：占CPI权重约1/3，观察是否继续放缓（11月环比+0.3%，同比+5.2%）' },
+        { id: 'jan11-4', text: '📈 超级核心通胀（Supercore，剔除住房）：环比<0.4%（✅温和），反映服务需求未失控' },
+        { id: 'jan11-5', text: '🏦 Fed政策含义：核心CPI+0.2%环比 → 降息可能延后至Q2（6月），1月暂停几乎确定；时薪3.8%仍高 → Fed不会激进降息' },
+        { id: 'jan11-6', text: '📊 与就业数据结合：时薪+3.8%（⚠️触及阈值）+ CPI符合预期 → 软着陆确认；劳动力市场冷却（非农仅5万）+ 通胀降温' },
+        { id: 'jan11-7', text: '🔍 市场反应：CPI符合/低于预期 → 风险资产获支撑（SPY创新高）但上行受限，降息预期升温' },
+        { id: 'jan11-8', text: '⚠️ 关键阈值：核心CPI环比>0.4% → 立即减仓至70%；核心CPI环比<0.1% → 可考虑小幅加仓至80%；**时薪>3.8% → 警惕工资-物价螺旋**' },
+        { id: 'jan11-9', text: '📈 观察指标：PCE平减指数（Fed更偏好，但滞后1个月）、CPI分项（交通、医疗、教育服务）' },
+        { id: 'jan11-10', text: '💡 操作建议：维持75-80%仓位；🔴减仓至70%条件：1月CPI环比>0.3%且时薪>4%；🟢加仓至85%条件：1月CPI环比<0.2%且非农反弹>10万' }
       ],
-      notes: '重点观察：1月PCE数据（Fed首选通胀指标）、2月非农（1月就业数据）、Fed 1月会议纪要（暂停降息确认）'
+      notes: '数据解读：CPI温和+非农疲软确认软着陆，但时薪3.8%临界阈值警示通胀未死。重点观察：1月PCE数据（Fed首选通胀指标）、2月非农（1月就业数据）、Fed 1月会议纪要（暂停降息确认）'
     },
     {
       date: '2026年1月12-16日',
@@ -1232,7 +1209,7 @@ const InvestmentPlan2026 = () => {
                       <h3 style={{ fontSize: '1.3rem', fontWeight: '800', color: 'var(--text-primary)', margin: '0 0 16px 0', letterSpacing: '-0.01em' }}>
                         {item.event}
                       </h3>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '12px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', marginBottom: '8px' }}>
                         {item.isTable ? (
                           // 表格类型特殊渲染
                           (() => {
@@ -1306,10 +1283,10 @@ const InvestmentPlan2026 = () => {
                                   renderedItems.push(
                                     <div key={action.id} style={{
                                       display: 'grid',
-                                      gridTemplateColumns: '1.5fr 1fr 1fr 1.2fr 0.5fr',
-                                      gap: '8px',
-                                      padding: '10px 12px',
-                                      fontSize: '0.85rem',
+                                      gridTemplateColumns: `repeat(${parts.length}, 1fr)`,
+                                      gap: '4px',
+                                      padding: '6px 10px',
+                                      fontSize: '0.8rem',
                                       background: backgroundColor,
                                       border: '1px solid var(--system-gray5)',
                                       borderTop: 'none',
@@ -1318,11 +1295,14 @@ const InvestmentPlan2026 = () => {
                                       transition: 'background 0.2s ease',
                                       color: 'var(--text-primary)'
                                     }}>
-                                      <div style={{ fontWeight: '700' }}>{renderText(parts[0])}</div>
-                                      <div style={{ fontWeight: '500' }}>{parts[1]}</div>
-                                      <div style={{ color: 'var(--text-tertiary)', fontSize: '0.8rem' }}>{parts[2]}</div>
-                                      <div style={{ color: 'var(--system-red)', fontSize: '0.8rem', fontWeight: '700' }}>{parts[3]}</div>
-                                      <div style={{ textAlign: 'center', fontSize: '1rem' }}>{parts[4]}</div>
+                                      {parts.map((col, colIdx) => (
+                                        <div key={colIdx} style={{
+                                          fontWeight: colIdx === 0 ? '700' : '500',
+                                          textAlign: colIdx === parts.length - 1 ? 'center' : 'left'
+                                        }}>
+                                          {renderText(col)}
+                                        </div>
+                                      ))}
                                     </div>
                                   )
                                 }
@@ -1338,8 +1318,8 @@ const InvestmentPlan2026 = () => {
                                   renderedItems.push(
                                     <div key={action.id} style={{
                                       height: '1px',
-                                      background: 'linear-gradient(to right, transparent, #d1d5db, transparent)',
-                                      margin: '20px 0',
+                                      background: 'linear-gradient(to right, transparent, var(--system-gray4), transparent)',
+                                      margin: '8px 0',
                                       width: '100%'
                                     }} />
                                   )
@@ -1350,13 +1330,13 @@ const InvestmentPlan2026 = () => {
                                 if (text.startsWith('## ')) {
                                   renderedItems.push(
                                     <h2 key={action.id} style={{
-                                      marginTop: action.id.includes('header-1') ? '0' : '24px',
-                                      marginBottom: '12px',
-                                      fontSize: '1.25rem',
-                                      fontWeight: '700',
-                                      color: '#1f2937',
-                                      borderBottom: '2px solid #e5e7eb',
-                                      paddingBottom: '8px'
+                                      marginTop: action.id.includes('header-1') ? '0' : '12px',
+                                      marginBottom: '6px',
+                                      fontSize: '1.15rem',
+                                      fontWeight: '800',
+                                      color: 'var(--text-primary)',
+                                      borderBottom: '1.5px solid var(--system-gray5)',
+                                      paddingBottom: '4px'
                                     }}>
                                       {renderText(text.replace('## ', ''))}
                                     </h2>
@@ -1367,11 +1347,11 @@ const InvestmentPlan2026 = () => {
                                 if (text.startsWith('### ')) {
                                   renderedItems.push(
                                     <h3 key={action.id} style={{
-                                      marginTop: '16px',
-                                      marginBottom: '8px',
-                                      fontSize: '1.1rem',
-                                      fontWeight: '600',
-                                      color: '#374151'
+                                      marginTop: '10px',
+                                      marginBottom: '6px',
+                                      fontSize: '1rem',
+                                      fontWeight: '700',
+                                      color: 'var(--text-secondary)'
                                     }}>
                                       {renderText(text.replace('### ', ''))}
                                     </h3>
@@ -1407,12 +1387,12 @@ const InvestmentPlan2026 = () => {
                                   <div key={action.id} style={{
                                     background: 'linear-gradient(135deg, #1f2937 0%, #111827 100%)',
                                     color: '#f3f4f6',
-                                    padding: '16px',
-                                    borderRadius: '8px',
-                                    fontSize: '0.85rem',
+                                    padding: '8px 12px',
+                                    borderRadius: '6px',
+                                    fontSize: '0.8rem',
                                     fontFamily: 'Monaco, "Courier New", monospace',
-                                    lineHeight: '1.8',
-                                    margin: '12px 0',
+                                    lineHeight: '1.6',
+                                    margin: '4px 0',
                                     overflowX: 'auto',
                                     whiteSpace: 'pre',
                                     boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
@@ -1429,19 +1409,43 @@ const InvestmentPlan2026 = () => {
                                 const quoteContent = action.text.trim().replace(/^>\s*\*\*/, '**').replace(/\n>\s*/g, '\n')
                                 renderedItems.push(
                                   <div key={action.id} style={{
-                                    borderLeft: '4px solid #667eea',
-                                    background: 'linear-gradient(90deg, #f0f4ff 0%, #ffffff 100%)',
-                                    padding: '16px 20px',
-                                    margin: '16px 0',
+                                    borderLeft: '4px solid var(--system-blue)',
+                                    background: 'linear-gradient(90deg, var(--system-blue-light) 0%, transparent 100%)',
+                                    padding: '8px 12px',
+                                    margin: '6px 0',
                                     borderRadius: '6px',
-                                    fontSize: '1rem',
-                                    color: '#1f2937',
+                                    fontSize: '0.9rem',
+                                    color: 'var(--text-primary)',
                                     fontWeight: '500',
-                                    lineHeight: '1.8',
+                                    lineHeight: '1.6',
                                     whiteSpace: 'pre-line',
-                                    boxShadow: '0 2px 8px rgba(102, 126, 234, 0.1)'
+                                    boxShadow: '0 2px 8px rgba(0, 122, 255, 0.05)'
                                   }}>
                                     {renderText(quoteContent)}
+                                  </div>
+                                )
+                                return
+                              }
+
+                              // 警示框（isAlert）
+                              if ((action as any).isAlert && action.text && typeof action.text === 'string') {
+                                renderedItems.push(
+                                  <div key={action.id} style={{
+                                    background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+                                    border: '2px solid #f59e0b',
+                                    borderRadius: '10px',
+                                    padding: '12px 16px',
+                                    marginBottom: '16px',
+                                    fontSize: '0.95rem',
+                                    fontWeight: '600',
+                                    color: '#92400e',
+                                    lineHeight: '1.6',
+                                    boxShadow: '0 4px 12px rgba(245, 158, 11, 0.2)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px'
+                                  }}>
+                                    {renderText(action.text)}
                                   </div>
                                 )
                                 return
