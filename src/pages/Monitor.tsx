@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { SilverMonitor } from '../components/monitor/SilverMonitor'
 import { OverviewTab } from '../components/monitor/OverviewTab'
 import { AssumptionsTab } from '../components/monitor/AssumptionsTab'
 import { IndicatorsTab } from '../components/monitor/IndicatorsTab'
@@ -11,7 +10,7 @@ import { USMonitorTab } from '../components/monitor/USMonitorTab'
 import { ChinaStockTab } from '../components/monitor/ChinaStockTab'
 
 export default function Monitor(): JSX.Element {
-  const [activeSubTab, setActiveSubTab] = useState<'overview' | 'assumptions' | 'china-stock' | 'indicators' | 'temperature' | 'china-temperature' | 'stages' | 'execution' | 'us-monitor' | 'silver-monitor'>('execution')
+  const [activeSubTab, setActiveSubTab] = useState<'overview' | 'assumptions' | 'china-stock' | 'indicators' | 'temperature' | 'china-temperature' | 'stages' | 'execution' | 'us-monitor'>('execution')
 
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '16px', minHeight: '100vh' }}>
@@ -143,12 +142,11 @@ export default function Monitor(): JSX.Element {
             }}>
             📊 监控分析
           </div>
-            {(['indicators', 'temperature', 'china-temperature', 'silver-monitor'] as const).map((subTab) => {
+            {(['indicators', 'temperature', 'china-temperature'] as const).map((subTab) => {
               const subLabels: Record<typeof subTab, string> = {
                 indicators: '指标体系',
                 temperature: '美经温度',
-                'china-temperature': '中经温度',
-                'silver-monitor': '白银监控'
+                'china-temperature': '中经温度'
               }
               const isActive = activeSubTab === subTab
               return (
@@ -197,7 +195,6 @@ export default function Monitor(): JSX.Element {
         {activeSubTab === 'stages' && <StagesTab />}
         {activeSubTab === 'execution' && <ExecutionTab />}
         {activeSubTab === 'us-monitor' && <USMonitorTab />}
-        {activeSubTab === 'silver-monitor' && <SilverMonitor />}
             </div>
     </div>
   )
