@@ -29,7 +29,12 @@ import {
   Construction,
   Trophy,
   DollarSign,
-  AlertCircle
+  AlertCircle,
+  ChevronUp,
+  ChevronDown,
+  Users,
+  CreditCard,
+  Skull
 } from 'lucide-react';
 import {
   tableWrapperStyle,
@@ -42,10 +47,10 @@ import {
 
 const StatusBadge: React.FC<{ type: 'red' | 'orange' | 'green' | 'blue', text: string }> = ({ type, text }) => {
   const styles = {
-    red: { bg: 'rgba(255, 59, 48, 0.1)', color: 'var(--system-red)', glow: 'var(--system-red)' },
-    orange: { bg: 'rgba(255, 149, 0, 0.1)', color: 'var(--system-orange)', glow: 'var(--system-orange)' },
-    green: { bg: 'rgba(34, 199, 89, 0.1)', color: 'var(--system-green)', glow: 'var(--system-green)' },
-    blue: { bg: 'rgba(0, 122, 255, 0.1)', color: 'var(--system-blue)', glow: 'var(--system-blue)' }
+    red: { bg: 'var(--system-red-light)', color: 'var(--system-red)', border: 'rgba(255, 59, 48, 0.2)' },
+    orange: { bg: 'rgba(255, 149, 0, 0.1)', color: 'var(--system-orange)', border: 'rgba(255, 149, 0, 0.2)' },
+    green: { bg: 'var(--system-green-light)', color: 'var(--system-green)', border: 'rgba(52, 199, 89, 0.2)' },
+    blue: { bg: 'var(--system-blue-light)', color: 'var(--system-blue)', border: 'rgba(0, 122, 255, 0.2)' }
   }
   const current = styles[type]
   return (
@@ -53,20 +58,21 @@ const StatusBadge: React.FC<{ type: 'red' | 'orange' | 'green' | 'blue', text: s
       display: 'inline-flex',
       alignItems: 'center',
       gap: '6px',
-      padding: '4px 10px',
+      padding: '6px 12px',
       borderRadius: '8px',
       background: current.bg,
       color: current.color,
-      fontWeight: '600',
-      fontSize: '0.75rem',
-      whiteSpace: 'nowrap'
+      fontWeight: '700',
+      fontSize: '0.8rem',
+      whiteSpace: 'nowrap',
+      border: `1px solid ${current.border}`
     }}>
       <div style={{
-        width: '6px',
-        height: '6px',
+        width: '8px',
+        height: '8px',
         borderRadius: '50%',
         background: current.color,
-        boxShadow: `0 0 6px ${current.glow}`
+        boxShadow: `0 0 6px ${current.color}`
       }} />
       {text}
     </div>
@@ -93,19 +99,19 @@ const InvestmentPlan2026 = () => {
   // 财报日历状态
   const [earningsData, setEarningsData] = useState<EarningsCalendarItem[]>([]);
   const [loadingEarnings, setLoadingEarnings] = useState(false);
-  
+
   // 宏观风险评分数据 (2026年1月基准)
   const [macroRiskScores] = useState({
     // 就业维度 (0-10)
     employment_official: 4,  // 非农回修+失业率尚可
     employment_market: 6,    // 利差开始走阔
     employment_alt: 7,       // 岗位投放下降明显
-    
+
     // 消费信用维度 (0-10)
     credit_official: 6,      // 储蓄率低位、信贷余额高
     credit_market: 7,        // 次级ABS利差扩大
     credit_alt: 8,           // 刷卡数据转弱、车贷逾期极值
-    
+
     // 银行流动性维度 (0-10)
     bank_official: 5,        // 拨备增加但未暴雷
     bank_market: 6,          // 区域银行股承压
@@ -1028,170 +1034,177 @@ const InvestmentPlan2026 = () => {
   };
 
   return (
-    <div style={{ width: '100%', maxWidth: '1200px', margin: '0 auto', padding: '16px', background: '#f9fafb', minHeight: '100vh' }}>
-      {/* Tabs - 分类显示 */}
-      <div style={{ background: 'white', borderLeft: '1px solid #e5e7eb', borderRight: '1px solid #e5e7eb' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #e5e7eb' }}>
-          {/* 计划执行类 */}
-          <div style={{ display: 'flex', borderBottom: '1px solid #f3f4f6', flexWrap: 'wrap' }}>
-            <div style={{
-              padding: '8px 12px',
-              fontSize: '0.75rem',
-              color: '#6b7280',
-              fontWeight: '600',
-              background: '#f9fafb',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              minWidth: '80px'
-            }}>
-              📅 计划执行
-            </div>
-            {(['timeline', 'checklist', 'macro', 'earnings'] as const).map((tab) => {
-              const labels: Record<typeof tab, string> = {
-                timeline: '时间轴',
-                checklist: '执行清单',
-                macro: '宏观时间',
-                earnings: '财报日历'
-              };
-              const isActive = activeTab === tab;
-              return (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  style={{
-                    flex: 1,
-                    padding: '12px 16px',
-                    fontWeight: '500',
-                    background: isActive ? '#eff6ff' : 'transparent',
-                    color: isActive ? '#2563eb' : '#4b5563',
-                    border: 'none',
-                    borderBottom: isActive ? '2px solid #2563eb' : '2px solid transparent',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    fontSize: '0.9rem'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.background = '#f9fafb';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.background = 'transparent';
-                    }
-                  }}
-                >
-                  {labels[tab]}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* 决策策略类 */}
-          <div style={{ display: 'flex', borderBottom: '1px solid #f3f4f6', flexWrap: 'wrap' }}>
-            <div style={{
-              padding: '8px 12px',
-              fontSize: '0.75rem',
-              color: '#6b7280',
-              fontWeight: '600',
-              background: '#f9fafb',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              minWidth: '80px'
-            }}>
-              ⚖️ 决策策略
-            </div>
-            {(['decision', 'shorting', 'profit-taking', 'macro-risk'] as const).map((tab) => {
-              const labels: Record<typeof tab, string> = {
-                decision: '决策矩阵',
-                shorting: '做空条件',
-                'profit-taking': '止盈策略',
-                'macro-risk': '宏观风险'
-              };
-              const isActive = activeTab === tab;
-              return (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  style={{
-                    flex: 1,
-                    padding: '12px 16px',
-                    fontWeight: '500',
-                    background: isActive ? '#eff6ff' : 'transparent',
-                    color: isActive ? '#2563eb' : '#4b5563',
-                    border: 'none',
-                    borderBottom: isActive ? '2px solid #2563eb' : '2px solid transparent',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    fontSize: '0.9rem'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.background = '#f9fafb';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.background = 'transparent';
-                    }
-                  }}
-                >
-                  {labels[tab]}
-                </button>
-              );
-            })}
-          </div>
-
-        </div>
+    <div style={{
+      width: '100%',
+      maxWidth: '1200px',
+      margin: '0 auto',
+      padding: '24px 16px',
+      background: 'var(--bg-primary)',
+      minHeight: '100vh',
+      fontFamily: 'var(--font-family)'
+    }}>
+      {/* 页面标题 */}
+      <div className="glass-panel" style={{
+        padding: '32px 24px',
+        borderRadius: 'var(--radius-lg)',
+        marginBottom: '32px',
+        background: 'linear-gradient(135deg, var(--system-blue) 0%, var(--system-indigo) 100%)',
+        color: 'white',
+        boxShadow: 'var(--shadow-lg)',
+        border: '1px solid rgba(255,255,255,0.2)'
+      }}>
+        <h1 style={{
+          fontSize: '2.25rem',
+          fontWeight: '800',
+          margin: '0 0 12px 0',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '16px',
+          letterSpacing: '-0.02em'
+        }}>
+          <Target size={40} />
+          2026 投资作战计划书
+        </h1>
+        <p style={{ margin: 0, opacity: 0.9, fontSize: '1.1rem', fontWeight: '500' }}>
+          基于宏观流动性与萨姆规则的确定性交易框架
+        </p>
       </div>
 
-      {/* Content */}
-      <div style={{
+      {/* Tabs - 升级为苹果风格的分段选择器 */}
+      <div className="glass-panel" style={{
+        padding: '6px',
+        borderRadius: '16px',
+        marginBottom: '32px',
+        display: 'flex',
+        gap: '6px',
+        background: 'rgba(0,0,0,0.05)',
+        border: '1px solid var(--border-subtle)',
+        overflowX: 'auto',
+        whiteSpace: 'nowrap',
+        msOverflowStyle: 'none',
+        scrollbarWidth: 'none'
+      }}>
+        {[
+          { id: 'timeline', label: '作战时间轴', icon: <Calendar size={18} /> },
+          { id: 'checklist', label: '执行清单', icon: <ListTodo size={18} /> },
+          { id: 'macro', label: '宏观时间', icon: <Clock size={18} /> },
+          { id: 'earnings', label: '财报日历', icon: <Activity size={18} /> },
+          { id: 'decision', label: '决策矩阵', icon: <Target size={18} /> },
+          { id: 'shorting', label: '做空条件', icon: <Shield size={18} /> },
+          { id: 'profit-taking', label: '止盈策略', icon: <TrendingUp size={18} /> },
+          { id: 'macro-risk', label: '宏观风险', icon: <AlertTriangle size={18} /> }
+        ].map((tab) => {
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 20px',
+                borderRadius: '12px',
+                border: 'none',
+                background: isActive ? 'white' : 'transparent',
+                color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
+                fontSize: '0.95rem',
+                fontWeight: isActive ? '700' : '500',
+                cursor: 'pointer',
+                transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                boxShadow: isActive ? '0 2px 8px rgba(0,0,0,0.1)' : 'none',
+                flexShrink: 0
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.color = 'var(--text-primary)';
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.4)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.color = 'var(--text-secondary)';
+                  e.currentTarget.style.background = 'transparent';
+                }
+              }}
+            >
+              <span style={{ display: 'flex' }}>{tab.icon}</span>
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* 内容区域 */}
+      <div className="card" style={{
         background: 'var(--bg-card)',
-        backdropFilter: 'var(--glass-blur)',
-        border: '1px solid var(--border-light)',
-        borderRadius: '0 0 24px 24px',
         padding: '32px',
-        boxShadow: 'var(--shadow-subtle)',
-        marginTop: '-1px'
+        borderRadius: 'var(--radius-lg)',
+        boxShadow: 'var(--shadow-md)',
+        border: '1px solid var(--glass-border)',
+        minHeight: '600px'
       }}>
         {activeTab === 'timeline' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {/* 标题 */}
+            <div className="glass-panel" style={{
+              background: 'linear-gradient(135deg, var(--system-indigo) 0%, var(--system-blue) 100%)',
+              borderRadius: 'var(--radius-md)',
+              padding: '24px 20px',
+              color: 'white',
+              boxShadow: 'var(--shadow-lg)',
+              border: '1px solid rgba(255,255,255,0.2)'
+            }}>
+              <h1 style={{ fontSize: '1.6rem', fontWeight: '800', marginBottom: '8px', letterSpacing: '-0.02em' }}>
+                📅 2026 实战作战时间轴
+              </h1>
+              <p style={{ fontSize: '0.95rem', opacity: 0.9, fontWeight: '500' }}>
+                关键窗口对齐 • 核心事件驱动 • 行动路线安排
+              </p>
+            </div>
+
             {timelineData.map((item, index) => {
-              const borderColor = item.priority === 'critical' ? '#ef4444' : item.priority === 'high' ? '#f97316' : '#3b82f6';
-              const bgColor = item.priority === 'critical' ? '#fef2f2' : item.priority === 'high' ? '#fff7ed' : '#eff6ff';
+              const borderColor = item.priority === 'critical' ? 'var(--system-red)' : item.priority === 'high' ? 'var(--system-orange)' : 'var(--system-blue)';
+              // Use standard card background, subtle colored tint only if critical
+              const bgColor = item.priority === 'critical' ? 'var(--system-red-light)' : 'var(--bg-card)';
+              const cardBorder = item.priority === 'critical' ? '1px solid rgba(255, 59, 48, 0.2)' : '1px solid var(--glass-border)';
 
               return (
                 <div
                   key={index}
+                  className="card"
                   style={{
-                    borderLeft: `4px solid ${borderColor}`,
-                    paddingLeft: '16px',
-                    padding: '12px 12px 12px 16px',
+                    padding: '20px',
                     background: bgColor,
-                    borderRadius: '8px'
+                    border: cardBorder,
+                    borderRadius: 'var(--radius-lg)',
+                    borderLeft: `6px solid ${borderColor}`,
+                    boxShadow: 'var(--shadow-sm)'
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
                     <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
-                        <span style={{ fontWeight: '700', fontSize: '1.1rem' }}>{item.date}</span>
-                        <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>{item.day}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                        <span style={{ fontWeight: '800', fontSize: '1rem', color: 'var(--text-primary)' }}>{item.date}</span>
+                        <span style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)', fontWeight: '500' }}>{item.day}</span>
                         {item.time && (
                           <span style={{
-                            fontSize: '0.8rem',
-                            background: 'white',
-                            padding: '4px 8px',
-                            borderRadius: '4px',
-                            color: '#4b5563'
+                            fontSize: '0.75rem',
+                            background: 'var(--system-gray6)',
+                            padding: '2px 8px',
+                            borderRadius: 'var(--radius-sm)',
+                            color: 'var(--text-secondary)',
+                            fontWeight: '600'
                           }}>
                             {item.time}
                           </span>
                         )}
+                        <StatusBadge
+                          text={item.priority.toUpperCase()}
+                          type={item.priority === 'critical' ? 'red' : item.priority === 'high' ? 'orange' : 'blue'}
+                        />
                       </div>
-                      <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1f2937', margin: '8px 0' }}>
+                      <h3 style={{ fontSize: '1.3rem', fontWeight: '800', color: 'var(--text-primary)', margin: '0 0 16px 0', letterSpacing: '-0.01em' }}>
                         {item.event}
                       </h3>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '12px' }}>
@@ -1239,21 +1252,20 @@ const InvestmentPlan2026 = () => {
                                         display: 'grid',
                                         gridTemplateColumns: '1.5fr 1fr 1fr 1.2fr 0.5fr',
                                         gap: '8px',
-                                        padding: '16px 20px',
-                                        fontSize: '0.8rem',
-                                        fontWeight: '600',
+                                        padding: '10px 12px',
+                                        fontSize: '0.75rem',
+                                        fontWeight: '800',
                                         background: 'var(--system-gray6)',
                                         color: 'var(--text-secondary)',
-                                        borderRadius: '16px 16px 0 0',
-                                        marginTop: '16px',
-                                        borderBottom: '1px solid var(--border-light)',
-                                        textTransform: 'uppercase',
-                                        letterSpacing: '0.05em'
+                                        borderRadius: 'var(--radius-md) var(--radius-md) 0 0',
+                                        marginTop: '12px',
+                                        border: '1px solid var(--system-gray5)',
+                                        borderBottom: 'none'
                                       }}>
                                         <div>指标</div>
                                         <div>当前值</div>
-                                        <div>Q3值</div>
-                                        <div>危险阈值</div>
+                                        <div>Q3参考</div>
+                                        <div>风险阈值</div>
                                         <div style={{ textAlign: 'center' }}>警示</div>
                                       </div>
                                     )
@@ -1271,20 +1283,21 @@ const InvestmentPlan2026 = () => {
                                       display: 'grid',
                                       gridTemplateColumns: '1.5fr 1fr 1fr 1.2fr 0.5fr',
                                       gap: '8px',
-                                      padding: '14px 20px',
-                                      fontSize: '0.9rem',
+                                      padding: '10px 12px',
+                                      fontSize: '0.85rem',
                                       background: backgroundColor,
-                                      borderBottom: isLastRow ? 'none' : '1px solid var(--border-light)',
-                                      borderRadius: isLastRow ? '0 0 16px 16px' : '0',
+                                      border: '1px solid var(--system-gray5)',
+                                      borderTop: 'none',
+                                      borderRadius: isLastRow ? `0 0 var(--radius-md) var(--radius-md)` : '0',
                                       alignItems: 'center',
                                       transition: 'background 0.2s ease',
                                       color: 'var(--text-primary)'
                                     }}>
-                                      <div style={{ fontWeight: '500' }}>{renderText(parts[0])}</div>
-                                      <div>{parts[1]}</div>
-                                      <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{parts[2]}</div>
-                                      <div style={{ color: 'var(--system-red)', fontSize: '0.85rem', fontWeight: '500' }}>{parts[3]}</div>
-                                      <div style={{ textAlign: 'center', fontSize: '1.1rem' }}>{parts[4]}</div>
+                                      <div style={{ fontWeight: '700' }}>{renderText(parts[0])}</div>
+                                      <div style={{ fontWeight: '500' }}>{parts[1]}</div>
+                                      <div style={{ color: 'var(--text-tertiary)', fontSize: '0.8rem' }}>{parts[2]}</div>
+                                      <div style={{ color: 'var(--system-red)', fontSize: '0.8rem', fontWeight: '700' }}>{parts[3]}</div>
+                                      <div style={{ textAlign: 'center', fontSize: '1rem' }}>{parts[4]}</div>
                                     </div>
                                   )
                                 }
@@ -1488,18 +1501,33 @@ const InvestmentPlan2026 = () => {
                         alignItems: 'flex-start',
                         gap: '8px',
                         fontSize: '0.85rem',
-                        color: '#4b5563',
-                        background: 'rgba(255,255,255,0.7)',
-                        padding: '8px',
-                        borderRadius: '6px',
-                        marginTop: '8px'
+                        color: 'var(--text-secondary)',
+                        background: 'var(--system-gray6)',
+                        padding: '12px 16px',
+                        borderRadius: 'var(--radius-sm)',
+                        marginTop: '16px',
+                        border: '1px solid var(--system-gray5)',
+                        lineHeight: '1.5'
                       }}>
-                        <span style={{ fontSize: '1rem' }}>⚠️</span>
-                        <span>{item.notes}</span>
+                        <span style={{ fontSize: '1.1rem' }}>⚠️</span>
+                        <span style={{ fontWeight: '500' }}>{item.notes}</span>
                       </div>
                     </div>
                     {item.priority === 'critical' && (
-                      <span style={{ fontSize: '1.5rem', marginLeft: '16px', flexShrink: 0 }}>🔔</span>
+                      <div style={{
+                        background: 'var(--system-red)',
+                        color: 'white',
+                        padding: '8px',
+                        borderRadius: '999px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginLeft: '16px',
+                        flexShrink: 0,
+                        boxShadow: '0 4px 12px rgba(255, 59, 48, 0.3)'
+                      }}>
+                        <AlertTriangle size={20} />
+                      </div>
                     )}
                   </div>
                 </div>
@@ -1509,206 +1537,241 @@ const InvestmentPlan2026 = () => {
         )}
 
         {activeTab === 'macro' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {/* 标题 */}
-            <div style={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              borderRadius: '12px',
-              padding: '24px',
-              color: 'white'
+            <div className="glass-panel" style={{
+              background: 'linear-gradient(135deg, var(--system-indigo) 0%, var(--system-purple) 100%)',
+              borderRadius: 'var(--radius-md)',
+              padding: '24px 20px',
+              color: 'white',
+              boxShadow: 'var(--shadow-lg)',
+              border: '1px solid rgba(255,255,255,0.2)'
             }}>
-              <h1 style={{ fontSize: '1.8rem', fontWeight: '700', marginBottom: '8px' }}>
-                🎯 2026年终稿版：宏观数据 + 逻辑推演 + 实战策略
+              <h1 style={{ fontSize: '1.6rem', fontWeight: '800', marginBottom: '8px', letterSpacing: '-0.02em' }}>
+                🎯 2026 宏观作战地图
               </h1>
-              <p style={{ fontSize: '0.95rem', opacity: 0.95 }}>
-                基准日期：2026年1月12日
+              <p style={{ fontSize: '0.95rem', opacity: 0.9, fontWeight: '500' }}>
+                宏观数据现状 • 逻辑深度推演 • 实战对冲策略 (更新至：2026年1月22日)
               </p>
             </div>
 
             {/* 第一层：核心宏观数据现状 */}
-            <div style={{ border: '2px solid #3b82f6', borderRadius: '12px', padding: '24px', background: '#eff6ff' }}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#1e40af', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '2rem' }}>💰</span>
-                第一层：核心宏观数据现状（基于2026年1月真实数据）
+            <div className="card" style={{
+              padding: '20px',
+              background: 'var(--bg-card)',
+              border: '1px solid var(--glass-border)',
+              borderRadius: 'var(--radius-lg)'
+            }}>
+              <h2 style={{
+                fontSize: '1.35rem',
+                fontWeight: '800',
+                marginBottom: '16px',
+                color: 'var(--text-primary)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                borderBottom: '1px solid var(--system-gray5)',
+                paddingBottom: '12px'
+              }}>
+                <span style={{ color: 'var(--system-blue)' }}><DollarSign size={24} /></span>
+                第一层：核心宏观数据现状
               </h2>
 
               {/* 联储政策 */}
-              <div style={{ marginBottom: '24px' }}>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '16px', color: '#1e40af' }}>
+              <div style={{ marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '12px', color: 'var(--system-blue)' }}>
                   💰 联储政策：已接近中性利率
                 </h3>
-                <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white', borderRadius: '8px', overflow: 'hidden' }}>
+                <div style={{ overflowX: 'auto', borderRadius: 'var(--radius-md)', border: '1px solid var(--system-gray5)', background: 'rgba(255,255,255,0.3)' }}>
+                  <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
                     <thead>
-                      <tr style={{ background: '#3b82f6', color: 'white' }}>
-                        <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', fontSize: '0.9rem' }}>指标</th>
-                        <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', fontSize: '0.9rem' }}>当前值</th>
-                        <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', fontSize: '0.9rem' }}>市场预期</th>
-                        <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', fontSize: '0.9rem' }}>关键解读</th>
+                      <tr style={{ background: 'var(--system-gray6)' }}>
+                        <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '700', fontSize: '0.8rem', color: 'var(--text-secondary)', borderBottom: '1px solid var(--system-gray5)' }}>指标</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '700', fontSize: '0.8rem', color: 'var(--text-secondary)', borderBottom: '1px solid var(--system-gray5)' }}>当前值</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '700', fontSize: '0.8rem', color: 'var(--text-secondary)', borderBottom: '1px solid var(--system-gray5)' }}>市场预期</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '700', fontSize: '0.8rem', color: 'var(--text-secondary)', borderBottom: '1px solid var(--system-gray5)' }}>关键解读</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontWeight: '600' }}>联邦基金利率</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>4.25-4.50%</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>-</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>⚠️ Fed已暂停降息</td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', fontWeight: '700', color: 'var(--text-primary)', fontSize: '0.85rem' }}>联邦基金利率</td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-primary)', fontSize: '0.85rem' }}>4.25-4.50%</td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>-</td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)' }}><StatusBadge type="orange" text="Fed已暂停降息" /></td>
                       </tr>
-                      <tr style={{ background: '#f9fafb' }}>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontWeight: '600' }}>2026降息预期</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>1-2次（共50bp）</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>CBO预计年底3.4%</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>市场押注4月或6月首次降息</td>
+                      <tr style={{ background: 'rgba(0,0,0,0.02)' }}>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', fontWeight: '700', color: 'var(--text-primary)', fontSize: '0.85rem' }}>2026降息预期</td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-primary)', fontSize: '0.85rem' }}>1-2次（共50bp）</td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>CBO预计年底3.4%</td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-primary)', fontSize: '0.8rem' }}>市场押注4月或6月首次降息</td>
                       </tr>
                       <tr>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontWeight: '600' }}>中性利率估计</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>2.5-3.0%</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>实际+通胀≈4.5-5%</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}><strong>已非常接近中性</strong></td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', fontWeight: '700', color: 'var(--text-primary)', fontSize: '0.85rem' }}>中性利率估计</td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-primary)', fontSize: '0.85rem' }}>2.5-3.0%</td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>实际+通胀≈4.5-5%</td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', fontWeight: '700', color: 'var(--system-blue)', fontSize: '0.8rem' }}>已非常接近中性</td>
                       </tr>
-                      <tr style={{ background: '#fef2f2' }}>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontWeight: '600' }}>Fed内部分歧</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>极度分裂</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>特朗普任命Miran主张降息150bp</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>🔴 罕见政治化</td>
+                      <tr style={{ background: 'var(--system-red-light)' }}>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', fontWeight: '700', color: 'var(--system-red)', fontSize: '0.85rem' }}>Fed内部分歧</td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-primary)', fontSize: '0.85rem' }}>极度分裂</td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>特朗普任命Miran主张降息150bp</td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)' }}><StatusBadge type="red" text="罕见政治化" /></td>
                       </tr>
-                      <tr style={{ background: '#fef2f2' }}>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontWeight: '600' }}>Powell任期</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>2026年5月到期</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>新主席上任</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>🔴 <strong>最大不确定性</strong></td>
+                      <tr style={{ borderBottom: 'none', background: 'var(--system-red-light)' }}>
+                        <td style={{ padding: '10px 12px', fontWeight: '700', color: 'var(--system-red)', fontSize: '0.85rem' }}>Powell任期</td>
+                        <td style={{ padding: '10px 12px', color: 'var(--text-primary)', fontSize: '0.85rem' }}>2026年5月到期</td>
+                        <td style={{ padding: '10px 12px', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>新主席上任</td>
+                        <td style={{ padding: '10px 12px' }}><StatusBadge type="red" text="最大不确定性" /></td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
-                <div style={{ marginTop: '16px', padding: '16px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px' }}>
-                  <p style={{ fontSize: '0.9rem', color: '#92400e', lineHeight: '1.6', margin: 0 }}>
-                    <strong>📌 核心判断：</strong>
+                <div style={{
+                  marginTop: '16px',
+                  padding: '16px 20px',
+                  background: 'rgba(255, 149, 0, 0.05)',
+                  border: '1px solid rgba(255, 149, 0, 0.2)',
+                  borderRadius: 'var(--radius-md)'
+                }}>
+                  <p style={{ fontSize: '0.95rem', color: 'var(--system-orange)', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                    <Info size={18} /> 核心研判
                   </p>
-                  <ul style={{ margin: '8px 0 0 20px', padding: 0, fontSize: '0.9rem', color: '#92400e', lineHeight: '1.8' }}>
+                  <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: '1.8' }}>
                     <li>国会预算办公室（CBO）预计Fed将在2026年降息，关键利率到2028年将降至3.4%左右</li>
-                    <li>Fed理事Stephen Miran主张2026年降息150个基点（1.5个百分点），但大多数官员支持谨慎的观望态度</li>
+                    <li>Fed理事Stephen Miran主张2026年降息150个基点，但大多数官员支持审慎态度</li>
                     <li>市场预期4月有45%概率降息，9月再次降息</li>
-                    <li><strong>5月Fed主席换届是最大政治风险</strong></li>
+                    <li><strong>5月Fed主席换届是2026年最大的系统性不确定性点</strong></li>
                   </ul>
                 </div>
               </div>
 
               {/* AI Capex */}
-              <div style={{ marginBottom: '24px' }}>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '16px', color: '#1e40af', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <BarChart2 size={24} /> AI Capex：已进入验证期
+              <div style={{ marginBottom: '20px' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '12px', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <BarChart2 size={24} style={{ color: 'var(--system-purple)' }} /> AI Capex：已进入验证期
                 </h3>
-                <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white', borderRadius: '8px', overflow: 'hidden' }}>
+                <div style={{ overflowX: 'auto', borderRadius: 'var(--radius-md)', border: '1px solid var(--system-gray5)', background: 'rgba(255,255,255,0.3)' }}>
+                  <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
                     <thead>
-                      <tr style={{ background: '#8b5cf6', color: 'white' }}>
-                        <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', fontSize: '0.9rem' }}>公司</th>
-                        <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', fontSize: '0.9rem' }}>2025年Capex</th>
-                        <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', fontSize: '0.9rem' }}>YoY增速</th>
-                        <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', fontSize: '0.9rem' }}>2026年指引</th>
-                        <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', fontSize: '0.9rem' }}>关键信号</th>
+                      <tr style={{ background: 'var(--system-gray6)' }}>
+                        <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '700', fontSize: '0.8rem', color: 'var(--text-secondary)', borderBottom: '1px solid var(--system-gray5)' }}>公司</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '700', fontSize: '0.8rem', color: 'var(--text-secondary)', borderBottom: '1px solid var(--system-gray5)' }}>2025年Capex</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '700', fontSize: '0.8rem', color: 'var(--text-secondary)', borderBottom: '1px solid var(--system-gray5)' }}>YoY增速</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '700', fontSize: '0.8rem', color: 'var(--text-secondary)', borderBottom: '1px solid var(--system-gray5)' }}>2026年指引</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '700', fontSize: '0.8rem', color: 'var(--text-secondary)', borderBottom: '1px solid var(--system-gray5)' }}>关键信号</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontWeight: '600' }}>Amazon</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>$125B</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>+83%</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>&gt;$125B持续增长</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>2025年Capex将达到1000亿美元，预计2026年将继续增加</td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', fontWeight: '700', color: 'var(--text-primary)', fontSize: '0.85rem' }}>Amazon</td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-primary)', fontSize: '0.85rem' }}>$125B</td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-primary)', fontSize: '0.85rem' }}>+83%</td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-primary)', fontSize: '0.85rem' }}>&gt;$125B持续增长</td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>ROI已严重稀释，折旧加速</td>
                       </tr>
-                      <tr style={{ background: '#f9fafb' }}>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontWeight: '600' }}>Google</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>$91-93B</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>+57%</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>持续高位</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>将Capex指引从750-850亿美元上调至910-930亿美元</td>
+                      <tr style={{ background: 'rgba(0,0,0,0.02)' }}>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', fontWeight: '700', color: 'var(--text-primary)', fontSize: '0.85rem' }}>Google</td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-primary)', fontSize: '0.85rem' }}>$91-93B</td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-primary)', fontSize: '0.85rem' }}>+57%</td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-primary)', fontSize: '0.85rem' }}>持续高位</td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>上调指引至 910-930 亿美元</td>
                       </tr>
                       <tr>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontWeight: '600' }}>Microsoft</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>$80B (FY26)</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>+74%</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>增速<strong>高于</strong>FY25</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>CFO表示FY26的Capex增速将高于FY25</td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', fontWeight: '700', color: 'var(--text-primary)', fontSize: '0.85rem' }}>Microsoft</td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-primary)', fontSize: '0.85rem' }}>$80B (FY26)</td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-primary)', fontSize: '0.85rem' }}>+74%</td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-primary)', fontSize: '0.85rem' }}>加速增长</td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>FY26 增速高于 FY25</td>
                       </tr>
-                      <tr style={{ background: '#f9fafb' }}>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontWeight: '600' }}>Meta</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>$70-72B</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>+111%</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>2026年类似增长</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>将Capex指引收窄至700-720亿美元，从之前的660-720亿美元</td>
+                      <tr style={{ background: 'rgba(0,0,0,0.02)' }}>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', fontWeight: '700', color: 'var(--text-primary)', fontSize: '0.85rem' }}>Meta</td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-primary)', fontSize: '0.85rem' }}>$70-72B</td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-primary)', fontSize: '0.85rem' }}>+111%</td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-primary)', fontSize: '0.85rem' }}>2026年类似增长</td>
+                        <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>指引收窄至 700-720 亿美元</td>
                       </tr>
-                      <tr style={{ background: '#fef3c7', fontWeight: '700' }}>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>合计</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>~$380B</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>+64%</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>持续增长</td>
-                        <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>
+                      <tr style={{ borderBottom: 'none', background: 'var(--system-red-light)' }}>
+                        <td style={{ padding: '10px 12px', fontWeight: '800', color: 'var(--system-red)', fontSize: '0.85rem' }}>合计</td>
+                        <td style={{ padding: '10px 12px', fontWeight: '800', color: 'var(--system-red)', fontSize: '0.85rem' }}>~$380B</td>
+                        <td style={{ padding: '10px 12px', fontWeight: '800', color: 'var(--system-red)', fontSize: '0.85rem' }}>+64%</td>
+                        <td style={{ padding: '10px 12px', fontWeight: '800', fontSize: '0.85rem' }}>持续加速</td>
+                        <td style={{ padding: '10px 12px' }}>
                           <StatusBadge type="red" text="仍在加速，未见顶" />
                         </td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
-                <div style={{ marginTop: '16px', padding: '16px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px' }}>
-                  <p style={{ fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.6', marginBottom: '12px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <AlertTriangle size={18} /> 隐藏炸弹已引爆：
+                <div style={{
+                  marginTop: '16px',
+                  padding: '16px 20px',
+                  background: 'var(--system-red-light)',
+                  border: '1px solid rgba(255, 59, 48, 0.2)',
+                  borderRadius: 'var(--radius-md)'
+                }}>
+                  <p style={{ fontSize: '0.95rem', color: 'var(--system-red)', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                    <AlertTriangle size={18} /> 隐藏炸弹已引爆
                   </p>
-                  <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.8' }}>
-                    <li><strong>会计操作公开化：</strong>Amazon在Q4完成服务器使用寿命研究后，将部分服务器和网络设备的使用寿命从6年缩短至5年，预计将使2025年运营收入减少约7亿美元。这是<strong>反向操作</strong>：折旧加速 = 利润减少 = 为未来腾出空间</li>
+                  <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: '1.8' }}>
+                    <li><strong>会计操作公开化：</strong>Amazon在Q4将部分服务器使用寿命从6年缩短至5年，预计运营收入减少约7亿美元。折旧加速 = 利润减少。</li>
                     <li><strong>Capex增速 vs 收入增速剪刀差：</strong>AWS收入增速：19% YoY，AWS Capex增速：<strong>83% YoY</strong>，<strong>ROI已严重稀释</strong></li>
-                    <li><strong>自由现金流压力：</strong>Meta FCF过去一年下降20%，Amazon FCF明显收缩，只有Google/MSFT勉强维持</li>
+                    <li><strong>自由现金流压力：</strong>Meta FCF过去一年下降20%，Amazon FCF明显收缩。</li>
                   </ul>
                 </div>
               </div>
 
               {/* NVIDIA */}
-              <div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '16px', color: '#1e40af' }}>
-                  🎮 NVIDIA：需求依然强劲但增速放缓
+              <div style={{ marginTop: '20px' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '12px', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <Activity size={24} style={{ color: 'var(--system-green)' }} /> NVIDIA：需求依然强劲但增速放缓
                 </h3>
-                <div style={{ padding: '16px', background: 'white', borderRadius: '8px', border: '1px solid #e5e7eb', marginBottom: '16px' }}>
-                  <p style={{ fontSize: '0.95rem', color: '#374151', lineHeight: '1.6', marginBottom: '16px' }}>
-                    NVIDIA报告截至2025年1月26日的第四财季营收393亿美元，环比增长12%，同比增长78%。全年财年2025营收1305亿美元，同比增长114%
+                <div style={{
+                  padding: '16px',
+                  background: 'rgba(255,255,255,0.3)',
+                  borderRadius: 'var(--radius-md)',
+                  border: '1px solid var(--system-gray5)',
+                  marginBottom: '12px'
+                }}>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: '1.5', marginBottom: '16px' }}>
+                    NVIDIA 2025 财报显示营收 1305 亿美元 (+114%)，数据中心占比持续提升。
                   </p>
-                  <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', background: '#f9fafb', borderRadius: '8px', overflow: 'hidden' }}>
+                  <div style={{ overflowX: 'auto', borderRadius: 'var(--radius-sm)', border: '1px solid var(--system-gray5)' }}>
+                    <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
                       <thead>
-                        <tr style={{ background: '#6366f1', color: 'white' }}>
-                          <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', fontSize: '0.9rem' }}>指标</th>
-                          <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', fontSize: '0.9rem' }}>Q4 FY25数据</th>
-                          <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', fontSize: '0.9rem' }}>解读</th>
+                        <tr style={{ background: 'var(--system-gray6)' }}>
+                          <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '700', fontSize: '0.8rem', color: 'var(--text-secondary)', borderBottom: '1px solid var(--system-gray5)' }}>指标</th>
+                          <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '700', fontSize: '0.8rem', color: 'var(--text-secondary)', borderBottom: '1px solid var(--system-gray5)' }}>Q4 FY25数据</th>
+                          <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '700', fontSize: '0.8rem', color: 'var(--text-secondary)', borderBottom: '1px solid var(--system-gray5)' }}>解读</th>
                         </tr>
                       </thead>
                       <tbody>
                         <tr>
-                          <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontWeight: '600' }}>数据中心收入</td>
-                          <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>$356亿（+93% YoY）</td>
-                          <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>仍强劲</td>
+                          <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', fontWeight: '700', color: 'var(--text-primary)', fontSize: '0.85rem' }}>数据中心收入</td>
+                          <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-primary)', fontSize: '0.85rem' }}>$356亿（+93% YoY）</td>
+                          <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>仍强劲</td>
                         </tr>
-                        <tr style={{ background: 'white' }}>
-                          <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontWeight: '600' }}>环比增速</td>
-                          <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>+12%</td>
-                          <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>
+                        <tr style={{ background: 'rgba(0,0,0,0.02)' }}>
+                          <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', fontWeight: '700', color: 'var(--text-primary)', fontSize: '0.85rem' }}>环比增速</td>
+                          <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-primary)', fontSize: '0.85rem' }}>+12%</td>
+                          <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)' }}>
                             <StatusBadge type="orange" text="明显放缓" />
-                            <span style={{ fontSize: '0.75rem', color: '#6b7280', display: 'block' }}>（Q3是+22%）</span>
+                            <span style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)', display: 'block' }}>（Q3是+22%）</span>
                           </td>
                         </tr>
                         <tr>
-                          <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontWeight: '600' }}>Blackwell首季收入</td>
-                          <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>$110亿</td>
-                          <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>新品爆发</td>
+                          <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', fontWeight: '700', color: 'var(--text-primary)', fontSize: '0.85rem' }}>Blackwell首季收入</td>
+                          <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-primary)', fontSize: '0.85rem' }}>$110亿</td>
+                          <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>新品爆发</td>
                         </tr>
-                        <tr style={{ background: 'white' }}>
-                          <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontWeight: '600' }}>Q1指引</td>
-                          <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>$430亿（±2%）</td>
-                          <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>继续增长但边际递减</td>
+                        <tr style={{ background: 'rgba(0,0,0,0.02)' }}>
+                          <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', fontWeight: '700', color: 'var(--text-primary)', fontSize: '0.85rem' }}>Q1指引</td>
+                          <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-primary)', fontSize: '0.85rem' }}>$430亿（±2%）</td>
+                          <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>增速下降</td>
                         </tr>
-                        <tr>
-                          <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontWeight: '600' }}>毛利率</td>
-                          <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>73.5%</td>
-                          <td style={{ padding: '12px', border: '1px solid #e5e7eb' }}>⚠️ 从75%下降（Blackwell成本压力）</td>
+                        <tr style={{ borderBottom: 'none' }}>
+                          <td style={{ padding: '10px 12px', fontWeight: '700', color: 'var(--text-primary)', fontSize: '0.85rem' }}>毛利率</td>
+                          <td style={{ padding: '10px 12px', color: 'var(--text-primary)', fontSize: '0.85rem' }}>73.5%</td>
+                          <td style={{ padding: '10px 12px' }}><StatusBadge type="orange" text="毛利小幅回落" /></td>
                         </tr>
                       </tbody>
                     </table>
@@ -1723,210 +1786,215 @@ const InvestmentPlan2026 = () => {
             </div>
 
             {/* 第二层：三条核心逻辑链 */}
-            <div style={{ border: '2px solid #10b981', borderRadius: '12px', padding: '24px', background: '#f0fdf4' }}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#059669', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Activity size={32} />
-                第二层：三条核心逻辑链（基于2026年1月现实）
+            <div className="card" style={{
+              padding: '20px',
+              background: 'var(--bg-card)',
+              border: '1px solid var(--glass-border)',
+              borderRadius: 'var(--radius-lg)',
+              marginTop: '20px'
+            }}>
+              <h2 style={{
+                fontSize: '1.35rem',
+                fontWeight: '800',
+                marginBottom: '20px',
+                color: 'var(--text-primary)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                borderBottom: '1px solid var(--system-gray5)',
+                paddingBottom: '12px'
+              }}>
+                <span style={{ color: 'var(--system-green)' }}><Activity size={24} /></span>
+                第二层：三条核心逻辑链
               </h2>
 
               {/* 逻辑链1 */}
-              <div style={{ marginBottom: '24px', padding: '20px', background: 'white', borderRadius: '8px', border: '1px solid #86efac' }}>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '16px', color: '#059669', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <TrendingUp size={20} /> 逻辑链1：AI Capex已进入"验证窗口"
+              <div style={{ marginBottom: '20px', padding: '16px', background: 'rgba(255,255,255,0.3)', borderRadius: 'var(--radius-md)', border: '1px solid var(--system-gray5)' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '12px', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <TrendingUp size={20} style={{ color: 'var(--system-blue)' }} /> 逻辑链1：AI Capex 已进入"验证窗口"
                 </h3>
-                <div style={{ padding: '16px', background: '#f0fdf4', borderRadius: '8px', fontFamily: 'monospace', fontSize: '0.85rem', lineHeight: '1.8', color: '#065f46' }}>
-                  <div>2023-2024: Capex暴增 + 市场给溢价</div>
-                  <div style={{ marginLeft: '20px' }}>↓</div>
-                  <div>2025全年: Capex继续暴增（+64%达$380B）</div>
-                  <div style={{ marginLeft: '20px' }}>↓</div>
-                  <div>2026 Q1-Q2: <StatusBadge type="orange" text="验证期到来" /></div>
-                  <div style={{ marginLeft: '20px' }}>↓</div>
-                  <div>关键指标：AI收入增速 vs Capex增速比值</div>
-                  <div style={{ marginLeft: '20px' }}>↓</div>
-                  <div>当前状态：</div>
-                  <div style={{ marginLeft: '40px' }}>• AWS: 19% vs 83% = 0.23 ❌</div>
-                  <div style={{ marginLeft: '40px' }}>• 全行业：&lt;30% vs 60%+ = &lt;0.5 ❌</div>
-                  <div style={{ marginLeft: '20px' }}>↓</div>
-                  <div>= 市场会在2026上半年"投票"</div>
+                <div style={{ padding: '20px', background: 'var(--system-gray6)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--system-gray5)', fontFamily: 'var(--font-family)', fontSize: '0.9rem', lineHeight: '2', color: 'var(--text-primary)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>2025 全年 <span style={{ color: 'var(--text-secondary)' }}>→</span> Capex 暴增 (+64% 达 $380B)</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>2026 Q1-Q2 <span style={{ color: 'var(--text-secondary)' }}>→</span> <StatusBadge type="orange" text="全面验证期" /></div>
+                  <div style={{ marginTop: '8px', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>关键指标：AWS ROI 0.23 (19% 收入 vs 83% 投入) ❌</div>
+                  <div style={{ fontWeight: '700', color: 'var(--system-red)', marginTop: '8px' }}>= 市场将在 2026 上半年进行估值重构</div>
                 </div>
-                <div style={{ marginTop: '16px', padding: '16px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px' }}>
-                  <p style={{ fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.6', marginBottom: '12px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <AlertTriangle size={18} /> 触发条件（满足2条立即防守）：
+                <div style={{
+                  marginTop: '16px',
+                  padding: '16px 20px',
+                  background: 'var(--system-red-light)',
+                  border: '1px solid rgba(255, 59, 48, 0.2)',
+                  borderRadius: 'var(--radius-md)'
+                }}>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--system-red)', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <AlertCircle size={18} /> 触发条件（满足 2 条立即防守）
                   </p>
-                  <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.8' }}>
-                    <li>Q1财报：任意2家Mag7的FCF同比下降</li>
-                    <li>NVDA Q1/Q2指引低于预期（&lt;$430B）</li>
-                    <li>利好财报后股价不涨累计3次</li>
-                    <li>黄金/纳指比突破0.030（当前约0.025）</li>
+                  <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.8' }}>
+                    <li>Mag7 任意 2 家 FCF 同比下降</li>
+                    <li>NVDA 指引低于预期 (&lt;$430B)</li>
+                    <li>利好财报后股价不涨累计 3 次</li>
                   </ul>
                 </div>
               </div>
 
               {/* 逻辑链2 */}
-              <div style={{ marginBottom: '24px', padding: '20px', background: 'white', borderRadius: '8px', border: '1px solid #86efac' }}>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '16px', color: '#059669' }}>
-                  🧵 逻辑链2：Fed主席换届 = 最大政治黑天鹅
+              <div style={{ marginBottom: '20px', padding: '16px', background: 'rgba(255,255,255,0.3)', borderRadius: 'var(--radius-md)', border: '1px solid var(--system-gray5)' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '12px', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Info size={20} style={{ color: 'var(--system-indigo)' }} /> 逻辑链2：Fed 主席换届 = 政治风险窗口
                 </h3>
-                <div style={{ padding: '16px', background: '#f0fdf4', borderRadius: '8px', fontFamily: 'monospace', fontSize: '0.85rem', lineHeight: '1.8', color: '#065f46' }}>
-                  <div>2026年5月Powell离任</div>
-                  <div style={{ marginLeft: '20px' }}>↓</div>
-                  <div>特朗普任命新主席</div>
-                  <div style={{ marginLeft: '20px' }}>↓</div>
-                  <div>三种情景：</div>
-                  <div style={{ marginLeft: '40px' }}>A. 鸽派主席（如Miran） → 降息加速 → 通胀反弹风险</div>
-                  <div style={{ marginLeft: '40px' }}>B. 鹰派主席 → 维持高利率 → 股市估值压缩</div>
-                  <div style={{ marginLeft: '40px' }}>C. 政治化主席 → 市场信心崩塌 → VIX飙升</div>
-                  <div style={{ marginLeft: '20px' }}>↓</div>
-                  <div>= 4-6月是年内最大不确定性窗口</div>
+                <div style={{ padding: '20px', background: 'var(--system-gray6)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--system-gray5)', fontFamily: 'var(--font-family)', fontSize: '0.9rem', lineHeight: '2', color: 'var(--text-primary)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>2026年5月 <span style={{ color: 'var(--text-secondary)' }}>→</span> Powell 离任</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>场景 A: 鸽派加速 <span style={{ color: 'var(--text-secondary)' }}>→</span> 通胀反弹风险</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>场景 B: 政策政治化 <span style={{ color: 'var(--text-secondary)' }}>→</span> 市场信心崩塌 <strong>(VIX 飙升)</strong></div>
+                  <div style={{ fontWeight: '700', color: 'var(--system-blue)', marginTop: '8px' }}>= 4-6 月是年内最大确定性缺失窗口</div>
                 </div>
-                <div style={{ marginTop: '16px', padding: '16px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px' }}>
-                  <p style={{ fontSize: '0.9rem', color: '#92400e', lineHeight: '1.6', marginBottom: '12px', fontWeight: '700' }}>
-                    💡 对冲策略：
+                <div style={{
+                  marginTop: '16px',
+                  padding: '16px 20px',
+                  background: 'var(--system-blue-light)',
+                  border: '1px solid rgba(0, 122, 255, 0.2)',
+                  borderRadius: 'var(--radius-md)'
+                }}>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--system-blue)', fontWeight: '700', marginBottom: '8px' }}>
+                    💡 对冲策略
                   </p>
-                  <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9rem', color: '#92400e', lineHeight: '1.8' }}>
-                    <li>5月前现金+短债维持25%以上</li>
-                    <li>黄金底仓15-20%（避险+对冲通胀）</li>
-                    <li>不加杠杆、不追高</li>
+                  <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.8' }}>
+                    <li>维持 25% 现金+短债储备</li>
+                    <li>黄金仓位 15-20%</li>
+                    <li>严禁加杠杆追高</li>
                   </ul>
                 </div>
               </div>
 
               {/* 逻辑链3 */}
-              <div style={{ padding: '20px', background: 'white', borderRadius: '8px', border: '1px solid #86efac' }}>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '16px', color: '#059669', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <TrendingDown size={20} /> 逻辑链3：K型复苏的尾部风险
+              <div style={{ padding: '16px', background: 'rgba(255,255,255,0.3)', borderRadius: 'var(--radius-md)', border: '1px solid var(--system-gray5)' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '12px', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <TrendingDown size={20} style={{ color: 'var(--system-red)' }} /> 逻辑链3：K 型复苏的尾部风险
                 </h3>
-                <div style={{ padding: '16px', background: '#f0fdf4', borderRadius: '8px', fontFamily: 'monospace', fontSize: '0.85rem', lineHeight: '1.8', color: '#065f46' }}>
-                  <div>当前：股市高位 + 消费强劲</div>
-                  <div style={{ marginLeft: '20px' }}>↓</div>
-                  <div>但结构性脆弱：</div>
-                  <div style={{ marginLeft: '40px' }}>• 前20%家庭：财富在股市</div>
-                  <div style={{ marginLeft: '40px' }}>• 中产：房产冻结+储蓄耗尽</div>
-                  <div style={{ marginLeft: '40px' }}>• 青年：就业结构性困难</div>
-                  <div style={{ marginLeft: '20px' }}>↓</div>
-                  <div>如果股市回调15-20%：</div>
-                  <div style={{ marginLeft: '20px' }}>↓</div>
-                  <div>高端消费断崖（负财富效应）</div>
-                  <div style={{ marginLeft: '20px' }}>↓</div>
-                  <div>企业盈利下调</div>
-                  <div style={{ marginLeft: '20px' }}>↓</div>
-                  <div>失业率突破4.5%</div>
-                  <div style={{ marginLeft: '20px' }}>↓</div>
-                  <div>第二波下跌</div>
-                  <div style={{ marginLeft: '20px' }}>↓</div>
-                  <div>= 正反馈崩塌</div>
+                <div style={{ padding: '20px', background: 'var(--system-gray6)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--system-gray5)', fontFamily: 'var(--font-family)', fontSize: '0.9rem', lineHeight: '2', color: 'var(--text-primary)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>当前状态 <span style={{ color: 'var(--text-secondary)' }}>→</span> 股市高位 + 结构性脆弱</div>
+                  <div style={{ marginTop: '8px', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>脆弱点：中产储蓄耗尽 / 青年就业结构性缺口</div>
+                  <div style={{ fontWeight: '700', color: 'var(--system-orange)', marginTop: '8px' }}>= 股市回调 15% 即可触发负财富效应闭环</div>
                 </div>
-                <div style={{ marginTop: '16px', padding: '16px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px' }}>
-                  <p style={{ fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.6', marginBottom: '12px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <BarChart2 size={18} /> 监控红线：
+                <div style={{
+                  marginTop: '16px',
+                  padding: '16px 20px',
+                  background: 'var(--system-gray6)',
+                  border: '1px solid var(--system-gray5)',
+                  borderRadius: 'var(--radius-md)'
+                }}>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-primary)', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <BarChart2 size={18} /> 监控红线
                   </p>
-                  <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.8' }}>
+                  <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.8' }}>
                     <li>失业率 &gt; 4.5%</li>
-                    <li>高端消费股（奢侈品、旅游）单季度收入下降</li>
-                    <li>信用卡违约率突破5%</li>
+                    <li>信用卡违约率突破 5%</li>
                   </ul>
                 </div>
               </div>
             </div>
 
             {/* 第三层：四个阶段实战策略 */}
-            <div style={{ border: '2px solid #f59e0b', borderRadius: '12px', padding: '24px', background: '#fffbeb' }}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#92400e', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Calendar size={32} />
-                第三层：2026年四个阶段实战策略
+            <div className="card" style={{
+              padding: '20px',
+              background: 'var(--bg-card)',
+              border: '1px solid var(--glass-border)',
+              borderRadius: 'var(--radius-lg)',
+              marginTop: '20px'
+            }}>
+              <h2 style={{
+                fontSize: '1.35rem',
+                fontWeight: '800',
+                marginBottom: '20px',
+                color: 'var(--text-primary)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                borderBottom: '1px solid var(--system-gray5)',
+                paddingBottom: '12px'
+              }}>
+                <span style={{ color: 'var(--system-orange)' }}><Calendar size={24} /></span>
+                第三层：2026 阶梯作战策略
               </h2>
 
               {/* Q1 */}
-              <div style={{ marginBottom: '24px', padding: '20px', background: 'white', borderRadius: '8px', border: '2px solid #f97316' }}>
-                <h3 style={{ fontSize: '1.3rem', fontWeight: '700', marginBottom: '16px', color: '#ea580c', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <div style={{ width: '12px', height: '12px', background: '#f97316', borderRadius: '3px' }} />
+              <div style={{ marginBottom: '32px', padding: '24px', background: 'rgba(255,255,255,0.3)', borderRadius: 'var(--radius-md)', border: '1px solid var(--system-gray5)' }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '20px', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{ width: '12px', height: '12px', background: 'var(--system-orange)', borderRadius: '3px' }} />
                   Q1（1-3月）：财报验身期
-                  <StatusBadge type="orange" text="当前阶段" />
+                  <StatusBadge type="orange" text="进行中" />
                 </h3>
 
-                <div style={{ marginBottom: '16px' }}>
-                  <h4 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '12px', color: '#ea580c' }}>关键时间节点</h4>
-                  <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', background: '#fff7ed', borderRadius: '8px', overflow: 'hidden' }}>
+                <div style={{ marginBottom: '24px' }}>
+                  <h4 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '16px', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Clock size={18} style={{ color: 'var(--system-orange)' }} /> 关键时间节点
+                  </h4>
+                  <div style={{ overflowX: 'auto', borderRadius: 'var(--radius-sm)', border: '1px solid var(--system-gray5)' }}>
+                    <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
                       <thead>
-                        <tr style={{ background: '#f97316', color: 'white' }}>
-                          <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', fontSize: '0.85rem' }}>日期</th>
-                          <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', fontSize: '0.85rem' }}>事件</th>
-                          <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', fontSize: '0.85rem' }}>监控重点</th>
-                          <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', fontSize: '0.85rem' }}>行动</th>
+                        <tr style={{ background: 'var(--system-gray6)' }}>
+                          <th style={{ padding: '14px 16px', textAlign: 'left', fontWeight: '700', fontSize: '0.85rem', color: 'var(--text-secondary)', borderBottom: '1px solid var(--system-gray5)' }}>日期</th>
+                          <th style={{ padding: '14px 16px', textAlign: 'left', fontWeight: '700', fontSize: '0.85rem', color: 'var(--text-secondary)', borderBottom: '1px solid var(--system-gray5)' }}>事件</th>
+                          <th style={{ padding: '14px 16px', textAlign: 'left', fontWeight: '700', fontSize: '0.85rem', color: 'var(--text-secondary)', borderBottom: '1px solid var(--system-gray5)' }}>监控重点</th>
+                          <th style={{ padding: '14px 16px', textAlign: 'left', fontWeight: '700', fontSize: '0.85rem', color: 'var(--text-secondary)', borderBottom: '1px solid var(--system-gray5)' }}>行动</th>
                         </tr>
                       </thead>
                       <tbody>
                         <tr>
-                          <td style={{ padding: '10px', border: '1px solid #e5e7eb', fontWeight: '600', fontSize: '0.85rem' }}>1月27-28日</td>
-                          <td style={{ padding: '10px', border: '1px solid #e5e7eb', fontSize: '0.85rem' }}>Fed会议</td>
-                          <td style={{ padding: '10px', border: '1px solid #e5e7eb', fontSize: '0.85rem' }}>降息概率16%，大概率按兵不动</td>
-                          <td style={{ padding: '10px', border: '1px solid #e5e7eb', fontSize: '0.85rem' }}>关注会议纪要的分歧程度</td>
+                          <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', fontWeight: '700', color: 'var(--text-primary)', fontSize: '0.85rem' }}>1月27-28日</td>
+                          <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-primary)', fontSize: '0.85rem' }}>Fed会议</td>
+                          <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>降息概率16%，按兵不动</td>
+                          <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-primary)', fontSize: '0.85rem' }}>关注重大分歧</td>
                         </tr>
-                        <tr style={{ background: 'white' }}>
-                          <td style={{ padding: '10px', border: '1px solid #e5e7eb', fontWeight: '600', fontSize: '0.85rem' }}>2月末</td>
-                          <td style={{ padding: '10px', border: '1px solid #e5e7eb', fontSize: '0.85rem' }}>Mag7 Q4财报季</td>
-                          <td style={{ padding: '10px', border: '1px solid #e5e7eb', fontSize: '0.85rem' }}>FCF/净利润比、Capex指引、AI收入</td>
-                          <td style={{ padding: '10px', border: '1px solid #e5e7eb', fontSize: '0.85rem' }}>🔴 <strong>最关键验证窗口</strong></td>
+                        <tr style={{ background: 'rgba(0,0,0,0.02)' }}>
+                          <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', fontWeight: '700', color: 'var(--text-primary)', fontSize: '0.85rem' }}>2月末</td>
+                          <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-primary)', fontSize: '0.85rem' }}>Mag7 Q4财报</td>
+                          <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>FCF、Capex 指引</td>
+                          <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--system-gray5)' }}><StatusBadge type="red" text="核心验证" /></td>
                         </tr>
-                        <tr>
-                          <td style={{ padding: '10px', border: '1px solid #e5e7eb', fontWeight: '600', fontSize: '0.85rem' }}>3月18日</td>
-                          <td style={{ padding: '10px', border: '1px solid #e5e7eb', fontSize: '0.85rem' }}>FOMC会议+点阵图</td>
-                          <td style={{ padding: '10px', border: '1px solid #e5e7eb', fontSize: '0.85rem' }}>2026降息次数预期</td>
-                          <td style={{ padding: '10px', border: '1px solid #e5e7eb', fontSize: '0.85rem' }}>如果&lt;2次降息，股债双杀</td>
+                        <tr style={{ borderBottom: 'none' }}>
+                          <td style={{ padding: '10px 12px', fontWeight: '700', color: 'var(--text-primary)', fontSize: '0.85rem' }}>3月18日</td>
+                          <td style={{ padding: '10px 12px', color: 'var(--text-primary)', fontSize: '0.85rem' }}>FOMC会议</td>
+                          <td style={{ padding: '10px 12px', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>2026 降息点阵图</td>
+                          <td style={{ padding: '10px 12px', color: 'var(--text-primary)', fontSize: '0.85rem' }}>关注利率指引</td>
                         </tr>
                       </tbody>
                     </table>
                   </div>
                 </div>
 
-                <div style={{ marginBottom: '16px', padding: '16px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px' }}>
-                  <h4 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '12px', color: '#991b1b', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <AlertTriangle size={20} /> Q1必须完成的动作
+                <div style={{ marginBottom: '16px', padding: '16px', background: 'var(--system-red-light)', border: '1px solid rgba(255, 59, 48, 0.1)', borderRadius: 'var(--radius-md)' }}>
+                  <h4 style={{ fontSize: '0.9rem', fontWeight: '800', marginBottom: '12px', color: 'var(--system-red)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <AlertCircle size={18} /> Q1 核心行动
                   </h4>
-                  <div style={{ fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.8' }}>
-                    <p style={{ marginBottom: '8px', fontWeight: '700' }}>立即执行（本周内）：</p>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+                    <p style={{ marginBottom: '8px', fontWeight: '700', color: 'var(--text-primary)' }}>立即执行清单：</p>
                     <ul style={{ margin: '0 0 12px 20px', padding: 0 }}>
-                      <li>✅ 建立黄金底仓 15%（10%黄金ETF + 5%黄金矿业股）</li>
-                      <li>✅ 减持会计"水分"大的公司至目标仓位（Google: 20% → 10%，Meta: 15% → 8%）</li>
-                      <li>✅ 清空雷区（区域银行、纯算力硬件代工、传统地产REITs）</li>
-                      <li>✅ 保留现金+短债 25%（等待3月或5月的波动抄底）</li>
+                      <li style={{ marginBottom: '4px' }}><StatusBadge type="green" text="已就绪" /> 建立黄金底仓 15% (对冲波动)</li>
+                      <li style={{ marginBottom: '4px' }}><StatusBadge type="orange" text="执行中" /> 减持 Mag7 仓位 (GOOG 10%, META 8%)</li>
+                      <li style={{ marginBottom: '4px' }}><StatusBadge type="blue" text="规划中" /> 25% 现金等待抄底</li>
                     </ul>
-                    <p style={{ marginBottom: '8px', fontWeight: '700' }}>2月财报季核心检查清单：</p>
-                    <div style={{ overflowX: 'auto', marginTop: '8px' }}>
-                      <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white', borderRadius: '8px', fontSize: '0.85rem' }}>
-                        <thead>
-                          <tr style={{ background: '#dc2626', color: 'white' }}>
-                            <th style={{ padding: '8px', textAlign: 'left', fontWeight: '700' }}>公司</th>
-                            <th style={{ padding: '8px', textAlign: 'left', fontWeight: '700' }}>检查项</th>
-                            <th style={{ padding: '8px', textAlign: 'left', fontWeight: '700' }}>红线</th>
-                            <th style={{ padding: '8px', textAlign: 'left', fontWeight: '700' }}>触发动作</th>
+
+                    <p style={{ marginBottom: '8px', fontWeight: '700', color: 'var(--text-primary)' }}>财报季核心检查：</p>
+                    <div style={{ overflowX: 'auto', borderRadius: 'var(--radius-sm)', border: '1px solid var(--system-gray5)', background: 'white' }}>
+                      <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
+                        <thead style={{ background: 'var(--system-gray6)' }}>
+                          <tr>
+                            <th style={{ padding: '8px 10px', textAlign: 'left', fontSize: '0.75rem', color: 'var(--text-secondary)', borderBottom: '1px solid var(--system-gray5)' }}>检查项</th>
+                            <th style={{ padding: '8px 10px', textAlign: 'left', fontSize: '0.75rem', color: 'var(--text-secondary)', borderBottom: '1px solid var(--system-gray5)' }}>风险阈值</th>
+                            <th style={{ padding: '8px 10px', textAlign: 'left', fontSize: '0.75rem', color: 'var(--text-secondary)', borderBottom: '1px solid var(--system-gray5)' }}>行动</th>
                           </tr>
                         </thead>
                         <tbody>
                           <tr>
-                            <td style={{ padding: '8px', border: '1px solid #e5e7eb', fontWeight: '600' }}>所有Mag7</td>
-                            <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>FCF/净利润</td>
-                            <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>&lt;0.6连续2季</td>
-                            <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>立即减仓50%</td>
-                          </tr>
-                          <tr style={{ background: '#f9fafb' }}>
-                            <td style={{ padding: '8px', border: '1px solid #e5e7eb', fontWeight: '600' }}>NVDA</td>
-                            <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>环比增速</td>
-                            <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>&lt;10%</td>
-                            <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>减持上游算力链</td>
+                            <td style={{ padding: '8px 10px', borderBottom: '1px solid var(--system-gray5)', fontSize: '0.8rem' }}>Mag7 FCF/净利</td>
+                            <td style={{ padding: '8px 10px', borderBottom: '1px solid var(--system-gray5)', fontSize: '0.8rem' }}>&lt;0.6</td>
+                            <td style={{ padding: '8px 10px', borderBottom: '1px solid var(--system-gray5)' }}><StatusBadge type="red" text="减 50%" /></td>
                           </tr>
                           <tr>
-                            <td style={{ padding: '8px', border: '1px solid #e5e7eb', fontWeight: '600' }}>AWS</td>
-                            <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>收入增速/Capex增速</td>
-                            <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>&lt;0.3</td>
-                            <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>清仓纯云基础设施股</td>
-                          </tr>
-                          <tr style={{ background: '#f9fafb' }}>
-                            <td style={{ padding: '8px', border: '1px solid #e5e7eb', fontWeight: '600' }}>所有</td>
-                            <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>财报后48小时股价</td>
-                            <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>利好不涨或下跌</td>
-                            <td style={{ padding: '8px', border: '1px solid #e5e7eb' }}>计入"利好不涨"次数</td>
+                            <td style={{ padding: '8px 10px', fontSize: '0.8rem' }}>利好后股价 48h</td>
+                            <td style={{ padding: '8px 10px', fontSize: '0.8rem' }}>不涨/跌</td>
+                            <td style={{ padding: '8px 10px' }}><StatusBadge type="orange" text="预警" /></td>
                           </tr>
                         </tbody>
                       </table>
@@ -1934,220 +2002,153 @@ const InvestmentPlan2026 = () => {
                   </div>
                 </div>
 
-                <div style={{ padding: '16px', background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '8px' }}>
-                  <h4 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '12px', color: '#059669' }}>当前推荐配置（Q1）：平衡型偏防守</h4>
-                  <div style={{ fontFamily: 'monospace', fontSize: '0.85rem', lineHeight: '2', color: '#065f46' }}>
-                    <div>🟢 AI核心（20%）</div>
-                    <div style={{ marginLeft: '20px' }}>├─ Apple 8%（现金流最强）</div>
-                    <div style={{ marginLeft: '20px' }}>├─ MSFT 7%（云+Office）</div>
-                    <div style={{ marginLeft: '20px' }}>└─ NVDA 5%（底仓，设止损）</div>
-                    <div style={{ marginTop: '8px' }}>🟡 AI应用（15%）</div>
-                    <div style={{ marginLeft: '20px' }}>├─ ServiceNow 5%（企业SaaS）</div>
-                    <div style={{ marginLeft: '20px' }}>├─ Adobe 5%（创意+AI）</div>
-                    <div style={{ marginLeft: '20px' }}>└─ 垂直AI应用 5%（医疗/法律）</div>
-                    <div style={{ marginTop: '8px' }}>🟠 防御红利（20%）</div>
-                    <div style={{ marginLeft: '20px' }}>├─ 医疗设备 8%</div>
-                    <div style={{ marginLeft: '20px' }}>├─ 必需消费 7%</div>
-                    <div style={{ marginLeft: '20px' }}>└─ 公用事业 5%</div>
-                    <div style={{ marginTop: '8px' }}>🟡 黄金（15%）</div>
-                    <div style={{ marginLeft: '20px' }}>├─ 黄金ETF 10%</div>
-                    <div style={{ marginLeft: '20px' }}>└─ 矿业股 5%</div>
-                    <div style={{ marginTop: '8px' }}>🔵 债券（20%）</div>
-                    <div style={{ marginLeft: '20px' }}>├─ 7-10年美债 12%</div>
-                    <div style={{ marginLeft: '20px' }}>└─ 短债/货基 8%</div>
-                    <div style={{ marginTop: '8px' }}>💵 现金（10%）</div>
-                    <div style={{ marginLeft: '20px' }}>└─ 机动资金，等待抄底</div>
+                <div style={{ padding: '16px', background: 'var(--system-gray6)', borderRadius: 'var(--radius-md)', border: '1px solid var(--system-gray5)' }}>
+                  <h4 style={{ fontSize: '0.9rem', fontWeight: '800', marginBottom: '12px', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <BarChart2 size={16} style={{ color: 'var(--system-green)' }} /> 推荐配置（Q1）
+                  </h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px' }}>
+                    <div style={{ padding: '12px', background: 'white', borderRadius: 'var(--radius-sm)', border: '1px solid var(--system-gray5)' }}>
+                      <div style={{ fontWeight: '700', marginBottom: '4px', color: 'var(--system-blue)', fontSize: '0.85rem' }}>核心资产 (35%)</div>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+                        AAPL 8% / MSFT 7% / NVDA 5%<br />
+                        医疗 8% / 消费 7%
+                      </div>
+                    </div>
+                    <div style={{ padding: '12px', background: 'white', borderRadius: 'var(--radius-sm)', border: '1px solid var(--system-gray5)' }}>
+                      <div style={{ fontWeight: '700', marginBottom: '4px', color: 'var(--system-orange)', fontSize: '0.85rem' }}>防御对冲 (35%)</div>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+                        黄金 15% / 美债 12% / 短债 8%
+                      </div>
+                    </div>
+                    <div style={{ padding: '12px', background: 'white', borderRadius: 'var(--radius-sm)', border: '1px solid var(--system-gray5)' }}>
+                      <div style={{ fontWeight: '700', marginBottom: '4px', color: 'var(--system-indigo)', fontSize: '0.85rem' }}>其他现金 (30%)</div>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+                        AI 应用 15% / 灵活现金 15%
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Q2-Q4 简化展示 */}
-              <div style={{ marginBottom: '24px', padding: '20px', background: 'white', borderRadius: '8px', border: '2px solid #dc2626' }}>
-                <h3 style={{ fontSize: '1.3rem', fontWeight: '700', marginBottom: '16px', color: '#991b1b', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '1.5rem' }}>🟥</span>
-                  Q2（4-6月）：政治动荡期 🔴 最危险
+              <div style={{ marginBottom: '16px', padding: '16px', background: 'rgba(255, 59, 48, 0.05)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(255, 59, 48, 0.1)' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '12px', color: 'var(--system-red)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <AlertCircle size={18} /> Q2（4-6月）：政治动荡期
+                  <StatusBadge type="red" text="高风险" />
                 </h3>
-                <div style={{ padding: '16px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px' }}>
-                  <p style={{ fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.6', marginBottom: '12px', fontWeight: '700' }}>
-                    三大风险集中爆发：
-                  </p>
-                  <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.8' }}>
-                    <li><strong>风险1：</strong>4月末税务季流动性抽水 - 美国纳税截止日导致现金回流国库，逆回购（RRP）池已接近枯竭</li>
-                    <li><strong>风险2：</strong>5月Fed主席换届 - Powell离任，新主席上任，市场对新主席政治化立场存疑，VIX可能飙升至30+</li>
-                    <li><strong>风险3：</strong>Q1财报验证结果传导 - 如果2月财报季不佳，4-5月会出现延迟抛售</li>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+                  <ul style={{ margin: '0 0 10px 18px', padding: 0 }}>
+                    <li>税务季抽水导致流动性回收</li>
+                    <li>Fed 换届政治化立场存疑</li>
                   </ul>
-                  <p style={{ fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.6', marginTop: '16px', fontWeight: '700' }}>
-                    🛡️ Q2防御策略：满足以下任意2条，立即切换防守型
-                  </p>
-                  <ul style={{ margin: '8px 0 0 20px', padding: 0, fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.8' }}>
-                    <li>Fed新主席人选公布后，市场单日跌幅&gt;3%</li>
-                    <li>VIX连续5日&gt;25</li>
-                    <li>10年期美债收益率&gt;4.5%（避险需求激增）</li>
-                    <li>黄金突破$2,400/盎司</li>
-                    <li>"利好不涨"累计次数≥3</li>
-                  </ul>
+                  <div style={{ padding: '8px 12px', background: 'white', borderRadius: 'var(--radius-sm)', border: '1px solid var(--system-gray5)', fontSize: '0.8rem' }}>
+                    <span style={{ fontWeight: '700', color: 'var(--system-red)' }}>预警线：</span>VIX &gt; 25 / 10Y 美债 &gt; 4.5%
+                  </div>
                 </div>
               </div>
 
-              <div style={{ marginBottom: '24px', padding: '20px', background: 'white', borderRadius: '8px', border: '2px solid #fbbf24' }}>
-                <h3 style={{ fontSize: '1.3rem', fontWeight: '700', marginBottom: '16px', color: '#92400e', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '1.5rem' }}>🟨</span>
-                  Q3（7-9月）：衰退还是软着陆？
+              <div style={{ marginBottom: '16px', padding: '16px', background: 'rgba(255, 149, 0, 0.05)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(255, 149, 0, 0.1)' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '12px', color: 'var(--system-orange)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Activity size={18} /> Q3（7-9月）：经济成色验证
                 </h3>
-                <div style={{ padding: '16px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px' }}>
-                  <p style={{ fontSize: '0.9rem', color: '#92400e', lineHeight: '1.6', marginBottom: '12px' }}>
-                    <strong>关键判断窗口：</strong>7月Q2财报季 - 这是新Fed主席上任后的第一次财报季，市场会验证：AI投资到底换回了什么？
-                  </p>
-                  <p style={{ fontSize: '0.9rem', color: '#92400e', lineHeight: '1.6', marginBottom: '12px', fontWeight: '700' }}>
-                    监控指标（满足3条=经济衰退）：
-                  </p>
-                  <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9rem', color: '#92400e', lineHeight: '1.8' }}>
-                    <li>标普500剔除科技七巨头后EPS负增长</li>
-                    <li>失业率突破4.5%</li>
-                    <li>消费信贷违约率&gt;5%</li>
-                    <li>ISM制造业PMI&lt;45</li>
-                    <li>10年期/2年期美债收益率倒挂加深</li>
-                  </ul>
-                </div>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.5', margin: 0 }}>
+                  <strong>监控：</strong>非 Mag7 EPS 表现 / 失业率 4.5% / 消费违约。
+                </p>
               </div>
 
-              <div style={{ padding: '20px', background: 'white', borderRadius: '8px', border: '2px solid #10b981' }}>
-                <h3 style={{ fontSize: '1.3rem', fontWeight: '700', marginBottom: '16px', color: '#059669', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '1.5rem' }}>🟩</span>
-                  Q4（10-12月）：分水岭确认期
+              <div style={{ marginBottom: '20px', padding: '16px', background: 'rgba(52, 199, 89, 0.05)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(52, 199, 89, 0.1)' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '12px', color: 'var(--system-green)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Target size={18} /> Q4（10-12月）：分水岭确认
                 </h3>
-                <div style={{ padding: '16px', background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '8px' }}>
-                  <p style={{ fontSize: '0.9rem', color: '#065f46', lineHeight: '1.6', marginBottom: '12px', fontWeight: '700' }}>
-                    核心判断：AI是"电力"还是"郁金香"
-                  </p>
-                  <p style={{ fontSize: '0.9rem', color: '#065f46', lineHeight: '1.6', marginBottom: '12px' }}>
-                    <strong>重新进攻信号（满足4条以上）：</strong>
-                  </p>
-                  <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9rem', color: '#065f46', lineHeight: '1.8' }}>
-                    <li>Mag7连续2季FCF转正且增长</li>
-                    <li>AI应用收入占比超Capex的30%</li>
-                    <li>NVDA股价突破并站稳120日均线</li>
-                    <li>失业率回落至4.2%以下</li>
-                    <li>Fed重启降息且通胀&lt;2.5%</li>
-                    <li>黄金/纳指比开始回落</li>
-                    <li>新Fed主席获市场认可</li>
-                  </ul>
-                  <p style={{ fontSize: '0.9rem', color: '#065f46', lineHeight: '1.6', marginTop: '16px', fontWeight: '700' }}>
-                    📊 12月最关键：2027年Capex指引
-                  </p>
-                  <p style={{ fontSize: '0.9rem', color: '#065f46', lineHeight: '1.6', marginTop: '8px' }}>
-                    如果Mag7宣布2027年Capex维持高位 → AI进入应用爆发期<br />
-                    如果Capex集体下调&gt;20% → 进入漫长调整期
-                  </p>
-                </div>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.5', margin: 0 }}>
+                  <strong>判断：</strong>AI 是"电力"还是"郁金香"。看 2027 Capex 指引。
+                </p>
               </div>
             </div>
 
-            {/* 第四层：实战工具与纪律 */}
-            <div style={{ border: '2px solid #8b5cf6', borderRadius: '12px', padding: '24px', background: '#faf5ff' }}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#6d28d9', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '2rem' }}>📱</span>
-                第四层：实战工具与纪律
+            {/* 第四层：实战工具与铁律 */}
+            <div className="card" style={{
+              padding: '20px',
+              background: 'var(--bg-card)',
+              border: '1px solid var(--glass-border)',
+              borderRadius: 'var(--radius-lg)',
+              marginTop: '20px'
+            }}>
+              <h2 style={{
+                fontSize: '1.35rem',
+                fontWeight: '800',
+                marginBottom: '20px',
+                color: 'var(--text-primary)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                borderBottom: '1px solid var(--system-gray5)',
+                paddingBottom: '12px'
+              }}>
+                <span style={{ color: 'var(--system-purple)' }}><Shield size={24} /></span>
+                第四层：实战工具与铁律
               </h2>
-              <div style={{ padding: '16px', background: 'white', borderRadius: '8px', marginBottom: '16px' }}>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '12px', color: '#6d28d9' }}>每周监控清单（15分钟）</h3>
-                <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', background: '#faf5ff', borderRadius: '8px', fontSize: '0.85rem' }}>
+              <div style={{ marginBottom: '24px' }}>
+                <h3 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '16px', color: 'var(--text-primary)' }}>每周监控清单</h3>
+                <div style={{ overflowX: 'auto', borderRadius: 'var(--radius-sm)', border: '1px solid var(--system-gray5)' }}>
+                  <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
                     <thead>
-                      <tr style={{ background: '#8b5cf6', color: 'white' }}>
-                        <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700' }}>时间</th>
-                        <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700' }}>监控项</th>
-                        <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700' }}>数据源</th>
-                        <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700' }}>预警阈值</th>
+                      <tr style={{ background: 'var(--system-gray6)' }}>
+                        <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: '700', fontSize: '0.85rem', color: 'var(--text-secondary)', borderBottom: '1px solid var(--system-gray5)' }}>监控项</th>
+                        <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: '700', fontSize: '0.85rem', color: 'var(--text-secondary)', borderBottom: '1px solid var(--system-gray5)' }}>数据源</th>
+                        <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: '700', fontSize: '0.85rem', color: 'var(--text-secondary)', borderBottom: '1px solid var(--system-gray5)' }}>预警阈值</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr>
-                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>周一开盘</td>
-                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>NVDA周涨跌</td>
-                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>Yahoo Finance</td>
-                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>单周跌&gt;7%警惕</td>
-                      </tr>
-                      <tr style={{ background: 'white' }}>
-                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>周三</td>
-                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>黄金/纳指比</td>
-                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>TradingView</td>
-                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>突破0.030趋势线</td>
+                        <td style={{ padding: '12px 16px', borderBottom: '1px solid var(--system-gray5)', fontSize: '0.85rem' }}>黄金/纳指比</td>
+                        <td style={{ padding: '12px 16px', borderBottom: '1px solid var(--system-gray5)', fontSize: '0.85rem' }}>TradingView</td>
+                        <td style={{ padding: '12px 16px', borderBottom: '1px solid var(--system-gray5)' }}><StatusBadge type="orange" text="突破 0.030" /></td>
                       </tr>
                       <tr>
-                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>周五收盘</td>
-                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>VIX</td>
-                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>CBOE</td>
-                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>&gt;25连续3日</td>
-                      </tr>
-                      <tr style={{ background: 'white' }}>
-                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>财报日后48h</td>
-                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>利好不涨次数</td>
-                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>自制表格</td>
-                        <td style={{ padding: '10px', border: '1px solid #e5e7eb' }}>累计≥3次防守</td>
+                        <td style={{ padding: '12px 16px', fontSize: '0.85rem' }}>VIX 指数</td>
+                        <td style={{ padding: '12px 16px', fontSize: '0.85rem' }}>CBOE</td>
+                        <td style={{ padding: '12px 16px' }}><StatusBadge type="red" text="> 25 持续 3 日" /></td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
               </div>
-              <div style={{ padding: '16px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px' }}>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '12px', color: '#991b1b', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <ShieldCheck size={20} /> 铁律（永不违反）
+              <div style={{ padding: '16px', background: 'var(--system-red-light)', border: '1px solid rgba(255, 59, 48, 0.1)', borderRadius: 'var(--radius-md)' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '12px', color: 'var(--system-red)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Shield size={20} /> 铁律（永不违反）
                 </h3>
-                <div style={{ fontFamily: 'monospace', fontSize: '0.85rem', lineHeight: '2', color: '#991b1b' }}>
-                  <div>1. 财报前48小时不交易</div>
-                  <div>2. 单日亏损&gt;5%停止操作</div>
-                  <div>3. 每月最多调仓1次</div>
-                  <div>4. 现金底仓≥10%</div>
-                  <div>5. 黄金底仓≥10%</div>
-                  <div>6. 5月前杠杆率=0</div>
-                  <div>7. 利好不涨≥3次立即防守</div>
+                <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: '2' }}>
+                  <div>1. 财报前 48 小时不交易</div>
+                  <div>2. 单日亏损 &gt; 5% 停止操作</div>
+                  <div>3. 利好不涨 ≥ 3 次立即进入防守态</div>
                 </div>
               </div>
             </div>
 
             {/* 最终总结 */}
-            <div style={{ border: '2px solid #ec4899', borderRadius: '12px', padding: '24px', background: '#fdf2f8' }}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#be185d', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <Target size={32} />
-                最终总结：一句话记住
+            <div className="card" style={{
+              padding: '20px',
+              background: 'var(--bg-card)',
+              border: '1px solid var(--glass-border)',
+              borderRadius: 'var(--radius-lg)',
+              marginTop: '20px'
+            }}>
+              <h2 style={{ fontSize: '1.35rem', fontWeight: '800', marginBottom: '16px', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <Target size={24} style={{ color: 'var(--system-pink)' }} /> 作战终局
               </h2>
-              <div style={{ padding: '20px', background: 'white', borderRadius: '8px', border: '2px solid #ec4899', marginBottom: '20px' }}>
-                <p style={{ fontSize: '1.1rem', color: '#be185d', lineHeight: '1.8', fontStyle: 'italic', textAlign: 'center', fontWeight: '600' }}>
-                  "2026年不是预测AI成败，而是管理'资本预期透支'风险。你的任务是在市场投票前完成防守，在恐慌后重新布局真正的赢家。"
+              <div style={{ padding: '24px', background: 'var(--system-gray6)', borderRadius: 'var(--radius-md)', border: '1px solid var(--system-gray5)', marginBottom: '24px' }}>
+                <p style={{ fontSize: '1.1rem', color: 'var(--text-primary)', lineHeight: '1.8', fontStyle: 'italic', textAlign: 'center', fontWeight: '600' }}>
+                  "2026 年不是预测 AI 成败，而是管理'资本预期透支'风险。你的任务是在市场投票前完成防守，在恐慌后重新布局真正的赢家。"
                 </p>
               </div>
-              <div style={{ padding: '16px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', marginBottom: '16px' }}>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '12px', color: '#991b1b' }}>当前（2026年1月12日）最紧急的三个动作</h3>
-                <div style={{ fontSize: '0.9rem', color: '#991b1b', lineHeight: '1.8' }}>
-                  <p style={{ fontWeight: '700', marginBottom: '8px' }}>本周必须完成：</p>
-                  <ol style={{ margin: '0 0 16px 20px', padding: 0 }}>
-                    <li>建立黄金底仓15%</li>
-                    <li>减持Google/Meta至目标仓位</li>
-                    <li>清空区域银行和CRE相关</li>
-                  </ol>
-                  <p style={{ fontWeight: '700', marginBottom: '8px' }}>2月财报季前：</p>
-                  <ol style={{ margin: '0 0 16px 20px', padding: 0 }}>
-                    <li>制作监控表格（FCF、Capex、利好不涨次数）</li>
-                    <li>设置价格提醒（VIX&gt;25、黄金&gt;$2,400）</li>
-                    <li>准备防守型配置方案</li>
-                  </ol>
-                  <p style={{ fontWeight: '700', marginBottom: '8px' }}>5月前必须做到：</p>
-                  <ol style={{ margin: '0 0 0 20px', padding: 0 }}>
-                    <li>现金+短债≥25%</li>
-                    <li>杠杆率=0</li>
-                    <li>黄金≥15%</li>
-                  </ol>
-                </div>
-              </div>
-              <div style={{ padding: '16px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px' }}>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '12px', color: '#92400e' }}>如果只能记住一个信号</h3>
-                <p style={{ fontSize: '1rem', color: '#92400e', lineHeight: '1.8', fontWeight: '700', marginBottom: '8px' }}>
-                  连续3次"利好不涨" = 无条件进入防守态
-                </p>
-                <p style={{ fontSize: '0.9rem', color: '#92400e', lineHeight: '1.6' }}>
-                  含义：当NVDA/Mag7发布超预期财报，但股价48小时内不涨或下跌，这是机构用散户接盘的最明显信号。
-                </p>
+              <div style={{ padding: '24px', background: 'var(--system-blue-light)', border: '1px solid rgba(0, 122, 255, 0.1)', borderRadius: 'var(--radius-md)' }}>
+                <h3 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '12px', color: 'var(--system-blue)' }}>本周紧急动作</h3>
+                <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: '1.8' }}>
+                  <li>建立黄金底仓 15%</li>
+                  <li>减持 Google/Meta 至目标仓位</li>
+                  <li>清空高风险雷区资产</li>
+                </ul>
               </div>
             </div>
           </div>
@@ -2156,12 +2157,12 @@ const InvestmentPlan2026 = () => {
         {activeTab === 'checklist' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             {checklistData.map((section, index) => (
-              <div key={index} style={{ border: '1px solid #e5e7eb', borderRadius: '8px', padding: '16px' }}>
+              <div key={index} style={{ border: '1px solid #e5e7eb', borderRadius: '8px', padding: '12px' }}>
                 <h3 style={{
-                  fontSize: '1.1rem',
+                  fontSize: '1rem',
                   fontWeight: '700',
                   color: '#1f2937',
-                  marginBottom: '12px',
+                  marginBottom: '10px',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px'
@@ -2169,13 +2170,13 @@ const InvestmentPlan2026 = () => {
                   <div style={{
                     width: '32px',
                     height: '32px',
-                    background: '#dbeafe',
-                    color: '#2563eb',
+                    background: 'var(--system-blue-light)',
+                    color: 'var(--system-blue)',
                     borderRadius: '50%',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontWeight: '700',
+                    fontWeight: '800',
                     fontSize: '0.9rem'
                   }}>
                     {index + 1}
@@ -2189,81 +2190,85 @@ const InvestmentPlan2026 = () => {
                     const isDetailExpanded = checkedItems[detailId] || false
                     return (
                       <div key={item.id} style={{
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '8px',
+                        border: '1px solid var(--system-gray5)',
+                        borderRadius: 'var(--radius-md)',
                         padding: '12px',
-                        background: '#fafafa',
-                        transition: 'all 0.2s'
+                        background: 'rgba(255,255,255,0.3)',
+                        transition: 'all 0.2s',
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '12px'
                       }}
-                        onMouseEnter={(e) => { e.currentTarget.style.background = '#f9fafb' }}
-                        onMouseLeave={(e) => { e.currentTarget.style.background = '#fafafa' }}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.5)' }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.3)' }}
                       >
-                        <div style={{
-                          display: 'flex',
-                          alignItems: 'flex-start',
-                          gap: '12px'
-                        }}>
-                          <input
-                            type="checkbox"
-                            id={item.id}
-                            checked={checkedItems[item.id] || false}
-                            onChange={() => toggleCheck(item.id)}
-                            style={{ marginTop: '2px', width: '20px', height: '20px', cursor: 'pointer' }}
-                          />
-                          <div style={{ flex: 1 }}>
-                            <label
-                              htmlFor={item.id}
-                              style={{
-                                cursor: 'pointer',
-                                textDecoration: checkedItems[item.id] ? 'line-through' : 'none',
-                                color: checkedItems[item.id] ? '#9ca3af' : '#374151',
-                                fontSize: '0.95rem',
-                                fontWeight: '500',
-                                lineHeight: '1.5',
-                                display: 'block'
-                              }}
-                            >
-                              {item.text}
-                            </label>
-                            {hasDetail && (
-                              <div style={{ marginTop: '8px' }}>
-                                <button
-                                  onClick={() => toggleCheck(detailId)}
-                                  style={{
-                                    background: 'transparent',
-                                    border: 'none',
-                                    color: '#3b82f6',
-                                    cursor: 'pointer',
-                                    fontSize: '0.85rem',
-                                    padding: '4px 8px',
-                                    borderRadius: '4px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '4px',
-                                    fontWeight: '500'
-                                  }}
-                                  onMouseEnter={(e) => { e.currentTarget.style.background = '#eff6ff' }}
-                                  onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
-                                >
-                                  {isDetailExpanded ? '▼ 收起详情' : '▶ 查看详情'}
-                                </button>
-                                {isDetailExpanded && (
-                                  <div style={{
-                                    marginTop: '8px',
-                                    padding: '12px',
-                                    background: 'white',
-                                    borderRadius: '6px',
-                                    border: '1px solid #e5e7eb',
-                                    fontSize: '0.85rem',
-                                    color: '#4b5563',
-                                    lineHeight: '1.6'
-                                  }}>
-                                    {item.detail}
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
+                        <input
+                          type="checkbox"
+                          id={item.id}
+                          checked={checkedItems[item.id] || false}
+                          onChange={() => toggleCheck(item.id)}
+                          style={{
+                            marginTop: '2px',
+                            width: '20px',
+                            height: '20px',
+                            cursor: 'pointer',
+                            accentColor: 'var(--system-blue)'
+                          }}
+                        />
+                        <div style={{ flex: 1 }}>
+                          <label
+                            htmlFor={item.id}
+                            style={{
+                              cursor: 'pointer',
+                              textDecoration: checkedItems[item.id] ? 'line-through' : 'none',
+                              color: checkedItems[item.id] ? 'var(--text-tertiary)' : 'var(--text-primary)',
+                              fontSize: '1rem',
+                              fontWeight: '600',
+                              lineHeight: '1.5',
+                              display: 'block'
+                            }}
+                          >
+                            {item.text}
+                          </label>
+                          {hasDetail && (
+                            <div style={{ marginTop: '8px' }}>
+                              <button
+                                onClick={() => toggleCheck(detailId)}
+                                style={{
+                                  background: 'var(--system-gray6)',
+                                  border: '1px solid var(--system-gray5)',
+                                  color: 'var(--system-blue)',
+                                  cursor: 'pointer',
+                                  fontSize: '0.85rem',
+                                  padding: '6px 12px',
+                                  borderRadius: 'var(--radius-sm)',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '6px',
+                                  fontWeight: '700',
+                                  marginTop: '8px'
+                                }}
+                              >
+                                {isDetailExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                                {isDetailExpanded ? '隐藏行动指南' : '展开行动指南'}
+                              </button>
+                              {isDetailExpanded && (
+                                <div style={{
+                                  marginTop: '12px',
+                                  padding: '16px',
+                                  background: 'var(--bg-card)',
+                                  borderRadius: 'var(--radius-sm)',
+                                  border: '1px solid var(--system-gray5)',
+                                  fontSize: '0.9rem',
+                                  color: 'var(--text-secondary)',
+                                  lineHeight: '1.8',
+                                  boxShadow: 'var(--shadow-sm)'
+                                }}>
+                                  {item.detail}
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </div>
                     )
@@ -2277,33 +2282,36 @@ const InvestmentPlan2026 = () => {
         {activeTab === 'earnings' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             {/* 标题 */}
-            <div style={{
-              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-              borderRadius: '12px',
-              padding: '24px',
-              color: 'white'
+            <div className="glass-panel" style={{
+              background: 'linear-gradient(135deg, var(--system-green) 0%, var(--system-teal) 100%)',
+              borderRadius: 'var(--radius-md)',
+              padding: '20px',
+              color: 'white',
+              boxShadow: 'var(--shadow-lg)',
+              border: '1px solid rgba(255,255,255,0.2)'
             }}>
-              <h1 style={{ fontSize: '1.8rem', fontWeight: '700', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <BarChart2 size={32} /> 财报日历
+              <h1 style={{ fontSize: '1.75rem', fontWeight: '800', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <BarChart2 size={32} /> 2026 核心财报作战季
               </h1>
-              <p style={{ fontSize: '0.95rem', opacity: 0.95 }}>
-                查看未来一周的财报发布时间，点击股票名称查看详情
+              <p style={{ fontSize: '1rem', opacity: 0.9, fontWeight: '500' }}>
+                追踪未来一周关键财报 • 验证 AI 投资回报率 • 捕捉超预期机会
               </p>
             </div>
 
             {/* 数据来源链接 */}
             <div style={{
               marginBottom: '16px',
-              padding: '12px 16px',
-              background: '#f0f9ff',
-              border: '1px solid #bae6fd',
-              borderRadius: '8px',
+              padding: '12px 20px',
+              background: 'var(--system-blue-light)',
+              border: '1px solid rgba(0, 122, 255, 0.1)',
+              borderRadius: 'var(--radius-sm)',
               display: 'flex',
               alignItems: 'center',
-              gap: '8px'
+              gap: '12px'
             }}>
-              <span style={{ fontSize: '0.9rem', color: '#0369a1', fontWeight: '500' }}>
-                数据来源：
+              <Info size={18} style={{ color: 'var(--system-blue)' }} />
+              <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: '500' }}>
+                实时数据同步：
               </span>
               <a
                 href="https://cn.investing.com/earnings-calendar/"
@@ -2311,15 +2319,16 @@ const InvestmentPlan2026 = () => {
                 rel="noopener noreferrer"
                 style={{
                   fontSize: '0.9rem',
-                  color: '#0284c7',
+                  color: 'var(--system-blue)',
                   textDecoration: 'none',
-                  fontWeight: '500',
-                  transition: 'color 0.2s'
+                  fontWeight: '700',
+                  borderBottom: '1px solid transparent',
+                  transition: 'all 0.2s'
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = '#0369a1'; e.currentTarget.style.textDecoration = 'underline'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = '#0284c7'; e.currentTarget.style.textDecoration = 'none'; }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderBottomColor = 'var(--system-blue)' }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderBottomColor = 'transparent' }}
               >
-                https://cn.investing.com/earnings-calendar/
+                Investing.com 财报日历
               </a>
             </div>
 
@@ -2339,31 +2348,34 @@ const InvestmentPlan2026 = () => {
                 }}
                 disabled={loadingEarnings}
                 style={{
-                  padding: '10px 20px',
-                  background: loadingEarnings ? '#9ca3af' : '#3b82f6',
+                  padding: '12px 24px',
+                  background: loadingEarnings ? 'var(--system-gray5)' : 'var(--system-blue)',
                   color: 'white',
                   border: 'none',
-                  borderRadius: '8px',
+                  borderRadius: 'var(--radius-sm)',
                   cursor: loadingEarnings ? 'not-allowed' : 'pointer',
-                  fontWeight: '600',
+                  fontWeight: '700',
                   fontSize: '0.9rem',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
+                  boxShadow: 'var(--shadow-sm)',
                   transition: 'all 0.2s'
                 }}
                 onMouseEnter={(e) => {
                   if (!loadingEarnings) {
-                    e.currentTarget.style.background = '#2563eb';
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                    e.currentTarget.style.boxShadow = 'var(--shadow-md)';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!loadingEarnings) {
-                    e.currentTarget.style.background = '#3b82f6';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
                   }
                 }}
               >
-                {loadingEarnings ? '⏳ 加载中...' : '🔄 刷新数据'}
+                {loadingEarnings ? '⏳ 正在同步...' : '🔄 刷新实时数据'}
               </button>
             </div>
 
@@ -2371,24 +2383,24 @@ const InvestmentPlan2026 = () => {
             {loadingEarnings ? (
               <div style={{
                 textAlign: 'center',
-                padding: '40px',
-                color: '#6b7280',
+                padding: '64px',
+                color: 'var(--text-tertiary)',
                 fontSize: '1rem'
               }}>
-                ⏳ 正在加载财报数据...
+                ⏳ 正在同步全量数据...
               </div>
             ) : earningsData.length === 0 ? (
               <div style={{
                 textAlign: 'center',
-                padding: '40px',
-                color: '#6b7280',
+                padding: '64px',
+                color: 'var(--text-tertiary)',
                 fontSize: '1rem',
-                background: '#f9fafb',
-                borderRadius: '8px',
-                border: '1px solid #e5e7eb'
+                background: 'var(--system-gray6)',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid var(--system-gray5)'
               }}>
-                <Search size={40} style={{ marginBottom: '16px', color: '#9ca3af' }} />
-                <p>暂无财报数据，请点击"刷新数据"按钮获取</p>
+                <Search size={48} style={{ marginBottom: '20px', color: 'var(--system-gray4)' }} />
+                <p>暂无财报数据，请点击刷新按钮获取</p>
               </div>
             ) : (
               (() => {
@@ -2427,7 +2439,7 @@ const InvestmentPlan2026 = () => {
                 };
 
                 return (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     {sortedDates.map((dateKey) => {
                       const items = groupedByDate[dateKey];
                       const dateObj = dateKey !== '未知日期' ? new Date(dateKey) : null;
@@ -2440,20 +2452,26 @@ const InvestmentPlan2026 = () => {
 
                       return (
                         <div key={dateKey} style={{
-                          border: '1px solid #e5e7eb',
-                          borderRadius: '12px',
-                          background: 'white',
-                          overflow: 'hidden'
+                          border: '1px solid var(--system-gray5)',
+                          borderRadius: 'var(--radius-md)',
+                          background: 'var(--bg-card)',
+                          overflow: 'hidden',
+                          boxShadow: 'var(--shadow-sm)',
+                          marginBottom: '12px'
                         }}>
                           {/* 日期标题 */}
                           <div style={{
-                            background: '#f9fafb',
-                            padding: '16px 20px',
-                            borderBottom: '2px solid #e5e7eb',
-                            fontWeight: '700',
-                            fontSize: '1.1rem',
-                            color: '#1f2937'
+                            background: 'var(--system-gray6)',
+                            padding: '10px 16px',
+                            borderBottom: '1px solid var(--system-gray5)',
+                            fontWeight: '800',
+                            fontSize: '0.95rem',
+                            color: 'var(--text-primary)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px'
                           }}>
+                            <Calendar size={18} style={{ color: 'var(--system-blue)' }} />
                             {dateStr}
                           </div>
 
@@ -2466,54 +2484,14 @@ const InvestmentPlan2026 = () => {
                             }}>
                               <thead>
                                 <tr style={{
-                                  background: '#f3f4f6',
-                                  borderBottom: '1px solid #e5e7eb'
+                                  background: 'var(--system-gray6)',
+                                  borderBottom: '1px solid var(--system-gray5)'
                                 }}>
-                                  <th style={{
-                                    padding: '12px 16px',
-                                    textAlign: 'left',
-                                    fontWeight: '600',
-                                    fontSize: '0.9rem',
-                                    color: '#374151'
-                                  }}>
-                                    公司
-                                  </th>
-                                  <th style={{
-                                    padding: '12px 16px',
-                                    textAlign: 'left',
-                                    fontWeight: '600',
-                                    fontSize: '0.9rem',
-                                    color: '#374151'
-                                  }}>
-                                    每股收益 / 预测值
-                                  </th>
-                                  <th style={{
-                                    padding: '12px 16px',
-                                    textAlign: 'left',
-                                    fontWeight: '600',
-                                    fontSize: '0.9rem',
-                                    color: '#374151'
-                                  }}>
-                                    营收 / 预测值
-                                  </th>
-                                  <th style={{
-                                    padding: '12px 16px',
-                                    textAlign: 'left',
-                                    fontWeight: '600',
-                                    fontSize: '0.9rem',
-                                    color: '#374151'
-                                  }}>
-                                    市值
-                                  </th>
-                                  <th style={{
-                                    padding: '12px 16px',
-                                    textAlign: 'left',
-                                    fontWeight: '600',
-                                    fontSize: '0.9rem',
-                                    color: '#374151'
-                                  }}>
-                                    时间
-                                  </th>
+                                  <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: '700', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>公司</th>
+                                  <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: '700', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>每股收益 / 预测值</th>
+                                  <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: '700', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>营收 / 预测值</th>
+                                  <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: '700', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>市值</th>
+                                  <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: '700', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>时间</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -2521,22 +2499,22 @@ const InvestmentPlan2026 = () => {
                                   <tr
                                     key={`${item.symbol}-${index}`}
                                     style={{
-                                      borderBottom: index < items.length - 1 ? '1px solid #f3f4f6' : 'none',
+                                      borderBottom: '1px solid var(--system-gray5)',
                                       transition: 'background 0.2s'
                                     }}
                                     onMouseEnter={(e) => {
-                                      e.currentTarget.style.background = '#f9fafb';
+                                      e.currentTarget.style.background = 'var(--system-gray6)';
                                     }}
                                     onMouseLeave={(e) => {
-                                      e.currentTarget.style.background = 'white';
+                                      e.currentTarget.style.background = 'transparent';
                                     }}
                                   >
                                     <td style={{
                                       padding: '8px 12px',
-                                      borderRight: '1px solid #e5e7eb'
+                                      borderRight: '1px solid var(--system-gray5)'
                                     }}>
-                                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                        <span style={{ fontSize: '0.9rem' }}>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <span style={{ fontSize: '1.2rem' }}>
                                           {getCountryFlag(item.country)}
                                         </span>
                                         <div style={{ flex: 1 }}>
@@ -2686,7 +2664,7 @@ const InvestmentPlan2026 = () => {
 
         {activeTab === 'decision' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '16px', marginBottom: '24px' }}>
+            <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '12px', marginBottom: '16px' }}>
               <h3 style={{ fontWeight: '700', fontSize: '1.1rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <AlertTriangle size={20} />
                 1月20日决策矩阵
@@ -2699,9 +2677,9 @@ const InvestmentPlan2026 = () => {
               <div
                 key={index}
                 style={{
-                  border: '2px solid #e5e7eb',
+                  border: '1.5px solid #e5e7eb',
                   borderRadius: '8px',
-                  padding: '16px',
+                  padding: '12px',
                   transition: 'box-shadow 0.2s'
                 }}
                 onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)' }}
@@ -2715,21 +2693,21 @@ const InvestmentPlan2026 = () => {
                     <div style={{ fontSize: '0.85rem', color: '#4b5563', marginBottom: '12px' }}>
                       <strong>场景:</strong> {item.scenario}
                     </div>
-                    <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '6px', padding: '12px', marginBottom: '8px' }}>
+                    <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '6px', padding: '10px', marginBottom: '6px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
                         <TrendingDown size={18} style={{ color: 'var(--system-orange)' }} />
                         <strong style={{ color: '#1f2937' }}>操作:</strong>
                       </div>
-                      <div style={{ fontSize: '1.1rem', fontWeight: '700', color: '#ea580c' }}>
+                      <div style={{ fontSize: '1.05rem', fontWeight: '700', color: '#ea580c' }}>
                         {item.action}
                       </div>
                     </div>
-                    <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '6px', padding: '12px' }}>
+                    <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '6px', padding: '10px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
                         <CircleDollarSign size={18} style={{ color: 'var(--system-green)' }} />
                         <strong style={{ color: '#1f2937' }}>资金配置:</strong>
                       </div>
-                      <div style={{ fontSize: '0.85rem', color: '#374151' }}>{item.allocation}</div>
+                      <div style={{ fontSize: '0.8rem', color: '#374151' }}>{item.allocation}</div>
                     </div>
                   </div>
                 </div>
@@ -2770,7 +2748,7 @@ const InvestmentPlan2026 = () => {
                       alignItems: 'flex-start',
                       gap: '12px',
                       background: 'white',
-                      padding: '12px',
+                      padding: '8px 10px',
                       borderRadius: '6px',
                       border: '1px solid #e5e7eb'
                     }}
@@ -2780,7 +2758,7 @@ const InvestmentPlan2026 = () => {
                       id={item.id}
                       checked={checkedItems[item.id] || false}
                       onChange={() => toggleCheck(item.id)}
-                      style={{ marginTop: '2px', width: '20px', height: '20px', cursor: 'pointer' }}
+                      style={{ marginTop: '2px', width: '18px', height: '18px', cursor: 'pointer' }}
                     />
                     <div style={{ flex: 1 }}>
                       <label
@@ -2873,7 +2851,7 @@ const InvestmentPlan2026 = () => {
         {activeTab === 'profit-taking' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             {/* 核心止盈策略 */}
-            <div style={{ background: '#f0fdf4', border: '2px solid #10b981', borderRadius: '12px', padding: '24px' }}>
+            <div style={{ background: '#f0fdf4', border: '2px solid #10b981', borderRadius: '12px', padding: '16px 20px' }}>
               <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '16px', color: '#059669', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{ fontSize: '2rem' }}>💰</span>
                 核心止盈策略
@@ -3363,38 +3341,52 @@ const InvestmentPlan2026 = () => {
         )}
 
         {activeTab === 'macro-risk' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {/* 页面标题 */}
-            <div style={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              padding: '24px',
-              borderRadius: '12px',
-              color: 'white'
+            <div className="glass-panel" style={{
+              background: 'linear-gradient(135deg, var(--system-indigo) 0%, var(--system-purple) 100%)',
+              borderRadius: 'var(--radius-md)',
+              padding: '24px 20px',
+              color: 'white',
+              boxShadow: 'var(--shadow-lg)',
+              border: '1px solid rgba(255,255,255,0.2)'
             }}>
-              <h1 style={{ fontSize: '1.8rem', fontWeight: '700', marginBottom: '8px', margin: 0 }}>
-                2026宏观风险仪表盘 - 三分数据源交叉验证
+              <h1 style={{ fontSize: '1.6rem', fontWeight: '800', marginBottom: '8px', letterSpacing: '-0.02em' }}>
+                🛡️ 2026 宏观风险仪表盘
               </h1>
+              <p style={{ fontSize: '0.95rem', opacity: 0.9, fontWeight: '500' }}>
+                三分数据源交叉验证 • 系统性崩溃深度对冲 (更新至：2026年1月22日)
+              </p>
             </div>
 
             {/* 当前状态总览 */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
               {/* 当前阶段卡片 */}
-              <div style={{ background: 'white', padding: '20px', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#374151' }}>当前阶段</h3>
+              <div className="card" style={{
+                padding: '20px',
+                background: 'var(--bg-card)',
+                border: '1px solid var(--glass-border)',
+                borderRadius: 'var(--radius-lg)'
+              }}>
+                <h3 style={{ fontSize: '0.9rem', fontWeight: '800', marginBottom: '16px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Activity size={18} style={{ color: 'var(--system-indigo)' }} /> 当前风险阶段
+                </h3>
                 <div style={{
                   background: (() => {
                     const official = (macroRiskScores.employment_official + macroRiskScores.credit_official + macroRiskScores.bank_official) / 3;
                     const market = (macroRiskScores.employment_market + macroRiskScores.credit_market + macroRiskScores.bank_market) / 3;
                     const alt = (macroRiskScores.employment_alt + macroRiskScores.credit_alt + macroRiskScores.bank_alt) / 3;
                     const avg = (official + market + alt) / 3;
-                    return avg <= 3 ? '#10b981' : avg <= 5 ? '#eab308' : avg <= 7 ? '#f97316' : '#ef4444';
+                    return avg <= 3 ? 'var(--system-green)' : avg <= 5 ? 'var(--system-orange)' : avg <= 7 ? 'var(--system-red)' : 'var(--system-red)';
                   })(),
                   color: 'white',
-                  padding: '12px 16px',
-                  borderRadius: '8px',
+                  padding: '16px',
+                  borderRadius: 'var(--radius-md)',
                   textAlign: 'center',
-                  fontWeight: '700',
-                  fontSize: '1.1rem'
+                  fontWeight: '900',
+                  fontSize: '1.2rem',
+                  boxShadow: 'var(--shadow-md)',
+                  textShadow: '0 2px 4px rgba(0,0,0,0.2)'
                 }}>
                   {(() => {
                     const official = (macroRiskScores.employment_official + macroRiskScores.credit_official + macroRiskScores.bank_official) / 3;
@@ -3404,92 +3396,158 @@ const InvestmentPlan2026 = () => {
                     return avg <= 3 ? '数据修饰期' : avg <= 5 ? '裂缝显现期' : avg <= 7 ? '信用收缩期' : '政策重置期';
                   })()}
                 </div>
-                <p style={{ fontSize: '0.85rem', color: '#6b7280', marginTop: '8px', margin: '8px 0 0 0' }}>
-                  风险等级: {(() => {
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '12px', gap: '8px' }}>
+                  <StatusBadge text={(() => {
                     const official = (macroRiskScores.employment_official + macroRiskScores.credit_official + macroRiskScores.bank_official) / 3;
                     const market = (macroRiskScores.employment_market + macroRiskScores.credit_market + macroRiskScores.bank_market) / 3;
                     const alt = (macroRiskScores.employment_alt + macroRiskScores.credit_alt + macroRiskScores.bank_alt) / 3;
                     const avg = (official + market + alt) / 3;
-                    return avg <= 3 ? '低' : avg <= 5 ? '中' : avg <= 7 ? '高' : '极高';
-                  })()}
-                </p>
+                    return avg <= 3 ? 'LOW RISK' : avg <= 5 ? 'MODERATE' : avg <= 7 ? 'HIGH RISK' : 'EXTREME';
+                  })()} type={(() => {
+                    const official = (macroRiskScores.employment_official + macroRiskScores.credit_official + macroRiskScores.bank_official) / 3;
+                    const market = (macroRiskScores.employment_market + macroRiskScores.credit_market + macroRiskScores.bank_market) / 3;
+                    const alt = (macroRiskScores.employment_alt + macroRiskScores.credit_alt + macroRiskScores.bank_alt) / 3;
+                    const avg = (official + market + alt) / 3;
+                    return avg <= 3 ? 'green' : avg <= 5 ? 'orange' : 'red';
+                  })()} />
+                </div>
               </div>
 
               {/* 综合评分卡片 */}
-              <div style={{ background: 'white', padding: '20px', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#374151' }}>综合评分</h3>
-                <div style={{ fontSize: '2.5rem', fontWeight: '700', color: '#1f2937' }}>
-                  {(() => {
-                    const official = (macroRiskScores.employment_official + macroRiskScores.credit_official + macroRiskScores.bank_official) / 3;
-                    const market = (macroRiskScores.employment_market + macroRiskScores.credit_market + macroRiskScores.bank_market) / 3;
-                    const alt = (macroRiskScores.employment_alt + macroRiskScores.credit_alt + macroRiskScores.bank_alt) / 3;
-                    return ((official + market + alt) / 3).toFixed(1);
-                  })()}
-                  <span style={{ fontSize: '1.2rem', color: '#6b7280' }}>/10</span>
+              <div className="card" style={{
+                padding: '20px',
+                background: 'var(--bg-card)',
+                border: '1px solid var(--glass-border)',
+                borderRadius: 'var(--radius-lg)'
+              }}>
+                <h3 style={{ fontSize: '0.9rem', fontWeight: '800', marginBottom: '12px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Target size={18} style={{ color: 'var(--system-purple)' }} /> 交叉验证综合评分
+                </h3>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                  <span style={{ fontSize: '3rem', fontWeight: '900', color: 'var(--text-primary)', letterSpacing: '-0.03em' }}>
+                    {(() => {
+                      const official = (macroRiskScores.employment_official + macroRiskScores.credit_official + macroRiskScores.bank_official) / 3;
+                      const market = (macroRiskScores.employment_market + macroRiskScores.credit_market + macroRiskScores.bank_market) / 3;
+                      const alt = (macroRiskScores.employment_alt + macroRiskScores.credit_alt + macroRiskScores.bank_alt) / 3;
+                      return ((official + market + alt) / 3).toFixed(1);
+                    })()}
+                  </span>
+                  <span style={{ fontSize: '1.2rem', color: 'var(--text-tertiary)', fontWeight: '600' }}>/ 10</span>
                 </div>
-                <p style={{ fontSize: '0.85rem', color: '#6b7280', marginTop: '8px', margin: '8px 0 0 0' }}>
-                  官方:{((macroRiskScores.employment_official + macroRiskScores.credit_official + macroRiskScores.bank_official) / 3).toFixed(1)} | 
-                  市场:{((macroRiskScores.employment_market + macroRiskScores.credit_market + macroRiskScores.bank_market) / 3).toFixed(1)} | 
-                  替代:{((macroRiskScores.employment_alt + macroRiskScores.credit_alt + macroRiskScores.bank_alt) / 3).toFixed(1)}
-                </p>
+                <div style={{
+                  display: 'flex',
+                  gap: '8px',
+                  marginTop: '12px',
+                  padding: '8px 12px',
+                  background: 'var(--system-gray6)',
+                  borderRadius: 'var(--radius-sm)',
+                  fontSize: '0.75rem',
+                  fontWeight: '600',
+                  color: 'var(--text-secondary)'
+                }}>
+                  <div style={{ flex: 1, textAlign: 'center' }}>官方:{((macroRiskScores.employment_official + macroRiskScores.credit_official + macroRiskScores.bank_official) / 3).toFixed(1)}</div>
+                  <div style={{ width: '1px', background: 'var(--system-gray5)' }} />
+                  <div style={{ flex: 1, textAlign: 'center' }}>市场:{((macroRiskScores.employment_market + macroRiskScores.credit_market + macroRiskScores.bank_market) / 3).toFixed(1)}</div>
+                  <div style={{ width: '1px', background: 'var(--system-gray5)' }} />
+                  <div style={{ flex: 1, textAlign: 'center' }}>替代:{((macroRiskScores.employment_alt + macroRiskScores.credit_alt + macroRiskScores.bank_alt) / 3).toFixed(1)}</div>
+                </div>
               </div>
 
               {/* 信号一致性卡片 */}
-              <div style={{ background: 'white', padding: '20px', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#374151' }}>信号一致性</h3>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div className="card" style={{
+                padding: '20px',
+                background: 'var(--bg-card)',
+                border: '1px solid var(--glass-border)',
+                borderRadius: 'var(--radius-lg)'
+              }}>
+                <h3 style={{ fontSize: '0.9rem', fontWeight: '800', marginBottom: '16px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Shield size={18} style={{ color: 'var(--system-green)' }} /> 信号置信度与一致性
+                </h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                   {(() => {
                     const official = (macroRiskScores.employment_official + macroRiskScores.credit_official + macroRiskScores.bank_official) / 3;
                     const market = (macroRiskScores.employment_market + macroRiskScores.credit_market + macroRiskScores.bank_market) / 3;
                     const alt = (macroRiskScores.employment_alt + macroRiskScores.credit_alt + macroRiskScores.bank_alt) / 3;
                     const diff = Math.max(official, market, alt) - Math.min(official, market, alt);
-                    
+
                     if (diff <= 2) {
-                      return <><CheckCircle2 size={32} style={{ color: '#10b981' }} /><span style={{ fontWeight: '700', fontSize: '1.1rem', color: '#1f2937' }}>一致信号</span></>;
+                      return (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <div style={{ background: 'var(--system-green)', color: 'white', padding: '10px', borderRadius: '50%' }}><CheckCircle2 size={24} /></div>
+                          <div>
+                            <div style={{ fontWeight: '800', fontSize: '1.1rem', color: 'var(--text-primary)' }}>信号强一致</div>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--system-green)', fontWeight: '600' }}>交叉验证成功</div>
+                          </div>
+                        </div>
+                      );
                     } else if (market >= 7 && alt >= 7 && official <= 4) {
-                      return <><AlertTriangle size={32} style={{ color: '#f97316' }} /><span style={{ fontWeight: '700', fontSize: '1.1rem', color: '#1f2937' }}>统计滞后期</span></>;
-                    } else if (market >= 7 && alt <= 4 && official <= 4) {
-                      return <><AlertTriangle size={32} style={{ color: '#eab308' }} /><span style={{ fontWeight: '700', fontSize: '1.1rem', color: '#1f2937' }}>市场恐慌</span></>;
+                      return (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <div style={{ background: 'var(--system-orange)', color: 'white', padding: '10px', borderRadius: '50%' }}><AlertTriangle size={24} /></div>
+                          <div>
+                            <div style={{ fontWeight: '800', fontSize: '1.1rem', color: 'var(--text-primary)' }}>统计滞后期</div>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--system-orange)', fontWeight: '600' }}>官方数据存疑</div>
+                          </div>
+                        </div>
+                      );
                     } else {
-                      return <><XCircle size={32} style={{ color: '#ef4444' }} /><span style={{ fontWeight: '700', fontSize: '1.1rem', color: '#1f2937' }}>信号分化</span></>;
+                      return (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <div style={{ background: 'var(--system-red)', color: 'white', padding: '10px', borderRadius: '50%' }}><XCircle size={24} /></div>
+                          <div>
+                            <div style={{ fontWeight: '800', fontSize: '1.1rem', color: 'var(--text-primary)' }}>信号极度分化</div>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--system-red)', fontWeight: '600' }}>深度噪音预警</div>
+                          </div>
+                        </div>
+                      );
                     }
                   })()}
                 </div>
-                <p style={{ fontSize: '0.85rem', color: '#6b7280', marginTop: '8px', margin: '8px 0 0 0' }}>
+                <div style={{
+                  marginTop: '16px',
+                  padding: '10px 12px',
+                  background: 'rgba(0,0,0,0.03)',
+                  borderRadius: 'var(--radius-sm)',
+                  fontSize: '0.8rem',
+                  color: 'var(--text-secondary)',
+                  fontWeight: '500',
+                  lineHeight: '1.4'
+                }}>
                   {(() => {
                     const official = (macroRiskScores.employment_official + macroRiskScores.credit_official + macroRiskScores.bank_official) / 3;
                     const market = (macroRiskScores.employment_market + macroRiskScores.credit_market + macroRiskScores.bank_market) / 3;
                     const alt = (macroRiskScores.employment_alt + macroRiskScores.credit_alt + macroRiskScores.bank_alt) / 3;
-                    const diff = Math.max(official, market, alt) - Math.min(official, market, alt);
-                    
-                    if (market >= 7 && alt >= 7 && official <= 4) return '⚠️ 官方数据可能被修饰';
-                    return '数据一致性良好';
+                    if (market >= 7 && alt >= 7 && official <= 4) return '⚠️ 替代数据指示危机，官方数据严重修复痕迹。';
+                    return '当前数据流一致性良好，决策置信度高。';
                   })()}
-                </p>
+                </div>
               </div>
             </div>
 
             {/* 三维度详细评分 */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
               {/* 就业与收入 */}
-              <div style={{ background: 'white', padding: '20px', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '16px', color: '#3b82f6' }}>就业与收入</h3>
+              <div className="card" style={{ padding: '20px', background: 'var(--bg-card)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-lg)' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '20px', color: 'var(--system-blue)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Users size={20} /> 就业与收入系统
+                </h3>
                 {[
                   { label: '官方数据 (BLS非农/失业率)', score: macroRiskScores.employment_official },
                   { label: '市场数据 (利差/利率期货)', score: macroRiskScores.employment_market },
                   { label: '替代数据 (岗位投放/工资单)', score: macroRiskScores.employment_alt }
                 ].map((item, idx) => (
                   <div key={idx} style={{ marginBottom: '16px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '4px' }}>
-                      <span style={{ color: '#374151' }}>{item.label}</span>
-                      <span style={{ fontWeight: '600' }}>{item.score}/10</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '8px', fontWeight: '600' }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>{item.label}</span>
+                      <span style={{ color: 'var(--text-primary)' }}>{item.score}/10</span>
                     </div>
-                    <div style={{ width: '100%', background: '#e5e7eb', borderRadius: '9999px', height: '8px' }}>
+                    <div style={{ width: '100%', background: 'var(--system-gray6)', borderRadius: '999px', height: '6px', overflow: 'hidden' }}>
                       <div style={{
                         width: `${(item.score / 10) * 100}%`,
-                        height: '8px',
-                        borderRadius: '9999px',
-                        background: item.score <= 3 ? '#10b981' : item.score <= 5 ? '#eab308' : item.score <= 7 ? '#f97316' : '#ef4444'
+                        height: '100%',
+                        borderRadius: '999px',
+                        background: item.score <= 3 ? 'var(--system-green)' : item.score <= 5 ? 'var(--system-orange)' : 'var(--system-red)',
+                        boxShadow: '0 0 8px rgba(0,0,0,0.1)'
                       }} />
                     </div>
                   </div>
@@ -3497,24 +3555,27 @@ const InvestmentPlan2026 = () => {
               </div>
 
               {/* 消费信用 */}
-              <div style={{ background: 'white', padding: '20px', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '16px', color: '#a855f7' }}>消费信用</h3>
+              <div className="card" style={{ padding: '20px', background: 'var(--bg-card)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-lg)' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '20px', color: 'var(--system-purple)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <CreditCard size={20} /> 消费信用脉络
+                </h3>
                 {[
                   { label: '官方数据 (储蓄率/消费支出)', score: macroRiskScores.credit_official },
                   { label: '市场数据 (ABS利差/零售财报)', score: macroRiskScores.credit_market },
                   { label: '替代数据 (刷卡数据/车贷逾期)', score: macroRiskScores.credit_alt }
                 ].map((item, idx) => (
                   <div key={idx} style={{ marginBottom: '16px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '4px' }}>
-                      <span style={{ color: '#374151' }}>{item.label}</span>
-                      <span style={{ fontWeight: '600' }}>{item.score}/10</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '8px', fontWeight: '600' }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>{item.label}</span>
+                      <span style={{ color: 'var(--text-primary)' }}>{item.score}/10</span>
                     </div>
-                    <div style={{ width: '100%', background: '#e5e7eb', borderRadius: '9999px', height: '8px' }}>
+                    <div style={{ width: '100%', background: 'var(--system-gray6)', borderRadius: '999px', height: '6px', overflow: 'hidden' }}>
                       <div style={{
                         width: `${(item.score / 10) * 100}%`,
-                        height: '8px',
-                        borderRadius: '9999px',
-                        background: item.score <= 3 ? '#10b981' : item.score <= 5 ? '#eab308' : item.score <= 7 ? '#f97316' : '#ef4444'
+                        height: '100%',
+                        borderRadius: '999px',
+                        background: item.score <= 3 ? 'var(--system-green)' : item.score <= 5 ? 'var(--system-orange)' : 'var(--system-red)',
+                        boxShadow: '0 0 8px rgba(0,0,0,0.1)'
                       }} />
                     </div>
                   </div>
@@ -3522,24 +3583,27 @@ const InvestmentPlan2026 = () => {
               </div>
 
               {/* 银行流动性 */}
-              <div style={{ background: 'white', padding: '20px', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '16px', color: '#ef4444' }}>银行流动性</h3>
+              <div className="card" style={{ padding: '20px', background: 'var(--bg-card)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-lg)' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '20px', color: 'var(--system-red)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Shield size={20} /> 银行系统流动性
+                </h3>
                 {[
                   { label: '官方数据 (拨备/存款)', score: macroRiskScores.bank_official },
                   { label: '市场数据 (银行股/CDS)', score: macroRiskScores.bank_market },
                   { label: '替代数据 (货基流入/社交热度)', score: macroRiskScores.bank_alt }
                 ].map((item, idx) => (
                   <div key={idx} style={{ marginBottom: '16px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '4px' }}>
-                      <span style={{ color: '#374151' }}>{item.label}</span>
-                      <span style={{ fontWeight: '600' }}>{item.score}/10</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '8px', fontWeight: '600' }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>{item.label}</span>
+                      <span style={{ color: 'var(--text-primary)' }}>{item.score}/10</span>
                     </div>
-                    <div style={{ width: '100%', background: '#e5e7eb', borderRadius: '9999px', height: '8px' }}>
+                    <div style={{ width: '100%', background: 'var(--system-gray6)', borderRadius: '999px', height: '6px', overflow: 'hidden' }}>
                       <div style={{
                         width: `${(item.score / 10) * 100}%`,
-                        height: '8px',
-                        borderRadius: '9999px',
-                        background: item.score <= 3 ? '#10b981' : item.score <= 5 ? '#eab308' : item.score <= 7 ? '#f97316' : '#ef4444'
+                        height: '100%',
+                        borderRadius: '999px',
+                        background: item.score <= 3 ? 'var(--system-green)' : item.score <= 5 ? 'var(--system-orange)' : 'var(--system-red)',
+                        boxShadow: '0 0 8px rgba(0,0,0,0.1)'
                       }} />
                     </div>
                   </div>
@@ -3548,77 +3612,104 @@ const InvestmentPlan2026 = () => {
             </div>
 
             {/* 核心监测指标 */}
-            <div style={{ background: 'white', padding: '24px', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#1f2937' }}>🎯 核心监测指标 (每周/月更新)</h2>
-              
+            <div className="card" style={{ padding: '24px', background: 'var(--bg-card)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-lg)' }}>
+              <h2 style={{ fontSize: '1.35rem', fontWeight: '800', marginBottom: '24px', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '12px', borderBottom: '1px solid var(--system-gray5)', paddingBottom: '12px' }}>
+                <Target size={24} style={{ color: 'var(--system-purple)' }} /> 核心监测指标矩阵
+              </h2>
+
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
-                <div style={{ borderLeft: '4px solid #ef4444', paddingLeft: '16px', background: '#fef2f2', padding: '16px', borderRadius: '0 8px 8px 0' }}>
-                  <h4 style={{ fontWeight: '700', color: '#dc2626', marginBottom: '8px', fontSize: '1rem' }}>每周必看 (最早预警)</h4>
-                  <ul style={{ fontSize: '0.85rem', margin: 0, paddingLeft: '20px', color: '#374151', lineHeight: '1.6' }}>
+                <div style={{ borderLeft: '4px solid var(--system-red)', padding: '16px', background: 'var(--system-red-light)', borderRadius: '0 var(--radius-md) var(--radius-md) 0' }}>
+                  <h4 style={{ fontWeight: '800', color: 'var(--system-red)', marginBottom: '12px', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Clock size={16} /> 每周必看 (最早预警)
+                  </h4>
+                  <ul style={{ fontSize: '0.85rem', margin: 0, paddingLeft: '18px', color: 'var(--text-secondary)', lineHeight: '1.8', fontWeight: '500' }}>
                     <li>初请失业金 (连续4周&gt;30万)</li>
-                    <li>区域银行股/CDS走势</li>
-                    <li>回购/SOFR利差异常</li>
+                    <li>区域银行股/CDS走势 (异常背离)</li>
+                    <li>回购/SOFR利差异常 (流动性枯竭)</li>
                   </ul>
                 </div>
 
-                <div style={{ borderLeft: '4px solid #f97316', paddingLeft: '16px', background: '#fff7ed', padding: '16px', borderRadius: '0 8px 8px 0' }}>
-                  <h4 style={{ fontWeight: '700', color: '#ea580c', marginBottom: '8px', fontSize: '1rem' }}>每月必看 (确认趋势)</h4>
-                  <ul style={{ fontSize: '0.85rem', margin: 0, paddingLeft: '20px', color: '#374151', lineHeight: '1.6' }}>
+                <div style={{ borderLeft: '4px solid var(--system-orange)', padding: '16px', background: 'rgba(255, 149, 0, 0.05)', borderRadius: '0 var(--radius-md) var(--radius-md) 0' }}>
+                  <h4 style={{ fontWeight: '800', color: 'var(--system-orange)', marginBottom: '12px', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <TrendingUp size={16} /> 每月必看 (趋势确认)
+                  </h4>
+                  <ul style={{ fontSize: '0.85rem', margin: 0, paddingLeft: '18px', color: 'var(--text-secondary)', lineHeight: '1.8', fontWeight: '500' }}>
                     <li>非农回修幅度 (连续3月负修订)</li>
-                    <li>次级车贷60天+逾期 (&gt;6.5%)</li>
-                    <li>信用卡逾期率 (中产&gt;5%)</li>
-                    <li>兼职困境人数 (创新高)</li>
+                    <li>次级车贷逾期率 (&gt;6.5% 阈值)</li>
+                    <li>信用卡逾期率 (中产阶级 &gt;5%)</li>
+                    <li>兼职困境人数 (结构性恶化)</li>
                   </ul>
                 </div>
 
-                <div style={{ borderLeft: '4px solid #eab308', paddingLeft: '16px', background: '#fef9c3', padding: '16px', borderRadius: '0 8px 8px 0' }}>
-                  <h4 style={{ fontWeight: '700', color: '#ca8a04', marginBottom: '8px', fontSize: '1rem' }}>每季必看 (战略判断)</h4>
-                  <ul style={{ fontSize: '0.85rem', margin: 0, paddingLeft: '20px', color: '#374151', lineHeight: '1.6' }}>
+                <div style={{ borderLeft: '4px solid var(--system-yellow)', padding: '16px', background: 'rgba(255, 204, 0, 0.05)', borderRadius: '0 var(--radius-md) var(--radius-md) 0' }}>
+                  <h4 style={{ fontWeight: '800', color: '#b28900', marginBottom: '12px', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Briefcase size={16} /> 每季必看 (战略对齐)
+                  </h4>
+                  <ul style={{ fontSize: '0.85rem', margin: 0, paddingLeft: '18px', color: 'var(--text-secondary)', lineHeight: '1.8', fontWeight: '500' }}>
                     <li>401k困难提取率 (同比&gt;15%)</li>
-                    <li>银行坏账拨备 (大行财报)</li>
-                    <li>CRE逾期率 (&gt;8%红线)</li>
+                    <li>银行坏账拨备 (大行财报验证)</li>
+                    <li>CRE逾期率 (&gt;8% 战略红线)</li>
                   </ul>
                 </div>
 
-                <div style={{ borderLeft: '4px solid #a855f7', paddingLeft: '16px', background: '#faf5ff', padding: '16px', borderRadius: '0 8px 8px 0' }}>
-                  <h4 style={{ fontWeight: '700', color: '#9333ea', marginBottom: '8px', fontSize: '1rem' }}>终极信号 (衰退确认)</h4>
-                  <ul style={{ fontSize: '0.85rem', margin: 0, paddingLeft: '20px', color: '#374151', lineHeight: '1.6' }}>
-                    <li>Sahm Rule触发 (失业率+0.5)</li>
-                    <li>HY-IG利差 (&gt;500bp)</li>
-                    <li>美联储扩表/紧急工具启动</li>
+                <div style={{ borderLeft: '4px solid var(--system-purple)', padding: '16px', background: 'rgba(175, 82, 222, 0.05)', borderRadius: '0 var(--radius-md) var(--radius-md) 0' }}>
+                  <h4 style={{ fontWeight: '800', color: 'var(--system-purple)', marginBottom: '12px', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Skull size={16} /> 终极信号 (衰退确认)
+                  </h4>
+                  <ul style={{ fontSize: '0.85rem', margin: 0, paddingLeft: '18px', color: 'var(--text-secondary)', lineHeight: '1.8', fontWeight: '500' }}>
+                    <li>Sahm Rule 触发 (失业率 3MMA)</li>
+                    <li>HY-IG 利差 (&gt;500bp 溢价)</li>
+                    <li>美联储紧急工具扩表启动</li>
                   </ul>
                 </div>
               </div>
             </div>
 
             {/* 未来时间表 */}
-            <div style={{ background: 'white', padding: '24px', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#1f2937' }}>📅 危机倒计时 - 未来时间表</h2>
-              
+            <div className="card" style={{ padding: '24px', background: 'var(--bg-card)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-lg)' }}>
+              <h2 style={{ fontSize: '1.35rem', fontWeight: '800', marginBottom: '24px', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '12px', borderBottom: '1px solid var(--system-gray5)', paddingBottom: '12px' }}>
+                <Calendar size={24} style={{ color: 'var(--system-blue)' }} /> 危机演进倒计时 - 未来时间轴
+              </h2>
+
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 {macroRiskTimeline.map((item, idx) => (
-                  <div key={idx} style={{ borderLeft: '4px solid #3b82f6', paddingLeft: '16px', paddingTop: '12px', paddingBottom: '12px', background: '#f9fafb', borderRadius: '0 8px 8px 0' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                      <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#1f2937', margin: 0 }}>{item.period}</h3>
-                      <span style={{ fontSize: '0.85rem', background: '#dbeafe', color: '#1e40af', padding: '4px 12px', borderRadius: '9999px', fontWeight: '600' }}>
-                        概率: {item.probability}%
-                      </span>
+                  <div key={idx} style={{
+                    borderLeft: '4px solid var(--system-blue)',
+                    padding: '16px',
+                    background: 'var(--system-gray6)',
+                    borderRadius: '0 var(--radius-md) var(--radius-md) 0',
+                    border: '1px solid var(--system-gray5)',
+                    borderLeftWidth: '4px'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: '1.1rem', fontWeight: '900', color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>{item.period}</span>
+                        <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'var(--system-gray4)' }} />
+                        <span style={{ fontWeight: '800', color: 'var(--system-blue)', fontSize: '0.95rem' }}>{item.phase}</span>
+                      </div>
+                      <StatusBadge text={`PROBABILITY: ${item.probability}%`} type={item.probability > 70 ? 'red' : item.probability > 40 ? 'orange' : 'blue'} />
                     </div>
-                    
-                    <p style={{ fontWeight: '600', color: '#2563eb', marginBottom: '12px', fontSize: '1rem', margin: '0 0 12px 0' }}>{item.phase}</p>
-                    
-                    <div style={{ marginBottom: '12px' }}>
-                      <p style={{ fontSize: '0.9rem', fontWeight: '600', color: '#374151', marginBottom: '4px', margin: '0 0 4px 0' }}>关键信号:</p>
-                      <ul style={{ fontSize: '0.85rem', color: '#6b7280', margin: 0, paddingLeft: '20px', lineHeight: '1.6' }}>
+
+                    <div style={{ marginBottom: '16px' }}>
+                      <p style={{ fontSize: '0.85rem', fontWeight: '800', color: 'var(--text-secondary)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <Zap size={14} /> 关键验证信号
+                      </p>
+                      <ul style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0, paddingLeft: '18px', lineHeight: '1.8', fontWeight: '500' }}>
                         {item.keySignals.map((signal, i) => (
                           <li key={i}>{signal}</li>
                         ))}
                       </ul>
                     </div>
-                    
-                    <div style={{ background: '#f0fdf4', borderLeft: '2px solid #10b981', paddingLeft: '12px', padding: '12px' }}>
-                      <p style={{ fontSize: '0.9rem', fontWeight: '600', color: '#15803d', margin: 0 }}>
-                        💡 投资策略: {item.investment}
+
+                    <div style={{
+                      background: 'linear-gradient(90deg, var(--system-green-light) 0%, transparent 100%)',
+                      borderLeft: '3px solid var(--system-green)',
+                      padding: '12px 16px',
+                      borderRadius: '0 var(--radius-sm) var(--radius-sm) 0'
+                    }}>
+                      <p style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Info size={16} style={{ color: 'var(--system-green)' }} />
+                        <span style={{ color: 'var(--system-green)', fontWeight: '800' }}>核心投资策略:</span> {item.investment}
                       </p>
                     </div>
                   </div>
@@ -3627,21 +3718,33 @@ const InvestmentPlan2026 = () => {
             </div>
 
             {/* 使用说明 */}
-            <div style={{ background: '#eff6ff', padding: '24px', borderRadius: '12px', border: '1px solid #bfdbfe' }}>
-              <h3 style={{ fontWeight: '700', color: '#1e40af', marginBottom: '16px', fontSize: '1.2rem' }}>📖 使用说明</h3>
-              <div style={{ fontSize: '0.9rem', color: '#1e3a8a', lineHeight: '1.8' }}>
-                <p style={{ fontWeight: '600', marginBottom: '8px', margin: '0 0 8px 0' }}>三分数据源逻辑:</p>
-                <ul style={{ margin: '0 0 16px 16px', paddingLeft: '20px' }}>
-                  <li><strong>官方数据</strong>: 权威但滞后,会被修饰</li>
-                  <li><strong>市场数据</strong>: 前瞻但易情绪化,需验证</li>
-                  <li><strong>替代数据</strong>: 实时且真实,但覆盖有限</li>
-                </ul>
-                <p style={{ fontWeight: '600', marginBottom: '8px', margin: '16px 0 8px 0' }}>关键判断规则:</p>
-                <ul style={{ margin: 0, paddingLeft: '20px' }}>
-                  <li>三条线一致恶化 (≥7分) → 高置信度进入信用收缩</li>
-                  <li>市场+替代先恶化,官方滞后 → 数据修饰期,风险累积</li>
-                  <li>仅市场恶化 → 可能是情绪波动,等替代数据确认</li>
-                </ul>
+            <div className="card" style={{
+              background: 'linear-gradient(135deg, rgba(0, 122, 255, 0.05) 0%, rgba(10, 132, 255, 0.05) 100%)',
+              padding: '24px',
+              borderRadius: 'var(--radius-lg)',
+              border: '1px solid var(--system-blue-light)',
+              boxShadow: 'inset 0 0 20px rgba(0, 122, 255, 0.02)'
+            }}>
+              <h3 style={{ fontWeight: '800', color: 'var(--system-blue)', marginBottom: '20px', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Info size={20} /> 📖 仪表盘联动作战系统说明
+              </h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+                <div>
+                  <p style={{ fontWeight: '800', marginBottom: '12px', color: 'var(--text-primary)', fontSize: '0.9rem' }}>三分数据源交叉验证逻辑:</p>
+                  <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.8' }}>
+                    <li><strong style={{ color: 'var(--text-primary)' }}>官方数据 (Official)</strong>: 权威、全覆盖，但通常滞后 1-3 个月，且在政治敏感期存在修饰。</li>
+                    <li><strong style={{ color: 'var(--text-primary)' }}>市场数据 (Market)</strong>: 反应极速、具备前瞻性，但容易产生情绪化过度反应，需基本面验证。</li>
+                    <li><strong style={{ color: 'var(--text-primary)' }}>替代数据 (Alternative)</strong>: 颗粒度细、无修饰，能反应真实体感趋势，是危机识别的最核心依据。</li>
+                  </ul>
+                </div>
+                <div>
+                  <p style={{ fontWeight: '800', marginBottom: '12px', color: 'var(--text-primary)', fontSize: '0.9rem' }}>实战协同判断规则:</p>
+                  <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.8' }}>
+                    <li style={{ marginBottom: '8px' }}><StatusBadge text="CRITICAL" type="red" /> <strong style={{ color: 'var(--text-primary)' }}>三线耦合</strong>: 三条线同步恶化 (≥7分) → 危机进入不可逆阶段。</li>
+                    <li style={{ marginBottom: '8px' }}><StatusBadge text="WARNING" type="orange" /> <strong style={{ color: 'var(--text-primary)' }}>背离预警</strong>: 市场/替代恶化而官方平稳 → 处于"数据掩盖期"。</li>
+                    <li><StatusBadge text="INFO" type="blue" /> <strong style={{ color: 'var(--text-primary)' }}>虚假信号</strong>: 仅市场恶化而替代数据支撑 → 属于非理性恐慌，可能是买入机会。</li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
@@ -3651,27 +3754,30 @@ const InvestmentPlan2026 = () => {
 
       {/* Footer */}
       <div style={{
-        background: '#f3f4f6',
-        borderTop: '1px solid #e5e7eb',
-        padding: '16px',
-        borderRadius: '0 0 12px 12px',
-        marginTop: '24px'
+        background: 'var(--system-gray6)',
+        borderTop: '1px solid var(--system-gray5)',
+        padding: '32px 16px',
+        borderRadius: '0 0 var(--radius-lg) var(--radius-lg)',
+        marginTop: '32px'
       }}>
-        <div style={{ textAlign: 'center', fontSize: '0.85rem', color: '#6b7280' }}>
-          <p style={{ fontWeight: '600', marginBottom: '8px' }}>💡 核心投资纪律</p>
+        <div style={{ textAlign: 'center', fontSize: '0.85rem', color: 'var(--text-tertiary)' }}>
+          <p style={{ fontWeight: '800', marginBottom: '20px', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifySelf: 'center', gap: '8px' }}>
+            <Briefcase size={18} /> 核心投资纪律
+          </p>
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '8px',
-            marginTop: '12px'
+            gap: '16px',
+            maxWidth: '1000px',
+            margin: '0 auto'
           }}>
-            <div style={{ background: 'white', padding: '8px', borderRadius: '6px', fontSize: '0.8rem' }}>
+            <div style={{ background: 'white', padding: '16px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--system-gray5)', color: 'var(--text-secondary)' }}>
               现金不是垃圾，是等待的成本
             </div>
-            <div style={{ background: 'white', padding: '8px', borderRadius: '6px', fontSize: '0.8rem' }}>
+            <div style={{ background: 'white', padding: '16px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--system-gray5)', color: 'var(--text-secondary)' }}>
               做空需要耐心，抄底需要勇气
             </div>
-            <div style={{ background: 'white', padding: '8px', borderRadius: '6px', fontSize: '0.8rem' }}>
+            <div style={{ background: 'white', padding: '16px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--system-gray5)', color: 'var(--text-secondary)' }}>
               宁可错过，不要做错
             </div>
           </div>
