@@ -1057,10 +1057,10 @@ const InvestmentPlan2026 = () => {
         </p>
       </div>
 
-      {/* Tabs - 升级为苹果风格的分段选择器 - 悬浮在顶部 */}
+      {/* Tabs - 升级为苹果风格的分段选择器 - 悬浮在顶部导航栏下方 */}
       <div className="glass-panel" style={{
         position: 'sticky',
-        top: '0',
+        top: '60px',
         zIndex: 100,
         padding: '6px',
         borderRadius: '16px',
