@@ -80,7 +80,7 @@ const StatusBadge: React.FC<{ type: 'red' | 'orange' | 'green' | 'blue', text: s
 }
 
 const InvestmentPlan2026 = () => {
-  const [activeTab, setActiveTab] = useState<'timeline' | 'checklist' | 'macro' | 'earnings' | 'decision' | 'shorting' | 'profit-taking' | 'macro-risk'>('timeline');
+  const [activeTab, setActiveTab] = useState<'timeline' | 'checklist' | 'macro' | 'earnings' | 'shorting' | 'profit-taking' | 'macro-risk'>('timeline');
   const [activeSubTab, setActiveSubTab] = useState<'overview' | 'assumptions' | 'indicators' | 'stages' | 'execution'>('overview');
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
 
@@ -647,32 +647,6 @@ const InvestmentPlan2026 = () => {
     }
   ];
 
-  const decisionMatrix = [
-    {
-      scenario: '失业率≥4.8% 且 银行计提>50亿',
-      signal: <StatusBadge type="red" text="双重红灯" />,
-      action: '清仓75% YINN',
-      allocation: '50%现金 + 25%黄金 + 15%美债 + 10%观察仓'
-    },
-    {
-      scenario: '失业率4.6-4.7% 或 银行计提30-50亿',
-      signal: <StatusBadge type="orange" text="单一警告" />,
-      action: '清仓50% YINN',
-      allocation: '40%现金 + 20%黄金 + 15%美债 + 25%观察仓'
-    },
-    {
-      scenario: '失业率<4.5% 且 银行计提<25亿',
-      signal: <StatusBadge type="green" text="暂时安全" />,
-      action: '仅清仓25% YINN',
-      allocation: '25%现金 + 10%黄金 + 10%美债 + 55%保留仓位'
-    },
-    {
-      scenario: '科技股财报3家以上超预期',
-      signal: <StatusBadge type="blue" text="AI续命" />,
-      action: '取消做空计划',
-      allocation: '可考虑2月底重新买入YINN'
-    }
-  ];
 
   const shortingConditions = [
     { id: 'short-1', condition: '3月18日FOMC会议：2026年降息预期 < 2次', weight: '核心触发条件1（股债双杀信号）' },
@@ -1103,7 +1077,6 @@ const InvestmentPlan2026 = () => {
           { id: 'checklist', label: '执行清单', icon: <ListTodo size={18} /> },
           { id: 'macro', label: '宏观时间', icon: <Clock size={18} /> },
           { id: 'earnings', label: '财报日历', icon: <Activity size={18} /> },
-          { id: 'decision', label: '决策矩阵', icon: <Target size={18} /> },
           { id: 'shorting', label: '做空条件', icon: <Shield size={18} /> },
           { id: 'profit-taking', label: '止盈策略', icon: <TrendingUp size={18} /> },
           { id: 'macro-risk', label: '宏观风险', icon: <AlertTriangle size={18} /> }
@@ -2700,60 +2673,6 @@ const InvestmentPlan2026 = () => {
                 );
               })()
             )}
-          </div>
-        )}
-
-        {activeTab === 'decision' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '12px', marginBottom: '16px' }}>
-              <h3 style={{ fontWeight: '700', fontSize: '1.1rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <AlertTriangle size={20} />
-                1月20日决策矩阵
-              </h3>
-              <p style={{ fontSize: '0.85rem', color: '#374151' }}>
-                根据1月9日失业率报告 + 1月12-16日银行计提数据综合判断
-              </p>
-            </div>
-            {decisionMatrix.map((item, index) => (
-              <div
-                key={index}
-                style={{
-                  border: '1.5px solid #e5e7eb',
-                  borderRadius: '8px',
-                  padding: '12px',
-                  transition: 'box-shadow 0.2s'
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)' }}
-                onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'none' }}
-              >
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                      {item.signal}
-                    </div>
-                    <div style={{ fontSize: '0.85rem', color: '#4b5563', marginBottom: '12px' }}>
-                      <strong>场景:</strong> {item.scenario}
-                    </div>
-                    <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '6px', padding: '10px', marginBottom: '6px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                        <TrendingDown size={18} style={{ color: 'var(--system-orange)' }} />
-                        <strong style={{ color: '#1f2937' }}>操作:</strong>
-                      </div>
-                      <div style={{ fontSize: '1.05rem', fontWeight: '700', color: '#ea580c' }}>
-                        {item.action}
-                      </div>
-                    </div>
-                    <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '6px', padding: '10px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                        <CircleDollarSign size={18} style={{ color: 'var(--system-green)' }} />
-                        <strong style={{ color: '#1f2937' }}>资金配置:</strong>
-                      </div>
-                      <div style={{ fontSize: '0.8rem', color: '#374151' }}>{item.allocation}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
           </div>
         )}
 
