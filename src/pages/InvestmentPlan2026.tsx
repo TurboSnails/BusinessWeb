@@ -1078,15 +1078,21 @@ const InvestmentPlan2026 = () => {
         </p>
       </div>
 
-      {/* Tabs - 升级为苹果风格的分段选择器 */}
+      {/* Tabs - 升级为苹果风格的分段选择器 - 悬浮在顶部 */}
       <div className="glass-panel" style={{
+        position: 'sticky',
+        top: '0',
+        zIndex: 100,
         padding: '6px',
         borderRadius: '16px',
         marginBottom: '32px',
         display: 'flex',
         gap: '6px',
-        background: 'rgba(0,0,0,0.05)',
+        background: 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
         border: '1px solid var(--border-subtle)',
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
         overflowX: 'auto',
         whiteSpace: 'nowrap',
         msOverflowStyle: 'none',
