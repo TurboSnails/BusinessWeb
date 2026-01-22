@@ -463,16 +463,6 @@ const InvestmentPlan2026 = () => {
 
   const checklistData = [
     {
-      category: '2025年12月(本月立即执行)',
-      items: [
-        { id: 'dec-1', text: '开设货币基金账户(4.5%年化收益)' },
-        { id: 'dec-2', text: '计算并存好12个月生活费应急资金' },
-        { id: 'dec-3', text: '研究PSQ、SH、TLT的交易规则和费率' },
-        { id: 'dec-4', text: '设置股票交易App的价格提醒和止损功能' },
-        { id: 'dec-5', text: '列出当前所有持仓清单和成本价' }
-      ]
-    },
-    {
       category: '2026年1月',
       items: [
         { id: 'jan-1', text: '1月9日早8:30盯失业率报告(设闹钟)' },
