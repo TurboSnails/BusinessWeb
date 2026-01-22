@@ -54,62 +54,32 @@ export const OverviewTab: React.FC = () => {
           资产角色定义
         </h2>
         
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #d1fae5' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <span style={{ fontSize: '1.5rem' }}>💊</span>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1f2937' }}>LLY - 礼来</h3>
-              <span style={{ fontSize: '0.85rem', color: '#6b7280', background: '#f3f4f6', padding: '4px 8px', borderRadius: '4px' }}>股票</span>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+          {[
+            { name: '黄金', symbol: 'GOLD', type: '商品', icon: '🥇' },
+            { name: '亚马逊', symbol: 'AMZN', type: '股票', icon: '📦' },
+            { name: '联合健康', symbol: 'UNH', type: '股票', icon: '🏥' },
+            { name: '舜宇光学', symbol: '2382.HK', type: '股票', icon: '📷' },
+            { name: '美光科技', symbol: 'MU', type: '股票', icon: '💾' },
+            { name: 'Adtalem', symbol: 'ATGE', type: '股票', icon: '📚' },
+            { name: '诺和诺德', symbol: 'NVO', type: '股票', icon: '💊' },
+            { name: 'Booz Allen', symbol: 'BAH', type: '股票', icon: '🛡️' },
+            { name: '比亚迪', symbol: '002594.SZ', type: '股票', icon: '🚗' }
+          ].map((asset, index) => (
+            <div key={index} style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #d1fae5' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                <span style={{ fontSize: '1.5rem' }}>{asset.icon}</span>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1f2937', flex: 1 }}>{asset.name}</h3>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <span style={{ fontSize: '0.85rem', color: '#6b7280', background: '#f3f4f6', padding: '4px 8px', borderRadius: '4px' }}>{asset.symbol}</span>
+                <span style={{ fontSize: '0.85rem', color: '#6b7280', background: '#f3f4f6', padding: '4px 8px', borderRadius: '4px' }}>{asset.type}</span>
+              </div>
+              <div style={{ fontSize: '0.9rem', color: '#166534', fontWeight: '600', textAlign: 'center', padding: '6px', background: '#f0fdf4', borderRadius: '4px' }}>
+                权重: 1/9
+              </div>
             </div>
-          </div>
-
-          <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #d1fae5' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <span style={{ fontSize: '1.5rem' }}>💳</span>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1f2937' }}>AXP - 美国运通</h3>
-              <span style={{ fontSize: '0.85rem', color: '#6b7280', background: '#f3f4f6', padding: '4px 8px', borderRadius: '4px' }}>股票</span>
-            </div>
-          </div>
-
-          <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #d1fae5' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <span style={{ fontSize: '1.5rem' }}>📦</span>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1f2937' }}>AMZN - 亚马逊</h3>
-              <span style={{ fontSize: '0.85rem', color: '#6b7280', background: '#f3f4f6', padding: '4px 8px', borderRadius: '4px' }}>股票</span>
-            </div>
-          </div>
-
-          <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #d1fae5' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <span style={{ fontSize: '1.5rem' }}>🔌</span>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1f2937' }}>TSM - 台积电</h3>
-              <span style={{ fontSize: '0.85rem', color: '#6b7280', background: '#f3f4f6', padding: '4px 8px', borderRadius: '4px' }}>股票</span>
-            </div>
-          </div>
-
-          <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #d1fae5' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <span style={{ fontSize: '1.5rem' }}>📈</span>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1f2937' }}>QQQ/SPY - 纳指/标普ETF</h3>
-              <span style={{ fontSize: '0.85rem', color: '#6b7280', background: '#f3f4f6', padding: '4px 8px', borderRadius: '4px' }}>ETF</span>
-            </div>
-          </div>
-
-          <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #d1fae5' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <span style={{ fontSize: '1.5rem' }}>🚀</span>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1f2937' }}>RKLB - Rocket Lab</h3>
-              <span style={{ fontSize: '0.85rem', color: '#6b7280', background: '#f3f4f6', padding: '4px 8px', borderRadius: '4px' }}>股票</span>
-            </div>
-          </div>
-
-          <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #d1fae5' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <span style={{ fontSize: '1.5rem' }}>🥇</span>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1f2937' }}>GOLD - 黄金</h3>
-              <span style={{ fontSize: '0.85rem', color: '#6b7280', background: '#f3f4f6', padding: '4px 8px', borderRadius: '4px' }}>商品</span>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </div>
