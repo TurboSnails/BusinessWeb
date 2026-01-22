@@ -292,39 +292,38 @@ export default function LimitUpAnalysis(): JSX.Element {
   return (
     <main className="container" style={{ padding: '20px 16px', maxWidth: '1200px', margin: '0 auto' }}>
       {/* 页面标题 */}
-      <div style={{
-        background: 'white',
-        padding: '20px',
-        borderRadius: '12px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-        marginBottom: '20px',
+      <div className="glass-panel" style={{
+        padding: '24px',
+        borderRadius: 'var(--radius-lg)',
+        marginBottom: '24px',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         flexWrap: 'wrap',
-        gap: '12px'
+        gap: '16px',
+        border: '1px solid var(--glass-border)'
       }}>
         <div>
-          <h1 style={{ margin: 0, fontSize: '1.5rem', color: '#1f2937', display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <TrendingUp size={28} color="#dc2626" />
+          <h1 style={{ margin: 0, fontSize: '1.75rem', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <TrendingUp size={32} color="var(--system-red)" />
             每日板块涨停分析
           </h1>
-          <p style={{ margin: '8px 0 0', fontSize: '0.9rem', color: '#6b7280' }}>
+          <p style={{ margin: '8px 0 0', fontSize: '1rem', color: 'var(--text-secondary)' }}>
             实时追踪A股涨停板，按概念分类展示
           </p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.9rem', color: '#374151' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.95rem', color: 'var(--text-primary)', fontWeight: '500' }}>
             <input
               type="checkbox"
               checked={onlyLimitUp}
               onChange={(e) => setOnlyLimitUp(e.target.checked)}
-              style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+              style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: 'var(--system-blue)' }}
             />
             只看涨停
           </label>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', color: '#374151' }}>
-            <Calendar size={16} color="#6b7280" />
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.95rem', color: 'var(--text-primary)', fontWeight: '500' }}>
+            <Calendar size={18} color="var(--text-secondary)" />
             <input
               type="date"
               value={selectedDate}
@@ -334,33 +333,31 @@ export default function LimitUpAnalysis(): JSX.Element {
                 return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
               })()}
               style={{
-                padding: '6px 10px',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                fontSize: '0.9rem',
+                padding: '8px 12px',
+                border: '1px solid var(--system-gray5)',
+                borderRadius: '8px',
+                fontSize: '0.95rem',
                 cursor: 'pointer',
-                outline: 'none'
+                outline: 'none',
+                background: 'rgba(255,255,255,0.8)',
+                color: 'var(--text-primary)'
               }}
             />
           </label>
           <button
             onClick={fetchLimitUpData}
             disabled={loading}
+            className="btn-primary"
             style={{
-              padding: '8px 16px',
-              background: loading ? '#9ca3af' : '#3b82f6',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              fontSize: '0.9rem',
-              fontWeight: '500',
+              padding: '10px 20px',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px'
+              gap: '8px',
+              opacity: loading ? 0.7 : 1,
+              backgroundColor: loading ? 'var(--system-gray)' : 'var(--system-blue)'
             }}
           >
-            <RefreshCcw size={16} className={loading ? 'animate-spin' : ''} />
+            <RefreshCcw size={18} className={loading ? 'animate-spin' : ''} />
             {loading ? '刷新中...' : '刷新数据'}
           </button>
         </div>
@@ -397,33 +394,44 @@ export default function LimitUpAnalysis(): JSX.Element {
               key={concept.name}
               onClick={() => setSelectedConcept(concept.name)}
               style={{
-                padding: '8px 16px',
+                padding: '10px 20px',
                 background: selectedConcept === concept.name || (!selectedConcept && concept.name === filteredConcepts[0]?.name)
-                  ? '#3b82f6'
-                  : '#f3f4f6',
+                  ? 'var(--system-blue)'
+                  : 'var(--system-gray6)',
                 color: selectedConcept === concept.name || (!selectedConcept && concept.name === filteredConcepts[0]?.name)
                   ? 'white'
-                  : '#374151',
+                  : 'var(--text-primary)',
                 border: 'none',
-                borderRadius: '8px',
+                borderRadius: '12px',
                 cursor: 'pointer',
-                fontSize: '0.9rem',
-                fontWeight: '500',
+                fontSize: '0.95rem',
+                fontWeight: '600',
                 whiteSpace: 'nowrap',
-                transition: 'all 0.2s'
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                boxShadow: selectedConcept === concept.name || (!selectedConcept && concept.name === filteredConcepts[0]?.name)
+                  ? '0 4px 12px rgba(0, 122, 255, 0.3)'
+                  : 'none'
               }}
               onMouseEnter={(e) => {
                 if (selectedConcept !== concept.name && (!selectedConcept && concept.name !== filteredConcepts[0]?.name)) {
-                  e.currentTarget.style.background = '#e5e7eb'
+                  e.currentTarget.style.background = 'var(--system-gray5)'
                 }
               }}
               onMouseLeave={(e) => {
                 if (selectedConcept !== concept.name && (!selectedConcept && concept.name !== filteredConcepts[0]?.name)) {
-                  e.currentTarget.style.background = '#f3f4f6'
+                  e.currentTarget.style.background = 'var(--system-gray6)'
                 }
               }}
             >
-              {concept.name}({onlyLimitUp ? concept.stocks.length : concept.stockCount})
+              {concept.name}
+              <span style={{
+                marginLeft: '6px',
+                opacity: 0.7,
+                fontSize: '0.85em',
+                fontWeight: '400'
+              }}>
+                {onlyLimitUp ? concept.stocks.length : concept.stockCount}
+              </span>
             </button>
           ))}
         </div>
@@ -431,25 +439,27 @@ export default function LimitUpAnalysis(): JSX.Element {
 
       {/* 当前概念详情 */}
       {currentConcept && (
-        <div style={{
-          background: 'white',
-          padding: '20px',
-          borderRadius: '12px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+        <div className="card" style={{
+          background: 'var(--bg-card)',
+          padding: '24px',
+          borderRadius: 'var(--radius-lg)',
+          boxShadow: 'var(--shadow-md)',
+          border: '1px solid var(--glass-border)'
         }}>
           {/* 概念标题和表现 */}
-          <div style={{ marginBottom: '20px', paddingBottom: '16px', borderBottom: '2px solid #e5e7eb' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
-              <h2 style={{ margin: 0, fontSize: '1.3rem', color: '#1f2937' }}>
+          <div style={{ marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid var(--system-gray5)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+              <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--text-primary)' }}>
                 {currentConcept.name}
               </h2>
               <div style={{
-                padding: '4px 12px',
-                background: currentConcept.changePercent >= 0 ? '#dcfce7' : '#fee2e2',
-                color: currentConcept.changePercent >= 0 ? '#16a34a' : '#dc2626',
-                borderRadius: '6px',
-                fontSize: '0.9rem',
-                fontWeight: '600'
+                padding: '6px 16px',
+                background: currentConcept.changePercent >= 0 ? 'var(--system-green-light)' : 'var(--system-red-light)',
+                color: currentConcept.changePercent >= 0 ? 'var(--system-green)' : 'var(--system-red)',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: '1rem',
+                fontWeight: '700',
+                border: `1px solid ${currentConcept.changePercent >= 0 ? 'rgba(52, 199, 89, 0.2)' : 'rgba(255, 59, 48, 0.2)'}`
               }}>
                 {currentConcept.changePercent >= 0 ? '+' : ''}{currentConcept.changePercent.toFixed(2)}%
               </div>
@@ -459,16 +469,17 @@ export default function LimitUpAnalysis(): JSX.Element {
           {/* 驱动因素 */}
           {currentConcept.drivingFactor && (
             <div style={{
-              background: '#f0f9ff',
-              padding: '16px',
-              borderRadius: '8px',
-              marginBottom: '20px',
-              borderLeft: '4px solid #3b82f6'
+              background: 'var(--system-blue-light)',
+              padding: '20px',
+              borderRadius: 'var(--radius-md)',
+              marginBottom: '24px',
+              borderLeft: '4px solid var(--system-blue)',
+              border: '1px solid rgba(0, 122, 255, 0.1)'
             }}>
-              <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#1e40af', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <BarChart2 size={16} /> 驱动因素
+              <div style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--system-blue)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <BarChart2 size={20} /> 驱动因素
               </div>
-              <div style={{ fontSize: '0.9rem', color: '#1e3a8a', lineHeight: '1.6' }}>
+              <div style={{ fontSize: '0.95rem', color: 'var(--text-primary)', lineHeight: '1.6' }}>
                 {currentConcept.drivingFactor}
               </div>
             </div>

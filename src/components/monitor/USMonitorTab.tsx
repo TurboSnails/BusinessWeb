@@ -83,11 +83,12 @@ export const USMonitorTab: React.FC = () => {
             width: '48px',
             height: '48px',
             borderRadius: '12px',
-            background: 'rgba(255, 59, 48, 0.1)',
+            background: 'var(--system-red-light)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: 'var(--system-red)'
+            color: 'var(--system-red)',
+            border: '1px solid rgba(255, 59, 48, 0.2)'
           }}>
             <TrendingDown size={28} />
           </div>
@@ -105,28 +106,28 @@ export const USMonitorTab: React.FC = () => {
           <table style={tableStyle}>
             <thead>
               <tr style={{ background: 'var(--system-gray6)' }}>
-                <th style={{ ...thStyle, fontSize: '0.75rem' }}>维度</th>
-                <th style={{ ...thStyle, fontSize: '0.75rem' }}>核心指标</th>
-                <th style={{ ...thStyle, textAlign: 'center', color: 'var(--system-green)', fontSize: '0.75rem' }}>
+                <th style={{ ...thStyle, fontSize: '0.8rem', fontWeight: '700', background: 'var(--system-gray6)', color: 'var(--text-secondary)' }}>维度</th>
+                <th style={{ ...thStyle, fontSize: '0.8rem', fontWeight: '700', background: 'var(--system-gray6)', color: 'var(--text-secondary)' }}>核心指标</th>
+                <th style={{ ...thStyle, textAlign: 'center', color: 'var(--system-green)', fontSize: '0.8rem', fontWeight: '700', background: 'var(--system-gray6)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                     <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--system-green)', boxShadow: '0 0 8px var(--system-green)' }} />
                     绿灯
                   </div>
                 </th>
-                <th style={{ ...thStyle, textAlign: 'center', color: 'var(--system-orange)', fontSize: '0.75rem' }}>
+                <th style={{ ...thStyle, textAlign: 'center', color: 'var(--system-orange)', fontSize: '0.8rem', fontWeight: '700', background: 'var(--system-gray6)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                     <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--system-orange)', boxShadow: '0 0 8px var(--system-orange)' }} />
                     黄灯
                   </div>
                 </th>
-                <th style={{ ...thStyle, textAlign: 'center', color: 'var(--system-red)', fontSize: '0.75rem' }}>
+                <th style={{ ...thStyle, textAlign: 'center', color: 'var(--system-red)', fontSize: '0.8rem', fontWeight: '700', background: 'var(--system-gray6)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                     <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--system-red)', boxShadow: '0 0 8px var(--system-red)' }} />
                     红灯
                   </div>
                 </th>
-                <th style={{ ...thStyle, textAlign: 'center', fontSize: '0.75rem' }}>当前状态</th>
-                <th style={{ ...thStyle, fontSize: '0.75rem' }}>数据来源</th>
+                <th style={{ ...thStyle, textAlign: 'center', fontSize: '0.8rem', fontWeight: '700', background: 'var(--system-gray6)', color: 'var(--text-secondary)' }}>当前状态</th>
+                <th style={{ ...thStyle, fontSize: '0.8rem', fontWeight: '700', background: 'var(--system-gray6)', color: 'var(--text-secondary)' }}>数据来源</th>
               </tr>
             </thead>
             <tbody>
@@ -284,10 +285,10 @@ export const USMonitorTab: React.FC = () => {
         {/* 数据校验备注 */}
         <div style={{
           background: 'var(--system-gray6)',
-          padding: '20px',
-          borderRadius: '16px',
-          border: '1px solid var(--border-light)',
-          fontSize: '0.85rem',
+          padding: '24px',
+          borderRadius: 'var(--radius-md)',
+          border: '1px solid var(--system-gray5)',
+          fontSize: '0.9rem',
           color: 'var(--text-secondary)',
           lineHeight: '1.6',
           marginTop: '24px'
@@ -327,9 +328,9 @@ export const USMonitorTab: React.FC = () => {
         <div style={{
           background: 'var(--system-gray6)',
           padding: '24px',
-          borderRadius: '16px',
-          marginBottom: '20px',
-          border: '1px solid var(--border-light)'
+          borderRadius: 'var(--radius-md)',
+          marginBottom: '24px',
+          border: '1px solid var(--system-gray5)'
         }}>
           <div style={{ marginBottom: '16px' }}>
             <div style={{ fontWeight: '600', marginBottom: '12px', color: 'var(--text-primary)' }}>风险状态统计：</div>

@@ -644,7 +644,7 @@ export default function SectorRotation(): JSX.Element {
 
             // 方法4：降级方案（在正常过滤阶段就使用，而不是等到filteredData为空）
             // 如果所有方法都没有匹配到，使用降级方案
-            if (filterType === 'industry') {
+            if ((filterType as string) === 'industry') {
               // 行业板块：排除明确的概念板块，其他都当作行业
               const name = String(plate.secu_name || plate.name || '').trim()
               // 如果包含"概念"、"题材"、"主题"，肯定是概念，排除
@@ -1801,16 +1801,15 @@ export default function SectorRotation(): JSX.Element {
       </div>
 
       {/* 筛选栏 */}
-      <div style={{
-        background: 'white',
-        padding: '16px',
-        borderRadius: '12px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-        marginBottom: '20px',
+      <div className="glass-panel" style={{
+        padding: '20px 24px',
+        borderRadius: 'var(--radius-lg)',
+        marginBottom: '24px',
         display: 'flex',
         alignItems: 'center',
-        gap: '16px',
-        flexWrap: 'wrap'
+        gap: '20px',
+        flexWrap: 'wrap',
+        border: '1px solid var(--glass-border)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '0.9rem', color: '#6b7280' }}>类型:</span>
@@ -1825,12 +1824,14 @@ export default function SectorRotation(): JSX.Element {
               setHotStocks([])
             }}
             style={{
-              padding: '6px 12px',
-              border: '1px solid #d1d5db',
-              borderRadius: '6px',
-              fontSize: '0.9rem',
+              padding: '8px 16px',
+              border: '1px solid var(--system-gray5)',
+              borderRadius: '8px',
+              fontSize: '0.95rem',
               cursor: 'pointer',
-              outline: 'none'
+              outline: 'none',
+              background: 'rgba(255,255,255,0.8)',
+              color: 'var(--text-primary)'
             }}
           >
             <option value="industry">行业</option>
@@ -1944,20 +1945,21 @@ export default function SectorRotation(): JSX.Element {
             }
 
             return (
-              <div style={{
-                background: 'white',
-                padding: '20px',
-                borderRadius: '12px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                marginBottom: '20px',
-                overflowX: 'auto'
+              <div className="card" style={{
+                background: 'var(--bg-card)',
+                padding: '24px',
+                borderRadius: 'var(--radius-lg)',
+                boxShadow: 'var(--shadow-md)',
+                marginBottom: '24px',
+                overflowX: 'auto',
+                border: '1px solid var(--glass-border)'
               }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
                   <thead>
-                    <tr style={{ background: '#f9fafb', borderBottom: '2px solid #e5e7eb' }}>
-                      <th style={{ padding: '12px', textAlign: 'left', fontSize: '0.85rem', fontWeight: '600', color: '#6b7280', width: '60px' }}>排名</th>
+                    <tr style={{ background: 'var(--system-gray6)', borderBottom: '2px solid var(--system-gray5)' }}>
+                      <th style={{ padding: '14px 12px', textAlign: 'left', fontSize: '0.9rem', fontWeight: '700', color: 'var(--text-secondary)', width: '60px' }}>排名</th>
                       {validDates.map(date => (
-                        <th key={date} style={{ padding: '12px', textAlign: 'center', fontSize: '0.85rem', fontWeight: '600', color: '#6b7280', minWidth: '150px' }}>
+                        <th key={date} style={{ padding: '14px 12px', textAlign: 'center', fontSize: '0.9rem', fontWeight: '700', color: 'var(--text-secondary)', minWidth: '150px' }}>
                           {formatDateDisplay(date)}
                         </th>
                       ))}
@@ -1972,14 +1974,15 @@ export default function SectorRotation(): JSX.Element {
                             {rank <= 3 ? (
                               <span style={{
                                 display: 'inline-block',
-                                width: '28px',
-                                height: '28px',
-                                lineHeight: '28px',
-                                background: '#dc2626',
+                                width: '32px',
+                                height: '32px',
+                                lineHeight: '32px',
+                                background: 'var(--system-red)',
                                 color: 'white',
-                                borderRadius: '4px',
-                                fontSize: '0.85rem',
-                                fontWeight: '600'
+                                borderRadius: '8px',
+                                fontSize: '0.95rem',
+                                fontWeight: '700',
+                                boxShadow: '0 2px 6px rgba(255, 59, 48, 0.3)'
                               }}>
                                 {rank}
                               </span>
@@ -2001,12 +2004,13 @@ export default function SectorRotation(): JSX.Element {
                                         padding: '8px',
                                         borderRadius: '6px',
                                         transition: 'background 0.2s',
-                                        background: selectedSector?.name === sector.name && selectedSector?.date === date ? '#eff6ff' : 'transparent',
-                                        marginBottom: '8px'
+                                        background: selectedSector?.name === sector.name && selectedSector?.date === date ? 'var(--system-blue-light)' : 'transparent',
+                                        marginBottom: '8px',
+                                        border: selectedSector?.name === sector.name && selectedSector?.date === date ? '1px solid rgba(0, 122, 255, 0.2)' : '1px solid transparent'
                                       }}
                                       onMouseEnter={(e) => {
                                         if (!(selectedSector?.name === sector.name && selectedSector?.date === date)) {
-                                          e.currentTarget.style.background = '#f9fafb'
+                                          e.currentTarget.style.background = 'var(--system-gray6)'
                                         }
                                       }}
                                       onMouseLeave={(e) => {
@@ -2044,9 +2048,9 @@ export default function SectorRotation(): JSX.Element {
                                         })()}
                                       </div>
                                       <div style={{
-                                        fontSize: '0.9rem',
-                                        fontWeight: '600',
-                                        color: '#dc2626'
+                                        fontSize: '1rem',
+                                        fontWeight: '700',
+                                        color: 'var(--system-red)'
                                       }}>
                                         +{sector.changePercent.toFixed(2)}%
                                       </div>
@@ -2223,21 +2227,25 @@ export default function SectorRotation(): JSX.Element {
               />
 
               {/* 悬浮框 */}
-              <div style={{
+              <div className="glass-panel" style={{
                 position: 'fixed',
                 bottom: 0,
                 left: 0,
                 right: 0,
-                background: 'white',
-                borderTopLeftRadius: '16px',
-                borderTopRightRadius: '16px',
-                boxShadow: '0 -4px 20px rgba(0,0,0,0.15)',
+                background: 'rgba(255, 255, 255, 0.9)',
+                backdropFilter: 'blur(30px)',
+                WebkitBackdropFilter: 'blur(30px)',
+                borderTopLeftRadius: '24px',
+                borderTopRightRadius: '24px',
+                boxShadow: '0 -8px 32px rgba(0,0,0,0.12)',
                 zIndex: 999,
-                maxHeight: '80vh',
+                maxHeight: '85vh',
                 display: 'flex',
                 flexDirection: 'column',
-                animation: 'slideUp 0.3s ease-out',
-                overflow: 'hidden'
+                animation: 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+                overflow: 'hidden',
+                border: '1px solid var(--glass-border)',
+                borderBottom: 'none'
               }}>
                 {/* 拖拽指示条 */}
                 <div

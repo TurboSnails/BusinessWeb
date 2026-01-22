@@ -74,7 +74,7 @@ const StatusBadge: React.FC<{ type: 'red' | 'orange' | 'green' | 'blue', text: s
 }
 
 const InvestmentPlan2026 = () => {
-  const [activeTab, setActiveTab] = useState<'timeline' | 'checklist' | 'macro' | 'earnings' | 'decision' | 'shorting' | 'profit-taking'>('timeline');
+  const [activeTab, setActiveTab] = useState<'timeline' | 'checklist' | 'macro' | 'earnings' | 'decision' | 'shorting' | 'profit-taking' | 'macro-risk'>('timeline');
   const [activeSubTab, setActiveSubTab] = useState<'overview' | 'assumptions' | 'indicators' | 'stages' | 'execution'>('overview');
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
 
@@ -93,6 +93,24 @@ const InvestmentPlan2026 = () => {
   // 财报日历状态
   const [earningsData, setEarningsData] = useState<EarningsCalendarItem[]>([]);
   const [loadingEarnings, setLoadingEarnings] = useState(false);
+  
+  // 宏观风险评分数据 (2026年1月基准)
+  const [macroRiskScores] = useState({
+    // 就业维度 (0-10)
+    employment_official: 4,  // 非农回修+失业率尚可
+    employment_market: 6,    // 利差开始走阔
+    employment_alt: 7,       // 岗位投放下降明显
+    
+    // 消费信用维度 (0-10)
+    credit_official: 6,      // 储蓄率低位、信贷余额高
+    credit_market: 7,        // 次级ABS利差扩大
+    credit_alt: 8,           // 刷卡数据转弱、车贷逾期极值
+    
+    // 银行流动性维度 (0-10)
+    bank_official: 5,        // 拨备增加但未暴雷
+    bank_market: 6,          // 区域银行股承压
+    bank_alt: 5,             // 货币基金流入温和
+  });
   const [analysisResult, setAnalysisResult] = useState<{
     status: 'safe' | 'warning' | 'danger';
     title: string;
@@ -560,6 +578,58 @@ const InvestmentPlan2026 = () => {
           detail: '极端恐慌定义：Equity P/C>1.3 + VIX>50 + 标普单日跌幅>5%。满足后可提前动用30%资金买入优质债和蓝筹股'
         }
       ]
+    }
+  ];
+
+  // 宏观风险时间表
+  const macroRiskTimeline = [
+    {
+      period: '2026 Q1-Q2',
+      phase: '缓冲消耗加速期',
+      keySignals: [
+        '非农连续3个月下修',
+        '次级车贷逾期>6.5%',
+        '401k困难提取率>6%',
+        '兼职困境人数创新高'
+      ],
+      investment: '逐步减持风险资产,增配短债/现金',
+      probability: 60
+    },
+    {
+      period: '2026 Q3',
+      phase: '传导临界期',
+      keySignals: [
+        '信用卡中产逾期>5%',
+        '401k提取同比+15%',
+        '区域银行存款流出加速',
+        'CRE逾期率>8%'
+      ],
+      investment: '增配黄金/抗通胀资产,保留50%+现金',
+      probability: 45
+    },
+    {
+      period: '2026 Q4-2027 Q1',
+      phase: '螺旋向下期',
+      keySignals: [
+        'Sahm Rule触发(>0.5)',
+        '初请失业金>30万/周',
+        'HY-IG利差>500bp',
+        '银行CDS飙升'
+      ],
+      investment: '持币观望,等待资产暴跌后抄底',
+      probability: 30
+    },
+    {
+      period: '2027 H1后',
+      phase: '政策重置期',
+      keySignals: [
+        '美联储扩表/降息至零',
+        '财政大规模刺激',
+        '债务货币化启动',
+        '通胀回升'
+      ],
+      investment: '低位配置AI/ETH/黄金等核心资产',
+      probability: 25
     }
   ];
 
@@ -1033,11 +1103,12 @@ const InvestmentPlan2026 = () => {
             }}>
               ⚖️ 决策策略
             </div>
-            {(['decision', 'shorting', 'profit-taking'] as const).map((tab) => {
+            {(['decision', 'shorting', 'profit-taking', 'macro-risk'] as const).map((tab) => {
               const labels: Record<typeof tab, string> = {
                 decision: '决策矩阵',
                 shorting: '做空条件',
-                'profit-taking': '止盈策略'
+                'profit-taking': '止盈策略',
+                'macro-risk': '宏观风险'
               };
               const isActive = activeTab === tab;
               return (
@@ -3285,6 +3356,291 @@ const InvestmentPlan2026 = () => {
                   <li>
                     如果是 <strong style={{ color: '#059669' }}>20% 以上</strong>：可以考虑先执行"第一批"卖出，锁定一部分利润，剩下的用"移动止盈法"跟踪。
                   </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'macro-risk' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* 页面标题 */}
+            <div style={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              padding: '24px',
+              borderRadius: '12px',
+              color: 'white'
+            }}>
+              <h1 style={{ fontSize: '1.8rem', fontWeight: '700', marginBottom: '8px', margin: 0 }}>
+                2026宏观风险仪表盘 - 三分数据源交叉验证
+              </h1>
+            </div>
+
+            {/* 当前状态总览 */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+              {/* 当前阶段卡片 */}
+              <div style={{ background: 'white', padding: '20px', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#374151' }}>当前阶段</h3>
+                <div style={{
+                  background: (() => {
+                    const official = (macroRiskScores.employment_official + macroRiskScores.credit_official + macroRiskScores.bank_official) / 3;
+                    const market = (macroRiskScores.employment_market + macroRiskScores.credit_market + macroRiskScores.bank_market) / 3;
+                    const alt = (macroRiskScores.employment_alt + macroRiskScores.credit_alt + macroRiskScores.bank_alt) / 3;
+                    const avg = (official + market + alt) / 3;
+                    return avg <= 3 ? '#10b981' : avg <= 5 ? '#eab308' : avg <= 7 ? '#f97316' : '#ef4444';
+                  })(),
+                  color: 'white',
+                  padding: '12px 16px',
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  fontWeight: '700',
+                  fontSize: '1.1rem'
+                }}>
+                  {(() => {
+                    const official = (macroRiskScores.employment_official + macroRiskScores.credit_official + macroRiskScores.bank_official) / 3;
+                    const market = (macroRiskScores.employment_market + macroRiskScores.credit_market + macroRiskScores.bank_market) / 3;
+                    const alt = (macroRiskScores.employment_alt + macroRiskScores.credit_alt + macroRiskScores.bank_alt) / 3;
+                    const avg = (official + market + alt) / 3;
+                    return avg <= 3 ? '数据修饰期' : avg <= 5 ? '裂缝显现期' : avg <= 7 ? '信用收缩期' : '政策重置期';
+                  })()}
+                </div>
+                <p style={{ fontSize: '0.85rem', color: '#6b7280', marginTop: '8px', margin: '8px 0 0 0' }}>
+                  风险等级: {(() => {
+                    const official = (macroRiskScores.employment_official + macroRiskScores.credit_official + macroRiskScores.bank_official) / 3;
+                    const market = (macroRiskScores.employment_market + macroRiskScores.credit_market + macroRiskScores.bank_market) / 3;
+                    const alt = (macroRiskScores.employment_alt + macroRiskScores.credit_alt + macroRiskScores.bank_alt) / 3;
+                    const avg = (official + market + alt) / 3;
+                    return avg <= 3 ? '低' : avg <= 5 ? '中' : avg <= 7 ? '高' : '极高';
+                  })()}
+                </p>
+              </div>
+
+              {/* 综合评分卡片 */}
+              <div style={{ background: 'white', padding: '20px', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#374151' }}>综合评分</h3>
+                <div style={{ fontSize: '2.5rem', fontWeight: '700', color: '#1f2937' }}>
+                  {(() => {
+                    const official = (macroRiskScores.employment_official + macroRiskScores.credit_official + macroRiskScores.bank_official) / 3;
+                    const market = (macroRiskScores.employment_market + macroRiskScores.credit_market + macroRiskScores.bank_market) / 3;
+                    const alt = (macroRiskScores.employment_alt + macroRiskScores.credit_alt + macroRiskScores.bank_alt) / 3;
+                    return ((official + market + alt) / 3).toFixed(1);
+                  })()}
+                  <span style={{ fontSize: '1.2rem', color: '#6b7280' }}>/10</span>
+                </div>
+                <p style={{ fontSize: '0.85rem', color: '#6b7280', marginTop: '8px', margin: '8px 0 0 0' }}>
+                  官方:{((macroRiskScores.employment_official + macroRiskScores.credit_official + macroRiskScores.bank_official) / 3).toFixed(1)} | 
+                  市场:{((macroRiskScores.employment_market + macroRiskScores.credit_market + macroRiskScores.bank_market) / 3).toFixed(1)} | 
+                  替代:{((macroRiskScores.employment_alt + macroRiskScores.credit_alt + macroRiskScores.bank_alt) / 3).toFixed(1)}
+                </p>
+              </div>
+
+              {/* 信号一致性卡片 */}
+              <div style={{ background: 'white', padding: '20px', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#374151' }}>信号一致性</h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  {(() => {
+                    const official = (macroRiskScores.employment_official + macroRiskScores.credit_official + macroRiskScores.bank_official) / 3;
+                    const market = (macroRiskScores.employment_market + macroRiskScores.credit_market + macroRiskScores.bank_market) / 3;
+                    const alt = (macroRiskScores.employment_alt + macroRiskScores.credit_alt + macroRiskScores.bank_alt) / 3;
+                    const diff = Math.max(official, market, alt) - Math.min(official, market, alt);
+                    
+                    if (diff <= 2) {
+                      return <><CheckCircle2 size={32} style={{ color: '#10b981' }} /><span style={{ fontWeight: '700', fontSize: '1.1rem', color: '#1f2937' }}>一致信号</span></>;
+                    } else if (market >= 7 && alt >= 7 && official <= 4) {
+                      return <><AlertTriangle size={32} style={{ color: '#f97316' }} /><span style={{ fontWeight: '700', fontSize: '1.1rem', color: '#1f2937' }}>统计滞后期</span></>;
+                    } else if (market >= 7 && alt <= 4 && official <= 4) {
+                      return <><AlertTriangle size={32} style={{ color: '#eab308' }} /><span style={{ fontWeight: '700', fontSize: '1.1rem', color: '#1f2937' }}>市场恐慌</span></>;
+                    } else {
+                      return <><XCircle size={32} style={{ color: '#ef4444' }} /><span style={{ fontWeight: '700', fontSize: '1.1rem', color: '#1f2937' }}>信号分化</span></>;
+                    }
+                  })()}
+                </div>
+                <p style={{ fontSize: '0.85rem', color: '#6b7280', marginTop: '8px', margin: '8px 0 0 0' }}>
+                  {(() => {
+                    const official = (macroRiskScores.employment_official + macroRiskScores.credit_official + macroRiskScores.bank_official) / 3;
+                    const market = (macroRiskScores.employment_market + macroRiskScores.credit_market + macroRiskScores.bank_market) / 3;
+                    const alt = (macroRiskScores.employment_alt + macroRiskScores.credit_alt + macroRiskScores.bank_alt) / 3;
+                    const diff = Math.max(official, market, alt) - Math.min(official, market, alt);
+                    
+                    if (market >= 7 && alt >= 7 && official <= 4) return '⚠️ 官方数据可能被修饰';
+                    return '数据一致性良好';
+                  })()}
+                </p>
+              </div>
+            </div>
+
+            {/* 三维度详细评分 */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
+              {/* 就业与收入 */}
+              <div style={{ background: 'white', padding: '20px', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '16px', color: '#3b82f6' }}>就业与收入</h3>
+                {[
+                  { label: '官方数据 (BLS非农/失业率)', score: macroRiskScores.employment_official },
+                  { label: '市场数据 (利差/利率期货)', score: macroRiskScores.employment_market },
+                  { label: '替代数据 (岗位投放/工资单)', score: macroRiskScores.employment_alt }
+                ].map((item, idx) => (
+                  <div key={idx} style={{ marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '4px' }}>
+                      <span style={{ color: '#374151' }}>{item.label}</span>
+                      <span style={{ fontWeight: '600' }}>{item.score}/10</span>
+                    </div>
+                    <div style={{ width: '100%', background: '#e5e7eb', borderRadius: '9999px', height: '8px' }}>
+                      <div style={{
+                        width: `${(item.score / 10) * 100}%`,
+                        height: '8px',
+                        borderRadius: '9999px',
+                        background: item.score <= 3 ? '#10b981' : item.score <= 5 ? '#eab308' : item.score <= 7 ? '#f97316' : '#ef4444'
+                      }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* 消费信用 */}
+              <div style={{ background: 'white', padding: '20px', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '16px', color: '#a855f7' }}>消费信用</h3>
+                {[
+                  { label: '官方数据 (储蓄率/消费支出)', score: macroRiskScores.credit_official },
+                  { label: '市场数据 (ABS利差/零售财报)', score: macroRiskScores.credit_market },
+                  { label: '替代数据 (刷卡数据/车贷逾期)', score: macroRiskScores.credit_alt }
+                ].map((item, idx) => (
+                  <div key={idx} style={{ marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '4px' }}>
+                      <span style={{ color: '#374151' }}>{item.label}</span>
+                      <span style={{ fontWeight: '600' }}>{item.score}/10</span>
+                    </div>
+                    <div style={{ width: '100%', background: '#e5e7eb', borderRadius: '9999px', height: '8px' }}>
+                      <div style={{
+                        width: `${(item.score / 10) * 100}%`,
+                        height: '8px',
+                        borderRadius: '9999px',
+                        background: item.score <= 3 ? '#10b981' : item.score <= 5 ? '#eab308' : item.score <= 7 ? '#f97316' : '#ef4444'
+                      }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* 银行流动性 */}
+              <div style={{ background: 'white', padding: '20px', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '16px', color: '#ef4444' }}>银行流动性</h3>
+                {[
+                  { label: '官方数据 (拨备/存款)', score: macroRiskScores.bank_official },
+                  { label: '市场数据 (银行股/CDS)', score: macroRiskScores.bank_market },
+                  { label: '替代数据 (货基流入/社交热度)', score: macroRiskScores.bank_alt }
+                ].map((item, idx) => (
+                  <div key={idx} style={{ marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '4px' }}>
+                      <span style={{ color: '#374151' }}>{item.label}</span>
+                      <span style={{ fontWeight: '600' }}>{item.score}/10</span>
+                    </div>
+                    <div style={{ width: '100%', background: '#e5e7eb', borderRadius: '9999px', height: '8px' }}>
+                      <div style={{
+                        width: `${(item.score / 10) * 100}%`,
+                        height: '8px',
+                        borderRadius: '9999px',
+                        background: item.score <= 3 ? '#10b981' : item.score <= 5 ? '#eab308' : item.score <= 7 ? '#f97316' : '#ef4444'
+                      }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 核心监测指标 */}
+            <div style={{ background: 'white', padding: '24px', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#1f2937' }}>🎯 核心监测指标 (每周/月更新)</h2>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+                <div style={{ borderLeft: '4px solid #ef4444', paddingLeft: '16px', background: '#fef2f2', padding: '16px', borderRadius: '0 8px 8px 0' }}>
+                  <h4 style={{ fontWeight: '700', color: '#dc2626', marginBottom: '8px', fontSize: '1rem' }}>每周必看 (最早预警)</h4>
+                  <ul style={{ fontSize: '0.85rem', margin: 0, paddingLeft: '20px', color: '#374151', lineHeight: '1.6' }}>
+                    <li>初请失业金 (连续4周&gt;30万)</li>
+                    <li>区域银行股/CDS走势</li>
+                    <li>回购/SOFR利差异常</li>
+                  </ul>
+                </div>
+
+                <div style={{ borderLeft: '4px solid #f97316', paddingLeft: '16px', background: '#fff7ed', padding: '16px', borderRadius: '0 8px 8px 0' }}>
+                  <h4 style={{ fontWeight: '700', color: '#ea580c', marginBottom: '8px', fontSize: '1rem' }}>每月必看 (确认趋势)</h4>
+                  <ul style={{ fontSize: '0.85rem', margin: 0, paddingLeft: '20px', color: '#374151', lineHeight: '1.6' }}>
+                    <li>非农回修幅度 (连续3月负修订)</li>
+                    <li>次级车贷60天+逾期 (&gt;6.5%)</li>
+                    <li>信用卡逾期率 (中产&gt;5%)</li>
+                    <li>兼职困境人数 (创新高)</li>
+                  </ul>
+                </div>
+
+                <div style={{ borderLeft: '4px solid #eab308', paddingLeft: '16px', background: '#fef9c3', padding: '16px', borderRadius: '0 8px 8px 0' }}>
+                  <h4 style={{ fontWeight: '700', color: '#ca8a04', marginBottom: '8px', fontSize: '1rem' }}>每季必看 (战略判断)</h4>
+                  <ul style={{ fontSize: '0.85rem', margin: 0, paddingLeft: '20px', color: '#374151', lineHeight: '1.6' }}>
+                    <li>401k困难提取率 (同比&gt;15%)</li>
+                    <li>银行坏账拨备 (大行财报)</li>
+                    <li>CRE逾期率 (&gt;8%红线)</li>
+                  </ul>
+                </div>
+
+                <div style={{ borderLeft: '4px solid #a855f7', paddingLeft: '16px', background: '#faf5ff', padding: '16px', borderRadius: '0 8px 8px 0' }}>
+                  <h4 style={{ fontWeight: '700', color: '#9333ea', marginBottom: '8px', fontSize: '1rem' }}>终极信号 (衰退确认)</h4>
+                  <ul style={{ fontSize: '0.85rem', margin: 0, paddingLeft: '20px', color: '#374151', lineHeight: '1.6' }}>
+                    <li>Sahm Rule触发 (失业率+0.5)</li>
+                    <li>HY-IG利差 (&gt;500bp)</li>
+                    <li>美联储扩表/紧急工具启动</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* 未来时间表 */}
+            <div style={{ background: 'white', padding: '24px', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: '#1f2937' }}>📅 危机倒计时 - 未来时间表</h2>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {macroRiskTimeline.map((item, idx) => (
+                  <div key={idx} style={{ borderLeft: '4px solid #3b82f6', paddingLeft: '16px', paddingTop: '12px', paddingBottom: '12px', background: '#f9fafb', borderRadius: '0 8px 8px 0' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                      <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#1f2937', margin: 0 }}>{item.period}</h3>
+                      <span style={{ fontSize: '0.85rem', background: '#dbeafe', color: '#1e40af', padding: '4px 12px', borderRadius: '9999px', fontWeight: '600' }}>
+                        概率: {item.probability}%
+                      </span>
+                    </div>
+                    
+                    <p style={{ fontWeight: '600', color: '#2563eb', marginBottom: '12px', fontSize: '1rem', margin: '0 0 12px 0' }}>{item.phase}</p>
+                    
+                    <div style={{ marginBottom: '12px' }}>
+                      <p style={{ fontSize: '0.9rem', fontWeight: '600', color: '#374151', marginBottom: '4px', margin: '0 0 4px 0' }}>关键信号:</p>
+                      <ul style={{ fontSize: '0.85rem', color: '#6b7280', margin: 0, paddingLeft: '20px', lineHeight: '1.6' }}>
+                        {item.keySignals.map((signal, i) => (
+                          <li key={i}>{signal}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    
+                    <div style={{ background: '#f0fdf4', borderLeft: '2px solid #10b981', paddingLeft: '12px', padding: '12px' }}>
+                      <p style={{ fontSize: '0.9rem', fontWeight: '600', color: '#15803d', margin: 0 }}>
+                        💡 投资策略: {item.investment}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 使用说明 */}
+            <div style={{ background: '#eff6ff', padding: '24px', borderRadius: '12px', border: '1px solid #bfdbfe' }}>
+              <h3 style={{ fontWeight: '700', color: '#1e40af', marginBottom: '16px', fontSize: '1.2rem' }}>📖 使用说明</h3>
+              <div style={{ fontSize: '0.9rem', color: '#1e3a8a', lineHeight: '1.8' }}>
+                <p style={{ fontWeight: '600', marginBottom: '8px', margin: '0 0 8px 0' }}>三分数据源逻辑:</p>
+                <ul style={{ margin: '0 0 16px 16px', paddingLeft: '20px' }}>
+                  <li><strong>官方数据</strong>: 权威但滞后,会被修饰</li>
+                  <li><strong>市场数据</strong>: 前瞻但易情绪化,需验证</li>
+                  <li><strong>替代数据</strong>: 实时且真实,但覆盖有限</li>
+                </ul>
+                <p style={{ fontWeight: '600', marginBottom: '8px', margin: '16px 0 8px 0' }}>关键判断规则:</p>
+                <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                  <li>三条线一致恶化 (≥7分) → 高置信度进入信用收缩</li>
+                  <li>市场+替代先恶化,官方滞后 → 数据修饰期,风险累积</li>
+                  <li>仅市场恶化 → 可能是情绪波动,等替代数据确认</li>
                 </ul>
               </div>
             </div>

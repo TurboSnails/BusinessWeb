@@ -96,13 +96,14 @@ export default function TradingPhilosophy(): JSX.Element {
   return (
     <main className="container" style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px 16px', position: 'relative' }}>
       {/* 页面标题 */}
-      <div style={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      <div className="glass-panel" style={{
+        background: 'linear-gradient(135deg, var(--system-indigo) 0%, var(--system-purple) 100%)',
         color: 'white',
         padding: '32px 24px',
-        borderRadius: '16px',
+        borderRadius: 'var(--radius-lg)',
         marginBottom: '24px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+        boxShadow: 'var(--shadow-lg)',
+        border: '1px solid rgba(255,255,255,0.2)'
       }}>
         <h1 style={{
           fontSize: '2rem',
@@ -170,22 +171,20 @@ export default function TradingPhilosophy(): JSX.Element {
       </div>
 
       {/* 目录导航 */}
-      <div style={{
+      <div className="glass-panel" style={{
         position: 'sticky',
         top: '20px',
         zIndex: 100,
         marginBottom: '24px',
-        background: 'white',
-        borderRadius: '12px',
-        padding: '16px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-        border: '1px solid #e2e8f0'
+        borderRadius: 'var(--radius-md)',
+        padding: '16px 20px',
+        border: '1px solid var(--glass-border)'
       }}>
         <div style={{
-          fontSize: '0.9rem',
-          fontWeight: '600',
-          color: '#64748b',
-          marginBottom: '12px',
+          fontSize: '0.95rem',
+          fontWeight: '700',
+          color: 'var(--text-secondary)',
+          marginBottom: '16px',
           display: 'flex',
           alignItems: 'center',
           gap: '8px'
@@ -203,18 +202,19 @@ export default function TradingPhilosophy(): JSX.Element {
               key={section.id}
               onClick={() => scrollToSection(section.id)}
               style={{
-                padding: '6px 12px',
+                padding: '8px 16px',
                 background: activeSection === section.id
-                  ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                  : '#f8fafc',
-                color: activeSection === section.id ? 'white' : '#475569',
+                  ? 'linear-gradient(135deg, var(--system-indigo) 0%, var(--system-purple) 100%)'
+                  : 'var(--system-gray6)',
+                color: activeSection === section.id ? 'white' : 'var(--text-primary)',
                 border: 'none',
-                borderRadius: '6px',
+                borderRadius: '8px',
                 cursor: 'pointer',
-                fontSize: '0.8rem',
-                fontWeight: '500',
-                transition: 'all 0.2s',
-                whiteSpace: 'nowrap'
+                fontSize: '0.85rem',
+                fontWeight: '600',
+                transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                whiteSpace: 'nowrap',
+                boxShadow: activeSection === section.id ? '0 4px 12px rgba(88, 86, 214, 0.3)' : 'none'
               }}
               onMouseEnter={(e) => {
                 if (activeSection !== section.id) {
@@ -234,20 +234,18 @@ export default function TradingPhilosophy(): JSX.Element {
       </div>
 
       {/* 一、投资之"道" */}
-      <section id="dao" style={{
-        background: 'white',
-        borderRadius: '12px',
-        padding: '24px',
+      <section id="dao" className="card" style={{
+        padding: '32px',
         marginBottom: '24px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+        border: '1px solid var(--glass-border)'
       }}>
         <h2 style={{
-          fontSize: '1.5rem',
+          fontSize: '1.75rem',
           fontWeight: '700',
-          color: '#1e293b',
-          margin: '0 0 20px 0',
-          paddingBottom: '12px',
-          borderBottom: '2px solid #e2e8f0'
+          color: 'var(--text-primary)',
+          margin: '0 0 24px 0',
+          paddingBottom: '16px',
+          borderBottom: '1px solid var(--system-gray5)'
         }}>
           一、投资之"道"(核心哲学)
         </h2>
@@ -259,12 +257,13 @@ export default function TradingPhilosophy(): JSX.Element {
           <div style={{ overflowX: 'auto', marginBottom: '16px' }}>
             <table style={{
               width: '100%',
-              borderCollapse: 'collapse',
-              fontSize: '0.95rem',
-              background: 'white',
-              borderRadius: '8px',
+              borderCollapse: 'separate',
+              borderSpacing: '0',
+              fontSize: '1rem',
+              background: 'rgba(255,255,255,0.5)',
+              borderRadius: 'var(--radius-md)',
               overflow: 'hidden',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+              border: '1px solid var(--system-gray5)'
             }}>
               <thead>
                 <tr style={{
@@ -312,14 +311,14 @@ export default function TradingPhilosophy(): JSX.Element {
                     }}
                   >
                     <td style={{
-                      padding: '14px 16px',
-                      fontWeight: '600',
-                      color: '#1e293b',
+                      padding: '16px',
+                      fontWeight: '700',
+                      color: 'var(--text-primary)',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '12px'
                     }}>
-                      <span style={{ color: '#3b82f6', display: 'flex' }}>{row.icon}</span>
+                      <span style={{ color: 'var(--system-blue)', display: 'flex' }}>{row.icon}</span>
                       {row.principle}
                     </td>
                     <td style={{

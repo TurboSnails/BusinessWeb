@@ -1,13 +1,16 @@
 :root {
   /* Apple System Colors */
   --system-blue: #007AFF;
+  --system-blue-light: rgba(0, 122, 255, 0.1);
   --system-indigo: #5856D6;
   --system-purple: #AF52DE;
   --system-pink: #FF2D55;
   --system-red: #FF3B30;
+  --system-red-light: rgba(255, 59, 48, 0.1);
   --system-orange: #FF9500;
   --system-yellow: #FFCC00;
   --system-green: #34C759;
+  --system-green-light: rgba(52, 199, 89, 0.1);
   --system-teal: #5AC8FA;
   --system-cyan: #32ADE6;
   --system-gray: #8E8E93;
@@ -19,8 +22,8 @@
 
   /* Semantic Colors */
   --bg-primary: #f5f5f7;
-  /* Apple's subtle light gray background */
   --bg-card: rgba(255, 255, 255, 0.7);
+  --border-subtle: rgba(0, 0, 0, 0.08);
   --text-primary: #1d1d1f;
   --text-secondary: #86868b;
   --accent: var(--system-blue);
@@ -88,8 +91,8 @@ h1 {
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
-  border-bottom: 0.5px solid rgba(0, 0, 0, 0.1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-glass);
 }
 
 /* Layout Utilities */
