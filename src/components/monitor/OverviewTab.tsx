@@ -13,37 +13,44 @@ export const OverviewTab: React.FC = () => {
         <div style={{ marginBottom: '20px' }}>
           <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#1f2937' }}>目标</h3>
           <p style={{ fontSize: '0.95rem', lineHeight: '1.8', color: '#374151', marginBottom: '12px' }}>
-            在可能出现的 2026 年美股中大级别回撤中，尽量避开主要跌幅，并在「极度恐慌—错杀」阶段分批建仓，获得中长期收益。
+            通过全球多元化配置（美股+港股+A股+商品），采用等权分散策略降低单一资产风险，在宏观不确定性中寻求稳健收益。
           </p>
         </div>
 
         <div style={{ marginBottom: '20px' }}>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#1f2937' }}>核心资产</h3>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#1f2937' }}>核心资产（等权配置 各1/9）</h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '12px' }}>
             <div style={{ background: 'white', padding: '12px', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
-              <div style={{ fontWeight: '600', marginBottom: '4px', color: '#1f2937' }}>指数与权重股</div>
-              <div style={{ fontSize: '0.9rem', color: '#6b7280' }}>NVDA 等美股核心成长</div>
+              <div style={{ fontWeight: '600', marginBottom: '4px', color: '#1f2937' }}>🥇 避险资产</div>
+              <div style={{ fontSize: '0.9rem', color: '#6b7280' }}>黄金（GOLD）</div>
             </div>
             <div style={{ background: 'white', padding: '12px', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
-              <div style={{ fontWeight: '600', marginBottom: '4px', color: '#1f2937' }}>杠杆放大器</div>
-              <div style={{ fontSize: '0.9rem', color: '#6b7280' }}>YINN（仅限趋势阶段）</div>
+              <div style={{ fontWeight: '600', marginBottom: '4px', color: '#1f2937' }}>🏥 医疗健康</div>
+              <div style={{ fontSize: '0.9rem', color: '#6b7280' }}>联合健康（UNH）、诺和诺德（NVO）</div>
             </div>
             <div style={{ background: 'white', padding: '12px', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
-              <div style={{ fontWeight: '600', marginBottom: '4px', color: '#1f2937' }}>贵金属与矿企</div>
-              <div style={{ fontSize: '0.9rem', color: '#6b7280' }}>黄金仓位 + PAAS</div>
+              <div style={{ fontWeight: '600', marginBottom: '4px', color: '#1f2937' }}>💾 科技半导体</div>
+              <div style={{ fontSize: '0.9rem', color: '#6b7280' }}>亚马逊（AMZN）、美光（MU）、舜宇光学（2382.HK）</div>
             </div>
             <div style={{ background: 'white', padding: '12px', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
-              <div style={{ fontWeight: '600', marginBottom: '4px', color: '#1f2937' }}>卫星仓</div>
-              <div style={{ fontSize: '0.9rem', color: '#6b7280' }}>RKLB 等高 Beta 小票（仅在特定阶段参与）</div>
+              <div style={{ fontWeight: '600', marginBottom: '4px', color: '#1f2937' }}>🛡️ 防御成长</div>
+              <div style={{ fontSize: '0.9rem', color: '#6b7280' }}>Adtalem（ATGE）、Booz Allen（BAH）</div>
+            </div>
+            <div style={{ background: 'white', padding: '12px', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+              <div style={{ fontWeight: '600', marginBottom: '4px', color: '#1f2937' }}>🚗 新能源车</div>
+              <div style={{ fontSize: '0.9rem', color: '#6b7280' }}>比亚迪（002594.SZ）</div>
             </div>
           </div>
         </div>
 
         <div>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#1f2937' }}>适用人群</h3>
-          <p style={{ fontSize: '0.95rem', lineHeight: '1.8', color: '#374151' }}>
-            能承受中等回撤，有一定期权与衍生品概念，习惯按规则执行的主动投资者。
-          </p>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#1f2937' }}>策略特点</h3>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            <span style={{ background: '#dbeafe', color: '#1e40af', padding: '6px 12px', borderRadius: '6px', fontSize: '0.9rem', fontWeight: '500' }}>等权配置 1/9</span>
+            <span style={{ background: '#dcfce7', color: '#166534', padding: '6px 12px', borderRadius: '6px', fontSize: '0.9rem', fontWeight: '500' }}>全球多元化</span>
+            <span style={{ background: '#fef3c7', color: '#92400e', padding: '6px 12px', borderRadius: '6px', fontSize: '0.9rem', fontWeight: '500' }}>跨市场配置</span>
+            <span style={{ background: '#f3e8ff', color: '#7c3aed', padding: '6px 12px', borderRadius: '6px', fontSize: '0.9rem', fontWeight: '500' }}>行业分散</span>
+          </div>
         </div>
       </div>
 
