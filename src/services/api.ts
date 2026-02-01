@@ -146,6 +146,42 @@ const CORS_PROXY_THIRD = (url: string) => `https://proxy.cors.sh/${url}`
 // Yahoo Finance 用的代理（多个备选）
 const YAHOO_PROXIES = [CORS_PROXY_MAIN, CORS_PROXY_BACKUP, CORS_PROXY_THIRD]
 
+// ========== AkShare / AKTools 接入 ==========
+// 使用前需本地或服务器启动: pip install aktools && python -m aktools
+// 默认地址 http://127.0.0.1:8080 ，生产环境可配 VITE_AKTOOLS_BASE_URL
+const AKTOOLS_BASE = (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_AKTOOLS_BASE_URL) || 'http://127.0.0.1:8080'
+
+/** 调用 AKTools 暴露的 AkShare 接口，返回 JSON。接口名对应 akshare 方法名，如 stock_zh_a_hist */
+export async function fetchAkShare<T = unknown>(
+  interfaceName: string,
+  params: Record<string, string | number | undefined> = {}
+): Promise<T> {
+  const base = `${AKTOOLS_BASE.replace(/\/$/, '')}/api/public/${interfaceName}`
+  const search = new URLSearchParams()
+  Object.entries(params).forEach(([k, v]) => {
+    if (v !== undefined && v !== '') search.set(k, String(v))
+  })
+  const url = search.toString() ? `${base}?${search}` : base
+  const res = await fetchWithTimeout(url, { method: 'GET', headers: { Accept: 'application/json' } }, 15000)
+  if (!res.ok) throw new Error(`AkShare ${interfaceName}: ${res.status}`)
+  return res.json() as Promise<T>
+}
+
+/** A股日线/周线（示例）。需 AKTools 运行: python -m aktools */
+export async function fetchAkShareStockZhAHist(
+  symbol: string,
+  options: { period?: 'daily' | 'weekly'; start_date?: string; end_date?: string; adjust?: string } = {}
+): Promise<Array<Record<string, unknown>>> {
+  const data = await fetchAkShare<Array<Record<string, unknown>>>('stock_zh_a_hist', {
+    symbol,
+    period: options.period || 'daily',
+    start_date: options.start_date,
+    end_date: options.end_date,
+    adjust: options.adjust || 'qfq'
+  })
+  return Array.isArray(data) ? data : []
+}
+
 // 获取美股数据 - 竞速模式
 export async function fetchUSStock(symbol: string): Promise<StockQuote | null> {
   // 检查缓存
