@@ -113,6 +113,14 @@ export default function Home(): JSX.Element {
       description: '基于经济衰退预警的风险管理',
       gradient: 'linear-gradient(135deg, #34C759 0%, #30B0C7 100%)',
       color: 'var(--system-green)'
+    },
+    {
+      to: '/investment-strategy',
+      icon: Lightbulb,
+      title: '综合投资策略框架',
+      description: '融合巴菲特·邓普顿·双阶段轮动逻辑',
+      gradient: 'linear-gradient(135deg, #34C759 0%, #007AFF 100%)',
+      color: 'var(--system-blue)'
     }
   ]
 

@@ -12,6 +12,7 @@ import LimitUpAnalysis from './pages/LimitUpAnalysis'
 import TradingPhilosophy from './pages/TradingPhilosophy'
 import SectorRotation from './pages/SectorRotation'
 import MainlandInvestmentTargets from './pages/MainlandInvestmentTargets'
+import InvestmentStrategy from './pages/InvestmentStrategy'
 
 export default function App(): JSX.Element {
   // 开发环境检测：如果 URL 包含 /BusinessWeb，使用 basename
@@ -41,6 +42,7 @@ export default function App(): JSX.Element {
           <Route path="/trading-philosophy" element={<TradingPhilosophy />} />
           <Route path="/sector-rotation" element={<SectorRotation />} />
           <Route path="/mainland-investment-targets" element={<MainlandInvestmentTargets />} />
+          <Route path="/investment-strategy" element={<InvestmentStrategy />} />
         </Routes>
         <Footer />
       </BrowserRouter>
