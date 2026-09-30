@@ -10,6 +10,7 @@ import { consumerDetails } from './details/consumer'
 import { staplesDetails } from './details/staples'
 import { itDetails } from './details/it'
 import { cnDetails } from './details/cn'
+import { casinoDetails } from './details/casino'
 
 const manual: Record<string, Partial<Company>> = {
   'us:PEP': {
@@ -192,10 +193,11 @@ const manual: Record<string, Partial<Company>> = {
   },
 
   'us:MCK': {
-    headline: '条件关注：第4批 17 家里唯一最接近 2:1 的标的（1.79×）；药品分销寡头 + 肿瘤网络规模化 + GLP-1 分销通道，叠加纪律性回购',
+    rating: '观察',
+    headline: '观察：经营面强（药品分销寡头 + 肿瘤网络 + GLP-1 通道，指引连续上调），但按 Notion 页自己的情景价复算，Base/Bear 只有 0.51×，不是页面写的 1.79×',
     certainty: '中（指引连续上调；关键是 H2 加速投入能否在 FY2028 兑现、Wellverse 分拆是否顺利）',
     duration: '至少到 FY2028；FY2027 调整后 EPS 指引 $44.20–45.00（+13%~15%）',
-    ratioNote: '研究页写 Base/Bear = 1.79×；但按同页数字 Base 上行 +11.7% ÷ Bear 下行 22.8% 只有约 0.51×，两个口径对不上，需回查 Notion 原页',
+    ratioNote: '已回查 Notion 原页（2026-09-22 版）：页面同时写 Base +11.7%、Bear −22.8% 和 Base/Bear = 1.79×，两者矛盾；11.7 ÷ 22.8 = 0.51×。我试过 (Base−Bear)/(现价−Bear)=1.51、Bull 口径=1.67，都不是 1.79，原页数字无法复现。本页以可复算的 0.51× 为准（按 9/29 收盘 $864.82 复算：Base +14.5% ÷ Bear −20.9% = 0.69×）。原页未改，需用户确认 1.79× 的出处',
     metrics: [
       ['价格锚点', '$886.47（2026-09-22 收盘）；约 19.8× 远期'],
       ['Q1 营收', '$105.38bn（+8%）'],
@@ -203,7 +205,7 @@ const manual: Record<string, Partial<Company>> = {
       ['GLP-1 分销', '$15bn（+24%，占营收约 14%）'],
       ['TTM FCF', '约 $6.1bn；FY2027 指引 FCF $4.5–4.9bn，回购约 $5bn'],
       ['Bear / Base / Bull', '$684 / $990 / $1,225'],
-      ['Base / Bear 赔率', '1.79×'],
+      ['Base / Bear 赔率', '0.51×（按 $886.47 复算；Notion 原页写 1.79×，矛盾，见口径说明）；按 9/29 收盘 $864.82 为 0.69×'],
     ],
     thesis: [
       '北美药品营收 $86.77bn（+5%），调整后营业利润 $894m（+19%）；>95% 品牌药为 fee-for-service，降价不伤利润',
@@ -216,16 +218,16 @@ const manual: Record<string, Partial<Company>> = {
       { name: '乐观', assumption: '正常化 EPS $49.00：肿瘤维持 20%+ 增长、Precision Medicine 整合顺利、GLP-1 超预期、FY28 EPS +15%', multiple: '25.0×', price: '$1,225', change: '+38.2%', trigger: '肿瘤与多专科维持 20%+，FY28 EPS 增长 15%+' },
     ],
     discipline: {
-      zone: '当前 1.79× 接近门槛，列入重点跟踪；价格回调或 FY28 指引确认可升级',
+      zone: '复算赔率 0.51×，未达约 2:1；按页内 Base $990、Bear $684，价格降到约 $786 以下才达到 2:1（(990−P)/(P−684)=2），或 FY28 指引确认后上调 Base 再评估',
       add: 'FY27 H2 加速投入兑现为 FY28 回报、Wellverse 分拆顺利、GLP-1 分销季度波动不破坏全年指引',
       invalid: 'GLP-1 分销增速骤降；品牌药降价超预期；分拆分散管理层精力，投入回报推迟至 FY2029',
     },
     bullBear: {
       bull: '药品分销寡头（约占美国市场 1/3）+ 肿瘤网络规模化 + GLP-1 分销通道，指引连续上调，回购纪律强',
       bear: 'GLP-1 分销单季 $15bn 占营收 14%，增速骤降直接拖累；品牌药降价；Wellverse 分拆执行风险',
-      verdict: '赔率 1.79× 未达 2:1，可列重点跟踪，等价格回调或 FY28 指引确认',
+      verdict: '复算赔率 0.51× 未达 2:1；经营面好，价格降到约 $786 以下或 FY28 指引确认后再评估',
     },
-    pitfalls: ['[待核对] 赔率口径不一致：页面写 1.79×，用页内 Base/Bear 价格与现价 $886.47 复算只有约 0.51×（Base +11.7%，Bear −22.8%）。在核对清楚前，“最接近 2:1”的说法不可直接采信', 'Q1 GAAP EPS −18% 主因 MedSurg 少数股权赎回重估 $293m（一次性会计项），调整后才是经营口径', 'FY2026 Q2 有 $51m US Oncology 股权出售收益的高基数，同比可比性需注意'],
+    pitfalls: ['赔率已回查 Notion 原页：页面写 1.79×，但页内 Base +11.7%、Bear −22.8% 复算为 0.51×，原页数字复现不出 1.79×；本页以 0.51× 为准，原页未改，需用户确认 1.79× 出处。“最接近 2:1”的说法作废', 'Q1 GAAP EPS −18% 主因 MedSurg 少数股权赎回重估 $293m（一次性会计项），调整后才是经营口径', 'FY2026 Q2 有 $51m US Oncology 股权出售收益的高基数，同比可比性需注意'],
     calendar: ['FY2027 Q2（约 11 月初）：调整后 EPS 同比可比性、H2 加速投入对利润率的压制、GLP-1 分销收入的季度波动'],
   },
 
@@ -516,4 +518,4 @@ const manual: Record<string, Partial<Company>> = {
 }
 
 // 手写条目优先于批量文本条目
-export const companyDetails: Record<string, Partial<Company>> = mergeDetails(parseDetails(healthDetails), parseDetails(financeDetails), parseDetails(consumerDetails), parseDetails(staplesDetails), parseDetails(itDetails), parseDetails(cnDetails), parseDetails(profileDetails), manual)
+export const companyDetails: Record<string, Partial<Company>> = mergeDetails(parseDetails(healthDetails), parseDetails(financeDetails), parseDetails(consumerDetails), parseDetails(staplesDetails), parseDetails(itDetails), parseDetails(cnDetails), parseDetails(casinoDetails), parseDetails(profileDetails), manual)
