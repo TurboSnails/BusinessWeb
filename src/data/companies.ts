@@ -1,6 +1,7 @@
 // 数据来源：Notion「投资计划 / 标普500分类」及「沪深产业分类」下的公司研究页，汇总于 2026-09-29。
 // 仅为个人研究笔记，情景价值与价位均为研究假设，不构成目标价或投资建议。
 import { notionIds, notionUrl } from './notionLinks'
+import { companyDetails } from './companyDetails'
 
 export type Market = 'us' | 'cn'
 
@@ -18,6 +19,23 @@ export interface Company {
   next: string[] // 后续验证 / 操作参考
   asOf: string // 数据时点与口径
   url?: string // Notion 原页
+  // ── 以下为“最终返回标准”的扩展字段，逐步补全（缺则详情页显示“待补充”） ──
+  certainty?: string // 确定性：高/中/低 + 依据
+  duration?: string // 增长可持续期限
+  moat?: string[] // 护城河
+  growth?: string[] // 增长来源拆解
+  scenarios?: { name: string; prob?: string; assumption: string; multiple?: string; price: string; change: string; trigger: string }[]
+  ratioNote?: string // 盈亏比推导与概率说明
+  discipline?: { zone?: string; add?: string; trim?: string; invalid?: string; position?: string }
+  bullBear?: { bull: string; bear: string; verdict: string } // 整理自研究页，非独立对抗检验
+  pitfalls?: string[] // 口径与陷阱、[MISSING] 清单
+  calendar?: string[] // 后续验证日历
+  aiNote?: string // AI 是否为可量化变量
+  profile?: string // 公司简介
+  segments?: { name: string; share?: string; note?: string }[] // 业务分布
+  pros?: string[] // 优势
+  cons?: string[] // 缺点
+  industry?: string[] // 行业趋势
 }
 
 const split = (s: string): string[] => (s ? s.split('；').map(x => x.trim()).filter(Boolean) : [])
@@ -288,7 +306,7 @@ SJM|斯马克|第19批·包装食品与软饮料|观察|$120.70（9/29 收盘）
 TSN|泰森食品|第19批·包装食品与软饮料|观察|$50.98（9/29 收盘）|买入区间 $44–48|1.55:1|本批唯一没有商誉/减值包袱：PB 0.99× 对应真实屠宰与加工资产，还债 8.24 亿，流动性 40 亿；鸡肉连续 7 个季度增长（利润率 11.2%）、预制食品利润率 12.6%；期望收益 +9.5%（含股息）|牛肉失血：Q3 销量 −15.9%、营业亏损 −1.42 亿，FY2026 牛肉亏损指引恶化到 5.0–6.5 亿；管理层称 FY2027 大致持平，而共识 +11.4%，预期差；股息增速仅 2.0%|FY2026 Q4 约 11 月初
 `)
 
-export const usCompanies: Company[] = [...aiCompanies, ...healthCompanies, ...financeCompanies, ...consumerCompanies, ...staplesCompanies]
+const usBase: Company[] = [...aiCompanies, ...healthCompanies, ...financeCompanies, ...consumerCompanies, ...staplesCompanies]
 
 // ───────── 沪深（A 股 / 港股） ─────────
 const cn = (
@@ -300,7 +318,7 @@ const NM_ASOF = '行情取 2026-09-18 收盘，财务截至 2026H1；区间是�
 const CHEM_ASOF = '沪深化工龙头排名（2026-09）；动态 PE 与层级为研究分档。'
 const GS_ASOF = '「高盛增持」页，数据 2026H1；分档为研究排序。'
 
-const cnCore: Company[] = [
+const cnCoreBase: Company[] = [
   cn('603596', '伯特利', '自动驾驶', '深度研究', '逢低增持', '线控制动/EMB 卡位 + 底盘平台化的期权，价格是 18 倍 PE 的零部件估值',
     [['现价 / 市值', '28.54 元 / 256.2 亿'], ['PE(TTM) / PB', '17.93× / 3.11×'], ['2026H1 营收 / 归母', '62.72 亿 / 6.41 亿'], ['2026Q2 归母同比', '+47.97%'], ['加权 ROE（2025）', '18.03%'], ['机构综合目标价', '41.96 元'], ['买入区间', '23.0–29.5 元（核心 23–26）'], ['卖出区间', '35–45 元（首减 35–38）']],
     ['股价与业绩背离：近 3 年股价累计约 −25.5%，营收 74.7→120.1 亿（+60.7%）、归母 8.91→13.09 亿（+46.9%），下跌的是估值（PE 40×→17.9×）',
@@ -498,8 +516,13 @@ AI 算力|算法与行业应用|300496|中科创达|产业链标的|布局端侧
   }
 })
 
-const cnKnown = new Set(cnCore.map(c => c.code))
-export const cnCompanies: Company[] = [...cnCore, ...cnChain.filter(c => !cnKnown.has(c.code))]
+const cnKnown = new Set(cnCoreBase.map(c => c.code))
+const cnBase: Company[] = [...cnCoreBase, ...cnChain.filter(c => !cnKnown.has(c.code))]
+
+// 用 companyDetails.ts 里补全的深度内容覆盖
+const withDetails = (list: Company[]): Company[] => list.map(c => (companyDetails[c.market + ':' + c.code] ? { ...c, ...companyDetails[c.market + ':' + c.code] } : c))
+export const usCompanies: Company[] = withDetails(usBase)
+export const cnCompanies: Company[] = withDetails(cnBase)
 
 export const findCompany = (market: Market, code: string): Company | undefined =>
   (market === 'us' ? usCompanies : cnCompanies).find(c => c.code === code)

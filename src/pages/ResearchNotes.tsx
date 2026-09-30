@@ -427,11 +427,45 @@ export default function ResearchNotes(): JSX.Element {
         {/* ── 研究标准 ── */}
         {activeTab === 'standard' && (
           <div>
-            <p style={sectionTitle}>标普500公司分析标准</p>
+            <p style={sectionTitle}>研究标准 · 适用于所有公司</p>
             <div style={{ ...card, border: '1.5px solid rgba(0,122,255,0.35)', background: 'rgba(0,122,255,0.04)' }}>
               <h3 style={cardTitle}>核心投资目标</h3>
               {quote(researchStandard.goal)}
-              {researchStandard.scope.map((t, i) => checkRow(t, 'var(--system-blue)', i))}
+              {researchStandard.applies.map((t, i) => checkRow(t, 'var(--system-blue)', i))}
+            </div>
+
+            <div style={card}>
+              <h3 style={cardTitle}>研究流程（五步）</h3>
+              {researchStandard.flow.map((f, i) => flowStep(i + 1, (
+                <>
+                  <strong style={{ color: 'var(--text-primary)' }}>{f.title}</strong>
+                  <span style={{ ...badge('blue'), marginLeft: '8px', marginBottom: 0 }}>{f.skill}</span>
+                  <div>{f.desc}</div>
+                </>
+              )))}
+            </div>
+
+            <div style={card}>
+              <h3 style={cardTitle}>三个研究 skill 的分工</h3>
+              <Table heads={['skill', '什么时候用', '特点']} rows={researchStandard.skills.map(k => [<span><strong style={{ color: 'var(--text-primary)' }}>{k[0]}</strong><br /><code style={{ fontSize: '11px' }}>{k[1]}</code></span>, k[2], k[3]])} />
+              <p style={{ fontSize: '12px', color: 'var(--text-tertiary)', margin: '12px 0 0', lineHeight: 1.6 }}>注意：专家团圆桌不给买卖指令；另外两个会给方向性结论，口径不要混用。</p>
+            </div>
+
+            <div style={card}>
+              <h3 style={cardTitle}>立论：资深 PM 七问</h3>
+              {researchStandard.pmQuestions.map((t, i) => flowStep(i + 1, t))}
+            </div>
+
+            <div style={card}>
+              <h3 style={cardTitle}>数据纪律</h3>
+              {researchStandard.dataRules.map((t, i) => checkRow(t, 'var(--system-green)', i))}
+              <h3 style={{ ...cardTitle, margin: '20px 0 12px' }}>各市场财报节奏与看点</h3>
+              <Table heads={['市场', '披露节奏', '口径与看点']} rows={researchStandard.calendar} />
+            </div>
+
+            <div style={card}>
+              <h3 style={cardTitle}>口径纪律</h3>
+              <Table heads={['项目', '要求']} rows={researchStandard.caliber} />
             </div>
 
             {researchStandard.checklist.map((c, i) => (
@@ -442,16 +476,45 @@ export default function ResearchNotes(): JSX.Element {
             ))}
 
             <div style={card}>
-              <h3 style={cardTitle}>固定结论格式：买入纪律</h3>
-              <Table
-                heads={['项目', '要求']}
-                rows={researchStandard.verdict.map(v => [v.label, v.text])}
-              />
+              <h3 style={cardTitle}>估值方法</h3>
+              {researchStandard.valuation.map((t, i) => checkRow(t, 'var(--system-blue)', i))}
             </div>
 
             <div style={card}>
-              <h3 style={cardTitle}>研究原则</h3>
-              {researchStandard.principles.map((t, i) => checkRow(t, 'var(--system-blue)', i))}
+              <h3 style={cardTitle}>常见数据陷阱</h3>
+              <Table heads={['陷阱', '典型表现', '做法']} rows={researchStandard.traps} />
+            </div>
+
+            <div style={card}>
+              <h3 style={cardTitle}>对抗检验</h3>
+              {researchStandard.adversarial.map((t, i) => checkRow(t, 'var(--system-orange)', i, 'warn'))}
+            </div>
+
+            <div style={card}>
+              <h3 style={cardTitle}>最终返回标准（每家公司的成稿必须包含）</h3>
+              <Table heads={['#', '模块', '必含内容', '最低要求']} rows={researchStandard.finalReport} />
+              <h3 style={{ ...cardTitle, margin: '20px 0 12px' }}>深度分级</h3>
+              <Table heads={['形式', '包含', '什么时候用']} rows={researchStandard.depth} />
+              <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '14px 0 0', lineHeight: 1.7 }}>{researchStandard.chat}</p>
+            </div>
+
+            <div style={card}>
+              <h3 style={cardTitle}>固定结论格式</h3>
+              <Table heads={['项目', '要求']} rows={researchStandard.verdict.map(v => [v.label, v.text])} />
+              <div style={{ marginTop: '14px' }}>
+                <span style={{ fontSize: '12px', color: 'var(--text-secondary)', marginRight: '8px' }}>行动分类</span>
+                {researchStandard.action.map(a => <span key={a} style={badge('gray')}>{a}</span>)}
+              </div>
+            </div>
+
+            <div style={card}>
+              <h3 style={cardTitle}>仓位与风控</h3>
+              {researchStandard.position.map((t, i) => checkRow(t, 'var(--system-red)', i, 'warn'))}
+            </div>
+
+            <div style={card}>
+              <h3 style={cardTitle}>红线</h3>
+              {researchStandard.redlines.map((t, i) => checkRow(t, 'var(--system-red)', i, 'warn'))}
             </div>
             {disclaimer}
           </div>
