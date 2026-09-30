@@ -152,8 +152,8 @@ export default function CompanyDetail(): JSX.Element {
       <div style={{ maxWidth: '760px', margin: '0 auto', padding: '28px 20px' }}>
         {company.auto && (
           <div style={{ ...card, border: '1.5px solid rgba(255,149,0,0.45)', background: 'rgba(255,149,0,0.06)' }}>
-            <h3 style={{ ...cardTitle, margin: '0 0 8px' }}>程序化研究页</h3>
-            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.7, margin: 0 }}>本页的财务数值、估值、三情景与买入区由脚本按统一规则计算（规则见「研究笔记 → 研究标准」），业务描述与行业判断为简述；不含公司特有催化与风险，一手公告、分部占比、一致预期、自由现金流均未取到。结论用于筛选与排序，深度判断需回到公司公告。</p>
+            <h3 style={{ ...cardTitle, margin: '0 0 8px' }}>{company.reviewed ? '程序化研究页（已人工复核）' : '程序化研究页'}</h3>
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.7, margin: 0 }}>本页的财务数值、估值、三情景与买入区由脚本按统一规则计算（规则见「研究笔记 → 研究标准」），业务描述与行业判断为简述；{company.reviewed ? '已用最新半年报/指引人工复核评级与关键风险（见指标表「人工复核」行），但情景数值仍是脚本结果；' : ''}不含公司特有催化与风险，一手公告、分部占比、一致预期、自由现金流均未取到。结论用于筛选与排序，深度判断需回到公司公告。</p>
           </div>
         )}
         <div style={card}>

@@ -38,6 +38,7 @@ export interface Company {
   cons?: string[] // 缺点
   industry?: string[] // 行业趋势
   auto?: boolean // 程序化研究页：数值部分由脚本按统一规则计算，定性部分为简述
+  reviewed?: boolean // 程序化页经人工用最新公告复核过（见指标表「人工复核」行）
 }
 
 const split = (s: string): string[] => (s ? s.split('；').map(x => x.trim()).filter(Boolean) : [])
