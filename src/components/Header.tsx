@@ -43,6 +43,7 @@ export default function Header(): JSX.Element {
     { path: '/investment-plan-2026', label: '投资计划', icon: Calendar },
     { path: '/investment-strategy', label: '策略框架', icon: Layers },
     { path: '/research-notes', label: '研究笔记', icon: BookOpen },
+    { path: '/grid-trading', label: '网格交易', icon: BarChart2 },
     { path: '/about', label: '关于', icon: Info }
   ]
 
@@ -232,7 +233,8 @@ export default function Header(): JSX.Element {
 
       <style>{`
         @media (min-width: 1024px) {
-          .desktop-nav { display: flex !important; }
+          .desktop-nav { display: flex !important; min-width: 0; overflow-x: auto; }
+          .desktop-nav a { flex-shrink: 0; white-space: nowrap; }
           .mobile-menu-btn, .mobile-nav, .page-title-mobile { display: none !important; }
         }
         @media (max-width: 1023px) {

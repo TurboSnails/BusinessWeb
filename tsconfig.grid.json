@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["src/features/grid-trading/**/*.ts", "src/features/grid-trading/**/*.tsx", "src/pages/Grid*.tsx"]
+}

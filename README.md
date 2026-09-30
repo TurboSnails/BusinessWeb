@@ -29,7 +29,7 @@ npm run preview
 
 部署到 GitHub Pages
 
-项目已配置为部署到 `https://turbosnails.github.io/a/`
+项目已配置为部署到 `https://turbosnails.github.io/BusinessWeb/`
 
 1. 确保已安装 gh-pages（已在 devDependencies 中）：
 ```bash
@@ -44,12 +44,13 @@ npm run deploy
 这会自动：
 - 运行 `npm run build` 构建项目
 - 将 `dist` 目录推送到 GitHub 的 `gh-pages` 分支
-- 项目将在 `https://turbosnails.github.io/a/` 可访问
+- 项目将在 `https://turbosnails.github.io/BusinessWeb/` 可访问
 
 **重要配置说明：**
-- `vite.config.js` 中设置了 `base: '/a/'`
-- `App.tsx` 中设置了 `basename="/a"`
-- 确保 GitHub 仓库名称为 `turbosnails.github.io`（用户或组织页面）
+- `vite.config.js` 中设置了 `base: '/BusinessWeb/'`
+- `App.tsx` 中设置了 `basename="/BusinessWeb"`
+- 当前仓库为 `TurboSnails/BusinessWeb`，发布目标是其 `gh-pages` 分支。
+- 构建会生成网格入口页面和 SPA 的 `404.html` 回退页面，支持直接访问和刷新详情路由。
 
 文件
 

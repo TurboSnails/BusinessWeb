@@ -15,6 +15,9 @@ import MainlandInvestmentTargets from './pages/MainlandInvestmentTargets'
 import InvestmentStrategy from './pages/InvestmentStrategy'
 import ResearchNotes from './pages/ResearchNotes'
 import CompanyDetail from './pages/CompanyDetail'
+import GridCalculator from './pages/GridCalculator'
+import GridRecords from './pages/GridRecords'
+import GridRecordDetail from './pages/GridRecordDetail'
 
 export default function App(): JSX.Element {
   // 开发环境检测：如果 URL 包含 /BusinessWeb，使用 basename
@@ -47,6 +50,9 @@ export default function App(): JSX.Element {
           <Route path="/investment-strategy" element={<InvestmentStrategy />} />
           <Route path="/research-notes" element={<ResearchNotes />} />
           <Route path="/research-notes/:market/:code" element={<CompanyDetail />} />
+          <Route path="/grid-trading" element={<GridCalculator />} />
+          <Route path="/grid-trading/records" element={<GridRecords />} />
+          <Route path="/grid-trading/records/:recordId" element={<GridRecordDetail />} />
         </Routes>
         <Footer />
       </BrowserRouter>

@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
@@ -31,5 +31,15 @@ export default defineConfig({
         }
       }
     }
+  },
+  test: {
+    environment: 'jsdom',
+    environmentOptions: { jsdom: { url: 'http://localhost' } },
+    include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
+    passWithNoTests: true,
+    globals: true,
+    setupFiles: ['src/features/grid-trading/testSetup.ts'],
+    restoreMocks: true,
+    clearMocks: true
   }
 })
