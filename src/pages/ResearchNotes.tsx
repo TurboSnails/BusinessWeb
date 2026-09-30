@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import {
   BookOpen,
+  Compass,
   Layers,
   Target,
   Grid3x3,
@@ -13,6 +14,7 @@ import {
 import {
   NOTION_SYNC_DATE,
   portfolioV6,
+  philosophy,
   researchStandard,
   sp500Sectors,
   sp500Note,
@@ -31,9 +33,10 @@ import {
 } from '../data/notionNotes'
 import { usCompanies, cnCompanies, sectorsOf, Market } from '../data/companies'
 
-type TabId = 'strategy' | 'standard' | 'category' | 'dev'
+type TabId = 'philosophy' | 'strategy' | 'standard' | 'category' | 'dev'
 
 const tabs: { id: TabId; label: string; icon: React.ElementType }[] = [
+  { id: 'philosophy', label: '投资理念', icon: Compass },
   { id: 'strategy', label: '策略配置', icon: Layers },
   { id: 'standard', label: '研究标准', icon: Target },
   { id: 'category', label: '分类数据', icon: Grid3x3 },
@@ -49,8 +52,9 @@ const toneColors: Record<Tone, { bg: string; color: string }> = {
 }
 
 export default function ResearchNotes(): JSX.Element {
-  const [activeTab, setActiveTab] = useState<TabId>('strategy')
+  const [activeTab, setActiveTab] = useState<TabId>('philosophy')
   const [showBackToTop, setShowBackToTop] = useState(false)
+  const [zoomImg, setZoomImg] = useState<{ src: string; title: string } | null>(null)
   const [catMarket, setCatMarket] = useState<Market | 'watch'>('us')
   const [progSector, setProgSector] = useState('全部')
 
@@ -271,6 +275,70 @@ export default function ResearchNotes(): JSX.Element {
 
       {/* 内容区 */}
       <div style={{ maxWidth: '760px', margin: '0 auto', padding: '28px 20px' }}>
+
+        {/* ── 投资理念 ── */}
+        {activeTab === 'philosophy' && (
+          <div>
+            <p style={sectionTitle}>投资框架</p>
+            <div style={{ ...card, border: '1.5px solid rgba(0,122,255,0.35)', background: 'rgba(0,122,255,0.04)' }}>
+              {quote(philosophy.motto)}
+              <div style={grid(150)}>
+                {philosophy.structure.map(x => metricCard(`${x.label} · ${x.desc}`, x.pct))}
+              </div>
+            </div>
+
+            {philosophy.images.map(img => {
+              const src = `${import.meta.env.BASE_URL}images/philosophy/${img.file}`
+              return (
+                <div key={img.file} style={{ ...card, padding: '20px' }}>
+                  <h3 style={cardTitle}>{img.title}</h3>
+                  <img
+                    src={src}
+                    alt={img.title}
+                    loading="lazy"
+                    onClick={() => setZoomImg({ src, title: img.title })}
+                    style={{ width: '100%', height: 'auto', borderRadius: 'var(--radius-md)', cursor: 'zoom-in', display: 'block' }}
+                  />
+                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '12px 0 0', lineHeight: 1.7 }}>{img.caption}（点击图片放大）</p>
+                </div>
+              )
+            })}
+
+            <div style={card}>
+              <h3 style={cardTitle}>被动层 · 压舱石（五格等权）</h3>
+              <Table heads={['资产', '占比', '定位']} rows={philosophy.passive.map(r => [r[0], <span style={badge('blue')}>{r[1]}</span>, r[2]])} />
+              <div style={{ marginTop: '16px' }}>
+                {philosophy.rebalance.map((t, i) => checkRow(t, 'var(--system-green)', i))}
+              </div>
+            </div>
+
+            <div style={card}>
+              <h3 style={cardTitle}>现金流测算</h3>
+              {philosophy.cashflow.map((t, i) => checkRow(t, 'var(--system-green)', i))}
+            </div>
+
+            <div style={card}>
+              <h3 style={cardTitle}>主动层 · 发动机（四大场景）</h3>
+              <Table heads={['场景', '要点']} rows={philosophy.active} />
+              <h3 style={{ ...cardTitle, margin: '20px 0 12px' }}>单笔交易闭环执行卡</h3>
+              {philosophy.tradeCard.map((t, i) => flowStep(i + 1, t))}
+            </div>
+
+            <div style={card}>
+              <h3 style={cardTitle}>主动层风控（铁律防爆仓）</h3>
+              {philosophy.activeRisk.map((t, i) => checkRow(t, 'var(--system-red)', i, 'warn'))}
+              <hr style={{ border: 'none', borderTop: '0.5px solid var(--border-primary)', margin: '20px 0' }} />
+              <h3 style={cardTitle}>资金防火墙</h3>
+              {philosophy.firewall.map((t, i) => checkRow(t, 'var(--system-orange)', i, 'warn'))}
+            </div>
+
+            <div style={card}>
+              <h3 style={cardTitle}>共同纪律</h3>
+              <div>{philosophy.discipline.map(t => <span key={t} style={badge('green')}>{t}</span>)}</div>
+            </div>
+            {disclaimer}
+          </div>
+        )}
 
         {/* ── 策略配置 ── */}
         {activeTab === 'strategy' && (
@@ -575,6 +643,17 @@ export default function ResearchNotes(): JSX.Element {
           </div>
         )}
       </div>
+
+      {/* 图片放大 */}
+      {zoomImg && (
+        <div
+          onClick={() => setZoomImg(null)}
+          style={{ position: 'fixed', inset: 0, zIndex: 2000, background: 'rgba(0,0,0,0.85)', overflow: 'auto', padding: '16px', cursor: 'zoom-out' }}
+        >
+          <img src={zoomImg.src} alt={zoomImg.title} style={{ display: 'block', width: '100%', maxWidth: '1600px', minWidth: '320px', margin: '0 auto', borderRadius: '8px' }} />
+          <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px', textAlign: 'center', margin: '12px 0 0' }}>点击任意位置关闭</p>
+        </div>
+      )}
 
       {/* 回到顶部 */}
       {showBackToTop && (
