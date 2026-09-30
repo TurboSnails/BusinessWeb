@@ -32,6 +32,8 @@ export default function Header(): JSX.Element {
   }, [])
 
   const navItems = [
+    { path: '/research-notes', label: '研究笔记', icon: BookOpen },
+    { path: '/grid-trading', label: '网格交易', icon: BarChart2 },
     { path: '/', label: '首页', icon: Home },
     { path: '/investment-targets', label: '美股投资', icon: TrendingUp },
     { path: '/mainland-investment-targets', label: '大陆投资', icon: Globe },
@@ -42,8 +44,6 @@ export default function Header(): JSX.Element {
     { path: '/trading-philosophy', label: '道与术', icon: Shield },
     { path: '/investment-plan-2026', label: '投资计划', icon: Calendar },
     { path: '/investment-strategy', label: '策略框架', icon: Layers },
-    { path: '/research-notes', label: '研究笔记', icon: BookOpen },
-    { path: '/grid-trading', label: '网格交易', icon: BarChart2 },
     { path: '/about', label: '关于', icon: Info }
   ]
 
@@ -80,7 +80,7 @@ export default function Header(): JSX.Element {
         }}
       >
         <div style={{
-          maxWidth: '1200px',
+          maxWidth: '1600px',
           margin: '0 auto',
           padding: '0 24px',
           display: 'flex',
@@ -95,6 +95,7 @@ export default function Header(): JSX.Element {
               alignItems: 'center',
               justifyContent: 'center',
               width: '40px',
+              flexShrink: 0,
               height: '40px',
               textDecoration: 'none',
               color: scrolled ? 'var(--system-blue)' : 'var(--text-primary)',
@@ -233,7 +234,7 @@ export default function Header(): JSX.Element {
 
       <style>{`
         @media (min-width: 1024px) {
-          .desktop-nav { display: flex !important; min-width: 0; overflow-x: auto; }
+          .desktop-nav { display: flex !important; flex: 1; min-width: 0; margin-left: 12px; flex-wrap: wrap; justify-content: flex-end; row-gap: 4px; }
           .desktop-nav a { flex-shrink: 0; white-space: nowrap; }
           .mobile-menu-btn, .mobile-nav, .page-title-mobile { display: none !important; }
         }
