@@ -547,7 +547,8 @@ export const loadCompanies = (market: Market): Promise<Company[]> => {
       for (const g of gen) {
         const b = map.get(g.code)
         if (b && b.scenarios && b.scenarios.length) continue // 已有手工研究页的不覆盖
-        map.set(g.code, { ...g, auto: true })
+        const d = companyDetails[g.market + ':' + g.code] // 手工研究页（details/*.ts）覆盖程序化页
+        map.set(g.code, d && d.scenarios && d.scenarios.length ? { ...g, ...d, auto: false } : { ...g, auto: true })
       }
       return Array.from(map.values())
     })

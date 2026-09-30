@@ -109,4 +109,11 @@ describe('林奇分组、港股、导出', () => {
     fireEvent.click(screen.getByRole('button', { name: '美股非标普' }))
     await waitFor(() => expect(screen.getAllByText(/台积电/).length).toBeGreaterThan(0), { timeout: 8000 })
   })
+
+  it('美股非标普手工研究页：台积电详情页有三情景与买入区，且不再标程序化', async () => {
+    renderAt('/research-notes/adr/TSM')
+    await waitFor(() => expect(screen.getAllByText(/合理买入区/).length).toBeGreaterThan(0), { timeout: 8000 })
+    expect(screen.queryByText('程序化研究页')).toBeNull()
+    expect(screen.getAllByText(/Bear/).length).toBeGreaterThan(0)
+  })
 })
