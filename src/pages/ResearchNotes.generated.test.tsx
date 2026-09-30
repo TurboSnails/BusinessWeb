@@ -101,4 +101,12 @@ describe('林奇分组、港股、导出', () => {
     expect(screen.getAllByText(/^中概 \d+/).length).toBeGreaterThan(0)
     expect(screen.getAllByText(/^未估值 \d+/).length).toBeGreaterThan(0)
   })
+
+  it('切换市场后筛选被重置：沪深选「优先关注」再切到美股非标普仍有公司', async () => {
+    renderAt('/research-notes?tab=category&m=cn')
+    await waitFor(() => expect(screen.getByText(/显示更多/)).toBeTruthy(), { timeout: 8000 })
+    fireEvent.click(screen.getByRole('button', { name: /^优先关注 \d+/ }))
+    fireEvent.click(screen.getByRole('button', { name: '美股非标普' }))
+    await waitFor(() => expect(screen.getAllByText(/台积电/).length).toBeGreaterThan(0), { timeout: 8000 })
+  })
 })

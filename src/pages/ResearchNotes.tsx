@@ -74,6 +74,9 @@ export default function ResearchNotes(): JSX.Element {
   const [q, setQ] = useState('')
   const [ratingF, setRatingF] = useState('全部')
   const [limit, setLimit] = useState(60)
+  // 切换市场时清空筛选，避免上一个市场的评级/类型筛选让新市场的列表为空
+  useEffect(() => { setRatingF('全部'); setQ(''); setLTier('全部'); setLMoat('全部'); setLType('全部') }, [catMarket])
+  const resetFilters = (): void => { setRatingF('全部'); setQ(''); setLTier('全部'); setLMoat('全部'); setLType('全部'); updateParams({ sec: null }) }
   useEffect(() => { setLimit(60) }, [catMarket, progSector, q, ratingF, lTier, lMoat, lType, view])
   const updateParams = (patch: Record<string, string | null>): void =>
     setParams(prev => {
@@ -213,7 +216,7 @@ export default function ResearchNotes(): JSX.Element {
     return '观察'
   }
   const hkNote = '港股范围 = 恒生指数成分股（取自维基百科 2026-01 名单）∪ 恒生科技与主要 H 股龙头补充，共尝试 127 家，已覆盖 124 家；领展（823）、药明生物（2269）、药明康德（2359）数据接口失败，未覆盖。这不是官方指数口径，是「港股大盘蓝筹」的研究池。数据来自东方财富：PE/PB/股息率直接取其已换算值（港股报告币种常与交易币种不同，不能自行用 EPS 除股价）；增速按财年窗口计算，并附最新中期利润同比。港股页面全部为程序化研究页，规则与局限同「研究标准」页，评级用于筛选与排序。'
-  const adrNote = '美股非标普：在美国交易所可买卖、但不在标普500 内的知名公司（ADR 或直接上市），按三组归类——海外龙头（台积电、阿斯麦、诺和诺德、丰田、汇丰等）、中概（阿里、拼多多、京东、百度、网易、携程等）、新兴市场平台（Grab、Sea、MercadoLibre、Nu 等）；特别小的公司不收，共 58 家。名单是我按知名度与市值挑的研究池，不是官方指数口径；必和必拓、力拓、联合利华、帝亚吉欧、英美烟草、百济神州因数据源缺失未收录。数据来自东方财富美股财务指标：ADR 的 EPS 按普通股、以报告币种（人民币/新台币/欧元/日元等）计，与美元 ADS 股价之间还隔着汇率与 ADS 比例，数据源没有给出，所以本页不算 PE 与三情景，评级一律标「未估值」，只提供林奇分类（看增长）与护城河财务证据（看毛利、ROE、盈利持续性）。需要估值请自行按报告币种与 ADS 比例换算后判断。'
+  const adrNote = '美股非标普：在美国交易所可买卖、但不在标普500 内的知名公司（ADR 或直接上市），按三组归类——海外龙头（台积电、阿斯麦、诺和诺德、丰田、汇丰等）、中概（阿里、拼多多、京东、百度、网易、携程等）、新兴市场平台（Grab、Sea、MercadoLibre、Nu 等）；特别小的公司不收，共 60 家（其中 SK 海力士 ADR〔SKHY，2026-07 上市〕与 SpaceX〔SPCX，2026-06 上市〕两家新上市，财报期数不足，不做林奇分类，且数据未经公告核对）。名单是我按知名度与市值挑的研究池，不是官方指数口径；必和必拓、力拓、联合利华、帝亚吉欧、英美烟草、百济神州因数据源缺失未收录。数据来自东方财富美股财务指标：ADR 的 EPS 按普通股、以报告币种（人民币/新台币/欧元/日元等）计，与美元 ADS 股价之间还隔着汇率与 ADS 比例，数据源没有给出，所以本页不算 PE 与三情景，评级一律标「未估值」，只提供林奇分类（看增长）与护城河财务证据（看毛利、ROE、盈利持续性）。需要估值请自行按报告币种与 ADS 比例换算后判断。'
   const shownCompanies = secList.filter(c => (ratingF === '全部' || ratingOf(c) === ratingF) && (!q.trim() || (c.name + c.code).toLowerCase().includes(q.trim().toLowerCase())))
 
   // 导出：公司、代码、评级、结论（当前筛选 / 全部）
@@ -254,6 +257,13 @@ export default function ResearchNotes(): JSX.Element {
     setTimeout(() => URL.revokeObjectURL(a.href), 1000)
   }
   const chipStyle = (on: boolean): React.CSSProperties => ({ border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '12px', fontWeight: 500, padding: '6px 12px', borderRadius: 'var(--radius-full)', background: on ? 'var(--system-blue)' : 'var(--bg-secondary)', color: on ? '#fff' : 'var(--text-secondary)' })
+  const emptyHint = (n: number): React.ReactNode => (n === 0 ? (
+    <div style={{ textAlign: 'center', padding: '24px 0', fontSize: '13px', color: 'var(--text-secondary)' }}>
+      没有符合当前筛选条件的公司。
+      <button onClick={resetFilters} style={{ marginLeft: '8px', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', fontWeight: 500, padding: '6px 14px', borderRadius: 'var(--radius-full)', background: 'var(--system-blue)', color: '#fff' }}>重置筛选</button>
+    </div>
+  ) : null)
+
   const renderLynch = (): JSX.Element => (
     <>
       <details style={{ ...card, padding: '14px 18px' }}>
@@ -292,6 +302,7 @@ export default function ResearchNotes(): JSX.Element {
             ]
           })}
         />
+        {emptyHint(lynchShown.length)}
         {lynchShown.length > limit && (
           <div style={{ textAlign: 'center', marginTop: '14px' }}>
             <button onClick={() => setLimit(l => l + 100)} style={chipStyle(false)}>显示更多（还有 {lynchShown.length - limit} 家）</button>
@@ -339,6 +350,7 @@ export default function ResearchNotes(): JSX.Element {
             <span style={{ display: 'block', minWidth: '220px' }}>{c.headline}</span>,
           ])}
         />
+        {emptyHint(shownCompanies.length)}
         {shownCompanies.length > limit && (
           <div style={{ textAlign: 'center', marginTop: '14px' }}>
             <button onClick={() => setLimit(l => l + 100)} style={{ border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', fontWeight: 500, padding: '8px 20px', borderRadius: 'var(--radius-full)', background: 'var(--bg-secondary)', color: 'var(--system-blue)' }}>显示更多（已显示 {limit} / {shownCompanies.length}）</button>
