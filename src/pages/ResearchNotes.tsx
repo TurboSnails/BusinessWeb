@@ -1,0 +1,596 @@
+import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import {
+  BookOpen,
+  Layers,
+  Target,
+  Grid3x3,
+  Wrench,
+  CheckCircle2,
+  AlertTriangle,
+  ArrowRight
+} from 'lucide-react'
+import {
+  NOTION_SYNC_DATE,
+  portfolioV6,
+  researchStandard,
+  sp500Sectors,
+  sp500Note,
+  cnChains,
+  chemRanking,
+  newMaterialRanking,
+  healthProgress,
+  compositeRank,
+  tradeWatch,
+  tradeEvents,
+  hkWatchTargets,
+  devIdeas,
+  batchTool,
+  toneOf,
+  Tone
+} from '../data/notionNotes'
+import { usCompanies, cnCompanies, sectorsOf, Market } from '../data/companies'
+
+type TabId = 'strategy' | 'standard' | 'category' | 'dev'
+
+const tabs: { id: TabId; label: string; icon: React.ElementType }[] = [
+  { id: 'strategy', label: '策略配置', icon: Layers },
+  { id: 'standard', label: '研究标准', icon: Target },
+  { id: 'category', label: '分类数据', icon: Grid3x3 },
+  { id: 'dev', label: '开发设想', icon: Wrench },
+]
+
+const toneColors: Record<Tone, { bg: string; color: string }> = {
+  green: { bg: 'rgba(52,199,89,0.12)', color: 'var(--system-green)' },
+  blue: { bg: 'rgba(0,122,255,0.10)', color: 'var(--system-blue)' },
+  orange: { bg: 'rgba(255,149,0,0.12)', color: 'var(--system-orange)' },
+  red: { bg: 'rgba(255,59,48,0.12)', color: 'var(--system-red)' },
+  gray: { bg: 'var(--bg-secondary)', color: 'var(--text-secondary)' },
+}
+
+export default function ResearchNotes(): JSX.Element {
+  const [activeTab, setActiveTab] = useState<TabId>('strategy')
+  const [showBackToTop, setShowBackToTop] = useState(false)
+  const [catMarket, setCatMarket] = useState<Market | 'watch'>('us')
+  const [progSector, setProgSector] = useState('全部')
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+    const handleScroll = () => setShowBackToTop(window.scrollY > 400)
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  const card: React.CSSProperties = {
+    background: 'var(--bg-card)',
+    border: '1px solid rgba(255,255,255,0.7)',
+    borderRadius: 'var(--radius-lg)',
+    padding: '24px 28px',
+    marginBottom: '16px',
+    backdropFilter: 'blur(24px)',
+    WebkitBackdropFilter: 'blur(24px)',
+    boxShadow: 'var(--shadow-md)',
+  }
+
+  const sectionTitle: React.CSSProperties = {
+    fontSize: '11px',
+    fontWeight: 600,
+    color: 'var(--text-tertiary)',
+    textTransform: 'uppercase',
+    letterSpacing: '0.08em',
+    marginBottom: '16px',
+  }
+
+  const cardTitle: React.CSSProperties = { fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 14px' }
+
+  const badge = (tone: Tone): React.CSSProperties => ({
+    display: 'inline-block',
+    fontSize: '12px',
+    padding: '3px 10px',
+    borderRadius: '6px',
+    marginRight: '6px',
+    marginBottom: '6px',
+    background: toneColors[tone].bg,
+    color: toneColors[tone].color,
+    fontWeight: 500,
+    whiteSpace: 'nowrap',
+  })
+
+  const th: React.CSSProperties = { padding: '10px 14px', textAlign: 'left', color: 'var(--text-secondary)', fontWeight: 600, borderBottom: '0.5px solid var(--border-primary)', whiteSpace: 'nowrap' }
+  const td: React.CSSProperties = { padding: '10px 14px', color: 'var(--text-secondary)', borderBottom: '0.5px solid var(--border-primary)' }
+
+  const Table = ({ heads, rows }: { heads: string[]; rows: React.ReactNode[][] }): JSX.Element => (
+    <div style={{ overflowX: 'auto' }}>
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+        <thead>
+          <tr style={{ background: 'var(--bg-secondary)' }}>
+            {heads.map(h => <th key={h} style={th}>{h}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r, i) => (
+            <tr key={i} style={{ background: i % 2 === 1 ? 'var(--bg-secondary)' : 'transparent' }}>
+              {r.map((c, j) => (
+                <td key={j} style={j === 0 ? { ...td, color: 'var(--text-primary)', fontWeight: 500 } : td}>{c}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+
+  const checkRow = (text: React.ReactNode, accent: string, key?: React.Key, icon: 'check' | 'warn' = 'check'): JSX.Element => (
+    <div key={key} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', marginBottom: '10px', fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+      {icon === 'check'
+        ? <CheckCircle2 size={16} color={accent} style={{ flexShrink: 0, marginTop: '2px' }} />
+        : <AlertTriangle size={16} color={accent} style={{ flexShrink: 0, marginTop: '2px' }} />}
+      <span>{text}</span>
+    </div>
+  )
+
+  const flowStep = (num: number, children: React.ReactNode): JSX.Element => (
+    <div key={num} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', marginBottom: '16px' }}>
+      <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(0,122,255,0.12)', color: 'var(--system-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 600, flexShrink: 0 }}>
+        {num}
+      </div>
+      <div style={{ fontSize: '14px', color: 'var(--text-secondary)', paddingTop: '4px', lineHeight: 1.7 }}>{children}</div>
+    </div>
+  )
+
+  const metricCard = (label: string, value: string): JSX.Element => (
+    <div key={label} style={{ background: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)', padding: '16px 18px' }}>
+      <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '0 0 6px' }}>{label}</p>
+      <p style={{ fontSize: '22px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>{value}</p>
+    </div>
+  )
+
+  const quote = (children: React.ReactNode): JSX.Element => (
+    <div style={{ borderLeft: '2px solid var(--border-primary)', paddingLeft: '14px', marginBottom: '14px' }}>
+      <p style={{ fontSize: '14px', color: 'var(--text-secondary)', fontStyle: 'italic', margin: 0, lineHeight: 1.7 }}>{children}</p>
+    </div>
+  )
+
+  const grid = (min: number): React.CSSProperties => ({ display: 'grid', gridTemplateColumns: `repeat(auto-fit, minmax(${min}px, 1fr))`, gap: '12px' })
+
+  const disclaimer = (
+    <p style={{ fontSize: '12px', color: 'var(--text-tertiary)', lineHeight: 1.6, margin: '8px 0 0' }}>
+      内容整理自 Notion 个人笔记（{NOTION_SYNC_DATE}），仅为研究记录，不构成投资建议。
+    </p>
+  )
+
+  const usSectors = sectorsOf(usCompanies)
+  const progList = catMarket === 'cn' ? cnCompanies : usCompanies
+  const progSectors = sectorsOf(progList)
+  const shownCompanies = progSector === '全部' ? progList : progList.filter(c => c.sector === progSector)
+
+  const companyLink = (market: Market, code: string, label: string): React.ReactNode => {
+    const exists = (market === 'us' ? usCompanies : cnCompanies).some(c => c.code === code)
+    return exists
+      ? <Link to={`/research-notes/${market}/${encodeURIComponent(code)}`} style={{ color: 'var(--system-blue)', textDecoration: 'none', fontWeight: 500 }}>{label}</Link>
+      : label
+  }
+
+  const marketSwitch = <T extends string>(value: T, onChange: (m: T) => void, withWatch = false): JSX.Element => (
+    <div style={{ display: 'inline-flex', gap: '4px', padding: '4px', borderRadius: 'var(--radius-full)', background: 'var(--bg-secondary)', marginBottom: '20px' }}>
+      {([['us', '标普500'], ['cn', '沪深500'], ...(withWatch ? [['watch', '交易价位']] : [])] as [string, string][]).map(([m, label]) => (
+        <button
+          key={m}
+          onClick={() => onChange(m as T)}
+          style={{
+            border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', fontWeight: 600,
+            padding: '7px 18px', borderRadius: 'var(--radius-full)',
+            background: value === m ? 'var(--system-blue)' : 'transparent',
+            color: value === m ? '#fff' : 'var(--text-secondary)',
+            transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+          }}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  )
+
+  const watchView = (
+    <div>
+      <p style={sectionTitle}>交易观察清单</p>
+      <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 16px', lineHeight: 1.7 }}>价位为历史笔记，空白表示待补充，不视为交易指令；执行前请核对行情、财报与风险。</p>
+      {([['美股', '美股（含美股上市的 ADR）'], ['港股', '港股'], ['A股', 'A 股'], ['商品', '商品']] as [string, string][]).map(([m, title]) => (
+        <div key={m} style={card}>
+          <h3 style={cardTitle}>{title}</h3>
+          <Table
+            heads={['标的', '买入价位 / 条件', '卖出价位 / 条件', '核心催化剂与逻辑']}
+            rows={tradeWatch.filter(t => t.market === m).map(t => [t.name, t.buy, t.sell, t.why])}
+          />
+        </div>
+      ))}
+      <div style={card}>
+        <h3 style={cardTitle}>事件日历与时间窗口</h3>
+        <Table heads={['标的 / 主题', '时间窗口', '备注']} rows={tradeEvents} />
+      </div>
+      <div style={card}>
+        <h3 style={cardTitle}>港股六大潜力标的</h3>
+        <Table heads={['标的', 'PE / 股息率', '分类', '适合风格', '核心看点']} rows={hkWatchTargets} />
+      </div>
+    </div>
+  )
+
+  const maxCount = Math.max(...sp500Sectors.map(s => s.count))
+
+  return (
+    <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', paddingBottom: '80px' }}>
+      {/* 页面头部 */}
+      <div style={{ background: 'linear-gradient(135deg, #5856D6 0%, #007AFF 100%)', padding: '40px 24px 32px' }}>
+        <div style={{ maxWidth: '760px', margin: '0 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
+            <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(255,255,255,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <BookOpen size={24} color="#fff" />
+            </div>
+            <div>
+              <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#fff', margin: 0 }}>研究笔记汇总</h1>
+              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.8)', margin: 0 }}>同步自 Notion · {NOTION_SYNC_DATE}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Tab 导航 */}
+      <div style={{ position: 'sticky', top: '60px', zIndex: 10, background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', WebkitBackdropFilter: 'var(--glass-blur)', borderBottom: '0.5px solid var(--border-primary)' }}>
+        <div style={{ maxWidth: '760px', margin: '0 auto', padding: '0 20px', display: 'flex', gap: '4px', overflowX: 'auto' }}>
+          {tabs.map(tab => {
+            const Icon = tab.icon
+            const isActive = activeTab === tab.id
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '14px 16px',
+                  border: 'none',
+                  background: 'transparent',
+                  color: isActive ? 'var(--system-blue)' : 'var(--text-secondary)',
+                  fontFamily: 'inherit',
+                  fontSize: '14px',
+                  fontWeight: isActive ? 600 : 400,
+                  cursor: 'pointer',
+                  borderBottom: isActive ? '2px solid var(--system-blue)' : '2px solid transparent',
+                  whiteSpace: 'nowrap',
+                  transition: 'all 0.15s',
+                }}
+              >
+                <Icon size={14} />
+                {tab.label}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* 内容区 */}
+      <div style={{ maxWidth: '760px', margin: '0 auto', padding: '28px 20px' }}>
+
+        {/* ── 策略配置 ── */}
+        {activeTab === 'strategy' && (
+          <div>
+            <p style={sectionTitle}>{portfolioV6.title}</p>
+            <div style={{ ...card, border: '1.5px solid rgba(0,122,255,0.35)', background: 'rgba(0,122,255,0.04)' }}>
+              {quote(portfolioV6.oneLiner)}
+              <div style={grid(140)}>
+                {metricCard('股票占比', '64%')}
+                {metricCard('防守占比', '36%')}
+                {metricCard('再平衡阈值', '>7%')}
+                {metricCard('股票硬顶', '71%')}
+              </div>
+            </div>
+
+            <div style={card}>
+              <h3 style={cardTitle}>配置表（300 万示例）</h3>
+              <Table
+                heads={['模块', '占比', '金额', '标的']}
+                rows={portfolioV6.allocation.map(a => [a.module, <span style={badge('blue')}>{a.pct}%</span>, a.amount, a.target])}
+              />
+              <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '14px 0 0', lineHeight: 1.7 }}>{portfolioV6.structure}</p>
+            </div>
+
+            <div style={card}>
+              <h3 style={cardTitle}>组合外必备</h3>
+              {portfolioV6.outside.map((t, i) => checkRow(t, 'var(--system-green)', i))}
+            </div>
+
+            <div style={card}>
+              <h3 style={cardTitle}>日常操作</h3>
+              {portfolioV6.operations.map((t, i) => flowStep(i + 1, t))}
+            </div>
+
+            <div style={card}>
+              <h3 style={cardTitle}>机会加仓扳机</h3>
+              <Table
+                heads={['资产', '首次触发', '加档条件（二选一）', '子弹上限/轮']}
+                rows={portfolioV6.triggers.map(t => [t.asset, t.first, t.next, t.bullets])}
+              />
+              <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '14px 0 0', lineHeight: 1.7 }}>{portfolioV6.triggerRules}</p>
+            </div>
+
+            <div style={card}>
+              <h3 style={cardTitle}>优点</h3>
+              {portfolioV6.pros.map((t, i) => checkRow(t, 'var(--system-green)', i))}
+              <hr style={{ border: 'none', borderTop: '0.5px solid var(--border-primary)', margin: '20px 0' }} />
+              <h3 style={cardTitle}>缺点（接受了才建仓）</h3>
+              {portfolioV6.cons.map((t, i) => checkRow(t, 'var(--system-orange)', i, 'warn'))}
+            </div>
+
+            <div style={card}>
+              <h3 style={cardTitle}>注意点</h3>
+              {portfolioV6.cautions.map((t, i) => checkRow(t, 'var(--system-red)', i, 'warn'))}
+            </div>
+
+            <div style={card}>
+              <h3 style={cardTitle}>口诀</h3>
+              {portfolioV6.mantra.map(t => <div key={t}>{quote(t)}</div>)}
+            </div>
+            {disclaimer}
+          </div>
+        )}
+
+        {/* ── 研究标准 ── */}
+        {activeTab === 'standard' && (
+          <div>
+            <p style={sectionTitle}>标普500公司分析标准</p>
+            <div style={{ ...card, border: '1.5px solid rgba(0,122,255,0.35)', background: 'rgba(0,122,255,0.04)' }}>
+              <h3 style={cardTitle}>核心投资目标</h3>
+              {quote(researchStandard.goal)}
+              {researchStandard.scope.map((t, i) => checkRow(t, 'var(--system-blue)', i))}
+            </div>
+
+            {researchStandard.checklist.map((c, i) => (
+              <div key={c.title} style={card}>
+                <h3 style={cardTitle}>{i + 1}. {c.title}</h3>
+                {c.items.map((t, j) => checkRow(t, 'var(--system-green)', j))}
+              </div>
+            ))}
+
+            <div style={card}>
+              <h3 style={cardTitle}>固定结论格式：买入纪律</h3>
+              <Table
+                heads={['项目', '要求']}
+                rows={researchStandard.verdict.map(v => [v.label, v.text])}
+              />
+            </div>
+
+            <div style={card}>
+              <h3 style={cardTitle}>研究原则</h3>
+              {researchStandard.principles.map((t, i) => checkRow(t, 'var(--system-blue)', i))}
+            </div>
+            {disclaimer}
+          </div>
+        )}
+
+        {/* ── 分类数据 ── */}
+        {activeTab === 'category' && (
+          <div>
+            {marketSwitch(catMarket, m => { setCatMarket(m); setProgSector('全部') }, true)}
+
+            {catMarket === 'watch' && watchView}
+
+            {catMarket === 'us' && (
+              <div>
+                <p style={sectionTitle}>标普500 · GICS 板块</p>
+                <div style={card}>
+                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 16px', lineHeight: 1.7 }}>{sp500Note}</p>
+                  {sp500Sectors.map(s => (
+                    <div key={s.name} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px', fontSize: '13px' }}>
+                      <span style={{ width: '110px', color: 'var(--text-primary)', flexShrink: 0 }}>{s.name}</span>
+                      <div style={{ flex: 1, height: '8px', borderRadius: '4px', background: 'var(--bg-secondary)' }}>
+                        <div style={{ width: `${(s.count / maxCount) * 100}%`, height: '100%', borderRadius: '4px', background: 'var(--system-blue)' }} />
+                      </div>
+                      <span style={{ width: '28px', textAlign: 'right', color: 'var(--text-secondary)' }}>{s.count}</span>
+                    </div>
+                  ))}
+                </div>
+                <div style={card}>
+                  <h3 style={cardTitle}>已完成公司研究（{usCompanies.length} 家）</h3>
+                  <div>
+                    {usSectors.map(sec => (
+                      <span key={sec} style={badge('blue')}>{sec} {usCompanies.filter(c => c.sector === sec).length}</span>
+                    ))}
+                  </div>
+                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '8px 0 0', lineHeight: 1.7 }}>
+                    点击下方研究进度里的公司名称，进入该公司的二级分析页。
+                  </p>
+                </div>
+                <p style={{ ...sectionTitle, marginTop: '28px' }}>研究进度</p>
+                  <div style={card}>
+                    <h3 style={cardTitle}>标普500 研究进度</h3>
+                    <div style={grid(140)}>
+                      {metricCard('已完成公司页', `${usCompanies.length} 家`)}
+                      {metricCard('医疗保健', `${healthProgress.total}+ 家`)}
+                      {metricCard('金融', `${usCompanies.filter(c => c.sector === '金融').length} 家`)}
+                      {metricCard('可选消费', `${usCompanies.filter(c => c.sector === '可选消费').length} 家`)}
+                    </div>
+                    <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '16px 0 0', lineHeight: 1.7 }}>
+                      统一框架“盈利—持续性—估值—盈亏比”，Base/Bear ≥ 约 2:1 才算首次介入赔率成立。截至 2026-09-29，医疗仅 ZTS（2.97×，条件成立时）、金融仅 SPGI（2.20×）达标；其余均为观察/等待。信息技术 53 家为旧版“AI 情景研究”评分。
+                    </p>
+                  </div>
+
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', margin: '4px 0 16px' }}>
+                  {['全部', ...progSectors].map(sec => (
+                    <button
+                      key={sec}
+                      onClick={() => setProgSector(sec)}
+                      style={{
+                        border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', fontWeight: 500,
+                        padding: '6px 14px', borderRadius: 'var(--radius-full)',
+                        background: progSector === sec ? 'var(--system-blue)' : 'var(--bg-secondary)',
+                        color: progSector === sec ? '#fff' : 'var(--text-secondary)',
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      {sec} {sec === '全部' ? progList.length : progList.filter(c => c.sector === sec).length}
+                    </button>
+                  ))}
+                </div>
+
+                <div style={card}>
+                  <Table
+                    heads={['公司', '评级', '一句话结论']}
+                    rows={shownCompanies.map(c => [
+                      companyLink(c.market, c.code, `${c.name} ${c.code}`),
+                      <span style={badge(toneOf(c.rating))}>{c.rating}</span>,
+                      <span style={{ display: 'block', minWidth: '220px' }}>{c.headline}</span>,
+                    ])}
+                  />
+                  <p style={{ fontSize: '12px', color: 'var(--text-tertiary)', margin: '12px 0 0' }}>点击公司名称进入该公司的分析页。</p>
+                </div>
+              </div>
+            )}
+
+            {catMarket === 'cn' && (
+              <div>
+                <p style={sectionTitle}>沪深产业链</p>
+                {cnChains.map(chain => (
+                  <div key={chain.name} style={card}>
+                    <h3 style={cardTitle}>{chain.name}</h3>
+                    <Table heads={['环节', '核心标的']} rows={chain.rows} />
+                    <div style={{ marginTop: '14px' }}>
+                      <span style={badge('green')}>{chain.focus}</span>
+                    </div>
+                  </div>
+                ))}
+
+                <div style={card}>
+                  <h3 style={cardTitle}>化工龙头排名</h3>
+                  <Table
+                    heads={['#', '公司', '层级', '动态PE', '结论', '核心依据']}
+                    rows={chemRanking.map(c => [
+                      c.rank,
+                      companyLink('cn', c.code, `${c.name} ${c.code}`),
+                      <span style={badge(c.tier === 'A' ? 'green' : c.tier === 'B' ? 'blue' : 'gray')}>{c.tier}层</span>,
+                      c.pe,
+                      <span style={badge('blue')}>{c.label}</span>,
+                      c.why,
+                    ])}
+                  />
+                </div>
+
+                <div style={card}>
+                  <h3 style={cardTitle}>新材料核心六家</h3>
+                  <Table
+                    heads={['#', '公司', '总分', '一句话依据']}
+                    rows={newMaterialRanking.map(c => [c.rank, companyLink('cn', c.code, `${c.name} ${c.code}`), <span style={badge('green')}>{c.score}</span>, c.why])}
+                  />
+                </div>
+
+                <p style={{ ...sectionTitle, marginTop: '28px' }}>研究进度</p>
+                  <div style={card}>
+                    <h3 style={cardTitle}>综合排名（盈亏比 / 胜率 / 时间效率）</h3>
+                    <Table
+                      heads={['公司', '盈亏比', '胜率', '时间效率', '综合']}
+                      rows={compositeRank.map(c => [c.name, c.risk, c.win, c.time, <span style={badge(c.total <= 3 ? 'green' : 'blue')}>{c.total}</span>])}
+                    />
+                  </div>
+
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', margin: '4px 0 16px' }}>
+                  {['全部', ...progSectors].map(sec => (
+                    <button
+                      key={sec}
+                      onClick={() => setProgSector(sec)}
+                      style={{
+                        border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', fontWeight: 500,
+                        padding: '6px 14px', borderRadius: 'var(--radius-full)',
+                        background: progSector === sec ? 'var(--system-blue)' : 'var(--bg-secondary)',
+                        color: progSector === sec ? '#fff' : 'var(--text-secondary)',
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      {sec} {sec === '全部' ? progList.length : progList.filter(c => c.sector === sec).length}
+                    </button>
+                  ))}
+                </div>
+
+                <div style={card}>
+                  <Table
+                    heads={['公司', '评级', '一句话结论']}
+                    rows={shownCompanies.map(c => [
+                      companyLink(c.market, c.code, `${c.name} ${c.code}`),
+                      <span style={badge(toneOf(c.rating))}>{c.rating}</span>,
+                      <span style={{ display: 'block', minWidth: '220px' }}>{c.headline}</span>,
+                    ])}
+                  />
+                  <p style={{ fontSize: '12px', color: 'var(--text-tertiary)', margin: '12px 0 0' }}>点击公司名称进入该公司的分析页。</p>
+                </div>
+              </div>
+            )}
+            {catMarket !== 'watch' && disclaimer}
+          </div>
+        )}
+
+        {/* ── 开发设想 ── */}
+        {activeTab === 'dev' && (
+          <div>
+            <p style={sectionTitle}>多模型协作 Agent 设想</p>
+            <div style={{ ...card, border: '1.5px solid rgba(0,122,255,0.35)', background: 'rgba(0,122,255,0.04)' }}>
+              {quote(devIdeas.vision)}
+              {devIdeas.architecture.map((a, i) => flowStep(i + 1, (
+                <>
+                  <strong style={{ color: 'var(--text-primary)' }}>{a.step}</strong>
+                  <span style={{ ...badge('blue'), marginLeft: '8px', marginBottom: 0 }}>{a.mode}</span>
+                  <div>{a.text}</div>
+                </>
+              )))}
+            </div>
+
+            <div style={card}>
+              <h3 style={cardTitle}>设计原则</h3>
+              {devIdeas.principles.map((t, i) => checkRow(t, 'var(--system-green)', i))}
+            </div>
+
+            <div style={card}>
+              <h3 style={cardTitle}>参考项目</h3>
+              <Table heads={['项目', '值得抄的部分']} rows={devIdeas.refs.map(r => [r.name, r.note])} />
+            </div>
+
+            <div style={card}>
+              <h3 style={cardTitle}>学习路径</h3>
+              {devIdeas.learning.map((t, i) => (
+                <div key={i} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', marginBottom: '10px', fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                  <ArrowRight size={16} color="var(--system-blue)" style={{ flexShrink: 0, marginTop: '2px' }} />
+                  <span>{t}</span>
+                </div>
+              ))}
+            </div>
+
+            <p style={{ ...sectionTitle, marginTop: '28px' }}>{batchTool.title}</p>
+            <div style={card}>
+              <h3 style={cardTitle}>使用流程</h3>
+              {batchTool.steps.map((t, i) => flowStep(i + 1, t))}
+              <hr style={{ border: 'none', borderTop: '0.5px solid var(--border-primary)', margin: '20px 0' }} />
+              <h3 style={cardTitle}>数据质量规则</h3>
+              {batchTool.rules.map((t, i) => checkRow(t, 'var(--system-blue)', i))}
+              <div style={{ marginTop: '10px' }}><span style={badge('orange')}>{batchTool.note}</span></div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 回到顶部 */}
+      {showBackToTop && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          style={{
+            position: 'fixed', bottom: '24px', right: '24px',
+            width: '44px', height: '44px', borderRadius: '50%',
+            background: 'var(--system-blue)', color: '#fff',
+            border: 'none', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: 'var(--shadow-lg)', zIndex: 100,
+          }}
+        >
+          ↑
+        </button>
+      )}
+    </div>
+  )
+}

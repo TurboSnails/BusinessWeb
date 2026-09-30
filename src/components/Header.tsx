@@ -12,6 +12,7 @@ import {
   Calendar,
   Info,
   Layers,
+  BookOpen,
   Menu,
   X
 } from 'lucide-react'
@@ -41,6 +42,7 @@ export default function Header(): JSX.Element {
     { path: '/trading-philosophy', label: '道与术', icon: Shield },
     { path: '/investment-plan-2026', label: '投资计划', icon: Calendar },
     { path: '/investment-strategy', label: '策略框架', icon: Layers },
+    { path: '/research-notes', label: '研究笔记', icon: BookOpen },
     { path: '/about', label: '关于', icon: Info }
   ]
 
