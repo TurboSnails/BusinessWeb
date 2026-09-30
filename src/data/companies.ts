@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { notionIds, notionUrl } from './notionLinks'
 import { companyDetails } from './companyDetails'
 
-export type Market = 'us' | 'cn'
+export type Market = 'us' | 'cn' | 'hk'
 
 export interface Company {
   code: string
@@ -527,8 +527,9 @@ const withDetails = (list: Company[]): Company[] => list.map(c => (companyDetail
 export const usCompanies: Company[] = withDetails(usBase)
 export const cnCompanies: Company[] = withDetails(cnBase)
 
+const baseOf = (market: Market): Company[] => (market === 'us' ? usCompanies : market === 'cn' ? cnCompanies : [])
 export const findCompany = (market: Market, code: string): Company | undefined =>
-  (market === 'us' ? usCompanies : cnCompanies).find(c => c.code === code)
+  baseOf(market).find(c => c.code === code)
 
 export const sectorsOf = (list: Company[]): string[] => Array.from(new Set(list.map(c => c.sector)))
 
@@ -537,7 +538,7 @@ const genCache: Partial<Record<Market, Promise<Company[]>>> = {}
 export const loadCompanies = (market: Market): Promise<Company[]> => {
   const cached = genCache[market]
   if (cached) return cached
-  const base = market === 'us' ? usCompanies : cnCompanies
+  const base = baseOf(market)
   const p = fetch(`${import.meta.env.BASE_URL}data/${market}.json`)
     .then(r => (r.ok ? (r.json() as Promise<Company[]>) : []))
     .catch(() => [] as Company[])
@@ -555,7 +556,7 @@ export const loadCompanies = (market: Market): Promise<Company[]> => {
 }
 
 export const useCompanies = (market: Market, enabled = true): { list: Company[]; loading: boolean } => {
-  const base = market === 'us' ? usCompanies : cnCompanies
+  const base = baseOf(market)
   const [list, setList] = useState<Company[]>(base)
   const [loading, setLoading] = useState(enabled)
   useEffect(() => {
@@ -566,4 +567,33 @@ export const useCompanies = (market: Market, enabled = true): { list: Company[];
     return () => { alive = false }
   }, [market, enabled])
   return { list, loading }
+}
+
+// ───────── 林奇分类 + 护城河证据（脚本按统一规则生成，public/data/lynch.json，键为 market:code）─────────
+export interface LynchInfo {
+  t: string // 林奇类型
+  r: string // 同类内关注度：高/中/低
+  pe?: number | null; g?: number | null; c?: number | null; rg?: number | null; peg?: number | null
+  ph?: string | null; dy?: number | null; pb?: number | null
+  v?: string; w: string[]; f: string[]
+  m: { s: number; n: number; l: string; i: [string, boolean | null, string][] } | null
+}
+let lynchCache: Promise<Record<string, LynchInfo>> | null = null
+export const loadLynch = (): Promise<Record<string, LynchInfo>> => {
+  if (!lynchCache) {
+    lynchCache = fetch(`${import.meta.env.BASE_URL}data/lynch.json`)
+      .then(r => (r.ok ? (r.json() as Promise<Record<string, LynchInfo>>) : {}))
+      .catch(() => ({} as Record<string, LynchInfo>))
+  }
+  return lynchCache
+}
+export const useLynch = (enabled = true): Record<string, LynchInfo> => {
+  const [data, setData] = useState<Record<string, LynchInfo>>({})
+  useEffect(() => {
+    if (!enabled) return
+    let alive = true
+    loadLynch().then(d => { if (alive) setData(d) })
+    return () => { alive = false }
+  }, [enabled])
+  return data
 }

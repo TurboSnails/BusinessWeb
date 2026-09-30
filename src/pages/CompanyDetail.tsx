@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, ExternalLink, CheckCircle2, AlertTriangle, ArrowRight } from 'lucide-react'
-import { useCompanies, Market } from '../data/companies'
+import { useCompanies, useLynch, Market } from '../data/companies'
 import { toneOf, Tone } from '../data/notionNotes'
 
 const toneColors: Record<Tone, { bg: string; color: string }> = {
@@ -15,8 +15,9 @@ const toneColors: Record<Tone, { bg: string; color: string }> = {
 export default function CompanyDetail(): JSX.Element {
   const { market, code } = useParams()
   const navigate = useNavigate()
-  const mk = (market === 'cn' ? 'cn' : 'us') as Market
+  const mk = (market === 'cn' ? 'cn' : market === 'hk' ? 'hk' : 'us') as Market
   const { list, loading } = useCompanies(mk)
+  const lynchAll = useLynch()
   const company = list.find(c => c.code === decodeURIComponent(code || ''))
 
   useEffect(() => {
@@ -49,7 +50,7 @@ export default function CompanyDetail(): JSX.Element {
 
   const back = (
     <Link
-      to={`/research-notes?tab=category&m=${market === 'cn' ? 'cn' : 'us'}`}
+      to={`/research-notes?tab=category&m=${mk}`}
       onClick={e => {
         // 有站内历史就原路返回（保留页签、市场、板块和滚动位置）
         if (window.history.state && window.history.state.idx > 0) {
@@ -141,7 +142,7 @@ export default function CompanyDetail(): JSX.Element {
           {back}
           <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#fff', margin: '0 0 6px' }}>{company.name}</h1>
           <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.85)', margin: '0 0 14px' }}>
-            {company.market === 'us' ? '标普500' : '沪深'} · {company.code} · {company.sector} · {company.batch}
+            {company.market === 'us' ? '标普500' : company.market === 'hk' ? '港股' : '沪深'} · {company.code} · {company.sector} · {company.batch}
           </p>
           <span style={{ display: 'inline-block', fontSize: '13px', fontWeight: 600, padding: '4px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.9)', color: toneColors[tone].color }}>
             {company.rating}
@@ -150,6 +151,39 @@ export default function CompanyDetail(): JSX.Element {
       </div>
 
       <div style={{ maxWidth: '760px', margin: '0 auto', padding: '28px 20px' }}>
+        {(() => {
+          const ly = lynchAll[`${company.market}:${company.code}`]
+          if (!ly) return null
+          const tone = ly.r === '高' ? 'rgba(52,199,89,0.45)' : ly.r === '中' ? 'rgba(0,122,255,0.35)' : 'var(--border-primary)'
+          return (
+            <div style={{ ...card, border: `1.5px solid ${tone}` }}>
+              <h3 style={{ ...cardTitle, margin: '0 0 8px' }}>林奇分类：{ly.t}（同类关注度 {ly.r}）{ly.m ? ` · ${ly.m.l}` : ''}</h3>
+              <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.7, margin: '0 0 8px' }}>
+                {[...ly.w, ly.v].filter(Boolean).join('；')}
+              </p>
+              <p style={{ fontSize: '12px', color: 'var(--text-tertiary)', lineHeight: 1.7, margin: '0 0 8px' }}>
+                {ly.pe ? `PE ${ly.pe}×` : 'PE 不适用'}{ly.g !== null && ly.g !== undefined ? ` · 利润近一年 ${ly.g > 0 ? '+' : ''}${ly.g}%` : ''}{ly.c !== null && ly.c !== undefined ? `（两年年化 ${ly.c > 0 ? '+' : ''}${ly.c}%）` : ''}{ly.peg ? ` · PEG ${ly.peg}` : ''}{ly.ph ? ` · 周期位置：${ly.ph}` : ''}{ly.dy !== null && ly.dy !== undefined ? ` · 股息率 ${ly.dy}%` : ''}
+              </p>
+              {ly.f.map(x => <p key={x} style={{ fontSize: '12px', color: 'var(--system-orange)', margin: '0 0 4px' }}>⚠ {x}</p>)}
+              {ly.m && (
+                <div style={{ overflowX: 'auto', marginTop: '10px' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                    <tbody>
+                      {ly.m.i.map(([name, ok, note]) => (
+                        <tr key={name} style={{ borderTop: '1px solid var(--border-primary)' }}>
+                          <td style={{ padding: '6px 8px', whiteSpace: 'nowrap', width: '84px' }}>{name}</td>
+                          <td style={{ padding: '6px 8px', width: '32px' }}>{ok === null ? '—' : ok ? '✓' : '✗'}</td>
+                          <td style={{ padding: '6px 8px', color: 'var(--text-secondary)' }}>{note}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <p style={{ fontSize: '12px', color: 'var(--text-tertiary)', margin: '8px 0 0', lineHeight: 1.7 }}>护城河只看财务证据（{ly.m.s}/{ly.m.n} 项通过）：它检验品牌、网络效应、转换成本等通常留下的痕迹，不能证明护城河本身；无 FCF/股息（A 股、美股）。规则见「研究笔记 → 分类数据 → 林奇分组」。</p>
+                </div>
+              )}
+            </div>
+          )
+        })()}
         {company.auto && (
           <div style={{ ...card, border: '1.5px solid rgba(255,149,0,0.45)', background: 'rgba(255,149,0,0.06)' }}>
             <h3 style={{ ...cardTitle, margin: '0 0 8px' }}>{company.reviewed ? '程序化研究页（已人工复核）' : '程序化研究页'}</h3>

@@ -13,7 +13,8 @@ import CompanyDetail from './CompanyDetail'
 beforeAll(() => {
   vi.stubGlobal('scrollTo', () => {})
   vi.stubGlobal('fetch', async (url: string) => {
-    const name = String(url).includes('us.json') ? 'us.json' : 'cn.json'
+    const u = String(url)
+    const name = u.includes('us.json') ? 'us.json' : u.includes('hk.json') ? 'hk.json' : u.includes('lynch.json') ? 'lynch.json' : 'cn.json'
     const text = readFileSync(resolve('public/data', name), 'utf8')
     return { ok: true, json: async () => JSON.parse(text) } as Response
   })
@@ -63,5 +64,34 @@ describe('补全公司：研究笔记列表与详情', () => {
     renderAt('/research-notes/cn/002594')
     await waitFor(() => expect(screen.getByText('程序化研究页')).toBeTruthy(), { timeout: 8000 })
     expect(screen.getAllByText(/比亚迪/).length).toBeGreaterThan(0)
+  })
+})
+
+describe('林奇分组、港股、导出', () => {
+  it('林奇分组视图：类型筛选与护城河证据', async () => {
+    renderAt('/research-notes?tab=category&m=cn&v=lynch')
+    await waitFor(() => expect(screen.getAllByText('快速增长型').length).toBeGreaterThan(1), { timeout: 8000 })
+    fireEvent.click(screen.getByRole('button', { name: /^周期型 \d+/ }))
+    await waitFor(() => expect(screen.queryAllByText('周期型').length).toBeGreaterThan(1))
+    expect(screen.getByText(/导出当前/)).toBeTruthy()
+  })
+
+  it('港股标签页列表可加载并搜索腾讯', async () => {
+    renderAt('/research-notes?tab=category&m=hk')
+    await waitFor(() => expect(screen.getByPlaceholderText('搜索公司名称或代码')).toBeTruthy(), { timeout: 8000 })
+    fireEvent.change(screen.getByPlaceholderText('搜索公司名称或代码'), { target: { value: '腾讯' } })
+    await waitFor(() => expect(screen.getAllByText(/腾讯控股/).length).toBeGreaterThan(0), { timeout: 8000 })
+  })
+
+  it('详情页渲染林奇分类卡与护城河证据', async () => {
+    renderAt('/research-notes/us/ACN')
+    await waitFor(() => expect(screen.getByText(/林奇分类：/)).toBeTruthy(), { timeout: 8000 })
+    expect(screen.getAllByText('定价权').length).toBeGreaterThan(0)
+  })
+
+  it('全部公司列表有导出按钮', async () => {
+    renderAt('/research-notes?tab=category&m=us')
+    await waitFor(() => expect(screen.getByText(/导出当前筛选/)).toBeTruthy(), { timeout: 8000 })
+    expect(screen.getByText(/导出该市场全部/)).toBeTruthy()
   })
 })

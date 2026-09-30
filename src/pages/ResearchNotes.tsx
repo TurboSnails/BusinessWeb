@@ -31,7 +31,7 @@ import {
   toneOf,
   Tone
 } from '../data/notionNotes'
-import { useCompanies, sectorsOf, Market } from '../data/companies'
+import { useCompanies, useLynch, sectorsOf, Market, Company, LynchInfo } from '../data/companies'
 
 type TabId = 'philosophy' | 'strategy' | 'standard' | 'category' | 'dev'
 
@@ -58,15 +58,22 @@ export default function ResearchNotes(): JSX.Element {
   const tabParam = params.get('tab')
   const activeTab: TabId = tabs.some(t => t.id === tabParam) ? (tabParam as TabId) : 'philosophy'
   const mParam = params.get('m')
-  const catMarket: Market | 'watch' = mParam === 'cn' || mParam === 'watch' ? mParam : 'us'
+  const catMarket: Market | 'watch' = mParam === 'cn' || mParam === 'hk' || mParam === 'watch' ? mParam : 'us'
+  const vParam = params.get('v')
+  const view = vParam === 'overview' ? 'overview' : vParam === 'lynch' ? 'lynch' : 'list'
   const progSector = params.get('sec') || '全部'
   const inCategory = activeTab === 'category'
   const { list: usList, loading: usLoading } = useCompanies('us', inCategory)
   const { list: cnList, loading: cnLoading } = useCompanies('cn', inCategory)
+  const { list: hkList, loading: hkLoading } = useCompanies('hk', inCategory)
+  const lynch = useLynch(inCategory)
+  const [lTier, setLTier] = useState('全部')
+  const [lMoat, setLMoat] = useState('全部')
+  const [lType, setLType] = useState('全部')
   const [q, setQ] = useState('')
   const [ratingF, setRatingF] = useState('全部')
   const [limit, setLimit] = useState(60)
-  useEffect(() => { setLimit(60) }, [catMarket, progSector, q, ratingF])
+  useEffect(() => { setLimit(60) }, [catMarket, progSector, q, ratingF, lTier, lMoat, lType, view])
   const updateParams = (patch: Record<string, string | null>): void =>
     setParams(prev => {
       const next = new URLSearchParams(prev)
@@ -74,7 +81,7 @@ export default function ResearchNotes(): JSX.Element {
       return next
     }, { replace: true })
   const setActiveTab = (t: TabId): void => updateParams({ tab: t })
-  const setCatMarket = (m: Market | 'watch'): void => updateParams({ tab: 'category', m, sec: null })
+  const setCatMarket = (m: Market | 'watch'): void => updateParams({ tab: 'category', m, sec: null, v: null })
   const setProgSector = (sec: string): void => updateParams({ sec: sec === '全部' ? null : sec })
   const [showBackToTop, setShowBackToTop] = useState(false)
   const [zoomImg, setZoomImg] = useState<{ src: string; title: string } | null>(null)
@@ -192,7 +199,7 @@ export default function ResearchNotes(): JSX.Element {
   )
 
   const usSectors = sectorsOf(usList)
-  const progList = catMarket === 'cn' ? cnList : usList
+  const progList = catMarket === 'cn' ? cnList : catMarket === 'hk' ? hkList : usList
   const progSectors = sectorsOf(progList)
   const secList = progSector === '全部' ? progList : progList.filter(c => c.sector === progSector)
   // 各来源评级用语不一（Notion 手写：逢低增持/买入/首选/核心配置…），统一归到四档；未识别的一律「观察」
@@ -203,7 +210,94 @@ export default function ResearchNotes(): JSX.Element {
     if (/^(条件|HOLD（条件候选）|优先观察|观察优先|重点观察|邮轮组优先|质地优先|增长可持续|质量观察（第|优质但待价|逢低增持)/.test(r)) return '条件关注'
     return '观察'
   }
+  const hkNote = '港股范围 = 恒生指数成分股（取自维基百科 2026-01 名单）∪ 恒生科技与主要 H 股龙头补充，共尝试 127 家，已覆盖 124 家；领展（823）、药明生物（2269）、药明康德（2359）数据接口失败，未覆盖。这不是官方指数口径，是「港股大盘蓝筹」的研究池。数据来自东方财富：PE/PB/股息率直接取其已换算值（港股报告币种常与交易币种不同，不能自行用 EPS 除股价）；增速按财年窗口计算，并附最新中期利润同比。港股页面全部为程序化研究页，规则与局限同「研究标准」页，评级用于筛选与排序。'
   const shownCompanies = secList.filter(c => (ratingF === '全部' || ratingOf(c) === ratingF) && (!q.trim() || (c.name + c.code).toLowerCase().includes(q.trim().toLowerCase())))
+
+  // 导出：公司、代码、评级、结论（当前筛选 / 全部）
+  const exportJson = (list: typeof progList, label: string): void => {
+    const rows = list.map(c => ({ 市场: c.market === 'us' ? '标普500' : c.market === 'hk' ? '港股' : '沪深', 代码: c.code, 公司: c.name, 板块: c.sector, 评级: c.rating, 归类: ratingOf(c), 结论: c.headline }))
+    const blob = new Blob([JSON.stringify(rows, null, 2)], { type: 'application/json' })
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(blob)
+    a.download = `${label}-${new Date().toISOString().slice(0, 10)}.json`
+    a.click()
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000)
+  }
+
+  const LYNCH_TYPES = ['快速增长型', '稳健型', '缓慢增长型', '周期型', '困境反转型', '资产型']
+  const tierRank: Record<string, number> = { 高: 0, 中: 1, 低: 2 }
+  const moatTone = (l: string): Tone => (l.startsWith('宽') ? 'green' : l.startsWith('窄') ? 'blue' : 'gray')
+  const tierTone = (t: string): Tone => (t === '高' ? 'green' : t === '中' ? 'blue' : 'gray')
+  const lynchOf = (c: Company): LynchInfo | undefined => lynch[`${c.market}:${c.code}`]
+  const fmt1 = (x: number | null | undefined, sfx = '', plus = false): string => (x === null || x === undefined ? '—' : `${plus && x > 0 ? '+' : ''}${x}${sfx}`)
+  const lynchBase = progList.filter(c => lynchOf(c))
+  const lynchShown = lynchBase
+    .filter(c => {
+      const l = lynchOf(c) as LynchInfo
+      return (lType === '全部' || l.t === lType) && (lTier === '全部' || l.r === lTier) && (lMoat === '全部' || (l.m && l.m.l.startsWith(lMoat))) && (!q.trim() || (c.name + c.code).toLowerCase().includes(q.trim().toLowerCase()))
+    })
+    .sort((a, b) => {
+      const la = lynchOf(a) as LynchInfo; const lb = lynchOf(b) as LynchInfo
+      const d = (tierRank[la.r] ?? 3) - (tierRank[lb.r] ?? 3)
+      if (d) return d
+      const ma = la.m && la.m.n ? la.m.s / la.m.n : -1; const mb = lb.m && lb.m.n ? lb.m.s / lb.m.n : -1
+      return mb - ma
+    })
+  const exportLynch = (): void => {
+    const rows = lynchShown.map(c => { const l = lynchOf(c) as LynchInfo; return { 市场: c.market === 'us' ? '标普500' : c.market === 'hk' ? '港股' : '沪深', 代码: c.code, 公司: c.name, 板块: c.sector, 林奇类型: l.t, 同类关注度: l.r, 护城河: l.m ? `${l.m.l}（${l.m.s}/${l.m.n}）` : '—', 结论: [l.v, ...l.w].filter(Boolean).join('；'), 站内评级: c.rating } })
+    const blob = new Blob([JSON.stringify(rows, null, 2)], { type: 'application/json' })
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob)
+    a.download = `${catMarket}-林奇-${lType}-${lTier}-${lMoat}-${new Date().toISOString().slice(0, 10)}.json`; a.click()
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000)
+  }
+  const chipStyle = (on: boolean): React.CSSProperties => ({ border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '12px', fontWeight: 500, padding: '6px 12px', borderRadius: 'var(--radius-full)', background: on ? 'var(--system-blue)' : 'var(--bg-secondary)', color: on ? '#fff' : 'var(--text-secondary)' })
+  const renderLynch = (): JSX.Element => (
+    <>
+      <details style={{ ...card, padding: '14px 18px' }}>
+        <summary style={{ cursor: 'pointer', fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>分组规则（点开查看）：林奇六类 × 巴菲特式护城河财务证据</summary>
+        <div style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.8, marginTop: '10px' }}>
+          <p style={{ margin: '0 0 8px' }}>回答的是「这家公司该用什么标准买」，与「全部公司分类」里的评级（现在价格有没有赔率）互补，两者独立计算，不互相覆盖。全部由脚本按统一规则算出，用于初筛，边界公司会分错。</p>
+          <p style={{ margin: '0 0 6px' }}><b>类型（按顺序判定）</b>：① 困境反转：TTM 归母亏损/刚由亏转盈/利润从谷底回升 ≥1.3 倍；② 周期：行业属强周期，或近三个 TTM 窗口利润「先升后降/先降后升」且波动 ≥1.6 倍（单边高增不算周期）；③ 资产：PB &lt;1 的非金融股、REIT；④ 快速增长：有效增速 ≥20% 且营收 ≥10%；⑤ 稳健：有效增速 8–20%；⑥ 缓慢增长：&lt;8%。有效增速 = 「近一年」与「两年年化」中较小者，要求持续性。</p>
+          <p style={{ margin: '0 0 6px' }}><b>同类关注度</b>（高/中/低，只在同类型内比较）：快速增长看 PEG（PE ÷ 增速，增速封顶 50%；&lt;1 高、1–1.5 中）；稳健看 PE（≤15 高、≤22 中）；缓慢增长只在低 PE 或高股息（港股有股息数据）时给「中」；周期按盈利位置——三年高位一律「低」（低 PE 往往是顶部信号），刚从低位回升给「中」；困境反转看杠杆与最近季度是否改善；资产型看 PB 折价。</p>
+          <p style={{ margin: 0 }}><b>护城河（仅财务证据）</b>：定价权（毛利率显著高于同行业）、毛利稳定、资本回报（ROE 三年持续 ≥15%）、盈利持续、财务稳健、需求韧性，通过率 ≥83% 为「宽护城河迹象」、≥60% 为「窄」。它只能检验品牌/网络效应/转换成本通常留下的财务痕迹，不能证明护城河本身；金融股部分项不适用，数据不足的项不计分。局限：增速用历史值而非预期；无 FCF、无股息（A 股/美股）、无存货数据；一次性项目只在明显时剔除。</p>
+        </div>
+      </details>
+      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', margin: '4px 0 10px' }}>
+        {['全部', ...LYNCH_TYPES].map(t => (
+          <button key={t} onClick={() => setLType(t)} style={chipStyle(lType === t)}>{t} {t === '全部' ? lynchBase.length : lynchBase.filter(c => (lynchOf(c) as LynchInfo).t === t).length}</button>
+        ))}
+      </div>
+      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', margin: '0 0 10px' }}>
+        <input value={q} onChange={e => setQ(e.target.value)} placeholder="搜索公司名称或代码"
+          style={{ flex: '1 1 180px', minWidth: '150px', fontSize: '13px', padding: '8px 14px', borderRadius: 'var(--radius-full)', border: '1px solid var(--border-primary)', background: 'var(--bg-card)', color: 'var(--text-primary)', fontFamily: 'inherit' }} />
+        {['全部', '高', '中', '低'].map(t => <button key={t} onClick={() => setLTier(t)} style={chipStyle(lTier === t)}>{t === '全部' ? '关注度：全部' : `关注度：${t}`}</button>)}
+        {['全部', '宽', '窄'].map(t => <button key={t} onClick={() => setLMoat(t)} style={chipStyle(lMoat === t)}>{t === '全部' ? '护城河：全部' : `护城河：${t}`}</button>)}
+        <button onClick={exportLynch} style={{ ...chipStyle(false), border: '1px solid var(--border-primary)', background: 'var(--bg-card)' }}>⬇ 导出当前（{lynchShown.length}）JSON</button>
+      </div>
+      <div style={card}>
+        <Table
+          heads={['公司', '林奇类型', '关注度', '护城河', '关键指标', '林奇判断']}
+          rows={lynchShown.slice(0, limit).map(c => {
+            const l = lynchOf(c) as LynchInfo
+            return [
+              <span>{companyLink(c.market, c.code, `${c.name} ${c.code}`)}</span>,
+              <span style={badge('gray')}>{l.t}</span>,
+              <span style={badge(tierTone(l.r))}>{l.r}</span>,
+              l.m ? <span style={badge(moatTone(l.m.l))}>{l.m.l.replace('迹象', '')} {l.m.s}/{l.m.n}</span> : '—',
+              <span style={{ display: 'block', minWidth: '150px', fontSize: '12px' }}>PE {fmt1(l.pe, '×')} · 利润 {fmt1(l.g, '%', true)}（两年年化 {fmt1(l.c, '%', true)}）{l.peg !== null && l.peg !== undefined ? ` · PEG ${l.peg}` : ''}{l.ph ? ` · ${l.ph}` : ''}{l.dy !== null && l.dy !== undefined ? ` · 股息 ${l.dy}%` : ''}</span>,
+              <span style={{ display: 'block', minWidth: '200px' }}>{l.v || l.w.join('；')}{l.f.length ? <span style={{ color: 'var(--text-tertiary)', fontSize: '12px' }}> ⚠ {l.f[0]}</span> : null}</span>,
+            ]
+          })}
+        />
+        {lynchShown.length > limit && (
+          <div style={{ textAlign: 'center', marginTop: '14px' }}>
+            <button onClick={() => setLimit(l => l + 100)} style={chipStyle(false)}>显示更多（还有 {lynchShown.length - limit} 家）</button>
+          </div>
+        )}
+        <p style={{ fontSize: '12px', color: 'var(--text-tertiary)', margin: '12px 0 0' }}>默认按「同类关注度」再按护城河证据排序；点击公司进入分析页，页内有护城河各项证据。分类是脚本初筛，不构成投资建议。</p>
+      </div>
+    </>
+  )
 
   const renderProgress = (): JSX.Element => (
     <>
@@ -225,6 +319,14 @@ export default function ResearchNotes(): JSX.Element {
           </button>
         ))}
       </div>
+      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', margin: '0 0 12px' }}>
+        {[[`导出当前筛选（${shownCompanies.length}）`, shownCompanies, `${catMarket}-${progSector}-${ratingF}`], [`导出该市场全部（${progList.length}）`, progList, `${catMarket}-全部`]].map(([label, list, name]) => (
+          <button key={label as string} onClick={() => exportJson(list as typeof progList, name as string)}
+            style={{ border: '1px solid var(--border-primary)', cursor: 'pointer', fontFamily: 'inherit', fontSize: '12px', fontWeight: 500, padding: '6px 12px', borderRadius: 'var(--radius-full)', background: 'var(--bg-card)', color: 'var(--text-secondary)' }}>
+            ⬇ {label as string} JSON
+          </button>
+        ))}
+      </div>
       <div style={card}>
         <Table
           heads={['公司', '评级', '一句话结论']}
@@ -240,22 +342,33 @@ export default function ResearchNotes(): JSX.Element {
           </div>
         )}
         <p style={{ fontSize: '12px', color: 'var(--text-tertiary)', margin: '12px 0 0' }}>
-          点击公司名称进入该公司的分析页；标有「程序化」的公司页由脚本按统一规则生成。{(usLoading || cnLoading) ? ' 正在加载补全公司…' : ''}
+          点击公司名称进入该公司的分析页；标有「程序化」的公司页由脚本按统一规则生成。{(usLoading || cnLoading || hkLoading) ? ' 正在加载补全公司…' : ''}
         </p>
       </div>
     </>
   )
 
   const companyLink = (market: Market, code: string, label: string): React.ReactNode => {
-    const exists = (market === 'us' ? usList : cnList).some(c => c.code === code)
+    const exists = (market === 'us' ? usList : market === 'cn' ? cnList : hkList).some(c => c.code === code)
     return exists
       ? <Link to={`/research-notes/${market}/${encodeURIComponent(code)}`} onClick={() => { try { sessionStorage.setItem('rn-scroll', String(window.scrollY)) } catch { /* ignore */ } }} style={{ color: 'var(--system-blue)', textDecoration: 'none', fontWeight: 500 }}>{label}</Link>
       : label
   }
 
+  const viewSwitch = (overviewLabel: string): JSX.Element => (
+    <div style={{ display: 'flex', gap: '8px', margin: '0 0 16px' }}>
+      {([['list', '全部公司分类'], ['lynch', '林奇分组'], ['overview', overviewLabel]] as [string, string][]).map(([v, label]) => (
+        <button key={v} onClick={() => updateParams({ v: v === 'list' ? null : v })}
+          style={{ border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', fontWeight: 600, padding: '7px 16px', borderRadius: 'var(--radius-full)', background: view === v ? 'var(--text-primary)' : 'var(--bg-secondary)', color: view === v ? 'var(--bg-primary)' : 'var(--text-secondary)' }}>
+          {label}
+        </button>
+      ))}
+    </div>
+  )
+
   const marketSwitch = <T extends string>(value: T, onChange: (m: T) => void, withWatch = false): JSX.Element => (
     <div style={{ display: 'inline-flex', gap: '4px', padding: '4px', borderRadius: 'var(--radius-full)', background: 'var(--bg-secondary)', marginBottom: '20px' }}>
-      {([['us', '标普500'], ['cn', '沪深500'], ...(withWatch ? [['watch', '交易价位']] : [])] as [string, string][]).map(([m, label]) => (
+      {([['us', '标普500'], ['cn', '沪深500'], ['hk', '港股'], ...(withWatch ? [['watch', '交易价位']] : [])] as [string, string][]).map(([m, label]) => (
         <button
           key={m}
           onClick={() => onChange(m as T)}
@@ -603,6 +716,10 @@ export default function ResearchNotes(): JSX.Element {
 
             {catMarket === 'us' && (
               <div>
+                {viewSwitch('板块与研究进度')}
+                {view === 'list' && renderProgress()}
+                {view === 'lynch' && renderLynch()}
+                {view === 'overview' && (<div>
                 <p style={sectionTitle}>标普500 · GICS 板块</p>
                 <div style={card}>
                   <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 16px', lineHeight: 1.7 }}>{sp500Note}</p>
@@ -649,12 +766,16 @@ export default function ResearchNotes(): JSX.Element {
                     程序化补全批的规则与局限见「研究标准」页；这些公司不含公司特有催化与风险，评级用于筛选与排序。
                   </p>
                 </div>
-                {renderProgress()}
+                </div>)}
               </div>
             )}
 
             {catMarket === 'cn' && (
               <div>
+                {viewSwitch('产业链与研究进度')}
+                {view === 'list' && renderProgress()}
+                {view === 'lynch' && renderLynch()}
+                {view === 'overview' && (<div>
                 <p style={sectionTitle}>沪深产业链</p>
                 {cnChains.map(chain => (
                   <div key={chain.name} style={card}>
@@ -706,7 +827,21 @@ export default function ResearchNotes(): JSX.Element {
                     A 股页面的业务描述取自同花顺主营介绍；沪深300 成分股补写了护城河、行业判断与公司特有风险的简述，中证500 成分股只有按中证行业分类的行业简述；评级用于筛选与排序。
                   </p>
                 </div>
-                {renderProgress()}
+                </div>)}
+              </div>
+            )}
+
+            {catMarket === 'hk' && (
+              <div>
+                {viewSwitch('覆盖说明')}
+                {view === 'list' && renderProgress()}
+                {view === 'lynch' && renderLynch()}
+                {view === 'overview' && (
+                  <div style={card}>
+                    <h3 style={cardTitle}>港股覆盖说明</h3>
+                    <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.8 }}>{hkNote}</p>
+                  </div>
+                )}
               </div>
             )}
             {catMarket !== 'watch' && disclaimer}
