@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigationType, useSearchParams } from 'react-router-dom'
 import {
   BookOpen,
   Compass,
@@ -52,14 +52,35 @@ const toneColors: Record<Tone, { bg: string; color: string }> = {
 }
 
 export default function ResearchNotes(): JSX.Element {
-  const [activeTab, setActiveTab] = useState<TabId>('philosophy')
+  // 页签/市场/板块存在 URL 查询参数里：从公司二级页返回时能回到原来的位置
+  const navType = useNavigationType()
+  const [params, setParams] = useSearchParams()
+  const tabParam = params.get('tab')
+  const activeTab: TabId = tabs.some(t => t.id === tabParam) ? (tabParam as TabId) : 'philosophy'
+  const mParam = params.get('m')
+  const catMarket: Market | 'watch' = mParam === 'cn' || mParam === 'watch' ? mParam : 'us'
+  const progSector = params.get('sec') || '全部'
+  const updateParams = (patch: Record<string, string | null>): void =>
+    setParams(prev => {
+      const next = new URLSearchParams(prev)
+      Object.entries(patch).forEach(([k, v]) => (v === null ? next.delete(k) : next.set(k, v)))
+      return next
+    }, { replace: true })
+  const setActiveTab = (t: TabId): void => updateParams({ tab: t })
+  const setCatMarket = (m: Market | 'watch'): void => updateParams({ tab: 'category', m, sec: null })
+  const setProgSector = (sec: string): void => updateParams({ sec: sec === '全部' ? null : sec })
   const [showBackToTop, setShowBackToTop] = useState(false)
   const [zoomImg, setZoomImg] = useState<{ src: string; title: string } | null>(null)
-  const [catMarket, setCatMarket] = useState<Market | 'watch'>('us')
-  const [progSector, setProgSector] = useState('全部')
 
   useEffect(() => {
-    window.scrollTo(0, 0)
+    // 从公司二级页返回时恢复滚动位置，否则回到顶部
+    let y = 0
+    try {
+      // 只有“返回”（POP）才恢复，从导航栏新进入一律回到顶部
+      y = navType === 'POP' ? Number(sessionStorage.getItem('rn-scroll') || 0) : 0
+      sessionStorage.removeItem('rn-scroll')
+    } catch { /* 隐私模式下忽略 */ }
+    window.scrollTo(0, y)
     const handleScroll = () => setShowBackToTop(window.scrollY > 400)
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
@@ -171,7 +192,7 @@ export default function ResearchNotes(): JSX.Element {
   const companyLink = (market: Market, code: string, label: string): React.ReactNode => {
     const exists = (market === 'us' ? usCompanies : cnCompanies).some(c => c.code === code)
     return exists
-      ? <Link to={`/research-notes/${market}/${encodeURIComponent(code)}`} style={{ color: 'var(--system-blue)', textDecoration: 'none', fontWeight: 500 }}>{label}</Link>
+      ? <Link to={`/research-notes/${market}/${encodeURIComponent(code)}`} onClick={() => { try { sessionStorage.setItem('rn-scroll', String(window.scrollY)) } catch { /* ignore */ } }} style={{ color: 'var(--system-blue)', textDecoration: 'none', fontWeight: 500 }}>{label}</Link>
       : label
   }
 
@@ -439,7 +460,7 @@ export default function ResearchNotes(): JSX.Element {
         {/* ── 分类数据 ── */}
         {activeTab === 'category' && (
           <div>
-            {marketSwitch(catMarket, m => { setCatMarket(m); setProgSector('全部') }, true)}
+            {marketSwitch(catMarket, setCatMarket, true)}
 
             {catMarket === 'watch' && watchView}
 

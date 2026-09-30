@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, ExternalLink, CheckCircle2, AlertTriangle, ArrowRight } from 'lucide-react'
 import { findCompany, Market } from '../data/companies'
 import { toneOf, Tone } from '../data/notionNotes'
@@ -14,6 +14,7 @@ const toneColors: Record<Tone, { bg: string; color: string }> = {
 
 export default function CompanyDetail(): JSX.Element {
   const { market, code } = useParams()
+  const navigate = useNavigate()
   const company = findCompany((market === 'cn' ? 'cn' : 'us') as Market, decodeURIComponent(code || ''))
 
   useEffect(() => {
@@ -44,7 +45,14 @@ export default function CompanyDetail(): JSX.Element {
 
   const back = (
     <Link
-      to="/research-notes"
+      to={`/research-notes?tab=category&m=${market === 'cn' ? 'cn' : 'us'}`}
+      onClick={e => {
+        // 有站内历史就原路返回（保留页签、市场、板块和滚动位置）
+        if (window.history.state && window.history.state.idx > 0) {
+          e.preventDefault()
+          navigate(-1)
+        }
+      }}
       style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'rgba(255,255,255,0.9)', textDecoration: 'none', fontSize: '13px', marginBottom: '14px' }}
     >
       <ArrowLeft size={14} /> 返回研究笔记
