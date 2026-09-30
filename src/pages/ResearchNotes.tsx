@@ -32,6 +32,7 @@ import {
   Tone
 } from '../data/notionNotes'
 import { useCompanies, useLynch, sectorsOf, Market, Company, LynchInfo } from '../data/companies'
+import CompanyCombined from '../components/CompanyCombined'
 import { CN_REPORT } from '../data/cnReassessment'
 import { SP500_REPORT, sp500Reassessment } from '../data/sp500Reassessment'
 
@@ -62,7 +63,7 @@ export default function ResearchNotes(): JSX.Element {
   const mParam = params.get('m')
   const catMarket: Market | 'watch' = mParam === 'cn' || mParam === 'hk' || mParam === 'adr' || mParam === 'watch' ? mParam : 'us'
   const vParam = params.get('v')
-  const view = vParam === 'overview' ? 'overview' : vParam === 'lynch' ? 'lynch' : 'list'
+  const view = vParam === 'combined' ? 'combined' : vParam === 'overview' ? 'overview' : vParam === 'lynch' ? 'lynch' : 'list'
   const progSector = params.get('sec') || '全部'
   const inCategory = activeTab === 'category'
   const { list: usList, loading: usLoading } = useCompanies('us', inCategory)
@@ -206,6 +207,7 @@ export default function ResearchNotes(): JSX.Element {
 
   const usSectors = sectorsOf(usList)
   const progList = catMarket === 'cn' ? cnList : catMarket === 'hk' ? hkList : catMarket === 'adr' ? adrList : usList
+  const combinedLoading = catMarket === 'cn' ? cnLoading : catMarket === 'hk' ? hkLoading : catMarket === 'adr' ? adrLoading : usLoading
   const progSectors = sectorsOf(progList)
   const secList = progSector === '全部' ? progList : progList.filter(c => c.sector === progSector)
   // 各来源评级用语不一（Notion 手写：逢低增持/买入/首选/核心配置…），统一归到四档；未识别的一律「观察」
@@ -373,8 +375,8 @@ export default function ResearchNotes(): JSX.Element {
   }
 
   const viewSwitch = (overviewLabel: string): JSX.Element => (
-    <div style={{ display: 'flex', gap: '8px', margin: '0 0 16px' }}>
-      {([['list', '全部公司分类'], ['lynch', '林奇分组'], ['overview', overviewLabel]] as [string, string][]).map(([v, label]) => (
+    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', margin: '0 0 16px' }}>
+      {([['list', '全部公司分类'], ['lynch', '林奇分组'], ['combined', '综合分类'], ['overview', overviewLabel]] as [string, string][]).map(([v, label]) => (
         <button key={v} onClick={() => updateParams({ v: v === 'list' ? null : v })}
           style={{ border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', fontWeight: 600, padding: '7px 16px', borderRadius: 'var(--radius-full)', background: view === v ? 'var(--text-primary)' : 'var(--bg-secondary)', color: view === v ? 'var(--bg-primary)' : 'var(--text-secondary)' }}>
           {label}
@@ -760,6 +762,7 @@ export default function ResearchNotes(): JSX.Element {
                 {viewSwitch('板块与研究进度')}
                 {view === 'list' && renderProgress()}
                 {view === 'lynch' && renderLynch()}
+                {view === 'combined' && <CompanyCombined key={catMarket} companies={progList} lynch={lynch} ratingOf={ratingOf} loading={combinedLoading} />}
                 {view === 'overview' && (<div>
                 <p style={sectionTitle}>标普500 · 历史研究分组</p>
                 <div style={card}>
@@ -823,6 +826,7 @@ export default function ResearchNotes(): JSX.Element {
                 {viewSwitch('产业链与研究进度')}
                 {view === 'list' && renderProgress()}
                 {view === 'lynch' && renderLynch()}
+                {view === 'combined' && <CompanyCombined key={catMarket} companies={progList} lynch={lynch} ratingOf={ratingOf} loading={combinedLoading} />}
                 {view === 'overview' && (<div>
                 <p style={sectionTitle}>沪深产业链</p>
                 {cnChains.map(chain => (
@@ -884,6 +888,7 @@ export default function ResearchNotes(): JSX.Element {
                 {viewSwitch('覆盖说明')}
                 {view === 'list' && renderProgress()}
                 {view === 'lynch' && renderLynch()}
+                {view === 'combined' && <CompanyCombined key={catMarket} companies={progList} lynch={lynch} ratingOf={ratingOf} loading={combinedLoading} />}
                 {view === 'overview' && (
                   <div style={card}>
                     <h3 style={cardTitle}>港股覆盖说明</h3>
@@ -897,6 +902,7 @@ export default function ResearchNotes(): JSX.Element {
                 {viewSwitch('覆盖说明')}
                 {view === 'list' && renderProgress()}
                 {view === 'lynch' && renderLynch()}
+                {view === 'combined' && <CompanyCombined key={catMarket} companies={progList} lynch={lynch} ratingOf={ratingOf} loading={combinedLoading} />}
                 {view === 'overview' && (
                   <div style={card}>
                     <h3 style={cardTitle}>美股非标普：覆盖说明</h3>

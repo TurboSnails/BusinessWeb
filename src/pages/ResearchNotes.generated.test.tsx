@@ -177,3 +177,26 @@ it('沪深复核详情不会从历史指标重建被撤回的三情景', async (
   await waitFor(() => expect(screen.getByText(/待补充三情景估值表/)).toBeTruthy())
   expect(screen.getByRole('link', { name: '查看本轮完整报告与一手来源' }).getAttribute('href')).toContain('cn-roundtable')
 })
+
+describe('额外综合分类视图', () => {
+  it.each(['us', 'cn', 'hk', 'adr'])('%s保留原入口并新增综合分类', async market => {
+    renderAt(`/research-notes?tab=category&m=${market}`)
+    fireEvent.click(screen.getByRole('button', { name: '综合分类' }))
+    expect(screen.getByRole('button', { name: '全部公司分类' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: '林奇分组' })).toBeTruthy()
+    await waitFor(() => expect(screen.getByRole('columnheader', { name: '林奇类型' })).toBeTruthy())
+    expect(screen.getByRole('columnheader', { name: '研究评级' })).toBeTruthy()
+    expect(screen.getByRole('combobox', { name: '行业' })).toBeTruthy()
+  })
+
+  it('综合分类允许公司搜索并显示两套结论，原分类视图不增加列', async () => {
+    renderAt('/research-notes?tab=category&m=us&v=combined')
+    await waitFor(() => expect(screen.getByRole('textbox', { name: '搜索综合分类' })).toBeTruthy())
+    fireEvent.change(screen.getByRole('textbox', { name: '搜索综合分类' }), { target: { value: 'CVS' } })
+    await waitFor(() => expect(screen.getByRole('link', { name: '西维斯健康 CVS' })).toBeTruthy())
+    expect(screen.getByRole('columnheader', { name: '林奇判断' })).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: '全部公司分类' }))
+    expect(screen.queryByRole('columnheader', { name: '林奇类型' })).toBeNull()
+    expect(screen.getByRole('columnheader', { name: '一句话结论' })).toBeTruthy()
+  })
+})
