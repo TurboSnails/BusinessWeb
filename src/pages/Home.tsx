@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
+  BookOpen,
   TrendingUp,
   Globe,
   BarChart2,
@@ -50,6 +51,22 @@ export default function Home(): JSX.Element {
   }
 
   const menuItems = [
+    {
+      to: '/research-notes',
+      icon: BookOpen,
+      title: '研究笔记',
+      description: '投资理念、策略配置与标的研究',
+      gradient: 'linear-gradient(135deg, #5856D6 0%, #007AFF 100%)',
+      color: 'var(--system-indigo)'
+    },
+    {
+      to: '/grid-trading',
+      icon: BarChart2,
+      title: '网格交易',
+      description: 'ETF 网格回测、成交调整与快照复盘',
+      gradient: 'linear-gradient(135deg, #007AFF 0%, #30B0C7 100%)',
+      color: 'var(--system-blue)'
+    },
     {
       to: '/investment-targets',
       icon: TrendingUp,
