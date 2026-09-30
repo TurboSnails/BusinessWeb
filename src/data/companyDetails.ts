@@ -9,6 +9,7 @@ import { financeDetails } from './details/finance'
 import { consumerDetails } from './details/consumer'
 import { staplesDetails } from './details/staples'
 import { itDetails } from './details/it'
+import { cnDetails } from './details/cn'
 
 const manual: Record<string, Partial<Company>> = {
   'us:PEP': {
@@ -515,4 +516,4 @@ const manual: Record<string, Partial<Company>> = {
 }
 
 // 手写条目优先于批量文本条目
-export const companyDetails: Record<string, Partial<Company>> = mergeDetails(parseDetails(healthDetails), parseDetails(financeDetails), parseDetails(consumerDetails), parseDetails(staplesDetails), parseDetails(itDetails), parseDetails(profileDetails), manual)
+export const companyDetails: Record<string, Partial<Company>> = mergeDetails(parseDetails(healthDetails), parseDetails(financeDetails), parseDetails(consumerDetails), parseDetails(staplesDetails), parseDetails(itDetails), parseDetails(cnDetails), parseDetails(profileDetails), manual)

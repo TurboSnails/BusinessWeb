@@ -1,6 +1,6 @@
 // 把紧凑文本格式解析成 Company 的补全字段，便于批量录入各公司深度内容。
 // 每个公司以 “@市场:代码” 开头，之后每行 “键: 值”，同键多行会累加。
-//   h 结论 | cert 确定性 | dur 增长期限 | ratio 盈亏比说明 | ai AI 的位置
+//   rt 评级 | h 结论 | cert 确定性 | dur 增长期限 | ratio 盈亏比说明 | ai AI 的位置
 //   m 指标（标签|值，出现则整体替换原指标）
 //   t 核心逻辑 | g 增长来源 | o 护城河 | rk 风险与证伪 | x 口径与陷阱 | c 验证日历
 //   s 情景（名称|概率|假设|倍数|隐含价|相对现价|触发）
@@ -30,6 +30,7 @@ export const parseDetails = (text: string): Record<string, Partial<Company>> => 
     const v = line.slice(i + 1).trim()
     if (!v) continue
     switch (k) {
+      case 'rt': cur.rating = v; break
       case 'h': cur.headline = v; break
       case 'cert': cur.certainty = v; break
       case 'dur': cur.duration = v; break
