@@ -199,8 +199,8 @@ export default function ResearchNotes(): JSX.Element {
   const ratingOf = (c: { rating: string }): string => {
     const r = c.rating
     if (/^(回避|暂不|暂缓)/.test(r)) return '回避'
-    if (/^(优先关注|优先跟踪|买入|首选|核心配置|均衡优选|稳健增配|逢低增持)/.test(r)) return '优先关注'
-    if (/^(条件|HOLD（条件候选）|优先观察|观察优先|重点观察|邮轮组优先|质地优先|增长可持续|质量观察（第|优质但待价)/.test(r)) return '条件关注'
+    if (/^(优先关注|优先跟踪|买入|首选|核心配置|均衡优选|稳健增配)/.test(r)) return '优先关注'
+    if (/^(条件|HOLD（条件候选）|优先观察|观察优先|重点观察|邮轮组优先|质地优先|增长可持续|质量观察（第|优质但待价|逢低增持)/.test(r)) return '条件关注'
     return '观察'
   }
   const shownCompanies = secList.filter(c => (ratingF === '全部' || ratingOf(c) === ratingF) && (!q.trim() || (c.name + c.code).toLowerCase().includes(q.trim().toLowerCase())))
