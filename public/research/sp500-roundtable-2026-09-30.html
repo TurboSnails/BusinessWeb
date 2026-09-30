@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>标普500 · 腾讯自选股投研专家团再分析</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-primary: #F7F5F3; --bg-secondary: #FFFFFF; --bg-card: #FFFFFF;
+  --bg-elevated: #FAFAF9; --bg-warm: #F5F2EE; --bg-dark: #2D2926;
+  --text-primary: #2D2926; --text-secondary: #5C5652;
+  --text-muted: #8A8480; --text-light: #A8A29E;
+  --accent: #D97706; --accent-light: #FEF3C7; --accent-hover: #B45309;
+  --border: #E5E2DE; --border-light: #F0EEEC;
+  --red: #DC2626; --green: #059669; --gold: #D97706; --blue: #2563EB;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', Georgia, serif;
+  background: var(--bg-primary); color: var(--text-primary);
+  line-height: 1.8; font-size: 16px; -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4 { font-family: inherit; font-weight: 600; letter-spacing: 0.02em; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-hover); }
+
+.container { max-width: 1100px; margin: 0 auto; padding: 0 48px; }
+.prose { max-width: 760px; margin: 0 auto; }
+.prose p { font-size: 1.05rem; line-height: 1.9; margin-bottom: 20px; color: var(--text-primary); }
+.section-head { max-width: 1100px; display: grid; grid-template-columns: 120px 1fr; gap: 32px; align-items: baseline; margin: 0 auto 48px; padding: 0 48px; }
+.section-num { font-size: 0.9rem; color: var(--accent); letter-spacing: 0.15em; border-top: 1px solid var(--accent); padding-top: 8px; }
+.section-title { font-size: 2rem; }
+.section-lede { color: var(--text-muted); margin-top: 6px; font-size: 1rem; }
+section { padding: 72px 0; }
+
+/* ===== Nav ===== */
+nav { position: sticky; top: 0; z-index: 100; height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 48px; background: rgba(247,245,243,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-light); }
+.nav-logo { font-weight: 600; font-size: 1rem; }
+.nav-links { display: flex; gap: 28px; }
+.nav-links a { color: var(--text-secondary); font-size: 0.95rem; }
+.nav-links a:hover { color: var(--accent); }
+
+/* ===== Hero ===== */
+.hero { max-width: 1100px; margin: 0 auto; padding: 96px 48px 48px; }
+.kicker { color: var(--accent); font-size: 0.9rem; letter-spacing: 0.15em; font-weight: 500; margin-bottom: 24px; }
+.hero h1 { font-size: 3rem; line-height: 1.25; margin-bottom: 24px; max-width: 900px; }
+.hero-dek { max-width: 760px; font-size: 1.15rem; color: var(--text-secondary); line-height: 1.9; margin-bottom: 40px; }
+.host { display: inline-flex; align-items: center; gap: 12px; font-size: 0.95rem; color: var(--text-muted); }
+.host img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); }
+
+/* ===== Module 1 · Conclusion Card ===== */
+.conclusion-wrap { max-width: 1100px; margin: 0 auto; padding: 0 48px; }
+.conclusion-card {
+  padding: 40px 48px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-left: 6px solid var(--accent); border-radius: 20px;
+  box-shadow: 0 4px 28px rgba(217, 119, 6, 0.06);
+}
+#conclusion { padding: 0; }
+#conclusion .section-head { margin-bottom: 48px; }
+.cc-question {
+  font-size: 0.85rem; color: var(--text-muted); letter-spacing: 0.05em;
+  margin-bottom: 8px; text-transform: uppercase;
+}
+.cc-question-text {
+  font-size: 1.4rem; font-weight: 600; color: var(--text-primary);
+  margin-bottom: 28px; padding-bottom: 24px; border-bottom: 1px dashed var(--border);
+}
+.cc-question-text::before { content: "「"; color: var(--accent); }
+.cc-question-text::after { content: "」"; color: var(--accent); }
+
+.cc-snapshot { margin-bottom: 32px; }
+.cc-snapshot-label {
+  font-size: 0.78rem; color: var(--text-muted); letter-spacing: 0.18em;
+  font-weight: 600; margin-bottom: 14px; text-transform: uppercase;
+}
+.cc-snapshot-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  background: var(--bg-elevated); border: 1px solid var(--border-light);
+  border-radius: 12px; overflow: hidden;
+}
+.cc-snap-cell {
+  padding: 16px 20px;
+  border-right: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg-elevated);
+}
+.cc-snap-cell:nth-child(4n) { border-right: none; }
+.cc-snap-cell:nth-last-child(-n+4) { border-bottom: none; }
+.cc-snap-cell-label {
+  font-size: 0.78rem; color: var(--text-muted); letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+.cc-snap-cell-value {
+  font-size: 1.4rem; font-weight: 600; color: var(--text-primary);
+  font-variant-numeric: tabular-nums; line-height: 1.2;
+  letter-spacing: 0.01em;
+}
+.cc-snap-cell-sub {
+  font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.cc-snap-up { color: var(--red); }
+.cc-snap-down { color: var(--green); }
+
+.cc-headline-label {
+  font-size: 0.8rem; color: var(--accent); letter-spacing: 0.2em;
+  font-weight: 600; margin-bottom: 14px; text-transform: uppercase;
+}
+.cc-headline {
+  font-size: 1.15rem; font-weight: 500; color: var(--text-primary);
+  letter-spacing: 0.01em; line-height: 1.75;
+  margin-bottom: 32px; padding-bottom: 28px;
+  border-bottom: 1px solid var(--border);
+}
+.cc-headline strong { font-weight: 700; color: var(--text-primary); }
+.cc-headline em { font-style: normal; font-weight: 700; color: var(--red); }
+
+.cc-actions-intro {
+  font-size: 0.95rem; color: var(--text-muted); letter-spacing: 0.02em;
+  margin-bottom: 18px;
+}
+.cc-actions {
+  display: flex; flex-direction: column;
+  margin-bottom: 28px;
+}
+.cc-action-row {
+  display: grid; grid-template-columns: 180px 1fr;
+  gap: 28px; padding: 18px 0; align-items: baseline;
+  border-bottom: 1px dashed var(--border-light);
+}
+.cc-action-row:last-child { border-bottom: none; }
+.cc-action-label {
+  font-weight: 600; color: var(--accent); font-size: 1rem;
+  letter-spacing: 0.04em;
+}
+.cc-action-detail {
+  color: var(--text-primary); font-size: 1rem; line-height: 1.85;
+}
+.cc-action-detail strong { color: var(--text-primary); font-weight: 600; }
+
+.cc-vote {
+  display: flex; gap: 14px; flex-wrap: wrap; align-items: center;
+  padding-top: 20px; border-top: 1px dashed var(--border);
+}
+.cc-vote-label { font-size: 0.85rem; color: var(--text-muted); letter-spacing: 0.05em; }
+.cc-vote-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.85rem; color: var(--text-secondary);
+  padding: 4px 12px; background: var(--bg-elevated); border-radius: 999px;
+  border: 1px solid var(--border-light);
+}
+.cc-vote-tag .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+/* ===== Module 2 · Voice Card ===== */
+.voice-stack { max-width: 1100px; margin: 0 auto; padding: 0 48px; display: flex; flex-direction: column; gap: 24px; }
+.voice-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 32px 36px; min-width: 0; }
+.voice-head { display: flex; align-items: center; gap: 12px; padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid var(--border-light); }
+.voice-head img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); }
+.voice-name { font-weight: 600; font-size: 1.1rem; flex: 1; }
+.voice-card ol, .voice-card ul { padding-left: 20px; }
+.voice-card li { margin-bottom: 12px; line-height: 1.8; }
+.voice-card strong { color: var(--text-primary); font-weight: 600; }
+.voice-card h4 { margin: 20px 0 10px; font-size: 1.05rem; color: var(--text-primary); }
+.voice-card p { margin-bottom: 14px; line-height: 1.85; color: var(--text-secondary); }
+.voice-card table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 0.95rem; margin: 16px 0; }
+.voice-card th, .voice-card td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border-light); }
+.voice-card th { color: var(--text-muted); font-weight: 500; background: var(--bg-elevated); font-size: 0.85rem; }
+.voice-card .table-scroll { overflow-x: auto; margin: 16px 0; }
+.voice-card .pull-quote { border-left: 3px solid var(--accent); padding: 4px 0 4px 16px; margin: 16px 0; color: var(--text-secondary); font-style: italic; }
+
+/* ===== Module 3a · Notes List（主持人札记） ===== */
+.notes-stack { max-width: 1100px; margin: 0 auto; padding: 0 48px; display: flex; flex-direction: column; gap: 16px; }
+.note-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 24px 28px; display: grid; grid-template-columns: 56px 1fr; gap: 20px; align-items: baseline; }
+.note-num { font-size: 1.6rem; font-weight: 600; color: var(--accent); font-variant-numeric: tabular-nums; line-height: 1; opacity: 0.6; }
+.note-body h4 { font-size: 1.1rem; margin-bottom: 8px; color: var(--text-primary); }
+.note-body p { font-size: 0.98rem; line-height: 1.85; color: var(--text-secondary); margin: 0 0 12px; }
+.note-body p:last-child { margin-bottom: 0; }
+.note-body p strong { color: var(--text-primary); }
+
+/* ===== Module 3b · Q&A Card（主持人 Q&A） ===== */
+.qa-stack { max-width: 1100px; margin: 0 auto; padding: 0 48px; display: flex; flex-direction: column; gap: 18px; }
+.qa-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 28px 32px; }
+.qa-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 0.78rem; letter-spacing: 0.06em; padding: 4px 12px; border-radius: 999px; background: var(--bg-warm); color: var(--text-secondary); margin-bottom: 14px; font-weight: 500; }
+.qa-tag.tag-key { background: #FEF3C7; color: #B45309; }
+.qa-tag.tag-confuse { background: #FEE2E2; color: #B91C1C; }
+.qa-tag.tag-miss { background: #DBEAFE; color: #1D4ED8; }
+.qa-tag.tag-meta { background: #EDE9FE; color: #6D28D9; }
+.qa-question { font-size: 1.15rem; font-weight: 600; color: var(--text-primary); margin-bottom: 14px; line-height: 1.5; }
+.qa-question::before { content: "Q. "; color: var(--accent); font-weight: 700; }
+.qa-answer { color: var(--text-secondary); font-size: 1rem; line-height: 1.85; }
+.qa-answer::before { content: "A. "; color: var(--text-muted); font-weight: 600; margin-right: 4px; }
+.qa-answer p { margin-bottom: 12px; }
+.qa-answer p:last-child { margin-bottom: 0; }
+.qa-answer strong { color: var(--text-primary); }
+
+/* ===== Module 4 · Trigger Table（关键变量触发表） ===== */
+.trigger-wrap { max-width: 1100px; margin: 0 auto; padding: 0 48px; }
+.trigger-table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; font-variant-numeric: tabular-nums; }
+.trigger-table th, .trigger-table td { padding: 18px 22px; text-align: left; border-bottom: 1px solid var(--border-light); vertical-align: top; }
+.trigger-table tr:last-child td { border-bottom: none; }
+.trigger-table th { background: var(--bg-elevated); color: var(--text-muted); font-size: 0.85rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; }
+.trigger-var { font-weight: 600; color: var(--text-primary); font-size: 1.02rem; min-width: 200px; }
+.trigger-var .now { display: block; font-weight: 400; color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; letter-spacing: 0; text-transform: none; }
+.trigger-action { color: var(--text-secondary); font-size: 0.98rem; line-height: 1.85; }
+.trigger-action strong { color: var(--text-primary); font-weight: 600; }
+.trigger-action .up { color: var(--red); font-weight: 600; }
+.trigger-action .down { color: var(--green); font-weight: 600; }
+
+/* ===== Sub-section divider（用于 Module 3 内部 3a / 3b 分隔） ===== */
+.subsection-label { max-width: 1100px; margin: 48px auto 20px; padding: 0 48px; font-size: 0.85rem; color: var(--accent); letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600; }
+.subsection-label:first-of-type { margin-top: 0; }
+
+/* ===== Passage Card（兜底承接：4 模块外的非标内容） ===== */
+.passage-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 36px 40px; max-width: 1100px; margin: 0 auto 24px; }
+.passage-card h3 { font-size: 1.3rem; margin-bottom: 16px; color: var(--text-primary); }
+.passage-card h4 { font-size: 1.05rem; margin: 24px 0 10px; color: var(--text-primary); }
+.passage-card p { font-size: 1rem; line-height: 1.9; margin-bottom: 16px; color: var(--text-secondary); }
+.passage-card ul, .passage-card ol { padding-left: 22px; margin-bottom: 16px; }
+.passage-card li { margin-bottom: 8px; line-height: 1.85; color: var(--text-secondary); }
+.passage-card strong { color: var(--text-primary); font-weight: 600; }
+.passage-card table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 0.95rem; margin: 16px 0 24px; }
+.passage-card th, .passage-card td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border-light); vertical-align: top; }
+.passage-card th { color: var(--text-muted); font-weight: 500; background: var(--bg-elevated); letter-spacing: 0.04em; font-size: 0.85rem; }
+
+/* ===== Footer ===== */
+footer { background: var(--bg-dark); color: var(--text-light); padding: 48px; text-align: center; margin-top: 72px; }
+footer p { max-width: 680px; margin: 0 auto; font-size: 0.95rem; }
+.footer-sub { margin-top: 16px; font-size: 0.8rem; color: var(--text-light); opacity: 0.7; }
+
+/* ===== Responsive ===== */
+@media (max-width: 900px) {
+  .container, .voice-stack, .qa-stack, .trigger-wrap, .notes-stack, .subsection-label, .conclusion-wrap { padding-left: 24px; padding-right: 24px; }
+  .hero { padding-left: 24px; padding-right: 24px; }
+  .conclusion-card { padding: 28px 24px; }
+  .cc-headline { font-size: 1.05rem; line-height: 1.7; }
+  .cc-action-row { grid-template-columns: 1fr; gap: 6px; }
+  .cc-snapshot-grid { grid-template-columns: repeat(2, 1fr); }
+  .cc-snap-cell:nth-child(4n) { border-right: 1px solid var(--border-light); }
+  .cc-snap-cell:nth-child(2n) { border-right: none; }
+  .cc-snap-cell:nth-last-child(-n+4) { border-bottom: 1px solid var(--border-light); }
+  .cc-snap-cell:nth-last-child(-n+2) { border-bottom: none; }
+  .hero h1 { font-size: 2.2rem; }
+  nav { padding: 0 24px; }
+  .nav-links { display: none; }
+  .voice-card, .passage-card { padding: 24px; }
+  .qa-card { padding: 22px; }
+  .trigger-table th, .trigger-table td { padding: 14px 14px; }
+  .note-item { padding: 20px; grid-template-columns: 1fr; gap: 8px; }
+  .section-head { padding: 0 24px; }
+}
+</style>
+</head>
+<body>
+
+<nav><a class="nav-logo">标普500 · 圆桌</a><div class="nav-links"><a href="#conclusion">结论</a><a href="#voices">视角</a><a href="#thinking">思考</a><a href="#watch">关注</a></div></nav>
+<section class="hero"><div class="kicker">ROUND TABLE · 2026-09-30</div><h1>标普500新旧结论再审核</h1><div class="hero-dek">明确撤回错误达标标签，保留有公告证据的经营判断。</div><div class="host">圆汇众 · 主理人汇编 · 项目skill专家框架</div></section>
+<section id="conclusion">
+<div class="section-head"><div class="section-num">01 · 结论</div><div><h2>圆桌综合判断</h2></div></div>
+<div class="conclusion-wrap"><div class="conclusion-card"><div class="cc-question">YOU ASKED</div><div class="cc-question-text">当前项目里面的 研究笔记下面的 分类数据 下面的 标普500 ，请你使用腾讯股票研究专家进行再度分析，将结果与之前的结果进行汇总，需要确定性的结论，注意结论需要结合之前分析的结论，如果不确定的重新搜索分析</div><div class="cc-snapshot"><div class="cc-snapshot-label">盘中行情 · 2026-09-30 14:41–14:48 UTC · USD · yfinance</div><div class="cc-snapshot-grid">
+<div class="cc-snap-cell"><div class="cc-snap-cell-label">SPGI</div><div class="cc-snap-cell-value">$396.87</div><div class="cc-snap-cell-sub">盘中，非收盘价</div></div>
+<div class="cc-snap-cell"><div class="cc-snap-cell-label">CVS</div><div class="cc-snap-cell-value">$86.76</div><div class="cc-snap-cell-sub">盘中，非收盘价</div></div>
+<div class="cc-snap-cell"><div class="cc-snap-cell-label">ZTS</div><div class="cc-snap-cell-value">$70.245</div><div class="cc-snap-cell-sub">盘中，非收盘价</div></div>
+<div class="cc-snap-cell"><div class="cc-snap-cell-label">PEP</div><div class="cc-snap-cell-value">$128.89</div><div class="cc-snap-cell-sub">盘中，非收盘价</div></div>
+<div class="cc-snap-cell"><div class="cc-snap-cell-label">AES</div><div class="cc-snap-cell-value">$14.8901</div><div class="cc-snap-cell-sub">盘中，非收盘价</div></div>
+<div class="cc-snap-cell"><div class="cc-snap-cell-label">CINF</div><div class="cc-snap-cell-value">$161.12</div><div class="cc-snap-cell-sub">盘中，非收盘价</div></div>
+<div class="cc-snap-cell"><div class="cc-snap-cell-label">OMC</div><div class="cc-snap-cell-value">$74.485</div><div class="cc-snap-cell-sub">盘中，非收盘价</div></div>
+<div class="cc-snap-cell"><div class="cc-snap-cell-label">UHS</div><div class="cc-snap-cell-value">$175.38</div><div class="cc-snap-cell-sub">盘中，非收盘价</div></div>
+</div></div><div class="cc-headline-label">综合视角</div><div class="cc-headline"><strong>撤回“仅三家达标”</strong>。<em>PEP基准赔率未达标</em>；其他重点候选待重建，<em>不认证确定收益</em>。</div><p>本轮完成本地504条研究记录的模型与证据缺口审计，重点核验8个候选及3家AI公司的公告；没有完成其余493条记录的逐家最新财报深研与估值重建。明确结论只覆盖已核实事实与模型适用性，不能宣称整个标普市场没有机会。</p><div class="cc-actions">
+<div class="cc-action-row"><div class="cc-action-label">估值分析师</div><div class="cc-action-detail">我先统一赔率，撤回PEP的基准2:1认证。旧价128.50下真实基准倍率约0.78，盘中128.89下0.73；旧2.3来自乐观上行。沿用旧情景，基准2:1数学门槛是123美元，非已认证合理价。</div></div>
+<div class="cc-action-row"><div class="cc-action-label">财报研究员</div><div class="cc-action-detail">我维持SPGI评级、指数、数据的经营质地，但7月1日Mobility分拆改变可比EPS；经营偏多不代表513美元基准已验证。ZTS美国宠物业务−11%、全年盈利下调，长期动保需求不能替代短期止跌证据。</div></div>
+<div class="cc-action-row"><div class="cc-action-label">产业策略师</div><div class="cc-action-detail">我撤回旧全池排他结论。程序化规则把营收增速乘0.7再套行业倍数，只是初筛；238条缺FCF证明筛选覆盖与产业深研不同。CVS、AES、CINF、OMC、UHS不能从复核名单遗漏。</div></div>
+</div><div class="cc-vote"><span class="cc-vote-label">全池立场：</span><span class="cc-vote-tag">观望 3票；经营偏多与估值认证分开</span></div></div></div><div class="passage-card"><h3>全池旧模型与新旧结论对照</h3><p>本地210条原有记录加294条补全，合并无重复，共504条。补全评级原分布为优先关注1、条件关注32、观察247、回避14；238条写有FCF [MISSING]，2条有[STALE?]。原“502条在指数内、2条历史对照、HONA未覆盖”是上轮公开名单口径，未以本轮官方全量名单逐项认证。500家公司与股份类别条数须区分；13个历史研究分组不是官方GICS11板块。</p><p>统一价格赔率=(Base−P)/(P−Bear)，要求P&gt;Bear；Base≤P意味着没有正基准上行。只使用已展示情景价格，不倒推未经保存的原始小数；因此算术结果可能与旧百分比和倍率略异，AES尤为明显。不把Bull/Bear、含股息赔率与价格赔率混列。未查新价格的记录只计算旧时点，不当作今日结论。</p><p>旧模型算术&lt;2，非最新结论：272条；旧模型无正基准上行：161条；旧模型算术≥2，非认证：7条；无法统一计算（缺字段/无适用情景）：63条；无有效悲观下行端，需重建：1条</p><div class="table-scroll"><table><thead><tr><th>公司</th><th>上轮赔率</th><th>本轮</th></tr></thead><tbody>
+<tr><td>SPGI</td><td>2.20×</td><td>观察（待重建）：经营质量优先复核；分拆后 EPS 口径未桥接，旧赔率不能认证<br>2.59×（旧情景算术，未认证）</td></tr>
+<tr><td>CVS</td><td>2.09×（程序化）</td><td>观察（待重建）：经营改善已确认；旧归一化 EPS 不等于公司指引，撤回优先关注认证<br>2.13×（旧整数情景算术，未认证）</td></tr>
+<tr><td>ZTS</td><td>2.97×</td><td>观察（待重建）：美国宠物业务未止跌；保留反转研究，撤回确定性机会表述<br>3.65×（旧情景算术，未认证）</td></tr>
+<tr><td>PEP</td><td>2.3:1（实际为乐观口径）</td><td>观察：基准赔率未达标；保留价值与收息逻辑，撤回“唯一达标”<br>0.73:1（基准）；2.10:1（乐观）</td></tr>
+<tr><td>AES</td><td>2.8×（程序化）</td><td>观察（待重建）：转收购事件研究，撤回旧 $21 基准成长估值<br>旧成长赔率撤回；距 $15 现金价 +0.74%</td></tr>
+<tr><td>CINF</td><td>2.5×（程序化）</td><td>观察（待重建）：投资重估收益不可永久化，旧 GAAP 盈利外推失效<br>2.52×（旧情景算术，模型撤回）</td></tr>
+<tr><td>OMC</td><td>2.43×（程序化）</td><td>观察（待重建）：并购后盈利桥接不完整，旧 $111 基准不再认证<br>2.36×（旧情景算术，未认证）</td></tr>
+<tr><td>UHS</td><td>2.1×（程序化）</td><td>观察（待重建）：全年盈利指引下调；旧 EPS 增长外推缺乏支持<br>2.15×（旧情景算术，未认证）</td></tr>
+</tbody></table></div>
+<h4>SPGI</h4><p>7/28 公告：剔除 Mobility 的调整后 EPS 同比 +23%；全年持续经营 GAAP EPS 16.35–16.60、调整后 17.50–17.75。旧 $513 基准缺少相同口径的 EPS/PE 依据。 <a href="https://www.sec.gov/Archives/edgar/data/64040/000006404026000040/spgi2q2026-earningsrelease.htm">公司/SEC一手材料</a></p>
+<h4>CVS</h4><p>8/5 公告：Q2 营收 +7.3%，全年调整后 EPS 上调至 7.90–8.10、GAAP 6.84–7.04，经营现金流至少 $11.5bn。旧模型以归一化 TTM 9.18 外推 2027E 9.65，须重建盈利桥接；CFO 不等于 FCF。 <a href="https://www.cvshealth.com/news/company-news/cvs-health-corporation-reports-strong-second-quarter-2026-results-and-raises-full-year-2026-guidance.html">公司/SEC一手材料</a></p>
+<h4>ZTS</h4><p>8/6 公告：美国伴侣动物收入 −11%；全年调整后 EPS 下调至 6.15–6.25、GAAP 5.55–5.65，有机收入 −3% 至 −1%。旧页已记录收入下调，不能断言它完全遗漏，但 $93.8 基准缺少 EPS/PE 及恢复路径。 <a href="https://investor.zoetis.com/news/news-details/2026/Zoetis-Announces-Second-Quarter-2026-Results/default.aspx">公司/SEC一手材料</a></p>
+<h4>PEP</h4><p>7/9 公告：Q2 有机收入 +2.4%、核心 EPS +4%，GAAP EPS +137% 含去年减值低基数。沿用旧 $115/$139/$158 情景，基准赔率 (139−128.89)/(128.89−115)=0.73；$123 仅是旧模型 2:1 数学门槛。旧 FCF 与股东返还不同期别，覆盖结论撤回。 <a href="https://www.sec.gov/Archives/edgar/data/77476/000007747626000037/q220268-kxexhibit991.htm">公司/SEC一手材料</a></p>
+<h4>AES</h4><p>3/2 官方收购公告：每股 $15 现金，预计 2026 年末或 2027 年初交割，仍有交割条件。现价距现金价仅 +0.74%（未计股息和时间）；旧 EPS×PE 外推 $21 不适用于正常交割。 <a href="https://www.aes.com/energy-insights/consortium-led-global-infrastructure-partners-and-eqt-agrees-acquire-aes">公司/SEC一手材料</a></p>
+<h4>CINF</h4><p>7/27 公告：Q2 GAAP EPS 8.05，但经营 EPS 1.43（上年 1.97），每股投资损益 6.62；旧 TTM 21.20→基准 EPS 25.44 把波动收益当增长，不能据此认证 $242。 <a href="https://investors.cinfin.com/2026-07-27-Cincinnati-Financial-Reports-Second-Quarter-2026-Results">公司/SEC一手材料</a></p>
+<h4>OMC</h4><p>7/28 公告：Q2 有机增长 6.1%，GAAP EPS 2.08、调整后 2.65；IPG 并表改变收入、股数及整合成本。旧营收 +63.4% 不等于内生增速，旧 EPS 7.18→8.61 需按并购后口径重建。 <a href="https://investor.omc.com/news/news-details/2026/Omnicom-Reports-Second-Quarter-2026-Results/default.aspx">公司/SEC一手材料</a></p>
+<h4>UHS</h4><p>7/27 SEC 公告：全年调整 EPS 由 22.64–24.52 下调至 22.28–23.65。旧 2027E 25.97 超出 2026 指引上限，并非单凭此否定 2027，但必须提供新增增长证据；Florida Medicaid 追溯项目及保险准备金净增税前 $72m，非经常盈利需清洗。 <a href="https://www.sec.gov/Archives/edgar/data/352915/000119312526318940/uhs-ex99_1.htm">公司/SEC一手材料</a></p>
+<h4>MSFT</h4><p>7/29 官方 FY26Q4 营收约 $90.0bn、同比 +18%；经营现金 $55.441bn − 现金固定资产投入 $35.802bn = 季度 FCF $19.639bn（本轮计算）。盈利兑现有证据，现价安全边际仍未认证。 <a href="https://www.microsoft.com/en-us/Investor/earnings/FY-2026-Q4/press-release-webcast">公司/SEC一手材料</a></p>
+<h4>NVDA</h4><p>8/26 官方 FY27Q2 营收 $96.221bn、同比 +106%，数据中心 $89.0bn、+117%，季度 FCF $21.341bn；AI 收入已兑现，但旧模型与现价安全边际仍需独立验证。 <a href="https://nvidianews.nvidia.com/news/nvidia-announces-financial-results-for-second-quarter-fiscal-2027">公司/SEC一手材料</a></p>
+<h4>ORCL</h4><p>9/10 官方 FY27Q1 经营现金 $23.103bn、现金 capex $28.499bn、FCF −$5.396bn；近四季 FCF −$28.720bn（相加计算）。经营现金含融资性客户预付款 $11.363bn，增长融资与摊薄风险仍成立；不采用第三方 −$45.854bn FCF 字段。 <a href="https://investor.oracle.com/files/content_files/1q27-pressrelease-September_FINAL.pdf">公司/SEC一手材料</a></p>
+<p><a href="https://www.spglobal.com/spdji/en/indices/equity/sp-500/">标普官方指数口径</a>；本轮未取得官方完整名单逐项对齐。</p><p><a href="sp500-audit-2026-09-30.csv">下载504条逐项审计CSV</a> · <a href="sp500-audit-2026-09-30.json">逐项JSON</a> · <a href="../data/sp500-review-snapshot-2026-09-30.json">盘中行情快照</a> · <a href="sp500-roundtable-2026-09-30.md">Markdown报告</a></p></div></section>
+<section id="voices">
+<div class="section-head"><div class="section-num">02 · 视角</div><div><h2>三个独立专家观点</h2></div></div>
+<div class="voice-stack">
+<article class="voice-card"><div class="voice-head"><div class="voice-name">估值分析师 · 文衡价</div></div><p><strong>整体观望；SPGI经营审慎偏多，估值待重建。</strong></p><p>我先统一赔率，撤回PEP的基准2:1认证。旧价128.50下真实基准倍率约0.78，盘中128.89下0.73；旧2.3来自乐观上行。沿用旧情景，基准2:1数学门槛是123美元，非已认证合理价。</p><p>ZTS/SPGI盘中套旧三价是3.65/2.59，但没有完整EPS、PE、期限与分拆口径桥接，不能认证安全边际。ZTS全年盈利下修；SPGI应分别看持续经营GAAP和调整EPS，不用第三方forward EPS替换公司指引。</p><p>AES应转现金收购事件模型，15美元交割价取代旧21美元正常成长基准；CINF应拆投资重估、承保利润和PB，不能将GAAP21.20机械增长为25.44。没有连续同口径EPS/PE历史，我不声称任何公司处于PE Bands六年低点。</p><p>稳定低增长用正常化盈利与历史估值，强周期和保险适用账面价值与可持续回报，亏损公司不能硬用PE；组合的行业分散不等于单票赔率已通过。</p></article>
+<article class="voice-card"><div class="voice-head"><div class="voice-name">财报研究员 · 钊审财</div></div><p><strong>整体观望；业务质量与估值认证分开。</strong></p><p>我维持SPGI评级、指数、数据的经营质地，但7月1日Mobility分拆改变可比EPS；经营偏多不代表513美元基准已验证。ZTS美国宠物业务−11%、全年盈利下调，长期动保需求不能替代短期止跌证据。</p><p>PEP有机增长2.4%、核心EPS增长4%，GAAP跳升有低基数；保留收息价值观察，撤回高增长与FCF充分覆盖返还的确定叙事。不同期别的TTM FCF与全年返还指引不能机械相除。</p><p>CVS官方上调EPS与经营现金流指引，经营改善已确认，但归一化TTM9.18的调整过程未桥接。OMC合并IPG后收入、股数、利息与整合成本变化，应按有机增长和可持续EPS分析。</p><p>UHS首次官方页面受限，重新找到SEC原文确认22.28–23.65全年指引，替换“修订方向未知”。旧2027E25.97不能由TTM直接外推，需剔除追溯项目并核对整合。财报审核只能确认已披露经营事实，不保证未来收益。</p></article>
+<article class="voice-card"><div class="voice-head"><div class="voice-name">产业策略师 · 星望远</div></div><p><strong>AI产业需求偏多；整个研究池观望。</strong></p><p>我撤回旧全池排他结论。程序化规则把营收增速乘0.7再套行业倍数，只是初筛；238条缺FCF证明筛选覆盖与产业深研不同。CVS、AES、CINF、OMC、UHS不能从复核名单遗漏。</p><p>NVDA收入增长与数据中心需求已在官方财报兑现，MSFT云与企业软件产生正现金流；ORCL收入增长也兑现，但融资压力与摊薄风险已发生。不能用“AI都是叙事”或“AI都烧钱”概括。</p><p>Oracle补查官方PDF后，最新单季FCF确认为−5.396bn，近四季相加−28.720bn；更正此前未核实状态及yfinance不同口径金额。经营现金含融资性预付款11.363bn，现金增长不等于经常盈利现金转换。</p><p>MSFT现金经营流减现金固定资产投入、NVDA公司FCF含资产本金支付、Oracle公司FCF三种定义须分别标注。产业增长方向与现价风险收益需要两套证据，订单积压也不能直接当收入。</p></article>
+</div></section><section id="thinking">
+<div class="section-head"><div class="section-num">03 · 思考</div><div><h2>主持人札记与问答</h2></div></div>
+<div class="subsection-label">3a · 主持人札记</div><div class="notes-stack">
+<div class="note-item"><div class="note-num">01</div><div class="note-body"><h4>札记一：达标数量曾被混合口径夸大</h4><p>我把上轮比率重新用展示三价计算，发现PEP把乐观赔率写在Base/Bear标签下；程序化候选又被汇总遗漏。首先修口径，才能谈排序。</p></div></div>
+<div class="note-item"><div class="note-num">02</div><div class="note-body"><h4>札记二：跌价不是证据更新</h4><p>ZTS与SPGI的静态倍率随价格下降会升高，但盈利下修、业务分拆可同时改变Base与Bear。不能只更新分子分母中的价格。</p></div></div>
+<div class="note-item"><div class="note-num">03</div><div class="note-body"><h4>札记三：低GAAP PE可能来自非经常收益</h4><p>CINF经营EPS下降却GAAP大幅增长；保险公允价值变动和UHS追溯补偿都要求盈利桥接，不能一条增长公式外推。</p></div></div>
+<div class="note-item"><div class="note-num">04</div><div class="note-body"><h4>札记四：结论明确不等于预测必然</h4><p>我可以明确撤回失效模型、保留有证据的经营判断，但不能把缺证据的未来股价改写成确定收益。待重建是数据审核结果，不是空泛乐观或悲观。</p></div></div>
+</div><div class="subsection-label">3b · Q&amp;A</div><div class="qa-stack">
+<div class="qa-card"><div class="qa-tag">关键</div><div class="qa-question">现在能确认哪家公司达到基准2:1？</div><div class="qa-answer">在8个重点候选中，没有一家完成当前盈利、合理倍数和悲观端的完整认证；这不等于全市场无机会。SPGI/CVS优先补估值证据，ZTS需要经营止跌。</div></div>
+<div class="qa-card"><div class="qa-tag">易混淆</div><div class="qa-question">旧7个算术过线与新8个候选为什么不同？</div><div class="qa-answer">按旧展示三价与旧价格，算术≥2的是ZTS/SPGI/AES/CINF/CVS/OMC/UHS共7条；加上纠错对象PEP组成8个重点名单。倍率只描述旧假设，非7个已确认机会。</div></div>
+<div class="qa-card"><div class="qa-tag">易疏忽</div><div class="qa-question">高股息能把PEP赔率补到2:1吗？</div><div class="qa-answer">必须统一持有期限，并将各情景实际股息、除息、削减与税费同时计入；只向收益端加股息会夸大倍率，本轮不作这种修饰。</div></div>
+<div class="qa-card"><div class="qa-tag">重要</div><div class="qa-question">504条记录是否代表500家公司都已深研？</div><div class="qa-answer">不代表。股份类别和历史对照影响条数，现有记录混合不同日期的手工研究与程序化筛选。逐项审计表标出未核实范围，保留旧结论不等于本轮认可。</div></div>
+</div></section><section id="watch">
+<div class="section-head"><div class="section-num">04 · 关注</div><div><h2>变化时重新评估</h2></div></div>
+<div class="subsection-label">4a · 关键变量</div><div class="trigger-wrap"><table class="trigger-table"><thead><tr><th>变量与当前值</th><th>重新评估触发线</th></tr></thead><tbody>
+<tr><td class="trigger-var">SPGI：2026调整EPS17.50–17.75（7/28指引）</td><td class="trigger-action">新增指引或分拆后口径变化 → 重建Base/Bear，验证评级发行与资产挂钩费。</td></tr>
+<tr><td class="trigger-var">CVS：调整EPS7.90–8.10、CFO≥11.5bn（8/5指引）</td><td class="trigger-action">医疗成本率再次上行或指引改变 → 检查利润恢复假设及资本开支，不能把CFO当FCF。</td></tr>
+<tr><td class="trigger-var">ZTS：有机收入−3%至−1%、宠物−11%</td><td class="trigger-action">指引再次下调或宠物降幅扩大 → 反转假设变弱；指引停止下调且份额稳定 → 恢复路径获得新增证据。</td></tr>
+<tr><td class="trigger-var">PEP：旧模型基准赔率0.73</td><td class="trigger-action">价格或EPS/倍数变化 → 重新计算；旧模型价格≤123只意味着算术≥2，不证明内在价值。</td></tr>
+<tr><td class="trigger-var">AES：现金收购15美元，正常交割价差约0.74%</td><td class="trigger-action">审批、时间表或协议条件变化 → 重估事件价差、失败风险与时间价值。</td></tr>
+<tr><td class="trigger-var">CINF/OMC/UHS：正常化盈利尚未桥接</td><td class="trigger-action">投资损益、并购股数/整合成本、追溯补偿变化 → 重建经常性EPS，不能复制旧基准。</td></tr>
+<tr><td class="trigger-var">AI：各公司官方同财季现金流</td><td class="trigger-action">增长减速且现金资本开支继续增长，或融资承诺/摊薄上升 → 重新评估资金需求与合理估值。</td></tr>
+</tbody></table></div><div class="subsection-label">4b · 综合视角失效条件</div><div class="notes-stack">
+<div class="note-item"><div class="note-num">01</div><div class="note-body"><p>若新增公告证明正常化盈利、合理倍数及悲观价值已建立，待重建名单可重新认证；本轮状态并非永久结论。</p></div></div>
+<div class="note-item"><div class="note-num">02</div><div class="note-body"><p>若收购终止、分拆后口径变更、额外减值或一次性项目改变盈利基础，所有沿用旧情景的算术倍率失效。</p></div></div>
+<div class="note-item"><div class="note-num">03</div><div class="note-body"><p>若行情、币种、拆股、份额或财报日期错误，必须先修数据再重算；盘中报价不能称作最终收盘。</p></div></div>
+<div class="note-item"><div class="note-num">04</div><div class="note-body"><p>若官方成分调整或补全财报已更新，需重新界定覆盖记录与遗漏，不能继续引用旧名单比例。</p></div></div>
+</div><div class="passage-card"><p>本内容由AI按项目内腾讯自选股投研专家团skill的专家框架整理，并非腾讯官方投研报告；仅供参考，不构成投资建议或个股推荐，投资有风险，决策需谨慎。</p></div></section>
+
+<footer>
+  <p>⚠️ 以上内容由 AI 基于公开信息整理生成，仅供参考，不构成任何投资建议或个股推荐。投资有风险，决策需谨慎。</p>
+  <p class="footer-sub">stock-partner-team · Generated 2026-09-30</p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "date": "2026-09-30",
+  "records": 504,
+  "oldModelCounts": {
+    "旧模型算术<2，非最新结论": 272,
+    "旧模型无正基准上行": 161,
+    "旧模型算术≥2，非认证": 7,
+    "无法统一计算（缺字段/无适用情景）": 63,
+    "无有效悲观下行端，需重建": 1
+  },
+  "officialEvidenceReviewed": 11,
+  "confirmedCurrentRiskRewardCandidates": 0,
+  "scope": "0仅指8个重点候选，不能外推整个标普市场",
+  "missingFcfGeneratedRecords": 238
+}

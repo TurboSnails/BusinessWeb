@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react'
 // 仅为个人研究笔记，情景价值与价位均为研究假设，不构成目标价或投资建议。
 import { notionIds, notionUrl } from './notionLinks'
 import { companyDetails } from './companyDetails'
+import { applyCnReassessment } from './cnReassessment'
+import { applySp500Reassessment } from './sp500Reassessment'
 
 export type Market = 'us' | 'cn' | 'hk' | 'adr'
 
@@ -524,8 +526,8 @@ const cnBase: Company[] = [...cnCoreBase, ...cnChain.filter(c => !cnKnown.has(c.
 
 // 用 companyDetails.ts 里补全的深度内容覆盖
 const withDetails = (list: Company[]): Company[] => list.map(c => (companyDetails[c.market + ':' + c.code] ? { ...c, ...companyDetails[c.market + ':' + c.code] } : c))
-export const usCompanies: Company[] = withDetails(usBase)
-export const cnCompanies: Company[] = withDetails(cnBase)
+export const usCompanies: Company[] = withDetails(usBase).map(applySp500Reassessment)
+export const cnCompanies: Company[] = withDetails(cnBase).map(applyCnReassessment)
 
 const baseOf = (market: Market): Company[] => (market === 'us' ? usCompanies : market === 'cn' ? cnCompanies : [])
 export const findCompany = (market: Market, code: string): Company | undefined =>
@@ -550,7 +552,7 @@ export const loadCompanies = (market: Market): Promise<Company[]> => {
         const d = companyDetails[g.market + ':' + g.code] // 手工研究页（details/*.ts）覆盖程序化页
         map.set(g.code, d && d.scenarios && d.scenarios.length ? { ...g, ...d, auto: false } : { ...g, auto: true })
       }
-      return Array.from(map.values())
+      return Array.from(map.values()).map(applySp500Reassessment).map(applyCnReassessment)
     })
   genCache[market] = p
   return p

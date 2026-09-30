@@ -3,6 +3,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, ExternalLink, CheckCircle2, AlertTriangle, ArrowRight } from 'lucide-react'
 import { useCompanies, useLynch, Market } from '../data/companies'
 import { toneOf, Tone } from '../data/notionNotes'
+import { CN_REPORT } from '../data/cnReassessment'
+import { SP500_REPORT } from '../data/sp500Reassessment'
 
 const toneColors: Record<Tone, { bg: string; color: string }> = {
   green: { bg: 'rgba(52,199,89,0.12)', color: 'var(--system-green)' },
@@ -85,7 +87,9 @@ export default function CompanyDetail(): JSX.Element {
 
   // ── 按“最终返回标准”整理：三情景表、买入纪律、完整度 ──
   const nums = (t: string): number[] => (t.match(/[\d,]+(?:\.\d+)?/g) || []).map(x => Number(x.replace(/,/g, ''))).filter(n => !Number.isNaN(n))
-  const metric = (re: RegExp): string | undefined => company.metrics.find(([l]) => re.test(l))?.[1]
+  // 存档仍显示在指标表，但不能自动回填已经撤回的情景与纪律。
+  const activeMetrics = company.metrics.filter(([label]) => !label.startsWith('上轮'))
+  const metric = (re: RegExp): string | undefined => activeMetrics.find(([l]) => re.test(l))?.[1]
   const priceText = metric(/价格锚点|收盘价|现价|9\/18 收盘/)
   const price = priceText ? nums(priceText)[0] : undefined
   const scenText = metric(/Bear \/ Base \/ Bull/)
@@ -98,7 +102,7 @@ export default function CompanyDetail(): JSX.Element {
         return [n, v.toLocaleString(), pct, trigger] as [string, string, string, string]
       })
     : null
-  const pool = [...company.next, ...company.thesis, ...company.risk, ...company.metrics.map(([l, v]) => `${l}：${v}`)]
+  const pool = [...company.next, ...company.thesis, ...company.risk, ...activeMetrics.map(([l, v]) => `${l}：${v}`)]
   const pick = (re: RegExp): string | undefined => pool.find(t => re.test(t))
   const dz = company.discipline
   const discipline: [string, string | undefined][] = [
@@ -151,6 +155,13 @@ export default function CompanyDetail(): JSX.Element {
       </div>
 
       <div style={{ maxWidth: '760px', margin: '0 auto', padding: '28px 20px' }}>
+        {(company.market === 'us' || company.market === 'cn') && company.metrics.some(([key]) => key === '圆桌复核日期') && (
+          <div style={card}>
+            <h3 style={cardTitle}>腾讯自选股投研专家团 · 本轮公告复核</h3>
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.8 }}>本轮已补充公司公告；证据分为公告原件、公告转载及待核实；旧情景价值的认证状态以本轮结论为准。“上轮”指标保留历史口径，林奇分类仍为此前的程序化筛选结果。</p>
+            <a href={`${import.meta.env.BASE_URL}${company.market === 'cn' ? CN_REPORT : SP500_REPORT}`} target="_blank" rel="noreferrer" style={{ fontSize: '13px' }}>查看本轮完整报告与一手来源</a>
+          </div>
+        )}
         {(() => {
           const ly = lynchAll[`${company.market}:${company.code}`]
           if (!ly) return null
@@ -187,7 +198,7 @@ export default function CompanyDetail(): JSX.Element {
         {company.auto && (
           <div style={{ ...card, border: '1.5px solid rgba(255,149,0,0.45)', background: 'rgba(255,149,0,0.06)' }}>
             <h3 style={{ ...cardTitle, margin: '0 0 8px' }}>{company.reviewed ? '程序化研究页（已人工复核）' : '程序化研究页'}</h3>
-            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.7, margin: 0 }}>本页的财务数值、估值、三情景与买入区由脚本按统一规则计算（规则见「研究笔记 → 研究标准」），业务描述与行业判断为简述；{company.reviewed ? '已用最新半年报/指引人工复核评级与关键风险（见指标表「人工复核」行），但情景数值仍是脚本结果；' : ''}不含公司特有催化与风险，一手公告、分部占比、一致预期、自由现金流均未取到。结论用于筛选与排序，深度判断需回到公司公告。</p>
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.7, margin: 0 }}>{company.metrics.some(([key]) => key === '圆桌复核日期') ? '本页源自程序化补全；本轮圆桌已另行核实公告并更正结论，旧模型已暂停认证。旧数值存档不等于逐项一手财务验证，分部占比、正常化估值与完整现金流仍需补齐。' : <>本页的财务数值、估值、三情景与买入区由脚本按统一规则计算（规则见「研究笔记 → 研究标准」），业务描述与行业判断为简述；{company.reviewed ? '已用最新半年报/指引人工复核评级与关键风险（见指标表「人工复核」行），但情景数值仍是脚本结果；' : ''}不含公司特有催化与风险，一手公告、分部占比、一致预期、自由现金流均未取到。结论用于筛选与排序，深度判断需回到公司公告。</>}</p>
           </div>
         )}
         <div style={card}>

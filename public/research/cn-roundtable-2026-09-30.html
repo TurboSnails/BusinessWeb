@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>沪深研究池圆桌复核</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-primary: #F7F5F3; --bg-secondary: #FFFFFF; --bg-card: #FFFFFF;
+  --bg-elevated: #FAFAF9; --bg-warm: #F5F2EE; --bg-dark: #2D2926;
+  --text-primary: #2D2926; --text-secondary: #5C5652;
+  --text-muted: #8A8480; --text-light: #A8A29E;
+  --accent: #D97706; --accent-light: #FEF3C7; --accent-hover: #B45309;
+  --border: #E5E2DE; --border-light: #F0EEEC;
+  --red: #DC2626; --green: #059669; --gold: #D97706; --blue: #2563EB;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', Georgia, serif;
+  background: var(--bg-primary); color: var(--text-primary);
+  line-height: 1.8; font-size: 16px; -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4 { font-family: inherit; font-weight: 600; letter-spacing: 0.02em; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-hover); }
+
+.container { max-width: 1100px; margin: 0 auto; padding: 0 48px; }
+.prose { max-width: 760px; margin: 0 auto; }
+.prose p { font-size: 1.05rem; line-height: 1.9; margin-bottom: 20px; color: var(--text-primary); }
+.section-head { max-width: 1100px; display: grid; grid-template-columns: 120px 1fr; gap: 32px; align-items: baseline; margin: 0 auto 48px; padding: 0 48px; }
+.section-num { font-size: 0.9rem; color: var(--accent); letter-spacing: 0.15em; border-top: 1px solid var(--accent); padding-top: 8px; }
+.section-title { font-size: 2rem; }
+.section-lede { color: var(--text-muted); margin-top: 6px; font-size: 1rem; }
+section { padding: 72px 0; }
+
+/* ===== Nav ===== */
+nav { position: sticky; top: 0; z-index: 100; height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 48px; background: rgba(247,245,243,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-light); }
+.nav-logo { font-weight: 600; font-size: 1rem; }
+.nav-links { display: flex; gap: 28px; }
+.nav-links a { color: var(--text-secondary); font-size: 0.95rem; }
+.nav-links a:hover { color: var(--accent); }
+
+/* ===== Hero ===== */
+.hero { max-width: 1100px; margin: 0 auto; padding: 96px 48px 48px; }
+.kicker { color: var(--accent); font-size: 0.9rem; letter-spacing: 0.15em; font-weight: 500; margin-bottom: 24px; }
+.hero h1 { font-size: 3rem; line-height: 1.25; margin-bottom: 24px; max-width: 900px; }
+.hero-dek { max-width: 760px; font-size: 1.15rem; color: var(--text-secondary); line-height: 1.9; margin-bottom: 40px; }
+.host { display: inline-flex; align-items: center; gap: 12px; font-size: 0.95rem; color: var(--text-muted); }
+.host img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); }
+
+/* ===== Module 1 · Conclusion Card ===== */
+.conclusion-wrap { max-width: 1100px; margin: 0 auto; padding: 0 48px; }
+.conclusion-card {
+  padding: 40px 48px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-left: 6px solid var(--accent); border-radius: 20px;
+  box-shadow: 0 4px 28px rgba(217, 119, 6, 0.06);
+}
+#conclusion { padding: 0; }
+#conclusion .section-head { margin-bottom: 48px; }
+.cc-question {
+  font-size: 0.85rem; color: var(--text-muted); letter-spacing: 0.05em;
+  margin-bottom: 8px; text-transform: uppercase;
+}
+.cc-question-text {
+  font-size: 1.4rem; font-weight: 600; color: var(--text-primary);
+  margin-bottom: 28px; padding-bottom: 24px; border-bottom: 1px dashed var(--border);
+}
+.cc-question-text::before { content: "「"; color: var(--accent); }
+.cc-question-text::after { content: "」"; color: var(--accent); }
+
+.cc-snapshot { margin-bottom: 32px; }
+.cc-snapshot-label {
+  font-size: 0.78rem; color: var(--text-muted); letter-spacing: 0.18em;
+  font-weight: 600; margin-bottom: 14px; text-transform: uppercase;
+}
+.cc-snapshot-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  background: var(--bg-elevated); border: 1px solid var(--border-light);
+  border-radius: 12px; overflow: hidden;
+}
+.cc-snap-cell {
+  padding: 16px 20px;
+  border-right: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg-elevated);
+}
+.cc-snap-cell:nth-child(4n) { border-right: none; }
+.cc-snap-cell:nth-last-child(-n+4) { border-bottom: none; }
+.cc-snap-cell-label {
+  font-size: 0.78rem; color: var(--text-muted); letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+.cc-snap-cell-value {
+  font-size: 1.4rem; font-weight: 600; color: var(--text-primary);
+  font-variant-numeric: tabular-nums; line-height: 1.2;
+  letter-spacing: 0.01em;
+}
+.cc-snap-cell-sub {
+  font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.cc-snap-up { color: var(--red); }
+.cc-snap-down { color: var(--green); }
+
+.cc-headline-label {
+  font-size: 0.8rem; color: var(--accent); letter-spacing: 0.2em;
+  font-weight: 600; margin-bottom: 14px; text-transform: uppercase;
+}
+.cc-headline {
+  font-size: 1.15rem; font-weight: 500; color: var(--text-primary);
+  letter-spacing: 0.01em; line-height: 1.75;
+  margin-bottom: 32px; padding-bottom: 28px;
+  border-bottom: 1px solid var(--border);
+}
+.cc-headline strong { font-weight: 700; color: var(--text-primary); }
+.cc-headline em { font-style: normal; font-weight: 700; color: var(--red); }
+
+.cc-actions-intro {
+  font-size: 0.95rem; color: var(--text-muted); letter-spacing: 0.02em;
+  margin-bottom: 18px;
+}
+.cc-actions {
+  display: flex; flex-direction: column;
+  margin-bottom: 28px;
+}
+.cc-action-row {
+  display: grid; grid-template-columns: 180px 1fr;
+  gap: 28px; padding: 18px 0; align-items: baseline;
+  border-bottom: 1px dashed var(--border-light);
+}
+.cc-action-row:last-child { border-bottom: none; }
+.cc-action-label {
+  font-weight: 600; color: var(--accent); font-size: 1rem;
+  letter-spacing: 0.04em;
+}
+.cc-action-detail {
+  color: var(--text-primary); font-size: 1rem; line-height: 1.85;
+}
+.cc-action-detail strong { color: var(--text-primary); font-weight: 600; }
+
+.cc-vote {
+  display: flex; gap: 14px; flex-wrap: wrap; align-items: center;
+  padding-top: 20px; border-top: 1px dashed var(--border);
+}
+.cc-vote-label { font-size: 0.85rem; color: var(--text-muted); letter-spacing: 0.05em; }
+.cc-vote-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.85rem; color: var(--text-secondary);
+  padding: 4px 12px; background: var(--bg-elevated); border-radius: 999px;
+  border: 1px solid var(--border-light);
+}
+.cc-vote-tag .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+/* ===== Module 2 · Voice Card ===== */
+.voice-stack { max-width: 1100px; margin: 0 auto; padding: 0 48px; display: flex; flex-direction: column; gap: 24px; }
+.voice-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 32px 36px; min-width: 0; }
+.voice-head { display: flex; align-items: center; gap: 12px; padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid var(--border-light); }
+.voice-head img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); }
+.voice-name { font-weight: 600; font-size: 1.1rem; flex: 1; }
+.voice-card ol, .voice-card ul { padding-left: 20px; }
+.voice-card li { margin-bottom: 12px; line-height: 1.8; }
+.voice-card strong { color: var(--text-primary); font-weight: 600; }
+.voice-card h4 { margin: 20px 0 10px; font-size: 1.05rem; color: var(--text-primary); }
+.voice-card p { margin-bottom: 14px; line-height: 1.85; color: var(--text-secondary); }
+.voice-card table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 0.95rem; margin: 16px 0; }
+.voice-card th, .voice-card td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border-light); }
+.voice-card th { color: var(--text-muted); font-weight: 500; background: var(--bg-elevated); font-size: 0.85rem; }
+.voice-card .table-scroll { overflow-x: auto; margin: 16px 0; }
+.voice-card .pull-quote { border-left: 3px solid var(--accent); padding: 4px 0 4px 16px; margin: 16px 0; color: var(--text-secondary); font-style: italic; }
+
+/* ===== Module 3a · Notes List（主持人札记） ===== */
+.notes-stack { max-width: 1100px; margin: 0 auto; padding: 0 48px; display: flex; flex-direction: column; gap: 16px; }
+.note-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 24px 28px; display: grid; grid-template-columns: 56px 1fr; gap: 20px; align-items: baseline; }
+.note-num { font-size: 1.6rem; font-weight: 600; color: var(--accent); font-variant-numeric: tabular-nums; line-height: 1; opacity: 0.6; }
+.note-body h4 { font-size: 1.1rem; margin-bottom: 8px; color: var(--text-primary); }
+.note-body p { font-size: 0.98rem; line-height: 1.85; color: var(--text-secondary); margin: 0 0 12px; }
+.note-body p:last-child { margin-bottom: 0; }
+.note-body p strong { color: var(--text-primary); }
+
+/* ===== Module 3b · Q&A Card（主持人 Q&A） ===== */
+.qa-stack { max-width: 1100px; margin: 0 auto; padding: 0 48px; display: flex; flex-direction: column; gap: 18px; }
+.qa-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 28px 32px; }
+.qa-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 0.78rem; letter-spacing: 0.06em; padding: 4px 12px; border-radius: 999px; background: var(--bg-warm); color: var(--text-secondary); margin-bottom: 14px; font-weight: 500; }
+.qa-tag.tag-key { background: #FEF3C7; color: #B45309; }
+.qa-tag.tag-confuse { background: #FEE2E2; color: #B91C1C; }
+.qa-tag.tag-miss { background: #DBEAFE; color: #1D4ED8; }
+.qa-tag.tag-meta { background: #EDE9FE; color: #6D28D9; }
+.qa-question { font-size: 1.15rem; font-weight: 600; color: var(--text-primary); margin-bottom: 14px; line-height: 1.5; }
+.qa-question::before { content: "Q. "; color: var(--accent); font-weight: 700; }
+.qa-answer { color: var(--text-secondary); font-size: 1rem; line-height: 1.85; }
+.qa-answer::before { content: "A. "; color: var(--text-muted); font-weight: 600; margin-right: 4px; }
+.qa-answer p { margin-bottom: 12px; }
+.qa-answer p:last-child { margin-bottom: 0; }
+.qa-answer strong { color: var(--text-primary); }
+
+/* ===== Module 4 · Trigger Table（关键变量触发表） ===== */
+.trigger-wrap { max-width: 1100px; margin: 0 auto; padding: 0 48px; }
+.trigger-table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; font-variant-numeric: tabular-nums; }
+.trigger-table th, .trigger-table td { padding: 18px 22px; text-align: left; border-bottom: 1px solid var(--border-light); vertical-align: top; }
+.trigger-table tr:last-child td { border-bottom: none; }
+.trigger-table th { background: var(--bg-elevated); color: var(--text-muted); font-size: 0.85rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; }
+.trigger-var { font-weight: 600; color: var(--text-primary); font-size: 1.02rem; min-width: 200px; }
+.trigger-var .now { display: block; font-weight: 400; color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; letter-spacing: 0; text-transform: none; }
+.trigger-action { color: var(--text-secondary); font-size: 0.98rem; line-height: 1.85; }
+.trigger-action strong { color: var(--text-primary); font-weight: 600; }
+.trigger-action .up { color: var(--red); font-weight: 600; }
+.trigger-action .down { color: var(--green); font-weight: 600; }
+
+/* ===== Sub-section divider（用于 Module 3 内部 3a / 3b 分隔） ===== */
+.subsection-label { max-width: 1100px; margin: 48px auto 20px; padding: 0 48px; font-size: 0.85rem; color: var(--accent); letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600; }
+.subsection-label:first-of-type { margin-top: 0; }
+
+/* ===== Passage Card（兜底承接：4 模块外的非标内容） ===== */
+.passage-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 36px 40px; max-width: 1100px; margin: 0 auto 24px; }
+.passage-card h3 { font-size: 1.3rem; margin-bottom: 16px; color: var(--text-primary); }
+.passage-card h4 { font-size: 1.05rem; margin: 24px 0 10px; color: var(--text-primary); }
+.passage-card p { font-size: 1rem; line-height: 1.9; margin-bottom: 16px; color: var(--text-secondary); }
+.passage-card ul, .passage-card ol { padding-left: 22px; margin-bottom: 16px; }
+.passage-card li { margin-bottom: 8px; line-height: 1.85; color: var(--text-secondary); }
+.passage-card strong { color: var(--text-primary); font-weight: 600; }
+.passage-card table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 0.95rem; margin: 16px 0 24px; }
+.passage-card th, .passage-card td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border-light); vertical-align: top; }
+.passage-card th { color: var(--text-muted); font-weight: 500; background: var(--bg-elevated); letter-spacing: 0.04em; font-size: 0.85rem; }
+
+/* ===== Footer ===== */
+footer { background: var(--bg-dark); color: var(--text-light); padding: 48px; text-align: center; margin-top: 72px; }
+footer p { max-width: 680px; margin: 0 auto; font-size: 0.95rem; }
+.footer-sub { margin-top: 16px; font-size: 0.8rem; color: var(--text-light); opacity: 0.7; }
+
+/* ===== Responsive ===== */
+@media (max-width: 900px) {
+  .container, .voice-stack, .qa-stack, .trigger-wrap, .notes-stack, .subsection-label, .conclusion-wrap { padding-left: 24px; padding-right: 24px; }
+  .hero { padding-left: 24px; padding-right: 24px; }
+  .conclusion-card { padding: 28px 24px; }
+  .cc-headline { font-size: 1.05rem; line-height: 1.7; }
+  .cc-action-row { grid-template-columns: 1fr; gap: 6px; }
+  .cc-snapshot-grid { grid-template-columns: repeat(2, 1fr); }
+  .cc-snap-cell:nth-child(4n) { border-right: 1px solid var(--border-light); }
+  .cc-snap-cell:nth-child(2n) { border-right: none; }
+  .cc-snap-cell:nth-last-child(-n+4) { border-bottom: 1px solid var(--border-light); }
+  .cc-snap-cell:nth-last-child(-n+2) { border-bottom: none; }
+  .hero h1 { font-size: 2.2rem; }
+  nav { padding: 0 24px; }
+  .nav-links { display: none; }
+  .voice-card, .passage-card { padding: 24px; }
+  .qa-card { padding: 22px; }
+  .trigger-table th, .trigger-table td { padding: 14px 14px; }
+  .note-item { padding: 20px; grid-template-columns: 1fr; gap: 8px; }
+  .section-head { padding: 0 24px; }
+}
+</style>
+</head>
+<body>
+
+<p style="overflow-wrap:anywhere">使用项目 skill：[腾讯自选股投研专家团](../../.agents/skills/tencent-stock-research-team/SKILL.md)。</p><h2>01 结论卡</h2><p style="overflow-wrap:anywhere">832条研究记录（806程序化、26人工），全池字段与算术审计；28家重点复核，证据等级逐家列出。不是官方中证500成分清单，当前指数成员资格未逐项核验。26家旧展示情景数值达到2，但本轮均未完成独立盈利、基准价值及压力情景认证。不能据此断言832家公司没有机会。</p><p style="overflow-wrap:anywhere">三位独立专家对旧模型认证均投观望/撤回认证（3/3），研究优先级有差别。东鹏、安克经营跟踪偏正面，平安、世纪华通保留研究优先级；均无本轮已认证买入区间。工业富联1.993低于2；伯特利旧价0.832、新价0.967。</p><p style="overflow-wrap:anywhere">报价：腾讯公开行情，CNY，上海时间2026-09-30 16:14–16:15盘后最后报价；不是交易所收盘确认。当前行情PE仅用于揭示口径冲突，不能反推成官方EPS。旧情景公式：(Base−P)/(P−Bear)，不计股息，不是胜率。</p><p style="overflow-wrap:anywhere">全池审计：{&quot;records&quot;: 832, &quot;manual&quot;: 26, &quot;programmatic&quot;: 806, &quot;focusedReview&quot;: 28, &quot;arithmetic&quot;: {&quot;低于2&quot;: 726, &quot;不可计算或无下行&quot;: 80, &quot;大于等于2&quot;: 26}, &quot;fcfMissing&quot;: 806, &quot;evidenceLevels&quot;: {&quot;公告转载，原件待补&quot;: 5, &quot;原件核实&quot;: 8, &quot;待一手核实&quot;: 8, &quot;原件部分核实&quot;: 2, &quot;公司公告核实&quot;: 1, &quot;原件定位，指标待核&quot;: 1, &quot;官网定位，指标待核&quot;: 1, &quot;算术核实，财报待核&quot;: 1, &quot;算术核实，实施口径待核&quot;: 1}, &quot;note&quot;: &quot;FCF缺失不等于所有行业均需工业FCF；金融需PB/ROE或EV专用模型。未认证机会不等于全池没有机会。&quot;}</p><h2>02 子专家观点卡</h2><p style="overflow-wrap:anywhere">钊审财（财报）：东鹏与安克经营事实偏正面，但A+H总股本、转增与跨期EPS须统一；立讯扣非弱于营收、现金为负。营收同比乘0.7不是盈利预测。</p><p style="overflow-wrap:anywhere">文衡价（估值）：银行用PB—可持续ROE—信用成本—资本约束，寿险用P/EV、营运利润、NBV与偿付能力；工业CFO/利润标准不适用于银行。华夏、人寿、贵阳的窄Bear夸大赔率；宏观与历史PE Bands未独立验证。</p><p style="overflow-wrap:anywhere">星望远（产业）：世纪华通多产品组合保留优先研究；爆款不证明生命周期。荣昌和三生的授权/里程碑收入不能持续EPS化；产品DCF、管线rNPV及净现金避免重复计值。</p><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:12px;text-align:left">公司</th><th style="padding:12px;text-align:left">旧结论/算术</th><th style="padding:12px;text-align:left">证据等级</th><th style="padding:12px;text-align:left">本轮合并结论与证据</th></tr></thead><tbody><tr><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">000415 渤海租赁</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">条件关注；2.3981</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">公告转载，原件待补</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">观察：债务重组收益不能外推，改正常化租赁模型。公告转载H1归母32.04亿元、扣非18.28亿元、债务重组收益15.85亿元；这些数值原件待补。核杠杆、飞机资本开支与股东现金流。 <a href="https://money.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12515349&amp;stockid=000415">来源</a></td></tr><tr><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">000598 兴蓉环境</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">条件关注；2.0189</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">原件核实</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">稳态经营研究保留；现金回收走弱，2.02未认证。H1扣非10.0186亿元+4.84%，EPS0.3426元+4.77%，经营现金7.2829亿元−22.05%；需资本开支及应收账款桥接FCF。 <a href="https://static.cninfo.com.cn/finalpage/2026-08-26/1225506543.PDF">来源</a></td></tr><tr><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">000623 吉林敖东</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">条件关注；4.1131</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">公告转载，原件待补</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">观察：证券投资影响利润，改药业+广发持股SOTP。公告转载归母+59.96%、投资收益+81.54%，主因广发证券；不能用药业营收外推合并EPS，数值原件待补。 <a href="https://vip.stock.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12571306&amp;stockid=000623">来源</a></td></tr><tr><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">000997 新 大 陆</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">优先关注；2.0021</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">待一手核实</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">观察（待证据）：保留原经营研究方向，旧赔率未认证。H1原始证据未完整取得；需核实支付业务扣非与现金、合规。未核不等于公司经营恶化。 原件待核。</td></tr><tr><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">002001 新和成</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">条件关注；2.3978</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">待一手核实</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">观察（待证据）：保留原经营研究方向，旧赔率未认证。H1原始证据未完整取得；需核实维生素和蛋氨酸中周期盈利。未核不等于公司经营恶化。 原件待核。</td></tr><tr><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">002475 立讯精密</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">条件关注；2.0008</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">原件核实</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">条件观察：扣非与现金弱于营收，旧2:1认证撤回。H1营收1745.04亿元+40.16%，归母78.43亿元+18.04%，扣非59.62亿元+6.47%，经营现金−24.46亿元；非经常收益约占归母24%，收入增长不等于盈利同比增长。 <a href="https://static.cninfo.com.cn/finalpage/2026-08-25/1225500221.PDF">来源</a></td></tr><tr><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">002517 恺英网络</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">观察；2.4891</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">公告转载，原件待补</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">维持观察：利润率与买量回收需验证。公告转载H1营收47.97亿元+86.06%，归母14.28亿元、扣非11.67亿元+24.31%、经营现金14.63亿元；原件待补，营收增速不宜直接外推EPS。 <a href="https://money.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12544460&amp;stockid=002517">来源</a></td></tr><tr><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">002558 巨人网络</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">观察；2.4889</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">原件部分核实</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">爆款经营研究保留观察；持续利润未认证。H1营收46.89亿元+182.08%，归母21.44亿元+175.96%；扣非及现金未完整提取，爆款当前成功不证明生命周期。 <a href="https://static.cninfo.com.cn/finalpage/2026-08-27/1225514013.PDF">来源</a></td></tr><tr><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">002602 世纪华通</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">优先关注；2.2143</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">原件部分核实</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">保留游戏组合研究优先级；旧20元估值未认证。H1游戏业务收入213.42亿元+29.87%，移动游戏占91.28%；多产品组合保留研究逻辑，扣非与经营现金原值尚未完整核实。 <a href="https://static.cninfo.com.cn/finalpage/2026-08-28/1225523124.PDF">来源</a></td></tr><tr><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">002608 江苏国信</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">观察；2.3333</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">公告转载，原件待补</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">观察：追溯口径下盈利下降，撤回营收外推EPS。公告转载H1营收177.12亿元+12.90%，归母18.20亿元，较追溯后同期23.49亿元−22.51%；原件待补，须按能源+信托SOTP重建。 <a href="https://money.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12517170&amp;stockid=002608">来源</a></td></tr><tr><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">002841 视源股份</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">观察；2.0053</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">待一手核实</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">观察（待证据）：保留原经营研究方向，旧赔率未认证。H1原始证据未完整取得；需核实教育需求、减值和股本。未核不等于公司经营恶化。 原件待核。</td></tr><tr><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">300628 亿联网络</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">优先关注；2.4981</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">公告转载，原件待补</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">经营增长保留跟踪；现金下降，旧赔率待重建。H1公告转载营收33.49亿元+26.40%，归母15.24亿元+22.92%，扣非14.45亿元+25.04%，经营现金8.287亿元−13.15%；现金/扣非约0.574，原件待补。 <a href="https://money.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12503195&amp;stockid=300628">来源</a></td></tr><tr><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">300866 安克创新</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">条件关注；2.0003</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">原件核实</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">经营正面跟踪；H股摊薄使旧EPS待重建。H1营收166.05亿元+29.05%，归母17.02亿元+45.86%，扣非14.39亿元+49.65%，经营现金7.225亿元转正，现金/扣非约0.502。最新股本摊薄H1 EPS2.8944；期后H股发行，8/6披露总股本5.88054318亿股，旧TTM EPS5.77需以总利润及最新A+H股数重算。 <a href="https://static.cninfo.com.cn/finalpage/2026-08-31/1225533054.PDF">来源</a></td></tr><tr><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">600015 华夏银行</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">条件关注；14.9259</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">原件核实</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">观察：盈利下降，窄悲观端不能认证高赔率。H1归母93.65亿元−18.35%，EPS0.53元−19.70%；息差1.59%，不良1.50%，拨备覆盖144.80%。旧Bear距现价仅约4.31%。 <a href="https://static.cninfo.com.cn/finalpage/2026-08-29/1225529187.PDF">来源</a></td></tr><tr><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">600483 福能股份</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">条件关注；2.0769</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">原件核实</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">公用事业研究保留；稀释和盈利增长假设待重建。H1归母13.282亿元−0.63%，基本EPS0.48元持平，稀释EPS0.42元−12.50%，经营现金16.778亿元+3.54%；旧7%增长缺项目桥接。 <a href="https://static.cninfo.com.cn/finalpage/2026-08-22/1225489751.PDF">来源</a></td></tr><tr><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">601128 常熟银行</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">条件关注；3.5833</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">待一手核实</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">观察（待证据）：保留原经营研究方向，旧赔率未认证。H1原始证据未完整取得；需核实普通股EPS、小微信用成本、PB与ROE。未核不等于公司经营恶化。 原件待核。</td></tr><tr><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">601156 东航物流</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">条件关注；2.0065</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">待一手核实</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">观察（待证据）：保留原经营研究方向，旧赔率未认证。H1原始证据未完整取得；需核实空运运价、油价和正常化盈利。未核不等于公司经营恶化。 原件待核。</td></tr><tr><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">601318 中国平安</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">条件关注；5.1310</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">公司公告核实</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">营运改善保留研究优先级；旧EPS与PE模型待重建。H1归母925.85亿元+36.1%，营运利润841.96亿元+8.3%，新业务价值248.47亿元+11.2%。报表利润与营运增长不同，改用SOTP/P-EV与营运利润交叉核验。 <a href="https://group.pingan.com/media/news/2026/pingan-1h-26-results.html">来源</a></td></tr><tr><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">601577 长沙银行</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">条件关注；2.4254</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">原件定位，指标待核</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">观察：除息与金融估值口径待重建。共享腾讯报价名为XD长沙银；价格、股息及目标价必须同口径。H1原件已定位但指标未完整核实。 <a href="https://static.cninfo.com.cn/finalpage/2026-08-28/1225522449.PDF">来源</a></td></tr><tr><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">601601 中国太保</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">条件关注；2.1470</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">官网定位，指标待核</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">观察：寿险改P-EV及营运利润专项复核。已定位官网2026H1报告入口，未完成指标核实，不能继续以统一PE及投资盈利认证44.5元基准。 <a href="https://www.cpic.com.cn/ir/?fr=3w&amp;hit=ShouyeDhTzzgx">来源</a></td></tr><tr><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">601628 中国人寿</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">观察；23.0625</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">待一手核实</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">观察：旧23.06倍来自过窄悲观端。旧Bear35.1距现价36.7仅4.36%；不是实际压力风险上限。需EV、NBV、营运利润及利率/股市压力情景。 原件待核。</td></tr><tr><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">601997 贵阳银行</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">条件关注；20.4286</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">待一手核实</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">观察：旧20.43倍来自过窄悲观端。旧Bear5.4距现价5.61仅3.74%；需信用成本、普通股ROE、拨备与资本分红约束。 原件待核。</td></tr><tr><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">603444 吉比特</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">观察；2.5013</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">待一手核实</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">观察（待证据）：保留原经营研究方向，旧赔率未认证。H1原始证据未完整取得；需核实可持续盈利、现金和股本。未核不等于公司经营恶化。 原件待核。</td></tr><tr><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">605499 东鹏饮料</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">优先关注；2.0660</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">原件核实</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">经营跟踪偏正面；股本变化使旧EPS失配，优先重建估值。2026H1营收124.43亿元、归母28.67亿元、扣非25.98亿元、经营现金24.93亿元；H股发行4475.57万股，10转3已实施，期末股本7.3419931亿股。旧EPS9.44不能直接配新股本现价。 <a href="https://static.cninfo.com.cn/finalpage/2026-07-31/1225449594.PDF">来源</a></td></tr><tr><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">688331 荣昌生物</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">观察；2.7748</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">原件核实</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">观察：授权收入不可持续EPS化，撤回统一PE模型。H1营收58.53亿元、归母46.62亿元、经营现金42.14亿元，含RC148授权收入；扣非也不能自动剔除主营授权收入。改产品DCF+管线rNPV+净现金，避免首付款重复估值。 <a href="https://static.cninfo.com.cn/finalpage/2026-08-25/1225497487.PDF">来源</a></td></tr><tr><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">688336 三生国健</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">观察；2.0205</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">原件核实</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">观察：里程碑收入与负现金，撤回持续EPS外推。H1营收8.66亿元、归母3.71亿元、扣非2.60亿元、经营现金−0.66亿元；增长主要为辉瑞707里程碑，部分产品销量下降。按产品与管线重建。 <a href="https://static.cninfo.com.cn/finalpage/2026-08-21/1225487293.PDF">来源</a></td></tr><tr><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">601138 工业富联</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">优先关注；1.9931</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">算术核实，财报待核</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">观察：展示三价赔率1.993，低于2，经营待核。(87.3−58.2)/(58.2−43.6)=1.99315；不能四舍五入为2.00后认证。AI服务器扣非、应收与现金需原件核实。 原件待核。</td></tr><tr><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">603596 伯特利</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">逢低增持；0.8300</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">算术核实，实施口径待核</td><td style="padding:12px;vertical-align:top;border-top:1px solid #ddd">保留智能制动研究；撤回逢低增持认证。旧情景悲观22.7、中性33.4、乐观42.3元：旧价28.54基准赔率0.83，本轮28.14约0.967。10转4.2仅找到预案及通过线索，未核实施，不能擅自除权。 原件待核。</td></tr></tbody></table></div><h2>03 深度思考与问答</h2><p style="overflow-wrap:anywhere">主持人札记：保留此前的产业研究方向，撤回的是缺乏盈利与压力情景支撑的价位认证。营业现金不等于自由现金；扣非也不一定剔除主营授权收入；半年累计ROE不能不注明便当全年ROE。旧EPS跨期加减仅在同股本口径下才成立，发行和转增后宜用TTM总利润除最新股数校验。</p><p style="overflow-wrap:anywhere">**为什么23倍赔率仍不认证？** 人寿旧Bear离现价仅4.36%，贵阳仅3.74%，并没有压力测试证明真实损失止于此。数值不能代替风险边界。</p><p style="overflow-wrap:anywhere">**公告转载算已核一手吗？** 不算。原件提取、原件仅定位、公告转载和待核分别列示。伯特利转增预案/股东大会通过不证明已实施；吉比特转载存在“每股/每10股”分红单位冲突，不采纳冲突数字，须取交易所实施原件。</p><p style="overflow-wrap:anywhere">**未取到报告是否判定经营差？** 不判定。保留研究变量，撤回的是本轮未获支持的模型认证。下方历史排序与主观胜率并非回测结果。</p><h2>04 后续关注与失效条件</h2><p style="overflow-wrap:anywhere">- 股本：东鹏与安克按最新全部A+H股数重算TTM；伯特利须实施公告及除权日；吉比特核分红单位及除息。</p><p style="overflow-wrap:anywhere">- 现金：立讯H2现金回收；安克、亿联存货与应收；兴蓉应收、资本开支及股息覆盖。</p><p style="overflow-wrap:anywhere">- 金融：银行普通股ROE、信用成本、资本约束；寿险营运利润、EV/NBV、投资及利率压力。</p><p style="overflow-wrap:anywhere">- 医药/游戏：药品持续销售与研发现金消耗、授权一次性与里程碑概率；游戏流水留存、买量回收、扣非及现金。</p><p style="overflow-wrap:anywhere">- 模型认证条件：原件、同期间盈利、同股本现价、独立基准与压力情景齐备后才重新计算。不能将任意“悲观价”当损失上限。</p><p style="overflow-wrap:anywhere">失效条件：正常化盈利恶化、现金持续弱于利润、额外摊薄、信用损失或授权/爆款不可重复，均要求重新评估经营研究态度；未核实数据补齐也可能改变结论。</p><p style="overflow-wrap:anywhere">附：<a href="cn-audit-2026-09-30.csv">832条旧结论审计CSV</a>、<a href="cn-audit-2026-09-30.json">JSON</a>、<a href="cn-review-evidence-2026-09-30.json">28家证据</a>、<a href="../data/cn-review-snapshot-2026-09-30.json">腾讯行情快照</a>。历史范围837目标、832覆盖及5家缺失属原页面记录，未核最新官方成员清单。</p><p style="overflow-wrap:anywhere">本内容由AI基于公开信息整理生成，仅供参考，不构成任何投资建议或个股推荐，投资有风险，决策需谨慎。</p>
+
+<footer>
+  <p>⚠️ 以上内容由 AI 基于公开信息整理生成，仅供参考，不构成任何投资建议或个股推荐。投资有风险，决策需谨慎。</p>
+  <p class="footer-sub">stock-partner-team · Generated 2026-09-30</p>
+</footer>
+
+</body>
+</html>

@@ -32,6 +32,8 @@ import {
   Tone
 } from '../data/notionNotes'
 import { useCompanies, useLynch, sectorsOf, Market, Company, LynchInfo } from '../data/companies'
+import { CN_REPORT } from '../data/cnReassessment'
+import { SP500_REPORT, sp500Reassessment } from '../data/sp500Reassessment'
 
 type TabId = 'philosophy' | 'strategy' | 'standard' | 'category' | 'dev'
 
@@ -731,11 +733,35 @@ export default function ResearchNotes(): JSX.Element {
 
             {catMarket === 'us' && (
               <div>
+                <div style={card}>
+                  <h3 style={cardTitle}>腾讯自选股投研专家团 · 再分析汇总</h3>
+                  <p style={{ fontSize: '13px', lineHeight: 1.8, color: 'var(--text-secondary)' }}>
+                    2026-09-30：对本地 504 条研究记录完成旧模型口径审计，重点核实 8 个候选与 3 家 AI 公司公告。
+                    明确撤回“仅 ZTS、SPGI、PEP 达标”：PEP 基准赔率只有 0.73:1；AES 的现金收购、CINF 的投资重估、OMC 的并购口径和 UHS 的指引下调使旧模型需要撤回或重建。
+                    SPGI、CVS 保留经营质量与改善的复核优先级，ZTS 保留反转观察；本轮重点候选没有一家获得“已验证基准赔率 ≥2:1”的认证。其余记录保留上轮评级，未逐家公告复核，不代表已确认没有机会。
+                  </p>
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                      <thead><tr>{['公司', '上轮赔率', '本轮复核'].map(t => <th key={t} style={{ textAlign: 'left', padding: '8px', borderBottom: '1px solid var(--border-primary)' }}>{t}</th>)}</tr></thead>
+                      <tbody>{sp500Reassessment.map(r => <tr key={r.code}>
+                        <td style={{ padding: '8px', whiteSpace: 'nowrap' }}><Link to={`/research-notes/us/${r.code}`}>{r.code} · {r.name}</Link></td>
+                        <td style={{ padding: '8px', minWidth: '120px', color: 'var(--text-secondary)' }}>{r.oldRatio}</td>
+                        <td style={{ padding: '8px', minWidth: '240px', lineHeight: 1.7 }}>{r.conclusion}</td>
+                      </tr>)}</tbody>
+                    </table>
+                  </div>
+                  <p style={{ fontSize: '13px', lineHeight: 1.8 }}>
+                    <a href={`${import.meta.env.BASE_URL}${SP500_REPORT}`} target="_blank" rel="noreferrer">完整圆桌报告</a>
+                    {' · '}<a href={`${import.meta.env.BASE_URL}research/sp500-audit-2026-09-30.csv`} download>504 条逐项审计表（含旧结论）</a>
+                    {' · '}<a href={`${import.meta.env.BASE_URL}data/sp500-review-snapshot-2026-09-30.json`} target="_blank" rel="noreferrer">盘中行情快照</a>
+                  </p>
+                  <p style={{ fontSize: '12px', lineHeight: 1.7, color: 'var(--text-tertiary)' }}>使用项目内腾讯自选股投研专家团 skill，行情来自 yfinance，财务以公司公告与 SEC 为准。结论明确区分公告事实与研究假设；完整证据和失效条件见报告。</p>
+                </div>
                 {viewSwitch('板块与研究进度')}
                 {view === 'list' && renderProgress()}
                 {view === 'lynch' && renderLynch()}
                 {view === 'overview' && (<div>
-                <p style={sectionTitle}>标普500 · GICS 板块</p>
+                <p style={sectionTitle}>标普500 · 历史研究分组</p>
                 <div style={card}>
                   <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 16px', lineHeight: 1.7 }}>{sp500Note}</p>
                   {sp500Sectors.map(s => (
@@ -749,7 +775,7 @@ export default function ResearchNotes(): JSX.Element {
                   ))}
                 </div>
                 <div style={card}>
-                  <h3 style={cardTitle}>已完成公司研究（{usList.length} 家）</h3>
+                  <h3 style={cardTitle}>已有公司研究记录（{usList.length} 条）</h3>
                   <div>
                     {usSectors.map(sec => (
                       <span key={sec} style={badge('blue')}>{sec} {usList.filter(c => c.sector === sec).length}</span>
@@ -770,21 +796,28 @@ export default function ResearchNotes(): JSX.Element {
                   {metricCard('日常消费', `${usList.filter(c => c.sector === '日常消费').length} 家`)}
                     </div>
                     <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '16px 0 0', lineHeight: 1.7 }}>
-                      统一框架“盈利—持续性—估值—盈亏比”，Base/Bear ≥ 约 2:1 才算首次介入赔率成立。截至 2026-09-30，可选消费板块已收官；医疗仅 ZTS（2.97×，条件成立时）、金融仅 SPGI（2.20×）、日常消费仅 PEP（2.3:1）达标；其余均为观察/等待。信息技术 51 家已按最新季度财报重做；「程序化」标注的补全批（标普500 缺口）由脚本按统一规则生成，规则见「研究标准」页。
+                      统一基准赔率 = (Base−P)/(P−Bear)，先确认悲观价值低于现价，再比较约 2:1 门槛。上轮 ZTS/SPGI 情景缺少完整盈利与倍数桥接，PEP 的 2.3:1 属于乐观口径，因此原“仅三家达标”结论撤回。程序化补全中还有 AES、CINF、CVS、OMC、UHS 数值候选，公告复核后均需重建估值；详细处理见本页圆桌汇总。
                     </p>
                   </div>
 
                 <div style={card}>
                   <h3 style={cardTitle}>覆盖范围</h3>
                   <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.8 }}>
-                    标普500 成分股 503 家（2026-09-30 公开名单），已覆盖 502 家：此前 Notion 整理的 208 家（其中信息技术 51 家已重做）+ 程序化补全 294 家；另有 2 家此前收录但已不在名单内。未覆盖：HONA（上市不足 5 个季度，数据不足）。
-                    程序化补全批的规则与局限见「研究标准」页；这些公司不含公司特有催化与风险，评级用于筛选与排序。
+                    本地共 504 条研究记录：210 条原有记录 + 294 条程序化补全。上轮按公开名单标注 502 条在指数内、2 条历史对照及 HONA 缺失；本轮未取得官方全量名单逐项确认，不能将 504 条记录等同于今日成分公司数或深研完成数。标普500官方口径为500家公司，股份类别条数另计。
+                    294 条补全记录中 238 条明确缺少 FCF、2 条带财报滞后提示。全池完成旧模型审计，不等同于逐家一手公告深研；未经本轮公告复核的记录保留上轮结论用于检索。
                   </p>
                 </div>
                 </div>)}
               </div>
             )}
 
+            {catMarket === 'cn' && <div style={card}>
+              <h3 style={cardTitle}>沪深研究池 · 2026-09-30 圆桌复核</h3>
+              <p style={{ lineHeight: 1.8, fontSize: '13px' }}>范围为832条研究记录（806程序化、26人工），包含沪深300、中证500及额外产业链公司；不是官方500只成分股。全池完成旧模型算术与字段审计，重点复核28家，未逐家完成一手深研。</p>
+              <p style={{ lineHeight: 1.8, fontSize: '13px' }}>旧数值超过2的26家均不再作为已认证机会。东鹏保留经营正面跟踪、平安和世纪华通保留研究优先级，估值均待重建；荣昌、三生撤回授权收入的持续EPS外推；工业富联实际1.993未达2；伯特利旧基准赔率约0.83，撤回增持认证。</p>
+              <p style={{ lineHeight: 1.8, fontSize: '13px' }}>下方旧行业排序、主观胜率及程序化评级保留筛选用途，未由本轮认证；银行现金流不能套用工业企业现金含量标准。旧结论见详情存档，原件缺失项明确待核。</p>
+              <a href={`${import.meta.env.BASE_URL}${CN_REPORT}`} target="_blank" rel="noreferrer">沪深完整圆桌报告</a> · <a href={`${import.meta.env.BASE_URL}research/cn-audit-2026-09-30.csv`} download>832条审计与旧结论</a>
+            </div>}
             {catMarket === 'cn' && (
               <div>
                 {viewSwitch('产业链与研究进度')}

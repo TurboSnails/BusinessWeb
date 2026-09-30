@@ -8,6 +8,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import ResearchNotes from './ResearchNotes'
 import CompanyDetail from './CompanyDetail'
+import { findCompany, loadCompanies } from '../data/companies'
 
 // 程序化补全公司（public/data/*.json）的烟雾测试：列表加载、分页、搜索、评级筛选、详情页
 beforeAll(() => {
@@ -33,6 +34,36 @@ const renderAt = (path: string): void => {
 }
 
 describe('补全公司：研究笔记列表与详情', () => {
+  it('圆桌复核同时覆盖手工与异步补全，撤回未验证的达标标签', async () => {
+    expect(findCompany('us', 'PEP')?.headline).toContain('基准赔率未达标')
+    const list = await loadCompanies('us')
+    for (const code of ['ZTS', 'SPGI', 'CVS', 'AES', 'CINF', 'OMC', 'UHS']) {
+      const company = list.find(c => c.code === code)
+      expect(company?.rating).toBe('观察（待重建）')
+      expect(company?.scenarios || []).toHaveLength(0)
+      expect(company?.metrics.some(([key]) => key === '上轮结论（存档）')).toBe(true)
+    }
+    expect(list.find(c => c.code === 'PEP')?.ratioNote).toContain('0.73')
+    for (const code of ['MSFT', 'NVDA', 'ORCL']) {
+      expect(list.find(c => c.code === code)?.metrics.some(([key]) => key === '本轮一手现金流证据')).toBe(true)
+    }
+    expect(list.find(c => c.code === 'ACN')?.auto).toBe(true)
+  })
+
+  it('标普列表展示圆桌汇总入口及研究边界', async () => {
+    renderAt('/research-notes?tab=category&m=us')
+    expect(screen.getByText('腾讯自选股投研专家团 · 再分析汇总')).toBeTruthy()
+    expect(screen.getByRole('link', { name: '完整圆桌报告' }).getAttribute('href')).toContain('sp500-roundtable-2026-09-30.html')
+    expect(screen.getByText(/504 条研究记录/)).toBeTruthy()
+  })
+
+  it('补全候选详情准确区分公告复核和未认证的程序化模型', async () => {
+    renderAt('/research-notes/us/CVS')
+    await waitFor(() => expect(screen.getByText(/本轮已补充公司公告/)).toBeTruthy())
+    expect(screen.getByRole('link', { name: '查看本轮完整报告与一手来源' })).toBeTruthy()
+    expect(screen.getByText(/待补充三情景估值表/)).toBeTruthy()
+  })
+
   it('沪深列表加载补全数据，支持搜索与评级筛选、分页', async () => {
     renderAt('/research-notes?tab=category&m=cn')
     await waitFor(() => expect(screen.getByText(/显示更多/)).toBeTruthy(), { timeout: 8000 })
@@ -122,4 +153,27 @@ describe('林奇分组、港股、导出', () => {
     expect(screen.queryByText('程序化研究页')).toBeNull()
     expect(screen.getAllByText(/Bear/).length).toBeGreaterThan(0)
   })
+})
+
+it('沪深复核撤回旧模型，初始手工和异步公司均保留存档', async () => {
+  const manual = findCompany('cn', '603596')!
+  expect(manual.scenarios).toBeUndefined()
+  expect(manual.metrics.some(([k]) => k === '上轮结论（存档）')).toBe(true)
+  const rows = await loadCompanies('cn')
+  const dp = rows.find(c => c.code === '605499')!
+  expect(dp.scenarios).toBeUndefined()
+  expect(dp.headline).toContain('股本')
+  expect(rows.find(c => c.code === '601138')!.ratioNote).toContain('1.993')
+})
+
+it('沪深研究池提供汇总报告入口', async () => {
+  renderAt('/research-notes?tab=category&m=cn')
+  await waitFor(() => expect(screen.getByText('沪深研究池 · 2026-09-30 圆桌复核')).toBeTruthy())
+  expect(screen.getByRole('link', { name: '沪深完整圆桌报告' }).getAttribute('href')).toContain('cn-roundtable')
+})
+
+it('沪深复核详情不会从历史指标重建被撤回的三情景', async () => {
+  renderAt('/research-notes/cn/605499')
+  await waitFor(() => expect(screen.getByText(/待补充三情景估值表/)).toBeTruthy())
+  expect(screen.getByRole('link', { name: '查看本轮完整报告与一手来源' }).getAttribute('href')).toContain('cn-roundtable')
 })
