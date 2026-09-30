@@ -53,10 +53,23 @@ describe('综合分类公司并集', () => {
     vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
     show()
     fireEvent.change(screen.getByRole('combobox', { name: '林奇类型' }), { target: { value: '未分类' } })
-    fireEvent.click(screen.getByRole('button', { name: /导出当前筛选/ }))
+    fireEvent.click(screen.getByRole('button', { name: /下载当前筛选 JSON/ }))
     const text = await new Promise<string>(resolve => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.readAsText(exported!) })
     const rows = JSON.parse(text)
     expect(rows).toHaveLength(1)
     expect(rows[0]).toMatchObject({ 代码: '003', 林奇类型: '未分类', 评级: '观察', 研究结论: '丙公司研究结论' })
   })
+})
+
+it('下载全部JSON不受当前搜索限制，并设置下载文件名', async () => {
+  let exported: Blob | undefined
+  let filename = ''
+  vi.stubGlobal('URL', { createObjectURL: (blob: Blob) => { exported = blob; return 'blob:test' }, revokeObjectURL: () => {} })
+  vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) { filename = this.download })
+  show()
+  fireEvent.change(screen.getByRole('textbox', { name: '搜索综合分类' }), { target: { value: '甲公司' } })
+  fireEvent.click(screen.getByRole('button', { name: /下载市场全部 JSON/ }))
+  const text = await new Promise<string>(resolve => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.readAsText(exported!) })
+  expect(JSON.parse(text).map((r: { 代码: string }) => r.代码)).toEqual(['001', '002', '003'])
+  expect(filename).toMatch(/^cn-综合分类-全部-.*\.json$/)
 })

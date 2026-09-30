@@ -53,7 +53,7 @@ export default function CompanyCombined({ companies, lynch, ratingOf, loading }:
     const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }))
     const anchor = document.createElement('a'); anchor.href = url
     anchor.download = `${companies[0]?.market || '公司'}-综合分类-${all ? '全部' : '筛选'}-${new Date().toISOString().slice(0, 10)}.json`
-    anchor.click(); setTimeout(() => URL.revokeObjectURL(url), 1000)
+    document.body.appendChild(anchor); anchor.click(); anchor.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000)
   }
   const number = (value: number | null | undefined, suffix: string): string => value == null ? '—' : `${value}${suffix}`
   return (
@@ -73,8 +73,8 @@ export default function CompanyCombined({ companies, lynch, ratingOf, loading }:
       </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center', marginBottom: '14px' }}>
         <span aria-live="polite" style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>符合筛选 {shown.length} / 全部 {rows.length} 家{loading ? ' · 公司数据加载中…' : ''}</span>
-        <button onClick={() => exportRows(false)} style={{ ...control, cursor: 'pointer' }}>导出当前筛选（{shown.length}）JSON</button>
-        <button onClick={() => exportRows(true)} style={{ ...control, cursor: 'pointer' }}>导出该市场全部（{rows.length}）JSON</button>
+        <button onClick={() => exportRows(false)} style={{ ...control, cursor: 'pointer' }}>下载当前筛选 JSON（{shown.length} 家）</button>
+        <button onClick={() => exportRows(true)} style={{ ...control, cursor: 'pointer' }}>下载市场全部 JSON（{rows.length} 家）</button>
       </div>
       <div style={{ overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
