@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 // 数据来源：Notion「投资计划 / 标普500分类」及「沪深产业分类」下的公司研究页，汇总于 2026-09-29。
 // 仅为个人研究笔记，情景价值与价位均为研究假设，不构成目标价或投资建议。
 import { notionIds, notionUrl } from './notionLinks'
@@ -36,6 +37,7 @@ export interface Company {
   pros?: string[] // 优势
   cons?: string[] // 缺点
   industry?: string[] // 行业趋势
+  auto?: boolean // 程序化研究页：数值部分由脚本按统一规则计算，定性部分为简述
 }
 
 const split = (s: string): string[] => (s ? s.split('；').map(x => x.trim()).filter(Boolean) : [])
@@ -528,3 +530,39 @@ export const findCompany = (market: Market, code: string): Company | undefined =
   (market === 'us' ? usCompanies : cnCompanies).find(c => c.code === code)
 
 export const sectorsOf = (list: Company[]): string[] => Array.from(new Set(list.map(c => c.sector)))
+
+// ───────── 程序化补全公司（标普500 / 沪深500 成分股）：运行时按需加载，不进首屏包 ─────────
+const genCache: Partial<Record<Market, Promise<Company[]>>> = {}
+export const loadCompanies = (market: Market): Promise<Company[]> => {
+  const cached = genCache[market]
+  if (cached) return cached
+  const base = market === 'us' ? usCompanies : cnCompanies
+  const p = fetch(`${import.meta.env.BASE_URL}data/${market}.json`)
+    .then(r => (r.ok ? (r.json() as Promise<Company[]>) : []))
+    .catch(() => [] as Company[])
+    .then(gen => {
+      const map = new Map(base.map(c => [c.code, c]))
+      for (const g of gen) {
+        const b = map.get(g.code)
+        if (b && b.scenarios && b.scenarios.length) continue // 已有手工研究页的不覆盖
+        map.set(g.code, { ...g, auto: true })
+      }
+      return Array.from(map.values())
+    })
+  genCache[market] = p
+  return p
+}
+
+export const useCompanies = (market: Market, enabled = true): { list: Company[]; loading: boolean } => {
+  const base = market === 'us' ? usCompanies : cnCompanies
+  const [list, setList] = useState<Company[]>(base)
+  const [loading, setLoading] = useState(enabled)
+  useEffect(() => {
+    if (!enabled) return
+    let alive = true
+    setLoading(true)
+    loadCompanies(market).then(l => { if (alive) { setList(l); setLoading(false) } })
+    return () => { alive = false }
+  }, [market, enabled])
+  return { list, loading }
+}

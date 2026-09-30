@@ -31,7 +31,7 @@ import {
   toneOf,
   Tone
 } from '../data/notionNotes'
-import { usCompanies, cnCompanies, sectorsOf, Market } from '../data/companies'
+import { useCompanies, sectorsOf, Market } from '../data/companies'
 
 type TabId = 'philosophy' | 'strategy' | 'standard' | 'category' | 'dev'
 
@@ -60,6 +60,13 @@ export default function ResearchNotes(): JSX.Element {
   const mParam = params.get('m')
   const catMarket: Market | 'watch' = mParam === 'cn' || mParam === 'watch' ? mParam : 'us'
   const progSector = params.get('sec') || '全部'
+  const inCategory = activeTab === 'category'
+  const { list: usList, loading: usLoading } = useCompanies('us', inCategory)
+  const { list: cnList, loading: cnLoading } = useCompanies('cn', inCategory)
+  const [q, setQ] = useState('')
+  const [ratingF, setRatingF] = useState('全部')
+  const [limit, setLimit] = useState(60)
+  useEffect(() => { setLimit(60) }, [catMarket, progSector, q, ratingF])
   const updateParams = (patch: Record<string, string | null>): void =>
     setParams(prev => {
       const next = new URLSearchParams(prev)
@@ -184,13 +191,56 @@ export default function ResearchNotes(): JSX.Element {
     </p>
   )
 
-  const usSectors = sectorsOf(usCompanies)
-  const progList = catMarket === 'cn' ? cnCompanies : usCompanies
+  const usSectors = sectorsOf(usList)
+  const progList = catMarket === 'cn' ? cnList : usList
   const progSectors = sectorsOf(progList)
-  const shownCompanies = progSector === '全部' ? progList : progList.filter(c => c.sector === progSector)
+  const secList = progSector === '全部' ? progList : progList.filter(c => c.sector === progSector)
+  const ratingOf = (c: { rating: string }): string => (/^优先/.test(c.rating) ? '优先关注' : /^条件/.test(c.rating) ? '条件关注' : /^回避|^暂不/.test(c.rating) ? '回避' : '观察')
+  const shownCompanies = secList.filter(c => (ratingF === '全部' || ratingOf(c) === ratingF) && (!q.trim() || (c.name + c.code).toLowerCase().includes(q.trim().toLowerCase())))
+
+  const renderProgress = (): JSX.Element => (
+    <>
+      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', margin: '4px 0 12px' }}>
+        {['全部', ...progSectors].map(sec => (
+          <button key={sec} onClick={() => updateParams({ sec: sec === '全部' ? null : sec })}
+            style={{ border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', fontWeight: 500, padding: '6px 14px', borderRadius: 'var(--radius-full)', background: progSector === sec ? 'var(--system-blue)' : 'var(--bg-secondary)', color: progSector === sec ? '#fff' : 'var(--text-secondary)', transition: 'all 0.2s' }}>
+            {sec} {sec === '全部' ? progList.length : progList.filter(c => c.sector === sec).length}
+          </button>
+        ))}
+      </div>
+      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', margin: '0 0 16px' }}>
+        <input value={q} onChange={e => setQ(e.target.value)} placeholder="搜索公司名称或代码"
+          style={{ flex: '1 1 200px', minWidth: '160px', fontSize: '13px', padding: '8px 14px', borderRadius: 'var(--radius-full)', border: '1px solid var(--border-primary)', background: 'var(--bg-card)', color: 'var(--text-primary)', fontFamily: 'inherit', outline: 'none' }} />
+        {['全部', '优先关注', '条件关注', '观察', '回避'].map(r => (
+          <button key={r} onClick={() => setRatingF(r)}
+            style={{ border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '12px', fontWeight: 500, padding: '6px 12px', borderRadius: 'var(--radius-full)', background: ratingF === r ? 'var(--system-blue)' : 'var(--bg-secondary)', color: ratingF === r ? '#fff' : 'var(--text-secondary)' }}>
+            {r} {r === '全部' ? secList.length : secList.filter(c => ratingOf(c) === r).length}
+          </button>
+        ))}
+      </div>
+      <div style={card}>
+        <Table
+          heads={['公司', '评级', '一句话结论']}
+          rows={shownCompanies.slice(0, limit).map(c => [
+            <span>{companyLink(c.market, c.code, `${c.name} ${c.code}`)}{c.auto ? <span style={{ ...badge('gray'), marginLeft: '6px', marginBottom: 0, fontSize: '10px' }}>程序化</span> : null}</span>,
+            <span style={badge(toneOf(c.rating))}>{c.rating.length > 12 ? c.rating.slice(0, 12) + '…' : c.rating}</span>,
+            <span style={{ display: 'block', minWidth: '220px' }}>{c.headline}</span>,
+          ])}
+        />
+        {shownCompanies.length > limit && (
+          <div style={{ textAlign: 'center', marginTop: '14px' }}>
+            <button onClick={() => setLimit(l => l + 100)} style={{ border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', fontWeight: 500, padding: '8px 20px', borderRadius: 'var(--radius-full)', background: 'var(--bg-secondary)', color: 'var(--system-blue)' }}>显示更多（已显示 {limit} / {shownCompanies.length}）</button>
+          </div>
+        )}
+        <p style={{ fontSize: '12px', color: 'var(--text-tertiary)', margin: '12px 0 0' }}>
+          点击公司名称进入该公司的分析页；标有「程序化」的公司页由脚本按统一规则生成。{(usLoading || cnLoading) ? ' 正在加载补全公司…' : ''}
+        </p>
+      </div>
+    </>
+  )
 
   const companyLink = (market: Market, code: string, label: string): React.ReactNode => {
-    const exists = (market === 'us' ? usCompanies : cnCompanies).some(c => c.code === code)
+    const exists = (market === 'us' ? usList : cnList).some(c => c.code === code)
     return exists
       ? <Link to={`/research-notes/${market}/${encodeURIComponent(code)}`} onClick={() => { try { sessionStorage.setItem('rn-scroll', String(window.scrollY)) } catch { /* ignore */ } }} style={{ color: 'var(--system-blue)', textDecoration: 'none', fontWeight: 500 }}>{label}</Link>
       : label
@@ -468,6 +518,23 @@ export default function ResearchNotes(): JSX.Element {
               <Table heads={['项目', '要求']} rows={researchStandard.caliber} />
             </div>
 
+            <div style={card}>
+              <h3 style={cardTitle}>程序化研究页的规则（补全批）</h3>
+              <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 14px', lineHeight: 1.7 }}>为补齐标普500 与沪深500 成分股，脚本对每家公司按同一套规则取数并计算；定性部分只做简述。它用于筛选与排序，不含公司特有催化与风险，不等同于逐家深度研究。</p>
+              <Table heads={['项目', '规则']} rows={[
+                ['数据源', '美股：东方财富单季财务 + 新浪日线；A 股：同花顺财务摘要（累计口径还原为单季）+ 新浪日线 + 中证/巨潮行业分类。成分股：标普500 公开名单（2026-09-30）、中证500 成分。'],
+                ['TTM 口径', '美股：最近四个单季稀释 EPS 之和（GAAP）；A 股：TTM 归母净利 ÷ 最新隐含股本（规避送转前后 EPS 新旧口径混用）。'],
+                ['拆股/除权', '美股按隐含股本的持续阶跃与价格跳变折算；A 股按财报发布后的价格跳变（≥1.28 倍）折算。页面会标出折算记录，需核实。'],
+                ['一次性项归一化', '最近四季中若有 1 个季度净利率明显偏离其余三季的紧密区间，用其余三季中位净利率替换；金融、地产不做。归一化前后 EPS 均列出。'],
+                ['基准情景', 'EPS = 归一化 TTM ×(1+g)，g = 最新季营收同比 ×0.7，限 −5%~+20%；倍数 = 现倍数与板块中位的中点，但不高于现倍数 1.25 倍，限 7–40。'],
+                ['悲观 / 乐观', '悲观：EPS ×(1−h)，h 为 15%（防御）/20%（一般）/25–30%（周期），倍数 = min(现倍数, 0.6×板块中位)，下限 5。乐观：EPS ×(1+2g+8%)，倍数 = 1.15×基准。'],
+                ['买入区', '由 (Base−P)/(P−Bear)=2 反推 P=(Base+2Bear)/3，取 ±5%。'],
+                ['评级', '盈亏比 ≥2 优先关注；1–2 条件关注；其余观察；TTM 亏损回避。封顶为观察的情形：数据不稳定（营收同比波动 >40–50%、股本变动 >25%、EPS 符号翻转）、悲观价 ≥ 现价；金融股最高条件关注；非金融负债率 >80% 最高条件关注。'],
+                ['不做的事', 'REIT 不做 EPS 情景（需 FFO）；亏损公司不做 EPS 情景；未取到的一律标 [MISSING]。'],
+                ['已知局限', '规则对高 PE 公司偏严（悲观倍数压到板块中位的 60%），对低 PE 公司偏宽；一次性项识别可能漏判或误判；FCF、分部占比、一致预期、下跌原因均未取到。'],
+              ]} />
+            </div>
+
             {researchStandard.checklist.map((c, i) => (
               <div key={c.title} style={card}>
                 <h3 style={cardTitle}>{i + 1}. {c.title}</h3>
@@ -543,10 +610,10 @@ export default function ResearchNotes(): JSX.Element {
                   ))}
                 </div>
                 <div style={card}>
-                  <h3 style={cardTitle}>已完成公司研究（{usCompanies.length} 家）</h3>
+                  <h3 style={cardTitle}>已完成公司研究（{usList.length} 家）</h3>
                   <div>
                     {usSectors.map(sec => (
-                      <span key={sec} style={badge('blue')}>{sec} {usCompanies.filter(c => c.sector === sec).length}</span>
+                      <span key={sec} style={badge('blue')}>{sec} {usList.filter(c => c.sector === sec).length}</span>
                     ))}
                   </div>
                   <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '8px 0 0', lineHeight: 1.7 }}>
@@ -557,46 +624,25 @@ export default function ResearchNotes(): JSX.Element {
                   <div style={card}>
                     <h3 style={cardTitle}>标普500 研究进度</h3>
                     <div style={grid(140)}>
-                      {metricCard('已完成公司页', `${usCompanies.length} 家`)}
+                      {metricCard('已完成公司页', `${usList.length} 家`)}
                       {metricCard('医疗保健', `${healthProgress.total}+ 家`)}
-                      {metricCard('金融', `${usCompanies.filter(c => c.sector === '金融').length} 家`)}
-                      {metricCard('可选消费', `${usCompanies.filter(c => c.sector === '可选消费').length} 家`)}
-                  {metricCard('日常消费', `${usCompanies.filter(c => c.sector === '日常消费').length} 家`)}
+                      {metricCard('金融', `${usList.filter(c => c.sector === '金融').length} 家`)}
+                      {metricCard('可选消费', `${usList.filter(c => c.sector === '可选消费').length} 家`)}
+                  {metricCard('日常消费', `${usList.filter(c => c.sector === '日常消费').length} 家`)}
                     </div>
                     <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '16px 0 0', lineHeight: 1.7 }}>
-                      统一框架“盈利—持续性—估值—盈亏比”，Base/Bear ≥ 约 2:1 才算首次介入赔率成立。截至 2026-09-30，可选消费板块已收官；医疗仅 ZTS（2.97×，条件成立时）、金融仅 SPGI（2.20×）、日常消费仅 PEP（2.3:1）达标；其余均为观察/等待。信息技术 53 家为旧版“AI 情景研究”评分。
+                      统一框架“盈利—持续性—估值—盈亏比”，Base/Bear ≥ 约 2:1 才算首次介入赔率成立。截至 2026-09-30，可选消费板块已收官；医疗仅 ZTS（2.97×，条件成立时）、金融仅 SPGI（2.20×）、日常消费仅 PEP（2.3:1）达标；其余均为观察/等待。信息技术 51 家已按最新季度财报重做；「程序化」标注的补全批（标普500 缺口）由脚本按统一规则生成，规则见「研究标准」页。
                     </p>
                   </div>
 
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', margin: '4px 0 16px' }}>
-                  {['全部', ...progSectors].map(sec => (
-                    <button
-                      key={sec}
-                      onClick={() => setProgSector(sec)}
-                      style={{
-                        border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', fontWeight: 500,
-                        padding: '6px 14px', borderRadius: 'var(--radius-full)',
-                        background: progSector === sec ? 'var(--system-blue)' : 'var(--bg-secondary)',
-                        color: progSector === sec ? '#fff' : 'var(--text-secondary)',
-                        transition: 'all 0.2s',
-                      }}
-                    >
-                      {sec} {sec === '全部' ? progList.length : progList.filter(c => c.sector === sec).length}
-                    </button>
-                  ))}
-                </div>
-
                 <div style={card}>
-                  <Table
-                    heads={['公司', '评级', '一句话结论']}
-                    rows={shownCompanies.map(c => [
-                      companyLink(c.market, c.code, `${c.name} ${c.code}`),
-                      <span style={badge(toneOf(c.rating))}>{c.rating}</span>,
-                      <span style={{ display: 'block', minWidth: '220px' }}>{c.headline}</span>,
-                    ])}
-                  />
-                  <p style={{ fontSize: '12px', color: 'var(--text-tertiary)', margin: '12px 0 0' }}>点击公司名称进入该公司的分析页。</p>
+                  <h3 style={cardTitle}>覆盖范围</h3>
+                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.8 }}>
+                    标普500 成分股 503 家（2026-09-30 公开名单），已覆盖 502 家：此前 Notion 整理的 208 家（其中信息技术 51 家已重做）+ 程序化补全 294 家；另有 2 家此前收录但已不在名单内。未覆盖：HONA（上市不足 5 个季度，数据不足）。
+                    程序化补全批的规则与局限见「研究标准」页；这些公司不含公司特有催化与风险，评级用于筛选与排序。
+                  </p>
                 </div>
+                {renderProgress()}
               </div>
             )}
 
@@ -645,35 +691,15 @@ export default function ResearchNotes(): JSX.Element {
                     />
                   </div>
 
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', margin: '4px 0 16px' }}>
-                  {['全部', ...progSectors].map(sec => (
-                    <button
-                      key={sec}
-                      onClick={() => setProgSector(sec)}
-                      style={{
-                        border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', fontWeight: 500,
-                        padding: '6px 14px', borderRadius: 'var(--radius-full)',
-                        background: progSector === sec ? 'var(--system-blue)' : 'var(--bg-secondary)',
-                        color: progSector === sec ? '#fff' : 'var(--text-secondary)',
-                        transition: 'all 0.2s',
-                      }}
-                    >
-                      {sec} {sec === '全部' ? progList.length : progList.filter(c => c.sector === sec).length}
-                    </button>
-                  ))}
-                </div>
-
                 <div style={card}>
-                  <Table
-                    heads={['公司', '评级', '一句话结论']}
-                    rows={shownCompanies.map(c => [
-                      companyLink(c.market, c.code, `${c.name} ${c.code}`),
-                      <span style={badge(toneOf(c.rating))}>{c.rating}</span>,
-                      <span style={{ display: 'block', minWidth: '220px' }}>{c.headline}</span>,
-                    ])}
-                  />
-                  <p style={{ fontSize: '12px', color: 'var(--text-tertiary)', margin: '12px 0 0' }}>点击公司名称进入该公司的分析页。</p>
+                  <h3 style={cardTitle}>覆盖范围与「沪深500」的定义</h3>
+                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.8 }}>
+                    沪深市场没有名为「沪深500」的官方指数。本页的范围 = 中证500 成分股（500 家）∪ 此前整理的产业链龙头（113 家，其中 29 家与中证500 重合），共 584 家。已覆盖 579 家：手工研究页 26 家 + 程序化页 553 家。
+                    未覆盖 5 家：越秀资本（000987）、国盛证券（002670）、电投水电（600292）、永安期货（600927）——财务口径不适用本规则；九号公司（689009）——数据接口失败。
+                    A 股页面的业务描述取自同花顺主营介绍，行业判断为按中证行业分类的简述；没有逐家的护城河与风险判断，评级用于筛选与排序。
+                  </p>
                 </div>
+                {renderProgress()}
               </div>
             )}
             {catMarket !== 'watch' && disclaimer}

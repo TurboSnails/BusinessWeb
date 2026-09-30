@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, ExternalLink, CheckCircle2, AlertTriangle, ArrowRight } from 'lucide-react'
-import { findCompany, Market } from '../data/companies'
+import { useCompanies, Market } from '../data/companies'
 import { toneOf, Tone } from '../data/notionNotes'
 
 const toneColors: Record<Tone, { bg: string; color: string }> = {
@@ -15,7 +15,9 @@ const toneColors: Record<Tone, { bg: string; color: string }> = {
 export default function CompanyDetail(): JSX.Element {
   const { market, code } = useParams()
   const navigate = useNavigate()
-  const company = findCompany((market === 'cn' ? 'cn' : 'us') as Market, decodeURIComponent(code || ''))
+  const mk = (market === 'cn' ? 'cn' : 'us') as Market
+  const { list, loading } = useCompanies(mk)
+  const company = list.find(c => c.code === decodeURIComponent(code || ''))
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -67,8 +69,8 @@ export default function CompanyDetail(): JSX.Element {
         <div style={{ maxWidth: '760px', margin: '0 auto' }}>
           <Link to="/research-notes" style={{ color: 'var(--system-blue)', textDecoration: 'none', fontSize: '14px' }}>← 返回研究笔记</Link>
           <div style={{ ...card, marginTop: '16px' }}>
-            <h3 style={cardTitle}>未找到该公司</h3>
-            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0 }}>该公司还没有整理进研究笔记。</p>
+            <h3 style={cardTitle}>{loading ? '正在加载…' : '未找到该公司'}</h3>
+            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0 }}>{loading ? '正在读取补全公司数据。' : '该公司还没有整理进研究笔记。'}</p>
           </div>
         </div>
       </div>
@@ -148,6 +150,12 @@ export default function CompanyDetail(): JSX.Element {
       </div>
 
       <div style={{ maxWidth: '760px', margin: '0 auto', padding: '28px 20px' }}>
+        {company.auto && (
+          <div style={{ ...card, border: '1.5px solid rgba(255,149,0,0.45)', background: 'rgba(255,149,0,0.06)' }}>
+            <h3 style={{ ...cardTitle, margin: '0 0 8px' }}>程序化研究页</h3>
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.7, margin: 0 }}>本页的财务数值、估值、三情景与买入区由脚本按统一规则计算（规则见「研究笔记 → 研究标准」），业务描述与行业判断为简述；不含公司特有催化与风险，一手公告、分部占比、一致预期、自由现金流均未取到。结论用于筛选与排序，深度判断需回到公司公告。</p>
+          </div>
+        )}
         <div style={card}>
           <h3 style={cardTitle}>公司简介与业务分布</h3>
           {company.profile ? <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.8, margin: '0 0 16px' }}>{company.profile}</p> : <div style={{ marginBottom: '12px' }}>{pending('公司简介')}</div>}
