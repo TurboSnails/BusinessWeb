@@ -15,7 +15,7 @@ const toneColors: Record<Tone, { bg: string; color: string }> = {
 export default function CompanyDetail(): JSX.Element {
   const { market, code } = useParams()
   const navigate = useNavigate()
-  const mk = (market === 'cn' ? 'cn' : market === 'hk' ? 'hk' : 'us') as Market
+  const mk = (market === 'cn' ? 'cn' : market === 'hk' ? 'hk' : market === 'adr' ? 'adr' : 'us') as Market
   const { list, loading } = useCompanies(mk)
   const lynchAll = useLynch()
   const company = list.find(c => c.code === decodeURIComponent(code || ''))
@@ -142,7 +142,7 @@ export default function CompanyDetail(): JSX.Element {
           {back}
           <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#fff', margin: '0 0 6px' }}>{company.name}</h1>
           <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.85)', margin: '0 0 14px' }}>
-            {company.market === 'us' ? '标普500' : company.market === 'hk' ? '港股' : '沪深'} · {company.code} · {company.sector} · {company.batch}
+            {company.market === 'us' ? '标普500' : company.market === 'hk' ? '港股' : company.market === 'adr' ? '美股非标普' : '沪深'} · {company.code} · {company.sector} · {company.batch}
           </p>
           <span style={{ display: 'inline-block', fontSize: '13px', fontWeight: 600, padding: '4px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.9)', color: toneColors[tone].color }}>
             {company.rating}

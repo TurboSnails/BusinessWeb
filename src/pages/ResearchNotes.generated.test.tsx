@@ -14,7 +14,7 @@ beforeAll(() => {
   vi.stubGlobal('scrollTo', () => {})
   vi.stubGlobal('fetch', async (url: string) => {
     const u = String(url)
-    const name = u.includes('us.json') ? 'us.json' : u.includes('hk.json') ? 'hk.json' : u.includes('lynch.json') ? 'lynch.json' : 'cn.json'
+    const name = u.includes('us.json') ? 'us.json' : u.includes('hk.json') ? 'hk.json' : u.includes('adr.json') ? 'adr.json' : u.includes('lynch.json') ? 'lynch.json' : 'cn.json'
     const text = readFileSync(resolve('public/data', name), 'utf8')
     return { ok: true, json: async () => JSON.parse(text) } as Response
   })
@@ -93,5 +93,12 @@ describe('林奇分组、港股、导出', () => {
     renderAt('/research-notes?tab=category&m=us')
     await waitFor(() => expect(screen.getByText(/导出当前筛选/)).toBeTruthy(), { timeout: 8000 })
     expect(screen.getByText(/导出该市场全部/)).toBeTruthy()
+  })
+
+  it('美股非标普标签：三组与未估值', async () => {
+    renderAt('/research-notes?tab=category&m=adr')
+    await waitFor(() => expect(screen.getAllByText(/台积电/).length).toBeGreaterThan(0), { timeout: 8000 })
+    expect(screen.getAllByText(/^中概 \d+/).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/^未估值 \d+/).length).toBeGreaterThan(0)
   })
 })

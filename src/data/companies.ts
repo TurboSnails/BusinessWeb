@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { notionIds, notionUrl } from './notionLinks'
 import { companyDetails } from './companyDetails'
 
-export type Market = 'us' | 'cn' | 'hk'
+export type Market = 'us' | 'cn' | 'hk' | 'adr'
 
 export interface Company {
   code: string
