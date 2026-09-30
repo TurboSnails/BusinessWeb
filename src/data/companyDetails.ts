@@ -11,6 +11,7 @@ import { staplesDetails } from './details/staples'
 import { itDetails } from './details/it'
 import { cnDetails } from './details/cn'
 import { casinoDetails } from './details/casino'
+import { itCoreDetails } from './details/itCore'
 
 const manual: Record<string, Partial<Company>> = {
   'us:PEP': {
@@ -261,83 +262,6 @@ const manual: Record<string, Partial<Company>> = {
     aiNote: 'AI 可提升抗体筛选、试验设计和患者分层效率，但不消除眼科生物类似药、竞争或支付压力',
   },
 
-  'us:AVGO': {
-    headline: '优先关注：买的是“云厂商自研 ASIC 放量的确定性份额”+“AI 集群网络芯片的寡头地位”，不是 GPU 的第二名；综合评分 51/80',
-    certainty: '中高（订单出货比约 3 倍、收入能见度延伸至 2028 年为券商转述，需核实；客户高度集中）',
-    duration: '至少到 2028 年（券商口径，需核实）；FY27–28 AI 收入指引连续翻倍',
-    ratioNote: '本页为旧版“AI 情景研究”，未给盈亏比；情景区间基准 420–470、悲观 255–295，相对现价 357.61 上下行不对称度需另算',
-    metrics: [
-      ['收盘价', '$357.61（2026-09-21，当日 +2.97%）'],
-      ['市值 / 52 周区间', '约 1.71 万亿 / 289.50–494.21'],
-      ['PE(TTM) / PB', '45.61× / 17.12×；股息率 0.73%'],
-      ['FY26Q3 营收', '221.87 亿（+47.9%）；净利 93.10 亿（+87.5%）'],
-      ['毛利率 / 净利率 / ROE', '67.24% / 41.96% / 37.28%'],
-      ['自由现金流', '102.62 亿（约营收 46%）'],
-      ['负债', '资产负债率 51.05%；长期债务 626.55 亿'],
-      ['机构评级', '54 家覆盖，买入+增持 96.3%，持有 3.7%'],
-      ['研究评分', '质量 17 · 增长 18 · 估值 13 · 护城河 17 · 风险扣分 14 · 总分 51'],
-    ],
-    thesis: ['定制 ASIC（XPU）放量 + AI 集群网络芯片（Tomahawk / Jericho）双击，非单一客户驱动但客户高度集中', 'VMware 并表后软件端提供现金流底座；自由现金流率极高、资本开支极轻'],
-    growth: ['支撑：AI 订单出货比约 3 倍、收入能见度延伸至 2028 年（券商转述，需核实）', '约束：资产负债率 51%、长期债务 626 亿是并购遗留；ASIC 毛利率低于传统网络芯片，收入结构变化会稀释毛利率'],
-    moat: ['定制 ASIC 设计周期长、切换成本极高，进入客户路线图后形成 3–5 年锁定', '网络交换芯片与 NVIDIA 形成“AI 集群内部互连”双寡头；削弱因素：客户自研成熟后议价能力上升、Marvell 等二供切入'],
-    scenarios: [
-      { name: '悲观', assumption: 'ASIC 订单递延、非 AI 继续下滑', multiple: '约 30×', price: '$255–295', change: '−29% ~ −18%', trigger: '单一大客户自研节奏推迟或转单；非 AI 业务持续疲软' },
-      { name: '基准', assumption: 'AI 收入翻倍兑现、非 AI 持平、毛利率 65%–67%', price: '$420–470', change: '+17% ~ +31%', trigger: '下一季财报 AI 收入指引未被下修' },
-      { name: '乐观', assumption: 'FY28 AI 收入指引兑现、非 AI 回暖、毛利率维持 67%+', price: '$500–560', change: '+40% ~ +57%', trigger: 'AI 收入连续翻倍表述维持 + FCF 率 >40%' },
-    ],
-    discipline: {
-      zone: '现价 357.61 低于基准区间，属高位回调后的位置；入场需等下一季财报确认',
-      add: 'FY27 AI 收入指引维持连续翻倍表述 + 自由现金流率维持 40% 以上',
-      invalid: '大客户自研芯片转单或延期；毛利率跌破 63%；长期债务去化停滞',
-    },
-    bullBear: {
-      bull: 'ASIC + 网络双寡头，收入能见度延伸到 2028，FCF 率约 46%、资本开支极轻',
-      bear: '高估值下任一季度指引不及预期即触发大幅杀估值；客户集中；毛利率被 ASIC 结构稀释；债务 626 亿',
-      verdict: '核心配置候选，分批建仓，等财报确认后再加；不追高',
-    },
-    pitfalls: ['动态 PE / PEG 缺失：数据源不提供一致预期 EPS；以 PE TTM 反推 TTM EPS 约 7.84（推算值）', '研报标题为非一手来源，需核实原文；情景为模型输出，非目标价'],
-    calendar: ['下一次财报：2026 年 12 月 9–10 日（第四财季）', '监控：AI 收入指引、非 AI 业务环比、毛利率、长期债务'],
-  },
-
-  'us:MSFT': {
-    headline: '优先关注：本轮 53 家 AI 情景研究中综合评分最高（56/80）；唯一同时占据 AI 算力供给（Azure）、分发入口（Copilot/M365）与模型层的公司',
-    certainty: '高（经常性订阅与按量计费收入；悲观情景也仅约 −20%）',
-    duration: '至少到 2027 年底：营收 +16.7%、净利 +28.6%，AI 已进入利润表',
-    ratioNote: '本页为旧版“AI 情景研究”，未给统一盈亏比；基准 +5%~+34%，悲观 −20%~−7%，下行保护本研究最好',
-    metrics: [
-      ['收盘价', '$493.78（2026-09-21）'],
-      ['市值 / 52 周区间', '3.667 万亿 / 348.54–549.14'],
-      ['PE(TTM) / PB', '27.51× / 8.29×（反推 TTM EPS ≈ 17.95，疑为非 GAAP；四季加总为 15.98）'],
-      ['TTM 营收 / 净利', '3,054.5 亿（+16.7%）/ 1,192.6 亿（+28.6%），净利率 39.0%'],
-      ['毛利率 / ROE / 负债率', '68.04% / 34.39% / 41.25%'],
-      ['TTM FCF / 最新季 capex', '774.1 亿 / 298.8 亿（同比 +89%）'],
-      ['YTD / 近 60 日', '+2.76% / +35.37%'],
-      ['研究评分', '质量 18 · 增长 15 · 估值 11 · 护城河 19 · 风险 −7 · 总分 56'],
-    ],
-    thesis: ['净利增速（+28.6%）显著跑赢营收（+16.7%），说明 AI 带来结构性利润率提升，不是单纯规模扩张', 'AI 收入来自订阅与按量计费（M365 席位涨价 + Azure 消费），是经常性收入，增速持续性优于硬件板块'],
-    growth: ['近四季营收 700.7 → 764.4 → 776.7 → 812.7 亿，环比持续爬升', '财务代价：最新季 capex 298.8 亿，单季 FCF 从 256.6 亿骤降到 58.8 亿——提前为 2027 年底前的 AI 算力需求建产能，若需求不及预期折旧将压制利润率'],
-    moat: ['三层锁定：企业 IT 基础设施（Azure/Entra）→ 生产力套件（M365/Teams）→ 开发工具（GitHub/VS Code），行业里无第二家可对标（19/20，本研究最高）', 'Copilot 可零成本触达数亿 M365 席位；与 OpenAI 的深度绑定（具体商业条款数据源未披露，需核实）', '扣分点：反垄断监管（云服务、捆绑销售）'],
-    scenarios: [
-      { name: '悲观', assumption: 'Capex 回报不及预期 + 折旧压制利润，EPS 18', multiple: '22×', price: '$395–460', change: '−20% ~ −7%', trigger: 'Capex 继续加速但 Azure 增速同时放缓' },
-      { name: '基准', assumption: '营收年增 15%、净利年增 20%，EPS 20–22', multiple: '26–30×', price: '$520–660', change: '+5% ~ +34%', trigger: '营收同比 ≥15%，Azure 增速未环比下滑' },
-      { name: '乐观', assumption: 'Azure AI 加速 + Copilot 渗透率超预期，EPS 23', multiple: '32×', price: '$700–760', change: '+42% ~ +54%', trigger: 'Capex 增速放缓而收入增速维持（AI 投入进入收获期）' },
-    ],
-    discipline: {
-      zone: '两档分批：现价附近建 1/2，回落至 $440–460（PE ≈ 25）补足剩余 1/2',
-      add: '① 单季营收同比 ≥15%；② Azure 增速未环比下滑；③ 资本开支增速开始放缓而收入增速维持',
-      trim: '营收增速明显放缓，或 AI 投入回报迟迟不现',
-      invalid: '营收同比增速跌破 10%；或资本开支继续加速但 Azure 增速同时放缓（AI 投入打水漂的最明确信号，应大幅减仓）',
-      position: '可作 AI 组合核心底仓，占 AI 相关总仓位 15–20%（本研究中建议最高）',
-    },
-    bullBear: {
-      bull: 'AI 供给 + 分发 + 模型三层占位，经常性收入，净利率 39%，负债率 41%，下行保护最好',
-      bear: 'Capex 回报未验证（单季 298.8 亿，同比 +89%）；反垄断；3 万亿市值下上行弹性天然受限',
-      verdict: '确定性最高、下行保护最好的核心底仓，盯 capex 与 Azure 增速的剪刀差',
-    },
-    pitfalls: ['2026-06 季度净利率 47.3% 异常（其他三季 34.6%–36.9%），疑含一次性投资收益，需核实原文', 'PE 口径差异：数据源 27.51 vs 四季加总反推 30.89，需确认是否含非 GAAP 调整', '动态 PE / PEG 缺失：数据源不提供一致预期 EPS，不以假设代替'],
-    calendar: ['下一季度：营收同比、Azure 增速、资本开支增速、净利率是否回到 35% 附近'],
-  },
-
   'us:AXP': {
     headline: '高质量观察：会员制卡费增长与信用表现为同批最优，但估值已反映较多质量溢价，不构成 2:1 首次介入赔率',
     certainty: '中高（经营质量高；不确定性在估值与拨备释放）',
@@ -518,4 +442,4 @@ const manual: Record<string, Partial<Company>> = {
 }
 
 // 手写条目优先于批量文本条目
-export const companyDetails: Record<string, Partial<Company>> = mergeDetails(parseDetails(healthDetails), parseDetails(financeDetails), parseDetails(consumerDetails), parseDetails(staplesDetails), parseDetails(itDetails), parseDetails(cnDetails), parseDetails(casinoDetails), parseDetails(profileDetails), manual)
+export const companyDetails: Record<string, Partial<Company>> = mergeDetails(parseDetails(healthDetails), parseDetails(financeDetails), parseDetails(consumerDetails), parseDetails(staplesDetails), parseDetails(itDetails), parseDetails(cnDetails), parseDetails(casinoDetails), parseDetails(profileDetails), parseDetails(itCoreDetails), manual)
