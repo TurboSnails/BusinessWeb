@@ -367,7 +367,7 @@ export const hkWatchTargets: [string, string, string, string, string][] = [
 
 // ───────── 投资理念（投资计划页 二、投资框架与资产配置） ─────────
 export const philosophy = {
-  motto: '短期看流动性，中期看经济周期，长期看企业盈利与生产率。',
+  motto: '短期看流动性 + 情绪，中期看经济周期，长期看企业盈利与生产率。',
   structure: [
     { label: '被动配置', pct: '75%', desc: '多资产分散，五类资产等权，借鉴瑞·达利欧的全天候思路' },
     { label: '备用金', pct: '5%', desc: '日常应急，独立留存，不参与投资' },
