@@ -409,9 +409,10 @@ export default function ResearchNotes(): JSX.Element {
                       {metricCard('医疗保健', `${healthProgress.total}+ 家`)}
                       {metricCard('金融', `${usCompanies.filter(c => c.sector === '金融').length} 家`)}
                       {metricCard('可选消费', `${usCompanies.filter(c => c.sector === '可选消费').length} 家`)}
+                  {metricCard('日常消费', `${usCompanies.filter(c => c.sector === '日常消费').length} 家`)}
                     </div>
                     <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '16px 0 0', lineHeight: 1.7 }}>
-                      统一框架“盈利—持续性—估值—盈亏比”，Base/Bear ≥ 约 2:1 才算首次介入赔率成立。截至 2026-09-29，医疗仅 ZTS（2.97×，条件成立时）、金融仅 SPGI（2.20×）达标；其余均为观察/等待。信息技术 53 家为旧版“AI 情景研究”评分。
+                      统一框架“盈利—持续性—估值—盈亏比”，Base/Bear ≥ 约 2:1 才算首次介入赔率成立。截至 2026-09-30，可选消费板块已收官；医疗仅 ZTS（2.97×，条件成立时）、金融仅 SPGI（2.20×）、日常消费仅 PEP（2.3:1）达标；其余均为观察/等待。信息技术 53 家为旧版“AI 情景研究”评分。
                     </p>
                   </div>
 
