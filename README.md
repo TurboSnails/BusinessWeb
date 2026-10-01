@@ -15,6 +15,7 @@ npm run dev
 
 ```bash
 npm test -- --run
+npm run test:functions
 npm run typecheck
 npm run build
 ```

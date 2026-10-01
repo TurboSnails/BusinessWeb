@@ -1,5 +1,5 @@
 import { timingSafeEqual } from 'node:crypto'
-import { validSavedRecord } from '../src/features/grid-trading/validation'
+import { validSavedRecord } from '../src/features/grid-trading/validation.js'
 
 type Request = { method?: string; headers: Record<string, string | string[] | undefined>; body?: unknown }
 type Response = {

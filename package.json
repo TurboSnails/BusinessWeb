@@ -10,7 +10,8 @@
     "deploy": "gh-pages -d dist",
     "build": "vite build",
     "preview": "vite preview",
-    "build:pages": "VITE_BASE_PATH=/BusinessWeb/ VITE_MARKET_DIRECT=true vite build && node scripts/prepare-pages.mjs"
+    "build:pages": "VITE_BASE_PATH=/BusinessWeb/ VITE_MARKET_DIRECT=true vite build && node scripts/prepare-pages.mjs",
+    "test:functions": "node scripts/check-functions.mjs"
   },
   "dependencies": {
     "@types/react-router-dom": "^5.3.3",
@@ -34,5 +35,6 @@
   },
   "engines": {
     "node": "24.x"
-  }
+  },
+  "type": "module"
 }
