@@ -64,6 +64,18 @@ https://vercel.com/docs/plans/hobby
 
 表启用 RLS，匿名与登录用户没有直接读取权限，只有服务端 service_role 可以读写。不要将同步 token 分享给其他用户：持有者拥有该独立快照的读写权限。
 
+## GitHub Actions 定时检查与数据库活动
+
+`.github/workflows/cloud-keepalive.yml` 每天 UTC 00:23、08:23、16:23（马来西亚时间 08:23、16:23、次日 00:23）运行，也支持在 Actions 中手动运行 **Cloud keepalive**。
+
+启用前，在 GitHub 仓库 Settings → Secrets and variables → Actions 添加仓库 Secret `GRID_SYNC_TOKEN`，值与 Vercel Production 的同名变量相同。无需向 GitHub 提供 Supabase 服务端密钥。
+
+任务检查正式站点，再通过已认证的 `GET /api/grid-sync` 实际读取 Supabase 快照；不写入数据，不在日志输出 token 或交易记录。缺少 Secret、非 200 响应或网络错误会使任务失败。站点域名变更时更新 workflow 的 `SITE_URL`。
+
+Supabase 免费项目会因一周内数据库活动不足而暂停；此任务产生数据库读取活动，但不保证永不暂停，也不能恢复已暂停项目（需在 Supabase Dashboard 手动 Resume）。GitHub 定时任务可能延迟，公开仓库连续 60 天没有活动时定时任务可能自动停用，届时需在 Actions 中重新启用。
+
+参考：[Supabase project pausing](https://supabase.com/docs/guides/platform/free-project-pausing)、[GitHub scheduled workflows](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule)。
+
 ## 保留 GitHub Pages
 
 ```bash
