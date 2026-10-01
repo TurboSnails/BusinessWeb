@@ -50,7 +50,7 @@ Interface: GET /api/grid-sync 返回 {schemaVersion:1,records} 和 ETag；PUT �
 
 ## 执行记录
 
-- 工作分支：`feat/free-cloud-foundation`。直接在新克隆仓库实施；未推送、未发布。
+- 实施分支：`feat/free-cloud-foundation`；部署分支：`deploy-free-cloud`，代码已推送 GitHub。
 - 初始基线：18 个测试文件、99 项测试通过；既有网格类型检查通过。
 - 修复原锁文件缺失的 esbuild/平台依赖；`npm ci --offline --no-audit --no-fund` 成功。
 - 最终：20 个测试文件、117 项测试通过；网格及新增服务端类型检查通过。
@@ -58,6 +58,9 @@ Interface: GET /api/grid-sync 返回 {schemaVersion:1,records} 和 ETag；PUT �
 - 本地 HTTP：首页、网格页与详情路径返回 HTML 200；非法行情参数返回 400；腾讯真实行情返回 200，GBK 中文正确解码。
 - 独立审查未发现新增 API/SQL/路由的确定阻断问题；发现并修复既有 stale React props 覆盖本地新记录的漏洞，新增回归测试先失败后通过。
 - 通用旧同步入口仍支持至少 16 字符的其他独立服务 token；新 Supabase 服务要求 32 字符，部署指南推荐生成 64 字符随机 token。
-- 原有依赖有 Vite CJS/插件弃用警告，现有主 bundle 约 1.83 MB；构建成功，本次未改页面拆包。
-- 远端 Supabase SQL、RLS 和实际 Vercel Functions 路由尚未在云端执行验证；没有云项目凭证。交付独立迁移与操作指南供部署时验证。
+- 修复 Vercel 原生模块加载：package.json 声明 ESM，服务端验证器导入使用 `.js` 扩展名。新增 `npm run test:functions`，验证原生 Node 加载编译后的函数；117 项测试、类型检查和构建再次通过。
+- 插件仍有弃用警告，现有主 bundle 约 1.83 MB；构建成功，本次未改页面拆包。
+- 正式站点：https://business-web-black.vercel.app/ 。2026-10-02 手动发布 `e87b2a5`，Vercel 生产部署显示 Ready / Current。
+- `node scripts/check-deployment.mjs https://business-web-black.vercel.app` 六项通过：首页、网格页、详情路径 HTTP 200，未知 API 404，未配置同步 503，真实报价 200。
+- Supabase 尚待用户完成登录；远端迁移、RLS 和真实同步读写尚未验证。Vercel 生产分支设置仍为 main，当前采用手动提升部署；自动跟踪 deploy-free-cloud 的设置变更待用户确认。
 - R2 暂缓，当前无附件功能。Yahoo/东方财富等历史页面代理与 AKTools 服务不在此次替换范围，指南已注明。
