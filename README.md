@@ -1,15 +1,48 @@
-# BusinessWeb
+# gupiaoWS / BusinessWeb
 
-个人投资研究与网格交易工具，采用 React + Vite + TypeScript。
+个人投资研究与网格交易工作台。覆盖 **沪深 A 股 + 美股标普 500**，把多智能体投研流水线（A 股买/卖决策、美股深度覆盖）与本地化网格交易工具整合在一个静态站点里。
 
-## 开发
+## 这是什么
 
-使用 Node 24：
+- **网格交易**：`src/features/grid-trading/` 实现了完整的 ETF / 个股网格模拟器——行情接入、参数求解、回测、记录、导入导出、可选 Supabase 同步。记录默认保存在浏览器，云同步只在手动配置独立 Supabase + token 后才启用。
+- **多智能体投研**：项目自带三个研究 skill（见 [AI 投研 skills](#ai-投研-skills)），可由 Claude Code 或 opencode 调用，跑出首次覆盖报告、圆桌观点或交易决策流水线。
+- **多市场数据**：通过 MCP（yahoo-finance、baostock）和 `src/services/api.ts` 的本地封装，覆盖美股行情、A 股行情、ETF 实时数据、AkShare 数据字典。
+
+栈：React 18 · Vite 5 · TypeScript · React Router 6 · Vitest · Node 24。
+
+## 目录结构
+
+```
+BusinessWeb/
+├── src/
+│   ├── pages/              路由页面（Home / ResearchNotes / GridCalculator / GridRecords 等）
+│   ├── features/
+│   │   └── grid-trading/   网格交易模块（自包含：模拟、回测、记录、同步、导入导出）
+│   ├── components/         复用组件（Header / Footer / 各市场卡片）
+│   ├── data/               标普500 / 沪深 / 概念板块数据源
+│   ├── services/           API 封装（akshare / 行情代理）
+│   └── hooks/, utils/, types/
+├── api/                    Vercel Serverless Functions
+├── server/                 Vite dev 中间件（行情代理）
+├── supabase/migrations/    网格记录云同步表结构
+├── docs/
+│   ├── DEPLOYMENT.md       Vercel + Supabase 部署细节
+│   ├── AKSHARE.md          AKTools 接入说明
+│   ├── design/             ETF 网格设计文档
+│   ├── research/           已完成的圆桌报告样例
+│   └── superpowers/        计划与设计 spec
+└── opencode.jsonc          opencode 配置（含 MCP servers）
+```
+
+## 快速开始
 
 ```bash
+cd BusinessWeb
 npm ci
-npm run dev
+npm run dev          # http://localhost:5173
 ```
+
+需要 **Node 24**（已在 `package.json` 的 `engines` 中声明）。开发服务器自带 `/api/grid-market` 行情代理；`/api/grid-sync` 仅在 `vercel dev` 下运行。
 
 ## 验证
 
@@ -20,14 +53,47 @@ npm run typecheck
 npm run build
 ```
 
-`typecheck` 覆盖网格交易模块和新增同步服务端；历史页面暂不在该检查范围内。
+`typecheck` 覆盖网格交易模块与新增同步服务端；历史页面暂不在该检查范围内。`test:functions` 检查 Vercel Function 的 schema 与环境变量使用。
+
+## AI 投研 skills
+
+项目自带三个项目本地 skill（`BusinessWeb/.claude/skills/` 下是 Claude Code 版本，`BusinessWeb/.opencode/skills/` 下是 opencode 版本，两份内容平行维护），用于辅助研究员和交易员角色：
+
+| Skill | 用途 | 何时触发 |
+|---|---|---|
+| **stock-research-expert** | 单公司深度研究：首次覆盖 / DCF / 三情景估值 / 投资备忘录 / 财报前瞻与解读 | 「分析一下 XX」「估值」「财报解读」 |
+| **tencent-stock-research-team** | 6 位风格不同的投研专家圆桌：多视角并存，不给买卖指令 | 「圆桌」「几位专家怎么看 X」「多空观点对比」 |
+| **trading-analysis-team** | 12 角色流水线：技术 / 基本面 / 新闻 / 情绪并行采集 → 多空辩论 → 风险三派挑战 → 拍板 BUY/SELL/HOLD | 「X 该不该买」「多空辩论」「风险诊断」 |
+
+每个 skill 内置研究纪律：数据可追溯、缺失标 `[MISSING]`、预期盈亏比 ≥ 约 2:1 才算首次介入赔率成立、所有买卖区间是条件化研究区间不是交易指令、结尾声明不构成投资建议。运行 `stock-research-expert` 后可将结果同步到 `src/data/companies.ts` 自动出现在 `/research-notes`。
+
+## MCP 数据源
+
+在仓库根的 `opencode.jsonc` 中配置：
+
+- **yahoo-finance**（`yahoo-finance-mcp-server`）：美股行情 / 财报 / 基本面
+- **baostock**（`/Users/hassan/AndroidStudioProjects/gupiaoWS/.mcp-servers/mcp-baostock-server`）：A 股行情与财务数据（baostock 0.8.9）
 
 ## 部署
 
-默认构建部署到 Vercel 根路径；GitHub Pages 使用 `npm run build:pages` 或 `npm run deploy`。
+- **Vercel（推荐）**：默认 `npm run build` 输出到根路径；Serverless Functions 处理 `/api/grid-market` 与 `/api/grid-sync`。完整步骤见 [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)，包括 Vercel 免费项目额度、可选 Supabase 同步与环境变量。
+- **GitHub Pages**：`npm run build:pages` 或 `npm run deploy`。Pages 不运行 Functions，网格行情保留直连腾讯（受浏览器 CORS 限制），云同步需要另配跨域服务。
 
-参见 [部署指南](docs/DEPLOYMENT.md)，包含 Vercel 免费项目、可选 Supabase 同步、环境变量和 GitHub Pages 的具体步骤。
+## 限制与边界
 
-网格记录默认保存在本机。云同步只有手动配置独立服务后才启用。当前没有 R2 上传功能。
+明确**没有**做、也**不在**路线图里立刻做的事：
 
-[实施计划](docs/superpowers/plans/2026-10-02-free-cloud-foundation.md) · [设计说明](docs/superpowers/specs/2026-10-02-free-cloud-design.md)
+- 没有 R2 / S3 文件上传；当前没有附件业务（PDF、图片、模型输出等需要文件存储时再接入）
+- 不做多用户登录与权限系统；Supabase 同步用专用 token，按单用户多设备设计
+- A 股行情仍依赖公共代理（东方财富、腾讯），不保证长期稳定
+- AKTools 需 Python 服务，未自动部署；如需使用请配置 `VITE_AKTOOLS_BASE_URL`
+- 投研 skill 的所有产出是研究材料，**不构成投资建议**
+
+## 相关文档
+
+- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) — Vercel + Supabase 部署
+- [docs/AKSHARE.md](docs/AKSHARE.md) — AKTools 接入
+- [docs/design/ETF_GRID_TRADING.md](docs/design/ETF_GRID_TRADING.md) — 网格交易设计
+- [docs/research/](docs/research/) — 圆桌报告样例
+- [docs/superpowers/plans/2026-10-02-free-cloud-foundation.md](docs/superpowers/plans/2026-10-02-free-cloud-foundation.md) — 免费云同步实施计划
+- [docs/superpowers/specs/2026-10-02-free-cloud-design.md](docs/superpowers/specs/2026-10-02-free-cloud-design.md) — 设计 spec
