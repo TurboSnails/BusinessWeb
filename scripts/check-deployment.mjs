@@ -17,6 +17,16 @@ for (const path of ['/', '/grid-trading', '/grid-trading/records/check-route', '
     } else {
       assert.equal(response.status, 200)
       assert.match(text, quote ? /v_sh510300=/ : /\/assets\//)
+      if (path === '/') {
+        const assets = [...text.matchAll(/(?:src|href)="(\/assets\/[^" ]+)"/g)].map(match => match[1])
+        assert.ok(assets.length > 0, 'Expected deployed assets')
+        for (const asset of assets) {
+          const resource = await fetch(new URL(asset, base), { signal: AbortSignal.timeout(20_000) })
+          assert.equal(resource.status, 200, asset)
+          assert.match(resource.headers.get('content-type') ?? '', asset.endsWith('.js') ? /javascript/ : /css/, asset)
+          console.log(`PASS asset ${asset}`)
+        }
+      }
     }
     console.log(`PASS ${path}: HTTP ${response.status}`)
   } catch (error) {

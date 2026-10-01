@@ -62,5 +62,8 @@ Interface: GET /api/grid-sync 返回 {schemaVersion:1,records} 和 ETag；PUT �
 - 插件仍有弃用警告，现有主 bundle 约 1.83 MB；构建成功，本次未改页面拆包。
 - 正式站点：https://business-web-black.vercel.app/ 。2026-10-02 手动发布 `e87b2a5`，Vercel 生产部署显示 Ready / Current。
 - `node scripts/check-deployment.mjs https://business-web-black.vercel.app` 六项通过：首页、网格页、详情路径 HTTP 200，未知 API 404，未配置同步 503，真实报价 200。
-- Supabase 尚待用户完成登录；远端迁移、RLS 和真实同步读写尚未验证。Vercel 生产分支设置仍为 main，当前采用手动提升部署；自动跟踪 deploy-free-cloud 的设置变更待用户确认。
+- Supabase 免费项目 BusinessWeb（`wrcxymsdfpgontzbxozt`）已创建，控制台状态 Healthy，区域 Mumbai。迁移在 SQL Editor 执行成功；远端检查：单例 id=1、revision=0、records=0、RLS=true，anon/authenticated 无 SELECT 权限，service_role 有 SELECT/UPDATE 权限。
+- Vercel Production 三项变量 SUPABASE_URL、SUPABASE_SECRET_KEY、GRID_SYNC_TOKEN 已保存；密钥传输经用户授权，同步 token 由用户输入和提交。生产部署 `7yLCWyzahsLwWjiiuYXZzhCPwauP` Ready / Current；正式同步接口由未配置 503 变为未授权 401。
+- 线上检查新增 JS/CSS MIME 检查，资源及原有六项通过。浏览器在部署切换时曾载入错误类型的脚本响应，重新导航后网格页和记录页正常显示。网站同步地址已填好，等待用户保存本机 token 配置后验证真实同步读写。
+- Vercel 生产分支设置仍为 main，当前采用手动提升部署；自动跟踪 deploy-free-cloud 的设置变更待用户确认。
 - R2 暂缓，当前无附件功能。Yahoo/东方财富等历史页面代理与 AKTools 服务不在此次替换范围，指南已注明。
