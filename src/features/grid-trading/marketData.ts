@@ -60,7 +60,10 @@ async function downloadCandles(code: string, begin: string, fetchImpl: FetchLike
   const lines: string[][] = []
   for (let page = 0; page < MAX_HISTORY_PAGES; page += 1) {
     const params = new URLSearchParams({ param: `${symbol},day,${begin},${end},${PAGE_SIZE},qfq` })
-    const response = await request(`https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?${params.toString()}`, fetchImpl)
+    const url = import.meta.env.VITE_MARKET_DIRECT === 'true'
+      ? `https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?${params.toString()}`
+      : `/api/grid-market?${new URLSearchParams({ kind: 'candles', symbol, begin, end })}`
+    const response = await request(url, fetchImpl)
     let payload: { data?: Record<string, { qfqday?: string[][]; day?: string[][] }> }
     try {
       payload = await response.json() as typeof payload
@@ -140,17 +143,22 @@ export async function fetchQuotes(codes: string[], fetchImpl: FetchLike = fetch)
     return true
   })
   if (!missing.length) return result
-  const params = missing.map(symbolOf).join(',')
-  const response = await request(`https://qt.gtimg.cn/q=${params}`, fetchImpl)
-  let text: string
-  try {
-    text = new TextDecoder('gbk').decode(await response.arrayBuffer())
-  } catch {
-    throw new Error('无法解码腾讯 GBK 行情响应')
-  }
-  for (const quote of parseQuoteText(text)) {
-    result.set(quote.code, quote)
-    cache[quote.code] = { at: Date.now(), quote }
+  for (let offset = 0; offset < missing.length; offset += 100) {
+    const params = missing.slice(offset, offset + 100).map(symbolOf).join(',')
+    const url = import.meta.env.VITE_MARKET_DIRECT === 'true'
+      ? `https://qt.gtimg.cn/q=${params}`
+      : `/api/grid-market?${new URLSearchParams({ kind: 'quotes', symbols: params })}`
+    const response = await request(url, fetchImpl)
+    let text: string
+    try {
+      text = new TextDecoder('gbk').decode(await response.arrayBuffer())
+    } catch {
+      throw new Error('无法解码腾讯 GBK 行情响应')
+    }
+    for (const quote of parseQuoteText(text)) {
+      result.set(quote.code, quote)
+      cache[quote.code] = { at: Date.now(), quote }
+    }
   }
   cacheValue(sessionStorage, QUOTE_CACHE_KEY, cache)
   const absent = missing.filter(code => !result.has(code))

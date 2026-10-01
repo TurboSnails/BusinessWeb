@@ -80,7 +80,11 @@ export async function syncGridRecords(
   const url = new URL(config.endpoint)
   if (!await confirmTarget(url.origin, records.length)) return { status: 'cancelled', domain: url.origin }
 
-  const localSnapshot = JSON.stringify(readRecords())
+  const localRecords = readRecords()
+  if (canonical(records) !== canonical(localRecords)) {
+    return { status: 'error', error: '本地记录已在其他页面更新；请刷新页面后重新同步', domain: url.origin }
+  }
+  const localSnapshot = JSON.stringify(localRecords)
   const headers = { authorization: `Bearer ${config.token.trim()}`, 'content-type': 'application/json' }
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), 8_000)
@@ -112,8 +116,9 @@ export async function syncGridRecords(
     const syncedRecords = [...merged.values()].filter((item): item is SavedRecord => !isTombstone(item) && !deletedIds.has(item.id))
     if (JSON.stringify(readRecords()) !== localSnapshot) throw new Error('同步期间本地记录已修改；已停止上传，请重试')
     const putResponse = await fetchImpl(config.endpoint, {
-      method: 'PUT', headers, body: JSON.stringify({ schemaVersion: 1, records: [...syncedRecords, ...tombstones] }), signal: controller.signal, redirect: 'error',
+      method: 'PUT', headers: { ...headers, ...(getResponse.headers.get('etag') ? { 'if-match': getResponse.headers.get('etag')! } : {}) }, body: JSON.stringify({ schemaVersion: 1, records: [...syncedRecords, ...tombstones] }), signal: controller.signal, redirect: 'error',
     })
+    if (putResponse.status === 409) throw new Error('其他设备已更新云端记录；本地数据已保留，请重新同步')
     if (!putResponse.ok) throw new Error(`写入独立云端记录失败（HTTP ${putResponse.status}）`)
     if (JSON.stringify(readRecords()) !== localSnapshot) throw new Error('同步期间本地记录已修改；云端已写入此前版本，本地最新数据已保留，请重试')
     saveRecordsAfterSync(syncedRecords, tombstones)

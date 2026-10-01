@@ -4,6 +4,18 @@ import { fetchQuotes, getCandles, mergeQuote } from './marketData'
 const response = (body: unknown): Response => new Response(JSON.stringify(body), { status: 200 })
 
 describe('marketData', () => {
+  it('splits large quote lists into bounded same-origin requests', async () => {
+    const codes = Array.from({ length: 101 }, (_, i) => String(510000 + i))
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL) => {
+      const url = new URL(String(input), 'https://businessweb.example')
+      const symbols = (url.searchParams.get('symbols') ?? '').split(',')
+      if (url.pathname !== '/api/grid-market' || symbols.length > 100) return new Response('', { status: 400 })
+      const fields = Array(35).fill('0')
+      fields[1] = 'ETF'; fields[3] = '3.5'; fields[30] = '20261002'; fields[33] = '3.6'; fields[34] = '3.4'
+      return new Response(new TextEncoder().encode(symbols.map(symbol => `v_${symbol}="${fields.join('~')}"`).join(';')))
+    })
+    expect((await fetchQuotes(codes, fetchImpl)).size).toBe(101)
+  })
   it('rejects partial malformed candle responses and missing requested quotes', async () => {
     const history = vi.fn(async () => response({ data: { sh510300: { qfqday: [['2026-09-29', '3.4', '3.5', '3.6', '3.3'], ['2026-09-30', '3.4', 'bad', '3.6', '3.3']] } } }))
     await expect(getCandles('510300', '2026-09-29', { force: true }, history)).rejects.toThrow(/无效|不完整/)

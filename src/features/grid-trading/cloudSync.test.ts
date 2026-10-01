@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { loadSyncConfig, saveSyncConfig, syncGridRecords } from './cloudSync'
 import type { SavedRecord } from './types'
+import { readRecords, writeRecords } from './repository'
 
 const record: SavedRecord = {
   id: 'local', savedAt: '2026-09-29T00:00:00.000Z',
@@ -9,6 +10,27 @@ const record: SavedRecord = {
 }
 
 describe('optional grid cloud sync', () => {
+  it('refuses stale page records rather than overwriting another tab update', async () => {
+    writeRecords([{ ...record, updatedAt: '2026-10-02T00:00:00Z', row: { ...record.row, step: 0.3 } }])
+    const fetchImpl = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ records: [] })))
+      .mockResolvedValueOnce(new Response('{}'))
+    const result = await syncGridRecords([record], { endpoint: 'https://private.example/sync', token: 'special-project-token-12345' }, fetchImpl, () => true)
+    expect(result.status).toBe('error')
+    expect(fetchImpl).not.toHaveBeenCalled()
+    expect(readRecords()[0].row.step).toBe(0.3)
+  })
+  it('sends the cloud revision and preserves local records on a concurrent write', async () => {
+    const fetchImpl = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ schemaVersion: 1, records: [] }), { headers: { etag: '"7"' } }))
+      .mockResolvedValueOnce(new Response('{}', { status: 409 }))
+    const before = localStorage.getItem('businessweb.grid-trading.v1')
+    const result = await syncGridRecords([record], { endpoint: 'https://private.example/sync', token: 'special-project-token-12345' }, fetchImpl, () => true)
+    expect(new Headers(fetchImpl.mock.calls[1][1].headers).get('if-match')).toBe('"7"')
+    expect(result.status).toBe('error')
+    expect(result.error).toMatch(/其他设备|冲突/)
+    expect(localStorage.getItem('businessweb.grid-trading.v1')).toBe(before)
+  })
   it('reports equal-timestamp content conflicts without uploading either version', async () => {
     const remote = { ...record, row: { ...record.row, step: 0.2 } }
     const fetchImpl = vi.fn().mockResolvedValue(new Response(JSON.stringify({ records: [remote] })))
@@ -22,7 +44,7 @@ describe('optional grid cloud sync', () => {
     await expect(syncGridRecords([record], { endpoint: 'https://private.example/sync', token: 'special-project-token-12345' }, fetchImpl, () => true)).resolves.toMatchObject({ status: 'error' })
     expect(fetchImpl).toHaveBeenCalledTimes(1)
   })
-  beforeEach(() => localStorage.clear())
+  beforeEach(() => { localStorage.clear(); writeRecords([record]) })
 
   it('has no default endpoint or token and performs no request when unconfigured', async () => {
     const fetchImpl = vi.fn()

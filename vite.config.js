@@ -1,9 +1,10 @@
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
+import { marketMiddleware } from './server/market.mjs'
 
 export default defineConfig({
-  plugins: [react()],
-  base: process.env.NODE_ENV === 'production' ? '/BusinessWeb/' : '/',
+  plugins: [react(), { name: 'businessweb-market-api', configureServer(server) { server.middlewares.use(marketMiddleware) } }],
+  base: process.env.VITE_BASE_PATH || '/',
   define: {
     __BUILD_TIME__: JSON.stringify(new Date().toLocaleString('zh-CN', { 
       timeZone: 'Asia/Shanghai',
