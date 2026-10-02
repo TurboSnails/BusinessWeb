@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { CSI300_CONSTITUENTS } from '../../data/csi300'
 
 // ============ 数据类型 ============
-interface HeatmapStock {
+export interface HeatmapStock {
   ticker: string
   code: string
   name: string
@@ -29,7 +29,7 @@ const SECTOR_CN: Record<string, string> = {
 }
 
 // ============ 平方化树图布局算法（Squarified Treemap），通用版 ============
-function squarify<T>(items: T[], valueOf: (item: T) => number, x: number, y: number, w: number, h: number): Array<{ item: T; rect: Rect }> {
+export function squarify<T>(items: T[], valueOf: (item: T) => number, x: number, y: number, w: number, h: number): Array<{ item: T; rect: Rect }> {
   const result: Array<{ item: T; rect: Rect }> = []
   const total = items.reduce((sum, s) => sum + valueOf(s), 0)
   if (total <= 0 || w <= 0 || h <= 0) return result
@@ -45,41 +45,42 @@ function squarify<T>(items: T[], valueOf: (item: T) => number, x: number, y: num
     return Math.max((side * side * max) / (sum * sum), (sum * sum) / (side * side * min))
   }
 
-  const layoutRow = (row: T[], rowValues: number[], rect: Rect, horizontal: boolean, remainingTotal: number) => {
+  // 标准 squarify：宽 ≥ 高时沿较短边（高）在左侧排一列，否则沿较短边（宽）在顶部排一行
+  const layoutRow = (row: T[], rowValues: number[], rect: Rect, columnOnLeft: boolean, remainingTotal: number) => {
     const sum = rowValues.reduce((a, b) => a + b, 0)
-    if (horizontal) {
-      const rowH = rect.h * (sum / remainingTotal)
-      let cx = rect.x
+    if (columnOnLeft) {
+      const colW = rect.w * (sum / remainingTotal)
+      let cy = rect.y
       row.forEach((s, i) => {
-        const cw = rect.w * (rowValues[i] / sum)
-        result.push({ item: s, rect: { x: cx, y: rect.y, w: cw, h: rowH } })
-        cx += cw
+        const ch = rect.h * (rowValues[i] / sum)
+        result.push({ item: s, rect: { x: rect.x, y: cy, w: colW, h: ch } })
+        cy += ch
       })
-      return { x: rect.x, y: rect.y + rowH, w: rect.w, h: rect.h - rowH }
+      return { x: rect.x + colW, y: rect.y, w: rect.w - colW, h: rect.h }
     }
-    const rowW = rect.w * (sum / remainingTotal)
-    let cy = rect.y
+    const rowH = rect.h * (sum / remainingTotal)
+    let cx = rect.x
     row.forEach((s, i) => {
-      const ch = rect.h * (rowValues[i] / sum)
-      result.push({ item: s, rect: { x: rect.x, y: cy, w: rowW, h: ch } })
-      cy += ch
+      const cw = rect.w * (rowValues[i] / sum)
+      result.push({ item: s, rect: { x: cx, y: rect.y, w: cw, h: rowH } })
+      cx += cw
     })
-    return { x: rect.x + rowW, y: rect.y, w: rect.w - rowW, h: rect.h }
+    return { x: rect.x, y: rect.y + rowH, w: rect.w, h: rect.h - rowH }
   }
 
   while (idx < items.length && remaining.w > 0.5 && remaining.h > 0.5) {
-    const horizontal = remaining.w >= remaining.h
-    const side = horizontal ? remaining.h : remaining.w
+    const columnOnLeft = remaining.w >= remaining.h
+    const side = columnOnLeft ? remaining.h : remaining.w
     const restTotal = values.slice(idx).reduce((a, b) => a + b, 0)
 
     let row: T[] = []
     let rowValues: number[] = []
     let i = idx
+    const areaScale = (remaining.w * remaining.h) / restTotal // 把值换算成面积
     while (i < items.length) {
       const testVals = [...rowValues, values[i]]
-      const testScale = side / restTotal
-      const rowWorst = worst(testVals.map(v => v * testScale), side)
-      const prevWorst = rowValues.length > 0 ? worst(rowValues.map(v => v * testScale), side) : Infinity
+      const rowWorst = worst(testVals.map(v => v * areaScale), side)
+      const prevWorst = rowValues.length > 0 ? worst(rowValues.map(v => v * areaScale), side) : Infinity
       if (rowValues.length > 0 && rowWorst > prevWorst) break
       row.push(items[i])
       rowValues.push(values[i])
@@ -87,7 +88,7 @@ function squarify<T>(items: T[], valueOf: (item: T) => number, x: number, y: num
     }
     if (row.length === 0) { row = [items[idx]]; rowValues = [values[idx]]; i = idx + 1 }
 
-    remaining = layoutRow(row, rowValues, remaining, horizontal, restTotal)
+    remaining = layoutRow(row, rowValues, remaining, columnOnLeft, restTotal)
     idx = i
   }
   return result
@@ -95,12 +96,21 @@ function squarify<T>(items: T[], valueOf: (item: T) => number, x: number, y: num
 
 // 两级树图：先按行业分块，再在行业块内排个股
 interface SectorBlock { name: string; rect: Rect; header: number; change: number; stocks: Array<{ stock: HeatmapStock; rect: Rect }> }
-function layoutBySector(stocks: HeatmapStock[], w: number, h: number): SectorBlock[] {
+export function layoutBySector(stocks: HeatmapStock[], w: number, h: number): SectorBlock[] {
   const groups = new Map<string, HeatmapStock[]>()
   stocks.forEach(s => { const k = s.sector || '其他'; groups.set(k, [...(groups.get(k) || []), s]) })
-  const sectors = [...groups.entries()]
-    .map(([name, list]) => ({ name, list: list.sort((a, b) => (b.marketCap || 0) - (a.marketCap || 0)), cap: list.reduce((sum, s) => sum + (s.marketCap || 0), 0) }))
+  let sectors = [...groups.entries()]
+    .map(([name, list]) => ({ name, list: [...list], cap: list.reduce((sum, s) => sum + (s.marketCap || 0), 0) }))
     .sort((a, b) => b.cap - a.cap)
+  // 占比 < 2% 的行业并入「其他」，避免出现 1–2px 的细条
+  const totalCap = sectors.reduce((sum, g) => sum + g.cap, 0) || 1
+  const small = sectors.filter(g => g.cap / totalCap < 0.02)
+  if (small.length > 1) {
+    const rest = sectors.filter(g => g.cap / totalCap >= 0.02)
+    const merged = small.flatMap(g => g.list)
+    sectors = [...rest, { name: '其他', list: merged, cap: merged.reduce((sum, s) => sum + (s.marketCap || 0), 0) }].sort((a, b) => b.cap - a.cap)
+  }
+  sectors = sectors.map(g => ({ ...g, list: g.list.sort((a, b) => (b.marketCap || 0) - (a.marketCap || 0)) }))
   return squarify(sectors, s => s.cap, 0, 0, w, h).map(({ item, rect }) => {
     const header = rect.w > 70 && rect.h > 46 ? 18 : 0
     const gap = 2
@@ -114,24 +124,19 @@ function layoutBySector(stocks: HeatmapStock[], w: number, h: number): SectorBlo
   })
 }
 
-// ============ 颜色：A股红涨绿跌 ============
-function blockColor(change: number | null): string {
-  if (change === null || !isFinite(change)) return '#e5e7eb'
-  const c = Math.max(-7, Math.min(7, change)) / 7
-  if (c >= 0) {
-    // 0% -> #fef2f2, +7% -> #dc2626
-    const t = c
-    const r = Math.round(254 + (220 - 254) * t)
-    const g = Math.round(242 + (38 - 242) * t)
-    const b = Math.round(242 + (38 - 242) * t)
-    return `rgb(${r},${g},${b})`
-  }
-  const t = -c
-  const r = Math.round(254 + (22 - 254) * t)
-  const g = Math.round(242 + (163 - 242) * t)
-  const b = Math.round(242 + (74 - 242) * t)
-  return `rgb(${r},${g},${b})`
+// ============ 颜色：A股红涨绿跌，0% 为中性灰，±5% 饱和 ============
+const COLOR_CAP = 5
+function mix(a: [number, number, number], b: [number, number, number], t: number): string {
+  return `rgb(${Math.round(a[0] + (b[0] - a[0]) * t)},${Math.round(a[1] + (b[1] - a[1]) * t)},${Math.round(a[2] + (b[2] - a[2]) * t)})`
 }
+function blockColor(change: number | null): string {
+  if (change === null || !isFinite(change)) return '#d1d5db'
+  const t = Math.min(1, Math.abs(change) / COLOR_CAP)
+  const neutral: [number, number, number] = [226, 232, 240]
+  return change >= 0 ? mix(neutral, [220, 38, 38], t) : mix(neutral, [22, 163, 74], t)
+}
+// 背景够深时用白字，否则用深色字
+const labelColor = (change: number | null): string => (Math.abs(change || 0) >= COLOR_CAP * 0.45 ? '#ffffff' : '#1f2937')
 
 // ============ 数据获取（TradingView Scanner，免密钥 + CORS 友好）============
 async function fetchCSI300Quotes(): Promise<HeatmapStock[]> {
@@ -170,8 +175,8 @@ interface Props {
   active: boolean
 }
 
-// 图例渐变：-7% … 0 … +7%（红涨绿跌）
-const LEGEND = [-7, -3.5, 0, 3.5, 7]
+// 图例：-5% … 0 … +5%（红涨绿跌）
+const LEGEND = [-COLOR_CAP, -COLOR_CAP / 2, 0, COLOR_CAP / 2, COLOR_CAP]
 
 export default function ChinaHeatmap({ tick, active }: Props): JSX.Element {
   const [stocks, setStocks] = useState<HeatmapStock[]>([])
@@ -242,7 +247,7 @@ export default function ChinaHeatmap({ tick, active }: Props): JSX.Element {
         </span>
       </div>
 
-      <div ref={containerRef} style={{ position: 'relative', width: '100%', flex: 1, minHeight: 0, background: '#e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
+      <div ref={containerRef} style={{ position: 'relative', width: '100%', flex: 1, minHeight: 0, background: '#1f2937', borderRadius: '8px', overflow: 'hidden' }}>
         {loading && stocks.length === 0 && (
           <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af' }}>
             ⏳ 正在加载沪深300行情...
@@ -257,7 +262,7 @@ export default function ChinaHeatmap({ tick, active }: Props): JSX.Element {
         {blocks.map(block => (
           <React.Fragment key={block.name}>
             {/* 行业外框 + 标题 */}
-            <div style={{ position: 'absolute', left: block.rect.x, top: block.rect.y, width: Math.max(0, block.rect.w), height: Math.max(0, block.rect.h), background: '#374151', boxSizing: 'border-box', border: '1px solid #f3f4f6' }} />
+            <div style={{ position: 'absolute', left: block.rect.x, top: block.rect.y, width: Math.max(0, block.rect.w), height: Math.max(0, block.rect.h), background: '#334155', boxSizing: 'border-box', border: '1px solid #ffffff' }} />
             {block.header > 0 && (
               <div style={{
                 position: 'absolute', left: block.rect.x + 2, top: block.rect.y + 2, width: Math.max(0, block.rect.w - 4), height: block.header,
@@ -272,7 +277,7 @@ export default function ChinaHeatmap({ tick, active }: Props): JSX.Element {
             )}
             {block.stocks.map(({ stock, rect }) => {
               const pct = stock.change
-              const textColor = Math.abs(pct || 0) > 3.2 ? '#fff' : (pct || 0) > 0 ? '#991b1b' : (pct || 0) < 0 ? '#166534' : '#4b5563'
+              const textColor = labelColor(pct)
               const minSide = Math.min(rect.w, rect.h)
               const showLabel = rect.w > 40 && rect.h > 22
               const showPct = rect.w > 40 && rect.h > 36
@@ -286,7 +291,7 @@ export default function ChinaHeatmap({ tick, active }: Props): JSX.Element {
                   }}
                   onMouseLeave={() => setHover(null)}
                   style={{
-                    position: 'absolute', left: rect.x + 0.5, top: rect.y + 0.5, width: Math.max(0, rect.w - 1), height: Math.max(0, rect.h - 1),
+                    position: 'absolute', left: rect.x + 0.5, top: rect.y + 0.5, width: Math.max(0, rect.w - 1), height: Math.max(0, rect.h - 1), boxShadow: 'inset 0 0 0 0.5px rgba(255,255,255,0.55)',
                     background: blockColor(pct), overflow: 'hidden', cursor: 'default',
                     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                     transition: active ? 'background 0.6s' : undefined,

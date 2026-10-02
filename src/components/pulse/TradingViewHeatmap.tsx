@@ -50,8 +50,12 @@ export default function TradingViewHeatmap({ dataSource, active }: Props): JSX.E
 
   }, [dataSource, active])
 
-  // 卸载时清理
-  useEffect(() => () => { if (containerRef.current) containerRef.current.innerHTML = '' }, [])
+  // 卸载时清理，并重置「已加载」标记：React StrictMode 会先卸载再重新挂载，
+  // 若只清内容不重置标记，重新挂载时会误以为已加载而保持空白
+  useEffect(() => () => {
+    if (containerRef.current) containerRef.current.innerHTML = ''
+    loadedFor.current = ''
+  }, [])
 
   return (
     <div

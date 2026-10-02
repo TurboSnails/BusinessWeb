@@ -119,6 +119,7 @@ export default function HeatmapSection(): JSX.Element {
           display: active ? 'flex' : 'none', flexDirection: 'column', minWidth: 0, background: 'white',
           border: isFs ? 'none' : '1px solid #e5e7eb', borderRadius: '10px', padding: '10px 12px 12px',
           height: isFs ? '100vh' : undefined, boxSizing: 'border-box',
+          gridColumn: layout === 'grid' && tab.type === 'china' ? '1 / -1' : undefined,
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
@@ -166,8 +167,8 @@ export default function HeatmapSection(): JSX.Element {
 
       {gridMode ? (
         // 并排：宽屏 2 列，窄屏 1 列；全部挂载，各自加载
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 460px), 1fr))', gap: '12px' }}>
-          {TABS.map(tab => renderCard(tab, '420px', true, true))}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 380px), 1fr))', gap: '12px' }}>
+          {TABS.map(tab => renderCard(tab, tab.type === 'china' ? '560px' : '420px', true, true))}
         </div>
       ) : (
         <>

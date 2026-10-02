@@ -16,6 +16,9 @@ describe('市场热力图布局', () => {
     const body = screen.getByTestId('tv-SPX500').parentElement as HTMLElement
     expect(body.style.height).toBe('420px') // widget 用 height:100%，父级必须有确定高度，否则会塌成一条
     expect(screen.getByRole('button', { name: '全屏查看 标普500' })).toBeTruthy()
+    const china = screen.getByTestId('china').parentElement as HTMLElement
+    expect(china.style.height).toBe('560px')
+    expect((china.parentElement as HTMLElement).style.gridColumn).toBe('1 / -1') // 沪深300 独占整行
   })
 
   it('窄屏默认标签页；切换布局会记住选择', () => {
