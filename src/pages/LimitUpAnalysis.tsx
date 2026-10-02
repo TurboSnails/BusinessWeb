@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import {
   TrendingUp,
   Calendar,
@@ -12,25 +12,35 @@ import {
   ArrowRight
 } from 'lucide-react'
 import { loadLimitUp, shanghaiDate, isClosedDate, type LimitUpResult } from '../services/limitUp'
+import { getLimitUpCache, saveLimitUpCache, readLimitUpView, saveLimitUpView } from '../services/limitUpCache'
 import type { LimitUpConcept } from '../types'
 
 export default function LimitUpAnalysis(): JSX.Element {
-  const [concepts, setConcepts] = useState<LimitUpConcept[]>([])
+  const [initial] = useState(() => { const view = readLimitUpView(shanghaiDate()); return { ...view, cached: getLimitUpCache(view.date, view.only) } })
+  const [concepts, setConcepts] = useState<LimitUpConcept[]>(initial.cached?.result.concepts || [])
   const [selectedConcept, setSelectedConcept] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(!initial.cached?.fresh)
   const [error, setError] = useState<string | null>(null)
-  const [onlyLimitUp, setOnlyLimitUp] = useState(true) // 默认勾选"只看涨停"
+  const [onlyLimitUp, setOnlyLimitUp] = useState(initial.only) // 默认勾选"只看涨停"
   const [expandedStocks, setExpandedStocks] = useState<Set<string>>(new Set()) // 记录展开的股票代码
-  const [selectedDate, setSelectedDate] = useState(() => shanghaiDate())
-  const [result, setResult] = useState<LimitUpResult | null>(null)
+  const [selectedDate, setSelectedDate] = useState(initial.date)
+  const [result, setResult] = useState<LimitUpResult | null>(initial.cached?.result || null)
   const [refresh, setRefresh] = useState(0)
+  const lastRefresh = useRef(0)
   const fetchLimitUpData = (): void => setRefresh(n => n + 1)
   useEffect(() => {
-    const controller = new AbortController()
-    setLoading(true); setError(null); setConcepts([]); setResult(null)
+    const cached = getLimitUpCache(selectedDate, onlyLimitUp)
+    saveLimitUpView(selectedDate, onlyLimitUp, shanghaiDate())
+    setError(null); setConcepts(cached?.result.concepts || []); setResult(cached?.result || null)
     setSelectedConcept(null); setExpandedStocks(new Set())
+    const forceRefresh = lastRefresh.current !== refresh
+    lastRefresh.current = refresh
+    if (cached?.fresh && !forceRefresh) { setLoading(false); return }
+    const controller = new AbortController()
+    setLoading(true)
     loadLimitUp(selectedDate, onlyLimitUp, controller.signal).then(data => {
       if (controller.signal.aborted) return
+      saveLimitUpCache(selectedDate, onlyLimitUp, data)
       setConcepts(data.concepts); setResult(data)
     }).catch(err => {
       if (!controller.signal.aborted) setError(err instanceof Error ? err.message : '数据请求失败')
@@ -122,7 +132,8 @@ export default function LimitUpAnalysis(): JSX.Element {
 
       <div role="status" style={{ padding: '12px', marginBottom: '16px', background: 'var(--bg-secondary)', borderRadius: '8px', lineHeight: 1.8 }}>
         {isClosedDate(selectedDate) && <div>{selectedDate} 为休市日，使用此前最近的有效交易日数据。</div>}
-        {loading ? '正在获取数据…' : error ? '接口失败，尚未取得可展示的数据；这不代表没有涨停股票。' : result?.status === 'empty' ? `${selectedDate} 为交易日，数据源返回空列表，当前暂无板块数据。` : result?.dataDate ? `数据日期：${result.dataDate}${result.status === 'closed' ? '（休市回退）' : ''}` : '休市：此前10个交易日内未找到有效数据。'}
+        {result && <div>数据日期：{result.dataDate || '未取得'} · 获取时间：{new Date(result.fetchedAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}（北京时间）</div>}
+        {loading ? (result ? '正在刷新，继续显示已有数据…' : '正在获取数据…') : error ? (result ? '刷新失败，继续显示上次成功获取的数据；数据时间见上方。' : '接口失败，尚未取得可展示的数据；这不代表没有涨停股票。') : result?.status === 'empty' ? `${selectedDate} 为交易日，数据源返回空列表，当前暂无板块数据。` : result?.dataDate ? `数据日期：${result.dataDate}${result.status === 'closed' ? '（休市回退）' : ''}` : '休市：此前10个交易日内未找到有效数据。'}
       </div>
 
       {error && (
