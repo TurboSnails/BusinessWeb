@@ -95,7 +95,7 @@ export default function Home(): JSX.Element {
       to: '/monitor',
       icon: Activity,
       title: '每日监控',
-      description: '投资总纲、宏观假设、指标体系',
+      description: '投资总纲、指标体系',
       gradient: 'linear-gradient(135deg, #5AC8FA 0%, #007AFF 100%)',
       color: 'var(--system-teal)'
     },
