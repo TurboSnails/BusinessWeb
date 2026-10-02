@@ -8,6 +8,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.grid.json && tsc --noEmit -p tsconfig.server.json",
     "predeploy": "npm run build:pages",
     "deploy": "gh-pages -d dist",
+    "prebuild": "node scripts/generate-changelog.mjs",
     "build": "vite build",
     "preview": "vite preview",
     "build:pages": "VITE_BASE_PATH=/BusinessWeb/ VITE_MARKET_DIRECT=true VITE_API_BASE=https://business-web-black.vercel.app vite build && node scripts/prepare-pages.mjs",
