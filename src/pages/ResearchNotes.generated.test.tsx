@@ -153,6 +153,19 @@ describe('林奇分组、港股、导出', () => {
     expect(screen.queryByText('程序化研究页')).toBeNull()
     expect(screen.getAllByText(/Bear/).length).toBeGreaterThan(0)
   })
+
+  it('补充覆盖的公司：必和必拓与药明康德详情页有三情景，并注明第三方数据源', async () => {
+    renderAt('/research-notes/adr/BHP')
+    await waitFor(() => expect(screen.getAllByText(/合理买入区/).length).toBeGreaterThan(0), { timeout: 8000 })
+    expect(screen.queryByText('程序化研究页')).toBeNull()
+    expect(screen.getAllByText(/stockanalysis\.com/).length).toBeGreaterThan(0)
+  })
+
+  it('补充覆盖的港股：药明康德详情页可打开', async () => {
+    renderAt('/research-notes/hk/02359')
+    await waitFor(() => expect(screen.getAllByText(/合理买入区/).length).toBeGreaterThan(0), { timeout: 8000 })
+    expect(screen.queryByText('程序化研究页')).toBeNull()
+  })
 })
 
 it('沪深复核撤回旧模型，初始手工和异步公司均保留存档', async () => {
