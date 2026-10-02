@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { layoutBySector, squarify } from './ChinaHeatmap'
-import type { HeatmapStock } from './ChinaHeatmap'
+import { layoutBySector, squarify } from './IndexHeatmap'
+import type { HeatmapStock } from './IndexHeatmap'
 
-// 近似沪深300：大行业 + 若干小行业，市值呈长尾分布（固定种子，结果可复现）
+// 近似 A 股宽基指数：大行业 + 若干小行业，市值呈长尾分布（固定种子，结果可复现）
 function sample(): HeatmapStock[] {
   const sectors: Array<[string, number, number]> = [['Finance', 40, 3e11], ['Electronic Technology', 30, 1.5e11], ['Producer Manufacturing', 30, 1.2e11], ['Energy Minerals', 10, 2e11],
     ['Consumer Non-Durables', 25, 1.3e11], ['Health Technology', 25, 6e10], ['Utilities', 15, 7e10], ['Retail Trade', 3, 4e10], ['Distribution Services', 2, 3e10], ['Miscellaneous', 1, 2e10], ['Commercial Services', 2, 2e10]]
@@ -15,7 +15,7 @@ function sample(): HeatmapStock[] {
 }
 const aspect = (r: { w: number; h: number }) => Math.max(r.w / r.h, r.h / r.w)
 
-describe('沪深300 树图布局', () => {
+describe('指数树图布局', () => {
   it('squarify：面积与权重成比例、铺满画布、不重叠，较大的块不被拉成细条', () => {
     const items = [6, 6, 4, 3, 2, 2, 1]
     for (const [w, h] of [[600, 400], [400, 600], [1400, 560]]) {

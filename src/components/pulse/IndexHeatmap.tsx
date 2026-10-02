@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { CSI300_CONSTITUENTS } from '../../data/csi300'
+import { CSI500_CONSTITUENTS } from '../../data/csi500'
+import { HK_INDEX_NAMES } from '../../data/hsi'
 
 // ============ 数据类型 ============
 export interface HeatmapStock {
@@ -138,18 +139,37 @@ function blockColor(change: number | null): string {
 // 背景够深时用白字，否则用深色字
 const labelColor = (change: number | null): string => (Math.abs(change || 0) >= COLOR_CAP * 0.45 ? '#ffffff' : '#1f2937')
 
+// ============ 指数配置 ============
+// 港股指数（恒指、恒科）用 TradingView 的指数成分实时查询，指数调整后自动更新；
+// 中证500 没有可用的实时成分，使用中证指数公司的成分股快照。中文名查不到时显示代码。
+export type IndexMarket = 'csi500' | 'hsi' | 'hstech'
+interface IndexConfig {
+  label: string
+  scanner: 'china' | 'hongkong'
+  symbolset?: string // 实时成分
+  list?: Array<{ ticker: string; name: string }> // 静态名单（同时作为中文名表）
+  names: Array<{ ticker: string; name: string }>
+  currency: string
+  padCode: number
+  source: string
+}
+export const INDEX_CONFIG: Record<IndexMarket, IndexConfig> = {
+  csi500: { label: '中证500', scanner: 'china', list: CSI500_CONSTITUENTS, names: CSI500_CONSTITUENTS, currency: '¥', padCode: 6, source: '成分股快照 2026-09-30（中证指数公司，每半年调样）' },
+  hsi: { label: '恒生指数', scanner: 'hongkong', symbolset: 'SYML:HSI;HSI', names: HK_INDEX_NAMES, currency: 'HK$', padCode: 5, source: '成分股为 TradingView 实时指数成分' },
+  hstech: { label: '恒生科技指数', scanner: 'hongkong', symbolset: 'SYML:HSI;HSTECH', names: HK_INDEX_NAMES, currency: 'HK$', padCode: 5, source: '成分股为 TradingView 实时指数成分' },
+}
+
 // ============ 数据获取（TradingView Scanner，免密钥 + CORS 友好）============
-async function fetchCSI300Quotes(): Promise<HeatmapStock[]> {
-  const nameMap = new Map(CSI300_CONSTITUENTS.map(c => [c.ticker, c.name]))
-  const response = await fetch(
-    'https://scanner.tradingview.com/china/scan?label-product=markets-screener',
+export async function fetchIndexQuotes(market: IndexMarket, fetchImpl: typeof fetch = fetch): Promise<HeatmapStock[]> {
+  const cfg = INDEX_CONFIG[market]
+  const nameMap = new Map(cfg.names.map(c => [c.ticker, c.name]))
+  const symbols = cfg.symbolset ? { symbolset: [cfg.symbolset] } : { tickers: (cfg.list || []).map(c => c.ticker), query: { types: [] } }
+  const response = await fetchImpl(
+    `https://scanner.tradingview.com/${cfg.scanner}/scan?label-product=markets-screener`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' }, // 避免 CORS 预检
-      body: JSON.stringify({
-        columns: ['name', 'close', 'change', 'market_cap_basic', 'sector'],
-        symbols: { tickers: CSI300_CONSTITUENTS.map(c => c.ticker), query: { types: [] } },
-      }),
+      body: JSON.stringify({ columns: ['name', 'close', 'change', 'market_cap_basic', 'sector'], symbols, range: [0, 600] }),
     }
   )
   if (!response.ok) throw new Error(`HTTP ${response.status}`)
@@ -157,10 +177,12 @@ async function fetchCSI300Quotes(): Promise<HeatmapStock[]> {
   const rows: Array<{ s: string; d: Array<number | string | null> }> = json.data || []
   return rows.map(row => {
     const [code, close, change, marketCap, sector] = row.d
+    const raw = String(code || row.s.split(':')[1])
+    const padded = raw.padStart(cfg.padCode, '0')
     return {
       ticker: row.s,
-      code: String(code || row.s.split(':')[1]),
-      name: nameMap.get(row.s) || String(code || ''),
+      code: padded,
+      name: nameMap.get(row.s) || padded,
       sector: typeof sector === 'string' ? sector : '',
       close: typeof close === 'number' ? close : null,
       change: typeof change === 'number' ? change : null,
@@ -171,6 +193,7 @@ async function fetchCSI300Quotes(): Promise<HeatmapStock[]> {
 
 // ============ 组件 ============
 interface Props {
+  market: IndexMarket
   tick: number // 每次 +1 触发重新拉取数据
   active: boolean
 }
@@ -178,7 +201,8 @@ interface Props {
 // 图例：-5% … 0 … +5%（红涨绿跌）
 const LEGEND = [-COLOR_CAP, -COLOR_CAP / 2, 0, COLOR_CAP / 2, COLOR_CAP]
 
-export default function ChinaHeatmap({ tick, active }: Props): JSX.Element {
+export default function IndexHeatmap({ market, tick, active }: Props): JSX.Element {
+  const cfg = INDEX_CONFIG[market]
   const [stocks, setStocks] = useState<HeatmapStock[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -190,7 +214,7 @@ export default function ChinaHeatmap({ tick, active }: Props): JSX.Element {
 
   const load = async () => {
     try {
-      const data = await fetchCSI300Quotes()
+      const data = await fetchIndexQuotes(market)
       setStocks(data)
       setError('')
       setUpdatedAt(new Date().toLocaleTimeString('zh-CN'))
@@ -205,7 +229,7 @@ export default function ChinaHeatmap({ tick, active }: Props): JSX.Element {
   // tick 变化时：仅激活状态才刷新（隐藏的缓存页保持数据不动）
   useEffect(() => {
     if (active) load()
-  }, [tick])
+  }, [tick, market])
 
   // 从隐藏切回激活时，若数据超过 60 秒则补一次刷新
   useEffect(() => {
@@ -232,7 +256,7 @@ export default function ChinaHeatmap({ tick, active }: Props): JSX.Element {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
       {/* 统计条 + 图例 */}
       <div style={{ display: 'flex', gap: '12px', alignItems: 'center', padding: '2px 2px 8px', fontSize: '0.78rem', color: '#6b7280', flexWrap: 'wrap' }}>
-        <span>沪深300 · {valid.length} 只</span>
+        <span>{cfg.label} · {valid.length} 只</span>
         <span style={{ color: '#dc2626', fontWeight: 600 }}>↑ {ups}</span>
         <span style={{ color: '#16a34a', fontWeight: 600 }}>↓ {downs}</span>
         {flat > 0 && <span>— {flat}</span>}
@@ -250,7 +274,7 @@ export default function ChinaHeatmap({ tick, active }: Props): JSX.Element {
       <div ref={containerRef} style={{ position: 'relative', width: '100%', flex: 1, minHeight: 0, background: '#1f2937', borderRadius: '8px', overflow: 'hidden' }}>
         {loading && stocks.length === 0 && (
           <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af' }}>
-            ⏳ 正在加载沪深300行情...
+            ⏳ 正在加载{cfg.label}行情...
           </div>
         )}
         {error && stocks.length === 0 && (
@@ -324,14 +348,14 @@ export default function ChinaHeatmap({ tick, active }: Props): JSX.Element {
           }}>
             <div style={{ fontWeight: 700 }}>{hover.stock.name} <span style={{ opacity: 0.7 }}>{hover.stock.code}</span></div>
             <div style={{ opacity: 0.8 }}>{SECTOR_CN[hover.stock.sector] || hover.stock.sector || '—'}</div>
-            <div>价格：{hover.stock.close !== null ? hover.stock.close.toFixed(2) : '--'}</div>
+            <div>价格：{hover.stock.close !== null ? `${cfg.currency}${hover.stock.close.toFixed(2)}` : '--'}</div>
             <div>涨跌：<span style={{ color: (hover.stock.change || 0) >= 0 ? '#fca5a5' : '#86efac' }}>{hover.stock.change !== null ? `${hover.stock.change > 0 ? '+' : ''}${hover.stock.change.toFixed(2)}%` : '--'}</span></div>
-            <div>市值：{hover.stock.marketCap ? `${(hover.stock.marketCap / 1e8).toFixed(0)}亿` : '--'}</div>
+            <div>市值：{hover.stock.marketCap ? `${cfg.currency}${(hover.stock.marketCap / 1e8).toFixed(0)}亿` : '--'}</div>
           </div>
         )}
       </div>
       <div style={{ fontSize: '0.7rem', color: '#9ca3af', marginTop: '6px' }}>
-        数据 TradingView · 成分股快照 2025-09（中证每半年调样，略有滞后）· 红涨绿跌 · 方块面积 = 市值
+        数据 TradingView · {cfg.source} · 红涨绿跌 · 方块面积 = 市值
       </div>
     </div>
   )

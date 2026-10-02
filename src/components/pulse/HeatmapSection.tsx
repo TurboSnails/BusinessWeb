@@ -1,27 +1,30 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { LayoutGrid, Maximize2, Minimize2, Columns2, Rows3 } from 'lucide-react'
 import TradingViewHeatmap from './TradingViewHeatmap'
-import ChinaHeatmap from './ChinaHeatmap'
+import IndexHeatmap from './IndexHeatmap'
+import type { IndexMarket } from './IndexHeatmap'
 
 interface HeatmapTab {
   key: string
   label: string
   flag: string
   note: string
-  type: 'tradingview' | 'china'
+  type: 'tradingview' | 'index'
   dataSource?: string
+  index?: IndexMarket
 }
 
 const TABS: HeatmapTab[] = [
   { key: 'spx', label: '标普500', flag: '🇺🇸', note: '绿涨红跌', type: 'tradingview', dataSource: 'SPX500' },
   { key: 'ndx', label: '纳斯达克100', flag: '🇺🇸', note: '绿涨红跌', type: 'tradingview', dataSource: 'NASDAQ100' },
-  // 注：TradingView 热力图组件没有纯恒指(HSI)数据源，HSI/AllHK 会回退成标普500
-  // 香港市场可用数据源为 HSCEI（恒生中国企业指数，含内银/腾讯等）
-  { key: 'hscei', label: '恒生中国企业', flag: '🇭🇰', note: '绿涨红跌', type: 'tradingview', dataSource: 'HSCEI' },
-  { key: 'csi300', label: '沪深300', flag: '🇨🇳', note: '红涨绿跌', type: 'china' },
+  // 注：TradingView 的热力图 widget 没有纯恒指(HSI)数据源（会回退成标普500），
+  // 所以恒生指数、恒生科技、中证500 用自绘树图（TradingView Scanner 行情 + 成分股名单，按行业分块）。
+  { key: 'hsi', label: '恒生指数', flag: '🇭🇰', note: '红涨绿跌', type: 'index', index: 'hsi' },
+  { key: 'hstech', label: '恒生科技指数', flag: '🇭🇰', note: '红涨绿跌', type: 'index', index: 'hstech' },
+  { key: 'csi500', label: '中证500', flag: '🇨🇳', note: '红涨绿跌', type: 'index', index: 'csi500' },
 ]
 
-const REFRESH_INTERVAL = 20000 // 20 秒刷新沪深300（TradingView 图自带实时更新）
+const REFRESH_INTERVAL = 20000 // 20 秒刷新自绘的指数图（TradingView widget 自带实时更新）
 type Layout = 'grid' | 'tabs'
 const LAYOUT_KEY = 'pulse_heatmap_layout'
 
@@ -66,7 +69,7 @@ export default function HeatmapSection(): JSX.Element {
     setVisited(prev => (prev.has(key) ? prev : new Set(prev).add(key)))
   }
 
-  // 沪深300 每 20 秒刷新；页面在后台时暂停
+  // 自绘指数图每 20 秒刷新；页面在后台时暂停
   useEffect(() => {
     const refresh = setInterval(() => {
       if (document.visibilityState !== 'visible') return
@@ -106,7 +109,7 @@ export default function HeatmapSection(): JSX.Element {
   })
 
   const renderMap = (tab: HeatmapTab, active: boolean): JSX.Element => (
-    tab.type === 'tradingview' ? <TradingViewHeatmap dataSource={tab.dataSource!} active={active} /> : <ChinaHeatmap tick={tick} active={active} />
+    tab.type === 'tradingview' ? <TradingViewHeatmap dataSource={tab.dataSource!} active={active} /> : <IndexHeatmap market={tab.index!} tick={tick} active={active} />
   )
 
   const renderCard = (tab: HeatmapTab, bodyHeight: string, active: boolean, showTitle: boolean): JSX.Element => {
@@ -119,7 +122,7 @@ export default function HeatmapSection(): JSX.Element {
           display: active ? 'flex' : 'none', flexDirection: 'column', minWidth: 0, background: 'white',
           border: isFs ? 'none' : '1px solid #e5e7eb', borderRadius: '10px', padding: '10px 12px 12px',
           height: isFs ? '100vh' : undefined, boxSizing: 'border-box',
-          gridColumn: layout === 'grid' && tab.type === 'china' ? '1 / -1' : undefined,
+          gridColumn: layout === 'grid' && tab.index === 'csi500' ? '1 / -1' : undefined,
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
@@ -160,15 +163,15 @@ export default function HeatmapSection(): JSX.Element {
           <button onClick={() => changeLayout('tabs')} aria-pressed={!gridMode} style={pill(!gridMode)}><Rows3 size={14} /> 标签页</button>
         </div>
         <span style={{ fontSize: '0.72rem', color: '#9ca3af', marginLeft: 'auto' }}>
-          沪深300 {lastRefresh ? `上次刷新 ${lastRefresh}` : `每 ${REFRESH_INTERVAL / 1000} 秒刷新`}
+          自绘指数图 {lastRefresh ? `上次刷新 ${lastRefresh}` : `每 ${REFRESH_INTERVAL / 1000} 秒刷新`}
           <span style={{ marginLeft: '8px', color: '#d1d5db' }}>{countdown}s</span>
         </span>
       </div>
 
       {gridMode ? (
         // 并排：宽屏 2 列，窄屏 1 列；全部挂载，各自加载
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 380px), 1fr))', gap: '12px' }}>
-          {TABS.map(tab => renderCard(tab, tab.type === 'china' ? '560px' : '420px', true, true))}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 520px), 1fr))', gap: '12px' }}>
+          {TABS.map(tab => renderCard(tab, tab.index === 'csi500' ? '600px' : tab.index === 'hsi' || tab.index === 'hstech' ? '480px' : '440px', true, true))}
         </div>
       ) : (
         <>
