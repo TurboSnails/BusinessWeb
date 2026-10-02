@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { fetchMarketDataByType, fetchSectorCategories, fetchUSSectorCategories } from '../services/api'
 import type { DailyReview, MarketCategory, SectorCategory, NewsSource, StockQuote } from '../types'
-import { loadReviews, saveReviews, loadNewsSources, saveNewsSources, getGistToken, getGistId, saveGistConfig } from '../utils/storage'
-import { syncToGist, syncFromGist } from '../utils/gist'
+import { loadReviews, saveReviews, loadNewsSources, saveNewsSources, loadTombstones, saveTombstones } from '../utils/storage'
+import { loadSyncConfig, saveSyncConfig, clearSyncConfig, syncReviews, normalizeReview } from '../features/pulse/cloudSync'
+import { validReviewItem } from '../features/pulse/validation'
 import { getWeekday, getToday } from '../utils/date'
 import { ReviewTable } from '../components/pulse/ReviewTable'
 import { NewsSourceSection } from '../components/pulse/NewsSourceSection'
@@ -49,8 +50,9 @@ export default function Pulse(): JSX.Element {
 
   // 云端同步状态
   const [showSettings, setShowSettings] = useState(false)
-  const [gistTokenInput, setGistTokenInput] = useState('')
-  const [gistIdInput, setGistIdInput] = useState('')
+  const [syncConfig, setSyncConfig] = useState(() => loadSyncConfig())
+  const [endpointInput, setEndpointInput] = useState(() => loadSyncConfig()?.endpoint ?? (window.location.protocol === 'https:' && !window.location.hostname.endsWith('github.io') ? `${window.location.origin}/api/pulse-sync` : ''))
+  const [tokenInput, setTokenInput] = useState('')
   const [syncing, setSyncing] = useState(false)
 
   // 筛选状态
@@ -61,22 +63,8 @@ export default function Pulse(): JSX.Element {
     // 加载本地数据
     setReviews(loadReviews())
     setNewsSources(loadNewsSources())
-    setGistTokenInput(getGistToken() || '')
-    setGistIdInput(getGistId() || '')
-
-    // 尝试从云端同步
-    const loadFromCloud = async () => {
-      const cloudData = await syncFromGist()
-      if (cloudData) {
-        // 合并数据：云端优先
-        if (cloudData.reviews.length > 0) {
-          setReviews(cloudData.reviews)
-          saveReviews(cloudData.reviews)
-        }
-      }
-    }
-    loadFromCloud()
-
+    // 复盘不再使用 GitHub Gist：清理旧版遗留的 token，避免长期留在浏览器里
+    try { localStorage.removeItem('pulse_gist_token'); localStorage.removeItem('pulse_gist_id') } catch { /* 忽略 */ }
     let mounted = true
     const fetchAllData = async () => {
       setLoading(true)
@@ -144,6 +132,7 @@ export default function Pulse(): JSX.Element {
       top5Turnover: formData.top5Turnover || 0,
       inflow: formData.inflow || '',
       outflow: formData.outflow || '',
+      updatedAt: new Date().toISOString(),
     }
 
     // 更新或新增
@@ -161,10 +150,7 @@ export default function Pulse(): JSX.Element {
 
     setReviews(newReviews)
     saveReviews(newReviews)
-    // 自动同步到云端
-    syncToGist(newReviews).then(result => {
-      if (!result.success) console.warn('自动同步失败:', result.error)
-    }).catch(() => { })
+    saveTombstones(loadTombstones().filter(t => t.date !== newReview.date)) // 重新录入同一天：撤销该日墓碑
     setShowForm(false)
     setFormData({})
     setEditDate('')
@@ -179,10 +165,11 @@ export default function Pulse(): JSX.Element {
 
   // 删除某天数据
   const handleDelete = (date: string) => {
-    if (confirm('确定删除这天的数据吗？')) {
+    if (confirm(`确定删除 ${date} 的复盘数据吗？\n\n如已开启云同步，下次同步时会从云端一并删除（云端保留最近 30 个历史版本可找回）。`)) {
       const newReviews = reviews.filter(r => r.date !== date)
       setReviews(newReviews)
       saveReviews(newReviews)
+      saveTombstones([...loadTombstones().filter(t => t.date !== date), { date, deleted: true, updatedAt: new Date().toISOString() }])
     }
   }
 
@@ -226,13 +213,23 @@ export default function Pulse(): JSX.Element {
         try {
           const data = JSON.parse(event.target?.result as string)
 
-          if (data.reviews && Array.isArray(data.reviews)) {
-            setReviews(data.reviews)
-            saveReviews(data.reviews)
+          if (!data || !Array.isArray(data.reviews)) throw new Error('缺少 reviews 数组')
+          const now = new Date().toISOString()
+          const incoming = (data.reviews as DailyReview[]).map(r => normalizeReview({ ...r, updatedAt: now }))
+          const bad = incoming.find(r => !validReviewItem(r))
+          if (bad) {
+            alert(`导入失败：${String((bad as { date?: unknown }).date)} 的数据不合规（日期/数值/长度），未做任何修改`)
+            return
           }
+          if (!confirm(`将导入 ${incoming.length} 条复盘，按日期合并（同日期以导入为准，其余本地数据保留）。继续吗？`)) return
+          const byDate = new Map(reviews.map(r => [r.date, r]))
+          incoming.forEach(r => byDate.set(r.date, r))
+          const next = [...byDate.values()].sort((a, b) => b.date.localeCompare(a.date))
+          setReviews(next)
+          saveReviews(next)
+          saveTombstones(loadTombstones().filter(t => !incoming.some(r => r.date === t.date)))
 
-
-          alert('数据导入成功！数据已更新')
+          alert('数据导入成功！已按日期合并')
           // 不刷新页面，数据已通过 state 更新
         } catch (error) {
           alert('导入失败：文件格式错误')
@@ -247,147 +244,39 @@ export default function Pulse(): JSX.Element {
 
   const handleRefresh = () => window.location.reload()
 
-  // 保存 GitHub Token
-  const handleSaveGistToken = () => {
-    if (gistTokenInput.trim()) {
-      // 如果输入了 gistId，使用输入的；否则保留现有的
-      const gistId = gistIdInput.trim() || getGistId()
-      saveGistConfig(gistTokenInput.trim(), gistId)
-      alert('Token 已保存！' + (gistId ? `\n\nGist ID: ${gistId}\n\n提示：配置完成后，请手动点击"上传"按钮同步数据` : '\n\n提示：上传一次数据后会自动保存 Gist ID'))
-      setShowSettings(false)
-      // 不再自动上传，避免上传空数据
-    } else {
-      alert('请输入 Token')
-    }
-  }
-
-  // 合并数据：智能合并本地和云端数据（类似 Git merge）
-  const mergeData = <T extends { id?: string; date?: string }>(local: T[], cloud: T[], keyField: string = 'id'): T[] => {
-    const merged = new Map<string, T>()
-
-    // 先添加云端数据（云端优先）
-    cloud.forEach(item => {
-      const key = item[keyField as keyof T] as string || `${item.date || ''}_${JSON.stringify(item).slice(0, 50)}`
-      merged.set(key, item)
-    })
-
-    // 再添加本地数据（如果本地有新的或更新的）
-    local.forEach(item => {
-      const key = item[keyField as keyof T] as string || `${item.date || ''}_${JSON.stringify(item).slice(0, 50)}`
-      const existing = merged.get(key)
-      if (!existing) {
-        // 本地有新的数据，添加
-        merged.set(key, item)
-      } else {
-        // 如果本地数据更新（通过时间戳判断），使用本地数据
-        const localDate = item.date || ''
-        const cloudDate = existing.date || ''
-        if (localDate > cloudDate) {
-          merged.set(key, item)
-        }
-      }
-    })
-
-    return Array.from(merged.values())
-  }
-
-  // 手动同步到云端（先下载再上传，类似 Git pull before push）
-  const handleSyncToCloud = async () => {
-    if (!getGistToken()) {
-      alert('❌ 请先配置 Token（点击"云端设置"）')
-      return
-    }
-
-    setSyncing(true)
-
+  // 保存同步配置（token 仅存本机；保存前确认目标域名）
+  const handleSaveSyncConfig = async () => {
     try {
-      // 如果有 Gist ID，先下载云端数据（类似 Git pull）
-      const gistId = getGistId()
-      let cloudReviews: DailyReview[] = []
-
-      if (gistId) {
-        try {
-          const cloudData = await syncFromGist()
-          if (cloudData) {
-            cloudReviews = cloudData.reviews
-            console.log('📥 已下载云端数据:', { reviews: cloudReviews.length })
-          }
-        } catch (error) {
-          console.warn('下载云端数据失败，继续使用本地数据上传:', error)
-          // 如果下载失败，继续使用本地数据上传（可能是首次上传或网络问题）
-        }
-      }
-
-      // 合并数据：本地 + 云端（避免覆盖）
-      const mergedReviews = mergeData(reviews, cloudReviews, 'date')
-
-      // 如果有新数据合并进来，更新本地状态
-      if (mergedReviews.length > reviews.length) {
-        setReviews(mergedReviews)
-        saveReviews(mergedReviews)
-      }
-
-      // 上传合并后的数据（类似 Git push）
-      const result = await syncToGist(mergedReviews)
-
-      if (result.success) {
-        const reviewCount = mergedReviews.length
-        const currentGistId = getGistId()
-        const mergeInfo = cloudReviews.length > 0
-          ? `\n\n✅ 已合并云端数据（避免覆盖）`
-          : ''
-        const publicSyncInfo = result.publicSync
-          ? `\n\n🌐 已同步到公共 Gist（其他人可读取）`
-          : `\n\nℹ️ 未同步到公共 Gist（无权限或非所有者）`
-        const message = currentGistId
-          ? `✅ 上传成功！\n\n复盘数据：${reviewCount} 条${mergeInfo}${publicSyncInfo}\n\nGist ID: ${currentGistId}\n\n（可在其他设备输入此 ID 同步）`
-          : `✅ 上传成功！\n\n复盘数据：${reviewCount} 条${mergeInfo}${publicSyncInfo}`
-        alert(message)
-      } else {
-        const errorMsg = result.error || '未知错误'
-        alert(`❌ 上传失败\n\n错误：${errorMsg}\n\n请检查：\n1. Token 是否正确\n2. Token 是否有 gist 权限\n3. 网络连接是否正常`)
-      }
-    } catch (error) {
-      console.error('上传过程出错:', error)
-      alert(`❌ 上传失败\n\n错误：${error instanceof Error ? error.message : '未知错误'}`)
-    } finally {
-      setSyncing(false)
-    }
+      const saved = await saveSyncConfig({ endpoint: endpointInput.trim(), token: tokenInput.trim() || syncConfig?.token || '' }, domain => window.confirm(
+        `即将保存复盘同步目标：${domain}\n只填写你自己部署的服务；确认前不会发出网络请求。继续吗？`))
+      if (!saved) { alert('配置未保存：地址必须是 HTTPS，token 至少 32 个字符'); return }
+      setSyncConfig(loadSyncConfig()); setTokenInput(''); setShowSettings(false)
+      alert('已保存到本机。点击「同步」才会连接云端。')
+    } catch { alert('配置保存失败') }
   }
 
-  // 手动从云端同步
-  const handleSyncFromCloud = async () => {
-    const hasToken = getGistToken()
-    const hasGistId = getGistId()
+  const handleClearSyncConfig = () => {
+    if (!confirm('清除本机保存的同步地址和 token？（不会删除任何复盘数据）')) return
+    clearSyncConfig(); setSyncConfig(null); setTokenInput(''); setShowSettings(false)
+  }
 
-    // 如果用户配置了 token 但没有 gistId，提示需要先上传
-    if (hasToken && !hasGistId) {
-      alert('❌ 云端还没有数据\n\n请先上传一次数据，然后再下载\n\n（如果没有配置，将使用默认公共数据）')
-      return
-    }
-
+  // 同步：先读云端 → 合并 → 删除/覆盖需确认 → 带版本号写回
+  const handleSync = async () => {
     setSyncing(true)
-    const cloudData = await syncFromGist()
+    const result = await syncReviews(syncConfig, {
+      target: (domain, count) => confirm(`即将连接 ${domain} 同步 ${count} 条本地复盘。确认这是你自己部署的服务后继续。`),
+      changes: summary => confirm(`本次同步会修改云端：\n新增 ${summary.added.length} 条，覆盖更新 ${summary.updated.length} 条，删除 ${summary.deleted.length} 条${summary.deleted.length ? `\n将删除：${summary.deleted.slice(0, 10).join('、')}${summary.deleted.length > 10 ? '…' : ''}` : ''}\n\n云端会保留最近 30 个历史版本。确认继续？`),
+      shrink: () => confirm('云端有效记录将减少超过一半，服务端已拦截。确认这是你想要的删除吗？'),
+    })
     setSyncing(false)
-
-    if (cloudData) {
-      const reviewCount = cloudData.reviews.length
-
-      if (reviewCount === 0) {
-        alert('⚠️ 云端数据为空')
-        return
-      }
-
-      // 合并数据：云端优先
-      if (reviewCount > 0) {
-        setReviews(cloudData.reviews)
-        saveReviews(cloudData.reviews)
-      }
-
-      const source = hasGistId ? '你的云端数据' : '默认公共数据'
-      alert(`✅ 下载成功！\n\n数据来源：${source}\n复盘数据：${reviewCount} 条\n\n数据已更新到本地`)
+    if (result.status === 'synced' && result.reviews) {
+      setReviews(result.reviews)
+      const sm = result.summary
+      alert(`✅ 同步完成：共 ${result.reviews.length} 条${sm ? `\n云端新增 ${sm.added.length}、更新 ${sm.updated.length}、删除 ${sm.deleted.length}；本地更新 ${sm.pulled}` : ''}\n\n同步前的本地数据已留一份备份。`)
+    } else if (result.status === 'cancelled') {
+      alert('已取消，没有修改云端。')
     } else {
-      alert('❌ 下载失败\n\n可能原因：\n1. 网络连接问题\n2. Gist 不存在或已删除\n3. Token 权限不足（如果已配置）\n\n提示：未配置时会自动使用默认公共数据')
+      alert(`❌ 同步未完成：${result.error ?? (result.status === 'not-configured' ? '请先在「云端设置」填写同步地址和 token' : '未知错误')}\n\n本地数据未被改动。`)
     }
   }
 
@@ -595,24 +484,20 @@ export default function Pulse(): JSX.Element {
       <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '20px', padding: '14px 18px', background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '0.75rem', color: '#9ca3af' }}>{timestamp || '--'}</span>
-          {getGistToken() && (
-            <button onClick={handleSyncToCloud} disabled={syncing} style={{
+          {syncConfig && (
+            <button onClick={handleSync} disabled={syncing} style={{
               padding: '6px 12px', background: syncing ? '#e5e7eb' : '#0ea5e9', color: syncing ? '#9ca3af' : 'white', border: 'none',
               borderRadius: '6px', cursor: syncing ? 'not-allowed' : 'pointer', fontSize: '0.8rem', fontWeight: '500'
-            }}>{syncing ? '⏳' : '☁️'} {syncing ? '同步中' : '上传'}</button>
+            }}>{syncing ? '⏳ 同步中' : '☁️ 同步'}</button>
           )}
-          <button onClick={handleSyncFromCloud} disabled={syncing} style={{
-            padding: '6px 12px', background: syncing ? '#e5e7eb' : '#06b6d4', color: syncing ? '#9ca3af' : 'white', border: 'none',
-            borderRadius: '6px', cursor: syncing ? 'not-allowed' : 'pointer', fontSize: '0.8rem', fontWeight: '500'
-          }}>{syncing ? '⏳' : '⬇️'} {syncing ? '同步中' : '下载'}</button>
           <button onClick={() => setShowFilter(true)} style={{
             padding: '6px 12px', background: '#6366f1', color: 'white', border: 'none',
             borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
           }}>🔍 筛选</button>
           <button onClick={() => setShowSettings(true)} style={{
-            padding: '6px 12px', background: getGistToken() ? '#10b981' : '#f59e0b', color: 'white', border: 'none',
+            padding: '6px 12px', background: syncConfig ? '#10b981' : '#f59e0b', color: 'white', border: 'none',
             borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
-          }}>⚙️ {getGistToken() ? '已配置' : '云端设置'}</button>
+          }}>⚙️ {syncConfig ? '已配置' : '云端设置'}</button>
           <button onClick={handleExport} style={{
             padding: '6px 12px', background: '#10b981', color: 'white', border: 'none',
             borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
@@ -750,79 +635,33 @@ export default function Pulse(): JSX.Element {
       {showSettings && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ background: 'white', borderRadius: '12px', padding: '20px', width: '90%', maxWidth: '500px' }}>
-            <h3 style={{ margin: '0 0 16px', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Cloud size={20} /> 云端同步设置
+            <h3 style={{ margin: '0 0 12px', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Cloud size={20} /> 复盘云同步（Supabase）
             </h3>
-            <p style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '16px' }}>
-              使用 GitHub Gist 免费存储数据，实现跨设备同步
-              <br />
-              <span style={{ color: '#3b82f6', fontWeight: '500' }}>💡 提示：未配置时会自动使用默认公共数据源</span>
+            <p style={{ fontSize: '0.85rem', color: '#6b7280', margin: '0 0 14px', lineHeight: 1.7 }}>
+              复盘默认只存在本机。开启后通过你自己部署的接口同步到你自己的 Supabase 数据库：同步前先读取云端并合并，
+              删除/覆盖需确认，云端保留最近 30 个历史版本。token 仅保存在本机浏览器，请勿在公共电脑使用。
             </p>
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ fontSize: '0.8rem', color: '#64748b', display: 'block', marginBottom: '6px' }}>
-                GitHub Personal Access Token
-              </label>
-              <input
-                type="password"
-                value={gistTokenInput}
-                onChange={e => setGistTokenInput(e.target.value)}
-                placeholder="ghp_xxx 或 github_pat_xxx"
-                style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }}
-              />
-              <div style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: '6px', lineHeight: '1.6' }}>
-                <strong>推荐：Classic Token</strong>
-                <br />
-                GitHub → Settings → Developer settings → Personal access tokens → Generate new token (classic)
-                <br />
-                权限：勾选 <code style={{ background: '#f3f4f6', padding: '2px 4px', borderRadius: '3px' }}>gist</code>
-                <br /><br />
-                <strong>Fine-grained Token（如遇到权限错误）：</strong>
-                <br />
-                1. 资源范围：选择 <code style={{ background: '#f3f4f6', padding: '2px 4px', borderRadius: '3px' }}>All repositories</code> 或 <code style={{ background: '#f3f4f6', padding: '2px 4px', borderRadius: '3px' }}>Only select repositories</code>
-                <br />
-                2. 权限：在 Repository permissions 下找到 <code style={{ background: '#f3f4f6', padding: '2px 4px', borderRadius: '3px' }}>Gists</code>，设置为 <code style={{ background: '#f3f4f6', padding: '2px 4px', borderRadius: '3px' }}>Read and write</code>
-              </div>
-            </div>
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ fontSize: '0.8rem', color: '#64748b', display: 'block', marginBottom: '6px' }}>
-                Gist ID（可选，跨设备同步时需要）
-              </label>
-              <input
-                type="text"
-                value={gistIdInput}
-                onChange={e => setGistIdInput(e.target.value)}
-                placeholder="如果已在电脑上上传过，请输入 Gist ID"
-                style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }}
-              />
-              <div style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: '6px' }}>
-                提示：在电脑上上传一次数据后，Gist ID 会自动保存。如果要在手机上同步，可以：
-                <br />
-                1. 在电脑上查看 Gist ID（上传成功后会显示）
-                <br />
-                2. 或者先上传一次，系统会自动创建并保存
-              </div>
-            </div>
+            <label style={{ fontSize: '0.8rem', color: '#64748b', display: 'block', marginBottom: '6px' }}>同步接口地址（HTTPS）</label>
+            <input type="url" value={endpointInput} onChange={e => setEndpointInput(e.target.value)} placeholder="https://你的站点/api/pulse-sync" autoComplete="url"
+              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem', marginBottom: '14px', boxSizing: 'border-box' }} />
+            <label style={{ fontSize: '0.8rem', color: '#64748b', display: 'block', marginBottom: '6px' }}>
+              专用 Token（至少 32 位，对应 Vercel 变量 PULSE_SYNC_TOKEN）{syncConfig ? '——已保存，留空表示不修改' : ''}
+            </label>
+            <input type="password" value={tokenInput} onChange={e => setTokenInput(e.target.value)} placeholder={syncConfig ? '••••••••（已保存）' : '粘贴 token'} autoComplete="new-password"
+              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem', boxSizing: 'border-box' }} />
+            <p style={{ fontSize: '0.75rem', color: '#9ca3af', margin: '8px 0 16px', lineHeight: 1.6 }}>
+              接口只允许同源调用：请在部署了该接口的站点（如 Vercel 站点）上同步；GitHub Pages 版本没有后端，不能同步。
+            </p>
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-              <button onClick={() => { setShowSettings(false); setGistTokenInput(getGistToken() || ''); setGistIdInput(getGistId() || '') }}
-                style={{ padding: '8px 16px', background: '#f3f4f6', color: '#4b5563', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
-                取消
-              </button>
-              <button onClick={handleSaveGistToken}
-                style={{ padding: '8px 16px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' }}>
-                保存
-              </button>
+              {syncConfig && (
+                <button onClick={handleClearSyncConfig} style={{ padding: '8px 16px', background: '#fee2e2', color: '#b91c1c', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>清除配置</button>
+              )}
+              <button onClick={() => { setShowSettings(false); setTokenInput('') }}
+                style={{ padding: '8px 16px', background: '#f3f4f6', color: '#4b5563', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>取消</button>
+              <button onClick={() => void handleSaveSyncConfig()} disabled={!tokenInput.trim() && !syncConfig}
+                style={{ padding: '8px 16px', background: tokenInput.trim() || syncConfig ? '#3b82f6' : '#cbd5e1', color: 'white', border: 'none', borderRadius: '6px', cursor: tokenInput.trim() || syncConfig ? 'pointer' : 'not-allowed', fontWeight: '500' }}>保存</button>
             </div>
-            {getGistToken() ? (
-              <div style={{ marginTop: '16px', padding: '12px', background: '#f0fdf4', borderRadius: '6px', fontSize: '0.85rem', color: '#166534' }}>
-                ✅ 已配置云端同步，数据会自动保存到你的 GitHub Gist
-              </div>
-            ) : (
-              <div style={{ marginTop: '16px', padding: '12px', background: '#eff6ff', borderRadius: '6px', fontSize: '0.85rem', color: '#1e40af' }}>
-                ℹ️ 未配置时，下载功能会使用默认公共数据源（无需 Token）
-                <br />
-                配置 Token 后，可以上传和同步你自己的数据
-              </div>
-            )}
           </div>
         </div>
       )}

@@ -2,7 +2,7 @@
 
 ## 当前技术栈
 
-React + Vite + TypeScript + React Router；Vercel 托管静态页面及 Node 24 Functions。Supabase 仅用于可选的独立网格记录同步。记录默认保存在浏览器，启用同步前建议导出 JSON 备份。
+React + Vite + TypeScript + React Router；Vercel 托管静态页面及 Node 24 Functions。Supabase 仅用于可选的独立同步：网格记录（`/api/grid-sync`）和经济脉搏每日复盘（`/api/pulse-sync`）。记录默认保存在浏览器，启用同步前建议导出 JSON 备份。
 
 R2 暂未接入：当前没有附件上传业务。将来需要图片、PDF 等文件时，再接入 R2 并在 Supabase 保存文件元数据。
 
@@ -97,3 +97,48 @@ https://vercel.com/docs/frameworks/frontend/vite
 https://supabase.com/docs/guides/getting-started/api-keys
 https://supabase.com/docs/guides/database/postgres/row-level-security
 https://developers.cloudflare.com/r2/pricing/
+
+
+## 启用每日复盘云同步（经济脉搏）
+
+复用上面的同一个 Supabase 项目，但**使用独立的 token 和独立的表**，两处同步互不影响。
+
+1. 在 SQL Editor 执行 `supabase/migrations/202610020002_pulse_reviews.sql`（幂等）。它创建 `businessweb_pulse_snapshot`（当前快照）、`businessweb_pulse_history`（最近 30 个历史版本）和写入函数，所有表对 `anon`/`authenticated` 全部撤权并开启 RLS，仅服务端密钥可访问。
+2. 生成另一个随机 token（不要复用 `GRID_SYNC_TOKEN`）：
+
+   ```bash
+   node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
+   ```
+
+3. 在 Vercel Environment Variables 增加服务端变量 `PULSE_SYNC_TOKEN`（至少 32 字符），`SUPABASE_URL`、`SUPABASE_SECRET_KEY` 与网格同步共用；重新部署。
+4. 打开 Vercel 站点的「经济脉搏」→「云端设置」，填 `https://<你的站点>/api/pulse-sync` 与该 token，确认目标域名并保存，再点「同步」。
+
+### 增删改的安全措施
+
+| 风险 | 措施 |
+|---|---|
+| 未授权读写 | 专用 Bearer token，常量时间比较；token ≥ 32 位；未配置时返回 503，不访问数据库 |
+| 密钥泄露 | 数据库密钥只在服务端环境变量；浏览器只持有同步 token，不接触 Supabase 密钥；数据库表对 anon/authenticated 撤权 |
+| 跨站调用 | 接口不发 CORS 头，仅同源可调；GitHub Pages 没有后端，不能同步 |
+| 脏数据/注入 | 服务端与客户端共用严格校验：未知字段、非法日期、负数/小数/NaN、超长字符串、重复日期、超过 500 条、超过 1 MB 一律拒绝；上游地址固定为 `*.supabase.co` 的 HTTPS 根域名 |
+| 多设备互相覆盖 | 读取时返回版本号（ETag），写入必须带 `If-Match`，数据库内用行锁校验，版本不符返回 409，本地数据保持不变 |
+| 误删/误覆盖 | 删除以「墓碑」同步，同步前列出新增/覆盖/删除并要求确认；写入前把旧版本存入历史表（保留 30 份）；有效记录减少超过一半（现有 ≥ 6 条）时服务端拒绝（422），需二次确认才强制写入；同步成功覆盖本地前先备份本地（`pulse_reviews_backup`） |
+| 同步中途本地被改 | 写回前比对本地快照，已变化则放弃覆盖 |
+| 旧凭证残留 | 页面不再使用 GitHub Gist，并会清除浏览器里遗留的 `pulse_gist_token` |
+
+### 找回误删的数据
+
+在 Supabase SQL Editor 中查看历史版本，选择想恢复的一份：
+
+```sql
+select id, revision, saved_at, jsonb_array_length(payload -> 'reviews') as n
+from public.businessweb_pulse_history order by id desc;
+```
+
+恢复需把对应 `payload` 写回 `businessweb_pulse_snapshot`（同时把 `revision` 加 1），然后各设备重新同步。
+
+### 已知限制
+
+- 同步是整份快照 + 手动触发，不是实时多人协作；适合单人多设备。
+- 同步 token 保存在浏览器 localStorage，请勿在公共电脑使用；token 泄露后请在 Vercel 更换 `PULSE_SYNC_TOKEN` 并在设备上重新配置。
+- 暂无请求频率限制；token 为 256 位随机值，暴力破解不可行。如需限流可加 Vercel Firewall 规则。

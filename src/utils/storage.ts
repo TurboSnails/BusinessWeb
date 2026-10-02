@@ -4,8 +4,9 @@ import type { DailyReview, ImportantNews, NewsSource } from '../types'
 const STORAGE_KEY_REVIEWS = 'pulse_daily_reviews'
 const STORAGE_KEY_NEWS = 'pulse_important_news'
 const STORAGE_KEY_NEWS_SOURCES = 'pulse_news_sources'
-const STORAGE_KEY_GIST_TOKEN = 'pulse_gist_token'
-const STORAGE_KEY_GIST_ID = 'pulse_gist_id'
+export const PULSE_SYNC_CONFIG_KEY = 'pulse_sync_config'
+const STORAGE_KEY_TOMBSTONES = 'pulse_review_tombstones'
+const STORAGE_KEY_REVIEWS_BACKUP = 'pulse_reviews_backup'
 
 // 复盘数据存储
 export const loadReviews = (): DailyReview[] => {
@@ -18,7 +19,25 @@ export const loadReviews = (): DailyReview[] => {
 }
 
 export const saveReviews = (reviews: DailyReview[]) => {
-  localStorage.setItem(STORAGE_KEY_REVIEWS, JSON.stringify(reviews.slice(0, 30)))
+  localStorage.setItem(STORAGE_KEY_REVIEWS, JSON.stringify(reviews.slice(0, 365)))
+}
+
+// 复盘删除墓碑：记录已删除的日期，云同步时用来传播删除、避免被云端旧数据“复活”
+export type ReviewTombstone = { date: string; deleted: true; updatedAt: string }
+export const loadTombstones = (): ReviewTombstone[] => {
+  try {
+    const parsed: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY_TOMBSTONES) ?? '[]')
+    return Array.isArray(parsed) ? parsed.filter(t => t && t.deleted === true && typeof t.date === 'string' && typeof t.updatedAt === 'string') : []
+  } catch {
+    return []
+  }
+}
+export const saveTombstones = (items: ReviewTombstone[]) => {
+  localStorage.setItem(STORAGE_KEY_TOMBSTONES, JSON.stringify(items))
+}
+// 同步覆盖本地前保留一份上一版本（只保留最近一份）
+export const backupReviews = (reviews: DailyReview[]) => {
+  localStorage.setItem(STORAGE_KEY_REVIEWS_BACKUP, JSON.stringify({ savedAt: new Date().toISOString(), reviews }))
 }
 
 // 重要消息存储
@@ -71,20 +90,3 @@ const getDefaultNewsSources = (): NewsSource[] => {
     { id: '14', name: '每日板块涨停', url: 'https://api3.cls.cn/share/quote/analysis?os=ios&sv=8.6.9', category: 'data', priority: 'medium', description: '每日板块涨停分析', icon: '📈', enabled: true },
   ]
 }
-
-// Gist 配置存储
-export const getGistToken = (): string | null => {
-  return localStorage.getItem(STORAGE_KEY_GIST_TOKEN)
-}
-
-export const getGistId = (): string | null => {
-  return localStorage.getItem(STORAGE_KEY_GIST_ID)
-}
-
-export const saveGistConfig = (token: string, gistId: string | null) => {
-  localStorage.setItem(STORAGE_KEY_GIST_TOKEN, token)
-  if (gistId) {
-    localStorage.setItem(STORAGE_KEY_GIST_ID, gistId)
-  }
-}
-

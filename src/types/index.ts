@@ -56,6 +56,7 @@ export type DailyReview = {
   top5Turnover: number   // 换手率前五
   inflow: string         // 流入板块
   outflow: string        // 流出板块
+  updatedAt?: string     // 最后修改时间（ISO），云同步用于判定新旧
 }
 
 // 重要消息类型

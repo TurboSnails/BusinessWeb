@@ -15,15 +15,16 @@ try {
   await writeFile(join(directory, 'check.mjs'), `
 import assert from 'node:assert/strict';
 import sync from './api/grid-sync.js';
+import pulse from './api/pulse-sync.js';
 import market from './api/grid-market.js';
 import china from './api/china-stock.js';
 const res = () => ({code:200, body:null, setHeader(){}, status(code){this.code=code;return this}, json(body){this.body=body;return this}});
-for (const [handler, request, code] of [[sync,{method:'GET',headers:{}},503],[market,{method:'GET',query:{}},400],[china,{method:'GET',query:{}},400]]) {
+for (const [handler, request, code] of [[sync,{method:'GET',headers:{}},503],[pulse,{method:'GET',headers:{}},503],[pulse,{method:'POST',headers:{}},405],[market,{method:'GET',query:{}},400],[china,{method:'GET',query:{}},400]]) {
  const response=res(); await handler(request,response); assert.equal(response.code,code);
 }
 console.log('Native Node function loading and unconfigured/invalid requests: passed');
 `)
-  const env = { ...process.env, SUPABASE_URL: '', SUPABASE_SECRET_KEY: '', GRID_SYNC_TOKEN: '' }
+  const env = { ...process.env, SUPABASE_URL: '', SUPABASE_SECRET_KEY: '', GRID_SYNC_TOKEN: '', PULSE_SYNC_TOKEN: '' }
   const run = spawnSync(process.execPath, ['--no-experimental-detect-module', join(directory, 'check.mjs')], { env, encoding: 'utf8' })
   assert.equal(run.status, 0, run.stdout + run.stderr)
   process.stdout.write(run.stdout)
