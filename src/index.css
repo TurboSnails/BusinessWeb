@@ -181,3 +181,17 @@ button {
 .animate-fade-in {
   animation: fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+/* Skeleton shimmer for loading states */
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton-line {
+  height: 14px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--system-gray6) 0px, var(--system-gray5) 200px, var(--system-gray6) 400px);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s linear infinite;
+}
