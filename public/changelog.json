@@ -1,0 +1,191 @@
+{
+  "generatedAt": "2026-10-02T10:11:57.345Z",
+  "versions": [
+    {
+      "tag": "unreleased",
+      "date": null,
+      "commits": [
+        {
+          "hash": "bd6bcff",
+          "subject": "候选池云端持久化与可编辑备注；板块历史数据库缓存及页面恢复刷新",
+          "author": "hassan",
+          "date": "2026-10-02"
+        },
+        {
+          "hash": "6ebbcb9",
+          "subject": "缓存涨停分析日期与模式，返回页面恢复数据且刷新失败保留结果",
+          "author": "hassan",
+          "date": "2026-10-02"
+        },
+        {
+          "hash": "49c697a",
+          "subject": "热力图：恒生指数改自绘（实时成分）、新增恒生科技指数，沪深300 换成中证500；指数成分股名单与中文名更新",
+          "author": "hassan",
+          "date": "2026-10-02"
+        },
+        {
+          "hash": "cb46666",
+          "subject": "热力图：修复树图行列方向与缩放（横条）、StrictMode 下 TradingView 空白；沪深300合并小行业、新配色、独占整行；加布局与加载回归测试",
+          "author": "hassan",
+          "date": "2026-10-02"
+        },
+        {
+          "hash": "d282b10",
+          "subject": "经济脉搏市场热力图：修复 widget 塌成一条，并排/标签页布局、全屏、沪深300按行业分组与图例",
+          "author": "hassan",
+          "date": "2026-10-02"
+        },
+        {
+          "hash": "1ddbebb",
+          "subject": "配置GitHub Pages从main自动构建发布，记录迁移设置",
+          "author": "hassan",
+          "date": "2026-10-02"
+        },
+        {
+          "hash": "4ab7c33",
+          "subject": "经济脉搏每日复盘改用 Supabase 云同步：专用 token、严格校验、版本并发、墓碑删除、历史版本与骤减拦截；移除 GitHub Gist 同步",
+          "author": "hassan",
+          "date": "2026-10-02"
+        },
+        {
+          "hash": "740a01b",
+          "subject": "综合分类：研究评级下拉固定顺序，优先关注排第一",
+          "author": "hassan",
+          "date": "2026-10-02"
+        },
+        {
+          "hash": "f7ff88f",
+          "subject": "板块轮动/每日板块涨停：无数据时回退到最近有效交易日",
+          "author": "hassan",
+          "date": "2026-10-02"
+        },
+        {
+          "hash": "ba09395",
+          "subject": "板块轮动：补充 2026-09-25 中秋休市日",
+          "author": "hassan",
+          "date": "2026-10-02"
+        },
+        {
+          "hash": "a41ed23",
+          "subject": "修复板块轮动/每日板块涨停无数据：新增 /api/cls-plate 自有代理，替代失效的公共 CORS 代理",
+          "author": "hassan",
+          "date": "2026-10-02"
+        },
+        {
+          "hash": "3fd1eb3",
+          "subject": "每日监控：删除「宏观假设」子标签及组件，首页描述同步",
+          "author": "hassan",
+          "date": "2026-10-02"
+        },
+        {
+          "hash": "20c599f",
+          "subject": "加入 .agents 研究技能（stock-research-expert、trading-analysis-team、tencent-stock-research-team）",
+          "author": "hassan",
+          "date": "2026-10-02"
+        },
+        {
+          "hash": "f3b5932",
+          "subject": "更新站点图标与标题：新增 favicon、manifest，标题改为 BusinessWeb · 股票分析工作台",
+          "author": "hassan",
+          "date": "2026-10-02"
+        },
+        {
+          "hash": "bf40699",
+          "subject": "港股 7 家补充第三方年度/TTM 与负债数据（赣锋、中铝、铁建、交建、建材、信义玻璃、信义光能）",
+          "author": "hassan",
+          "date": "2026-10-02"
+        },
+        {
+          "hash": "ea20d76",
+          "subject": "补充覆盖 9 家：必和必拓、力拓、联合利华、帝亚吉欧、英美烟草、BeOne、领展、药明生物、药明康德（第三方数据，需核实）",
+          "author": "hassan",
+          "date": "2026-10-02"
+        },
+        {
+          "hash": "0c7aa96",
+          "subject": "港股第 11 批：电信/有色/基建/建材 14 家，124 家港股全部手工研究页",
+          "author": "hassan",
+          "date": "2026-10-02"
+        },
+        {
+          "hash": "a304fc2",
+          "subject": "港股第 10 批：能源、煤炭与公用事业 12 家（股票分析专家口径）",
+          "author": "hassan",
+          "date": "2026-10-02"
+        },
+        {
+          "hash": "0534633",
+          "subject": "港股第 9 批修正：京东物流、中远海控情景倍数",
+          "author": "hassan",
+          "date": "2026-10-02"
+        },
+        {
+          "hash": "d9bf445",
+          "subject": "ci: schedule Vercel and Supabase read-only keepalive",
+          "author": "hassan",
+          "date": "2026-10-02"
+        },
+        {
+          "hash": "6159d80",
+          "subject": "chore: include OpenCode research skills and project documentation",
+          "author": "hassan",
+          "date": "2026-10-02"
+        },
+        {
+          "hash": "a396ab5",
+          "subject": "docs: confirm authenticated cloud sync round trip",
+          "author": "hassan",
+          "date": "2026-10-02"
+        },
+        {
+          "hash": "0a500c5",
+          "subject": "docs: record Supabase setup and verify deployed assets",
+          "author": "hassan",
+          "date": "2026-10-02"
+        },
+        {
+          "hash": "e6cf3fd",
+          "subject": "docs: record verified production deployment and add online checks",
+          "author": "hassan",
+          "date": "2026-10-02"
+        },
+        {
+          "hash": "e87b2a5",
+          "subject": "fix: load Vercel functions as native ES modules",
+          "author": "hassan",
+          "date": "2026-10-02"
+        },
+        {
+          "hash": "52f8726",
+          "subject": "feat: prepare free Vercel deployment and optional Supabase sync",
+          "author": "hassan",
+          "date": "2026-10-02"
+        },
+        {
+          "hash": "970126e",
+          "subject": "港股第 9 批（12 家硬件、半导体、物流、航运）：股票分析专家口径手工研究页",
+          "author": "hassan",
+          "date": "2026-09-30"
+        },
+        {
+          "hash": "5d90de2",
+          "subject": "港股第 8 批（13 家互联网与软件）：股票分析专家口径手工研究页",
+          "author": "hassan",
+          "date": "2026-09-30"
+        },
+        {
+          "hash": "bccc182",
+          "subject": "港股第 7 批（12 家家电、服饰、博彩、旅游、餐饮）：股票分析专家口径手工研究页",
+          "author": "hassan",
+          "date": "2026-09-30"
+        },
+        {
+          "hash": "cf52b29",
+          "subject": "港股第 6 批（10 家食品饮料与消费）：股票分析专家口径手工研究页",
+          "author": "hassan",
+          "date": "2026-09-30"
+        }
+      ]
+    }
+  ]
+}
