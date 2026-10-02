@@ -33,6 +33,9 @@ import {
 } from '../data/notionNotes'
 import { useCompanies, useLynch, sectorsOf, Market, Company, LynchInfo } from '../data/companies'
 import CompanyCombined from '../components/CompanyCombined'
+import CandidatePool from '../components/CandidatePool'
+import CandidateButton from '../components/CandidateButton'
+import { useCandidates } from '../features/candidates/useCandidates'
 import { CN_REPORT } from '../data/cnReassessment'
 import { SP500_REPORT, sp500Reassessment } from '../data/sp500Reassessment'
 
@@ -61,7 +64,7 @@ export default function ResearchNotes(): JSX.Element {
   const tabParam = params.get('tab')
   const activeTab: TabId = tabs.some(t => t.id === tabParam) ? (tabParam as TabId) : 'philosophy'
   const mParam = params.get('m')
-  const catMarket: Market | 'watch' = mParam === 'cn' || mParam === 'hk' || mParam === 'adr' || mParam === 'watch' ? mParam : 'us'
+  const catMarket: Market | 'watch' | 'pool' = mParam === 'cn' || mParam === 'hk' || mParam === 'adr' || mParam === 'watch' || mParam === 'pool' ? mParam : 'us'
   const vParam = params.get('v')
   const view = vParam === 'combined' ? 'combined' : vParam === 'overview' ? 'overview' : vParam === 'lynch' ? 'lynch' : 'list'
   const progSector = params.get('sec') || '全部'
@@ -71,6 +74,9 @@ export default function ResearchNotes(): JSX.Element {
   const { list: hkList, loading: hkLoading } = useCompanies('hk', inCategory)
   const { list: adrList, loading: adrLoading } = useCompanies('adr', inCategory)
   const lynch = useLynch(inCategory)
+  const cand = useCandidates(inCategory)
+  const isCand = (c: Company): boolean => cand.items.some(i => i.market === c.market && i.code === c.code)
+  const toggleCand = (c: Company): void => cand.toggle(c.market, c.code)
   const [lTier, setLTier] = useState('全部')
   const [lMoat, setLMoat] = useState('全部')
   const [lType, setLType] = useState('全部')
@@ -88,7 +94,7 @@ export default function ResearchNotes(): JSX.Element {
       return next
     }, { replace: true })
   const setActiveTab = (t: TabId): void => updateParams({ tab: t })
-  const setCatMarket = (m: Market | 'watch'): void => updateParams({ tab: 'category', m, sec: null, v: null })
+  const setCatMarket = (m: Market | 'watch' | 'pool'): void => updateParams({ tab: 'category', m, sec: null, v: null })
   const setProgSector = (sec: string): void => updateParams({ sec: sec === '全部' ? null : sec })
   const [showBackToTop, setShowBackToTop] = useState(false)
   const [zoomImg, setZoomImg] = useState<{ src: string; title: string } | null>(null)
@@ -293,7 +299,7 @@ export default function ResearchNotes(): JSX.Element {
       </div>
       <div style={card}>
         <Table
-          heads={['公司', '林奇类型', '同类估值关注度', '护城河', '关键指标', '林奇判断']}
+          heads={['公司', '林奇类型', '同类估值关注度', '护城河', '关键指标', '林奇判断', '候选']}
           rows={lynchShown.slice(0, limit).map(c => {
             const l = lynchOf(c) as LynchInfo
             return [
@@ -303,6 +309,7 @@ export default function ResearchNotes(): JSX.Element {
               l.m ? <span style={badge(moatTone(l.m.l))}>{l.m.l.replace('迹象', '')} {l.m.s}/{l.m.n}</span> : '—',
               <span style={{ display: 'block', minWidth: '150px', fontSize: '12px' }}>PE {fmt1(l.pe, '×')} · 利润 {fmt1(l.g, '%', true)}（两年年化 {fmt1(l.c, '%', true)}）{l.peg !== null && l.peg !== undefined ? ` · PEG ${l.peg}` : ''}{l.ph ? ` · ${l.ph}` : ''}{l.dy !== null && l.dy !== undefined ? ` · 股息 ${l.dy}%` : ''}</span>,
               <span style={{ display: 'block', minWidth: '200px' }}>{l.v || l.w.join('；')}{l.f.length ? <span style={{ color: 'var(--text-tertiary)', fontSize: '12px' }}> ⚠ {l.f[0]}</span> : null}</span>,
+              <CandidateButton on={isCand(c)} onClick={() => toggleCand(c)} />,
             ]
           })}
         />
@@ -347,11 +354,12 @@ export default function ResearchNotes(): JSX.Element {
       </div>
       <div style={card}>
         <Table
-          heads={['公司', '评级', '一句话结论']}
+          heads={['公司', '评级', '一句话结论', '候选']}
           rows={shownCompanies.slice(0, limit).map(c => [
             <span>{companyLink(c.market, c.code, `${c.name} ${c.code}`)}{c.auto ? <span style={{ ...badge('gray'), marginLeft: '6px', marginBottom: 0, fontSize: '10px' }}>程序化</span> : null}</span>,
             <span style={badge(toneOf(c.rating))}>{c.rating.length > 12 ? c.rating.slice(0, 12) + '…' : c.rating}</span>,
             <span style={{ display: 'block', minWidth: '220px' }}>{c.headline}</span>,
+            <CandidateButton on={isCand(c)} onClick={() => toggleCand(c)} />,
           ])}
         />
         {emptyHint(shownCompanies.length)}
@@ -387,7 +395,7 @@ export default function ResearchNotes(): JSX.Element {
 
   const marketSwitch = <T extends string>(value: T, onChange: (m: T) => void, withWatch = false): JSX.Element => (
     <div style={{ display: 'inline-flex', gap: '4px', padding: '4px', borderRadius: 'var(--radius-full)', background: 'var(--bg-secondary)', marginBottom: '20px' }}>
-      {([['us', '标普500'], ['cn', '沪深500'], ['hk', '港股'], ['adr', '美股非标普'], ...(withWatch ? [['watch', '交易价位']] : [])] as [string, string][]).map(([m, label]) => (
+      {([['us', '标普500'], ['cn', '沪深500'], ['hk', '港股'], ['adr', '美股非标普'], ...(withWatch ? [['watch', '交易价位'], ['pool', `候选池${cand.items.length ? `（${cand.items.length}）` : ''}`]] : [])] as [string, string][]).map(([m, label]) => (
         <button
           key={m}
           onClick={() => onChange(m as T)}
@@ -733,6 +741,11 @@ export default function ResearchNotes(): JSX.Element {
 
             {catMarket === 'watch' && watchView}
 
+            {catMarket === 'pool' && (
+              <CandidatePool items={cand.items} companies={[...usList, ...cnList, ...hkList, ...adrList]} state={cand.state} message={cand.message}
+                onMove={cand.move} onRemove={i => cand.toggle(i.market, i.code)} onNote={(i, t) => cand.setNote(i.market, i.code, t)} onClear={cand.clear} onConnect={cand.connect} onRetry={cand.retry} />
+            )}
+
             {catMarket === 'us' && (
               <div>
                 <div style={card}>
@@ -762,7 +775,7 @@ export default function ResearchNotes(): JSX.Element {
                 {viewSwitch('板块与研究进度')}
                 {view === 'list' && renderProgress()}
                 {view === 'lynch' && renderLynch()}
-                {view === 'combined' && <CompanyCombined key={catMarket} companies={progList} lynch={lynch} ratingOf={ratingOf} loading={combinedLoading} />}
+                {view === 'combined' && <CompanyCombined key={catMarket} companies={progList} lynch={lynch} ratingOf={ratingOf} loading={combinedLoading} isCandidate={isCand} onToggleCandidate={toggleCand} />}
                 {view === 'overview' && (<div>
                 <p style={sectionTitle}>标普500 · 历史研究分组</p>
                 <div style={card}>
@@ -826,7 +839,7 @@ export default function ResearchNotes(): JSX.Element {
                 {viewSwitch('产业链与研究进度')}
                 {view === 'list' && renderProgress()}
                 {view === 'lynch' && renderLynch()}
-                {view === 'combined' && <CompanyCombined key={catMarket} companies={progList} lynch={lynch} ratingOf={ratingOf} loading={combinedLoading} />}
+                {view === 'combined' && <CompanyCombined key={catMarket} companies={progList} lynch={lynch} ratingOf={ratingOf} loading={combinedLoading} isCandidate={isCand} onToggleCandidate={toggleCand} />}
                 {view === 'overview' && (<div>
                 <p style={sectionTitle}>沪深产业链</p>
                 {cnChains.map(chain => (
@@ -888,7 +901,7 @@ export default function ResearchNotes(): JSX.Element {
                 {viewSwitch('覆盖说明')}
                 {view === 'list' && renderProgress()}
                 {view === 'lynch' && renderLynch()}
-                {view === 'combined' && <CompanyCombined key={catMarket} companies={progList} lynch={lynch} ratingOf={ratingOf} loading={combinedLoading} />}
+                {view === 'combined' && <CompanyCombined key={catMarket} companies={progList} lynch={lynch} ratingOf={ratingOf} loading={combinedLoading} isCandidate={isCand} onToggleCandidate={toggleCand} />}
                 {view === 'overview' && (
                   <div style={card}>
                     <h3 style={cardTitle}>港股覆盖说明</h3>
@@ -902,7 +915,7 @@ export default function ResearchNotes(): JSX.Element {
                 {viewSwitch('覆盖说明')}
                 {view === 'list' && renderProgress()}
                 {view === 'lynch' && renderLynch()}
-                {view === 'combined' && <CompanyCombined key={catMarket} companies={progList} lynch={lynch} ratingOf={ratingOf} loading={combinedLoading} />}
+                {view === 'combined' && <CompanyCombined key={catMarket} companies={progList} lynch={lynch} ratingOf={ratingOf} loading={combinedLoading} isCandidate={isCand} onToggleCandidate={toggleCand} />}
                 {view === 'overview' && (
                   <div style={card}>
                     <h3 style={cardTitle}>美股非标普：覆盖说明</h3>

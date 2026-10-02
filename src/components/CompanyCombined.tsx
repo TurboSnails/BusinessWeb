@@ -1,19 +1,22 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import type { Company, LynchInfo } from '../data/companies'
+import CandidateButton from './CandidateButton'
 
 interface Props {
   companies: Company[]
   lynch: Record<string, LynchInfo>
   ratingOf: (company: Company) => string
   loading: boolean
+  isCandidate?: (company: Company) => boolean
+  onToggleCandidate?: (company: Company) => void
 }
 const ratingOrder = ['优先关注', '条件关注', '观察', '回避', '未估值']
 const types = ['快速增长型', '稳健型', '缓慢增长型', '周期型', '困境反转型', '资产型', '未分类']
 const control: React.CSSProperties = { fontFamily: 'inherit', fontSize: '13px', padding: '8px 12px', border: '1px solid var(--border-primary)', borderRadius: '8px', background: 'var(--bg-card)', color: 'var(--text-primary)' }
 const cell: React.CSSProperties = { padding: '12px', textAlign: 'left', verticalAlign: 'top', borderBottom: '1px solid var(--border-primary)' }
 
-export default function CompanyCombined({ companies, lynch, ratingOf, loading }: Props): JSX.Element {
+export default function CompanyCombined({ companies, lynch, ratingOf, loading, isCandidate, onToggleCandidate }: Props): JSX.Element {
   const [query, setQuery] = useState('')
   const [sector, setSector] = useState('全部')
   const [rating, setRating] = useState('全部')
@@ -79,7 +82,7 @@ export default function CompanyCombined({ companies, lynch, ratingOf, loading }:
       </div>
       <div style={{ overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-          <thead><tr style={{ background: 'var(--bg-secondary)' }}>{['公司', '行业', '研究评级', '研究结论', '林奇类型', '同类关注度', '护城河', '关键指标', '林奇判断'].map(h => <th key={h} scope="col" style={{ ...cell, whiteSpace: 'nowrap' }}>{h}</th>)}</tr></thead>
+          <thead><tr style={{ background: 'var(--bg-secondary)' }}>{['公司', '行业', '研究评级', '研究结论', '林奇类型', '同类关注度', '护城河', '关键指标', '林奇判断', ...(onToggleCandidate ? ['候选'] : [])].map(h => <th key={h} scope="col" style={{ ...cell, whiteSpace: 'nowrap' }}>{h}</th>)}</tr></thead>
           <tbody>{shown.slice(0, limit).map(({ company: c, info: l }) => (
             <tr key={`${c.market}:${c.code}`}>
               <td style={cell}><Link to={`/research-notes/${c.market}/${encodeURIComponent(c.code)}`} onClick={() => { try { sessionStorage.setItem('rn-scroll', String(window.scrollY)) } catch { /* 隐私模式 */ } }} style={{ color: 'var(--system-blue)', whiteSpace: 'nowrap' }}>{c.name} {c.code}</Link>{c.auto && <small style={{ display: 'block', color: 'var(--text-tertiary)' }}>程序化</small>}</td>
@@ -91,6 +94,7 @@ export default function CompanyCombined({ companies, lynch, ratingOf, loading }:
               <td style={{ ...cell, minWidth: '140px' }}>{l?.m ? `${l.m.l} ${l.m.s}/${l.m.n}` : '未提供'}</td>
               <td style={{ ...cell, minWidth: '170px' }}>{l ? `PE ${number(l.pe, '×')} · 利润 ${number(l.g, '%')}（两年年化 ${number(l.c, '%')}） · PEG ${number(l.peg, '')}${l.ph ? ` · ${l.ph}` : ''}${l.dy != null ? ` · 股息 ${l.dy}%` : ''}` : '未提供'}</td>
               <td style={{ ...cell, minWidth: '220px' }}>{l?.v || l?.w.join('；') || '未提供'}{l?.f.length ? <small style={{ display: 'block', color: 'var(--text-tertiary)' }}>提示：{l.f.join('；')}</small> : null}</td>
+              {onToggleCandidate && <td style={cell}><CandidateButton on={!!isCandidate?.(c)} onClick={() => onToggleCandidate(c)} /></td>}
             </tr>
           ))}</tbody>
         </table>

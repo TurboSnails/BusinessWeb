@@ -1,5 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { clsProxy } from '../services/clsProxy'
+import { loadSectorPayload, readSectorView, saveSectorView, sectorStorageStatus, peekSectorPayload, sectorUpdatedAt } from '../services/sectorCache'
+import { useSectorRefresh } from '../services/useSectorRefresh'
+import { shanghaiDate, isClosedDate, previousTradingDate } from '../services/limitUp'
 import {
   AlertTriangle,
   BarChart2,
@@ -14,7 +17,8 @@ import {
   RefreshCcw,
   Calendar,
   Info,
-  ChevronUp
+  ChevronUp,
+  Loader2
 } from 'lucide-react'
 
 interface SectorData {
@@ -44,18 +48,22 @@ interface HotStock {
 }
 
 export default function SectorRotation(): JSX.Element {
-  const [selectedDates, setSelectedDates] = useState<string[]>([])
-  const [sectorDataByDate, setSectorDataByDate] = useState<Record<string, SectorData[]>>({})
+  const [initialView] = useState(() => readSectorView())
+  const restoredView = useRef(initialView)
+  const [updatedAt, setUpdatedAt] = useState<string | null>(initialView?.updatedAt || null)
+  const [selectedDates, setSelectedDates] = useState<string[]>(initialView?.selectedDates || [])
+  const [sectorDataByDate, setSectorDataByDate] = useState<Record<string, SectorData[]>>(initialView?.sectorDataByDate || {})
   // 保存财联社返回的原始板块数据（包含stock_list），用于获取热门股票
-  const [plateRawDataByDate, setPlateRawDataByDate] = useState<Record<string, any[]>>({})
-  const [loading, setLoading] = useState(true)
+  const [plateRawDataByDate, setPlateRawDataByDate] = useState<Record<string, any[]>>(initialView?.plateRawDataByDate || {})
+  const [loading, setLoading] = useState(!initialView)
+  const [loadingProgress, setLoadingProgress] = useState<{ loaded: number; total: number }>({ loaded: 0, total: 0 })
   const [error, setError] = useState<string | null>(null)
   const [selectedSector, setSelectedSector] = useState<SectorDetail | null>(null)
   const [hotStocks, setHotStocks] = useState<HotStock[]>([])
   const [loadingHotStocks, setLoadingHotStocks] = useState(false)
-  const [filterType, setFilterType] = useState<'industry' | 'concept'>('concept')
-  const [sortBy, setSortBy] = useState<'change' | 'rank'>('change')
-  const [topN, setTopN] = useState<number>(10)
+  const [filterType, setFilterType] = useState<'industry' | 'concept'>(initialView?.filterType || 'concept')
+  const [sortBy, setSortBy] = useState<'change' | 'rank'>(initialView?.sortBy || 'change')
+  const [topN, setTopN] = useState<number>(initialView?.topN || 10)
   const [matchWarning, setMatchWarning] = useState<string | null>(null) // 匹配度警告
 
   // 从东方财富接口获取的板块类型映射（板块名称 -> 类型）（已注释）
@@ -64,13 +72,13 @@ export default function SectorRotation(): JSX.Element {
 
   // 从财联社接口获取的板块类型映射（优先使用）
   const [caiLianSheTypeMap, setCaiLianSheTypeMap] = useState<Map<string, 'industry' | 'concept'>>(new Map())
-  const [caiLianSheTypeMapLoaded, setCaiLianSheTypeMapLoaded] = useState(false)
+  const [caiLianSheTypeMapLoaded, setCaiLianSheTypeMapLoaded] = useState(!!initialView)
 
   // CORS代理配置
   const CORS_PROXY_MAIN = (url: string) => `https://corsproxy.io/?${encodeURIComponent(url)}`
   const CORS_PROXY_BACKUP = (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
   const CORS_PROXY_THIRD = (url: string) => `https://proxy.cors.sh/${url}`
-  const CORS_PROXIES = [clsProxy, CORS_PROXY_MAIN, CORS_PROXY_BACKUP, CORS_PROXY_THIRD]
+  const CORS_PROXIES = [clsProxy] // 使用有超时和数据库缓存的自有接口
 
   // 从东方财富接口获取板块类型映射（已注释，暂时不使用）
   // const fetchSectorTypeMap = useCallback(async () => {
@@ -179,43 +187,14 @@ export default function SectorRotation(): JSX.Element {
 
   // 初始化日期列表（最近7个交易日，跳过周末和节假日）
   useEffect(() => {
-    // 中国节假日列表（2025-2026年）
-    const holidays = [
-      // 2025年节假日
-      '2025-01-01', // 元旦
-      '2025-01-28', '2025-01-29', '2025-01-30', '2025-01-31', // 春节
-      '2025-02-03', '2025-02-04', '2025-02-05', '2025-02-06', '2025-02-07',
-      '2025-04-04', '2025-04-05', '2025-04-06', // 清明节
-      '2025-05-01', '2025-05-02', '2025-05-03', '2025-05-04', '2025-05-05', // 劳动节
-      '2025-05-31', // 端午节
-      '2025-10-01', '2025-10-02', '2025-10-03', '2025-10-04', '2025-10-05', '2025-10-06', '2025-10-07', '2025-10-08', // 国庆节
-      // 2026年节假日
-      '2026-01-01', '2026-01-02', '2026-01-03', // 元旦
-      '2026-02-16', '2026-02-17', '2026-02-18', '2026-02-19', '2026-02-20', '2026-02-21', '2026-02-22', // 春节
-      '2026-04-04', '2026-04-05', '2026-04-06', // 清明节
-      '2026-05-01', '2026-05-02', '2026-05-03', // 劳动节
-      '2026-06-19', '2026-06-20', '2026-06-21', '2026-06-22', // 端午节
-      '2026-09-25', // 中秋节（财联社该日无数据）
-      '2026-10-01', '2026-10-02', '2026-10-03', '2026-10-04', '2026-10-05', '2026-10-06', '2026-10-07', '2026-10-08', // 国庆节
-    ]
-
+    if (initialView) return
     const dates: string[] = []
-    const today = new Date()
-    let count = 0
-    let currentDate = new Date(today)
-
-    // 获取最近7个交易日（跳过周末和节假日）
-    // 多取一些候选日（最多 14 个），渲染时只保留最近 7 个有数据的日期，遇到休市/无数据自动顺延
-    while (dates.length < 14 && count < 30) {
-      const dayOfWeek = currentDate.getDay()
-      const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`
-
-      // 跳过周末和节假日
-      if (dayOfWeek !== 0 && dayOfWeek !== 6 && !holidays.includes(dateStr)) {
-        dates.push(dateStr)
-      }
-      currentDate.setDate(currentDate.getDate() - 1)
-      count++
+    let date = shanghaiDate()
+    for (let count = 0; dates.length < 14 && count < 40; count++) {
+      if (!isClosedDate(date)) dates.push(date)
+      const previous = new Date(`${date}T00:00:00Z`)
+      previous.setUTCDate(previous.getUTCDate() - 1)
+      date = previous.toISOString().slice(0, 10)
     }
 
     setSelectedDates(dates)
@@ -229,40 +208,13 @@ export default function SectorRotation(): JSX.Element {
 
     try {
       // 尝试获取财联社的板块列表接口，看是否有类型信息
-      const today = new Date().toISOString().split('T')[0].replace(/-/g, '')
+      const today = previousTradingDate(shanghaiDate()).replace(/-/g, '')
       const apiUrl = `https://x-quote.cls.cn/v2/quote/a/plate/up_down_analysis?up_limit=0&date=${today}`
 
       for (const proxy of CORS_PROXIES) {
         try {
-          const proxyUrl = proxy(apiUrl)
-          const response = await fetch(proxyUrl, {
-            method: 'GET',
-            headers: {
-              'Accept': 'application/json, text/html, */*',
-              'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15'
-            }
-          })
-
-          if (response.ok) {
-            const contentType = response.headers.get('content-type') || ''
-            let data: any
-
-            if (contentType.includes('application/json')) {
-              data = await response.json()
-            } else {
-              const html = await response.text()
-              const scriptMatch =
-                html.match(/<script[^>]*>[\s\S]*?window\.__INITIAL_STATE__\s*=\s*({[\s\S]*?});/i) ||
-                html.match(/<script[^>]*>[\s\S]*?var\s+data\s*=\s*({[\s\S]*?});/i) ||
-                html.match(/<script[^>]*type=["']application\/json["'][^>]*>([\s\S]*?)<\/script>/i)
-
-              if (scriptMatch && scriptMatch[1]) {
-                data = JSON.parse(scriptMatch[1])
-              } else {
-                continue
-              }
-            }
-
+          const data = peekSectorPayload(previousTradingDate(shanghaiDate()))
+          if (data) {
             if (data?.code === 200 && data?.data?.plate_stock) {
               const plateStockData = data.data.plate_stock
 
@@ -323,6 +275,7 @@ export default function SectorRotation(): JSX.Element {
 
   // 初始化时获取板块类型映射（优先使用财联社接口）
   useEffect(() => {
+    if (initialView) return
     const loadTypeMaps = async () => {
       try {
         // 先尝试从财联社获取
@@ -344,7 +297,7 @@ export default function SectorRotation(): JSX.Element {
   }, [fetchCaiLianSheSectorTypeMap])
 
   // 返回处理后的板块数据和原始数据
-  const fetchSectorData = useCallback(async (date: string): Promise<{ sectors: SectorData[], rawData: any[] }> => {
+  const fetchSectorData = useCallback(async (date: string, refresh = false, signal?: AbortSignal): Promise<{ sectors: SectorData[], rawData: any[] }> => {
     // 暂时禁用行业板块，只显示概念板块
     if (filterType === 'industry') {
       console.log(`⚠️ 行业板块暂时禁用，只显示概念板块`)
@@ -357,43 +310,10 @@ export default function SectorRotation(): JSX.Element {
 
     console.log(`📅 获取概念板块数据，日期: ${date}`)
 
-    const fetchFromProxy = async (proxyFn: (url: string) => string): Promise<any> => {
-      const proxyUrl = proxyFn(apiUrl)
-      const response = await fetch(proxyUrl, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json, text/html, */*',
-          'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15'
-        }
-      })
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`)
-      }
-
-      const contentType = response.headers.get('content-type') || ''
-
-      if (contentType.includes('application/json')) {
-        return await response.json()
-      } else {
-        const html = await response.text()
-        // 尝试从HTML中提取JSON
-        const scriptMatch =
-          html.match(/<script[^>]*>[\s\S]*?window\.__INITIAL_STATE__\s*=\s*({[\s\S]*?});/i) ||
-          html.match(/<script[^>]*>[\s\S]*?var\s+data\s*=\s*({[\s\S]*?});/i) ||
-          html.match(/<script[^>]*type=["']application\/json["'][^>]*>([\s\S]*?)<\/script>/i)
-
-        if (scriptMatch && scriptMatch[1]) {
-          return JSON.parse(scriptMatch[1])
-        }
-        throw new Error('无法从HTML中提取JSON')
-      }
-    }
-
     // 尝试多个代理
     for (const proxy of CORS_PROXIES) {
       try {
-        const data = await fetchFromProxy(proxy)
+        const data = await loadSectorPayload(date, refresh, signal)
 
         // 财联社API返回格式：{ code: 200, data: { plate_stock: [...] } }
         if (data?.code === 200 && data?.data?.plate_stock) {
@@ -1325,8 +1245,7 @@ export default function SectorRotation(): JSX.Element {
           return { sectors, rawData: filteredData }
         }
       } catch (err) {
-        console.warn(`代理 ${proxy} 失败:`, err)
-        continue
+        throw err
       }
     }
 
@@ -1336,22 +1255,32 @@ export default function SectorRotation(): JSX.Element {
   // 获取所有日期的数据
   useEffect(() => {
     if (selectedDates.length === 0) return
+    if (restoredView.current && restoredView.current.filterType === filterType && restoredView.current.topN === topN) return
+    restoredView.current = null
+    let active = true
+    const controller = new AbortController()
 
     const fetchAllDates = async () => {
       console.log(`🔄 开始获取所有日期数据，类型: ${filterType}`)
       setLoading(true)
       setError(null)
-      // 清空旧数据，避免显示混合数据
-      setSectorDataByDate({})
-      setPlateRawDataByDate({})
+      // 加载期间保留已显示的快照。
 
       try {
         // 直接获取数据，不依赖外部概念列表
-        const dataPromises = selectedDates.map(date => fetchSectorData(date))
+        let settled = 0
+        setLoadingProgress({ loaded: 0, total: selectedDates.length })
+        const dataPromises = selectedDates.map(date =>
+          fetchSectorData(date, false, controller.signal).finally(() => {
+            settled += 1
+            if (active) setLoadingProgress({ loaded: settled, total: selectedDates.length })
+          })
+        )
         const results = await Promise.allSettled(dataPromises)
+        if (!active) return
 
-        const dataByDate: Record<string, SectorData[]> = {}
-        const rawDataByDate: Record<string, any[]> = {}
+        const dataByDate: Record<string, SectorData[]> = { ...sectorDataByDate }
+        const rawDataByDate: Record<string, any[]> = { ...plateRawDataByDate }
 
         results.forEach((result, index) => {
           if (result.status === 'fulfilled' && result.value && result.value.sectors && result.value.sectors.length > 0) {
@@ -1370,6 +1299,11 @@ export default function SectorRotation(): JSX.Element {
         Object.keys(dataByDate).sort((a, b) => b.localeCompare(a)).slice(7).forEach(d => { delete dataByDate[d]; delete rawDataByDate[d] })
 
         console.log(`📊 所有日期数据获取完成，共 ${Object.keys(dataByDate).length} 个日期有数据`)
+        const failed = results.filter(result => result.status === 'rejected').length
+        if (failed) setError(`有 ${failed} 个历史日期请求失败${Object.keys(dataByDate).length ? '，已保留可用数据' : '，请稍后重试'}；请求失败不代表休市。`)
+        const ordered = Object.keys(dataByDate).sort()
+        const newest = ordered[ordered.length - 1]
+        if (newest) setUpdatedAt(sectorUpdatedAt(newest))
         setSectorDataByDate(dataByDate)
         setPlateRawDataByDate(rawDataByDate)
 
@@ -1468,25 +1402,35 @@ export default function SectorRotation(): JSX.Element {
         console.error('获取数据失败:', err)
         setError('获取数据失败，请稍后重试')
       } finally {
-        setLoading(false)
+        if (active) setLoading(false)
       }
     }
 
-    // 等待板块类型映射加载完成后再获取数据（优先使用财联社接口）
-    // 如果财联社接口加载失败或超时，也要加载数据
-    if (caiLianSheTypeMapLoaded) {
-      fetchAllDates()
-    } else {
-      // 如果财联社接口加载时间过长（超过3秒），直接加载数据
-      const timeout = setTimeout(() => {
-        if (!caiLianSheTypeMapLoaded) {
-          console.warn('⚠️ 财联社接口加载超时，直接使用关键词匹配加载数据')
-          fetchAllDates()
-        }
-      }, 3000)
-      return () => clearTimeout(timeout)
+    // 类型字段可从同一份原始数据判断；不等待单独映射网络请求。
+    fetchAllDates()
+    return () => { active = false; controller.abort() }
+  }, [selectedDates, fetchSectorData, filterType])
+
+  useEffect(() => {
+    if (loading || !Object.keys(sectorDataByDate).length) return
+    saveSectorView({ day: shanghaiDate(), selectedDates, sectorDataByDate, plateRawDataByDate, filterType, sortBy, topN, updatedAt })
+  }, [loading, selectedDates, sectorDataByDate, plateRawDataByDate, filterType, sortBy, topN, updatedAt])
+
+  useSectorRefresh(loading ? [] : Object.keys(sectorDataByDate), async (latest, signal) => {
+    const currentTradingDate = previousTradingDate(shanghaiDate())
+    const date = currentTradingDate > latest ? currentTradingDate : latest
+    try {
+      const result = await fetchSectorData(date, true, signal)
+      if (signal.aborted) return
+      if (!result.sectors.length) throw new Error('最近交易日暂未返回有效数据')
+      setSectorDataByDate(previous => Object.fromEntries(Object.entries({ ...previous, [date]: result.sectors }).sort(([a], [b]) => b.localeCompare(a)).slice(0, 7)))
+      setPlateRawDataByDate(previous => Object.fromEntries(Object.entries({ ...previous, [date]: result.rawData }).sort(([a], [b]) => b.localeCompare(a)).slice(0, 7)))
+      setUpdatedAt(sectorUpdatedAt(date))
+      setError(null)
+    } catch (err) {
+      if (!signal.aborted) setError(`刷新失败，继续显示之前的数据：${err instanceof Error ? err.message : '数据源暂时不可用'}`)
     }
-  }, [selectedDates, fetchSectorData, filterType, caiLianSheTypeMapLoaded])
+  })
 
   // 获取板块热门股票（直接使用财联社返回的stock_list）
   const fetchHotStocks = useCallback(async (sectorCode: string, sectorName: string): Promise<HotStock[]> => {
@@ -1886,6 +1830,9 @@ export default function SectorRotation(): JSX.Element {
       </div>
 
 
+      {['unconfigured', 'unavailable'].includes(sectorStorageStatus() || '') && (
+        <p role="status" style={{ color: '#92400e', fontSize: '0.85rem' }}>数据库缓存暂未就绪，当前使用本地缓存；历史数据尚未确认入库。</p>
+      )}
       {error && (
         <div style={{
           background: '#fee2e2',
@@ -1904,19 +1851,34 @@ export default function SectorRotation(): JSX.Element {
 
       {loading ? (
         <div style={{
-          padding: '40px',
+          padding: '60px 20px',
           textAlign: 'center',
-          color: '#6b7280',
-          fontSize: '0.9rem'
+          color: '#6b7280'
         }}>
-          加载中...
+          <style>{`@keyframes sr-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+          <Loader2
+            size={32}
+            style={{
+              animation: 'sr-spin 1s linear infinite',
+              margin: '0 auto 16px',
+              color: '#3b82f6'
+            }}
+          />
+          <div style={{ fontSize: '0.95rem', fontWeight: 500 }}>
+            正在加载板块数据...
+          </div>
+          <div style={{ fontSize: '0.8rem', color: '#9ca3af', marginTop: '6px' }}>
+            {loadingProgress.total > 0
+              ? `已加载 ${loadingProgress.loaded}/${loadingProgress.total} 个交易日，数据源响应较慢，请稍候`
+              : '正在连接数据源...'}
+          </div>
         </div>
       ) : (
         <>
           {/* 板块轮动表格 */}
           {(() => {
             // 只显示有数据的日期列
-            const validDates = selectedDates.filter(date => sectorDataByDate[date] && sectorDataByDate[date].length > 0)
+            const validDates = Object.keys(sectorDataByDate).filter(date => sectorDataByDate[date]?.length > 0).sort((a, b) => b.localeCompare(a))
 
             if (validDates.length === 0) {
               return (
@@ -2539,7 +2501,7 @@ export default function SectorRotation(): JSX.Element {
           </div>
         </div>
         <div style={{ marginTop: '8px', fontSize: '0.75rem', color: '#9ca3af' }}>
-          更新时间：{new Date().toLocaleString('zh-CN')}
+          数据更新时间：{updatedAt ? new Date(updatedAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }) : '—'}（北京时间）；当前页面每 30 秒更新最近有效交易日
         </div>
       </div>
     </main>
