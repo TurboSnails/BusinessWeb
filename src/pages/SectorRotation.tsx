@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
+import { clsProxy } from '../services/clsProxy'
 import {
   AlertTriangle,
   BarChart2,
@@ -69,7 +70,7 @@ export default function SectorRotation(): JSX.Element {
   const CORS_PROXY_MAIN = (url: string) => `https://corsproxy.io/?${encodeURIComponent(url)}`
   const CORS_PROXY_BACKUP = (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
   const CORS_PROXY_THIRD = (url: string) => `https://proxy.cors.sh/${url}`
-  const CORS_PROXIES = [CORS_PROXY_MAIN, CORS_PROXY_BACKUP, CORS_PROXY_THIRD]
+  const CORS_PROXIES = [clsProxy, CORS_PROXY_MAIN, CORS_PROXY_BACKUP, CORS_PROXY_THIRD]
 
   // 从东方财富接口获取板块类型映射（已注释，暂时不使用）
   // const fetchSectorTypeMap = useCallback(async () => {

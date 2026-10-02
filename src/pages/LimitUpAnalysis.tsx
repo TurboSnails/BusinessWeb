@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
+import { clsProxy } from '../services/clsProxy'
 import {
   TrendingUp,
   Calendar,
@@ -150,7 +151,7 @@ export default function LimitUpAnalysis(): JSX.Element {
   const CORS_PROXY_MAIN = (url: string) => `https://corsproxy.io/?${encodeURIComponent(url)}`
   const CORS_PROXY_BACKUP = (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
   const CORS_PROXY_THIRD = (url: string) => `https://proxy.cors.sh/${url}`
-  const CORS_PROXIES = [CORS_PROXY_MAIN, CORS_PROXY_BACKUP, CORS_PROXY_THIRD]
+  const CORS_PROXIES = [clsProxy, CORS_PROXY_MAIN, CORS_PROXY_BACKUP, CORS_PROXY_THIRD]
 
   // 使用 useCallback 确保函数使用最新的 selectedDate 和 onlyLimitUp
   const fetchLimitUpData = useCallback(async () => {
