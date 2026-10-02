@@ -8,6 +8,7 @@ import { ReviewTable } from '../components/pulse/ReviewTable'
 import { NewsSourceSection } from '../components/pulse/NewsSourceSection'
 import { MarketCategory as MarketCategoryComponent } from '../components/pulse/MarketCategory'
 import { SectorSection } from '../components/pulse/SectorSection'
+import HeatmapSection from '../components/pulse/HeatmapSection'
 import {
   TrendingUp,
   Globe,
@@ -626,6 +627,9 @@ export default function Pulse(): JSX.Element {
           </button>
         </div>
       </div>
+
+      {/* 市场热力图 */}
+      <HeatmapSection />
 
       {/* 复盘表格 */}
       {renderReviewTable()}

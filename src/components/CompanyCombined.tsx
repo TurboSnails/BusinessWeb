@@ -8,6 +8,7 @@ interface Props {
   ratingOf: (company: Company) => string
   loading: boolean
 }
+const ratingOrder = ['优先关注', '条件关注', '观察', '回避', '未估值']
 const types = ['快速增长型', '稳健型', '缓慢增长型', '周期型', '困境反转型', '资产型', '未分类']
 const control: React.CSSProperties = { fontFamily: 'inherit', fontSize: '13px', padding: '8px 12px', border: '1px solid var(--border-primary)', borderRadius: '8px', background: 'var(--bg-card)', color: 'var(--text-primary)' }
 const cell: React.CSSProperties = { padding: '12px', textAlign: 'left', verticalAlign: 'top', borderBottom: '1px solid var(--border-primary)' }
@@ -23,7 +24,7 @@ export default function CompanyCombined({ companies, lynch, ratingOf, loading }:
   // 公司池为左表，林奇数据补充字段；缺标签不丢公司，跨市场同代码不合并。
   const unique = Array.from(new Map(companies.map(c => [`${c.market}:${c.code}`, c])).values())
   const sectors = Array.from(new Set(unique.map(c => c.sector))).sort()
-  const ratings = Array.from(new Set(unique.map(ratingOf)))
+  const ratings = Array.from(new Set(unique.map(ratingOf))).sort((a, b) => (ratingOrder.indexOf(a) + 1 || 99) - (ratingOrder.indexOf(b) + 1 || 99))
   const rows = unique.map(company => ({ company, info: lynch[`${company.market}:${company.code}`] }))
   const shown = rows.filter(({ company: c, info: l }) =>
     (sector === '全部' || c.sector === sector) &&

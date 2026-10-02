@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import { clsProxy } from '../services/clsProxy'
+import React, { useState, useEffect } from 'react'
 import {
   TrendingUp,
   Calendar,
@@ -12,298 +11,32 @@ import {
   ChevronUp,
   ArrowRight
 } from 'lucide-react'
-import type { LimitUpConcept, LimitUpStock } from '../types'
+import { loadLimitUp, shanghaiDate, isClosedDate, type LimitUpResult } from '../services/limitUp'
+import type { LimitUpConcept } from '../types'
 
 export default function LimitUpAnalysis(): JSX.Element {
   const [concepts, setConcepts] = useState<LimitUpConcept[]>([])
   const [selectedConcept, setSelectedConcept] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [fallbackNote, setFallbackNote] = useState<string | null>(null) // 所选日期无数据时，显示最近有效日期的提示
   const [onlyLimitUp, setOnlyLimitUp] = useState(true) // 默认勾选"只看涨停"
   const [expandedStocks, setExpandedStocks] = useState<Set<string>>(new Set()) // 记录展开的股票代码
-  // 日期选择：默认今天，格式 YYYY-MM-DD
-  const [selectedDate, setSelectedDate] = useState<string>(() => {
-    const today = new Date()
-    return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
-  })
-
-  // 解析API返回的数据，转换为 LimitUpConcept[] 格式
-  // API返回格式：{ code: 200, data: { plate_stock: [...] } }
-  const parseApiData = (data: any): LimitUpConcept[] => {
-    try {
-      console.log('🔍 开始解析API数据，原始数据结构:', {
-        code: data?.code,
-        hasData: !!data?.data,
-        plateStockLength: data?.data?.plate_stock?.length,
-        sample: JSON.stringify(data).substring(0, 1000)
-      })
-
-      // 检查API返回状态
-      if (data?.code !== 200) {
-        console.warn('⚠️ API返回错误码:', data?.code, data?.msg)
-        return getMockData()
-      }
-
-      // 从 data.plate_stock 获取板块数据
-      const plateStockData = data?.data?.plate_stock
-
-      if (!Array.isArray(plateStockData) || plateStockData.length === 0) {
-        console.warn('⚠️ 无法提取板块数据，使用模拟数据')
-        return getMockData()
-      }
-
-      console.log(`📊 提取到的板块数据，数量: ${plateStockData.length}`)
-
-      // 解析每个板块
-      const mappedConcepts = plateStockData.map((plate: any, index: number): LimitUpConcept | null => {
-        try {
-          // 解析股票列表 - API字段名是 stock_list
-          const stocksArray = plate.stock_list || []
-          const stocks: LimitUpStock[] = Array.isArray(stocksArray) ? stocksArray.map((stock: any) => {
-            // API字段映射：
-            // secu_code -> code
-            // secu_name -> name
-            // last_px -> currentPrice
-            // change -> changePercent (小数形式，需要转换为百分比)
-            // time -> limitUpTime
-            // cmc -> marketCap (可能是以分为单位，需要转换为亿元)
-            // up_num -> consecutiveDays (需要解析"10天9板"这样的字符串)
-            // up_reason -> description
-
-            const code = stock.secu_code || ''
-            const name = stock.secu_name || ''
-            const currentPrice = parseFloat(stock.last_px || stock.price || 0)
-            // change 是小数形式，如 0.0997 表示 9.97%，需要乘以100
-            const changePercent = parseFloat(stock.change || 0) * 100
-            const limitUpTime = stock.time || ''
-            // cmc 可能是以分为单位，需要转换为亿元（除以100000000）
-            const marketCap = parseFloat(stock.cmc || 0) / 100000000
-            // 解析 up_num，如 "10天9板" -> 9
-            let consecutiveDays = 0
-            if (stock.up_num) {
-              const match = stock.up_num.match(/(\d+)天(\d+)板/)
-              if (match) {
-                consecutiveDays = parseInt(match[2], 10)
-              } else {
-                const singleMatch = stock.up_num.match(/(\d+)板/)
-                if (singleMatch) {
-                  consecutiveDays = parseInt(singleMatch[1], 10)
-                }
-              }
-            }
-            const description = stock.up_reason || ''
-
-            return {
-              code,
-              name,
-              currentPrice,
-              changePercent,
-              limitUpTime,
-              marketCap,
-              consecutiveDays,
-              description
-            }
-          }) : []
-
-          // 获取板块信息
-          const conceptName = plate.secu_name || `板块${index + 1}`
-          // plate_stock_up_num 是涨停股票数量，stock_list.length 是总股票数量
-          const stockCount = parseInt(plate.plate_stock_up_num || stocksArray.length || '0', 10)
-          // change 是小数形式，需要转换为百分比
-          const changePercent = parseFloat(plate.change || 0) * 100
-          const drivingFactor = plate.up_reason || ''
-
-          console.log(`  ✓ 板块 ${index + 1}: ${conceptName}, 涨停数: ${stockCount}, 涨幅: ${changePercent.toFixed(2)}%, 股票列表长度: ${stocks.length}`)
-
-          return {
-            name: conceptName,
-            stockCount: stockCount, // 涨停股票数量
-            changePercent: changePercent,
-            drivingFactor: drivingFactor,
-            stocks: stocks // 所有股票（包括涨停和非涨停）
-          }
-        } catch (itemError) {
-          console.warn(`解析板块 ${index} 失败:`, itemError, plate)
-          return null
-        }
-      })
-
-      const concepts: LimitUpConcept[] = mappedConcepts.filter((item): item is LimitUpConcept => item !== null)
-
-      console.log(`✅ 成功解析 ${concepts.length} 个板块`)
-      console.log('解析后的板块列表:', concepts.map(c => ({ name: c.name, stockCount: c.stockCount, stocksCount: c.stocks.length })))
-
-      return concepts.length > 0 ? concepts : getMockData()
-    } catch (error) {
-      console.error('❌ 解析API数据失败:', error)
-      console.error('错误堆栈:', error instanceof Error ? error.stack : '')
-      return getMockData()
-    }
-  }
-
-  // 模拟数据（仅作为fallback，实际应从API获取）
-  const getMockData = (): LimitUpConcept[] => {
-    console.warn('⚠️ 使用空数据作为fallback，请检查API调用')
-    return []
-  }
-
-  // CORS代理配置
-  const CORS_PROXY_MAIN = (url: string) => `https://corsproxy.io/?${encodeURIComponent(url)}`
-  const CORS_PROXY_BACKUP = (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
-  const CORS_PROXY_THIRD = (url: string) => `https://proxy.cors.sh/${url}`
-  const CORS_PROXIES = [clsProxy, CORS_PROXY_MAIN, CORS_PROXY_BACKUP, CORS_PROXY_THIRD]
-
-  // 使用 useCallback 确保函数使用最新的 selectedDate 和 onlyLimitUp
-  const fetchLimitUpData = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    setFallbackNote(null)
-
-    // 将 selectedDate (YYYY-MM-DD) 转换为 API 需要的格式 (YYYYMMDD)
-    const dateStr = selectedDate.replace(/-/g, '')
-    console.log('📅 获取数据，日期:', selectedDate, '转换后:', dateStr)
-
-    // 实际API地址：https://x-quote.cls.cn/v2/quote/a/plate/up_down_analysis?up_limit=0&date=20251231&sign=...
-    // up_limit=1 表示只看涨停（只返回涨停股票）
-    // up_limit=0 表示取消只看涨停（返回所有股票，包括非涨停）
-    const upLimit = onlyLimitUp ? 1 : 0
-    const apiUrl = `https://x-quote.cls.cn/v2/quote/a/plate/up_down_analysis?up_limit=${upLimit}&date=${dateStr}`
-    console.log('🌐 API URL:', apiUrl)
-
-    // 尝试使用多个代理，哪个先成功用哪个
-    const fetchFromProxy = async (proxyFn: (url: string) => string): Promise<any> => {
-      const proxyUrl = proxyFn(apiUrl)
-      console.log('尝试使用代理:', proxyUrl)
-
-      const response = await fetch(proxyUrl, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json, text/html, */*',
-          'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15'
-        }
-      })
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`)
-      }
-
-      const contentType = response.headers.get('content-type') || ''
-      console.log('响应Content-Type:', contentType)
-
-      // 检查返回的是JSON还是HTML
-      if (contentType.includes('application/json')) {
-        const data = await response.json()
-        console.log('✅ 成功获取JSON数据:', data)
-        return { type: 'json', data }
-      } else {
-        // 如果是HTML，尝试解析HTML中的JSON数据
-        const html = await response.text()
-        console.log('📄 获取到HTML，长度:', html.length)
-        console.log('HTML前500字符:', html.substring(0, 500))
-        return { type: 'html', data: html }
-      }
-    }
-
-    try {
-      // 尝试多个代理
-      const results = await Promise.allSettled(
-        CORS_PROXIES.map(proxy => fetchFromProxy(proxy))
-      )
-
-      let parsedConcepts: LimitUpConcept[] | null = null
-
-      // 找到第一个成功的结果
-      for (const result of results) {
-        if (result.status === 'fulfilled') {
-          const { type, data } = result.value
-
-          if (type === 'json') {
-            parsedConcepts = parseApiData(data)
-            if (parsedConcepts && parsedConcepts.length > 0) {
-              console.log('✅ 成功解析JSON数据，概念数量:', parsedConcepts.length)
-              setConcepts(parsedConcepts)
-              setSelectedConcept(null) // 重置选中概念，让默认选中第一个
-              setLoading(false)
-              return
-            }
-          } else if (type === 'html') {
-            // 尝试从HTML中提取JSON数据
-            const scriptMatch =
-              data.match(/<script[^>]*>[\s\S]*?window\.__INITIAL_STATE__\s*=\s*({[\s\S]*?});/i) ||
-              data.match(/<script[^>]*>[\s\S]*?var\s+data\s*=\s*({[\s\S]*?});/i) ||
-              data.match(/<script[^>]*type=["']application\/json["'][^>]*>([\s\S]*?)<\/script>/i) ||
-              data.match(/<script[^>]*>[\s\S]*?const\s+data\s*=\s*({[\s\S]*?});/i) ||
-              data.match(/<script[^>]*>[\s\S]*?let\s+data\s*=\s*({[\s\S]*?});/i)
-
-            if (scriptMatch && scriptMatch[1]) {
-              try {
-                const jsonData = JSON.parse(scriptMatch[1])
-                console.log('✅ 从HTML中提取到JSON:', jsonData)
-                parsedConcepts = parseApiData(jsonData)
-                if (parsedConcepts && parsedConcepts.length > 0) {
-                  console.log('✅ 成功解析HTML中的JSON数据，概念数量:', parsedConcepts.length)
-                  setConcepts(parsedConcepts)
-                  setSelectedConcept(null) // 重置选中概念，让默认选中第一个
-                  setLoading(false)
-                  return
-                }
-              } catch (parseError) {
-                console.warn('❌ 解析HTML中的JSON失败:', parseError)
-              }
-            } else {
-              console.warn('❌ 无法从HTML中找到JSON数据')
-            }
-          }
-        } else {
-          console.warn('代理请求失败:', result.reason)
-        }
-      }
-
-      // 所选日期无数据（休市/未收盘/接口空）：向前回退到最近有效交易日
-      if (!parsedConcepts || parsedConcepts.length === 0) {
-        const cursor = new Date(`${selectedDate}T00:00:00`)
-        for (let i = 0; i < 14; i++) {
-          cursor.setDate(cursor.getDate() - 1)
-          const wd = cursor.getDay()
-          if (wd === 0 || wd === 6) continue
-          const d8 = `${cursor.getFullYear()}${String(cursor.getMonth() + 1).padStart(2, '0')}${String(cursor.getDate()).padStart(2, '0')}`
-          try {
-            const r = await fetch(clsProxy(`https://x-quote.cls.cn/v2/quote/a/plate/up_down_analysis?up_limit=${upLimit}&date=${d8}`))
-            if (!r.ok) continue
-            const found = parseApiData(await r.json())
-            if (found && found.length > 0) {
-              setConcepts(found)
-              setSelectedConcept(null)
-              setFallbackNote(`${selectedDate} 暂无数据（休市或尚未更新），已显示最近有效交易日 ${d8.slice(0, 4)}-${d8.slice(4, 6)}-${d8.slice(6)} 的数据`)
-              setLoading(false)
-              return
-            }
-          } catch { /* 继续向前找 */ }
-        }
-      }
-
-      // 如果所有代理都失败，使用模拟数据
-      if (!parsedConcepts || parsedConcepts.length === 0) {
-        console.warn('⚠️ 所有代理都失败，使用模拟数据')
-        setConcepts(getMockData())
-        setSelectedConcept(null) // 重置选中概念
-      }
-    } catch (err) {
-      console.error('❌ API调用异常:', err)
-      setError('获取数据失败，已切换到模拟数据')
-      setConcepts(getMockData())
-      setSelectedConcept(null) // 重置选中概念
-    } finally {
-      setLoading(false)
-    }
-  }, [selectedDate, onlyLimitUp]) // 依赖项：当日期或只看涨停状态改变时，重新创建函数
-
-  // 尝试从财联社API获取数据
-  // 当 onlyLimitUp 或 selectedDate 状态改变时，重新获取数据
+  const [selectedDate, setSelectedDate] = useState(() => shanghaiDate())
+  const [result, setResult] = useState<LimitUpResult | null>(null)
+  const [refresh, setRefresh] = useState(0)
+  const fetchLimitUpData = (): void => setRefresh(n => n + 1)
   useEffect(() => {
-    fetchLimitUpData()
-  }, [fetchLimitUpData])
+    const controller = new AbortController()
+    setLoading(true); setError(null); setConcepts([]); setResult(null)
+    setSelectedConcept(null); setExpandedStocks(new Set())
+    loadLimitUp(selectedDate, onlyLimitUp, controller.signal).then(data => {
+      if (controller.signal.aborted) return
+      setConcepts(data.concepts); setResult(data)
+    }).catch(err => {
+      if (!controller.signal.aborted) setError(err instanceof Error ? err.message : '数据请求失败')
+    }).finally(() => { if (!controller.signal.aborted) setLoading(false) })
+    return () => controller.abort()
+  }, [selectedDate, onlyLimitUp, refresh])
 
   // API已经根据 up_limit 参数返回了对应的数据：
   // - up_limit=1: 只返回涨停股票
@@ -335,7 +68,7 @@ export default function LimitUpAnalysis(): JSX.Element {
             每日板块涨停分析
           </h1>
           <p style={{ margin: '8px 0 0', fontSize: '1rem', color: 'var(--text-secondary)' }}>
-            实时追踪A股涨停板，按概念分类展示
+            按概念展示A股涨停数据，休市使用最近有效交易日数据
           </p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
@@ -354,10 +87,8 @@ export default function LimitUpAnalysis(): JSX.Element {
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              max={(() => {
-                const today = new Date()
-                return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
-              })()}
+              aria-label="查询日期"
+              max={shanghaiDate()}
               style={{
                 padding: '8px 12px',
                 border: '1px solid var(--system-gray5)',
@@ -389,11 +120,11 @@ export default function LimitUpAnalysis(): JSX.Element {
         </div>
       </div>
 
-      {fallbackNote && (
-        <div style={{ background: '#fef3c7', color: '#92400e', padding: '12px', borderRadius: '8px', marginBottom: '20px', fontSize: '0.9rem' }}>
-          ℹ️ {fallbackNote}
-        </div>
-      )}
+      <div role="status" style={{ padding: '12px', marginBottom: '16px', background: 'var(--bg-secondary)', borderRadius: '8px', lineHeight: 1.8 }}>
+        {isClosedDate(selectedDate) && <div>{selectedDate} 为休市日，使用此前最近的有效交易日数据。</div>}
+        {loading ? '正在获取数据…' : error ? '接口失败，尚未取得可展示的数据；这不代表没有涨停股票。' : result?.status === 'empty' ? `${selectedDate} 为交易日，数据源返回空列表，当前暂无板块数据。` : result?.dataDate ? `数据日期：${result.dataDate}${result.status === 'closed' ? '（休市回退）' : ''}` : '休市：此前10个交易日内未找到有效数据。'}
+      </div>
+
       {error && (
         <div style={{
           background: '#fee2e2',
@@ -410,6 +141,7 @@ export default function LimitUpAnalysis(): JSX.Element {
         </div>
       )}
 
+      {!selectedDate.startsWith('2026-') && <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>当前节假日表已核实2026年；其他年份仅识别周末，节假日请另行核实。</p>}
       {/* 概念分类标签 */}
       <div style={{
         background: 'white',
@@ -664,7 +396,7 @@ export default function LimitUpAnalysis(): JSX.Element {
         color: '#6b7280',
         textAlign: 'center'
       }}>
-        数据来源：财联社 | 更新时间：{new Date().toLocaleString('zh-CN')}
+        数据来源：财联社 | 数据日期：{result?.dataDate || '未取得'} | 获取时间：{result ? new Date(result.fetchedAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }) : '未取得'}（北京时间）
       </div>
     </main>
   )

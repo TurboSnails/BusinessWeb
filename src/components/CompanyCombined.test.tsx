@@ -30,6 +30,13 @@ describe('综合分类公司并集', () => {
     expect(screen.queryByRole('link', { name: '甲公司 001' })).toBeNull()
   })
 
+  it('研究评级下拉按固定顺序：优先关注排在最前', () => {
+    const d = company('004', '丁公司', '制造', '回避'); const e = company('005', '戊公司', '制造', '优先关注')
+    show([a, b, c, d, e])
+    const options = within(screen.getByRole('combobox', { name: '研究评级' })).getAllByRole('option').map(o => o.textContent)
+    expect(options).toEqual(['全部', '优先关注', '条件关注', '观察', '回避'])
+  })
+
   it('行业、评级与林奇条件组合筛选，并可重置', () => {
     show()
     fireEvent.change(screen.getByRole('combobox', { name: '行业' }), { target: { value: '制造' } })
