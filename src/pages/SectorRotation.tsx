@@ -205,7 +205,8 @@ export default function SectorRotation(): JSX.Element {
     let currentDate = new Date(today)
 
     // 获取最近7个交易日（跳过周末和节假日）
-    while (dates.length < 7 && count < 21) {
+    // 多取一些候选日（最多 14 个），渲染时只保留最近 7 个有数据的日期，遇到休市/无数据自动顺延
+    while (dates.length < 14 && count < 30) {
       const dayOfWeek = currentDate.getDay()
       const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`
 
@@ -1364,6 +1365,9 @@ export default function SectorRotation(): JSX.Element {
             // 不添加到 dataByDate，这样渲染时就不会显示该列
           }
         })
+
+        // 只保留最近 7 个有数据的日期（selectedDates 按从新到旧排列）
+        Object.keys(dataByDate).sort((a, b) => b.localeCompare(a)).slice(7).forEach(d => { delete dataByDate[d]; delete rawDataByDate[d] })
 
         console.log(`📊 所有日期数据获取完成，共 ${Object.keys(dataByDate).length} 个日期有数据`)
         setSectorDataByDate(dataByDate)

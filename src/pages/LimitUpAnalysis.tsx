@@ -19,6 +19,7 @@ export default function LimitUpAnalysis(): JSX.Element {
   const [selectedConcept, setSelectedConcept] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [fallbackNote, setFallbackNote] = useState<string | null>(null) // 所选日期无数据时，显示最近有效日期的提示
   const [onlyLimitUp, setOnlyLimitUp] = useState(true) // 默认勾选"只看涨停"
   const [expandedStocks, setExpandedStocks] = useState<Set<string>>(new Set()) // 记录展开的股票代码
   // 日期选择：默认今天，格式 YYYY-MM-DD
@@ -157,6 +158,7 @@ export default function LimitUpAnalysis(): JSX.Element {
   const fetchLimitUpData = useCallback(async () => {
     setLoading(true)
     setError(null)
+    setFallbackNote(null)
 
     // 将 selectedDate (YYYY-MM-DD) 转换为 API 需要的格式 (YYYYMMDD)
     const dateStr = selectedDate.replace(/-/g, '')
@@ -255,6 +257,29 @@ export default function LimitUpAnalysis(): JSX.Element {
           }
         } else {
           console.warn('代理请求失败:', result.reason)
+        }
+      }
+
+      // 所选日期无数据（休市/未收盘/接口空）：向前回退到最近有效交易日
+      if (!parsedConcepts || parsedConcepts.length === 0) {
+        const cursor = new Date(`${selectedDate}T00:00:00`)
+        for (let i = 0; i < 14; i++) {
+          cursor.setDate(cursor.getDate() - 1)
+          const wd = cursor.getDay()
+          if (wd === 0 || wd === 6) continue
+          const d8 = `${cursor.getFullYear()}${String(cursor.getMonth() + 1).padStart(2, '0')}${String(cursor.getDate()).padStart(2, '0')}`
+          try {
+            const r = await fetch(clsProxy(`https://x-quote.cls.cn/v2/quote/a/plate/up_down_analysis?up_limit=${upLimit}&date=${d8}`))
+            if (!r.ok) continue
+            const found = parseApiData(await r.json())
+            if (found && found.length > 0) {
+              setConcepts(found)
+              setSelectedConcept(null)
+              setFallbackNote(`${selectedDate} 暂无数据（休市或尚未更新），已显示最近有效交易日 ${d8.slice(0, 4)}-${d8.slice(4, 6)}-${d8.slice(6)} 的数据`)
+              setLoading(false)
+              return
+            }
+          } catch { /* 继续向前找 */ }
         }
       }
 
@@ -364,6 +389,11 @@ export default function LimitUpAnalysis(): JSX.Element {
         </div>
       </div>
 
+      {fallbackNote && (
+        <div style={{ background: '#fef3c7', color: '#92400e', padding: '12px', borderRadius: '8px', marginBottom: '20px', fontSize: '0.9rem' }}>
+          ℹ️ {fallbackNote}
+        </div>
+      )}
       {error && (
         <div style={{
           background: '#fee2e2',

@@ -2333,7 +2333,7 @@ const InvestmentPlan2026 = () => {
                 实时数据同步：
               </span>
               <a
-                href="https://cn.investing.com/earnings-calendar/"
+                href="https://www.tradingview.com/markets/earnings/"
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
@@ -2347,7 +2347,7 @@ const InvestmentPlan2026 = () => {
                 onMouseEnter={(e) => { e.currentTarget.style.borderBottomColor = 'var(--system-blue)' }}
                 onMouseLeave={(e) => { e.currentTarget.style.borderBottomColor = 'transparent' }}
               >
-                Investing.com 财报日历
+                TradingView 财报日历
               </a>
             </div>
 
