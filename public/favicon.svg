@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#0A0A0A"/>
+  <path d="M128 352 V304 L192 256 L256 288 L320 192 L384 144"
+        fill="none" stroke="#3DDC84" stroke-width="28"
+        stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>
+  <circle cx="384" cy="144" r="20" fill="#3DDC84"/>
+  <text x="256" y="332" font-family="-apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif"
+        font-size="280" font-weight="800" fill="#FFFFFF"
+        text-anchor="middle" dominant-baseline="middle"
+        letter-spacing="-12">G</text>
+  <rect x="128" y="384" width="256" height="14" rx="7" fill="#FFFFFF" opacity="0.18"/>
+</svg>

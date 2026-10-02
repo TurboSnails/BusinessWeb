@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="6" fill="#0A0A0A"/>
+  <path d="M8 22 V19 L12 16 L16 18 L20 12 L24 9"
+        fill="none" stroke="#3DDC84" stroke-width="1.8"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="24" cy="9" r="1.4" fill="#3DDC84"/>
+  <text x="16" y="22" font-family="-apple-system, 'SF Pro Display', Arial, sans-serif"
+        font-size="18" font-weight="800" fill="#FFFFFF"
+        text-anchor="middle" dominant-baseline="middle">G</text>
+</svg>
