@@ -78,7 +78,7 @@ npm run build
 
 - **Vercel（推荐）**：默认 `npm run build` 输出到根路径；Serverless Functions 处理 `/api/grid-market` 与 `/api/grid-sync`。完整步骤见 [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)，包括 Vercel 免费项目额度、可选 Supabase 同步与环境变量。
 - **GitHub Pages**：由 [.github/workflows/pages.yml](.github/workflows/pages.yml) 在推送 `main` 时自动测试、构建并发布，也可在 Actions 中手动运行。首次迁移需在仓库 **Settings → Pages → Build and deployment → Source** 选择 **GitHub Actions**；若 `github-pages` 环境限制了部署分支，需允许 `main`。不要将 Pages 的来源直接设成 `main` 分支静态目录，React 源码需要先构建。Pages 不运行 Functions，API 继续使用配置的 Vercel 服务。
-  - 本地验证：`npm run build:pages`；构建产物上传为 Pages artifact，不提交到 `gh-pages`。旧 `npm run deploy` 属于分支发布方式，迁移后不要使用。
+  - 本地验证：`npm run build:pages`；构建产物上传为 Pages artifact，不提交到 `gh-pages`。`deploy` 脚本与 `gh-pages` 依赖已移除。
   - 确认新工作流部署成功后，才可以删除旧 `gh-pages` 分支。
   - **Vercel 独立配置**：Production Branch 设为 `main`、Root Directory 清空、Build Command 为 `npm run build`、Output Directory 为 `dist`。修改 Pages 工作流不会自动修正 Vercel 项目设置。
 

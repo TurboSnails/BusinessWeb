@@ -80,10 +80,9 @@ Supabase 免费项目会因一周内数据库活动不足而暂停；此任务�
 
 ```bash
 npm run build:pages
-npm run deploy
 ```
 
-此构建显式使用 `/BusinessWeb/` 资源和 Router 路径，并生成详情路由回退页面。GitHub Pages 不运行 Functions，所以网格行情保留直接访问腾讯（受浏览器 CORS 限制），本次 Vercel 同步接口仅支持同源访问，Pages 网站不能直接跨域使用该接口；如保留 Pages 并需要云同步，需另外配置支持 CORS 的独立同步服务。
+本地仅用于验证构建；线上由 `.github/workflows/pages.yml` 发布。此构建显式使用 `/BusinessWeb/` 资源和 Router 路径，并生成详情路由回退页面。GitHub Pages 不运行 Functions，所以网格行情保留直接访问腾讯（受浏览器 CORS 限制），本次 Vercel 同步接口仅支持同源访问，Pages 网站不能直接跨域使用该接口；如保留 Pages 并需要云同步，需另外配置支持 CORS 的独立同步服务。
 
 ## 仍需独立处理的接口
 
