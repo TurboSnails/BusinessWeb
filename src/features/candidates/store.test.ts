@@ -55,6 +55,10 @@ describe('cloud client', () => {
     expect(r.revision).toBe(4)
     expect((f.mock.calls[0] as unknown[])[1]).toMatchObject({ headers: { Authorization: `Bearer ${'t'.repeat(32)}` } })
   })
+  it('non-JSON success body (e.g. dev server returning source) becomes an unavailable error', async () => {
+    const f = (async () => new Response('import __vite', { status: 200 })) as unknown as typeof fetch
+    await expect(readCloud('t', f, 'https://x')).rejects.toMatchObject({ kind: 'unavailable' })
+  })
   it('maps 401 to auth and 409 to conflict', async () => {
     const mk = (status: number) => (async () => new Response(JSON.stringify({ error: 'e' }), { status })) as unknown as typeof fetch
     await expect(readCloud('t', mk(401), 'https://x')).rejects.toMatchObject({ kind: 'auth' })

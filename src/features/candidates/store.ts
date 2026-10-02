@@ -84,7 +84,8 @@ export async function readCloud(token: string, fetchImpl: FetchLike = fetch, end
   let res: Response
   try { res = await fetchImpl(endpoint, { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' }) } catch { throw { kind: 'unavailable', message: '无法连接云端' } satisfies CloudError }
   if (!res.ok) throw await parseError(res)
-  const body: unknown = await res.json()
+  let body: unknown
+  try { body = await res.json() } catch { throw { kind: 'unavailable', message: '云端接口不可用（未部署，或本地开发环境没有后端），数据暂存本机' } satisfies CloudError }
   const revision = Number(/^"(\d+)"$/.exec(res.headers.get('ETag') ?? '')?.[1])
   if (!validCandidatesPayload(body) || !Number.isSafeInteger(revision)) throw { kind: 'unavailable', message: '云端数据无效' } satisfies CloudError
   return { items: body.items, revision }

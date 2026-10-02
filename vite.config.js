@@ -19,6 +19,8 @@ export default defineConfig({
   server: { 
     host: true,
     proxy: {
+      '/api/cls-plate': { target: 'https://business-web-black.vercel.app', changeOrigin: true },
+      '/api/candidates-sync': { target: 'https://business-web-black.vercel.app', changeOrigin: true },
       '/api/proxy': {
         target: 'https://hq.sinajs.cn',
         changeOrigin: true,

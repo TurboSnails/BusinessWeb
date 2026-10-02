@@ -1,10 +1,34 @@
 {
-  "generatedAt": "2026-10-02T10:11:57.345Z",
+  "generatedAt": "2026-10-02T10:46:47.372Z",
   "versions": [
     {
       "tag": "unreleased",
       "date": null,
       "commits": [
+        {
+          "hash": "b5b53b0",
+          "subject": "build: 在 vite build 前自动生成 changelog.json",
+          "author": "hassan",
+          "date": "2026-10-02"
+        },
+        {
+          "hash": "0a95eb7",
+          "subject": "feat(about): 重写 About 页面，引入 changelog 渲染",
+          "author": "hassan",
+          "date": "2026-10-02"
+        },
+        {
+          "hash": "8ecfb21",
+          "subject": "feat(about): 添加骨架屏 shimmer 动画",
+          "author": "hassan",
+          "date": "2026-10-02"
+        },
+        {
+          "hash": "9b69953",
+          "subject": "feat(about): 添加 changelog 生成脚本",
+          "author": "hassan",
+          "date": "2026-10-02"
+        },
         {
           "hash": "bd6bcff",
           "subject": "候选池云端持久化与可编辑备注；板块历史数据库缓存及页面恢复刷新",
@@ -160,30 +184,6 @@
           "subject": "feat: prepare free Vercel deployment and optional Supabase sync",
           "author": "hassan",
           "date": "2026-10-02"
-        },
-        {
-          "hash": "970126e",
-          "subject": "港股第 9 批（12 家硬件、半导体、物流、航运）：股票分析专家口径手工研究页",
-          "author": "hassan",
-          "date": "2026-09-30"
-        },
-        {
-          "hash": "5d90de2",
-          "subject": "港股第 8 批（13 家互联网与软件）：股票分析专家口径手工研究页",
-          "author": "hassan",
-          "date": "2026-09-30"
-        },
-        {
-          "hash": "bccc182",
-          "subject": "港股第 7 批（12 家家电、服饰、博彩、旅游、餐饮）：股票分析专家口径手工研究页",
-          "author": "hassan",
-          "date": "2026-09-30"
-        },
-        {
-          "hash": "cf52b29",
-          "subject": "港股第 6 批（10 家食品饮料与消费）：股票分析专家口径手工研究页",
-          "author": "hassan",
-          "date": "2026-09-30"
         }
       ]
     }
