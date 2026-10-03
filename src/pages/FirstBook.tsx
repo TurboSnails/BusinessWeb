@@ -374,10 +374,10 @@ function BookDashboard(): JSX.Element {
       <div style={cardStyle}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
           <BookOpen size={26} color="var(--system-blue, #007aff)" />
-          <h1 style={{ margin: 0, fontSize: '1.7rem' }}>慢即是快：普通人的第一本投资书</h1>
+          <h1 style={{ margin: 0, fontSize: '1.7rem' }}>正念投资</h1>
         </div>
         <p style={{ color: '#6e6e73', margin: '4px 0 16px', fontSize: '1.02rem' }}>
-          从资产配置到公司研究，找到适合自己的投资方法，让投资服务生活。
+          不盯盘、不预测：从资产配置到公司研究，找到适合自己的投资方法，让投资服务生活。
         </p>
         <p style={{ lineHeight: 1.8, margin: '0 0 12px' }}>
           <strong>主线</strong>：道德经为"道"（心法与节奏），彼得·林奇为"术"（选股与买卖），A股案例为"器"（落地证据）。
@@ -513,7 +513,7 @@ function ChapterReader({ file }: { file: string }): JSX.Element {
     <main className="container" style={{ maxWidth: '860px', margin: '0 auto', padding: '20px 16px' }}>
       <div style={{ marginBottom: '16px' }}>
         <Link to="/first-book/slow-is-fast" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'var(--system-blue, #007aff)', textDecoration: 'none', fontSize: '0.92rem' }}>
-          <ArrowLeft size={15} /> 返回《慢即是快：普通人的第一本投资书》
+          <ArrowLeft size={15} /> 返回《正念投资：不盯盘、不预测的普通人投资方法》
         </Link>
       </div>
 
