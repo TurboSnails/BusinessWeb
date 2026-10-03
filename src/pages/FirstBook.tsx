@@ -39,16 +39,17 @@ const PARTS = [
     title: '第三部分 选股：只教四种林奇战法',
     subtitle: '散户能赢的四种',
     chapters: [
-      { no: '第12章', title: '价值回归：最简单的一招', file: '', status: 'pending' },
-      { no: '第13章', title: '快速增长型：十倍股长什么样', file: '', status: 'pending' },
-      { no: '第14章', title: '困境反转型：别人恐惧时你的机会', file: '', status: 'pending' },
+      { no: '第12章', title: '总纲：先分类，再下注', file: '', status: 'pending' },
+      { no: '第13章', title: '价值回归：最简单的一招', file: '', status: 'pending' },
+      { no: '第14章', title: '快速增长型：十倍股长什么样', file: '', status: 'pending' },
+      { no: '第15章', title: '困境反转型：别人恐惧时你的机会', file: '', status: 'pending' },
       {
-        no: '第15章',
+        no: '第16章',
         title: '周期型：最容易让聪明人翻车的类型',
-        file: '第15章-周期型.md',
+        file: '第16章-周期型.md',
         status: 'draft',
       },
-      { no: '第16章', title: '组合搭配：四种战法怎么配', file: '', status: 'pending' },
+      { no: '第17章', title: '组合搭配：四种战法怎么配', file: '', status: 'pending' },
     ],
   },
   {
@@ -56,9 +57,9 @@ const PARTS = [
     title: '第四部分 执行：卖出与仓位',
     subtitle: '纪律层',
     chapters: [
-      { no: '第17章', title: '怎么拿住：波动是你的朋友', file: '', status: 'pending' },
-      { no: '第18章', title: '什么时候卖：比买入难十倍', file: '', status: 'pending' },
-      { no: '第19章', title: '仓位与纪律：持而盈之，不如其已', file: '', status: 'pending' },
+      { no: '第18章', title: '怎么拿住：波动是你的朋友', file: '', status: 'pending' },
+      { no: '第19章', title: '什么时候卖：比买入难十倍', file: '', status: 'pending' },
+      { no: '第20章', title: '仓位与纪律：持而盈之，不如其已', file: '', status: 'pending' },
     ],
   },
   {
@@ -66,11 +67,11 @@ const PARTS = [
     title: '第五部分 修心：不再每天看盘的自由',
     subtitle: '本书的灵魂 · 道德经 × 投资大师',
     chapters: [
-      { no: '第20章', title: '看盘的代价：为什么越看越亏', file: '', status: 'pending' },
-      { no: '第21章', title: '信息戒断：为道日损的实操', file: '', status: 'pending' },
-      { no: '第22章', title: '看盘仪式：用日历和清单代替盯盘', file: '', status: 'pending' },
-      { no: '第23章', title: '情绪红绿灯：护身符', file: '', status: 'pending' },
-      { no: '第24章', title: '最后的对手：你自己', file: '第24章-最后的对手.md', status: 'draft' },
+      { no: '第21章', title: '看盘的代价：为什么越看越亏', file: '', status: 'pending' },
+      { no: '第22章', title: '信息戒断：为道日损的实操', file: '', status: 'pending' },
+      { no: '第23章', title: '看盘仪式：用日历和清单代替盯盘', file: '', status: 'pending' },
+      { no: '第24章', title: '情绪红绿灯：护身符', file: '', status: 'pending' },
+      { no: '第25章', title: '最后的对手：你自己', file: '第25章-最后的对手.md', status: 'draft' },
     ],
   },
 ]
