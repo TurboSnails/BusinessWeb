@@ -5,79 +5,118 @@ import { ArrowLeft, ArrowRight, BookOpen, CheckCircle2, Circle, PenLine } from '
 /** 章节清单：与 public/first-book/ 下的 md 文件一一对应 */
 const PARTS = [
   {
-    id: 'part1',
-    title: '第一部分 地图：投资的全部种类',
-    subtitle: '看懂江湖再进门',
+    id: 'opening',
+    title: '开篇 美好的愿望：工作，是为了有一天不必再工作',
+    subtitle: '从4%法则出发，规划自己的生活与选择权',
     chapters: [
-      { no: '第1章', title: '按时间分：短线、中线、长线', file: '', status: 'pending' },
-      { no: '第2章', title: '按资产分：你能买的所有东西', file: '', status: 'pending' },
-      { no: '第3章', title: '按策略分：市场上活着的九种打法', file: '', status: 'pending' },
-      { no: '第4章', title: '按玩家分：你的对手盘都是谁', file: '', status: 'pending' },
-      { no: '第5章', title: '残酷的算术：散户亏钱原因排行榜', file: '', status: 'pending' },
+      { no: '开篇', title: '美好的愿望：4%法则与生活的选择权', file: '', status: 'pending' },
+    ],
+  },
+  {
+    id: 'part1',
+    title: '第一部分 地图：投资流派与策略',
+    subtitle: '认识投资类型、代表人物、适合人群，以及不同市场环境下的策略取舍',
+    chapters: [
+      { no: '第1章', title: '全球投资地图：十二大体系，十二种赚钱逻辑', file: '', status: 'pending' },
+      { no: '第2章', title: '企业派的三种主流策略：价值回归、优质复利、GARP', file: '', status: 'pending' },
+      { no: '第3章', title: '普通人常见的三种策略：指数定投、红利配置、ETF网格', file: '', status: 'pending' },
+      { no: '第4章', title: '变化派的三种策略：产业趋势、周期拐点、困境反转', file: '', status: 'pending' },
+      { no: '第5章', title: '交易派的三种策略：趋势跟踪、龙头接力、题材轮动', file: '', status: 'pending' },
+      { no: '第6章', title: '环境决定策略：不同市场环境下，哪类策略更占优', file: '', status: 'pending' },
     ],
   },
   {
     id: 'part2',
-    title: '第二部分 选择：为什么中线适合普通人',
-    subtitle: '像数学证明一样不可逆',
+    title: '第二部分 配置：动态平衡——普通人的省心选择',
+    subtitle: '配置为主，规则再平衡，网格作为可选卫星，小仓位学习中线',
     chapters: [
-      { no: '第6章', title: '时间账本：每周能给投资几小时', file: '', status: 'pending' },
-      { no: '第7章', title: '胜率拆解：中线赚钱的三个来源', file: '', status: 'pending' },
-      { no: '第8章', title: '对手盘分析：散户的相对优势', file: '', status: 'pending' },
-      {
-        no: '第9章',
-        title: '放弃宏观：从大奖章到林奇的共同选择',
-        file: '第9章-放弃宏观.md',
-        status: 'draft',
-      },
-      { no: '第10章', title: '复利的数学：慢即是快', file: '', status: 'pending' },
-      { no: '第11章', title: '中线宣言：普通人的投资宪法', file: '', status: 'pending' },
+      { no: '第7章', title: '配置优先：先让投资省心', file: '', status: 'pending' },
+      { no: '第8章', title: '动态平衡：用规则代替反复猜测', file: '', status: 'pending' },
+      { no: '第9章', title: '参考方案：配置底仓与小仓位中线', file: '', status: 'pending' },
+      { no: '第10章', title: '如何投资标普500与纳指100：场内溢价与场外定投', file: '', status: 'pending' },
+      { no: '第11章', title: '普通人的另类选择：网格，还是“半仓＋网格”', file: '', status: 'pending' },
     ],
   },
   {
     id: 'part3',
-    title: '第三部分 选股：只教四种林奇战法',
-    subtitle: '散户能赢的四种',
+    title: '第三部分 取舍：中长线——普通人的最优解',
+    subtitle: '短线：残酷的前线 · 中线：最肥美的曲线 · 长线：正念的淡然 · 放弃宏观',
     chapters: [
-      { no: '第12章', title: '总纲：先分类，再下注', file: '', status: 'pending' },
-      { no: '第13章', title: '价值回归：最简单的一招', file: '', status: 'pending' },
-      { no: '第14章', title: '快速增长型：十倍股长什么样', file: '', status: 'pending' },
-      { no: '第15章', title: '困境反转型：别人恐惧时你的机会', file: '', status: 'pending' },
-      {
-        no: '第16章',
-        title: '周期型：最容易让聪明人翻车的类型',
-        file: '第16章-周期型.md',
-        status: 'draft',
-      },
-      { no: '第17章', title: '组合搭配：四种战法怎么配', file: '', status: 'pending' },
+      { no: '第12章', title: '短线：残酷的前线', file: '', status: 'pending' },
+      { no: '第13章', title: '中线：最肥美的曲线', file: '', status: 'pending' },
+      { no: '第14章', title: '长线：正念的淡然', file: '', status: 'pending' },
+      { no: '第15章', title: '中长线结合：把企业研究变成自己的节奏', file: '', status: 'pending' },
+      { no: '第16章', title: '放弃宏观：从大奖章到林奇的共同选择', file: '第16章-放弃宏观.md', status: 'draft' },
+      { no: '第17章', title: '复利的数学：慢即是快', file: '', status: 'pending' },
+      { no: '第18章', title: '我的投资选择：个人策略匹配表与中长线原则', file: '', status: 'pending' },
     ],
   },
   {
     id: 'part4',
-    title: '第四部分 执行：卖出与仓位',
-    subtitle: '纪律层',
+    title: '第四部分 研究：看懂产业、公司与经营证据',
+    subtitle: '建立判断能力，展望未来产业，用研究积累减少焦虑',
     chapters: [
-      { no: '第18章', title: '怎么拿住：波动是你的朋友', file: '', status: 'pending' },
-      { no: '第19章', title: '什么时候卖：比买入难十倍', file: '', status: 'pending' },
-      { no: '第20章', title: '仓位与纪律：持而盈之，不如其已', file: '', status: 'pending' },
+      { no: '第19章', title: '产业：先看懂公司所在的世界', file: '', status: 'pending' },
+      { no: '第20章', title: '公司：它到底是一门怎样的生意？', file: '', status: 'pending' },
+      { no: '第21章', title: '财报：利润是真的吗，现金在哪里？', file: '', status: 'pending' },
+      { no: '第22章', title: '估值：公司贵不贵，怎样才算买得值？', file: '', status: 'pending' },
+      { no: '第23章', title: '周期：把公司的表现放回时间里', file: '', status: 'pending' },
+      { no: '第24章', title: '趋势：分清产业趋势、经营趋势与价格趋势', file: '', status: 'pending' },
+      { no: '第25章', title: '未来产业展望：怎样研究“下一个十年”（AI、自动驾驶、新材料等）', file: '', status: 'pending' },
+      { no: '第26章', title: '看多了，就认得“美女公司”：用研究积累减少焦虑', file: '', status: 'pending' },
     ],
   },
   {
     id: 'part5',
-    title: '第五部分 修心：不再每天看盘的自由',
-    subtitle: '本书的灵魂 · 道德经 × 投资大师',
+    title: '第五部分 选股：只教三种——散户能赢的林奇战法',
+    subtitle: '价值回归 · 快速增长 · 困境反转；周期型作为选修放入附录D',
     chapters: [
-      { no: '第21章', title: '看盘的代价：为什么越看越亏', file: '', status: 'pending' },
-      { no: '第22章', title: '信息戒断：为道日损的实操', file: '', status: 'pending' },
-      { no: '第23章', title: '看盘仪式：用日历和清单代替盯盘', file: '', status: 'pending' },
-      { no: '第24章', title: '情绪红绿灯：护身符', file: '', status: 'pending' },
-      { no: '第25章', title: '最后的对手：你自己', file: '第25章-最后的对手.md', status: 'draft' },
+      { no: '第27章', title: '总纲：先分类，再下注——"知不知，上"', file: '', status: 'pending' },
+      { no: '第28章', title: '价值回归：最简单的一招，先学这个', file: '', status: 'pending' },
+      { no: '第29章', title: '快速增长型：十倍股长什么样', file: '', status: 'pending' },
+      { no: '第30章', title: '困境反转型：别人恐惧时你的机会', file: '', status: 'pending' },
+      { no: '第31章', title: '组合搭配：三种战法怎么配——"少则得，多则惑"', file: '', status: 'pending' },
+    ],
+  },
+  {
+    id: 'part6',
+    title: '第六部分 执行：拿住、卖出、仓位与复盘',
+    subtitle: '纪律层',
+    chapters: [
+      { no: '第32章', title: '怎么拿住：波动是你的朋友', file: '', status: 'pending' },
+      { no: '第33章', title: '什么时候卖：比买入难十倍', file: '', status: 'pending' },
+      { no: '第34章', title: '仓位与纪律：持股数量、观察池与仓位上限', file: '', status: 'pending' },
+      { no: '第35章', title: '犯错与复盘：最后的对手是你自己', file: '第35章-犯错与复盘.md', status: 'draft' },
+    ],
+  },
+  {
+    id: 'part7',
+    title: '第七部分 修心：投资是为了更好的生活，而不是生活的全部',
+    subtitle: '忙碌的时候，多专注；\n迷茫的时候，多读书；\n独处的时候，多运动；\n空闲的时候，找兴趣。',
+    chapters: [
+      { no: '第36章', title: '投资为了什么：让钱服务生活', file: '', status: 'pending' },
+      { no: '第37章', title: '给投资设边界：少一点噪音，多一点从容', file: '', status: 'pending' },
+      { no: '第38章', title: '回到生活：专注、读书、运动、兴趣', file: '', status: 'pending' },
+    ],
+  },
+  {
+    id: 'appendix',
+    title: '附录：读者工具与延伸阅读',
+    subtitle: '一页纸工具、选修与资料',
+    chapters: [
+      { no: '附录A', title: '十倍股检查清单', file: '', status: 'pending' },
+      { no: '附录B', title: '道德经投资心法卡（36张）', file: '', status: 'pending' },
+      { no: '附录C', title: '中线投资者的年度操作日历', file: '', status: 'pending' },
+      { no: '附录D', title: '周期股速查（选修）', file: '附录D-周期股速查.md', status: 'draft' },
+      { no: '附录E', title: '凯利公式与半凯利推导（选读）', file: '', status: 'pending' },
+      { no: '附录F', title: '推荐书单与数据来源', file: '', status: 'pending' },
+      { no: '附录G', title: '未来产业观察表（年度更新）', file: '', status: 'pending' },
     ],
   },
 ]
 
 const EXTRA_FILES = [
-  { no: '全书', title: '全书大纲（22章 + 附录）', file: '全书大纲.md', status: 'done' },
+  { no: '全书', title: '全书大纲（开篇 + 38章 + 附录）', file: '全书大纲.md', status: 'done' },
 ]
 
 const STATUS_LABEL: Record<string, string> = {
@@ -329,17 +368,20 @@ function BookDashboard(): JSX.Element {
 
   return (
     <main className="container" style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px 16px' }}>
+      <Link to="/first-book" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '16px', color: 'var(--system-blue, #007aff)', textDecoration: 'none', fontSize: '0.92rem' }}>
+        <ArrowLeft size={15} /> 返回我的书
+      </Link>
       <div style={cardStyle}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
           <BookOpen size={26} color="var(--system-blue, #007aff)" />
-          <h1 style={{ margin: 0, fontSize: '1.7rem' }}>慢即是快</h1>
+          <h1 style={{ margin: 0, fontSize: '1.7rem' }}>慢即是快：普通人的第一本投资书</h1>
         </div>
         <p style={{ color: '#6e6e73', margin: '4px 0 16px', fontSize: '1.02rem' }}>
-          彼得·林奇的道德经投资笔记 —— 一本写给普通散户的中线投资实操书
+          从资产配置到公司研究，找到适合自己的投资方法，让投资服务生活。
         </p>
         <p style={{ lineHeight: 1.8, margin: '0 0 12px' }}>
           <strong>主线</strong>：道德经为"道"（心法与节奏），彼得·林奇为"术"（选股与买卖），A股案例为"器"（落地证据）。
-          核心主张只有一句人话：<strong>聚焦</strong>——放弃短线与宏观，只做散户能赢的四种战法。
+          核心主张只有一句人话：<strong>聚焦</strong>——放弃短线与宏观，只做散户能赢的三种战法。
         </p>
         <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', marginTop: '16px' }}>
           <div>
@@ -394,7 +436,7 @@ function BookDashboard(): JSX.Element {
       {PARTS.map(part => (
         <div key={part.id} style={cardStyle}>
           <h2 style={{ margin: '0 0 4px', fontSize: '1.2rem' }}>{part.title}</h2>
-          <p style={{ margin: '0 0 14px', color: '#8e8e93', fontSize: '0.9rem' }}>{part.subtitle}</p>
+          <p style={{ margin: '0 0 14px', color: '#8e8e93', fontSize: '0.9rem', whiteSpace: 'pre-line', lineHeight: 1.8, fontWeight: part.id === 'part7' ? 600 : 400 }}>{part.subtitle}</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             {part.chapters.map(ch => {
               const inner = (
@@ -470,8 +512,8 @@ function ChapterReader({ file }: { file: string }): JSX.Element {
   return (
     <main className="container" style={{ maxWidth: '860px', margin: '0 auto', padding: '20px 16px' }}>
       <div style={{ marginBottom: '16px' }}>
-        <Link to="/first-book" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'var(--system-blue, #007aff)', textDecoration: 'none', fontSize: '0.92rem' }}>
-          <ArrowLeft size={15} /> 返回《慢即是快》
+        <Link to="/first-book/slow-is-fast" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'var(--system-blue, #007aff)', textDecoration: 'none', fontSize: '0.92rem' }}>
+          <ArrowLeft size={15} /> 返回《慢即是快：普通人的第一本投资书》
         </Link>
       </div>
 
