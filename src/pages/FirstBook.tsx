@@ -32,7 +32,7 @@ const PARTS = [
     chapters: [
       { no: '第7章', title: '配置优先：先让投资省心', file: '第7章-配置优先.md', status: 'draft' },
       { no: '第8章', title: '动态平衡：用规则代替反复猜测', file: '第8章-动态平衡.md', status: 'draft' },
-      { no: '第9章', title: '参考方案：配置底仓与小仓位中线', file: '', status: 'pending' },
+      { no: '第9章', title: '参考方案：配置底仓与小仓位中线', file: '第9章-参考方案.md', status: 'draft' },
       { no: '第10章', title: '如何投资标普500与纳指100：场内溢价与场外定投', file: '', status: 'pending' },
       { no: '第11章', title: '普通人的另类选择：网格，还是“半仓＋网格”', file: '第11章-网格与半仓网格.md', status: 'draft' },
     ],
