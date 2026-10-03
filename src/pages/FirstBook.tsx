@@ -53,19 +53,24 @@ const PARTS = [
   },
   {
     id: 'part4',
-    title: '第四部分 持有与买卖：心态操作系统',
-    subtitle: '道德经 × 投资大师',
+    title: '第四部分 执行：卖出与仓位',
+    subtitle: '纪律层',
     chapters: [
-      { no: '第18章', title: '怎么拿住：波动是你的朋友', file: '', status: 'pending' },
-      { no: '第19章', title: '什么时候卖：比买入难十倍', file: '', status: 'pending' },
-      { no: '第20章', title: '信息节食：为道日损的实操', file: '', status: 'pending' },
-      { no: '第21章', title: '仓位与纪律：持而盈之，不如其已', file: '', status: 'pending' },
-      {
-        no: '第22章',
-        title: '最后的对手：你自己',
-        file: '第22章-最后的对手.md',
-        status: 'draft',
-      },
+      { no: '第17章', title: '怎么拿住：波动是你的朋友', file: '', status: 'pending' },
+      { no: '第18章', title: '什么时候卖：比买入难十倍', file: '', status: 'pending' },
+      { no: '第19章', title: '仓位与纪律：持而盈之，不如其已', file: '', status: 'pending' },
+    ],
+  },
+  {
+    id: 'part5',
+    title: '第五部分 修心：不再每天看盘的自由',
+    subtitle: '本书的灵魂 · 道德经 × 投资大师',
+    chapters: [
+      { no: '第20章', title: '看盘的代价：为什么越看越亏', file: '', status: 'pending' },
+      { no: '第21章', title: '信息戒断：为道日损的实操', file: '', status: 'pending' },
+      { no: '第22章', title: '看盘仪式：用日历和清单代替盯盘', file: '', status: 'pending' },
+      { no: '第23章', title: '情绪红绿灯：护身符', file: '', status: 'pending' },
+      { no: '第24章', title: '最后的对手：你自己', file: '第24章-最后的对手.md', status: 'draft' },
     ],
   },
 ]
