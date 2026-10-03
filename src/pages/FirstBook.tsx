@@ -9,7 +9,7 @@ const PARTS = [
     title: '开篇 美好的愿望：工作，是为了有一天不必再工作',
     subtitle: '从4%法则出发，规划自己的生活与选择权',
     chapters: [
-      { no: '开篇', title: '美好的愿望：4%法则与生活的选择权', file: '', status: 'pending' },
+      { no: '开篇', title: '美好的愿望：4%法则与生活的选择权', file: '开篇-美好的愿望.md', status: 'draft' },
     ],
   },
   {
@@ -94,9 +94,9 @@ const PARTS = [
     title: '第七部分 修心：投资是为了更好的生活，而不是生活的全部',
     subtitle: '忙碌的时候，多专注；\n迷茫的时候，多读书；\n独处的时候，多运动；\n空闲的时候，找兴趣。',
     chapters: [
-      { no: '第36章', title: '投资为了什么：让钱服务生活', file: '', status: 'pending' },
-      { no: '第37章', title: '给投资设边界：少一点噪音，多一点从容', file: '', status: 'pending' },
-      { no: '第38章', title: '回到生活：专注、读书、运动、兴趣', file: '', status: 'pending' },
+      { no: '第36章', title: '投资为了什么：让钱服务生活', file: '第36章-投资为了什么.md', status: 'draft' },
+      { no: '第37章', title: '给投资设边界：少一点噪音，多一点从容', file: '第37章-给投资设边界.md', status: 'draft' },
+      { no: '第38章', title: '回到生活：专注、读书、运动、兴趣', file: '第38章-回到生活.md', status: 'draft' },
     ],
   },
   {
