@@ -13,6 +13,7 @@ import {
   Info,
   Layers,
   BookOpen,
+  BookMarked,
   Menu,
   X
 } from 'lucide-react'
@@ -44,6 +45,7 @@ export default function Header(): JSX.Element {
     { path: '/trading-philosophy', label: '道与术', icon: Shield },
     { path: '/investment-plan-2026', label: '投资计划', icon: Calendar },
     { path: '/investment-strategy', label: '策略框架', icon: Layers },
+    { path: '/first-book', label: '第一本书', icon: BookMarked },
     { path: '/about', label: '关于', icon: Info }
   ]
 
