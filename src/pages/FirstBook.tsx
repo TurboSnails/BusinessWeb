@@ -30,7 +30,7 @@ const PARTS = [
     title: '第二部分 配置：动态平衡——普通人的省心选择',
     subtitle: '配置为主，规则再平衡，网格作为可选卫星，小仓位学习中线',
     chapters: [
-      { no: '第7章', title: '配置优先：先让投资省心', file: '', status: 'pending' },
+      { no: '第7章', title: '配置优先：先让投资省心', file: '第7章-配置优先.md', status: 'draft' },
       { no: '第8章', title: '动态平衡：用规则代替反复猜测', file: '', status: 'pending' },
       { no: '第9章', title: '参考方案：配置底仓与小仓位中线', file: '', status: 'pending' },
       { no: '第10章', title: '如何投资标普500与纳指100：场内溢价与场外定投', file: '', status: 'pending' },
