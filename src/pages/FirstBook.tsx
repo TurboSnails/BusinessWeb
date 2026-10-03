@@ -30,23 +30,24 @@ const PARTS = [
     title: '第二部分 配置：动态平衡——普通人的省心选择',
     subtitle: '配置为主，规则再平衡，网格作为可选卫星，小仓位学习中线',
     chapters: [
-      { no: '第7章', title: '配置优先：先让投资省心', file: '第7章-配置优先.md', status: 'draft' },
+      { no: '第7章', title: '配置优先：先把生活资金和投资资金分清', file: '第7章-配置优先.md', status: 'draft' },
+      { no: '专题', title: '资产基础：每类资产赚什么，怕什么？', file: '专题-资产基础.md', status: 'draft' },
       { no: '第8章', title: '动态平衡：用规则代替反复猜测', file: '第8章-动态平衡.md', status: 'draft' },
       { no: '第9章', title: '参考方案：配置底仓与小仓位中线', file: '第9章-参考方案.md', status: 'draft' },
-      { no: '第10章', title: '如何投资标普500与纳指100：场内溢价与场外定投', file: '第10章-标普500与纳指100落地.md', status: 'draft' },
+      { no: '第10章', title: '从资产到基金：选产品、算成本、查交易条件', file: '第10章-标普500与纳指100落地.md', status: 'draft' },
       { no: '第11章', title: '普通人的另类选择：网格，还是“半仓＋网格”', file: '第11章-网格与半仓网格.md', status: 'draft' },
     ],
   },
   {
     id: 'part3',
-    title: '第三部分 取舍：中长线——普通人的最优解',
+    title: '第三部分 取舍：中长线的适用条件与取舍',
     subtitle: '短线：残酷的前线 · 中线：最肥美的曲线 · 长线：正念的淡然 · 放弃宏观',
     chapters: [
       { no: '第12章', title: '短线：残酷的前线', file: '第12章-短线.md', status: 'draft' },
       { no: '第13章', title: '中线：最肥美的曲线', file: '第13章-中线.md', status: 'draft' },
       { no: '第14章', title: '长线：正念的淡然', file: '第14章-长线.md', status: 'draft' },
       { no: '第15章', title: '中长线结合：把企业研究变成自己的节奏', file: '第15章-中长线结合.md', status: 'draft' },
-      { no: '第16章', title: '放弃宏观：从大奖章到林奇的共同选择', file: '第16章-放弃宏观.md', status: 'draft' },
+      { no: '第16章', title: '放弃宏观择时：把预测变成风险情景', file: '第16章-放弃宏观.md', status: 'draft' },
       { no: '第17章', title: '复利的数学：慢即是快', file: '第17章-复利的数学.md', status: 'draft' },
       { no: '第18章', title: '我的投资选择：个人策略匹配表与中长线原则', file: '第18章-我的投资选择.md', status: 'draft' },
     ],
@@ -63,19 +64,19 @@ const PARTS = [
       { no: '第23章', title: '周期：把公司的表现放回时间里', file: '第23章-周期.md', status: 'draft' },
       { no: '第24章', title: '趋势：分清产业趋势、经营趋势与价格趋势', file: '第24章-趋势.md', status: 'draft' },
       { no: '第25章', title: '未来产业展望：怎样研究“下一个十年”（AI、自动驾驶、新材料等）', file: '第25章-未来产业展望.md', status: 'draft' },
-      { no: '第26章', title: '看多了，就认得“美女公司”：用研究积累减少焦虑', file: '第26章-美女公司.md', status: 'draft' },
+      { no: '第26章', title: '看得多了，就认得好公司：建立自己的观察库', file: '第26章-公司观察库.md', status: 'draft' },
     ],
   },
   {
     id: 'part5',
-    title: '第五部分 选股：只教三种——散户能赢的林奇战法',
+    title: '第五部分 选股：三种企业研究与执行方法',
     subtitle: '价值回归 · 快速增长 · 困境反转；周期型作为选修放入附录D',
     chapters: [
-      { no: '第27章', title: '总纲：先分类，再下注——"知不知，上"', file: '第27章-总纲.md', status: 'draft' },
-      { no: '第28章', title: '价值回归：最简单的一招，先学这个', file: '第28章-价值回归.md', status: 'draft' },
-      { no: '第29章', title: '快速增长型：十倍股长什么样', file: '第29章-快速增长型.md', status: 'draft' },
-      { no: '第30章', title: '困境反转型：别人恐惧时你的机会', file: '第30章-困境反转型.md', status: 'draft' },
-      { no: '第31章', title: '组合搭配：三种战法怎么配——"少则得，多则惑"', file: '第31章-组合搭配.md', status: 'draft' },
+      { no: '第27章', title: '总纲：先分类，再下注——“知不知，上”', file: '第27章-总纲.md', status: 'draft' },
+      { no: '第28章', title: '价值回归：低价格怎样成为机会？', file: '第28章-价值回归.md', status: 'draft' },
+      { no: '第29章', title: '快速增长型：增长怎样落到每股回报？', file: '第29章-快速增长型.md', status: 'draft' },
+      { no: '第30章', title: '困境反转型：先活下来，再谈股东回报', file: '第30章-困境反转型.md', status: 'draft' },
+      { no: '第31章', title: '组合搭配：按损失预算与共同风险分配', file: '第31章-组合搭配.md', status: 'draft' },
     ],
   },
   {
@@ -83,10 +84,11 @@ const PARTS = [
     title: '第六部分 执行：拿住、卖出、仓位与复盘',
     subtitle: '纪律层',
     chapters: [
+      { no: '专题', title: '正念决策：把情绪、事实与行动分开', file: '专题-正念决策.md', status: 'draft' },
       { no: '第32章', title: '怎么拿住：波动是你的朋友', file: '第32章-怎么拿住.md', status: 'draft' },
       { no: '第33章', title: '什么时候卖：比买入难十倍', file: '第33章-什么时候卖.md', status: 'draft' },
       { no: '第34章', title: '仓位与纪律：持股数量、观察池与仓位上限', file: '第34章-仓位与纪律.md', status: 'draft' },
-      { no: '第35章', title: '犯错与复盘：最后的对手是你自己', file: '第35章-犯错与复盘.md', status: 'draft' },
+      { no: '第35章', title: '犯错与复盘：把错误变成下一次的规则', file: '第35章-犯错与复盘.md', status: 'draft' },
     ],
   },
   {
@@ -95,6 +97,7 @@ const PARTS = [
     subtitle: '忙碌的时候，多专注；\n迷茫的时候，多读书；\n独处的时候，多运动；\n空闲的时候，找兴趣。',
     chapters: [
       { no: '第36章', title: '投资为了什么：让钱服务生活', file: '第36章-投资为了什么.md', status: 'draft' },
+      { no: '专题', title: '提款与生活：从积累资金到支付账单', file: '专题-提款与生活.md', status: 'draft' },
       { no: '第37章', title: '给投资设边界：少一点噪音，多一点从容', file: '第37章-给投资设边界.md', status: 'draft' },
       { no: '第38章', title: '回到生活：专注、读书、运动、兴趣', file: '第38章-回到生活.md', status: 'draft' },
     ],
@@ -111,18 +114,35 @@ const PARTS = [
       { no: '附录E', title: '凯利公式与半凯利推导（选读）', file: '附录E-凯利公式推导.md', status: 'draft' },
       { no: '附录F', title: '推荐书单与数据来源', file: '附录F-书单与数据来源.md', status: 'draft' },
       { no: '附录G', title: '未来产业观察表（年度更新）', file: '附录G-未来产业观察表.md', status: 'draft' },
+      { no: '附录H', title: '林家的投资全过程：从资金表到压力复盘', file: '附录H-家庭投资全过程.md', status: 'draft' },
     ],
   },
 ]
 
 const EXTRA_FILES = [
-  { no: '全书', title: '全书大纲（开篇 + 38章 + 附录）', file: '全书大纲.md', status: 'done' },
+  { no: '全书', title: '全书大纲（38章 + 3篇主线专题 + 附录）', file: '全书大纲.md', status: 'done' },
+]
+
+/** 写作与审校过程文档：不属于正文，放在书末单独区块 */
+const REVIEW_FILES = [
+  { no: '核对', title: '跨周期压力检查（双资产代理，非原五项组合）', file: '跨周期压力检查.md', status: 'note' },
+  { no: '修订', title: '修订记录（第五轮：资金、产品与生活，2026-10-03）', file: '修订记录-第五轮-2026-10-03.md', status: 'note' },
+  { no: '修订', title: '修订记录（第四轮：选股与组合，2026-10-03）', file: '修订记录-第四轮-2026-10-03.md', status: 'note' },
+  { no: '审稿', title: '审稿建议（第三轮：知识密度，2026-10-03）', file: '审稿建议-第三轮-2026-10-03.md', status: 'note' },
+  { no: '修订', title: '修订记录（第三轮，2026-10-03）', file: '修订记录-第三轮-2026-10-03.md', status: 'note' },
+  { no: '待办', title: '优化待办：下一轮该做什么（T1—T12）', file: '优化待办-下一步.md', status: 'note' },
+  { no: '核对', title: '数字核对表：全书数字的来源、口径与核验状态', file: '数字核对表.md', status: 'note' },
+  { no: '审稿', title: '审稿建议（第二轮，2026-10-03）', file: '审稿建议-第二轮-2026-10-03.md', status: 'note' },
+  { no: '修订', title: '修订记录（第二轮，2026-10-03）', file: '修订记录-第二轮-2026-10-03.md', status: 'note' },
+  { no: '审稿', title: '审稿建议（第一轮，2026-10-03）', file: '审稿建议-2026-10-03.md', status: 'note' },
+  { no: '修订', title: '修订记录（第一轮，2026-10-03）', file: '修订记录-2026-10-03.md', status: 'note' },
 ]
 
 const STATUS_LABEL: Record<string, string> = {
   done: '已定稿',
   draft: '初稿完成',
   pending: '待撰写',
+  note: '过程文档',
 }
 
 /* ---------- 轻量 Markdown 渲染（覆盖本书用到的语法子集） ---------- */
@@ -350,6 +370,7 @@ const STATUS_COLOR: Record<string, string> = {
   done: '#34c759',
   draft: '#007aff',
   pending: '#8e8e93',
+  note: '#8e8e93',
 }
 
 function StatusIcon({ status }: { status: string }): JSX.Element {
@@ -364,9 +385,9 @@ function StatusIcon({ status }: { status: string }): JSX.Element {
 
 /** 书籍仪表盘：全书概览 + 章节进度 */
 function BookDashboard(): JSX.Element {
-  const allChapters = useMemo(() => [...EXTRA_FILES, ...PARTS.flatMap(p => p.chapters)], [])
-  const drafted = allChapters.filter(c => c.status !== 'pending').length
-  const progress = Math.round((drafted / allChapters.length) * 100)
+  const bodyChapters = useMemo(() => [...EXTRA_FILES, ...PARTS.flatMap(p => p.chapters)], [])
+  const drafted = bodyChapters.filter(c => c.status !== 'pending').length
+  const progress = Math.round((drafted / bodyChapters.length) * 100)
 
   return (
     <main className="container" style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px 16px' }}>
@@ -391,7 +412,7 @@ function BookDashboard(): JSX.Element {
             <div style={{ fontSize: '0.85rem', color: '#8e8e93' }}>已完成章节</div>
           </div>
           <div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--system-blue, #007aff)' }}>{allChapters.length}</div>
+            <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--system-blue, #007aff)' }}>{bodyChapters.length}</div>
             <div style={{ fontSize: '0.85rem', color: '#8e8e93' }}>总章节（含大纲）</div>
           </div>
           <div style={{ flex: 1, minWidth: '200px' }}>
@@ -480,6 +501,30 @@ function BookDashboard(): JSX.Element {
         </div>
       ))}
 
+      <div style={cardStyle}>
+        <h2 style={{ margin: '0 0 4px', fontSize: '1.2rem' }}>写作与审校</h2>
+        <p style={{ margin: '0 0 14px', color: '#8e8e93', fontSize: '0.9rem', lineHeight: 1.8 }}>
+          写作过程的诊断、排期与留痕。不属于正文，记录这本书是怎么一步步改出来的。
+        </p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          {REVIEW_FILES.map(f => (
+            <Link
+              key={f.file}
+              to={`/first-book/${encodeURIComponent(f.file)}`}
+              style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 10px', borderRadius: '8px', textDecoration: 'none', color: 'inherit', fontSize: '0.95rem' }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(0,0,0,0.04)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+            >
+              <StatusIcon status={f.status} />
+              <span style={{ color: '#8e8e93', fontSize: '0.85rem', width: '52px', flexShrink: 0 }}>{f.no}</span>
+              <span style={{ flex: 1 }}>{f.title}</span>
+              <span style={{ fontSize: '0.82rem', color: STATUS_COLOR[f.status] }}>{STATUS_LABEL[f.status]}</span>
+              <ArrowRight size={14} color="#c7c7cc" />
+            </Link>
+          ))}
+        </div>
+      </div>
+
       <p style={{ textAlign: 'center', color: '#aeaeb2', fontSize: '0.82rem', margin: '8px 0 24px' }}>
         本书内容仅为投资方法论讨论，不构成任何投资建议。
       </p>
@@ -492,7 +537,10 @@ function ChapterReader({ file }: { file: string }): JSX.Element {
   const [content, setContent] = useState<string | null>(null)
   const [error, setError] = useState(false)
 
-  const allChapters = useMemo(() => [...EXTRA_FILES, ...PARTS.flatMap(p => p.chapters)].filter(c => c.file), [])
+  const allChapters = useMemo(
+    () => [...EXTRA_FILES, ...PARTS.flatMap(p => p.chapters), ...REVIEW_FILES].filter(c => c.file),
+    []
+  )
   const decoded = decodeURIComponent(file)
   const idx = allChapters.findIndex(c => c.file === decoded)
   const chapter = idx >= 0 ? allChapters[idx] : null

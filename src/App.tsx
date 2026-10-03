@@ -14,6 +14,7 @@ import SectorRotation from './pages/SectorRotation'
 import MainlandInvestmentTargets from './pages/MainlandInvestmentTargets'
 import InvestmentStrategy from './pages/InvestmentStrategy'
 import FirstBook from './pages/FirstBook'
+import MyBooks from './pages/MyBooks'
 import ResearchNotes from './pages/ResearchNotes'
 import CompanyDetail from './pages/CompanyDetail'
 import GridCalculator from './pages/GridCalculator'
@@ -37,7 +38,8 @@ export default function App(): JSX.Element {
           <Route path="/sector-rotation" element={<SectorRotation />} />
           <Route path="/mainland-investment-targets" element={<MainlandInvestmentTargets />} />
           <Route path="/investment-strategy" element={<InvestmentStrategy />} />
-          <Route path="/first-book" element={<FirstBook />} />
+          <Route path="/first-book" element={<MyBooks />} />
+          <Route path="/first-book/slow-is-fast" element={<FirstBook />} />
           <Route path="/first-book/:file" element={<FirstBook />} />
           <Route path="/research-notes" element={<ResearchNotes />} />
           <Route path="/research-notes/:market/:code" element={<CompanyDetail />} />
