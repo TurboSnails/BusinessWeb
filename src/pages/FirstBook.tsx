@@ -71,11 +71,11 @@ const PARTS = [
     title: '第五部分 选股：只教三种——散户能赢的林奇战法',
     subtitle: '价值回归 · 快速增长 · 困境反转；周期型作为选修放入附录D',
     chapters: [
-      { no: '第27章', title: '总纲：先分类，再下注——"知不知，上"', file: '', status: 'pending' },
-      { no: '第28章', title: '价值回归：最简单的一招，先学这个', file: '', status: 'pending' },
-      { no: '第29章', title: '快速增长型：十倍股长什么样', file: '', status: 'pending' },
-      { no: '第30章', title: '困境反转型：别人恐惧时你的机会', file: '', status: 'pending' },
-      { no: '第31章', title: '组合搭配：三种战法怎么配——"少则得，多则惑"', file: '', status: 'pending' },
+      { no: '第27章', title: '总纲：先分类，再下注——"知不知，上"', file: '第27章-总纲.md', status: 'draft' },
+      { no: '第28章', title: '价值回归：最简单的一招，先学这个', file: '第28章-价值回归.md', status: 'draft' },
+      { no: '第29章', title: '快速增长型：十倍股长什么样', file: '第29章-快速增长型.md', status: 'draft' },
+      { no: '第30章', title: '困境反转型：别人恐惧时你的机会', file: '第30章-困境反转型.md', status: 'draft' },
+      { no: '第31章', title: '组合搭配：三种战法怎么配——"少则得，多则惑"', file: '第31章-组合搭配.md', status: 'draft' },
     ],
   },
   {
