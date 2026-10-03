@@ -129,7 +129,7 @@ const STATUS_LABEL: Record<string, string> = {
 
 function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
   const nodes: React.ReactNode[] = []
-  const pattern = /(\*\*[^*]+\*\*|`[^`]+`)/g
+  const pattern = /(\*\*[^*]+\*\*|\*[^*\s][^*]*\*|`[^`]+`)/g
   let last = 0
   let m: RegExpExecArray | null
   let i = 0
@@ -138,6 +138,8 @@ function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
     const token = m[0]
     if (token.startsWith('**')) {
       nodes.push(<strong key={`${keyPrefix}-b${i}`}>{token.slice(2, -2)}</strong>)
+    } else if (token.startsWith('*')) {
+      nodes.push(<em key={`${keyPrefix}-i${i}`}>{token.slice(1, -1)}</em>)
     } else {
       nodes.push(
         <code
