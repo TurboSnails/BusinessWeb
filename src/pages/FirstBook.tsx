@@ -22,7 +22,7 @@ const PARTS = [
       { no: '第3章', title: '普通人常见的三种策略：指数定投、红利配置、ETF网格', file: '', status: 'pending' },
       { no: '第4章', title: '变化派的三种策略：产业趋势、周期拐点、困境反转', file: '', status: 'pending' },
       { no: '第5章', title: '交易派的三种策略：趋势跟踪、龙头接力、题材轮动', file: '', status: 'pending' },
-      { no: '第6章', title: '环境决定策略：不同市场环境下，哪类策略更占优', file: '', status: 'pending' },
+      { no: '第6章', title: '环境决定策略：不同市场环境下，哪类策略更占优', file: '第6章-环境决定策略.md', status: 'draft' },
     ],
   },
   {
@@ -34,7 +34,7 @@ const PARTS = [
       { no: '第8章', title: '动态平衡：用规则代替反复猜测', file: '', status: 'pending' },
       { no: '第9章', title: '参考方案：配置底仓与小仓位中线', file: '', status: 'pending' },
       { no: '第10章', title: '如何投资标普500与纳指100：场内溢价与场外定投', file: '', status: 'pending' },
-      { no: '第11章', title: '普通人的另类选择：网格，还是“半仓＋网格”', file: '', status: 'pending' },
+      { no: '第11章', title: '普通人的另类选择：网格，还是“半仓＋网格”', file: '第11章-网格与半仓网格.md', status: 'draft' },
     ],
   },
   {
