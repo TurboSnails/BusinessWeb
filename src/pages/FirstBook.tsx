@@ -83,9 +83,9 @@ const PARTS = [
     title: '第六部分 执行：拿住、卖出、仓位与复盘',
     subtitle: '纪律层',
     chapters: [
-      { no: '第32章', title: '怎么拿住：波动是你的朋友', file: '', status: 'pending' },
-      { no: '第33章', title: '什么时候卖：比买入难十倍', file: '', status: 'pending' },
-      { no: '第34章', title: '仓位与纪律：持股数量、观察池与仓位上限', file: '', status: 'pending' },
+      { no: '第32章', title: '怎么拿住：波动是你的朋友', file: '第32章-怎么拿住.md', status: 'draft' },
+      { no: '第33章', title: '什么时候卖：比买入难十倍', file: '第33章-什么时候卖.md', status: 'draft' },
+      { no: '第34章', title: '仓位与纪律：持股数量、观察池与仓位上限', file: '第34章-仓位与纪律.md', status: 'draft' },
       { no: '第35章', title: '犯错与复盘：最后的对手是你自己', file: '第35章-犯错与复盘.md', status: 'draft' },
     ],
   },
