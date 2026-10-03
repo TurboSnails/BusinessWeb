@@ -48,7 +48,7 @@ const PARTS = [
       { no: '第15章', title: '中长线结合：把企业研究变成自己的节奏', file: '第15章-中长线结合.md', status: 'draft' },
       { no: '第16章', title: '放弃宏观：从大奖章到林奇的共同选择', file: '第16章-放弃宏观.md', status: 'draft' },
       { no: '第17章', title: '复利的数学：慢即是快', file: '第17章-复利的数学.md', status: 'draft' },
-      { no: '第18章', title: '我的投资选择：个人策略匹配表与中长线原则', file: '', status: 'pending' },
+      { no: '第18章', title: '我的投资选择：个人策略匹配表与中长线原则', file: '第18章-我的投资选择.md', status: 'draft' },
     ],
   },
   {
@@ -56,9 +56,9 @@ const PARTS = [
     title: '第四部分 研究：看懂产业、公司与经营证据',
     subtitle: '建立判断能力，展望未来产业，用研究积累减少焦虑',
     chapters: [
-      { no: '第19章', title: '产业：先看懂公司所在的世界', file: '', status: 'pending' },
-      { no: '第20章', title: '公司：它到底是一门怎样的生意？', file: '', status: 'pending' },
-      { no: '第21章', title: '财报：利润是真的吗，现金在哪里？', file: '', status: 'pending' },
+      { no: '第19章', title: '产业：先看懂公司所在的世界', file: '第19章-产业.md', status: 'draft' },
+      { no: '第20章', title: '公司：它到底是一门怎样的生意？', file: '第20章-公司.md', status: 'draft' },
+      { no: '第21章', title: '财报：利润是真的吗，现金在哪里？', file: '第21章-财报.md', status: 'draft' },
       { no: '第22章', title: '估值：公司贵不贵，怎样才算买得值？', file: '', status: 'pending' },
       { no: '第23章', title: '周期：把公司的表现放回时间里', file: '', status: 'pending' },
       { no: '第24章', title: '趋势：分清产业趋势、经营趋势与价格趋势', file: '', status: 'pending' },
