@@ -47,7 +47,7 @@ const PARTS = [
       { no: '第14章', title: '长线：正念的淡然', file: '', status: 'pending' },
       { no: '第15章', title: '中长线结合：把企业研究变成自己的节奏', file: '', status: 'pending' },
       { no: '第16章', title: '放弃宏观：从大奖章到林奇的共同选择', file: '第16章-放弃宏观.md', status: 'draft' },
-      { no: '第17章', title: '复利的数学：慢即是快', file: '', status: 'pending' },
+      { no: '第17章', title: '复利的数学：慢即是快', file: '第17章-复利的数学.md', status: 'draft' },
       { no: '第18章', title: '我的投资选择：个人策略匹配表与中长线原则', file: '', status: 'pending' },
     ],
   },
