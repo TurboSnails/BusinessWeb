@@ -1,6 +1,10 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { annualFact, ttmValue, normalizeAmount } from './data/normalize.mjs'
+import {eastmoneyUrl} from './data/network.mjs'
+test('requests explicit HK summary columns to obtain report currency',()=>{
+ assert.notEqual(new URL(eastmoneyUrl('RPT_CUSTOM_HKSK_APPFN_CASHFLOW_SUMMARY','00700')).searchParams.get('columns'),'ALL')
+})
 test('deduplicates cumulative reports when building TTM',()=>{
  assert.equal(ttmValue(100,70,60),110);assert.equal(ttmValue(100,null,60),null)
 })
