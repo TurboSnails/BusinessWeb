@@ -153,7 +153,7 @@ export default function Home(): JSX.Element {
     <main className="container animate-fade-in" style={{ maxWidth: '1100px' }}>
 
       {/* 投资大师名句 - Collapsible Card */}
-      <section style={cardStyle}>
+      <section style={{ ...cardStyle, padding: '12px 16px', marginBottom: '8px' }}>
         <div
           onClick={() => setIsExpanded(!isExpanded)}
           style={{
@@ -161,26 +161,27 @@ export default function Home(): JSX.Element {
             alignItems: 'center',
             justifyContent: 'space-between',
             cursor: 'pointer',
-            padding: '4px 0',
+            padding: 0,
             userSelect: 'none'
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
             <div style={{
-              width: '56px',
-              height: '56px',
-              borderRadius: '16px',
+              width: '36px',
+              height: '36px',
+              flexShrink: 0,
+              borderRadius: '10px',
               background: 'rgba(255, 149, 0, 0.1)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               color: 'var(--system-orange)'
             }}>
-              <Lightbulb size={32} />
+              <Lightbulb size={20} />
             </div>
             <div>
               <h2 style={{
-                fontSize: '1.5rem',
+                fontSize: '1.05rem',
                 fontWeight: '700',
                 margin: 0,
                 color: 'var(--text-primary)'
@@ -189,9 +190,9 @@ export default function Home(): JSX.Element {
               </h2>
               {!isExpanded && (
                 <p style={{
-                  margin: '6px 0 0',
-                  fontSize: '0.95rem',
-                  lineHeight: 1.5,
+                  margin: '2px 0 0',
+                  fontSize: '0.8rem',
+                  lineHeight: 1.4,
                   color: 'var(--text-secondary)'
                 }}>
                   “要清楚自己持有什么，更要清楚为什么持有。” ——彼得·林奇
@@ -204,24 +205,25 @@ export default function Home(): JSX.Element {
             transition: 'all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1)',
             transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
             background: 'var(--system-gray6)',
-            width: '40px',
-            height: '40px',
+            width: '28px',
+            height: '28px',
+            flexShrink: 0,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             borderRadius: '50%',
             boxShadow: 'var(--shadow-sm)'
           }}>
-            <ChevronDown size={20} />
+            <ChevronDown size={16} />
           </div>
         </div>
 
         {isExpanded && (
           <div style={{
-            marginTop: '32px',
+            marginTop: '16px',
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '24px',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+            gap: '12px',
             animation: 'fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
           }}>
             {[
@@ -287,9 +289,9 @@ export default function Home(): JSX.Element {
                 <div
                   key={index}
                   style={{
-                    padding: '24px',
+                    padding: '14px',
                     background: 'var(--bg-card)',
-                    borderRadius: '20px',
+                    borderRadius: '14px',
                     color: 'var(--text-primary)',
                     transition: 'all 0.3s ease',
                     border: '1px solid rgba(0, 0, 0, 0.05)',
