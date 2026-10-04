@@ -50,7 +50,7 @@ export function createJobStore({
     if (["collecting", "analyzing", "calculating"].includes(type))
       job.state = type;
     const event = {
-      id: job.log.length + 1,
+      id: ++job.sequence,
       jobId: job.id,
       type,
       stage: job.state,
@@ -84,6 +84,7 @@ export function createJobStore({
         report: null,
         error: null,
         log: [],
+        sequence: 0,
         listeners: new Set(),
         controller: new AbortController(),
       };

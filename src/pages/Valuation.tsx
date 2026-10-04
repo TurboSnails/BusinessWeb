@@ -20,6 +20,8 @@ import {
 } from "../services/valuationApi";
 import {
   loadReports,
+  METHODS,
+  METHOD_LABELS,
   importReport,
   validateSnapshot,
 } from "../features/valuation";
@@ -33,9 +35,30 @@ import type {
 } from "../features/valuation";
 import Results from "../components/valuation/Results";
 import "../components/valuation/valuation.css";
+function preference(backend?: Backend): string {
+  try {
+    return (
+      localStorage.getItem(
+        backend ? "valuation-model-" + backend : "valuation-backend",
+      ) || ""
+    );
+  } catch {
+    return "";
+  }
+}
+function remember(key: string, value: string) {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    /* Preferences are optional. */
+  }
+}
 export default function Valuation() {
   const [params] = useSearchParams(),
-    [query, setQuery] = useState(params.get("code") || ""),
+    [query, setQuery] = useState(
+      (params.get("market") ? params.get("market") + ":" : "") +
+        (params.get("code") || ""),
+    ),
     [connected, setConnected] = useState(false),
     [backends, setBackends] = useState<BackendInfo[]>([]),
     [backend, setBackend] = useState<Backend>("codex"),
@@ -53,7 +76,8 @@ export default function Valuation() {
     [snapshot, setSnapshot] = useState<FinancialSnapshot | null>(null),
     [saved, setSaved] = useState(loadReports),
     [searching, setSearching] = useState(false),
-    [draft, setDraft] = useState("");
+    [draft, setDraft] = useState(""),
+    [compare, setCompare] = useState<ValuationReport | null>(null);
   const stop = useRef<(() => void) | null>(null),
     modelRequest = useRef(0);
   async function connect() {
@@ -63,7 +87,12 @@ export default function Valuation() {
       const list = await fetchBackends();
       setBackends(list);
       setConnected(true);
-      setBackend(list.find((b) => b.installed)?.id || "codex");
+      setBackend(
+        list.find((b) => b.id === preference() && b.installed)?.id ||
+          list.find((b) => b.id === "codex" && b.installed)?.id ||
+          list.find((b) => b.installed)?.id ||
+          "codex",
+      );
     } catch {
       setConnected(false);
       setError("无法连接本地估值服务");
@@ -81,7 +110,11 @@ export default function Valuation() {
     setModel("default");
     fetchModels(backend)
       .then((list) => {
-        if (active && id === modelRequest.current) setModels(list);
+        if (active && id === modelRequest.current) {
+          setModels(list);
+          const remembered = preference(backend);
+          if (list.some((m) => m.modelId === remembered)) setModel(remembered);
+        }
       })
       .catch((e) => {
         if (active) setError(e.message);
@@ -95,6 +128,8 @@ export default function Valuation() {
     setError("");
     setSecurity(null);
     setSnapshot(null);
+    setReport(null);
+    setOriginal(null);
     try {
       const list = await searchCompanies(query);
       setCandidates(list);
@@ -128,6 +163,9 @@ export default function Valuation() {
         if (event.type === "completed" && event.payload.report) {
           setReport(event.payload.report);
           setOriginal(event.payload.report);
+          setSnapshot(event.payload.report.snapshot);
+          setSecurity(event.payload.report.snapshot.security);
+          setQuery(event.payload.report.snapshot.security.code);
           setBusy(false);
           sessionStorage.removeItem("valuation-job");
         }
@@ -150,6 +188,10 @@ export default function Valuation() {
           if (value.report) {
             setReport(value.report);
             setOriginal(value.report);
+            setSnapshot(value.report.snapshot);
+            setSecurity(value.report.snapshot.security);
+            setQuery(value.report.snapshot.security.code);
+            sessionStorage.removeItem("valuation-job");
           } else if (!["cancelled", "failed"].includes(value.state)) {
             setBusy(true);
             attach(id);
@@ -162,6 +204,8 @@ export default function Valuation() {
     setError("");
     setBusy(true);
     setStatus("正在启动");
+    setReport(null);
+    setOriginal(null);
     try {
       const value = await startValuation({
         security,
@@ -232,6 +276,8 @@ export default function Valuation() {
                   setQuery(e.target.value);
                   setSecurity(null);
                   setSnapshot(null);
+                  setReport(null);
+                  setOriginal(null);
                 }}
                 placeholder="腾讯 / 600519 / AAPL"
                 onKeyDown={(e) => {
@@ -254,6 +300,7 @@ export default function Valuation() {
                 onChange={(e) => {
                   setError("");
                   setBackend(e.target.value as Backend);
+                  remember("valuation-backend", e.target.value);
                 }}
               >
                 {(backends.length
@@ -272,7 +319,11 @@ export default function Valuation() {
               <select
                 value={model}
                 disabled={!connected || busy}
-                onChange={(e) => setModel(e.target.value)}
+                onChange={(e) => {
+                  setModel(e.target.value);
+                  if (e.target.value !== "manual")
+                    remember("valuation-model-" + backend, e.target.value);
+                }}
               >
                 {!models.length && (
                   <option value="default">CLI 默认模型（别名）</option>
@@ -461,6 +512,71 @@ export default function Valuation() {
         </section>
         {report ? (
           <>
+            <section className="valuation-card">
+              <h2>模型结果对比</h2>
+              <select
+                aria-label="对比历史报告"
+                value={compare?.createdAt || ""}
+                onChange={(e) =>
+                  setCompare(
+                    saved.find((r) => r.createdAt === e.target.value) || null,
+                  )
+                }
+              >
+                <option value="">选择已保存的同公司报告</option>
+                {saved
+                  .filter(
+                    (r) =>
+                      r.snapshot.security.code ===
+                        report.snapshot.security.code &&
+                      r.snapshot.security.market ===
+                        report.snapshot.security.market,
+                  )
+                  .map((r) => (
+                    <option key={r.createdAt} value={r.createdAt}>
+                      {r.backend} / {r.requestedModelId} · {r.createdAt}
+                    </option>
+                  ))}
+              </select>
+              {compare &&
+                compare.snapshot.security.code ===
+                  report.snapshot.security.code && (
+                  <>
+                    <p>
+                      {JSON.stringify(compare.snapshot) ===
+                      JSON.stringify(report.snapshot)
+                        ? "两份报告使用同一财务快照"
+                        : "财务快照有差异，请结合数据日期与口径比较"}
+                    </p>
+                    <div className="valuation-table-wrap">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>基准情景</th>
+                            <th>{report.requestedModelId}</th>
+                            <th>{compare.requestedModelId}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {METHODS.map((m) => (
+                            <tr key={m}>
+                              <th>{METHOD_LABELS[m]}</th>
+                              <td>
+                                {report.results.base[m].price?.toFixed(2) ??
+                                  "不可计算"}
+                              </td>
+                              <td>
+                                {compare.results.base[m].price?.toFixed(2) ??
+                                  "不可计算"}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
+                )}
+            </section>
             <div className="valuation-actions">
               {original && (
                 <button onClick={() => setReport(structuredClone(original))}>

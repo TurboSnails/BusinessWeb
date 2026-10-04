@@ -8,13 +8,23 @@ export function validateSnapshot(
     v.schemaVersion !== 1 ||
     !v.security ||
     !["cn", "hk", "us"].includes(v.security.market) ||
-    !v.security.code ||
+    typeof v.security.code !== "string" ||
+    typeof v.security.name !== "string" ||
+    typeof v.security.exchange !== "string" ||
     !v.security.quoteCurrency ||
     !v.asOf ||
     !v.facts ||
     !Array.isArray(v.sources) ||
     !Array.isArray(v.peers) ||
-    !Array.isArray(v.missing)
+    !Array.isArray(v.missing) ||
+    !v.missing.every((x) => typeof x === "string") ||
+    !v.sources.every(
+      (s) =>
+        s &&
+        typeof s.id === "string" &&
+        typeof s.title === "string" &&
+        typeof s.url === "string",
+    )
   )
     return { ok: false, errors: ["财务快照结构无效"] };
   const ids = new Set(v.sources.map((s) => s.id));

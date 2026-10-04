@@ -74,7 +74,32 @@ export function validateAssumptions(value, snapshot) {
     if (s.sourceIds.some((id) => !ids.has(id)))
       throw new Error("假设引用未知来源");
     for (const d of [s.dcf, s.multistage])
-      if (d?.projections === null) delete d.projections;
+      if (d) {
+        if (d.projections === null) delete d.projections;
+        if (d.kind === "fcff") {
+          // Historical bridge amounts are facts, never model assumptions.
+          for (const key of [
+            "cash",
+            "debt",
+            "preferred",
+            "minority",
+            "nonOperating",
+          ]) {
+            const fact = snapshot.facts?.[key];
+            const fx =
+              fact?.currency &&
+              fact.currency !== snapshot.security.quoteCurrency
+                ? snapshot.facts?.["fx_" + fact.currency]?.value
+                : 1;
+            d[key] =
+              fact?.status === "available" &&
+              Number.isFinite(fact.value) &&
+              Number.isFinite(fx)
+                ? fact.value * fx
+                : null;
+          }
+        }
+      }
   }
   if (new Set(years).size !== 1) throw new Error("三情景预测年份必须一致");
   for (const item of value.analysis)

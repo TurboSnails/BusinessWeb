@@ -1,0 +1,428 @@
+{
+  "schemaVersion": 1,
+  "snapshot": {
+    "schemaVersion": 1,
+    "security": {
+      "market": "us",
+      "code": "AAPL",
+      "name": "AAPL",
+      "quoteCurrency": "USD",
+      "exchange": "US"
+    },
+    "asOf": "2026-10-04",
+    "facts": {
+      "revenue": {
+        "value": 416161000000,
+        "unit": "USD",
+        "currency": "USD",
+        "periodStart": "2024-09-29",
+        "periodEnd": "2025-09-27",
+        "basis": "annual",
+        "sourceId": "sec",
+        "retrievedAt": "2026-10-04T08:04:33.807Z",
+        "status": "available"
+      },
+      "netIncome": {
+        "value": 112010000000,
+        "unit": "USD",
+        "currency": "USD",
+        "periodStart": "2024-09-29",
+        "periodEnd": "2025-09-27",
+        "basis": "annual",
+        "sourceId": "sec",
+        "retrievedAt": "2026-10-04T08:04:33.807Z",
+        "status": "available"
+      },
+      "eps": {
+        "value": 7.46,
+        "unit": "USD/shares",
+        "currency": "USD",
+        "periodStart": "2024-09-29",
+        "periodEnd": "2025-09-27",
+        "basis": "annual",
+        "sourceId": "sec",
+        "retrievedAt": "2026-10-04T08:04:33.807Z",
+        "status": "available"
+      },
+      "shares": {
+        "value": 14608963000,
+        "unit": "shares",
+        "currency": "",
+        "periodStart": "2026-06-27",
+        "periodEnd": "2026-06-27",
+        "basis": "spot",
+        "sourceId": "sec",
+        "retrievedAt": "2026-10-04T08:04:33.807Z",
+        "status": "available"
+      },
+      "equity": {
+        "value": 107520000000,
+        "unit": "USD",
+        "currency": "USD",
+        "periodStart": "2026-06-27",
+        "periodEnd": "2026-06-27",
+        "basis": "spot",
+        "sourceId": "sec",
+        "retrievedAt": "2026-10-04T08:04:33.807Z",
+        "status": "available"
+      },
+      "cash": {
+        "value": 39544000000,
+        "unit": "USD",
+        "currency": "USD",
+        "periodStart": "2026-06-27",
+        "periodEnd": "2026-06-27",
+        "basis": "spot",
+        "sourceId": "sec",
+        "retrievedAt": "2026-10-04T08:04:33.808Z",
+        "status": "available"
+      },
+      "operatingCashflow": {
+        "value": 111482000000,
+        "unit": "USD",
+        "currency": "USD",
+        "periodStart": "2024-09-29",
+        "periodEnd": "2025-09-27",
+        "basis": "annual",
+        "sourceId": "sec",
+        "retrievedAt": "2026-10-04T08:04:33.808Z",
+        "status": "available"
+      },
+      "capex": {
+        "value": 12715000000,
+        "unit": "USD",
+        "currency": "USD",
+        "periodStart": "2024-09-29",
+        "periodEnd": "2025-09-27",
+        "basis": "annual",
+        "sourceId": "sec",
+        "retrievedAt": "2026-10-04T08:04:33.808Z",
+        "status": "available"
+      },
+      "ebit": {
+        "value": 133050000000,
+        "unit": "USD",
+        "currency": "USD",
+        "periodStart": "2024-09-29",
+        "periodEnd": "2025-09-27",
+        "basis": "annual",
+        "sourceId": "sec",
+        "retrievedAt": "2026-10-04T08:04:33.808Z",
+        "status": "available"
+      },
+      "da": {
+        "value": 11698000000,
+        "unit": "USD",
+        "currency": "USD",
+        "periodStart": "2024-09-29",
+        "periodEnd": "2025-09-27",
+        "basis": "annual",
+        "sourceId": "sec",
+        "retrievedAt": "2026-10-04T08:04:33.808Z",
+        "status": "available"
+      },
+      "debt": {
+        "value": 82347000000,
+        "unit": "USD",
+        "currency": "USD",
+        "periodStart": "2026-06-27",
+        "periodEnd": "2026-06-27",
+        "basis": "spot",
+        "sourceId": "sec",
+        "retrievedAt": "2026-10-04T08:04:33.808Z",
+        "status": "available"
+      },
+      "price": {
+        "value": 333.69,
+        "unit": "currency/share",
+        "currency": "USD",
+        "periodStart": "2026-10-02",
+        "periodEnd": "2026-10-02",
+        "basis": "spot",
+        "sourceId": "quote",
+        "retrievedAt": "2026-10-04T08:04:34.294Z",
+        "status": "available"
+      }
+    },
+    "sources": [
+      {
+        "id": "sec",
+        "title": "SEC Apple Inc. companyfacts",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000320193.json"
+      },
+      {
+        "id": "quote",
+        "title": "腾讯行情",
+        "url": "https://qt.gtimg.cn/q=usAAPL"
+      }
+    ],
+    "peers": [],
+    "missing": ["未采集同业财报；无行业中位数"]
+  },
+  "assumptions": {
+    "schemaVersion": 1,
+    "security": {
+      "market": "us",
+      "code": "AAPL",
+      "name": "AAPL",
+      "quoteCurrency": "USD",
+      "exchange": "US"
+    },
+    "valuationDate": "2026-10-04",
+    "scenarios": {
+      "bear": {
+        "year": 2026,
+        "eps": 7.46,
+        "revenue": 428645830000,
+        "bvps": 7.36,
+        "shares": 14608963000,
+        "growth": 0,
+        "pe": 44.73,
+        "peg": null,
+        "ps": 11.37,
+        "pb": 45.34,
+        "requiredReturn": 0.12,
+        "dcf": null,
+        "multistage": null,
+        "rationale": "FY2026为明确假设情景：收入较FY2025增长3%，EPS持平，股数持平。金额及每股值均为USD；快照未提供fx字段，但事实和报价币种均为USD，按1:1换算。PEG在零增长下不可计算。",
+        "sourceIds": ["sec", "quote"]
+      },
+      "base": {
+        "year": 2026,
+        "eps": 8.0568,
+        "revenue": 445292270000,
+        "bvps": 7.36,
+        "shares": 14608963000,
+        "growth": 0.08,
+        "pe": 41.42,
+        "peg": 5.18,
+        "ps": 10.95,
+        "pb": 45.34,
+        "requiredReturn": 0.1,
+        "dcf": null,
+        "multistage": null,
+        "rationale": "FY2026为明确假设情景：收入增长7%，EPS增长8%，股数持平；增长率是对FY2025历史值的假设，不是已知事实。金额及每股值均为USD；快照未提供fx字段，但事实和报价币种均为USD，按1:1换算。估值倍数以快照报价333.69美元及给定预测计算。",
+        "sourceIds": ["sec", "quote"]
+      },
+      "bull": {
+        "year": 2026,
+        "eps": 8.579,
+        "revenue": 461939710000,
+        "bvps": 7.36,
+        "shares": 14608963000,
+        "growth": 0.15,
+        "pe": 38.9,
+        "peg": 2.59,
+        "ps": 10.56,
+        "pb": 45.34,
+        "requiredReturn": 0.09,
+        "dcf": null,
+        "multistage": null,
+        "rationale": "FY2026为明确假设情景：收入增长11%，EPS增长15%，股数持平；较高增长仅为假设。金额及每股值均为USD；快照未提供fx字段，但事实和报价币种均为USD，按1:1换算。估值倍数以快照报价333.69美元及给定预测计算。",
+        "sourceIds": ["sec", "quote"]
+      }
+    },
+    "methodSuitability": {
+      "pe": {
+        "applicable": true,
+        "reason": "已提供正的年度净利润和EPS，可作情景倍数分析；未来EPS增长属于假设。"
+      },
+      "peg": {
+        "applicable": true,
+        "reason": "基准及乐观情景假设EPS增长为正，可按PE除以百分数形式的增长率计算；零增长的悲观情景PEG不适用。"
+      },
+      "ps": {
+        "applicable": true,
+        "reason": "有年度收入及股数，且可用快照价格计算市值销售比；未提供同业数据，不能据此判断相对行业估值。"
+      },
+      "pb": {
+        "applicable": true,
+        "reason": "有股东权益和股数，可计算账面价值每股；账面权益为2026-06-27快照值，时点与年度预测不完全一致。"
+      },
+      "dcf": {
+        "applicable": false,
+        "reason": "无法可靠构造普通股FCFF价值桥接，缺少优先股、少数权益及非经营资产数据；单年CFO减资本开支不能替代FCFF，且缺少营运资本变化和税率等预测输入。"
+      },
+      "multistage": {
+        "applicable": false,
+        "reason": "缺少支持5至15年FCFF逐年预测的营运资本、税率等关键事实，且普通股股权桥接中的优先股、少数权益及非经营资产未知，不能用假设填补。"
+      }
+    },
+    "analysis": [
+      {
+        "dimension": "盈利与增长",
+        "conclusion": "FY2025净利率约26.9%，EPS为7.46美元；快照仅含一个年度，无法从历史序列确认盈利增长趋势。",
+        "evidence": [
+          "FY2025收入416.161十亿美元，净利润112.010十亿美元，EPS 7.46美元。"
+        ],
+        "sourceIds": ["sec"],
+        "falsification": "后续披露若显示收入或净利润连续下滑、利润率明显收缩，或每股盈利下降，则增长假设被证伪。"
+      },
+      {
+        "dimension": "现金流质量",
+        "conclusion": "年度经营现金流接近净利润，CFO/净利润约1.00；扣除资本开支后的现金流约98.767十亿美元，但这不是FCFF。",
+        "evidence": [
+          "FY2025经营现金流111.482十亿美元，净利润112.010十亿美元。",
+          "FY2025资本开支12.715十亿美元。"
+        ],
+        "sourceIds": ["sec"],
+        "falsification": "后续期间若经营现金流持续显著低于净利润，或营运资本及其他项目导致现金转换恶化，则现金流质量判断需下修。"
+      },
+      {
+        "dimension": "ROE与ROIC",
+        "conclusion": "以2026-06-27权益快照粗略除以FY2025净利润，净利/期末权益约104.2%；缺少平均权益、投入资本及NOPAT，不能据此确认规范ROE或计算ROIC。",
+        "evidence": [
+          "净利润112.010十亿美元（FY2025）；权益107.520十亿美元（2026-06-27）。"
+        ],
+        "sourceIds": ["sec"],
+        "falsification": "取得平均权益、税后经营利润及投入资本数据后，若规范ROE或ROIC显著较低，该粗略比率不能代表持续资本回报。"
+      },
+      {
+        "dimension": "负债",
+        "conclusion": "快照债务82.347十亿美元、现金39.544十亿美元，债务减现金为42.803十亿美元；未提供到期结构、利息成本或租赁负债明细。",
+        "evidence": [
+          "债务82.347十亿美元及现金39.544十亿美元，均为2026-06-27快照。"
+        ],
+        "sourceIds": ["sec"],
+        "falsification": "若后续披露显示净债务上升、利息覆盖下降或近期到期再融资压力增大，则当前负债判断需下修。"
+      },
+      {
+        "dimension": "周期与护城河",
+        "conclusion": "提供的事实不足以量化产品周期敏感度、竞争地位或护城河；不据公司名称补入定性结论，也无同业中位数。",
+        "evidence": ["输入未采集同业财报，且仅提供单年度财务数据。"],
+        "sourceIds": [],
+        "falsification": "若连续数据体现需求波动放大、收入或利润率受竞争显著侵蚀，或同业比较显示表现转弱，则任何后续护城河假设都应重估。"
+      },
+      {
+        "dimension": "资本开支",
+        "conclusion": "FY2025资本开支约为收入的3.1%，折旧摊销11.698十亿美元；单年度数据不足以确认长期资本强度或维护性与增长性资本开支占比。",
+        "evidence": [
+          "FY2025资本开支12.715十亿美元，折旧摊销11.698十亿美元，收入416.161十亿美元。"
+        ],
+        "sourceIds": ["sec"],
+        "falsification": "若资本开支长期快于收入增长、显著高于折旧摊销且现金回报未改善，则低资本强度假设被证伪。"
+      },
+      {
+        "dimension": "稀释",
+        "conclusion": "快照给出14.609十亿股期末股数，但缺少历史股数序列及股权薪酬数据；情景暂假设股数不变，不能据此断言无稀释。",
+        "evidence": ["股数14.609十亿股，快照日期2026-06-27。"],
+        "sourceIds": ["sec"],
+        "falsification": "后续加权平均股数或期末股数持续增加，将证伪股数持平假设并压低每股预测。"
+      }
+    ]
+  },
+  "results": {
+    "bear": {
+      "pe": {
+        "status": "calculated",
+        "price": 333.6858,
+        "presentPrice": 333.6858,
+        "reason": "估值基准日价格"
+      },
+      "peg": {
+        "status": "missingData",
+        "price": null,
+        "reason": "缺少财务指标或目标倍数"
+      },
+      "ps": {
+        "status": "calculated",
+        "price": 333.61047509669237,
+        "presentPrice": 333.61047509669237,
+        "reason": "估值基准日价格"
+      },
+      "pb": {
+        "status": "calculated",
+        "price": 333.7024,
+        "presentPrice": 333.7024,
+        "reason": "估值基准日价格"
+      },
+      "dcf": {
+        "status": "notApplicable",
+        "price": null,
+        "reason": "无法可靠构造普通股FCFF价值桥接，缺少优先股、少数权益及非经营资产数据；单年CFO减资本开支不能替代FCFF，且缺少营运资本变化和税率等预测输入。"
+      },
+      "multistage": {
+        "status": "notApplicable",
+        "price": null,
+        "reason": "缺少支持5至15年FCFF逐年预测的营运资本、税率等关键事实，且普通股股权桥接中的优先股、少数权益及非经营资产未知，不能用假设填补。"
+      }
+    },
+    "base": {
+      "pe": {
+        "status": "calculated",
+        "price": 333.71265600000004,
+        "presentPrice": 333.71265600000004,
+        "reason": "估值基准日价格"
+      },
+      "peg": {
+        "status": "calculated",
+        "price": 333.87379200000004,
+        "presentPrice": 333.87379200000004,
+        "reason": "估值基准日价格"
+      },
+      "ps": {
+        "status": "calculated",
+        "price": 333.7643032226175,
+        "presentPrice": 333.7643032226175,
+        "reason": "估值基准日价格"
+      },
+      "pb": {
+        "status": "calculated",
+        "price": 333.7024,
+        "presentPrice": 333.7024,
+        "reason": "估值基准日价格"
+      },
+      "dcf": {
+        "status": "notApplicable",
+        "price": null,
+        "reason": "无法可靠构造普通股FCFF价值桥接，缺少优先股、少数权益及非经营资产数据；单年CFO减资本开支不能替代FCFF，且缺少营运资本变化和税率等预测输入。"
+      },
+      "multistage": {
+        "status": "notApplicable",
+        "price": null,
+        "reason": "缺少支持5至15年FCFF逐年预测的营运资本、税率等关键事实，且普通股股权桥接中的优先股、少数权益及非经营资产未知，不能用假设填补。"
+      }
+    },
+    "bull": {
+      "pe": {
+        "status": "calculated",
+        "price": 333.7231,
+        "presentPrice": 333.7231,
+        "reason": "估值基准日价格"
+      },
+      "peg": {
+        "status": "calculated",
+        "price": 333.29415,
+        "presentPrice": 333.29415,
+        "reason": "估值基准日价格"
+      },
+      "ps": {
+        "status": "calculated",
+        "price": 333.9103081854612,
+        "presentPrice": 333.9103081854612,
+        "reason": "估值基准日价格"
+      },
+      "pb": {
+        "status": "calculated",
+        "price": 333.7024,
+        "presentPrice": 333.7024,
+        "reason": "估值基准日价格"
+      },
+      "dcf": {
+        "status": "notApplicable",
+        "price": null,
+        "reason": "无法可靠构造普通股FCFF价值桥接，缺少优先股、少数权益及非经营资产数据；单年CFO减资本开支不能替代FCFF，且缺少营运资本变化和税率等预测输入。"
+      },
+      "multistage": {
+        "status": "notApplicable",
+        "price": null,
+        "reason": "缺少支持5至15年FCFF逐年预测的营运资本、税率等关键事实，且普通股股权桥接中的优先股、少数权益及非经营资产未知，不能用假设填补。"
+      }
+    }
+  },
+  "backend": "codex",
+  "requestedModelId": "gpt-6-luna",
+  "resolvedModelId": null,
+  "cliVersion": "codex-cli 0.160.0",
+  "createdAt": "2026-10-04T08:05:42.676Z"
+}

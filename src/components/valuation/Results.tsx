@@ -97,6 +97,37 @@ export default function Results({
                 <tr key={m}>
                   <th>
                     {METHOD_LABELS[m]}
+                    <label>
+                      <input
+                        type="checkbox"
+                        aria-label={METHOD_LABELS[m] + "适用"}
+                        checked={
+                          report.assumptions.methodSuitability[m].applicable
+                        }
+                        onChange={(e) => {
+                          const assumptions = structuredClone(
+                            report.assumptions,
+                          );
+                          assumptions.methodSuitability[m] = {
+                            applicable: e.target.checked,
+                            reason:
+                              "用户调整适用性；原判断：" +
+                              report.assumptions.methodSuitability[
+                                m
+                              ].reason.replace(/^用户调整适用性；原判断：/, ""),
+                          };
+                          onChange(
+                            calculateReport(
+                              report.snapshot,
+                              assumptions,
+                              report,
+                            ),
+                          );
+                          setAdjusted(true);
+                        }}
+                      />
+                      参与计算
+                    </label>
                     <small>
                       {report.assumptions.methodSuitability[m].reason}
                     </small>

@@ -3,7 +3,10 @@ import { analyzeSnapshot } from "../server/valuation/analysis/index.mjs";
 import { calculateReport } from "../src/features/valuation/index.ts";
 import { writeFile } from "node:fs/promises";
 const args = process.argv.slice(2),
-  get = (name, fallback) => args[args.indexOf(name) + 1] || fallback;
+  get = (name, fallback) => {
+    const i = args.indexOf(name);
+    return i >= 0 ? args[i + 1] || fallback : fallback;
+  };
 const backend = get("--backend", "codex"),
   modelId = get("--model", "default"),
   [market, code] = get("--company", "us:AAPL").split(":");

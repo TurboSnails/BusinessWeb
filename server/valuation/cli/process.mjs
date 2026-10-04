@@ -26,16 +26,32 @@ export function runProcess(
       stderr = "",
       pending = "",
       bytes = 0,
-      done = false;
-    const stop = () => {
+      done = false,
+      failure = null,
+      killTimer;
+    const stop = (kind = "SIGTERM") => {
       try {
-        if (process.platform === "win32") child.kill("SIGTERM");
-        else process.kill(-child.pid, "SIGTERM");
+        if (process.platform === "win32") child.kill(kind);
+        else process.kill(-child.pid, kind);
       } catch {}
     };
     const finish = (error) => {
       if (done) return;
+      if (
+        error &&
+        child.pid &&
+        child.exitCode === null &&
+        child.signalCode === null
+      ) {
+        if (failure) return;
+        failure = error;
+        clearTimeout(timer);
+        stop();
+        killTimer = setTimeout(() => stop("SIGKILL"), 500);
+        return;
+      }
       done = true;
+      clearTimeout(killTimer);
       clearTimeout(timer);
       signal?.removeEventListener("abort", abort);
       if (error) {
@@ -78,9 +94,10 @@ export function runProcess(
           return finish(error);
         }
       finish(
-        code === 0
-          ? null
-          : new Error(`CLI退出码 ${code}；请检查该CLI登录和模型权限`),
+        failure ||
+          (code === 0
+            ? null
+            : new Error(`CLI退出码 ${code}；请检查该CLI登录和模型权限`)),
       );
     });
     child.stdin.on("error", () => {});

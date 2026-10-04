@@ -79,7 +79,10 @@ export function calculateReport(
     snapshot,
     assumptions,
     results,
-    ...execution,
+    backend: execution.backend,
+    requestedModelId: execution.requestedModelId,
+    resolvedModelId: execution.resolvedModelId,
+    cliVersion: execution.cliVersion,
     createdAt: new Date().toISOString(),
   };
 }

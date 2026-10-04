@@ -66,13 +66,16 @@ export async function collectSec(security, { asOf, signal }) {
       }
     }
   }
-  const dc = annualFact(gaap.LongTermDebtCurrent, asOf, { instant: true }),
-    dn = annualFact(gaap.LongTermDebtNoncurrent, asOf, { instant: true });
-  if (dc && dn && dc.periodEnd === dn.periodEnd)
-    facts.debt = { ...dn, value: dc.value + dn.value };
+  // These tags only cover long-term debt. Do not silently treat them as
+  // complete interest-bearing debt without reconciling short-term borrowing.
+  const partialDebt = annualFact(gaap.LongTermDebtNoncurrent, asOf, {
+    instant: true,
+  });
   return {
     facts,
     sources: [{ id: "sec", title: `SEC ${raw.entityName} companyfacts`, url }],
-    missing: [],
+    missing: partialDebt
+      ? ["debt：SEC债务组件尚未完整核对，需补充含短期借款的总有息债务"]
+      : [],
   };
 }

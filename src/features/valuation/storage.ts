@@ -2,53 +2,133 @@ import type { ValuationReport } from "./types.ts";
 import { METHODS, SCENARIOS } from "./types.ts";
 import { validateSnapshot } from "./validation.ts";
 const KEY = "businessweb.valuation.v1";
+const finite = (n: unknown) => typeof n === "number" && Number.isFinite(n);
+const nullable = (n: unknown) => n === null || finite(n);
+const strings = (v: unknown): v is string[] =>
+  Array.isArray(v) && v.every((x) => typeof x === "string");
+function validDcf(d: any): boolean {
+  return (
+    d === null ||
+    (!!d &&
+      ["fcff", "fcfe"].includes(d.kind) &&
+      Array.isArray(d.cashflows) &&
+      d.cashflows.length > 0 &&
+      d.cashflows.length <= 15 &&
+      d.cashflows.every(finite) &&
+      finite(d.discountRate) &&
+      finite(d.terminalGrowth) &&
+      nullable(d.shares) &&
+      ["cash", "debt", "preferred", "minority", "nonOperating"].every(
+        (k) => d[k] === undefined || nullable(d[k]),
+      ) &&
+      (d.financingNote === undefined || typeof d.financingNote === "string") &&
+      (d.projections === undefined ||
+        (Array.isArray(d.projections) &&
+          d.projections.every(
+            (p: any) =>
+              p &&
+              [
+                "revenue",
+                "ebitMargin",
+                "taxRate",
+                "da",
+                "capex",
+                "workingCapitalIncrease",
+              ].every((k) => finite(p[k])),
+          ))))
+  );
+}
 export function isReport(value: unknown): value is ValuationReport {
-  const v = value as ValuationReport;
-  if (
-    !v ||
-    v.schemaVersion !== 1 ||
-    !v.snapshot ||
-    !validateSnapshot(v.snapshot).ok ||
-    !v.assumptions?.security ||
-    !v.results ||
-    !v.assumptions.methodSuitability ||
-    !Array.isArray(v.assumptions.analysis) ||
-    !v.createdAt ||
-    !v.backend ||
-    !v.requestedModelId
-  )
-    return false;
-  return SCENARIOS.every((k) => {
-    const s = v.assumptions.scenarios?.[k];
-    return (
-      s &&
-      typeof s.rationale === "string" &&
-      Array.isArray(s.sourceIds) &&
-      Number.isInteger(s.year) &&
-      Number.isFinite(s.requiredReturn) &&
-      [
-        "eps",
-        "revenue",
-        "bvps",
-        "shares",
-        "growth",
-        "pe",
-        "peg",
-        "ps",
-        "pb",
-      ].every((f) => {
-        const n = s[f as keyof typeof s];
-        return n === null || (typeof n === "number" && Number.isFinite(n));
-      }) &&
-      METHODS.every(
-        (m) =>
-          v.results[k]?.[m] &&
-          typeof v.results[k][m].reason === "string" &&
-          v.assumptions.methodSuitability[m] &&
-          typeof v.assumptions.methodSuitability[m].reason === "string",
+  try {
+    const v = value as ValuationReport;
+    if (
+      !v ||
+      v.schemaVersion !== 1 ||
+      !validateSnapshot(v.snapshot).ok ||
+      !v.assumptions ||
+      v.assumptions.schemaVersion !== 1 ||
+      !v.results ||
+      typeof v.createdAt !== "string" ||
+      !Number.isFinite(Date.parse(v.createdAt)) ||
+      !["pi", "codex", "claude", "opencode"].includes(v.backend) ||
+      typeof v.requestedModelId !== "string" ||
+      typeof v.cliVersion !== "string" ||
+      !(v.resolvedModelId === null || typeof v.resolvedModelId === "string")
+    )
+      return false;
+    const a = v.assumptions,
+      ids = new Set(v.snapshot.sources.map((s) => s.id));
+    if (
+      a.security.code !== v.snapshot.security.code ||
+      a.security.market !== v.snapshot.security.market ||
+      a.security.quoteCurrency !== v.snapshot.security.quoteCurrency ||
+      a.valuationDate !== v.snapshot.asOf ||
+      !Array.isArray(a.analysis) ||
+      !a.analysis.every(
+        (x) =>
+          x &&
+          typeof x.dimension === "string" &&
+          typeof x.conclusion === "string" &&
+          typeof x.falsification === "string" &&
+          strings(x.evidence) &&
+          strings(x.sourceIds) &&
+          x.sourceIds.every((id) => ids.has(id)),
       )
-    );
-  });
+    )
+      return false;
+    return SCENARIOS.every((k) => {
+      const s = a.scenarios?.[k];
+      return (
+        s &&
+        typeof s.rationale === "string" &&
+        strings(s.sourceIds) &&
+        s.sourceIds.every((id) => ids.has(id)) &&
+        Number.isInteger(s.year) &&
+        finite(s.requiredReturn) &&
+        [
+          "eps",
+          "revenue",
+          "bvps",
+          "shares",
+          "growth",
+          "pe",
+          "peg",
+          "ps",
+          "pb",
+        ].every((f) => nullable(s[f as keyof typeof s])) &&
+        validDcf(s.dcf) &&
+        validDcf(s.multistage) &&
+        METHODS.every((m) => {
+          const r = v.results[k]?.[m],
+            suitability = a.methodSuitability?.[m];
+          return (
+            r &&
+            typeof r.reason === "string" &&
+            nullable(r.price) &&
+            [
+              "calculated",
+              "notApplicable",
+              "missingData",
+              "invalidInput",
+            ].includes(r.status) &&
+            (r.presentPrice === undefined || nullable(r.presentPrice)) &&
+            ["enterpriseValue", "equityValue", "terminalShare"].every(
+              (f) =>
+                r[f as keyof typeof r] === undefined ||
+                finite(r[f as keyof typeof r]),
+            ) &&
+            (r.cashflows === undefined ||
+              (Array.isArray(r.cashflows) && r.cashflows.every(finite))) &&
+            suitability &&
+            typeof suitability.applicable === "boolean" &&
+            typeof suitability.reason === "string"
+          );
+        })
+      );
+    });
+  } catch {
+    return false;
+  }
 }
 export function loadReports(): ValuationReport[] {
   try {

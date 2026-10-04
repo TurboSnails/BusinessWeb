@@ -39,3 +39,65 @@ test("completed tasks retain exactly one terminal event", async () => {
   );
   store.close();
 });
+import { createValuationServer } from "./http.mjs";
+import { Readable } from "node:stream";
+function request(server, method, path, headers, body = "") {
+  return new Promise((resolve) => {
+    const req = Readable.from([body]);
+    req.method = method;
+    req.url = path;
+    req.headers = { host: "localhost:8788", ...headers };
+    const res = {
+      status: 200,
+      setHeader() {},
+      writeHead(status) {
+        this.status = status;
+      },
+      end(text) {
+        resolve({ status: this.status, body: text ? JSON.parse(text) : null });
+      },
+    };
+    server.emit("request", req, res);
+  });
+}
+test("HTTP blocks hostile origins, missing tokens and oversized payloads", async () => {
+  const server = createValuationServer({ token: "test-session" });
+  assert.equal(
+    (
+      await request(server, "GET", "/health", {
+        origin: "https://evil.example",
+      })
+    ).status,
+    403,
+  );
+  assert.equal(
+    (await request(server, "GET", "/health", { host: "evil.example" })).status,
+    403,
+  );
+  assert.equal((await request(server, "POST", "/jobs", {})).status, 403);
+  assert.equal(
+    (
+      await request(
+        server,
+        "POST",
+        "/jobs",
+        { "x-valuation-token": "test-session" },
+        "broken",
+      )
+    ).status,
+    400,
+  );
+  assert.equal(
+    (
+      await request(
+        server,
+        "POST",
+        "/jobs",
+        { "x-valuation-token": "test-session" },
+        "x".repeat(2 * 1024 * 1024 + 1),
+      )
+    ).status,
+    413,
+  );
+  server.close();
+});

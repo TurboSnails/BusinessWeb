@@ -45,3 +45,7 @@ node scripts/verify-valuation.mjs --backend codex --model default --company us:A
 ```
 
 最后一条会真实调用已登录模型，使用对应模型额度，并在`/private/tmp`保存验证报告；自动化测试不会使用真实模型。
+
+保存两份报告后，可在“模型结果对比”选择同公司历史报告，对比基准情景。快照不同会提示口径差异。CLI与下拉模型选择会记住在本机浏览器；手填版本仍需显式填写。方法适用性可以手工调整，但缺失指标仍会阻止计算。
+
+详细测试证据及尚未验证项见 [验收记录](valuation-verification.md)。
