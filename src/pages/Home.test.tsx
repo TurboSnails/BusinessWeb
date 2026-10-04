@@ -44,13 +44,12 @@ describe('Home', () => {
     }
   })
 
-  it('投资大师名句 8 条，默认折叠', () => {
+  it('投资大师名句 8 条，直接展示，不需要点击展开', () => {
     stubFetch(() => new Promise(() => {}))
     const { container } = render(<MemoryRouter><Home /></MemoryRouter>)
-    const details = container.querySelector('details.quotes')
-    expect(details).toBeTruthy()
-    expect(details?.hasAttribute('open')).toBe(false)
-    expect(details?.querySelectorAll('blockquote').length).toBe(8)
+    expect(screen.getByRole('heading', { level: 2, name: '投资大师名句' })).toBeTruthy()
+    expect(container.querySelector('details')).toBeNull()
+    expect(container.querySelectorAll('section.quotes blockquote').length).toBe(8)
   })
 })
 

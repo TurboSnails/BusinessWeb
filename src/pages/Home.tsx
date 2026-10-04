@@ -40,8 +40,8 @@ export default function Home(): JSX.Element {
 
       <RecentUpdates />
 
-      <details className="quotes">
-        <summary>投资大师名句</summary>
+      <section className="home-section quotes">
+        <h2>投资大师名句</h2>
         <div className="quotes__grid">
           {QUOTES.map(q => (
             <blockquote key={q.author} className="quote">
@@ -50,7 +50,7 @@ export default function Home(): JSX.Element {
             </blockquote>
           ))}
         </div>
-      </details>
+      </section>
     </main>
   )
 }

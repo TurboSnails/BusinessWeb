@@ -444,25 +444,10 @@
   overflow-wrap: anywhere;
 }
 
-.quotes {
-  margin-bottom: 24px;
-}
-
-.quotes summary {
-  display: flex;
-  align-items: center;
-  min-height: 44px;
-  cursor: pointer;
-  font-family: var(--font-serif);
-  font-size: 1.05rem;
-  color: var(--text-secondary);
-}
-
 .quotes__grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
   gap: 12px;
-  margin-top: 8px;
 }
 
 .quote {
