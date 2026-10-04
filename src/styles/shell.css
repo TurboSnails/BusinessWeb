@@ -595,3 +595,74 @@
     font-size: 1.6rem;
   }
 }
+
+/* ---------- 我的书：网页版 + PDF 版 ---------- */
+.book-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.book-card__main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px 20px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.book-card__pdf {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 20px;
+  background: var(--accent-warm-soft);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.book-card__pdf-title {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.book-card__pdf-meta {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.book-card__pdf-hint {
+  margin: 0 0 8px;
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+
+.book-card__pdf .btn-primary,
+.book-card__pdf .btn-ghost {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .book-card {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .book-card__main {
+    flex: 1 1 auto;
+    padding: 32px;
+  }
+
+  .book-card__pdf {
+    flex: 0 0 260px;
+    padding: 28px 24px;
+    border-top: none;
+    border-left: 1px solid var(--border-subtle);
+  }
+}
