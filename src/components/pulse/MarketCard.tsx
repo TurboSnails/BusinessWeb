@@ -9,7 +9,7 @@ interface MarketCardProps {
 
 export const MarketCard: React.FC<MarketCardProps> = ({ stock, color }) => {
   const isPositive = stock.change >= 0
-  const changeColor = isPositive ? '#16a34a' : '#dc2626'
+  const changeColor = isPositive ? 'var(--down)' : 'var(--up)'
 
   return (
     <div style={{
@@ -27,12 +27,12 @@ export const MarketCard: React.FC<MarketCardProps> = ({ stock, color }) => {
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <span style={{ fontWeight: '600', fontSize: '0.9rem', color: '#1f2937' }}>{stock.name}</span>
+        <span style={{ fontWeight: '600', fontSize: '0.9rem', color: 'var(--text-primary)' }}>{stock.name}</span>
         {stock.rsi !== undefined && (
           <span style={{ 
             fontSize: '0.7rem', padding: '2px 5px', borderRadius: '4px',
-            background: stock.rsi >= 70 ? '#fef2f2' : stock.rsi <= 30 ? '#f0fdf4' : '#f3f4f6',
-            color: stock.rsi >= 70 ? '#dc2626' : stock.rsi <= 30 ? '#16a34a' : '#6b7280', 
+            background: stock.rsi >= 70 ? 'var(--system-red-light)' : stock.rsi <= 30 ? 'var(--system-green-light)' : 'var(--bg-secondary)',
+            color: stock.rsi >= 70 ? 'var(--up)' : stock.rsi <= 30 ? 'var(--down)' : 'var(--text-secondary)', 
             fontWeight: '500'
           }}>
             RSI {stock.rsi.toFixed(0)}
@@ -48,7 +48,7 @@ export const MarketCard: React.FC<MarketCardProps> = ({ stock, color }) => {
         </span>
         <span style={{ 
           color: changeColor, fontWeight: '600', padding: '1px 5px', borderRadius: '4px', 
-          background: isPositive ? '#f0fdf4' : '#fef2f2' 
+          background: isPositive ? 'var(--system-green-light)' : 'var(--system-red-light)' 
         }}>
           {formatPercent(stock.changePercent)}
         </span>

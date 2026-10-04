@@ -61,6 +61,21 @@ const TAILWIND = {
   '#92400e': 'var(--warm-ink)', '#78350f': 'var(--warm-ink)', '#b26a00': 'var(--warm-ink)',
   // 紫
   '#c084fc': 'var(--system-purple)', '#8b5cf6': 'var(--system-purple)',
+  '#7c3aed': 'var(--system-purple)', '#9333ea': 'var(--system-purple)', '#4f46e5': 'var(--accent)',
+  '#e9d5ff': 'var(--bg-secondary)', '#f3e8ff': 'var(--bg-secondary)', '#fafafa': 'var(--bg-secondary)',
+  // 翠绿与 Bootstrap 提示色
+  '#059669': 'var(--down)', '#28a745': 'var(--down)',
+  '#86efac': 'var(--system-green-light)', '#d1fae5': 'var(--system-green-light)', '#d4edda': 'var(--system-green-light)',
+  '#155724': 'var(--down-ink)',
+  // 天蓝
+  '#0369a1': 'var(--accent-ink)', '#0c4a6e': 'var(--accent-ink)',
+  '#e0f2fe': 'var(--accent-soft)', '#7dd3fc': 'var(--accent)',
+  // 橙黄
+  '#fff7ed': 'var(--accent-warm-soft)', '#fed7aa': 'var(--accent-warm-soft)', '#fff3cd': 'var(--accent-warm-soft)',
+  '#fcd34d': 'var(--accent-warm)', '#ffc107': 'var(--accent-warm)',
+  '#d97706': 'var(--warm-ink)', '#856404': 'var(--warm-ink)',
+  // 红
+  '#dc3545': 'var(--up)', '#f8d7da': 'var(--system-red-light)', '#721c24': 'var(--up-ink)',
 }
 Object.assign(HEX, TAILWIND)
 
@@ -78,14 +93,73 @@ const RGB = {
 
 const SKIP_LINE = /getContext|fillStyle|strokeStyle|ctx\./
 
-export function retheme(source) {
+function hexToHsl(hex) {
+  const n = parseInt(hex.slice(1), 16)
+  const r = ((n >> 16) & 255) / 255
+  const g = ((n >> 8) & 255) / 255
+  const b = (n & 255) / 255
+  const max = Math.max(r, g, b)
+  const min = Math.min(r, g, b)
+  const l = (max + min) / 2
+  const d = max - min
+  if (d === 0) return { h: 0, s: 0, l }
+  const s = d / (1 - Math.abs(2 * l - 1))
+  let h
+  if (max === r) h = ((g - b) / d) % 6
+  else if (max === g) h = (b - r) / d + 2
+  else h = (r - g) / d + 4
+  h = (h * 60 + 360) % 360
+  return { h, s, l }
+}
+
+function neutralByLightness(l) {
+  if (l > 0.93) return 'var(--bg-secondary)'
+  if (l > 0.82) return 'var(--border-subtle)'
+  if (l > 0.62) return 'var(--system-gray3)'
+  if (l > 0.5) return 'var(--text-tertiary)'
+  if (l > 0.27) return 'var(--text-secondary)'
+  return 'var(--text-primary)'
+}
+
+/** 未登记的颜色按色相/饱和度/明度归到纸书语义色；纯白和近白返回 null（保持原样） */
+export function classifyHex(hex) {
+  const { h, s, l } = hexToHsl(hex)
+  if (l > 0.985) return null
+  if (s < 0.1) return neutralByLightness(l)
+  const soft = l > 0.9
+  const dark = l < 0.3
+  const veryDark = l < 0.25
+  if (h >= 190 && h < 260) {
+    if (s < 0.3) return neutralByLightness(l)
+    if (soft) return 'var(--accent-soft)'
+    if (veryDark) return 'var(--text-primary)'
+    if (dark) return 'var(--accent-ink)'
+    return 'var(--accent)'
+  }
+  if (h < 20 || h >= 340) {
+    if (soft) return 'var(--system-red-light)'
+    return dark ? 'var(--up-ink)' : 'var(--up)'
+  }
+  if (h < 70) {
+    if (soft) return 'var(--accent-warm-soft)'
+    return l < 0.4 ? 'var(--warm-ink)' : 'var(--accent-warm)'
+  }
+  if (h < 170) {
+    if (soft) return 'var(--system-green-light)'
+    return dark ? 'var(--down-ink)' : 'var(--down)'
+  }
+  if (h < 190) return soft ? 'var(--accent-soft)' : dark ? 'var(--accent-ink)' : 'var(--accent)'
+  return soft ? 'var(--bg-secondary)' : dark ? 'var(--text-primary)' : 'var(--system-purple)'
+}
+
+export function retheme(source, options = {}) {
   let count = 0
   const output = source
     .split('\n')
     .map(line => {
       if (SKIP_LINE.test(line)) return line
       let out = line.replace(/#[0-9a-fA-F]{6}\b/g, m => {
-        const v = HEX[m.toLowerCase()]
+        const v = HEX[m.toLowerCase()] ?? (options.generic ? classifyHex(m) : null)
         if (!v) return m
         count += 1
         return v
@@ -115,9 +189,11 @@ export function retheme(source) {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  for (const file of process.argv.slice(2)) {
+  const args = process.argv.slice(2)
+  const generic = args.includes('--generic')
+  for (const file of args.filter(a => a !== '--generic')) {
     const src = readFileSync(file, 'utf8')
-    const { output, count } = retheme(src)
+    const { output, count } = retheme(src, { generic })
     if (count > 0) writeFileSync(file, output)
     console.log(`${String(count).padStart(4)}  ${file}`)
   }

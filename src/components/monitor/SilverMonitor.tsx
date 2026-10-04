@@ -5,8 +5,8 @@ export const SilverMonitor: React.FC = () => {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* 价格事实 */}
       <div style={{ 
-        background: '#fef3c7', 
-        border: '2px solid #f59e0b', 
+        background: 'var(--accent-warm-soft)', 
+        border: '2px solid var(--accent-warm)', 
         borderRadius: '12px', 
         padding: '24px',
         boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
@@ -15,7 +15,7 @@ export const SilverMonitor: React.FC = () => {
           fontSize: '1.5rem', 
           fontWeight: '700', 
           marginBottom: '16px', 
-          color: '#92400e',
+          color: 'var(--warm-ink)',
           display: 'flex',
           alignItems: 'center',
           gap: '8px'
@@ -27,16 +27,16 @@ export const SilverMonitor: React.FC = () => {
           background: 'white', 
           padding: '16px', 
           borderRadius: '8px',
-          border: '1px solid #fcd34d'
+          border: '1px solid var(--accent-warm)'
         }}>
-          <div style={{ fontSize: '1.1rem', lineHeight: '1.8', color: '#374151' }}>
+          <div style={{ fontSize: '1.1rem', lineHeight: '1.8', color: 'var(--text-primary)' }}>
             <p style={{ margin: '0 0 12px 0' }}>
-              <strong style={{ color: '#92400e' }}>当前价格：</strong>79.11 USD/oz
+              <strong style={{ color: 'var(--warm-ink)' }}>当前价格：</strong>79.11 USD/oz
             </p>
             <p style={{ margin: '0 0 12px 0' }}>
-              <strong style={{ color: '#dc2626' }}>单日涨幅：</strong>+5.9%
+              <strong style={{ color: 'var(--up)' }}>单日涨幅：</strong>+5.9%
             </p>
-            <p style={{ margin: 0, fontWeight: '600', color: '#dc2626' }}>
+            <p style={{ margin: 0, fontWeight: '600', color: 'var(--up)' }}>
               → 市场进入高波动区间，逼空概率上升
             </p>
           </div>
@@ -45,8 +45,8 @@ export const SilverMonitor: React.FC = () => {
 
       {/* 三盏"过程灯" */}
       <div style={{ 
-        background: '#eff6ff', 
-        border: '2px solid #3b82f6', 
+        background: 'var(--accent-soft)', 
+        border: '2px solid var(--accent)', 
         borderRadius: '12px', 
         padding: '24px'
       }}>
@@ -54,7 +54,7 @@ export const SilverMonitor: React.FC = () => {
           fontSize: '1.5rem', 
           fontWeight: '700', 
           marginBottom: '12px', 
-          color: '#1e40af',
+          color: 'var(--accent-ink)',
           display: 'flex',
           alignItems: 'center',
           gap: '8px'
@@ -62,7 +62,7 @@ export const SilverMonitor: React.FC = () => {
           <span style={{ fontSize: '2rem' }}>🚦</span>
           三盏"过程灯"（每天收盘核对）
         </h2>
-        <p style={{ fontSize: '0.9rem', color: '#dc2626', fontWeight: '600', marginBottom: '20px', padding: '12px', background: '#fee2e2', borderRadius: '8px', border: '1px solid #fecaca' }}>
+        <p style={{ fontSize: '0.9rem', color: 'var(--up)', fontWeight: '600', marginBottom: '20px', padding: '12px', background: 'var(--system-red-light)', borderRadius: '8px', border: '1px solid var(--system-red-light)' }}>
           ⚠️ 任意两盏红灯 = 进入"强警戒"状态
         </p>
         
@@ -71,19 +71,19 @@ export const SilverMonitor: React.FC = () => {
             background: 'white', 
             padding: '16px', 
             borderRadius: '8px',
-            border: '2px solid #fecaca'
+            border: '2px solid var(--system-red-light)'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
               <span style={{ fontSize: '1.5rem' }}>①</span>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#dc2626', margin: 0 }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--up)', margin: 0 }}>
                 近月升水
               </h3>
             </div>
-            <div style={{ fontSize: '0.95rem', lineHeight: '1.8', color: '#374151' }}>
+            <div style={{ fontSize: '0.95rem', lineHeight: '1.8', color: 'var(--text-primary)' }}>
               <p style={{ margin: '0 0 8px 0' }}>
                 <strong>红灯条件：</strong>近月升水 &gt;1.5% 且持续≥3天
               </p>
-              <p style={{ margin: 0, fontSize: '0.85rem', color: '#6b7280', fontStyle: 'italic' }}>
+              <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
                 数据来源：TradingView 连续合约（1M-3M价差）
               </p>
             </div>
@@ -93,20 +93,20 @@ export const SilverMonitor: React.FC = () => {
             background: 'white', 
             padding: '16px', 
             borderRadius: '8px',
-            border: '2px solid #fecaca'
+            border: '2px solid var(--system-red-light)'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
               <span style={{ fontSize: '1.5rem' }}>②</span>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#dc2626', margin: 0 }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--up)', margin: 0 }}>
                 交易所可交割库存
               </h3>
             </div>
-            <div style={{ fontSize: '0.95rem', lineHeight: '1.8', color: '#374151' }}>
+            <div style={{ fontSize: '0.95rem', lineHeight: '1.8', color: 'var(--text-primary)' }}>
               <p style={{ margin: '0 0 8px 0' }}>
                 <strong>红灯条件：</strong>7 日降幅 &gt;10%
               </p>
-              <p style={{ margin: 0, fontSize: '0.85rem', color: '#6b7280', fontStyle: 'italic' }}>
-                数据来源：<a href="https://www.cmegroup.com/markets/metals/precious/silver.html" target="_blank" rel="noopener noreferrer" style={{ color: '#2563eb', textDecoration: 'underline' }}>CME 白银库存</a>（抄"Registered"数值）
+              <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+                数据来源：<a href="https://www.cmegroup.com/markets/metals/precious/silver.html" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)', textDecoration: 'underline' }}>CME 白银库存</a>（抄"Registered"数值）
               </p>
             </div>
           </div>
@@ -115,20 +115,20 @@ export const SilverMonitor: React.FC = () => {
             background: 'white', 
             padding: '16px', 
             borderRadius: '8px',
-            border: '2px solid #fecaca'
+            border: '2px solid var(--system-red-light)'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
               <span style={{ fontSize: '1.5rem' }}>③</span>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#dc2626', margin: 0 }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--up)', margin: 0 }}>
                 1M 租借利率
               </h3>
             </div>
-            <div style={{ fontSize: '0.95rem', lineHeight: '1.8', color: '#374151' }}>
+            <div style={{ fontSize: '0.95rem', lineHeight: '1.8', color: 'var(--text-primary)' }}>
               <p style={{ margin: '0 0 8px 0' }}>
                 <strong>红灯条件：</strong>跳升至年化 &gt;3% 并维持
               </p>
-              <p style={{ margin: 0, fontSize: '0.85rem', color: '#6b7280', fontStyle: 'italic' }}>
-                数据来源：<a href="https://www.kitco.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#2563eb', textDecoration: 'underline' }}>Kitco</a> 或 <a href="https://www.bloomberg.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#2563eb', textDecoration: 'underline' }}>Bloomberg SLVRRL1M</a>
+              <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+                数据来源：<a href="https://www.kitco.com/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)', textDecoration: 'underline' }}>Kitco</a> 或 <a href="https://www.bloomberg.com/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)', textDecoration: 'underline' }}>Bloomberg SLVRRL1M</a>
               </p>
             </div>
           </div>
@@ -137,8 +137,8 @@ export const SilverMonitor: React.FC = () => {
 
       {/* 结果灯 */}
       <div style={{ 
-        background: '#f0fdf4', 
-        border: '2px solid #10b981', 
+        background: 'var(--system-green-light)', 
+        border: '2px solid var(--down)', 
         borderRadius: '12px', 
         padding: '24px'
       }}>
@@ -146,7 +146,7 @@ export const SilverMonitor: React.FC = () => {
           fontSize: '1.5rem', 
           fontWeight: '700', 
           marginBottom: '12px', 
-          color: '#059669',
+          color: 'var(--down)',
           display: 'flex',
           alignItems: 'center',
           gap: '8px'
@@ -158,17 +158,17 @@ export const SilverMonitor: React.FC = () => {
           background: 'white', 
           padding: '16px', 
           borderRadius: '8px',
-          border: '1px solid #86efac'
+          border: '1px solid var(--system-green-light)'
         }}>
-          <div style={{ fontSize: '0.95rem', lineHeight: '1.8', color: '#374151' }}>
+          <div style={{ fontSize: '0.95rem', lineHeight: '1.8', color: 'var(--text-primary)' }}>
             <p style={{ margin: '0 0 12px 0' }}>
-              <strong style={{ color: '#059669' }}>确认条件（满足任一即可）：</strong>
+              <strong style={{ color: 'var(--down)' }}>确认条件（满足任一即可）：</strong>
             </p>
             <ul style={{ margin: '0 0 12px 24px', padding: 0, lineHeight: '2' }}>
               <li>单日现货涨幅 &gt;5%</li>
               <li>隐含波动率 IV 突破 90 百分位</li>
             </ul>
-            <p style={{ margin: 0, fontSize: '0.85rem', color: '#6b7280', fontStyle: 'italic' }}>
+            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
               数据来源：SLV 30Δ Call IV（期权 IV）
             </p>
           </div>
@@ -177,8 +177,8 @@ export const SilverMonitor: React.FC = () => {
 
       {/* 情景赔率 */}
       <div style={{ 
-        background: '#f3f4f6', 
-        border: '1px solid #d1d5db', 
+        background: 'var(--bg-secondary)', 
+        border: '1px solid var(--system-gray3)', 
         borderRadius: '12px', 
         padding: '24px'
       }}>
@@ -186,7 +186,7 @@ export const SilverMonitor: React.FC = () => {
           fontSize: '1.5rem', 
           fontWeight: '700', 
           marginBottom: '16px', 
-          color: '#1f2937',
+          color: 'var(--text-primary)',
           display: 'flex',
           alignItems: 'center',
           gap: '8px'
@@ -198,33 +198,33 @@ export const SilverMonitor: React.FC = () => {
           background: 'white', 
           padding: '16px', 
           borderRadius: '8px',
-          border: '1px solid #e5e7eb'
+          border: '1px solid var(--border-subtle)'
         }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ fontSize: '1.2rem', fontWeight: '700', color: '#059669' }}>A</span>
-              <span style={{ fontSize: '0.95rem', color: '#374151' }}>继续冲：</span>
-              <span style={{ fontSize: '1rem', fontWeight: '700', color: '#1f2937' }}>30%</span>
+              <span style={{ fontSize: '1.2rem', fontWeight: '700', color: 'var(--down)' }}>A</span>
+              <span style={{ fontSize: '0.95rem', color: 'var(--text-primary)' }}>继续冲：</span>
+              <span style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--text-primary)' }}>30%</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ fontSize: '1.2rem', fontWeight: '700', color: '#f59e0b' }}>B</span>
-              <span style={{ fontSize: '0.95rem', color: '#374151' }}>高位巨幅震荡：</span>
-              <span style={{ fontSize: '1rem', fontWeight: '700', color: '#1f2937' }}>45%</span>
+              <span style={{ fontSize: '1.2rem', fontWeight: '700', color: 'var(--accent-warm)' }}>B</span>
+              <span style={{ fontSize: '0.95rem', color: 'var(--text-primary)' }}>高位巨幅震荡：</span>
+              <span style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--text-primary)' }}>45%</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ fontSize: '1.2rem', fontWeight: '700', color: '#dc2626' }}>C</span>
-              <span style={{ fontSize: '0.95rem', color: '#374151' }}>速跌≥20%：</span>
-              <span style={{ fontSize: '1rem', fontWeight: '700', color: '#1f2937' }}>25%</span>
+              <span style={{ fontSize: '1.2rem', fontWeight: '700', color: 'var(--up)' }}>C</span>
+              <span style={{ fontSize: '0.95rem', color: 'var(--text-primary)' }}>速跌≥20%：</span>
+              <span style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--text-primary)' }}>25%</span>
             </div>
           </div>
           <div style={{ 
             marginTop: '16px', 
             padding: '12px', 
-            background: '#fef3c7', 
+            background: 'var(--accent-warm-soft)', 
             borderRadius: '6px',
-            border: '1px solid #fcd34d'
+            border: '1px solid var(--accent-warm)'
           }}>
-            <p style={{ margin: 0, fontSize: '0.9rem', color: '#92400e', fontWeight: '600' }}>
+            <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--warm-ink)', fontWeight: '600' }}>
               💡 统一特征：波动率&gt;价格方向，优先用"波动工具"而非单边杠杆
             </p>
           </div>
@@ -233,8 +233,8 @@ export const SilverMonitor: React.FC = () => {
 
       {/* 可落地的"非追高"打法 */}
       <div style={{ 
-        background: '#fef2f2', 
-        border: '2px solid #f87171', 
+        background: 'var(--system-red-light)', 
+        border: '2px solid var(--up)', 
         borderRadius: '12px', 
         padding: '24px'
       }}>
@@ -242,7 +242,7 @@ export const SilverMonitor: React.FC = () => {
           fontSize: '1.5rem', 
           fontWeight: '700', 
           marginBottom: '16px', 
-          color: '#dc2626',
+          color: 'var(--up)',
           display: 'flex',
           alignItems: 'center',
           gap: '8px'
@@ -257,13 +257,13 @@ export const SilverMonitor: React.FC = () => {
             background: 'white', 
             padding: '16px', 
             borderRadius: '8px',
-            border: '1px solid #fecaca'
+            border: '1px solid var(--system-red-light)'
           }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '12px', color: '#dc2626', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '12px', color: 'var(--up)', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ fontSize: '1.3rem' }}>1️⃣</span>
               期权（资金占比≤10%，IV 极高时改用价差）
             </h3>
-            <div style={{ fontSize: '0.95rem', lineHeight: '1.8', color: '#374151' }}>
+            <div style={{ fontSize: '0.95rem', lineHeight: '1.8', color: 'var(--text-primary)' }}>
               <p style={{ margin: '0 0 8px 0' }}>
                 <strong>方向中性：</strong>宽跨式+逢 IV&gt;90 百分位逐步减仓
               </p>
@@ -278,13 +278,13 @@ export const SilverMonitor: React.FC = () => {
             background: 'white', 
             padding: '16px', 
             borderRadius: '8px',
-            border: '1px solid #fecaca'
+            border: '1px solid var(--system-red-light)'
           }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '12px', color: '#dc2626', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '12px', color: 'var(--up)', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ fontSize: '1.3rem' }}>2️⃣</span>
               现货/ETF
             </h3>
-            <div style={{ fontSize: '0.95rem', lineHeight: '1.8', color: '#374151' }}>
+            <div style={{ fontSize: '0.95rem', lineHeight: '1.8', color: 'var(--text-primary)' }}>
               <p style={{ margin: 0 }}>
                 只在"红灯熄一盏+回撤 20–30%"时分 <strong>3 批买入</strong>，每批止损设在再跌 8%
               </p>
@@ -296,13 +296,13 @@ export const SilverMonitor: React.FC = () => {
             background: 'white', 
             padding: '16px', 
             borderRadius: '8px',
-            border: '1px solid #fecaca'
+            border: '1px solid var(--system-red-light)'
           }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '12px', color: '#dc2626', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '12px', color: 'var(--up)', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ fontSize: '1.3rem' }}>3️⃣</span>
               矿股（PAAS 等）
             </h3>
-            <div style={{ fontSize: '0.95rem', lineHeight: '1.8', color: '#374151' }}>
+            <div style={{ fontSize: '0.95rem', lineHeight: '1.8', color: 'var(--text-primary)' }}>
               <p style={{ margin: 0 }}>
                 仅做"超跌反弹"——股价跌破 <strong>200D MA</strong> 且现货跌停当日收盘抢入，<strong>3 日内无反弹 5% 即砍</strong>
               </p>
@@ -311,16 +311,16 @@ export const SilverMonitor: React.FC = () => {
 
           {/* 资金纪律 */}
           <div style={{ 
-            background: '#fee2e2', 
+            background: 'var(--system-red-light)', 
             padding: '16px', 
             borderRadius: '8px',
-            border: '2px solid #ef4444'
+            border: '2px solid var(--up)'
           }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '12px', color: '#dc2626', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '12px', color: 'var(--up)', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ fontSize: '1.3rem' }}>4️⃣</span>
               资金纪律
             </h3>
-            <div style={{ fontSize: '0.95rem', lineHeight: '1.8', color: '#374151' }}>
+            <div style={{ fontSize: '0.95rem', lineHeight: '1.8', color: 'var(--text-primary)' }}>
               <ul style={{ margin: '0 0 0 20px', padding: 0, lineHeight: '2' }}>
                 <li>单笔风险≤账户净值 <strong>1%</strong></li>
                 <li>总敞口≤<strong>30%</strong></li>
@@ -333,8 +333,8 @@ export const SilverMonitor: React.FC = () => {
 
       {/* 每日 3 分钟检查表 */}
       <div style={{ 
-        background: '#f0fdf4', 
-        border: '2px solid #10b981', 
+        background: 'var(--system-green-light)', 
+        border: '2px solid var(--down)', 
         borderRadius: '12px', 
         padding: '24px'
       }}>
@@ -342,7 +342,7 @@ export const SilverMonitor: React.FC = () => {
           fontSize: '1.5rem', 
           fontWeight: '700', 
           marginBottom: '16px', 
-          color: '#059669',
+          color: 'var(--down)',
           display: 'flex',
           alignItems: 'center',
           gap: '8px'
@@ -354,47 +354,47 @@ export const SilverMonitor: React.FC = () => {
           background: 'white', 
           padding: '16px', 
           borderRadius: '8px',
-          border: '1px solid #86efac'
+          border: '1px solid var(--system-green-light)'
         }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
               <span style={{ fontSize: '1.2rem' }}>•</span>
               <div style={{ flex: 1 }}>
-                <strong style={{ color: '#059669' }}>CME 白银库存</strong>
-                <a href="https://www.cmegroup.com/markets/metals/precious/silver.html" target="_blank" rel="noopener noreferrer" style={{ marginLeft: '8px', fontSize: '0.85rem', color: '#2563eb', textDecoration: 'underline' }}>（链接 bookmark）</a>
-                <span style={{ marginLeft: '8px', fontSize: '0.9rem', color: '#6b7280' }}>→ 抄"Registered"数值</span>
+                <strong style={{ color: 'var(--down)' }}>CME 白银库存</strong>
+                <a href="https://www.cmegroup.com/markets/metals/precious/silver.html" target="_blank" rel="noopener noreferrer" style={{ marginLeft: '8px', fontSize: '0.85rem', color: 'var(--accent)', textDecoration: 'underline' }}>（链接 bookmark）</a>
+                <span style={{ marginLeft: '8px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>→ 抄"Registered"数值</span>
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
               <span style={{ fontSize: '1.2rem' }}>•</span>
               <div style={{ flex: 1 }}>
-                <strong style={{ color: '#059669' }}>近月-远月价差</strong>
-                <span style={{ marginLeft: '8px', fontSize: '0.9rem', color: '#6b7280' }}>（TradingView 连续合约）→ 截 1M-3M 升水</span>
+                <strong style={{ color: 'var(--down)' }}>近月-远月价差</strong>
+                <span style={{ marginLeft: '8px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>（TradingView 连续合约）→ 截 1M-3M 升水</span>
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
               <span style={{ fontSize: '1.2rem' }}>•</span>
               <div style={{ flex: 1 }}>
-                <strong style={{ color: '#059669' }}>租借利率</strong>
-                <span style={{ marginLeft: '8px', fontSize: '0.9rem', color: '#6b7280' }}>（Kitco 或 Bloomberg SLVRRL1M）&gt;3% 画红</span>
+                <strong style={{ color: 'var(--down)' }}>租借利率</strong>
+                <span style={{ marginLeft: '8px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>（Kitco 或 Bloomberg SLVRRL1M）&gt;3% 画红</span>
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
               <span style={{ fontSize: '1.2rem' }}>•</span>
               <div style={{ flex: 1 }}>
-                <strong style={{ color: '#059669' }}>期权 IV</strong>
-                <span style={{ marginLeft: '8px', fontSize: '0.9rem', color: '#6b7280' }}>（SLV 30Δ Call IV）&gt;90 百分位截屏</span>
+                <strong style={{ color: 'var(--down)' }}>期权 IV</strong>
+                <span style={{ marginLeft: '8px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>（SLV 30Δ Call IV）&gt;90 百分位截屏</span>
               </div>
             </div>
           </div>
           <div style={{ 
             marginTop: '16px', 
             padding: '12px', 
-            background: '#fee2e2', 
+            background: 'var(--system-red-light)', 
             borderRadius: '6px',
-            border: '1px solid #fecaca'
+            border: '1px solid var(--system-red-light)'
           }}>
-            <p style={{ margin: 0, fontSize: '0.9rem', color: '#dc2626', fontWeight: '600' }}>
+            <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--up)', fontWeight: '600' }}>
               ⚠️ 任意两项异常，把持仓减到"睡眠仓"
             </p>
           </div>
@@ -403,8 +403,8 @@ export const SilverMonitor: React.FC = () => {
 
       {/* 一句话总结 */}
       <div style={{ 
-        background: '#fef3c7', 
-        border: '2px solid #f59e0b', 
+        background: 'var(--accent-warm-soft)', 
+        border: '2px solid var(--accent-warm)', 
         borderRadius: '12px', 
         padding: '24px'
       }}>
@@ -412,7 +412,7 @@ export const SilverMonitor: React.FC = () => {
           fontSize: '1.5rem', 
           fontWeight: '700', 
           marginBottom: '16px', 
-          color: '#92400e',
+          color: 'var(--warm-ink)',
           display: 'flex',
           alignItems: 'center',
           gap: '8px'
@@ -424,13 +424,13 @@ export const SilverMonitor: React.FC = () => {
           background: 'white', 
           padding: '20px', 
           borderRadius: '8px',
-          border: '1px solid #fcd34d'
+          border: '1px solid var(--accent-warm)'
         }}>
           <p style={{ 
             margin: 0, 
             fontSize: '1.1rem', 
             lineHeight: '1.8', 
-            color: '#374151',
+            color: 'var(--text-primary)',
             fontWeight: '500',
             fontStyle: 'italic'
           }}>

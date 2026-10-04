@@ -41,9 +41,9 @@ export const Table: React.FC<TableProps> = ({ children, style }) => {
 
 export const TableHeader: React.FC<TableHeaderProps> = ({ 
   children, 
-  bgColor = '#f3f4f6', 
-  borderColor = '#d1d5db',
-  textColor = '#1f2937',
+  bgColor = 'var(--bg-secondary)', 
+  borderColor = 'var(--system-gray3)',
+  textColor = 'var(--text-primary)',
   style 
 }) => {
   return (
@@ -62,7 +62,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
 export const TableRow: React.FC<TableRowProps> = ({ 
   children, 
   bgColor, 
-  borderColor = '#e5e7eb',
+  borderColor = 'var(--border-subtle)',
   style 
 }) => {
   return (
@@ -92,8 +92,8 @@ export const TableCell: React.FC<TableCellProps> = ({
         padding: '12px',
         textAlign: align,
         fontWeight,
-        color: '#374151',
-        border: '1px solid #e5e7eb',
+        color: 'var(--text-primary)',
+        border: '1px solid var(--border-subtle)',
         ...style 
       }}
     >
@@ -108,7 +108,7 @@ export const TableHeaderCell: React.FC<TableCellProps> = ({
   colSpan,
   rowSpan,
   fontWeight = '700',
-  textColor = '#1f2937',
+  textColor = 'var(--text-primary)',
   style 
 }) => {
   return (
@@ -120,7 +120,7 @@ export const TableHeaderCell: React.FC<TableCellProps> = ({
         textAlign: align,
         fontWeight,
         color: textColor,
-        border: '1px solid #e5e7eb',
+        border: '1px solid var(--border-subtle)',
         ...style 
       }}
     >

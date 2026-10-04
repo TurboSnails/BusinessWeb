@@ -206,7 +206,7 @@ export const ExecutionTab: React.FC = () => {
               {/* 市场情绪分析器 - 保留原有功能 */}
               <div style={{
                 background: 'white',
-                border: '2px solid #3b82f6',
+                border: '2px solid var(--accent)',
                 borderRadius: '12px',
                 padding: '24px',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
@@ -215,11 +215,11 @@ export const ExecutionTab: React.FC = () => {
                   fontWeight: '700',
                   fontSize: '1.2rem',
                   marginBottom: '16px',
-                  color: '#1f2937',
+                  color: 'var(--text-primary)',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
-                  borderBottom: '2px solid #3b82f6',
+                  borderBottom: '2px solid var(--accent)',
                   paddingBottom: '12px'
                 }}>
                   <span style={{ fontSize: '1.5rem' }}>📈</span>
@@ -234,12 +234,12 @@ export const ExecutionTab: React.FC = () => {
                     alignItems: 'center',
                     marginBottom: '12px',
                     padding: '12px',
-                    background: '#eff6ff',
+                    background: 'var(--accent-soft)',
                     borderRadius: '8px',
                     flexWrap: 'wrap',
                     gap: '8px'
                   }}>
-                    <span style={{ fontSize: '0.9rem', fontWeight: '600', color: '#1e40af' }}>
+                    <span style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--accent-ink)' }}>
                       📊 数据获取
                     </span>
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -248,7 +248,7 @@ export const ExecutionTab: React.FC = () => {
                         disabled={loadingPCRatios}
                         style={{
                           padding: '8px 16px',
-                          background: loadingPCRatios ? '#9ca3af' : '#3b82f6',
+                          background: loadingPCRatios ? 'var(--text-tertiary)' : 'var(--accent)',
                           color: 'white',
                           border: 'none',
                           borderRadius: '6px',
@@ -266,7 +266,7 @@ export const ExecutionTab: React.FC = () => {
                         onClick={() => window.open('https://www.cboe.com/us/options/market_statistics/daily/', '_blank')}
                         style={{
                           padding: '8px 16px',
-                          background: '#10b981',
+                          background: 'var(--down)',
                           color: 'white',
                           border: 'none',
                           borderRadius: '6px',
@@ -286,11 +286,11 @@ export const ExecutionTab: React.FC = () => {
                   {/* 优先级排名和实战清单 */}
                   <div style={{
                     padding: '12px',
-                    background: '#fef2f2',
-                    border: '1px solid #fecaca',
+                    background: 'var(--system-red-light)',
+                    border: '1px solid var(--system-red-light)',
                     borderRadius: '8px',
                     fontSize: '0.85rem',
-                    color: '#991b1b',
+                    color: 'var(--up-ink)',
                     lineHeight: '1.6',
                     marginBottom: '12px'
                   }}>
@@ -298,15 +298,15 @@ export const ExecutionTab: React.FC = () => {
                       🏆 指标优先级排名（实战有效性）
                     </div>
                     <div style={{ marginBottom: '8px', padding: '8px', background: 'rgba(255,255,255,0.5)', borderRadius: '6px' }}>
-                      <div style={{ fontWeight: '600', marginBottom: '4px', color: '#dc2626' }}>🥇 第一名：Equity Put/Call Ratio（核心灵魂）</div>
+                      <div style={{ fontWeight: '600', marginBottom: '4px', color: 'var(--up)' }}>🥇 第一名：Equity Put/Call Ratio（核心灵魂）</div>
                       <div style={{ fontSize: '0.8rem', paddingLeft: '8px' }}>散户情绪"体温计"，确认抄底时机。只有当它 &gt; 1.1 甚至冲向 1.3 时，才是 1/8 现金进场的安全红灯。</div>
                     </div>
                     <div style={{ marginBottom: '8px', padding: '8px', background: 'rgba(255,255,255,0.5)', borderRadius: '6px' }}>
-                      <div style={{ fontWeight: '600', marginBottom: '4px', color: '#f59e0b' }}>🥈 第二名：Net GEX（波动引擎）</div>
+                      <div style={{ fontWeight: '600', marginBottom: '4px', color: 'var(--accent-warm)' }}>🥈 第二名：Net GEX（波动引擎）</div>
                       <div style={{ fontSize: '0.8rem', paddingLeft: '8px' }}>预测崩盘速度。一旦转负，做市商会助跌，股价会快速下跌。判断"要不要再等更低点"的关键指标。</div>
                     </div>
                     <div style={{ marginBottom: '8px', padding: '8px', background: 'rgba(255,255,255,0.5)', borderRadius: '6px' }}>
-                      <div style={{ fontWeight: '600', marginBottom: '4px', color: '#3b82f6' }}>🥉 第三名：SPX Put/Call Ratio（避雷针）</div>
+                      <div style={{ fontWeight: '600', marginBottom: '4px', color: 'var(--accent)' }}>🥉 第三名：SPX Put/Call Ratio（避雷针）</div>
                       <div style={{ fontSize: '0.8rem', paddingLeft: '8px' }}>机构的动作，预测鱼尾结束。如果跌破 0.9，说明"防弹衣"脱了，这是减仓 YINN/NVDA 的最高指令。</div>
                     </div>
                     <div style={{ marginBottom: '8px', padding: '8px', background: 'rgba(255,255,255,0.5)', borderRadius: '6px' }}>
@@ -321,11 +321,11 @@ export const ExecutionTab: React.FC = () => {
 
                   <div style={{
                     padding: '12px',
-                    background: '#f0fdf4',
-                    border: '1px solid #86efac',
+                    background: 'var(--system-green-light)',
+                    border: '1px solid var(--system-green-light)',
                     borderRadius: '8px',
                     fontSize: '0.85rem',
-                    color: '#166534',
+                    color: 'var(--down-ink)',
                     lineHeight: '1.6',
                     marginBottom: '12px'
                   }}>
@@ -333,26 +333,26 @@ export const ExecutionTab: React.FC = () => {
                       💡 2026 "三步走"实战清单
                     </div>
                     <div style={{ marginBottom: '8px', padding: '8px', background: 'rgba(255,255,255,0.5)', borderRadius: '6px' }}>
-                      <div style={{ fontWeight: '600', marginBottom: '4px', color: '#dc2626' }}>1️⃣ 看"撤退信号"（看第 3、4 名）</div>
+                      <div style={{ fontWeight: '600', marginBottom: '4px', color: 'var(--up)' }}>1️⃣ 看"撤退信号"（看第 3、4 名）</div>
                       <div style={{ fontSize: '0.8rem', paddingLeft: '8px' }}>如果 SPX P/C 下跌 + VIX 期限结构开始收窄 = <strong>撤退 YINN/NVDA</strong>，准备现金。</div>
                     </div>
                     <div style={{ marginBottom: '8px', padding: '8px', background: 'rgba(255,255,255,0.5)', borderRadius: '6px' }}>
-                      <div style={{ fontWeight: '600', marginBottom: '4px', color: '#f59e0b' }}>2️⃣ 看"崩盘速度"（看第 2 名）</div>
+                      <div style={{ fontWeight: '600', marginBottom: '4px', color: 'var(--accent-warm)' }}>2️⃣ 看"崩盘速度"（看第 2 名）</div>
                       <div style={{ fontSize: '0.8rem', paddingLeft: '8px' }}>如果 GEX 转负 = <strong>耐心等待</strong>。不要在刚转负时接 RKLB，因为它会跌得很快，目标位稳稳能到。</div>
                     </div>
                     <div style={{ marginBottom: '0', padding: '8px', background: 'rgba(255,255,255,0.5)', borderRadius: '6px' }}>
-                      <div style={{ fontWeight: '600', marginBottom: '4px', color: '#059669' }}>3️⃣ 看"抄底红灯"（看第 1、5 名）</div>
+                      <div style={{ fontWeight: '600', marginBottom: '4px', color: 'var(--down)' }}>3️⃣ 看"抄底红灯"（看第 1、5 名）</div>
                       <div style={{ fontSize: '0.8rem', paddingLeft: '8px' }}>如果 Equity P/C &gt; 1.2 + 金银比 &gt; 85 = <strong>全线出击</strong>。买入 PAAS 和 RKLB。</div>
                     </div>
                   </div>
 
                   <div style={{
                     padding: '12px',
-                    background: '#f0f9ff',
-                    border: '1px solid #7dd3fc',
+                    background: 'var(--accent-soft)',
+                    border: '1px solid var(--accent)',
                     borderRadius: '8px',
                     fontSize: '0.85rem',
-                    color: '#0c4a6e',
+                    color: 'var(--accent-ink)',
                     lineHeight: '1.6',
                     marginBottom: '12px'
                   }}>
@@ -360,7 +360,7 @@ export const ExecutionTab: React.FC = () => {
                       📚 市场博弈逻辑：从"鱼尾行情"到"崩盘"再到"熊转牛"
                     </div>
                     <div style={{ marginBottom: '12px', padding: '8px', background: 'rgba(255,255,255,0.5)', borderRadius: '6px' }}>
-                      <div style={{ fontWeight: '600', marginBottom: '8px', color: '#dc2626' }}>
+                      <div style={{ fontWeight: '600', marginBottom: '8px', color: 'var(--up)' }}>
                         📉 第一部分：熊市崩盘的三个阶段
                       </div>
                       <div style={{ marginBottom: '6px', paddingLeft: '8px' }}>
@@ -374,7 +374,7 @@ export const ExecutionTab: React.FC = () => {
                       </div>
                     </div>
                     <div style={{ marginBottom: '0', padding: '8px', background: 'rgba(255,255,255,0.5)', borderRadius: '6px' }}>
-                      <div style={{ fontWeight: '600', marginBottom: '8px', color: '#059669' }}>
+                      <div style={{ fontWeight: '600', marginBottom: '8px', color: 'var(--down)' }}>
                         📈 第二部分：熊转牛的"接力流程"
                       </div>
                       <div style={{ marginBottom: '6px', paddingLeft: '8px' }}>
@@ -398,7 +398,7 @@ export const ExecutionTab: React.FC = () => {
                       display: 'block',
                       marginBottom: '8px',
                       fontWeight: '600',
-                      color: '#374151',
+                      color: 'var(--text-primary)',
                       fontSize: '0.95rem'
                     }}>
                       Equity P/C Ratio (个股比例) - EQUITY PUT/CALL RATIO (个股看跌/看涨比)
@@ -412,13 +412,13 @@ export const ExecutionTab: React.FC = () => {
                       style={{
                         width: '100%',
                         padding: '12px',
-                        border: '1px solid #d1d5db',
+                        border: '1px solid var(--system-gray3)',
                         borderRadius: '8px',
                         fontSize: '1rem',
                         boxSizing: 'border-box'
                       }}
                     />
-                    <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '6px', marginBottom: '4px' }}>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '6px', marginBottom: '4px' }}>
                       通常 0.7 以下为贪婪，1.1 以上为恐惧
                     </div>
                     <a
@@ -427,7 +427,7 @@ export const ExecutionTab: React.FC = () => {
                       rel="noopener noreferrer"
                       style={{
                         fontSize: '0.75rem',
-                        color: '#2563eb',
+                        color: 'var(--accent)',
                         textDecoration: 'none',
                         display: 'inline-flex',
                         alignItems: 'center',
@@ -446,7 +446,7 @@ export const ExecutionTab: React.FC = () => {
                       display: 'block',
                       marginBottom: '8px',
                       fontWeight: '600',
-                      color: '#374151',
+                      color: 'var(--text-primary)',
                       fontSize: '0.95rem'
                     }}>
                       SPX P/C Ratio (标普指数比例) - SPX + SPXW PUT/CALL RATIO (标普指数看跌/看涨比)
@@ -460,13 +460,13 @@ export const ExecutionTab: React.FC = () => {
                       style={{
                         width: '100%',
                         padding: '12px',
-                        border: '1px solid #d1d5db',
+                        border: '1px solid var(--system-gray3)',
                         borderRadius: '8px',
                         fontSize: '1rem',
                         boxSizing: 'border-box'
                       }}
                     />
-                    <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '6px', marginBottom: '4px' }}>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '6px', marginBottom: '4px' }}>
                       1.2 以上代表机构对冲很强(安全垫)
                     </div>
                     <a
@@ -475,7 +475,7 @@ export const ExecutionTab: React.FC = () => {
                       rel="noopener noreferrer"
                       style={{
                         fontSize: '0.75rem',
-                        color: '#2563eb',
+                        color: 'var(--accent)',
                         textDecoration: 'none',
                         display: 'inline-flex',
                         alignItems: 'center',
@@ -491,18 +491,18 @@ export const ExecutionTab: React.FC = () => {
 
                   <div style={{
                     padding: '12px',
-                    background: '#f0f9ff',
-                    border: '1px solid #7dd3fc',
+                    background: 'var(--accent-soft)',
+                    border: '1px solid var(--accent)',
                     borderRadius: '8px',
                     fontSize: '0.85rem',
-                    color: '#0c4a6e',
+                    color: 'var(--accent-ink)',
                     lineHeight: '1.6',
                     marginBottom: '12px'
                   }}>
                     <div style={{ fontWeight: '700', marginBottom: '8px', fontSize: '0.9rem' }}>
                       🔬 高阶参数（可选，提高判断胜率）
                     </div>
-                    <div style={{ fontSize: '0.75rem', marginBottom: '12px', color: '#0369a1' }}>
+                    <div style={{ fontSize: '0.75rem', marginBottom: '12px', color: 'var(--accent-ink)' }}>
                       这些参数比 P/C Ratio 更敏感，可以交叉验证市场状态
                     </div>
                   </div>
@@ -512,7 +512,7 @@ export const ExecutionTab: React.FC = () => {
                       display: 'block',
                       marginBottom: '8px',
                       fontWeight: '600',
-                      color: '#374151',
+                      color: 'var(--text-primary)',
                       fontSize: '0.9rem'
                     }}>
                       VIX 近月（可选）
@@ -526,13 +526,13 @@ export const ExecutionTab: React.FC = () => {
                       style={{
                         width: '100%',
                         padding: '10px',
-                        border: '1px solid #d1d5db',
+                        border: '1px solid var(--system-gray3)',
                         borderRadius: '8px',
                         fontSize: '0.9rem',
                         boxSizing: 'border-box'
                       }}
                     />
-                    <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '4px', marginBottom: '4px' }}>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '4px', marginBottom: '4px' }}>
                       VIX 期限结构：对比近月和远月，倒挂时是崩盘前兆
                     </div>
                     <a
@@ -541,7 +541,7 @@ export const ExecutionTab: React.FC = () => {
                       rel="noopener noreferrer"
                       style={{
                         fontSize: '0.75rem',
-                        color: '#2563eb',
+                        color: 'var(--accent)',
                         textDecoration: 'none',
                         display: 'inline-flex',
                         alignItems: 'center',
@@ -560,7 +560,7 @@ export const ExecutionTab: React.FC = () => {
                       display: 'block',
                       marginBottom: '8px',
                       fontWeight: '600',
-                      color: '#374151',
+                      color: 'var(--text-primary)',
                       fontSize: '0.9rem'
                     }}>
                       VIX 远月 / VXV（可选）
@@ -574,13 +574,13 @@ export const ExecutionTab: React.FC = () => {
                       style={{
                         width: '100%',
                         padding: '10px',
-                        border: '1px solid #d1d5db',
+                        border: '1px solid var(--system-gray3)',
                         borderRadius: '8px',
                         fontSize: '0.9rem',
                         boxSizing: 'border-box'
                       }}
                     />
-                    <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '4px', marginBottom: '4px' }}>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '4px', marginBottom: '4px' }}>
                       三个月后的 VIX，正常应大于近月（Contango）
                     </div>
                     <a
@@ -589,7 +589,7 @@ export const ExecutionTab: React.FC = () => {
                       rel="noopener noreferrer"
                       style={{
                         fontSize: '0.75rem',
-                        color: '#2563eb',
+                        color: 'var(--accent)',
                         textDecoration: 'none',
                         display: 'inline-flex',
                         alignItems: 'center',
@@ -608,7 +608,7 @@ export const ExecutionTab: React.FC = () => {
                       display: 'block',
                       marginBottom: '8px',
                       fontWeight: '600',
-                      color: '#374151',
+                      color: 'var(--text-primary)',
                       fontSize: '0.9rem'
                     }}>
                       Net GEX（可选）
@@ -622,13 +622,13 @@ export const ExecutionTab: React.FC = () => {
                       style={{
                         width: '100%',
                         padding: '10px',
-                        border: '1px solid #d1d5db',
+                        border: '1px solid var(--system-gray3)',
                         borderRadius: '8px',
                         fontSize: '0.9rem',
                         boxSizing: 'border-box'
                       }}
                     />
-                    <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '4px', marginBottom: '4px' }}>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '4px', marginBottom: '4px' }}>
                       净看涨期权敞口，负值时市场进入崩盘区
                     </div>
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -638,7 +638,7 @@ export const ExecutionTab: React.FC = () => {
                         rel="noopener noreferrer"
                         style={{
                           fontSize: '0.75rem',
-                          color: '#2563eb',
+                          color: 'var(--accent)',
                           textDecoration: 'none',
                           display: 'inline-flex',
                           alignItems: 'center',
@@ -656,7 +656,7 @@ export const ExecutionTab: React.FC = () => {
                         rel="noopener noreferrer"
                         style={{
                           fontSize: '0.75rem',
-                          color: '#2563eb',
+                          color: 'var(--accent)',
                           textDecoration: 'none',
                           display: 'inline-flex',
                           alignItems: 'center',
@@ -676,7 +676,7 @@ export const ExecutionTab: React.FC = () => {
                       display: 'block',
                       marginBottom: '8px',
                       fontWeight: '600',
-                      color: '#374151',
+                      color: 'var(--text-primary)',
                       fontSize: '0.9rem'
                     }}>
                       金银比 Gold/Silver Ratio（可选）
@@ -690,13 +690,13 @@ export const ExecutionTab: React.FC = () => {
                       style={{
                         width: '100%',
                         padding: '10px',
-                        border: '1px solid #d1d5db',
+                        border: '1px solid var(--system-gray3)',
                         borderRadius: '8px',
                         fontSize: '0.9rem',
                         boxSizing: 'border-box'
                       }}
                     />
-                    <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '4px', marginBottom: '4px' }}>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '4px', marginBottom: '4px' }}>
                       ≥90 时白银极度便宜，是 PAAS 确定性最高的买入时刻
                     </div>
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -706,7 +706,7 @@ export const ExecutionTab: React.FC = () => {
                         rel="noopener noreferrer"
                         style={{
                           fontSize: '0.75rem',
-                          color: '#2563eb',
+                          color: 'var(--accent)',
                           textDecoration: 'none',
                           display: 'inline-flex',
                           alignItems: 'center',
@@ -724,7 +724,7 @@ export const ExecutionTab: React.FC = () => {
                         rel="noopener noreferrer"
                         style={{
                           fontSize: '0.75rem',
-                          color: '#2563eb',
+                          color: 'var(--accent)',
                           textDecoration: 'none',
                           display: 'inline-flex',
                           alignItems: 'center',
@@ -744,7 +744,7 @@ export const ExecutionTab: React.FC = () => {
                     style={{
                       width: '100%',
                       padding: '14px',
-                      background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                      background: 'linear-gradient(135deg, var(--accent), var(--accent))',
                       color: 'white',
                       border: 'none',
                       borderRadius: '8px',
@@ -773,15 +773,15 @@ export const ExecutionTab: React.FC = () => {
                         padding: '20px',
                         borderRadius: '8px',
                         borderLeft: `5px solid ${
-                          analysisResult.status === 'safe' ? '#28a745' :
-                          analysisResult.status === 'warning' ? '#ffc107' : '#dc3545'
+                          analysisResult.status === 'safe' ? 'var(--down)' :
+                          analysisResult.status === 'warning' ? 'var(--accent-warm)' : 'var(--up)'
                         }`,
                         background:
-                          analysisResult.status === 'safe' ? '#d4edda' :
-                          analysisResult.status === 'warning' ? '#fff3cd' : '#f8d7da',
+                          analysisResult.status === 'safe' ? 'var(--system-green-light)' :
+                          analysisResult.status === 'warning' ? 'var(--accent-warm-soft)' : 'var(--system-red-light)',
                         color:
-                          analysisResult.status === 'safe' ? '#155724' :
-                          analysisResult.status === 'warning' ? '#856404' : '#721c24'
+                          analysisResult.status === 'safe' ? 'var(--down-ink)' :
+                          analysisResult.status === 'warning' ? 'var(--warm-ink)' : 'var(--up-ink)'
                       }}
                     >
                       <div style={{
@@ -810,8 +810,8 @@ export const ExecutionTab: React.FC = () => {
                         background: 'rgba(255,255,255,0.5)',
                         borderRadius: '6px',
                         border: `1px solid ${
-                          analysisResult.status === 'safe' ? '#28a745' :
-                          analysisResult.status === 'warning' ? '#ffc107' : '#dc3545'
+                          analysisResult.status === 'safe' ? 'var(--down)' :
+                          analysisResult.status === 'warning' ? 'var(--accent-warm)' : 'var(--up)'
                         }`
                       }}>
                         💡 {analysisResult.action}
@@ -820,10 +820,10 @@ export const ExecutionTab: React.FC = () => {
                         <div style={{
                           marginTop: '16px',
                           padding: '16px',
-                          background: '#eff6ff',
-                          border: '1px solid #3b82f6',
+                          background: 'var(--accent-soft)',
+                          border: '1px solid var(--accent)',
                           borderRadius: '8px',
-                          color: '#1e40af',
+                          color: 'var(--accent-ink)',
                           fontSize: '0.9rem',
                           lineHeight: '1.6',
                           whiteSpace: 'pre-line'
@@ -842,30 +842,30 @@ export const ExecutionTab: React.FC = () => {
               </div>
 
               {/* 每日执行清单 */}
-              <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '12px', padding: '24px' }}>
-                <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '16px', color: '#166534', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ background: 'var(--system-green-light)', border: '1px solid var(--system-green-light)', borderRadius: '12px', padding: '24px' }}>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '16px', color: 'var(--down-ink)', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ fontSize: '2rem' }}>✅</span>
                   每日执行清单
                 </h2>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #86efac' }}>
-                    <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#1f2937' }}>查看自选</h3>
-                    <div style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.8' }}>
+                  <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid var(--system-green-light)' }}>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: 'var(--text-primary)' }}>查看自选</h3>
+                    <div style={{ fontSize: '0.9rem', color: 'var(--text-primary)', lineHeight: '1.8' }}>
                       KRE、XHB、GDX/GLD、VIX、DXY、^TNX、BTC-USD、CNN Fear & Greed 指数
                     </div>
                   </div>
 
-                  <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #86efac' }}>
-                    <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#1f2937' }}>记录数据</h3>
-                    <div style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.8' }}>
+                  <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid var(--system-green-light)' }}>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: 'var(--text-primary)' }}>记录数据</h3>
+                    <div style={{ fontSize: '0.9rem', color: 'var(--text-primary)', lineHeight: '1.8' }}>
                       当天 Equity P/C、SPX P/C、Net GEX、金银比，以及自己给市场阶段打一个标签（鱼尾 / 诱多 / 崩盘 / 恐慌 / 筑底）
                     </div>
                   </div>
 
-                  <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #86efac' }}>
-                    <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: '#1f2937' }}>行动决策</h3>
-                    <div style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.8' }}>
+                  <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid var(--system-green-light)' }}>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: 'var(--text-primary)' }}>行动决策</h3>
+                    <div style={{ fontSize: '0.9rem', color: 'var(--text-primary)', lineHeight: '1.8' }}>
                       <div style={{ marginBottom: '8px' }}>• 若无阶段切换信号 → 不做大动作</div>
                       <div>• 若阶段变更 → 按上表调整仓位，不做超过两步的大幅改动</div>
                     </div>
@@ -874,20 +874,20 @@ export const ExecutionTab: React.FC = () => {
               </div>
 
               {/* 投资纪律 */}
-              <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '12px', padding: '24px' }}>
-                <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '16px', color: '#92400e', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ background: 'var(--accent-warm-soft)', border: '1px solid var(--accent-warm-soft)', borderRadius: '12px', padding: '24px' }}>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '16px', color: 'var(--warm-ink)', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ fontSize: '2rem' }}>⚖️</span>
                   投资纪律
                 </h2>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <div style={{ fontSize: '1rem', color: '#92400e', lineHeight: '1.8', fontStyle: 'italic' }}>
+                  <div style={{ fontSize: '1rem', color: 'var(--warm-ink)', lineHeight: '1.8', fontStyle: 'italic' }}>
                     • 现金是等待成本，也是买错的止损器。
                   </div>
-                  <div style={{ fontSize: '1rem', color: '#92400e', lineHeight: '1.8', fontStyle: 'italic' }}>
+                  <div style={{ fontSize: '1rem', color: 'var(--warm-ink)', lineHeight: '1.8', fontStyle: 'italic' }}>
                     • 做空需要耐心，抄底需要勇气，二者都要有规则约束。
                   </div>
-                  <div style={{ fontSize: '1rem', color: '#92400e', lineHeight: '1.8', fontStyle: 'italic' }}>
+                  <div style={{ fontSize: '1rem', color: 'var(--warm-ink)', lineHeight: '1.8', fontStyle: 'italic' }}>
                     • 宁可错过，不要做错；宁可慢一点，不要频繁大振幅改仓。
                   </div>
                 </div>

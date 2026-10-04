@@ -56,13 +56,13 @@ export const SectorSection: React.FC<SectorSectionProps> = ({ category }) => {
       {/* 上涨板块 */}
       {upSectors.length > 0 && (
         <>
-          <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#16a34a', marginBottom: '10px', padding: '6px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--down)', marginBottom: '10px', padding: '6px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <TrendingUp size={16} /> 涨幅前15
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '10px', marginBottom: '20px' }}>
             {upSectors.map((sector) => {
               const isPositive = sector.changePercent >= 0
-              const changeColor = isPositive ? '#16a34a' : '#dc2626'
+              const changeColor = isPositive ? 'var(--down)' : 'var(--up)'
 
               return (
                 <div
@@ -71,7 +71,7 @@ export const SectorSection: React.FC<SectorSectionProps> = ({ category }) => {
                     background: 'white',
                     borderRadius: '8px',
                     padding: '12px',
-                    border: `1px solid ${isPositive ? '#d1fae5' : '#fee2e2'}`,
+                    border: `1px solid ${isPositive ? 'var(--system-green-light)' : 'var(--system-red-light)'}`,
                     borderLeft: `3px solid ${changeColor}`,
                     transition: 'transform 0.2s, box-shadow 0.2s'
                   }}
@@ -85,15 +85,15 @@ export const SectorSection: React.FC<SectorSectionProps> = ({ category }) => {
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                    <span style={{ fontWeight: '600', fontSize: '0.9rem', color: '#1f2937', flex: 1 }}>
+                    <span style={{ fontWeight: '600', fontSize: '0.9rem', color: 'var(--text-primary)', flex: 1 }}>
                       {sector.name}
                     </span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       {sector.rsi !== undefined && (
                         <span style={{
                           fontSize: '0.7rem', padding: '2px 5px', borderRadius: '4px', fontWeight: '500',
-                          background: sector.rsi >= 70 ? '#fef2f2' : sector.rsi <= 30 ? '#f0fdf4' : '#f3f4f6',
-                          color: sector.rsi >= 70 ? '#dc2626' : sector.rsi <= 30 ? '#16a34a' : '#6b7280'
+                          background: sector.rsi >= 70 ? 'var(--system-red-light)' : sector.rsi <= 30 ? 'var(--system-green-light)' : 'var(--bg-secondary)',
+                          color: sector.rsi >= 70 ? 'var(--up)' : sector.rsi <= 30 ? 'var(--down)' : 'var(--text-secondary)'
                         }}>
                           RSI {sector.rsi.toFixed(0)}
                         </span>
@@ -106,12 +106,12 @@ export const SectorSection: React.FC<SectorSectionProps> = ({ category }) => {
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', fontSize: '0.75rem', color: '#6b7280' }}>
-                    <span>成交额: <strong style={{ color: '#374151' }}>{formatAmount(sector.amount)}</strong></span>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                    <span>成交额: <strong style={{ color: 'var(--text-primary)' }}>{formatAmount(sector.amount)}</strong></span>
                     {sector.stockCount > 0 && (
                       <>
                         <span>•</span>
-                        <span>成分股: <strong style={{ color: '#374151' }}>{sector.stockCount}</strong></span>
+                        <span>成分股: <strong style={{ color: 'var(--text-primary)' }}>{sector.stockCount}</strong></span>
                       </>
                     )}
                   </div>
@@ -125,13 +125,13 @@ export const SectorSection: React.FC<SectorSectionProps> = ({ category }) => {
       {/* 下跌板块 */}
       {downSectors.length > 0 && (
         <>
-          <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#dc2626', marginBottom: '10px', padding: '6px 0', marginTop: '20px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--up)', marginBottom: '10px', padding: '6px 0', marginTop: '20px', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <TrendingDown size={16} /> 跌幅前15
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '10px' }}>
             {downSectors.map((sector) => {
               const isPositive = sector.changePercent >= 0
-              const changeColor = isPositive ? '#16a34a' : '#dc2626'
+              const changeColor = isPositive ? 'var(--down)' : 'var(--up)'
 
               return (
                 <div
@@ -140,7 +140,7 @@ export const SectorSection: React.FC<SectorSectionProps> = ({ category }) => {
                     background: 'white',
                     borderRadius: '8px',
                     padding: '12px',
-                    border: `1px solid ${isPositive ? '#d1fae5' : '#fee2e2'}`,
+                    border: `1px solid ${isPositive ? 'var(--system-green-light)' : 'var(--system-red-light)'}`,
                     borderLeft: `3px solid ${changeColor}`,
                     transition: 'transform 0.2s, box-shadow 0.2s'
                   }}
@@ -154,15 +154,15 @@ export const SectorSection: React.FC<SectorSectionProps> = ({ category }) => {
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                    <span style={{ fontWeight: '600', fontSize: '0.9rem', color: '#1f2937', flex: 1 }}>
+                    <span style={{ fontWeight: '600', fontSize: '0.9rem', color: 'var(--text-primary)', flex: 1 }}>
                       {sector.name}
                     </span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       {sector.rsi !== undefined && (
                         <span style={{
                           fontSize: '0.7rem', padding: '2px 5px', borderRadius: '4px', fontWeight: '500',
-                          background: sector.rsi >= 70 ? '#fef2f2' : sector.rsi <= 30 ? '#f0fdf4' : '#f3f4f6',
-                          color: sector.rsi >= 70 ? '#dc2626' : sector.rsi <= 30 ? '#16a34a' : '#6b7280'
+                          background: sector.rsi >= 70 ? 'var(--system-red-light)' : sector.rsi <= 30 ? 'var(--system-green-light)' : 'var(--bg-secondary)',
+                          color: sector.rsi >= 70 ? 'var(--up)' : sector.rsi <= 30 ? 'var(--down)' : 'var(--text-secondary)'
                         }}>
                           RSI {sector.rsi.toFixed(0)}
                         </span>
@@ -175,12 +175,12 @@ export const SectorSection: React.FC<SectorSectionProps> = ({ category }) => {
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', fontSize: '0.75rem', color: '#6b7280' }}>
-                    <span>成交额: <strong style={{ color: '#374151' }}>{formatAmount(sector.amount)}</strong></span>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                    <span>成交额: <strong style={{ color: 'var(--text-primary)' }}>{formatAmount(sector.amount)}</strong></span>
                     {sector.stockCount > 0 && (
                       <>
                         <span>•</span>
-                        <span>成分股: <strong style={{ color: '#374151' }}>{sector.stockCount}</strong></span>
+                        <span>成分股: <strong style={{ color: 'var(--text-primary)' }}>{sector.stockCount}</strong></span>
                       </>
                     )}
                   </div>
@@ -192,20 +192,20 @@ export const SectorSection: React.FC<SectorSectionProps> = ({ category }) => {
       )}
 
       {upSectors.length === 0 && downSectors.length === 0 && (
-        <div style={{ padding: '24px', textAlign: 'center', color: '#9ca3af', fontSize: '0.85rem' }}>
+        <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>
           {category.data.length === 0 ? '暂无数据' : '加载中...'}
         </div>
       )}
 
       {/* 如果只有上涨或只有下跌，显示提示 */}
       {upSectors.length > 0 && downSectors.length === 0 && (
-        <div style={{ padding: '12px', textAlign: 'center', color: '#9ca3af', fontSize: '0.75rem', marginTop: '10px' }}>
+        <div style={{ padding: '12px', textAlign: 'center', color: 'var(--text-tertiary)', fontSize: '0.75rem', marginTop: '10px' }}>
           暂无下跌板块数据
         </div>
       )}
 
       {upSectors.length === 0 && downSectors.length > 0 && (
-        <div style={{ padding: '12px', textAlign: 'center', color: '#9ca3af', fontSize: '0.75rem', marginTop: '10px' }}>
+        <div style={{ padding: '12px', textAlign: 'center', color: 'var(--text-tertiary)', fontSize: '0.75rem', marginTop: '10px' }}>
           暂无上涨板块数据
         </div>
       )}

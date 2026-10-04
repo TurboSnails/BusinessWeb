@@ -14,9 +14,9 @@ export const Card: React.FC<CardProps> = ({
   children, 
   title, 
   icon,
-  borderColor = '#e5e7eb',
+  borderColor = 'var(--border-subtle)',
   bgColor = 'white',
-  titleColor = '#1f2937',
+  titleColor = 'var(--text-primary)',
   style 
 }) => {
   return (
@@ -56,9 +56,9 @@ interface InfoBoxProps {
 
 export const InfoBox: React.FC<InfoBoxProps> = ({ 
   children, 
-  bgColor = '#f0fdf4',
-  borderColor = '#86efac',
-  textColor = '#166534',
+  bgColor = 'var(--system-green-light)',
+  borderColor = 'var(--system-green-light)',
+  textColor = 'var(--down-ink)',
   style 
 }) => {
   return (

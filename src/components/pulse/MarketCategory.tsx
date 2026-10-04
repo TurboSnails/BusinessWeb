@@ -28,7 +28,7 @@ export const MarketCategory: React.FC<MarketCategoryProps> = ({ category }) => {
         ))}
         {category.data.length === 0 && (
           <div style={{ 
-            padding: '16px', color: '#9ca3af', fontSize: '0.85rem', 
+            padding: '16px', color: 'var(--text-tertiary)', fontSize: '0.85rem', 
             gridColumn: '1 / -1', textAlign: 'center' 
           }}>
             加载中...

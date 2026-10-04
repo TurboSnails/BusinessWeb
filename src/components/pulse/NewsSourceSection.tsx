@@ -102,12 +102,12 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
   return (
     <div style={{ marginBottom: '24px', padding: '16px', background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-        <h3 style={{ margin: 0, fontSize: '1rem', color: '#374151', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          📡 重要消息源 <span style={{ fontSize: '0.8rem', color: '#9ca3af', fontWeight: 'normal' }}>快速访问常用资讯源</span>
+        <h3 style={{ margin: 0, fontSize: '1rem', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          📡 重要消息源 <span style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', fontWeight: 'normal' }}>快速访问常用资讯源</span>
         </h3>
         <button onClick={() => { setShowForm(true); setEditingSource(null); setFormData({ name: '', url: '', category: 'news', priority: 'medium', description: '', icon: '🔗', enabled: true }) }}
           style={{
-            padding: '6px 12px', background: '#3b82f6', color: 'white', border: 'none',
+            padding: '6px 12px', background: 'var(--accent)', color: 'white', border: 'none',
             borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
           }}>+ 添加消息源</button>
       </div>
@@ -124,8 +124,8 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
               <div
                 key={source.id}
                 style={{
-                  border: `2px solid ${source.priority === 'high' ? '#ef4444' : source.priority === 'medium' ? '#f59e0b' : '#6b7280'}`,
-                  background: source.priority === 'high' ? '#fef2f2' : source.priority === 'medium' ? '#fffbeb' : '#f9fafb',
+                  border: `2px solid ${source.priority === 'high' ? 'var(--up)' : source.priority === 'medium' ? 'var(--accent-warm)' : 'var(--text-secondary)'}`,
+                  background: source.priority === 'high' ? 'var(--system-red-light)' : source.priority === 'medium' ? 'var(--accent-warm-soft)' : 'var(--bg-secondary)',
                   borderRadius: '6px',
                   padding: '8px',
                   transition: 'transform 0.2s, box-shadow 0.2s'
@@ -150,7 +150,7 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
                         style={{
                           fontSize: '0.85rem',
                           fontWeight: '600',
-                          color: '#1f2937',
+                          color: 'var(--text-primary)',
                           textDecoration: 'none',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
@@ -162,7 +162,7 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
                         {source.name}
                       </a>
                     </div>
-                    <div style={{ fontSize: '0.7rem', color: '#6b7280', marginBottom: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginBottom: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {source.description || categoryLabels[source.category]}
                     </div>
                     <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -171,9 +171,9 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
                         fontSize: '0.65rem',
                         padding: '1px 6px',
                         borderRadius: '4px',
-                        background: '#f3f4f6',
-                        color: '#6b7280',
-                        border: '1px solid #e5e7eb'
+                        background: 'var(--bg-secondary)',
+                        color: 'var(--text-secondary)',
+                        border: '1px solid var(--border-subtle)'
                       }}>
                         {source.category === 'official' && <RadioTower size={10} />}
                         {source.category === 'news' && <Newspaper size={10} />}
@@ -187,9 +187,9 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
                         fontSize: '0.65rem',
                         padding: '1px 6px',
                         borderRadius: '4px',
-                        background: source.priority === 'high' ? '#fee2e2' : source.priority === 'medium' ? '#fef3c7' : '#f3f4f6',
-                        color: source.priority === 'high' ? '#dc2626' : source.priority === 'medium' ? '#d97706' : '#6b7280',
-                        border: `1px solid ${source.priority === 'high' ? '#fecaca' : source.priority === 'medium' ? '#fde68a' : '#e5e7eb'}`
+                        background: source.priority === 'high' ? 'var(--system-red-light)' : source.priority === 'medium' ? 'var(--accent-warm-soft)' : 'var(--bg-secondary)',
+                        color: source.priority === 'high' ? 'var(--up)' : source.priority === 'medium' ? 'var(--warm-ink)' : 'var(--text-secondary)',
+                        border: `1px solid ${source.priority === 'high' ? 'var(--system-red-light)' : source.priority === 'medium' ? 'var(--accent-warm-soft)' : 'var(--border-subtle)'}`
                       }}>
                         {source.priority === 'high' && <Flame size={10} />}
                         {source.priority === 'medium' && <Zap size={10} />}
@@ -199,14 +199,14 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
                     </div>
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: '4px', marginTop: '6px', paddingTop: '6px', borderTop: '1px solid #e5e7eb' }}>
+                <div style={{ display: 'flex', gap: '4px', marginTop: '6px', paddingTop: '6px', borderTop: '1px solid var(--border-subtle)' }}>
                   <button
                     onClick={() => handleEdit(source)}
                     style={{
                       flex: 1,
                       padding: '3px 6px',
-                      background: '#eff6ff',
-                      color: '#2563eb',
+                      background: 'var(--accent-soft)',
+                      color: 'var(--accent)',
                       border: 'none',
                       borderRadius: '3px',
                       cursor: 'pointer',
@@ -220,8 +220,8 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
                     style={{
                       flex: 1,
                       padding: '3px 6px',
-                      background: '#f0fdf4',
-                      color: '#16a34a',
+                      background: 'var(--system-green-light)',
+                      color: 'var(--down)',
                       border: 'none',
                       borderRadius: '3px',
                       cursor: 'pointer',
@@ -234,8 +234,8 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
                     onClick={() => handleDelete(source.id)}
                     style={{
                       padding: '3px 6px',
-                      background: '#fee2e2',
-                      color: '#dc2626',
+                      background: 'var(--system-red-light)',
+                      color: 'var(--up)',
                       border: 'none',
                       borderRadius: '3px',
                       cursor: 'pointer',
@@ -256,10 +256,10 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
         <details style={{ marginTop: '16px' }}>
           <summary style={{
             fontSize: '0.85rem',
-            color: '#9ca3af',
+            color: 'var(--text-tertiary)',
             cursor: 'pointer',
             padding: '8px',
-            background: '#f9fafb',
+            background: 'var(--bg-secondary)',
             borderRadius: '6px'
           }}>
             已禁用的消息源 ({disabledSources.length})
@@ -274,8 +274,8 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
               <div
                 key={source.id}
                 style={{
-                  border: '1px solid #e5e7eb',
-                  background: '#f9fafb',
+                  border: '1px solid var(--border-subtle)',
+                  background: 'var(--bg-secondary)',
                   borderRadius: '8px',
                   padding: '12px',
                   opacity: 0.6
@@ -283,7 +283,7 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
                   <span style={{ fontSize: '1rem' }}>{source.icon || '🔗'}</span>
-                  <span style={{ fontSize: '0.9rem', fontWeight: '500', color: '#6b7280' }}>
+                  <span style={{ fontSize: '0.9rem', fontWeight: '500', color: 'var(--text-secondary)' }}>
                     {source.name}
                   </span>
                 </div>
@@ -292,8 +292,8 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
                     onClick={() => handleToggle(source.id)}
                     style={{
                       padding: '4px 8px',
-                      background: '#f0fdf4',
-                      color: '#16a34a',
+                      background: 'var(--system-green-light)',
+                      color: 'var(--down)',
                       border: 'none',
                       borderRadius: '4px',
                       cursor: 'pointer',
@@ -306,8 +306,8 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
                     onClick={() => handleDelete(source.id)}
                     style={{
                       padding: '4px 8px',
-                      background: '#fee2e2',
-                      color: '#dc2626',
+                      background: 'var(--system-red-light)',
+                      color: 'var(--up)',
                       border: 'none',
                       borderRadius: '4px',
                       cursor: 'pointer',
@@ -324,7 +324,7 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
       )}
 
       {sources.length === 0 && (
-        <div style={{ padding: '24px', textAlign: 'center', color: '#9ca3af' }}>
+        <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-tertiary)' }}>
           暂无消息源，点击"添加消息源"开始管理
         </div>
       )}
@@ -357,32 +357,32 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
-                <label style={{ fontSize: '0.8rem', color: '#64748b' }}>名称 *</label>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>名称 *</label>
                 <input
                   type="text"
                   value={formData.name || ''}
                   onChange={e => setFormData({ ...formData, name: e.target.value })}
                   placeholder="如：Bloomberg"
-                  style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '8px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem', boxSizing: 'border-box' }}
                 />
               </div>
               <div>
-                <label style={{ fontSize: '0.8rem', color: '#64748b' }}>网址 *</label>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>网址 *</label>
                 <input
                   type="url"
                   value={formData.url || ''}
                   onChange={e => setFormData({ ...formData, url: e.target.value })}
                   placeholder="https://..."
-                  style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '8px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem', boxSizing: 'border-box' }}
                 />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div>
-                  <label style={{ fontSize: '0.8rem', color: '#64748b' }}>分类</label>
+                  <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>分类</label>
                   <select
                     value={formData.category || 'news'}
                     onChange={e => setFormData({ ...formData, category: e.target.value as NewsSource['category'] })}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }}
+                    style={{ width: '100%', padding: '8px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem' }}
                   >
                     <option value="official">官方数据</option>
                     <option value="news">财经新闻</option>
@@ -392,11 +392,11 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
                   </select>
                 </div>
                 <div>
-                  <label style={{ fontSize: '0.8rem', color: '#64748b' }}>优先级</label>
+                  <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>优先级</label>
                   <select
                     value={formData.priority || 'medium'}
                     onChange={e => setFormData({ ...formData, priority: e.target.value as NewsSource['priority'] })}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }}
+                    style={{ width: '100%', padding: '8px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem' }}
                   >
                     <option value="high">高</option>
                     <option value="medium">中</option>
@@ -405,36 +405,36 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
                 </div>
               </div>
               <div>
-                <label style={{ fontSize: '0.8rem', color: '#64748b' }}>图标（可选）</label>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>图标（可选）</label>
                 <input
                   type="text"
                   value={formData.icon || '🔗'}
                   onChange={e => setFormData({ ...formData, icon: e.target.value })}
                   placeholder="🔗"
-                  style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '8px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem', boxSizing: 'border-box' }}
                 />
               </div>
               <div>
-                <label style={{ fontSize: '0.8rem', color: '#64748b' }}>描述（可选）</label>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>描述（可选）</label>
                 <input
                   type="text"
                   value={formData.description || ''}
                   onChange={e => setFormData({ ...formData, description: e.target.value })}
                   placeholder="简要描述这个消息源"
-                  style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '8px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem', boxSizing: 'border-box' }}
                 />
               </div>
             </div>
             <div style={{ display: 'flex', gap: '12px', marginTop: '20px', justifyContent: 'flex-end' }}>
               <button
                 onClick={() => { setShowForm(false); setEditingSource(null); setFormData({ name: '', url: '', category: 'news', priority: 'medium', description: '', icon: '🔗', enabled: true }) }}
-                style={{ padding: '8px 16px', background: '#f3f4f6', color: '#4b5563', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+                style={{ padding: '8px 16px', background: 'var(--bg-secondary)', color: 'var(--text-secondary)', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
               >
                 取消
               </button>
               <button
                 onClick={handleSave}
-                style={{ padding: '8px 16px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' }}
+                style={{ padding: '8px 16px', background: 'var(--accent)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' }}
               >
                 保存
               </button>

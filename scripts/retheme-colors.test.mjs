@@ -84,3 +84,64 @@ test('三段渐变也压平成第一色', () => {
     `background: 'var(--accent)'`
   )
 })
+
+test('翠绿、天蓝、紫、橙与 Bootstrap 提示色也归入纸书色板', () => {
+  const cases = {
+    '#059669': 'var(--down)', '#28a745': 'var(--down)',
+    '#86efac': 'var(--system-green-light)', '#d1fae5': 'var(--system-green-light)', '#d4edda': 'var(--system-green-light)',
+    '#155724': 'var(--down-ink)',
+    '#0369a1': 'var(--accent-ink)', '#0c4a6e': 'var(--accent-ink)',
+    '#e0f2fe': 'var(--accent-soft)', '#7dd3fc': 'var(--accent)',
+    '#7c3aed': 'var(--system-purple)', '#9333ea': 'var(--system-purple)', '#4f46e5': 'var(--accent)',
+    '#e9d5ff': 'var(--bg-secondary)', '#f3e8ff': 'var(--bg-secondary)', '#fafafa': 'var(--bg-secondary)',
+    '#fff7ed': 'var(--accent-warm-soft)', '#fed7aa': 'var(--accent-warm-soft)', '#fff3cd': 'var(--accent-warm-soft)',
+    '#fcd34d': 'var(--accent-warm)', '#ffc107': 'var(--accent-warm)',
+    '#d97706': 'var(--warm-ink)', '#856404': 'var(--warm-ink)',
+    '#dc3545': 'var(--up)', '#f8d7da': 'var(--system-red-light)', '#721c24': 'var(--up-ink)',
+  }
+  for (const [hex, want] of Object.entries(cases)) {
+    assert.equal(retheme(`'${hex}'`).output, `'${want}'`, hex)
+  }
+})
+
+import { classifyHex } from './retheme-colors.mjs'
+
+test('classifyHex：灰蓝（低饱和）按明度当中性色', () => {
+  assert.equal(classifyHex('#667489'), 'var(--text-secondary)')
+  assert.equal(classifyHex('#798393'), 'var(--text-tertiary)')
+  assert.equal(classifyHex('#b9c7d9'), 'var(--system-gray3)')
+  assert.equal(classifyHex('#172236'), 'var(--text-primary)')
+})
+
+test('classifyHex：真蓝按明度归主色家族', () => {
+  assert.equal(classifyHex('#1769d2'), 'var(--accent)')
+  assert.equal(classifyHex('#498de7'), 'var(--accent)')
+  assert.equal(classifyHex('#25466e'), 'var(--accent-ink)')
+  assert.equal(classifyHex('#f2f8ff'), 'var(--accent-soft)')
+})
+
+test('classifyHex：红绿橙各归各位', () => {
+  assert.equal(classifyHex('#d44343'), 'var(--up)')
+  assert.equal(classifyHex('#fff0f0'), 'var(--system-red-light)')
+  assert.equal(classifyHex('#b74646'), 'var(--up)')
+  assert.equal(classifyHex('#16845b'), 'var(--down)')
+  assert.equal(classifyHex('#e6f6ed'), 'var(--system-green-light)')
+  assert.equal(classifyHex('#fff7e8'), 'var(--accent-warm-soft)')
+  assert.equal(classifyHex('#856126'), 'var(--warm-ink)')
+})
+
+test('classifyHex：纯白和近白保持不变', () => {
+  assert.equal(classifyHex('#ffffff'), null)
+  assert.equal(classifyHex('#fefefe'), null)
+})
+
+test('generic 模式处理未映射的颜色，默认模式不动', () => {
+  assert.equal(retheme(`color: #1769d2;`).output, `color: #1769d2;`)
+  assert.equal(retheme(`color: #1769d2;`, { generic: true }).output, `color: var(--accent);`)
+})
+
+test('generic 模式幂等且不碰 canvas 行', () => {
+  const once = retheme(`color: #1769d2;`, { generic: true }).output
+  assert.equal(retheme(once, { generic: true }).output, once)
+  assert.equal(retheme(`ctx.fillStyle = '#1769d2'`, { generic: true }).output, `ctx.fillStyle = '#1769d2'`)
+})
