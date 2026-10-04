@@ -153,7 +153,7 @@ export default function Home(): JSX.Element {
   return (
     <main className="container animate-fade-in" style={{ maxWidth: '1100px' }}>
 
-      {/* 段永平思想精髓 - Collapsible Card */}
+      {/* 投资大师名句 - Collapsible Card */}
       <section style={cardStyle}>
         <div
           onClick={() => setIsExpanded(!isExpanded)}
@@ -179,14 +179,26 @@ export default function Home(): JSX.Element {
             }}>
               <Lightbulb size={32} />
             </div>
-            <h2 style={{
-              fontSize: '1.5rem',
-              fontWeight: '700',
-              margin: 0,
-              color: 'var(--text-primary)'
-            }}>
-              段永平30年思想精髓
-            </h2>
+            <div>
+              <h2 style={{
+                fontSize: '1.5rem',
+                fontWeight: '700',
+                margin: 0,
+                color: 'var(--text-primary)'
+              }}>
+                投资大师名句
+              </h2>
+              {!isExpanded && (
+                <p style={{
+                  margin: '6px 0 0',
+                  fontSize: '0.95rem',
+                  lineHeight: 1.5,
+                  color: 'var(--text-secondary)'
+                }}>
+                  “要清楚自己持有什么，更要清楚为什么持有。” ——彼得·林奇
+                </p>
+              )}
+            </div>
           </div>
           <div style={{
             color: 'var(--system-gray)',
@@ -215,39 +227,60 @@ export default function Home(): JSX.Element {
           }}>
             {[
               {
-                title: '以"本分"为核心',
-                content: '诚信为本，不错过分之事。',
+                title: '彼得·林奇',
+                content: '要清楚自己持有什么，更要清楚为什么持有。',
                 bg: 'rgba(0, 122, 255, 0.05)',
                 color: 'var(--system-blue)',
                 icon: Target
               },
               {
-                title: '资产保障',
-                content: '稳健经营，不追求盲目扩张。',
+                title: '沃伦·巴菲特',
+                content: '别人贪婪时恐惧，别人恐惧时贪婪。',
                 bg: 'rgba(255, 45, 85, 0.05)',
                 color: 'var(--system-pink)',
                 icon: Shield
               },
               {
-                title: '焦点法则',
-                content: '做对的事，把事做对。',
+                title: '查理·芒格',
+                content: '反过来想，总是反过来想。',
                 bg: 'rgba(52, 199, 89, 0.05)',
                 color: 'var(--system-green)',
                 icon: Zap
               },
               {
-                title: '消费者导向',
-                content: '从长远看，用户价值高于短期利润。',
+                title: '本杰明·格雷厄姆',
+                content: '市场短期是投票机，长期是称重机。',
                 bg: 'rgba(88, 86, 214, 0.05)',
                 color: 'var(--system-indigo)',
                 icon: Users
               },
               {
-                title: '平常心',
-                content: '保持松弛，不与他人攀比。',
+                title: '约翰·邓普顿',
+                content: '牛市在悲观中诞生，在怀疑中成长，在乐观中成熟，在狂喜中死亡。',
                 bg: 'rgba(255, 149, 0, 0.05)',
                 color: 'var(--system-orange)',
                 icon: Star
+              },
+              {
+                title: '霍华德·马克斯',
+                content: '你无法预测，但你可以做好准备。',
+                bg: 'rgba(0, 122, 255, 0.05)',
+                color: 'var(--system-blue)',
+                icon: Target
+              },
+              {
+                title: '约翰·博格',
+                content: '不要在草堆里找针，把整个草堆买下来。',
+                bg: 'rgba(52, 199, 89, 0.05)',
+                color: 'var(--system-green)',
+                icon: Zap
+              },
+              {
+                title: '段永平',
+                content: '做对的事情，把事情做对。',
+                bg: 'rgba(255, 45, 85, 0.05)',
+                color: 'var(--system-pink)',
+                icon: Shield
               }
             ].map((item, index) => {
               const Icon = item.icon
