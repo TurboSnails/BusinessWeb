@@ -144,6 +144,7 @@ export default function CompanyDetail(): JSX.Element {
       <div style={{ background: gradient, padding: '32px 24px 28px' }}>
         <div style={{ maxWidth: '760px', margin: '0 auto' }}>
           {back}
+          <Link to={`/valuation?market=${mk === 'adr' ? 'us' : mk}&code=${encodeURIComponent(company.code)}`} style={{display:'inline-block',marginLeft:'18px',color:'#fff',fontSize:'13px'}}>建立估值模型 →</Link>
           <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#fff', margin: '0 0 6px' }}>{company.name}</h1>
           <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.85)', margin: '0 0 14px' }}>
             {company.market === 'us' ? '标普500' : company.market === 'hk' ? '港股' : company.market === 'adr' ? '美股非标普' : '沪深'} · {company.code} · {company.sector} · {company.batch}

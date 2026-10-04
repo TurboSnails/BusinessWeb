@@ -1,189 +1,189 @@
 {
-  "generatedAt": "2026-10-02T10:46:47.372Z",
+  "generatedAt": "2026-10-04T09:21:00.377Z",
   "versions": [
     {
       "tag": "unreleased",
       "date": null,
       "commits": [
         {
-          "hash": "b5b53b0",
-          "subject": "build: 在 vite build 前自动生成 changelog.json",
+          "hash": "7c41899",
+          "subject": "fix(valuation): enforce data provenance and verify report workflows",
           "author": "hassan",
-          "date": "2026-10-02"
+          "date": "2026-10-04"
         },
         {
-          "hash": "0a95eb7",
-          "subject": "feat(about): 重写 About 页面，引入 changelog 渲染",
+          "hash": "bbb4b1f",
+          "subject": "feat(valuation): add model picker, scenario workbench and report export",
           "author": "hassan",
-          "date": "2026-10-02"
+          "date": "2026-10-04"
         },
         {
-          "hash": "8ecfb21",
-          "subject": "feat(about): 添加骨架屏 shimmer 动画",
+          "hash": "0ab3dac",
+          "subject": "feat(valuation): add local job service with cancellation and SSE",
           "author": "hassan",
-          "date": "2026-10-02"
+          "date": "2026-10-04"
         },
         {
-          "hash": "9b69953",
-          "subject": "feat(about): 添加 changelog 生成脚本",
+          "hash": "6028f90",
+          "subject": "feat(valuation): validate model assumptions and compute DCF reports",
           "author": "hassan",
-          "date": "2026-10-02"
+          "date": "2026-10-04"
         },
         {
-          "hash": "bd6bcff",
-          "subject": "候选池云端持久化与可编辑备注；板块历史数据库缓存及页面恢复刷新",
+          "hash": "2baf804",
+          "subject": "feat(valuation): execute structured analysis with local CLIs",
           "author": "hassan",
-          "date": "2026-10-02"
+          "date": "2026-10-04"
         },
         {
-          "hash": "6ebbcb9",
-          "subject": "缓存涨停分析日期与模式，返回页面恢复数据且刷新失败保留结果",
+          "hash": "b303485",
+          "subject": "feat(valuation): collect sourced annual statements and exchange rates",
           "author": "hassan",
-          "date": "2026-10-02"
+          "date": "2026-10-04"
         },
         {
-          "hash": "49c697a",
-          "subject": "热力图：恒生指数改自绘（实时成分）、新增恒生科技指数，沪深300 换成中证500；指数成分股名单与中文名更新",
+          "hash": "96564d9",
+          "subject": "docs(book): 核对巴菲特概念出处，第19—24章加前置工具提示，第23/24章去AI腔",
           "author": "hassan",
-          "date": "2026-10-02"
+          "date": "2026-10-04"
         },
         {
-          "hash": "cb46666",
-          "subject": "热力图：修复树图行列方向与缩放（横条）、StrictMode 下 TradingView 空白；沪深300合并小行业、新配色、独占整行；加布局与加载回归测试",
+          "hash": "c2166b6",
+          "subject": "fix(valuation): retain primary name aliases in company search",
           "author": "hassan",
-          "date": "2026-10-02"
+          "date": "2026-10-04"
         },
         {
-          "hash": "d282b10",
-          "subject": "经济脉搏市场热力图：修复 widget 塌成一条，并排/标签页布局、全屏、沪深300按行业分组与图例",
+          "hash": "36c2109",
+          "subject": "feat(valuation): resolve company names to securities",
           "author": "hassan",
-          "date": "2026-10-02"
+          "date": "2026-10-04"
         },
         {
-          "hash": "1ddbebb",
-          "subject": "配置GitHub Pages从main自动构建发布，记录迁移设置",
+          "hash": "9c12420",
+          "subject": "feat(valuation): discover local CLI backends and model versions",
           "author": "hassan",
-          "date": "2026-10-02"
+          "date": "2026-10-04"
         },
         {
-          "hash": "4ab7c33",
-          "subject": "经济脉搏每日复盘改用 Supabase 云同步：专用 token、严格校验、版本并发、墓碑删除、历史版本与骤减拦截；移除 GitHub Gist 同步",
+          "hash": "ed45c28",
+          "subject": "feat(valuation): add validated relative valuation calculations",
           "author": "hassan",
-          "date": "2026-10-02"
+          "date": "2026-10-04"
         },
         {
-          "hash": "740a01b",
-          "subject": "综合分类：研究评级下拉固定顺序，优先关注排第一",
+          "hash": "1178149",
+          "subject": "docs(book): 第四至第八部分重排（中线林奇/长线巴菲特/研究/执行/修心），新增第23、24章，共40章",
           "author": "hassan",
-          "date": "2026-10-02"
+          "date": "2026-10-04"
         },
         {
-          "hash": "f7ff88f",
-          "subject": "板块轮动/每日板块涨停：无数据时回退到最近有效交易日",
+          "hash": "4f60f8f",
+          "subject": "docs: define company valuation and local CLI model selection",
           "author": "hassan",
-          "date": "2026-10-02"
+          "date": "2026-10-04"
         },
         {
-          "hash": "ba09395",
-          "subject": "板块轮动：补充 2026-09-25 中秋休市日",
+          "hash": "4970c73",
+          "subject": "style(home): 名句卡片缩小",
           "author": "hassan",
-          "date": "2026-10-02"
+          "date": "2026-10-04"
         },
         {
-          "hash": "a41ed23",
-          "subject": "修复板块轮动/每日板块涨停无数据：新增 /api/cls-plate 自有代理，替代失效的公共 CORS 代理",
+          "hash": "5772188",
+          "subject": "feat: 首页功能卡片缩小；第25章精简标题并补充三个示范的分析与算例",
           "author": "hassan",
-          "date": "2026-10-02"
+          "date": "2026-10-04"
         },
         {
-          "hash": "3fd1eb3",
-          "subject": "每日监控：删除「宏观假设」子标签及组件，首页描述同步",
+          "hash": "59a5e22",
+          "subject": "feat(home): 首页顶部改为投资大师名句，折叠态展示彼得·林奇",
           "author": "hassan",
-          "date": "2026-10-02"
+          "date": "2026-10-04"
         },
         {
-          "hash": "20c599f",
-          "subject": "加入 .agents 研究技能（stock-research-expert、trading-analysis-team、tencent-stock-research-team）",
+          "hash": "ac0fb79",
+          "subject": "feat(home): 首页新增「我的书」入口卡片",
           "author": "hassan",
-          "date": "2026-10-02"
+          "date": "2026-10-04"
         },
         {
-          "hash": "f3b5932",
-          "subject": "更新站点图标与标题：新增 favicon、manifest，标题改为 BusinessWeb · 股票分析工作台",
+          "hash": "ad334b2",
+          "subject": "docs(book): 同步第十一轮修订（第28/30/38章、专题、附录B/G等）到网页",
           "author": "hassan",
-          "date": "2026-10-02"
+          "date": "2026-10-04"
         },
         {
-          "hash": "bf40699",
-          "subject": "港股 7 家补充第三方年度/TTM 与负债数据（赣锋、中铝、铁建、交建、建材、信义玻璃、信义光能）",
+          "hash": "43c0886",
+          "subject": "feat(book): 第2章新增三家公司三把尺的真实对照",
           "author": "hassan",
-          "date": "2026-10-02"
+          "date": "2026-10-03"
         },
         {
-          "hash": "ea20d76",
-          "subject": "补充覆盖 9 家：必和必拓、力拓、联合利华、帝亚吉欧、英美烟草、BeOne、领展、药明生物、药明康德（第三方数据，需核实）",
+          "hash": "797a571",
+          "subject": "feat(book): 重写第23章（周期）与第24章（趋势）：机制、推演、反例、来源与行动",
           "author": "hassan",
-          "date": "2026-10-02"
+          "date": "2026-10-03"
         },
         {
-          "hash": "0c7aa96",
-          "subject": "港股第 11 批：电信/有色/基建/建材 14 家，124 家港股全部手工研究页",
+          "hash": "631fbe1",
+          "subject": "docs(book): 第16章补公开入口、换算方法、示例阈值与检查频率（待办T6）",
           "author": "hassan",
-          "date": "2026-10-02"
+          "date": "2026-10-03"
         },
         {
-          "hash": "a304fc2",
-          "subject": "港股第 10 批：能源、煤炭与公用事业 12 家（股票分析专家口径）",
+          "hash": "be71acf",
+          "subject": "docs(book): 附录F新增数据口径对照表；数字核对表补登记招行示例",
           "author": "hassan",
-          "date": "2026-10-02"
+          "date": "2026-10-03"
         },
         {
-          "hash": "0534633",
-          "subject": "港股第 9 批修正：京东物流、中远海控情景倍数",
+          "hash": "8d6cc0b",
+          "subject": "docs(book): 第1章补充三种“周期”的区分与情绪周期的定位",
           "author": "hassan",
-          "date": "2026-10-02"
+          "date": "2026-10-03"
         },
         {
-          "hash": "d9bf445",
-          "subject": "ci: schedule Vercel and Supabase read-only keepalive",
+          "hash": "34215ec",
+          "subject": "docs(book): 登记第15、22章修改",
           "author": "hassan",
-          "date": "2026-10-02"
+          "date": "2026-10-03"
         },
         {
-          "hash": "6159d80",
-          "subject": "chore: include OpenCode research skills and project documentation",
+          "hash": "71fe8c7",
+          "subject": "feat(book): 第15章改名“看长做中”并说明为何不是“看长做短”；第22章新增按公司类型选估值尺（含银行PB-ROE示例）",
           "author": "hassan",
-          "date": "2026-10-02"
+          "date": "2026-10-03"
         },
         {
-          "hash": "a396ab5",
-          "subject": "docs: confirm authenticated cloud sync round trip",
+          "hash": "08f278e",
+          "subject": "feat(book): publish revised mindful investing manuscript and reader navigation",
           "author": "hassan",
-          "date": "2026-10-02"
+          "date": "2026-10-03"
         },
         {
-          "hash": "0a500c5",
-          "subject": "docs: record Supabase setup and verify deployed assets",
+          "hash": "6d8642b",
+          "subject": "fix(book): 第29章措辞修正",
           "author": "hassan",
-          "date": "2026-10-02"
+          "date": "2026-10-03"
         },
         {
-          "hash": "e6cf3fd",
-          "subject": "docs: record verified production deployment and add online checks",
+          "hash": "7577954",
+          "subject": "feat(book): 第29章加入真实增长轨迹示例",
           "author": "hassan",
-          "date": "2026-10-02"
+          "date": "2026-10-03"
         },
         {
-          "hash": "e87b2a5",
-          "subject": "fix: load Vercel functions as native ES modules",
+          "hash": "69596fa",
+          "subject": "feat(book): 第13章加入三个真实的“每股收益×市盈率”拆解案例",
           "author": "hassan",
-          "date": "2026-10-02"
+          "date": "2026-10-03"
         },
         {
-          "hash": "52f8726",
-          "subject": "feat: prepare free Vercel deployment and optional Supabase sync",
+          "hash": "9b24f24",
+          "subject": "fix(book): 页面渲染支持斜体；替换会破坏粗体的星号写法",
           "author": "hassan",
-          "date": "2026-10-02"
+          "date": "2026-10-03"
         }
       ]
     }

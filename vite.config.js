@@ -19,6 +19,7 @@ export default defineConfig({
   server: { 
     host: true,
     proxy: {
+      '/api/valuation': { target: `http://127.0.0.1:${process.env.VALUATION_PORT || 8788}`, changeOrigin: true },
       '/api/cls-plate': { target: 'https://business-web-black.vercel.app', changeOrigin: true },
       '/api/candidates-sync': { target: 'https://business-web-black.vercel.app', changeOrigin: true },
       '/api/proxy': {

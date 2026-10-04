@@ -4,7 +4,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import IndexHeatmap, { fetchIndexQuotes, INDEX_CONFIG } from './IndexHeatmap'
 
 const row = (ticker: string, code: string, close: number, change: number, cap: number, sector: string) => ({ s: ticker, d: [code, close, change, cap, sector] })
-const scanner = (rows: unknown[]) => vi.fn(async (..._a: unknown[]) => new Response(JSON.stringify({ data: rows })))
+const scanner = (rows: unknown[]) => vi.fn(async (...args: unknown[]) => {
+  const url = String(args[0])
+  if (!url.includes('grid-market')) return new Response(JSON.stringify({ data: rows }))
+  const symbols = new URL(url, 'https://local.test').searchParams.get('symbols')!
+  return new Response(symbols.split(',').map(symbol => {
+    const fields = Array(35).fill('')
+    fields[3] = '430'; fields[30] = '20260930150000'; fields[32] = '2.09'
+    return `v_${symbol}="${fields.join('~')}";`
+  }).join('\n'))
+})
 
 beforeEach(() => {
   class RO { constructor(private cb: () => void) {} observe() { this.cb() } disconnect() {} }
@@ -58,5 +67,18 @@ describe('指数热力图数据', () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response('x', { status: 500 })))
     render(<IndexHeatmap market="csi500" tick={0} active />)
     await waitFor(() => expect(screen.getByRole('button', { name: '重试' })).toBeTruthy())
+  })
+
+  it('明确显示旧行情日期，刷新失败时保留日期并提示错误', async () => {
+    const f = scanner([row('HKEX:700', '700', 420, -2, 1e12, 'Technology Services')])
+    vi.stubGlobal('fetch', f)
+    const { rerender } = render(<IndexHeatmap market="hsi" tick={0} active />)
+    await waitFor(() => expect(screen.getByText(/行情时间（北京时间）：2026-09-30 15:00:00/)).toBeTruthy())
+    expect(screen.getByText(/含历史交易日行情/)).toBeTruthy()
+    expect(screen.getAllByText('+2.09%').length).toBeGreaterThan(0)
+    f.mockRejectedValue(new Error('离线'))
+    rerender(<IndexHeatmap market="hsi" tick={1} active />)
+    await waitFor(() => expect(screen.getByRole('alert').textContent).toContain('刷新失败，保留上次行情'))
+    expect(screen.getByText(/2026-09-30 15:00:00/)).toBeTruthy()
   })
 })

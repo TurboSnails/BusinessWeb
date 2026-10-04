@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "strict": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true
+  },
+  "include": [
+    "src/features/valuation/**/*.ts",
+    "src/services/valuationApi.ts",
+    "src/pages/Valuation.tsx",
+    "src/components/valuation/**/*.tsx"
+  ]
+}

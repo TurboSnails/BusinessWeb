@@ -20,6 +20,7 @@ import CompanyDetail from './pages/CompanyDetail'
 import GridCalculator from './pages/GridCalculator'
 import GridRecords from './pages/GridRecords'
 import GridRecordDetail from './pages/GridRecordDetail'
+import Valuation from './pages/Valuation'
 
 export default function App(): JSX.Element {
   return (
@@ -27,6 +28,7 @@ export default function App(): JSX.Element {
       <BrowserRouter basename={import.meta.env.BASE_URL}>
         <Header />
         <Routes>
+          <Route path="/valuation" element={<Valuation />} />
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/pulse" element={<Pulse />} />

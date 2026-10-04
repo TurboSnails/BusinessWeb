@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import HeatmapSection from './HeatmapSection'
 
 vi.mock('./TradingViewHeatmap', () => ({ default: ({ dataSource }: { dataSource: string }) => <div data-testid={`tv-${dataSource}`} /> }))
-vi.mock('./IndexHeatmap', () => ({ default: ({ market }: { market: string }) => <div data-testid={`index-${market}`} /> }))
+vi.mock('./IndexHeatmap', () => ({ default: ({ market, tick }: { market: string; tick: number }) => <div data-testid={`index-${market}`} data-tick={tick} /> }))
 
 beforeEach(() => { localStorage.clear(); Object.defineProperty(window, 'innerWidth', { value: 1400, configurable: true }) })
 afterEach(() => { cleanup(); localStorage.clear() })
@@ -43,5 +43,15 @@ describe('市场热力图布局', () => {
     fireEvent.click(screen.getByRole('button', { name: '并排' }))
     expect(localStorage.getItem('pulse_heatmap_layout')).toBe('grid')
     expect(screen.getByTestId('index-csi500')).toBeTruthy()
+  })
+  it('手动刷新和回到前台立即请求更新，不将请求时间标为行情更新时间', () => {
+    render(<HeatmapSection />)
+    expect(screen.getByTestId('index-hsi').getAttribute('data-tick')).toBe('0')
+    fireEvent.click(screen.getByRole('button', { name: '刷新行情' }))
+    expect(screen.getByTestId('index-hsi').getAttribute('data-tick')).toBe('1')
+    Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'visible' })
+    fireEvent(document, new Event('visibilitychange'))
+    expect(screen.getByTestId('index-hsi').getAttribute('data-tick')).toBe('2')
+    expect(screen.queryByText(/上次刷新/)).toBeNull()
   })
 })

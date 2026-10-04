@@ -4,8 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "vite --host",
+    "valuation:server": "node server/valuation/index.mjs",
+    "test:valuation-server": "node --test server/valuation/*.test.mjs",
     "test": "node scripts/run-vitest.mjs",
-    "typecheck": "tsc --noEmit -p tsconfig.grid.json && tsc --noEmit -p tsconfig.server.json",
+    "typecheck": "tsc --noEmit -p tsconfig.grid.json && tsc --noEmit -p tsconfig.server.json && tsc --noEmit -p tsconfig.valuation.json",
     "prebuild": "node scripts/generate-changelog.mjs",
     "build": "vite build",
     "preview": "vite preview",

@@ -1,0 +1,27 @@
+import type { HeatmapStock } from '../components/pulse/IndexHeatmap'
+
+export async function fetchHeatmapQuotes(stocks: HeatmapStock[], fetchImpl: typeof fetch = fetch): Promise<HeatmapStock[]> {
+  if (!stocks.length) throw new Error('没有有效成分股')
+  const symbolOf = (s: HeatmapStock) => s.ticker.startsWith('HKEX:') ? `r_hk${s.code}` : `${s.ticker.startsWith('SSE:') ? 'sh' : 'sz'}${s.code}`
+  const quotes = new Map<string, { close: number; change: number; quoteTime: string }>()
+  const base = (import.meta.env.VITE_API_BASE ?? '').replace(/\/$/, '')
+  for (let offset = 0; offset < stocks.length; offset += 80) {
+    const symbols = stocks.slice(offset, offset + 80).map(symbolOf).join(',')
+    const url = import.meta.env.VITE_MARKET_DIRECT === 'true'
+      ? `https://qt.gtimg.cn/q=${symbols}`
+      : `${base}/api/grid-market?${new URLSearchParams({ kind: 'quotes', symbols })}`
+    const response = await fetchImpl(url, { cache: 'no-store', signal: AbortSignal.timeout(10000) })
+    if (!response.ok) throw new Error(`最新报价请求失败 HTTP ${response.status}`)
+    const text = new TextDecoder('gbk').decode(await response.arrayBuffer())
+    for (const match of text.matchAll(/v_((?:sh|sz)\d{6}|r_hk\d{5})="([^"]*)"/g)) {
+      const fields = match[2].split('~')
+      const stamp = (fields[30] ?? '').replace(/\D/g, '')
+      const close = Number(fields[3]), change = Number(fields[32])
+      if (!/^\d{14}$/.test(stamp) || !fields[32]?.trim() || !Number.isFinite(close) || close <= 0 || !Number.isFinite(change)) continue
+      quotes.set(match[1], { close, change, quoteTime: `${stamp.slice(0, 4)}-${stamp.slice(4, 6)}-${stamp.slice(6, 8)} ${stamp.slice(8, 10)}:${stamp.slice(10, 12)}:${stamp.slice(12, 14)}` })
+    }
+  }
+  if (!quotes.size) throw new Error('最新行情缺少有效报价')
+  // 缺失个股显示为未知，不能混入 scanner 的旧价格。
+  return stocks.map(stock => ({ ...stock, ...(quotes.get(symbolOf(stock)) ?? { close: null, change: null, quoteTime: undefined }) }))
+}
