@@ -54,52 +54,61 @@ const PARTS = [
   },
   {
     id: 'part4',
-    title: '第四部分 研究：看懂产业、公司与经营证据',
-    subtitle: '建立判断能力，展望未来产业，用研究积累减少焦虑',
+    title: '第四部分 中线：彼得·林奇的方法',
+    subtitle: '先分类，再按类型研究：价值回归 · 快速增长 · 困境反转',
     chapters: [
-      { no: '第19章', title: '产业：先看懂公司所在的世界', file: '第19章-产业.md', status: 'draft' },
-      { no: '第20章', title: '公司：它到底是一门怎样的生意？', file: '第20章-公司.md', status: 'draft' },
-      { no: '第21章', title: '财报：利润是真的吗，现金在哪里？', file: '第21章-财报.md', status: 'draft' },
-      { no: '第22章', title: '估值：公司贵不贵，怎样才算买得值？', file: '第22章-估值.md', status: 'draft' },
-      { no: '第23章', title: '周期：把公司的表现放回时间里', file: '第23章-周期.md', status: 'draft' },
-      { no: '第24章', title: '趋势：分清产业趋势、经营趋势与价格趋势', file: '第24章-趋势.md', status: 'draft' },
-      { no: '第25章', title: '未来产业展望', file: '第25章-未来产业展望.md', status: 'draft' },
-      { no: '第26章', title: '看得多了，就认得好公司：建立自己的观察库', file: '第26章-公司观察库.md', status: 'draft' },
+      { no: '第19章', title: '总纲：先分类，再下注——“知不知，上”', file: '第19章-总纲.md', status: 'draft' },
+      { no: '第20章', title: '价值回归：低价格怎样成为机会？', file: '第20章-价值回归.md', status: 'draft' },
+      { no: '第21章', title: '快速增长型：增长怎样落到每股回报？', file: '第21章-快速增长型.md', status: 'draft' },
+      { no: '第22章', title: '困境反转型：先活下来，再谈股东回报', file: '第22章-困境反转型.md', status: 'draft' },
     ],
   },
   {
     id: 'part5',
-    title: '第五部分 选股：三种企业研究与执行方法',
-    subtitle: '价值回归 · 快速增长 · 困境反转；周期型作为选修放入附录D',
+    title: '第五部分 长线：巴菲特的方法',
+    subtitle: '能力圈 · 护城河 · 所有者收益 · 安全边际 · 长期持有',
     chapters: [
-      { no: '第27章', title: '总纲：先分类，再下注——“知不知，上”', file: '第27章-总纲.md', status: 'draft' },
-      { no: '第28章', title: '价值回归：低价格怎样成为机会？', file: '第28章-价值回归.md', status: 'draft' },
-      { no: '第29章', title: '快速增长型：增长怎样落到每股回报？', file: '第29章-快速增长型.md', status: 'draft' },
-      { no: '第30章', title: '困境反转型：先活下来，再谈股东回报', file: '第30章-困境反转型.md', status: 'draft' },
-      { no: '第31章', title: '组合搭配：按损失预算与共同风险分配', file: '第31章-组合搭配.md', status: 'draft' },
+      { no: '第23章', title: '能力圈与护城河：长线先问“十年后它还在赚钱吗”', file: '第23章-能力圈与护城河.md', status: 'draft' },
+      { no: '第24章', title: '安全边际、所有者收益与长期持有', file: '第24章-安全边际与长期持有.md', status: 'draft' },
     ],
   },
   {
     id: 'part6',
-    title: '第六部分 执行：拿住、卖出、仓位与复盘',
-    subtitle: '纪律层',
+    title: '第六部分 研究：看懂产业、公司与经营证据',
+    subtitle: '中线与长线共同依赖的研究工具：产业、公司、财报、估值、周期、趋势、未来产业',
     chapters: [
-      { no: '专题', title: '正念决策：把情绪、事实与行动分开', file: '专题-正念决策.md', status: 'draft' },
-      { no: '第32章', title: '怎么拿住：波动是你的朋友', file: '第32章-怎么拿住.md', status: 'draft' },
-      { no: '第33章', title: '什么时候卖：比买入难十倍', file: '第33章-什么时候卖.md', status: 'draft' },
-      { no: '第34章', title: '仓位与纪律：持股数量、观察池与仓位上限', file: '第34章-仓位与纪律.md', status: 'draft' },
-      { no: '第35章', title: '犯错与复盘：把错误变成下一次的规则', file: '第35章-犯错与复盘.md', status: 'draft' },
+      { no: '第25章', title: '产业：先看懂公司所在的世界', file: '第25章-产业.md', status: 'draft' },
+      { no: '第26章', title: '公司：它到底是一门怎样的生意？', file: '第26章-公司.md', status: 'draft' },
+      { no: '第27章', title: '财报：利润是真的吗，现金在哪里？', file: '第27章-财报.md', status: 'draft' },
+      { no: '第28章', title: '估值：公司贵不贵，怎样才算买得值？', file: '第28章-估值.md', status: 'draft' },
+      { no: '第29章', title: '周期：把公司的表现放回时间里', file: '第29章-周期.md', status: 'draft' },
+      { no: '第30章', title: '趋势：分清产业趋势、经营趋势与价格趋势', file: '第30章-趋势.md', status: 'draft' },
+      { no: '第31章', title: '未来产业展望', file: '第31章-未来产业展望.md', status: 'draft' },
+      { no: '第32章', title: '看得多了，就认得好公司：建立自己的观察库', file: '第32章-公司观察库.md', status: 'draft' },
     ],
   },
   {
     id: 'part7',
-    title: '第七部分 修心：投资是为了更好的生活，而不是生活的全部',
+    title: '第七部分 执行：组合、拿住、卖出、仓位与复盘',
+    subtitle: '纪律层',
+    chapters: [
+      { no: '第33章', title: '组合搭配：按损失预算与共同风险分配', file: '第33章-组合搭配.md', status: 'draft' },
+      { no: '专题', title: '正念决策：把情绪、事实与行动分开', file: '专题-正念决策.md', status: 'draft' },
+      { no: '第34章', title: '怎么拿住：波动是你的朋友', file: '第34章-怎么拿住.md', status: 'draft' },
+      { no: '第35章', title: '什么时候卖：比买入难十倍', file: '第35章-什么时候卖.md', status: 'draft' },
+      { no: '第36章', title: '仓位与纪律：持股数量、观察池与仓位上限', file: '第36章-仓位与纪律.md', status: 'draft' },
+      { no: '第37章', title: '犯错与复盘：把错误变成下一次的规则', file: '第37章-犯错与复盘.md', status: 'draft' },
+    ],
+  },
+  {
+    id: 'part8',
+    title: '第八部分 修心：投资是为了更好的生活，而不是生活的全部',
     subtitle: '忙碌的时候，多专注；\n迷茫的时候，多读书；\n独处的时候，多运动；\n空闲的时候，找兴趣。',
     chapters: [
-      { no: '第36章', title: '投资为了什么：让钱服务生活', file: '第36章-投资为了什么.md', status: 'draft' },
+      { no: '第38章', title: '投资为了什么：让钱服务生活', file: '第38章-投资为了什么.md', status: 'draft' },
       { no: '专题', title: '提款与生活：从积累资金到支付账单', file: '专题-提款与生活.md', status: 'draft' },
-      { no: '第37章', title: '给投资设边界：少一点噪音，多一点从容', file: '第37章-给投资设边界.md', status: 'draft' },
-      { no: '第38章', title: '回到生活：专注、读书、运动、兴趣', file: '第38章-回到生活.md', status: 'draft' },
+      { no: '第39章', title: '给投资设边界：少一点噪音，多一点从容', file: '第39章-给投资设边界.md', status: 'draft' },
+      { no: '第40章', title: '回到生活：专注、读书、运动、兴趣', file: '第40章-回到生活.md', status: 'draft' },
     ],
   },
   {
@@ -121,11 +130,12 @@ const PARTS = [
 ]
 
 const EXTRA_FILES = [
-  { no: '全书', title: '全书大纲（38章 + 3篇主线专题 + 附录）', file: '全书大纲.md', status: 'done' },
+  { no: '全书', title: '全书大纲（40章 + 3篇主线专题 + 附录）', file: '全书大纲.md', status: 'done' },
 ]
 
 /** 写作与审校过程文档：不属于正文，放在书末单独区块 */
 const REVIEW_FILES = [
+  { no: '修订', title: '修订记录（第十二轮：第四至第八部分重排，新增长线两章，2026-10-04）', file: '修订记录-第十二轮-2026-10-04.md', status: 'note' },
   { no: '修订', title: '修订记录（第十一轮：收口轮——去重、销账与减负，2026-10-03）', file: '修订记录-第十一轮-2026-10-03.md', status: 'note' },
   { no: '修订', title: '修订记录（第十轮：三种战法正反对照案例，2026-10-03）', file: '修订记录-第十轮-2026-10-03.md', status: 'note' },
   { no: '修订', title: '修订记录（第九轮：清单统一与困境反转案例，2026-10-03）', file: '修订记录-第九轮-2026-10-03.md', status: 'note' },
