@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import SectionChrome from './components/SectionChrome'
+import NotFound from './pages/NotFound'
 import InvestHub from './pages/InvestHub'
 import AiStudio from './pages/AiStudio'
 import LifeLab from './pages/LifeLab'
@@ -58,6 +59,7 @@ export default function App(): JSX.Element {
           <Route path="/grid-trading" element={<GridCalculator />} />
           <Route path="/grid-trading/records" element={<GridRecords />} />
           <Route path="/grid-trading/records/:recordId" element={<GridRecordDetail />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
         <Footer />
       </BrowserRouter>

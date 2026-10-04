@@ -1,12 +1,12 @@
 {
-  "name": "BusinessWeb",
-  "short_name": "BusinessWeb",
-  "description": "Stock & financial analysis workspace",
+  "name": "正念生活",
+  "short_name": "正念生活",
+  "description": "投资 · AI · 独立开发 · 自由生活。《正念投资》作者的长期实验。",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#0A0A0A",
-  "theme_color": "#0A0A0A",
+  "background_color": "#FAF6EE",
+  "theme_color": "#FAF6EE",
   "icons": [
     {
       "src": "favicon.svg",

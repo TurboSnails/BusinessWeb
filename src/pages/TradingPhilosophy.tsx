@@ -2558,12 +2558,12 @@ export default function TradingPhilosophy(): JSX.Element {
 
       {/* 最后的话 */}
       <div style={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        color: 'white',
-        padding: '32px 24px',
-        borderRadius: '16px',
-        textAlign: 'center',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+        background: 'var(--accent-soft)',
+        color: 'var(--text-primary)',
+        padding: '28px 20px',
+        borderRadius: 'var(--radius-lg)',
+        border: '1px solid var(--border-subtle)',
+        textAlign: 'center'
       }}>
         <div style={{ fontSize: '1.1rem', lineHeight: '1.8', marginBottom: '16px', opacity: 0.95 }}>
           <div style={{ fontWeight: '700', marginBottom: '12px' }}>
@@ -2576,7 +2576,8 @@ export default function TradingPhilosophy(): JSX.Element {
         <div style={{
           marginTop: '24px',
           padding: '16px',
-          background: 'rgba(255,255,255,0.2)',
+          background: 'var(--bg-card)',
+          border: '1px solid var(--border-subtle)',
           borderRadius: '8px',
           fontSize: '1rem',
           fontWeight: '600'
@@ -2591,17 +2592,17 @@ export default function TradingPhilosophy(): JSX.Element {
           onClick={scrollToTop}
           style={{
             position: 'fixed',
-            bottom: '32px',
-            right: '32px',
+            bottom: 'calc(24px + env(safe-area-inset-bottom, 0px))',
+            right: '16px',
             width: '48px',
             height: '48px',
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            background: 'var(--accent)',
             color: 'white',
             border: 'none',
             borderRadius: '50%',
             cursor: 'pointer',
             fontSize: '1.5rem',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            boxShadow: 'var(--shadow-lg)',
             zIndex: 1000,
             display: 'flex',
             alignItems: 'center',

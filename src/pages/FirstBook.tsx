@@ -489,7 +489,7 @@ function BookDashboard(): JSX.Element {
                   <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', width: '52px', flexShrink: 0 }}>{ch.no}</span>
                   <span style={{ flex: 1 }}>{ch.title}</span>
                   <span style={{ fontSize: '0.82rem', color: STATUS_COLOR[ch.status] }}>{STATUS_LABEL[ch.status]}</span>
-                  {ch.file && <ArrowRight size={14} color="#c7c7cc" />}
+                  {ch.file && <ArrowRight size={14} color="var(--system-gray3)" />}
                 </>
               )
               const rowStyle: React.CSSProperties = {
@@ -540,7 +540,7 @@ function BookDashboard(): JSX.Element {
               <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', width: '52px', flexShrink: 0 }}>{f.no}</span>
               <span style={{ flex: 1 }}>{f.title}</span>
               <span style={{ fontSize: '0.82rem', color: STATUS_COLOR[f.status] }}>{STATUS_LABEL[f.status]}</span>
-              <ArrowRight size={14} color="#c7c7cc" />
+              <ArrowRight size={14} color="var(--system-gray3)" />
             </Link>
           ))}
         </div>
