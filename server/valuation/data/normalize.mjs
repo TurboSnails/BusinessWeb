@@ -14,7 +14,7 @@ export function ttmValue(annual, current, previous) {
     ? annual + current - previous
     : null;
 }
-export function annualFact(fact, asOf, { instant = false } = {}) {
+export function annualFact(fact, asOf, { instant = false, offset = 0 } = {}) {
   if (!fact?.units) return null;
   const entries = Object.entries(fact.units).flatMap(([unit, rows]) =>
     rows
@@ -34,7 +34,8 @@ export function annualFact(fact, asOf, { instant = false } = {}) {
   entries.sort(
     (a, b) => b.end.localeCompare(a.end) || b.filed.localeCompare(a.filed),
   );
-  const r = entries[0];
+  const ends = [...new Set(entries.map((e) => e.end))];
+  const r = entries.find((e) => e.end === ends[offset]);
   return r
     ? {
         value: r.val,
@@ -62,6 +63,7 @@ export function fact(
     sourceId,
     basis = "annual",
     start,
+    note,
   } = {},
 ) {
   const amount = normalizeAmount(value);
@@ -75,5 +77,6 @@ export function fact(
     sourceId,
     retrievedAt: new Date().toISOString(),
     status: amount === null ? "missing" : "available",
+    ...(note ? { note } : {}),
   };
 }

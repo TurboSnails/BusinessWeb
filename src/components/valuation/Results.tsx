@@ -330,6 +330,11 @@ export default function Results({
                   <td>{f.currency || "—"}</td>
                   <td>
                     {f.periodEnd} / {f.basis}
+                    {(f as { note?: string }).note && (
+                      <div className="valuation-muted">
+                        {(f as { note?: string }).note}
+                      </div>
+                    )}
                   </td>
                   <td>{f.sourceId}</td>
                 </tr>
@@ -340,9 +345,15 @@ export default function Results({
         <ul>
           {report.snapshot.sources.map((s) => (
             <li key={s.id}>
-              <a href={s.url} target="_blank" rel="noopener noreferrer">
-                {s.id} · {s.title}
-              </a>
+              {s.url ? (
+                <a href={s.url} target="_blank" rel="noopener noreferrer">
+                  {s.id} · {s.title}
+                </a>
+              ) : (
+                <span>
+                  {s.id} · {s.title}
+                </span>
+              )}
             </li>
           ))}
         </ul>

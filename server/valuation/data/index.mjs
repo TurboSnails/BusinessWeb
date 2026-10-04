@@ -3,6 +3,7 @@ import { collectSec } from "./sec.mjs";
 import { collectChina, collectHongKong } from "./eastmoney.mjs";
 import { fetchJson } from "./network.mjs";
 import { fact } from "./normalize.mjs";
+import { addDerived } from "./derive.mjs";
 export async function collectSnapshot(
   input,
   { asOf = new Date().toISOString().slice(0, 10), signal } = {},
@@ -111,6 +112,7 @@ export async function collectSnapshot(
     "capex",
   ])
     if (snapshot.facts[key]?.value == null) snapshot.missing.push(key);
+  addDerived(snapshot);
   snapshot.missing.push("未采集同业财报；无行业中位数");
   return snapshot;
 }
