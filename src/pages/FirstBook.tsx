@@ -63,7 +63,7 @@ const PARTS = [
       { no: '第22章', title: '估值：公司贵不贵，怎样才算买得值？', file: '第22章-估值.md', status: 'draft' },
       { no: '第23章', title: '周期：把公司的表现放回时间里', file: '第23章-周期.md', status: 'draft' },
       { no: '第24章', title: '趋势：分清产业趋势、经营趋势与价格趋势', file: '第24章-趋势.md', status: 'draft' },
-      { no: '第25章', title: '未来产业展望：怎样研究“下一个十年”（AI、自动驾驶、新材料等）', file: '第25章-未来产业展望.md', status: 'draft' },
+      { no: '第25章', title: '未来产业展望', file: '第25章-未来产业展望.md', status: 'draft' },
       { no: '第26章', title: '看得多了，就认得好公司：建立自己的观察库', file: '第26章-公司观察库.md', status: 'draft' },
     ],
   },

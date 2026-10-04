@@ -17,7 +17,6 @@ import {
   Zap,
   Users,
   Star,
-  ChevronRight,
   ExternalLink,
   ChevronDown
 } from 'lucide-react'
@@ -328,7 +327,7 @@ export default function Home(): JSX.Element {
       </section>
 
       {/* Grid Menu */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '48px 0 24px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '32px 0 16px' }}>
         <h3 style={{
           fontSize: '1.25rem',
           color: 'var(--text-primary)',
@@ -344,8 +343,8 @@ export default function Home(): JSX.Element {
 
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-        gap: '24px'
+        gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
+        gap: '12px'
       }}>
         {menuItems.map((item, index) => {
           const Icon = item.icon
@@ -357,27 +356,29 @@ export default function Home(): JSX.Element {
               style={linkCardStyle}
             >
               {/* Top Gradient Stripe */}
-              <div style={{ height: '6px', background: item.gradient }} />
+              <div style={{ height: '4px', background: item.gradient }} />
 
-              <div style={{ padding: '32px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '20px' }}>
+              <div style={{ padding: '14px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
                   <div style={{
-                    width: '56px',
-                    height: '56px',
+                    width: '36px',
+                    height: '36px',
+                    flexShrink: 0,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     background: 'var(--bg-primary)',
-                    borderRadius: '16px',
+                    borderRadius: '10px',
                     color: item.color,
                     boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.05)'
                   }}>
-                    <Icon size={28} strokeWidth={1.5} />
+                    <Icon size={20} strokeWidth={1.75} />
                   </div>
                   <h2 style={{
-                    fontSize: '1.2rem',
+                    fontSize: '0.95rem',
                     fontWeight: '700',
                     margin: 0,
+                    lineHeight: 1.3,
                     color: 'var(--text-primary)'
                   }}>
                     {item.title}
@@ -385,25 +386,18 @@ export default function Home(): JSX.Element {
                 </div>
 
                 <p style={{
-                  fontSize: '1rem',
+                  fontSize: '0.8rem',
                   color: 'var(--text-secondary)',
-                  margin: '0 0 24px 0',
-                  lineHeight: '1.6',
-                  flex: 1
+                  margin: 0,
+                  lineHeight: '1.5',
+                  flex: 1,
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden'
                 }}>
                   {item.description}
                 </p>
-
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  color: item.color,
-                  fontSize: '0.95rem',
-                  fontWeight: '700',
-                  gap: '4px'
-                }}>
-                  立即探索 <ChevronRight size={18} />
-                </div>
               </div>
             </Link>
           )
