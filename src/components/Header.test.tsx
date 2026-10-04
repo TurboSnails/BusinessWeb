@@ -1,7 +1,8 @@
 import React from 'react'
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
-import { afterEach, describe, expect, it } from 'vitest'
+import { act } from 'react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import Header from './Header'
 
 afterEach(() => {
@@ -71,5 +72,23 @@ describe('Header', () => {
     fireEvent.keyDown(document, { key: 'Escape' })
     expect(screen.queryByRole('navigation', { name: '移动导航' })).toBeNull()
     expect(document.body.style.overflow).toBe('')
+  })
+
+  it('抽屉打开时屏幕变宽到桌面断点：自动关闭并恢复滚动', () => {
+    let listener: ((e: { matches: boolean }) => void) | null = null
+    vi.stubGlobal('matchMedia', (q: string) => ({
+      matches: false,
+      media: q,
+      addEventListener: (_: string, cb: (e: { matches: boolean }) => void) => { listener = cb },
+      removeEventListener: () => { listener = null },
+    }))
+    renderAt('/')
+    fireEvent.click(screen.getByRole('button', { name: '打开菜单' }))
+    expect(document.body.style.overflow).toBe('hidden')
+    expect(listener).not.toBeNull()
+    act(() => { listener?.({ matches: true }) })
+    expect(screen.queryByRole('navigation', { name: '移动导航' })).toBeNull()
+    expect(document.body.style.overflow).toBe('')
+    vi.unstubAllGlobals()
   })
 })

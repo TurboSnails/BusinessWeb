@@ -38,8 +38,15 @@ export default function Header(): JSX.Element {
       if (e.key === 'Escape') setOpen(false)
     }
     document.addEventListener('keydown', onKey)
+    // 旋转屏幕或拉宽窗口越过桌面断点时，抽屉已被 CSS 隐藏，要同步关闭并解除滚动锁
+    const mql = typeof window.matchMedia === 'function' ? window.matchMedia('(min-width: 768px)') : null
+    const onWide = (e: { matches: boolean }) => {
+      if (e.matches) setOpen(false)
+    }
+    mql?.addEventListener('change', onWide)
     return () => {
       document.removeEventListener('keydown', onKey)
+      mql?.removeEventListener('change', onWide)
       document.body.style.overflow = ''
     }
   }, [open])
