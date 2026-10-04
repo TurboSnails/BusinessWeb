@@ -14,16 +14,16 @@ export default function Monitor(): JSX.Element {
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '16px', minHeight: '100vh' }}>
       {/* 子Tab导航 */}
-      <div style={{ background: 'white', borderLeft: '1px solid #e5e7eb', borderRight: '1px solid #e5e7eb' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #e5e7eb' }}>
+      <div style={{ background: 'white', borderLeft: '1px solid var(--border-subtle)', borderRight: '1px solid var(--border-subtle)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid var(--border-subtle)' }}>
           {/* 计划执行类 */}
-          <div style={{ display: 'flex', borderBottom: '1px solid #f3f4f6', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', borderBottom: '1px solid var(--bg-secondary)', flexWrap: 'wrap' }}>
       <div style={{
               padding: '8px 12px', 
               fontSize: '0.75rem', 
-              color: '#6b7280', 
+              color: 'var(--text-secondary)', 
               fontWeight: '600',
-              background: '#f9fafb',
+              background: 'var(--bg-secondary)',
               display: 'flex',
               alignItems: 'center',
               gap: '4px',
@@ -46,17 +46,17 @@ export default function Monitor(): JSX.Element {
                     flex: 1,
                     padding: '12px 16px',
                     fontWeight: '500',
-                    background: isActive ? '#eff6ff' : 'transparent',
-                    color: isActive ? '#2563eb' : '#4b5563',
+                    background: isActive ? 'var(--accent-soft)' : 'transparent',
+                    color: isActive ? 'var(--accent)' : 'var(--text-secondary)',
                     border: 'none',
-                    borderBottom: isActive ? '2px solid #2563eb' : '2px solid transparent',
+                    borderBottom: isActive ? '2px solid var(--accent)' : '2px solid transparent',
                     cursor: 'pointer',
                     transition: 'all 0.2s',
                     fontSize: '0.9rem'
                   }}
                   onMouseEnter={(e) => {
                     if (!isActive) {
-                      e.currentTarget.style.background = '#f9fafb'
+                      e.currentTarget.style.background = 'var(--bg-secondary)'
                     }
                   }}
                   onMouseLeave={(e) => {
@@ -72,13 +72,13 @@ export default function Monitor(): JSX.Element {
         </div>
 
           {/* 决策策略类 */}
-          <div style={{ display: 'flex', borderBottom: '1px solid #f3f4f6', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', borderBottom: '1px solid var(--bg-secondary)', flexWrap: 'wrap' }}>
             <div style={{ 
               padding: '8px 12px', 
               fontSize: '0.75rem', 
-              color: '#6b7280', 
+              color: 'var(--text-secondary)', 
               fontWeight: '600',
-              background: '#f9fafb',
+              background: 'var(--bg-secondary)',
               display: 'flex',
               alignItems: 'center',
               gap: '4px',
@@ -100,17 +100,17 @@ export default function Monitor(): JSX.Element {
                     flex: 1,
                     padding: '12px 16px',
                     fontWeight: '500',
-                    background: isActive ? '#eff6ff' : 'transparent',
-                    color: isActive ? '#2563eb' : '#4b5563',
+                    background: isActive ? 'var(--accent-soft)' : 'transparent',
+                    color: isActive ? 'var(--accent)' : 'var(--text-secondary)',
                     border: 'none',
-                    borderBottom: isActive ? '2px solid #2563eb' : '2px solid transparent',
+                    borderBottom: isActive ? '2px solid var(--accent)' : '2px solid transparent',
                     cursor: 'pointer',
                     transition: 'all 0.2s',
                     fontSize: '0.9rem'
                   }}
                   onMouseEnter={(e) => {
                     if (!isActive) {
-                      e.currentTarget.style.background = '#f9fafb'
+                      e.currentTarget.style.background = 'var(--bg-secondary)'
                     }
                   }}
                   onMouseLeave={(e) => {
@@ -126,13 +126,13 @@ export default function Monitor(): JSX.Element {
         </div>
 
           {/* 监控分析类 */}
-          <div style={{ display: 'flex', borderBottom: '1px solid #f3f4f6', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', borderBottom: '1px solid var(--bg-secondary)', flexWrap: 'wrap' }}>
             <div style={{ 
               padding: '8px 12px', 
               fontSize: '0.75rem', 
-              color: '#6b7280', 
+              color: 'var(--text-secondary)', 
               fontWeight: '600',
-              background: '#f9fafb',
+              background: 'var(--bg-secondary)',
               display: 'flex',
               alignItems: 'center',
               gap: '4px',
@@ -155,17 +155,17 @@ export default function Monitor(): JSX.Element {
                     flex: 1,
                     padding: '12px 16px',
                     fontWeight: '500',
-                    background: isActive ? '#eff6ff' : 'transparent',
-                    color: isActive ? '#2563eb' : '#4b5563',
+                    background: isActive ? 'var(--accent-soft)' : 'transparent',
+                    color: isActive ? 'var(--accent)' : 'var(--text-secondary)',
                     border: 'none',
-                    borderBottom: isActive ? '2px solid #2563eb' : '2px solid transparent',
+                    borderBottom: isActive ? '2px solid var(--accent)' : '2px solid transparent',
                     cursor: 'pointer',
                     transition: 'all 0.2s',
                     fontSize: '0.9rem'
                   }}
                   onMouseEnter={(e) => {
                     if (!isActive) {
-                      e.currentTarget.style.background = '#f9fafb'
+                      e.currentTarget.style.background = 'var(--bg-secondary)'
                     }
                   }}
                   onMouseLeave={(e) => {
@@ -183,7 +183,7 @@ export default function Monitor(): JSX.Element {
       </div>
 
       {/* 子Tab内容 */}
-      <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '0 0 12px 12px', padding: '24px' }}>
+      <div style={{ background: 'white', border: '1px solid var(--border-subtle)', borderRadius: '0 0 12px 12px', padding: '24px' }}>
         {activeSubTab === 'overview' && <OverviewTab />}
         {activeSubTab === 'china-stock' && <ChinaStockTab />}
         {activeSubTab === 'indicators' && <IndicatorsTab />}

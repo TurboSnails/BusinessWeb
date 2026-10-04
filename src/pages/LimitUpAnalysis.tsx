@@ -138,8 +138,8 @@ export default function LimitUpAnalysis(): JSX.Element {
 
       {error && (
         <div style={{
-          background: '#fee2e2',
-          color: '#dc2626',
+          background: 'var(--system-red-light)',
+          color: 'var(--up)',
           padding: '12px',
           borderRadius: '8px',
           marginBottom: '20px',
@@ -183,7 +183,7 @@ export default function LimitUpAnalysis(): JSX.Element {
                 whiteSpace: 'nowrap',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 boxShadow: selectedConcept === concept.name || (!selectedConcept && concept.name === filteredConcepts[0]?.name)
-                  ? '0 4px 12px rgba(0, 122, 255, 0.3)'
+                  ? '0 4px 12px color-mix(in srgb, var(--system-blue) 30%, transparent)'
                   : 'none'
               }}
               onMouseEnter={(e) => {
@@ -233,7 +233,7 @@ export default function LimitUpAnalysis(): JSX.Element {
                 borderRadius: 'var(--radius-sm)',
                 fontSize: '1rem',
                 fontWeight: '700',
-                border: `1px solid ${currentConcept.changePercent >= 0 ? 'rgba(52, 199, 89, 0.2)' : 'rgba(255, 59, 48, 0.2)'}`
+                border: `1px solid ${currentConcept.changePercent >= 0 ? 'color-mix(in srgb, var(--system-green) 20%, transparent)' : 'color-mix(in srgb, var(--system-red) 20%, transparent)'}`
               }}>
                 {currentConcept.changePercent >= 0 ? '+' : ''}{currentConcept.changePercent.toFixed(2)}%
               </div>
@@ -248,7 +248,7 @@ export default function LimitUpAnalysis(): JSX.Element {
               borderRadius: 'var(--radius-md)',
               marginBottom: '24px',
               borderLeft: '4px solid var(--system-blue)',
-              border: '1px solid rgba(0, 122, 255, 0.1)'
+              border: '1px solid color-mix(in srgb, var(--system-blue) 10%, transparent)'
             }}>
               <div style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--system-blue)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <BarChart2 size={20} /> 驱动因素
@@ -264,14 +264,14 @@ export default function LimitUpAnalysis(): JSX.Element {
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
-                  <tr style={{ background: '#f9fafb', borderBottom: '2px solid #e5e7eb' }}>
-                    <th style={{ padding: '12px', textAlign: 'left', fontSize: '0.85rem', fontWeight: '600', color: '#6b7280' }}>简称</th>
-                    <th style={{ padding: '12px', textAlign: 'right', fontSize: '0.85rem', fontWeight: '600', color: '#6b7280' }}>现价</th>
-                    <th style={{ padding: '12px', textAlign: 'right', fontSize: '0.85rem', fontWeight: '600', color: '#6b7280' }}>涨幅</th>
-                    <th style={{ padding: '12px', textAlign: 'center', fontSize: '0.85rem', fontWeight: '600', color: '#6b7280' }}>涨停时间</th>
-                    <th style={{ padding: '12px', textAlign: 'right', fontSize: '0.85rem', fontWeight: '600', color: '#6b7280' }}>流通市值</th>
-                    <th style={{ padding: '12px', textAlign: 'center', fontSize: '0.85rem', fontWeight: '600', color: '#6b7280' }}>连板</th>
-                    <th style={{ padding: '12px', textAlign: 'center', fontSize: '0.85rem', fontWeight: '600', color: '#6b7280', width: '80px' }}>详情</th>
+                  <tr style={{ background: 'var(--bg-secondary)', borderBottom: '2px solid var(--border-subtle)' }}>
+                    <th style={{ padding: '12px', textAlign: 'left', fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-secondary)' }}>简称</th>
+                    <th style={{ padding: '12px', textAlign: 'right', fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-secondary)' }}>现价</th>
+                    <th style={{ padding: '12px', textAlign: 'right', fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-secondary)' }}>涨幅</th>
+                    <th style={{ padding: '12px', textAlign: 'center', fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-secondary)' }}>涨停时间</th>
+                    <th style={{ padding: '12px', textAlign: 'right', fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-secondary)' }}>流通市值</th>
+                    <th style={{ padding: '12px', textAlign: 'center', fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-secondary)' }}>连板</th>
+                    <th style={{ padding: '12px', textAlign: 'center', fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-secondary)', width: '80px' }}>详情</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -281,48 +281,48 @@ export default function LimitUpAnalysis(): JSX.Element {
                       <React.Fragment key={stock.code}>
                         <tr
                           style={{
-                            borderBottom: isExpanded ? 'none' : '1px solid #e5e7eb',
+                            borderBottom: isExpanded ? 'none' : '1px solid var(--border-subtle)',
                             transition: 'background 0.2s'
                           }}
                           onMouseEnter={(e) => {
-                            e.currentTarget.style.background = '#f9fafb'
+                            e.currentTarget.style.background = 'var(--bg-secondary)'
                           }}
                           onMouseLeave={(e) => {
                             e.currentTarget.style.background = 'white'
                           }}
                         >
                           <td style={{ padding: '12px' }}>
-                            <div style={{ fontSize: '0.9rem', fontWeight: '600', color: '#1f2937', marginBottom: '4px' }}>
+                            <div style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '4px' }}>
                               {stock.name}
                             </div>
-                            <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
                               {stock.code}
                             </div>
                           </td>
-                          <td style={{ padding: '12px', textAlign: 'right', fontSize: '0.9rem', fontWeight: '600', color: '#1f2937' }}>
+                          <td style={{ padding: '12px', textAlign: 'right', fontSize: '0.9rem', fontWeight: '600', color: 'var(--text-primary)' }}>
                             {stock.currentPrice.toFixed(2)}
                           </td>
                           <td style={{ padding: '12px', textAlign: 'right' }}>
                             <span style={{
                               fontSize: '0.9rem',
                               fontWeight: '600',
-                              color: '#dc2626'
+                              color: 'var(--up)'
                             }}>
                               +{stock.changePercent.toFixed(2)}%
                             </span>
                           </td>
-                          <td style={{ padding: '12px', textAlign: 'center', fontSize: '0.85rem', color: '#6b7280' }}>
+                          <td style={{ padding: '12px', textAlign: 'center', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
                             {stock.limitUpTime}
                           </td>
-                          <td style={{ padding: '12px', textAlign: 'right', fontSize: '0.85rem', color: '#6b7280' }}>
+                          <td style={{ padding: '12px', textAlign: 'right', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
                             {stock.marketCap.toFixed(2)}亿
                           </td>
                           <td style={{ padding: '12px', textAlign: 'center' }}>
                             {stock.consecutiveDays > 0 && (
                               <span style={{
                                 padding: '4px 8px',
-                                background: '#fee2e2',
-                                color: '#dc2626',
+                                background: 'var(--system-red-light)',
+                                color: 'var(--up)',
                                 borderRadius: '4px',
                                 fontSize: '0.75rem',
                                 fontWeight: '600'
@@ -345,8 +345,8 @@ export default function LimitUpAnalysis(): JSX.Element {
                                 }}
                                 style={{
                                   padding: '4px 8px',
-                                  background: isExpanded ? '#3b82f6' : '#f3f4f6',
-                                  color: isExpanded ? 'white' : '#374151',
+                                  background: isExpanded ? 'var(--accent)' : 'var(--bg-secondary)',
+                                  color: isExpanded ? 'white' : 'var(--text-primary)',
                                   border: 'none',
                                   borderRadius: '4px',
                                   cursor: 'pointer',
@@ -363,15 +363,15 @@ export default function LimitUpAnalysis(): JSX.Element {
                         {/* 展开的详细描述 */}
                         {isExpanded && stock.description && (
                           <tr>
-                            <td colSpan={7} style={{ padding: '0', borderBottom: '1px solid #e5e7eb' }}>
+                            <td colSpan={7} style={{ padding: '0', borderBottom: '1px solid var(--border-subtle)' }}>
                               <div style={{
                                 padding: '12px',
-                                background: '#f0f9ff',
+                                background: 'var(--accent-soft)',
                                 borderRadius: '0 0 8px 8px',
-                                borderLeft: '3px solid #3b82f6',
+                                borderLeft: '3px solid var(--accent)',
                                 margin: '0 12px 0 12px'
                               }}>
-                                <div style={{ fontSize: '0.85rem', color: '#1e3a8a', lineHeight: '1.6' }}>
+                                <div style={{ fontSize: '0.85rem', color: 'var(--accent-ink)', lineHeight: '1.6' }}>
                                   {stock.description}
                                 </div>
                               </div>
@@ -388,7 +388,7 @@ export default function LimitUpAnalysis(): JSX.Element {
             <div style={{
               padding: '40px',
               textAlign: 'center',
-              color: '#9ca3af',
+              color: 'var(--text-tertiary)',
               fontSize: '0.9rem'
             }}>
               暂无涨停股票数据
@@ -401,10 +401,10 @@ export default function LimitUpAnalysis(): JSX.Element {
       <div style={{
         marginTop: '20px',
         padding: '16px',
-        background: '#f9fafb',
+        background: 'var(--bg-secondary)',
         borderRadius: '8px',
         fontSize: '0.8rem',
-        color: '#6b7280',
+        color: 'var(--text-secondary)',
         textAlign: 'center'
       }}>
         数据来源：财联社 | 数据日期：{result?.dataDate || '未取得'} | 获取时间：{result ? new Date(result.fetchedAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }) : '未取得'}（北京时间）

@@ -11,6 +11,11 @@
   --border-subtle: #E6DFD0;
   --up: #C4503F;
   --down: #3F9A62;
+  /* 浅色底上的深色文字 */
+  --accent-ink: #3F5A49;
+  --up-ink: #8E3426;
+  --down-ink: #2A6B45;
+  --warm-ink: #8A4A28;
 
   --font-serif: "Noto Serif SC", "Songti SC", "STSong", "SimSun", serif;
   --font-sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
@@ -18,8 +23,8 @@
   /* 旧变量映射：老页面引用这些名字，自动换肤 */
   --system-blue: var(--accent);
   --system-blue-light: var(--accent-soft);
-  --system-indigo: #6B7A8F;
-  --system-purple: #8C7A99;
+  --system-indigo: var(--accent);
+  --system-purple: #8C7B6B;
   --system-pink: var(--accent-warm);
   --system-red: var(--up);
   --system-red-light: rgba(196, 80, 63, 0.1);

@@ -38,22 +38,22 @@ export default function AIDiffusion(): JSX.Element {
           }
         }
         .mainland-content table tbody tr:hover {
-          background: #f0f4ff !important;
+          background: var(--accent-soft) !important;
           transform: scale(1.002);
           box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
         }
       `}</style>
       
-      <h2 style={{ fontSize: '1.8rem', marginBottom: '24px', color: '#1f2937' }}>
+      <h2 style={{ fontSize: '1.8rem', marginBottom: '24px', color: 'var(--text-primary)' }}>
         AI行情扩散 - 核心标的推荐
       </h2>
 
       <div style={{
-        background: '#f0f9ff',
+        background: 'var(--accent-soft)',
         padding: '20px',
         borderRadius: '12px',
         marginBottom: '32px',
-        borderLeft: '4px solid #3b82f6'
+        borderLeft: '4px solid var(--accent)'
       }}>
         <p style={{ margin: '0 0 8px 0', fontWeight: '600' }}>
           <strong>市场背景</strong>：AI行情正从单一算力炒作转向"基建→终端→应用"的全面扩散阶段
@@ -61,19 +61,19 @@ export default function AIDiffusion(): JSX.Element {
         <p style={{ margin: '0 0 8px 0' }}>
           <strong>投资逻辑</strong>：确定性排序为 基建（液冷/电力）&gt; 垂直应用 &gt; 终端设备 &gt; 硬科技补涨
         </p>
-        <p style={{ margin: '0', color: '#6b7280', fontSize: '0.9rem' }}>
+        <p style={{ margin: '0', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
           <strong>时间节点</strong>：2026年1月，数据截至最新交易日
         </p>
       </div>
 
       {/* 一、AI基础设施 */}
-      <h3 style={{ fontSize: '1.4rem', marginTop: '32px', marginBottom: '16px', color: '#374151' }}>
+      <h3 style={{ fontSize: '1.4rem', marginTop: '32px', marginBottom: '16px', color: 'var(--text-primary)' }}>
         📊 一、AI基础设施延伸：电力与液冷
       </h3>
-      <p style={{ marginBottom: '16px', color: '#6b7280' }}>
+      <p style={{ marginBottom: '16px', color: 'var(--text-secondary)' }}>
         <strong>投资逻辑</strong>：GB300等高功耗服务器使单机柜功率向100kW迈进，液冷和电力已成数据中心刚需
       </p>
-      <h4 style={{ fontSize: '1.2rem', marginTop: '24px', marginBottom: '12px', color: '#4b5563' }}>
+      <h4 style={{ fontSize: '1.2rem', marginTop: '24px', marginBottom: '12px', color: 'var(--text-secondary)' }}>
         核心推荐（5只）
       </h4>
       <div style={tableWrapperStyle}>
@@ -106,19 +106,19 @@ export default function AIDiffusion(): JSX.Element {
           </tbody>
         </table>
       </div>
-      <p style={{ marginTop: '12px', color: '#6b7280', fontSize: '0.9rem' }}>
+      <p style={{ marginTop: '12px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
         <strong>补充标的</strong>：科华数据(002335)、飞荣达(300602)
       </p>
 
       {/* 二、AI终端 */}
-      <h3 style={{ fontSize: '1.4rem', marginTop: '48px', marginBottom: '16px', color: '#374151' }}>
+      <h3 style={{ fontSize: '1.4rem', marginTop: '48px', marginBottom: '16px', color: 'var(--text-primary)' }}>
         📱 二、AI终端爆发：AI眼镜 + AI手机
       </h3>
 
-      <h4 style={{ fontSize: '1.2rem', marginTop: '24px', marginBottom: '12px', color: '#4b5563' }}>
+      <h4 style={{ fontSize: '1.2rem', marginTop: '24px', marginBottom: '12px', color: 'var(--text-secondary)' }}>
         （1）AI眼镜赛道（5只）
       </h4>
-      <p style={{ marginBottom: '16px', color: '#6b7280', fontSize: '0.95rem' }}>
+      <p style={{ marginBottom: '16px', color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
         <strong>投资逻辑</strong>：2026年为AI眼镜元年，Meta/雷鸟/字节产品落地带动产业链重估
       </p>
       <div style={tableWrapperStyle}>
@@ -152,10 +152,10 @@ export default function AIDiffusion(): JSX.Element {
         </table>
       </div>
 
-      <h4 style={{ fontSize: '1.2rem', marginTop: '32px', marginBottom: '12px', color: '#4b5563' }}>
+      <h4 style={{ fontSize: '1.2rem', marginTop: '32px', marginBottom: '12px', color: 'var(--text-secondary)' }}>
         （2）AI手机赛道（4只）
       </h4>
-      <p style={{ marginBottom: '16px', color: '#6b7280', fontSize: '0.95rem' }}>
+      <p style={{ marginBottom: '16px', color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
         <strong>投资逻辑</strong>：AI手机需要更强散热/电池/存储，供应链价值量提升
       </p>
       <div style={tableWrapperStyle}>
@@ -187,18 +187,18 @@ export default function AIDiffusion(): JSX.Element {
           </tbody>
         </table>
       </div>
-      <p style={{ marginTop: '12px', color: '#6b7280', fontSize: '0.9rem' }}>
+      <p style={{ marginTop: '12px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
         <strong>港股补充</strong>：小米集团(1810.HK)、联想集团(0992.HK)
       </p>
 
       {/* 三、垂直应用 */}
-      <h3 style={{ fontSize: '1.4rem', marginTop: '48px', marginBottom: '16px', color: '#374151' }}>
+      <h3 style={{ fontSize: '1.4rem', marginTop: '48px', marginBottom: '16px', color: 'var(--text-primary)' }}>
         🏥 三、AI+垂直行业应用：医疗与金融
       </h3>
-      <p style={{ marginBottom: '16px', color: '#6b7280' }}>
+      <p style={{ marginBottom: '16px', color: 'var(--text-secondary)' }}>
         <strong>投资逻辑</strong>：AI从"能说话"转向"能解决问题"，医疗影像与金融风控变现最清晰
       </p>
-      <h4 style={{ fontSize: '1.2rem', marginTop: '24px', marginBottom: '12px', color: '#4b5563' }}>
+      <h4 style={{ fontSize: '1.2rem', marginTop: '24px', marginBottom: '12px', color: 'var(--text-secondary)' }}>
         核心推荐（5只）
       </h4>
       <div style={tableWrapperStyle}>
@@ -231,19 +231,19 @@ export default function AIDiffusion(): JSX.Element {
           </tbody>
         </table>
       </div>
-      <p style={{ marginTop: '12px', color: '#6b7280', fontSize: '0.9rem' }}>
+      <p style={{ marginTop: '12px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
         <strong>补充标的</strong>：迈瑞医疗(300760)、润达医疗(603108)
       </p>
 
       {/* 四、硬科技 */}
-      <h3 style={{ fontSize: '1.4rem', marginTop: '48px', marginBottom: '16px', color: '#374151' }}>
+      <h3 style={{ fontSize: '1.4rem', marginTop: '48px', marginBottom: '16px', color: 'var(--text-primary)' }}>
         🔬 四、硬科技补涨：半导体国产替代 + 智能驾驶
       </h3>
 
-      <h4 style={{ fontSize: '1.2rem', marginTop: '24px', marginBottom: '12px', color: '#4b5563' }}>
+      <h4 style={{ fontSize: '1.2rem', marginTop: '24px', marginBottom: '12px', color: 'var(--text-secondary)' }}>
         （1）半导体国产替代（5只）
       </h4>
-      <p style={{ marginBottom: '16px', color: '#6b7280', fontSize: '0.95rem' }}>
+      <p style={{ marginBottom: '16px', color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
         <strong>投资逻辑</strong>：国产替代进入深水区，先进制程设备+封测环节加速突破
       </p>
       <div style={tableWrapperStyle}>
@@ -277,10 +277,10 @@ export default function AIDiffusion(): JSX.Element {
         </table>
       </div>
 
-      <h4 style={{ fontSize: '1.2rem', marginTop: '32px', marginBottom: '12px', color: '#4b5563' }}>
+      <h4 style={{ fontSize: '1.2rem', marginTop: '32px', marginBottom: '12px', color: 'var(--text-secondary)' }}>
         （2）智能驾驶（4只）
       </h4>
-      <p style={{ marginBottom: '16px', color: '#6b7280', fontSize: '0.95rem' }}>
+      <p style={{ marginBottom: '16px', color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
         <strong>投资逻辑</strong>：L3/L4级自动驾驶迎来政策+技术双突破
       </p>
       <div style={tableWrapperStyle}>
@@ -312,19 +312,19 @@ export default function AIDiffusion(): JSX.Element {
           </tbody>
         </table>
       </div>
-      <p style={{ marginTop: '12px', color: '#6b7280', fontSize: '0.9rem' }}>
+      <p style={{ marginTop: '12px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
         <strong>港股补充</strong>：小鹏汽车(9868.HK)、蔚来(9866.HK)
       </p>
 
       {/* 投资策略 */}
-      <h3 style={{ fontSize: '1.4rem', marginTop: '48px', marginBottom: '16px', color: '#374151' }}>
+      <h3 style={{ fontSize: '1.4rem', marginTop: '48px', marginBottom: '16px', color: 'var(--text-primary)' }}>
         💡 投资策略建议
       </h3>
-      <h4 style={{ fontSize: '1.2rem', marginTop: '24px', marginBottom: '12px', color: '#4b5563' }}>
+      <h4 style={{ fontSize: '1.2rem', marginTop: '24px', marginBottom: '12px', color: 'var(--text-secondary)' }}>
         配置权重（参考）
       </h4>
       <div style={{
-        background: '#f9fafb',
+        background: 'var(--bg-secondary)',
         padding: '24px',
         borderRadius: '12px',
         fontFamily: 'monospace',
@@ -346,7 +346,7 @@ export default function AIDiffusion(): JSX.Element {
         </div>
       </div>
 
-      <h4 style={{ fontSize: '1.2rem', marginTop: '24px', marginBottom: '12px', color: '#4b5563' }}>
+      <h4 style={{ fontSize: '1.2rem', marginTop: '24px', marginBottom: '12px', color: 'var(--text-secondary)' }}>
         分批建仓节点
       </h4>
       <ul style={{ lineHeight: '2', paddingLeft: '24px' }}>
@@ -362,7 +362,7 @@ export default function AIDiffusion(): JSX.Element {
       </ul>
 
       {/* 风险提示 */}
-      <h3 style={{ fontSize: '1.4rem', marginTop: '48px', marginBottom: '16px', color: '#374151' }}>
+      <h3 style={{ fontSize: '1.4rem', marginTop: '48px', marginBottom: '16px', color: 'var(--text-primary)' }}>
         ⚠️ 风险提示
       </h3>
       <div style={tableWrapperStyle}>
@@ -389,7 +389,7 @@ export default function AIDiffusion(): JSX.Element {
       </div>
 
       {/* 后续跟踪 */}
-      <h3 style={{ fontSize: '1.4rem', marginTop: '48px', marginBottom: '16px', color: '#374151' }}>
+      <h3 style={{ fontSize: '1.4rem', marginTop: '48px', marginBottom: '16px', color: 'var(--text-primary)' }}>
         📈 后续跟踪重点
       </h3>
       <ul style={{ lineHeight: '2', paddingLeft: '24px' }}>
@@ -410,10 +410,10 @@ export default function AIDiffusion(): JSX.Element {
       <div style={{
         marginTop: '48px',
         padding: '24px',
-        background: '#f3f4f6',
+        background: 'var(--bg-secondary)',
         borderRadius: '12px',
         fontSize: '0.9rem',
-        color: '#6b7280',
+        color: 'var(--text-secondary)',
         textAlign: 'center'
       }}>
         <p style={{ margin: '0 0 8px 0' }}>

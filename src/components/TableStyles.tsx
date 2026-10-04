@@ -52,7 +52,7 @@ export const trHoverStyle: React.CSSProperties = {
 }
 
 export const highlightStyle: React.CSSProperties = {
-  background: 'rgba(255, 149, 0, 0.1)', // System Orange low opacity
+  background: 'color-mix(in srgb, var(--system-orange) 10%, transparent)', // System Orange low opacity
   fontWeight: '600',
   color: 'var(--system-orange)',
   borderRadius: '6px',

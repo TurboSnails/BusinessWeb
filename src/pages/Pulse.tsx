@@ -69,12 +69,12 @@ export default function Pulse(): JSX.Element {
     const fetchAllData = async () => {
       setLoading(true)
       const categoryConfig = [
-        { key: 'us', title: '美股指数', icon: <TrendingUp size={18} />, color: '#3b82f6', bgColor: '#eff6ff' },
-        { key: 'cn', title: '中国A股', icon: <Globe size={18} />, color: '#ef4444', bgColor: '#fef2f2' },
-        { key: 'hk', title: '港股指数', icon: <Globe2 size={18} />, color: '#22c55e', bgColor: '#f0fdf4' },
-        { key: 'global', title: 'G20全球股市', icon: <Globe size={18} />, color: '#0ea5e9', bgColor: '#f0f9ff' },
-        { key: 'commodity', title: '大宗商品', icon: <Box size={18} />, color: '#f59e0b', bgColor: '#fffbeb' },
-        { key: 'forex', title: '外汇债券', icon: <Repeat size={18} />, color: '#8b5cf6', bgColor: '#faf5ff' },
+        { key: 'us', title: '美股指数', icon: <TrendingUp size={18} />, color: 'var(--accent)', bgColor: 'var(--accent-soft)' },
+        { key: 'cn', title: '中国A股', icon: <Globe size={18} />, color: 'var(--up)', bgColor: 'var(--system-red-light)' },
+        { key: 'hk', title: '港股指数', icon: <Globe2 size={18} />, color: 'var(--down)', bgColor: 'var(--system-green-light)' },
+        { key: 'global', title: 'G20全球股市', icon: <Globe size={18} />, color: 'var(--accent)', bgColor: 'var(--accent-soft)' },
+        { key: 'commodity', title: '大宗商品', icon: <Box size={18} />, color: 'var(--accent-warm)', bgColor: 'var(--accent-warm-soft)' },
+        { key: 'forex', title: '外汇债券', icon: <Repeat size={18} />, color: 'var(--system-purple)', bgColor: 'var(--bg-secondary)' },
       ]
 
       try {
@@ -293,7 +293,7 @@ export default function Pulse(): JSX.Element {
   // 渲染数据卡片
   const renderCard = (stock: StockQuote, color: string) => {
     const isPositive = stock.change >= 0
-    const changeColor = isPositive ? '#16a34a' : '#dc2626'
+    const changeColor = isPositive ? 'var(--down)' : 'var(--up)'
 
     return (
       <div key={stock.symbol} style={{
@@ -305,12 +305,12 @@ export default function Pulse(): JSX.Element {
         onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)' }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <span style={{ fontWeight: '600', fontSize: '0.9rem', color: '#1f2937' }}>{stock.name}</span>
+          <span style={{ fontWeight: '600', fontSize: '0.9rem', color: 'var(--text-primary)' }}>{stock.name}</span>
           {stock.rsi !== undefined && (
             <span style={{
               fontSize: '0.7rem', padding: '2px 5px', borderRadius: '4px',
-              background: stock.rsi >= 70 ? '#fef2f2' : stock.rsi <= 30 ? '#f0fdf4' : '#f3f4f6',
-              color: stock.rsi >= 70 ? '#dc2626' : stock.rsi <= 30 ? '#16a34a' : '#6b7280', fontWeight: '500'
+              background: stock.rsi >= 70 ? 'var(--system-red-light)' : stock.rsi <= 30 ? 'var(--system-green-light)' : 'var(--bg-secondary)',
+              color: stock.rsi >= 70 ? 'var(--up)' : stock.rsi <= 30 ? 'var(--down)' : 'var(--text-secondary)', fontWeight: '500'
             }}>RSI {stock.rsi.toFixed(0)}</span>
           )}
         </div>
@@ -319,7 +319,7 @@ export default function Pulse(): JSX.Element {
           <span style={{ color: changeColor, fontWeight: '500', display: 'flex', alignItems: 'center', gap: '2px' }}>
             {isPositive ? <ArrowUp size={12} /> : <ArrowDown size={12} />} {formatPrice(Math.abs(stock.change))}
           </span>
-          <span style={{ color: changeColor, fontWeight: '600', padding: '1px 5px', borderRadius: '4px', background: isPositive ? '#f0fdf4' : '#fef2f2' }}>{formatPercent(stock.changePercent)}</span>
+          <span style={{ color: changeColor, fontWeight: '600', padding: '1px 5px', borderRadius: '4px', background: isPositive ? 'var(--system-green-light)' : 'var(--system-red-light)' }}>{formatPercent(stock.changePercent)}</span>
         </div>
       </div>
     )
@@ -357,7 +357,7 @@ export default function Pulse(): JSX.Element {
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '10px' }}>
           {category.data.map(stock => renderCard(stock, category.color))}
-          {category.data.length === 0 && <div style={{ padding: '16px', color: '#9ca3af', fontSize: '0.85rem', gridColumn: '1 / -1', textAlign: 'center' }}>加载中...</div>}
+          {category.data.length === 0 && <div style={{ padding: '16px', color: 'var(--text-tertiary)', fontSize: '0.85rem', gridColumn: '1 / -1', textAlign: 'center' }}>加载中...</div>}
         </div>
       </div>
     )
@@ -383,96 +383,96 @@ export default function Pulse(): JSX.Element {
         <h3 style={{ margin: '0 0 16px', fontSize: '1.1rem' }}>{editDate ? '编辑' : '录入'}复盘数据</h3>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
           <div>
-            <label style={{ fontSize: '0.8rem', color: '#64748b' }}>日期</label>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>日期</label>
             <input type="date" value={formData.date || ''} onChange={e => setFormData({ ...formData, date: e.target.value })}
-              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }} />
+              style={{ width: '100%', padding: '8px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem' }} />
           </div>
           <div>
-            <label style={{ fontSize: '0.8rem', color: '#64748b' }}>涨停板数</label>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>涨停板数</label>
             <input type="number" value={formData.ztCount || ''} onChange={e => setFormData({ ...formData, ztCount: +e.target.value })}
-              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }} />
+              style={{ width: '100%', padding: '8px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem' }} />
           </div>
           <div>
-            <label style={{ fontSize: '0.8rem', color: '#64748b' }}>涨停封板率</label>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>涨停封板率</label>
             <input type="text" placeholder="如 75%" value={formData.ztSealRate || ''} onChange={e => setFormData({ ...formData, ztSealRate: e.target.value })}
-              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }} />
+              style={{ width: '100%', padding: '8px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem' }} />
           </div>
           <div>
-            <label style={{ fontSize: '0.8rem', color: '#64748b' }}>涨停打开数</label>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>涨停打开数</label>
             <input type="number" value={formData.ztOpen || ''} onChange={e => setFormData({ ...formData, ztOpen: +e.target.value })}
-              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }} />
+              style={{ width: '100%', padding: '8px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem' }} />
           </div>
           <div>
-            <label style={{ fontSize: '0.8rem', color: '#64748b' }}>跌停板数</label>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>跌停板数</label>
             <input type="number" value={formData.dtCount || ''} onChange={e => setFormData({ ...formData, dtCount: +e.target.value })}
-              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }} />
+              style={{ width: '100%', padding: '8px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem' }} />
           </div>
           <div>
-            <label style={{ fontSize: '0.8rem', color: '#64748b' }}>跌停封板率</label>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>跌停封板率</label>
             <input type="text" placeholder="如 50%" value={formData.dtSealRate || ''} onChange={e => setFormData({ ...formData, dtSealRate: e.target.value })}
-              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }} />
+              style={{ width: '100%', padding: '8px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem' }} />
           </div>
           <div>
-            <label style={{ fontSize: '0.8rem', color: '#64748b' }}>跌停打开数</label>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>跌停打开数</label>
             <input type="number" value={formData.dtOpen || ''} onChange={e => setFormData({ ...formData, dtOpen: +e.target.value })}
-              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }} />
+              style={{ width: '100%', padding: '8px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem' }} />
           </div>
           <div>
-            <label style={{ fontSize: '0.8rem', color: '#64748b' }}>量能（亿）</label>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>量能（亿）</label>
             <input type="number" value={formData.volume || ''} onChange={e => setFormData({ ...formData, volume: +e.target.value })}
-              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }} />
+              style={{ width: '100%', padding: '8px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem' }} />
           </div>
           <div>
-            <label style={{ fontSize: '0.8rem', color: '#64748b' }}>涨-跌</label>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>涨-跌</label>
             <input type="text" placeholder="如 3982-1060" value={formData.upDown || ''} onChange={e => setFormData({ ...formData, upDown: e.target.value })}
-              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }} />
+              style={{ width: '100%', padding: '8px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem' }} />
           </div>
           <div>
-            <label style={{ fontSize: '0.8rem', color: '#64748b' }}>沪深创</label>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>沪深创</label>
             <input type="text" placeholder="如 +++" value={formData.shszcy || ''} onChange={e => setFormData({ ...formData, shszcy: e.target.value })}
-              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }} />
+              style={{ width: '100%', padding: '8px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem' }} />
           </div>
           <div>
-            <label style={{ fontSize: '0.8rem', color: '#64748b' }}>连板晋级率</label>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>连板晋级率</label>
             <input type="text" placeholder="如 58%" value={formData.lbRate || ''} onChange={e => setFormData({ ...formData, lbRate: e.target.value })}
-              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }} />
+              style={{ width: '100%', padding: '8px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem' }} />
           </div>
           <div>
-            <label style={{ fontSize: '0.8rem', color: '#64748b' }}>连板数量</label>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>连板数量</label>
             <input type="number" value={formData.lbCount || ''} onChange={e => setFormData({ ...formData, lbCount: +e.target.value })}
-              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }} />
+              style={{ width: '100%', padding: '8px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem' }} />
           </div>
           <div>
-            <label style={{ fontSize: '0.8rem', color: '#64748b' }}>最高板</label>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>最高板</label>
             <input type="number" value={formData.maxBoard || ''} onChange={e => setFormData({ ...formData, maxBoard: +e.target.value })}
-              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }} />
+              style={{ width: '100%', padding: '8px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem' }} />
           </div>
           <div>
-            <label style={{ fontSize: '0.8rem', color: '#64748b' }}>成交金额前五</label>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>成交金额前五</label>
             <input type="number" value={formData.top5Amount || ''} onChange={e => setFormData({ ...formData, top5Amount: +e.target.value })}
-              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }} />
+              style={{ width: '100%', padding: '8px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem' }} />
           </div>
           <div>
-            <label style={{ fontSize: '0.8rem', color: '#64748b' }}>换手率前五</label>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>换手率前五</label>
             <input type="number" value={formData.top5Turnover || ''} onChange={e => setFormData({ ...formData, top5Turnover: +e.target.value })}
-              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }} />
+              style={{ width: '100%', padding: '8px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem' }} />
           </div>
           <div style={{ gridColumn: '1 / -1' }}>
-            <label style={{ fontSize: '0.8rem', color: '#64748b' }}>流入板块</label>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>流入板块</label>
             <input type="text" placeholder="如 航天、消费电子" value={formData.inflow || ''} onChange={e => setFormData({ ...formData, inflow: e.target.value })}
-              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }} />
+              style={{ width: '100%', padding: '8px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem' }} />
           </div>
           <div style={{ gridColumn: '1 / -1' }}>
-            <label style={{ fontSize: '0.8rem', color: '#64748b' }}>流出板块</label>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>流出板块</label>
             <input type="text" placeholder="如 医疗、光模块" value={formData.outflow || ''} onChange={e => setFormData({ ...formData, outflow: e.target.value })}
-              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem' }} />
+              style={{ width: '100%', padding: '8px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem' }} />
           </div>
         </div>
         <div style={{ display: 'flex', gap: '12px', marginTop: '20px', justifyContent: 'flex-end' }}>
           <button onClick={() => { setShowForm(false); setFormData({}); setEditDate('') }}
-            style={{ padding: '8px 16px', background: '#f3f4f6', color: '#4b5563', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>取消</button>
+            style={{ padding: '8px 16px', background: 'var(--bg-secondary)', color: 'var(--text-secondary)', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>取消</button>
           <button onClick={handleSaveReview}
-            style={{ padding: '8px 16px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' }}>保存</button>
+            style={{ padding: '8px 16px', background: 'var(--accent)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' }}>保存</button>
         </div>
       </div>
     </div>
@@ -483,31 +483,31 @@ export default function Pulse(): JSX.Element {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '20px', padding: '14px 18px', background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '0.75rem', color: '#9ca3af' }}>{timestamp || '--'}</span>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>{timestamp || '--'}</span>
           {syncConfig && (
             <button onClick={handleSync} disabled={syncing} style={{
-              padding: '6px 12px', background: syncing ? '#e5e7eb' : '#0ea5e9', color: syncing ? '#9ca3af' : 'white', border: 'none',
+              padding: '6px 12px', background: syncing ? 'var(--border-subtle)' : 'var(--accent)', color: syncing ? 'var(--text-tertiary)' : 'white', border: 'none',
               borderRadius: '6px', cursor: syncing ? 'not-allowed' : 'pointer', fontSize: '0.8rem', fontWeight: '500'
             }}>{syncing ? '⏳ 同步中' : '☁️ 同步'}</button>
           )}
           <button onClick={() => setShowFilter(true)} style={{
-            padding: '6px 12px', background: '#6366f1', color: 'white', border: 'none',
+            padding: '6px 12px', background: 'var(--accent)', color: 'white', border: 'none',
             borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
           }}>🔍 筛选</button>
           <button onClick={() => setShowSettings(true)} style={{
-            padding: '6px 12px', background: syncConfig ? '#10b981' : '#f59e0b', color: 'white', border: 'none',
+            padding: '6px 12px', background: syncConfig ? 'var(--down)' : 'var(--accent-warm)', color: 'white', border: 'none',
             borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
           }}>⚙️ {syncConfig ? '已配置' : '云端设置'}</button>
           <button onClick={handleExport} style={{
-            padding: '6px 12px', background: '#10b981', color: 'white', border: 'none',
+            padding: '6px 12px', background: 'var(--down)', color: 'white', border: 'none',
             borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
           }}>📥 导出</button>
           <button onClick={handleImport} style={{
-            padding: '6px 12px', background: '#8b5cf6', color: 'white', border: 'none',
+            padding: '6px 12px', background: 'var(--system-purple)', color: 'white', border: 'none',
             borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
           }}>📤 导入</button>
           <button onClick={handleRefresh} disabled={loading}
-            style={{ padding: '6px 14px', background: loading ? '#e5e7eb' : 'linear-gradient(135deg, #3b82f6, #2563eb)', color: loading ? '#9ca3af' : 'white', border: 'none', borderRadius: '6px', cursor: loading ? 'not-allowed' : 'pointer', fontSize: '0.85rem', fontWeight: '500' }}>
+            style={{ padding: '6px 14px', background: loading ? 'var(--border-subtle)' : 'linear-gradient(135deg, var(--accent), var(--accent))', color: loading ? 'var(--text-tertiary)' : 'white', border: 'none', borderRadius: '6px', cursor: loading ? 'not-allowed' : 'pointer', fontSize: '0.85rem', fontWeight: '500' }}>
             {loading ? '⏳' : '🔄'} {loading ? '加载' : '刷新'}
           </button>
         </div>
@@ -530,11 +530,11 @@ export default function Pulse(): JSX.Element {
 
       {/* 数据分类 */}
       {loading ? (
-        <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>
+        <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>
           ⏳ 数据加载中...
         </div>
       ) : categories.length === 0 ? (
-        <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>
+        <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>
           ⚠️ 暂无数据，请检查网络连接或刷新页面
         </div>
       ) : (
@@ -559,7 +559,7 @@ export default function Pulse(): JSX.Element {
 
       {/* 资源链接 */}
       <div style={{ marginTop: '20px', padding: '16px', background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-        <h3 style={{ fontSize: '0.9rem', marginBottom: '10px', color: '#374151', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <h3 style={{ fontSize: '0.9rem', marginBottom: '10px', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <LinkIcon size={16} /> 常用资源
         </h3>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
@@ -579,9 +579,9 @@ export default function Pulse(): JSX.Element {
             { name: 'CBOE 每日市场统计', url: 'https://www.cboe.com/us/options/market_statistics/daily/' },
           ].map(link => (
             <a key={link.name} href={link.url} target="_blank" rel="noopener noreferrer"
-              style={{ padding: '5px 10px', background: '#f3f4f6', color: '#4b5563', textDecoration: 'none', borderRadius: '5px', fontSize: '0.8rem', transition: 'all 0.2s' }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = '#3b82f6'; e.currentTarget.style.color = 'white' }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = '#f3f4f6'; e.currentTarget.style.color = '#4b5563' }}>{link.name}</a>
+              style={{ padding: '5px 10px', background: 'var(--bg-secondary)', color: 'var(--text-secondary)', textDecoration: 'none', borderRadius: '5px', fontSize: '0.8rem', transition: 'all 0.2s' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--accent)'; e.currentTarget.style.color = 'white' }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--bg-secondary)'; e.currentTarget.style.color = 'var(--text-secondary)' }}>{link.name}</a>
           ))}
         </div>
       </div>
@@ -605,7 +605,7 @@ export default function Pulse(): JSX.Element {
                 { key: 'commodity', title: '大宗商品', icon: <Box size={16} /> },
                 { key: 'forex', title: '外汇债券', icon: <Repeat size={16} /> },
               ].map(cat => (
-                <label key={cat.key} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', padding: '8px', borderRadius: '6px', background: filterCategories.has(cat.key) ? '#f0f9ff' : '#f9fafb' }}>
+                <label key={cat.key} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', padding: '8px', borderRadius: '6px', background: filterCategories.has(cat.key) ? 'var(--accent-soft)' : 'var(--bg-secondary)' }}>
                   <input
                     type="checkbox"
                     checked={filterCategories.has(cat.key)}
@@ -613,17 +613,17 @@ export default function Pulse(): JSX.Element {
                     style={{ width: '18px', height: '18px', cursor: 'pointer' }}
                   />
                   <span style={{ fontSize: '1rem', display: 'flex' }}>{cat.icon}</span>
-                  <span style={{ fontSize: '0.9rem', color: '#374151' }}>{cat.title}</span>
+                  <span style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>{cat.title}</span>
                 </label>
               ))}
             </div>
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
               <button onClick={resetFilter}
-                style={{ padding: '8px 16px', background: '#f3f4f6', color: '#4b5563', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
+                style={{ padding: '8px 16px', background: 'var(--bg-secondary)', color: 'var(--text-secondary)', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
                 重置
               </button>
               <button onClick={() => setShowFilter(false)}
-                style={{ padding: '8px 16px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' }}>
+                style={{ padding: '8px 16px', background: 'var(--accent)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' }}>
                 确定
               </button>
             </div>
@@ -638,29 +638,29 @@ export default function Pulse(): JSX.Element {
             <h3 style={{ margin: '0 0 12px', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Cloud size={20} /> 复盘云同步（Supabase）
             </h3>
-            <p style={{ fontSize: '0.85rem', color: '#6b7280', margin: '0 0 14px', lineHeight: 1.7 }}>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0 0 14px', lineHeight: 1.7 }}>
               复盘默认只存在本机。开启后通过你自己部署的接口同步到你自己的 Supabase 数据库：同步前先读取云端并合并，
               删除/覆盖需确认，云端保留最近 30 个历史版本。token 仅保存在本机浏览器，请勿在公共电脑使用。
             </p>
-            <label style={{ fontSize: '0.8rem', color: '#64748b', display: 'block', marginBottom: '6px' }}>同步接口地址（HTTPS）</label>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>同步接口地址（HTTPS）</label>
             <input type="url" value={endpointInput} onChange={e => setEndpointInput(e.target.value)} placeholder="https://你的站点/api/pulse-sync" autoComplete="url"
-              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem', marginBottom: '14px', boxSizing: 'border-box' }} />
-            <label style={{ fontSize: '0.8rem', color: '#64748b', display: 'block', marginBottom: '6px' }}>
+              style={{ width: '100%', padding: '8px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem', marginBottom: '14px', boxSizing: 'border-box' }} />
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
               专用 Token（至少 32 位，对应 Vercel 变量 PULSE_SYNC_TOKEN）{syncConfig ? '——已保存，留空表示不修改' : ''}
             </label>
             <input type="password" value={tokenInput} onChange={e => setTokenInput(e.target.value)} placeholder={syncConfig ? '••••••••（已保存）' : '粘贴 token'} autoComplete="new-password"
-              style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.9rem', boxSizing: 'border-box' }} />
-            <p style={{ fontSize: '0.75rem', color: '#9ca3af', margin: '8px 0 16px', lineHeight: 1.6 }}>
+              style={{ width: '100%', padding: '8px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem', boxSizing: 'border-box' }} />
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', margin: '8px 0 16px', lineHeight: 1.6 }}>
               接口只允许同源调用：请在部署了该接口的站点（如 Vercel 站点）上同步；GitHub Pages 版本没有后端，不能同步。
             </p>
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
               {syncConfig && (
-                <button onClick={handleClearSyncConfig} style={{ padding: '8px 16px', background: '#fee2e2', color: '#b91c1c', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>清除配置</button>
+                <button onClick={handleClearSyncConfig} style={{ padding: '8px 16px', background: 'var(--system-red-light)', color: 'var(--up)', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>清除配置</button>
               )}
               <button onClick={() => { setShowSettings(false); setTokenInput('') }}
-                style={{ padding: '8px 16px', background: '#f3f4f6', color: '#4b5563', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>取消</button>
+                style={{ padding: '8px 16px', background: 'var(--bg-secondary)', color: 'var(--text-secondary)', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>取消</button>
               <button onClick={() => void handleSaveSyncConfig()} disabled={!tokenInput.trim() && !syncConfig}
-                style={{ padding: '8px 16px', background: tokenInput.trim() || syncConfig ? '#3b82f6' : '#cbd5e1', color: 'white', border: 'none', borderRadius: '6px', cursor: tokenInput.trim() || syncConfig ? 'pointer' : 'not-allowed', fontWeight: '500' }}>保存</button>
+                style={{ padding: '8px 16px', background: tokenInput.trim() || syncConfig ? 'var(--accent)' : 'var(--system-gray3)', color: 'white', border: 'none', borderRadius: '6px', cursor: tokenInput.trim() || syncConfig ? 'pointer' : 'not-allowed', fontWeight: '500' }}>保存</button>
             </div>
           </div>
         </div>

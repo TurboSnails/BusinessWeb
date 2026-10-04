@@ -30,7 +30,7 @@ function renderTable(text: string): JSX.Element | null {
             <tr key={i}>
               {r.map((c, j) => {
                 const Cell = i === 0 ? 'th' : 'td'
-                return <Cell key={j} style={{ border: '1px solid #e5e5ea', padding: '6px 10px', textAlign: 'left', background: i === 0 ? '#f5f5f7' : undefined }}>{c}</Cell>
+                return <Cell key={j} style={{ border: '1px solid var(--system-gray5)', padding: '6px 10px', textAlign: 'left', background: i === 0 ? 'var(--bg-primary)' : undefined }}>{c}</Cell>
               })}
             </tr>
           ))}
@@ -55,15 +55,15 @@ function Node({ node, depth, q }: { node: TreeNode; depth: number; q: string }):
   const expanded = q ? true : open
   const table = renderTable(node.t)
   return (
-    <div style={{ marginLeft: depth ? 18 : 0, borderLeft: depth ? '1px solid #e5e5ea' : 'none', paddingLeft: depth ? 10 : 0 }}>
+    <div style={{ marginLeft: depth ? 18 : 0, borderLeft: depth ? '1px solid var(--system-gray5)' : 'none', paddingLeft: depth ? 10 : 0 }}>
       <div
         onClick={() => hasKids && setOpen(!open)}
         style={{ display: 'flex', gap: 6, padding: '4px 0', cursor: hasKids ? 'pointer' : 'default', alignItems: 'flex-start' }}
       >
-        <span style={{ width: 14, color: '#8e8e93', flexShrink: 0 }}>{hasKids ? (expanded ? '▾' : '▸') : '·'}</span>
+        <span style={{ width: 14, color: 'var(--system-gray)', flexShrink: 0 }}>{hasKids ? (expanded ? '▾' : '▸') : '·'}</span>
         <div style={{ flex: 1, minWidth: 0, lineHeight: 1.7, fontWeight: depth < 2 ? 600 : 400, fontSize: depth === 0 ? '1.1rem' : '0.92rem', whiteSpace: 'pre-wrap' }}>
           {table || node.t}
-          {node.n && <div style={{ color: '#6e6e73', fontSize: '0.85rem', fontWeight: 400 }}>{node.n}</div>}
+          {node.n && <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 400 }}>{node.n}</div>}
           {node.img && (
             <img src={`${BASE}industry/solid-state/${node.img}`} alt="" loading="lazy" style={{ maxWidth: '100%', borderRadius: 8, marginTop: 6, display: 'block' }} />
           )}
@@ -87,7 +87,7 @@ export default function IndustryLandscape(): JSX.Element {
   const tabBtn = (id: 'solid' | 'semi', label: string) => (
     <button
       onClick={() => setTab(id)}
-      style={{ padding: '8px 18px', borderRadius: 999, border: 'none', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 500, background: tab === id ? 'var(--system-blue, #007aff)' : '#f0f0f3', color: tab === id ? '#fff' : '#3a3a3c' }}
+      style={{ padding: '8px 18px', borderRadius: 999, border: 'none', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 500, background: tab === id ? 'var(--system-blue, var(--system-blue))' : 'var(--bg-secondary)', color: tab === id ? '#fff' : 'var(--text-primary)' }}
     >
       {label}
     </button>
@@ -106,14 +106,14 @@ export default function IndustryLandscape(): JSX.Element {
             value={q}
             onChange={e => setQ(e.target.value.trim().toLowerCase())}
             placeholder={`搜索 ${total} 个节点`}
-            style={{ width: '100%', boxSizing: 'border-box', padding: '8px 12px', marginBottom: 12, borderRadius: 10, border: '1px solid #d1d1d6', fontSize: '0.9rem' }}
+            style={{ width: '100%', boxSizing: 'border-box', padding: '8px 12px', marginBottom: 12, borderRadius: 10, border: '1px solid var(--system-gray4)', fontSize: '0.9rem' }}
           />
-          {tree ? <Node node={tree} depth={0} q={q} /> : <p style={{ color: '#8e8e93' }}>加载中…</p>}
+          {tree ? <Node node={tree} depth={0} q={q} /> : <p style={{ color: 'var(--system-gray)' }}>加载中…</p>}
         </div>
       )}
       {tab === 'semi' && (
         <div style={cardStyle}>
-          <p style={{ margin: '0 0 12px', color: '#6e6e73', fontSize: '0.85rem' }}>
+          <p style={{ margin: '0 0 12px', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
             原图为 MindNode 脑图预览，点击图片在新窗口打开后可放大查看。
           </p>
           <a href={`${BASE}industry/semiconductor.png`} target="_blank" rel="noreferrer">

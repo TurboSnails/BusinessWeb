@@ -1687,15 +1687,15 @@ export default function SectorRotation(): JSX.Element {
 
   // 获取涨幅超过1%次数的颜色（次数越多颜色越深）
   const getCountColor = (count: number): string => {
-    if (count === 0) return '#9ca3af' // 灰色
+    if (count === 0) return 'var(--text-tertiary)' // 灰色
     if (count === 1) return '#ffffff' // 白色
-    if (count === 2) return '#fbbf24' // 浅黄色
-    if (count === 3) return '#f59e0b' // 橙色
-    if (count === 4) return '#f97316' // 橙红色
-    if (count === 5) return '#ef4444' // 红色
-    if (count === 6) return '#dc2626' // 深红色
-    if (count >= 7) return '#991b1b' // 最深红色
-    return '#9ca3af'
+    if (count === 2) return 'var(--accent-warm)' // 浅黄色
+    if (count === 3) return 'var(--accent-warm)' // 橙色
+    if (count === 4) return 'var(--accent-warm)' // 橙红色
+    if (count === 5) return 'var(--up)' // 红色
+    if (count === 6) return 'var(--up)' // 深红色
+    if (count >= 7) return 'var(--up-ink)' // 最深红色
+    return 'var(--text-tertiary)'
   }
 
   // 获取最近7天的日期列表（用于显示涨停板数量）
@@ -1741,11 +1741,11 @@ export default function SectorRotation(): JSX.Element {
         boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
         marginBottom: '20px'
       }}>
-        <h1 style={{ margin: 0, fontSize: '1.5rem', color: '#1f2937', display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <h1 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '12px' }}>
           <span style={{ fontSize: '2rem' }}>🔄</span>
           板块轮动
         </h1>
-        <p style={{ margin: '8px 0 0', fontSize: '0.9rem', color: '#6b7280' }}>
+        <p style={{ margin: '8px 0 0', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
           追踪各板块在不同日期的涨幅排名，识别市场热点轮动
         </p>
       </div>
@@ -1762,7 +1762,7 @@ export default function SectorRotation(): JSX.Element {
         border: '1px solid var(--glass-border)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '0.9rem', color: '#6b7280' }}>类型:</span>
+          <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>类型:</span>
           <select
             value={filterType}
             onChange={(e) => {
@@ -1790,13 +1790,13 @@ export default function SectorRotation(): JSX.Element {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '0.9rem', color: '#6b7280' }}>排序:</span>
+          <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>排序:</span>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as 'change' | 'rank')}
             style={{
               padding: '6px 12px',
-              border: '1px solid #d1d5db',
+              border: '1px solid var(--system-gray3)',
               borderRadius: '6px',
               fontSize: '0.9rem',
               cursor: 'pointer',
@@ -1809,13 +1809,13 @@ export default function SectorRotation(): JSX.Element {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '0.9rem', color: '#6b7280' }}>显示:</span>
+          <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>显示:</span>
           <select
             value={topN}
             onChange={(e) => setTopN(Number(e.target.value))}
             style={{
               padding: '6px 12px',
-              border: '1px solid #d1d5db',
+              border: '1px solid var(--system-gray3)',
               borderRadius: '6px',
               fontSize: '0.9rem',
               cursor: 'pointer',
@@ -1831,12 +1831,12 @@ export default function SectorRotation(): JSX.Element {
 
 
       {['unconfigured', 'unavailable'].includes(sectorStorageStatus() || '') && (
-        <p role="status" style={{ color: '#92400e', fontSize: '0.85rem' }}>数据库缓存暂未就绪，当前使用本地缓存；历史数据尚未确认入库。</p>
+        <p role="status" style={{ color: 'var(--warm-ink)', fontSize: '0.85rem' }}>数据库缓存暂未就绪，当前使用本地缓存；历史数据尚未确认入库。</p>
       )}
       {error && (
         <div style={{
-          background: '#fee2e2',
-          color: '#dc2626',
+          background: 'var(--system-red-light)',
+          color: 'var(--up)',
           padding: '12px',
           borderRadius: '8px',
           marginBottom: '20px',
@@ -1853,7 +1853,7 @@ export default function SectorRotation(): JSX.Element {
         <div style={{
           padding: '60px 20px',
           textAlign: 'center',
-          color: '#6b7280'
+          color: 'var(--text-secondary)'
         }}>
           <style>{`@keyframes sr-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
           <Loader2
@@ -1861,13 +1861,13 @@ export default function SectorRotation(): JSX.Element {
             style={{
               animation: 'sr-spin 1s linear infinite',
               margin: '0 auto 16px',
-              color: '#3b82f6'
+              color: 'var(--accent)'
             }}
           />
           <div style={{ fontSize: '0.95rem', fontWeight: 500 }}>
             正在加载板块数据...
           </div>
-          <div style={{ fontSize: '0.8rem', color: '#9ca3af', marginTop: '6px' }}>
+          <div style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', marginTop: '6px' }}>
             {loadingProgress.total > 0
               ? `已加载 ${loadingProgress.loaded}/${loadingProgress.total} 个交易日，数据源响应较慢，请稍候`
               : '正在连接数据源...'}
@@ -1885,13 +1885,13 @@ export default function SectorRotation(): JSX.Element {
                 <div style={{
                   padding: '40px',
                   textAlign: 'center',
-                  color: '#9ca3af',
+                  color: 'var(--text-tertiary)',
                   fontSize: '0.9rem'
                 }}>
-                  <div style={{ marginBottom: '12px', fontSize: '1.1rem', fontWeight: '600', color: '#6b7280' }}>
+                  <div style={{ marginBottom: '12px', fontSize: '1.1rem', fontWeight: '600', color: 'var(--text-secondary)' }}>
                     暂无数据
                   </div>
-                  <div style={{ fontSize: '0.85rem', lineHeight: '1.6', color: '#9ca3af' }}>
+                  <div style={{ fontSize: '0.85rem', lineHeight: '1.6', color: 'var(--text-tertiary)' }}>
                     {loading ? (
                       '正在加载数据...'
                     ) : (
@@ -1902,7 +1902,7 @@ export default function SectorRotation(): JSX.Element {
                           <div>• 网络请求失败，请刷新重试</div>
                           <div>• 过滤条件过于严格，请尝试切换"行业/概念"类型</div>
                         </div>
-                        <div style={{ marginTop: '16px', fontSize: '0.8rem', color: '#d1d5db' }}>
+                        <div style={{ marginTop: '16px', fontSize: '0.8rem', color: 'var(--system-gray3)' }}>
                           提示：请打开浏览器控制台（F12）查看详细日志
                         </div>
                       </>
@@ -1937,7 +1937,7 @@ export default function SectorRotation(): JSX.Element {
                     {Array.from({ length: topN }, (_, rankIndex) => {
                       const rank = rankIndex + 1
                       return (
-                        <tr key={rank} style={{ borderBottom: '1px solid #e5e7eb' }}>
+                        <tr key={rank} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
                           <td style={{ padding: '12px', textAlign: 'center' }}>
                             {rank <= 3 ? (
                               <span style={{
@@ -1950,12 +1950,12 @@ export default function SectorRotation(): JSX.Element {
                                 borderRadius: '8px',
                                 fontSize: '0.95rem',
                                 fontWeight: '700',
-                                boxShadow: '0 2px 6px rgba(255, 59, 48, 0.3)'
+                                boxShadow: '0 2px 6px color-mix(in srgb, var(--system-red) 30%, transparent)'
                               }}>
                                 {rank}
                               </span>
                             ) : (
-                              <span style={{ fontSize: '0.9rem', color: '#6b7280' }}>{rank}</span>
+                              <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{rank}</span>
                             )}
                           </td>
                           {validDates.map(date => {
@@ -1974,7 +1974,7 @@ export default function SectorRotation(): JSX.Element {
                                         transition: 'background 0.2s',
                                         background: selectedSector?.name === sector.name && selectedSector?.date === date ? 'var(--system-blue-light)' : 'transparent',
                                         marginBottom: '8px',
-                                        border: selectedSector?.name === sector.name && selectedSector?.date === date ? '1px solid rgba(0, 122, 255, 0.2)' : '1px solid transparent'
+                                        border: selectedSector?.name === sector.name && selectedSector?.date === date ? '1px solid color-mix(in srgb, var(--system-blue) 20%, transparent)' : '1px solid transparent'
                                       }}
                                       onMouseEnter={(e) => {
                                         if (!(selectedSector?.name === sector.name && selectedSector?.date === date)) {
@@ -1987,7 +1987,7 @@ export default function SectorRotation(): JSX.Element {
                                         }
                                       }}
                                     >
-                                      <div style={{ fontSize: '0.85rem', fontWeight: '500', color: '#1f2937', marginBottom: '4px', position: 'relative' }}>
+                                      <div style={{ fontSize: '0.85rem', fontWeight: '500', color: 'var(--text-primary)', marginBottom: '4px', position: 'relative' }}>
                                         {sector.name}
                                         {(() => {
                                           const count = getOver1PercentCount(sector.name, sector.code)
@@ -1998,7 +1998,7 @@ export default function SectorRotation(): JSX.Element {
                                                 top: '-6px',
                                                 right: '-6px',
                                                 background: getCountColor(count),
-                                                color: count === 1 ? '#6b7280' : 'white',
+                                                color: count === 1 ? 'var(--text-secondary)' : 'white',
                                                 fontSize: '0.65rem',
                                                 fontWeight: '700',
                                                 padding: '2px 5px',
@@ -2137,8 +2137,8 @@ export default function SectorRotation(): JSX.Element {
                                                 key={d}
                                                 style={{
                                                   padding: '3px 5px',
-                                                  background: isCurrentDate ? '#eff6ff' : hasData ? '#f9fafb' : '#f3f4f6',
-                                                  border: isCurrentDate ? '1px solid #3b82f6' : '1px solid #e5e7eb',
+                                                  background: isCurrentDate ? 'var(--accent-soft)' : hasData ? 'var(--bg-secondary)' : 'var(--bg-secondary)',
+                                                  border: isCurrentDate ? '1px solid var(--accent)' : '1px solid var(--border-subtle)',
                                                   borderRadius: '4px',
                                                   fontSize: '0.7rem',
                                                   minWidth: '24px',
@@ -2150,7 +2150,7 @@ export default function SectorRotation(): JSX.Element {
                                                 <div style={{
                                                   fontSize: '0.75rem',
                                                   fontWeight: '600',
-                                                  color: hasData && limitUpCount > 0 ? '#dc2626' : '#9ca3af'
+                                                  color: hasData && limitUpCount > 0 ? 'var(--up)' : 'var(--text-tertiary)'
                                                 }}>
                                                   {hasData ? limitUpCount : '-'}
                                                 </div>
@@ -2162,7 +2162,7 @@ export default function SectorRotation(): JSX.Element {
                                     })()}
                                   </>
                                 ) : (
-                                  <span style={{ fontSize: '0.85rem', color: '#9ca3af' }}>-</span>
+                                  <span style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)' }}>-</span>
                                 )}
                               </td>
                             )
@@ -2221,7 +2221,7 @@ export default function SectorRotation(): JSX.Element {
                   style={{
                     width: '40px',
                     height: '4px',
-                    background: '#d1d5db',
+                    background: 'var(--system-gray3)',
                     borderRadius: '2px',
                     margin: '12px auto 8px',
                     cursor: 'pointer'
@@ -2241,17 +2241,17 @@ export default function SectorRotation(): JSX.Element {
                     alignItems: 'center',
                     justifyContent: 'center',
                     borderRadius: '50%',
-                    background: '#f3f4f6',
+                    background: 'var(--bg-secondary)',
                     cursor: 'pointer',
                     fontSize: '1.2rem',
-                    color: '#6b7280',
+                    color: 'var(--text-secondary)',
                     transition: 'background 0.2s'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#e5e7eb'
+                    e.currentTarget.style.background = 'var(--border-subtle)'
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.background = '#f3f4f6'
+                    e.currentTarget.style.background = 'var(--bg-secondary)'
                   }}
                 >
                   ×
@@ -2265,20 +2265,20 @@ export default function SectorRotation(): JSX.Element {
                 }}>
                   {/* 板块信息 */}
                   <div style={{ marginBottom: '20px', paddingTop: '8px' }}>
-                    <div style={{ fontSize: '1.2rem', fontWeight: '600', color: '#1f2937', marginBottom: '8px' }}>
-                      {selectedSector.name} <span style={{ color: '#dc2626' }}>+{selectedSector.changePercent.toFixed(2)}%</span>
+                    <div style={{ fontSize: '1.2rem', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
+                      {selectedSector.name} <span style={{ color: 'var(--up)' }}>+{selectedSector.changePercent.toFixed(2)}%</span>
                     </div>
-                    <div style={{ fontSize: '0.9rem', color: '#6b7280', marginBottom: '4px' }}>
+                    <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
                       {formatFullDate(selectedSector.date)} 排名{selectedSector.rank}
                     </div>
-                    <div style={{ fontSize: '0.9rem', color: '#6b7280' }}>
+                    <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
                       已获取日期中 {selectedSector.timesInTop10} 次排进前{topN}
                     </div>
                   </div>
 
                   {/* 最近7天涨停板数量 */}
                   <div style={{ marginBottom: '20px' }}>
-                    <div style={{ fontSize: '1rem', fontWeight: '600', color: '#1f2937', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <BarChart2 size={18} /> 最近7天涨停板数量
                     </div>
                     {(() => {
@@ -2324,19 +2324,19 @@ export default function SectorRotation(): JSX.Element {
                                 key={date}
                                 style={{
                                   padding: '8px 12px',
-                                  background: isToday ? '#eff6ff' : hasData ? '#f9fafb' : '#f3f4f6',
-                                  border: isToday ? '2px solid #3b82f6' : '1px solid #e5e7eb',
+                                  background: isToday ? 'var(--accent-soft)' : hasData ? 'var(--bg-secondary)' : 'var(--bg-secondary)',
+                                  border: isToday ? '2px solid var(--accent)' : '1px solid var(--border-subtle)',
                                   borderRadius: '8px',
                                   fontSize: '0.85rem',
                                   minWidth: '90px',
                                   textAlign: 'center'
                                 }}
                               >
-                                <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '4px' }}>
+                                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
                                   {formatDateDisplay(date)}
-                                  {isToday && <span style={{ marginLeft: '4px', color: '#3b82f6', fontWeight: '600' }}>今天</span>}
+                                  {isToday && <span style={{ marginLeft: '4px', color: 'var(--accent)', fontWeight: '600' }}>今天</span>}
                                 </div>
-                                <div style={{ fontSize: '1rem', fontWeight: '700', color: hasData && count > 0 ? '#dc2626' : '#9ca3af' }}>
+                                <div style={{ fontSize: '1rem', fontWeight: '700', color: hasData && count > 0 ? 'var(--up)' : 'var(--text-tertiary)' }}>
                                   {hasData ? count : '-'}
                                 </div>
                               </div>
@@ -2349,23 +2349,23 @@ export default function SectorRotation(): JSX.Element {
 
                   {/* 热门股票列表 */}
                   <div>
-                    <div style={{ fontSize: '1rem', fontWeight: '600', color: '#1f2937', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <Flame size={18} /> 热门股票
                     </div>
                     {loadingHotStocks ? (
-                      <div style={{ padding: '20px', textAlign: 'center', color: '#6b7280', fontSize: '0.9rem' }}>
+                      <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
                         加载中...
                       </div>
                     ) : hotStocks.length > 0 ? (
                       <div style={{ overflowX: 'auto' }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                           <thead>
-                            <tr style={{ background: '#f9fafb', borderBottom: '2px solid #e5e7eb' }}>
-                              <th style={{ padding: '10px', textAlign: 'left', fontSize: '0.85rem', fontWeight: '600', color: '#6b7280' }}>股票名称</th>
-                              <th style={{ padding: '10px', textAlign: 'right', fontSize: '0.85rem', fontWeight: '600', color: '#6b7280' }}>最新价</th>
-                              <th style={{ padding: '10px', textAlign: 'right', fontSize: '0.85rem', fontWeight: '600', color: '#6b7280' }}>涨跌幅</th>
-                              <th style={{ padding: '10px', textAlign: 'right', fontSize: '0.85rem', fontWeight: '600', color: '#6b7280' }}>成交量</th>
-                              <th style={{ padding: '10px', textAlign: 'right', fontSize: '0.85rem', fontWeight: '600', color: '#6b7280' }}>成交额(万)</th>
+                            <tr style={{ background: 'var(--bg-secondary)', borderBottom: '2px solid var(--border-subtle)' }}>
+                              <th style={{ padding: '10px', textAlign: 'left', fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-secondary)' }}>股票名称</th>
+                              <th style={{ padding: '10px', textAlign: 'right', fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-secondary)' }}>最新价</th>
+                              <th style={{ padding: '10px', textAlign: 'right', fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-secondary)' }}>涨跌幅</th>
+                              <th style={{ padding: '10px', textAlign: 'right', fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-secondary)' }}>成交量</th>
+                              <th style={{ padding: '10px', textAlign: 'right', fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-secondary)' }}>成交额(万)</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -2373,11 +2373,11 @@ export default function SectorRotation(): JSX.Element {
                               <tr
                                 key={stock.code}
                                 style={{
-                                  borderBottom: '1px solid #e5e7eb',
+                                  borderBottom: '1px solid var(--border-subtle)',
                                   transition: 'background 0.2s'
                                 }}
                                 onMouseEnter={(e) => {
-                                  e.currentTarget.style.background = '#f9fafb'
+                                  e.currentTarget.style.background = 'var(--bg-secondary)'
                                 }}
                                 onMouseLeave={(e) => {
                                   e.currentTarget.style.background = 'white'
@@ -2390,35 +2390,35 @@ export default function SectorRotation(): JSX.Element {
                                   }}
                                   onClick={() => handleStockClick(stock)}
                                   onMouseEnter={(e) => {
-                                    e.currentTarget.style.background = '#eff6ff'
+                                    e.currentTarget.style.background = 'var(--accent-soft)'
                                   }}
                                   onMouseLeave={(e) => {
                                     e.currentTarget.style.background = 'transparent'
                                   }}
                                 >
-                                  <div style={{ fontSize: '0.9rem', fontWeight: '500', color: '#1f2937' }}>
+                                  <div style={{ fontSize: '0.9rem', fontWeight: '500', color: 'var(--text-primary)' }}>
                                     {stock.name}
                                   </div>
-                                  <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
+                                  <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
                                     {stock.code}
                                   </div>
                                 </td>
-                                <td style={{ padding: '10px', textAlign: 'right', fontSize: '0.9rem', color: '#1f2937' }}>
+                                <td style={{ padding: '10px', textAlign: 'right', fontSize: '0.9rem', color: 'var(--text-primary)' }}>
                                   {stock.price.toFixed(2)}
                                 </td>
                                 <td style={{ padding: '10px', textAlign: 'right' }}>
                                   <span style={{
                                     fontSize: '0.9rem',
                                     fontWeight: '600',
-                                    color: stock.changePercent >= 0 ? '#dc2626' : '#16a34a'
+                                    color: stock.changePercent >= 0 ? 'var(--up)' : 'var(--down)'
                                   }}>
                                     {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
                                   </span>
                                 </td>
-                                <td style={{ padding: '10px', textAlign: 'right', fontSize: '0.85rem', color: '#6b7280' }}>
+                                <td style={{ padding: '10px', textAlign: 'right', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
                                   {(stock.volume / 10000).toFixed(2)}万手
                                 </td>
-                                <td style={{ padding: '10px', textAlign: 'right', fontSize: '0.85rem', color: '#6b7280' }}>
+                                <td style={{ padding: '10px', textAlign: 'right', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
                                   {stock.amount.toFixed(2)}
                                 </td>
                               </tr>
@@ -2427,7 +2427,7 @@ export default function SectorRotation(): JSX.Element {
                         </table>
                       </div>
                     ) : (
-                      <div style={{ padding: '20px', textAlign: 'center', color: '#9ca3af', fontSize: '0.9rem' }}>
+                      <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-tertiary)', fontSize: '0.9rem' }}>
                         暂无热门股票数据
                       </div>
                     )}
@@ -2464,11 +2464,11 @@ export default function SectorRotation(): JSX.Element {
         <div style={{
           marginTop: '20px',
           padding: '12px 16px',
-          background: '#fef3c7',
-          border: '1px solid #fbbf24',
+          background: 'var(--accent-warm-soft)',
+          border: '1px solid var(--accent-warm)',
           borderRadius: '8px',
           fontSize: '0.85rem',
-          color: '#92400e',
+          color: 'var(--warm-ink)',
           textAlign: 'center'
         }}>
           {matchWarning}
@@ -2479,17 +2479,17 @@ export default function SectorRotation(): JSX.Element {
       <div style={{
         marginTop: '20px',
         padding: '16px',
-        background: '#f9fafb',
+        background: 'var(--bg-secondary)',
         borderRadius: '8px',
         fontSize: '0.85rem',
-        color: '#6b7280',
+        color: 'var(--text-secondary)',
         textAlign: 'center',
         lineHeight: '1.6'
       }}>
         <div style={{ marginBottom: '8px', fontWeight: '500' }}>
           数据来源：财联社
         </div>
-        <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
+        <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '4px' }}>
             <BarChart2 size={14} /> 板块数据（排名、涨跌幅、历史数据）：财联社
           </div>
@@ -2500,7 +2500,7 @@ export default function SectorRotation(): JSX.Element {
             <Flame size={14} /> 热门股票：财联社
           </div>
         </div>
-        <div style={{ marginTop: '8px', fontSize: '0.75rem', color: '#9ca3af' }}>
+        <div style={{ marginTop: '8px', fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
           数据更新时间：{updatedAt ? new Date(updatedAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }) : '—'}（北京时间）；当前页面每 30 秒更新最近有效交易日
         </div>
       </div>

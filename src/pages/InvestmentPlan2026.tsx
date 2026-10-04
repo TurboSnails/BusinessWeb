@@ -54,7 +54,7 @@ const dayDiff = (a: Date, b: Date) =>
 type Tone = 'green' | 'yellow' | 'red' | 'blue' | 'gray'
 const TONE: Record<Tone, { fg: string; bg: string }> = {
   green: { fg: 'var(--system-green)', bg: 'var(--system-green-light)' },
-  yellow: { fg: '#b26a00', bg: 'rgba(255, 149, 0, 0.12)' },
+  yellow: { fg: 'var(--warm-ink)', bg: 'color-mix(in srgb, var(--system-orange) 12%, transparent)' },
   red: { fg: 'var(--system-red)', bg: 'var(--system-red-light)' },
   blue: { fg: 'var(--system-blue)', bg: 'var(--system-blue-light)' },
   gray: { fg: 'var(--text-secondary)', bg: 'var(--system-gray6)' }
@@ -1123,24 +1123,24 @@ const InvestmentPlan2026 = () => {
           padding: '28px 24px',
           borderRadius: 'var(--radius-lg)',
           marginBottom: 20,
-          background: 'linear-gradient(135deg, #1d1d1f 0%, #3a3a5c 100%)',
-          color: 'white',
-          boxShadow: 'var(--shadow-lg)'
+          background: 'var(--accent-soft)',
+          color: 'var(--text-primary)',
+          border: '1px solid var(--border-subtle)'
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
           <div>
-            <h1 style={{ margin: '0 0 8px', fontSize: 'clamp(1.6rem, 4vw, 2.2rem)', fontWeight: 800, letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: 12 }}>
+            <h1 style={{ margin: '0 0 8px', fontSize: 'clamp(1.4rem, 4.5vw, 2.2rem)', fontWeight: 700, letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: 12 }}>
               <Target size={34} /> 2026 投资作战计划书
             </h1>
             <p style={{ margin: 0, opacity: 0.8, fontSize: '1rem' }}>不预测，先划线：用事前写好的规则代替年初的剧本</p>
           </div>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-            <div style={{ background: 'rgba(255,255,255,0.12)', borderRadius: 12, padding: '10px 14px', minWidth: 110 }}>
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 12, padding: '10px 14px', minWidth: 110 }}>
               <div style={{ fontSize: '0.72rem', opacity: 0.7 }}>风险阶段</div>
               <div style={{ fontSize: '1.15rem', fontWeight: 800 }}>{entered < 3 ? '待填写' : stage.name}</div>
             </div>
-            <div style={{ background: 'rgba(255,255,255,0.12)', borderRadius: 12, padding: '10px 14px', minWidth: 110 }}>
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 12, padding: '10px 14px', minWidth: 110 }}>
               <div style={{ fontSize: '0.72rem', opacity: 0.7 }}>修订日期</div>
               <div style={{ fontSize: '1.15rem', fontWeight: 800 }}>2026-10-04</div>
             </div>
@@ -1155,7 +1155,7 @@ const InvestmentPlan2026 = () => {
         role="tablist"
         style={{
           position: 'sticky',
-          top: 60,
+          top: 57,
           zIndex: 100,
           display: 'flex',
           gap: 4,
