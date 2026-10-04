@@ -14,7 +14,7 @@ const PARTS = [
   },
   {
     id: 'part1',
-    title: '第一部分 地图：投资流派与策略',
+    title: '第一部分 先看地图：赚钱的路有哪些',
     subtitle: '认识投资类型、代表人物、适合人群，以及不同市场环境下的策略取舍',
     chapters: [
       { no: '第1章', title: '全球投资地图：十二种赚钱逻辑', file: '第1章-全球投资地图.md', status: 'draft' },
@@ -27,7 +27,7 @@ const PARTS = [
   },
   {
     id: 'part2',
-    title: '第二部分 配置：动态平衡——普通人的省心选择',
+    title: '第二部分 先打底仓：省心的配置与平衡',
     subtitle: '配置为主，规则再平衡，网格作为可选卫星，小仓位学习中线',
     chapters: [
       { no: '第7章', title: '先分清钱的用途，再谈怎么投', file: '第7章-配置优先.md', status: 'draft' },
@@ -40,7 +40,7 @@ const PARTS = [
   },
   {
     id: 'part3',
-    title: '第三部分 取舍：中长线的适用条件与取舍',
+    title: '第三部分 想清节奏：短线、中线还是长线',
     subtitle: '短线：残酷的前线 · 中线：最肥美的曲线 · 长线：正念的淡然 · 放弃宏观',
     chapters: [
       { no: '第12章', title: '短线：残酷的前线', file: '第12章-短线.md', status: 'draft' },
@@ -54,7 +54,7 @@ const PARTS = [
   },
   {
     id: 'part4',
-    title: '第四部分 中线：彼得·林奇的方法',
+    title: '第四部分 中线选股：跟林奇学先分类',
     subtitle: '先分类，再按类型研究：价值回归 · 快速增长 · 困境反转',
     chapters: [
       { no: '第19章', title: '选股总纲：先分类，再下注', file: '第19章-总纲.md', status: 'draft' },
@@ -65,7 +65,7 @@ const PARTS = [
   },
   {
     id: 'part5',
-    title: '第五部分 长线：巴菲特的方法',
+    title: '第五部分 长线选股：跟巴菲特学买企业',
     subtitle: '能力圈 · 护城河 · 所有者收益 · 安全边际 · 长期持有',
     chapters: [
       { no: '第23章', title: '能力圈与护城河：先问“十年后它还在赚钱吗”', file: '第23章-能力圈与护城河.md', status: 'draft' },
@@ -74,7 +74,7 @@ const PARTS = [
   },
   {
     id: 'part6',
-    title: '第六部分 研究：看懂产业、公司与经营证据',
+    title: '第六部分 研究工具箱：看懂行业、公司和财报',
     subtitle: '中线与长线共同依赖的研究工具：产业、公司、财报、估值、周期、趋势、未来产业',
     chapters: [
       { no: '第25章', title: '产业：先看懂公司所在的世界', file: '第25章-产业.md', status: 'draft' },
@@ -89,8 +89,8 @@ const PARTS = [
   },
   {
     id: 'part7',
-    title: '第七部分 执行：组合、拿住、卖出、仓位与复盘',
-    subtitle: '纪律层',
+    title: '第七部分 落地执行：组合、拿住、卖出与复盘',
+    subtitle: '买对之后,靠规则拿住、卖出和复盘',
     chapters: [
       { no: '第33章', title: '组合搭配：先算亏得起，再算赚多少', file: '第33章-组合搭配.md', status: 'draft' },
       { no: '专题', title: '正念决策：把情绪、事实与行动分开', file: '专题-正念决策.md', status: 'draft' },
@@ -102,7 +102,7 @@ const PARTS = [
   },
   {
     id: 'part8',
-    title: '第八部分 修心：投资是为了更好的生活，而不是生活的全部',
+    title: '第八部分 修心：投资是为了更好的生活',
     subtitle: '忙碌的时候，多专注；\n迷茫的时候，多读书；\n独处的时候，多运动；\n空闲的时候，找兴趣。',
     chapters: [
       { no: '第38章', title: '投资为了什么：让钱服务生活', file: '第38章-投资为了什么.md', status: 'draft' },
