@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
-import Header from '../components/Header'
+import InvestHub from './InvestHub'
 import GridCalculator from './GridCalculator'
 
 const mocks = vi.hoisted(() => ({
@@ -24,10 +24,11 @@ vi.mock('../features/grid-trading/repository', () => ({
 }))
 
 describe('grid trading calculator entry', () => {
-  it('adds a grid trading link to the shared navigation', () => {
-    render(<MemoryRouter><Header /></MemoryRouter>)
+  it('keeps a grid trading entry reachable from the 正念投资 hub', () => {
+    render(<MemoryRouter><InvestHub /></MemoryRouter>)
 
-    expect(screen.getAllByRole('link', { name: '网格交易' }).length).toBeGreaterThan(0)
+    const link = screen.getAllByRole('link', { name: /网格交易/ })[0]
+    expect(link.getAttribute('href')).toBe('/grid-trading')
   })
 
   it('validates inputs before requesting market data', async () => {

@@ -22,13 +22,10 @@ interface Changelog {
 
 const cardStyle: React.CSSProperties = {
   background: 'var(--bg-card)',
-  backdropFilter: 'blur(30px)',
-  WebkitBackdropFilter: 'blur(30px)',
-  padding: '32px',
+  padding: '20px',
   borderRadius: 'var(--radius-lg)',
-  boxShadow: 'var(--shadow-md)',
   marginBottom: '24px',
-  border: '1px solid rgba(255, 255, 255, 0.7)',
+  border: '1px solid var(--border-subtle)',
 }
 
 export default function About(): JSX.Element {
@@ -77,7 +74,7 @@ export default function About(): JSX.Element {
         </ul>
         <h3 style={{ fontSize: '0.95rem', color: 'var(--text-primary)', margin: '0 0 8px' }}>方法论</h3>
         <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, margin: '0 0 20px' }}>
-          详见<Link to="/" style={{ color: 'var(--system-blue)', textDecoration: 'none', fontWeight: 500 }}> 首页段永平思想精髓</Link>，融合巴菲特、邓普顿、双阶段轮动逻辑。
+          详见<Link to="/first-book/slow-is-fast" style={{ color: 'var(--system-blue)', textDecoration: 'none', fontWeight: 500 }}>《正念投资》</Link>：守住资金边界，重视资产配置与价值研究，用规则代替盯盘，分清情绪与事实。
         </p>
         <div
           style={{
