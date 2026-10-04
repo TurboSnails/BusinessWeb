@@ -17,12 +17,12 @@ const PARTS = [
     title: '第一部分 地图：投资流派与策略',
     subtitle: '认识投资类型、代表人物、适合人群，以及不同市场环境下的策略取舍',
     chapters: [
-      { no: '第1章', title: '全球投资地图：十二大体系，十二种赚钱逻辑', file: '第1章-全球投资地图.md', status: 'draft' },
-      { no: '第2章', title: '企业派的三种主流策略：价值回归、优质复利、GARP', file: '第2章-企业派三种策略.md', status: 'draft' },
-      { no: '第3章', title: '普通人常见的三种策略：指数定投、红利配置、ETF网格', file: '第3章-普通人常见策略.md', status: 'draft' },
-      { no: '第4章', title: '变化派的三种策略：产业趋势、周期拐点、困境反转', file: '第4章-变化派三种策略.md', status: 'draft' },
-      { no: '第5章', title: '交易派的三种策略：趋势跟踪、龙头接力、题材轮动', file: '第5章-交易派三种策略.md', status: 'draft' },
-      { no: '第6章', title: '环境决定策略：不同市场环境下，哪类策略更占优', file: '第6章-环境决定策略.md', status: 'draft' },
+      { no: '第1章', title: '全球投资地图：十二种赚钱逻辑', file: '第1章-全球投资地图.md', status: 'draft' },
+      { no: '第2章', title: '企业派的三种买法：捡便宜、买好货、两头占', file: '第2章-企业派三种策略.md', status: 'draft' },
+      { no: '第3章', title: '普通人的三种打法：定投、收息、网格', file: '第3章-普通人常见策略.md', status: 'draft' },
+      { no: '第4章', title: '变化派的三种机会：风口、拐点、困境反转', file: '第4章-变化派三种策略.md', status: 'draft' },
+      { no: '第5章', title: '交易派的三种打法：跟趋势、追龙头、转题材', file: '第5章-交易派三种策略.md', status: 'draft' },
+      { no: '第6章', title: '什么行情，用什么打法', file: '第6章-环境决定策略.md', status: 'draft' },
     ],
   },
   {
@@ -30,12 +30,12 @@ const PARTS = [
     title: '第二部分 配置：动态平衡——普通人的省心选择',
     subtitle: '配置为主，规则再平衡，网格作为可选卫星，小仓位学习中线',
     chapters: [
-      { no: '第7章', title: '配置优先：先把生活资金和投资资金分清', file: '第7章-配置优先.md', status: 'draft' },
+      { no: '第7章', title: '先分清钱的用途，再谈怎么投', file: '第7章-配置优先.md', status: 'draft' },
       { no: '专题', title: '资产基础：每类资产赚什么，怕什么？', file: '专题-资产基础.md', status: 'draft' },
-      { no: '第8章', title: '动态平衡：用规则代替反复猜测', file: '第8章-动态平衡.md', status: 'draft' },
-      { no: '第9章', title: '参考方案：配置底仓与小仓位中线', file: '第9章-参考方案.md', status: 'draft' },
-      { no: '第10章', title: '从资产到基金：选产品、算成本、查交易条件', file: '第10章-标普500与纳指100落地.md', status: 'draft' },
-      { no: '第11章', title: '普通人的另类选择：网格，还是“半仓＋网格”', file: '第11章-网格与半仓网格.md', status: 'draft' },
+      { no: '第8章', title: '动态平衡：用规则代替猜测', file: '第8章-动态平衡.md', status: 'draft' },
+      { no: '第9章', title: '一套参考方案：大头求稳，小头练手', file: '第9章-参考方案.md', status: 'draft' },
+      { no: '第10章', title: '挑基金：选对产品，算清费用', file: '第10章-标普500与纳指100落地.md', status: 'draft' },
+      { no: '第11章', title: '网格与半仓网格：震荡市里的笨办法', file: '第11章-网格与半仓网格.md', status: 'draft' },
     ],
   },
   {
@@ -47,9 +47,9 @@ const PARTS = [
       { no: '第13章', title: '中线：最肥美的曲线', file: '第13章-中线.md', status: 'draft' },
       { no: '第14章', title: '长线：正念的淡然', file: '第14章-长线.md', status: 'draft' },
       { no: '第15章', title: '看长做中：长线眼光，中线节奏', file: '第15章-中长线结合.md', status: 'draft' },
-      { no: '第16章', title: '放弃宏观择时：把预测变成风险情景', file: '第16章-放弃宏观.md', status: 'draft' },
+      { no: '第16章', title: '放弃预测宏观：把猜测换成预案', file: '第16章-放弃宏观.md', status: 'draft' },
       { no: '第17章', title: '复利的数学：慢即是快', file: '第17章-复利的数学.md', status: 'draft' },
-      { no: '第18章', title: '我的投资选择：个人策略匹配表与中长线原则', file: '第18章-我的投资选择.md', status: 'draft' },
+      { no: '第18章', title: '我的投资选择：一张表找到你的打法', file: '第18章-我的投资选择.md', status: 'draft' },
     ],
   },
   {
@@ -57,10 +57,10 @@ const PARTS = [
     title: '第四部分 中线：彼得·林奇的方法',
     subtitle: '先分类，再按类型研究：价值回归 · 快速增长 · 困境反转',
     chapters: [
-      { no: '第19章', title: '总纲：先分类，再下注——“知不知，上”', file: '第19章-总纲.md', status: 'draft' },
-      { no: '第20章', title: '价值回归：低价格怎样成为机会？', file: '第20章-价值回归.md', status: 'draft' },
-      { no: '第21章', title: '快速增长型：增长怎样落到每股回报？', file: '第21章-快速增长型.md', status: 'draft' },
-      { no: '第22章', title: '困境反转型：先活下来，再谈股东回报', file: '第22章-困境反转型.md', status: 'draft' },
+      { no: '第19章', title: '选股总纲：先分类，再下注', file: '第19章-总纲.md', status: 'draft' },
+      { no: '第20章', title: '价值回归：便宜怎样变成机会', file: '第20章-价值回归.md', status: 'draft' },
+      { no: '第21章', title: '快速增长：增长怎样变成你的回报', file: '第21章-快速增长型.md', status: 'draft' },
+      { no: '第22章', title: '困境反转：先活下来，再谈回报', file: '第22章-困境反转型.md', status: 'draft' },
     ],
   },
   {
@@ -68,8 +68,8 @@ const PARTS = [
     title: '第五部分 长线：巴菲特的方法',
     subtitle: '能力圈 · 护城河 · 所有者收益 · 安全边际 · 长期持有',
     chapters: [
-      { no: '第23章', title: '能力圈与护城河：长线先问“十年后它还在赚钱吗”', file: '第23章-能力圈与护城河.md', status: 'draft' },
-      { no: '第24章', title: '安全边际、所有者收益与长期持有', file: '第24章-安全边际与长期持有.md', status: 'draft' },
+      { no: '第23章', title: '能力圈与护城河：先问“十年后它还在赚钱吗”', file: '第23章-能力圈与护城河.md', status: 'draft' },
+      { no: '第24章', title: '安全边际与长期持有：好公司也要买得值', file: '第24章-安全边际与长期持有.md', status: 'draft' },
     ],
   },
   {
@@ -81,10 +81,10 @@ const PARTS = [
       { no: '第26章', title: '公司：它到底是一门怎样的生意？', file: '第26章-公司.md', status: 'draft' },
       { no: '第27章', title: '财报：利润是真的吗，现金在哪里？', file: '第27章-财报.md', status: 'draft' },
       { no: '第28章', title: '估值：公司贵不贵，怎样才算买得值？', file: '第28章-估值.md', status: 'draft' },
-      { no: '第29章', title: '周期：把公司的表现放回时间里', file: '第29章-周期.md', status: 'draft' },
-      { no: '第30章', title: '趋势：分清产业趋势、经营趋势与价格趋势', file: '第30章-趋势.md', status: 'draft' },
-      { no: '第31章', title: '未来产业展望', file: '第31章-未来产业展望.md', status: 'draft' },
-      { no: '第32章', title: '看得多了，就认得好公司：建立自己的观察库', file: '第32章-公司观察库.md', status: 'draft' },
+      { no: '第29章', title: '周期：先问公司现在站在周期的哪个位置', file: '第29章-周期.md', status: 'draft' },
+      { no: '第30章', title: '趋势：三种趋势，别混在一起看', file: '第30章-趋势.md', status: 'draft' },
+      { no: '第31章', title: '未来产业：怎样研究“下一个十年”', file: '第31章-未来产业展望.md', status: 'draft' },
+      { no: '第32章', title: '建自己的观察库：看得多了，才认得好公司', file: '第32章-公司观察库.md', status: 'draft' },
     ],
   },
   {
@@ -92,12 +92,12 @@ const PARTS = [
     title: '第七部分 执行：组合、拿住、卖出、仓位与复盘',
     subtitle: '纪律层',
     chapters: [
-      { no: '第33章', title: '组合搭配：按损失预算与共同风险分配', file: '第33章-组合搭配.md', status: 'draft' },
+      { no: '第33章', title: '组合搭配：先算亏得起，再算赚多少', file: '第33章-组合搭配.md', status: 'draft' },
       { no: '专题', title: '正念决策：把情绪、事实与行动分开', file: '专题-正念决策.md', status: 'draft' },
       { no: '第34章', title: '怎么拿住：波动是你的朋友', file: '第34章-怎么拿住.md', status: 'draft' },
       { no: '第35章', title: '什么时候卖：比买入难十倍', file: '第35章-什么时候卖.md', status: 'draft' },
-      { no: '第36章', title: '仓位与纪律：持股数量、观察池与仓位上限', file: '第36章-仓位与纪律.md', status: 'draft' },
-      { no: '第37章', title: '犯错与复盘：把错误变成下一次的规则', file: '第37章-犯错与复盘.md', status: 'draft' },
+      { no: '第36章', title: '仓位与纪律：买几只、买多少、何时停', file: '第36章-仓位与纪律.md', status: 'draft' },
+      { no: '第37章', title: '犯错与复盘：把错误变成规则', file: '第37章-犯错与复盘.md', status: 'draft' },
     ],
   },
   {
@@ -117,7 +117,7 @@ const PARTS = [
     subtitle: '一页纸工具、选修与资料',
     chapters: [
       { no: '附录A', title: '十倍股检查清单', file: '附录A-十倍股检查清单.md', status: 'draft' },
-      { no: '附录B', title: '道德经投资心法卡（36张）', file: '附录B-道德经投资心法卡.md', status: 'draft' },
+      { no: '附录B', title: '道德经投资心法卡（15张补充卡）', file: '附录B-道德经投资心法卡.md', status: 'draft' },
       { no: '附录C', title: '中线投资者的年度操作日历', file: '附录C-年度操作日历.md', status: 'draft' },
       { no: '附录D', title: '周期股速查（选修）', file: '附录D-周期股速查.md', status: 'draft' },
       { no: '附录E', title: '凯利公式与半凯利推导（选读）', file: '附录E-凯利公式推导.md', status: 'draft' },
@@ -135,6 +135,7 @@ const EXTRA_FILES = [
 
 /** 写作与审校过程文档：不属于正文，放在书末单独区块 */
 const REVIEW_FILES = [
+  { no: '修订', title: '修订记录（第十三轮：章节标题整体优化——去术语、口语化，2026-10-04）', file: '修订记录-第十三轮-2026-10-04.md', status: 'note' },
   { no: '修订', title: '修订记录（第十二轮：第四至第八部分重排，新增长线两章，2026-10-04）', file: '修订记录-第十二轮-2026-10-04.md', status: 'note' },
   { no: '修订', title: '修订记录（第十一轮：收口轮——去重、销账与减负，2026-10-03）', file: '修订记录-第十一轮-2026-10-03.md', status: 'note' },
   { no: '修订', title: '修订记录（第十轮：三种战法正反对照案例，2026-10-03）', file: '修订记录-第十轮-2026-10-03.md', status: 'note' },
