@@ -14,7 +14,7 @@ async function localCatalog(){
  for(const line of source.split('\n')) {const parts=line.trim().split('|');if(parts.length<4)continue;const code=parts[0];try{if(/^\d{6}$/.test(code))items.push(validateSecurity({market:'cn',code,name:parts[1]}));else if(/^[A-Z][A-Z.-]{0,10}$/.test(code))items.push(validateSecurity({market:'us',code,name:parts[1]}))}catch{}}
  const hk=await readFile(fileURLToPath(new URL('../../../src/data/hsi.ts',import.meta.url)),'utf8')
  for(const m of hk.matchAll(/ticker: 'HKEX:(\d+)', name: '([^']+)'/g))items.push(validateSecurity({market:'hk',code:m[1].padStart(5,'0'),name:m[2]}))
- catalog=[...new Map(items.reverse().map(item=>[`${item.market}:${item.code}`,item])).values()];return catalog
+ const unique=new Map();for(const item of items){const key=`${item.market}:${item.code}`;if(!unique.has(key))unique.set(key,item)}catalog=[...unique.values()];return catalog
 }
 export async function searchCompanies(query,{remote=true,signal}={}){
  const q=String(query||'').trim();if(q.length<1||q.length>100)return []
