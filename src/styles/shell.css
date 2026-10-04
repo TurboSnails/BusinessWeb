@@ -1,1 +1,152 @@
 /* 外壳样式：Header / Footer / SectionChrome / 栏目页 / 首页 / 书稿阅读。后续任务追加。 */
+
+/* ---------- Header ---------- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-subtle);
+  padding-top: var(--safe-top);
+}
+
+.site-header__bar {
+  max-width: 1100px;
+  margin: 0 auto;
+  min-height: 56px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.site-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.site-brand__name {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.04em;
+}
+
+.site-nav {
+  display: none;
+}
+
+.site-nav__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 14px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.95rem;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.site-nav__link:hover {
+  color: var(--text-primary);
+}
+
+.site-nav__link.is-active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+
+.site-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+}
+
+.site-drawer {
+  position: fixed;
+  inset: 0;
+  top: calc(56px + var(--safe-top));
+  background: var(--bg-primary);
+  padding: 16px 16px calc(24px + var(--safe-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.site-drawer__link {
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+  padding: 0 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  text-decoration: none;
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+}
+
+.site-drawer__link.is-active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+@media (min-width: 768px) {
+  .site-header__bar {
+    padding: 0 24px;
+  }
+
+  .site-nav {
+    display: flex;
+    align-items: center;
+  }
+
+  .site-menu-btn,
+  .site-drawer {
+    display: none;
+  }
+}
+
+/* ---------- Footer ---------- */
+.site-footer {
+  margin-top: 40px;
+  padding: 32px 16px calc(32px + var(--safe-bottom));
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.site-footer__name {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.site-footer__note {
+  margin-top: 8px;
+}
+
+.site-footer__build {
+  margin-top: 8px;
+  font-size: 0.78rem;
+  opacity: 0.7;
+}

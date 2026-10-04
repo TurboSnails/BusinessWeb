@@ -3,22 +3,13 @@ import React from 'react'
 declare const __BUILD_TIME__: string
 
 export default function Footer(): JSX.Element {
+  const built = typeof __BUILD_TIME__ !== 'undefined' ? __BUILD_TIME__ : new Date().toLocaleDateString('zh-CN')
   return (
-    <footer style={{
-      padding: '32px 20px',
-      textAlign: 'center',
-      color: 'var(--text-secondary)',
-      fontSize: '0.85rem',
-      borderTop: '1px solid rgba(0,0,0,0.05)',
-      marginTop: '40px',
-      background: 'var(--bg-primary)'
-    }}>
-      <div style={{ marginBottom: '8px', fontWeight: 500, color: 'var(--text-primary)' }}>
-        © Hassan投资 v1.0.0
-      </div>
-      <div style={{ opacity: 0.7 }}>
-        Build Time: {typeof __BUILD_TIME__ !== 'undefined' ? __BUILD_TIME__ : new Date().toLocaleDateString()}
-      </div>
+    <footer className="site-footer">
+      <div className="site-footer__name">正念生活 · Mindful Life</div>
+      <div className="site-footer__line">投资 · AI · 独立开发 · 自由生活</div>
+      <div className="site-footer__note">本站内容仅为个人研究与方法讨论，不构成任何投资建议。</div>
+      <div className="site-footer__build">更新于 {built}</div>
     </footer>
   )
 }

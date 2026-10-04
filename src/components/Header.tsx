@@ -1,255 +1,102 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import {
-  Home,
-  TrendingUp,
-  Globe,
-  BarChart2,
-  Activity,
-  Rocket,
-  RefreshCw,
-  Shield,
-  Calendar,
-  Info,
-  Layers,
-  BookOpen,
-  BookMarked,
-  Menu,
-  X
-} from 'lucide-react'
+import { Menu, X } from 'lucide-react'
+import { NAV_ITEMS, isNavActive } from '../data/siteMap'
+
+function Leaf(): JSX.Element {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M5 19c0-8 5-13 14-14 0 9-5 14-13 14"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M5 19c3-4 6-7 10-9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  )
+}
 
 export default function Header(): JSX.Element {
-  const location = useLocation()
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
+  const { pathname } = useLocation()
+  const [open, setOpen] = useState(false)
 
-  // Handle scroll effect for glass header
+  // 路由变化时关闭抽屉
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 10)
+    setOpen(false)
+  }, [pathname])
+
+  // 抽屉打开时锁定背景滚动，Esc 关闭
+  useEffect(() => {
+    if (!open) {
+      document.body.style.overflow = ''
+      return
     }
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
-  const navItems = [
-    { path: '/', label: '首页', icon: Home },
-    { path: '/research-notes', label: '研究笔记', icon: BookOpen },
-    { path: '/valuation', label: '公司估值', icon: BarChart2 },
-    { path: '/grid-trading', label: '网格交易', icon: BarChart2 },
-    { path: '/investment-targets', label: '美股投资', icon: TrendingUp },
-    { path: '/mainland-investment-targets', label: '大陆投资', icon: Globe },
-    { path: '/pulse', label: '经济脉搏', icon: BarChart2 },
-    { path: '/monitor', label: '每日监控', icon: Activity },
-    { path: '/limit-up-analysis', label: '涨停分析', icon: Rocket },
-    { path: '/sector-rotation', label: '板块轮动', icon: RefreshCw },
-    { path: '/trading-philosophy', label: '道与术', icon: Shield },
-    { path: '/investment-plan-2026', label: '投资计划', icon: Calendar },
-    { path: '/investment-strategy', label: '策略框架', icon: Layers },
-    { path: '/first-book', label: '我的书', icon: BookMarked },
-    { path: '/about', label: '关于', icon: Info }
-  ]
-
-  // 获取当前页面标题
-  const getCurrentPageTitle = () => {
-    const currentItem = navItems.find(item => {
-      if (item.path === '/') {
-        return location.pathname === '/'
-      }
-      return location.pathname.startsWith(item.path)
-    })
-    return currentItem ? currentItem.label : 'Hassan投资'
-  }
-
-  const isActive = (path: string) => {
-    if (path === '/') {
-      return location.pathname === '/'
+    document.body.style.overflow = 'hidden'
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false)
     }
-    return location.pathname.startsWith(path)
-  }
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.body.style.overflow = ''
+    }
+  }, [open])
 
   return (
-    <>
-      <header
-        className={`glass-panel ${scrolled ? 'scrolled' : ''}`}
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 1000,
-          transition: 'all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1)',
-          padding: scrolled ? '8px 0' : '16px 0',
-          background: scrolled ? 'var(--glass-bg)' : 'transparent',
-          borderBottom: scrolled ? '0.5px solid rgba(0, 0, 0, 0.1)' : '0.5px solid transparent',
-        }}
-      >
-        <div style={{
-          maxWidth: '1600px',
-          margin: '0 auto',
-          padding: '0 24px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}>
-          {/* Logo / Home */}
-          <Link
-            to="/"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '40px',
-              flexShrink: 0,
-              height: '40px',
-              textDecoration: 'none',
-              color: scrolled ? 'var(--system-blue)' : 'var(--text-primary)',
-              background: scrolled ? 'rgba(0, 122, 255, 0.1)' : 'rgba(255, 255, 255, 0.2)',
-              borderRadius: '12px',
-              transition: 'all 0.3s ease',
-            }}
-          >
-            <Home size={20} />
-          </Link>
+    <header className="site-header">
+      <div className="site-header__bar">
+        <Link to="/" className="site-brand" onClick={() => setOpen(false)}>
+          <Leaf />
+          <span className="site-brand__name">正念生活</span>
+        </Link>
 
-          {/* Mobile Title */}
-          <div className="page-title-mobile" style={{
-            flex: 1,
-            textAlign: 'center',
-            fontWeight: 600,
-            fontSize: '1rem',
-            color: 'var(--text-primary)',
-            opacity: isMobileMenuOpen ? 0 : 1,
-            transition: 'opacity 0.2s'
-          }}>
-            {getCurrentPageTitle()}
-          </div>
+        <nav className="site-nav" aria-label="主导航">
+          {NAV_ITEMS.map(item => {
+            const active = isNavActive(item.path, pathname)
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={active ? 'site-nav__link is-active' : 'site-nav__link'}
+                aria-current={active ? 'page' : undefined}
+              >
+                {item.label}
+              </Link>
+            )
+          })}
+        </nav>
 
-          {/* Desktop Nav */}
-          <nav className="desktop-nav" style={{ gap: '2px' }}>
-            {navItems.map((item) => {
-              const active = isActive(item.path)
-              const Icon = item.icon
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  style={{
-                    color: active ? '#fff' : 'var(--text-secondary)',
-                    background: active ? 'var(--system-blue)' : 'transparent',
-                    textDecoration: 'none',
-                    padding: '8px 14px',
-                    borderRadius: 'var(--radius-full)',
-                    fontSize: '0.85rem',
-                    fontWeight: 500,
-                    transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!active) {
-                      e.currentTarget.style.background = 'rgba(0, 0, 0, 0.04)'
-                      e.currentTarget.style.color = 'var(--text-primary)'
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!active) {
-                      e.currentTarget.style.background = 'transparent'
-                      e.currentTarget.style.color = 'var(--text-secondary)'
-                    }
-                  }}
-                >
-                  <Icon size={16} strokeWidth={active ? 2.5 : 2} />
-                  <span>{item.label}</span>
-                </Link>
-              )
-            })}
-          </nav>
-
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="mobile-menu-btn"
-            style={{
-              background: 'transparent',
-              border: 'none',
-              padding: '8px',
-              cursor: 'pointer',
-              color: 'var(--text-primary)',
-              zIndex: 1100,
-            }}
-          >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
-
-        {/* Mobile Dropdown */}
-        <div
-          className="mobile-nav"
-          style={{
-            display: isMobileMenuOpen ? 'block' : 'none',
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(255, 255, 255, 0.8)',
-            backdropFilter: 'blur(30px)',
-            WebkitBackdropFilter: 'blur(30px)',
-            padding: '80px 24px 24px',
-            zIndex: 1050,
-            animation: 'fadeIn 0.3s ease-out'
-          }}
+        <button
+          type="button"
+          className="site-menu-btn"
+          aria-label={open ? '关闭菜单' : '打开菜单'}
+          aria-expanded={open}
+          onClick={() => setOpen(v => !v)}
         >
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
-            {navItems.map((item) => {
-              const active = isActive(item.path)
-              const Icon = item.icon
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    padding: '20px 12px',
-                    borderRadius: '20px',
-                    textDecoration: 'none',
-                    color: active ? '#fff' : 'var(--text-primary)',
-                    background: active ? 'var(--system-blue)' : 'rgba(255, 255, 255, 0.5)',
-                    border: '1px solid rgba(255, 255, 255, 0.3)',
-                    fontSize: '0.9rem',
-                    fontWeight: 600,
-                    boxShadow: active ? '0 8px 16px rgba(0, 122, 255, 0.3)' : 'var(--shadow-sm)',
-                  }}
-                >
-                  <Icon size={24} strokeWidth={2} />
-                  <span>{item.label}</span>
-                </Link>
-              )
-            })}
-          </div>
-        </div>
-      </header>
+          {open ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </div>
 
-      <style>{`
-        @media (min-width: 1024px) {
-          .desktop-nav { display: flex !important; flex: 1; min-width: 0; margin-left: 12px; flex-wrap: wrap; justify-content: flex-end; row-gap: 4px; }
-          .desktop-nav a { flex-shrink: 0; white-space: nowrap; }
-          .mobile-menu-btn, .mobile-nav, .page-title-mobile { display: none !important; }
-        }
-        @media (max-width: 1023px) {
-          .desktop-nav { display: none !important; }
-          .mobile-menu-btn, .page-title-mobile { display: flex !important; }
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: scale(1.05); }
-          to { opacity: 1; transform: scale(1); }
-        }
-      `}</style>
-    </>
+      {open && (
+        <nav className="site-drawer" aria-label="移动导航">
+          {NAV_ITEMS.map(item => {
+            const active = isNavActive(item.path, pathname)
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={active ? 'site-drawer__link is-active' : 'site-drawer__link'}
+                aria-current={active ? 'page' : undefined}
+                onClick={() => setOpen(false)}
+              >
+                {item.label}
+              </Link>
+            )
+          })}
+        </nav>
+      )}
+    </header>
   )
 }
