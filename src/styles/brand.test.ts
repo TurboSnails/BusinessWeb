@@ -27,4 +27,19 @@ describe('品牌文件', () => {
   it('index.css 里不再保留无人引用的 fadeInScale 别名', () => {
     expect(read('src/index.css')).not.toContain('fadeInScale')
   })
+
+  it('字体自托管：不再请求 Google Fonts，由本地 @fontsource 提供', () => {
+    const html = read('index.html')
+    expect(html).not.toContain('fonts.googleapis.com')
+    expect(html).not.toContain('fonts.gstatic.com')
+    const main = read('src/main.tsx')
+    // 600.css / 700.css 是按 unicode-range 切片的版本，浏览器只会下载页面用到的字形片
+    expect(main).toMatch(/@fontsource\/noto-serif-sc\/600\.css/)
+    expect(main).toMatch(/@fontsource\/noto-serif-sc\/700\.css/)
+    expect(main).not.toMatch(/chinese-simplified-\d+\.css/)
+  })
+
+  it('标题字体栈仍以 Noto Serif SC 开头，并带系统宋体回退', () => {
+    expect(read('src/index.css')).toMatch(/--font-serif:\s*"Noto Serif SC",\s*"Songti SC"/)
+  })
 })
