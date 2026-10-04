@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { executablePath, discoverBackends } from "./registry.mjs";
 import { runProcess } from "./process.mjs";
 import { markModel } from "../models/index.mjs";
+import { runPiAnalysis, piVersion } from "../pi/index.mjs";
 export function buildArgs(backend, modelId, schemaPath, schema = {}) {
   const model = modelId && modelId !== "default" ? ["--model", modelId] : [];
   if (backend === "codex")
@@ -105,7 +106,8 @@ export async function runAnalysis({
   signal,
   onEvent,
 }) {
-  const executable = await executablePath(backend);
+  const executable =
+    backend === "pi" ? "pi-sdk" : await executablePath(backend);
   if (!executable) throw new Error("CLI未安装");
   if (
     typeof modelId !== "string" ||
@@ -114,6 +116,20 @@ export async function runAnalysis({
     /[\x00-\x1f]/.test(modelId)
   )
     throw new Error("模型ID无效");
+  if (backend === "pi")
+    try {
+      const output = await runPiAnalysis({ modelId, prompt, signal, onEvent });
+      markModel(backend, modelId, "verified");
+      return {
+        output: output.text,
+        requestedModelId: modelId,
+        resolvedModelId: output.resolvedModelId,
+        cliVersion: await piVersion(),
+      };
+    } catch (error) {
+      markModel(backend, modelId, "unavailable");
+      throw error;
+    }
   const cwd = await mkdtemp(join(tmpdir(), "businessweb-valuation-")),
     schemaPath = join(cwd, "schema.json"),
     records = [];

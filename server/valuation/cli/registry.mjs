@@ -2,6 +2,7 @@ import { access } from "node:fs/promises";
 import { constants } from "node:fs";
 import { delimiter, join } from "node:path";
 import { runProcess } from "./process.mjs";
+import { piAvailable, piVersion } from "../pi/index.mjs";
 export const BACKENDS = ["pi", "codex", "claude", "opencode"];
 export async function executablePath(id) {
   if (!BACKENDS.includes(id)) throw new Error("不支持的CLI");
@@ -17,6 +18,15 @@ export async function executablePath(id) {
 export async function discoverBackends() {
   return Promise.all(
     BACKENDS.map(async (id) => {
+      if (id === "pi") {
+        const installed = await piAvailable();
+        return {
+          id,
+          installed,
+          cliVersion: installed ? await piVersion() : "",
+          canListModels: true,
+        };
+      }
       const executable = await executablePath(id);
       let cliVersion = "",
         error;

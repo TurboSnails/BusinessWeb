@@ -3,6 +3,7 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { executablePath } from "../cli/registry.mjs";
 import { runProcess } from "../cli/process.mjs";
+import { listPiModels } from "../pi/index.mjs";
 const cache = new Map();
 export function modelOption(
   backend,
@@ -77,7 +78,8 @@ export async function claudeLocalModels() {
   );
 }
 export async function listModels(backend, { refresh = false, signal } = {}) {
-  const executable = await executablePath(backend);
+  const executable =
+    backend === "pi" ? "pi-sdk" : await executablePath(backend);
   if (!executable) throw new Error("CLI未安装");
   const previous = cache.get(backend);
   if (!refresh && previous && Date.now() - previous.time < 60000)
@@ -98,11 +100,9 @@ export async function listModels(backend, { refresh = false, signal } = {}) {
       );
     } catch {}
   if (backend === "claude") models = await claudeLocalModels();
-  if (backend === "pi" || backend === "opencode") {
-    const args =
-      backend === "pi"
-        ? ["--offline", "--no-extensions", "--no-skills", "--list-models"]
-        : ["models"];
+  if (backend === "pi") models = await listPiModels();
+  if (backend === "opencode") {
+    const args = ["models"];
     const result = await runProcess(executable, args, {
       timeout: 30000,
       signal,

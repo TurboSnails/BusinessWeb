@@ -4,6 +4,20 @@ import { createJobStore } from "./jobs.mjs";
 import { discoverBackends, BACKENDS } from "./cli/registry.mjs";
 import { listModels } from "./models/index.mjs";
 import { searchCompanies, validateSecurity } from "./data/identity.mjs";
+// 本地开发页 + 线上站点（线上页面由用户浏览器直连其本机服务，密钥不经过任何服务器）
+const HOSTED_ORIGINS = [
+  "https://turbosnails.github.io",
+  "https://business-web-black.vercel.app",
+];
+function originAllowed(origin) {
+  if (/^http:\/\/(localhost|127\.0\.0\.1):(5173|5174|5175|8788)$/.test(origin))
+    return true;
+  const extra = (process.env.VALUATION_ALLOWED_ORIGINS || "")
+    .split(",")
+    .map((v) => v.trim())
+    .filter(Boolean);
+  return [...HOSTED_ORIGINS, ...extra].includes(origin);
+}
 export function createValuationServer({
   store = createJobStore(),
   token = randomBytes(24).toString("hex"),
@@ -17,11 +31,8 @@ export function createValuationServer({
       res.end(JSON.stringify(value));
     };
     const origin = req.headers.origin;
-    if (
-      origin &&
-      !/^http:\/\/(localhost|127\.0\.0\.1):(5173|5174|5175|8788)$/.test(origin)
-    )
-      return send(403, { error: "仅允许本地开发页面访问" });
+    if (origin && !originAllowed(origin))
+      return send(403, { error: "仅允许本地开发页面或已登记的站点访问" });
     if (!/^(localhost|127\.0\.0\.1)(:\d+)?$/.test(req.headers.host || ""))
       return send(403, { error: "本地Host无效" });
     if (origin) {
@@ -34,6 +45,7 @@ export function createValuationServer({
         "Content-Type,X-Valuation-Token",
       );
       res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+      res.setHeader("Access-Control-Allow-Private-Network", "true");
       return res.end();
     }
     const url = new URL(req.url, "http://127.0.0.1"),

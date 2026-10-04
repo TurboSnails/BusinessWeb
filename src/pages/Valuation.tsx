@@ -17,6 +17,7 @@ import {
   subscribeValuation,
   cancelValuation,
   getValuation,
+  hostedPage,
 } from "../services/valuationApi";
 import {
   loadReports,
@@ -255,11 +256,23 @@ export default function Valuation() {
           </div>
           {!connected && (
             <div className="valuation-warning">
-              <p>
-                在 BusinessWeb 目录启动 <code>npm run valuation:server</code>
-                ，同时运行 <code>npm run dev</code>。模型调用需要本机 CLI
-                已登录。
-              </p>
+              {hostedPage ? (
+                <p>
+                  线上页面会连接你本机的估值服务：在 BusinessWeb 目录运行{" "}
+                  <code>npm run valuation:server</code>
+                  （无需 <code>npm run dev</code>
+                  ），再点“重新连接”。模型调用使用你本机的凭证： 在终端运行{" "}
+                  <code>pi</code> 后输入 <code>/login</code>，或使用已登录的
+                  codex、claude、opencode。Safari 会拦截访问本机服务，请使用
+                  Chrome 或 Edge。
+                </p>
+              ) : (
+                <p>
+                  在 BusinessWeb 目录启动 <code>npm run valuation:server</code>
+                  ，同时运行 <code>npm run dev</code>。模型调用使用本机凭证：pi
+                  （<code>/login</code> 或 API key）或已登录的 CLI。
+                </p>
+              )}
               <button onClick={connect}>
                 <RefreshCw size={14} />
                 重新连接

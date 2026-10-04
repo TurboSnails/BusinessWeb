@@ -6,9 +6,20 @@ import type {
   FinancialSnapshot,
   ValuationReport,
 } from "../features/valuation";
-const base = "/api/valuation";
+const localPage =
+  typeof location === "undefined" ||
+  ["localhost", "127.0.0.1"].includes(location.hostname);
+// 线上页面由浏览器直连用户本机的估值服务；本地开发走 Vite 代理
+export const hostedPage = !localPage;
+const base = localPage
+  ? "/api/valuation"
+  : `${(import.meta as ImportMeta & { env?: Record<string, string> }).env?.VITE_VALUATION_URL || "http://127.0.0.1:8788"}/api/valuation`;
 let token = "";
-async function request<T>(path: string, body?: unknown, retry = true): Promise<T> {
+async function request<T>(
+  path: string,
+  body?: unknown,
+  retry = true,
+): Promise<T> {
   if (body !== undefined && !token) await connectValuation();
   const response = await fetch(base + path, {
     method: body === undefined ? "GET" : "POST",
