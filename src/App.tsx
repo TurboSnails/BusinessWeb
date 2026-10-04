@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Suspense, lazy } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Header from './components/Header'
 import Footer from './components/Footer'
@@ -8,25 +8,31 @@ import InvestHub from './pages/InvestHub'
 import AiStudio from './pages/AiStudio'
 import LifeLab from './pages/LifeLab'
 import Home from './pages/Home'
-import About from './pages/About'
-import Pulse from './pages/Pulse'
-import Monitor from './pages/Monitor'
-import InvestmentPlan2026 from './pages/InvestmentPlan2026'
-import InvestmentTargetsPage from './pages/InvestmentTargetsPage'
-import LimitUpAnalysis from './pages/LimitUpAnalysis'
-import TradingPhilosophy from './pages/TradingPhilosophy'
-import SectorRotation from './pages/SectorRotation'
-import MainlandInvestmentTargets from './pages/MainlandInvestmentTargets'
-import InvestmentStrategy from './pages/InvestmentStrategy'
-import FirstBook from './pages/FirstBook'
-import MyBooks from './pages/MyBooks'
-import ResearchNotes from './pages/ResearchNotes'
-import CompanyDetail from './pages/CompanyDetail'
-import GridCalculator from './pages/GridCalculator'
-import GridRecords from './pages/GridRecords'
-import GridRecordDetail from './pages/GridRecordDetail'
-import Valuation from './pages/Valuation'
-import IndustryLandscape from './pages/IndustryLandscape'
+
+// 重页面按路由拆包：首屏只下载首页和几个小页面，其余进入时再加载
+const About = lazy(() => import('./pages/About'))
+const Pulse = lazy(() => import('./pages/Pulse'))
+const Monitor = lazy(() => import('./pages/Monitor'))
+const InvestmentPlan2026 = lazy(() => import('./pages/InvestmentPlan2026'))
+const InvestmentTargetsPage = lazy(() => import('./pages/InvestmentTargetsPage'))
+const LimitUpAnalysis = lazy(() => import('./pages/LimitUpAnalysis'))
+const TradingPhilosophy = lazy(() => import('./pages/TradingPhilosophy'))
+const SectorRotation = lazy(() => import('./pages/SectorRotation'))
+const MainlandInvestmentTargets = lazy(() => import('./pages/MainlandInvestmentTargets'))
+const InvestmentStrategy = lazy(() => import('./pages/InvestmentStrategy'))
+const FirstBook = lazy(() => import('./pages/FirstBook'))
+const MyBooks = lazy(() => import('./pages/MyBooks'))
+const ResearchNotes = lazy(() => import('./pages/ResearchNotes'))
+const CompanyDetail = lazy(() => import('./pages/CompanyDetail'))
+const GridCalculator = lazy(() => import('./pages/GridCalculator'))
+const GridRecords = lazy(() => import('./pages/GridRecords'))
+const GridRecordDetail = lazy(() => import('./pages/GridRecordDetail'))
+const Valuation = lazy(() => import('./pages/Valuation'))
+const IndustryLandscape = lazy(() => import('./pages/IndustryLandscape'))
+
+function PageLoading(): JSX.Element {
+  return <div role="status" className="container page-loading">加载中…</div>
+}
 
 export default function App(): JSX.Element {
   return (
@@ -34,6 +40,7 @@ export default function App(): JSX.Element {
       <BrowserRouter basename={import.meta.env.BASE_URL}>
         <Header />
         <SectionChrome />
+        <Suspense fallback={<PageLoading />}>
         <Routes>
           <Route path="/valuation" element={<Valuation />} />
           <Route path="/" element={<Home />} />
@@ -61,6 +68,7 @@ export default function App(): JSX.Element {
           <Route path="/grid-trading/records/:recordId" element={<GridRecordDetail />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </Suspense>
         <Footer />
       </BrowserRouter>
     </div>
