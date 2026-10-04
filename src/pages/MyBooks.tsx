@@ -5,7 +5,7 @@ import { ArrowRight, BookOpen } from 'lucide-react'
 const BOOKS = [
   {
     id: 'slow-is-fast',
-    title: '正念投资：不盯盘、不预测的普通人投资方法',
+    title: '正念投资：普通人用规则代替盯盘的投资方法',
     description: '不盯盘、不预测：从资产配置到公司研究，找到适合自己的投资方法，让投资服务生活。',
     path: '/first-book/slow-is-fast',
   },

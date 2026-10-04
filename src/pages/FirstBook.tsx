@@ -585,7 +585,7 @@ function ChapterReader({ file }: { file: string }): JSX.Element {
     <main className="container" style={{ maxWidth: '860px', margin: '0 auto', padding: '20px 16px' }}>
       <div style={{ marginBottom: '16px' }}>
         <Link to="/first-book/slow-is-fast" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'var(--system-blue, #007aff)', textDecoration: 'none', fontSize: '0.92rem' }}>
-          <ArrowLeft size={15} /> 返回《正念投资：不盯盘、不预测的普通人投资方法》
+          <ArrowLeft size={15} /> 返回《正念投资：普通人用规则代替盯盘的投资方法》
         </Link>
       </div>
 

@@ -143,7 +143,7 @@ export default function Home(): JSX.Element {
       to: '/first-book',
       icon: BookMarked,
       title: '我的书',
-      description: '《正念投资：不盯盘、不预测的普通人投资方法》',
+      description: '《正念投资：普通人用规则代替盯盘的投资方法》',
       gradient: 'linear-gradient(135deg, #FF9500 0%, #FF3B30 100%)',
       color: 'var(--system-orange)'
     }
