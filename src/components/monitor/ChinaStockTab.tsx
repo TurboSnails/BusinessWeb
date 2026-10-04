@@ -69,8 +69,8 @@ export const ChinaStockTab: React.FC = () => {
       </div>
 
       {/* 稳健股票筛选 */}
-      <div style={{ background: 'white', border: '2px solid var(--down)', borderRadius: '12px', padding: '24px' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: 'var(--down)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div style={{ background: 'white', border: '2px solid var(--system-green)', borderRadius: '12px', padding: '24px' }}>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: 'var(--system-green)', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '2rem' }}>📊</span>
           二、核心操作规则 - 稳健股票筛选（30%核心仓）
         </h2>
@@ -178,8 +178,8 @@ export const ChinaStockTab: React.FC = () => {
       </div>
 
       {/* 板块轮动策略 */}
-      <div style={{ background: 'white', border: '2px solid var(--up)', borderRadius: '12px', padding: '24px' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: 'var(--up)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div style={{ background: 'white', border: '2px solid var(--system-red)', borderRadius: '12px', padding: '24px' }}>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: 'var(--system-red)', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '2rem' }}>🚀</span>
           板块轮动策略（5%卫星仓）
         </h2>
@@ -279,8 +279,8 @@ export const ChinaStockTab: React.FC = () => {
       </div>
 
       {/* 现金管理 */}
-      <div style={{ background: 'white', border: '2px solid var(--down)', borderRadius: '12px', padding: '24px' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: 'var(--down)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div style={{ background: 'white', border: '2px solid var(--system-green)', borderRadius: '12px', padding: '24px' }}>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: 'var(--system-green)', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '2rem' }}>💰</span>
           现金管理（10%机动资金）
         </h2>
@@ -312,8 +312,8 @@ export const ChinaStockTab: React.FC = () => {
       </div>
 
       {/* 风控体系 */}
-      <div style={{ background: 'white', border: '2px solid var(--up)', borderRadius: '12px', padding: '24px' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: 'var(--up)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div style={{ background: 'white', border: '2px solid var(--system-red)', borderRadius: '12px', padding: '24px' }}>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: 'var(--system-red)', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '2rem' }}>⚠️</span>
           三、风控体系
         </h2>
@@ -418,8 +418,8 @@ export const ChinaStockTab: React.FC = () => {
       </div>
 
       {/* 新手简化方案 */}
-      <div style={{ background: 'white', border: '2px solid var(--down)', borderRadius: '12px', padding: '24px' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: 'var(--down)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div style={{ background: 'white', border: '2px solid var(--system-green)', borderRadius: '12px', padding: '24px' }}>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: 'var(--system-green)', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '2rem' }}>📚</span>
           五、新手简化方案
         </h2>
@@ -476,8 +476,8 @@ export const ChinaStockTab: React.FC = () => {
       </div>
 
       {/* 核心原则 */}
-      <div style={{ background: 'white', border: '2px solid var(--up)', borderRadius: '12px', padding: '24px' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: 'var(--up)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div style={{ background: 'white', border: '2px solid var(--system-red)', borderRadius: '12px', padding: '24px' }}>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: 'var(--system-red)', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '2rem' }}>🔥</span>
           七、核心原则（必须遵守）
         </h2>
@@ -540,8 +540,8 @@ export const ChinaStockTab: React.FC = () => {
       </div>
 
       {/* 终极提醒 */}
-      <div style={{ background: 'white', border: '2px solid var(--down)', borderRadius: '12px', padding: '24px' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: 'var(--down)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div style={{ background: 'white', border: '2px solid var(--system-green)', borderRadius: '12px', padding: '24px' }}>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: 'var(--system-green)', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '2rem' }}>🎯</span>
           终极提醒
         </h2>
@@ -587,7 +587,7 @@ export const ChinaStockTab: React.FC = () => {
           <div style={{ fontSize: '0.9rem', color: 'var(--text-primary)', lineHeight: '1.8', marginTop: '8px' }}>
             市场永远充满不确定性，但有纪律的投资者能在波动中获得长期收益。
           </div>
-          <div style={{ fontSize: '0.9rem', color: 'var(--up)', lineHeight: '1.8', marginTop: '12px', fontWeight: '600' }}>
+          <div style={{ fontSize: '0.9rem', color: 'var(--system-red)', lineHeight: '1.8', marginTop: '12px', fontWeight: '600' }}>
             <strong>记住：战胜80%散户的秘诀不是聪明，而是耐心和执行力。</strong>
           </div>
         </div>

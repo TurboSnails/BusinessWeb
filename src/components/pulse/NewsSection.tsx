@@ -36,7 +36,7 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ newsList, onAdd, onDel
                 <span style={{ 
                   fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', fontWeight: '500',
                   background: news.impact === 'high' ? 'var(--system-red-light)' : news.impact === 'medium' ? 'var(--bg-secondary)' : 'var(--accent-soft)',
-                  color: news.impact === 'high' ? 'var(--up)' : news.impact === 'medium' ? 'var(--text-secondary)' : 'var(--accent-ink)',
+                  color: news.impact === 'high' ? 'var(--system-red)' : news.impact === 'medium' ? 'var(--text-secondary)' : 'var(--accent-ink)',
                   whiteSpace: 'nowrap'
                 }}>
                   {news.impact === 'high' ? '🔥高' : news.impact === 'medium' ? '⚡中' : '📌低'}
@@ -48,7 +48,7 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ newsList, onAdd, onDel
                 {news.link && (
                   <a href={news.link} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.7rem', color: 'var(--accent)' }}>🔗</a>
                 )}
-                <button onClick={() => onDelete(news.id)} style={{ fontSize: '0.7rem', padding: '2px 6px', background: 'var(--system-red-light)', color: 'var(--up)', border: 'none', borderRadius: '3px', cursor: 'pointer' }}>
+                <button onClick={() => onDelete(news.id)} style={{ fontSize: '0.7rem', padding: '2px 6px', background: 'var(--system-red-light)', color: 'var(--system-red)', border: 'none', borderRadius: '3px', cursor: 'pointer' }}>
                   删除
                 </button>
               </div>
@@ -67,7 +67,7 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ newsList, onAdd, onDel
                 <span style={{ 
                   fontSize: '0.7rem', padding: '2px 5px', borderRadius: '3px',
                   background: news.impact === 'high' ? 'var(--system-red-light)' : news.impact === 'medium' ? 'var(--bg-secondary)' : 'var(--accent-soft)',
-                  color: news.impact === 'high' ? 'var(--up)' : news.impact === 'medium' ? 'var(--text-secondary)' : 'var(--accent-ink)'
+                  color: news.impact === 'high' ? 'var(--system-red)' : news.impact === 'medium' ? 'var(--text-secondary)' : 'var(--accent-ink)'
                 }}>
                   {news.impact === 'high' ? '高' : news.impact === 'medium' ? '中' : '低'}
                 </span>

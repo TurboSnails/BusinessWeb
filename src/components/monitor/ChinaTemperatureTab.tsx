@@ -4,8 +4,8 @@ export const ChinaTemperatureTab: React.FC = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* 中国周期温度总表 */}
-      <div style={{ background: 'white', border: '2px solid var(--up)', borderRadius: '12px', padding: '24px' }}>
-      <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: 'var(--up)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div style={{ background: 'white', border: '2px solid var(--system-red)', borderRadius: '12px', padding: '24px' }}>
+      <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: 'var(--system-red)', display: 'flex', alignItems: 'center', gap: '8px' }}>
       <span style={{ fontSize: '2rem' }}>🌡️</span>
       中国周期温度总表（升级版，含新增杠杆/地产/两融）
       </h2>
@@ -32,12 +32,12 @@ export const ChinaTemperatureTab: React.FC = () => {
       <div style={{ overflowX: 'auto' }}>
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
       <thead>
-      <tr style={{ background: 'var(--system-red-light)', borderBottom: '2px solid var(--up)' }}>
-      <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: 'var(--up)', border: '1px solid var(--system-red-light)' }}>模块</th>
-      <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: 'var(--up)', border: '1px solid var(--system-red-light)' }}>指标</th>
-      <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: 'var(--up)', border: '1px solid var(--system-red-light)' }}>时间点</th>
-      <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: 'var(--up)', border: '1px solid var(--system-red-light)' }}>当前大致数据/状态</th>
-      <th style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--up)', border: '1px solid var(--system-red-light)' }}>单项分数</th>
+      <tr style={{ background: 'var(--system-red-light)', borderBottom: '2px solid var(--system-red)' }}>
+      <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: 'var(--system-red)', border: '1px solid var(--system-red-light)' }}>模块</th>
+      <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: 'var(--system-red)', border: '1px solid var(--system-red-light)' }}>指标</th>
+      <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: 'var(--system-red)', border: '1px solid var(--system-red-light)' }}>时间点</th>
+      <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: 'var(--system-red)', border: '1px solid var(--system-red-light)' }}>当前大致数据/状态</th>
+      <th style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--system-red)', border: '1px solid var(--system-red-light)' }}>单项分数</th>
       </tr>
       </thead>
       <tbody>
@@ -47,7 +47,7 @@ export const ChinaTemperatureTab: React.FC = () => {
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>实质 GDP 增速（同比）</td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>2025 Q3</td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>同比约 4.8%，全年接近官方"5% 左右"目标，靠政策托底维持中高速。</td>
-      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--down)', border: '1px solid var(--border-subtle)' }}>+1</td>
+      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--system-green)', border: '1px solid var(--border-subtle)' }}>+1</td>
       </tr>
       <tr style={{ background: 'var(--bg-secondary)' }}>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>失业率（城镇调查）</td>
@@ -59,7 +59,7 @@ export const ChinaTemperatureTab: React.FC = () => {
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>制造业 PMI</td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>2025-11</td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>49.2，连续在 50 下方，略有改善但仍为收缩，高技术制造 PMI 在 50 上方。</td>
-      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--up)', border: '1px solid var(--border-subtle)' }}>-1</td>
+      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--system-red)', border: '1px solid var(--border-subtle)' }}>-1</td>
       </tr>
       <tr style={{ background: 'var(--bg-secondary)', borderTop: '2px solid var(--text-secondary)' }}>
       <td style={{ padding: '12px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>宏观小计</td>
@@ -74,19 +74,19 @@ export const ChinaTemperatureTab: React.FC = () => {
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>核心 CPI（同比）</td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>2025-11</td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>核心 CPI 同比约 1.2%，通胀压力极低，略有通缩风险，但为宽松货币与财政政策提供空间。</td>
-      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--down)', border: '1px solid var(--border-subtle)' }}>+1</td>
+      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--system-green)', border: '1px solid var(--border-subtle)' }}>+1</td>
       </tr>
       <tr>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>利率 & 实际利率（LPR vs 通胀）</td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>2025-11</td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>1 年期 LPR 约 3.0%，通胀约 0.7–1.2%，实际利率为正但不高，整体偏宽松。</td>
-      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--down)', border: '1px solid var(--border-subtle)' }}>+1</td>
+      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--system-green)', border: '1px solid var(--border-subtle)' }}>+1</td>
       </tr>
-      <tr style={{ background: 'var(--system-green-light)', borderTop: '2px solid var(--down)' }}>
+      <tr style={{ background: 'var(--system-green-light)', borderTop: '2px solid var(--system-green)' }}>
       <td style={{ padding: '12px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>通胀小计</td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}></td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>通胀温和 + 利率不高，政策宽松空间充足，相比美国环境友好。</td>
-      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--down)', border: '1px solid var(--border-subtle)' }}>+2</td>
+      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--system-green)', border: '1px solid var(--border-subtle)' }}>+2</td>
       </tr>
 
       {/* 制造业&利润 */}
@@ -95,7 +95,7 @@ export const ChinaTemperatureTab: React.FC = () => {
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>规上工业营业收入利润率</td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>2025 H1</td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>利润率约 5.15%，较 2021 高位持续下滑，说明制造业盈利能力在低位徘徊。</td>
-      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--up)', border: '1px solid var(--border-subtle)' }}>-1</td>
+      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--system-red)', border: '1px solid var(--border-subtle)' }}>-1</td>
       </tr>
       <tr style={{ background: 'var(--bg-secondary)' }}>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>工业利润增速</td>
@@ -103,11 +103,11 @@ export const ChinaTemperatureTab: React.FC = () => {
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>2024 年下滑后，2025 年恢复小幅正增长，属于"低位修复"，远未回归高景气。</td>
       <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)' }}>0</td>
       </tr>
-      <tr style={{ background: 'var(--system-red-light)', borderTop: '2px solid var(--up)' }}>
+      <tr style={{ background: 'var(--system-red-light)', borderTop: '2px solid var(--system-red)' }}>
       <td style={{ padding: '12px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>制造业小计</td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}></td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>利润率连续几年走弱，目前是"低位企稳"，对整体经济是拖累而不是引擎。</td>
-      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--up)', border: '1px solid var(--border-subtle)' }}>-1</td>
+      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--system-red)', border: '1px solid var(--border-subtle)' }}>-1</td>
       </tr>
 
       {/* 金融&信用 */}
@@ -116,19 +116,19 @@ export const ChinaTemperatureTab: React.FC = () => {
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>房地产投资/销售 & 库存（新增维度）</td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>2025 Q1–Q3</td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>房地产投资占 GDP 比例自 2014 年近 15% 降至 2024 年约 7.4%；新开工、销售面积持续同比负增长，库存创 2018 来新高。</td>
-      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--up)', border: '1px solid var(--border-subtle)' }}>-1</td>
+      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--system-red)', border: '1px solid var(--border-subtle)' }}>-1</td>
       </tr>
       <tr>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>居民部门杠杆率（新增）</td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>2025 Q3</td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>居民债务/GDP 约 60.4%，接近 2024 年 62% 的历史高位，近一年略有回落但处高杠杆平台。</td>
-      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--up)', border: '1px solid var(--border-subtle)' }}>-1</td>
+      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--system-red)', border: '1px solid var(--border-subtle)' }}>-1</td>
       </tr>
       <tr>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>整体非金融部门债务（新增）</td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>2024 末</td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>非金融部门债务约 312% GDP，高于多数新兴经济体，去杠杆与增长之间存在长期拉扯。</td>
-      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--up)', border: '1px solid var(--border-subtle)' }}>-1</td>
+      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--system-red)', border: '1px solid var(--border-subtle)' }}>-1</td>
       </tr>
       <tr>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>银行体系稳定性（含地产风险）</td>
@@ -136,7 +136,7 @@ export const ChinaTemperatureTab: React.FC = () => {
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>银行资本充足率尚可，通过展期、再融资等方式部分"软着陆"地产风险，未出现系统性挤兑/银行危机。</td>
       <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)' }}>0</td>
       </tr>
-      <tr style={{ background: 'var(--system-red-light)', borderTop: '2px solid var(--up)' }}>
+      <tr style={{ background: 'var(--system-red-light)', borderTop: '2px solid var(--system-red)' }}>
       <td style={{ padding: '12px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>金融小计</td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}></td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>高杠杆+地产深度调整，但通过行政和金融工具缓冲，系统性风险暂可控，属于"慢修复 + 高杠杆"。</td>
@@ -149,13 +149,13 @@ export const ChinaTemperatureTab: React.FC = () => {
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>A 股估值：CSI 300 TTM P/E</td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>2025-12</td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>约 15.2 倍，接近或略低于近 10 年中值，远低于美股，属于"估值便宜至中性"。</td>
-      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--down)', border: '1px solid var(--border-subtle)' }}>+1</td>
+      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--system-green)', border: '1px solid var(--border-subtle)' }}>+1</td>
       </tr>
       <tr style={{ background: 'var(--bg-secondary)' }}>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>中小盘估值（中证 500/1000）（新增）</td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>2025-12</td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>中证 500/1000 P/E 普遍低于自身历史中枢，PB 多在 1 倍附近，体现出"深折价+情绪冷"。</td>
-      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--down)', border: '1px solid var(--border-subtle)' }}>+1</td>
+      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--system-green)', border: '1px solid var(--border-subtle)' }}>+1</td>
       </tr>
       <tr style={{ background: 'var(--bg-secondary)' }}>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>A 股盈利与 ROE</td>
@@ -163,11 +163,11 @@ export const ChinaTemperatureTab: React.FC = () => {
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>指数层面盈利增速中低个位数，ROE 中枢不高，更多是"低估值补偿"而非高质量成长溢价。</td>
       <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)' }}>0</td>
       </tr>
-      <tr style={{ background: 'var(--system-green-light)', borderTop: '2px solid var(--down)' }}>
+      <tr style={{ background: 'var(--system-green-light)', borderTop: '2px solid var(--system-green)' }}>
       <td style={{ padding: '12px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>估值小计</td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}></td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>整体估值不贵甚至偏便宜，尤其是中小盘与部分价值板块；盈利和 ROE 中枢一般。</td>
-      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--down)', border: '1px solid var(--border-subtle)' }}>+2</td>
+      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--system-green)', border: '1px solid var(--border-subtle)' }}>+2</td>
       </tr>
 
       {/* 情绪&资金结构 */}
@@ -176,7 +176,7 @@ export const ChinaTemperatureTab: React.FC = () => {
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>市场情绪（波动、成交）（定性）</td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>2025</td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>大部分时间波动率不高，成交偏低迷，居民入市热情不高，缺乏"全民炒股"特征。</td>
-      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--down)', border: '1px solid var(--border-subtle)' }}>+1</td>
+      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--system-green)', border: '1px solid var(--border-subtle)' }}>+1</td>
       </tr>
       <tr>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>两融余额 / 杠杆水平（新增）</td>
@@ -188,13 +188,13 @@ export const ChinaTemperatureTab: React.FC = () => {
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>居民直接持股/基金参与（新增，定性）</td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>2025</td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>居民财富主要仍集中在地产和理财，股权配置占比低于美国家庭资产结构，A 股并未高配到极端。</td>
-      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--down)', border: '1px solid var(--border-subtle)' }}>+1</td>
+      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--system-green)', border: '1px solid var(--border-subtle)' }}>+1</td>
       </tr>
-      <tr style={{ background: 'var(--system-green-light)', borderTop: '2px solid var(--down)' }}>
+      <tr style={{ background: 'var(--system-green-light)', borderTop: '2px solid var(--system-green)' }}>
       <td style={{ padding: '12px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>情绪小计</td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}></td>
       <td style={{ padding: '12px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>相对美股：情绪偏冷、杠杆适中、居民股权暴露不高，更像"低位磨底中的市场"。</td>
-      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--down)', border: '1px solid var(--border-subtle)' }}>+2</td>
+      <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', color: 'var(--system-green)', border: '1px solid var(--border-subtle)' }}>+2</td>
       </tr>
       </tbody>
       </table>
@@ -217,11 +217,11 @@ export const ChinaTemperatureTab: React.FC = () => {
       </div>
       <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid var(--system-green-light)' }}>
       <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>通胀&政策</div>
-      <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--down)' }}>+2</div>
+      <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--system-green)' }}>+2</div>
       </div>
       <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid var(--system-red-light)' }}>
       <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>制造业&利润</div>
-      <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--up)' }}>-1</div>
+      <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--system-red)' }}>-1</div>
       </div>
       <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid var(--system-red-light)' }}>
       <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>金融&信用</div>
@@ -229,18 +229,18 @@ export const ChinaTemperatureTab: React.FC = () => {
       </div>
       <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid var(--system-green-light)' }}>
       <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>估值&股市</div>
-      <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--down)' }}>+2</div>
+      <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--system-green)' }}>+2</div>
       </div>
       <div style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid var(--system-green-light)' }}>
       <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>情绪&资金结构</div>
-      <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--down)' }}>+2</div>
+      <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--system-green)' }}>+2</div>
       </div>
       </div>
       </div>
 
       <div style={{ background: 'white', padding: '20px', borderRadius: '8px', border: '2px solid var(--accent-warm)', marginBottom: '20px' }}>
       <div style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: 'var(--text-primary)' }}>
-      总分 = 0 + 2 - 1 - 2 + 2 + 2 = <strong style={{ fontSize: '1.5rem', color: 'var(--down)' }}>+3</strong>
+      总分 = 0 + 2 - 1 - 2 + 2 + 2 = <strong style={{ fontSize: '1.5rem', color: 'var(--system-green)' }}>+3</strong>
       </div>
       <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>
       （理论总区间为 -10 ～ +10）

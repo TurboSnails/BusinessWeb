@@ -388,7 +388,7 @@ const cardStyle: React.CSSProperties = {
 }
 
 const STATUS_COLOR: Record<string, string> = {
-  done: 'var(--down)',
+  done: 'var(--system-green)',
   draft: 'var(--accent-warm)',
   pending: 'var(--system-gray)',
   note: 'var(--system-gray)',

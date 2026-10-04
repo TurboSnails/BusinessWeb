@@ -28,7 +28,7 @@ export const ReviewTable: React.FC<ReviewTableProps> = ({
         </h3>
         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
           <button onClick={onExport} style={{
-            padding: '6px 12px', background: 'var(--down)', color: 'white', border: 'none',
+            padding: '6px 12px', background: 'var(--system-green)', color: 'white', border: 'none',
             borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
           }}>📥 导出</button>
           <button onClick={onImport} style={{
@@ -62,10 +62,10 @@ export const ReviewTable: React.FC<ReviewTableProps> = ({
                 <tr key={r.date} style={{ background: i % 2 === 0 ? 'white' : 'var(--bg-secondary)' }}>
                   <td style={{ padding: '8px 6px', textAlign: 'center', fontWeight: '500' }}>{r.date.slice(5)}</td>
                   <td style={{ padding: '8px 6px', textAlign: 'center' }}>{r.weekday}</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'center', color: 'var(--up)', fontWeight: '600' }}>{r.ztCount}</td>
+                  <td style={{ padding: '8px 6px', textAlign: 'center', color: 'var(--system-red)', fontWeight: '600' }}>{r.ztCount}</td>
                   <td style={{ padding: '8px 6px', textAlign: 'center' }}>{r.ztSealRate}</td>
                   <td style={{ padding: '8px 6px', textAlign: 'center' }}>{r.ztOpen}</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'center', color: 'var(--down)', fontWeight: '600' }}>{r.dtCount}</td>
+                  <td style={{ padding: '8px 6px', textAlign: 'center', color: 'var(--system-green)', fontWeight: '600' }}>{r.dtCount}</td>
                   <td style={{ padding: '8px 6px', textAlign: 'center' }}>{r.dtSealRate}</td>
                   <td style={{ padding: '8px 6px', textAlign: 'center' }}>{r.dtOpen}</td>
                   <td style={{ padding: '8px 6px', textAlign: 'center', color: 'var(--accent-warm)', fontWeight: '600' }}>{r.volume}</td>
@@ -73,20 +73,20 @@ export const ReviewTable: React.FC<ReviewTableProps> = ({
                   <td style={{ padding: '8px 6px', textAlign: 'center' }}>{r.shszcy}</td>
                   <td style={{ padding: '8px 6px', textAlign: 'center' }}>{r.lbRate}</td>
                   <td style={{ padding: '8px 6px', textAlign: 'center', color: 'var(--system-purple)', fontWeight: '600' }}>{r.lbCount}</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'center', color: 'var(--up)', fontWeight: '700' }}>{r.maxBoard}</td>
+                  <td style={{ padding: '8px 6px', textAlign: 'center', color: 'var(--system-red)', fontWeight: '700' }}>{r.maxBoard}</td>
                   <td style={{ padding: '8px 6px', textAlign: 'center', color: 'var(--accent)', fontWeight: '600' }}>{r.top5Amount || '--'}</td>
                   <td style={{ padding: '8px 6px', textAlign: 'center', color: 'var(--accent)', fontWeight: '600' }}>{r.top5Turnover || '--'}</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'left', maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--up)' }} title={r.inflow}>
+                  <td style={{ padding: '8px 6px', textAlign: 'left', maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--system-red)' }} title={r.inflow}>
                     {r.inflow}
                   </td>
-                  <td style={{ padding: '8px 6px', textAlign: 'left', maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--down)' }} title={r.outflow}>
+                  <td style={{ padding: '8px 6px', textAlign: 'left', maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--system-green)' }} title={r.outflow}>
                     {r.outflow}
                   </td>
                   <td style={{ padding: '8px 6px', textAlign: 'center' }}>
                     <button onClick={() => onEdit(r)} style={{ padding: '2px 6px', marginRight: '4px', background: 'var(--accent-soft)', color: 'var(--accent-ink)', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '0.7rem' }}>
                       编辑
                     </button>
-                    <button onClick={() => onDelete(r.date)} style={{ padding: '2px 6px', background: 'var(--system-red-light)', color: 'var(--up)', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '0.7rem' }}>
+                    <button onClick={() => onDelete(r.date)} style={{ padding: '2px 6px', background: 'var(--system-red-light)', color: 'var(--system-red)', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '0.7rem' }}>
                       删除
                     </button>
                   </td>

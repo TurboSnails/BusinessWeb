@@ -266,7 +266,7 @@ export const ExecutionTab: React.FC = () => {
                         onClick={() => window.open('https://www.cboe.com/us/options/market_statistics/daily/', '_blank')}
                         style={{
                           padding: '8px 16px',
-                          background: 'var(--down)',
+                          background: 'var(--system-green)',
                           color: 'white',
                           border: 'none',
                           borderRadius: '6px',
@@ -298,7 +298,7 @@ export const ExecutionTab: React.FC = () => {
                       🏆 指标优先级排名（实战有效性）
                     </div>
                     <div style={{ marginBottom: '8px', padding: '8px', background: 'rgba(255,255,255,0.5)', borderRadius: '6px' }}>
-                      <div style={{ fontWeight: '600', marginBottom: '4px', color: 'var(--up)' }}>🥇 第一名：Equity Put/Call Ratio（核心灵魂）</div>
+                      <div style={{ fontWeight: '600', marginBottom: '4px', color: 'var(--system-red)' }}>🥇 第一名：Equity Put/Call Ratio（核心灵魂）</div>
                       <div style={{ fontSize: '0.8rem', paddingLeft: '8px' }}>散户情绪"体温计"，确认抄底时机。只有当它 &gt; 1.1 甚至冲向 1.3 时，才是 1/8 现金进场的安全红灯。</div>
                     </div>
                     <div style={{ marginBottom: '8px', padding: '8px', background: 'rgba(255,255,255,0.5)', borderRadius: '6px' }}>
@@ -333,7 +333,7 @@ export const ExecutionTab: React.FC = () => {
                       💡 2026 "三步走"实战清单
                     </div>
                     <div style={{ marginBottom: '8px', padding: '8px', background: 'rgba(255,255,255,0.5)', borderRadius: '6px' }}>
-                      <div style={{ fontWeight: '600', marginBottom: '4px', color: 'var(--up)' }}>1️⃣ 看"撤退信号"（看第 3、4 名）</div>
+                      <div style={{ fontWeight: '600', marginBottom: '4px', color: 'var(--system-red)' }}>1️⃣ 看"撤退信号"（看第 3、4 名）</div>
                       <div style={{ fontSize: '0.8rem', paddingLeft: '8px' }}>如果 SPX P/C 下跌 + VIX 期限结构开始收窄 = <strong>撤退 YINN/NVDA</strong>，准备现金。</div>
                     </div>
                     <div style={{ marginBottom: '8px', padding: '8px', background: 'rgba(255,255,255,0.5)', borderRadius: '6px' }}>
@@ -341,7 +341,7 @@ export const ExecutionTab: React.FC = () => {
                       <div style={{ fontSize: '0.8rem', paddingLeft: '8px' }}>如果 GEX 转负 = <strong>耐心等待</strong>。不要在刚转负时接 RKLB，因为它会跌得很快，目标位稳稳能到。</div>
                     </div>
                     <div style={{ marginBottom: '0', padding: '8px', background: 'rgba(255,255,255,0.5)', borderRadius: '6px' }}>
-                      <div style={{ fontWeight: '600', marginBottom: '4px', color: 'var(--down)' }}>3️⃣ 看"抄底红灯"（看第 1、5 名）</div>
+                      <div style={{ fontWeight: '600', marginBottom: '4px', color: 'var(--system-green)' }}>3️⃣ 看"抄底红灯"（看第 1、5 名）</div>
                       <div style={{ fontSize: '0.8rem', paddingLeft: '8px' }}>如果 Equity P/C &gt; 1.2 + 金银比 &gt; 85 = <strong>全线出击</strong>。买入 PAAS 和 RKLB。</div>
                     </div>
                   </div>
@@ -360,7 +360,7 @@ export const ExecutionTab: React.FC = () => {
                       📚 市场博弈逻辑：从"鱼尾行情"到"崩盘"再到"熊转牛"
                     </div>
                     <div style={{ marginBottom: '12px', padding: '8px', background: 'rgba(255,255,255,0.5)', borderRadius: '6px' }}>
-                      <div style={{ fontWeight: '600', marginBottom: '8px', color: 'var(--up)' }}>
+                      <div style={{ fontWeight: '600', marginBottom: '8px', color: 'var(--system-red)' }}>
                         📉 第一部分：熊市崩盘的三个阶段
                       </div>
                       <div style={{ marginBottom: '6px', paddingLeft: '8px' }}>
@@ -374,7 +374,7 @@ export const ExecutionTab: React.FC = () => {
                       </div>
                     </div>
                     <div style={{ marginBottom: '0', padding: '8px', background: 'rgba(255,255,255,0.5)', borderRadius: '6px' }}>
-                      <div style={{ fontWeight: '600', marginBottom: '8px', color: 'var(--down)' }}>
+                      <div style={{ fontWeight: '600', marginBottom: '8px', color: 'var(--system-green)' }}>
                         📈 第二部分：熊转牛的"接力流程"
                       </div>
                       <div style={{ marginBottom: '6px', paddingLeft: '8px' }}>
@@ -773,8 +773,8 @@ export const ExecutionTab: React.FC = () => {
                         padding: '20px',
                         borderRadius: '8px',
                         borderLeft: `5px solid ${
-                          analysisResult.status === 'safe' ? 'var(--down)' :
-                          analysisResult.status === 'warning' ? 'var(--accent-warm)' : 'var(--up)'
+                          analysisResult.status === 'safe' ? 'var(--system-green)' :
+                          analysisResult.status === 'warning' ? 'var(--accent-warm)' : 'var(--system-red)'
                         }`,
                         background:
                           analysisResult.status === 'safe' ? 'var(--system-green-light)' :
@@ -810,8 +810,8 @@ export const ExecutionTab: React.FC = () => {
                         background: 'rgba(255,255,255,0.5)',
                         borderRadius: '6px',
                         border: `1px solid ${
-                          analysisResult.status === 'safe' ? 'var(--down)' :
-                          analysisResult.status === 'warning' ? 'var(--accent-warm)' : 'var(--up)'
+                          analysisResult.status === 'safe' ? 'var(--system-green)' :
+                          analysisResult.status === 'warning' ? 'var(--accent-warm)' : 'var(--system-red)'
                         }`
                       }}>
                         💡 {analysisResult.action}

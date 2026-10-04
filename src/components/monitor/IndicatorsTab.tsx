@@ -13,13 +13,13 @@ export const IndicatorsTab: React.FC = () => {
         <div style={{ marginBottom: '24px' }}>
           <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: 'var(--text-primary)' }}>一级指标（核心灵魂）</h3>
           <div style={{ background: 'var(--system-red-light)', border: '1px solid var(--system-red-light)', borderRadius: '8px', padding: '16px', marginBottom: '12px' }}>
-            <div style={{ fontWeight: '600', marginBottom: '8px', color: 'var(--up)' }}>🥇 Equity Put/Call Ratio</div>
+            <div style={{ fontWeight: '600', marginBottom: '8px', color: 'var(--system-red)' }}>🥇 Equity Put/Call Ratio</div>
             <p style={{ fontSize: '0.9rem', color: 'var(--text-primary)', marginBottom: '12px' }}>
               散户情绪"体温计"，用于识别极度恐慌与过度乐观，确认抄底时机。
             </p>
           </div>
           <div style={{ background: 'var(--system-red-light)', border: '1px solid var(--system-red-light)', borderRadius: '8px', padding: '16px' }}>
-            <div style={{ fontWeight: '600', marginBottom: '8px', color: 'var(--up)' }}>🥈 Net GEX</div>
+            <div style={{ fontWeight: '600', marginBottom: '8px', color: 'var(--system-red)' }}>🥈 Net GEX</div>
             <p style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>
               判断是否进入负 Gamma 崩盘区，决定是否禁止加仓高 Beta。
             </p>
@@ -45,7 +45,7 @@ export const IndicatorsTab: React.FC = () => {
         <div>
           <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '12px', color: 'var(--text-primary)' }}>三级指标（专项工具）</h3>
           <div style={{ background: 'var(--system-green-light)', border: '1px solid var(--system-green-light)', borderRadius: '8px', padding: '16px' }}>
-            <div style={{ fontWeight: '600', marginBottom: '8px', color: 'var(--down)' }}>5️⃣ 金银比（Gold/Silver Ratio）</div>
+            <div style={{ fontWeight: '600', marginBottom: '8px', color: 'var(--system-green)' }}>5️⃣ 金银比（Gold/Silver Ratio）</div>
             <p style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>
               用于在极端错价时调整黄金与白银矿仓位。
             </p>
@@ -78,7 +78,7 @@ export const IndicatorsTab: React.FC = () => {
               <tr style={{ borderBottom: '1px solid var(--border-subtle)', background: 'var(--system-red-light)' }}>
                 <td style={{ padding: '12px', fontWeight: '600', color: 'var(--text-primary)' }}>Equity Put/Call Ratio</td>
                 <td style={{ padding: '12px', color: 'var(--text-primary)' }}>P/C ≥ 1.1</td>
-                <td style={{ padding: '12px', color: 'var(--up)', fontWeight: '600' }}>极度恐慌，启动 1/8 现金抄底 PAAS，如已持有则只加仓高分散度标的</td>
+                <td style={{ padding: '12px', color: 'var(--system-red)', fontWeight: '600' }}>极度恐慌，启动 1/8 现金抄底 PAAS，如已持有则只加仓高分散度标的</td>
               </tr>
               <tr style={{ borderBottom: '1px solid var(--border-subtle)' }}>
                 <td style={{ padding: '12px', fontWeight: '600', color: 'var(--text-primary)' }}>SPX Put/Call Ratio</td>
@@ -88,7 +88,7 @@ export const IndicatorsTab: React.FC = () => {
               <tr style={{ borderBottom: '1px solid var(--border-subtle)', background: 'var(--system-red-light)' }}>
                 <td style={{ padding: '12px', fontWeight: '600', color: 'var(--text-primary)' }}>Net GEX</td>
                 <td style={{ padding: '12px', color: 'var(--text-primary)' }}>进入明显负 Gamma 区</td>
-                <td style={{ padding: '12px', color: 'var(--up)', fontWeight: '600' }}>禁止加仓高 Beta（RKLB/YINN 等），只允许减仓或对冲</td>
+                <td style={{ padding: '12px', color: 'var(--system-red)', fontWeight: '600' }}>禁止加仓高 Beta（RKLB/YINN 等），只允许减仓或对冲</td>
               </tr>
               <tr style={{ borderBottom: '1px solid var(--border-subtle)' }}>
                 <td style={{ padding: '12px', fontWeight: '600', color: 'var(--text-primary)' }}>金银比</td>

@@ -124,7 +124,7 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
               <div
                 key={source.id}
                 style={{
-                  border: `2px solid ${source.priority === 'high' ? 'var(--up)' : source.priority === 'medium' ? 'var(--accent-warm)' : 'var(--text-secondary)'}`,
+                  border: `2px solid ${source.priority === 'high' ? 'var(--system-red)' : source.priority === 'medium' ? 'var(--accent-warm)' : 'var(--text-secondary)'}`,
                   background: source.priority === 'high' ? 'var(--system-red-light)' : source.priority === 'medium' ? 'var(--accent-warm-soft)' : 'var(--bg-secondary)',
                   borderRadius: '6px',
                   padding: '8px',
@@ -188,7 +188,7 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
                         padding: '1px 6px',
                         borderRadius: '4px',
                         background: source.priority === 'high' ? 'var(--system-red-light)' : source.priority === 'medium' ? 'var(--accent-warm-soft)' : 'var(--bg-secondary)',
-                        color: source.priority === 'high' ? 'var(--up)' : source.priority === 'medium' ? 'var(--warm-ink)' : 'var(--text-secondary)',
+                        color: source.priority === 'high' ? 'var(--system-red)' : source.priority === 'medium' ? 'var(--warm-ink)' : 'var(--text-secondary)',
                         border: `1px solid ${source.priority === 'high' ? 'var(--system-red-light)' : source.priority === 'medium' ? 'var(--accent-warm-soft)' : 'var(--border-subtle)'}`
                       }}>
                         {source.priority === 'high' && <Flame size={10} />}
@@ -221,7 +221,7 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
                       flex: 1,
                       padding: '3px 6px',
                       background: 'var(--system-green-light)',
-                      color: 'var(--down)',
+                      color: 'var(--system-green)',
                       border: 'none',
                       borderRadius: '3px',
                       cursor: 'pointer',
@@ -235,7 +235,7 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
                     style={{
                       padding: '3px 6px',
                       background: 'var(--system-red-light)',
-                      color: 'var(--up)',
+                      color: 'var(--system-red)',
                       border: 'none',
                       borderRadius: '3px',
                       cursor: 'pointer',
@@ -293,7 +293,7 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
                     style={{
                       padding: '4px 8px',
                       background: 'var(--system-green-light)',
-                      color: 'var(--down)',
+                      color: 'var(--system-green)',
                       border: 'none',
                       borderRadius: '4px',
                       cursor: 'pointer',
@@ -307,7 +307,7 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
                     style={{
                       padding: '4px 8px',
                       background: 'var(--system-red-light)',
-                      color: 'var(--up)',
+                      color: 'var(--system-red)',
                       border: 'none',
                       borderRadius: '4px',
                       cursor: 'pointer',

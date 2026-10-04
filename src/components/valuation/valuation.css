@@ -2,7 +2,7 @@
   background: var(--bg-primary, var(--bg-secondary));
   min-height: 100vh;
   padding: 36px 20px 80px;
-  color: var(--text-primary, var(--text-primary));
+  color: var(--text-primary);
 }
 .valuation-shell {
   max-width: 1200px;
@@ -13,7 +13,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 12px 8px 32px;
-  color: var(--text-primary, var(--text-primary));
+  color: var(--text-primary);
 }
 .valuation-hero > svg {
   color: var(--accent);
@@ -24,7 +24,7 @@
   margin: 12px 0;
 }
 .valuation-hero p {
-  color: var(--text-secondary, var(--text-secondary));
+  color: var(--text-secondary);
   font-size: 16px;
 }
 .valuation-eyebrow {
@@ -71,7 +71,7 @@
   flex-direction: column;
   gap: 8px;
   font-size: 13px;
-  color: var(--text-secondary, var(--text-secondary));
+  color: var(--text-secondary);
 }
 .valuation-page input,
 .valuation-page select,
@@ -81,8 +81,8 @@
   border: 1px solid var(--border-subtle);
   border-radius: 10px;
   padding: 11px 12px;
-  background: var(--bg-secondary, var(--bg-secondary));
-  color: var(--text-primary, var(--text-primary));
+  background: var(--bg-secondary);
+  color: var(--text-primary);
   font: inherit;
 }
 .valuation-page button {
@@ -233,7 +233,7 @@
 }
 .valuation-analysis-grid article {
   padding: 18px;
-  background: var(--bg-secondary, var(--bg-secondary));
+  background: var(--bg-secondary);
   border-radius: 12px;
 }
 .valuation-analysis-grid h3 {
@@ -262,7 +262,7 @@
 }
 .valuation-empty h2 {
   font-size: 19px;
-  color: var(--text-secondary, var(--text-secondary));
+  color: var(--text-secondary);
 }
 .valuation-empty p {
   font-size: 13px;

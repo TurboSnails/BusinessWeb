@@ -62,9 +62,9 @@ export const StagesTab: React.FC = () => {
 
     {/* 优化后组合 */}
 
-    <div style={{ background: 'white', border: '2px solid var(--down)', borderRadius: '12px', padding: '24px' }}>
+    <div style={{ background: 'white', border: '2px solid var(--system-green)', borderRadius: '12px', padding: '24px' }}>
 
-    <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: 'var(--down)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+    <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: 'var(--system-green)', display: 'flex', alignItems: 'center', gap: '8px' }}>
 
     <span style={{ fontSize: '2rem' }}>📊</span>
 
@@ -84,17 +84,17 @@ export const StagesTab: React.FC = () => {
 
     <thead>
 
-    <tr style={{ background: 'var(--system-green-light)', borderBottom: '2px solid var(--down)' }}>
+    <tr style={{ background: 'var(--system-green-light)', borderBottom: '2px solid var(--system-green)' }}>
 
-    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: 'var(--down)' }}>资产</th>
+    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: 'var(--system-green)' }}>资产</th>
 
-    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: 'var(--down)' }}>优化比例</th>
+    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: 'var(--system-green)' }}>优化比例</th>
 
-    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: 'var(--down)' }}>理由</th>
+    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: 'var(--system-green)' }}>理由</th>
 
-    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: 'var(--down)' }}>当前YTD</th>
+    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: 'var(--system-green)' }}>当前YTD</th>
 
-    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: 'var(--down)' }}>Beta（约）</th>
+    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '700', color: 'var(--system-green)' }}>Beta（约）</th>
 
     </tr>
 
@@ -110,7 +110,7 @@ export const StagesTab: React.FC = () => {
 
     <td style={{ padding: '12px', color: 'var(--text-primary)' }}>电商云服务 - 核心建议：将谷歌换为亚马逊，捕捉其50%的潜在涨幅</td>
 
-    <td style={{ padding: '12px', color: 'var(--down)' }}>+0.79%</td>
+    <td style={{ padding: '12px', color: 'var(--system-green)' }}>+0.79%</td>
 
     <td style={{ padding: '12px', color: 'var(--text-primary)' }}>0.8</td>
 
@@ -124,7 +124,7 @@ export const StagesTab: React.FC = () => {
 
     <td style={{ padding: '12px', color: 'var(--text-primary)' }}>金融稳定 - 维持不变，作为消费和金融的稳定器，提供分红和抗跌性</td>
 
-    <td style={{ padding: '12px', color: 'var(--down)' }}>+0.55%</td>
+    <td style={{ padding: '12px', color: 'var(--system-green)' }}>+0.55%</td>
 
     <td style={{ padding: '12px', color: 'var(--text-primary)' }}>1.4</td>
 
@@ -138,7 +138,7 @@ export const StagesTab: React.FC = () => {
 
     <td style={{ padding: '12px', color: 'var(--text-primary)' }}>半导体核心 - 维持不变，AI芯片制造垄断地位，是2026年算力需求的"卖铲人"</td>
 
-    <td style={{ padding: '12px', color: 'var(--down)' }}>+0.07%</td>
+    <td style={{ padding: '12px', color: 'var(--system-green)' }}>+0.07%</td>
 
     <td style={{ padding: '12px', color: 'var(--text-primary)' }}>1.1</td>
 
@@ -152,7 +152,7 @@ export const StagesTab: React.FC = () => {
 
     <td style={{ padding: '12px', color: 'var(--text-primary)' }}>制药增长 - 稍作减仓，锁定部分利润，降低单一医药股风险</td>
 
-    <td style={{ padding: '12px', color: 'var(--down)' }}>+2.07%</td>
+    <td style={{ padding: '12px', color: 'var(--system-green)' }}>+2.07%</td>
 
     <td style={{ padding: '12px', color: 'var(--text-primary)' }}>1.3</td>
 
@@ -180,7 +180,7 @@ export const StagesTab: React.FC = () => {
 
     <td style={{ padding: '12px', color: 'var(--text-primary)' }}>航天潜力 - 降至5%，保留"彩票"性质的爆发力，但控制回撤风险</td>
 
-    <td style={{ padding: '12px', color: 'var(--up)' }}>-2.00%</td>
+    <td style={{ padding: '12px', color: 'var(--system-red)' }}>-2.00%</td>
 
     <td style={{ padding: '12px', color: 'var(--text-primary)' }}>2.0</td>
 
@@ -194,7 +194,7 @@ export const StagesTab: React.FC = () => {
 
     <td style={{ padding: '12px', color: 'var(--text-primary)' }}>黄金商品 - 合并PAAS和GOLD，仅保留10%作为纯粹的对冲工具</td>
 
-    <td style={{ padding: '12px', color: 'var(--down)' }}>+3.03%</td>
+    <td style={{ padding: '12px', color: 'var(--system-green)' }}>+3.03%</td>
 
     <td style={{ padding: '12px', color: 'var(--text-primary)' }}>0.9</td>
 

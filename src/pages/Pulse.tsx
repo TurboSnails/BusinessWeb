@@ -70,8 +70,8 @@ export default function Pulse(): JSX.Element {
       setLoading(true)
       const categoryConfig = [
         { key: 'us', title: '美股指数', icon: <TrendingUp size={18} />, color: 'var(--accent)', bgColor: 'var(--accent-soft)' },
-        { key: 'cn', title: '中国A股', icon: <Globe size={18} />, color: 'var(--up)', bgColor: 'var(--system-red-light)' },
-        { key: 'hk', title: '港股指数', icon: <Globe2 size={18} />, color: 'var(--down)', bgColor: 'var(--system-green-light)' },
+        { key: 'cn', title: '中国A股', icon: <Globe size={18} />, color: 'var(--system-red)', bgColor: 'var(--system-red-light)' },
+        { key: 'hk', title: '港股指数', icon: <Globe2 size={18} />, color: 'var(--system-green)', bgColor: 'var(--system-green-light)' },
         { key: 'global', title: 'G20全球股市', icon: <Globe size={18} />, color: 'var(--accent)', bgColor: 'var(--accent-soft)' },
         { key: 'commodity', title: '大宗商品', icon: <Box size={18} />, color: 'var(--accent-warm)', bgColor: 'var(--accent-warm-soft)' },
         { key: 'forex', title: '外汇债券', icon: <Repeat size={18} />, color: 'var(--system-purple)', bgColor: 'var(--bg-secondary)' },
@@ -293,7 +293,7 @@ export default function Pulse(): JSX.Element {
   // 渲染数据卡片
   const renderCard = (stock: StockQuote, color: string) => {
     const isPositive = stock.change >= 0
-    const changeColor = isPositive ? 'var(--down)' : 'var(--up)'
+    const changeColor = isPositive ? 'var(--system-green)' : 'var(--system-red)'
 
     return (
       <div key={stock.symbol} style={{
@@ -310,7 +310,7 @@ export default function Pulse(): JSX.Element {
             <span style={{
               fontSize: '0.7rem', padding: '2px 5px', borderRadius: '4px',
               background: stock.rsi >= 70 ? 'var(--system-red-light)' : stock.rsi <= 30 ? 'var(--system-green-light)' : 'var(--bg-secondary)',
-              color: stock.rsi >= 70 ? 'var(--up)' : stock.rsi <= 30 ? 'var(--down)' : 'var(--text-secondary)', fontWeight: '500'
+              color: stock.rsi >= 70 ? 'var(--system-red)' : stock.rsi <= 30 ? 'var(--system-green)' : 'var(--text-secondary)', fontWeight: '500'
             }}>RSI {stock.rsi.toFixed(0)}</span>
           )}
         </div>
@@ -495,11 +495,11 @@ export default function Pulse(): JSX.Element {
             borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
           }}>🔍 筛选</button>
           <button onClick={() => setShowSettings(true)} style={{
-            padding: '6px 12px', background: syncConfig ? 'var(--down)' : 'var(--accent-warm)', color: 'white', border: 'none',
+            padding: '6px 12px', background: syncConfig ? 'var(--system-green)' : 'var(--accent-warm)', color: 'white', border: 'none',
             borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
           }}>⚙️ {syncConfig ? '已配置' : '云端设置'}</button>
           <button onClick={handleExport} style={{
-            padding: '6px 12px', background: 'var(--down)', color: 'white', border: 'none',
+            padding: '6px 12px', background: 'var(--system-green)', color: 'white', border: 'none',
             borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
           }}>📥 导出</button>
           <button onClick={handleImport} style={{
@@ -655,7 +655,7 @@ export default function Pulse(): JSX.Element {
             </p>
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
               {syncConfig && (
-                <button onClick={handleClearSyncConfig} style={{ padding: '8px 16px', background: 'var(--system-red-light)', color: 'var(--up)', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>清除配置</button>
+                <button onClick={handleClearSyncConfig} style={{ padding: '8px 16px', background: 'var(--system-red-light)', color: 'var(--system-red)', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>清除配置</button>
               )}
               <button onClick={() => { setShowSettings(false); setTokenInput('') }}
                 style={{ padding: '8px 16px', background: 'var(--bg-secondary)', color: 'var(--text-secondary)', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>取消</button>

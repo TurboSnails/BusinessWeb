@@ -56,13 +56,13 @@ export const SectorSection: React.FC<SectorSectionProps> = ({ category }) => {
       {/* 上涨板块 */}
       {upSectors.length > 0 && (
         <>
-          <div style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--down)', marginBottom: '10px', padding: '6px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--system-green)', marginBottom: '10px', padding: '6px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <TrendingUp size={16} /> 涨幅前15
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '10px', marginBottom: '20px' }}>
             {upSectors.map((sector) => {
               const isPositive = sector.changePercent >= 0
-              const changeColor = isPositive ? 'var(--down)' : 'var(--up)'
+              const changeColor = isPositive ? 'var(--system-green)' : 'var(--system-red)'
 
               return (
                 <div
@@ -93,7 +93,7 @@ export const SectorSection: React.FC<SectorSectionProps> = ({ category }) => {
                         <span style={{
                           fontSize: '0.7rem', padding: '2px 5px', borderRadius: '4px', fontWeight: '500',
                           background: sector.rsi >= 70 ? 'var(--system-red-light)' : sector.rsi <= 30 ? 'var(--system-green-light)' : 'var(--bg-secondary)',
-                          color: sector.rsi >= 70 ? 'var(--up)' : sector.rsi <= 30 ? 'var(--down)' : 'var(--text-secondary)'
+                          color: sector.rsi >= 70 ? 'var(--system-red)' : sector.rsi <= 30 ? 'var(--system-green)' : 'var(--text-secondary)'
                         }}>
                           RSI {sector.rsi.toFixed(0)}
                         </span>
@@ -125,13 +125,13 @@ export const SectorSection: React.FC<SectorSectionProps> = ({ category }) => {
       {/* 下跌板块 */}
       {downSectors.length > 0 && (
         <>
-          <div style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--up)', marginBottom: '10px', padding: '6px 0', marginTop: '20px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--system-red)', marginBottom: '10px', padding: '6px 0', marginTop: '20px', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <TrendingDown size={16} /> 跌幅前15
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '10px' }}>
             {downSectors.map((sector) => {
               const isPositive = sector.changePercent >= 0
-              const changeColor = isPositive ? 'var(--down)' : 'var(--up)'
+              const changeColor = isPositive ? 'var(--system-green)' : 'var(--system-red)'
 
               return (
                 <div
@@ -162,7 +162,7 @@ export const SectorSection: React.FC<SectorSectionProps> = ({ category }) => {
                         <span style={{
                           fontSize: '0.7rem', padding: '2px 5px', borderRadius: '4px', fontWeight: '500',
                           background: sector.rsi >= 70 ? 'var(--system-red-light)' : sector.rsi <= 30 ? 'var(--system-green-light)' : 'var(--bg-secondary)',
-                          color: sector.rsi >= 70 ? 'var(--up)' : sector.rsi <= 30 ? 'var(--down)' : 'var(--text-secondary)'
+                          color: sector.rsi >= 70 ? 'var(--system-red)' : sector.rsi <= 30 ? 'var(--system-green)' : 'var(--text-secondary)'
                         }}>
                           RSI {sector.rsi.toFixed(0)}
                         </span>

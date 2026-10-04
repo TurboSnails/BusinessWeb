@@ -795,6 +795,7 @@ a.chapter-nav__item:hover {
 
 .chapter-nav__item.is-disabled {
   opacity: 0.5;
+  cursor: default;
 }
 
 .chapter-nav__no {

@@ -539,22 +539,22 @@ export const USMonitorTab: React.FC = () => {
                 <tr>
                   <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>衰退概率</td>
                   <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.85rem' }}>综合指标+ECRI领先指数&lt;-2.5标准差</td>
-                  <td style={{ padding: '10px', textAlign: 'center', fontWeight: '600', color: 'var(--up)', border: '1px solid var(--border-subtle)' }}>40%</td>
+                  <td style={{ padding: '10px', textAlign: 'center', fontWeight: '600', color: 'var(--system-red)', border: '1px solid var(--border-subtle)' }}>40%</td>
                 </tr>
                 <tr>
                   <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>触发时点</td>
                   <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.85rem' }}>萨姆规则若1月触发，传导至消费需2-3个月 → 2026年4-5月</td>
-                  <td style={{ padding: '10px', textAlign: 'center', fontWeight: '600', color: 'var(--up)', border: '1px solid var(--border-subtle)' }}>65%</td>
+                  <td style={{ padding: '10px', textAlign: 'center', fontWeight: '600', color: 'var(--system-red)', border: '1px solid var(--border-subtle)' }}>65%</td>
                 </tr>
                 <tr>
                   <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>深度</td>
                   <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.85rem' }}>温和衰退：GDP峰值-谷底-2.1%，失业率峰值6.5%（vs 2009年10%）</td>
-                  <td style={{ padding: '10px', textAlign: 'center', fontWeight: '600', color: 'var(--up)', border: '1px solid var(--border-subtle)' }}>70%</td>
+                  <td style={{ padding: '10px', textAlign: 'center', fontWeight: '600', color: 'var(--system-red)', border: '1px solid var(--border-subtle)' }}>70%</td>
                 </tr>
                 <tr>
                   <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>最大风险</td>
                   <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.85rem' }}>劳动力-信用负反馈循环（失业→消费降→企业违约→信贷收缩）</td>
-                  <td style={{ padding: '10px', textAlign: 'center', fontWeight: '600', color: 'var(--up)', border: '1px solid var(--border-subtle)' }}>优先级1</td>
+                  <td style={{ padding: '10px', textAlign: 'center', fontWeight: '600', color: 'var(--system-red)', border: '1px solid var(--border-subtle)' }}>优先级1</td>
                 </tr>
               </tbody>
             </table>
@@ -586,7 +586,7 @@ export const USMonitorTab: React.FC = () => {
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
             <thead>
-              <tr style={{ background: 'var(--system-red-light)', borderBottom: '2px solid var(--up)' }}>
+              <tr style={{ background: 'var(--system-red-light)', borderBottom: '2px solid var(--system-red)' }}>
                 <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>人群</th>
                 <th style={{ padding: '10px', textAlign: 'center', fontWeight: '700', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>当前失业率</th>
                 <th style={{ padding: '10px', textAlign: 'center', fontWeight: '700', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>2019基准</th>
@@ -610,7 +610,7 @@ export const USMonitorTab: React.FC = () => {
                 <td style={{ padding: '10px', textAlign: 'center', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>6.1%</td>
                 <td style={{ padding: '10px', textAlign: 'center', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>0.3个百分点</td>
                 <td style={{ padding: '10px', textAlign: 'center', border: '1px solid var(--border-subtle)' }}>
-                  <span style={{ padding: '2px 8px', borderRadius: '4px', background: 'var(--system-red-light)', color: 'var(--up)', fontWeight: '600', fontSize: '0.75rem' }}>🔴 极高</span>
+                  <span style={{ padding: '2px 8px', borderRadius: '4px', background: 'var(--system-red-light)', color: 'var(--system-red)', fontWeight: '600', fontSize: '0.75rem' }}>🔴 极高</span>
                 </td>
               </tr>
               <tr style={{ background: '#fff' }}>
@@ -619,7 +619,7 @@ export const USMonitorTab: React.FC = () => {
                 <td style={{ padding: '10px', textAlign: 'center', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>16.8%</td>
                 <td style={{ padding: '10px', textAlign: 'center', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>1.2个百分点</td>
                 <td style={{ padding: '10px', textAlign: 'center', border: '1px solid var(--border-subtle)' }}>
-                  <span style={{ padding: '2px 8px', borderRadius: '4px', background: 'var(--system-red-light)', color: 'var(--up)', fontWeight: '600', fontSize: '0.75rem' }}>🔴 极高</span>
+                  <span style={{ padding: '2px 8px', borderRadius: '4px', background: 'var(--system-red-light)', color: 'var(--system-red)', fontWeight: '600', fontSize: '0.75rem' }}>🔴 极高</span>
                 </td>
               </tr>
               <tr style={{ background: '#fff' }}>
@@ -692,7 +692,7 @@ export const USMonitorTab: React.FC = () => {
               <tr style={{ background: 'var(--accent-soft)', borderBottom: '2px solid var(--accent)' }}>
                 <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', color: 'var(--text-primary)', border: '1px solid var(--accent-soft)', fontSize: '0.75rem', whiteSpace: 'nowrap' }}>日期</th>
                 <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', color: 'var(--text-primary)', border: '1px solid var(--accent-soft)', fontSize: '0.75rem' }}>事件</th>
-                <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', color: 'var(--up)', border: '1px solid var(--accent-soft)', fontSize: '0.75rem' }}>做空条件（潜在触发器）</th>
+                <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', color: 'var(--system-red)', border: '1px solid var(--accent-soft)', fontSize: '0.75rem' }}>做空条件（潜在触发器）</th>
                 <th style={{ padding: '10px', textAlign: 'left', fontWeight: '700', color: 'var(--text-primary)', border: '1px solid var(--accent-soft)', fontSize: '0.75rem' }}>注意事项/参考</th>
               </tr>
             </thead>
@@ -701,373 +701,373 @@ export const USMonitorTab: React.FC = () => {
               <tr style={{ background: '#fff' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-01-02</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ISM制造业PMI（12月2025）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>PMI&lt;48（连续3月），预示制造业收缩</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>PMI&lt;48（连续3月），预示制造业收缩</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>领先指标；若与服务业PMI同时&lt;50，衰退风险上升</td>
               </tr>
               <tr style={{ background: '#fff' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-01-03</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ISM服务业PMI（12月2025）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>服务业PMI&lt;50，叠加制造业收缩，确认经济放缓</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>服务业PMI&lt;50，叠加制造业收缩，确认经济放缓</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>关键指标；服务业占GDP约80%</td>
               </tr>
               <tr style={{ background: '#fff' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-01-07</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>JOLTS及州就业数据（11月2025）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>职位空缺率&lt;5%或流动率上升，预示劳动力市场疲软</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>职位空缺率&lt;5%或流动率上升，预示劳动力市场疲软</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>领先失业率指标；若与消费者信心&lt;80叠加，可推动纳斯达克广度&lt;30%</td>
               </tr>
               <tr style={{ background: 'var(--accent-warm-soft)' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-01-08<br /><span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>21:30</span></td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ADP就业数据（12月2025）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ADP新增就业&lt;15万，预示非农数据疲软</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ADP新增就业&lt;15万，预示非农数据疲软</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>非农数据前导指标；通常比非农早2天发布</td>
               </tr>
               <tr style={{ background: 'var(--accent-warm-soft)', borderLeft: '4px solid var(--accent-warm)' }}>
                 <td style={{ padding: '10px', fontWeight: '700', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-01-09<br /><span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>21:30</span></td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem', fontWeight: '600' }}>就业情况报告（2025年12月）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', fontWeight: '600', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>失业率≥4.7%或过去6个月+0.6ppt，萨姆规则正式触发</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', fontWeight: '600', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>失业率≥4.7%或过去6个月+0.6ppt，萨姆规则正式触发</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>关键观察窗口；若触发，衰退概率升至70%，先影响科技就业（IT部门已负）</td>
               </tr>
               <tr style={{ background: '#fff' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-01-27</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>州就业与职位空缺数据（12月2025）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>州级数据显示区域衰退（如CRE重镇），可能扩散信用风险</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>州级数据显示区域衰退（如CRE重镇），可能扩散信用风险</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>补充全国数据；关注办公LTV&gt;80%的地区</td>
               </tr>
               <tr style={{ background: 'var(--bg-secondary)' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-01-27/28</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>FOMC会议</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>Fed暗示紧缩或无进一步降息，利差扩200bp，触发CRE违约</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>Fed暗示紧缩或无进一步降息，利差扩200bp，触发CRE违约</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>无经济预测；关注利率决策对科技融资影响</td>
               </tr>
               <tr style={{ background: 'var(--bg-secondary)', borderLeft: '4px solid var(--system-purple)' }}>
                 <td style={{ padding: '10px', fontWeight: '700', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-01-28</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem', fontWeight: '600' }}>微软（MSFT）财报（Q2 2026财季）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', fontWeight: '600', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>AI Capex指引下修&gt;10%，或回报率&lt;8%，预示投资疲劳</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', fontWeight: '600', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>AI Capex指引下修&gt;10%，或回报率&lt;8%，预示投资疲劳</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>关注服务器/云预算；若与NVDA叠加，纳斯达克可能下跌10-15%</td>
               </tr>
               {/* 2月 */}
               <tr style={{ background: '#fff' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-02-02</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ISM制造业PMI（1月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>PMI&lt;48（连续3月），确认制造业收缩</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>PMI&lt;48（连续3月），确认制造业收缩</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>月度更新；关注新订单和就业分项</td>
               </tr>
               <tr style={{ background: '#fff' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-02-03</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ISM服务业PMI（1月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>服务业PMI&lt;50，叠加制造业收缩，确认经济放缓</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>服务业PMI&lt;50，叠加制造业收缩，确认经济放缓</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>关键指标；服务业占GDP约80%</td>
               </tr>
               <tr style={{ background: 'var(--accent-warm-soft)' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-02-05<br /><span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>21:30</span></td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ADP就业数据（1月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ADP新增就业&lt;15万，预示非农数据疲软</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ADP新增就业&lt;15万，预示非农数据疲软</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>非农数据前导指标；通常比非农早2天发布</td>
               </tr>
               <tr style={{ background: 'var(--system-red-light)' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-02-07<br /><span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>21:30</span></td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>就业情况报告（2026年1月）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', fontWeight: '600', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>失业率≥4.7%或过去6个月+0.6ppt，萨姆规则正式触发</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', fontWeight: '600', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>失业率≥4.7%或过去6个月+0.6ppt，萨姆规则正式触发</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>关键观察窗口；若触发，衰退概率升至70%，先影响科技就业（IT部门已负）。注意：1月数据有年度基准修正，波动更剧烈</td>
               </tr>
               <tr style={{ background: '#fff' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-02-10</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>就业成本指数（Q4 2025）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>工资增长&lt;3%，信号经济冷却，影响消费者支出</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>工资增长&lt;3%，信号经济冷却，影响消费者支出</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>领先指标；叠加CPI可放大科技需求风险</td>
               </tr>
               <tr style={{ background: 'var(--system-red-light)' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-02-25</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>英伟达（NVDA）财报（Q4 2025）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', fontWeight: '600', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>DOJO/服务器预算下修，增长&lt;折旧率，触发AI叙事反转</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', fontWeight: '600', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>DOJO/服务器预算下修，增长&lt;折旧率，触发AI叙事反转</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>关键窗口；若合计MSFT下修&gt;10%，VIX&gt;25，纳斯达克广度崩</td>
               </tr>
               {/* 3月 */}
               <tr style={{ background: '#fff' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-03-02</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ISM制造业PMI（2月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>PMI&lt;48（连续3月），确认制造业收缩</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>PMI&lt;48（连续3月），确认制造业收缩</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>月度更新；关注新订单和就业分项</td>
               </tr>
               <tr style={{ background: '#fff' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-03-03</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ISM服务业PMI（2月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>服务业PMI&lt;50，叠加制造业收缩，确认经济放缓</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>服务业PMI&lt;50，叠加制造业收缩，确认经济放缓</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>关键指标；服务业占GDP约80%</td>
               </tr>
               <tr style={{ background: 'var(--accent-warm-soft)' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-03-04<br /><span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>21:30</span></td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ADP就业数据（2月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ADP新增就业&lt;15万，预示非农数据疲软</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ADP新增就业&lt;15万，预示非农数据疲软</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>非农数据前导指标；通常比非农早2天发布</td>
               </tr>
               <tr style={{ background: 'var(--accent-warm-soft)', borderLeft: '4px solid var(--accent-warm)' }}>
                 <td style={{ padding: '10px', fontWeight: '700', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-03-06<br /><span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>21:30</span></td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem', fontWeight: '600' }}>就业情况报告（2月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>失业率续升0.1-0.2ppt，确认"信心断崖"</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>失业率续升0.1-0.2ppt，确认"信心断崖"</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>监测青年（16.3%）/黑人（8.3%）细分；单变量衰退概率35%</td>
               </tr>
               <tr style={{ background: 'var(--accent-soft)', borderLeft: '4px solid var(--accent)' }}>
                 <td style={{ padding: '10px', fontWeight: '700', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-03-17/18</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem', fontWeight: '600' }}>FOMC会议（带经济预测）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>预测下修增长，或利率持稳，CRE压力放大</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>预测下修增长，或利率持稳，CRE压力放大</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>关注SEP；可能影响高收益利差（当前2.84%）</td>
               </tr>
               {/* 4月 */}
               <tr style={{ background: '#fff' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-04-01</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ISM制造业PMI（3月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>PMI&lt;48（连续3月），确认制造业收缩</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>PMI&lt;48（连续3月），确认制造业收缩</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>月度更新；关注新订单和就业分项</td>
               </tr>
               <tr style={{ background: '#fff' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-04-02</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ISM服务业PMI（3月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>服务业PMI&lt;50，叠加制造业收缩，确认经济放缓</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>服务业PMI&lt;50，叠加制造业收缩，确认经济放缓</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>关键指标；服务业占GDP约80%</td>
               </tr>
               <tr style={{ background: 'var(--accent-warm-soft)', borderLeft: '4px solid var(--accent-warm)' }}>
                 <td style={{ padding: '10px', fontWeight: '700', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-04-03<br /><span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>20:30</span></td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem', fontWeight: '600' }}>就业情况报告（3月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>累计+0.5ppt/6个月，强化萨姆陷阱</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>累计+0.5ppt/6个月，强化萨姆陷阱</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>评估前期触发持续性</td>
               </tr>
               <tr style={{ background: 'var(--bg-secondary)' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-04-28/29</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>FOMC会议</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>无降息，信用债违约率&gt;5%，拖累银行Tier 1资本</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>无降息，信用债违约率&gt;5%，拖累银行Tier 1资本</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>监测流动性注入</td>
               </tr>
               <tr style={{ background: '#fff' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-04-30</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>就业成本指数（Q1 2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>成本上升但盈利滞后，放大投资-盈利剪刀差</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>成本上升但盈利滞后，放大投资-盈利剪刀差</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>AI相关</td>
               </tr>
               {/* 5月 */}
               <tr style={{ background: '#fff' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-05-01</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ISM制造业PMI（4月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>PMI&lt;48（连续3月），确认制造业收缩</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>PMI&lt;48（连续3月），确认制造业收缩</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>月度更新；关注新订单和就业分项</td>
               </tr>
               <tr style={{ background: '#fff' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-05-02</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ISM服务业PMI（4月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>服务业PMI&lt;50，叠加制造业收缩，确认经济放缓</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>服务业PMI&lt;50，叠加制造业收缩，确认经济放缓</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>关键指标；服务业占GDP约80%</td>
               </tr>
               <tr style={{ background: 'var(--accent-warm-soft)' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-05-06<br /><span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>20:30</span></td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ADP就业数据（4月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ADP新增就业&lt;15万，预示非农数据疲软</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ADP新增就业&lt;15万，预示非农数据疲软</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>非农数据前导指标；通常比非农早2天发布</td>
               </tr>
               <tr style={{ background: 'var(--accent-warm-soft)', borderLeft: '4px solid var(--accent-warm)' }}>
                 <td style={{ padding: '10px', fontWeight: '700', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-05-08<br /><span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>20:30</span></td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem', fontWeight: '600' }}>就业情况报告（4月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>Q1平均失业&gt;4.8%，确认衰退路径</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>Q1平均失业&gt;4.8%，确认衰退路径</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>季度评估点</td>
               </tr>
               {/* 6月 */}
               <tr style={{ background: '#fff' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-06-01</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ISM制造业PMI（5月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>PMI&lt;48（连续3月），确认制造业收缩</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>PMI&lt;48（连续3月），确认制造业收缩</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>月度更新；关注新订单和就业分项</td>
               </tr>
               <tr style={{ background: '#fff' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-06-02</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ISM服务业PMI（5月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>服务业PMI&lt;50，叠加制造业收缩，确认经济放缓</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>服务业PMI&lt;50，叠加制造业收缩，确认经济放缓</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>关键指标；服务业占GDP约80%</td>
               </tr>
               <tr style={{ background: 'var(--accent-warm-soft)' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-06-03<br /><span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>20:30</span></td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ADP就业数据（5月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ADP新增就业&lt;15万，预示非农数据疲软</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ADP新增就业&lt;15万，预示非农数据疲软</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>非农数据前导指标；通常比非农早2天发布</td>
               </tr>
               <tr style={{ background: 'var(--accent-warm-soft)', borderLeft: '4px solid var(--accent-warm)' }}>
                 <td style={{ padding: '10px', fontWeight: '700', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-06-05<br /><span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>20:30</span></td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem', fontWeight: '600' }}>就业情况报告（5月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>IT就业续负，AI Capex现实检查加速</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>IT就业续负，AI Capex现实检查加速</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>科技部门焦点</td>
               </tr>
               <tr style={{ background: 'var(--accent-soft)', borderLeft: '4px solid var(--accent)' }}>
                 <td style={{ padding: '10px', fontWeight: '700', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-06-16/17</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem', fontWeight: '600' }}>FOMC会议（带经济预测）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>预测衰退，纳斯达克杠杆踩踏</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>预测衰退，纳斯达克杠杆踩踏</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>SEP更新</td>
               </tr>
               {/* 7月 */}
               <tr style={{ background: '#fff' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-07-01</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ISM制造业PMI（6月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>PMI&lt;48（连续3月），确认制造业收缩</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>PMI&lt;48（连续3月），确认制造业收缩</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>月度更新；关注新订单和就业分项</td>
               </tr>
               <tr style={{ background: 'var(--accent-warm-soft)' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-07-01<br /><span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>20:30</span></td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ADP就业数据（6月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ADP新增就业&lt;15万，预示非农数据疲软</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ADP新增就业&lt;15万，预示非农数据疲软</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>非农数据前导指标；通常比非农早2天发布</td>
               </tr>
               <tr style={{ background: '#fff' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-07-02</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ISM服务业PMI（6月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>服务业PMI&lt;50，叠加制造业收缩，确认经济放缓</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>服务业PMI&lt;50，叠加制造业收缩，确认经济放缓</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>关键指标；服务业占GDP约80%</td>
               </tr>
               <tr style={{ background: 'var(--accent-warm-soft)', borderLeft: '4px solid var(--accent-warm)' }}>
                 <td style={{ padding: '10px', fontWeight: '700', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-07-03<br /><span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>20:30</span></td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem', fontWeight: '600' }}>就业情况报告（6月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>Q2平均&gt;5%，衰退概率&gt;50%</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>Q2平均&gt;5%，衰退概率&gt;50%</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>中期评估</td>
               </tr>
               <tr style={{ background: 'var(--bg-secondary)' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-07-28/29</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>FOMC会议</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>中性利率调整，影响信用债</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>中性利率调整，影响信用债</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>夏季会议</td>
               </tr>
               <tr style={{ background: '#fff' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-07-31</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>就业成本指数（Q2 2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>成本压力上升，盈利剪刀差扩大</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>成本压力上升，盈利剪刀差扩大</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>AI投资效率</td>
               </tr>
               {/* 8月 */}
               <tr style={{ background: '#fff' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-08-03</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ISM制造业PMI（7月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>PMI&lt;48（连续3月），确认制造业收缩</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>PMI&lt;48（连续3月），确认制造业收缩</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>月度更新；关注新订单和就业分项</td>
               </tr>
               <tr style={{ background: '#fff' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-08-04</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ISM服务业PMI（7月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>服务业PMI&lt;50，叠加制造业收缩，确认经济放缓</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>服务业PMI&lt;50，叠加制造业收缩，确认经济放缓</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>关键指标；服务业占GDP约80%</td>
               </tr>
               <tr style={{ background: 'var(--accent-warm-soft)' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-08-05<br /><span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>20:30</span></td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ADP就业数据（7月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ADP新增就业&lt;15万，预示非农数据疲软</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ADP新增就业&lt;15万，预示非农数据疲软</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>非农数据前导指标；通常比非农早2天发布</td>
               </tr>
               <tr style={{ background: '#fff' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-08-07<br /><span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>20:30</span></td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>就业情况报告（7月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>夏季疲软确认，衰退路径锁定</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>夏季疲软确认，衰退路径锁定</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>季节调整</td>
               </tr>
               {/* 9月 */}
               <tr style={{ background: '#fff' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-09-01</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ISM制造业PMI（8月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>PMI&lt;48（连续3月），确认制造业收缩</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>PMI&lt;48（连续3月），确认制造业收缩</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>月度更新；关注新订单和就业分项</td>
               </tr>
               <tr style={{ background: '#fff' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-09-02</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ISM服务业PMI（8月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>服务业PMI&lt;50，叠加制造业收缩，确认经济放缓</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>服务业PMI&lt;50，叠加制造业收缩，确认经济放缓</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>关键指标；服务业占GDP约80%</td>
               </tr>
               <tr style={{ background: 'var(--accent-warm-soft)' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-09-03<br /><span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>20:30</span></td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ADP就业数据（8月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ADP新增就业&lt;15万，预示非农数据疲软</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ADP新增就业&lt;15万，预示非农数据疲软</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>非农数据前导指标；通常比非农早2天发布</td>
               </tr>
               <tr style={{ background: 'var(--accent-warm-soft)', borderLeft: '4px solid var(--accent-warm)' }}>
                 <td style={{ padding: '10px', fontWeight: '700', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-09-04<br /><span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>20:30</span></td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem', fontWeight: '600' }}>就业情况报告（8月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>Q3起始弱，年度风险峰值</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>Q3起始弱，年度风险峰值</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>关注信心指数</td>
               </tr>
               <tr style={{ background: 'var(--accent-soft)', borderLeft: '4px solid var(--accent)' }}>
                 <td style={{ padding: '10px', fontWeight: '700', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-09-15/16</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem', fontWeight: '600' }}>FOMC会议（带经济预测）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>尾部风险（如地缘/关税）上调，溢价上升</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>尾部风险（如地缘/关税）上调，溢价上升</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>SEP焦点</td>
               </tr>
               {/* 10月 */}
               <tr style={{ background: '#fff' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-10-01</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ISM制造业PMI（9月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>PMI&lt;48（连续3月），确认制造业收缩</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>PMI&lt;48（连续3月），确认制造业收缩</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>月度更新；关注新订单和就业分项</td>
               </tr>
               <tr style={{ background: '#fff' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-10-02</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ISM服务业PMI（9月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>服务业PMI&lt;50，叠加制造业收缩，确认经济放缓</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>服务业PMI&lt;50，叠加制造业收缩，确认经济放缓</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>关键指标；服务业占GDP约80%</td>
               </tr>
               <tr style={{ background: 'var(--accent-warm-soft)', borderLeft: '4px solid var(--accent-warm)' }}>
                 <td style={{ padding: '10px', fontWeight: '700', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-10-02<br /><span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>20:30</span></td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem', fontWeight: '600' }}>就业情况报告（9月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>Q3平均&gt;5.5%，系统衰退确认</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>Q3平均&gt;5.5%，系统衰退确认</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>后期指标</td>
               </tr>
               <tr style={{ background: 'var(--bg-secondary)' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-10-27/28</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>FOMC会议</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>年末紧缩，CRE"成熟墙"放大</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>年末紧缩，CRE"成熟墙"放大</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>秋季会议</td>
               </tr>
               <tr style={{ background: '#fff' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-10-30</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>就业成本指数（Q3 2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>成本-盈利分歧，投资回报率&lt;8%</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>成本-盈利分歧，投资回报率&lt;8%</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>年度回顾</td>
               </tr>
               {/* 11月 */}
               <tr style={{ background: 'var(--accent-warm-soft)' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-11-04<br /><span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>21:30</span></td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ADP就业数据（10月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ADP新增就业&lt;15万，预示非农数据疲软</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ADP新增就业&lt;15万，预示非农数据疲软</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>非农数据前导指标；通常比非农早2天发布</td>
               </tr>
               <tr style={{ background: 'var(--accent-warm-soft)', borderLeft: '4px solid var(--accent-warm)' }}>
                 <td style={{ padding: '10px', fontWeight: '700', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-11-06<br /><span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>21:30</span></td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem', fontWeight: '600' }}>就业情况报告（10月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>晚期上升，衰退概率&gt;70%</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>晚期上升，衰退概率&gt;70%</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>选举后影响</td>
               </tr>
               {/* 12月 */}
               <tr style={{ background: 'var(--accent-warm-soft)' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-12-02<br /><span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>21:30</span></td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ADP就业数据（11月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ADP新增就业&lt;15万，预示非农数据疲软</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>ADP新增就业&lt;15万，预示非农数据疲软</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>非农数据前导指标；通常比非农早2天发布</td>
               </tr>
               <tr style={{ background: 'var(--accent-warm-soft)', borderLeft: '4px solid var(--accent-warm)' }}>
                 <td style={{ padding: '10px', fontWeight: '700', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-12-04<br /><span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>21:30</span></td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem', fontWeight: '600' }}>就业情况报告（11月2026）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>全年趋势确认，2027延续风险</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>全年趋势确认，2027延续风险</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>年末总结</td>
               </tr>
               <tr style={{ background: 'var(--accent-soft)', borderLeft: '4px solid var(--accent)' }}>
                 <td style={{ padding: '10px', fontWeight: '700', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026-12-08/09</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem', fontWeight: '600' }}>FOMC会议（带经济预测）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>预测2027衰退，市场提前反应</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>预测2027衰退，市场提前反应</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>最终SEP</td>
               </tr>
               {/* 全年事件 */}
               <tr style={{ background: 'var(--accent-warm-soft)' }}>
                 <td style={{ padding: '10px', fontWeight: '600', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>每周四<br /><span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>21:30</span></td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>初请失业金人数（周度）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>初请&gt;25万（连续4周），确认劳动力市场恶化</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>初请&gt;25万（连续4周），确认劳动力市场恶化</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>高频指标；每周四发布，反映实时就业状况</td>
               </tr>
-              <tr style={{ background: 'var(--system-red-light)', borderLeft: '4px solid var(--up)' }}>
+              <tr style={{ background: 'var(--system-red-light)', borderLeft: '4px solid var(--system-red)' }}>
                 <td style={{ padding: '10px', fontWeight: '700', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>2026全年</td>
                 <td style={{ padding: '10px', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem', fontWeight: '600' }}>CRE贷款到期高峰（约9360亿美元）</td>
-                <td style={{ padding: '10px', color: 'var(--up)', fontWeight: '600', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>办公贷款LTV&gt;80%违约扩散，利差&gt;400bp，系统风险溢价+200bp</td>
+                <td style={{ padding: '10px', color: 'var(--system-red)', fontWeight: '600', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>办公贷款LTV&gt;80%违约扩散，利差&gt;400bp，系统风险溢价+200bp</td>
                 <td style={{ padding: '10px', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontSize: '0.75rem' }}>"慢炖"转为快变量；关注季度末（如Q2/Q4）。2026年高于2025年19%</td>
               </tr>
             </tbody>

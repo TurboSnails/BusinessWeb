@@ -9,7 +9,7 @@ interface MarketCardProps {
 
 export const MarketCard: React.FC<MarketCardProps> = ({ stock, color }) => {
   const isPositive = stock.change >= 0
-  const changeColor = isPositive ? 'var(--down)' : 'var(--up)'
+  const changeColor = isPositive ? 'var(--system-green)' : 'var(--system-red)'
 
   return (
     <div style={{
@@ -32,7 +32,7 @@ export const MarketCard: React.FC<MarketCardProps> = ({ stock, color }) => {
           <span style={{ 
             fontSize: '0.7rem', padding: '2px 5px', borderRadius: '4px',
             background: stock.rsi >= 70 ? 'var(--system-red-light)' : stock.rsi <= 30 ? 'var(--system-green-light)' : 'var(--bg-secondary)',
-            color: stock.rsi >= 70 ? 'var(--up)' : stock.rsi <= 30 ? 'var(--down)' : 'var(--text-secondary)', 
+            color: stock.rsi >= 70 ? 'var(--system-red)' : stock.rsi <= 30 ? 'var(--system-green)' : 'var(--text-secondary)', 
             fontWeight: '500'
           }}>
             RSI {stock.rsi.toFixed(0)}

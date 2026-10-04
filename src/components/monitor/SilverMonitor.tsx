@@ -34,9 +34,9 @@ export const SilverMonitor: React.FC = () => {
               <strong style={{ color: 'var(--warm-ink)' }}>当前价格：</strong>79.11 USD/oz
             </p>
             <p style={{ margin: '0 0 12px 0' }}>
-              <strong style={{ color: 'var(--up)' }}>单日涨幅：</strong>+5.9%
+              <strong style={{ color: 'var(--system-red)' }}>单日涨幅：</strong>+5.9%
             </p>
-            <p style={{ margin: 0, fontWeight: '600', color: 'var(--up)' }}>
+            <p style={{ margin: 0, fontWeight: '600', color: 'var(--system-red)' }}>
               → 市场进入高波动区间，逼空概率上升
             </p>
           </div>
@@ -62,7 +62,7 @@ export const SilverMonitor: React.FC = () => {
           <span style={{ fontSize: '2rem' }}>🚦</span>
           三盏"过程灯"（每天收盘核对）
         </h2>
-        <p style={{ fontSize: '0.9rem', color: 'var(--up)', fontWeight: '600', marginBottom: '20px', padding: '12px', background: 'var(--system-red-light)', borderRadius: '8px', border: '1px solid var(--system-red-light)' }}>
+        <p style={{ fontSize: '0.9rem', color: 'var(--system-red)', fontWeight: '600', marginBottom: '20px', padding: '12px', background: 'var(--system-red-light)', borderRadius: '8px', border: '1px solid var(--system-red-light)' }}>
           ⚠️ 任意两盏红灯 = 进入"强警戒"状态
         </p>
         
@@ -75,7 +75,7 @@ export const SilverMonitor: React.FC = () => {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
               <span style={{ fontSize: '1.5rem' }}>①</span>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--up)', margin: 0 }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--system-red)', margin: 0 }}>
                 近月升水
               </h3>
             </div>
@@ -97,7 +97,7 @@ export const SilverMonitor: React.FC = () => {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
               <span style={{ fontSize: '1.5rem' }}>②</span>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--up)', margin: 0 }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--system-red)', margin: 0 }}>
                 交易所可交割库存
               </h3>
             </div>
@@ -119,7 +119,7 @@ export const SilverMonitor: React.FC = () => {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
               <span style={{ fontSize: '1.5rem' }}>③</span>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--up)', margin: 0 }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--system-red)', margin: 0 }}>
                 1M 租借利率
               </h3>
             </div>
@@ -138,7 +138,7 @@ export const SilverMonitor: React.FC = () => {
       {/* 结果灯 */}
       <div style={{ 
         background: 'var(--system-green-light)', 
-        border: '2px solid var(--down)', 
+        border: '2px solid var(--system-green)', 
         borderRadius: '12px', 
         padding: '24px'
       }}>
@@ -146,7 +146,7 @@ export const SilverMonitor: React.FC = () => {
           fontSize: '1.5rem', 
           fontWeight: '700', 
           marginBottom: '12px', 
-          color: 'var(--down)',
+          color: 'var(--system-green)',
           display: 'flex',
           alignItems: 'center',
           gap: '8px'
@@ -162,7 +162,7 @@ export const SilverMonitor: React.FC = () => {
         }}>
           <div style={{ fontSize: '0.95rem', lineHeight: '1.8', color: 'var(--text-primary)' }}>
             <p style={{ margin: '0 0 12px 0' }}>
-              <strong style={{ color: 'var(--down)' }}>确认条件（满足任一即可）：</strong>
+              <strong style={{ color: 'var(--system-green)' }}>确认条件（满足任一即可）：</strong>
             </p>
             <ul style={{ margin: '0 0 12px 24px', padding: 0, lineHeight: '2' }}>
               <li>单日现货涨幅 &gt;5%</li>
@@ -202,7 +202,7 @@ export const SilverMonitor: React.FC = () => {
         }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ fontSize: '1.2rem', fontWeight: '700', color: 'var(--down)' }}>A</span>
+              <span style={{ fontSize: '1.2rem', fontWeight: '700', color: 'var(--system-green)' }}>A</span>
               <span style={{ fontSize: '0.95rem', color: 'var(--text-primary)' }}>继续冲：</span>
               <span style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--text-primary)' }}>30%</span>
             </div>
@@ -212,7 +212,7 @@ export const SilverMonitor: React.FC = () => {
               <span style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--text-primary)' }}>45%</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ fontSize: '1.2rem', fontWeight: '700', color: 'var(--up)' }}>C</span>
+              <span style={{ fontSize: '1.2rem', fontWeight: '700', color: 'var(--system-red)' }}>C</span>
               <span style={{ fontSize: '0.95rem', color: 'var(--text-primary)' }}>速跌≥20%：</span>
               <span style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--text-primary)' }}>25%</span>
             </div>
@@ -234,7 +234,7 @@ export const SilverMonitor: React.FC = () => {
       {/* 可落地的"非追高"打法 */}
       <div style={{ 
         background: 'var(--system-red-light)', 
-        border: '2px solid var(--up)', 
+        border: '2px solid var(--system-red)', 
         borderRadius: '12px', 
         padding: '24px'
       }}>
@@ -242,7 +242,7 @@ export const SilverMonitor: React.FC = () => {
           fontSize: '1.5rem', 
           fontWeight: '700', 
           marginBottom: '16px', 
-          color: 'var(--up)',
+          color: 'var(--system-red)',
           display: 'flex',
           alignItems: 'center',
           gap: '8px'
@@ -259,7 +259,7 @@ export const SilverMonitor: React.FC = () => {
             borderRadius: '8px',
             border: '1px solid var(--system-red-light)'
           }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '12px', color: 'var(--up)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '12px', color: 'var(--system-red)', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ fontSize: '1.3rem' }}>1️⃣</span>
               期权（资金占比≤10%，IV 极高时改用价差）
             </h3>
@@ -280,7 +280,7 @@ export const SilverMonitor: React.FC = () => {
             borderRadius: '8px',
             border: '1px solid var(--system-red-light)'
           }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '12px', color: 'var(--up)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '12px', color: 'var(--system-red)', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ fontSize: '1.3rem' }}>2️⃣</span>
               现货/ETF
             </h3>
@@ -298,7 +298,7 @@ export const SilverMonitor: React.FC = () => {
             borderRadius: '8px',
             border: '1px solid var(--system-red-light)'
           }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '12px', color: 'var(--up)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '12px', color: 'var(--system-red)', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ fontSize: '1.3rem' }}>3️⃣</span>
               矿股（PAAS 等）
             </h3>
@@ -314,9 +314,9 @@ export const SilverMonitor: React.FC = () => {
             background: 'var(--system-red-light)', 
             padding: '16px', 
             borderRadius: '8px',
-            border: '2px solid var(--up)'
+            border: '2px solid var(--system-red)'
           }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '12px', color: 'var(--up)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '12px', color: 'var(--system-red)', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ fontSize: '1.3rem' }}>4️⃣</span>
               资金纪律
             </h3>
@@ -334,7 +334,7 @@ export const SilverMonitor: React.FC = () => {
       {/* 每日 3 分钟检查表 */}
       <div style={{ 
         background: 'var(--system-green-light)', 
-        border: '2px solid var(--down)', 
+        border: '2px solid var(--system-green)', 
         borderRadius: '12px', 
         padding: '24px'
       }}>
@@ -342,7 +342,7 @@ export const SilverMonitor: React.FC = () => {
           fontSize: '1.5rem', 
           fontWeight: '700', 
           marginBottom: '16px', 
-          color: 'var(--down)',
+          color: 'var(--system-green)',
           display: 'flex',
           alignItems: 'center',
           gap: '8px'
@@ -360,7 +360,7 @@ export const SilverMonitor: React.FC = () => {
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
               <span style={{ fontSize: '1.2rem' }}>•</span>
               <div style={{ flex: 1 }}>
-                <strong style={{ color: 'var(--down)' }}>CME 白银库存</strong>
+                <strong style={{ color: 'var(--system-green)' }}>CME 白银库存</strong>
                 <a href="https://www.cmegroup.com/markets/metals/precious/silver.html" target="_blank" rel="noopener noreferrer" style={{ marginLeft: '8px', fontSize: '0.85rem', color: 'var(--accent)', textDecoration: 'underline' }}>（链接 bookmark）</a>
                 <span style={{ marginLeft: '8px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>→ 抄"Registered"数值</span>
               </div>
@@ -368,21 +368,21 @@ export const SilverMonitor: React.FC = () => {
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
               <span style={{ fontSize: '1.2rem' }}>•</span>
               <div style={{ flex: 1 }}>
-                <strong style={{ color: 'var(--down)' }}>近月-远月价差</strong>
+                <strong style={{ color: 'var(--system-green)' }}>近月-远月价差</strong>
                 <span style={{ marginLeft: '8px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>（TradingView 连续合约）→ 截 1M-3M 升水</span>
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
               <span style={{ fontSize: '1.2rem' }}>•</span>
               <div style={{ flex: 1 }}>
-                <strong style={{ color: 'var(--down)' }}>租借利率</strong>
+                <strong style={{ color: 'var(--system-green)' }}>租借利率</strong>
                 <span style={{ marginLeft: '8px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>（Kitco 或 Bloomberg SLVRRL1M）&gt;3% 画红</span>
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
               <span style={{ fontSize: '1.2rem' }}>•</span>
               <div style={{ flex: 1 }}>
-                <strong style={{ color: 'var(--down)' }}>期权 IV</strong>
+                <strong style={{ color: 'var(--system-green)' }}>期权 IV</strong>
                 <span style={{ marginLeft: '8px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>（SLV 30Δ Call IV）&gt;90 百分位截屏</span>
               </div>
             </div>
@@ -394,7 +394,7 @@ export const SilverMonitor: React.FC = () => {
             borderRadius: '6px',
             border: '1px solid var(--system-red-light)'
           }}>
-            <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--up)', fontWeight: '600' }}>
+            <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--system-red)', fontWeight: '600' }}>
               ⚠️ 任意两项异常，把持仓减到"睡眠仓"
             </p>
           </div>
