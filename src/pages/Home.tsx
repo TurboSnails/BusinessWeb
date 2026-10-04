@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   BookOpen,
+  BookMarked,
   TrendingUp,
   Globe,
   BarChart2,
@@ -138,6 +139,14 @@ export default function Home(): JSX.Element {
       description: '融合巴菲特·邓普顿·双阶段轮动逻辑',
       gradient: 'linear-gradient(135deg, #34C759 0%, #007AFF 100%)',
       color: 'var(--system-blue)'
+    },
+    {
+      to: '/first-book',
+      icon: BookMarked,
+      title: '我的书',
+      description: '《正念投资：不盯盘、不预测的普通人投资方法》',
+      gradient: 'linear-gradient(135deg, #FF9500 0%, #FF3B30 100%)',
+      color: 'var(--system-orange)'
     }
   ]
 
