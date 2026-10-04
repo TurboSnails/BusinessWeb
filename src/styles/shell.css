@@ -361,3 +361,144 @@
     font-size: 2.1rem;
   }
 }
+
+/* ---------- 首页 ---------- */
+.hero {
+  padding: 32px 0 24px;
+  text-align: center;
+}
+
+.hero__eyebrow {
+  margin: 0 0 12px;
+  color: var(--accent);
+  letter-spacing: 0.12em;
+  font-size: 0.9rem;
+}
+
+.hero__title {
+  font-size: 2.4rem;
+  margin: 0 0 8px;
+  letter-spacing: 0.08em;
+}
+
+.hero__subtitle {
+  margin: 0 0 24px;
+  color: var(--text-secondary);
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.manifesto {
+  max-width: 34em;
+  margin: 8px auto 32px;
+  padding: 0 8px;
+  text-align: center;
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  line-height: 1.9;
+}
+
+.home-section {
+  margin-bottom: 32px;
+}
+
+.home-section h2 {
+  font-size: 1.15rem;
+  margin-bottom: 12px;
+}
+
+.updates {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--bg-card);
+}
+
+.updates li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.updates li:last-child {
+  border-bottom: none;
+}
+
+.updates__date {
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+}
+
+.updates__text {
+  overflow-wrap: anywhere;
+}
+
+.quotes {
+  margin-bottom: 24px;
+}
+
+.quotes summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  cursor: pointer;
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+}
+
+.quotes__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.quote {
+  margin: 0;
+  padding: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--accent-warm);
+  border-radius: var(--radius-md);
+}
+
+.quote p {
+  margin: 0 0 8px;
+  font-family: var(--font-serif);
+}
+
+.quote footer {
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+}
+
+@media (min-width: 768px) {
+  .hero {
+    padding: 56px 0 32px;
+  }
+
+  .hero__title {
+    font-size: 3.2rem;
+  }
+
+  .updates li {
+    flex-direction: row;
+    gap: 16px;
+  }
+
+  .updates__date {
+    flex: 0 0 96px;
+  }
+}
