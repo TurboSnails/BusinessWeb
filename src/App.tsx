@@ -2,6 +2,10 @@ import React from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Header from './components/Header'
 import Footer from './components/Footer'
+import SectionChrome from './components/SectionChrome'
+import InvestHub from './pages/InvestHub'
+import AiStudio from './pages/AiStudio'
+import LifeLab from './pages/LifeLab'
 import Home from './pages/Home'
 import About from './pages/About'
 import Pulse from './pages/Pulse'
@@ -21,15 +25,20 @@ import GridCalculator from './pages/GridCalculator'
 import GridRecords from './pages/GridRecords'
 import GridRecordDetail from './pages/GridRecordDetail'
 import Valuation from './pages/Valuation'
+import IndustryLandscape from './pages/IndustryLandscape'
 
 export default function App(): JSX.Element {
   return (
     <div className="app">
       <BrowserRouter basename={import.meta.env.BASE_URL}>
         <Header />
+        <SectionChrome />
         <Routes>
           <Route path="/valuation" element={<Valuation />} />
           <Route path="/" element={<Home />} />
+          <Route path="/invest" element={<InvestHub />} />
+          <Route path="/ai" element={<AiStudio />} />
+          <Route path="/life" element={<LifeLab />} />
           <Route path="/about" element={<About />} />
           <Route path="/pulse" element={<Pulse />} />
           <Route path="/monitor" element={<Monitor />} />
@@ -43,6 +52,7 @@ export default function App(): JSX.Element {
           <Route path="/first-book" element={<MyBooks />} />
           <Route path="/first-book/slow-is-fast" element={<FirstBook />} />
           <Route path="/first-book/:file" element={<FirstBook />} />
+          <Route path="/industry-landscape" element={<IndustryLandscape />} />
           <Route path="/research-notes" element={<ResearchNotes />} />
           <Route path="/research-notes/:market/:code" element={<CompanyDetail />} />
           <Route path="/grid-trading" element={<GridCalculator />} />
