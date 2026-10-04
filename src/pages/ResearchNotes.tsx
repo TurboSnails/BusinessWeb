@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import PageHero from '../components/PageHero'
 import { Link, useNavigationType, useSearchParams } from 'react-router-dom'
 import {
   BookOpen,
@@ -50,10 +51,10 @@ const tabs: { id: TabId; label: string; icon: React.ElementType }[] = [
 ]
 
 const toneColors: Record<Tone, { bg: string; color: string }> = {
-  green: { bg: 'rgba(52,199,89,0.12)', color: 'var(--system-green)' },
-  blue: { bg: 'rgba(0,122,255,0.10)', color: 'var(--system-blue)' },
-  orange: { bg: 'rgba(255,149,0,0.12)', color: 'var(--system-orange)' },
-  red: { bg: 'rgba(255,59,48,0.12)', color: 'var(--system-red)' },
+  green: { bg: 'color-mix(in srgb, var(--system-green) 12%, transparent)', color: 'var(--system-green)' },
+  blue: { bg: 'color-mix(in srgb, var(--system-blue) 10%, transparent)', color: 'var(--system-blue)' },
+  orange: { bg: 'color-mix(in srgb, var(--system-orange) 12%, transparent)', color: 'var(--system-orange)' },
+  red: { bg: 'color-mix(in srgb, var(--system-red) 12%, transparent)', color: 'var(--system-red)' },
   gray: { bg: 'var(--bg-secondary)', color: 'var(--text-secondary)' },
 }
 
@@ -115,12 +116,10 @@ export default function ResearchNotes(): JSX.Element {
 
   const card: React.CSSProperties = {
     background: 'var(--bg-card)',
-    border: '1px solid rgba(255,255,255,0.7)',
+    border: '1px solid var(--border-subtle)',
     borderRadius: 'var(--radius-lg)',
     padding: '24px 28px',
     marginBottom: '16px',
-    backdropFilter: 'blur(24px)',
-    WebkitBackdropFilter: 'blur(24px)',
     boxShadow: 'var(--shadow-md)',
   }
 
@@ -183,7 +182,7 @@ export default function ResearchNotes(): JSX.Element {
 
   const flowStep = (num: number, children: React.ReactNode): JSX.Element => (
     <div key={num} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', marginBottom: '16px' }}>
-      <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(0,122,255,0.12)', color: 'var(--system-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 600, flexShrink: 0 }}>
+      <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'color-mix(in srgb, var(--system-blue) 12%, transparent)', color: 'var(--system-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 600, flexShrink: 0 }}>
         {num}
       </div>
       <div style={{ fontSize: '14px', color: 'var(--text-secondary)', paddingTop: '4px', lineHeight: 1.7 }}>{children}</div>
@@ -442,22 +441,9 @@ export default function ResearchNotes(): JSX.Element {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', paddingBottom: '80px' }}>
       {/* 页面头部 */}
-      <div style={{ background: 'linear-gradient(135deg, #5856D6 0%, #007AFF 100%)', padding: '40px 24px 32px' }}>
-        <div style={{ maxWidth: '760px', margin: '0 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
-            <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(255,255,255,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <BookOpen size={24} color="#fff" />
-            </div>
-            <div>
-              <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#fff', margin: 0 }}>研究笔记汇总</h1>
-              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.8)', margin: 0 }}>同步自 Notion · {NOTION_SYNC_DATE}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
+      <PageHero icon={<BookOpen size={24} />} title="研究笔记汇总" subtitle={`同步自 Notion · ${NOTION_SYNC_DATE}`} />
       {/* Tab 导航 */}
-      <div style={{ position: 'sticky', top: '60px', zIndex: 10, background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', WebkitBackdropFilter: 'var(--glass-blur)', borderBottom: '0.5px solid var(--border-primary)' }}>
+      <div style={{ position: 'sticky', top: '57px', zIndex: 10, background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', WebkitBackdropFilter: 'var(--glass-blur)', borderBottom: '0.5px solid var(--border-primary)' }}>
         <div style={{ maxWidth: '760px', margin: '0 auto', padding: '0 20px', display: 'flex', gap: '4px', overflowX: 'auto' }}>
           {tabs.map(tab => {
             const Icon = tab.icon
@@ -498,7 +484,7 @@ export default function ResearchNotes(): JSX.Element {
         {activeTab === 'philosophy' && (
           <div>
             <p style={sectionTitle}>投资框架</p>
-            <div style={{ ...card, border: '1.5px solid rgba(0,122,255,0.35)', background: 'rgba(0,122,255,0.04)' }}>
+            <div style={{ ...card, border: '1.5px solid color-mix(in srgb, var(--system-blue) 35%, transparent)', background: 'color-mix(in srgb, var(--system-blue) 4%, transparent)' }}>
               {quote(philosophy.motto)}
               <div style={grid(150)}>
                 {philosophy.structure.map(x => metricCard(`${x.label} · ${x.desc}`, x.pct))}
@@ -562,7 +548,7 @@ export default function ResearchNotes(): JSX.Element {
         {activeTab === 'strategy' && (
           <div>
             <p style={sectionTitle}>{portfolioV6.title}</p>
-            <div style={{ ...card, border: '1.5px solid rgba(0,122,255,0.35)', background: 'rgba(0,122,255,0.04)' }}>
+            <div style={{ ...card, border: '1.5px solid color-mix(in srgb, var(--system-blue) 35%, transparent)', background: 'color-mix(in srgb, var(--system-blue) 4%, transparent)' }}>
               {quote(portfolioV6.oneLiner)}
               <div style={grid(140)}>
                 {metricCard('股票占比', '64%')}
@@ -625,7 +611,7 @@ export default function ResearchNotes(): JSX.Element {
         {activeTab === 'standard' && (
           <div>
             <p style={sectionTitle}>研究标准 · 适用于所有公司</p>
-            <div style={{ ...card, border: '1.5px solid rgba(0,122,255,0.35)', background: 'rgba(0,122,255,0.04)' }}>
+            <div style={{ ...card, border: '1.5px solid color-mix(in srgb, var(--system-blue) 35%, transparent)', background: 'color-mix(in srgb, var(--system-blue) 4%, transparent)' }}>
               <h3 style={cardTitle}>核心投资目标</h3>
               {quote(researchStandard.goal)}
               {researchStandard.applies.map((t, i) => checkRow(t, 'var(--system-blue)', i))}
@@ -932,7 +918,7 @@ export default function ResearchNotes(): JSX.Element {
         {activeTab === 'dev' && (
           <div>
             <p style={sectionTitle}>多模型协作 Agent 设想</p>
-            <div style={{ ...card, border: '1.5px solid rgba(0,122,255,0.35)', background: 'rgba(0,122,255,0.04)' }}>
+            <div style={{ ...card, border: '1.5px solid color-mix(in srgb, var(--system-blue) 35%, transparent)', background: 'color-mix(in srgb, var(--system-blue) 4%, transparent)' }}>
               {quote(devIdeas.vision)}
               {devIdeas.architecture.map((a, i) => flowStep(i + 1, (
                 <>

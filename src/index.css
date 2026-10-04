@@ -36,6 +36,14 @@
   --system-gray5: #E6DFD0;
   --system-gray6: #F1EBDD;
 
+  /* 老页面引用但此前从未定义的变量，统一指向新色板 */
+  --border-primary: var(--border-subtle);
+  --border-light: var(--border-subtle);
+  --bg-secondary: var(--system-gray6);
+  --text-tertiary: var(--system-gray);
+  --shadow-subtle: none;
+  --font-family: var(--font-sans);
+
   --accent-color: var(--accent);
   --glass-bg: var(--bg-primary);
   --glass-border: var(--border-subtle);

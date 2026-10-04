@@ -7,10 +7,10 @@ import { CN_REPORT } from '../data/cnReassessment'
 import { SP500_REPORT } from '../data/sp500Reassessment'
 
 const toneColors: Record<Tone, { bg: string; color: string }> = {
-  green: { bg: 'rgba(52,199,89,0.12)', color: 'var(--system-green)' },
-  blue: { bg: 'rgba(0,122,255,0.10)', color: 'var(--system-blue)' },
-  orange: { bg: 'rgba(255,149,0,0.12)', color: 'var(--system-orange)' },
-  red: { bg: 'rgba(255,59,48,0.12)', color: 'var(--system-red)' },
+  green: { bg: 'color-mix(in srgb, var(--system-green) 12%, transparent)', color: 'var(--system-green)' },
+  blue: { bg: 'color-mix(in srgb, var(--system-blue) 10%, transparent)', color: 'var(--system-blue)' },
+  orange: { bg: 'color-mix(in srgb, var(--system-orange) 12%, transparent)', color: 'var(--system-orange)' },
+  red: { bg: 'color-mix(in srgb, var(--system-red) 12%, transparent)', color: 'var(--system-red)' },
   gray: { bg: 'var(--bg-secondary)', color: 'var(--text-secondary)' },
 }
 
@@ -28,12 +28,10 @@ export default function CompanyDetail(): JSX.Element {
 
   const card: React.CSSProperties = {
     background: 'var(--bg-card)',
-    border: '1px solid rgba(255,255,255,0.7)',
+    border: '1px solid var(--border-subtle)',
     borderRadius: 'var(--radius-lg)',
     padding: '24px 28px',
     marginBottom: '16px',
-    backdropFilter: 'blur(24px)',
-    WebkitBackdropFilter: 'blur(24px)',
     boxShadow: 'var(--shadow-md)',
   }
   const sectionTitle: React.CSSProperties = { fontSize: '11px', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '16px' }
@@ -60,7 +58,7 @@ export default function CompanyDetail(): JSX.Element {
           navigate(-1)
         }
       }}
-      style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'rgba(255,255,255,0.9)', textDecoration: 'none', fontSize: '13px', marginBottom: '14px' }}
+      style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'var(--accent)', textDecoration: 'none', fontSize: '13px', marginBottom: '14px' }}
     >
       <ArrowLeft size={14} /> 返回研究笔记
     </Link>
@@ -81,9 +79,6 @@ export default function CompanyDetail(): JSX.Element {
   }
 
   const tone = toneOf(company.rating)
-  const gradient = company.market === 'us'
-    ? 'linear-gradient(135deg, #5856D6 0%, #007AFF 100%)'
-    : 'linear-gradient(135deg, #FF9500 0%, #FF3B30 100%)'
 
   // ── 按“最终返回标准”整理：三情景表、买入纪律、完整度 ──
   const nums = (t: string): number[] => (t.match(/[\d,]+(?:\.\d+)?/g) || []).map(x => Number(x.replace(/,/g, ''))).filter(n => !Number.isNaN(n))
@@ -141,15 +136,15 @@ export default function CompanyDetail(): JSX.Element {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', paddingBottom: '80px' }}>
       {/* 页面头部 */}
-      <div style={{ background: gradient, padding: '32px 24px 28px' }}>
+      <div className="page-hero">
         <div style={{ maxWidth: '760px', margin: '0 auto' }}>
           {back}
-          <Link to={`/valuation?market=${mk === 'adr' ? 'us' : mk}&code=${encodeURIComponent(company.code)}`} style={{display:'inline-block',marginLeft:'18px',color:'#fff',fontSize:'13px'}}>建立估值模型 →</Link>
-          <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#fff', margin: '0 0 6px' }}>{company.name}</h1>
-          <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.85)', margin: '0 0 14px' }}>
+          <Link to={`/valuation?market=${mk === 'adr' ? 'us' : mk}&code=${encodeURIComponent(company.code)}`} style={{display:'inline-block',marginLeft:'18px',color:'var(--accent)',fontSize:'13px'}}>建立估值模型 →</Link>
+          <h1 style={{ fontSize: '24px', margin: '0 0 6px' }}>{company.name}</h1>
+          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 14px' }}>
             {company.market === 'us' ? '标普500' : company.market === 'hk' ? '港股' : company.market === 'adr' ? '美股非标普' : '沪深'} · {company.code} · {company.sector} · {company.batch}
           </p>
-          <span style={{ display: 'inline-block', fontSize: '13px', fontWeight: 600, padding: '4px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.9)', color: toneColors[tone].color }}>
+          <span style={{ display: 'inline-block', fontSize: '13px', fontWeight: 600, padding: '4px 12px', borderRadius: '8px', background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', color: toneColors[tone].color }}>
             {company.rating}
           </span>
         </div>
@@ -166,7 +161,7 @@ export default function CompanyDetail(): JSX.Element {
         {(() => {
           const ly = lynchAll[`${company.market}:${company.code}`]
           if (!ly) return null
-          const tone = ly.r === '高' ? 'rgba(52,199,89,0.45)' : ly.r === '中' ? 'rgba(0,122,255,0.35)' : 'var(--border-primary)'
+          const tone = ly.r === '高' ? 'color-mix(in srgb, var(--system-green) 45%, transparent)' : ly.r === '中' ? 'color-mix(in srgb, var(--system-blue) 35%, transparent)' : 'var(--border-primary)'
           return (
             <div style={{ ...card, border: `1.5px solid ${tone}` }}>
               <h3 style={{ ...cardTitle, margin: '0 0 8px' }}>林奇分类：{ly.t}（同类关注度 {ly.r}）{ly.m ? ` · ${ly.m.l}` : ''}</h3>
@@ -197,7 +192,7 @@ export default function CompanyDetail(): JSX.Element {
           )
         })()}
         {company.auto && (
-          <div style={{ ...card, border: '1.5px solid rgba(255,149,0,0.45)', background: 'rgba(255,149,0,0.06)' }}>
+          <div style={{ ...card, border: '1.5px solid color-mix(in srgb, var(--system-orange) 45%, transparent)', background: 'color-mix(in srgb, var(--system-orange) 6%, transparent)' }}>
             <h3 style={{ ...cardTitle, margin: '0 0 8px' }}>{company.reviewed ? '程序化研究页（已人工复核）' : '程序化研究页'}</h3>
             <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.7, margin: 0 }}>{company.metrics.some(([key]) => key === '圆桌复核日期') ? '本页源自程序化补全；本轮圆桌已另行核实公告并更正结论，旧模型已暂停认证。旧数值存档不等于逐项一手财务验证，分部占比、正常化估值与完整现金流仍需补齐。' : <>本页的财务数值、估值、三情景与买入区由脚本按统一规则计算（规则见「研究笔记 → 研究标准」），业务描述与行业判断为简述；{company.reviewed ? '已用最新半年报/指引人工复核评级与关键风险（见指标表「人工复核」行），但情景数值仍是脚本结果；' : ''}不含公司特有催化与风险，一手公告、分部占比、一致预期、自由现金流均未取到。结论用于筛选与排序，深度判断需回到公司公告。</>}</p>
           </div>
@@ -245,7 +240,7 @@ export default function CompanyDetail(): JSX.Element {
           {company.industry && <p style={{ fontSize: '12px', color: 'var(--text-tertiary)', margin: '10px 0 0' }}>行业趋势含研究者判断，需随最新数据更新。</p>}
         </div>
 
-        <div style={{ ...card, border: '1.5px solid rgba(0,122,255,0.35)', background: 'rgba(0,122,255,0.04)' }}>
+        <div style={{ ...card, border: '1.5px solid color-mix(in srgb, var(--system-blue) 35%, transparent)', background: 'color-mix(in srgb, var(--system-blue) 4%, transparent)' }}>
           <p style={{ fontSize: '15px', color: 'var(--text-primary)', margin: '0 0 14px', lineHeight: 1.7, fontWeight: 500 }}>{company.headline}</p>
           {(company.certainty || company.duration || company.ratioNote) && (
             <div style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.8, marginBottom: '14px' }}>
@@ -257,7 +252,7 @@ export default function CompanyDetail(): JSX.Element {
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
             <span style={{ fontSize: '12px', color: 'var(--text-secondary)', marginRight: '4px' }}>最终返回标准完整度 {done}/{completeness.length}</span>
             {completeness.map(([n, ok]) => (
-              <span key={n} style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '6px', background: ok ? 'rgba(52,199,89,0.12)' : 'var(--bg-secondary)', color: ok ? 'var(--system-green)' : 'var(--text-tertiary)' }}>{ok ? '✓' : '○'} {n}</span>
+              <span key={n} style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '6px', background: ok ? 'color-mix(in srgb, var(--system-green) 12%, transparent)' : 'var(--bg-secondary)', color: ok ? 'var(--system-green)' : 'var(--text-tertiary)' }}>{ok ? '✓' : '○'} {n}</span>
             ))}
           </div>
         </div>

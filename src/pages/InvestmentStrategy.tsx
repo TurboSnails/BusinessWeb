@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import PageHero from '../components/PageHero'
 import {
   TrendingUp,
   Globe,
@@ -38,12 +39,10 @@ export default function InvestmentStrategy(): JSX.Element {
 
   const card: React.CSSProperties = {
     background: 'var(--bg-card)',
-    border: '1px solid rgba(255,255,255,0.7)',
+    border: '1px solid var(--border-subtle)',
     borderRadius: 'var(--radius-lg)',
     padding: '24px 28px',
     marginBottom: '16px',
-    backdropFilter: 'blur(24px)',
-    WebkitBackdropFilter: 'blur(24px)',
     boxShadow: 'var(--shadow-md)',
   }
 
@@ -83,7 +82,7 @@ export default function InvestmentStrategy(): JSX.Element {
 
   const flowStep = (num: number, children: React.ReactNode): JSX.Element => (
     <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', marginBottom: '16px' }}>
-      <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(0,122,255,0.12)', color: 'var(--system-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 600, flexShrink: 0 }}>
+      <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'color-mix(in srgb, var(--system-blue) 12%, transparent)', color: 'var(--system-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 600, flexShrink: 0 }}>
         {num}
       </div>
       <div style={{ fontSize: '14px', color: 'var(--text-secondary)', paddingTop: '4px', lineHeight: 1.7 }}>{children}</div>
@@ -100,22 +99,10 @@ export default function InvestmentStrategy(): JSX.Element {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', paddingBottom: '80px' }}>
       {/* 页面头部 */}
-      <div style={{ background: 'linear-gradient(135deg, #34C759 0%, #007AFF 100%)', padding: '40px 24px 32px' }}>
-        <div style={{ maxWidth: '760px', margin: '0 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
-            <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(255,255,255,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Layers size={24} color="#fff" />
-            </div>
-            <div>
-              <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#fff', margin: 0 }}>综合投资策略框架</h1>
-              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.8)', margin: 0 }}>融合巴菲特 · 邓普顿 · 双阶段轮动逻辑</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <PageHero icon={<Layers size={24} />} title="综合投资策略框架" subtitle="融合巴菲特 · 邓普顿 · 双阶段轮动逻辑" />
 
       {/* Tab 导航 */}
-      <div style={{ position: 'sticky', top: '60px', zIndex: 10, background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', WebkitBackdropFilter: 'var(--glass-blur)', borderBottom: '0.5px solid var(--border-primary)' }}>
+      <div style={{ position: 'sticky', top: '57px', zIndex: 10, background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', WebkitBackdropFilter: 'var(--glass-blur)', borderBottom: '0.5px solid var(--border-primary)' }}>
         <div style={{ maxWidth: '760px', margin: '0 auto', padding: '0 20px', display: 'flex', gap: '4px', overflowX: 'auto' }}>
           {tabs.map(tab => {
             const Icon = tab.icon
@@ -171,7 +158,7 @@ export default function InvestmentStrategy(): JSX.Element {
               </div>
               <div>
                 {['护城河筛选', '长期持有', '现金流优先', '管理层诚信'].map(t => (
-                  <span key={t} style={badge('rgba(0,122,255,0.10)', 'var(--system-blue)')}>{t}</span>
+                  <span key={t} style={badge('color-mix(in srgb, var(--system-blue) 10%, transparent)', 'var(--system-blue)')}>{t}</span>
                 ))}
               </div>
             </div>
@@ -190,15 +177,15 @@ export default function InvestmentStrategy(): JSX.Element {
               </div>
               <div>
                 {['全球视野', '极度逆向', '困境反转', '估值底部'].map(t => (
-                  <span key={t} style={badge('rgba(90,200,250,0.15)', 'var(--system-teal)')}>{t}</span>
+                  <span key={t} style={badge('color-mix(in srgb, var(--system-teal) 15%, transparent)', 'var(--system-teal)')}>{t}</span>
                 ))}
               </div>
             </div>
 
             {/* 双阶段轮动（重点卡片） */}
-            <div style={{ ...card, border: '1.5px solid rgba(0,122,255,0.35)', background: 'rgba(0,122,255,0.04)' }}>
+            <div style={{ ...card, border: '1.5px solid color-mix(in srgb, var(--system-blue) 35%, transparent)', background: 'color-mix(in srgb, var(--system-blue) 4%, transparent)' }}>
               <div style={{ marginBottom: '10px' }}>
-                <span style={badge('rgba(0,122,255,0.12)', 'var(--system-blue)')}>你的独创</span>
+                <span style={badge('color-mix(in srgb, var(--system-blue) 12%, transparent)', 'var(--system-blue)')}>你的独创</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
                 <RefreshCw size={18} color="var(--system-blue)" />
@@ -206,7 +193,7 @@ export default function InvestmentStrategy(): JSX.Element {
               </div>
               <div>
                 {['高位→冷门反转股', '低位→超跌知名股', '周期行业轮动', '大环境补涨逻辑'].map(t => (
-                  <span key={t} style={badge('rgba(255,59,48,0.10)', 'var(--system-red)')}>{t}</span>
+                  <span key={t} style={badge('color-mix(in srgb, var(--system-red) 10%, transparent)', 'var(--system-red)')}>{t}</span>
                 ))}
               </div>
             </div>
@@ -230,17 +217,17 @@ export default function InvestmentStrategy(): JSX.Element {
 
             {[
               {
-                dot: '衰', bg: 'rgba(255,59,48,0.12)', color: 'var(--system-red)',
+                dot: '衰', bg: 'color-mix(in srgb, var(--system-red) 12%, transparent)', color: 'var(--system-red)',
                 title: '衰退期 — 调研建单',
                 desc: '现金为王，建立超跌知名股观察池，暂不建仓。关注：负债率、现金流、核心业务收缩幅度'
               },
               {
-                dot: '复', bg: 'rgba(52,199,89,0.12)', color: 'var(--system-green)',
+                dot: '复', bg: 'color-mix(in srgb, var(--system-green) 12%, transparent)', color: 'var(--system-green)',
                 title: '复苏期 — 主战场',
                 desc: '超跌知名股优先补涨窗口。PMI回升、信贷扩张、央行宽松信号出现时，分批建仓。这是策略最核心的黄金期'
               },
               {
-                dot: '热', bg: 'rgba(255,149,0,0.12)', color: 'var(--system-orange)',
+                dot: '热', bg: 'color-mix(in srgb, var(--system-orange) 12%, transparent)', color: 'var(--system-orange)',
                 title: '过热期 — 冷门反转',
                 desc: '市场亢奋，转向冷门+业绩反转股。行业景气度指标、产能利用率开始改善但未被市场定价的品种'
               },
@@ -315,10 +302,10 @@ export default function InvestmentStrategy(): JSX.Element {
                       <tr key={label} style={{ background: i % 2 === 1 ? 'var(--bg-secondary)' : 'transparent' }}>
                         <td style={{ padding: '10px 14px', color: 'var(--text-primary)', borderBottom: '0.5px solid var(--border-primary)' }}>{label}</td>
                         <td style={{ padding: '10px 14px', borderBottom: '0.5px solid var(--border-primary)' }}>
-                          <span style={badge('rgba(52,199,89,0.12)', 'var(--system-green)')}>{good}</span>
+                          <span style={badge('color-mix(in srgb, var(--system-green) 12%, transparent)', 'var(--system-green)')}>{good}</span>
                         </td>
                         <td style={{ padding: '10px 14px', borderBottom: '0.5px solid var(--border-primary)' }}>
-                          <span style={badge('rgba(255,59,48,0.12)', 'var(--system-red)')}>{bad}</span>
+                          <span style={badge('color-mix(in srgb, var(--system-red) 12%, transparent)', 'var(--system-red)')}>{bad}</span>
                         </td>
                       </tr>
                     ))}
@@ -330,7 +317,7 @@ export default function InvestmentStrategy(): JSX.Element {
             <div style={card}>
               <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 14px' }}>第三关：护城河验证（巴菲特）</h3>
               {['品牌溢价', '规模效应', '网络效应', '转换成本高', '牌照 / 资质壁垒'].map(t => (
-                <span key={t} style={badge('rgba(0,122,255,0.10)', 'var(--system-blue)')}>{t}</span>
+                <span key={t} style={badge('color-mix(in srgb, var(--system-blue) 10%, transparent)', 'var(--system-blue)')}>{t}</span>
               ))}
             </div>
 
@@ -438,7 +425,7 @@ export default function InvestmentStrategy(): JSX.Element {
                         <td style={{ padding: '10px 14px', color: 'var(--text-primary)', fontWeight: 500, borderBottom: '0.5px solid var(--border-primary)' }}>{type}</td>
                         <td style={{ padding: '10px 14px', color: 'var(--text-secondary)', borderBottom: '0.5px solid var(--border-primary)' }}>{method}</td>
                         <td style={{ padding: '10px 14px', borderBottom: '0.5px solid var(--border-primary)' }}>
-                          <span style={badge('rgba(0,122,255,0.10)', 'var(--system-blue)')}>{response}</span>
+                          <span style={badge('color-mix(in srgb, var(--system-blue) 10%, transparent)', 'var(--system-blue)')}>{response}</span>
                         </td>
                       </tr>
                     ))}
