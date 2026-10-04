@@ -24,11 +24,11 @@ describe('Header', () => {
     expect(brand.getAttribute('href')).toBe('/')
   })
 
-  it('主导航恰好 5 项', () => {
+  it('主导航含个人知识中心，共 6 项', () => {
     renderAt('/')
     const nav = screen.getByRole('navigation', { name: '主导航' })
     expect(within(nav).getAllByRole('link').map(a => a.textContent)).toEqual([
-      '首页', '正念投资', 'AI 与独立开发', '自由生活实验', '关于',
+      '首页', '正念投资', 'AI 与独立开发', '个人知识中心', '自由生活实验', '关于',
     ])
   })
 
@@ -91,4 +91,12 @@ describe('Header', () => {
     expect(document.body.style.overflow).toBe('')
     vi.unstubAllGlobals()
   })
+})
+
+it('知识中心点亮桌面与移动导航', () => {
+  renderAt('/knowledge')
+  expect(screen.getByRole('link', { name: '个人知识中心' }).getAttribute('aria-current')).toBe('page')
+  fireEvent.click(screen.getByRole('button', { name: '打开菜单' }))
+  const drawer = screen.getByRole('navigation', { name: '移动导航' })
+  expect(within(drawer).getByRole('link', { name: '个人知识中心' }).getAttribute('aria-current')).toBe('page')
 })

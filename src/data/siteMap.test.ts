@@ -6,11 +6,11 @@ import { INVEST_GROUPS, NAV_ITEMS, findInvestEntry, isNavActive } from './siteMa
 const appSource = readFileSync(resolve(__dirname, '../App.tsx'), 'utf8')
 
 describe('NAV_ITEMS', () => {
-  it('恰好 5 项，顺序固定', () => {
+  it('包含个人知识中心，共 6 项，顺序固定', () => {
     expect(NAV_ITEMS.map(i => i.label)).toEqual([
-      '首页', '正念投资', 'AI 与独立开发', '自由生活实验', '关于',
+      '首页', '正念投资', 'AI 与独立开发', '个人知识中心', '自由生活实验', '关于',
     ])
-    expect(NAV_ITEMS.map(i => i.path)).toEqual(['/', '/invest', '/ai', '/life', '/about'])
+    expect(NAV_ITEMS.map(i => i.path)).toEqual(['/', '/invest', '/ai', '/knowledge', '/life', '/about'])
   })
 })
 

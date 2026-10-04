@@ -3,13 +3,18 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "knowledge:app": "node scripts/knowledge-app.mjs",
+    "knowledge:server": "node server/knowledge/index.mjs",
+    "knowledge:mcp": "node server/knowledge/mcp.mjs",
+    "knowledge:mcp:http": "node server/knowledge/mcp-http.mjs",
+    "test:knowledge": "node --test server/knowledge/*.test.mjs",
     "dev": "vite --host",
     "valuation:server": "node server/valuation/index.mjs",
     "valuation": "node scripts/valuation-cli.mjs",
     "valuation:app": "node scripts/valuation-app.mjs",
     "test:valuation-server": "node --test server/valuation/*.test.mjs",
     "test": "node scripts/run-vitest.mjs",
-    "typecheck": "tsc --noEmit -p tsconfig.grid.json && tsc --noEmit -p tsconfig.server.json && tsc --noEmit -p tsconfig.valuation.json",
+    "typecheck": "tsc --noEmit -p tsconfig.grid.json && tsc --noEmit -p tsconfig.server.json && tsc --noEmit -p tsconfig.valuation.json && tsc --noEmit -p tsconfig.knowledge.json",
     "prebuild": "node scripts/generate-changelog.mjs",
     "build": "vite build",
     "preview": "vite preview",
@@ -19,11 +24,13 @@
   },
   "dependencies": {
     "@fontsource/noto-serif-sc": "^5.3.0",
+    "@modelcontextprotocol/sdk": "^1.32.0",
     "@types/react-router-dom": "^5.3.3",
     "lucide-react": "^0.562.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.30.2"
+    "react-router-dom": "^6.30.2",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@earendil-works/pi-coding-agent": "^1.0.2",

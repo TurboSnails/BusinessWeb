@@ -21,6 +21,7 @@ export const NAV_ITEMS: NavItem[] = [
   { path: '/', label: '首页' },
   { path: '/invest', label: '正念投资' },
   { path: '/ai', label: 'AI 与独立开发' },
+  { path: '/knowledge', label: '个人知识中心' },
   { path: '/life', label: '自由生活实验' },
   { path: '/about', label: '关于' },
 ]

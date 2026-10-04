@@ -4,6 +4,8 @@
 
 ## 这是什么
 
+- **个人知识中心**：顶层 `/knowledge` 默认打开蒲公英知识网络，与 Obsidian 共用真实 Markdown，支持每日 Inbox、编辑、搜索和双向链接。本地 stdio MCP 支持 Agent 读写；只读 HTTP MCP 提供带认证及目录范围的第三方 AI 访问。运行 `npm run knowledge:app`，详见[本地说明](docs/knowledge-local-setup.md)和[HTTP MCP 接入](docs/knowledge-garden-and-http-mcp.md)。私人数据不会发布到静态网站；远程托管、OAuth、向量索引及 R2 为后续阶段。
+
 - **公司估值工作台**：`/valuation`支持本地Pi/Codex/Claude/OpenCode及具体模型版本选择、财务采集、六方法三情景估值、参数复算和报告导出。启动方法见[本地估值说明](docs/valuation-local-setup.md)。
 
 - **网格交易**：`src/features/grid-trading/` 实现了完整的 ETF / 个股网格模拟器——行情接入、参数求解、回测、记录、导入导出、可选 Supabase 同步。记录默认保存在浏览器，云同步只在手动配置独立 Supabase + token 后才启用。
@@ -55,7 +57,7 @@ npm run typecheck
 npm run build
 ```
 
-`typecheck` 覆盖网格交易模块与新增同步服务端；历史页面暂不在该检查范围内。`test:functions` 检查 Vercel Function 的 schema 与环境变量使用。
+`typecheck` 覆盖网格交易、估值、个人知识中心与新增同步服务端；历史页面暂不在该检查范围内。`test:functions` 检查 Vercel Function 的 schema 与环境变量使用。
 
 ## AI 投研 skills
 

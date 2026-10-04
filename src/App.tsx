@@ -29,6 +29,7 @@ const GridRecords = lazy(() => import('./pages/GridRecords'))
 const GridRecordDetail = lazy(() => import('./pages/GridRecordDetail'))
 const Valuation = lazy(() => import('./pages/Valuation'))
 const IndustryLandscape = lazy(() => import('./pages/IndustryLandscape'))
+const KnowledgeCenter = lazy(() => import('./pages/KnowledgeCenter'))
 
 function PageLoading(): JSX.Element {
   return <div role="status" className="container page-loading">加载中…</div>
@@ -46,6 +47,7 @@ export default function App(): JSX.Element {
           <Route path="/" element={<Home />} />
           <Route path="/invest" element={<InvestHub />} />
           <Route path="/ai" element={<AiStudio />} />
+          <Route path="/knowledge" element={<KnowledgeCenter />} />
           <Route path="/life" element={<LifeLab />} />
           <Route path="/about" element={<About />} />
           <Route path="/pulse" element={<Pulse />} />

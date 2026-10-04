@@ -1,9 +1,12 @@
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import { marketMiddleware } from './server/market.mjs'
+import { knowledgeProxyGuard } from './server/knowledge/local-access.mjs'
+import { knowledgePrivateDeny } from './server/knowledge/private-files.mjs'
 
 export default defineConfig({
-  plugins: [react(), { name: 'businessweb-market-api', configureServer(server) { server.middlewares.use(marketMiddleware) } }],
+  plugins: [react(), { name: 'businessweb-market-api', configureServer(server) { server.middlewares.use(marketMiddleware) } },
+    { name: 'private-knowledge-api', configureServer(server) { server.middlewares.use((req, res, next) => knowledgeProxyGuard(req, res, next, process.env.KNOWLEDGE_TOKEN)) } }],
   base: process.env.VITE_BASE_PATH || '/',
   define: {
     __BUILD_TIME__: JSON.stringify(new Date().toLocaleString('zh-CN', { 
@@ -18,7 +21,10 @@ export default defineConfig({
   },
   server: { 
     host: true,
+    fs: { deny: knowledgePrivateDeny(process.env.KNOWLEDGE_VAULT) },
     proxy: {
+      '/api/knowledge': { target: `http://127.0.0.1:${process.env.KNOWLEDGE_PORT || 8789}`, changeOrigin: true,
+        headers: { Authorization: `Bearer ${process.env.KNOWLEDGE_TOKEN || ''}` } },
       '/api/valuation': { target: `http://127.0.0.1:${process.env.VALUATION_PORT || 8788}`, changeOrigin: true },
       '/api/cls-plate': { target: 'https://business-web-black.vercel.app', changeOrigin: true },
       '/api/candidates-sync': { target: 'https://business-web-black.vercel.app', changeOrigin: true },
