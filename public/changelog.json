@@ -1,10 +1,88 @@
 {
-  "generatedAt": "2026-10-04T09:21:00.377Z",
+  "generatedAt": "2026-10-04T11:00:33.308Z",
   "versions": [
     {
       "tag": "unreleased",
       "date": null,
       "commits": [
+        {
+          "hash": "50c4015",
+          "subject": "书稿:八个部分名称优化(短名+一句人话),第七部分副标题调整,补第十三轮修订记录",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "8a48e40",
+          "subject": "docs(book): 修正第18章引用与第6章、附录F的嵌套列表，补充机械质量审计记录",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "5cb3ebb",
+          "subject": "feat(valuation): 扩充财报采集并由程序计算派生指标，打通DCF股权桥接",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "82f73db",
+          "subject": "docs(book): 补回第十三轮章节标题优化，并按复核调整4处标题",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "61275be",
+          "subject": "feat(valuation): 新增命令行估值与一条命令启动本地页面",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "21e2518",
+          "subject": "feat(valuation): 用pi的方式直连模型，线上页面连接本机估值服务",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "1a0084d",
+          "subject": "docs(book): 补充第十三轮修订记录",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "933a11d",
+          "subject": "Merge branch 'feat/company-valuation'",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "36afcc1",
+          "subject": "chore: 忽略.DS_Store",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "913aeec",
+          "subject": "chore: 同步首页、投资计划与更新日志，移除Investment2026AI组件",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "8e4b74c",
+          "subject": "docs(book): 更新书稿章节、数字核对表与第十三轮修订记录",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "2539614",
+          "subject": "feat(pulse): 热力图行情数据与指数热力图更新",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "372428d",
+          "subject": "fix(valuation): 修复会话失效与opencode免费档，新增专家级分析流程与Claude模型清单",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
         {
           "hash": "7c41899",
           "subject": "fix(valuation): enforce data provenance and verify report workflows",
@@ -18,8 +96,26 @@
           "date": "2026-10-04"
         },
         {
+          "hash": "c1c3b15",
+          "subject": "docs(book): 清理正文里的修订痕迹，改为面向读者的表述",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "ce3a025",
+          "subject": "docs(book): 同步数字核对表等附件到网页，登记林奇方法出处",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
           "hash": "0ab3dac",
           "subject": "feat(valuation): add local job service with cancellation and SSE",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "222b520",
+          "subject": "docs(book): 补第13、14章算例；通读修正大纲中残留的部分表述",
           "author": "hassan",
           "date": "2026-10-04"
         },
@@ -30,14 +126,44 @@
           "date": "2026-10-04"
         },
         {
+          "hash": "ce11e16",
+          "subject": "docs(book): 第15章补教学算例与持有节奏卡；勘误第24章章号引用",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
           "hash": "2baf804",
           "subject": "feat(valuation): execute structured analysis with local CLIs",
           "author": "hassan",
           "date": "2026-10-04"
         },
         {
+          "hash": "fe38643",
+          "subject": "docs(book): 第25章补四个教学算例；第32章补观察库填好的示例",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
           "hash": "b303485",
           "subject": "feat(valuation): collect sourced annual statements and exchange rates",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "7a0e5b7",
+          "subject": "docs(book): 核对护城河出处；第33章补充长线持仓占用主动额度",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "381b88b",
+          "subject": "docs(book): 核对巴菲特概念出处，第19—24章加前置工具提示，第23/24章去AI腔",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "d85b98c",
+          "subject": "docs(book): 第四至第八部分重排（中线林奇/长线巴菲特/研究/执行/修心），新增第23、24章，共40章",
           "author": "hassan",
           "date": "2026-10-04"
         },
@@ -58,132 +184,6 @@
           "subject": "feat(valuation): resolve company names to securities",
           "author": "hassan",
           "date": "2026-10-04"
-        },
-        {
-          "hash": "9c12420",
-          "subject": "feat(valuation): discover local CLI backends and model versions",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "ed45c28",
-          "subject": "feat(valuation): add validated relative valuation calculations",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "1178149",
-          "subject": "docs(book): 第四至第八部分重排（中线林奇/长线巴菲特/研究/执行/修心），新增第23、24章，共40章",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "4f60f8f",
-          "subject": "docs: define company valuation and local CLI model selection",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "4970c73",
-          "subject": "style(home): 名句卡片缩小",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "5772188",
-          "subject": "feat: 首页功能卡片缩小；第25章精简标题并补充三个示范的分析与算例",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "59a5e22",
-          "subject": "feat(home): 首页顶部改为投资大师名句，折叠态展示彼得·林奇",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "ac0fb79",
-          "subject": "feat(home): 首页新增「我的书」入口卡片",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "ad334b2",
-          "subject": "docs(book): 同步第十一轮修订（第28/30/38章、专题、附录B/G等）到网页",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "43c0886",
-          "subject": "feat(book): 第2章新增三家公司三把尺的真实对照",
-          "author": "hassan",
-          "date": "2026-10-03"
-        },
-        {
-          "hash": "797a571",
-          "subject": "feat(book): 重写第23章（周期）与第24章（趋势）：机制、推演、反例、来源与行动",
-          "author": "hassan",
-          "date": "2026-10-03"
-        },
-        {
-          "hash": "631fbe1",
-          "subject": "docs(book): 第16章补公开入口、换算方法、示例阈值与检查频率（待办T6）",
-          "author": "hassan",
-          "date": "2026-10-03"
-        },
-        {
-          "hash": "be71acf",
-          "subject": "docs(book): 附录F新增数据口径对照表；数字核对表补登记招行示例",
-          "author": "hassan",
-          "date": "2026-10-03"
-        },
-        {
-          "hash": "8d6cc0b",
-          "subject": "docs(book): 第1章补充三种“周期”的区分与情绪周期的定位",
-          "author": "hassan",
-          "date": "2026-10-03"
-        },
-        {
-          "hash": "34215ec",
-          "subject": "docs(book): 登记第15、22章修改",
-          "author": "hassan",
-          "date": "2026-10-03"
-        },
-        {
-          "hash": "71fe8c7",
-          "subject": "feat(book): 第15章改名“看长做中”并说明为何不是“看长做短”；第22章新增按公司类型选估值尺（含银行PB-ROE示例）",
-          "author": "hassan",
-          "date": "2026-10-03"
-        },
-        {
-          "hash": "08f278e",
-          "subject": "feat(book): publish revised mindful investing manuscript and reader navigation",
-          "author": "hassan",
-          "date": "2026-10-03"
-        },
-        {
-          "hash": "6d8642b",
-          "subject": "fix(book): 第29章措辞修正",
-          "author": "hassan",
-          "date": "2026-10-03"
-        },
-        {
-          "hash": "7577954",
-          "subject": "feat(book): 第29章加入真实增长轨迹示例",
-          "author": "hassan",
-          "date": "2026-10-03"
-        },
-        {
-          "hash": "69596fa",
-          "subject": "feat(book): 第13章加入三个真实的“每股收益×市盈率”拆解案例",
-          "author": "hassan",
-          "date": "2026-10-03"
-        },
-        {
-          "hash": "9b24f24",
-          "subject": "fix(book): 页面渲染支持斜体；替换会破坏粗体的星号写法",
-          "author": "hassan",
-          "date": "2026-10-03"
         }
       ]
     }
