@@ -222,3 +222,142 @@
     padding: 16px 24px 0;
   }
 }
+
+/* ---------- 栏目页通用 ---------- */
+.page-head {
+  margin: 8px 0 24px;
+}
+
+.page-head h1 {
+  font-size: 1.7rem;
+  margin-bottom: 8px;
+}
+
+.page-head p {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.hub-group {
+  margin-bottom: 28px;
+}
+
+.hub-group h2,
+.hub-group summary {
+  font-size: 1.15rem;
+  font-family: var(--font-serif);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.hub-group summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.hub-group__hint {
+  margin: 0 0 12px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.hub-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 12px;
+}
+
+.hub-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 44px;
+  padding: 16px 40px 16px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: border-color 0.2s ease;
+}
+
+.hub-card:hover {
+  border-color: var(--accent);
+}
+
+.hub-card__title {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.hub-card__desc {
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+}
+
+.hub-card__arrow {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--accent);
+}
+
+.hub-group--read .hub-card {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.road {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.road__item {
+  padding: 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+.road__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.road__head h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.road__item p {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.tag {
+  flex: 0 0 auto;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  background: var(--accent-warm-soft);
+  color: var(--accent-warm);
+  font-size: 0.82rem;
+}
+
+@media (min-width: 768px) {
+  .page-head h1 {
+    font-size: 2.1rem;
+  }
+}
