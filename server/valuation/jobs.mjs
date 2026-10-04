@@ -5,7 +5,7 @@ import {
   calculateReport,
   validateSnapshot,
 } from "../../src/features/valuation/index.ts";
-async function execute(input, { signal, emit }) {
+export async function execute(input, { signal, emit }) {
   emit("collecting", { message: "正在采集行情与财报" });
   const snapshot =
     input.snapshot || (await collectSnapshot(input.security, { signal }));

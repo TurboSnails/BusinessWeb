@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "vite --host",
     "valuation:server": "node server/valuation/index.mjs",
+    "valuation": "node scripts/valuation-cli.mjs",
+    "valuation:app": "node scripts/valuation-app.mjs",
     "test:valuation-server": "node --test server/valuation/*.test.mjs",
     "test": "node scripts/run-vitest.mjs",
     "typecheck": "tsc --noEmit -p tsconfig.grid.json && tsc --noEmit -p tsconfig.server.json && tsc --noEmit -p tsconfig.valuation.json",
