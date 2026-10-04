@@ -1,15 +1,58 @@
-import {it,expect} from 'vitest'
-import {calculateDcf,calculateSensitivity} from './dcf'
-it('discounts terminal value and bridges enterprise to ordinary equity',()=>{
- const r=calculateDcf({kind:'fcff',cashflows:[110],discountRate:0.1,terminalGrowth:0,shares:100,cash:50,debt:150,preferred:0,minority:0,nonOperating:0})
- expect(r.enterpriseValue).toBeCloseTo(1100);expect(r.price).toBeCloseTo(10)
-})
-it('does not deduct debt twice from FCFE and rejects invalid terminal assumptions',()=>{
- expect(calculateDcf({kind:'fcfe',cashflows:[110],discountRate:0.1,terminalGrowth:0,shares:100,debt:150}).price).toBeCloseTo(11)
- expect(calculateDcf({kind:'fcfe',cashflows:[110],discountRate:0.02,terminalGrowth:0.02,shares:100}).status).toBe('invalidInput')
- expect(calculateDcf({kind:'fcff',cashflows:[110],discountRate:0.1,terminalGrowth:0,shares:100}).status).toBe('missingData')
-})
-it('returns empty cells for invalid sensitivity combinations',()=>{
- const cells=calculateSensitivity({kind:'fcfe',cashflows:[110],discountRate:0.02,terminalGrowth:0.02,shares:100})
- expect(cells.some(c=>c.price===null)).toBe(true)
-})
+import { it, expect } from "vitest";
+import { calculateDcf, calculateSensitivity } from "./dcf";
+it("discounts terminal value and bridges enterprise to ordinary equity", () => {
+  const r = calculateDcf({
+    kind: "fcff",
+    cashflows: [110],
+    discountRate: 0.1,
+    terminalGrowth: 0,
+    shares: 100,
+    cash: 50,
+    debt: 150,
+    preferred: 0,
+    minority: 0,
+    nonOperating: 0,
+  });
+  expect(r.enterpriseValue).toBeCloseTo(1100);
+  expect(r.price).toBeCloseTo(10);
+});
+it("does not deduct debt twice from FCFE and rejects invalid terminal assumptions", () => {
+  expect(
+    calculateDcf({
+      kind: "fcfe",
+      cashflows: [110],
+      discountRate: 0.1,
+      terminalGrowth: 0,
+      shares: 100,
+      debt: 150,
+    }).price,
+  ).toBeCloseTo(11);
+  expect(
+    calculateDcf({
+      kind: "fcfe",
+      cashflows: [110],
+      discountRate: 0.02,
+      terminalGrowth: 0.02,
+      shares: 100,
+    }).status,
+  ).toBe("invalidInput");
+  expect(
+    calculateDcf({
+      kind: "fcff",
+      cashflows: [110],
+      discountRate: 0.1,
+      terminalGrowth: 0,
+      shares: 100,
+    }).status,
+  ).toBe("missingData");
+});
+it("returns empty cells for invalid sensitivity combinations", () => {
+  const cells = calculateSensitivity({
+    kind: "fcfe",
+    cashflows: [110],
+    discountRate: 0.02,
+    terminalGrowth: 0.02,
+    shares: 100,
+  });
+  expect(cells.some((c) => c.price === null)).toBe(true);
+});

@@ -1,0 +1,47 @@
+# 公司估值工作台：本地启动
+
+在 BusinessWeb 目录打开两个终端：
+
+```bash
+npm run valuation:server
+```
+
+```bash
+npm run dev
+```
+
+打开开发服务器的 `/valuation` 页面，查找公司，选择证券、CLI 和模型版本，再开始估值。需要 Node 24 或更新版本。服务默认只监听 `127.0.0.1:8788`；如更改 `VALUATION_PORT`，两个终端都设置相同值。
+
+CLI 必须已安装并自行完成登录。页面不会上传登录凭据。模型可以由本机 CLI 调用云端提供商，“本地 CLI”不等于本机推理。
+
+## 模型版本
+
+- Codex读取本机`models_cache.json`，保留具体模型ID。
+- Pi通过`--list-models`发现，OpenCode通过`models`发现。
+- Claude保留CLI默认模型，并允许填写明确的版本ID；不提供虚构的版本列表。
+- 默认模型属于别名；列表显示已发现/已验证/上次失败。发现不代表账号有权限；只有真实调用成功后标为已验证，不自动降级到其他模型。
+- 不可用模型会报错，检查对应CLI登录、额度、供应商配置，然后刷新模型列表。
+
+## 数据与报告
+
+美股从SEC companyfacts获取年度财务事实，行情从腾讯接口获取。A股/港股从AKShare所使用的东方财富结构化接口获取年度报表/指标。本版直接调用这些接口，避免必须额外安装Python服务。所有财报字段保持日期和币种，不将年度值标成TTM。港股财报币种由报表摘要核实，汇率来自Frankfurter。
+
+数据缺失时方法显示不可计算；AI不能补造历史财务数据。同业财务数据暂未自动采集，因此没有行业中位数；目标倍数明确属于假设。历史资料不保证能以今天相同条件获取。
+
+页面可以修改预测EPS、增长率、合理倍数、折现率和股权价值桥接，结果即时重算。每份报告区分数据事实和未来假设，JSON保留完整快照和模型标识，Markdown供阅读。报告保存到当前浏览器，最多20份；清理浏览器数据会删除这些记录，重要报告应导出。
+
+自动财报不足时，可在“历史报告与补充数据”加载FinancialSnapshot JSON，字段需带单位、币种、期间和来源。页面将这些字段标注为用户补充；示例结构可参考`src/features/valuation/types.ts`。模型重跑可复用当前快照，避免比较不同时间的资料。
+
+部署到Vercel/Pages后的静态网页不能直接运行你电脑的CLI。完整模型执行流程请在本地开发页面使用，静态页面仍可导入/查看/复算已有报告。
+
+## 验证命令
+
+```bash
+npm run test:valuation-server
+npm test -- --run
+npm run typecheck
+npm run build
+node scripts/verify-valuation.mjs --backend codex --model default --company us:AAPL
+```
+
+最后一条会真实调用已登录模型，使用对应模型额度，并在`/private/tmp`保存验证报告；自动化测试不会使用真实模型。

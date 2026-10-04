@@ -1,0 +1,306 @@
+.valuation-page {
+  background: var(--bg-primary, #f6f7fa);
+  min-height: 100vh;
+  padding: 36px 20px 80px;
+  color: var(--text-primary, #172236);
+}
+.valuation-shell {
+  max-width: 1200px;
+  margin: auto;
+}
+.valuation-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 8px 32px;
+  color: var(--text-primary, #172236);
+}
+.valuation-hero > svg {
+  color: #b7c8df;
+}
+.valuation-hero h1 {
+  font-size: clamp(28px, 4vw, 42px);
+  letter-spacing: -0.04em;
+  margin: 12px 0;
+}
+.valuation-hero p {
+  color: var(--text-secondary, #667489);
+  font-size: 16px;
+}
+.valuation-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.13em;
+  color: #647894;
+  font-weight: 650;
+}
+.valuation-card {
+  background: var(--bg-card, #fff);
+  border: 1px solid rgba(120, 140, 170, 0.16);
+  border-radius: 20px;
+  padding: 26px;
+  margin-bottom: 20px;
+  box-shadow: 0 6px 24px rgba(40, 60, 100, 0.04);
+}
+.valuation-card h2 {
+  font-size: 20px;
+  margin: 0 0 14px;
+}
+.valuation-section-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.valuation-section-head h2 {
+  margin: 0;
+}
+.valuation-card h2 small {
+  font-size: 14px;
+  color: #7a879a;
+}
+.valuation-form-grid {
+  display: grid;
+  grid-template-columns: 1.7fr auto 1fr 1.4fr auto;
+  gap: 14px;
+  align-items: end;
+}
+.valuation-page label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-secondary, #647083);
+}
+.valuation-page input,
+.valuation-page select,
+.valuation-page textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #d8dfe9;
+  border-radius: 10px;
+  padding: 11px 12px;
+  background: var(--bg-secondary, #f8fafc);
+  color: var(--text-primary, #172236);
+  font: inherit;
+}
+.valuation-page button {
+  border: 1px solid #d7dfeb;
+  background: var(--bg-card, #fff);
+  color: var(--text-primary, #263d5d);
+  border-radius: 10px;
+  padding: 11px 15px;
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+  justify-content: center;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.valuation-page button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.valuation-page button:hover:not(:disabled) {
+  border-color: #6c8dbb;
+  background: #edf3fb;
+}
+.valuation-page .valuation-primary {
+  background: #25466e;
+  color: white;
+  border-color: #25466e;
+}
+.valuation-actions {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+.valuation-manual {
+  max-width: 500px;
+  margin-top: 14px;
+}
+.valuation-candidates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0;
+}
+.valuation-selection,
+.valuation-connected {
+  color: #218161;
+  font-size: 13px;
+}
+.valuation-connected {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.valuation-warning {
+  background: #fff7e8;
+  color: #856126;
+  padding: 14px 18px;
+  border-radius: 12px;
+  font-size: 13px;
+  margin: 14px 0;
+}
+.valuation-error {
+  color: #b74646;
+  background: #fff0f0;
+  padding: 12px 16px;
+  border-radius: 10px;
+}
+.valuation-muted,
+.valuation-page small {
+  color: var(--text-secondary, #738197);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.valuation-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #426990;
+  font-size: 14px;
+}
+.valuation-spinner {
+  border: 2px solid #d9e5f1;
+  border-top-color: #426990;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  animation: valuation-spin 1s linear infinite;
+}
+@keyframes valuation-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.valuation-table-wrap {
+  overflow: auto;
+}
+.valuation-page table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 620px;
+  font-size: 13px;
+}
+.valuation-page td,
+.valuation-page th {
+  padding: 15px 14px;
+  border-bottom: 1px solid #e7ecf2;
+  text-align: left;
+  vertical-align: top;
+}
+.valuation-page thead th {
+  background: var(--bg-secondary, #f7f9fc);
+  font-weight: 600;
+}
+.valuation-page td strong {
+  font-size: 23px;
+  font-weight: 650;
+  color: var(--text-primary, #24476e);
+  display: block;
+  margin-bottom: 5px;
+}
+.valuation-page td span,
+.valuation-page td small,
+.valuation-page th small {
+  display: block;
+  margin-top: 4px;
+  font-weight: 400;
+}
+.valuation-param-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  margin: 16px 0;
+}
+.valuation-page details {
+  margin: 16px 0;
+}
+.valuation-page summary {
+  cursor: pointer;
+  font-weight: 550;
+}
+.valuation-analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.valuation-analysis-grid article {
+  padding: 18px;
+  background: var(--bg-secondary, #f8fafc);
+  border-radius: 12px;
+}
+.valuation-analysis-grid h3 {
+  margin: 0 0 10px;
+  font-size: 15px;
+}
+.valuation-analysis-grid p {
+  font-size: 14px;
+  line-height: 1.8;
+}
+.valuation-page pre {
+  overflow: auto;
+  font-size: 12px;
+  background: #f1f5fa;
+  padding: 14px;
+  border-radius: 8px;
+  max-height: 400px;
+}
+.valuation-page a {
+  color: #426b9e;
+}
+.valuation-empty {
+  text-align: center;
+  padding: 55px 20px;
+  color: #8192a8;
+}
+.valuation-empty h2 {
+  font-size: 19px;
+  color: var(--text-secondary, #67798f);
+}
+.valuation-empty p {
+  font-size: 13px;
+}
+.valuation-archive > details {
+  margin: 0;
+}
+.valuation-page code {
+  font-size: 12px;
+}
+.valuation-page button:focus-visible,
+.valuation-page input:focus-visible,
+.valuation-page select:focus-visible {
+  outline: 2px solid #5b90c9;
+  outline-offset: 3px;
+}
+@media (max-width: 850px) {
+  .valuation-form-grid {
+    grid-template-columns: 1fr auto;
+  }
+  .valuation-company-input {
+    grid-column: 1;
+  }
+  .valuation-param-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .valuation-analysis-grid {
+    grid-template-columns: 1fr;
+  }
+  .valuation-card {
+    padding: 20px;
+  }
+  .valuation-hero > svg {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .valuation-spinner {
+    animation: none;
+  }
+}

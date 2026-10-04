@@ -35,6 +35,7 @@ export default function Header(): JSX.Element {
   const navItems = [
     { path: '/', label: '首页', icon: Home },
     { path: '/research-notes', label: '研究笔记', icon: BookOpen },
+    { path: '/valuation', label: '公司估值', icon: BarChart2 },
     { path: '/grid-trading', label: '网格交易', icon: BarChart2 },
     { path: '/investment-targets', label: '美股投资', icon: TrendingUp },
     { path: '/mainland-investment-targets', label: '大陆投资', icon: Globe },
