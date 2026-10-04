@@ -44,6 +44,13 @@ describe('Home', () => {
     }
   })
 
+  it('首页不出现起始金额 300，栏目卡片用 *** 与目标 400 万', () => {
+    stubFetch(() => new Promise(() => {}))
+    const { container } = render(<MemoryRouter><Home /></MemoryRouter>)
+    expect(container.textContent).not.toMatch(/300/)
+    expect(container.textContent).toContain('从 *** 到目标 400 万')
+  })
+
   it('投资大师名句 8 条，直接展示，不需要点击展开', () => {
     stubFetch(() => new Promise(() => {}))
     const { container } = render(<MemoryRouter><Home /></MemoryRouter>)

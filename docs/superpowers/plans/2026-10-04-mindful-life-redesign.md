@@ -1461,7 +1461,7 @@ export default function AiStudio(): JSX.Element {
 import React from 'react'
 
 const STAGES = [
-  { title: '300 万 → 400 万', desc: '工作积累本金，同时每周拿出几小时积累作品：写书、建站、做第一个小产品。', state: '进行中' },
+  { title: '*** → 目标 400 万', desc: '目标是 400 万。工作积累本金，同时每周拿出几小时积累作品：写书、建站、做第一个小产品。', state: '进行中' },
   { title: '离开全职工作', desc: '到达 400 万后，从“最大化工资”换成“时间自主”。前三个月只休息，不要求赚钱。', state: '准备中' },
   { title: '自由生活第一年', desc: '记录花了多少钱、投资怎么样、每天做什么、有没有后悔。让真正有生命力的事自然长大。', state: '准备中' },
 ]
@@ -1846,7 +1846,7 @@ import RecentUpdates from '../components/RecentUpdates'
 const COLUMNS = [
   { to: '/invest', title: '正念投资', desc: '读书、方法、工具与研究。普通人用规则代替盯盘。' },
   { to: '/ai', title: 'AI 与独立开发', desc: '把书里的框架做成小产品，边学边做。' },
-  { to: '/life', title: '自由生活实验', desc: '从 300 万到 400 万，再到自由生活的第一年。' },
+  { to: '/life', title: '自由生活实验', desc: '从 *** 到目标 400 万，再到自由生活的第一年。' },
 ]
 
 export default function Home(): JSX.Element {

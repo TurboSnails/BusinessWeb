@@ -51,4 +51,10 @@ describe('AiStudio / LifeLab', () => {
     expect(screen.getAllByText('准备中').length).toBeGreaterThan(0)
     expect(screen.getAllByText(/400/).length).toBeGreaterThan(0)
   })
+
+  it('LifeLab 不公开起始金额：用 *** 代替，只写目标 400 万', () => {
+    const { container } = wrap(<LifeLab />)
+    expect(container.textContent).not.toMatch(/300/)
+    expect(screen.getByRole('heading', { level: 2, name: '*** → 目标 400 万' })).toBeTruthy()
+  })
 })
