@@ -8,7 +8,8 @@ import type {
 } from "../features/valuation";
 const base = "/api/valuation";
 let token = "";
-async function request<T>(path: string, body?: unknown): Promise<T> {
+async function request<T>(path: string, body?: unknown, retry = true): Promise<T> {
+  if (body !== undefined && !token) await connectValuation();
   const response = await fetch(base + path, {
     method: body === undefined ? "GET" : "POST",
     headers:
@@ -18,6 +19,10 @@ async function request<T>(path: string, body?: unknown): Promise<T> {
     ...(body === undefined ? {} : { body: JSON.stringify(body) }),
   });
   const value = await response.json();
+  if (response.status === 403 && body !== undefined && retry) {
+    await connectValuation();
+    return request<T>(path, body, false);
+  }
   if (!response.ok) throw new Error(value.error || "本地服务请求失败");
   return value as T;
 }

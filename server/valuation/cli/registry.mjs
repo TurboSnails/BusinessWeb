@@ -34,7 +34,7 @@ export async function discoverBackends() {
         id,
         installed: !!executable,
         cliVersion,
-        canListModels: id === "pi" || id === "opencode" || id === "codex",
+        canListModels: true,
         ...(error ? { error } : {}),
       };
     }),

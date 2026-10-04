@@ -58,7 +58,16 @@ export function extractOutput(backend, records) {
       r.type === "turn.failed" ||
       (r.type === "result" && r.is_error)
     )
-      throw new Error("模型调用失败，请检查CLI登录、额度及模型权限");
+      throw new Error(
+        "模型调用失败：" +
+          String(
+            r.error?.data?.message ||
+              r.error?.message ||
+              r.message ||
+              r.result ||
+              "请检查CLI登录、额度及模型权限",
+          ).slice(0, 300),
+      );
     if (
       backend === "codex" &&
       r.type === "item.completed" &&
@@ -115,20 +124,22 @@ export async function runAnalysis({
         ? JSON.stringify({ id: "valuation", type: "prompt", message: prompt }) +
           "\n"
         : prompt;
-    await runProcess(
-      executable,
-      buildArgs(backend, modelId, schemaPath, schema),
-      {
+    const run = (restrict) =>
+      runProcess(executable, buildArgs(backend, modelId, schemaPath, schema), {
         input,
         cwd,
         signal,
-        timeout: 600000,
+        timeout: 1200000,
         keepOpen: backend === "pi",
         env: {
           ...process.env,
-          OPENCODE_CONFIG_CONTENT: JSON.stringify({
-            permission: { "*": "deny" },
-          }),
+          ...(restrict
+            ? {
+                OPENCODE_CONFIG_CONTENT: JSON.stringify({
+                  permission: { "*": "deny" },
+                }),
+              }
+            : {}),
         },
         onLine: (line, child) => {
           if (!line.trim()) return;
@@ -145,8 +156,21 @@ export async function runAnalysis({
           if (["message_update", "text", "item.completed"].includes(r.type))
             onEvent?.({ type: "activity", message: "模型正在分析财务资料" });
         },
-      },
-    );
+      });
+    try {
+      await run(true);
+    } catch (error) {
+      // opencode 免费档拒绝带权限限制的请求；在空临时目录中去掉限制重试
+      const rejected = records.some((r) =>
+        /free tier/i.test(r.error?.data?.message || ""),
+      );
+      if (backend !== "opencode" || !rejected) {
+        extractOutput(backend, records);
+        throw error;
+      }
+      records.length = 0;
+      await run(false);
+    }
     const output = extractOutput(backend, records);
     markModel(backend, modelId, "verified");
     const info = (await discoverBackends()).find((b) => b.id === backend);

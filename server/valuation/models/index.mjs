@@ -45,6 +45,37 @@ export function modelsFromCodexCache(value) {
       : [],
   );
 }
+const CLAUDE_CATALOG = [
+  ["claude-fable-5-1", "Fable 5.1（需付费额度）"],
+  ["claude-opus-5-5", "Opus 5.5"],
+  ["claude-sonnet-5-5", "Sonnet 5.5"],
+  ["claude-haiku-4-5-20251001", "Haiku 4.5"],
+  ["fable", "Fable（最新别名）"],
+  ["opus", "Opus（最新别名）"],
+  ["sonnet", "Sonnet（最新别名）"],
+  ["haiku", "Haiku（最新别名）"],
+];
+export async function claudeLocalModels() {
+  const ids = new Map(CLAUDE_CATALOG);
+  try {
+    const settings = JSON.parse(
+      await readFile(
+        join(
+          process.env.CLAUDE_CONFIG_DIR || join(homedir(), ".claude"),
+          "settings.json",
+        ),
+        "utf8",
+      ),
+    );
+    const local = [settings.model, ...Object.values(settings.env || {})];
+    for (const id of local)
+      if (typeof id === "string" && /^claude-[\w.-]+$/.test(id) && !ids.has(id))
+        ids.set(id, id + "（本机设置）");
+  } catch {}
+  return [...ids].map(([id, name]) =>
+    modelOption("claude", id, name, "builtinCatalog"),
+  );
+}
 export async function listModels(backend, { refresh = false, signal } = {}) {
   const executable = await executablePath(backend);
   if (!executable) throw new Error("CLI未安装");
@@ -66,6 +97,7 @@ export async function listModels(backend, { refresh = false, signal } = {}) {
         ),
       );
     } catch {}
+  if (backend === "claude") models = await claudeLocalModels();
   if (backend === "pi" || backend === "opencode") {
     const args =
       backend === "pi"

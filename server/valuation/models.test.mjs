@@ -26,3 +26,9 @@ test("parses pi model table without inventing a model list", () => {
   assert.equal(models[0].modelId, "openai/gpt-5.1");
   assert.equal(models.length, 2);
 });
+test("claude exposes versioned catalog models", async () => {
+  const { claudeLocalModels } = await import("./models/index.mjs");
+  const models = await claudeLocalModels();
+  assert.ok(models.some((m) => m.modelId === "claude-opus-5-5"));
+  assert.ok(models.every((m) => m.backend === "claude"));
+});

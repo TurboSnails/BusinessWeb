@@ -40,7 +40,7 @@ async function execute(input, { signal, emit }) {
 }
 export function createJobStore({
   execute: runner = execute,
-  timeout = 600000,
+  timeout = 1200000,
 } = {}) {
   const jobs = new Map();
   let active = null;
@@ -92,7 +92,7 @@ export function createJobStore({
       active = job.id;
       emit(job, "queued");
       job.timer = setTimeout(() => {
-        job.error = "任务总时限10分钟已到";
+        job.error = "任务总时限20分钟已到";
         finish(job, "failed", { error: job.error });
       }, timeout);
       queueMicrotask(async () => {

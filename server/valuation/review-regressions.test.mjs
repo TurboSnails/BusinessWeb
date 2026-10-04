@@ -1,7 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { validateAssumptions } from "./analysis/validate.mjs";
+import {
+  validateAssumptions,
+  REQUIRED_DIMENSIONS,
+} from "./analysis/validate.mjs";
 import { createJobStore } from "./jobs.mjs";
 import { runProcess } from "./cli/process.mjs";
 import { collectSec } from "./data/sec.mjs";
@@ -57,7 +60,13 @@ test("missing bridge facts cannot become model invented historical assets", () =
         { applicable: true, reason: "test" },
       ]),
     ),
-    analysis: [],
+    analysis: REQUIRED_DIMENSIONS.map((dimension) => ({
+      dimension,
+      conclusion: "test",
+      evidence: ["a", "b"],
+      sourceIds: ["sec"],
+      falsification: "test",
+    })),
   };
   const checked = validateAssumptions(value, {
     security,
@@ -120,4 +129,42 @@ test("partial long term debt is not labeled complete interest bearing debt", asy
   } finally {
     global.fetch = original;
   }
+});
+test("rejects incomplete analysis dimensions and contradictory scenarios", () => {
+  const snapshot = {
+    security,
+    asOf: "2026-10-04",
+    facts: {},
+    sources: [{ id: "sec" }],
+  };
+  const make = () => ({
+    schemaVersion: 1,
+    security,
+    valuationDate: "2026-10-04",
+    scenarios: Object.fromEntries(
+      ["bear", "base", "bull"].map((k) => [k, structuredClone(scenario)]),
+    ),
+    methodSuitability: Object.fromEntries(
+      ["pe", "peg", "ps", "pb", "dcf", "multistage"].map((k) => [
+        k,
+        { applicable: true, reason: "test" },
+      ]),
+    ),
+    analysis: REQUIRED_DIMENSIONS.map((dimension) => ({
+      dimension,
+      conclusion: "test",
+      evidence: ["a", "b"],
+      sourceIds: ["sec"],
+      falsification: "test",
+    })),
+  });
+  const short = make();
+  short.analysis.pop();
+  assert.throws(() => validateAssumptions(short, snapshot), /缺少维度/);
+  const inverted = make();
+  inverted.scenarios.bear.eps = 5;
+  assert.throws(() => validateAssumptions(inverted, snapshot), /悲观≤基准/);
+  const growth = make();
+  growth.scenarios.base.dcf.terminalGrowth = 0.095;
+  assert.throws(() => validateAssumptions(growth, snapshot), /永续增长/);
 });
