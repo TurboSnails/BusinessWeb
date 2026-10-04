@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState, useRef } from 'react'
+import ChapterNav from '../components/ChapterNav'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, BookOpen, CheckCircle2, Circle, PenLine } from 'lucide-react'
 
@@ -556,6 +557,8 @@ function BookDashboard(): JSX.Element {
 function ChapterReader({ file }: { file: string }): JSX.Element {
   const [content, setContent] = useState<string | null>(null)
   const [error, setError] = useState(false)
+  const topRef = useRef<HTMLDivElement | null>(null)
+  const shownFile = useRef(file)
 
   const allChapters = useMemo(
     () => [...EXTRA_FILES, ...PARTS.flatMap(p => p.chapters), ...REVIEW_FILES].filter(c => c.file),
@@ -566,6 +569,13 @@ function ChapterReader({ file }: { file: string }): JSX.Element {
   const chapter = idx >= 0 ? allChapters[idx] : null
   const prev = idx > 0 ? allChapters[idx - 1] : null
   const next = idx >= 0 && idx < allChapters.length - 1 ? allChapters[idx + 1] : null
+
+  // 从目录切换章节后回到正文顶部；首次进入不滚动，保留浏览器的刷新恢复位置
+  useEffect(() => {
+    if (shownFile.current === file) return
+    shownFile.current = file
+    topRef.current?.scrollIntoView?.({ block: 'start' })
+  }, [file])
 
   useEffect(() => {
     setContent(null)
@@ -580,7 +590,10 @@ function ChapterReader({ file }: { file: string }): JSX.Element {
   }, [file])
 
   return (
-    <main className="container" style={{ maxWidth: '860px', margin: '0 auto', padding: '20px 16px' }}>
+    <main className="reader-layout">
+      <ChapterNav parts={PARTS} topLinks={EXTRA_FILES} currentFile={decoded} />
+      <div className="reader-main">
+      <div ref={topRef} className="reader-top" />
       <div style={{ marginBottom: '16px' }}>
         <Link to="/first-book/slow-is-fast" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'var(--accent)', textDecoration: 'none', fontSize: '0.92rem' }}>
           <ArrowLeft size={15} /> 返回《正念投资：普通人用规则代替盯盘的投资方法》
@@ -614,6 +627,7 @@ function ChapterReader({ file }: { file: string }): JSX.Element {
             <ArrowRight size={16} color="var(--accent)" />
           </Link>
         )}
+      </div>
       </div>
     </main>
   )
