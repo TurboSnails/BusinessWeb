@@ -20,12 +20,12 @@ export default function MyBooks(): JSX.Element {
           <Link
             key={book.id}
             to={book.path}
-            style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '32px', background: 'var(--bg-card)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-md)', border: '1px solid rgba(255,255,255,0.7)', textDecoration: 'none', color: 'inherit' }}
+            style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '32px', background: 'var(--bg-card)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-subtle)', textDecoration: 'none', color: 'inherit' }}
           >
-            <BookOpen size={32} color="var(--system-blue, #007aff)" />
+            <BookOpen size={32} color="var(--accent)" />
             <h2 style={{ margin: 0, fontSize: '1.3rem', lineHeight: 1.5 }}>{book.title}</h2>
-            <p style={{ margin: 0, color: '#6e6e73', lineHeight: 1.8 }}>{book.description}</p>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--system-blue, #007aff)', marginTop: 'auto' }}>
+            <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.8 }}>{book.description}</p>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent)', marginTop: 'auto' }}>
               查看本书 <ArrowRight size={16} />
             </span>
           </Link>

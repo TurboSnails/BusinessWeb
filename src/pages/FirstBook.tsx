@@ -187,7 +187,7 @@ function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
         <code
           key={`${keyPrefix}-c${i}`}
           style={{
-            background: 'rgba(0,0,0,0.06)',
+            background: 'var(--system-gray6)',
             padding: '1px 5px',
             borderRadius: '4px',
             fontSize: '0.9em',
@@ -251,8 +251,8 @@ function renderMarkdown(md: string): React.ReactNode[] {
                       style={{
                         textAlign: 'left',
                         padding: '8px 12px',
-                        borderBottom: '2px solid var(--system-blue, #007aff)',
-                        background: 'rgba(0,0,0,0.03)',
+                        borderBottom: '2px solid var(--accent)',
+                        background: 'var(--system-gray6)',
                         whiteSpace: 'nowrap',
                       }}
                     >
@@ -269,7 +269,7 @@ function renderMarkdown(md: string): React.ReactNode[] {
                         key={ci}
                         style={{
                           padding: '7px 12px',
-                          borderBottom: '1px solid rgba(0,0,0,0.08)',
+                          borderBottom: '1px solid var(--border-subtle)',
                           verticalAlign: 'top',
                         }}
                       >
@@ -310,7 +310,7 @@ function renderMarkdown(md: string): React.ReactNode[] {
 
     // 分隔线
     if (/^(-{3,}|\*{3,})$/.test(line.trim())) {
-      out.push(<hr key={nextKey()} style={{ border: 'none', borderTop: '1px solid rgba(0,0,0,0.1)', margin: '20px 0' }} />)
+      out.push(<hr key={nextKey()} style={{ border: 'none', borderTop: '1px solid var(--border-subtle)', margin: '20px 0' }} />)
       i += 1
       continue
     }
@@ -328,8 +328,8 @@ function renderMarkdown(md: string): React.ReactNode[] {
           style={{
             margin: '12px 0',
             padding: '10px 16px',
-            borderLeft: '3px solid var(--system-blue, #007aff)',
-            background: 'rgba(0,122,255,0.06)',
+            borderLeft: '3px solid var(--accent)',
+            background: 'var(--accent-soft)',
             borderRadius: '0 8px 8px 0',
             lineHeight: 1.7,
           }}
@@ -380,19 +380,17 @@ function renderMarkdown(md: string): React.ReactNode[] {
 
 const cardStyle: React.CSSProperties = {
   background: 'var(--bg-card)',
-  backdropFilter: 'blur(30px)',
   padding: '32px',
   borderRadius: 'var(--radius-lg)',
-  boxShadow: 'var(--shadow-md)',
   marginBottom: '24px',
-  border: '1px solid rgba(255, 255, 255, 0.7)',
+  border: '1px solid var(--border-subtle)',
 }
 
 const STATUS_COLOR: Record<string, string> = {
-  done: '#34c759',
-  draft: '#007aff',
-  pending: '#8e8e93',
-  note: '#8e8e93',
+  done: 'var(--down)',
+  draft: 'var(--accent-warm)',
+  pending: 'var(--system-gray)',
+  note: 'var(--system-gray)',
 }
 
 function StatusIcon({ status }: { status: string }): JSX.Element {
@@ -413,15 +411,15 @@ function BookDashboard(): JSX.Element {
 
   return (
     <main className="container" style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px 16px' }}>
-      <Link to="/first-book" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '16px', color: 'var(--system-blue, #007aff)', textDecoration: 'none', fontSize: '0.92rem' }}>
+      <Link to="/first-book" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '16px', color: 'var(--accent)', textDecoration: 'none', fontSize: '0.92rem' }}>
         <ArrowLeft size={15} /> 返回我的书
       </Link>
       <div style={cardStyle}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-          <BookOpen size={26} color="var(--system-blue, #007aff)" />
+          <BookOpen size={26} color="var(--accent)" />
           <h1 style={{ margin: 0, fontSize: '1.7rem' }}>正念投资</h1>
         </div>
-        <p style={{ color: '#6e6e73', margin: '4px 0 16px', fontSize: '1.02rem' }}>
+        <p style={{ color: 'var(--text-secondary)', margin: '4px 0 16px', fontSize: '1.02rem' }}>
           不盯盘、不预测：从资产配置到公司研究，找到适合自己的投资方法，让投资服务生活。
         </p>
         <p style={{ lineHeight: 1.8, margin: '0 0 12px' }}>
@@ -430,15 +428,15 @@ function BookDashboard(): JSX.Element {
         </p>
         <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', marginTop: '16px' }}>
           <div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--system-blue, #007aff)' }}>{drafted}</div>
-            <div style={{ fontSize: '0.85rem', color: '#8e8e93' }}>已完成章节</div>
+            <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--accent)' }}>{drafted}</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>已完成章节</div>
           </div>
           <div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--system-blue, #007aff)' }}>{bodyChapters.length}</div>
-            <div style={{ fontSize: '0.85rem', color: '#8e8e93' }}>总章节（含大纲）</div>
+            <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--accent)' }}>{bodyChapters.length}</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>总章节（含大纲）</div>
           </div>
           <div style={{ flex: 1, minWidth: '200px' }}>
-            <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--system-blue, #007aff)' }}>{progress}%</div>
+            <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--accent)' }}>{progress}%</div>
             <div
               style={{
                 height: '6px',
@@ -452,7 +450,7 @@ function BookDashboard(): JSX.Element {
                 style={{
                   width: `${progress}%`,
                   height: '100%',
-                  background: 'var(--system-blue, #007aff)',
+                  background: 'var(--accent)',
                   borderRadius: '3px',
                   transition: 'width 0.4s ease',
                 }}
@@ -473,7 +471,7 @@ function BookDashboard(): JSX.Element {
             <span style={{ marginLeft: 'auto', fontSize: '0.85rem', color: STATUS_COLOR[f.status] }}>
               {STATUS_LABEL[f.status]}
             </span>
-            <ArrowRight size={16} color="#8e8e93" />
+            <ArrowRight size={16} color="var(--text-secondary)" />
           </Link>
         </div>
       ))}
@@ -481,13 +479,13 @@ function BookDashboard(): JSX.Element {
       {PARTS.map(part => (
         <div key={part.id} style={cardStyle}>
           <h2 style={{ margin: '0 0 4px', fontSize: '1.2rem' }}>{part.title}</h2>
-          <p style={{ margin: '0 0 14px', color: '#8e8e93', fontSize: '0.9rem', whiteSpace: 'pre-line', lineHeight: 1.8, fontWeight: part.id === 'part7' ? 600 : 400 }}>{part.subtitle}</p>
+          <p style={{ margin: '0 0 14px', color: 'var(--text-secondary)', fontSize: '0.9rem', whiteSpace: 'pre-line', lineHeight: 1.8, fontWeight: part.id === 'part7' ? 600 : 400 }}>{part.subtitle}</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             {part.chapters.map(ch => {
               const inner = (
                 <>
                   <StatusIcon status={ch.status} />
-                  <span style={{ color: '#8e8e93', fontSize: '0.85rem', width: '52px', flexShrink: 0 }}>{ch.no}</span>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', width: '52px', flexShrink: 0 }}>{ch.no}</span>
                   <span style={{ flex: 1 }}>{ch.title}</span>
                   <span style={{ fontSize: '0.82rem', color: STATUS_COLOR[ch.status] }}>{STATUS_LABEL[ch.status]}</span>
                   {ch.file && <ArrowRight size={14} color="#c7c7cc" />}
@@ -525,7 +523,7 @@ function BookDashboard(): JSX.Element {
 
       <div style={cardStyle}>
         <h2 style={{ margin: '0 0 4px', fontSize: '1.2rem' }}>写作与审校</h2>
-        <p style={{ margin: '0 0 14px', color: '#8e8e93', fontSize: '0.9rem', lineHeight: 1.8 }}>
+        <p style={{ margin: '0 0 14px', color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.8 }}>
           写作过程的诊断、排期与留痕。不属于正文，记录这本书是怎么一步步改出来的。
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -538,7 +536,7 @@ function BookDashboard(): JSX.Element {
               onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
             >
               <StatusIcon status={f.status} />
-              <span style={{ color: '#8e8e93', fontSize: '0.85rem', width: '52px', flexShrink: 0 }}>{f.no}</span>
+              <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', width: '52px', flexShrink: 0 }}>{f.no}</span>
               <span style={{ flex: 1 }}>{f.title}</span>
               <span style={{ fontSize: '0.82rem', color: STATUS_COLOR[f.status] }}>{STATUS_LABEL[f.status]}</span>
               <ArrowRight size={14} color="#c7c7cc" />
@@ -547,7 +545,7 @@ function BookDashboard(): JSX.Element {
         </div>
       </div>
 
-      <p style={{ textAlign: 'center', color: '#aeaeb2', fontSize: '0.82rem', margin: '8px 0 24px' }}>
+      <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.82rem', margin: '8px 0 24px' }}>
         本书内容仅为投资方法论讨论，不构成任何投资建议。
       </p>
     </main>
@@ -584,24 +582,24 @@ function ChapterReader({ file }: { file: string }): JSX.Element {
   return (
     <main className="container" style={{ maxWidth: '860px', margin: '0 auto', padding: '20px 16px' }}>
       <div style={{ marginBottom: '16px' }}>
-        <Link to="/first-book/slow-is-fast" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'var(--system-blue, #007aff)', textDecoration: 'none', fontSize: '0.92rem' }}>
+        <Link to="/first-book/slow-is-fast" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'var(--accent)', textDecoration: 'none', fontSize: '0.92rem' }}>
           <ArrowLeft size={15} /> 返回《正念投资：普通人用规则代替盯盘的投资方法》
         </Link>
       </div>
 
-      <div style={{ ...cardStyle, lineHeight: 1.8, fontSize: '0.97rem' }}>
-        {!content && !error && <p style={{ color: '#8e8e93' }}>加载中……</p>}
-        {error && <p style={{ color: '#ff3b30' }}>章节文件未找到：{decoded}</p>}
+      <div className="book-reader" style={cardStyle}>
+        {!content && !error && <p style={{ color: 'var(--text-secondary)' }}>加载中……</p>}
+        {error && <p style={{ color: 'var(--up)' }}>章节文件未找到：{decoded}</p>}
         {content && renderMarkdown(content)}
       </div>
 
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '28px' }}>
+      <div className="book-pager" style={{ display: 'flex', gap: '12px', marginBottom: '28px' }}>
         {prev ? (
           <Link
             to={`/first-book/${encodeURIComponent(prev.file)}`}
             style={{ ...cardStyle, flex: 1, display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: 'inherit', marginBottom: 0, padding: '16px 20px' }}
           >
-            <ArrowLeft size={16} color="var(--system-blue, #007aff)" />
+            <ArrowLeft size={16} color="var(--accent)" />
             <span style={{ fontSize: '0.9rem' }}>上一篇：{prev.title}</span>
           </Link>
         ) : (
@@ -613,7 +611,7 @@ function ChapterReader({ file }: { file: string }): JSX.Element {
             style={{ ...cardStyle, flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px', textDecoration: 'none', color: 'inherit', marginBottom: 0, padding: '16px 20px', textAlign: 'right' }}
           >
             <span style={{ fontSize: '0.9rem' }}>下一篇：{next.title}</span>
-            <ArrowRight size={16} color="var(--system-blue, #007aff)" />
+            <ArrowRight size={16} color="var(--accent)" />
           </Link>
         )}
       </div>
