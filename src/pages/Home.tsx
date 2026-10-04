@@ -79,7 +79,7 @@ export default function Home(): JSX.Element {
       to: '/mainland-investment-targets',
       icon: Globe,
       title: '大陆投资',
-      description: '2026AI投资组合',
+      description: 'AI行情扩散核心标的',
       gradient: 'linear-gradient(135deg, #FF9500 0%, #FFCC00 100%)',
       color: 'var(--system-orange)'
     },
@@ -126,8 +126,8 @@ export default function Home(): JSX.Element {
     {
       to: '/investment-plan-2026',
       icon: Calendar,
-      title: '2026年美股投资计划',
-      description: '基于经济衰退预警的风险管理',
+      title: '2026 投资作战计划书',
+      description: '风险仪表盘、再平衡检查与年度复盘',
       gradient: 'linear-gradient(135deg, #34C759 0%, #30B0C7 100%)',
       color: 'var(--system-green)'
     },

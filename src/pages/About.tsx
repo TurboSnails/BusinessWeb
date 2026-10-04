@@ -71,7 +71,7 @@ export default function About(): JSX.Element {
         <h3 style={{ fontSize: '0.95rem', color: 'var(--text-primary)', margin: '0 0 8px' }}>覆盖范围</h3>
         <ul style={{ color: 'var(--text-secondary)', lineHeight: 1.8, paddingLeft: 20, margin: '0 0 20px' }}>
           <li>美股投资（A股 / 港股 / ADR）</li>
-          <li>大陆投资（2026AI 组合）</li>
+          <li>大陆投资（AI 扩散）</li>
           <li>网格交易（回测 / 实盘 / 快照）</li>
           <li>经济脉搏 / 监控 / 板块涨停</li>
         </ul>
