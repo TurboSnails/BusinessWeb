@@ -1,8 +1,10 @@
 const symbolPattern = /^(sh|sz)\d{6}$/
+const quoteSymbolPattern = /^(?:(sh|sz)\d{6}|r_hk\d{5})$/
 const validDate = value => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)
   && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value
 
 export async function handleMarket(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*')
   if (req.method !== 'GET') {
     res.setHeader('Allow', 'GET')
     return res.status(405).json({ error: '只支持 GET 请求' })
@@ -10,7 +12,7 @@ export async function handleMarket(req, res) {
   const { kind, symbol, symbols, begin, end } = req.query
   let url
   if (kind === 'quotes' && typeof symbols === 'string' && symbols.length <= 899
-    && symbols.split(',').length <= 100 && symbols.split(',').every(s => symbolPattern.test(s))) {
+    && symbols.split(',').length <= 100 && symbols.split(',').every(s => quoteSymbolPattern.test(s))) {
     url = `https://qt.gtimg.cn/q=${symbols}`
   } else if (kind === 'candles' && typeof symbol === 'string' && symbolPattern.test(symbol)
     && validDate(begin) && validDate(end) && begin <= end) {

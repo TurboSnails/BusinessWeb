@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { CSI500_CONSTITUENTS } from '../../data/csi500'
 import { HK_INDEX_NAMES } from '../../data/hsi'
+import { fetchHeatmapQuotes } from '../../services/heatmapQuotes'
 
 // ============ 数据类型 ============
 export interface HeatmapStock {
@@ -11,6 +12,7 @@ export interface HeatmapStock {
   close: number | null
   change: number | null // 百分比
   marketCap: number | null
+  quoteTime?: string // 行情源时间（上海/香港时间），与请求完成时间分开
 }
 
 interface Rect {
@@ -168,6 +170,8 @@ export async function fetchIndexQuotes(market: IndexMarket, fetchImpl: typeof fe
     `https://scanner.tradingview.com/${cfg.scanner}/scan?label-product=markets-screener`,
     {
       method: 'POST',
+      cache: 'no-store',
+      signal: AbortSignal.timeout(10000),
       headers: { 'Content-Type': 'text/plain' }, // 避免 CORS 预检
       body: JSON.stringify({ columns: ['name', 'close', 'change', 'market_cap_basic', 'sector'], symbols, range: [0, 600] }),
     }
@@ -209,32 +213,30 @@ export default function IndexHeatmap({ market, tick, active }: Props): JSX.Eleme
   const [updatedAt, setUpdatedAt] = useState('')
   const [hover, setHover] = useState<{ stock: HeatmapStock; px: number; py: number } | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
-  const lastLoadRef = useRef(0)
+  const requestRef = useRef(0)
   const [size, setSize] = useState({ w: 800, h: 460 })
 
   const load = async () => {
+    const request = ++requestRef.current
     try {
-      const data = await fetchIndexQuotes(market)
+      const data = await fetchHeatmapQuotes(await fetchIndexQuotes(market))
+      if (request !== requestRef.current) return
       setStocks(data)
       setError('')
-      setUpdatedAt(new Date().toLocaleTimeString('zh-CN'))
-      lastLoadRef.current = Date.now()
+      setUpdatedAt(new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Shanghai' }))
     } catch (e) {
+      if (request !== requestRef.current) return
       setError(e instanceof Error ? e.message : '获取失败')
     } finally {
-      setLoading(false)
+      if (request === requestRef.current) setLoading(false)
     }
   }
 
   // tick 变化时：仅激活状态才刷新（隐藏的缓存页保持数据不动）
   useEffect(() => {
     if (active) load()
-  }, [tick, market])
-
-  // 从隐藏切回激活时，若数据超过 60 秒则补一次刷新
-  useEffect(() => {
-    if (active && !loading && Date.now() - lastLoadRef.current > 60000) load()
-  }, [active])
+    return () => { requestRef.current++ }
+  }, [tick, market, active])
 
   // 画布尺寸跟随父容器（由 HeatmapSection 决定高度，支持全屏）
   useEffect(() => {
@@ -250,7 +252,11 @@ export default function IndexHeatmap({ market, tick, active }: Props): JSX.Eleme
   const blocks = layoutBySector(valid, size.w, size.h)
   const ups = valid.filter(s => (s.change || 0) > 0).length
   const downs = valid.filter(s => (s.change || 0) < 0).length
-  const flat = valid.length - ups - downs
+  const flat = valid.filter(s => s.change === 0).length
+  const times = valid.flatMap(s => s.quoteTime ? [s.quoteTime] : []).sort()
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
+  const previousSession = times.some(time => time.slice(0, 10) < today)
+  const missing = valid.filter(s => !s.quoteTime).length
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
@@ -267,9 +273,16 @@ export default function IndexHeatmap({ market, tick, active }: Props): JSX.Eleme
               <span style={{ fontSize: '0.62rem', color: '#9ca3af' }}>{v > 0 ? `+${v}` : v}%</span>
             </span>
           ))}
-          {updatedAt && <span style={{ marginLeft: 8, color: '#9ca3af' }}>{updatedAt}</span>}
+          {updatedAt && <span style={{ marginLeft: 8, color: '#9ca3af' }}>获取于 {updatedAt}</span>}
         </span>
       </div>
+
+      {times.length > 0 && <div style={{ fontSize: '0.72rem', color: previousSession ? '#b45309' : '#6b7280', marginBottom: 6 }}>
+        行情时间（北京时间）：{times[0]}{times[0] !== times[times.length - 1] ? ` ～ ${times[times.length - 1]}` : ''}
+        {previousSession && ' · 含历史交易日行情，休市或尚未更新'}
+        {missing > 0 && ` · ${missing} 只暂无报价`}
+      </div>}
+      {error && stocks.length > 0 && <div role="alert" style={{ color: '#b45309', fontSize: '0.75rem', marginBottom: 6 }}>刷新失败，保留上次行情：{error}</div>}
 
       <div ref={containerRef} style={{ position: 'relative', width: '100%', flex: 1, minHeight: 0, background: '#1f2937', borderRadius: '8px', overflow: 'hidden' }}>
         {loading && stocks.length === 0 && (
@@ -355,7 +368,7 @@ export default function IndexHeatmap({ market, tick, active }: Props): JSX.Eleme
         )}
       </div>
       <div style={{ fontSize: '0.7rem', color: '#9ca3af', marginTop: '6px' }}>
-        数据 TradingView · {cfg.source} · 红涨绿跌 · 方块面积 = 市值
+        报价 腾讯行情（以行情时间为准） · 行业/市值 TradingView · {cfg.source} · 红涨绿跌 · 方块面积 = 市值
       </div>
     </div>
   )

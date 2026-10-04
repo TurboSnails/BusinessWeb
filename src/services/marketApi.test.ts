@@ -58,6 +58,17 @@ describe('restricted market APIs', () => {
     expect(url.hostname).toBe('web.ifzq.gtimg.cn')
     expect(url.searchParams.get('param')).toBe('sh510300,day,2020-01-01,2026-10-02,640,qfq')
   })
+  it('允许港股即时报价，仍拒绝港股日线及注入参数', async () => {
+    const f = vi.fn(async (_url: string) => new Response('v_r_hk00700=""')); vi.stubGlobal('fetch', f)
+    const res = response()
+    await handleMarket({ method: 'GET', query: { kind: 'quotes', symbols: 'r_hk00700,r_hk00005' } }, res)
+    expect(res.statusCode).toBe(200)
+    expect(f.mock.calls[0][0]).toBe('https://qt.gtimg.cn/q=r_hk00700,r_hk00005')
+    for (const query of [{ kind: 'quotes', symbols: 'r_hk00700&x=1' }, { kind: 'candles', symbol: 'r_hk00700', begin: '2026-01-01', end: '2026-10-02' }]) {
+      const rejected = response(); await handleMarket({ method: 'GET', query }, rejected)
+      expect(rejected.statusCode).toBe(400)
+    }
+  })
   it('reports upstream failures without exposing exception details', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => { throw new Error('secret upstream detail') }))
     const res = response(); await handleMarket({ method: 'GET', query: { kind: 'quotes', symbols: 'sh510300' } }, res)
