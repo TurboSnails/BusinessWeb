@@ -55,3 +55,27 @@ describe('About 页面', () => {
     })
   })
 })
+
+describe('About 页面：站点介绍', () => {
+  it('标题是关于「正念生活」，不再是 Hassan 投资工作台', () => {
+    mockFetchOnce(() => new Promise(() => {}))
+    render(<MemoryRouter><About /></MemoryRouter>)
+    expect(screen.getByRole('heading', { level: 2, name: '关于「正念生活」' })).toBeTruthy()
+    expect(document.body.textContent).not.toMatch(/Hassan 投资工作台/)
+  })
+
+  it('介绍里列出三个栏目，并链接到对应页面', () => {
+    mockFetchOnce(() => new Promise(() => {}))
+    render(<MemoryRouter><About /></MemoryRouter>)
+    const hrefs = ['/invest', '/ai', '/life']
+    for (const h of hrefs) {
+      expect(screen.getAllByRole('link').some(a => a.getAttribute('href') === h), h).toBe(true)
+    }
+  })
+
+  it('保留免责声明', () => {
+    mockFetchOnce(() => new Promise(() => {}))
+    render(<MemoryRouter><About /></MemoryRouter>)
+    expect(screen.getByText(/不构成投资建议/)).toBeTruthy()
+  })
+})
