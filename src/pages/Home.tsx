@@ -23,7 +23,7 @@ export default function Home(): JSX.Element {
         </div>
       </section>
 
-      <p className="manifesto">赚钱不是为了最终什么都不做，而是为了能自由选择值得做的事。</p>
+      <p className="manifesto">上班，是为了有一天不上班；生活，从来不该被工作定义。</p>
 
       <section className="home-section">
         <h2>三个栏目</h2>
@@ -38,8 +38,6 @@ export default function Home(): JSX.Element {
         </div>
       </section>
 
-      <RecentUpdates />
-
       <section className="home-section quotes">
         <h2>投资大师名句</h2>
         <div className="quotes__grid">
@@ -51,6 +49,8 @@ export default function Home(): JSX.Element {
           ))}
         </div>
       </section>
+
+      <RecentUpdates />
     </main>
   )
 }

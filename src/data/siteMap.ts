@@ -65,7 +65,7 @@ export const INVEST_GROUPS: HubGroup[] = [
     id: 'watch',
     title: '盯盘观察（选看）',
     hint: '书里主张少看行情，这三页留作参考。',
-    collapsed: true,
+    collapsed: false,
     links: [
       { path: '/monitor', label: '每日监控', desc: '每日行情监控' },
       { path: '/limit-up-analysis', label: '涨停分析', desc: '每日板块涨停' },

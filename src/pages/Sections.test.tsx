@@ -23,12 +23,12 @@ describe('InvestHub', () => {
     }
   })
 
-  it('盯盘观察组是默认折叠的 details，并带提示语', () => {
+  it('盯盘观察组直接展开，并带提示语', () => {
     const { container } = wrap(<InvestHub />)
-    const details = container.querySelector('details')
-    expect(details).toBeTruthy()
-    expect(details?.hasAttribute('open')).toBe(false)
-    expect(within(details as HTMLElement).getByText(/少看行情/)).toBeTruthy()
+    const group = screen.getByRole('heading', { name: '盯盘观察（选看）' }).closest('section')
+    expect(container.querySelector('details')).toBeNull()
+    expect(within(group as HTMLElement).getByText(/少看行情/)).toBeTruthy()
+    expect(within(group as HTMLElement).getAllByRole('link')).toHaveLength(3)
   })
 
   it('「读这本书」突出显示并链接到 /first-book', () => {

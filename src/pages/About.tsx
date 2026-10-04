@@ -73,7 +73,7 @@ export default function About(): JSX.Element {
         </ul>
         <h3 style={{ fontSize: '0.95rem', color: 'var(--text-primary)', margin: '0 0 8px' }}>方法论</h3>
         <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, margin: '0 0 20px' }}>
-          详见<Link to="/first-book/slow-is-fast" style={{ color: 'var(--system-blue)', textDecoration: 'none', fontWeight: 500 }}>《正念投资》</Link>：守住资金边界，重视资产配置与价值研究，用规则代替盯盘，分清情绪与事实。
+          详见<Link to="/first-book/slow-is-fast" style={{ color: 'var(--system-blue)', textDecoration: 'none', fontWeight: 500 }}>《正念投资》</Link>：以彼得·林奇的分类选股为主，借鉴巴菲特的能力圈与安全边际，重视买入价格的性价比，用规则代替盯盘。
         </p>
         <div
           style={{

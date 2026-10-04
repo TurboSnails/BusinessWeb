@@ -34,10 +34,10 @@ describe('INVEST_GROUPS', () => {
     }
   })
 
-  it('盯盘观察组在最后且默认折叠', () => {
+  it('盯盘观察组在最后且直接展开', () => {
     const last = INVEST_GROUPS[INVEST_GROUPS.length - 1]
     expect(last.id).toBe('watch')
-    expect(last.collapsed).toBe(true)
+    expect(last.collapsed).toBe(false)
     expect(last.links.map(l => l.path)).toEqual(['/monitor', '/limit-up-analysis', '/sector-rotation'])
   })
 })

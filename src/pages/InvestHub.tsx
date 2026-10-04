@@ -35,6 +35,7 @@ export default function InvestHub(): JSX.Element {
         ) : (
           <section key={group.id} className={`hub-group hub-group--${group.id}`}>
             <h2>{group.title}</h2>
+            {group.hint && <p className="hub-group__hint">{group.hint}</p>}
             <GroupLinks group={group} />
           </section>
         )
