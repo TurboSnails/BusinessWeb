@@ -993,3 +993,8 @@ a.chapter-nav__item:hover {
   background: var(--accent);
   color: #fff;
 }
+
+/* 刷新按钮的旋转图标（涨停分析、宏观温度共用） */
+.animate-spin { animation: shell-spin 1s linear infinite; }
+@keyframes shell-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .animate-spin { animation: none; } }

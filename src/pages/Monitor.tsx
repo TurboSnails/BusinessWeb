@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { RefreshCw } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 import { OverviewTab } from '../components/monitor/OverviewTab'
 import { IndicatorsTab } from '../components/monitor/IndicatorsTab'
@@ -40,6 +41,15 @@ const ARCHIVE: (TabItem<ArchiveId> & { el: () => JSX.Element })[] = [
 type Snapshots = { us: MacroSnapshot; cn: MacroSnapshot<CnKey> | null }
 let snapshotCache: Snapshots | null = null
 const load = (file: string) => fetch(`${import.meta.env.BASE_URL}data/${file}`).then(r => { if (!r.ok) throw new Error(String(r.status)); return r.json() })
+// 本地开发由 Vite 中间件在本机拉取；Vercel 走同源函数；GitHub Pages 通过 VITE_API_BASE 调 Vercel
+const apiBase = (import.meta.env.VITE_API_BASE || '').replace(/\/$/, '')
+
+/** 实时结果覆盖快照；某项没拉到时沿用快照里的旧值 */
+export function mergeSnapshot<T extends MacroSnapshot<string>>(old: T | null, fresh: T | undefined): T | null {
+  if (!fresh || !Object.keys(fresh.series).length) return old
+  return { ...fresh, series: { ...(old?.series ?? {}), ...fresh.series } } as T
+}
+const timeText = (iso: string) => new Date(iso).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
 
 export default function Monitor(): JSX.Element {
   const [params, setParams] = useSearchParams()
@@ -49,6 +59,24 @@ export default function Monitor(): JSX.Element {
   const archive: ArchiveId = ARCHIVE.some(a => a.id === archiveParam) ? (archiveParam as ArchiveId) : 'execution'
   const [data, setData] = useState<Snapshots | null>(snapshotCache)
   const [error, setError] = useState('')
+  const [refreshing, setRefreshing] = useState(false)
+  const [notice, setNotice] = useState('')
+
+  const refresh = async (): Promise<void> => {
+    setRefreshing(true); setNotice('')
+    try {
+      const res = await fetch(`${apiBase}/api/macro`, { cache: 'no-store' })
+      const body = await res.json().catch(() => null)
+      if (!res.ok || !body?.us) throw new Error(body?.error || '数据源暂时不可用')
+      const us = mergeSnapshot(data?.us ?? null, body.us)!
+      snapshotCache = { us, cn: mergeSnapshot(data?.cn ?? null, body.cn) }
+      setData(snapshotCache)
+      const missing = (body.warnings as string[] | undefined)?.length ?? 0
+      setNotice(`已刷新：实时数据拉取于 ${timeText(body.us.fetchedAt)}${missing ? `；${missing} 项没拉到，沿用快照` : ''}`)
+    } catch (e) {
+      setNotice(`刷新失败：${e instanceof Error ? e.message : '数据源暂时不可用'}，仍显示快照数据`)
+    } finally { setRefreshing(false) }
+  }
 
   useEffect(() => {
     if (snapshotCache) return
@@ -72,6 +100,14 @@ export default function Monitor(): JSX.Element {
       <PageTabs label="宏观温度栏目" items={TABS} value={tab} onChange={id => go({ tab: id === 'overview' ? null : id, old: null })} />
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 16px 40px' }}>
         {needsData && !snap && <p role={error ? 'alert' : 'status'} className="macro-muted">{error || '正在加载宏观数据…'}</p>}
+        {snap && needsData && (
+          <div className="page-toolbar">
+            <span className="page-toolbar__note" role="status">{notice || (snap.fetchedAt ? `实时数据 · 拉取于 ${timeText(snap.fetchedAt)}` : `当前为 ${snap.generatedAt} 的快照，可刷新获取最新读数`)}</span>
+            <button type="button" className="tool-btn tool-btn--primary" onClick={() => void refresh()} disabled={refreshing}>
+              <RefreshCw size={15} className={refreshing ? 'animate-spin' : ''} aria-hidden="true" />{refreshing ? '正在拉取…' : '刷新最新数据'}
+            </button>
+          </div>
+        )}
         {snap && tab === 'overview' && <OverviewView snap={snap} cn={data.cn} />}
         {snap && tab === 'us' && <UsView snap={snap} />}
         {snap && tab === 'cn' && (data.cn ? <ChinaView snap={data.cn} /> : <p role="alert" className="macro-muted">中国数据加载失败，请刷新重试。</p>)}

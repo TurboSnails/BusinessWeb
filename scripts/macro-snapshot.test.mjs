@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { drawdown, monthly, parseCsv, subtract, underperformStreak, yoy } from './macro-snapshot.mjs'
+import { drawdown, monthly, parseCsv, subtract, underperformStreak, yoy } from '../server/macro.mjs'
 
 test('解析 FRED CSV，跳过缺失值', () => {
   assert.deepEqual(parseCsv('observation_date,X\n2026-01-01,1.5\n2026-01-02,.\n2026-01-03,2'), [['2026-01-01', 1.5], ['2026-01-03', 2]])

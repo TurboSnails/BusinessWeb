@@ -78,6 +78,8 @@ export interface SeriesData {
 
 export interface MacroSnapshot<K extends string = SeriesKey> {
   generatedAt: string
+  /** 实时刷新时才有：精确到秒的拉取时间 */
+  fetchedAt?: string
   source: string
   series: Record<K, SeriesData>
 }

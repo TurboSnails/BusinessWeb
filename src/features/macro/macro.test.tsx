@@ -72,6 +72,19 @@ describe('宏观温度页面', () => {
     expect(screen.getByText(/中国数据更新于/)).toBeTruthy()
   })
 
+  it('刷新最新数据：实时结果覆盖快照，没拉到的项沿用快照', async () => {
+    const fresh = { ...snapshot, fetchedAt: '2026-10-05T11:00:00.000Z', series: { vix: { ...snapshot.series.vix, latest: { date: '2026-10-05', value: 33.3 } } } }
+    const fetcher = vi.fn(async (url: string) => ({ ok: true, json: async () => (String(url).includes('/api/macro') ? { us: fresh, cn: { ...cnSnapshot, series: {} }, warnings: ['gdp：超时'] } : String(url).includes('macro-cn') ? cnSnapshot : snapshot) }) as Response)
+    vi.stubGlobal('fetch', fetcher)
+    renderAt('/monitor?tab=us')
+    await screen.findAllByRole('img', { name: /近两年走势/ })
+    fireEvent.click(screen.getByRole('button', { name: '刷新最新数据' }))
+    expect(await screen.findByText(/已刷新：实时数据拉取于/)).toBeTruthy()
+    expect(screen.getByText('33.3')).toBeTruthy()
+    expect(screen.getAllByRole('img', { name: /近两年走势/ }).length).toBe(INDICATORS.length)
+    expect(screen.getByText(/1 项没拉到，沿用快照/)).toBeTruthy()
+  })
+
   it('旧版内容收进存档并标注停用', () => {
     renderAt('/monitor')
     fireEvent.click(screen.getByRole('tab', { name: '旧版存档' }))

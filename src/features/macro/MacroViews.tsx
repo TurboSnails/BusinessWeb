@@ -37,11 +37,11 @@ export function signalValues(snap: MacroSnapshot): Record<string, number> {
 }
 
 function DataStamp({ snap, label = '美国' }: { snap: MacroSnapshot<string>; label?: string }): JSX.Element {
-  const stale = ageInDays(snap.generatedAt) > 40
+  const stale = !snap.fetchedAt && ageInDays(snap.generatedAt) > 40
   return (
     <p className={`macro-stamp${stale ? ' is-stale' : ''}`}>
-      {label}数据更新于 {snap.generatedAt} · 来源 {snap.source}
-      {stale && ' · 已超过 40 天未更新，读数仅供参考'}
+      {label}数据{snap.fetchedAt ? '实时拉取于' : '更新于'} {snap.fetchedAt ? snap.fetchedAt.slice(0, 16).replace('T', ' ') + ' UTC' : snap.generatedAt} · 来源 {snap.source}
+      {stale && ' · 已超过 40 天未更新，建议点右上角「刷新最新数据」'}
     </p>
   )
 }
@@ -232,7 +232,7 @@ export function GuideView({ snap, cn }: { snap: MacroSnapshot; cn: MacroSnapshot
       {cn && <section aria-label="中国指标"><h2 className="macro-h2">中国</h2><GuideTable indicators={CN_INDICATORS} snap={cn} sourceOf={d => d.source ?? ''} /></section>}
       <section className="macro-card">
         <h3>怎么更新</h3>
-        <p>GitHub Action 每月 8 日自动运行 <code>npm run macro:update</code>，从 FRED、雅虎财经和东方财富数据中心拉取最新数据写入 <code>public/data/</code>，提交后网页自动更新；也可以在 BusinessWeb 目录手动运行。某个数据源失败时会保留上一次的读数。</p>
+        <p>页面右上角「刷新最新数据」会实时拉取：本地开发时由本机 Node 拉取，线上由 Vercel 函数拉取，某项失败时沿用快照。快照文件由 GitHub Action 每月 8 日自动运行 <code>npm run macro:update</code> 更新，从 FRED、雅虎财经和东方财富数据中心拉取最新数据写入 <code>public/data/</code>，提交后网页自动更新；也可以在 BusinessWeb 目录手动运行。某个数据源失败时会保留上一次的读数。</p>
       </section>
     </div>
   )
