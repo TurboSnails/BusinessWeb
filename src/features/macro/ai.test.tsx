@@ -87,4 +87,21 @@ describe('宏观 AI 解读', () => {
     expect((await screen.findByRole('alert')).textContent).toMatch(/旧版本.*npm run valuation:server/)
     expect(screen.queryByRole('button', { name: '生成解读' })).toBeNull()
   })
+
+  it('快照不是实时数据时，生成解读前先刷新，并把体检结果随解读保存', async () => {
+    vi.stubGlobal('fetch', service)
+    vi.stubGlobal('EventSource', FakeEventSource)
+    const fresh = { us: { ...us, fetchedAt: new Date().toISOString() }, cn }
+    const onRefresh = vi.fn(async () => fresh)
+    render(<AiInterpretation us={us} cn={cn} onRefresh={onRefresh} />)
+    await waitFor(() => expect(screen.getByRole('button', { name: '生成解读' })).toBeTruthy())
+    fireEvent.click(screen.getByRole('button', { name: '生成解读' }))
+    await waitFor(() => expect(FakeEventSource.last?.url).toContain('/macro/jobs/'))
+    expect(onRefresh).toHaveBeenCalledTimes(1)
+    const sent = posted[posted.length - 1] as { digest: { asOf: string; dataQuality: object } }
+    expect(sent.digest.asOf).toBe(fresh.us.fetchedAt.slice(0, 10))
+    expect(sent.digest.dataQuality).toBeTruthy()
+    act(() => FakeEventSource.last!.send({ id: 9, jobId: 'm1', type: 'completed', stage: 'completed', payload: { report: result } }))
+    expect(screen.getByText(/解读时的数据：已先刷新为最新/)).toBeTruthy()
+  })
 })

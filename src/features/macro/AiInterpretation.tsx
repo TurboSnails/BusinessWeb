@@ -15,6 +15,7 @@ import type { Backend, BackendInfo, ModelOption } from '../valuation'
 import type { MacroSnapshot } from './indicators'
 import type { CnKey } from './china'
 import { buildDigest } from './digest'
+import { QUALITY_LABEL, checkQuality, type QualityReport } from './quality'
 import { elapsedText } from '../valuation/session'
 
 // 当前标签页内保留：进行中的任务、最近一次解读
@@ -30,7 +31,12 @@ const remember = (key: string, value: string) => { try { localStorage.setItem(ke
 
 const DIRECTION_TONE: Record<string, string> = { 变好: 'green', 变坏: 'red', 持平: 'gray' }
 
-export default function AiInterpretation({ us, cn }: { us: MacroSnapshot; cn: MacroSnapshot<CnKey> | null }): JSX.Element {
+type Snapshots = { us: MacroSnapshot; cn: MacroSnapshot<CnKey> | null }
+type StoredResult = MacroInterpretationResult & { quality?: { counts: QualityReport['counts']; issues: string[]; refreshed: boolean } }
+// 快照超过 6 小时就先刷新，保证解读的是最新数据
+const FRESH_MS = 6 * 3600_000
+
+export default function AiInterpretation({ us, cn, onRefresh }: Snapshots & { onRefresh?: () => Promise<Snapshots | null> }): JSX.Element {
   const running = useRef(store.get<{ id: string; startedAt: number }>(JOB_KEY)).current
   const [connected, setConnected] = useState(false)
   const [backends, setBackends] = useState<BackendInfo[]>([])
@@ -43,7 +49,9 @@ export default function AiInterpretation({ us, cn }: { us: MacroSnapshot; cn: Ma
   const [now, setNow] = useState(() => Date.now())
   const [status, setStatus] = useState(running ? '正在恢复解读进度…' : '')
   const [activity, setActivity] = useState<{ chars: number; preview: string } | null>(null)
-  const [result, setResult] = useState<MacroInterpretationResult | null>(() => store.get(LAST_KEY))
+  const [result, setResult] = useState<StoredResult | null>(() => store.get(LAST_KEY))
+  // 本次解读用的数据体检结果，完成后随结果一起保存
+  const pendingQuality = useRef<StoredResult['quality'] | null>(store.get(JOB_KEY + '-quality'))
   const [error, setError] = useState('')
   const [outdated, setOutdated] = useState(false)
   const stop = useRef<(() => void) | null>(null)
@@ -82,7 +90,8 @@ export default function AiInterpretation({ us, cn }: { us: MacroSnapshot; cn: Ma
   }, [connected, backend])
 
   function finish(value: MacroInterpretationResult) {
-    setResult(value); store.set(LAST_KEY, value)
+    const stored: StoredResult = { ...value, ...(pendingQuality.current ? { quality: pendingQuality.current } : {}) }
+    setResult(stored); store.set(LAST_KEY, stored); store.set(JOB_KEY + '-quality', null)
     setBusy(false); setStatus(''); store.set(JOB_KEY, null)
   }
   function attach(id: string) {
@@ -110,11 +119,26 @@ export default function AiInterpretation({ us, cn }: { us: MacroSnapshot; cn: Ma
   }, [connected])
 
   async function start(): Promise<void> {
-    setError(''); setBusy(true); setStatus('正在启动'); setActivity(null)
+    setError(''); setBusy(true); setActivity(null)
     const began = Date.now()
     setStartedAt(began); setNow(began)
     try {
-      const value = await startMacroInterpretation({ backend, modelId: model, digest: buildDigest(us, cn) })
+      // 1. 先刷新：快照不是实时数据或已超过 6 小时，就重新拉一次
+      let data: Snapshots = { us, cn }
+      let refreshed = false
+      const fetchedAt = us.fetchedAt ? new Date(us.fetchedAt).getTime() : 0
+      if (onRefresh && Date.now() - fetchedAt > FRESH_MS) {
+        setStatus('先拉取最新数据…')
+        const fresh = await onRefresh()
+        if (fresh) { data = fresh; refreshed = true }
+        else setStatus('刷新失败，改用当前快照，并按体检结果标注')
+      }
+      // 2. 再体检：异常与缺失的读数不交给模型，过期的打上标记
+      const quality = checkQuality(data.us, data.cn)
+      pendingQuality.current = { counts: quality.counts, issues: quality.issues.map(i => `${i.country}·${i.key}：${QUALITY_LABEL[i.quality]}`), refreshed }
+      store.set(JOB_KEY + '-quality', pendingQuality.current)
+      setStatus('正在启动解读')
+      const value = await startMacroInterpretation({ backend, modelId: model, digest: buildDigest(data.us, data.cn, quality) })
       setJob(value.id)
       store.set(JOB_KEY, { id: value.id, startedAt: began })
       attach(value.id)
@@ -191,6 +215,12 @@ export default function AiInterpretation({ us, cn }: { us: MacroSnapshot; cn: Ma
           <h4>下个月盯什么</h4>
           <ul className="macro-ai__list">{result.interpretation.watch.map(w => <li key={w.item}><b>{w.item}</b>：{w.trigger}</li>)}</ul>
           {result.interpretation.caveats && <p className="macro-muted">局限：{result.interpretation.caveats}</p>}
+          {result.quality && (
+            <p className={`macro-stamp${result.quality.issues.length ? ' is-stale' : ''}`}>
+              解读时的数据：{result.quality.refreshed ? '已先刷新为最新，' : ''}{result.quality.counts.ok} 项正常
+              {result.quality.issues.length > 0 && `；不可靠的项已标注或剔除：${result.quality.issues.join('、')}`}
+            </p>
+          )}
           <p className="macro-ai__meta">AI 解读仅供参考，阶段以规则为准 · {result.execution.backend} · {result.execution.resolvedModelId || result.execution.requestedModelId} · 生成于 {new Date(result.createdAt).toLocaleString('zh-CN', { hour12: false })}</p>
         </article>
       )}

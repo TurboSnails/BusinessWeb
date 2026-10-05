@@ -82,3 +82,4 @@
 .macro-ai__list li { display: block; padding: 4px 0; }
 .macro-ai__list .macro-badge { margin-right: 6px; }
 .macro-ai__meta { color: var(--text-secondary); font-size: 0.75rem !important; }
+.macro-quality { margin: 6px 0 0; padding-left: 18px; line-height: 1.7; }

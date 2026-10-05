@@ -62,7 +62,8 @@ export default function Monitor(): JSX.Element {
   const [refreshing, setRefreshing] = useState(false)
   const [notice, setNotice] = useState('')
 
-  const refresh = async (): Promise<void> => {
+  /** 拉取实时数据；成功返回新快照（AI 解读会先调用它，保证解读的是最新数据） */
+  const refresh = async (): Promise<Snapshots | null> => {
     setRefreshing(true); setNotice('')
     try {
       const res = await fetch(`${apiBase}/api/macro`, { cache: 'no-store' })
@@ -73,8 +74,10 @@ export default function Monitor(): JSX.Element {
       setData(snapshotCache)
       const missing = (body.warnings as string[] | undefined)?.length ?? 0
       setNotice(`已刷新：实时数据拉取于 ${timeText(body.us.fetchedAt)}${missing ? `；${missing} 项没拉到，沿用快照` : ''}`)
+      return snapshotCache
     } catch (e) {
       setNotice(`刷新失败：${e instanceof Error ? e.message : '数据源暂时不可用'}，仍显示快照数据`)
+      return null
     } finally { setRefreshing(false) }
   }
 
@@ -108,7 +111,7 @@ export default function Monitor(): JSX.Element {
             </button>
           </div>
         )}
-        {snap && tab === 'overview' && <OverviewView snap={snap} cn={data.cn} />}
+        {snap && tab === 'overview' && <OverviewView snap={snap} cn={data.cn} onRefresh={refresh} />}
         {snap && tab === 'us' && <UsView snap={snap} />}
         {snap && tab === 'cn' && (data.cn ? <ChinaView snap={data.cn} /> : <p role="alert" className="macro-muted">中国数据加载失败，请刷新重试。</p>)}
         {snap && tab === 'stages' && <StagesView snap={snap} />}

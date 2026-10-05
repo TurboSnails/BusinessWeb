@@ -6,6 +6,7 @@ import { INDICATORS, MODULES, ageInDays, signalValues, stageFromSnapshot, thresh
 import { CN_INDICATORS, CN_MODULES, type CnKey } from './china'
 import Sparkline from './Sparkline'
 import AiInterpretation from './AiInterpretation'
+import { QUALITY_LABEL, checkQuality, type QualityReport, type QualityResult } from './quality'
 import './macro.css'
 
 const TONE_LABEL: Record<Tone, string> = { green: '正常', yellow: '警惕', red: '危险', blue: '信息', gray: '背景' }
@@ -28,6 +29,24 @@ function DataStamp({ snap, label = '美国' }: { snap: MacroSnapshot<string>; la
       {label}数据{snap.fetchedAt ? '实时拉取于' : '更新于'} {snap.fetchedAt ? snap.fetchedAt.slice(0, 16).replace('T', ' ') + ' UTC' : snap.generatedAt} · 来源 {snap.source}
       {stale && ' · 已超过 40 天未更新，建议点右上角「刷新最新数据」'}
     </p>
+  )
+}
+
+/** 数据体检一行：正常时只给计数，有问题时逐项列出 */
+export function QualityLine({ report }: { report: QualityReport }): JSX.Element {
+  const { counts, issues, stageAffected } = report
+  const total = counts.ok + counts.stale + counts.invalid + counts.missing
+  return (
+    <div className={`macro-stamp${issues.length ? ' is-stale' : ''}`} role="note" aria-label="数据体检">
+      数据体检：{total} 项中 {counts.ok} 项正常
+      {counts.stale > 0 && `，${counts.stale} 项过期`}{counts.invalid > 0 && `，${counts.invalid} 项异常`}{counts.missing > 0 && `，${counts.missing} 项缺失`}
+      {stageAffected.length > 0 && '；阶段信号受影响，阶段结论需打折看待'}
+      {issues.length > 0 && (
+        <ul className="macro-quality">
+          {issues.map(i => <li key={i.country + i.key}>{i.country} · {i.key}：{QUALITY_LABEL[i.quality]}，{i.reason}</li>)}
+        </ul>
+      )}
+    </div>
   )
 }
 
@@ -78,13 +97,15 @@ function ModuleSummary<K extends string>({ modules, indicators, snap }: { module
   )
 }
 
-export function OverviewView({ snap, cn }: { snap: MacroSnapshot; cn: MacroSnapshot<CnKey> | null }): JSX.Element {
+export function OverviewView({ snap, cn, onRefresh }: { snap: MacroSnapshot; cn: MacroSnapshot<CnKey> | null; onRefresh?: () => Promise<{ us: MacroSnapshot; cn: MacroSnapshot<CnKey> | null } | null> }): JSX.Element {
   const { stage, score, entered } = stageFromSnapshot(snap)
+  const quality = checkQuality(snap, cn)
   return (
     <div className="macro-stack">
       <DataStamp snap={snap} />
+      <QualityLine report={quality} />
       <StageHero stage={stage} score={score} entered={entered} />
-      <AiInterpretation us={snap} cn={cn} />
+      <AiInterpretation us={snap} cn={cn} onRefresh={onRefresh} />
       <section aria-label="美国">
         <h2 className="macro-h2">美国</h2>
         <ModuleSummary modules={MODULES} indicators={INDICATORS} snap={snap} />
@@ -107,14 +128,14 @@ export function OverviewView({ snap, cn }: { snap: MacroSnapshot; cn: MacroSnaps
   )
 }
 
-function IndicatorCard({ ind, d }: { ind: Indicator<string>; d: SeriesData }): JSX.Element {
+function IndicatorCard({ ind, d, quality }: { ind: Indicator<string>; d: SeriesData; quality?: QualityResult }): JSX.Element {
   const tone = toneOf(ind, d.latest.value)
   const thresholds = [ind.yellow, ind.red].filter((t): t is number => t !== undefined)
   return (
     <article className="macro-card macro-ind">
       <div className="macro-card__head"><h3>{ind.name}</h3><ToneBadge tone={tone} /></div>
       <p className="macro-ind__value">{fmt(d.latest.value, ind.digits)}<small>{unitText(d.unit)}</small></p>
-      <p className="macro-muted">截至 {d.latest.date} · {ind.freq}</p>
+      <p className="macro-muted">截至 {d.latest.date} · {ind.freq}{quality && quality.quality !== 'ok' && <span className="macro-badge macro-badge--yellow" title={quality.reason}> 数据{QUALITY_LABEL[quality.quality]}</span>}</p>
       <Sparkline points={d.history} thresholds={thresholds} digits={ind.digits} unit={shortUnit(d.unit)} label={ind.name} />
       <p className="macro-ind__rule">{thresholdText(ind, shortUnit(d.unit))}</p>
       <p className="macro-ind__why">{ind.why}</p>
@@ -122,7 +143,7 @@ function IndicatorCard({ ind, d }: { ind: Indicator<string>; d: SeriesData }): J
   )
 }
 
-function CountryView<K extends string>({ snap, modules, indicators, label }: { snap: MacroSnapshot<K>; modules: { id: ModuleId; name: string; question: string }[]; indicators: Indicator<K>[]; label: string }): JSX.Element {
+function CountryView<K extends string>({ snap, modules, indicators, label, quality }: { snap: MacroSnapshot<K>; modules: { id: ModuleId; name: string; question: string }[]; indicators: Indicator<K>[]; label: string; quality?: Record<string, QualityResult> }): JSX.Element {
   return (
     <div className="macro-stack">
       <DataStamp snap={snap} label={label} />
@@ -130,7 +151,7 @@ function CountryView<K extends string>({ snap, modules, indicators, label }: { s
         <section key={m.id} aria-label={m.name}>
           <h2 className="macro-h2">{m.name}<span className="macro-muted"> · {m.question}</span></h2>
           <div className="macro-grid">
-            {indicators.filter(i => i.module === m.id && snap.series[i.key]).map(i => <IndicatorCard key={i.key} ind={i} d={snap.series[i.key]} />)}
+            {indicators.filter(i => i.module === m.id && snap.series[i.key]).map(i => <IndicatorCard key={i.key} ind={i} d={snap.series[i.key]} quality={quality?.[i.key]} />)}
           </div>
         </section>
       ))}
@@ -138,8 +159,8 @@ function CountryView<K extends string>({ snap, modules, indicators, label }: { s
   )
 }
 
-export const UsView = ({ snap }: { snap: MacroSnapshot }): JSX.Element => <CountryView snap={snap} modules={MODULES} indicators={INDICATORS} label="美国" />
-export const ChinaView = ({ snap }: { snap: MacroSnapshot<CnKey> }): JSX.Element => <CountryView snap={snap} modules={CN_MODULES} indicators={CN_INDICATORS} label="中国" />
+export const UsView = ({ snap }: { snap: MacroSnapshot }): JSX.Element => <CountryView snap={snap} modules={MODULES} indicators={INDICATORS} label="美国" quality={checkQuality(snap, null).us} />
+export const ChinaView = ({ snap }: { snap: MacroSnapshot<CnKey> }): JSX.Element => <CountryView snap={snap} modules={CN_MODULES} indicators={CN_INDICATORS} label="中国" quality={checkQuality({ generatedAt: snap.generatedAt, source: '', series: {} } as unknown as MacroSnapshot, snap).cn} />
 
 export function StagesView({ snap }: { snap: MacroSnapshot }): JSX.Element {
   const { stage } = stageFromSnapshot(snap)
