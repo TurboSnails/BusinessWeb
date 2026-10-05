@@ -41,12 +41,16 @@
 ### Task 3: Synchronize and publish
 
 - [x] Create local-only manifest and sync script; verify current vault counts and batch sizes without transmitting data.
-- [ ] Prepare concrete cloud configuration, obtain any necessary credential handoff, run migration and authorized import.
-- [ ] Run full tests/build, commit/push, check deployments, verify authenticated real graph and MCP calls.
+- [x] Prepare concrete cloud configuration, obtain any necessary credential handoff, run migration and authorized import.
+- [x] Run full tests/build, commit/push, check deployments, verify authenticated real graph and MCP calls.
 
 ## Verification and remaining cloud activation
 
 - 361 frontend/API tests and 21 local knowledge integration tests passed.
 - Native function loading and TypeScript checks passed; MCP response escaping tested with the real SDK client.
-- Private local manifest: 1,227 notes, 1,409 edges, 13 batches; no notes uploaded yet.
-- Production activation awaits credential entry by the user, Supabase migration, and confirmation of private note synchronization scope.
+- Private local manifest: 1,227 notes, 1,409 edges, 13 batches; all notes uploaded and published as revision 1.
+- User confirmed full-library synchronization and independent authenticated AI read-only access; user entered the production credentials.
+- Supabase migration executed successfully; RLS enabled and anonymous table SELECT denied.
+- Production redeployed with credentials, 13 batches uploaded, revision 1 published. All 1,227 note versions and the full graph match the local snapshot.
+- Real production SDK HTTP MCP: five read-only tools, full list, longest note body and related links verified; anonymous reads and AI uploads rejected.
+- Published browser page verified: connected cloud library, 1,227 notes, 1,409 real references, one unresolved reference. Attachments remain local.
