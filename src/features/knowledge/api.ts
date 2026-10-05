@@ -37,7 +37,8 @@ async function request<T>(path: string, method = 'GET', data?: unknown): Promise
   const cloud = isCloudKnowledge()
   const token = cloud ? sessionStorage.getItem(cloudTokenKey) : null
   if (cloud && !token) throw new KnowledgeApiError('请先解锁私人资料库。', 401)
-  if (cloud && method !== 'GET') throw new KnowledgeApiError('云端副本只读，请在 Obsidian 修改后同步。', 403)
+  // 网页端只读（本地和云端都是）：笔记只在 Obsidian 中修改，避免冲突。
+  if (method !== 'GET') throw new KnowledgeApiError('网页端只读，请在 Obsidian 中修改。', 403)
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), 10000)
   try {
@@ -61,7 +62,7 @@ async function request<T>(path: string, method = 'GET', data?: unknown): Promise
   } finally { clearTimeout(timeout) }
 }
 export const knowledgeApi: KnowledgeApi = {
-  status: () => request('status'), list: () => request('notes'),
+  status: async () => ({ ...await request<VaultStatus>('status'), readOnly: true }), list: () => request('notes'),
   search: query => request(`search?q=${encodeURIComponent(query)}`),
   read: path => request(`note?path=${encodeURIComponent(path)}`),
   related: path => request(`related?path=${encodeURIComponent(path)}`),

@@ -18,31 +18,29 @@ async function fixture(t) {
   const base = `http://127.0.0.1:${server.address().port}/api/knowledge`;
   const vaultId = (await vault.status()).vaultId;
   const call = (path, method = 'GET', data) => fetch(base + path, { method, headers: { Authorization: `Bearer ${token}`, ...(data ? { 'Content-Type': 'application/json' } : {}) }, body: data ? JSON.stringify({ vaultId, ...data }) : undefined });
-  return { base, call };
+  return { base, call, vault };
 }
 
-test('HTTP authenticates reads and writes, rejects foreign origins, reports conflicts', async t => {
-  const { base, call } = await fixture(t);
+test('HTTP authenticates reads, rejects foreign origins, reports read-only status', async t => {
+  const { base, call, vault } = await fixture(t);
+  await vault.write('test.md', '# Test', null);
   assert.equal((await fetch(base + '/status')).status, 401);
   assert.equal((await fetch(base + '/status', { headers: { Authorization: `Bearer ${token}`, Origin: 'https://evil.example' } })).status, 403);
-  assert.equal((await call('/status')).status, 200);
-  const note = await (await call('/note', 'PUT', { path: 'test.md', content: '# Test', version: null })).json();
-  assert.equal(note.path, 'test.md');
+  const status = await (await call('/status')).json();
+  assert.equal(status.readOnly, true);
   assert.equal((await call('/note?path=test.md')).status, 200);
-  assert.equal((await call('/note', 'PUT', { path: 'test.md', content: 'stale', version: null })).status, 409);
-  assert.equal((await call('/note', 'PUT', { path: '../leak.md', content: 'bad', version: null })).status, 403);
-  assert.equal((await call('/note', 'PUT', { path: 'x.md', content: 'no-version' })).status, 400);
+  assert.equal((await call('/note?path=../leak.md')).status, 403);
   assert.equal((await call('/search?q=Test')).status, 200);
+  assert.equal((await call('/graph')).status, 200);
 });
 
-test('Inbox append validates dates and preserves earlier entries', async t => {
-  const { call } = await fixture(t);
-  const first = await (await call('/inbox', 'POST', { date: '2026-10-05', content: 'first', version: null })).json();
-  const second = await (await call('/inbox', 'POST', { date: '2026-10-05', content: 'second', version: first.version })).json();
-  assert.match(second.content, /first[\s\S]*second/);
-  assert.equal((await call('/inbox', 'POST', { date: '2026-02-30', content: 'bad', version: null })).status, 400);
-  assert.equal((await call('/inbox', 'POST', { date: '../escape', content: 'bad', version: null })).status, 400);
-  assert.equal((await call('/inbox', 'POST', { date: '2026-10-05', content: 'third', version: first.version })).status, 409);
+test('web writes are rejected so notes are only edited in Obsidian', async t => {
+  const { call, vault } = await fixture(t);
+  assert.equal((await call('/note', 'PUT', { path: 'x.md', content: '# X', version: null })).status, 405);
+  assert.equal((await call('/inbox', 'POST', { date: '2026-10-05', content: 'idea', version: null })).status, 405);
+  assert.equal((await call('/append', 'POST', { path: 'x.md', content: 'more', version: null })).status, 405);
+  await assert.rejects(vault.read('x.md'));
+  await assert.rejects(vault.read('00-Inbox/2026-10-05.md'));
 });
 
 test('proxy guard permits only loopback connections with matching origin and host', () => {
@@ -53,13 +51,4 @@ test('proxy guard permits only loopback connections with matching origin and hos
   assert.equal(isLocalKnowledgeRequest(req('evil.example:5173')), false);
   assert.equal(isLocalKnowledgeRequest(req('127.0.0.1:5173', undefined, '::ffff:127.0.0.1')), true);
   assert.equal(isLocalKnowledgeRequest(req('localhost:5173', 'null')), false);
-});
-
-test('mutations reject missing or mismatched Vault identity, including new notes', async t => {
-  const { call } = await fixture(t);
-  const status = await (await call('/status')).json();
-  assert.match(status.vaultId, /^[a-f0-9]{64}$/);
-  assert.equal((await call('/note', 'PUT', { path: 'x.md', content: 'wrong vault', version: null, vaultId: 'f'.repeat(64) })).status, 409);
-  assert.equal((await call('/note', 'PUT', { path: 'x.md', content: 'no identity', version: null, vaultId: null })).status, 400);
-  assert.equal((await call('/inbox', 'POST', { date: '2026-10-05', content: 'wrong vault', version: null, vaultId: 'f'.repeat(64) })).status, 409);
 });
