@@ -1,10 +1,22 @@
 {
-  "generatedAt": "2026-10-05T15:36:30.358Z",
+  "generatedAt": "2026-10-05T15:52:09.570Z",
   "versions": [
     {
       "tag": "unreleased",
       "date": null,
       "commits": [
+        {
+          "hash": "b3d3852",
+          "subject": "feat(invest): 正念投资栏目与书的方法对齐——下架荐股观察池、研究页去建议化、配置统一到宽基三档",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
+        {
+          "hash": "772b8e9",
+          "subject": "chore: 更新更新日志",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
         {
           "hash": "2b45266",
           "subject": "docs(book): 第十五轮修订——全收益口径重算、宽基三档模板、新增家庭财务底座专题",
@@ -172,18 +184,6 @@
           "subject": "feat(knowledge): refine dandelion motion and seed interactions",
           "author": "hassan",
           "date": "2026-10-05"
-        },
-        {
-          "hash": "2d51fc9",
-          "subject": "feat(knowledge): add dandelion graph and authenticated AI library MCP",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "a1054cc",
-          "subject": "fix(site): 脉搏/监控页不再借用 --up/--down（改中性颜色名，颜色不变）；清理估值样式冗余回退；禁用章节鼠标样式",
-          "author": "hassan",
-          "date": "2026-10-04"
         }
       ]
     }
