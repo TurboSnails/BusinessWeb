@@ -1,10 +1,22 @@
 {
-  "generatedAt": "2026-10-05T14:42:57.633Z",
+  "generatedAt": "2026-10-05T15:10:22.708Z",
   "versions": [
     {
       "tag": "unreleased",
       "date": null,
       "commits": [
+        {
+          "hash": "159bb48",
+          "subject": "fix(knowledge): 修复 Notion 导出笔记的表格、折叠块与嵌套缩进显示",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
+        {
+          "hash": "4a48927",
+          "subject": "chore: 更新更新日志",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
         {
           "hash": "ee1b0d5",
           "subject": "data(research): 2026-10-05 行业事实核查，更新公司资料与核查报告",
@@ -170,18 +182,6 @@
         {
           "hash": "14db85b",
           "subject": "fix(deploy): GitHub Pages 为主导航页面预建入口（invest/ai/life/about）",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "80aec54",
-          "subject": "feat(site): 暂时隐藏我的书的 PDF 阅读/下载入口（开关 PDF_ENTRY_ENABLED）",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "4ce44c4",
-          "subject": "perf(site): 按路由拆包，首包 JS 压缩后从约 798KB 降到约 60KB",
           "author": "hassan",
           "date": "2026-10-04"
         }
