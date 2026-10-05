@@ -75,42 +75,47 @@ function Node({ node, depth, q }: { node: TreeNode; depth: number; q: string }):
   )
 }
 
+const SOURCES = {
+  solid: { label: '固态电池', file: 'industry/solid-state.json' },
+  semi: { label: '半导体产业链', file: 'industry/semiconductor.json' },
+} as const
+type TabId = keyof typeof SOURCES
+
 export default function IndustryLandscape(): JSX.Element {
-  const [tab, setTab] = useState<'solid' | 'semi'>('solid')
-  const [tree, setTree] = useState<TreeNode | null>(null)
+  const [tab, setTab] = useState<TabId>('solid')
+  // 两棵树各自缓存，切换页签不重复请求
+  const [trees, setTrees] = useState<Partial<Record<TabId, TreeNode | null>>>({})
   const [q, setQ] = useState('')
+  const tree = trees[tab]
 
   useEffect(() => {
-    fetch(`${BASE}industry/solid-state.json`).then(r => r.json()).then(setTree).catch(() => setTree(null))
-  }, [])
+    if (tab in trees) return
+    let alive = true
+    fetch(`${BASE}${SOURCES[tab].file}`).then(r => r.json())
+      .then((data: TreeNode) => { if (alive) setTrees(t => ({ ...t, [tab]: data })) })
+      .catch(() => { if (alive) setTrees(t => ({ ...t, [tab]: null })) })
+    return () => { alive = false }
+  }, [tab, trees])
 
   const total = useMemo(() => (tree ? countNodes(tree) : 0), [tree])
   return (
     <main>
       <PageTitle>产业格局</PageTitle>
-      <PageTabs label="产业格局栏目" value={tab} onChange={setTab} items={[{ id: 'solid', label: '固态电池' }, { id: 'semi', label: '半导体产业链' }]} />
+      <PageTabs label="产业格局栏目" value={tab} onChange={id => { setTab(id); setQ('') }}
+        items={(Object.keys(SOURCES) as TabId[]).map(id => ({ id, label: SOURCES[id].label }))} />
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 16px 32px' }}>
-      {tab === 'solid' && (
         <div style={cardStyle}>
           <input
             value={q}
             onChange={e => setQ(e.target.value.trim().toLowerCase())}
             placeholder={`搜索 ${total} 个节点`}
+            aria-label="搜索节点"
             style={{ width: '100%', boxSizing: 'border-box', padding: '8px 12px', marginBottom: 12, borderRadius: 10, border: '1px solid var(--system-gray4)', fontSize: '0.9rem' }}
           />
-          {tree ? <Node node={tree} depth={0} q={q} /> : <p style={{ color: 'var(--system-gray)' }}>加载中…</p>}
+          {tree ? <Node key={tab} node={tree} depth={0} q={q} />
+            : tree === null ? <p style={{ color: 'var(--system-gray)' }}>加载失败，请刷新重试。</p>
+            : <p style={{ color: 'var(--system-gray)' }}>加载中…</p>}
         </div>
-      )}
-      {tab === 'semi' && (
-        <div style={cardStyle}>
-          <p style={{ margin: '0 0 12px', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-            原图为 MindNode 脑图预览，点击图片在新窗口打开后可放大查看。
-          </p>
-          <a href={`${BASE}industry/semiconductor.png`} target="_blank" rel="noreferrer">
-            <img src={`${BASE}industry/semiconductor.png`} alt="半导体产业链脑图" style={{ width: '100%', borderRadius: 8 }} />
-          </a>
-        </div>
-      )}
       </div>
     </main>
   )
