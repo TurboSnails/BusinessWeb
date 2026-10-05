@@ -11,6 +11,8 @@ type HighlightToken = { type: 'highlight'; raw: string; text: string; tokens: To
 
 const parser = new Marked({ gfm: true, breaks: true })
 parser.use({
+  // Notion 导出用制表符缩进表示嵌套，不是代码；关闭「缩进代码块」，代码只认 ``` 围栏
+  tokenizer: { code: () => undefined },
   extensions: [
     {
       name: 'wikilink', level: 'inline',
@@ -87,7 +89,10 @@ function flattenedCode(token: Token): { lang?: string; code: string } | null {
 }
 
 // 导出产物修复：普通行里用 <br> 代替换行、引用符被转义成 \>（飞书/Notion 常见）。
-// 表格行（| 开头）、HTML 行（< 开头）和代码块内不动。
+// 表格行（| 开头）、HTML 行（< 开头）和代码块内不动；块级 HTML 结束后补空行。
+const DETAILS_OPEN = /^\s*<details\b[^>]*>\s*$/i
+const DETAILS_CLOSE = /^\s*<\/details>\s*$/i
+
 // 按 <br> 切分，但不切行内代码里的 <br>（那部分交给代码块还原逻辑）
 function splitBr(line: string): string[] {
   const parts: string[] = []
@@ -101,13 +106,64 @@ function splitBr(line: string): string[] {
   return parts
 }
 
+// 无语言/纯文本代码块里只出现 <br> 这一种标签时，是导出把换行写成了 <br>，顺带还原 Markdown 转义
+function exportedCodeText(code: string, lang?: string): string {
+  if (lang && !/^(plain)?te?xt$/i.test(lang)) return code
+  if (!/<br\s*\/?>/i.test(code) || /<(?!br\b)\/?[a-z]/i.test(code)) return code
+  return decode(code.replace(/<br\s*\/?>/gi, '\n').replace(/\\([\\`*_{}[\]()#+\-.!<>|~])/g, '$1'))
+}
+
 export function normalizeExport(body: string): string {
   const out: string[] = []
-  let fence = ''
-  for (const line of body.split('\n')) {
-    const marker = /^\s*(```+|~~~+)/.exec(line)?.[1]
-    if (marker && (!fence || marker[0] === fence[0])) { fence = fence ? '' : marker; out.push(line); continue }
-    if (fence || /^\s*[|<]/.test(line)) { out.push(line); continue }
+  let fence = '', fenceIndent = ''
+  // 折叠块（<details>）里的内容整体带缩进：记录每层的公共缩进，去掉后按 Markdown 解析
+  const detailsIndent: Array<string | null> = []
+  for (const original of body.split('\n')) {
+    // Notion 有时把整张 HTML 表格转义成 \<table\>\<tr\>…，还原成 HTML
+    let raw = /^\s*\\<\/?(table|thead|tbody|tr|td|th|div|p|br|details|summary|ul|ol|li)\b/i.test(original) ? original.replace(/\\([<>])/g, '$1') : original
+    if (!fence && detailsIndent.length) {
+      const depth = detailsIndent.length - 1
+      if (detailsIndent[depth] === null && raw.trim() && !/^\s*<\/?(details|summary)\b/i.test(raw)) detailsIndent[depth] = /^\s*/.exec(raw)![0]
+      const indent = detailsIndent[depth]
+      if (indent && raw.startsWith(indent)) raw = raw.slice(indent.length)
+    }
+    if (!fence) {
+      const open = /^\s*<details\b[^>]*>(.*)$/i.exec(raw)
+      if (open) {
+        out.push('', '<details>', '')
+        detailsIndent.push(null)
+        const rest = open[1].trim()
+        if (!rest) continue
+        raw = rest
+      }
+      if (detailsIndent.length && /^\s*<summary\b/i.test(raw)) {
+        const summary = /^\s*(<summary\b[^>]*>[\s\S]*?<\/summary>)(.*)$/i.exec(raw)
+        if (summary) {
+          out.push(summary[1], '')
+          if (!summary[2].trim()) continue
+          raw = summary[2]
+        }
+      }
+      if (detailsIndent.length && /^\s*<\/details>\s*$/i.test(raw)) { out.push('', '</details>', ''); detailsIndent.pop(); continue }
+    }
+    let line = raw
+    const fenceMatch = /^(\s*)(```+|~~~+)/.exec(line)
+    if (fenceMatch && (!fence || fenceMatch[2][0] === fence[0])) {
+      // 嵌套在 toggle 里的代码围栏带制表符缩进，连同内容一起去掉这层缩进
+      if (!fence) { fence = fenceMatch[2]; fenceIndent = fenceMatch[1] } else fence = ''
+      out.push(line.trimStart())
+      continue
+    }
+    if (fence) { out.push(fenceIndent && line.startsWith(fenceIndent) ? line.slice(fenceIndent.length) : line); continue }
+    if (/^\s*\|/.test(line)) { out.push(line); continue }
+    // 缩进的 HTML 行、标题、分隔线（Notion 嵌套块）去掉缩进才能识别
+    if (/^\s+(<|#{1,6}\s|(-{3,}|\*{3,}|_{3,})\s*$)/.test(line)) line = line.trimStart()
+    if (/^\s*</.test(line)) {
+      out.push(line)
+      // HTML 块要到空行才结束：</table> 后紧跟正文时补空行，否则后面的正文、代码围栏都会被吞进 HTML 块
+      if (/<\/(table|details|div|blockquote|ul|ol|pre|dl)>\s*$/i.test(line)) out.push('')
+      continue
+    }
     for (const part of splitBr(line)) {
       if (/^\s*\\>/.test(part)) out.push(...part.split(/\s*\\>\s?/).slice(1).map(item => `> ${item.trim()}`))
       else out.push(part)
@@ -246,6 +302,23 @@ export default function MarkdownPreview({ content, relations, onOpen }: { conten
     const list: Token[] = []
     for (let i = 0; i < source.length; i++) {
       const token = source[i]
+      if (token.type === 'html' && DETAILS_OPEN.test(token.raw)) {
+        const inner: Token[] = []
+        let summary: string | undefined, depth = 1, j = i + 1
+        for (; j < source.length; j++) {
+          const t = source[j]
+          if (t.type === 'html' && DETAILS_OPEN.test(t.raw)) depth++
+          else if (t.type === 'html' && DETAILS_CLOSE.test(t.raw) && --depth === 0) break
+          if (depth === 1 && summary === undefined && !inner.some(x => x.type !== 'space') && t.type === 'html' && /^\s*<summary\b/i.test(t.raw)) {
+            summary = t.raw.replace(/<\/?summary\b[^>]*>/gi, '').trim()
+            continue
+          }
+          inner.push(t)
+        }
+        list.push({ type: 'details', raw: '', summary, tokens: inner } as unknown as Token)
+        i = j
+        continue
+      }
       const restored = flattenedCode(token)
       if (restored) {
         // 上一个块只有一个语言名（如「Plaintext」）时，作为代码块的语言
@@ -261,10 +334,19 @@ export default function MarkdownPreview({ content, relations, onOpen }: { conten
       list.push({ type: 'html', block: true, pre: false, raw, text: raw } as Tokens.HTML)
     }
     return list.map((token, i) => {
+      if ((token.type as string) === 'details') {
+        const d = token as unknown as { summary?: string; tokens: Token[] }
+        return (
+          <details key={i} className="kb-details">
+            <summary>{d.summary ? inlineText(d.summary) : '展开'}</summary>
+            <div className="kb-details-body">{blocks(d.tokens)}</div>
+          </details>
+        )
+      }
       switch (token.type) {
         case 'heading': return React.createElement(`h${Math.min(token.depth + 1, 6)}`, { key: i }, inline(token.tokens))
         case 'paragraph': return <p key={i}>{inline(token.tokens)}</p>
-        case 'code': return <CodeBlock key={i} code={token.text} lang={token.lang} />
+        case 'code': return <CodeBlock key={i} code={exportedCodeText(token.text, token.lang)} lang={token.lang} />
         case 'blockquote': return blockquote(token as Tokens.Blockquote, i)
         case 'hr': return <hr key={i} />
         case 'list': {

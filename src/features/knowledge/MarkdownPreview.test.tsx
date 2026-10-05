@@ -76,3 +76,52 @@ it('导出时用 <br> 连成一段、引用符转义成 \\> 的内容恢复为�
   expect(Array.from(container.querySelectorAll('p')).map(p => p.textContent)).toContain('Apache-2.0 开源')
   expect(container.querySelector('td br')).toBeTruthy()
 })
+it('</table> 后紧跟正文和代码块（无空行）时，不会把后文吞进 HTML 块', () => {
+  const md = '介绍：\n<table header-row="true">\n<tr>\n<td>**维度**</td>\n</tr>\n<tr>\n<td>核心层</td>\n</tr>\n</table>\n正文一段\n```python\nprint(1)\n```\n后文\n<table>\n<tr>\n<td>第二张</td>\n</tr>\n</table>\n结尾'
+  const { container } = render(<MarkdownPreview content={md} relations={null} onOpen={vi.fn()} />)
+  expect(container.querySelectorAll('table')).toHaveLength(2)
+  expect(container.querySelector('th strong')?.textContent).toBe('维度')
+  expect(container.querySelectorAll('.kb-code')).toHaveLength(1)
+  expect(container.querySelector('.kb-code code')?.textContent).toBe('print(1)')
+  expect(Array.from(container.querySelectorAll('p')).map(p => p.textContent)).toEqual(expect.arrayContaining(['正文一段', '后文', '结尾']))
+  expect(container.textContent).not.toMatch(/<\/?(table|tr|td)\b/)
+})
+it('Notion 转义成 \\<table\\> 的表格还原渲染', () => {
+  const md = '下表：\n\\<table header-row="true"\\>\\<tr\\>\\<td\\>情景\\</td\\>\\<td\\>价格\\</td\\>\\</tr\\>\\<tr\\>\\<td\\>基准\\</td\\>\\<td\\>\\$249.27\\</td\\>\\</tr\\>\n\\</table\\>\n**模型输出**'
+  const { container } = render(<MarkdownPreview content={md} relations={null} onOpen={vi.fn()} />)
+  expect(Array.from(container.querySelectorAll('th')).map(t => t.textContent)).toEqual(['情景', '价格'])
+  expect(Array.from(container.querySelectorAll('td')).map(t => t.textContent)).toEqual(['基准', '$249.27'])
+  expect(container.textContent).not.toMatch(/\\|<\/?t(able|r|d)/)
+  expect(container.querySelector('p strong')?.textContent).toBe('模型输出')
+})
+it('Notion 制表符缩进的嵌套内容：段落、表格、代码围栏都按原样识别，不当成缩进代码', () => {
+  const md = '- 折叠块\n\n\t嵌套段落 **加粗**\n\t\t\t<table header-row="true">\n<tr>\n<td>层级</td>\n</tr>\n<tr>\n<td>L1</td>\n</tr>\n</table>\n\n\t```\n\t一、启动:<br>adb shell am start \\<包名\\><br>\n\t```\n结尾'
+  const { container } = render(<MarkdownPreview content={md} relations={null} onOpen={vi.fn()} />)
+  expect(Array.from(container.querySelectorAll('p')).map(p => p.textContent?.trim())).toContain('嵌套段落 加粗')
+  expect(container.querySelector('th')?.textContent).toBe('层级')
+  const codes = container.querySelectorAll('.kb-code code')
+  expect(codes).toHaveLength(1)
+  expect(codes[0].textContent).toBe('一、启动:\nadb shell am start <包名>\n')
+})
+it('Notion 折叠块 <details>：标题取 summary，内部（带缩进）按 Markdown 解析，支持嵌套', () => {
+  const md = '前言\n\t\t<details>\n\t\t<summary>**架构设计**</summary>\n\t\t\t## 一、问题定义\n\t\t\t普通 Agent **无状态**:\n\t\t\t1. 记忆要全\n\t\t\t2. 要懂用户\n\t\t\t\t- 子项\n\t\t\t<table header-row="true">\n<tr>\n<td>层级</td>\n</tr>\n</table>\n\t\t\t<details>\n\t\t\t<summary>内层</summary>\n\t\t\t\t内层正文\n\t\t\t</details>\n\t\t</details>\n结尾'
+  const { container } = render(<MarkdownPreview content={md} relations={null} onOpen={vi.fn()} />)
+  const outer = container.querySelector('details.kb-details')!
+  expect(outer.querySelector(':scope > summary strong')?.textContent).toBe('架构设计')
+  const body = outer.querySelector(':scope > .kb-details-body')!
+  expect(body.querySelector('h3')?.textContent).toBe('一、问题定义')
+  expect(body.querySelectorAll('ol > li')).toHaveLength(2)
+  expect(body.querySelector('ol li ul li')?.textContent).toBe('子项')
+  expect(body.querySelector('th')?.textContent).toBe('层级')
+  const inner = body.querySelector('details.kb-details')!
+  expect(inner.querySelector('summary')?.textContent).toBe('内层')
+  expect(inner.textContent).toContain('内层正文')
+  expect(container.textContent).not.toMatch(/<\/?(details|summary)|##/)
+  expect(Array.from(container.querySelectorAll(':scope > article > p')).map(p => p.textContent)).toEqual(['前言', '结尾'])
+})
+it('制表符缩进的标题和分隔线仍按标题、分隔线显示', () => {
+  const { container } = render(<MarkdownPreview content={'正文\n\n\t\t## Technology\n\t\t---\n\t### 传统的 MVC'} relations={null} onOpen={vi.fn()} />)
+  expect(container.querySelector('h3')?.textContent).toBe('Technology')
+  expect(container.querySelector('hr')).toBeTruthy()
+  expect(container.querySelector('h4')?.textContent).toBe('传统的 MVC')
+})
