@@ -82,7 +82,14 @@ export function subscribeValuation(
   onEvent: (event: JobEvent) => void,
   onError: () => void,
 ) {
-  const stream = new EventSource(`${base}/jobs/${id}/events`);
+  return subscribeJob(`/jobs/${id}/events`, onEvent, onError);
+}
+function subscribeJob(
+  path: string,
+  onEvent: (event: JobEvent) => void,
+  onError: () => void,
+) {
+  const stream = new EventSource(base + path);
   stream.onmessage = (message) => {
     try {
       const event = JSON.parse(message.data) as JobEvent;
@@ -97,3 +104,26 @@ export function subscribeValuation(
   stream.onerror = onError;
   return () => stream.close();
 }
+
+// ── 宏观温度「AI 解读」：同一个本地服务，独立任务队列 ──
+export interface MacroInterpretation {
+  summary: string;
+  changes: { indicator: string; direction: "变好" | "变坏" | "持平"; evidence: string }[];
+  analogs: { period: string; similar: string; different: string }[];
+  watch: { item: string; trigger: string }[];
+  caveats: string;
+}
+export interface MacroInterpretationResult {
+  interpretation: MacroInterpretation;
+  asOf: string | null;
+  stage: string | null;
+  execution: { backend: Backend; requestedModelId: string; resolvedModelId?: string | null; cliVersion?: string };
+  createdAt: string;
+}
+export const startMacroInterpretation = (input: { backend: Backend; modelId: string; digest: unknown }) =>
+  request<{ id: string; state: string }>("/macro/jobs", input);
+export const cancelMacroInterpretation = (id: string) => request("/macro/jobs/" + id + "/cancel", {});
+export const getMacroInterpretation = (id: string) =>
+  request<{ state: string; report: MacroInterpretationResult | null; error: string | null }>("/macro/jobs/" + id);
+export const subscribeMacroInterpretation = (id: string, onEvent: (event: JobEvent) => void, onError: () => void) =>
+  subscribeJob(`/macro/jobs/${id}/events`, onEvent, onError);

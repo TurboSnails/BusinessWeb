@@ -1,4 +1,4 @@
-import { SIGNALS, type Tone } from './stages'
+import { SIGNALS, computeStage, type Tone } from './stages'
 
 export type SeriesKey = 'gdp' | 'unrate' | 'sahm' | 'claims' | 'corePce' | 'realRate' | 'curve' | 'hy' | 'nfci' | 'vix' | 'dd' | 'kre'
 
@@ -86,3 +86,19 @@ export interface MacroSnapshot<K extends string = SeriesKey> {
 
 /** 距今多少天：用来提示数据是否过期 */
 export const ageInDays = (date: string, today = new Date()): number => Math.floor((today.getTime() - new Date(date).getTime()) / 86_400_000)
+
+/** 从快照里取出阶段信号（KRE 需手动，不在快照里） */
+export function stageFromSnapshot(snap: MacroSnapshot) {
+  const s = snap.series
+  return computeStage(signalValues(snap))
+}
+
+/** 阶段信号的当前读数；快照里缺的项（拉取失败）不计入 */
+export function signalValues(snap: MacroSnapshot): Record<string, number> {
+  const out: Record<string, number> = {}
+  for (const id of ['sahm', 'claims', 'hy', 'vix', 'dd', 'kre'] as const) {
+    const v = snap.series[id]?.latest.value
+    if (v !== undefined) out[id] = v
+  }
+  return out
+}

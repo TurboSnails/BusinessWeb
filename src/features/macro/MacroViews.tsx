@@ -1,10 +1,11 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { CheckCircle2, AlertTriangle, OctagonAlert, Minus } from 'lucide-react'
-import { SIGNALS, STAGES, computeStage, signalTone, type Stage, type Tone } from './stages'
-import { INDICATORS, MODULES, ageInDays, thresholdText, toneOf, type Indicator, type MacroSnapshot, type ModuleId, type SeriesData } from './indicators'
+import { SIGNALS, STAGES, signalTone, type Stage, type Tone } from './stages'
+import { INDICATORS, MODULES, ageInDays, signalValues, stageFromSnapshot, thresholdText, toneOf, type Indicator, type MacroSnapshot, type ModuleId, type SeriesData } from './indicators'
 import { CN_INDICATORS, CN_MODULES, type CnKey } from './china'
 import Sparkline from './Sparkline'
+import AiInterpretation from './AiInterpretation'
 import './macro.css'
 
 const TONE_LABEL: Record<Tone, string> = { green: '正常', yellow: '警惕', red: '危险', blue: '信息', gray: '背景' }
@@ -19,22 +20,6 @@ export function ToneBadge({ tone, label }: { tone: Tone; label?: string }): JSX.
 const unitText = (unit: string) => (unit === 'pp' ? ' 个百分点' : unit === '万人' ? ' 万人' : unit)
 const shortUnit = (unit: string) => (unit === 'pp' || unit === '万人' ? '' : unit)
 const fmt = (v: number, digits: number) => v.toFixed(digits)
-
-/** 从快照里取出阶段信号（KRE 需手动，不在快照里） */
-export function stageFromSnapshot(snap: MacroSnapshot) {
-  const s = snap.series
-  return computeStage(signalValues(snap))
-}
-
-/** 阶段信号的当前读数；快照里缺的项（拉取失败）不计入 */
-export function signalValues(snap: MacroSnapshot): Record<string, number> {
-  const out: Record<string, number> = {}
-  for (const id of ['sahm', 'claims', 'hy', 'vix', 'dd', 'kre'] as const) {
-    const v = snap.series[id]?.latest.value
-    if (v !== undefined) out[id] = v
-  }
-  return out
-}
 
 function DataStamp({ snap, label = '美国' }: { snap: MacroSnapshot<string>; label?: string }): JSX.Element {
   const stale = !snap.fetchedAt && ageInDays(snap.generatedAt) > 40
@@ -99,6 +84,7 @@ export function OverviewView({ snap, cn }: { snap: MacroSnapshot; cn: MacroSnaps
     <div className="macro-stack">
       <DataStamp snap={snap} />
       <StageHero stage={stage} score={score} entered={entered} />
+      <AiInterpretation us={snap} cn={cn} />
       <section aria-label="美国">
         <h2 className="macro-h2">美国</h2>
         <ModuleSummary modules={MODULES} indicators={INDICATORS} snap={snap} />

@@ -1,6 +1,7 @@
 import { createServer } from "node:http";
 import { randomBytes, timingSafeEqual } from "node:crypto";
 import { createJobStore } from "./jobs.mjs";
+import { interpretMacro } from "./macro/interpret.mjs";
 import { discoverBackends, BACKENDS } from "./cli/registry.mjs";
 import { listModels } from "./models/index.mjs";
 import { searchCompanies, validateSecurity } from "./data/identity.mjs";
@@ -20,6 +21,8 @@ function originAllowed(origin) {
 }
 export function createValuationServer({
   store = createJobStore(),
+  // 宏观温度的 AI 解读：独立队列，不和估值任务互相占用
+  macroStore = createJobStore({ execute: interpretMacro, timeout: 600000 }),
   token = randomBytes(24).toString("hex"),
 } = {}) {
   const server = createServer(async (req, res) => {
@@ -75,16 +78,19 @@ export function createValuationServer({
         );
       if (path === "/companies" && req.method === "GET")
         return send(200, await searchCompanies(url.searchParams.get("q")));
-      const match = path.match(/^\/jobs\/([\w-]+)(?:\/(events|cancel))?$/);
+      const match = path.match(
+        /^(\/macro)?\/jobs\/([\w-]+)(?:\/(events|cancel))?$/,
+      );
       if (match) {
-        const [, id, action] = match;
+        const [, macro, id, action] = match;
+        const jobStore = macro ? macroStore : store;
         if (action === "cancel" && req.method === "POST") {
-          store.cancel(id);
-          return send(200, store.get(id));
+          jobStore.cancel(id);
+          return send(200, jobStore.get(id));
         }
-        if (!action && req.method === "GET") return send(200, store.get(id));
+        if (!action && req.method === "GET") return send(200, jobStore.get(id));
         if (action === "events" && req.method === "GET") {
-          const events = store.events(
+          const events = jobStore.events(
             id,
             Number(
               req.headers["last-event-id"] ||
@@ -106,7 +112,7 @@ export function createValuationServer({
             write(e);
             if (res.writableEnded) return;
           }
-          const unsub = store.subscribe(id, write),
+          const unsub = jobStore.subscribe(id, write),
             heartbeat = setInterval(() => res.write(": keepalive\n\n"), 15000);
           req.on("close", () => {
             unsub();
@@ -115,7 +121,7 @@ export function createValuationServer({
           return;
         }
       }
-      if (path === "/jobs" && req.method === "POST") {
+      if ((path === "/jobs" || path === "/macro/jobs") && req.method === "POST") {
         let body = "",
           size = 0;
         for await (const chunk of req) {
@@ -136,6 +142,11 @@ export function createValuationServer({
           value.modelId.length > 200
         )
           return send(400, { error: "CLI或模型无效" });
+        if (path === "/macro/jobs") {
+          if (!value.digest || typeof value.digest !== "object")
+            return send(400, { error: "缺少宏观读数" });
+          return send(202, macroStore.start({ backend: value.backend, modelId: value.modelId, digest: value.digest }));
+        }
         value.security = validateSecurity(value.security);
         return send(202, store.start(value));
       }
@@ -151,6 +162,9 @@ export function createValuationServer({
       );
     }
   });
-  server.on("close", () => store.close());
+  server.on("close", () => {
+    store.close();
+    macroStore.close();
+  });
   return server;
 }
