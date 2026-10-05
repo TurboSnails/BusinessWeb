@@ -1,187 +1,187 @@
 {
-  "generatedAt": "2026-10-04T14:58:15.176Z",
+  "generatedAt": "2026-10-05T14:42:57.633Z",
   "versions": [
     {
       "tag": "unreleased",
       "date": null,
       "commits": [
         {
-          "hash": "e5d6c3a",
-          "subject": "perf(site): 标题字体自托管（@fontsource/noto-serif-sc 切片版），去掉 Google Fonts 请求",
+          "hash": "ee1b0d5",
+          "subject": "data(research): 2026-10-05 行业事实核查，更新公司资料与核查报告",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
+        {
+          "hash": "66b5da3",
+          "subject": "feat(knowledge): 笔记按 Markdown 排版阅读，代码块高亮",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
+        {
+          "hash": "9063f67",
+          "subject": "fix(pulse): 美股热力图改用实时行情，弃用会显示过期快照的 TradingView widget",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
+        {
+          "hash": "024377e",
+          "subject": "feat(macro): 数据体检——AI 解读前先刷新、再体检，过期与异常数据不当依据",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
+        {
+          "hash": "dc42a61",
+          "subject": "fix(macro): 本地服务为旧版本时提示重启，而不是报“接口不存在”",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
+        {
+          "hash": "ab5f176",
+          "subject": "feat(macro): 温度总览加入本地模型「AI 解读」",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
+        {
+          "hash": "3db0ea0",
+          "subject": "feat(valuation): 估值进度可见，离开页面后可恢复任务与结果",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
+        {
+          "hash": "53bb6a1",
+          "subject": "feat(macro): 宏观温度支持手动刷新实时数据",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
+        {
+          "hash": "a74db1d",
+          "subject": "feat(macro): 宏观数据快照脚本与每月自动更新",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
+        {
+          "hash": "9bb6254",
+          "subject": "feat(macro): 宏观温度改版——按风险预算组织，阶段规则与 2026 计划共用",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
+        {
+          "hash": "7b21dce",
+          "subject": "feat(industry): 半导体产业链改为可展开、可搜索的树",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
+        {
+          "hash": "198496b",
+          "subject": "feat(invest): 按书里的流程重排正念投资入口，统一子页面样式",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
+        {
+          "hash": "3355d94",
+          "subject": "feat(knowledge): 切换栏目复用已加载数据；更新「连接与扩展」说明",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
+        {
+          "hash": "09e8d56",
+          "subject": "feat(knowledge): 网页端只读，笔记只在 Obsidian 中修改",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
+        {
+          "hash": "f9730dc",
+          "subject": "Merge Obsidian own-server sync into main",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
+        {
+          "hash": "6ba85bf",
+          "subject": "feat(knowledge): add Obsidian own-server sync and refine garden scene",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
+        {
+          "hash": "aa55675",
+          "subject": "docs(knowledge): record verified sync build and pending production activation",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
+        {
+          "hash": "aedc94d",
+          "subject": "feat(knowledge): add desktop Obsidian sync plugin and conflict recovery",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
+        {
+          "hash": "9a8f69d",
+          "subject": "feat(knowledge): recover downloads and concurrent snapshot publication",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
+        {
+          "hash": "03e3260",
+          "subject": "feat(knowledge): merge device changes against a shared baseline",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
+        {
+          "hash": "3c5593d",
+          "subject": "feat(knowledge): add authenticated immutable sync snapshots",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
+        {
+          "hash": "f0bbeb3",
+          "subject": "docs(knowledge): record verified production cloud activation",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
+        {
+          "hash": "8886230",
+          "subject": "feat(knowledge): add private cloud library and read-only AI MCP",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
+        {
+          "hash": "6c64865",
+          "subject": "feat(knowledge): refine dandelion motion and seed interactions",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
+        {
+          "hash": "2d51fc9",
+          "subject": "feat(knowledge): add dandelion graph and authenticated AI library MCP",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
+        {
+          "hash": "a1054cc",
+          "subject": "fix(site): 脉搏/监控页不再借用 --up/--down（改中性颜色名，颜色不变）；清理估值样式冗余回退；禁用章节鼠标样式",
           "author": "hassan",
           "date": "2026-10-04"
         },
         {
-          "hash": "6c26ee0",
-          "subject": "feat(site): 关于页改为介绍「正念生活」与三个栏目",
+          "hash": "b664c8c",
+          "subject": "feat(site): 盯盘观察默认展开并显示提示，首页最近更新移到名句下方，关于页方法论文字更新",
           "author": "hassan",
           "date": "2026-10-04"
         },
         {
-          "hash": "5570a5c",
-          "subject": "feat(site): 品牌收尾——manifest 与叶片图标、404 页面、去掉残留紫色渐变",
+          "hash": "14db85b",
+          "subject": "fix(deploy): GitHub Pages 为主导航页面预建入口（invest/ai/life/about）",
           "author": "hassan",
           "date": "2026-10-04"
         },
         {
-          "hash": "f567133",
-          "subject": "style(site): 监控、脉搏组件及估值、网格交易样式换纸书配色，修复估值表单手机布局",
+          "hash": "80aec54",
+          "subject": "feat(site): 暂时隐藏我的书的 PDF 阅读/下载入口（开关 PDF_ENTRY_ENABLED）",
           "author": "hassan",
           "date": "2026-10-04"
         },
         {
-          "hash": "dc19e08",
-          "subject": "style(site): 道与术、2026 计划、脉搏、板块轮动、涨停等页换纸书配色",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "a570ad2",
-          "subject": "feat(site): 阅读页左侧章节目录，免返回直接切章",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "3c33446",
-          "subject": "feat(site): 我的书右侧新增 PDF 阅读与下载入口",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "522344b",
-          "subject": "style(site): 策略框架、研究笔记、公司详情换纸书风格",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "fe9744e",
-          "subject": "fix(site): 起始金额不公开，自由生活页与首页改用 *** → 目标 400 万",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "4fbf9c8",
-          "subject": "fix(site): 抽屉打开时屏幕变宽自动关闭并解除滚动锁；规格同步 --down 色值",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "31a0f26",
-          "subject": "fix(site): 首页投资大师名句改为直接展示，不再折叠",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "bbaa7d7",
-          "subject": "docs(site): 正念生活重设计规格与实现计划",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "a884a75",
-          "subject": "feat(site): 第一阶段验收：About 换肤，网格入口测试改查栏目页",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "8a19944",
-          "subject": "feat(site): 书稿阅读页与我的书换新样式并适配手机",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "d603fae",
-          "subject": "feat(site): 新首页（书名首屏、栏目入口、最近更新、名句）",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "4dde924",
-          "subject": "feat(site): 正念投资、AI 与独立开发、自由生活实验栏目页",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "82f669b",
-          "subject": "feat(site): 面包屑、同组切换条与栏目路由",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "33bc0af",
-          "subject": "feat(site): 5 项导航、手机抽屉与新页脚",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "5acede9",
-          "subject": "feat(site): 站点地图数据与分组查找",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "03dc083",
-          "subject": "feat(site): 纸书茶室设计变量与基础样式",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "4d83005",
-          "subject": "docs(book): 副标题改为普通人用规则代替盯盘并更新PDF",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "b08f3fb",
-          "subject": "docs(book): 提交第十四轮正念投资PDF（235页）",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "f091d16",
-          "subject": "docs(book): 发布第十四轮正念练习与数据案例修订",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "50c4015",
-          "subject": "书稿:八个部分名称优化(短名+一句人话),第七部分副标题调整,补第十三轮修订记录",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "8a48e40",
-          "subject": "docs(book): 修正第18章引用与第6章、附录F的嵌套列表，补充机械质量审计记录",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "5cb3ebb",
-          "subject": "feat(valuation): 扩充财报采集并由程序计算派生指标，打通DCF股权桥接",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "82f73db",
-          "subject": "docs(book): 补回第十三轮章节标题优化，并按复核调整4处标题",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "61275be",
-          "subject": "feat(valuation): 新增命令行估值与一条命令启动本地页面",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "21e2518",
-          "subject": "feat(valuation): 用pi的方式直连模型，线上页面连接本机估值服务",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "1a0084d",
-          "subject": "docs(book): 补充第十三轮修订记录",
+          "hash": "4ce44c4",
+          "subject": "perf(site): 按路由拆包，首包 JS 压缩后从约 798KB 降到约 60KB",
           "author": "hassan",
           "date": "2026-10-04"
         }
