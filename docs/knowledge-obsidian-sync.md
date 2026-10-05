@@ -34,3 +34,11 @@
 `node scripts/test-knowledge-sync-db.mjs` 使用独立 `businessweb-sync-test` PostgreSQL 容器，在每次运行新建的测试数据库中验证 SQL，不访问生产。
 
 完整启用需要成功完成生产备份、迁移、部署和首次下载。仅安装插件不意味着线上同步已启用。
+
+## 当前交付状态（2026-10-05）
+
+代码已完成独立审查，审查指出的文件名碰撞、删除竞态、连接测试取消和旧接口改写空快照问题已修复。370 项原有前端/API 测试、48 项同步测试、21 项知识服务测试通过，真实临时 PostgreSQL 还验证了 227 篇分页与发布权限。插件类型检查、插件构建和原生 Node 接口加载通过。
+
+本机 SecondBrain 已放入插件文件，但未在 Obsidian 中启用/连接。当前没有取得生产后台登录与同步凭据，因此生产备份、迁移、部署及笔记恢复尚未执行。不能把当前本地空仓库视为生产资料库；自动同步保持关闭。
+
+实现分支为 `feat/knowledge-own-server-sync`，相关源码也已复制回 BusinessWeb，保留了此前页面的未提交改动。插件压缩包位于工作区 `output/obsidian/businessweb-knowledge-sync-0.1.0.zip`。
