@@ -44,6 +44,11 @@ describe('INVEST_GROUPS', () => {
     expect(watch.links.map(l => l.path)).toEqual(['/pulse', '/sector-rotation', '/limit-up-analysis'])
   })
 
+  it('选标的组只放研究方法与资料，不放带具体买卖建议的观察池', () => {
+    const research = INVEST_GROUPS.find(g => g.id === 'research')!
+    expect(research.links.map(l => l.path)).toEqual(['/research-notes', '/industry-landscape'])
+  })
+
   it('宏观温度（原每日监控）归入定规则，和 2026 计划同组', () => {
     const method = INVEST_GROUPS.find(g => g.id === 'method')!
     expect(method.links.map(l => [l.path, l.label])).toEqual([['/investment-plan-2026', '2026 投资计划'], ['/monitor', '宏观温度']])
@@ -53,7 +58,7 @@ describe('INVEST_GROUPS', () => {
     const archived = INVEST_GROUPS[INVEST_GROUPS.length - 1]
     expect(archived.id).toBe('archived')
     expect(archived.collapsed).toBe(true)
-    expect(archived.links.map(l => l.path)).toEqual(['/trading-philosophy', '/investment-strategy'])
+    expect(archived.links.map(l => l.path)).toEqual(['/trading-philosophy', '/investment-strategy', '/mainland-investment-targets', '/investment-targets'])
     for (const l of archived.links) expect(l.archived, l.path).toMatch(/^已舍弃/)
     const elsewhere = INVEST_GROUPS.filter(g => g.id !== 'archived').flatMap(g => g.links)
     expect(elsewhere.some(l => l.archived)).toBe(false)

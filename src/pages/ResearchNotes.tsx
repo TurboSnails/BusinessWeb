@@ -38,18 +38,20 @@ import CandidatePool from '../components/CandidatePool'
 import CandidateButton from '../components/CandidateButton'
 import { useCandidates } from '../features/candidates/useCandidates'
 import { CN_REPORT } from '../data/cnReassessment'
+import ResearchNotice from '../components/research/ResearchNotice'
 import { SP500_REPORT, sp500Reassessment } from '../data/sp500Reassessment'
 
 type TabId = 'companies' | 'pool' | 'watch' | 'method' | 'notes' | 'dev'
 
-// 顺序按使用频率：先查公司，再看候选与价位，方法和配套笔记放后面
+// 顺序按使用频率：先查公司，再看候选，方法和配套笔记放后面，存档垫底
 const tabs: { id: TabId; label: string; icon: React.ElementType }[] = [
   { id: 'companies', label: '公司库', icon: Grid3x3 },
   { id: 'pool', label: '候选池', icon: Star },
-  { id: 'watch', label: '观察价位', icon: Crosshair },
   { id: 'method', label: '研究方法', icon: Compass },
   { id: 'notes', label: '配置笔记', icon: Layers },
   { id: 'dev', label: '工具设想', icon: Wrench },
+  // 历史买卖价位与“潜力标的”和书的“不荐股”相悖，只留存档，放最后
+  { id: 'watch', label: '历史价位（存档）', icon: Crosshair },
 ]
 
 const markets: [Market, string][] = [['us', '标普500'], ['adr', '美股非标普'], ['hk', '港股'], ['cn', '沪深']]
@@ -409,8 +411,8 @@ export default function ResearchNotes(): JSX.Element {
 
   const watchView = (
     <div>
-      <p style={sectionTitle}>交易观察清单</p>
-      <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 16px', lineHeight: 1.7 }}>价位为历史笔记，空白表示待补充，不视为交易指令；执行前请核对行情、财报与风险。</p>
+      <p role="note" className="section-archived" style={{ margin: '0 0 16px' }}>已舍弃：这一页是早期笔记里的具体买卖价位、催化剂与“潜力标的”，和书里“不荐股、不预测”的方法相悖，不再更新，仅留存档，不构成投资建议。研究对象请放进候选池，按书第37章37.4写决策记录。</p>
+      <p style={sectionTitle}>交易观察清单（存档）</p>
       {([['美股', '美股（含美股上市的 ADR）'], ['港股', '港股'], ['A股', 'A 股'], ['商品', '商品']] as [string, string][]).map(([m, title]) => (
         <div key={m} style={card}>
           <h3 style={cardTitle}>{title}</h3>
@@ -425,7 +427,7 @@ export default function ResearchNotes(): JSX.Element {
         <Table heads={['标的 / 主题', '时间窗口', '备注']} rows={tradeEvents} />
       </div>
       <div style={card}>
-        <h3 style={cardTitle}>港股六大潜力标的</h3>
+        <h3 style={cardTitle}>港股观察标的（早期笔记存档）</h3>
         <Table heads={['标的', 'PE / 股息率', '分类', '适合风格', '核心看点']} rows={hkWatchTargets} />
       </div>
     </div>
@@ -449,6 +451,10 @@ export default function ResearchNotes(): JSX.Element {
             <Segmented label="配置笔记" value={notesView} onChange={v => updateParams({ n: v === 'framework' ? null : v })}
               items={[{ id: 'framework', label: '投资框架' }, { id: 'v6', label: '家庭组合 v6' }]} />
           </div>
+        )}
+
+        {activeTab === 'notes' && notesView === 'v6' && (
+          <p role="note" className="section-archived" style={{ margin: '0 0 16px' }}>已舍弃：家庭组合 v6 是早期的配置笔记（含机会加仓扳机等规则），和书现行方案不一致，不再更新。配置以书第9章9.10「先用宽基搭底仓：三档模板」和 2026 投资计划为准，仅留存档。</p>
         )}
 
         {activeTab === 'notes' && notesView === 'framework' && (
@@ -633,7 +639,7 @@ export default function ResearchNotes(): JSX.Element {
                 ['买入区', '由 (Base−P)/(P−Bear)=2 反推 P=(Base+2Bear)/3，取 ±5%。'],
                 ['评级', '盈亏比 ≥2 优先关注；1–2 条件关注；其余观察；TTM 亏损回避。封顶为观察的情形：数据不稳定（营收同比波动 >40–50%、股本变动 >25%、EPS 符号翻转）、悲观价 ≥ 现价；金融股最高条件关注；非金融负债率 >80% 最高条件关注。'],
                 ['不做的事', 'REIT 不做 EPS 情景（需 FFO）；亏损公司不做 EPS 情景；未取到的一律标 [MISSING]。'],
-                ['已知局限', '规则对高 PE 公司偏严（悲观倍数压到板块中位的 60%），对低 PE 公司偏宽；一次性项识别可能漏判或误判；FCF、分部占比、一致预期、下跌原因均未取到。'],
+                ['已知局限', '规则对高 PE 公司偏严（悲观倍数压到板块中位的 60%），对低 PE 公司偏宽；一次性项识别可能漏判或误判；FCF、分部占比、一致预期、下跌原因均未取到。盈亏比只比较情景价差：没有计入各情景发生的概率，也没有计入兑现需要的时间（同样 2:1，三年兑现和一年兑现的年化回报差很多），分红也未计入。'],
               ]} />
             </div>
 
@@ -704,6 +710,7 @@ export default function ResearchNotes(): JSX.Element {
         {/* ── 公司库 ── */}
         {activeTab === 'companies' && (
           <div>
+            <ResearchNotice />
             {marketSwitch(catMarket, setCatMarket)}
 
             {catMarket === 'us' && (

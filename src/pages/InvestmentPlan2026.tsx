@@ -366,7 +366,7 @@ const Overview: React.FC<{ stage: Stage; entered: number; today: Date; nextEvent
         </div>
         <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
           {Math.abs(sum - 100) > 0.01 && <Note tone="red">三项占比合计 {sum}%，应为 100%。</Note>}
-          <Note tone="gray">75 / 20 / 5 是书中第9章的案例，不是通用比例。已知近期大额支出与自住房不计入参考总额；主动额度可以从零开始。</Note>
+          <Note tone="gray">75 / 20 / 5 是书中第9章的作者案例，不是通用比例。已知近期大额支出与自住房不计入参考总额；主动额度可以从零开始。底仓怎么搭，见第9章9.10的宽基三档模板（下方「再平衡检查器」可直接套用）。</Note>
         </div>
       </Card>
     </div>
@@ -384,13 +384,27 @@ interface Holding {
   amount: string // 当前金额
 }
 
-const DEFAULT_HOLDINGS: Holding[] = [
-  { id: 'h1', name: '红利低波', role: '现金流与低波动权益', target: '20', band: '25', amount: '' },
-  { id: 'h2', name: '纯债基金', role: '稳定与缓冲', target: '20', band: '25', amount: '' },
-  { id: 'h3', name: '标普500', role: '全球权益核心', target: '20', band: '25', amount: '' },
-  { id: 'h4', name: '黄金ETF', role: '对冲货币与通胀', target: '20', band: '25', amount: '' },
-  { id: 'h5', name: '恒生科技', role: '成长与弹性', target: '20', band: '35', amount: '' }
+// 书第9章9.10「先用宽基搭底仓」：权益占比是档位旋钮，权益内 A股宽基60%、标普500 30%、红利10%。
+const broad = (equity: number): Holding[] => [
+  { id: 'h1', name: 'A股宽基', role: '本土权益核心（沪深300、中证800这类）', target: String(equity * 0.6), band: '25', amount: '' },
+  { id: 'h2', name: '标普500', role: '境外宽基，先查额度、溢价与汇率', target: String(equity * 0.3), band: '25', amount: '' },
+  { id: 'h3', name: '红利低波', role: '风格倾斜，不替代宽基', target: String(equity * 0.1), band: '25', amount: '' },
+  { id: 'h4', name: '中短债/纯债', role: '稳定与缓冲，查久期与信用', target: String(100 - equity), band: '25', amount: '' }
 ]
+const TEMPLATES: Array<{ id: string; label: string; rows: Holding[] }> = [
+  { id: 'conservative', label: '保守档', rows: broad(30) },
+  { id: 'balanced', label: '均衡档', rows: broad(50) },
+  { id: 'aggressive', label: '积极档', rows: broad(70) },
+  // 作者本人的五项等权案例，含主题指数恒生科技；书第9章9.2说明了它的问题，保留作对照
+  { id: 'author', label: '作者案例', rows: [
+    { id: 'h1', name: '红利低波', role: '现金流与低波动权益', target: '20', band: '25', amount: '' },
+    { id: 'h2', name: '纯债基金', role: '稳定与缓冲', target: '20', band: '25', amount: '' },
+    { id: 'h3', name: '标普500', role: '境外权益', target: '20', band: '25', amount: '' },
+    { id: 'h4', name: '黄金ETF', role: '对冲货币与通胀', target: '20', band: '25', amount: '' },
+    { id: 'h5', name: '恒生科技', role: '主题指数（书中建议放主动额度）', target: '20', band: '35', amount: '' }
+  ] }
+]
+const DEFAULT_HOLDINGS: Holding[] = TEMPLATES[1].rows
 
 const RULES = [
   '不借钱、不加杠杆、不融资买入',
@@ -430,14 +444,16 @@ const Allocation: React.FC = () => {
             <button style={btnStyle()} onClick={() => setRows(rs => [...rs, { id: `h${Date.now()}`, name: '新资产', role: '', target: '', band: '25', amount: '' }])}>
               <Plus size={14} /> 添加
             </button>
-            <button style={btnStyle()} onClick={() => setRows(DEFAULT_HOLDINGS)}>
-              <RotateCcw size={14} /> 恢复示例
-            </button>
+            {TEMPLATES.map(t => (
+              <button key={t.id} style={btnStyle()} onClick={() => setRows(t.rows)} title={`换成「${t.label}」示例（会覆盖当前填写）`}>
+                {t.id === 'balanced' && <RotateCcw size={14} />} {t.label}
+              </button>
+            ))}
           </div>
         }
       >
         <p style={{ margin: '0 0 14px', fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-          只在配置底仓内部检查。填入各项当前金额，偏离按「相对目标」计算：目标20%、阈值±25%，则15%到25%之间不动。示例取自书中第9章，可以直接改成你自己的。数据只保存在本机浏览器。
+          只在配置底仓内部检查。填入各项当前金额，偏离按「相对目标」计算：目标20%、阈值±25%，则15%到25%之间不动。默认是书第9章9.10的宽基均衡档（权益50%），可换保守、积极档，或对照作者本人的五项案例；都可以直接改成你自己的。数据只保存在本机浏览器。
         </p>
         <div style={tableWrapperStyle}>
           <table style={tableStyle}>
@@ -451,9 +467,9 @@ const Allocation: React.FC = () => {
             <tbody>
               {computed.map(({ r, cur, dev, hit, gap }) => (
                 <tr key={r.id}>
-                  <td style={{ ...tdStyle, minWidth: 120 }}><input style={inputStyle} value={r.name} onChange={e => patch(r.id, 'name', e.target.value)} /></td>
+                  <td style={{ ...tdStyle, minWidth: 120 }}><input style={inputStyle} aria-label={`资产名称 ${r.name}`} value={r.name} onChange={e => patch(r.id, 'name', e.target.value)} /></td>
                   <td style={{ ...tdStyle, minWidth: 140 }}><input style={inputStyle} value={r.role} onChange={e => patch(r.id, 'role', e.target.value)} /></td>
-                  <td style={{ ...tdStyle, width: 80 }}><input style={inputStyle} inputMode="decimal" value={r.target} onChange={e => patch(r.id, 'target', e.target.value)} /></td>
+                  <td style={{ ...tdStyle, width: 80 }}><input style={inputStyle} aria-label={`目标占比 ${r.name}`} inputMode="decimal" value={r.target} onChange={e => patch(r.id, 'target', e.target.value)} /></td>
                   <td style={{ ...tdStyle, width: 80 }}><input style={inputStyle} inputMode="decimal" value={r.band} onChange={e => patch(r.id, 'band', e.target.value)} /></td>
                   <td style={{ ...tdStyle, width: 110 }}><input style={inputStyle} inputMode="decimal" placeholder="万元" value={r.amount} onChange={e => patch(r.id, 'amount', e.target.value)} /></td>
                   <td style={tdStyle}>{fmtPct(cur)}</td>
@@ -484,7 +500,7 @@ const Allocation: React.FC = () => {
               {anyHit ? '有资产超出阈值：按“回到目标需…”的金额调整，且只在检查日、只用底仓内资金，不动备用金和主动额度。' : '全部在区间内，今天什么也不用做。'}
             </Note>
           )}
-          <Note tone="gray">五项等权不等于风险等权：恒生科技的波动远大于纯债；红利低波、标普、恒科在极端行情里可能同时下跌。</Note>
+          <Note tone="gray">权重不等于风险：权益的波动远大于债券，底仓的波动几乎全部来自权益（书9.7的风险贡献表）。真正调风险的旋钮是权益占多少；主题指数（如恒生科技）放主动额度，不放底仓。</Note>
         </div>
       </Card>
 

@@ -54,12 +54,10 @@ export const INVEST_GROUPS: HubGroup[] = [
     id: 'research',
     step: '第三步',
     title: '选标的',
-    hint: '买什么：公司研究、产业链，以及美股与 A 股观察池。',
+    hint: '研究什么：公司研究与产业链。观察池按书第32、36章自己建，10到20家，每家一份决策记录。',
     links: [
       { path: '/research-notes', label: '公司研究', desc: '四个市场的公司库、候选池与研究方法' },
       { path: '/industry-landscape', label: '产业格局', desc: '固态电池、半导体产业链' },
-      { path: '/investment-targets', label: '美股观察池', desc: '美股标的与观察' },
-      { path: '/mainland-investment-targets', label: 'A 股观察池', desc: 'AI 扩散主线下的 A 股标的' },
     ],
   },
   {
@@ -91,6 +89,8 @@ export const INVEST_GROUPS: HubGroup[] = [
     links: [
       { path: '/trading-philosophy', label: '道与术（短线策略）', desc: '早期短线交易体系', archived: '已舍弃：这是早期的短线交易体系，需要盯盘，和书里「不盯盘、不预测」的方法相反，仅留存档。' },
       { path: '/investment-strategy', label: '综合投资策略框架', desc: '巴菲特 · 邓普顿 · 双阶段轮动', archived: '已舍弃：这套框架已不再使用，方法以书和 2026 投资计划为准，仅留存档。' },
+      { path: '/mainland-investment-targets', label: 'A 股观察池（AI 扩散）', desc: '2026 年 1 月的 AI 主题标的清单', archived: '已舍弃：这是 2026 年 1 月按 AI 主题整理的具体标的清单，含“立即配置”“回调加仓”等买卖建议和未注明来源的预测数字，与书里“不荐股、无来源的数字不写”相悖，内容已过期，仅留存档，不构成投资建议。观察池请按书第32、36章自己建立。' },
+      { path: '/investment-targets', label: '美股观察池', desc: '未完成的占位页', archived: '已舍弃：这一页从未完成。观察池请按书第32、36章自己建立：10到20家，每家一份统一决策记录（37.4）。' },
     ],
   },
 ]

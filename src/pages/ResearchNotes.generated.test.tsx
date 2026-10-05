@@ -88,7 +88,7 @@ describe('补全公司：研究笔记列表与详情', () => {
     renderAt('/research-notes/us/ACN')
     await waitFor(() => expect(screen.getByText('程序化研究页')).toBeTruthy(), { timeout: 8000 })
     expect(screen.getAllByText(/Bear/).length).toBeGreaterThan(0)
-    expect(screen.getAllByText(/合理买入区/).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/条件价格（研究假设）/).length).toBeGreaterThan(0)
   })
 
   it('A 股补全公司详情页可渲染', async () => {
@@ -142,28 +142,28 @@ describe('林奇分组、港股、导出', () => {
 
   it('美股非标普手工研究页：台积电详情页有三情景与买入区，且不再标程序化', async () => {
     renderAt('/research-notes/adr/TSM')
-    await waitFor(() => expect(screen.getAllByText(/合理买入区/).length).toBeGreaterThan(0), { timeout: 8000 })
+    await waitFor(() => expect(screen.getAllByText(/条件价格（研究假设）/).length).toBeGreaterThan(0), { timeout: 8000 })
     expect(screen.queryByText('程序化研究页')).toBeNull()
     expect(screen.getAllByText(/Bear/).length).toBeGreaterThan(0)
   })
 
   it('港股手工研究页：建设银行详情页有三情景与买入区，且不再标程序化', async () => {
     renderAt('/research-notes/hk/00939')
-    await waitFor(() => expect(screen.getAllByText(/合理买入区/).length).toBeGreaterThan(0), { timeout: 8000 })
+    await waitFor(() => expect(screen.getAllByText(/条件价格（研究假设）/).length).toBeGreaterThan(0), { timeout: 8000 })
     expect(screen.queryByText('程序化研究页')).toBeNull()
     expect(screen.getAllByText(/Bear/).length).toBeGreaterThan(0)
   })
 
   it('补充覆盖的公司：必和必拓与药明康德详情页有三情景，并注明第三方数据源', async () => {
     renderAt('/research-notes/adr/BHP')
-    await waitFor(() => expect(screen.getAllByText(/合理买入区/).length).toBeGreaterThan(0), { timeout: 8000 })
+    await waitFor(() => expect(screen.getAllByText(/条件价格（研究假设）/).length).toBeGreaterThan(0), { timeout: 8000 })
     expect(screen.queryByText('程序化研究页')).toBeNull()
     expect(screen.getAllByText(/stockanalysis\.com/).length).toBeGreaterThan(0)
   })
 
   it('补充覆盖的港股：药明康德详情页可打开', async () => {
     renderAt('/research-notes/hk/02359')
-    await waitFor(() => expect(screen.getAllByText(/合理买入区/).length).toBeGreaterThan(0), { timeout: 8000 })
+    await waitFor(() => expect(screen.getAllByText(/条件价格（研究假设）/).length).toBeGreaterThan(0), { timeout: 8000 })
     expect(screen.queryByText('程序化研究页')).toBeNull()
   })
 })
@@ -218,14 +218,14 @@ describe('页面结构：公司库优先，旧链接可用', () => {
   it('默认进入公司库，页签顺序固定', () => {
     renderAt('/research-notes')
     const tabs = screen.getAllByRole('tab')
-    expect(tabs.map(b => b.textContent)).toEqual(['公司库', '候选池', '观察价位', '研究方法', '配置笔记', '工具设想'])
+    expect(tabs.map(b => b.textContent)).toEqual(['公司库', '候选池', '研究方法', '配置笔记', '工具设想', '历史价位（存档）'])
     expect(screen.getByRole('group', { name: '市场' })).toBeTruthy()
     expect(screen.getByRole('button', { name: '沪深' })).toBeTruthy()
   })
 
   it('旧链接映射到新页签', () => {
     renderAt('/research-notes?tab=category&m=watch')
-    expect(screen.getByText('交易观察清单')).toBeTruthy()
+    expect(screen.getByText(/交易观察清单/)).toBeTruthy()
     cleanup()
     renderAt('/research-notes?tab=standard')
     expect(screen.getByText('研究方法 · 适用于所有公司')).toBeTruthy()
@@ -240,5 +240,25 @@ describe('页面结构：公司库优先，旧链接可用', () => {
     fireEvent.click(screen.getByRole('button', { name: '家庭组合 v6' }))
     expect(screen.getByText('配置表（300 万示例）')).toBeTruthy()
     expect(screen.queryByText('被动层 · 压舱石（五格等权）')).toBeNull()
+  })
+})
+
+describe('研究页不构成买卖建议（与书的立场一致）', () => {
+  it('公司库与公司详情页都有固定说明，条件价格标为研究假设', async () => {
+    renderAt('/research-notes?tab=category&m=us')
+    expect(screen.getAllByRole('note').some(n => /不是买卖建议/.test(n.textContent ?? ''))).toBe(true)
+    cleanup()
+    renderAt('/research-notes/adr/TSM')
+    await waitFor(() => expect(screen.getAllByText(/条件价格（研究假设）/).length).toBeGreaterThan(0), { timeout: 8000 })
+    expect(screen.getAllByRole('note').some(n => /盈亏比只比较情景价差/.test(n.textContent ?? ''))).toBe(true)
+    expect(screen.queryByText(/小仓位/)).toBeNull()
+  })
+
+  it('历史价位与家庭组合 v6 标为已舍弃', () => {
+    renderAt('/research-notes?tab=watch')
+    expect(screen.getAllByRole('note').some(n => /^已舍弃/.test(n.textContent ?? ''))).toBe(true)
+    cleanup()
+    renderAt('/research-notes?tab=notes&n=v6')
+    expect(screen.getAllByRole('note').some(n => /^已舍弃.*9\.10/.test(n.textContent ?? ''))).toBe(true)
   })
 })

@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, ExternalLink, CheckCircle2, AlertTriangle, ArrowRight } from 'lucide-react'
 import { useCompanies, useLynch, Market } from '../data/companies'
+import ResearchNotice from '../components/research/ResearchNotice'
 import { toneOf, Tone } from '../data/notionNotes'
 import { CN_REPORT } from '../data/cnReassessment'
 import { SP500_REPORT } from '../data/sp500Reassessment'
@@ -101,8 +102,8 @@ export default function CompanyDetail(): JSX.Element {
   const pick = (re: RegExp): string | undefined => pool.find(t => re.test(t))
   const dz = company.discipline
   const discipline: [string, string | undefined][] = [
-    ['合理买入区', dz?.zone || pick(/买入区|买入观察|观察买入|买入区间|首次关注|重仓区|核心买入/)],
-    ['确认加仓', dz?.add || pick(/确认加仓|加仓|突破|确认.{0,6}(后|才)/)],
+    ['条件价格（研究假设）', dz?.zone || pick(/买入区|买入观察|观察买入|买入区间|首次关注|重仓区|核心买入/)],
+    ['加仓条件（研究假设）', dz?.add || pick(/确认加仓|加仓|突破|确认.{0,6}(后|才)/)],
     ['减仓 / 止盈', dz?.trim || pick(/减仓|止盈|兑现|卖出区|首减/)],
     ['失效条件', dz?.invalid || company.risk.find(t => /证伪|失效|跌破|连续|低于|恶化/.test(t)) || company.risk[0]],
     ['仓位原则', dz?.position || pick(/仓位|建议仓位|不超过|上限/)],
@@ -111,7 +112,7 @@ export default function CompanyDetail(): JSX.Element {
   const bullPrice = company.scenarios?.find(x => x.name === '乐观' || x.name === '牛市')?.price || (scenRows ? `${scenRows[2][1]}` : undefined)
   const std = '（按研究标准默认条款）'
   if (!discipline[2][1]) discipline[2][1] = `${bullPrice ? `接近乐观情景价 ${bullPrice}，` : ''}或盈利预期不再改善、赔率变差时分批处理${std}`
-  if (!discipline[4][1] && /观察|回避|暂不|等待|不追|谨慎/.test(company.rating)) discipline[4][1] = `赔率未达约 2:1，仅适合观察名单或小仓位；高确定性 + 高盈亏比优先${std}`
+  if (!discipline[4][1] && /观察|回避|暂不|等待|不追|谨慎/.test(company.rating)) discipline[4][1] = `赔率未达约 2:1，按研究标准只放观察名单，不建仓${std}`
   const disciplineFilled = discipline.filter(d => d[1]).length
   const completeness: [string, boolean][] = [
     ['公司简介', !!company.profile],
@@ -151,6 +152,7 @@ export default function CompanyDetail(): JSX.Element {
       </div>
 
       <div style={{ maxWidth: '760px', margin: '0 auto', padding: '28px 20px' }}>
+        <ResearchNotice />
         {(company.market === 'us' || company.market === 'cn') && company.metrics.some(([key]) => key === '圆桌复核日期') && (
           <div style={card}>
             <h3 style={cardTitle}>腾讯自选股投研专家团 · 本轮公告复核</h3>
