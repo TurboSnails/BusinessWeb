@@ -98,6 +98,46 @@ export function extractOutput(backend, records) {
   if (!text) throw new Error("CLI未返回可解析的最终文本");
   return { text, resolvedModelId };
 }
+/** 从各 CLI 的流式记录里取出模型这一步产出的文字（取不到返回 ""） */
+export function streamText(r) {
+  if (r.type === "item.completed" || r.type === "item.updated")
+    return typeof r.item?.text === "string" ? r.item.text : "";
+  if (r.type === "text" || r.type === "reasoning")
+    return typeof r.part?.text === "string" ? r.part.text : "";
+  if (r.type === "message_update") {
+    const e = r.assistantMessageEvent || {};
+    return typeof e.delta === "string" ? e.delta : "";
+  }
+  return "";
+}
+
+/** 进度汇报：累计字数 + 最近一段输出；节流，避免刷屏和撑爆事件日志 */
+export function createProgress(onEvent, { interval = 1200, now = Date.now } = {}) {
+  let chars = 0,
+    tail = "",
+    last = -Infinity, // 第一段输出立即汇报
+    pendingKind = "";
+  const flush = () => {
+    last = now();
+    onEvent?.({
+      type: "activity",
+      message: pendingKind === "reasoning" ? "模型正在推理" : "模型正在输出分析",
+      chars,
+      preview: tail.replace(/\s+/g, " ").trim().slice(-160),
+    });
+  };
+  return {
+    push(text, kind = "text") {
+      if (!text) return;
+      chars += text.length;
+      tail = (tail + text).slice(-400);
+      pendingKind = kind;
+      if (now() - last >= interval) flush();
+    },
+    flush,
+  };
+}
+
 export async function runAnalysis({
   backend,
   modelId = "default",
@@ -132,7 +172,9 @@ export async function runAnalysis({
     }
   const cwd = await mkdtemp(join(tmpdir(), "businessweb-valuation-")),
     schemaPath = join(cwd, "schema.json"),
-    records = [];
+    records = [],
+    progress = createProgress(onEvent);
+  onEvent?.({ type: "activity", message: "已把财务资料交给模型，等待响应", chars: 0 });
   try {
     await writeFile(schemaPath, JSON.stringify(schema));
     const input =
@@ -169,8 +211,9 @@ export async function runAnalysis({
           if (r.type === "response" && r.success === false)
             throw new Error("Pi拒绝分析请求");
           if (r.type === "agent_settled" && backend === "pi") child.stdin.end();
-          if (["message_update", "text", "item.completed"].includes(r.type))
-            onEvent?.({ type: "activity", message: "模型正在分析财务资料" });
+          const text = streamText(r);
+          if (text)
+            progress.push(text, r.type === "reasoning" || r.item?.type === "reasoning" ? "reasoning" : "text");
         },
       });
     try {

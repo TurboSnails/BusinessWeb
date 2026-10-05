@@ -36,6 +36,17 @@ import type {
   FinancialSnapshot,
 } from "../features/valuation";
 import Results from "../components/valuation/Results";
+import {
+  STEPS,
+  clearLast,
+  clearRunning,
+  elapsedText,
+  loadLast,
+  loadRunning,
+  saveLast,
+  saveRunning,
+  stepOf,
+} from "../features/valuation/session";
 import "../components/valuation/valuation.css";
 function preference(backend?: Backend): string {
   try {
@@ -56,10 +67,16 @@ function remember(key: string, value: string) {
   }
 }
 export default function Valuation() {
+  // 回到页面时：先恢复上一次的结果，正在运行的任务连接服务后再接上
+  const [restored] = useState(() => ({ last: loadLast(), running: loadRunning() }));
   const [params] = useSearchParams(),
     [query, setQuery] = useState(
-      (params.get("market") ? params.get("market") + ":" : "") +
-        (params.get("code") || ""),
+      params.get("code")
+        ? (params.get("market") ? params.get("market") + ":" : "") +
+            params.get("code")
+        : restored.running?.security?.code ||
+            restored.last?.snapshot.security.code ||
+            "",
     ),
     [connected, setConnected] = useState(false),
     [backends, setBackends] = useState<BackendInfo[]>([]),
@@ -68,20 +85,47 @@ export default function Valuation() {
     [model, setModel] = useState("default"),
     [manual, setManual] = useState(""),
     [candidates, setCandidates] = useState<SecurityIdentity[]>([]),
-    [security, setSecurity] = useState<SecurityIdentity | null>(null),
+    [security, setSecurity] = useState<SecurityIdentity | null>(
+      restored.running?.security || restored.last?.snapshot.security || null,
+    ),
     [error, setError] = useState(""),
-    [busy, setBusy] = useState(false),
-    [status, setStatus] = useState(""),
-    [job, setJob] = useState<string | null>(null),
-    [report, setReport] = useState<ValuationReport | null>(null),
-    [original, setOriginal] = useState<ValuationReport | null>(null),
-    [snapshot, setSnapshot] = useState<FinancialSnapshot | null>(null),
+    [busy, setBusy] = useState(!!restored.running),
+    [status, setStatus] = useState(restored.running ? "正在恢复任务进度…" : ""),
+    [stage, setStage] = useState<string>(""),
+    [startedAt, setStartedAt] = useState<number | null>(
+      restored.running?.startedAt ?? null,
+    ),
+    [now, setNow] = useState(() => Date.now()),
+    [activity, setActivity] = useState<{ chars: number; preview: string } | null>(null),
+    [runLog, setRunLog] = useState<{ at: string; text: string }[]>([]),
+    [job, setJob] = useState<string | null>(restored.running?.id ?? null),
+    [report, setReport] = useState<ValuationReport | null>(restored.last),
+    [original, setOriginal] = useState<ValuationReport | null>(restored.last),
+    [snapshot, setSnapshot] = useState<FinancialSnapshot | null>(
+      restored.last?.snapshot ?? null,
+    ),
     [saved, setSaved] = useState(loadReports),
     [searching, setSearching] = useState(false),
     [draft, setDraft] = useState(""),
     [compare, setCompare] = useState<ValuationReport | null>(null);
   const stop = useRef<(() => void) | null>(null),
     modelRequest = useRef(0);
+  useEffect(() => {
+    if (!busy) return;
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, [busy]);
+  function finishWith(value: ValuationReport) {
+    setReport(value);
+    setOriginal(value);
+    setSnapshot(value.snapshot);
+    setSecurity(value.snapshot.security);
+    setQuery(value.snapshot.security.code);
+    setBusy(false);
+    setStage("completed");
+    clearRunning();
+    saveLast(value);
+  }
   async function connect() {
     setError("");
     try {
@@ -98,6 +142,11 @@ export default function Valuation() {
     } catch {
       setConnected(false);
       setError("无法连接本地估值服务");
+      if (loadRunning()) {
+        // 服务连上后再接着恢复任务（见下方 connected 的 effect）
+        setBusy(false);
+        setStatus("本地估值服务未连接，连接后会接着显示之前的任务进度");
+      }
     }
   }
   useEffect(() => {
@@ -132,6 +181,7 @@ export default function Valuation() {
     setSnapshot(null);
     setReport(null);
     setOriginal(null);
+    clearLast();
     try {
       const list = await searchCompanies(query);
       setCandidates(list);
@@ -144,9 +194,20 @@ export default function Valuation() {
   }
   function attach(id: string) {
     stop.current?.();
+    // 服务会从头重放事件，先清空，避免重复
+    setActivity(null);
+    setRunLog([]);
     stop.current = subscribeValuation(
       id,
       (event) => {
+        if (event.stage) setStage(event.stage);
+        if (event.type === "activity" && typeof event.payload.chars === "number")
+          setActivity({ chars: event.payload.chars, preview: event.payload.preview || "" });
+        if (event.payload.message) {
+          const text = event.payload.message;
+          const at = event.at || new Date().toISOString();
+          setRunLog((log) => (log[log.length - 1]?.text === text ? log : [...log, { at, text }].slice(-8)));
+        }
         if (event.payload.snapshot) setSnapshot(event.payload.snapshot);
         setStatus(
           event.payload.message ||
@@ -162,19 +223,13 @@ export default function Valuation() {
             )[event.type] ||
             "模型运行中",
         );
-        if (event.type === "completed" && event.payload.report) {
-          setReport(event.payload.report);
-          setOriginal(event.payload.report);
-          setSnapshot(event.payload.report.snapshot);
-          setSecurity(event.payload.report.snapshot.security);
-          setQuery(event.payload.report.snapshot.security.code);
-          setBusy(false);
-          sessionStorage.removeItem("valuation-job");
-        }
+        if (event.type === "completed" && event.payload.report)
+          finishWith(event.payload.report);
         if (event.type === "failed" || event.type === "cancelled") {
           setBusy(false);
+          setStage("");
           setError(event.payload.error || "");
-          sessionStorage.removeItem("valuation-job");
+          clearRunning();
         }
       },
       () => setStatus("连接中断，正在自动重连…"),
@@ -182,32 +237,44 @@ export default function Valuation() {
   }
   useEffect(() => {
     if (!connected) return;
-    const id = sessionStorage.getItem("valuation-job");
-    if (id)
-      getValuation(id)
-        .then((value) => {
-          setJob(id);
-          if (value.report) {
-            setReport(value.report);
-            setOriginal(value.report);
-            setSnapshot(value.report.snapshot);
-            setSecurity(value.report.snapshot.security);
-            setQuery(value.report.snapshot.security.code);
-            sessionStorage.removeItem("valuation-job");
-          } else if (!["cancelled", "failed"].includes(value.state)) {
-            setBusy(true);
-            attach(id);
-          } else sessionStorage.removeItem("valuation-job");
-        })
-        .catch(() => sessionStorage.removeItem("valuation-job"));
+    const running = loadRunning();
+    if (!running) return;
+    const id = running.id;
+    if (running.backend) setBackend(running.backend);
+    getValuation(id)
+      .then((value) => {
+        setJob(id);
+        if (value.report) finishWith(value.report);
+        else if (!["cancelled", "failed"].includes(value.state)) {
+          setBusy(true);
+          setStage(value.state);
+          attach(id); // 服务会重放这个任务的全部事件，进度与已采集的财报随之恢复
+        } else {
+          setBusy(false);
+          setStatus(value.state === "cancelled" ? "任务已取消" : "");
+          if (value.error) setError(value.error);
+          clearRunning();
+        }
+      })
+      .catch(() => {
+        setBusy(false);
+        setStatus("");
+        setError("没能接上之前的任务（本地估值服务可能已重启），请重新开始");
+        clearRunning();
+      });
   }, [connected]);
   async function start(reuse = false) {
     if (!security) return;
     setError("");
     setBusy(true);
     setStatus("正在启动");
+    setStage("queued");
     setReport(null);
     setOriginal(null);
+    clearLast();
+    const began = Date.now();
+    setStartedAt(began);
+    setNow(began);
     try {
       const value = await startValuation({
         security,
@@ -216,7 +283,7 @@ export default function Valuation() {
         ...(reuse && snapshot ? { snapshot } : {}),
       });
       setJob(value.id);
-      sessionStorage.setItem("valuation-job", value.id);
+      saveRunning({ id: value.id, security, backend, model, startedAt: began });
       attach(value.id);
     } catch (e) {
       setError((e as Error).message);
@@ -416,11 +483,50 @@ export default function Valuation() {
               </button>
             )}
           </div>
-          {(busy || status) && (
-            <p role="status" className="valuation-progress">
-              {busy && <span className="valuation-spinner" />}
-              {status}
-            </p>
+          {busy ? (
+            <div className="valuation-run" role="status" aria-live="polite">
+              <ol className="valuation-steps" aria-label="估值进度">
+                {STEPS.map((label, i) => {
+                  const current = stepOf(stage);
+                  const state = i < current ? "done" : i === current ? "current" : "todo";
+                  return (
+                    <li key={label} className={`valuation-step is-${state}`}>
+                      <span className="valuation-step__dot" aria-hidden="true">
+                        {state === "current" ? <span className="valuation-spinner" /> : state === "done" ? "✓" : i + 1}
+                      </span>
+                      {label}
+                    </li>
+                  );
+                })}
+              </ol>
+              <p className="valuation-progress">
+                <span>{status || "模型运行中"}</span>
+                {startedAt && <span className="valuation-elapsed">已用时 {elapsedText(now - startedAt)}</span>}
+              </p>
+              {activity && activity.chars > 0 && (
+                <div className="valuation-stream">
+                  <span className="valuation-muted">模型已输出 {activity.chars.toLocaleString()} 字 · 最新片段</span>
+                  {activity.preview && <code>…{activity.preview}</code>}
+                </div>
+              )}
+              {runLog.length > 0 && (
+                <ol className="valuation-log" aria-label="运行记录">
+                  {runLog.map((e) => (
+                    <li key={e.at + e.text}>
+                      <time>{new Date(e.at).toLocaleTimeString("zh-CN", { hour12: false })}</time>
+                      {e.text}
+                    </li>
+                  ))}
+                </ol>
+              )}
+              <p className="valuation-muted">可以离开这个页面，回来时会接着显示进度；估值完成后结果会保留在这里。</p>
+            </div>
+          ) : (
+            status && (
+              <p role="status" className="valuation-progress">
+                {status}
+              </p>
+            )
           )}
           {error && (
             <p role="alert" className="valuation-error">

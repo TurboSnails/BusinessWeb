@@ -66,8 +66,12 @@ export interface JobEvent {
   jobId: string;
   type: string;
   stage: string;
+  at?: string;
   payload: {
     message?: string;
+    /** activity 事件：模型累计输出字数与最近一段输出 */
+    chars?: number;
+    preview?: string;
     error?: string;
     snapshot?: FinancialSnapshot;
     report?: ValuationReport;

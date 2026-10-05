@@ -167,7 +167,9 @@
   font-size: 14px;
 }
 .valuation-spinner {
-  border: 2px solid var(--accent);
+  display: inline-block;
+  flex-shrink: 0;
+  border: 2px solid var(--accent-soft);
   border-top-color: var(--accent);
   width: 13px;
   height: 13px;
@@ -178,6 +180,92 @@
   to {
     transform: rotate(360deg);
   }
+}
+.valuation-run {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+  padding: 14px 16px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+}
+.valuation-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+}
+.valuation-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+}
+.valuation-step.is-current {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.valuation-step.is-done {
+  color: var(--accent);
+}
+.valuation-step__dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid var(--border-subtle);
+  font-size: 12px;
+}
+.valuation-step.is-done .valuation-step__dot {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.valuation-step.is-current .valuation-step__dot {
+  border-color: var(--accent);
+}
+.valuation-stream {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.valuation-stream code {
+  display: block;
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.valuation-log {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.valuation-log li {
+  display: flex;
+  gap: 10px;
+  padding: 2px 0;
+}
+.valuation-log time {
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+}
+.valuation-elapsed {
+  margin-left: auto;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
 }
 .valuation-table-wrap {
   overflow: auto;
