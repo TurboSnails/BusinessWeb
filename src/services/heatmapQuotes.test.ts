@@ -37,4 +37,12 @@ describe('热力图最新报价', () => {
     expect(result[1]).toMatchObject({ close: null, change: null })
     expect(result[1].quoteTime).toBeUndefined()
   })
+  it('美股用腾讯 us 代码请求，保留美东行情时间', async () => {
+    const stocks = [{ ticker: 'NASDAQ:AAPL', code: 'AAPL', name: 'AAPL', sector: '', close: 1, change: 1.02, marketCap: 1 }, { ticker: 'NYSE:BRK.B', code: 'BRK.B', name: 'BRK.B', sector: '', close: 1, change: 0, marketCap: 1 }]
+    const fetcher = vi.fn(async (_url: RequestInfo | URL) => new Response([quote('usAAPL', '2026-10-05 10:20:59', '333.57', '-0.04'), quote('usBRK.B', '2026-10-05 10:21:20', '504.66', '0.40')].join('\n')))
+    const result = await fetchHeatmapQuotes(stocks, fetcher)
+    expect(String(fetcher.mock.calls[0][0])).toContain(encodeURIComponent('usAAPL,usBRK.B'))
+    expect(result[0]).toMatchObject({ close: 333.57, change: -0.04, quoteTime: '2026-10-05 10:20:59' })
+    expect(result[1]).toMatchObject({ change: 0.4 })
+  })
 })

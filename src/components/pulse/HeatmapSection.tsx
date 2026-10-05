@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { LayoutGrid, Maximize2, Minimize2, Columns2, Rows3, RefreshCw } from 'lucide-react'
-import TradingViewHeatmap from './TradingViewHeatmap'
 import IndexHeatmap from './IndexHeatmap'
 import type { IndexMarket } from './IndexHeatmap'
 
@@ -9,22 +8,20 @@ interface HeatmapTab {
   label: string
   flag: string
   note: string
-  type: 'tradingview' | 'index'
-  dataSource?: string
-  index?: IndexMarket
+  index: IndexMarket
 }
 
+// 全部用自绘树图（TradingView Scanner 实时成分 + 行业/市值，腾讯行情实时报价，按行业分块）。
+// 注：TradingView 嵌入式热力图 widget 会显示过期的快照（盘中仍是上一交易日涨跌），已弃用。
 const TABS: HeatmapTab[] = [
-  { key: 'spx', label: '标普500', flag: '🇺🇸', note: '绿涨红跌', type: 'tradingview', dataSource: 'SPX500' },
-  { key: 'ndx', label: '纳斯达克100', flag: '🇺🇸', note: '绿涨红跌', type: 'tradingview', dataSource: 'NASDAQ100' },
-  // 注：TradingView 的热力图 widget 没有纯恒指(HSI)数据源（会回退成标普500），
-  // 所以恒生指数、恒生科技、中证500 用自绘树图（TradingView Scanner 行情 + 成分股名单，按行业分块）。
-  { key: 'hsi', label: '恒生指数', flag: '🇭🇰', note: '红涨绿跌', type: 'index', index: 'hsi' },
-  { key: 'hstech', label: '恒生科技指数', flag: '🇭🇰', note: '红涨绿跌', type: 'index', index: 'hstech' },
-  { key: 'csi500', label: '中证500', flag: '🇨🇳', note: '红涨绿跌', type: 'index', index: 'csi500' },
+  { key: 'spx', label: '标普500', flag: '🇺🇸', note: '绿涨红跌', index: 'spx' },
+  { key: 'ndx', label: '纳斯达克100', flag: '🇺🇸', note: '绿涨红跌', index: 'ndx' },
+  { key: 'hsi', label: '恒生指数', flag: '🇭🇰', note: '红涨绿跌', index: 'hsi' },
+  { key: 'hstech', label: '恒生科技指数', flag: '🇭🇰', note: '红涨绿跌', index: 'hstech' },
+  { key: 'csi500', label: '中证500', flag: '🇨🇳', note: '红涨绿跌', index: 'csi500' },
 ]
 
-const REFRESH_INTERVAL = 20000 // 自绘图每 20 秒请求；TradingView widget 自行更新，可能有延迟
+const REFRESH_INTERVAL = 20000 // 每 20 秒请求一次最新报价
 type Layout = 'grid' | 'tabs'
 const LAYOUT_KEY = 'pulse_heatmap_layout'
 
@@ -54,7 +51,6 @@ export default function HeatmapSection(): JSX.Element {
   const [activeTab, setActiveTab] = useState(getInitialTab)
   const [visited, setVisited] = useState<Set<string>>(() => new Set([getInitialTab()]))
   const [tick, setTick] = useState(0)
-  const [widgetRefresh, setWidgetRefresh] = useState(0)
   const [countdown, setCountdown] = useState(REFRESH_INTERVAL / 1000)
   const [fullscreenKey, setFullscreenKey] = useState<string | null>(null)
   const cardRefs = useRef<Record<string, HTMLDivElement | null>>({})
@@ -114,9 +110,7 @@ export default function HeatmapSection(): JSX.Element {
     fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 0.2s',
   })
 
-  const renderMap = (tab: HeatmapTab, active: boolean): JSX.Element => (
-    tab.type === 'tradingview' ? <TradingViewHeatmap key={`${tab.key}-${widgetRefresh}`} dataSource={tab.dataSource!} active={active} /> : <IndexHeatmap market={tab.index!} tick={tick} active={active} />
-  )
+  const renderMap = (tab: HeatmapTab, active: boolean): JSX.Element => <IndexHeatmap market={tab.index} tick={tick} active={active} />
 
   const renderCard = (tab: HeatmapTab, bodyHeight: string, active: boolean, showTitle: boolean): JSX.Element => {
     const isFs = fullscreenKey === tab.key
@@ -168,18 +162,18 @@ export default function HeatmapSection(): JSX.Element {
           <button onClick={() => changeLayout('grid')} aria-pressed={gridMode} style={pill(gridMode)}><Columns2 size={14} /> 并排</button>
           <button onClick={() => changeLayout('tabs')} aria-pressed={!gridMode} style={pill(!gridMode)}><Rows3 size={14} /> 标签页</button>
         </div>
-        <button onClick={() => { refreshQuotes(); setWidgetRefresh(v => v + 1) }} style={pill(false)}><RefreshCw size={14} /> 刷新行情</button>
+        <button onClick={refreshQuotes} style={pill(false)}><RefreshCw size={14} /> 刷新行情</button>
         <span style={{ fontSize: '0.72rem', color: '#9ca3af', marginLeft: 'auto' }}>
-          自绘指数图每 {REFRESH_INTERVAL / 1000} 秒请求 · 行情日期见各图
+          每 {REFRESH_INTERVAL / 1000} 秒请求 · 行情时间见各图
           <span style={{ marginLeft: '8px', color: '#d1d5db' }}>{countdown}s</span>
         </span>
       </div>
-      <div style={{ fontSize: '0.72rem', color: '#6b7280', marginBottom: 10 }}>美股 TradingView 图每分钟更新，免费行情可能延迟 15 分钟；休市时显示最后交易日行情。</div>
+      <div style={{ fontSize: '0.72rem', color: '#6b7280', marginBottom: 10 }}>报价取自腾讯行情实时数据，各图标注行情时间；休市时显示最后交易日行情。</div>
 
       {gridMode ? (
         // 并排：宽屏 2 列，窄屏 1 列；全部挂载，各自加载
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 520px), 1fr))', gap: '12px' }}>
-          {TABS.map(tab => renderCard(tab, tab.index === 'csi500' ? '600px' : tab.index === 'hsi' || tab.index === 'hstech' ? '480px' : '440px', true, true))}
+          {TABS.map(tab => renderCard(tab, tab.index === 'csi500' ? '600px' : '480px', true, true))}
         </div>
       ) : (
         <>

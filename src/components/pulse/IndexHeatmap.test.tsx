@@ -37,6 +37,16 @@ describe('指数热力图数据', () => {
     expect(tech.map(s => s.name)).toEqual(['智谱', '99999']) // 对照表没有的显示代码
   })
 
+  it('标普500 / 纳指100：请求美股 scanner 实时成分，代码直接用 ticker', async () => {
+    const f = scanner([row('NASDAQ:AAPL', 'AAPL', 333, 1.02, 4.9e12, 'Electronic Technology'), row('NYSE:BRK.B', 'BRK.B', 504, 0.4, 1e12, 'Finance')])
+    const stocks = await fetchIndexQuotes('spx', f as unknown as typeof fetch)
+    const [url, init] = f.mock.calls[0] as [string, { body: string }]
+    expect(url).toContain('/america/scan')
+    expect(JSON.parse(init.body).symbols).toEqual({ symbolset: ['SYML:SP;SPX'] })
+    expect(stocks.map(s => [s.code, s.name])).toEqual([['AAPL', 'AAPL'], ['BRK.B', 'BRK.B']])
+    expect(INDEX_CONFIG.ndx.symbolset).toBe('SYML:NASDAQ;NDX')
+  })
+
   it('中证500：请求 A 股 scanner，带全部 500 只成分股代码，代码 6 位', async () => {
     const f = scanner([row('SZSE:000009', '9', 10, 1.2, 1.5e10, 'Producer Manufacturing')])
     const [s] = await fetchIndexQuotes('csi500', f as unknown as typeof fetch)

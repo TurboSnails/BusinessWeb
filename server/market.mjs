@@ -1,5 +1,5 @@
 const symbolPattern = /^(sh|sz)\d{6}$/
-const quoteSymbolPattern = /^(?:(sh|sz)\d{6}|r_hk\d{5})$/
+const quoteSymbolPattern = /^(?:(sh|sz)\d{6}|r_hk\d{5}|us[A-Z0-9.]{1,10})$/
 const validDate = value => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)
   && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value
 

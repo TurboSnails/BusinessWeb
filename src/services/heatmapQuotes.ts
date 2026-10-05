@@ -2,7 +2,12 @@ import type { HeatmapStock } from '../components/pulse/IndexHeatmap'
 
 export async function fetchHeatmapQuotes(stocks: HeatmapStock[], fetchImpl: typeof fetch = fetch): Promise<HeatmapStock[]> {
   if (!stocks.length) throw new Error('没有有效成分股')
-  const symbolOf = (s: HeatmapStock) => s.ticker.startsWith('HKEX:') ? `r_hk${s.code}` : `${s.ticker.startsWith('SSE:') ? 'sh' : 'sz'}${s.code}`
+  const symbolOf = (s: HeatmapStock) => {
+    if (s.ticker.startsWith('HKEX:')) return `r_hk${s.code}`
+    if (s.ticker.startsWith('SSE:')) return `sh${s.code}`
+    if (s.ticker.startsWith('SZSE:')) return `sz${s.code}`
+    return `us${s.code}` // 美股（NASDAQ/NYSE/AMEX…），腾讯行情时间为美东时间
+  }
   const quotes = new Map<string, { close: number; change: number; quoteTime: string }>()
   const base = (import.meta.env.VITE_API_BASE ?? '').replace(/\/$/, '')
   for (let offset = 0; offset < stocks.length; offset += 80) {
@@ -13,7 +18,7 @@ export async function fetchHeatmapQuotes(stocks: HeatmapStock[], fetchImpl: type
     const response = await fetchImpl(url, { cache: 'no-store', signal: AbortSignal.timeout(10000) })
     if (!response.ok) throw new Error(`最新报价请求失败 HTTP ${response.status}`)
     const text = new TextDecoder('gbk').decode(await response.arrayBuffer())
-    for (const match of text.matchAll(/v_((?:sh|sz)\d{6}|r_hk\d{5})="([^"]*)"/g)) {
+    for (const match of text.matchAll(/v_((?:sh|sz)\d{6}|r_hk\d{5}|us[A-Z0-9.]{1,10})="([^"]*)"/g)) {
       const fields = match[2].split('~')
       const stamp = (fields[30] ?? '').replace(/\D/g, '')
       const close = Number(fields[3]), change = Number(fields[32])

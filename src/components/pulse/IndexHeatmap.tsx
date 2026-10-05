@@ -127,16 +127,18 @@ export function layoutBySector(stocks: HeatmapStock[], w: number, h: number): Se
   })
 }
 
-// ============ 颜色：A股红涨绿跌，0% 为中性灰，±5% 饱和 ============
+// ============ 颜色：A股/港股红涨绿跌、美股绿涨红跌，0% 为中性灰，±5% 饱和 ============
 const COLOR_CAP = 5
 function mix(a: [number, number, number], b: [number, number, number], t: number): string {
   return `rgb(${Math.round(a[0] + (b[0] - a[0]) * t)},${Math.round(a[1] + (b[1] - a[1]) * t)},${Math.round(a[2] + (b[2] - a[2]) * t)})`
 }
-function blockColor(change: number | null): string {
+const RED: [number, number, number] = [220, 38, 38]
+const GREEN: [number, number, number] = [22, 163, 74]
+function blockColor(change: number | null, greenUp = false): string {
   if (change === null || !isFinite(change)) return '#d1d5db'
   const t = Math.min(1, Math.abs(change) / COLOR_CAP)
   const neutral: [number, number, number] = [226, 232, 240]
-  return change >= 0 ? mix(neutral, [220, 38, 38], t) : mix(neutral, [22, 163, 74], t)
+  return change >= 0 ? mix(neutral, greenUp ? GREEN : RED, t) : mix(neutral, greenUp ? RED : GREEN, t)
 }
 // 背景够深时用白字，否则用深色字
 const labelColor = (change: number | null): string => (Math.abs(change || 0) >= COLOR_CAP * 0.45 ? '#ffffff' : '#1f2937')
@@ -144,18 +146,24 @@ const labelColor = (change: number | null): string => (Math.abs(change || 0) >= 
 // ============ 指数配置 ============
 // 港股指数（恒指、恒科）用 TradingView 的指数成分实时查询，指数调整后自动更新；
 // 中证500 没有可用的实时成分，使用中证指数公司的成分股快照。中文名查不到时显示代码。
-export type IndexMarket = 'csi500' | 'hsi' | 'hstech'
+// 美股（标普500、纳指100）也用实时成分 + 腾讯实时报价：TradingView 嵌入式热力图 widget 会给出过期快照，不再使用。
+export type IndexMarket = 'spx' | 'ndx' | 'csi500' | 'hsi' | 'hstech'
 interface IndexConfig {
   label: string
-  scanner: 'china' | 'hongkong'
+  scanner: 'china' | 'hongkong' | 'america'
   symbolset?: string // 实时成分
   list?: Array<{ ticker: string; name: string }> // 静态名单（同时作为中文名表）
   names: Array<{ ticker: string; name: string }>
   currency: string
   padCode: number
   source: string
+  greenUp?: boolean // 美股习惯绿涨红跌
+  timeZone?: string // 行情时间所在时区，默认北京时间
+  timeLabel?: string
 }
 export const INDEX_CONFIG: Record<IndexMarket, IndexConfig> = {
+  spx: { label: '标普500', scanner: 'america', symbolset: 'SYML:SP;SPX', names: [], currency: '$', padCode: 0, source: '成分股为 TradingView 实时指数成分', greenUp: true, timeZone: 'America/New_York', timeLabel: '美东时间' },
+  ndx: { label: '纳斯达克100', scanner: 'america', symbolset: 'SYML:NASDAQ;NDX', names: [], currency: '$', padCode: 0, source: '成分股为 TradingView 实时指数成分', greenUp: true, timeZone: 'America/New_York', timeLabel: '美东时间' },
   csi500: { label: '中证500', scanner: 'china', list: CSI500_CONSTITUENTS, names: CSI500_CONSTITUENTS, currency: '¥', padCode: 6, source: '成分股快照 2026-09-30（中证指数公司，每半年调样）' },
   hsi: { label: '恒生指数', scanner: 'hongkong', symbolset: 'SYML:HSI;HSI', names: HK_INDEX_NAMES, currency: 'HK$', padCode: 5, source: '成分股为 TradingView 实时指数成分' },
   hstech: { label: '恒生科技指数', scanner: 'hongkong', symbolset: 'SYML:HSI;HSTECH', names: HK_INDEX_NAMES, currency: 'HK$', padCode: 5, source: '成分股为 TradingView 实时指数成分' },
@@ -202,7 +210,7 @@ interface Props {
   active: boolean
 }
 
-// 图例：-5% … 0 … +5%（红涨绿跌）
+// 图例：-5% … 0 … +5%
 const LEGEND = [-COLOR_CAP, -COLOR_CAP / 2, 0, COLOR_CAP / 2, COLOR_CAP]
 
 export default function IndexHeatmap({ market, tick, active }: Props): JSX.Element {
@@ -254,7 +262,12 @@ export default function IndexHeatmap({ market, tick, active }: Props): JSX.Eleme
   const downs = valid.filter(s => (s.change || 0) < 0).length
   const flat = valid.filter(s => s.change === 0).length
   const times = valid.flatMap(s => s.quoteTime ? [s.quoteTime] : []).sort()
-  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
+  const greenUp = !!cfg.greenUp
+  const upText = greenUp ? '#16a34a' : '#dc2626'
+  const downText = greenUp ? '#dc2626' : '#16a34a'
+  const upLight = greenUp ? '#86efac' : '#fca5a5'
+  const downLight = greenUp ? '#fca5a5' : '#86efac'
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: cfg.timeZone ?? 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
   const previousSession = times.some(time => time.slice(0, 10) < today)
   const missing = valid.filter(s => !s.quoteTime).length
 
@@ -263,13 +276,13 @@ export default function IndexHeatmap({ market, tick, active }: Props): JSX.Eleme
       {/* 统计条 + 图例 */}
       <div style={{ display: 'flex', gap: '12px', alignItems: 'center', padding: '2px 2px 8px', fontSize: '0.78rem', color: '#6b7280', flexWrap: 'wrap' }}>
         <span>{cfg.label} · {valid.length} 只</span>
-        <span style={{ color: '#dc2626', fontWeight: 600 }}>↑ {ups}</span>
-        <span style={{ color: '#16a34a', fontWeight: 600 }}>↓ {downs}</span>
+        <span style={{ color: upText, fontWeight: 600 }}>↑ {ups}</span>
+        <span style={{ color: downText, fontWeight: 600 }}>↓ {downs}</span>
         {flat > 0 && <span>— {flat}</span>}
         <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '6px' }}>
           {LEGEND.map(v => (
             <span key={v} style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
-              <span style={{ width: 22, height: 8, background: blockColor(v), borderRadius: 2 }} />
+              <span style={{ width: 22, height: 8, background: blockColor(v, greenUp), borderRadius: 2 }} />
               <span style={{ fontSize: '0.62rem', color: '#9ca3af' }}>{v > 0 ? `+${v}` : v}%</span>
             </span>
           ))}
@@ -278,7 +291,7 @@ export default function IndexHeatmap({ market, tick, active }: Props): JSX.Eleme
       </div>
 
       {times.length > 0 && <div style={{ fontSize: '0.72rem', color: previousSession ? '#b45309' : '#6b7280', marginBottom: 6 }}>
-        行情时间（北京时间）：{times[0]}{times[0] !== times[times.length - 1] ? ` ～ ${times[times.length - 1]}` : ''}
+        行情时间（{cfg.timeLabel ?? '北京时间'}）：{times[0]}{times[0] !== times[times.length - 1] ? ` ～ ${times[times.length - 1]}` : ''}
         {previousSession && ' · 含历史交易日行情，休市或尚未更新'}
         {missing > 0 && ` · ${missing} 只暂无报价`}
       </div>}
@@ -307,7 +320,7 @@ export default function IndexHeatmap({ market, tick, active }: Props): JSX.Eleme
                 fontSize: '11px', fontWeight: 700, color: '#f9fafb', pointerEvents: 'none',
               }}>
                 <span>{block.name}</span>
-                <span style={{ fontWeight: 500, color: block.change > 0 ? '#fca5a5' : block.change < 0 ? '#86efac' : '#d1d5db' }}>
+                <span style={{ fontWeight: 500, color: block.change > 0 ? upLight : block.change < 0 ? downLight : '#d1d5db' }}>
                   {block.change > 0 ? '+' : ''}{block.change.toFixed(2)}%
                 </span>
               </div>
@@ -329,7 +342,7 @@ export default function IndexHeatmap({ market, tick, active }: Props): JSX.Eleme
                   onMouseLeave={() => setHover(null)}
                   style={{
                     position: 'absolute', left: rect.x + 0.5, top: rect.y + 0.5, width: Math.max(0, rect.w - 1), height: Math.max(0, rect.h - 1), boxShadow: 'inset 0 0 0 0.5px rgba(255,255,255,0.55)',
-                    background: blockColor(pct), overflow: 'hidden', cursor: 'default',
+                    background: blockColor(pct, greenUp), overflow: 'hidden', cursor: 'default',
                     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                     transition: active ? 'background 0.6s' : undefined,
                   }}
@@ -362,13 +375,13 @@ export default function IndexHeatmap({ market, tick, active }: Props): JSX.Eleme
             <div style={{ fontWeight: 700 }}>{hover.stock.name} <span style={{ opacity: 0.7 }}>{hover.stock.code}</span></div>
             <div style={{ opacity: 0.8 }}>{SECTOR_CN[hover.stock.sector] || hover.stock.sector || '—'}</div>
             <div>价格：{hover.stock.close !== null ? `${cfg.currency}${hover.stock.close.toFixed(2)}` : '--'}</div>
-            <div>涨跌：<span style={{ color: (hover.stock.change || 0) >= 0 ? '#fca5a5' : '#86efac' }}>{hover.stock.change !== null ? `${hover.stock.change > 0 ? '+' : ''}${hover.stock.change.toFixed(2)}%` : '--'}</span></div>
+            <div>涨跌：<span style={{ color: (hover.stock.change || 0) >= 0 ? upLight : downLight }}>{hover.stock.change !== null ? `${hover.stock.change > 0 ? '+' : ''}${hover.stock.change.toFixed(2)}%` : '--'}</span></div>
             <div>市值：{hover.stock.marketCap ? `${cfg.currency}${(hover.stock.marketCap / 1e8).toFixed(0)}亿` : '--'}</div>
           </div>
         )}
       </div>
       <div style={{ fontSize: '0.7rem', color: '#9ca3af', marginTop: '6px' }}>
-        报价 腾讯行情（以行情时间为准） · 行业/市值 TradingView · {cfg.source} · 红涨绿跌 · 方块面积 = 市值
+        报价 腾讯行情（以行情时间为准） · 行业/市值 TradingView · {cfg.source} · {greenUp ? '绿涨红跌' : '红涨绿跌'} · 方块面积 = 市值
       </div>
     </div>
   )
