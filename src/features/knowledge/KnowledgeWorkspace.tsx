@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Search, Plus, RefreshCw, Save, FileText, FolderOpen, Network, ArrowUpRight, BookOpen, HardDrive } from 'lucide-react'
-import { errorText, knowledgeApi, cloudTokenKey, isCloudKnowledge } from './api'
+import { errorText, knowledgeApi, cloudTokenKey, isCloudKnowledge, preferCloudOnLocal } from './api'
 import type { KnowledgeApi, Note, NoteInfo, Relations, VaultStatus } from './api'
 import DailyInbox from './DailyInbox'
 import MarkdownPreview from './MarkdownPreview'
@@ -159,7 +159,7 @@ function Workspace({ api = knowledgeApi, initialTab = 'workspace' }: { api?: Kno
     {error && <div className="kb-alert" role="alert">{error}</div>}
     {storageWarning && <p className="kb-alert">浏览器未允许暂存草稿，关闭页面前请保存或复制内容。</p>}
     {tab === 'garden' ? <KnowledgeGarden api={api} vaultId={connected ? status?.vaultId : undefined} onOpen={path => { setTab('workspace'); void openNote(path) }} /> : tab === 'setup' ? <KnowledgeSetup /> : !status ? <section className="kb-offline">
-      <div className="kb-offline-icon"><FolderOpen size={32} strokeWidth={1.3} /></div><span className="kb-eyebrow">START SMALL, KEEP IT YOURS</span><h2>连接本地知识库</h2><p>打开 Obsidian 写笔记，在这里搜索、整理，再交给 AI 接着思考。</p><div className="kb-command"><code>npm run knowledge:app</code><span>在 BusinessWeb 目录运行</span></div><div className="kb-offline-actions"><button className="kb-primary" onClick={() => void connect()} disabled={connection === 'loading'}><RefreshCw size={16} />{connection === 'loading' ? '正在连接…' : '重新连接'}</button><button onClick={() => setTab('setup')}>查看连接说明<ArrowUpRight size={16} /></button></div><p className="kb-muted">默认使用独立的私人 Vault，也可指定现有 Obsidian 目录。</p>
+      <div className="kb-offline-icon"><FolderOpen size={32} strokeWidth={1.3} /></div><span className="kb-eyebrow">START SMALL, KEEP IT YOURS</span><h2>连接本地知识库</h2><p>打开 Obsidian 写笔记，在这里搜索、整理，再交给 AI 接着思考。</p><div className="kb-command"><code>npm run knowledge:app</code><span>在 BusinessWeb 目录运行</span></div><div className="kb-offline-actions"><button className="kb-primary" onClick={() => void connect()} disabled={connection === 'loading'}><RefreshCw size={16} />{connection === 'loading' ? '正在连接…' : '重新连接'}</button><button onClick={() => setTab('setup')}>查看连接说明<ArrowUpRight size={16} /></button>{!isCloudKnowledge() && <button onClick={() => { preferCloudOnLocal(true); window.location.reload() }}>改用云端资料库</button>}</div><p className="kb-muted">默认使用独立的私人 Vault，也可指定现有 Obsidian 目录。</p>
     </section> : <>
       <div className="kb-overview"><div><strong>{notes.length}</strong><span>篇 Markdown 笔记</span></div><div><strong>{new Set(notes.map(n => n.path.split('/')[0])).size}</strong><span>个已有内容的目录</span></div><div className="kb-vault-path"><span>当前 Vault</span><code title={status.vaultPath}>{status.vaultPath}</code></div><button aria-label="刷新知识库" onClick={() => void refresh()} disabled={!!busy || connection === 'loading'}><RefreshCw size={16} />刷新</button></div>
       {!status.readOnly && <DailyInbox key={status.vaultPath} vaultKey={status.vaultPath} vaultId={status.vaultId} api={api} onSaved={note => void inboxSaved(note)} onError={setError} />}
@@ -187,24 +187,35 @@ function Workspace({ api = knowledgeApi, initialTab = 'workspace' }: { api?: Kno
   </main>
 }
 
-export default function KnowledgeWorkspace(props: { api?: KnowledgeApi; initialTab?: 'workspace' | 'garden' | 'setup' }): JSX.Element {
+export default function KnowledgeWorkspace(props: { api?: KnowledgeApi; initialTab?: 'workspace' | 'garden' | 'setup' }): JSX.Element | null {
+  const localHost = ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname)
   const cloud = !props.api && isCloudKnowledge()
-  const [unlocked, setUnlocked] = useState(() => !cloud || !!sessionStorage.getItem(cloudTokenKey))
+  const [hasToken, setHasToken] = useState(() => !!sessionStorage.getItem(cloudTokenKey))
+  const [probing, setProbing] = useState(() => !props.api && localHost && !cloud)
+  const unlocked = !cloud || hasToken
   const [token, setToken] = useState(''), [error, setError] = useState(''), [busy, setBusy] = useState(false)
+  // A local page with no running local service falls back to the synced cloud library.
+  useEffect(() => {
+    if (!probing) return
+    let active = true
+    knowledgeApi.status().catch(() => { if (active) preferCloudOnLocal(true) }).finally(() => { if (active) setProbing(false) })
+    return () => { active = false }
+  }, [probing])
   async function unlock(e: React.FormEvent) {
     e.preventDefault(); setError(''); setBusy(true)
     try {
       if (token.trim().length < 32) throw new Error('访问码至少 32 个字符。')
       sessionStorage.setItem(cloudTokenKey, token.trim())
       await knowledgeApi.status()
-      setToken(''); setUnlocked(true)
+      setToken(''); setHasToken(true)
     } catch (e) { sessionStorage.removeItem(cloudTokenKey); setError(errorText(e)) }
     finally { setBusy(false) }
   }
+  if (probing) return null
   if (!unlocked) return <main className="kb-page"><section className="kb-offline">
     <span className="kb-eyebrow">YOUR PRIVATE LIBRARY</span><h1>解锁个人知识中心</h1><p>输入资料库访问码，查看真实笔记与蒲公英网络。</p>
     <form onSubmit={e => void unlock(e)} className="kb-cloud-login"><label htmlFor="knowledge-token">资料库访问码</label><input id="knowledge-token" type="password" autoComplete="off" value={token} onChange={e => setToken(e.target.value)} required /><button className="kb-primary" disabled={busy}>{busy ? '正在连接…' : '解锁资料库'}</button></form>
-    {error && <p className="kb-alert" role="alert">{error}</p>}<p className="kb-muted">访问码只保留在当前浏览器会话。原始 Markdown 保存在你的本机。</p>
+    {error && <p className="kb-alert" role="alert">{error}</p>}<p className="kb-muted">访问码只保留在当前浏览器会话。原始 Markdown 保存在你的本机。</p>{['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname) && <button onClick={() => { preferCloudOnLocal(false); window.location.reload() }}>切回本地 Vault</button>}
   </section></main>
-  return <>{cloud && <div className="kb-cloud-session"><span>私人云端副本 · 只读</span><button onClick={() => { sessionStorage.removeItem(cloudTokenKey); setUnlocked(false) }}>锁定资料库</button></div>}<Workspace {...props} /></>
+  return <>{cloud && <div className="kb-cloud-session"><span>私人云端副本 · 只读</span><button onClick={() => { sessionStorage.removeItem(cloudTokenKey); setHasToken(false) }}>锁定资料库</button>{['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname) && <button onClick={() => { preferCloudOnLocal(false); window.location.reload() }}>切回本地 Vault</button>}</div>}<Workspace {...props} /></>
 }

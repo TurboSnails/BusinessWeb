@@ -24,7 +24,14 @@ export interface KnowledgeApi {
 export class KnowledgeApiError extends Error {
   constructor(message: string, public status: number, public code?: string) { super(message) }
 }
-export const isCloudKnowledge = (): boolean => !['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname)
+const isLocalHost = (): boolean => ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname)
+// On a local dev server the user can opt in to reading the synced cloud copy (through the dev proxy) instead of a local Vault.
+export const cloudPreferenceKey = 'knowledge-use-cloud'
+export const preferCloudOnLocal = (use: boolean): void => { try { use ? sessionStorage.setItem(cloudPreferenceKey, '1') : sessionStorage.removeItem(cloudPreferenceKey) } catch { /* storage unavailable */ } }
+export const isCloudKnowledge = (): boolean => {
+  if (!isLocalHost()) return true
+  try { return sessionStorage.getItem(cloudPreferenceKey) === '1' } catch { return false }
+}
 export const cloudTokenKey = 'knowledge-cloud-token'
 async function request<T>(path: string, method = 'GET', data?: unknown): Promise<T> {
   const cloud = isCloudKnowledge()
@@ -37,7 +44,7 @@ async function request<T>(path: string, method = 'GET', data?: unknown): Promise
     const base = import.meta.env.BASE_URL || '/'
     const [action, params] = path.split('?')
     const apiBase = (import.meta.env.VITE_API_BASE || '').replace(/\/$/, '')
-    const url = cloud ? `${apiBase}/api/knowledge?action=${action}${params ? '&' + params : ''}` : `${base}api/knowledge/${path}`
+    const url = cloud ? `${isLocalHost() ? `${base}remote-knowledge` : `${apiBase}/api/knowledge`}?action=${action}${params ? '&' + params : ''}` : `${base}api/knowledge/${path}`
     const response = await fetch(url, {
       method, signal: controller.signal, cache: 'no-store',
       headers: cloud ? { Authorization: `Bearer ${token}` } : data === undefined ? undefined : { 'Content-Type': 'application/json' },

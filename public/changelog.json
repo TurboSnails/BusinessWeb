@@ -1,10 +1,148 @@
 {
-  "generatedAt": "2026-10-04T11:00:33.308Z",
+  "generatedAt": "2026-10-04T14:58:15.176Z",
   "versions": [
     {
       "tag": "unreleased",
       "date": null,
       "commits": [
+        {
+          "hash": "e5d6c3a",
+          "subject": "perf(site): 标题字体自托管（@fontsource/noto-serif-sc 切片版），去掉 Google Fonts 请求",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "6c26ee0",
+          "subject": "feat(site): 关于页改为介绍「正念生活」与三个栏目",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "5570a5c",
+          "subject": "feat(site): 品牌收尾——manifest 与叶片图标、404 页面、去掉残留紫色渐变",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "f567133",
+          "subject": "style(site): 监控、脉搏组件及估值、网格交易样式换纸书配色，修复估值表单手机布局",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "dc19e08",
+          "subject": "style(site): 道与术、2026 计划、脉搏、板块轮动、涨停等页换纸书配色",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "a570ad2",
+          "subject": "feat(site): 阅读页左侧章节目录，免返回直接切章",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "3c33446",
+          "subject": "feat(site): 我的书右侧新增 PDF 阅读与下载入口",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "522344b",
+          "subject": "style(site): 策略框架、研究笔记、公司详情换纸书风格",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "fe9744e",
+          "subject": "fix(site): 起始金额不公开，自由生活页与首页改用 *** → 目标 400 万",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "4fbf9c8",
+          "subject": "fix(site): 抽屉打开时屏幕变宽自动关闭并解除滚动锁；规格同步 --down 色值",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "31a0f26",
+          "subject": "fix(site): 首页投资大师名句改为直接展示，不再折叠",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "bbaa7d7",
+          "subject": "docs(site): 正念生活重设计规格与实现计划",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "a884a75",
+          "subject": "feat(site): 第一阶段验收：About 换肤，网格入口测试改查栏目页",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "8a19944",
+          "subject": "feat(site): 书稿阅读页与我的书换新样式并适配手机",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "d603fae",
+          "subject": "feat(site): 新首页（书名首屏、栏目入口、最近更新、名句）",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "4dde924",
+          "subject": "feat(site): 正念投资、AI 与独立开发、自由生活实验栏目页",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "82f669b",
+          "subject": "feat(site): 面包屑、同组切换条与栏目路由",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "33bc0af",
+          "subject": "feat(site): 5 项导航、手机抽屉与新页脚",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "5acede9",
+          "subject": "feat(site): 站点地图数据与分组查找",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "03dc083",
+          "subject": "feat(site): 纸书茶室设计变量与基础样式",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "4d83005",
+          "subject": "docs(book): 副标题改为普通人用规则代替盯盘并更新PDF",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "b08f3fb",
+          "subject": "docs(book): 提交第十四轮正念投资PDF（235页）",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
+        {
+          "hash": "f091d16",
+          "subject": "docs(book): 发布第十四轮正念练习与数据案例修订",
+          "author": "hassan",
+          "date": "2026-10-04"
+        },
         {
           "hash": "50c4015",
           "subject": "书稿:八个部分名称优化(短名+一句人话),第七部分副标题调整,补第十三轮修订记录",
@@ -44,144 +182,6 @@
         {
           "hash": "1a0084d",
           "subject": "docs(book): 补充第十三轮修订记录",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "933a11d",
-          "subject": "Merge branch 'feat/company-valuation'",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "36afcc1",
-          "subject": "chore: 忽略.DS_Store",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "913aeec",
-          "subject": "chore: 同步首页、投资计划与更新日志，移除Investment2026AI组件",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "8e4b74c",
-          "subject": "docs(book): 更新书稿章节、数字核对表与第十三轮修订记录",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "2539614",
-          "subject": "feat(pulse): 热力图行情数据与指数热力图更新",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "372428d",
-          "subject": "fix(valuation): 修复会话失效与opencode免费档，新增专家级分析流程与Claude模型清单",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "7c41899",
-          "subject": "fix(valuation): enforce data provenance and verify report workflows",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "bbb4b1f",
-          "subject": "feat(valuation): add model picker, scenario workbench and report export",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "c1c3b15",
-          "subject": "docs(book): 清理正文里的修订痕迹，改为面向读者的表述",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "ce3a025",
-          "subject": "docs(book): 同步数字核对表等附件到网页，登记林奇方法出处",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "0ab3dac",
-          "subject": "feat(valuation): add local job service with cancellation and SSE",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "222b520",
-          "subject": "docs(book): 补第13、14章算例；通读修正大纲中残留的部分表述",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "6028f90",
-          "subject": "feat(valuation): validate model assumptions and compute DCF reports",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "ce11e16",
-          "subject": "docs(book): 第15章补教学算例与持有节奏卡；勘误第24章章号引用",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "2baf804",
-          "subject": "feat(valuation): execute structured analysis with local CLIs",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "fe38643",
-          "subject": "docs(book): 第25章补四个教学算例；第32章补观察库填好的示例",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "b303485",
-          "subject": "feat(valuation): collect sourced annual statements and exchange rates",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "7a0e5b7",
-          "subject": "docs(book): 核对护城河出处；第33章补充长线持仓占用主动额度",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "381b88b",
-          "subject": "docs(book): 核对巴菲特概念出处，第19—24章加前置工具提示，第23/24章去AI腔",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "d85b98c",
-          "subject": "docs(book): 第四至第八部分重排（中线林奇/长线巴菲特/研究/执行/修心），新增第23、24章，共40章",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "96564d9",
-          "subject": "docs(book): 核对巴菲特概念出处，第19—24章加前置工具提示，第23/24章去AI腔",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "c2166b6",
-          "subject": "fix(valuation): retain primary name aliases in company search",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "36c2109",
-          "subject": "feat(valuation): resolve company names to securities",
           "author": "hassan",
           "date": "2026-10-04"
         }

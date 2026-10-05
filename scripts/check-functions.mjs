@@ -10,8 +10,8 @@ try {
   assert.equal(compiled.status, 0, compiled.stdout + compiled.stderr)
   const pkg = JSON.parse(await readFile('package.json', 'utf8'))
   await writeFile(join(directory, 'package.json'), JSON.stringify({ type: pkg.type ?? 'commonjs' }))
-  await mkdir(join(directory, 'server'), { recursive: true })
-  for (const file of ['api/china-stock.js', 'api/grid-market.js', 'server/market.mjs', 'api/cls-plate.js', 'server/sectorHistory.js']) await copyFile(resolve(file), join(directory, file))
+  await mkdir(join(directory, 'server/knowledge'), { recursive: true })
+  for (const file of ['api/china-stock.js', 'api/grid-market.js', 'server/market.mjs', 'api/cls-plate.js', 'server/sectorHistory.js', 'server/knowledge/links.mjs']) await copyFile(resolve(file), join(directory, file))
   await writeFile(join(directory, 'check.mjs'), `
 import assert from 'node:assert/strict';
 import sync from './api/grid-sync.js';

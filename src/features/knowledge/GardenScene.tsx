@@ -1,127 +1,89 @@
-import React, { useId, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import type { KnowledgeGraph } from './api'
 
 export type GardenNode = { path: string; title: string }
-export type GardenHub = { name: string; x: number; y: number; color: string }
-const COLORS = ['#d3b573', '#9cb48e', '#8fb8be', '#cfa6bb', '#b8abd1', '#d1ac8d', '#9ac4b5', '#b9bd94']
-const GOLDEN_ANGLE = 2.39996323
-const point = (angle: number, radius: number) => ({ x: Math.cos(angle) * radius, y: Math.sin(angle) * radius })
-const shorten = (text: string, length = 16) => text.length > length ? text.slice(0, length) + '…' : text
+const COLORS = ['#5B7B65', '#C9794F', '#6E9C94', '#D9A441', '#8C7B6B', '#A8708A', '#7BA3A8', '#8A9A5B']
+const SEED_COUNT = 90
 
 export function gardenCategory(path: string): string {
   const parts = path.split('/')
   return parts[0] === 'Notion' ? (parts.length > 3 ? parts[2] : 'Notion 导航') : parts[0]
 }
 
-export function gardenLayout(nodes: GardenNode[], groups: string[], focus: string) {
+export type SceneNode = { id: string; title: string; cat: string; color: string; anchor: [number, number, number]; x?: number; y?: number; z?: number; fx?: number; fy?: number; fz?: number; [key: string]: unknown }
+export type SceneLink = { source: string; target: string }
+export type SceneData = { nodes: SceneNode[]; links: SceneLink[]; focus: string; decorative: boolean }
+
+// Evenly spread points on a unit sphere: each category gets its own region of the dandelion head.
+function fibonacciSphere(i: number, n: number): [number, number, number] {
+  const y = n <= 1 ? 0 : 1 - (i / (n - 1)) * 2, r = Math.sqrt(Math.max(0, 1 - y * y)), a = i * 2.39996323
+  return [Math.cos(a) * r, y, Math.sin(a) * r]
+}
+
+function buildData(nodes: GardenNode[], groups: string[], edges: KnowledgeGraph['edges'], focus: string, decorative: boolean): SceneData {
+  if (decorative) {
+    const seeds: SceneNode[] = Array.from({ length: SEED_COUNT }, (_, i) => ({ id: `seed-${i}`, title: '', cat: '', color: COLORS[i % COLORS.length], anchor: fibonacciSphere(i, SEED_COUNT) }))
+    const links = Array.from({ length: 70 }, (_, i) => ({ source: `seed-${i}`, target: `seed-${(i * 7 + 11) % SEED_COUNT}` })).filter(l => l.source !== l.target)
+    return { nodes: seeds, links, focus: '', decorative }
+  }
   const shown = [...new Set(nodes.map(n => gardenCategory(n.path)))]
-  const hubs: GardenHub[] = shown.map((name, i) => {
-    const angle = i * Math.PI * 2 / shown.length - Math.PI / 2
-    return { name, x: 450 + Math.cos(angle) * 208, y: 310 + Math.sin(angle) * 208, color: COLORS[groups.indexOf(name) % COLORS.length] }
-  })
-  // Neighbor crowns stay apart as the number of categories grows.
-  const crownRadius = Math.min(86, Math.max(30, 208 * Math.sin(Math.PI / Math.max(2, shown.length)) * .72))
-  const focusNeighbors = nodes.filter(n => n.path !== focus)
-  const positions = nodes.map(n => {
-    const hub = hubs.find(h => h.name === gardenCategory(n.path))!
-    if (focus) {
-      const i = focusNeighbors.indexOf(n)
-      const angle = i * GOLDEN_ANGLE - Math.PI / 2
-      const radius = focusNeighbors.length <= 12 ? 185 : 120 + Math.sqrt((i + 1) / focusNeighbors.length) * 145
-      const offset = point(angle, radius)
-      return { ...n, color: hub.color, x: n.path === focus ? 450 : 450 + offset.x, y: n.path === focus ? 310 : 310 + offset.y }
-    }
-    const siblings = nodes.filter(other => gardenCategory(other.path) === hub.name)
-    const i = siblings.indexOf(n)
-    const offset = point(i * GOLDEN_ANGLE, 18 + Math.sqrt((i + .5) / siblings.length) * crownRadius)
-    return { ...n, color: hub.color, x: hub.x + offset.x, y: hub.y + offset.y }
-  })
-  return { hubs, positions }
+  const anchors = new Map(shown.map((name, i) => [name, fibonacciSphere(i, shown.length)]))
+  const ids = new Set(nodes.map(n => n.path))
+  return {
+    focus,
+    decorative,
+    nodes: nodes.map(n => {
+      const cat = gardenCategory(n.path)
+      return { id: n.path, title: n.title, cat, color: COLORS[Math.max(0, groups.indexOf(cat)) % COLORS.length], anchor: anchors.get(cat)! }
+    }),
+    links: edges.filter(e => ids.has(e.source) && ids.has(e.target)).map(e => ({ source: e.source, target: e.target })),
+  }
 }
 
-function Pappus({ id }: { id: string }): JSX.Element {
-  return <g id={id} fill="none" stroke="currentColor" strokeWidth=".7" strokeLinecap="round">
-    <path d="M0 12 Q1 6 0 0" />
-    {Array.from({ length: 9 }, (_, i) => {
-      const angle = Math.PI + i * Math.PI / 8
-      const p = point(angle, 6), tip = point(angle, 10)
-      return <path key={i} d={`M0 0 L${p.x} ${p.y} M${tip.x - 1.4} ${tip.y - 1} L${p.x} ${p.y} L${tip.x + 1.4} ${tip.y - 1}`} />
-    })}
-    <circle cx="0" cy="0" r="1" fill="currentColor" stroke="none" />
-  </g>
-}
-
-export default function GardenScene({ nodes, groups, edges, focus, zoom, decorative, onFocus }: {
+export default function GardenScene({ nodes, groups, edges, focus, zoom, decorative, paused = false, onFocus, onBack }: {
   nodes: GardenNode[]; groups: string[]; edges: KnowledgeGraph['edges']; focus: string;
-  zoom: number; decorative: boolean; onFocus(path: string): void;
+  zoom: number; decorative: boolean; paused?: boolean; onFocus(path: string): void; onBack(): void;
 }): JSX.Element {
-  const id = useId().replace(/:/g, '')
-  const [hovered, setHovered] = useState('')
-  const { hubs, positions } = useMemo(() => gardenLayout(nodes, groups, focus), [nodes, groups, focus])
-  const byPath = new Map(positions.map(n => [n.path, n]))
-  const visibleEdges = edges.filter(e => byPath.has(e.source) && byPath.has(e.target))
-  const bright = focus || hovered
-  const related = new Set([bright, ...visibleEdges.flatMap(e => e.source === bright ? [e.target] : e.target === bright ? [e.source] : [])])
-  const rootRays = Array.from({ length: decorative ? 72 : 44 }, (_, i) => {
-    const angle = i * GOLDEN_ANGLE, radius = decorative ? 40 + Math.sqrt(i / 72) * 125 : 28 + Math.sqrt(i / 44) * 25
-    const end = point(angle, radius)
-    return { ...end, angle: angle * 180 / Math.PI + 90 }
-  })
-  const selected = nodes.find(n => n.path === focus)
-  return <div className="kb-garden-scene" onPointerMove={e => {
-    if (e.pointerType === 'touch') return
-    const rect = e.currentTarget.getBoundingClientRect()
-    e.currentTarget.style.setProperty('--garden-look-x', `${((e.clientX - rect.left) / rect.width - .5) * 5}px`)
-    e.currentTarget.style.setProperty('--garden-look-y', `${((e.clientY - rect.top) / rect.height - .5) * 4}px`)
-  }} onPointerLeave={e => { e.currentTarget.style.setProperty('--garden-look-x', '0px'); e.currentTarget.style.setProperty('--garden-look-y', '0px'); setHovered('') }}>
+  const host = useRef<HTMLDivElement>(null)
+  const api = useRef<{ update(data: SceneData): void; setZoom(value: number): void; setPaused(value: boolean): void } | null>(null)
+  const onFocusRef = useRef(onFocus), onBackRef = useRef(onBack)
+  const [unsupported, setUnsupported] = useState(false)
+  const data = useMemo(() => buildData(nodes, groups, edges, focus, decorative), [nodes, groups, edges, focus, decorative])
+  const latest = useRef({ data, zoom, paused })
+  onFocusRef.current = onFocus; onBackRef.current = onBack
+  latest.current = { data, zoom, paused }
+
+  useEffect(() => {
+    let disposed = false, dispose = () => {}
+    const el = host.current
+    if (!el) return
+    import('./gardenEngine').then(({ createGardenEngine }) => {
+      if (disposed) return
+      let engine: ReturnType<typeof createGardenEngine>
+      try { engine = createGardenEngine(el, path => onFocusRef.current(path)) } catch { setUnsupported(true); return }
+      api.current = engine
+      dispose = engine.dispose
+      // Only a failure to create the 3D scene means "unsupported"; later errors must not hide a working scene.
+      try { engine.update(latest.current.data); engine.setZoom(latest.current.zoom); engine.setPaused(latest.current.paused) } catch (e) { console.error('蒲公英更新失败', e) }
+    }).catch(() => { if (!disposed) setUnsupported(true) })
+    return () => { disposed = true; api.current = null; dispose() }
+  }, [])
+  useEffect(() => {
+    if (!focus) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onBackRef.current() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [focus])
+  useEffect(() => { api.current?.update(data) }, [data])
+  useEffect(() => { api.current?.setZoom(zoom) }, [zoom])
+  useEffect(() => { api.current?.setPaused(paused) }, [paused])
+
+  return <div className="kb-garden-scene">
     <div className="kb-garden-scene-caption" aria-hidden="true"><span>{focus ? '一颗种子，一片关联' : decorative ? '知识，等待下一阵风' : '让独立的想法相遇'}</span><i /></div>
-    <svg viewBox="0 0 900 650" role="img" aria-label={decorative ? '蒲公英装饰动画，不代表真实笔记' : '蒲公英网络：虚线表示分类，实线表示笔记引用'}>
-      <defs>
-        <radialGradient id={`${id}Glow`}><stop stopColor="#cfb678" stopOpacity=".16" /><stop offset="1" stopColor="#cfb678" stopOpacity="0" /></radialGradient>
-        <Pappus id={`${id}Seed`} />
-      </defs>
-      <g className="kb-garden-atmosphere" aria-hidden="true">
-        <circle cx="450" cy="310" r="290" fill={`url(#${id}Glow)`} />
-        <circle cx="450" cy="310" r="280" className="kb-garden-orbit" />
-        <circle cx="450" cy="310" r="195" className="kb-garden-orbit is-inner" />
-        {Array.from({ length: 12 }, (_, i) => <g key={i} transform={`translate(${85 + (i * 137) % 740} ${90 + (i * 83) % 440})`}><g className="kb-garden-flying-seed" style={{ animationDelay: `${-i * 2.1}s`, animationDuration: `${18 + i % 5 * 3}s` }}><use href={`#${id}Seed`} transform={`rotate(${i * 37 - 50}) scale(${.55 + i % 3 * .2})`} /></g></g>)}
-      </g>
-      <g className="kb-garden-zoom" style={{ transform: `translate(450px, 310px) scale(${zoom}) translate(-450px, -310px)` }}>
-        <g className="kb-garden-wind">
-          {!focus && <g className="kb-garden-branches">
-            {hubs.map((h, i) => <g key={h.name} style={{ '--garden-delay': `${i * 40}ms` } as React.CSSProperties} className="kb-garden-branch">
-              <path className="kb-garden-stem" pathLength="1" d={`M450 310 Q${(450 + h.x) / 2 + 15} ${(310 + h.y) / 2 - 12} ${h.x} ${h.y}`} stroke={h.color} />
-              {positions.filter(n => gardenCategory(n.path) === h.name).map(n => <path key={n.path} className="kb-garden-filament" d={`M${h.x} ${h.y} Q${h.x} ${n.y} ${n.x} ${n.y}`} stroke={h.color} />)}
-            </g>)}
-          </g>}
-          <g className="kb-garden-links">
-            {visibleEdges.map(e => {
-              const a = byPath.get(e.source)!, b = byPath.get(e.target)!
-              const active = !!bright && (e.source === bright || e.target === bright)
-              return <path key={`${e.source}:${e.target}`} pathLength="1" className={`kb-garden-link ${active ? 'is-lit' : bright ? 'is-dimmed' : ''}`} d={`M${a.x} ${a.y} Q${(a.x + b.x) / 2 + 14} ${(a.y + b.y) / 2 - 18} ${b.x} ${b.y}`} />
-            })}
-          </g>
-          <g className={`kb-garden-heart ${decorative ? 'is-decorative' : ''}`} transform="translate(450 310)" aria-hidden="true">
-            {!focus && <><path className="kb-garden-trunk" d={decorative ? 'M0 14 Q-40 185 -12 298' : 'M0 18 Q-22 94 -8 152'} />
-              {rootRays.map((ray, i) => <g key={i} className="kb-garden-ray" style={{ animationDelay: `${i * 12}ms` }}><path d={`M0 0 Q${ray.x * .6} ${ray.y * .4} ${ray.x} ${ray.y}`} /><use href={`#${id}Seed`} transform={`translate(${ray.x} ${ray.y}) rotate(${ray.angle}) scale(${decorative ? .9 : .55})`} /></g>)}
-            </>}
-            <circle r={focus ? 25 : decorative ? 8 : 20} className="kb-garden-heart-halo" />
-            {!decorative && !focus && <><circle r="18" className="kb-garden-heart-core" /><text y="4" textAnchor="middle" className="kb-garden-heart-text">知识</text></>}
-          </g>
-          {!focus && hubs.map(h => <g key={h.name} transform={`translate(${h.x} ${h.y})`} className="kb-garden-category"><circle r="4" fill={h.color} /><text y="-15" textAnchor="middle" fill={h.color}>{h.name}</text></g>)}
-          {positions.map((n, i) => <g key={n.path} className={`kb-garden-node ${n.path === focus ? 'is-selected' : ''} ${bright && !related.has(n.path) ? 'is-dimmed' : ''}`} style={{ transform: `translate(${n.x}px, ${n.y}px)`, color: n.color }} role="button" tabIndex={0} aria-label={`聚焦 ${n.title}`}
-            onPointerEnter={() => setHovered(n.path)} onFocus={() => setHovered(n.path)} onBlur={() => setHovered('')}
-            onClick={() => onFocus(n.path)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onFocus(n.path) } }}>
-            <title>{n.title}\n{n.path}</title>
-            <g className="kb-garden-seed-arrival" style={{ animationDelay: `${Math.min(i * 12, 650)}ms` }}>
-              <circle r="13" className="kb-garden-seed-halo" /><use className="kb-garden-pappus" href={`#${id}Seed`} transform={n.path === focus ? 'scale(2.5)' : 'scale(1)'} />
-              <circle r="17" fill="transparent" stroke="none" />
-              <text y={n.path === focus ? 45 : 25} textAnchor="middle" className={`kb-garden-node-label ${nodes.length <= 12 || n.path === focus ? 'is-visible' : ''}`}>{shorten(n.title)}</text>
-            </g>
-          </g>)}
-          {selected && <text x="450" y="382" textAnchor="middle" className="kb-garden-focus-hint">点击右侧阅读原始笔记</text>}
-        </g>
-      </g>
-    </svg>
+    {focus && <button className="kb-garden-back" onClick={onBack}>← 返回全景<kbd>Esc</kbd></button>}
+    <div ref={host} className="kb-garden-webgl" role="img" aria-label={decorative ? '3D 蒲公英装饰动画，不代表真实笔记' : '3D 蒲公英网络：每颗种子是一篇笔记，亮线是笔记之间的引用'} />
+    {unsupported && <p className="kb-garden-fallback-note">当前浏览器无法启用 3D 渲染，请使用右侧列表浏览笔记。</p>}
+    {!decorative && <ul className={unsupported ? 'kb-garden-fallback' : 'kb-sr-only'}>{nodes.map(n => <li key={n.path}><button aria-label={`聚焦 ${n.title}`} onClick={() => onFocus(n.path)}>{n.title}</button></li>)}</ul>}
+    {!unsupported && <p className="kb-garden-hint" aria-hidden="true">拖拽旋转 · 滚轮缩放 · 悬停点亮关联 · 点击飞入 · Esc 返回</p>}
   </div>
 }

@@ -1,3 +1,4 @@
+import { handleSync } from '../server/knowledge/cloud-sync.js'
 import { authenticated, cloudDatabase, cloudVault, CloudError, object, readHead, uuid, validPath } from '../server/knowledge/cloud.js'
 export type Request = { method?: string; headers: Record<string, string | string[] | undefined>; query?: Record<string, string | string[] | undefined>; body?: unknown }
 export type Response = { setHeader(k: string, v: string): unknown; status(n: number): Response; json(b: unknown): unknown }
@@ -14,6 +15,7 @@ export default async function handler(req: Request, res: Response): Promise<unkn
     const db = cloudDatabase()
     const tokens = [process.env.KNOWLEDGE_READ_TOKEN, process.env.KNOWLEDGE_MCP_TOKEN, process.env.KNOWLEDGE_UPLOAD_TOKEN]
     if (tokens.some(t => !t || t.length < 32) || new Set(tokens).size !== 3) throw new CloudError(503, '私人资料库访问凭据尚未配置')
+    if (typeof action === 'string' && action.startsWith('sync-') && action !== 'sync-status') return await handleSync(req,res,db,tokens)
     const writing = action === 'batch' || action === 'commit' || action === 'sync-status'
     const valid = writing ? authenticated(req.headers.authorization, tokens[2]) : tokens.slice(0, 2).some(t => authenticated(req.headers.authorization, t))
     if (!valid) throw new CloudError(401, '请输入有效的资料库访问码')
