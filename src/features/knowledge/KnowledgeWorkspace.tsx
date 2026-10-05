@@ -95,7 +95,7 @@ function Workspace({ api: rawApi = knowledgeApi, initialTab = 'workspace' }: { a
       const note = await api.read(path)
       if (!alive.current || id !== reading.current) return
       if (note.vaultId !== currentVaultId.current) throw new Error('Vault 已更换，请刷新知识库。原草稿仍保留。')
-      setEditor({ note, path: note.path, content: note.content }); setView(status?.readOnly ? 'read' : 'edit')
+      setEditor({ note, path: note.path, content: note.content }); setView('read') // 打开已有笔记默认排版阅读，点「编辑」再改源码
       try {
         const related = await api.related(path)
         if (alive.current && id === reading.current) setRelations(related)

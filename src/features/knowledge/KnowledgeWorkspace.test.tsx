@@ -37,6 +37,8 @@ describe('知识工作台', () => {
     const write = vi.fn(api().write)
     render(<KnowledgeWorkspace api={api({ write })} />)
     fireEvent.click(await screen.findByRole('button', { name: /打开笔记 META/ }))
+    expect(await screen.findByRole('heading', { name: 'META' })).toBeTruthy() // 已有笔记默认排版阅读
+    fireEvent.click(await screen.findByRole('button', { name: '编辑' }))
     const editor = await screen.findByLabelText('Markdown 内容')
     expect((editor as HTMLTextAreaElement).value).toContain('广告增长')
     expect(await screen.findByText('未创建')).toBeTruthy()
@@ -49,6 +51,7 @@ describe('知识工作台', () => {
     const client = api({ write: async () => { throw new Error('笔记已被修改') } })
     render(<KnowledgeWorkspace api={client} />)
     fireEvent.click(await screen.findByRole('button', { name: /打开笔记 META/ }))
+    fireEvent.click(await screen.findByRole('button', { name: '编辑' }))
     const editor = await screen.findByLabelText('Markdown 内容')
     fireEvent.change(editor, { target: { value: '我的草稿' } })
     fireEvent.click(screen.getByRole('button', { name: '保存笔记' }))
@@ -89,6 +92,7 @@ it('Vault 更换后不把旧库草稿写入新库，旧草稿仍留在旧库键�
   const client = api({ status: async () => ({ connected: true, vaultId: vaultPath === '/private/First' ? 'd'.repeat(64) : 'e'.repeat(64), vaultPath, directories: [] }), write })
   render(<KnowledgeWorkspace api={client} />)
   fireEvent.click(await screen.findByRole('button', { name: /打开笔记 META/ }))
+  fireEvent.click(await screen.findByRole('button', { name: '编辑' }))
   fireEvent.change(await screen.findByLabelText('Markdown 内容'), { target: { value: '旧 Vault 的私人草稿' } })
   vaultPath = '/private/Second'
   fireEvent.click(screen.getByRole('button', { name: '刷新知识库' }))
@@ -101,6 +105,7 @@ it('Vault 更换后不把旧库草稿写入新库，旧草稿仍留在旧库键�
 it('未保存的本会话草稿在重新进入工作台后恢复', async () => {
   const first = render(<KnowledgeWorkspace api={api()} />)
   fireEvent.click(await screen.findByRole('button', { name: /打开笔记 META/ }))
+  fireEvent.click(await screen.findByRole('button', { name: '编辑' }))
   fireEvent.change(await screen.findByLabelText('Markdown 内容'), { target: { value: '保留草稿' } })
   first.unmount()
   render(<KnowledgeWorkspace api={api()} />)
