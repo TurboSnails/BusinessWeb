@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Search, Plus, RefreshCw, Save, FileText, FolderOpen, Network, ArrowUpRight, BookOpen, HardDrive } from 'lucide-react'
 import { errorText, knowledgeApi, cloudTokenKey, isCloudKnowledge, preferCloudOnLocal } from './api'
 import type { KnowledgeApi, Note, NoteInfo, Relations, VaultStatus } from './api'
@@ -6,6 +6,7 @@ import DailyInbox from './DailyInbox'
 import MarkdownPreview from './MarkdownPreview'
 import KnowledgeSetup from './KnowledgeSetup'
 import KnowledgeGarden from './KnowledgeGarden'
+import { cachedKnowledgeApi } from './cache'
 import './knowledge.css'
 
 const FOLDERS = [
@@ -15,10 +16,12 @@ const FOLDERS = [
 type Editor = { note: Note; path: string; content: string }
 const isDirty = (editor: Editor | null) => !!editor && (editor.note.version === null || editor.path !== editor.note.path || editor.content !== editor.note.content)
 
-function Workspace({ api = knowledgeApi, initialTab = 'workspace' }: { api?: KnowledgeApi; initialTab?: 'workspace' | 'garden' | 'setup' }): JSX.Element {
-  const [status, setStatus] = useState<VaultStatus | null>(null)
-  const [connection, setConnection] = useState<'loading' | 'ready' | 'offline'>('loading')
-  const [notes, setNotes] = useState<NoteInfo[]>([])
+function Workspace({ api: rawApi = knowledgeApi, initialTab = 'workspace' }: { api?: KnowledgeApi; initialTab?: 'workspace' | 'garden' | 'setup' }): JSX.Element {
+  // 读取结果缓存在内存里：切走再切回直接用上次的数据，点「刷新」才重新请求
+  const api = useMemo(() => cachedKnowledgeApi(rawApi), [rawApi])
+  const [status, setStatus] = useState<VaultStatus | null>(() => api.peek<VaultStatus>('status') ?? null)
+  const [connection, setConnection] = useState<'loading' | 'ready' | 'offline'>(() => (api.peek('status') && api.peek('list') ? 'ready' : 'loading'))
+  const [notes, setNotes] = useState<NoteInfo[]>(() => api.peek<NoteInfo[]>('list') ?? [])
   const [results, setResults] = useState<NoteInfo[] | null>(null)
   const [query, setQuery] = useState('')
   const [folder, setFolder] = useState('')
@@ -39,7 +42,8 @@ function Workspace({ api = knowledgeApi, initialTab = 'workspace' }: { api?: Kno
 
   const connect = useCallback(async () => {
     const id = ++connecting.current
-    setConnection('loading'); setError('')
+    if (!api.peek('status') || !api.peek('list')) setConnection('loading')
+    setError('')
     try {
       const [info, list] = await Promise.all([api.status(), api.list()])
       if (!alive.current || id !== connecting.current) return
@@ -117,6 +121,7 @@ function Workspace({ api = knowledgeApi, initialTab = 'workspace' }: { api?: Kno
   }
   async function refresh() {
     if (busy) return
+    api.invalidate()
     await connect()
     if (!alive.current) return
     searching.current++; setResults(null)

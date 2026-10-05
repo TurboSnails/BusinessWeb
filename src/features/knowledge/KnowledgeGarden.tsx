@@ -1,18 +1,23 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { RefreshCw, ArrowUpRight, Pause, Play } from 'lucide-react'
 import { errorText } from './api'
-import type { KnowledgeApi, KnowledgeGraph } from './api'
+import type { KnowledgeGraph } from './api'
+import type { CachedKnowledgeApi } from './cache'
 import GardenScene, { gardenCategory } from './GardenScene'
-export default function KnowledgeGarden({ api, vaultId, onOpen }: { api: KnowledgeApi; vaultId?: string; onOpen(path: string): void }): JSX.Element {
-  const [graph, setGraph] = useState<KnowledgeGraph | null>(null)
+export default function KnowledgeGarden({ api, vaultId, onOpen }: { api: CachedKnowledgeApi; vaultId?: string; onOpen(path: string): void }): JSX.Element {
+  const cachedGraph = (): KnowledgeGraph | null => { const g = api.peek<KnowledgeGraph>('graph'); return g && g.vaultId === vaultId ? g : null }
+  const [graph, setGraph] = useState<KnowledgeGraph | null>(cachedGraph)
   const [error, setError] = useState(''), [loading, setLoading] = useState(false)
   const [query, setQuery] = useState(''), [category, setCategory] = useState(''), [focus, setFocus] = useState('')
   const [page, setPage] = useState(0), [zoom, setZoom] = useState(1), [revision, setRevision] = useState(0)
   const [paused, setPaused] = useState(false)
   useEffect(() => {
     let active = true
-    setGraph(null); setError(''); setLoading(!!vaultId); setFocus('')
+    const cached = cachedGraph()
+    setGraph(cached); setError(''); setLoading(!!vaultId && !cached)
+    if (!cached) setFocus('')
     if (!vaultId || !api.graph) { setLoading(false); return }
+    if (cached) { setLoading(false); return }
     api.graph().then(data => {
       if (!active) return
       if (data.vaultId !== vaultId) throw new Error('Vault 已更换，请刷新知识库')
@@ -41,7 +46,7 @@ export default function KnowledgeGarden({ api, vaultId, onOpen }: { api: Knowled
   const pageCount = Math.max(1, Math.ceil((filtered.length - (focus ? 1 : 0)) / pageSize))
   const selected = graph?.nodes.find(n => n.path === focus)
   return <section className={`kb-garden ${paused ? 'is-motion-paused' : ''}`} aria-label="蒲公英知识网络">
-    <div className="kb-garden-head"><div><span className="kb-eyebrow">DANDELION · KNOWLEDGE GARDEN</span><h2>让知识，随连接生长。</h2><p>{graph ? `${graph.nodes.length} 篇笔记 · ${graph.edges.length} 条真实引用 · ${graph.unresolved} 处未解析引用` : '每篇笔记是一颗种子，真实引用把它们连在一起。'}</p></div><button onClick={() => setRevision(n => n + 1)} disabled={loading || !vaultId}><RefreshCw size={15} />刷新网络</button></div>
+    <div className="kb-garden-head"><div><span className="kb-eyebrow">DANDELION · KNOWLEDGE GARDEN</span><h2>让知识，随连接生长。</h2><p>{graph ? `${graph.nodes.length} 篇笔记 · ${graph.edges.length} 条真实引用 · ${graph.unresolved} 处未解析引用` : '每篇笔记是一颗种子，真实引用把它们连在一起。'}</p></div><button onClick={() => { api.invalidate(); setRevision(n => n + 1) }} disabled={loading || !vaultId}><RefreshCw size={15} />刷新网络</button></div>
     <div className="kb-garden-controls"><input aria-label="搜索网络节点" placeholder="搜索标题或路径…" value={query} onChange={e => { setQuery(e.target.value); setFocus('') }} /><select aria-label="网络分类" value={category} onChange={e => { setCategory(e.target.value); setFocus('') }}><option value="">全部分类</option>{groups.map(g => <option key={g}>{g}</option>)}</select><label>缩放 <input aria-label="网络缩放" type="range" min="0.6" max="1.6" step="0.1" value={zoom} onChange={e => setZoom(Number(e.target.value))} /></label><button aria-pressed={paused} onClick={() => setPaused(p => !p)}>{paused ? <Play size={14} /> : <Pause size={14} />}{paused ? '播放动效' : '暂停动效'}</button>{focus && <button onClick={() => setFocus('')}>返回全景</button>}</div>
     {error && <p role="alert" className="kb-alert">{error}</p>}
     {loading ? <p role="status" className="kb-muted">正在从 Markdown 生成真实连接…</p> : <div className="kb-garden-layout">
