@@ -55,7 +55,8 @@ export function createValuationServer({
       path = url.pathname.replace(/^\/api\/valuation/, "");
     try {
       if (path === "/health" && req.method === "GET")
-        return send(200, { ok: true, version: 1, token });
+        // features：页面据此判断本地服务是否需要重启升级
+        return send(200, { ok: true, version: 2, features: ["macro-interpret", "activity-progress"], token });
       if (req.method === "POST") {
         const supplied = Buffer.from(
             String(req.headers["x-valuation-token"] || ""),

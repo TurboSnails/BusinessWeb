@@ -38,7 +38,7 @@ async function request<T>(
   return value as T;
 }
 export async function connectValuation() {
-  const health = await request<{ ok: boolean; token: string }>("/health");
+  const health = await request<{ ok: boolean; token: string; version?: number; features?: string[] }>("/health");
   token = health.token;
   return health;
 }

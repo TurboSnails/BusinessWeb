@@ -45,13 +45,15 @@ export default function AiInterpretation({ us, cn }: { us: MacroSnapshot; cn: Ma
   const [activity, setActivity] = useState<{ chars: number; preview: string } | null>(null)
   const [result, setResult] = useState<MacroInterpretationResult | null>(() => store.get(LAST_KEY))
   const [error, setError] = useState('')
+  const [outdated, setOutdated] = useState(false)
   const stop = useRef<(() => void) | null>(null)
   const asOf = us.fetchedAt?.slice(0, 10) ?? us.generatedAt
 
   async function connect(): Promise<void> {
     setError('')
     try {
-      await connectValuation()
+      const health = await connectValuation()
+      setOutdated(!health.features?.includes('macro-interpret'))
       const list = await fetchBackends()
       setBackends(list)
       setConnected(true)
@@ -135,7 +137,14 @@ export default function AiInterpretation({ us, cn }: { us: MacroSnapshot; cn: Ma
         </div>
       )}
 
-      {connected && (
+      {connected && outdated && (
+        <div className="macro-ai__offline" role="alert">
+          <p>本机的估值服务是旧版本，还没有“AI 解读”功能。请在 BusinessWeb 目录重启：先关掉正在运行的服务，再运行 <code>npm run valuation:server</code>（或 <code>npm run valuation:app</code>），然后点“重新连接”。</p>
+          <button type="button" className="tool-btn" onClick={() => void connect()}><RefreshCw size={14} aria-hidden="true" />重新连接</button>
+        </div>
+      )}
+
+      {connected && !outdated && (
         <div className="macro-ai__form">
           <label>本地 CLI
             <select value={backend} disabled={busy} onChange={e => { setBackend(e.target.value as Backend); remember('valuation-backend', e.target.value) }}>
