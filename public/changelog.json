@@ -1,10 +1,22 @@
 {
-  "generatedAt": "2026-10-05T15:10:22.708Z",
+  "generatedAt": "2026-10-05T15:36:30.358Z",
   "versions": [
     {
       "tag": "unreleased",
       "date": null,
       "commits": [
+        {
+          "hash": "2b45266",
+          "subject": "docs(book): 第十五轮修订——全收益口径重算、宽基三档模板、新增家庭财务底座专题",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
+        {
+          "hash": "cdee094",
+          "subject": "chore: 更新更新日志",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
         {
           "hash": "159bb48",
           "subject": "fix(knowledge): 修复 Notion 导出笔记的表格、折叠块与嵌套缩进显示",
@@ -170,18 +182,6 @@
         {
           "hash": "a1054cc",
           "subject": "fix(site): 脉搏/监控页不再借用 --up/--down（改中性颜色名，颜色不变）；清理估值样式冗余回退；禁用章节鼠标样式",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "b664c8c",
-          "subject": "feat(site): 盯盘观察默认展开并显示提示，首页最近更新移到名句下方，关于页方法论文字更新",
-          "author": "hassan",
-          "date": "2026-10-04"
-        },
-        {
-          "hash": "14db85b",
-          "subject": "fix(deploy): GitHub Pages 为主导航页面预建入口（invest/ai/life/about）",
           "author": "hassan",
           "date": "2026-10-04"
         }
