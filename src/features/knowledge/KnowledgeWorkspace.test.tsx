@@ -18,6 +18,15 @@ function api(overrides: Partial<KnowledgeApi> = {}): KnowledgeApi {
 afterEach(() => { cleanup(); sessionStorage.clear(); vi.restoreAllMocks() })
 
 describe('知识工作台', () => {
+  it('云端只读副本可以阅读，但不能编辑、收集或保存', async () => {
+    render(<KnowledgeWorkspace api={api({ status: async () => ({ connected: true, vaultId: note.vaultId, vaultPath: 'cloud:personal-brain', directories: [], source: 'cloud', readOnly: true }) })} />)
+    fireEvent.click(await screen.findByRole('button', { name: /打开笔记 META/ }))
+    expect(await screen.findByText('已连接云端资料库')).toBeTruthy()
+    expect(screen.queryByLabelText('每日 Inbox')).toBeNull()
+    expect(screen.queryByLabelText('Markdown 内容')).toBeNull()
+    expect(screen.queryByRole('button', { name: '保存笔记' })).toBeNull()
+    expect(screen.getByRole('button', { name: '新建笔记' })).toHaveProperty('disabled', true)
+  })
   it('断线时提供启动说明，不能假装连接', async () => {
     render(<KnowledgeWorkspace api={api({ status: async () => { throw new Error('未连接') } })} />)
     expect(await screen.findByText('连接本地知识库')).toBeTruthy()

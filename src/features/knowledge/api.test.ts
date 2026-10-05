@@ -18,4 +18,13 @@ describe('知识 API', () => {
     vi.stubGlobal('fetch', async () => new Response('<html>app</html>', { status: 200 }))
     await expect(knowledgeApi.status()).rejects.toBeInstanceOf(KnowledgeApiError)
   })
+  it('远程网页可以读取认证后的云端资料，而不是被本地主机检查阻断', async () => {
+    vi.stubGlobal('window', { location: { hostname: 'business-web-black.vercel.app' } })
+    sessionStorage.setItem('knowledge-cloud-token', 'owner-token-'.repeat(4))
+    const fetcher = vi.fn(async () => new Response(JSON.stringify({ connected: true }), { status: 200 }))
+    vi.stubGlobal('fetch', fetcher)
+    await expect(knowledgeApi.status()).resolves.toEqual({ connected: true })
+    expect(fetcher.mock.calls[0]).toBeDefined()
+    sessionStorage.removeItem('knowledge-cloud-token')
+  })
 })

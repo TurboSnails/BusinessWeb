@@ -206,3 +206,5 @@
 @keyframes kb-garden-float { 0% { opacity:0; transform:translate(-25px,35px) rotate(-12deg); } 20% { opacity:.16; } 70% { opacity:.24; } 100% { opacity:0; transform:translate(85px,-65px) rotate(24deg); } }
 @media(prefers-reduced-motion:reduce) { .kb-garden-scene { transform:none; transition:none; } .kb-garden svg * { animation:none !important; transition:none !important; } .kb-garden-flying-seed { opacity:.13; } }
 @media(max-width:800px) { .kb-garden-layout { grid-template-columns:1fr; } .kb-garden-list { border-left:0; border-top:1px solid #8883; max-height:350px; } .kb-garden-head { align-items:flex-start; } .kb-garden h2 { font-size:23px; } .kb-garden-canvas { min-height:350px; } }
+
+.kb-cloud-login{display:flex;flex-direction:column;gap:12px;max-width:420px;margin:28px auto;text-align:left}.kb-cloud-login input{padding:14px;border:1px solid var(--border-color,#ddd);border-radius:10px;background:transparent;color:inherit}.kb-cloud-session{display:flex;justify-content:flex-end;gap:18px;padding:12px 32px;color:var(--text-secondary);font-size:13px}.kb-cloud-session button{color:inherit;text-decoration:underline;background:none;border:0;cursor:pointer}
