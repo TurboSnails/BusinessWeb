@@ -41,4 +41,4 @@
 
 2026-10-05 继续部署时已确认 Vercel 与 Supabase 后台登录。通过现有只读接口备份生产 revision 1 的 1,227 篇笔记，逐篇校验 SHA-256 后恢复到本机 SecondBrain；备份位于 `.local/knowledge-backups/2026-10-05/complete.json`。其中 1,220 篇在 `Notion/`，其余在 Inbox、Projects、Attachments 与 Templates。Vercel `business-web` 已增加 Secret 类型的 `KNOWLEDGE_SYNC_TOKEN`。插件仍未启用/连接，数据库迁移和新接口部署尚未完成，自动同步保持关闭。SQL 编辑器的焦点与输入不稳定，未执行未验证的迁移。
 
-实现分支为 `feat/knowledge-own-server-sync`，相关源码也已复制回 BusinessWeb，保留了此前页面的未提交改动。插件压缩包位于工作区 `output/obsidian/businessweb-knowledge-sync-0.1.0.zip`。
+同步实现分支 `feat/knowledge-own-server-sync` 已合并到 `main`，保留了主分支已有的花园页面调整。插件压缩包位于工作区 `output/obsidian/businessweb-knowledge-sync-0.1.0.zip`。
