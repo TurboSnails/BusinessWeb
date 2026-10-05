@@ -1,0 +1,64 @@
+/* 宏观温度：卡片、状态徽章、迷你走势。颜色全部取站点变量 */
+.macro-stack { display: flex; flex-direction: column; gap: 24px; }
+.macro-h2 { margin: 0 0 12px; font-size: 1.1rem; font-weight: 600; font-family: var(--font-serif); }
+.macro-muted { color: var(--text-secondary); font-size: 0.82rem; font-weight: 400; }
+.macro-eyebrow { color: var(--text-secondary); font-size: 0.8rem; letter-spacing: 0.04em; }
+
+.macro-stamp { margin: 0; padding: 8px 12px; border-radius: var(--radius-md); background: var(--bg-secondary); color: var(--text-secondary); font-size: 0.82rem; }
+.macro-stamp.is-stale { background: color-mix(in srgb, var(--system-yellow) 16%, transparent); color: var(--warm-ink); }
+
+.macro-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 12px; }
+.macro-grid--modules { grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); }
+.macro-grid--stages { grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); }
+
+.macro-card { padding: 16px 18px; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); background: var(--bg-card); }
+.macro-card h3 { margin: 0; font-size: 1rem; font-weight: 600; }
+.macro-card h4 { margin: 12px 0 4px; font-size: 0.85rem; color: var(--text-secondary); }
+.macro-card p { margin: 8px 0 0; line-height: 1.7; font-size: 0.9rem; }
+.macro-card ul { margin: 6px 0 0; padding-left: 18px; line-height: 1.8; font-size: 0.9rem; }
+.macro-card--note { background: var(--accent-soft); border-color: transparent; }
+.macro-card__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+
+.macro-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 500; white-space: nowrap; }
+.macro-badge--green { background: color-mix(in srgb, var(--system-green) 14%, transparent); color: var(--down-ink); }
+.macro-badge--yellow { background: color-mix(in srgb, var(--system-yellow) 22%, transparent); color: var(--warm-ink); }
+.macro-badge--red { background: color-mix(in srgb, var(--system-red) 14%, transparent); color: var(--up-ink); }
+.macro-badge--blue, .macro-badge--gray { background: var(--bg-secondary); color: var(--text-secondary); }
+
+.macro-hero { padding: 20px 22px; border-radius: var(--radius-lg); border: 1px solid var(--border-subtle); border-left-width: 4px; background: var(--bg-card); }
+.macro-hero--green { border-left-color: var(--system-green); }
+.macro-hero--yellow { border-left-color: var(--system-yellow); }
+.macro-hero--red { border-left-color: var(--system-red); }
+.macro-hero__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.macro-hero__name { margin: 6px 0 4px; font-size: 2.6rem; font-weight: 600; line-height: 1.2; }
+.macro-hero__summary { margin: 0; color: var(--text-secondary); line-height: 1.7; }
+.macro-two { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 16px; margin-top: 16px; }
+.macro-two h3 { margin: 0; font-size: 0.9rem; }
+.macro-two ul { margin: 6px 0 0; padding-left: 18px; line-height: 1.8; font-size: 0.9rem; }
+
+.macro-mini { list-style: none; padding: 0 !important; margin: 10px 0 0 !important; }
+.macro-mini li { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 8px; padding: 6px 0; border-top: 1px solid var(--border-subtle); font-size: 0.85rem; }
+.macro-mini b { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.macro-ind__value { margin: 10px 0 0 !important; font-size: 1.9rem !important; font-weight: 600; line-height: 1.2 !important; }
+.macro-ind__value small { margin-left: 4px; font-size: 0.85rem; font-weight: 400; color: var(--text-secondary); }
+.macro-ind__rule { color: var(--text-secondary); font-size: 0.78rem !important; }
+.macro-ind__why { font-size: 0.85rem !important; }
+
+.macro-spark { margin: 10px 0 0; }
+.macro-spark svg { display: block; width: 100%; height: auto; cursor: crosshair; touch-action: pan-y; }
+.macro-spark__line { fill: none; stroke: var(--text-tertiary); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.macro-spark__threshold { stroke: var(--border-subtle); stroke-width: 1; stroke-dasharray: 4 3; }
+.macro-spark__cross { stroke: var(--text-tertiary); stroke-width: 1; }
+.macro-spark__dot { fill: var(--accent); stroke: var(--bg-card); stroke-width: 2; }
+.macro-spark__caption { display: flex; justify-content: space-between; margin-top: 2px; color: var(--text-secondary); font-size: 0.75rem; font-variant-numeric: tabular-nums; }
+
+.macro-stage.is-current { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+
+.macro-table-wrap { overflow-x: auto; }
+.macro-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.macro-table th { padding: 8px 10px; text-align: left; font-weight: 600; color: var(--text-secondary); border-bottom: 1px solid var(--border-subtle); white-space: nowrap; }
+.macro-table td { padding: 10px; vertical-align: top; border-bottom: 1px solid var(--border-subtle); line-height: 1.6; min-width: 72px; }
+.macro-num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.macro-archive-note { margin: 0 0 16px; padding: 10px 14px; border-left: 3px solid var(--text-secondary); border-radius: var(--radius-md); background: var(--bg-secondary); color: var(--text-secondary); font-size: 0.88rem; line-height: 1.7; }
