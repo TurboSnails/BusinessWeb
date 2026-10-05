@@ -1,0 +1,38 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>金融分类复核 2026-10-05</title><style>body{max-width:1000px;margin:40px auto;padding:0 24px;color:#202b35;font:16px/1.8 system-ui;background:#faf9f5}pre{font:inherit;white-space:pre-wrap;overflow-wrap:anywhere}table{border-collapse:collapse;width:100%;background:white}td,th{border:1px solid #ccc;padding:8px;text-align:left}</style><body><pre># 标普500金融分类复核 · 2026-10-05
+
+## 01 结论卡
+
+本轮覆盖网站“金融”分类的77条记录（51条手工、26条程序化），全量核对三情景赔率算术，对重点公司的财报和事件做一手资料抽查；77条不是77家均已认证，也不代表官方成分股名单已逐项对齐。保留尚无充分证据的盈利假设、估值倍数及评级。共修正9家明显赔率错误，并更新高盛财务事实、SPGI分拆口径和FactSet已披露财报。未发布线上网站，也未改Notion原页。
+
+</pre><table><thead><tr><th>公司</th><th>原记录</th><th>历史锚点复算</th></tr></thead><tbody><tr><td>JPM</td><td>1.32×</td><td>0.05×</td></tr><tr><td>BAC</td><td>1.31×</td><td>0.15×</td></tr><tr><td>WFC</td><td>1.38×</td><td>0.23×</td></tr><tr><td>MS</td><td>1.49×*</td><td>无正向基准赔率</td></tr><tr><td>GS</td><td>1.54×*</td><td>无正向基准赔率</td></tr><tr><td>TFC</td><td>1.17×</td><td>0.85×</td></tr><tr><td>TRV</td><td>0.26×</td><td>0.17×</td></tr><tr><td>CB</td><td>0.32×</td><td>0.17×</td></tr><tr><td>BEN</td><td>0.52×</td><td>0.23×</td></tr></tbody></table><pre>公式：(基准价值−历史价格)/(历史价格−悲观价值)，不含股息。以上只纠正历史模型算术，不是最新行情下的赔率，也没有认证三情景的经济合理性。MS、GS的基准值低于历史价格，不能展示正向基准赔率。轻微舍入差异保留。各记录原值、三情景、复算和覆盖范围见同目录finance-audit-2026-10-05.csv/json。
+
+## 02 专家观点
+
+**股票研究专家：估值与模型更新。** 先核对利润口径，再定价。多数手工页只有EPS×PE，尚缺独立的第二估值方法与历史倍数校准。银行可用PB与可持续ROTCE交叉验证；支付与数据公司可用现金流模型。缺少支持不等于可以随意替换情景价格。
+
+**腾讯投研专家团 · 估值分析师（独立子代理）。** 9家公司算术错误已确定。JPM真实倍率仅0.0501，BAC0.1489、WFC0.2317；WFC原1.38可由Bull而非Base复现。TFC0.8537、TRV0.1706、CB0.1694、BEN0.2343。WFC的相对优势只限这五家大行。程序化26条未发现重大算术差异，IVZ亏损不做PE情景。SPGI/CINF已有撤回继续有效。
+
+**腾讯投研专家团 · 财报研究员（独立子代理）。** GS 2026Q2净营收为$20.338bn，同比+39%，原$38.4bn高估88.8%；GBM $15.520bn占76.3%（本轮计算），原约40%错误。季度EPS20.98与净利6.628bn有公告支持。JPM关键利润及Visa收益、FITB/HBAN/PNC并购、TRV/MET/BLK/PRU抽查事实有一手支持，不宜因记忆中的旧年份而改写。
+
+**交易分析团队 · 基本面分析师（独立子代理；本轮为单维度审核）。** SPGI含Mobility与分拆后财报必须分列。FDS新财报已发布，应更新事件日历；ICE拟购MarketAxess和FISV代码均获公告支持。其他未逐家查证的支付公司保留待核实。本轮没有运行完整交易决策流水线，也没有生成交易指令。
+
+## 03 证据与模型边界
+
+**GS重大事实纠正。** 2026-07-14的SEC附件明确列Q2收入20,338百万美元、H1收入37,565百万美元；原384亿美元既不是正确季度数，也不是正确半年数。同步修改摘要、简介、指标与GBM占比。来源：https://www.sec.gov/Archives/edgar/data/886982/000088698226000294/a2q26gsearningsresults.htm
+
+**SPGI分拆口径。** 2026-07-01完成Mobility分拆。Q2历史含Mobility收入$4.146bn；剔除后pro forma收入$3.678bn，EPS$4.08、调整后$4.83。FY26指引持续经营GAAP EPS16.35–16.60、调整后17.50–17.75。旧Base EPS19与PE27为假设，不能把新指引机械当2027预测。已有9/30撤回保留，简介不再声称唯一达到2:1。来源：https://www.sec.gov/Archives/edgar/data/64040/000006404026000040/spgi2q2026-earningsrelease.htm
+
+**FDS更新到已披露财报。** 2026-09-30公布FY26Q4：收入634.7百万美元、同比+6.3%；GAAP EPS3.41、同比−15.4%，调整后EPS4.52、同比+11.6%；季度FCF177.3百万美元，全年707.5百万美元。FY27指引GAAP EPS17.00–17.50、调整后19.25–19.65，有机ASV增长5.0%–6.5%。原Q3记录及待披露日历更新；旧三情景保留为待校准的历史模型，不提高评级。来源：https://www.sec.gov/Archives/edgar/data/1013237/000162828026063888/fdsq42026earningsrelease.htm
+
+**行情交叉核对。** yfinance获取JPM/BAC/WFC/MS/GS/SPGI/FDS/ICE公开报价，常规市场时间为2026-10-02约20:00 UTC（美东收盘附近）。价格变化本身不证明盈利模型错误，本轮维持各研究页原历史价格锚点，完整快照见finance-quotes-2026-10-05.json。不要将复核日期当成价格日期。
+
+**保留与待核实。** 未取得每家完整财务桥接，不将算术通过视为公司分析通过；BK/BNY主体重复、当前指数成分、各公司的长期PE/PB分位、可持续ROE、正常化EPS、股息总回报仍待专项核对。沿用原记录不构成认可。
+
+## 04 后续关注
+
+银行：信用卡核销、拨备、净息差、CET1与并购协同是否持续。保险：巨灾与准备金正常化后的承保利润。资管：净流入、管理费和FRE。SPGI：分拆后同口径EPS与指数资产挂钩费；FDS：FY27利润率和现金流执行。只有新增一手事实及完整盈利桥接足以改变价值时，才重建三情景。
+
+检查：npx vite build 已通过（2244模块，3.17秒）；构建有较大资源包提示。未逐页进行浏览器验收。
+
+本报告仅供研究参考，不构成个人投资建议。
+</pre></body></html>

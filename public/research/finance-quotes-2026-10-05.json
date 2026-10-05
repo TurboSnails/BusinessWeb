@@ -1,0 +1,71 @@
+{
+  "retrievedDate": "2026-10-05",
+  "source": "yfinance MCP get_multiple_tickers_info",
+  "purpose": "交叉核对，未替换历史研究价格",
+  "quotes": {
+    "JPM": {
+      "price": 332.38,
+      "currency": "USD",
+      "regularMarketTime": 1790971202,
+      "marketTimeUTC": "2026-10-02T20:00:02.000Z",
+      "trailingEps": 23.34,
+      "trailingPE": 14.240788
+    },
+    "BAC": {
+      "price": 53.75,
+      "currency": "USD",
+      "regularMarketTime": 1790971203,
+      "marketTimeUTC": "2026-10-02T20:00:03.000Z",
+      "trailingEps": 4.33,
+      "trailingPE": 12.413395
+    },
+    "WFC": {
+      "price": 80.45,
+      "currency": "USD",
+      "regularMarketTime": 1790971330,
+      "marketTimeUTC": "2026-10-02T20:02:10.000Z",
+      "trailingEps": 6.88,
+      "trailingPE": 11.693314
+    },
+    "MS": {
+      "price": 190.31,
+      "currency": "USD",
+      "regularMarketTime": 1790971339,
+      "marketTimeUTC": "2026-10-02T20:02:19.000Z",
+      "trailingEps": 12.38,
+      "trailingPE": 15.372375
+    },
+    "GS": {
+      "price": 902.56,
+      "currency": "USD",
+      "regularMarketTime": 1790971202,
+      "marketTimeUTC": "2026-10-02T20:00:02.000Z",
+      "trailingEps": 64.75,
+      "trailingPE": 13.939151
+    },
+    "SPGI": {
+      "price": 386.27,
+      "currency": "USD",
+      "regularMarketTime": 1790971202,
+      "marketTimeUTC": "2026-10-02T20:00:02.000Z",
+      "trailingEps": 16.43,
+      "trailingPE": 23.510042
+    },
+    "FDS": {
+      "price": 266,
+      "currency": "USD",
+      "regularMarketTime": 1790971202,
+      "marketTimeUTC": "2026-10-02T20:00:02.000Z",
+      "trailingEps": 14.57,
+      "trailingPE": 18.256693
+    },
+    "ICE": {
+      "price": 150.15,
+      "currency": "USD",
+      "regularMarketTime": 1790971203,
+      "marketTimeUTC": "2026-10-02T20:00:03.000Z",
+      "trailingEps": 7.09,
+      "trailingPE": 21.177713
+    }
+  }
+}
