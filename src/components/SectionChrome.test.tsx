@@ -37,6 +37,14 @@ describe('SectionChrome', () => {
     expect(current?.textContent).toBe('网格交易')
   })
 
+  it('已舍弃页面顶部显示舍弃说明，正常页面不显示', () => {
+    renderAt('/trading-philosophy')
+    expect(screen.getByRole('note').textContent).toMatch(/已舍弃.*短线/)
+    cleanup()
+    renderAt('/valuation')
+    expect(screen.queryByRole('note')).toBeNull()
+  })
+
   it('/invest 本身、首页、/ai、未知路径都不渲染', () => {
     for (const p of ['/invest', '/', '/ai', '/life', '/about', '/nope']) {
       const { container, unmount } = renderAt(p)

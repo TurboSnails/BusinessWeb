@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import { PageTabs, PageTitle } from '../components/ui/PageTabs'
 
 interface TreeNode {
   t: string
@@ -84,22 +85,11 @@ export default function IndustryLandscape(): JSX.Element {
   }, [])
 
   const total = useMemo(() => (tree ? countNodes(tree) : 0), [tree])
-  const tabBtn = (id: 'solid' | 'semi', label: string) => (
-    <button
-      onClick={() => setTab(id)}
-      style={{ padding: '8px 18px', borderRadius: 999, border: 'none', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 500, background: tab === id ? 'var(--system-blue, var(--system-blue))' : 'var(--bg-secondary)', color: tab === id ? '#fff' : 'var(--text-primary)' }}
-    >
-      {label}
-    </button>
-  )
-
   return (
-    <main className="container" style={{ maxWidth: 1100, margin: '0 auto', padding: '20px 16px' }}>
-      <h1 style={{ margin: '0 0 16px', fontSize: '1.7rem' }}>产业格局</h1>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-        {tabBtn('solid', '固态电池')}
-        {tabBtn('semi', '半导体产业链')}
-      </div>
+    <main>
+      <PageTitle>产业格局</PageTitle>
+      <PageTabs label="产业格局栏目" value={tab} onChange={setTab} items={[{ id: 'solid', label: '固态电池' }, { id: 'semi', label: '半导体产业链' }]} />
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 16px 32px' }}>
       {tab === 'solid' && (
         <div style={cardStyle}>
           <input
@@ -121,6 +111,7 @@ export default function IndustryLandscape(): JSX.Element {
           </a>
         </div>
       )}
+      </div>
     </main>
   )
 }

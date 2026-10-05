@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import PageHero from '../components/PageHero'
+import { PageTabs, PageTitle } from '../components/ui/PageTabs'
 import {
   TrendingUp,
   Globe,
@@ -98,43 +98,9 @@ export default function InvestmentStrategy(): JSX.Element {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', paddingBottom: '80px' }}>
-      {/* 页面头部 */}
-      <PageHero icon={<Layers size={24} />} title="综合投资策略框架" subtitle="融合巴菲特 · 邓普顿 · 双阶段轮动逻辑" />
-
-      {/* Tab 导航 */}
-      <div style={{ position: 'sticky', top: '57px', zIndex: 10, background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', WebkitBackdropFilter: 'var(--glass-blur)', borderBottom: '0.5px solid var(--border-primary)' }}>
-        <div style={{ maxWidth: '760px', margin: '0 auto', padding: '0 20px', display: 'flex', gap: '4px', overflowX: 'auto' }}>
-          {tabs.map(tab => {
-            const Icon = tab.icon
-            const isActive = activeTab === tab.id
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '14px 16px',
-                  border: 'none',
-                  background: 'transparent',
-                  color: isActive ? 'var(--system-blue)' : 'var(--text-secondary)',
-                  fontFamily: 'inherit',
-                  fontSize: '14px',
-                  fontWeight: isActive ? 600 : 400,
-                  cursor: 'pointer',
-                  borderBottom: isActive ? '2px solid var(--system-blue)' : '2px solid transparent',
-                  whiteSpace: 'nowrap',
-                  transition: 'all 0.15s',
-                }}
-              >
-                <Icon size={14} />
-                {tab.label}
-              </button>
-            )
-          })}
-        </div>
-      </div>
+      <PageTitle>综合投资策略框架</PageTitle>
+      <PageTabs label="策略框架栏目" width={760} value={activeTab} onChange={setActiveTab}
+        items={tabs.map(t => ({ id: t.id, label: t.label, icon: <t.icon size={14} /> }))} />
 
       {/* 内容区 */}
       <div style={{ maxWidth: '760px', margin: '0 auto', padding: '28px 20px' }}>

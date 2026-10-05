@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { PageTitle } from '../components/ui/PageTabs'
 import {
-  TrendingUp,
+  
   Calendar,
   RefreshCcw,
   AlertTriangle,
@@ -60,34 +61,15 @@ export default function LimitUpAnalysis(): JSX.Element {
 
   return (
     <main className="container" style={{ padding: '20px 16px', maxWidth: '1200px', margin: '0 auto' }}>
-      {/* 页面标题 */}
-      <div className="glass-panel" style={{
-        padding: '24px',
-        borderRadius: 'var(--radius-lg)',
-        marginBottom: '24px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '16px',
-        border: '1px solid var(--glass-border)'
-      }}>
-        <div>
-          <h1 style={{ margin: 0, fontSize: '1.75rem', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <TrendingUp size={32} color="var(--system-red)" />
-            每日板块涨停分析
-          </h1>
-          <p style={{ margin: '8px 0 0', fontSize: '1rem', color: 'var(--text-secondary)' }}>
-            按概念展示A股涨停数据，休市使用最近有效交易日数据
-          </p>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+      <PageTitle>每日板块涨停分析</PageTitle>
+        <div className="page-toolbar">
+          <span className="page-toolbar__note">按概念展示 A 股涨停数据，休市使用最近有效交易日数据</span>
           <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.95rem', color: 'var(--text-primary)', fontWeight: '500' }}>
             <input
               type="checkbox"
               checked={onlyLimitUp}
               onChange={(e) => setOnlyLimitUp(e.target.checked)}
-              style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: 'var(--system-blue)' }}
+              style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: 'var(--accent)' }}
             />
             只看涨停
           </label>
@@ -106,7 +88,7 @@ export default function LimitUpAnalysis(): JSX.Element {
                 fontSize: '0.95rem',
                 cursor: 'pointer',
                 outline: 'none',
-                background: 'rgba(255,255,255,0.8)',
+                background: 'var(--bg-card)',
                 color: 'var(--text-primary)'
               }}
             />
@@ -114,21 +96,12 @@ export default function LimitUpAnalysis(): JSX.Element {
           <button
             onClick={fetchLimitUpData}
             disabled={loading}
-            className="btn-primary"
-            style={{
-              padding: '10px 20px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              opacity: loading ? 0.7 : 1,
-              backgroundColor: loading ? 'var(--system-gray)' : 'var(--system-blue)'
-            }}
+            className="tool-btn tool-btn--primary"
           >
             <RefreshCcw size={18} className={loading ? 'animate-spin' : ''} />
             {loading ? '刷新中...' : '刷新数据'}
           </button>
         </div>
-      </div>
 
       <div role="status" style={{ padding: '12px', marginBottom: '16px', background: 'var(--bg-secondary)', borderRadius: '8px', lineHeight: 1.8 }}>
         {isClosedDate(selectedDate) && <div>{selectedDate} 为休市日，使用此前最近的有效交易日数据。</div>}

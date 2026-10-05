@@ -1,7 +1,8 @@
 import FeeNote from '../features/grid-trading/FeeNote'
 import React, { useState } from 'react'
+import { PageTitle } from '../components/ui/PageTabs'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowRight, BarChart3, Save, Sparkles } from 'lucide-react'
+import { ArrowRight, BarChart3, Save } from 'lucide-react'
 import { calculateGrid } from '../features/grid-trading/simulation'
 import { fetchQuotes, getCandles, marketToday, mergeQuote } from '../features/grid-trading/marketData'
 import { saveRecord } from '../features/grid-trading/repository'
@@ -135,12 +136,11 @@ export default function GridCalculator(): JSX.Element {
 
   return <main className="grid-page">
     <FeeNote code={form.code} />
-    <section className="grid-hero">
-      <div className="grid-eyebrow"><Sparkles size={15} /> 本地回测工具</div>
-      <h1>ETF 网格交易</h1>
-      <p>用前复权日线推演网格策略，回测记录默认保存在当前浏览器，不会自动上传。</p>
-      <div className="grid-hero-links"><Link to="/grid-trading/records">查看已保存记录 <ArrowRight size={15} /></Link></div>
-    </section>
+    <PageTitle>ETF 网格交易</PageTitle>
+    <div className="page-toolbar">
+      <span className="page-toolbar__note">用前复权日线推演网格策略，回测记录默认保存在当前浏览器，不会自动上传。</span>
+      <Link className="tool-btn" to="/grid-trading/records">查看已保存记录 <ArrowRight size={15} /></Link>
+    </div>
 
     <section className="grid-card">
       <div className="grid-section-heading">

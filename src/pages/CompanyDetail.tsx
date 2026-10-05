@@ -50,7 +50,7 @@ export default function CompanyDetail(): JSX.Element {
 
   const back = (
     <Link
-      to={`/research-notes?tab=category&m=${mk}`}
+      to={`/research-notes?tab=companies&m=${mk}`}
       onClick={e => {
         // 有站内历史就原路返回（保留页签、市场、板块和滚动位置）
         if (window.history.state && window.history.state.idx > 0) {
@@ -60,7 +60,7 @@ export default function CompanyDetail(): JSX.Element {
       }}
       style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'var(--accent)', textDecoration: 'none', fontSize: '13px', marginBottom: '14px' }}
     >
-      <ArrowLeft size={14} /> 返回研究笔记
+      <ArrowLeft size={14} /> 返回公司研究
     </Link>
   )
 
@@ -68,10 +68,10 @@ export default function CompanyDetail(): JSX.Element {
     return (
       <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', padding: '40px 20px' }}>
         <div style={{ maxWidth: '760px', margin: '0 auto' }}>
-          <Link to="/research-notes" style={{ color: 'var(--system-blue)', textDecoration: 'none', fontSize: '14px' }}>← 返回研究笔记</Link>
+          <Link to="/research-notes" style={{ color: 'var(--system-blue)', textDecoration: 'none', fontSize: '14px' }}>← 返回公司研究</Link>
           <div style={{ ...card, marginTop: '16px' }}>
             <h3 style={cardTitle}>{loading ? '正在加载…' : '未找到该公司'}</h3>
-            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0 }}>{loading ? '正在读取补全公司数据。' : '该公司还没有整理进研究笔记。'}</p>
+            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0 }}>{loading ? '正在读取补全公司数据。' : '该公司还没有整理进公司库。'}</p>
           </div>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import React from 'react'
+import { PageTitle } from '../components/ui/PageTabs'
 import { Link } from 'react-router-dom'
 import { ArrowRight, BookOpen, Download, FileText } from 'lucide-react'
 
@@ -25,7 +26,7 @@ const pdfUrl = (file: string): string => `${import.meta.env.BASE_URL}first-book/
 export default function MyBooks({ showPdf = PDF_ENTRY_ENABLED }: { showPdf?: boolean }): JSX.Element {
   return (
     <main className="container" style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px 16px' }}>
-      <h1 style={{ margin: '0 0 24px', fontSize: '1.7rem' }}>我的书</h1>
+      <PageTitle>我的书</PageTitle>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
         {BOOKS.map(book => (
           <article key={book.id} className="book-card">

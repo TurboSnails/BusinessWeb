@@ -1,4 +1,5 @@
 import React from 'react'
+import { PageTitle } from '../components/ui/PageTabs'
 import AIDiffusion from '../components/AIDiffusion'
 
 export default function MainlandInvestmentTargets(): JSX.Element {
@@ -10,9 +11,7 @@ export default function MainlandInvestmentTargets(): JSX.Element {
 
   return (
     <div style={containerStyle}>
-      <h1 style={{ fontSize: 'clamp(1.5rem, 5vw, 2rem)', marginBottom: '24px' }}>
-        大陆投资
-      </h1>
+      <PageTitle>A 股观察池</PageTitle>
 
       <AIDiffusion />
     </div>

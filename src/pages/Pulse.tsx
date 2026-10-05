@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { PageTitle } from '../components/ui/PageTabs'
 import { fetchMarketDataByType, fetchSectorCategories, fetchUSSectorCategories } from '../services/api'
 import type { DailyReview, MarketCategory, SectorCategory, NewsSource, StockQuote } from '../types'
 import { loadReviews, saveReviews, loadNewsSources, saveNewsSources, loadTombstones, saveTombstones } from '../utils/storage'
@@ -297,7 +298,7 @@ export default function Pulse(): JSX.Element {
 
     return (
       <div key={stock.symbol} style={{
-        background: 'white', borderRadius: '12px', padding: '14px',
+        background: 'var(--bg-card)', borderRadius: '12px', padding: '14px',
         boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column',
         gap: '6px', borderLeft: `4px solid ${color}`, transition: 'transform 0.2s, box-shadow 0.2s'
       }}
@@ -379,7 +380,7 @@ export default function Pulse(): JSX.Element {
   // 渲染录入表单
   const renderForm = () => showForm && (
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-      <div style={{ background: 'white', borderRadius: '12px', padding: '20px', width: '90%', maxWidth: '500px', maxHeight: '80vh', overflow: 'auto' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: '12px', padding: '20px', width: '90%', maxWidth: '500px', maxHeight: '80vh', overflow: 'auto' }}>
         <h3 style={{ margin: '0 0 16px', fontSize: '1.1rem' }}>{editDate ? '编辑' : '录入'}复盘数据</h3>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
           <div>
@@ -480,37 +481,15 @@ export default function Pulse(): JSX.Element {
 
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '16px', minHeight: '100vh' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '20px', padding: '14px 18px', background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>{timestamp || '--'}</span>
-          {syncConfig && (
-            <button onClick={handleSync} disabled={syncing} style={{
-              padding: '6px 12px', background: syncing ? 'var(--border-subtle)' : 'var(--accent)', color: syncing ? 'var(--text-tertiary)' : 'white', border: 'none',
-              borderRadius: '6px', cursor: syncing ? 'not-allowed' : 'pointer', fontSize: '0.8rem', fontWeight: '500'
-            }}>{syncing ? '⏳ 同步中' : '☁️ 同步'}</button>
-          )}
-          <button onClick={() => setShowFilter(true)} style={{
-            padding: '6px 12px', background: 'var(--accent)', color: 'white', border: 'none',
-            borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
-          }}>🔍 筛选</button>
-          <button onClick={() => setShowSettings(true)} style={{
-            padding: '6px 12px', background: syncConfig ? 'var(--system-green)' : 'var(--accent-warm)', color: 'white', border: 'none',
-            borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
-          }}>⚙️ {syncConfig ? '已配置' : '云端设置'}</button>
-          <button onClick={handleExport} style={{
-            padding: '6px 12px', background: 'var(--system-green)', color: 'white', border: 'none',
-            borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
-          }}>📥 导出</button>
-          <button onClick={handleImport} style={{
-            padding: '6px 12px', background: 'var(--system-purple)', color: 'white', border: 'none',
-            borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
-          }}>📤 导入</button>
-          <button onClick={handleRefresh} disabled={loading}
-            style={{ padding: '6px 14px', background: loading ? 'var(--border-subtle)' : 'linear-gradient(135deg, var(--accent), var(--accent))', color: loading ? 'var(--text-tertiary)' : 'white', border: 'none', borderRadius: '6px', cursor: loading ? 'not-allowed' : 'pointer', fontSize: '0.85rem', fontWeight: '500' }}>
-            {loading ? '⏳' : '🔄'} {loading ? '加载' : '刷新'}
-          </button>
-        </div>
+      <PageTitle>全球行情</PageTitle>
+      <div className="page-toolbar">
+        <span className="page-toolbar__note">{timestamp ? `更新于 ${timestamp}` : '--'}</span>
+        {syncConfig && <button className="tool-btn" onClick={handleSync} disabled={syncing}>{syncing ? '⏳ 同步中' : '☁️ 同步'}</button>}
+        <button className="tool-btn" onClick={() => setShowFilter(true)}>🔍 筛选</button>
+        <button className="tool-btn" onClick={() => setShowSettings(true)}>⚙️ {syncConfig ? '已配置' : '云端设置'}</button>
+        <button className="tool-btn" onClick={handleExport}>📥 导出</button>
+        <button className="tool-btn" onClick={handleImport}>📤 导入</button>
+        <button className="tool-btn tool-btn--primary" onClick={handleRefresh} disabled={loading}>{loading ? '⏳ 加载' : '🔄 刷新'}</button>
       </div>
 
       {/* 市场热力图 */}
@@ -558,7 +537,7 @@ export default function Pulse(): JSX.Element {
       )}
 
       {/* 资源链接 */}
-      <div style={{ marginTop: '20px', padding: '16px', background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+      <div style={{ marginTop: '20px', padding: '16px', background: 'var(--bg-card)', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
         <h3 style={{ fontSize: '0.9rem', marginBottom: '10px', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <LinkIcon size={16} /> 常用资源
         </h3>
@@ -592,7 +571,7 @@ export default function Pulse(): JSX.Element {
       {/* 筛选弹窗 */}
       {showFilter && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: 'white', borderRadius: '12px', padding: '20px', width: '90%', maxWidth: '400px' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: '12px', padding: '20px', width: '90%', maxWidth: '400px' }}>
             <h3 style={{ margin: '0 0 16px', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Search size={20} /> 筛选数据分类
             </h3>
@@ -634,7 +613,7 @@ export default function Pulse(): JSX.Element {
       {/* 云端设置弹窗 */}
       {showSettings && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: 'white', borderRadius: '12px', padding: '20px', width: '90%', maxWidth: '500px' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: '12px', padding: '20px', width: '90%', maxWidth: '500px' }}>
             <h3 style={{ margin: '0 0 12px', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Cloud size={20} /> 复盘云同步（Supabase）
             </h3>

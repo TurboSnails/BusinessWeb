@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import { PageTabs, PageTitle } from '../components/ui/PageTabs'
 import { fetchCBOEPCRatios, fetchEarningsCalendar, type EarningsCalendarItem } from '../services/api'
 import {
   Target,
@@ -1117,92 +1118,19 @@ const InvestmentPlan2026 = () => {
   const nextEvent = CALENDAR.find(e => dayDiff(new Date(e.date), today) >= 0)
 
   return (
-    <div style={{ width: '100%', maxWidth: 1200, margin: '0 auto', padding: '24px 16px 64px', background: 'var(--bg-primary)', minHeight: '100vh', fontFamily: 'var(--font-family)', boxSizing: 'border-box' }}>
-      <div
-        style={{
-          padding: '28px 24px',
-          borderRadius: 'var(--radius-lg)',
-          marginBottom: 20,
-          background: 'var(--accent-soft)',
-          color: 'var(--text-primary)',
-          border: '1px solid var(--border-subtle)'
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
-          <div>
-            <h1 style={{ margin: '0 0 8px', fontSize: 'clamp(1.4rem, 4.5vw, 2.2rem)', fontWeight: 700, letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: 12 }}>
-              <Target size={34} /> 2026 投资作战计划书
-            </h1>
-            <p style={{ margin: 0, opacity: 0.8, fontSize: '1rem' }}>不预测，先划线：用事前写好的规则代替年初的剧本</p>
-          </div>
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 12, padding: '10px 14px', minWidth: 110 }}>
-              <div style={{ fontSize: '0.72rem', opacity: 0.7 }}>风险阶段</div>
-              <div style={{ fontSize: '1.15rem', fontWeight: 800 }}>{entered < 3 ? '待填写' : stage.name}</div>
-            </div>
-            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 12, padding: '10px 14px', minWidth: 110 }}>
-              <div style={{ fontSize: '0.72rem', opacity: 0.7 }}>修订日期</div>
-              <div style={{ fontSize: '1.15rem', fontWeight: 800 }}>2026-10-04</div>
-            </div>
-          </div>
-        </div>
-        <div style={{ marginTop: 16, fontSize: '0.82rem', opacity: 0.75, lineHeight: 1.7 }}>
-          修订说明：旧版是1月写成的“衰退预警 + 做空”月度剧本，多数日期与读数已过期，也与“不预测、不加杠杆”的原则冲突。本版保留有用的工具（财报日历、情绪解读），其余改为情景触发、风险预算和年度复盘。
-        </div>
+    <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', fontFamily: 'var(--font-family)' }}>
+      <PageTitle>2026 投资计划</PageTitle>
+      <PageTabs label="2026 投资计划栏目" items={TABS} value={tab} onChange={setTab} />
+      <div style={{ width: '100%', maxWidth: 1200, margin: '0 auto', padding: '0 16px 64px', boxSizing: 'border-box' }}>
+      <div className="page-toolbar">
+        <span className="page-toolbar__note">不预测，先划线：用事前写好的规则代替年初的剧本</span>
+        <span>风险阶段：<b style={{ color: 'var(--text-primary)' }}>{entered < 3 ? '待填写' : stage.name}</b></span>
+        <span>修订：2026-10-04</span>
       </div>
-
-      <div
-        role="tablist"
-        style={{
-          position: 'sticky',
-          top: 57,
-          zIndex: 100,
-          display: 'flex',
-          gap: 4,
-          padding: 5,
-          marginBottom: 20,
-          borderRadius: 16,
-          background: 'rgba(242,242,247,0.92)',
-          backdropFilter: 'blur(20px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-          border: '1px solid var(--border-subtle)',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
-          overflowX: 'auto',
-          scrollbarWidth: 'none'
-        }}
-      >
-        {TABS.map(t => {
-          const active = tab === t.id
-          return (
-            <button
-              key={t.id}
-              role="tab"
-              aria-selected={active}
-              onClick={() => setTab(t.id)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 7,
-                padding: '9px 16px',
-                borderRadius: 12,
-                border: 'none',
-                background: active ? 'white' : 'transparent',
-                color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
-                fontSize: '0.92rem',
-                fontWeight: active ? 700 : 500,
-                cursor: 'pointer',
-                boxShadow: active ? '0 2px 8px rgba(0,0,0,0.1)' : 'none',
-                transition: 'all 0.2s ease',
-                whiteSpace: 'nowrap',
-                flexShrink: 0
-              }}
-            >
-              {t.icon}
-              {t.label}
-            </button>
-          )
-        })}
-      </div>
+      <details style={{ margin: '-6px 0 20px', fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+        <summary style={{ cursor: 'pointer' }}>修订说明</summary>
+        旧版是1月写成的“衰退预警 + 做空”月度剧本，多数日期与读数已过期，也与“不预测、不加杠杆”的原则冲突。本版保留有用的工具（财报日历、情绪解读），其余改为情景触发、风险预算和年度复盘。
+      </details>
 
       {tab === 'overview' && <Overview stage={stage} entered={entered} today={today} nextEvent={nextEvent} />}
       {tab === 'allocation' && <Allocation />}
@@ -1214,6 +1142,7 @@ const InvestmentPlan2026 = () => {
       <p style={{ marginTop: 32, fontSize: '0.78rem', color: 'var(--text-secondary)', textAlign: 'center', lineHeight: 1.7 }}>
         本页为个人投资纪律与学习工具，阈值与比例均为示例，不构成投资建议。投资有风险，决策请结合自身情况。
       </p>
+      </div>
     </div>
   )
 }

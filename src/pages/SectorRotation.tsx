@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
+import { PageTitle } from '../components/ui/PageTabs'
 import { clsProxy } from '../services/clsProxy'
 import { loadSectorPayload, readSectorView, saveSectorView, sectorStorageStatus, peekSectorPayload, sectorUpdatedAt } from '../services/sectorCache'
 import { useSectorRefresh } from '../services/useSectorRefresh'
@@ -1733,22 +1734,7 @@ export default function SectorRotation(): JSX.Element {
 
   return (
     <main className="container" style={{ padding: '20px 16px', maxWidth: '1400px', margin: '0 auto' }}>
-      {/* 页面标题 */}
-      <div style={{
-        background: 'white',
-        padding: '20px',
-        borderRadius: '12px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-        marginBottom: '20px'
-      }}>
-        <h1 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{ fontSize: '2rem' }}>🔄</span>
-          板块轮动
-        </h1>
-        <p style={{ margin: '8px 0 0', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-          追踪各板块在不同日期的涨幅排名，识别市场热点轮动
-        </p>
-      </div>
+      <PageTitle>板块轮动</PageTitle>
 
       {/* 筛选栏 */}
       <div className="glass-panel" style={{

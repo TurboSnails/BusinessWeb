@@ -7,10 +7,13 @@ export interface HubLink {
   path: string
   label: string
   desc: string
+  /** 已舍弃的页面：保留可访问，子页面顶部显示这条说明 */
+  archived?: string
 }
 
 export interface HubGroup {
   id: string
+  step?: string
   title: string
   hint?: string
   collapsed?: boolean
@@ -26,51 +29,68 @@ export const NAV_ITEMS: NavItem[] = [
   { path: '/about', label: '关于' },
 ]
 
+// 顺序即书里的流程：读书 → 定规则 → 选标的 → 用工具执行 → 少看行情；已舍弃的页面折叠在最后。
+// 分组同时决定子页面顶部的「同组切换条」，同一组只放同一件事。
 export const INVEST_GROUPS: HubGroup[] = [
   {
     id: 'read',
+    step: '第一步',
     title: '读这本书',
     links: [
-      { path: '/first-book', label: '我的书', desc: '《正念投资：不盯盘、不预测的普通人投资方法》全文与目录' },
+      { path: '/first-book', label: '我的书', desc: '《正念投资：普通人用规则代替盯盘的投资方法》全文与目录' },
     ],
   },
   {
     id: 'method',
-    title: '方法与框架',
+    step: '第二步',
+    title: '定规则',
+    hint: '先想清楚怎么投，写成今年的计划；宏观温度用来判断所处阶段。',
     links: [
-      { path: '/investment-strategy', label: '策略框架', desc: '综合投资策略框架' },
-      { path: '/trading-philosophy', label: '道与术', desc: '交易哲学与方法' },
-      { path: '/investment-plan-2026', label: '2026 投资计划', desc: '全年投资作战计划书' },
+      { path: '/investment-plan-2026', label: '2026 投资计划', desc: '三笔钱、再平衡、红线与回撤补仓' },
+      { path: '/monitor', label: '宏观温度', desc: '中美经济温度、周期阶段与对应动作' },
+    ],
+  },
+  {
+    id: 'research',
+    step: '第三步',
+    title: '选标的',
+    hint: '买什么：公司研究、产业链，以及美股与 A 股观察池。',
+    links: [
+      { path: '/research-notes', label: '公司研究', desc: '四个市场的公司库、候选池与研究方法' },
+      { path: '/industry-landscape', label: '产业格局', desc: '固态电池、半导体产业链' },
+      { path: '/investment-targets', label: '美股观察池', desc: '美股标的与观察' },
+      { path: '/mainland-investment-targets', label: 'A 股观察池', desc: 'AI 扩散主线下的 A 股标的' },
     ],
   },
   {
     id: 'tools',
-    title: '工具',
+    step: '第四步',
+    title: '用工具执行',
+    hint: '估值定价格，网格管节奏。',
     links: [
       { path: '/valuation', label: '公司估值', desc: '六方法三情景估值与报告导出' },
       { path: '/grid-trading', label: '网格交易', desc: 'ETF / 个股网格模拟、回测与记录' },
     ],
   },
   {
-    id: 'research',
-    title: '研究',
+    id: 'watch',
+    title: '看行情（选看）',
+    hint: '书里主张少看行情，这几页只作参考。',
+    collapsed: false,
     links: [
-      { path: '/research-notes', label: '研究笔记', desc: '公司研究笔记与候选池' },
-      { path: '/industry-landscape', label: '产业格局', desc: '产业链与竞争格局' },
-      { path: '/investment-targets', label: '美股投资', desc: '美股标的与观察' },
-      { path: '/mainland-investment-targets', label: '大陆投资', desc: 'A 股标的与观察' },
-      { path: '/pulse', label: '经济脉搏', desc: '宏观与市场指标' },
+      { path: '/pulse', label: '全球行情', desc: '全球指数、商品外汇与 A 股涨跌停' },
+      { path: '/sector-rotation', label: '板块轮动', desc: '板块强弱与轮动' },
+      { path: '/limit-up-analysis', label: '涨停分析', desc: '每日板块涨停' },
     ],
   },
   {
-    id: 'watch',
-    title: '盯盘观察（选看）',
-    hint: '书里主张少看行情，这三页留作参考。',
-    collapsed: false,
+    id: 'archived',
+    title: '已舍弃',
+    hint: '和书里的方法不一致，不再更新，只留存档。',
+    collapsed: true,
     links: [
-      { path: '/monitor', label: '每日监控', desc: '每日行情监控' },
-      { path: '/limit-up-analysis', label: '涨停分析', desc: '每日板块涨停' },
-      { path: '/sector-rotation', label: '板块轮动', desc: '板块强弱与轮动' },
+      { path: '/trading-philosophy', label: '道与术（短线策略）', desc: '早期短线交易体系', archived: '已舍弃：这是早期的短线交易体系，需要盯盘，和书里「不盯盘、不预测」的方法相反，仅留存档。' },
+      { path: '/investment-strategy', label: '综合投资策略框架', desc: '巴菲特 · 邓普顿 · 双阶段轮动', archived: '已舍弃：这套框架已不再使用，方法以书和 2026 投资计划为准，仅留存档。' },
     ],
   },
 ]

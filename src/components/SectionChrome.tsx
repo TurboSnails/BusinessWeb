@@ -24,6 +24,7 @@ export default function SectionChrome(): JSX.Element | null {
         <span aria-hidden="true">›</span>
         <span className="breadcrumb__current">{link.label}</span>
       </nav>
+      {link.archived && <p className="section-archived" role="note">{link.archived}</p>}
       {group.links.length > 1 && (
         <nav className="section-tabs" aria-label="同组页面">
           {group.links.map(l => {

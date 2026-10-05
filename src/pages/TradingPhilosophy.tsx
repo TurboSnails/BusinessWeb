@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { PageTabs, PageTitle } from '../components/ui/PageTabs'
 import {
   Brain,
   Sparkles,
@@ -9,11 +10,7 @@ import {
   BarChart2,
   Lightbulb,
   CheckCircle2,
-  Sword,
-  BookOpen,
-  ChevronDown,
   ChevronUp,
-  FileText,
   Thermometer,
   Coins,
   History,
@@ -39,7 +36,6 @@ export default function TradingPhilosophy(): JSX.Element {
   const [activeSection, setActiveSection] = useState<string>('dao') // 默认选中第一个章节
   const [expandedTables, setExpandedTables] = useState<Set<string>>(new Set(['obv-table', 'strategy-table'])) // 默认展开关键表格
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set()) // 已勾选的行动项
-  const [showGuide, setShowGuide] = useState(false) // 使用指南折叠状态
 
   useEffect(() => {
     // 页面加载时，滚动到顶部并默认选中第一个章节
@@ -55,7 +51,7 @@ export default function TradingPhilosophy(): JSX.Element {
         const element = document.getElementById(section)
         if (element) {
           const rect = element.getBoundingClientRect()
-          return rect.top <= 100 && rect.bottom >= 100
+          return rect.top <= 120 && rect.bottom >= 120
         }
         return false
       })
@@ -72,9 +68,8 @@ export default function TradingPhilosophy(): JSX.Element {
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id)
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
+    // 顶部有导航栏和吸顶章节页签，留出约 110px，避免标题被盖住
+    if (element) window.scrollTo({ top: element.getBoundingClientRect().top + window.scrollY - 110, behavior: 'smooth' })
   }
 
   const scrollToTop = () => {
@@ -95,143 +90,9 @@ export default function TradingPhilosophy(): JSX.Element {
 
   return (
     <main className="container" style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px 16px', position: 'relative' }}>
-      {/* 页面标题 */}
-      <div className="glass-panel" style={{
-        background: 'var(--accent-soft)',
-        color: 'var(--text-primary)',
-        padding: '24px 20px',
-        borderRadius: 'var(--radius-lg)',
-        marginBottom: '24px',
-        border: '1px solid var(--border-subtle)'
-      }}>
-        <h1 style={{
-          fontSize: 'clamp(1.4rem, 5vw, 2rem)',
-          fontWeight: '700',
-          margin: '0 0 8px 0',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px'
-        }}>
-          <Sword size={32} />
-          股票投资的"道与术"终极归总
-        </h1>
-        <p style={{ margin: '0 0 12px', opacity: 0.95, fontSize: '1rem', lineHeight: '1.6' }}>
-          完整的投资哲学与实战方案
-        </p>
-        <div style={{
-          background: 'var(--bg-card)',
-          border: '1px solid var(--border-subtle)',
-          borderRadius: '8px',
-          overflow: 'hidden'
-        }}>
-          <button
-            onClick={() => setShowGuide(!showGuide)}
-            style={{
-              width: '100%',
-              padding: '10px 16px',
-              background: 'transparent',
-              border: 'none',
-              color: 'var(--text-primary)',
-              minHeight: '44px',
-              fontSize: '0.9rem',
-              fontWeight: '600',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              textAlign: 'left'
-            }}
-          >
-            <span><BookOpen size={18} style={{ verticalAlign: 'middle', marginRight: '6px' }} /> 使用指南</span>
-            <ChevronDown size={16} />
-          </button>
-          {showGuide && (
-            <div style={{
-              padding: '12px 16px',
-              fontSize: '0.85rem',
-              opacity: 0.95,
-              borderTop: '1px solid var(--border-subtle)'
-            }}>
-              <div style={{ marginBottom: '4px' }}>• <strong>适合人群：</strong>有一定交易经验，希望建立系统化投资框架的投资者</div>
-              <div style={{ marginBottom: '4px' }}>• <strong>核心价值：</strong>从"赌"到"算"，从"追"到"等"，构建完整的认知框架</div>
-              <div style={{ marginBottom: '8px' }}>• <strong>阅读建议：</strong>按顺序阅读，重点掌握"量价OBV三位一体"和"三问买入法"</div>
-              <div style={{
-                fontSize: '0.75rem',
-                opacity: 0.85,
-                fontStyle: 'italic',
-                marginTop: '8px',
-                paddingTop: '8px',
-                borderTop: '1px solid var(--border-subtle)'
-              }}>
-                正念生活 · 此页面会随实盘迭代更新版本
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* 目录导航 */}
-      <div className="glass-panel" style={{
-        position: 'sticky',
-        top: '20px',
-        zIndex: 100,
-        marginBottom: '24px',
-        borderRadius: 'var(--radius-md)',
-        padding: '16px 20px',
-        border: '1px solid var(--glass-border)'
-      }}>
-        <div style={{
-          fontSize: '0.95rem',
-          fontWeight: '700',
-          color: 'var(--text-secondary)',
-          marginBottom: '16px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px'
-        }}>
-          <FileText size={18} />
-          目录导航
-        </div>
-        <div style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '8px'
-        }}>
-          {sections.map((section) => (
-            <button
-              key={section.id}
-              onClick={() => scrollToSection(section.id)}
-              style={{
-                padding: '8px 16px',
-                background: activeSection === section.id
-                  ? 'var(--system-indigo)'
-                  : 'var(--system-gray6)',
-                color: activeSection === section.id ? 'white' : 'var(--text-primary)',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: '0.85rem',
-                fontWeight: '600',
-                transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-                whiteSpace: 'nowrap',
-                boxShadow: activeSection === section.id ? '0 4px 12px color-mix(in srgb, var(--system-indigo) 30%, transparent)' : 'none'
-              }}
-              onMouseEnter={(e) => {
-                if (activeSection !== section.id) {
-                  e.currentTarget.style.background = 'var(--bg-secondary)'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (activeSection !== section.id) {
-                  e.currentTarget.style.background = 'var(--bg-secondary)'
-                }
-              }}
-            >
-              {section.icon} {section.title.replace(/[一二三四五六七八]、/, '')}
-            </button>
-          ))}
-        </div>
-      </div>
+      <PageTitle>道与术（短线策略）</PageTitle>
+      <PageTabs label="章节" width={1000} value={activeSection} onChange={scrollToSection}
+        items={sections.map(section => ({ id: section.id, label: section.title.replace(/[一二三四五六七八]、/, ''), icon: section.icon }))} />
 
       {/* 一、投资之"道" */}
       <section id="dao" className="card" style={{

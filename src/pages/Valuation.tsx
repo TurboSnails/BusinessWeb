@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { PageTitle } from "../components/ui/PageTabs";
 import { useSearchParams } from "react-router-dom";
 import {
   BarChart3,
@@ -234,16 +235,7 @@ export default function Valuation() {
   return (
     <main className="valuation-page">
       <div className="valuation-shell">
-        <header className="valuation-hero">
-          <div>
-            <span className="valuation-eyebrow">
-              COMPANY VALUATION / 本地模型研究
-            </span>
-            <h1>公司估值工作台</h1>
-            <p>从一家公司开始，让事实、假设与价格有据可查。</p>
-          </div>
-          <BarChart3 size={58} />
-        </header>
+        <PageTitle>公司估值工作台</PageTitle>
         <section className="valuation-card">
           <div className="valuation-section-head">
             <h2>开始一次估值</h2>

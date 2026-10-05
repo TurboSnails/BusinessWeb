@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react'
-import PageHero from '../components/PageHero'
 import { Link, useNavigationType, useSearchParams } from 'react-router-dom'
+import { PageTabs, PageTitle, Segmented } from '../components/ui/PageTabs'
 import {
-  BookOpen,
   Compass,
   Layers,
-  Target,
   Grid3x3,
   Wrench,
+  Star,
+  Crosshair,
   CheckCircle2,
   AlertTriangle,
   ArrowRight
@@ -40,15 +40,27 @@ import { useCandidates } from '../features/candidates/useCandidates'
 import { CN_REPORT } from '../data/cnReassessment'
 import { SP500_REPORT, sp500Reassessment } from '../data/sp500Reassessment'
 
-type TabId = 'philosophy' | 'strategy' | 'standard' | 'category' | 'dev'
+type TabId = 'companies' | 'pool' | 'watch' | 'method' | 'notes' | 'dev'
 
+// 顺序按使用频率：先查公司，再看候选与价位，方法和配套笔记放后面
 const tabs: { id: TabId; label: string; icon: React.ElementType }[] = [
-  { id: 'philosophy', label: '投资理念', icon: Compass },
-  { id: 'strategy', label: '策略配置', icon: Layers },
-  { id: 'standard', label: '研究标准', icon: Target },
-  { id: 'category', label: '分类数据', icon: Grid3x3 },
-  { id: 'dev', label: '开发设想', icon: Wrench },
+  { id: 'companies', label: '公司库', icon: Grid3x3 },
+  { id: 'pool', label: '候选池', icon: Star },
+  { id: 'watch', label: '观察价位', icon: Crosshair },
+  { id: 'method', label: '研究方法', icon: Compass },
+  { id: 'notes', label: '配置笔记', icon: Layers },
+  { id: 'dev', label: '工具设想', icon: Wrench },
 ]
+
+const markets: [Market, string][] = [['us', '标普500'], ['adr', '美股非标普'], ['hk', '港股'], ['cn', '沪深']]
+
+// 旧链接（?tab=category&m=watch 等）映射到新页签，收藏和公司页的返回链接继续可用
+function resolveTab(tab: string | null, m: string | null): TabId {
+  if (tab === 'category') return m === 'watch' ? 'watch' : m === 'pool' ? 'pool' : 'companies'
+  if (tab === 'standard') return 'method'
+  if (tab === 'philosophy' || tab === 'strategy') return 'notes'
+  return tabs.some(t => t.id === tab) ? (tab as TabId) : 'companies'
+}
 
 const toneColors: Record<Tone, { bg: string; color: string }> = {
   green: { bg: 'color-mix(in srgb, var(--system-green) 12%, transparent)', color: 'var(--system-green)' },
@@ -63,13 +75,14 @@ export default function ResearchNotes(): JSX.Element {
   const navType = useNavigationType()
   const [params, setParams] = useSearchParams()
   const tabParam = params.get('tab')
-  const activeTab: TabId = tabs.some(t => t.id === tabParam) ? (tabParam as TabId) : 'philosophy'
   const mParam = params.get('m')
-  const catMarket: Market | 'watch' | 'pool' = mParam === 'cn' || mParam === 'hk' || mParam === 'adr' || mParam === 'watch' || mParam === 'pool' ? mParam : 'us'
+  const activeTab = resolveTab(tabParam, mParam)
+  const catMarket: Market = mParam === 'cn' || mParam === 'hk' || mParam === 'adr' ? mParam : 'us'
+  const notesView = params.get('n') === 'v6' || tabParam === 'strategy' ? 'v6' : 'framework'
   const vParam = params.get('v')
   const view = vParam === 'combined' ? 'combined' : vParam === 'overview' ? 'overview' : vParam === 'lynch' ? 'lynch' : 'list'
   const progSector = params.get('sec') || '全部'
-  const inCategory = activeTab === 'category'
+  const inCategory = activeTab === 'companies' || activeTab === 'pool'
   const { list: usList, loading: usLoading } = useCompanies('us', inCategory)
   const { list: cnList, loading: cnLoading } = useCompanies('cn', inCategory)
   const { list: hkList, loading: hkLoading } = useCompanies('hk', inCategory)
@@ -94,8 +107,8 @@ export default function ResearchNotes(): JSX.Element {
       Object.entries(patch).forEach(([k, v]) => (v === null ? next.delete(k) : next.set(k, v)))
       return next
     }, { replace: true })
-  const setActiveTab = (t: TabId): void => updateParams({ tab: t })
-  const setCatMarket = (m: Market | 'watch' | 'pool'): void => updateParams({ tab: 'category', m, sec: null, v: null })
+  const setActiveTab = (t: TabId): void => updateParams({ tab: t, n: null })
+  const setCatMarket = (m: Market): void => updateParams({ tab: 'companies', m, sec: null, v: null })
   const setProgSector = (sec: string): void => updateParams({ sec: sec === '全部' ? null : sec })
   const [showBackToTop, setShowBackToTop] = useState(false)
   const [zoomImg, setZoomImg] = useState<{ src: string; title: string } | null>(null)
@@ -133,6 +146,10 @@ export default function ResearchNotes(): JSX.Element {
   }
 
   const cardTitle: React.CSSProperties = { fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 14px' }
+  const reviewSummary: React.CSSProperties = { cursor: 'pointer', fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }
+  const hint = (children: React.ReactNode): JSX.Element => (
+    <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 16px', lineHeight: 1.7 }}>{children}</p>
+  )
 
   const badge = (tone: Tone): React.CSSProperties => ({
     display: 'inline-block',
@@ -265,7 +282,7 @@ export default function ResearchNotes(): JSX.Element {
     a.download = `${catMarket}-林奇-${lType}-${lTier}-${lMoat}-${new Date().toISOString().slice(0, 10)}.json`; a.click()
     setTimeout(() => URL.revokeObjectURL(a.href), 1000)
   }
-  const chipStyle = (on: boolean): React.CSSProperties => ({ border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '12px', fontWeight: 500, padding: '6px 12px', borderRadius: 'var(--radius-full)', background: on ? 'var(--system-blue)' : 'var(--bg-secondary)', color: on ? '#fff' : 'var(--text-secondary)' })
+  const chipStyle = (on: boolean): React.CSSProperties => ({ border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '12px', fontWeight: 500, padding: '6px 12px', borderRadius: 'var(--radius-full)', background: on ? 'var(--accent)' : 'var(--bg-secondary)', color: on ? '#fff' : 'var(--text-secondary)' })
   const emptyHint = (n: number): React.ReactNode => (n === 0 ? (
     <div style={{ textAlign: 'center', padding: '24px 0', fontSize: '13px', color: 'var(--text-secondary)' }}>
       没有符合当前筛选条件的公司。
@@ -328,7 +345,7 @@ export default function ResearchNotes(): JSX.Element {
       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', margin: '4px 0 12px' }}>
         {['全部', ...progSectors].map(sec => (
           <button key={sec} onClick={() => updateParams({ sec: sec === '全部' ? null : sec })}
-            style={{ border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', fontWeight: 500, padding: '6px 14px', borderRadius: 'var(--radius-full)', background: progSector === sec ? 'var(--system-blue)' : 'var(--bg-secondary)', color: progSector === sec ? '#fff' : 'var(--text-secondary)', transition: 'all 0.2s' }}>
+            style={{ border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', fontWeight: 500, padding: '6px 14px', borderRadius: 'var(--radius-full)', background: progSector === sec ? 'var(--accent)' : 'var(--bg-secondary)', color: progSector === sec ? '#fff' : 'var(--text-secondary)', transition: 'all 0.2s' }}>
             {sec} {sec === '全部' ? progList.length : progList.filter(c => c.sector === sec).length}
           </button>
         ))}
@@ -338,7 +355,7 @@ export default function ResearchNotes(): JSX.Element {
           style={{ flex: '1 1 200px', minWidth: '160px', fontSize: '13px', padding: '8px 14px', borderRadius: 'var(--radius-full)', border: '1px solid var(--border-primary)', background: 'var(--bg-card)', color: 'var(--text-primary)', fontFamily: 'inherit', outline: 'none' }} />
         {['全部', '优先关注', '条件关注', '观察', '回避', ...(catMarket === 'adr' ? ['未估值'] : [])].map(r => (
           <button key={r} onClick={() => setRatingF(r)}
-            style={{ border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '12px', fontWeight: 500, padding: '6px 12px', borderRadius: 'var(--radius-full)', background: ratingF === r ? 'var(--system-blue)' : 'var(--bg-secondary)', color: ratingF === r ? '#fff' : 'var(--text-secondary)' }}>
+            style={{ border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '12px', fontWeight: 500, padding: '6px 12px', borderRadius: 'var(--radius-full)', background: ratingF === r ? 'var(--accent)' : 'var(--bg-secondary)', color: ratingF === r ? '#fff' : 'var(--text-secondary)' }}>
             {r} {r === '全部' ? secList.length : secList.filter(c => ratingOf(c) === r).length}
           </button>
         ))}
@@ -381,35 +398,13 @@ export default function ResearchNotes(): JSX.Element {
       : label
   }
 
-  const viewSwitch = (overviewLabel: string): JSX.Element => (
-    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', margin: '0 0 16px' }}>
-      {([['list', '全部公司分类'], ['lynch', '林奇分组'], ['combined', '综合分类'], ['overview', overviewLabel]] as [string, string][]).map(([v, label]) => (
-        <button key={v} onClick={() => updateParams({ v: v === 'list' ? null : v })}
-          style={{ border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', fontWeight: 600, padding: '7px 16px', borderRadius: 'var(--radius-full)', background: view === v ? 'var(--text-primary)' : 'var(--bg-secondary)', color: view === v ? 'var(--bg-primary)' : 'var(--text-secondary)' }}>
-          {label}
-        </button>
-      ))}
-    </div>
+  const viewSwitch = (): JSX.Element => (
+    <Segmented label="视图" value={view} onChange={v => updateParams({ v: v === 'list' ? null : v })}
+      items={[{ id: 'list', label: '评级列表' }, { id: 'lynch', label: '林奇分类' }, { id: 'combined', label: '综合筛选' }, { id: 'overview', label: '覆盖与进度' }]} />
   )
 
-  const marketSwitch = <T extends string>(value: T, onChange: (m: T) => void, withWatch = false): JSX.Element => (
-    <div style={{ display: 'inline-flex', gap: '4px', padding: '4px', borderRadius: 'var(--radius-full)', background: 'var(--bg-secondary)', marginBottom: '20px' }}>
-      {([['us', '标普500'], ['cn', '沪深500'], ['hk', '港股'], ['adr', '美股非标普'], ...(withWatch ? [['watch', '交易价位'], ['pool', `候选池${cand.items.length ? `（${cand.items.length}）` : ''}`]] : [])] as [string, string][]).map(([m, label]) => (
-        <button
-          key={m}
-          onClick={() => onChange(m as T)}
-          style={{
-            border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', fontWeight: 600,
-            padding: '7px 18px', borderRadius: 'var(--radius-full)',
-            background: value === m ? 'var(--system-blue)' : 'transparent',
-            color: value === m ? '#fff' : 'var(--text-secondary)',
-            transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-          }}
-        >
-          {label}
-        </button>
-      ))}
-    </div>
+  const marketSwitch = (value: Market, onChange: (m: Market) => void): JSX.Element => (
+    <Segmented label="市场" value={value} onChange={onChange} items={markets.map(([id, label]) => ({ id, label }))} />
   )
 
   const watchView = (
@@ -440,48 +435,23 @@ export default function ResearchNotes(): JSX.Element {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', paddingBottom: '80px' }}>
-      {/* 页面头部 */}
-      <PageHero icon={<BookOpen size={24} />} title="研究笔记汇总" subtitle={`同步自 Notion · ${NOTION_SYNC_DATE}`} />
-      {/* Tab 导航 */}
-      <div style={{ position: 'sticky', top: '57px', zIndex: 10, background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', WebkitBackdropFilter: 'var(--glass-blur)', borderBottom: '0.5px solid var(--border-primary)' }}>
-        <div style={{ maxWidth: '760px', margin: '0 auto', padding: '0 20px', display: 'flex', gap: '4px', overflowX: 'auto' }}>
-          {tabs.map(tab => {
-            const Icon = tab.icon
-            const isActive = activeTab === tab.id
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '14px 16px',
-                  border: 'none',
-                  background: 'transparent',
-                  color: isActive ? 'var(--system-blue)' : 'var(--text-secondary)',
-                  fontFamily: 'inherit',
-                  fontSize: '14px',
-                  fontWeight: isActive ? 600 : 400,
-                  cursor: 'pointer',
-                  borderBottom: isActive ? '2px solid var(--system-blue)' : '2px solid transparent',
-                  whiteSpace: 'nowrap',
-                  transition: 'all 0.15s',
-                }}
-              >
-                <Icon size={14} />
-                {tab.label}
-              </button>
-            )
-          })}
-        </div>
-      </div>
+      <PageTitle>公司研究</PageTitle>
+      <PageTabs label="公司研究栏目" width={960} value={activeTab} onChange={setActiveTab}
+        items={tabs.map(t => ({ id: t.id, label: t.label, icon: <t.icon size={14} /> }))} />
 
       {/* 内容区 */}
-      <div style={{ maxWidth: '760px', margin: '0 auto', padding: '28px 20px' }}>
+      <div style={{ maxWidth: '960px', margin: '0 auto', padding: '24px 16px' }}>
 
-        {/* ── 投资理念 ── */}
-        {activeTab === 'philosophy' && (
+        {/* ── 配置笔记：投资框架 + 家庭组合 ── */}
+        {activeTab === 'notes' && (
+          <div>
+            {hint(<>资产配置相关的 Notion 笔记，和 <Link to="/investment-plan-2026" style={{ color: 'var(--system-blue)' }}>2026 投资计划</Link> 配合阅读。</>)}
+            <Segmented label="配置笔记" value={notesView} onChange={v => updateParams({ n: v === 'framework' ? null : v })}
+              items={[{ id: 'framework', label: '投资框架' }, { id: 'v6', label: '家庭组合 v6' }]} />
+          </div>
+        )}
+
+        {activeTab === 'notes' && notesView === 'framework' && (
           <div>
             <p style={sectionTitle}>投资框架</p>
             <div style={{ ...card, border: '1.5px solid color-mix(in srgb, var(--system-blue) 35%, transparent)', background: 'color-mix(in srgb, var(--system-blue) 4%, transparent)' }}>
@@ -544,8 +514,7 @@ export default function ResearchNotes(): JSX.Element {
           </div>
         )}
 
-        {/* ── 策略配置 ── */}
-        {activeTab === 'strategy' && (
+        {activeTab === 'notes' && notesView === 'v6' && (
           <div>
             <p style={sectionTitle}>{portfolioV6.title}</p>
             <div style={{ ...card, border: '1.5px solid color-mix(in srgb, var(--system-blue) 35%, transparent)', background: 'color-mix(in srgb, var(--system-blue) 4%, transparent)' }}>
@@ -607,10 +576,10 @@ export default function ResearchNotes(): JSX.Element {
           </div>
         )}
 
-        {/* ── 研究标准 ── */}
-        {activeTab === 'standard' && (
+        {/* ── 研究方法 ── */}
+        {activeTab === 'method' && (
           <div>
-            <p style={sectionTitle}>研究标准 · 适用于所有公司</p>
+            <p style={sectionTitle}>研究方法 · 适用于所有公司</p>
             <div style={{ ...card, border: '1.5px solid color-mix(in srgb, var(--system-blue) 35%, transparent)', background: 'color-mix(in srgb, var(--system-blue) 4%, transparent)' }}>
               <h3 style={cardTitle}>核心投资目标</h3>
               {quote(researchStandard.goal)}
@@ -720,22 +689,28 @@ export default function ResearchNotes(): JSX.Element {
           </div>
         )}
 
-        {/* ── 分类数据 ── */}
-        {activeTab === 'category' && (
+        {/* ── 候选池 ── */}
+        {activeTab === 'pool' && (
           <div>
-            {marketSwitch(catMarket, setCatMarket, true)}
+            {hint('在公司库里点「候选」加入，这里排序、写备注，准备进一步研究。')}
+            <CandidatePool items={cand.items} companies={[...usList, ...cnList, ...hkList, ...adrList]} state={cand.state} message={cand.message}
+              onMove={cand.move} onRemove={i => cand.toggle(i.market, i.code)} onNote={(i, t) => cand.setNote(i.market, i.code, t)} onClear={cand.clear} onConnect={cand.connect} onRetry={cand.retry} />
+          </div>
+        )}
 
-            {catMarket === 'watch' && watchView}
+        {/* ── 观察价位 ── */}
+        {activeTab === 'watch' && watchView}
 
-            {catMarket === 'pool' && (
-              <CandidatePool items={cand.items} companies={[...usList, ...cnList, ...hkList, ...adrList]} state={cand.state} message={cand.message}
-                onMove={cand.move} onRemove={i => cand.toggle(i.market, i.code)} onNote={(i, t) => cand.setNote(i.market, i.code, t)} onClear={cand.clear} onConnect={cand.connect} onRetry={cand.retry} />
-            )}
+        {/* ── 公司库 ── */}
+        {activeTab === 'companies' && (
+          <div>
+            {marketSwitch(catMarket, setCatMarket)}
 
             {catMarket === 'us' && (
               <div>
-                <div style={card}>
-                  <h3 style={cardTitle}>腾讯自选股投研专家团 · 再分析汇总</h3>
+                <details style={{ ...card, padding: '14px 18px' }}>
+                  <summary style={reviewSummary}>最近复核 · 2026-09-30 专家团圆桌（点开查看）</summary>
+                  <h3 style={{ ...cardTitle, marginTop: '14px' }}>腾讯自选股投研专家团 · 再分析汇总</h3>
                   <p style={{ fontSize: '13px', lineHeight: 1.8, color: 'var(--text-secondary)' }}>
                     2026-09-30：对本地 504 条研究记录完成旧模型口径审计，重点核实 8 个候选与 3 家 AI 公司公告。
                     明确撤回“仅 ZTS、SPGI、PEP 达标”：PEP 基准赔率只有 0.73:1；AES 的现金收购、CINF 的投资重估、OMC 的并购口径和 UHS 的指引下调使旧模型需要撤回或重建。
@@ -757,8 +732,8 @@ export default function ResearchNotes(): JSX.Element {
                     {' · '}<a href={`${import.meta.env.BASE_URL}data/sp500-review-snapshot-2026-09-30.json`} target="_blank" rel="noreferrer">盘中行情快照</a>
                   </p>
                   <p style={{ fontSize: '12px', lineHeight: 1.7, color: 'var(--text-tertiary)' }}>使用项目内腾讯自选股投研专家团 skill，行情来自 yfinance，财务以公司公告与 SEC 为准。结论明确区分公告事实与研究假设；完整证据和失效条件见报告。</p>
-                </div>
-                {viewSwitch('板块与研究进度')}
+                </details>
+                {viewSwitch()}
                 {view === 'list' && renderProgress()}
                 {view === 'lynch' && renderLynch()}
                 {view === 'combined' && <CompanyCombined key={catMarket} companies={progList} lynch={lynch} ratingOf={ratingOf} loading={combinedLoading} isCandidate={isCand} onToggleCandidate={toggleCand} />}
@@ -813,16 +788,17 @@ export default function ResearchNotes(): JSX.Element {
               </div>
             )}
 
-            {catMarket === 'cn' && <div style={card}>
-              <h3 style={cardTitle}>沪深研究池 · 2026-09-30 圆桌复核</h3>
+            {catMarket === 'cn' && <details style={{ ...card, padding: '14px 18px' }}>
+              <summary style={reviewSummary}>最近复核 · 2026-09-30 专家团圆桌（点开查看）</summary>
+              <h3 style={{ ...cardTitle, marginTop: '14px' }}>沪深研究池 · 2026-09-30 圆桌复核</h3>
               <p style={{ lineHeight: 1.8, fontSize: '13px' }}>范围为832条研究记录（806程序化、26人工），包含沪深300、中证500及额外产业链公司；不是官方500只成分股。全池完成旧模型算术与字段审计，重点复核28家，未逐家完成一手深研。</p>
               <p style={{ lineHeight: 1.8, fontSize: '13px' }}>旧数值超过2的26家均不再作为已认证机会。东鹏保留经营正面跟踪、平安和世纪华通保留研究优先级，估值均待重建；荣昌、三生撤回授权收入的持续EPS外推；工业富联实际1.993未达2；伯特利旧基准赔率约0.83，撤回增持认证。</p>
               <p style={{ lineHeight: 1.8, fontSize: '13px' }}>下方旧行业排序、主观胜率及程序化评级保留筛选用途，未由本轮认证；银行现金流不能套用工业企业现金含量标准。旧结论见详情存档，原件缺失项明确待核。</p>
               <a href={`${import.meta.env.BASE_URL}${CN_REPORT}`} target="_blank" rel="noreferrer">沪深完整圆桌报告</a> · <a href={`${import.meta.env.BASE_URL}research/cn-audit-2026-09-30.csv`} download>832条审计与旧结论</a>
-            </div>}
+            </details>}
             {catMarket === 'cn' && (
               <div>
-                {viewSwitch('产业链与研究进度')}
+                {viewSwitch()}
                 {view === 'list' && renderProgress()}
                 {view === 'lynch' && renderLynch()}
                 {view === 'combined' && <CompanyCombined key={catMarket} companies={progList} lynch={lynch} ratingOf={ratingOf} loading={combinedLoading} isCandidate={isCand} onToggleCandidate={toggleCand} />}
@@ -884,7 +860,7 @@ export default function ResearchNotes(): JSX.Element {
 
             {catMarket === 'hk' && (
               <div>
-                {viewSwitch('覆盖说明')}
+                {viewSwitch()}
                 {view === 'list' && renderProgress()}
                 {view === 'lynch' && renderLynch()}
                 {view === 'combined' && <CompanyCombined key={catMarket} companies={progList} lynch={lynch} ratingOf={ratingOf} loading={combinedLoading} isCandidate={isCand} onToggleCandidate={toggleCand} />}
@@ -898,23 +874,23 @@ export default function ResearchNotes(): JSX.Element {
             )}
             {catMarket === 'adr' && (
               <div>
-                {viewSwitch('覆盖说明')}
+                {viewSwitch()}
                 {view === 'list' && renderProgress()}
                 {view === 'lynch' && renderLynch()}
                 {view === 'combined' && <CompanyCombined key={catMarket} companies={progList} lynch={lynch} ratingOf={ratingOf} loading={combinedLoading} isCandidate={isCand} onToggleCandidate={toggleCand} />}
                 {view === 'overview' && (
                   <div style={card}>
-                    <h3 style={cardTitle}>美股非标普：覆盖说明</h3>
+                    <h3 style={cardTitle}>美股非标普 · 覆盖说明</h3>
                     <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.8 }}>{adrNote}</p>
                   </div>
                 )}
               </div>
             )}
-            {catMarket !== 'watch' && disclaimer}
+            {disclaimer}
           </div>
         )}
 
-        {/* ── 开发设想 ── */}
+        {/* ── 工具设想 ── */}
         {activeTab === 'dev' && (
           <div>
             <p style={sectionTitle}>多模型协作 Agent 设想</p>

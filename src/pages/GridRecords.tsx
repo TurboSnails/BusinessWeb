@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { PageTitle } from '../components/ui/PageTabs'
 import { Link } from 'react-router-dom'
 import { RefreshCw } from 'lucide-react'
 import CloudSyncPanel from '../features/grid-trading/CloudSyncPanel'
@@ -57,12 +58,11 @@ export default function GridRecords(): JSX.Element {
   }
 
   return <main className="grid-page">
-    <section className="grid-hero grid-hero-compact">
-      <div className="grid-eyebrow"><RefreshCw size={15} /> 记录管理</div>
-      <h1>网格记录</h1>
-      <p>回测、参数和成交记录保存在本机浏览器。换浏览器或站点前，请先导出 JSON 备份。</p>
-      <div className="grid-hero-links"><Link to="/grid-trading">新建网格回测 <span aria-hidden="true">→</span></Link></div>
-    </section>
+    <PageTitle>网格记录</PageTitle>
+    <div className="page-toolbar">
+      <span className="page-toolbar__note">回测、参数和成交记录保存在本机浏览器。换浏览器或站点前，请先导出 JSON 备份。</span>
+      <Link className="tool-btn" to="/grid-trading">新建网格回测 <span aria-hidden="true">→</span></Link>
+    </div>
     <RecordList records={records} onDelete={deleteRecords} />
     <section className="grid-card grid-refresh-card">
       <div><h2>行情刷新</h2><p>手动刷新会请求公开腾讯行情，并保留刷新失败记录的原结果。</p></div>

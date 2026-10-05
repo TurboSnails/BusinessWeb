@@ -194,9 +194,9 @@ it('沪深复核详情不会从历史指标重建被撤回的三情景', async (
 describe('额外综合分类视图', () => {
   it.each(['us', 'cn', 'hk', 'adr'])('%s保留原入口并新增综合分类', async market => {
     renderAt(`/research-notes?tab=category&m=${market}`)
-    fireEvent.click(screen.getByRole('button', { name: '综合分类' }))
-    expect(screen.getByRole('button', { name: '全部公司分类' })).toBeTruthy()
-    expect(screen.getByRole('button', { name: '林奇分组' })).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: '综合筛选' }))
+    expect(screen.getByRole('button', { name: '评级列表' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: '林奇分类' })).toBeTruthy()
     await waitFor(() => expect(screen.getByRole('columnheader', { name: '林奇类型' })).toBeTruthy())
     expect(screen.getByRole('columnheader', { name: '研究评级' })).toBeTruthy()
     expect(screen.getByRole('combobox', { name: '行业' })).toBeTruthy()
@@ -208,8 +208,37 @@ describe('额外综合分类视图', () => {
     fireEvent.change(screen.getByRole('textbox', { name: '搜索综合分类' }), { target: { value: 'CVS' } })
     await waitFor(() => expect(screen.getByRole('link', { name: '西维斯健康 CVS' })).toBeTruthy())
     expect(screen.getByRole('columnheader', { name: '林奇判断' })).toBeTruthy()
-    fireEvent.click(screen.getByRole('button', { name: '全部公司分类' }))
+    fireEvent.click(screen.getByRole('button', { name: '评级列表' }))
     expect(screen.queryByRole('columnheader', { name: '林奇类型' })).toBeNull()
     expect(screen.getByRole('columnheader', { name: '一句话结论' })).toBeTruthy()
+  })
+})
+
+describe('页面结构：公司库优先，旧链接可用', () => {
+  it('默认进入公司库，页签顺序固定', () => {
+    renderAt('/research-notes')
+    const tabs = screen.getAllByRole('tab')
+    expect(tabs.map(b => b.textContent)).toEqual(['公司库', '候选池', '观察价位', '研究方法', '配置笔记', '工具设想'])
+    expect(screen.getByRole('group', { name: '市场' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: '沪深' })).toBeTruthy()
+  })
+
+  it('旧链接映射到新页签', () => {
+    renderAt('/research-notes?tab=category&m=watch')
+    expect(screen.getByText('交易观察清单')).toBeTruthy()
+    cleanup()
+    renderAt('/research-notes?tab=standard')
+    expect(screen.getByText('研究方法 · 适用于所有公司')).toBeTruthy()
+    cleanup()
+    renderAt('/research-notes?tab=strategy')
+    expect(screen.getByText('配置表（300 万示例）')).toBeTruthy()
+  })
+
+  it('配置笔记在投资框架与家庭组合之间切换', () => {
+    renderAt('/research-notes?tab=notes')
+    expect(screen.getByText('被动层 · 压舱石（五格等权）')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: '家庭组合 v6' }))
+    expect(screen.getByText('配置表（300 万示例）')).toBeTruthy()
+    expect(screen.queryByText('被动层 · 压舱石（五格等权）')).toBeNull()
   })
 })

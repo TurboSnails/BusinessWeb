@@ -34,11 +34,29 @@ describe('INVEST_GROUPS', () => {
     }
   })
 
-  it('盯盘观察组在最后且直接展开', () => {
-    const last = INVEST_GROUPS[INVEST_GROUPS.length - 1]
-    expect(last.id).toBe('watch')
-    expect(last.collapsed).toBe(false)
-    expect(last.links.map(l => l.path)).toEqual(['/monitor', '/limit-up-analysis', '/sector-rotation'])
+  it('分组顺序按书里的流程：读书 → 定规则 → 选标的 → 用工具执行 → 看行情，已舍弃垫底', () => {
+    expect(INVEST_GROUPS.map(g => g.id)).toEqual(['read', 'method', 'research', 'tools', 'watch', 'archived'])
+  })
+
+  it('看行情组直接展开，只放行情类页面', () => {
+    const watch = INVEST_GROUPS.find(g => g.id === 'watch')!
+    expect(watch.collapsed).toBe(false)
+    expect(watch.links.map(l => l.path)).toEqual(['/pulse', '/sector-rotation', '/limit-up-analysis'])
+  })
+
+  it('宏观温度（原每日监控）归入定规则，和 2026 计划同组', () => {
+    const method = INVEST_GROUPS.find(g => g.id === 'method')!
+    expect(method.links.map(l => [l.path, l.label])).toEqual([['/investment-plan-2026', '2026 投资计划'], ['/monitor', '宏观温度']])
+  })
+
+  it('道与术、综合投资策略框架标为舍弃：折叠在最后，每页都带舍弃说明', () => {
+    const archived = INVEST_GROUPS[INVEST_GROUPS.length - 1]
+    expect(archived.id).toBe('archived')
+    expect(archived.collapsed).toBe(true)
+    expect(archived.links.map(l => l.path)).toEqual(['/trading-philosophy', '/investment-strategy'])
+    for (const l of archived.links) expect(l.archived, l.path).toMatch(/^已舍弃/)
+    const elsewhere = INVEST_GROUPS.filter(g => g.id !== 'archived').flatMap(g => g.links)
+    expect(elsewhere.some(l => l.archived)).toBe(false)
   })
 })
 
