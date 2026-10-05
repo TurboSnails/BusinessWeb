@@ -1,10 +1,22 @@
 {
-  "generatedAt": "2026-10-05T15:52:09.570Z",
+  "generatedAt": "2026-10-05T15:58:19.101Z",
   "versions": [
     {
       "tag": "unreleased",
       "date": null,
       "commits": [
+        {
+          "hash": "e3290f7",
+          "subject": "feat(plan): 情绪工具打开即并行获取全部读数",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
+        {
+          "hash": "a5b66aa",
+          "subject": "chore: 更新更新日志",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
         {
           "hash": "b3d3852",
           "subject": "feat(invest): 正念投资栏目与书的方法对齐——下架荐股观察池、研究页去建议化、配置统一到宽基三档",
@@ -170,18 +182,6 @@
         {
           "hash": "f0bbeb3",
           "subject": "docs(knowledge): record verified production cloud activation",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "8886230",
-          "subject": "feat(knowledge): add private cloud library and read-only AI MCP",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "6c64865",
-          "subject": "feat(knowledge): refine dandelion motion and seed interactions",
           "author": "hassan",
           "date": "2026-10-05"
         }
