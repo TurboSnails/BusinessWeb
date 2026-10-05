@@ -1,7 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { SIGNALS, STAGES, computeStage, signalTone, type Stage } from '../features/macro/stages'
 import { PageTabs, PageTitle } from '../components/ui/PageTabs'
-import { fetchCBOEPCRatios, fetchEarningsCalendar, type EarningsCalendarItem } from '../services/api'
+import { fetchEarningsCalendar, type EarningsCalendarItem } from '../services/api'
+
+// 同源 /api/*；GitHub Pages 构建时通过 VITE_API_BASE 指向 Vercel
+const API_BASE = (import.meta.env.VITE_API_BASE || '').replace(/\/$/, '')
 import {
   Target,
   LayoutDashboard,
@@ -834,21 +837,27 @@ const Sentiment: React.FC = () => {
   const [gs, setGs] = useState('')
   const [loading, setLoading] = useState(false)
   const [msg, setMsg] = useState('')
+  const [asOf, setAsOf] = useState('')
 
-  const fetchPC = async () => {
+  // 服务端并行拉取 CBOE、SqueezeMetrics、雅虎财经，一次返回；单项失败不影响其他项，仍可手动改
+  const fetchAll = async () => {
     setLoading(true)
     setMsg('')
     try {
-      const d = await fetchCBOEPCRatios()
-      if (d.equityPC !== null) setEq(d.equityPC.toFixed(2))
-      if (d.spxPC !== null) setSpx(d.spxPC.toFixed(2))
-      if (d.equityPC === null || d.spxPC === null) setMsg('部分数据未取到（CBOE 页面为动态加载），请手动补全。')
+      const res = await fetch(`${API_BASE}/api/sentiment`, { cache: 'no-store' })
+      const d = await res.json().catch(() => null)
+      if (!res.ok || !d) throw new Error()
+      const put = (v: number | null, set: (s: string) => void) => { if (v !== null && Number.isFinite(v)) set(String(v)) }
+      put(d.equityPC, setEq); put(d.spxPC, setSpx); put(d.vix, setVixNear); put(d.vix3m, setVixFar); put(d.gexBn, setGex); put(d.goldSilver, setGs)
+      setAsOf([d.pcDate && `P/C ${d.pcDate}`, d.vixDate && `VIX ${d.vixDate}`, d.gexDate && `GEX ${d.gexDate}`, d.goldSilverDate && `金银比 ${d.goldSilverDate}`].filter(Boolean).join(' · '))
+      if (d.warnings?.length) setMsg(`部分读数未取到（${d.warnings.join('；')}），可手动填入。`)
     } catch {
-      setMsg('自动获取失败，请到 CBOE 页面手动查看后填入。')
+      setMsg('自动获取失败，可稍后重试，或到 CBOE 页面手动查看后填入。')
     } finally {
       setLoading(false)
     }
   }
+  useEffect(() => { void fetchAll() }, [])
 
   const e = num(eq)
   const s = num(spx)
@@ -883,8 +892,8 @@ const Sentiment: React.FC = () => {
         icon={<Thermometer size={18} />}
         right={
           <div style={{ display: 'flex', gap: 8 }}>
-            <button style={btnStyle(true)} onClick={fetchPC} disabled={loading}>
-              <RefreshCw size={14} /> {loading ? '获取中…' : '自动获取 P/C'}
+            <button style={btnStyle(true)} onClick={fetchAll} disabled={loading}>
+              <RefreshCw size={14} /> {loading ? '获取中…' : '刷新全部'}
             </button>
             <a href="https://www.cboe.com/us/options/market_statistics/daily/" target="_blank" rel="noopener noreferrer" style={{ ...btnStyle(), textDecoration: 'none' }}>
               <ExternalLink size={14} /> CBOE
@@ -895,11 +904,12 @@ const Sentiment: React.FC = () => {
         <div style={{ ...grid(150), marginBottom: 12 }}>
           {field('Equity P/C（个股）', eq, setEq, '如 0.64')}
           {field('SPX P/C（指数）', spx, setSpx, '如 1.05')}
-          {field('VIX 近月', vixNear, setVixNear, '可选')}
-          {field('VIX 远月', vixFar, setVixFar, '可选')}
-          {field('Net GEX', gex, setGex, '可选')}
+          {field('VIX（30天）', vixNear, setVixNear, '可选')}
+          {field('VIX3M（3个月）', vixFar, setVixFar, '可选')}
+          {field('Net GEX（十亿美元）', gex, setGex, '可选')}
           {field('金银比', gs, setGs, '可选')}
         </div>
+        {asOf && <p style={{ margin: '0 0 8px', fontSize: '0.78rem', color: 'var(--text-tertiary)' }}>数据日期（美东）：{asOf}。来源：CBOE 日度期权统计、SqueezeMetrics（GEX）、雅虎财经（VIX、VIX3M、金银期货）；P/C 与 GEX 为上一交易日收盘数据。</p>}
         {msg && <Note tone="yellow">{msg}</Note>}
         {reading ? (
           <div style={{ marginTop: 12 }}>

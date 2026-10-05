@@ -33,3 +33,18 @@ describe('再平衡检查器的示例与书第9章9.10一致', () => {
     expect(targets().reduce((a, b) => a + b, 0)).toBe(100)
   })
 })
+
+describe('情绪工具：打开即并行获取全部读数', () => {
+  it('一次请求 /api/sentiment 填入六项读数，并显示数据日期与来源', async () => {
+    const snapshot = { equityPC: 0.58, spxPC: 1.15, pcDate: '2026-10-02', vix: 15.59, vix3m: 18.07, vixDate: '2026-10-05', gexBn: 7.69, gexDate: '2026-10-02', goldSilver: 67.73, goldSilverDate: '2026-10-05', warnings: [] }
+    const fetcher = vi.fn(async (url: string) => (String(url).includes('/api/sentiment') ? new Response(JSON.stringify(snapshot)) : new Response('{}', { status: 500 })))
+    vi.stubGlobal('fetch', fetcher)
+    render(<MemoryRouter><InvestmentPlan2026 /></MemoryRouter>)
+    fireEvent.click(screen.getByRole('tab', { name: /情绪工具/ }))
+    const value = (label: RegExp) => (screen.getByLabelText(label) as HTMLInputElement).value
+    await screen.findByText(/P\/C 2026-10-02/)
+    expect([value(/Equity P\/C/), value(/SPX P\/C/), value(/VIX（30天）/), value(/VIX3M/), value(/Net GEX/), value(/金银比/)]).toEqual(['0.58', '1.15', '15.59', '18.07', '7.69', '67.73'])
+    expect(fetcher.mock.calls.filter(([u]) => String(u).includes('/api/sentiment'))).toHaveLength(1)
+    expect(screen.getByText(/VIX 期限结构正常/)).toBeTruthy()
+  })
+})
