@@ -6,21 +6,32 @@ import { INVEST_GROUPS, NAV_ITEMS, findInvestEntry, isNavActive } from './siteMa
 const appSource = readFileSync(resolve(__dirname, '../App.tsx'), 'utf8')
 
 describe('NAV_ITEMS', () => {
-  it('包含个人知识中心，共 6 项，顺序固定', () => {
+  it('包含知识图谱，共 6 项，顺序固定', () => {
     expect(NAV_ITEMS.map(i => i.label)).toEqual([
-      '首页', '正念投资', 'AI 与独立开发', '个人知识中心', '自由生活实验', '关于',
+      '首页', '正念投资', 'AI实验室', '知识图谱', '自由空间', '关于',
     ])
     expect(NAV_ITEMS.map(i => i.path)).toEqual(['/', '/invest', '/ai', '/knowledge', '/life', '/about'])
+  })
+})
+
+describe('AI实验室路由', () => {
+  it('App.tsx 有 /ai/:slug 深链路由', () => {
+    expect(appSource).toContain('path="/ai/:slug"')
+  })
+
+  it('访问方向详情页时导航「AI实验室」高亮', () => {
+    expect(isNavActive('/ai', '/ai/blog')).toBe(true)
+    expect(isNavActive('/ai', '/aix')).toBe(false)
   })
 })
 
 describe('INVEST_GROUPS', () => {
   const allLinks = INVEST_GROUPS.flatMap(g => g.links)
 
-  it('收纳全部 14 个旧入口，且无重复', () => {
+  it('收纳全部旧入口和 AI 工具，且无重复', () => {
     const paths = allLinks.map(l => l.path).sort()
     expect(paths).toEqual([
-      '/first-book', '/grid-trading', '/industry-landscape', '/investment-plan-2026',
+      '/first-book', '/grid-trading', '/invest/ai-tools', '/industry-landscape', '/investment-plan-2026',
       '/investment-strategy', '/investment-targets', '/limit-up-analysis',
       '/mainland-investment-targets', '/monitor', '/pulse', '/research-notes',
       '/sector-rotation', '/trading-philosophy', '/valuation',

@@ -1,10 +1,46 @@
 {
-  "generatedAt": "2026-10-05T15:58:19.101Z",
+  "generatedAt": "2026-10-06T07:05:52.178Z",
   "versions": [
     {
       "tag": "unreleased",
       "date": null,
       "commits": [
+        {
+          "hash": "9befaa3",
+          "subject": "feat(ai-lab): 方向实验档案页 /ai/:slug",
+          "author": "hassan",
+          "date": "2026-10-06"
+        },
+        {
+          "hash": "933acb5",
+          "subject": "feat(ai-lab): AI实验室页改为作品橱窗 + 方向地图",
+          "author": "hassan",
+          "date": "2026-10-06"
+        },
+        {
+          "hash": "c0db4df",
+          "subject": "feat(ai-lab): AI实验室方向与作品数据",
+          "author": "hassan",
+          "date": "2026-10-06"
+        },
+        {
+          "hash": "f922f62",
+          "subject": "docs(ai-lab): AI实验室实现计划",
+          "author": "hassan",
+          "date": "2026-10-06"
+        },
+        {
+          "hash": "6b00df3",
+          "subject": "docs(ai-lab): AI实验室栏目重设计设计文档",
+          "author": "hassan",
+          "date": "2026-10-06"
+        },
+        {
+          "hash": "5fb0a2a",
+          "subject": "chore: 更新更新日志",
+          "author": "hassan",
+          "date": "2026-10-05"
+        },
         {
           "hash": "e3290f7",
           "subject": "feat(plan): 情绪工具打开即并行获取全部读数",
@@ -146,42 +182,6 @@
         {
           "hash": "6ba85bf",
           "subject": "feat(knowledge): add Obsidian own-server sync and refine garden scene",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "aa55675",
-          "subject": "docs(knowledge): record verified sync build and pending production activation",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "aedc94d",
-          "subject": "feat(knowledge): add desktop Obsidian sync plugin and conflict recovery",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "9a8f69d",
-          "subject": "feat(knowledge): recover downloads and concurrent snapshot publication",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "03e3260",
-          "subject": "feat(knowledge): merge device changes against a shared baseline",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "3c5593d",
-          "subject": "feat(knowledge): add authenticated immutable sync snapshots",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "f0bbeb3",
-          "subject": "docs(knowledge): record verified production cloud activation",
           "author": "hassan",
           "date": "2026-10-05"
         }

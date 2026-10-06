@@ -56,7 +56,7 @@ export default function Header(): JSX.Element {
       <div className="site-header__bar">
         <Link to="/" className="site-brand" onClick={() => setOpen(false)}>
           <Leaf />
-          <span className="site-brand__name">正念生活</span>
+          <span className="site-brand__name">Live</span>
         </Link>
 
         <nav className="site-nav" aria-label="主导航">

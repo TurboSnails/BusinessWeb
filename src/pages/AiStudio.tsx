@@ -1,29 +1,53 @@
 import React from 'react'
-
-const STEPS = [
-  { title: '建站', desc: '用 Next.js / React 把个人网站做成学习项目，同时沉淀作品。', state: '进行中' },
-  { title: '正念投资 AI V0.1', desc: '输入一家公司，按书里的框架一步步提问：分类、产业、商业模式、护城河、财报、估值、周期、证伪条件，最后生成投资决策卡。不预测涨跌。', state: '准备中' },
-  { title: '公开验证', desc: '找 20 个真实用户用起来，看哪些环节有人愿意持续使用。', state: '准备中' },
-]
+import { Link } from 'react-router-dom'
+import { ArrowRight } from 'lucide-react'
+import LabDirectionCard from '../components/lab/LabDirectionCard'
+import { LAB_SHOWCASE, avoidedDirections, labStats, recommendedDirections } from '../data/aiLab'
 
 export default function AiStudio(): JSX.Element {
+  const stats = labStats()
+  const avoided = avoidedDirections()
   return (
-    <main className="container animate-fade-in">
+    <main className="container animate-fade-in lab-page">
       <header className="page-head">
-        <h1>AI 与独立开发</h1>
-        <p>用技术放大自己的创造力。第一个作品，从《正念投资》长出来。</p>
+        <h1>AI实验室</h1>
+        <p>一个程序员为自由生活准备的第二曲线：开发、工具、内容和小生意，每个方向都当成一次公开实验。</p>
+        <p className="lab-stats">作品 {stats.works} · 进行中 {stats.running} · 已停止 {stats.stopped}</p>
       </header>
-      <ol className="road">
-        {STEPS.map(s => (
-          <li key={s.title} className="road__item">
-            <div className="road__head">
-              <h2>{s.title}</h2>
-              <span className="tag">{s.state}</span>
-            </div>
-            <p>{s.desc}</p>
-          </li>
-        ))}
-      </ol>
+
+      <section className="lab-section">
+        <h2>作品</h2>
+        <div className="lab-showcase">
+          {LAB_SHOWCASE.map(s => (
+            <Link key={s.path} to={s.path} className="hub-card lab-showcase__item">
+              <span className="hub-card__title">{s.title}</span>
+              <span className="hub-card__desc">{s.desc}</span>
+              <ArrowRight size={16} className="hub-card__arrow" aria-hidden="true" />
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="lab-section">
+        <h2>推荐方向</h2>
+        <p className="hub-group__hint">按和我的匹配度从高到低排列。点开看每个实验的边界和日志。</p>
+        <div className="lab-grid">
+          {recommendedDirections().map(d => <LabDirectionCard key={d.slug} direction={d} />)}
+        </div>
+      </section>
+
+      <details className="hub-group hub-group--fold lab-section">
+        <summary>不推荐（{avoided.length}）</summary>
+        <p className="hub-group__hint">这些方向我不做，原因写在每一项里，给想做的人提个醒。</p>
+        <div className="lab-grid">
+          {avoided.map(d => <LabDirectionCard key={d.slug} direction={d} />)}
+        </div>
+      </details>
+
+      <section className="lab-section">
+        <h2>实验规则</h2>
+        <p>每个实验开始前先定好每周时间、预算上限和截止日期；到期看数据，决定继续还是停止。过程和结果都公开记录，没开始的就写“还没开始”。</p>
+      </section>
     </main>
   )
 }

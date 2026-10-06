@@ -6,15 +6,15 @@ import RecentUpdates from '../components/RecentUpdates'
 
 const COLUMNS = [
   { to: '/invest', title: '正念投资', desc: '读书、方法、工具与研究。普通人用规则代替盯盘。' },
-  { to: '/ai', title: 'AI 与独立开发', desc: '把书里的框架做成小产品，边学边做。' },
-  { to: '/life', title: '自由生活实验', desc: '从 *** 到目标 400 万，再到自由生活的第一年。' },
+  { to: '/ai', title: 'AI实验室', desc: '把书里的框架做成小产品，边学边做。' },
+  { to: '/life', title: '自由空间', desc: '从 *** 到目标 400 万，再到自由生活的第一年。' },
 ]
 
 export default function Home(): JSX.Element {
   return (
     <main className="container animate-fade-in">
       <section className="hero">
-        <p className="hero__eyebrow">正念生活 · Mindful Life</p>
+        <p className="hero__eyebrow">Live</p>
         <h1 className="hero__title">《正念投资》</h1>
         <p className="hero__subtitle">不盯盘、不预测的普通人投资方法</p>
         <div className="hero__actions">

@@ -157,7 +157,7 @@ function Workspace({ api: rawApi = knowledgeApi, initialTab = 'workspace' }: { a
   const connected = connection === 'ready'
   return <main className="kb-page animate-fade-in">
     <header className="kb-page-head">
-      <div><span className="kb-eyebrow">PERSONAL BRAIN</span><h1>个人知识中心<span className="kb-head-dot">.</span></h1><p>让知识慢慢连成一片。每一条记录，都是下一次思考的起点。</p></div>
+      <div><span className="kb-eyebrow">PERSONAL BRAIN</span><h1>知识图谱<span className="kb-head-dot">.</span></h1><p>让知识慢慢连成一片。每一条记录，都是下一次思考的起点。</p></div>
       <span className={`kb-connection ${connected ? 'is-connected' : ''}`}><i />{connected ? status?.source === 'cloud' ? '已连接云端资料库' : '已连接本地 Vault' : connection === 'loading' ? '正在连接…' : isCloudKnowledge() ? '云端资料库未连接' : '本地 Vault 未连接'}</span>
     </header>
     <nav className="kb-tabs" aria-label="知识中心栏目"><button className={tab === 'garden' ? 'is-active' : ''} onClick={() => setTab('garden')}><Network size={16} />蒲公英网络</button><button className={tab === 'workspace' ? 'is-active' : ''} onClick={() => setTab('workspace')}><BookOpen size={16} />知识工作台</button><button className={tab === 'setup' ? 'is-active' : ''} onClick={() => setTab('setup')}><Network size={16} />连接与扩展</button><span><HardDrive size={14} />Markdown 是唯一真实数据</span></nav>
@@ -218,7 +218,7 @@ export default function KnowledgeWorkspace(props: { api?: KnowledgeApi; initialT
   }
   if (probing) return null
   if (!unlocked) return <main className="kb-page"><section className="kb-offline">
-    <span className="kb-eyebrow">YOUR PRIVATE LIBRARY</span><h1>解锁个人知识中心</h1><p>输入资料库访问码，查看真实笔记与蒲公英网络。</p>
+    <span className="kb-eyebrow">YOUR PRIVATE LIBRARY</span><h1>解锁知识图谱</h1><p>输入资料库访问码，查看真实笔记与蒲公英网络。</p>
     <form onSubmit={e => void unlock(e)} className="kb-cloud-login"><label htmlFor="knowledge-token">资料库访问码</label><input id="knowledge-token" type="password" autoComplete="off" value={token} onChange={e => setToken(e.target.value)} required /><button className="kb-primary" disabled={busy}>{busy ? '正在连接…' : '解锁资料库'}</button></form>
     {error && <p className="kb-alert" role="alert">{error}</p>}<p className="kb-muted">访问码只保留在当前浏览器会话。原始 Markdown 保存在你的本机。</p>{['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname) && <button onClick={() => { preferCloudOnLocal(false); window.location.reload() }}>切回本地 Vault</button>}
   </section></main>

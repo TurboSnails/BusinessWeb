@@ -18,7 +18,7 @@ export default function SectionChrome(): JSX.Element | null {
   return (
     <div className="section-chrome">
       <nav className="breadcrumb" aria-label="面包屑">
-        <Link to="/">正念生活</Link>
+        <Link to="/">Live</Link>
         <span aria-hidden="true">›</span>
         <Link to="/invest">正念投资</Link>
         <span aria-hidden="true">›</span>

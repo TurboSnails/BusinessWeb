@@ -39,7 +39,7 @@ describe('App 路由拆分', () => {
     window.history.pushState({}, '', '/about')
     render(<App />)
     expect(screen.getByRole('status').textContent).toContain('加载中')
-    expect(await screen.findByRole('heading', { level: 2, name: '关于「正念生活」' })).toBeTruthy()
+    expect(await screen.findByRole('heading', { level: 2, name: '关于「Live」' })).toBeTruthy()
     expect(screen.queryByRole('status')).toBeNull()
   })
 
@@ -54,6 +54,6 @@ describe('App 路由拆分', () => {
     window.history.pushState({}, '', '/pulse')
     render(<App />)
     expect(screen.getByRole('navigation', { name: '主导航' })).toBeTruthy()
-    expect(screen.getByText(/Mindful Life/)).toBeTruthy()
+    expect(screen.getByRole('contentinfo').textContent).toContain('Live')
   })
 })

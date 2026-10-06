@@ -18,17 +18,17 @@ const renderAt = (path: string) =>
   )
 
 describe('Header', () => {
-  it('品牌名是正念生活，链接回首页', () => {
+  it('品牌名是Live，链接回首页', () => {
     renderAt('/invest')
-    const brand = screen.getByRole('link', { name: /正念生活/ })
+    const brand = screen.getByRole('link', { name: /Live/ })
     expect(brand.getAttribute('href')).toBe('/')
   })
 
-  it('主导航含个人知识中心，共 6 项', () => {
+  it('主导航含知识图谱，共 6 项', () => {
     renderAt('/')
     const nav = screen.getByRole('navigation', { name: '主导航' })
     expect(within(nav).getAllByRole('link').map(a => a.textContent)).toEqual([
-      '首页', '正念投资', 'AI 与独立开发', '个人知识中心', '自由生活实验', '关于',
+      '首页', '正念投资', 'AI实验室', '知识图谱', '自由空间', '关于',
     ])
   })
 
@@ -95,8 +95,8 @@ describe('Header', () => {
 
 it('知识中心点亮桌面与移动导航', () => {
   renderAt('/knowledge')
-  expect(screen.getByRole('link', { name: '个人知识中心' }).getAttribute('aria-current')).toBe('page')
+  expect(screen.getByRole('link', { name: '知识图谱' }).getAttribute('aria-current')).toBe('page')
   fireEvent.click(screen.getByRole('button', { name: '打开菜单' }))
   const drawer = screen.getByRole('navigation', { name: '移动导航' })
-  expect(within(drawer).getByRole('link', { name: '个人知识中心' }).getAttribute('aria-current')).toBe('page')
+  expect(within(drawer).getByRole('link', { name: '知识图谱' }).getAttribute('aria-current')).toBe('page')
 })
