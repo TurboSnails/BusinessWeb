@@ -139,7 +139,7 @@ export function labStats(): { works: number; running: number; stopped: number }
 
 ## 5. 样式
 
-沿用「纸书茶室」变量，不引入新风格。新增类集中在 `index.css` 的一个 `/* AI 实验室 */` 区块：
+沿用「纸书茶室」变量，不引入新风格。新增类集中在 `src/styles/shell.css` 末尾的一个 `/* AI 实验室 */` 区块：
 
 - `.lab-stats`：统计行，次要文字色。
 - `.lab-showcase`：手机端 `display:flex; overflow-x:auto; scroll-snap-type:x mandatory`，卡片宽 78%；≥ 768px 改为 4 列 grid、不滚动。
@@ -166,5 +166,5 @@ export function labStats(): { works: number; running: number; stopped: number }
 | `src/pages/AiLabDirection.tsx` | 新增 |
 | `src/pages/AiLabDirection.test.tsx` | 新增 |
 | `src/App.tsx` | 加路由 |
-| `src/index.css` | 加 AI 实验室样式区块 |
+| `src/styles/shell.css` | 加 AI 实验室样式区块 |
 | `src/pages/Sections.test.tsx`、`src/data/siteMap.test.ts` | 更新断言 |
