@@ -1057,10 +1057,6 @@ a.chapter-nav__item:hover {
   border-color: var(--accent);
 }
 
-.lab-card--avoid {
-  opacity: 0.85;
-}
-
 .lab-card__meta {
   display: flex;
   flex-wrap: wrap;
@@ -1115,7 +1111,8 @@ a.chapter-nav__item:hover {
 
 .lab-badge--try,
 .lab-badge--experiment {
-  color: var(--accent-warm);
+  color: var(--text-primary);
+  border-color: var(--accent-warm);
 }
 
 .lab-badge--avoid {
