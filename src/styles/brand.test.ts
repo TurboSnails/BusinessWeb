@@ -5,10 +5,10 @@ import { describe, expect, it } from 'vitest'
 const read = (p: string): string => readFileSync(resolve(__dirname, '../../', p), 'utf8')
 
 describe('品牌文件', () => {
-  it('manifest 名称、描述、主题色都是正念生活 / 纸色', () => {
+  it('manifest 名称、描述、主题色都是Live / 纸色', () => {
     const m = JSON.parse(read('public/manifest.webmanifest'))
-    expect(m.name).toBe('正念生活')
-    expect(m.short_name).toBe('正念生活')
+    expect(m.name).toBe('Live')
+    expect(m.short_name).toBe('Live')
     expect(m.description).toContain('投资')
     expect(m.theme_color).toBe('#FAF6EE')
     expect(m.background_color).toBe('#FAF6EE')

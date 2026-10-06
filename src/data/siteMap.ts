@@ -23,9 +23,9 @@ export interface HubGroup {
 export const NAV_ITEMS: NavItem[] = [
   { path: '/', label: '首页' },
   { path: '/invest', label: '正念投资' },
-  { path: '/ai', label: 'AI 与独立开发' },
-  { path: '/knowledge', label: '个人知识中心' },
-  { path: '/life', label: '自由生活实验' },
+  { path: '/ai', label: 'AI实验室' },
+  { path: '/knowledge', label: '知识图谱' },
+  { path: '/life', label: '自由空间' },
   { path: '/about', label: '关于' },
 ]
 
@@ -64,10 +64,11 @@ export const INVEST_GROUPS: HubGroup[] = [
     id: 'tools',
     step: '第四步',
     title: '用工具执行',
-    hint: '估值定价格，网格管节奏。',
+    hint: '估值定价格，网格管节奏，AI 工具辅助研究。',
     links: [
       { path: '/valuation', label: '公司估值', desc: '六方法三情景估值与报告导出' },
       { path: '/grid-trading', label: '网格交易', desc: 'ETF / 个股网格模拟、回测与记录' },
+      { path: '/invest/ai-tools', label: 'AI 工具', desc: '三套投资分析 Skill 专家的介绍与完整下载包' },
     ],
   },
   {

@@ -57,10 +57,10 @@ describe('About 页面', () => {
 })
 
 describe('About 页面：站点介绍', () => {
-  it('标题是关于「正念生活」，不再是 Hassan 投资工作台', () => {
+  it('标题是关于「Live」，不再是 Hassan 投资工作台', () => {
     mockFetchOnce(() => new Promise(() => {}))
     render(<MemoryRouter><About /></MemoryRouter>)
-    expect(screen.getByRole('heading', { level: 2, name: '关于「正念生活」' })).toBeTruthy()
+    expect(screen.getByRole('heading', { level: 2, name: '关于「Live」' })).toBeTruthy()
     expect(document.body.textContent).not.toMatch(/Hassan 投资工作台/)
   })
 

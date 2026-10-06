@@ -10,7 +10,7 @@ export default function LifeLab(): JSX.Element {
   return (
     <main className="container animate-fade-in">
       <header className="page-head">
-        <h1>自由生活实验</h1>
+        <h1>自由空间</h1>
         <p>一个普通程序员关于钱、技术与自由生活的长期实验。钱不是终点，是选择权。</p>
       </header>
       <ol className="road">

@@ -33,8 +33,8 @@ describe('设计变量', () => {
     expect(css).not.toMatch(/backdrop-filter\s*:\s*blur/)
   })
 
-  it('index.html 为正念生活并启用 viewport-fit=cover', () => {
-    expect(html).toContain('<title>正念生活')
+  it('index.html 为Live并启用 viewport-fit=cover', () => {
+    expect(html).toContain('<title>Live')
     expect(html).toContain('viewport-fit=cover')
   })
 })

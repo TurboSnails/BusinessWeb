@@ -30,6 +30,7 @@ const GridRecordDetail = lazy(() => import('./pages/GridRecordDetail'))
 const Valuation = lazy(() => import('./pages/Valuation'))
 const IndustryLandscape = lazy(() => import('./pages/IndustryLandscape'))
 const KnowledgeCenter = lazy(() => import('./pages/KnowledgeCenter'))
+const InvestmentAiTools = lazy(() => import('./pages/InvestmentAiTools'))
 const AiLabDirection = lazy(() => import('./pages/AiLabDirection'))
 
 function PageLoading(): JSX.Element {
@@ -47,6 +48,7 @@ export default function App(): JSX.Element {
           <Route path="/valuation" element={<Valuation />} />
           <Route path="/" element={<Home />} />
           <Route path="/invest" element={<InvestHub />} />
+          <Route path="/invest/ai-tools" element={<InvestmentAiTools />} />
           <Route path="/ai" element={<AiStudio />} />
           <Route path="/ai/:slug" element={<AiLabDirection />} />
           <Route path="/knowledge" element={<KnowledgeCenter />} />
