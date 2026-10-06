@@ -1,10 +1,28 @@
 {
-  "generatedAt": "2026-10-06T07:05:52.178Z",
+  "generatedAt": "2026-10-06T07:27:26.298Z",
   "versions": [
     {
       "tag": "unreleased",
       "date": null,
       "commits": [
+        {
+          "hash": "f3573d3",
+          "subject": "Merge branch 'feat/ai-lab': AI实验室栏目重设计",
+          "author": "hassan",
+          "date": "2026-10-06"
+        },
+        {
+          "hash": "9b706de",
+          "subject": "feat: 投资 AI 工具页（Skill 下载包）、品牌改为 Live、栏目改名为 AI实验室 / 自由空间",
+          "author": "hassan",
+          "date": "2026-10-06"
+        },
+        {
+          "hash": "58bb009",
+          "subject": "fix(ai-lab): 实验/可以试徽章文字对比度达到 AA",
+          "author": "hassan",
+          "date": "2026-10-06"
+        },
         {
           "hash": "9befaa3",
           "subject": "feat(ai-lab): 方向实验档案页 /ai/:slug",
@@ -164,24 +182,6 @@
         {
           "hash": "3355d94",
           "subject": "feat(knowledge): 切换栏目复用已加载数据；更新「连接与扩展」说明",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "09e8d56",
-          "subject": "feat(knowledge): 网页端只读，笔记只在 Obsidian 中修改",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "f9730dc",
-          "subject": "Merge Obsidian own-server sync into main",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "6ba85bf",
-          "subject": "feat(knowledge): add Obsidian own-server sync and refine garden scene",
           "author": "hassan",
           "date": "2026-10-05"
         }
