@@ -1,13 +1,14 @@
 import React from 'react'
 import { Download } from 'lucide-react'
 import { INVESTMENT_SKILLS, INVESTMENT_SKILL_TAG, investmentSkillDownloadUrl } from '../data/investmentSkills'
+import { WRITING_SKILLS } from '../data/writingSkills'
 
 export default function InvestmentAiTools(): JSX.Element {
   return (
     <main className="container animate-fade-in investment-ai-tools">
       <header className="page-head">
         <h1>AI 工具</h1>
-        <p>投资分析与视频创作 Skills，按任务挑选。下载包包含 SKILL.md 和完整参考资料。</p>
+        <p>投资分析、视频创作与小说写作 Skills，按任务挑选。下载包包含 SKILL.md 和配套参考资料。</p>
         <div className="skill-download-actions">
           <span className="tag">{INVESTMENT_SKILL_TAG}</span>
           <a className="skill-download" href={investmentSkillDownloadUrl('investment-analysis-skills.zip')} download="investment-analysis-skills.zip">
@@ -62,12 +63,42 @@ export default function InvestmentAiTools(): JSX.Element {
         </div>
       </section>
 
+      <section className="hub-group" aria-labelledby="writing-skills-title">
+        <h2 id="writing-skills-title">小说与写作</h2>
+        <div className="skill-grid">
+          {WRITING_SKILLS.map(skill => (
+            <article className="skill-card" key={skill.id}>
+              <span className="tag">{skill.tag}</span>
+              <h2>{skill.name}</h2>
+              <p className="skill-card__alias">{skill.id}</p>
+              <p className="skill-card__focus">{skill.focus}</p>
+              <p>{skill.description}</p>
+              <p><strong>产出：</strong>{skill.outputs}</p>
+              {'note' in skill && <p>{skill.note}</p>}
+              <details className="skill-example">
+                <summary>试一句提示词</summary>
+                <p>{skill.example}</p>
+              </details>
+              <a className="skill-download" href={`${import.meta.env.BASE_URL}ai-skills/${skill.id}.zip`} download={`${skill.id}.zip`} aria-label={`下载${skill.name}完整 ZIP`}>
+                <Download size={16} aria-hidden="true" /> 下载完整 ZIP
+              </a>
+            </article>
+          ))}
+        </div>
+        <div className="skill-download-actions">
+          <a className="skill-download" href={`${import.meta.env.BASE_URL}ai-skills/writing-skills.zip`} download="writing-skills.zip">
+            <Download size={16} aria-hidden="true" /> 下载写作合集（3 套 ZIP）
+          </a>
+          <a className="skill-guide" href={`${import.meta.env.BASE_URL}ai-skills/writing-skills-README.md`} download="小说与写作Skills-使用说明.md">下载写作使用说明</a>
+        </div>
+      </section>
+
       <section className="road__item skill-install" aria-labelledby="skill-install-title">
         <h2 id="skill-install-title">下载后怎么用</h2>
         <ol>
           <li>解压 ZIP，保留每套 Skill 的整个文件夹，包括 SKILL.md 和 references。</li>
           <li>放到项目的 <code>.agents/skills/</code>（Codex）或 <code>.claude/skills/</code>（Claude Code）目录；OpenCode 可用 <code>.opencode/skills/</code>。</li>
-          <li>重新打开会话，在提问时写出 Skill 名称和任务背景：投资研究提供代码、市场和问题；视频创作提供主体、场景、风格和时长。</li>
+          <li>重新打开会话，在提问时写出 Skill 名称和任务背景：投资研究提供代码、市场和问题；视频创作提供主体、场景、风格和时长；小说写作提供设定、稿件和创作目标。</li>
         </ol>
         <p>Skill 是供 AI 助手读取的任务流程。投资分析需准备公开数据查询能力；团队类 Skill 还需助手支持子代理编排。具体要求见包内说明。</p>
         <p>视频提示词构建器的 .skill 为原始打包文件；支持该格式的工具可导入，否则下载 ZIP 按上述目录方式安装。它用于编写提示词，生成视频需另用视频生成工具。</p>

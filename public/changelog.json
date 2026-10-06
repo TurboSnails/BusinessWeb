@@ -1,10 +1,16 @@
 {
-  "generatedAt": "2026-10-06T07:27:26.298Z",
+  "generatedAt": "2026-10-06T08:20:28.745Z",
   "versions": [
     {
       "tag": "unreleased",
       "date": null,
       "commits": [
+        {
+          "hash": "a8b88ae",
+          "subject": "feat(ai-tools): add video prompt builder skill downloads",
+          "author": "hassan",
+          "date": "2026-10-06"
+        },
         {
           "hash": "f3573d3",
           "subject": "Merge branch 'feat/ai-lab': AI实验室栏目重设计",
@@ -176,12 +182,6 @@
         {
           "hash": "198496b",
           "subject": "feat(invest): 按书里的流程重排正念投资入口，统一子页面样式",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "3355d94",
-          "subject": "feat(knowledge): 切换栏目复用已加载数据；更新「连接与扩展」说明",
           "author": "hassan",
           "date": "2026-10-05"
         }
