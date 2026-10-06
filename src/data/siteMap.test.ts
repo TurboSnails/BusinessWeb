@@ -14,6 +14,17 @@ describe('NAV_ITEMS', () => {
   })
 })
 
+describe('AI实验室路由', () => {
+  it('App.tsx 有 /ai/:slug 深链路由', () => {
+    expect(appSource).toContain('path="/ai/:slug"')
+  })
+
+  it('访问方向详情页时导航「AI实验室」高亮', () => {
+    expect(isNavActive('/ai', '/ai/blog')).toBe(true)
+    expect(isNavActive('/ai', '/aix')).toBe(false)
+  })
+})
+
 describe('INVEST_GROUPS', () => {
   const allLinks = INVEST_GROUPS.flatMap(g => g.links)
 
