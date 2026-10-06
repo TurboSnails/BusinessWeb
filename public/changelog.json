@@ -1,10 +1,16 @@
 {
-  "generatedAt": "2026-10-06T08:20:28.745Z",
+  "generatedAt": "2026-10-06T19:53:49.448Z",
   "versions": [
     {
       "tag": "unreleased",
       "date": null,
       "commits": [
+        {
+          "hash": "ad8284c",
+          "subject": "feat(ai-tools): add novel and literary writing skill downloads",
+          "author": "hassan",
+          "date": "2026-10-06"
+        },
         {
           "hash": "a8b88ae",
           "subject": "feat(ai-tools): add video prompt builder skill downloads",
@@ -176,12 +182,6 @@
         {
           "hash": "7b21dce",
           "subject": "feat(industry): 半导体产业链改为可展开、可搜索的树",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "198496b",
-          "subject": "feat(invest): 按书里的流程重排正念投资入口，统一子页面样式",
           "author": "hassan",
           "date": "2026-10-05"
         }

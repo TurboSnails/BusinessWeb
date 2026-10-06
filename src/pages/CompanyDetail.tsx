@@ -153,11 +153,11 @@ export default function CompanyDetail(): JSX.Element {
 
       <div style={{ maxWidth: '760px', margin: '0 auto', padding: '28px 20px' }}>
         <ResearchNotice />
-        {(company.market === 'us' || company.market === 'cn') && company.metrics.some(([key]) => key === '圆桌复核日期') && (
+        {(company.market === 'us' || company.market === 'cn') && (company.researchReport || company.metrics.some(([key]) => key === '圆桌复核日期')) && (
           <div style={card}>
-            <h3 style={cardTitle}>腾讯自选股投研专家团 · 本轮公告复核</h3>
-            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.8 }}>本轮已补充公司公告；证据分为公告原件、公告转载及待核实；旧情景价值的认证状态以本轮结论为准。“上轮”指标保留历史口径，林奇分类仍为此前的程序化筛选结果。</p>
-            <a href={`${import.meta.env.BASE_URL}${company.market === 'cn' ? CN_REPORT : SP500_REPORT}`} target="_blank" rel="noreferrer" style={{ fontSize: '13px' }}>查看本轮完整报告与一手来源</a>
+            <h3 style={cardTitle}>{company.researchReport ? '公司研究 · 本轮事实复核与估值初稿' : '腾讯自选股投研专家团 · 本轮公告复核'}</h3>
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.8 }}>{company.researchReport ? '已按公司核对财报与现金流，完整报告列明来源、旧结论调整及待补证据。估值假设尚未认证；林奇分类仍为此前的程序化筛选结果。' : '本轮已补充公司公告；证据分为公告原件、公告转载及待核实；旧情景价值的认证状态以本轮结论为准。“上轮”指标保留历史口径，林奇分类仍为此前的程序化筛选结果。'}</p>
+            <a href={`${import.meta.env.BASE_URL}${company.researchReport ?? (company.market === 'cn' ? CN_REPORT : SP500_REPORT)}`} target="_blank" rel="noreferrer" style={{ fontSize: '13px' }}>查看本轮完整报告与一手来源</a>
           </div>
         )}
         {(() => {

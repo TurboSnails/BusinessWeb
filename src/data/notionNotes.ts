@@ -68,7 +68,7 @@ export const portfolioV6 = {
 }
 
 // ───────── 研究标准（适用于所有公司：美股 / 港股 / A 股） ─────────
-// 综合自用户 Notion 的研究需求，以及项目内三个 skill：stock-research-expert、trading-analysis-team、tencent-stock-research-team
+// 用户 Notion 的研究需求与两套专家流程已汇总进 stock-analysis；交易提案保留 trading-analysis-team
 export const researchStandard = {
   goal: '在合理价格买入盈利趋势向上、确定性较高、增长持续时间更长、并且预期盈亏比有吸引力的股票。先算下行，再谈上行；先验证赚钱能力，再讨论概念。',
   applies: [
@@ -77,16 +77,15 @@ export const researchStandard = {
     '旧页不符合本标准的，单独安排重做，不在原页上混改',
   ],
   flow: [
-    { step: '1 立论', title: '过“资深 PM 七问”', desc: '先说清市场错在哪里。说不出变异认知，就标“监控项”或“放弃”，不写“好公司便宜”式泛论', skill: 'stock-research-expert' },
-    { step: '2 取数', title: '一手数据 + 单一口径', desc: '先判断此刻能拿到的最新财报期次，再取数；每个数字带来源与日期，缺失标 [MISSING]', skill: 'stock-research-expert' },
-    { step: '3 估值', title: '至少两种方法 + 三情景', desc: 'EPS(FCF) × 合理倍数得到悲观/基准/乐观隐含价，再算盈亏比，列出全部关键假设', skill: 'stock-research-expert' },
-    { step: '4 对抗', title: '多空辩论 + 三方风险辩论', desc: '多空真打、逐条反驳；激进/保守/中性风险分析师互相点名挑战；研究主管与风险主管必须拍板', skill: 'trading-analysis-team' },
-    { step: '5 收口', title: '条件化结论 + 失效条件', desc: '给评级、买入区、加仓/减仓/失效条件；需要多视角时再开圆桌看分歧在哪', skill: 'tencent-stock-research-team' },
+    { step: '1 立论', title: '过“资深 PM 七问”', desc: '先说清市场错在哪里。说不出变异认知，就标“监控项”或“放弃”，不写“好公司便宜”式泛论', skill: 'stock-analysis' },
+    { step: '2 取数', title: '一手数据 + 单一口径', desc: '先判断此刻能拿到的最新财报期次，再取数；每个数字带来源与日期，缺失标 [MISSING]', skill: 'stock-analysis' },
+    { step: '3 估值', title: '至少两种方法 + 三情景', desc: '按行业选择估值方法，建立悲观/基准/乐观隐含价，再算盈亏比，列出全部关键假设', skill: 'stock-analysis' },
+    { step: '4 对抗', title: '专家视角 + 多空交锋', desc: '产业、信号、估值、逆向、财报、短线按问题参与，空头逐条回应多头；交易提案或三方风险裁决按需使用交易分析团队', skill: 'stock-analysis' },
+    { step: '5 收口', title: '条件化结论 + 失效条件', desc: '给综合评级、研究区间、加仓/减仓/失效条件，单列专家共识与分歧；证据不足明确等待证据', skill: 'stock-analysis' },
   ],
   skills: [
-    ['股票研究专家', 'stock-research-expert', '深度研究、估值建模、财报解读、投资备忘录', '给方向性结论 + 目标价 + 三情景，要求可证伪'],
+    ['股票分析', 'stock-analysis', '公司研究、财报解读、估值建模、多股对比、专家圆桌', '研究方法 + 深度估值 + 六专家视角；综合评级、三情景、盈亏比与可证伪条件'],
     ['交易分析团队', 'trading-analysis-team', '“X 该不该买”“买卖点与止损”“风险诊断”', '4 路并行采集 → 多空辩论 → 交易员提案 → 三方风险辩论 → 风险主管拍板'],
-    ['腾讯自选股投研专家团', 'tencent-stock-research-team', '想看几位风格不同的专家各自怎么看', '6 位专家圆桌，不给买卖指令，用偏多/偏空/观望/分歧表达'],
   ] as [string, string, string, string][],
   pmQuestions: [
     '什么被错误定价了？（无变异认知 → 监控项或放弃）',
@@ -259,15 +258,15 @@ export const cnChains = [
 ]
 
 export const chemRanking = [
-  { rank: 1, name: '华鲁恒升', code: '600426', tier: 'A', pe: '11.4', label: 'HOLD（条件候选）', why: '低负债、正 FCF、煤化工成本优势' },
-  { rank: 2, name: '扬农化工', code: '600486', tier: 'A', pe: '13.4', label: 'HOLD（条件候选）', why: '农药认证与渠道、现金流稳定' },
-  { rank: 3, name: '宝丰能源', code: '600989', tier: 'B', pe: '8.9', label: 'HOLD（条件候选）', why: '煤制烯烃成本优势、毛利 43.6%' },
-  { rank: 4, name: '盐湖股份', code: '000792', tier: 'B', pe: '10.6', label: 'HOLD（条件候选）', why: '钾锂资源、毛利 71.4%、负债 14.1%' },
-  { rank: 5, name: '云天化', code: '600096', tier: 'B', pe: '8.7', label: 'HOLD（条件候选）', why: '磷钾资源、估值低' },
-  { rank: 6, name: '万华化学', code: '600309', tier: 'B', pe: '11.1', label: 'HOLD（条件候选）', why: 'MDI 龙头、H1 净利 +64%' },
-  { rank: 7, name: '藏格矿业', code: '000408', tier: 'C', pe: '15.6', label: 'HOLD（仅观察）', why: '低负债高毛利，CFO/净利仅 27%' },
-  { rank: 8, name: '华峰化学', code: '002064', tier: 'C', pe: '12.4', label: 'HOLD（仅观察）', why: '低杠杆，需行业出清验证' },
-  { rank: 9, name: '巨化股份', code: '600160', tier: 'C', pe: '17.7', label: 'HOLD（仅观察）', why: '制冷剂配额、氟材料高端化' },
+  { rank: 1, name: '华鲁恒升', code: '600426', tier: 'A', pe: '13.0', label: '观察（煤化工标杆）', why: '低负债、正简式FCF（10.4亿）、煤气化平台成本优势，扣非23.5亿（+50.5%）' },
+  { rank: 2, name: '扬农化工', code: '600486', tier: 'A', pe: '16.3', label: '观察（优质农化）', why: '先正达菊酯核心资产，现金流稳定（OCF 14.4亿），简式FCF 11.3亿充分覆盖净利' },
+  { rank: 3, name: '宝丰能源', code: '600989', tier: 'A', pe: '10.7', label: '观察（烯烃规模）', why: '煤制烯烃成本顶尖，内蒙大项目投产放大毛利（43.6%），FCF 73.6亿，负债需匹配' },
+  { rank: 4, name: '盐湖股份', code: '000792', tier: 'A', pe: '10.5', label: '观察（资源垄断）', why: '察尔汗盐湖钾锂资源，扣非60.0亿（+139%），毛利71.4%，FCF 56.5亿极强' },
+  { rank: 5, name: '云天化', code: '600096', tier: 'B', pe: '9.5', label: '观察（磷矿一体）', why: '磷矿合成氨高度自给，扣非28.7亿，FCF 20.6亿，当前估值处于历史偏低分位' },
+  { rank: 6, name: '万华化学', code: '600309', tier: 'A', pe: '13.1', label: '观察（全球MDI）', why: '全球聚氨酯绝对龙头，扣非96.8亿（+55%），高资本开支压制简式FCF（10.4亿）' },
+  { rank: 7, name: '巨化股份', code: '600160', tier: 'A', pe: '20.4', label: '观察（氟制冷剂）', why: '三代配额约束提价增利，扣非26.3亿（+29.7%），但扩产开支导致FCF为负（-19.4亿）' },
+  { rank: 8, name: '华峰化学', code: '002064', tier: 'B', pe: '16.8', label: '观察（氨纶龙头）', why: '氨纶与聚氨酯原液规模第一，扣非19.7亿（+118%），待行业供求彻底出清' },
+  { rank: 9, name: '藏格矿业', code: '000408', tier: 'B', pe: '19.5', label: '观察（铜锂投资）', why: '巨龙铜业投资收益贡献大半利润，扣非37.1亿，主营经营现金流对净利转化率偏低' },
 ]
 
 export const newMaterialRanking = [
@@ -353,13 +352,13 @@ export const travelBatch = {
 }
 
 export const goldmanWatch = [
-  { tier: '首选', name: '亚翔集成', code: '603929', why: '2026H1 归母 4.90 亿（+204.8%），在手订单 78.98 亿元' },
-  { tier: '首选', name: '兴业银锡', code: '000426', why: '2026H1 归母 22.63 亿（+184.4%），银资源量亚洲第一，兑现期 2028–2029' },
-  { tier: '观察', name: '伟测科技', code: '688372', why: '大陆第三方测试第一；毛利率连降、流动比率 0.98' },
-  { tier: '周期', name: '东芯股份', code: '688110', why: 'H1 营收 +336%，但含周期水分，2027 年库存出清反噬' },
-  { tier: '暂不', name: '晶瑞电材', code: '300655', why: '归母 -29.5%，PE(TTM) 116.7 倍，估值透支' },
-  { tier: '暂不', name: '双星新材', code: '002585', why: '扣非仅 586 万，AI 算力关联度低' },
-  { tier: '回避', name: '至纯科技', code: '603690', why: 'H1 亏 2.87 亿，资产负债率 74.5%' },
+  { tier: '重点跟踪', name: '亚翔集成', code: '603929', why: '在手合同78.98亿，海外晶圆洁净室高景气，H1扣非4.90亿（+205.8%），但现金结算滞后（OCF -1.31亿）' },
+  { tier: '重点跟踪', name: '兴业银锡', code: '000426', why: '亚洲白银资源第一，三座银矿梯次扩产，H1扣非18.16亿（+126.6%），毛利68.8%，FCF 17.09亿极强' },
+  { tier: '条件观察', name: '伟测科技', code: '688372', why: '第三方测试龙头，先进制程扩产（H1购建资产17.35亿），设备折旧与毛利率下行压制短期盈利' },
+  { tier: '周期观察', name: '东芯股份', code: '688110', why: '轻资产存储设计，H1扣非6.36亿扭亏，拟转增4.9股，但高估值（PE 87×）暗含去库反噬周期风险' },
+  { tier: '审慎观察', name: '晶瑞电材', code: '300655', why: '微电子化学品国产化验证壁垒高，但主营扣非仅0.45亿，百倍PE估值明显透支' },
+  { tier: '审慎观察', name: '双星新材', code: '002585', why: '常规薄膜产能过剩，H1扣非仅600万元，与AI高算力概念关联度极低' },
+  { tier: '回避', name: '至纯科技', code: '603690', why: '半导体高纯系统与湿法设备商，H1扣非巨亏2.91亿，资产负债率74.5%，商誉与债务高企' },
 ]
 
 export const compositeRank = [

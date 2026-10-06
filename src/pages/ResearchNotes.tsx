@@ -604,9 +604,9 @@ export default function ResearchNotes(): JSX.Element {
             </div>
 
             <div style={card}>
-              <h3 style={cardTitle}>三个研究 skill 的分工</h3>
+              <h3 style={cardTitle}>统一股票分析 Skill 与交易分析的分工</h3>
               <Table heads={['skill', '什么时候用', '特点']} rows={researchStandard.skills.map(k => [<span><strong style={{ color: 'var(--text-primary)' }}>{k[0]}</strong><br /><code style={{ fontSize: '11px' }}>{k[1]}</code></span>, k[2], k[3]])} />
-              <p style={{ fontSize: '12px', color: 'var(--text-tertiary)', margin: '12px 0 0', lineHeight: 1.6 }}>注意：专家团圆桌不给买卖指令；另外两个会给方向性结论，口径不要混用。</p>
+              <p style={{ fontSize: '12px', color: 'var(--text-tertiary)', margin: '12px 0 0', lineHeight: 1.6 }}>股票分析已合并本页研究方法、股票研究专家与腾讯自选股投研专家团，位于「AI 工具」第一项。综合评级与专家立场分别展示，所有价位均为条件化研究区间。</p>
             </div>
 
             <div style={card}>
@@ -796,7 +796,11 @@ export default function ResearchNotes(): JSX.Element {
             )}
 
             {catMarket === 'cn' && <details style={{ ...card, padding: '14px 18px' }}>
-              <summary style={reviewSummary}>最近复核 · 2026-09-30 专家团圆桌（点开查看）</summary>
+              <summary style={reviewSummary}>最近复核 · 2026-10-07 公司研究（点开查看）</summary>
+              <h3 style={{ ...cardTitle, marginTop: '14px' }}>金融82 · 房地产9 · 工业179</h3>
+              <p style={{ lineHeight: 1.8, fontSize: '13px' }}>本轮更新270家公司研究初稿，按55批整理，附财报来源、财务口径、旧结论修订和公司专属验证项。29家银行有普通股PB敏感性草案；其余241家价格待补证据，全部估值尚未完成独立双方法认证。财务为2026H1，行情锚点为9月30日最后报价。</p>
+              <a href={`${import.meta.env.BASE_URL}research/cn-finance-property-industrial-2026-10-07/index.md`} target="_blank" rel="noreferrer">金融、房地产、工业复核总览</a> · <a href={`${import.meta.env.BASE_URL}research/cn-finance-property-industrial-2026-10-07/summary.csv`} download>270家公司复核汇总</a>
+              <p style={{ lineHeight: 1.8, fontSize: '13px' }}>此前批次：<a href={`${import.meta.env.BASE_URL}research/cn-four-sectors-2026-10-07/index.md`} target="_blank" rel="noreferrer">机器人链、工程机械、新能源汽车、AI算力</a> · <a href={`${import.meta.env.BASE_URL}research/cn-sectors-2026-10-07/index.md`} target="_blank" rel="noreferrer">自动驾驶、新材料</a></p>
               <h3 style={{ ...cardTitle, marginTop: '14px' }}>沪深研究池 · 2026-09-30 圆桌复核</h3>
               <p style={{ lineHeight: 1.8, fontSize: '13px' }}>范围为832条研究记录（806程序化、26人工），包含沪深300、中证500及额外产业链公司；不是官方500只成分股。全池完成旧模型算术与字段审计，重点复核28家，未逐家完成一手深研。</p>
               <p style={{ lineHeight: 1.8, fontSize: '13px' }}>旧数值超过2的26家均不再作为已认证机会。东鹏保留经营正面跟踪、平安和世纪华通保留研究优先级，估值均待重建；荣昌、三生撤回授权收入的持续EPS外推；工业富联实际1.993未达2；伯特利旧基准赔率约0.83，撤回增持认证。</p>

@@ -1,5 +1,6 @@
 import React, { Suspense, lazy } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import ErrorBoundary from './components/ErrorBoundary'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import SectionChrome from './components/SectionChrome'
@@ -28,13 +29,20 @@ const GridCalculator = lazy(() => import('./pages/GridCalculator'))
 const GridRecords = lazy(() => import('./pages/GridRecords'))
 const GridRecordDetail = lazy(() => import('./pages/GridRecordDetail'))
 const Valuation = lazy(() => import('./pages/Valuation'))
+const Dcf = lazy(() => import('./pages/Dcf'))
 const IndustryLandscape = lazy(() => import('./pages/IndustryLandscape'))
 const KnowledgeCenter = lazy(() => import('./pages/KnowledgeCenter'))
 const InvestmentAiTools = lazy(() => import('./pages/InvestmentAiTools'))
+const EtfGuide = lazy(() => import('./pages/EtfGuide'))
 const AiLabDirection = lazy(() => import('./pages/AiLabDirection'))
 
 function PageLoading(): JSX.Element {
   return <div role="status" className="container page-loading">加载中…</div>
+}
+
+function RoutedBoundary({ children }: { children: React.ReactNode }): JSX.Element {
+  const { pathname } = useLocation()
+  return <ErrorBoundary resetKey={pathname}>{children}</ErrorBoundary>
 }
 
 export default function App(): JSX.Element {
@@ -43,12 +51,15 @@ export default function App(): JSX.Element {
       <BrowserRouter basename={import.meta.env.BASE_URL}>
         <Header />
         <SectionChrome />
+        <RoutedBoundary>
         <Suspense fallback={<PageLoading />}>
         <Routes>
           <Route path="/valuation" element={<Valuation />} />
+          <Route path="/dcf" element={<Dcf />} />
           <Route path="/" element={<Home />} />
           <Route path="/invest" element={<InvestHub />} />
           <Route path="/invest/ai-tools" element={<InvestmentAiTools />} />
+          <Route path="/invest/etf" element={<EtfGuide />} />
           <Route path="/ai" element={<AiStudio />} />
           <Route path="/ai/:slug" element={<AiLabDirection />} />
           <Route path="/knowledge" element={<KnowledgeCenter />} />
@@ -75,6 +86,7 @@ export default function App(): JSX.Element {
           <Route path="*" element={<NotFound />} />
         </Routes>
         </Suspense>
+        </RoutedBoundary>
         <Footer />
       </BrowserRouter>
     </div>
