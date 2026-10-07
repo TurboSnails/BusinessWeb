@@ -1,13 +1,15 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { CheckCircle2, AlertTriangle, OctagonAlert, Minus, ChevronRight, X } from 'lucide-react'
 import { SIGNALS, STAGES, signalTone, type Stage, type Tone } from './stages'
-import { INDICATORS, MODULES, ageInDays, percentileOf, signalValues, stageFromSnapshot, thresholdText, toneOf, type Indicator, type MacroSnapshot, type ModuleId, type SeriesData } from './indicators'
+import { ASSET_INDICATORS, INDICATORS, MODULES, ageInDays, percentileOf, signalValues, stageFromSnapshot, thresholdText, toneOf, type Indicator, type MacroSnapshot, type ModuleId, type SeriesData } from './indicators'
 import { CN_INDICATORS, CN_MODULES, type CnKey } from './china'
+import { HK_INDICATORS, HK_MODULES, type HkKey } from './hk'
 import Sparkline from './Sparkline'
 import LongHistoryChart from './LongHistoryChart'
+import { CycleSummary } from './CycleViews'
 import AiInterpretation from './AiInterpretation'
-import { QUALITY_LABEL, checkQuality, type QualityReport, type QualityResult } from './quality'
+import { QUALITY_LABEL, checkHkQuality, checkQuality, type QualityReport, type QualityResult } from './quality'
 import './macro.css'
 
 const TONE_LABEL: Record<Tone, string> = { green: '正常', yellow: '警惕', red: '危险', blue: '信息', gray: '背景' }
@@ -88,40 +90,78 @@ function StageHero({ stage, score, entered }: { stage: Stage; score: number; ent
   )
 }
 
-/** 摘要里的一行：点开弹出历史曲线（杠杆类是长历史图，其余是近两年走势），Esc 或点遮罩关闭 */
-function MiniRow({ ind, d }: { ind: Indicator<string>; d: SeriesData }): JSX.Element {
-  const [open, setOpen] = useState(false)
+/** 指标弹框：历史曲线 + 说明；Esc、点遮罩或关闭按钮关闭 */
+function IndicatorModal({ ind, d, onClose }: { ind: Indicator<string>; d: SeriesData; onClose: () => void }): JSX.Element {
   const thresholds = [ind.yellow, ind.red].filter((t): t is number => t !== undefined)
   const tone = toneOf(ind, d.latest.value, d.long)
   const pct = percentileOf(d.long, d.latest.value)
   useEffect(() => {
-    if (!open) return
-    const onKey = (e: KeyboardEvent): void => { if (e.key === 'Escape') setOpen(false) }
+    const onKey = (e: KeyboardEvent): void => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [open])
+  }, [onClose])
+  return (
+    <div className="macro-modal" onClick={onClose}>
+      <div className="macro-modal__box" role="dialog" aria-modal="true" aria-label={`${ind.name}历史曲线`} onClick={e => e.stopPropagation()}>
+        <div className="macro-card__head"><h3>{ind.name}</h3><button type="button" className="macro-modal__close" aria-label="关闭" onClick={onClose}><X size={16} aria-hidden="true" /></button></div>
+        <p className="macro-ind__value">{fmt(d.latest.value, ind.digits)}<small>{unitText(d.unit)}</small> {tone !== 'gray' && <ToneBadge tone={tone} />}{pct !== undefined && <small> · 处于历史 {pct}% 分位</small>}</p>
+        <p className="macro-muted">截至 {d.latest.date} · {ind.freq}</p>
+        {d.long ? <LongHistoryChart points={d.long} digits={ind.digits} unit={shortUnit(d.unit)} label={ind.name} /> : <Sparkline points={d.history} thresholds={thresholds} digits={ind.digits} unit={shortUnit(d.unit)} label={ind.name} />}
+        <p className="macro-ind__rule">{thresholdText(ind, shortUnit(d.unit))}</p>
+        <p className="macro-ind__why">{ind.why}</p>
+        <p className="macro-muted">局限：{ind.limit}</p>
+      </div>
+    </div>
+  )
+}
+
+/** 摘要里的一行：点开弹出历史曲线（杠杆类是长历史图，其余是近两年走势） */
+function MiniRow({ ind, d }: { ind: Indicator<string>; d: SeriesData }): JSX.Element {
+  const [open, setOpen] = useState(false)
+  const close = useCallback(() => setOpen(false), [])
   return (
     <li>
       <button type="button" className="macro-mini__row" aria-haspopup="dialog" aria-label={`${ind.name}，点击查看历史曲线`} onClick={() => setOpen(true)}>
         <span className="macro-mini__name">{ind.name}</span>
         <b>{fmt(d.latest.value, ind.digits)}{shortUnit(d.unit)}</b>
-        <ToneBadge tone={tone} />
+        <ToneBadge tone={toneOf(ind, d.latest.value, d.long)} />
         <ChevronRight size={14} className="macro-mini__chev" aria-hidden="true" />
       </button>
-      {open && (
-        <div className="macro-modal" onClick={() => setOpen(false)}>
-          <div className="macro-modal__box" role="dialog" aria-modal="true" aria-label={`${ind.name}历史曲线`} onClick={e => e.stopPropagation()}>
-            <div className="macro-card__head"><h3>{ind.name}</h3><button type="button" className="macro-modal__close" aria-label="关闭" onClick={() => setOpen(false)}><X size={16} aria-hidden="true" /></button></div>
-            <p className="macro-ind__value">{fmt(d.latest.value, ind.digits)}<small>{unitText(d.unit)}</small> <ToneBadge tone={tone} />{pct !== undefined && <small> · 处于历史 {pct}% 分位</small>}</p>
-            <p className="macro-muted">截至 {d.latest.date} · {ind.freq}</p>
-            {d.long ? <LongHistoryChart points={d.long} digits={ind.digits} unit={shortUnit(d.unit)} label={ind.name} /> : <Sparkline points={d.history} thresholds={thresholds} digits={ind.digits} unit={shortUnit(d.unit)} label={ind.name} />}
-            <p className="macro-ind__rule">{thresholdText(ind, shortUnit(d.unit))}</p>
-            <p className="macro-ind__why">{ind.why}</p>
-            <p className="macro-muted">局限：{ind.limit}</p>
-          </div>
-        </div>
-      )}
+      {open && <IndicatorModal ind={ind} d={d} onClose={close} />}
     </li>
+  )
+}
+
+/** 总览顶部：美元、黄金、白银、原油。只作背景参照，不打分；点开看历史 */
+function AssetStrip({ snap }: { snap: MacroSnapshot }): JSX.Element | null {
+  const [openKey, setOpenKey] = useState<string | null>(null)
+  const close = useCallback(() => setOpenKey(null), [])
+  const items = ASSET_INDICATORS.filter(i => snap.series[i.key])
+  if (!items.length) return null
+  const open = items.find(i => i.key === openKey)
+  const change = (d: SeriesData): number | undefined => {
+    const base = d.history.length > 12 ? d.history[d.history.length - 13][1] : undefined
+    return base ? (d.latest.value / base - 1) * 100 : undefined
+  }
+  const gs = snap.series.gold && snap.series.silver ? snap.series.gold.latest.value / snap.series.silver.latest.value : undefined
+  return (
+    <section aria-label="参照价格">
+      <div className="macro-assets">
+        {items.map(i => {
+          const d = snap.series[i.key], c = change(d), p = percentileOf(d.long, d.latest.value)
+          return (
+            <button key={i.key} type="button" className="macro-asset" aria-haspopup="dialog" aria-label={`${i.name}，点击查看历史曲线`} onClick={() => setOpenKey(i.key)}>
+              <span className="macro-muted">{i.name}</span>
+              <b className="macro-asset__v">{fmt(d.latest.value, i.digits)}</b>
+              <span className="macro-muted">{c !== undefined && <span className={c >= 0 ? 'macro-up' : 'macro-down'}>近 12 月 {c >= 0 ? '+' : ''}{c.toFixed(0)}%</span>}{p !== undefined && ` · 10 年 ${p}% 分位`}</span>
+              <FreshTag snap={snap} d={d} />
+            </button>
+          )
+        })}
+      </div>
+      <p className="macro-muted macro-assets__note">参照价格，不参与阶段打分。{gs !== undefined && `金银比 ${gs.toFixed(0)}（越低越偏风险与工业需求）。`}</p>
+      {open && <IndicatorModal ind={open} d={snap.series[open.key]} onClose={close} />}
+    </section>
   )
 }
 
@@ -146,11 +186,12 @@ function ModuleSummary<K extends string>({ modules, indicators, snap }: { module
   )
 }
 
-export function OverviewView({ snap, cn, onRefresh }: { snap: MacroSnapshot; cn: MacroSnapshot<CnKey> | null; onRefresh?: () => Promise<{ us: MacroSnapshot; cn: MacroSnapshot<CnKey> | null } | null> }): JSX.Element {
+export function OverviewView({ snap, cn, hk = null, onRefresh }: { snap: MacroSnapshot; cn: MacroSnapshot<CnKey> | null; hk?: MacroSnapshot<HkKey> | null; onRefresh?: () => Promise<{ us: MacroSnapshot; cn: MacroSnapshot<CnKey> | null } | null> }): JSX.Element {
   const { stage, score, entered } = stageFromSnapshot(snap)
   const quality = checkQuality(snap, cn)
   return (
     <div className="macro-stack">
+      <AssetStrip snap={snap} />
       <DataStamp snap={snap} />
       <QualityLine report={quality} />
       <StageHero stage={stage} score={score} entered={entered} />
@@ -165,11 +206,18 @@ export function OverviewView({ snap, cn, onRefresh }: { snap: MacroSnapshot; cn:
           <ModuleSummary modules={CN_MODULES} indicators={CN_INDICATORS} snap={cn} />
         </section>
       )}
+      <CycleSummary cn={cn} />
+      {hk && (
+        <section aria-label="港股">
+          <h2 className="macro-h2">港股</h2>
+          <ModuleSummary modules={HK_MODULES} indicators={HK_INDICATORS} snap={hk} />
+        </section>
+      )}
       <section className="macro-card macro-card--note" aria-label="使用原则">
         <h3>这页怎么用</h3>
         <ul>
           <li>宏观温度决定<b>风险预算</b>（能承受多大回撤、主动额度用不用），不决定买卖时点。</li>
-          <li>阶段只看美国的六项信号：美国衰退与信用事件对全球资产的冲击最大；中国读数用来理解 A 股和港股的基本面背景。</li>
+          <li>阶段只看美国的六项信号：美国衰退与信用事件对全球资产的冲击最大；中国读数用来理解 A 股的基本面背景；港股只给恒指位置、港元汇率和南向资金这几项能自动拉到的读数，不含香港自己的 GDP 和通胀。</li>
           <li>任何阶段都<b>不做空、不加杠杆</b>；再平衡只在检查日按阈值做。每月更新一次就够了。</li>
         </ul>
       </section>
@@ -222,6 +270,7 @@ function CountryView<K extends string>({ snap, modules, indicators, label, quali
 }
 
 export const UsView = ({ snap }: { snap: MacroSnapshot }): JSX.Element => <CountryView snap={snap} modules={MODULES} indicators={INDICATORS} label="美国" quality={checkQuality(snap, null).us} />
+export const HkView = ({ snap }: { snap: MacroSnapshot<HkKey> }): JSX.Element => <CountryView snap={snap} modules={HK_MODULES} indicators={HK_INDICATORS} label="港股" quality={checkHkQuality(snap)} />
 export const ChinaView = ({ snap }: { snap: MacroSnapshot<CnKey> }): JSX.Element => <CountryView snap={snap} modules={CN_MODULES} indicators={CN_INDICATORS} label="中国" quality={checkQuality({ generatedAt: snap.generatedAt, source: '', series: {} } as unknown as MacroSnapshot, snap).cn} />
 
 export function StagesView({ snap }: { snap: MacroSnapshot }): JSX.Element {
@@ -290,7 +339,7 @@ function GuideTable<K extends string>({ indicators, snap, sourceOf }: { indicato
   )
 }
 
-export function GuideView({ snap, cn }: { snap: MacroSnapshot; cn: MacroSnapshot<CnKey> | null }): JSX.Element {
+export function GuideView({ snap, cn, hk = null }: { snap: MacroSnapshot; cn: MacroSnapshot<CnKey> | null; hk?: MacroSnapshot<HkKey> | null }): JSX.Element {
   return (
     <div className="macro-stack">
       <section className="macro-card macro-card--note">
@@ -299,6 +348,7 @@ export function GuideView({ snap, cn }: { snap: MacroSnapshot; cn: MacroSnapshot
       </section>
       <section aria-label="美国指标"><h2 className="macro-h2">美国</h2><GuideTable indicators={INDICATORS} snap={snap} sourceOf={d => d.fred ?? ''} /></section>
       {cn && <section aria-label="中国指标"><h2 className="macro-h2">中国</h2><GuideTable indicators={CN_INDICATORS} snap={cn} sourceOf={d => d.source ?? ''} /></section>}
+      {hk && <section aria-label="港股指标"><h2 className="macro-h2">港股</h2><GuideTable indicators={HK_INDICATORS} snap={hk} sourceOf={d => d.fred ?? d.source ?? ''} /></section>}
       <section className="macro-card">
         <h3>怎么更新</h3>
         <p>页面右上角「刷新最新数据」会实时拉取：本地开发时由本机 Node 拉取，线上由 Vercel 函数拉取，某项失败时沿用快照。快照文件由 GitHub Action 每月 8 日自动运行 <code>npm run macro:update</code> 更新，从 FRED、雅虎财经和东方财富数据中心拉取最新数据写入 <code>public/data/</code>，提交后网页自动更新；也可以在 BusinessWeb 目录手动运行。某个数据源失败时会保留上一次的读数。</p>

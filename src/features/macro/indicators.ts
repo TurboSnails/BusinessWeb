@@ -1,6 +1,6 @@
 import { SIGNALS, computeStage, type Tone } from './stages'
 
-export type SeriesKey = 'gdp' | 'unrate' | 'sahm' | 'claims' | 'corePce' | 'realRate' | 'curve' | 'hy' | 'nfci' | 'vix' | 'dd' | 'kre' | 'marginGdp' | 'cashDebt'
+export type SeriesKey = 'gdp' | 'unrate' | 'sahm' | 'claims' | 'corePce' | 'realRate' | 'curve' | 'hy' | 'nfci' | 'vix' | 'dd' | 'kre' | 'marginGdp' | 'cashDebt' | 'dxy' | 'gold' | 'silver' | 'wti'
 
 export interface Indicator<K extends string = SeriesKey> {
   key: K
@@ -18,7 +18,7 @@ export interface Indicator<K extends string = SeriesKey> {
   crowded?: 'high' | 'low'
 }
 
-export type ModuleId = 'growth' | 'inflation' | 'credit' | 'market' | 'cn-growth' | 'cn-price' | 'cn-money' | 'leverage' | 'cn-leverage'
+export type ModuleId = 'growth' | 'inflation' | 'credit' | 'market' | 'cn-growth' | 'cn-price' | 'cn-money' | 'leverage' | 'cn-leverage' | 'hk-market' | 'hk-money' | 'assets'
 
 export const MODULES: { id: ModuleId; name: string; question: string }[] = [
   { id: 'growth', name: '增长与就业', question: '经济在扩张还是开始失速？' },
@@ -67,6 +67,18 @@ export function percentileOf(long: [string, number][] | undefined, v: number): n
   if (!long || long.length < 24) return undefined
   return Math.round((long.filter(([, x]) => x <= v).length / long.length) * 100)
 }
+
+/** 顶部"四大参照价格"：只作背景，不打分、不计入阶段 */
+export const ASSET_INDICATORS: Indicator<'dxy' | 'gold' | 'silver' | 'wti'>[] = [
+  { key: 'dxy', name: '美元指数', module: 'assets', digits: 1, freq: '每日',
+    why: '美元强弱决定全球流动性松紧：美元走强时，新兴市场、大宗商品和以美元计价的资产通常承压。', limit: '只是对一篮子货币的汇率，欧元占比超过一半；不等于美元购买力。' },
+  { key: 'gold', name: '黄金', module: 'assets', digits: 0, freq: '每日',
+    why: '实际利率下行、美元信用担忧、地缘风险和央行购金都会推高金价；它是衡量避险情绪和货币信用的温度计。', limit: '不产生现金流，涨跌主要由情绪和利率驱动；高位不代表马上回落。' },
+  { key: 'silver', name: '白银', module: 'assets', digits: 1, freq: '每日',
+    why: '兼具贵金属和工业属性（光伏、电子）。金银比下降通常说明市场更偏向风险与工业需求。', limit: '波动比黄金大得多，流动性也更差，容易被短期资金放大。' },
+  { key: 'wti', name: 'WTI 原油', module: 'assets', digits: 1, freq: '每日',
+    why: '油价同时影响通胀、央行政策和企业成本：快速上涨会推高通胀预期，快速下跌往往伴随需求担忧。', limit: '期货主力合约换月时会有价差跳变；价格也受 OPEC 和地缘消息驱动，与宏观基本面无关。' },
+]
 
 export function toneOf(ind: Indicator<string>, v: number | undefined, long?: [string, number][]): Tone {
   if (ind.crowded) {

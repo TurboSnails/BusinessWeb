@@ -124,13 +124,33 @@ export function underperformStreak(a, b) {
   return streak
 }
 
-async function yahooWeekly(symbol) {
-  const res = await get(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=1y&interval=1wk`, { headers: { 'User-Agent': 'Mozilla/5.0' } })
+/** 日线收盘（含今天），用于大宗商品和美元指数这类要看最新价的品种 */
+async function yahooDaily(symbol, range = '10y') {
+  const res = await get(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=${range}&interval=1d`, { headers: { 'User-Agent': 'Mozilla/5.0' } })
+  if (!res.ok) throw new Error(`${symbol}: HTTP ${res.status}`)
+  const r = (await res.json()).chart.result[0]
+  const close = r.indicators.quote[0].close
+  return r.timestamp.map((t, i) => [new Date(t * 1000).toISOString().slice(0, 10), close[i] === null ? null : round(close[i], 2)]).filter(([, v]) => v !== null)
+}
+
+async function yahooWeekly(symbol, range = '1y') {
+  const res = await get(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=${range}&interval=1wk`, { headers: { 'User-Agent': 'Mozilla/5.0' } })
   if (!res.ok) throw new Error(`${symbol}: HTTP ${res.status}`)
   const r = (await res.json()).chart.result[0]
   const close = r.indicators.quote[0].close
   // 只用已收盘的完整周，去掉本周未完成的最后一根
   return r.timestamp.map((t, i) => [new Date(t * 1000).toISOString().slice(0, 10), close[i]]).filter(([, v]) => v !== null).slice(0, -1)
+}
+
+/** 滚动窗口求和（按时间升序的 [日期, 值]），窗口不足时跳过 */
+export function rollingSum(rows, n) {
+  return rows.flatMap((r, i) => (i + 1 >= n ? [[r[0], round(rows.slice(i + 1 - n, i + 1).reduce((a, x) => a + x[1], 0), 1)]] : []))
+}
+
+/** 两条按日期对齐的日度序列相加（缺一边的日期丢弃） */
+export function addByDate(a, b) {
+  const bm = new Map(b.map(([d, v]) => [d, v]))
+  return a.filter(([d]) => bm.has(d)).map(([d, v]) => [d, v + bm.get(d)])
 }
 
 async function eastmoney(reportName, sortColumn = 'REPORT_DATE', pageSize = 30) {
@@ -179,6 +199,7 @@ async function collect(builders, previous, warnings) {
 }
 
 export const US_SOURCE = 'FRED, Federal Reserve Bank of St. Louis；KRE/SPY：Yahoo Finance'
+export const HK_SOURCE = '雅虎财经（恒生指数）、FRED（港元汇率、联邦基金利率）、东方财富（南向资金）'
 export const CN_SOURCE = '国家统计局、中国人民银行（经东方财富数据中心）'
 
 /**
@@ -219,6 +240,10 @@ export async function buildSnapshots(previous = null) {
       const rows = (await finra()).map(r => [r.date, round(((r.cash + r.margin) / r.debit) * 100, 1)])
       return packLong(rows, { source: 'FINRA 保证金统计', unit: '%', note: '客户现金账户与保证金账户的闲置现金余额 ÷ 保证金债务' })
     },
+    dxy: async () => packLong(await yahooDaily('DX-Y.NYB'), { source: '雅虎财经 DX-Y.NYB', unit: '', note: 'ICE 美元指数（对一篮子主要货币）' }),
+    gold: async () => packLong(await yahooDaily('GC%3DF'), { source: '雅虎财经 GC=F', unit: '美元', note: 'COMEX 黄金期货主力合约，美元/盎司' }),
+    silver: async () => packLong(await yahooDaily('SI%3DF'), { source: '雅虎财经 SI=F', unit: '美元', note: 'COMEX 白银期货主力合约，美元/盎司' }),
+    wti: async () => packLong(await yahooDaily('CL%3DF'), { source: '雅虎财经 CL=F', unit: '美元', note: 'NYMEX WTI 原油期货主力合约，美元/桶' }),
     kre: async () => {
       const [kre, spy] = await Promise.all([yahooWeekly('KRE'), yahooWeekly('SPY')])
       // 走势：每周往回算的连续跑输周数
@@ -257,11 +282,34 @@ export async function buildSnapshots(previous = null) {
     lpr: async () => pack(emRows(await eastmoney('RPTA_WEB_RATE', 'TRADE_DATE', 60), 'LPR1Y', 'TRADE_DATE'), { source: '中国人民银行', unit: '%' }),
   }, previous?.cn?.series, warnings)
 
-  const [us, cn] = await Promise.all([usTask, cnTask])
+  // 南向资金 = 港股通(沪) 002 + 港股通(深) 004，原始单位百万元 → 亿元
+  const southbound = async type => {
+    const url = `https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPT_MUTUAL_DEAL_HISTORY&columns=MUTUAL_TYPE,TRADE_DATE,NET_DEAL_AMT&filter=${encodeURIComponent(`(MUTUAL_TYPE="${type}")`)}&sortColumns=TRADE_DATE&sortTypes=-1&pageSize=800&pageNumber=1`
+    const body = await (await get(url)).json()
+    if (!body.success || !body.result?.data?.length) throw new Error(`南向资金 ${type}: ${body.message || '无数据'}`)
+    return body.result.data.filter(d => d.NET_DEAL_AMT !== null).map(d => [d.TRADE_DATE.slice(0, 10), d.NET_DEAL_AMT / 100]).reverse()
+  }
+  const hkTask = collect({
+    hsiDd: async () => pack(drawdown(await yahooWeekly('%5EHSI', '10y')), { source: '雅虎财经 ^HSI', unit: '%', note: '距近十年周收盘最高点的回撤' }),
+    hsi12m: async () => {
+      const w = await yahooWeekly('%5EHSI', '5y')
+      const rows = w.flatMap(([d, v], i) => (i >= 52 ? [[d, round((v / w[i - 52][1] - 1) * 100, 1)]] : []))
+      return pack(rows, { source: '雅虎财经 ^HSI', unit: '%', note: '恒生指数较 52 周前的涨跌幅' })
+    },
+    hkd: async () => pack(await series('DEXHKUS'), { fred: 'DEXHKUS', unit: '', note: '每 1 美元兑港元；联系汇率区间 7.75–7.85' }),
+    fed: async () => pack(await series('FEDFUNDS'), { fred: 'FEDFUNDS', unit: '%' }),
+    south: async () => {
+      const [sh, sz] = await Promise.all([southbound('002'), southbound('004')])
+      return pack(rollingSum(addByDate(sh, sz), 20), { source: '东方财富（沪深交易所港股通）', unit: '亿元', note: '近 20 个交易日南向净买入合计（人民币）' })
+    },
+  }, previous?.hk?.series, warnings)
+
+  const [us, cn, hk] = await Promise.all([usTask, cnTask, hkTask])
   const fetchedAt = new Date().toISOString()
   return {
     us: { generatedAt: fetchedAt.slice(0, 10), fetchedAt, source: US_SOURCE, series: us },
     cn: { generatedAt: fetchedAt.slice(0, 10), fetchedAt, source: CN_SOURCE, series: cn },
+    hk: { generatedAt: fetchedAt.slice(0, 10), fetchedAt, source: HK_SOURCE, series: hk },
     warnings,
   }
 }

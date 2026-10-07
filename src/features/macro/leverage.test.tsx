@@ -11,13 +11,16 @@ import { gdpTtm, parseFinraMargin, ratioToGdp } from '../../../server/macro.mjs'
 import Monitor from '../../pages/Monitor'
 import { INDICATORS, percentileOf, toneOf, type MacroSnapshot } from './indicators'
 import { CN_INDICATORS, type CnKey } from './china'
+import type { HkKey } from './hk'
 import { freshnessOf } from './MacroViews'
 
 const us = JSON.parse(readFileSync(resolve('public/data/macro-us.json'), 'utf8')) as MacroSnapshot
 const cn = JSON.parse(readFileSync(resolve('public/data/macro-cn.json'), 'utf8')) as MacroSnapshot<CnKey>
+const hk = JSON.parse(readFileSync(resolve('public/data/macro-hk.json'), 'utf8')) as MacroSnapshot<HkKey>
+const byUrl = (url: string) => (String(url).includes('macro-hk') ? hk : String(url).includes('macro-cn') ? cn : us)
 beforeAll(() => {
   vi.stubGlobal('scrollTo', () => {})
-  vi.stubGlobal('fetch', vi.fn(async (url: string) => ({ ok: true, json: async () => (String(url).includes('macro-cn') ? cn : us) }) as Response))
+  vi.stubGlobal('fetch', vi.fn(async (url: string) => ({ ok: true, json: async () => byUrl(url) }) as Response))
 })
 afterEach(() => cleanup())
 const renderAt = (path: string) => render(<MemoryRouter initialEntries={[path]}><Monitor /></MemoryRouter>)
@@ -65,7 +68,7 @@ describe('新旧数据标记', () => {
 
   it('页面：刷新后拉到的项标「实时」，没拉到的标「沿用旧值」，顶部给出计数', async () => {
     const fresh = { ...us, fetchedAt: '2026-10-07T08:30:00.000Z', series: { vix: { ...us.series.vix, live: true }, gdp: { ...us.series.gdp, live: false } } }
-    vi.stubGlobal('fetch', vi.fn(async (url: string) => ({ ok: true, json: async () => (String(url).includes('/api/macro') ? { us: fresh, cn: { ...cn, series: {} }, warnings: ['gdp：超时'] } : String(url).includes('macro-cn') ? cn : us) }) as Response))
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => ({ ok: true, json: async () => (String(url).includes('/api/macro') ? { us: fresh, cn: { ...cn, series: {} }, warnings: ['gdp：超时'] } : byUrl(url)) }) as Response))
     renderAt('/monitor?tab=us')
     expect((await screen.findAllByText(/^快照 /)).length).toBe(INDICATORS.length)
     fireEvent.click(screen.getByRole('button', { name: '刷新最新数据' }))
@@ -109,5 +112,39 @@ describe('总览摘要：点开弹框看历史曲线', () => {
     renderAt('/monitor')
     fireEvent.click(await screen.findByRole('button', { name: /融资余额 ÷ GDP，点击查看历史曲线/ }))
     expect(within(screen.getByRole('dialog')).getAllByRole('img', { name: /走势/ }).length).toBe(1)
+  })
+})
+
+describe('顶部参照价格', () => {
+  it('总览最上方有美元、黄金、白银、原油，点开弹框，且不计入阶段打分', async () => {
+    renderAt('/monitor')
+    for (const name of ['美元指数', '黄金', '白银', 'WTI 原油']) expect(await screen.findByRole('button', { name: new RegExp(`^${name}，点击查看历史曲线`) })).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: /^黄金，点击查看/ }))
+    const dialog = screen.getByRole('dialog')
+    expect(dialog.textContent).toMatch(/处于历史 \d+% 分位/)
+    expect(within(dialog).getAllByRole('img', { name: /走势/ }).length).toBe(1)
+    fireEvent.click(screen.getByRole('button', { name: '关闭' }))
+    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(screen.getByText(/当前阶段/)).toBeTruthy()
+  })
+})
+
+describe('港股与周期页面', () => {
+  it('港股宏观页按模块列出各项并带新旧标记', async () => {
+    renderAt('/monitor?tab=hk')
+    expect(await screen.findByText('恒生指数距十年高点回撤')).toBeTruthy()
+    expect(screen.getByText('港元兑美元汇率')).toBeTruthy()
+    expect(screen.getAllByText(/^快照 /).length).toBe(5)
+  })
+
+  it('周期页有四张卡，康波判断带范围、理由和反证；总览有摘要卡', async () => {
+    renderAt('/monitor?tab=cycles')
+    expect(await screen.findByText('康波周期（约 50–60 年）')).toBeTruthy()
+    expect(screen.getAllByText(/判断理由/).length).toBe(3)
+    expect(screen.getAllByText(/反证与局限/).length).toBe(3)
+    expect(screen.getByText(/库存周期（基钦周期/)).toBeTruthy()
+    cleanup()
+    renderAt('/monitor')
+    expect(await screen.findByText('周期位置（大致范围）')).toBeTruthy()
   })
 })

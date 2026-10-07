@@ -107,3 +107,33 @@
 .macro-combo { margin: 0; padding: 8px 12px; border-radius: var(--radius-md); font-size: 0.85rem; line-height: 1.6; }
 .macro-combo--yellow { background: color-mix(in srgb, var(--system-yellow) 18%, transparent); color: var(--warm-ink); }
 .macro-combo--red { background: color-mix(in srgb, var(--system-red) 14%, transparent); color: var(--up-ink); }
+
+/* 周期页 */
+.macro-cycle__svg { display: block; width: 100%; height: auto; margin-top: 8px; }
+.macro-cycle__band--up { fill: color-mix(in srgb, var(--system-green) 38%, transparent); background: color-mix(in srgb, var(--system-green) 38%, transparent); }
+.macro-cycle__band--peak { fill: color-mix(in srgb, var(--system-yellow) 45%, transparent); background: color-mix(in srgb, var(--system-yellow) 45%, transparent); }
+.macro-cycle__band--down { fill: color-mix(in srgb, var(--system-red) 34%, transparent); background: color-mix(in srgb, var(--system-red) 34%, transparent); }
+.macro-cycle__band--flat { fill: var(--bg-secondary); background: var(--bg-secondary); }
+.macro-cycle__band--turn { fill: var(--accent-soft); background: var(--accent-soft); }
+.macro-cycle__range { fill: none; stroke: var(--text-primary); stroke-width: 1.5; stroke-dasharray: 5 3; }
+.macro-cycle__today { stroke: var(--accent); stroke-width: 2; }
+.macro-cycle__today-label { fill: var(--accent); font-size: 10px; }
+.macro-cycle__text { fill: var(--text-primary); font-size: 11px; pointer-events: none; }
+.macro-cycle__tick { fill: var(--text-secondary); font-size: 10px; font-variant-numeric: tabular-nums; }
+.macro-cycle__legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 6px 0 0 !important; padding: 0 !important; list-style: none; color: var(--text-secondary); font-size: 0.78rem; }
+.macro-cycle__legend li { display: inline-flex; align-items: center; gap: 5px; }
+.macro-cycle__swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; border: 1px solid var(--border-subtle); }
+.macro-cycle__swatch--range { background: transparent; border: 1.5px dashed var(--text-primary); }
+.macro-cycle__verdict { margin: 10px 0 !important; font-size: 0.95rem; }
+.macro-cycle__live { margin: 0 0 8px !important; padding: 6px 10px; border-radius: var(--radius-md); background: var(--bg-secondary); font-size: 0.85rem; }
+.macro-cycle__bands summary { cursor: pointer; color: var(--text-secondary); font-size: 0.85rem; }
+.macro-cycle__bands li { margin: 4px 0; font-size: 0.85rem; line-height: 1.6; }
+
+/* 顶部参照价格 */
+.macro-assets { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 10px; }
+.macro-asset { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; padding: 12px 14px; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); background: var(--bg-card); color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.macro-asset:hover { border-color: var(--accent); }
+.macro-asset__v { font-size: 1.5rem; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.macro-up { color: var(--up-ink); }
+.macro-down { color: var(--down-ink); }
+.macro-assets__note { margin: 6px 0 0 !important; }
