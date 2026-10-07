@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { TRENDS, companyIdentity, trendCoverage } from './futureTrends'
+import { SECTOR_PICKS, US_PICKS } from './futureTrendsSectorPicks'
+import { POOL, parseGap, parseGrowth } from './futureTrendsPool'
+import { CORE } from './futureTrendsCore'
 
 const companies = TRENDS.flatMap(t => t.chain.flatMap(l => [...l.cn, ...l.us]))
 
@@ -37,5 +40,42 @@ describe('九赛道研究观察池', () => {
     const privateCompanies = companies.filter(c => c.code === '上市状态待核')
     expect(new Set(privateCompanies.map(companyIdentity)).size).toBeGreaterThan(1)
     expect(trendCoverage().companies).toBeLessThan(trendCoverage().entries)
+  })
+})
+
+describe('赛道综合排序数据', () => {
+  it('每家公司都有价位记录，代码不重复', () => {
+    for (const [id, s] of [...Object.entries(SECTOR_PICKS), ...Object.entries(US_PICKS).map(([k, v]) => [`us:${k}`, v] as const)]) {
+      const codes = s.picks.map(p => p.code)
+      expect(new Set(codes).size, id).toBe(codes.length)
+      for (const p of s.picks) expect(s.levels.some(l => l.code === p.code), `${id}/${p.name}`).toBe(true)
+    }
+  })
+})
+
+describe('候选池', () => {
+  it('跨赛道去重，分数在 0–100，可现在投资的都有模型买点', () => {
+    expect(new Set(POOL.map(x => x.key)).size).toBe(POOL.length)
+    for (const x of POOL) {
+      expect(x.score).toBeGreaterThanOrEqual(0)
+      expect(x.score).toBeLessThanOrEqual(100)
+      if (x.status === '可现在投资') expect(x.level?.buy.startsWith('≤'), x.pick.name).toBe(true)
+    }
+  })
+  it('解析增速与买点距离', () => {
+    expect(parseGrowth('营收 +54% / 归母 −21%（2026H1）')).toEqual([54, -21])
+    expect(parseGap('现价附近')).toBe(0)
+    expect(parseGap('−21%')).toBe(-21)
+    expect(parseGap('重估价约 66 元')).toBeNull()
+  })
+})
+
+describe('核心 20', () => {
+  it('20 家都在候选池中、不重复、且现在可投或接近买点；同一产业链最多 2 家', () => {
+    expect(CORE).toHaveLength(20)
+    expect(new Set(CORE.map(x => x.key)).size).toBe(20)
+    for (const x of CORE) expect(['可现在投资', '接近买点'], x.key).toContain(x.item.status)
+    const chains = CORE.reduce<Record<string, number>>((m, x) => ({ ...m, [x.chain]: (m[x.chain] ?? 0) + 1 }), {})
+    for (const [c, n] of Object.entries(chains)) expect(n, c).toBeLessThanOrEqual(2)
   })
 })

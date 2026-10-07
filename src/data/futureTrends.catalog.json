@@ -907,6 +907,24 @@
               "sourceUrl": "https://www.hkexnews.hk/index_c.htm",
               "sourceTitle": "公告检索入口（须按公司名/代码检索）",
               "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "黑芝麻智能",
+              "code": "2533.HK",
+              "role": "车规级智驾芯片（华山、武当系列）与方案。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.hkexnews.hk/index_c.htm",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "四维图新",
+              "code": "002405",
+              "role": "高精地图、智驾方案与车规芯片（杰发科技）。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/",
+              "sourceTitle": "巨潮资讯公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
             }
           ],
           "verify": "核对分部收入、订单转收入、毛利率、现金回款、资本开支和客户集中度；新技术另查认证与量产证据。"
@@ -1131,6 +1149,33 @@
               "sourceUrl": "https://www.cninfo.com.cn/new/index",
               "sourceTitle": "公告检索入口（须按公司名/代码检索）",
               "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "舜宇光学科技",
+              "code": "2382.HK",
+              "role": "车载镜头出货全球第一，并供应车载摄像模组与激光雷达光学部件。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.hkexnews.hk/index_c.htm",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "宇瞳光学",
+              "code": "300790",
+              "role": "安防与车载光学镜头。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/",
+              "sourceTitle": "巨潮资讯公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "万集科技",
+              "code": "300552",
+              "role": "激光雷达与车路协同（V2X）设备。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/",
+              "sourceTitle": "巨潮资讯公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
             }
           ],
           "us": [
@@ -1203,6 +1248,24 @@
               "sourceUrl": "https://www.cninfo.com.cn/new/index",
               "sourceTitle": "公告检索入口（须按公司名/代码检索）",
               "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "华阳集团",
+              "code": "002906",
+              "role": "HUD、座舱域控与精密压铸。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/",
+              "sourceTitle": "巨潮资讯公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "科博达",
+              "code": "603786",
+              "role": "车灯控制器与域控制器。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/",
+              "sourceTitle": "巨潮资讯公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
             }
           ],
           "us": [
@@ -1265,6 +1328,24 @@
               "exposure": "直接业务",
               "sourceUrl": "https://www.cninfo.com.cn/new/index",
               "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "耐世特",
+              "code": "1316.HK",
+              "role": "电动助力转向与线控转向。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.hkexnews.hk/index_c.htm",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "星宇股份",
+              "code": "601799",
+              "role": "智能车灯（ADB 自适应大灯）。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/",
+              "sourceTitle": "巨潮资讯公告检索入口（须按公司名/代码检索）",
               "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
             }
           ],
