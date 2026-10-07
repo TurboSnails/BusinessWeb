@@ -104,3 +104,29 @@ describe('交易前检查单与冷静期', () => {
     expect(screen.queryByText('美团')).toBeNull()
   })
 })
+
+describe('历史情景压力测试', () => {
+  it('作者案例列出五个情景；2008 年黄金与恒生科技当时无数据而不被替代', () => {
+    openAllocation()
+    fireEvent.click(screen.getByRole('button', { name: '作者案例' }))
+    for (const name of ['2008 全球金融危机', '2015 年夏 A 股股灾', '2020 年 3 月流动性踩踏', '2022 美联储加息：股债双杀', '2021–2022 恒生科技深跌']) {
+      expect(screen.getByText(name)).toBeTruthy()
+    }
+    expect(screen.getAllByText(/黄金、恒生科技当时无数据|恒生科技、黄金当时无数据/).length).toBeGreaterThan(0)
+  })
+
+  it('没有任何可识别资产时不显示压力测试', () => {
+    openAllocation()
+    for (const input of screen.getAllByRole('textbox', { name: /资产名称/ })) fireEvent.change(input, { target: { value: '某只个股' } })
+    expect(screen.queryByText(/如果历史重演/)).toBeNull()
+  })
+})
+
+describe('币种敞口', () => {
+  it('作者案例：非人民币定价合计 60%', () => {
+    openAllocation()
+    fireEvent.click(screen.getByRole('button', { name: '作者案例' }))
+    expect(screen.getByText('币种敞口：资产的价格由哪种货币决定')).toBeTruthy()
+    expect(screen.getByText(/非人民币定价的资产合计约 60%/)).toBeTruthy()
+  })
+})

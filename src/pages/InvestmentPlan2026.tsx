@@ -13,6 +13,8 @@ import {
   type PreTradeState,
   type TradeKind
 } from '../features/plan/preTrade'
+import { BUCKET_LABELS, calculateCurrencyExposure, type ExposureBucket } from '../features/plan/currencyExposure'
+import { runAllStressScenarios } from '../features/plan/stressTest'
 import { fetchEarningsCalendar, type EarningsCalendarItem } from '../services/api'
 
 // 同源 /api/*；GitHub Pages 构建时通过 VITE_API_BASE 指向 Vercel
@@ -629,6 +631,77 @@ const PreTradeChecklist: React.FC = () => {
   )
 }
 
+const StressView: React.FC<{ rows: Holding[]; useAmount: boolean }> = ({ rows, useAmount }) => {
+  const results = runAllStressScenarios(rows.map(r => ({ name: r.name, weight: useAmount ? num(r.amount) || 0 : num(r.target) || 0 })))
+  if (results.every(r => r.portfolioReturn == null)) return null
+  const pct = (n: number | null) => (n == null ? '—' : `${n > 0 ? '+' : ''}${(n * 100).toFixed(1)}%`)
+  return (
+    <div style={{ marginTop: 18 }}>
+      <div style={{ fontWeight: 800, fontSize: '0.92rem', margin: '4px 0 4px' }}>如果历史重演：把这套配置放回过去的危机（{useAmount ? '按当前金额' : '按目标占比'}）</div>
+      <p style={{ margin: '0 0 8px', fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+        用真实历史序列，期初按权重买入、窗口内不再平衡。窗口事先固定，不按结果挑选；某资产在窗口开始时还没有数据，就不替代，只算有数据的部分并标出。
+      </p>
+      <div style={tableWrapperStyle}>
+        <table style={tableStyle}>
+          <thead>
+            <tr>
+              {['情景', '窗口', '组合涨跌', '窗口内最大回撤', '拖累最大', '数据覆盖'].map(h => (
+                <th key={h} style={thStyle}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {results.map(r => {
+              const worst = r.contributors[0]
+              return (
+                <tr key={r.scenario.id}>
+                  <td style={{ ...tdStyle, minWidth: 150, fontWeight: 700 }}>{r.scenario.name}</td>
+                  <td style={{ ...tdStyle, whiteSpace: 'nowrap', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{r.scenario.start} ~ {r.scenario.end}</td>
+                  <td style={{ ...tdStyle, fontWeight: 800, color: (r.portfolioReturn ?? 0) < 0 ? 'var(--system-green)' : 'var(--system-red)' }}>{pct(r.portfolioReturn)}</td>
+                  <td style={tdStyle}>{r.maxDrawdown == null ? '—' : `-${(r.maxDrawdown * 100).toFixed(1)}%`}</td>
+                  <td style={tdStyle}>{worst && worst.contribution < 0 ? `${worst.name}（${pct(worst.assetReturn)}）` : '—'}</td>
+                  <td style={{ ...tdStyle, fontSize: '0.8rem', color: r.coverage < 1 ? 'var(--warm-ink)' : 'var(--text-secondary)' }}>
+                    {r.portfolioReturn == null ? '无数据' : `${fmtPct(r.coverage * 100, 0)}${r.noData.length ? `，${r.noData.join('、')}当时无数据` : ''}`}
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+      <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <Note tone="gray">
+          这是已发生的历史，不是预测，也不是最坏情形：下一次危机的形状不会和任何一次相同。它的用处是在晴天看一眼“最难受的时候大概是什么感觉”，再回头确认备用金和仓位撑得住。红利与标普500、沪深300为全收益，国债指数含利息，黄金为ETF收盘价，恒生科技为价格指数；均未计汇率与交易成本；回撤按周度采样，会略低估日内回撤。
+        </Note>
+      </div>
+    </div>
+  )
+}
+
+const CurrencyView: React.FC<{ rows: Holding[]; useAmount: boolean }> = ({ rows, useAmount }) => {
+  const exp = calculateCurrencyExposure(rows.map(r => ({ name: r.name, weight: useAmount ? num(r.amount) || 0 : num(r.target) || 0 })))
+  if (!exp.shares) return null
+  const shares = exp.shares
+  return (
+    <div style={{ marginTop: 18 }}>
+      <div style={{ fontWeight: 800, fontSize: '0.92rem', margin: '4px 0 8px' }}>币种敞口：资产的价格由哪种货币决定</div>
+      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+        {(Object.keys(BUCKET_LABELS) as ExposureBucket[]).filter(k => shares[k] > 0).map(k => (
+          <div key={k} style={{ flex: '1 1 130px', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)', padding: '10px 12px' }}>
+            <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>{BUCKET_LABELS[k]}</div>
+            <div style={{ fontSize: '1.15rem', fontWeight: 800 }}>{fmtPct(shares[k] * 100, 0)}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: 10 }}>
+        <Note tone={(exp.foreignShare ?? 0) >= 0.5 ? 'yellow' : 'gray'}>
+          非人民币定价的资产合计约 {fmtPct((exp.foreignShare ?? 0) * 100, 0)}。人民币升值时，这一块折算回人民币的收益会被吃掉一部分，贬值时则相反；它和资产自身涨跌是两回事，复盘时要分开看。港币与美元挂钩，所以恒生科技的汇率风险按美元看；黄金ETF虽用人民币交易，金价以美元定价，同样带美元敞口。上面的历史数据均未计汇率。
+        </Note>
+      </div>
+    </div>
+  )
+}
+
 const Allocation: React.FC = () => {
   const [rows, setRows] = usePersisted<Holding[]>('holdings', DEFAULT_HOLDINGS)
 
@@ -714,6 +787,8 @@ const Allocation: React.FC = () => {
             </Note>
           )}
           <RiskView rows={rows} useAmount={total > 0} />
+          <CurrencyView rows={rows} useAmount={total > 0} />
+          <StressView rows={rows} useAmount={total > 0} />
           <Note tone="gray">权重不等于风险：权益的波动远大于债券，底仓的波动几乎全部来自权益（书9.7的风险贡献表）。真正调风险的旋钮是权益占多少；主题指数（如恒生科技）放主动额度，不放底仓。</Note>
         </div>
       </Card>
