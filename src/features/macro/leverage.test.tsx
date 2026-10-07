@@ -82,6 +82,8 @@ describe('杠杆与资金页面', () => {
   it('美国、中国都有杠杆卡：带历史分位和可切换的长历史图', async () => {
     renderAt('/monitor?tab=us')
     expect((await screen.findAllByText(/处于历史 \d+% 分位/)).length).toBe(2)
+    expect(screen.getByRole('table', { name: '保证金债务 ÷ GDP危机参考读数' }).textContent).toContain('3.00%')
+    expect(within(screen.getByRole('table', { name: '客户现金 ÷ 保证金债务危机参考读数' })).getByRole('row', { name: /金融危机.*2009-03/ }).textContent).toContain('143.1%')
     const tab = screen.getAllByRole('button', { name: '全部' })[0]
     fireEvent.click(tab)
     expect(tab.getAttribute('aria-pressed')).toBe('true')
@@ -90,6 +92,8 @@ describe('杠杆与资金页面', () => {
     cleanup()
     renderAt('/monitor?tab=cn')
     expect((await screen.findAllByText(/处于历史 \d+% 分位/)).length).toBe(CN_INDICATORS.filter(i => i.crowded).length)
+    expect(within(screen.getByRole('table', { name: '融资余额 ÷ GDP危机参考读数' })).getByRole('row', { name: /2015 年去杠杆.*2015-06/ }).textContent).toContain('3.01%')
+    expect(within(screen.getByRole('table', { name: '融资余额 ÷ 流通市值危机参考读数' })).getByRole('row', { name: /2015 年去杠杆.*2015-06/ }).textContent).toContain('4.33%')
   })
 })
 
@@ -100,6 +104,8 @@ describe('总览摘要：点开弹框看历史曲线', () => {
     const dialog = screen.getByRole('dialog', { name: /保证金债务 ÷ GDP历史曲线/ })
     expect(dialog.textContent).toMatch(/处于历史 \d+% 分位/)
     expect(within(dialog).getAllByRole('img', { name: /走势/ }).length).toBe(1)
+    expect(within(dialog).getByRole('table', { name: '保证金债务 ÷ GDP危机参考读数' })).toBeTruthy()
+    expect(within(dialog).getByRole('row', { name: /黑色星期一.*1987-09/ }).textContent).toContain('0.90%')
     fireEvent.keyDown(window, { key: 'Escape' })
     expect(screen.queryByRole('dialog')).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: /VIX 波动率，点击查看/ }))

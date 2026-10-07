@@ -7,6 +7,7 @@ import { CN_INDICATORS, CN_MODULES, type CnKey } from './china'
 import { HK_INDICATORS, HK_MODULES, type HkKey } from './hk'
 import Sparkline from './Sparkline'
 import LongHistoryChart from './LongHistoryChart'
+import CrisisReference from './CrisisReference'
 import { CycleSummary } from './CycleViews'
 import AiInterpretation from './AiInterpretation'
 import { QUALITY_LABEL, checkHkQuality, checkQuality, type QualityReport, type QualityResult } from './quality'
@@ -110,6 +111,7 @@ function IndicatorModal({ ind, d, onClose }: { ind: Indicator<string>; d: Series
         <p className="macro-ind__rule">{thresholdText(ind, shortUnit(d.unit))}</p>
         <p className="macro-ind__why">{ind.why}</p>
         <p className="macro-muted">局限：{ind.limit}</p>
+        <CrisisReference ind={ind} d={d} />
       </div>
     </div>
   )
@@ -237,6 +239,7 @@ function IndicatorCard({ ind, d, snap, quality }: { ind: Indicator<string>; d: S
       {d.long ? <LongHistoryChart points={d.long} digits={ind.digits} unit={shortUnit(d.unit)} label={ind.name} /> : <Sparkline points={d.history} thresholds={thresholds} digits={ind.digits} unit={shortUnit(d.unit)} label={ind.name} />}
       <p className="macro-ind__rule">{thresholdText(ind, shortUnit(d.unit))}</p>
       <p className="macro-ind__why">{ind.why}</p>
+      <CrisisReference ind={ind} d={d} />
     </article>
   )
 }

@@ -66,6 +66,10 @@
 .macro-table th { padding: 8px 10px; text-align: left; font-weight: 600; color: var(--text-secondary); border-bottom: 1px solid var(--border-subtle); white-space: nowrap; }
 .macro-table td { padding: 10px; vertical-align: top; border-bottom: 1px solid var(--border-subtle); line-height: 1.6; min-width: 72px; }
 .macro-num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.macro-crisis { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border-subtle); }
+.macro-crisis h4 { margin: 0 0 6px; font-size: 0.9rem; }
+.macro-crisis tbody th { white-space: normal; vertical-align: top; line-height: 1.6; color: var(--text-primary); }
+.macro-crisis__current { background: var(--accent-soft); }
 
 .macro-archive-note { margin: 0 0 16px; padding: 10px 14px; border-left: 3px solid var(--text-secondary); border-radius: var(--radius-md); background: var(--bg-secondary); color: var(--text-secondary); font-size: 0.88rem; line-height: 1.7; }
 
