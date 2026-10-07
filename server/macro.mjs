@@ -240,6 +240,15 @@ export async function buildSnapshots(previous = null) {
       const rows = (await finra()).map(r => [r.date, round(((r.cash + r.margin) / r.debit) * 100, 1)])
       return packLong(rows, { source: 'FINRA 保证金统计', unit: '%', note: '客户现金账户与保证金账户的闲置现金余额 ÷ 保证金债务' })
     },
+    equityShare: async () => packLong(await series('BOGZ1FL153064486Q'), { fred: 'BOGZ1FL153064486Q', unit: '%', note: '美联储资金流量表 Z.1：家庭及非营利机构直接+间接持有的股票占金融资产比重' }),
+    buffett: async () => {
+      const [mcap, gdp] = await Promise.all([series('NCBEILQ027S'), series('GDP')])
+      return packLong(ratioToGdp(mcap.map(([d, v]) => [d, v / 1000]), gdp), { fred: 'NCBEILQ027S ÷ GDP', unit: '%', note: '非金融企业股票市值（Z.1，百万美元转十亿）÷ 名义 GDP' })
+    },
+    debtService: async () => packLong(await series('TDSP'), { fred: 'TDSP', unit: '%', note: '家庭债务偿付额占可支配收入比例' }),
+    ccDelinq: async () => pack(await series('DRCCLACBS'), { fred: 'DRCCLACBS', unit: '%', note: '商业银行信用卡贷款逾期率（季调）' }),
+    tenYear: async () => pack(await series('DGS10'), { fred: 'DGS10', unit: '%' }),
+    saving: async () => pack(await series('PSAVERT'), { fred: 'PSAVERT', unit: '%' }),
     dxy: async () => packLong(await yahooDaily('DX-Y.NYB'), { source: '雅虎财经 DX-Y.NYB', unit: '', note: 'ICE 美元指数（对一篮子主要货币）' }),
     gold: async () => packLong(await yahooDaily('GC%3DF'), { source: '雅虎财经 GC=F', unit: '美元', note: 'COMEX 黄金期货主力合约，美元/盎司' }),
     silver: async () => packLong(await yahooDaily('SI%3DF'), { source: '雅虎财经 SI=F', unit: '美元', note: 'COMEX 白银期货主力合约，美元/盎司' }),

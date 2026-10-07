@@ -29,6 +29,13 @@ const US: Record<string, Rule> = {
   // FINRA 次月中旬公布上月数据
   marginGdp: { maxAge: 80, range: [0, 15] },
   cashDebt: { maxAge: 80, range: [0, 500] },
+  // 美联储资金流量表季度公布，滞后约三个月
+  equityShare: { maxAge: 220, range: [10, 80] },
+  buffett: { maxAge: 220, range: [20, 600] },
+  debtService: { maxAge: 220, range: [5, 20] },
+  ccDelinq: { maxAge: 220, range: [0, 15] },
+  tenYear: { maxAge: 7, range: [0, 20] },
+  saving: { maxAge: 70, range: [-5, 40] },
   dxy: { maxAge: 7, range: [60, 160] },
   gold: { maxAge: 7, range: [300, 30000] },
   silver: { maxAge: 7, range: [3, 500] },

@@ -81,7 +81,7 @@ describe('新旧数据标记', () => {
 describe('杠杆与资金页面', () => {
   it('美国、中国都有杠杆卡：带历史分位和可切换的长历史图', async () => {
     renderAt('/monitor?tab=us')
-    expect((await screen.findAllByText(/处于历史 \d+% 分位/)).length).toBe(2)
+    expect((await screen.findAllByText(/处于历史 \d+% 分位/)).length).toBe(5)
     expect(screen.getByRole('table', { name: '保证金债务 ÷ GDP危机参考读数' }).textContent).toContain('3.00%')
     expect(within(screen.getByRole('table', { name: '客户现金 ÷ 保证金债务危机参考读数' })).getByRole('row', { name: /金融危机.*2009-03/ }).textContent).toContain('143.1%')
     const tab = screen.getAllByRole('button', { name: '全部' })[0]

@@ -1,6 +1,6 @@
 import { SIGNALS, computeStage, type Tone } from './stages'
 
-export type SeriesKey = 'gdp' | 'unrate' | 'sahm' | 'claims' | 'corePce' | 'realRate' | 'curve' | 'hy' | 'nfci' | 'vix' | 'dd' | 'kre' | 'marginGdp' | 'cashDebt' | 'dxy' | 'gold' | 'silver' | 'wti'
+export type SeriesKey = 'gdp' | 'unrate' | 'sahm' | 'claims' | 'corePce' | 'realRate' | 'curve' | 'hy' | 'nfci' | 'vix' | 'dd' | 'kre' | 'marginGdp' | 'cashDebt' | 'dxy' | 'gold' | 'silver' | 'wti' | 'equityShare' | 'buffett' | 'debtService' | 'ccDelinq' | 'tenYear' | 'saving'
 
 export interface Indicator<K extends string = SeriesKey> {
   key: K
@@ -40,16 +40,22 @@ export const INDICATORS: Indicator[] = [
     why: '失业率 3 个月均值较过去 12 个月低点的上升幅度。达到 0.5 时，历史上美国通常已处于衰退早期。', limit: '它确认衰退而非预测衰退；劳动力供给突增时可能误报。' },
   { key: 'claims', name: '初请失业金（4 周均值）', module: 'growth', worse: 'above', yellow: signal('claims').yellow, red: signal('claims').red, digits: 1, freq: '每周',
     why: '企业裁员最早出现在这里，比失业率领先。', limit: '节假日与季节调整会造成噪音，所以看 4 周均值。' },
+  { key: 'saving', name: '个人储蓄率', module: 'growth', digits: 1, freq: '月度',
+    why: '居民收入里没花掉的比例，是家庭抵御冲击的缓冲垫。储蓄率压得越低，消费越依赖财富效应和借贷，股价一跌就容易传导到消费。', limit: '受收入口径修订和一次性补贴影响；只作背景，不打分。' },
   { key: 'corePce', name: '核心 PCE 通胀（同比）', module: 'inflation', worse: 'above', yellow: 2.5, red: 3.5, digits: 2, freq: '月度',
     why: '美联储盯的通胀口径。通胀越高，降息救市的空间越小。', limit: '滞后一个月公布；同比读数受基数影响。' },
   { key: 'realRate', name: '实际政策利率', module: 'inflation', worse: 'above', yellow: 1.5, red: 2.5, digits: 2, freq: '月度',
     why: '联邦基金利率减核心通胀。数值越高，货币政策越紧，经济承压越大。', limit: '“中性利率”本身不可观测，阈值只是经验范围。' },
+  { key: 'tenYear', name: '10 年期美债收益率', module: 'inflation', digits: 2, freq: '每日',
+    why: '全球资产定价的锚。收益率越高，股票相对债券的吸引力越低，高估值资产承压越明显；也直接决定房贷和企业融资成本。', limit: '只作背景，不打分：它的高低要和通胀、增长一起看，单独说明不了好坏。' },
   { key: 'curve', name: '10 年 − 2 年美债利差', module: 'credit', worse: 'below', yellow: 0, red: -0.5, digits: 2, freq: '每日',
     why: '倒挂（负值）说明市场预期未来要降息，历史上常出现在衰退前。', limit: '倒挂到衰退的时滞从几个月到两年不等，单独使用不能择时。' },
   { key: 'hy', name: '高收益债利差 HY OAS', module: 'credit', worse: 'above', yellow: signal('hy').yellow, red: signal('hy').red, digits: 0, freq: '每日',
     why: '信用市场对违约的定价，往往比股市更早反映企业融资困难。', limit: '利差处在低位时说明市场乐观，也意味着对坏消息缺乏缓冲。' },
   { key: 'nfci', name: '芝加哥联储金融条件指数', module: 'credit', worse: 'above', yellow: 0, red: 0.5, digits: 2, freq: '每周',
     why: '综合 100 多项利率、信用、杠杆指标。正值表示金融条件比历史平均更紧。', limit: '综合指数会掩盖结构问题（例如某一类贷款单独恶化）。' },
+  { key: 'ccDelinq', name: '信用卡逾期率', module: 'credit', worse: 'above', yellow: 3.5, red: 5, digits: 2, freq: '季度',
+    why: '家庭资产负债表最先出现裂缝的地方：收入吃紧时，人们最先停还信用卡。2009–2010 年峰值约 6.8%，2021–2022 年低点约 1.5%。', limit: '黄红灯阈值是按历史区间设的经验值，不是官方标准；季度公布，滞后约两个月。' },
   { key: 'kre', name: '区域银行 KRE 连续跑输标普', module: 'credit', worse: 'above', yellow: signal('kre').yellow, red: signal('kre').red, digits: 0, freq: '每周',
     why: '区域银行是美国信用链条里最脆弱的一环。连续多周跑输大盘，往往是存款流失或坏账担忧的早期迹象（2023 年硅谷银行事件前即如此）。', limit: '受个别银行消息与利率预期影响大，需要和信用利差一起看。' },
   { key: 'vix', name: 'VIX 波动率', module: 'market', worse: 'above', yellow: signal('vix').yellow, red: signal('vix').red, digits: 1, freq: '每日',
@@ -58,6 +64,12 @@ export const INDICATORS: Indicator[] = [
     why: '用来对照“回撤梯度”：回撤越深，越需要按事先写好的规则行动，而不是凭感觉。', limit: '价格指数，不含分红；高点取 FRED 可得的约十年窗口。' },
   { key: 'marginGdp', name: '保证金债务 ÷ GDP', module: 'leverage', crowded: 'high', digits: 2, freq: '月度',
     why: '券商客户借钱炒股的规模占经济总量的比例。越高说明杠杆越重，下跌时被迫平仓的卖压越大；2000、2007、2021 年的高点之后都出现了大幅回撤。', limit: '只能说明脆弱程度，不能预测拐点；杠杆可以在高位停留很久。GDP 滞后公布，最新几个月沿用上一季。' },
+  { key: 'equityShare', name: '股票占家庭金融资产比重', module: 'leverage', crowded: 'high', digits: 1, freq: '季度',
+    why: '美国家庭与非营利机构直接和间接（含基金、养老金账户）持有的股票，占全部金融资产的比例。比例越高，家庭财富对股市的依赖越深，下跌时的财富效应冲击越大；2000 年互联网泡沫高点附近约 38.7%。', limit: '它衡量的是“押得多重”，不是“什么时候跌”；高位可以停留数年。季度公布，滞后约三个月；比例升高也可能只是股价上涨抬高了权重。' },
+  { key: 'buffett', name: '企业股票市值 ÷ GDP', module: 'leverage', crowded: 'high', digits: 0, freq: '季度',
+    why: '“巴菲特指标”的一种算法：美国非金融企业股票的市场价值，除以名义 GDP。越高说明股价相对经济产出越贵，未来长期回报的安全边际越薄。', limit: '这里用的是美联储资金流量表里的非金融企业口径（含未上市公司权益），绝对数值与常见的“总市值÷GDP”不同，只适合和自己的历史比。不能用来择时。' },
+  { key: 'debtService', name: '家庭债务偿付比', module: 'leverage', crowded: 'high', digits: 2, freq: '季度',
+    why: '家庭每年还本付息占可支配收入的比例。它用来区分“证券市场过热”和“整个家庭资产负债表脆弱”：2007 年前后它在历史高位，现在没有明显恶化。', limit: '只统计有债务的偿付额，不反映负债人群内部的分化；数据始于 2005 年，历史分位样本较短。' },
   { key: 'cashDebt', name: '客户现金 ÷ 保证金债务', module: 'leverage', crowded: 'low', digits: 1, freq: '月度',
     why: '券商账户里闲置现金相对借款的比例，反映散户手里还有多少子弹。比例越低，说明现金已经压到股市里，缺少新增买盘。', limit: '只统计 FINRA 会员券商，不含银行账户和货币基金里的现金；是存量比例，不等于散户整体仓位。' },
 ]
