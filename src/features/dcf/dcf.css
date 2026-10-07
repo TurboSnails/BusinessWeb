@@ -65,9 +65,10 @@
   font: inherit;
   font-weight: 450;
 }
-.dcf-field input:focus,
-.dcf-field select:focus {
-  outline: 2px solid var(--accent-soft);
+.dcf-field input:focus-visible,
+.dcf-field select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
   border-color: var(--accent);
 }
 .dcf-field small {
@@ -112,10 +113,10 @@
   background: rgba(63, 154, 98, 0.14);
 }
 .dcf-up {
-  color: var(--up);
+  color: var(--up-ink);
 }
 .dcf-down {
-  color: var(--down);
+  color: var(--down-ink);
 }
 .dcf-table {
   width: 100%;
@@ -243,4 +244,30 @@
   outline: 2px solid var(--text-primary, #333);
   outline-offset: -2px;
   font-weight: 700;
+}
+.dcf-sens__legend {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+}
+.dcf-sens__swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 5px;
+  border-radius: 3px;
+  vertical-align: -1px;
+}
+.dcf-banner {
+  margin: 0 0 14px;
+  padding: 10px 14px;
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-size: 0.85rem;
+  line-height: 1.6;
 }

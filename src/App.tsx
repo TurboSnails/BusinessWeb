@@ -46,9 +46,30 @@ function RoutedBoundary({ children }: { children: React.ReactNode }): JSX.Elemen
   return <ErrorBoundary resetKey={pathname}>{children}</ErrorBoundary>
 }
 
+/** 键盘与读屏用户跳过顶部导航：把焦点移到页面的 main（没有就退到 h1） */
+function SkipLink(): JSX.Element {
+  return (
+    <a
+      className="skip-link"
+      href="#main-content"
+      onClick={e => {
+        e.preventDefault()
+        const target = document.querySelector<HTMLElement>('main, [role="main"]') ?? document.querySelector<HTMLElement>('h1')
+        if (!target) return
+        target.setAttribute('tabindex', '-1')
+        target.focus()
+        target.scrollIntoView()
+      }}
+    >
+      跳到主要内容
+    </a>
+  )
+}
+
 export default function App(): JSX.Element {
   return (
     <div className="app">
+      <SkipLink />
       <BrowserRouter basename={import.meta.env.BASE_URL}>
         <Header />
         <SectionChrome />

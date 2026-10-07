@@ -73,10 +73,10 @@ const dayDiff = (a: Date, b: Date) =>
 
 type Tone = 'green' | 'yellow' | 'red' | 'blue' | 'gray'
 const TONE: Record<Tone, { fg: string; bg: string }> = {
-  green: { fg: 'var(--system-green)', bg: 'var(--system-green-light)' },
+  green: { fg: 'var(--down-ink)', bg: 'var(--system-green-light)' },
   yellow: { fg: 'var(--warm-ink)', bg: 'color-mix(in srgb, var(--system-orange) 12%, transparent)' },
-  red: { fg: 'var(--system-red)', bg: 'var(--system-red-light)' },
-  blue: { fg: 'var(--system-blue)', bg: 'var(--system-blue-light)' },
+  red: { fg: 'var(--up-ink)', bg: 'var(--system-red-light)' },
+  blue: { fg: 'var(--accent-ink)', bg: 'var(--system-blue-light)' },
   gray: { fg: 'var(--text-secondary)', bg: 'var(--system-gray6)' }
 }
 
@@ -658,7 +658,7 @@ const StressView: React.FC<{ rows: Holding[]; useAmount: boolean }> = ({ rows, u
                 <tr key={r.scenario.id}>
                   <td style={{ ...tdStyle, minWidth: 150, fontWeight: 700 }}>{r.scenario.name}</td>
                   <td style={{ ...tdStyle, whiteSpace: 'nowrap', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{r.scenario.start} ~ {r.scenario.end}</td>
-                  <td style={{ ...tdStyle, fontWeight: 800, color: (r.portfolioReturn ?? 0) < 0 ? 'var(--system-green)' : 'var(--system-red)' }}>{pct(r.portfolioReturn)}</td>
+                  <td style={{ ...tdStyle, fontWeight: 800, color: (r.portfolioReturn ?? 0) < 0 ? 'var(--down-ink)' : 'var(--up-ink)' }}>{pct(r.portfolioReturn)}</td>
                   <td style={tdStyle}>{r.maxDrawdown == null ? '—' : `-${(r.maxDrawdown * 100).toFixed(1)}%`}</td>
                   <td style={tdStyle}>{worst && worst.contribution < 0 ? `${worst.name}（${pct(worst.assetReturn)}）` : '—'}</td>
                   <td style={{ ...tdStyle, fontSize: '0.8rem', color: r.coverage < 1 ? 'var(--warm-ink)' : 'var(--text-secondary)' }}>
@@ -1440,7 +1440,7 @@ const InvestmentPlan2026 = () => {
   const nextEvent = CALENDAR.find(e => dayDiff(new Date(e.date), today) >= 0)
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', fontFamily: 'var(--font-family)' }}>
+    <div className="plan-page" style={{ minHeight: '100vh', background: 'var(--bg-primary)', fontFamily: 'var(--font-family)' }}>
       <PageTitle>2026 投资计划</PageTitle>
       <PageTabs label="2026 投资计划栏目" items={TABS} value={tab} onChange={setTab} />
       <div style={{ width: '100%', maxWidth: 1200, margin: '0 auto', padding: '0 16px 64px', boxSizing: 'border-box' }}>

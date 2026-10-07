@@ -9,7 +9,7 @@ const TOKENS: Record<string, string> = {
   '--bg-primary': '#FAF6EE',
   '--bg-card': '#FFFDF8',
   '--text-primary': '#3A3A34',
-  '--text-secondary': '#7A766B',
+  '--text-secondary': '#6B675C',
   '--accent': '#5B7B65',
   '--accent-warm': '#C9794F',
   '--border-subtle': '#E6DFD0',

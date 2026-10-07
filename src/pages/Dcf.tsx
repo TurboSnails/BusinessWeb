@@ -142,6 +142,8 @@ function Field({
         <input
           type="text"
           inputMode="decimal"
+          autoComplete="off"
+          spellCheck={false}
           value={value}
           onChange={(e) => onChange(e.target.value)}
         />
@@ -199,7 +201,8 @@ export default function Dcf(): JSX.Element {
   const [initial] = useState(initialForm);
   const [form, setForm] = useState<DcfForm>(initial.form);
   const [records, setRecords] = useState<DcfRecord[]>(() => loadDcfRecords());
-  const [notice, setNotice] = useState(
+  const [notice, setNotice] = useState("");
+  const [prefillNote] = useState(() =>
     initial.fromResearch
       ? `已从公司研究页带入 ${initial.fromResearch} 的名称、市场、币种${initial.form.values.currentPrice ? "与当前价" : ""}；起始自由现金流、股本、现金与负债请对照最新财报填写。`
       : "",
@@ -273,6 +276,12 @@ export default function Dcf(): JSX.Element {
           五年现金流折现 + 终值 + 股权桥接，口径与原表一致；记录只存在当前浏览器。
         </span>
       </div>
+
+      {prefillNote && (
+        <p className="dcf-banner" role="status">
+          {prefillNote}
+        </p>
+      )}
 
       <section className="dcf-card">
         <div className="dcf-head">
@@ -664,6 +673,10 @@ export default function Dcf(): JSX.Element {
                 ))}
               </tbody>
             </table>
+          </div>
+          <div className="dcf-sens__legend" aria-hidden="true">
+            <span><i className="dcf-sens__swatch" style={{ background: "rgba(196, 80, 63, 0.3)" }} />高于现价（越红越高）</span>
+            <span><i className="dcf-sens__swatch" style={{ background: "rgba(63, 154, 98, 0.3)" }} />低于现价（越绿越低）</span>
           </div>
           <p className="dcf-muted" style={{ marginTop: 10 }}>
             合理价区间 {formatPrice(sensitivity.minPrice, input.currency)} ~{" "}
