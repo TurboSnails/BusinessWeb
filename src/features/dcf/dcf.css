@@ -226,3 +226,21 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* 敏感性矩阵：红涨绿跌，与页面其余部分一致（安全边际为正偏红） */
+.dcf-sens {
+  overflow-x: auto;
+}
+.dcf-sens .dcf-table td,
+.dcf-sens .dcf-table th {
+  text-align: center;
+  white-space: nowrap;
+}
+.dcf-sens__corner {
+  text-align: left;
+}
+.dcf-sens__center {
+  outline: 2px solid var(--text-primary, #333);
+  outline-offset: -2px;
+  font-weight: 700;
+}

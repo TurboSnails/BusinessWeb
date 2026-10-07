@@ -48,3 +48,59 @@ describe('情绪工具：打开即并行获取全部读数', () => {
     expect(screen.getByText(/VIX 期限结构正常/)).toBeTruthy()
   })
 })
+
+describe('再平衡检查器：风险贡献', () => {
+  it('作者案例里恒生科技只占 20% 的钱，却承担约一半以上的风险，并给出提示', () => {
+    openAllocation()
+    fireEvent.click(screen.getByRole('button', { name: '作者案例' }))
+    expect(screen.getByText(/权重 vs 风险贡献（按目标占比）/)).toBeTruthy()
+    expect(screen.getByText(/只占钱的 20%（占风险资产的 25%），却承担约 55%/)).toBeTruthy()
+  })
+
+  it('均衡档没有单项风险畸高，不出现提示；个股名称标为未识别', () => {
+    openAllocation()
+    expect(screen.queryByText(/却承担约/)).toBeNull()
+    expect(screen.getByText(/风险资产合计占钱的 50%，承担约 (9\d|10\d)%/)).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: /添加/ }))
+    fireEvent.change(screen.getByLabelText('资产名称 新资产'), { target: { value: '某只个股' } })
+    fireEvent.change(screen.getByLabelText('目标占比 某只个股'), { target: { value: '10' } })
+    expect(screen.getByText(/未识别并排除：某只个股/)).toBeTruthy()
+  })
+})
+
+describe('交易前检查单与冷静期', () => {
+  const register = (name: string) => {
+    fireEvent.change(screen.getByLabelText('登记标的或操作'), { target: { value: name } })
+    fireEvent.click(screen.getByRole('button', { name: /登记这个想法/ }))
+  }
+
+  it('登记后处于「检查单未通过」，勾全并写证伪条件后进入冷静期而不是直接可执行', () => {
+    openAllocation()
+    register('腾讯控股')
+    expect(screen.getByText('检查单未通过')).toBeTruthy()
+    for (const box of screen.getAllByRole('checkbox')) fireEvent.click(box)
+    fireEvent.change(screen.getByLabelText('证伪条件 腾讯控股'), { target: { value: '云业务毛利率连续两季下滑' } })
+    expect(screen.getByText('冷静期中')).toBeTruthy()
+    expect(screen.getByText(/还剩 (47|48) 小时|还剩 1 天 2\d 小时|还剩 2 天/)).toBeTruthy()
+  })
+
+  it('写下提前执行理由后留痕，状态变为「已提前执行」；记录刷新后仍在', () => {
+    openAllocation()
+    register('英伟达')
+    fireEvent.change(screen.getByLabelText('提前执行理由 英伟达'), { target: { value: '财报后大幅跳空' } })
+    expect(screen.getByText('已提前执行（留痕）')).toBeTruthy()
+    cleanup()
+    openAllocation()
+    expect(screen.getByText('英伟达')).toBeTruthy()
+    expect(screen.getByText('已提前执行（留痕）')).toBeTruthy()
+  })
+
+  it('空名称不登记，可删除记录', () => {
+    openAllocation()
+    fireEvent.click(screen.getByRole('button', { name: /登记这个想法/ }))
+    expect(screen.queryByText('检查单未通过')).toBeNull()
+    register('美团')
+    fireEvent.click(screen.getByRole('button', { name: '删除 美团' }))
+    expect(screen.queryByText('美团')).toBeNull()
+  })
+})

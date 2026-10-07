@@ -1,6 +1,18 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { SIGNALS, STAGES, computeStage, signalTone, type Stage } from '../features/macro/stages'
 import { PageTabs, PageTitle } from '../components/ui/PageTabs'
+import { calculateRiskContribution, RISK_SAMPLE } from '../features/plan/riskContribution'
+import {
+  COOLING_HOURS,
+  PRE_TRADE_CHECKS,
+  TRADE_KIND_LABELS,
+  emptyChecks,
+  evaluatePreTrade,
+  formatRemaining,
+  type PreTradeEntry,
+  type PreTradeState,
+  type TradeKind
+} from '../features/plan/preTrade'
 import { fetchEarningsCalendar, type EarningsCalendarItem } from '../services/api'
 
 // 同源 /api/*；GitHub Pages 构建时通过 VITE_API_BASE 指向 Vercel
@@ -419,6 +431,204 @@ const RULES = [
   '不依据宏观预测买卖（第16章），宏观只用来检查预算'
 ]
 
+const RiskView: React.FC<{ rows: Holding[]; useAmount: boolean }> = ({ rows, useAmount }) => {
+  const result = calculateRiskContribution(
+    rows.map(r => ({ name: r.name, weight: useAmount ? num(r.amount) || 0 : num(r.target) || 0 }))
+  )
+  if (result.portfolioVol == null) {
+    return <Note tone="gray">填入资产名称（如标普500、红利低波、纯债、黄金、恒生科技、A股宽基）和金额或目标占比后，这里会显示各项承担的风险比例。</Note>
+  }
+  const bar = (pct: number, color: string) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ flex: 1, minWidth: 60, height: 8, borderRadius: 4, background: 'var(--system-gray6)' }}>
+        <div style={{ width: `${Math.max(0, Math.min(100, pct))}%`, height: '100%', borderRadius: 4, background: color }} />
+      </div>
+      <span style={{ width: 46, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{fmtPct(pct, 0)}</span>
+    </div>
+  )
+  // 债券本来就几乎不贡献波动，所以"某一项风险畸高"只在风险资产内部比较
+  const risky = result.items.filter(i => i.weight != null && i.assetId !== 'bond')
+  const riskyWeight = risky.reduce((a, i) => a + (i.weight ?? 0), 0)
+  const riskyRisk = risky.reduce((a, i) => a + (i.contribution ?? 0), 0)
+  const top = risky.reduce<(typeof risky)[number] | null>((a, b) => (a == null || (b.contribution ?? 0) > (a.contribution ?? 0) ? b : a), null)
+  const topWeight = top ? (top.weight ?? 0) * 100 : 0
+  const topInRisky = top && riskyWeight > 0 ? ((top.weight ?? 0) / riskyWeight) * 100 : 0
+  const topRisk = top ? (top.contribution ?? 0) * 100 : 0
+  const showTop = top != null && topRisk >= 40 && topRisk > topInRisky * 1.5
+  return (
+    <div>
+      <div style={{ fontWeight: 800, fontSize: '0.92rem', margin: '4px 0 8px' }}>权重 vs 风险贡献（{useAmount ? '按当前金额' : '按目标占比'}）</div>
+      <div style={tableWrapperStyle}>
+        <table style={tableStyle}>
+          <thead>
+            <tr>
+              {['资产', '钱的占比', '风险占比', '风险 ÷ 钱'].map(h => (
+                <th key={h} style={thStyle}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {result.items.map((it, i) => (
+              <tr key={`${it.name}-${i}`}>
+                <td style={tdStyle}>{it.name}</td>
+                {it.weight == null || it.contribution == null ? (
+                  <td style={{ ...tdStyle, color: 'var(--text-secondary)' }} colSpan={3}>
+                    {it.assetId == null ? '未识别，未纳入风险测算' : '—'}
+                  </td>
+                ) : (
+                  <>
+                    <td style={{ ...tdStyle, minWidth: 140 }}>{bar(it.weight * 100, 'var(--system-blue)')}</td>
+                    <td style={{ ...tdStyle, minWidth: 140 }}>{bar(it.contribution * 100, 'var(--system-red)')}</td>
+                    <td style={tdStyle}>{(it.multiple ?? 0).toFixed(2)}×</td>
+                  </>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {showTop && top && (
+          <Note tone="yellow">
+            「{top.name}」只占钱的 {fmtPct(topWeight, 0)}（占风险资产的 {fmtPct(topInRisky, 0)}），却承担约 {fmtPct(topRisk, 0)} 的组合波动。要降低组合风险，调这一项或权益总占比，比调其他项有效得多。
+          </Note>
+        )}
+        {risky.length > 0 && risky.length < result.items.filter(i => i.weight != null).length && (
+          <Note tone="gray">
+            股票、黄金等风险资产合计占钱的 {fmtPct(riskyWeight * 100, 0)}，承担约 {fmtPct(riskyRisk * 100, 0)} 的组合波动：风险几乎全来自这一块，债券的作用是缓冲，不是提供波动。{result.items.some(i => (i.contribution ?? 0) < 0) && '合计超过 100% 是因为债券与权益在这段历史里略呈负相关，风险贡献为负，起到了对冲作用。'}
+          </Note>
+        )}
+        {result.unmatched.length > 0 && (
+          <Note tone="gray">
+            未识别并排除：{result.unmatched.join('、')}（识别范围：标普500、红利、债券、黄金、恒生科技、A股宽基；风险测算只覆盖已识别的 {fmtPct(result.coverage * 100, 0)}）。
+          </Note>
+        )}
+        <Note tone="gray">
+          组合年化波动约 {fmtPct(result.portfolioVol * 100)}。波动率与相关系数取自书第9章9.7同一段历史（{RISK_SAMPLE}，未计汇率，恒生科技为价格指数），反映的是结构，不是对未来波动的预测；极端行情里相关性通常会上升，这里没有测。
+        </Note>
+      </div>
+    </div>
+  )
+}
+
+const PRE_TRADE_STATE: Record<PreTradeState, { tone: Tone; label: string }> = {
+  blocked: { tone: 'red', label: '检查单未通过' },
+  cooling: { tone: 'yellow', label: '冷静期中' },
+  ready: { tone: 'green', label: '可以按计划执行' },
+  overridden: { tone: 'red', label: '已提前执行（留痕）' }
+}
+
+const PreTradeChecklist: React.FC = () => {
+  const [log, setLog] = usePersisted<PreTradeEntry[]>('pretrade-log', [])
+  const [now, setNow] = useState(() => new Date())
+  const [symbol, setSymbol] = useState('')
+  const [kind, setKind] = useState<TradeKind>('active-buy')
+
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 60000)
+    return () => clearInterval(t)
+  }, [])
+
+  const patch = (id: string, changes: Partial<PreTradeEntry>) => setLog(l => l.map(e => (e.id === id ? { ...e, ...changes } : e)))
+  const toggle = (id: string, i: number) =>
+    setLog(l => l.map(e => (e.id === id ? { ...e, checks: e.checks.map((c, k) => (k === i ? !c : c)) } : e)))
+  const add = () => {
+    const name = symbol.trim()
+    if (!name) return
+    const entry: PreTradeEntry = {
+      id: `t${Date.now()}`,
+      symbol: name,
+      kind,
+      ideaAt: new Date().toISOString(),
+      checks: emptyChecks(),
+      falsify: '',
+      overrideReason: ''
+    }
+    setLog(l => [entry, ...l].slice(0, 30))
+    setSymbol('')
+  }
+
+  return (
+    <Card title="交易前检查单与冷静期" icon={<ClipboardCheck size={18} />} accent="var(--system-orange)">
+      <p style={{ margin: '0 0 14px', fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+        只在要「主动买入」或「偏离再平衡规则」时用。想法一产生就登记，从这一刻起算 {COOLING_HOURS} 小时冷静期；检查单全部通过且冷静期结束，才算可以执行。按检查日的规则做再平衡，不需要走这里。记录只保存在本机浏览器。
+      </p>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
+        <input
+          style={{ ...inputStyle, flex: '1 1 160px', width: 'auto' }}
+          aria-label="登记标的或操作"
+          placeholder="标的或操作，如 腾讯控股"
+          value={symbol}
+          onChange={e => setSymbol(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && add()}
+        />
+        <select style={{ ...inputStyle, width: 'auto' }} aria-label="操作类型" value={kind} onChange={e => setKind(e.target.value as TradeKind)}>
+          {(Object.keys(TRADE_KIND_LABELS) as TradeKind[]).map(k => (
+            <option key={k} value={k}>{TRADE_KIND_LABELS[k]}</option>
+          ))}
+        </select>
+        <button style={btnStyle(true)} onClick={add}><Plus size={14} /> 登记这个想法</button>
+      </div>
+      {log.length === 0 ? (
+        <Note tone="gray">还没有登记。下次想临时买点什么的时候，先来这里写下它，再等 {COOLING_HOURS} 小时。</Note>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {log.map(e => {
+            const st = evaluatePreTrade(e, now)
+            const meta = PRE_TRADE_STATE[st.state]
+            return (
+              <div key={e.id} style={{ border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)', padding: 14 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 8 }}>
+                  <strong>{e.symbol}</strong>
+                  <Pill tone="gray">{TRADE_KIND_LABELS[e.kind]}</Pill>
+                  <Pill tone={meta.tone}>{meta.label}</Pill>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                    登记于 {new Date(e.ideaAt).toLocaleString('zh-CN')}
+                    {st.state !== 'overridden' && ` · ${formatRemaining(st.remainingMs)}`}
+                  </span>
+                  <button aria-label={`删除 ${e.symbol}`} style={{ ...btnStyle(), padding: 6, marginLeft: 'auto' }} onClick={() => setLog(l => l.filter(x => x.id !== e.id))}>
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {PRE_TRADE_CHECKS.map((text, i) => (
+                    <label key={text} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: '0.88rem', lineHeight: 1.6, cursor: 'pointer' }}>
+                      <input type="checkbox" checked={!!e.checks[i]} onChange={() => toggle(e.id, i)} style={{ marginTop: 5 }} />
+                      <span>{text}</span>
+                    </label>
+                  ))}
+                </div>
+                <input
+                  style={{ ...inputStyle, marginTop: 10 }}
+                  aria-label={`证伪条件 ${e.symbol}`}
+                  placeholder="证伪条件：出现什么情况就证明我错了（原文记录，日后对照）"
+                  value={e.falsify}
+                  onChange={ev => patch(e.id, { falsify: ev.target.value })}
+                />
+                {st.state !== 'ready' && (
+                  <input
+                    style={{ ...inputStyle, marginTop: 8 }}
+                    aria-label={`提前执行理由 ${e.symbol}`}
+                    placeholder="确实要现在做？写下理由。理由会留痕，年度复盘时回看"
+                    value={e.overrideReason}
+                    onChange={ev => patch(e.id, { overrideReason: ev.target.value })}
+                  />
+                )}
+                {st.state === 'blocked' && (
+                  <div style={{ marginTop: 8, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>未通过：{st.missing.join('；')}</div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )}
+      <div style={{ marginTop: 12 }}>
+        <Note tone="gray">跳过不是禁止，是留痕：年底统计「提前执行」的操作后来表现如何，比任何自我提醒都有说服力。</Note>
+      </div>
+    </Card>
+  )
+}
+
 const Allocation: React.FC = () => {
   const [rows, setRows] = usePersisted<Holding[]>('holdings', DEFAULT_HOLDINGS)
 
@@ -503,6 +713,7 @@ const Allocation: React.FC = () => {
               {anyHit ? '有资产超出阈值：按“回到目标需…”的金额调整，且只在检查日、只用底仓内资金，不动备用金和主动额度。' : '全部在区间内，今天什么也不用做。'}
             </Note>
           )}
+          <RiskView rows={rows} useAmount={total > 0} />
           <Note tone="gray">权重不等于风险：权益的波动远大于债券，底仓的波动几乎全部来自权益（书9.7的风险贡献表）。真正调风险的旋钮是权益占多少；主题指数（如恒生科技）放主动额度，不放底仓。</Note>
         </div>
       </Card>
@@ -523,6 +734,8 @@ const Allocation: React.FC = () => {
           />
         </Card>
       </div>
+
+      <PreTradeChecklist />
     </div>
   )
 }

@@ -6,6 +6,9 @@ import ResearchNotice from '../components/research/ResearchNotice'
 import { toneOf, Tone } from '../data/notionNotes'
 import { CN_REPORT } from '../data/cnReassessment'
 import { SP500_REPORT } from '../data/sp500Reassessment'
+import CandidateButton from '../components/CandidateButton'
+import { useCandidates } from '../features/candidates/useCandidates'
+import { buildDcfLink } from '../features/dcf'
 
 const toneColors: Record<Tone, { bg: string; color: string }> = {
   green: { bg: 'color-mix(in srgb, var(--system-green) 12%, transparent)', color: 'var(--system-green)' },
@@ -22,6 +25,7 @@ export default function CompanyDetail(): JSX.Element {
   const { list, loading } = useCompanies(mk)
   const lynchAll = useLynch()
   const company = list.find(c => c.code === decodeURIComponent(code || ''))
+  const cand = useCandidates(true)
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -141,12 +145,16 @@ export default function CompanyDetail(): JSX.Element {
         <div style={{ maxWidth: '760px', margin: '0 auto' }}>
           {back}
           <Link to={`/valuation?market=${mk === 'adr' || mk === 'ndx' ? 'us' : mk}&code=${encodeURIComponent(company.code)}`} style={{display:'inline-block',marginLeft:'18px',color:'var(--accent)',fontSize:'13px'}}>建立估值模型 →</Link>
+          <Link to={buildDcfLink({ company: company.name, code: company.code, researchMarket: mk, price })} style={{display:'inline-block',marginLeft:'18px',color:'var(--accent)',fontSize:'13px'}}>用当前价格测算 DCF →</Link>
           <h1 style={{ fontSize: '24px', margin: '0 0 6px' }}>{company.name}</h1>
           <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 14px' }}>
             {company.market === 'us' ? '标普500' : company.market === 'hk' ? '港股' : company.market === 'adr' ? '美股非标普' : company.market === 'ndx' ? '纳指100' : '沪深'} · {company.code} · {company.sector} · {company.batch}
           </p>
           <span style={{ display: 'inline-block', fontSize: '13px', fontWeight: 600, padding: '4px 12px', borderRadius: '8px', background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', color: toneColors[tone].color }}>
             {company.rating}
+          </span>
+          <span style={{ marginLeft: '10px' }}>
+            <CandidateButton on={cand.items.some(i => i.market === company.market && i.code === company.code)} onClick={() => cand.toggle(company.market, company.code)} />
           </span>
         </div>
       </div>

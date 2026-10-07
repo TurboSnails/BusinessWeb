@@ -31,6 +31,32 @@ describe("现金流折现估值页", () => {
     expect(screen.getByText("BUY")).toBeTruthy();
   });
 
+  it("有结果时显示 5×5 敏感性矩阵，数据不全时不显示", () => {
+    render(<Dcf />);
+    expect(screen.queryByRole("table", { name: "DCF 敏感性矩阵" })).toBeNull();
+    fillRequired();
+    const table = screen.getByRole("table", { name: "DCF 敏感性矩阵" });
+    // 表头 1 行 + 5 行折现率；每行 1 个行标题 + 5 个格子
+    expect(table.querySelectorAll("tbody tr")).toHaveLength(5);
+    expect(table.querySelectorAll("tbody tr:first-child td")).toHaveLength(6);
+    expect(table.querySelector(".dcf-sens__center")?.textContent).toBe("¥144.62");
+  });
+
+  it("从公司研究页带参数打开时预填名称、市场、币种和当前价", () => {
+    window.history.pushState({}, "", "/dcf?company=%E8%85%BE%E8%AE%AF%E6%8E%A7%E8%82%A1&code=0700&market=hk&currency=HKD&price=512.5");
+    try {
+      render(<Dcf />);
+      expect((screen.getByLabelText("公司名称") as HTMLInputElement).value).toBe("腾讯控股");
+      expect((screen.getByLabelText("股票代码") as HTMLInputElement).value).toBe("0700");
+      expect((screen.getByLabelText("当前股价") as HTMLInputElement).value).toBe("512.5");
+      expect((screen.getByLabelText("市场") as HTMLSelectElement).value).toBe("hk");
+      expect((screen.getByLabelText("币种") as HTMLSelectElement).value).toBe("HKD");
+      expect(screen.getByText(/已从公司研究页带入 腾讯控股/)).toBeTruthy();
+    } finally {
+      window.history.pushState({}, "", "/");
+    }
+  });
+
   it("保存后再次分析同一家公司会覆盖上一次的记录", () => {
     render(<Dcf />);
     fillRequired();

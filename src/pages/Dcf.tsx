@@ -13,6 +13,7 @@ import {
   MONEY_UNIT_LABELS,
   SHARE_UNIT_LABELS,
   calculateMultiples,
+  calculateSensitivity,
   calculateSheetDcf,
   calculateWacc,
   deleteDcfRecord,
@@ -25,6 +26,7 @@ import {
   makeDcfKey,
   makeDcfRecord,
   loadDcfRecords,
+  parseDcfPrefill,
   parseNumber,
   saveDcfRecord,
   toBaseAmount,
@@ -180,16 +182,35 @@ function Select<T extends string>({
 const asOptions = <T extends string>(labels: Record<T, string>) =>
   (Object.keys(labels) as T[]).map((id) => ({ id, label: labels[id] }));
 
+/** 从公司研究页带来的公司、市场、币种与当前价；其余假设仍由自己对照财报填写 */
+function initialForm(): { form: DcfForm; fromResearch: string } {
+  const form = emptyForm();
+  const pre = typeof window === "undefined" ? null : parseDcfPrefill(window.location.search);
+  if (!pre) return { form, fromResearch: "" };
+  form.company = pre.company;
+  form.code = pre.code;
+  form.market = pre.market;
+  form.currency = pre.currency;
+  if (pre.currentPrice != null) form.values.currentPrice = String(pre.currentPrice);
+  return { form, fromResearch: pre.company || pre.code };
+}
+
 export default function Dcf(): JSX.Element {
-  const [form, setForm] = useState<DcfForm>(emptyForm);
+  const [initial] = useState(initialForm);
+  const [form, setForm] = useState<DcfForm>(initial.form);
   const [records, setRecords] = useState<DcfRecord[]>(() => loadDcfRecords());
-  const [notice, setNotice] = useState("");
+  const [notice, setNotice] = useState(
+    initial.fromResearch
+      ? `已从公司研究页带入 ${initial.fromResearch} 的名称、市场、币种${initial.form.values.currentPrice ? "与当前价" : ""}；起始自由现金流、股本、现金与负债请对照最新财报填写。`
+      : "",
+  );
   const [error, setError] = useState("");
 
   const input = toInput(form);
   const result = calculateSheetDcf(input);
   const waccResult = calculateWacc(input);
   const bands = calculateMultiples(input);
+  const sensitivity = calculateSensitivity(input);
   const key = makeDcfKey(input);
   const existing = records.find((r) => r.key === key) ?? null;
 
@@ -598,6 +619,62 @@ export default function Dcf(): JSX.Element {
         )}
       </section>
 
+      {sensitivity && (
+        <section className="dcf-card">
+          <div className="dcf-head">
+            <span className="dcf-badge">
+              <Percent size={18} />
+            </span>
+            <div>
+              <h2>敏感性矩阵：折现率 × 永续增长率</h2>
+              <p>
+                估值是一个区间，不是一个点。其余假设不变，只看这两项变动时的合理价；带框为当前假设。
+              </p>
+            </div>
+          </div>
+          <div className="dcf-sens">
+            <table className="dcf-table" aria-label="DCF 敏感性矩阵">
+              <thead>
+                <tr>
+                  <th className="dcf-sens__corner">折现率 \ 永续增长</th>
+                  {sensitivity.perpetualGrowths.map((g) => (
+                    <th key={g}>{formatPct(g)}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {sensitivity.cells.map((row, ri) => (
+                  <tr key={sensitivity.discountRates[ri]}>
+                    <td>{formatPct(sensitivity.discountRates[ri])}</td>
+                    {row.map((cell, ci) => (
+                      <td
+                        key={cell.perpetualGrowth}
+                        className={ri === 2 && ci === 2 ? "dcf-sens__center" : undefined}
+                        style={sensitivityStyle(cell.mos)}
+                        title={
+                          cell.mos == null
+                            ? undefined
+                            : `安全边际 ${formatSignedPct(cell.mos * 100)}`
+                        }
+                      >
+                        {cell.price == null ? "—" : formatPrice(cell.price, input.currency)}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="dcf-muted" style={{ marginTop: 10 }}>
+            合理价区间 {formatPrice(sensitivity.minPrice, input.currency)} ~{" "}
+            {formatPrice(sensitivity.maxPrice, input.currency)}
+            {sensitivity.positiveShare != null &&
+              `；25 种组合中 ${Math.round(sensitivity.positiveShare * 25)} 种高于现价`}
+            。"—"表示折现率不高于永续增长率，终值无意义。
+          </p>
+        </section>
+      )}
+
       <section className="dcf-card">
         <div className="dcf-head">
           <span className="dcf-badge">
@@ -647,6 +724,14 @@ export default function Dcf(): JSX.Element {
       </section>
     </main>
   );
+}
+
+/** 安全边际越高越红、越低越绿（红涨绿跌），深浅随幅度，50% 封顶 */
+function sensitivityStyle(mos: number | null): React.CSSProperties | undefined {
+  if (mos == null) return undefined;
+  const alpha = Math.min(Math.abs(mos) / 0.5, 1) * 0.35;
+  const rgb = mos >= 0 ? "196, 80, 63" : "63, 154, 98";
+  return { background: `rgba(${rgb}, ${alpha.toFixed(3)})` };
 }
 
 function BandCard({
