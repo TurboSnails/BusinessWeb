@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { SIGNALS, STAGES, computeStage, signalTone, type Stage } from '../features/macro/stages'
-import { PageTabs, PageTitle } from '../components/ui/PageTabs'
+import { useSearchParams } from 'react-router-dom'
+import { PageTabs, PageTitle, Segmented } from '../components/ui/PageTabs'
 import { calculateRiskContribution, RISK_SAMPLE } from '../features/plan/riskContribution'
 import {
   COOLING_HOURS,
@@ -787,6 +788,14 @@ const CashflowCard: React.FC<{ rows: Holding[] }> = ({ rows }) => {
   )
 }
 
+type AllocSection = 'rebalance' | 'risk' | 'cashflow' | 'discipline'
+const ALLOC_SECTIONS: { id: AllocSection; label: string }[] = [
+  { id: 'rebalance', label: '再平衡检查' },
+  { id: 'risk', label: '风险透视' },
+  { id: 'cashflow', label: '现金流' },
+  { id: 'discipline', label: '纪律与交易前检查' }
+]
+
 const Allocation: React.FC = () => {
   const [rows, setRows] = usePersisted<Holding[]>('holdings', DEFAULT_HOLDINGS)
 
@@ -805,8 +814,22 @@ const Allocation: React.FC = () => {
   })
   const anyHit = computed.some(c => c.hit)
 
+  // 小节记在 URL 里：可分享、可用浏览器返回；默认「再平衡检查」
+  const [params, setParams] = useSearchParams()
+  const sec: AllocSection = ALLOC_SECTIONS.some(x => x.id === params.get('sec')) ? (params.get('sec') as AllocSection) : 'rebalance'
+  const go = (patch: { sec: AllocSection }) =>
+    setParams(prev => {
+      const next = new URLSearchParams(prev)
+      if (patch.sec === 'rebalance') next.delete('sec')
+      else next.set('sec', patch.sec)
+      return next
+    }, { replace: true })
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <Segmented label="配置与纪律小节" items={ALLOC_SECTIONS} value={sec} onChange={id => go({ sec: id })} />
+
+      {sec === 'rebalance' && (
       <Card
         title="再平衡检查器"
         icon={<PieChart size={18} />}
@@ -871,15 +894,27 @@ const Allocation: React.FC = () => {
               {anyHit ? '有资产超出阈值：按“回到目标需…”的金额调整，且只在检查日、只用底仓内资金，不动备用金和主动额度。' : '全部在区间内，今天什么也不用做。'}
             </Note>
           )}
+          <Note tone="gray">
+            权重不等于风险：权益的波动远大于债券，底仓的波动几乎全部来自权益（书9.7的风险贡献表）。真正调风险的旋钮是权益占多少；主题指数（如恒生科技）放主动额度，不放底仓。
+            <button style={{ ...btnStyle(), marginLeft: 8, padding: '4px 10px' }} onClick={() => go({ sec: 'risk' })}>查看风险透视 →</button>
+          </Note>
+        </div>
+      </Card>
+      )}
+
+      {sec === 'risk' && (
+        <Card title="风险透视" icon={<Gauge size={18} />}
+          right={<button style={btnStyle()} onClick={() => go({ sec: 'rebalance' })}>修改持仓与目标</button>}>
           <RiskView rows={rows} useAmount={total > 0} />
           <CurrencyView rows={rows} useAmount={total > 0} />
           <StressView rows={rows} useAmount={total > 0} />
-          <Note tone="gray">权重不等于风险：权益的波动远大于债券，底仓的波动几乎全部来自权益（书9.7的风险贡献表）。真正调风险的旋钮是权益占多少；主题指数（如恒生科技）放主动额度，不放底仓。</Note>
-        </div>
-      </Card>
+        </Card>
+      )}
 
-      <CashflowCard rows={rows} />
+      {sec === 'cashflow' && <CashflowCard rows={rows} />}
 
+      {sec === 'discipline' && (
+      <>
       <div style={grid(300)}>
         <Card title="不可越过的红线" icon={<Ban size={18} />} accent="var(--system-red)">
           <Bullets items={RULES} tone="red" />
@@ -898,6 +933,8 @@ const Allocation: React.FC = () => {
       </div>
 
       <PreTradeChecklist />
+      </>
+      )}
     </div>
   )
 }
