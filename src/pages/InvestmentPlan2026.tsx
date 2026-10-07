@@ -13,6 +13,7 @@ import {
   type PreTradeState,
   type TradeKind
 } from '../features/plan/preTrade'
+import { WITHDRAWAL_RATE, calculateCashflow } from '../features/plan/cashflow'
 import { BUCKET_LABELS, calculateCurrencyExposure, type ExposureBucket } from '../features/plan/currencyExposure'
 import { runAllStressScenarios } from '../features/plan/stressTest'
 import { fetchEarningsCalendar, type EarningsCalendarItem } from '../services/api'
@@ -702,6 +703,90 @@ const CurrencyView: React.FC<{ rows: Holding[]; useAmount: boolean }> = ({ rows,
   )
 }
 
+interface CashflowState {
+  expense: string
+  reserve: string
+  yields: Record<string, string>
+}
+
+const CashflowCard: React.FC<{ rows: Holding[] }> = ({ rows }) => {
+  const [st, setSt] = usePersisted<CashflowState>('cashflow', { expense: '', reserve: '', yields: {} })
+  const withAmount = rows.filter(r => (num(r.amount) || 0) > 0)
+  const result = calculateCashflow({
+    expense: num(st.expense),
+    reserve: num(st.reserve),
+    assets: withAmount.map(r => ({ amount: num(r.amount), yieldPct: num(st.yields[r.name] ?? '') }))
+  })
+  const setYield = (name: string, v: string) => setSt(p => ({ ...p, yields: { ...p.yields, [name]: v } }))
+  const cov = (n: number | null) => (n == null ? '—' : fmtPct(n * 100, 0))
+  const stat = (label: string, value: string, hint?: string) => (
+    <div style={{ flex: '1 1 150px', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)', padding: '10px 12px' }}>
+      <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>{label}</div>
+      <div style={{ fontSize: '1.15rem', fontWeight: 800 }}>{value}</div>
+      {hint && <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: 2 }}>{hint}</div>}
+    </div>
+  )
+  return (
+    <Card title="自由生活覆盖率：资产能养活多少生活" icon={<Target size={18} />}>
+      <p style={{ margin: '0 0 14px', fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+        金额单位同上表（万元），资产取上表「当前金额」。两把尺子并列看：只靠股息利息（不动本金）能覆盖多少，和按 {WITHDRAWAL_RATE * 100}% 提款法则能覆盖多少。数据只保存在本机浏览器。
+      </p>
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 14 }}>
+        <label style={{ flex: '1 1 200px', fontSize: '0.82rem', fontWeight: 700 }}>
+          年必要生活开支（万元）
+          <input style={{ ...inputStyle, marginTop: 4 }} inputMode="decimal" value={st.expense} onChange={e => setSt(p => ({ ...p, expense: e.target.value }))} />
+        </label>
+        <label style={{ flex: '1 1 200px', fontSize: '0.82rem', fontWeight: 700 }}>
+          备用金（万元，不投资）
+          <input style={{ ...inputStyle, marginTop: 4 }} inputMode="decimal" value={st.reserve} onChange={e => setSt(p => ({ ...p, reserve: e.target.value }))} />
+        </label>
+      </div>
+      {withAmount.length === 0 ? (
+        <Note tone="gray">先在上表填入各项当前金额，这里再填各项的年化股息/利息率。</Note>
+      ) : (
+        <div style={tableWrapperStyle}>
+          <table style={tableStyle}>
+            <thead>
+              <tr>{['资产', '当前金额', '年化股息/利息率 %', '年现金流'].map(h => <th key={h} style={thStyle}>{h}</th>)}</tr>
+            </thead>
+            <tbody>
+              {withAmount.map(r => (
+                <tr key={r.id}>
+                  <td style={tdStyle}>{r.name}</td>
+                  <td style={tdStyle}>{fmtMoney(num(r.amount))}</td>
+                  <td style={{ ...tdStyle, width: 130 }}>
+                    <input style={inputStyle} aria-label={`股息率 ${r.name}`} inputMode="decimal" placeholder="自行查当前值" value={st.yields[r.name] ?? ''} onChange={e => setYield(r.name, e.target.value)} />
+                  </td>
+                  <td style={tdStyle}>{fmtMoney(((num(r.amount) || 0) * (num(st.yields[r.name] ?? '') || 0)) / 100)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {result.incomeCoverage != null && result.totalAssets > 0 && (
+        <>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 14 }}>
+            {stat('股息利息覆盖率', cov(result.incomeCoverage), `预期年现金流 ${fmtMoney(result.income)}，加权股息率 ${fmtPct((result.weightedYield ?? 0) * 100, 2)}`)}
+            {stat(`${WITHDRAWAL_RATE * 100}% 提款覆盖率`, cov(result.withdrawalCoverage), `每年可取约 ${fmtMoney(result.withdrawalAmount)}`)}
+            {stat('备用金可撑', result.runwayMonths == null ? '—' : `${result.runwayMonths.toFixed(1)} 个月`, '零收入情况下')}
+          </div>
+          <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <Note tone={(result.gap ?? 0) > 0 ? 'blue' : 'green'}>
+              {(result.gap ?? 0) > 0
+                ? `按 ${WITHDRAWAL_RATE * 100}% 法则，覆盖全部开支需要约 ${fmtMoney(result.requiredAssets ?? NaN)} 万元资产，目前还差约 ${fmtMoney(result.gap ?? NaN)} 万元。`
+                : `按 ${WITHDRAWAL_RATE * 100}% 法则，资产规模已覆盖全部开支（需要约 ${fmtMoney(result.requiredAssets ?? NaN)} 万元）。`}
+            </Note>
+            <Note tone="gray">
+              股息率不是收益率：为了把股息率做高而偏离配置，是用确定的规则换不确定的好看数字。股息和利息也会被削减，所以拿它和 {WITHDRAWAL_RATE * 100}% 提款线对照着看，不要只看其中一个。{WITHDRAWAL_RATE * 100}% 是经验法则，不是保证；只统计上表的底仓资产，主动额度不计入。
+            </Note>
+          </div>
+        </>
+      )}
+    </Card>
+  )
+}
+
 const Allocation: React.FC = () => {
   const [rows, setRows] = usePersisted<Holding[]>('holdings', DEFAULT_HOLDINGS)
 
@@ -792,6 +877,8 @@ const Allocation: React.FC = () => {
           <Note tone="gray">权重不等于风险：权益的波动远大于债券，底仓的波动几乎全部来自权益（书9.7的风险贡献表）。真正调风险的旋钮是权益占多少；主题指数（如恒生科技）放主动额度，不放底仓。</Note>
         </div>
       </Card>
+
+      <CashflowCard rows={rows} />
 
       <div style={grid(300)}>
         <Card title="不可越过的红线" icon={<Ban size={18} />} accent="var(--system-red)">

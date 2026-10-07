@@ -130,3 +130,27 @@ describe('币种敞口', () => {
     expect(screen.getByText(/非人民币定价的资产合计约 60%/)).toBeTruthy()
   })
 })
+
+describe('自由生活覆盖率', () => {
+  it('填入金额、股息率与开支后，给出两把尺子的覆盖率与备用金月数', () => {
+    openAllocation()
+    fireEvent.click(screen.getByRole('button', { name: '作者案例' }))
+    const amounts = screen.getAllByPlaceholderText('万元')
+    amounts.forEach(a => fireEvent.change(a, { target: { value: '20' } })) // 五项各 20，共 100
+    fireEvent.change(screen.getByLabelText('股息率 红利低波'), { target: { value: '5' } })
+    fireEvent.change(screen.getByLabelText('股息率 纯债基金'), { target: { value: '3' } })
+    fireEvent.change(screen.getByLabelText(/年必要生活开支/), { target: { value: '8' } })
+    fireEvent.change(screen.getByLabelText(/备用金/), { target: { value: '4' } })
+    // 年现金流 20*5%+20*3% = 1.6；覆盖率 1.6/8 = 20%；4% 提款 4/8 = 50%；备用金 4/(8/12) = 6 个月
+    const valueOf = (label: string) => screen.getByText(label).nextElementSibling?.textContent
+    expect(valueOf('股息利息覆盖率')).toBe('20%')
+    expect(valueOf('4% 提款覆盖率')).toBe('50%')
+    expect(valueOf('备用金可撑')).toBe('6.0 个月')
+    expect(screen.getByText(/还差约 100 万元/)).toBeTruthy()
+  })
+
+  it('没填开支时不给覆盖率', () => {
+    openAllocation()
+    expect(screen.queryByText('股息利息覆盖率')).toBeNull()
+  })
+})
