@@ -275,6 +275,13 @@ export default function Dcf(): JSX.Element {
         <span className="page-toolbar__note">
           五年现金流折现 + 终值 + 股权桥接，口径与原表一致；记录只存在当前浏览器。
         </span>
+        <a
+          className="dcf-button dcf-button--ghost"
+          href="/downloads/dcf-wacc-model.xlsx"
+          download="現金流折現估值模型(含WACC).xlsx"
+        >
+          下载 Excel 模板
+        </a>
       </div>
 
       {prefillNote && (
