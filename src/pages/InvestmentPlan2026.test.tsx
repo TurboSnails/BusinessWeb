@@ -182,8 +182,7 @@ describe('配置与纪律的小节导航', () => {
   })
 
   it('URL 带 sec 参数时直接打开对应小节', () => {
-    render(<MemoryRouter initialEntries={['/?sec=cashflow']}><InvestmentPlan2026 /></MemoryRouter>)
-    fireEvent.click(screen.getByRole('tab', { name: /配置与纪律/ }))
+    render(<MemoryRouter initialEntries={['/?tab=allocation&sec=cashflow']}><InvestmentPlan2026 /></MemoryRouter>)
     expect(screen.getByText(/自由生活覆盖率/)).toBeTruthy()
   })
 })

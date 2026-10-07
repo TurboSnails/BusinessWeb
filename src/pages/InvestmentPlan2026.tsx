@@ -1464,7 +1464,17 @@ const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
 ]
 
 const InvestmentPlan2026 = () => {
-  const [tab, setTab] = useState<TabId>('overview')
+  // 页签记在 URL 里：刷新、分享、浏览器返回都停在同一处；默认「总览」
+  const [urlParams, setUrlParams] = useSearchParams()
+  const tab: TabId = TABS.some(t => t.id === urlParams.get('tab')) ? (urlParams.get('tab') as TabId) : 'overview'
+  const setTab = (id: TabId) =>
+    setUrlParams(prev => {
+      const next = new URLSearchParams(prev)
+      if (id === 'overview') next.delete('tab')
+      else next.set('tab', id)
+      next.delete('sec')
+      return next
+    }, { replace: true })
   const [signals, setSignals] = usePersisted<Record<string, string>>('signals', {})
   const [updated, setUpdated] = usePersisted<string>('signals-updated', '')
   const today = useMemo(() => new Date(), [])
