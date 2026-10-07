@@ -1,10 +1,130 @@
 {
-  "generatedAt": "2026-10-06T19:53:49.448Z",
+  "generatedAt": "2026-10-07T15:58:59.725Z",
   "versions": [
     {
       "tag": "unreleased",
       "date": null,
       "commits": [
+        {
+          "hash": "2b705c1",
+          "subject": "chore(deploy): exclude local caches and agent installations from Vercel uploads",
+          "author": "hassan",
+          "date": "2026-10-07"
+        },
+        {
+          "hash": "4baca4d",
+          "subject": "feat(research): unify investment skills and expand nine industry research tracks",
+          "author": "hassan",
+          "date": "2026-10-07"
+        },
+        {
+          "hash": "54a42d0",
+          "subject": "feat(research): 补录 SoFi（SOFI）完整版研究页，归入美股非标普",
+          "author": "hassan",
+          "date": "2026-10-07"
+        },
+        {
+          "hash": "44a4f18",
+          "subject": "feat(dcf): 提供 Excel 估值模板下载",
+          "author": "hassan",
+          "date": "2026-10-07"
+        },
+        {
+          "hash": "5ed3735",
+          "subject": "feat(macro): 美国宏观新增家庭股票占比、企业市值÷GDP、债务偿付比、信用卡逾期率、10年美债、储蓄率",
+          "author": "hassan",
+          "date": "2026-10-07"
+        },
+        {
+          "hash": "9f77bd9",
+          "subject": "docs: 投资工具优化 TODO（已完成、待实施、验证待办、不做清单）",
+          "author": "hassan",
+          "date": "2026-10-07"
+        },
+        {
+          "hash": "b466c69",
+          "subject": "feat(ux): 2026 投资计划的外层页签写入 URL，可深链接到小节",
+          "author": "hassan",
+          "date": "2026-10-07"
+        },
+        {
+          "hash": "0e58edd",
+          "subject": "feat(ux): 配置与纪律页按任务分为四个小节，小节写入 URL",
+          "author": "hassan",
+          "date": "2026-10-07"
+        },
+        {
+          "hash": "401afc0",
+          "subject": "feat(ux): 无障碍与交互基础——焦点环、页签键盘导航、跳转链接、对比度达 AA、减少动效、DCF 预填提示置顶",
+          "author": "hassan",
+          "date": "2026-10-07"
+        },
+        {
+          "hash": "02dc747",
+          "subject": "feat(plan): 自由生活覆盖率（股息利息与4%提款并列）与备用金可撑月数",
+          "author": "hassan",
+          "date": "2026-10-07"
+        },
+        {
+          "hash": "137131c",
+          "subject": "feat(plan): 历史情景压力测试（真实序列、缺数据不替代）与币种敞口",
+          "author": "hassan",
+          "date": "2026-10-07"
+        },
+        {
+          "hash": "9382a68",
+          "subject": "feat(plan,dcf): DCF 敏感性矩阵、风险贡献视图、交易前检查单与冷静期、研究页到 DCF 预填",
+          "author": "hassan",
+          "date": "2026-10-07"
+        },
+        {
+          "hash": "d6241b2",
+          "subject": "feat(macro): add historical stock crisis leverage references",
+          "author": "hassan",
+          "date": "2026-10-07"
+        },
+        {
+          "hash": "9c159f4",
+          "subject": "feat(research): 纳指100 单独分类，新增 10 家公司研究页；同步港股与美股非标普复核",
+          "author": "hassan",
+          "date": "2026-10-07"
+        },
+        {
+          "hash": "d6448f9",
+          "subject": "feat(macro): 港股宏观、周期位置页、顶部参照价格",
+          "author": "hassan",
+          "date": "2026-10-07"
+        },
+        {
+          "hash": "0878e9a",
+          "subject": "feat(macro): 杠杆与资金指标、长历史图与新旧数据标记",
+          "author": "hassan",
+          "date": "2026-10-07"
+        },
+        {
+          "hash": "8c6858d",
+          "subject": "feat: add AI learning roadmap and theme cards with valuation and grid improvements",
+          "author": "hassan",
+          "date": "2026-10-07"
+        },
+        {
+          "hash": "c707416",
+          "subject": "chore: commit pending work from earlier sessions",
+          "author": "hassan",
+          "date": "2026-10-07"
+        },
+        {
+          "hash": "6ee2d0a",
+          "subject": "feat(research): company-level review of 476 CN stocks (10 sectors), 2026-10-07",
+          "author": "hassan",
+          "date": "2026-10-07"
+        },
+        {
+          "hash": "483cdb1",
+          "subject": "fix: add route error boundary, tolerate weak ETag in candidates sync; feat: ETF school guide page",
+          "author": "hassan",
+          "date": "2026-10-07"
+        },
         {
           "hash": "ad8284c",
           "subject": "feat(ai-tools): add novel and literary writing skill downloads",
@@ -64,126 +184,6 @@
           "subject": "docs(ai-lab): AI实验室栏目重设计设计文档",
           "author": "hassan",
           "date": "2026-10-06"
-        },
-        {
-          "hash": "5fb0a2a",
-          "subject": "chore: 更新更新日志",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "e3290f7",
-          "subject": "feat(plan): 情绪工具打开即并行获取全部读数",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "a5b66aa",
-          "subject": "chore: 更新更新日志",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "b3d3852",
-          "subject": "feat(invest): 正念投资栏目与书的方法对齐——下架荐股观察池、研究页去建议化、配置统一到宽基三档",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "772b8e9",
-          "subject": "chore: 更新更新日志",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "2b45266",
-          "subject": "docs(book): 第十五轮修订——全收益口径重算、宽基三档模板、新增家庭财务底座专题",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "cdee094",
-          "subject": "chore: 更新更新日志",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "159bb48",
-          "subject": "fix(knowledge): 修复 Notion 导出笔记的表格、折叠块与嵌套缩进显示",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "4a48927",
-          "subject": "chore: 更新更新日志",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "ee1b0d5",
-          "subject": "data(research): 2026-10-05 行业事实核查，更新公司资料与核查报告",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "66b5da3",
-          "subject": "feat(knowledge): 笔记按 Markdown 排版阅读，代码块高亮",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "9063f67",
-          "subject": "fix(pulse): 美股热力图改用实时行情，弃用会显示过期快照的 TradingView widget",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "024377e",
-          "subject": "feat(macro): 数据体检——AI 解读前先刷新、再体检，过期与异常数据不当依据",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "dc42a61",
-          "subject": "fix(macro): 本地服务为旧版本时提示重启，而不是报“接口不存在”",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "ab5f176",
-          "subject": "feat(macro): 温度总览加入本地模型「AI 解读」",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "3db0ea0",
-          "subject": "feat(valuation): 估值进度可见，离开页面后可恢复任务与结果",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "53bb6a1",
-          "subject": "feat(macro): 宏观温度支持手动刷新实时数据",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "a74db1d",
-          "subject": "feat(macro): 宏观数据快照脚本与每月自动更新",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "9bb6254",
-          "subject": "feat(macro): 宏观温度改版——按风险预算组织，阶段规则与 2026 计划共用",
-          "author": "hassan",
-          "date": "2026-10-05"
-        },
-        {
-          "hash": "7b21dce",
-          "subject": "feat(industry): 半导体产业链改为可展开、可搜索的树",
-          "author": "hassan",
-          "date": "2026-10-05"
         }
       ]
     }
