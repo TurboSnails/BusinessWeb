@@ -30,6 +30,7 @@ const GridRecords = lazy(() => import('./pages/GridRecords'))
 const GridRecordDetail = lazy(() => import('./pages/GridRecordDetail'))
 const Valuation = lazy(() => import('./pages/Valuation'))
 const Dcf = lazy(() => import('./pages/Dcf'))
+const FutureTrends = lazy(() => import('./pages/FutureTrends'))
 const IndustryLandscape = lazy(() => import('./pages/IndustryLandscape'))
 const KnowledgeCenter = lazy(() => import('./pages/KnowledgeCenter'))
 const InvestmentAiTools = lazy(() => import('./pages/InvestmentAiTools'))
@@ -100,6 +101,7 @@ export default function App(): JSX.Element {
           <Route path="/first-book" element={<MyBooks />} />
           <Route path="/first-book/slow-is-fast" element={<FirstBook />} />
           <Route path="/first-book/:file" element={<FirstBook />} />
+          <Route path="/future-trends" element={<FutureTrends />} />
           <Route path="/industry-landscape" element={<IndustryLandscape />} />
           <Route path="/research-notes" element={<ResearchNotes />} />
           <Route path="/research-notes/:market/:code" element={<CompanyDetail />} />

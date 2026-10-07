@@ -31,7 +31,7 @@ describe('INVEST_GROUPS', () => {
   it('收纳全部旧入口和 AI 工具，且无重复', () => {
     const paths = allLinks.map(l => l.path).sort()
     expect(paths).toEqual([
-      '/dcf', '/first-book', '/grid-trading', '/invest/ai-tools', '/invest/etf', '/industry-landscape', '/investment-plan-2026',
+      '/dcf', '/first-book', '/future-trends', '/grid-trading', '/invest/ai-tools', '/invest/etf', '/industry-landscape', '/investment-plan-2026',
       '/investment-strategy', '/investment-targets', '/limit-up-analysis',
       '/mainland-investment-targets', '/monitor', '/pulse', '/research-notes',
       '/sector-rotation', '/trading-philosophy', '/valuation',
@@ -57,7 +57,7 @@ describe('INVEST_GROUPS', () => {
 
   it('选标的组只放研究方法与资料，不放带具体买卖建议的观察池', () => {
     const research = INVEST_GROUPS.find(g => g.id === 'research')!
-    expect(research.links.map(l => l.path)).toEqual(['/research-notes', '/invest/etf', '/industry-landscape'])
+    expect(research.links.map(l => l.path)).toEqual(['/research-notes', '/invest/etf', '/future-trends', '/industry-landscape'])
   })
 
   it('宏观温度（原每日监控）归入定规则，和 2026 计划同组', () => {

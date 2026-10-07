@@ -31,9 +31,13 @@ def write_package(filename, skills):
 
 
 OUTPUT.mkdir(parents=True, exist_ok=True)
-# Codex and Antigravity share .agents; keep the other project installs in sync.
+# Codex and Antigravity share .agents; sync the unified skill and its legacy names.
 for platform in ('.claude', '.opencode', '.codebuddy'):
-    copytree(SOURCE / 'stock-analysis', ROOT / platform / 'skills' / 'stock-analysis', dirs_exist_ok=True)
-for skill in SKILLS + LEGACY_SKILLS:
+    for skill in ('stock-analysis',) + LEGACY_SKILLS:
+        copytree(SOURCE / skill, ROOT / platform / 'skills' / skill, dirs_exist_ok=True)
+for skill in SKILLS:
     write_package(f'{skill}.zip', (skill,))
+for skill in LEGACY_SKILLS:
+    # The compatibility entry reads ../stock-analysis/SKILL.md after extraction.
+    write_package(f'{skill}.zip', (skill, 'stock-analysis'))
 write_package('investment-analysis-skills.zip', SKILLS)

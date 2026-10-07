@@ -623,7 +623,7 @@ export default function ResearchNotes(): JSX.Element {
             <div style={card}>
               <h3 style={cardTitle}>统一股票分析 Skill 与交易分析的分工</h3>
               <Table heads={['skill', '什么时候用', '特点']} rows={researchStandard.skills.map(k => [<span><strong style={{ color: 'var(--text-primary)' }}>{k[0]}</strong><br /><code style={{ fontSize: '11px' }}>{k[1]}</code></span>, k[2], k[3]])} />
-              <p style={{ fontSize: '12px', color: 'var(--text-tertiary)', margin: '12px 0 0', lineHeight: 1.6 }}>股票分析已合并本页研究方法、股票研究专家与腾讯自选股投研专家团，位于「AI 工具」第一项。综合评级与专家立场分别展示，所有价位均为条件化研究区间。</p>
+              <p style={{ fontSize: '12px', color: 'var(--text-tertiary)', margin: '12px 0 0', lineHeight: 1.6 }}>股票分析已融合本页研究方法、股票研究专家、腾讯自选股投研专家团与 Public Markets Investing，位于「AI 工具」第一项。从商业模式和核心假设连接盈利预测与估值，综合评级与专家立场分别展示，所有价位均为条件化研究区间。</p>
             </div>
 
             <div style={card}>

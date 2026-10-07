@@ -61,7 +61,7 @@ npm run build
 
 ## AI 投研 skills
 
-项目以统一的 `stock-analysis` 汇总研究方法、股票研究专家与腾讯自选股投研专家团，位于「AI 工具」第一项。交易分析团队保留独立入口；旧两套 Skill 保留用于历史兼容。
+项目以 `stock-analysis` 融合研究方法、股票研究专家、腾讯自选股投研专家团与 Public Markets Investing，位于「AI 工具」第一项。新增商业模式驱动树、核心假设、预测归因、行业周期及证据追溯；回测与组合风险按需启用。交易分析团队保留独立入口；旧两套名称转入融合版。
 
 从 BusinessWeb 目录启动工具。股票分析已安装到以下项目目录：
 
@@ -72,11 +72,11 @@ npm run build
 | OpenCode | `.opencode/skills/stock-analysis/SKILL.md` |
 | CodeBuddy Code | `.codebuddy/skills/stock-analysis/SKILL.md` |
 
-执行 `npm run skills:package` 会从 `.agents/skills/stock-analysis/` 同步其他三个目录并更新下载包。Antigravity CLI 与 CodeBuddy Code 重新打开会话后可通过 `/skills` 查看加载情况。普通分析一个 agent 即可，多视角不强制多 agent。
+执行 `npm run skills:package` 会从 `.agents/skills/` 同步融合版股票分析及旧两套兼容入口到其他三个目录，并更新下载包。旧名称 ZIP 包含同级 `stock-analysis`，解压后可直接读取融合版。重新打开会话后确认 Skill 列表；普通分析一个 agent 即可，多视角不强制多 agent。
 
 | Skill | 用途 | 何时触发 |
 |---|---|---|
-| **stock-analysis** | 统一五步流程：研究方法 / 财报与增长 / 三情景估值 / 盈亏比 / 六专家视角 / 共识分歧与证伪 | 「用股票分析研究 XX」「估值」「财报解读」「圆桌」 |
+| **stock-analysis** | 五步流程：商业模式 / 核心假设 / 盈利预测 / 三情景与盈亏比 / 六专家 / 证据与验证；按需回测与组合风险 | 「用股票分析研究 XX」「商业模式」「核心假设」「估值」「财报解读」「圆桌」 |
 | **trading-analysis-team** | 12 角色流水线：技术 / 基本面 / 新闻 / 情绪并行采集 → 多空辩论 → 风险三派挑战 → 拍板 BUY/SELL/HOLD | 「X 该不该买」「多空辩论」「风险诊断」 |
 
 每个 skill 内置研究纪律：数据可追溯、缺失标 `[MISSING]`，研究区间与情景价标明条件，结尾声明不构成投资建议。股票分析优先研究约 2:1 及以上的情景盈亏比，同时核实悲观压力、期限与证据；初筛数字不能直接认证。用户要求更新网站时，可将结果同步到 `src/data/companies.ts` 并显示在 `/research-notes`。
