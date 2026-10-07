@@ -1,6 +1,6 @@
 import { SIGNALS, computeStage, type Tone } from './stages'
 
-export type SeriesKey = 'gdp' | 'unrate' | 'sahm' | 'claims' | 'corePce' | 'realRate' | 'curve' | 'hy' | 'nfci' | 'vix' | 'dd' | 'kre'
+export type SeriesKey = 'gdp' | 'unrate' | 'sahm' | 'claims' | 'corePce' | 'realRate' | 'curve' | 'hy' | 'nfci' | 'vix' | 'dd' | 'kre' | 'marginGdp' | 'cashDebt'
 
 export interface Indicator<K extends string = SeriesKey> {
   key: K
@@ -14,15 +14,18 @@ export interface Indicator<K extends string = SeriesKey> {
   why: string
   limit: string
   freq: string
+  /** 'high'：数值越高越拥挤（按历史分位 ≥80% 黄、≥95% 红）；'low'：越低越拥挤（≤20% 黄、≤5% 红）。设置后不用 yellow/red 绝对阈值 */
+  crowded?: 'high' | 'low'
 }
 
-export type ModuleId = 'growth' | 'inflation' | 'credit' | 'market' | 'cn-growth' | 'cn-price' | 'cn-money'
+export type ModuleId = 'growth' | 'inflation' | 'credit' | 'market' | 'cn-growth' | 'cn-price' | 'cn-money' | 'leverage' | 'cn-leverage'
 
 export const MODULES: { id: ModuleId; name: string; question: string }[] = [
   { id: 'growth', name: '增长与就业', question: '经济在扩张还是开始失速？' },
   { id: 'inflation', name: '通胀与政策', question: '央行是在踩刹车还是松油门？' },
   { id: 'credit', name: '信用与金融条件', question: '借钱的成本和意愿有没有收紧？' },
   { id: 'market', name: '市场与情绪', question: '市场有没有开始恐慌？' },
+  { id: 'leverage', name: '杠杆与资金', question: '市场里的杠杆有多重、手里还剩多少现金？' },
 ]
 
 // 与 2026 投资计划重合的指标直接沿用其阈值，两页结论一致
@@ -53,15 +56,31 @@ export const INDICATORS: Indicator[] = [
     why: '期权市场隐含的未来 30 天波动。超过 20 偏紧张，超过 30 进入恐慌。', limit: '同步指标，只描述当下情绪，不预示方向。' },
   { key: 'dd', name: '标普 500 距高点回撤', module: 'market', worse: 'above', yellow: signal('dd').yellow, red: signal('dd').red, digits: 1, freq: '每日',
     why: '用来对照“回撤梯度”：回撤越深，越需要按事先写好的规则行动，而不是凭感觉。', limit: '价格指数，不含分红；高点取 FRED 可得的约十年窗口。' },
+  { key: 'marginGdp', name: '保证金债务 ÷ GDP', module: 'leverage', crowded: 'high', digits: 2, freq: '月度',
+    why: '券商客户借钱炒股的规模占经济总量的比例。越高说明杠杆越重，下跌时被迫平仓的卖压越大；2000、2007、2021 年的高点之后都出现了大幅回撤。', limit: '只能说明脆弱程度，不能预测拐点；杠杆可以在高位停留很久。GDP 滞后公布，最新几个月沿用上一季。' },
+  { key: 'cashDebt', name: '客户现金 ÷ 保证金债务', module: 'leverage', crowded: 'low', digits: 1, freq: '月度',
+    why: '券商账户里闲置现金相对借款的比例，反映散户手里还有多少子弹。比例越低，说明现金已经压到股市里，缺少新增买盘。', limit: '只统计 FINRA 会员券商，不含银行账户和货币基金里的现金；是存量比例，不等于散户整体仓位。' },
 ]
 
-export function toneOf(ind: Indicator<string>, v: number | undefined): Tone {
+/** 当前值在全部历史中的百分位（0-100）；样本不足 24 个返回 undefined */
+export function percentileOf(long: [string, number][] | undefined, v: number): number | undefined {
+  if (!long || long.length < 24) return undefined
+  return Math.round((long.filter(([, x]) => x <= v).length / long.length) * 100)
+}
+
+export function toneOf(ind: Indicator<string>, v: number | undefined, long?: [string, number][]): Tone {
+  if (ind.crowded) {
+    const p = v === undefined ? undefined : percentileOf(long, v)
+    if (p === undefined) return 'gray'
+    return ind.crowded === 'high' ? (p >= 95 ? 'red' : p >= 80 ? 'yellow' : 'green') : (p <= 5 ? 'red' : p <= 20 ? 'yellow' : 'green')
+  }
   if (v === undefined || !Number.isFinite(v) || !ind.worse || ind.yellow === undefined || ind.red === undefined) return 'gray'
   if (ind.worse === 'above') return v >= ind.red ? 'red' : v >= ind.yellow ? 'yellow' : 'green'
   return v <= ind.red ? 'red' : v <= ind.yellow ? 'yellow' : 'green'
 }
 
 export const thresholdText = (ind: Indicator<string>, unit: string): string => {
+  if (ind.crowded) return ind.crowded === 'high' ? '历史分位：≥80% 黄灯 · ≥95% 红灯' : '历史分位：≤20% 黄灯 · ≤5% 红灯（越低越拥挤）'
   if (!ind.worse || ind.yellow === undefined || ind.red === undefined) return '背景指标，不打分'
   const op = ind.worse === 'above' ? '≥' : '≤'
   return `黄灯 ${op} ${ind.yellow}${unit} · 红灯 ${op} ${ind.red}${unit}`
@@ -74,6 +93,10 @@ export interface SeriesData {
   note?: string
   latest: { date: string; value: number }
   history: [string, number][]
+  /** 全部月度历史（只有杠杆类指标有），用于长历史图和历史分位 */
+  long?: [string, number][]
+  /** 仅实时刷新时有：true = 这次刚拉到；false = 这次没拉到，沿用旧值 */
+  live?: boolean
 }
 
 export interface MacroSnapshot<K extends string = SeriesKey> {

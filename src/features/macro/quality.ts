@@ -25,6 +25,9 @@ const US: Record<string, Rule> = {
   vix: { maxAge: 7, range: [5, 90] },
   dd: { maxAge: 7, range: [0, 90] },
   kre: { maxAge: 14, range: [0, 52] },
+  // FINRA 次月中旬公布上月数据
+  marginGdp: { maxAge: 80, range: [0, 15] },
+  cashDebt: { maxAge: 80, range: [0, 500] },
 }
 const CN: Record<CnKey, Rule> = {
   gdp: { maxAge: 220, range: [-10, 20] },
@@ -35,6 +38,8 @@ const CN: Record<CnKey, Rule> = {
   ip: { maxAge: 80, range: [-30, 40] },
   m1m2: { maxAge: 80, range: [-30, 30] },
   lpr: { maxAge: 45, range: [1, 10] },
+  marginGdp: { maxAge: 10, range: [0, 8] },
+  marginMcap: { maxAge: 10, range: [0, 10] },
 }
 
 export interface QualityResult {

@@ -20,7 +20,8 @@ export async function updateSnapshotFiles() {
   const previous = { us: await readJson(DATA_FILES.us), cn: await readJson(DATA_FILES.cn) }
   const result = await buildSnapshots(previous)
   // 文件里只保留日期，避免每次运行都产生无意义的改动
-  const strip = ({ fetchedAt, ...rest }) => rest
+  // live 标记只在实时刷新时有意义，不写进文件
+  const strip = ({ fetchedAt, series, ...rest }) => ({ ...rest, series: Object.fromEntries(Object.entries(series).map(([k, { live, ...v }]) => [k, v])) })
   await writeFile(DATA_FILES.us, JSON.stringify(strip(result.us)) + '\n')
   await writeFile(DATA_FILES.cn, JSON.stringify(strip(result.cn)) + '\n')
   return result
