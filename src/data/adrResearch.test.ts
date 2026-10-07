@@ -11,13 +11,14 @@ beforeAll(async () => {
   companies = await loadCompanies('adr')
 })
 const find = (code: string) => companies.find(c => c.code === code)!
+const generated = () => companies.filter(c => c.code !== 'SOFI') // SOFI 为 2026-10-07 补录的完整版，不在批量复核（66家）内
 const metric = (code: string, key: string) => find(code).metrics.find(([k]) => k === key)?.[1] ?? ''
 
 describe('非标普全部分类的原件复核与运行时覆盖', () => {
   it('66家/4分类全部可打开本轮报告，旧detail层不覆盖', () => {
     const audit = read('audit.json')
-    expect(companies).toHaveLength(66)
-    expect(new Set(companies.map(c => c.code)).size).toBe(66)
+    expect(companies).toHaveLength(67)
+    expect(new Set(companies.map(c => c.code)).size).toBe(67)
     expect(audit.categories).toEqual({ 海外龙头: 30, 中概: 21, 新兴市场平台: 13, '新上市/热门': 2 })
     for (const row of audit.companies) {
       const company = find(row.code)
@@ -37,7 +38,7 @@ describe('非标普全部分类的原件复核与运行时覆盖', () => {
     const batches = read('batches.json')
     expect(batches).toHaveLength(15)
     expect(batches.every((b: { codes: string[] }) => b.codes.length >= 3 && b.codes.length <= 5)).toBe(true)
-    expect(batches.flatMap((b: { codes: string[] }) => b.codes).sort()).toEqual(companies.map(c => c.code).sort())
+    expect(batches.flatMap((b: { codes: string[] }) => b.codes).sort()).toEqual(generated().map(c => c.code).sort())
   })
 
   it('关键证券单位、财年与一次性损益不会恢复旧错误', () => {
@@ -67,7 +68,7 @@ describe('非标普全部分类的原件复核与运行时覆盖', () => {
     expect(models.HSBC.ordinaryPerUsInstrument).toBe(5)
     expect(models.HSBC.base).toBeCloseTo(10.08 * 5 * (12 - 2) / (11 - 2), 8)
     expect(models.TD.base).toBeCloseTo(69.69 * fx * (12 - 2) / (11 - 2), 8)
-    for (const company of companies) {
+    for (const company of generated()) {
       const model = models[company.code]
       expect(model.certified).toBe(false)
       expect(model.independentMethodsClosed).toBe(false)
@@ -78,5 +79,33 @@ describe('非标普全部分类的原件复核与运行时覆盖', () => {
         expect(company.scenarios?.every(s => s.assumption.includes('未预测2027BV'))).toBe(true)
       }
     }
+  })
+
+  it('SOFI 补录为完整版：一手来源、三情景与赔率可复算，页面与报告齐全', () => {
+    const sofi = find('SOFI')
+    const evidence = read('../sofi-2026-10-07/evidence.json')
+    expect(sofi.market).toBe('adr')
+    expect(sofi.auto).toBe(false)
+    expect(sofi.rating).toBe('观察')
+    expect(sofi.scenarios?.map(s => s.name)).toEqual(['悲观', '基准', '乐观'])
+    expect(sofi.scenarios?.map(s => s.price)).toEqual(['$8', '$19', '$28'])
+    expect(sofi.discipline?.zone).toContain('$11.7')
+    expect(metric('SOFI', '价格锚点')).toContain('$15.76')
+    expect(metric('SOFI', 'Base / Bear 赔率')).toContain('0.42:1')
+    const { bear, base, bull } = evidence.scenarios
+    expect(bear.price).toBeLessThan(evidence.priceAnchor.price)
+    expect(evidence.priceAnchor.price).toBeLessThan(base.price)
+    expect(base.price).toBeLessThan(bull.price)
+    expect(evidence.derived.R).toBeCloseTo((base.price - 15.76) / (15.76 - bear.price), 10)
+    expect(evidence.derived.Pstar).toBeCloseTo((base.price + 2 * bear.price) / 3, 10)
+    expect(bear.p + base.p + bull.p).toBeCloseTo(1, 10)
+    expect(evidence.inputs.ttmEps.value).toBeCloseTo(0.39 - 0.14 + 0.24, 10)
+    for (const f of evidence.filings.slice(0, 2)) expect(f.url).toContain('www.sec.gov/Archives/edgar/data/1818874/')
+    expect(sofi.researchReport).toBe('research/sofi-2026-10-07/SOFI.html')
+    expect(existsSync(resolve('public', sofi.researchReport!))).toBe(true)
+    const report = readFileSync(resolve('public/research/sofi-2026-10-07/SOFI.md'), 'utf8')
+    expect([...report.matchAll(/^## \d+ ·/gm)]).toHaveLength(15)
+    expect(report).toContain('单模型多视角复核')
+    expect(report.trim()).toMatch(/本报告仅供研究参考，不构成个人投资建议。$/)
   })
 })
