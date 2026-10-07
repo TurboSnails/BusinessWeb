@@ -18,7 +18,7 @@ const toneColors: Record<Tone, { bg: string; color: string }> = {
 export default function CompanyDetail(): JSX.Element {
   const { market, code } = useParams()
   const navigate = useNavigate()
-  const mk = (market === 'cn' ? 'cn' : market === 'hk' ? 'hk' : market === 'adr' ? 'adr' : 'us') as Market
+  const mk = (market === 'cn' ? 'cn' : market === 'hk' ? 'hk' : market === 'adr' ? 'adr' : market === 'ndx' ? 'ndx' : 'us') as Market
   const { list, loading } = useCompanies(mk)
   const lynchAll = useLynch()
   const company = list.find(c => c.code === decodeURIComponent(code || ''))
@@ -140,10 +140,10 @@ export default function CompanyDetail(): JSX.Element {
       <div className="page-hero">
         <div style={{ maxWidth: '760px', margin: '0 auto' }}>
           {back}
-          <Link to={`/valuation?market=${mk === 'adr' ? 'us' : mk}&code=${encodeURIComponent(company.code)}`} style={{display:'inline-block',marginLeft:'18px',color:'var(--accent)',fontSize:'13px'}}>建立估值模型 →</Link>
+          <Link to={`/valuation?market=${mk === 'adr' || mk === 'ndx' ? 'us' : mk}&code=${encodeURIComponent(company.code)}`} style={{display:'inline-block',marginLeft:'18px',color:'var(--accent)',fontSize:'13px'}}>建立估值模型 →</Link>
           <h1 style={{ fontSize: '24px', margin: '0 0 6px' }}>{company.name}</h1>
           <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 14px' }}>
-            {company.market === 'us' ? '标普500' : company.market === 'hk' ? '港股' : company.market === 'adr' ? '美股非标普' : '沪深'} · {company.code} · {company.sector} · {company.batch}
+            {company.market === 'us' ? '标普500' : company.market === 'hk' ? '港股' : company.market === 'adr' ? '美股非标普' : company.market === 'ndx' ? '纳指100' : '沪深'} · {company.code} · {company.sector} · {company.batch}
           </p>
           <span style={{ display: 'inline-block', fontSize: '13px', fontWeight: 600, padding: '4px 12px', borderRadius: '8px', background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', color: toneColors[tone].color }}>
             {company.rating}
@@ -153,16 +153,16 @@ export default function CompanyDetail(): JSX.Element {
 
       <div style={{ maxWidth: '760px', margin: '0 auto', padding: '28px 20px' }}>
         <ResearchNotice />
-        {(company.market === 'us' || company.market === 'cn') && (company.researchReport || company.metrics.some(([key]) => key === '圆桌复核日期')) && (
+        {(company.market === 'us' || company.market === 'cn' || company.market === 'hk' || company.market === 'adr') && (company.researchReport || company.metrics.some(([key]) => key === '圆桌复核日期')) && (
           <div style={card}>
             <h3 style={cardTitle}>{company.researchReport ? '公司研究 · 本轮事实复核与估值初稿' : '腾讯自选股投研专家团 · 本轮公告复核'}</h3>
-            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.8 }}>{company.researchReport ? '已按公司核对财报与现金流，完整报告列明来源、旧结论调整及待补证据。估值假设尚未认证；林奇分类仍为此前的程序化筛选结果。' : '本轮已补充公司公告；证据分为公告原件、公告转载及待核实；旧情景价值的认证状态以本轮结论为准。“上轮”指标保留历史口径，林奇分类仍为此前的程序化筛选结果。'}</p>
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.8 }}>{(company.market === 'hk' || company.market === 'adr') && company.researchReport ? '已逐家核读公司业绩原件并补充新行情，报告列明来源、旧结论修正及待补证据。部分公司有数值敏感性草案；两种独立估值、现金与股本桥接仍待补，旧评级和价位不作为当前结论。' : company.researchReport ? '已按公司核对财报与现金流，完整报告列明来源、旧结论调整及待补证据。估值假设尚未认证；林奇分类仍为此前的程序化筛选结果。' : '本轮已补充公司公告；证据分为公告原件、公告转载及待核实；旧情景价值的认证状态以本轮结论为准。“上轮”指标保留历史口径，林奇分类仍为此前的程序化筛选结果。'}</p>
             <a href={`${import.meta.env.BASE_URL}${company.researchReport ?? (company.market === 'cn' ? CN_REPORT : SP500_REPORT)}`} target="_blank" rel="noreferrer" style={{ fontSize: '13px' }}>查看本轮完整报告与一手来源</a>
           </div>
         )}
         {(() => {
           const ly = lynchAll[`${company.market}:${company.code}`]
-          if (!ly) return null
+          if (!ly || ((company.market === 'hk' || company.market === 'adr') && company.researchReport)) return null
           const tone = ly.r === '高' ? 'color-mix(in srgb, var(--system-green) 45%, transparent)' : ly.r === '中' ? 'color-mix(in srgb, var(--system-blue) 35%, transparent)' : 'var(--border-primary)'
           return (
             <div style={{ ...card, border: `1.5px solid ${tone}` }}>

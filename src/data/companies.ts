@@ -7,8 +7,9 @@ import { applyCnReassessment } from './cnReassessment'
 import { applyCnSectorResearch } from './cnSectorResearch'
 import { applySp500Reassessment } from './sp500Reassessment'
 import { applySectorFactReview } from './sectorFactReview'
+import { ndxBase } from './ndx100'
 
-export type Market = 'us' | 'cn' | 'hk' | 'adr'
+export type Market = 'us' | 'cn' | 'hk' | 'adr' | 'ndx'
 
 export interface Company {
   code: string
@@ -572,8 +573,10 @@ const cnBase: Company[] = [...cnCoreBase, ...cnChain.filter(c => !cnKnown.has(c.
 const withDetails = (list: Company[]): Company[] => list.map(c => (companyDetails[c.market + ':' + c.code] ? { ...c, ...companyDetails[c.market + ':' + c.code] } : c))
 export const usCompanies: Company[] = withDetails(usBase).map(applySp500Reassessment).map(applySectorFactReview)
 export const cnCompanies: Company[] = withDetails(cnBase).map(applyCnReassessment).map(applyCnSectorResearch)
+// 纳指100 新增（不在标普500 / 美股非标普池内）的公司，全部为手工研究页
+export const ndxCompanies: Company[] = withDetails(ndxBase)
 
-const baseOf = (market: Market): Company[] => (market === 'us' ? usCompanies : market === 'cn' ? cnCompanies : [])
+const baseOf = (market: Market): Company[] => (market === 'us' ? usCompanies : market === 'cn' ? cnCompanies : market === 'ndx' ? ndxCompanies : [])
 export const findCompany = (market: Market, code: string): Company | undefined =>
   baseOf(market).find(c => c.code === code)
 

@@ -157,10 +157,11 @@ describe('林奇分组、港股、导出', () => {
     expect(screen.getByText(/导出该市场全部/)).toBeTruthy()
   })
 
-  it('美股非标普标签：三组分类', async () => {
+  it('美股非标普标签：四组分类', async () => {
     renderAt('/research-notes?tab=category&m=adr')
     await waitFor(() => expect(screen.getAllByText(/台积电/).length).toBeGreaterThan(0), { timeout: 8000 })
     expect(screen.getAllByText(/^中概 \d+/).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/^新上市\/热门 \d+/).length).toBeGreaterThan(0)
   })
 
   it('切换市场后筛选被重置：沪深选「优先关注」再切到美股非标普仍有公司', async () => {
@@ -171,11 +172,13 @@ describe('林奇分组、港股、导出', () => {
     await waitFor(() => expect(screen.getAllByText(/台积电/).length).toBeGreaterThan(0), { timeout: 8000 })
   })
 
-  it('美股非标普手工研究页：台积电详情页有三情景与买入区，且不再标程序化', async () => {
+  it('美股非标普原件复核页：台积电列明估值缺口与完整来源，隐藏旧筛选卡', async () => {
     renderAt('/research-notes/adr/TSM')
     await waitFor(() => expect(screen.getAllByText(/条件价格（研究假设）/).length).toBeGreaterThan(0), { timeout: 8000 })
     expect(screen.queryByText('程序化研究页')).toBeNull()
     expect(screen.getAllByText(/Bear/).length).toBeGreaterThan(0)
+    expect(screen.getByRole('link', { name: '查看本轮完整报告与一手来源' }).getAttribute('href')).toContain('adr-2026-10-07/TSM.html')
+    expect(screen.queryByText(/林奇分类：/)).toBeNull()
   })
 
   it('港股手工研究页：建设银行详情页有三情景与买入区，且不再标程序化', async () => {
@@ -185,11 +188,12 @@ describe('林奇分组、港股、导出', () => {
     expect(screen.getAllByText(/Bear/).length).toBeGreaterThan(0)
   })
 
-  it('补充覆盖的公司：必和必拓与药明康德详情页有三情景，并注明第三方数据源', async () => {
+  it('补充覆盖的公司：必和必拓使用本轮原件证据，历史第三方结论不覆盖', async () => {
     renderAt('/research-notes/adr/BHP')
     await waitFor(() => expect(screen.getAllByText(/条件价格（研究假设）/).length).toBeGreaterThan(0), { timeout: 8000 })
     expect(screen.queryByText('程序化研究页')).toBeNull()
-    expect(screen.getAllByText(/stockanalysis\.com/).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/原件财务核读/).length).toBeGreaterThan(0)
+    expect(screen.getByRole('link', { name: '查看本轮完整报告与一手来源' }).getAttribute('href')).toContain('adr-2026-10-07/BHP.html')
   })
 
   it('补充覆盖的港股：药明康德详情页可打开', async () => {

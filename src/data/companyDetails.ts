@@ -15,6 +15,7 @@ import { itCoreDetails } from './details/itCore'
 import { adrDetails } from './details/adr'
 import { hkDetails } from './details/hk'
 import { extraDetails } from './details/extra'
+import { ndxDetails } from './details/ndx'
 
 const manual: Record<string, Partial<Company>> = {
   'us:PEP': {
@@ -451,5 +452,5 @@ const manual: Record<string, Partial<Company>> = {
   },
 }
 
-// 手写条目优先于批量文本条目
-export const companyDetails: Record<string, Partial<Company>> = mergeDetails(parseDetails(healthDetails), parseDetails(financeDetails), parseDetails(consumerDetails), parseDetails(staplesDetails), parseDetails(itDetails), parseDetails(cnDetails), parseDetails(casinoDetails), parseDetails(profileDetails), parseDetails(itCoreDetails), parseDetails(adrDetails), parseDetails(hkDetails), parseDetails(extraDetails), manual)
+// 本轮逐家原件复核优先于历史手写与批量文本，避免旧情景和价位重新覆盖。
+export const companyDetails: Record<string, Partial<Company>> = mergeDetails(parseDetails(healthDetails), parseDetails(financeDetails), parseDetails(consumerDetails), parseDetails(staplesDetails), parseDetails(itDetails), parseDetails(cnDetails), parseDetails(casinoDetails), parseDetails(profileDetails), parseDetails(itCoreDetails), parseDetails(extraDetails), parseDetails(ndxDetails), manual, parseDetails(hkDetails), parseDetails(adrDetails))
