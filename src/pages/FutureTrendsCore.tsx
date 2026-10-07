@@ -1,7 +1,7 @@
 import React from 'react'
 import { CORE } from '../data/futureTrendsCore'
 import type { CoreItem } from '../data/futureTrendsCore'
-import { byInvestability } from '../data/futureTrendsPool'
+import { byInvestability, downloadJson, poolItemJson } from '../data/futureTrendsPool'
 import { SECTOR_PICKS_ASOF } from '../data/futureTrendsSectorPicks'
 
 const card: React.CSSProperties = {
@@ -67,6 +67,12 @@ export default function FutureTrendsCore(): JSX.Element {
       </section>
 
       <section style={card} aria-label="核心名单">
+        <div style={{ display: 'flex', justifyContent: 'flex-end', margin: '0 0 8px' }}>
+          <button type="button" style={{ fontFamily: 'inherit', fontSize: '0.8rem', padding: '6px 12px', border: '1px solid var(--border-primary)', borderRadius: 8, background: 'var(--bg-card)', color: 'var(--text-primary)', cursor: 'pointer' }}
+            onClick={() => downloadJson(`未来趋势核心20-${SECTOR_PICKS_ASOF}.json`, rows.map(x => ({ ...poolItemJson(x.item), 核心: { 研究评级: rating(x), 角色: x.role, 产业链: x.chain, 核心理由: x.why, 持续期限: x.duration, 确认加仓: x.confirm, 最大风险: x.maxRisk } })))}>
+            下载核心 JSON（{rows.length} 家）
+          </button>
+        </div>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ borderCollapse: 'collapse', fontSize: '0.8rem', minWidth: 1500 }}>
             <thead><tr>{['#', '公司 / 角色', '研究评级', '为什么能拿 2–3 年', '估值与增速', '盈亏比', '买卖点位与仓位', '技术壁垒 / 增长点', '风险、加仓与失效'].map(h => <th key={h} style={th}>{h}</th>)}</tr></thead>

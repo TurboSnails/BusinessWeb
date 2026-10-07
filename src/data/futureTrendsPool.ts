@@ -131,3 +131,27 @@ export const byFundamentals = (a: PoolItem, b: PoolItem): number =>
 /** 按可投资：投资状态 → 基本面分 → 离买点更近。 */
 export const byInvestability = (a: PoolItem, b: PoolItem): number =>
   POOL_STATUS_ORDER.indexOf(a.status) - POOL_STATUS_ORDER.indexOf(b.status) || byFundamentals(a, b) || (b.gap ?? -999) - (a.gap ?? -999)
+
+/** 导出用的 JSON 记录（中文键，与公司研究页的导出风格一致）。 */
+export function poolItemJson(x: PoolItem): Record<string, unknown> {
+  const p = x.pick; const l = x.level
+  return {
+    市场: x.market, 代码: p.code, 公司: p.name, 所属赛道: x.trends, 现价: p.price,
+    投资状态: x.status, 状态说明: x.statusNote, 赛道评级: p.tier, 距买点: x.gap === null ? null : `${x.gap}%`,
+    基本面: { 档位: x.grade, 总分: x.score, 增长分: x.growthScore, 确定性分: x.certaintyScore, 增长: x.growthLevel, 确定性: x.certaintyLevel },
+    估值与增速: { PE: p.pe ?? null, PEG: p.peg ?? null, 增速: p.growthRate ?? null, 营收增速: x.revGrowth, 利润增速: x.profitGrowth },
+    盈亏比: { 盈亏比: p.ratio, 上行下行: p.upDown, 胜率: p.winRate, 期望: p.expected },
+    买卖点位: l ? { 买入区: l.buy, 距现价: l.gap, 认错线: l.stop, 止盈: l.takeProfit, 仓位上限: l.cap, 重估触发: l.trigger } : null,
+    增长点: p.space ?? null,
+    技术壁垒: { 等级: p.moat, 依据: p.barrier ?? null },
+    风险: { 等级: l?.risk ?? null, 说明: p.risk, 失效条件: l?.invalid ?? null },
+    要点: p.note,
+  }
+}
+
+/** 浏览器下载 JSON 文件。 */
+export function downloadJson(fileName: string, data: unknown): void {
+  const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }))
+  const anchor = document.createElement('a'); anchor.href = url; anchor.download = fileName
+  document.body.appendChild(anchor); anchor.click(); anchor.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000)
+}

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { byFundamentals, byInvestability, POOL, POOL_STATUS_ORDER } from '../data/futureTrendsPool'
+import { byFundamentals, byInvestability, downloadJson, POOL, POOL_STATUS_ORDER, poolItemJson } from '../data/futureTrendsPool'
 import type { PoolItem, PoolStatus } from '../data/futureTrendsPool'
 import { SECTOR_PICKS_ASOF } from '../data/futureTrendsSectorPicks'
 
@@ -47,6 +47,8 @@ function Toggle<T extends string>({ label, value, options, onChange }: { label: 
     </div>
   )
 }
+
+const dl: React.CSSProperties = { fontFamily: 'inherit', fontSize: '0.8rem', padding: '6px 12px', border: '1px solid var(--border-primary)', borderRadius: 8, background: 'var(--bg-card)', color: 'var(--text-primary)', cursor: 'pointer' }
 
 type SortKey = '按可投资排序' | '按基本面排序'
 type MarketKey = '全部' | '中国' | '海外'
@@ -101,9 +103,19 @@ export default function FutureTrendsPool(): JSX.Element {
       </section>
 
       <section style={card} aria-label="候选池列表">
-        <p style={{ margin: '0 0 8px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-          共 {rows.length} 家。{sort === '按可投资排序' ? '先按投资状态，再按基本面分排序。' : '只按基本面分（增长 + 确定性）排序，不看股价。'}
-        </p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center', margin: '0 0 8px' }}>
+          <span aria-live="polite" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+            共 {rows.length} 家。{sort === '按可投资排序' ? '先按投资状态，再按基本面分排序。' : '只按基本面分（增长 + 确定性）排序，不看股价。'}
+          </span>
+          <button type="button" style={dl} disabled={!rows.length}
+            onClick={() => downloadJson(`未来趋势候选池-${market}-${status}-${sort}-${SECTOR_PICKS_ASOF}.json`, rows.map(poolItemJson))}>
+            下载当前筛选 JSON（{rows.length} 家）
+          </button>
+          <button type="button" style={dl}
+            onClick={() => downloadJson(`未来趋势候选池-全部-${SECTOR_PICKS_ASOF}.json`, [...POOL].sort(byInvestability).map(poolItemJson))}>
+            下载全部 JSON（{POOL.length} 家）
+          </button>
+        </div>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ borderCollapse: 'collapse', fontSize: '0.8rem', minWidth: 1400 }}>
             <thead><tr>{['#', '公司', '投资状态', '基本面', '增速 / 估值', '盈亏比', '买卖点位', '增长点', '技术壁垒', '风险'].map(h => <th key={h} style={th}>{h}</th>)}</tr></thead>

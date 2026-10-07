@@ -70,4 +70,28 @@ describe('未来趋势', () => {
     expect(screen.getByRole('region', { name: '核心名单' }).querySelectorAll('tbody tr').length).toBe(20)
     expect(screen.getAllByText(/^买入（条件化/).length).toBeGreaterThan(0)
   })
+
+  it('候选池与核心都能下载当前选择的公司 JSON', async () => {
+    const blobs: Blob[] = []
+    const origCreate = URL.createObjectURL
+    URL.createObjectURL = ((b: Blob) => { blobs.push(b); return 'blob:x' }) as typeof URL.createObjectURL
+    URL.revokeObjectURL = (() => {}) as typeof URL.revokeObjectURL
+    try {
+      render(<FutureTrends />)
+      fireEvent.click(screen.getByRole('tab', { name: '候选池' }))
+      fireEvent.click(screen.getByRole('button', { name: '海外' }))
+      fireEvent.click(screen.getByRole('button', { name: /^下载当前筛选 JSON/ }))
+      const pool = JSON.parse(await blobs[0].text())
+      expect(pool.length).toBeGreaterThan(100)
+      expect(pool.every((x: { 市场: string }) => x.市场 === '海外')).toBe(true)
+      expect(pool[0]).toHaveProperty('买卖点位')
+      fireEvent.click(screen.getByRole('tab', { name: '核心' }))
+      fireEvent.click(screen.getByRole('button', { name: /^下载核心 JSON/ }))
+      const core = JSON.parse(await blobs[1].text())
+      expect(core).toHaveLength(20)
+      expect(core[0].核心).toHaveProperty('核心理由')
+    } finally {
+      URL.createObjectURL = origCreate
+    }
+  })
 })
