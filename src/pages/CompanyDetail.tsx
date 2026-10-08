@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, ExternalLink, CheckCircle2, AlertTriangle, ArrowRight } from 'lucide-react'
 import { useCompanies, useLynch, Market } from '../data/companies'
+import { usePageSeo } from '../components/RouteSeo'
 import ResearchNotice from '../components/research/ResearchNotice'
 import { toneOf, Tone } from '../data/notionNotes'
 import { CN_REPORT } from '../data/cnReassessment'
@@ -26,6 +27,7 @@ export default function CompanyDetail(): JSX.Element {
   const lynchAll = useLynch()
   const company = list.find(c => c.code === decodeURIComponent(code || ''))
   const cand = useCandidates(true)
+  usePageSeo(company ? `${company.name}（${company.code}）研究笔记` : undefined, company ? `${company.name}（${company.code}）：${company.headline}`.slice(0, 160) : undefined)
 
   useEffect(() => {
     window.scrollTo(0, 0)

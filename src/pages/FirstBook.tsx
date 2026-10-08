@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState, useRef } from 'react'
 import ChapterNav from '../components/ChapterNav'
+import { usePageSeo } from '../components/RouteSeo'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, BookOpen, CheckCircle2, Circle, PenLine } from 'lucide-react'
 
@@ -467,7 +468,7 @@ function BookDashboard(): JSX.Element {
       {EXTRA_FILES.map(f => (
         <div key={f.file} style={cardStyle}>
           <Link
-            to={`/first-book/${encodeURIComponent(f.file)}`}
+            to={`/first-book/read/${encodeURIComponent(f.file)}`}
             style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'inherit' }}
           >
             <StatusIcon status={f.status} />
@@ -508,7 +509,7 @@ function BookDashboard(): JSX.Element {
               return ch.file ? (
                 <Link
                   key={ch.no}
-                  to={`/first-book/${encodeURIComponent(ch.file)}`}
+                  to={`/first-book/read/${encodeURIComponent(ch.file)}`}
                   style={rowStyle}
                   onMouseEnter={e => (e.currentTarget.style.background = 'rgba(0,0,0,0.04)')}
                   onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
@@ -534,7 +535,7 @@ function BookDashboard(): JSX.Element {
           {REVIEW_FILES.map(f => (
             <Link
               key={f.file}
-              to={`/first-book/${encodeURIComponent(f.file)}`}
+              to={`/first-book/read/${encodeURIComponent(f.file)}`}
               style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 10px', borderRadius: '8px', textDecoration: 'none', color: 'inherit', fontSize: '0.95rem' }}
               onMouseEnter={e => (e.currentTarget.style.background = 'rgba(0,0,0,0.04)')}
               onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
@@ -572,6 +573,7 @@ function ChapterReader({ file }: { file: string }): JSX.Element {
   const chapter = idx >= 0 ? allChapters[idx] : null
   const prev = idx > 0 ? allChapters[idx - 1] : null
   const next = idx >= 0 && idx < allChapters.length - 1 ? allChapters[idx + 1] : null
+  usePageSeo(chapter ? `${chapter.title}｜《正念投资》${chapter.no}` : undefined, chapter ? `《正念投资》${chapter.no}：${chapter.title}。` : undefined)
 
   // 从目录切换章节后回到正文顶部；首次进入不滚动，保留浏览器的刷新恢复位置
   useEffect(() => {
@@ -612,7 +614,7 @@ function ChapterReader({ file }: { file: string }): JSX.Element {
       <div className="book-pager" style={{ display: 'flex', gap: '12px', marginBottom: '28px' }}>
         {prev ? (
           <Link
-            to={`/first-book/${encodeURIComponent(prev.file)}`}
+            to={`/first-book/read/${encodeURIComponent(prev.file)}`}
             style={{ ...cardStyle, flex: 1, display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: 'inherit', marginBottom: 0, padding: '16px 20px' }}
           >
             <ArrowLeft size={16} color="var(--accent)" />
@@ -623,7 +625,7 @@ function ChapterReader({ file }: { file: string }): JSX.Element {
         )}
         {next && (
           <Link
-            to={`/first-book/${encodeURIComponent(next.file)}`}
+            to={`/first-book/read/${encodeURIComponent(next.file)}`}
             style={{ ...cardStyle, flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px', textDecoration: 'none', color: 'inherit', marginBottom: 0, padding: '16px 20px', textAlign: 'right' }}
           >
             <span style={{ fontSize: '0.9rem' }}>下一篇：{next.title}</span>

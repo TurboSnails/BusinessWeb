@@ -4,6 +4,7 @@ import ErrorBoundary from './components/ErrorBoundary'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import SectionChrome from './components/SectionChrome'
+import RouteSeo from './components/RouteSeo'
 import NotFound from './pages/NotFound'
 import InvestHub from './pages/InvestHub'
 import AiStudio from './pages/AiStudio'
@@ -72,6 +73,7 @@ export default function App(): JSX.Element {
     <div className="app">
       <SkipLink />
       <BrowserRouter basename={import.meta.env.BASE_URL}>
+        <RouteSeo />
         <Header />
         <SectionChrome />
         <RoutedBoundary>
@@ -100,6 +102,7 @@ export default function App(): JSX.Element {
           <Route path="/investment-strategy" element={<InvestmentStrategy />} />
           <Route path="/first-book" element={<MyBooks />} />
           <Route path="/first-book/slow-is-fast" element={<FirstBook />} />
+          <Route path="/first-book/read/:file" element={<FirstBook />} />
           <Route path="/first-book/:file" element={<FirstBook />} />
           <Route path="/future-trends" element={<FutureTrends />} />
           <Route path="/industry-landscape" element={<IndustryLandscape />} />
