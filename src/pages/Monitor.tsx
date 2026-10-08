@@ -11,18 +11,21 @@ import { USMonitorTab } from '../components/monitor/USMonitorTab'
 import { ChinaStockTab } from '../components/monitor/ChinaStockTab'
 import { PageTabs, PageTitle, Segmented, type TabItem } from '../components/ui/PageTabs'
 import { CyclesView } from '../features/macro/CycleViews'
+import { ValuationView } from '../features/macro/ValuationView'
+import type { IndexSnapshot } from '../features/macro/valuation'
 import { ChinaView, GuideView, HkView, OverviewView, StagesView, UsView } from '../features/macro/MacroViews'
 import type { MacroSnapshot } from '../features/macro/indicators'
 import type { CnKey } from '../features/macro/china'
 import type { HkKey } from '../features/macro/hk'
 
-type TabId = 'overview' | 'us' | 'cn' | 'hk' | 'cycles' | 'stages' | 'guide' | 'archive'
+type TabId = 'overview' | 'us' | 'cn' | 'hk' | 'cycles' | 'valuation' | 'stages' | 'guide' | 'archive'
 const TABS: TabItem<TabId>[] = [
   { id: 'overview', label: '温度总览' },
   { id: 'us', label: '美国宏观' },
   { id: 'cn', label: '中国宏观' },
   { id: 'hk', label: '港股宏观' },
   { id: 'cycles', label: '周期位置' },
+  { id: 'valuation', label: '估值位置' },
   { id: 'stages', label: '阶段与动作' },
   { id: 'guide', label: '指标说明' },
   { id: 'archive', label: '旧版存档' },
@@ -44,7 +47,7 @@ const ARCHIVE: (TabItem<ArchiveId> & { el: () => JSX.Element })[] = [
 // 快照只请求一次，切走再回来直接用
 type Snapshots = { us: MacroSnapshot; cn: MacroSnapshot<CnKey> | null; hk: MacroSnapshot<HkKey> | null }
 let snapshotCache: Snapshots | null = null
-const load = (file: string) => fetch(`${import.meta.env.BASE_URL}data/${file}`).then(r => { if (!r.ok) throw new Error(String(r.status)); return r.json() })
+const load = (file: string, init?: RequestInit) => fetch(`${import.meta.env.BASE_URL}data/${file}`, init).then(r => { if (!r.ok) throw new Error(String(r.status)); return r.json() })
 // 本地开发由 Vite 中间件在本机拉取；Vercel 走同源函数；GitHub Pages 通过 VITE_API_BASE 调 Vercel
 const apiBase = (import.meta.env.VITE_API_BASE || '').replace(/\/$/, '')
 
@@ -55,8 +58,12 @@ export function mergeSnapshot<T extends MacroSnapshot<string>>(old: T | null, fr
 }
 const timeText = (iso: string) => new Date(iso).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
 
+let indexCache: IndexSnapshot | null = null
+
 export default function Monitor(): JSX.Element {
   const [params, setParams] = useSearchParams()
+  const [indexes, setIndexes] = useState<IndexSnapshot | null>(indexCache)
+  const [indexError, setIndexError] = useState(false)
   const tabParam = params.get('tab')
   const tab: TabId = TABS.some(t => t.id === tabParam) ? (tabParam as TabId) : 'overview'
   const archiveParam = params.get('old')
@@ -93,13 +100,19 @@ export default function Monitor(): JSX.Element {
       .catch(() => setError('宏观数据加载失败，请刷新重试。'))
   }, [])
 
+  useEffect(() => {
+    if (params.get('tab') !== 'valuation') return
+    // 每次进页签都向服务器校验一次：数据文件会随更新变化，不能沿用浏览器或模块里的旧副本
+    load('index-history.json', { cache: 'no-cache' }).then((d: IndexSnapshot) => { indexCache = d; setIndexes(d) }).catch(() => setIndexError(true))
+  }, [params])
+
   const go = (patch: Record<string, string | null>): void => setParams(prev => {
     const next = new URLSearchParams(prev)
     Object.entries(patch).forEach(([k, v]) => (v === null ? next.delete(k) : next.set(k, v)))
     return next
   }, { replace: true })
 
-  const needsData = tab !== 'archive'
+  const needsData = tab !== 'archive' && tab !== 'valuation'
   const snap = data?.us
   return (
     <div style={{ minHeight: '100vh' }}>
@@ -120,6 +133,7 @@ export default function Monitor(): JSX.Element {
         {snap && tab === 'cn' && (data.cn ? <ChinaView snap={data.cn} /> : <p role="alert" className="macro-muted">中国数据加载失败，请刷新重试。</p>)}
         {snap && tab === 'hk' && (data.hk ? <HkView snap={data.hk} /> : <p role="alert" className="macro-muted">港股数据加载失败，请刷新重试。</p>)}
         {snap && tab === 'cycles' && <CyclesView us={snap} cn={data.cn} />}
+        {tab === 'valuation' && (indexes ? <ValuationView data={indexes} onData={d => { indexCache = d }} /> : <p role={indexError ? 'alert' : 'status'} className="macro-muted">{indexError ? '指数数据加载失败，请刷新重试。' : '正在加载指数数据…'}</p>)}
         {snap && tab === 'stages' && <StagesView snap={snap} />}
         {snap && tab === 'guide' && <GuideView snap={snap} cn={data.cn} hk={data.hk} />}
         {tab === 'archive' && (

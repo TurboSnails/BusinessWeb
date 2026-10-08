@@ -141,3 +141,21 @@
 .macro-up { color: var(--up-ink); }
 .macro-down { color: var(--down-ink); }
 .macro-assets__note { margin: 6px 0 0 !important; }
+
+/* 估值位置表 */
+.macro-val__n { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.macro-val th:not(:first-child) { text-align: right; }
+.macro-val__name { background: none; border: 0; padding: 0; font: inherit; font-weight: 600; color: var(--text-primary); cursor: pointer; text-align: left; }
+.macro-val__name:hover { text-decoration: underline; }
+.macro-val__detail { background: var(--bg-card); }
+.macro-val__detail h4 { margin: 12px 0 4px; }
+.macro-h3 { margin: 0 0 8px; font-size: 0.95rem; font-weight: 600; color: var(--text-secondary); }
+.macro-fpe tfoot th, .macro-fpe tfoot td { border-top: 1px solid var(--border-subtle); font-weight: 600; }
+.macro-fpe tbody td:first-child { font-variant-numeric: tabular-nums; }
+
+.macro-val__name { display: inline-flex; align-items: center; gap: 4px; }
+.macro-val__chev { flex: none; color: var(--text-secondary); transition: transform 0.15s ease; }
+.macro-val__chev.is-open { transform: rotate(90deg); color: var(--text-primary); }
+.macro-val__row:hover { background: color-mix(in srgb, var(--text-primary) 4%, transparent); }
+.macro-val__row.is-open { background: color-mix(in srgb, var(--text-primary) 6%, transparent); }
+@media (prefers-reduced-motion: reduce) { .macro-val__chev { transition: none; } }

@@ -24,7 +24,11 @@
     "test:functions": "node scripts/check-functions.mjs",
     "test:scripts": "node --test scripts/*.test.mjs",
     "knowledge:cloud": "node scripts/knowledge-cloud.mjs",
-    "macro:update": "node scripts/macro-snapshot.mjs"
+    "macro:update": "node scripts/macro-snapshot.mjs",
+    "index:update": "node scripts/index-snapshot.mjs",
+    "index:fpe": "node scripts/index-snapshot.mjs fpe",
+    "index:fpe-import": "node scripts/index-snapshot.mjs fpe-import",
+    "index:ref-import": "node scripts/index-snapshot.mjs ref-import"
   },
   "dependencies": {
     "@fontsource/noto-serif-sc": "^5.3.0",

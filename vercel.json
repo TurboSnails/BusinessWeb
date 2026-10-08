@@ -7,6 +7,9 @@
     "api/macro.js": {
       "maxDuration": 30
     },
+    "api/indexes.js": {
+      "maxDuration": 30
+    },
     "api/sentiment.js": {
       "maxDuration": 30
     }
