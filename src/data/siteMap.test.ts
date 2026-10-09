@@ -8,7 +8,7 @@ const appSource = readFileSync(resolve(__dirname, '../App.tsx'), 'utf8')
 describe('NAV_ITEMS', () => {
   it('包含知识图谱，共 6 项，顺序固定', () => {
     expect(NAV_ITEMS.map(i => i.label)).toEqual([
-      '首页', '正念投资', 'AI实验室', '知识图谱', '自由空间', '关于',
+      '首页', '投资', 'AI实验室', '知识图谱', '自由空间', '关于',
     ])
     expect(NAV_ITEMS.map(i => i.path)).toEqual(['/', '/invest', '/ai', '/knowledge', '/life', '/about'])
   })
@@ -104,7 +104,7 @@ describe('isNavActive', () => {
     expect(isNavActive('/', '/invest')).toBe(false)
   })
 
-  it('任何收纳页面都点亮「正念投资」', () => {
+  it('任何收纳页面都点亮「投资」', () => {
     expect(isNavActive('/invest', '/invest')).toBe(true)
     expect(isNavActive('/invest', '/sector-rotation')).toBe(true)
     expect(isNavActive('/invest', '/grid-trading/records/1')).toBe(true)

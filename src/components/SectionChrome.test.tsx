@@ -14,10 +14,10 @@ const renderAt = (path: string) =>
   )
 
 describe('SectionChrome', () => {
-  it('分组内页面显示面包屑：Live › 正念投资 › 页面名', () => {
+  it('分组内页面显示面包屑：Live › 投资 › 页面名', () => {
     renderAt('/valuation')
     const crumb = screen.getByRole('navigation', { name: '面包屑' })
-    expect(within(crumb).getAllByRole('link').map(a => a.textContent)).toEqual(['Live', '正念投资'])
+    expect(within(crumb).getAllByRole('link').map(a => a.textContent)).toEqual(['Live', '投资'])
     expect(crumb.textContent).toContain('公司估值')
   })
 

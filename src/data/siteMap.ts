@@ -22,7 +22,7 @@ export interface HubGroup {
 
 export const NAV_ITEMS: NavItem[] = [
   { path: '/', label: '首页' },
-  { path: '/invest', label: '正念投资' },
+  { path: '/invest', label: '投资' },
   { path: '/ai', label: 'AI实验室' },
   { path: '/knowledge', label: '知识图谱' },
   { path: '/life', label: '自由空间' },
