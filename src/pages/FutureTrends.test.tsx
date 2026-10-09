@@ -107,6 +107,14 @@ describe('未来趋势', () => {
 })
 
 describe('固态电池专题', () => {
+  it('竞选复核展示公司结论，并可访问本次查询记录与完整报告', () => {
+    render(<MemoryRouter initialEntries={['/future-trends?tab=solid-state']}><FutureTrends /></MemoryRouter>)
+    const review = within(screen.getByRole('region', { name: '核心候选池竞选复核' }))
+    expect(review.getByText(/本轮没有新增已认证的现价买入标的/)).toBeTruthy()
+    expect(review.getByText('查看全部 40 家公司的竞选去向')).toBeTruthy()
+    expect(review.getByRole('link', { name: /本次重新查询的 MCP 调用记录/ }).getAttribute('href')).toContain('/solid-state-core-review-2026-10-09/manifest.json')
+    expect(review.getByRole('link', { name: /完整竞选报告/ }).getAttribute('href')).toContain('/review.md')
+  })
   it('显示 MCP 覆盖、财务口径与缺项，并支持现名和港股代码检索', () => {
     render(<MemoryRouter initialEntries={['/future-trends?tab=solid-state']}><FutureTrends /></MemoryRouter>)
     expect(screen.getByRole('heading', { name: '本轮 MCP 更新：覆盖范围与研究调整' })).toBeTruthy()

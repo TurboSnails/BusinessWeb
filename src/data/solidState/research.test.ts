@@ -3,8 +3,24 @@ import { describe, expect, it } from 'vitest'
 import companies from './companies.json'
 import { FOCUS, SOURCES, VALUATIONS, evaluate } from './research'
 import { MCP, amount, cashAssessment, mcpCompany, primaryListing } from './mcpResearch'
+import coreReview from './coreReview.json'
 
 describe('固态电池研究证据完整性', () => {
+  it('竞选覆盖原分类与补充主体，公开调用记录可追溯到本次响应且不把空返回算作报价', () => {
+    expect(coreReview.outcomes).toHaveLength(companies.length + coreReview.supplementalCompanies)
+    expect(new Set(coreReview.outcomes.map(r => r.id)).size).toBe(coreReview.outcomes.length)
+    const manifest = JSON.parse(readFileSync(`public/${coreReview.manifest}`, 'utf8'))
+    expect(manifest.calls).toHaveLength(coreReview.requests)
+    expect(readFileSync(`public/${coreReview.report}`, 'utf8')).toContain('本报告仅供研究参考')
+    const prefix = coreReview.manifest.slice(0, coreReview.manifest.lastIndexOf('/') + 1)
+    for (const call of manifest.calls) {
+      const raw = JSON.parse(readFileSync(`public/${prefix}${call.file}`, 'utf8'))
+      expect(raw.arguments).toEqual(call.arguments)
+      expect(raw.retrievedAt).toBe(call.retrievedAt)
+    }
+    for (const outcome of coreReview.outcomes) expect(MCP.companies.some(c => c.id === outcome.id)).toBe(true)
+    expect(primaryListing(mcpCompany('纳科诺尔'))).toBeUndefined()
+  })
   it('观察池公司全部可追溯到原产业树，去重且不把未核上市主体配上股票代码', () => {
     const tree = readFileSync('public/industry/solid-state.json', 'utf8')
     expect(new Set(companies.map(c => c.name)).size).toBe(companies.length)

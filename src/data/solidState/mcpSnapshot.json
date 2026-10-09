@@ -18,7 +18,23 @@
     "research/solid-state-mcp-2026-10-09/akshare-stock_individual_info_em-920522.json",
     "research/solid-state-mcp-2026-10-09/akshare-stock_zh_a_hist_tx-bj920185.json",
     "research/solid-state-mcp-2026-10-09/akshare-stock_zh_a_hist_tx-sz300450.json",
-    "research/solid-state-mcp-2026-10-09/akshare-stock_zh_a_hist_tx-sz300750.json"
+    "research/solid-state-mcp-2026-10-09/akshare-stock_zh_a_hist_tx-sz300750.json",
+    "research/solid-state-core-review-2026-10-09/akshare-quote-300037.json",
+    "research/solid-state-core-review-2026-10-09/akshare-hk-financial-00470.json",
+    "research/solid-state-core-review-2026-10-09/akshare-quote-300450.json",
+    "research/solid-state-core-review-2026-10-09/akshare-hk-quote-03750.json",
+    "research/solid-state-core-review-2026-10-09/akshare-hk-financial-01211.json",
+    "research/solid-state-core-review-2026-10-09/akshare-quote-300457.json",
+    "research/solid-state-core-review-2026-10-09/akshare-hk-financial-01772.json",
+    "research/solid-state-core-review-2026-10-09/akshare-bj-920185.json",
+    "research/solid-state-core-review-2026-10-09/akshare-quote-300750.json",
+    "research/solid-state-core-review-2026-10-09/akshare-bj-920522.json",
+    "research/solid-state-core-review-2026-10-09/akshare-financial-300457.json",
+    "research/solid-state-core-review-2026-10-09/akshare-quote-300073.json",
+    "research/solid-state-core-review-2026-10-09/akshare-financial-300450.json",
+    "research/solid-state-core-review-2026-10-09/akshare-hk-financial-03750.json",
+    "research/solid-state-core-review-2026-10-09/akshare-hk-quote-00470.json",
+    "research/solid-state-core-review-2026-10-09/akshare-financial-300037.json"
   ],
   "companies": [
     {
@@ -36,7 +52,7 @@
           "price": 45.47,
           "marketTime": "2026-10-09T15:04:03+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-10-09T13:53:13.301478+00:00",
+          "retrievedAt": "2026-10-09T15:50:52.341865+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": 14.715211,
           "marketCap": 95336693760,
@@ -70,7 +86,7 @@
             "cfo": 3972745984,
             "fcf": -5502038528
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-002460.SZ.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-002460.SZ.json",
           "issue": null
         },
         {
@@ -82,7 +98,7 @@
           "price": 30.02,
           "marketTime": "2026-10-09T16:08:06+08:00",
           "timezone": "Asia/Hong_Kong",
-          "retrievedAt": "2026-10-09T13:53:13.302280+00:00",
+          "retrievedAt": "2026-10-09T15:50:52.342608+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": 8.701449,
           "marketCap": 62942765056,
@@ -116,7 +132,7 @@
             "cfo": 3972745984,
             "fcf": -5502038528
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-1772.HK.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-1772.HK.json",
           "issue": null
         }
       ],
@@ -127,9 +143,9 @@
         "currency": "CNY",
         "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
         "sources": [
-          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-002460.SZ-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-002460.SZ-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-002460.SZ-quarterly.json"
+          "research/solid-state-core-review-2026-10-09/yfinance-get_income_statement-002460.SZ.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_balance_sheet-002460.SZ.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_cash_flow-002460.SZ.json"
         ],
         "history": [
           {
@@ -210,7 +226,7 @@
           "price": 53.92,
           "marketTime": "2026-10-09T15:00:00+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-10-09T13:53:13.305924+00:00",
+          "retrievedAt": "2026-10-09T15:50:56.035037+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": null,
           "marketCap": 9461885952,
@@ -244,7 +260,7 @@
             "cfo": -8748485,
             "fcf": -118890064
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-603200.SS.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-603200.SS.json",
           "issue": null
         }
       ],
@@ -255,9 +271,9 @@
         "currency": "CNY",
         "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
         "sources": [
-          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-603200.SS-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-603200.SS-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-603200.SS-quarterly.json"
+          "research/solid-state-core-review-2026-10-09/yfinance-get_income_statement-603200.SS.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_balance_sheet-603200.SS.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_cash_flow-603200.SS.json"
         ],
         "history": [
           {
@@ -347,7 +363,7 @@
           "price": 17.43,
           "marketTime": "2026-10-09T15:04:07+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-10-09T13:53:13.313660+00:00",
+          "retrievedAt": "2026-10-09T15:50:57.091607+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": 39.613636,
           "marketCap": 12782000128,
@@ -381,7 +397,7 @@
             "cfo": -112089008,
             "fcf": -66014716
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-301238.SZ.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-301238.SZ.json",
           "issue": null
         }
       ],
@@ -392,9 +408,9 @@
         "currency": "CNY",
         "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
         "sources": [
-          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-301238.SZ-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-301238.SZ-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-301238.SZ-quarterly.json"
+          "research/solid-state-core-review-2026-10-09/yfinance-get_income_statement-301238.SZ.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_balance_sheet-301238.SZ.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_cash_flow-301238.SZ.json"
         ],
         "history": [
           {
@@ -475,7 +491,7 @@
           "price": 18.23,
           "marketTime": "2026-10-09T15:04:10+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-10-09T13:53:13.315791+00:00",
+          "retrievedAt": "2026-10-09T15:50:58.179950+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": 24.635134,
           "marketCap": 14260398080,
@@ -509,7 +525,7 @@
             "cfo": -176379280,
             "fcf": -1141040512
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-300409.SZ.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-300409.SZ.json",
           "issue": null
         }
       ],
@@ -520,9 +536,9 @@
         "currency": "CNY",
         "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
         "sources": [
-          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-300409.SZ-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-300409.SZ-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-300409.SZ-quarterly.json"
+          "research/solid-state-core-review-2026-10-09/yfinance-get_income_statement-300409.SZ.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_balance_sheet-300409.SZ.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_cash_flow-300409.SZ.json"
         ],
         "history": [
           {
@@ -603,7 +619,7 @@
           "price": 41.99,
           "marketTime": "2026-10-09T15:04:10+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-10-09T13:53:15.400498+00:00",
+          "retrievedAt": "2026-10-09T15:50:59.204275+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": 27.090324,
           "marketCap": 22854893568,
@@ -637,7 +653,7 @@
             "cfo": 845250368,
             "fcf": -3128104704
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-300073.SZ.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-300073.SZ.json",
           "issue": null
         }
       ],
@@ -648,9 +664,9 @@
         "currency": "CNY",
         "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
         "sources": [
-          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-300073.SZ-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-300073.SZ-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-300073.SZ-quarterly.json"
+          "research/solid-state-core-review-2026-10-09/yfinance-get_income_statement-300073.SZ.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_balance_sheet-300073.SZ.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_cash_flow-300073.SZ.json"
         ],
         "history": [
           {
@@ -740,7 +756,7 @@
           "price": 24.55,
           "marketTime": "2026-10-09T15:00:01+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-10-09T13:53:15.401740+00:00",
+          "retrievedAt": "2026-10-09T15:51:00.747786+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": null,
           "marketCap": 17543888896,
@@ -774,7 +790,7 @@
             "cfo": 71130712,
             "fcf": 585599808
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-688005.SS.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-688005.SS.json",
           "issue": null
         }
       ],
@@ -785,9 +801,9 @@
         "currency": "CNY",
         "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
         "sources": [
-          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-688005.SS-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-688005.SS-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-688005.SS-quarterly.json"
+          "research/solid-state-core-review-2026-10-09/yfinance-get_income_statement-688005.SS.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_balance_sheet-688005.SS.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_cash_flow-688005.SS.json"
         ],
         "history": [
           {
@@ -877,7 +893,7 @@
           "price": 8.0,
           "marketTime": "2026-10-09T15:00:00+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-10-09T13:53:16.377727+00:00",
+          "retrievedAt": "2026-10-09T15:51:01.821176+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": 24.242424,
           "marketCap": 15433761792,
@@ -911,7 +927,7 @@
             "cfo": -718017472,
             "fcf": -887966080
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-688779.SS.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-688779.SS.json",
           "issue": null
         }
       ],
@@ -922,9 +938,9 @@
         "currency": "CNY",
         "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
         "sources": [
-          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-688779.SS-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-688779.SS-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-688779.SS-quarterly.json"
+          "research/solid-state-core-review-2026-10-09/yfinance-get_income_statement-688779.SS.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_balance_sheet-688779.SS.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_cash_flow-688779.SS.json"
         ],
         "history": [
           {
@@ -1005,7 +1021,7 @@
           "price": 47.4,
           "marketTime": "2026-10-09T15:00:01+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-10-09T13:53:16.893357+00:00",
+          "retrievedAt": "2026-10-09T15:51:03.368764+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": 25.347595,
           "marketCap": 23922358272,
@@ -1039,7 +1055,7 @@
             "cfo": 866417344,
             "fcf": 1749008256
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-688778.SS.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-688778.SS.json",
           "issue": null
         }
       ],
@@ -1050,9 +1066,9 @@
         "currency": "CNY",
         "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
         "sources": [
-          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-688778.SS-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-688778.SS-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-688778.SS-quarterly.json"
+          "research/solid-state-core-review-2026-10-09/yfinance-get_income_statement-688778.SS.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_balance_sheet-688778.SS.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_cash_flow-688778.SS.json"
         ],
         "history": [
           {
@@ -1142,7 +1158,7 @@
           "price": null,
           "marketTime": null,
           "timezone": null,
-          "retrievedAt": "2026-10-09T13:53:16.902210+00:00",
+          "retrievedAt": "2026-10-09T15:51:04.442010+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": null,
           "marketCap": null,
@@ -1176,7 +1192,7 @@
             "cfo": null,
             "fcf": null
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-920185.BJ.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-920185.BJ.json",
           "issue": "返回空资料；名称、代码与价格未形成有效记录"
         },
         {
@@ -1188,7 +1204,7 @@
           "price": null,
           "marketTime": null,
           "timezone": null,
-          "retrievedAt": "2026-10-09T13:53:17.416582+00:00",
+          "retrievedAt": "2026-10-09T15:51:04.483479+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": null,
           "marketCap": null,
@@ -1222,7 +1238,7 @@
             "cfo": null,
             "fcf": null
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-835185.BJ.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-835185.BJ.json",
           "issue": "返回空资料；名称、代码与价格未形成有效记录"
         }
       ],
@@ -1276,7 +1292,7 @@
           "price": 11.99,
           "marketTime": "2026-10-09T15:00:02+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-10-09T13:53:17.426880+00:00",
+          "retrievedAt": "2026-10-09T15:51:04.948531+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": 23.98,
           "marketCap": 26925213696,
@@ -1310,7 +1326,7 @@
             "cfo": 1630476800,
             "fcf": -110773736
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-600884.SS.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-600884.SS.json",
           "issue": null
         }
       ],
@@ -1321,9 +1337,9 @@
         "currency": "CNY",
         "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
         "sources": [
-          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-600884.SS-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-600884.SS-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-600884.SS-quarterly.json"
+          "research/solid-state-core-review-2026-10-09/yfinance-get_income_statement-600884.SS.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_balance_sheet-600884.SS.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_cash_flow-600884.SS.json"
         ],
         "history": [
           {
@@ -1413,7 +1429,7 @@
           "price": 22.33,
           "marketTime": "2026-10-09T15:00:02+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-10-09T13:53:18.321642+00:00",
+          "retrievedAt": "2026-10-09T15:51:07.588936+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": 16.916666,
           "marketCap": 47879630848,
@@ -1447,7 +1463,7 @@
             "cfo": 3272719872,
             "fcf": 256415760
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-603659.SS.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-603659.SS.json",
           "issue": null
         }
       ],
@@ -1458,9 +1474,9 @@
         "currency": "CNY",
         "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
         "sources": [
-          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-603659.SS-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-603659.SS-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-603659.SS-quarterly.json"
+          "research/solid-state-core-review-2026-10-09/yfinance-get_income_statement-603659.SS.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_balance_sheet-603659.SS.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_cash_flow-603659.SS.json"
         ],
         "history": [
           {
@@ -1541,7 +1557,7 @@
           "price": 47.85,
           "marketTime": "2026-10-09T15:04:06+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-10-09T13:53:18.394564+00:00",
+          "retrievedAt": "2026-10-09T15:51:08.717415+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": 43.89908,
           "marketCap": 46956089344,
@@ -1575,7 +1591,7 @@
             "cfo": 2094934400,
             "fcf": 1072568576
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-002812.SZ.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-002812.SZ.json",
           "issue": null
         }
       ],
@@ -1586,9 +1602,9 @@
         "currency": "CNY",
         "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
         "sources": [
-          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-002812.SZ-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-002812.SZ-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-002812.SZ-quarterly.json"
+          "research/solid-state-core-review-2026-10-09/yfinance-get_income_statement-002812.SZ.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_balance_sheet-002812.SZ.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_cash_flow-002812.SZ.json"
         ],
         "history": [
           {
@@ -1678,7 +1694,7 @@
           "price": 15.69,
           "marketTime": "2026-10-09T15:04:37+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-10-09T13:53:18.865307+00:00",
+          "retrievedAt": "2026-10-09T15:51:09.687106+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": 156.9,
           "marketCap": 23463124992,
@@ -1712,7 +1728,7 @@
             "cfo": 607433024,
             "fcf": -1920414592
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-300568.SZ.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-300568.SZ.json",
           "issue": null
         }
       ],
@@ -1723,9 +1739,9 @@
         "currency": "CNY",
         "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
         "sources": [
-          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-300568.SZ-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-300568.SZ-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-300568.SZ-quarterly.json"
+          "research/solid-state-core-review-2026-10-09/yfinance-get_income_statement-300568.SZ.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_balance_sheet-300568.SZ.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_cash_flow-300568.SZ.json"
         ],
         "history": [
           {
@@ -1815,7 +1831,7 @@
           "price": 34.4,
           "marketTime": "2026-10-09T15:00:00+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-10-09T13:53:19.897040+00:00",
+          "retrievedAt": "2026-10-09T15:51:11.230901+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": 51.343285,
           "marketCap": 12608703488,
@@ -1849,7 +1865,7 @@
             "cfo": 301844384,
             "fcf": 40802896
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-688116.SS.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-688116.SS.json",
           "issue": null
         }
       ],
@@ -1860,9 +1876,9 @@
         "currency": "CNY",
         "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
         "sources": [
-          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-688116.SS-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-688116.SS-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-688116.SS-quarterly.json"
+          "research/solid-state-core-review-2026-10-09/yfinance-get_income_statement-688116.SS.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_balance_sheet-688116.SS.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_cash_flow-688116.SS.json"
         ],
         "history": [
           {
@@ -1943,7 +1959,7 @@
           "price": 297.75,
           "marketTime": "2026-10-09T15:04:34+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-10-09T13:53:20.946462+00:00",
+          "retrievedAt": "2026-10-09T15:51:11.769938+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": 15.896957,
           "marketCap": 1377763590144,
@@ -1977,7 +1993,7 @@
             "cfo": 134749765632,
             "fcf": 73865617408
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-300750.SZ.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-300750.SZ.json",
           "issue": null
         },
         {
@@ -1989,7 +2005,7 @@
           "price": 491.4,
           "marketTime": "2026-10-09T16:08:06+08:00",
           "timezone": "Asia/Hong_Kong",
-          "retrievedAt": "2026-10-09T13:53:21.476787+00:00",
+          "retrievedAt": "2026-10-09T15:51:12.289028+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": 23.970732,
           "marketCap": 2273830502400,
@@ -2023,7 +2039,7 @@
             "cfo": 134749765632,
             "fcf": 73865617408
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-3750.HK.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-3750.HK.json",
           "issue": null
         }
       ],
@@ -2034,9 +2050,9 @@
         "currency": "CNY",
         "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
         "sources": [
-          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-300750.SZ-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-300750.SZ-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-300750.SZ-quarterly.json"
+          "research/solid-state-core-review-2026-10-09/yfinance-get_income_statement-300750.SZ.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_balance_sheet-300750.SZ.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_cash_flow-300750.SZ.json"
         ],
         "history": [
           {
@@ -2117,7 +2133,7 @@
           "price": 84.95,
           "marketTime": "2026-10-09T15:04:27+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-10-09T13:53:21.477888+00:00",
+          "retrievedAt": "2026-10-09T15:51:13.623207+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": 26.381987,
           "marketCap": 774505889792,
@@ -2151,7 +2167,7 @@
             "cfo": 64636817408,
             "fcf": -96303865856
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-002594.SZ.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-002594.SZ.json",
           "issue": null
         },
         {
@@ -2163,7 +2179,7 @@
           "price": 75.6,
           "marketTime": "2026-10-09T16:08:06+08:00",
           "timezone": "Asia/Hong_Kong",
-          "retrievedAt": "2026-10-09T13:53:21.999004+00:00",
+          "retrievedAt": "2026-10-09T15:51:13.650100+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": 21.058496,
           "marketCap": 689260134400,
@@ -2197,7 +2213,7 @@
             "cfo": 64636817408,
             "fcf": -96303865856
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-1211.HK.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-1211.HK.json",
           "issue": null
         }
       ],
@@ -2208,9 +2224,9 @@
         "currency": "CNY",
         "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
         "sources": [
-          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-002594.SZ-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-002594.SZ-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-002594.SZ-quarterly.json"
+          "research/solid-state-core-review-2026-10-09/yfinance-get_income_statement-002594.SZ.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_balance_sheet-002594.SZ.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_cash_flow-002594.SZ.json"
         ],
         "history": [
           {
@@ -2291,7 +2307,7 @@
           "price": 30.41,
           "marketTime": "2026-10-09T15:04:30+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-10-09T13:53:22.002464+00:00",
+          "retrievedAt": "2026-10-09T15:51:14.329505+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": 16.175531,
           "marketCap": 55185797120,
@@ -2325,7 +2341,7 @@
             "cfo": 3727517696,
             "fcf": -10011838464
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-002074.SZ.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-002074.SZ.json",
           "issue": null
         }
       ],
@@ -2336,9 +2352,9 @@
         "currency": "CNY",
         "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
         "sources": [
-          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-002074.SZ-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-002074.SZ-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-002074.SZ-quarterly.json"
+          "research/solid-state-core-review-2026-10-09/yfinance-get_income_statement-002074.SZ.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_balance_sheet-002074.SZ.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_cash_flow-002074.SZ.json"
         ],
         "history": [
           {
@@ -2419,7 +2435,7 @@
           "price": 9.75,
           "marketTime": "2026-10-09T15:00:00+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-10-09T13:53:23.043130+00:00",
+          "retrievedAt": "2026-10-09T15:51:14.743852+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": null,
           "marketCap": 11915513856,
@@ -2453,7 +2469,7 @@
             "cfo": 1817421440,
             "fcf": -335087680
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-688567.SS.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-688567.SS.json",
           "issue": null
         }
       ],
@@ -2464,9 +2480,9 @@
         "currency": "CNY",
         "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
         "sources": [
-          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-688567.SS-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-688567.SS-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-688567.SS-quarterly.json"
+          "research/solid-state-core-review-2026-10-09/yfinance-get_income_statement-688567.SS.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_balance_sheet-688567.SS.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_cash_flow-688567.SS.json"
         ],
         "history": [
           {
@@ -2547,7 +2563,7 @@
           "price": 51.32,
           "marketTime": "2026-10-09T15:04:22+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-10-09T13:53:23.043854+00:00",
+          "retrievedAt": "2026-10-09T15:51:15.372518+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": 18.527077,
           "marketCap": 111533596672,
@@ -2581,7 +2597,7 @@
             "cfo": 4731645440,
             "fcf": -3798000640
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-300014.SZ.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-300014.SZ.json",
           "issue": null
         }
       ],
@@ -2592,9 +2608,9 @@
         "currency": "CNY",
         "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
         "sources": [
-          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-300014.SZ-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-300014.SZ-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-300014.SZ-quarterly.json"
+          "research/solid-state-core-review-2026-10-09/yfinance-get_income_statement-300014.SZ.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_balance_sheet-300014.SZ.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_cash_flow-300014.SZ.json"
         ],
         "history": [
           {
@@ -2684,7 +2700,7 @@
           "price": 20.66,
           "marketTime": "2026-10-09T15:04:49+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-10-09T13:53:23.570818+00:00",
+          "retrievedAt": "2026-10-09T15:51:16.487824+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": 48.04651,
           "marketCap": 38168571904,
@@ -2718,7 +2734,7 @@
             "cfo": 645465600,
             "fcf": -7299465216
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-300207.SZ.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-300207.SZ.json",
           "issue": null
         }
       ],
@@ -2729,9 +2745,9 @@
         "currency": "CNY",
         "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
         "sources": [
-          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-300207.SZ-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-300207.SZ-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-300207.SZ-quarterly.json"
+          "research/solid-state-core-review-2026-10-09/yfinance-get_income_statement-300207.SZ.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_balance_sheet-300207.SZ.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_cash_flow-300207.SZ.json"
         ],
         "history": [
           {
@@ -2853,7 +2869,7 @@
           "price": 36.73,
           "marketTime": "2026-10-09T15:04:49+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-10-09T13:53:23.572150+00:00",
+          "retrievedAt": "2026-10-09T15:51:17.528255+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": 33.390907,
           "marketCap": 61494153216,
@@ -2887,7 +2903,7 @@
             "cfo": 6688771072,
             "fcf": 5799860736
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-300450.SZ.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-300450.SZ.json",
           "issue": null
         },
         {
@@ -2899,7 +2915,7 @@
           "price": 27.48,
           "marketTime": "2026-10-09T16:08:05+08:00",
           "timezone": "Asia/Hong_Kong",
-          "retrievedAt": "2026-10-09T13:53:23.578336+00:00",
+          "retrievedAt": "2026-10-09T15:51:17.533195+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": 22.341463,
           "marketCap": 46007603200,
@@ -2933,7 +2949,7 @@
             "cfo": 6688771072,
             "fcf": 5799860736
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-0470.HK.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-0470.HK.json",
           "issue": null
         }
       ],
@@ -2944,9 +2960,9 @@
         "currency": "CNY",
         "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
         "sources": [
-          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-300450.SZ-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-300450.SZ-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-300450.SZ-quarterly.json"
+          "research/solid-state-core-review-2026-10-09/yfinance-get_income_statement-300450.SZ.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_balance_sheet-300450.SZ.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_cash_flow-300450.SZ.json"
         ],
         "history": [
           {
@@ -3027,7 +3043,7 @@
           "price": 22.72,
           "marketTime": "2026-10-09T15:04:52+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-10-09T13:53:24.615416+00:00",
+          "retrievedAt": "2026-10-09T15:51:19.093722+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": 23.42268,
           "marketCap": 14655919104,
@@ -3061,7 +3077,7 @@
             "cfo": 2029235456,
             "fcf": 1993455872
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-300457.SZ.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-300457.SZ.json",
           "issue": null
         }
       ],
@@ -3072,9 +3088,9 @@
         "currency": "CNY",
         "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
         "sources": [
-          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-300457.SZ-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-300457.SZ-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-300457.SZ-quarterly.json"
+          "research/solid-state-core-review-2026-10-09/yfinance-get_income_statement-300457.SZ.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_balance_sheet-300457.SZ.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_cash_flow-300457.SZ.json"
         ],
         "history": [
           {
@@ -3164,7 +3180,7 @@
           "price": 45.18,
           "marketTime": "2026-10-09T15:00:02+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-10-09T13:53:24.616386+00:00",
+          "retrievedAt": "2026-10-09T15:51:27.510059+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": null,
           "marketCap": 11193753600,
@@ -3198,7 +3214,7 @@
             "cfo": 2421411072,
             "fcf": 1907450240
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-688559.SS.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-688559.SS.json",
           "issue": null
         }
       ],
@@ -3209,9 +3225,9 @@
         "currency": "CNY",
         "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
         "sources": [
-          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-688559.SS-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-688559.SS-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-688559.SS-quarterly.json"
+          "research/solid-state-core-review-2026-10-09/yfinance-get_income_statement-688559.SS.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_balance_sheet-688559.SS.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_cash_flow-688559.SS.json"
         ],
         "history": [
           {
@@ -3292,7 +3308,7 @@
           "price": 42.33,
           "marketTime": "2026-10-09T15:00:00+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-10-09T13:53:25.137627+00:00",
+          "retrievedAt": "2026-10-09T15:51:30.053714+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": 132.28127,
           "marketCap": 7142278144,
@@ -3326,7 +3342,7 @@
             "cfo": 394400736,
             "fcf": 252437760
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-688499.SS.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-688499.SS.json",
           "issue": null
         }
       ],
@@ -3337,9 +3353,9 @@
         "currency": "CNY",
         "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
         "sources": [
-          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-688499.SS-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-688499.SS-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-688499.SS-quarterly.json"
+          "research/solid-state-core-review-2026-10-09/yfinance-get_income_statement-688499.SS.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_balance_sheet-688499.SS.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_cash_flow-688499.SS.json"
         ],
         "history": [
           {
@@ -3417,21 +3433,21 @@
           "providerName": "NIO Inc.",
           "currency": "USD",
           "financialCurrency": "CNY",
-          "price": 3.6,
-          "marketTime": "2026-10-09T09:53:33-04:00",
+          "price": 3.6029,
+          "marketTime": "2026-10-09T11:51:27-04:00",
           "timezone": "America/New_York",
-          "retrievedAt": "2026-10-09T13:53:31.433798+00:00",
+          "retrievedAt": "2026-10-09T15:51:30.568325+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": null,
-          "marketCap": 9007873024,
+          "marketCap": 9027667968,
           "businessSummary": "NIO Inc. designs, develops, manufactures, and sells smart electric vehicles in China, Europe, and internationally. It offers five and six-seater electric SUVs, as well as smart electric sedans. The company also offers power solutions, including Power Home, a home charging solution; Power Swap, a battery-swapping service; Power Charger and Destination Charger; Power Mobile, a mobile charging service through charging vans; Power Map, an application that provides access to a network of public chargers and their real-time information; and One Click for power valet service. In addition, it provides repair, maintenance, car beauty, and inspection services through its service centers and authorized third-party service centers; vehicle transportation and delivery, pre-delivery inspections, guidance on vehicle features, assistance with vehicle registration, and insurance processing services; insurance, maintenance, repairs, accident rescue, car washing, chauffeur services, and valet parking services; and remote monitoring and real-time diagnostics services, as well as technical, warranty, and auto financing arrangements. Further, the company is involved in the provision of energy and service packages to its users; design and technology development activities; manufacture of electric powertrains, battery packs, and components; and sales and after-sales management activities. Additionally, it operates in app NIO Auto Mall where users can select from various accessories and value added services; and online auction platform. The company was formerly known as NextEV Inc. and changed its name to NIO Inc. in July 2017. NIO Inc. was incorporated in 2014 and is headquartered in Shanghai, China.",
           "website": "https://www.nio.com",
           "industry": "Auto Manufacturers",
           "country": "China",
           "valuation": {
-            "forwardPE": 28.301971,
-            "priceToBook": 14.812191,
-            "priceToSalesTrailing12Months": 0.07904754,
+            "forwardPE": 28.364166,
+            "priceToBook": 14.84474,
+            "priceToSalesTrailing12Months": 0.07911121,
             "enterpriseValue": 4625707008,
             "enterpriseToEbitda": 1.356,
             "trailingEps": -0.25,
@@ -3454,7 +3470,7 @@
             "cfo": null,
             "fcf": null
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-NIO.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-NIO.json",
           "issue": null
         },
         {
@@ -3466,7 +3482,7 @@
           "price": 27.1,
           "marketTime": "2026-10-09T16:08:06+08:00",
           "timezone": "Asia/Hong_Kong",
-          "retrievedAt": "2026-10-09T13:53:31.959240+00:00",
+          "retrievedAt": "2026-10-09T15:51:30.624812+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": null,
           "marketCap": 68269649920,
@@ -3500,7 +3516,7 @@
             "cfo": null,
             "fcf": null
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-9866.HK.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-9866.HK.json",
           "issue": null
         }
       ],
@@ -3511,9 +3527,9 @@
         "currency": "CNY",
         "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
         "sources": [
-          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-NIO-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-NIO-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-NIO-quarterly.json"
+          "research/solid-state-core-review-2026-10-09/yfinance-get_income_statement-NIO.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_balance_sheet-NIO.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_cash_flow-NIO.json"
         ],
         "history": [
           {
@@ -3611,7 +3627,7 @@
           "price": 10.83,
           "marketTime": "2026-10-09T15:00:00+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-10-09T13:53:32.487474+00:00",
+          "retrievedAt": "2026-10-09T15:51:31.118375+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": 13.37037,
           "marketCap": 124493856768,
@@ -3645,7 +3661,7 @@
             "cfo": 67572203520,
             "fcf": 52052250624
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-600104.SS.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-600104.SS.json",
           "issue": null
         }
       ],
@@ -3656,9 +3672,9 @@
         "currency": "CNY",
         "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
         "sources": [
-          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-600104.SS-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-600104.SS-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-600104.SS-quarterly.json"
+          "research/solid-state-core-review-2026-10-09/yfinance-get_income_statement-600104.SS.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_balance_sheet-600104.SS.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_cash_flow-600104.SS.json"
         ],
         "history": [
           {
@@ -3748,7 +3764,7 @@
           "price": 2910.5,
           "marketTime": "2026-10-09T15:30:00+09:00",
           "timezone": "Asia/Tokyo",
-          "retrievedAt": "2026-10-09T13:53:34.055130+00:00",
+          "retrievedAt": "2026-10-09T15:51:31.677656+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": 8.283055,
           "marketCap": 34465657126912,
@@ -3782,7 +3798,7 @@
             "cfo": 4132990091264,
             "fcf": -3599962472448
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-7203.T.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-7203.T.json",
           "issue": null
         }
       ],
@@ -3793,9 +3809,9 @@
         "currency": "JPY",
         "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
         "sources": [
-          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-7203.T-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-7203.T-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-7203.T-quarterly.json"
+          "research/solid-state-core-review-2026-10-09/yfinance-get_income_statement-7203.T.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_balance_sheet-7203.T.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_cash_flow-7203.T.json"
         ],
         "history": [
           {
@@ -3881,20 +3897,20 @@
           "providerName": "QuantumScape Corporation",
           "currency": "USD",
           "financialCurrency": "USD",
-          "price": 4.625,
-          "marketTime": "2026-10-09T09:53:34-04:00",
+          "price": 4.5581,
+          "marketTime": "2026-10-09T11:51:25-04:00",
           "timezone": "America/New_York",
-          "retrievedAt": "2026-10-09T13:53:35.108558+00:00",
+          "retrievedAt": "2026-10-09T15:51:32.832720+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": null,
-          "marketCap": 2863400192,
+          "marketCap": 2821981440,
           "businessSummary": "QuantumScape Corporation, together with its subsidiaries, develops solid-state lithium-metal battery technology for electric vehicles and other applications in the United States. The company was founded in 2010 and is headquartered in San Jose, California.",
           "website": "https://www.quantumscape.com",
           "industry": "Auto Parts",
           "country": "United States",
           "valuation": {
-            "forwardPE": -6.795874,
-            "priceToBook": 2.731837,
+            "forwardPE": -6.697573,
+            "priceToBook": 2.6923215,
             "priceToSalesTrailing12Months": null,
             "enterpriseValue": 2043655808,
             "enterpriseToEbitda": -5.137,
@@ -3918,7 +3934,7 @@
             "cfo": -236143008,
             "fcf": -141085376
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-QS.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-QS.json",
           "issue": null
         }
       ],
@@ -3929,9 +3945,9 @@
         "currency": "USD",
         "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
         "sources": [
-          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-QS-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-QS-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-QS-quarterly.json"
+          "research/solid-state-core-review-2026-10-09/yfinance-get_income_statement-QS.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_balance_sheet-QS.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_cash_flow-QS.json"
         ],
         "history": [
           {
@@ -7565,21 +7581,21 @@
           "providerName": "Solid Power, Inc.",
           "currency": "USD",
           "financialCurrency": "USD",
-          "price": 2.415,
-          "marketTime": "2026-10-09T09:53:32-04:00",
+          "price": 2.385,
+          "marketTime": "2026-10-09T11:51:34-04:00",
           "timezone": "America/New_York",
-          "retrievedAt": "2026-10-09T13:53:38.248840+00:00",
+          "retrievedAt": "2026-10-09T15:51:33.789134+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": null,
-          "marketCap": 551057600,
+          "marketCap": 545353152,
           "businessSummary": "Solid Power, Inc., a research and development-stage company, develops solid-state battery technologies for the electric vehicles markets in the United States. It engages in the development of sulfide-based solid electrolytes. The company was founded in 2011 and is headquartered in Louisville, Colorado.",
           "website": "https://www.solidpowerbattery.com",
           "industry": "Auto Parts",
           "country": "United States",
           "valuation": {
-            "forwardPE": -5.366667,
-            "priceToBook": 1.09375,
-            "priceToSalesTrailing12Months": 74.54784,
+            "forwardPE": -5.3111115,
+            "priceToBook": 1.0824276,
+            "priceToSalesTrailing12Months": 73.62178,
             "enterpriseValue": 317468544,
             "enterpriseToEbitda": -3.606,
             "trailingEps": -0.45,
@@ -7602,7 +7618,7 @@
             "cfo": -59832000,
             "fcf": -44831876
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-SLDP.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-SLDP.json",
           "issue": null
         }
       ],
@@ -7613,9 +7629,9 @@
         "currency": "USD",
         "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
         "sources": [
-          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-SLDP-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-SLDP-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-SLDP-quarterly.json"
+          "research/solid-state-core-review-2026-10-09/yfinance-get_income_statement-SLDP.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_balance_sheet-SLDP.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_cash_flow-SLDP.json"
         ],
         "history": [
           {
@@ -7705,7 +7721,7 @@
           "price": 64.79,
           "marketTime": "2026-10-09T15:04:55+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-10-09T13:53:38.252154+00:00",
+          "retrievedAt": "2026-10-09T15:51:35.353512+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": 31.451458,
           "marketCap": 48844308480,
@@ -7739,7 +7755,7 @@
             "cfo": 1726180736,
             "fcf": 339571008
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-300037.SZ.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-300037.SZ.json",
           "issue": null
         }
       ],
@@ -7750,9 +7766,9 @@
         "currency": "CNY",
         "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
         "sources": [
-          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-300037.SZ-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-300037.SZ-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-300037.SZ-quarterly.json"
+          "research/solid-state-core-review-2026-10-09/yfinance-get_income_statement-300037.SZ.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_balance_sheet-300037.SZ.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_cash_flow-300037.SZ.json"
         ],
         "history": [
           {
@@ -7842,7 +7858,7 @@
           "price": 35.68,
           "marketTime": "2026-10-09T15:04:48+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-10-09T13:53:38.779118+00:00",
+          "retrievedAt": "2026-10-09T15:51:35.887178+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": 18.020203,
           "marketCap": 72735883264,
@@ -7876,7 +7892,7 @@
             "cfo": 1170334464,
             "fcf": 81147336
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-002709.SZ.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-002709.SZ.json",
           "issue": null
         }
       ],
@@ -7887,9 +7903,9 @@
         "currency": "CNY",
         "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
         "sources": [
-          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-002709.SZ-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-002709.SZ-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-002709.SZ-quarterly.json"
+          "research/solid-state-core-review-2026-10-09/yfinance-get_income_statement-002709.SZ.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_balance_sheet-002709.SZ.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_cash_flow-002709.SZ.json"
         ],
         "history": [
           {
@@ -7979,7 +7995,7 @@
           "price": 39.9,
           "marketTime": "2026-10-09T15:00:01+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-10-09T13:53:39.297633+00:00",
+          "retrievedAt": "2026-10-09T15:51:37.444717+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": 133.0,
           "marketCap": 23683448832,
@@ -8013,7 +8029,7 @@
             "cfo": 266292800,
             "fcf": 137863952
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-603663.SS.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-603663.SS.json",
           "issue": null
         }
       ],
@@ -8024,9 +8040,9 @@
         "currency": "CNY",
         "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
         "sources": [
-          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-603663.SS-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-603663.SS-quarterly.json",
-          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-603663.SS-quarterly.json"
+          "research/solid-state-core-review-2026-10-09/yfinance-get_income_statement-603663.SS.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_balance_sheet-603663.SS.json",
+          "research/solid-state-core-review-2026-10-09/yfinance-get_cash_flow-603663.SS.json"
         ],
         "history": [
           {
@@ -8107,7 +8123,7 @@
           "price": null,
           "marketTime": null,
           "timezone": null,
-          "retrievedAt": "2026-10-09T13:53:39.829376+00:00",
+          "retrievedAt": "2026-10-09T15:51:37.990816+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": null,
           "marketCap": null,
@@ -8141,7 +8157,7 @@
             "cfo": null,
             "fcf": null
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-920522.BJ.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-920522.BJ.json",
           "issue": "返回空资料；名称、代码与价格未形成有效记录"
         },
         {
@@ -8153,7 +8169,7 @@
           "price": null,
           "marketTime": null,
           "timezone": null,
-          "retrievedAt": "2026-10-09T13:53:40.347299+00:00",
+          "retrievedAt": "2026-10-09T15:51:39.018624+00:00",
           "quoteStatus": "数据源快照；可能延迟，非实时保证",
           "peTtm": null,
           "marketCap": null,
@@ -8187,7 +8203,7 @@
             "cfo": null,
             "fcf": null
           },
-          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-832522.BJ.json",
+          "source": "research/solid-state-core-review-2026-10-09/yfinance-info-832522.BJ.json",
           "issue": "返回空资料；名称、代码与价格未形成有效记录"
         }
       ],

@@ -2,6 +2,7 @@ import originals from './companies.json'
 import { MCP, PRIMARY_CHECKS, amount, cashAssessment, primaryListing, type McpCompany } from './mcpResearch'
 import { FOCUS, SOURCES, VALUATIONS, evaluate } from './research'
 import { COMPANY_LENSES, INDUSTRY_LENSES } from './coverage'
+import coreReview from './coreReview.json'
 
 export const solidCompanyPath = (c: Pick<McpCompany, 'id'>) => `/future-trends/solid-state/${encodeURIComponent(c.id)}`
 export const solidCompanyById = (id: string) => MCP.companies.find(c => c.id === id)
@@ -11,6 +12,7 @@ export function solidCompanyReport(c: McpCompany) {
   const authored = COMPANY_LENSES.get(c.name)!
   const lens = INDUSTRY_LENSES[authored.lens]
   const focus = FOCUS.find(f => f.name === c.name)
+  const selection = coreReview.outcomes.find(r => r.id === c.id)
   const listing = primaryListing(c)
   const f = c.financials
   const original = originals.find(o => o.name === c.name)
@@ -61,7 +63,7 @@ export function solidCompanyReport(c: McpCompany) {
     '可校准的未来销量、利润、资本开支与摊薄假设；DCF / 第二种独立估值尚未完成。',
   ]
   const evidence = focus?.evidence ?? `事实边界：${original ? `原树在“${original.path}”提及${c.name}` : `${c.name}属于${c.origin}`}。MCP 可支持公司业务摘要及已返回的合并财务；未取得该公司的固态专用商业收入证明。关联角色是待验证的研究假设。`
-  const conclusion = focus?.conclusion ?? (listing ? '观察：先验证实际业务敞口与现金回报' : '等待证据：主体或公开资料尚未齐备')
+  const conclusion = selection?.decision ?? focus?.conclusion ?? (listing ? '观察：先验证实际业务敞口与现金回报' : '等待证据：主体或公开资料尚未齐备')
   const calendar = [
     focus?.verify ?? `下一份公司定期报告及产品公告：${lens.check}`,
     '下一次正式客户合同或认证公告：桥接产品 → 订单 → 交付 → 验收 → 收入 → 回款；框架合作不计正式订单。',
@@ -69,6 +71,7 @@ export function solidCompanyReport(c: McpCompany) {
     '失效条件：关键里程碑推迟一个完整披露期；两期回款恶化；规模扩大时单位毛利持续下降；摊薄抵消每股经营增量。',
   ]
   const sections = [
+    ...(selection ? [{ title: '核心候选池竞选复核', items: [selection.decision, selection.reason, '本轮重新通过 Yahoo Finance 与 AKShare MCP 查询。核心表示长期研究优先级；独立双方法估值未齐，不认证新增现价买入。'] }] : []),
     { title: '公司与赚钱机制', items: [focus?.profile ?? `研究判断：${authored.role}`, `收费链条：向${lens.customer}收费。${lens.mechanism}`, '业务分布：现有集团业务与固态新增业务分开；固态收入占比及地区 / 产品利润分布未取得足够原件，不能替代为目录权重。'] },
     { title: '固态业务敞口与证据边界', items: [authored.role, evidence, '阶段判断：产品存在、送样、中试、认证、商业交付、稳定复购是不同证据。无订单与毛利时不升级为规模盈利。', '研究身份：本页为固态专题视角；原有通用公司研究独立保留，不把原有目标价迁移为本页结论。'] },
     { title: '产业位置、竞争与替代', items: [`研究环节：${lens.title}。${lens.check}`, lens.moat, lens.risk, '判断：技术渗透率、可服务市场与本公司可得份额分开；新路线既可能创造增量，也可能替代既有产品。AI 未取得可量化财务传导，本轮不作估值加分。'] },

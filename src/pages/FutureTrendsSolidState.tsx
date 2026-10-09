@@ -5,6 +5,7 @@ import { AS_OF, CHAIN, FOCUS, PERSPECTIVES, ROUTES, SCENARIOS, SOURCES, type Sou
 import { researchForCompany, researchPath } from '../data/futureTrendsResearch'
 import { MCP, GROUP_QUESTIONS, PRIMARY_CHECKS, amount, cashAssessment, mcpCompany, primaryListing, rawUrl, type McpCompany } from '../data/solidState/mcpResearch'
 import { solidCompanyPath } from '../data/solidState/companyResearch'
+import coreReview from '../data/solidState/coreReview.json'
 import '../styles/solid-state.css'
 
 function Section({ id, title, children }: { id: string; title: string; children: ReactNode }): JSX.Element {
@@ -40,9 +41,21 @@ export default function FutureTrendsSolidState(): JSX.Element {
       <Link to="/industry-landscape">查看产业格局原始固态电池树 →</Link>
     </section>
     <nav className="solid-nav" aria-label="固态电池专题索引">
+      <a href="#solid-core-review">核心候选池竞选</a>
       <a href="#solid-mcp">本轮 MCP 更新</a>
       {['研究主线', '技术路线', '价值链', '公司观察池', '重点公司', '三情景与赔率', '多空复核', '验证日历', '来源与口径'].map((t, i) => <a key={t} href={`#solid-${i}`}>{t}</a>)}
     </nav>
+    <Section id="solid-core-review" title="核心候选池竞选复核">
+      <p><strong>宁德时代保留现有核心研究资格；先导智能、新宙邦、赢合科技优先竞选，当升科技列为备选。</strong>综合评级均为观察；新增竞选者仍需补齐固态业务兑现证据与公司级双方法估值，本轮没有新增已认证的现价买入标的。</p>
+      <p className="solid-meta">{coreReview.asOf} 重新查询 Yahoo Finance 与 AKShare MCP：原分类 {coreReview.originalCompanies} 家及补充 {coreReview.supplementalCompanies} 家，{coreReview.companiesWithQuotes} 家取得 {coreReview.validListings} 个有效证券报价，共 {coreReview.requests} 项独立请求。5 家 A 股日线价格交叉核对一致，另取得 4 家港股财务指标；2 家港股历史行情及 2 家北交所资料接口失败，缺失不填零。延伸对照沿用之前的快照，逐证券日期见公司页。</p>
+      <div className="solid-table"><table><thead><tr>{['公司', '竞选结论', '证据与晋级障碍'].map(t => <th key={t} scope="col">{t}</th>)}</tr></thead><tbody>{['宁德时代', '先导智能', '新宙邦', '赢合科技', '当升科技'].map(name => {
+        const r = coreReview.outcomes.find(r => r.name === name)!
+        return <tr key={r.id}><td><Link to={`/future-trends/solid-state/${r.id}`}>{r.name}</Link></td><td>{r.decision}</td><td>{r.reason}</td></tr>
+      })}</tbody></table></div>
+      <p>价格分开评估：先导 A 股 36.73 元，H 股 27.48 港元，按本轮汇率约合 23.46 元人民币；相对折价不能证明绝对低估。宁德 A 股旧估值草稿按本轮价格的盈亏比约 0.83∶1，仍缺第二独立估值。先导、赢合、新宙邦 H1 毛利率均同比下降，现金改善需与单位盈利共同验证。</p>
+      <details><summary>查看全部 {coreReview.outcomes.length} 家公司的竞选去向</summary><ul>{coreReview.outcomes.map(r => <li key={r.id}><strong><Link to={`/future-trends/solid-state/${r.id}`}>{r.name}</Link> · {r.decision}</strong><p>{r.reason}</p></li>)}</ul></details>
+      <p><a href={rawUrl(coreReview.report)} target="_blank" rel="noreferrer">完整竞选报告、估值审查与验证条件 →</a> · <a href={rawUrl(coreReview.manifest)} target="_blank" rel="noreferrer">本次重新查询的 MCP 调用记录 →</a></p>
+    </Section>
     <Section id="solid-mcp" title="本轮 MCP 更新：覆盖范围与研究调整">
       <p>{MCP.stats.validListings} 个有效证券记录，覆盖 A 股、美股、港股并保留原树的日、德、澳上市对照；同一发行人的多个上市地不重复计作公司。北交所 {MCP.stats.failedListings} 个 Yahoo 新旧代码请求均为空资料，另试 AKShare 的贝特瑞行情及两家公司资料也报错，缺失不填零。当前为 {MCP.asOf} 的研究快照，市场时间与抓取时间见原始文件。</p>
       <div className="solid-grid">
