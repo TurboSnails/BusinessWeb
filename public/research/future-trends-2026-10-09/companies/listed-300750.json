@@ -19,7 +19,7 @@
   "winRate": "[MISSING] 未经历史样本校准；不沿用固定 45% / 50%",
   "expected": null,
   "valuationStatus": "正常化 EPS 情景草稿；第二独立方法缺失，未认证",
-  "primaryTrend": "新能源",
+  "primaryTrend": "汽车与电池",
   "riskGroup": "电池价格与海外制造",
   "core": true,
   "moat": "电芯安全、良率、材料采购、整包系统及全球客户认证构成成本和切换壁垒。",

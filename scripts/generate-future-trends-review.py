@@ -10,6 +10,7 @@ pool = read('public/research/future-trends-2026-10-09/input-pool.json')
 quotes = read('public/research/future-trends-2026-10-09/quotes.json')['quotes']
 dated_quotes = read('public/research/future-trends-2026-10-09/dated-quotes.json')
 reviewed = {x['key']: x for x in read('scripts/future-trends-reviewed.json')}
+selection = {x['key']: x for x in read('src/data/futureTrendsSelection.json')}
 catalog = read('src/data/futureTrends.catalog.json')['trends']
 old = {}
 for market in ['cn', 'us', 'hk', 'adr']:
@@ -44,7 +45,7 @@ pages = OUT / 'companies'; pages.mkdir(exist_ok=True)
 for ident, m in members.items():
     c=m['company']; item=bycode.get(ident); p=item['pick'] if item else {}; level=(item or {}).get('level') or {}
     key=item['key'] if item else f'非上市:{ident}'
-    n=reviewed.get(key); q=quotes.get(key) or dated_quotes.get(key)
+    n=reviewed.get(key); chosen=selection.get(key); q=quotes.get(key) or dated_quotes.get(key)
     code=primary(c['code'])
     om='hk' if code.endswith('.HK') else 'cn' if re.fullmatch(r'\d{6}',code) else 'us'
     oc=code.replace('.HK','').zfill(5) if om=='hk' else code
@@ -79,7 +80,7 @@ for ident, m in members.items():
     headline=(n['fact'] if n else p.get('note') or c['role'])
     if not n: headline='既有研究待核：'+headline
     id=('listed-'+code.lower().replace('.','-')) if item else 'private-'+hashlib.sha256(ident.encode()).hexdigest()[:12]
-    summary=dict(id=id,key=key,name=c['name'],code=c['code'],asOf='2026-10-09',depth='公司证据摘录＋情景草稿' if n else '逐家初筛／既有研究复核，未认证',rating='观察／等待估值证据' if item else '不纳入上市候选池',headline=headline,price=price,priceText=(f'{currency} {price:,.2f}' if price is not None else '[MISSING]'),priceDate=stamp,currency=currency,ratio=ratio,up=up,down=down,threshold=threshold,breakEven=1/(1+ratio) if valid else None,winRate='[MISSING] 未经历史样本校准；不沿用固定 45% / 50%',expected=None,valuationStatus='正常化 EPS 情景草稿；第二独立方法缺失，未认证' if n else '旧程序化赔率撤回；公司级估值待补',primaryTrend=n['trend'] if n else m['trends'][0],riskGroup=n['group'] if n else '／'.join(item['trends']) if item else '非上市流动性与融资',core=bool(n),moat=moat,concern=concern,certainty='证据中等／估值低，非综合高确定性' if n else '待核',sources=src)
+    summary=dict(id=id,key=key,name=c['name'],code=c['code'],asOf='2026-10-09',depth='公司证据摘录＋情景草稿' if n else '逐家初筛／既有研究复核，未认证',rating='观察／等待估值证据' if item else '不纳入上市候选池',headline=headline,price=price,priceText=(f'{currency} {price:,.2f}' if price is not None else '[MISSING]'),priceDate=stamp,currency=currency,ratio=ratio,up=up,down=down,threshold=threshold,breakEven=1/(1+ratio) if valid else None,winRate='[MISSING] 未经历史样本校准；不沿用固定 45% / 50%',expected=None,valuationStatus='正常化 EPS 情景草稿；第二独立方法缺失，未认证' if n else '旧程序化赔率撤回；公司级估值待补',primaryTrend=chosen['sector'] if chosen else m['trends'][0],riskGroup=n['group'] if n else '／'.join(item['trends']) if item else '非上市流动性与融资',core=bool(chosen and chosen['priority'] < 3),moat=moat,concern=concern,certainty='证据中等／估值低，非综合高确定性' if n else '待核',sources=src)
     missing=['[MISSING] 第二种独立估值、净债务与最新摊薄股数桥接，当前不认证买入评级。','[MISSING] 可校准概率的历史可比样本、样本外验证与交易成本；实际胜率未知。','[MISSING] 52 周价格区间、历史估值分位、同口径两期盈利预测桥和完整分部现金回报。']
     if not n: missing.insert(0,'[MISSING] 最新完整报表一手原件逐表核对、分部收入利润、持续经营正常化 EPS。')
     if not q: missing.append('[MISSING] 本次实时/延迟行情。外国非美交易所接口未覆盖；Yahoo 替代接口返回 HTTP 429，旧价不冒充新价。')

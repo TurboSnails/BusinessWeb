@@ -127,7 +127,7 @@ const CORE_ID = 'core'
 export default function FutureTrends(): JSX.Element {
   const [searchParams, setSearchParams] = useSearchParams()
   const selected = searchParams.get('tab')
-  const id = selected && [...TRENDS.map(t => t.id), POOL_ID, CORE_ID].includes(selected) ? selected : TRENDS[0].id
+  const id = selected && [...TRENDS.map(t => t.id), POOL_ID, CORE_ID].includes(selected) ? selected : CORE_ID
   const setId = (next: string): void => { setSearchParams({ tab: next }) }
   const trend = TRENDS.find(t => t.id === id) ?? TRENDS[0]
   const coverage = trendCoverage()
@@ -136,11 +136,9 @@ export default function FutureTrends(): JSX.Element {
     <main>
       <PageTitle>未来趋势</PageTitle>
       <PageTabs label="未来趋势赛道" value={id} onChange={setId}
-        items={[...TRENDS.map(t => ({ id: t.id, label: t.name.replace(/（.*?）/, '').replace(/，.*/, '') })), { id: POOL_ID, label: '候选池' }, { id: CORE_ID, label: '核心' }]} />
+        items={[{ id: CORE_ID, label: '核心' }, { id: POOL_ID, label: '候选池' }, ...TRENDS.map(t => ({ id: t.id, label: t.name.replace(/（.*?）/, '').replace(/，.*/, '') }))]} />
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 16px 32px' }}>
-        <p role="note" style={{ margin: '0 0 12px', padding: '10px 14px', borderRadius: 10, background: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: 1.7 }}>
-          产业目录截至 {FUTURE_TRENDS_ASOF}，公司研究更新于 2026-10-09。点击任意公司名称进入二级页：经营、护城河、隐忧、情景与缺失证据均逐家列明。20 家有新增公司披露摘录与情景草稿，其余为初筛待核；旧程序化买入、固定胜率和赔率解释已撤回。产业增长不等于公司盈利或股价回报；核心为长期优先研究名单，未认证现价买入。来源只支持明确披露的事项，不构成投资建议。
-        </p>
+        {id !== POOL_ID && id !== CORE_ID && <p role="note" style={{ color: 'var(--text-secondary)', fontSize: 13, margin: '14px 0' }}>产业目录截至 {FUTURE_TRENDS_ASOF}。点击公司名称查看详细研究；查看推荐顺序请进入核心或候选池。</p>}
 
         {id === POOL_ID ? <FutureTrendsPool /> : id === CORE_ID ? <FutureTrendsCore /> : (<>
         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>九个赛道 · {coverage.segments} 个细分环节 · {coverage.companies} 个公司或主体 · {coverage.entries} 条业务关联（跨环节可重复）</p>

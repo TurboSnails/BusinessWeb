@@ -70,10 +70,10 @@ describe('候选池', () => {
   })
 })
 
-describe('核心 20', () => {
-  it('20 家都在候选池中、不重复；估值未认证不升级买入，单一主要方向最多 3 家', () => {
-    expect(CORE).toHaveLength(20)
-    expect(new Set(CORE.map(x => x.key)).size).toBe(20)
+describe('核心 15', () => {
+  it('15 家都在候选池中、不重复；估值未认证不升级买入，单一主要方向最多 3 家', () => {
+    expect(CORE).toHaveLength(15)
+    expect(new Set(CORE.map(x => x.key)).size).toBe(15)
     for (const x of CORE) expect(x.item.status, x.key).toBe('估值待认证')
     const trends = CORE.reduce<Record<string, number>>((m, x) => ({ ...m, [x.research.primaryTrend]: (m[x.research.primaryTrend] ?? 0) + 1 }), {})
     for (const [c, n] of Object.entries(trends)) expect(n, c).toBeLessThanOrEqual(3)

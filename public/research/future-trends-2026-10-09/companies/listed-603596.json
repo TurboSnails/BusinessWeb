@@ -19,7 +19,7 @@
   "winRate": "[MISSING] 未经历史样本校准；不沿用固定 45% / 50%",
   "expected": null,
   "valuationStatus": "正常化 EPS 情景草稿；第二独立方法缺失，未认证",
-  "primaryTrend": "智能驾驶",
+  "primaryTrend": "汽车与电池",
   "riskGroup": "汽车年降与自主品牌需求",
   "core": true,
   "moat": "线控制动可靠性、客户定点认证、量产规模和软硬件协同；EMB 定点必须转为量产收入。",

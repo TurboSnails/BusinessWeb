@@ -19,7 +19,7 @@
   "winRate": "[MISSING] 未经历史样本校准；不沿用固定 45% / 50%",
   "expected": null,
   "valuationStatus": "正常化 EPS 情景草稿；第二独立方法缺失，未认证",
-  "primaryTrend": "机器人",
+  "primaryTrend": "工业自动化",
   "riskGroup": "制造业设备投资",
   "core": true,
   "moat": "激光切割控制软件的算法、机床适配与客户工程支持；并非芯片设备，列入半导体趋势不代表主营半导体敞口。",
