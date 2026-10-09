@@ -1,0 +1,2500 @@
+{
+  "asOf": "2026-10-09",
+  "method": "真实 MCP stdio 调用；Yahoo Finance + AKShare；公告原件另行复核",
+  "stats": {
+    "originalCompanies": 63,
+    "originalWithQuotes": 55,
+    "supplementalCompanies": 5,
+    "validListings": 66,
+    "failedListings": 4,
+    "normalizedH1": 13
+  },
+  "crossChecks": [
+    "research/solid-state-mcp-2026-10-09/akshare-stock_financial_abstract_ths-300450.json",
+    "research/solid-state-mcp-2026-10-09/akshare-stock_hk_financial_indicator_em-01772.json",
+    "research/solid-state-mcp-2026-10-09/akshare-stock_individual_info_em-920185.json",
+    "research/solid-state-mcp-2026-10-09/akshare-stock_individual_info_em-920522.json",
+    "research/solid-state-mcp-2026-10-09/akshare-stock_zh_a_hist_tx-bj920185.json",
+    "research/solid-state-mcp-2026-10-09/akshare-stock_zh_a_hist_tx-sz300450.json",
+    "research/solid-state-mcp-2026-10-09/akshare-stock_zh_a_hist_tx-sz300750.json"
+  ],
+  "companies": [
+    {
+      "name": "赣锋锂业",
+      "displayName": "赣锋锂业",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "002460.SZ",
+          "available": true,
+          "providerName": "Ganfeng Lithium Group Co., Ltd.",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 45.47,
+          "marketTime": "2026-10-09T15:04:03+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:13.301478+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 14.715211,
+          "marketCap": 95336693760,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 37802582016,
+            "netIncome": 6401384960,
+            "cfo": 3972745984,
+            "fcf": -5502038528
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-002460.SZ.json",
+          "issue": null
+        },
+        {
+          "symbol": "1772.HK",
+          "available": true,
+          "providerName": "Ganfeng Lithium Group Co., Ltd.",
+          "currency": "HKD",
+          "financialCurrency": "CNY",
+          "price": 30.02,
+          "marketTime": "2026-10-09T16:08:06+08:00",
+          "timezone": "Asia/Hong_Kong",
+          "retrievedAt": "2026-10-09T13:53:13.302280+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 8.701449,
+          "marketCap": 62942765056,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 37802582016,
+            "netIncome": 6401384960,
+            "cfo": 3972745984,
+            "fcf": -5502038528
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-1772.HK.json",
+          "issue": null
+        }
+      ],
+      "financials": {
+        "period": "2026H1",
+        "balanceDate": "2026-06-30",
+        "currency": "CNY",
+        "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
+        "sources": [
+          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-002460.SZ-quarterly.json",
+          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-002460.SZ-quarterly.json",
+          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-002460.SZ-quarterly.json"
+        ],
+        "revenue": 23096945425.05,
+        "netIncome": 4257164842.1,
+        "grossProfit": 7277584987.13,
+        "cfo": 1328246006.9,
+        "capex": 1800639022.1,
+        "fcf": -472393015.2,
+        "totalDebt": 35667249234.19,
+        "cashAndShortTermInvestments": 11634647059.2,
+        "cash": 11175681743.36,
+        "equity": 48198716991.84
+      }
+    },
+    {
+      "name": "上海洗霸",
+      "displayName": "上海洗霸",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "603200.SS",
+          "available": true,
+          "providerName": "Shanghai Emperor of Cleaning Hi-Tech Co., Ltd",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 53.92,
+          "marketTime": "2026-10-09T15:00:00+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:13.305924+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": null,
+          "marketCap": 9461885952,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 511801920,
+            "netIncome": -24033530,
+            "cfo": -8748485,
+            "fcf": -118890064
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-603200.SS.json",
+          "issue": null
+        }
+      ],
+      "financials": {
+        "period": "2026H1",
+        "balanceDate": "2026-06-30",
+        "currency": "CNY",
+        "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
+        "sources": [
+          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-603200.SS-quarterly.json",
+          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-603200.SS-quarterly.json",
+          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-603200.SS-quarterly.json"
+        ],
+        "revenue": 233620646.42,
+        "netIncome": -6585674.05,
+        "grossProfit": 67252815.36,
+        "cfo": -44590775.35,
+        "capex": 7497583.64,
+        "fcf": -52088358.99,
+        "totalDebt": 450855401.52,
+        "cashAndShortTermInvestments": 309248174.19,
+        "cash": 309248174.19,
+        "equity": 1085822378.69
+      }
+    },
+    {
+      "name": "瑞泰新材",
+      "displayName": "瑞泰新材",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "301238.SZ",
+          "available": true,
+          "providerName": "Jiangsu Ruitai New Energy Materials Co., Ltd.",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 17.43,
+          "marketTime": "2026-10-09T15:04:07+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:13.313660+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 39.613636,
+          "marketCap": 12782000128,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 2536041984,
+            "netIncome": 321360160,
+            "cfo": -112089008,
+            "fcf": -66014716
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-301238.SZ.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "道氏技术",
+      "displayName": "道氏技术",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "300409.SZ",
+          "available": true,
+          "providerName": "Guangdong Dowstone Technology Co., Ltd.",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 18.23,
+          "marketTime": "2026-10-09T15:04:10+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:13.315791+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 24.635134,
+          "marketCap": 14260398080,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 9296419840,
+            "netIncome": 566574272,
+            "cfo": -176379280,
+            "fcf": -1141040512
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-300409.SZ.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "当升科技",
+      "displayName": "当升科技",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "300073.SZ",
+          "available": true,
+          "providerName": "Beijing Easpring Material Technology CO.,LTD.",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 41.99,
+          "marketTime": "2026-10-09T15:04:10+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:15.400498+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 27.090324,
+          "marketCap": 22854893568,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 16417028096,
+            "netIncome": 841588736,
+            "cfo": 845250368,
+            "fcf": -3128104704
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-300073.SZ.json",
+          "issue": null
+        }
+      ],
+      "financials": {
+        "period": "2026H1",
+        "balanceDate": "2026-06-30",
+        "currency": "CNY",
+        "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
+        "sources": [
+          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-300073.SZ-quarterly.json",
+          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-300073.SZ-quarterly.json",
+          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-300073.SZ-quarterly.json"
+        ],
+        "revenue": 10475289755.0,
+        "netIncome": 520413034.19,
+        "grossProfit": 1388009451.63,
+        "cfo": 85954959.44,
+        "capex": 1811273460.65,
+        "fcf": -1725318501.21,
+        "totalDebt": 1447828578.85,
+        "cashAndShortTermInvestments": 6661011732.62,
+        "cash": 5782857847.33,
+        "equity": 15050904960.9
+      }
+    },
+    {
+      "name": "容百科技",
+      "displayName": "容百科技",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "688005.SS",
+          "available": true,
+          "providerName": "Ningbo Ronbay New Energy Technology Co.,Ltd.",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 24.55,
+          "marketTime": "2026-10-09T15:00:01+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:15.401740+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": null,
+          "marketCap": 17543888896,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 14740044800,
+            "netIncome": -9649896,
+            "cfo": 71130712,
+            "fcf": 585599808
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-688005.SS.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "长远锂科",
+      "displayName": "五矿新能（原长远锂科）",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "688779.SS",
+          "available": true,
+          "providerName": "Minmetals New Energy Materials(Hunan)Co.,Ltd.",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 8.0,
+          "marketTime": "2026-10-09T15:00:00+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:16.377727+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 24.242424,
+          "marketCap": 15433761792,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 14248076288,
+            "netIncome": 632485120,
+            "cfo": -718017472,
+            "fcf": -887966080
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-688779.SS.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "厦钨新能",
+      "displayName": "厦钨新能",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "688778.SS",
+          "available": true,
+          "providerName": "XTC New Energy Materials(Xiamen) Co.,Ltd.",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 47.4,
+          "marketTime": "2026-10-09T15:00:01+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:16.893357+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 25.347595,
+          "marketCap": 23922358272,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 26785751040,
+            "netIncome": 911014976,
+            "cfo": 866417344,
+            "fcf": 1749008256
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-688778.SS.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "贝特瑞",
+      "displayName": "贝特瑞",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "920185.BJ",
+          "available": false,
+          "providerName": null,
+          "currency": null,
+          "financialCurrency": null,
+          "price": null,
+          "marketTime": null,
+          "timezone": null,
+          "retrievedAt": "2026-10-09T13:53:16.902210+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": null,
+          "marketCap": null,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": null,
+            "revenue": null,
+            "netIncome": null,
+            "cfo": null,
+            "fcf": null
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-920185.BJ.json",
+          "issue": "返回空资料；名称、代码与价格未形成有效记录"
+        },
+        {
+          "symbol": "835185.BJ",
+          "available": false,
+          "providerName": null,
+          "currency": null,
+          "financialCurrency": null,
+          "price": null,
+          "marketTime": null,
+          "timezone": null,
+          "retrievedAt": "2026-10-09T13:53:17.416582+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": null,
+          "marketCap": null,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": null,
+            "revenue": null,
+            "netIncome": null,
+            "cfo": null,
+            "fcf": null
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-835185.BJ.json",
+          "issue": "返回空资料；名称、代码与价格未形成有效记录"
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "四川华宜清创",
+      "displayName": "四川华宜清创",
+      "origin": "原产业树",
+      "listings": [],
+      "financials": null
+    },
+    {
+      "name": "杉杉股份",
+      "displayName": "杉杉股份",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "600884.SS",
+          "available": true,
+          "providerName": "Ningbo Shanshan Co.,Ltd.",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 11.99,
+          "marketTime": "2026-10-09T15:00:02+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:17.426880+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 23.98,
+          "marketCap": 26925213696,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 23858864128,
+            "netIncome": 1073059648,
+            "cfo": 1630476800,
+            "fcf": -110773736
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-600884.SS.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "璞泰来",
+      "displayName": "璞泰来",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "603659.SS",
+          "available": true,
+          "providerName": "Shanghai Putailai New Energy Technology Group Co.,Ltd.",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 22.33,
+          "marketTime": "2026-10-09T15:00:02+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:18.321642+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 16.916666,
+          "marketCap": 47879630848,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 18738135040,
+            "netIncome": 2755601920,
+            "cfo": 3272719872,
+            "fcf": 256415760
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-603659.SS.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "恩捷股份",
+      "displayName": "恩捷股份",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "002812.SZ",
+          "available": true,
+          "providerName": "Yunnan Energy New Material (Group) Co., Ltd.",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 47.85,
+          "marketTime": "2026-10-09T15:04:06+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:18.394564+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 43.89908,
+          "marketCap": 46956089344,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 16541034496,
+            "netIncome": 1055983552,
+            "cfo": 2094934400,
+            "fcf": 1072568576
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-002812.SZ.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "星源材质",
+      "displayName": "星源材质",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "300568.SZ",
+          "available": true,
+          "providerName": "Shenzhen Senior Technology Material Co., Ltd.",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 15.69,
+          "marketTime": "2026-10-09T15:04:37+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:18.865307+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 156.9,
+          "marketCap": 23463124992,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 4879365632,
+            "netIncome": 139898624,
+            "cfo": 607433024,
+            "fcf": -1920414592
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-300568.SZ.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "天奈科技",
+      "displayName": "天奈科技",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "688116.SS",
+          "available": true,
+          "providerName": "Jiangsu Cnano Technology Co., Ltd.",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 34.4,
+          "marketTime": "2026-10-09T15:00:00+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:19.897040+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 51.343285,
+          "marketCap": 12608703488,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 1372037760,
+            "netIncome": 245767200,
+            "cfo": 301844384,
+            "fcf": 40802896
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-688116.SS.json",
+          "issue": null
+        }
+      ],
+      "financials": {
+        "period": "2026H1",
+        "balanceDate": "2026-06-30",
+        "currency": "CNY",
+        "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
+        "sources": [
+          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-688116.SS-quarterly.json",
+          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-688116.SS-quarterly.json",
+          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-688116.SS-quarterly.json"
+        ],
+        "revenue": 728263411.18,
+        "netIncome": 134709966.44,
+        "grossProfit": 274938778.62,
+        "cfo": 97440582.44,
+        "capex": 106868497.24,
+        "fcf": -9427914.8,
+        "totalDebt": 1545675572.79,
+        "cashAndShortTermInvestments": 1881410093.48,
+        "cash": 800083053.94,
+        "equity": 3886428981.88
+      }
+    },
+    {
+      "name": "道明光学",
+      "displayName": "道明光学",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "002632.SZ",
+          "available": true,
+          "providerName": "Daoming Optics&Chemical Co.,Ltd",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 8.69,
+          "marketTime": "2026-10-09T15:04:09+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:19.898860+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 28.032257,
+          "marketCap": 5427765760,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 1394645632,
+            "netIncome": 195454000,
+            "cfo": 319234976,
+            "fcf": 283344288
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-002632.SZ.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "嘉元科技",
+      "displayName": "嘉元科技",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "688388.SS",
+          "available": true,
+          "providerName": "Guangdong Jiayuan Technology Co.,Ltd.",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 25.08,
+          "marketTime": "2026-10-09T15:00:00+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:19.902963+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 41.114754,
+          "marketCap": 16550475776,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 13192947712,
+            "netIncome": 402513536,
+            "cfo": -8225179,
+            "fcf": -713791488
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-688388.SS.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "英联股份",
+      "displayName": "英联股份",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "002846.SZ",
+          "available": true,
+          "providerName": "Guangdong Enpack Packaging Co., Ltd.",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 12.39,
+          "marketTime": "2026-10-09T15:04:45+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:20.422131+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 123.9,
+          "marketCap": 5203721216,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 2493415680,
+            "netIncome": 42467696,
+            "cfo": 389498880,
+            "fcf": -126278568
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-002846.SZ.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "宁德时代",
+      "displayName": "宁德时代",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "300750.SZ",
+          "available": true,
+          "providerName": "Contemporary Amperex Technology Co., Limited",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 297.75,
+          "marketTime": "2026-10-09T15:04:34+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:20.946462+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 15.896957,
+          "marketCap": 1377763590144,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 521732161536,
+            "netIncome": 85000142848,
+            "cfo": 134749765632,
+            "fcf": 73865617408
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-300750.SZ.json",
+          "issue": null
+        },
+        {
+          "symbol": "3750.HK",
+          "available": true,
+          "providerName": "Contemporary Amperex Technology Co., Limited",
+          "currency": "HKD",
+          "financialCurrency": "CNY",
+          "price": 491.4,
+          "marketTime": "2026-10-09T16:08:06+08:00",
+          "timezone": "Asia/Hong_Kong",
+          "retrievedAt": "2026-10-09T13:53:21.476787+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 23.970732,
+          "marketCap": 2273830502400,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 521732161536,
+            "netIncome": 85000142848,
+            "cfo": 134749765632,
+            "fcf": 73865617408
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-3750.HK.json",
+          "issue": null
+        }
+      ],
+      "financials": {
+        "period": "2026H1",
+        "balanceDate": "2026-06-30",
+        "currency": "CNY",
+        "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
+        "sources": [
+          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-300750.SZ-quarterly.json",
+          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-300750.SZ-quarterly.json",
+          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-300750.SZ-quarterly.json"
+        ],
+        "revenue": 276916580000.0,
+        "netIncome": 43284002000.0,
+        "grossProfit": 66261690000.0,
+        "cfo": 60216851000.0,
+        "capex": 25072772000.0,
+        "fcf": 35144079000.0,
+        "totalDebt": 149029045000.0,
+        "cashAndShortTermInvestments": 440211600000.0,
+        "cash": 372053275000.0,
+        "equity": 379353710000.0
+      }
+    },
+    {
+      "name": "比亚迪",
+      "displayName": "比亚迪",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "002594.SZ",
+          "available": true,
+          "providerName": "BYD Company Limited",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 84.95,
+          "marketTime": "2026-10-09T15:04:27+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:21.477888+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 26.381987,
+          "marketCap": 774505889792,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 777499443200,
+            "netIncome": 29310240768,
+            "cfo": 64636817408,
+            "fcf": -96303865856
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-002594.SZ.json",
+          "issue": null
+        },
+        {
+          "symbol": "1211.HK",
+          "available": true,
+          "providerName": "BYD Company Limited",
+          "currency": "HKD",
+          "financialCurrency": "CNY",
+          "price": 75.6,
+          "marketTime": "2026-10-09T16:08:06+08:00",
+          "timezone": "Asia/Hong_Kong",
+          "retrievedAt": "2026-10-09T13:53:21.999004+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 21.058496,
+          "marketCap": 689260134400,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 777499443200,
+            "netIncome": 29310240768,
+            "cfo": 64636817408,
+            "fcf": -96303865856
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-1211.HK.json",
+          "issue": null
+        }
+      ],
+      "financials": {
+        "period": "2026H1",
+        "balanceDate": "2026-06-30",
+        "currency": "CNY",
+        "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
+        "sources": [
+          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-002594.SZ-quarterly.json",
+          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-002594.SZ-quarterly.json",
+          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-002594.SZ-quarterly.json"
+        ],
+        "revenue": 344815421000.0,
+        "netIncome": 12325408000.0,
+        "grossProfit": 64988562000.0,
+        "cfo": 37334744000.0,
+        "capex": 44703066000.0,
+        "fcf": -7368322000.0,
+        "totalDebt": 125904443000.0,
+        "cashAndShortTermInvestments": 128678316000.0,
+        "cash": 58737867000.0,
+        "equity": 260818431000.0
+      }
+    },
+    {
+      "name": "国轩高科",
+      "displayName": "国轩高科",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "002074.SZ",
+          "available": true,
+          "providerName": "Gotion High-tech Co.,Ltd.",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 30.41,
+          "marketTime": "2026-10-09T15:04:30+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:22.002464+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 16.175531,
+          "marketCap": 55185797120,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 53452472320,
+            "netIncome": 3402691840,
+            "cfo": 3727517696,
+            "fcf": -10011838464
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-002074.SZ.json",
+          "issue": null
+        }
+      ],
+      "financials": {
+        "period": "2026H1",
+        "balanceDate": "2026-06-30",
+        "currency": "CNY",
+        "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
+        "sources": [
+          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-002074.SZ-quarterly.json",
+          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-002074.SZ-quarterly.json",
+          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-002074.SZ-quarterly.json"
+        ],
+        "revenue": 27775546292.11,
+        "netIncome": 1386048497.18,
+        "grossProfit": 4333897994.68,
+        "cfo": 427952054.83,
+        "capex": 9779420071.32,
+        "fcf": -9351468016.49,
+        "totalDebt": 57159480596.27,
+        "cashAndShortTermInvestments": 20559109346.56,
+        "cash": 18038111257.12,
+        "equity": 30133200346.1
+      }
+    },
+    {
+      "name": "孚能科技",
+      "displayName": "孚能科技",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "688567.SS",
+          "available": true,
+          "providerName": "Farasis Energy (Gan Zhou) Co., Ltd.",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 9.75,
+          "marketTime": "2026-10-09T15:00:00+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:23.043130+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": null,
+          "marketCap": 11915513856,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 8380011008,
+            "netIncome": -981133184,
+            "cfo": 1817421440,
+            "fcf": -335087680
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-688567.SS.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "亿纬锂能",
+      "displayName": "亿纬锂能",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "300014.SZ",
+          "available": true,
+          "providerName": "EVE Energy Co., Ltd.",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 51.32,
+          "marketTime": "2026-10-09T15:04:22+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:23.043854+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 18.527077,
+          "marketCap": 111533596672,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 78991532032,
+            "netIncome": 5830362624,
+            "cfo": 4731645440,
+            "fcf": -3798000640
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-300014.SZ.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "欣旺达",
+      "displayName": "欣旺达",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "300207.SZ",
+          "available": true,
+          "providerName": "Sunwoda Electronic Co.,Ltd",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 20.66,
+          "marketTime": "2026-10-09T15:04:49+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:23.570818+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 48.04651,
+          "marketCap": 38168571904,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 74439639040,
+            "netIncome": 803998144,
+            "cfo": 645465600,
+            "fcf": -7299465216
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-300207.SZ.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "清陶能源",
+      "displayName": "清陶能源",
+      "origin": "原产业树",
+      "listings": [],
+      "financials": null
+    },
+    {
+      "name": "卫蓝新能源",
+      "displayName": "卫蓝新能源",
+      "origin": "原产业树",
+      "listings": [],
+      "financials": null
+    },
+    {
+      "name": "辉能科技",
+      "displayName": "辉能科技",
+      "origin": "原产业树",
+      "listings": [],
+      "financials": null
+    },
+    {
+      "name": "北京纯锂新能源",
+      "displayName": "北京纯锂新能源",
+      "origin": "原产业树",
+      "listings": [],
+      "financials": null
+    },
+    {
+      "name": "先导智能",
+      "displayName": "先导智能",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "300450.SZ",
+          "available": true,
+          "providerName": "Wuxi Lead Intelligent Equipment CO.,LTD.",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 36.73,
+          "marketTime": "2026-10-09T15:04:49+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:23.572150+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 33.390907,
+          "marketCap": 61494153216,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 16021699584,
+            "netIncome": 1779584640,
+            "cfo": 6688771072,
+            "fcf": 5799860736
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-300450.SZ.json",
+          "issue": null
+        },
+        {
+          "symbol": "0470.HK",
+          "available": true,
+          "providerName": "Wuxi Lead Intelligent Equipment CO.,LTD.",
+          "currency": "HKD",
+          "financialCurrency": "CNY",
+          "price": 27.48,
+          "marketTime": "2026-10-09T16:08:05+08:00",
+          "timezone": "Asia/Hong_Kong",
+          "retrievedAt": "2026-10-09T13:53:23.578336+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 22.341463,
+          "marketCap": 46007603200,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 16021699584,
+            "netIncome": 1779584640,
+            "cfo": 6688771072,
+            "fcf": 5799860736
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-0470.HK.json",
+          "issue": null
+        }
+      ],
+      "financials": {
+        "period": "2026H1",
+        "balanceDate": "2026-06-30",
+        "currency": "CNY",
+        "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
+        "sources": [
+          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-300450.SZ-quarterly.json",
+          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-300450.SZ-quarterly.json",
+          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-300450.SZ-quarterly.json"
+        ],
+        "revenue": 8189022992.98,
+        "netIncome": 956057472.49,
+        "grossProfit": 2616400911.33,
+        "cfo": 4084821408.27,
+        "capex": 179451441.51,
+        "fcf": 3905369966.76,
+        "totalDebt": 3430955948.73,
+        "cashAndShortTermInvestments": 15132045355.11,
+        "cash": 12967385978.39,
+        "equity": 17989072356.73
+      }
+    },
+    {
+      "name": "赢合科技",
+      "displayName": "赢合科技",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "300457.SZ",
+          "available": true,
+          "providerName": "Shenzhen Yinghe Technology Co., Ltd",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 22.72,
+          "marketTime": "2026-10-09T15:04:52+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:24.615416+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 23.42268,
+          "marketCap": 14655919104,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 11271464960,
+            "netIncome": 617856384,
+            "cfo": 2029235456,
+            "fcf": 1993455872
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-300457.SZ.json",
+          "issue": null
+        }
+      ],
+      "financials": {
+        "period": "2026H1",
+        "balanceDate": "2026-06-30",
+        "currency": "CNY",
+        "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
+        "sources": [
+          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-300457.SZ-quarterly.json",
+          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-300457.SZ-quarterly.json",
+          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-300457.SZ-quarterly.json"
+        ],
+        "revenue": 6090105554.99,
+        "netIncome": 350741152.7,
+        "grossProfit": 1231840444.21,
+        "cfo": 1012869769.36,
+        "capex": 27622283.93,
+        "fcf": 985247485.43,
+        "totalDebt": 109864928.0,
+        "cashAndShortTermInvestments": 3014770050.66,
+        "cash": 3014770050.66,
+        "equity": 7117364731.29
+      }
+    },
+    {
+      "name": "海目星",
+      "displayName": "海目星",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "688559.SS",
+          "available": true,
+          "providerName": "Hymson Laser Technology Group Co.,Ltd.",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 45.18,
+          "marketTime": "2026-10-09T15:00:02+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:24.616386+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": null,
+          "marketCap": 11193753600,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 5597128704,
+            "netIncome": -115653688,
+            "cfo": 2421411072,
+            "fcf": 1907450240
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-688559.SS.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "利元亨",
+      "displayName": "利元亨",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "688499.SS",
+          "available": true,
+          "providerName": "Guangdong Lyric Robot Automation Co.,Ltd.",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 42.33,
+          "marketTime": "2026-10-09T15:00:00+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:25.137627+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 132.28127,
+          "marketCap": 7142278144,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 3508209664,
+            "netIncome": 57046020,
+            "cfo": 394400736,
+            "fcf": 252437760
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-688499.SS.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "盐湖股份",
+      "displayName": "盐湖股份",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "000792.SZ",
+          "available": true,
+          "providerName": "Qinghai Salt Lake Industry Co.,Ltd",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 24.09,
+          "marketTime": "2026-10-09T15:04:57+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:25.664237+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 10.51965,
+          "marketCap": 127473991680,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 21297340416,
+            "netIncome": 12050917376,
+            "cfo": 10246524928,
+            "fcf": 5143618048
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-000792.SZ.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "藏格矿业",
+      "displayName": "藏格矿业",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "000408.SZ",
+          "available": true,
+          "providerName": "Zangge Mining Company Limited",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 73.39,
+          "marketTime": "2026-10-09T15:05:00+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:26.189432+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 20.21763,
+          "marketCap": 115142656000,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 3963488768,
+            "netIncome": 5690229248,
+            "cfo": 2250343424,
+            "fcf": 1847637376
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-000408.SZ.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "西藏矿业",
+      "displayName": "西藏矿业",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "000762.SZ",
+          "available": true,
+          "providerName": "Xizang Mineral Development Co. LTD",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 21.34,
+          "marketTime": "2026-10-09T15:04:57+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:26.711833+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 266.75,
+          "marketCap": 11114281984,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 759290752,
+            "netIncome": 45160160,
+            "cfo": 356076064,
+            "fcf": -166700720
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-000762.SZ.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "永兴材料",
+      "displayName": "永兴材料",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "002756.SZ",
+          "available": true,
+          "providerName": "Yongxing Special Materials Technology Co.,Ltd",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 40.12,
+          "marketTime": "2026-10-09T15:04:03+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:26.712805+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 17.443478,
+          "marketCap": 21628753920,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 8812609536,
+            "netIncome": 1219538304,
+            "cfo": 1317485824,
+            "fcf": 759776704
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-002756.SZ.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "天齐锂业",
+      "displayName": "天齐锂业",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "002466.SZ",
+          "available": true,
+          "providerName": "Tianqi Lithium Corporation",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 41.37,
+          "marketTime": "2026-10-09T15:04:09+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:27.238989+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 15.379182,
+          "marketCap": 61101817856,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 17755926528,
+            "netIncome": 4620234752,
+            "cfo": 3352106496,
+            "fcf": -661017408
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-002466.SZ.json",
+          "issue": null
+        },
+        {
+          "symbol": "9696.HK",
+          "available": true,
+          "providerName": "Tianqi Lithium Corporation",
+          "currency": "HKD",
+          "financialCurrency": "CNY",
+          "price": 27.46,
+          "marketTime": "2026-10-09T16:08:06+08:00",
+          "timezone": "Asia/Hong_Kong",
+          "retrievedAt": "2026-10-09T13:53:27.241815+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 9.153333,
+          "marketCap": 47044972544,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 17755926528,
+            "netIncome": 4620234752,
+            "cfo": 3352106496,
+            "fcf": -661017408
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-9696.HK.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "中矿资源",
+      "displayName": "中矿资源",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "002738.SZ",
+          "available": true,
+          "providerName": "Sinomine Resource Group Co., Ltd.",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 41.13,
+          "marketTime": "2026-10-09T15:04:03+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:27.763300+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 20.063416,
+          "marketCap": 29999601664,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 6938051072,
+            "netIncome": 1479775360,
+            "cfo": 1727021952,
+            "fcf": -1900416000
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-002738.SZ.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "融捷股份",
+      "displayName": "融捷股份",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "002192.SZ",
+          "available": true,
+          "providerName": "YOUNGY Co., Ltd.",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 57.25,
+          "marketTime": "2026-10-09T15:04:24+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:28.287974+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 12.445652,
+          "marketCap": 14865260544,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 2061269504,
+            "netIncome": 1195204736,
+            "cfo": 572674688,
+            "fcf": 91530680
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-002192.SZ.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "雅化集团",
+      "displayName": "雅化集团",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "002497.SZ",
+          "available": true,
+          "providerName": "Sichuan Yahua Industrial Group Co., Ltd.",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 15.85,
+          "marketTime": "2026-10-09T15:04:27+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:28.289993+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 10.566667,
+          "marketCap": 18268116992,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 11829466112,
+            "netIncome": 1712432512,
+            "cfo": -636556736,
+            "fcf": -654804224
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-002497.SZ.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "盛新锂能",
+      "displayName": "盛新锂能",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "002240.SZ",
+          "available": true,
+          "providerName": "Chengxin Lithium Group Co., Ltd.",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 25.35,
+          "marketTime": "2026-10-09T15:04:18+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:28.812184+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 24.142859,
+          "marketCap": 23202701312,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 10808819712,
+            "netIncome": 964760192,
+            "cfo": 520823200,
+            "fcf": -157072944
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-002240.SZ.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "SQM",
+      "displayName": "SQM",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "SQM",
+          "available": true,
+          "providerName": "Sociedad Química y Minera de Chile S.A.",
+          "currency": "USD",
+          "financialCurrency": "USD",
+          "price": 64.61,
+          "marketTime": "2026-10-09T09:52:32-04:00",
+          "timezone": "America/New_York",
+          "retrievedAt": "2026-10-09T13:53:29.334786+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 13.294238,
+          "marketCap": 18455060480,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 6725432832,
+            "netIncome": 1386923008,
+            "cfo": 2768048128,
+            "fcf": 2618803968
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-SQM.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "Albemarle",
+      "displayName": "Albemarle",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "ALB",
+          "available": true,
+          "providerName": "Albemarle Corporation",
+          "currency": "USD",
+          "financialCurrency": "USD",
+          "price": 102.355,
+          "marketTime": "2026-10-09T09:52:59-04:00",
+          "timezone": "America/New_York",
+          "retrievedAt": "2026-10-09T13:53:29.865646+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 379.0926,
+          "marketCap": 12078407680,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 5907904000,
+            "netIncome": 57427000,
+            "cfo": 1800327936,
+            "fcf": 1334340224
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-ALB.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "Pilbara Minerals",
+      "displayName": "Pilbara Minerals",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "PLS.AX",
+          "available": true,
+          "providerName": "PLS Group Limited",
+          "currency": "AUD",
+          "financialCurrency": "AUD",
+          "price": 3.5,
+          "marketTime": "2026-10-09T16:10:29+11:00",
+          "timezone": "Australia/Sydney",
+          "retrievedAt": "2026-10-09T13:53:29.869295+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 23.333332,
+          "marketCap": 11290814464,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 1934018048,
+            "netIncome": 525760992,
+            "cfo": 1364685952,
+            "fcf": 800153600
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-PLS.AX.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "华友钴业",
+      "displayName": "华友钴业",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "603799.SS",
+          "available": true,
+          "providerName": "Zhejiang Huayou Cobalt Co., Ltd",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 35.6,
+          "marketTime": "2026-10-09T15:00:02+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:30.385336+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 9.916434,
+          "marketCap": 67409575936,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 99389685760,
+            "netIncome": 6906848256,
+            "cfo": 4541978624,
+            "fcf": -8206022656
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-603799.SS.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "格林美",
+      "displayName": "格林美",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "002340.SZ",
+          "available": true,
+          "providerName": "GEM Co., Ltd.",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 6.26,
+          "marketTime": "2026-10-09T15:04:12+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:30.908598+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 17.38889,
+          "marketCap": 31940771840,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 37549838336,
+            "netIncome": 1857481472,
+            "cfo": 2942803968,
+            "fcf": -3062727680
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-002340.SZ.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "天奇股份",
+      "displayName": "天奇股份",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "002009.SZ",
+          "available": true,
+          "providerName": "Miracle Automation Engineering Co.Ltd",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 15.61,
+          "marketTime": "2026-10-09T15:04:03+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:31.431762+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 141.90909,
+          "marketCap": 6278860288,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 2977348608,
+            "netIncome": 43897816,
+            "cfo": 338517632,
+            "fcf": -85642568
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-002009.SZ.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "蔚来",
+      "displayName": "蔚来",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "NIO",
+          "available": true,
+          "providerName": "NIO Inc.",
+          "currency": "USD",
+          "financialCurrency": "CNY",
+          "price": 3.6,
+          "marketTime": "2026-10-09T09:53:33-04:00",
+          "timezone": "America/New_York",
+          "retrievedAt": "2026-10-09T13:53:31.433798+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": null,
+          "marketCap": 9007873024,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 114113634304,
+            "netIncome": -4755909120,
+            "cfo": null,
+            "fcf": null
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-NIO.json",
+          "issue": null
+        },
+        {
+          "symbol": "9866.HK",
+          "available": true,
+          "providerName": "NIO Inc.",
+          "currency": "HKD",
+          "financialCurrency": "CNY",
+          "price": 27.1,
+          "marketTime": "2026-10-09T16:08:06+08:00",
+          "timezone": "Asia/Hong_Kong",
+          "retrievedAt": "2026-10-09T13:53:31.959240+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": null,
+          "marketCap": 68269649920,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 114113634304,
+            "netIncome": -4755909120,
+            "cfo": null,
+            "fcf": null
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-9866.HK.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "智己汽车",
+      "displayName": "智己汽车",
+      "origin": "原产业树",
+      "listings": [],
+      "financials": null
+    },
+    {
+      "name": "赛力斯",
+      "displayName": "赛力斯",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "601127.SS",
+          "available": true,
+          "providerName": "Seres Group Co.,Ltd",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 46.58,
+          "marketTime": "2026-10-09T15:00:00+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:31.961356+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 57.506176,
+          "marketCap": 81141661696,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 160145031168,
+            "netIncome": 1299028352,
+            "cfo": 2101090944,
+            "fcf": 3184555264
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-601127.SS.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "上汽集团",
+      "displayName": "上汽集团",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "600104.SS",
+          "available": true,
+          "providerName": "SAIC Motor Corporation Limited",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 10.83,
+          "marketTime": "2026-10-09T15:00:00+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:32.487474+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 13.37037,
+          "marketCap": 124493856768,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 655308488704,
+            "netIncome": 9240608768,
+            "cfo": 67572203520,
+            "fcf": 52052250624
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-600104.SS.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "吉利",
+      "displayName": "吉利",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "0175.HK",
+          "available": true,
+          "providerName": "Geely Automobile Holdings Limited",
+          "currency": "HKD",
+          "financialCurrency": "CNY",
+          "price": 15.13,
+          "marketTime": "2026-10-09T16:08:05+08:00",
+          "timezone": "Asia/Hong_Kong",
+          "retrievedAt": "2026-10-09T13:53:33.002440+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 8.745665,
+          "marketCap": 163190390784,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 367442296832,
+            "netIncome": 16686629888,
+            "cfo": 52107005952,
+            "fcf": 20519778304
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-0175.HK.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "广汽",
+      "displayName": "广汽",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "601238.SS",
+          "available": true,
+          "providerName": "Guangzhou Automobile Group Co., Ltd.",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 5.27,
+          "marketTime": "2026-10-09T15:00:00+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:33.527255+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": null,
+          "marketCap": 53738536960,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 100431790080,
+            "netIncome": -10712229888,
+            "cfo": -11361278976,
+            "fcf": -14602541056
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-601238.SS.json",
+          "issue": null
+        },
+        {
+          "symbol": "2238.HK",
+          "available": true,
+          "providerName": "Guangzhou Automobile Group Co., Ltd.",
+          "currency": "HKD",
+          "financialCurrency": "CNY",
+          "price": 2.23,
+          "marketTime": "2026-10-09T16:08:06+08:00",
+          "timezone": "Asia/Hong_Kong",
+          "retrievedAt": "2026-10-09T13:53:33.528217+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": null,
+          "marketCap": 22739456000,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 100431790080,
+            "netIncome": -10712229888,
+            "cfo": -11361278976,
+            "fcf": -14602541056
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-2238.HK.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "丰田",
+      "displayName": "丰田",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "7203.T",
+          "available": true,
+          "providerName": "Toyota Motor Corporation",
+          "currency": "JPY",
+          "financialCurrency": "JPY",
+          "price": 2910.5,
+          "marketTime": "2026-10-09T15:30:00+09:00",
+          "timezone": "Asia/Tokyo",
+          "retrievedAt": "2026-10-09T13:53:34.055130+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 8.283055,
+          "marketCap": 34465657126912,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 51957024686080,
+            "netIncome": 4483796959232,
+            "cfo": 4132990091264,
+            "fcf": -3599962472448
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-7203.T.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "奔驰",
+      "displayName": "奔驰",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "MBG.DE",
+          "available": true,
+          "providerName": "Mercedes-Benz Group AG",
+          "currency": "EUR",
+          "financialCurrency": "EUR",
+          "price": 40.1,
+          "marketTime": "2026-10-09T15:38:25+02:00",
+          "timezone": "Europe/Berlin",
+          "retrievedAt": "2026-10-09T13:53:34.577224+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 7.5946965,
+          "marketCap": 38064214016,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 129499996160,
+            "netIncome": 5031000064,
+            "cfo": 13827000320,
+            "fcf": -3902625024
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-MBG.DE.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "宝马",
+      "displayName": "宝马",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "BMW.DE",
+          "available": true,
+          "providerName": "Bayerische Motoren Werke Aktiengesellschaft",
+          "currency": "EUR",
+          "financialCurrency": "EUR",
+          "price": 53.9,
+          "marketTime": "2026-10-09T15:38:11+02:00",
+          "timezone": "Europe/Berlin",
+          "retrievedAt": "2026-10-09T13:53:35.105923+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 5.3366337,
+          "marketCap": 32263219200,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 128033996800,
+            "netIncome": 6303000064,
+            "cfo": 4046000128,
+            "fcf": 1710268032
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-BMW.DE.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "三星",
+      "displayName": "三星",
+      "origin": "原产业树",
+      "listings": [],
+      "financials": null
+    },
+    {
+      "name": "QuantumScape",
+      "displayName": "QuantumScape",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "QS",
+          "available": true,
+          "providerName": "QuantumScape Corporation",
+          "currency": "USD",
+          "financialCurrency": "USD",
+          "price": 4.625,
+          "marketTime": "2026-10-09T09:53:34-04:00",
+          "timezone": "America/New_York",
+          "retrievedAt": "2026-10-09T13:53:35.108558+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": null,
+          "marketCap": 2863400192,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": null,
+            "netIncome": -404968000,
+            "cfo": -236143008,
+            "fcf": -141085376
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-QS.json",
+          "issue": null
+        }
+      ],
+      "financials": {
+        "period": "2026H1",
+        "balanceDate": "2026-06-30",
+        "currency": "USD",
+        "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
+        "sources": [
+          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-QS-quarterly.json",
+          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-QS-quarterly.json",
+          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-QS-quarterly.json"
+        ],
+        "revenue": 0.0,
+        "netIncome": -199039000.0,
+        "grossProfit": null,
+        "cfo": -116259000.0,
+        "capex": 14598000.0,
+        "fcf": -130857000.0,
+        "totalDebt": 67118000.0,
+        "cashAndShortTermInvestments": 859002000.0,
+        "cash": 132872000.0,
+        "equity": 1047972000.0
+      }
+    },
+    {
+      "name": "阳光电源",
+      "displayName": "阳光电源",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "300274.SZ",
+          "available": true,
+          "providerName": "Sungrow Power Supply Co., Ltd.",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 80.68,
+          "marketTime": "2026-10-09T15:04:07+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:35.173241+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 15.052238,
+          "marketCap": 167266697216,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 76563496960,
+            "netIncome": 10985210880,
+            "cfo": 17218439168,
+            "fcf": 15611878400
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-300274.SZ.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "南都电源",
+      "displayName": "南都电源",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "300068.SZ",
+          "available": true,
+          "providerName": "ZHEJIANG NARADA POWER SOURCE Co. , Ltd.",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 4.04,
+          "marketTime": "2026-10-09T15:04:04+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:35.645086+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": null,
+          "marketCap": 3629403904,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 5245817344,
+            "netIncome": -3521026560,
+            "cfo": 1255858816,
+            "fcf": 1969300864
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-300068.SZ.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "特斯拉",
+      "displayName": "特斯拉",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "TSLA",
+          "available": true,
+          "providerName": "Tesla, Inc.",
+          "currency": "USD",
+          "financialCurrency": "USD",
+          "price": 388.2903,
+          "marketTime": "2026-10-09T09:53:36-04:00",
+          "timezone": "America/New_York",
+          "retrievedAt": "2026-10-09T13:53:36.678530+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 359.52805,
+          "marketCap": 1533571104768,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 103619002368,
+            "netIncome": 3806000128,
+            "cfo": 18684999680,
+            "fcf": 4835999744
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-TSLA.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "小米",
+      "displayName": "小米",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "1810.HK",
+          "available": true,
+          "providerName": "Xiaomi Corporation",
+          "currency": "HKD",
+          "financialCurrency": "CNY",
+          "price": 25.96,
+          "marketTime": "2026-10-09T16:08:06+08:00",
+          "timezone": "Asia/Hong_Kong",
+          "retrievedAt": "2026-10-09T13:53:36.680432+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 19.088234,
+          "marketCap": 668392095744,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 438100492288,
+            "netIncome": 33000187904,
+            "cfo": 8137870848,
+            "fcf": -8680713216
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-1810.HK.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "优必选",
+      "displayName": "优必选",
+      "origin": "原产业树",
+      "listings": [
+        {
+          "symbol": "9880.HK",
+          "available": true,
+          "providerName": "Ubtech Robotics Corp Ltd",
+          "currency": "HKD",
+          "financialCurrency": "CNY",
+          "price": 71.75,
+          "marketTime": "2026-10-09T16:08:06+08:00",
+          "timezone": "Asia/Hong_Kong",
+          "retrievedAt": "2026-10-09T13:53:37.721391+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": null,
+          "marketCap": 36119048192,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 2648668928,
+            "netIncome": -601020992,
+            "cfo": -1162786944,
+            "fcf": -1441069440
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-9880.HK.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "Solid Power",
+      "displayName": "Solid Power",
+      "origin": "本轮补充候选",
+      "listings": [
+        {
+          "symbol": "SLDP",
+          "available": true,
+          "providerName": "Solid Power, Inc.",
+          "currency": "USD",
+          "financialCurrency": "USD",
+          "price": 2.415,
+          "marketTime": "2026-10-09T09:53:32-04:00",
+          "timezone": "America/New_York",
+          "retrievedAt": "2026-10-09T13:53:38.248840+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": null,
+          "marketCap": 551057600,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 7392000,
+            "netIncome": -89771000,
+            "cfo": -59832000,
+            "fcf": -44831876
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-SLDP.json",
+          "issue": null
+        }
+      ],
+      "financials": {
+        "period": "2026H1",
+        "balanceDate": "2026-06-30",
+        "currency": "USD",
+        "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
+        "sources": [
+          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-SLDP-quarterly.json",
+          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-SLDP-quarterly.json",
+          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-SLDP-quarterly.json"
+        ],
+        "revenue": 1088000.0,
+        "netIncome": -36849000.0,
+        "grossProfit": -4579000.0,
+        "cfo": -27173000.0,
+        "capex": 7937000.0,
+        "fcf": -35110000.0,
+        "totalDebt": 7534000.0,
+        "cashAndShortTermInvestments": 242435000.0,
+        "cash": 24284000.0,
+        "equity": 502149000.0
+      }
+    },
+    {
+      "name": "新宙邦",
+      "displayName": "新宙邦",
+      "origin": "本轮补充候选",
+      "listings": [
+        {
+          "symbol": "300037.SZ",
+          "available": true,
+          "providerName": "Shenzhen Capchem Technology Co., Ltd.",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 64.79,
+          "marketTime": "2026-10-09T15:04:55+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:38.252154+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 31.451458,
+          "marketCap": 48844308480,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 12853453824,
+            "netIncome": 1597266560,
+            "cfo": 1726180736,
+            "fcf": 339571008
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-300037.SZ.json",
+          "issue": null
+        }
+      ],
+      "financials": {
+        "period": "2026H1",
+        "balanceDate": "2026-06-30",
+        "currency": "CNY",
+        "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
+        "sources": [
+          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-300037.SZ-quarterly.json",
+          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-300037.SZ-quarterly.json",
+          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-300037.SZ-quarterly.json"
+        ],
+        "revenue": 7462553989.37,
+        "netIncome": 983809390.12,
+        "grossProfit": 1784608359.89,
+        "cfo": 1126734792.91,
+        "capex": 672168089.63,
+        "fcf": 454566703.28,
+        "totalDebt": 2971418164.78,
+        "cashAndShortTermInvestments": 2794530802.62,
+        "cash": 2027805948.73,
+        "equity": 11452042285.25
+      }
+    },
+    {
+      "name": "天赐材料",
+      "displayName": "天赐材料",
+      "origin": "本轮补充候选",
+      "listings": [
+        {
+          "symbol": "002709.SZ",
+          "available": true,
+          "providerName": "Guangzhou Tinci Materials Technology Co., Ltd.",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 35.68,
+          "marketTime": "2026-10-09T15:04:48+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:38.779118+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 18.020203,
+          "marketCap": 72735883264,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 24330663936,
+            "netIncome": 3954959616,
+            "cfo": 1170334464,
+            "fcf": 81147336
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-002709.SZ.json",
+          "issue": null
+        }
+      ],
+      "financials": {
+        "period": "2026H1",
+        "balanceDate": "2026-06-30",
+        "currency": "CNY",
+        "status": "第三方单季标准化；仅有原件核对标记的指标已复核",
+        "sources": [
+          "research/solid-state-mcp-2026-10-09/yfinance-get_income_statement-002709.SZ-quarterly.json",
+          "research/solid-state-mcp-2026-10-09/yfinance-get_balance_sheet-002709.SZ-quarterly.json",
+          "research/solid-state-mcp-2026-10-09/yfinance-get_cash_flow-002709.SZ-quarterly.json"
+        ],
+        "revenue": 14709500811.92,
+        "netIncome": 2860942286.52,
+        "grossProfit": 4934997157.56,
+        "cfo": 397234077.0,
+        "capex": 565541783.48,
+        "fcf": -168307706.48,
+        "totalDebt": 2982413102.53,
+        "cashAndShortTermInvestments": 2197081368.67,
+        "cash": 1821778967.92,
+        "equity": 20283637330.34
+      }
+    },
+    {
+      "name": "三祥新材",
+      "displayName": "三祥新材",
+      "origin": "本轮补充候选",
+      "listings": [
+        {
+          "symbol": "603663.SS",
+          "available": true,
+          "providerName": "Sanxiang Advanced Materials Co., Ltd.",
+          "currency": "CNY",
+          "financialCurrency": "CNY",
+          "price": 39.9,
+          "marketTime": "2026-10-09T15:00:01+08:00",
+          "timezone": "Asia/Shanghai",
+          "retrievedAt": "2026-10-09T13:53:39.297633+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": 133.0,
+          "marketCap": 23683448832,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": "2026-06-30",
+            "revenue": 1166824192,
+            "netIncome": 149652368,
+            "cfo": 266292800,
+            "fcf": 137863952
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-603663.SS.json",
+          "issue": null
+        }
+      ],
+      "financials": null
+    },
+    {
+      "name": "纳科诺尔",
+      "displayName": "纳科诺尔",
+      "origin": "本轮补充候选",
+      "listings": [
+        {
+          "symbol": "920522.BJ",
+          "available": false,
+          "providerName": null,
+          "currency": null,
+          "financialCurrency": null,
+          "price": null,
+          "marketTime": null,
+          "timezone": null,
+          "retrievedAt": "2026-10-09T13:53:39.829376+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": null,
+          "marketCap": null,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": null,
+            "revenue": null,
+            "netIncome": null,
+            "cfo": null,
+            "fcf": null
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-920522.BJ.json",
+          "issue": "返回空资料；名称、代码与价格未形成有效记录"
+        },
+        {
+          "symbol": "832522.BJ",
+          "available": false,
+          "providerName": null,
+          "currency": null,
+          "financialCurrency": null,
+          "price": null,
+          "marketTime": null,
+          "timezone": null,
+          "retrievedAt": "2026-10-09T13:53:40.347299+00:00",
+          "quoteStatus": "数据源快照；可能延迟，非实时保证",
+          "peTtm": null,
+          "marketCap": null,
+          "summary": {
+            "period": "供应商滚动摘要，不能与 H1 混用",
+            "mostRecentQuarter": null,
+            "revenue": null,
+            "netIncome": null,
+            "cfo": null,
+            "fcf": null
+          },
+          "source": "research/solid-state-mcp-2026-10-09/yfinance-get_stock_info-832522.BJ.json",
+          "issue": "返回空资料；名称、代码与价格未形成有效记录"
+        }
+      ],
+      "financials": null
+    }
+  ]
+}

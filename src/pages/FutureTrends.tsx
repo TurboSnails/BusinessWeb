@@ -9,6 +9,7 @@ import type { AiLevel, AiPick } from '../data/futureTrendsAiPicks'
 import { FUTURE_TRENDS_ASOF, TRENDS, trendCoverage, TrendCompany } from '../data/futureTrends'
 import FutureTrendsCore from './FutureTrendsCore'
 import FutureTrendsPool from './FutureTrendsPool'
+import FutureTrendsSolidState from './FutureTrendsSolidState'
 import { ADAS_EXTRA_LEVELS, ADAS_EXTRA_PICKS, AI_EXTRA_LEVELS, AI_EXTRA_PICKS, SECTOR_PICKS, SECTOR_PICKS_ASOF, TREND_METRICS, US_PICKS } from '../data/futureTrendsSectorPicks'
 
 const card: React.CSSProperties = {
@@ -123,11 +124,12 @@ function UsPicksSection({ id }: { id: string }): JSX.Element | null {
 
 const POOL_ID = 'pool'
 const CORE_ID = 'core'
+const SOLID_ID = 'solid-state'
 
 export default function FutureTrends(): JSX.Element {
   const [searchParams, setSearchParams] = useSearchParams()
   const selected = searchParams.get('tab')
-  const id = selected && [...TRENDS.map(t => t.id), POOL_ID, CORE_ID].includes(selected) ? selected : CORE_ID
+  const id = selected && [...TRENDS.map(t => t.id), POOL_ID, CORE_ID, SOLID_ID].includes(selected) ? selected : CORE_ID
   const setId = (next: string): void => { setSearchParams({ tab: next }) }
   const trend = TRENDS.find(t => t.id === id) ?? TRENDS[0]
   const coverage = trendCoverage()
@@ -136,11 +138,11 @@ export default function FutureTrends(): JSX.Element {
     <main>
       <PageTitle>未来趋势</PageTitle>
       <PageTabs label="未来趋势赛道" value={id} onChange={setId}
-        items={[{ id: CORE_ID, label: '核心' }, { id: POOL_ID, label: '候选池' }, ...TRENDS.map(t => ({ id: t.id, label: t.name.replace(/（.*?）/, '').replace(/，.*/, '') }))]} />
+        items={[{ id: CORE_ID, label: '核心' }, { id: POOL_ID, label: '候选池' }, { id: SOLID_ID, label: '固态电池' }, ...TRENDS.map(t => ({ id: t.id, label: t.name.replace(/（.*?）/, '').replace(/，.*/, '') }))]} />
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 16px 32px' }}>
-        {id !== POOL_ID && id !== CORE_ID && <p role="note" style={{ color: 'var(--text-secondary)', fontSize: 13, margin: '14px 0' }}>产业目录截至 {FUTURE_TRENDS_ASOF}。点击公司名称查看详细研究；查看推荐顺序请进入核心或候选池。</p>}
+        {id !== POOL_ID && id !== CORE_ID && id !== SOLID_ID && <p role="note" style={{ color: 'var(--text-secondary)', fontSize: 13, margin: '14px 0' }}>产业目录截至 {FUTURE_TRENDS_ASOF}。点击公司名称查看详细研究；查看推荐顺序请进入核心或候选池。</p>}
 
-        {id === POOL_ID ? <FutureTrendsPool /> : id === CORE_ID ? <FutureTrendsCore /> : (<>
+        {id === SOLID_ID ? <FutureTrendsSolidState /> : id === POOL_ID ? <FutureTrendsPool /> : id === CORE_ID ? <FutureTrendsCore /> : (<>
         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>九个赛道 · {coverage.segments} 个细分环节 · {coverage.companies} 个公司或主体 · {coverage.entries} 条业务关联（跨环节可重复）</p>
         <section style={card} aria-labelledby="trend-name">
           <h2 id="trend-name" style={{ margin: '0 0 6px', fontSize: '1.3rem' }}>{trend.name}</h2>

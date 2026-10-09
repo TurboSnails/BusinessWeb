@@ -1,0 +1,29 @@
+.solid-state { line-height: 1.8; padding-top: 16px; }
+.solid-section { background: var(--bg-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); padding: clamp(16px, 3vw, 28px); margin-bottom: 20px; scroll-margin-top: 100px; }
+.solid-section h2 { font-size: 1.25rem; line-height: 1.5; margin: 0 0 14px; }
+.solid-section h3 { font-size: 1rem; margin: 0 0 6px; }
+.solid-section p { margin: 10px 0; }
+.solid-hero { border-top: 3px solid var(--text-secondary); }
+.solid-hero h2 { font-size: 2rem; }
+.solid-eyebrow, .solid-meta, .solid-disclaimer { font-size: .82rem; color: var(--text-secondary); }
+.solid-lead { font-size: 1.2rem; }
+.solid-nav { display: flex; flex-wrap: wrap; gap: 8px 20px; padding: 4px 4px 20px; font-size: .9rem; }
+.solid-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 12px 24px; }
+.solid-flow { padding: 16px; border: 1px solid var(--system-gray5); border-radius: 8px; margin: 14px 0; font-weight: 600; }
+.solid-table { overflow-x: auto; }
+.solid-table table { width: 100%; min-width: 760px; border-collapse: collapse; font-size: .88rem; }
+.solid-table th, .solid-table td { padding: 12px; border-bottom: 1px solid var(--system-gray5); text-align: left; vertical-align: top; }
+.solid-table th { background: var(--bg-primary); }
+.solid-table small { display: block; color: var(--text-secondary); }
+.solid-filters { display: flex; flex-wrap: wrap; gap: 16px; margin: 16px 0; }
+.solid-filters label { display: grid; gap: 6px; font-size: .88rem; flex: 1 1 220px; }
+.solid-filters input, .solid-filters select { width: 100%; box-sizing: border-box; border: 1px solid var(--system-gray5); border-radius: 8px; background: var(--bg-primary); color: var(--text-primary); padding: 10px; font: inherit; }
+.solid-company { padding: 16px 0; border-top: 1px solid var(--system-gray5); scroll-margin-top: 100px; }
+.solid-company summary { cursor: pointer; }
+.solid-company summary strong { font-size: 1.1rem; margin-right: 12px; }
+.solid-company summary span { font-size: .88rem; }
+.solid-meta a { display: inline-block; margin-right: 12px; }
+.solid-sources { padding-left: 20px; font-size: .88rem; }
+.solid-sources li { padding: 8px 0; scroll-margin-top: 100px; }
+.solid-sources li div { color: var(--text-secondary); }
+.solid-disclaimer { padding: 0 8px; }

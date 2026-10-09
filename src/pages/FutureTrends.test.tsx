@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import FutureTrends from './FutureTrends'
 import { MemoryRouter } from 'react-router-dom'
@@ -103,5 +103,47 @@ describe('未来趋势', () => {
       URL.createObjectURL = origCreate
       URL.revokeObjectURL = origRevoke
     }
+  })
+})
+
+describe('固态电池专题', () => {
+  it('显示 MCP 覆盖、财务口径与缺项，并支持现名和港股代码检索', () => {
+    render(<MemoryRouter initialEntries={['/future-trends?tab=solid-state']}><FutureTrends /></MemoryRouter>)
+    expect(screen.getByRole('heading', { name: '本轮 MCP 更新：覆盖范围与研究调整' })).toBeTruthy()
+    expect(screen.getByRole('heading', { name: '2026H1 集团财务比较' })).toBeTruthy()
+    expect(screen.getByText(/贝特瑞旧价 21.82 元未获新 MCP 复核/)).toBeTruthy()
+    const search = screen.getByRole('textbox', { name: '搜索公司 / 代码' })
+    fireEvent.change(search, { target: { value: '五矿新能' } })
+    expect(screen.getByRole('status').textContent).toMatch(/^显示 1 \/ /)
+    fireEvent.change(search, { target: { value: '1772.HK' } })
+    expect(screen.getByRole('status').textContent).toMatch(/^显示 1 \/ /)
+    expect(within(screen.getByRole('region', { name: '公司观察池：从产业格局逐条提取' })).getByRole('link', { name: '赣锋锂业' }).getAttribute('href')).toBe('#solid-company-ganfeng')
+    const manifest = screen.getByRole('link', { name: /下载本轮调用及原始文件索引/ })
+    expect(manifest.getAttribute('href')).toContain('/research/solid-state-mcp-2026-10-09/manifest.json')
+  })
+  it('支持独立 tab 深链接，展示产业研究并可返回其他赛道', () => {
+    render(<MemoryRouter initialEntries={['/future-trends?tab=solid-state']}><FutureTrends /></MemoryRouter>)
+    expect(screen.getByRole('tab', { name: '固态电池' }).getAttribute('aria-selected')).toBe('true')
+    expect(screen.getByRole('heading', { name: '固态电池' })).toBeTruthy()
+    expect(screen.getByRole('heading', { name: /价值链：谁付钱/ })).toBeTruthy()
+    expect(screen.getByRole('heading', { name: /三情景与赔率/ })).toBeTruthy()
+    expect(screen.getByText('本报告仅供研究参考，不构成个人投资建议。')).toBeTruthy()
+    fireEvent.click(screen.getByRole('tab', { name: '新能源' }))
+    expect(screen.queryByRole('heading', { name: '固态电池', level: 2 })).toBeNull()
+    fireEvent.click(screen.getByRole('tab', { name: '固态电池' }))
+    expect(screen.getByRole('heading', { name: '固态电池' })).toBeTruthy()
+  })
+
+  it('公司池可按关键词和环节交叉筛选，研究锚点对应本页卡片', () => {
+    render(<MemoryRouter initialEntries={['/future-trends?tab=solid-state']}><FutureTrends /></MemoryRouter>)
+    const search = screen.getByRole('textbox', { name: '搜索公司 / 代码' })
+    fireEvent.change(search, { target: { value: '先导' } })
+    expect(screen.getByRole('status').textContent).toMatch(/^显示 1 \/ /)
+    const company = within(screen.getByRole('region', { name: '公司观察池：从产业格局逐条提取' })).getByRole('link', { name: '先导智能' })
+    expect(company.getAttribute('href')).toBe('#solid-company-lead')
+    expect(document.getElementById('solid-company-lead')).toBeTruthy()
+    fireEvent.change(screen.getByRole('combobox', { name: '产业环节' }), { target: { value: '电芯制造' } })
+    expect(screen.getByRole('status').textContent).toMatch(/^显示 0 \/ /)
+    expect(screen.getByText(/未找到匹配公司/)).toBeTruthy()
   })
 })
