@@ -70,12 +70,23 @@ describe('候选池', () => {
   })
 })
 
-describe('核心 15', () => {
-  it('15 家都在候选池中、不重复；估值未认证不升级买入，单一主要方向最多 3 家', () => {
-    expect(CORE).toHaveLength(15)
-    expect(new Set(CORE.map(x => x.key)).size).toBe(15)
+describe('核心 12', () => {
+  it('12 家都在候选池中、不重复；估值未认证不升级买入，单一赛道最多 2 家', () => {
+    expect(CORE).toHaveLength(12)
+    expect(new Set(CORE.map(x => x.key)).size).toBe(12)
     for (const x of CORE) expect(x.item.status, x.key).toBe('估值待认证')
     const trends = CORE.reduce<Record<string, number>>((m, x) => ({ ...m, [x.research.primaryTrend]: (m[x.research.primaryTrend] ?? 0) + 1 }), {})
-    for (const [c, n] of Object.entries(trends)) expect(n, c).toBeLessThanOrEqual(3)
+    for (const [c, n] of Object.entries(trends)) expect(n, c).toBeLessThanOrEqual(2)
+  })
+})
+
+describe('候选池分桶', () => {
+  it('可买卖都满足盈亏比≥0.75 且期望≥20%，其余已分析公司归入价格太贵', async () => {
+    const { poolBucket } = await import('./futureTrendsPresentation')
+    const { RESEARCH_INDEX } = await import('./futureTrendsResearch')
+    const buy = RESEARCH_INDEX.filter(r => poolBucket(r) === 'buy')
+    expect(buy).toHaveLength(12)
+    for (const r of buy) { expect(r.ratio!, r.key).toBeGreaterThanOrEqual(0.75); expect(r.expected!, r.key).toBeGreaterThanOrEqual(0.2) }
+    expect(RESEARCH_INDEX.filter(r => poolBucket(r) === 'rich')).toHaveLength(35)
   })
 })

@@ -11,13 +11,16 @@ export default function FutureTrendsCore(): JSX.Element {
   const first = rows.filter(x => presentation(x).priority === 1)
   const second = rows.filter(x => presentation(x).priority === 2)
   const groups = Object.entries(rows.reduce<Record<string,number>>((m,r) => { const sector=presentation(r).sector; m[sector]=(m[sector] ?? 0)+1; return m },{}))
+  const max = Math.max(...groups.map(([,n]) => n))
+  const waiting = SELECTION.filter(x => x.priority === 3).map(x => ({ x, r: RESEARCH_BY_KEY.get(x.key)! }))
+  const modeled = waiting.filter(({r}) => r.depth.startsWith('公司证据')).length
   return <div className="ft">
-    <header className="ft-heading"><div><div className="ft-eyebrow">精选 {rows.length} 家 · {groups.length} 个主营行业</div><h2>核心：先看这 {first.length} 家</h2><p>腾讯、宁德时代、舜宇光学、美敦力、微软、林德优先跟踪；其余 {second.length} 家作为备选。选择依据是经营壁垒、盈利质量与风险互补，下一步取决于各自价格和经营验证。</p></div><button className="ft-export" type="button" onClick={() => downloadJson('未来趋势核心研究-2026-10-09.json',rows)}>导出核心 JSON</button></header>
-    <div className="ft-distribution" aria-label="核心主营业务分布">{groups.map(([name,count]) => <span key={name}><strong>{name}</strong>{count} 家</span>)}</div>
+    <header className="ft-heading"><div><div className="ft-eyebrow">精选 {rows.length} 家 · 覆盖 {groups.length} 个赛道 · 单一赛道最多 {max} 家</div><h2>核心：先看这 {first.length} 家</h2><p>{first.map(r => r.name).join('、')}优先跟踪；其余 {second.length} 家作为备选。依据是经营壁垒、现金质量、情景盈亏比与赛道分散，不为凑数入选：半导体与先进制造赛道的 4 家已分析公司现价均高于或贴近基准价，本轮没有入选。</p></div><button className="ft-export" type="button" onClick={() => downloadJson('未来趋势核心研究-2026-10-09.json',rows)}>导出核心 JSON</button></header>
+    <div className="ft-distribution" aria-label="核心赛道分布">{groups.map(([name,count]) => <span key={name}><strong>{name}</strong>{count} 家</span>)}</div>
     <div className="ft-section-head"><h3>优先候选</h3><p>业务质量优先，价格条件逐家比较</p></div><CompanyComparison rows={first} />
     <div className="ft-section-head"><h3>备选</h3><p>保留跟踪，等待更好的价格或经营证据</p></div><CompanyComparison rows={second} />
-    <p className="ft-method">当前情景估值均为待复核草稿；优先跟踪不等于现价买入。2:1 条件价仅说明给定假设下的赔率门槛，实际胜率尚未校准。报价截至 2026-10-09。</p>
-    <details className="ft-method"><summary>为什么暂缓这 5 家？</summary><ul>{SELECTION.filter(x => x.priority === 3).map(x => { const r=RESEARCH_BY_KEY.get(x.key)!; return <li key={x.key}><strong><FutureCompanyLink name={r.name} code={r.code} /></strong>：{x.reason} {x.watch}</li> })}</ul></details>
-    <details className="ft-method"><summary>行业分散之后，还要看哪些共同风险？</summary><p>单一行业最多 3 / 15 家（20%，按公司数量计算，并非持仓权重）。分类按主营业务：石头属于清洁电器，柏楚属于激光控制软件，美敦力属于医疗器械。</p><p>腾讯与舜宇共享中国消费风险；微软和腾讯受 AI 投入回报影响；柏楚与汽车供应链受制造业资本开支影响；空客与 RTX 共享航空供应链；医疗三家公司仍有政策风险。利率也会同时影响公用事业与工业气体，行业分散不等于风险独立。</p></details>
+    <p className="ft-method">当前情景估值均为待复核草稿；优先跟踪不等于现价买入。2:1 条件价仅说明给定假设下的赔率门槛，目前没有一家现价达到 2:1。假设胜率是情景概率（悲观/基准/乐观的主观取值）中价格高出现价 10% 以上的合计，不是历史回测胜率。报价截至 2026-10-09。</p>
+    <details className="ft-method"><summary>入围但未进核心的 {waiting.length} 家（共分析 {CORE.length + waiting.length} 家，其中 {modeled + CORE.length} 家已建情景）</summary><ul>{waiting.map(({x,r}) => <li key={x.key}><strong><FutureCompanyLink name={r.name} code={r.code} /></strong>（{x.sector}）：{x.reason} {x.watch}</li>)}</ul></details>
+    <details className="ft-method"><summary>赛道分散之后，还要看哪些共同风险？</summary><p>单一赛道最多 {max} / {rows.length} 家（按公司数量计算，并非持仓权重）。赛道是检索分类，不是互斥的风险因子，下面几组公司仍共享同一风险。</p><p>AI 资本开支：博通与腾讯的 AI 变现都取决于云和平台的投入回报。药价与医保：阿斯利康与礼来共享美国和中国的定价政策。汽车年降：舜宇与恩智浦共享整车需求与降价传导。航空供应链：TransDigm 与候选中的空客、GE 共享发动机与飞机交付节奏。利率：NextEra 与林德的估值同时受利率影响。</p></details>
   </div>
 }
