@@ -9,6 +9,7 @@ import { CN_REPORT } from '../data/cnReassessment'
 import { SP500_REPORT } from '../data/sp500Reassessment'
 import CandidateButton from '../components/CandidateButton'
 import { useCandidates } from '../features/candidates/useCandidates'
+import { priceAnchorAge } from '../features/dcf/priceAnchor'
 import { buildDcfLink } from '../features/dcf'
 
 const toneColors: Record<Tone, { bg: string; color: string }> = {
@@ -94,6 +95,7 @@ export default function CompanyDetail(): JSX.Element {
   const metric = (re: RegExp): string | undefined => activeMetrics.find(([l]) => re.test(l))?.[1]
   const priceText = metric(/价格锚点|收盘价|现价|9\/18 收盘/)
   const price = priceText ? nums(priceText)[0] : undefined
+  const priceAge = priceAnchorAge(priceText)
   const scenText = metric(/Bear \/ Base \/ Bull/)
   const scenNums = scenText && !/市值/.test(scenText) ? nums(scenText) : []
   const scenRows: [string, string, string, string][] | null = scenNums.length === 3
@@ -158,6 +160,12 @@ export default function CompanyDetail(): JSX.Element {
           <span style={{ marginLeft: '10px' }}>
             <CandidateButton on={cand.items.some(i => i.market === company.market && i.code === company.code)} onClick={() => cand.toggle(company.market, company.code)} />
           </span>
+          {priceAge && (
+            <p role="status" style={{ fontSize: '12px', margin: '10px 0 0', color: priceAge.stale ? 'var(--system-orange)' : 'var(--text-secondary)' }}>
+              价格锚点 {priceAge.date}（{priceAge.days === 0 ? '今天' : `${priceAge.days} 天前`}）
+              {priceAge.stale && '：盈亏比与买入价按这个价格算，重新取价后再用'}
+            </p>
+          )}
         </div>
       </div>
 
