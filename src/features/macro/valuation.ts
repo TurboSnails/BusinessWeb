@@ -9,6 +9,8 @@ export interface IndexData {
   name: string
   group: string
   note: string
+  /** 外部查看入口（站内没有的数据，比如彭博的 PE 历史） */
+  links?: { label: string; url: string }[]
   latest: { date: string; value: number }
   /** 月收盘，升序 */
   monthly: [string, number][]

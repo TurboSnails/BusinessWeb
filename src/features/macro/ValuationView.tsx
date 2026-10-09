@@ -65,6 +65,7 @@ function Row({ id, ix, open, onToggle }: { id: string; ix: IndexData; open: bool
         <tr id={`val-${id}`} ref={detail}>
           <td colSpan={9} className="macro-val__detail">
             {ix.note && <p className="macro-muted">{ix.note}</p>}
+            {ix.links && ix.links.length > 0 && <p className="macro-muted">外部查看：{ix.links.map((l, i) => <React.Fragment key={l.url}>{i > 0 && ' · '}<a href={l.url} target="_blank" rel="noreferrer noopener">{l.label}</a></React.Fragment>)}</p>}
             {(ix.ref || ix.fpe.length > 0) && <h4>{ix.ref?.kind === 'trailing' ? '滚动 PE（TTM）走势' : 'Forward PE 走势'}</h4>}
             {(ix.ref || ix.fpe.length > 0) && <FpeChart own={ix.fpe} refPoints={ix.ref?.points} est={est} refSource={ix.ref?.source} label={`${ix.name} ${ix.ref?.kind === 'trailing' ? '滚动 PE' : 'Forward PE'}`} />}
             {ix.agg && ix.members && (

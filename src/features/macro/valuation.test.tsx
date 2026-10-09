@@ -142,3 +142,14 @@ describe('展开标记', () => {
     expect(chev().classList.contains('is-open')).toBe(false)
   })
 })
+
+describe('外部链接', () => {
+  it('展开后显示外部查看入口，新窗口打开', () => {
+    const d: IndexSnapshot = { generatedAt: 'x', source: 'y', indexes: { rsp: ix({ name: '标普 500 等权重 SPW', fpe: [], links: [{ label: '彭博 SPW', url: 'https://www.bloomberg.com/quote/SPW:IND' }] }) } }
+    render(<ValuationView data={d} />)
+    fireEvent.click(screen.getByRole('button', { name: /等权重/ }))
+    const a = screen.getByRole('link', { name: '彭博 SPW' }) as HTMLAnchorElement
+    expect(a.href).toBe('https://www.bloomberg.com/quote/SPW:IND')
+    expect(a.target).toBe('_blank')
+  })
+})

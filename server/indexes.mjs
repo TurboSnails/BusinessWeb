@@ -47,6 +47,8 @@ export const INDEXES = [
   { key: 'ndx', symbol: '^NDX', name: '纳斯达克 100', group: '美股', note: '科技与成长权重最高；本站 NDX 公司库的对应指数' },
   { key: 'sox', symbol: '^SOX', name: '费城半导体 SOX', group: '美股', note: '半导体周期的温度计，波动是纳指的两倍以上' },
   { key: 'spx', symbol: '^GSPC', name: '标普 500', group: '美股', note: '美股大盘基准' },
+  { key: 'rsp', symbol: '^SPXEW', name: '标普 500 等权重 SPW', group: '美股', note: '500 家各占相同权重（彭博代码 SPW），不被大科技股拉着走；没有可用的 Forward PE 历史，只看价格位置',
+    links: [{ label: '彭博 SPW 行情（含 Forward PE 图）', url: 'https://www.bloomberg.com/quote/SPW:IND' }, { label: 'Yahoo ^SPXEW', url: 'https://finance.yahoo.com/quote/%5ESPXEW' }] },
   { key: 'rut', symbol: '^RUT', name: '罗素 2000', group: '美股', note: '小盘股，对利率和信用更敏感；没有可用的 Forward PE 历史，只看价格位置' },
   { key: 'hsi', symbol: '^HSI', name: '恒生指数', group: '港股', note: '' },
   { key: 'sse', symbol: '000001.SS', name: '上证指数', group: 'A 股', note: '' },
@@ -124,7 +126,7 @@ export async function buildIndexSnapshot(previous = null) {
       const { rows, latestTime } = await fetchMonthly(ix.symbol)
       if (rows.length < 24) throw new Error('历史数据不足')
       const date = latestTime ? new Date(latestTime * 1000).toISOString().slice(0, 10) : rows[rows.length - 1][0]
-      out[ix.key] = { symbol: ix.symbol, name: ix.name, group: ix.group, note: ix.note, latest: { date, value: rows[rows.length - 1][1] }, monthly: rows, fpe: old?.fpe ?? [] }
+      out[ix.key] = { symbol: ix.symbol, name: ix.name, group: ix.group, note: ix.note, links: ix.links, latest: { date, value: rows[rows.length - 1][1] }, monthly: rows, fpe: old?.fpe ?? [] }
     } catch (e) {
       warnings.push(`${ix.name}：${e instanceof Error ? e.message : '拉取失败'}${old ? '，沿用旧数据' : ''}`)
       if (old) out[ix.key] = old
