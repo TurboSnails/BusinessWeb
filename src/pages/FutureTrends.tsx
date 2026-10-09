@@ -115,7 +115,7 @@ function UsPicksSection({ id }: { id: string }): JSX.Element | null {
   const s = US_PICKS[id]
   if (!s) return null
   return (
-    <PicksSection id={`${id}-us-picks`} title={`${s.title}海外公司公司研究（美股及其他市场）：壁垒、隐忧、情景与待核项`}
+    <PicksSection id={`${id}-us-picks`} title={`${s.title}海外公司研究（美股及其他市场）：壁垒、隐忧、情景与待核项`}
       intro={`整理于 ${SECTOR_PICKS_ASOF}；价格为 Yahoo Finance 2026-10-07 延迟快照（各地交易所本币），不是收盘价。PE 为 TTM（括号内为远期 PE），增速为最近一季营收、盈利同比，PEG = TTM PE ÷ 最近季盈利同比（利润低基数时参考性弱）。基准、悲观价与中国公司同一程序化倍数模型，倍数中位取本赛道海外公司（${s.median}×）。亏损、PE 过高或利润含一次性项的公司不建模，不设买入价。胜率是主观概率，不是回测胜率；壁垒、增长空间与风险为研究判断。仅供研究参考，不构成个人投资建议。`}
       picks={s.picks} levels={s.levels} rules={s.rules} summary={s.summary} footer={s.footer} />
   )
