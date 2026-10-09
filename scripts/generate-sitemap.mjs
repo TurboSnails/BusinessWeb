@@ -23,8 +23,10 @@ for (const market of ['us', 'cn', 'hk', 'adr']) {
 
 const trendResearch = JSON.parse(readFileSync(resolve(ROOT, 'src/data/futureTrendsResearch.index.json'), 'utf8'))
 const trendCompanies = trendResearch.map(c => `/future-trends/company/${encodeURIComponent(c.id)}`)
+const solidSnapshot = JSON.parse(readFileSync(resolve(ROOT, 'src/data/solidState/mcpSnapshot.json'), 'utf8'))
+const solidCompanies = solidSnapshot.companies.map(c => `/future-trends/solid-state/${encodeURIComponent(c.id)}`)
 const labDirections = [...readFileSync(resolve(ROOT, 'src/data/aiLab.ts'), 'utf8').matchAll(/slug:\s*'([^']+)'/g)].map(m => `/ai/${m[1]}`)
-const urls = [...new Set([...STATIC, ...chapters, ...companies, ...trendCompanies, ...labDirections])]
+const urls = [...new Set([...STATIC, ...chapters, ...companies, ...trendCompanies, ...solidCompanies, ...labDirections])]
 const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(u => `  <url><loc>${ORIGIN}${u}</loc></url>`).join('\n')}\n</urlset>\n`
 writeFileSync(resolve(ROOT, 'public/sitemap.xml'), xml)
 console.log(`sitemap: ${urls.length} urls (${chapters.length} chapters, ${companies.length} companies)`)
