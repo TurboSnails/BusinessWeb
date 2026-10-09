@@ -39,7 +39,7 @@ export default function AiStudio(): JSX.Element {
 
       <section className="lab-section">
         <h2>推荐方向</h2>
-        <p className="hub-group__hint">按和我的匹配度从高到低排列。点开看每个实验的边界和日志。</p>
+        <p className="hub-group__hint">按和我的匹配度从高到低排列，匹配度是当前判断。点开看具体用户、获客与收费假设，以及实验边界和日志。</p>
         <div className="lab-grid">
           {recommendedDirections().map(d => <LabDirectionCard key={d.slug} direction={d} />)}
         </div>
@@ -55,7 +55,7 @@ export default function AiStudio(): JSX.Element {
 
       <section className="lab-section">
         <h2>实验规则</h2>
-        <p>每个实验开始前先定好每周时间、预算上限和截止日期；到期看数据，决定继续还是停止。过程和结果都公开记录，没开始的就写“还没开始”。</p>
+        <p>一次只启动一个新实验。每个实验开始前先定好每周时间、预算上限和截止日期；到期看数据，决定继续还是停止。过程和结果都公开记录，没开始的就写“还没开始”。</p>
       </section>
     </main>
   )

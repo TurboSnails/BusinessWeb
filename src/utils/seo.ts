@@ -1,3 +1,5 @@
+import { findDirection } from '../data/aiLab'
+
 export const SITE_NAME = 'Live'
 // canonical 始终指向主站（Vercel）；GitHub Pages 副本也会指向这里，避免重复收录
 export const SITE_ORIGIN = (import.meta.env.VITE_SITE_URL as string | undefined) ?? 'https://business-web-black.vercel.app'
@@ -52,6 +54,8 @@ export function resolveSeo(pathname: string): RouteSeo & { known: boolean } {
   const path = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname
   const exact = EXACT[path]
   if (exact) return { ...exact, known: true }
+  const direction = path.startsWith('/ai/') ? findDirection(path.slice('/ai/'.length)) : undefined
+  if (direction) return { title: `${direction.title}｜AI实验室`, description: direction.reason, known: true }
   let best: [string, RouteSeo] | undefined
   for (const entry of PREFIX) {
     const [prefix] = entry
