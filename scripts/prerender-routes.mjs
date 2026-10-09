@@ -30,6 +30,16 @@ for (const market of ['us', 'cn', 'hk', 'adr']) {
 }
 
 const trendCompanies = new Map(JSON.parse(readFileSync(resolve(ROOT, 'src/data/futureTrendsResearch.index.json'), 'utf8')).map(c => [`/future-trends/company/${encodeURIComponent(c.id)}`, c]))
+const solidBundle = await build({
+  entryPoints: [resolve(ROOT, 'src/data/solidState/companyResearch.ts')], bundle: true, format: 'esm', write: false,
+  define: { 'import.meta.env.BASE_URL': JSON.stringify('/') },
+})
+const solidModule = await import('data:text/javascript;base64,' + Buffer.from(solidBundle.outputFiles[0].text).toString('base64'))
+const solidSnapshot = JSON.parse(readFileSync(resolve(ROOT, 'src/data/solidState/mcpSnapshot.json'), 'utf8'))
+const solidCompanies = new Map(solidSnapshot.companies.map(c => [`/future-trends/solid-state/${encodeURIComponent(c.id)}`, solidModule.solidCompanyReport(c)]))
+const solidReportsDirectory = resolve(DIST, 'research/solid-state-mcp-2026-10-09/companies')
+mkdirSync(solidReportsDirectory, { recursive: true })
+for (const report of solidCompanies.values()) writeFileSync(resolve(solidReportsDirectory, `${report.id}.json`), JSON.stringify(report, null, 2) + '\n')
 function describe(path) {
   const seo = resolveSeo(path)
   const file = path.startsWith('/first-book/read/') && decodeURIComponent(path.slice('/first-book/read/'.length))
@@ -42,6 +52,14 @@ function describe(path) {
     }
   }
   const c = companies.get(path)
+  const solid = solidCompanies.get(path)
+  if (solid) {
+    const table = (caption, rows) => `<h2>${esc(caption)}</h2><table>${rows.map(([k,v]) => `<tr><th>${esc(k)}</th><td>${esc(v)}</td></tr>`).join('')}</table>`
+    return {
+      title: `${solid.name}｜固态电池公司研究`, description: solid.role,
+      body: `<p><a href="/future-trends?tab=solid-state">返回固态电池专题</a></p><p>${esc(solid.asOf)} · ${esc(solid.depth)}</p><p>${esc(solid.conclusion)}</p>${solid.sections.map(s => `<h2>${esc(s.title)}</h2>${s.items.map(i => `<p>${esc(i)}</p>`).join('')}`).join('')}${table('半年经营与现金流', solid.incomeRows)}${table('资产负债', solid.balanceRows)}${table('市场指标', solid.marketRows)}<h2>来源与口径</h2><ul>${solid.sources.map(s => `<li><a href="${esc(s.url.startsWith('http') ? s.url : '/' + s.url)}">${esc(s.title)}</a>：${esc(s.status)}</li>`).join('')}</ul><p>${esc(solid.disclaimer)}</p>`,
+    }
+  }
   const trend = trendCompanies.get(path)
   if (trend) {
     const d = JSON.parse(readFileSync(resolve(ROOT, 'public/research/future-trends-2026-10-09/companies', `${trend.id}.json`), 'utf8'))

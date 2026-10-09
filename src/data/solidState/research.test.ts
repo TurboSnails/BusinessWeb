@@ -55,7 +55,7 @@ describe('固态电池研究证据完整性', () => {
     for (const c of MCP.companies) {
       const f = c.financials
       if (f?.cfo != null && f.capex != null && f.fcf != null) expect(f.fcf).toBeCloseTo(f.cfo - f.capex, 2)
-      f?.sources.forEach(path => expect(readFileSync(`public/${path}`, 'utf8')).toContain('quarterly'))
+      f?.sources.forEach(path => expect(readFileSync(`public/${path}`, 'utf8')).toContain(f.sourceKind === 'filing' ? '未经审计' : 'quarterly'))
     }
   })
   it('三情景概率合计为 1、情景价递增，盈亏比仅在 Bear<P<Base 时给出，且不虚报 2:1', () => {

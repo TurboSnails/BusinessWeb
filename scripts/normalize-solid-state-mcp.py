@@ -61,10 +61,24 @@ def financials(symbol, currency):
         'cashAndShortTermInvestments': metric(balance, ['Cash Cash Equivalents And Short Term Investments'], ['2026-06-30']),
         'cash': metric(balance, ['Cash And Cash Equivalents'], ['2026-06-30']),
         'equity': metric(balance, ['Stockholders Equity'], ['2026-06-30']),
+        'assets': metric(balance, ['Total Assets'], ['2026-06-30']),
+        'liabilities': metric(balance, ['Total Liabilities Net Minority Interest'], ['2026-06-30']),
+        'receivables': metric(balance, ['Accounts Receivable', 'Receivables'], ['2026-06-30']),
+        'inventory': metric(balance, ['Inventory'], ['2026-06-30']),
+        'goodwill': metric(balance, ['Goodwill'], ['2026-06-30']),
     }
-    return {'period': '2026H1', 'balanceDate': '2026-06-30', 'currency': currency,
+    history = []
+    for period in sorted({str(c)[:10] for c in income.get('columns', [])}, reverse=True):
+        operating = metric(cash, ['Operating Cash Flow', 'Cash Flowsfromusedin Operating Activities Direct'], [period])
+        investment = metric(cash, ['Capital Expenditure'], [period])
+        history.append({'period': period, 'revenue': metric(income, ['Total Revenue'], [period]),
+                        'netIncome': metric(income, ['Net Income Common Stockholders', 'Net Income'], [period]),
+                        'grossProfit': metric(income, ['Gross Profit'], [period]), 'cfo': operating,
+                        'capex': -investment if investment is not None and investment <= 0 else None,
+                        'fcf': round(operating + investment, 2) if operating is not None and investment is not None and investment <= 0 else None})
+    return {'sourceKind': 'mcp', 'period': '2026H1', 'balanceDate': '2026-06-30', 'currency': currency,
             'status': '第三方单季标准化；仅有原件核对标记的指标已复核',
-            'sources': sources, **values} if any(v is not None for v in values.values()) else None
+            'sources': sources, 'history': history, **values} if any(v is not None for v in values.values()) else None
 
 
 def listing(symbol):
@@ -82,6 +96,12 @@ def listing(symbol):
             'retrievedAt': raw.get('retrievedAt'), 'quoteStatus': '数据源快照；可能延迟，非实时保证',
             'peTtm': number(data.get('trailingPE')) if valid and number(data.get('trailingPE')) and data['trailingPE'] > 0 else None,
             'marketCap': number(data.get('marketCap')) if valid else None,
+            'businessSummary': data.get('longBusinessSummary'), 'website': data.get('website'),
+            'industry': data.get('industry'), 'country': data.get('country'),
+            'valuation': {k: number(data.get(k)) for k in ['forwardPE', 'priceToBook', 'priceToSalesTrailing12Months',
+                           'enterpriseValue', 'enterpriseToEbitda', 'trailingEps', 'forwardEps', 'returnOnEquity',
+                           'operatingMargins', 'profitMargins', 'revenueGrowth', 'earningsGrowth', 'dividendYield',
+                           'fiftyTwoWeekLow', 'fiftyTwoWeekHigh', 'sharesOutstanding']},
             'summary': {'period': '供应商滚动摘要，不能与 H1 混用',
                         'mostRecentQuarter': dt.datetime.fromtimestamp(recent, dt.timezone.utc).date().isoformat() if recent else None,
                         'revenue': number(data.get('totalRevenue')), 'netIncome': number(data.get('netIncomeToCommon')),
@@ -92,22 +112,36 @@ def listing(symbol):
 def main():
     candidates = json.loads((RAW / 'candidates.json').read_text())
     original = json.loads((ROOT / 'src/data/solidState/companies.json').read_text())
+    tree_text = (ROOT / 'public/industry/solid-state.json').read_text()
     names = [c['name'] for c in original] + [n for n in candidates if n not in {c['name'] for c in original}]
     records = []
     for name in names:
         listings = [listing(symbol) for symbol in candidates.get(name, [])]
         primary = next((v for v in listings if v['available']), None)
         finance = financials(primary['symbol'], primary['financialCurrency']) if primary else None
-        records.append({'name': name, 'displayName': '五矿新能（原长远锂科）' if name == '长远锂科' else name,
-                        'origin': '原产业树' if name in {c['name'] for c in original} else '本轮补充候选',
+        filing_path = RAW / 'filing-btr-2026H1.json'
+        if name == '贝特瑞' and filing_path.exists():
+            filing = json.loads(filing_path.read_text())
+            keys = ['revenue', 'netIncome', 'grossProfit', 'cfo', 'capex', 'fcf', 'totalDebt',
+                    'cashAndShortTermInvestments', 'cash', 'equity', 'assets', 'liabilities', 'receivables', 'inventory', 'goodwill']
+            finance = {'sourceKind':'filing', 'period':'2026H1', 'balanceDate':'2026-06-30', 'currency':'CNY',
+                       'status':'公司半年报摘要原件；非MCP补值，未取得完整三表', 'sources':[PREFIX + filing_path.name],
+                       'history':[], **{k:filing['data'].get(k) for k in keys}}
+        private_ids = {'四川华宜清创':'huayi', '清陶能源':'qingtao', '卫蓝新能源':'weilan', '辉能科技':'prologium',
+                       '北京纯锂新能源':'pure-lithium', '智己汽车':'im-motors', '三星':'samsung-unresolved'}
+        report_id = candidates[name][0].lower().replace('.', '-') if candidates.get(name) else 'entity-' + private_ids[name]
+        records.append({'id': report_id, 'name': name, 'displayName': '五矿新能（原长远锂科）' if name == '长远锂科' else name,
+                        'origin': '原产业树' if name in {c['name'] for c in original} else '原树延伸对照' if name in tree_text else '本轮补充候选',
                         'listings': listings, 'financials': finance})
     valid = [v for r in records for v in r['listings'] if v['available']]
     output = {'asOf': '2026-10-09', 'method': '真实 MCP stdio 调用；Yahoo Finance + AKShare；公告原件另行复核',
               'stats': {'originalCompanies': len(original),
                         'originalWithQuotes': sum(r['origin'] == '原产业树' and any(v['available'] for v in r['listings']) for r in records),
-                        'supplementalCompanies': len(records) - len(original),
+                        'supplementalCompanies': sum(r['origin'] == '本轮补充候选' for r in records),
+                        'extendedCompanies': sum(r['origin'] == '原树延伸对照' for r in records),
                         'validListings': len(valid), 'failedListings': sum(not v['available'] for r in records for v in r['listings']),
-                        'normalizedH1': sum(r['financials'] is not None for r in records)},
+                        'normalizedH1': sum(r['financials'] is not None and r['financials']['sourceKind'] == 'mcp' for r in records),
+                        'officialH1Summaries': sum(r['financials'] is not None and r['financials']['sourceKind'] == 'filing' for r in records)},
               'crossChecks': [PREFIX + p.name for p in sorted(RAW.glob('akshare-*.json'))], 'companies': records}
     (ROOT / 'src/data/solidState/mcpSnapshot.json').write_text(json.dumps(output, ensure_ascii=False, indent=2, allow_nan=False) + '\n')
     manifest = {'asOf': output['asOf'], 'method': output['method'], 'stats': output['stats'],
