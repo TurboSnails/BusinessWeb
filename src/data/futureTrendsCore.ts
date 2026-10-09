@@ -1,58 +1,10 @@
-/**
- * 未来趋势「核心」20 家：面向中长线（研究期限至 2027-12-31 及以后），从候选池中选出。
- * 选入条件：投资状态为“可现在投资”或“接近买点”；基本面 B 档以上或护城河与现金流明确；
- * 排除周期高点利润（锂、存储、六氟、稀土小盘）、利润低基数跳升与一次性项目；同一产业链最多 2 家。
- * 数字（现价、PE、增速、盈亏比、价位）在运行时取自候选池，刷新数据后自动更新；本文件只放研究判断。
- * 价位来自本站程序化倍数模型，未经公司级三情景认证；全部为条件化研究假设，不是交易指令。
- */
-import { POOL } from './futureTrendsPool'
-import type { PoolItem } from './futureTrendsPool'
-
-export interface CoreEntry {
-  /** 候选池 key：市场:主代码 */
-  key: string
-  /** 组合中的角色 */
-  role: '成长核心' | '质量复利' | '防御稳健' | '周期龙头'
-  chain: string
-  /** 核心理由（为什么能拿 2–3 年） */
-  why: string
-  /** 增长能持续多久、靠什么 */
-  duration: string
-  /** 确认加仓需要看到的证据 */
-  confirm: string
-  /** 最大风险 */
-  maxRisk: string
-}
-
-export const CORE_ENTRIES: CoreEntry[] = [
-  { key: '中国:300750', role: '成长核心', chain: '电池/储能', why: '动力与储能电池全球第一，成本、技术、客户三重壁垒；PE 16× 处 52 周低位，PEG 0.38，是本池“高增长 + 高确定 + 不贵”最平衡的一家。', duration: '储能与海外工厂可支撑增长到 2027 年后；钠电与固态是下一阶段选项。', confirm: '储能出货保持 +30% 以上且毛利率稳在 22% 以上。', maxRisk: '锂价上行压缩毛利；欧美贸易壁垒。' },
-  { key: '中国:603259', role: '成长核心', chain: 'CXO', why: '全球 CRDMO 一体化龙头，TIDES（多肽）订单爆发，H1 营收 +39%、归母 +29%，PE 23× 现价即在 2:1 买点。', duration: 'GLP-1 等多肽药物产能需求可持续到 2028 年前后。', confirm: '在手订单继续增长、TIDES 收入占比提升。', maxRisk: '美国生物安全法案落地；GLP-1 订单集中。' },
-  { key: '海外:8035.T', role: '成长核心', chain: '半导体设备', why: '涂胶显影全球垄断、刻蚀前三；PE 10×、PEG 0.25，营收 +33%，设备龙头里估值最低。', duration: 'AI 先进制程与 HBM 扩产周期至 2027 年。', confirm: '订单额连续两季环比增长。', maxRisk: '中国收入占比高，出口管制升级；日元汇率。' },
-  { key: '海外:GOOGL', role: '质量复利', chain: '云/平台', why: '搜索 + YouTube + 云 + TPU 全栈，远期 PE 23×；同时是 Waymo 与量子计算的母公司，三个赛道交叉受益。', duration: '云与 Gemini 驱动，现金流可持续多年。', confirm: '谷歌云利润率继续提升、搜索收入不被 AI 分流（同比保持正增长）。', maxRisk: 'TTM 利润含投资收益，模型赔率偏乐观；反垄断拆分。' },
-  { key: '海外:AMZN', role: '质量复利', chain: '云/平台', why: 'AWS 云 + 电商物流网络 + 广告，营收 +20%；2:1 价约在现价 −3%。与谷歌同属云资本开支买方，合并算一份风险。', duration: 'AWS 与广告的长期复利。', confirm: 'AWS 增速保持 +18% 以上、自由现金流转正改善。', maxRisk: '资本开支吞噬自由现金流；TTM 含投资收益。' },
-  { key: '中国:002415', role: '质量复利', chain: '视觉/机器人', why: '视频安防全球第一，毛利 50%；机器人（萤石、海康机器人）与汽车电子分拆成长；PE 18×、PEG 0.46，现价在 2:1 买点。', duration: '主业稳定 + 创新业务（占比约 1/4）提供增量。', confirm: '创新业务营收保持 +20% 以上；主业恢复正增长。', maxRisk: '海外制裁、国内政府需求弱。' },
-  { key: '中国:688188', role: '质量复利', chain: '工业软件/机床', why: '激光切割控制系统龙头，毛利 74%、ROE 12%；PE 31×，2:1 价约在现价。', duration: '高功率与智能切割头渗透，增速 15–25%。', confirm: '归母保持 +20% 以上。', maxRisk: '下游激光设备周期；市场份额已高。' },
-  { key: '中国:2382.HK', role: '质量复利', chain: '汽车电子', why: '车载镜头出货全球第一，光学设计与模组量产规模构成壁垒；PE 约 14×，现价在 2:1 买点附近（盈亏比 1.75）。2026-10-08 补入，替换安集科技（PE 51×、基准价低于现价，缺安全边际）。', duration: '车载摄像头随 L2+ 渗透提升单车用量，激光雷达光学部件是第二增量；手机业务成熟。', confirm: '车载业务收入占比提升、整体营收增速回到 +15% 以上。', maxRisk: '手机业务仍占大头，增速仅约 +11%；毛利率 19.5%，价格竞争。' },
-  { key: '中国:603596', role: '成长核心', chain: '汽车电子', why: '线控制动国产替代，EMB 量产；H1 营收 +21.5%、Q2 归母 +48%，PE 约 18×。', duration: '线控底盘渗透率提升至 2028 年。', confirm: '补齐三情景后赔率 ≥ 2:1；EMB 定点转量产。', maxRisk: '赔率未经模型认证；客户集中于自主品牌、年降压价。' },
-  { key: '中国:688169', role: '成长核心', chain: '消费机器人', why: '扫地机器人品牌与算法，海外渠道强；营收 +28%、归母 +46%，PE 18×，盈亏比 2.46 是本池最高之一。', duration: '海外渗透 + 新品类（洗衣机、割草机）。', confirm: '海外收入保持 +25% 以上、毛利率稳在 40% 以上。', maxRisk: '行业价格战与美国关税。' },
-  { key: '中国:688697', role: '成长核心', chain: '工业软件/机床', why: '数控机床国产替代，营收 +30%、归母 +38%，ROE 9%；PE 26×，现价在 2:1 买点。', duration: '高端机床国产化与出海。', confirm: '归母保持 +25% 以上、毛利率不降。', maxRisk: '机床周期；小市值、流动性。' },
-  { key: '中国:0700.HK', role: '质量复利', chain: '中国互联网', why: '微信生态与游戏现金流，PE 约 15×，是中国互联网里盈利最稳的。', duration: 'AI 助手、广告、云带来长期增量。', confirm: '补齐三情景认证；Q3 归母恢复两位数增长。', maxRisk: '赔率未经模型认证；AI 资本开支与监管。' },
-  { key: '海外:AMGN', role: '质量复利', chain: '大药企', why: '生物药现金流 + 减重药管线，盈利 +65%、远期 PE 17×。', duration: '减重药 MariTide 若成功，可延长增长到 2030 年。', confirm: 'MariTide 三期数据积极。', maxRisk: '专利到期；美国药价谈判。' },
-  { key: '海外:AZN', role: '质量复利', chain: '大药企', why: '肿瘤与 ADC 管线全球领先，远期 PE 14×，现价在 2:1 买点附近。', duration: '2030 年营收目标 800 亿美元的管线支撑。', confirm: '新药上市节奏符合指引。', maxRisk: '中国业务调查；增速放缓到个位数。' },
-  { key: '海外:MDT', role: '防御稳健', chain: '医疗器械', why: '全球最大医疗器械公司之一，脑深部刺激（脑机接口相关）先行者；盈利 +41%、远期 PE 13×。', duration: '糖尿病分拆后聚焦高增长器械。', confirm: '有机营收保持 +5% 以上。', maxRisk: '增长慢；产品召回。' },
-  { key: '海外:AIR.PA', role: '质量复利', chain: '民机', why: '民机双寡头，交付 +28%，积压订单可排 10 年；PE 25×。', duration: '订单可见度到 2035 年。', confirm: 'A320 月产达成目标。', maxRisk: '发动机等供应链瓶颈。' },
-  { key: '海外:SIE.DE', role: '质量复利', chain: '工业自动化', why: '工业自动化与数字化全球龙头，PE 27×、远期 21×，现价在 2:1 买点。', duration: '工业软件与数据中心电气化。', confirm: '数字工业订单恢复正增长。', maxRisk: '增速仅个位数；模型达标部分因赛道中位 PE 偏高。' },
-  { key: '中国:600309', role: '周期龙头', chain: '化工', why: 'MDI 全球龙头、成本领先，PE 13×、PEG 0.20，现价在 2:1 买点；是周期股，但龙头能穿越周期。', duration: '新材料（尼龙、电池材料）提供结构增量。', confirm: 'MDI 价差企稳、新材料收入占比提升。', maxRisk: '化工景气下行时利润可能腰斩，持有期要跨周期。' },
-  { key: '海外:NEE', role: '防御稳健', chain: '公用事业', why: '美国最大可再生能源运营商，盈亏比 2.39 是本池最高，PE 17×；数据中心用电提供增量。', duration: '电力需求与长期购电协议。', confirm: '新签可再生能源项目保持增长。', maxRisk: '利率上行；IRA 补贴政策调整。' },
-  { key: '中国:600009', role: '防御稳健', chain: '机场', why: '浦东国际枢纽特许经营，现价在 2:1 买点，归母 +16%。', duration: '国际客流恢复与免税。', confirm: '国际旅客吞吐量恢复至 2019 年以上。', maxRisk: '免税扣点下调；增速低。' },
-]
-
-export interface CoreItem extends CoreEntry {
-  item: PoolItem
-}
-
-export const CORE: CoreItem[] = CORE_ENTRIES.map(e => {
-  const item = POOL.find(x => x.key === e.key)
-  if (!item) throw new Error(`核心名单在候选池中找不到：${e.key}`)
-  return { ...e, item }
+/** 核心是长期优先研究名单，不是已认证的现价买入组合。 */
+import { POOL, PoolItem } from './futureTrendsPool'
+import { RESEARCH_INDEX, ResearchSummary } from './futureTrendsResearch'
+export interface CoreItem { key: string; chain: string; item: PoolItem; research: ResearchSummary }
+export const CORE: CoreItem[] = RESEARCH_INDEX.filter(r => r.core).map(research => {
+  const item = POOL.find(x => x.key === research.key)
+  if (!item) throw new Error(`核心研究主体不在候选池：${research.key}`)
+  return { key: research.key, chain: research.riskGroup, item, research }
 })
+export const CORE_ENTRIES = CORE

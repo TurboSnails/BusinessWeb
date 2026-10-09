@@ -1,145 +1,37 @@
 import React from 'react'
+import FutureCompanyLink from '../components/FutureCompanyLink'
 import { CORE } from '../data/futureTrendsCore'
-import type { CoreItem } from '../data/futureTrendsCore'
-import { byInvestability, downloadJson, poolItemJson } from '../data/futureTrendsPool'
-import { SECTOR_PICKS_ASOF } from '../data/futureTrendsSectorPicks'
-
-const card: React.CSSProperties = {
-  background: 'var(--bg-card)',
-  borderRadius: 'var(--radius-lg)',
-  boxShadow: 'var(--shadow-md)',
-  padding: 20,
-  marginBottom: 16,
-}
-
-const ROLE_COLOR: Record<CoreItem['role'], string> = {
-  成长核心: 'var(--system-red)',
-  质量复利: 'var(--system-purple)',
-  防御稳健: 'var(--system-teal)',
-  周期龙头: 'var(--system-orange)',
-}
-
-/** 研究评级：价位到 2:1 区且模型给出赔率 → 买入（条件化）；其余 → 观察（等回调或等认证）。 */
-function rating(x: CoreItem): string {
-  const st = x.item.status
-  if (st === '可现在投资') return '买入（条件化，可分批）'
-  if (x.item.pick.ratio.includes('未')) return '观察（等待估值认证）'
-  return '观察（等回调到买入区）'
-}
-
-function Chip({ text, color }: { text: string; color: string }): JSX.Element {
-  return <span style={{ display: 'inline-block', padding: '1px 8px', borderRadius: 999, fontSize: '0.75rem', fontWeight: 600, color: '#fff', background: color, whiteSpace: 'nowrap' }}>{text}</span>
-}
-
+import { downloadJson } from '../data/futureTrendsPool'
+import { RESEARCH_ASOF, researchMoney, researchPercent } from '../data/futureTrendsResearch'
+const card: React.CSSProperties = { background: 'var(--bg-card)', borderRadius: 12, padding: 20, marginBottom: 16, lineHeight: 1.8 }
+const td: React.CSSProperties = { padding: 12, verticalAlign: 'top', borderBottom: '1px solid var(--system-gray5)', textAlign: 'left' }
 export default function FutureTrendsCore(): JSX.Element {
-  const rows = [...CORE].sort((a, b) => byInvestability(a.item, b.item))
-  const now = rows.filter(x => x.item.status === '可现在投资')
-  const wait = rows.filter(x => x.item.status !== '可现在投资')
-  const roles = (['成长核心', '质量复利', '防御稳健', '周期龙头'] as const).map(r => [r, rows.filter(x => x.role === r)] as const)
-  const chains = Object.entries(rows.reduce<Record<string, string[]>>((m, x) => ({ ...m, [x.chain]: [...(m[x.chain] ?? []), x.item.pick.name] }), {})).filter(([, v]) => v.length > 1)
-  const th: React.CSSProperties = { textAlign: 'left', padding: '6px 8px', whiteSpace: 'nowrap', borderBottom: '1px solid var(--system-gray5)' }
-  const td: React.CSSProperties = { padding: '8px', verticalAlign: 'top', borderBottom: '1px solid var(--system-gray5)', lineHeight: 1.6 }
-
-  return (
-    <>
-      <section style={card} aria-labelledby="core-title">
-        <h2 id="core-title" style={{ margin: '0 0 6px', fontSize: '1.3rem' }}>核心 20：中长线候选组合</h2>
-        <p style={{ margin: '0 0 10px', fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-          整理于 {SECTOR_PICKS_ASOF}，研究期限至 2027-12-31 及以后。从候选池 {''}选出：投资状态为“可现在投资”或“接近买点”，基本面 B 档以上或护城河与现金流明确；
-          排除周期高点利润（锂、存储、六氟、小盘稀土）、利润低基数跳升与一次性项目；同一产业链最多 2 家。目标是在合理价格持有盈利向上、确定性较高、增长更持久的公司：先算下行，再谈上行。
-          数字随候选池自动更新；价位来自本站程序化倍数模型，未经公司级三情景认证，属于条件化研究假设，不是交易指令。
-        </p>
-        <ul style={{ margin: '0 0 12px', paddingLeft: 18, lineHeight: 1.8, fontSize: '0.9rem' }}>
-          <li><strong>现价已在买入区（{now.length} 家）：</strong>{now.map(x => x.item.pick.name).join('、')}。</li>
-          <li><strong>等回调或等估值认证（{wait.length} 家）：</strong>{wait.map(x => `${x.item.pick.name}${x.item.gap !== null && x.item.gap < 0 ? `（还需回落 ${Math.abs(x.item.gap)}%）` : ''}`).join('、')}。</li>
-          {roles.map(([r, list]) => <li key={r}><Chip text={r} color={ROLE_COLOR[r]} /> {list.length} 家：{list.map(x => x.item.pick.name).join('、')}</li>)}
-          <li><strong>市场：</strong>中国 {rows.filter(x => x.item.market === '中国').length} 家、海外 {rows.filter(x => x.item.market === '海外').length} 家。</li>
-        </ul>
-        <h3 style={{ margin: '0 0 6px', fontSize: '1.05rem' }}>组合与仓位原则（研究参考）</h3>
-        <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.8, fontSize: '0.85rem' }}>
-          <li>同一产业链合并算一份风险：{chains.map(([c, v]) => `${c}（${v.join('、')}）`).join('；')}。</li>
-          <li>单只上限见表内“仓位”（按单笔最大亏损约 1% 总资产推算，封顶 5%）；20 家不必同时买满，先买已在买入区的，其余等价格到位。</li>
-          <li>分 3 批建仓：左侧（未经财报确认）不超过计划仓位的一半，财报验证“确认加仓”条件后再补足。</li>
-          <li>成长核心对应高增长、确定性中等，单只宜小；防御稳健与质量复利可作为组合底仓；周期龙头要准备跨周期持有。</li>
-          <li>触发认错线或失效条件，先减仓再复核，不摊低成本；达到基准价先减半，盈利预期不再改善时继续分批止盈。</li>
-          <li>若采用项目个人仓位规则：主动层单一标的 4–5%、分散于 4–5 个不相关机会，连续 3 笔触及止损暂停主动交易 3 周。</li>
-        </ul>
-      </section>
-
-      <section style={card} aria-label="核心名单">
-        <div style={{ display: 'flex', justifyContent: 'flex-end', margin: '0 0 8px' }}>
-          <button type="button" style={{ fontFamily: 'inherit', fontSize: '0.8rem', padding: '6px 12px', border: '1px solid var(--border-primary)', borderRadius: 8, background: 'var(--bg-card)', color: 'var(--text-primary)', cursor: 'pointer' }}
-            onClick={() => downloadJson(`未来趋势核心20-${SECTOR_PICKS_ASOF}.json`, rows.map(x => ({ ...poolItemJson(x.item), 核心: { 研究评级: rating(x), 角色: x.role, 产业链: x.chain, 核心理由: x.why, 持续期限: x.duration, 确认加仓: x.confirm, 最大风险: x.maxRisk } })))}>
-            下载核心 JSON（{rows.length} 家）
-          </button>
-        </div>
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ borderCollapse: 'collapse', fontSize: '0.8rem', minWidth: 1500 }}>
-            <thead><tr>{['#', '公司 / 角色', '研究评级', '为什么能拿 2–3 年', '估值与增速', '盈亏比', '买卖点位与仓位', '技术壁垒 / 增长点', '风险、加仓与失效'].map(h => <th key={h} style={th}>{h}</th>)}</tr></thead>
-            <tbody>
-              {rows.map((x, i) => {
-                const p = x.item.pick; const l = x.item.level
-                return (
-                  <tr key={x.key}>
-                    <td style={{ ...td, color: 'var(--text-secondary)' }}>{i + 1}</td>
-                    <td style={{ ...td, minWidth: 130 }}>
-                      <strong>{p.name}</strong>
-                      <div style={{ color: 'var(--text-secondary)' }}>{p.code} · {x.item.market}</div>
-                      <div style={{ margin: '2px 0' }}><Chip text={x.role} color={ROLE_COLOR[x.role]} /></div>
-                      <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>{x.chain} · {x.item.trends.join('、')}</div>
-                      <div>现价 {p.price}</div>
-                    </td>
-                    <td style={{ ...td, minWidth: 130 }}>
-                      <strong>{rating(x)}</strong>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{x.item.statusNote}</div>
-                      <div>基本面 {x.item.grade} · {x.item.score} 分</div>
-                      <div style={{ fontSize: '0.75rem' }}>增长 {x.item.growthLevel} / 确定性 {x.item.certaintyLevel}</div>
-                    </td>
-                    <td style={{ ...td, minWidth: 260 }}>
-                      <div>{x.why}</div>
-                      <div style={{ color: 'var(--text-secondary)' }}>持续期限：{x.duration}</div>
-                    </td>
-                    <td style={{ ...td, minWidth: 170 }}>
-                      <div>{p.growthRate ?? '—'}</div>
-                      <div>PE：{p.pe ?? '—'}</div>
-                      <div>PEG：{p.peg ?? '—'}</div>
-                    </td>
-                    <td style={{ ...td, minWidth: 120 }}>
-                      <div><strong>{p.ratio}</strong></div>
-                      <div style={{ color: 'var(--text-secondary)' }}>{p.upDown}</div>
-                      {p.winRate !== '—' && <div>胜率 {p.winRate} · 期望 {p.expected}</div>}
-                    </td>
-                    <td style={{ ...td, minWidth: 200 }}>
-                      {l ? (
-                        <>
-                          <div>买入区：{l.buy}{l.gap && l.gap !== '—' ? `（${l.gap}）` : ''}</div>
-                          {l.stop !== '—' && <div>认错线：{l.stop}</div>}
-                          {l.takeProfit !== '—' && <div>止盈：{l.takeProfit}</div>}
-                          <div>仓位上限：{l.cap}</div>
-                        </>
-                      ) : '—'}
-                    </td>
-                    <td style={{ ...td, minWidth: 180 }}>
-                      <div>壁垒 {p.moat}：{p.barrier ?? '—'}</div>
-                      <div style={{ color: 'var(--text-secondary)' }}>增长点：{p.space ?? '—'}</div>
-                    </td>
-                    <td style={{ ...td, minWidth: 240 }}>
-                      <div><strong>最大风险：</strong>{x.maxRisk}</div>
-                      <div>确认加仓：{x.confirm}</div>
-                      {l && <div style={{ color: 'var(--text-secondary)' }}>失效：{l.invalid}</div>}
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-        <p style={{ margin: '10px 0 0', fontSize: '0.75rem', color: 'var(--system-gray)', lineHeight: 1.7 }}>
-          候补（2026-10-08 复核）：安集科技基本面 A 档，但 PE 51×、基准价低于现价，回落约 20% 到买入区后再考虑放回；华阳集团（智能驾驶补入）现价在 2:1 买点、营收 +30%，但基本面仅 C 档、毛利率 16.8%、客户集中，暂列候补。<br />
-          未入选说明：工业富联、浪潮信息的 AI 赛道价位沿用旧模型，本站深度研究的基准价已低于现价；兆易创新、美光、Super Micro、赣锋、天齐、湖南裕能、宁波韵升处于周期或低基数高点；
-          英伟达、台积电、博通、长川科技等基本面最好，但股价离 2:1 买点超过 20%，放在候选池“股价偏高”中等待价格。本报告仅供研究参考，不构成个人投资建议。
-        </p>
-      </section>
-    </>
-  )
+  const groups = Object.entries(CORE.reduce<Record<string, string[]>>((m, x) => { (m[x.research.primaryTrend] ??= []).push(x.research.name); return m }, {}))
+  const common = Object.entries(CORE.reduce<Record<string, string[]>>((m, x) => { (m[x.research.riskGroup] ??= []).push(x.research.name); return m }, {}))
+  return <>
+    <section style={card}>
+      <h2>核心 {CORE.length}：分散盈利驱动的长期研究名单</h2>
+      <p>复核 {RESEARCH_ASOF}；研究期限至 2027 年底及以后。按经营壁垒、现金来源与风险互补选择；核心身份与现价买入资格分开。目前所有价格情景均未完成第二种独立方法认证，<strong>已认证现价买入 0 家</strong>，不能按旧筛选赔率直接建仓。</p>
+      <p>每家公司名称均可进入完整二级研究页，查看经营事实、三情景假设、盈亏比计算、护城河、隐忧和证伪条件。东京电子须先核拆股后报价；万华正常化盈利仍待产品价差模型验证。</p>
+      <h3>主要业务分布</h3><p>占比是等额研究名额占比，不是实际持仓、风险贡献或配置建议。单一方向最多 {Math.max(...groups.map(([, list]) => list.length))} / {CORE.length} 家。</p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: 12 }}>{groups.map(([name, list]) => <div key={name} style={{ border: '1px solid var(--system-gray5)', padding: 12, borderRadius: 8 }}><strong>{name} · {list.length} 家 · {(list.length / CORE.length * 100).toFixed(0)}%</strong><div>{list.join('、')}</div></div>)}</div>
+      <h3>合并共同风险检查</h3><ul>{common.map(([name, list]) => <li key={name}><strong>{name}：</strong>{list.join('、')}</li>)}</ul>
+      <p>跨标签仍有相关性：微软、Alphabet、东京电子共享 AI 资本开支周期；汇川、柏楚共享制造业设备投资；空客与 RTX 共享发动机供应链；药明、阿斯利康和美敦力均暴露医疗政策。腾讯与舜宇仍受中国消费影响；公用事业与工业气体也可能受利率冲击。没有协方差和持仓权重数据，不能宣称已完成组合风险优化。</p>
+      <details><summary>本次名单调整与理由</summary><p>新增微软、汇川技术、国电南瑞、RTX、林德、Novonesis，分别补充企业软件、工业控制、电网、发动机售后、工业气体与工业酶；移出亚马逊、海康威视、纽威数控、安进、西门子、上海机场。移出代表本轮研究优先级变化，不是认定公司恶化。</p><p>柏楚按实际激光控制业务归入工业自动化／机器人；Novonesis 按工业酶理解前沿生物技术；美敦力不当作纯脑机接口标的。不为凑赛道纳入缺可靠财务的非上市公司。</p></details>
+    </section>
+    <section style={card}>
+      <button type="button" onClick={() => downloadJson(`未来趋势核心研究-${RESEARCH_ASOF}.json`, CORE.map(x => x.research))}>下载核心研究摘要</button>
+      <div style={{ overflowX: 'auto' }}><table style={{ borderCollapse: 'collapse', width: '100%', minWidth: 1250 }}>
+        <thead><tr>{['公司 / 主要业务', '价格与状态', '长期壁垒与保留理由', '条件盈亏比', '价格门槛与胜率', '隐忧'].map(x => <th style={td} key={x}>{x}</th>)}</tr></thead>
+        <tbody>{CORE.map(({ research: r }) => <tr key={r.key}>
+          <td style={td}><strong><FutureCompanyLink name={r.name} code={r.code} /></strong><div>{r.code}</div><div>{r.primaryTrend}</div></td>
+          <td style={td}>{r.priceText}<small style={{ display: 'block' }}>{r.priceDate}</small><div>{r.rating}</div></td>
+          <td style={{ ...td, minWidth: 260 }}>{r.moat}</td>
+          <td style={td}><strong>{r.ratio === null ? '不适用／缺失' : `${r.ratio.toFixed(4)} : 1`}</strong><div>基准上行 {researchPercent(r.up)}</div><div>悲观下行 {researchPercent(r.down)}</div><small>情景假设，未认证</small></td>
+          <td style={td}>2:1 门槛 {researchMoney(r.threshold, r.currency)}<div>保本所需胜率 {researchPercent(r.breakEven)}</div><div>实际胜率：未校准</div><small>门槛不是建议买入价；悲观价不是最大损失。</small></td>
+          <td style={{ ...td, minWidth: 250 }}>{r.concern}</td>
+        </tr>)}</tbody>
+      </table></div>
+    </section>
+  </>
 }

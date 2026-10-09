@@ -21,7 +21,9 @@ for (const market of ['us', 'cn', 'hk', 'adr']) {
   for (const c of list) if (c.scenarios?.length) companies.push(`/research-notes/${market}/${encodeURIComponent(c.code)}`)
 }
 
-const urls = [...new Set([...STATIC, ...chapters, ...companies])]
+const trendResearch = JSON.parse(readFileSync(resolve(ROOT, 'src/data/futureTrendsResearch.index.json'), 'utf8'))
+const trendCompanies = trendResearch.map(c => `/future-trends/company/${encodeURIComponent(c.id)}`)
+const urls = [...new Set([...STATIC, ...chapters, ...companies, ...trendCompanies])]
 const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(u => `  <url><loc>${ORIGIN}${u}</loc></url>`).join('\n')}\n</urlset>\n`
 writeFileSync(resolve(ROOT, 'public/sitemap.xml'), xml)
 console.log(`sitemap: ${urls.length} urls (${chapters.length} chapters, ${companies.length} companies)`)

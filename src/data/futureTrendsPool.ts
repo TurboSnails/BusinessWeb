@@ -1,16 +1,16 @@
 /**
- * 未来趋势候选池：把九个赛道的中国与海外公司按发行人去重，先不看股价，只按“增长 + 确定性”打基本面分，
- * 再按买点距离标记能否现在投资。全部由各赛道排序数据在运行时汇总，刷新数据后自动更新。
- * 基本面分是研究打分规则，不是预测；投资状态沿用各赛道的程序化价位，未经公司级三情景认证。
+ * 产业目录上市主体去重。历史筛选分仅保留兼容和追溯，不是本次财务认证。
+ * 本次价格、赔率和状态由逐公司研究索引覆盖；缺少独立估值时不升级买入。
  */
 import { ADAS_LEVELS, ADAS_PICKS } from './futureTrendsAdasPicks'
+import { RESEARCH_BY_KEY, researchPercent } from './futureTrendsResearch'
 import { AI_LEVELS, AI_PICKS } from './futureTrendsAiPicks'
 import type { AiLevel, AiPick } from './futureTrendsAiPicks'
 import { TRENDS } from './futureTrends'
 import { ADAS_EXTRA_LEVELS, ADAS_EXTRA_PICKS, AI_EXTRA_LEVELS, AI_EXTRA_PICKS, SECTOR_PICKS, TREND_METRICS, US_PICKS } from './futureTrendsSectorPicks'
 
-export type PoolStatus = '可现在投资' | '接近买点' | '股价偏高' | '基本面待验证'
-export const POOL_STATUS_ORDER: PoolStatus[] = ['可现在投资', '接近买点', '股价偏高', '基本面待验证']
+export type PoolStatus = '可现在投资' | '接近买点' | '股价偏高' | '估值待认证' | '基本面待验证'
+export const POOL_STATUS_ORDER: PoolStatus[] = ['可现在投资', '接近买点', '股价偏高', '估值待认证', '基本面待验证']
 
 export interface PoolItem {
   key: string
@@ -72,17 +72,6 @@ function certaintyScore(pick: AiPick, level?: AiLevel): number {
   return Math.max(0, Math.min(50, s))
 }
 
-function statusOf(pick: AiPick, level: AiLevel | undefined, gap: number | null): [PoolStatus, string] {
-  const buy = level?.buy ?? ''
-  const modeled = buy.startsWith('≤') || buy.startsWith('价位过远')
-  if (modeled && gap !== null && gap >= -5) return ['可现在投资', '现价在 2:1 买点附近，可按买入区分批']
-  if (pick.tier === '条件关注') return ['接近买点', '原赛道评为条件关注，但赔率未经模型认证，先补三情景']
-  if (modeled && gap !== null && gap >= -20) return ['接近买点', `还需回落约 ${Math.abs(gap)}% 到 2:1 买点`]
-  if (modeled || /PE\s*[>≥≈]|PE 偏高|估值/.test(buy) || pick.upDown.startsWith('基准<现价')) {
-    return ['股价偏高', gap !== null ? `距 2:1 买点 ${gap}%，价格已透支基本面` : '估值过高，倍数模型不给买点']
-  }
-  return ['基本面待验证', /亏损/.test(buy + (pick.pe ?? '')) ? '尚未盈利，先看扭亏' : '利润含一次性项或数据不足']
-}
 
 function build(): PoolItem[] {
   const trendName = Object.fromEntries(TRENDS.map(t => [t.id, t.name.replace(/（.*?）/, '')]))
@@ -108,7 +97,8 @@ function build(): PoolItem[] {
       const c = certaintyScore(pick, level)
       const score = g + c
       const gap = parseGap(level?.gap)
-      const [status, statusNote] = statusOf(pick, level, gap)
+      const status: PoolStatus = '估值待认证'
+      const statusNote = '历史程序化模型不认证当前买入资格'
       map.set(key, {
         key, pick, level, market: src.market, trends: [trendName[src.trend]], revGrowth: rev, profitGrowth: profit,
         growthScore: g, certaintyScore: c, score,
@@ -122,7 +112,17 @@ function build(): PoolItem[] {
   return [...map.values()]
 }
 
-export const POOL: PoolItem[] = build()
+export const POOL: PoolItem[] = build().map(x => {
+  const r = RESEARCH_BY_KEY.get(x.key)
+  if (!r) return { ...x, status: '基本面待验证', statusNote: '主体尚未匹配公司研究，不使用旧程序化买点', gap: null, level: undefined }
+  return { ...x,
+    status: '估值待认证', statusNote: r.valuationStatus, gap: null,
+    pick: { ...x.pick, price: r.priceText, tier: '证据不足', ratio: r.ratio === null ? '不适用／缺失' : `${r.ratio.toFixed(4)}:1（假设）`,
+      upDown: `基准 ${researchPercent(r.up)} / 悲观下行 ${researchPercent(r.down)}`, winRate: '待校准', expected: '[MISSING]',
+      pe: '[MISSING] 待同口径核实', peg: '[MISSING]', note: r.headline, risk: r.concern, barrier: r.moat },
+    level: { code: x.pick.code, buy: '待独立估值核实；情景门槛不自动成为买点', gap: '—', stop: '—', takeProfit: '—', cap: '未设置', trigger: '逐公司见二级页', invalid: x.level?.invalid ?? '待公司披露验证', risk: x.level?.risk ?? '高' },
+  }
+})
 
 /** 按基本面：总分 → 确定性 → 增长。 */
 export const byFundamentals = (a: PoolItem, b: PoolItem): number =>
@@ -138,6 +138,7 @@ export function poolItemJson(x: PoolItem): Record<string, unknown> {
   return {
     市场: x.market, 代码: p.code, 公司: p.name, 所属赛道: x.trends, 现价: p.price,
     投资状态: x.status, 状态说明: x.statusNote, 赛道评级: p.tier, 距买点: x.gap === null ? null : `${x.gap}%`,
+    筛选分说明: '历史程序化初筛，非最新财务认证；不作为买入依据',
     基本面: { 档位: x.grade, 总分: x.score, 增长分: x.growthScore, 确定性分: x.certaintyScore, 增长: x.growthLevel, 确定性: x.certaintyLevel },
     估值与增速: { PE: p.pe ?? null, PEG: p.peg ?? null, 增速: p.growthRate ?? null, 营收增速: x.revGrowth, 利润增速: x.profitGrowth },
     盈亏比: { 盈亏比: p.ratio, 上行下行: p.upDown, 胜率: p.winRate, 期望: p.expected },

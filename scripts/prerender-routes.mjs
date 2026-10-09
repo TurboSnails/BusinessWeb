@@ -29,6 +29,7 @@ for (const market of ['us', 'cn', 'hk', 'adr']) {
   for (const c of JSON.parse(readFileSync(resolve(ROOT, `public/data/${market}.json`), 'utf8'))) companies.set(`/research-notes/${market}/${encodeURIComponent(c.code)}`, c)
 }
 
+const trendCompanies = new Map(JSON.parse(readFileSync(resolve(ROOT, 'src/data/futureTrendsResearch.index.json'), 'utf8')).map(c => [`/future-trends/company/${encodeURIComponent(c.id)}`, c]))
 function describe(path) {
   const seo = resolveSeo(path)
   const file = path.startsWith('/first-book/read/') && decodeURIComponent(path.slice('/first-book/read/'.length))
@@ -41,6 +42,15 @@ function describe(path) {
     }
   }
   const c = companies.get(path)
+  const trend = trendCompanies.get(path)
+  if (trend) {
+    const d = JSON.parse(readFileSync(resolve(ROOT, 'public/research/future-trends-2026-10-09/companies', `${trend.id}.json`), 'utf8'))
+    const list = (title, values) => `<h2>${esc(title)}</h2><ul>${values.map(v => `<li>${esc(v)}</li>`).join('')}</ul>`
+    return {
+      title: `${d.name}（${d.code}）｜未来趋势研究`, description: d.headline.slice(0, 160),
+      body: `<p>${esc(d.rating)}；${esc(d.depth)}；${esc(d.valuationStatus)}</p><p>${esc(d.headline)}</p><p>${esc(d.profile)}</p>${list('业务与盈利驱动', d.segments.concat(d.drivers))}${list('护城河', d.moatAnalysis)}${list('隐忧与证伪', [d.concern, ...d.falsification])}<h2>三情景草稿</h2>${d.scenarios.map(s => `<p>${esc(s.name)}：${esc(s.assumption)}；价格 ${esc(s.price ?? '[MISSING]')} ${esc(d.currency)}</p>`).join('')}<p>条件盈亏比 ${esc(d.ratio ?? '不适用／缺失')}；实际胜率 ${esc(d.winRate)}</p><p>${esc(d.probabilityNote)}</p><p>${esc(d.secondMethod)}</p>${list('未完成证据', d.missing)}<h2>来源与范围</h2><ul>${d.sources.filter(s => s.url).map(s => `<li><a href="${esc(s.url)}">${esc(s.title)}</a>：${esc(s.status)}</li>`).join('')}</ul>`,
+    }
+  }
   if (c) {
     const list = (label, items) => items?.length ? `<h2>${label}</h2><ul>${items.map(i => `<li>${esc(i)}</li>`).join('')}</ul>` : ''
     return {

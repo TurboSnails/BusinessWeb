@@ -1,4 +1,7 @@
-import React, { useState } from 'react'
+import React from 'react'
+import { useSearchParams } from 'react-router-dom'
+import FutureCompanyLink from '../components/FutureCompanyLink'
+import { researchForCompany, researchPercent } from '../data/futureTrendsResearch'
 import { PageTabs, PageTitle } from '../components/ui/PageTabs'
 import { ADAS_LEVELS, ADAS_PICKS, ADAS_PICKS_ASOF, ADAS_RISK_RULES, ADAS_SUMMARY } from '../data/futureTrendsAdasPicks'
 import { AI_LEVELS, AI_PICKS, AI_PICKS_ASOF, AI_RISK_RULES, AI_PICKS_PRICE_DATE, AI_PICKS_SUMMARY } from '../data/futureTrendsAiPicks'
@@ -24,7 +27,7 @@ function Companies({ title, list }: { title: string; list: TrendCompany[] }): JS
         <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
           {list.map(c => (
             <li key={c.name + c.code} style={{ padding: '6px 0', borderTop: '1px solid var(--system-gray5)', lineHeight: 1.6, fontSize: '0.9rem' }}>
-              <strong>{c.name}</strong>
+              <strong><FutureCompanyLink name={c.name} code={c.code} /></strong>
               <span style={{ color: 'var(--text-secondary)', marginLeft: 6, fontSize: '0.8rem' }}>{c.code}</span>
               <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{c.role}</div>
               <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}><strong>{c.exposure}</strong> · {c.evidence}</div>
@@ -61,75 +64,21 @@ interface PicksSectionProps {
   footer: string
 }
 
-function PicksSection({ id, title, intro, picks, levels, summary, rules, footer }: PicksSectionProps): JSX.Element {
-  const th: React.CSSProperties = { textAlign: 'left', padding: '6px 8px', whiteSpace: 'nowrap', borderBottom: '1px solid var(--system-gray5)' }
-  const td: React.CSSProperties = { padding: '6px 8px', verticalAlign: 'top', borderBottom: '1px solid var(--system-gray5)' }
-  return (
-    <section style={card} aria-labelledby={id}>
-      <h2 id={id} style={{ margin: '0 0 6px', fontSize: '1.2rem' }}>{title}</h2>
-      <p style={{ margin: '0 0 10px', fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-        {intro}
-      </p>
-      <ul style={{ margin: '0 0 12px', paddingLeft: 18, lineHeight: 1.8, fontSize: '0.9rem' }}>
-        {summary.map(x => <li key={x.label}><strong>{x.label}：</strong>{x.text}</li>)}
-      </ul>
-      <p style={{ margin: '0 0 8px', fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-        买卖点位：买入区 = 2:1 门槛研究价 P* = (基准价 + 2 × 悲观价) ÷ 3；止盈 = 基准价；认错线 = P* − 0.5 × (P* − 悲观价)；仓位上限 = min(5%, 1% ÷ 从 P* 到悲观价的跌幅)，即单笔最大亏损约 1% 总资产。距现价超过 40% 的价位几乎不会出现，改用基本面触发重估。这些不是交易指令。
-      </p>
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ borderCollapse: 'collapse', fontSize: '0.8rem', minWidth: 1200 }}>
-          <thead><tr>{['公司 / 结论', '现价', '估值与增速', '赔率与胜率', '壁垒 / 增长', '买卖点位与仓位', '要点', '风险、重估触发与失效条件'].map(h => <th key={h} style={th}>{h}</th>)}</tr></thead>
-          <tbody>
-            {picks.map(pick => {
-              const p = { ...TREND_METRICS[pick.code], ...pick }
-              const l = levels.find(x => x.code === p.code)
-              return (
-                <tr key={p.code}>
-                  <td style={{ ...td, minWidth: 100 }}><strong>{p.name}</strong><div style={{ color: 'var(--text-secondary)' }}>{p.code}</div><div><strong>{p.tier}</strong></div></td>
-                  <td style={{ ...td, minWidth: 80 }}>{p.price}</td>
-                  <td style={{ ...td, minWidth: 170, lineHeight: 1.6 }}>
-                    <div>PE：{p.pe ?? '—'}</div>
-                    <div>PEG：{p.peg ?? '—'}</div>
-                    <div>增速：{p.growthRate ?? '—'}</div>
-                    <div>增长空间：{p.space ?? '—'}</div>
-                  </td>
-                  <td style={{ ...td, minWidth: 130, lineHeight: 1.6 }}>
-                    <div>上行/下行：{p.upDown}</div>
-                    <div>盈亏比：{p.ratio}</div>
-                    <div>胜率：{p.winRate}</div>
-                    <div>期望：{p.expected}</div>
-                  </td>
-                  <td style={{ ...td, minWidth: 110, lineHeight: 1.6 }}><div>壁垒：{p.moat}</div><div>增长：{p.growth}</div>{p.barrier && <div style={{ color: 'var(--text-secondary)' }}>{p.barrier}</div>}</td>
-                  {l ? (
-                    <td style={{ ...td, minWidth: 190, lineHeight: 1.6 }}>
-                      <div>买入：{l.buy}{l.gap && l.gap !== '—' ? `（${l.gap}）` : ''}</div>
-                      <div>认错：{l.stop}</div>
-                      <div>止盈：{l.takeProfit}</div>
-                      <div>仓位：{l.cap}</div>
-                    </td>
-                  ) : <td style={td}>—</td>}
-                  <td style={{ ...td, minWidth: 220, lineHeight: 1.6 }}>{p.note}</td>
-                  <td style={{ ...td, minWidth: 240, lineHeight: 1.6 }}>
-                    <div><strong>风险等级：{l?.risk ?? '—'}</strong></div>
-                    <div>{p.risk}</div>
-                    {l && l.trigger !== '—' && <div>重估触发：{l.trigger}</div>}
-                    {l && <div>失效：{l.invalid}</div>}
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
-      <h3 style={{ margin: '16px 0 6px', fontSize: '1.05rem' }}>风险管理规则</h3>
-      <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.8, fontSize: '0.85rem' }}>
-        {rules.map(r => <li key={r}>{r}</li>)}
-      </ul>
-      <p style={{ margin: '10px 0 0', fontSize: '0.75rem', color: 'var(--system-gray)', lineHeight: 1.7 }}>
-        {footer}
-      </p>
-    </section>
-  )
+function PicksSection({ id, title, picks }: PicksSectionProps): JSX.Element {
+  return <section style={card} aria-labelledby={id}>
+    <h2 id={id}>{title}</h2>
+    <p>2026-10-09 复核：下表链接至每家公司二级研究页。旧程序化买点、固定胜率与买入评级已撤回；情景草稿未经第二种独立估值认证。行情时点、事实、假设与缺项逐页标明。</p>
+    <div style={{ overflowX: 'auto' }}><table style={{ width: '100%', minWidth: 800, borderCollapse: 'collapse' }}>
+      <thead><tr>{['公司 / 代码', '行情 / 时间', '综合结论', '条件盈亏比 / 保本所需胜率', '护城河', '隐忧'].map(t => <th key={t} style={{ textAlign: 'left', padding: 10 }}>{t}</th>)}</tr></thead>
+      <tbody>{picks.map(p => { const r = researchForCompany(p.name, p.code); return <tr key={p.code}>
+        <td style={{ padding: 10 }}><FutureCompanyLink name={p.name} code={p.code} /><div>{p.code}</div></td>
+        <td style={{ padding: 10 }}>{r?.priceText ?? '[MISSING]'}<small style={{ display: 'block' }}>{r?.priceDate}</small></td>
+        <td style={{ padding: 10 }}>{r?.rating ?? '等待证据'}<small style={{ display: 'block' }}>{r?.valuationStatus}</small></td>
+        <td style={{ padding: 10 }}>{r?.ratio == null ? '待建模／不适用' : `${r.ratio.toFixed(4)}:1（假设）`}<div>保本所需 {researchPercent(r?.breakEven)}</div><div>实际胜率：未校准</div></td>
+        <td style={{ padding: 10 }}>{r?.moat}</td><td style={{ padding: 10 }}>{r?.concern}</td>
+      </tr> })}</tbody>
+    </table></div>
+  </section>
 }
 
 function AiPicks(): JSX.Element {
@@ -156,7 +105,7 @@ function SectorPicksSection({ id }: { id: string }): JSX.Element | null {
   const s = SECTOR_PICKS[id]
   if (!s) return null
   return (
-    <PicksSection id={`${id}-picks`} title={`${s.title}中国公司综合排序：PE、PEG、增速、壁垒与买卖点位`}
+    <PicksSection id={`${id}-picks`} title={`${s.title}中国公司研究：壁垒、隐忧、情景与待核项`}
       intro={`整理于 ${SECTOR_PICKS_ASOF}；A 股价格为 2026-09-30（节前最后交易日）腾讯行情，港股、中概为 2026-10-07 延迟快照，不是收盘价。财务为 2026H1 累计口径；PE 为 TTM，PEG = PE ÷ H1 归母同比（利润低基数时参考性弱，不是远期 PEG）。基准、悲观价来自本站程序化倍数模型：基准 EPS = TTM EPS × (1 + 0.7 × H1 营收同比，限 −5%~20%)，倍数取现 PE 与赛道中位 PE（${s.median}×）的中点，不超过现 PE 的 1.25 倍，限 7–40×；悲观 EPS 打 15–30% 折扣，倍数取 min(现 PE, 0.6 × 中位)。亏损、PE 过高或利润含一次性项的公司不建模，不设买入价。胜率是主观概率，不是回测胜率；壁垒、增长空间与风险为研究判断。仅供研究参考，不构成个人投资建议。`}
       picks={s.picks} levels={s.levels} rules={s.rules} summary={s.summary} footer={s.footer} />
   )
@@ -166,7 +115,7 @@ function UsPicksSection({ id }: { id: string }): JSX.Element | null {
   const s = US_PICKS[id]
   if (!s) return null
   return (
-    <PicksSection id={`${id}-us-picks`} title={`${s.title}海外公司综合排序（美股、ADR 及其他市场）：PE、PEG、增速、壁垒与买卖点位`}
+    <PicksSection id={`${id}-us-picks`} title={`${s.title}海外公司公司研究（美股及其他市场）：壁垒、隐忧、情景与待核项`}
       intro={`整理于 ${SECTOR_PICKS_ASOF}；价格为 Yahoo Finance 2026-10-07 延迟快照（各地交易所本币），不是收盘价。PE 为 TTM（括号内为远期 PE），增速为最近一季营收、盈利同比，PEG = TTM PE ÷ 最近季盈利同比（利润低基数时参考性弱）。基准、悲观价与中国公司同一程序化倍数模型，倍数中位取本赛道海外公司（${s.median}×）。亏损、PE 过高或利润含一次性项的公司不建模，不设买入价。胜率是主观概率，不是回测胜率；壁垒、增长空间与风险为研究判断。仅供研究参考，不构成个人投资建议。`}
       picks={s.picks} levels={s.levels} rules={s.rules} summary={s.summary} footer={s.footer} />
   )
@@ -176,7 +125,10 @@ const POOL_ID = 'pool'
 const CORE_ID = 'core'
 
 export default function FutureTrends(): JSX.Element {
-  const [id, setId] = useState(TRENDS[0].id)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const selected = searchParams.get('tab')
+  const id = selected && [...TRENDS.map(t => t.id), POOL_ID, CORE_ID].includes(selected) ? selected : TRENDS[0].id
+  const setId = (next: string): void => { setSearchParams({ tab: next }) }
   const trend = TRENDS.find(t => t.id === id) ?? TRENDS[0]
   const coverage = trendCoverage()
   const selectedCoverage = trendCoverage([trend])
@@ -187,7 +139,7 @@ export default function FutureTrends(): JSX.Element {
         items={[...TRENDS.map(t => ({ id: t.id, label: t.name.replace(/（.*?）/, '').replace(/，.*/, '') })), { id: POOL_ID, label: '候选池' }, { id: CORE_ID, label: '核心' }]} />
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 16px 32px' }}>
         <p role="note" style={{ margin: '0 0 12px', padding: '10px 14px', borderRadius: 10, background: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: 1.7 }}>
-          整理于 {FUTURE_TRENDS_ASOF}。这里列的是产业链上的参与公司和它们做什么，不是买入清单，也没有目标价和收益预测。产业增长不等于公司盈利，更不等于股价回报（书第31章）；公司代码、上市状态和业务以交易所公告与定期报告为准，用前请自行核对。“已查阅”仅支持来源明确披露的事项，其他条目标为候选待核。代码不代表上市状态全部复核；同一公司会在不同环节出现。主题只放主动额度（第9章）。不构成投资建议。
+          产业目录截至 {FUTURE_TRENDS_ASOF}，公司研究更新于 2026-10-09。点击任意公司名称进入二级页：经营、护城河、隐忧、情景与缺失证据均逐家列明。20 家有新增公司披露摘录与情景草稿，其余为初筛待核；旧程序化买入、固定胜率和赔率解释已撤回。产业增长不等于公司盈利或股价回报；核心为长期优先研究名单，未认证现价买入。来源只支持明确披露的事项，不构成投资建议。
         </p>
 
         {id === POOL_ID ? <FutureTrendsPool /> : id === CORE_ID ? <FutureTrendsCore /> : (<>

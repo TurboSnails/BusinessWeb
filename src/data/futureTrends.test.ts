@@ -71,11 +71,11 @@ describe('候选池', () => {
 })
 
 describe('核心 20', () => {
-  it('20 家都在候选池中、不重复、且现在可投或接近买点；同一产业链最多 2 家', () => {
+  it('20 家都在候选池中、不重复；估值未认证不升级买入，单一主要方向最多 3 家', () => {
     expect(CORE).toHaveLength(20)
     expect(new Set(CORE.map(x => x.key)).size).toBe(20)
-    for (const x of CORE) expect(['可现在投资', '接近买点'], x.key).toContain(x.item.status)
-    const chains = CORE.reduce<Record<string, number>>((m, x) => ({ ...m, [x.chain]: (m[x.chain] ?? 0) + 1 }), {})
-    for (const [c, n] of Object.entries(chains)) expect(n, c).toBeLessThanOrEqual(2)
+    for (const x of CORE) expect(x.item.status, x.key).toBe('估值待认证')
+    const trends = CORE.reduce<Record<string, number>>((m, x) => ({ ...m, [x.research.primaryTrend]: (m[x.research.primaryTrend] ?? 0) + 1 }), {})
+    for (const [c, n] of Object.entries(trends)) expect(n, c).toBeLessThanOrEqual(3)
   })
 })

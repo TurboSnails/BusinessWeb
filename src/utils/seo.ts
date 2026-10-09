@@ -44,6 +44,7 @@ const PREFIX: Array<[string, RouteSeo]> = [
   ['/grid-trading/records', { title: '网格交易记录', noindex: true }],
   ['/first-book/read/', { title: '《正念投资》在线阅读', description: '《正念投资》章节全文在线阅读。' }],
   ['/research-notes/', { title: '公司研究笔记', description: '单家公司的研究笔记、财务与估值要点。' }],
+  ['/future-trends/company/', { title: '未来趋势｜公司研究', description: '公司经营、护城河、隐忧、情景估值与研究证据。' }],
   ['/ai/', { title: 'AI 实验方向', description: 'AI 独立开发的实验方向与笔记。' }],
 ]
 
