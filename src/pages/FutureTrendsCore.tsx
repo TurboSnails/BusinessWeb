@@ -17,7 +17,7 @@ export default function FutureTrendsCore(): JSX.Element {
   const modeled = waiting.filter(({r}) => r.depth.startsWith('公司证据')).length
   return <div className="ft">
     <p className="ft-method"><Link to="/future-trends?tab=solid-state#solid-core-review">固态电池竞选复核：宁德保留核心，先导、新宙邦、赢合优先研究 →</Link></p>
-    <header className="ft-heading"><div><div className="ft-eyebrow">精选 {rows.length} 家 · 覆盖 {groups.length} 个赛道 · 单一赛道最多 {max} 家</div><h2>核心：先看这 {first.length} 家</h2><p>{first.map(r => r.name).join('、')}优先跟踪；其余 {second.length} 家作为备选。依据是经营壁垒、现金质量、情景盈亏比与赛道分散，不为凑数入选：半导体与先进制造、航空航天、新材料赛道已分析公司现价均高于或贴近基准价，本轮没有入选；博通、礼来、TransDigm、林德按盈亏比≥0.75 且期望收益≥20% 的准入线降为入围候选。</p></div><button className="ft-export" type="button" onClick={() => downloadJson('未来趋势核心研究-2026-10-09.json',rows)}>导出核心 JSON</button></header>
+    <header className="ft-heading"><div><div className="ft-eyebrow">精选 {rows.length} 家 · 覆盖 {groups.length} 个赛道 · 单一赛道最多 {max} 家</div><h2>核心：先看这 {first.length} 家</h2><p>{first.map(r => r.name).join('、')}优先跟踪；其余 {second.length} 家作为备选。依据是经营壁垒、现金质量、情景盈亏比与赛道分散，不为凑数入选：半导体与先进制造、航空航天、新材料赛道已分析公司现价均高于或贴近基准价（新材料新增 9 家同样如此），本轮没有入选；博通、礼来、TransDigm、林德按盈亏比≥0.75 且期望收益≥20% 的准入线降为入围候选。</p></div><button className="ft-export" type="button" onClick={() => downloadJson('未来趋势核心研究-2026-10-09.json',rows)}>导出核心 JSON</button></header>
     <div className="ft-distribution" aria-label="核心赛道分布">{groups.map(([name,count]) => <span key={name}><strong>{name}</strong>{count} 家</span>)}</div>
     <div className="ft-section-head"><h3>优先候选</h3><p>业务质量优先，价格条件逐家比较</p></div><CompanyComparison rows={first} />
     <div className="ft-section-head"><h3>备选</h3><p>保留跟踪，等待更好的价格或经营证据</p></div><CompanyComparison rows={second} />
