@@ -22352,5 +22352,2597 @@
     "status": "基本面待验证",
     "statusNote": "尚未盈利，先看扭亏",
     "gap": null
+  },
+  {
+    "key": "中国:000970",
+    "pick": {
+      "name": "中科三环",
+      "code": "000970",
+      "tier": "待研究",
+      "barrier": "钕铁硼永磁，覆盖电机、消费电子与新能源领域。",
+      "space": "钕铁硼永磁，覆盖电机、消费电子与新能源领域。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:300224",
+    "pick": {
+      "name": "正海磁材",
+      "code": "300224",
+      "tier": "待研究",
+      "barrier": "钕铁硼磁材，产品用于新能源汽车驱动电机等。",
+      "space": "钕铁硼磁材，产品用于新能源汽车驱动电机等。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:000795",
+    "pick": {
+      "name": "英洛华",
+      "code": "000795",
+      "tier": "待研究",
+      "barrier": "钕铁硼磁材，同时有电机与电子元件业务。",
+      "space": "钕铁硼磁材，同时有电机与电子元件业务。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:688077",
+    "pick": {
+      "name": "大地熊",
+      "code": "688077",
+      "tier": "待研究",
+      "barrier": "烧结钕铁硼磁材，应用于风电、节能电机和新能源汽车。",
+      "space": "烧结钕铁硼磁材，应用于风电、节能电机和新能源汽车。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:600392",
+    "pick": {
+      "name": "盛和资源",
+      "code": "600392",
+      "tier": "待研究",
+      "barrier": "稀土资源、冶炼分离及海外矿山合作。",
+      "space": "稀土资源、冶炼分离及海外矿山合作。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:600259",
+    "pick": {
+      "name": "中稀有色",
+      "code": "600259",
+      "tier": "待研究",
+      "barrier": "稀土分离与资源整合，偏重重稀土方向（原广晟有色）。",
+      "space": "稀土分离与资源整合，偏重重稀土方向（原广晟有色）。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:300777",
+    "pick": {
+      "name": "中简科技",
+      "code": "300777",
+      "tier": "待研究",
+      "barrier": "高性能碳纤维及织物，面向航空航天等高端领域。",
+      "space": "高性能碳纤维及织物，面向航空航天等高端领域。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:000420",
+    "pick": {
+      "name": "吉林化纤",
+      "code": "000420",
+      "tier": "待研究",
+      "barrier": "化学纤维与大丝束碳纤维布局。",
+      "space": "化学纤维与大丝束碳纤维布局。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:002171",
+    "pick": {
+      "name": "楚江新材",
+      "code": "002171",
+      "tier": "待研究",
+      "barrier": "铜合金材料为主，子公司顶立科技做碳基复合材料与热工装备。",
+      "space": "铜合金材料为主，子公司顶立科技做碳基复合材料与热工装备。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "海外:3402.T",
+    "pick": {
+      "name": "东丽",
+      "code": "3402.T",
+      "tier": "待研究",
+      "barrier": "全球碳纤维与复合材料的主要供应商。",
+      "space": "全球碳纤维与复合材料的主要供应商。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "海外",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:605589",
+    "pick": {
+      "name": "圣泉集团",
+      "code": "605589",
+      "tier": "待研究",
+      "barrier": "酚醛树脂、电子树脂及生物质材料，布局半导体光刻胶树脂。",
+      "space": "酚醛树脂、电子树脂及生物质材料，布局半导体光刻胶树脂。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "海外:DOW",
+    "pick": {
+      "name": "陶氏",
+      "code": "DOW",
+      "tier": "待研究",
+      "barrier": "全球化工与材料公司，含硅基与高性能聚合物材料。",
+      "space": "全球化工与材料公司，含硅基与高性能聚合物材料。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "海外",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:688146",
+    "pick": {
+      "name": "中船特气",
+      "code": "688146",
+      "tier": "待研究",
+      "barrier": "电子级三氟化氮、六氟化钨等电子特种气体。",
+      "space": "电子级三氟化氮、六氟化钨等电子特种气体。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:002549",
+    "pick": {
+      "name": "凯美特气",
+      "code": "002549",
+      "tier": "待研究",
+      "barrier": "高纯气体、电子特气与氦气等业务。",
+      "space": "高纯气体、电子特气与氦气等业务。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:300316",
+    "pick": {
+      "name": "晶盛机电",
+      "code": "300316",
+      "tier": "待研究",
+      "barrier": "晶体生长设备，布局碳化硅衬底。",
+      "space": "晶体生长设备，布局碳化硅衬底。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:002617",
+    "pick": {
+      "name": "露笑科技",
+      "code": "002617",
+      "tier": "待研究",
+      "barrier": "布局碳化硅衬底，同时有漆包线等业务。",
+      "space": "布局碳化硅衬底，同时有漆包线等业务。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:2577.HK",
+    "pick": {
+      "name": "英诺赛科",
+      "code": "2577.HK",
+      "tier": "待研究",
+      "barrier": "8 英寸硅基氮化镓器件，采用 IDM 模式。",
+      "space": "8 英寸硅基氮化镓器件，采用 IDM 模式。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:002324",
+    "pick": {
+      "name": "普利特",
+      "code": "002324",
+      "tier": "待研究",
+      "barrier": "改性塑料与特种工程塑料。",
+      "space": "改性塑料与特种工程塑料。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:002838",
+    "pick": {
+      "name": "道恩股份",
+      "code": "002838",
+      "tier": "待研究",
+      "barrier": "改性塑料与热塑性弹性体。",
+      "space": "改性塑料与热塑性弹性体。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:600458",
+    "pick": {
+      "name": "时代新材",
+      "code": "600458",
+      "tier": "待研究",
+      "barrier": "轨道交通、风电减振与高分子复合材料，含聚酰亚胺布局。",
+      "space": "轨道交通、风电减振与高分子复合材料，含聚酰亚胺布局。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:300855",
+    "pick": {
+      "name": "图南股份",
+      "code": "300855",
+      "tier": "待研究",
+      "barrier": "高温合金母合金与精密铸件。",
+      "space": "高温合金母合金与精密铸件。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:688231",
+    "pick": {
+      "name": "隆达股份",
+      "code": "688231",
+      "tier": "待研究",
+      "barrier": "高温合金及特种合金材料。",
+      "space": "高温合金及特种合金材料。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:603308",
+    "pick": {
+      "name": "应流股份",
+      "code": "603308",
+      "tier": "待研究",
+      "barrier": "高温合金叶片与精密铸造，面向燃机与航空。",
+      "space": "高温合金叶片与精密铸造，面向燃机与航空。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:688433",
+    "pick": {
+      "name": "华曙高科",
+      "code": "688433",
+      "tier": "待研究",
+      "barrier": "金属与高分子增材制造设备。",
+      "space": "金属与高分子增材制造设备。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:688786",
+    "pick": {
+      "name": "悦安新材",
+      "code": "688786",
+      "tier": "待研究",
+      "barrier": "金属粉末（羰基铁粉、雾化粉等）。",
+      "space": "金属粉末（羰基铁粉、雾化粉等）。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "海外:MTRN",
+    "pick": {
+      "name": "Materion",
+      "code": "MTRN",
+      "tier": "待研究",
+      "barrier": "铍、特种合金与先进材料。",
+      "space": "铍、特种合金与先进材料。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "海外",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:603256",
+    "pick": {
+      "name": "宏和科技",
+      "code": "603256",
+      "tier": "待研究",
+      "barrier": "电子级玻纤布，布局超薄与低介电产品。",
+      "space": "电子级玻纤布，布局超薄与低介电产品。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:605006",
+    "pick": {
+      "name": "山东玻纤",
+      "code": "605006",
+      "tier": "待研究",
+      "barrier": "玻璃纤维及制品。",
+      "space": "玻璃纤维及制品。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:300196",
+    "pick": {
+      "name": "长海股份",
+      "code": "300196",
+      "tier": "待研究",
+      "barrier": "玻纤制品与复合材料。",
+      "space": "玻纤制品与复合材料。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:603601",
+    "pick": {
+      "name": "再升科技",
+      "code": "603601",
+      "tier": "待研究",
+      "barrier": "超细玻纤材料，布局气凝胶与保温材料。",
+      "space": "超细玻纤材料，布局气凝胶与保温材料。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "海外:3110.T",
+    "pick": {
+      "name": "日东纺",
+      "code": "3110.T",
+      "tier": "待研究",
+      "barrier": "电子玻纤布供应商，用于高端基板。",
+      "space": "电子玻纤布供应商，用于高端基板。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "海外",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:600549",
+    "pick": {
+      "name": "厦门钨业",
+      "code": "600549",
+      "tier": "待研究",
+      "barrier": "钨钼冶炼与硬质合金、稀土磁材及电池材料。",
+      "space": "钨钼冶炼与硬质合金、稀土磁材及电池材料。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:000657",
+    "pick": {
+      "name": "中钨高新",
+      "code": "000657",
+      "tier": "待研究",
+      "barrier": "钨矿、钨粉与硬质合金工具。",
+      "space": "钨矿、钨粉与硬质合金工具。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:002378",
+    "pick": {
+      "name": "章源钨业",
+      "code": "002378",
+      "tier": "待研究",
+      "barrier": "钨冶炼加工与硬质合金。",
+      "space": "钨冶炼加工与硬质合金。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:603993",
+    "pick": {
+      "name": "洛阳钼业",
+      "code": "603993",
+      "tier": "待研究",
+      "barrier": "钼、钴、铜等矿业与国际资产。",
+      "space": "钼、钴、铜等矿业与国际资产。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:002428",
+    "pick": {
+      "name": "云南锗业",
+      "code": "002428",
+      "tier": "待研究",
+      "barrier": "锗矿资源与锗系产品。",
+      "space": "锗矿资源与锗系产品。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:600497",
+    "pick": {
+      "name": "驰宏锌锗",
+      "code": "600497",
+      "tier": "待研究",
+      "barrier": "锌、锗等有色金属矿业与冶炼。",
+      "space": "锌、锗等有色金属矿业与冶炼。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:000960",
+    "pick": {
+      "name": "锡业股份",
+      "code": "000960",
+      "tier": "待研究",
+      "barrier": "锡、铟等冶炼与锡化工。",
+      "space": "锡、铟等冶炼与锡化工。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:600301",
+    "pick": {
+      "name": "华锡有色",
+      "code": "600301",
+      "tier": "待研究",
+      "barrier": "锡、锑等矿业资源。",
+      "space": "锡、锑等矿业资源。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:002155",
+    "pick": {
+      "name": "湖南黄金",
+      "code": "002155",
+      "tier": "待研究",
+      "barrier": "黄金、锑、钨等矿产与冶炼。",
+      "space": "黄金、锑、钨等矿产与冶炼。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:000962",
+    "pick": {
+      "name": "东方钽业",
+      "code": "000962",
+      "tier": "待研究",
+      "barrier": "钽、铌等稀有金属材料。",
+      "space": "钽、铌等稀有金属材料。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:600206",
+    "pick": {
+      "name": "有研新材",
+      "code": "600206",
+      "tier": "待研究",
+      "barrier": "稀土、靶材及金属材料。",
+      "space": "稀土、靶材及金属材料。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:300666",
+    "pick": {
+      "name": "江丰电子",
+      "code": "300666",
+      "tier": "待研究",
+      "barrier": "高纯溅射靶材。",
+      "space": "高纯溅射靶材。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:300706",
+    "pick": {
+      "name": "阿石创",
+      "code": "300706",
+      "tier": "待研究",
+      "barrier": "PVD 镀膜材料与靶材。",
+      "space": "PVD 镀膜材料与靶材。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:300655",
+    "pick": {
+      "name": "晶瑞电材",
+      "code": "300655",
+      "tier": "待研究",
+      "barrier": "i 线光刻胶与高纯湿电子化学品。",
+      "space": "i 线光刻胶与高纯湿电子化学品。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:300236",
+    "pick": {
+      "name": "上海新阳",
+      "code": "300236",
+      "tier": "待研究",
+      "barrier": "晶圆制造化学材料与 KrF 光刻胶。",
+      "space": "晶圆制造化学材料与 KrF 光刻胶。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:300576",
+    "pick": {
+      "name": "容大感光",
+      "code": "300576",
+      "tier": "待研究",
+      "barrier": "PCB 光刻胶，布局半导体光刻胶。",
+      "space": "PCB 光刻胶，布局半导体光刻胶。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:688545",
+    "pick": {
+      "name": "兴福电子",
+      "code": "688545",
+      "tier": "待研究",
+      "barrier": "电子级磷酸、硫酸等湿电子化学品。",
+      "space": "电子级磷酸、硫酸等湿电子化学品。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:603078",
+    "pick": {
+      "name": "江化微",
+      "code": "603078",
+      "tier": "待研究",
+      "barrier": "湿电子化学品。",
+      "space": "湿电子化学品。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:688535",
+    "pick": {
+      "name": "华海诚科",
+      "code": "688535",
+      "tier": "待研究",
+      "barrier": "环氧塑封料等半导体封装材料。",
+      "space": "环氧塑封料等半导体封装材料。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "海外:4063.T",
+    "pick": {
+      "name": "信越化学",
+      "code": "4063.T",
+      "tier": "待研究",
+      "barrier": "硅片、光刻胶等半导体材料与塑料化工。",
+      "space": "硅片、光刻胶等半导体材料与塑料化工。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "海外",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "海外:4186.T",
+    "pick": {
+      "name": "东京应化",
+      "code": "4186.T",
+      "tier": "待研究",
+      "barrier": "光刻胶与高纯化学品。",
+      "space": "光刻胶与高纯化学品。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "海外",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:688378",
+    "pick": {
+      "name": "奥来德",
+      "code": "688378",
+      "tier": "待研究",
+      "barrier": "OLED 有机发光材料与蒸镀设备。",
+      "space": "OLED 有机发光材料与蒸镀设备。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:688150",
+    "pick": {
+      "name": "莱特光电",
+      "code": "688150",
+      "tier": "待研究",
+      "barrier": "OLED 有机材料。",
+      "space": "OLED 有机材料。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:688550",
+    "pick": {
+      "name": "瑞联新材",
+      "code": "688550",
+      "tier": "待研究",
+      "barrier": "液晶与 OLED 单体、中间体。",
+      "space": "液晶与 OLED 单体、中间体。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:002643",
+    "pick": {
+      "name": "万润股份",
+      "code": "002643",
+      "tier": "待研究",
+      "barrier": "OLED 材料、液晶单体与环保材料等。",
+      "space": "OLED 材料、液晶单体与环保材料等。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:300429",
+    "pick": {
+      "name": "强力新材",
+      "code": "300429",
+      "tier": "待研究",
+      "barrier": "光引发剂等光刻胶材料及 OLED 材料布局。",
+      "space": "光引发剂等光刻胶材料及 OLED 材料布局。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:002876",
+    "pick": {
+      "name": "三利谱",
+      "code": "002876",
+      "tier": "待研究",
+      "barrier": "偏光片。",
+      "space": "偏光片。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:600884",
+    "pick": {
+      "name": "杉杉股份",
+      "code": "600884",
+      "tier": "待研究",
+      "barrier": "偏光片与锂电负极等材料。",
+      "space": "偏光片与锂电负极等材料。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:300566",
+    "pick": {
+      "name": "激智科技",
+      "code": "300566",
+      "tier": "待研究",
+      "barrier": "光学膜产品。",
+      "space": "光学膜产品。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:002585",
+    "pick": {
+      "name": "双星新材",
+      "code": "002585",
+      "tier": "待研究",
+      "barrier": "光学基膜与聚酯薄膜。",
+      "space": "光学基膜与聚酯薄膜。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:688323",
+    "pick": {
+      "name": "瑞华泰",
+      "code": "688323",
+      "tier": "待研究",
+      "barrier": "聚酰亚胺（PI）薄膜。",
+      "space": "聚酰亚胺（PI）薄膜。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:000636",
+    "pick": {
+      "name": "风华高科",
+      "code": "000636",
+      "tier": "待研究",
+      "barrier": "MLCC 等电子元件及材料。",
+      "space": "MLCC 等电子元件及材料。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:603678",
+    "pick": {
+      "name": "火炬电子",
+      "code": "603678",
+      "tier": "待研究",
+      "barrier": "MLCC 与特种陶瓷材料。",
+      "space": "MLCC 与特种陶瓷材料。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:603267",
+    "pick": {
+      "name": "鸿远电子",
+      "code": "603267",
+      "tier": "待研究",
+      "barrier": "高可靠 MLCC 与陶瓷电容。",
+      "space": "高可靠 MLCC 与陶瓷电容。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:003031",
+    "pick": {
+      "name": "中瓷电子",
+      "code": "003031",
+      "tier": "待研究",
+      "barrier": "电子陶瓷外壳与陶瓷基板。",
+      "space": "电子陶瓷外壳与陶瓷基板。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:688021",
+    "pick": {
+      "name": "奥福科技",
+      "code": "688021",
+      "tier": "待研究",
+      "barrier": "蜂窝陶瓷及相关产品。",
+      "space": "蜂窝陶瓷及相关产品。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "海外:6981.T",
+    "pick": {
+      "name": "村田制作所",
+      "code": "6981.T",
+      "tier": "待研究",
+      "barrier": "MLCC 及电子元件。",
+      "space": "MLCC 及电子元件。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "海外",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:600160",
+    "pick": {
+      "name": "巨化股份",
+      "code": "600160",
+      "tier": "待研究",
+      "barrier": "氟化工与含氟聚合物、制冷剂。",
+      "space": "氟化工与含氟聚合物、制冷剂。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:0189.HK",
+    "pick": {
+      "name": "东岳集团",
+      "code": "0189.HK",
+      "tier": "待研究",
+      "barrier": "含氟高分子与氟硅材料。",
+      "space": "含氟高分子与氟硅材料。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:603379",
+    "pick": {
+      "name": "三美股份",
+      "code": "603379",
+      "tier": "待研究",
+      "barrier": "制冷剂与含氟化学品。",
+      "space": "制冷剂与含氟化学品。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:605020",
+    "pick": {
+      "name": "永和股份",
+      "code": "605020",
+      "tier": "待研究",
+      "barrier": "制冷剂与含氟聚合物。",
+      "space": "制冷剂与含氟聚合物。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:002326",
+    "pick": {
+      "name": "永太科技",
+      "code": "002326",
+      "tier": "待研究",
+      "barrier": "氟精细化学品与锂电材料。",
+      "space": "氟精细化学品与锂电材料。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:002407",
+    "pick": {
+      "name": "多氟多",
+      "code": "002407",
+      "tier": "待研究",
+      "barrier": "氟化盐、电子级氢氟酸与锂电材料。",
+      "space": "氟化盐、电子级氢氟酸与锂电材料。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:002915",
+    "pick": {
+      "name": "中欣氟材",
+      "code": "002915",
+      "tier": "待研究",
+      "barrier": "含氟医药农药中间体。",
+      "space": "含氟医药农药中间体。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:603260",
+    "pick": {
+      "name": "合盛硅业",
+      "code": "603260",
+      "tier": "待研究",
+      "barrier": "工业硅与有机硅。",
+      "space": "工业硅与有机硅。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:600596",
+    "pick": {
+      "name": "新安股份",
+      "code": "600596",
+      "tier": "待研究",
+      "barrier": "有机硅与农化。",
+      "space": "有机硅与农化。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:605399",
+    "pick": {
+      "name": "晨光新材",
+      "code": "605399",
+      "tier": "待研究",
+      "barrier": "功能性硅烷。",
+      "space": "功能性硅烷。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:300041",
+    "pick": {
+      "name": "回天新材",
+      "code": "300041",
+      "tier": "待研究",
+      "barrier": "胶粘剂与功能材料。",
+      "space": "胶粘剂与功能材料。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:002601",
+    "pick": {
+      "name": "龙佰集团",
+      "code": "002601",
+      "tier": "待研究",
+      "barrier": "钛白粉及钛产业链，含钛矿与氯化法工艺。",
+      "space": "钛白粉及钛产业链，含钛矿与氯化法工艺。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:002145",
+    "pick": {
+      "name": "钛能化学",
+      "code": "002145",
+      "tier": "待研究",
+      "barrier": "钛白粉与相关化工产品（原中核钛白）。",
+      "space": "钛白粉与相关化工产品（原中核钛白）。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:002978",
+    "pick": {
+      "name": "安宁股份",
+      "code": "002978",
+      "tier": "待研究",
+      "barrier": "钛精矿与钛白粉。",
+      "space": "钛精矿与钛白粉。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:300891",
+    "pick": {
+      "name": "惠云钛业",
+      "code": "300891",
+      "tier": "待研究",
+      "barrier": "钛白粉。",
+      "space": "钛白粉。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:600105",
+    "pick": {
+      "name": "永鼎股份",
+      "code": "600105",
+      "tier": "待研究",
+      "barrier": "高温超导带材与光通信线缆等。",
+      "space": "高温超导带材与光通信线缆等。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:600577",
+    "pick": {
+      "name": "精达股份",
+      "code": "600577",
+      "tier": "待研究",
+      "barrier": "漆包线，布局超导线材。",
+      "space": "漆包线，布局超导线材。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:688190",
+    "pick": {
+      "name": "云路股份",
+      "code": "688190",
+      "tier": "待研究",
+      "barrier": "非晶与纳米晶带材。",
+      "space": "非晶与纳米晶带材。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:002318",
+    "pick": {
+      "name": "久立特材",
+      "code": "002318",
+      "tier": "待研究",
+      "barrier": "不锈钢与特种合金管材。",
+      "space": "不锈钢与特种合金管材。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:600399",
+    "pick": {
+      "name": "抚顺特钢",
+      "code": "600399",
+      "tier": "待研究",
+      "barrier": "高温合金与特种钢。",
+      "space": "高温合金与特种钢。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:600172",
+    "pick": {
+      "name": "黄河旋风",
+      "code": "600172",
+      "tier": "待研究",
+      "barrier": "超硬材料与培育钻石。",
+      "space": "超硬材料与培育钻石。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:000519",
+    "pick": {
+      "name": "中兵红箭",
+      "code": "000519",
+      "tier": "待研究",
+      "barrier": "超硬材料与特种装备。",
+      "space": "超硬材料与特种装备。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:301071",
+    "pick": {
+      "name": "力量钻石",
+      "code": "301071",
+      "tier": "待研究",
+      "barrier": "培育金刚石。",
+      "space": "培育金刚石。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:300179",
+    "pick": {
+      "name": "四方达",
+      "code": "300179",
+      "tier": "待研究",
+      "barrier": "超硬复合材料与刀具材料。",
+      "space": "超硬复合材料与刀具材料。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:300070",
+    "pick": {
+      "name": "碧水源",
+      "code": "300070",
+      "tier": "待研究",
+      "barrier": "膜技术与水处理。",
+      "space": "膜技术与水处理。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:300631",
+    "pick": {
+      "name": "久吾高科",
+      "code": "300631",
+      "tier": "待研究",
+      "barrier": "陶瓷膜与膜集成应用。",
+      "space": "陶瓷膜与膜集成应用。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:688101",
+    "pick": {
+      "name": "三达膜",
+      "code": "688101",
+      "tier": "待研究",
+      "barrier": "膜分离技术与应用。",
+      "space": "膜分离技术与应用。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
+  },
+  {
+    "key": "中国:300829",
+    "pick": {
+      "name": "金丹科技",
+      "code": "300829",
+      "tier": "待研究",
+      "barrier": "乳酸及其衍生物，PLA 可降解材料原料。",
+      "space": "乳酸及其衍生物，PLA 可降解材料原料。",
+      "growthRate": "[MISSING]"
+    },
+    "level": {},
+    "market": "中国",
+    "trends": [
+      "新材料"
+    ],
+    "revGrowth": null,
+    "profitGrowth": null,
+    "growthScore": 0,
+    "certaintyScore": 0,
+    "score": 0,
+    "growthLevel": "低",
+    "certaintyLevel": "低",
+    "grade": "D",
+    "status": "基本面待验证",
+    "statusNote": "新增目录公司，尚未做公司级研究",
+    "gap": null
   }
 ]

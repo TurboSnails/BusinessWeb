@@ -5062,7 +5062,7 @@
     {
       "id": "material",
       "name": "新材料",
-      "oneLine": "先收窄到一个具体材料再研究：稀土永磁、碳纤维、半导体材料、关键金属。",
+      "oneLine": "先收窄到一个具体材料再研究：稀土永磁、碳纤维、半导体与显示材料、先进陶瓷、关键小金属、氟硅与特种合金。锂电与光伏材料见「新能源」赛道。",
       "stage": "已量产产品与新牌号认证并存；材料性能、规模成本和客户转换分别核验。",
       "why": "潜在传导：终端有效需求 → 订单/付费使用 → 收入 → 扣除成本、研发与再投资后的现金流。新材料多是上游的壁垒型生意：认证周期长、一旦导入替换成本高；但研发投入大，现金流与融资能力要撑得住。",
       "chain": [
@@ -5125,6 +5125,60 @@
               "sourceUrl": "https://www.cninfo.com.cn/new/index",
               "sourceTitle": "公告检索入口（须按公司名/代码检索）",
               "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "中科三环",
+              "code": "000970",
+              "role": "钕铁硼永磁，覆盖电机、消费电子与新能源领域。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "正海磁材",
+              "code": "300224",
+              "role": "钕铁硼磁材，产品用于新能源汽车驱动电机等。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "英洛华",
+              "code": "000795",
+              "role": "钕铁硼磁材，同时有电机与电子元件业务。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "大地熊",
+              "code": "688077",
+              "role": "烧结钕铁硼磁材，应用于风电、节能电机和新能源汽车。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "盛和资源",
+              "code": "600392",
+              "role": "稀土资源、冶炼分离及海外矿山合作。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "中稀有色",
+              "code": "600259",
+              "role": "稀土分离与资源整合，偏重重稀土方向（原广晟有色）。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
             }
           ],
           "verify": "核对分部收入、订单转收入、毛利率、现金回款、资本开支和客户集中度；新技术另查认证与量产证据。"
@@ -5140,6 +5194,15 @@
               "exposure": "直接业务",
               "sourceUrl": "https://www.sec.gov/edgar/search/",
               "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "东丽",
+              "code": "3402.T",
+              "role": "全球碳纤维与复合材料的主要供应商。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.jpx.co.jp/english/listing/co-search/index.html",
+              "sourceTitle": "所属交易所检索入口（须按公司名/代码检索）",
               "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
             }
           ],
@@ -5170,6 +5233,33 @@
               "sourceUrl": "https://www.cninfo.com.cn/new/index",
               "sourceTitle": "公告检索入口（须按公司名/代码检索）",
               "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "中简科技",
+              "code": "300777",
+              "role": "高性能碳纤维及织物，面向航空航天等高端领域。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "吉林化纤",
+              "code": "000420",
+              "role": "化学纤维与大丝束碳纤维布局。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "楚江新材",
+              "code": "002171",
+              "role": "铜合金材料为主，子公司顶立科技做碳基复合材料与热工装备。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
             }
           ],
           "verify": "核对分部收入、订单转收入、毛利率、现金回款、资本开支和客户集中度；新技术另查认证与量产证据。"
@@ -5195,6 +5285,15 @@
               "sourceUrl": "https://www.dupont.com/news/dupont-completes-separation-of-qnity-electronics.html",
               "sourceTitle": "杜邦分拆完成公告",
               "evidence": "已查阅所列资料；仅支持资料明确披露的事项，非整家公司研究认证"
+            },
+            {
+              "name": "陶氏",
+              "code": "DOW",
+              "role": "全球化工与材料公司，含硅基与高性能聚合物材料。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.sec.gov/edgar/search/",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
             }
           ],
           "cn": [
@@ -5221,6 +5320,15 @@
               "code": "300408",
               "role": "先进陶瓷元件。",
               "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "圣泉集团",
+              "code": "605589",
+              "role": "酚醛树脂、电子树脂及生物质材料，布局半导体光刻胶树脂。",
+              "exposure": "多元业务",
               "sourceUrl": "https://www.cninfo.com.cn/new/index",
               "sourceTitle": "公告检索入口（须按公司名/代码检索）",
               "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
@@ -5284,6 +5392,51 @@
               "role": "电子材料、前驱体及其他材料。",
               "exposure": "多元业务",
               "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "中船特气",
+              "code": "688146",
+              "role": "电子级三氟化氮、六氟化钨等电子特种气体。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "凯美特气",
+              "code": "002549",
+              "role": "高纯气体、电子特气与氦气等业务。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "晶盛机电",
+              "code": "300316",
+              "role": "晶体生长设备，布局碳化硅衬底。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "露笑科技",
+              "code": "002617",
+              "role": "布局碳化硅衬底，同时有漆包线等业务。",
+              "exposure": "研发验证",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "英诺赛科",
+              "code": "2577.HK",
+              "role": "8 英寸硅基氮化镓器件，采用 IDM 模式。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.hkexnews.hk/index_c.htm",
               "sourceTitle": "公告检索入口（须按公司名/代码检索）",
               "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
             }
@@ -5373,6 +5526,33 @@
               "code": "601208",
               "role": "绝缘、光学膜及电子材料。",
               "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "普利特",
+              "code": "002324",
+              "role": "改性塑料与特种工程塑料。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "道恩股份",
+              "code": "002838",
+              "role": "改性塑料与热塑性弹性体。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "时代新材",
+              "code": "600458",
+              "role": "轨道交通、风电减振与高分子复合材料，含聚酰亚胺布局。",
+              "exposure": "多元业务",
               "sourceUrl": "https://www.cninfo.com.cn/new/index",
               "sourceTitle": "公告检索入口（须按公司名/代码检索）",
               "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
@@ -5466,6 +5646,51 @@
               "sourceUrl": "https://www.cninfo.com.cn/new/index",
               "sourceTitle": "公告检索入口（须按公司名/代码检索）",
               "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "图南股份",
+              "code": "300855",
+              "role": "高温合金母合金与精密铸件。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "隆达股份",
+              "code": "688231",
+              "role": "高温合金及特种合金材料。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "应流股份",
+              "code": "603308",
+              "role": "高温合金叶片与精密铸造，面向燃机与航空。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "华曙高科",
+              "code": "688433",
+              "role": "金属与高分子增材制造设备。",
+              "exposure": "间接配套",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "悦安新材",
+              "code": "688786",
+              "role": "金属粉末（羰基铁粉、雾化粉等）。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
             }
           ],
           "us": [
@@ -5492,6 +5717,15 @@
               "code": "CSTM",
               "role": "高性能铝材，航空、汽车与包装业务拆开。",
               "exposure": "多元业务",
+              "sourceUrl": "https://www.sec.gov/edgar/search/",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "Materion",
+              "code": "MTRN",
+              "role": "铍、特种合金与先进材料。",
+              "exposure": "直接业务",
               "sourceUrl": "https://www.sec.gov/edgar/search/",
               "sourceTitle": "公告检索入口（须按公司名/代码检索）",
               "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
@@ -5547,6 +5781,42 @@
               "sourceUrl": "https://www.cninfo.com.cn/new/index",
               "sourceTitle": "公告检索入口（须按公司名/代码检索）",
               "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "宏和科技",
+              "code": "603256",
+              "role": "电子级玻纤布，布局超薄与低介电产品。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "山东玻纤",
+              "code": "605006",
+              "role": "玻璃纤维及制品。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "长海股份",
+              "code": "300196",
+              "role": "玻纤制品与复合材料。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "再升科技",
+              "code": "603601",
+              "role": "超细玻纤材料，布局气凝胶与保温材料。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
             }
           ],
           "us": [
@@ -5576,19 +5846,842 @@
               "sourceUrl": "https://live.euronext.com/en/products/equities/list",
               "sourceTitle": "所属交易所检索入口（须按公司名/代码检索）",
               "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "日东纺",
+              "code": "3110.T",
+              "role": "电子玻纤布供应商，用于高端基板。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.jpx.co.jp/english/listing/co-search/index.html",
+              "sourceTitle": "所属交易所检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
             }
           ]
+        },
+        {
+          "link": "关键金属与小金属（钨、钼、锑、锗、镓、铟、钽铌）",
+          "desc": "资源和冶炼集中度高，多数品种被纳入出口管制；价格周期与政策是主要变量，盈利对金属价格敏感。",
+          "us": [
+            {
+              "name": "Materion",
+              "code": "MTRN",
+              "role": "铍、特种合金与先进材料。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.sec.gov/edgar/search/",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            }
+          ],
+          "cn": [
+            {
+              "name": "厦门钨业",
+              "code": "600549",
+              "role": "钨钼冶炼与硬质合金、稀土磁材及电池材料。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "中钨高新",
+              "code": "000657",
+              "role": "钨矿、钨粉与硬质合金工具。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "章源钨业",
+              "code": "002378",
+              "role": "钨冶炼加工与硬质合金。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "洛阳钼业",
+              "code": "603993",
+              "role": "钼、钴、铜等矿业与国际资产。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "云南锗业",
+              "code": "002428",
+              "role": "锗矿资源与锗系产品。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "驰宏锌锗",
+              "code": "600497",
+              "role": "锌、锗等有色金属矿业与冶炼。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "锡业股份",
+              "code": "000960",
+              "role": "锡、铟等冶炼与锡化工。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "华锡有色",
+              "code": "600301",
+              "role": "锡、锑等矿业资源。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "湖南黄金",
+              "code": "002155",
+              "role": "黄金、锑、钨等矿产与冶炼。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "东方钽业",
+              "code": "000962",
+              "role": "钽、铌等稀有金属材料。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "有研新材",
+              "code": "600206",
+              "role": "稀土、靶材及金属材料。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            }
+          ],
+          "verify": "核对自有矿比例、储量与品位、金属价格敏感性、出口许可与政策变化、冶炼产能与单位成本。"
+        },
+        {
+          "link": "半导体前道材料：靶材、光刻胶、前驱体、湿电子化学品与封装材料",
+          "desc": "认证周期长，导入后替换成本高；国产化率分品类差异大，高端光刻胶等环节较低。",
+          "us": [
+            {
+              "name": "信越化学",
+              "code": "4063.T",
+              "role": "硅片、光刻胶等半导体材料与塑料化工。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.jpx.co.jp/english/listing/co-search/index.html",
+              "sourceTitle": "所属交易所检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "东京应化",
+              "code": "4186.T",
+              "role": "光刻胶与高纯化学品。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.jpx.co.jp/english/listing/co-search/index.html",
+              "sourceTitle": "所属交易所检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "Entegris",
+              "code": "ENTG",
+              "role": "半导体工艺材料与过滤、输送耗材。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.sec.gov/edgar/search/",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            }
+          ],
+          "cn": [
+            {
+              "name": "江丰电子",
+              "code": "300666",
+              "role": "高纯溅射靶材。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "阿石创",
+              "code": "300706",
+              "role": "PVD 镀膜材料与靶材。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "南大光电",
+              "code": "300346",
+              "role": "ArF 光刻胶、电子特气与前驱体材料。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "彤程新材",
+              "code": "603650",
+              "role": "KrF 等光刻胶，子公司北京科华是国内光刻胶企业。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "晶瑞电材",
+              "code": "300655",
+              "role": "i 线光刻胶与高纯湿电子化学品。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "上海新阳",
+              "code": "300236",
+              "role": "晶圆制造化学材料与 KrF 光刻胶。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "容大感光",
+              "code": "300576",
+              "role": "PCB 光刻胶，布局半导体光刻胶。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "雅克科技",
+              "code": "002409",
+              "role": "半导体前驱体及电子材料。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "安集科技",
+              "code": "688019",
+              "role": "CMP 抛光液与功能性湿电子化学品。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "鼎龙股份",
+              "code": "300054",
+              "role": "CMP 抛光垫及半导体材料。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "兴福电子",
+              "code": "688545",
+              "role": "电子级磷酸、硫酸等湿电子化学品。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "江化微",
+              "code": "603078",
+              "role": "湿电子化学品。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "华海诚科",
+              "code": "688535",
+              "role": "环氧塑封料等半导体封装材料。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "飞凯材料",
+              "code": "300398",
+              "role": "半导体封装与显示材料。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            }
+          ],
+          "verify": "核对客户认证与导入、分产品国产化进度、产能爬坡、毛利率和研发投入；认证通过不等于放量。"
+        },
+        {
+          "link": "显示与光学材料：OLED 材料、偏光片、光学膜与 PI 膜",
+          "desc": "面板产业链上游：OLED 终端材料认证严格，偏光片与光学膜国产化较高，高端基膜仍有进口依赖。",
+          "us": [],
+          "cn": [
+            {
+              "name": "奥来德",
+              "code": "688378",
+              "role": "OLED 有机发光材料与蒸镀设备。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "莱特光电",
+              "code": "688150",
+              "role": "OLED 有机材料。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "瑞联新材",
+              "code": "688550",
+              "role": "液晶与 OLED 单体、中间体。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "万润股份",
+              "code": "002643",
+              "role": "OLED 材料、液晶单体与环保材料等。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "强力新材",
+              "code": "300429",
+              "role": "光引发剂等光刻胶材料及 OLED 材料布局。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "三利谱",
+              "code": "002876",
+              "role": "偏光片。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "杉杉股份",
+              "code": "600884",
+              "role": "偏光片与锂电负极等材料。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "激智科技",
+              "code": "300566",
+              "role": "光学膜产品。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "双星新材",
+              "code": "002585",
+              "role": "光学基膜与聚酯薄膜。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "东材科技",
+              "code": "601208",
+              "role": "光学基膜、电子树脂等功能材料。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "瑞华泰",
+              "code": "688323",
+              "role": "聚酰亚胺（PI）薄膜。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            }
+          ],
+          "verify": "核对面板客户导入、材料代际、国产份额和价格压力；OLED 成品材料与中间体收入应分开看。"
+        },
+        {
+          "link": "先进陶瓷与电子陶瓷",
+          "desc": "电子元件、半导体设备与结构件的陶瓷基材料：粉体、基板、MLCC 与特种陶瓷依赖配方与烧结工艺。",
+          "us": [
+            {
+              "name": "村田制作所",
+              "code": "6981.T",
+              "role": "MLCC 及电子元件。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.jpx.co.jp/english/listing/co-search/index.html",
+              "sourceTitle": "所属交易所检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "Kyocera",
+              "code": "6971.T",
+              "role": "精密陶瓷与电子元件。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.jpx.co.jp/english/listing/co-search/index.html",
+              "sourceTitle": "所属交易所检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            }
+          ],
+          "cn": [
+            {
+              "name": "三环集团",
+              "code": "300408",
+              "role": "电子陶瓷、MLCC 与陶瓷基板等。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "国瓷材料",
+              "code": "300285",
+              "role": "陶瓷粉体、电子浆料与精密陶瓷。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "风华高科",
+              "code": "000636",
+              "role": "MLCC 等电子元件及材料。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "火炬电子",
+              "code": "603678",
+              "role": "MLCC 与特种陶瓷材料。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "鸿远电子",
+              "code": "603267",
+              "role": "高可靠 MLCC 与陶瓷电容。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "中瓷电子",
+              "code": "003031",
+              "role": "电子陶瓷外壳与陶瓷基板。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "奥福科技",
+              "code": "688021",
+              "role": "蜂窝陶瓷及相关产品。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            }
+          ],
+          "verify": "核对细分产品收入、下游景气（消费电子、车规、半导体设备）与产能利用率。"
+        },
+        {
+          "link": "氟硅材料与含氟聚合物",
+          "desc": "制冷剂、含氟聚合物、有机硅与功能硅烷：景气周期与配额、产能、下游新能源和半导体需求相关。",
+          "us": [],
+          "cn": [
+            {
+              "name": "巨化股份",
+              "code": "600160",
+              "role": "氟化工与含氟聚合物、制冷剂。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "东岳集团",
+              "code": "0189.HK",
+              "role": "含氟高分子与氟硅材料。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.hkexnews.hk/index_c.htm",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "三美股份",
+              "code": "603379",
+              "role": "制冷剂与含氟化学品。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "永和股份",
+              "code": "605020",
+              "role": "制冷剂与含氟聚合物。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "永太科技",
+              "code": "002326",
+              "role": "氟精细化学品与锂电材料。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "多氟多",
+              "code": "002407",
+              "role": "氟化盐、电子级氢氟酸与锂电材料。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "中欣氟材",
+              "code": "002915",
+              "role": "含氟医药农药中间体。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "合盛硅业",
+              "code": "603260",
+              "role": "工业硅与有机硅。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "新安股份",
+              "code": "600596",
+              "role": "有机硅与农化。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "晨光新材",
+              "code": "605399",
+              "role": "功能性硅烷。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "回天新材",
+              "code": "300041",
+              "role": "胶粘剂与功能材料。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            }
+          ],
+          "verify": "核对产品价格与价差、配额与产能、高端牌号收入占比、环保投入及现金流。"
+        },
+        {
+          "link": "钛白粉与钛化工",
+          "desc": "钛白粉价格受成本、产能与地产汽车涂料需求影响；龙头在资源与氯化法工艺上更有优势。",
+          "us": [],
+          "cn": [
+            {
+              "name": "龙佰集团",
+              "code": "002601",
+              "role": "钛白粉及钛产业链，含钛矿与氯化法工艺。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "钛能化学",
+              "code": "002145",
+              "role": "钛白粉与相关化工产品（原中核钛白）。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "安宁股份",
+              "code": "002978",
+              "role": "钛精矿与钛白粉。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "惠云钛业",
+              "code": "300891",
+              "role": "钛白粉。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            }
+          ],
+          "verify": "核对钛矿自给率、氯化法产能与良率、价格价差、库存与现金流。"
+        },
+        {
+          "link": "超导材料与精密合金",
+          "desc": "低温超导线材、高温超导带材与非晶纳米晶等精密合金：下游涉及医疗磁体、聚变、电网与电子。",
+          "us": [],
+          "cn": [
+            {
+              "name": "西部超导",
+              "code": "688122",
+              "role": "低温超导线材、钛合金与高温合金。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "永鼎股份",
+              "code": "600105",
+              "role": "高温超导带材与光通信线缆等。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "精达股份",
+              "code": "600577",
+              "role": "漆包线，布局超导线材。",
+              "exposure": "研发验证",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "云路股份",
+              "code": "688190",
+              "role": "非晶与纳米晶带材。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            }
+          ],
+          "verify": "核对订单与产能、产品代际、验证项目进展；示范工程订单不等于商业化放量。"
+        },
+        {
+          "link": "特种钢、特种管材与精密制造材料",
+          "desc": "油气、核电、航空与化工装备所需的特种不锈钢管、特钢与精密合金：认证与工艺经验是壁垒。",
+          "us": [],
+          "cn": [
+            {
+              "name": "久立特材",
+              "code": "002318",
+              "role": "不锈钢与特种合金管材。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "抚顺特钢",
+              "code": "600399",
+              "role": "高温合金与特种钢。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "图南股份",
+              "code": "300855",
+              "role": "高温合金母合金与精密铸件。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "隆达股份",
+              "code": "688231",
+              "role": "高温合金及特种合金材料。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            }
+          ],
+          "verify": "核对订单结构、产品附加值、核电与油气订单节奏、原材料价格传导。"
+        },
+        {
+          "link": "超硬材料与培育钻石",
+          "desc": "金刚石与立方氮化硼：工业切削、钻探与培育钻石；出口管制和价格竞争影响盈利。",
+          "us": [],
+          "cn": [
+            {
+              "name": "黄河旋风",
+              "code": "600172",
+              "role": "超硬材料与培育钻石。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "中兵红箭",
+              "code": "000519",
+              "role": "超硬材料与特种装备。",
+              "exposure": "多元业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "力量钻石",
+              "code": "301071",
+              "role": "培育金刚石。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "四方达",
+              "code": "300179",
+              "role": "超硬复合材料与刀具材料。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            }
+          ],
+          "verify": "核对培育钻石价格、产能利用率、工业应用与消费应用占比。"
+        },
+        {
+          "link": "分离膜、生物基与可降解材料",
+          "desc": "水处理与工业分离膜、吸附树脂、乳酸及生物基材料：政策与成本是关键，技术与应用要分开核验。",
+          "us": [],
+          "cn": [
+            {
+              "name": "碧水源",
+              "code": "300070",
+              "role": "膜技术与水处理。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "久吾高科",
+              "code": "300631",
+              "role": "陶瓷膜与膜集成应用。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "三达膜",
+              "code": "688101",
+              "role": "膜分离技术与应用。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "蓝晓科技",
+              "code": "300487",
+              "role": "吸附分离树脂与应用。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            },
+            {
+              "name": "金丹科技",
+              "code": "300829",
+              "role": "乳酸及其衍生物，PLA 可降解材料原料。",
+              "exposure": "直接业务",
+              "sourceUrl": "https://www.cninfo.com.cn/new/index",
+              "sourceTitle": "公告检索入口（须按公司名/代码检索）",
+              "evidence": "候选待核：本轮未逐家公司复核业务、代码及最新上市状态"
+            }
+          ],
+          "verify": "核对订单与项目回款、产能利用、原料成本与替代路线。"
         }
       ],
       "verify": [
         "认证通过与客户导入（公司公告）。",
         "产能爬坡与良率。",
-        "毛利率与研发投入占比趋势。"
+        "毛利率与研发投入占比趋势。",
+        "分产品收入占比，区分材料、设备与中间体。"
       ],
       "risks": [
-        "认证周期延后。",
-        "产能集中释放，价格先于成本下降。",
-        "稀土等受出口与地缘政策影响。"
+        "出口管制与政策变化：关键金属、稀土等价格与出货易受影响。",
+        "产能集中释放导致价格先于成本下降。",
+        "认证周期延后或国产替代进度不及预期。",
+        "研发与资本开支高，现金流与融资能力需撑得住。"
       ],
       "book": "第31章 31.6"
     },
