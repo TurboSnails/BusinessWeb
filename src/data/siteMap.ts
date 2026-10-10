@@ -59,7 +59,7 @@ export const INVEST_GROUPS: HubGroup[] = [
       { path: '/research-notes', label: '公司研究', desc: '四个市场的公司库、候选池与研究方法' },
       { path: '/invest/etf', label: 'ETF 流派地图', desc: '宽基、因子、主题、债券、商品等流派的主要 ETF 与风险' },
       { path: '/future-trends', label: '未来趋势', desc: 'AI、智驾、机器人、创新药、航空航天、新能源等赛道的产业链与中美参与公司' },
-      { path: '/industry-landscape', label: '产业格局', desc: '固态电池、半导体产业链，和一页纸主题研究卡' },
+      { path: '/industry-landscape', label: '产业格局', desc: '固态电池、半导体、AI算力、机器人、军工、新能源车、光伏储能、核电电网、创新药、低空与商业航天、消费电子、白酒、银行，和一页纸主题研究卡' },
     ],
   },
   {
