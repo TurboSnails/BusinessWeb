@@ -39,7 +39,7 @@ describe('经济脉搏：每日复盘本地增删与云同步入口', () => {
     fireEvent.click(screen.getAllByRole('button', { name: /删除/ })[0])
     expect(JSON.parse(localStorage.getItem('pulse_daily_reviews')!).map((r: { date: string }) => r.date)).toEqual(['2026-09-29'])
     expect(JSON.parse(localStorage.getItem('pulse_review_tombstones')!)).toMatchObject([{ date: '2026-09-30', deleted: true }])
-    fireEvent.click(screen.getByRole('tab', { name: '行情总览' }))
+    fireEvent.click(screen.getByRole('tab', { name: '市场热力图' }))
     expect(screen.queryByRole('button', { name: /删除/ })).toBeNull()
     fireEvent.click(screen.getByRole('tab', { name: '每日分析' }))
     expect(screen.getAllByRole('button', { name: /删除/ })).toHaveLength(1)
