@@ -1,24 +1,7 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
-import { ExternalLink, AlertCircle, RefreshCw } from 'lucide-react'
-
-interface Commit {
-  hash: string
-  subject: string
-  author: string
-  date: string
-}
-
-interface Version {
-  tag: string
-  date: string | null
-  commits: Commit[]
-}
-
-interface Changelog {
-  generatedAt: string
-  versions: Version[]
-}
+import ChapterComments from '../components/ChapterComments'
+import { ExternalLink, AlertCircle } from 'lucide-react'
 
 const cardStyle: React.CSSProperties = {
   background: 'var(--bg-card)',
@@ -29,32 +12,6 @@ const cardStyle: React.CSSProperties = {
 }
 
 export default function About(): JSX.Element {
-  const [data, setData] = useState<Changelog | null>(null)
-  const [error, setError] = useState<boolean>(false)
-  const [reloadKey, setReloadKey] = useState(0)
-
-  useEffect(() => {
-    let cancelled = false
-    setData(null)
-    setError(false)
-    fetch(import.meta.env.BASE_URL + 'changelog.json')
-      .then((r) => {
-        if (!r.ok) throw new Error(`status ${r.status}`)
-        return r.json()
-      })
-      .then((j: Changelog) => {
-        if (!cancelled) setData(j)
-      })
-      .catch(() => {
-        if (!cancelled) setError(true)
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [reloadKey])
-
-  const retry = useCallback(() => setReloadKey((k) => k + 1), [])
-
   return (
     <main className="container" style={{ maxWidth: '1100px' }}>
       {/* 站点介绍 */}
@@ -115,92 +72,8 @@ export default function About(): JSX.Element {
         </a>
       </section>
 
-      {/* 更新日志 */}
-      <section style={{ ...cardStyle, minHeight: 200 }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '0 0 20px', color: 'var(--text-primary)' }}>
-          更新日志
-        </h2>
-
-        {data === null && !error && (
-          <div data-testid="changelog-skeleton">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="skeleton-line" style={{ marginBottom: '12px', width: i === 0 ? '40%' : '90%' }} />
-            ))}
-          </div>
-        )}
-
-        {error && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--text-secondary)' }}>
-            <span>日志加载失败</span>
-            <button
-              onClick={retry}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                background: 'var(--system-blue)',
-                color: '#fff',
-                border: 'none',
-                borderRadius: 'var(--radius-full)',
-                padding: '6px 14px',
-                fontSize: '0.85rem',
-                cursor: 'pointer',
-              }}
-            >
-              <RefreshCw size={14} /> 重试
-            </button>
-          </div>
-        )}
-
-        {data && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            {data.versions.map((v) => (
-              <div key={v.tag}>
-                <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
-                    {v.tag === 'unreleased' ? 'Unreleased' : v.tag}
-                  </h3>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{v.date ?? '—'}</span>
-                </div>
-                {v.commits.length === 0 ? (
-                  <p style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem', margin: 0 }}>无变更</p>
-                ) : (
-                  <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                    {v.commits.map((c) => (
-                      <li
-                        key={c.hash}
-                        style={{
-                          padding: '8px 0',
-                          borderBottom: '0.5px solid rgba(0,0,0,0.05)',
-                          color: 'var(--text-secondary)',
-                          fontSize: '0.9rem',
-                          display: 'flex',
-                          gap: '8px',
-                          alignItems: 'baseline',
-                        }}
-                      >
-                        <code
-                          style={{
-                            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-                            fontSize: '0.8rem',
-                            color: 'var(--text-tertiary)',
-                            background: 'var(--system-gray6)',
-                            padding: '2px 6px',
-                            borderRadius: '4px',
-                            flexShrink: 0,
-                          }}
-                        >
-                          {c.hash}
-                        </code>
-                        <span>{c.subject}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+      <section style={{ marginTop: '32px' }}>
+        <ChapterComments slug="关于.md" title="留言" />
       </section>
     </main>
   )

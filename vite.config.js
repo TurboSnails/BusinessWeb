@@ -37,6 +37,7 @@ export default defineConfig({
       '/api/cls-plate': { target: 'https://business-web-black.vercel.app', changeOrigin: true },
       '/api/company-notes': { target: 'https://business-web-black.vercel.app', changeOrigin: true,
         configure(proxy) { proxy.on('proxyReq', request => request.setHeader('Origin', 'https://business-web-black.vercel.app')) } },
+      '/api/comments': { target: 'https://business-web-black.vercel.app', changeOrigin: true },
       '/api/candidates-sync': { target: 'https://business-web-black.vercel.app', changeOrigin: true },
       '/api/proxy': {
         target: 'https://hq.sinajs.cn',

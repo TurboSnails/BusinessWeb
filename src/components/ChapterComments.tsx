@@ -20,7 +20,7 @@ const field: React.CSSProperties = {
 const linkButton: React.CSSProperties = { background: 'none', border: 'none', padding: 0, color: 'var(--accent)', cursor: 'pointer', font: 'inherit' }
 
 /** 章节评论：匿名提交，经审核后显示。后端为 /api/comments。 */
-export default function ChapterComments({ slug }: { slug: string }): JSX.Element {
+export default function ChapterComments({ slug, title = '读者评论' }: { slug: string; title?: string }): JSX.Element {
   const [comments, setComments] = useState<Comment[]>([])
   const [disabled, setDisabled] = useState(false)
   const [nickname, setNickname] = useState('')
@@ -115,8 +115,8 @@ export default function ChapterComments({ slug }: { slug: string }): JSX.Element
   }
 
   return (
-    <section aria-label="读者评论" className="book-comments" style={{ marginBottom: '28px' }}>
-      <h3 style={{ margin: '0 0 12px', fontSize: '1.05rem' }}>读者评论{comments.length > 0 && `（${comments.length}）`}</h3>
+    <section aria-label={title} className="book-comments" style={{ marginBottom: '28px' }}>
+      <h3 style={{ margin: '0 0 12px', fontSize: '1.05rem' }}>{title}{comments.length > 0 && `（${comments.length}）`}</h3>
       {comments.length === 0 && <p style={{ color: 'var(--text-secondary)', margin: '0 0 16px' }}>还没有评论，欢迎留下你的想法。</p>}
       <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px', display: 'grid', gap: '12px' }}>
         {comments.map(c => (
