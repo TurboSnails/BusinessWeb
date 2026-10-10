@@ -25,6 +25,7 @@ const InvestmentStrategy = lazy(() => import('./pages/InvestmentStrategy'))
 const FirstBook = lazy(() => import('./pages/FirstBook'))
 const MyBooks = lazy(() => import('./pages/MyBooks'))
 const ResearchNotes = lazy(() => import('./pages/ResearchNotes'))
+const CompanyNotes = lazy(() => import('./features/company-notes/CompanyNotes'))
 const CompanyDetail = lazy(() => import('./pages/CompanyDetail'))
 const GridCalculator = lazy(() => import('./pages/GridCalculator'))
 const GridRecords = lazy(() => import('./pages/GridRecords'))
@@ -111,6 +112,7 @@ export default function App(): JSX.Element {
           <Route path="/future-trends/company/:id" element={<FutureTrendCompany />} />
           <Route path="/industry-landscape" element={<IndustryLandscape />} />
           <Route path="/research-notes" element={<ResearchNotes />} />
+          <Route path="/research-notes/company/:market/:code/notes" element={<CompanyNotes />} />
           <Route path="/research-notes/:market/:code" element={<CompanyDetail />} />
           <Route path="/grid-trading" element={<GridCalculator />} />
           <Route path="/grid-trading/records" element={<GridRecords />} />

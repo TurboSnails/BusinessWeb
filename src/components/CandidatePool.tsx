@@ -75,7 +75,7 @@ export default function CandidatePool({ items, companies, state, message, onMove
       {!items.length ? <p style={{ fontSize: '13px', textAlign: 'center', color: 'var(--text-tertiary)' }}>候选池还是空的。</p> : (
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-            <thead><tr style={{ background: 'var(--bg-secondary)' }}>{['#', '公司', '我的备注', '市场', '评级', '一句话结论', '排序 / 操作'].map(h => <th key={h} scope="col" style={{ ...cell, whiteSpace: 'nowrap' }}>{h}</th>)}</tr></thead>
+            <thead><tr style={{ background: 'var(--bg-secondary)' }}>{['#', '公司', '研究笔记', '我的备注', '市场', '评级', '一句话结论', '排序 / 操作'].map(h => <th key={h} scope="col" style={{ ...cell, whiteSpace: 'nowrap' }}>{h}</th>)}</tr></thead>
             <tbody>{items.map((i, n) => {
               const c = byKey.get(`${i.market}:${i.code}`)
               return (
@@ -83,6 +83,7 @@ export default function CandidatePool({ items, companies, state, message, onMove
                   style={{ opacity: dragFrom === n ? 0.4 : 1, outline: over === n && dragFrom !== null && dragFrom !== n ? '2px solid var(--system-blue)' : 'none' }}>
                   <td style={{ ...cell, cursor: 'grab', whiteSpace: 'nowrap', userSelect: 'none' }} draggable title="拖动调整顺序" onDragStart={() => setDragFrom(n)} onDragEnd={() => { setDragFrom(null); setOver(null) }}>⠿ {n + 1}</td>
                   <td style={cell}>{c ? <Link to={`/research-notes/${i.market}/${encodeURIComponent(i.code)}`} style={{ color: 'var(--system-blue)', whiteSpace: 'nowrap' }}>{c.name} {c.code}</Link> : <span style={{ whiteSpace: 'nowrap' }}>{i.code}</span>}</td>
+                  <td style={cell}><Link to={`/research-notes/company/${i.market}/${encodeURIComponent(i.code)}/notes`} style={{ whiteSpace: 'nowrap' }}>研究笔记</Link></td>
                   <td style={{ ...cell, minWidth: '220px' }}><NoteEditor key={`${i.note ?? ''}`} code={i.code} value={i.note ?? ''} onSave={text => onNote(i, text)} /></td>
                   <td style={{ ...cell, whiteSpace: 'nowrap' }}>{MARKET_LABEL[i.market]}</td>
                   <td style={{ ...cell, minWidth: '90px' }}>{c?.rating ?? '—'}</td>

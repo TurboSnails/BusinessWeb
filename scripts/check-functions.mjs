@@ -18,17 +18,18 @@ import sync from './api/grid-sync.js';
 import knowledge from './api/knowledge.js';
 import pulse from './api/pulse-sync.js';
 import candidates from './api/candidates-sync.js';
+import companyNotes from './api/company-notes.js';
 import market from './api/grid-market.js';
 import china from './api/china-stock.js';
 import cls from './api/cls-plate.js';
 import comments from './api/comments.js';
 const res = () => ({code:200, body:null, setHeader(){}, status(code){this.code=code;return this}, json(body){this.body=body;return this}});
-for (const [handler, request, code] of [[knowledge,{method:'GET',headers:{},query:{action:'status'}},503],[sync,{method:'GET',headers:{}},503],[pulse,{method:'GET',headers:{}},503],[pulse,{method:'POST',headers:{}},405],[candidates,{method:'GET',headers:{}},503],[candidates,{method:'POST',headers:{}},405],[market,{method:'GET',query:{}},400],[china,{method:'GET',query:{}},400],[cls,{method:'GET',query:{}},400],[comments,{method:'GET',headers:{},query:{}},503],[comments,{method:'PUT',headers:{}},405]]) {
+for (const [handler, request, code] of [[companyNotes,{method:'GET',headers:{},query:{action:'list',market:'cn',code:'600900'}},503],[companyNotes,{method:'POST',headers:{},query:{action:'unlock'}},503],[knowledge,{method:'GET',headers:{},query:{action:'status'}},503],[sync,{method:'GET',headers:{}},503],[pulse,{method:'GET',headers:{}},503],[pulse,{method:'POST',headers:{}},405],[candidates,{method:'GET',headers:{}},503],[candidates,{method:'POST',headers:{}},405],[market,{method:'GET',query:{}},400],[china,{method:'GET',query:{}},400],[cls,{method:'GET',query:{}},400],[comments,{method:'GET',headers:{},query:{}},503],[comments,{method:'PUT',headers:{}},405]]) {
  const response=res(); await handler(request,response); assert.equal(response.code,code);
 }
 console.log('Native Node function loading and unconfigured/invalid requests: passed');
 `)
-  const env = { ...process.env, SUPABASE_URL: '', SUPABASE_SECRET_KEY: '', GRID_SYNC_TOKEN: '', PULSE_SYNC_TOKEN: '' }
+  const env = { ...process.env, SUPABASE_URL: '', SUPABASE_SECRET_KEY: '', GRID_SYNC_TOKEN: '', PULSE_SYNC_TOKEN: '', COMPANY_NOTES_WRITE_TOKEN: '' }
   const run = spawnSync(process.execPath, ['--no-experimental-detect-module', join(directory, 'check.mjs')], { env, encoding: 'utf8' })
   assert.equal(run.status, 0, run.stdout + run.stderr)
   process.stdout.write(run.stdout)

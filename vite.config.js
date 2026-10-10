@@ -35,6 +35,8 @@ export default defineConfig({
       '/remote-knowledge': { target: 'https://business-web-black.vercel.app', changeOrigin: true, rewrite: path => path.replace(/^\/remote-knowledge/, '/api/knowledge') },
       '/api/valuation': { target: `http://127.0.0.1:${process.env.VALUATION_PORT || 8788}`, changeOrigin: true },
       '/api/cls-plate': { target: 'https://business-web-black.vercel.app', changeOrigin: true },
+      '/api/company-notes': { target: 'https://business-web-black.vercel.app', changeOrigin: true,
+        configure(proxy) { proxy.on('proxyReq', request => request.setHeader('Origin', 'https://business-web-black.vercel.app')) } },
       '/api/candidates-sync': { target: 'https://business-web-black.vercel.app', changeOrigin: true },
       '/api/proxy': {
         target: 'https://hq.sinajs.cn',

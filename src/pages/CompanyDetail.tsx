@@ -150,6 +150,7 @@ export default function CompanyDetail(): JSX.Element {
           {back}
           <Link to={`/valuation?market=${mk === 'adr' || mk === 'ndx' ? 'us' : mk}&code=${encodeURIComponent(company.code)}`} style={{display:'inline-block',marginLeft:'18px',color:'var(--accent)',fontSize:'13px'}}>建立估值模型 →</Link>
           <Link to={buildDcfLink({ company: company.name, code: company.code, researchMarket: mk, price })} style={{display:'inline-block',marginLeft:'18px',color:'var(--accent)',fontSize:'13px'}}>用当前价格测算 DCF →</Link>
+          <Link to={`/research-notes/company/${mk}/${encodeURIComponent(company.code)}/notes`} style={{display:'inline-block',marginLeft:'18px',fontSize:'13px'}}>研究笔记 →</Link>
           <h1 style={{ fontSize: '24px', margin: '0 0 6px' }}>{company.name}</h1>
           <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 14px' }}>
             {company.market === 'us' ? '标普500' : company.market === 'hk' ? '港股' : company.market === 'adr' ? '美股非标普' : company.market === 'ndx' ? '纳指100' : '沪深'} · {company.code} · {company.sector} · {company.batch}

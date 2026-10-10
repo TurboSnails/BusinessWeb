@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "noEmit": true },
+  "include": ["src/features/company-notes/**/*.ts", "src/features/company-notes/**/*.tsx", "src/vite-env.d.ts"]
+}
