@@ -267,6 +267,62 @@ export const LAB_DIRECTIONS: LabDirection[] = [
   },
 ]
 
+/** 商业原理：给实验室所有方向定规矩。全部是待验证的设计，不是已有的业绩。 */
+export interface LabPrinciple {
+  statement: string
+  /** 我手里真实有的东西 */
+  assets: Array<{ label: string; detail: string }>
+  /** 价值怎样转成收入，按顺序 */
+  loop: Array<{ step: string; text: string }>
+  /** 三层结构，directions 填方向 slug */
+  layers: Array<{ name: string; job: string; directions: string[] }>
+  rules: Array<{ title: string; text: string }>
+  /** 逐级过关，前一关没过不投入下一关 */
+  gates: Array<{ stage: string; pass: string }>
+  northStar: string
+  caveat: string
+}
+
+export const LAB_PRINCIPLE: LabPrinciple = {
+  statement: '用自己的投资方法做成别人也能用的工具和内容；书建立信任，工具带来使用，可重复交付的小产品带来收入。收入来自“做一次卖很多次”，不来自流量，也不来自卖时间。',
+  assets: [
+    { label: '一套写成书的方法', detail: '《正念投资》：用规则代替盯盘，不预测、不荐股。这是信任的来源，也是和别人的差别。' },
+    { label: '程序员的做事速度', detail: '想法能很快变成可用的工具、Skill 和网页，试错成本低。' },
+    { label: '已经在用的作品', detail: '估值、网格、投资 Skill 包和这个站，先解决自己的问题，再公开。' },
+    { label: '有限的时间', detail: '在职、每周只有几小时，所以一次只能做一件事，并且必须有止损线。' },
+  ],
+  loop: [
+    { step: '自用', text: '先解决自己的真实问题，做出来自己每周都在用。' },
+    { step: '公开', text: '把工具和过程放出来，记录实验日志，包括失败。' },
+    { step: '信任', text: '读者因为“方法讲得清、不荐股”而留下，名单归自己。' },
+    { step: '使用', text: '免费工具带来重复使用的人，用回访看是否真有用。' },
+    { step: '付费', text: '把重复出现的需求做成模板、报告或小产品，收费。' },
+    { step: '回流', text: '收入和反馈回来，改进自用工具和下一个实验。' },
+  ],
+  layers: [
+    { name: '信任层', job: '让对的人认识我、相信我', directions: ['blog', 'newsletter', 'video'] },
+    { name: '使用层', job: '让人用起来，并且回来', directions: ['ai-skills', 'free-tools', 'mini-program'] },
+    { name: '收入层', job: '把重复需求变成可销售的东西', directions: ['digital-goods', 'indie-dev', 'image-tools'] },
+  ],
+  rules: [
+    { title: '卖结果，不卖信息', text: '知识容易被 AI 替代。卖的是省下的时间和能直接用的成品，例如模板、计算器、报告。' },
+    { title: '不碰红线', text: '不荐股、不收费咨询、不承诺收益。违背书的核心，也有合规风险。' },
+    { title: '不卖时间', text: '外包接单、代写都是换个老板。只做一次做成、可以重复卖的东西。' },
+    { title: '一次一个实验', text: '开始前定好每周时间、预算和期限，到期看数据，决定继续还是停。' },
+    { title: '读者归自己', text: '站点和邮件名单是自己的资产，不把全部希望押在单一平台推荐上。' },
+    { title: '只记真实数据', text: '没开始写“还没开始”。亲友支持不算验证，页面数量不算价值。' },
+  ],
+  gates: [
+    { stage: '第 0 关 · 自用', pass: '我自己每周都在用，否则不公开。' },
+    { stage: '第 1 关 · 有人用', pass: '至少 20 位非亲友真实试用，其中一部分第二周再回来。' },
+    { stage: '第 2 关 · 有人付', pass: '至少 3 位非亲友愿意付真钱，哪怕价格很低。' },
+    { stage: '第 3 关 · 能重复', pass: '单笔扣掉成本和我的时间后为正，且第二个客户明显比第一个省力。' },
+    { stage: '第 4 关 · 再放大', pass: '前三关都过了，才考虑投入内容和渠道放大。' },
+  ],
+  northStar: '每月自愿回来使用的真实用户数（排除自己和亲友）。它比访问量和粉丝数更接近“有没有价值”。',
+  caveat: '以上是设计假设，不是业绩。门槛里的数字是建议值，开始每个实验前再确认。',
+}
+
 export function recommendedDirections(): LabDirection[] {
   // Array.prototype.sort 是稳定排序，同分保持数据里的顺序
   return LAB_DIRECTIONS.filter(d => d.verdict !== 'avoid').sort((a, b) => b.fit - a.fit)
