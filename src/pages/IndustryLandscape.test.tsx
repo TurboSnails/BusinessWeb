@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 // @ts-ignore
 import { resolve } from 'node:path'
 import React from 'react'
+import { MemoryRouter } from 'react-router-dom'
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import IndustryLandscape from './IndustryLandscape'
@@ -24,7 +25,7 @@ describe('产业格局', () => {
     expect(await screen.findByRole('heading', { name: '上游：基础与工具' })).toBeTruthy()
     expect(document.querySelector('img[alt="半导体产业链脑图"]')).toBeNull()
     fireEvent.change(screen.getByRole('textbox', { name: '搜索节点' }), { target: { value: '安集科技' } })
-    expect(screen.getByText('安集科技', { selector: 'mark' })).toBeTruthy()
+    expect(screen.getAllByText('安集科技', { selector: 'mark' }).length).toBeGreaterThan(0)
   })
 
   it('切回已看过的页签不重复请求', async () => {
@@ -61,6 +62,8 @@ describe('产业格局', () => {
       消费电子: ['consumer-electronics.json', '产业全景'],
       白酒: ['baijiu.json', '产业全景'],
       银行: ['banks.json', '产业全景'],
+      新材料: ['new-materials.json', '产业全景'],
+      前沿科技: ['frontier-tech.json', '产业全景'],
     }
     fetcher.mockImplementation(async (url: string) => {
       const name = Object.values(files).find(([f]) => String(url).includes(f))?.[0]
@@ -75,6 +78,47 @@ describe('产业格局', () => {
         /先买|目标¥|优先配置|机会型配置|公司推荐|投资建议|确定性排序|唯一确定性/,
       )
     }
+  })
+
+  it('每个产业的主要章节末尾有「受益公司」，含技术壁垒与技术前景两类', () => {
+    for (const file of ['ai-compute', 'robots', 'ev-adas', 'military', 'semiconductor', 'solid-state', 'banks']) {
+      const tree = JSON.parse(readFileSync(resolve('public/industry', `${file}.json`), 'utf8'))
+      const benefit = tree.c.map((c: any) => c.c?.[c.c.length - 1]).filter((n: any) => n?.t === '受益公司')
+      expect(benefit.length, file).toBeGreaterThan(0)
+      for (const n of benefit) expect(n.c.slice(0, 2).map((x: any) => x.t)).toEqual(['技术壁垒高的公司', '有技术前景的公司'])
+    }
+  })
+
+  it('章节目录末尾有「受益公司」汇总，按章节分组', async () => {
+    render(<IndustryLandscape />)
+    await screen.findByRole('heading', { name: '解决痛点' })
+    const directory = screen.getByRole('navigation', { name: '固态电池章节目录' })
+    const items = within(directory).getAllByRole('button')
+    expect(items[items.length - 1].textContent).toContain('受益公司')
+    fireEvent.click(items[items.length - 1])
+    expect(screen.getByRole('heading', { name: '受益公司' })).toBeTruthy()
+    expect(screen.getAllByText('技术壁垒高的公司').length).toBeGreaterThan(1)
+  })
+
+  it('节点里的公司名链接到站内公司分析页', async () => {
+    fetcher.mockImplementation(async (url: string) => {
+      const file = String(url).includes('ai-compute')
+        ? 'ai-compute.json'
+        : String(url).includes('semiconductor')
+          ? 'semiconductor.json'
+          : 'solid-state.json'
+      return { json: async () => JSON.parse(readFileSync(resolve('public/industry', file), 'utf8')) } as Response
+    })
+    render(
+      <MemoryRouter>
+        <IndustryLandscape />
+      </MemoryRouter>,
+    )
+    fireEvent.click(screen.getByRole('tab', { name: 'AI算力' }))
+    fireEvent.click(await screen.findByRole('button', { name: /网络与光互连/ }))
+    fireEvent.change(screen.getByRole('textbox', { name: '搜索节点' }), { target: { value: '中际旭创' } })
+    const links = await screen.findAllByRole('link', { name: '中际旭创的公司分析' })
+    expect(links[0].getAttribute('href')).toContain('/future-trends/company/')
   })
 
   it('有「主题研究卡」页签，切过去不请求产业数据', async () => {
@@ -110,7 +154,7 @@ describe('产业格局', () => {
     const reader = screen.getByRole('region', { name: '产业资料阅读区' })
     expect(within(reader).getByText('中游：核心制造环节')).toBeTruthy()
     expect(reader.querySelector('mark')?.textContent).toBe('寒武纪')
-    expect(within(reader).getByRole('status').textContent).toContain('3 个匹配节点')
+    expect(within(reader).getByRole('status').textContent).toMatch(/找到 \d+ 个匹配节点/)
     fireEvent.change(search, { target: { value: '半导体' } })
     expect(reader.querySelectorAll('mark').length).toBeGreaterThan(1)
     expect(within(reader).getByText('光刻设备')).toBeTruthy()

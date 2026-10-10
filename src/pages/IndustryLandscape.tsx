@@ -2,6 +2,8 @@ import React, { useEffect, useId, useMemo, useRef, useState } from 'react'
 import {
   BatteryCharging,
   Banknote,
+  Dna,
+  Gem,
   Bot,
   BrainCircuit,
   Car,
@@ -19,7 +21,9 @@ import {
   SunMedium,
   X,
 } from 'lucide-react'
+import { Link, useInRouterContext } from 'react-router-dom'
 import { PageTabs, PageTitle } from '../components/ui/PageTabs'
+import { companyNameOf, useCompanyLinks } from '../data/industryCompanyLinks'
 import ThemeCards from './ThemeCards'
 import '../styles/industry-landscape.css'
 
@@ -115,9 +119,22 @@ const SOURCES = {
     description: '净息差、资产质量与资本分红三个核心变量，以及不同类型银行的差异。',
     icon: Banknote,
   },
+  material: {
+    label: '新材料',
+    file: 'industry/new-materials.json',
+    description: '稀土永磁、碳纤维、电子材料、高温合金等，看认证壁垒与国产替代的材料链。',
+    icon: Gem,
+  },
+  frontier: {
+    label: '前沿科技',
+    file: 'industry/frontier-tech.json',
+    description: '脑机接口、量子计算与合成生物，最早期方向，多数公司收入有限，适合观察。',
+    icon: Dna,
+  },
 } as const
 type SourceId = keyof typeof SOURCES
 type TabId = SourceId | 'cards'
+const BENEFIT_TITLE = '受益公司'
 const title = (node: TreeNode) => node.t.split('\n')[0]
 function countNodes(node: TreeNode): number {
   return 1 + (node.c || []).reduce((sum, child) => sum + countNodes(child), 0)
@@ -186,6 +203,18 @@ function NodeText({ text, q }: { text: string; q: string }): JSX.Element {
     </div>
   )
 }
+const CompanyLink = React.createContext<(text: string) => string | undefined>(() => undefined)
+function AnalysisLink({ text }: { text: string }): JSX.Element | null {
+  const linkOf = React.useContext(CompanyLink)
+  const inRouter = useInRouterContext()
+  const to = linkOf(text)
+  if (!to || !inRouter) return null
+  return (
+    <Link className="industry-company-link" to={to} aria-label={`${companyNameOf(text)}的公司分析`}>
+      公司分析 →
+    </Link>
+  )
+}
 function Node({
   node,
   depth,
@@ -210,6 +239,7 @@ function Node({
     <div className={`industry-node ${depth === 0 ? 'industry-node--root' : ''}`}>
       <div className="industry-node-row">
         {hasKids ? (
+          <>
           <button
             type="button"
             className="industry-node-toggle"
@@ -223,9 +253,12 @@ function Node({
             </span>
             <small>{node.c!.length} 项</small>
           </button>
+          <AnalysisLink text={node.t} />
+          </>
         ) : (
           <div className="industry-node-leaf">
             <NodeText text={node.t} q={q} />
+            <AnalysisLink text={node.t} />
           </div>
         )}
         {node.n && (
@@ -260,6 +293,7 @@ export default function IndustryLandscape(): JSX.Element {
     mode: 'default',
     revision: 0,
   })
+  const linkOf = useCompanyLinks()
   const tree = tab === 'cards' ? undefined : trees[tab]
   const query = q.trim().toLowerCase()
   useEffect(() => {
@@ -286,10 +320,19 @@ export default function IndustryLandscape(): JSX.Element {
     setExpansion((current) => ({ mode: 'default', revision: current.revision + 1 }))
   const source = tab === 'cards' ? undefined : SOURCES[tab]
   const Icon = source?.icon || BatteryCharging
-  const chapters = tree?.c || []
+  const chapters = useMemo(() => tree?.c || [], [tree])
+  // 把各章末尾的「受益公司」汇总成目录里的最后一项，按章节分组
+  const directory = useMemo(() => {
+    const groups = chapters.flatMap((chapter) => {
+      const benefit = chapter.c?.find((child) => child.t === BENEFIT_TITLE)
+      return benefit?.c ? [{ t: title(chapter), c: benefit.c }] : []
+    })
+    return groups.length ? [...chapters, { t: BENEFIT_TITLE, n: '各章节的受益公司汇总，按技术壁垒与技术前景分类。', c: groups }] : chapters
+  }, [chapters])
   const selected = tab === 'cards' ? 0 : sections[tab]
-  const activeChapter = chapters[selected]
+  const activeChapter = directory[selected]
   return (
+    <CompanyLink.Provider value={linkOf}>
     <main>
       <PageTitle>产业格局</PageTitle>
       <PageTabs
@@ -355,7 +398,7 @@ export default function IndustryLandscape(): JSX.Element {
             <div className="industry-layout">
               <nav className="industry-directory" aria-label={`${source!.label}章节目录`}>
                 <div className="industry-directory-title">章节目录</div>
-                {chapters.map((chapter, index) => (
+                {directory.map((chapter, index) => (
                   <button
                     key={index}
                     type="button"
@@ -459,5 +502,6 @@ export default function IndustryLandscape(): JSX.Element {
         </div>
       )}
     </main>
+    </CompanyLink.Provider>
   )
 }
