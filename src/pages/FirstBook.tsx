@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState, useRef } from 'react'
 import ChapterNav from '../components/ChapterNav'
+import ChapterComments from '../components/ChapterComments'
 import { usePageSeo } from '../components/RouteSeo'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, BookOpen, CheckCircle2, Circle, PenLine } from 'lucide-react'
@@ -610,6 +611,8 @@ function ChapterReader({ file }: { file: string }): JSX.Element {
         {error && <p style={{ color: 'var(--up)' }}>章节文件未找到：{decoded}</p>}
         {content && renderMarkdown(content)}
       </div>
+
+      {content && chapter && !REVIEW_FILES.some(f => f.file === decoded) && <ChapterComments slug={decoded} />}
 
       <div className="book-pager" style={{ display: 'flex', gap: '12px', marginBottom: '28px' }}>
         {prev ? (
