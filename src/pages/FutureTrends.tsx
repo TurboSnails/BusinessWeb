@@ -143,7 +143,7 @@ export default function FutureTrends(): JSX.Element {
         {id !== POOL_ID && id !== CORE_ID && id !== SOLID_ID && <p role="note" style={{ color: 'var(--text-secondary)', fontSize: 13, margin: '14px 0' }}>产业目录截至 {FUTURE_TRENDS_ASOF}。点击公司名称查看详细研究；查看推荐顺序请进入核心或候选池。</p>}
 
         {id === SOLID_ID ? <FutureTrendsSolidState /> : id === POOL_ID ? <FutureTrendsPool /> : id === CORE_ID ? <FutureTrendsCore /> : (<>
-        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>九个赛道 · {coverage.segments} 个细分环节 · {coverage.companies} 个公司或主体 · {coverage.entries} 条业务关联（跨环节可重复）</p>
+        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>十个赛道 · {coverage.segments} 个细分环节 · {coverage.companies} 个公司或主体 · {coverage.entries} 条业务关联（跨环节可重复）</p>
         <section style={card} aria-labelledby="trend-name">
           <h2 id="trend-name" style={{ margin: '0 0 6px', fontSize: '1.3rem' }}>{trend.name}</h2>
           <p style={{ margin: '0 0 10px', color: 'var(--text-secondary)' }}>{trend.oneLine}</p>

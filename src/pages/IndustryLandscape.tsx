@@ -10,6 +10,7 @@ import {
   Atom,
   Shield,
   Smartphone,
+  Sparkles,
   Wine,
   ChevronDown,
   ChevronRight,
@@ -52,6 +53,12 @@ const SOURCES = {
     file: 'industry/ai-compute.json',
     description: '从算力芯片、服务器与网络，到数据中心、云和模型应用，看清算力需求如何层层传导。',
     icon: BrainCircuit,
+  },
+  aiapp: {
+    label: 'AI应用',
+    file: 'industry/ai-apps.json',
+    description: '办公、开发、搜索营销、游戏内容、行业应用与端侧硬件，看 AI 如何从试点走到规模付费。',
+    icon: Sparkles,
   },
   robot: {
     label: '机器人',

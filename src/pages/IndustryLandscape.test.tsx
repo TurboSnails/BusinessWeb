@@ -51,6 +51,7 @@ describe('产业格局', () => {
   it('新增产业都有页签，数据能加载并在树上展示，且不含荐股措辞', async () => {
     const files: Record<string, [string, string]> = {
       AI算力: ['ai-compute.json', '产业全景'],
+      AI应用: ['ai-apps.json', '产业全景'],
       机器人: ['robots.json', '产业全景'],
       新能源车与智驾: ['ev-adas.json', '产业全景'],
       光伏与储能: ['pv-storage.json', '产业全景'],
