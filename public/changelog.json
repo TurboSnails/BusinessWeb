@@ -1,10 +1,148 @@
 {
-  "generatedAt": "2026-10-07T15:58:59.725Z",
+  "generatedAt": "2026-10-10T08:03:27.436Z",
   "versions": [
     {
       "tag": "unreleased",
       "date": null,
       "commits": [
+        {
+          "hash": "713e133",
+          "subject": "feat(future-trends): demote 4 core names, flag Runze and Kingsoft Office earnings quality",
+          "author": "hassan",
+          "date": "2026-10-10"
+        },
+        {
+          "hash": "76624ab",
+          "subject": "feat(research): publish solid-state core candidate review with refreshed MCP evidence",
+          "author": "hassan",
+          "date": "2026-10-09"
+        },
+        {
+          "hash": "c04d92f",
+          "subject": "Merge origin/main into main",
+          "author": "hassan",
+          "date": "2026-10-09"
+        },
+        {
+          "hash": "f513c88",
+          "subject": "feat(research): publish solid-state battery company research pages",
+          "author": "hassan",
+          "date": "2026-10-09"
+        },
+        {
+          "hash": "bb885d6",
+          "subject": "feat(research): add solid-state battery tab with MCP company analysis",
+          "author": "hassan",
+          "date": "2026-10-09"
+        },
+        {
+          "hash": "7c4cb83",
+          "subject": "feat(research): show price anchor date and age on company detail",
+          "author": "hassan",
+          "date": "2026-10-09"
+        },
+        {
+          "hash": "8e887b9",
+          "subject": "chore: add third-party agent skills (PM packs and others) as reference backup",
+          "author": "hassan",
+          "date": "2026-10-09"
+        },
+        {
+          "hash": "267bf4d",
+          "subject": "fix(navigation): reserve mindfulness investing name for the book",
+          "author": "hassan",
+          "date": "2026-10-09"
+        },
+        {
+          "hash": "3fb7cd6",
+          "subject": "feat(ai-lab): add image tools, mini program and game site experiments",
+          "author": "hassan",
+          "date": "2026-10-09"
+        },
+        {
+          "hash": "89d0c6f",
+          "subject": "feat(future-trends): re-screen nine tracks, split pool into buyable vs rich, core 12 across tracks",
+          "author": "hassan",
+          "date": "2026-10-09"
+        },
+        {
+          "hash": "ef1a035",
+          "subject": "fix(future-trends): make missing evidence and downside clear in reports",
+          "author": "hassan",
+          "date": "2026-10-09"
+        },
+        {
+          "hash": "20b0258",
+          "subject": "refactor(future-trends): clarify recommendations and simplify research UI",
+          "author": "hassan",
+          "date": "2026-10-09"
+        },
+        {
+          "hash": "60d7082",
+          "subject": "fix(future-trends): align page checks with routed research views",
+          "author": "hassan",
+          "date": "2026-10-09"
+        },
+        {
+          "hash": "33770af",
+          "subject": "feat(future-trends): add company research pages and diversified core list",
+          "author": "hassan",
+          "date": "2026-10-09"
+        },
+        {
+          "hash": "ed18296",
+          "subject": "feat(macro): 估值位置新增标普 500 等权重（SPW），支持外部查看链接",
+          "author": "hassan",
+          "date": "2026-10-09"
+        },
+        {
+          "hash": "994f6f9",
+          "subject": "feat(macro): 宏观温度新增「估值位置」页签",
+          "author": "hassan",
+          "date": "2026-10-08"
+        },
+        {
+          "hash": "1c1532e",
+          "subject": "data(macro): 更新宏观温度数据 2026-10-08",
+          "author": "github-actions[bot]",
+          "date": "2026-10-08"
+        },
+        {
+          "hash": "ab9e2b8",
+          "subject": "fix(seo): verify Search Console and noindex raw book markdown",
+          "author": "hassan",
+          "date": "2026-10-08"
+        },
+        {
+          "hash": "fbd765e",
+          "subject": "feat(seo): 路由级元信息、sitemap/robots、预渲染，章节路由改到 /first-book/read/",
+          "author": "hassan",
+          "date": "2026-10-08"
+        },
+        {
+          "hash": "eb4d3bf",
+          "subject": "feat(future-trends): 候选池与核心支持下载当前选择公司的 JSON",
+          "author": "hassan",
+          "date": "2026-10-08"
+        },
+        {
+          "hash": "9e5b362",
+          "subject": "feat(future-trends): 九赛道中外公司综合排序、候选池与核心 20",
+          "author": "hassan",
+          "date": "2026-10-08"
+        },
+        {
+          "hash": "83413f0",
+          "subject": "test(sectors): freeze cache refresh clock for reproducible CI",
+          "author": "hassan",
+          "date": "2026-10-07"
+        },
+        {
+          "hash": "c738674",
+          "subject": "fix(deploy): preserve saved changelog in builds without Git metadata",
+          "author": "hassan",
+          "date": "2026-10-07"
+        },
         {
           "hash": "2b705c1",
           "subject": "chore(deploy): exclude local caches and agent installations from Vercel uploads",
@@ -46,144 +184,6 @@
           "subject": "feat(ux): 2026 投资计划的外层页签写入 URL，可深链接到小节",
           "author": "hassan",
           "date": "2026-10-07"
-        },
-        {
-          "hash": "0e58edd",
-          "subject": "feat(ux): 配置与纪律页按任务分为四个小节，小节写入 URL",
-          "author": "hassan",
-          "date": "2026-10-07"
-        },
-        {
-          "hash": "401afc0",
-          "subject": "feat(ux): 无障碍与交互基础——焦点环、页签键盘导航、跳转链接、对比度达 AA、减少动效、DCF 预填提示置顶",
-          "author": "hassan",
-          "date": "2026-10-07"
-        },
-        {
-          "hash": "02dc747",
-          "subject": "feat(plan): 自由生活覆盖率（股息利息与4%提款并列）与备用金可撑月数",
-          "author": "hassan",
-          "date": "2026-10-07"
-        },
-        {
-          "hash": "137131c",
-          "subject": "feat(plan): 历史情景压力测试（真实序列、缺数据不替代）与币种敞口",
-          "author": "hassan",
-          "date": "2026-10-07"
-        },
-        {
-          "hash": "9382a68",
-          "subject": "feat(plan,dcf): DCF 敏感性矩阵、风险贡献视图、交易前检查单与冷静期、研究页到 DCF 预填",
-          "author": "hassan",
-          "date": "2026-10-07"
-        },
-        {
-          "hash": "d6241b2",
-          "subject": "feat(macro): add historical stock crisis leverage references",
-          "author": "hassan",
-          "date": "2026-10-07"
-        },
-        {
-          "hash": "9c159f4",
-          "subject": "feat(research): 纳指100 单独分类，新增 10 家公司研究页；同步港股与美股非标普复核",
-          "author": "hassan",
-          "date": "2026-10-07"
-        },
-        {
-          "hash": "d6448f9",
-          "subject": "feat(macro): 港股宏观、周期位置页、顶部参照价格",
-          "author": "hassan",
-          "date": "2026-10-07"
-        },
-        {
-          "hash": "0878e9a",
-          "subject": "feat(macro): 杠杆与资金指标、长历史图与新旧数据标记",
-          "author": "hassan",
-          "date": "2026-10-07"
-        },
-        {
-          "hash": "8c6858d",
-          "subject": "feat: add AI learning roadmap and theme cards with valuation and grid improvements",
-          "author": "hassan",
-          "date": "2026-10-07"
-        },
-        {
-          "hash": "c707416",
-          "subject": "chore: commit pending work from earlier sessions",
-          "author": "hassan",
-          "date": "2026-10-07"
-        },
-        {
-          "hash": "6ee2d0a",
-          "subject": "feat(research): company-level review of 476 CN stocks (10 sectors), 2026-10-07",
-          "author": "hassan",
-          "date": "2026-10-07"
-        },
-        {
-          "hash": "483cdb1",
-          "subject": "fix: add route error boundary, tolerate weak ETag in candidates sync; feat: ETF school guide page",
-          "author": "hassan",
-          "date": "2026-10-07"
-        },
-        {
-          "hash": "ad8284c",
-          "subject": "feat(ai-tools): add novel and literary writing skill downloads",
-          "author": "hassan",
-          "date": "2026-10-06"
-        },
-        {
-          "hash": "a8b88ae",
-          "subject": "feat(ai-tools): add video prompt builder skill downloads",
-          "author": "hassan",
-          "date": "2026-10-06"
-        },
-        {
-          "hash": "f3573d3",
-          "subject": "Merge branch 'feat/ai-lab': AI实验室栏目重设计",
-          "author": "hassan",
-          "date": "2026-10-06"
-        },
-        {
-          "hash": "9b706de",
-          "subject": "feat: 投资 AI 工具页（Skill 下载包）、品牌改为 Live、栏目改名为 AI实验室 / 自由空间",
-          "author": "hassan",
-          "date": "2026-10-06"
-        },
-        {
-          "hash": "58bb009",
-          "subject": "fix(ai-lab): 实验/可以试徽章文字对比度达到 AA",
-          "author": "hassan",
-          "date": "2026-10-06"
-        },
-        {
-          "hash": "9befaa3",
-          "subject": "feat(ai-lab): 方向实验档案页 /ai/:slug",
-          "author": "hassan",
-          "date": "2026-10-06"
-        },
-        {
-          "hash": "933acb5",
-          "subject": "feat(ai-lab): AI实验室页改为作品橱窗 + 方向地图",
-          "author": "hassan",
-          "date": "2026-10-06"
-        },
-        {
-          "hash": "c0db4df",
-          "subject": "feat(ai-lab): AI实验室方向与作品数据",
-          "author": "hassan",
-          "date": "2026-10-06"
-        },
-        {
-          "hash": "f922f62",
-          "subject": "docs(ai-lab): AI实验室实现计划",
-          "author": "hassan",
-          "date": "2026-10-06"
-        },
-        {
-          "hash": "6b00df3",
-          "subject": "docs(ai-lab): AI实验室栏目重设计设计文档",
-          "author": "hassan",
-          "date": "2026-10-06"
         }
       ]
     }
