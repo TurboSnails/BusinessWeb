@@ -87,6 +87,6 @@ describe('候选池分桶', () => {
     const buy = RESEARCH_INDEX.filter(r => poolBucket(r) === 'buy')
     expect(buy).toHaveLength(12)
     for (const r of buy) { expect(r.ratio!, r.key).toBeGreaterThanOrEqual(0.75); expect(r.expected!, r.key).toBeGreaterThanOrEqual(0.2) }
-    expect(RESEARCH_INDEX.filter(r => poolBucket(r) === 'rich')).toHaveLength(46)
+    expect(RESEARCH_INDEX.filter(r => poolBucket(r) === 'rich')).toHaveLength(52)
   })
 })

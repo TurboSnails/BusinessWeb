@@ -29,6 +29,6 @@ export default function FutureTrendsPool(): JSX.Element {
     {!rows.length && <div className="ft-empty"><p>没有找到匹配公司。</p><button className="ft-export" type="button" onClick={() => setParams({tab:'pool',view:'4'})}>查看全部观察公司</button></div>}
     {pages > 1 && <nav className="ft-pagination" aria-label="候选池分页"><button type="button" disabled={page === 1} onClick={() => paginate(page-1)}>上一页</button><span>{page} / {pages}</span><button type="button" disabled={page === pages} onClick={() => paginate(page+1)}>下一页</button></nav>}
     <p className="ft-method">优先级表示跟踪顺序，当前仍需等待价格与经营验证。情景盈亏比和 2:1 条件价为估值草稿，不是买入指令。报价截至 2026-10-09，具体时点见公司页。</p>
-    <details className="ft-method"><summary>研究范围与计算口径</summary><p>561 家上市公司可查询，另有 26 家非上市或状态待核公司保留产业观察页。55 家（核心 12 家 + 入围候选 43 家）有公司披露摘录、情景草稿与主观概率，其余为初筛；所有情景尚待独立估值复核。实际胜率未经校准。</p><p>盈亏比 R=(基准价−现价)/(现价−悲观价)，仅悲观价＜现价＜基准价时有效。2:1 条件价=(基准价+2×悲观价)/3。悲观情景不是最大损失，条件价不等于合理价值。</p></details>
+    <details className="ft-method"><summary>研究范围与计算口径</summary><p>561 家上市公司可查询，另有 26 家非上市或状态待核公司保留产业观察页。61 家（核心 12 家 + 入围候选 49 家）有公司披露摘录、情景草稿与主观概率，其余为初筛；所有情景尚待独立估值复核。实际胜率未经校准。</p><p>盈亏比 R=(基准价−现价)/(现价−悲观价)，仅悲观价＜现价＜基准价时有效。2:1 条件价=(基准价+2×悲观价)/3。悲观情景不是最大损失，条件价不等于合理价值。</p></details>
   </div>
 }
