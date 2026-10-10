@@ -1,0 +1,424 @@
+/* 首页沿用纸书茶室色板；所有样式限定在首页内。 */
+.home {
+  --home-rule: var(--border-subtle);
+  --home-cover: var(--accent-ink);
+  --home-cover-ink: var(--bg-primary);
+  --home-cover-muted: #d4dfd3;
+  --home-cover-rule: #8a9e8c;
+  --home-book-shadow: 12px 22px 36px rgba(58, 58, 52, 0.14);
+  padding-top: 0;
+}
+
+.home ::selection {
+  background: var(--accent-ink);
+  color: var(--bg-card);
+}
+
+.home a {
+  -webkit-tap-highlight-color: var(--accent-soft);
+  scroll-margin-top: 80px;
+}
+
+.home a:focus-visible {
+  outline: 2px solid var(--accent-ink);
+  outline-offset: 6px;
+}
+
+.home-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(32px, 6vw, 88px);
+  padding: 64px 32px 64px 0;
+}
+
+.home-hero h1 {
+  margin: 0 0 20px;
+  font-size: clamp(2.25rem, 4.5vw, 3.75rem);
+  line-height: 1.4;
+  letter-spacing: 0.025em;
+}
+
+.home-hero__subtitle {
+  margin: 0;
+  color: var(--text-secondary);
+  font-family: var(--font-serif);
+  font-size: clamp(1rem, 1.8vw, 1.2rem);
+  line-height: 1.9;
+  text-wrap: pretty;
+}
+
+.home-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 24px;
+  margin-top: 32px;
+}
+
+.home-read,
+.home-contents {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  min-height: 48px;
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.home .home-read {
+  padding: 12px 24px;
+  border-radius: var(--radius-full);
+  background: var(--accent-ink);
+  color: var(--bg-card);
+  transition: background-color 180ms ease;
+}
+
+.home-read:hover {
+  background: var(--text-primary);
+}
+
+.home .home-contents {
+  padding: 12px 4px;
+  color: var(--accent-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--home-rule);
+  text-underline-offset: 6px;
+  transition: text-decoration-color 180ms ease;
+}
+
+.home-contents:hover {
+  text-decoration-color: currentColor;
+}
+
+.home-manifesto {
+  max-width: 30em;
+  margin: 32px 0 0;
+  padding-top: 24px;
+  border-top: 1px solid var(--home-rule);
+  color: var(--text-secondary);
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  line-height: 2;
+}
+
+/* 纯文字封面延续书籍入口，不引入额外图片请求或布局偏移。 */
+.home-book {
+  width: clamp(200px, 23vw, 260px);
+  aspect-ratio: 3 / 4;
+  margin: 0 24px;
+  background: var(--home-cover);
+  color: var(--home-cover-ink);
+  box-shadow: var(--home-book-shadow);
+}
+
+.home-book__cover {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  padding: 24px 24px 20px;
+  border-left: 1px solid var(--home-cover-rule);
+  margin-left: 10px;
+}
+
+.home-book__brand {
+  align-self: flex-start;
+  font-family: var(--font-serif);
+  font-size: 0.875rem;
+  color: var(--home-cover-muted);
+}
+
+.home-book__title {
+  writing-mode: vertical-rl;
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 2.75rem;
+  letter-spacing: 0.12em;
+  line-height: 1.4;
+}
+
+.home-book__note {
+  padding-top: 12px;
+  border-top: 1px solid var(--home-cover-rule);
+  color: var(--home-cover-muted);
+  font-family: var(--font-serif);
+  font-size: 0.875rem;
+  letter-spacing: 0.08em;
+}
+
+.home h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  line-height: 1.6;
+}
+
+.home-columns {
+  padding-top: 32px;
+  border-top: 1px solid var(--home-rule);
+}
+
+.home-columns__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 40px;
+  margin-top: 28px;
+}
+
+.home .home-column {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px 0 24px;
+  border-top: 1px solid var(--home-rule);
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: border-color 180ms ease;
+}
+
+.home-column__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.home-column__title {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.home-column__heading svg {
+  flex: 0 0 auto;
+  color: var(--accent-ink);
+}
+
+.home-column__desc {
+  max-width: 24em;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.85;
+  text-wrap: pretty;
+}
+
+.home-column:hover {
+  border-color: var(--accent-ink);
+}
+
+.home-column:hover .home-column__title {
+  color: var(--accent-ink);
+}
+
+.home-quotes {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) minmax(0, 3fr);
+  gap: 40px;
+  margin-top: 56px;
+  padding-top: 32px;
+  border-top: 1px solid var(--home-rule);
+}
+
+.home-quotes__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 40px;
+}
+
+.home-quote {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin: 0;
+  padding: 24px 0;
+  border-top: 1px solid var(--home-rule);
+}
+
+.home-quote:nth-child(-n + 2) {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.home-quote p {
+  margin: 0 0 16px;
+  font-family: var(--font-serif);
+  font-size: 1.125rem;
+  line-height: 1.9;
+  text-wrap: pretty;
+}
+
+.home-quote footer {
+  margin-top: auto;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.home > .home-section {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) minmax(0, 3fr);
+  gap: 40px;
+  margin: 56px 0 0;
+  padding-top: 32px;
+  border-top: 1px solid var(--home-rule);
+}
+
+.home .updates {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+
+.home .updates li {
+  padding: 18px 0;
+  gap: 16px;
+  border-bottom: 1px solid var(--home-rule);
+}
+
+.home .updates li:first-child {
+  padding-top: 4px;
+}
+
+.home .updates li:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.home .updates__date {
+  flex: 0 0 auto;
+  min-width: 88px;
+  padding-top: 3px;
+  font-variant-numeric: tabular-nums;
+}
+
+.home .updates__text {
+  min-width: 0;
+  line-height: 1.8;
+}
+
+@media (max-width: 900px) {
+  .home-hero {
+    gap: 24px;
+    padding-right: 0;
+  }
+
+  .home-book {
+    margin: 0 12px;
+  }
+
+  .home-columns__grid,
+  .home-quotes,
+  .home > .home-section {
+    gap: 24px;
+  }
+
+  .home-quotes,
+  .home > .home-section {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .home-hero {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 32px;
+    padding: 40px 0;
+  }
+
+  .home-hero__copy {
+    width: 100%;
+    text-align: center;
+  }
+
+  .home-hero h1 {
+    margin-bottom: 12px;
+  }
+
+  .home-hero__actions {
+    justify-content: center;
+    gap: 12px 20px;
+    margin-top: 24px;
+  }
+
+  .home-manifesto {
+    margin-top: 24px;
+    padding-top: 20px;
+  }
+
+  .home-book {
+    width: 156px;
+    margin: 0 0 8px;
+  }
+
+  .home-book__cover {
+    margin-left: 7px;
+    padding: 12px 16px;
+  }
+
+  .home-book__title {
+    font-size: 1.75rem;
+  }
+
+  .home-book__brand,
+  .home-book__note {
+    font-size: 0.75rem;
+  }
+
+  .home-book__note {
+    padding-top: 8px;
+  }
+
+  .home-columns {
+    padding-top: 24px;
+  }
+
+  .home-columns__grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+    margin-top: 20px;
+  }
+
+  .home .home-column {
+    gap: 8px;
+  }
+
+  .home-column__title {
+    font-size: 1.25rem;
+  }
+
+  .home-quotes,
+  .home > .home-section {
+    gap: 24px;
+    margin-top: 32px;
+    padding-top: 24px;
+  }
+
+  .home-quotes__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-quote {
+    padding: 20px 0;
+  }
+
+  .home-quote:nth-child(2) {
+    padding-top: 20px;
+    border-top: 1px solid var(--home-rule);
+  }
+
+  .home-quote p {
+    font-size: 1rem;
+    margin-bottom: 12px;
+  }
+
+  .home .updates li {
+    gap: 4px;
+  }
+
+  .home .updates__date {
+    padding: 0;
+  }
+}
