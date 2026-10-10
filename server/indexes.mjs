@@ -3,6 +3,7 @@
 // 指数自己的 PE 没有免费接口，所以对有成分股名单的指数（NDX、SOX），逐只拉成分股的 Forward / 滚动 PE 和市值，
 // 用市值加权的调和平均汇总成指数 PE，每次更新写入当月一个点，历史从第一次运行起逐月积累。
 // 没有成分股名单的指数，Forward PE 仍可手动录入（npm run index:fpe）。
+import { CSI300_MEMBERS, CSI500_MEMBERS, CHINEXT_MEMBERS } from './indexMembersCn.mjs'
 const TIMEOUT_MS = 12000
 const UA = { 'User-Agent': 'Mozilla/5.0' }
 
@@ -40,7 +41,7 @@ export async function fetchHistoryOfMarket(key) {
   return points
 }
 
-const MEMBERS = { ndx: NDX_MEMBERS, sox: SOX_MEMBERS }
+const MEMBERS = { ndx: NDX_MEMBERS, sox: SOX_MEMBERS, csi300: CSI300_MEMBERS, csi500: CSI500_MEMBERS, chinext: CHINEXT_MEMBERS }
 
 /** 要跟踪的指数；group 决定表格分组，顺序即显示顺序 */
 export const INDEXES = [
@@ -52,7 +53,32 @@ export const INDEXES = [
   { key: 'rut', symbol: '^RUT', name: '罗素 2000', group: '美股', note: '小盘股，对利率和信用更敏感；没有可用的 Forward PE 历史，只看价格位置' },
   { key: 'hsi', symbol: '^HSI', name: '恒生指数', group: '港股', note: '' },
   { key: 'sse', symbol: '000001.SS', name: '上证指数', group: 'A 股', note: '' },
+  { key: 'csi300', tencent: 'sh000300', symbol: '000300.SS', name: '沪深 300', group: 'A 股', note: '沪深两市最大的 300 家，A 股大盘基准；Forward PE 由成分股汇总，走势线是中证指数官网公布的滚动 PE（2011 年起）' },
+  { key: 'csi500', tencent: 'sh000905', symbol: '000905.SS', name: '中证 500', group: 'A 股', note: '剔除沪深 300 后市值居前的 500 家，中盘代表；Forward PE 由成分股汇总，走势线是中证指数官网公布的滚动 PE（2011 年起）' },
+  { key: 'chinext', tencent: 'sz399006', symbol: '399006.SZ', name: '创业板指', group: 'A 股', note: '创业板中市值最大、流动性最好的 100 家（新能源、医药、电子居多）；Forward PE 由成分股汇总，暂无长历史，随每月更新逐点积累' },
 ]
+
+// 中证指数官网按日公布的滚动 PE（沪深 300、中证 500），2011 年起；日度太密，取每周最后一个交易日
+const CSINDEX_PE = { csi300: '000300', csi500: '000905' }
+export const CSINDEX_SOURCE = '中证指数官网（csindex.com.cn）：指数滚动 PE（TTM），2011 年起，按周取点'
+export function weeklyPoints(rows) {
+  const byWeek = new Map()
+  for (const [d, v] of rows) {
+    const t = new Date(`${d}T00:00:00Z`)
+    const monday = new Date(t.getTime() - ((t.getUTCDay() + 6) % 7) * 86400000).toISOString().slice(0, 10)
+    byWeek.set(monday, [d, v])
+  }
+  return [...byWeek.values()]
+}
+export async function fetchCsindexPe(code) {
+  const end = new Date().toISOString().slice(0, 10).replaceAll('-', '')
+  const res = await fetch(`https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=${code}&startDate=20040101&endDate=${end}`, { headers: UA, signal: AbortSignal.timeout(TIMEOUT_MS * 2) })
+  if (!res.ok) throw new Error(`中证指数 ${code}: HTTP ${res.status}`)
+  const rows = ((await res.json()).data ?? []).filter(r => r.peg > 0 && r.tradeDate).map(r => [`${r.tradeDate.slice(0, 4)}-${r.tradeDate.slice(4, 6)}-${r.tradeDate.slice(6, 8)}`, r.peg]).sort((a, b) => a[0].localeCompare(b[0]))
+  const points = weeklyPoints(rows)
+  if (points.length < 100) throw new Error(`中证指数 ${code}: 数据不足`)
+  return points
+}
 
 /** 市值加权调和平均 PE：= Σ市值 ÷ Σ(市值/PE)，相当于"成分股总市值 ÷ 总盈利"，亏损股（PE ≤ 0 或缺失）不计入 */
 export function weightedPe(rows, field) {
@@ -85,6 +111,16 @@ async function fetchMonthly(symbol) {
   return parseMonthly(await res.json())
 }
 
+/** 雅虎没有沪深 300、中证 500、创业板指的历史（只返回当天一个点），月线改用腾讯行情；每行 [日期, 开, 收, 高, 低, 量]，最后一行是当月未收盘的最新价 */
+export async function fetchTencentMonthly(code) {
+  const res = await fetch(`https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=${code},month,,,800,qfq`, { headers: UA, signal: AbortSignal.timeout(TIMEOUT_MS) })
+  if (!res.ok) throw new Error(`${code}: HTTP ${res.status}`)
+  const k = (await res.json()).data?.[code]
+  const raw = k?.month ?? k?.qfqmonth ?? []
+  const rows = raw.map(r => [r[0], round(Number(r[2]), 2)]).filter(([, v]) => Number.isFinite(v) && v > 0)
+  return { rows, latestTime: null }
+}
+
 /** 近 N 年日收盘，用来把半年一个点的参考序列估算成每天一个点 */
 async function fetchDaily(symbol, years = 5) {
   const now = Math.floor(Date.now() / 1000)
@@ -107,12 +143,13 @@ async function yahooSession() {
 export async function fetchQuotes(symbols) {
   const { cookie, crumb } = await yahooSession()
   const out = new Map()
-  for (let i = 0; i < symbols.length; i += 40) {
-    const batch = symbols.slice(i, i + 40)
+  const batches = []
+  for (let i = 0; i < symbols.length; i += 40) batches.push(symbols.slice(i, i + 40))
+  await Promise.all(batches.map(async batch => {
     const res = await fetch(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${batch.join(',')}&crumb=${encodeURIComponent(crumb)}`, { headers: { ...UA, cookie }, signal: AbortSignal.timeout(TIMEOUT_MS) })
     if (!res.ok) throw new Error(`quote: HTTP ${res.status}`)
     for (const q of (await res.json()).quoteResponse.result) out.set(q.symbol, { code: q.symbol, name: q.shortName ?? q.symbol, mcap: q.marketCap ?? 0, fwd: q.forwardPE ?? null, ttm: q.trailingPE ?? null })
-  }
+  }))
   return out
 }
 
@@ -123,7 +160,7 @@ export async function buildIndexSnapshot(previous = null) {
   await Promise.all(INDEXES.map(async ix => {
     const old = previous?.indexes?.[ix.key]
     try {
-      const { rows, latestTime } = await fetchMonthly(ix.symbol)
+      const { rows, latestTime } = ix.tencent ? await fetchTencentMonthly(ix.tencent) : await fetchMonthly(ix.symbol)
       if (rows.length < 24) throw new Error('历史数据不足')
       const date = latestTime ? new Date(latestTime * 1000).toISOString().slice(0, 10) : rows[rows.length - 1][0]
       out[ix.key] = { symbol: ix.symbol, name: ix.name, group: ix.group, note: ix.note, links: ix.links, latest: { date, value: rows[rows.length - 1][1] }, monthly: rows, fpe: old?.fpe ?? [] }
@@ -153,6 +190,11 @@ export async function buildIndexSnapshot(previous = null) {
   for (const key of Object.keys(HOM)) {
     if (!out[key]) continue
     try { out[key].ref = { source: HOM_SOURCE, points: await fetchHistoryOfMarket(key) } }
+    catch (e) { warnings.push(`${out[key].name} 参考序列：${e instanceof Error ? e.message : '拉取失败'}${previous?.indexes?.[key]?.ref ? '，沿用旧数据' : ''}`); out[key].ref = previous?.indexes?.[key]?.ref }
+  }
+  for (const [key, code] of Object.entries(CSINDEX_PE)) {
+    if (!out[key]) continue
+    try { out[key].ref = { source: CSINDEX_SOURCE, points: await fetchCsindexPe(code), kind: 'trailing' } }
     catch (e) { warnings.push(`${out[key].name} 参考序列：${e instanceof Error ? e.message : '拉取失败'}${previous?.indexes?.[key]?.ref ? '，沿用旧数据' : ''}`); out[key].ref = previous?.indexes?.[key]?.ref }
   }
   for (const [key, cfg] of Object.entries(SIBLIS)) {

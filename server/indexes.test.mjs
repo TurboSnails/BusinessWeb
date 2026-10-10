@@ -29,3 +29,9 @@ test('导入长历史：按日期排序、丢弃无效行，并标记为手动�
 test('导入数据不足 24 行时报错', () => {
   assert.throws(() => setRef({ indexes: { hsi: {} } }, 'hsi', [['2020-01-01', '10']], 's'), /不足 24/)
 })
+
+import { weeklyPoints } from './indexes.mjs'
+test('日度 PE 按周压缩：每周留最后一个交易日', () => {
+  const rows = [['2026-09-28', 10], ['2026-09-29', 11], ['2026-10-02', 12], ['2026-10-05', 13]]
+  assert.deepEqual(weeklyPoints(rows), [['2026-10-02', 12], ['2026-10-05', 13]])
+})
