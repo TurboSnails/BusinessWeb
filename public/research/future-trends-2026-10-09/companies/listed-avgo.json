@@ -21,7 +21,7 @@
   "valuationStatus": "正常化 EPS 情景草稿；第二独立方法缺失，未认证",
   "primaryTrend": "人工智能",
   "riskGroup": "AI 资本开支与变现",
-  "core": true,
+  "core": false,
   "moat": "定制 AI 加速器（XPU）与以太网交换/网络芯片，设计能力与云客户共研形成绑定；VMware 软件订阅提供稳定现金流。",
   "concern": "AI 收入集中于少数云厂商；客户可自研或换供应商；非 GAAP 利润剔除大额股权激励；需求从训练转向推理时定价与份额不确定。",
   "certainty": "证据中等／估值低，非综合高确定性",

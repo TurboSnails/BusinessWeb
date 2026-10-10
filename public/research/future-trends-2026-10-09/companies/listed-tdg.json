@@ -21,7 +21,7 @@
   "valuationStatus": "正常化 EPS 情景草稿；第二独立方法缺失，未认证",
   "primaryTrend": "航空航天",
   "riskGroup": "发动机售后与国防预算",
-  "core": true,
+  "core": false,
   "moat": "专有、单一来源的航空零部件，售后高毛利；工程认证与长期订单形成定价权。",
   "concern": "净债务/EBITDA 5.8 倍，利率与再融资压力；并购整合；EBITDA 利润率受收购拖累；商业航空周期。",
   "certainty": "证据中等／估值低，非综合高确定性",

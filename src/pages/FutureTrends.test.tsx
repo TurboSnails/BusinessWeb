@@ -65,13 +65,13 @@ describe('未来趋势', () => {
     expect(screen.getByRole('table').querySelectorAll('tbody tr').length).toBeGreaterThan(0)
   })
 
-  it('第一个页签是核心 12，展示优先与备选及价格条件', () => {
+  it('第一个页签是核心 8，展示优先与备选及价格条件', () => {
     render(<MemoryRouter initialEntries={['/future-trends?tab=ai']}><FutureTrends /></MemoryRouter>)
     const tabs = screen.getAllByRole('tab')
     expect(tabs[0].textContent).toBe('核心')
     fireEvent.click(screen.getByRole('tab', { name: '核心' }))
     expect(screen.getByRole('heading', { name: /^核心：先看这 6 家/ })).toBeTruthy()
-    expect(screen.getAllByRole('table').reduce((n,t) => n+t.querySelectorAll('tbody tr').length,0)).toBe(12)
+    expect(screen.getAllByRole('table').reduce((n,t) => n+t.querySelectorAll('tbody tr').length,0)).toBe(8)
     expect(screen.getByText(/当前情景估值均为待复核草稿/)).toBeTruthy()
   })
 
@@ -94,7 +94,7 @@ describe('未来趋势', () => {
       fireEvent.click(screen.getByRole('tab', { name: '核心' }))
       fireEvent.click(screen.getByRole('button', { name: '导出核心 JSON' }))
       const core = JSON.parse(await blobs[1].text())
-      expect(core).toHaveLength(12)
+      expect(core).toHaveLength(8)
       expect(core.every((x: { core: boolean }) => x.core)).toBe(true)
       expect(core[0]).toHaveProperty('moat')
     } finally {

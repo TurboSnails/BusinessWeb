@@ -21,7 +21,7 @@
   "valuationStatus": "正常化 EPS 情景草稿；第二独立方法缺失，未认证",
   "primaryTrend": "创新药",
   "riskGroup": "全球药品专利与研发",
-  "core": true,
+  "core": false,
   "moat": "GLP-1/GIP 临床数据与制造规模、产能先发；管线（retatrutide，计划 2027Q1 递交）。",
   "concern": "实现价格年降 13%；医保/国家谈判降价（中国已纳入国家医保）；竞争者（诺和诺德、国产 GLP-1）；收入高度集中于 Mounjaro/Zepbound。",
   "certainty": "证据中等／估值低，非综合高确定性",
