@@ -42,6 +42,14 @@ mkdirSync(solidReportsDirectory, { recursive: true })
 for (const report of solidCompanies.values()) writeFileSync(resolve(solidReportsDirectory, `${report.id}.json`), JSON.stringify(report, null, 2) + '\n')
 function describe(path) {
   const seo = resolveSeo(path)
+  if (path === '/ai/dev-team') return {
+    title: seo.title, description: seo.description,
+    body: marked.parse(readFileSync(resolve(ROOT, 'src/content/dev-team-README.md'), 'utf8').replace(/^# .+\r?\n/, '')),
+  }
+  if (path === '/ai/dropshipping') return {
+    title: seo.title, description: seo.description,
+    body: marked.parse(readFileSync(resolve(ROOT, 'src/content/dropshipping-strategy.md'), 'utf8').replace(/^# .+\r?\n/, '')),
+  }
   const file = path.startsWith('/first-book/read/') && decodeURIComponent(path.slice('/first-book/read/'.length))
   const chapter = file && book.get(file)
   if (chapter) {

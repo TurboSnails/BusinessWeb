@@ -29,7 +29,7 @@ export default function AiStudio(): JSX.Element {
             <a className="skill-download" href={`${import.meta.env.BASE_URL}ai-skills/dev-team.zip`} download="dev-team.zip" aria-label="下载 Orca 开发团队 dev-team 完整 ZIP">
               <Download size={16} aria-hidden="true" /> 下载 dev-team ZIP
             </a>
-            <a className="skill-guide" href={`${import.meta.env.BASE_URL}ai-skills/dev-team-README.md`}>使用说明 README</a>
+            <Link className="skill-guide" to="/ai/dev-team">使用说明 README</Link>
             <Link className="skill-guide" to="/ai/ai-skills">功能、安装与使用</Link>
             <Link className="skill-guide" to="/invest/ai-tools">全部 Skills</Link>
           </div>

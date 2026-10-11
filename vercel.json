@@ -3,6 +3,13 @@
   "framework": "vite",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "redirects": [
+    {
+      "source": "/ai-skills/dev-team-README.md",
+      "destination": "/ai/dev-team",
+      "permanent": false
+    }
+  ],
   "functions": {
     "api/macro.js": {
       "maxDuration": 30

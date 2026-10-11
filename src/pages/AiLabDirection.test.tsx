@@ -1,5 +1,5 @@
 import React from 'react'
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, render, screen, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it } from 'vitest'
 import AiLabDirection from './AiLabDirection'
@@ -34,12 +34,25 @@ describe('AiLabDirection', () => {
     expect(screen.getByText('还没开始。开始后会在这里公开记录。')).toBeTruthy()
   })
 
-  it('无货源电商显示实验边界', () => {
-    at('/ai/dropshipping')
+  it('无货源电商展示 30 天边界、完整实施方案与可下载记账模板', () => {
+    const { container } = at('/ai/dropshipping')
     expect(screen.getByRole('heading', { level: 2, name: '实验边界' })).toBeTruthy()
-    expect(screen.getByText('¥5000')).toBeTruthy()
-    expect(screen.getByText('3 个月')).toBeTruthy()
-    expect(screen.getByText('到期未盈利即停')).toBeTruthy()
+    expect(screen.getByText('30 天；累计投入不超过 30 小时')).toBeTruthy()
+    expect(screen.getByText(/首轮建议 ¥2000/)).toBeTruthy()
+    expect(screen.getByText(/触及损失或工时上限、平台准入不明确/)).toBeTruthy()
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
+    const article = within(screen.getByRole('article', { name: '无货源电商说明与实施建议' }))
+    expect(article.getAllByRole('heading', { level: 2 })).toHaveLength(11)
+    expect(article.getByRole('heading', { name: '6. 30 天实施：每周都有交付物' })).toBeTruthy()
+    expect(article.getByRole('heading', { name: '8. 继续、调整或停止：在投入前写好条件' })).toBeTruthy()
+    expect(article.getByRole('link', { name: 'eBay 代发政策' }).getAttribute('href')).toContain('ebay.com/help/')
+    expect(article.getByText('所有订单')).toBeTruthy()
+    const links = within(screen.getByRole('navigation', { name: '无货源电商实施目录' })).getAllByRole('link')
+    expect(links).toHaveLength(12)
+    for (const link of links) expect(container.querySelector(link.getAttribute('href')!)).toBeTruthy()
+    expect(screen.getByRole('link', { name: '下载订单记账模板' }).getAttribute('download')).toBe('无货源电商-订单记账模板.csv')
+    expect(screen.getByRole('link', { name: '下载完整方案' }).getAttribute('download')).toBe('无货源电商-30天实施方案.md')
+    expect(screen.getByText('还没开始。开始后会在这里公开记录。')).toBeTruthy()
   })
 
   it('不推荐方向：为什么不做，无日志块、无实验边界', () => {

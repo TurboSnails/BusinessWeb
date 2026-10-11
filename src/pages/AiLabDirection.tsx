@@ -6,6 +6,7 @@ import { usePageSeo } from '../components/RouteSeo'
 import NotFound from './NotFound'
 import DevTeamSkillCard from '../components/skills/DevTeamSkillCard'
 import { Page } from '../components/ui'
+import DropshippingStrategy from '../components/lab/DropshippingStrategy'
 
 function limitRows(d: LabDirection): Array<[string, string]> {
   const rows: Array<[string, string]> = []
@@ -28,10 +29,11 @@ export default function AiLabDirection(): JSX.Element {
   const logs = [...d.logs].sort((a, b) => b.date.localeCompare(a.date))
 
   return (
-    <Page className="animate-fade-in lab-page">
+    <Page variant={d.slug === 'dropshipping' ? 'reading' : 'default'} className="animate-fade-in lab-page">
       <Link to="/ai" className="lab-back">← AI实验室</Link>
       <header className="page-head">
         <h1>{d.title}</h1>
+        {d.slug === 'dropshipping' && <p>供应商一件代发 · 30 天低成本试验</p>}
         <div className="lab-detail__meta">
           <VerdictBadge verdict={d.verdict} />
           <Stars fit={d.fit} />
@@ -84,6 +86,8 @@ export default function AiLabDirection(): JSX.Element {
           <p>{d.firstStep}</p>
         </section>
       )}
+
+      {d.slug === 'dropshipping' && <DropshippingStrategy />}
 
       {!avoid && (
         <section className="lab-section">

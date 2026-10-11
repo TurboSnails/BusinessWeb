@@ -22,6 +22,7 @@ const EXACT: Record<string, RouteSeo> = {
   '/invest/national-team': { title: '国家队持仓｜汇金、证金、社保的 A 股持仓', description: '按报告期追踪中央汇金、证金公司、社保基金等持有的 A 股：机构、行业、个股持仓与季度变化。' },
   '/ai': { title: 'AI 工作室｜独立开发与 AI 学习路线', description: '用 AI 做独立开发：学习路线、实验方向与工具笔记。' },
   '/ai/fullstack-roadmap': { title: 'AI 全栈学习路线', description: '从零到独立开发者的 AI 全栈学习计划。' },
+  '/ai/dev-team': { title: 'dev-team 使用说明｜Orca 开发团队', description: 'Orca 开发团队 dev-team 的完整使用说明：安装、自检、项目配置、日常派工、交接与验证范围，含完整 ZIP 和原文下载。' },
   '/life': { title: '生活实验室', description: '自由生活的长期实验记录。' },
   '/about': { title: '关于', description: '《正念投资》作者，投资、AI 与独立开发的长期实验。' },
   '/pulse': { title: '市场脉搏', description: '每日市场情绪与宏观数据快照。' },

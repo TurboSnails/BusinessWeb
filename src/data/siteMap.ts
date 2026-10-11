@@ -151,6 +151,7 @@ const EXTRA_PAGES: SearchablePage[] = [
   { path: '/first-book/slow-is-fast', label: '书的目录', group: '投资 · 读这本书', desc: '《正念投资》目录与章节' },
   { path: '/grid-trading/records', label: '网格记录', group: '投资 · 用工具执行', desc: '已保存的网格模拟与回测记录' },
   { path: '/ai/fullstack-roadmap', label: '全栈学习路线', group: 'AI实验室', desc: 'AI 全栈开发学习计划' },
+  { path: '/ai/dev-team', label: 'dev-team 使用说明', group: 'AI实验室', desc: 'Orca 开发团队的安装、自检、配置、派工与验证范围' },
 ]
 
 /** 跳转面板与最近访问共用的页面注册表，由导航、投资分组和 AI 方向拼出，不另外手写 */

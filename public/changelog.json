@@ -1,10 +1,16 @@
 {
-  "generatedAt": "2026-10-11T14:40:31.726Z",
+  "generatedAt": "2026-10-11T15:10:06.835Z",
   "versions": [
     {
       "tag": "unreleased",
       "date": null,
       "commits": [
+        {
+          "hash": "b7e4998",
+          "subject": "docs(dev-team): 替换完整下载包并同步 README 使用介绍",
+          "author": "hassan",
+          "date": "2026-10-11"
+        },
         {
           "hash": "161c5a9",
           "subject": "fix(book): 默认普通话并缩小悬浮听书与独立底部书评",
@@ -176,12 +182,6 @@
         {
           "hash": "dae8e05",
           "subject": "docs(spec): 工作台首页与全站快速跳转设计",
-          "author": "hassan",
-          "date": "2026-10-11"
-        },
-        {
-          "hash": "ea5e279",
-          "subject": "feat(about): show curated feature updates and remove homepage commit log",
           "author": "hassan",
           "date": "2026-10-11"
         }

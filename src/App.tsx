@@ -44,6 +44,7 @@ const EtfGuide = lazy(() => import('./pages/EtfGuide'))
 const NationalTeam = lazy(() => import('./pages/NationalTeam'))
 const AiLabDirection = lazy(() => import('./pages/AiLabDirection'))
 const AiLearningPlan = lazy(() => import('./pages/AiLearningPlan'))
+const DevTeamGuide = lazy(() => import('./pages/DevTeamGuide'))
 
 function PageLoading(): JSX.Element {
   return <div role="status" className="container page-loading">加载中…</div>
@@ -101,6 +102,7 @@ export default function App(): JSX.Element {
           <Route path="/invest/national-team" element={<NationalTeam />} />
           <Route path="/ai" element={<AiStudio />} />
           <Route path="/ai/fullstack-roadmap" element={<AiLearningPlan />} />
+          <Route path="/ai/dev-team" element={<DevTeamGuide />} />
           <Route path="/ai/:slug" element={<AiLabDirection />} />
           <Route path="/knowledge" element={<KnowledgeCenter />} />
           <Route path="/life" element={<LifeLab />} />
