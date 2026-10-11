@@ -61,7 +61,7 @@ export default function LimitUpAnalysis(): JSX.Element {
     ? filteredConcepts.find(c => c.name === selectedConcept) || filteredConcepts[0]
     : filteredConcepts[0]
 
-  const activeName = selectedConcept || filteredConcepts[0]?.name
+  const activeName = currentConcept?.name // 高亮跟随实际显示的概念
   const toggleExpanded = (code: string) => {
     const next = new Set(expandedStocks)
     if (next.has(code)) next.delete(code)
