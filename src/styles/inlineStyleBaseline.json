@@ -3,21 +3,9 @@
     "inline": 50,
     "color": 1
   },
-  "components/CandidateButton.tsx": {
-    "inline": 1,
-    "color": 0
-  },
-  "components/CandidatePool.tsx": {
-    "inline": 27,
-    "color": 1
-  },
   "components/ChapterComments.tsx": {
     "inline": 19,
     "color": 3
-  },
-  "components/CompanyCombined.tsx": {
-    "inline": 26,
-    "color": 0
   },
   "components/TableStyles.tsx": {
     "inline": 0,
@@ -103,10 +91,6 @@
     "inline": 29,
     "color": 6
   },
-  "components/research/ResearchNotice.tsx": {
-    "inline": 1,
-    "color": 0
-  },
   "features/company-notes/CompanyNotes.tsx": {
     "inline": 1,
     "color": 0
@@ -148,7 +132,7 @@
     "color": 0
   },
   "pages/CompanyDetail.tsx": {
-    "inline": 96,
+    "inline": 1,
     "color": 0
   },
   "pages/Dcf.tsx": {
@@ -200,8 +184,8 @@
     "color": 11
   },
   "pages/ResearchNotes.tsx": {
-    "inline": 123,
-    "color": 7
+    "inline": 1,
+    "color": 0
   },
   "pages/SectorRotation.tsx": {
     "inline": 85,

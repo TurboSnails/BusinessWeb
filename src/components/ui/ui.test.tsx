@@ -37,6 +37,10 @@ describe('Card', () => {
     expect(region.textContent).toContain('说明')
     expect(screen.getByRole('button', { name: '导出' })).toBeTruthy()
   })
+  it('label 覆盖区域名称', () => {
+    render(<Card as="section" label="候选池" title="候选池 · 3 家">x</Card>)
+    expect(screen.getByRole('region', { name: '候选池' })).toBeTruthy()
+  })
   it('无标题时不渲染头部，flush 加修饰类', () => {
     const { container } = render(<Card flush>正文</Card>)
     expect(container.querySelector('.ui-card__head')).toBeNull()

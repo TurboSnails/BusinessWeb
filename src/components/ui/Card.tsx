@@ -4,7 +4,7 @@ import { cx } from './Page'
 type Tone = 'info' | 'warn' | 'danger' | 'muted'
 
 /** 统一卡片：可选标题行（图标 + 标题 + 操作）与一句说明 */
-export function Card({ title, icon, actions, description, children, as = 'div', flush, className, id }: {
+export function Card({ title, icon, actions, description, children, as = 'div', flush, className, id, label }: {
   title?: React.ReactNode
   icon?: React.ReactNode
   actions?: React.ReactNode
@@ -14,6 +14,8 @@ export function Card({ title, icon, actions, description, children, as = 'div', 
   flush?: boolean
   className?: string
   id?: string
+  /** 区域的可访问名称；不传时用标题 */
+  label?: string
 }): JSX.Element {
   const titleId = useId()
   const Tag = as
@@ -22,7 +24,8 @@ export function Card({ title, icon, actions, description, children, as = 'div', 
     <Tag
       id={id}
       className={cx('ui-card', flush && 'ui-card--flush', className)}
-      aria-labelledby={as !== 'div' && title ? titleId : undefined}
+      aria-label={as !== 'div' ? label : undefined}
+      aria-labelledby={as !== 'div' && !label && title ? titleId : undefined}
     >
       {hasHead && (
         <div className="ui-card__head">

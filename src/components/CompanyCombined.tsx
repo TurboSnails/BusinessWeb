@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import type { Company, LynchInfo } from '../data/companies'
 import CandidateButton from './CandidateButton'
+import { Card, TableWrap } from './ui'
+import '../styles/research.css'
 
 interface Props {
   companies: Company[]
@@ -13,8 +15,6 @@ interface Props {
 }
 const ratingOrder = ['优先关注', '条件关注', '观察', '回避', '未估值']
 const types = ['快速增长型', '稳健型', '缓慢增长型', '周期型', '困境反转型', '资产型', '未分类']
-const control: React.CSSProperties = { fontFamily: 'inherit', fontSize: '13px', padding: '8px 12px', border: '1px solid var(--border-primary)', borderRadius: '8px', background: 'var(--bg-card)', color: 'var(--text-primary)' }
-const cell: React.CSSProperties = { padding: '12px', textAlign: 'left', verticalAlign: 'top', borderBottom: '1px solid var(--border-primary)' }
 
 export default function CompanyCombined({ companies, lynch, ratingOf, loading, isCandidate, onToggleCandidate }: Props): JSX.Element {
   const [query, setQuery] = useState('')
@@ -40,8 +40,8 @@ export default function CompanyCombined({ companies, lynch, ratingOf, loading, i
   useEffect(() => { setLimit(60) }, [query, sector, rating, type, tier, moat])
   const reset = (): void => { setQuery(''); setSector('全部'); setRating('全部'); setType('全部'); setTier('全部'); setMoat('全部') }
   const select = (label: string, value: string, values: string[], change: (value: string) => void): JSX.Element => (
-    <label style={{ display: 'flex', gap: '6px', alignItems: 'center', fontSize: '13px' }}>
-      {label}<select aria-label={label} value={value} onChange={e => change(e.target.value)} style={control}>
+    <label className="rn-select-label">
+      {label}<select aria-label={label} value={value} onChange={e => change(e.target.value)} className="rn-select">
         {['全部', ...values].map(v => <option key={v} value={v}>{v}</option>)}
       </select>
     </label>
@@ -61,46 +61,45 @@ export default function CompanyCombined({ companies, lynch, ratingOf, loading, i
   }
   const number = (value: number | null | undefined, suffix: string): string => value == null ? '—' : `${value}${suffix}`
   return (
-    <section aria-label="综合分类" style={{ padding: '20px', border: '1px solid var(--border-primary)', borderRadius: 'var(--radius-lg)', background: 'var(--bg-card)', marginBottom: '16px' }}>
-      <h3 style={{ margin: '0 0 10px', fontSize: '16px' }}>综合分类 · 公司研究与林奇分组</h3>
-      <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.8 }}>
+    <Card as="section" label="综合分类" title="综合分类 · 公司研究与林奇分组" className="rn-card">
+      <p className="rn-text">
         同一家公司同时展示两套分类；研究评级与林奇同类关注度分别保留。缺少林奇标签的公司显示“未分类”，仍在列表中。林奇分类来自历史程序化筛选，同类关注度仅在同类型内比较；最新研究结论以公司复核记录为准。
       </p>
-      <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '12px' }}>
-        <input aria-label="搜索综合分类" placeholder="搜索公司名称或代码" value={query} onChange={e => setQuery(e.target.value)} style={{ ...control, flex: '1 1 180px' }} />
+      <div className="ui-cluster rn-filters">
+        <input aria-label="搜索综合分类" placeholder="搜索公司名称或代码" value={query} onChange={e => setQuery(e.target.value)} className="rn-search" />
         {select('行业', sector, sectors, setSector)}
         {select('研究评级', rating, ratings, setRating)}
         {select('林奇类型', type, types, setType)}
         {select('同类关注度', tier, ['高', '中', '低'], setTier)}
         {select('护城河', moat, ['宽', '窄', '未提供'], setMoat)}
-        <button onClick={reset} style={{ ...control, cursor: 'pointer' }}>重置筛选</button>
+        <button type="button" onClick={reset} className="tool-btn">重置筛选</button>
       </div>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center', marginBottom: '14px' }}>
-        <span aria-live="polite" style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>符合筛选 {shown.length} / 全部 {rows.length} 家{loading ? ' · 公司数据加载中…' : ''}</span>
-        <button onClick={() => exportRows(false)} style={{ ...control, cursor: 'pointer' }}>下载当前筛选 JSON（{shown.length} 家）</button>
-        <button onClick={() => exportRows(true)} style={{ ...control, cursor: 'pointer' }}>下载市场全部 JSON（{rows.length} 家）</button>
+      <div className="ui-cluster rn-filters">
+        <span aria-live="polite" className="rn-pool-status">符合筛选 {shown.length} / 全部 {rows.length} 家{loading ? ' · 公司数据加载中…' : ''}</span>
+        <button type="button" onClick={() => exportRows(false)} className="tool-btn">下载当前筛选 JSON（{shown.length} 家）</button>
+        <button type="button" onClick={() => exportRows(true)} className="tool-btn">下载市场全部 JSON（{rows.length} 家）</button>
       </div>
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-          <thead><tr style={{ background: 'var(--bg-secondary)' }}>{['公司', '行业', '研究评级', '研究结论', '林奇类型', '同类关注度', '护城河', '关键指标', '林奇判断', ...(onToggleCandidate ? ['候选'] : [])].map(h => <th key={h} scope="col" style={{ ...cell, whiteSpace: 'nowrap' }}>{h}</th>)}</tr></thead>
+      <TableWrap label="综合分类列表" stickyFirst>
+        <table className="ui-table rn-table rn-table--top">
+          <thead><tr>{['公司', '行业', '研究评级', '研究结论', '林奇类型', '同类关注度', '护城河', '关键指标', '林奇判断', ...(onToggleCandidate ? ['候选'] : [])].map(h => <th key={h} scope="col">{h}</th>)}</tr></thead>
           <tbody>{shown.slice(0, limit).map(({ company: c, info: l }) => (
             <tr key={`${c.market}:${c.code}`}>
-              <td style={cell}><Link to={`/research-notes/${c.market}/${encodeURIComponent(c.code)}`} onClick={() => { try { sessionStorage.setItem('rn-scroll', String(window.scrollY)) } catch { /* 隐私模式 */ } }} style={{ color: 'var(--system-blue)', whiteSpace: 'nowrap' }}>{c.name} {c.code}</Link>{c.auto && <small style={{ display: 'block', color: 'var(--text-tertiary)' }}>程序化</small>}</td>
-              <td style={cell}>{c.sector}</td>
-              <td style={{ ...cell, minWidth: '100px' }}>{c.rating}</td>
-              <td style={{ ...cell, minWidth: '240px' }}>{c.headline}</td>
-              <td style={cell}>{l?.t || '未分类'}</td>
-              <td style={cell}>{l?.r || '未提供'}</td>
-              <td style={{ ...cell, minWidth: '140px' }}>{l?.m ? `${l.m.l} ${l.m.s}/${l.m.n}` : '未提供'}</td>
-              <td style={{ ...cell, minWidth: '170px' }}>{l ? `PE ${number(l.pe, '×')} · 利润 ${number(l.g, '%')}（两年年化 ${number(l.c, '%')}） · PEG ${number(l.peg, '')}${l.ph ? ` · ${l.ph}` : ''}${l.dy != null ? ` · 股息 ${l.dy}%` : ''}` : '未提供'}</td>
-              <td style={{ ...cell, minWidth: '220px' }}>{l?.v || l?.w.join('；') || '未提供'}{l?.f.length ? <small style={{ display: 'block', color: 'var(--text-tertiary)' }}>提示：{l.f.join('；')}</small> : null}</td>
-              {onToggleCandidate && <td style={cell}><CandidateButton on={!!isCandidate?.(c)} onClick={() => onToggleCandidate(c)} /></td>}
+              <td className="rn-nowrap"><Link to={`/research-notes/${c.market}/${encodeURIComponent(c.code)}`} onClick={() => { try { sessionStorage.setItem('rn-scroll', String(window.scrollY)) } catch { /* 隐私模式 */ } }} className="rn-link">{c.name} {c.code}</Link>{c.auto && <small className="rn-small">程序化</small>}</td>
+              <td className="rn-nowrap">{c.sector}</td>
+              <td className="rn-mid">{c.rating}</td>
+              <td className="rn-wide">{c.headline}</td>
+              <td className="rn-nowrap">{l?.t || '未分类'}</td>
+              <td>{l?.r || '未提供'}</td>
+              <td className="rn-mid">{l?.m ? `${l.m.l} ${l.m.s}/${l.m.n}` : '未提供'}</td>
+              <td className="rn-mid">{l ? `PE ${number(l.pe, '×')} · 利润 ${number(l.g, '%')}（两年年化 ${number(l.c, '%')}） · PEG ${number(l.peg, '')}${l.ph ? ` · ${l.ph}` : ''}${l.dy != null ? ` · 股息 ${l.dy}%` : ''}` : '未提供'}</td>
+              <td className="rn-wide">{l?.v || l?.w.join('；') || '未提供'}{l?.f.length ? <small className="rn-small">提示：{l.f.join('；')}</small> : null}</td>
+              {onToggleCandidate && <td><CandidateButton on={!!isCandidate?.(c)} onClick={() => onToggleCandidate(c)} /></td>}
             </tr>
           ))}</tbody>
         </table>
-      </div>
-      {!shown.length && <p style={{ fontSize: '13px', textAlign: 'center' }}>没有符合当前筛选条件的公司。</p>}
-      {shown.length > limit && <div style={{ textAlign: 'center', marginTop: '14px' }}><button style={{ ...control, cursor: 'pointer' }} onClick={() => setLimit(n => n + 100)}>显示更多（已显示 {limit} / {shown.length}）</button></div>}
-    </section>
+      </TableWrap>
+      {!shown.length && <p className="rn-empty">没有符合当前筛选条件的公司。</p>}
+      {shown.length > limit && <div className="rn-more"><button type="button" className="tool-btn" onClick={() => setLimit(n => n + 100)}>显示更多（已显示 {limit} / {shown.length}）</button></div>}
+    </Card>
   )
 }

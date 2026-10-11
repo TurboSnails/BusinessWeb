@@ -495,6 +495,27 @@
   }
 }
 
+/* 手机：二级切换（Segmented）单行横向滚动，不折行 */
+@media (max-width: 767px) {
+  .seg {
+    flex-wrap: nowrap;
+    margin-left: calc(-1 * var(--space-4));
+    margin-right: calc(-1 * var(--space-4));
+    padding: 2px var(--space-4) 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .seg::-webkit-scrollbar {
+    display: none;
+  }
+
+  .seg__btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+}
+
 /* 触屏：主要控件不小于 44px */
 @media (pointer: coarse) {
   .tool-btn,

@@ -160,8 +160,8 @@ describe('林奇分组、港股、导出', () => {
   it('美股非标普标签：四组分类', async () => {
     renderAt('/research-notes?tab=category&m=adr')
     await waitFor(() => expect(screen.getAllByText(/台积电/).length).toBeGreaterThan(0), { timeout: 8000 })
-    expect(screen.getAllByText(/^中概 \d+/).length).toBeGreaterThan(0)
-    expect(screen.getAllByText(/^新上市\/热门 \d+/).length).toBeGreaterThan(0)
+    expect(screen.getAllByRole('button', { name: /^中概 \d+/ }).length).toBeGreaterThan(0)
+    expect(screen.getAllByRole('button', { name: /^新上市\/热门 \d+/ }).length).toBeGreaterThan(0)
   })
 
   it('切换市场后筛选被重置：沪深选「优先关注」再切到美股非标普仍有公司', async () => {

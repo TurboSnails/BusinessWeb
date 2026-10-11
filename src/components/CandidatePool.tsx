@@ -4,10 +4,10 @@ import type { Company } from '../data/companies'
 import type { SyncState } from '../features/candidates/useCandidates'
 import { MAX_NOTE } from '../features/candidates/validation'
 import type { CandidateItem } from '../features/candidates/validation'
+import { Card, TableWrap } from './ui'
+import '../styles/research.css'
 
 const MARKET_LABEL: Record<string, string> = { us: '标普500', cn: '沪深500', hk: '港股', adr: '美股非标普', ndx: '纳指100' }
-const cell: React.CSSProperties = { padding: '10px 12px', textAlign: 'left', verticalAlign: 'top', borderBottom: '1px solid var(--border-primary)' }
-const btn: React.CSSProperties = { fontFamily: 'inherit', fontSize: '12px', padding: '4px 10px', border: '1px solid var(--border-primary)', borderRadius: '8px', background: 'var(--bg-card)', color: 'var(--text-secondary)', cursor: 'pointer' }
 
 interface Props {
   items: CandidateItem[]
@@ -30,7 +30,7 @@ function NoteEditor({ code, value, onSave }: { code: string; value: string; onSa
     <textarea aria-label={`备注 ${code}`} value={draft} rows={2} maxLength={MAX_NOTE} placeholder="写下你对这家公司的看法…"
       onChange={e => setDraft(e.target.value)} onBlur={commit}
       onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); e.currentTarget.blur() } else if (e.key === 'Escape') { discard.current = true; setDraft(value); e.currentTarget.blur() } }}
-      style={{ width: '100%', boxSizing: 'border-box', resize: 'vertical', fontFamily: 'inherit', fontSize: '13px', lineHeight: 1.6, padding: '6px 8px', border: '1px solid var(--border-primary)', borderRadius: '8px', background: 'var(--bg-card)', color: 'var(--text-primary)' }} />
+      className="rn-note" />
   )
 }
 
@@ -51,55 +51,56 @@ export default function CandidatePool({ items, companies, state, message, onMove
 
   const status = state === 'synced' ? '☁ 已同步到云端' : state === 'syncing' ? '☁ 同步中…' : state === 'error' ? '⚠ 云端同步失败，数据暂存本机' : '未验证身份：数据仅保存在本机'
   return (
-    <section aria-label="候选池" style={{ padding: '20px', border: '1px solid var(--border-primary)', borderRadius: 'var(--radius-lg)', background: 'var(--bg-card)', marginBottom: '16px' }}>
-      <h3 style={{ margin: '0 0 8px', fontSize: '16px' }}>候选池 · {items.length} 家</h3>
-      <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.8, margin: '0 0 12px' }}>
+    <Card as="section" label="候选池" title={`候选池 · ${items.length} 家`} className="rn-card">
+      <p className="rn-text">
         在分类数据的公司列表里点「加入候选」即可收录。可拖动 ⠿ 序号或用 ↑ ↓ / 置顶调整优先级，顺序即你的排序；备注框可直接编辑，Enter 或点击别处保存（Shift+Enter 换行，Esc 放弃修改）。仅为个人研究清单，不构成投资建议。
       </p>
-      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '12px', fontSize: '13px' }}>
-        <span aria-live="polite" style={{ color: state === 'error' ? 'var(--system-red)' : 'var(--text-secondary)' }}>{status}</span>
-        {message && <span style={{ color: 'var(--system-orange)' }}>{message}</span>}
-        {state === 'error' && <button style={btn} onClick={onRetry}>重试</button>}
-        <span style={{ flex: 1 }} />
-        <button style={btn} disabled={!items.length} onClick={exportJson}>⬇ 导出 JSON</button>
-        <button style={btn} disabled={!items.length} onClick={() => { if (window.confirm(`清空全部 ${items.length} 家候选？此操作会同步到云端。`)) onClear() }}>清空</button>
+      <div className="ui-cluster rn-filters">
+        <span aria-live="polite" className={state === 'error' ? 'rn-pool-status is-error' : 'rn-pool-status'}>{status}</span>
+        {message && <span className="rn-pool-msg">{message}</span>}
+        {state === 'error' && <button type="button" className="tool-btn" onClick={onRetry}>重试</button>}
+        <span className="rn-spacer" />
+        <button type="button" className="tool-btn" disabled={!items.length} onClick={exportJson}>⬇ 导出 JSON</button>
+        <button type="button" className="tool-btn" disabled={!items.length} onClick={() => { if (window.confirm(`清空全部 ${items.length} 家候选？此操作会同步到云端。`)) onClear() }}>清空</button>
       </div>
       {state === 'no-token' && (
-        <form onSubmit={e => { e.preventDefault(); setTokenError(!onConnect(token)); setToken('') }} style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '14px' }}>
+        <form onSubmit={e => { e.preventDefault(); setTokenError(!onConnect(token)); setToken('') }} className="ui-cluster rn-pool-form">
           <input type="password" aria-label="同步 Token" autoComplete="new-password" value={token} onChange={e => setToken(e.target.value)} placeholder="输入同步 Token（同每日复盘的 PULSE_SYNC_TOKEN），仅需一次"
-            style={{ flex: '1 1 260px', fontSize: '13px', padding: '8px 12px', border: '1px solid var(--border-primary)', borderRadius: '8px', background: 'var(--bg-card)', color: 'var(--text-primary)', fontFamily: 'inherit' }} />
-          <button type="submit" style={{ ...btn, background: 'var(--system-blue)', color: '#fff', border: 'none' }}>验证并同步</button>
-          {tokenError && <span style={{ fontSize: '12px', color: 'var(--system-red)', alignSelf: 'center' }}>Token 至少 32 位</span>}
+            className="rn-input" />
+          <button type="submit" className="tool-btn tool-btn--primary">验证并同步</button>
+          {tokenError && <span className="rn-error-text">Token 至少 32 位</span>}
         </form>
       )}
-      {!items.length ? <p style={{ fontSize: '13px', textAlign: 'center', color: 'var(--text-tertiary)' }}>候选池还是空的。</p> : (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-            <thead><tr style={{ background: 'var(--bg-secondary)' }}>{['#', '公司', '研究笔记', '我的备注', '市场', '评级', '一句话结论', '排序 / 操作'].map(h => <th key={h} scope="col" style={{ ...cell, whiteSpace: 'nowrap' }}>{h}</th>)}</tr></thead>
+      {!items.length ? <p className="rn-empty">候选池还是空的。</p> : (
+        <TableWrap label="候选池列表">
+          <table className="ui-table rn-table--top">
+            <thead><tr>{['#', '公司', '研究笔记', '我的备注', '市场', '评级', '一句话结论', '排序 / 操作'].map(h => <th key={h} scope="col">{h}</th>)}</tr></thead>
             <tbody>{items.map((i, n) => {
               const c = byKey.get(`${i.market}:${i.code}`)
               return (
                 <tr key={`${i.market}:${i.code}`} onDragOver={e => { e.preventDefault(); setOver(n) }} onDrop={() => drop(n)}
-                  style={{ opacity: dragFrom === n ? 0.4 : 1, outline: over === n && dragFrom !== null && dragFrom !== n ? '2px solid var(--system-blue)' : 'none' }}>
-                  <td style={{ ...cell, cursor: 'grab', whiteSpace: 'nowrap', userSelect: 'none' }} draggable title="拖动调整顺序" onDragStart={() => setDragFrom(n)} onDragEnd={() => { setDragFrom(null); setOver(null) }}>⠿ {n + 1}</td>
-                  <td style={cell}>{c ? <Link to={`/research-notes/${i.market}/${encodeURIComponent(i.code)}`} style={{ color: 'var(--system-blue)', whiteSpace: 'nowrap' }}>{c.name} {c.code}</Link> : <span style={{ whiteSpace: 'nowrap' }}>{i.code}</span>}</td>
-                  <td style={cell}><Link to={`/research-notes/company/${i.market}/${encodeURIComponent(i.code)}/notes`} style={{ whiteSpace: 'nowrap' }}>研究笔记</Link></td>
-                  <td style={{ ...cell, minWidth: '220px' }}><NoteEditor key={`${i.note ?? ''}`} code={i.code} value={i.note ?? ''} onSave={text => onNote(i, text)} /></td>
-                  <td style={{ ...cell, whiteSpace: 'nowrap' }}>{MARKET_LABEL[i.market]}</td>
-                  <td style={{ ...cell, minWidth: '90px' }}>{c?.rating ?? '—'}</td>
-                  <td style={{ ...cell, minWidth: '220px' }}>{c?.headline ?? '公司数据加载中或已不在列表'}</td>
-                  <td style={{ ...cell, whiteSpace: 'nowrap' }}>
-                    <button style={btn} aria-label={`上移 ${i.code}`} disabled={n === 0} onClick={() => onMove(n, n - 1)}>↑</button>{' '}
-                    <button style={btn} aria-label={`下移 ${i.code}`} disabled={n === items.length - 1} onClick={() => onMove(n, n + 1)}>↓</button>{' '}
-                    <button style={btn} aria-label={`置顶 ${i.code}`} disabled={n === 0} onClick={() => onMove(n, 0)}>置顶</button>{' '}
-                    <button style={btn} aria-label={`移除 ${i.code}`} onClick={() => onRemove(i)}>移除</button>
+                  className={dragFrom === n ? 'rn-row-dragging' : over === n && dragFrom !== null ? 'rn-row-over' : undefined}>
+                  <td className="rn-drag" draggable title="拖动调整顺序" onDragStart={() => setDragFrom(n)} onDragEnd={() => { setDragFrom(null); setOver(null) }}>⠿ {n + 1}</td>
+                  <td className="rn-nowrap">{c ? <Link to={`/research-notes/${i.market}/${encodeURIComponent(i.code)}`} className="rn-link">{c.name} {c.code}</Link> : i.code}</td>
+                  <td className="rn-nowrap"><Link to={`/research-notes/company/${i.market}/${encodeURIComponent(i.code)}/notes`} className="rn-link">研究笔记</Link></td>
+                  <td className="rn-wide"><NoteEditor key={`${i.note ?? ''}`} code={i.code} value={i.note ?? ''} onSave={text => onNote(i, text)} /></td>
+                  <td className="rn-nowrap">{MARKET_LABEL[i.market]}</td>
+                  <td className="rn-mid">{c?.rating ?? '—'}</td>
+                  <td className="rn-wide">{c?.headline ?? '公司数据加载中或已不在列表'}</td>
+                  <td>
+                    <div className="rn-row-actions">
+                      <button type="button" className="tool-btn" aria-label={`上移 ${i.code}`} disabled={n === 0} onClick={() => onMove(n, n - 1)}>↑</button>
+                      <button type="button" className="tool-btn" aria-label={`下移 ${i.code}`} disabled={n === items.length - 1} onClick={() => onMove(n, n + 1)}>↓</button>
+                      <button type="button" className="tool-btn" aria-label={`置顶 ${i.code}`} disabled={n === 0} onClick={() => onMove(n, 0)}>置顶</button>
+                      <button type="button" className="tool-btn" aria-label={`移除 ${i.code}`} onClick={() => onRemove(i)}>移除</button>
+                    </div>
                   </td>
                 </tr>
               )
             })}</tbody>
           </table>
-        </div>
+        </TableWrap>
       )}
-    </section>
+    </Card>
   )
 }
