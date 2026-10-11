@@ -113,6 +113,19 @@ describe('CommandPalette', () => {
     expect(document.body.style.overflow).toBe('')
   })
 
+  it('中文输入法选词时的回车和方向键不触发跳转或移动高亮', () => {
+    setup('/about')
+    fireEvent.click(screen.getByRole('button', { name: '打开' }))
+    const box = screen.getByRole('combobox')
+    fireEvent.change(box, { target: { value: '网格' } })
+    fireEvent.keyDown(box, { key: 'ArrowDown', isComposing: true })
+    expect(screen.getAllByRole('option')[0].getAttribute('aria-selected')).toBe('true')
+    fireEvent.keyDown(box, { key: 'Enter', isComposing: true })
+    fireEvent.keyDown(box, { key: 'Enter', keyCode: 229 })
+    expect(screen.getByTestId('where').textContent).toBe('/about')
+    expect(dialog()).toBeTruthy()
+  })
+
   it('点遮罩关闭', () => {
     setup()
     fireEvent.click(screen.getByRole('button', { name: '打开' }))

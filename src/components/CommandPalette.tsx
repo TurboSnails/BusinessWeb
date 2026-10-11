@@ -108,6 +108,8 @@ function Palette({ onClose }: { onClose: () => void }): JSX.Element {
   }
 
   const onKeyDown = (e: React.KeyboardEvent) => {
+    // 拼音输入法选词时的回车 / 方向键 / Esc 属于输入法，不当作面板操作（Safari 用 keyCode 229 表示）
+    if (e.nativeEvent.isComposing || e.keyCode === 229) return
     switch (e.key) {
       case 'Escape':
         e.preventDefault()
