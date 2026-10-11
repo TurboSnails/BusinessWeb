@@ -72,7 +72,7 @@ export const INVEST_GROUPS: HubGroup[] = [
       { path: '/valuation', label: '公司估值', desc: '六方法三情景估值与报告导出' },
       { path: '/dcf', label: '现金流折现 DCF', desc: 'WACC + 五年现金流折现估值与安全边际，可保存记录' },
       { path: '/grid-trading', label: '网格交易', desc: 'ETF / 个股网格模拟、回测与记录' },
-      { path: '/invest/ai-tools', label: 'AI 工具', desc: '投资分析、视频创作与小说写作 Skills 的介绍和下载包' },
+      { path: '/invest/ai-tools', label: 'AI 工具', desc: '开发协作、投资分析、视频创作与小说写作 Skills 的介绍和下载包' },
     ],
   },
   {

@@ -4,6 +4,7 @@ import { Stars, VerdictBadge } from '../components/lab/LabDirectionCard'
 import { findDirection, type LabDirection } from '../data/aiLab'
 import { usePageSeo } from '../components/RouteSeo'
 import NotFound from './NotFound'
+import DevTeamSkillCard from '../components/skills/DevTeamSkillCard'
 
 function limitRows(d: LabDirection): Array<[string, string]> {
   const rows: Array<[string, string]> = []
@@ -41,6 +42,16 @@ export default function AiLabDirection(): JSX.Element {
         <h2>{avoid ? '为什么不做' : '为什么做'}</h2>
         <p>{d.why}</p>
       </section>
+
+      {d.slug === 'ai-skills' && (
+        <section className="lab-section" aria-labelledby="available-skills-title">
+          <h2 id="available-skills-title">可下载的 Skill</h2>
+          <div className="skill-grid">
+            <DevTeamSkillCard />
+          </div>
+          <Link to="/invest/ai-tools" className="skill-guide">查看全部 Skills：开发、投资、视频与写作</Link>
+        </section>
+      )}
 
       {!avoid && d.plan && <section className="lab-section">
         <h2>怎样验证这门小生意</h2>

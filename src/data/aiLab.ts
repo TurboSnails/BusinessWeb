@@ -50,7 +50,7 @@ export const VERDICT_LABEL: Record<LabVerdict, string> = {
 
 // 只放已经做出来、能直接用的东西
 export const LAB_SHOWCASE: LabShowcaseItem[] = [
-  { title: '投资分析 Skill 包', desc: '三套投资分析 Skill 专家，可完整下载', path: '/invest/ai-tools' },
+  { title: 'AI Skills 工具库', desc: '开发团队、投资分析、视频与写作 Skills，含完整下载与使用说明', path: '/invest/ai-tools' },
   { title: '公司估值', desc: '六方法三情景估值与报告导出', path: '/valuation' },
   { title: '网格交易', desc: 'ETF / 个股网格模拟、回测与记录', path: '/grid-trading' },
   { title: '这个网站', desc: '用 React 自己搭的个人站，本身就是第一个作品', path: '/about' },
@@ -64,12 +64,13 @@ export const LAB_DIRECTIONS: LabDirection[] = [
     verdict: 'strong',
     fit: 5,
     status: '进行中',
-    reason: '已有三套投资 Skill，新领域有先发优势',
+    reason: '开发团队与投资 Skill 已可下载，先自用再公开分享',
     why: '把自己反复做的事写成 Skill、Agent 或 MCP，先给自己用，再公开分享。程序员加投资作者的组合刚好能做出别人做不出的专业 Skill，而且这个领域还很新。',
     hoursPerWeek: 3,
     startCost: '¥0',
-    firstStep: '把三套投资 Skill 的使用反馈整理出来，挑最常用的一个做成可单独安装的版本。',
+    firstStep: '试用可独立安装的 dev-team 开发团队和投资分析 Skills，整理使用反馈与实际交付记录。',
     logs: [
+      { date: '2026-10-11', did: '发布 Orca 开发团队 dev-team 独立 ZIP，支持 Android、Web 与后端流程、额度替补和项目迁移', result: '已加入 AI 实验室 Skill 页面与 AI 工具下载列表' },
       { date: '2026-10-06', did: '发布三套投资分析 Skill 的介绍页与完整下载包', result: '已上线到「投资 › AI 工具」' },
     ],
   },

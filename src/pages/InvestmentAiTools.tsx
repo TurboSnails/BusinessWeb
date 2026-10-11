@@ -2,13 +2,14 @@ import React from 'react'
 import { Download } from 'lucide-react'
 import { INVESTMENT_SKILLS, INVESTMENT_SKILL_TAG, investmentSkillDownloadUrl } from '../data/investmentSkills'
 import { WRITING_SKILLS } from '../data/writingSkills'
+import DevTeamSkillCard from '../components/skills/DevTeamSkillCard'
 
 export default function InvestmentAiTools(): JSX.Element {
   return (
     <main className="container animate-fade-in investment-ai-tools">
       <header className="page-head">
         <h1>AI 工具</h1>
-        <p>投资分析、视频创作与小说写作 Skills，按任务挑选。下载包包含 SKILL.md 和配套参考资料。</p>
+        <p>开发协作、投资分析、视频创作与小说写作 Skills，按任务挑选。下载包包含 SKILL.md 和配套参考资料。</p>
         <div className="skill-download-actions">
           <span className="tag">{INVESTMENT_SKILL_TAG}</span>
           <a className="skill-download" href={investmentSkillDownloadUrl('investment-analysis-skills.zip')} download="investment-analysis-skills.zip">
@@ -35,6 +36,13 @@ export default function InvestmentAiTools(): JSX.Element {
             </a>
           </article>
         ))}
+      </section>
+
+      <section id="development-skills" className="hub-group" aria-labelledby="development-skills-title">
+        <h2 id="development-skills-title">开发协作</h2>
+        <div className="skill-grid">
+          <DevTeamSkillCard />
+        </div>
       </section>
 
       <section className="hub-group" aria-labelledby="video-skills-title">
@@ -98,9 +106,10 @@ export default function InvestmentAiTools(): JSX.Element {
         <ol>
           <li>解压 ZIP，保留每套 Skill 的整个文件夹，包括 SKILL.md 和 references。</li>
           <li>放到项目的 <code>.agents/skills/</code>（Codex / Antigravity CLI）、<code>.claude/skills/</code>（Claude Code）、<code>.opencode/skills/</code>（OpenCode）或 <code>.codebuddy/skills/</code>（CodeBuddy Code）目录。</li>
-          <li>重新打开会话，在提问时写出 Skill 名称和任务背景：投资研究提供代码、市场和问题；视频创作提供主体、场景、风格和时长；小说写作提供设定、稿件和创作目标。</li>
+          <li>重新打开会话，在提问时写出 Skill 名称和任务背景：开发协作提供目标项目、平台和验收要求；投资研究提供代码、市场和问题；视频创作提供主体、场景、风格和时长；小说写作提供设定、稿件和创作目标。</li>
         </ol>
         <p>Skill 是供 AI 助手读取的任务流程。投资分析需准备公开数据查询能力；团队类 Skill 还需助手支持子代理编排。具体要求见包内说明。</p>
+        <p>dev-team 请使用卡片中的初始化命令安装，再通过 Orca 派工；各执行器的登录与额度需自行准备。</p>
         <p>视频提示词构建器的 .skill 为原始打包文件；支持该格式的工具可导入，否则下载 ZIP 按上述目录方式安装。它用于编写提示词，生成视频需另用视频生成工具。</p>
         <a className="skill-guide" href={investmentSkillDownloadUrl('README.md')} download="投资分析Skill-使用说明.md">下载使用说明</a>
       </section>
