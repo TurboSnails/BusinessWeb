@@ -122,7 +122,7 @@ export class BookNarrator {
     }
     const utterance = this.createUtterance(session.chunks[session.chunkIndex])
     session.utterance = utterance // retain it until end/error; some engines otherwise lose callbacks
-    utterance.lang = this.voice?.lang ?? 'zh-CN'
+    utterance.lang = 'zh-CN'
     utterance.voice = this.voice
     utterance.rate = this.rate
     const isCurrent = () => this.session === session && session.utterance === utterance

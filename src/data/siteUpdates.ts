@@ -13,7 +13,7 @@ export const SITE_UPDATES: readonly SiteUpdate[] = [
     id: 'mindful-investing-book',
     date: '2026-10-11',
     title: '《正念投资》书稿与听书更新',
-    description: '新增导读与公司研究实战，提供阅读路线、章节搜索和字号调节；可听本节、本章或全书，书评统一放在书末。',
+    description: '新增导读与公司研究实战，提供阅读路线、章节搜索和字号调节；普通话听书支持本节、本章与全书，播放器可收起悬浮，书评独立放在书籍页底部。',
     href: '/first-book/slow-is-fast',
   },
   {

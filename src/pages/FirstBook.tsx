@@ -3,7 +3,7 @@ import ChapterNav from '../components/ChapterNav'
 import ChapterComments from '../components/ChapterComments'
 import { BookAudioProvider, useBookAudio } from '../components/BookAudio'
 import { usePageSeo } from '../components/RouteSeo'
-import { Link, useLocation, useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, BookOpen, CheckCircle2, Circle, Headphones, PenLine, Search, X, Minus, Plus } from 'lucide-react'
 import { Page, PageTitle } from '../components/ui'
 import '../styles/book.css'
@@ -381,7 +381,6 @@ function ChapterRow({ no, title, status, file, showStatus = false }: { no?: stri
 const chapterHref = (file: string): string => `/first-book/read/${encodeURIComponent(file)}`
 const knownBookFiles = new Set([...EXTRA_FILES, ...PARTS.flatMap(p => p.chapters), ...REVIEW_FILES].map(c => c.file))
 const AUDIO_CHAPTERS = [EXTRA_FILES[0], ...PARTS.flatMap(p => p.chapters)]
-const BOOK_END_FILE = AUDIO_CHAPTERS[AUDIO_CHAPTERS.length - 1].file
 const LAST_CHAPTER_KEY = 'mindful-book:last-chapter'
 const FONT_SIZE_KEY = 'mindful-book:font-size'
 const FONT_SIZES = [16, 18, 20, 22]
@@ -416,6 +415,18 @@ const READING_PATHS = [
   },
 ]
 
+function BookReviews(): JSX.Element {
+  const location = useLocation()
+  useEffect(() => {
+    if (location.hash === '#book-comments') document.getElementById('book-comments')?.scrollIntoView?.({ block: 'start' })
+  }, [location.hash])
+
+  return <section id="book-comments" className="book-end-comments" aria-label="《正念投资》书评">
+    <p>欢迎留下对《正念投资》的感受、问题或修改建议。</p>
+    {import.meta.env.BASE_URL === '/' ? <ChapterComments slug="正念投资.md" title="全书书评" /> : <a className="book-secondary-link" href="https://business-web-black.vercel.app/first-book/slow-is-fast#book-comments">前往正式站查看和提交书评 <ArrowRight size={15} aria-hidden="true" /></a>}
+  </section>
+}
+
 function BookDashboard(): JSX.Element {
   const audio = useBookAudio()
   const [pathId, setPathId] = useState('simple')
@@ -430,7 +441,7 @@ function BookDashboard(): JSX.Element {
   const extraChapters = EXTRA_FILES.filter(matches)
   const matchCount = extraChapters.length + visibleParts.reduce((count, part) => count + part.chapters.length, 0)
 
-  return (
+  return <>
     <Page className="book-page">
       <Link to="/first-book" className="book-back"><ArrowLeft size={15} aria-hidden="true" /> 返回我的书</Link>
       <section className="book-intro" aria-labelledby="book-title">
@@ -503,16 +514,15 @@ function BookDashboard(): JSX.Element {
         <p className="book-part__sub">以下是过程文档。正文仍在修订，历史数据与待核事项以各篇说明为准。</p>
         <div className="book-rows">{REVIEW_FILES.map(f => <ChapterRow key={f.file} {...f} showStatus />)}</div>
       </details>
-      <p className="book-end-link"><Link to={`${chapterHref(BOOK_END_FILE)}#book-comments`}>到书末写书评 <ArrowRight size={15} aria-hidden="true" /></Link></p>
       <p className="book-disclaimer">本书用于投资方法学习与研究，不构成个人投资建议。</p>
     </Page>
-  )
+    <BookReviews />
+  </>
 }
 
 /** 章节阅读器 */
 function ChapterReader({ file }: { file: string }): JSX.Element {
   const audio = useBookAudio()
-  const location = useLocation()
   const [content, setContent] = useState<string | null>(null)
   const [error, setError] = useState(false)
   const [fontSize, setFontSize] = useState(() => {
@@ -563,9 +573,6 @@ function ChapterReader({ file }: { file: string }): JSX.Element {
   }, [decoded, allChapters])
 
   const sections = useMemo(() => content?.split('\n').filter(line => /^##\s+/.test(line)).map(line => line.replace(/^##\s+/, '')) ?? [], [content])
-  useEffect(() => {
-    if (content && decoded === BOOK_END_FILE && location.hash === '#book-comments') document.getElementById('book-comments')?.scrollIntoView?.({ block: 'start' })
-  }, [content, decoded, location.hash])
   const changeFontSize = (amount: number): void => {
     const nextSize = FONT_SIZES[Math.min(FONT_SIZES.length - 1, Math.max(0, FONT_SIZES.indexOf(fontSize) + amount))]
     setFontSize(nextSize)
@@ -618,10 +625,6 @@ function ChapterReader({ file }: { file: string }): JSX.Element {
             </Link>
           )}
         </nav>
-        {content && decoded === BOOK_END_FILE && <div id="book-comments" className="book-end-comments">
-          <p>读到书末，欢迎留下对《正念投资》的感受、问题或修改建议。</p>
-          {import.meta.env.BASE_URL === '/' ? <ChapterComments slug="正念投资.md" title="全书书评" /> : <a className="book-secondary-link" href={`https://business-web-black.vercel.app${chapterHref(BOOK_END_FILE)}#book-comments`}>前往正式站查看和提交书评 <ArrowRight size={15} aria-hidden="true" /></a>}
-        </div>}
       </div>
     </main>
   )
@@ -629,5 +632,11 @@ function ChapterReader({ file }: { file: string }): JSX.Element {
 
 export default function FirstBook(): JSX.Element {
   const params = useParams<{ file?: string }>()
+  const location = useLocation()
+  const navigate = useNavigate()
+  // Preserve previously published links to the former chapter-level review anchor.
+  useEffect(() => {
+    if (params.file && location.hash === '#book-comments') navigate('/first-book/slow-is-fast#book-comments', { replace: true })
+  }, [params.file, location.hash, navigate])
   return <BookAudioProvider chapters={AUDIO_CHAPTERS}>{params.file ? <ChapterReader file={params.file} /> : <BookDashboard />}</BookAudioProvider>
 }
