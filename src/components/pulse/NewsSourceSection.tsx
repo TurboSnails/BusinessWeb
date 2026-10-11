@@ -1,22 +1,24 @@
 import React, { useState } from 'react'
 import type { NewsSource } from '../../types'
-import {
-  Radio,
-  Newspaper,
-  Database,
-  MessageSquare,
-  Link,
-  Zap,
-  Flame,
-  Pin,
-  Plus,
-  RadioTower,
-  ShieldAlert,
-  Edit2,
-  Trash2,
-  EyeOff,
-  Eye
-} from 'lucide-react'
+import { Newspaper, Database, MessageSquare, Link, Zap, Flame, Pin, RadioTower } from 'lucide-react'
+import { Card, Dialog, EmptyState, Field } from '../ui'
+import '../../styles/pulse.css'
+
+const EMPTY_FORM: Partial<NewsSource> = { name: '', url: '', category: 'news', priority: 'medium', description: '', icon: '🔗', enabled: true }
+
+const CATEGORY_ICON: Record<NewsSource['category'], JSX.Element> = {
+  official: <RadioTower size={10} aria-hidden="true" />,
+  news: <Newspaper size={10} aria-hidden="true" />,
+  data: <Database size={10} aria-hidden="true" />,
+  social: <MessageSquare size={10} aria-hidden="true" />,
+  other: <Link size={10} aria-hidden="true" />,
+}
+
+const PRIORITY_ICON: Record<NewsSource['priority'], JSX.Element> = {
+  high: <Flame size={10} aria-hidden="true" />,
+  medium: <Zap size={10} aria-hidden="true" />,
+  low: <Pin size={10} aria-hidden="true" />,
+}
 
 interface NewsSourceSectionProps {
   sources: NewsSource[]
@@ -26,15 +28,7 @@ interface NewsSourceSectionProps {
 export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, onUpdate }) => {
   const [showForm, setShowForm] = useState(false)
   const [editingSource, setEditingSource] = useState<NewsSource | null>(null)
-  const [formData, setFormData] = useState<Partial<NewsSource>>({
-    name: '',
-    url: '',
-    category: 'news',
-    priority: 'medium',
-    description: '',
-    icon: '🔗',
-    enabled: true
-  })
+  const [formData, setFormData] = useState<Partial<NewsSource>>(EMPTY_FORM)
 
   const categoryLabels: Record<NewsSource['category'], string> = {
     official: '官方数据',
@@ -77,8 +71,10 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
     onUpdate(newSources)
     setShowForm(false)
     setEditingSource(null)
-    setFormData({ name: '', url: '', category: 'news', priority: 'medium', description: '', icon: '🔗', enabled: true })
+    setFormData(EMPTY_FORM)
   }
+
+  const closeForm = () => { setShowForm(false); setEditingSource(null); setFormData(EMPTY_FORM) }
 
   const handleEdit = (source: NewsSource) => {
     setEditingSource(source)
@@ -100,222 +96,47 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
   const disabledSources = sources.filter(s => !s.enabled)
 
   return (
-    <div style={{ marginBottom: '24px', padding: '16px', background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-        <h3 style={{ margin: 0, fontSize: '1rem', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          📡 重要消息源 <span style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', fontWeight: 'normal' }}>快速访问常用资讯源</span>
-        </h3>
-        <button onClick={() => { setShowForm(true); setEditingSource(null); setFormData({ name: '', url: '', category: 'news', priority: 'medium', description: '', icon: '🔗', enabled: true }) }}
-          style={{
-            padding: '6px 12px', background: 'var(--accent)', color: 'white', border: 'none',
-            borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500'
-          }}>+ 添加消息源</button>
-      </div>
-
-      {/* 启用的消息源 */}
+    <Card
+      className="pulse-sources"
+      title={<>📡 重要消息源 <span className="pulse-muted">快速访问常用资讯源</span></>}
+      actions={<button type="button" className="tool-btn tool-btn--primary" onClick={() => { setShowForm(true); setEditingSource(null); setFormData(EMPTY_FORM) }}>+ 添加消息源</button>}
+    >
       {enabledSources.length > 0 && (
-        <div style={{ marginBottom: '16px' }}>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-            gap: '10px'
-          }}>
-            {enabledSources.map(source => (
-              <div
-                key={source.id}
-                style={{
-                  border: `2px solid ${source.priority === 'high' ? 'var(--system-red)' : source.priority === 'medium' ? 'var(--accent-warm)' : 'var(--text-secondary)'}`,
-                  background: source.priority === 'high' ? 'var(--system-red-light)' : source.priority === 'medium' ? 'var(--accent-warm-soft)' : 'var(--bg-secondary)',
-                  borderRadius: '6px',
-                  padding: '8px',
-                  transition: 'transform 0.2s, box-shadow 0.2s'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-2px)'
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)'
-                  e.currentTarget.style.boxShadow = 'none'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '3px' }}>
-                      <Link size={14} />
-                      <a
-                        href={source.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          fontSize: '0.85rem',
-                          fontWeight: '600',
-                          color: 'var(--text-primary)',
-                          textDecoration: 'none',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap'
-                        }}
-                        onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline' }}
-                        onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none' }}
-                      >
-                        {source.name}
-                      </a>
-                    </div>
-                    <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginBottom: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {source.description || categoryLabels[source.category]}
-                    </div>
-                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', alignItems: 'center' }}>
-                      <span style={{
-                        display: 'flex', alignItems: 'center', gap: '4px',
-                        fontSize: '0.65rem',
-                        padding: '1px 6px',
-                        borderRadius: '4px',
-                        background: 'var(--bg-secondary)',
-                        color: 'var(--text-secondary)',
-                        border: '1px solid var(--border-subtle)'
-                      }}>
-                        {source.category === 'official' && <RadioTower size={10} />}
-                        {source.category === 'news' && <Newspaper size={10} />}
-                        {source.category === 'data' && <Database size={10} />}
-                        {source.category === 'social' && <MessageSquare size={10} />}
-                        {source.category === 'other' && <Link size={10} />}
-                        {categoryLabels[source.category]}
-                      </span>
-                      <span style={{
-                        display: 'flex', alignItems: 'center', gap: '4px',
-                        fontSize: '0.65rem',
-                        padding: '1px 6px',
-                        borderRadius: '4px',
-                        background: source.priority === 'high' ? 'var(--system-red-light)' : source.priority === 'medium' ? 'var(--accent-warm-soft)' : 'var(--bg-secondary)',
-                        color: source.priority === 'high' ? 'var(--system-red)' : source.priority === 'medium' ? 'var(--warm-ink)' : 'var(--text-secondary)',
-                        border: `1px solid ${source.priority === 'high' ? 'var(--system-red-light)' : source.priority === 'medium' ? 'var(--accent-warm-soft)' : 'var(--border-subtle)'}`
-                      }}>
-                        {source.priority === 'high' && <Flame size={10} />}
-                        {source.priority === 'medium' && <Zap size={10} />}
-                        {source.priority === 'low' && <Pin size={10} />}
-                        {priorityLabels[source.priority]}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', gap: '4px', marginTop: '6px', paddingTop: '6px', borderTop: '1px solid var(--border-subtle)' }}>
-                  <button
-                    onClick={() => handleEdit(source)}
-                    style={{
-                      flex: 1,
-                      padding: '3px 6px',
-                      background: 'var(--accent-soft)',
-                      color: 'var(--accent)',
-                      border: 'none',
-                      borderRadius: '3px',
-                      cursor: 'pointer',
-                      fontSize: '0.7rem'
-                    }}
-                  >
-                    编辑
-                  </button>
-                  <button
-                    onClick={() => handleToggle(source.id)}
-                    style={{
-                      flex: 1,
-                      padding: '3px 6px',
-                      background: 'var(--system-green-light)',
-                      color: 'var(--system-green)',
-                      border: 'none',
-                      borderRadius: '3px',
-                      cursor: 'pointer',
-                      fontSize: '0.7rem'
-                    }}
-                  >
-                    禁用
-                  </button>
-                  <button
-                    onClick={() => handleDelete(source.id)}
-                    style={{
-                      padding: '3px 6px',
-                      background: 'var(--system-red-light)',
-                      color: 'var(--system-red)',
-                      border: 'none',
-                      borderRadius: '3px',
-                      cursor: 'pointer',
-                      fontSize: '0.7rem'
-                    }}
-                  >
-                    删除
-                  </button>
-                </div>
+        <div className="news-grid">
+          {enabledSources.map(source => (
+            <div key={source.id} className={`news-card is-${source.priority}`}>
+              <div className="news-card__name">
+                <Link size={14} aria-hidden="true" />
+                <a href={source.url} target="_blank" rel="noopener noreferrer">{source.name}</a>
               </div>
-            ))}
-          </div>
+              <div className="news-card__desc">{source.description || categoryLabels[source.category]}</div>
+              <div className="news-card__tags">
+                <span className="news-tag">{CATEGORY_ICON[source.category]}{categoryLabels[source.category]}</span>
+                <span className={`news-tag is-${source.priority}`}>{PRIORITY_ICON[source.priority]}{priorityLabels[source.priority]}</span>
+              </div>
+              <div className="news-card__actions">
+                <button type="button" className="tool-btn" onClick={() => handleEdit(source)}>编辑</button>
+                <button type="button" className="tool-btn" onClick={() => handleToggle(source.id)}>禁用</button>
+                <button type="button" className="tool-btn tool-btn--danger" onClick={() => handleDelete(source.id)}>删除</button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
-      {/* 禁用的消息源 */}
       {disabledSources.length > 0 && (
-        <details style={{ marginTop: '16px' }}>
-          <summary style={{
-            fontSize: '0.85rem',
-            color: 'var(--text-tertiary)',
-            cursor: 'pointer',
-            padding: '8px',
-            background: 'var(--bg-secondary)',
-            borderRadius: '6px'
-          }}>
-            已禁用的消息源 ({disabledSources.length})
-          </summary>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-            gap: '12px',
-            marginTop: '12px'
-          }}>
+        <details className="news-disabled">
+          <summary>已禁用的消息源 ({disabledSources.length})</summary>
+          <div className="news-grid">
             {disabledSources.map(source => (
-              <div
-                key={source.id}
-                style={{
-                  border: '1px solid var(--border-subtle)',
-                  background: 'var(--bg-secondary)',
-                  borderRadius: '8px',
-                  padding: '12px',
-                  opacity: 0.6
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '1rem' }}>{source.icon || '🔗'}</span>
-                  <span style={{ fontSize: '0.9rem', fontWeight: '500', color: 'var(--text-secondary)' }}>
-                    {source.name}
-                  </span>
+              <div key={source.id} className="news-card is-disabled">
+                <div className="news-card__name">
+                  <span aria-hidden="true">{source.icon || '🔗'}</span>
+                  <span>{source.name}</span>
                 </div>
-                <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
-                  <button
-                    onClick={() => handleToggle(source.id)}
-                    style={{
-                      padding: '4px 8px',
-                      background: 'var(--system-green-light)',
-                      color: 'var(--system-green)',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      fontSize: '0.75rem'
-                    }}
-                  >
-                    启用
-                  </button>
-                  <button
-                    onClick={() => handleDelete(source.id)}
-                    style={{
-                      padding: '4px 8px',
-                      background: 'var(--system-red-light)',
-                      color: 'var(--system-red)',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      fontSize: '0.75rem'
-                    }}
-                  >
-                    删除
-                  </button>
+                <div className="news-card__actions">
+                  <button type="button" className="tool-btn" onClick={() => handleToggle(source.id)}>启用</button>
+                  <button type="button" className="tool-btn tool-btn--danger" onClick={() => handleDelete(source.id)}>删除</button>
                 </div>
               </div>
             ))}
@@ -323,126 +144,44 @@ export const NewsSourceSection: React.FC<NewsSourceSectionProps> = ({ sources, o
         </details>
       )}
 
-      {sources.length === 0 && (
-        <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-tertiary)' }}>
-          暂无消息源，点击"添加消息源"开始管理
-        </div>
-      )}
+      {sources.length === 0 && <EmptyState title="暂无消息源">点击「添加消息源」开始管理</EmptyState>}
 
-      {/* 添加/编辑表单 */}
-      {showForm && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000
-        }}>
-          <div style={{
-            background: 'white',
-            borderRadius: '12px',
-            padding: '20px',
-            width: '90%',
-            maxWidth: '500px',
-            maxHeight: '80vh',
-            overflow: 'auto'
-          }}>
-            <h3 style={{ margin: '0 0 16px', fontSize: '1.1rem' }}>
-              {editingSource ? '编辑消息源' : '添加消息源'}
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div>
-                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>名称 *</label>
-                <input
-                  type="text"
-                  value={formData.name || ''}
-                  onChange={e => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="如：Bloomberg"
-                  style={{ width: '100%', padding: '8px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem', boxSizing: 'border-box' }}
-                />
-              </div>
-              <div>
-                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>网址 *</label>
-                <input
-                  type="url"
-                  value={formData.url || ''}
-                  onChange={e => setFormData({ ...formData, url: e.target.value })}
-                  placeholder="https://..."
-                  style={{ width: '100%', padding: '8px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem', boxSizing: 'border-box' }}
-                />
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div>
-                  <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>分类</label>
-                  <select
-                    value={formData.category || 'news'}
-                    onChange={e => setFormData({ ...formData, category: e.target.value as NewsSource['category'] })}
-                    style={{ width: '100%', padding: '8px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem' }}
-                  >
-                    <option value="official">官方数据</option>
-                    <option value="news">财经新闻</option>
-                    <option value="data">数据平台</option>
-                    <option value="social">社交媒体</option>
-                    <option value="other">其他</option>
-                  </select>
-                </div>
-                <div>
-                  <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>优先级</label>
-                  <select
-                    value={formData.priority || 'medium'}
-                    onChange={e => setFormData({ ...formData, priority: e.target.value as NewsSource['priority'] })}
-                    style={{ width: '100%', padding: '8px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem' }}
-                  >
-                    <option value="high">高</option>
-                    <option value="medium">中</option>
-                    <option value="low">低</option>
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>图标（可选）</label>
-                <input
-                  type="text"
-                  value={formData.icon || '🔗'}
-                  onChange={e => setFormData({ ...formData, icon: e.target.value })}
-                  placeholder="🔗"
-                  style={{ width: '100%', padding: '8px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem', boxSizing: 'border-box' }}
-                />
-              </div>
-              <div>
-                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>描述（可选）</label>
-                <input
-                  type="text"
-                  value={formData.description || ''}
-                  onChange={e => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="简要描述这个消息源"
-                  style={{ width: '100%', padding: '8px', border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '0.9rem', boxSizing: 'border-box' }}
-                />
-              </div>
-            </div>
-            <div style={{ display: 'flex', gap: '12px', marginTop: '20px', justifyContent: 'flex-end' }}>
-              <button
-                onClick={() => { setShowForm(false); setEditingSource(null); setFormData({ name: '', url: '', category: 'news', priority: 'medium', description: '', icon: '🔗', enabled: true }) }}
-                style={{ padding: '8px 16px', background: 'var(--bg-secondary)', color: 'var(--text-secondary)', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
-              >
-                取消
-              </button>
-              <button
-                onClick={handleSave}
-                style={{ padding: '8px 16px', background: 'var(--accent)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' }}
-              >
-                保存
-              </button>
-            </div>
-          </div>
+      <Dialog open={showForm} onClose={closeForm} title={editingSource ? '编辑消息源' : '添加消息源'}
+        actions={<>
+          <button type="button" className="tool-btn" onClick={closeForm}>取消</button>
+          <button type="button" className="tool-btn tool-btn--primary" onClick={handleSave}>保存</button>
+        </>}>
+        <div className="ui-form-grid">
+          <Field label="名称 *" wide>
+            <input type="text" value={formData.name || ''} onChange={e => setFormData({ ...formData, name: e.target.value })} placeholder="如：Bloomberg" />
+          </Field>
+          <Field label="网址 *" wide>
+            <input type="url" value={formData.url || ''} onChange={e => setFormData({ ...formData, url: e.target.value })} placeholder="https://..." />
+          </Field>
+          <Field label="分类">
+            <select value={formData.category || 'news'} onChange={e => setFormData({ ...formData, category: e.target.value as NewsSource['category'] })}>
+              <option value="official">官方数据</option>
+              <option value="news">财经新闻</option>
+              <option value="data">数据平台</option>
+              <option value="social">社交媒体</option>
+              <option value="other">其他</option>
+            </select>
+          </Field>
+          <Field label="优先级">
+            <select value={formData.priority || 'medium'} onChange={e => setFormData({ ...formData, priority: e.target.value as NewsSource['priority'] })}>
+              <option value="high">高</option>
+              <option value="medium">中</option>
+              <option value="low">低</option>
+            </select>
+          </Field>
+          <Field label="图标（可选）">
+            <input type="text" value={formData.icon || '🔗'} onChange={e => setFormData({ ...formData, icon: e.target.value })} placeholder="🔗" />
+          </Field>
+          <Field label="描述（可选）">
+            <input type="text" value={formData.description || ''} onChange={e => setFormData({ ...formData, description: e.target.value })} placeholder="简要描述这个消息源" />
+          </Field>
         </div>
-      )}
-    </div>
+      </Dialog>
+    </Card>
   )
 }
-

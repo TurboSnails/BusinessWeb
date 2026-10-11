@@ -272,41 +272,39 @@ export default function IndexHeatmap({ market, tick, active }: Props): JSX.Eleme
   const missing = valid.filter(s => !s.quoteTime).length
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
+    <div className="ihm">
       {/* 统计条 + 图例 */}
-      <div style={{ display: 'flex', gap: '12px', alignItems: 'center', padding: '2px 2px 8px', fontSize: '0.78rem', color: '#6b7280', flexWrap: 'wrap' }}>
+      <div className="ihm__stats">
         <span>{cfg.label} · {valid.length} 只</span>
         <span style={{ color: upText, fontWeight: 600 }}>↑ {ups}</span>
         <span style={{ color: downText, fontWeight: 600 }}>↓ {downs}</span>
         {flat > 0 && <span>— {flat}</span>}
-        <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <span className="ihm__legend">
           {LEGEND.map(v => (
-            <span key={v} style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
-              <span style={{ width: 22, height: 8, background: blockColor(v, greenUp), borderRadius: 2 }} />
-              <span style={{ fontSize: '0.62rem', color: '#9ca3af' }}>{v > 0 ? `+${v}` : v}%</span>
+            <span key={v} className="ihm__legend-item">
+              <span className="ihm__swatch" style={{ background: blockColor(v, greenUp) }} />
+              <span className="ihm__legend-label">{v > 0 ? `+${v}` : v}%</span>
             </span>
           ))}
-          {updatedAt && <span style={{ marginLeft: 8, color: '#9ca3af' }}>获取于 {updatedAt}</span>}
+          {updatedAt && <span className="ihm__fetched">获取于 {updatedAt}</span>}
         </span>
       </div>
 
-      {times.length > 0 && <div style={{ fontSize: '0.72rem', color: previousSession ? '#b45309' : '#6b7280', marginBottom: 6 }}>
+      {times.length > 0 && <div className={previousSession ? 'ihm__time is-stale' : 'ihm__time'}>
         行情时间（{cfg.timeLabel ?? '北京时间'}）：{times[0]}{times[0] !== times[times.length - 1] ? ` ～ ${times[times.length - 1]}` : ''}
         {previousSession && ' · 含历史交易日行情，休市或尚未更新'}
         {missing > 0 && ` · ${missing} 只暂无报价`}
       </div>}
-      {error && stocks.length > 0 && <div role="alert" style={{ color: '#b45309', fontSize: '0.75rem', marginBottom: 6 }}>刷新失败，保留上次行情：{error}</div>}
+      {error && stocks.length > 0 && <div role="alert" className="ihm__time is-stale">刷新失败，保留上次行情：{error}</div>}
 
-      <div ref={containerRef} style={{ position: 'relative', width: '100%', flex: 1, minHeight: 0, background: '#1f2937', borderRadius: '8px', overflow: 'hidden' }}>
+      <div ref={containerRef} className="ihm__canvas">
         {loading && stocks.length === 0 && (
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af' }}>
-            ⏳ 正在加载{cfg.label}行情...
-          </div>
+          <div className="ihm__overlay" role="status">正在加载{cfg.label}行情…</div>
         )}
         {error && stocks.length === 0 && (
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#dc2626', flexDirection: 'column', gap: '8px' }}>
+          <div className="ihm__overlay is-error" role="alert">
             <span>⚠️ {error}</span>
-            <button onClick={load} style={{ padding: '6px 16px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>重试</button>
+            <button type="button" className="tool-btn" onClick={load}>重试</button>
           </div>
         )}
         {blocks.map(block => (
@@ -380,7 +378,7 @@ export default function IndexHeatmap({ market, tick, active }: Props): JSX.Eleme
           </div>
         )}
       </div>
-      <div style={{ fontSize: '0.7rem', color: '#9ca3af', marginTop: '6px' }}>
+      <div className="ihm__foot">
         报价 腾讯行情（以行情时间为准） · 行业/市值 TradingView · {cfg.source} · {greenUp ? '绿涨红跌' : '红涨绿跌'} · 方块面积 = 市值
       </div>
     </div>

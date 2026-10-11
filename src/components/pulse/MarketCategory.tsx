@@ -8,34 +8,17 @@ interface MarketCategoryProps {
 
 export const MarketCategory: React.FC<MarketCategoryProps> = ({ category }) => {
   return (
-    <div style={{ marginBottom: '20px' }}>
-      <div style={{ 
-        display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', padding: '6px 10px',
-        background: category.bgColor, borderRadius: '6px', borderLeft: `3px solid ${category.color}` 
-      }}>
-        <span style={{ fontSize: '1rem' }}>{category.icon}</span>
-        <span style={{ fontWeight: '600', color: category.color, fontSize: '0.9rem' }}>
-          {category.title}
-        </span>
+    <section className="pulse-category" aria-label={category.title}>
+      <div className="pulse-category__head" style={{ background: category.bgColor, borderLeftColor: category.color }}>
+        <span className="pulse-category__icon" aria-hidden="true">{category.icon}</span>
+        <span className="pulse-category__title" style={{ color: category.color }}>{category.title}</span>
       </div>
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', 
-        gap: '10px' 
-      }}>
+      <div className="pulse-category__grid">
         {category.data.map(stock => (
           <MarketCard key={stock.symbol} stock={stock} color={category.color} />
         ))}
-        {category.data.length === 0 && (
-          <div style={{ 
-            padding: '16px', color: 'var(--text-tertiary)', fontSize: '0.85rem', 
-            gridColumn: '1 / -1', textAlign: 'center' 
-          }}>
-            加载中...
-          </div>
-        )}
+        {category.data.length === 0 && <div className="pulse-category__empty">加载中…</div>}
       </div>
-    </div>
+    </section>
   )
 }
-

@@ -60,36 +60,24 @@
     "color": 41
   },
   "components/pulse/HeatmapSection.tsx": {
-    "inline": 16,
-    "color": 21
-  },
-  "components/pulse/IndexHeatmap.tsx": {
-    "inline": 27,
-    "color": 30
-  },
-  "components/pulse/MarketCard.tsx": {
-    "inline": 8,
-    "color": 4
-  },
-  "components/pulse/MarketCategory.tsx": {
-    "inline": 6,
+    "inline": 1,
     "color": 0
   },
-  "components/pulse/NewsSection.tsx": {
-    "inline": 23,
-    "color": 5
+  "components/pulse/IndexHeatmap.tsx": {
+    "inline": 14,
+    "color": 18
   },
-  "components/pulse/NewsSourceSection.tsx": {
-    "inline": 51,
-    "color": 7
+  "components/pulse/MarketCard.tsx": {
+    "inline": 3,
+    "color": 0
   },
-  "components/pulse/ReviewTable.tsx": {
-    "inline": 35,
-    "color": 6
+  "components/pulse/MarketCategory.tsx": {
+    "inline": 2,
+    "color": 0
   },
   "components/pulse/SectorSection.tsx": {
-    "inline": 29,
-    "color": 6
+    "inline": 2,
+    "color": 0
   },
   "features/company-notes/CompanyNotes.tsx": {
     "inline": 1,
@@ -178,10 +166,6 @@
   "pages/NotFound.tsx": {
     "inline": 1,
     "color": 0
-  },
-  "pages/Pulse.tsx": {
-    "inline": 87,
-    "color": 11
   },
   "pages/ResearchNotes.tsx": {
     "inline": 1,

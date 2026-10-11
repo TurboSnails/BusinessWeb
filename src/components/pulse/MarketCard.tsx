@@ -1,59 +1,30 @@
 import React from 'react'
 import type { StockQuote } from '../../types'
 import { formatPrice, formatPercent } from '../../utils/format'
+import '../../styles/pulse.css'
 
 interface MarketCardProps {
   stock: StockQuote
   color: string
 }
 
+// 全球行情按美股习惯绿涨红跌，颜色用中性的 system-green / system-red（不借用 A 股的 --up/--down）
 export const MarketCard: React.FC<MarketCardProps> = ({ stock, color }) => {
   const isPositive = stock.change >= 0
   const changeColor = isPositive ? 'var(--system-green)' : 'var(--system-red)'
+  const rsiTone = stock.rsi === undefined ? '' : stock.rsi >= 70 ? ' is-hot' : stock.rsi <= 30 ? ' is-cold' : ''
 
   return (
-    <div style={{
-      background: 'white', borderRadius: '12px', padding: '14px',
-      boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column',
-      gap: '6px', borderLeft: `4px solid ${color}`, transition: 'transform 0.2s, box-shadow 0.2s'
-    }}
-      onMouseEnter={(e) => { 
-        e.currentTarget.style.transform = 'translateY(-2px)'
-        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)' 
-      }}
-      onMouseLeave={(e) => { 
-        e.currentTarget.style.transform = 'translateY(0)'
-        e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)' 
-      }}
-    >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <span style={{ fontWeight: '600', fontSize: '0.9rem', color: 'var(--text-primary)' }}>{stock.name}</span>
-        {stock.rsi !== undefined && (
-          <span style={{ 
-            fontSize: '0.7rem', padding: '2px 5px', borderRadius: '4px',
-            background: stock.rsi >= 70 ? 'var(--system-red-light)' : stock.rsi <= 30 ? 'var(--system-green-light)' : 'var(--bg-secondary)',
-            color: stock.rsi >= 70 ? 'var(--system-red)' : stock.rsi <= 30 ? 'var(--system-green)' : 'var(--text-secondary)', 
-            fontWeight: '500'
-          }}>
-            RSI {stock.rsi.toFixed(0)}
-          </span>
-        )}
+    <div className="pulse-card" style={{ borderLeftColor: color }}>
+      <div className="pulse-card__head">
+        <span className="pulse-card__name">{stock.name}</span>
+        {stock.rsi !== undefined && <span className={`pulse-card__rsi${rsiTone}`}>RSI {stock.rsi.toFixed(0)}</span>}
       </div>
-      <div style={{ fontSize: '1.3rem', fontWeight: '700', color: changeColor }}>
-        {formatPrice(stock.price, stock.symbol)}
-      </div>
-      <div style={{ display: 'flex', gap: '8px', fontSize: '0.8rem' }}>
-        <span style={{ color: changeColor, fontWeight: '500' }}>
-          {isPositive ? '↑' : '↓'} {formatPrice(Math.abs(stock.change))}
-        </span>
-        <span style={{ 
-          color: changeColor, fontWeight: '600', padding: '1px 5px', borderRadius: '4px', 
-          background: isPositive ? 'var(--system-green-light)' : 'var(--system-red-light)' 
-        }}>
-          {formatPercent(stock.changePercent)}
-        </span>
+      <div className="pulse-card__price" style={{ color: changeColor }}>{formatPrice(stock.price, stock.symbol)}</div>
+      <div className="pulse-card__change" style={{ color: changeColor }}>
+        <span>{isPositive ? '↑' : '↓'} {formatPrice(Math.abs(stock.change))}</span>
+        <span className={isPositive ? 'pulse-card__pct is-up' : 'pulse-card__pct is-down'}>{formatPercent(stock.changePercent)}</span>
       </div>
     </div>
   )
 }
-

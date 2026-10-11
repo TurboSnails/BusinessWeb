@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react'
 import { LayoutGrid, Maximize2, Minimize2, Columns2, Rows3, RefreshCw } from 'lucide-react'
 import IndexHeatmap from './IndexHeatmap'
 import type { IndexMarket } from './IndexHeatmap'
+import { Card } from '../ui'
+import '../../styles/pulse.css'
 
 interface HeatmapTab {
   key: string
@@ -104,11 +106,7 @@ export default function HeatmapSection(): JSX.Element {
     else void node.requestFullscreen?.().catch(() => undefined)
   }
 
-  const pill = (isActive: boolean): React.CSSProperties => ({
-    padding: '6px 12px', borderRadius: '8px', border: isActive ? '1px solid #3b82f6' : '1px solid #e5e7eb',
-    background: isActive ? '#eff6ff' : '#f9fafb', color: isActive ? '#2563eb' : '#6b7280', fontWeight: isActive ? 700 : 500,
-    fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 0.2s',
-  })
+  const pill = (isActive: boolean): string => (isActive ? 'ui-chip is-active' : 'ui-chip')
 
   const renderMap = (tab: HeatmapTab, active: boolean): JSX.Element => <IndexHeatmap market={tab.index} tick={tick} active={active} />
 
@@ -118,31 +116,28 @@ export default function HeatmapSection(): JSX.Element {
       <div
         key={tab.key}
         ref={node => { cardRefs.current[tab.key] = node }}
-        style={{
-          display: active ? 'flex' : 'none', flexDirection: 'column', minWidth: 0, background: 'white',
-          border: isFs ? 'none' : '1px solid #e5e7eb', borderRadius: '10px', padding: '10px 12px 12px',
-          height: isFs ? '100vh' : undefined, boxSizing: 'border-box',
-          gridColumn: layout === 'grid' && tab.index === 'csi500' ? '1 / -1' : undefined,
-        }}
+        className={isFs ? 'heatmap-card is-fullscreen' : 'heatmap-card'}
+        style={{ display: active ? undefined : 'none', gridColumn: layout === 'grid' && tab.index === 'csi500' ? '1 / -1' : undefined }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+        <div className="heatmap-card__head">
           {showTitle && (
             <>
-              <span style={{ fontSize: '1rem' }}>{tab.flag}</span>
-              <span style={{ fontWeight: 700, fontSize: '0.9rem', color: '#1f2937' }}>{tab.label}</span>
-              <span style={{ fontSize: '0.68rem', color: '#6b7280', background: '#f3f4f6', padding: '1px 6px', borderRadius: '4px' }}>{tab.note}</span>
+              <span aria-hidden="true">{tab.flag}</span>
+              <span className="heatmap-card__title">{tab.label}</span>
+              <span className="ui-badge ui-badge--neutral">{tab.note}</span>
             </>
           )}
           <button
+            type="button"
+            className="tool-btn heatmap-card__fs"
             onClick={() => toggleFullscreen(tab.key)}
             title={isFs ? '退出全屏' : '全屏查看'}
             aria-label={isFs ? `退出全屏 ${tab.label}` : `全屏查看 ${tab.label}`}
-            style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px', padding: '3px 8px', border: '1px solid #e5e7eb', borderRadius: '6px', background: '#f9fafb', color: '#6b7280', cursor: 'pointer', fontSize: '0.72rem' }}
           >
-            {isFs ? <Minimize2 size={13} /> : <Maximize2 size={13} />} {isFs ? '退出' : '全屏'}
+            {isFs ? <Minimize2 size={13} aria-hidden="true" /> : <Maximize2 size={13} aria-hidden="true" />} {isFs ? '退出' : '全屏'}
           </button>
         </div>
-        <div style={{ height: isFs ? undefined : bodyHeight, flex: isFs ? 1 : undefined, minHeight: 0 }}>
+        <div className="heatmap-card__body" style={isFs ? undefined : { height: bodyHeight }}>
           {renderMap(tab, active)}
         </div>
       </div>
@@ -152,35 +147,30 @@ export default function HeatmapSection(): JSX.Element {
   const gridMode = layout === 'grid'
 
   return (
-    <div style={{ marginBottom: '20px', padding: '16px', background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-      {/* 标题 + 布局切换 + 刷新状态 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px', flexWrap: 'wrap' }}>
-        <h3 style={{ fontSize: '0.95rem', margin: 0, color: '#374151', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <LayoutGrid size={18} color="#3b82f6" /> 市场热力图
-        </h3>
-        <div role="group" aria-label="热力图布局" style={{ display: 'flex', gap: '6px' }}>
-          <button onClick={() => changeLayout('grid')} aria-pressed={gridMode} style={pill(gridMode)}><Columns2 size={14} /> 并排</button>
-          <button onClick={() => changeLayout('tabs')} aria-pressed={!gridMode} style={pill(!gridMode)}><Rows3 size={14} /> 标签页</button>
+    <Card
+      className="heatmap-section"
+      title="市场热力图"
+      icon={<LayoutGrid size={18} />}
+      actions={<>
+        <div role="group" aria-label="热力图布局" className="ui-cluster">
+          <button type="button" onClick={() => changeLayout('grid')} aria-pressed={gridMode} className={pill(gridMode)}><Columns2 size={14} aria-hidden="true" /> 并排</button>
+          <button type="button" onClick={() => changeLayout('tabs')} aria-pressed={!gridMode} className={pill(!gridMode)}><Rows3 size={14} aria-hidden="true" /> 标签页</button>
         </div>
-        <button onClick={refreshQuotes} style={pill(false)}><RefreshCw size={14} /> 刷新行情</button>
-        <span style={{ fontSize: '0.72rem', color: '#9ca3af', marginLeft: 'auto' }}>
-          每 {REFRESH_INTERVAL / 1000} 秒请求 · 行情时间见各图
-          <span style={{ marginLeft: '8px', color: '#d1d5db' }}>{countdown}s</span>
-        </span>
-      </div>
-      <div style={{ fontSize: '0.72rem', color: '#6b7280', marginBottom: 10 }}>报价取自腾讯行情实时数据，各图标注行情时间；休市时显示最后交易日行情。</div>
-
+        <button type="button" onClick={refreshQuotes} className="tool-btn"><RefreshCw size={14} aria-hidden="true" /> 刷新行情</button>
+      </>}
+      description={<>报价取自腾讯行情实时数据，各图标注行情时间；休市时显示最后交易日行情。每 {REFRESH_INTERVAL / 1000} 秒请求一次，<span className="heatmap-countdown">{countdown}s</span> 后刷新。</>}
+    >
       {gridMode ? (
         // 并排：宽屏 2 列，窄屏 1 列；全部挂载，各自加载
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 520px), 1fr))', gap: '12px' }}>
+        <div className="heatmap-grid">
           {TABS.map(tab => renderCard(tab, tab.index === 'csi500' ? '600px' : '480px', true, true))}
         </div>
       ) : (
         <>
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
+          <div className="ui-cluster ui-cluster--scroll heatmap-tabs" role="group" aria-label="选择指数">
             {TABS.map(tab => (
-              <button key={tab.key} onClick={() => handleTabClick(tab.key)} style={pill(tab.key === activeTab)}>
-                <span>{tab.flag}</span>{tab.label}
+              <button type="button" key={tab.key} onClick={() => handleTabClick(tab.key)} aria-pressed={tab.key === activeTab} className={pill(tab.key === activeTab)}>
+                <span aria-hidden="true">{tab.flag}</span>{tab.label}
               </button>
             ))}
           </div>
@@ -188,6 +178,6 @@ export default function HeatmapSection(): JSX.Element {
           {TABS.map(tab => (visited.has(tab.key) ? renderCard(tab, 'clamp(460px, 68vh, 760px)', tab.key === activeTab, false) : null))}
         </>
       )}
-    </div>
+    </Card>
   )
 }

@@ -1,215 +1,76 @@
-import type { SectorCategory } from '../../types'
+import type { SectorCategory, SectorData } from '../../types'
 import { TrendingUp, TrendingDown } from 'lucide-react'
+import '../../styles/pulse.css'
 
 interface SectorSectionProps {
   category: SectorCategory
 }
 
-export const SectorSection: React.FC<SectorSectionProps> = ({ category }) => {
-  const formatPercent = (percent: number): string => {
-    const sign = percent >= 0 ? '+' : ''
-    return `${sign}${percent.toFixed(2)}%`
-  }
+const formatPercent = (percent: number): string => `${percent >= 0 ? '+' : ''}${percent.toFixed(2)}%`
 
-  const formatAmount = (amount: number): string => {
-    // amount 单位是万元，转换为合适的显示
-    if (amount >= 10000) {
-      return `${(amount / 10000).toFixed(1)}亿`
-    } else if (amount >= 1) {
-      return `${amount.toFixed(1)}万`
-    } else {
-      return `${(amount * 10000).toFixed(0)}元`
-    }
-  }
+// amount 单位是万元，转换为合适的显示
+const formatAmount = (amount: number): string => {
+  if (amount >= 10000) return `${(amount / 10000).toFixed(1)}亿`
+  if (amount >= 1) return `${amount.toFixed(1)}万`
+  return `${(amount * 10000).toFixed(0)}元`
+}
 
-  // 分离上涨和下跌的板块
-  const upSectors = category.data
-    .filter(s => s.changePercent > 0)
-    .sort((a, b) => b.changePercent - a.changePercent)  // 按涨幅降序
-    .slice(0, 15)
-
-  const downSectors = category.data
-    .filter(s => s.changePercent < 0)
-    .sort((a, b) => a.changePercent - b.changePercent)  // 按跌幅升序（最跌的在前面）
-    .slice(0, 15)
-
-  // 调试信息
-  if (category.data.length > 0 && upSectors.length === 0 && downSectors.length === 0) {
-    console.warn(`${category.title} 数据异常:`, {
-      total: category.data.length,
-      sample: category.data.slice(0, 3).map(s => ({ name: s.name, changePercent: s.changePercent }))
-    })
-  }
-
+function SectorCard({ sector }: { sector: SectorData }): JSX.Element {
+  const isPositive = sector.changePercent >= 0
+  const rsiTone = sector.rsi === undefined ? '' : sector.rsi >= 70 ? ' is-hot' : sector.rsi <= 30 ? ' is-cold' : ''
   return (
-    <div style={{ marginBottom: '24px', padding: '16px', background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', padding: '6px 10px',
-        background: category.bgColor, borderRadius: '6px', borderLeft: `3px solid ${category.color}`
-      }}>
-        <span style={{ fontSize: '1rem' }}>{category.icon}</span>
-        <span style={{ fontWeight: '600', color: category.color, fontSize: '0.9rem' }}>
-          {category.title}
-        </span>
+    <div className={isPositive ? 'pulse-sector-card is-up' : 'pulse-sector-card is-down'}>
+      <div className="pulse-sector-card__head">
+        <span className="pulse-sector-card__name">{sector.name}</span>
+        <div className="pulse-sector-card__right">
+          {sector.rsi !== undefined && <span className={`pulse-sector-card__rsi${rsiTone}`}>RSI {sector.rsi.toFixed(0)}</span>}
+          <span className="pulse-sector-card__pct">{formatPercent(sector.changePercent)}</span>
+        </div>
       </div>
-
-      {/* 上涨板块 */}
-      {upSectors.length > 0 && (
-        <>
-          <div style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--system-green)', marginBottom: '10px', padding: '6px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <TrendingUp size={16} /> 涨幅前15
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '10px', marginBottom: '20px' }}>
-            {upSectors.map((sector) => {
-              const isPositive = sector.changePercent >= 0
-              const changeColor = isPositive ? 'var(--system-green)' : 'var(--system-red)'
-
-              return (
-                <div
-                  key={sector.code}
-                  style={{
-                    background: 'white',
-                    borderRadius: '8px',
-                    padding: '12px',
-                    border: `1px solid ${isPositive ? 'var(--system-green-light)' : 'var(--system-red-light)'}`,
-                    borderLeft: `3px solid ${changeColor}`,
-                    transition: 'transform 0.2s, box-shadow 0.2s'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-2px)'
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)'
-                    e.currentTarget.style.boxShadow = 'none'
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                    <span style={{ fontWeight: '600', fontSize: '0.9rem', color: 'var(--text-primary)', flex: 1 }}>
-                      {sector.name}
-                    </span>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      {sector.rsi !== undefined && (
-                        <span style={{
-                          fontSize: '0.7rem', padding: '2px 5px', borderRadius: '4px', fontWeight: '500',
-                          background: sector.rsi >= 70 ? 'var(--system-red-light)' : sector.rsi <= 30 ? 'var(--system-green-light)' : 'var(--bg-secondary)',
-                          color: sector.rsi >= 70 ? 'var(--system-red)' : sector.rsi <= 30 ? 'var(--system-green)' : 'var(--text-secondary)'
-                        }}>
-                          RSI {sector.rsi.toFixed(0)}
-                        </span>
-                      )}
-                      <span style={{
-                        fontSize: '0.85rem', fontWeight: '700', color: changeColor
-                      }}>
-                        {formatPercent(sector.changePercent)}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                    <span>成交额: <strong style={{ color: 'var(--text-primary)' }}>{formatAmount(sector.amount)}</strong></span>
-                    {sector.stockCount > 0 && (
-                      <>
-                        <span>•</span>
-                        <span>成分股: <strong style={{ color: 'var(--text-primary)' }}>{sector.stockCount}</strong></span>
-                      </>
-                    )}
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </>
-      )}
-
-      {/* 下跌板块 */}
-      {downSectors.length > 0 && (
-        <>
-          <div style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--system-red)', marginBottom: '10px', padding: '6px 0', marginTop: '20px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <TrendingDown size={16} /> 跌幅前15
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '10px' }}>
-            {downSectors.map((sector) => {
-              const isPositive = sector.changePercent >= 0
-              const changeColor = isPositive ? 'var(--system-green)' : 'var(--system-red)'
-
-              return (
-                <div
-                  key={sector.code}
-                  style={{
-                    background: 'white',
-                    borderRadius: '8px',
-                    padding: '12px',
-                    border: `1px solid ${isPositive ? 'var(--system-green-light)' : 'var(--system-red-light)'}`,
-                    borderLeft: `3px solid ${changeColor}`,
-                    transition: 'transform 0.2s, box-shadow 0.2s'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-2px)'
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)'
-                    e.currentTarget.style.boxShadow = 'none'
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                    <span style={{ fontWeight: '600', fontSize: '0.9rem', color: 'var(--text-primary)', flex: 1 }}>
-                      {sector.name}
-                    </span>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      {sector.rsi !== undefined && (
-                        <span style={{
-                          fontSize: '0.7rem', padding: '2px 5px', borderRadius: '4px', fontWeight: '500',
-                          background: sector.rsi >= 70 ? 'var(--system-red-light)' : sector.rsi <= 30 ? 'var(--system-green-light)' : 'var(--bg-secondary)',
-                          color: sector.rsi >= 70 ? 'var(--system-red)' : sector.rsi <= 30 ? 'var(--system-green)' : 'var(--text-secondary)'
-                        }}>
-                          RSI {sector.rsi.toFixed(0)}
-                        </span>
-                      )}
-                      <span style={{
-                        fontSize: '0.85rem', fontWeight: '700', color: changeColor
-                      }}>
-                        {formatPercent(sector.changePercent)}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                    <span>成交额: <strong style={{ color: 'var(--text-primary)' }}>{formatAmount(sector.amount)}</strong></span>
-                    {sector.stockCount > 0 && (
-                      <>
-                        <span>•</span>
-                        <span>成分股: <strong style={{ color: 'var(--text-primary)' }}>{sector.stockCount}</strong></span>
-                      </>
-                    )}
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </>
-      )}
-
-      {upSectors.length === 0 && downSectors.length === 0 && (
-        <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>
-          {category.data.length === 0 ? '暂无数据' : '加载中...'}
-        </div>
-      )}
-
-      {/* 如果只有上涨或只有下跌，显示提示 */}
-      {upSectors.length > 0 && downSectors.length === 0 && (
-        <div style={{ padding: '12px', textAlign: 'center', color: 'var(--text-tertiary)', fontSize: '0.75rem', marginTop: '10px' }}>
-          暂无下跌板块数据
-        </div>
-      )}
-
-      {upSectors.length === 0 && downSectors.length > 0 && (
-        <div style={{ padding: '12px', textAlign: 'center', color: 'var(--text-tertiary)', fontSize: '0.75rem', marginTop: '10px' }}>
-          暂无上涨板块数据
-        </div>
-      )}
+      <div className="pulse-sector-card__meta">
+        <span>成交额: <strong>{formatAmount(sector.amount)}</strong></span>
+        {sector.stockCount > 0 && <><span aria-hidden="true">•</span><span>成分股: <strong>{sector.stockCount}</strong></span></>}
+      </div>
     </div>
   )
 }
 
+export const SectorSection: React.FC<SectorSectionProps> = ({ category }) => {
+  const upSectors = category.data
+    .filter(s => s.changePercent > 0)
+    .sort((a, b) => b.changePercent - a.changePercent)
+    .slice(0, 15)
+  const downSectors = category.data
+    .filter(s => s.changePercent < 0)
+    .sort((a, b) => a.changePercent - b.changePercent)
+    .slice(0, 15)
+
+  return (
+    <section className="ui-card pulse-sector" aria-label={category.title}>
+      <div className="pulse-category__head" style={{ background: category.bgColor, borderLeftColor: category.color }}>
+        <span className="pulse-category__icon" aria-hidden="true">{category.icon}</span>
+        <span className="pulse-category__title" style={{ color: category.color }}>{category.title}</span>
+      </div>
+
+      {upSectors.length > 0 && (
+        <>
+          <div className="pulse-sector__group is-up"><TrendingUp size={16} aria-hidden="true" /> 涨幅前15</div>
+          <div className="pulse-sector__grid">{upSectors.map(s => <SectorCard key={s.code} sector={s} />)}</div>
+        </>
+      )}
+
+      {downSectors.length > 0 && (
+        <>
+          <div className="pulse-sector__group is-down"><TrendingDown size={16} aria-hidden="true" /> 跌幅前15</div>
+          <div className="pulse-sector__grid">{downSectors.map(s => <SectorCard key={s.code} sector={s} />)}</div>
+        </>
+      )}
+
+      {upSectors.length === 0 && downSectors.length === 0 && (
+        <div className="pulse-category__empty">{category.data.length === 0 ? '暂无数据' : '加载中…'}</div>
+      )}
+      {upSectors.length > 0 && downSectors.length === 0 && <p className="pulse-note">暂无下跌板块数据</p>}
+      {upSectors.length === 0 && downSectors.length > 0 && <p className="pulse-note">暂无上涨板块数据</p>}
+    </section>
+  )
+}

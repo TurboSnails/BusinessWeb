@@ -1,7 +1,8 @@
 import React from 'react'
 import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Badge, Callout, Card, EmptyState, Page, PageToolbar, Stat, StatGrid, TableWrap } from './index'
+import { fireEvent } from '@testing-library/react'
+import { Badge, Callout, Card, Dialog, EmptyState, Field, Page, PageToolbar, Stat, StatGrid, TableWrap } from './index'
 
 afterEach(cleanup)
 
@@ -85,5 +86,33 @@ describe('TableWrap', () => {
     const region = screen.getByRole('region', { name: '公司列表' })
     expect(region.getAttribute('tabindex')).toBe('0')
     expect(region.className).toContain('ui-table-wrap--sticky')
+  })
+})
+
+describe('Dialog / Field', () => {
+  it('打开时聚焦第一个控件并锁滚动；Esc 关闭后焦点归还', () => {
+    const outside = document.createElement('button'); document.body.appendChild(outside); outside.focus()
+    let open = true
+    const close = () => { open = false }
+    const { rerender } = render(<Dialog open={open} onClose={close} title="筛选" actions={<button>确定</button>}><Field label="日期"><input /></Field></Dialog>)
+    const dialog = screen.getByRole('dialog', { name: '筛选' })
+    expect(dialog.getAttribute('aria-modal')).toBe('true')
+    expect(document.activeElement).toBe(screen.getByLabelText('日期'))
+    expect(document.body.style.overflow).toBe('hidden')
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(open).toBe(false)
+    rerender(<Dialog open={false} onClose={close} title="筛选"><input /></Dialog>)
+    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(document.body.style.overflow).toBe('')
+    expect(document.activeElement).toBe(outside)
+    outside.remove()
+  })
+  it('点遮罩关闭，点面板内部不关闭', () => {
+    let closed = 0
+    render(<Dialog open onClose={() => { closed++ }} title="设置"><p>内容</p></Dialog>)
+    fireEvent.mouseDown(screen.getByText('内容'))
+    expect(closed).toBe(0)
+    fireEvent.mouseDown(document.querySelector('.ui-dialog-overlay') as Element)
+    expect(closed).toBe(1)
   })
 })
