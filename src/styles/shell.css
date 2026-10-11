@@ -447,7 +447,7 @@
   }
 }
 
-/* ---------- 通用操作与最近更新；首页视觉见 home.css ---------- */
+/* ---------- 通用操作与关于页最近更新 ---------- */
 .hero__actions {
   display: flex;
   flex-wrap: wrap;
@@ -455,11 +455,11 @@
   gap: 12px;
 }
 
-.home-section {
+.updates-section {
   margin-bottom: 32px;
 }
 
-.home-section h2 {
+.updates-section h2 {
   font-size: 1.15rem;
   margin-bottom: 12px;
 }
@@ -491,7 +491,15 @@
 }
 
 .updates__text {
+  min-width: 0;
   overflow-wrap: anywhere;
+}
+
+.updates__description {
+  margin: 4px 0 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.7;
 }
 
 @media (min-width: 768px) {

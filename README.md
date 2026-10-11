@@ -102,6 +102,8 @@ node /path/to/dev-team/scripts/dev-team.mjs init --project /path/to/other-projec
 
 ## 部署
 
+「最近更新」仅在 `/about` 展示，内容维护在 [src/data/siteUpdates.ts](src/data/siteUpdates.ts)：只登记已经上线、用户可感知的需求，用中文写功能变化和使用入口，同一需求合并一条，按上线日期倒序排列。不自动导入 Git 提交，不记录构建、维护、测试和例行数据刷新；`public/changelog.json` 仅保留为技术记录，不用于网站更新列表。
+
 - **Vercel（推荐）**：默认 `npm run build` 输出到根路径；Serverless Functions 处理 `/api/grid-market` 与 `/api/grid-sync`。完整步骤见 [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)，包括 Vercel 免费项目额度、可选 Supabase 同步与环境变量。
 - **GitHub Pages**：由 [.github/workflows/pages.yml](.github/workflows/pages.yml) 在推送 `main` 时自动测试、构建并发布，也可在 Actions 中手动运行。首次迁移需在仓库 **Settings → Pages → Build and deployment → Source** 选择 **GitHub Actions**；若 `github-pages` 环境限制了部署分支，需允许 `main`。不要将 Pages 的来源直接设成 `main` 分支静态目录，React 源码需要先构建。Pages 不运行 Functions，API 继续使用配置的 Vercel 服务。
   - 本地验证：`npm run build:pages`；构建产物上传为 Pages artifact，不提交到 `gh-pages`。`deploy` 脚本与 `gh-pages` 依赖已移除。

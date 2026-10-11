@@ -19,6 +19,8 @@ describe('About 页面：站点介绍', () => {
     render(<MemoryRouter><About /></MemoryRouter>)
     expect(screen.getByRole('heading', { level: 2, name: '关于「Live」' })).toBeTruthy()
     expect(document.body.textContent).not.toMatch(/Hassan 投资工作台/)
+    expect(screen.getByRole('heading', { name: '最近更新' })).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'Orca 开发团队 Skill 上线' }).getAttribute('href')).toBe('/ai#lab-skills')
   })
 
   it('介绍里列出三个栏目，并链接到对应页面', () => {

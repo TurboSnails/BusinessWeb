@@ -1,47 +1,23 @@
-import React, { useEffect, useState } from 'react'
-
-interface Commit {
-  hash: string
-  subject: string
-  date: string
-}
-
-interface Changelog {
-  versions?: Array<{ commits?: Commit[] }>
-}
+import React from 'react'
+import { Link } from 'react-router-dom'
+import { SITE_UPDATES } from '../data/siteUpdates'
 
 export default function RecentUpdates(): JSX.Element | null {
-  const [items, setItems] = useState<Commit[]>([])
-
-  useEffect(() => {
-    let cancelled = false
-    fetch(import.meta.env.BASE_URL + 'changelog.json')
-      .then(r => {
-        if (!r.ok) throw new Error(`status ${r.status}`)
-        return r.json() as Promise<Changelog>
-      })
-      .then(j => {
-        const commits = (j.versions ?? []).flatMap(v => v.commits ?? []).slice(0, 5)
-        if (!cancelled) setItems(commits)
-      })
-      .catch(() => {
-        if (!cancelled) setItems([])
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [])
+  const items = SITE_UPDATES.slice(0, 5)
 
   if (items.length === 0) return null
 
   return (
-    <section className="home-section">
-      <h2>最近更新</h2>
+    <section id="recent-updates" className="updates-section" aria-labelledby="recent-updates-title">
+      <h2 id="recent-updates-title">最近更新</h2>
       <ul className="updates">
-        {items.map(c => (
-          <li key={c.hash}>
-            <span className="updates__date">{c.date}</span>
-            <span className="updates__text">{c.subject}</span>
+        {items.map(update => (
+          <li key={update.id}>
+            <time className="updates__date" dateTime={update.date}>{update.date}</time>
+            <div className="updates__text">
+              <Link to={update.href}>{update.title}</Link>
+              <p className="updates__description">{update.description}</p>
+            </div>
           </li>
         ))}
       </ul>

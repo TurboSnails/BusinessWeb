@@ -1,9 +1,10 @@
 import React from 'react'
-import { cleanup, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import Home from './Home'
 import RecentUpdates from '../components/RecentUpdates'
+import { SITE_UPDATES } from '../data/siteUpdates'
 
 afterEach(() => {
   cleanup()
@@ -11,7 +12,7 @@ afterEach(() => {
 })
 
 const stubFetch = (impl: () => Promise<unknown>) =>
-  vi.stubGlobal('fetch', (() => impl()) as unknown as typeof fetch)
+  vi.stubGlobal('fetch', vi.fn(() => impl()) as unknown as typeof fetch)
 
 const changelog = (n: number) => ({
   generatedAt: '2026-10-04T00:00:00.000Z',
@@ -34,6 +35,7 @@ describe('Home', () => {
     expect(screen.getByText(/不盯盘、不预测的普通人投资方法/)).toBeTruthy()
     expect(screen.getByRole('link', { name: '开始阅读' }).getAttribute('href')).toBe('/first-book')
     expect(screen.getByRole('link', { name: '看目录' }).getAttribute('href')).toBe('/first-book/slow-is-fast')
+    expect(screen.queryByRole('heading', { name: '最近更新' })).toBeNull()
   })
 
   it('三个栏目入口', () => {
@@ -61,32 +63,19 @@ describe('Home', () => {
 })
 
 describe('RecentUpdates', () => {
-  it('最多显示 5 条', async () => {
+  it('显示最近 5 项已上线需求及使用入口', () => {
+    render(<MemoryRouter><RecentUpdates /></MemoryRouter>)
+    expect(screen.getAllByRole('listitem')).toHaveLength(5)
+    for (const update of SITE_UPDATES.slice(0, 5)) {
+      expect(screen.getByRole('link', { name: update.title }).getAttribute('href')).toBe(update.href)
+      expect(screen.getByText(update.description)).toBeTruthy()
+    }
+  })
+
+  it('不再读取或展示 Git 提交记录', () => {
     stubFetch(async () => ({ ok: true, json: async () => changelog(9) }))
-    render(<RecentUpdates />)
-    await waitFor(() => expect(screen.getAllByRole('listitem')).toHaveLength(5))
-    expect(screen.getByText('更新0')).toBeTruthy()
-    expect(screen.queryByText('更新5')).toBeNull()
-  })
-
-  it('加载失败时整块不显示', async () => {
-    stubFetch(async () => { throw new Error('down') })
-    const { container } = render(<RecentUpdates />)
-    await new Promise(r => setTimeout(r, 20))
-    expect(container.innerHTML).toBe('')
-  })
-
-  it('空提交列表时整块不显示', async () => {
-    stubFetch(async () => ({ ok: true, json: async () => ({ generatedAt: 'x', versions: [] }) }))
-    const { container } = render(<RecentUpdates />)
-    await new Promise(r => setTimeout(r, 20))
-    expect(container.innerHTML).toBe('')
-  })
-
-  it('响应非 ok 时整块不显示', async () => {
-    stubFetch(async () => ({ ok: false, status: 404, json: async () => ({}) }))
-    const { container } = render(<RecentUpdates />)
-    await new Promise(r => setTimeout(r, 20))
-    expect(container.innerHTML).toBe('')
+    const { container } = render(<MemoryRouter><RecentUpdates /></MemoryRouter>)
+    expect(fetch).not.toHaveBeenCalled()
+    expect(container.textContent).not.toMatch(/更新0|chore:|feat\(|regenerate changelog/)
   })
 })

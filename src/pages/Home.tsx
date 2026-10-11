@@ -2,7 +2,6 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import { QUOTES } from '../data/quotes'
-import RecentUpdates from '../components/RecentUpdates'
 import '../styles/home.css'
 
 const COLUMNS = [
@@ -59,8 +58,6 @@ export default function Home(): JSX.Element {
           ))}
         </div>
       </section>
-
-      <RecentUpdates />
     </main>
   )
 }

@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import ChapterComments from '../components/ChapterComments'
+import RecentUpdates from '../components/RecentUpdates'
 import { ExternalLink, AlertCircle } from 'lucide-react'
 
 const cardStyle: React.CSSProperties = {
@@ -72,7 +73,9 @@ export default function About(): JSX.Element {
         </a>
       </section>
 
-      <section style={{ marginTop: '32px' }}>
+      <RecentUpdates />
+
+      <section id="about-comments" style={{ marginTop: '32px' }}>
         <ChapterComments slug="关于.md" title="留言" />
       </section>
     </main>
