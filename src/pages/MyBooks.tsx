@@ -16,7 +16,7 @@ const BOOKS = [
   {
     id: 'slow-is-fast',
     title: '正念投资：普通人用规则代替盯盘的投资方法',
-    description: '不盯盘、不预测：从资产配置到公司研究，找到适合自己的投资方法，让投资服务生活。',
+    description: '从家庭资金安排到公司研究，学会配置、估值与复盘。在价格起伏中保留判断，让钱服务生活。',
     path: '/first-book/slow-is-fast',
     pdf: BOOK_PDF,
   },

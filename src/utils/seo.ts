@@ -33,6 +33,7 @@ const EXACT: Record<string, RouteSeo> = {
   '/sector-rotation': { title: '板块轮动', description: '行业板块轮动的观察框架与数据。' },
   '/investment-strategy': { title: '投资策略', description: '长期投资的策略框架与执行方法。' },
   '/first-book': { title: '我的书｜《正念投资》', description: '《正念投资》及相关写作全文在线阅读。' },
+  '/first-book/slow-is-fast': { title: '正念投资｜在线阅读', description: '从家庭资金安排到公司研究，用规则管理投资。选择适合自己的阅读路线，学习配置、估值、风险与复盘。' },
   '/future-trends': { title: '未来趋势', description: '影响未来十年的产业与技术趋势研究。' },
   '/industry-landscape': { title: '产业格局', description: '重点产业链与竞争格局梳理。' },
   '/research-notes': { title: '研究笔记｜公司与行业研究', description: '沪深 A 股、港股、美股的公司研究笔记与审计报告。' },

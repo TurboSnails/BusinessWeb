@@ -1,10 +1,16 @@
 {
-  "generatedAt": "2026-10-11T12:52:21.742Z",
+  "generatedAt": "2026-10-11T13:47:44.503Z",
   "versions": [
     {
       "tag": "unreleased",
       "date": null,
       "commits": [
+        {
+          "hash": "e0300ef",
+          "subject": "feat(invest): 投资栏目页按用途分组，改为图标卡片",
+          "author": "hassan",
+          "date": "2026-10-11"
+        },
         {
           "hash": "b4917ec",
           "subject": "chore: 更新 changelog",
@@ -176,12 +182,6 @@
         {
           "hash": "89d330d",
           "subject": "feat(dev-team): add portable Orca development team skill",
-          "author": "hassan",
-          "date": "2026-10-11"
-        },
-        {
-          "hash": "f796eee",
-          "subject": "feat(invest): 新增国家队持仓看板，含个股与 ETF 口径、周更采集与文档",
           "author": "hassan",
           "date": "2026-10-11"
         }

@@ -35,14 +35,18 @@ describe('页面外壳', () => {
   it('App.tsx 里每个路由页面都用 <Page> 作为根（书稿阅读器保留 reader-layout）', () => {
     const missing = routed.filter(name => {
       const src = shellSource(name)
-      return !/<Page\b/.test(src) && !/className="reader-layout"/.test(src)
+      return !/<Page\b/.test(src) && !/className="[^"]*\breader-layout\b[^"]*"/.test(src)
     })
     expect(missing).toEqual([])
   })
 
   it('页面文件里不再手写 <main>（书稿阅读器除外）', () => {
     const offenders = routed.filter(name => {
-      const src = shellSource(name).replace(/<main className="reader-layout"/g, '')
+      // The book reader may have an id and additional classes; keep the exception scoped to it.
+      const source = shellSource(name)
+      const src = name === 'FirstBook'
+        ? source.replace(/<main\b(?=[^>]*\bclassName="[^"]*\breader-layout\b[^"]*")[^>]*>/g, '')
+        : source
       return /<main\b/.test(src)
     })
     expect(offenders).toEqual([])

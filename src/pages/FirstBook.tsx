@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState, useRef } from 'react'
 import ChapterNav from '../components/ChapterNav'
 import ChapterComments from '../components/ChapterComments'
+import { BookAudioProvider, useBookAudio } from '../components/BookAudio'
 import { usePageSeo } from '../components/RouteSeo'
-import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, BookOpen, CheckCircle2, Circle, PenLine } from 'lucide-react'
+import { Link, useLocation, useParams } from 'react-router-dom'
+import { ArrowLeft, ArrowRight, BookOpen, CheckCircle2, Circle, Headphones, PenLine, Search, X, Minus, Plus } from 'lucide-react'
 import { Page, PageTitle } from '../components/ui'
 import '../styles/book.css'
 
@@ -90,6 +91,7 @@ const PARTS = [
       { no: '第29章', title: '周期：先问公司现在站在周期的哪个位置', file: '第29章-周期.md', status: 'draft' },
       { no: '第30章', title: '趋势：三种趋势，别混在一起看', file: '第30章-趋势.md', status: 'draft' },
       { no: '第31章', title: '未来产业：怎样研究“下一个十年”', file: '第31章-未来产业展望.md', status: 'draft' },
+      { no: '实战', title: '一家公司，从看懂到决定', file: '专题-一家公司从研究到决定.md', status: 'draft' },
       { no: '第32章', title: '建自己的观察库：看得多了，才认得好公司', file: '第32章-公司观察库.md', status: 'draft' },
     ],
   },
@@ -136,11 +138,13 @@ const PARTS = [
 ]
 
 const EXTRA_FILES = [
-  { no: '全书', title: '全书大纲（40章 + 4篇主线专题 + 附录）', file: '全书大纲.md', status: 'done' },
+  { no: '导读', title: '把注意力还给生活', file: '导读-把注意力还给生活.md', status: 'draft' },
+  { no: '全书', title: '全书大纲（40章 + 5篇专题 + 附录）', file: '全书大纲.md', status: 'done' },
 ]
 
 /** 写作与审校过程文档：不属于正文，放在书末单独区块 */
 const REVIEW_FILES = [
+  { no: '修订', title: '第十六轮：叙事、研究实战与阅读体验（2026-10-11）', file: '修订记录-第十六轮-2026-10-11.md', status: 'note' },
   { no: '修订', title: '修订记录（第十五轮：全收益口径、宽基模板与家庭财务底座，2026-10-05）', file: '修订记录-第十五轮-2026-10-05.md', status: 'note' },
   { no: '审稿', title: '审稿建议（第十五轮·专业投资者视角，2026-10-05）', file: '审稿建议-第十五轮-专业投资者视角-2026-10-05.md', status: 'note' },
   { no: '修订', title: '修订记录（第十四轮：正念练习、数据证据与案例阅读，2026-10-04）', file: '修订记录-第十四轮-2026-10-04.md', status: 'note' },
@@ -179,14 +183,26 @@ const STATUS_LABEL: Record<string, string> = {
 
 function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
   const nodes: React.ReactNode[] = []
-  const pattern = /(\*\*[^*]+\*\*|\*[^*\s][^*]*\*|`[^`]+`)/g
+  const pattern = /(\[[^\]]+\]\([^)]+\)|https?:\/\/[^\s<>，。；）]+|\*\*[^*]+\*\*|\*[^*\s][^*]*\*|`[^`]+`)/g
   let last = 0
   let m: RegExpExecArray | null
   let i = 0
   while ((m = pattern.exec(text)) !== null) {
     if (m.index > last) nodes.push(text.slice(last, m.index))
     const token = m[0]
-    if (token.startsWith('**')) {
+    const link = token.match(/^\[([^\]]+)\]\(([^)]+)\)$/)
+    if (link || /^https?:\/\//.test(token)) {
+      const label = link ? link[1] : token
+      const href = link ? link[2] : token
+      const localFile = safeDecode(href)
+      if (knownBookFiles.has(localFile)) {
+        nodes.push(<Link key={`${keyPrefix}-l${i}`} to={chapterHref(localFile)}>{label}</Link>)
+      } else if (/^https?:\/\//i.test(href)) {
+        nodes.push(<a key={`${keyPrefix}-l${i}`} href={href} target="_blank" rel="noopener noreferrer">{label}</a>)
+      } else {
+        nodes.push(label)
+      }
+    } else if (token.startsWith('**')) {
       nodes.push(<strong key={`${keyPrefix}-b${i}`}>{token.slice(2, -2)}</strong>)
     } else if (token.startsWith('*')) {
       nodes.push(<em key={`${keyPrefix}-i${i}`}>{token.slice(1, -1)}</em>)
@@ -204,11 +220,12 @@ function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
   return nodes
 }
 
-function renderMarkdown(md: string): React.ReactNode[] {
+function renderMarkdown(md: string, onListenSection?: (index: number) => void): React.ReactNode[] {
   const lines = md.split('\n')
   const out: React.ReactNode[] = []
   let i = 0
   let key = 0
+  let sectionIndex = 0
   const nextKey = () => `md-${key++}`
 
   while (i < lines.length) {
@@ -269,11 +286,14 @@ function renderMarkdown(md: string): React.ReactNode[] {
       // 页面 h1 是章节名（PageTitle），正文标题从 h2 开始
       const level = heading[1].length
       const Tag = level === 1 ? 'h2' : level === 2 ? 'h3' : 'h4'
-      out.push(
-        <Tag key={nextKey()} className={`md-h md-h${level}`}>
-          {renderInline(heading[2], nextKey())}
-        </Tag>
-      )
+      const index = level === 2 ? sectionIndex++ : undefined
+      const title = <Tag id={index !== undefined ? `chapter-section-${index}` : undefined} className={`md-h md-h${level}`}>{renderInline(heading[2], nextKey())}</Tag>
+      out.push(index !== undefined && onListenSection ? (
+        <div key={nextKey()} className="book-section-heading-row">
+          {title}
+          <button type="button" className="book-section-listen" aria-label={`听本节：${heading[2]}`} onClick={() => onListenSection(index)}><Headphones size={15} aria-hidden="true" />听本节</button>
+        </div>
+      ) : <React.Fragment key={nextKey()}>{title}</React.Fragment>)
       i += 1
       continue
     }
@@ -343,13 +363,13 @@ function StatusIcon({ status }: { status: string }): JSX.Element {
   return <PenLine size={16} className="book-status-icon is-draft" aria-hidden="true" />
 }
 
-function ChapterRow({ no, title, status, file }: { no?: string; title: string; status: string; file?: string }): JSX.Element {
+function ChapterRow({ no, title, status, file, showStatus = false }: { no?: string; title: string; status: string; file?: string; showStatus?: boolean }): JSX.Element {
   const inner = (
     <>
-      <StatusIcon status={status} />
+      {showStatus && <StatusIcon status={status} />}
       {no && <span className="book-row__no">{no}</span>}
       <span className="book-row__title">{title}</span>
-      <span className={`book-row__status ${STATUS_TONE[status] ?? ''}`}>{STATUS_LABEL[status]}</span>
+      {showStatus && <span className={`book-row__status ${STATUS_TONE[status] ?? ''}`}>{STATUS_LABEL[status]}</span>}
       {file && <ArrowRight size={14} className="book-row__arrow" aria-hidden="true" />}
     </>
   )
@@ -358,81 +378,157 @@ function ChapterRow({ no, title, status, file }: { no?: string; title: string; s
     : <div className="book-row is-disabled" aria-disabled="true">{inner}</div>
 }
 
-/** 书籍仪表盘：全书概览 + 章节进度 */
+const chapterHref = (file: string): string => `/first-book/read/${encodeURIComponent(file)}`
+const knownBookFiles = new Set([...EXTRA_FILES, ...PARTS.flatMap(p => p.chapters), ...REVIEW_FILES].map(c => c.file))
+const AUDIO_CHAPTERS = [EXTRA_FILES[0], ...PARTS.flatMap(p => p.chapters)]
+const BOOK_END_FILE = AUDIO_CHAPTERS[AUDIO_CHAPTERS.length - 1].file
+const LAST_CHAPTER_KEY = 'mindful-book:last-chapter'
+const FONT_SIZE_KEY = 'mindful-book:font-size'
+const FONT_SIZES = [16, 18, 20, 22]
+
+function safeDecode(file: string): string {
+  try { return decodeURIComponent(file) } catch { return file }
+}
+
+function readPreference(key: string): string | null {
+  try { return window.localStorage.getItem(key) } catch { return null }
+}
+
+function savePreference(key: string, value: string): void {
+  try { window.localStorage.setItem(key, value) } catch { /* 阅读不依赖存储可用 */ }
+}
+
+const READING_PATHS = [
+  {
+    id: 'simple', title: '省心起步', description: '先安排家庭的钱，再选择配置与产品。主动投资额度可以为零。',
+    outcome: '留下资金表、产品核查和初步投资规则。',
+    files: ['导读-把注意力还给生活.md', '第7章-配置优先.md', '专题-家庭财务底座.md', '专题-资产基础.md', '第18章-我的投资选择.md', '第8章-动态平衡.md', '第9章-参考方案.md', '第10章-标普500与纳指100落地.md', '专题-正念决策.md', '第37章-犯错与复盘.md'],
+  },
+  {
+    id: 'research', title: '研究一家公司', description: '已有资金与风险边界后，把生意、财报、价格和决策连起来。',
+    outcome: '完成一份可核查、可证伪的研究记录。结论可以是不买。',
+    files: ['第19章-总纲.md', '第23章-能力圈与护城河.md', '第26章-公司.md', '第27章-财报.md', '第28章-估值.md', '专题-一家公司从研究到决定.md', '第36章-仓位与纪律.md', '第37章-犯错与复盘.md'],
+  },
+  {
+    id: 'life', title: '遇到波动时', description: '已经开始投资，却在追涨、亏损或家庭用款面前难以决定。',
+    outcome: '辨认感受与事实，重新检查风险和生活需要。',
+    files: ['专题-正念决策.md', '第34章-怎么拿住.md', '第35章-什么时候卖.md', '附录H-家庭投资全过程.md', '专题-提款与生活.md', '第39章-给投资设边界.md', '第40章-回到生活.md'],
+  },
+]
+
 function BookDashboard(): JSX.Element {
+  const audio = useBookAudio()
+  const [pathId, setPathId] = useState('simple')
+  const [query, setQuery] = useState('')
+  const [lastFile] = useState(() => readPreference(LAST_CHAPTER_KEY))
   const bodyChapters = useMemo(() => [...EXTRA_FILES, ...PARTS.flatMap(p => p.chapters)], [])
-  const drafted = bodyChapters.filter(c => c.status !== 'pending').length
-  const progress = Math.round((drafted / bodyChapters.length) * 100)
+  const lastChapter = bodyChapters.find(c => c.file === lastFile)
+  const readingPath = READING_PATHS.find(path => path.id === pathId) ?? READING_PATHS[0]
+  const search = query.trim().toLocaleLowerCase()
+  const matches = (chapter: { no: string; title: string }): boolean => `${chapter.no} ${chapter.title}`.toLocaleLowerCase().includes(search)
+  const visibleParts = PARTS.map(part => ({ ...part, chapters: part.chapters.filter(matches) })).filter(part => part.chapters.length)
+  const extraChapters = EXTRA_FILES.filter(matches)
+  const matchCount = extraChapters.length + visibleParts.reduce((count, part) => count + part.chapters.length, 0)
 
   return (
-    <Page variant="reading" className="book-page">
+    <Page className="book-page">
       <Link to="/first-book" className="book-back"><ArrowLeft size={15} aria-hidden="true" /> 返回我的书</Link>
-
-      <section className="ui-card book-card-block">
-        <div className="book-hero">
-          <BookOpen size={26} aria-hidden="true" />
-          <h1>正念投资</h1>
+      <section className="book-intro" aria-labelledby="book-title">
+        <div className="book-cover" aria-hidden="true">
+          <span className="book-cover__spine">普通人用规则代替盯盘的投资方法</span>
+          <span className="book-cover__title">正念投资</span>
+          <span className="book-cover__note">慢下来，看清楚。<br />让钱服务生活。</span>
+          <span className="book-cover__ring" />
         </div>
-        <p className="book-lead">不盯盘、不预测：从资产配置到公司研究，找到适合自己的投资方法，让投资服务生活。</p>
-        <p className="book-text">
-          <strong>主线</strong>：道德经为"道"（心法与节奏），彼得·林奇为"术"（选股与买卖），A股案例为"器"（落地证据）。
-          核心主张只有一句人话：<strong>聚焦</strong>——放弃短线与宏观，只做散户能赢的三种战法。
-        </p>
-        <div className="book-stats">
-          <div><div className="book-stat__value">{drafted}</div><div className="book-stat__label">已完成章节</div></div>
-          <div><div className="book-stat__value">{bodyChapters.length}</div><div className="book-stat__label">总章节（含大纲）</div></div>
-          <div className="book-stat--grow">
-            <div className="book-stat__value">{progress}%</div>
-            <div className="book-progress" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} aria-label="全书完成度">
-              <div className="book-progress__fill" style={{ width: `${progress}%` }} />
-            </div>
+        <div className="book-intro__copy">
+          <p className="book-intro__edition">持续修订的在线书稿</p>
+          <h1 id="book-title">正念投资</h1>
+          <p className="book-intro__promise">把注意力还给生活，<br />把投资交给规则。</p>
+          <p className="book-intro__description">从一张家庭资金表开始，学会配置、研究与复盘。在价格起伏中，保留自己的判断，也保留生活的余地。</p>
+          <div className="book-intro__actions">
+            <Link className="book-start" to={chapterHref(lastChapter?.file ?? '导读-把注意力还给生活.md')}>
+              <BookOpen size={18} aria-hidden="true" />{lastChapter ? '继续阅读' : '开始阅读'}
+            </Link>
+            <button className="book-listen-button" type="button" disabled={!audio.supported} onClick={() => audio.listenBook()}><Headphones size={18} aria-hidden="true" />听全书</button>
+            <a className="book-secondary-link" href="#book-contents">浏览全书目录 <ArrowRight size={15} aria-hidden="true" /></a>
           </div>
+          {!audio.supported && <p className="book-audio-unavailable">当前浏览器不支持听书，可用新版 Chrome、Edge 或 Safari 打开。</p>}
+          {lastChapter && <p className="book-resume">上次读到：{lastChapter.no} · {lastChapter.title}</p>}
+          <p className="book-intro__meta">40章正文 · 5篇专题 · 9篇附录</p>
         </div>
       </section>
 
-      {EXTRA_FILES.map(f => (
-        <section key={f.file} className="ui-card book-card-block book-card-block--row">
-          <ChapterRow title={f.title} status={f.status} file={f.file} />
-        </section>
-      ))}
-
-      {PARTS.map(part => (
-        <section key={part.id} className="ui-card book-card-block" aria-labelledby={`part-${part.id}`}>
-          <h2 id={`part-${part.id}`} className="book-part__title">{part.title}</h2>
-          <p className={part.id === 'part7' ? 'book-part__sub is-strong' : 'book-part__sub'}>{part.subtitle}</p>
-          <div className="book-rows">
-            {part.chapters.map(ch => <ChapterRow key={ch.no} no={ch.no} title={ch.title} status={ch.status} file={ch.file} />)}
-          </div>
-        </section>
-      ))}
-
-      <section className="ui-card book-card-block" aria-labelledby="part-review">
-        <h2 id="part-review" className="book-part__title">写作与审校</h2>
-        <p className="book-part__sub">写作过程的诊断、排期与留痕。不属于正文，记录这本书是怎么一步步改出来的。</p>
-        <div className="book-rows">
-          {REVIEW_FILES.map(f => <ChapterRow key={f.file} no={f.no} title={f.title} status={f.status} file={f.file} />)}
+      <section className="book-paths" aria-labelledby="book-paths-title">
+        <div className="book-section-heading">
+          <h2 id="book-paths-title">从你眼前的问题开始</h2>
+          <p>不必从第一页一路读完，先选一条适合现在的路。</p>
+        </div>
+        <div className="book-paths__choices" role="group" aria-label="选择阅读路线">
+          {READING_PATHS.map(path => <button key={path.id} type="button" aria-pressed={path.id === pathId} onClick={() => setPathId(path.id)}>{path.title}</button>)}
+        </div>
+        <div className="book-paths__content" aria-live="polite">
+          <p className="book-paths__description">{readingPath.description}</p>
+          <ol className="book-paths__steps">
+            {readingPath.files.map(file => {
+              const chapter = bodyChapters.find(c => c.file === file)!
+              return <li key={file}><Link to={chapterHref(file)}><span>{chapter.no}</span>{chapter.title}<ArrowRight size={14} aria-hidden="true" /></Link></li>
+            })}
+          </ol>
+          <p className="book-paths__outcome">{readingPath.outcome}</p>
         </div>
       </section>
 
-      <p className="book-disclaimer">本书内容仅为投资方法论讨论，不构成任何投资建议。</p>
+      <section id="book-contents" className="book-contents" aria-labelledby="book-contents-title">
+        <div className="book-section-heading book-section-heading--search">
+          <div><h2 id="book-contents-title">全书目录</h2><p>从生活出发，经由研究，再回到生活。</p></div>
+          <div className="book-search">
+            <Search size={17} aria-hidden="true" />
+            <label className="visually-hidden" htmlFor="book-search">搜索章节</label>
+            <input id="book-search" type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="搜索章节，如：估值" />
+            {query && <button type="button" aria-label="清除章节搜索" onClick={() => setQuery('')}><X size={16} aria-hidden="true" /></button>}
+          </div>
+        </div>
+        {search && <p className="book-search-result" role="status">找到 {matchCount} 篇{matchCount === 0 ? '，试试“配置”“财报”或“生活”。' : ''}</p>}
+        {extraChapters.length > 0 && <div className="book-contents__opening">{extraChapters.map(ch => <ChapterRow key={ch.file} {...ch} />)}</div>}
+        {visibleParts.map(part => (
+          <section key={part.id} className="book-part" aria-labelledby={`part-${part.id}`}>
+            <div className="book-part__heading"><h3 id={`part-${part.id}`} className="book-part__title">{part.title}</h3><p className="book-part__sub">{part.subtitle}</p></div>
+            <div className="book-rows">{part.chapters.map(ch => <ChapterRow key={ch.file} {...ch} />)}</div>
+          </section>
+        ))}
+      </section>
+
+      <details className="book-review">
+        <summary>写作与审校 <span>查看修订记录与资料核验</span></summary>
+        <p className="book-part__sub">以下是过程文档。正文仍在修订，历史数据与待核事项以各篇说明为准。</p>
+        <div className="book-rows">{REVIEW_FILES.map(f => <ChapterRow key={f.file} {...f} showStatus />)}</div>
+      </details>
+      <p className="book-end-link"><Link to={`${chapterHref(BOOK_END_FILE)}#book-comments`}>到书末写书评 <ArrowRight size={15} aria-hidden="true" /></Link></p>
+      <p className="book-disclaimer">本书用于投资方法学习与研究，不构成个人投资建议。</p>
     </Page>
   )
 }
 
 /** 章节阅读器 */
 function ChapterReader({ file }: { file: string }): JSX.Element {
+  const audio = useBookAudio()
+  const location = useLocation()
   const [content, setContent] = useState<string | null>(null)
   const [error, setError] = useState(false)
+  const [fontSize, setFontSize] = useState(() => {
+    const saved = Number(readPreference(FONT_SIZE_KEY))
+    return FONT_SIZES.includes(saved) ? saved : 18
+  })
   const topRef = useRef<HTMLDivElement | null>(null)
   const shownFile = useRef(file)
 
   const allChapters = useMemo(
-    () => [...EXTRA_FILES, ...PARTS.flatMap(p => p.chapters), ...REVIEW_FILES].filter(c => c.file),
+    () => [EXTRA_FILES[0], ...PARTS.flatMap(p => p.chapters)].filter(c => c.file),
     []
   )
-  const decoded = decodeURIComponent(file)
+  const decoded = safeDecode(file)
   const idx = allChapters.findIndex(c => c.file === decoded)
-  const chapter = idx >= 0 ? allChapters[idx] : null
+  const chapter = [...allChapters, ...EXTRA_FILES, ...REVIEW_FILES].find(c => c.file === decoded) ?? null
   const prev = idx > 0 ? allChapters[idx - 1] : null
   const next = idx >= 0 && idx < allChapters.length - 1 ? allChapters[idx + 1] : null
   usePageSeo(chapter ? `${chapter.title}｜《正念投资》${chapter.no}` : undefined, chapter ? `《正念投资》${chapter.no}：${chapter.title}。` : undefined)
@@ -445,34 +541,66 @@ function ChapterReader({ file }: { file: string }): JSX.Element {
   }, [file])
 
   useEffect(() => {
+    const controller = new AbortController()
     setContent(null)
     setError(false)
-    fetch(`${import.meta.env.BASE_URL}first-book/${file}`)
+    if (!knownBookFiles.has(decoded)) {
+      setError(true)
+      return () => controller.abort()
+    }
+    fetch(`${import.meta.env.BASE_URL}first-book/${encodeURIComponent(decoded)}`, { signal: controller.signal })
       .then(r => {
         if (!r.ok) throw new Error('not found')
         return r.text()
       })
-      .then(setContent)
-      .catch(() => setError(true))
-  }, [file])
+      .then(text => {
+        if (controller.signal.aborted) return
+        setContent(text)
+        if (allChapters.some(c => c.file === decoded)) savePreference(LAST_CHAPTER_KEY, decoded)
+      })
+      .catch(() => { if (!controller.signal.aborted) setError(true) })
+    return () => controller.abort()
+  }, [decoded, allChapters])
+
+  const sections = useMemo(() => content?.split('\n').filter(line => /^##\s+/.test(line)).map(line => line.replace(/^##\s+/, '')) ?? [], [content])
+  useEffect(() => {
+    if (content && decoded === BOOK_END_FILE && location.hash === '#book-comments') document.getElementById('book-comments')?.scrollIntoView?.({ block: 'start' })
+  }, [content, decoded, location.hash])
+  const changeFontSize = (amount: number): void => {
+    const nextSize = FONT_SIZES[Math.min(FONT_SIZES.length - 1, Math.max(0, FONT_SIZES.indexOf(fontSize) + amount))]
+    setFontSize(nextSize)
+    savePreference(FONT_SIZE_KEY, String(nextSize))
+  }
 
   return (
-    <main className="reader-layout">
+    <main id="main-content" className="reader-layout book-reading-page">
       <PageTitle>{chapter ? chapter.title : '《正念投资》'}</PageTitle>
       <ChapterNav parts={PARTS} topLinks={EXTRA_FILES} currentFile={decoded} />
       <div className="reader-main">
         <div ref={topRef} className="reader-top" />
         <Link to="/first-book/slow-is-fast" className="book-back">
-          <ArrowLeft size={15} aria-hidden="true" /> 返回《正念投资：普通人用规则代替盯盘的投资方法》
+          <ArrowLeft size={15} aria-hidden="true" /> 返回全书目录
         </Link>
 
-        <article className="ui-card book-reader">
+        <div className="book-reading-tools" aria-label="阅读设置">
+          <span>{chapter?.no}{content ? ` · 约${Math.max(1, Math.ceil(content.replace(/\s/g, '').length / 450))}分钟` : ''}</span>
+          <div className="book-font-controls">
+            <button type="button" onClick={() => changeFontSize(-1)} disabled={fontSize === FONT_SIZES[0]} aria-label="缩小正文字号"><Minus size={16} aria-hidden="true" /></button>
+            <output aria-live="polite" aria-label="正文字号">{fontSize}</output>
+            <button type="button" onClick={() => changeFontSize(1)} disabled={fontSize === FONT_SIZES[FONT_SIZES.length - 1]} aria-label="放大正文字号"><Plus size={16} aria-hidden="true" /></button>
+          </div>
+        </div>
+        {chapter && <div className="book-listen-actions" role="group" aria-label="听书">
+          <button className="book-listen-button" type="button" disabled={!audio.supported || !content} onClick={() => content && audio.listenChapter(chapter, content)}><Headphones size={17} aria-hidden="true" />听本章</button>
+          {idx >= 0 && <button className="book-listen-continuous" type="button" disabled={!audio.supported || !content} onClick={() => content && audio.listenBook(decoded, content)}>从本章连续听 <ArrowRight size={14} aria-hidden="true" /></button>}
+          {!audio.supported && <p className="book-audio-unavailable">当前浏览器不支持听书，可用新版 Chrome、Edge 或 Safari 打开。</p>}
+        </div>}
+        {sections.length > 0 && <details key={decoded} className="book-section-nav"><summary>本篇内容 <span>{sections.length}节</span></summary><nav aria-label="本篇内容"><ol>{sections.map((section, index) => <li key={index}><a href={`#chapter-section-${index}`}>{section}</a></li>)}</ol></nav></details>}
+        <article className="ui-card book-reader" style={{ '--book-font-size': `${fontSize}px` } as React.CSSProperties}>
           {!content && !error && <p className="book-muted" role="status">加载中……</p>}
           {error && <p className="book-error" role="alert">章节文件未找到：{decoded}</p>}
-          {content && renderMarkdown(content)}
+          {content && renderMarkdown(content, audio.supported && chapter ? index => audio.listenSection(chapter, content, index) : undefined)}
         </article>
-
-        {content && chapter && !REVIEW_FILES.some(f => f.file === decoded) && <ChapterComments slug={decoded} />}
 
         <nav className="book-pager" aria-label="上一篇与下一篇">
           {prev ? (
@@ -490,6 +618,10 @@ function ChapterReader({ file }: { file: string }): JSX.Element {
             </Link>
           )}
         </nav>
+        {content && decoded === BOOK_END_FILE && <div id="book-comments" className="book-end-comments">
+          <p>读到书末，欢迎留下对《正念投资》的感受、问题或修改建议。</p>
+          <ChapterComments slug="正念投资.md" title="全书书评" />
+        </div>}
       </div>
     </main>
   )
@@ -497,8 +629,5 @@ function ChapterReader({ file }: { file: string }): JSX.Element {
 
 export default function FirstBook(): JSX.Element {
   const params = useParams<{ file?: string }>()
-  if (params.file) {
-    return <ChapterReader file={params.file} />
-  }
-  return <BookDashboard />
+  return <BookAudioProvider chapters={AUDIO_CHAPTERS}>{params.file ? <ChapterReader file={params.file} /> : <BookDashboard />}</BookAudioProvider>
 }
