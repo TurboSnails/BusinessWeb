@@ -39,3 +39,9 @@
 .solid-detail-metrics th { width: 48%; }
 .solid-download { border: 1px solid var(--system-gray5); background: var(--bg-primary); color: var(--text-primary); border-radius: 8px; padding: 10px 14px; cursor: pointer; font: inherit; }
 .solid-reader section, .solid-reader [id] { scroll-margin-top: 100px; }
+
+/* 触控目标：页内目录始终不小于 32px；依据行里的链接只在触屏上加大 */
+.solid-nav a { display: inline-flex; align-items: center; min-height: 32px; }
+@media (pointer: coarse) {
+  .solid-meta a { display: inline-flex; align-items: center; min-height: 32px; }
+}

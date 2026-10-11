@@ -6,6 +6,7 @@ import { researchForCompany, researchPath } from '../data/futureTrendsResearch'
 import { MCP, GROUP_QUESTIONS, PRIMARY_CHECKS, amount, cashAssessment, mcpCompany, primaryListing, rawUrl, type McpCompany } from '../data/solidState/mcpResearch'
 import { solidCompanyPath } from '../data/solidState/companyResearch'
 import coreReview from '../data/solidState/coreReview.json'
+import SolidStateReview from '../components/future-trends/SolidStateReview'
 import '../styles/solid-state.css'
 
 function Section({ id, title, children }: { id: string; title: string; children: ReactNode }): JSX.Element {
@@ -41,10 +42,13 @@ export default function FutureTrendsSolidState(): JSX.Element {
       <Link to="/industry-landscape">查看产业格局原始固态电池树 →</Link>
     </section>
     <nav className="solid-nav" aria-label="固态电池专题索引">
+      <a href="#solid-review">候选与核心分层</a>
       <a href="#solid-core-review">核心候选池竞选</a>
       <a href="#solid-mcp">本轮 MCP 更新</a>
       {['研究主线', '技术路线', '价值链', '公司观察池', '重点公司', '三情景与赔率', '多空复核', '验证日历', '来源与口径'].map((t, i) => <a key={t} href={`#solid-${i}`}>{t}</a>)}
     </nav>
+    {/* 2026-10-10 MCP 复核：最新的候选与核心分层，放在 10-09 竞选复核之前 */}
+    <SolidStateReview />
     <Section id="solid-core-review" title="核心候选池竞选复核">
       <p><strong>宁德时代保留现有核心研究资格；先导智能、新宙邦、赢合科技优先竞选，当升科技列为备选。</strong>综合评级均为观察；新增竞选者仍需补齐固态业务兑现证据与公司级双方法估值，本轮没有新增已认证的现价买入标的。</p>
       <p className="solid-meta">{coreReview.asOf} 重新查询 Yahoo Finance 与 AKShare MCP：原分类 {coreReview.originalCompanies} 家及补充 {coreReview.supplementalCompanies} 家，{coreReview.companiesWithQuotes} 家取得 {coreReview.validListings} 个有效证券报价，共 {coreReview.requests} 项独立请求。5 家 A 股日线价格交叉核对一致，另取得 4 家港股财务指标；2 家港股历史行情及 2 家北交所资料接口失败，缺失不填零。延伸对照沿用之前的快照，逐证券日期见公司页。</p>
