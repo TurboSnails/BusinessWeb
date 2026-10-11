@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, Download } from 'lucide-react'
 import LabDirectionCard from '../components/lab/LabDirectionCard'
 import { LAB_PRINCIPLE, LAB_SHOWCASE, avoidedDirections, findDirection, labStats, recommendedDirections } from '../data/aiLab'
 
@@ -14,6 +14,23 @@ export default function AiStudio(): JSX.Element {
         <p>一个程序员为自由生活准备的第二曲线：开发、工具、内容和小生意，每个方向都当成一次公开实验。</p>
         <p className="lab-stats">作品 {stats.works} · 进行中 {stats.running} · 已停止 {stats.stopped}</p>
       </header>
+
+      <section id="lab-skills" className="lab-section" aria-labelledby="lab-skills-title">
+        <h2 id="lab-skills-title">可下载的 Skills</h2>
+        <article className="skill-card">
+          <span className="tag">开发协作 Skill</span>
+          <h3>Orca 开发团队 dev-team</h3>
+          <p className="skill-card__focus">Android · Web 前端 · 后端 · 全栈协作</p>
+          <p>一个管理入口，协调 Codex、Claude、Kimi、Antigravity 与 OpenCode MiniMax M3，按平台分派开发、审查和测试，支持额度不足时交接替补及迁移到其他项目。</p>
+          <div className="skill-download-actions">
+            <a className="skill-download" href={`${import.meta.env.BASE_URL}ai-skills/dev-team.zip`} download="dev-team.zip" aria-label="下载 Orca 开发团队 dev-team 完整 ZIP">
+              <Download size={16} aria-hidden="true" /> 下载 dev-team ZIP
+            </a>
+            <Link className="skill-guide" to="/ai/ai-skills">功能、安装与使用</Link>
+            <Link className="skill-guide" to="/invest/ai-tools">全部 Skills</Link>
+          </div>
+        </article>
+      </section>
 
       <section className="lab-section lab-principle" aria-labelledby="lab-principle-title">
         <h2 id="lab-principle-title">商业原理</h2>
