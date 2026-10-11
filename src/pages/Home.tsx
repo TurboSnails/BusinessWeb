@@ -9,6 +9,7 @@ import { readRecent } from '../features/recent-pages/store'
 import { summarizeLocalRecords } from '../features/workbench/localRecords'
 import { useCommandPalette } from '../components/CommandPalette'
 import '../styles/home.css'
+import { Page } from '../components/ui'
 
 const IS_MAC = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)
 
@@ -36,7 +37,7 @@ export default function Home(): JSX.Element {
   const [records] = useState(() => summarizeLocalRecords())
 
   return (
-    <main className="container home">
+    <Page className="home">
       <header className="home-desk">
         <h1>工作台</h1>
         <button type="button" className="home-jump" aria-label="跳转到页面" onClick={palette.open}>
@@ -138,6 +139,6 @@ export default function Home(): JSX.Element {
           ))}
         </div>
       </section>
-    </main>
+    </Page>
   )
 }

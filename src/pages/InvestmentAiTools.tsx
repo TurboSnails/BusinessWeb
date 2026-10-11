@@ -3,10 +3,11 @@ import { Download } from 'lucide-react'
 import { INVESTMENT_SKILLS, INVESTMENT_SKILL_TAG, investmentSkillDownloadUrl } from '../data/investmentSkills'
 import { WRITING_SKILLS } from '../data/writingSkills'
 import DevTeamSkillCard from '../components/skills/DevTeamSkillCard'
+import { Page } from '../components/ui'
 
 export default function InvestmentAiTools(): JSX.Element {
   return (
-    <main className="container animate-fade-in investment-ai-tools">
+    <Page className="animate-fade-in investment-ai-tools">
       <header className="page-head">
         <h1>AI 工具</h1>
         <p>开发协作、投资分析、视频创作与小说写作 Skills，按任务挑选。下载包包含 SKILL.md 和配套参考资料。</p>
@@ -114,6 +115,6 @@ export default function InvestmentAiTools(): JSX.Element {
         <a className="skill-guide" href={investmentSkillDownloadUrl('README.md')} download="投资分析Skill-使用说明.md">下载使用说明</a>
       </section>
       <p className="skill-disclaimer">这些工具用于辅助研究，AI 输出需核对数据来源与日期，不构成投资建议。</p>
-    </main>
+    </Page>
   )
 }

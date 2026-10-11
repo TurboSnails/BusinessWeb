@@ -1,4 +1,4 @@
-.kb-page { max-width: 1320px; margin: 0 auto; padding: 40px 24px 72px; color: var(--text-primary, #243a30); }
+.kb-page { color: var(--text-primary, #243a30); }
 .kb-page * { box-sizing: border-box; }
 .kb-page button, .kb-page input, .kb-page textarea { font: inherit; }
 .kb-page button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 1px solid var(--border-subtle, #dfe6dc); border-radius: 7px; background: var(--bg-card, #fff); color: inherit; padding: 9px 13px; cursor: pointer; min-height: 36px; }

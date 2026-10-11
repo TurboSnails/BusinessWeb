@@ -7,12 +7,11 @@ export interface TabItem<T extends string> {
 }
 
 /** 页面级一级页签：吸顶、下划线样式，全站子页面共用 */
-export function PageTabs<T extends string>({ items, value, onChange, label, width }: {
+export function PageTabs<T extends string>({ items, value, onChange, label }: {
   items: TabItem<NoInfer<T>>[]
   value: T
   onChange(id: NoInfer<T>): void
   label: string
-  width?: number
 }): JSX.Element {
   // 方向键、Home、End 在页签间移动并选中，只有当前页签在 Tab 顺序里（WAI-ARIA tabs 模式）
   const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>): void => {
@@ -28,7 +27,7 @@ export function PageTabs<T extends string>({ items, value, onChange, label, widt
   }
   return (
     <div className="page-tabs">
-      <div className="page-tabs__inner" role="tablist" aria-label={label} style={width ? { maxWidth: width } : undefined} onKeyDown={onKeyDown}>
+      <div className="page-tabs__inner" role="tablist" aria-label={label} onKeyDown={onKeyDown}>
         {items.map(item => {
           const active = item.id === value
           return (

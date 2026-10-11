@@ -1,7 +1,4 @@
 .grid-page {
-  width: min(1120px, calc(100% - 36px));
-  margin: 0 auto;
-  padding: 28px 0 72px;
   color: var(--text-primary, var(--text-primary));
 }
 
@@ -105,7 +102,6 @@
   .grid-list-actions { justify-content: flex-start; }
 }
 @media (max-width: 560px) {
-  .grid-page { width: min(100% - 22px, 1120px); padding-top: 16px; }
   .grid-form { grid-template-columns: 1fr 1fr; gap: 12px; }
   .grid-form label { font-size: .78rem; }
   .grid-form input { padding: 9px; font-size: .85rem; }

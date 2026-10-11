@@ -39,7 +39,7 @@ describe('App 路由拆分', () => {
     window.history.pushState({}, '', '/about')
     render(<App />)
     expect(screen.getByRole('status').textContent).toContain('加载中')
-    expect(await screen.findByRole('heading', { level: 2, name: '关于「Live」' })).toBeTruthy()
+    expect(await screen.findByRole('heading', { level: 1, name: '关于「Live」' })).toBeTruthy()
     expect(screen.queryByRole('status')).toBeNull()
   })
 

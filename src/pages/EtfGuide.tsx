@@ -1,9 +1,10 @@
 import React from 'react'
 import { ETF_DISCLAIMER, ETF_SCHOOLS } from '../data/etfGuide'
+import { Page } from '../components/ui'
 
 export default function EtfGuide(): JSX.Element {
   return (
-    <main className="container animate-fade-in etf-guide">
+    <Page className="animate-fade-in etf-guide">
       <header className="page-head">
         <h1>ETF 流派地图</h1>
         <p>从宽基到因子、红利、主题、债券、商品，每个流派选出主要代表，说明它跟踪什么、适合谁、风险在哪。</p>
@@ -35,6 +36,6 @@ export default function EtfGuide(): JSX.Element {
           </div>
         </section>
       ))}
-    </main>
+    </Page>
   )
 }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { PageTabs, PageTitle } from '../components/ui/PageTabs'
+import { Page } from '../components/ui'
 import {
   Brain,
   Sparkles,
@@ -89,9 +90,9 @@ export default function TradingPhilosophy(): JSX.Element {
   ]
 
   return (
-    <main className="container" style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px 16px', position: 'relative' }}>
+    <Page>
       <PageTitle>道与术（短线策略）</PageTitle>
-      <PageTabs label="章节" width={1000} value={activeSection} onChange={scrollToSection}
+      <PageTabs label="章节" value={activeSection} onChange={scrollToSection}
         items={sections.map(section => ({ id: section.id, label: section.title.replace(/[一二三四五六七八]、/, ''), icon: section.icon }))} />
 
       {/* 一、投资之"道" */}
@@ -2482,7 +2483,7 @@ export default function TradingPhilosophy(): JSX.Element {
           <ChevronUp size={24} />
         </button>
       )}
-    </main>
+    </Page>
   )
 }
 

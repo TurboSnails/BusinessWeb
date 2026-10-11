@@ -11,6 +11,7 @@ import { NewsSourceSection } from '../components/pulse/NewsSourceSection'
 import { MarketCategory as MarketCategoryComponent } from '../components/pulse/MarketCategory'
 import { SectorSection } from '../components/pulse/SectorSection'
 import HeatmapSection from '../components/pulse/HeatmapSection'
+import { Page } from '../components/ui'
 import {
   TrendingUp,
   Globe,
@@ -481,9 +482,9 @@ export default function Pulse(): JSX.Element {
   )
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '16px', minHeight: '100vh' }}>
+    <Page>
       <PageTitle>全球行情</PageTitle>
-      <PageTabs label="全球行情视图" value={activeTab} onChange={setActiveTab} width={1200} items={[
+      <PageTabs label="全球行情视图" value={activeTab} onChange={setActiveTab} items={[
         { id: 'market', label: '市场热力图' },
         { id: 'analysis', label: '每日分析' },
       ]} />
@@ -648,6 +649,6 @@ export default function Pulse(): JSX.Element {
           </div>
         </div>
       )}
-    </div>
+    </Page>
   )
 }

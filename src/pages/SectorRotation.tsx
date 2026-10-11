@@ -4,6 +4,7 @@ import { clsProxy } from '../services/clsProxy'
 import { loadSectorPayload, readSectorView, saveSectorView, sectorStorageStatus, peekSectorPayload, sectorUpdatedAt } from '../services/sectorCache'
 import { useSectorRefresh } from '../services/useSectorRefresh'
 import { shanghaiDate, isClosedDate, previousTradingDate } from '../services/limitUp'
+import { Page } from '../components/ui'
 import {
   AlertTriangle,
   BarChart2,
@@ -1733,7 +1734,7 @@ export default function SectorRotation(): JSX.Element {
   }, [plateRawDataByDate])
 
   return (
-    <main className="container" style={{ padding: '20px 16px', maxWidth: '1400px', margin: '0 auto' }}>
+    <Page>
       <PageTitle>板块轮动</PageTitle>
       <p role="note" style={{ margin: '0 0 16px', padding: '10px 14px', borderRadius: 10, background: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: 1.7 }}>
         这里只反映最近的价格强弱，不说明主题值不值得持有。涨得快的板块往往已经反映了预期，追涨容易买在高位。要研究一个主题，先看书第31章的三个问题，仓位只放主动额度（第9章）。不构成投资建议。
@@ -2493,7 +2494,7 @@ export default function SectorRotation(): JSX.Element {
           数据更新时间：{updatedAt ? new Date(updatedAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }) : '—'}（北京时间）；当前页面每 30 秒更新最近有效交易日
         </div>
       </div>
-    </main>
+    </Page>
   )
 }
 

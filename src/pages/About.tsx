@@ -4,6 +4,7 @@ import ChapterComments from '../components/ChapterComments'
 import RecentUpdates from '../components/RecentUpdates'
 import { ExternalLink, AlertCircle } from 'lucide-react'
 import { QUOTES } from '../data/quotes'
+import { Page } from '../components/ui'
 
 const cardStyle: React.CSSProperties = {
   background: 'var(--bg-card)',
@@ -15,12 +16,12 @@ const cardStyle: React.CSSProperties = {
 
 export default function About(): JSX.Element {
   return (
-    <main className="container" style={{ maxWidth: '1100px' }}>
+    <Page>
       {/* 站点介绍 */}
       <section style={cardStyle}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '0 0 16px', color: 'var(--text-primary)' }}>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '0 0 16px', color: 'var(--text-primary)' }}>
           关于「Live」
-        </h2>
+        </h1>
         <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, margin: '0 0 20px' }}>
           这是《正念投资》作者的个人站：一个普通程序员关于钱、技术与自由生活的长期实验。
         </p>
@@ -91,6 +92,6 @@ export default function About(): JSX.Element {
       <section id="about-comments" style={{ marginTop: '32px' }}>
         <ChapterComments slug="关于.md" title="留言" />
       </section>
-    </main>
+    </Page>
   )
 }

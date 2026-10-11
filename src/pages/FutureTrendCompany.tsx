@@ -5,6 +5,7 @@ import { CompanyResearch, RESEARCH_BY_ID, researchPercent } from '../data/future
 
 import { presentation, priorityNames, displayText, priceLabel } from '../data/futureTrendsPresentation'
 import '../styles/future-trends.css'
+import { Page } from '../components/ui'
 
 const card: React.CSSProperties = { background: 'var(--bg-card)', borderRadius: 12, padding: 22, marginBottom: 16, lineHeight: 1.85, overflowWrap: 'anywhere' }
 const cell: React.CSSProperties = { textAlign: 'left', padding: '10px 14px', borderBottom: '1px solid var(--system-gray5)', verticalAlign: 'top' }
@@ -37,12 +38,12 @@ export default function FutureTrendCompany(): JSX.Element {
       .then(setReport).catch(e => { if (e.name !== 'AbortError') setError('报告暂时无法读取，请刷新重试。') })
     return () => controller.abort()
   }, [id, summary, attempt])
-  if (!summary) return <main className="container"><h1>未找到公司研究页</h1><Link to="/future-trends">返回未来趋势</Link></main>
+  if (!summary) return <Page><h1>未找到公司研究页</h1><Link to="/future-trends">返回未来趋势</Link></Page>
   const p = presentation(summary)
   const d = report
   const money = (v: number | null) => priceLabel(v, summary.currency)
   const percent = (v: number | null) => displayText(researchPercent(v))
-  return <main className="container ft ft-reader">
+  return <Page className="ft ft-reader">
     <nav aria-label="返回研究列表" style={{ display: 'flex', gap: 20 }}><Link to={back}>← 返回列表</Link><Link to="/future-trends?tab=core">核心研究</Link><Link to="/future-trends?tab=ai">产业目录</Link></nav>
     <header className="ft-reader-hero"><h1>{summary.name} <small>{summary.code} · {p.industry}</small></h1>
       <span className={`ft-badge ft-badge--${p.priority}`}>{priorityNames[p.priority]}</span>
@@ -74,5 +75,5 @@ export default function FutureTrendCompany(): JSX.Element {
       {i === 13 && <List items={d.calendar} />}
       {i === 14 && <><p>条件化研究，不是收益保证或个人交易指令。来源仅支持其明确披露的事实；判断、预测和情景价格由分析者承担。未核实项不作为确定事实。</p><ul>{d.sources.filter(s => s.url).map((s, j) => <li key={j}><a href={s.url.startsWith('/') ? import.meta.env.BASE_URL + s.url.slice(1) : s.url} target="_blank" rel="noopener noreferrer">{s.title}</a> — {s.status}</li>)}</ul><a href={`${import.meta.env.BASE_URL}research/future-trends-2026-10-09/companies/${id}.json`} download>下载完整公司研究 JSON</a></>}
     </ResearchSection>)}
-  </main>
+  </Page>
 }

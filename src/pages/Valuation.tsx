@@ -1,3 +1,4 @@
+import { Page } from '../components/ui'
 import { useEffect, useRef, useState } from "react";
 import { PageTitle } from "../components/ui/PageTabs";
 import { useSearchParams } from "react-router-dom";
@@ -300,7 +301,7 @@ export default function Valuation() {
     }
   }
   return (
-    <main className="valuation-page">
+    <Page className="valuation-page">
       <div className="valuation-shell">
         <PageTitle>公司估值工作台</PageTitle>
         <section className="valuation-card">
@@ -706,6 +707,6 @@ export default function Valuation() {
           </section>
         )}
       </div>
-    </main>
+    </Page>
   );
 }

@@ -15,6 +15,7 @@ import {
 import { loadLimitUp, shanghaiDate, isClosedDate, type LimitUpResult } from '../services/limitUp'
 import { getLimitUpCache, saveLimitUpCache, readLimitUpView, saveLimitUpView } from '../services/limitUpCache'
 import type { LimitUpConcept } from '../types'
+import { Page } from '../components/ui'
 
 export default function LimitUpAnalysis(): JSX.Element {
   const [initial] = useState(() => { const view = readLimitUpView(shanghaiDate()); return { ...view, cached: getLimitUpCache(view.date, view.only) } })
@@ -60,7 +61,7 @@ export default function LimitUpAnalysis(): JSX.Element {
     : filteredConcepts[0]
 
   return (
-    <main className="container" style={{ padding: '20px 16px', maxWidth: '1200px', margin: '0 auto' }}>
+    <Page>
       <PageTitle>每日板块涨停分析</PageTitle>
         <div className="page-toolbar">
           <span className="page-toolbar__note">按概念展示 A 股涨停数据，休市使用最近有效交易日数据</span>
@@ -382,7 +383,7 @@ export default function LimitUpAnalysis(): JSX.Element {
       }}>
         数据来源：财联社 | 数据日期：{result?.dataDate || '未取得'} | 获取时间：{result ? new Date(result.fetchedAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }) : '未取得'}（北京时间）
       </div>
-    </main>
+    </Page>
   )
 }
 

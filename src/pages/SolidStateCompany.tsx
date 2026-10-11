@@ -4,6 +4,7 @@ import { usePageSeo } from '../components/RouteSeo'
 import { amount, primaryListing, rawUrl } from '../data/solidState/mcpResearch'
 import { solidCompanyById, solidCompanyPath, solidCompanyReport } from '../data/solidState/companyResearch'
 import '../styles/solid-state.css'
+import { Page } from '../components/ui'
 
 function Metrics({ caption, rows }: { caption: string; rows: string[][] }): JSX.Element {
   return <div className="solid-table solid-detail-metrics"><table><caption>{caption}</caption><tbody>{rows.map(([label, value]) => <tr key={label}><th scope="row">{label}</th><td>{value}</td></tr>)}</tbody></table></div>
@@ -14,7 +15,7 @@ export default function SolidStateCompany(): JSX.Element {
   const report = company ? solidCompanyReport(company) : null
   usePageSeo(report ? `${report.name}｜固态电池公司研究` : '未找到固态电池公司', report?.role)
   useEffect(() => { window.scrollTo(0, 0) }, [id])
-  if (!company || !report) return <main className="container"><h1>未找到固态电池公司研究</h1><Link to="/future-trends?tab=solid-state">返回固态电池专题</Link></main>
+  if (!company || !report) return <Page><h1>未找到固态电池公司研究</h1><Link to="/future-trends?tab=solid-state">返回固态电池专题</Link></Page>
   const listing = primaryListing(company)
   const finance = report.financials
   const model = report.draft
@@ -24,7 +25,7 @@ export default function SolidStateCompany(): JSX.Element {
     const a = document.createElement('a'); a.href = url; a.download = `solid-state-${report.id}-${report.asOf}.json`; a.click()
     setTimeout(() => URL.revokeObjectURL(url), 0)
   }
-  return <main className="container solid-state solid-reader">
+  return <Page className="solid-state solid-reader">
     <nav className="solid-nav" aria-label="公司研究导航"><Link to="/future-trends?tab=solid-state">← 返回固态电池专题</Link><Link to="/industry-landscape">产业格局</Link></nav>
     <header className="solid-section solid-hero">
       <p className="solid-eyebrow">{report.origin} · {report.industry} · 更新 {report.asOf}</p>
@@ -66,5 +67,5 @@ export default function SolidStateCompany(): JSX.Element {
       <p>截至 {report.asOf} 的研究快照。超过 90 天的历史原件标 [STALE]，报告期与披露期分开；无日期的产品网页只支持公司自述，不认证商业收入。缺失不等于经营恶化。</p>
     </section>
     <p className="solid-disclaimer">{report.disclaimer}</p>
-  </main>
+  </Page>
 }

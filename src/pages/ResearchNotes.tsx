@@ -41,6 +41,7 @@ import { CN_REPORT } from '../data/cnReassessment'
 import ResearchNotice from '../components/research/ResearchNotice'
 import { SP500_REPORT, sp500Reassessment } from '../data/sp500Reassessment'
 import { NDX_CODES } from '../data/ndx100'
+import { Page } from '../components/ui'
 
 type TabId = 'companies' | 'pool' | 'watch' | 'method' | 'notes' | 'dev'
 
@@ -453,13 +454,13 @@ export default function ResearchNotes(): JSX.Element {
   const maxCount = Math.max(...sp500Sectors.map(s => s.count))
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', paddingBottom: '80px' }}>
+    <Page>
       <PageTitle>公司研究</PageTitle>
-      <PageTabs label="公司研究栏目" width={960} value={activeTab} onChange={setActiveTab}
+      <PageTabs label="公司研究栏目" value={activeTab} onChange={setActiveTab}
         items={tabs.map(t => ({ id: t.id, label: t.label, icon: <t.icon size={14} /> }))} />
 
       {/* 内容区 */}
-      <div style={{ maxWidth: '960px', margin: '0 auto', padding: '24px 16px' }}>
+      <div>
 
         {/* ── 配置笔记：投资框架 + 家庭组合 ── */}
         {activeTab === 'notes' && (
@@ -1008,6 +1009,6 @@ export default function ResearchNotes(): JSX.Element {
           ↑
         </button>
       )}
-    </div>
+    </Page>
   )
 }

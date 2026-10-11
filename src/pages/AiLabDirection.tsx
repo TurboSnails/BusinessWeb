@@ -5,6 +5,7 @@ import { findDirection, type LabDirection } from '../data/aiLab'
 import { usePageSeo } from '../components/RouteSeo'
 import NotFound from './NotFound'
 import DevTeamSkillCard from '../components/skills/DevTeamSkillCard'
+import { Page } from '../components/ui'
 
 function limitRows(d: LabDirection): Array<[string, string]> {
   const rows: Array<[string, string]> = []
@@ -27,7 +28,7 @@ export default function AiLabDirection(): JSX.Element {
   const logs = [...d.logs].sort((a, b) => b.date.localeCompare(a.date))
 
   return (
-    <main className="container animate-fade-in lab-page">
+    <Page className="animate-fade-in lab-page">
       <Link to="/ai" className="lab-back">← AI实验室</Link>
       <header className="page-head">
         <h1>{d.title}</h1>
@@ -102,6 +103,6 @@ export default function AiLabDirection(): JSX.Element {
           )}
         </section>
       )}
-    </main>
+    </Page>
   )
 }

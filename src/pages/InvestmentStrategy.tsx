@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { PageTabs, PageTitle } from '../components/ui/PageTabs'
+import { Page } from '../components/ui'
 import {
   TrendingUp,
   Globe,
@@ -97,13 +98,13 @@ export default function InvestmentStrategy(): JSX.Element {
   )
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', paddingBottom: '80px' }}>
+    <Page>
       <PageTitle>综合投资策略框架</PageTitle>
-      <PageTabs label="策略框架栏目" width={760} value={activeTab} onChange={setActiveTab}
+      <PageTabs label="策略框架栏目" value={activeTab} onChange={setActiveTab}
         items={tabs.map(t => ({ id: t.id, label: t.label, icon: <t.icon size={14} /> }))} />
 
       {/* 内容区 */}
-      <div style={{ maxWidth: '760px', margin: '0 auto', padding: '28px 20px' }}>
+      <div>
 
         {/* ── 策略基因 ── */}
         {activeTab === 'dna' && (
@@ -419,6 +420,6 @@ export default function InvestmentStrategy(): JSX.Element {
           ↑
         </button>
       )}
-    </div>
+    </Page>
   )
 }

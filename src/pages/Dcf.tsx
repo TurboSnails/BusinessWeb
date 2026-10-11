@@ -1,3 +1,4 @@
+import { Page } from '../components/ui'
 import { useState } from "react";
 import { PageTitle } from "../components/ui/PageTabs";
 import {
@@ -269,7 +270,7 @@ export default function Dcf(): JSX.Element {
     formatScaleHint(toBaseShares(parseNumber(form.values.shares), form.shareUnit));
 
   return (
-    <main className="dcf-page">
+    <Page className="dcf-page">
       <PageTitle>现金流折现估值（含 WACC）</PageTitle>
       <div className="page-toolbar">
         <span className="page-toolbar__note">
@@ -742,7 +743,7 @@ export default function Dcf(): JSX.Element {
           ))
         )}
       </section>
-    </main>
+    </Page>
   );
 }
 

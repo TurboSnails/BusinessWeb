@@ -17,6 +17,7 @@ import { ChinaView, GuideView, HkView, OverviewView, StagesView, UsView } from '
 import type { MacroSnapshot } from '../features/macro/indicators'
 import type { CnKey } from '../features/macro/china'
 import type { HkKey } from '../features/macro/hk'
+import { Page } from '../components/ui'
 
 type TabId = 'overview' | 'us' | 'cn' | 'hk' | 'cycles' | 'valuation' | 'stages' | 'guide' | 'archive'
 const TABS: TabItem<TabId>[] = [
@@ -115,10 +116,10 @@ export default function Monitor(): JSX.Element {
   const needsData = tab !== 'archive' && tab !== 'valuation'
   const snap = data?.us
   return (
-    <div style={{ minHeight: '100vh' }}>
+    <Page>
       <PageTitle>宏观温度</PageTitle>
       <PageTabs label="宏观温度栏目" items={TABS} value={tab} onChange={id => go({ tab: id === 'overview' ? null : id, old: null })} />
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 16px 40px' }}>
+      <div>
         {needsData && !snap && <p role={error ? 'alert' : 'status'} className="macro-muted">{error || '正在加载宏观数据…'}</p>}
         {snap && needsData && (
           <div className="page-toolbar">
@@ -148,6 +149,6 @@ export default function Monitor(): JSX.Element {
           </>
         )}
       </div>
-    </div>
+    </Page>
   )
 }

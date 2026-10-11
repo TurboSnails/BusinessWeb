@@ -1,12 +1,5 @@
 .valuation-page {
-  background: var(--bg-primary, var(--bg-secondary));
-  min-height: 100vh;
-  padding: 36px 20px 80px;
   color: var(--text-primary);
-}
-.valuation-shell {
-  max-width: 1200px;
-  margin: auto;
 }
 .valuation-hero {
   display: flex;

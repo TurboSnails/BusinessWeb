@@ -21,25 +21,14 @@
   padding-top: var(--space-4);
 }
 
-.container.page.page--reading {
-  max-width: calc(var(--page-reading) + 32px);
-}
-
-/* 吸顶页签在页面内部时：页签与正文左对齐，底色和底线用阴影延伸到两侧（不撑宽页面） */
+/* 吸顶页签在页面内部时：页签与正文左对齐，底色用阴影、底线用 border-image-outset 延伸到两侧
+   （两者都不产生滚动区域，不会撑出横向滚动条） */
 .page > .page-tabs {
   margin-top: calc(-1 * var(--space-2));
-  border-bottom: 0;
-  box-shadow: 0 0 0 100vmax var(--glass-bg);
-  clip-path: inset(0 -100vmax -1px);
-}
-
-.page > .page-tabs::after {
-  content: '';
-  position: absolute;
-  right: -100vmax;
-  bottom: 0;
-  left: -100vmax;
   border-bottom: 1px solid var(--border-subtle);
+  border-image: linear-gradient(var(--border-subtle), var(--border-subtle)) 0 0 1 0 / 0 0 1px 0 / 0 100vmax;
+  box-shadow: 0 0 0 100vmax var(--glass-bg);
+  clip-path: inset(0 -100vmax);
 }
 
 .page > .page-tabs > .page-tabs__inner {
@@ -47,10 +36,16 @@
   padding: 0;
 }
 
-@media (min-width: 768px) {
-  .container.page.page--reading {
-    max-width: calc(var(--page-reading) + 48px);
-  }
+/* 阅读型页面：与面包屑左对齐，正文限宽 760 */
+.page--reading > * {
+  max-width: var(--page-reading);
+}
+
+/* 页面内的横幅（公司详情）：成为带边框的头部卡片，不再通栏 */
+.page > .page-hero {
+  margin-bottom: var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
 }
 
 /* ---------- 卡片 ---------- */

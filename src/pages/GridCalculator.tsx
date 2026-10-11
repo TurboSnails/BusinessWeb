@@ -9,6 +9,7 @@ import { saveRecord } from '../features/grid-trading/repository'
 import { isEtf, symbolOf } from '../features/grid-trading/types'
 import type { Candle, GridParams, GridResult, SavedRecord } from '../features/grid-trading/types'
 import '../features/grid-trading/gridTrading.css'
+import { Page } from '../components/ui'
 
 type FormState = {
   code: string
@@ -141,7 +142,7 @@ export default function GridCalculator(): JSX.Element {
 
   const marketPrefix = form.code ? symbolOf(form.code).slice(0, 2).toUpperCase() : ''
 
-  return <main className="grid-page">
+  return <Page className="grid-page">
     <FeeNote code={form.code} />
     <PageTitle>ETF 网格交易</PageTitle>
     <div className="page-toolbar">
@@ -196,7 +197,7 @@ export default function GridCalculator(): JSX.Element {
       <p className="grid-data-caption">历史模拟不代表未来表现；模拟未含滑点与买卖价差，实盘成本会更高。</p>
       {calculated.result.warnings?.map(warning => <p className="grid-error-text" key={warning}>{warning}</p>)}
     </section>}
-  </main>
+  </Page>
 }
 
 function Metric({ label, value, positive }: { label: string; value: string; positive?: boolean }): JSX.Element {

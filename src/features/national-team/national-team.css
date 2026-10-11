@@ -1,5 +1,4 @@
 /* 国家队持仓：颜色全部取站点变量，A 股习惯红涨绿跌 */
-.nt-main { max-width: 1100px; }
 .nt-stack { display: flex; flex-direction: column; gap: 28px; }
 .nt-h2 { margin: 0 0 12px; font-family: var(--font-serif); font-size: 1.1rem; font-weight: 600; }
 .nt-muted { color: var(--text-secondary); font-size: 0.82rem; font-weight: 400; }

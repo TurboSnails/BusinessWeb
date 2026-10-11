@@ -8,6 +8,7 @@ import KnowledgeSetup from './KnowledgeSetup'
 import KnowledgeGarden from './KnowledgeGarden'
 import { cachedKnowledgeApi } from './cache'
 import './knowledge.css'
+import { Page } from '../../components/ui'
 
 const FOLDERS = [
   ['00-Inbox', '收集箱'], ['01-Investment', '投资研究'], ['02-AI', 'AI 与模型'],
@@ -155,7 +156,7 @@ function Workspace({ api: rawApi = knowledgeApi, initialTab = 'workspace' }: { a
   }
   const filtered = (results ?? notes).filter(n => !folder || n.path.startsWith(folder + '/'))
   const connected = connection === 'ready'
-  return <main className="kb-page animate-fade-in">
+  return <Page className="kb-page animate-fade-in">
     <header className="kb-page-head">
       <div><span className="kb-eyebrow">PERSONAL BRAIN</span><h1>知识图谱<span className="kb-head-dot">.</span></h1><p>让知识慢慢连成一片。每一条记录，都是下一次思考的起点。</p></div>
       <span className={`kb-connection ${connected ? 'is-connected' : ''}`}><i />{connected ? status?.source === 'cloud' ? '已连接云端资料库' : '已连接本地 Vault' : connection === 'loading' ? '正在连接…' : isCloudKnowledge() ? '云端资料库未连接' : '本地 Vault 未连接'}</span>
@@ -189,7 +190,7 @@ function Workspace({ api: rawApi = knowledgeApi, initialTab = 'workspace' }: { a
         <aside className="kb-relations"><div className="kb-section-label"><Network size={16} /><h2>知识连接</h2></div><p className="kb-muted">每一个链接，都让下一次思考多一条路。</p><h3>引用的笔记</h3>{relations ? relations.outgoing.length ? relations.outgoing.map((link, i) => <div className="kb-relation" key={i}>{link.path ? <button onClick={() => void openNote(link.path!)}>{link.label}<ArrowUpRight size={13} /></button> : <><span>{link.label}</span><small>{link.status === 'ambiguous' ? '存在同名笔记' : link.status === 'attachment' ? '附件 · 在 Obsidian 查看' : '未创建'}</small>{link.status === 'ambiguous' && <small>{link.candidates.join(' / ')}</small>}</>}</div>) : <p className="kb-muted">暂无引用</p> : <p className="kb-muted">{editor ? '保存或重新读取后更新关联' : '打开笔记后显示'}</p>}<h3>被这些笔记引用</h3>{relations?.backlinks.length ? relations.backlinks.map(n => <div className="kb-relation" key={n.path}><button onClick={() => void openNote(n.path)}>{n.title}<ArrowUpRight size={13} /></button><small>{n.path}</small></div>) : <p className="kb-muted">暂无反向链接</p>}<div className="kb-principle"><span className="kb-eyebrow">慢慢积累</span><p>先写下来。<br />让连接随着使用生长。</p></div></aside>
       </div>
     </>}
-  </main>
+  </Page>
 }
 
 export default function KnowledgeWorkspace(props: { api?: KnowledgeApi; initialTab?: 'workspace' | 'garden' | 'setup' }): JSX.Element | null {
@@ -217,10 +218,10 @@ export default function KnowledgeWorkspace(props: { api?: KnowledgeApi; initialT
     finally { setBusy(false) }
   }
   if (probing) return null
-  if (!unlocked) return <main className="kb-page"><section className="kb-offline">
+  if (!unlocked) return <Page className="kb-page"><section className="kb-offline">
     <span className="kb-eyebrow">YOUR PRIVATE LIBRARY</span><h1>解锁知识图谱</h1><p>输入资料库访问码，查看真实笔记与蒲公英网络。</p>
     <form onSubmit={e => void unlock(e)} className="kb-cloud-login"><label htmlFor="knowledge-token">资料库访问码</label><input id="knowledge-token" type="password" autoComplete="off" value={token} onChange={e => setToken(e.target.value)} required /><button className="kb-primary" disabled={busy}>{busy ? '正在连接…' : '解锁资料库'}</button></form>
     {error && <p className="kb-alert" role="alert">{error}</p>}<p className="kb-muted">访问码只保留在当前浏览器会话。原始 Markdown 保存在你的本机。</p>{['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname) && <button onClick={() => { preferCloudOnLocal(false); window.location.reload() }}>切回本地 Vault</button>}
-  </section></main>
+  </section></Page>
   return <>{cloud && <div className="kb-cloud-session"><span>私人云端副本 · 只读</span><button onClick={() => { sessionStorage.removeItem(cloudTokenKey); setHasToken(false) }}>锁定资料库</button>{['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname) && <button onClick={() => { preferCloudOnLocal(false); window.location.reload() }}>切回本地 Vault</button>}</div>}<Workspace {...props} /></>
 }

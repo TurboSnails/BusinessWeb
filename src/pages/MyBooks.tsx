@@ -2,6 +2,7 @@ import React from 'react'
 import { PageTitle } from '../components/ui/PageTabs'
 import { Link } from 'react-router-dom'
 import { ArrowRight, BookOpen, Download, FileText } from 'lucide-react'
+import { Page } from '../components/ui'
 
 // PDF 与书稿同源：book-慢即是快/正念投资.pdf（build_pdf.py 生成），发布时复制到 public/first-book/。
 // 重新生成 PDF 后，同步更新页数和体积。
@@ -25,7 +26,7 @@ const pdfUrl = (file: string): string => `${import.meta.env.BASE_URL}first-book/
 
 export default function MyBooks({ showPdf = PDF_ENTRY_ENABLED }: { showPdf?: boolean }): JSX.Element {
   return (
-    <main className="container" style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px 16px' }}>
+    <Page>
       <PageTitle>我的书</PageTitle>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
         {BOOKS.map(book => (
@@ -65,6 +66,6 @@ export default function MyBooks({ showPdf = PDF_ENTRY_ENABLED }: { showPdf?: boo
           </article>
         ))}
       </div>
-    </main>
+    </Page>
   )
 }

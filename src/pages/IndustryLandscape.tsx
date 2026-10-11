@@ -27,6 +27,7 @@ import { PageTabs, PageTitle } from '../components/ui/PageTabs'
 import { companyNameOf, useCompanyLinks } from '../data/industryCompanyLinks'
 import ThemeCards from './ThemeCards'
 import '../styles/industry-landscape.css'
+import { Page } from '../components/ui'
 
 interface TreeNode {
   t: string
@@ -340,7 +341,7 @@ export default function IndustryLandscape(): JSX.Element {
   const activeChapter = directory[selected]
   return (
     <CompanyLink.Provider value={linkOf}>
-    <main>
+    <Page>
       <PageTitle>产业格局</PageTitle>
       <PageTabs
         label="产业格局栏目"
@@ -508,7 +509,7 @@ export default function IndustryLandscape(): JSX.Element {
           )}
         </div>
       )}
-    </main>
+    </Page>
     </CompanyLink.Provider>
   )
 }

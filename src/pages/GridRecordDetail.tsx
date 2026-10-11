@@ -9,6 +9,7 @@ import { comparisonRows } from '../features/grid-trading/comparison'
 import GridChart from '../features/grid-trading/GridChart'
 import type { Candle, SavedRecord, Trade } from '../features/grid-trading/types'
 import '../features/grid-trading/gridTrading.css'
+import { Page } from '../components/ui'
 
 const amount = (v: number) => v.toLocaleString('zh-CN', { maximumFractionDigits: 2 })
 export default function GridRecordDetail(): JSX.Element {
@@ -58,7 +59,7 @@ export default function GridRecordDetail(): JSX.Element {
     } catch (e) { setNotice(e instanceof Error ? e.message : '保存失败') }
   }
   const run = (operation: () => void) => { try { operation() } catch (e) { setNotice(e instanceof Error ? e.message : '操作失败') } }
-  if (!record || !result) return <main className="grid-page"><section className="grid-card"><h1>找不到这条网格记录</h1><Link to="/grid-trading/records">返回记录列表</Link></section></main>
+  if (!record || !result) return <Page className="grid-page"><section className="grid-card"><h1>找不到这条网格记录</h1><Link to="/grid-trading/records">返回记录列表</Link></section></Page>
   const viewRow = backup?.row ?? record.row
   const rawResult = candles.length ? calculateGrid(backup?.row ?? record.row, candles, { ...adjustmentsOf(backup ?? record), manual: [], removed: [] }) : result
   const deletedDates = (backup ?? record).removedTrades ?? []
@@ -79,7 +80,7 @@ export default function GridRecordDetail(): JSX.Element {
     } else commit(updateTradeOverride(record, editing.date, patch))
     setEditing(null)
   })
-  return <main className="grid-page">
+  return <Page className="grid-page">
     <section className="grid-hero grid-hero-compact"><div className="grid-eyebrow">网格记录详情</div><h1>{record.row.name} · {record.row.code}</h1><p>{result.range} · {backup ? '快照续跑视图' : '当前实际记录'}</p><div className="grid-hero-links"><Link to="/grid-trading/records">返回记录列表</Link><button className="grid-button grid-button-secondary" disabled={busy} onClick={() => void load(true)}>{busy ? '加载中…' : '刷新行情'}</button></div></section>
     <p role="status" className="grid-inline-message">{notice}</p>
     <section className="grid-card"><div className="grid-metrics">{[
@@ -110,5 +111,5 @@ export default function GridRecordDetail(): JSX.Element {
       {backup && <><p>总收益率 = 总盈亏 ÷ 最大占用本金；快照后收益率 = 新增盈亏 ÷ 快照时占用本金。差额 = 当前实际 − 纯网格。</p><div className="grid-table-scroll"><table className="grid-record-table"><thead><tr><th>指标</th><th>快照时</th><th>纯网格续跑</th><th>当前实际</th><th>差额</th></tr></thead><tbody>{comparisonRows(backup, result, record.result).map(item => <tr key={item.label}><th>{item.label}</th>{item.values.map((value, i) => <td key={i}>{value === null ? '—' : amount(value)}</td>)}</tr>)}</tbody></table></div></>}
 
     </section>
-  </main>
+  </Page>
 }

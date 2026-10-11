@@ -11,6 +11,7 @@ import CandidateButton from '../components/CandidateButton'
 import { useCandidates } from '../features/candidates/useCandidates'
 import { priceAnchorAge } from '../features/dcf/priceAnchor'
 import { buildDcfLink } from '../features/dcf'
+import { EmptyState, Page } from '../components/ui'
 
 const toneColors: Record<Tone, { bg: string; color: string }> = {
   green: { bg: 'color-mix(in srgb, var(--system-green) 12%, transparent)', color: 'var(--system-green)' },
@@ -74,15 +75,12 @@ export default function CompanyDetail(): JSX.Element {
 
   if (!company) {
     return (
-      <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', padding: '40px 20px' }}>
-        <div style={{ maxWidth: '760px', margin: '0 auto' }}>
-          <Link to="/research-notes" style={{ color: 'var(--system-blue)', textDecoration: 'none', fontSize: '14px' }}>← 返回公司研究</Link>
-          <div style={{ ...card, marginTop: '16px' }}>
-            <h3 style={cardTitle}>{loading ? '正在加载…' : '未找到该公司'}</h3>
-            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0 }}>{loading ? '正在读取补全公司数据。' : '该公司还没有整理进公司库。'}</p>
-          </div>
-        </div>
-      </div>
+      <Page variant="reading" title={loading ? '公司研究' : '未找到该公司'}>
+        {back}
+        <EmptyState title={loading ? '正在加载…' : '未找到该公司'}>
+          {loading ? '正在读取补全公司数据。' : '该公司还没有整理进公司库。'}
+        </EmptyState>
+      </Page>
     )
   }
 
@@ -143,10 +141,10 @@ export default function CompanyDetail(): JSX.Element {
   )
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', paddingBottom: '80px' }}>
+    <Page variant="reading">
       {/* 页面头部 */}
       <div className="page-hero">
-        <div style={{ maxWidth: '760px', margin: '0 auto' }}>
+        <div>
           {back}
           <Link to={`/valuation?market=${mk === 'adr' || mk === 'ndx' ? 'us' : mk}&code=${encodeURIComponent(company.code)}`} style={{display:'inline-block',marginLeft:'18px',color:'var(--accent)',fontSize:'13px'}}>建立估值模型 →</Link>
           <Link to={buildDcfLink({ company: company.name, code: company.code, researchMarket: mk, price })} style={{display:'inline-block',marginLeft:'18px',color:'var(--accent)',fontSize:'13px'}}>用当前价格测算 DCF →</Link>
@@ -170,7 +168,7 @@ export default function CompanyDetail(): JSX.Element {
         </div>
       </div>
 
-      <div style={{ maxWidth: '760px', margin: '0 auto', padding: '28px 20px' }}>
+      <div>
         <ResearchNotice />
         {(company.market === 'us' || company.market === 'cn' || company.market === 'hk' || company.market === 'adr') && (company.researchReport || company.metrics.some(([key]) => key === '圆桌复核日期')) && (
           <div style={card}>
@@ -435,6 +433,6 @@ export default function CompanyDetail(): JSX.Element {
           内容整理自 Notion 个人研究笔记，仅为研究记录，不构成投资建议。情景价值与价位为研究假设，非目标价。
         </p>
       </div>
-    </div>
+    </Page>
   )
 }

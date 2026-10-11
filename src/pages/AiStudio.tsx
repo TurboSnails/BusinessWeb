@@ -3,12 +3,13 @@ import { Link } from 'react-router-dom'
 import { ArrowRight, Download } from 'lucide-react'
 import LabDirectionCard from '../components/lab/LabDirectionCard'
 import { LAB_PRINCIPLE, LAB_SHOWCASE, avoidedDirections, findDirection, labStats, recommendedDirections } from '../data/aiLab'
+import { Page } from '../components/ui'
 
 export default function AiStudio(): JSX.Element {
   const stats = labStats()
   const avoided = avoidedDirections()
   return (
-    <main className="container animate-fade-in lab-page">
+    <Page className="animate-fade-in lab-page">
       <header className="page-head">
         <h1>AI实验室</h1>
         <p>一个程序员为自由生活准备的第二曲线：开发、工具、内容和小生意，每个方向都当成一次公开实验。</p>
@@ -118,6 +119,6 @@ export default function AiStudio(): JSX.Element {
         <h2>实验规则</h2>
         <p>一次只启动一个新实验。每个实验开始前先定好每周时间、预算上限和截止日期；到期看数据，决定继续还是停止。过程和结果都公开记录，没开始的就写“还没开始”。</p>
       </section>
-    </main>
+    </Page>
   )
 }

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { PROGRESS_KEY, readProgress, roadmapHtml, tasks, weeks } from '../features/ai-learning/roadmap'
 import '../styles/ai-learning.css'
+import { Page } from '../components/ui'
 
 export default function AiLearningPlan(): JSX.Element {
   const [completed, setCompleted] = useState(readProgress)
@@ -31,7 +32,7 @@ export default function AiLearningPlan(): JSX.Element {
   }
 
   return (
-    <main className="container animate-fade-in lab-page learning-page">
+    <Page className="animate-fade-in lab-page learning-page">
       <Link to="/ai" className="lab-back">← AI实验室</Link>
       <header className="page-head">
         <h1>AI 全栈 8 周实战学习路线</h1>
@@ -57,6 +58,6 @@ export default function AiLearningPlan(): JSX.Element {
         </nav>
       </section>
       <div ref={documentRef} className="learning-document" onClick={toggle} dangerouslySetInnerHTML={{ __html: roadmapHtml }} />
-    </main>
+    </Page>
   )
 }

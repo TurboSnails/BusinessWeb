@@ -11,6 +11,7 @@ import FutureTrendsCore from './FutureTrendsCore'
 import FutureTrendsPool from './FutureTrendsPool'
 import FutureTrendsSolidState from './FutureTrendsSolidState'
 import { ADAS_EXTRA_LEVELS, ADAS_EXTRA_PICKS, AI_EXTRA_LEVELS, AI_EXTRA_PICKS, SECTOR_PICKS, SECTOR_PICKS_ASOF, TREND_METRICS, US_PICKS } from '../data/futureTrendsSectorPicks'
+import { Page } from '../components/ui'
 
 const card: React.CSSProperties = {
   background: 'var(--bg-card)',
@@ -135,11 +136,11 @@ export default function FutureTrends(): JSX.Element {
   const coverage = trendCoverage()
   const selectedCoverage = trendCoverage([trend])
   return (
-    <main>
+    <Page>
       <PageTitle>未来趋势</PageTitle>
       <PageTabs label="未来趋势赛道" value={id} onChange={setId}
         items={[{ id: CORE_ID, label: '核心' }, { id: POOL_ID, label: '候选池' }, { id: SOLID_ID, label: '固态电池' }, ...TRENDS.map(t => ({ id: t.id, label: t.name.replace(/（.*?）/, '').replace(/，.*/, '') }))]} />
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 16px 32px' }}>
+      <div>
         {id !== POOL_ID && id !== CORE_ID && id !== SOLID_ID && <p role="note" style={{ color: 'var(--text-secondary)', fontSize: 13, margin: '14px 0' }}>产业目录截至 {FUTURE_TRENDS_ASOF}。点击公司名称查看详细研究；查看推荐顺序请进入核心或候选池。</p>}
 
         {id === SOLID_ID ? <FutureTrendsSolidState /> : id === POOL_ID ? <FutureTrendsPool /> : id === CORE_ID ? <FutureTrendsCore /> : (<>
@@ -178,6 +179,6 @@ export default function FutureTrends(): JSX.Element {
         <UsPicksSection id={trend.id} />
         </>)}
       </div>
-    </main>
+    </Page>
   )
 }

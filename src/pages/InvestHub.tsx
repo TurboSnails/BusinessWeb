@@ -2,6 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import { INVEST_GROUPS, type HubGroup } from '../data/siteMap'
+import { Page } from '../components/ui'
 
 function GroupLinks({ group }: { group: HubGroup }): JSX.Element {
   return (
@@ -19,7 +20,7 @@ function GroupLinks({ group }: { group: HubGroup }): JSX.Element {
 
 export default function InvestHub(): JSX.Element {
   return (
-    <main className="container animate-fade-in">
+    <Page className="animate-fade-in">
       <header className="page-head">
         <h1>投资</h1>
         <p>不盯盘、不预测的普通人投资方法。先读书定规则，再选标的、用工具执行，最后才看行情。</p>
@@ -40,6 +41,6 @@ export default function InvestHub(): JSX.Element {
           </section>
         )
       )}
-    </main>
+    </Page>
   )
 }

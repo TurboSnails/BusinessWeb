@@ -4,6 +4,7 @@ import ChapterComments from '../components/ChapterComments'
 import { usePageSeo } from '../components/RouteSeo'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, BookOpen, CheckCircle2, Circle, PenLine } from 'lucide-react'
+import { Page } from '../components/ui'
 
 /** 章节清单：与 public/first-book/ 下的 md 文件一一对应 */
 const PARTS = [
@@ -416,7 +417,7 @@ function BookDashboard(): JSX.Element {
   const progress = Math.round((drafted / bodyChapters.length) * 100)
 
   return (
-    <main className="container" style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px 16px' }}>
+    <Page variant="reading">
       <Link to="/first-book" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '16px', color: 'var(--accent)', textDecoration: 'none', fontSize: '0.92rem' }}>
         <ArrowLeft size={15} /> 返回我的书
       </Link>
@@ -554,7 +555,7 @@ function BookDashboard(): JSX.Element {
       <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.82rem', margin: '8px 0 24px' }}>
         本书内容仅为投资方法论讨论，不构成任何投资建议。
       </p>
-    </main>
+    </Page>
   )
 }
 

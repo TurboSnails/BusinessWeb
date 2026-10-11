@@ -11,6 +11,7 @@ import { readRecords, removeRecords, saveRecordIfUnchanged } from '../features/g
 import { loadSyncConfig } from '../features/grid-trading/cloudSync'
 import type { SavedRecord } from '../features/grid-trading/types'
 import '../features/grid-trading/gridTrading.css'
+import { Page } from '../components/ui'
 
 export default function GridRecords(): JSX.Element {
   const [records, setRecords] = useState<SavedRecord[]>(() => readRecords())
@@ -57,7 +58,7 @@ export default function GridRecords(): JSX.Element {
     setNotice(failures ? `行情刷新完成，${failures} 条记录未能更新；已保留其原结果。` : quoteWarning ? `日线已刷新；实时报价不可用：${quoteWarning}` : '全部记录已按最新公开行情刷新。')
   }
 
-  return <main className="grid-page">
+  return <Page className="grid-page">
     <PageTitle>网格记录</PageTitle>
     <div className="page-toolbar">
       <span className="page-toolbar__note">回测、参数和成交记录保存在本机浏览器。换浏览器或站点前，请先导出 JSON 备份。</span>
@@ -73,5 +74,5 @@ export default function GridRecords(): JSX.Element {
     {notice && <p className="grid-inline-message" role="status">{notice}</p>}
     <ImportExportPanel records={records} onImported={setRecords} />
     <CloudSyncPanel records={records} onSynced={setRecords} />
-  </main>
+  </Page>
 }

@@ -1,4 +1,5 @@
 import React from 'react'
+import { Page } from '../components/ui'
 
 const STAGES = [
   { title: '*** → 目标 400 万', desc: '目标是 400 万。工作积累本金，同时每周拿出几小时积累作品：写书、建站、做第一个小产品。', state: '进行中' },
@@ -8,7 +9,7 @@ const STAGES = [
 
 export default function LifeLab(): JSX.Element {
   return (
-    <main className="container animate-fade-in">
+    <Page className="animate-fade-in">
       <header className="page-head">
         <h1>自由空间</h1>
         <p>一个普通程序员关于钱、技术与自由生活的长期实验。钱不是终点，是选择权。</p>
@@ -24,6 +25,6 @@ export default function LifeLab(): JSX.Element {
           </li>
         ))}
       </ol>
-    </main>
+    </Page>
   )
 }

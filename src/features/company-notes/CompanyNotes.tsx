@@ -1,3 +1,4 @@
+import { Page } from '../../components/ui'
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useParams, useSearchParams, useLocation } from 'react-router-dom';
 import MarkdownPreview from '../knowledge/MarkdownPreview';
@@ -261,7 +262,7 @@ function NotesWorkspace({ market, code }: {
     }
     catch { } }
     const visibleDraft = editing && !!token ? draft : null;
-    return <main className='container company-notes'>
+    return <Page className="company-notes">
     <header className='page-head'><Link to={`/research-notes/${market}/${encodeURIComponent(code)}`}>← 返回公司研究</Link><h1>{name} · 研究笔记</h1><p>{market.toUpperCase()} · {code} · 所有人可阅读，输入主人的 token 后可上传和编辑。保存即公开。</p></header>
     <div className='company-notes__toolbar'>
       {token ? <><button disabled={!!busy} onClick={() => newDraft()}>新建笔记</button><button disabled={!!busy} onClick={() => fileInput.current?.click()}>上传 MD</button><button disabled={!!busy} onClick={() => newDraft('公司分析', `# ${name} · 公司分析\n\n## 核心判断\n\n## 商业模式\n\n## 关键财务\n\n## 估值假设\n\n## 风险与反证\n\n## 下次验证\n\n## 资料来源\n`)}>使用分析模板</button><button disabled={!!busy} onClick={lock}>锁定编辑</button></> : <button disabled={!!busy} onClick={() => setUnlockOpen(!unlockOpen)}>解锁编辑</button>}
@@ -278,7 +279,7 @@ function NotesWorkspace({ market, code }: {
         {visibleDraft ? <><label className='company-notes__title'>笔记标题<input aria-label='笔记标题' maxLength={200} disabled={!!busy} value={visibleDraft.title} onChange={e => setDraft({ ...visibleDraft, title: e.target.value })}/></label><div className='company-notes__toolbar'><button disabled={!!busy} onClick={() => setPreview(!preview)}>{preview ? '继续编辑' : '阅读预览'}</button><button disabled={!!busy || !dirty} onClick={() => void save()}>保存并公开</button><button onClick={() => downloadMarkdown(visibleDraft.title, visibleDraft.content)}>下载 MD</button><button disabled={!!busy} onClick={() => discardOK()}>取消编辑</button>{conflict && <button disabled={!!busy} onClick={() => void reload()}>重新加载云端版本</button>}</div><p className='company-notes__hint'>保存后所有访客均可阅读。{dirty ? '有未保存修改。' : '内容未修改。'} 文件上限 1 MiB。</p>{preview ? <MarkdownPreview content={visibleDraft.content} relations={null} onOpen={() => setError('公司笔记不支持打开私人知识库链接')}/> : <textarea aria-label='Markdown 正文' spellCheck={false} disabled={!!busy} value={visibleDraft.content} onChange={e => setDraft({ ...visibleDraft, content: e.target.value })}/>}</> : note ? <><h2>{note.title}</h2><p className='company-notes__hint'>更新于 {dateText(note.updatedAt)} · v{note.revision}</p><div className='company-notes__toolbar'>{token && <button disabled={!!busy || reading} onClick={edit}>编辑笔记</button>}<button onClick={() => downloadMarkdown(note.title, note.content)}>下载 MD</button><a href={`?note=${encodeURIComponent(note.id)}`}>笔记直达链接</a></div><MarkdownPreview content={note.content} relations={null} onOpen={() => setError('公司笔记不支持打开私人知识库链接')}/></> : !reading && <p>选择一篇笔记开始阅读。</p>}
       </section>
     </div>
-  </main>;
+  </Page>;
 }
 export default function CompanyNotes(): JSX.Element { const { market = '', code = '' } = useParams(); if (!validCompany(market, code))
-    return <main className='container'><p role='alert'>公司参数无效</p><Link to='/research-notes'>返回公司研究</Link></main>; return <NotesWorkspace key={`${market}:${code}`} market={market} code={code}/>; }
+    return <Page><p role='alert'>公司参数无效</p><Link to='/research-notes'>返回公司研究</Link></Page>; return <NotesWorkspace key={`${market}:${code}`} market={market} code={code}/>; }
