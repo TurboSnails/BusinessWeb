@@ -13,3 +13,6 @@ valuation-reports/
 .superpowers/
 
 obsidian-plugin/main.js
+
+# Python 运行缓存
+__pycache__/
