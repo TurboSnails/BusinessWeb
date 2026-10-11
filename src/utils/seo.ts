@@ -19,6 +19,7 @@ const EXACT: Record<string, RouteSeo> = {
   '/invest': { title: '投资｜A 股与美股研究、方法与工具', description: '沪深 A 股与美股标普 500 的研究笔记、投资方法、ETF 指南与网格交易工具。' },
   '/invest/ai-tools': { title: 'AI 投研工具与 Skills', description: '把投资方法沉淀成可复用的 AI skill：个股分析、交易分析、圆桌观点。' },
   '/invest/etf': { title: 'ETF 投资指南', description: 'ETF 的选择、定投与网格交易思路。' },
+  '/invest/national-team': { title: '国家队持仓｜汇金、证金、社保的 A 股持仓', description: '按报告期追踪中央汇金、证金公司、社保基金等持有的 A 股：机构、行业、个股持仓与季度变化。' },
   '/ai': { title: 'AI 工作室｜独立开发与 AI 学习路线', description: '用 AI 做独立开发：学习路线、实验方向与工具笔记。' },
   '/ai/fullstack-roadmap': { title: 'AI 全栈学习路线', description: '从零到独立开发者的 AI 全栈学习计划。' },
   '/life': { title: '生活实验室', description: '自由生活的长期实验记录。' },
