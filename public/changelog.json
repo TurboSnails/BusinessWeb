@@ -1,10 +1,16 @@
 {
-  "generatedAt": "2026-10-11T13:47:44.503Z",
+  "generatedAt": "2026-10-11T13:59:36.543Z",
   "versions": [
     {
       "tag": "unreleased",
       "date": null,
       "commits": [
+        {
+          "hash": "6d7a388",
+          "subject": "feat(book): 完善正念投资书稿与阅读听书体验",
+          "author": "hassan",
+          "date": "2026-10-11"
+        },
         {
           "hash": "e0300ef",
           "subject": "feat(invest): 投资栏目页按用途分组，改为图标卡片",
@@ -176,12 +182,6 @@
         {
           "hash": "97f3b2f",
           "subject": "feat(ai-lab): add dev-team skill introduction and download entry",
-          "author": "hassan",
-          "date": "2026-10-11"
-        },
-        {
-          "hash": "89d330d",
-          "subject": "feat(dev-team): add portable Orca development team skill",
           "author": "hassan",
           "date": "2026-10-11"
         }

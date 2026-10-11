@@ -35,7 +35,7 @@ function installSpeech() {
 }
 
 beforeEach(() => localStorage.clear())
-afterEach(() => { cleanup(); vi.unstubAllGlobals() })
+afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.unstubAllEnvs() })
 
 describe('正念投资阅读体验', () => {
   it('搜索过滤完整目录，清除后恢复章节，空结果提供方向', () => {
@@ -139,6 +139,17 @@ describe('正念投资阅读体验', () => {
     expect(localStorage.getItem('mindful-book:audio-rate')).toBe('1.5')
     view.unmount()
     expect(audio.synth.cancel).toHaveBeenCalledTimes(4)
+  })
+
+  it('静态镜像在书末链接正式站书评，不渲染无法提交的表单', async () => {
+    vi.stubEnv('BASE_URL', '/BusinessWeb/')
+    const fetcher = vi.fn(async () => response('书稿末篇。'))
+    vi.stubGlobal('fetch', fetcher)
+    renderBook(href('附录I-术语表.md'))
+    const link = await screen.findByRole('link', { name: '前往正式站查看和提交书评' })
+    expect(link.getAttribute('href')).toBe(`https://business-web-black.vercel.app${href('附录I-术语表.md')}#book-comments`)
+    expect(screen.queryByLabelText('评论内容')).toBeNull()
+    expect(fetcher).toHaveBeenCalledTimes(1)
   })
 
   it('全书队列不包含大纲和审校资料，停止后关闭播放器', async () => {

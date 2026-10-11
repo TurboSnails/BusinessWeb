@@ -620,7 +620,7 @@ function ChapterReader({ file }: { file: string }): JSX.Element {
         </nav>
         {content && decoded === BOOK_END_FILE && <div id="book-comments" className="book-end-comments">
           <p>读到书末，欢迎留下对《正念投资》的感受、问题或修改建议。</p>
-          <ChapterComments slug="正念投资.md" title="全书书评" />
+          {import.meta.env.BASE_URL === '/' ? <ChapterComments slug="正念投资.md" title="全书书评" /> : <a className="book-secondary-link" href={`https://business-web-black.vercel.app${chapterHref(BOOK_END_FILE)}#book-comments`}>前往正式站查看和提交书评 <ArrowRight size={15} aria-hidden="true" /></a>}
         </div>}
       </div>
     </main>
