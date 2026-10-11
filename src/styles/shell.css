@@ -285,6 +285,10 @@
   .section-chrome {
     padding: 16px 24px 0;
   }
+
+  .page-tabs__inner {
+    padding: 0 24px;
+  }
 }
 
 /* ---------- 栏目页通用 ---------- */
@@ -948,7 +952,7 @@ a.chapter-nav__item:hover {
 }
 
 .page-tabs__inner {
-  max-width: 1200px;
+  max-width: var(--page-max, 1100px);
   margin: 0 auto;
   padding: 0 16px;
   display: flex;
