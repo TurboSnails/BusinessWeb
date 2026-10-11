@@ -554,3 +554,10 @@
     font-size: 1.25rem;
   }
 }
+
+/* 桌面上顶栏已有「跳转 ⌘K」，首页的大搜索框只在手机上显示 */
+@media (min-width: 768px) {
+  .home .home-jump {
+    display: none;
+  }
+}

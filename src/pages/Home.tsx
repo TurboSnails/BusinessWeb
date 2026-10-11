@@ -10,8 +10,9 @@ import { summarizeLocalRecords } from '../features/workbench/localRecords'
 import { useCommandPalette } from '../components/CommandPalette'
 import '../styles/home.css'
 import { Page } from '../components/ui'
+import { paletteShortcut } from '../utils/shortcut'
 
-const IS_MAC = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)
+const SHORTCUT = paletteShortcut()
 
 const TOOL_ICONS: Record<string, LucideIcon> = {
   '/research-notes': Building2,
@@ -43,7 +44,7 @@ export default function Home(): JSX.Element {
         <button type="button" className="home-jump" aria-label="跳转到页面" onClick={palette.open}>
           <Search size={18} aria-hidden="true" />
           <span className="home-jump__text">跳转到页面…</span>
-          <kbd className="home-jump__kbd">{IS_MAC ? '⌘K' : 'Ctrl K'}</kbd>
+          <kbd className="home-jump__kbd">{SHORTCUT.keys}</kbd>
         </button>
       </header>
 

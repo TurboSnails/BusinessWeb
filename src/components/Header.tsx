@@ -3,8 +3,9 @@ import { Link, useLocation } from 'react-router-dom'
 import { Menu, Search, X } from 'lucide-react'
 import { NAV_ITEMS, isNavActive } from '../data/siteMap'
 import { useCommandPalette } from './CommandPalette'
+import { paletteShortcut } from '../utils/shortcut'
 
-const IS_MAC = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)
+const SHORTCUT = paletteShortcut()
 
 function Leaf(): JSX.Element {
   return (
@@ -82,7 +83,7 @@ export default function Header(): JSX.Element {
         <button
           type="button"
           className="site-search-btn"
-          aria-label={`跳转到页面（${IS_MAC ? '⌘K' : 'Ctrl+K'}）`}
+          aria-label={`跳转到页面（${SHORTCUT.spoken}）`}
           onClick={() => {
             setOpen(false)
             palette.open()
@@ -90,7 +91,7 @@ export default function Header(): JSX.Element {
         >
           <Search size={18} aria-hidden="true" />
           <span className="site-search-btn__text">跳转</span>
-          <kbd className="site-search-btn__kbd">{IS_MAC ? '⌘K' : 'Ctrl K'}</kbd>
+          <kbd className="site-search-btn__kbd">{SHORTCUT.keys}</kbd>
         </button>
 
         <button
