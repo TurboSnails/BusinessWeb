@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { INVEST_GROUPS, NAV_ITEMS, findInvestEntry, isNavActive } from './siteMap'
+import { INVEST_GROUPS, NAV_ITEMS, SEARCHABLE_PAGES, WORKBENCH_TOOLS, findInvestEntry, findSearchablePage, isNavActive, searchPages } from './siteMap'
 
 const appSource = readFileSync(resolve(__dirname, '../App.tsx'), 'utf8')
 
@@ -121,5 +121,58 @@ describe('isNavActive', () => {
     expect(isNavActive('/ai', '/ai')).toBe(true)
     expect(isNavActive('/about', '/about')).toBe(true)
     expect(isNavActive('/life', '/invest')).toBe(false)
+  })
+})
+
+describe('SEARCHABLE_PAGES', () => {
+  it('路径不重复，且都能在 App.tsx 的路由里找到', () => {
+    const paths = SEARCHABLE_PAGES.map(p => p.path)
+    expect(new Set(paths).size).toBe(paths.length)
+    for (const p of SEARCHABLE_PAGES) {
+      const routePath = p.path.startsWith('/ai/') && p.path !== '/ai/fullstack-roadmap' ? '/ai/:slug' : p.path
+      expect(appSource, p.path).toContain(`path="${routePath}"`)
+    }
+  })
+  it('包含一级栏目、投资分组全部链接、AI 方向页与补充页', () => {
+    const paths = SEARCHABLE_PAGES.map(p => p.path)
+    for (const p of ['/', '/invest', '/knowledge', '/dcf', '/grid-trading/records', '/ai/blog', '/ai/fullstack-roadmap', '/first-book/slow-is-fast']) expect(paths).toContain(p)
+  })
+  it('已舍弃页面带 archived 标记', () => {
+    expect(SEARCHABLE_PAGES.find(p => p.path === '/trading-philosophy')?.archived).toBe(true)
+  })
+})
+
+describe('WORKBENCH_TOOLS', () => {
+  it('8 个常用工具，顺序固定，都在注册表里且有说明', () => {
+    expect(WORKBENCH_TOOLS.map(t => t.path)).toEqual([
+      '/research-notes', '/valuation', '/dcf', '/grid-trading', '/monitor', '/invest/national-team', '/knowledge', '/first-book',
+    ])
+    for (const t of WORKBENCH_TOOLS) {
+      expect(findSearchablePage(t.path), t.path).toBeTruthy()
+      expect(t.desc.length, t.path).toBeGreaterThan(0)
+    }
+  })
+})
+
+describe('searchPages', () => {
+  const pages = [
+    { path: '/a', label: '网格交易', group: '投资' },
+    { path: '/b', label: '网格记录', group: '投资' },
+    { path: '/c', label: '公司估值', group: '投资', desc: '含网格说明' },
+    { path: '/d', label: '旧网格', group: '已舍弃', archived: true },
+    { path: '/dcf', label: 'DCF', group: '投资' },
+  ]
+  it('空查询返回全部，已舍弃排最后', () => {
+    expect(searchPages('', pages).map(p => p.path)).toEqual(['/a', '/b', '/c', '/dcf', '/d'])
+  })
+  it('label 开头 > label 包含 > 其他字段，已舍弃最后', () => {
+    expect(searchPages('网格', pages).map(p => p.path)).toEqual(['/a', '/b', '/c', '/d'])
+  })
+  it('多词全部命中才算，不区分大小写', () => {
+    expect(searchPages('dcf 投资', pages).map(p => p.path)).toEqual(['/dcf'])
+    expect(searchPages('网格 记录', pages).map(p => p.path)).toEqual(['/b'])
+  })
+  it('无匹配返回空数组', () => {
+    expect(searchPages('不存在的词', pages)).toEqual([])
   })
 })

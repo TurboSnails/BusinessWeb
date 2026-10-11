@@ -1,3 +1,5 @@
+import { LAB_DIRECTIONS } from './aiLab'
+
 export interface NavItem {
   path: string
   label: string
@@ -123,4 +125,72 @@ export function isNavActive(itemPath: string, pathname: string): boolean {
     return matchesPath('/invest', pathname) || findInvestEntry(pathname) !== null
   }
   return matchesPath(itemPath, pathname)
+}
+
+export interface SearchablePage {
+  path: string
+  label: string
+  group: string
+  desc?: string
+  archived?: boolean
+}
+
+export interface WorkbenchTool {
+  path: string
+  label: string
+  desc: string
+}
+
+// 不在导航和投资分组里、但有固定路径的页面
+const EXTRA_PAGES: SearchablePage[] = [
+  { path: '/first-book/slow-is-fast', label: '书的目录', group: '投资 · 读这本书', desc: '《正念投资》目录与章节' },
+  { path: '/grid-trading/records', label: '网格记录', group: '投资 · 用工具执行', desc: '已保存的网格模拟与回测记录' },
+  { path: '/ai/fullstack-roadmap', label: '全栈学习路线', group: 'AI实验室', desc: 'AI 全栈开发学习计划' },
+]
+
+/** 跳转面板与最近访问共用的页面注册表，由导航、投资分组和 AI 方向拼出，不另外手写 */
+export const SEARCHABLE_PAGES: SearchablePage[] = [
+  ...NAV_ITEMS.map(i => ({ path: i.path, label: i.label, group: '栏目' })),
+  ...INVEST_GROUPS.flatMap(g =>
+    g.links.map(l => ({
+      path: l.path,
+      label: l.label,
+      group: `投资 · ${g.title}`,
+      desc: l.desc,
+      ...(l.archived ? { archived: true } : {}),
+    }))
+  ),
+  ...EXTRA_PAGES,
+  ...LAB_DIRECTIONS.map(d => ({ path: `/ai/${d.slug}`, label: d.title, group: 'AI实验室 · 方向', desc: d.reason })),
+]
+
+export function findSearchablePage(pathname: string): SearchablePage | null {
+  return SEARCHABLE_PAGES.find(p => p.path === pathname) ?? null
+}
+
+const descOf = (path: string): string => findSearchablePage(path)?.desc ?? ''
+
+export const WORKBENCH_TOOLS: WorkbenchTool[] = [
+  { path: '/research-notes', label: '公司研究', desc: descOf('/research-notes') },
+  { path: '/valuation', label: '公司估值', desc: descOf('/valuation') },
+  { path: '/dcf', label: 'DCF', desc: descOf('/dcf') },
+  { path: '/grid-trading', label: '网格交易', desc: descOf('/grid-trading') },
+  { path: '/monitor', label: '宏观温度', desc: descOf('/monitor') },
+  { path: '/invest/national-team', label: '国家队持仓', desc: descOf('/invest/national-team') },
+  { path: '/knowledge', label: '知识图谱', desc: '个人知识库与笔记关系图' },
+  { path: '/first-book', label: '我的书', desc: descOf('/first-book') },
+]
+
+/** 关键词按空格切开，每个词都要命中；label 开头 > label 包含 > 其他字段；已舍弃永远最后 */
+export function searchPages(query: string, pages: SearchablePage[] = SEARCHABLE_PAGES): SearchablePage[] {
+  const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean)
+  const first = terms[0]
+  const scored = pages.flatMap((page, index) => {
+    const label = page.label.toLowerCase()
+    const haystack = [page.label, page.group, page.desc ?? '', page.path].join(' ').toLowerCase()
+    if (!terms.every(t => haystack.includes(t))) return []
+    const rank = !first ? 0 : label.startsWith(first) ? 0 : label.includes(first) ? 1 : 2
+    return [{ page, index, rank: rank + (page.archived ? 10 : 0) }]
+  })
+  return scored.sort((a, b) => a.rank - b.rank || a.index - b.index).map(s => s.page)
 }
