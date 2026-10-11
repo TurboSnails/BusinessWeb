@@ -116,3 +116,23 @@ describe('Dialog / Field', () => {
     expect(closed).toBe(1)
   })
 })
+
+describe('Dialog 父组件重渲染', () => {
+  it('onClose 每次都是新函数时，焦点不会被拉回第一个输入框', () => {
+    function Host(): JSX.Element {
+      const [a, setA] = React.useState('')
+      const [b, setB] = React.useState('')
+      return (
+        <Dialog open onClose={() => {}} title="表单">
+          <Field label="甲"><input value={a} onChange={e => setA(e.target.value)} /></Field>
+          <Field label="乙"><input value={b} onChange={e => setB(e.target.value)} /></Field>
+        </Dialog>
+      )
+    }
+    render(<Host />)
+    const second = screen.getByLabelText('乙')
+    second.focus()
+    fireEvent.change(second, { target: { value: 'x' } })
+    expect(document.activeElement).toBe(second)
+  })
+})

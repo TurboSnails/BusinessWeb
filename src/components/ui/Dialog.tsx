@@ -14,6 +14,9 @@ export function Dialog({ open, onClose, title, icon, children, actions, size = '
 }): JSX.Element | null {
   const titleId = useId()
   const panelRef = useRef<HTMLDivElement>(null)
+  // 调用方常传内联箭头函数：放进 ref，避免每次父组件重渲染都重跑焦点逻辑把焦点拉回第一个控件
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
 
   useEffect(() => {
     if (!open) return
@@ -22,14 +25,14 @@ export function Dialog({ open, onClose, title, icon, children, actions, size = '
     document.body.style.overflow = 'hidden'
     const first = panelRef.current?.querySelector<HTMLElement>('input, select, textarea, button, [href]')
     ;(first ?? panelRef.current)?.focus()
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onCloseRef.current() }
     document.addEventListener('keydown', onKey)
     return () => {
       document.removeEventListener('keydown', onKey)
       document.body.style.overflow = overflow
       previous?.focus?.()
     }
-  }, [open, onClose])
+  }, [open])
 
   if (!open) return null
   return (
