@@ -29,6 +29,33 @@
   ],
   "headers": [
     {
+      "source": "/assets/:file(dev-team-README-[^/]+\\.md)",
+      "headers": [
+        {
+          "key": "Content-Disposition",
+          "value": "attachment; filename=\"dev-team-README.md\""
+        }
+      ]
+    },
+    {
+      "source": "/assets/:file(dropshipping-strategy-[^/]+\\.md)",
+      "headers": [
+        {
+          "key": "Content-Disposition",
+          "value": "attachment; filename=\"dropshipping-strategy.md\"; filename*=UTF-8''%E6%97%A0%E8%B4%A7%E6%BA%90%E7%94%B5%E5%95%86-30%E5%A4%A9%E5%AE%9E%E6%96%BD%E6%96%B9%E6%A1%88.md"
+        }
+      ]
+    },
+    {
+      "source": "/templates/dropshipping-orders.csv",
+      "headers": [
+        {
+          "key": "Content-Disposition",
+          "value": "attachment; filename=\"dropshipping-orders.csv\"; filename*=UTF-8''%E6%97%A0%E8%B4%A7%E6%BA%90%E7%94%B5%E5%95%86-%E8%AE%A2%E5%8D%95%E8%AE%B0%E8%B4%A6%E6%A8%A1%E6%9D%BF.csv"
+        }
+      ]
+    },
+    {
       "source": "/first-book/:file([^/]+\\.md)",
       "headers": [
         {
