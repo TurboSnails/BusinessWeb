@@ -59,6 +59,18 @@ npm run build
 
 `typecheck` 覆盖网格交易、估值、个人知识中心与新增同步服务端；历史页面暂不在该检查范围内。`test:functions` 检查 Vercel Function 的 schema 与环境变量使用。
 
+## Orca 开发团队 dev_team
+
+项目内置 [dev-team 技能](.agents/skills/dev-team/SKILL.md)：当前 agent 作为唯一管理入口，通过 Orca 协调 Codex、Claude、Kimi、Antigravity 与 OpenCode MiniMax M3。Android、Web 前端、后端分别生成需求、设计与测试流程，全栈按契约组织并行；按场景加载文档，支持额度不足时交接与替补。
+
+在项目对话中输入 `$dev-team <开发目标>`（Claude Code 用 `/dev-team`，Kimi 用 `/skill:dev-team`）。[操作与迁移说明](.agents/skills/dev-team/references/operations.md) 包含初始化、路由、真实派工、M3 兼容启动和恢复步骤。可分享 [独立 ZIP 包](public/ai-skills/dev-team.zip)，解压后在其他项目安装：
+
+```bash
+node /path/to/dev-team/scripts/dev-team.mjs init --project /path/to/other-project
+```
+
+依赖 Node 20+、Orca 和至少一个可用执行器；需在 Orca 打开目标项目后派工。打包用 `node .agents/skills/dev-team/scripts/dev-team.mjs pack --output public/ai-skills/dev-team.zip`，仅包含技能，排除项目运行记录与凭据。
+
 ## AI 投研 skills
 
 项目以 `stock-analysis` 融合研究方法、股票研究专家、腾讯自选股投研专家团与 Public Markets Investing，位于「AI 工具」第一项。新增商业模式驱动树、核心假设、预测归因、行业周期及证据追溯；回测与组合风险按需启用。交易分析团队保留独立入口；旧两套名称转入融合版。
