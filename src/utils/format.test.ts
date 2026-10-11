@@ -62,3 +62,11 @@ describe('formatPercent', () => {
     expect(formatPercent(percent)).toBe(expected)
   })
 })
+
+describe('formatPercent 符号', () => {
+  it('负数不出现「+-」', () => {
+    expect(formatPercent(-0.9)).toBe('-0.90%')
+    expect(formatPercent(1.84)).toBe('+1.84%')
+    expect(formatPercent(0)).toBe('+0.00%')
+  })
+})

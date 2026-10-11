@@ -9,7 +9,7 @@ export function Dialog({ open, onClose, title, icon, children, actions, size = '
   icon?: React.ReactNode
   children: React.ReactNode
   actions?: React.ReactNode
-  size?: 'sm' | 'md'
+  size?: 'sm' | 'md' | 'lg'
   className?: string
 }): JSX.Element | null {
   const titleId = useId()

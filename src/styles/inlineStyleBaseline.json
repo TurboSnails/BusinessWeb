@@ -151,10 +151,6 @@
     "inline": 71,
     "color": 2
   },
-  "pages/LimitUpAnalysis.tsx": {
-    "inline": 47,
-    "color": 5
-  },
   "pages/Monitor.tsx": {
     "inline": 1,
     "color": 0
@@ -172,8 +168,8 @@
     "color": 0
   },
   "pages/SectorRotation.tsx": {
-    "inline": 85,
-    "color": 9
+    "inline": 2,
+    "color": 1
   },
   "pages/ThemeCards.tsx": {
     "inline": 21,

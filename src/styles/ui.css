@@ -402,6 +402,7 @@
 
 .ui-dialog--sm { max-width: 420px; }
 .ui-dialog--md { max-width: 540px; }
+.ui-dialog--lg { max-width: 760px; }
 
 .ui-dialog__title {
   display: flex;
@@ -555,7 +556,8 @@
   }
 
   .ui-dialog--sm,
-  .ui-dialog--md {
+  .ui-dialog--md,
+  .ui-dialog--lg {
     max-width: none;
   }
 }

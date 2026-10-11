@@ -4,7 +4,9 @@ import { clsProxy } from '../services/clsProxy'
 import { loadSectorPayload, readSectorView, saveSectorView, sectorStorageStatus, peekSectorPayload, sectorUpdatedAt } from '../services/sectorCache'
 import { useSectorRefresh } from '../services/useSectorRefresh'
 import { shanghaiDate, isClosedDate, previousTradingDate } from '../services/limitUp'
-import { Page } from '../components/ui'
+import { Callout, Card, Dialog, EmptyState, Page, TableWrap } from '../components/ui'
+import '../styles/a-share.css'
+import { formatPercent } from '../utils/format'
 import {
   AlertTriangle,
   BarChart2,
@@ -1733,136 +1735,197 @@ export default function SectorRotation(): JSX.Element {
     return 0
   }, [plateRawDataByDate])
 
+  // 以某个交易日为中心取 7 个有数据的交易日（前后各 3 天，不足时向另一侧补齐）
+  const centeredDates = (date: string): string[] => {
+    let displayDates: string[] = []
+    // 获取所有有数据的日期，按日期从新到旧排序
+    const allDates = Object.keys(sectorDataByDate)
+      .filter(d => sectorDataByDate[d] && sectorDataByDate[d].length > 0)
+      .sort((a, b) => b.localeCompare(a)) // 从新到旧
+
+    // 找到当前日期在排序后的位置
+    const currentDateIndex = allDates.indexOf(date)
+
+
+    if (currentDateIndex >= 0) {
+      // 以当前日期为中心，当前日期在中间（第4个位置，索引3）
+      // allDates 是从新到旧排序的（索引0是最新，索引越大越旧）
+      // 位置0,1,2: 后面（更新的日期，索引更小）最多3天
+      // 位置3: 当前日期
+      // 位置4,5,6: 前面（更旧的日期，索引更大）至少3天
+
+      // 先确定前面3天的范围（更旧的日期，索引更大）
+      let endIndex = Math.min(allDates.length - 1, currentDateIndex + 3) // 前面3天的结束索引
+
+      // 检查前面是否有3天
+      const beforeCount = endIndex - currentDateIndex
+
+      // 确定后面3天的范围（更新的日期，索引更小）
+      let startIndex = currentDateIndex - 3 // 后面3天的起始索引
+
+      if (beforeCount < 3) {
+        // 前面不足3天，用后面补齐
+        const needMore = 3 - beforeCount
+        startIndex = Math.max(0, startIndex - needMore)
+      } else {
+        // 前面有3天，后面最多3天
+        startIndex = Math.max(0, currentDateIndex - 3)
+      }
+
+      displayDates = allDates.slice(startIndex, endIndex + 1)
+
+      // 确保当前日期在中间位置（第4个，索引3）
+      const currentInSlice = displayDates.indexOf(date)
+      if (currentInSlice >= 0) {
+        if (currentInSlice !== 3) {
+          // 需要调整，让当前日期在位置3（中间）
+          const needMove = 3 - currentInSlice
+
+          if (needMove > 0) {
+            // 当前日期太靠前，需要往前取更多数据（索引更大）
+            const canAdd = Math.min(needMove, allDates.length - 1 - endIndex)
+            if (canAdd > 0) {
+              endIndex = endIndex + canAdd
+              displayDates = allDates.slice(startIndex, endIndex + 1)
+            }
+          } else if (needMove < 0) {
+            // 当前日期太靠后，需要往后取更多数据（索引更小）
+            const canAdd = Math.min(-needMove, startIndex)
+            if (canAdd > 0) {
+              startIndex = startIndex - canAdd
+              displayDates = allDates.slice(startIndex, endIndex + 1)
+            }
+          }
+        }
+
+        // 确保正好7天
+        if (displayDates.length > 7) {
+          // 以当前日期为中心，取前后各3天
+          const currentInSlice2 = displayDates.indexOf(date)
+          if (currentInSlice2 >= 0) {
+            startIndex = startIndex + (currentInSlice2 - 3)
+            endIndex = startIndex + 6
+            displayDates = allDates.slice(startIndex, endIndex + 1)
+          }
+        } else if (displayDates.length < 7) {
+          // 如果不足7天，尽量保持当前日期在中间
+          const currentInSlice3 = displayDates.indexOf(date)
+          if (currentInSlice3 >= 0) {
+            const needBefore = 3 - currentInSlice3
+            if (needBefore > 0 && endIndex < allDates.length - 1) {
+              // 需要往前取更多
+              const canAdd = Math.min(needBefore, allDates.length - 1 - endIndex)
+              endIndex = endIndex + canAdd
+              displayDates = allDates.slice(startIndex, endIndex + 1)
+            } else if (needBefore < 0 && startIndex > 0) {
+              // 需要往后取更多
+              const canAdd = Math.min(-needBefore, startIndex)
+              startIndex = startIndex - canAdd
+              displayDates = allDates.slice(startIndex, endIndex + 1)
+            }
+          }
+        }
+      }
+    } else {
+      // 如果当前日期不在数据中，取最近7天
+      displayDates = allDates.slice(0, 7)
+    }
+
+    return displayDates
+  }
+
+  // 板块详情里的最近 7 天：今天有数据从今天往前，否则以最近有数据的日期为中心
+  const recentDates = (): { dates: string[]; today: string } => {
+    const last7Days = getLast7Days()
+    const today = new Date().toISOString().split('T')[0]
+    const todayIndex = last7Days.indexOf(today)
+
+    // 如果今天有数据，从今天开始显示；如果没有，找到最近有数据的日期
+    let displayDates: string[] = []
+    if (todayIndex >= 0 && sectorDataByDate[today]) {
+      // 今天有数据，从今天往前显示7天
+      displayDates = last7Days.slice(Math.max(0, todayIndex - 6), todayIndex + 1).reverse()
+    } else {
+      // 今天没有数据，找到最近有数据的日期
+      let latestDateIndex = -1
+      for (let i = last7Days.length - 1; i >= 0; i--) {
+        if (sectorDataByDate[last7Days[i]]) {
+          latestDateIndex = i
+          break
+        }
+      }
+
+      if (latestDateIndex >= 0) {
+        // 找到最近有数据的日期，前后各显示3天
+        const start = Math.max(0, latestDateIndex - 3)
+        const end = Math.min(last7Days.length - 1, latestDateIndex + 3)
+        displayDates = last7Days.slice(start, end + 1).reverse()
+      } else {
+        // 没有数据，显示最近7天
+        displayDates = last7Days.reverse()
+      }
+    }
+
+    return { dates: displayDates, today }
+  }
+
+  const isSelected = (name: string, date: string) => selectedSector?.name === name && selectedSector?.date === date
+
   return (
-    <Page>
+    <Page className="sector-page">
       <PageTitle>板块轮动</PageTitle>
-      <p role="note" style={{ margin: '0 0 16px', padding: '10px 14px', borderRadius: 10, background: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: 1.7 }}>
+      <Callout tone="muted" className="sector-gap">
         这里只反映最近的价格强弱，不说明主题值不值得持有。涨得快的板块往往已经反映了预期，追涨容易买在高位。要研究一个主题，先看书第31章的三个问题，仓位只放主动额度（第9章）。不构成投资建议。
-      </p>
+      </Callout>
 
       {/* 筛选栏 */}
-      <div className="glass-panel" style={{
-        padding: '20px 24px',
-        borderRadius: 'var(--radius-lg)',
-        marginBottom: '24px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '20px',
-        flexWrap: 'wrap',
-        border: '1px solid var(--glass-border)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>类型:</span>
-          <select
-            value={filterType}
-            onChange={(e) => {
-              const newType = e.target.value as 'industry' | 'concept'
-              console.log(`🔄 切换类型: ${filterType} -> ${newType}`)
-              setFilterType(newType)
-              // 清空选中状态，避免显示旧数据
-              setSelectedSector(null)
-              setHotStocks([])
-            }}
-            style={{
-              padding: '8px 16px',
-              border: '1px solid var(--system-gray5)',
-              borderRadius: '8px',
-              fontSize: '0.95rem',
-              cursor: 'pointer',
-              outline: 'none',
-              background: 'rgba(255,255,255,0.8)',
-              color: 'var(--text-primary)'
-            }}
-          >
+      <div className="ui-cluster sector-filters">
+        <label className="sector-filter">
+          类型
+          <select className="ui-input" value={filterType} onChange={(e) => {
+            const newType = e.target.value as 'industry' | 'concept'
+            setFilterType(newType)
+            // 清空选中状态，避免显示旧数据
+            setSelectedSector(null)
+            setHotStocks([])
+          }}>
             <option value="industry">行业</option>
             <option value="concept">概念</option>
           </select>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>排序:</span>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as 'change' | 'rank')}
-            style={{
-              padding: '6px 12px',
-              border: '1px solid var(--system-gray3)',
-              borderRadius: '6px',
-              fontSize: '0.9rem',
-              cursor: 'pointer',
-              outline: 'none'
-            }}
-          >
+        </label>
+        <label className="sector-filter">
+          排序
+          <select className="ui-input" value={sortBy} onChange={(e) => setSortBy(e.target.value as 'change' | 'rank')}>
             <option value="change">涨幅</option>
             <option value="rank">排名</option>
           </select>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>显示:</span>
-          <select
-            value={topN}
-            onChange={(e) => setTopN(Number(e.target.value))}
-            style={{
-              padding: '6px 12px',
-              border: '1px solid var(--system-gray3)',
-              borderRadius: '6px',
-              fontSize: '0.9rem',
-              cursor: 'pointer',
-              outline: 'none'
-            }}
-          >
+        </label>
+        <label className="sector-filter">
+          显示
+          <select className="ui-input" value={topN} onChange={(e) => setTopN(Number(e.target.value))}>
             <option value={10}>前10名</option>
             <option value={15}>前15名</option>
             <option value={20}>前20名</option>
           </select>
-        </div>
+        </label>
       </div>
 
-
       {['unconfigured', 'unavailable'].includes(sectorStorageStatus() || '') && (
-        <p role="status" style={{ color: 'var(--warm-ink)', fontSize: '0.85rem' }}>数据库缓存暂未就绪，当前使用本地缓存；历史数据尚未确认入库。</p>
+        <p role="status" className="sector-storage">数据库缓存暂未就绪，当前使用本地缓存；历史数据尚未确认入库。</p>
       )}
       {error && (
-        <div style={{
-          background: 'var(--system-red-light)',
-          color: 'var(--up)',
-          padding: '12px',
-          borderRadius: '8px',
-          marginBottom: '20px',
-          fontSize: '0.9rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px'
-        }}>
-          <AlertTriangle size={16} /> {error}
+        <div role="alert" className="ui-callout ui-callout--danger sector-gap">
+          <AlertTriangle size={16} aria-hidden="true" className="ui-callout__icon" />
+          <div className="ui-callout__body">{error}</div>
         </div>
       )}
 
       {loading ? (
-        <div style={{
-          padding: '60px 20px',
-          textAlign: 'center',
-          color: 'var(--text-secondary)'
-        }}>
-          <style>{`@keyframes sr-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
-          <Loader2
-            size={32}
-            style={{
-              animation: 'sr-spin 1s linear infinite',
-              margin: '0 auto 16px',
-              color: 'var(--accent)'
-            }}
-          />
-          <div style={{ fontSize: '0.95rem', fontWeight: 500 }}>
-            正在加载板块数据...
-          </div>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', marginTop: '6px' }}>
-            {loadingProgress.total > 0
-              ? `已加载 ${loadingProgress.loaded}/${loadingProgress.total} 个交易日，数据源响应较慢，请稍候`
-              : '正在连接数据源...'}
-          </div>
-        </div>
+        <EmptyState icon={<Loader2 size={32} className="animate-spin" />} title="正在加载板块数据…">
+          {loadingProgress.total > 0
+            ? `已加载 ${loadingProgress.loaded}/${loadingProgress.total} 个交易日，数据源响应较慢，请稍候`
+            : '正在连接数据源...'}
+        </EmptyState>
       ) : (
         <>
           {/* 板块轮动表格 */}
@@ -1872,629 +1935,165 @@ export default function SectorRotation(): JSX.Element {
 
             if (validDates.length === 0) {
               return (
-                <div style={{
-                  padding: '40px',
-                  textAlign: 'center',
-                  color: 'var(--text-tertiary)',
-                  fontSize: '0.9rem'
-                }}>
-                  <div style={{ marginBottom: '12px', fontSize: '1.1rem', fontWeight: '600', color: 'var(--text-secondary)' }}>
-                    暂无数据
-                  </div>
-                  <div style={{ fontSize: '0.85rem', lineHeight: '1.6', color: 'var(--text-tertiary)' }}>
-                    {loading ? (
-                      '正在加载数据...'
-                    ) : (
-                      <>
-                        <div>可能原因：</div>
-                        <div style={{ marginTop: '8px', paddingLeft: '20px', textAlign: 'left', display: 'inline-block' }}>
-                          <div>• 所选日期没有交易数据（周末或节假日）</div>
-                          <div>• 网络请求失败，请刷新重试</div>
-                          <div>• 过滤条件过于严格，请尝试切换"行业/概念"类型</div>
-                        </div>
-                        <div style={{ marginTop: '16px', fontSize: '0.8rem', color: 'var(--system-gray3)' }}>
-                          提示：请打开浏览器控制台（F12）查看详细日志
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
+                <EmptyState title="暂无数据">
+                  <div>可能原因：</div>
+                  <ul className="sector-reasons">
+                    <li>所选日期没有交易数据（周末或节假日）</li>
+                    <li>网络请求失败，请刷新重试</li>
+                    <li>过滤条件过于严格，请尝试切换「行业/概念」类型</li>
+                  </ul>
+                </EmptyState>
               )
             }
 
             return (
-              <div className="card" style={{
-                background: 'var(--bg-card)',
-                padding: '24px',
-                borderRadius: 'var(--radius-lg)',
-                boxShadow: 'var(--shadow-md)',
-                marginBottom: '24px',
-                overflowX: 'auto',
-                border: '1px solid var(--glass-border)'
-              }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
-                  <thead>
-                    <tr style={{ background: 'var(--system-gray6)', borderBottom: '2px solid var(--system-gray5)' }}>
-                      <th style={{ padding: '14px 12px', textAlign: 'left', fontSize: '0.9rem', fontWeight: '700', color: 'var(--text-secondary)', width: '60px' }}>排名</th>
-                      {validDates.map(date => (
-                        <th key={date} style={{ padding: '14px 12px', textAlign: 'center', fontSize: '0.9rem', fontWeight: '700', color: 'var(--text-secondary)', minWidth: '150px' }}>
-                          {formatDateDisplay(date)}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {Array.from({ length: topN }, (_, rankIndex) => {
-                      const rank = rankIndex + 1
-                      return (
-                        <tr key={rank} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                          <td style={{ padding: '12px', textAlign: 'center' }}>
-                            {rank <= 3 ? (
-                              <span style={{
-                                display: 'inline-block',
-                                width: '32px',
-                                height: '32px',
-                                lineHeight: '32px',
-                                background: 'var(--system-red)',
-                                color: 'white',
-                                borderRadius: '8px',
-                                fontSize: '0.95rem',
-                                fontWeight: '700',
-                                boxShadow: '0 2px 6px color-mix(in srgb, var(--system-red) 30%, transparent)'
-                              }}>
-                                {rank}
-                              </span>
-                            ) : (
-                              <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{rank}</span>
-                            )}
-                          </td>
-                          {validDates.map(date => {
-                            const sectors = sectorDataByDate[date] || []
-                            const sector = sectors[rank - 1]
-                            return (
-                              <td key={date} style={{ padding: '12px', textAlign: 'center', verticalAlign: 'top' }}>
-                                {sector ? (
-                                  <>
-                                    <div
-                                      onClick={() => handleSectorClick(sector)}
-                                      style={{
-                                        cursor: 'pointer',
-                                        padding: '8px',
-                                        borderRadius: '6px',
-                                        transition: 'background 0.2s',
-                                        background: selectedSector?.name === sector.name && selectedSector?.date === date ? 'var(--system-blue-light)' : 'transparent',
-                                        marginBottom: '8px',
-                                        border: selectedSector?.name === sector.name && selectedSector?.date === date ? '1px solid color-mix(in srgb, var(--system-blue) 20%, transparent)' : '1px solid transparent'
-                                      }}
-                                      onMouseEnter={(e) => {
-                                        if (!(selectedSector?.name === sector.name && selectedSector?.date === date)) {
-                                          e.currentTarget.style.background = 'var(--system-gray6)'
-                                        }
-                                      }}
-                                      onMouseLeave={(e) => {
-                                        if (!(selectedSector?.name === sector.name && selectedSector?.date === date)) {
-                                          e.currentTarget.style.background = 'transparent'
-                                        }
-                                      }}
-                                    >
-                                      <div style={{ fontSize: '0.85rem', fontWeight: '500', color: 'var(--text-primary)', marginBottom: '4px', position: 'relative' }}>
-                                        {sector.name}
-                                        {(() => {
-                                          const count = getOver1PercentCount(sector.name, sector.code)
-                                          if (count > 0) {
-                                            return (
-                                              <span style={{
-                                                position: 'absolute',
-                                                top: '-6px',
-                                                right: '-6px',
-                                                background: getCountColor(count),
-                                                color: count === 1 ? 'var(--text-secondary)' : 'white',
-                                                fontSize: '0.65rem',
-                                                fontWeight: '700',
-                                                padding: '2px 5px',
-                                                borderRadius: '10px',
-                                                minWidth: '18px',
-                                                textAlign: 'center',
-                                                lineHeight: '1.2',
-                                                boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
-                                              }}>
-                                                {count}
-                                              </span>
-                                            )
-                                          }
-                                          return null
-                                        })()}
-                                      </div>
-                                      <div style={{
-                                        fontSize: '1rem',
-                                        fontWeight: '700',
-                                        color: 'var(--system-red)'
-                                      }}>
-                                        +{sector.changePercent.toFixed(2)}%
-                                      </div>
-                                    </div>
-                                    {/* 最近7天涨停家数 */}
-                                    {(() => {
-                                      // 获取所有有数据的日期，按日期从新到旧排序
-                                      const allDates = Object.keys(sectorDataByDate)
-                                        .filter(d => sectorDataByDate[d] && sectorDataByDate[d].length > 0)
-                                        .sort((a, b) => b.localeCompare(a)) // 从新到旧
-
-                                      // 找到当前日期在排序后的位置
-                                      const currentDateIndex = allDates.indexOf(date)
-
-                                      let displayDates: string[] = []
-
-                                      if (currentDateIndex >= 0) {
-                                        // 以当前日期为中心，当前日期在中间（第4个位置，索引3）
-                                        // allDates 是从新到旧排序的（索引0是最新，索引越大越旧）
-                                        // 位置0,1,2: 后面（更新的日期，索引更小）最多3天
-                                        // 位置3: 当前日期
-                                        // 位置4,5,6: 前面（更旧的日期，索引更大）至少3天
-
-                                        // 先确定前面3天的范围（更旧的日期，索引更大）
-                                        let endIndex = Math.min(allDates.length - 1, currentDateIndex + 3) // 前面3天的结束索引
-
-                                        // 检查前面是否有3天
-                                        const beforeCount = endIndex - currentDateIndex
-
-                                        // 确定后面3天的范围（更新的日期，索引更小）
-                                        let startIndex = currentDateIndex - 3 // 后面3天的起始索引
-
-                                        if (beforeCount < 3) {
-                                          // 前面不足3天，用后面补齐
-                                          const needMore = 3 - beforeCount
-                                          startIndex = Math.max(0, startIndex - needMore)
-                                        } else {
-                                          // 前面有3天，后面最多3天
-                                          startIndex = Math.max(0, currentDateIndex - 3)
-                                        }
-
-                                        displayDates = allDates.slice(startIndex, endIndex + 1)
-
-                                        // 确保当前日期在中间位置（第4个，索引3）
-                                        const currentInSlice = displayDates.indexOf(date)
-                                        if (currentInSlice >= 0) {
-                                          if (currentInSlice !== 3) {
-                                            // 需要调整，让当前日期在位置3（中间）
-                                            const needMove = 3 - currentInSlice
-
-                                            if (needMove > 0) {
-                                              // 当前日期太靠前，需要往前取更多数据（索引更大）
-                                              const canAdd = Math.min(needMove, allDates.length - 1 - endIndex)
-                                              if (canAdd > 0) {
-                                                endIndex = endIndex + canAdd
-                                                displayDates = allDates.slice(startIndex, endIndex + 1)
-                                              }
-                                            } else if (needMove < 0) {
-                                              // 当前日期太靠后，需要往后取更多数据（索引更小）
-                                              const canAdd = Math.min(-needMove, startIndex)
-                                              if (canAdd > 0) {
-                                                startIndex = startIndex - canAdd
-                                                displayDates = allDates.slice(startIndex, endIndex + 1)
-                                              }
-                                            }
-                                          }
-
-                                          // 确保正好7天
-                                          if (displayDates.length > 7) {
-                                            // 以当前日期为中心，取前后各3天
-                                            const currentInSlice2 = displayDates.indexOf(date)
-                                            if (currentInSlice2 >= 0) {
-                                              startIndex = startIndex + (currentInSlice2 - 3)
-                                              endIndex = startIndex + 6
-                                              displayDates = allDates.slice(startIndex, endIndex + 1)
-                                            }
-                                          } else if (displayDates.length < 7) {
-                                            // 如果不足7天，尽量保持当前日期在中间
-                                            const currentInSlice3 = displayDates.indexOf(date)
-                                            if (currentInSlice3 >= 0) {
-                                              const needBefore = 3 - currentInSlice3
-                                              if (needBefore > 0 && endIndex < allDates.length - 1) {
-                                                // 需要往前取更多
-                                                const canAdd = Math.min(needBefore, allDates.length - 1 - endIndex)
-                                                endIndex = endIndex + canAdd
-                                                displayDates = allDates.slice(startIndex, endIndex + 1)
-                                              } else if (needBefore < 0 && startIndex > 0) {
-                                                // 需要往后取更多
-                                                const canAdd = Math.min(-needBefore, startIndex)
-                                                startIndex = startIndex - canAdd
-                                                displayDates = allDates.slice(startIndex, endIndex + 1)
-                                              }
-                                            }
-                                          }
-                                        }
-                                      } else {
-                                        // 如果当前日期不在数据中，取最近7天
-                                        displayDates = allDates.slice(0, 7)
-                                      }
-
+              <Card flush className="sector-gap">
+                <TableWrap label="板块轮动排名" stickyFirst>
+                  <table className="ui-table sector-table">
+                    <thead>
+                      <tr>
+                        <th scope="col" className="sector-rank-col">排名</th>
+                        {validDates.map(date => <th key={date} scope="col" className="sector-date-col">{formatDateDisplay(date)}</th>)}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {Array.from({ length: topN }, (_, rankIndex) => {
+                        const rank = rankIndex + 1
+                        return (
+                          <tr key={rank}>
+                            <td className="sector-rank-col">
+                              <span className={rank <= 3 ? 'sector-rank is-top' : 'sector-rank'}>{rank}</span>
+                            </td>
+                            {validDates.map(date => {
+                              const sector = (sectorDataByDate[date] || [])[rank - 1]
+                              if (!sector) return <td key={date} className="sector-cell sector-empty">-</td>
+                              const count = getOver1PercentCount(sector.name, sector.code)
+                              return (
+                                <td key={date} className="sector-cell">
+                                  <button type="button" onClick={() => handleSectorClick(sector)} aria-pressed={isSelected(sector.name, date)}
+                                    className={isSelected(sector.name, date) ? 'sector-pick is-selected' : 'sector-pick'}>
+                                    <span className="sector-pick__name">
+                                      {sector.name}
+                                      {count > 0 && (
+                                        <span className={count === 1 ? 'sector-count is-one' : 'sector-count'} style={{ background: getCountColor(count) }} title={`近期 ${count} 次涨幅超过 1%`}>{count}</span>
+                                      )}
+                                    </span>
+                                    <span className={sector.changePercent >= 0 ? 'sector-pick__pct' : 'sector-pick__pct is-down'}>{formatPercent(sector.changePercent)}</span>
+                                  </button>
+                                  {/* 以该日为中心的 7 天涨停家数 */}
+                                  <div className="sector-days">
+                                    {centeredDates(date).map((d) => {
+                                      const limitUpCount = getSectorLimitUpCount(sector.name, sector.code, d)
+                                      const hasData = !!sectorDataByDate[d]
                                       return (
-                                        <div style={{
-                                          display: 'flex',
-                                          gap: '2px',
-                                          justifyContent: 'center',
-                                          flexWrap: 'wrap',
-                                          marginTop: '4px'
-                                        }}>
-                                          {displayDates.map((d) => {
-                                            const limitUpCount = getSectorLimitUpCount(sector.name, sector.code, d)
-                                            const isCurrentDate = d === date
-                                            const hasData = !!sectorDataByDate[d]
-
-                                            return (
-                                              <div
-                                                key={d}
-                                                style={{
-                                                  padding: '3px 5px',
-                                                  background: isCurrentDate ? 'var(--accent-soft)' : hasData ? 'var(--bg-secondary)' : 'var(--bg-secondary)',
-                                                  border: isCurrentDate ? '1px solid var(--accent)' : '1px solid var(--border-subtle)',
-                                                  borderRadius: '4px',
-                                                  fontSize: '0.7rem',
-                                                  minWidth: '24px',
-                                                  textAlign: 'center',
-                                                  lineHeight: '1.2'
-                                                }}
-                                                title={`${formatDateDisplay(d)}: ${limitUpCount}家`}
-                                              >
-                                                <div style={{
-                                                  fontSize: '0.75rem',
-                                                  fontWeight: '600',
-                                                  color: hasData && limitUpCount > 0 ? 'var(--up)' : 'var(--text-tertiary)'
-                                                }}>
-                                                  {hasData ? limitUpCount : '-'}
-                                                </div>
-                                              </div>
-                                            )
-                                          })}
-                                        </div>
+                                        <span key={d} className={d === date ? 'sector-day is-current' : 'sector-day'} title={`${formatDateDisplay(d)}: ${limitUpCount}家`}>
+                                          <span className={hasData && limitUpCount > 0 ? 'sector-day__n is-hot' : 'sector-day__n'}>{hasData ? limitUpCount : '-'}</span>
+                                        </span>
                                       )
-                                    })()}
-                                  </>
-                                ) : (
-                                  <span style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)' }}>-</span>
-                                )}
-                              </td>
-                            )
-                          })}
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-              </div>
+                                    })}
+                                  </div>
+                                </td>
+                              )
+                            })}
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </TableWrap>
+              </Card>
             )
           })()}
 
-          {/* 底部悬浮框：选中板块详情和热门股票 */}
-          {selectedSector && (
-            <>
-              {/* 背景遮罩层 */}
-              <div
-                onClick={() => setSelectedSector(null)}
-                style={{
-                  position: 'fixed',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: 'rgba(0, 0, 0, 0.5)',
-                  zIndex: 998,
-                  animation: 'fadeIn 0.3s ease-out'
-                }}
-              />
+          {/* 选中板块详情和热门股票 */}
+          <Dialog open={!!selectedSector} onClose={() => setSelectedSector(null)} size="lg"
+            title={selectedSector ? <>{selectedSector.name} <span className={selectedSector.changePercent >= 0 ? 'sector-up' : 'sector-up is-down'}>{formatPercent(selectedSector.changePercent)}</span></> : ''}
+            actions={<button type="button" className="tool-btn" onClick={() => setSelectedSector(null)}>关闭</button>}>
+            {selectedSector && (
+              <div className="ui-stack">
+                <p className="sector-meta">
+                  {formatFullDate(selectedSector.date)} 排名{selectedSector.rank} · 已获取日期中 {selectedSector.timesInTop10} 次排进前{topN}
+                </p>
 
-              {/* 悬浮框 */}
-              <div className="glass-panel" style={{
-                position: 'fixed',
-                bottom: 0,
-                left: 0,
-                right: 0,
-                background: 'rgba(255, 255, 255, 0.9)',
-                backdropFilter: 'blur(30px)',
-                WebkitBackdropFilter: 'blur(30px)',
-                borderTopLeftRadius: '24px',
-                borderTopRightRadius: '24px',
-                boxShadow: '0 -8px 32px rgba(0,0,0,0.12)',
-                zIndex: 999,
-                maxHeight: '85vh',
-                display: 'flex',
-                flexDirection: 'column',
-                animation: 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-                overflow: 'hidden',
-                border: '1px solid var(--glass-border)',
-                borderBottom: 'none'
-              }}>
-                {/* 拖拽指示条 */}
-                <div
-                  onClick={() => setSelectedSector(null)}
-                  style={{
-                    width: '40px',
-                    height: '4px',
-                    background: 'var(--system-gray3)',
-                    borderRadius: '2px',
-                    margin: '12px auto 8px',
-                    cursor: 'pointer'
-                  }}
-                />
-
-                {/* 关闭按钮 */}
-                <div
-                  onClick={() => setSelectedSector(null)}
-                  style={{
-                    position: 'absolute',
-                    top: '12px',
-                    right: '16px',
-                    width: '32px',
-                    height: '32px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRadius: '50%',
-                    background: 'var(--bg-secondary)',
-                    cursor: 'pointer',
-                    fontSize: '1.2rem',
-                    color: 'var(--text-secondary)',
-                    transition: 'background 0.2s'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'var(--border-subtle)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'var(--bg-secondary)'
-                  }}
-                >
-                  ×
-                </div>
-
-                {/* 内容区域（可滚动） */}
-                <div style={{
-                  overflowY: 'auto',
-                  padding: '0 20px 20px',
-                  flex: 1
-                }}>
-                  {/* 板块信息 */}
-                  <div style={{ marginBottom: '20px', paddingTop: '8px' }}>
-                    <div style={{ fontSize: '1.2rem', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
-                      {selectedSector.name} <span style={{ color: 'var(--up)' }}>+{selectedSector.changePercent.toFixed(2)}%</span>
-                    </div>
-                    <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                      {formatFullDate(selectedSector.date)} 排名{selectedSector.rank}
-                    </div>
-                    <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                      已获取日期中 {selectedSector.timesInTop10} 次排进前{topN}
-                    </div>
-                  </div>
-
-                  {/* 最近7天涨停板数量 */}
-                  <div style={{ marginBottom: '20px' }}>
-                    <div style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <BarChart2 size={18} /> 最近7天涨停板数量
-                    </div>
-                    {(() => {
-                      const last7Days = getLast7Days()
-                      const today = new Date().toISOString().split('T')[0]
-                      const todayIndex = last7Days.indexOf(today)
-
-                      // 如果今天有数据，从今天开始显示；如果没有，找到最近有数据的日期
-                      let displayDates: string[] = []
-                      if (todayIndex >= 0 && sectorDataByDate[today]) {
-                        // 今天有数据，从今天往前显示7天
-                        displayDates = last7Days.slice(Math.max(0, todayIndex - 6), todayIndex + 1).reverse()
-                      } else {
-                        // 今天没有数据，找到最近有数据的日期
-                        let latestDateIndex = -1
-                        for (let i = last7Days.length - 1; i >= 0; i--) {
-                          if (sectorDataByDate[last7Days[i]]) {
-                            latestDateIndex = i
-                            break
-                          }
-                        }
-
-                        if (latestDateIndex >= 0) {
-                          // 找到最近有数据的日期，前后各显示3天
-                          const start = Math.max(0, latestDateIndex - 3)
-                          const end = Math.min(last7Days.length - 1, latestDateIndex + 3)
-                          displayDates = last7Days.slice(start, end + 1).reverse()
-                        } else {
-                          // 没有数据，显示最近7天
-                          displayDates = last7Days.reverse()
-                        }
-                      }
-
-                      return (
-                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                          {displayDates.map((date) => {
-                            const count = getSectorLimitUpCount(selectedSector.name, selectedSector.code, date)
-                            const isToday = date === today
-                            const hasData = !!sectorDataByDate[date]
-
-                            return (
-                              <div
-                                key={date}
-                                style={{
-                                  padding: '8px 12px',
-                                  background: isToday ? 'var(--accent-soft)' : hasData ? 'var(--bg-secondary)' : 'var(--bg-secondary)',
-                                  border: isToday ? '2px solid var(--accent)' : '1px solid var(--border-subtle)',
-                                  borderRadius: '8px',
-                                  fontSize: '0.85rem',
-                                  minWidth: '90px',
-                                  textAlign: 'center'
-                                }}
-                              >
-                                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                                  {formatDateDisplay(date)}
-                                  {isToday && <span style={{ marginLeft: '4px', color: 'var(--accent)', fontWeight: '600' }}>今天</span>}
-                                </div>
-                                <div style={{ fontSize: '1rem', fontWeight: '700', color: hasData && count > 0 ? 'var(--up)' : 'var(--text-tertiary)' }}>
-                                  {hasData ? count : '-'}
-                                </div>
-                              </div>
-                            )
-                          })}
-                        </div>
-                      )
-                    })()}
-                  </div>
-
-                  {/* 热门股票列表 */}
-                  <div>
-                    <div style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <Flame size={18} /> 热门股票
-                    </div>
-                    {loadingHotStocks ? (
-                      <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                        加载中...
+                <section aria-label="最近7天涨停板数量">
+                  <h3 className="sector-subhead"><BarChart2 size={18} aria-hidden="true" /> 最近7天涨停板数量</h3>
+                  {(() => {
+                    const { dates, today } = recentDates()
+                    return (
+                      <div className="ui-cluster">
+                        {dates.map((date) => {
+                          const count = getSectorLimitUpCount(selectedSector.name, selectedSector.code, date)
+                          const isToday = date === today
+                          const hasData = !!sectorDataByDate[date]
+                          return (
+                            <div key={date} className={isToday ? 'sector-daybox is-today' : 'sector-daybox'}>
+                              <div className="sector-daybox__date">{formatDateDisplay(date)}{isToday && <span className="sector-daybox__today">今天</span>}</div>
+                              <div className={hasData && count > 0 ? 'sector-daybox__n is-hot' : 'sector-daybox__n'}>{hasData ? count : '-'}</div>
+                            </div>
+                          )
+                        })}
                       </div>
-                    ) : hotStocks.length > 0 ? (
-                      <div style={{ overflowX: 'auto' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                          <thead>
-                            <tr style={{ background: 'var(--bg-secondary)', borderBottom: '2px solid var(--border-subtle)' }}>
-                              <th style={{ padding: '10px', textAlign: 'left', fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-secondary)' }}>股票名称</th>
-                              <th style={{ padding: '10px', textAlign: 'right', fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-secondary)' }}>最新价</th>
-                              <th style={{ padding: '10px', textAlign: 'right', fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-secondary)' }}>涨跌幅</th>
-                              <th style={{ padding: '10px', textAlign: 'right', fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-secondary)' }}>成交量</th>
-                              <th style={{ padding: '10px', textAlign: 'right', fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-secondary)' }}>成交额(万)</th>
+                    )
+                  })()}
+                </section>
+
+                <section aria-label="热门股票">
+                  <h3 className="sector-subhead"><Flame size={18} aria-hidden="true" /> 热门股票</h3>
+                  {loadingHotStocks ? (
+                    <EmptyState title="加载中…" />
+                  ) : hotStocks.length > 0 ? (
+                    <TableWrap label="热门股票" stickyFirst>
+                      <table className="ui-table">
+                        <thead>
+                          <tr>
+                            <th scope="col">股票名称</th>
+                            <th scope="col" className="num">最新价</th>
+                            <th scope="col" className="num">涨跌幅</th>
+                            <th scope="col" className="num">成交量</th>
+                            <th scope="col" className="num">成交额(万)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {hotStocks.map((stock) => (
+                            <tr key={stock.code}>
+                              <td>
+                                <button type="button" className="sector-stock" onClick={() => handleStockClick(stock)}>
+                                  <span className="sector-stock__name">{stock.name}</span>
+                                  <span className="sector-stock__code">{stock.code}</span>
+                                </button>
+                              </td>
+                              <td className="num">{stock.price.toFixed(2)}</td>
+                              <td className="num sector-strong" style={{ color: stock.changePercent >= 0 ? 'var(--up)' : 'var(--down)' }}>
+                                {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
+                              </td>
+                              <td className="num sector-muted">{(stock.volume / 10000).toFixed(2)}万手</td>
+                              <td className="num sector-muted">{stock.amount.toFixed(2)}</td>
                             </tr>
-                          </thead>
-                          <tbody>
-                            {hotStocks.map((stock, index) => (
-                              <tr
-                                key={stock.code}
-                                style={{
-                                  borderBottom: '1px solid var(--border-subtle)',
-                                  transition: 'background 0.2s'
-                                }}
-                                onMouseEnter={(e) => {
-                                  e.currentTarget.style.background = 'var(--bg-secondary)'
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.background = 'white'
-                                }}
-                              >
-                                <td
-                                  style={{
-                                    padding: '10px',
-                                    cursor: 'pointer'
-                                  }}
-                                  onClick={() => handleStockClick(stock)}
-                                  onMouseEnter={(e) => {
-                                    e.currentTarget.style.background = 'var(--accent-soft)'
-                                  }}
-                                  onMouseLeave={(e) => {
-                                    e.currentTarget.style.background = 'transparent'
-                                  }}
-                                >
-                                  <div style={{ fontSize: '0.9rem', fontWeight: '500', color: 'var(--text-primary)' }}>
-                                    {stock.name}
-                                  </div>
-                                  <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
-                                    {stock.code}
-                                  </div>
-                                </td>
-                                <td style={{ padding: '10px', textAlign: 'right', fontSize: '0.9rem', color: 'var(--text-primary)' }}>
-                                  {stock.price.toFixed(2)}
-                                </td>
-                                <td style={{ padding: '10px', textAlign: 'right' }}>
-                                  <span style={{
-                                    fontSize: '0.9rem',
-                                    fontWeight: '600',
-                                    color: stock.changePercent >= 0 ? 'var(--up)' : 'var(--down)'
-                                  }}>
-                                    {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
-                                  </span>
-                                </td>
-                                <td style={{ padding: '10px', textAlign: 'right', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                                  {(stock.volume / 10000).toFixed(2)}万手
-                                </td>
-                                <td style={{ padding: '10px', textAlign: 'right', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                                  {stock.amount.toFixed(2)}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    ) : (
-                      <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-tertiary)', fontSize: '0.9rem' }}>
-                        暂无热门股票数据
-                      </div>
-                    )}
-                  </div>
-                </div>
+                          ))}
+                        </tbody>
+                      </table>
+                    </TableWrap>
+                  ) : (
+                    <EmptyState title="暂无热门股票数据" />
+                  )}
+                </section>
               </div>
-
-              {/* 添加CSS动画 */}
-              <style>{`
-                @keyframes slideUp {
-                  from {
-                    transform: translateY(100%);
-                  }
-                  to {
-                    transform: translateY(0);
-                  }
-                }
-                @keyframes fadeIn {
-                  from {
-                    opacity: 0;
-                  }
-                  to {
-                    opacity: 1;
-                  }
-                }
-              `}</style>
-            </>
-          )}
+            )}
+          </Dialog>
         </>
       )}
 
       {/* 匹配度警告 */}
-      {matchWarning && (
-        <div style={{
-          marginTop: '20px',
-          padding: '12px 16px',
-          background: 'var(--accent-warm-soft)',
-          border: '1px solid var(--accent-warm)',
-          borderRadius: '8px',
-          fontSize: '0.85rem',
-          color: 'var(--warm-ink)',
-          textAlign: 'center'
-        }}>
-          {matchWarning}
-        </div>
-      )}
+      {matchWarning && <Callout tone="warn" className="sector-gap-top">{matchWarning}</Callout>}
 
       {/* 数据来源说明 */}
-      <div style={{
-        marginTop: '20px',
-        padding: '16px',
-        background: 'var(--bg-secondary)',
-        borderRadius: '8px',
-        fontSize: '0.85rem',
-        color: 'var(--text-secondary)',
-        textAlign: 'center',
-        lineHeight: '1.6'
-      }}>
-        <div style={{ marginBottom: '8px', fontWeight: '500' }}>
-          数据来源：财联社
-        </div>
-        <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '4px' }}>
-            <BarChart2 size={14} /> 板块数据（排名、涨跌幅、历史数据）：财联社
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '4px' }}>
-            <Tag size={14} /> 板块分类（行业/概念区分）：{caiLianSheTypeMapLoaded && caiLianSheTypeMap.size > 0 ? '财联社接口' : '关键词匹配'}
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-            <Flame size={14} /> 热门股票：财联社
-          </div>
-        </div>
-        <div style={{ marginTop: '8px', fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
-          数据更新时间：{updatedAt ? new Date(updatedAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }) : '—'}（北京时间）；当前页面每 30 秒更新最近有效交易日
-        </div>
+      <div className="sector-source">
+        <div className="sector-source__title">数据来源：财联社</div>
+        <div className="sector-source__line"><BarChart2 size={14} aria-hidden="true" /> 板块数据（排名、涨跌幅、历史数据）：财联社</div>
+        <div className="sector-source__line"><Tag size={14} aria-hidden="true" /> 板块分类（行业/概念区分）：{caiLianSheTypeMapLoaded && caiLianSheTypeMap.size > 0 ? '财联社接口' : '关键词匹配'}</div>
+        <div className="sector-source__line"><Flame size={14} aria-hidden="true" /> 热门股票：财联社</div>
+        <div className="sector-source__time">数据更新时间：{updatedAt ? new Date(updatedAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }) : '—'}（北京时间）；当前页面每 30 秒更新最近有效交易日</div>
       </div>
     </Page>
   )
 }
-
