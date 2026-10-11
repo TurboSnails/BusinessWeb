@@ -30,7 +30,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 32px 0 24px;
+  padding: 4px 0 24px;
 }
 
 .home-desk h1 {
@@ -176,6 +176,10 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 28px 32px;
+}
+
+.home-personal > .home-block {
+  min-width: 0;
 }
 
 .home-personal > .home-block + .home-block {
@@ -345,7 +349,7 @@
 
 /* 纯文字封面延续书籍入口，不引入额外图片请求或布局偏移。 */
 .home-book {
-  width: 150px;
+  width: 168px;
   aspect-ratio: 3 / 4;
   margin: 0 16px 0 0;
   background: var(--home-cover);
@@ -375,7 +379,7 @@
   writing-mode: vertical-rl;
   font-family: var(--font-serif);
   font-weight: 600;
-  font-size: 1.75rem;
+  font-size: 1.375rem;
   letter-spacing: 0.12em;
   line-height: 1.4;
 }
@@ -458,7 +462,7 @@
   }
 
   .home-personal {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .home-columns__grid {
@@ -471,7 +475,7 @@
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
-    padding: 20px 0 16px;
+    padding: 0 0 16px;
   }
 
   .home .home-jump {
@@ -487,10 +491,10 @@
   }
 
   .home .home-tool {
-    flex-direction: column;
-    gap: 8px;
-    min-height: 0;
-    padding: 12px;
+    align-items: center;
+    gap: 10px;
+    min-height: 56px;
+    padding: 10px 12px;
   }
 
   .home-tool__icon {

@@ -42,6 +42,11 @@
   font-size: 1.05rem;
 }
 
+/* 面板本身就是焦点所在，输入框不再画全局 focus 轮廓 */
+.cmdk__input:focus-visible {
+  outline: none;
+}
+
 .cmdk__input::placeholder {
   color: var(--text-tertiary);
 }
