@@ -5,6 +5,8 @@ import Header from './components/Header'
 import Footer from './components/Footer'
 import SectionChrome from './components/SectionChrome'
 import RouteSeo from './components/RouteSeo'
+import { CommandPaletteProvider } from './components/CommandPalette'
+import { useTrackRecent } from './features/recent-pages/useTrackRecent'
 import NotFound from './pages/NotFound'
 import InvestHub from './pages/InvestHub'
 import AiStudio from './pages/AiStudio'
@@ -47,6 +49,11 @@ function PageLoading(): JSX.Element {
   return <div role="status" className="container page-loading">加载中…</div>
 }
 
+function RecentTracker(): null {
+  useTrackRecent()
+  return null
+}
+
 function RoutedBoundary({ children }: { children: React.ReactNode }): JSX.Element {
   const { pathname } = useLocation()
   return <ErrorBoundary resetKey={pathname}>{children}</ErrorBoundary>
@@ -77,6 +84,8 @@ export default function App(): JSX.Element {
     <div className="app">
       <SkipLink />
       <BrowserRouter basename={import.meta.env.BASE_URL}>
+        <CommandPaletteProvider>
+        <RecentTracker />
         <RouteSeo />
         <Header />
         <SectionChrome />
@@ -124,6 +133,7 @@ export default function App(): JSX.Element {
         </Suspense>
         </RoutedBoundary>
         <Footer />
+        </CommandPaletteProvider>
       </BrowserRouter>
     </div>
   )

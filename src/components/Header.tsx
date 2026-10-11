@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Menu, X } from 'lucide-react'
+import { Menu, Search, X } from 'lucide-react'
 import { NAV_ITEMS, isNavActive } from '../data/siteMap'
+import { useCommandPalette } from './CommandPalette'
+
+const IS_MAC = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)
 
 function Leaf(): JSX.Element {
   return (
@@ -21,6 +24,7 @@ function Leaf(): JSX.Element {
 export default function Header(): JSX.Element {
   const { pathname } = useLocation()
   const [open, setOpen] = useState(false)
+  const palette = useCommandPalette()
 
   // 路由变化时关闭抽屉
   useEffect(() => {
@@ -74,6 +78,20 @@ export default function Header(): JSX.Element {
             )
           })}
         </nav>
+
+        <button
+          type="button"
+          className="site-search-btn"
+          aria-label={`跳转到页面（${IS_MAC ? '⌘K' : 'Ctrl+K'}）`}
+          onClick={() => {
+            setOpen(false)
+            palette.open()
+          }}
+        >
+          <Search size={18} aria-hidden="true" />
+          <span className="site-search-btn__text">跳转</span>
+          <kbd className="site-search-btn__kbd">{IS_MAC ? '⌘K' : 'Ctrl K'}</kbd>
+        </button>
 
         <button
           type="button"

@@ -18,6 +18,11 @@ const renderAt = (path: string) =>
   )
 
 describe('Header', () => {
+  it('有「跳转到页面」搜索按钮', () => {
+    renderAt('/')
+    expect(screen.getAllByRole('button', { name: /跳转到页面/ }).length).toBeGreaterThan(0)
+  })
+
   it('品牌名是Live，链接回首页', () => {
     renderAt('/invest')
     const brand = screen.getByRole('link', { name: /Live/ })
