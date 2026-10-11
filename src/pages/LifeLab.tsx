@@ -1,4 +1,5 @@
 import React from 'react'
+import '../styles/hub-pages.css'
 import { Page } from '../components/ui'
 
 const STAGES = [
@@ -9,14 +10,14 @@ const STAGES = [
 
 export default function LifeLab(): JSX.Element {
   return (
-    <Page className="animate-fade-in">
+    <Page className="hub-page life-hub">
       <header className="page-head">
         <h1>自由空间</h1>
         <p>一个普通程序员关于钱、技术与自由生活的长期实验。钱不是终点，是选择权。</p>
       </header>
       <ol className="road">
         {STAGES.map(s => (
-          <li key={s.title} className="road__item">
+          <li key={s.title} className={`road__item life-stage${s.state === '进行中' ? ' is-current' : ''}`} aria-current={s.state === '进行中' ? 'step' : undefined}>
             <div className="road__head">
               <h2>{s.title}</h2>
               <span className="tag">{s.state}</span>
