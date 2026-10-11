@@ -121,3 +121,7 @@
   .nt-filters label:first-child { flex: 1 1 100%; }
   .nt-filters__count { margin-left: 0; }
 }
+
+/* 可点的板块名：触控目标不小于 32px（触屏 40px） */
+button.nt-bars__name { min-height: 32px; }
+@media (pointer: coarse) { button.nt-bars__name { min-height: 40px; } }

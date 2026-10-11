@@ -4,7 +4,8 @@ import ChapterComments from '../components/ChapterComments'
 import { usePageSeo } from '../components/RouteSeo'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, BookOpen, CheckCircle2, Circle, PenLine } from 'lucide-react'
-import { Page } from '../components/ui'
+import { Page, PageTitle } from '../components/ui'
+import '../styles/book.css'
 
 /** 章节清单：与 public/first-book/ 下的 md 文件一一对应 */
 const PARTS = [
@@ -191,15 +192,7 @@ function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
       nodes.push(<em key={`${keyPrefix}-i${i}`}>{token.slice(1, -1)}</em>)
     } else {
       nodes.push(
-        <code
-          key={`${keyPrefix}-c${i}`}
-          style={{
-            background: 'var(--system-gray6)',
-            padding: '1px 5px',
-            borderRadius: '4px',
-            fontSize: '0.9em',
-          }}
-        >
+        <code key={`${keyPrefix}-c${i}`} className="md-code">
           {token.slice(1, -1)}
         </code>
       )
@@ -241,28 +234,12 @@ function renderMarkdown(md: string): React.ReactNode[] {
       if (rows.length > 0) {
         const [head, ...body] = rows
         out.push(
-          <div key={nextKey()} style={{ overflowX: 'auto', margin: '12px 0' }}>
-            <table
-              style={{
-                width: '100%',
-                borderCollapse: 'collapse',
-                fontSize: '0.92rem',
-                lineHeight: 1.6,
-              }}
-            >
+          <div key={nextKey()} className="md-table-wrap" role="region" aria-label="表格" tabIndex={0}>
+            <table className="md-table">
               <thead>
                 <tr>
                   {head.map((c, j) => (
-                    <th
-                      key={j}
-                      style={{
-                        textAlign: 'left',
-                        padding: '8px 12px',
-                        borderBottom: '2px solid var(--accent)',
-                        background: 'var(--system-gray6)',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
+                    <th key={j} scope="col">
                       {renderInline(c, nextKey())}
                     </th>
                   ))}
@@ -272,14 +249,7 @@ function renderMarkdown(md: string): React.ReactNode[] {
                 {body.map((r, ri) => (
                   <tr key={ri}>
                     {r.map((c, ci) => (
-                      <td
-                        key={ci}
-                        style={{
-                          padding: '7px 12px',
-                          borderBottom: '1px solid var(--border-subtle)',
-                          verticalAlign: 'top',
-                        }}
-                      >
+                      <td key={ci}>
                         {renderInline(c, nextKey())}
                       </td>
                     ))}
@@ -296,20 +266,13 @@ function renderMarkdown(md: string): React.ReactNode[] {
     // 标题
     const heading = line.match(/^(#{1,4})\s+(.*)$/)
     if (heading) {
+      // 页面 h1 是章节名（PageTitle），正文标题从 h2 开始
       const level = heading[1].length
-      const size = level === 1 ? '1.6rem' : level === 2 ? '1.25rem' : '1.05rem'
+      const Tag = level === 1 ? 'h2' : level === 2 ? 'h3' : 'h4'
       out.push(
-        <div
-          key={nextKey()}
-          style={{
-            fontSize: size,
-            fontWeight: 700,
-            margin: level <= 2 ? '24px 0 10px' : '18px 0 8px',
-            lineHeight: 1.4,
-          }}
-        >
+        <Tag key={nextKey()} className={`md-h md-h${level}`}>
           {renderInline(heading[2], nextKey())}
-        </div>
+        </Tag>
       )
       i += 1
       continue
@@ -317,7 +280,7 @@ function renderMarkdown(md: string): React.ReactNode[] {
 
     // 分隔线
     if (/^(-{3,}|\*{3,})$/.test(line.trim())) {
-      out.push(<hr key={nextKey()} style={{ border: 'none', borderTop: '1px solid var(--border-subtle)', margin: '20px 0' }} />)
+      out.push(<hr key={nextKey()} className="md-hr" />)
       i += 1
       continue
     }
@@ -330,17 +293,7 @@ function renderMarkdown(md: string): React.ReactNode[] {
         i += 1
       }
       out.push(
-        <blockquote
-          key={nextKey()}
-          style={{
-            margin: '12px 0',
-            padding: '10px 16px',
-            borderLeft: '3px solid var(--accent)',
-            background: 'var(--accent-soft)',
-            borderRadius: '0 8px 8px 0',
-            lineHeight: 1.7,
-          }}
-        >
+        <blockquote key={nextKey()} className="md-quote">
           {quoteLines.map((q, qi) => (
             <div key={qi}>{renderInline(q, nextKey())}</div>
           ))}
@@ -359,10 +312,7 @@ function renderMarkdown(md: string): React.ReactNode[] {
       }
       const ListTag = ordered ? 'ol' : 'ul'
       out.push(
-        <ListTag
-          key={nextKey()}
-          style={{ margin: '8px 0', paddingLeft: '22px', lineHeight: 1.8 }}
-        >
+        <ListTag key={nextKey()} className="md-list">
           {items.map((it, ii) => (
             <li key={ii}>{renderInline(it, nextKey())}</li>
           ))}
@@ -373,7 +323,7 @@ function renderMarkdown(md: string): React.ReactNode[] {
 
     // 普通段落
     out.push(
-      <p key={nextKey()} style={{ margin: '10px 0', lineHeight: 1.8 }}>
+      <p key={nextKey()} className="md-p">
         {renderInline(line, nextKey())}
       </p>
     )
@@ -385,29 +335,27 @@ function renderMarkdown(md: string): React.ReactNode[] {
 
 /* ---------- 页面 ---------- */
 
-const cardStyle: React.CSSProperties = {
-  background: 'var(--bg-card)',
-  padding: '32px',
-  borderRadius: 'var(--radius-lg)',
-  marginBottom: '24px',
-  border: '1px solid var(--border-subtle)',
-}
-
-const STATUS_COLOR: Record<string, string> = {
-  done: 'var(--system-green)',
-  draft: 'var(--accent-warm)',
-  pending: 'var(--system-gray)',
-  note: 'var(--system-gray)',
-}
+const STATUS_TONE: Record<string, string> = { done: 'is-done', draft: 'is-draft', pending: 'is-pending', note: 'is-pending' }
 
 function StatusIcon({ status }: { status: string }): JSX.Element {
-  if (status === 'pending') {
-    return <Circle size={16} color={STATUS_COLOR.pending} style={{ flexShrink: 0 }} />
-  }
-  if (status === 'done') {
-    return <CheckCircle2 size={16} color={STATUS_COLOR.done} style={{ flexShrink: 0 }} />
-  }
-  return <PenLine size={16} color={STATUS_COLOR.draft} style={{ flexShrink: 0 }} />
+  if (status === 'pending') return <Circle size={16} className="book-status-icon is-pending" aria-hidden="true" />
+  if (status === 'done') return <CheckCircle2 size={16} className="book-status-icon is-done" aria-hidden="true" />
+  return <PenLine size={16} className="book-status-icon is-draft" aria-hidden="true" />
+}
+
+function ChapterRow({ no, title, status, file }: { no?: string; title: string; status: string; file?: string }): JSX.Element {
+  const inner = (
+    <>
+      <StatusIcon status={status} />
+      {no && <span className="book-row__no">{no}</span>}
+      <span className="book-row__title">{title}</span>
+      <span className={`book-row__status ${STATUS_TONE[status] ?? ''}`}>{STATUS_LABEL[status]}</span>
+      {file && <ArrowRight size={14} className="book-row__arrow" aria-hidden="true" />}
+    </>
+  )
+  return file
+    ? <Link to={`/first-book/read/${encodeURIComponent(file)}`} className="book-row">{inner}</Link>
+    : <div className="book-row is-disabled" aria-disabled="true">{inner}</div>
 }
 
 /** 书籍仪表盘：全书概览 + 章节进度 */
@@ -417,144 +365,56 @@ function BookDashboard(): JSX.Element {
   const progress = Math.round((drafted / bodyChapters.length) * 100)
 
   return (
-    <Page variant="reading">
-      <Link to="/first-book" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '16px', color: 'var(--accent)', textDecoration: 'none', fontSize: '0.92rem' }}>
-        <ArrowLeft size={15} /> 返回我的书
-      </Link>
-      <div style={cardStyle}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-          <BookOpen size={26} color="var(--accent)" />
-          <h1 style={{ margin: 0, fontSize: '1.7rem' }}>正念投资</h1>
+    <Page variant="reading" className="book-page">
+      <Link to="/first-book" className="book-back"><ArrowLeft size={15} aria-hidden="true" /> 返回我的书</Link>
+
+      <section className="ui-card book-card-block">
+        <div className="book-hero">
+          <BookOpen size={26} aria-hidden="true" />
+          <h1>正念投资</h1>
         </div>
-        <p style={{ color: 'var(--text-secondary)', margin: '4px 0 16px', fontSize: '1.02rem' }}>
-          不盯盘、不预测：从资产配置到公司研究，找到适合自己的投资方法，让投资服务生活。
-        </p>
-        <p style={{ lineHeight: 1.8, margin: '0 0 12px' }}>
+        <p className="book-lead">不盯盘、不预测：从资产配置到公司研究，找到适合自己的投资方法，让投资服务生活。</p>
+        <p className="book-text">
           <strong>主线</strong>：道德经为"道"（心法与节奏），彼得·林奇为"术"（选股与买卖），A股案例为"器"（落地证据）。
           核心主张只有一句人话：<strong>聚焦</strong>——放弃短线与宏观，只做散户能赢的三种战法。
         </p>
-        <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', marginTop: '16px' }}>
-          <div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--accent)' }}>{drafted}</div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>已完成章节</div>
-          </div>
-          <div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--accent)' }}>{bodyChapters.length}</div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>总章节（含大纲）</div>
-          </div>
-          <div style={{ flex: 1, minWidth: '200px' }}>
-            <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--accent)' }}>{progress}%</div>
-            <div
-              style={{
-                height: '6px',
-                background: 'rgba(0,0,0,0.08)',
-                borderRadius: '3px',
-                marginTop: '8px',
-                overflow: 'hidden',
-              }}
-            >
-              <div
-                style={{
-                  width: `${progress}%`,
-                  height: '100%',
-                  background: 'var(--accent)',
-                  borderRadius: '3px',
-                  transition: 'width 0.4s ease',
-                }}
-              />
+        <div className="book-stats">
+          <div><div className="book-stat__value">{drafted}</div><div className="book-stat__label">已完成章节</div></div>
+          <div><div className="book-stat__value">{bodyChapters.length}</div><div className="book-stat__label">总章节（含大纲）</div></div>
+          <div className="book-stat--grow">
+            <div className="book-stat__value">{progress}%</div>
+            <div className="book-progress" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} aria-label="全书完成度">
+              <div className="book-progress__fill" style={{ width: `${progress}%` }} />
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
       {EXTRA_FILES.map(f => (
-        <div key={f.file} style={cardStyle}>
-          <Link
-            to={`/first-book/read/${encodeURIComponent(f.file)}`}
-            style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'inherit' }}
-          >
-            <StatusIcon status={f.status} />
-            <span style={{ fontWeight: 600 }}>{f.title}</span>
-            <span style={{ marginLeft: 'auto', fontSize: '0.85rem', color: STATUS_COLOR[f.status] }}>
-              {STATUS_LABEL[f.status]}
-            </span>
-            <ArrowRight size={16} color="var(--text-secondary)" />
-          </Link>
-        </div>
+        <section key={f.file} className="ui-card book-card-block book-card-block--row">
+          <ChapterRow title={f.title} status={f.status} file={f.file} />
+        </section>
       ))}
 
       {PARTS.map(part => (
-        <div key={part.id} style={cardStyle}>
-          <h2 style={{ margin: '0 0 4px', fontSize: '1.2rem' }}>{part.title}</h2>
-          <p style={{ margin: '0 0 14px', color: 'var(--text-secondary)', fontSize: '0.9rem', whiteSpace: 'pre-line', lineHeight: 1.8, fontWeight: part.id === 'part7' ? 600 : 400 }}>{part.subtitle}</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            {part.chapters.map(ch => {
-              const inner = (
-                <>
-                  <StatusIcon status={ch.status} />
-                  <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', width: '52px', flexShrink: 0 }}>{ch.no}</span>
-                  <span style={{ flex: 1 }}>{ch.title}</span>
-                  <span style={{ fontSize: '0.82rem', color: STATUS_COLOR[ch.status] }}>{STATUS_LABEL[ch.status]}</span>
-                  {ch.file && <ArrowRight size={14} color="var(--system-gray3)" />}
-                </>
-              )
-              const rowStyle: React.CSSProperties = {
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                padding: '9px 10px',
-                borderRadius: '8px',
-                textDecoration: 'none',
-                color: 'inherit',
-                fontSize: '0.95rem',
-              }
-              return ch.file ? (
-                <Link
-                  key={ch.no}
-                  to={`/first-book/read/${encodeURIComponent(ch.file)}`}
-                  style={rowStyle}
-                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(0,0,0,0.04)')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                >
-                  {inner}
-                </Link>
-              ) : (
-                <div key={ch.no} style={{ ...rowStyle, opacity: 0.55, cursor: 'default' }}>
-                  {inner}
-                </div>
-              )
-            })}
+        <section key={part.id} className="ui-card book-card-block" aria-labelledby={`part-${part.id}`}>
+          <h2 id={`part-${part.id}`} className="book-part__title">{part.title}</h2>
+          <p className={part.id === 'part7' ? 'book-part__sub is-strong' : 'book-part__sub'}>{part.subtitle}</p>
+          <div className="book-rows">
+            {part.chapters.map(ch => <ChapterRow key={ch.no} no={ch.no} title={ch.title} status={ch.status} file={ch.file} />)}
           </div>
-        </div>
+        </section>
       ))}
 
-      <div style={cardStyle}>
-        <h2 style={{ margin: '0 0 4px', fontSize: '1.2rem' }}>写作与审校</h2>
-        <p style={{ margin: '0 0 14px', color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.8 }}>
-          写作过程的诊断、排期与留痕。不属于正文，记录这本书是怎么一步步改出来的。
-        </p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          {REVIEW_FILES.map(f => (
-            <Link
-              key={f.file}
-              to={`/first-book/read/${encodeURIComponent(f.file)}`}
-              style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 10px', borderRadius: '8px', textDecoration: 'none', color: 'inherit', fontSize: '0.95rem' }}
-              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(0,0,0,0.04)')}
-              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-            >
-              <StatusIcon status={f.status} />
-              <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', width: '52px', flexShrink: 0 }}>{f.no}</span>
-              <span style={{ flex: 1 }}>{f.title}</span>
-              <span style={{ fontSize: '0.82rem', color: STATUS_COLOR[f.status] }}>{STATUS_LABEL[f.status]}</span>
-              <ArrowRight size={14} color="var(--system-gray3)" />
-            </Link>
-          ))}
+      <section className="ui-card book-card-block" aria-labelledby="part-review">
+        <h2 id="part-review" className="book-part__title">写作与审校</h2>
+        <p className="book-part__sub">写作过程的诊断、排期与留痕。不属于正文，记录这本书是怎么一步步改出来的。</p>
+        <div className="book-rows">
+          {REVIEW_FILES.map(f => <ChapterRow key={f.file} no={f.no} title={f.title} status={f.status} file={f.file} />)}
         </div>
-      </div>
+      </section>
 
-      <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.82rem', margin: '8px 0 24px' }}>
-        本书内容仅为投资方法论讨论，不构成任何投资建议。
-      </p>
+      <p className="book-disclaimer">本书内容仅为投资方法论讨论，不构成任何投资建议。</p>
     </Page>
   )
 }
@@ -598,45 +458,38 @@ function ChapterReader({ file }: { file: string }): JSX.Element {
 
   return (
     <main className="reader-layout">
+      <PageTitle>{chapter ? chapter.title : '《正念投资》'}</PageTitle>
       <ChapterNav parts={PARTS} topLinks={EXTRA_FILES} currentFile={decoded} />
       <div className="reader-main">
-      <div ref={topRef} className="reader-top" />
-      <div style={{ marginBottom: '16px' }}>
-        <Link to="/first-book/slow-is-fast" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'var(--accent)', textDecoration: 'none', fontSize: '0.92rem' }}>
-          <ArrowLeft size={15} /> 返回《正念投资：普通人用规则代替盯盘的投资方法》
+        <div ref={topRef} className="reader-top" />
+        <Link to="/first-book/slow-is-fast" className="book-back">
+          <ArrowLeft size={15} aria-hidden="true" /> 返回《正念投资：普通人用规则代替盯盘的投资方法》
         </Link>
-      </div>
 
-      <div className="book-reader" style={cardStyle}>
-        {!content && !error && <p style={{ color: 'var(--text-secondary)' }}>加载中……</p>}
-        {error && <p style={{ color: 'var(--up)' }}>章节文件未找到：{decoded}</p>}
-        {content && renderMarkdown(content)}
-      </div>
+        <article className="ui-card book-reader">
+          {!content && !error && <p className="book-muted" role="status">加载中……</p>}
+          {error && <p className="book-error" role="alert">章节文件未找到：{decoded}</p>}
+          {content && renderMarkdown(content)}
+        </article>
 
-      {content && chapter && !REVIEW_FILES.some(f => f.file === decoded) && <ChapterComments slug={decoded} />}
+        {content && chapter && !REVIEW_FILES.some(f => f.file === decoded) && <ChapterComments slug={decoded} />}
 
-      <div className="book-pager" style={{ display: 'flex', gap: '12px', marginBottom: '28px' }}>
-        {prev ? (
-          <Link
-            to={`/first-book/read/${encodeURIComponent(prev.file)}`}
-            style={{ ...cardStyle, flex: 1, display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: 'inherit', marginBottom: 0, padding: '16px 20px' }}
-          >
-            <ArrowLeft size={16} color="var(--accent)" />
-            <span style={{ fontSize: '0.9rem' }}>上一篇：{prev.title}</span>
-          </Link>
-        ) : (
-          <div style={{ flex: 1 }} />
-        )}
-        {next && (
-          <Link
-            to={`/first-book/read/${encodeURIComponent(next.file)}`}
-            style={{ ...cardStyle, flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px', textDecoration: 'none', color: 'inherit', marginBottom: 0, padding: '16px 20px', textAlign: 'right' }}
-          >
-            <span style={{ fontSize: '0.9rem' }}>下一篇：{next.title}</span>
-            <ArrowRight size={16} color="var(--accent)" />
-          </Link>
-        )}
-      </div>
+        <nav className="book-pager" aria-label="上一篇与下一篇">
+          {prev ? (
+            <Link to={`/first-book/read/${encodeURIComponent(prev.file)}`} className="ui-card book-pager__link">
+              <ArrowLeft size={16} aria-hidden="true" />
+              <span>上一篇：{prev.title}</span>
+            </Link>
+          ) : (
+            <div className="book-pager__spacer" />
+          )}
+          {next && (
+            <Link to={`/first-book/read/${encodeURIComponent(next.file)}`} className="ui-card book-pager__link is-next">
+              <span>下一篇：{next.title}</span>
+              <ArrowRight size={16} aria-hidden="true" />
+            </Link>
+          )}
+        </nav>
       </div>
     </main>
   )

@@ -7,14 +7,12 @@ import { presentation, priorityNames, displayText, priceLabel } from '../data/fu
 import '../styles/future-trends.css'
 import { Page } from '../components/ui'
 
-const card: React.CSSProperties = { background: 'var(--bg-card)', borderRadius: 12, padding: 22, marginBottom: 16, lineHeight: 1.85, overflowWrap: 'anywhere' }
-const cell: React.CSSProperties = { textAlign: 'left', padding: '10px 14px', borderBottom: '1px solid var(--system-gray5)', verticalAlign: 'top' }
 const titles = ['研究信息', '公司与赚钱机制', '业务分布与驱动', '优势与缺点', '行业与周期', '综合结论卡', '关键指标及日期', '增长与护城河', '三情景、盈亏比与胜率', '价格与研究纪律', '风险与量化证伪', '多视角与多空交锋', '口径陷阱与缺失证据', '验证日历', '研究说明与来源']
 function List({ items }: { items: string[] }): JSX.Element { return <ul>{items.map((x, i) => <li key={i}>{displayText(x)}</li>)}</ul> }
 
 function ResearchSection({ index, children }: { index: number; children: React.ReactNode }): JSX.Element {
   const supplementary = [0, 3, 4, 11, 12].includes(index)
-  return <section id={`section-${index}`} style={card}>{supplementary
+  return <section id={`section-${index}`} className="ft-section">{supplementary
     ? <details><summary>{titles[index]}</summary>{children}</details>
     : <><h2>{titles[index]}</h2>{children}</>}</section>
 }
@@ -44,7 +42,7 @@ export default function FutureTrendCompany(): JSX.Element {
   const money = (v: number | null) => priceLabel(v, summary.currency)
   const percent = (v: number | null) => displayText(researchPercent(v))
   return <Page className="ft ft-reader">
-    <nav aria-label="返回研究列表" style={{ display: 'flex', gap: 20 }}><Link to={back}>← 返回列表</Link><Link to="/future-trends?tab=core">核心研究</Link><Link to="/future-trends?tab=ai">产业目录</Link></nav>
+    <nav aria-label="返回研究列表" className="ui-cluster ft-reader-nav"><Link to={back}>← 返回列表</Link><Link to="/future-trends?tab=core">核心研究</Link><Link to="/future-trends?tab=ai">产业目录</Link></nav>
     <header className="ft-reader-hero"><h1>{summary.name} <small>{summary.code} · {p.industry}</small></h1>
       <span className={`ft-badge ft-badge--${p.priority}`}>{priorityNames[p.priority]}</span>
       <p>{displayText(p.reason)}</p><p className="ft-wait"><strong>下一步：</strong>{p.watch}</p>
@@ -61,9 +59,9 @@ export default function FutureTrendCompany(): JSX.Element {
       {i === 3 && <><h3>优势</h3><List items={d.pros} /><h3>缺点与代价</h3><List items={d.cons} /></>}
       {i === 4 && <List items={d.industry} />}
       {i === 5 && <><p><strong>{displayText(d.rating)}</strong> · 证据确定性：{displayText(d.certainty)}</p><p>{displayText(d.headline)}</p><p>护城河：{displayText(d.moat)}</p><p>最大隐忧：{displayText(d.concern)}</p><p>估值状态：{displayText(d.valuationStatus)}</p><p>核心是优先长期研究名单，当前未认证买入，不等于建议立即配置。</p></>}
-      {i === 6 && <><div style={{ overflowX: 'auto' }}><table style={{ borderCollapse: 'collapse', width: '100%' }}><tbody>{d.metrics.map(([k, v], j) => <tr key={j}><th style={cell}>{k}</th><td style={cell}>{displayText(v)}</td></tr>)}</tbody></table></div><details><summary>旧判断与本次调整</summary><List items={d.prior} /></details></>}
+      {i === 6 && <><div className="ui-table-wrap"><table className="ui-table ft-reader-table"><tbody>{d.metrics.map(([k, v], j) => <tr key={j}><th>{k}</th><td>{displayText(v)}</td></tr>)}</tbody></table></div><details><summary>旧判断与本次调整</summary><List items={d.prior} /></details></>}
       {i === 7 && <><h3>增长链条</h3><List items={d.growth} /><h3>护城河能否转成现金</h3><List items={d.moatAnalysis} /></>}
-      {i === 8 && <><p><strong>{displayText(d.modelNote)}</strong></p><div style={{ overflowX: 'auto' }}><table style={{ borderCollapse: 'collapse', width: '100%' }}><thead><tr>{['情景', '盈利与倍数假设', '隐含价格', '相对现价', '主观概率'].map(x => <th style={cell} key={x}>{x}</th>)}</tr></thead><tbody>{d.scenarios.map(s => <tr key={s.name}><th style={cell}>{s.name}</th><td style={cell}>{displayText(s.assumption)}</td><td style={cell}>{money(s.price)}</td><td style={cell}>{d.price && s.price ? percent(s.price / d.price - 1) : '待核实'}</td><td style={cell}>{s.probability === null ? '—' : `${Math.round(s.probability * 100)}%`}</td></tr>)}</tbody></table></div>
+      {i === 8 && <><p><strong>{displayText(d.modelNote)}</strong></p><div className="ui-table-wrap"><table className="ui-table ft-reader-table"><thead><tr>{['情景', '盈利与倍数假设', '隐含价格', '相对现价', '主观概率'].map(x => <th key={x}>{x}</th>)}</tr></thead><tbody>{d.scenarios.map(s => <tr key={s.name}><th>{s.name}</th><td>{displayText(s.assumption)}</td><td>{money(s.price)}</td><td>{d.price && s.price ? percent(s.price / d.price - 1) : '待核实'}</td><td>{s.probability === null ? '—' : `${Math.round(s.probability * 100)}%`}</td></tr>)}</tbody></table></div>
         <p>条件盈亏比 R = (Base − P) / (P − Bear)：<strong>{d.ratio === null ? '不适用／缺失' : `${d.ratio.toFixed(4)} : 1`}</strong>。{d.price !== null && d.scenarios[1].price !== null && d.price >= d.scenarios[1].price ? '价格锚点已达到或超过基准价，上行不足，不能报正赔率。' : d.price !== null && d.scenarios[0].price !== null && d.price <= d.scenarios[0].price ? '价格锚点已低于悲观价，分母不成立，须重新检查下行情景。' : '仅在 Bear < P < Base 时有效。'}</p>
         <p>基准上行 {percent(d.up)} · 悲观下行 {percent(d.down === null ? null : -d.down)} · 2:1 条件门槛价 {money(d.threshold)}。</p>
         <p><strong>实际胜率：{displayText(d.winRate)}</strong></p><p>二点模型保本所需胜率：{percent(d.breakEven)}；期望收益：{d.expected === null ? '待核实' : percent(d.expected)}。</p><p>{displayText(d.probabilityNote)}</p>

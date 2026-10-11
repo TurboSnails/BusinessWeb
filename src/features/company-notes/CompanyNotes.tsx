@@ -267,7 +267,7 @@ function NotesWorkspace({ market, code }: {
     <div className='company-notes__toolbar'>
       {token ? <><button disabled={!!busy} onClick={() => newDraft()}>新建笔记</button><button disabled={!!busy} onClick={() => fileInput.current?.click()}>上传 MD</button><button disabled={!!busy} onClick={() => newDraft('公司分析', `# ${name} · 公司分析\n\n## 核心判断\n\n## 商业模式\n\n## 关键财务\n\n## 估值假设\n\n## 风险与反证\n\n## 下次验证\n\n## 资料来源\n`)}>使用分析模板</button><button disabled={!!busy} onClick={lock}>锁定编辑</button></> : <button disabled={!!busy} onClick={() => setUnlockOpen(!unlockOpen)}>解锁编辑</button>}
       <button disabled={!!busy || loading} onClick={() => void list()}>刷新列表</button>
-      <input ref={fileInput} aria-label='上传 Markdown 文件' type='file' accept='.md,text/markdown' hidden style={{ display: 'none' }} onChange={event => { const file = event.target.files?.[0]; event.target.value = ''; if (file && token)
+      <input ref={fileInput} aria-label='上传 Markdown 文件' type='file' accept='.md,text/markdown' hidden onChange={event => { const file = event.target.files?.[0]; event.target.value = ''; if (file && token)
         void upload(file); }}/>
     </div>
     {unlockOpen && <form className='company-notes__unlock' onSubmit={event => { event.preventDefault(); void unlock(tokenInput); }}><label>编辑 token<input aria-label='编辑 token' type='password' autoComplete='off' value={tokenInput} onChange={e => setTokenInput(e.target.value)} required/></label><button disabled={!!busy}>验证 token</button><p>仅在当前浏览器会话保留，用于写入授权。</p></form>}

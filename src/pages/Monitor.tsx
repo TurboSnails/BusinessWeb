@@ -143,7 +143,7 @@ export default function Monitor(): JSX.Element {
               已停用：旧版以期权情绪（Put/Call、Gamma）、做空工具和具体个股仓位为主，数据停在 2025 年底，和书中「不预测、不做空、不加杠杆」的方法不一致。保留原样，仅供回看，不再更新。
             </p>
             <Segmented label="旧版栏目" items={ARCHIVE} value={archive} onChange={id => go({ old: id })} />
-            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-lg)', padding: '24px' }}>
+            <div className="ui-card">
               {ARCHIVE.find(a => a.id === archive)!.el()}
             </div>
           </>

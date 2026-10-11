@@ -28,14 +28,14 @@ export default function MyBooks({ showPdf = PDF_ENTRY_ENABLED }: { showPdf?: boo
   return (
     <Page>
       <PageTitle>我的书</PageTitle>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div className="ui-stack ui-stack--lg">
         {BOOKS.map(book => (
           <article key={book.id} className="book-card">
             <Link to={book.path} className="book-card__main">
               <BookOpen size={32} color="var(--accent)" />
-              <h2 style={{ margin: 0, fontSize: '1.3rem', lineHeight: 1.5 }}>{book.title}</h2>
-              <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.8 }}>{book.description}</p>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent)', marginTop: 'auto' }}>
+              <h2 className="book-card__title">{book.title}</h2>
+              <p className="book-card__desc">{book.description}</p>
+              <span className="book-card__cta">
                 查看本书 <ArrowRight size={16} />
               </span>
             </Link>
@@ -52,14 +52,14 @@ export default function MyBooks({ showPdf = PDF_ENTRY_ENABLED }: { showPdf?: boo
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <FileText size={16} style={{ marginRight: 6 }} aria-hidden="true" />阅读 PDF
+                  <FileText size={16} aria-hidden="true" />阅读 PDF
                 </a>
                 <a
                   className="btn-ghost"
                   href={pdfUrl(book.pdf.file)}
                   download={book.pdf.file}
                 >
-                  <Download size={16} style={{ marginRight: 6 }} aria-hidden="true" />下载
+                  <Download size={16} aria-hidden="true" />下载
                 </a>
               </aside>
             )}

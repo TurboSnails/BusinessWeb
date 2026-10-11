@@ -1,0 +1,339 @@
+/* 书稿：目录页与章节阅读。卡片外壳用 ui.css 的 .ui-card。 */
+
+.book-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  margin-bottom: var(--space-3);
+  color: var(--accent-ink);
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.book-back:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* 目录页 */
+.book-card-block {
+  margin-bottom: var(--space-5);
+  padding: var(--space-7);
+}
+
+.book-card-block--row {
+  padding: var(--space-2) var(--space-3);
+}
+
+.book-hero {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: var(--space-2);
+  color: var(--accent);
+}
+
+.book-hero h1 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.7rem;
+}
+
+.book-lead {
+  margin: 4px 0 var(--space-4);
+  color: var(--text-secondary);
+  font-size: 1.02rem;
+}
+
+.book-text {
+  margin: 0 0 var(--space-3);
+  line-height: 1.8;
+}
+
+.book-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+  margin-top: var(--space-4);
+}
+
+.book-stat--grow {
+  flex: 1;
+  min-width: 200px;
+}
+
+.book-stat__value {
+  color: var(--accent);
+  font-size: 1.6rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.book-stat__label {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.book-progress {
+  height: 6px;
+  margin-top: var(--space-2);
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--bg-secondary);
+}
+
+.book-progress__fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--accent);
+  transition: width 0.4s ease;
+}
+
+.book-part__title {
+  margin: 0 0 4px;
+  font-size: 1.2rem;
+}
+
+.book-part__sub {
+  margin: 0 0 14px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.8;
+  white-space: pre-line;
+}
+
+.book-part__sub.is-strong {
+  font-weight: 600;
+}
+
+.book-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.book-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  color: inherit;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+
+a.book-row:hover {
+  background: var(--bg-secondary);
+}
+
+.book-row.is-disabled {
+  opacity: 0.55;
+}
+
+.book-row__no {
+  flex: 0 0 52px;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.book-row__title {
+  flex: 1;
+  min-width: 0;
+}
+
+.book-row__status {
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.book-row__arrow {
+  flex: 0 0 auto;
+  color: var(--text-tertiary);
+}
+
+.book-status-icon {
+  flex: 0 0 auto;
+}
+
+.book-status-icon.is-done,
+.book-row__status.is-done { color: var(--system-green); }
+.book-status-icon.is-draft,
+.book-row__status.is-draft { color: var(--accent-warm); }
+.book-status-icon.is-pending,
+.book-row__status.is-pending { color: var(--system-gray); }
+
+.book-disclaimer {
+  margin: var(--space-2) 0 var(--space-6);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  text-align: center;
+}
+
+/* 章节阅读 */
+.book-reader {
+  margin-bottom: var(--space-6);
+  padding: 20px 16px;
+  font-size: 17px;
+  line-height: 1.9;
+  overflow-wrap: anywhere;
+}
+
+.book-muted { color: var(--text-secondary); }
+.book-error { color: var(--up-ink); }
+
+.md-h {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.md-h1 { margin: 24px 0 10px; font-size: 1.6rem; }
+.md-h2 { margin: 24px 0 10px; font-size: 1.25rem; }
+.md-h3,
+.md-h4 { margin: 18px 0 8px; font-size: 1.05rem; }
+
+.md-h:first-child {
+  margin-top: 0;
+}
+
+.md-p {
+  margin: 10px 0;
+  line-height: 1.85;
+}
+
+.md-list {
+  margin: 8px 0;
+  padding-left: 22px;
+  line-height: 1.8;
+}
+
+.md-hr {
+  margin: 20px 0;
+  border: 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.md-quote {
+  margin: 12px 0;
+  padding: 10px 16px;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: var(--accent-soft);
+  line-height: 1.7;
+}
+
+.md-code {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--bg-secondary);
+  font-size: 0.9em;
+}
+
+.md-table-wrap {
+  max-width: 100%;
+  margin: 12px 0;
+  overflow-x: auto;
+}
+
+.md-table-wrap:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.md-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.md-table th {
+  padding: 8px 12px;
+  border-bottom: 2px solid var(--accent);
+  background: var(--bg-secondary);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.md-table td {
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: top;
+}
+
+.book-reader pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* 翻页 */
+.book-pager {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: 28px;
+}
+
+.book-pager__link {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: 16px 20px;
+  color: inherit;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: border-color 0.15s ease;
+}
+
+.book-pager__link:hover {
+  border-color: var(--accent);
+}
+
+.book-pager__link > svg {
+  flex: 0 0 auto;
+  color: var(--accent);
+}
+
+.book-pager__link.is-next {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.book-pager__spacer {
+  flex: 1;
+}
+
+@media (min-width: 768px) {
+  .book-reader {
+    padding: 40px 48px;
+    font-size: 18px;
+    line-height: 2;
+  }
+
+  .book-pager {
+    flex-direction: row;
+  }
+}
+
+@media (max-width: 767px) {
+  .book-card-block {
+    padding: var(--space-5) var(--space-4);
+  }
+
+  .book-pager__spacer {
+    display: none;
+  }
+}
+
+/* 我的书 */
+.book-card__title { margin: 0; font-size: 1.3rem; line-height: 1.5; }
+.book-card__desc { margin: 0; color: var(--text-secondary); line-height: 1.8; }
+.book-card__cta { display: flex; align-items: center; gap: var(--space-2); margin-top: auto; color: var(--accent-ink); }
+.book-card__pdf .btn-primary svg,
+.book-card__pdf .btn-ghost svg { margin-right: 6px; }

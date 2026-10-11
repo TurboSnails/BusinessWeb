@@ -570,63 +570,7 @@
   }
 }
 
-/* ---------- 书稿阅读 ---------- */
-.book-reader {
-  padding: 20px 16px !important;
-  font-size: 17px;
-  line-height: 1.9 !important;
-  overflow-wrap: anywhere;
-}
-
-.book-reader h1,
-.book-reader h2,
-.book-reader h3 {
-  font-family: var(--font-serif);
-}
-
-.book-reader p {
-  margin: 12px 0;
-}
-
-.book-reader table {
-  display: block;
-  max-width: 100%;
-  overflow-x: auto;
-}
-
-.book-reader pre {
-  max-width: 100%;
-  overflow-x: auto;
-}
-
-.book-reader blockquote {
-  margin: 14px 0;
-  padding: 4px 14px;
-  border-left: 3px solid var(--accent-warm);
-  background: var(--accent-warm-soft);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-}
-
-.book-pager {
-  flex-direction: column;
-}
-
-.book-pager > a,
-.book-pager > div {
-  min-height: 44px;
-}
-
-@media (min-width: 768px) {
-  .book-reader {
-    padding: 40px 48px !important;
-    font-size: 18px;
-    line-height: 2 !important;
-  }
-
-  .book-pager {
-    flex-direction: row;
-  }
-}
+/* ---------- 书稿阅读：见 src/styles/book.css ---------- */
 
 /* ---------- 内页横幅 ---------- */
 .page-hero {
@@ -751,7 +695,7 @@
 
 /* ---------- 书稿阅读：左侧章节目录 + 正文 ---------- */
 .reader-layout {
-  max-width: 1240px;
+  max-width: var(--page-max, 1100px);
   margin: 0 auto;
   padding: 16px 16px 40px;
 }
@@ -894,9 +838,8 @@ a.chapter-nav__item:hover {
 @media (min-width: 1024px) {
   .reader-layout {
     display: grid;
-    grid-template-columns: 290px minmax(0, 860px);
-    gap: 32px;
-    justify-content: center;
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: 24px;
     align-items: start;
     padding: 24px 24px 56px;
   }

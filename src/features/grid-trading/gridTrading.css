@@ -129,3 +129,5 @@
 
 .grid-form > * { min-width:0; }
 .grid-form input, .grid-form select { width:100%; box-sizing:border-box; }
+
+.grid-row-removed { opacity: 0.5; }

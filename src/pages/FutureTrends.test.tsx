@@ -43,7 +43,8 @@ describe('未来趋势', () => {
     render(<MemoryRouter initialEntries={['/future-trends?tab=ai']}><FutureTrends /></MemoryRouter>)
     for (const [tab, title] of [['人工智能', '人工智能'], ['智能驾驶', '智能驾驶'], ['机器人与具身智能', '机器人与具身智能'], ['创新药', '创新药'], ['航空航天', '航空航天'], ['新能源', '新能源'], ['半导体与先进制造', '半导体与先进制造'], ['新材料', '新材料'], ['脑机接口、量子计算与合成生物', '脑机接口、量子计算与合成生物']]) {
       fireEvent.click(screen.getByRole('tab', { name: tab }))
-      const sections = screen.getAllByRole('region')
+      // 表格外壳（TableWrap）也是 region，这里只看页面板块 section
+      const sections = screen.getAllByRole('region').filter(r => r.tagName === 'SECTION')
       expect(sections[sections.length - 1].getAttribute('aria-labelledby'), tab).toMatch(/-us-picks$/)
       expect(screen.getByRole('heading', { name: new RegExp(`^${title}海外公司研究`) })).toBeTruthy()
     }

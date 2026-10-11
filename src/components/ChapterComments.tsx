@@ -12,13 +12,6 @@ function saveToken(value: string): void {
 }
 type Notice = { kind: 'ok' | 'error'; text: string }
 
-const field: React.CSSProperties = {
-  width: '100%', boxSizing: 'border-box', padding: '10px 12px', borderRadius: '8px',
-  border: '1px solid var(--border, #d9d9d9)', background: 'transparent', color: 'inherit', font: 'inherit',
-}
-
-const linkButton: React.CSSProperties = { background: 'none', border: 'none', padding: 0, color: 'var(--accent)', cursor: 'pointer', font: 'inherit' }
-
 /** 章节评论：匿名提交，经审核后显示。后端为 /api/comments。 */
 export default function ChapterComments({ slug, title = '读者评论' }: { slug: string; title?: string }): JSX.Element {
   const [comments, setComments] = useState<Comment[]>([])
@@ -115,49 +108,49 @@ export default function ChapterComments({ slug, title = '读者评论' }: { slug
   }
 
   return (
-    <section aria-label={title} className="book-comments" style={{ marginBottom: '28px' }}>
-      <h3 style={{ margin: '0 0 12px', fontSize: '1.05rem' }}>{title}{comments.length > 0 && `（${comments.length}）`}</h3>
-      {comments.length === 0 && <p style={{ color: 'var(--text-secondary)', margin: '0 0 16px' }}>还没有评论，欢迎留下你的想法。</p>}
-      <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px', display: 'grid', gap: '12px' }}>
+    <section aria-label={title} className="ui-card book-comments">
+      <h3 className="comments-title">{title}{comments.length > 0 && `（${comments.length}）`}</h3>
+      {comments.length === 0 && <p className="comments-empty">还没有评论，欢迎留下你的想法。</p>}
+      <ul className="comments-list">
         {comments.map(c => (
-          <li key={c.id} style={{ padding: '12px 14px', borderRadius: '8px', border: '1px solid var(--border, #e5e5e5)' }}>
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
+          <li key={c.id} className="comments-item">
+            <div className="comments-meta">
               {c.nickname} · {new Date(c.created_at).toLocaleDateString('zh-CN')}
               {admin && c.status && ` · ${STATUS_LABEL[c.status] ?? c.status}`}
             </div>
-            <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{c.content}</div>
+            <div className="comments-content">{c.content}</div>
             {admin && (
-              <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-                {c.status !== 'approved' && <button type="button" onClick={() => moderate(c.id, 'approve')} style={linkButton}>通过</button>}
-                {c.status !== 'rejected' && <button type="button" onClick={() => moderate(c.id, 'reject')} style={linkButton}>驳回</button>}
-                <button type="button" onClick={() => moderate(c.id, 'delete')} style={{ ...linkButton, color: 'var(--up)' }}>删除</button>
+              <div className="comments-actions">
+                {c.status !== 'approved' && <button type="button" onClick={() => moderate(c.id, 'approve')} className="comments-link">通过</button>}
+                {c.status !== 'rejected' && <button type="button" onClick={() => moderate(c.id, 'reject')} className="comments-link">驳回</button>}
+                <button type="button" onClick={() => moderate(c.id, 'delete')} className="comments-link is-danger">删除</button>
               </div>
             )}
           </li>
         ))}
       </ul>
-      <form onSubmit={submit} style={{ display: 'grid', gap: '10px' }}>
-        <input aria-label="昵称（可不填）" placeholder="昵称（可不填）" maxLength={20} value={nickname} onChange={e => setNickname(e.target.value)} style={field} />
-        <textarea aria-label="评论内容" placeholder="写下你的想法或疑问（2–1000 字，审核后显示）" required minLength={2} maxLength={1000} rows={4} value={content} onChange={e => setContent(e.target.value)} style={{ ...field, resize: 'vertical' }} />
+      <form onSubmit={submit} className="comments-form">
+        <input aria-label="昵称（可不填）" placeholder="昵称（可不填）" maxLength={20} value={nickname} onChange={e => setNickname(e.target.value)} className="ui-input" />
+        <textarea aria-label="评论内容" placeholder="写下你的想法或疑问（2–1000 字，审核后显示）" required minLength={2} maxLength={1000} rows={4} value={content} onChange={e => setContent(e.target.value)} className="ui-input comments-textarea" />
         {/* 蜜罐：对真人隐藏 */}
-        <input name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" value={website} onChange={e => setWebsite(e.target.value)} style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, opacity: 0 }} />
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-          <button type="submit" disabled={sending} style={{ padding: '8px 18px', borderRadius: '8px', border: 'none', background: 'var(--accent)', color: '#fff', cursor: sending ? 'wait' : 'pointer' }}>
+        <input name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" value={website} onChange={e => setWebsite(e.target.value)} className="comments-honeypot" />
+        <div className="ui-cluster">
+          <button type="submit" disabled={sending} className="tool-btn tool-btn--primary">
             {sending ? '提交中…' : '提交评论'}
           </button>
-          {notice && <span role="status" style={{ color: notice.kind === 'ok' ? 'var(--accent)' : 'var(--up)', fontSize: '0.9rem' }}>{notice.text}</span>}
+          {notice && <span role="status" className={notice.kind === 'ok' ? 'comments-notice' : 'comments-notice is-error'}>{notice.text}</span>}
         </div>
       </form>
-      <div style={{ marginTop: '16px', fontSize: '0.85rem' }}>
+      <div className="comments-admin">
         {admin ? (
-          <button type="button" onClick={() => logout()} style={linkButton}>退出管理</button>
+          <button type="button" onClick={() => logout()} className="comments-link">退出管理</button>
         ) : loginOpen ? (
-          <form onSubmit={login} style={{ display: 'flex', gap: '8px' }}>
-            <input type="password" aria-label="管理员 token" placeholder="管理员 token" autoComplete="off" value={tokenInput} onChange={e => setTokenInput(e.target.value)} style={{ ...field, flex: 1 }} />
-            <button type="submit" style={linkButton}>进入</button>
+          <form onSubmit={login} className="comments-login">
+            <input type="password" aria-label="管理员 token" placeholder="管理员 token" autoComplete="off" value={tokenInput} onChange={e => setTokenInput(e.target.value)} className="ui-input" />
+            <button type="submit" className="comments-link">进入</button>
           </form>
         ) : (
-          <button type="button" onClick={() => setLoginOpen(true)} style={{ ...linkButton, color: 'var(--text-secondary)' }}>管理</button>
+          <button type="button" onClick={() => setLoginOpen(true)} className="comments-link is-muted">管理</button>
         )}
       </div>
     </section>

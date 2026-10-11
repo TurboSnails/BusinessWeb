@@ -3,10 +3,6 @@
     "inline": 50,
     "color": 1
   },
-  "components/ChapterComments.tsx": {
-    "inline": 19,
-    "color": 3
-  },
   "components/TableStyles.tsx": {
     "inline": 0,
     "color": 8
@@ -79,10 +75,6 @@
     "inline": 2,
     "color": 0
   },
-  "features/company-notes/CompanyNotes.tsx": {
-    "inline": 1,
-    "color": 0
-  },
   "features/grid-trading/GridChart.tsx": {
     "inline": 1,
     "color": 3
@@ -115,31 +107,11 @@
     "inline": 2,
     "color": 0
   },
-  "pages/About.tsx": {
-    "inline": 15,
-    "color": 0
-  },
   "pages/CompanyDetail.tsx": {
     "inline": 1,
     "color": 0
   },
-  "pages/Dcf.tsx": {
-    "inline": 9,
-    "color": 2
-  },
   "pages/FirstBook.tsx": {
-    "inline": 55,
-    "color": 3
-  },
-  "pages/FutureTrendCompany.tsx": {
-    "inline": 5,
-    "color": 0
-  },
-  "pages/FutureTrends.tsx": {
-    "inline": 38,
-    "color": 0
-  },
-  "pages/GridRecordDetail.tsx": {
     "inline": 1,
     "color": 0
   },
@@ -151,18 +123,6 @@
     "inline": 71,
     "color": 2
   },
-  "pages/Monitor.tsx": {
-    "inline": 1,
-    "color": 0
-  },
-  "pages/MyBooks.tsx": {
-    "inline": 6,
-    "color": 0
-  },
-  "pages/NotFound.tsx": {
-    "inline": 1,
-    "color": 0
-  },
   "pages/ResearchNotes.tsx": {
     "inline": 1,
     "color": 0
@@ -170,10 +130,6 @@
   "pages/SectorRotation.tsx": {
     "inline": 2,
     "color": 1
-  },
-  "pages/ThemeCards.tsx": {
-    "inline": 21,
-    "color": 2
   },
   "pages/TradingPhilosophy.tsx": {
     "inline": 465,

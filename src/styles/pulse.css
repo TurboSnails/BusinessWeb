@@ -522,3 +522,9 @@
     margin-left: 0;
   }
 }
+
+@media (pointer: coarse) {
+  .heatmap-card__fs {
+    min-height: 40px;
+  }
+}

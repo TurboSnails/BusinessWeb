@@ -723,3 +723,51 @@
 .pulse-resources {
   margin-top: var(--space-5);
 }
+
+/* 主题研究卡（产业格局内） */
+.theme-gap { margin-bottom: var(--space-4); }
+.theme-new { display: flex; gap: var(--space-2); }
+.theme-new .ui-input { flex: 1; }
+.theme-suggest { margin-top: 10px; font-size: 0.85rem; }
+.theme-muted { color: var(--text-tertiary); font-size: 0.85rem; }
+.theme-summary { margin: var(--space-3) 0 0; color: var(--text-secondary); font-size: 0.85rem; }
+.theme-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); width: 100%; min-height: 40px; padding: 0; border: 0; background: transparent; color: var(--text-primary); font: inherit; text-align: left; cursor: pointer; }
+.theme-head__name { font-size: 1.05rem; }
+.theme-head__meta { color: var(--text-tertiary); font-size: 0.85rem; white-space: nowrap; }
+.theme-head__meta.is-warn, .theme-warns { color: var(--up-ink); }
+.theme-warns { margin: 10px 0 0; padding-left: 20px; font-size: 0.85rem; line-height: 1.7; }
+.theme-body { display: grid; gap: 14px; margin-top: 14px; }
+.theme-field-title { display: block; color: var(--text-primary); font-size: 0.85rem; }
+
+/* 评论区（书稿章节、关于页） */
+.book-comments { margin-bottom: 28px; }
+.comments-title { margin: 0 0 var(--space-3); font-family: var(--font-serif); font-size: 1.05rem; }
+.comments-empty { margin: 0 0 var(--space-4); color: var(--text-secondary); }
+.comments-list { display: grid; gap: var(--space-3); margin: 0 0 var(--space-5); padding: 0; list-style: none; }
+.comments-item { padding: 12px 14px; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); }
+.comments-meta { margin-bottom: 4px; color: var(--text-secondary); font-size: 0.85rem; }
+.comments-content { white-space: pre-wrap; overflow-wrap: anywhere; }
+.comments-actions { display: flex; gap: var(--space-2); margin-top: var(--space-2); }
+.comments-form { display: grid; gap: 10px; }
+.comments-textarea { min-height: 96px; padding: 10px; resize: vertical; }
+.comments-honeypot { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.comments-notice { color: var(--accent-ink); font-size: 0.9rem; }
+.comments-notice.is-error { color: var(--up-ink); }
+.comments-admin { margin-top: var(--space-4); font-size: 0.85rem; }
+.comments-login { display: flex; gap: var(--space-2); }
+.comments-login .ui-input { flex: 1; }
+.comments-link { min-height: 32px; padding: 0; border: 0; background: none; color: var(--accent-ink); font: inherit; cursor: pointer; }
+.comments-link.is-danger { color: var(--up-ink); }
+.comments-link.is-muted { color: var(--text-secondary); }
+
+/* 关于页 */
+.about-intro { margin-bottom: var(--space-6); }
+.about-title { margin: 0 0 var(--space-4); font-size: 1.5rem; }
+.about-lead { margin: 0 0 var(--space-5); color: var(--text-secondary); line-height: 1.75; }
+.about-subhead { margin: 0 0 var(--space-2); font-family: var(--font-sans); font-size: 0.95rem; font-weight: 600; }
+.about-list { margin: 0 0 var(--space-5); padding-left: 20px; color: var(--text-secondary); line-height: 1.8; }
+.about-link { color: var(--accent-ink); font-weight: 500; text-decoration: none; }
+.about-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+.about-gap { margin-bottom: var(--space-5); }
+.about-ext { border-radius: var(--radius-full); }
+.about-comments { margin-top: var(--space-7); }

@@ -463,7 +463,7 @@ export default function Dcf(): JSX.Element {
             onChange={(v) => setNumber("marketReturn", v)}
           />
         </div>
-        <div className="dcf-actions" style={{ marginTop: 14 }}>
+        <div className="dcf-actions dcf-gap">
           {waccResult.status === "calculated" ? (
             <>
               <strong>
@@ -513,7 +513,7 @@ export default function Dcf(): JSX.Element {
             onChange={(v) => setNumber("ebitda", v)}
           />
         </div>
-        <div className="dcf-metrics" style={{ marginTop: 14 }}>
+        <div className="dcf-metrics dcf-gap">
           {bands.map((band) => (
             <BandCard key={band.label} band={band} currency={input.currency} />
           ))}
@@ -565,7 +565,7 @@ export default function Dcf(): JSX.Element {
             )}
           </div>
         </div>
-        <div className="dcf-metrics" style={{ marginTop: 10 }}>
+        <div className="dcf-metrics dcf-gap">
           <div className="dcf-metric">
             <small>终值（未折现）</small>
             <strong>{formatMoney(result.terminalValue ?? null, input.currency)}</strong>
@@ -613,7 +613,7 @@ export default function Dcf(): JSX.Element {
           </ul>
         )}
 
-        <div className="dcf-actions" style={{ marginTop: 18 }}>
+        <div className="dcf-actions dcf-gap">
           <button type="button" className="dcf-button" onClick={save}>
             <Save size={15} />{" "}
             {existing ? `保存并覆盖 ${existing.company} 的记录` : "保存本次分析"}
@@ -625,12 +625,12 @@ export default function Dcf(): JSX.Element {
           )}
         </div>
         {notice && (
-          <p className="dcf-muted" role="status" style={{ marginTop: 8 }}>
+          <p className="dcf-muted dcf-gap-sm" role="status">
             {notice}
           </p>
         )}
         {error && (
-          <p className="dcf-error" role="alert" style={{ marginTop: 8 }}>
+          <p className="dcf-error dcf-gap-sm" role="alert">
             {error}
           </p>
         )}
@@ -683,10 +683,10 @@ export default function Dcf(): JSX.Element {
             </table>
           </div>
           <div className="dcf-sens__legend" aria-hidden="true">
-            <span><i className="dcf-sens__swatch" style={{ background: "rgba(196, 80, 63, 0.3)" }} />高于现价（越红越高）</span>
-            <span><i className="dcf-sens__swatch" style={{ background: "rgba(63, 154, 98, 0.3)" }} />低于现价（越绿越低）</span>
+            <span><i className="dcf-sens__swatch is-high" />高于现价（越红越高）</span>
+            <span><i className="dcf-sens__swatch is-low" />低于现价（越绿越低）</span>
           </div>
-          <p className="dcf-muted" style={{ marginTop: 10 }}>
+          <p className="dcf-muted dcf-gap-sm">
             合理价区间 {formatPrice(sensitivity.minPrice, input.currency)} ~{" "}
             {formatPrice(sensitivity.maxPrice, input.currency)}
             {sensitivity.positiveShare != null &&

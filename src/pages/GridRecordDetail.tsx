@@ -99,7 +99,7 @@ export default function GridRecordDetail(): JSX.Element {
     <section className="grid-card"><h2>成交记录</h2><p>修正网格成交价会影响后续网格基准。手动成交与撤销成交按独立账本叠加。</p>
       <div className="grid-table-scroll"><table className="grid-record-table"><thead><tr><th>日期</th><th>类型</th><th>价格</th><th>金额</th><th>成交份额</th><th>成交后持仓</th><th>盈亏</th><th>操作</th></tr></thead><tbody>{rows.map((t, i) => {
         const removed = !t.manual && deletedDates.includes(t.date) && t.side !== '建仓'
-        return <tr key={t.id ?? `${t.date}-${i}`} style={{ opacity: removed ? 0.5 : 1 }}><td>{t.date}</td><td>{t.manual ? '手动' : ''}{t.side}{removed ? '（已撤销）' : ''}</td><td>{t.price.toFixed(3)}{t.modelPrice !== undefined && <small>模型 {t.modelPrice.toFixed(3)}</small>}</td><td>{amount(t.amount)}</td><td>{amount(t.quantity ?? t.amount / t.price)}</td><td>{amount(t.shares)}</td><td>{amount(t.pnl)}</td><td>
+        return <tr key={t.id ?? `${t.date}-${i}`} className={removed ? 'grid-row-removed' : undefined}><td>{t.date}</td><td>{t.manual ? '手动' : ''}{t.side}{removed ? '（已撤销）' : ''}</td><td>{t.price.toFixed(3)}{t.modelPrice !== undefined && <small>模型 {t.modelPrice.toFixed(3)}</small>}</td><td>{amount(t.amount)}</td><td>{amount(t.quantity ?? t.amount / t.price)}</td><td>{amount(t.shares)}</td><td>{amount(t.pnl)}</td><td>
           {!t.manual && <button className="grid-text-button" disabled={!candles.length || busy} onClick={() => edit(t)}>修正</button>}
           {!backup && t.side !== '建仓' && <button className="grid-text-button" disabled={!candles.length || busy} onClick={() => run(() => commit(t.manual ? removeManualTrade(record, t.id!) : setGridTradeDeleted(record, t.date, !removed)))}>{removed ? '恢复' : '撤销'}</button>}
         </td></tr>

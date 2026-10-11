@@ -11,31 +11,23 @@ import FutureTrendsCore from './FutureTrendsCore'
 import FutureTrendsPool from './FutureTrendsPool'
 import FutureTrendsSolidState from './FutureTrendsSolidState'
 import { ADAS_EXTRA_LEVELS, ADAS_EXTRA_PICKS, AI_EXTRA_LEVELS, AI_EXTRA_PICKS, SECTOR_PICKS, SECTOR_PICKS_ASOF, TREND_METRICS, US_PICKS } from '../data/futureTrendsSectorPicks'
-import { Page } from '../components/ui'
-
-const card: React.CSSProperties = {
-  background: 'var(--bg-card)',
-  borderRadius: 'var(--radius-lg)',
-  boxShadow: 'var(--shadow-md)',
-  padding: 20,
-  marginBottom: 16,
-}
+import { Page, TableWrap } from '../components/ui'
 
 function Companies({ title, list }: { title: string; list: TrendCompany[] }): JSX.Element {
   return (
     <div>
-      <h4 style={{ margin: '0 0 6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{title}</h4>
-      {list.length === 0 ? <p style={{ margin: 0, color: 'var(--system-gray)', fontSize: '0.85rem' }}>暂无</p> : (
-        <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+      <h4 className="ftx-companies__title">{title}</h4>
+      {list.length === 0 ? <p className="ftx-empty">暂无</p> : (
+        <ul className="ftx-companies">
           {list.map(c => (
-            <li key={c.name + c.code} style={{ padding: '6px 0', borderTop: '1px solid var(--system-gray5)', lineHeight: 1.6, fontSize: '0.9rem' }}>
+            <li key={c.name + c.code}>
               <strong><FutureCompanyLink name={c.name} code={c.code} /></strong>
-              <span style={{ color: 'var(--text-secondary)', marginLeft: 6, fontSize: '0.8rem' }}>{c.code}</span>
-              <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{c.role}</div>
-              <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}><strong>{c.exposure}</strong> · {c.evidence}</div>
-              <div style={{ fontSize: '0.75rem' }}>{c.sourceUrl
+              <span className="ftx-code">{c.code}</span>
+              <div className="ftx-muted">{c.role}</div>
+              <div className="ftx-muted ftx-xs"><strong>{c.exposure}</strong> · {c.evidence}</div>
+              <div className="ftx-xs">{c.sourceUrl
                 ? <a href={c.sourceUrl} target="_blank" rel="noopener noreferrer">{c.sourceTitle}</a>
-                : <span style={{ color: 'var(--text-secondary)' }}>{c.sourceTitle}</span>}</div>
+                : <span className="ftx-muted">{c.sourceTitle}</span>}</div>
             </li>
           ))}
         </ul>
@@ -46,9 +38,9 @@ function Companies({ title, list }: { title: string; list: TrendCompany[] }): JS
 
 function Bullets({ title, items }: { title: string; items: string[] }): JSX.Element {
   return (
-    <div style={{ flex: '1 1 280px' }}>
-      <h3 style={{ margin: '0 0 6px', fontSize: '1rem' }}>{title}</h3>
-      <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.8, fontSize: '0.9rem' }}>
+    <div className="ftx-bullets">
+      <h3>{title}</h3>
+      <ul>
         {items.map(i => <li key={i}>{i}</li>)}
       </ul>
     </div>
@@ -67,19 +59,19 @@ interface PicksSectionProps {
 }
 
 function PicksSection({ id, title, picks }: PicksSectionProps): JSX.Element {
-  return <section style={card} aria-labelledby={id}>
-    <h2 id={id}>{title}</h2>
-    <p>2026-10-09 复核：下表链接至每家公司二级研究页。旧程序化买点、固定胜率与买入评级已撤回；情景草稿未经第二种独立估值认证。行情时点、事实、假设与缺项逐页标明。</p>
-    <div style={{ overflowX: 'auto' }}><table style={{ width: '100%', minWidth: 800, borderCollapse: 'collapse' }}>
-      <thead><tr>{['公司 / 代码', '行情 / 时间', '综合结论', '条件盈亏比 / 保本所需胜率', '护城河', '隐忧'].map(t => <th key={t} style={{ textAlign: 'left', padding: 10 }}>{t}</th>)}</tr></thead>
+  return <section className="ui-card ftx-card" aria-labelledby={id}>
+    <h2 id={id} className="ftx-card__title">{title}</h2>
+    <p className="ftx-text">2026-10-09 复核：下表链接至每家公司二级研究页。旧程序化买点、固定胜率与买入评级已撤回；情景草稿未经第二种独立估值认证。行情时点、事实、假设与缺项逐页标明。</p>
+    <TableWrap label={title} stickyFirst><table className="ui-table ftx-table">
+      <thead><tr>{['公司 / 代码', '行情 / 时间', '综合结论', '条件盈亏比 / 保本所需胜率', '护城河', '隐忧'].map(t => <th key={t} scope="col">{t}</th>)}</tr></thead>
       <tbody>{picks.map(p => { const r = researchForCompany(p.name, p.code); return <tr key={p.code}>
-        <td style={{ padding: 10 }}><FutureCompanyLink name={p.name} code={p.code} /><div>{p.code}</div></td>
-        <td style={{ padding: 10 }}>{r?.priceText ?? '[MISSING]'}<small style={{ display: 'block' }}>{r?.priceDate}</small></td>
-        <td style={{ padding: 10 }}>{r?.rating ?? '等待证据'}<small style={{ display: 'block' }}>{r?.valuationStatus}</small></td>
-        <td style={{ padding: 10 }}>{r?.ratio == null ? '待建模／不适用' : `${r.ratio.toFixed(4)}:1（假设）`}<div>保本所需 {researchPercent(r?.breakEven)}</div><div>实际胜率：未校准</div></td>
-        <td style={{ padding: 10 }}>{r?.moat}</td><td style={{ padding: 10 }}>{r?.concern}</td>
+        <td><FutureCompanyLink name={p.name} code={p.code} /><div className="ftx-code">{p.code}</div></td>
+        <td>{r?.priceText ?? '[MISSING]'}<small className="ftx-block">{r?.priceDate}</small></td>
+        <td>{r?.rating ?? '等待证据'}<small className="ftx-block">{r?.valuationStatus}</small></td>
+        <td>{r?.ratio == null ? '待建模／不适用' : `${r.ratio.toFixed(4)}:1（假设）`}<div>保本所需 {researchPercent(r?.breakEven)}</div><div>实际胜率：未校准</div></td>
+        <td>{r?.moat}</td><td>{r?.concern}</td>
       </tr> })}</tbody>
-    </table></div>
+    </table></TableWrap>
   </section>
 }
 
@@ -141,35 +133,35 @@ export default function FutureTrends(): JSX.Element {
       <PageTabs label="未来趋势赛道" value={id} onChange={setId}
         items={[{ id: CORE_ID, label: '核心' }, { id: POOL_ID, label: '候选池' }, { id: SOLID_ID, label: '固态电池' }, ...TRENDS.map(t => ({ id: t.id, label: t.name.replace(/（.*?）/, '').replace(/，.*/, '') }))]} />
       <div>
-        {id !== POOL_ID && id !== CORE_ID && id !== SOLID_ID && <p role="note" style={{ color: 'var(--text-secondary)', fontSize: 13, margin: '14px 0' }}>产业目录截至 {FUTURE_TRENDS_ASOF}。点击公司名称查看详细研究；查看推荐顺序请进入核心或候选池。</p>}
+        {id !== POOL_ID && id !== CORE_ID && id !== SOLID_ID && <p role="note" className="ftx-note">产业目录截至 {FUTURE_TRENDS_ASOF}。点击公司名称查看详细研究；查看推荐顺序请进入核心或候选池。</p>}
 
         {id === SOLID_ID ? <FutureTrendsSolidState /> : id === POOL_ID ? <FutureTrendsPool /> : id === CORE_ID ? <FutureTrendsCore /> : (<>
-        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>十个赛道 · {coverage.segments} 个细分环节 · {coverage.companies} 个公司或主体 · {coverage.entries} 条业务关联（跨环节可重复）</p>
-        <section style={card} aria-labelledby="trend-name">
-          <h2 id="trend-name" style={{ margin: '0 0 6px', fontSize: '1.3rem' }}>{trend.name}</h2>
-          <p style={{ margin: '0 0 10px', color: 'var(--text-secondary)' }}>{trend.oneLine}</p>
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{selectedCoverage.segments} 个环节 · {selectedCoverage.companies} 个公司或主体。直接业务、多元业务、研发验证、间接配套说明业务关联程度，不代表已核实收入占比或收益排名。</p>
-          <p style={{ margin: '0 0 8px', lineHeight: 1.8 }}><strong>阶段：</strong>{trend.stage}</p>
-          <p style={{ margin: 0, lineHeight: 1.8 }}><strong>谁受益：</strong>{trend.why}</p>
-          <p style={{ margin: '8px 0 0', fontSize: '0.8rem', color: 'var(--system-gray)' }}>对应书中：{trend.book}</p>
+        <p className="ftx-note">十个赛道 · {coverage.segments} 个细分环节 · {coverage.companies} 个公司或主体 · {coverage.entries} 条业务关联（跨环节可重复）</p>
+        <section className="ui-card ftx-card" aria-labelledby="trend-name">
+          <h2 id="trend-name" className="ftx-trend-title">{trend.name}</h2>
+          <p className="ftx-lead">{trend.oneLine}</p>
+          <p className="ftx-muted ftx-small">{selectedCoverage.segments} 个环节 · {selectedCoverage.companies} 个公司或主体。直接业务、多元业务、研发验证、间接配套说明业务关联程度，不代表已核实收入占比或收益排名。</p>
+          <p className="ftx-text"><strong>阶段：</strong>{trend.stage}</p>
+          <p className="ftx-text"><strong>谁受益：</strong>{trend.why}</p>
+          <p className="ftx-muted ftx-small">对应书中：{trend.book}</p>
         </section>
 
-        <nav aria-label="产业链环节索引" style={{ ...card, display: 'flex', flexWrap: 'wrap', gap: 12 }}>
-          {trend.chain.map((l, index) => <a key={l.link} href={`#${trend.id}-chain-${index}`} style={{ fontSize: '0.85rem' }}>{l.link}</a>)}
+        <nav aria-label="产业链环节索引" className="ui-card ftx-card ui-link-chips">
+          {trend.chain.map((l, index) => <a key={l.link} href={`#${trend.id}-chain-${index}`}>{l.link}</a>)}
         </nav>
         {trend.chain.map((l, index) => (
-          <section key={l.link} id={`${trend.id}-chain-${index}`} style={card} aria-label={l.link}>
-            <h3 style={{ margin: '0 0 4px', fontSize: '1.05rem' }}>{l.link}</h3>
-            <p style={{ margin: '0 0 12px', color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.7 }}>{l.desc}</p>
-            <p style={{ fontSize: '0.85rem', lineHeight: 1.7 }}><strong>本环节验证：</strong>{l.verify}</p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: 20 }}>
+          <section key={l.link} id={`${trend.id}-chain-${index}`} className="ui-card ftx-card" aria-label={l.link}>
+            <h3 className="ftx-card__title">{l.link}</h3>
+            <p className="ftx-lead">{l.desc}</p>
+            <p className="ftx-small"><strong>本环节验证：</strong>{l.verify}</p>
+            <div className="ftx-two">
               <Companies title="中国（含港股、中概）" list={l.cn} />
               <Companies title="海外（美股、ADR 及其他市场）" list={l.us} />
             </div>
           </section>
         ))}
 
-        <section style={{ ...card, display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+        <section className="ui-card ftx-card ftx-split">
           <Bullets title="该查什么（验证指标）" items={trend.verify} />
           <Bullets title="主要风险" items={trend.risks} />
         </section>
