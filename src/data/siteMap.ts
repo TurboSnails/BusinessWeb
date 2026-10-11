@@ -9,6 +9,8 @@ export interface HubLink {
   path: string
   label: string
   desc: string
+  /** 栏目页卡片上的短说明（14 字以内）；完整说明 desc 用于搜索与工作台 */
+  short?: string
   /** 已舍弃的页面：保留可访问，子页面顶部显示这条说明 */
   archived?: string
 }
@@ -31,61 +33,64 @@ export const NAV_ITEMS: NavItem[] = [
   { path: '/about', label: '关于' },
 ]
 
-// 顺序即书里的流程：读书 → 定规则 → 选标的 → 用工具执行 → 少看行情；已舍弃的页面折叠在最后。
+// 按「我要做什么」分组：读书横幅在最上，日常用的研究与工具在前，行情只作参考，已舍弃折叠在最后。
 // 分组同时决定子页面顶部的「同组切换条」，同一组只放同一件事。
 export const INVEST_GROUPS: HubGroup[] = [
   {
     id: 'read',
-    step: '第一步',
     title: '读这本书',
+    hint: '推荐顺序：读书 → 定规则 → 选标的 → 用工具',
     links: [
       { path: '/first-book', label: '我的书', desc: '《正念投资：普通人用规则代替盯盘的投资方法》全文与目录' },
     ],
   },
   {
-    id: 'method',
-    step: '第二步',
-    title: '定规则',
-    hint: '先想清楚怎么投，写成今年的计划；宏观温度用来判断所处阶段。',
-    links: [
-      { path: '/investment-plan-2026', label: '2026 投资计划', desc: '三笔钱、再平衡、红线与回撤补仓' },
-      { path: '/monitor', label: '宏观温度', desc: '中美经济温度、周期阶段与对应动作' },
-    ],
-  },
-  {
     id: 'research',
-    step: '第三步',
-    title: '选标的',
-    hint: '研究什么：公司研究与产业链。观察池按书第32、36章自己建，10到20家，每家一份决策记录。',
+    title: '研究标的',
+    hint: '观察池按书第32、36章自己建，10到20家，每家一份决策记录。',
     links: [
-      { path: '/research-notes', label: '公司研究', desc: '四个市场的公司库、候选池与研究方法' },
-      { path: '/invest/etf', label: 'ETF 流派地图', desc: '宽基、因子、主题、债券、商品等流派的主要 ETF 与风险' },
-      { path: '/invest/national-team', label: '国家队持仓', desc: '汇金、证金、社保等持有哪些 A 股：按机构、行业、个股看持仓与季度变化' },
-      { path: '/future-trends', label: '未来趋势', desc: 'AI、智驾、机器人、创新药、航空航天、新能源等赛道的产业链与中美参与公司' },
-      { path: '/industry-landscape', label: '产业格局', desc: '固态电池、半导体、AI算力、AI应用、机器人、军工、新能源车、光伏储能、核电电网、创新药、低空与商业航天、消费电子、白酒、银行、新材料、前沿科技，和一页纸主题研究卡' },
+      { path: '/research-notes', label: '公司研究', short: '四个市场的公司库与候选池', desc: '四个市场的公司库、候选池与研究方法' },
+      { path: '/industry-landscape', label: '产业格局', short: '按行业看龙头与格局', desc: '固态电池、半导体、AI算力、AI应用、机器人、军工、新能源车、光伏储能、核电电网、创新药、低空与商业航天、消费电子、白酒、银行、新材料、前沿科技，和一页纸主题研究卡' },
+      { path: '/future-trends', label: '未来趋势', short: '按赛道看产业链', desc: 'AI、智驾、机器人、创新药、航空航天、新能源等赛道的产业链与中美参与公司' },
+      { path: '/invest/national-team', label: '国家队持仓', short: '汇金证金社保持仓变化', desc: '汇金、证金、社保等持有哪些 A 股：按机构、行业、个股看持仓与季度变化' },
+      { path: '/invest/etf', label: 'ETF 流派地图', short: '各类 ETF 与主要风险', desc: '宽基、因子、主题、债券、商品等流派的主要 ETF 与风险' },
     ],
   },
   {
     id: 'tools',
-    step: '第四步',
-    title: '用工具执行',
-    hint: '估值定价格，网格管节奏，AI 工具辅助研究。',
+    title: '估值与交易',
+    hint: '估值定价格，网格管节奏。',
     links: [
-      { path: '/valuation', label: '公司估值', desc: '六方法三情景估值与报告导出' },
-      { path: '/dcf', label: '现金流折现 DCF', desc: 'WACC + 五年现金流折现估值与安全边际，可保存记录' },
-      { path: '/grid-trading', label: '网格交易', desc: 'ETF / 个股网格模拟、回测与记录' },
-      { path: '/invest/ai-tools', label: 'AI 工具', desc: '开发协作、投资分析、视频创作与小说写作 Skills 的介绍和下载包' },
+      { path: '/valuation', label: '公司估值', short: '多方法三情景估值', desc: '六方法三情景估值与报告导出' },
+      { path: '/dcf', label: '现金流折现 DCF', short: '现金流折现与安全边际', desc: 'WACC + 五年现金流折现估值与安全边际，可保存记录' },
+      { path: '/grid-trading', label: '网格交易', short: '网格模拟、回测与记录', desc: 'ETF / 个股网格模拟、回测与记录' },
+    ],
+  },
+  {
+    id: 'method',
+    title: '计划与周期',
+    hint: '今年怎么投写成计划；宏观温度判断所处阶段。',
+    links: [
+      { path: '/investment-plan-2026', label: '2026 投资计划', short: '三笔钱、再平衡与红线', desc: '三笔钱、再平衡、红线与回撤补仓' },
+      { path: '/monitor', label: '宏观温度', short: '经济温度与周期阶段', desc: '中美经济温度、周期阶段与对应动作' },
     ],
   },
   {
     id: 'watch',
-    title: '看行情（选看）',
+    title: '行情（少看）',
     hint: '书里主张少看行情，这几页只作参考。',
     collapsed: false,
     links: [
       { path: '/pulse', label: '全球行情', desc: '全球指数、商品外汇与 A 股涨跌停' },
       { path: '/sector-rotation', label: '板块轮动', desc: '板块强弱与轮动' },
       { path: '/limit-up-analysis', label: '涨停分析', desc: '每日板块涨停' },
+    ],
+  },
+  {
+    id: 'related',
+    title: '相关',
+    links: [
+      { path: '/invest/ai-tools', label: 'AI 投研 Skills', desc: '开发协作、投资分析、视频创作与小说写作 Skills 的介绍和下载包' },
     ],
   },
   {

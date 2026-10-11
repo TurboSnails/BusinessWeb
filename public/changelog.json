@@ -1,10 +1,16 @@
 {
-  "generatedAt": "2026-10-11T12:32:12.892Z",
+  "generatedAt": "2026-10-11T12:52:21.742Z",
   "versions": [
     {
       "tag": "unreleased",
       "date": null,
       "commits": [
+        {
+          "hash": "b4917ec",
+          "subject": "chore: 更新 changelog",
+          "author": "hassan",
+          "date": "2026-10-11"
+        },
         {
           "hash": "ed5ee4e",
           "subject": "chore: 忽略 Python __pycache__",
@@ -176,12 +182,6 @@
         {
           "hash": "f796eee",
           "subject": "feat(invest): 新增国家队持仓看板，含个股与 ETF 口径、周更采集与文档",
-          "author": "hassan",
-          "date": "2026-10-11"
-        },
-        {
-          "hash": "9e88ac3",
-          "subject": "feat(about): 关于页增加留言区并移除更新日志；dev 代理 /api/comments",
           "author": "hassan",
           "date": "2026-10-11"
         }

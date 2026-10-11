@@ -570,3 +570,221 @@
     font-size: 1rem;
   }
 }
+
+/* ---------- 投资栏目页：按用途分组的卡片（与首页工作台同一视觉） ---------- */
+.invest-hub .inv-book {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin: 0 0 var(--space-7);
+  padding: var(--space-5) var(--space-6);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: var(--radius-lg);
+  background: var(--accent-soft);
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: border-color 0.15s ease;
+}
+
+.invest-hub .inv-book:hover {
+  border-color: var(--accent);
+}
+
+.inv-book__icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  color: var(--accent-ink);
+}
+
+.inv-book__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.inv-book__kicker {
+  color: var(--accent-ink);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.inv-book__title {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.inv-book__hint {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.inv-book__arrow {
+  flex: 0 0 auto;
+  color: var(--accent-ink);
+}
+
+.invest-hub .inv-group {
+  margin: 0 0 var(--space-7);
+}
+
+.inv-group__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.invest-hub .inv-group__head h2 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+}
+
+.inv-group__hint {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.inv-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.invest-hub .inv-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  height: 100%;
+  min-height: 72px;
+  padding: 14px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.invest-hub .inv-card:hover {
+  border-color: var(--accent);
+}
+
+.invest-hub .inv-card:active {
+  transform: scale(0.99);
+}
+
+.inv-card__icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+
+.inv-card__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.inv-card__title {
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.inv-card__desc {
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.invest-hub .inv-watch .ui-chip {
+  text-decoration: none;
+}
+
+.inv-related {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  margin: 0 0 var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+  font-size: 0.9rem;
+}
+
+.inv-related__label {
+  color: var(--text-tertiary);
+}
+
+.invest-hub .inv-related__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  color: var(--accent-ink);
+  text-decoration: none;
+}
+
+.invest-hub .inv-related__link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 1023px) {
+  .inv-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .invest-hub .inv-book {
+    padding: var(--space-4);
+  }
+
+  .inv-book__icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .inv-cards {
+    gap: var(--space-2);
+  }
+
+  .invest-hub .inv-card {
+    flex-direction: column;
+    gap: var(--space-2);
+    min-height: 0;
+    padding: 12px;
+  }
+
+  .inv-card__icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .invest-hub .inv-group {
+    margin-bottom: var(--space-6);
+  }
+}

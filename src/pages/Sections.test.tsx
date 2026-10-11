@@ -22,12 +22,20 @@ describe('InvestHub', () => {
     }
   })
 
-  it('看行情组直接展开，并带提示语', () => {
-    const { container } = wrap(<InvestHub />)
-    const group = screen.getByRole('heading', { name: '看行情（选看）' }).closest('section')
-    expect(group?.closest('details')).toBeNull()
-    expect(within(group as HTMLElement).getByText(/少看行情/)).toBeTruthy()
-    expect(within(group as HTMLElement).getAllByRole('link')).toHaveLength(3)
+  it('行情组直接展开，做成一行弱化的标签，带少看提示', () => {
+    wrap(<InvestHub />)
+    const group = screen.getByRole('region', { name: '行情（少看）' })
+    expect(group.closest('details')).toBeNull()
+    expect(within(group).getByText(/少看行情/)).toBeTruthy()
+    expect(within(group).getAllByRole('link')).toHaveLength(3)
+  })
+
+  it('研究、估值、计划三组是卡片：显示短说明而不是长说明', () => {
+    wrap(<InvestHub />)
+    const research = screen.getByRole('region', { name: '研究标的' })
+    const card = within(research).getByRole('link', { name: /产业格局/ })
+    expect(card.textContent).toContain('按行业看龙头')
+    expect(card.textContent).not.toContain('前沿科技')
   })
 
   it('已舍弃组默认折叠，放在页面最后', () => {
@@ -39,9 +47,11 @@ describe('InvestHub', () => {
     expect(container.querySelector('main')?.lastElementChild).toBe(folds[0])
   })
 
-  it('「读这本书」突出显示并链接到 /first-book', () => {
+  it('顶部是「读这本书」横幅，链接到 /first-book 并给出推荐顺序', () => {
     wrap(<InvestHub />)
-    expect(screen.getByRole('link', { name: /我的书/ }).getAttribute('href')).toBe('/first-book')
+    const banner = screen.getByRole('link', { name: /《正念投资》/ })
+    expect(banner.getAttribute('href')).toBe('/first-book')
+    expect(banner.textContent).toMatch(/读书.*定规则.*选标的.*用工具/)
   })
 })
 

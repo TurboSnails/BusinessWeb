@@ -45,8 +45,23 @@ describe('INVEST_GROUPS', () => {
     }
   })
 
-  it('分组顺序按书里的流程：读书 → 定规则 → 选标的 → 用工具执行 → 看行情，已舍弃垫底', () => {
-    expect(INVEST_GROUPS.map(g => g.id)).toEqual(['read', 'method', 'research', 'tools', 'watch', 'archived'])
+  it('分组按用途：读书横幅 → 研究标的 → 估值与交易 → 计划与周期 → 行情（少看）→ 相关，已舍弃垫底', () => {
+    expect(INVEST_GROUPS.map(g => g.id)).toEqual(['read', 'research', 'tools', 'method', 'watch', 'related', 'archived'])
+  })
+
+  it('估值与交易组只放三件工具；AI Skills 移到「相关」并改名', () => {
+    expect(INVEST_GROUPS.find(g => g.id === 'tools')!.links.map(l => l.path)).toEqual(['/valuation', '/dcf', '/grid-trading'])
+    const related = INVEST_GROUPS.find(g => g.id === 'related')!
+    expect(related.links.map(l => [l.path, l.label])).toEqual([['/invest/ai-tools', 'AI 投研 Skills']])
+  })
+
+  it('卡片组的每个入口都有 14 字以内的短说明', () => {
+    for (const g of INVEST_GROUPS.filter(g => ['research', 'tools', 'method'].includes(g.id))) {
+      for (const l of g.links) {
+        expect(l.short, l.path).toBeTruthy()
+        expect(l.short!.length, `${l.path}: ${l.short}`).toBeLessThanOrEqual(14)
+      }
+    }
   })
 
   it('看行情组直接展开，只放行情类页面', () => {
@@ -57,7 +72,7 @@ describe('INVEST_GROUPS', () => {
 
   it('选标的组只放研究方法与资料，不放带具体买卖建议的观察池', () => {
     const research = INVEST_GROUPS.find(g => g.id === 'research')!
-    expect(research.links.map(l => l.path)).toEqual(['/research-notes', '/invest/etf', '/invest/national-team', '/future-trends', '/industry-landscape'])
+    expect(research.links.map(l => l.path)).toEqual(['/research-notes', '/industry-landscape', '/future-trends', '/invest/national-team', '/invest/etf'])
   })
 
   it('宏观温度（原每日监控）归入定规则，和 2026 计划同组', () => {
