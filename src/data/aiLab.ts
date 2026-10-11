@@ -70,7 +70,7 @@ export const LAB_DIRECTIONS: LabDirection[] = [
     startCost: '¥0',
     firstStep: '试用可独立安装的 dev-team 开发团队和投资分析 Skills，整理使用反馈与实际交付记录。',
     logs: [
-      { date: '2026-10-11', did: '发布 Orca 开发团队 dev-team 独立 ZIP，支持 Android、Web 与后端流程、额度替补和项目迁移', result: '已加入 AI 实验室 Skill 页面与 AI 工具下载列表' },
+      { date: '2026-10-11', did: '更新 Orca 开发团队 dev-team 完整 ZIP，补充独立 README、安装自检、项目配置与验证范围', result: 'AI 实验室与 AI 工具列表提供新版下载和使用说明，建议从只读评审开始' },
       { date: '2026-10-06', did: '发布三套投资分析 Skill 的介绍页与完整下载包', result: '已上线到「投资 › AI 工具」' },
     ],
   },

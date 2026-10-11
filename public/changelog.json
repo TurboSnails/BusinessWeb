@@ -1,10 +1,16 @@
 {
-  "generatedAt": "2026-10-11T14:18:06.287Z",
+  "generatedAt": "2026-10-11T14:40:31.726Z",
   "versions": [
     {
       "tag": "unreleased",
       "date": null,
       "commits": [
+        {
+          "hash": "161c5a9",
+          "subject": "fix(book): 默认普通话并缩小悬浮听书与独立底部书评",
+          "author": "hassan",
+          "date": "2026-10-11"
+        },
         {
           "hash": "688dda0",
           "subject": "fix(book): 静态镜像书评入口链接正式站",
@@ -176,12 +182,6 @@
         {
           "hash": "ea5e279",
           "subject": "feat(about): show curated feature updates and remove homepage commit log",
-          "author": "hassan",
-          "date": "2026-10-11"
-        },
-        {
-          "hash": "87750a0",
-          "subject": "fix(ai-lab): show dev-team download directly on lab homepage",
           "author": "hassan",
           "date": "2026-10-11"
         }

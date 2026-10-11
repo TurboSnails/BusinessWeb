@@ -20,7 +20,7 @@ export const SITE_UPDATES: readonly SiteUpdate[] = [
     id: 'dev-team',
     date: '2026-10-11',
     title: 'Orca 开发团队 Skill 上线',
-    description: '支持 Android、Web 与后端开发协作、额度替补和跨项目安装，AI 实验室提供完整下载与使用说明。',
+    description: '更新包含独立 README 的完整 ZIP，补充安装、自检、项目配置与验证范围；支持按平台组织任务和跨项目安装，建议从只读评审开始。',
     href: '/ai#lab-skills',
   },
   {

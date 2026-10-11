@@ -23,11 +23,13 @@ export default function AiStudio(): JSX.Element {
           <span className="tag">开发协作 Skill</span>
           <h3>Orca 开发团队 dev-team</h3>
           <p className="skill-card__focus">Android · Web 前端 · 后端 · 全栈协作</p>
-          <p>一个管理入口，协调 Codex、Claude、Kimi、Antigravity 与 OpenCode MiniMax M3，按平台分派开发、审查和测试，支持额度不足时交接替补及迁移到其他项目。</p>
+          <p>在 Orca 中用一个管理入口，协调 Codex、Claude、Kimi、Antigravity 与 OpenCode MiniMax M3，按平台拆解任务、派工、审查与验收。可安装到其他项目，保留进度用于交接与替补。</p>
+          <p>完整 ZIP 含技能与 README，涵盖安装、自检、项目配置和日常使用。建议先从只读代码评审开始。</p>
           <div className="skill-download-actions">
             <a className="skill-download" href={`${import.meta.env.BASE_URL}ai-skills/dev-team.zip`} download="dev-team.zip" aria-label="下载 Orca 开发团队 dev-team 完整 ZIP">
               <Download size={16} aria-hidden="true" /> 下载 dev-team ZIP
             </a>
+            <a className="skill-guide" href={`${import.meta.env.BASE_URL}ai-skills/dev-team-README.md`}>使用说明 README</a>
             <Link className="skill-guide" to="/ai/ai-skills">功能、安装与使用</Link>
             <Link className="skill-guide" to="/invest/ai-tools">全部 Skills</Link>
           </div>

@@ -69,7 +69,7 @@ npm run build
 node /path/to/dev-team/scripts/dev-team.mjs init --project /path/to/other-project
 ```
 
-依赖 Node 20+、Orca 和至少一个可用执行器；需在 Orca 打开目标项目后派工。打包用 `node .agents/skills/dev-team/scripts/dev-team.mjs pack --output public/ai-skills/dev-team.zip`，仅包含技能，排除项目运行记录与凭据。
+依赖 Node 20+、支持 orchestration 的 Orca 和至少一个可用执行器；需在 Orca 打开目标项目后派工。当前网站下载包包含 `dev-team/` 与独立 [README 使用说明](public/ai-skills/dev-team-README.md)，介绍自检、项目配置、日常操作与验证范围。`pack` 仅输出技能本体，更新网站下载包时需同时保留独立 README；项目运行记录与凭据不随包发布。
 
 ## AI 投研 skills
 
