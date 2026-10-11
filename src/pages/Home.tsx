@@ -1,8 +1,27 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight } from 'lucide-react'
-import { QUOTES } from '../data/quotes'
+import {
+  ArrowRight, BookMarked, Building2, Calculator, ChartLine, Grid3x3, Landmark, Network, Search, Thermometer,
+  type LucideIcon,
+} from 'lucide-react'
+import { WORKBENCH_TOOLS, findSearchablePage, type SearchablePage } from '../data/siteMap'
+import { readRecent } from '../features/recent-pages/store'
+import { summarizeLocalRecords } from '../features/workbench/localRecords'
+import { useCommandPalette } from '../components/CommandPalette'
 import '../styles/home.css'
+
+const IS_MAC = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)
+
+const TOOL_ICONS: Record<string, LucideIcon> = {
+  '/research-notes': Building2,
+  '/valuation': Calculator,
+  '/dcf': ChartLine,
+  '/grid-trading': Grid3x3,
+  '/monitor': Thermometer,
+  '/invest/national-team': Landmark,
+  '/knowledge': Network,
+  '/first-book': BookMarked,
+}
 
 const COLUMNS = [
   { to: '/invest', title: '投资', desc: '读书、方法、工具与研究。普通人用规则代替盯盘。' },
@@ -11,13 +30,86 @@ const COLUMNS = [
 ]
 
 export default function Home(): JSX.Element {
+  const palette = useCommandPalette()
+  // 首页不预渲染、不水合，首次渲染直接同步读本机数据，避免闪烁
+  const [recent] = useState(() => readRecent().map(findSearchablePage).filter((p): p is SearchablePage => p !== null))
+  const [records] = useState(() => summarizeLocalRecords())
+
   return (
     <main className="container home">
-      <section className="home-hero" aria-labelledby="home-title">
-        <div className="home-hero__copy">
-          <h1 id="home-title">《正念投资》</h1>
-          <p className="home-hero__subtitle">不盯盘、不预测的普通人投资方法</p>
-          <div className="home-hero__actions">
+      <header className="home-desk">
+        <h1>工作台</h1>
+        <button type="button" className="home-jump" aria-label="跳转到页面" onClick={palette.open}>
+          <Search size={18} aria-hidden="true" />
+          <span className="home-jump__text">跳转到页面…</span>
+          <kbd className="home-jump__kbd">{IS_MAC ? '⌘K' : 'Ctrl K'}</kbd>
+        </button>
+      </header>
+
+      <section className="home-block" aria-labelledby="home-tools-title">
+        <h2 id="home-tools-title" className="home-block__title">常用工具</h2>
+        <ul className="home-tools">
+          {WORKBENCH_TOOLS.map(tool => {
+            const Icon = TOOL_ICONS[tool.path] ?? ArrowRight
+            return (
+              <li key={tool.path}>
+                <Link to={tool.path} className="home-tool">
+                  <span className="home-tool__icon" aria-hidden="true"><Icon size={20} /></span>
+                  <span className="home-tool__text">
+                    <span className="home-tool__label">{tool.label}</span>
+                    <span className="home-tool__desc">{tool.desc}</span>
+                  </span>
+                </Link>
+              </li>
+            )
+          })}
+        </ul>
+      </section>
+
+      {(recent.length > 0 || records.length > 0) && (
+        <div className="home-personal">
+          {recent.length > 0 && (
+            <section className="home-block" aria-labelledby="home-recent-title">
+              <h2 id="home-recent-title" className="home-block__title">最近访问</h2>
+              <ul className="home-recent">
+                {recent.map(page => (
+                  <li key={page.path}>
+                    <Link to={page.path} className="home-recent__link">{page.label}</Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {records.length > 0 && (
+            <section className="home-block" aria-labelledby="home-records-title">
+              <h2 id="home-records-title" className="home-block__title">我的记录</h2>
+              <ul className="home-records">
+                {records.map(r => (
+                  <li key={r.kind}>
+                    <Link to={r.path} className="home-record">
+                      <span className="home-record__head">
+                        <span className="home-record__label">{r.label}</span>
+                        <span className="home-record__count">{r.count} 条</span>
+                      </span>
+                      <span className="home-record__latest">
+                        最近：{r.latestName}
+                        {r.latestDate && <> · <time dateTime={r.latestDate}>{r.latestDate}</time></>}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+        </div>
+      )}
+
+      <section className="home-book-band" aria-labelledby="home-book-title">
+        <div className="home-book-band__copy">
+          <h2 id="home-book-title">《正念投资》</h2>
+          <p className="home-book-band__subtitle">不盯盘、不预测的普通人投资方法</p>
+          <div className="home-book-band__actions">
             <Link to="/first-book" className="home-read">开始阅读<ArrowRight size={18} aria-hidden="true" /></Link>
             <Link to="/first-book/slow-is-fast" className="home-contents">看目录<ArrowRight size={16} aria-hidden="true" /></Link>
           </div>
@@ -43,18 +135,6 @@ export default function Home(): JSX.Element {
               </span>
               <span className="home-column__desc">{c.desc}</span>
             </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="home-quotes quotes" aria-labelledby="home-quotes-title">
-        <h2 id="home-quotes-title">投资大师名句</h2>
-        <div className="home-quotes__grid">
-          {QUOTES.map(q => (
-            <blockquote key={q.author} className="home-quote">
-              <p>{q.text}</p>
-              <footer>—— {q.author}</footer>
-            </blockquote>
           ))}
         </div>
       </section>

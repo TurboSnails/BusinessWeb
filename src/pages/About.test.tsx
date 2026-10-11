@@ -14,6 +14,13 @@ const mockFetchOnce = (impl: (url: string) => Promise<Response>): void => {
 }
 
 describe('About 页面：站点介绍', () => {
+  it('底部有投资大师名句 8 条', () => {
+    mockFetchOnce(() => new Promise(() => {}))
+    const { container } = render(<MemoryRouter><About /></MemoryRouter>)
+    expect(screen.getByRole('heading', { level: 2, name: '投资大师名句' })).toBeTruthy()
+    expect(container.querySelectorAll('section.quotes blockquote').length).toBe(8)
+  })
+
   it('标题是关于「Live」，不再是 Hassan 投资工作台', () => {
     mockFetchOnce(() => new Promise(() => {}))
     render(<MemoryRouter><About /></MemoryRouter>)

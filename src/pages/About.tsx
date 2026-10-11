@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import ChapterComments from '../components/ChapterComments'
 import RecentUpdates from '../components/RecentUpdates'
 import { ExternalLink, AlertCircle } from 'lucide-react'
+import { QUOTES } from '../data/quotes'
 
 const cardStyle: React.CSSProperties = {
   background: 'var(--bg-card)',
@@ -74,6 +75,18 @@ export default function About(): JSX.Element {
       </section>
 
       <RecentUpdates />
+
+      <section className="about-quotes quotes" aria-labelledby="about-quotes-title">
+        <h2 id="about-quotes-title">投资大师名句</h2>
+        <div className="about-quotes__grid">
+          {QUOTES.map(q => (
+            <blockquote key={q.author} className="about-quote">
+              <p>{q.text}</p>
+              <footer>—— {q.author}</footer>
+            </blockquote>
+          ))}
+        </div>
+      </section>
 
       <section id="about-comments" style={{ marginTop: '32px' }}>
         <ChapterComments slug="关于.md" title="留言" />

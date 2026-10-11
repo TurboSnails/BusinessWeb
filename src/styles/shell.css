@@ -1271,3 +1271,53 @@ a.chapter-nav__item:hover {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* ---------- 关于页：投资大师名句（从首页移来） ---------- */
+.about-quotes {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.about-quotes h2 {
+  margin: 0 0 16px;
+  font-size: 1.25rem;
+}
+
+.about-quotes__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 40px;
+}
+
+.about-quote {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 20px 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.about-quote p {
+  margin: 0 0 12px;
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  line-height: 1.9;
+  text-wrap: pretty;
+}
+
+.about-quote footer {
+  margin-top: auto;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+@media (max-width: 767px) {
+  .about-quotes__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-quote p {
+    font-size: 1rem;
+  }
+}
