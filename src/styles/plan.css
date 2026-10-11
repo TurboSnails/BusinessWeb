@@ -1,0 +1,440 @@
+/* 2026 投资计划。卡片、按钮、表格、输入框用 ui.css 的共享类。 */
+
+.plan-card.has-accent {
+  border-top-width: 3px;
+}
+
+.plan-card.is-flat {
+  box-shadow: none;
+}
+
+.plan-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: 14px;
+}
+
+.plan-card__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.plan-card__title > svg {
+  color: var(--accent);
+}
+
+.plan-section-title {
+  margin-bottom: var(--space-3);
+}
+
+/* 语气 */
+.plan-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.plan-pill.is-green, .plan-note.is-green { background: var(--system-green-light); }
+.plan-pill.is-yellow, .plan-note.is-yellow { background: var(--accent-warm-soft); }
+.plan-pill.is-red, .plan-note.is-red { background: var(--system-red-light); }
+.plan-pill.is-blue, .plan-note.is-blue { background: var(--accent-soft); }
+.plan-pill.is-gray, .plan-note.is-gray { background: var(--bg-secondary); }
+
+.plan-pill.is-green, .plan-tone.is-green, .plan-note.is-green > svg { color: var(--down-ink); }
+.plan-pill.is-yellow, .plan-tone.is-yellow, .plan-note.is-yellow > svg { color: var(--warm-ink); }
+.plan-pill.is-red, .plan-tone.is-red, .plan-note.is-red > svg { color: var(--up-ink); }
+.plan-pill.is-blue, .plan-tone.is-blue, .plan-note.is-blue > svg { color: var(--accent-ink); }
+.plan-pill.is-gray, .plan-tone.is-gray, .plan-note.is-gray > svg { color: var(--text-secondary); }
+
+.plan-tone-bg.is-green { background: var(--down-ink); }
+.plan-tone-bg.is-yellow { background: var(--warm-ink); }
+.plan-tone-bg.is-red { background: var(--up-ink); }
+.plan-tone-bg.is-blue { background: var(--accent-ink); }
+.plan-tone-bg.is-gray { background: var(--text-secondary); }
+
+.plan-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+.plan-note > svg {
+  flex: 0 0 auto;
+  margin-top: 3px;
+}
+
+/* 栅格 */
+.plan-grid {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.plan-grid--sm { grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); }
+.plan-grid--md { grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); }
+.plan-grid--lg { grid-template-columns: repeat(auto-fit, minmax(min(100%, 310px), 1fr)); }
+.plan-grid--xl { grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr)); }
+.plan-grid--end { align-items: end; }
+
+.plan-gap-12 { gap: var(--space-3); }
+
+/* 文字 */
+.plan-lead {
+  margin: 0 0 14px;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  line-height: 1.75;
+}
+
+.plan-lead--sm {
+  margin-bottom: var(--space-2);
+  font-size: 0.82rem;
+}
+
+.plan-body {
+  margin: 0 0 14px;
+  font-size: 0.92rem;
+  line-height: 1.75;
+}
+
+.plan-subhead {
+  margin: 4px 0 8px;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.plan-subhead--tight { margin-bottom: 4px; }
+
+.plan-kicker {
+  margin-bottom: 4px;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.plan-kicker--gap { margin-top: var(--space-3); }
+.plan-kicker--do { margin-bottom: var(--space-2); color: var(--system-green); font-size: 0.9rem; }
+.plan-kicker--dont { margin-bottom: var(--space-2); color: var(--system-red); font-size: 0.9rem; }
+
+.plan-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.plan-label--grow {
+  flex: 1 1 200px;
+  color: var(--text-primary);
+  font-size: 0.82rem;
+}
+
+.plan-strong { font-weight: 600; }
+.plan-muted { color: var(--text-secondary); }
+.plan-faint { color: var(--text-tertiary); }
+.plan-ink { color: var(--text-primary); }
+.plan-red { color: var(--system-red); }
+.plan-small { font-size: 0.82rem; }
+.plan-xs { font-size: 0.76rem; }
+.plan-relaxed { line-height: 1.7; }
+.plan-nowrap { white-space: nowrap; }
+.plan-num { font-variant-numeric: tabular-nums; }
+.plan-reading-title { margin-bottom: 6px; font-size: 1.05rem; font-weight: 600; }
+
+.plan-mt { margin-top: var(--space-3); }
+.plan-mt-sm { margin-top: var(--space-2); }
+.plan-mt-lg { margin-top: 18px; }
+.plan-mb { margin-bottom: 14px; }
+.plan-mb-sm { margin-bottom: var(--space-2); }
+.plan-ml { margin-left: var(--space-2); }
+.plan-push { margin-left: auto; }
+
+.plan-icon {
+  margin-bottom: var(--space-2);
+  color: var(--accent);
+}
+
+.plan-step-num {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-weight: 700;
+}
+
+.plan-row {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.plan-list,
+.plan-bullets {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.plan-bullets {
+  gap: var(--space-2);
+}
+
+.plan-bullets li {
+  position: relative;
+  padding-left: 14px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.plan-bullets li::before {
+  content: '';
+  position: absolute;
+  top: 9px;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.plan-bullets.is-green li::before { background: var(--down-ink); }
+.plan-bullets.is-yellow li::before { background: var(--warm-ink); }
+.plan-bullets.is-red li::before { background: var(--up-ink); }
+.plan-bullets.is-blue li::before { background: var(--accent-ink); }
+.plan-bullets.is-gray li::before { background: var(--text-tertiary); }
+
+/* 小指标块 */
+.plan-mini {
+  flex: 1 1 140px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.plan-mini__value {
+  font-size: 1.15rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.plan-box {
+  padding: 14px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.plan-divider {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.plan-empty {
+  padding: var(--space-8);
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+/* 表单 */
+.plan-input-gap { margin-top: 4px; }
+.plan-input-grow { flex: 1 1 160px; width: auto; }
+.plan-input-auto { width: auto; }
+
+.plan-textarea {
+  min-height: 190px;
+  padding: 10px;
+  line-height: 1.7;
+  resize: vertical;
+}
+
+.plan-icon-btn {
+  justify-content: center;
+  min-width: 36px;
+  padding: 0 8px;
+}
+
+.plan-check-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  font-size: 0.88rem;
+  line-height: 1.6;
+  cursor: pointer;
+}
+
+.plan-check-input {
+  margin-top: 5px;
+}
+
+.plan-review-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 130px;
+  gap: 10px;
+}
+
+/* 可勾选的任务 */
+.plan-task {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  min-height: 32px;
+  padding: 2px 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  text-align: left;
+  cursor: pointer;
+}
+
+.plan-task > svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+}
+
+.plan-task.is-done {
+  color: var(--text-secondary);
+  text-decoration: line-through;
+}
+
+.plan-task.is-done > svg {
+  color: var(--system-green);
+}
+
+/* 进度条 */
+.plan-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.plan-bar__track {
+  flex: 1;
+  min-width: 60px;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--bg-secondary);
+}
+
+.plan-bar__fill {
+  height: 100%;
+  border-radius: 4px;
+}
+
+.plan-bar__pct {
+  width: 46px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 时间线 */
+.plan-timeline {
+  position: relative;
+  padding-left: 22px;
+}
+
+.plan-timeline__line {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  left: 6px;
+  width: 2px;
+  background: var(--border-subtle);
+}
+
+.plan-event {
+  position: relative;
+  padding: 8px 0 14px;
+}
+
+.plan-event.is-past {
+  opacity: 0.5;
+}
+
+.plan-event__dot {
+  position: absolute;
+  top: 14px;
+  left: -21px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px var(--bg-card);
+}
+
+.plan-focus-row > td {
+  background: var(--accent-soft);
+}
+
+/* 表格 */
+.plan-table-wrap--scroll {
+  max-height: 480px;
+  overflow-y: auto;
+}
+
+.plan-w-44 { width: 44px; }
+.plan-w-80 { width: 80px; }
+.plan-w-110 { width: 110px; }
+.plan-w-130 { width: 130px; }
+.plan-w-140 { width: 140px; }
+.plan-minw-120 { min-width: 120px; }
+.plan-minw-140 { min-width: 140px; }
+.plan-minw-150 { min-width: 150px; }
+.plan-minw-200 { min-width: 200px; }
+
+.plan-revisions {
+  margin: -6px 0 20px;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  line-height: 1.7;
+}
+
+.plan-revisions > summary {
+  min-height: 32px;
+  line-height: 32px;
+  cursor: pointer;
+}
+
+.plan-foot {
+  margin-top: var(--space-7);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  line-height: 1.7;
+  text-align: center;
+}
+
+@media (max-width: 767px) {
+  .plan-review-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

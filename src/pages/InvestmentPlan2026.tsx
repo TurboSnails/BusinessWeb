@@ -41,8 +41,8 @@ import {
   RotateCcw,
   Ban
 } from 'lucide-react'
-import { tableWrapperStyle, tableStyle, thStyle, tdStyle } from '../components/TableStyles'
 import { Page } from '../components/ui'
+import '../styles/plan.css'
 
 /* ───────────────────────── 基础工具 ───────────────────────── */
 
@@ -83,52 +83,22 @@ const TONE: Record<Tone, { fg: string; bg: string }> = {
 }
 
 const Pill: React.FC<{ tone: Tone; children: React.ReactNode }> = ({ tone, children }) => (
-  <span
-    style={{
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 6,
-      padding: '3px 10px',
-      borderRadius: 999,
-      background: TONE[tone].bg,
-      color: TONE[tone].fg,
-      fontSize: '0.78rem',
-      fontWeight: 700,
-      whiteSpace: 'nowrap'
-    }}
-  >
-    {children}
-  </span>
+  <span className={`plan-pill is-${tone}`}>{children}</span>
 )
 
 const Card: React.FC<{
   title?: string
   icon?: React.ReactNode
   right?: React.ReactNode
+  /** 顶部色条：数据决定的语气色 */
   accent?: string
   children: React.ReactNode
-  style?: React.CSSProperties
-}> = ({ title, icon, right, accent, children, style }) => (
-  <section
-    className="glass-panel"
-    style={{
-      background: 'white',
-      border: '1px solid var(--border-subtle)',
-      borderRadius: 'var(--radius-md)',
-      padding: 20,
-      boxShadow: 'var(--shadow-sm)',
-      borderTop: accent ? `3px solid ${accent}` : undefined,
-      ...style
-    }}
-  >
+  flat?: boolean
+}> = ({ title, icon, right, accent, children, flat }) => (
+  <section className={`ui-card plan-card${accent ? ' has-accent' : ''}${flat ? ' is-flat' : ''}`} style={accent ? { borderTopColor: accent } : undefined}>
     {(title || right) && (
-      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 14, flexWrap: 'wrap' }}>
-        {title && (
-          <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-primary)' }}>
-            {icon}
-            {title}
-          </h3>
-        )}
+      <header className="plan-card__head">
+        {title && <h3 className="plan-card__title">{icon}{title}</h3>}
         {right}
       </header>
     )}
@@ -137,63 +107,18 @@ const Card: React.FC<{
 )
 
 const Note: React.FC<{ tone?: Tone; children: React.ReactNode }> = ({ tone = 'blue', children }) => (
-  <div
-    style={{
-      display: 'flex',
-      gap: 10,
-      alignItems: 'flex-start',
-      padding: '10px 14px',
-      borderRadius: 'var(--radius-sm)',
-      background: TONE[tone].bg,
-      color: 'var(--text-primary)',
-      fontSize: '0.88rem',
-      lineHeight: 1.65
-    }}
-  >
-    <Info size={16} style={{ color: TONE[tone].fg, flexShrink: 0, marginTop: 3 }} />
+  <div className={`plan-note is-${tone}`} role="note">
+    <Info size={16} aria-hidden="true" />
     <div>{children}</div>
   </div>
 )
 
-const grid = (min: number): React.CSSProperties => ({
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(${min}px, 1fr))`,
-  gap: 16
-})
-
-const inputStyle: React.CSSProperties = {
-  width: '100%',
-  padding: '8px 10px',
-  borderRadius: 8,
-  border: '1px solid var(--system-gray4)',
-  fontSize: '0.92rem',
-  background: 'white',
-  color: 'var(--text-primary)',
-  boxSizing: 'border-box'
-}
-
-const btnStyle = (primary = false): React.CSSProperties => ({
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 6,
-  padding: '8px 14px',
-  borderRadius: 10,
-  border: primary ? 'none' : '1px solid var(--system-gray4)',
-  background: primary ? 'var(--system-blue)' : 'white',
-  color: primary ? 'white' : 'var(--text-primary)',
-  fontSize: '0.85rem',
-  fontWeight: 700,
-  cursor: 'pointer'
-})
+// 自适应栅格：最小列宽按内容分四档
+const grid = (min: number): string => `plan-grid plan-grid--${min <= 160 ? 'sm' : min <= 280 ? 'md' : min <= 320 ? 'lg' : 'xl'}`
 
 const Bullets: React.FC<{ items: string[]; tone?: Tone }> = ({ items, tone = 'gray' }) => (
-  <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 8 }}>
-    {items.map(t => (
-      <li key={t} style={{ display: 'flex', gap: 8, fontSize: '0.9rem', lineHeight: 1.6 }}>
-        <span style={{ width: 6, height: 6, borderRadius: '50%', background: TONE[tone].fg, marginTop: 9, flexShrink: 0 }} />
-        <span>{t}</span>
-      </li>
-    ))}
+  <ul className={`plan-bullets is-${tone}`}>
+    {items.map(t => <li key={t}>{t}</li>)}
   </ul>
 )
 
@@ -307,25 +232,25 @@ const Overview: React.FC<{ stage: Stage; entered: number; today: Date; nextEvent
   const daysLeft = dayDiff(new Date(today.getFullYear(), 11, 31), today)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div className="ui-stack ui-stack--lg">
       <Card title={`${today.getFullYear()} 年 Q${quarter} 收官：这一季只做三件事`} icon={<LayoutDashboard size={18} />} accent="var(--system-blue)">
-        <div style={grid(220)}>
+        <div className={grid(220)}>
           {[
             ['1', '更新信号，确认阶段', `当前阶段「${stage.name}」${entered < 3 ? '（信号不足3项，暂不可靠）' : ''}`],
             ['2', '检查配置偏离与备用金', '到检查日再动，不因为单日涨跌动手'],
             ['3', '为年度复盘收集材料', `距年末还有 ${daysLeft} 天；三季报10/31前披露完`]
           ].map(([n, h, d]) => (
-            <div key={n} style={{ display: 'flex', gap: 12 }}>
-              <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--system-blue-light)', color: 'var(--system-blue)', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{n}</div>
+            <div key={n} className="plan-row">
+              <div className="plan-step-num" aria-hidden="true">{n}</div>
               <div>
-                <div style={{ fontWeight: 700 }}>{h}</div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: 2, lineHeight: 1.55 }}>{d}</div>
+                <div className="plan-strong">{h}</div>
+                <div className="plan-small plan-muted">{d}</div>
               </div>
             </div>
           ))}
         </div>
         {nextEvent && (
-          <div style={{ marginTop: 16 }}>
+          <div className="plan-mt">
             <Note>
               下一个关键节点：<b>{nextEvent.date.slice(5).replace('-', '月')}日 {nextEvent.label}</b>
               {nextEvent.firm ? '' : '（约）'}，还有 {dayDiff(new Date(nextEvent.date), today)} 天。{nextEvent.detail}。
@@ -334,57 +259,57 @@ const Overview: React.FC<{ stage: Stage; entered: number; today: Date; nextEvent
         )}
       </Card>
 
-      <div style={grid(260)}>
+      <div className={grid(260)}>
         {PRINCIPLES.map(p => (
           <Card key={p.title}>
-            <div style={{ color: 'var(--system-blue)', marginBottom: 8 }}>{p.icon}</div>
-            <div style={{ fontWeight: 800, marginBottom: 6 }}>{p.title}</div>
-            <div style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>{p.body}</div>
+            <div className="plan-icon">{p.icon}</div>
+            <div className="plan-strong plan-mb-sm">{p.title}</div>
+            <div className="plan-small plan-muted plan-relaxed">{p.body}</div>
           </Card>
         ))}
       </div>
 
       <Card title="资金三笔钱" icon={<PieChart size={18} />}>
-        <div style={{ ...grid(160), alignItems: 'end', marginBottom: 16 }}>
-          <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+        <div className={`${grid(160)} plan-grid--end plan-mb`}>
+          <label className="plan-label">
             参考总额（万元）
-            <input style={{ ...inputStyle, marginTop: 4 }} inputMode="decimal" value={total} onChange={e => setTotal(e.target.value)} />
+            <input className="ui-input plan-input-gap" inputMode="decimal" value={total} onChange={e => setTotal(e.target.value)} />
           </label>
-          <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+          <label className="plan-label">
             单一主动标的上限（% 总额）
-            <input style={{ ...inputStyle, marginTop: 4 }} inputMode="decimal" value={cap} onChange={e => setCap(e.target.value)} />
+            <input className="ui-input plan-input-gap" inputMode="decimal" value={cap} onChange={e => setCap(e.target.value)} />
           </label>
         </div>
-        <div style={tableWrapperStyle}>
-          <table style={tableStyle}>
+        <div className="ui-table-wrap plan-table-wrap">
+          <table className="ui-table plan-table">
             <thead>
               <tr>
                 {['用途', '占比 %', '金额（万元）', '任务'].map(h => (
-                  <th key={h} style={thStyle}>{h}</th>
+                  <th key={h}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {parts.map(p => (
                 <tr key={p.key}>
-                  <td style={tdStyle}><Pill tone={p.tone}>{p.label}</Pill></td>
-                  <td style={{ ...tdStyle, width: 110 }}>
-                    <input style={inputStyle} inputMode="decimal" value={split[p.key]} onChange={e => setSplit(s => ({ ...s, [p.key]: e.target.value }))} />
+                  <td><Pill tone={p.tone}>{p.label}</Pill></td>
+                  <td className="plan-w-110">
+                    <input className="ui-input" inputMode="decimal" value={split[p.key]} onChange={e => setSplit(s => ({ ...s, [p.key]: e.target.value }))} />
                   </td>
-                  <td style={{ ...tdStyle, fontWeight: 700 }}>{fmtMoney((t * (num(split[p.key]) || 0)) / 100)}</td>
-                  <td style={{ ...tdStyle, color: 'var(--text-secondary)' }}>{p.role}</td>
+                  <td className="plan-strong">{fmtMoney((t * (num(split[p.key]) || 0)) / 100)}</td>
+                  <td className="plan-muted">{p.role}</td>
                 </tr>
               ))}
               <tr>
-                <td style={{ ...tdStyle, fontWeight: 700 }}>单一主动标的上限</td>
-                <td style={tdStyle}>{cap}</td>
-                <td style={{ ...tdStyle, fontWeight: 700 }}>{fmtMoney((t * (num(cap) || 0)) / 100)}</td>
-                <td style={{ ...tdStyle, color: 'var(--text-secondary)' }}>上限而非目标，分母是参考总额</td>
+                <td className="plan-strong">单一主动标的上限</td>
+                <td>{cap}</td>
+                <td className="plan-strong">{fmtMoney((t * (num(cap) || 0)) / 100)}</td>
+                <td className="plan-muted">上限而非目标，分母是参考总额</td>
               </tr>
             </tbody>
           </table>
         </div>
-        <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div className="ui-stack ui-stack--sm plan-mt">
           {Math.abs(sum - 100) > 0.01 && <Note tone="red">三项占比合计 {sum}%，应为 100%。</Note>}
           <Note tone="gray">75 / 20 / 5 是书中第9章的作者案例，不是通用比例。已知近期大额支出与自住房不计入参考总额；主动额度可以从零开始。底仓怎么搭，见第9章9.10的宽基三档模板（下方「再平衡检查器」可直接套用）。</Note>
         </div>
@@ -444,11 +369,11 @@ const RiskView: React.FC<{ rows: Holding[]; useAmount: boolean }> = ({ rows, use
     return <Note tone="gray">填入资产名称（如标普500、红利低波、纯债、黄金、恒生科技、A股宽基）和金额或目标占比后，这里会显示各项承担的风险比例。</Note>
   }
   const bar = (pct: number, color: string) => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <div style={{ flex: 1, minWidth: 60, height: 8, borderRadius: 4, background: 'var(--system-gray6)' }}>
-        <div style={{ width: `${Math.max(0, Math.min(100, pct))}%`, height: '100%', borderRadius: 4, background: color }} />
+    <div className="plan-bar">
+      <div className="plan-bar__track">
+        <div className="plan-bar__fill" style={{ width: `${Math.max(0, Math.min(100, pct))}%`, background: color }} />
       </div>
-      <span style={{ width: 46, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{fmtPct(pct, 0)}</span>
+      <span className="plan-bar__pct">{fmtPct(pct, 0)}</span>
     </div>
   )
   // 债券本来就几乎不贡献波动，所以"某一项风险畸高"只在风险资产内部比较
@@ -462,29 +387,29 @@ const RiskView: React.FC<{ rows: Holding[]; useAmount: boolean }> = ({ rows, use
   const showTop = top != null && topRisk >= 40 && topRisk > topInRisky * 1.5
   return (
     <div>
-      <div style={{ fontWeight: 800, fontSize: '0.92rem', margin: '4px 0 8px' }}>权重 vs 风险贡献（{useAmount ? '按当前金额' : '按目标占比'}）</div>
-      <div style={tableWrapperStyle}>
-        <table style={tableStyle}>
+      <div className="plan-subhead">权重 vs 风险贡献（{useAmount ? '按当前金额' : '按目标占比'}）</div>
+      <div className="ui-table-wrap plan-table-wrap">
+        <table className="ui-table plan-table">
           <thead>
             <tr>
               {['资产', '钱的占比', '风险占比', '风险 ÷ 钱'].map(h => (
-                <th key={h} style={thStyle}>{h}</th>
+                <th key={h}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {result.items.map((it, i) => (
               <tr key={`${it.name}-${i}`}>
-                <td style={tdStyle}>{it.name}</td>
+                <td>{it.name}</td>
                 {it.weight == null || it.contribution == null ? (
-                  <td style={{ ...tdStyle, color: 'var(--text-secondary)' }} colSpan={3}>
+                  <td className="plan-muted" colSpan={3}>
                     {it.assetId == null ? '未识别，未纳入风险测算' : '—'}
                   </td>
                 ) : (
                   <>
-                    <td style={{ ...tdStyle, minWidth: 140 }}>{bar(it.weight * 100, 'var(--system-blue)')}</td>
-                    <td style={{ ...tdStyle, minWidth: 140 }}>{bar(it.contribution * 100, 'var(--system-red)')}</td>
-                    <td style={tdStyle}>{(it.multiple ?? 0).toFixed(2)}×</td>
+                    <td className="plan-minw-140">{bar(it.weight * 100, 'var(--system-blue)')}</td>
+                    <td className="plan-minw-140">{bar(it.contribution * 100, 'var(--system-red)')}</td>
+                    <td>{(it.multiple ?? 0).toFixed(2)}×</td>
                   </>
                 )}
               </tr>
@@ -492,7 +417,7 @@ const RiskView: React.FC<{ rows: Holding[]; useAmount: boolean }> = ({ rows, use
           </tbody>
         </table>
       </div>
-      <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div className="ui-stack ui-stack--sm plan-mt">
         {showTop && top && (
           <Note tone="yellow">
             「{top.name}」只占钱的 {fmtPct(topWeight, 0)}（占风险资产的 {fmtPct(topInRisky, 0)}），却承担约 {fmtPct(topRisk, 0)} 的组合波动。要降低组合风险，调这一项或权益总占比，比调其他项有效得多。
@@ -555,56 +480,56 @@ const PreTradeChecklist: React.FC = () => {
 
   return (
     <Card title="交易前检查单与冷静期" icon={<ClipboardCheck size={18} />} accent="var(--system-orange)">
-      <p style={{ margin: '0 0 14px', fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+      <p className="plan-lead">
         只在要「主动买入」或「偏离再平衡规则」时用。想法一产生就登记，从这一刻起算 {COOLING_HOURS} 小时冷静期；检查单全部通过且冷静期结束，才算可以执行。按检查日的规则做再平衡，不需要走这里。记录只保存在本机浏览器。
       </p>
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
+      <div className="ui-cluster plan-mb">
         <input
-          style={{ ...inputStyle, flex: '1 1 160px', width: 'auto' }}
+          className="ui-input plan-input-grow"
           aria-label="登记标的或操作"
           placeholder="标的或操作，如 腾讯控股"
           value={symbol}
           onChange={e => setSymbol(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && add()}
         />
-        <select style={{ ...inputStyle, width: 'auto' }} aria-label="操作类型" value={kind} onChange={e => setKind(e.target.value as TradeKind)}>
+        <select className="ui-input plan-input-auto" aria-label="操作类型" value={kind} onChange={e => setKind(e.target.value as TradeKind)}>
           {(Object.keys(TRADE_KIND_LABELS) as TradeKind[]).map(k => (
             <option key={k} value={k}>{TRADE_KIND_LABELS[k]}</option>
           ))}
         </select>
-        <button style={btnStyle(true)} onClick={add}><Plus size={14} /> 登记这个想法</button>
+        <button className="tool-btn tool-btn--primary" onClick={add}><Plus size={14} /> 登记这个想法</button>
       </div>
       {log.length === 0 ? (
         <Note tone="gray">还没有登记。下次想临时买点什么的时候，先来这里写下它，再等 {COOLING_HOURS} 小时。</Note>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div className="ui-stack plan-gap-12">
           {log.map(e => {
             const st = evaluatePreTrade(e, now)
             const meta = PRE_TRADE_STATE[st.state]
             return (
-              <div key={e.id} style={{ border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)', padding: 14 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 8 }}>
+              <div key={e.id} className="plan-box">
+                <div className="ui-cluster plan-mb-sm">
                   <strong>{e.symbol}</strong>
                   <Pill tone="gray">{TRADE_KIND_LABELS[e.kind]}</Pill>
                   <Pill tone={meta.tone}>{meta.label}</Pill>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                  <span className="plan-small plan-muted">
                     登记于 {new Date(e.ideaAt).toLocaleString('zh-CN')}
                     {st.state !== 'overridden' && ` · ${formatRemaining(st.remainingMs)}`}
                   </span>
-                  <button aria-label={`删除 ${e.symbol}`} style={{ ...btnStyle(), padding: 6, marginLeft: 'auto' }} onClick={() => setLog(l => l.filter(x => x.id !== e.id))}>
+                  <button aria-label={`删除 ${e.symbol}`} className="tool-btn plan-icon-btn plan-push" onClick={() => setLog(l => l.filter(x => x.id !== e.id))}>
                     <Trash2 size={14} />
                   </button>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <div className="ui-stack ui-stack--sm">
                   {PRE_TRADE_CHECKS.map((text, i) => (
-                    <label key={text} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: '0.88rem', lineHeight: 1.6, cursor: 'pointer' }}>
-                      <input type="checkbox" checked={!!e.checks[i]} onChange={() => toggle(e.id, i)} style={{ marginTop: 5 }} />
+                    <label key={text} className="plan-check-row">
+                      <input type="checkbox" checked={!!e.checks[i]} onChange={() => toggle(e.id, i)} className="plan-check-input" />
                       <span>{text}</span>
                     </label>
                   ))}
                 </div>
                 <input
-                  style={{ ...inputStyle, marginTop: 10 }}
+                  className="ui-input plan-input-gap"
                   aria-label={`证伪条件 ${e.symbol}`}
                   placeholder="证伪条件：出现什么情况就证明我错了（原文记录，日后对照）"
                   value={e.falsify}
@@ -612,7 +537,7 @@ const PreTradeChecklist: React.FC = () => {
                 />
                 {st.state !== 'ready' && (
                   <input
-                    style={{ ...inputStyle, marginTop: 8 }}
+                    className="ui-input plan-input-gap"
                     aria-label={`提前执行理由 ${e.symbol}`}
                     placeholder="确实要现在做？写下理由。理由会留痕，年度复盘时回看"
                     value={e.overrideReason}
@@ -620,14 +545,14 @@ const PreTradeChecklist: React.FC = () => {
                   />
                 )}
                 {st.state === 'blocked' && (
-                  <div style={{ marginTop: 8, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>未通过：{st.missing.join('；')}</div>
+                  <div className="plan-small plan-muted plan-mt-sm">未通过：{st.missing.join('；')}</div>
                 )}
               </div>
             )
           })}
         </div>
       )}
-      <div style={{ marginTop: 12 }}>
+      <div className="plan-mt">
         <Note tone="gray">跳过不是禁止，是留痕：年底统计「提前执行」的操作后来表现如何，比任何自我提醒都有说服力。</Note>
       </div>
     </Card>
@@ -639,17 +564,17 @@ const StressView: React.FC<{ rows: Holding[]; useAmount: boolean }> = ({ rows, u
   if (results.every(r => r.portfolioReturn == null)) return null
   const pct = (n: number | null) => (n == null ? '—' : `${n > 0 ? '+' : ''}${(n * 100).toFixed(1)}%`)
   return (
-    <div style={{ marginTop: 18 }}>
-      <div style={{ fontWeight: 800, fontSize: '0.92rem', margin: '4px 0 4px' }}>如果历史重演：把这套配置放回过去的危机（{useAmount ? '按当前金额' : '按目标占比'}）</div>
-      <p style={{ margin: '0 0 8px', fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+    <div className="plan-mt-lg">
+      <div className="plan-subhead plan-subhead--tight">如果历史重演：把这套配置放回过去的危机（{useAmount ? '按当前金额' : '按目标占比'}）</div>
+      <p className="plan-lead plan-lead--sm">
         用真实历史序列，期初按权重买入、窗口内不再平衡。窗口事先固定，不按结果挑选；某资产在窗口开始时还没有数据，就不替代，只算有数据的部分并标出。
       </p>
-      <div style={tableWrapperStyle}>
-        <table style={tableStyle}>
+      <div className="ui-table-wrap plan-table-wrap">
+        <table className="ui-table plan-table">
           <thead>
             <tr>
               {['情景', '窗口', '组合涨跌', '窗口内最大回撤', '拖累最大', '数据覆盖'].map(h => (
-                <th key={h} style={thStyle}>{h}</th>
+                <th key={h}>{h}</th>
               ))}
             </tr>
           </thead>
@@ -658,12 +583,12 @@ const StressView: React.FC<{ rows: Holding[]; useAmount: boolean }> = ({ rows, u
               const worst = r.contributors[0]
               return (
                 <tr key={r.scenario.id}>
-                  <td style={{ ...tdStyle, minWidth: 150, fontWeight: 700 }}>{r.scenario.name}</td>
-                  <td style={{ ...tdStyle, whiteSpace: 'nowrap', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{r.scenario.start} ~ {r.scenario.end}</td>
-                  <td style={{ ...tdStyle, fontWeight: 800, color: (r.portfolioReturn ?? 0) < 0 ? 'var(--down-ink)' : 'var(--up-ink)' }}>{pct(r.portfolioReturn)}</td>
-                  <td style={tdStyle}>{r.maxDrawdown == null ? '—' : `-${(r.maxDrawdown * 100).toFixed(1)}%`}</td>
-                  <td style={tdStyle}>{worst && worst.contribution < 0 ? `${worst.name}（${pct(worst.assetReturn)}）` : '—'}</td>
-                  <td style={{ ...tdStyle, fontSize: '0.8rem', color: r.coverage < 1 ? 'var(--warm-ink)' : 'var(--text-secondary)' }}>
+                  <td className="plan-strong plan-minw-150">{r.scenario.name}</td>
+                  <td className="plan-nowrap plan-small plan-muted">{r.scenario.start} ~ {r.scenario.end}</td>
+                  <td className="plan-strong" style={{ color: (r.portfolioReturn ?? 0) < 0 ? 'var(--down-ink)' : 'var(--up-ink)' }}>{pct(r.portfolioReturn)}</td>
+                  <td>{r.maxDrawdown == null ? '—' : `-${(r.maxDrawdown * 100).toFixed(1)}%`}</td>
+                  <td>{worst && worst.contribution < 0 ? `${worst.name}（${pct(worst.assetReturn)}）` : '—'}</td>
+                  <td className="plan-small" style={{ color: r.coverage < 1 ? 'var(--warm-ink)' : 'var(--text-secondary)' }}>
                     {r.portfolioReturn == null ? '无数据' : `${fmtPct(r.coverage * 100, 0)}${r.noData.length ? `，${r.noData.join('、')}当时无数据` : ''}`}
                   </td>
                 </tr>
@@ -672,7 +597,7 @@ const StressView: React.FC<{ rows: Holding[]; useAmount: boolean }> = ({ rows, u
           </tbody>
         </table>
       </div>
-      <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div className="ui-stack ui-stack--sm plan-mt">
         <Note tone="gray">
           这是已发生的历史，不是预测，也不是最坏情形：下一次危机的形状不会和任何一次相同。它的用处是在晴天看一眼“最难受的时候大概是什么感觉”，再回头确认备用金和仓位撑得住。红利与标普500、沪深300为全收益，国债指数含利息，黄金为ETF收盘价，恒生科技为价格指数；均未计汇率与交易成本；回撤按周度采样，会略低估日内回撤。
         </Note>
@@ -686,17 +611,17 @@ const CurrencyView: React.FC<{ rows: Holding[]; useAmount: boolean }> = ({ rows,
   if (!exp.shares) return null
   const shares = exp.shares
   return (
-    <div style={{ marginTop: 18 }}>
-      <div style={{ fontWeight: 800, fontSize: '0.92rem', margin: '4px 0 8px' }}>币种敞口：资产的价格由哪种货币决定</div>
-      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+    <div className="plan-mt-lg">
+      <div className="plan-subhead">币种敞口：资产的价格由哪种货币决定</div>
+      <div className="ui-cluster">
         {(Object.keys(BUCKET_LABELS) as ExposureBucket[]).filter(k => shares[k] > 0).map(k => (
-          <div key={k} style={{ flex: '1 1 130px', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)', padding: '10px 12px' }}>
-            <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>{BUCKET_LABELS[k]}</div>
-            <div style={{ fontSize: '1.15rem', fontWeight: 800 }}>{fmtPct(shares[k] * 100, 0)}</div>
+          <div key={k} className="plan-mini">
+            <div className="plan-xs plan-muted">{BUCKET_LABELS[k]}</div>
+            <div className="plan-mini__value">{fmtPct(shares[k] * 100, 0)}</div>
           </div>
         ))}
       </div>
-      <div style={{ marginTop: 10 }}>
+      <div className="plan-mt">
         <Note tone={(exp.foreignShare ?? 0) >= 0.5 ? 'yellow' : 'gray'}>
           非人民币定价的资产合计约 {fmtPct((exp.foreignShare ?? 0) * 100, 0)}。人民币升值时，这一块折算回人民币的收益会被吃掉一部分，贬值时则相反；它和资产自身涨跌是两回事，复盘时要分开看。港币与美元挂钩，所以恒生科技的汇率风险按美元看；黄金ETF虽用人民币交易，金价以美元定价，同样带美元敞口。上面的历史数据均未计汇率。
         </Note>
@@ -722,44 +647,44 @@ const CashflowCard: React.FC<{ rows: Holding[] }> = ({ rows }) => {
   const setYield = (name: string, v: string) => setSt(p => ({ ...p, yields: { ...p.yields, [name]: v } }))
   const cov = (n: number | null) => (n == null ? '—' : fmtPct(n * 100, 0))
   const stat = (label: string, value: string, hint?: string) => (
-    <div style={{ flex: '1 1 150px', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)', padding: '10px 12px' }}>
-      <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>{label}</div>
-      <div style={{ fontSize: '1.15rem', fontWeight: 800 }}>{value}</div>
-      {hint && <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: 2 }}>{hint}</div>}
+    <div className="plan-mini">
+      <div className="plan-xs plan-muted">{label}</div>
+      <div className="plan-mini__value">{value}</div>
+      {hint && <div className="plan-xs plan-muted">{hint}</div>}
     </div>
   )
   return (
     <Card title="自由生活覆盖率：资产能养活多少生活" icon={<Target size={18} />}>
-      <p style={{ margin: '0 0 14px', fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+      <p className="plan-lead">
         金额单位同上表（万元），资产取上表「当前金额」。两把尺子并列看：只靠股息利息（不动本金）能覆盖多少，和按 {WITHDRAWAL_RATE * 100}% 提款法则能覆盖多少。数据只保存在本机浏览器。
       </p>
-      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 14 }}>
-        <label style={{ flex: '1 1 200px', fontSize: '0.82rem', fontWeight: 700 }}>
+      <div className="ui-cluster plan-mb">
+        <label className="plan-label plan-label--grow">
           年必要生活开支（万元）
-          <input style={{ ...inputStyle, marginTop: 4 }} inputMode="decimal" value={st.expense} onChange={e => setSt(p => ({ ...p, expense: e.target.value }))} />
+          <input className="ui-input plan-input-gap" inputMode="decimal" value={st.expense} onChange={e => setSt(p => ({ ...p, expense: e.target.value }))} />
         </label>
-        <label style={{ flex: '1 1 200px', fontSize: '0.82rem', fontWeight: 700 }}>
+        <label className="plan-label plan-label--grow">
           备用金（万元，不投资）
-          <input style={{ ...inputStyle, marginTop: 4 }} inputMode="decimal" value={st.reserve} onChange={e => setSt(p => ({ ...p, reserve: e.target.value }))} />
+          <input className="ui-input plan-input-gap" inputMode="decimal" value={st.reserve} onChange={e => setSt(p => ({ ...p, reserve: e.target.value }))} />
         </label>
       </div>
       {withAmount.length === 0 ? (
         <Note tone="gray">先在上表填入各项当前金额，这里再填各项的年化股息/利息率。</Note>
       ) : (
-        <div style={tableWrapperStyle}>
-          <table style={tableStyle}>
+        <div className="ui-table-wrap plan-table-wrap">
+          <table className="ui-table plan-table">
             <thead>
-              <tr>{['资产', '当前金额', '年化股息/利息率 %', '年现金流'].map(h => <th key={h} style={thStyle}>{h}</th>)}</tr>
+              <tr>{['资产', '当前金额', '年化股息/利息率 %', '年现金流'].map(h => <th key={h}>{h}</th>)}</tr>
             </thead>
             <tbody>
               {withAmount.map(r => (
                 <tr key={r.id}>
-                  <td style={tdStyle}>{r.name}</td>
-                  <td style={tdStyle}>{fmtMoney(num(r.amount))}</td>
-                  <td style={{ ...tdStyle, width: 130 }}>
-                    <input style={inputStyle} aria-label={`股息率 ${r.name}`} inputMode="decimal" placeholder="自行查当前值" value={st.yields[r.name] ?? ''} onChange={e => setYield(r.name, e.target.value)} />
+                  <td>{r.name}</td>
+                  <td>{fmtMoney(num(r.amount))}</td>
+                  <td className="plan-w-130">
+                    <input className="ui-input" aria-label={`股息率 ${r.name}`} inputMode="decimal" placeholder="自行查当前值" value={st.yields[r.name] ?? ''} onChange={e => setYield(r.name, e.target.value)} />
                   </td>
-                  <td style={tdStyle}>{fmtMoney(((num(r.amount) || 0) * (num(st.yields[r.name] ?? '') || 0)) / 100)}</td>
+                  <td>{fmtMoney(((num(r.amount) || 0) * (num(st.yields[r.name] ?? '') || 0)) / 100)}</td>
                 </tr>
               ))}
             </tbody>
@@ -768,12 +693,12 @@ const CashflowCard: React.FC<{ rows: Holding[] }> = ({ rows }) => {
       )}
       {result.incomeCoverage != null && result.totalAssets > 0 && (
         <>
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 14 }}>
+          <div className="ui-cluster plan-mt">
             {stat('股息利息覆盖率', cov(result.incomeCoverage), `预期年现金流 ${fmtMoney(result.income)}，加权股息率 ${fmtPct((result.weightedYield ?? 0) * 100, 2)}`)}
             {stat(`${WITHDRAWAL_RATE * 100}% 提款覆盖率`, cov(result.withdrawalCoverage), `每年可取约 ${fmtMoney(result.withdrawalAmount)}`)}
             {stat('备用金可撑', result.runwayMonths == null ? '—' : `${result.runwayMonths.toFixed(1)} 个月`, '零收入情况下')}
           </div>
-          <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div className="ui-stack ui-stack--sm plan-mt">
             <Note tone={(result.gap ?? 0) > 0 ? 'blue' : 'green'}>
               {(result.gap ?? 0) > 0
                 ? `按 ${WITHDRAWAL_RATE * 100}% 法则，覆盖全部开支需要约 ${fmtMoney(result.requiredAssets ?? NaN)} 万元资产，目前还差约 ${fmtMoney(result.gap ?? NaN)} 万元。`
@@ -827,7 +752,7 @@ const Allocation: React.FC = () => {
     }, { replace: true })
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div className="ui-stack ui-stack--lg">
       <Segmented label="配置与纪律小节" items={ALLOC_SECTIONS} value={sec} onChange={id => go({ sec: id })} />
 
       {sec === 'rebalance' && (
@@ -835,41 +760,41 @@ const Allocation: React.FC = () => {
         title="再平衡检查器"
         icon={<PieChart size={18} />}
         right={
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button style={btnStyle()} onClick={() => setRows(rs => [...rs, { id: `h${Date.now()}`, name: '新资产', role: '', target: '', band: '25', amount: '' }])}>
+          <div className="ui-cluster">
+            <button className="tool-btn" onClick={() => setRows(rs => [...rs, { id: `h${Date.now()}`, name: '新资产', role: '', target: '', band: '25', amount: '' }])}>
               <Plus size={14} /> 添加
             </button>
             {TEMPLATES.map(t => (
-              <button key={t.id} style={btnStyle()} onClick={() => setRows(t.rows)} title={`换成「${t.label}」示例（会覆盖当前填写）`}>
+              <button key={t.id} className="tool-btn" onClick={() => setRows(t.rows)} title={`换成「${t.label}」示例（会覆盖当前填写）`}>
                 {t.id === 'balanced' && <RotateCcw size={14} />} {t.label}
               </button>
             ))}
           </div>
         }
       >
-        <p style={{ margin: '0 0 14px', fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+        <p className="plan-lead">
           只在配置底仓内部检查。填入各项当前金额，偏离按「相对目标」计算：目标20%、阈值±25%，则15%到25%之间不动。默认是书第9章9.10的宽基均衡档（权益50%），可换保守、积极档，或对照作者本人的五项案例；都可以直接改成你自己的。数据只保存在本机浏览器。
         </p>
-        <div style={tableWrapperStyle}>
-          <table style={tableStyle}>
+        <div className="ui-table-wrap plan-table-wrap">
+          <table className="ui-table plan-table">
             <thead>
               <tr>
                 {['资产', '角色', '目标 %', '阈值 ±%', '当前金额', '当前占比', '相对偏离', '状态 / 回到目标需', ''].map(h => (
-                  <th key={h} style={thStyle}>{h}</th>
+                  <th key={h}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {computed.map(({ r, cur, dev, hit, gap }) => (
                 <tr key={r.id}>
-                  <td style={{ ...tdStyle, minWidth: 120 }}><input style={inputStyle} aria-label={`资产名称 ${r.name}`} value={r.name} onChange={e => patch(r.id, 'name', e.target.value)} /></td>
-                  <td style={{ ...tdStyle, minWidth: 140 }}><input style={inputStyle} value={r.role} onChange={e => patch(r.id, 'role', e.target.value)} /></td>
-                  <td style={{ ...tdStyle, width: 80 }}><input style={inputStyle} aria-label={`目标占比 ${r.name}`} inputMode="decimal" value={r.target} onChange={e => patch(r.id, 'target', e.target.value)} /></td>
-                  <td style={{ ...tdStyle, width: 80 }}><input style={inputStyle} inputMode="decimal" value={r.band} onChange={e => patch(r.id, 'band', e.target.value)} /></td>
-                  <td style={{ ...tdStyle, width: 110 }}><input style={inputStyle} inputMode="decimal" placeholder="万元" value={r.amount} onChange={e => patch(r.id, 'amount', e.target.value)} /></td>
-                  <td style={tdStyle}>{fmtPct(cur)}</td>
-                  <td style={tdStyle}>{Number.isFinite(dev) ? `${dev > 0 ? '+' : ''}${dev.toFixed(1)}%` : '—'}</td>
-                  <td style={tdStyle}>
+                  <td className="plan-minw-120"><input className="ui-input" aria-label={`资产名称 ${r.name}`} value={r.name} onChange={e => patch(r.id, 'name', e.target.value)} /></td>
+                  <td className="plan-minw-140"><input className="ui-input" value={r.role} onChange={e => patch(r.id, 'role', e.target.value)} /></td>
+                  <td className="plan-w-80"><input className="ui-input" aria-label={`目标占比 ${r.name}`} inputMode="decimal" value={r.target} onChange={e => patch(r.id, 'target', e.target.value)} /></td>
+                  <td className="plan-w-80"><input className="ui-input" inputMode="decimal" value={r.band} onChange={e => patch(r.id, 'band', e.target.value)} /></td>
+                  <td className="plan-w-110"><input className="ui-input" inputMode="decimal" placeholder="万元" value={r.amount} onChange={e => patch(r.id, 'amount', e.target.value)} /></td>
+                  <td>{fmtPct(cur)}</td>
+                  <td>{Number.isFinite(dev) ? `${dev > 0 ? '+' : ''}${dev.toFixed(1)}%` : '—'}</td>
+                  <td>
                     {!Number.isFinite(dev) ? (
                       <Pill tone="gray">待填写</Pill>
                     ) : hit ? (
@@ -878,8 +803,8 @@ const Allocation: React.FC = () => {
                       <Pill tone="green">区间内</Pill>
                     )}
                   </td>
-                  <td style={{ ...tdStyle, width: 44 }}>
-                    <button aria-label="删除" style={{ ...btnStyle(), padding: 6 }} onClick={() => setRows(rs => rs.filter(x => x.id !== r.id))}>
+                  <td className="plan-w-44">
+                    <button aria-label="删除" className="tool-btn plan-icon-btn" onClick={() => setRows(rs => rs.filter(x => x.id !== r.id))}>
                       <Trash2 size={14} />
                     </button>
                   </td>
@@ -888,7 +813,7 @@ const Allocation: React.FC = () => {
             </tbody>
           </table>
         </div>
-        <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div className="ui-stack ui-stack--sm plan-mt">
           {Math.abs(targetSum - 100) > 0.01 && <Note tone="red">目标占比合计 {targetSum}%，应为 100%。</Note>}
           {total > 0 && (
             <Note tone={anyHit ? 'yellow' : 'green'}>
@@ -897,7 +822,7 @@ const Allocation: React.FC = () => {
           )}
           <Note tone="gray">
             权重不等于风险：权益的波动远大于债券，底仓的波动几乎全部来自权益（书9.7的风险贡献表）。真正调风险的旋钮是权益占多少；主题指数（如恒生科技）放主动额度，不放底仓。
-            <button style={{ ...btnStyle(), marginLeft: 8, padding: '4px 10px' }} onClick={() => go({ sec: 'risk' })}>查看风险透视 →</button>
+            <button className="tool-btn plan-ml" onClick={() => go({ sec: 'risk' })}>查看风险透视 →</button>
           </Note>
         </div>
       </Card>
@@ -905,7 +830,7 @@ const Allocation: React.FC = () => {
 
       {sec === 'risk' && (
         <Card title="风险透视" icon={<Gauge size={18} />}
-          right={<button style={btnStyle()} onClick={() => go({ sec: 'rebalance' })}>修改持仓与目标</button>}>
+          right={<button className="tool-btn" onClick={() => go({ sec: 'rebalance' })}>修改持仓与目标</button>}>
           <RiskView rows={rows} useAmount={total > 0} />
           <CurrencyView rows={rows} useAmount={total > 0} />
           <StressView rows={rows} useAmount={total > 0} />
@@ -916,7 +841,7 @@ const Allocation: React.FC = () => {
 
       {sec === 'discipline' && (
       <>
-      <div style={grid(300)}>
+      <div className={grid(300)}>
         <Card title="不可越过的红线" icon={<Ban size={18} />} accent="var(--system-red)">
           <Bullets items={RULES} tone="red" />
         </Card>
@@ -955,19 +880,19 @@ const Dashboard: React.FC<{
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div className="ui-stack ui-stack--lg">
       <Card
         title="信号仪表盘"
         icon={<Gauge size={18} />}
-        right={<span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{updated ? `上次更新 ${updated}` : '尚未填写'}</span>}
+        right={<span className="plan-small plan-muted">{updated ? `上次更新 ${updated}` : '尚未填写'}</span>}
       >
         <Note>旧版把1月的读数写死在页面里，现在已过期。这里改为你自己填当前值，页面按阈值给出颜色并折算阶段。数据只保存在本机浏览器。</Note>
-        <div style={{ ...tableWrapperStyle, marginTop: 14 }}>
-          <table style={tableStyle}>
+        <div className="ui-table-wrap plan-table-wrap plan-mt">
+          <table className="ui-table plan-table">
             <thead>
               <tr>
                 {['信号', '当前值', '预警 ≥', '危险 ≥', '状态', '数据来源'].map(h => (
-                  <th key={h} style={thStyle}>{h}</th>
+                  <th key={h}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -977,22 +902,22 @@ const Dashboard: React.FC<{
                 const tone = signalTone(s, v)
                 return (
                   <tr key={s.id}>
-                    <td style={{ ...tdStyle, minWidth: 200 }}>
-                      <div style={{ fontWeight: 700 }}>{s.name}</div>
-                      <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: 2 }}>{s.hint}</div>
+                    <td className="plan-minw-200">
+                      <div className="plan-strong">{s.name}</div>
+                      <div className="plan-xs plan-muted">{s.hint}</div>
                     </td>
-                    <td style={{ ...tdStyle, width: 140 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <input style={inputStyle} inputMode="decimal" value={values[s.id] ?? ''} onChange={e => set(s.id, e.target.value)} />
-                        <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>{s.unit}</span>
+                    <td className="plan-w-140">
+                      <div className="ui-cluster">
+                        <input className="ui-input" inputMode="decimal" value={values[s.id] ?? ''} onChange={e => set(s.id, e.target.value)} />
+                        <span className="plan-xs plan-muted plan-nowrap">{s.unit}</span>
                       </div>
                     </td>
-                    <td style={tdStyle}>{s.yellow}</td>
-                    <td style={tdStyle}>{s.red}</td>
-                    <td style={tdStyle}>
+                    <td>{s.yellow}</td>
+                    <td>{s.red}</td>
+                    <td>
                       <Pill tone={tone}>{tone === 'gray' ? '未填' : tone === 'green' ? '正常' : tone === 'yellow' ? '预警' : '危险'}</Pill>
                     </td>
-                    <td style={{ ...tdStyle, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{s.source}</td>
+                    <td className="plan-small plan-muted">{s.source}</td>
                   </tr>
                 )
               })}
@@ -1002,74 +927,74 @@ const Dashboard: React.FC<{
       </Card>
 
       <Card title={`当前阶段：${stage.name}`} icon={<AlertTriangle size={18} />} accent={TONE[stage.tone].fg}>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', marginBottom: 12 }}>
+        <div className="ui-cluster plan-mb">
           <Pill tone={stage.tone}>阶段 {stage.level}</Pill>
-          <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>已填 {entered}/{SIGNALS.length} 项 · 风险分 {score}（危险计2分，预警计1分）</span>
+          <span className="plan-small plan-muted">已填 {entered}/{SIGNALS.length} 项 · 风险分 {score}（危险计2分，预警计1分）</span>
         </div>
         {entered < 3 ? (
           <Note tone="yellow">至少填写3项信号后，阶段判断才有参考意义。</Note>
         ) : (
           <>
-            <p style={{ margin: '0 0 14px', fontSize: '0.92rem', lineHeight: 1.7 }}>{stage.summary}</p>
-            <div style={grid(280)}>
+            <p className="plan-body">{stage.summary}</p>
+            <div className={grid(280)}>
               <div>
-                <div style={{ fontWeight: 800, color: 'var(--system-green)', marginBottom: 8, fontSize: '0.9rem' }}>要做</div>
+                <div className="plan-kicker plan-kicker--do">要做</div>
                 <Bullets items={stage.does} tone="green" />
               </div>
               <div>
-                <div style={{ fontWeight: 800, color: 'var(--system-red)', marginBottom: 8, fontSize: '0.9rem' }}>不做</div>
+                <div className="plan-kicker plan-kicker--dont">不做</div>
                 <Bullets items={stage.doesNot} tone="red" />
               </div>
             </div>
           </>
         )}
-        <div style={{ marginTop: 14 }}>
+        <div className="plan-mt">
           <Note tone="gray">阶段用来检查风险预算，不是择时信号。旧版的“做空 PSQ/SH、加杠杆ETF”整套打法已删除，与“不预测、不加杠杆”的原则相悖。</Note>
         </div>
       </Card>
 
-      <div style={grid(520)}>
+      <div className={grid(520)}>
         <Card title="回撤梯度：危机时怎么补" icon={<ShieldCheck size={18} />}>
-          <div style={tableWrapperStyle}>
-            <table style={tableStyle}>
+          <div className="ui-table-wrap plan-table-wrap">
+            <table className="ui-table plan-table">
               <thead>
                 <tr>
-                  {['标普自高点', '动作', '细则'].map(h => <th key={h} style={thStyle}>{h}</th>)}
+                  {['标普自高点', '动作', '细则'].map(h => <th key={h}>{h}</th>)}
                 </tr>
               </thead>
               <tbody>
                 {DRAWDOWN_LADDER.map(r => (
                   <tr key={r.dd}>
-                    <td style={{ ...tdStyle, fontWeight: 800, color: 'var(--system-red)', whiteSpace: 'nowrap' }}>{r.dd}</td>
-                    <td style={{ ...tdStyle, fontWeight: 700, whiteSpace: 'nowrap' }}>{r.step}</td>
-                    <td style={{ ...tdStyle, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{r.detail}</td>
+                    <td className="plan-strong plan-nowrap plan-red">{r.dd}</td>
+                    <td className="plan-strong plan-nowrap">{r.step}</td>
+                    <td className="plan-small plan-muted">{r.detail}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <div style={{ marginTop: 10 }}>
+          <div className="plan-mt">
             <Note tone="gray">梯度是起点示例，请按你的备用金与风险承受力改写。每一档之间至少隔1到2周。</Note>
           </div>
         </Card>
       </div>
 
       <div>
-        <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 12px' }}>四种情景的预案</h3>
-        <div style={grid(250)}>
+        <h3 className="plan-card__title plan-section-title">四种情景的预案</h3>
+        <div className={grid(250)}>
           {SCENARIOS.map(s => (
             <Card key={s.name} accent={TONE[s.tone].fg}>
-              <div style={{ fontWeight: 800, marginBottom: 10, color: TONE[s.tone].fg }}>{s.name}</div>
-              <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 4 }}>观察信号</div>
+              <div className={`plan-strong plan-mb-sm plan-tone is-${s.tone}`}>{s.name}</div>
+              <div className="plan-kicker">观察信号</div>
               <Bullets items={s.watch} tone={s.tone} />
-              <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-secondary)', margin: '12px 0 4px' }}>历史倾向（不是预测）</div>
-              <div style={{ fontSize: '0.86rem', lineHeight: 1.65 }}>{s.effect}</div>
-              <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-secondary)', margin: '12px 0 4px' }}>预案动作</div>
+              <div className="plan-kicker plan-kicker--gap">历史倾向（不是预测）</div>
+              <div className="plan-small">{s.effect}</div>
+              <div className="plan-kicker plan-kicker--gap">预案动作</div>
               <Bullets items={s.act} tone={s.tone} />
             </Card>
           ))}
         </div>
-        <div style={{ marginTop: 12 }}>
+        <div className="plan-mt">
           <Note tone="gray">旧版给各情景标了 60% / 45% / 30% / 25% 的概率，没有依据，已删除。情景不排序、不给概率，只对照信号。</Note>
         </div>
       </div>
@@ -1116,35 +1041,34 @@ const CalendarTab: React.FC<{ today: Date }> = ({ today }) => {
   )
 
   const Task: React.FC<{ id: string; text: string }> = ({ id, text }) => (
-    <li
-      onClick={() => toggle(id)}
-      style={{ display: 'flex', gap: 10, alignItems: 'flex-start', cursor: 'pointer', fontSize: '0.9rem', lineHeight: 1.6, color: checked[id] ? 'var(--text-secondary)' : 'var(--text-primary)', textDecoration: checked[id] ? 'line-through' : 'none' }}
-    >
-      {checked[id] ? <CheckCircle2 size={18} style={{ color: 'var(--system-green)', flexShrink: 0, marginTop: 2 }} /> : <Circle size={18} style={{ color: 'var(--system-gray3)', flexShrink: 0, marginTop: 2 }} />}
-      {text}
+    <li>
+      <button type="button" role="checkbox" aria-checked={!!checked[id]} className={checked[id] ? 'plan-task is-done' : 'plan-task'} onClick={() => toggle(id)}>
+        {checked[id] ? <CheckCircle2 size={18} aria-hidden="true" /> : <Circle size={18} aria-hidden="true" />}
+        <span>{text}</span>
+      </button>
     </li>
   )
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div className="ui-stack ui-stack--lg">
       <Card title="Q4 2026 – 2027 年初 事件日历" icon={<CalendarDays size={18} />}>
-        <div style={{ position: 'relative', paddingLeft: 22 }}>
-          <div style={{ position: 'absolute', left: 6, top: 6, bottom: 6, width: 2, background: 'var(--system-gray5)' }} />
+        <div className="plan-timeline">
+          <div className="plan-timeline__line" />
           {CALENDAR.map(e => {
             const diff = dayDiff(new Date(e.date), today)
             const past = diff < 0
             const soon = diff >= 0 && diff <= 14
             const tone: Tone = past ? 'gray' : soon ? 'red' : e.region === '个人' ? 'green' : 'blue'
             return (
-              <div key={e.date + e.label} style={{ position: 'relative', padding: '8px 0 14px', opacity: past ? 0.5 : 1 }}>
-                <span style={{ position: 'absolute', left: -21, top: 14, width: 10, height: 10, borderRadius: '50%', background: TONE[tone].fg, boxShadow: '0 0 0 3px white' }} />
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-                  <span style={{ fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>{e.date.slice(5).replace('-', '/')}{e.firm ? '' : ' 约'}</span>
-                  <span style={{ fontWeight: 700 }}>{e.label}</span>
+              <div key={e.date + e.label} className={past ? 'plan-event is-past' : 'plan-event'}>
+                <span className={`plan-event__dot plan-tone-bg is-${tone}`} aria-hidden="true" />
+                <div className="ui-cluster">
+                  <span className="plan-strong plan-num">{e.date.slice(5).replace('-', '/')}{e.firm ? '' : ' 约'}</span>
+                  <span className="plan-strong">{e.label}</span>
                   <Pill tone={e.region === '个人' ? 'green' : e.region === '中国' ? 'yellow' : 'blue'}>{e.region}</Pill>
                   {soon && <Pill tone="red">{diff === 0 ? '今天' : `${diff} 天后`}</Pill>}
                 </div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: 3 }}>{e.detail}</div>
+                <div className="plan-small plan-muted">{e.detail}</div>
               </div>
             )
           })}
@@ -1152,14 +1076,14 @@ const CalendarTab: React.FC<{ today: Date }> = ({ today }) => {
         <Note tone="gray">标「约」的是按往年规律估算，美国数据日期以 BLS、美联储、公司公告为准；A股披露截止日依据证监会现行规则，具体到公司看公告。</Note>
       </Card>
 
-      <div style={grid(320)}>
+      <div className={grid(320)}>
         <Card title={`本月例行（${ym}）`} icon={<ClipboardCheck size={18} />} accent="var(--system-blue)">
-          <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <ul className="plan-list">
             {MONTHLY_TASKS.map((t, i) => <Task key={t} id={`m-${ym}-${i}`} text={t} />)}
           </ul>
         </Card>
         <Card title={`${today.getFullYear()} 年末例行`} icon={<ClipboardCheck size={18} />} accent="var(--system-green)">
-          <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <ul className="plan-list">
             {YEAR_END_TASKS.map((t, i) => <Task key={t} id={`y-${today.getFullYear()}-${i}`} text={t} />)}
           </ul>
         </Card>
@@ -1169,50 +1093,50 @@ const CalendarTab: React.FC<{ today: Date }> = ({ today }) => {
         title="未来财报（美股，实时）"
         icon={<Thermometer size={18} />}
         right={
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <div className="ui-cluster">
             {([7, 14] as const).map(d => (
-              <button key={d} style={{ ...btnStyle(days === d) }} onClick={() => setDays(d)}>未来{d}天</button>
+              <button type="button" key={d} className={days === d ? 'tool-btn tool-btn--primary' : 'tool-btn'} aria-pressed={days === d} onClick={() => setDays(d)}>未来{d}天</button>
             ))}
-            <button style={btnStyle()} onClick={() => load(days)} disabled={loading}>
+            <button className="tool-btn" onClick={() => load(days)} disabled={loading}>
               <RefreshCw size={14} /> 刷新
             </button>
-            <a href="https://www.tradingview.com/markets/earnings/" target="_blank" rel="noopener noreferrer" style={{ ...btnStyle(), textDecoration: 'none' }}>
+            <a href="https://www.tradingview.com/markets/earnings/" target="_blank" rel="noopener noreferrer" className="tool-btn">
               <ExternalLink size={14} /> TradingView
             </a>
           </div>
         }
       >
         {loading ? (
-          <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>正在同步…</div>
+          <div className="plan-empty">正在同步…</div>
         ) : error ? (
           <Note tone="red">{error}</Note>
         ) : sorted.length === 0 ? (
-          <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>该时间段没有数据</div>
+          <div className="plan-empty">该时间段没有数据</div>
         ) : (
-          <div style={{ ...tableWrapperStyle, marginTop: 0, maxHeight: 480, overflowY: 'auto' }}>
-            <table style={tableStyle}>
+          <div className="ui-table-wrap plan-table-wrap plan-table-wrap--scroll">
+            <table className="ui-table plan-table">
               <thead>
                 <tr>
-                  {['日期', '时段', '代码', '公司', '市值', 'EPS 预期', '营收预期'].map(h => <th key={h} style={thStyle}>{h}</th>)}
+                  {['日期', '时段', '代码', '公司', '市值', 'EPS 预期', '营收预期'].map(h => <th key={h}>{h}</th>)}
                 </tr>
               </thead>
               <tbody>
                 {sorted.map(e => (
-                  <tr key={e.symbol + e.date} style={{ background: FOCUS.has(e.symbol) ? 'var(--system-blue-light)' : undefined }}>
-                    <td style={{ ...tdStyle, whiteSpace: 'nowrap' }}>{e.date}</td>
-                    <td style={tdStyle}>{e.time || '—'}</td>
-                    <td style={{ ...tdStyle, fontWeight: 800 }}>{e.symbol}</td>
-                    <td style={tdStyle}>{e.name}</td>
-                    <td style={tdStyle}>{e.marketCap || '—'}</td>
-                    <td style={tdStyle}>{e.epsEstimate || '—'}</td>
-                    <td style={tdStyle}>{e.revenueEstimate || '—'}</td>
+                  <tr key={e.symbol + e.date} className={FOCUS.has(e.symbol) ? 'plan-focus-row' : undefined}>
+                    <td className="plan-nowrap">{e.date}</td>
+                    <td>{e.time || '—'}</td>
+                    <td className="plan-strong">{e.symbol}</td>
+                    <td>{e.name}</td>
+                    <td>{e.marketCap || '—'}</td>
+                    <td>{e.epsEstimate || '—'}</td>
+                    <td>{e.revenueEstimate || '—'}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         )}
-        <div style={{ marginTop: 10 }}>
+        <div className="plan-mt">
           <Note tone="gray">蓝色高亮为大型科技与大行。看财报只为更新持仓的经营依据与上面的信号，不为“赌财报”。</Note>
         </div>
       </Card>
@@ -1292,29 +1216,29 @@ const Sentiment: React.FC = () => {
   }
 
   const field = (label: string, v: string, set: (s: string) => void, ph: string) => (
-    <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+    <label className="plan-label">
       {label}
-      <input style={{ ...inputStyle, marginTop: 4 }} inputMode="decimal" placeholder={ph} value={v} onChange={ev => set(ev.target.value)} />
+      <input className="ui-input plan-input-gap" inputMode="decimal" placeholder={ph} value={v} onChange={ev => set(ev.target.value)} />
     </label>
   )
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div className="ui-stack ui-stack--lg">
       <Card
         title="期权情绪解读"
         icon={<Thermometer size={18} />}
         right={
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button style={btnStyle(true)} onClick={fetchAll} disabled={loading}>
+          <div className="ui-cluster">
+            <button className="tool-btn tool-btn--primary" onClick={fetchAll} disabled={loading}>
               <RefreshCw size={14} /> {loading ? '获取中…' : '刷新全部'}
             </button>
-            <a href="https://www.cboe.com/us/options/market_statistics/daily/" target="_blank" rel="noopener noreferrer" style={{ ...btnStyle(), textDecoration: 'none' }}>
+            <a href="https://www.cboe.com/us/options/market_statistics/daily/" target="_blank" rel="noopener noreferrer" className="tool-btn">
               <ExternalLink size={14} /> CBOE
             </a>
           </div>
         }
       >
-        <div style={{ ...grid(150), marginBottom: 12 }}>
+        <div className={`${grid(150)} plan-mb`}>
           {field('Equity P/C（个股）', eq, setEq, '如 0.64')}
           {field('SPX P/C（指数）', spx, setSpx, '如 1.05')}
           {field('VIX（30天）', vixNear, setVixNear, '可选')}
@@ -1322,32 +1246,32 @@ const Sentiment: React.FC = () => {
           {field('Net GEX（十亿美元）', gex, setGex, '可选')}
           {field('金银比', gs, setGs, '可选')}
         </div>
-        {asOf && <p style={{ margin: '0 0 8px', fontSize: '0.78rem', color: 'var(--text-tertiary)' }}>数据日期（美东）：{asOf}。来源：CBOE 日度期权统计、SqueezeMetrics（GEX）、雅虎财经（VIX、VIX3M、金银期货）；P/C 与 GEX 为上一交易日收盘数据。</p>}
+        {asOf && <p className="plan-xs plan-faint">数据日期（美东）：{asOf}。来源：CBOE 日度期权统计、SqueezeMetrics（GEX）、雅虎财经（VIX、VIX3M、金银期货）；P/C 与 GEX 为上一交易日收盘数据。</p>}
         {msg && <Note tone="yellow">{msg}</Note>}
         {reading ? (
-          <div style={{ marginTop: 12 }}>
-            <Card accent={TONE[reading.tone].fg} style={{ boxShadow: 'none' }}>
-              <div style={{ fontWeight: 800, fontSize: '1.05rem', color: TONE[reading.tone].fg, marginBottom: 6 }}>{reading.title}</div>
-              <div style={{ lineHeight: 1.75, fontSize: '0.92rem' }}>{reading.body}</div>
+          <div className="plan-mt">
+            <Card accent={TONE[reading.tone].fg} flat>
+              <div className={`plan-reading-title plan-tone is-${reading.tone}`}>{reading.title}</div>
+              <div className="plan-body">{reading.body}</div>
               {extras.length > 0 && (
-                <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--system-gray5)' }}>
+                <div className="plan-divider">
                   <Bullets items={extras} />
                 </div>
               )}
             </Card>
           </div>
         ) : (
-          <div style={{ marginTop: 12 }}>
+          <div className="plan-mt">
             <Note tone="gray">填入 Equity P/C 与 SPX P/C（或点击自动获取）即可得到解读。</Note>
           </div>
         )}
       </Card>
 
       <Card title="读数怎么看" icon={<Info size={18} />}>
-        <div style={tableWrapperStyle}>
-          <table style={tableStyle}>
+        <div className="ui-table-wrap plan-table-wrap">
+          <table className="ui-table plan-table">
             <thead>
-              <tr>{['指标', '低', '高', '含义'].map(h => <th key={h} style={thStyle}>{h}</th>)}</tr>
+              <tr>{['指标', '低', '高', '含义'].map(h => <th key={h}>{h}</th>)}</tr>
             </thead>
             <tbody>
               {[
@@ -1357,16 +1281,16 @@ const Sentiment: React.FC = () => {
                 ['Net GEX', '<0 波动放大', '高正值 波动受抑', '做市商对冲带来的放大或抑制']
               ].map(r => (
                 <tr key={r[0]}>
-                  <td style={{ ...tdStyle, fontWeight: 700 }}>{r[0]}</td>
-                  <td style={tdStyle}>{r[1]}</td>
-                  <td style={tdStyle}>{r[2]}</td>
-                  <td style={{ ...tdStyle, color: 'var(--text-secondary)' }}>{r[3]}</td>
+                  <td className="plan-strong">{r[0]}</td>
+                  <td>{r[1]}</td>
+                  <td>{r[2]}</td>
+                  <td className="plan-muted">{r[3]}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <div style={{ marginTop: 12 }}>
+        <div className="plan-mt">
           <Note tone="gray">情绪读数只是辅助：它不触发买卖，只用来提醒你“现在是不是想做点什么”。真正的动作仍来自再平衡阈值与回撤梯度。</Note>
         </div>
       </Card>
@@ -1405,20 +1329,20 @@ const Review: React.FC = () => {
   const right = judged.filter(r => r.verdict === '对').length
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div className="ui-stack ui-stack--lg">
       <Card title="年初的判断，对照实际" icon={<ClipboardCheck size={18} />} accent="var(--system-purple)"
         right={judged.length > 0 ? <Pill tone={right / judged.length >= 0.5 ? 'green' : 'red'}>已评 {judged.length} 项 · 完全判对 {right} 项</Pill> : undefined}
       >
-        <p style={{ margin: '0 0 12px', fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+        <p className="plan-lead">
           下面是旧版计划书里的七条核心判断。页面不替你填“实际发生了什么”：请对照真实行情逐条评分。无论结果如何，这张表的价值是：看清自己的预测命中率，决定下一年还要不要把仓位押在预测上。
         </p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div className="ui-stack plan-gap-12">
           {rows.map(r => (
-            <div key={r.id} style={{ border: '1px solid var(--system-gray5)', borderRadius: 12, padding: 14 }}>
-              <div style={{ fontWeight: 700, fontSize: '0.92rem', marginBottom: 10, lineHeight: 1.6 }}>{r.call}</div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 130px', gap: 10 }}>
-                <input style={inputStyle} placeholder="实际发生了什么？" value={r.actual} onChange={e => patch(r.id, 'actual', e.target.value)} />
-                <select style={inputStyle} value={r.verdict} onChange={e => patch(r.id, 'verdict', e.target.value)}>
+            <div key={r.id} className="plan-box">
+              <div className="plan-strong plan-mb-sm">{r.call}</div>
+              <div className="plan-review-grid">
+                <input className="ui-input" placeholder="实际发生了什么？" value={r.actual} onChange={e => patch(r.id, 'actual', e.target.value)} />
+                <select className="ui-input" value={r.verdict} onChange={e => patch(r.id, 'verdict', e.target.value)}>
                   {['', '对', '部分对', '错', '没发生'].map(v => <option key={v} value={v}>{v || '评分'}</option>)}
                 </select>
               </div>
@@ -1427,20 +1351,20 @@ const Review: React.FC = () => {
         </div>
       </Card>
 
-      <div style={grid(320)}>
+      <div className={grid(320)}>
         <Card title="年度数字" icon={<Gauge size={18} />}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div className="ui-stack ui-stack--sm">
             {NUMBERS.map(n => (
-              <label key={n} style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+              <label key={n} className="plan-label">
                 {n}
-                <input style={{ ...inputStyle, marginTop: 4 }} value={nums[n] ?? ''} onChange={e => setNums(p => ({ ...p, [n]: e.target.value }))} />
+                <input className="ui-input plan-input-gap" value={nums[n] ?? ''} onChange={e => setNums(p => ({ ...p, [n]: e.target.value }))} />
               </label>
             ))}
           </div>
         </Card>
         <Card title="这一年学到什么" icon={<ShieldCheck size={18} />}>
           <textarea
-            style={{ ...inputStyle, minHeight: 190, resize: 'vertical', lineHeight: 1.7 }}
+            className="ui-input plan-textarea"
             placeholder={'1. 哪些规则执行了？哪些没执行？为什么？\n2. 哪次决定最后悔，当时的记录怎么写的？\n3. 明年要改的一条规则是什么？'}
             value={lessons}
             onChange={e => setLessons(e.target.value)}
@@ -1494,11 +1418,11 @@ const InvestmentPlan2026 = () => {
       <div>
       <div className="page-toolbar">
         <span className="page-toolbar__note">不预测，先划线：用事前写好的规则代替年初的剧本</span>
-        <span>风险阶段：<b style={{ color: 'var(--text-primary)' }}>{entered < 3 ? '待填写' : stage.name}</b></span>
+        <span>风险阶段：<b className="plan-ink">{entered < 3 ? '待填写' : stage.name}</b></span>
         <span>修订：2026-10-04</span>
       </div>
-      <details style={{ margin: '-6px 0 20px', fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-        <summary style={{ cursor: 'pointer' }}>修订说明</summary>
+      <details className="plan-revisions">
+        <summary >修订说明</summary>
         旧版是1月写成的“衰退预警 + 做空”月度剧本，多数日期与读数已过期，也与“不预测、不加杠杆”的原则冲突。本版保留有用的工具（财报日历、情绪解读），其余改为情景触发、风险预算和年度复盘。
       </details>
 
@@ -1509,7 +1433,7 @@ const InvestmentPlan2026 = () => {
       {tab === 'sentiment' && <Sentiment />}
       {tab === 'review' && <Review />}
 
-      <p style={{ marginTop: 32, fontSize: '0.78rem', color: 'var(--text-secondary)', textAlign: 'center', lineHeight: 1.7 }}>
+      <p className="plan-foot">
         本页为个人投资纪律与学习工具，阈值与比例均为示例，不构成投资建议。投资有风险，决策请结合自身情况。
       </p>
       </div>
