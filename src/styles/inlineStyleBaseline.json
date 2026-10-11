@@ -1,0 +1,218 @@
+{
+  "components/AIDiffusion.tsx": {
+    "inline": 50,
+    "color": 1
+  },
+  "components/CandidateButton.tsx": {
+    "inline": 1,
+    "color": 0
+  },
+  "components/CandidatePool.tsx": {
+    "inline": 27,
+    "color": 1
+  },
+  "components/ChapterComments.tsx": {
+    "inline": 19,
+    "color": 3
+  },
+  "components/CompanyCombined.tsx": {
+    "inline": 26,
+    "color": 0
+  },
+  "components/TableStyles.tsx": {
+    "inline": 0,
+    "color": 8
+  },
+  "components/home/InvestmentTargets.tsx": {
+    "inline": 2,
+    "color": 0
+  },
+  "components/monitor/Card.tsx": {
+    "inline": 4,
+    "color": 1
+  },
+  "components/monitor/ChinaStockTab.tsx": {
+    "inline": 250,
+    "color": 16
+  },
+  "components/monitor/ChinaTemperatureTab.tsx": {
+    "inline": 172,
+    "color": 8
+  },
+  "components/monitor/ExecutionTab.tsx": {
+    "inline": 119,
+    "color": 22
+  },
+  "components/monitor/IndicatorsTab.tsx": {
+    "inline": 53,
+    "color": 1
+  },
+  "components/monitor/OverviewTab.tsx": {
+    "inline": 43,
+    "color": 6
+  },
+  "components/monitor/SilverMonitor.tsx": {
+    "inline": 126,
+    "color": 12
+  },
+  "components/monitor/StagesTab.tsx": {
+    "inline": 142,
+    "color": 3
+  },
+  "components/monitor/Table.tsx": {
+    "inline": 6,
+    "color": 0
+  },
+  "components/monitor/TemperatureTab.tsx": {
+    "inline": 172,
+    "color": 7
+  },
+  "components/monitor/USMonitorTab.tsx": {
+    "inline": 609,
+    "color": 41
+  },
+  "components/pulse/HeatmapSection.tsx": {
+    "inline": 16,
+    "color": 21
+  },
+  "components/pulse/IndexHeatmap.tsx": {
+    "inline": 27,
+    "color": 30
+  },
+  "components/pulse/MarketCard.tsx": {
+    "inline": 8,
+    "color": 4
+  },
+  "components/pulse/MarketCategory.tsx": {
+    "inline": 6,
+    "color": 0
+  },
+  "components/pulse/NewsSection.tsx": {
+    "inline": 23,
+    "color": 5
+  },
+  "components/pulse/NewsSourceSection.tsx": {
+    "inline": 51,
+    "color": 7
+  },
+  "components/pulse/ReviewTable.tsx": {
+    "inline": 35,
+    "color": 6
+  },
+  "components/pulse/SectorSection.tsx": {
+    "inline": 29,
+    "color": 6
+  },
+  "components/research/ResearchNotice.tsx": {
+    "inline": 1,
+    "color": 0
+  },
+  "features/company-notes/CompanyNotes.tsx": {
+    "inline": 1,
+    "color": 0
+  },
+  "features/grid-trading/GridChart.tsx": {
+    "inline": 1,
+    "color": 3
+  },
+  "features/knowledge/GardenScene.tsx": {
+    "inline": 0,
+    "color": 8
+  },
+  "features/macro/CycleViews.tsx": {
+    "inline": 4,
+    "color": 0
+  },
+  "features/macro/FpeChart.tsx": {
+    "inline": 2,
+    "color": 0
+  },
+  "features/macro/ValuationView.tsx": {
+    "inline": 1,
+    "color": 0
+  },
+  "features/national-team/EtfView.tsx": {
+    "inline": 1,
+    "color": 0
+  },
+  "features/national-team/LineChart.tsx": {
+    "inline": 2,
+    "color": 10
+  },
+  "features/national-team/OverviewView.tsx": {
+    "inline": 2,
+    "color": 0
+  },
+  "pages/About.tsx": {
+    "inline": 15,
+    "color": 0
+  },
+  "pages/CompanyDetail.tsx": {
+    "inline": 96,
+    "color": 0
+  },
+  "pages/Dcf.tsx": {
+    "inline": 9,
+    "color": 2
+  },
+  "pages/FirstBook.tsx": {
+    "inline": 55,
+    "color": 3
+  },
+  "pages/FutureTrendCompany.tsx": {
+    "inline": 5,
+    "color": 0
+  },
+  "pages/FutureTrends.tsx": {
+    "inline": 38,
+    "color": 0
+  },
+  "pages/GridRecordDetail.tsx": {
+    "inline": 1,
+    "color": 0
+  },
+  "pages/InvestmentPlan2026.tsx": {
+    "inline": 176,
+    "color": 4
+  },
+  "pages/InvestmentStrategy.tsx": {
+    "inline": 71,
+    "color": 2
+  },
+  "pages/LimitUpAnalysis.tsx": {
+    "inline": 47,
+    "color": 5
+  },
+  "pages/Monitor.tsx": {
+    "inline": 1,
+    "color": 0
+  },
+  "pages/MyBooks.tsx": {
+    "inline": 6,
+    "color": 0
+  },
+  "pages/NotFound.tsx": {
+    "inline": 1,
+    "color": 0
+  },
+  "pages/Pulse.tsx": {
+    "inline": 87,
+    "color": 11
+  },
+  "pages/ResearchNotes.tsx": {
+    "inline": 123,
+    "color": 7
+  },
+  "pages/SectorRotation.tsx": {
+    "inline": 85,
+    "color": 9
+  },
+  "pages/ThemeCards.tsx": {
+    "inline": 21,
+    "color": 2
+  },
+  "pages/TradingPhilosophy.tsx": {
+    "inline": 465,
+    "color": 73
+  }
+}
