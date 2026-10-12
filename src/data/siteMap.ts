@@ -84,6 +84,7 @@ export const INVEST_GROUPS: HubGroup[] = [
       { path: '/pulse', label: '全球行情', desc: '全球指数、商品外汇与 A 股涨跌停' },
       { path: '/sector-rotation', label: '板块轮动', desc: '板块强弱与轮动' },
       { path: '/limit-up-analysis', label: '涨停分析', desc: '每日板块涨停' },
+      { path: '/daily-analysis', label: '每日分析', desc: '自动获取 A 股行情、涨跌停与连板复盘' },
     ],
   },
   {
@@ -117,6 +118,10 @@ function matchesPath(base: string, pathname: string): boolean {
 
 export function findInvestEntry(pathname: string): { group: HubGroup; link: HubLink } | null {
   if (matchesPath('/ai', pathname)) return null
+  if (matchesPath('/daily-analysis/legacy', pathname)) {
+    const parent = ALL_LINKS.find(entry => entry.link.path === '/daily-analysis')
+    if (parent) return { group: parent.group, link: { path: '/daily-analysis/legacy', label: '每日分析 · 历史旧版', desc: '原有手工复盘、导入导出与云同步' } }
+  }
   let best: { group: HubGroup; link: HubLink } | null = null
   for (const entry of ALL_LINKS) {
     if (!matchesPath(entry.link.path, pathname)) continue
@@ -149,6 +154,7 @@ export interface WorkbenchTool {
 
 // 不在导航和投资分组里、但有固定路径的页面
 const EXTRA_PAGES: SearchablePage[] = [
+  { path: '/daily-analysis/legacy', label: '每日分析 · 历史旧版', group: '投资 · 历史旧版', desc: '原有手工复盘、导入导出与云同步', archived: true },
   { path: '/first-book/slow-is-fast', label: '书的目录', group: '投资 · 读这本书', desc: '《正念投资》目录与章节' },
   { path: '/grid-trading/records', label: '网格记录', group: '投资 · 用工具执行', desc: '已保存的网格模拟与回测记录' },
   { path: '/ai/fullstack-roadmap', label: '全栈学习路线', group: 'AI实验室', desc: 'AI 全栈开发学习计划' },

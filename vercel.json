@@ -16,6 +16,9 @@
     }
   ],
   "functions": {
+    "api/daily-analysis.js": {
+      "maxDuration": 30
+    },
     "api/macro.js": {
       "maxDuration": 30
     },

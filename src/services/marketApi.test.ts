@@ -14,6 +14,20 @@ function response() {
 }
 afterEach(() => vi.unstubAllGlobals())
 describe('restricted market APIs', () => {
+  it('提供白名单指数的日周月历史，拒绝其他证券及任意周期', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ data: {} }))))
+    const accepted = response()
+    await handleMarket({ method: 'GET', query: { kind: 'index-history', symbol: 'sh000852', period: 'month' } }, accepted)
+    expect(accepted.statusCode).toBe(200)
+    for (const query of [
+      { kind: 'index-history', symbol: 'sh600000', period: 'day' },
+      { kind: 'index-history', symbol: 'sh000300', period: 'year' },
+      { kind: 'index-history', symbol: 'sh000300', period: ['day'] },
+    ]) {
+      const rejected = response(); await handleMarket({ method: 'GET', query }, rejected)
+      expect(rejected.statusCode).toBe(400)
+    }
+  })
   it('rejects unsupported methods and invalid symbols before fetching', async () => {
     const fetchImpl = vi.fn(); vi.stubGlobal('fetch', fetchImpl)
     for (const query of [{ symbol: 'http://localhost' }, { symbol: ['sh000001'] }, { symbol: 'sh000001&list=sz000001' }]) {

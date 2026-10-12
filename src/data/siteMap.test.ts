@@ -38,7 +38,7 @@ describe('INVEST_GROUPS', () => {
     const paths = allLinks.map(l => l.path).sort()
     expect(paths).toEqual([
       '/dcf', '/first-book', '/future-trends', '/grid-trading', '/ai/ai-skills', '/invest/etf', '/invest/national-team', '/industry-landscape', '/investment-plan-2026',
-      '/investment-strategy', '/investment-targets', '/limit-up-analysis',
+      '/investment-strategy', '/investment-targets', '/limit-up-analysis', '/daily-analysis',
       '/mainland-investment-targets', '/monitor', '/pulse', '/research-notes',
       '/sector-rotation', '/trading-philosophy', '/valuation',
     ].sort())
@@ -73,7 +73,7 @@ describe('INVEST_GROUPS', () => {
   it('看行情组直接展开，只放行情类页面', () => {
     const watch = INVEST_GROUPS.find(g => g.id === 'watch')!
     expect(watch.collapsed).toBe(false)
-    expect(watch.links.map(l => l.path)).toEqual(['/pulse', '/sector-rotation', '/limit-up-analysis'])
+    expect(watch.links.map(l => l.path)).toEqual(['/pulse', '/sector-rotation', '/limit-up-analysis', '/daily-analysis'])
   })
 
   it('选标的组只放研究方法与资料，不放带具体买卖建议的观察池', () => {

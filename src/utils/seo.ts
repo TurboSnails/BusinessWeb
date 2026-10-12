@@ -29,6 +29,8 @@ const EXACT: Record<string, RouteSeo> = {
   '/investment-plan-2026': { title: '2026 投资计划', description: '2026 年的资产配置与投资计划。' },
   '/investment-targets': { title: '投资标的清单', description: '美股与港股重点投资标的研究清单。' },
   '/mainland-investment-targets': { title: 'A 股投资标的清单', description: '沪深 A 股重点投资标的研究清单。' },
+  '/daily-analysis': { title: '每日分析', description: '自动获取 A 股指数、成交额、涨跌停、连板梯队和股票排行榜，保留交易日快照。' },
+  '/daily-analysis/legacy': { title: '每日分析 · 历史旧版', description: '原有手工复盘记录、导入导出与云同步。', noindex: true },
   '/limit-up-analysis': { title: '涨停板分析', description: '涨停板数据与题材轮动复盘。' },
   '/trading-philosophy': { title: '交易哲学', description: '长期主义的交易原则与纪律。' },
   '/sector-rotation': { title: '板块轮动', description: '行业板块轮动的观察框架与数据。' },

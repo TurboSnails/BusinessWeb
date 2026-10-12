@@ -10,7 +10,8 @@ const importOf = new Map<string, string>()
 for (const m of app.matchAll(/import (\w+) from '\.\/([^']+)'/g)) importOf.set(m[1], m[2])
 for (const m of app.matchAll(/const (\w+) = lazy\(\(\) => import\('\.\/([^']+)'\)\)/g)) importOf.set(m[1], m[2])
 
-const routed = [...new Set([...app.matchAll(/element=\{<(\w+)/g)].map(m => m[1]))]
+// 只检查从 pages 文件导入的路由页面；App.tsx 内联的跳转组件（如 LegacyAiToolsRedirect）没有页面外壳
+const routed = [...new Set([...app.matchAll(/element=\{<(\w+)/g)].map(m => m[1]))].filter(name => importOf.has(name))
 
 function sourceOf(name: string): string {
   const rel = importOf.get(name)

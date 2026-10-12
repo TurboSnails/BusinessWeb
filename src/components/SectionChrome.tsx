@@ -28,7 +28,7 @@ export default function SectionChrome(): JSX.Element | null {
       {group.links.length > 1 && (
         <nav className="section-tabs" aria-label="同组页面">
           {group.links.map(l => {
-            const active = l.path === link.path
+            const active = l.path === link.path || link.path.startsWith(l.path + '/')
             return (
               <Link
                 key={l.path}

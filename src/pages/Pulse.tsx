@@ -11,6 +11,7 @@ import { NewsSourceSection } from '../components/pulse/NewsSourceSection'
 import { MarketCategory as MarketCategoryComponent } from '../components/pulse/MarketCategory'
 import { SectorSection } from '../components/pulse/SectorSection'
 import HeatmapSection from '../components/pulse/HeatmapSection'
+import ChinaMarketCharts from '../components/pulse/ChinaMarketCharts'
 import { Card, Dialog, EmptyState, Field, Page } from '../components/ui'
 import {
   TrendingUp,
@@ -54,8 +55,8 @@ const REVIEW_FIELDS: { key: keyof DailyReview; label: string; type: 'date' | 'nu
   { key: 'outflow', label: '流出板块', type: 'text', placeholder: '如 医疗、光模块', wide: true },
 ]
 
-export default function Pulse(): JSX.Element {
-  const [activeTab, setActiveTab] = useState<'market' | 'analysis'>('market')
+export default function Pulse({ view = 'market', notice }: { view?: 'market' | 'analysis'; notice?: React.ReactNode } = {}): JSX.Element {
+  const activeTab = view
   const [categories, setCategories] = useState<MarketCategory[]>([])
   const [sectorCategories, setSectorCategories] = useState<SectorCategory[]>([])
   const [loading, setLoading] = useState(true)
@@ -352,11 +353,9 @@ export default function Pulse(): JSX.Element {
 
   return (
     <Page>
-      <PageTitle>全球行情</PageTitle>
-      <PageTabs label="全球行情视图" value={activeTab} onChange={setActiveTab} items={[
-        { id: 'market', label: '市场热力图' },
-        { id: 'analysis', label: '每日分析' },
-      ]} />
+      {notice}
+      <PageTitle>{view === 'analysis' ? '每日分析 · 历史旧版' : '全球行情'}</PageTitle>
+      {view === 'market' && <ChinaMarketCharts />}
       <div role="tabpanel" aria-label="市场热力图" hidden={activeTab !== 'market'}>
         <HeatmapSection />
       </div>

@@ -37,6 +37,12 @@ describe('SectionChrome', () => {
     expect(current?.textContent).toBe('网格交易')
   })
 
+  it('每日分析旧版有独立面包屑，并仍归属每日分析入口', () => {
+    renderAt('/daily-analysis/legacy')
+    expect(screen.getByRole('navigation', { name: '面包屑' }).textContent).toContain('每日分析 · 历史旧版')
+    expect(within(screen.getByRole('navigation', { name: '同组页面' })).getByRole('link', { current: 'page' }).getAttribute('href')).toBe('/daily-analysis')
+  })
+
   it('已舍弃页面顶部显示舍弃说明，正常页面不显示', () => {
     renderAt('/trading-philosophy')
     expect(screen.getByRole('note').textContent).toMatch(/已舍弃.*短线/)

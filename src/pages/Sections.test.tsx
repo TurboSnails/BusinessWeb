@@ -27,7 +27,7 @@ describe('InvestHub', () => {
     const group = screen.getByRole('region', { name: '行情（少看）' })
     expect(group.closest('details')).toBeNull()
     expect(within(group).getByText(/少看行情/)).toBeTruthy()
-    expect(within(group).getAllByRole('link')).toHaveLength(3)
+    expect(within(group).getAllByRole('link')).toHaveLength(4)
   })
 
   it('研究、估值、计划三组是卡片：显示短说明而不是长说明', () => {

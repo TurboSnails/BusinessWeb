@@ -11,6 +11,7 @@
 - **网格交易**：`src/features/grid-trading/` 实现了完整的 ETF / 个股网格模拟器——行情接入、参数求解、回测、记录、导入导出、可选 Supabase 同步。记录默认保存在浏览器，云同步只在手动配置独立 Supabase + token 后才启用。
 - **AI 投研**：项目自带统一股票分析与交易分析 skill（见 [AI 投研 skills](#ai-投研-skills)），支持深度研究、圆桌观点与交易风险分析。
 - **多市场数据**：通过 MCP（yahoo-finance、baostock）和 `src/services/api.ts` 的本地封装，覆盖美股行情、A 股行情、ETF 实时数据、AkShare 数据字典。
+- **每日分析**：`/daily-analysis` 自动获取 A 股指数、涨跌停、连板梯队和榜单，保存交易日快照；原手工记录保留在「历史旧版」。数据口径与定时归档见[每日分析说明](docs/daily-analysis.md)。
 
 栈：React 18 · Vite 5 · TypeScript · React Router 6 · Vitest · Node 24。
 
