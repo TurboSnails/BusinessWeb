@@ -63,6 +63,7 @@ export default function AskLab(): JSX.Element | null {
     <section id="lab-ask" className="lab-section" aria-labelledby="lab-ask-title">
       <h2 id="lab-ask-title">试问 AI</h2>
       <p>用 Google 或 GitHub 登录后，每天可免费提问 {DAILY_LIMIT} 次，范围限于投资研究方法与 AI 工具使用。回答仅供参考，不构成投资建议。</p>
+      <p><a href={`${import.meta.env.BASE_URL}ai-privacy.html`}>登录与提问隐私说明</a></p>
       {token ? (
         <form onSubmit={submit} className="lab-ask__form">
           <label htmlFor="lab-ask-input">你的问题</label>

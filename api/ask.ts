@@ -37,6 +37,16 @@ const httpsOrigin = (value: string | undefined, suffix?: string): string | null 
 
 export default async function handler(req: Request, res: Response): Promise<unknown> {
   res.setHeader('Cache-Control', 'no-store')
+  res.setHeader('Vary', 'Origin')
+  const origin = first(req.headers.origin)
+  if (['https://business-web-black.vercel.app', 'https://turbosnails.github.io', 'http://localhost:5173'].includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin)
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+  } else if (origin) {
+    return res.status(403).json({ error: '不支持此来源' })
+  }
+  if (req.method === 'OPTIONS') return res.status(204).json({})
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST')
     return res.status(405).json({ error: '只支持 POST 请求' })
@@ -61,8 +71,8 @@ export default async function handler(req: Request, res: Response): Promise<unkn
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), 25_000)
   const service = { apikey: secret, 'content-type': 'application/json', ...(secret.startsWith('sb_secret_') ? {} : { authorization: `Bearer ${secret}` }) }
-  const rpc = (name: string, args: Record<string, unknown>) =>
-    fetch(`${supabase}/rest/v1/rpc/${name}`, { method: 'POST', headers: service, body: JSON.stringify(args), signal: controller.signal, redirect: 'error' })
+  const rpc = (name: string, args: Record<string, unknown>, signal = controller.signal) =>
+    fetch(`${supabase}/rest/v1/rpc/${name}`, { method: 'POST', headers: service, body: JSON.stringify(args), signal, redirect: 'error' })
 
   try {
     // 用用户自己的 token 向 Supabase 确认身份，不信任前端传来的任何 user id。
@@ -71,7 +81,9 @@ export default async function handler(req: Request, res: Response): Promise<unkn
     const user = (await who.json()) as { id?: string }
     if (!user.id) return res.status(401).json({ error: '登录已过期，请重新登录' })
 
-    const consumed = await rpc('businessweb_consume_ask', { p_user: user.id, p_ip: ip, p_user_limit: DAILY_LIMIT, p_ip_limit: IP_LIMIT, p_global_limit: GLOBAL_LIMIT })
+    // 扣款与退款使用同一个北京时间日期，避免午夜后退错日期。
+    const day = new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString().slice(0, 10)
+    const consumed = await rpc('businessweb_consume_ask', { p_user: user.id, p_ip: ip, p_user_limit: DAILY_LIMIT, p_ip_limit: IP_LIMIT, p_global_limit: GLOBAL_LIMIT, p_day: day })
     if (!consumed.ok) return res.status(502).json({ error: '计次服务暂时不可用' })
     const verdict = await consumed.json()
     if (verdict === 'global') return res.status(429).json({ error: '今天的试问名额已被抢完，明天再来' })
@@ -79,7 +91,16 @@ export default async function handler(req: Request, res: Response): Promise<unkn
     if (verdict === 'user') return res.status(429).json({ error: `今天的 ${DAILY_LIMIT} 次试问已用完，明天再来` })
     if (verdict !== 'ok') return res.status(502).json({ error: '计次服务暂时不可用' })
 
-    const refund = () => rpc('businessweb_refund_ask', { p_user: user.id, p_ip: ip }).catch(() => undefined)
+    const refund = async () => {
+      // 模型请求超时后，退款仍需自己的执行时间。
+      const refundController = new AbortController()
+      const refundTimer = setTimeout(() => refundController.abort(), 4_000)
+      try {
+        const result = await rpc('businessweb_refund_ask', { p_user: user.id, p_ip: ip, p_day: day }, refundController.signal)
+        return result.ok
+      } catch { return false }
+      finally { clearTimeout(refundTimer) }
+    }
     let reply = ''
     try {
       const model = await fetch(`${modelBase}/v1/messages`, {
@@ -94,8 +115,8 @@ export default async function handler(req: Request, res: Response): Promise<unkn
       reply = (data.content ?? []).filter(part => part.type === 'text').map(part => part.text ?? '').join('').trim()
       if (!reply) throw new Error('empty')
     } catch {
-      await refund()
-      return res.status(502).json({ error: 'AI 暂时无法回答，这次不扣次数' })
+      const refunded = await refund()
+      return res.status(502).json({ error: refunded ? 'AI 暂时无法回答，这次不扣次数' : 'AI 暂时无法回答，额度退还未确认，请稍后联系站点作者' })
     }
     return res.status(200).json({ answer: reply, limit: DAILY_LIMIT })
   } catch {

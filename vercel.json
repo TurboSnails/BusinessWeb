@@ -16,6 +16,9 @@
     }
   ],
   "functions": {
+    "api/ask.ts": {
+      "maxDuration": 30
+    },
     "api/daily-analysis.js": {
       "maxDuration": 30
     },
