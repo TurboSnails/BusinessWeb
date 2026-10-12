@@ -62,7 +62,7 @@ describe('INVEST_GROUPS', () => {
   })
 
   it('卡片组的每个入口都有 14 字以内的短说明', () => {
-    for (const g of INVEST_GROUPS.filter(g => ['research', 'tools', 'method'].includes(g.id))) {
+    for (const g of INVEST_GROUPS.filter(g => ['research', 'tools', 'method', 'watch'].includes(g.id))) {
       for (const l of g.links) {
         expect(l.short, l.path).toBeTruthy()
         expect(l.short!.length, `${l.path}: ${l.short}`).toBeLessThanOrEqual(14)

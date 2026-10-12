@@ -22,7 +22,7 @@ describe('InvestHub', () => {
     }
   })
 
-  it('行情组直接展开，做成一行弱化的标签，带少看提示', () => {
+  it('行情组直接展开，与研究、估值等组保持同样卡片尺寸，带少看提示', () => {
     wrap(<InvestHub />)
     const group = screen.getByRole('region', { name: '行情（少看）' })
     expect(group.closest('details')).toBeNull()
@@ -30,21 +30,26 @@ describe('InvestHub', () => {
     expect(within(group).getAllByRole('link')).toHaveLength(4)
   })
 
-  it('研究、估值、计划三组是卡片：显示短说明而不是长说明', () => {
+  it('研究、估值、计划、行情各组是卡片：显示短说明而不是长说明', () => {
     wrap(<InvestHub />)
     const research = screen.getByRole('region', { name: '研究标的' })
     const card = within(research).getByRole('link', { name: /产业格局/ })
     expect(card.textContent).toContain('按行业看龙头')
     expect(card.textContent).not.toContain('前沿科技')
+
+    const watch = screen.getByRole('region', { name: '行情（少看）' })
+    const pulseCard = within(watch).getByRole('link', { name: /全球行情/ })
+    expect(pulseCard.textContent).toContain('全球指数、商品与外汇')
   })
 
-  it('已舍弃组默认折叠，放在页面最后', () => {
+  it('已舍弃组默认折叠，展开后为小标签样式，放在页面最后', () => {
     const { container } = wrap(<InvestHub />)
     const folds = container.querySelectorAll('details')
     expect(folds).toHaveLength(1)
     expect(folds[0].open).toBe(false)
     expect(folds[0].querySelector('summary')?.textContent).toBe('已舍弃')
     expect(container.querySelector('main')?.lastElementChild).toBe(folds[0])
+    expect(folds[0].querySelectorAll('.ui-chip')).toHaveLength(4)
   })
 
   it('顶部是「读这本书」横幅，链接到 /first-book 并给出推荐顺序', () => {

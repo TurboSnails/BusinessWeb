@@ -20,6 +20,9 @@ export async function handleMarket(req, res) {
   } else if (kind === 'index-history' && ['sh000300', 'sh000852', 'sh000001', 'sz399106', 'sz399001', 'sz399006'].includes(symbol)
     && ['day', 'week', 'month'].includes(period)) {
     url = `https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?${new URLSearchParams({ param: `${symbol},${period},,,${period === 'month' ? 800 : 640},qfq` })}`
+  } else if (kind === 'index-amount-history' && ['sh000001', 'sz399106'].includes(symbol)
+    && ['day', 'week', 'month'].includes(period)) {
+    url = `https://web.ifzq.gtimg.cn/appstock/app/newfqkline/get?${new URLSearchParams({ param: `${symbol},${period},,,${period === 'month' ? 800 : 640},qfq` })}`
   } else {
     return res.status(400).json({ error: '行情查询参数无效' })
   }

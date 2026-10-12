@@ -81,10 +81,10 @@ export const INVEST_GROUPS: HubGroup[] = [
     hint: '书里主张少看行情，这几页只作参考。',
     collapsed: false,
     links: [
-      { path: '/pulse', label: '全球行情', desc: '全球指数、商品外汇与 A 股涨跌停' },
-      { path: '/sector-rotation', label: '板块轮动', desc: '板块强弱与轮动' },
-      { path: '/limit-up-analysis', label: '涨停分析', desc: '每日板块涨停' },
-      { path: '/daily-analysis', label: '每日分析', desc: '自动获取 A 股行情、涨跌停与连板复盘' },
+      { path: '/pulse', label: '全球行情', short: '全球指数、商品与外汇', desc: '全球指数、商品外汇与 A 股涨跌停' },
+      { path: '/sector-rotation', label: '板块轮动', short: '板块强弱与轮动', desc: '板块强弱与轮动' },
+      { path: '/limit-up-analysis', label: '涨停分析', short: '每日板块涨停', desc: '每日板块涨停' },
+      { path: '/daily-analysis', label: '每日分析', short: '行情与连板复盘', desc: '自动获取 A 股行情、涨跌停与连板复盘' },
     ],
   },
   {

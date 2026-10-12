@@ -1,6 +1,5 @@
 .china-market-charts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); margin-bottom: var(--space-5); }
 .china-chart { min-width: 0; }
-.china-chart--wide { grid-column: 1 / -1; }
 .china-chart__toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
 .china-chart__periods { display: flex; gap: 2px; padding: 3px; background: var(--bg-secondary); border-radius: var(--radius-md); }
 .china-chart__periods button { min-height: 34px; padding: 4px 12px; border: 1px solid transparent; border-radius: var(--radius-sm); background: transparent; color: var(--text-secondary); cursor: pointer; font: inherit; font-size: .8rem; }

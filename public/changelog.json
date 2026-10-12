@@ -1,10 +1,22 @@
 {
-  "generatedAt": "2026-10-12T13:54:33.766Z",
+  "generatedAt": "2026-10-12T14:49:20.266Z",
   "versions": [
     {
       "tag": "unreleased",
       "date": null,
       "commits": [
+        {
+          "hash": "1549a42",
+          "subject": "feat(ai): 试问 AI 流式回答、显示今日剩余次数并移至页面顶部",
+          "author": "hassan",
+          "date": "2026-10-12"
+        },
+        {
+          "hash": "1ba375d",
+          "subject": "chore(changelog): 同步更新日志至 d5772aa",
+          "author": "hassan",
+          "date": "2026-10-12"
+        },
         {
           "hash": "d5772aa",
           "subject": "style(ai): 优化试问 AI 的表单与回答样式",
@@ -170,18 +182,6 @@
         {
           "hash": "5201314",
           "subject": "refactor(nav): 快捷键提示抽成共用工具；桌面首页不再重复显示跳转框",
-          "author": "hassan",
-          "date": "2026-10-11"
-        },
-        {
-          "hash": "bb0c530",
-          "subject": "refactor(limit-up): 概念标签高亮直接跟随当前显示的概念",
-          "author": "hassan",
-          "date": "2026-10-11"
-        },
-        {
-          "hash": "3b18ddf",
-          "subject": "fix(ui): Dialog 在父组件重渲染时不再把焦点拉回第一个输入框",
           "author": "hassan",
           "date": "2026-10-11"
         }
