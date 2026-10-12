@@ -18,7 +18,7 @@ describe('多日对比', () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response('{}', { status: 503 })))
     render(<TrendSection snapshots={[dailySnapshot()]} selected="2026-10-12" onSelect={() => {}} />)
     expect(screen.getByText('已归档 1 天')).toBeTruthy()
-    expect(screen.queryByRole('img', { name: '沪深成交额趋势' })).toBeNull()
+    expect(screen.queryByRole('group', { name: /趋势/ })).toBeNull()
   })
 
   it('每天一行并显示较前一日变化；点击日期切换到当天复盘', () => {
@@ -26,7 +26,7 @@ describe('多日对比', () => {
     const older = dailySnapshot('2026-10-09'); older.metrics.ztCount = 50
     const onSelect = vi.fn()
     render(<TrendSection snapshots={[dailySnapshot(), older]} selected="2026-10-12" onSelect={onSelect} />)
-    expect(screen.getByRole('img', { name: '沪深成交额趋势' })).toBeTruthy()
+    expect(screen.getByRole('group', { name: /沪深成交额趋势/ })).toBeTruthy()
     const row = screen.getByRole('button', { name: '查看 2026-10-12 复盘' }).closest('tr')!
     expect(within(row).getByText('▲19')).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: '查看 2026-10-09 复盘' }))
@@ -54,7 +54,25 @@ describe('多日对比', () => {
     render(<TrendSection snapshots={[dailySnapshot()]} selected="2026-10-12" onSelect={() => {}} />)
     const row = (await screen.findByText('2026-10-09')).closest('tr')!
     expect(await within(row).findByText('9')).toBeTruthy()
-    expect(await screen.findByRole('img', { name: '最高连板趋势' })).toBeTruthy()
+    expect(await screen.findByRole('group', { name: /最高连板趋势/ })).toBeTruthy()
+  })
+
+  it('鼠标悬停或方向键查看某一天的数值与较前一日变化，移开后回到最新一天', () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response('{}', { status: 503 })))
+    const older = dailySnapshot('2026-10-09'); older.metrics.ztCount = 50; older.metrics.dtCount = 3
+    render(<TrendSection snapshots={[dailySnapshot(), older]} selected="2026-10-12" onSelect={() => {}} />)
+    const plot = screen.getByRole('group', { name: /涨停 \/ 跌停趋势/ })
+    const readout = plot.previousElementSibling as HTMLElement
+    expect(readout.textContent).toContain('10-12'); expect(readout.textContent).toContain('涨停 69▲19'); expect(readout.textContent).toContain('跌停 8▲5')
+    plot.getBoundingClientRect = () => ({ left: 0, width: 200, top: 0, height: 64, right: 200, bottom: 64, x: 0, y: 0, toJSON() {} })
+    fireEvent.pointerMove(plot, { clientX: 0 })
+    expect(readout.textContent).toContain('10-09'); expect(readout.textContent).toContain('涨停 50'); expect(readout.textContent).not.toContain('▲')
+    fireEvent.pointerLeave(plot)
+    expect(readout.textContent).toContain('10-12')
+    fireEvent.keyDown(plot, { key: 'ArrowLeft' })
+    expect(readout.textContent).toContain('10-09')
+    fireEvent.keyDown(plot, { key: 'ArrowRight' })
+    expect(readout.textContent).toContain('10-12')
   })
 
   it('可切换对比天数', () => {

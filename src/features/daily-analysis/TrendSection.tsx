@@ -43,11 +43,17 @@ function useBoardBackfill(dates: string[]): BoardBackfill {
   return boards
 }
 
-function Spark({ label, rows, keys, unit }: { label: string; rows: TrendRow[]; keys: Array<{ key: TrendMetric; cls: string }>; unit: string }): JSX.Element {
+type SparkKey = { key: TrendMetric; cls: string; name?: string }
+
+function Spark({ label, rows, keys, unit }: { label: string; rows: TrendRow[]; keys: SparkKey[]; unit: string }): JSX.Element {
+  const [hover, setHover] = useState<number | null>(null)
   const ordered = [...rows].reverse()
   if (keys.every(({ key }) => ordered.filter(row => row[key] !== null).length < 2)) return <></>
+  const last = ordered.length - 1
+  const active = Math.min(hover ?? last, last)
   const values = ordered.flatMap(row => keys.map(({ key }) => row[key])).filter((v): v is number => v !== null)
   const max = Math.max(...values, 1), w = 240, h = 64, step = ordered.length > 1 ? w / (ordered.length - 1) : 0
+  const x = (i: number) => ordered.length > 1 ? i * step : w / 2
   const y = (v: number) => h - 4 - (v / max) * (h - 12)
   const lines = keys.map(({ key, cls }) => {
     const segments: string[] = []
@@ -55,15 +61,34 @@ function Spark({ label, rows, keys, unit }: { label: string; rows: TrendRow[]; k
     ordered.forEach((row, i) => {
       const v = row[key]
       if (v === null) { if (open) segments.push(open); open = ''; return }
-      open += `${open ? 'L' : 'M'}${(ordered.length > 1 ? i * step : w / 2).toFixed(1)},${y(v).toFixed(1)}`
+      open += `${open ? 'L' : 'M'}${x(i).toFixed(1)},${y(v).toFixed(1)}`
     })
     if (open) segments.push(open)
-    return { cls, key, path: segments.join(' '), dots: ordered.flatMap((row, i) => row[key] === null ? [] : [{ x: ordered.length > 1 ? i * step : w / 2, y: y(row[key]!), d: row.date }]) }
+    return { cls, key, path: segments.join(' '), dots: ordered.flatMap((row, i) => row[key] === null ? [] : [{ i, x: x(i), y: y(row[key]!) }]) }
   })
+  const move = (event: React.PointerEvent<HTMLDivElement>) => {
+    const box = event.currentTarget.getBoundingClientRect()
+    if (box.width > 0 && last > 0) setHover(Math.max(0, Math.min(last, Math.round((event.clientX - box.left) / box.width * last))))
+  }
+  const press = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'ArrowLeft') { event.preventDefault(); setHover(Math.max(0, active - 1)) }
+    else if (event.key === 'ArrowRight') { event.preventDefault(); setHover(Math.min(last, active + 1)) }
+    else if (event.key === 'Escape') setHover(null)
+  }
+  const row = ordered[active], newestIndex = last - active
   return <figure className="daily-spark"><figcaption>{label}<small>{unit}</small></figcaption>
-    <svg viewBox={`0 0 ${w} ${h}`} role="img" aria-label={`${label}趋势`} preserveAspectRatio="none">
-      {lines.map(line => <g key={line.key} className={line.cls}><path d={line.path} fill="none" />{line.dots.map(dot => <circle key={dot.d} cx={dot.x} cy={dot.y} r="2.5" />)}</g>)}
-    </svg></figure>
+    <p className="daily-spark__readout" aria-live="polite"><time dateTime={row.date}>{row.date.slice(5)}</time>
+      {keys.map(({ key, cls, name }) => {
+        const delta = deltaOf(rows, newestIndex, key)
+        return <span key={key} className={cls}>{name ? `${name} ` : ''}<strong>{valueText(row[key])}</strong>{delta !== null && delta !== 0 && <small className={delta > 0 ? 'daily-up' : 'daily-down'}>{delta > 0 ? '▲' : '▼'}{valueText(Math.abs(delta))}</small>}</span>
+      })}</p>
+    <div className="daily-spark__plot" tabIndex={0} role="group" aria-label={`${label}趋势，左右方向键查看每个交易日`}
+      onPointerMove={move} onPointerDown={move} onPointerLeave={() => setHover(null)} onBlur={() => setHover(null)} onKeyDown={press}>
+      <svg viewBox={`0 0 ${w} ${h}`} aria-hidden="true" preserveAspectRatio="none">
+        <line className="daily-spark__guide" x1={x(active)} x2={x(active)} y1="0" y2={h} />
+        {lines.map(line => <g key={line.key} className={line.cls}><path d={line.path} fill="none" />{line.dots.map(dot => <circle key={dot.i} cx={dot.x} cy={dot.y} r={dot.i === active ? 4 : 2.5} />)}</g>)}
+      </svg>
+    </div></figure>
 }
 
 function Delta({ rows, index, k }: { rows: TrendRow[]; index: number; k: TrendMetric }): JSX.Element | null {
@@ -85,7 +110,7 @@ export function TrendSection({ snapshots, selected, onSelect }: { snapshots: Dai
     {enough('maxBoard') || enough('ztCount')
       ? <div className="daily-sparks">
         <Spark label="沪深成交额" unit="亿元" rows={rows} keys={[{ key: 'volume', cls: 'daily-line--accent' }]} />
-        <Spark label="涨停 / 跌停" unit="只" rows={rows} keys={[{ key: 'ztCount', cls: 'daily-line--up' }, { key: 'dtCount', cls: 'daily-line--down' }]} />
+        <Spark label="涨停 / 跌停" unit="只" rows={rows} keys={[{ key: 'ztCount', cls: 'daily-line--up', name: '涨停' }, { key: 'dtCount', cls: 'daily-line--down', name: '跌停' }]} />
         <Spark label="封板率" unit="%" rows={rows} keys={[{ key: 'ztSealRate', cls: 'daily-line--accent' }]} />
         <Spark label="连板数" unit="只" rows={rows} keys={[{ key: 'lbCount', cls: 'daily-line--accent' }]} />
         <Spark label="最高连板" unit="板" rows={rows} keys={[{ key: 'maxBoard', cls: 'daily-line--up' }]} />
