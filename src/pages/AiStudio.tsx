@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Download } from 'lucide-react'
+import AskLab from '../components/lab/AskLab'
 import LabDirectionCard from '../components/lab/LabDirectionCard'
 import { LAB_PRINCIPLE, LAB_SHOWCASE, avoidedDirections, findDirection, labStats, recommendedDirections } from '../data/aiLab'
 import '../styles/hub-pages.css'
@@ -34,6 +35,8 @@ export default function AiStudio(): JSX.Element {
           </div>
         </article>
       </section>
+
+      <AskLab />
 
       <nav className="hub-jump-nav" aria-label="AI实验室页内目录">
         <a href="#lab-principle">商业原理</a>

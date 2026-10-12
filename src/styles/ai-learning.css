@@ -31,3 +31,4 @@
   .learning-weeks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .learning-progress { padding: 16px; }
 }
+.ask-lab__answer { white-space: pre-wrap; }

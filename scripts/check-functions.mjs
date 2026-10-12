@@ -12,6 +12,7 @@ try {
   await writeFile(join(directory, 'package.json'), JSON.stringify({ type: pkg.type ?? 'commonjs' }))
   await mkdir(join(directory, 'server/knowledge'), { recursive: true })
   for (const file of ['api/china-stock.js', 'api/grid-market.js', 'server/market.mjs', 'api/cls-plate.js', 'server/sectorHistory.js', 'server/knowledge/links.mjs']) await copyFile(resolve(file), join(directory, file))
+  for (const file of ['api/daily-analysis.js', 'server/daily-analysis.mjs']) await copyFile(resolve(file), join(directory, file))
   await writeFile(join(directory, 'check.mjs'), `
 import assert from 'node:assert/strict';
 import sync from './api/grid-sync.js';
@@ -23,11 +24,14 @@ import market from './api/grid-market.js';
 import china from './api/china-stock.js';
 import cls from './api/cls-plate.js';
 import comments from './api/comments.js';
+import ask from './api/ask.js';
+import dailyAnalysis from './api/daily-analysis.js';
 const res = () => ({code:200, body:null, setHeader(){}, status(code){this.code=code;return this}, json(body){this.body=body;return this}});
-for (const [handler, request, code] of [[companyNotes,{method:'GET',headers:{},query:{action:'list',market:'cn',code:'600900'}},503],[companyNotes,{method:'POST',headers:{},query:{action:'unlock'}},503],[knowledge,{method:'GET',headers:{},query:{action:'status'}},503],[sync,{method:'GET',headers:{}},503],[pulse,{method:'GET',headers:{}},503],[pulse,{method:'POST',headers:{}},405],[candidates,{method:'GET',headers:{}},503],[candidates,{method:'POST',headers:{}},405],[market,{method:'GET',query:{}},400],[china,{method:'GET',query:{}},400],[cls,{method:'GET',query:{}},400],[comments,{method:'GET',headers:{},query:{}},503],[comments,{method:'PUT',headers:{}},405]]) {
+for (const [handler, request, code] of [[companyNotes,{method:'GET',headers:{},query:{action:'list',market:'cn',code:'600900'}},503],[companyNotes,{method:'POST',headers:{},query:{action:'unlock'}},503],[knowledge,{method:'GET',headers:{},query:{action:'status'}},503],[sync,{method:'GET',headers:{}},503],[pulse,{method:'GET',headers:{}},503],[pulse,{method:'POST',headers:{}},405],[candidates,{method:'GET',headers:{}},503],[candidates,{method:'POST',headers:{}},405],[market,{method:'GET',query:{}},400],[china,{method:'GET',query:{}},400],[cls,{method:'GET',query:{}},400],[comments,{method:'GET',headers:{},query:{}},503],[comments,{method:'PUT',headers:{}},405],[ask,{method:'GET',headers:{}},405],[ask,{method:'POST',headers:{}},503]]) {
  const response=res(); await handler(request,response); assert.equal(response.code,code);
 }
 console.log('Native Node function loading and unconfigured/invalid requests: passed');
+const dailyResponse=res(); await dailyAnalysis({method:'POST'},dailyResponse); assert.equal(dailyResponse.code,405);
 `)
   const env = { ...process.env, SUPABASE_URL: '', SUPABASE_SECRET_KEY: '', GRID_SYNC_TOKEN: '', PULSE_SYNC_TOKEN: '', COMPANY_NOTES_WRITE_TOKEN: '' }
   const run = spawnSync(process.execPath, ['--no-experimental-detect-module', join(directory, 'check.mjs')], { env, encoding: 'utf8' })
