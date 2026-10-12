@@ -1,4 +1,5 @@
 import type { HistoryCandle } from '../../components/pulse/chinaHistory'
+import type { BoardBackfill } from './backfill'
 import type { DailySnapshot } from './types'
 
 export type TrendSymbol = 'sh000001' | 'sz399001' | 'sz399006'
@@ -23,10 +24,10 @@ export function candlesToChanges(candles: HistoryCandle[]): Record<string, numbe
   return out
 }
 
-/** 最新在前。有快照用快照；仅有回补指数涨跌的日期只填指数，其余留空。 */
-export function buildTrend(snapshots: DailySnapshot[], backfill: IndexChanges, days: number): TrendRow[] {
+/** 最新在前。有快照用快照；没有快照的日期只填回补的指数涨跌与连板数/最高板，其余留空。 */
+export function buildTrend(snapshots: DailySnapshot[], backfill: IndexChanges, days: number, boards: BoardBackfill = {}): TrendRow[] {
   const byDate = new Map(snapshots.map(snapshot => [snapshot.dataDate, snapshot]))
-  const dates = [...new Set([...byDate.keys(), ...Object.keys(backfill)])].sort((a, b) => b.localeCompare(a)).slice(0, days)
+  const dates = [...new Set([...byDate.keys(), ...Object.keys(backfill), ...Object.keys(boards)])].sort((a, b) => b.localeCompare(a)).slice(0, days)
   return dates.map(date => {
     const snapshot = byDate.get(date)
     const change = (symbol: TrendSymbol) => snapshot
@@ -34,7 +35,9 @@ export function buildTrend(snapshots: DailySnapshot[], backfill: IndexChanges, d
       : backfill[date]?.[symbol] ?? null
     const row = { date, backfilled: !snapshot, index: { sh: change('sh000001'), sz: change('sz399001'), cy: change('sz399006') },
       inflow: snapshot?.flows.inflow.slice(0, 2).map(flow => flow.name) ?? [], outflow: snapshot?.flows.outflow.slice(0, 2).map(flow => flow.name) ?? [] }
-    return Object.assign(row, Object.fromEntries(trendMetrics.map(key => [key, snapshot?.metrics[key] ?? null]))) as unknown as TrendRow
+    const filled = Object.fromEntries(trendMetrics.map(key => [key, snapshot?.metrics[key] ?? null]))
+    if (!snapshot) Object.assign(filled, { lbCount: boards[date]?.lbCount ?? null, maxBoard: boards[date]?.maxBoard ?? null })
+    return Object.assign(row, filled) as unknown as TrendRow
   })
 }
 

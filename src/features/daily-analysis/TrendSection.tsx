@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Card, EmptyState, TableWrap } from '../../components/ui'
 import { fetchHistory } from '../../components/pulse/chinaHistory'
+import { backfillBoards, loadBoardCache, type BoardBackfill } from './backfill'
 import { buildTrend, candlesToChanges, deltaOf, type IndexChanges, type TrendMetric, type TrendRow, type TrendSymbol } from './trend'
 import { valueText } from './Panels'
 import type { DailySnapshot } from './types'
@@ -27,6 +28,19 @@ function useIndexBackfill(): IndexChanges {
     return () => controller.abort()
   }, [])
   return changes
+}
+
+/** 回补没有快照的交易日的连板数与最高板（财联社，历史不再变化，已请求过的日期读本机缓存）。 */
+function useBoardBackfill(dates: string[]): BoardBackfill {
+  const [boards, setBoards] = useState<BoardBackfill>(loadBoardCache)
+  const key = dates.join(',')
+  useEffect(() => {
+    if (!key) return
+    const controller = new AbortController()
+    backfillBoards(key.split(','), loadBoardCache(), controller.signal, next => { if (!controller.signal.aborted) setBoards(next) })
+    return () => controller.abort()
+  }, [key])
+  return boards
 }
 
 function Spark({ label, rows, keys, unit }: { label: string; rows: TrendRow[]; keys: Array<{ key: TrendMetric; cls: string }>; unit: string }): JSX.Element {
@@ -59,19 +73,24 @@ function Delta({ rows, index, k }: { rows: TrendRow[]; index: number; k: TrendMe
 export function TrendSection({ snapshots, selected, onSelect }: { snapshots: DailySnapshot[]; selected: string; onSelect: (date: string) => void }): JSX.Element {
   const [days, setDays] = useState<(typeof RANGES)[number]>(10)
   const backfill = useIndexBackfill()
-  const rows = useMemo(() => buildTrend(snapshots, backfill, days), [snapshots, backfill, days])
+  const archivedDates = useMemo(() => new Set(snapshots.map(snapshot => snapshot.dataDate)), [snapshots])
+  const missing = useMemo(() => buildTrend(snapshots, backfill, days).filter(row => !archivedDates.has(row.date)).map(row => row.date), [snapshots, backfill, days, archivedDates])
+  const boards = useBoardBackfill(missing)
+  const rows = useMemo(() => buildTrend(snapshots, backfill, days, boards), [snapshots, backfill, days, boards])
   const archived = rows.filter(row => !row.backfilled)
-  const cell = (row: TrendRow, i: number, k: TrendMetric, suffix = '') => <td>{row.backfilled ? '—' : <>{valueText(row[k], suffix)}<Delta rows={rows} index={i} k={k} /></>}</td>
-  return <Card as="section" title="多日对比" description="每个交易日一行，▲▼ 为较前一交易日的变化。涨停、封板率、连板等只来自已归档快照；标「回补」的日期只有指数涨跌，来自腾讯日 K 线。">
+  const enough = (key: TrendMetric) => rows.filter(row => row[key] !== null).length >= 2
+  const cell = (row: TrendRow, i: number, k: TrendMetric, suffix = '') => <td>{valueText(row[k], suffix)}<Delta rows={rows} index={i} k={k} /></td>
+  return <Card as="section" title="多日对比" description="每个交易日一行，▲▼ 为较前一交易日的变化。涨停、封板率、量能等只来自已归档快照；标「回补」的日期只有指数涨跌（腾讯日 K 线）和连板数、最高板（财联社），其余显示 —。">
     <div className="daily-trend__toolbar" role="group" aria-label="对比天数">{RANGES.map(range => <button key={range} type="button" aria-pressed={days === range} onClick={() => setDays(range)}>近 {range} 日</button>)}</div>
-    {archived.length < 2
-      ? <EmptyState title={`已归档 ${snapshots.length} 天`}>满 2 个交易日的归档后显示涨停、量能等趋势；每个交易日收盘后会自动新增一天。</EmptyState>
-      : <div className="daily-sparks">
-        <Spark label="沪深成交额" unit="亿元" rows={archived} keys={[{ key: 'volume', cls: 'daily-line--accent' }]} />
-        <Spark label="涨停 / 跌停" unit="只" rows={archived} keys={[{ key: 'ztCount', cls: 'daily-line--up' }, { key: 'dtCount', cls: 'daily-line--down' }]} />
-        <Spark label="封板率" unit="%" rows={archived} keys={[{ key: 'ztSealRate', cls: 'daily-line--accent' }]} />
-        <Spark label="最高连板" unit="板" rows={archived} keys={[{ key: 'maxBoard', cls: 'daily-line--up' }]} />
-      </div>}
+    {enough('maxBoard') || archived.length >= 2
+      ? <div className="daily-sparks">
+        {archived.length >= 2 && <Spark label="沪深成交额" unit="亿元" rows={archived} keys={[{ key: 'volume', cls: 'daily-line--accent' }]} />}
+        {archived.length >= 2 && <Spark label="涨停 / 跌停" unit="只" rows={archived} keys={[{ key: 'ztCount', cls: 'daily-line--up' }, { key: 'dtCount', cls: 'daily-line--down' }]} />}
+        {archived.length >= 2 && <Spark label="封板率" unit="%" rows={archived} keys={[{ key: 'ztSealRate', cls: 'daily-line--accent' }]} />}
+        <Spark label="连板数" unit="只" rows={rows} keys={[{ key: 'lbCount', cls: 'daily-line--accent' }]} />
+        <Spark label="最高连板" unit="板" rows={rows} keys={[{ key: 'maxBoard', cls: 'daily-line--up' }]} />
+      </div>
+      : <EmptyState title={`已归档 ${snapshots.length} 天`}>满 2 个交易日的归档后显示涨停、量能等趋势；每个交易日收盘后会自动新增一天。</EmptyState>}
     <TableWrap label="多日对比"><table className="ui-table daily-table daily-trend"><thead><tr>
       <th scope="col">交易日</th><th scope="col">涨停</th><th scope="col">封板率</th><th scope="col">炸板</th><th scope="col">跌停</th><th scope="col">量能(亿)</th>
       <th scope="col">连板</th><th scope="col">最高板</th><th scope="col">晋级率</th><th scope="col">上证</th><th scope="col">深成</th><th scope="col">创业板</th><th scope="col">流入</th><th scope="col">流出</th>

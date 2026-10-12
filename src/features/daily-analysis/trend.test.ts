@@ -48,3 +48,11 @@ describe('candlesToChanges', () => {
     expect(candlesToChanges([c('2026-10-08', 100), c('2026-10-09', 101), c('2026-10-12', 100.99)])).toEqual({ '2026-10-09': 1, '2026-10-12': -0.01 })
   })
 })
+
+describe('buildTrend 连板回补', () => {
+  it('没有快照的日期填入回补的连板数与最高板，有快照的日期不被覆盖', () => {
+    const rows = buildTrend([snap('2026-10-12')], {}, 5, { '2026-10-09': { lbCount: 7, maxBoard: 9 }, '2026-10-12': { lbCount: 1, maxBoard: 1 } })
+    expect(rows[1]).toMatchObject({ date: '2026-10-09', backfilled: true, lbCount: 7, maxBoard: 9, ztCount: null })
+    expect(rows[0]).toMatchObject({ lbCount: 13, maxBoard: 9 })
+  })
+})
