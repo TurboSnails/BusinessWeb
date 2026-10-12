@@ -1,0 +1,26 @@
+.ask-lab__card { display: flex; flex-direction: column; gap: 16px; max-width: 760px; padding: 20px 22px; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); background: var(--bg-card); }
+.ask-lab__intro { margin: 0; color: var(--text-secondary); font-size: .9rem; line-height: 1.75; }
+.ask-lab__intro a { margin-left: 6px; color: var(--accent); text-underline-offset: 3px; white-space: nowrap; }
+.ask-lab__form { display: flex; flex-direction: column; gap: 14px; }
+.ask-lab__form textarea { min-height: 112px; line-height: 1.7; background: var(--bg-primary, var(--bg-card)); }
+.ask-lab__form textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+.ask-lab__meta { display: flex; justify-content: space-between; gap: 12px; }
+.ask-lab__count { color: var(--text-tertiary); font-size: .75rem; font-variant-numeric: tabular-nums; }
+.ask-lab__count.is-near { color: var(--system-red, var(--up)); }
+.ask-lab__actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.ask-lab__actions--login { justify-content: flex-start; }
+.ask-lab .tool-btn { min-height: 40px; padding: 0 18px; }
+.ask-lab__submit { min-width: 96px; justify-content: center; }
+.ask-lab__account { display: inline-flex; align-items: center; gap: 10px; color: var(--text-tertiary); font-size: .8rem; }
+.ask-lab__logout { min-height: 32px; padding: 0 4px; border: 0; background: none; color: var(--text-secondary); font: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.ask-lab__logout:hover { color: var(--accent); }
+.ask-lab__error { margin: 0; }
+.ask-lab__answer-card { padding: 16px 18px; border: 1px solid var(--border-subtle); border-left: 3px solid var(--accent); border-radius: var(--radius-md); background: var(--bg-secondary); }
+.ask-lab__answer-card h3 { margin: 0 0 8px; color: var(--text-secondary); font-size: .8rem; font-weight: 600; }
+.ask-lab__answer { margin: 0; white-space: pre-wrap; line-height: 1.8; overflow-wrap: anywhere; }
+.ask-lab__pending { margin: 0; color: var(--text-secondary); }
+.ask-lab__disclaimer { margin: 12px 0 0; color: var(--text-tertiary); font-size: .75rem; }
+@media (max-width: 600px) {
+  .ask-lab__card { padding: 16px; }
+  .ask-lab__actions--login .tool-btn, .ask-lab__submit { flex: 1 1 100%; justify-content: center; }
+}
