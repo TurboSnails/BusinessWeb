@@ -1,10 +1,118 @@
 {
-  "generatedAt": "2026-10-11T15:10:06.835Z",
+  "generatedAt": "2026-10-12T13:54:33.766Z",
   "versions": [
     {
       "tag": "unreleased",
       "date": null,
       "commits": [
+        {
+          "hash": "d5772aa",
+          "subject": "style(ai): 优化试问 AI 的表单与回答样式",
+          "author": "hassan",
+          "date": "2026-10-12"
+        },
+        {
+          "hash": "f165515",
+          "subject": "docs(ai): 记录登录问答上线验证与回跳地址",
+          "author": "hassan",
+          "date": "2026-10-12"
+        },
+        {
+          "hash": "fc1be60",
+          "subject": "fix(deploy): 合并只读行情函数以适配 Vercel 免费套餐",
+          "author": "hassan",
+          "date": "2026-10-12"
+        },
+        {
+          "hash": "69d9b55",
+          "subject": "fix(ai): 完成登录配置并修复试问退款和跨站调用",
+          "author": "hassan",
+          "date": "2026-10-12"
+        },
+        {
+          "hash": "8cfcf55",
+          "subject": "feat(ai): 新增 AI 试问入口及用量限制",
+          "author": "hassan",
+          "date": "2026-10-12"
+        },
+        {
+          "hash": "8782d2f",
+          "subject": "feat(daily-analysis): 回补历史换手率前五（含北交所估算）",
+          "author": "hassan",
+          "date": "2026-10-12"
+        },
+        {
+          "hash": "1b71216",
+          "subject": "fix(daily-analysis): 补榜单后更新快照采集时间，避免被浏览器旧缓存压住",
+          "author": "hassan",
+          "date": "2026-10-12"
+        },
+        {
+          "hash": "6a197bc",
+          "subject": "feat(daily-analysis): 回补历史交易日的成交额前五",
+          "author": "hassan",
+          "date": "2026-10-12"
+        },
+        {
+          "hash": "619a315",
+          "subject": "feat(daily-analysis): 多日对比新增成交额前五与换手率前五",
+          "author": "hassan",
+          "date": "2026-10-12"
+        },
+        {
+          "hash": "38a8a9e",
+          "subject": "feat(daily-analysis): 多日对比趋势图支持悬停与键盘查看当日数值",
+          "author": "hassan",
+          "date": "2026-10-12"
+        },
+        {
+          "hash": "d46e4f9",
+          "subject": "docs(daily-analysis): 更新多日对比说明与回补口径",
+          "author": "hassan",
+          "date": "2026-10-12"
+        },
+        {
+          "hash": "6b2f950",
+          "subject": "feat(daily-analysis): 回补 9 月中旬以来的涨停、炸板、跌停与封板率",
+          "author": "hassan",
+          "date": "2026-10-12"
+        },
+        {
+          "hash": "363bd9b",
+          "subject": "feat(daily-analysis): 回补历史交易日的连板数与最高板",
+          "author": "hassan",
+          "date": "2026-10-12"
+        },
+        {
+          "hash": "71f6c85",
+          "subject": "feat(daily-analysis): 新增多日对比趋势表与趋势图",
+          "author": "hassan",
+          "date": "2026-10-12"
+        },
+        {
+          "hash": "b3ccdbb",
+          "subject": "feat(daily-analysis): 每日分析改为自动获取并按交易日归档",
+          "author": "hassan",
+          "date": "2026-10-12"
+        },
+        {
+          "hash": "278da46",
+          "subject": "feat(ai): 合并 AI Skills 工具库并统一页面入口",
+          "author": "hassan",
+          "date": "2026-10-12"
+        },
+        {
+          "hash": "ca911a1",
+          "subject": "fix(downloads): 保留方案与说明文件的可读下载名称",
+          "author": "hassan",
+          "date": "2026-10-11"
+        },
+        {
+          "hash": "f155bb5",
+          "subject": "feat(ai): 完善一件代发试验方案并提供网页使用说明",
+          "author": "hassan",
+          "date": "2026-10-11"
+        },
         {
           "hash": "b7e4998",
           "subject": "docs(dev-team): 替换完整下载包并同步 README 使用介绍",
@@ -74,114 +182,6 @@
         {
           "hash": "3b18ddf",
           "subject": "fix(ui): Dialog 在父组件重渲染时不再把焦点拉回第一个输入框",
-          "author": "hassan",
-          "date": "2026-10-11"
-        },
-        {
-          "hash": "e229edf",
-          "subject": "refactor(ui): 其余页面迁移与移动端收尾",
-          "author": "hassan",
-          "date": "2026-10-11"
-        },
-        {
-          "hash": "5ff37d5",
-          "subject": "refactor(a-share): 涨停分析与板块轮动统一工具栏、卡片与表格",
-          "author": "hassan",
-          "date": "2026-10-11"
-        },
-        {
-          "hash": "114d5c7",
-          "subject": "refactor(plan): 2026 计划改用共享栅格、卡片与表格",
-          "author": "hassan",
-          "date": "2026-10-11"
-        },
-        {
-          "hash": "6553c4d",
-          "subject": "refactor(pulse): 全球行情统一卡片、工具栏与对话框，去掉旧蓝色按钮",
-          "author": "hassan",
-          "date": "2026-10-11"
-        },
-        {
-          "hash": "99d6a95",
-          "subject": "refactor(research): 公司研究改用共享组件，手机端筛选与表格可用",
-          "author": "hassan",
-          "date": "2026-10-11"
-        },
-        {
-          "hash": "8de45c1",
-          "subject": "test(ui): 内联样式与硬编码颜色棘轮",
-          "author": "hassan",
-          "date": "2026-10-11"
-        },
-        {
-          "hash": "6a97450",
-          "subject": "refactor(pages): 所有页面统一用 Page 外壳，对齐 1100 宽并补齐 main 与 h1",
-          "author": "hassan",
-          "date": "2026-10-11"
-        },
-        {
-          "hash": "d85e3ef",
-          "subject": "feat(ui): 共享组件层与尺寸 token",
-          "author": "hassan",
-          "date": "2026-10-11"
-        },
-        {
-          "hash": "1d91f94",
-          "subject": "docs: 统一组件层与移动端适配的设计与实施计划",
-          "author": "hassan",
-          "date": "2026-10-11"
-        },
-        {
-          "hash": "bce9c45",
-          "subject": "fix(nav): 跳转面板忽略输入法选词时的回车与方向键",
-          "author": "hassan",
-          "date": "2026-10-11"
-        },
-        {
-          "hash": "16e68ee",
-          "subject": "style(home): 修正手机横向溢出、书封竖排断行与面板输入框轮廓",
-          "author": "hassan",
-          "date": "2026-10-11"
-        },
-        {
-          "hash": "48242b5",
-          "subject": "feat(home): 首页改为工作台，名句移到关于页",
-          "author": "hassan",
-          "date": "2026-10-11"
-        },
-        {
-          "hash": "ee39835",
-          "subject": "feat(nav): ⌘K 全站页面跳转面板与顶栏搜索按钮",
-          "author": "hassan",
-          "date": "2026-10-11"
-        },
-        {
-          "hash": "ae34169",
-          "subject": "feat(home): 汇总本机网格、DCF、估值与候选池记录",
-          "author": "hassan",
-          "date": "2026-10-11"
-        },
-        {
-          "hash": "81e4684",
-          "subject": "feat(nav): 记录本机最近访问页面",
-          "author": "hassan",
-          "date": "2026-10-11"
-        },
-        {
-          "hash": "9463c11",
-          "subject": "feat(nav): 全站页面注册表、常用工具清单与页面搜索",
-          "author": "hassan",
-          "date": "2026-10-11"
-        },
-        {
-          "hash": "43ce170",
-          "subject": "docs(plan): 工作台首页实施计划",
-          "author": "hassan",
-          "date": "2026-10-11"
-        },
-        {
-          "hash": "dae8e05",
-          "subject": "docs(spec): 工作台首页与全站快速跳转设计",
           "author": "hassan",
           "date": "2026-10-11"
         }
