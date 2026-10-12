@@ -23,6 +23,18 @@ test('真实榜单核对一致后，只给没有榜单的日期写入，并标�
   assert.equal(snapshots[0].rankings.amount[0].price, 10)
 })
 
+test('写入榜单的快照采集时间更新，使其能替换浏览器里已缓存的旧快照', async () => {
+  const { canReplaceSnapshot } = await import('../src/features/daily-analysis/quality.mjs')
+  const top = five('')
+  const old = { ...snap('2026-10-09', { amount: [], turnover: [] }), fetchedAt: '2026-10-12T10:00:00.000Z' }
+  const ref = { ...snap('2026-10-12', { amount: real(top), turnover: [] }, 'ready'), fetchedAt: '2026-10-12T10:00:00.000Z' }
+  const { snapshots } = applyRankBackfill([ref, old], { '2026-10-12': { amount: top, turnover: [] }, '2026-10-09': { amount: top, turnover: [] } }, { now: new Date('2026-10-13T00:00:00Z') })
+  const updated = snapshots.find(row => row.dataDate === '2026-10-09')
+  assert.equal(updated.fetchedAt, '2026-10-13T00:00:00.000Z')
+  assert.equal(snapshots.find(row => row.dataDate === '2026-10-12').fetchedAt, '2026-10-12T10:00:00.000Z')
+  assert.equal(canReplaceSnapshot(old, updated), true)
+})
+
 test('与真实榜单不一致的类型整体不写入', () => {
   const top = five('')
   const wrong = [...top].reverse()

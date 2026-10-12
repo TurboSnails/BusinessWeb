@@ -16,7 +16,7 @@ const toRow = (pick, date) => ({
  * 先用「已有真实榜单的日期」核对（前五代码与顺序必须完全一致）；核对不通过的榜单类型整体不写入。
  * 已有榜单的日期不覆盖。
  */
-export function applyRankBackfill(snapshots, computed, { minVerified = 1 } = {}) {
+export function applyRankBackfill(snapshots, computed, { minVerified = 1, now = new Date() } = {}) {
   const report = {}
   const next = snapshots.map(snapshot => structuredClone(snapshot))
   for (const [kind, [sourceId, label]] of Object.entries(KEYS)) {
@@ -31,6 +31,8 @@ export function applyRankBackfill(snapshots, computed, { minVerified = 1 } = {})
       snapshot.rankings[kind] = picks.map(pick => toRow(pick, snapshot.dataDate))
       const source = snapshot.sources.find(row => row.id === sourceId)
       if (source) Object.assign(source, { label: `baostock 沪深 A 股${label}排名`, url: 'https://www.baostock.com/', date: snapshot.dataDate, status: 'ready', note: `按日期回补；已用真实榜单核对（${checked.length} 个交易日一致）；baostock 不含北交所` })
+      // 页面按 fetchedAt 判断新旧；不更新的话，浏览器里已缓存的旧快照会一直压住补好的榜单。
+      snapshot.fetchedAt = now.toISOString()
       written.push(snapshot.dataDate)
     }
     report[kind] = { written, verifiedDates: checked.map(snapshot => snapshot.dataDate) }
@@ -38,10 +40,10 @@ export function applyRankBackfill(snapshots, computed, { minVerified = 1 } = {})
   return { snapshots: next, report }
 }
 
-export async function rankBackfillArchive({ file = DEFAULT_FILE, input }) {
+export async function rankBackfillArchive({ file = DEFAULT_FILE, input, now = new Date() }) {
   const body = JSON.parse(await readFile(file, 'utf8'))
   if (body.schemaVersion !== 1 || !Array.isArray(body.snapshots)) throw new Error('归档格式无效，未覆盖原文件')
-  const { snapshots, report } = applyRankBackfill(body.snapshots, JSON.parse(await readFile(input, 'utf8')))
+  const { snapshots, report } = applyRankBackfill(body.snapshots, JSON.parse(await readFile(input, 'utf8')), { now })
   if (Object.values(report).some(entry => entry.written.length)) {
     const temporary = `${file}.${process.pid}.tmp`
     try { await writeFile(temporary, JSON.stringify({ schemaVersion: 1, snapshots }, null, 2) + '\n'); await rename(temporary, file) } finally { await rm(temporary, { force: true }) }
