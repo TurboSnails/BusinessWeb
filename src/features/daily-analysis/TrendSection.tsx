@@ -45,6 +45,7 @@ function useBoardBackfill(dates: string[]): BoardBackfill {
 
 function Spark({ label, rows, keys, unit }: { label: string; rows: TrendRow[]; keys: Array<{ key: TrendMetric; cls: string }>; unit: string }): JSX.Element {
   const ordered = [...rows].reverse()
+  if (keys.every(({ key }) => ordered.filter(row => row[key] !== null).length < 2)) return <></>
   const values = ordered.flatMap(row => keys.map(({ key }) => row[key])).filter((v): v is number => v !== null)
   const max = Math.max(...values, 1), w = 240, h = 64, step = ordered.length > 1 ? w / (ordered.length - 1) : 0
   const y = (v: number) => h - 4 - (v / max) * (h - 12)
@@ -77,16 +78,15 @@ export function TrendSection({ snapshots, selected, onSelect }: { snapshots: Dai
   const missing = useMemo(() => buildTrend(snapshots, backfill, days).filter(row => !archivedDates.has(row.date)).map(row => row.date), [snapshots, backfill, days, archivedDates])
   const boards = useBoardBackfill(missing)
   const rows = useMemo(() => buildTrend(snapshots, backfill, days, boards), [snapshots, backfill, days, boards])
-  const archived = rows.filter(row => !row.backfilled)
   const enough = (key: TrendMetric) => rows.filter(row => row[key] !== null).length >= 2
   const cell = (row: TrendRow, i: number, k: TrendMetric, suffix = '') => <td>{valueText(row[k], suffix)}<Delta rows={rows} index={i} k={k} /></td>
   return <Card as="section" title="多日对比" description="每个交易日一行，▲▼ 为较前一交易日的变化。涨停、封板率、量能等只来自已归档快照；标「回补」的日期只有指数涨跌（腾讯日 K 线）和连板数、最高板（财联社），其余显示 —。">
     <div className="daily-trend__toolbar" role="group" aria-label="对比天数">{RANGES.map(range => <button key={range} type="button" aria-pressed={days === range} onClick={() => setDays(range)}>近 {range} 日</button>)}</div>
-    {enough('maxBoard') || archived.length >= 2
+    {enough('maxBoard') || enough('ztCount')
       ? <div className="daily-sparks">
-        {archived.length >= 2 && <Spark label="沪深成交额" unit="亿元" rows={archived} keys={[{ key: 'volume', cls: 'daily-line--accent' }]} />}
-        {archived.length >= 2 && <Spark label="涨停 / 跌停" unit="只" rows={archived} keys={[{ key: 'ztCount', cls: 'daily-line--up' }, { key: 'dtCount', cls: 'daily-line--down' }]} />}
-        {archived.length >= 2 && <Spark label="封板率" unit="%" rows={archived} keys={[{ key: 'ztSealRate', cls: 'daily-line--accent' }]} />}
+        <Spark label="沪深成交额" unit="亿元" rows={rows} keys={[{ key: 'volume', cls: 'daily-line--accent' }]} />
+        <Spark label="涨停 / 跌停" unit="只" rows={rows} keys={[{ key: 'ztCount', cls: 'daily-line--up' }, { key: 'dtCount', cls: 'daily-line--down' }]} />
+        <Spark label="封板率" unit="%" rows={rows} keys={[{ key: 'ztSealRate', cls: 'daily-line--accent' }]} />
         <Spark label="连板数" unit="只" rows={rows} keys={[{ key: 'lbCount', cls: 'daily-line--accent' }]} />
         <Spark label="最高连板" unit="板" rows={rows} keys={[{ key: 'maxBoard', cls: 'daily-line--up' }]} />
       </div>
