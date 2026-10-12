@@ -80,7 +80,7 @@ export function TrendSection({ snapshots, selected, onSelect }: { snapshots: Dai
   const rows = useMemo(() => buildTrend(snapshots, backfill, days, boards), [snapshots, backfill, days, boards])
   const enough = (key: TrendMetric) => rows.filter(row => row[key] !== null).length >= 2
   const cell = (row: TrendRow, i: number, k: TrendMetric, suffix = '') => <td>{valueText(row[k], suffix)}<Delta rows={rows} index={i} k={k} /></td>
-  return <Card as="section" title="多日对比" description="每个交易日一行，▲▼ 为较前一交易日的变化。涨停、封板率、量能等只来自已归档快照；标「回补」的日期只有指数涨跌（腾讯日 K 线）和连板数、最高板（财联社），其余显示 —。">
+  return <Card as="section" title="多日对比" description="每个交易日一行，▲▼ 为较前一交易日的变化。历史日期由东方财富股池按日期回补（已用财联社交叉核验），之后每天收盘自动归档。量能暂无可靠历史来源，显示 —；标「回补」的日期只有指数涨跌与连板数、最高板。">
     <div className="daily-trend__toolbar" role="group" aria-label="对比天数">{RANGES.map(range => <button key={range} type="button" aria-pressed={days === range} onClick={() => setDays(range)}>近 {range} 日</button>)}</div>
     {enough('maxBoard') || enough('ztCount')
       ? <div className="daily-sparks">
