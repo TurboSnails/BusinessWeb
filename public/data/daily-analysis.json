@@ -604,7 +604,7 @@
     {
       "schemaVersion": 1,
       "dataDate": "2026-10-09",
-      "fetchedAt": "2026-10-12T10:54:17.000Z",
+      "fetchedAt": "2026-10-12T10:58:51.435Z",
       "session": "closed",
       "metrics": {
         "ztCount": 69,
@@ -1128,7 +1128,58 @@
             "turnover": 6.46
           }
         ],
-        "turnover": []
+        "turnover": [
+          {
+            "symbol": "sz301513",
+            "code": "301513",
+            "name": "尚水智能",
+            "date": "2026-10-09",
+            "price": 71.89,
+            "change": 6.02,
+            "amount": 8.18,
+            "turnover": 57.66
+          },
+          {
+            "symbol": "sz301697",
+            "code": "301697",
+            "name": "贝特利",
+            "date": "2026-10-09",
+            "price": 30.1,
+            "change": -4.47,
+            "amount": 6.12,
+            "turnover": 46.49
+          },
+          {
+            "symbol": "sz001246",
+            "code": "001246",
+            "name": "C力勤",
+            "date": "2026-10-09",
+            "price": 45.05,
+            "change": -15.87,
+            "amount": 34.66,
+            "turnover": 45.72
+          },
+          {
+            "symbol": "bj920779",
+            "code": "920779",
+            "name": "武汉蓝电",
+            "date": "2026-10-09",
+            "price": 33.79,
+            "change": 1.99,
+            "amount": 0,
+            "turnover": 43.99
+          },
+          {
+            "symbol": "sh688806",
+            "code": "688806",
+            "name": "泰诺麦博",
+            "date": "2026-10-09",
+            "price": 30.34,
+            "change": 11.75,
+            "amount": 6.31,
+            "turnover": 42.08
+          }
+        ]
       },
       "flows": {
         "inflow": [],
@@ -1177,11 +1228,11 @@
         },
         {
           "id": "turnoverRank",
-          "label": "新浪换手率排名 / 腾讯报价",
-          "url": "https://finance.sina.com.cn/",
-          "date": null,
-          "status": "unavailable",
-          "note": "历史回补不含榜单"
+          "label": "换手率排名（历史回补）",
+          "url": "https://www.baostock.com/",
+          "date": "2026-10-09",
+          "status": "ready",
+          "note": "按日期回补；已用真实榜单核对（1 个交易日一致）；baostock 沪深为交易所口径；北交所个股由日线成交量按当前流通股本估算，解禁或扩容前的日期可能偏高"
         },
         {
           "id": "flows",
@@ -1196,7 +1247,7 @@
     {
       "schemaVersion": 1,
       "dataDate": "2026-10-08",
-      "fetchedAt": "2026-10-12T10:54:17.000Z",
+      "fetchedAt": "2026-10-12T10:58:51.435Z",
       "session": "closed",
       "metrics": {
         "ztCount": 43,
@@ -1580,7 +1631,58 @@
             "turnover": 4.39
           }
         ],
-        "turnover": []
+        "turnover": [
+          {
+            "symbol": "bj920202",
+            "code": "920202",
+            "name": "安达股份",
+            "date": "2026-10-08",
+            "price": 14.3,
+            "change": -21.94,
+            "amount": 0,
+            "turnover": 48.96
+          },
+          {
+            "symbol": "sz301513",
+            "code": "301513",
+            "name": "尚水智能",
+            "date": "2026-10-08",
+            "price": 67.81,
+            "change": 19.98,
+            "amount": 5.97,
+            "turnover": 48.24
+          },
+          {
+            "symbol": "sz301697",
+            "code": "301697",
+            "name": "贝特利",
+            "date": "2026-10-08",
+            "price": 31.51,
+            "change": 19.99,
+            "amount": 6.21,
+            "turnover": 46.23
+          },
+          {
+            "symbol": "sz001246",
+            "code": "001246",
+            "name": "C力勤",
+            "date": "2026-10-08",
+            "price": 53.55,
+            "change": -17.73,
+            "amount": 39.2,
+            "turnover": 43.1
+          },
+          {
+            "symbol": "bj920779",
+            "code": "920779",
+            "name": "武汉蓝电",
+            "date": "2026-10-08",
+            "price": 33.13,
+            "change": 15.84,
+            "amount": 0,
+            "turnover": 40.86
+          }
+        ]
       },
       "flows": {
         "inflow": [],
@@ -1629,11 +1731,11 @@
         },
         {
           "id": "turnoverRank",
-          "label": "新浪换手率排名 / 腾讯报价",
-          "url": "https://finance.sina.com.cn/",
-          "date": null,
-          "status": "unavailable",
-          "note": "历史回补不含榜单"
+          "label": "换手率排名（历史回补）",
+          "url": "https://www.baostock.com/",
+          "date": "2026-10-08",
+          "status": "ready",
+          "note": "按日期回补；已用真实榜单核对（1 个交易日一致）；baostock 沪深为交易所口径；北交所个股由日线成交量按当前流通股本估算，解禁或扩容前的日期可能偏高"
         },
         {
           "id": "flows",
@@ -1648,7 +1750,7 @@
     {
       "schemaVersion": 1,
       "dataDate": "2026-09-30",
-      "fetchedAt": "2026-10-12T10:54:17.000Z",
+      "fetchedAt": "2026-10-12T10:58:51.435Z",
       "session": "closed",
       "metrics": {
         "ztCount": 52,
@@ -2087,7 +2189,58 @@
             "turnover": 3.61
           }
         ],
-        "turnover": []
+        "turnover": [
+          {
+            "symbol": "sz001246",
+            "code": "001246",
+            "name": "C力勤",
+            "date": "2026-09-30",
+            "price": 65.09,
+            "change": 206.59,
+            "amount": 83.45,
+            "turnover": 74.93
+          },
+          {
+            "symbol": "bj920202",
+            "code": "920202",
+            "name": "安达股份",
+            "date": "2026-09-30",
+            "price": 18.32,
+            "change": -29.97,
+            "amount": 0,
+            "turnover": 66.59
+          },
+          {
+            "symbol": "sz301699",
+            "code": "301699",
+            "name": "洛轴股份",
+            "date": "2026-09-30",
+            "price": 37.76,
+            "change": 0.13,
+            "amount": 13.2,
+            "turnover": 48.43
+          },
+          {
+            "symbol": "sz301686",
+            "code": "301686",
+            "name": "中塑股份",
+            "date": "2026-09-30",
+            "price": 165.82,
+            "change": -13.66,
+            "amount": 7.16,
+            "turnover": 46.7
+          },
+          {
+            "symbol": "sz301716",
+            "code": "301716",
+            "name": "C鸿富诚",
+            "date": "2026-09-30",
+            "price": 586.6,
+            "change": 1.33,
+            "amount": 33.78,
+            "turnover": 45
+          }
+        ]
       },
       "flows": {
         "inflow": [],
@@ -2136,11 +2289,11 @@
         },
         {
           "id": "turnoverRank",
-          "label": "新浪换手率排名 / 腾讯报价",
-          "url": "https://finance.sina.com.cn/",
-          "date": null,
-          "status": "unavailable",
-          "note": "历史回补不含榜单"
+          "label": "换手率排名（历史回补）",
+          "url": "https://www.baostock.com/",
+          "date": "2026-09-30",
+          "status": "ready",
+          "note": "按日期回补；已用真实榜单核对（1 个交易日一致）；baostock 沪深为交易所口径；北交所个股由日线成交量按当前流通股本估算，解禁或扩容前的日期可能偏高"
         },
         {
           "id": "flows",
@@ -2155,7 +2308,7 @@
     {
       "schemaVersion": 1,
       "dataDate": "2026-09-29",
-      "fetchedAt": "2026-10-12T10:54:17.000Z",
+      "fetchedAt": "2026-10-12T10:58:51.435Z",
       "session": "closed",
       "metrics": {
         "ztCount": 57,
@@ -2609,7 +2762,58 @@
             "turnover": 3.32
           }
         ],
-        "turnover": []
+        "turnover": [
+          {
+            "symbol": "sz301716",
+            "code": "301716",
+            "name": "C鸿富诚",
+            "date": "2026-09-29",
+            "price": 578.88,
+            "change": 653.16,
+            "amount": 62.31,
+            "turnover": 84.54
+          },
+          {
+            "symbol": "sz301699",
+            "code": "301699",
+            "name": "洛轴股份",
+            "date": "2026-09-29",
+            "price": 37.71,
+            "change": -7.3,
+            "amount": 14.97,
+            "turnover": 54.66
+          },
+          {
+            "symbol": "sz301686",
+            "code": "301686",
+            "name": "中塑股份",
+            "date": "2026-09-29",
+            "price": 192.06,
+            "change": -17.1,
+            "amount": 9.65,
+            "turnover": 53.05
+          },
+          {
+            "symbol": "bj920229",
+            "code": "920229",
+            "name": "世纪数码",
+            "date": "2026-09-29",
+            "price": 49.14,
+            "change": -12.06,
+            "amount": 0,
+            "turnover": 46.8
+          },
+          {
+            "symbol": "bj920201",
+            "code": "920201",
+            "name": "百瑞吉",
+            "date": "2026-09-29",
+            "price": 46.03,
+            "change": -11.5,
+            "amount": 0,
+            "turnover": 44.64
+          }
+        ]
       },
       "flows": {
         "inflow": [],
@@ -2658,11 +2862,11 @@
         },
         {
           "id": "turnoverRank",
-          "label": "新浪换手率排名 / 腾讯报价",
-          "url": "https://finance.sina.com.cn/",
-          "date": null,
-          "status": "unavailable",
-          "note": "历史回补不含榜单"
+          "label": "换手率排名（历史回补）",
+          "url": "https://www.baostock.com/",
+          "date": "2026-09-29",
+          "status": "ready",
+          "note": "按日期回补；已用真实榜单核对（1 个交易日一致）；baostock 沪深为交易所口径；北交所个股由日线成交量按当前流通股本估算，解禁或扩容前的日期可能偏高"
         },
         {
           "id": "flows",
@@ -2677,7 +2881,7 @@
     {
       "schemaVersion": 1,
       "dataDate": "2026-09-28",
-      "fetchedAt": "2026-10-12T10:54:17.000Z",
+      "fetchedAt": "2026-10-12T10:58:51.435Z",
       "session": "closed",
       "metrics": {
         "ztCount": 33,
@@ -2991,7 +3195,58 @@
             "turnover": 4.17
           }
         ],
-        "turnover": []
+        "turnover": [
+          {
+            "symbol": "sz301699",
+            "code": "301699",
+            "name": "洛轴股份",
+            "date": "2026-09-28",
+            "price": 40.68,
+            "change": 14.46,
+            "amount": 17.1,
+            "turnover": 65.57
+          },
+          {
+            "symbol": "bj920201",
+            "code": "920201",
+            "name": "百瑞吉",
+            "date": "2026-09-28",
+            "price": 52.01,
+            "change": -28.11,
+            "amount": 0,
+            "turnover": 58.07
+          },
+          {
+            "symbol": "bj920229",
+            "code": "920229",
+            "name": "世纪数码",
+            "date": "2026-09-28",
+            "price": 55.88,
+            "change": -13.61,
+            "amount": 0,
+            "turnover": 57.54
+          },
+          {
+            "symbol": "sz301689",
+            "code": "301689",
+            "name": "电科思仪",
+            "date": "2026-09-28",
+            "price": 85.1,
+            "change": 1.45,
+            "amount": 26.02,
+            "turnover": 56.84
+          },
+          {
+            "symbol": "sh601091",
+            "code": "601091",
+            "name": "沈鼓集团",
+            "date": "2026-09-28",
+            "price": 27.71,
+            "change": 2.63,
+            "amount": 29.64,
+            "turnover": 53.59
+          }
+        ]
       },
       "flows": {
         "inflow": [],
@@ -3040,11 +3295,11 @@
         },
         {
           "id": "turnoverRank",
-          "label": "新浪换手率排名 / 腾讯报价",
-          "url": "https://finance.sina.com.cn/",
-          "date": null,
-          "status": "unavailable",
-          "note": "历史回补不含榜单"
+          "label": "换手率排名（历史回补）",
+          "url": "https://www.baostock.com/",
+          "date": "2026-09-28",
+          "status": "ready",
+          "note": "按日期回补；已用真实榜单核对（1 个交易日一致）；baostock 沪深为交易所口径；北交所个股由日线成交量按当前流通股本估算，解禁或扩容前的日期可能偏高"
         },
         {
           "id": "flows",
@@ -3059,7 +3314,7 @@
     {
       "schemaVersion": 1,
       "dataDate": "2026-09-24",
-      "fetchedAt": "2026-10-12T10:54:17.000Z",
+      "fetchedAt": "2026-10-12T10:58:51.435Z",
       "session": "closed",
       "metrics": {
         "ztCount": 52,
@@ -3503,7 +3758,58 @@
             "turnover": 3.37
           }
         ],
-        "turnover": []
+        "turnover": [
+          {
+            "symbol": "bj920229",
+            "code": "920229",
+            "name": "世纪数码",
+            "date": "2026-09-24",
+            "price": 64.68,
+            "change": -30,
+            "amount": 0,
+            "turnover": 72.79
+          },
+          {
+            "symbol": "sz301689",
+            "code": "301689",
+            "name": "电科思仪",
+            "date": "2026-09-24",
+            "price": 83.88,
+            "change": 20,
+            "amount": 25.32,
+            "turnover": 56.71
+          },
+          {
+            "symbol": "sz301686",
+            "code": "301686",
+            "name": "中塑股份",
+            "date": "2026-09-24",
+            "price": 258.08,
+            "change": -8.97,
+            "amount": 13.77,
+            "turnover": 56.38
+          },
+          {
+            "symbol": "bj920025",
+            "code": "920025",
+            "name": "凯达重工",
+            "date": "2026-09-24",
+            "price": 20.3,
+            "change": -30,
+            "amount": 0,
+            "turnover": 53.06
+          },
+          {
+            "symbol": "sz301697",
+            "code": "301697",
+            "name": "贝特利",
+            "date": "2026-09-24",
+            "price": 30.08,
+            "change": 6.4,
+            "amount": 6,
+            "turnover": 45.54
+          }
+        ]
       },
       "flows": {
         "inflow": [],
@@ -3552,11 +3858,11 @@
         },
         {
           "id": "turnoverRank",
-          "label": "新浪换手率排名 / 腾讯报价",
-          "url": "https://finance.sina.com.cn/",
-          "date": null,
-          "status": "unavailable",
-          "note": "历史回补不含榜单"
+          "label": "换手率排名（历史回补）",
+          "url": "https://www.baostock.com/",
+          "date": "2026-09-24",
+          "status": "ready",
+          "note": "按日期回补；已用真实榜单核对（1 个交易日一致）；baostock 沪深为交易所口径；北交所个股由日线成交量按当前流通股本估算，解禁或扩容前的日期可能偏高"
         },
         {
           "id": "flows",
@@ -3571,7 +3877,7 @@
     {
       "schemaVersion": 1,
       "dataDate": "2026-09-23",
-      "fetchedAt": "2026-10-12T10:54:17.000Z",
+      "fetchedAt": "2026-10-12T10:58:51.435Z",
       "session": "closed",
       "metrics": {
         "ztCount": 51,
@@ -4000,7 +4306,58 @@
             "turnover": 1.81
           }
         ],
-        "turnover": []
+        "turnover": [
+          {
+            "symbol": "sz301686",
+            "code": "301686",
+            "name": "中塑股份",
+            "date": "2026-09-23",
+            "price": 283.5,
+            "change": -34.53,
+            "amount": 21.38,
+            "turnover": 75.93
+          },
+          {
+            "symbol": "sh601091",
+            "code": "601091",
+            "name": "沈鼓集团",
+            "date": "2026-09-23",
+            "price": 30,
+            "change": -21.01,
+            "amount": 38.91,
+            "turnover": 55.88
+          },
+          {
+            "symbol": "bj920268",
+            "code": "920268",
+            "name": "百迈科",
+            "date": "2026-09-23",
+            "price": 36.19,
+            "change": 11.59,
+            "amount": 0,
+            "turnover": 54.42
+          },
+          {
+            "symbol": "sz301689",
+            "code": "301689",
+            "name": "电科思仪",
+            "date": "2026-09-23",
+            "price": 69.9,
+            "change": 13.64,
+            "amount": 19.11,
+            "turnover": 52.07
+          },
+          {
+            "symbol": "sh600721",
+            "code": "600721",
+            "name": "百花医药",
+            "date": "2026-09-23",
+            "price": 13.29,
+            "change": -8.15,
+            "amount": 24.22,
+            "turnover": 46.1
+          }
+        ]
       },
       "flows": {
         "inflow": [],
@@ -4049,11 +4406,11 @@
         },
         {
           "id": "turnoverRank",
-          "label": "新浪换手率排名 / 腾讯报价",
-          "url": "https://finance.sina.com.cn/",
-          "date": null,
-          "status": "unavailable",
-          "note": "历史回补不含榜单"
+          "label": "换手率排名（历史回补）",
+          "url": "https://www.baostock.com/",
+          "date": "2026-09-23",
+          "status": "ready",
+          "note": "按日期回补；已用真实榜单核对（1 个交易日一致）；baostock 沪深为交易所口径；北交所个股由日线成交量按当前流通股本估算，解禁或扩容前的日期可能偏高"
         },
         {
           "id": "flows",
@@ -4068,7 +4425,7 @@
     {
       "schemaVersion": 1,
       "dataDate": "2026-09-22",
-      "fetchedAt": "2026-10-12T10:54:17.000Z",
+      "fetchedAt": "2026-10-12T10:58:51.435Z",
       "session": "closed",
       "metrics": {
         "ztCount": 63,
@@ -4627,7 +4984,58 @@
             "turnover": 5.72
           }
         ],
-        "turnover": []
+        "turnover": [
+          {
+            "symbol": "sz301686",
+            "code": "301686",
+            "name": "中塑股份",
+            "date": "2026-09-22",
+            "price": 433,
+            "change": 683.29,
+            "amount": 23.39,
+            "turnover": 90.03
+          },
+          {
+            "symbol": "sz301520",
+            "code": "301520",
+            "name": "万邦医药",
+            "date": "2026-09-22",
+            "price": 82.38,
+            "change": 0,
+            "amount": 15.42,
+            "turnover": 56.63
+          },
+          {
+            "symbol": "sh601091",
+            "code": "601091",
+            "name": "沈鼓集团",
+            "date": "2026-09-22",
+            "price": 37.98,
+            "change": 0.69,
+            "amount": 43.81,
+            "turnover": 54.2
+          },
+          {
+            "symbol": "sh688837",
+            "code": "688837",
+            "name": "信诺维",
+            "date": "2026-09-22",
+            "price": 52.88,
+            "change": -13.03,
+            "amount": 14.79,
+            "turnover": 53.68
+          },
+          {
+            "symbol": "sh601123",
+            "code": "601123",
+            "name": "马矿股份",
+            "date": "2026-09-22",
+            "price": 18.6,
+            "change": -4.91,
+            "amount": 9.84,
+            "turnover": 52.99
+          }
+        ]
       },
       "flows": {
         "inflow": [],
@@ -4676,11 +5084,11 @@
         },
         {
           "id": "turnoverRank",
-          "label": "新浪换手率排名 / 腾讯报价",
-          "url": "https://finance.sina.com.cn/",
-          "date": null,
-          "status": "unavailable",
-          "note": "历史回补不含榜单"
+          "label": "换手率排名（历史回补）",
+          "url": "https://www.baostock.com/",
+          "date": "2026-09-22",
+          "status": "ready",
+          "note": "按日期回补；已用真实榜单核对（1 个交易日一致）；baostock 沪深为交易所口径；北交所个股由日线成交量按当前流通股本估算，解禁或扩容前的日期可能偏高"
         },
         {
           "id": "flows",
@@ -4695,7 +5103,7 @@
     {
       "schemaVersion": 1,
       "dataDate": "2026-09-21",
-      "fetchedAt": "2026-10-12T10:54:17.000Z",
+      "fetchedAt": "2026-10-12T10:58:51.435Z",
       "session": "closed",
       "metrics": {
         "ztCount": 103,
@@ -5434,7 +5842,58 @@
             "turnover": 5.41
           }
         ],
-        "turnover": []
+        "turnover": [
+          {
+            "symbol": "sh601091",
+            "code": "601091",
+            "name": "沈鼓集团",
+            "date": "2026-09-21",
+            "price": 37.72,
+            "change": -34.71,
+            "amount": 67.71,
+            "turnover": 74.14
+          },
+          {
+            "symbol": "sh688837",
+            "code": "688837",
+            "name": "信诺维",
+            "date": "2026-09-21",
+            "price": 60.8,
+            "change": 9.35,
+            "amount": 19.87,
+            "turnover": 67.77
+          },
+          {
+            "symbol": "bj920298",
+            "code": "920298",
+            "name": "腾信精密",
+            "date": "2026-09-21",
+            "price": 94.5,
+            "change": 4.44,
+            "amount": 0,
+            "turnover": 65.26
+          },
+          {
+            "symbol": "sh603248",
+            "code": "603248",
+            "name": "锡华科技",
+            "date": "2026-09-21",
+            "price": 24.25,
+            "change": -1.3,
+            "amount": 9.97,
+            "turnover": 55.94
+          },
+          {
+            "symbol": "sz301520",
+            "code": "301520",
+            "name": "万邦医药",
+            "date": "2026-09-21",
+            "price": 82.38,
+            "change": 14.29,
+            "amount": 13.74,
+            "turnover": 53.97
+          }
+        ]
       },
       "flows": {
         "inflow": [],
@@ -5483,11 +5942,11 @@
         },
         {
           "id": "turnoverRank",
-          "label": "新浪换手率排名 / 腾讯报价",
-          "url": "https://finance.sina.com.cn/",
-          "date": null,
-          "status": "unavailable",
-          "note": "历史回补不含榜单"
+          "label": "换手率排名（历史回补）",
+          "url": "https://www.baostock.com/",
+          "date": "2026-09-21",
+          "status": "ready",
+          "note": "按日期回补；已用真实榜单核对（1 个交易日一致）；baostock 沪深为交易所口径；北交所个股由日线成交量按当前流通股本估算，解禁或扩容前的日期可能偏高"
         },
         {
           "id": "flows",
@@ -5502,7 +5961,7 @@
     {
       "schemaVersion": 1,
       "dataDate": "2026-09-18",
-      "fetchedAt": "2026-10-12T10:54:17.000Z",
+      "fetchedAt": "2026-10-12T10:58:51.435Z",
       "session": "closed",
       "metrics": {
         "ztCount": 78,
@@ -6066,7 +6525,58 @@
             "turnover": 9.22
           }
         ],
-        "turnover": []
+        "turnover": [
+          {
+            "symbol": "sh601091",
+            "code": "601091",
+            "name": "沈鼓集团",
+            "date": "2026-09-18",
+            "price": 57.77,
+            "change": 177.74,
+            "amount": 48.17,
+            "turnover": 89.08
+          },
+          {
+            "symbol": "sh688837",
+            "code": "688837",
+            "name": "信诺维",
+            "date": "2026-09-18",
+            "price": 55.6,
+            "change": 34.46,
+            "amount": 19.07,
+            "turnover": 78.21
+          },
+          {
+            "symbol": "bj920298",
+            "code": "920298",
+            "name": "腾信精密",
+            "date": "2026-09-18",
+            "price": 90.48,
+            "change": 30,
+            "amount": 0,
+            "turnover": 67.29
+          },
+          {
+            "symbol": "bj920268",
+            "code": "920268",
+            "name": "百迈科",
+            "date": "2026-09-18",
+            "price": 34.99,
+            "change": 16.56,
+            "amount": 0,
+            "turnover": 56.86
+          },
+          {
+            "symbol": "sz301699",
+            "code": "301699",
+            "name": "洛轴股份",
+            "date": "2026-09-18",
+            "price": 32.11,
+            "change": 12.75,
+            "amount": 11.91,
+            "turnover": 56
+          }
+        ]
       },
       "flows": {
         "inflow": [],
@@ -6115,11 +6625,11 @@
         },
         {
           "id": "turnoverRank",
-          "label": "新浪换手率排名 / 腾讯报价",
-          "url": "https://finance.sina.com.cn/",
-          "date": null,
-          "status": "unavailable",
-          "note": "历史回补不含榜单"
+          "label": "换手率排名（历史回补）",
+          "url": "https://www.baostock.com/",
+          "date": "2026-09-18",
+          "status": "ready",
+          "note": "按日期回补；已用真实榜单核对（1 个交易日一致）；baostock 沪深为交易所口径；北交所个股由日线成交量按当前流通股本估算，解禁或扩容前的日期可能偏高"
         },
         {
           "id": "flows",
@@ -6134,7 +6644,7 @@
     {
       "schemaVersion": 1,
       "dataDate": "2026-09-17",
-      "fetchedAt": "2026-10-12T10:54:17.000Z",
+      "fetchedAt": "2026-10-12T10:58:51.435Z",
       "session": "closed",
       "metrics": {
         "ztCount": 47,
@@ -6528,7 +7038,58 @@
             "turnover": 6.56
           }
         ],
-        "turnover": []
+        "turnover": [
+          {
+            "symbol": "sh601091",
+            "code": "601091",
+            "name": "沈鼓集团",
+            "date": "2026-09-17",
+            "price": 20.8,
+            "change": 373.8,
+            "amount": 21.81,
+            "turnover": 79.62
+          },
+          {
+            "symbol": "bj920298",
+            "code": "920298",
+            "name": "腾信精密",
+            "date": "2026-09-17",
+            "price": 69.6,
+            "change": 8.24,
+            "amount": 0,
+            "turnover": 73.4
+          },
+          {
+            "symbol": "sh688837",
+            "code": "688837",
+            "name": "信诺维",
+            "date": "2026-09-17",
+            "price": 41.35,
+            "change": 2.91,
+            "amount": 12.22,
+            "turnover": 59.51
+          },
+          {
+            "symbol": "sz002584",
+            "code": "002584",
+            "name": "西陇科学",
+            "date": "2026-09-17",
+            "price": 9.52,
+            "change": -0.31,
+            "amount": 26.1,
+            "turnover": 53.92
+          },
+          {
+            "symbol": "sz301520",
+            "code": "301520",
+            "name": "万邦医药",
+            "date": "2026-09-17",
+            "price": 75.03,
+            "change": 10,
+            "amount": 13.11,
+            "turnover": 53.74
+          }
+        ]
       },
       "flows": {
         "inflow": [],
@@ -6577,11 +7138,11 @@
         },
         {
           "id": "turnoverRank",
-          "label": "新浪换手率排名 / 腾讯报价",
-          "url": "https://finance.sina.com.cn/",
-          "date": null,
-          "status": "unavailable",
-          "note": "历史回补不含榜单"
+          "label": "换手率排名（历史回补）",
+          "url": "https://www.baostock.com/",
+          "date": "2026-09-17",
+          "status": "ready",
+          "note": "按日期回补；已用真实榜单核对（1 个交易日一致）；baostock 沪深为交易所口径；北交所个股由日线成交量按当前流通股本估算，解禁或扩容前的日期可能偏高"
         },
         {
           "id": "flows",
@@ -6596,7 +7157,7 @@
     {
       "schemaVersion": 1,
       "dataDate": "2026-09-16",
-      "fetchedAt": "2026-10-12T10:54:17.000Z",
+      "fetchedAt": "2026-10-12T10:58:51.435Z",
       "session": "closed",
       "metrics": {
         "ztCount": 89,
@@ -7220,7 +7781,58 @@
             "turnover": 6.87
           }
         ],
-        "turnover": []
+        "turnover": [
+          {
+            "symbol": "sh688837",
+            "code": "688837",
+            "name": "信诺维",
+            "date": "2026-09-16",
+            "price": 40.18,
+            "change": 45.58,
+            "amount": 15.22,
+            "turnover": 74.25
+          },
+          {
+            "symbol": "sz301520",
+            "code": "301520",
+            "name": "万邦医药",
+            "date": "2026-09-16",
+            "price": 68.21,
+            "change": 0.58,
+            "amount": 10.59,
+            "turnover": 46.79
+          },
+          {
+            "symbol": "sz301689",
+            "code": "301689",
+            "name": "电科思仪",
+            "date": "2026-09-16",
+            "price": 53.45,
+            "change": 10.59,
+            "amount": 12.66,
+            "turnover": 42.03
+          },
+          {
+            "symbol": "bj920268",
+            "code": "920268",
+            "name": "百迈科",
+            "date": "2026-09-16",
+            "price": 31.7,
+            "change": 0.7,
+            "amount": 0,
+            "turnover": 41.3
+          },
+          {
+            "symbol": "sz301699",
+            "code": "301699",
+            "name": "洛轴股份",
+            "date": "2026-09-16",
+            "price": 27.38,
+            "change": 3.2,
+            "amount": 7.36,
+            "turnover": 37.97
+          }
+        ]
       },
       "flows": {
         "inflow": [],
@@ -7269,11 +7881,11 @@
         },
         {
           "id": "turnoverRank",
-          "label": "新浪换手率排名 / 腾讯报价",
-          "url": "https://finance.sina.com.cn/",
-          "date": null,
-          "status": "unavailable",
-          "note": "历史回补不含榜单"
+          "label": "换手率排名（历史回补）",
+          "url": "https://www.baostock.com/",
+          "date": "2026-09-16",
+          "status": "ready",
+          "note": "按日期回补；已用真实榜单核对（1 个交易日一致）；baostock 沪深为交易所口径；北交所个股由日线成交量按当前流通股本估算，解禁或扩容前的日期可能偏高"
         },
         {
           "id": "flows",
@@ -7288,7 +7900,7 @@
     {
       "schemaVersion": 1,
       "dataDate": "2026-09-15",
-      "fetchedAt": "2026-10-12T10:54:17.000Z",
+      "fetchedAt": "2026-10-12T10:58:51.435Z",
       "session": "closed",
       "metrics": {
         "ztCount": 32,
@@ -7602,7 +8214,58 @@
             "turnover": 1.71
           }
         ],
-        "turnover": []
+        "turnover": [
+          {
+            "symbol": "sz301520",
+            "code": "301520",
+            "name": "万邦医药",
+            "date": "2026-09-15",
+            "price": 67.82,
+            "change": 6.64,
+            "amount": 11.28,
+            "turnover": 50.53
+          },
+          {
+            "symbol": "bj920268",
+            "code": "920268",
+            "name": "百迈科",
+            "date": "2026-09-15",
+            "price": 31.48,
+            "change": -8.75,
+            "amount": 0,
+            "turnover": 47.43
+          },
+          {
+            "symbol": "sz000823",
+            "code": "000823",
+            "name": "超声电子",
+            "date": "2026-09-15",
+            "price": 23.9,
+            "change": 5.61,
+            "amount": 57.94,
+            "turnover": 40.42
+          },
+          {
+            "symbol": "sh601123",
+            "code": "601123",
+            "name": "马矿股份",
+            "date": "2026-09-15",
+            "price": 16.76,
+            "change": -0.18,
+            "amount": 6.21,
+            "turnover": 37.8
+          },
+          {
+            "symbol": "sz301699",
+            "code": "301699",
+            "name": "洛轴股份",
+            "date": "2026-09-15",
+            "price": 26.53,
+            "change": 0.42,
+            "amount": 7.02,
+            "turnover": 37.61
+          }
+        ]
       },
       "flows": {
         "inflow": [],
@@ -7651,11 +8314,11 @@
         },
         {
           "id": "turnoverRank",
-          "label": "新浪换手率排名 / 腾讯报价",
-          "url": "https://finance.sina.com.cn/",
-          "date": null,
-          "status": "unavailable",
-          "note": "历史回补不含榜单"
+          "label": "换手率排名（历史回补）",
+          "url": "https://www.baostock.com/",
+          "date": "2026-09-15",
+          "status": "ready",
+          "note": "按日期回补；已用真实榜单核对（1 个交易日一致）；baostock 沪深为交易所口径；北交所个股由日线成交量按当前流通股本估算，解禁或扩容前的日期可能偏高"
         },
         {
           "id": "flows",
@@ -7670,7 +8333,7 @@
     {
       "schemaVersion": 1,
       "dataDate": "2026-09-14",
-      "fetchedAt": "2026-10-12T10:54:17.000Z",
+      "fetchedAt": "2026-10-12T10:58:51.435Z",
       "session": "closed",
       "metrics": {
         "ztCount": 55,
@@ -8114,7 +8777,58 @@
             "turnover": 4.06
           }
         ],
-        "turnover": []
+        "turnover": [
+          {
+            "symbol": "bj920268",
+            "code": "920268",
+            "name": "百迈科",
+            "date": "2026-09-14",
+            "price": 34.5,
+            "change": -16.87,
+            "amount": 0,
+            "turnover": 52.81
+          },
+          {
+            "symbol": "sz301689",
+            "code": "301689",
+            "name": "电科思仪",
+            "date": "2026-09-14",
+            "price": 49,
+            "change": 11.11,
+            "amount": 12.63,
+            "turnover": 45.9
+          },
+          {
+            "symbol": "bj920071",
+            "code": "920071",
+            "name": "金钛股份",
+            "date": "2026-09-14",
+            "price": 28.81,
+            "change": 8.51,
+            "amount": 0,
+            "turnover": 44.08
+          },
+          {
+            "symbol": "sh600127",
+            "code": "600127",
+            "name": "金健米业",
+            "date": "2026-09-14",
+            "price": 14.17,
+            "change": 4.58,
+            "amount": 34.6,
+            "turnover": 39.72
+          },
+          {
+            "symbol": "sh688801",
+            "code": "688801",
+            "name": "燧原科技",
+            "date": "2026-09-14",
+            "price": 424.26,
+            "change": 6.87,
+            "amount": 28.99,
+            "turnover": 39.49
+          }
+        ]
       },
       "flows": {
         "inflow": [],
@@ -8163,11 +8877,11 @@
         },
         {
           "id": "turnoverRank",
-          "label": "新浪换手率排名 / 腾讯报价",
-          "url": "https://finance.sina.com.cn/",
-          "date": null,
-          "status": "unavailable",
-          "note": "历史回补不含榜单"
+          "label": "换手率排名（历史回补）",
+          "url": "https://www.baostock.com/",
+          "date": "2026-09-14",
+          "status": "ready",
+          "note": "按日期回补；已用真实榜单核对（1 个交易日一致）；baostock 沪深为交易所口径；北交所个股由日线成交量按当前流通股本估算，解禁或扩容前的日期可能偏高"
         },
         {
           "id": "flows",
