@@ -17,7 +17,7 @@
   ],
   "functions": {
     "api/ask.ts": {
-      "maxDuration": 30
+      "maxDuration": 60
     },
     "api/market-data/[marketRoute].js": {
       "maxDuration": 30

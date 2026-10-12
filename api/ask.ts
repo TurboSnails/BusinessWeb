@@ -7,6 +7,8 @@ type Response = {
   setHeader(name: string, value: string): unknown
   status(code: number): Response
   json(body: unknown): unknown
+  write(chunk: string): unknown
+  end(): unknown
 }
 
 const DAILY_LIMIT = 2
@@ -41,15 +43,15 @@ export default async function handler(req: Request, res: Response): Promise<unkn
   const origin = first(req.headers.origin)
   if (['https://business-web-black.vercel.app', 'https://turbosnails.github.io', 'http://localhost:5173'].includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin)
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
   } else if (origin) {
     return res.status(403).json({ error: '不支持此来源' })
   }
   if (req.method === 'OPTIONS') return res.status(204).json({})
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST')
-    return res.status(405).json({ error: '只支持 POST 请求' })
+  if (req.method !== 'POST' && req.method !== 'GET') {
+    res.setHeader('Allow', 'GET, POST')
+    return res.status(405).json({ error: '只支持 GET / POST 请求' })
   }
   const { SUPABASE_URL, SUPABASE_SECRET_KEY: secret, SUPABASE_ANON_KEY: anon, MINIMAX_API_KEY: modelKey } = process.env
   const supabase = httpsOrigin(SUPABASE_URL, '.supabase.co')
@@ -63,13 +65,13 @@ export default async function handler(req: Request, res: Response): Promise<unkn
   let body = req.body
   if (typeof body === 'string') { try { body = JSON.parse(body) } catch { body = null } }
   const question = body && typeof body === 'object' && 'question' in body ? String((body as { question: unknown }).question).trim() : ''
-  if (question.length < 2 || question.length > MAX_QUESTION) return res.status(400).json({ error: `问题长度需在 2–${MAX_QUESTION} 字之间` })
+  if (req.method === 'POST' && (question.length < 2 || question.length > MAX_QUESTION)) return res.status(400).json({ error: `问题长度需在 2–${MAX_QUESTION} 字之间` })
 
   const forwarded = first(req.headers['x-forwarded-for']).split(',')[0].trim() || first(req.headers['x-real-ip']).trim()
   const ip = createHash('sha256').update(`ask:${forwarded || 'unknown'}:${secret}`).digest('hex')
 
   const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), 25_000)
+  const timer = setTimeout(() => controller.abort(), 50_000)
   const service = { apikey: secret, 'content-type': 'application/json', ...(secret.startsWith('sb_secret_') ? {} : { authorization: `Bearer ${secret}` }) }
   const rpc = (name: string, args: Record<string, unknown>, signal = controller.signal) =>
     fetch(`${supabase}/rest/v1/rpc/${name}`, { method: 'POST', headers: service, body: JSON.stringify(args), signal, redirect: 'error' })
@@ -83,12 +85,25 @@ export default async function handler(req: Request, res: Response): Promise<unkn
 
     // 扣款与退款使用同一个北京时间日期，避免午夜后退错日期。
     const day = new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString().slice(0, 10)
+    const remaining = async (): Promise<number | null> => {
+      try {
+        const query = `user_id=eq.${encodeURIComponent(user.id!)}&day=eq.${day}&select=used`
+        const rows = await fetch(`${supabase}/rest/v1/businessweb_ask_usage?${query}`, { headers: service, signal: controller.signal, redirect: 'error' })
+        if (!rows.ok) return null
+        const used = Number(((await rows.json()) as { used?: number }[])[0]?.used ?? 0)
+        return Math.max(DAILY_LIMIT - used, 0)
+      } catch { return null }
+    }
+    if (req.method === 'GET') {
+      const left = await remaining()
+      return left === null ? res.status(502).json({ error: '计次服务暂时不可用' }) : res.status(200).json({ limit: DAILY_LIMIT, remaining: left })
+    }
     const consumed = await rpc('businessweb_consume_ask', { p_user: user.id, p_ip: ip, p_user_limit: DAILY_LIMIT, p_ip_limit: IP_LIMIT, p_global_limit: GLOBAL_LIMIT, p_day: day })
     if (!consumed.ok) return res.status(502).json({ error: '计次服务暂时不可用' })
     const verdict = await consumed.json()
     if (verdict === 'global') return res.status(429).json({ error: '今天的试问名额已被抢完，明天再来' })
     if (verdict === 'ip') return res.status(429).json({ error: '当前网络今天的试问次数已用完，明天再来' })
-    if (verdict === 'user') return res.status(429).json({ error: `今天的 ${DAILY_LIMIT} 次试问已用完，明天再来` })
+    if (verdict === 'user') return res.status(429).json({ error: `今天的 ${DAILY_LIMIT} 次试问已用完，明天再来`, remaining: 0 })
     if (verdict !== 'ok') return res.status(502).json({ error: '计次服务暂时不可用' })
 
     const refund = async () => {
@@ -101,24 +116,61 @@ export default async function handler(req: Request, res: Response): Promise<unkn
       } catch { return false }
       finally { clearTimeout(refundTimer) }
     }
-    let reply = ''
+    let model: globalThis.Response
     try {
-      const model = await fetch(`${modelBase}/v1/messages`, {
+      model = await fetch(`${modelBase}/v1/messages`, {
         method: 'POST',
         headers: { 'x-api-key': modelKey, authorization: `Bearer ${modelKey}`, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-        body: JSON.stringify({ model: process.env.MINIMAX_MODEL || DEFAULT_MODEL, max_tokens: MAX_TOKENS, system: SYSTEM_PROMPT, messages: [{ role: 'user', content: question }] }),
+        body: JSON.stringify({ model: process.env.MINIMAX_MODEL || DEFAULT_MODEL, max_tokens: MAX_TOKENS, stream: true, system: SYSTEM_PROMPT, messages: [{ role: 'user', content: question }] }),
         signal: controller.signal,
         redirect: 'error',
       })
-      if (!model.ok) throw new Error('model')
-      const data = (await model.json()) as { content?: { type: string; text?: string }[] }
-      reply = (data.content ?? []).filter(part => part.type === 'text').map(part => part.text ?? '').join('').trim()
-      if (!reply) throw new Error('empty')
+      if (!model.ok || !model.body) throw new Error('model')
     } catch {
       const refunded = await refund()
       return res.status(502).json({ error: refunded ? 'AI 暂时无法回答，这次不扣次数' : 'AI 暂时无法回答，额度退还未确认，请稍后联系站点作者' })
     }
-    return res.status(200).json({ answer: reply, limit: DAILY_LIMIT })
+
+    // 以 NDJSON 逐行推送：phase（阶段）/ delta（回答片段）/ done / error，前端据此持续刷新状态。
+    res.status(200)
+    res.setHeader('Content-Type', 'application/x-ndjson; charset=utf-8')
+    res.setHeader('X-Accel-Buffering', 'no')
+    const send = (event: Record<string, unknown>) => res.write(JSON.stringify(event) + '\n')
+    send({ type: 'phase', phase: 'model' })
+    let reply = ''
+    let thinking = false
+    try {
+      const reader = model.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+      for (;;) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buffer += decoder.decode(value, { stream: true })
+        const lines = buffer.split('\n')
+        buffer = lines.pop() ?? ''
+        for (const line of lines) {
+          if (!line.startsWith('data:')) continue
+          let event: { type?: string; content_block?: { type?: string }; delta?: { type?: string; text?: string } }
+          try { event = JSON.parse(line.slice(5).trim()) } catch { continue }
+          if (event.type === 'error') throw new Error('model')
+          const isThinking = event.content_block?.type === 'thinking' || event.delta?.type === 'thinking_delta'
+          if (isThinking && !thinking && !reply) { thinking = true; send({ type: 'phase', phase: 'thinking' }) }
+          if (event.delta?.type === 'text_delta' && event.delta.text) {
+            if (!reply) send({ type: 'phase', phase: 'writing' })
+            reply += event.delta.text
+            send({ type: 'delta', text: event.delta.text })
+          }
+        }
+      }
+      if (!reply.trim()) throw new Error('empty')
+    } catch {
+      const refunded = await refund()
+      send({ type: 'error', error: refunded ? 'AI 回答中断，这次不扣次数' : 'AI 回答中断，额度退还未确认，请稍后联系站点作者' })
+      return res.end()
+    }
+    send({ type: 'done', limit: DAILY_LIMIT, remaining: await remaining() })
+    return res.end()
   } catch {
     return res.status(502).json({ error: '服务暂时不可用' })
   } finally {

@@ -18,6 +18,8 @@ export default function AiStudio(): JSX.Element {
         <p className="lab-stats">作品 {stats.works} · 进行中 {stats.running} · 已停止 {stats.stopped}</p>
       </header>
 
+      <AskLab />
+
       <section id="lab-skills" className="lab-section" aria-labelledby="lab-skills-title">
         <h2 id="lab-skills-title">可下载的 Skills</h2>
         <article className="skill-card">
@@ -36,7 +38,6 @@ export default function AiStudio(): JSX.Element {
         </article>
       </section>
 
-      <AskLab />
 
       <nav className="hub-jump-nav" aria-label="AI实验室页内目录">
         <a href="#lab-principle">商业原理</a>
