@@ -5,6 +5,11 @@
   "outputDirectory": "dist",
   "redirects": [
     {
+      "source": "/invest/ai-tools",
+      "destination": "/ai/ai-skills",
+      "permanent": true
+    },
+    {
       "source": "/ai-skills/dev-team-README.md",
       "destination": "/ai/dev-team",
       "permanent": false

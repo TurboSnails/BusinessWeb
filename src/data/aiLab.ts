@@ -50,7 +50,7 @@ export const VERDICT_LABEL: Record<LabVerdict, string> = {
 
 // 只放已经做出来、能直接用的东西
 export const LAB_SHOWCASE: LabShowcaseItem[] = [
-  { title: 'AI Skills 工具库', desc: '开发团队、投资分析、视频与写作 Skills，含完整下载与使用说明', path: '/invest/ai-tools' },
+  { title: 'AI Skills 工具库', desc: '开发团队、投资分析、视频与写作 Skills，含完整下载与使用说明', path: '/ai/ai-skills' },
   { title: '公司估值', desc: '六方法三情景估值与报告导出', path: '/valuation' },
   { title: '网格交易', desc: 'ETF / 个股网格模拟、回测与记录', path: '/grid-trading' },
   { title: '这个网站', desc: '用 React 自己搭的个人站，本身就是第一个作品', path: '/about' },
@@ -60,7 +60,7 @@ export const LAB_SHOWCASE: LabShowcaseItem[] = [
 export const LAB_DIRECTIONS: LabDirection[] = [
   {
     slug: 'ai-skills',
-    title: 'AI 工具 / Skill / Agent',
+    title: 'AI Skills 工具库',
     verdict: 'strong',
     fit: 5,
     status: '进行中',

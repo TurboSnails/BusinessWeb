@@ -1,43 +1,20 @@
 import React from 'react'
 import { Download } from 'lucide-react'
-import { INVESTMENT_SKILLS, INVESTMENT_SKILL_TAG, investmentSkillDownloadUrl } from '../data/investmentSkills'
-import { WRITING_SKILLS } from '../data/writingSkills'
-import DevTeamSkillCard from '../components/skills/DevTeamSkillCard'
-import { Page } from '../components/ui'
+import { INVESTMENT_SKILLS, INVESTMENT_SKILL_TAG, investmentSkillDownloadUrl } from '../../data/investmentSkills'
+import { WRITING_SKILLS } from '../../data/writingSkills'
+import DevTeamSkillCard from './DevTeamSkillCard'
 
-export default function InvestmentAiTools(): JSX.Element {
+export default function SkillCatalog(): JSX.Element {
   return (
-    <Page className="animate-fade-in investment-ai-tools">
-      <header className="page-head">
-        <h1>AI 工具</h1>
-        <p>开发协作、投资分析、视频创作与小说写作 Skills，按任务挑选。下载包包含 SKILL.md 和配套参考资料。</p>
-        <div className="skill-download-actions">
-          <span className="tag">{INVESTMENT_SKILL_TAG}</span>
-          <a className="skill-download" href={investmentSkillDownloadUrl('investment-analysis-skills.zip')} download="investment-analysis-skills.zip">
-            <Download size={16} aria-hidden="true" /> 下载投资分析合集（{INVESTMENT_SKILLS.length} 套 ZIP）
-          </a>
-        </div>
-      </header>
-
-      <section className="skill-grid" aria-label="投资分析 Skill 专家">
-        {INVESTMENT_SKILLS.map(skill => (
-          <article className="skill-card" key={skill.id}>
-            <span className="tag">{INVESTMENT_SKILL_TAG}</span>
-            <h2>{skill.name}</h2>
-            <p className="skill-card__alias">{skill.alias}</p>
-            <p className="skill-card__focus">{skill.focus}</p>
-            <p>{skill.description}</p>
-            <p><strong>产出：</strong>{skill.outputs}</p>
-            <details className="skill-example">
-              <summary>试一句提示词</summary>
-              <p>{skill.example}</p>
-            </details>
-            <a className="skill-download" href={investmentSkillDownloadUrl(`${skill.id}.zip`)} download={`${skill.id}.zip`} aria-label={`下载${skill.name}完整 ZIP`}>
-              <Download size={16} aria-hidden="true" /> 下载完整 ZIP
-            </a>
-          </article>
-        ))}
-      </section>
+    <>
+      <nav className="hub-jump-nav" aria-label="Skills 分类目录">
+        <a href="#development-skills">开发协作</a>
+        <a href="#investment-skills">投资分析</a>
+        <a href="#video-skills">视频创作</a>
+        <a href="#writing-skills">小说与写作</a>
+        <a href="#skill-install">安装与使用</a>
+        <a href="#skill-experiment">实验记录</a>
+      </nav>
 
       <section id="development-skills" className="hub-group" aria-labelledby="development-skills-title">
         <h2 id="development-skills-title">开发协作</h2>
@@ -46,12 +23,41 @@ export default function InvestmentAiTools(): JSX.Element {
         </div>
       </section>
 
-      <section className="hub-group" aria-labelledby="video-skills-title">
+      <section id="investment-skills" className="hub-group" aria-labelledby="investment-skills-title">
+        <h2 id="investment-skills-title">投资分析</h2>
+        <div className="skill-download-actions">
+          <a className="skill-download" href={investmentSkillDownloadUrl('investment-analysis-skills.zip')} download="investment-analysis-skills.zip">
+            <Download size={16} aria-hidden="true" /> 下载投资分析合集（{INVESTMENT_SKILLS.length} 套 ZIP）
+          </a>
+        </div>
+        <div className="skill-grid" aria-label="投资分析 Skill 专家">
+          {INVESTMENT_SKILLS.map(skill => (
+            <article className="skill-card" key={skill.id}>
+              <span className="tag">{INVESTMENT_SKILL_TAG}</span>
+              <h3>{skill.name}</h3>
+              <p className="skill-card__alias">{skill.alias}</p>
+              <p className="skill-card__focus">{skill.focus}</p>
+              <p>{skill.description}</p>
+              <p><strong>产出：</strong>{skill.outputs}</p>
+              <details className="skill-example">
+                <summary>试一句提示词</summary>
+                <p>{skill.example}</p>
+              </details>
+              <a className="skill-download" href={investmentSkillDownloadUrl(`${skill.id}.zip`)} download={`${skill.id}.zip`} aria-label={`下载${skill.name}完整 ZIP`}>
+                <Download size={16} aria-hidden="true" /> 下载完整 ZIP
+              </a>
+            </article>
+          ))}
+        </div>
+
+      </section>
+
+      <section id="video-skills" className="hub-group" aria-labelledby="video-skills-title">
         <h2 id="video-skills-title">视频创作</h2>
         <div className="skill-grid">
           <article className="skill-card">
             <span className="tag">视频提示词 Skill</span>
-            <h2>视频提示词构建器</h2>
+            <h3>视频提示词构建器</h3>
             <p className="skill-card__alias">chatGPT_video_prompt_builder.skill</p>
             <p className="skill-card__focus">Seedance 分镜 · 特效与节奏设计</p>
             <p>把场景、产品或广告创意整理成逐镜头的视频生成提示词，细化运镜、转场、慢动作与视觉效果。原包面向 Seedance 2.0，适合视频概念、产品短片和品牌广告的分镜规划。</p>
@@ -72,13 +78,13 @@ export default function InvestmentAiTools(): JSX.Element {
         </div>
       </section>
 
-      <section className="hub-group" aria-labelledby="writing-skills-title">
+      <section id="writing-skills" className="hub-group" aria-labelledby="writing-skills-title">
         <h2 id="writing-skills-title">小说与写作</h2>
         <div className="skill-grid">
           {WRITING_SKILLS.map(skill => (
             <article className="skill-card" key={skill.id}>
               <span className="tag">{skill.tag}</span>
-              <h2>{skill.name}</h2>
+              <h3>{skill.name}</h3>
               <p className="skill-card__alias">{skill.id}</p>
               <p className="skill-card__focus">{skill.focus}</p>
               <p>{skill.description}</p>
@@ -102,7 +108,7 @@ export default function InvestmentAiTools(): JSX.Element {
         </div>
       </section>
 
-      <section className="road__item skill-install" aria-labelledby="skill-install-title">
+      <section id="skill-install" className="road__item skill-install" aria-labelledby="skill-install-title">
         <h2 id="skill-install-title">下载后怎么用</h2>
         <ol>
           <li>解压 ZIP，保留每套 Skill 的整个文件夹，包括 SKILL.md 和 references。</li>
@@ -115,6 +121,6 @@ export default function InvestmentAiTools(): JSX.Element {
         <a className="skill-guide" href={investmentSkillDownloadUrl('README.md')} download="投资分析Skill-使用说明.md">下载使用说明</a>
       </section>
       <p className="skill-disclaimer">这些工具用于辅助研究，AI 输出需核对数据来源与日期，不构成投资建议。</p>
-    </Page>
+    </>
   )
 }

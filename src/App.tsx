@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react'
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import ErrorBoundary from './components/ErrorBoundary'
 import Header from './components/Header'
 import Footer from './components/Footer'
@@ -39,12 +39,16 @@ const SolidStateCompany = lazy(() => import('./pages/SolidStateCompany'))
 const FutureTrendCompany = lazy(() => import('./pages/FutureTrendCompany'))
 const IndustryLandscape = lazy(() => import('./pages/IndustryLandscape'))
 const KnowledgeCenter = lazy(() => import('./pages/KnowledgeCenter'))
-const InvestmentAiTools = lazy(() => import('./pages/InvestmentAiTools'))
 const EtfGuide = lazy(() => import('./pages/EtfGuide'))
 const NationalTeam = lazy(() => import('./pages/NationalTeam'))
 const AiLabDirection = lazy(() => import('./pages/AiLabDirection'))
 const AiLearningPlan = lazy(() => import('./pages/AiLearningPlan'))
 const DevTeamGuide = lazy(() => import('./pages/DevTeamGuide'))
+
+function LegacyAiToolsRedirect(): JSX.Element {
+  const { search, hash } = useLocation()
+  return <Navigate to={`/ai/ai-skills${search}${hash}`} replace />
+}
 
 function PageLoading(): JSX.Element {
   return <div role="status" className="container page-loading">加载中…</div>
@@ -97,7 +101,7 @@ export default function App(): JSX.Element {
           <Route path="/dcf" element={<Dcf />} />
           <Route path="/" element={<Home />} />
           <Route path="/invest" element={<InvestHub />} />
-          <Route path="/invest/ai-tools" element={<InvestmentAiTools />} />
+          <Route path="/invest/ai-tools" element={<LegacyAiToolsRedirect />} />
           <Route path="/invest/etf" element={<EtfGuide />} />
           <Route path="/invest/national-team" element={<NationalTeam />} />
           <Route path="/ai" element={<AiStudio />} />

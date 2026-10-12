@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const ORIGIN = (process.env.VITE_SITE_URL || 'https://business-web-black.vercel.app').replace(/\/+$/, '')
 
-const STATIC = ['/', '/invest', '/invest/ai-tools', '/invest/etf', '/invest/national-team', '/ai', '/ai/fullstack-roadmap', '/ai/dev-team', '/life', '/about', '/pulse',
+const STATIC = ['/', '/invest', '/invest/etf', '/invest/national-team', '/ai', '/ai/fullstack-roadmap', '/ai/dev-team', '/life', '/about', '/pulse',
   '/investment-plan-2026', '/investment-targets', '/mainland-investment-targets', '/limit-up-analysis', '/trading-philosophy',
   '/sector-rotation', '/investment-strategy', '/first-book', '/first-book/slow-is-fast', '/future-trends', '/industry-landscape', '/research-notes', '/grid-trading']
 

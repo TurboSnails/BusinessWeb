@@ -30,8 +30,7 @@ export default function AiStudio(): JSX.Element {
               <Download size={16} aria-hidden="true" /> 下载 dev-team ZIP
             </a>
             <Link className="skill-guide" to="/ai/dev-team">使用说明 README</Link>
-            <Link className="skill-guide" to="/ai/ai-skills">功能、安装与使用</Link>
-            <Link className="skill-guide" to="/invest/ai-tools">全部 Skills</Link>
+            <Link className="skill-guide" to="/ai/ai-skills">全部 Skills</Link>
           </div>
         </article>
       </section>

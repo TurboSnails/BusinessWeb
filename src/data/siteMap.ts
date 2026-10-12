@@ -90,7 +90,7 @@ export const INVEST_GROUPS: HubGroup[] = [
     id: 'related',
     title: '相关',
     links: [
-      { path: '/invest/ai-tools', label: 'AI 投研 Skills', desc: '开发协作、投资分析、视频创作与小说写作 Skills 的介绍和下载包' },
+      { path: '/ai/ai-skills', label: 'AI 投研 Skills', desc: '开发协作、投资分析、视频创作与小说写作 Skills 的介绍和下载包' },
     ],
   },
   {
@@ -116,6 +116,7 @@ function matchesPath(base: string, pathname: string): boolean {
 }
 
 export function findInvestEntry(pathname: string): { group: HubGroup; link: HubLink } | null {
+  if (matchesPath('/ai', pathname)) return null
   let best: { group: HubGroup; link: HubLink } | null = null
   for (const entry of ALL_LINKS) {
     if (!matchesPath(entry.link.path, pathname)) continue
@@ -158,7 +159,7 @@ const EXTRA_PAGES: SearchablePage[] = [
 export const SEARCHABLE_PAGES: SearchablePage[] = [
   ...NAV_ITEMS.map(i => ({ path: i.path, label: i.label, group: '栏目' })),
   ...INVEST_GROUPS.flatMap(g =>
-    g.links.map(l => ({
+    g.links.filter(l => !LAB_DIRECTIONS.some(d => l.path === `/ai/${d.slug}`)).map(l => ({
       path: l.path,
       label: l.label,
       group: `投资 · ${g.title}`,

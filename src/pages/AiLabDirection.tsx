@@ -4,7 +4,7 @@ import { Stars, VerdictBadge } from '../components/lab/LabDirectionCard'
 import { findDirection, type LabDirection } from '../data/aiLab'
 import { usePageSeo } from '../components/RouteSeo'
 import NotFound from './NotFound'
-import DevTeamSkillCard from '../components/skills/DevTeamSkillCard'
+import SkillCatalog from '../components/skills/SkillCatalog'
 import { Page } from '../components/ui'
 import DropshippingStrategy from '../components/lab/DropshippingStrategy'
 
@@ -21,7 +21,7 @@ function limitRows(d: LabDirection): Array<[string, string]> {
 export default function AiLabDirection(): JSX.Element {
   const { slug = '' } = useParams()
   const d = findDirection(slug)
-  usePageSeo(d ? `${d.title}｜AI实验室` : undefined, d?.reason)
+  usePageSeo(d && d.slug !== 'ai-skills' ? `${d.title}｜AI实验室` : undefined, d?.reason)
   if (!d) return <NotFound />
 
   const avoid = d.verdict === 'avoid'
@@ -33,6 +33,7 @@ export default function AiLabDirection(): JSX.Element {
       <Link to="/ai" className="lab-back">← AI实验室</Link>
       <header className="page-head">
         <h1>{d.title}</h1>
+        {d.slug === 'ai-skills' && <p>开发协作、投资分析、视频创作与小说写作 Skills，按任务挑选。下载包包含 SKILL.md 和配套参考资料。</p>}
         {d.slug === 'dropshipping' && <p>供应商一件代发 · 30 天低成本试验</p>}
         <div className="lab-detail__meta">
           <VerdictBadge verdict={d.verdict} />
@@ -41,20 +42,12 @@ export default function AiLabDirection(): JSX.Element {
         </div>
       </header>
 
-      <section className="lab-section">
+      {d.slug === 'ai-skills' && <SkillCatalog />}
+
+      <section id={d.slug === 'ai-skills' ? 'skill-experiment' : undefined} className="lab-section">
         <h2>{avoid ? '为什么不做' : '为什么做'}</h2>
         <p>{d.why}</p>
       </section>
-
-      {d.slug === 'ai-skills' && (
-        <section className="lab-section" aria-labelledby="available-skills-title">
-          <h2 id="available-skills-title">可下载的 Skill</h2>
-          <div className="skill-grid">
-            <DevTeamSkillCard />
-          </div>
-          <Link to="/invest/ai-tools" className="skill-guide">查看全部 Skills：开发、投资、视频与写作</Link>
-        </section>
-      )}
 
       {!avoid && d.plan && <section className="lab-section">
         <h2>怎样验证这门小生意</h2>

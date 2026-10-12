@@ -19,6 +19,12 @@ describe('AI实验室路由', () => {
     expect(appSource).toContain('path="/ai/:slug"')
   })
 
+  it('合并后的 Skills 页面只高亮 AI实验室，且搜索入口不重复', () => {
+    expect(isNavActive('/ai', '/ai/ai-skills')).toBe(true)
+    expect(isNavActive('/invest', '/ai/ai-skills')).toBe(false)
+    expect(SEARCHABLE_PAGES.filter(p => p.path === '/ai/ai-skills')).toHaveLength(1)
+  })
+
   it('访问方向详情页时导航「AI实验室」高亮', () => {
     expect(isNavActive('/ai', '/ai/blog')).toBe(true)
     expect(isNavActive('/ai', '/aix')).toBe(false)
@@ -31,7 +37,7 @@ describe('INVEST_GROUPS', () => {
   it('收纳全部旧入口和 AI 工具，且无重复', () => {
     const paths = allLinks.map(l => l.path).sort()
     expect(paths).toEqual([
-      '/dcf', '/first-book', '/future-trends', '/grid-trading', '/invest/ai-tools', '/invest/etf', '/invest/national-team', '/industry-landscape', '/investment-plan-2026',
+      '/dcf', '/first-book', '/future-trends', '/grid-trading', '/ai/ai-skills', '/invest/etf', '/invest/national-team', '/industry-landscape', '/investment-plan-2026',
       '/investment-strategy', '/investment-targets', '/limit-up-analysis',
       '/mainland-investment-targets', '/monitor', '/pulse', '/research-notes',
       '/sector-rotation', '/trading-philosophy', '/valuation',
@@ -41,7 +47,7 @@ describe('INVEST_GROUPS', () => {
 
   it('每个入口路径都在 App.tsx 路由表里', () => {
     for (const l of allLinks) {
-      expect(appSource, l.path).toContain(`path="${l.path}"`)
+      expect(appSource, l.path).toContain(l.path.startsWith('/ai/') ? 'path="/ai/:slug"' : `path="${l.path}"`)
     }
   })
 
@@ -52,7 +58,7 @@ describe('INVEST_GROUPS', () => {
   it('估值与交易组只放三件工具；AI Skills 移到「相关」并改名', () => {
     expect(INVEST_GROUPS.find(g => g.id === 'tools')!.links.map(l => l.path)).toEqual(['/valuation', '/dcf', '/grid-trading'])
     const related = INVEST_GROUPS.find(g => g.id === 'related')!
-    expect(related.links.map(l => [l.path, l.label])).toEqual([['/invest/ai-tools', 'AI 投研 Skills']])
+    expect(related.links.map(l => [l.path, l.label])).toEqual([['/ai/ai-skills', 'AI 投研 Skills']])
   })
 
   it('卡片组的每个入口都有 14 字以内的短说明', () => {

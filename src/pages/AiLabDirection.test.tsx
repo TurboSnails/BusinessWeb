@@ -3,6 +3,8 @@ import { cleanup, render, screen, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it } from 'vitest'
 import AiLabDirection from './AiLabDirection'
+import { INVESTMENT_SKILLS } from '../data/investmentSkills'
+import { WRITING_SKILLS } from '../data/writingSkills'
 
 afterEach(cleanup)
 
@@ -14,6 +16,24 @@ const at = (path: string) =>
   )
 
 describe('AiLabDirection', () => {
+  it('Skills 工具库合并全部分类、下载和实验记录，目录指向实际章节', () => {
+    const { container } = at('/ai/ai-skills')
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
+    expect(screen.getByRole('heading', { level: 1, name: 'AI Skills 工具库' })).toBeTruthy()
+    for (const name of ['开发协作', '投资分析', '视频创作', '小说与写作', '下载后怎么用', '实验日志']) {
+      expect(screen.getByRole('heading', { level: 2, name })).toBeTruthy()
+    }
+    for (const skill of [...INVESTMENT_SKILLS, ...WRITING_SKILLS]) {
+      expect(screen.getByRole('link', { name: `下载${skill.name}完整 ZIP` }).getAttribute('href')).toContain(`${skill.id}.zip`)
+    }
+    expect(screen.getAllByRole('link', { name: /下载 Orca 开发团队/ })).toHaveLength(1)
+    expect(screen.getByRole('link', { name: '下载原始 .skill' }).getAttribute('href')).toContain('chatGPT_video_prompt_builder.skill')
+    for (const link of within(screen.getByRole('navigation', { name: 'Skills 分类目录' })).getAllByRole('link')) {
+      expect(container.querySelector(link.getAttribute('href')!)).toBeTruthy()
+    }
+    expect(container.querySelector('a[href="/invest/ai-tools"]')).toBeNull()
+  })
+
   it('推荐方向：标题、标记、为什么做、返回链接', () => {
     at('/ai/indie-dev')
     expect(screen.getByRole('heading', { level: 1, name: '独立产品开发' })).toBeTruthy()
