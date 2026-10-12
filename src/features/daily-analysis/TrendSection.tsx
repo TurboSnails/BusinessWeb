@@ -91,6 +91,21 @@ function Spark({ label, rows, keys, unit }: { label: string; rows: TrendRow[]; k
     </div></figure>
 }
 
+/** 收起时只显示前五里上涨/下跌只数；点击展开看每只股票的涨跌幅与成交额/换手率。 */
+function RankCell({ picks, unit, label }: { picks: TrendRow['amountTop']; unit: string; label: string }): JSX.Element {
+  const [open, setOpen] = useState(false)
+  if (!picks.length) return <td className="daily-trend__ranks">—</td>
+  const up = picks.filter(stock => stock.change > 0).length, down = picks.filter(stock => stock.change < 0).length, flat = picks.length - up - down
+  return <td className="daily-trend__ranks">
+    <button type="button" className="daily-trend__rank-toggle" aria-expanded={open} aria-label={`${label}明细`} onClick={() => setOpen(value => !value)}>
+      <span className="daily-up">{up}涨</span>{flat > 0 && <span>{flat}平</span>}<span className="daily-down">{down}跌</span><span aria-hidden="true">{open ? '▴' : '▾'}</span>
+    </button>
+    {open && <ol>{picks.map(stock => <li key={stock.code} title={stock.code}>
+      <span>{stock.name}</span><span className={tone(stock.change)}>{signed(stock.change, '%')}</span><small>{valueText(stock.value, unit)}</small>
+    </li>)}</ol>}
+  </td>
+}
+
 function Delta({ rows, index, k }: { rows: TrendRow[]; index: number; k: TrendMetric }): JSX.Element | null {
   const d = deltaOf(rows, index, k)
   return d === null || d === 0 ? null : <small className={d > 0 ? 'daily-up' : 'daily-down'}>{d > 0 ? '▲' : '▼'}{valueText(Math.abs(d))}</small>
@@ -118,12 +133,13 @@ export function TrendSection({ snapshots, selected, onSelect }: { snapshots: Dai
       : <EmptyState title={`已归档 ${snapshots.length} 天`}>满 2 个交易日的归档后显示涨停、量能等趋势；每个交易日收盘后会自动新增一天。</EmptyState>}
     <TableWrap label="多日对比"><table className="ui-table daily-table daily-trend"><thead><tr>
       <th scope="col">交易日</th><th scope="col">涨停</th><th scope="col">封板率</th><th scope="col">炸板</th><th scope="col">跌停</th><th scope="col">量能(亿)</th>
-      <th scope="col">连板</th><th scope="col">最高板</th><th scope="col">晋级率</th><th scope="col">上证</th><th scope="col">深成</th><th scope="col">创业板</th><th scope="col">流入</th><th scope="col">流出</th>
+      <th scope="col">连板</th><th scope="col">最高板</th><th scope="col">晋级率</th><th scope="col">上证</th><th scope="col">深成</th><th scope="col">创业板</th><th scope="col">成交额前五</th><th scope="col">换手率前五</th><th scope="col">流入</th><th scope="col">流出</th>
     </tr></thead><tbody>{rows.map((row, i) => <tr key={row.date} className={selected === row.date ? 'is-selected' : ''}>
       <th scope="row">{row.backfilled ? <>{row.date}<small>回补</small></> : <button type="button" className="daily-trend__date" aria-label={`查看 ${row.date} 复盘`} onClick={() => onSelect(row.date)}>{row.date}</button>}</th>
       {cell(row, i, 'ztCount')}{cell(row, i, 'ztSealRate', '%')}{cell(row, i, 'ztOpen')}{cell(row, i, 'dtCount')}{cell(row, i, 'volume')}
       {cell(row, i, 'lbCount')}{cell(row, i, 'maxBoard')}{cell(row, i, 'lbRate', '%')}
       {(['sh', 'sz', 'cy'] as const).map(k => <td key={k} className={tone(row.index[k])}>{signed(row.index[k], '%')}</td>)}
+      <RankCell picks={row.amountTop} unit="亿" label="成交额前五" /><RankCell picks={row.turnoverTop} unit="%" label="换手率前五" />
       <td className="daily-trend__names">{row.inflow.join('、') || '—'}</td><td className="daily-trend__names">{row.outflow.join('、') || '—'}</td>
     </tr>)}</tbody></table></TableWrap>
   </Card>

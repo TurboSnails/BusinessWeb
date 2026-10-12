@@ -85,11 +85,18 @@
 .daily-line--up { color: var(--up); }
 .daily-line--down { color: var(--down); }
 .daily-line--accent { color: var(--accent); }
-.daily-trend { min-width: 1040px; }
+.daily-trend { min-width: 1240px; }
 .daily-trend th[scope="row"] { text-align: left; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .daily-trend th[scope="row"] small { display: block; font-size: .7rem; font-weight: 400; color: var(--text-secondary); }
 .daily-trend td small { margin-left: 4px; font-size: .7rem; }
 .daily-trend tr.is-selected { background: var(--bg-secondary); }
 .daily-trend__date { padding: 0; border: 0; background: none; color: var(--accent); cursor: pointer; font: inherit; text-decoration: underline; }
+.daily-trend__ranks { text-align: left !important; white-space: nowrap; min-width: 96px; }
+.daily-trend__rank-toggle { display: inline-flex; align-items: center; gap: 6px; min-height: 28px; padding: 2px 6px; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); background: var(--bg-card); color: var(--text-primary); cursor: pointer; font: inherit; font-size: .78rem; font-variant-numeric: tabular-nums; }
+.daily-trend__rank-toggle:hover { background: var(--bg-secondary); }
+.daily-trend__ranks ol { margin: 6px 0 0; padding: 0; list-style: none; }
+.daily-trend__ranks li { display: grid; grid-template-columns: minmax(64px, 1fr) auto auto; gap: 8px; font-size: .75rem; line-height: 1.6; }
+.daily-trend__ranks li > * { white-space: nowrap; }
+.daily-trend__ranks li small { margin: 0; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
 .daily-trend__names { text-align: left !important; white-space: normal; min-width: 96px; }
 @media (max-width: 720px) { .daily-sparks { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

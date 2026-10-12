@@ -33,6 +33,17 @@ describe('buildTrend', () => {
   })
 })
 
+describe('buildTrend 榜单', () => {
+  it('带出成交额与换手率前五；没有快照的日期为空，缺失数值的股票不入选', () => {
+    const s = snap('2026-10-12')
+    s.rankings.turnover = [{ ...s.rankings.amount[0], amount: null, turnover: 12.5 }, { ...s.rankings.amount[0], code: '000001', amount: 1, turnover: null }]
+    const rows = buildTrend([s], { '2026-10-09': { sh000001: 1 } }, 5)
+    expect(rows[0].amountTop).toEqual([{ code: '300308', name: '中际旭创', value: 156.24, change: -6.411 }])
+    expect(rows[0].turnoverTop).toEqual([{ code: '300308', name: '中际旭创', value: 12.5, change: -6.411 }])
+    expect(rows[1]).toMatchObject({ backfilled: true, amountTop: [], turnoverTop: [] })
+  })
+})
+
 describe('deltaOf', () => {
   it('与相邻更早一天比较；任一侧缺失则为 null', () => {
     const rows = buildTrend([snap('2026-10-12', { ztCount: 69 }), snap('2026-10-09', { ztCount: 50 }), snap('2026-10-08', { ztCount: null })], {}, 5)

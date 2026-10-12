@@ -75,6 +75,29 @@ describe('多日对比', () => {
     expect(readout.textContent).toContain('10-12')
   })
 
+  it('成交额、换手率前五收起时只显示涨跌只数，点击展开看每只股票的涨跌幅与数值', () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response('{}', { status: 503 })))
+    const older = dailySnapshot('2026-10-09'); older.rankings = { amount: [], turnover: [] }
+    const latest = dailySnapshot()
+    const base = latest.rankings.amount[0]
+    latest.rankings.amount = [{ ...base, change: -6.411 }, { ...base, code: '300750', name: '宁德时代', change: 2.1, amount: 120 }, { ...base, code: '600000', name: '浦发银行', change: 0, amount: 90 }]
+    latest.rankings.turnover = [{ ...base, name: '宇特光电', code: '300000', amount: null, turnover: 31.2, change: 5 }]
+    render(<TrendSection snapshots={[latest, older]} selected="2026-10-12" onSelect={() => {}} />)
+    const row = screen.getByRole('button', { name: '查看 2026-10-12 复盘' }).closest('tr')!
+    const toggle = within(row).getByRole('button', { name: '成交额前五明细' })
+    expect(toggle.textContent).toContain('1涨'); expect(toggle.textContent).toContain('1平'); expect(toggle.textContent).toContain('1跌')
+    expect(within(row).getByRole('button', { name: '换手率前五明细' }).textContent).toContain('1涨0跌')
+    expect(within(row).queryByText('中际旭创')).toBeNull()
+    fireEvent.click(toggle)
+    expect(toggle.getAttribute('aria-expanded')).toBe('true')
+    expect(within(row).getByText('中际旭创').closest('li')!.textContent).toContain('-6.41%')
+    expect(within(row).getByText('宁德时代').closest('li')!.textContent).toContain('+2.1%120亿')
+    fireEvent.click(toggle)
+    expect(within(row).queryByText('中际旭创')).toBeNull()
+    const oldRow = screen.getByRole('button', { name: '查看 2026-10-09 复盘' }).closest('tr')!
+    expect(within(oldRow).queryByRole('button', { name: /前五明细/ })).toBeNull()
+  })
+
   it('可切换对比天数', () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response('{}', { status: 503 })))
     render(<TrendSection snapshots={[dailySnapshot()]} selected="2026-10-12" onSelect={() => {}} />)

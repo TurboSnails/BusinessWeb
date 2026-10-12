@@ -24,7 +24,7 @@ describe('新版每日分析', () => {
     expect(screen.getByRole('link', { name: /历史旧版/ }).getAttribute('href')).toBe('/daily-analysis/legacy')
     expect(screen.queryByRole('button', { name: /录入今日/ })).toBeNull()
     expect(within(screen.getByRole('region', { name: '涨跌停与连板' })).getByText('69')).toBeTruthy()
-    expect(screen.getByText('中际旭创')).toBeTruthy()
+    expect(within(screen.getAllByRole('region', { name: '成交金额前五' })[0]).getByText('中际旭创')).toBeTruthy()
     expect(localStorage.getItem('pulse_daily_reviews')).toBe(original)
   })
 
