@@ -1,5 +1,5 @@
 export type Period = 'day' | 'week' | 'month' | 'year'
-export type HistorySymbol = 'sh000300' | 'sh000852' | 'sh000001' | 'sz399106'
+export type HistorySymbol = 'sh000300' | 'sh000852' | 'sh000001' | 'sz399106' | 'sz399001' | 'sz399006'
 export type HistoryCandle = { date: string; open: number; close: number; high: number; low: number; volume: number }
 export const periods: { id: Period; label: string }[] = [
   { id: 'day', label: '日' }, { id: 'week', label: '周' }, { id: 'month', label: '月' }, { id: 'year', label: '年' },

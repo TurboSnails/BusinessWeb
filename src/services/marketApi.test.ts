@@ -19,6 +19,10 @@ describe('restricted market APIs', () => {
     const accepted = response()
     await handleMarket({ method: 'GET', query: { kind: 'index-history', symbol: 'sh000852', period: 'month' } }, accepted)
     expect(accepted.statusCode).toBe(200)
+    for (const symbol of ['sz399001', 'sz399006']) {
+      const ok = response(); await handleMarket({ method: 'GET', query: { kind: 'index-history', symbol, period: 'day' } }, ok)
+      expect(ok.statusCode).toBe(200)
+    }
     for (const query of [
       { kind: 'index-history', symbol: 'sh600000', period: 'day' },
       { kind: 'index-history', symbol: 'sh000300', period: 'year' },

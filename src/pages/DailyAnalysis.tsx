@@ -4,6 +4,7 @@ import { History, RefreshCw } from 'lucide-react'
 import { Badge, EmptyState, Page, PageToolbar } from '../components/ui'
 import { loadDailyAnalysis, loadDailySnapshots } from '../features/daily-analysis/data'
 import { BoardLadder, DataNotes, MarketOverview, MarketStats, Rankings, SectorFlows, timeText } from '../features/daily-analysis/Panels'
+import { TrendSection } from '../features/daily-analysis/TrendSection'
 import '../styles/daily-analysis.css'
 
 export default function DailyAnalysis(): JSX.Element {
@@ -54,6 +55,7 @@ export default function DailyAnalysis(): JSX.Element {
     {error && <div className="ui-callout ui-callout--warn" role="alert">{error}</div>}
     {data ? <>
       <MarketOverview data={data} />
+      <TrendSection snapshots={snapshots} selected={data.dataDate} onSelect={date => { setSelected(date); window.scrollTo?.({ top: 0 }) }} />
       <MarketStats data={data} />
       <BoardLadder data={data} />
       <Rankings data={data} />

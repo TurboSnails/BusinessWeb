@@ -17,7 +17,7 @@ export async function handleMarket(req, res) {
   } else if (kind === 'candles' && typeof symbol === 'string' && symbolPattern.test(symbol)
     && validDate(begin) && validDate(end) && begin <= end) {
     url = `https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?${new URLSearchParams({ param: `${symbol},day,${begin},${end},640,qfq` })}`
-  } else if (kind === 'index-history' && ['sh000300', 'sh000852', 'sh000001', 'sz399106'].includes(symbol)
+  } else if (kind === 'index-history' && ['sh000300', 'sh000852', 'sh000001', 'sz399106', 'sz399001', 'sz399006'].includes(symbol)
     && ['day', 'week', 'month'].includes(period)) {
     url = `https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?${new URLSearchParams({ param: `${symbol},${period},,,${period === 'month' ? 800 : 640},qfq` })}`
   } else {
