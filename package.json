@@ -27,6 +27,7 @@
     "macro:update": "node scripts/macro-snapshot.mjs",
     "daily-analysis:update": "node scripts/daily-analysis-snapshot.mjs",
     "daily-analysis:backfill": "node scripts/daily-analysis-backfill.mjs",
+    "daily-analysis:rank-backfill": "node scripts/daily-analysis-rank-backfill.mjs",
     "index:update": "node scripts/index-snapshot.mjs",
     "index:fpe": "node scripts/index-snapshot.mjs fpe",
     "index:fpe-import": "node scripts/index-snapshot.mjs fpe-import",

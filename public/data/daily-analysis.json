@@ -1076,7 +1076,58 @@
         }
       ],
       "rankings": {
-        "amount": [],
+        "amount": [
+          {
+            "symbol": "sz300308",
+            "code": "300308",
+            "name": "中际旭创",
+            "date": "2026-10-09",
+            "price": 775.29,
+            "change": -0.98,
+            "amount": 210.92,
+            "turnover": 2.52
+          },
+          {
+            "symbol": "sz300750",
+            "code": "300750",
+            "name": "宁德时代",
+            "date": "2026-10-09",
+            "price": 297.75,
+            "change": 3.84,
+            "amount": 160.28,
+            "turnover": 1.27
+          },
+          {
+            "symbol": "sh688825",
+            "code": "688825",
+            "name": "长鑫科技",
+            "date": "2026-10-09",
+            "price": 51,
+            "change": 0.95,
+            "amount": 149.79,
+            "turnover": 6.73
+          },
+          {
+            "symbol": "sz300502",
+            "code": "300502",
+            "name": "新易盛",
+            "date": "2026-10-09",
+            "price": 370.2,
+            "change": -2.19,
+            "amount": 146.19,
+            "turnover": 3.21
+          },
+          {
+            "symbol": "sz002384",
+            "code": "002384",
+            "name": "东山精密",
+            "date": "2026-10-09",
+            "price": 145.49,
+            "change": -3.43,
+            "amount": 128.33,
+            "turnover": 6.46
+          }
+        ],
         "turnover": []
       },
       "flows": {
@@ -1118,11 +1169,11 @@
         },
         {
           "id": "amountRank",
-          "label": "新浪成交额排名 / 腾讯报价",
-          "url": "https://finance.sina.com.cn/",
-          "date": null,
-          "status": "unavailable",
-          "note": "历史回补不含榜单"
+          "label": "baostock 沪深 A 股成交额排名",
+          "url": "https://www.baostock.com/",
+          "date": "2026-10-09",
+          "status": "ready",
+          "note": "按日期回补；已用真实榜单核对（1 个交易日一致）；baostock 不含北交所"
         },
         {
           "id": "turnoverRank",
@@ -1477,7 +1528,58 @@
         }
       ],
       "rankings": {
-        "amount": [],
+        "amount": [
+          {
+            "symbol": "sz300308",
+            "code": "300308",
+            "name": "中际旭创",
+            "date": "2026-10-08",
+            "price": 783,
+            "change": -3.15,
+            "amount": 212.91,
+            "turnover": 2.4
+          },
+          {
+            "symbol": "sh688825",
+            "code": "688825",
+            "name": "长鑫科技",
+            "date": "2026-10-08",
+            "price": 50.52,
+            "change": -7.79,
+            "amount": 189.05,
+            "turnover": 8.11
+          },
+          {
+            "symbol": "sz300502",
+            "code": "300502",
+            "name": "新易盛",
+            "date": "2026-10-08",
+            "price": 378.5,
+            "change": -2.7,
+            "amount": 143.88,
+            "turnover": 2.96
+          },
+          {
+            "symbol": "sz300750",
+            "code": "300750",
+            "name": "宁德时代",
+            "date": "2026-10-08",
+            "price": 286.75,
+            "change": -1.5,
+            "amount": 105.95,
+            "turnover": 0.86
+          },
+          {
+            "symbol": "sh603986",
+            "code": "603986",
+            "name": "兆易创新",
+            "date": "2026-10-08",
+            "price": 334.4,
+            "change": -5.51,
+            "amount": 100.7,
+            "turnover": 4.39
+          }
+        ],
         "turnover": []
       },
       "flows": {
@@ -1519,11 +1621,11 @@
         },
         {
           "id": "amountRank",
-          "label": "新浪成交额排名 / 腾讯报价",
-          "url": "https://finance.sina.com.cn/",
-          "date": null,
-          "status": "unavailable",
-          "note": "历史回补不含榜单"
+          "label": "baostock 沪深 A 股成交额排名",
+          "url": "https://www.baostock.com/",
+          "date": "2026-10-08",
+          "status": "ready",
+          "note": "按日期回补；已用真实榜单核对（1 个交易日一致）；baostock 不含北交所"
         },
         {
           "id": "turnoverRank",
@@ -1933,7 +2035,58 @@
         }
       ],
       "rankings": {
-        "amount": [],
+        "amount": [
+          {
+            "symbol": "sz300308",
+            "code": "300308",
+            "name": "中际旭创",
+            "date": "2026-09-30",
+            "price": 808.44,
+            "change": -0.56,
+            "amount": 128.48,
+            "turnover": 1.42
+          },
+          {
+            "symbol": "sz300502",
+            "code": "300502",
+            "name": "新易盛",
+            "date": "2026-09-30",
+            "price": 389,
+            "change": -1,
+            "amount": 96.04,
+            "turnover": 1.94
+          },
+          {
+            "symbol": "sh600487",
+            "code": "600487",
+            "name": "亨通光电",
+            "date": "2026-09-30",
+            "price": 54.86,
+            "change": -3.94,
+            "amount": 89.54,
+            "turnover": 6.59
+          },
+          {
+            "symbol": "sh688256",
+            "code": "688256",
+            "name": "寒武纪",
+            "date": "2026-09-30",
+            "price": 1009.01,
+            "change": -3.54,
+            "amount": 86.92,
+            "turnover": 1.37
+          },
+          {
+            "symbol": "sh603986",
+            "code": "603986",
+            "name": "兆易创新",
+            "date": "2026-09-30",
+            "price": 353.9,
+            "change": -3.72,
+            "amount": 86.47,
+            "turnover": 3.61
+          }
+        ],
         "turnover": []
       },
       "flows": {
@@ -1975,11 +2128,11 @@
         },
         {
           "id": "amountRank",
-          "label": "新浪成交额排名 / 腾讯报价",
-          "url": "https://finance.sina.com.cn/",
-          "date": null,
-          "status": "unavailable",
-          "note": "历史回补不含榜单"
+          "label": "baostock 沪深 A 股成交额排名",
+          "url": "https://www.baostock.com/",
+          "date": "2026-09-30",
+          "status": "ready",
+          "note": "按日期回补；已用真实榜单核对（1 个交易日一致）；baostock 不含北交所"
         },
         {
           "id": "turnoverRank",
@@ -2404,7 +2557,58 @@
         }
       ],
       "rankings": {
-        "amount": [],
+        "amount": [
+          {
+            "symbol": "sz300308",
+            "code": "300308",
+            "name": "中际旭创",
+            "date": "2026-09-29",
+            "price": 813.01,
+            "change": -0.24,
+            "amount": 130.99,
+            "turnover": 1.45
+          },
+          {
+            "symbol": "sh600487",
+            "code": "600487",
+            "name": "亨通光电",
+            "date": "2026-09-29",
+            "price": 57.11,
+            "change": -5.82,
+            "amount": 113.44,
+            "turnover": 8.16
+          },
+          {
+            "symbol": "sz300502",
+            "code": "300502",
+            "name": "新易盛",
+            "date": "2026-09-29",
+            "price": 392.91,
+            "change": -1.7,
+            "amount": 100.62,
+            "turnover": 2.03
+          },
+          {
+            "symbol": "sz300750",
+            "code": "300750",
+            "name": "宁德时代",
+            "date": "2026-09-29",
+            "price": 286.8,
+            "change": -1.78,
+            "amount": 86.09,
+            "turnover": 0.7
+          },
+          {
+            "symbol": "sh688825",
+            "code": "688825",
+            "name": "长鑫科技",
+            "date": "2026-09-29",
+            "price": 55.55,
+            "change": 3.25,
+            "amount": 82.02,
+            "turnover": 3.32
+          }
+        ],
         "turnover": []
       },
       "flows": {
@@ -2446,11 +2650,11 @@
         },
         {
           "id": "amountRank",
-          "label": "新浪成交额排名 / 腾讯报价",
-          "url": "https://finance.sina.com.cn/",
-          "date": null,
-          "status": "unavailable",
-          "note": "历史回补不含榜单"
+          "label": "baostock 沪深 A 股成交额排名",
+          "url": "https://www.baostock.com/",
+          "date": "2026-09-29",
+          "status": "ready",
+          "note": "按日期回补；已用真实榜单核对（1 个交易日一致）；baostock 不含北交所"
         },
         {
           "id": "turnoverRank",
@@ -2735,7 +2939,58 @@
         }
       ],
       "rankings": {
-        "amount": [],
+        "amount": [
+          {
+            "symbol": "sz300308",
+            "code": "300308",
+            "name": "中际旭创",
+            "date": "2026-09-28",
+            "price": 815,
+            "change": -9.03,
+            "amount": 251.85,
+            "turnover": 2.72
+          },
+          {
+            "symbol": "sz300502",
+            "code": "300502",
+            "name": "新易盛",
+            "date": "2026-09-28",
+            "price": 399.7,
+            "change": -8.11,
+            "amount": 158.1,
+            "turnover": 3.08
+          },
+          {
+            "symbol": "sh688825",
+            "code": "688825",
+            "name": "长鑫科技",
+            "date": "2026-09-28",
+            "price": 53.8,
+            "change": -4.27,
+            "amount": 117.75,
+            "turnover": 4.78
+          },
+          {
+            "symbol": "sh603986",
+            "code": "603986",
+            "name": "兆易创新",
+            "date": "2026-09-28",
+            "price": 358.51,
+            "change": -6.58,
+            "amount": 104.08,
+            "turnover": 4.25
+          },
+          {
+            "symbol": "sz002384",
+            "code": "002384",
+            "name": "东山精密",
+            "date": "2026-09-28",
+            "price": 168.28,
+            "change": -9.52,
+            "amount": 100.09,
+            "turnover": 4.17
+          }
+        ],
         "turnover": []
       },
       "flows": {
@@ -2777,11 +3032,11 @@
         },
         {
           "id": "amountRank",
-          "label": "新浪成交额排名 / 腾讯报价",
-          "url": "https://finance.sina.com.cn/",
-          "date": null,
-          "status": "unavailable",
-          "note": "历史回补不含榜单"
+          "label": "baostock 沪深 A 股成交额排名",
+          "url": "https://www.baostock.com/",
+          "date": "2026-09-28",
+          "status": "ready",
+          "note": "按日期回补；已用真实榜单核对（1 个交易日一致）；baostock 不含北交所"
         },
         {
           "id": "turnoverRank",
@@ -3196,7 +3451,58 @@
         }
       ],
       "rankings": {
-        "amount": [],
+        "amount": [
+          {
+            "symbol": "sz300308",
+            "code": "300308",
+            "name": "中际旭创",
+            "date": "2026-09-24",
+            "price": 895.86,
+            "change": -2.89,
+            "amount": 168.69,
+            "turnover": 1.67
+          },
+          {
+            "symbol": "sz300502",
+            "code": "300502",
+            "name": "新易盛",
+            "date": "2026-09-24",
+            "price": 435,
+            "change": -3.59,
+            "amount": 110.73,
+            "turnover": 1.99
+          },
+          {
+            "symbol": "sz300285",
+            "code": "300285",
+            "name": "国瓷材料",
+            "date": "2026-09-24",
+            "price": 70,
+            "change": 1.45,
+            "amount": 98.69,
+            "turnover": 16.06
+          },
+          {
+            "symbol": "sh603986",
+            "code": "603986",
+            "name": "兆易创新",
+            "date": "2026-09-24",
+            "price": 383.77,
+            "change": -3.75,
+            "amount": 87.69,
+            "turnover": 3.38
+          },
+          {
+            "symbol": "sh688825",
+            "code": "688825",
+            "name": "长鑫科技",
+            "date": "2026-09-24",
+            "price": 56.2,
+            "change": -4.13,
+            "amount": 86.12,
+            "turnover": 3.37
+          }
+        ],
         "turnover": []
       },
       "flows": {
@@ -3238,11 +3544,11 @@
         },
         {
           "id": "amountRank",
-          "label": "新浪成交额排名 / 腾讯报价",
-          "url": "https://finance.sina.com.cn/",
-          "date": null,
-          "status": "unavailable",
-          "note": "历史回补不含榜单"
+          "label": "baostock 沪深 A 股成交额排名",
+          "url": "https://www.baostock.com/",
+          "date": "2026-09-24",
+          "status": "ready",
+          "note": "按日期回补；已用真实榜单核对（1 个交易日一致）；baostock 不含北交所"
         },
         {
           "id": "turnoverRank",
@@ -3642,7 +3948,58 @@
         }
       ],
       "rankings": {
-        "amount": [],
+        "amount": [
+          {
+            "symbol": "sz300308",
+            "code": "300308",
+            "name": "中际旭创",
+            "date": "2026-09-23",
+            "price": 922.5,
+            "change": -0.56,
+            "amount": 136.8,
+            "turnover": 1.33
+          },
+          {
+            "symbol": "sh688825",
+            "code": "688825",
+            "name": "长鑫科技",
+            "date": "2026-09-23",
+            "price": 58.62,
+            "change": 1.31,
+            "amount": 121.49,
+            "turnover": 4.58
+          },
+          {
+            "symbol": "sh600487",
+            "code": "600487",
+            "name": "亨通光电",
+            "date": "2026-09-23",
+            "price": 69.94,
+            "change": -4.19,
+            "amount": 111.47,
+            "turnover": 6.42
+          },
+          {
+            "symbol": "sh603986",
+            "code": "603986",
+            "name": "兆易创新",
+            "date": "2026-09-23",
+            "price": 398.72,
+            "change": -0.84,
+            "amount": 105.22,
+            "turnover": 3.91
+          },
+          {
+            "symbol": "sz300502",
+            "code": "300502",
+            "name": "新易盛",
+            "date": "2026-09-23",
+            "price": 451.2,
+            "change": -0.84,
+            "amount": 102.95,
+            "turnover": 1.81
+          }
+        ],
         "turnover": []
       },
       "flows": {
@@ -3684,11 +4041,11 @@
         },
         {
           "id": "amountRank",
-          "label": "新浪成交额排名 / 腾讯报价",
-          "url": "https://finance.sina.com.cn/",
-          "date": null,
-          "status": "unavailable",
-          "note": "历史回补不含榜单"
+          "label": "baostock 沪深 A 股成交额排名",
+          "url": "https://www.baostock.com/",
+          "date": "2026-09-23",
+          "status": "ready",
+          "note": "按日期回补；已用真实榜单核对（1 个交易日一致）；baostock 不含北交所"
         },
         {
           "id": "turnoverRank",
@@ -4218,7 +4575,58 @@
         }
       ],
       "rankings": {
-        "amount": [],
+        "amount": [
+          {
+            "symbol": "sz300308",
+            "code": "300308",
+            "name": "中际旭创",
+            "date": "2026-09-22",
+            "price": 927.72,
+            "change": -1.41,
+            "amount": 223.37,
+            "turnover": 2.12
+          },
+          {
+            "symbol": "sh603986",
+            "code": "603986",
+            "name": "兆易创新",
+            "date": "2026-09-22",
+            "price": 402.1,
+            "change": 2.65,
+            "amount": 205.78,
+            "turnover": 7.59
+          },
+          {
+            "symbol": "sh688008",
+            "code": "688008",
+            "name": "澜起科技",
+            "date": "2026-09-22",
+            "price": 221.83,
+            "change": 5.58,
+            "amount": 169.7,
+            "turnover": 6.53
+          },
+          {
+            "symbol": "sh688825",
+            "code": "688825",
+            "name": "长鑫科技",
+            "date": "2026-09-22",
+            "price": 57.86,
+            "change": 1.72,
+            "amount": 166.98,
+            "turnover": 6.38
+          },
+          {
+            "symbol": "sz002384",
+            "code": "002384",
+            "name": "东山精密",
+            "date": "2026-09-22",
+            "price": 198.12,
+            "change": 1.59,
+            "amount": 161.06,
+            "turnover": 5.72
+          }
+        ],
         "turnover": []
       },
       "flows": {
@@ -4260,11 +4668,11 @@
         },
         {
           "id": "amountRank",
-          "label": "新浪成交额排名 / 腾讯报价",
-          "url": "https://finance.sina.com.cn/",
-          "date": null,
-          "status": "unavailable",
-          "note": "历史回补不含榜单"
+          "label": "baostock 沪深 A 股成交额排名",
+          "url": "https://www.baostock.com/",
+          "date": "2026-09-22",
+          "status": "ready",
+          "note": "按日期回补；已用真实榜单核对（1 个交易日一致）；baostock 不含北交所"
         },
         {
           "id": "turnoverRank",
@@ -4974,7 +5382,58 @@
         }
       ],
       "rankings": {
-        "amount": [],
+        "amount": [
+          {
+            "symbol": "sz300308",
+            "code": "300308",
+            "name": "中际旭创",
+            "date": "2026-09-21",
+            "price": 941,
+            "change": 1.57,
+            "amount": 198.16,
+            "turnover": 1.89
+          },
+          {
+            "symbol": "sz300502",
+            "code": "300502",
+            "name": "新易盛",
+            "date": "2026-09-21",
+            "price": 456.73,
+            "change": 2.64,
+            "amount": 162.18,
+            "turnover": 2.81
+          },
+          {
+            "symbol": "sz300476",
+            "code": "300476",
+            "name": "胜宏科技",
+            "date": "2026-09-21",
+            "price": 248,
+            "change": 9.23,
+            "amount": 147.98,
+            "turnover": 7.18
+          },
+          {
+            "symbol": "sz300750",
+            "code": "300750",
+            "name": "宁德时代",
+            "date": "2026-09-21",
+            "price": 297.1,
+            "change": -1.61,
+            "amount": 147.56,
+            "turnover": 1.16
+          },
+          {
+            "symbol": "sh688825",
+            "code": "688825",
+            "name": "长鑫科技",
+            "date": "2026-09-21",
+            "price": 56.88,
+            "change": 2.41,
+            "amount": 139.7,
+            "turnover": 5.41
+          }
+        ],
         "turnover": []
       },
       "flows": {
@@ -5016,11 +5475,11 @@
         },
         {
           "id": "amountRank",
-          "label": "新浪成交额排名 / 腾讯报价",
-          "url": "https://finance.sina.com.cn/",
-          "date": null,
-          "status": "unavailable",
-          "note": "历史回补不含榜单"
+          "label": "baostock 沪深 A 股成交额排名",
+          "url": "https://www.baostock.com/",
+          "date": "2026-09-21",
+          "status": "ready",
+          "note": "按日期回补；已用真实榜单核对（1 个交易日一致）；baostock 不含北交所"
         },
         {
           "id": "turnoverRank",
@@ -5555,7 +6014,58 @@
         }
       ],
       "rankings": {
-        "amount": [],
+        "amount": [
+          {
+            "symbol": "sz300308",
+            "code": "300308",
+            "name": "中际旭创",
+            "date": "2026-09-18",
+            "price": 926.43,
+            "change": 3.4,
+            "amount": 270.8,
+            "turnover": 2.66
+          },
+          {
+            "symbol": "sz300502",
+            "code": "300502",
+            "name": "新易盛",
+            "date": "2026-09-18",
+            "price": 445,
+            "change": 4.87,
+            "amount": 185.11,
+            "turnover": 3.35
+          },
+          {
+            "symbol": "sh600176",
+            "code": "600176",
+            "name": "中国巨石",
+            "date": "2026-09-18",
+            "price": 45.02,
+            "change": -4.52,
+            "amount": 177.5,
+            "turnover": 9.89
+          },
+          {
+            "symbol": "sh603986",
+            "code": "603986",
+            "name": "兆易创新",
+            "date": "2026-09-18",
+            "price": 388.18,
+            "change": 4.95,
+            "amount": 157.88,
+            "turnover": 6.12
+          },
+          {
+            "symbol": "sh600487",
+            "code": "600487",
+            "name": "亨通光电",
+            "date": "2026-09-18",
+            "price": 69.49,
+            "change": 1.46,
+            "amount": 156.52,
+            "turnover": 9.22
+          }
+        ],
         "turnover": []
       },
       "flows": {
@@ -5597,11 +6107,11 @@
         },
         {
           "id": "amountRank",
-          "label": "新浪成交额排名 / 腾讯报价",
-          "url": "https://finance.sina.com.cn/",
-          "date": null,
-          "status": "unavailable",
-          "note": "历史回补不含榜单"
+          "label": "baostock 沪深 A 股成交额排名",
+          "url": "https://www.baostock.com/",
+          "date": "2026-09-18",
+          "status": "ready",
+          "note": "按日期回补；已用真实榜单核对（1 个交易日一致）；baostock 不含北交所"
         },
         {
           "id": "turnoverRank",
@@ -5966,7 +6476,58 @@
         }
       ],
       "rankings": {
-        "amount": [],
+        "amount": [
+          {
+            "symbol": "sz300308",
+            "code": "300308",
+            "name": "中际旭创",
+            "date": "2026-09-17",
+            "price": 896,
+            "change": -1.3,
+            "amount": 206.84,
+            "turnover": 2.05
+          },
+          {
+            "symbol": "sh600176",
+            "code": "600176",
+            "name": "中国巨石",
+            "date": "2026-09-17",
+            "price": 47.15,
+            "change": -0.51,
+            "amount": 178.14,
+            "turnover": 9.14
+          },
+          {
+            "symbol": "sh600487",
+            "code": "600487",
+            "name": "亨通光电",
+            "date": "2026-09-17",
+            "price": 68.49,
+            "change": 4.72,
+            "amount": 158.91,
+            "turnover": 9.53
+          },
+          {
+            "symbol": "sz300502",
+            "code": "300502",
+            "name": "新易盛",
+            "date": "2026-09-17",
+            "price": 424.34,
+            "change": 0.15,
+            "amount": 150.86,
+            "turnover": 2.8
+          },
+          {
+            "symbol": "sz000725",
+            "code": "000725",
+            "name": "京东方Ａ",
+            "date": "2026-09-17",
+            "price": 5.75,
+            "change": 5.5,
+            "amount": 132.94,
+            "turnover": 6.56
+          }
+        ],
         "turnover": []
       },
       "flows": {
@@ -6008,11 +6569,11 @@
         },
         {
           "id": "amountRank",
-          "label": "新浪成交额排名 / 腾讯报价",
-          "url": "https://finance.sina.com.cn/",
-          "date": null,
-          "status": "unavailable",
-          "note": "历史回补不含榜单"
+          "label": "baostock 沪深 A 股成交额排名",
+          "url": "https://www.baostock.com/",
+          "date": "2026-09-17",
+          "status": "ready",
+          "note": "按日期回补；已用真实榜单核对（1 个交易日一致）；baostock 不含北交所"
         },
         {
           "id": "turnoverRank",
@@ -6607,7 +7168,58 @@
         }
       ],
       "rankings": {
-        "amount": [],
+        "amount": [
+          {
+            "symbol": "sz300750",
+            "code": "300750",
+            "name": "宁德时代",
+            "date": "2026-09-16",
+            "price": 305.48,
+            "change": -3.44,
+            "amount": 239.8,
+            "turnover": 1.85
+          },
+          {
+            "symbol": "sz300308",
+            "code": "300308",
+            "name": "中际旭创",
+            "date": "2026-09-16",
+            "price": 907.8,
+            "change": 5.07,
+            "amount": 214.71,
+            "turnover": 2.16
+          },
+          {
+            "symbol": "sz300502",
+            "code": "300502",
+            "name": "新易盛",
+            "date": "2026-09-16",
+            "price": 423.69,
+            "change": 6.72,
+            "amount": 159.06,
+            "turnover": 3.04
+          },
+          {
+            "symbol": "sh688256",
+            "code": "688256",
+            "name": "寒武纪",
+            "date": "2026-09-16",
+            "price": 1136.01,
+            "change": 5.6,
+            "amount": 149.67,
+            "turnover": 2.12
+          },
+          {
+            "symbol": "sh600176",
+            "code": "600176",
+            "name": "中国巨石",
+            "date": "2026-09-16",
+            "price": 47.39,
+            "change": 0.64,
+            "amount": 127.76,
+            "turnover": 6.87
+          }
+        ],
         "turnover": []
       },
       "flows": {
@@ -6649,11 +7261,11 @@
         },
         {
           "id": "amountRank",
-          "label": "新浪成交额排名 / 腾讯报价",
-          "url": "https://finance.sina.com.cn/",
-          "date": null,
-          "status": "unavailable",
-          "note": "历史回补不含榜单"
+          "label": "baostock 沪深 A 股成交额排名",
+          "url": "https://www.baostock.com/",
+          "date": "2026-09-16",
+          "status": "ready",
+          "note": "按日期回补；已用真实榜单核对（1 个交易日一致）；baostock 不含北交所"
         },
         {
           "id": "turnoverRank",
@@ -6938,7 +7550,58 @@
         }
       ],
       "rankings": {
-        "amount": [],
+        "amount": [
+          {
+            "symbol": "sz300308",
+            "code": "300308",
+            "name": "中际旭创",
+            "date": "2026-09-15",
+            "price": 864.01,
+            "change": -1.03,
+            "amount": 156.14,
+            "turnover": 1.62
+          },
+          {
+            "symbol": "sz300750",
+            "code": "300750",
+            "name": "宁德时代",
+            "date": "2026-09-15",
+            "price": 316.36,
+            "change": -6.16,
+            "amount": 155.59,
+            "turnover": 1.13
+          },
+          {
+            "symbol": "sh600176",
+            "code": "600176",
+            "name": "中国巨石",
+            "date": "2026-09-15",
+            "price": 47.09,
+            "change": 3.97,
+            "amount": 146.75,
+            "turnover": 7.84
+          },
+          {
+            "symbol": "sh600183",
+            "code": "600183",
+            "name": "生益科技",
+            "date": "2026-09-15",
+            "price": 150.25,
+            "change": 2.91,
+            "amount": 124.11,
+            "turnover": 3.37
+          },
+          {
+            "symbol": "sh688256",
+            "code": "688256",
+            "name": "寒武纪",
+            "date": "2026-09-15",
+            "price": 1075.79,
+            "change": 3.44,
+            "amount": 116.05,
+            "turnover": 1.71
+          }
+        ],
         "turnover": []
       },
       "flows": {
@@ -6980,11 +7643,11 @@
         },
         {
           "id": "amountRank",
-          "label": "新浪成交额排名 / 腾讯报价",
-          "url": "https://finance.sina.com.cn/",
-          "date": null,
-          "status": "unavailable",
-          "note": "历史回补不含榜单"
+          "label": "baostock 沪深 A 股成交额排名",
+          "url": "https://www.baostock.com/",
+          "date": "2026-09-15",
+          "status": "ready",
+          "note": "按日期回补；已用真实榜单核对（1 个交易日一致）；baostock 不含北交所"
         },
         {
           "id": "turnoverRank",
@@ -7399,7 +8062,58 @@
         }
       ],
       "rankings": {
-        "amount": [],
+        "amount": [
+          {
+            "symbol": "sz300308",
+            "code": "300308",
+            "name": "中际旭创",
+            "date": "2026-09-14",
+            "price": 873,
+            "change": -5.72,
+            "amount": 239.37,
+            "turnover": 2.45
+          },
+          {
+            "symbol": "sz300502",
+            "code": "300502",
+            "name": "新易盛",
+            "date": "2026-09-14",
+            "price": 401.9,
+            "change": -4.99,
+            "amount": 130.37,
+            "turnover": 2.57
+          },
+          {
+            "symbol": "sz000636",
+            "code": "000636",
+            "name": "风华高科",
+            "date": "2026-09-14",
+            "price": 58.9,
+            "change": 5.2,
+            "amount": 128.48,
+            "turnover": 19.15
+          },
+          {
+            "symbol": "sh600176",
+            "code": "600176",
+            "name": "中国巨石",
+            "date": "2026-09-14",
+            "price": 45.29,
+            "change": 1.41,
+            "amount": 111.57,
+            "turnover": 6.25
+          },
+          {
+            "symbol": "sz002384",
+            "code": "002384",
+            "name": "东山精密",
+            "date": "2026-09-14",
+            "price": 185.11,
+            "change": -4.79,
+            "amount": 104.97,
+            "turnover": 4.06
+          }
+        ],
         "turnover": []
       },
       "flows": {
@@ -7441,11 +8155,11 @@
         },
         {
           "id": "amountRank",
-          "label": "新浪成交额排名 / 腾讯报价",
-          "url": "https://finance.sina.com.cn/",
-          "date": null,
-          "status": "unavailable",
-          "note": "历史回补不含榜单"
+          "label": "baostock 沪深 A 股成交额排名",
+          "url": "https://www.baostock.com/",
+          "date": "2026-09-14",
+          "status": "ready",
+          "note": "按日期回补；已用真实榜单核对（1 个交易日一致）；baostock 不含北交所"
         },
         {
           "id": "turnoverRank",
