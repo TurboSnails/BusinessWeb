@@ -1,5 +1,5 @@
 // Vercel 函数：情绪工具读数（期权 P/C、VIX 期限结构、GEX、金银比），并行拉取，供「2026 投资计划 → 情绪工具」使用。
-import { buildSentiment } from '../server/sentiment.mjs'
+import { buildSentiment } from '../sentiment.mjs'
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*')

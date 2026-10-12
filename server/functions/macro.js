@@ -1,5 +1,5 @@
 // Vercel 函数：实时拉取中美宏观快照，供「宏观温度」页手动刷新（GitHub Pages 通过 VITE_API_BASE 调用）。
-import { buildSnapshots } from '../server/macro.mjs'
+import { buildSnapshots } from '../macro.mjs'
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*')

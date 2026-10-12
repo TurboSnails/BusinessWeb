@@ -1,5 +1,5 @@
 // Vercel 函数：实时拉取指数价格与成分股 PE，供「宏观温度 → 估值位置」手动刷新（GitHub Pages 通过 VITE_API_BASE 调用）。
-import { buildIndexSnapshot } from '../server/indexes.mjs'
+import { buildIndexSnapshot } from '../indexes.mjs'
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*')

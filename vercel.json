@@ -19,20 +19,15 @@
     "api/ask.ts": {
       "maxDuration": 30
     },
-    "api/daily-analysis.js": {
-      "maxDuration": 30
-    },
-    "api/macro.js": {
-      "maxDuration": 30
-    },
-    "api/indexes.js": {
-      "maxDuration": 30
-    },
-    "api/sentiment.js": {
+    "api/market-data/[marketRoute].js": {
       "maxDuration": 30
     }
   },
   "rewrites": [
+    { "source": "/api/macro", "destination": "/api/market-data/macro" },
+    { "source": "/api/indexes", "destination": "/api/market-data/indexes" },
+    { "source": "/api/sentiment", "destination": "/api/market-data/sentiment" },
+    { "source": "/api/daily-analysis", "destination": "/api/market-data/daily-analysis" },
     {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
