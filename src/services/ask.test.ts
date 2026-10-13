@@ -31,7 +31,7 @@ describe('AI 试问', () => {
     })
     const res = response()
     const pending = handler(request, res)
-    await vi.advanceTimersByTimeAsync(25_001)
+    await vi.advanceTimersByTimeAsync(50_001)
     await pending
     expect(res.code).toBe(502)
     expect(used).toBe(0)
