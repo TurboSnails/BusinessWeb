@@ -21,8 +21,8 @@ export function publishedPosts(posts: BlogEntry[] = entries): BlogEntry[] {
   return posts.filter(post => post.status === 'published').sort((a, b) => b.publishedAt.localeCompare(a.publishedAt) || a.slug.localeCompare(b.slug))
 }
 
-export function findBlogPost(slug: string): BlogEntry | undefined {
-  return publishedPosts().find(post => post.slug === slug)
+export function findBlogPost(slug: string, posts: BlogEntry[] = entries): BlogEntry | undefined {
+  return publishedPosts(posts).find(post => post.slug === slug)
 }
 
 export async function loadBlogMarkdown(file: string): Promise<string> {
