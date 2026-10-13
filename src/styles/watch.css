@@ -185,3 +185,15 @@
 
 .watch-group h3 small { margin-left: 6px; color: var(--text-tertiary); font-size: 0.7rem; font-weight: 400; }
 .watch-group .watch-muted a { color: var(--accent-ink); }
+
+.watch-signals { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--space-2); margin: var(--space-4) 0 0; padding: 0; list-style: none; }
+.watch-signals li { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-left: 3px solid var(--border-subtle); border-radius: var(--radius-sm); background: var(--bg-primary); }
+.watch-signals .tone-green { border-left-color: var(--system-green); }
+.watch-signals .tone-yellow { border-left-color: var(--accent-warm); }
+.watch-signals .tone-red { border-left-color: var(--system-red); }
+.watch-signals__name { color: var(--text-secondary); font-size: 0.74rem; }
+.watch-signals b { font-variant-numeric: tabular-nums; }
+.watch-signals small { color: var(--text-secondary); font-size: 0.72rem; }
+.watch-optsent { margin-top: var(--space-4); }
+.watch-optsent h3 { margin: 0; font-size: 0.85rem; }
+.watch-optsent h3 small { margin-left: 6px; color: var(--text-secondary); font-weight: 400; }

@@ -103,3 +103,15 @@ describe('moodOf', () => {
     expect(moodOf({ ...base, upCount: null, downCount: null, ztCount: null, dtCount: null }).mood).toBe('数据不足')
   })
 })
+
+describe('观察盘：风险信号与期权情绪', () => {
+  it('宏观块显示六项信号灯，并带上期权情绪摘要', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (u: string) => ({ ok: true, json: async () => (String(u).includes('/api/sentiment') ? { equityPC: 0.58, spxPC: 1.15, pcDate: '2026-10-09', vix: 15.6, vix3m: 18.1, gexBn: 7.7, goldSilver: 67.7 } : macro) }) as unknown as Response))
+    render(<MemoryRouter><WatchBoard /></MemoryRouter>)
+    const macroBlock = await screen.findByRole('region', { name: '宏观阶段' })
+    const list = await within(macroBlock).findByRole('list', { name: '六项风险信号' })
+    expect(within(list).getAllByRole('listitem')).toHaveLength(6)
+    expect(await within(macroBlock).findByText('VIX 期限')).toBeTruthy()
+    expect(within(macroBlock).getByText('正常')).toBeTruthy()
+  })
+})

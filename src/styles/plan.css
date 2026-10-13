@@ -517,3 +517,6 @@
 .trend-co[open] .trend-co__chev { transform: rotate(180deg); }
 .trend-co__body { padding: 0 14px 14px; border-top: 1px solid var(--border-subtle); }
 .trend-co__reason { margin: 12px 0 8px; font-weight: 600; line-height: 1.7; }
+
+.plan-gates { display: grid; gap: var(--space-4); margin: 0; padding: 0; list-style: none; }
+.plan-table tr.is-current td { background: var(--system-blue-light); }

@@ -1,6 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { SIGNALS, STAGES, computeStage, signalTone, type Stage } from '../features/macro/stages'
-import { useSearchParams } from 'react-router-dom'
+import { ageInDays, signalValues } from '../features/macro/indicators'
+import { signalReadout } from '../features/macro/readout'
+import { cycleReadout, QUADRANTS } from '../features/macro/cycle'
+import { useMacroSnapshot, type MacroLive } from '../features/macro/useMacroSnapshot'
+import { Link, useSearchParams } from 'react-router-dom'
+import { CORE_QUALITY, GOOD_COMPANY_BASELINE, QUADRANT_TILTS, GOOD_COMPANY_BY_TYPE, SCREENING_DISCIPLINE, SCREENING_GATES } from '../features/plan/screening'
 import { PageTabs, PageTitle, Segmented } from '../components/ui/PageTabs'
 import { calculateRiskContribution, RISK_SAMPLE } from '../features/plan/riskContribution'
 import {
@@ -40,7 +45,8 @@ import {
   Plus,
   Trash2,
   RotateCcw,
-  Ban
+  Ban,
+  Filter
 } from 'lucide-react'
 import { Page } from '../components/ui'
 import IndustryTrend from '../features/plan/IndustryTrend'
@@ -871,26 +877,36 @@ const Allocation: React.FC = () => {
 
 /* ───────────────────────── 页签：风险仪表盘 ───────────────────────── */
 
+const LIVE_TEXT: Record<MacroLive, string> = { idle: '静态快照', loading: '正在取实时数据…', live: '实时数据', fallback: '静态快照（实时数据暂不可用）' }
+
 const Dashboard: React.FC<{
-  values: Record<string, string>
-  setValues: React.Dispatch<React.SetStateAction<Record<string, string>>>
-  updated: string
-  setUpdated: (s: string) => void
-}> = ({ values, setValues, updated, setUpdated }) => {
-  const { stage, entered, score } = computeStage(values)
-  const set = (id: string, v: string) => {
-    setValues(p => ({ ...p, [id]: v }))
-    setUpdated(new Date().toISOString().slice(0, 10))
-  }
+  values: Record<string, number>
+  dates: Record<string, string>
+  generatedAt: string
+  live: MacroLive
+  onRefresh: () => void
+}> = ({ values, dates, generatedAt, live, onRefresh }) => {
+  const { stage, entered, score } = computeStage(Object.fromEntries(Object.entries(values).map(([k, v]) => [k, String(v)])))
+  const readout = signalReadout(values, stage)
 
   return (
     <div className="ui-stack ui-stack--lg">
       <Card
         title="信号仪表盘"
         icon={<Gauge size={18} />}
-        right={<span className="plan-small plan-muted">{updated ? `上次更新 ${updated}` : '尚未填写'}</span>}
+        right={
+          <div className="ui-cluster">
+            <span className="plan-small plan-muted">{LIVE_TEXT[live]}{generatedAt ? ` · 快照 ${generatedAt}` : ''}</span>
+            <button type="button" className="tool-btn tool-btn--primary" onClick={onRefresh} disabled={live === 'loading'}>
+              <RefreshCw size={14} /> {live === 'loading' ? '获取中…' : '刷新全部'}
+            </button>
+          </div>
+        }
       >
-        <Note>旧版把1月的读数写死在页面里，现在已过期。这里改为你自己填当前值，页面按阈值给出颜色并折算阶段。数据只保存在本机浏览器。</Note>
+        <Note>读数全部自动获取，无需输入：先显示每月更新的快照，再用实时接口覆盖（与观察盘、宏观页同一套数据），按阈值着色并折算阶段。</Note>
+        {generatedAt && ageInDays(generatedAt) > 35 && live !== 'live' && (
+          <div className="plan-mt"><Note tone="yellow">自动快照已有 {ageInDays(generatedAt)} 天没更新且实时数据不可用，读数可能过期；请检查 macro-snapshot 工作流。</Note></div>
+        )}
         <div className="ui-table-wrap plan-table-wrap plan-mt">
           <table className="ui-table plan-table">
             <thead>
@@ -902,7 +918,7 @@ const Dashboard: React.FC<{
             </thead>
             <tbody>
               {SIGNALS.map(s => {
-                const v = num(values[s.id] ?? '')
+                const v = values[s.id] ?? NaN
                 const tone = signalTone(s, v)
                 return (
                   <tr key={s.id}>
@@ -911,15 +927,13 @@ const Dashboard: React.FC<{
                       <div className="plan-xs plan-muted">{s.hint}</div>
                     </td>
                     <td className="plan-w-140">
-                      <div className="ui-cluster">
-                        <input className="ui-input" inputMode="decimal" value={values[s.id] ?? ''} onChange={e => set(s.id, e.target.value)} />
-                        <span className="plan-xs plan-muted plan-nowrap">{s.unit}</span>
-                      </div>
+                      <div className="plan-strong">{Number.isFinite(v) ? v : '暂缺'}<span className="plan-xs plan-muted plan-nowrap"> {s.unit}</span></div>
+                      <div className="plan-xs plan-muted">{dates[s.id] ? `数据日 ${dates[s.id].slice(5)}` : ''}</div>
                     </td>
                     <td>{s.yellow}</td>
                     <td>{s.red}</td>
                     <td>
-                      <Pill tone={tone}>{tone === 'gray' ? '未填' : tone === 'green' ? '正常' : tone === 'yellow' ? '预警' : '危险'}</Pill>
+                      <Pill tone={tone}>{tone === 'gray' ? '暂缺' : tone === 'green' ? '正常' : tone === 'yellow' ? '预警' : '危险'}</Pill>
                     </td>
                     <td className="plan-small plan-muted">{s.source}</td>
                   </tr>
@@ -930,13 +944,18 @@ const Dashboard: React.FC<{
         </div>
       </Card>
 
+      <Card title="自动解读" icon={<Info size={18} />}>
+        <p className="plan-body plan-strong">{readout.headline}</p>
+        <Bullets items={readout.lines} tone="gray" />
+      </Card>
+
       <Card title={`当前阶段：${stage.name}`} icon={<AlertTriangle size={18} />} accent={TONE[stage.tone].fg}>
         <div className="ui-cluster plan-mb">
           <Pill tone={stage.tone}>阶段 {stage.level}</Pill>
-          <span className="plan-small plan-muted">已填 {entered}/{SIGNALS.length} 项 · 风险分 {score}（危险计2分，预警计1分）</span>
+          <span className="plan-small plan-muted">有数据 {entered}/{SIGNALS.length} 项 · 风险分 {score}（危险计2分，预警计1分）</span>
         </div>
         {entered < 3 ? (
-          <Note tone="yellow">至少填写3项信号后，阶段判断才有参考意义。</Note>
+          <Note tone="yellow">可用读数不足 3 项，阶段判断暂无参考意义。</Note>
         ) : (
           <>
             <p className="plan-body">{stage.summary}</p>
@@ -1005,6 +1024,141 @@ const Dashboard: React.FC<{
     </div>
   )
 }
+
+/* ───────────────────────── 页签：选股流程 ───────────────────────── */
+
+const LENS_TONE = { 周期: 'red', 巴菲特: 'blue', 林奇: 'yellow', 辅助: 'gray', 纪律: 'green' } as const
+
+const DIR_ARROW = { up: '↑', down: '↓', flat: '→' } as const
+
+const CycleCard: React.FC = () => {
+  const { snap } = useMacroSnapshot()
+  if (!snap) return <Card title="周期定位（自动）" icon={<Gauge size={18} />}><p className="plan-small plan-muted">正在读取宏观快照…</p></Card>
+  const c = cycleReadout(snap)
+  const cur = c.quadrant
+  return (
+    <Card title="周期定位（自动）" icon={<Gauge size={18} />} right={<span className="plan-small plan-muted">快照 {snap.generatedAt}</span>}>
+      <div className={grid(250)}>
+        {([['增长', c.growth], ['通胀', c.inflation]] as const).map(([name, a]) => (
+          <div key={name}>
+            <div className="plan-strong">{name} {DIR_ARROW[a.dir]} {a.label}</div>
+            <div className="plan-xs plan-muted">{a.detail}</div>
+          </div>
+        ))}
+      </div>
+      <p className="plan-body plan-strong plan-mt">{cur ? `当前象限：${QUADRANTS[cur].name}（${QUADRANTS[cur].tag}）` : '增长与通胀信号分歧或持平，暂不归入象限：不做倾斜，按常态走。'}</p>
+      <div className="ui-table-wrap plan-table-wrap">
+        <table className="ui-table plan-table">
+          <thead><tr>{['象限', '更容易出机会', '更要谨慎', '选股动作'].map(h => <th key={h}>{h}</th>)}</tr></thead>
+          <tbody>
+            {QUADRANT_TILTS.map(t => (
+              <tr key={t.key} className={t.key === cur ? 'is-current' : undefined} aria-current={t.key === cur ? 'true' : undefined}>
+                <td className="plan-strong plan-nowrap">{QUADRANTS[t.key].name}{t.key === cur ? ' ← 当前' : ''}</td>
+                <td className="plan-small">{t.favor}</td>
+                <td className="plan-small">{t.careful}</td>
+                <td className="plan-small plan-muted">{t.action}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="plan-kicker plan-mt">债务周期（长期背景，只决定对杠杆的容忍度，不用来择时）</div>
+      <div className="ui-table-wrap plan-table-wrap">
+        <table className="ui-table plan-table">
+          <thead><tr>{['读数', '最新', '约一年前', '含义'].map(h => <th key={h}>{h}</th>)}</tr></thead>
+          <tbody>
+            {c.debt.map(d => (
+              <tr key={d.name}>
+                <td className="plan-strong">{d.name}</td>
+                <td>{Number(d.latest.toFixed(2))} {d.unit}</td>
+                <td>{d.prior === null ? '—' : `${Number(d.prior.toFixed(2))} ${d.unit}`}</td>
+                <td className="plan-small plan-muted">{d.note}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="plan-mt">
+        <Note tone="gray">四象限是历史倾向，不是预测：同一象限里不同公司的结果差别很大。方向用最近几期与更早几期的差判断并带死区，信号相互矛盾时不硬归类。周期决定先找哪一类，不决定买不买；买不买仍由后面几关决定。</Note>
+      </div>
+    </Card>
+  )
+}
+
+const ScreeningFlow: React.FC = () => (
+  <div className="ui-stack ui-stack--lg">
+    <Card title="从周期到持有：八道关" icon={<Filter size={18} />} accent="var(--system-blue)">
+      <p className="plan-body">达利欧的周期定风向（先找哪一类），林奇定节奏（分类、主导变量、何时买卖），巴菲特定边界（能力圈、质地、价格）。标准只有一句：好公司，合理价格。每一关只回答一个问题，过不了就停在这一关，不往下走。</p>
+      <Note tone="gray">不设盈亏比硬门槛；护城河通过率和主动额度单只上限沿用站内现有规则。本页是流程，不是荐股。</Note>
+    </Card>
+    <CycleCard />
+    <ol className="plan-gates" aria-label="选股八道关">
+      {SCREENING_GATES.map(g => (
+        <li key={g.id}>
+          <Card>
+            <div className="ui-cluster plan-mb-sm">
+              <div className="plan-step-num" aria-hidden="true">{g.step}</div>
+              <h3 className="plan-card__title">{g.title}</h3>
+              <Pill tone={LENS_TONE[g.lens]}>{g.lens}</Pill>
+              <Link to={g.to} className="plan-small">{g.link} →</Link>
+            </div>
+            <p className="plan-strong">{g.question}</p>
+            <Bullets items={g.actions} tone={LENS_TONE[g.lens]} />
+            <div className={`${grid(250)} plan-mt`}>
+              <div><div className="plan-kicker plan-kicker--do">通过条件</div><div className="plan-small">{g.pass}</div></div>
+              <div><div className="plan-kicker">产出</div><div className="plan-small">{g.out}</div></div>
+            </div>
+          </Card>
+        </li>
+      ))}
+    </ol>
+    <Card title="好公司，合理价格：到底怎么判" icon={<CheckCircle2 size={18} />}>
+      <div className="plan-kicker plan-kicker--do">第一块：共同底线（任何类型都要过）</div>
+      <Bullets items={GOOD_COMPANY_BASELINE} tone="green" />
+      <div className="plan-kicker plan-mt">第二、三块：按林奇类型分别判断</div>
+      <div className="ui-table-wrap plan-table-wrap">
+        <table className="ui-table plan-table">
+          <thead><tr>{['类型', '好公司标准', '合理价格（同类关注度）'].map(h => <th key={h}>{h}</th>)}</tr></thead>
+          <tbody>
+            {GOOD_COMPANY_BY_TYPE.map(t => (
+              <tr key={t.type}>
+                <td className="plan-strong plan-nowrap">{t.type}</td>
+                <td className="plan-small">{t.good}</td>
+                <td className="plan-small">{t.price}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="plan-kicker plan-kicker--do plan-mt">最严一档：核心白马（稳健型、缓慢增长型，底仓和长期持有）</div>
+      <p className="plan-small plan-muted plan-mb-sm">三条全过，一项不过就放弃。不用于成长、反转、周期型：它们刚经历亏损或上市不久，没有 10 年 ROE，按这条会被误杀，应按上表各自的标准。</p>
+      <div className="ui-table-wrap plan-table-wrap">
+        <table className="ui-table plan-table">
+          <thead><tr>{['硬指标', '标准', '怎么核实'].map(h => <th key={h}>{h}</th>)}</tr></thead>
+          <tbody>
+            {CORE_QUALITY.map(c => (
+              <tr key={c.name}>
+                <td className="plan-strong plan-nowrap">{c.name}</td>
+                <td className="plan-small">{c.rule}</td>
+                <td className="plan-small plan-muted">{c.check}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="plan-mt">
+        <Note tone="gray">口径来自公司研究页「分组规则」，由脚本统一计算，只用于初筛，边界公司会分错；同类关注度只在同类型内比较，周期股的「高」与成长股的「高」标准不同，不能跨类比。护城河只检验财务痕迹，不能证明护城河本身。</Note>
+      </div>
+    </Card>
+    <Card title="四条纪律" icon={<ShieldCheck size={18} />}>
+      <div className={grid(250)}>
+        {SCREENING_DISCIPLINE.map(r => (
+          <div key={r.title}><div className="plan-strong">{r.title}</div><div className="plan-small plan-muted">{r.detail}</div></div>
+        ))}
+      </div>
+    </Card>
+  </div>
+)
 
 /* ───────────────────────── 页签：日历与财报 ───────────────────────── */
 
@@ -1383,10 +1537,11 @@ const Review: React.FC = () => {
 
 /* ───────────────────────── 页面 ───────────────────────── */
 
-type TabId = 'overview' | 'industry' | 'allocation' | 'dashboard' | 'calendar' | 'sentiment' | 'review'
+type TabId = 'overview' | 'industry' | 'screening' | 'allocation' | 'dashboard' | 'calendar' | 'sentiment' | 'review'
 const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
   { id: 'overview', label: '总览', icon: <LayoutDashboard size={17} /> },
   { id: 'industry', label: '产业趋势', icon: <Factory size={17} /> },
+  { id: 'screening', label: '选股流程', icon: <Filter size={17} /> },
   { id: 'allocation', label: '配置与纪律', icon: <PieChart size={17} /> },
   { id: 'dashboard', label: '风险仪表盘', icon: <Gauge size={17} /> },
   { id: 'calendar', label: '日历与财报', icon: <CalendarDays size={17} /> },
@@ -1406,15 +1561,16 @@ const InvestmentPlan2026 = () => {
       next.delete('sec')
       return next
     }, { replace: true })
-  const [signals, setSignals] = usePersisted<Record<string, string>>('signals', {})
-  const [updated, setUpdated] = usePersisted<string>('signals-updated', '')
   const today = useMemo(() => new Date(), [])
 
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [])
 
-  const { stage, entered } = computeStage(signals)
+  const { snap, live, refresh } = useMacroSnapshot()
+  const auto = useMemo(() => (snap ? signalValues(snap) : {}), [snap])
+  const dates = useMemo(() => (snap ? Object.fromEntries(SIGNALS.flatMap(sig => { const d = snap.series[sig.id as keyof typeof snap.series]?.latest.date; return d ? [[sig.id, d]] : [] })) : {}), [snap])
+  const { stage, entered } = computeStage(Object.fromEntries(Object.entries(auto).map(([k, v]) => [k, String(v)])))
   const nextEvent = CALENDAR.find(e => dayDiff(new Date(e.date), today) >= 0)
 
   return (
@@ -1425,7 +1581,7 @@ const InvestmentPlan2026 = () => {
       <div className="page-toolbar">
         <span className="page-toolbar__note">不预测，先划线：用事前写好的规则代替年初的剧本</span>
         <span>风险阶段：<b className="plan-ink">{entered < 3 ? '待填写' : stage.name}</b></span>
-        <span>修订：2026-10-04</span>
+        <span>{snap ? `宏观快照：${snap.generatedAt}` : '宏观快照：未取到'} · 计划修订：2026-10-04</span>
       </div>
       <details className="plan-revisions">
         <summary >修订说明</summary>
@@ -1434,8 +1590,9 @@ const InvestmentPlan2026 = () => {
 
       {tab === 'overview' && <Overview stage={stage} entered={entered} today={today} nextEvent={nextEvent} />}
       {tab === 'industry' && <IndustryTrend />}
+      {tab === 'screening' && <ScreeningFlow />}
       {tab === 'allocation' && <Allocation />}
-      {tab === 'dashboard' && <Dashboard values={signals} setValues={setSignals} updated={updated} setUpdated={setUpdated} />}
+      {tab === 'dashboard' && <Dashboard values={auto} dates={dates} generatedAt={snap?.generatedAt ?? ''} live={live} onRefresh={() => void refresh()} />}
       {tab === 'calendar' && <CalendarTab today={today} />}
       {tab === 'sentiment' && <Sentiment />}
       {tab === 'review' && <Review />}

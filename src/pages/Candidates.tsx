@@ -58,7 +58,7 @@ export default function Candidates(): JSX.Element {
   return (
     <Page className="cand-page">
       <PageTitle>候选池</PageTitle>
-      <p className="cand-lead">分析筛选之后的落脚点：研究筛出的公司和你自己挑的公司都在这里。逐家估值、写下等待的条件，价格到了再按计划执行。</p>
+      <p className="cand-lead">分析筛选之后的落脚点：研究筛出的公司和你自己挑的公司都在这里。逐家估值、写下等待的条件，价格到了再按计划执行。筛选顺序见<Link to="/investment-plan-2026?tab=screening">投资计划 · 选股流程</Link>。</p>
 
       <dl className="cand-stats" aria-label="候选池概况">
         <div><dt>我的候选</dt><dd>{cand.items.length}<small> 家</small></dd></div>

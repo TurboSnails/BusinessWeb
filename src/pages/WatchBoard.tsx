@@ -4,15 +4,13 @@ import { ArrowRight, RefreshCw } from 'lucide-react'
 import { Page, PageToolbar } from '../components/ui'
 import { PageTitle } from '../components/ui/PageTabs'
 import { fetchMarketDataByType } from '../services/api'
-import { stageFromSnapshot, type MacroSnapshot } from '../features/macro/indicators'
-import { SIGNALS } from '../features/macro/stages'
+import { signalValues, stageFromSnapshot, type MacroSnapshot } from '../features/macro/indicators'
+import { SIGNALS, signalTone } from '../features/macro/stages'
+import { useMacroSnapshot } from '../features/macro/useMacroSnapshot'
 import { loadDailyAnalysis, loadDailySnapshots } from '../features/daily-analysis/data'
 import type { DailySnapshot } from '../features/daily-analysis/types'
 import { MARKET_GROUPS, moodOf, readQuoteCache, writeQuoteCache, type QuoteCache, type QuoteRow } from '../features/watch/sentiment'
 import '../styles/watch.css'
-
-// 宏观快照只请求一次，切走再回来直接用
-let macroCache: MacroSnapshot | null = null
 
 const KEY_READINGS: Array<{ key: 'vix' | 'tenYear' | 'hy' | 'dxy' | 'gold' | 'wti'; name: string; digits: number; unit: string }> = [
   { key: 'vix', name: 'VIX', digits: 1, unit: '' },
@@ -36,7 +34,7 @@ function BlockHead({ title, note, to, link }: { title: string; note?: string; to
   )
 }
 
-function MacroBlock({ snap, error }: { snap: MacroSnapshot | null; error: boolean }): JSX.Element {
+function MacroBlock({ snap, error, tick }: { snap: MacroSnapshot | null; error: boolean; tick: number }): JSX.Element {
   if (!snap) return <section className="watch-block" aria-label="宏观阶段"><BlockHead title="宏观阶段" to="/monitor" link="宏观温度" /><p className="watch-muted" role={error ? 'alert' : 'status'}>{error ? '宏观数据加载失败。' : '正在加载宏观数据…'}</p></section>
   const { stage, score, entered } = stageFromSnapshot(snap)
   return (
@@ -49,13 +47,60 @@ function MacroBlock({ snap, error }: { snap: MacroSnapshot | null; error: boolea
       <p className="watch-stage__summary">{stage.summary}</p>
       <p className="watch-stage__rule"><span>做</span>{stage.does[0]}</p>
       <p className="watch-stage__rule is-dont"><span>不做</span>{stage.doesNot[0]}</p>
+      <ul className="watch-signals" aria-label="六项风险信号">
+        {SIGNALS.map(sig => {
+          const v = signalValues(snap)[sig.id]
+          const tone = v === undefined ? 'gray' : signalTone(sig, v)
+          const date = snap.series[sig.id as keyof typeof snap.series]?.latest.date
+          return (
+            <li key={sig.id} className={`tone-${tone}`}>
+              <span className="watch-signals__name">{sig.name}</span>
+              <b>{v === undefined ? '暂缺' : `${fmt(v, v < 10 ? 2 : 0)}${sig.unit && sig.unit !== 'pp' ? ` ${sig.unit}` : ''}`}</b>
+              <small>{tone === 'gray' ? '未接入' : tone === 'green' ? '正常' : tone === 'yellow' ? '预警' : '危险'}{date ? ` · ${date.slice(5)}` : ''}</small>
+            </li>
+          )
+        })}
+      </ul>
       <dl className="watch-readings">
         {KEY_READINGS.filter(r => snap.series[r.key]).map(r => {
           const d = snap.series[r.key]
           return <div key={r.key}><dt>{r.name}</dt><dd>{fmt(d.latest.value, r.digits)}{r.unit && <small>{r.unit}</small>}</dd><dd className="watch-date">{d.latest.date.slice(5)}</dd></div>
         })}
       </dl>
+      <OptionSentiment tick={tick} />
     </section>
+  )
+}
+
+interface SentimentData { equityPC: number | null; spxPC: number | null; pcDate?: string; vix: number | null; vix3m: number | null; vixDate?: string; gexBn: number | null; goldSilver: number | null }
+const API_BASE = (import.meta.env.VITE_API_BASE || '').replace(/\/$/, '')
+
+/** 期权情绪摘要：与投资计划「情绪」页签同一个 /api/sentiment；取不到就整块不显示 */
+function OptionSentiment({ tick }: { tick: number }): JSX.Element | null {
+  const [d, setD] = useState<SentimentData | null>(null)
+  useEffect(() => {
+    let alive = true
+    fetch(`${API_BASE}/api/sentiment`, { cache: 'no-store' })
+      .then(r => { if (!r.ok) throw new Error(String(r.status)); return r.json() })
+      .then((x: SentimentData) => { if (alive) setD(x) })
+      .catch(() => { if (alive) setD(null) })
+    return () => { alive = false }
+  }, [tick])
+  const num = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v)
+  if (!d) return null
+  const items: Array<[string, string]> = []
+  if (num(d.equityPC)) items.push(['个股 P/C', fmt(d.equityPC)])
+  if (num(d.spxPC)) items.push(['SPX P/C', fmt(d.spxPC)])
+  if (num(d.vix) && num(d.vix3m)) items.push(['VIX 期限', d.vix > d.vix3m ? '倒挂' : d.vix >= d.vix3m * 0.9 ? '接近倒挂' : '正常'])
+  if (num(d.gexBn)) items.push(['Net GEX', `${fmt(d.gexBn, 1)} 十亿`])
+  if (num(d.goldSilver)) items.push(['金银比', fmt(d.goldSilver, 1)])
+  if (!items.length) return null
+  return (
+    <div className="watch-optsent">
+      <h3>期权情绪{d.pcDate ? <small>P/C {d.pcDate.slice(5)}</small> : null}</h3>
+      <dl className="watch-readings">{items.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
+      <p className="watch-muted"><Link to="/investment-plan-2026?tab=sentiment">情绪解读 →</Link></p>
+    </div>
   )
 }
 
@@ -138,8 +183,7 @@ function AShareBlock({ data, loading, error }: { data: DailySnapshot | undefined
 
 /** 观察盘：宏观、全球、A 股三块一页看完；细节去各自的详情页 */
 export default function WatchBoard(): JSX.Element {
-  const [macro, setMacro] = useState<MacroSnapshot | null>(macroCache)
-  const [macroError, setMacroError] = useState(false)
+  const { snap: macro, error: macroError } = useMacroSnapshot()
   const [live, setLive] = useState<Record<string, QuoteRow[]>>({})
   const [quotesLoading, setQuotesLoading] = useState(true)
   const [daily, setDaily] = useState<DailySnapshot[]>(loadDailySnapshots)
@@ -147,14 +191,6 @@ export default function WatchBoard(): JSX.Element {
   const [dailyError, setDailyError] = useState<string | null>(null)
   const [updatedAt, setUpdatedAt] = useState('')
   const [tick, setTick] = useState(0)
-
-  useEffect(() => {
-    if (macroCache) return
-    fetch(`${import.meta.env.BASE_URL}data/macro-us.json`)
-      .then(r => { if (!r.ok) throw new Error(String(r.status)); return r.json() })
-      .then((d: MacroSnapshot) => { macroCache = d; setMacro(d) })
-      .catch(() => setMacroError(true))
-  }, [])
 
   const load = useCallback((signal: AbortSignal) => {
     setQuotesLoading(true); setDailyLoading(true)
@@ -202,7 +238,7 @@ export default function WatchBoard(): JSX.Element {
         </button>
       </PageToolbar>
       <div className="watch-grid">
-        <MacroBlock snap={macro} error={macroError} />
+        <MacroBlock snap={macro} error={macroError} tick={tick} />
         <MarketsBlock groups={groups} loading={quotesLoading} />
         <AShareBlock data={daily[0]} loading={dailyLoading} error={dailyError} />
       </div>

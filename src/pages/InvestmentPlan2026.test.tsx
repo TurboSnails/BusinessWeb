@@ -1,10 +1,11 @@
 import React from 'react'
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import InvestmentPlan2026 from './InvestmentPlan2026'
+import { resetMacroSnapshotCache } from '../features/macro/useMacroSnapshot'
 
-beforeEach(() => { localStorage.clear(); vi.stubGlobal('fetch', vi.fn(async () => new Response('{}', { status: 500 }))) })
+beforeEach(() => { resetMacroSnapshotCache(); localStorage.clear(); vi.stubGlobal('fetch', vi.fn(async () => new Response('{}', { status: 500 }))) })
 afterEach(() => { cleanup(); localStorage.clear(); vi.unstubAllGlobals() })
 
 const openAllocation = () => {
@@ -225,5 +226,48 @@ describe('投资计划 · 产业趋势', () => {
       expect(card.textContent).toContain('主要风险')
       expect(card.textContent).toContain('跟踪指标')
     }
+  })
+})
+
+describe('风险仪表盘：全自动读数与解读', () => {
+  const series = (value: number, date = '2026-10-08') => ({ unit: '', latest: { date, value }, history: [] })
+  const snap = { generatedAt: '2026-10-13', source: 't', series: { sahm: series(0), claims: series(19.8), hy: series(315), vix: series(14.84), dd: series(0.15), kre: series(5) } }
+  const live = { ...snap, generatedAt: '2026-10-14', series: { ...snap.series, vix: series(32, '2026-10-14') } }
+
+  it('没有输入框；先显示快照，再被实时数据覆盖，并给出自动解读', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (u: string) => {
+      if (String(u).includes('macro-us.json')) return new Response(JSON.stringify(snap))
+      if (String(u).includes('/api/macro')) return new Response(JSON.stringify({ us: live, warnings: [] }))
+      return new Response('{}', { status: 500 })
+    }))
+    render(<MemoryRouter initialEntries={['/?tab=dashboard']}><InvestmentPlan2026 /></MemoryRouter>)
+    expect(await screen.findByText('自动解读')).toBeTruthy()
+    expect(screen.queryAllByRole('textbox')).toHaveLength(0)
+    expect(await screen.findByText(/VIX：32，已越过危险线 30/)).toBeTruthy()
+    expect(screen.getByText(/实时数据/)).toBeTruthy()
+    const calls = () => (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.filter(([u]) => String(u).includes('/api/macro')).length
+    const before = calls()
+    fireEvent.click(await screen.findByRole('button', { name: /刷新全部/ }))
+    await waitFor(() => expect(calls()).toBe(before + 1))
+    expect(screen.getByText(/区域银行 KRE 连续跑输标普：5 周，已越过危险线 4/)).toBeTruthy()
+  })
+})
+
+describe('选股流程页签', () => {
+  it('显示八道关与四条纪律，入口链接指向站内页面', () => {
+    render(<MemoryRouter initialEntries={['/?tab=screening']}><InvestmentPlan2026 /></MemoryRouter>)
+    expect(screen.getAllByRole('listitem', { name: '' }).length).toBeGreaterThan(0)
+    expect(screen.getByText('产业格局：先划能力圈')).toBeTruthy()
+    expect(screen.getByRole('link', { name: /候选池 · 研究筛出/ }).getAttribute('href')).toBe('/candidates?tab=research')
+    expect(screen.getByText('四条纪律')).toBeTruthy()
+  })
+
+  it('周期定位读取宏观快照，自动给出象限并高亮当前行', async () => {
+    const ser = (h: number[]) => ({ unit: '', latest: { date: '2026-10-01', value: h[h.length - 1] }, history: h.map((v, i) => [`2026-${String(i + 1).padStart(2, '0')}-01`, v]) })
+    const snap = { generatedAt: '2026-10-13', source: 't', series: { gdp: ser([1.5, 2.5]), unrate: ser([4.5, 4.4, 4.3, 4.2]), corePce: ser([3.2, 3.1, 3.0, 2.8]), ccDelinq: ser([2, 2, 2, 2, 2.5]) } }
+    vi.stubGlobal('fetch', vi.fn(async (u: string) => (String(u).includes('macro-us.json') ? new Response(JSON.stringify(snap)) : new Response('{}', { status: 500 }))))
+    render(<MemoryRouter initialEntries={['/?tab=screening']}><InvestmentPlan2026 /></MemoryRouter>)
+    expect(await screen.findByText(/当前象限：增长回升 · 通胀回落（最友好）/)).toBeTruthy()
+    expect(screen.getByText('周期定位：先看风向，再选类型')).toBeTruthy()
   })
 })

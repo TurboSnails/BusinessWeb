@@ -26,7 +26,7 @@ export default function About(): JSX.Element {
         <Callout tone="danger" icon={<AlertCircle size={18} />} className="about-gap">
           内容仅为个人研究记录，不构成投资建议；过往业绩不代表未来表现。
         </Callout>
-        <a href="https://cuchiscastagne277-crypto.github.io/website" target="_blank" rel="noopener noreferrer" className="tool-btn about-ext">
+        <a href="https://businessweb-c0u.pages.dev/" target="_blank" rel="noopener noreferrer" className="tool-btn about-ext">
           <ExternalLink size={16} aria-hidden="true" />
           Train 的网页
         </a>
