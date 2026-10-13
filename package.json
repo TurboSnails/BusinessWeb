@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "blog:import": "node scripts/import-blog.mjs",
     "skills:package": "node scripts/generate-investment-method.mjs && node scripts/generate-future-trends-skill.mjs && python3 scripts/package-investment-skills.py",
     "future-trends:picks": "sh scripts/future-trends-picks/run.sh",
     "knowledge:app": "node scripts/knowledge-app.mjs",
