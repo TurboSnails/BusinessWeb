@@ -39,6 +39,7 @@
 .blog-index a:focus-visible,.blog-index button:focus-visible,.blog-reader a:focus-visible,.blog-reader button:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 @media(max-width:760px){.blog-hero__aside{display:none}.blog-filterbar{align-items:stretch;flex-direction:column}.blog-categories{overflow-x:auto;flex-wrap:nowrap}.blog-categories button{white-space:nowrap}.blog-search{width:100%}.blog-endnote{align-items:flex-start;flex-direction:column}.blog-endnote p{font-size:1.1rem}}
 .blog-reader.page--reading{max-width:1100px}
+.blog-reader > .blog-reader__layout{max-width:none}
 .blog-back{display:inline-flex;align-items:center;gap:.4rem;margin:2.5rem 0 3rem;color:var(--accent-ink);text-decoration:none;font-size:.9rem}
 .blog-article-head{max-width:760px;padding-bottom:2rem;border-bottom:1px solid var(--border,#d8d2c4)}
 .blog-article-head h1{font-family:var(--font-serif,serif);font-size:clamp(2.5rem,5vw,4.7rem);font-weight:550;line-height:1.22;letter-spacing:-.05em;margin:0}

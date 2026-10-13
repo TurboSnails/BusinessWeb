@@ -1,5 +1,5 @@
 import { findDirection } from '../data/aiLab'
-import blogManifest from '../content/blog/manifest.json'
+import { publishedManifest } from '../features/blog/generated-manifest'
 import type { BlogEntry } from '../features/blog/catalog'
 
 export const SITE_NAME = 'Live'
@@ -61,7 +61,7 @@ const PREFIX: Array<[string, RouteSeo]> = [
   ['/ai/', { title: 'AI 实验方向', description: 'AI 独立开发的实验方向与笔记。' }],
 ]
 
-export function resolveSeo(pathname: string, blogEntries: BlogEntry[] = blogManifest as BlogEntry[]): RouteSeo & { known: boolean } {
+export function resolveSeo(pathname: string, blogEntries: BlogEntry[] = publishedManifest): RouteSeo & { known: boolean } {
   const path = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname
   const exact = EXACT[path]
   if (exact) return { ...exact, known: true }

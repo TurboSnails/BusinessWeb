@@ -1,4 +1,4 @@
-import { readFile, realpath, mkdir, copyFile, writeFile } from 'node:fs/promises';
+import { readFile, realpath, lstat, mkdir, copyFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -41,12 +41,39 @@ function localUrl(raw) {
   return !/^(?:[a-z][a-z\d+.-]*:|\/|#)/i.test(raw);
 }
 
+function hideCodeFences(markdown) {
+  let fence = null;
+  return markdown.split(/(?<=\n)/).map(line => {
+    const marker = /^ {0,3}(`{3,}|~{3,})/.exec(line)?.[1];
+    if (marker && !fence) { fence = marker; return line.replace(/[^\n]/g, ' '); }
+    if (fence) {
+      if (marker && marker[0] === fence[0] && marker.length >= fence.length) fence = null;
+      return line.replace(/[^\n]/g, ' ');
+    }
+    return line;
+  }).join('');
+}
+
+async function assertNoTargetSymlinks(root, target) {
+  let current = root;
+  for (const part of path.relative(root, target).split(path.sep)) {
+    current = path.join(current, part);
+    try {
+      if ((await lstat(current)).isSymbolicLink()) throw new Error(`Target path contains symlink: ${current}`);
+    } catch (error) {
+      if (error.code === 'ENOENT') return;
+      throw error;
+    }
+  }
+}
+
 export async function importBlog({ sourceRoot, targetRoot, manifestPath }) {
   const entries = JSON.parse(await readFile(manifestPath, 'utf8'));
   validate(entries);
   const canonicalSourceRoot = await realpath(sourceRoot);
   const published = entries.filter((entry) => entry.status === 'published' && entry.sourceFile);
-  const bySource = new Map(published.map((entry) => [path.resolve(canonicalSourceRoot, entry.sourceFile), entry.slug]));
+  const bySource = new Map();
+  for (const entry of published) bySource.set(await sourcePath(canonicalSourceRoot, entry.sourceFile), entry.slug);
   const changes = [];
   for (const entry of published) {
     const source = await sourcePath(canonicalSourceRoot, entry.sourceFile);
@@ -54,28 +81,41 @@ export async function importBlog({ sourceRoot, targetRoot, manifestPath }) {
     const assets = [];
     const replacements = [];
     // Preserve Markdown syntax, changing only URLs in inline links and images.
-    const pattern = /(!?\[[^\]]*\]\()([^\s)]+)(\))/g;
-    for (const match of markdown.matchAll(pattern)) {
-      const url = match[2];
+    const scanned = hideCodeFences(markdown);
+    const patterns = [
+      /(!?\[[^\]\n]*\]\(\s*)(<[^>\n]+>|[^\s)\n]+)/g,
+      /^( {0,3}\[[^\]\n]+\]:[ \t]*)(<[^>\n]+>|[^\s\n]+)/gm,
+    ];
+    for (const pattern of patterns) for (const match of scanned.matchAll(pattern)) {
+      const wrapped = match[2];
+      const url = wrapped.startsWith('<') && wrapped.endsWith('>') ? wrapped.slice(1, -1) : wrapped;
       if (!localUrl(url)) continue;
-      const clean = decodeURIComponent(url.split(/[?#]/, 1)[0]);
+      const suffixAt = url.search(/[?#]/);
+      const clean = decodeURIComponent(suffixAt < 0 ? url : url.slice(0, suffixAt));
+      const suffix = suffixAt < 0 ? '' : url.slice(suffixAt);
       const relative = path.relative(canonicalSourceRoot, path.resolve(path.dirname(source), clean));
       const resolved = await sourcePath(canonicalSourceRoot, relative);
+      let replacement;
       if (/\.md$/i.test(clean)) {
         const slug = bySource.get(resolved);
         if (!slug) throw new Error(`Unpublished or unregistered Markdown link: ${url}`);
-        replacements.push([match.index + match[1].length, url.length, `/blog/${slug}`]);
+        replacement = `/blog/${slug}${suffix}`;
       } else {
-        const assetRelative = path.relative(path.dirname(source), resolved).replaceAll(path.sep, '/');
-        if (assetRelative.startsWith('../')) throw new Error(`Asset outside post directory: ${url}`);
+        let assetRelative = path.relative(path.dirname(source), resolved).replaceAll(path.sep, '/');
+        if (assetRelative.startsWith('../')) assetRelative = `shared/${path.relative(canonicalSourceRoot, resolved).replaceAll(path.sep, '/')}`;
         assets.push({ source: resolved, target: `public/blog/assets/${entry.slug}/${assetRelative}` });
-        replacements.push([match.index + match[1].length, url.length, `/blog/assets/${entry.slug}/${assetRelative}`]);
+        replacement = `/blog/assets/${entry.slug}/${encodeURI(assetRelative)}${suffix}`;
       }
+      replacements.push([match.index + match[1].length + (wrapped.startsWith('<') ? 1 : 0), url.length, replacement]);
     }
     for (const [start, length, replacement] of replacements.reverse()) {
       markdown = markdown.slice(0, start) + replacement + markdown.slice(start + length);
     }
-    changes.push({ entry, markdown, assets });
+    changes.push({ entry, markdown, assets: [...new Map(assets.map(asset => [asset.target, asset])).values()] });
+  }
+  for (const change of changes) {
+    await assertNoTargetSymlinks(targetRoot, inside(targetRoot, change.entry.file));
+    for (const asset of change.assets) await assertNoTargetSymlinks(targetRoot, inside(targetRoot, asset.target));
   }
   let assets = 0;
   for (const change of changes) {

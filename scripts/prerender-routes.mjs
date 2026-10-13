@@ -5,7 +5,7 @@ import { resolve, dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'esbuild'
 import { marked } from 'marked'
-import { blogPaths, blogBaseUrl } from './lib/blog-routes.mjs'
+import { blogPaths, blogBaseUrl, blogHref } from './lib/blog-routes.mjs'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const DIST = resolve(ROOT, 'dist')
@@ -50,7 +50,7 @@ function describe(path) {
   const seo = resolveSeo(path)
   if (path === '/blog') return {
     title: seo.title, description: seo.description,
-    body: blogByPath.size ? `<p>${esc(seo.description)}</p><ul>${[...blogByPath.entries()].map(([url, entry]) => `<li><a href="${esc(url)}">${esc(entry.title)}</a> — ${esc(entry.summary)}</li>`).join('')}</ul>` : '<p>新的文章正在整理中。先读《正念投资》，或探索 AI 实验室。</p><p><a href="/first-book">我的书</a> · <a href="/ai">AI 实验室</a></p>',
+    body: blogByPath.size ? `<p>${esc(seo.description)}</p><ul>${[...blogByPath.entries()].map(([url, entry]) => `<li><a href="${esc(blogHref(url, BASE_URL))}">${esc(entry.title)}</a> — ${esc(entry.summary)}</li>`).join('')}</ul>` : `<p>新的文章正在整理中。先读《正念投资》，或探索 AI 实验室。</p><p><a href="${esc(blogHref('/first-book', BASE_URL))}">我的书</a> · <a href="${esc(blogHref('/ai', BASE_URL))}">AI 实验室</a></p>`,
   }
   const blogPost = blogByPath.get(path)
   if (blogPost) {

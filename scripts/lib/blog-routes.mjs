@@ -7,3 +7,7 @@ export function blogPaths(entries) {
 export function blogBaseUrl(builtHtml) {
   return builtHtml.match(/\bsrc="(\/[^" ]*?)assets\//)?.[1] || '/'
 }
+
+export function blogHref(path, baseUrl) {
+  return `${baseUrl.replace(/\/$/, '')}${path}`
+}

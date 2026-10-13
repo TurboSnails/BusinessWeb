@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, readFile, writeFile, readdir } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, writeFile, readdir, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { importBlog } from './import-blog.mjs';
@@ -62,4 +62,30 @@ test('rewrites a published relative Markdown link and rejects an unpublished tar
   assert.match(await readFile(path.join(options.targetRoot, 'src/content/blog/posts/sample.md'), 'utf8'), /\/blog\/second/);
   await writeFile(path.join(options.sourceRoot, 'blog/sample.md'), '[未发布](private.md)');
   await assert.rejects(importBlog(options), /private.md/);
+});
+
+test('imports titled and reference images, keeps article anchors, and ignores code examples', async () => {
+  const options = await fixture([entry(), entry({ slug: 'second', file: 'src/content/blog/posts/second.md', sourceFile: 'blog/second.md' })]);
+  await mkdir(path.join(options.sourceRoot, 'blog', 'images'), { recursive: true });
+  await writeFile(path.join(options.sourceRoot, 'blog/sample.md'), '![图](images/chart.png "说明")\n\n![另一图][chart]\n\n[继续][second]\n\n[chart]: images/other.png "另一张"\n[second]: second.md#观察\n\n```md\n![example](does-not-exist.png)\n```');
+  await writeFile(path.join(options.sourceRoot, 'blog/second.md'), '# Second');
+  await writeFile(path.join(options.sourceRoot, 'blog/images/chart.png'), 'first');
+  await writeFile(path.join(options.sourceRoot, 'blog/images/other.png'), 'second');
+  assert.deepEqual(await importBlog(options), { articles: 2, assets: 2 });
+  const output = await readFile(path.join(options.targetRoot, entry().file), 'utf8');
+  assert.match(output, /\/blog\/assets\/sample\/images\/chart.png "说明"/);
+  assert.match(output, /\[chart]: \/blog\/assets\/sample\/images\/other.png "另一张"/);
+  assert.match(output, /\[second]: \/blog\/second#观察/);
+  assert.match(output, /does-not-exist.png/);
+});
+
+test('refuses to write through an existing target symlink', async () => {
+  const options = await fixture([entry()]);
+  await mkdir(path.join(options.sourceRoot, 'blog'));
+  await writeFile(path.join(options.sourceRoot, 'blog/sample.md'), '# Safe');
+  const outside = path.join(options.root, 'outside');
+  await mkdir(outside);
+  await symlink(outside, path.join(options.targetRoot, 'src'));
+  await assert.rejects(importBlog(options), /symlink/i);
+  assert.deepEqual(await readdir(outside), []);
 });
