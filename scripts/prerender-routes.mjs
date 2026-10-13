@@ -5,6 +5,7 @@ import { resolve, dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'esbuild'
 import { marked } from 'marked'
+import { blogPaths, blogBaseUrl } from './lib/blog-routes.mjs'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const DIST = resolve(ROOT, 'dist')
@@ -16,9 +17,14 @@ const bundled = await build({
   define: { 'import.meta.env.VITE_SITE_URL': JSON.stringify(ORIGIN) },
 })
 const { resolveSeo, formatTitle } = await import('data:text/javascript;base64,' + Buffer.from(bundled.outputFiles[0].text).toString('base64'))
+const markdownBundle = await build({ entryPoints: [resolve(ROOT, 'src/features/blog/markdown.ts')], bundle: true, format: 'esm', write: false })
+const { renderBlogMarkdown } = await import('data:text/javascript;base64,' + Buffer.from(markdownBundle.outputFiles[0].text).toString('base64'))
 
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 const template = readFileSync(resolve(DIST, 'index.html'), 'utf8')
+const BASE_URL = blogBaseUrl(template)
+const blogEntries = JSON.parse(readFileSync(resolve(ROOT, 'src/content/blog/manifest.json'), 'utf8'))
+const blogByPath = new Map(blogPaths(blogEntries).map(path => [path, blogEntries.find(entry => entry.slug === path.slice('/blog/'.length))]))
 
 const book = new Map()
 for (const m of readFileSync(resolve(ROOT, 'src/pages/FirstBook.tsx'), 'utf8').matchAll(/no: '([^']*)', title: '([^']*)', file: '([^']+\.md)', status: '(?:done|draft)'/g)) {
@@ -42,6 +48,16 @@ mkdirSync(solidReportsDirectory, { recursive: true })
 for (const report of solidCompanies.values()) writeFileSync(resolve(solidReportsDirectory, `${report.id}.json`), JSON.stringify(report, null, 2) + '\n')
 function describe(path) {
   const seo = resolveSeo(path)
+  if (path === '/blog') return {
+    title: seo.title, description: seo.description,
+    body: blogByPath.size ? `<p>${esc(seo.description)}</p><ul>${[...blogByPath.entries()].map(([url, entry]) => `<li><a href="${esc(url)}">${esc(entry.title)}</a> — ${esc(entry.summary)}</li>`).join('')}</ul>` : '<p>新的文章正在整理中。先读《正念投资》，或探索 AI 实验室。</p><p><a href="/first-book">我的书</a> · <a href="/ai">AI 实验室</a></p>',
+  }
+  const blogPost = blogByPath.get(path)
+  if (blogPost) {
+    if (blogPost.file !== `src/content/blog/posts/${blogPost.slug}.md`) throw new Error(`Invalid blog file for ${blogPost.slug}`)
+    const markdown = readFileSync(resolve(ROOT, blogPost.file), 'utf8')
+    return { title: seo.title, description: seo.description, body: `<p>${esc(blogPost.summary)}</p><p>发布于 ${esc(blogPost.publishedAt)}${blogPost.updatedAt ? ` · 更新于 ${esc(blogPost.updatedAt)}` : ''}</p>${renderBlogMarkdown(markdown, BASE_URL).html}` }
+  }
   if (path === '/ai/dev-team') return {
     title: seo.title, description: seo.description,
     body: marked.parse(readFileSync(resolve(ROOT, 'src/content/dev-team-README.md'), 'utf8').replace(/^# .+\r?\n/, '')),

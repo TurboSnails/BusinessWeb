@@ -21,7 +21,7 @@
     "prebuild": "node scripts/generate-changelog.mjs && node scripts/generate-sitemap.mjs",
     "build": "vite build && node scripts/prerender-routes.mjs",
     "preview": "vite preview",
-    "build:pages": "VITE_BASE_PATH=/BusinessWeb/ VITE_MARKET_DIRECT=true VITE_API_BASE=https://business-web-black.vercel.app vite build && node scripts/prepare-pages.mjs && node scripts/prerender-routes.mjs",
+    "build:pages": "node scripts/generate-sitemap.mjs && VITE_BASE_PATH=/BusinessWeb/ VITE_MARKET_DIRECT=true VITE_API_BASE=https://business-web-black.vercel.app vite build && node scripts/prepare-pages.mjs && node scripts/prerender-routes.mjs",
     "test:functions": "node scripts/check-functions.mjs",
     "test:scripts": "node --test scripts/*.test.mjs",
     "knowledge:cloud": "node scripts/knowledge-cloud.mjs",

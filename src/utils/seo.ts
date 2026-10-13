@@ -1,4 +1,6 @@
 import { findDirection } from '../data/aiLab'
+import blogManifest from '../content/blog/manifest.json'
+import type { BlogEntry } from '../features/blog/catalog'
 
 export const SITE_NAME = 'Live'
 // canonical 始终指向主站（Vercel）；GitHub Pages 副本也会指向这里，避免重复收录
@@ -21,6 +23,7 @@ const EXACT: Record<string, RouteSeo> = {
   '/invest/etf': { title: 'ETF 投资指南', description: 'ETF 的选择、定投与网格交易思路。' },
   '/invest/national-team': { title: '国家队持仓｜汇金、证金、社保的 A 股持仓', description: '按报告期追踪中央汇金、证金公司、社保基金等持有的 A 股：机构、行业、个股持仓与季度变化。' },
   '/ai': { title: 'AI 工作室｜独立开发与 AI 学习路线', description: '用 AI 做独立开发：学习路线、实验方向与工具笔记。' },
+  '/blog': { title: '博客｜投资、AI 与自由生活', description: '关于投资的耐心、AI 的实践，和通往自由生活的每一步。' },
   '/ai/fullstack-roadmap': { title: 'AI 全栈学习路线', description: '从零到独立开发者的 AI 全栈学习计划。' },
   '/ai/dev-team': { title: 'dev-team 使用说明｜Orca 开发团队', description: 'Orca 开发团队 dev-team 的完整使用说明：安装、自检、项目配置、日常派工、交接与验证范围，含完整 ZIP 和原文下载。' },
   '/life': { title: '生活实验室', description: '自由生活的长期实验记录。' },
@@ -58,10 +61,15 @@ const PREFIX: Array<[string, RouteSeo]> = [
   ['/ai/', { title: 'AI 实验方向', description: 'AI 独立开发的实验方向与笔记。' }],
 ]
 
-export function resolveSeo(pathname: string): RouteSeo & { known: boolean } {
+export function resolveSeo(pathname: string, blogEntries: BlogEntry[] = blogManifest as BlogEntry[]): RouteSeo & { known: boolean } {
   const path = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname
   const exact = EXACT[path]
   if (exact) return { ...exact, known: true }
+  if (path.startsWith('/blog/')) {
+    const slug = path.slice('/blog/'.length)
+    const post = blogEntries.find(entry => entry.status === 'published' && entry.slug === slug)
+    return post ? { title: `${post.title}｜博客`, description: post.summary, known: true } : { title: '页面不存在', noindex: true, known: false }
+  }
   const direction = path.startsWith('/ai/') ? findDirection(path.slice('/ai/'.length)) : undefined
   if (direction) return { title: `${direction.title}｜AI实验室`, description: direction.reason, known: true }
   let best: [string, RouteSeo] | undefined
