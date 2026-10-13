@@ -35,6 +35,10 @@ import {
 import { useCompanies, useLynch, sectorsOf, Market, Company, LynchInfo } from '../data/companies'
 import CompanyCombined from '../components/CompanyCombined'
 import CandidateButton from '../components/CandidateButton'
+import { DcfCell, DcfFilterChips } from '../components/DcfCell'
+import { useToolSources } from '../features/candidates/useToolSources'
+import { toolProgress } from '../features/candidates/links'
+import { matchDcfFilter, type DcfFilterId } from '../features/dcf/filter'
 import { useCandidates } from '../features/candidates/useCandidates'
 import { CN_REPORT } from '../data/cnReassessment'
 import ResearchNotice from '../components/research/ResearchNotice'
@@ -92,6 +96,9 @@ export default function ResearchNotes(): JSX.Element {
   const { list: ndxNewList, loading: ndxNewLoading } = useCompanies('ndx', inCategory)
   const lynch = useLynch(inCategory)
   const cand = useCandidates(inCategory)
+  const tools = useToolSources()
+  const [dcfF, setDcfF] = useState<DcfFilterId>('all')
+  const dcfOk = (c: Company): boolean => dcfF === 'all' || matchDcfFilter(dcfF, toolProgress(c.market, c.code, tools).dcf)
   const isCand = (c: Company): boolean => cand.items.some(i => i.market === c.market && i.code === c.code)
   const toggleCand = (c: Company): void => cand.toggle(c.market, c.code)
   const [lTier, setLTier] = useState('全部')
@@ -103,7 +110,7 @@ export default function ResearchNotes(): JSX.Element {
   // 切换市场时清空筛选，避免上一个市场的评级/类型筛选让新市场的列表为空
   useEffect(() => { setRatingF('全部'); setQ(''); setLTier('全部'); setLMoat('全部'); setLType('全部') }, [catMarket])
   const resetFilters = (): void => { setRatingF('全部'); setQ(''); setLTier('全部'); setLMoat('全部'); setLType('全部'); updateParams({ sec: null }) }
-  useEffect(() => { setLimit(60) }, [catMarket, progSector, q, ratingF, lTier, lMoat, lType, view])
+  useEffect(() => { setLimit(60) }, [catMarket, progSector, q, ratingF, lTier, lMoat, lType, view, dcfF])
   const updateParams = (patch: Record<string, string | null>): void =>
     setParams(prev => {
       const next = new URLSearchParams(prev)
@@ -200,7 +207,7 @@ export default function ResearchNotes(): JSX.Element {
     const nw = ndxList.filter(c => c.market === 'ndx').length
     return `纳指100 页签列出 ${ndxList.length} 只权益证券（GOOGL 与 GOOG 为同一公司两类股）：其中 ${sp} 只与标普500 重合、${ad} 只属于「美股非标普」，直接引用已有研究页；另有 ${nw} 家手工研究，市场标记为 ndx，不计入标普500。${NDX_ASOF} 当前价格与采集时间逐家公司单列；原财务与模型不是本轮重新认证，估值仍为研究假设，不构成投资建议。`
   }
-  const shownCompanies = secList.filter(c => (ratingF === '全部' || ratingOf(c) === ratingF) && (!q.trim() || (c.name + c.code).toLowerCase().includes(q.trim().toLowerCase())))
+  const shownCompanies = secList.filter(c => dcfOk(c) && (ratingF === '全部' || ratingOf(c) === ratingF) && (!q.trim() || (c.name + c.code).toLowerCase().includes(q.trim().toLowerCase())))
 
   // 导出：公司、代码、评级、结论（当前筛选 / 全部）
   const exportJson = (list: typeof progList, label: string): void => {
@@ -223,7 +230,7 @@ export default function ResearchNotes(): JSX.Element {
   const lynchShown = lynchBase
     .filter(c => {
       const l = lynchOf(c) as LynchInfo
-      return (lType === '全部' || l.t === lType) && (lTier === '全部' || l.r === lTier) && (lMoat === '全部' || (l.m && l.m.l.startsWith(lMoat))) && (!q.trim() || (c.name + c.code).toLowerCase().includes(q.trim().toLowerCase()))
+      return dcfOk(c) && (lType === '全部' || l.t === lType) && (lTier === '全部' || l.r === lTier) && (lMoat === '全部' || (l.m && l.m.l.startsWith(lMoat))) && (!q.trim() || (c.name + c.code).toLowerCase().includes(q.trim().toLowerCase()))
     })
     .sort((a, b) => {
       const la = lynchOf(a) as LynchInfo; const lb = lynchOf(b) as LynchInfo
@@ -266,12 +273,13 @@ export default function ResearchNotes(): JSX.Element {
       <div className="ui-cluster rn-filters">
         <input value={q} onChange={e => setQ(e.target.value)} placeholder="搜索公司名称或代码" aria-label="搜索公司名称或代码" className="rn-search" />
         {['全部', '高', '中', '低'].map(t => <button key={t} onClick={() => setLTier(t)} className={chip(lTier === t)} aria-pressed={lTier === t}>{t === '全部' ? '关注度：全部' : `关注度：${t}`}</button>)}
+        <DcfFilterChips value={dcfF} onChange={setDcfF} className="ui-cluster" />
         {['全部', '宽', '窄'].map(t => <button key={t} onClick={() => setLMoat(t)} className={chip(lMoat === t)} aria-pressed={lMoat === t}>{t === '全部' ? '护城河：全部' : `护城河：${t}`}</button>)}
         <button type="button" onClick={exportLynch} className="tool-btn">⬇ 导出当前（{lynchShown.length}）JSON</button>
       </div>
       <div className="ui-card rn-card">
         <Table
-          heads={['公司', '林奇类型', '同类估值关注度', '护城河', '关键指标', '林奇判断', '候选']}
+          heads={['公司', '林奇类型', '同类估值关注度', '护城河', '关键指标', '林奇判断', 'DCF', '候选']}
           rows={lynchShown.slice(0, limit).map(c => {
             const l = lynchOf(c) as LynchInfo
             return [
@@ -281,6 +289,7 @@ export default function ResearchNotes(): JSX.Element {
               l.m ? <span className={badge(moatTone(l.m.l))}>{l.m.l.replace('迹象', '')} {l.m.s}/{l.m.n}</span> : '—',
               <span className="rn-small-metrics">PE {fmt1(l.pe, '×')} · 利润 {fmt1(l.g, '%', true)}（两年年化 {fmt1(l.c, '%', true)}）{l.peg !== null && l.peg !== undefined ? ` · PEG ${l.peg}` : ''}{l.ph ? ` · ${l.ph}` : ''}{l.dy !== null && l.dy !== undefined ? ` · 股息 ${l.dy}%` : ''}</span>,
               <span className="rn-cell-wide">{l.v || l.w.join('；')}{l.f.length ? <span className="rn-small rn-small--inline"> ⚠ {l.f[0]}</span> : null}</span>,
+              <DcfCell market={c.market} code={c.code} name={c.name} tools={tools} />,
               <CandidateButton on={isCand(c)} onClick={() => toggleCand(c)} />,
             ]
           })}
@@ -312,6 +321,7 @@ export default function ResearchNotes(): JSX.Element {
             {r} <span className="ui-chip__count">{r === '全部' ? secList.length : secList.filter(c => ratingOf(c) === r).length}</span>
           </button>
         ))}
+        <DcfFilterChips value={dcfF} onChange={setDcfF} className="ui-cluster" />
       </div>
       <div className="ui-cluster rn-filters">
         {[[`导出当前筛选（${shownCompanies.length}）`, shownCompanies, `${catMarket}-${progSector}-${ratingF}`], [`导出该市场全部（${progList.length}）`, progList, `${catMarket}-全部`]].map(([label, list, name]) => (
@@ -322,11 +332,12 @@ export default function ResearchNotes(): JSX.Element {
       </div>
       <div className="ui-card rn-card">
         <Table
-          heads={['公司', '评级', '一句话结论', '候选']}
+          heads={['公司', '评级', '一句话结论', 'DCF', '候选']}
           rows={shownCompanies.slice(0, limit).map(c => [
             <span>{companyLink(c.market, c.code, `${c.name} ${c.code}`)}{c.auto ? <span className={badge('gray', 'rn-badge-inline')}>程序化</span> : null}{catMarket === 'ndx' ? <span className={badge(c.market === 'ndx' ? 'blue' : 'gray', 'rn-badge-inline')}>{c.market === 'ndx' ? '纳指新增' : c.market === 'us' ? '同属标普500' : '美股非标普'}</span> : null}</span>,
             <span className={badge(toneOf(c.rating))}>{c.rating.length > 12 ? c.rating.slice(0, 12) + '…' : c.rating}</span>,
             <span className="rn-cell-wide">{c.headline}</span>,
+            <DcfCell market={c.market} code={c.code} name={c.name} tools={tools} />,
             <CandidateButton on={isCand(c)} onClick={() => toggleCand(c)} />,
           ])}
         />

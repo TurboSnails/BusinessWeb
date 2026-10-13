@@ -671,3 +671,7 @@
   align-items: center;
   gap: 6px;
 }
+
+.rn-dcf { white-space: nowrap; font-size: 0.82rem; }
+.rn-dcf.is-good { color: var(--system-green); font-weight: 600; }
+.rn-dcf.is-bad { color: var(--system-red); font-weight: 600; }

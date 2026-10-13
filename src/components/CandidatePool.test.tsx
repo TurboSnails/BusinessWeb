@@ -101,3 +101,21 @@ describe('CandidatePool with cloud sync', () => {
     expect(localStorage.getItem('rn-candidates-token')).toBeNull()
   })
 })
+
+describe('CandidatePool：按 DCF 筛选', () => {
+  it('只显示安全边际达标的公司，筛选时不能调整顺序', () => {
+    const mk = (code: string, mos: number | null) => ({ price: 10, mos, currency: 'USD', savedAt: '2026-10-13T00:00:00Z', code })
+    const dcf = [mk('A', 0.3), mk('B', 0.05)].map(r => ({
+      key: `dcf|us|${r.code}|公司${r.code}`, market: 'us', code: r.code, company: `公司${r.code}`, savedAt: r.savedAt, schemaVersion: 1,
+      input: { currency: 'USD' }, result: { price: r.price, mos: r.mos }, wacc: {}, multiples: [],
+    }))
+    const items = ['A', 'B', 'C'].map(code => ({ market: 'us' as const, code, addedAt: '2026-10-01T00:00:00Z' }))
+    render(<MemoryRouter><CandidatePool items={items} companies={companies} tools={{ dcf: dcf as never, valuation: [], grid: [] }} state="no-token" message="" onMove={() => {}} onRemove={() => {}} onNote={() => {}} onClear={() => {}} onConnect={() => true} onRetry={() => {}} /></MemoryRouter>)
+    expect(order()).toEqual(['A', 'B', 'C'])
+    fireEvent.click(screen.getByRole('button', { name: '安全边际 ≥20%' }))
+    expect(order()).toEqual(['A'])
+    expect(screen.getByRole('button', { name: '下移 A' }).hasAttribute('disabled')).toBe(true)
+    fireEvent.click(screen.getByRole('button', { name: '未算' }))
+    expect(order()).toEqual(['C'])
+  })
+})

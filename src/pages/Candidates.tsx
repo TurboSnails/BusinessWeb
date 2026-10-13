@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { ListChecks, Microscope } from 'lucide-react'
 import CandidatePool from '../components/CandidatePool'
@@ -8,7 +8,8 @@ import { useCompanies } from '../data/companies'
 import { RESEARCH_INDEX, type ResearchSummary } from '../data/futureTrendsResearch'
 import { poolBucket } from '../data/futureTrendsPresentation'
 import { useCandidates } from '../features/candidates/useCandidates'
-import { MARKET_LABEL, readToolSources, researchToCandidate, toolProgress } from '../features/candidates/links'
+import { MARKET_LABEL, researchToCandidate, toolProgress } from '../features/candidates/links'
+import { useToolSources } from '../features/candidates/useToolSources'
 import FutureTrendsPool from './FutureTrendsPool'
 import '../styles/candidates.css'
 
@@ -30,14 +31,7 @@ export default function Candidates(): JSX.Element {
   const usLists = useMemo(() => ({ us: new Set(us.map(c => c.code)), ndx: new Set(ndx.map(c => c.code)), adr: new Set(adr.map(c => c.code)) }), [us, ndx, adr])
 
   // 从估值、DCF、网格页回来时重新读取本机记录，进度立即更新
-  const [tools, setTools] = useState(readToolSources)
-  useEffect(() => {
-    const refresh = (): void => { if (document.visibilityState !== 'hidden') setTools(readToolSources()) }
-    window.addEventListener('focus', refresh)
-    window.addEventListener('storage', refresh)
-    document.addEventListener('visibilitychange', refresh)
-    return () => { window.removeEventListener('focus', refresh); window.removeEventListener('storage', refresh); document.removeEventListener('visibilitychange', refresh) }
-  }, [])
+  const tools = useToolSources()
 
   const valued = cand.items.filter(i => { const p = toolProgress(i.market, i.code, tools); return p.dcf || p.valuation }).length
   const buyable = useMemo(() => RESEARCH_INDEX.filter(r => poolBucket(r) === 'buy').length, [])

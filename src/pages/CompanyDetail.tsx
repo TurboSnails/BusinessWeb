@@ -11,6 +11,7 @@ import CandidateButton from '../components/CandidateButton'
 import { useCandidates } from '../features/candidates/useCandidates'
 import { priceAnchorAge } from '../features/dcf/priceAnchor'
 import { buildDcfLink } from '../features/dcf'
+import QuickDcf from '../components/QuickDcf'
 import { Badge, Card, EmptyState, Page, Stat, StatGrid, TableWrap } from '../components/ui'
 import { PageDataFreshness } from '../components/ui/PageDataFreshness'
 import '../styles/research.css'
@@ -166,6 +167,7 @@ export default function CompanyDetail(): JSX.Element {
 
       <div>
         <ResearchNotice />
+        <QuickDcf market={company.market} code={company.code} name={company.name} price={price} />
         {(company.market === 'us' || company.market === 'cn' || company.market === 'hk' || company.market === 'adr') && (company.researchReport || company.metrics.some(([key]) => key === '圆桌复核日期')) && (
           <Card title={company.researchReport ? '公司研究 · 本轮事实复核与估值初稿' : '腾讯自选股投研专家团 · 本轮公告复核'}>
             <p className="rn-text">{(company.market === 'hk' || company.market === 'adr') && company.researchReport ? '已逐家核读公司业绩原件并补充新行情，报告列明来源、旧结论修正及待补证据。部分公司有数值敏感性草案；两种独立估值、现金与股本桥接仍待补，旧评级和价位不作为当前结论。' : company.researchReport ? '已按公司核对财报与现金流，完整报告列明来源、旧结论调整及待补证据。估值假设尚未认证；林奇分类仍为此前的程序化筛选结果。' : '本轮已补充公司公告；证据分为公告原件、公告转载及待核实；旧情景价值的认证状态以本轮结论为准。“上轮”指标保留历史口径，林奇分类仍为此前的程序化筛选结果。'}</p>

@@ -6,6 +6,8 @@ import type { SyncState } from '../features/candidates/useCandidates'
 import { MAX_NOTE } from '../features/candidates/validation'
 import type { CandidateItem } from '../features/candidates/validation'
 import { MARKET_LABEL, dcfLink, gridLink, toolProgress, valuationLink, type ToolProgress, type ToolSources } from '../features/candidates/links'
+import { matchDcfFilter, type DcfFilterId } from '../features/dcf/filter'
+import { DcfFilterChips } from './DcfCell'
 import { Card, TableWrap } from './ui'
 import '../styles/research.css'
 
@@ -59,6 +61,7 @@ export default function CandidatePool({ items, companies, tools = NO_TOOLS, stat
   const [token, setToken] = useState('')
   const [tokenError, setTokenError] = useState(false)
   const [confirmClear, setConfirmClear] = useState(false)
+  const [dcfF, setDcfF] = useState<DcfFilterId>('all')
   const byKey = new Map(companies.map(c => [`${c.market}:${c.code}`, c]))
 
   // 公司库优先；不在公司库的（从研究筛出加入的）用主题研究的结论
@@ -85,6 +88,7 @@ export default function CandidatePool({ items, companies, tools = NO_TOOLS, stat
         <span aria-live="polite" className={state === 'error' ? 'rn-pool-status is-error' : 'rn-pool-status'}>{status}</span>
         {message && <span className="rn-pool-msg">{message}</span>}
         {state === 'error' && <button type="button" className="tool-btn" onClick={onRetry}>重试</button>}
+        <DcfFilterChips value={dcfF} onChange={setDcfF} className="ui-cluster" />
         <span className="rn-spacer" />
         <button type="button" className="tool-btn" disabled={!items.length} onClick={exportJson}>⬇ 导出 JSON</button>
         {confirmClear ? (
@@ -115,12 +119,13 @@ export default function CandidatePool({ items, companies, tools = NO_TOOLS, stat
           <table className="ui-table rn-table--top cand-table">
             <thead><tr>{['#', '公司', '我的备注', '研究结论', '估值进度', '去估值', '排序'].map(h => <th key={h} scope="col">{h}</th>)}</tr></thead>
             <tbody>{items.map((i, n) => {
+              if (!matchDcfFilter(dcfF, toolProgress(i.market, i.code, tools).dcf)) return null
               const d = describe(i)
               const grid = gridLink(i.market, i.code, d.name)
               return (
                 <tr key={`${i.market}:${i.code}`} onDragOver={e => { e.preventDefault(); setOver(n) }} onDrop={() => drop(n)}
                   className={dragFrom === n ? 'rn-row-dragging' : over === n && dragFrom !== null ? 'rn-row-over' : undefined}>
-                  <td className="rn-drag" draggable title="拖动调整顺序" onDragStart={() => setDragFrom(n)} onDragEnd={() => { setDragFrom(null); setOver(null) }}>⠿ {n + 1}</td>
+                  <td className="rn-drag" draggable={dcfF === 'all'} title={dcfF === 'all' ? '拖动调整顺序' : '筛选时不能调整顺序'} onDragStart={() => dcfF === 'all' && setDragFrom(n)} onDragEnd={() => { setDragFrom(null); setOver(null) }}>⠿ {n + 1}</td>
                   <td className="cand-company">
                     {d.href ? <Link to={d.href} className="rn-link">{d.name || i.code} {i.code}</Link> : <span>{i.code}</span>}
                     <small>{MARKET_LABEL[i.market]} · <Link to={`/research-notes/company/${i.market}/${encodeURIComponent(i.code)}/notes`} className="rn-link">研究笔记</Link></small>
@@ -137,9 +142,9 @@ export default function CandidatePool({ items, companies, tools = NO_TOOLS, stat
                   </td>
                   <td>
                     <div className="rn-row-actions">
-                      <button type="button" className="tool-btn" aria-label={`上移 ${i.code}`} disabled={n === 0} onClick={() => onMove(n, n - 1)}>↑</button>
-                      <button type="button" className="tool-btn" aria-label={`下移 ${i.code}`} disabled={n === items.length - 1} onClick={() => onMove(n, n + 1)}>↓</button>
-                      <button type="button" className="tool-btn" aria-label={`置顶 ${i.code}`} disabled={n === 0} onClick={() => onMove(n, 0)}>置顶</button>
+                      <button type="button" className="tool-btn" aria-label={`上移 ${i.code}`} disabled={dcfF !== 'all' || n === 0} onClick={() => onMove(n, n - 1)}>↑</button>
+                      <button type="button" className="tool-btn" aria-label={`下移 ${i.code}`} disabled={dcfF !== 'all' || n === items.length - 1} onClick={() => onMove(n, n + 1)}>↓</button>
+                      <button type="button" className="tool-btn" aria-label={`置顶 ${i.code}`} disabled={dcfF !== 'all' || n === 0} onClick={() => onMove(n, 0)}>置顶</button>
                       <button type="button" className="tool-btn" aria-label={`移除 ${i.code}`} onClick={() => onRemove(i)}>移除</button>
                     </div>
                   </td>

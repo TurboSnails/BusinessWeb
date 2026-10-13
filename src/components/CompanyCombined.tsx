@@ -2,6 +2,10 @@ import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import type { Company, LynchInfo } from '../data/companies'
 import CandidateButton from './CandidateButton'
+import { DcfCell } from './DcfCell'
+import { useToolSources } from '../features/candidates/useToolSources'
+import { toolProgress } from '../features/candidates/links'
+import { DCF_FILTERS, matchDcfFilter, type DcfFilterId } from '../features/dcf/filter'
 import { Card, TableWrap } from './ui'
 import '../styles/research.css'
 
@@ -23,6 +27,8 @@ export default function CompanyCombined({ companies, lynch, ratingOf, loading, i
   const [type, setType] = useState('全部')
   const [tier, setTier] = useState('全部')
   const [moat, setMoat] = useState('全部')
+  const [dcfF, setDcfF] = useState<DcfFilterId>('all')
+  const tools = useToolSources()
   const [limit, setLimit] = useState(60)
   // 公司池为左表，林奇数据补充字段；缺标签不丢公司，跨市场同代码不合并。
   const unique = Array.from(new Map(companies.map(c => [`${c.market}:${c.code}`, c])).values())
@@ -35,10 +41,11 @@ export default function CompanyCombined({ companies, lynch, ratingOf, loading, i
     (type === '全部' || (l?.t || '未分类') === type) &&
     (tier === '全部' || l?.r === tier) &&
     (moat === '全部' || (moat === '未提供' ? !l?.m : l?.m?.l.startsWith(moat))) &&
+    (dcfF === 'all' || matchDcfFilter(dcfF, toolProgress(c.market, c.code, tools).dcf)) &&
     (!query.trim() || `${c.name} ${c.code}`.toLowerCase().includes(query.trim().toLowerCase())),
   )
-  useEffect(() => { setLimit(60) }, [query, sector, rating, type, tier, moat])
-  const reset = (): void => { setQuery(''); setSector('全部'); setRating('全部'); setType('全部'); setTier('全部'); setMoat('全部') }
+  useEffect(() => { setLimit(60) }, [query, sector, rating, type, tier, moat, dcfF])
+  const reset = (): void => { setQuery(''); setSector('全部'); setRating('全部'); setType('全部'); setTier('全部'); setMoat('全部'); setDcfF('all') }
   const select = (label: string, value: string, values: string[], change: (value: string) => void): JSX.Element => (
     <label className="rn-select-label">
       {label}<select aria-label={label} value={value} onChange={e => change(e.target.value)} className="rn-select">
@@ -72,6 +79,11 @@ export default function CompanyCombined({ companies, lynch, ratingOf, loading, i
         {select('林奇类型', type, types, setType)}
         {select('同类关注度', tier, ['高', '中', '低'], setTier)}
         {select('护城河', moat, ['宽', '窄', '未提供'], setMoat)}
+        <label className="rn-select-label">
+          DCF<select aria-label="DCF" value={dcfF} onChange={e => setDcfF(e.target.value as DcfFilterId)} className="rn-select">
+            {DCF_FILTERS.map(f => <option key={f.id} value={f.id}>{f.id === 'all' ? '全部' : f.label}</option>)}
+          </select>
+        </label>
         <button type="button" onClick={reset} className="tool-btn">重置筛选</button>
       </div>
       <div className="ui-cluster rn-filters">
@@ -81,7 +93,7 @@ export default function CompanyCombined({ companies, lynch, ratingOf, loading, i
       </div>
       <TableWrap label="综合分类列表" stickyFirst>
         <table className="ui-table rn-table rn-table--top">
-          <thead><tr>{['公司', '行业', '研究评级', '研究结论', '林奇类型', '同类关注度', '护城河', '关键指标', '林奇判断', ...(onToggleCandidate ? ['候选'] : [])].map(h => <th key={h} scope="col">{h}</th>)}</tr></thead>
+          <thead><tr>{['公司', '行业', '研究评级', '研究结论', '林奇类型', '同类关注度', '护城河', '关键指标', '林奇判断', 'DCF', ...(onToggleCandidate ? ['候选'] : [])].map(h => <th key={h} scope="col">{h}</th>)}</tr></thead>
           <tbody>{shown.slice(0, limit).map(({ company: c, info: l }) => (
             <tr key={`${c.market}:${c.code}`}>
               <td className="rn-nowrap"><Link to={`/research-notes/${c.market}/${encodeURIComponent(c.code)}`} onClick={() => { try { sessionStorage.setItem('rn-scroll', String(window.scrollY)) } catch { /* 隐私模式 */ } }} className="rn-link">{c.name} {c.code}</Link>{c.auto && <small className="rn-small">程序化</small>}</td>
@@ -93,6 +105,7 @@ export default function CompanyCombined({ companies, lynch, ratingOf, loading, i
               <td className="rn-mid">{l?.m ? `${l.m.l} ${l.m.s}/${l.m.n}` : '未提供'}</td>
               <td className="rn-mid">{l ? `PE ${number(l.pe, '×')} · 利润 ${number(l.g, '%')}（两年年化 ${number(l.c, '%')}） · PEG ${number(l.peg, '')}${l.ph ? ` · ${l.ph}` : ''}${l.dy != null ? ` · 股息 ${l.dy}%` : ''}` : '未提供'}</td>
               <td className="rn-wide">{l?.v || l?.w.join('；') || '未提供'}{l?.f.length ? <small className="rn-small">提示：{l.f.join('；')}</small> : null}</td>
+              <td className="rn-nowrap"><DcfCell market={c.market} code={c.code} name={c.name} tools={tools} /></td>
               {onToggleCandidate && <td><CandidateButton on={!!isCandidate?.(c)} onClick={() => onToggleCandidate(c)} /></td>}
             </tr>
           ))}</tbody>
