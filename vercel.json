@@ -28,6 +28,8 @@
     { "source": "/api/indexes", "destination": "/api/market-data/indexes" },
     { "source": "/api/sentiment", "destination": "/api/market-data/sentiment" },
     { "source": "/api/daily-analysis", "destination": "/api/market-data/daily-analysis" },
+    { "source": "/blog", "destination": "/blog/index.html" },
+    { "source": "/blog/:slug", "destination": "/blog/:slug/index.html" },
     {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
