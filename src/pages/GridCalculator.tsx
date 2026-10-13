@@ -1,8 +1,8 @@
 import FeeNote from '../features/grid-trading/FeeNote'
 import React, { useState } from 'react'
 import { PageTitle } from '../components/ui/PageTabs'
-import { Link, useNavigate } from 'react-router-dom'
-import { ArrowRight, BarChart3, Save } from 'lucide-react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { ArrowRight, BarChart3, Save, Wand2 } from 'lucide-react'
 import { calculateGrid } from '../features/grid-trading/simulation'
 import { fetchQuotes, getCandles, marketToday, mergeQuote } from '../features/grid-trading/marketData'
 import { saveRecord } from '../features/grid-trading/repository'
@@ -29,6 +29,27 @@ type FormState = {
 type Calculated = { row: GridParams; result: GridResult; candles: Candle[]; source: string; fetchedAt: string; endDate: string }
 
 const blankForm: FormState = { code: '', name: '', date: '', endDate: '', initialPrice: '', initialAmount: '', gridAmount: '', step: '', rebound: '0', pullback: '0', floorPrice: '', budget: '' }
+/** 从候选池等页面带过来的 ?code=&name=，只接受 6 位代码 */
+function formFromParams(params: URLSearchParams): FormState {
+  const code = (params.get('code') ?? '').trim()
+  if (!/^\d{6}$/.test(code)) return blankForm
+  return { ...blankForm, code, name: (params.get('name') ?? '').trim().slice(0, 40) }
+}
+
+/** 一年前的同一天（北京时间），作为默认建仓日 */
+export function oneYearBefore(today: string): string {
+  const [y, m, d] = today.split('-').map(Number)
+  const date = new Date(Date.UTC(y - 1, m - 1, d))
+  return date.toISOString().slice(0, 10)
+}
+
+/** 建议步长：价格的 3%；ETF 精确到 0.001，个股到 0.01，且不小于一个最小价位 */
+export function suggestStep(price: number, etf: boolean): string {
+  const tick = etf ? 0.001 : 0.01
+  const step = Math.max(tick, Math.round((price * 0.03) / tick) * tick)
+  return step.toFixed(etf ? 3 : 2)
+}
+
 const money = (value: number): string => `${value < 0 ? '-' : ''}¥${Math.abs(value).toLocaleString('zh-CN', { maximumFractionDigits: 2 })}`
 const uid = (): string => globalThis.crypto?.randomUUID?.() ?? `grid-${Date.now()}-${Math.random().toString(36).slice(2)}`
 
@@ -69,7 +90,10 @@ function EquityPreview({ result }: { result: GridResult }): JSX.Element {
 
 export default function GridCalculator(): JSX.Element {
   const navigate = useNavigate()
-  const [form, setForm] = useState<FormState>(blankForm)
+  const [params] = useSearchParams()
+  const [form, setForm] = useState<FormState>(() => formFromParams(params))
+  const [suggesting, setSuggesting] = useState(false)
+  const [suggestNotice, setSuggestNotice] = useState('')
   const [calculated, setCalculated] = useState<Calculated | null>(null)
   const [error, setError] = useState('')
   const [quoteNotice, setQuoteNotice] = useState('')
@@ -79,6 +103,39 @@ export default function GridCalculator(): JSX.Element {
   const update = (key: keyof FormState, value: string) => {
     setForm(current => ({ ...current, [key]: value }))
     setSaved(false)
+  }
+
+  // 按建仓日收盘价填入建仓价，并给出步长与金额的起步值；已填写的金额不覆盖
+  const suggest = async () => {
+    const code = form.code.trim()
+    if (!/^\d{6}$/.test(code)) { setError('请先填写六位证券代码。'); return }
+    const date = form.date || oneYearBefore(marketToday())
+    setError('')
+    setSuggestNotice('')
+    setSuggesting(true)
+    try {
+      const history = await getCandles(code, date)
+      const first = history.candles.find(candle => candle.date >= date)
+      if (!first) throw new Error('建仓日之后没有行情数据，请换一个日期。')
+      let name = form.name
+      if (!name.trim()) {
+        try { name = (await fetchQuotes([code])).get(code)?.name ?? '' } catch { /* 名称可选 */ }
+      }
+      const etf = isEtf(code)
+      setForm(current => ({
+        ...current, name, date: first.date,
+        initialPrice: String(first.close),
+        step: suggestStep(first.close, etf),
+        initialAmount: current.initialAmount || '10000',
+        gridAmount: current.gridAmount || '2000',
+      }))
+      setSaved(false)
+      setSuggestNotice(`已按 ${first.date} 收盘价 ${first.close} 填入建仓价，步长取价格的 3%；金额是起步值，请按自己的预算调整。`)
+    } catch (suggestError) {
+      setError(suggestError instanceof Error ? suggestError.message : '获取行情失败，请稍后再试。')
+    } finally {
+      setSuggesting(false)
+    }
   }
 
   const run = async (event: React.FormEvent) => {
@@ -144,7 +201,7 @@ export default function GridCalculator(): JSX.Element {
 
   return <Page className="grid-page">
     <FeeNote code={form.code} />
-    <PageTitle>ETF 网格交易</PageTitle>
+    <PageTitle>网格交易</PageTitle>
     <div className="page-toolbar">
       <span className="page-toolbar__note">用前复权日线推演网格策略，回测记录默认保存在当前浏览器，不会自动上传。</span>
       <Link className="tool-btn" to="/grid-trading/records">查看已保存记录 <ArrowRight size={15} /></Link>
@@ -157,7 +214,7 @@ export default function GridCalculator(): JSX.Element {
       </div>
       <form className="grid-form" onSubmit={event => void run(event)} noValidate>
         <label>证券代码
-          <input value={form.code} onChange={event => update('code', event.target.value)} inputMode="numeric" maxLength={6} placeholder="如 510300" />
+          <input aria-label="证券代码" value={form.code} onChange={event => update('code', event.target.value)} inputMode="numeric" maxLength={6} placeholder="如 510300" />
           {form.code.length === 6 && <small>{isEtf(form.code) ? 'ETF' : 'A 股'} · {marketPrefix} 交易所</small>}
         </label>
         <label>标的名称<input value={form.name} onChange={event => update('name', event.target.value)} placeholder="可选" /></label>
@@ -171,7 +228,11 @@ export default function GridCalculator(): JSX.Element {
         <label>卖出回落<input type="number" min="0" step="0.001" value={form.pullback} onChange={event => update('pullback', event.target.value)} /></label>
         <label>价格下沿<input type="number" min="0" step="0.001" value={form.floorPrice} onChange={event => update('floorPrice', event.target.value)} placeholder="可选" /><small>可选：网格买入价低于此价时永久停止买入，卖出不受影响</small></label>
         <label>资金预算<input type="number" min="0" step="100" value={form.budget} onChange={event => update('budget', event.target.value)} placeholder="可选 ¥" /><small>可选：最大资金占用超过预算时给出告警，不改变回测结果</small></label>
-        <div className="grid-submit-row"><button type="submit" className="grid-button" disabled={busy}>{busy ? '正在获取行情并回测…' : '运行回测'}</button></div>
+        <div className="grid-submit-row">
+          <button type="button" className="tool-btn" disabled={suggesting || busy} title="按建仓日收盘价填入建仓价与步长；建仓日留空时取一年前" onClick={() => void suggest()}><Wand2 size={15} aria-hidden="true" />{suggesting ? '正在取价…' : '填入建议参数'}</button>
+          <button type="submit" className="grid-button" disabled={busy}>{busy ? '正在获取行情并回测…' : '运行回测'}</button>
+        </div>
+        {suggestNotice && <p className="grid-suggest-note" role="status">{suggestNotice}</p>}
       </form>
       <div className="grid-assumption"><strong>回测假设</strong>：按日线最高/最低价判断触发，成交按固定网格价；建仓日不触发。若同一日同时触及买卖价，按买入优先处理，一天最多一笔。这是历史模拟，不会提交实盘委托。</div>
       {error && <p className="grid-error-text" role="alert">{error}</p>}

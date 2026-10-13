@@ -186,3 +186,44 @@ describe('配置与纪律的小节导航', () => {
     expect(screen.getByText(/自由生活覆盖率/)).toBeTruthy()
   })
 })
+
+describe('投资计划 · 产业趋势', () => {
+  it('第二个页签是产业趋势：主线、三个判断、存储复盘、产业链对照、Palantir、联动下跌纪律与待核清单', () => {
+    render(<MemoryRouter initialEntries={['/?tab=industry']}><InvestmentPlan2026 /></MemoryRouter>)
+    expect(screen.getByRole('heading', { level: 1, name: '投资计划' })).toBeTruthy()
+    const tabs = screen.getAllByRole('tab')
+    expect(tabs[1].textContent).toBe('产业趋势')
+    expect(tabs[1].getAttribute('aria-selected')).toBe('true')
+    expect(screen.getByRole('heading', { name: /AI 算力链/ })).toBeTruthy()
+    for (const name of [/三个判断/, /存储股为什么会在需求很好时大跌/, /产业链对照/, /重点公司排序/, /联动下跌|连带博通/]) {
+      expect(screen.getByRole('region', { name })).toBeTruthy()
+    }
+    const table = screen.getByRole('table', { name: 'AI 算力链各环节对照' })
+    expect(table.querySelectorAll('tbody tr')).toHaveLength(6)
+    expect(table.textContent).toContain('Palantir')
+    expect(screen.getByText(/卖出看跌期权属于衍生品操作/)).toBeTruthy()
+    expect(screen.getByText(/待核实，不作为依据/)).toBeTruthy()
+    expect(screen.getByRole('link', { name: /去候选池写条件/ }).getAttribute('href')).toBe('/candidates')
+  })
+
+  it('重点公司按星级从高到低排序，每家都有推荐理由、风险、跟踪指标和结论，Palantir 在列', () => {
+    render(<MemoryRouter initialEntries={['/?tab=industry']}><InvestmentPlan2026 /></MemoryRouter>)
+    expect(screen.getByText(/星级只评业务/)).toBeTruthy()
+    const rank = screen.getByRole('table', { name: '重点公司排序' })
+    const rows = Array.from(rank.querySelectorAll('tbody tr'))
+    const stars = rows.map(r => Number(r.querySelector('[role="img"]')!.getAttribute('aria-label')!.replace(' 星', '')))
+    expect(stars).toEqual([...stars].sort((a, b) => b - a))
+    expect(rows[0].textContent).toContain('台积电')
+    expect(rows[1].textContent).toContain('博通')
+    expect(rows.some(r => r.textContent!.includes('Palantir'))).toBe(true)
+    const cards = document.querySelectorAll('details.trend-co')
+    expect(cards).toHaveLength(rows.length)
+    expect((cards[0] as HTMLDetailsElement).open).toBe(true)
+    expect((cards[2] as HTMLDetailsElement).open).toBe(false)
+    for (const card of Array.from(cards)) {
+      expect(card.textContent).toContain('推荐理由')
+      expect(card.textContent).toContain('主要风险')
+      expect(card.textContent).toContain('跟踪指标')
+    }
+  })
+})

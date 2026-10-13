@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
-  ArrowRight, BookMarked, Building2, Calculator, ChartLine, Grid3x3, Landmark, Network, Search, Thermometer,
+  ArrowRight, BookMarked, Building2, Calculator, ChartLine, Grid3x3, ListChecks, Network, Search, Thermometer,
   type LucideIcon,
 } from 'lucide-react'
 import { WORKBENCH_TOOLS, findSearchablePage, type SearchablePage } from '../data/siteMap'
@@ -15,18 +15,18 @@ import { paletteShortcut } from '../utils/shortcut'
 const SHORTCUT = paletteShortcut()
 
 const TOOL_ICONS: Record<string, LucideIcon> = {
+  '/candidates': ListChecks,
   '/research-notes': Building2,
   '/valuation': Calculator,
   '/dcf': ChartLine,
   '/grid-trading': Grid3x3,
-  '/monitor': Thermometer,
-  '/invest/national-team': Landmark,
+  '/watch': Thermometer,
   '/knowledge': Network,
   '/first-book': BookMarked,
 }
 
 const COLUMNS = [
-  { to: '/invest', title: '投资', desc: '读书、方法、工具与研究。普通人用规则代替盯盘。' },
+  { to: '/invest', title: '投资', desc: '规则、观察盘、分析筛选、候选池与工具。普通人用规则代替盯盘。' },
   { to: '/ai', title: 'AI实验室', desc: '把书里的框架做成小产品，边学边做。' },
   { to: '/life', title: '自由空间', desc: '从 *** 到目标 400 万，再到自由生活的第一年。' },
 ]

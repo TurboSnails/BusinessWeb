@@ -3,7 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import InvestHub from './InvestHub'
-import GridCalculator from './GridCalculator'
+import GridCalculator, { oneYearBefore, suggestStep } from './GridCalculator'
 
 const mocks = vi.hoisted(() => ({
   getCandles: vi.fn(),
@@ -83,5 +83,44 @@ describe('grid trading calculator entry', () => {
     await user.click(screen.getByRole('button', { name: '运行回测' }))
 
     expect(await screen.findByText(/行情请求失败/)).toBeTruthy()
+  })
+
+  it('从候选池带过来的 ?code=&name= 预填代码和名称，非法代码忽略', () => {
+    const first = render(<MemoryRouter initialEntries={['/grid-trading?code=510300&name=沪深300ETF']}><GridCalculator /></MemoryRouter>)
+    expect((screen.getByLabelText('证券代码') as HTMLInputElement).value).toBe('510300')
+    expect((screen.getByLabelText('标的名称') as HTMLInputElement).value).toBe('沪深300ETF')
+    first.unmount()
+    render(<MemoryRouter initialEntries={['/grid-trading?code=AAPL']}><GridCalculator /></MemoryRouter>)
+    expect((screen.getByLabelText('证券代码') as HTMLInputElement).value).toBe('')
+  })
+
+  it('「填入建议参数」按建仓日收盘价填建仓价与步长，建仓日留空取一年前，金额只补空值', async () => {
+    const user = userEvent.setup()
+    mocks.getCandles.mockReset()
+    mocks.getCandles.mockResolvedValue({
+      candles: [{ date: '2025-09-29', close: 3.2, high: 3.3, low: 3.1 }, { date: '2025-10-09', close: 3.4, high: 3.5, low: 3.3 }],
+      fetchedOn: '2026-09-30', from: '2025-09-30', source: '腾讯前复权日线',
+    })
+    mocks.fetchQuotes.mockResolvedValue(new Map([['510300', { code: '510300', name: '沪深300ETF', price: 4, high: 4, low: 4, date: '2026-09-30' }]]))
+    render(<MemoryRouter initialEntries={['/grid-trading?code=510300']}><GridCalculator /></MemoryRouter>)
+    await user.type(screen.getByLabelText('每格金额'), '3000')
+    await user.click(screen.getByRole('button', { name: /填入建议参数/ }))
+
+    expect(await screen.findByText(/已按 2025-10-09 收盘价 3.4 填入/)).toBeTruthy()
+    expect(mocks.getCandles).toHaveBeenCalledWith('510300', '2025-09-30')
+    expect((screen.getByLabelText('建仓日期') as HTMLInputElement).value).toBe('2025-10-09')
+    expect((screen.getByLabelText('建仓价格') as HTMLInputElement).value).toBe('3.4')
+    expect((screen.getByLabelText('网格步长') as HTMLInputElement).value).toBe('0.102')
+    expect((screen.getByLabelText('建仓金额') as HTMLInputElement).value).toBe('10000')
+    expect((screen.getByLabelText('每格金额') as HTMLInputElement).value).toBe('3000')
+    expect((screen.getByLabelText('标的名称') as HTMLInputElement).value).toBe('沪深300ETF')
+  })
+
+  it('建议步长：ETF 精确到 0.001，个股到 0.01，不小于最小价位', () => {
+    expect(suggestStep(3.4, true)).toBe('0.102')
+    expect(suggestStep(25.37, false)).toBe('0.76')
+    expect(suggestStep(0.02, true)).toBe('0.001')
+    expect(oneYearBefore('2026-09-30')).toBe('2025-09-30')
+    expect(oneYearBefore('2028-02-29')).toBe('2027-03-01')
   })
 })

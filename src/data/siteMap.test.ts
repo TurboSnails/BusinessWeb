@@ -33,16 +33,17 @@ describe('AI实验室路由', () => {
 
 describe('INVEST_GROUPS', () => {
   const allLinks = INVEST_GROUPS.flatMap(g => g.links)
+  const paths = (id: string): string[] => INVEST_GROUPS.find(g => g.id === id)!.links.map(l => l.path)
 
-  it('收纳全部旧入口和 AI 工具，且无重复', () => {
-    const paths = allLinks.map(l => l.path).sort()
-    expect(paths).toEqual([
-      '/dcf', '/first-book', '/future-trends', '/grid-trading', '/ai/ai-skills', '/invest/etf', '/invest/national-team', '/industry-landscape', '/investment-plan-2026',
+  it('收纳全部旧入口、候选池和 AI 工具，且无重复', () => {
+    const all = allLinks.map(l => l.path).sort()
+    expect(all).toEqual([
+      '/candidates', '/watch', '/dcf', '/first-book', '/future-trends', '/grid-trading', '/ai/ai-skills', '/invest/etf', '/invest/national-team', '/industry-landscape', '/investment-plan-2026',
       '/investment-strategy', '/investment-targets', '/limit-up-analysis', '/daily-analysis',
       '/mainland-investment-targets', '/monitor', '/pulse', '/research-notes',
       '/sector-rotation', '/trading-philosophy', '/valuation',
     ].sort())
-    expect(new Set(paths).size).toBe(paths.length)
+    expect(new Set(all).size).toBe(all.length)
   })
 
   it('每个入口路径都在 App.tsx 路由表里', () => {
@@ -51,39 +52,40 @@ describe('INVEST_GROUPS', () => {
     }
   })
 
-  it('分组按用途：读书横幅 → 研究标的 → 估值与交易 → 计划与周期 → 行情（少看）→ 相关，已舍弃垫底', () => {
-    expect(INVEST_GROUPS.map(g => g.id)).toEqual(['read', 'research', 'tools', 'method', 'watch', 'related', 'archived'])
+  it('分组按投资流程：规则 → 观察盘 → 分析筛选 → 候选池 → 工具与参考 → 相关，已舍弃垫底', () => {
+    expect(INVEST_GROUPS.map(g => g.id)).toEqual(['rules', 'watch', 'research', 'candidates', 'tools', 'related', 'archived'])
+    expect(INVEST_GROUPS.slice(0, 5).map(g => g.title)).toEqual(['规则', '观察盘', '分析筛选', '候选池', '工具与参考'])
   })
 
-  it('估值与交易组只放三件工具；AI Skills 移到「相关」并改名', () => {
-    expect(INVEST_GROUPS.find(g => g.id === 'tools')!.links.map(l => l.path)).toEqual(['/valuation', '/dcf', '/grid-trading'])
+  it('规则组：书和年度计划', () => {
+    expect(paths('rules')).toEqual(['/first-book', '/investment-plan-2026'])
+  })
+
+  it('观察盘一页看完：/watch 是唯一主入口，宏观、全球、A股复盘、板块、涨停都是细节页', () => {
+    expect(paths('watch')).toEqual(['/watch', '/monitor', '/pulse', '/daily-analysis', '/sector-rotation', '/limit-up-analysis'])
+    const watch = INVEST_GROUPS.find(g => g.id === 'watch')!
+    expect(watch.links.filter(l => !l.minor).map(l => l.path)).toEqual(['/watch'])
+  })
+
+  it('分析筛选从行业到公司，不放带具体买卖建议的观察池', () => {
+    expect(paths('research')).toEqual(['/industry-landscape', '/future-trends', '/research-notes', '/invest/national-team'])
+    expect(INVEST_GROUPS.find(g => g.id === 'research')!.links.find(l => l.path === '/future-trends')!.label).toBe('主题研究')
+  })
+
+  it('候选池独立一组；工具与参考放三件工具和 ETF 流派地图；AI Skills 在「相关」', () => {
+    expect(paths('candidates')).toEqual(['/candidates'])
+    expect(paths('tools')).toEqual(['/valuation', '/dcf', '/grid-trading', '/invest/etf'])
     const related = INVEST_GROUPS.find(g => g.id === 'related')!
     expect(related.links.map(l => [l.path, l.label])).toEqual([['/ai/ai-skills', 'AI 投研 Skills']])
   })
 
-  it('卡片组的每个入口都有 14 字以内的短说明', () => {
-    for (const g of INVEST_GROUPS.filter(g => ['research', 'tools', 'method', 'watch'].includes(g.id))) {
+  it('栏目页上的每个入口都有 14 字以内的短说明', () => {
+    for (const g of INVEST_GROUPS.filter(g => ['rules', 'watch', 'research', 'candidates', 'tools'].includes(g.id))) {
       for (const l of g.links) {
         expect(l.short, l.path).toBeTruthy()
         expect(l.short!.length, `${l.path}: ${l.short}`).toBeLessThanOrEqual(14)
       }
     }
-  })
-
-  it('看行情组直接展开，只放行情类页面', () => {
-    const watch = INVEST_GROUPS.find(g => g.id === 'watch')!
-    expect(watch.collapsed).toBe(false)
-    expect(watch.links.map(l => l.path)).toEqual(['/pulse', '/sector-rotation', '/limit-up-analysis', '/daily-analysis'])
-  })
-
-  it('选标的组只放研究方法与资料，不放带具体买卖建议的观察池', () => {
-    const research = INVEST_GROUPS.find(g => g.id === 'research')!
-    expect(research.links.map(l => l.path)).toEqual(['/research-notes', '/industry-landscape', '/future-trends', '/invest/national-team', '/invest/etf'])
-  })
-
-  it('宏观温度（原每日监控）归入定规则，和 2026 计划同组', () => {
-    const method = INVEST_GROUPS.find(g => g.id === 'method')!
-    expect(method.links.map(l => [l.path, l.label])).toEqual([['/investment-plan-2026', '2026 投资计划'], ['/monitor', '宏观温度']])
   })
 
   it('道与术、综合投资策略框架标为舍弃：折叠在最后，每页都带舍弃说明', () => {
@@ -100,6 +102,7 @@ describe('INVEST_GROUPS', () => {
 describe('findInvestEntry', () => {
   it('精确匹配', () => {
     expect(findInvestEntry('/valuation')?.group.id).toBe('tools')
+    expect(findInvestEntry('/candidates')?.group.id).toBe('candidates')
   })
 
   it('深层路径落在父入口所在分组，最长前缀优先', () => {
@@ -107,9 +110,9 @@ describe('findInvestEntry', () => {
     expect(findInvestEntry('/research-notes/us/AAPL')?.link.path).toBe('/research-notes')
   })
 
-  it('含编码字符的章节路径落在「读这本书」', () => {
+  it('含编码字符的章节路径落在「规则」', () => {
     const e = findInvestEntry('/first-book/%E7%AC%AC1%E7%AB%A0.md')
-    expect(e?.group.id).toBe('read')
+    expect(e?.group.id).toBe('rules')
     expect(e?.link.path).toBe('/first-book')
   })
 
@@ -156,7 +159,7 @@ describe('SEARCHABLE_PAGES', () => {
   })
   it('包含一级栏目、投资分组全部链接、AI 方向页与补充页', () => {
     const paths = SEARCHABLE_PAGES.map(p => p.path)
-    for (const p of ['/', '/invest', '/knowledge', '/dcf', '/grid-trading/records', '/ai/blog', '/ai/fullstack-roadmap', '/first-book/slow-is-fast']) expect(paths).toContain(p)
+    for (const p of ['/', '/invest', '/knowledge', '/dcf', '/candidates', '/grid-trading/records', '/ai/blog', '/ai/fullstack-roadmap', '/first-book/slow-is-fast']) expect(paths).toContain(p)
   })
   it('已舍弃页面带 archived 标记', () => {
     expect(SEARCHABLE_PAGES.find(p => p.path === '/trading-philosophy')?.archived).toBe(true)
@@ -164,9 +167,9 @@ describe('SEARCHABLE_PAGES', () => {
 })
 
 describe('WORKBENCH_TOOLS', () => {
-  it('8 个常用工具，顺序固定，都在注册表里且有说明', () => {
+  it('8 个常用工具，候选池打头，顺序固定，都在注册表里且有说明', () => {
     expect(WORKBENCH_TOOLS.map(t => t.path)).toEqual([
-      '/research-notes', '/valuation', '/dcf', '/grid-trading', '/monitor', '/invest/national-team', '/knowledge', '/first-book',
+      '/candidates', '/research-notes', '/valuation', '/dcf', '/grid-trading', '/watch', '/knowledge', '/first-book',
     ])
     for (const t of WORKBENCH_TOOLS) {
       expect(findSearchablePage(t.path), t.path).toBeTruthy()

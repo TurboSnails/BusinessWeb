@@ -1,7 +1,8 @@
 import { Page } from '../components/ui'
 import { useEffect, useRef, useState } from "react";
 import { PageTitle } from "../components/ui/PageTabs";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
+import { dcfLinkFromValuationQuery } from "../features/dcf/prefill";
 import {
   BarChart3,
   Search,
@@ -333,10 +334,18 @@ export default function Valuation() {
                   （<code>/login</code> 或 API key）或已登录的 CLI。
                 </p>
               )}
-              <button onClick={connect}>
-                <RefreshCw size={14} />
-                重新连接
-              </button>
+              <div className="valuation-fallback">
+                <button onClick={connect}>
+                  <RefreshCw size={14} />
+                  重新连接
+                </button>
+                <Link
+                  className="valuation-fallback__link"
+                  to={dcfLinkFromValuationQuery(query, security)}
+                >
+                  不开服务，改用 DCF 计算器手动估值 →
+                </Link>
+              </div>
             </div>
           )}
           <div className="valuation-form-grid">

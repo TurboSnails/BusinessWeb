@@ -32,7 +32,7 @@ describe('summarizeLocalRecords', () => {
     ])
     expect(summarizeLocalRecords()).toEqual([
       { kind: 'grid', label: '网格记录', path: '/grid-trading/records', count: 2, latestName: '中证500ETF', latestDate: '2026-10-05' },
-      { kind: 'candidates', label: '候选池', path: '/research-notes', count: 2, latestName: '600519', latestDate: '2026-10-09' },
+      { kind: 'candidates', label: '候选池', path: '/candidates', count: 2, latestName: '600519', latestDate: '2026-10-09' },
     ])
   })
 

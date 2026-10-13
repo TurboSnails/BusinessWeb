@@ -55,7 +55,7 @@ describe('Home', () => {
     localStorage.setItem('rn-candidates', JSON.stringify([{ market: 'us', code: 'AAPL', addedAt: '2026-10-01T00:00:00.000Z' }]))
     render(<MemoryRouter><Home /></MemoryRouter>)
     const box = screen.getByRole('region', { name: '我的记录' })
-    expect(within(box).getByRole('link', { name: /候选池/ }).getAttribute('href')).toBe('/research-notes')
+    expect(within(box).getByRole('link', { name: /候选池/ }).getAttribute('href')).toBe('/candidates')
     expect(box.textContent).toContain('1 条')
     expect(box.textContent).toContain('AAPL')
   })

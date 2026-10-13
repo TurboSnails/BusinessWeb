@@ -19,10 +19,10 @@ function ResearchSection({ index, children }: { index: number; children: React.R
 
 export default function FutureTrendCompany(): JSX.Element {
   const location = useLocation()
-  const back = typeof location.state?.from === 'string' && location.state.from.startsWith('/future-trends') ? location.state.from : '/future-trends?tab=pool'
+  const back = typeof location.state?.from === 'string' && /^\/(future-trends|candidates)(\?|$)/.test(location.state.from) ? location.state.from : '/candidates?tab=research'
   const { id = '' } = useParams()
   const summary = RESEARCH_BY_ID.get(id)
-  usePageSeo(summary ? `${summary.name}（${summary.code}）｜未来趋势研究` : undefined, summary?.headline)
+  usePageSeo(summary ? `${summary.name}（${summary.code}）｜主题研究` : undefined, summary?.headline)
   const [report, setReport] = useState<CompanyResearch | null>(null)
   const [error, setError] = useState('')
   const [attempt, setAttempt] = useState(0)
@@ -36,7 +36,7 @@ export default function FutureTrendCompany(): JSX.Element {
       .then(setReport).catch(e => { if (e.name !== 'AbortError') setError('报告暂时无法读取，请刷新重试。') })
     return () => controller.abort()
   }, [id, summary, attempt])
-  if (!summary) return <Page><h1>未找到公司研究页</h1><Link to="/future-trends">返回未来趋势</Link></Page>
+  if (!summary) return <Page><h1>未找到公司研究页</h1><Link to="/future-trends">返回主题研究</Link></Page>
   const p = presentation(summary)
   const d = report
   const money = (v: number | null) => priceLabel(v, summary.currency)

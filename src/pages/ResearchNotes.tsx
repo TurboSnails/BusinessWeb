@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Link, useNavigationType, useSearchParams } from 'react-router-dom'
+import { Link, Navigate, useNavigationType, useSearchParams } from 'react-router-dom'
 import { PageTabs, PageTitle, Segmented } from '../components/ui/PageTabs'
 import {
   Compass,
@@ -34,7 +34,6 @@ import {
 } from '../data/notionNotes'
 import { useCompanies, useLynch, sectorsOf, Market, Company, LynchInfo } from '../data/companies'
 import CompanyCombined from '../components/CompanyCombined'
-import CandidatePool from '../components/CandidatePool'
 import CandidateButton from '../components/CandidateButton'
 import { useCandidates } from '../features/candidates/useCandidates'
 import { CN_REPORT } from '../data/cnReassessment'
@@ -46,10 +45,9 @@ import '../styles/research.css'
 
 type TabId = 'companies' | 'pool' | 'watch' | 'method' | 'notes' | 'dev'
 
-// 顺序按使用频率：先查公司，再看候选，方法和配套笔记放后面，存档垫底
+// 顺序按使用频率：先查公司，方法和配套笔记放后面，存档垫底。候选池已独立成 /candidates 页
 const tabs: { id: TabId; label: string; icon: React.ElementType }[] = [
   { id: 'companies', label: '公司库', icon: Grid3x3 },
-  { id: 'pool', label: '候选池', icon: Star },
   { id: 'method', label: '研究方法', icon: Compass },
   { id: 'notes', label: '配置笔记', icon: Layers },
   { id: 'dev', label: '工具设想', icon: Wrench },
@@ -64,6 +62,7 @@ const marketLabel = (m: Market): string => (m === 'us' ? '标普500' : m === 'hk
 // 旧链接（?tab=category&m=watch 等）映射到新页签，收藏和公司页的返回链接继续可用
 function resolveTab(tab: string | null, m: string | null): TabId {
   if (tab === 'category') return m === 'watch' ? 'watch' : m === 'pool' ? 'pool' : 'companies'
+  if (tab === 'pool') return 'pool'
   if (tab === 'standard') return 'method'
   if (tab === 'philosophy' || tab === 'strategy') return 'notes'
   return tabs.some(t => t.id === tab) ? (tab as TabId) : 'companies'
@@ -85,7 +84,7 @@ export default function ResearchNotes(): JSX.Element {
   const vParam = params.get('v')
   const view = vParam === 'combined' ? 'combined' : vParam === 'overview' ? 'overview' : vParam === 'lynch' ? 'lynch' : 'list'
   const progSector = params.get('sec') || '全部'
-  const inCategory = activeTab === 'companies' || activeTab === 'pool'
+  const inCategory = activeTab === 'companies'
   const { list: usList, loading: usLoading } = useCompanies('us', inCategory)
   const { list: cnList, loading: cnLoading } = useCompanies('cn', inCategory)
   const { list: hkList, loading: hkLoading } = useCompanies('hk', inCategory)
@@ -386,11 +385,17 @@ export default function ResearchNotes(): JSX.Element {
 
   const maxCount = Math.max(...sp500Sectors.map(s => s.count))
 
+  // 旧链接 ?tab=pool 跳到独立的候选池页
+  if (activeTab === 'pool') return <Navigate to="/candidates" replace />
+
   return (
     <Page className="rn-page">
       <PageTitle>公司研究</PageTitle>
-      <PageTabs label="公司研究栏目" value={activeTab} onChange={setActiveTab}
+      <PageTabs<TabId> label="公司研究栏目" value={activeTab} onChange={setActiveTab}
         items={tabs.map(t => ({ id: t.id, label: t.label, icon: <t.icon size={14} /> }))} />
+      {activeTab === 'companies' && (
+        <p className="rn-pool-jump"><Link to="/candidates" className="rn-link"><Star size={14} aria-hidden="true" /> 我的候选池 · {cand.items.length} 家：估值、DCF、网格都从这里进 →</Link></p>
+      )}
 
       {/* 内容区 */}
       <div>
@@ -398,14 +403,14 @@ export default function ResearchNotes(): JSX.Element {
         {/* ── 配置笔记：投资框架 + 家庭组合 ── */}
         {activeTab === 'notes' && (
           <div>
-            {hint(<>资产配置相关的 Notion 笔记，和 <Link to="/investment-plan-2026" className="rn-link">2026 投资计划</Link> 配合阅读。</>)}
+            {hint(<>资产配置相关的 Notion 笔记，和 <Link to="/investment-plan-2026" className="rn-link">投资计划</Link> 配合阅读。</>)}
             <Segmented label="配置笔记" value={notesView} onChange={v => updateParams({ n: v === 'framework' ? null : v })}
               items={[{ id: 'framework', label: '投资框架' }, { id: 'v6', label: '家庭组合 v6' }]} />
           </div>
         )}
 
         {activeTab === 'notes' && notesView === 'v6' && (
-          <p role="note" className="section-archived">已舍弃：家庭组合 v6 是早期的配置笔记（含机会加仓扳机等规则），和书现行方案不一致，不再更新。配置以书第9章9.10「先用宽基搭底仓：三档模板」和 2026 投资计划为准，仅留存档。</p>
+          <p role="note" className="section-archived">已舍弃：家庭组合 v6 是早期的配置笔记（含机会加仓扳机等规则），和书现行方案不一致，不再更新。配置以书第9章9.10「先用宽基搭底仓：三档模板」和投资计划为准，仅留存档。</p>
         )}
 
         {activeTab === 'notes' && notesView === 'framework' && (
@@ -643,15 +648,6 @@ export default function ResearchNotes(): JSX.Element {
               {researchStandard.redlines.map((t, i) => checkRow(t, 'var(--system-red)', i, 'warn'))}
             </div>
             {disclaimer}
-          </div>
-        )}
-
-        {/* ── 候选池 ── */}
-        {activeTab === 'pool' && (
-          <div>
-            {hint('在公司库里点「候选」加入，这里排序、写备注，准备进一步研究。')}
-            <CandidatePool items={cand.items} companies={[...usList, ...cnList, ...hkList, ...adrList, ...ndxNewList]} state={cand.state} message={cand.message}
-              onMove={cand.move} onRemove={i => cand.toggle(i.market, i.code)} onNote={(i, t) => cand.setNote(i.market, i.code, t)} onClear={cand.clear} onConnect={cand.connect} onRetry={cand.retry} />
           </div>
         )}
 

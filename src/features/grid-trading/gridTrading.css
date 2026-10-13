@@ -32,7 +32,9 @@
 }
 .grid-form input:focus, .grid-cloud-config input:focus, .grid-list-actions input:focus { outline: 3px solid color-mix(in srgb, var(--system-blue) 18%, transparent); border-color: var(--accent); }
 .grid-form small { color: var(--text-secondary); font-size: .75rem; font-weight: 450; }
-.grid-submit-row { display: flex; align-items: end; }
+.grid-submit-row { display: flex; flex-wrap: wrap; align-items: end; gap: 8px; }
+.grid-submit-row .tool-btn { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; }
+.grid-suggest-note { grid-column: 1 / -1; margin: 0; color: var(--text-secondary); font-size: 0.82rem; line-height: 1.7; }
 .grid-button {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px;
   padding: 9px 16px; border: 0; border-radius: 12px; background: var(--accent); color: #fff; font: inherit; font-size: .88rem; font-weight: 650;

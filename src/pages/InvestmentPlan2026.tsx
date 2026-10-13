@@ -24,6 +24,7 @@ const API_BASE = (import.meta.env.VITE_API_BASE || '').replace(/\/$/, '')
 import {
   Target,
   LayoutDashboard,
+  Factory,
   PieChart,
   Gauge,
   CalendarDays,
@@ -42,6 +43,7 @@ import {
   Ban
 } from 'lucide-react'
 import { Page } from '../components/ui'
+import IndustryTrend from '../features/plan/IndustryTrend'
 import '../styles/plan.css'
 
 /* ───────────────────────── 基础工具 ───────────────────────── */
@@ -1378,9 +1380,10 @@ const Review: React.FC = () => {
 
 /* ───────────────────────── 页面 ───────────────────────── */
 
-type TabId = 'overview' | 'allocation' | 'dashboard' | 'calendar' | 'sentiment' | 'review'
+type TabId = 'overview' | 'industry' | 'allocation' | 'dashboard' | 'calendar' | 'sentiment' | 'review'
 const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
   { id: 'overview', label: '总览', icon: <LayoutDashboard size={17} /> },
+  { id: 'industry', label: '产业趋势', icon: <Factory size={17} /> },
   { id: 'allocation', label: '配置与纪律', icon: <PieChart size={17} /> },
   { id: 'dashboard', label: '风险仪表盘', icon: <Gauge size={17} /> },
   { id: 'calendar', label: '日历与财报', icon: <CalendarDays size={17} /> },
@@ -1413,8 +1416,8 @@ const InvestmentPlan2026 = () => {
 
   return (
     <Page className="plan-page">
-      <PageTitle>2026 投资计划</PageTitle>
-      <PageTabs label="2026 投资计划栏目" items={TABS} value={tab} onChange={setTab} />
+      <PageTitle>投资计划</PageTitle>
+      <PageTabs label="投资计划栏目" items={TABS} value={tab} onChange={setTab} />
       <div>
       <div className="page-toolbar">
         <span className="page-toolbar__note">不预测，先划线：用事前写好的规则代替年初的剧本</span>
@@ -1427,6 +1430,7 @@ const InvestmentPlan2026 = () => {
       </details>
 
       {tab === 'overview' && <Overview stage={stage} entered={entered} today={today} nextEvent={nextEvent} />}
+      {tab === 'industry' && <IndustryTrend />}
       {tab === 'allocation' && <Allocation />}
       {tab === 'dashboard' && <Dashboard values={signals} setValues={setSignals} updated={updated} setUpdated={setUpdated} />}
       {tab === 'calendar' && <CalendarTab today={today} />}

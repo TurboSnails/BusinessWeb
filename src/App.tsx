@@ -36,6 +36,8 @@ const GridRecords = lazy(() => import('./pages/GridRecords'))
 const GridRecordDetail = lazy(() => import('./pages/GridRecordDetail'))
 const Valuation = lazy(() => import('./pages/Valuation'))
 const Dcf = lazy(() => import('./pages/Dcf'))
+const Candidates = lazy(() => import('./pages/Candidates'))
+const WatchBoard = lazy(() => import('./pages/WatchBoard'))
 const FutureTrends = lazy(() => import('./pages/FutureTrends'))
 const SolidStateCompany = lazy(() => import('./pages/SolidStateCompany'))
 const FutureTrendCompany = lazy(() => import('./pages/FutureTrendCompany'))
@@ -114,6 +116,7 @@ export default function App(): JSX.Element {
           <Route path="/life" element={<LifeLab />} />
           <Route path="/about" element={<About />} />
           <Route path="/pulse" element={<Pulse />} />
+          <Route path="/watch" element={<WatchBoard />} />
           <Route path="/monitor" element={<Monitor />} />
           <Route path="/investment-plan-2026" element={<InvestmentPlan2026 />} />
           <Route path="/investment-targets" element={<InvestmentTargetsPage />} />
@@ -132,6 +135,7 @@ export default function App(): JSX.Element {
           <Route path="/future-trends/solid-state/:id" element={<SolidStateCompany />} />
           <Route path="/future-trends/company/:id" element={<FutureTrendCompany />} />
           <Route path="/industry-landscape" element={<IndustryLandscape />} />
+          <Route path="/candidates" element={<Candidates />} />
           <Route path="/research-notes" element={<ResearchNotes />} />
           <Route path="/research-notes/company/:market/:code/notes" element={<CompanyNotes />} />
           <Route path="/research-notes/:market/:code" element={<CompanyDetail />} />

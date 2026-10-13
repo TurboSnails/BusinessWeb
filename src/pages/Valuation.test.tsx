@@ -15,6 +15,22 @@ it("explains how to start the local service when disconnected", async () => {
   expect(screen.getByRole("heading", { name: "公司估值工作台" })).toBeTruthy();
   vi.unstubAllGlobals();
 });
+it("服务没开时，给出带着同一家公司的 DCF 计算器入口", async () => {
+  localStorage.clear();
+  vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("连接失败")));
+  render(
+    <MemoryRouter initialEntries={["/valuation?market=hk&code=00700"]}>
+      <Valuation />
+    </MemoryRouter>,
+  );
+  const link = await screen.findByRole("link", { name: /改用 DCF 计算器/ });
+  const url = new URL(`http://x${link.getAttribute("href")}`);
+  expect(url.pathname).toBe("/dcf");
+  expect(url.searchParams.get("code")).toBe("00700");
+  expect(url.searchParams.get("market")).toBe("hk");
+  expect(url.searchParams.get("currency")).toBe("HKD");
+  vi.unstubAllGlobals();
+});
 it("selects a specific backend model and confirms a company identity", async () => {
   vi.stubGlobal(
     "fetch",

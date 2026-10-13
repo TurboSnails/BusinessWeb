@@ -113,7 +113,7 @@ export const LAB_DIRECTIONS: LabDirection[] = [
     why: '书的电子版、投资计划 Notion / Excel 模板、Skill 完整包、小册子。做一次可以卖很多次，和个人定位最搭。',
     hoursPerWeek: 2,
     startCost: '¥0',
-    firstStep: '把 2026 投资计划整理成一份可复制的模板，先免费发，看有多少人要。',
+    firstStep: '把投资计划整理成一份可复制的模板，先免费发，看有多少人要。',
     logs: [],
   },
   {

@@ -1,5 +1,5 @@
 import React from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, Navigate, useSearchParams } from 'react-router-dom'
 import FutureCompanyLink from '../components/FutureCompanyLink'
 import { researchForCompany, researchPercent } from '../data/futureTrendsResearch'
 import { PageTabs, PageTitle } from '../components/ui/PageTabs'
@@ -8,7 +8,6 @@ import { AI_LEVELS, AI_PICKS, AI_PICKS_ASOF, AI_RISK_RULES, AI_PICKS_PRICE_DATE,
 import type { AiLevel, AiPick } from '../data/futureTrendsAiPicks'
 import { FUTURE_TRENDS_ASOF, TRENDS, trendCoverage, TrendCompany } from '../data/futureTrends'
 import FutureTrendsCore from './FutureTrendsCore'
-import FutureTrendsPool from './FutureTrendsPool'
 import FutureTrendsSolidState from './FutureTrendsSolidState'
 import { ADAS_EXTRA_LEVELS, ADAS_EXTRA_PICKS, AI_EXTRA_LEVELS, AI_EXTRA_PICKS, SECTOR_PICKS, SECTOR_PICKS_ASOF, TREND_METRICS, US_PICKS } from '../data/futureTrendsSectorPicks'
 import { Page, TableWrap } from '../components/ui'
@@ -115,27 +114,31 @@ function UsPicksSection({ id }: { id: string }): JSX.Element | null {
   )
 }
 
-const POOL_ID = 'pool'
 const CORE_ID = 'core'
 const SOLID_ID = 'solid-state'
 
 export default function FutureTrends(): JSX.Element {
   const [searchParams, setSearchParams] = useSearchParams()
   const selected = searchParams.get('tab')
-  const id = selected && [...TRENDS.map(t => t.id), POOL_ID, CORE_ID, SOLID_ID].includes(selected) ? selected : CORE_ID
+  const id = selected && [...TRENDS.map(t => t.id), CORE_ID, SOLID_ID].includes(selected) ? selected : CORE_ID
   const setId = (next: string): void => { setSearchParams({ tab: next }) }
   const trend = TRENDS.find(t => t.id === id) ?? TRENDS[0]
   const coverage = trendCoverage()
   const selectedCoverage = trendCoverage([trend])
+  // 候选池已独立成页：旧链接 ?tab=pool 带着筛选条件跳过去
+  if (selected === 'pool') {
+    const rest = new URLSearchParams(searchParams); rest.delete('tab'); rest.set('tab', 'research')
+    return <Navigate to={`/candidates?${rest}`} replace />
+  }
   return (
     <Page>
-      <PageTitle>未来趋势</PageTitle>
-      <PageTabs label="未来趋势赛道" value={id} onChange={setId}
-        items={[{ id: CORE_ID, label: '核心' }, { id: POOL_ID, label: '候选池' }, { id: SOLID_ID, label: '固态电池' }, ...TRENDS.map(t => ({ id: t.id, label: t.name.replace(/（.*?）/, '').replace(/，.*/, '') }))]} />
+      <PageTitle>主题研究</PageTitle>
+      <PageTabs label="主题研究赛道" value={id} onChange={setId}
+        items={[{ id: CORE_ID, label: '核心' }, { id: SOLID_ID, label: '固态电池' }, ...TRENDS.map(t => ({ id: t.id, label: t.name.replace(/（.*?）/, '').replace(/，.*/, '') }))]} />
       <div>
-        {id !== POOL_ID && id !== CORE_ID && id !== SOLID_ID && <p role="note" className="ftx-note">产业目录截至 {FUTURE_TRENDS_ASOF}。点击公司名称查看详细研究；查看推荐顺序请进入核心或候选池。</p>}
+        {id !== CORE_ID && id !== SOLID_ID && <p role="note" className="ftx-note">产业目录截至 {FUTURE_TRENDS_ASOF}。点击公司名称查看详细研究；查看推荐顺序请进入核心，或到<Link to="/candidates?tab=research">候选池</Link>看研究筛出的公司。</p>}
 
-        {id === SOLID_ID ? <FutureTrendsSolidState /> : id === POOL_ID ? <FutureTrendsPool /> : id === CORE_ID ? <FutureTrendsCore /> : (<>
+        {id === SOLID_ID ? <FutureTrendsSolidState /> : id === CORE_ID ? <FutureTrendsCore /> : (<>
         <p className="ftx-note">十个赛道 · {coverage.segments} 个细分环节 · {coverage.companies} 个公司或主体 · {coverage.entries} 条业务关联（跨环节可重复）</p>
         <section className="ui-card ftx-card" aria-labelledby="trend-name">
           <h2 id="trend-name" className="ftx-trend-title">{trend.name}</h2>

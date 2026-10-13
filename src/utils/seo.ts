@@ -26,7 +26,7 @@ const EXACT: Record<string, RouteSeo> = {
   '/life': { title: '生活实验室', description: '自由生活的长期实验记录。' },
   '/about': { title: '关于', description: '《正念投资》作者，投资、AI 与独立开发的长期实验。' },
   '/pulse': { title: '市场脉搏', description: '每日市场情绪与宏观数据快照。' },
-  '/investment-plan-2026': { title: '2026 投资计划', description: '2026 年的资产配置与投资计划。' },
+  '/investment-plan-2026': { title: '投资计划', description: '资产配置、纪律红线、风险阶段与产业趋势判断。' },
   '/investment-targets': { title: '投资标的清单', description: '美股与港股重点投资标的研究清单。' },
   '/mainland-investment-targets': { title: 'A 股投资标的清单', description: '沪深 A 股重点投资标的研究清单。' },
   '/daily-analysis': { title: '每日分析', description: '自动获取 A 股指数、成交额、涨跌停、连板梯队和股票排行榜，保留交易日快照。' },
@@ -37,7 +37,9 @@ const EXACT: Record<string, RouteSeo> = {
   '/investment-strategy': { title: '投资策略', description: '长期投资的策略框架与执行方法。' },
   '/first-book': { title: '我的书｜《正念投资》', description: '《正念投资》及相关写作全文在线阅读。' },
   '/first-book/slow-is-fast': { title: '正念投资｜在线阅读', description: '从家庭资金安排到公司研究，用规则管理投资。选择适合自己的阅读路线，学习配置、估值、风险与复盘。' },
-  '/future-trends': { title: '未来趋势', description: '影响未来十年的产业与技术趋势研究。' },
+  '/future-trends': { title: '主题研究', description: 'AI、机器人、固态电池等主题的产业链、核心公司与逐家研究。' },
+  '/watch': { title: '观察盘', description: '宏观阶段、全球主要指数与 A 股情绪，一页看完。', noindex: true },
+  '/candidates': { title: '候选池', description: '我的候选公司与研究筛出的可买卖、价格太贵公司，一键进入估值、DCF 与网格。', noindex: true },
   '/industry-landscape': { title: '产业格局', description: '重点产业链与竞争格局梳理。' },
   '/research-notes': { title: '研究笔记｜公司与行业研究', description: '沪深 A 股、港股、美股的公司研究笔记与审计报告。' },
   '/grid-trading': { title: '网格交易计算器', description: 'ETF 与个股网格交易的参数求解、回测与模拟。' },
@@ -52,7 +54,7 @@ const PREFIX: Array<[string, RouteSeo]> = [
   ['/first-book/read/', { title: '《正念投资》在线阅读', description: '《正念投资》章节全文在线阅读。' }],
   ['/research-notes/', { title: '公司研究笔记', description: '单家公司的研究笔记、财务与估值要点。' }],
   ['/future-trends/solid-state/', { title: '固态电池｜公司研究', description: '固态电池公司业务敞口、财务质量、估值假设、多空观点与证据。' }],
-  ['/future-trends/company/', { title: '未来趋势｜公司研究', description: '公司经营、护城河、隐忧、情景估值与研究证据。' }],
+  ['/future-trends/company/', { title: '主题研究｜公司研究', description: '公司经营、护城河、隐忧、情景估值与研究证据。' }],
   ['/ai/', { title: 'AI 实验方向', description: 'AI 独立开发的实验方向与笔记。' }],
 ]
 

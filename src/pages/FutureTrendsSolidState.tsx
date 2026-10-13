@@ -33,7 +33,7 @@ export default function FutureTrendsSolidState(): JSX.Element {
     `${c.name} ${mcpCompany(c.name)?.displayName} ${c.code} ${mcpCompany(c.name)?.listings.map(l => l.symbol).join(' ')} ${c.path}`.toLowerCase().includes(query.trim().toLowerCase())), [group, query])
   return <article className="solid-state">
     <section className="solid-section solid-hero" aria-labelledby="solid-title">
-      <p className="solid-eyebrow">未来趋势 / 产业专题 · {AS_OF}</p>
+      <p className="solid-eyebrow">主题研究 / 产业专题 · {AS_OF}</p>
       <h2 id="solid-title">固态电池</h2>
       <p className="solid-lead">从材料突破，到可持续的量产利润</p>
       <p><strong>综合结论：观察，等待商业化证据。</strong>研究重点放在可验证的材料复购、专用设备验收和电芯单位经济。半固态的商业交付，不能直接证明全固态已实现低成本规模生产。</p>

@@ -660,3 +660,14 @@
 .rn-footnote--top {
   margin-top: 0;
 }
+
+.rn-pool-jump {
+  margin: var(--space-2) 0 var(--space-3);
+  font-size: 0.85rem;
+}
+
+.rn-pool-jump .rn-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}

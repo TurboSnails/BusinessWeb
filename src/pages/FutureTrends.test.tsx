@@ -1,10 +1,11 @@
 import { render, screen, fireEvent, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import FutureTrends from './FutureTrends'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
+import FutureTrendsPool from './FutureTrendsPool'
 import { TRENDS } from '../data/futureTrends'
 
-describe('未来趋势', () => {
+describe('主题研究（原未来趋势）', () => {
   it('每个赛道每个环节都有公司，且无重复赛道', () => {
     expect(new Set(TRENDS.map(t => t.id)).size).toBe(TRENDS.length)
     for (const t of TRENDS) for (const l of t.chain) {
@@ -14,7 +15,8 @@ describe('未来趋势', () => {
 
   it('页面可切换赛道，并带有非投资建议声明', () => {
     render(<MemoryRouter initialEntries={['/future-trends?tab=ai']}><FutureTrends /></MemoryRouter>)
-    expect(screen.getByText(/查看推荐顺序请进入核心或候选池/)).toBeTruthy()
+    expect(screen.getByText(/查看推荐顺序请进入核心/)).toBeTruthy()
+    expect(screen.getByRole('link', { name: '候选池' }).getAttribute('href')).toBe('/candidates?tab=research')
     expect(screen.getByRole('navigation', { name: '产业链环节索引' })).toBeTruthy()
     expect(screen.getAllByText(/候选待核/).length).toBeGreaterThan(0)
     expect(screen.getByRole('link', { name: '服务器、PCB、连接器与高速覆铜板' }).getAttribute('href')).toMatch(/^#ai-chain-/)
@@ -50,12 +52,9 @@ describe('未来趋势', () => {
     }
   })
 
-  it('候选池可筛选市场与推荐优先级，默认展示可买卖', () => {
-    render(<MemoryRouter initialEntries={['/future-trends?tab=ai']}><FutureTrends /></MemoryRouter>)
-    const tabs = screen.getAllByRole('tab')
-    expect(tabs[1].textContent).toBe('候选池')
-    fireEvent.click(screen.getByRole('tab', { name: '候选池' }))
-    expect(screen.getByRole('heading', { name: /^候选池/ })).toBeTruthy()
+  it('研究筛出可筛选市场与推荐优先级，默认展示可买卖', () => {
+    render(<MemoryRouter initialEntries={['/candidates?tab=research']}><FutureTrendsPool /></MemoryRouter>)
+    expect(screen.getByRole('heading', { name: /^研究筛出/ })).toBeTruthy()
     expect(screen.getByText(/实际胜率未经校准/)).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: '海外' }))
     expect(screen.getByRole('button', { name: '海外' }).getAttribute('aria-pressed')).toBe('true')
@@ -64,6 +63,19 @@ describe('未来趋势', () => {
     expect(screen.getByRole('table').querySelectorAll('tbody tr').length).toBeLessThan(20)
     fireEvent.click(screen.getByRole('button', { name: /^好公司/ }))
     expect(screen.getByRole('table').querySelectorAll('tbody tr').length).toBeGreaterThan(0)
+  })
+
+  it('候选池已独立成页：页签里不再有候选池，旧链接 ?tab=pool 带着筛选跳到 /candidates', () => {
+    function Where(): JSX.Element { const l = useLocation(); return <p data-testid="where">{l.pathname}{l.search}</p> }
+    render(<MemoryRouter initialEntries={['/future-trends?tab=pool&view=2&market=海外']}><Routes>
+      <Route path="/future-trends" element={<FutureTrends />} />
+      <Route path="/candidates" element={<Where />} />
+    </Routes></MemoryRouter>)
+    const where = new URL(`http://x${screen.getByTestId('where').textContent}`)
+    expect(where.pathname).toBe('/candidates')
+    expect(where.searchParams.get('tab')).toBe('research')
+    expect(where.searchParams.get('view')).toBe('2')
+    expect(where.searchParams.get('market')).toBe('海外')
   })
 
   it('第一个页签是核心 8，展示优先与备选及价格条件', () => {
@@ -76,7 +88,7 @@ describe('未来趋势', () => {
     expect(screen.getByText(/当前情景估值均为待复核草稿/)).toBeTruthy()
   })
 
-  it('候选池与核心都能下载当前选择的公司 JSON', async () => {
+  it('研究筛出与核心都能下载当前选择的公司 JSON', async () => {
     vi.useFakeTimers()
     const blobs: Blob[] = []
     const origCreate = URL.createObjectURL
@@ -84,14 +96,15 @@ describe('未来趋势', () => {
     URL.createObjectURL = ((b: Blob) => { blobs.push(b); return 'blob:x' }) as typeof URL.createObjectURL
     URL.revokeObjectURL = (() => {}) as typeof URL.revokeObjectURL
     try {
-      render(<MemoryRouter initialEntries={['/future-trends?tab=ai']}><FutureTrends /></MemoryRouter>)
-      fireEvent.click(screen.getByRole('tab', { name: '候选池' }))
+      const pooled = render(<MemoryRouter initialEntries={['/candidates?tab=research']}><FutureTrendsPool /></MemoryRouter>)
       fireEvent.click(screen.getByRole('button', { name: '海外' }))
       fireEvent.click(screen.getByRole('button', { name: '导出筛选结果 JSON' }))
       const pool = JSON.parse(await blobs[0].text())
       expect(pool).toHaveLength(4)
       expect(pool.every((x: { key: string }) => x.key.startsWith('海外:'))).toBe(true)
       expect(pool[0]).toHaveProperty('valuationStatus')
+      pooled.unmount()
+      render(<MemoryRouter initialEntries={['/future-trends?tab=ai']}><FutureTrends /></MemoryRouter>)
       fireEvent.click(screen.getByRole('tab', { name: '核心' }))
       fireEvent.click(screen.getByRole('button', { name: '导出核心 JSON' }))
       const core = JSON.parse(await blobs[1].text())

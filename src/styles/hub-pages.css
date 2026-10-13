@@ -752,6 +752,147 @@
   text-underline-offset: 3px;
 }
 
+/* 规则：书与年度计划并排两条横幅 */
+.inv-rules {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: var(--space-3);
+  margin: 0 0 var(--space-7);
+}
+
+.invest-hub .inv-rules .inv-book {
+  margin: 0;
+}
+
+.invest-hub .inv-rules .inv-book + .inv-book {
+  border-color: var(--border-subtle);
+  background: var(--bg-card);
+}
+
+.invest-hub .inv-rules .inv-book + .inv-book .inv-book__icon {
+  background: var(--accent-soft);
+}
+
+/* 分组序号：观察盘 → 分析筛选 → 候选池 → 工具 */
+.inv-group__step {
+  display: inline-flex;
+  align-self: center;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--accent-ink);
+  color: var(--bg-card);
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 组内次要入口：默认收起 */
+.invest-hub .inv-minor {
+  margin-top: var(--space-3);
+}
+
+.invest-hub .inv-minor > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px dashed var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.invest-hub .inv-minor > summary::-webkit-details-marker {
+  display: none;
+}
+
+.invest-hub .inv-minor > summary:hover {
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+
+.inv-minor__count {
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.invest-hub .inv-minor[open] > summary svg {
+  transform: rotate(180deg);
+}
+
+.inv-cards--minor {
+  margin-top: var(--space-3);
+}
+
+/* 候选池：主入口卡 + 研究筛出 */
+.inv-pool {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
+  gap: var(--space-3);
+}
+
+.invest-hub .inv-pool__main,
+.invest-hub .inv-pool__side {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: border-color 0.15s ease;
+}
+
+.invest-hub .inv-pool__main {
+  align-items: center;
+  border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.invest-hub .inv-pool__side {
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+}
+
+.invest-hub .inv-pool__main:hover,
+.invest-hub .inv-pool__side:hover {
+  border-color: var(--accent);
+}
+
+.inv-pool__text {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px var(--space-2);
+  min-width: 0;
+}
+
+.inv-pool__text .inv-card__desc {
+  flex-basis: 100%;
+}
+
+.inv-pool__title {
+  font-weight: 600;
+}
+
+.inv-pool__count {
+  color: var(--accent-ink);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
 @media (max-width: 1023px) {
   .inv-cards {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -761,6 +902,11 @@
 @media (max-width: 767px) {
   .invest-hub .inv-book {
     padding: var(--space-4);
+  }
+
+  .inv-rules,
+  .inv-pool {
+    grid-template-columns: 1fr;
   }
 
   .inv-book__icon {
@@ -787,4 +933,16 @@
   .invest-hub .inv-group {
     margin-bottom: var(--space-6);
   }
+}
+
+/* 只有一个主入口的组（观察盘）：整行宽卡片 */
+.inv-cards--single {
+  grid-template-columns: 1fr;
+}
+
+.invest-hub .inv-cards--single .inv-card {
+  flex-direction: row;
+  align-items: center;
+  padding: var(--space-4);
+  border-color: color-mix(in srgb, var(--accent) 30%, transparent);
 }

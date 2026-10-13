@@ -283,7 +283,7 @@ export function StagesView({ snap }: { snap: MacroSnapshot }): JSX.Element {
   return (
     <div className="macro-stack">
       <section className="macro-card" aria-label="阶段信号">
-        <h3>阶段信号（与 2026 投资计划同一套规则）</h3>
+        <h3>阶段信号（与投资计划同一套规则）</h3>
         <p className="macro-muted">每项绿灯 0 分、黄灯 1 分、红灯 2 分。合计 ≥2 分为预警，≥5 分为防御，≥8 分为危机。</p>
         <div className="macro-table-wrap">
           <table className="macro-table">
@@ -304,7 +304,7 @@ export function StagesView({ snap }: { snap: MacroSnapshot }): JSX.Element {
             </tbody>
           </table>
         </div>
-        <p className="macro-muted">读数每月自动更新；也可以在 <Link to="/investment-plan-2026">2026 投资计划 · 风险仪表盘</Link> 里手动填最新值自查。</p>
+        <p className="macro-muted">读数每月自动更新；也可以在 <Link to="/investment-plan-2026">投资计划 · 风险仪表盘</Link> 里手动填最新值自查。</p>
       </section>
       <div className="macro-grid macro-grid--stages">
         {STAGES.map(s => (
@@ -316,7 +316,7 @@ export function StagesView({ snap }: { snap: MacroSnapshot }): JSX.Element {
           </article>
         ))}
       </div>
-      <p className="macro-muted">危机阶段的分批补仓规则见 <Link to="/investment-plan-2026">2026 投资计划 · 回撤梯度</Link>。</p>
+      <p className="macro-muted">危机阶段的分批补仓规则见 <Link to="/investment-plan-2026">投资计划 · 回撤梯度</Link>。</p>
     </div>
   )
 }

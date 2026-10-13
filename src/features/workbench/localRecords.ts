@@ -35,7 +35,7 @@ const SOURCES: Source[] = [
     read: () => loadReports().map(r => ({ name: r.snapshot.security.name || r.snapshot.security.code, at: r.createdAt })),
   },
   {
-    kind: 'candidates', label: '候选池', path: '/research-notes',
+    kind: 'candidates', label: '候选池', path: '/candidates',
     read: () => loadLocal().map(c => ({ name: c.code, at: c.addedAt })),
   },
 ]

@@ -276,7 +276,8 @@ describe('页面结构：公司库优先，旧链接可用', () => {
   it('默认进入公司库，页签顺序固定', () => {
     renderAt('/research-notes')
     const tabs = screen.getAllByRole('tab')
-    expect(tabs.map(b => b.textContent)).toEqual(['公司库', '候选池', '研究方法', '配置笔记', '工具设想', '历史价位（存档）'])
+    expect(tabs.map(b => b.textContent)).toEqual(['公司库', '研究方法', '配置笔记', '工具设想', '历史价位（存档）'])
+    expect(screen.getByRole('link', { name: /我的候选池/ }).getAttribute('href')).toBe('/candidates')
     expect(screen.getByRole('group', { name: '市场' })).toBeTruthy()
     expect(screen.getByRole('button', { name: '沪深' })).toBeTruthy()
   })

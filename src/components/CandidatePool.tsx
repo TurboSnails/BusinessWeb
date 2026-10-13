@@ -1,17 +1,19 @@
 import React, { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import type { Company } from '../data/companies'
+import { researchForCode, researchPath } from '../data/futureTrendsResearch'
 import type { SyncState } from '../features/candidates/useCandidates'
 import { MAX_NOTE } from '../features/candidates/validation'
 import type { CandidateItem } from '../features/candidates/validation'
+import { MARKET_LABEL, dcfLink, gridLink, toolProgress, valuationLink, type ToolProgress, type ToolSources } from '../features/candidates/links'
 import { Card, TableWrap } from './ui'
 import '../styles/research.css'
-
-const MARKET_LABEL: Record<string, string> = { us: '标普500', cn: '沪深500', hk: '港股', adr: '美股非标普', ndx: '纳指100' }
 
 interface Props {
   items: CandidateItem[]
   companies: Company[]
+  /** 本机已保存的 DCF、估值报告与网格记录，用来显示每家公司做到哪一步 */
+  tools?: ToolSources
   state: SyncState
   message: string
   onMove: (from: number, to: number) => void
@@ -22,27 +24,54 @@ interface Props {
   onRetry: () => void
 }
 
+const NO_TOOLS: ToolSources = { dcf: [], valuation: [], grid: [] }
+
 function NoteEditor({ code, value, onSave }: { code: string; value: string; onSave: (text: string) => void }): JSX.Element {
   const [draft, setDraft] = useState(value)
   const discard = useRef(false)
   const commit = (): void => { if (discard.current) { discard.current = false; return }; if (draft.trim() !== value) onSave(draft) }
   return (
-    <textarea aria-label={`备注 ${code}`} value={draft} rows={2} maxLength={MAX_NOTE} placeholder="写下你对这家公司的看法…"
+    <textarea aria-label={`备注 ${code}`} value={draft} rows={2} maxLength={MAX_NOTE} placeholder="写下你的判断：等什么、什么情况放弃…"
       onChange={e => setDraft(e.target.value)} onBlur={commit}
       onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); e.currentTarget.blur() } else if (e.key === 'Escape') { discard.current = true; setDraft(value); e.currentTarget.blur() } }}
       className="rn-note" />
   )
 }
 
-export default function CandidatePool({ items, companies, state, message, onMove, onRemove, onNote, onClear, onConnect, onRetry }: Props): JSX.Element {
+const money = (n: number, currency: string): string => `${currency} ${n.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}`.trim()
+const day = (iso: string): string => iso.slice(0, 10)
+
+/** 工具进度：做过的显示结论，没做过的明确说「未估值」 */
+function Progress({ p }: { p: ToolProgress }): JSX.Element {
+  if (!p.dcf && !p.valuation && !p.grid) return <span className="cand-progress cand-progress--empty">尚未估值</span>
+  return (
+    <ul className="cand-progress">
+      {p.valuation && <li><span>估值</span>基准 {money(p.valuation.low, p.valuation.currency)}{p.valuation.high !== p.valuation.low && ` – ${p.valuation.high.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}`}<small>{day(p.valuation.createdAt)}</small></li>}
+      {p.dcf && <li><span>DCF</span>{p.dcf.price === null ? '未算出' : money(p.dcf.price, p.dcf.currency)}{p.dcf.mos !== null && <em className={p.dcf.mos >= 0 ? 'is-good' : 'is-bad'}> 安全边际 {(p.dcf.mos * 100).toFixed(0)}%</em>}<small>{day(p.dcf.savedAt)}</small></li>}
+      {p.grid && <li><span>网格</span><Link to={`/grid-trading/records/${encodeURIComponent(p.grid.id)}`} className="rn-link">盈亏 {money(p.grid.pnl, '¥')}</Link><small>{day(p.grid.savedAt)}</small></li>}
+    </ul>
+  )
+}
+
+export default function CandidatePool({ items, companies, tools = NO_TOOLS, state, message, onMove, onRemove, onNote, onClear, onConnect, onRetry }: Props): JSX.Element {
   const [dragFrom, setDragFrom] = useState<number | null>(null)
   const [over, setOver] = useState<number | null>(null)
   const [token, setToken] = useState('')
   const [tokenError, setTokenError] = useState(false)
+  const [confirmClear, setConfirmClear] = useState(false)
   const byKey = new Map(companies.map(c => [`${c.market}:${c.code}`, c]))
 
+  // 公司库优先；不在公司库的（从研究筛出加入的）用主题研究的结论
+  const describe = (i: CandidateItem): { name: string; href: string | null; rating: string; headline: string } => {
+    const c = byKey.get(`${i.market}:${i.code}`)
+    if (c) return { name: c.name, href: `/research-notes/${i.market}/${encodeURIComponent(i.code)}`, rating: c.rating, headline: c.headline }
+    const r = researchForCode(i.market === 'hk' ? `${Number(i.code).toString().padStart(4, '0')}.HK` : i.code)
+    if (r) return { name: r.name, href: researchPath(r.key), rating: r.rating, headline: r.headline }
+    return { name: '', href: null, rating: '—', headline: '公司数据加载中或已不在列表' }
+  }
+
   const exportJson = (): void => {
-    const rows = items.map((i, n) => { const c = byKey.get(`${i.market}:${i.code}`); return { 序号: n + 1, 市场: MARKET_LABEL[i.market], 代码: i.code, 公司: c?.name ?? '', 备注: i.note ?? '', 评级: c?.rating ?? '', 结论: c?.headline ?? '', 加入时间: i.addedAt } })
+    const rows = items.map((i, n) => { const d = describe(i); return { 序号: n + 1, 市场: MARKET_LABEL[i.market], 代码: i.code, 公司: d.name, 备注: i.note ?? '', 评级: d.rating, 结论: d.headline, 加入时间: i.addedAt } })
     const url = URL.createObjectURL(new Blob([JSON.stringify(rows, null, 2)], { type: 'application/json' }))
     const a = document.createElement('a'); a.href = url; a.download = `候选池-${new Date().toISOString().slice(0, 10)}.json`
     document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000)
@@ -51,17 +80,22 @@ export default function CandidatePool({ items, companies, state, message, onMove
 
   const status = state === 'synced' ? '☁ 已同步到云端' : state === 'syncing' ? '☁ 同步中…' : state === 'error' ? '⚠ 云端同步失败，数据暂存本机' : '未验证身份：数据仅保存在本机'
   return (
-    <Card as="section" label="候选池" title={`候选池 · ${items.length} 家`} className="rn-card">
-      <p className="rn-text">
-        在分类数据的公司列表里点「加入候选」即可收录。可拖动 ⠿ 序号或用 ↑ ↓ / 置顶调整优先级，顺序即你的排序；备注框可直接编辑，Enter 或点击别处保存（Shift+Enter 换行，Esc 放弃修改）。仅为个人研究清单，不构成投资建议。
-      </p>
+    <Card as="section" label="我的候选池" title={`我的候选池 · ${items.length} 家`} className="rn-card">
       <div className="ui-cluster rn-filters">
         <span aria-live="polite" className={state === 'error' ? 'rn-pool-status is-error' : 'rn-pool-status'}>{status}</span>
         {message && <span className="rn-pool-msg">{message}</span>}
         {state === 'error' && <button type="button" className="tool-btn" onClick={onRetry}>重试</button>}
         <span className="rn-spacer" />
         <button type="button" className="tool-btn" disabled={!items.length} onClick={exportJson}>⬇ 导出 JSON</button>
-        <button type="button" className="tool-btn" disabled={!items.length} onClick={() => { if (window.confirm(`清空全部 ${items.length} 家候选？此操作会同步到云端。`)) onClear() }}>清空</button>
+        {confirmClear ? (
+          <span className="cand-confirm" role="group" aria-label="确认清空">
+            <span>清空全部 {items.length} 家？会同步到云端。</span>
+            <button type="button" className="tool-btn tool-btn--danger" onClick={() => { setConfirmClear(false); onClear() }}>确认清空</button>
+            <button type="button" className="tool-btn" onClick={() => setConfirmClear(false)}>取消</button>
+          </span>
+        ) : (
+          <button type="button" className="tool-btn" disabled={!items.length} onClick={() => setConfirmClear(true)}>清空</button>
+        )}
       </div>
       {state === 'no-token' && (
         <form onSubmit={e => { e.preventDefault(); setTokenError(!onConnect(token)); setToken('') }} className="ui-cluster rn-pool-form">
@@ -71,22 +105,36 @@ export default function CandidatePool({ items, companies, state, message, onMove
           {tokenError && <span className="rn-error-text">Token 至少 32 位</span>}
         </form>
       )}
-      {!items.length ? <p className="rn-empty">候选池还是空的。</p> : (
+      {!items.length ? (
+        <div className="cand-empty">
+          <p>候选池还是空的。</p>
+          <p>在 <Link to="/research-notes" className="rn-link">公司研究</Link> 的公司库里点「加入候选」，或在「研究筛出」里点「加入我的池」。</p>
+        </div>
+      ) : (
         <TableWrap label="候选池列表">
-          <table className="ui-table rn-table--top">
-            <thead><tr>{['#', '公司', '研究笔记', '我的备注', '市场', '评级', '一句话结论', '排序 / 操作'].map(h => <th key={h} scope="col">{h}</th>)}</tr></thead>
+          <table className="ui-table rn-table--top cand-table">
+            <thead><tr>{['#', '公司', '我的备注', '研究结论', '估值进度', '去估值', '排序'].map(h => <th key={h} scope="col">{h}</th>)}</tr></thead>
             <tbody>{items.map((i, n) => {
-              const c = byKey.get(`${i.market}:${i.code}`)
+              const d = describe(i)
+              const grid = gridLink(i.market, i.code, d.name)
               return (
                 <tr key={`${i.market}:${i.code}`} onDragOver={e => { e.preventDefault(); setOver(n) }} onDrop={() => drop(n)}
                   className={dragFrom === n ? 'rn-row-dragging' : over === n && dragFrom !== null ? 'rn-row-over' : undefined}>
                   <td className="rn-drag" draggable title="拖动调整顺序" onDragStart={() => setDragFrom(n)} onDragEnd={() => { setDragFrom(null); setOver(null) }}>⠿ {n + 1}</td>
-                  <td className="rn-nowrap">{c ? <Link to={`/research-notes/${i.market}/${encodeURIComponent(i.code)}`} className="rn-link">{c.name} {c.code}</Link> : i.code}</td>
-                  <td className="rn-nowrap"><Link to={`/research-notes/company/${i.market}/${encodeURIComponent(i.code)}/notes`} className="rn-link">研究笔记</Link></td>
+                  <td className="cand-company">
+                    {d.href ? <Link to={d.href} className="rn-link">{d.name || i.code} {i.code}</Link> : <span>{i.code}</span>}
+                    <small>{MARKET_LABEL[i.market]} · <Link to={`/research-notes/company/${i.market}/${encodeURIComponent(i.code)}/notes`} className="rn-link">研究笔记</Link></small>
+                  </td>
                   <td className="rn-wide"><NoteEditor key={`${i.note ?? ''}`} code={i.code} value={i.note ?? ''} onSave={text => onNote(i, text)} /></td>
-                  <td className="rn-nowrap">{MARKET_LABEL[i.market]}</td>
-                  <td className="rn-mid">{c?.rating ?? '—'}</td>
-                  <td className="rn-wide">{c?.headline ?? '公司数据加载中或已不在列表'}</td>
+                  <td className="cand-verdict"><strong>{d.rating}</strong><span>{d.headline}</span></td>
+                  <td className="cand-progress-cell"><Progress p={toolProgress(i.market, i.code, tools)} /></td>
+                  <td>
+                    <div className="cand-tools">
+                      <Link className="tool-btn" to={valuationLink(i.market, i.code)} aria-label={`估值工作台 ${i.code}`}>估值</Link>
+                      <Link className="tool-btn" to={dcfLink(i.market, i.code, d.name)} aria-label={`DCF ${i.code}`}>DCF</Link>
+                      {grid && <Link className="tool-btn" to={grid} aria-label={`网格 ${i.code}`}>网格</Link>}
+                    </div>
+                  </td>
                   <td>
                     <div className="rn-row-actions">
                       <button type="button" className="tool-btn" aria-label={`上移 ${i.code}`} disabled={n === 0} onClick={() => onMove(n, n - 1)}>↑</button>
@@ -101,6 +149,7 @@ export default function CandidatePool({ items, companies, state, message, onMove
           </table>
         </TableWrap>
       )}
+      <p className="cand-foot">拖动 ⠿ 序号或用 ↑ ↓ / 置顶调整优先级；备注 Enter 或点别处保存，Shift+Enter 换行，Esc 放弃。仅为个人研究清单，不构成投资建议。</p>
     </Card>
   )
 }
