@@ -40,7 +40,7 @@ import { CN_REPORT } from '../data/cnReassessment'
 import ResearchNotice from '../components/research/ResearchNotice'
 import { SP500_REPORT, sp500Reassessment } from '../data/sp500Reassessment'
 import { NDX_CODES, NDX_ASOF } from '../data/ndx100'
-import { Page, Stat, TableWrap } from '../components/ui'
+import { Page, PageDataFreshness, Stat, TableWrap } from '../components/ui'
 import '../styles/research.css'
 
 type TabId = 'companies' | 'pool' | 'watch' | 'method' | 'notes' | 'dev'
@@ -393,6 +393,13 @@ export default function ResearchNotes(): JSX.Element {
       <PageTitle>公司研究</PageTitle>
       <PageTabs<TabId> label="公司研究栏目" value={activeTab} onChange={setActiveTab}
         items={tabs.map(t => ({ id: t.id, label: t.label, icon: <t.icon size={14} /> }))} />
+      {activeTab === 'companies' && !combinedLoading && <PageDataFreshness
+        checkedAt={progList.map(c => c.marketRefresh?.checkedAt).filter(Boolean).sort().at(-1)}
+        dataLabel="行情日期"
+        dataDates={progList.map(c => c.marketRefresh?.priceDate)}
+        researchAsOf={catMarket === 'ndx' ? NDX_ASOF : undefined}
+        note="按当前市场汇总；具体公司行情日期见公司详情。"
+      />}
       {activeTab === 'companies' && (
         <p className="rn-pool-jump"><Link to="/candidates" className="rn-link"><Star size={14} aria-hidden="true" /> 我的候选池 · {cand.items.length} 家：估值、DCF、网格都从这里进 →</Link></p>
       )}

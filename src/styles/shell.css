@@ -970,6 +970,23 @@ a.chapter-nav__item:hover {
   font-size: 0.85rem;
 }
 
+.page-data-freshness {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0 0 14px;
+  padding: 9px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.page-data-freshness strong { color: var(--text-primary); font-weight: 600; }
+.page-data-freshness__note { flex-basis: 100%; }
+
 .page-toolbar__note {
   margin-right: auto;
 }

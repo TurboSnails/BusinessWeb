@@ -18,6 +18,7 @@ import type { MacroSnapshot } from '../features/macro/indicators'
 import type { CnKey } from '../features/macro/china'
 import type { HkKey } from '../features/macro/hk'
 import { Page } from '../components/ui'
+import { PageDataFreshness } from '../components/ui/PageDataFreshness'
 
 type TabId = 'overview' | 'us' | 'cn' | 'hk' | 'cycles' | 'valuation' | 'stages' | 'guide' | 'archive'
 const TABS: TabItem<TabId>[] = [
@@ -119,6 +120,8 @@ export default function Monitor(): JSX.Element {
     <Page>
       <PageTitle>宏观温度</PageTitle>
       <PageTabs label="宏观温度栏目" items={TABS} value={tab} onChange={id => go({ tab: id === 'overview' ? null : id, old: null })} />
+      {needsData && snap && <PageDataFreshness checkedAt={[data.us, data.cn, data.hk].map(section => section?.checkedAt ?? section?.fetchedAt).filter(Boolean).sort().at(-1)} dataLabel="指标观测日期" dataDates={[...Object.values(snap.series).map(series => series.latest.date), ...Object.values(data?.cn?.series ?? {}).map(series => series.latest.date), ...Object.values(data?.hk?.series ?? {}).map(series => series.latest.date)]} note="各指标观测日期不同；页面显示本次核验日与可用数据日期。" />}
+      {tab === 'valuation' && indexes && <PageDataFreshness checkedAt={indexes.checkedAt} dataLabel="指数数据日期" dataDates={Object.values(indexes.indexes).flatMap(index => [index.latest.date, index.agg?.date])} note={`快照生成于 ${indexes.generatedAt}。`} />}
       <div>
         {needsData && !snap && <p role={error ? 'alert' : 'status'} className="macro-muted">{error || '正在加载宏观数据…'}</p>}
         {snap && needsData && (

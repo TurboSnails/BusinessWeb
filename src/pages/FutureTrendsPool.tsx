@@ -3,10 +3,11 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { Segmented } from '../components/ui/PageTabs'
 import CompanyComparison from '../components/future-trends/CompanyComparison'
 import { POOL, downloadJson } from '../data/futureTrendsPool'
-import { RESEARCH_BY_KEY } from '../data/futureTrendsResearch'
+import { RESEARCH_ASOF, RESEARCH_BY_KEY } from '../data/futureTrendsResearch'
 import { byPriority, poolBucket } from '../data/futureTrendsPresentation'
 import type { ResearchSummary } from '../data/futureTrendsResearch'
 import '../styles/future-trends.css'
+import { PageDataFreshness } from '../components/ui/PageDataFreshness'
 /** 研究筛出的公司：可买卖 / 好公司价格太贵 / 全部观察。action 为每行的操作（候选池页传入「加入我的池」）。 */
 export default function FutureTrendsPool({ action }: { action?: (r: ResearchSummary) => React.ReactNode } = {}): JSX.Element {
   const [params, setParams] = useSearchParams()
@@ -22,6 +23,7 @@ export default function FutureTrendsPool({ action }: { action?: (r: ResearchSumm
   const page = Number.isInteger(rawPage) && rawPage > 0 ? Math.min(rawPage,pages) : 1
   function paginate(n: number) { const next = new URLSearchParams(params); next.set('page',String(n)); setParams(next) }
   return <div className="ft">
+    <PageDataFreshness checkedAt={rows.map(r => r.priceCheckedAt).filter(Boolean).sort().at(-1)} dataLabel="行情日期" dataDates={rows.map(r => r.priceDate)} researchAsOf={RESEARCH_ASOF} note="当前筛选结果；研究情景尚未随行情重新估值。" />
     <p className="ft-method"><Link to="/future-trends?tab=solid-state#solid-core-review">查看固态电池 40 家公司竞选结论与最新 MCP 证据 →</Link></p>
     <header className="ft-heading"><div><div className="ft-eyebrow">从公司质量，到价格条件</div><h2>研究筛出</h2><p>分两部分：可买卖是情景盈亏比≥0.75 且假设期望收益≥20% 的公司；好公司 · 价格太贵是已逐家分析、质量不错但现价偏高的公司，给出条件价等它回落。点击名称查看详细分析。</p></div><button className="ft-export" type="button" onClick={() => downloadJson('未来趋势候选研究-2026-10-09.json', rows)}>导出筛选结果 JSON</button></header>
     <div className="ft-views" role="group" aria-label="候选优先级">{[['1','可买卖','buy'],['2','好公司 · 价格太贵','rich'],['4','全部观察','']].map(([v,t,b]) => <button key={v} type="button" aria-pressed={view === v} onClick={() => change('view',v)}>{t}<span>{b ? all.filter(x => poolBucket(x.r) === b).length : all.length}</span></button>)}</div>

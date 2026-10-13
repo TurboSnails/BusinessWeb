@@ -12,6 +12,7 @@ import { useCandidates } from '../features/candidates/useCandidates'
 import { priceAnchorAge } from '../features/dcf/priceAnchor'
 import { buildDcfLink } from '../features/dcf'
 import { Badge, Card, EmptyState, Page, Stat, StatGrid, TableWrap } from '../components/ui'
+import { PageDataFreshness } from '../components/ui/PageDataFreshness'
 import '../styles/research.css'
 
 // 评级语气的文字色：只用色板 token
@@ -150,6 +151,7 @@ export default function CompanyDetail(): JSX.Element {
         <p className="rn-hero-meta">
           {company.market === 'us' ? '标普500' : company.market === 'hk' ? '港股' : company.market === 'adr' ? '美股非标普' : company.market === 'ndx' ? '纳指100' : '沪深'} · {company.code} · {company.sector} · {company.batch}
         </p>
+        {company.marketRefresh && <PageDataFreshness checkedAt={company.marketRefresh.checkedAt} dataLabel="行情日期" dataDates={[company.marketRefresh.priceDate]} researchAsOf={company.marketRefresh.originalAsOf} />}
         <div className="ui-cluster">
           <span className="rn-rating" style={{ color: TONE_INK[tone] }}>{company.rating}</span>
           <CandidateButton on={cand.items.some(i => i.market === company.market && i.code === company.code)} onClick={() => cand.toggle(company.market, company.code)} />

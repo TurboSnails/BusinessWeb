@@ -8,6 +8,7 @@ import { solidCompanyPath } from '../data/solidState/companyResearch'
 import coreReview from '../data/solidState/coreReview.json'
 import SolidStateReview from '../components/future-trends/SolidStateReview'
 import '../styles/solid-state.css'
+import { PageDataFreshness } from '../components/ui/PageDataFreshness'
 
 function Section({ id, title, children }: { id: string; title: string; children: ReactNode }): JSX.Element {
   return <section id={id} className="solid-section" aria-labelledby={`${id}-title`}><h2 id={`${id}-title`}>{title}</h2>{children}</section>
@@ -32,6 +33,7 @@ export default function FutureTrendsSolidState(): JSX.Element {
   const filtered = useMemo(() => companies.filter(c => (group === '全部' || c.group === group) &&
     `${c.name} ${mcpCompany(c.name)?.displayName} ${c.code} ${mcpCompany(c.name)?.listings.map(l => l.symbol).join(' ')} ${c.path}`.toLowerCase().includes(query.trim().toLowerCase())), [group, query])
   return <article className="solid-state">
+    <PageDataFreshness checkedAt={MCP.companies.flatMap(c => c.listings.map(l => l.retrievedAt)).filter(Boolean).sort().at(-1)} dataLabel="市场行情日期" dataDates={MCP.companies.flatMap(c => c.listings.map(l => l.marketTime))} researchAsOf={MCP.asOf} note="逐证券市场时间见下方列表；部分公司沿用旧行情快照。" />
     <section className="solid-section solid-hero" aria-labelledby="solid-title">
       <p className="solid-eyebrow">主题研究 / 产业专题 · {AS_OF}</p>
       <h2 id="solid-title">固态电池</h2>

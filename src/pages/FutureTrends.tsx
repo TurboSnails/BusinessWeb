@@ -1,8 +1,9 @@
 import React from 'react'
 import { Link, Navigate, useSearchParams } from 'react-router-dom'
 import FutureCompanyLink from '../components/FutureCompanyLink'
-import { researchForCompany, researchPercent } from '../data/futureTrendsResearch'
+import { RESEARCH_ASOF, RESEARCH_INDEX, researchForCompany, researchPercent } from '../data/futureTrendsResearch'
 import { PageTabs, PageTitle } from '../components/ui/PageTabs'
+import { PageDataFreshness } from '../components/ui/PageDataFreshness'
 import { ADAS_LEVELS, ADAS_PICKS, ADAS_PICKS_ASOF, ADAS_RISK_RULES, ADAS_SUMMARY } from '../data/futureTrendsAdasPicks'
 import { AI_LEVELS, AI_PICKS, AI_PICKS_ASOF, AI_RISK_RULES, AI_PICKS_SUMMARY } from '../data/futureTrendsAiPicks'
 import type { AiLevel, AiPick } from '../data/futureTrendsAiPicks'
@@ -135,6 +136,7 @@ export default function FutureTrends(): JSX.Element {
       <PageTitle>主题研究</PageTitle>
       <PageTabs label="主题研究赛道" value={id} onChange={setId}
         items={[{ id: CORE_ID, label: '核心' }, { id: SOLID_ID, label: '固态电池' }, ...TRENDS.map(t => ({ id: t.id, label: t.name.replace(/（.*?）/, '').replace(/，.*/, '') }))]} />
+      <PageDataFreshness checkedAt={RESEARCH_INDEX.map(r => r.priceCheckedAt).filter(Boolean).sort().at(-1)} dataLabel="行情日期" dataDates={RESEARCH_INDEX.map(r => r.priceDate)} researchAsOf={RESEARCH_ASOF} note="候选研究池汇总；不同公司行情日期可能不同。" />
       <div>
         {id !== CORE_ID && id !== SOLID_ID && <p role="note" className="ftx-note">产业目录截至 {FUTURE_TRENDS_ASOF}。点击公司名称查看详细研究；查看推荐顺序请进入核心，或到<Link to="/candidates?tab=research">候选池</Link>看研究筛出的公司。</p>}
 
