@@ -126,6 +126,12 @@ export default function Home(): JSX.Element {
         </div>
       </section>
 
+      <section className="home-block" aria-labelledby="home-blog-title">
+        <h2 id="home-blog-title" className="home-block__title">写在路上</h2>
+        <p>投资、AI 与自由生活的实践笔记。把思考写下来，把日子过明白。</p>
+        <Link to="/blog" className="home-read">走进博客 <ArrowRight size={18} aria-hidden="true" /></Link>
+      </section>
+
       <section className="home-columns" aria-labelledby="home-columns-title">
         <h2 id="home-columns-title">三个栏目</h2>
         <div className="home-columns__grid">

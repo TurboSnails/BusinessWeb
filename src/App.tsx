@@ -15,6 +15,7 @@ import Home from './pages/Home'
 
 // 重页面按路由拆包：首屏只下载首页和几个小页面，其余进入时再加载
 const About = lazy(() => import('./pages/About'))
+const BlogIndex = lazy(() => import('./pages/BlogIndex'))
 const Pulse = lazy(() => import('./pages/Pulse'))
 const Monitor = lazy(() => import('./pages/Monitor'))
 const InvestmentPlan2026 = lazy(() => import('./pages/InvestmentPlan2026'))
@@ -115,6 +116,7 @@ export default function App(): JSX.Element {
           <Route path="/knowledge" element={<KnowledgeCenter />} />
           <Route path="/life" element={<LifeLab />} />
           <Route path="/about" element={<About />} />
+          <Route path="/blog" element={<BlogIndex />} />
           <Route path="/pulse" element={<Pulse />} />
           <Route path="/watch" element={<WatchBoard />} />
           <Route path="/monitor" element={<Monitor />} />

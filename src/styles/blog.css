@@ -1,0 +1,40 @@
+.blog-index,.blog-reader{color:var(--text-primary)}
+.blog-eyebrow{font-size:.76rem;letter-spacing:.2em;font-weight:700;color:var(--accent-ink);margin:0 0 1.6rem}
+.blog-hero{padding:clamp(2.5rem,6vw,5.5rem) 0 clamp(2.6rem,5vw,4.5rem);border-bottom:1px solid var(--border, #d8d2c4)}
+.blog-hero__layout{display:flex;align-items:end;justify-content:space-between;gap:2rem}
+.blog-hero h1{font-family:var(--font-serif,serif);font-size:clamp(2.6rem,5.5vw,5.2rem);font-weight:500;letter-spacing:-.06em;line-height:1.2;margin:0}
+.blog-hero h1 em{font-style:normal;color:var(--accent)}
+.blog-hero__intro{max-width:37rem;font-size:1.08rem;color:var(--text-secondary);line-height:1.85;margin:1.6rem 0 0}
+.blog-hero__aside{display:flex;align-items:center;gap:1.5rem;white-space:nowrap;color:var(--text-secondary);font-family:var(--font-serif,serif);font-size:.9rem;padding-bottom:.5rem}
+.blog-hero__rule{height:1px;width:4rem;background:var(--accent)}
+.blog-filterbar{display:flex;justify-content:space-between;align-items:center;gap:1.5rem;padding:2.3rem 0 1.5rem}
+.blog-categories{display:flex;flex-wrap:wrap;gap:.4rem}
+.blog-categories button,.blog-no-match button{background:none;border:1px solid transparent;color:var(--text-secondary);padding:.7rem 1rem;min-height:44px;border-radius:999px;cursor:pointer;font:inherit}
+.blog-categories button:hover,.blog-categories button.is-active{color:var(--accent-ink);background:var(--accent-soft)}
+.blog-search{display:flex;align-items:center;gap:.6rem;border-bottom:1px solid var(--border,#d8d2c4);min-width:15rem;color:var(--text-secondary)}
+.blog-search:focus-within{border-color:var(--accent)}
+.blog-search input{background:none;border:0;outline:0;color:var(--text-primary);font:inherit;padding:.7rem 0;width:100%}
+.blog-results__heading{display:flex;justify-content:space-between;color:var(--text-secondary);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;padding:0 0 .8rem}
+.blog-card{padding:2.1rem 0;border-top:1px solid var(--border,#d8d2c4)}
+.blog-card--lead{padding:2.7rem 0 3rem}
+.blog-card__meta{display:flex;gap:1rem;align-items:center;color:var(--text-secondary);font-size:.82rem;margin-bottom:.8rem}
+.blog-card__meta span{color:var(--accent-ink);font-weight:650}
+.blog-card__link{display:flex;align-items:center;justify-content:space-between;gap:1rem;text-decoration:none;color:var(--text-primary)}
+.blog-card__link h2{font-family:var(--font-serif,serif);font-size:clamp(1.55rem,2.8vw,2.5rem);line-height:1.35;font-weight:550;letter-spacing:-.035em;margin:0}
+.blog-card--lead .blog-card__link h2{font-size:clamp(2rem,3.5vw,3.2rem)}
+.blog-card__link svg{flex:none;color:var(--accent);transition:transform .2s}
+.blog-card__link:hover svg{transform:translateX(5px)}
+.blog-card p{max-width:48rem;color:var(--text-secondary);line-height:1.8;margin:.75rem 0 0}
+.blog-card__tags{display:flex;gap:.7rem;color:var(--text-secondary);font-size:.78rem;margin-top:1rem}
+.blog-empty,.blog-no-match{text-align:center;padding:clamp(3rem,8vw,7rem) 1rem}
+.blog-empty h2,.blog-no-match h2{font-family:var(--font-serif,serif);font-size:clamp(1.8rem,3vw,2.6rem);font-weight:550;margin:0 0 1rem}
+.blog-empty>p:not(.blog-eyebrow),.blog-no-match p{color:var(--text-secondary);line-height:1.8}
+.blog-empty__links{display:flex;justify-content:center;gap:1rem;flex-wrap:wrap;margin-top:2rem}
+.blog-empty__links a,.blog-endnote a,.blog-no-match button{display:inline-flex;align-items:center;gap:.5rem;padding:.8rem 1.2rem;border:1px solid var(--accent);border-radius:2px;color:var(--accent-ink);text-decoration:none;min-height:44px}
+.blog-empty__links a:first-child{background:var(--accent);color:#fff}
+.blog-endnote{display:flex;align-items:center;justify-content:space-between;gap:1rem;border-top:1px solid var(--border,#d8d2c4);padding:2.4rem 0;margin-top:1rem}
+.blog-endnote span{font-size:.78rem;letter-spacing:.15em;color:var(--accent-ink)}
+.blog-endnote p{font-family:var(--font-serif,serif);font-size:1.2rem;margin:0}
+.blog-endnote a{white-space:nowrap}
+.blog-index a:focus-visible,.blog-index button:focus-visible,.blog-reader a:focus-visible,.blog-reader button:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+@media(max-width:760px){.blog-hero__aside{display:none}.blog-filterbar{align-items:stretch;flex-direction:column}.blog-categories{overflow-x:auto;flex-wrap:nowrap}.blog-categories button{white-space:nowrap}.blog-search{width:100%}.blog-endnote{align-items:flex-start;flex-direction:column}.blog-endnote p{font-size:1.1rem}}
