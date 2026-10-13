@@ -39,6 +39,18 @@ export function parseModelOutput(backend, output) {
       : [];
   });
 }
+export function parseAgyModels(output) {
+  return output.split(/\r?\n/).flatMap((line) => {
+    const [id, name] = line.split("\t");
+    return id && name && /^[\w./:-]+$/.test(id.trim())
+      ? [modelOption("agy", id.trim(), name.trim())]
+      : [];
+  });
+}
+export function parseKimiModels(config) {
+  return [...config.matchAll(/^\s*\[models\."([^"\r\n]+)"\]\s*(?:#.*)?$/gm)]
+    .map((match) => modelOption("kimi", match[1], match[1], "localConfig"));
+}
 export function modelsFromCodexCache(value) {
   return (Array.isArray(value.models) ? value.models : []).flatMap((m) =>
     typeof m.slug === "string"
@@ -109,6 +121,19 @@ export async function listModels(backend, { refresh = false, signal } = {}) {
     });
     models = parseModelOutput(backend, result.stdout);
   }
+  if (backend === "agy") {
+    const result = await runProcess(executable, ["models"], {
+      timeout: 30000,
+      signal,
+    });
+    models = parseAgyModels(result.stdout);
+  }
+  if (backend === "kimi")
+    try {
+      models = parseKimiModels(
+        await readFile(join(homedir(), ".kimi-code", "config.toml"), "utf8"),
+      );
+    } catch {}
   const result = [
     modelOption(backend, "default", "CLI 默认模型（别名）", "default"),
     ...models,

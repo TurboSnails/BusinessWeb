@@ -1,0 +1,23 @@
+{
+  "name": "businessweb-valuation-bridge",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "valuation-bridge": "dist/cli.mjs"
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "node build.mjs",
+    "prepublishOnly": "node build.mjs",
+    "test": "node --test *.test.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "optionalDependencies": {
+    "@earendil-works/pi-coding-agent": "^1.0.2"
+  },
+  "devDependencies": {
+    "esbuild": "^0.21.5"
+  }
+}

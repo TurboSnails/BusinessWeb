@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseModelOutput, modelsFromCodexCache } from "./models/index.mjs";
+import { parseModelOutput, modelsFromCodexCache, parseAgyModels, parseKimiModels } from "./models/index.mjs";
 test("preserves provider/version identity without treating discovery as authorization", () => {
   const models = parseModelOutput(
     "opencode",
@@ -31,4 +31,17 @@ test("claude exposes versioned catalog models", async () => {
   const models = await claudeLocalModels();
   assert.ok(models.some((m) => m.modelId === "claude-opus-5-5"));
   assert.ok(models.every((m) => m.backend === "claude"));
+});
+test("agy parses tab-separated model IDs and display names", () => {
+  const models = parseAgyModels("Fetching available models...\ngemini-3.8-flash-high\tGemini 3.8 Flash (High)\nclaude-sonnet-4-6\tClaude Sonnet 4.6 (Thinking)\n");
+  assert.deepEqual(models.map((m) => [m.modelId, m.displayName, m.backend]), [
+    ["gemini-3.8-flash-high", "Gemini 3.8 Flash (High)", "agy"],
+    ["claude-sonnet-4-6", "Claude Sonnet 4.6 (Thinking)", "agy"],
+  ]);
+});
+test("kimi extracts only model aliases from its config", () => {
+  const models = parseKimiModels('default_model = "k3"\n[models."k3"]\nmodel = "secret-provider-id"\n[models."moonshot-v1"]\n[other]\ntoken = "SECRET"\n');
+  assert.deepEqual(models.map((m) => m.modelId), ["k3", "moonshot-v1"]);
+  assert.ok(!JSON.stringify(models).includes("SECRET"));
+  assert.ok(!JSON.stringify(models).includes("secret-provider-id"));
 });

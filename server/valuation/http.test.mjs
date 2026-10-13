@@ -41,6 +41,22 @@ test("completed tasks retain exactly one terminal event", async () => {
 });
 import { createValuationServer } from "./http.mjs";
 import { Readable } from "node:stream";
+test("health identifies the valuation service", async () => {
+  const server = createValuationServer({ token: "test-session" });
+  try {
+    const response = await request(server, "GET", "/api/valuation/health", {});
+    assert.equal(response.status, 200);
+    assert.deepEqual(response.body, {
+      ok: true,
+      service: "valuation",
+      version: 2,
+      features: ["macro-interpret", "activity-progress"],
+      token: "test-session",
+    });
+  } finally {
+    server.close();
+  }
+});
 function request(server, method, path, headers, body = "") {
   return new Promise((resolve) => {
     const req = Readable.from([body]);

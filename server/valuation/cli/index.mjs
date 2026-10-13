@@ -5,7 +5,7 @@ import { executablePath, discoverBackends } from "./registry.mjs";
 import { runProcess } from "./process.mjs";
 import { markModel } from "../models/index.mjs";
 import { runPiAnalysis, piVersion } from "../pi/index.mjs";
-export function buildArgs(backend, modelId, schemaPath, schema = {}) {
+export function buildArgs(backend, modelId, schemaPath, schema = {}, prompt = "") {
   const model = modelId && modelId !== "default" ? ["--model", modelId] : [];
   if (backend === "codex")
     return [
@@ -48,12 +48,33 @@ export function buildArgs(backend, modelId, schemaPath, schema = {}) {
       "--no-context-files",
       ...model,
     ];
+  if (backend === "agy")
+    return [
+      "--sandbox", // agy 默认自动批准全部工具；估值只需要文本，限制终端权限
+      "--print",
+      prompt,
+      "--output-format",
+      "stream-json",
+      ...model,
+      ...(schema && Object.keys(schema).length
+        ? ["--json-schema", schemaPath || JSON.stringify(schema)]
+        : []),
+    ];
+  if (backend === "kimi")
+    return ["--prompt", prompt, "--output-format", "text", ...model];
   throw new Error("不支持的CLI");
 }
 export function extractOutput(backend, records) {
   let text = "",
     resolvedModelId = null;
   for (const r of records) {
+    if (backend === "kimi" && r.type === "stderr") {
+      const message = r.message || "";
+      if (/usage limit|quota/i.test(message))
+        throw new Error("kimi 额度已用尽，请到 kimi.com 购买额度或等待下个周期");
+      if (/provider\.auth_error|unauthorized|not logged in/i.test(message))
+        throw new Error("kimi 未登录或登录已失效，请在终端运行 kimi login");
+    }
     if (
       r.type === "error" ||
       r.type === "turn.failed" ||
@@ -82,6 +103,13 @@ export function extractOutput(backend, records) {
     if (backend === "claude" && r.type === "system" && r.model)
       resolvedModelId = r.model;
     if (backend === "opencode" && r.type === "text") text += r.part?.text || "";
+    if (backend === "kimi" && r.type === "text") text += r.part?.text || "";
+    if (backend === "agy" && r.event === "result") {
+      if (r.result?.status !== "SUCCESS")
+        throw new Error("模型调用失败：" +
+          String(r.result?.response || "请检查CLI登录与额度").slice(0, 300));
+      text = r.result.response;
+    }
     if (
       backend === "pi" &&
       r.type === "message_end" &&
@@ -100,6 +128,8 @@ export function extractOutput(backend, records) {
 }
 /** 从各 CLI 的流式记录里取出模型这一步产出的文字（取不到返回 ""） */
 export function streamText(r) {
+  if (r.event === "step_update")
+    return typeof r.text_delta === "string" ? r.text_delta : "";
   if (r.type === "item.completed" || r.type === "item.updated")
     return typeof r.item?.text === "string" ? r.item.text : "";
   if (r.type === "text" || r.type === "reasoning")
@@ -177,13 +207,9 @@ export async function runAnalysis({
   onEvent?.({ type: "activity", message: "已把财务资料交给模型，等待响应", chars: 0 });
   try {
     await writeFile(schemaPath, JSON.stringify(schema));
-    const input =
-      backend === "pi"
-        ? JSON.stringify({ id: "valuation", type: "prompt", message: prompt }) +
-          "\n"
-        : prompt;
+    const input = backend === "agy" || backend === "kimi" ? "" : prompt;
     const run = (restrict) =>
-      runProcess(executable, buildArgs(backend, modelId, schemaPath, schema), {
+      runProcess(executable, buildArgs(backend, modelId, schemaPath, schema, prompt), {
         input,
         cwd,
         signal,
@@ -217,8 +243,15 @@ export async function runAnalysis({
         },
       });
     try {
-      await run(true);
+      const result = await run(true);
+      if (backend === "kimi") {
+        if (result.stderr) records.push({ type: "stderr", message: result.stderr });
+        records.push({ type: "text", part: { text: result.stdout } });
+        progress.push(result.stdout);
+      }
     } catch (error) {
+      if (backend === "kimi" && error.stderr)
+        records.push({ type: "stderr", message: error.stderr });
       // opencode 免费档拒绝带权限限制的请求；在空临时目录中去掉限制重试
       const rejected = records.some((r) =>
         /free tier/i.test(r.error?.data?.message || ""),

@@ -3,7 +3,7 @@ import { constants } from "node:fs";
 import { delimiter, join } from "node:path";
 import { runProcess } from "./process.mjs";
 import { piAvailable, piVersion } from "../pi/index.mjs";
-export const BACKENDS = ["pi", "codex", "claude", "opencode"];
+export const BACKENDS = ["pi", "codex", "claude", "opencode", "agy", "kimi"];
 export async function executablePath(id) {
   if (!BACKENDS.includes(id)) throw new Error("不支持的CLI");
   for (const dir of (process.env.PATH || "").split(delimiter)) {

@@ -16,6 +16,9 @@ import type { MacroSnapshot } from './indicators'
 import type { CnKey } from './china'
 import { buildDigest } from './digest'
 import { QUALITY_LABEL, checkQuality, type QualityReport } from './quality'
+import BridgeSetup from '../../components/valuation/BridgeSetup'
+import { backendLabel, loginHintForError } from '../../components/valuation/backends'
+import { INSTALL_COMMAND, type BridgeState } from '../../services/localBridge'
 import { elapsedText } from '../valuation/session'
 
 // 当前标签页内保留：进行中的任务、最近一次解读
@@ -37,8 +40,9 @@ type StoredResult = MacroInterpretationResult & { quality?: { counts: QualityRep
 const FRESH_MS = 6 * 3600_000
 
 export default function AiInterpretation({ us, cn, onRefresh }: Snapshots & { onRefresh?: () => Promise<Snapshots | null> }): JSX.Element {
-  const running = useRef(store.get<{ id: string; startedAt: number }>(JOB_KEY)).current
+  const running = useRef(store.get<{ id: string; startedAt: number; backend?: Backend }>(JOB_KEY)).current
   const [connected, setConnected] = useState(false)
+  const [bridge, setBridge] = useState<BridgeState | null>(null)
   const [backends, setBackends] = useState<BackendInfo[]>([])
   const [backend, setBackend] = useState<Backend>('codex')
   const [models, setModels] = useState<ModelOption[]>([])
@@ -53,21 +57,28 @@ export default function AiInterpretation({ us, cn, onRefresh }: Snapshots & { on
   // 本次解读用的数据体检结果，完成后随结果一起保存
   const pendingQuality = useRef<StoredResult['quality'] | null>(store.get(JOB_KEY + '-quality'))
   const [error, setError] = useState('')
+  // 任务启动时的 backend：登录提示要对应失败的那次，而不是之后切换的下拉选项
+  const [errorBackend, setErrorBackend] = useState<Backend>('codex')
+  const lastReconnect = useRef(0)
+  const jobBackend = useRef<Backend | undefined>(running?.backend)
   const [outdated, setOutdated] = useState(false)
   const stop = useRef<(() => void) | null>(null)
   const asOf = us.fetchedAt?.slice(0, 10) ?? us.generatedAt
 
   async function connect(): Promise<void> {
     setError('')
+    if (hostedPage) setBridge({ kind: 'starting' })
     try {
       const health = await connectValuation()
+      setBridge(null)
       setOutdated(!health.features?.includes('macro-interpret'))
       const list = await fetchBackends()
       setBackends(list)
       setConnected(true)
       setBackend(list.find(b => b.id === pref('valuation-backend') && b.installed)?.id || list.find(b => b.installed)?.id || 'codex')
-    } catch {
+    } catch (e) {
       setConnected(false)
+      setBridge((e as { bridgeState?: BridgeState }).bridgeState ?? null)
       if (store.get(JOB_KEY)) { setBusy(false); setStatus('本地服务未连接，连接后会接着显示之前的解读进度') }
     }
   }
@@ -85,7 +96,7 @@ export default function AiInterpretation({ us, cn, onRefresh }: Snapshots & { on
       setModels(list)
       const remembered = pref('valuation-model-' + backend)
       setModel(list.some(m => m.modelId === remembered) ? remembered : 'default')
-    }).catch(e => { if (alive) setError((e as Error).message) })
+    }).catch(e => { if (alive) { setErrorBackend(backend); setError((e as Error).message) } })
     return () => { alive = false }
   }, [connected, backend])
 
@@ -102,14 +113,14 @@ export default function AiInterpretation({ us, cn, onRefresh }: Snapshots & { on
       if (event.type === 'activity' && typeof event.payload.chars === 'number') setActivity({ chars: event.payload.chars, preview: event.payload.preview || '' })
       if (event.type === 'completed' && event.payload.report) finish(event.payload.report as unknown as MacroInterpretationResult)
       if (event.type === 'failed' || event.type === 'cancelled') {
-        setBusy(false); setStatus(event.type === 'cancelled' ? '已取消' : ''); setError(event.payload.error || ''); store.set(JOB_KEY, null)
+        setBusy(false); setStatus(event.type === 'cancelled' ? '已取消' : ''); setErrorBackend(jobBackend.current ?? backend); setError(event.payload.error || ''); store.set(JOB_KEY, null)
       }
     }, () => setStatus('连接中断，正在自动重连…'))
   }
   // 回到页面：接上进行中的任务
   useEffect(() => {
     if (!connected) return
-    const saved = store.get<{ id: string; startedAt: number }>(JOB_KEY)
+    const saved = store.get<{ id: string; startedAt: number; backend?: Backend }>(JOB_KEY)
     if (!saved) return
     getMacroInterpretation(saved.id).then(value => {
       if (value.report) finish(value.report)
@@ -118,7 +129,17 @@ export default function AiInterpretation({ us, cn, onRefresh }: Snapshots & { on
     }).catch(() => { setBusy(false); setStatus(''); store.set(JOB_KEY, null) })
   }, [connected])
 
+  // 3 秒节流，避免反复唤起协议
+  function reconnect(): void {
+    const t = Date.now()
+    if (t - lastReconnect.current < 3000) return
+    lastReconnect.current = t
+    void connect()
+  }
+
   async function start(): Promise<void> {
+    const startBackend = backend
+    jobBackend.current = startBackend
     setError(''); setBusy(true); setActivity(null)
     const began = Date.now()
     setStartedAt(began); setNow(began)
@@ -140,9 +161,9 @@ export default function AiInterpretation({ us, cn, onRefresh }: Snapshots & { on
       setStatus('正在启动解读')
       const value = await startMacroInterpretation({ backend, modelId: model, digest: buildDigest(data.us, data.cn, quality) })
       setJob(value.id)
-      store.set(JOB_KEY, { id: value.id, startedAt: began })
+      store.set(JOB_KEY, { id: value.id, startedAt: began, backend: startBackend })
       attach(value.id)
-    } catch (e) { setError((e as Error).message); setBusy(false); setStatus('') }
+    } catch (e) { setErrorBackend(startBackend); setError((e as Error).message); setBusy(false); setStatus('') }
   }
 
   const label = (m: ModelOption) => `${m.displayName} · ${m.availability === 'verified' ? '已验证' : m.availability === 'unavailable' ? '上次调用失败' : '未验证权限'}`
@@ -156,15 +177,17 @@ export default function AiInterpretation({ us, cn, onRefresh }: Snapshots & { on
 
       {!connected && (
         <div className="macro-ai__offline">
-          <p>{hostedPage ? '线上页面会连接你本机的服务：' : ''}在 BusinessWeb 目录运行 <code>npm run valuation:server</code>{hostedPage ? '（Safari 会拦截访问本机，请用 Chrome 或 Edge）' : '，同时运行 npm run dev'}，再点“重新连接”。和公司估值用的是同一个本地服务。</p>
-          <button type="button" className="tool-btn" onClick={() => void connect()}><RefreshCw size={14} aria-hidden="true" />重新连接</button>
+          {hostedPage && bridge
+            ? <BridgeSetup state={bridge} onConnected={() => void connect()} />
+            : <p>在 BusinessWeb 目录运行 <code>npm run valuation:server</code>，同时运行 npm run dev，再点“重新连接”。和公司估值用的是同一个本地服务。</p>}
+          <button type="button" className="tool-btn" onClick={reconnect}><RefreshCw size={14} aria-hidden="true" />重新连接</button>
         </div>
       )}
 
       {connected && outdated && (
         <div className="macro-ai__offline" role="alert">
-          <p>本机的估值服务是旧版本，还没有“AI 解读”功能。请在 BusinessWeb 目录重启：先关掉正在运行的服务，再运行 <code>npm run valuation:server</code>（或 <code>npm run valuation:app</code>），然后点“重新连接”。</p>
-          <button type="button" className="tool-btn" onClick={() => void connect()}><RefreshCw size={14} aria-hidden="true" />重新连接</button>
+          <p>本机的估值服务是旧版本，还没有“AI 解读”功能。请在终端重新运行 <code>{INSTALL_COMMAND}</code> 升级，然后点“重新连接”。</p>
+          <button type="button" className="tool-btn" onClick={reconnect}><RefreshCw size={14} aria-hidden="true" />重新连接</button>
         </div>
       )}
 
@@ -172,7 +195,7 @@ export default function AiInterpretation({ us, cn, onRefresh }: Snapshots & { on
         <div className="macro-ai__form">
           <label>本地 CLI
             <select value={backend} disabled={busy} onChange={e => { setBackend(e.target.value as Backend); remember('valuation-backend', e.target.value) }}>
-              {backends.map(b => <option key={b.id} value={b.id} disabled={!b.installed}>{b.id}{b.installed ? '' : '（未安装）'}</option>)}
+              {backends.map(b => <option key={b.id} value={b.id} disabled={!b.installed}>{backendLabel(b.id)}{b.installed ? '' : '（未安装）'}</option>)}
             </select>
           </label>
           <label>模型版本
@@ -195,7 +218,7 @@ export default function AiInterpretation({ us, cn, onRefresh }: Snapshots & { on
         </div>
       )}
       {!busy && status && <p className="macro-muted" role="status">{status}</p>}
-      {error && <p role="alert" className="macro-ai__error">{error}</p>}
+      {error && <p role="alert" className="macro-ai__error">{error}{loginHintForError(errorBackend, error) && `（${backendLabel(errorBackend)} 可能未登录：${loginHintForError(errorBackend, error)}）`}</p>}
 
       {result && !busy && (
         <article className="macro-ai__result">

@@ -55,6 +55,7 @@ export function runProcess(
       clearTimeout(timer);
       signal?.removeEventListener("abort", abort);
       if (error) {
+        error.stderr = stderr;
         stop();
         reject(error);
       } else resolve({ stdout, stderr });

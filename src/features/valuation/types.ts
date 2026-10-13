@@ -1,7 +1,7 @@
 export type Market = "cn" | "hk" | "us";
 export type Method = "pe" | "peg" | "ps" | "pb" | "dcf" | "multistage";
 export type ScenarioKey = "bear" | "base" | "bull";
-export type Backend = "pi" | "codex" | "claude" | "opencode";
+export type Backend = "pi" | "codex" | "claude" | "opencode" | "agy" | "kimi";
 export interface SecurityIdentity {
   market: Market;
   code: string;

@@ -9,7 +9,7 @@ import type { ResearchSummary } from '../data/futureTrendsResearch'
 import '../styles/future-trends.css'
 import { PageDataFreshness } from '../components/ui/PageDataFreshness'
 /** 研究筛出的公司：可买卖 / 好公司价格太贵 / 全部观察。action 为每行的操作（候选池页传入「加入我的池」）。 */
-export default function FutureTrendsPool({ action }: { action?: (r: ResearchSummary) => React.ReactNode } = {}): JSX.Element {
+export default function FutureTrendsPool({ action, filter, toolbar }: { action?: (r: ResearchSummary) => React.ReactNode; filter?: (r: ResearchSummary) => boolean; toolbar?: React.ReactNode } = {}): JSX.Element {
   const [params, setParams] = useSearchParams()
   const view = ['1','2','4'].includes(params.get('view') ?? '') ? params.get('view')! : '1'
   const market = ['中国','海外'].includes(params.get('market') ?? '') ? params.get('market')! : '全部'
@@ -17,7 +17,7 @@ export default function FutureTrendsPool({ action }: { action?: (r: ResearchSumm
   const query = params.get('q') ?? ''
   function change(key: string, value: string) { const next = new URLSearchParams(params); next.set(key,value); next.delete('page'); setParams(next, { replace: key === 'q' }) }
   const all = POOL.map(x => ({ market: x.market, r: RESEARCH_BY_KEY.get(x.key)! }))
-  const rows = all.filter(({market:m,r}) => (market === '全部' || market === m) && (view === '4' || poolBucket(r) === (view === '1' ? 'buy' : 'rich')) && `${r.name} ${r.code}`.toLowerCase().includes(query.trim().toLowerCase())).map(x => x.r).sort((a,b) => sort === 'ratio' ? (b.ratio ?? -Infinity) - (a.ratio ?? -Infinity) || byPriority(a,b) : sort === 'space' ? (b.up ?? -Infinity) - (a.up ?? -Infinity) || byPriority(a,b) : byPriority(a,b))
+  const rows = all.filter(({market:m,r}) => (market === '全部' || market === m) && (view === '4' || poolBucket(r) === (view === '1' ? 'buy' : 'rich')) && (!filter || filter(r)) && `${r.name} ${r.code}`.toLowerCase().includes(query.trim().toLowerCase())).map(x => x.r).sort((a,b) => sort === 'ratio' ? (b.ratio ?? -Infinity) - (a.ratio ?? -Infinity) || byPriority(a,b) : sort === 'space' ? (b.up ?? -Infinity) - (a.up ?? -Infinity) || byPriority(a,b) : byPriority(a,b))
   const pages = Math.max(1,Math.ceil(rows.length / 20))
   const rawPage = Number(params.get('page'))
   const page = Number.isInteger(rawPage) && rawPage > 0 ? Math.min(rawPage,pages) : 1
@@ -27,6 +27,7 @@ export default function FutureTrendsPool({ action }: { action?: (r: ResearchSumm
     <p className="ft-method"><Link to="/future-trends?tab=solid-state#solid-core-review">查看固态电池 40 家公司竞选结论与最新 MCP 证据 →</Link></p>
     <header className="ft-heading"><div><div className="ft-eyebrow">从公司质量，到价格条件</div><h2>研究筛出</h2><p>分两部分：可买卖是情景盈亏比≥0.75 且假设期望收益≥20% 的公司；好公司 · 价格太贵是已逐家分析、质量不错但现价偏高的公司，给出条件价等它回落。点击名称查看详细分析。</p></div><button className="ft-export" type="button" onClick={() => downloadJson('未来趋势候选研究-2026-10-09.json', rows)}>导出筛选结果 JSON</button></header>
     <div className="ft-views" role="group" aria-label="候选优先级">{[['1','可买卖','buy'],['2','好公司 · 价格太贵','rich'],['4','全部观察','']].map(([v,t,b]) => <button key={v} type="button" aria-pressed={view === v} onClick={() => change('view',v)}>{t}<span>{b ? all.filter(x => poolBucket(x.r) === b).length : all.length}</span></button>)}</div>
+    {toolbar}
     <div className="ft-toolbar"><Segmented label="市场" value={market} onChange={v => change('market',v)} items={['全部','中国','海外'].map(id => ({id,label:id}))} /><label className="ft-sort">排序<select aria-label="排序" value={sort} onChange={e => change('sort',e.target.value)}><option value="priority">推荐顺序</option><option value="ratio">情景盈亏比</option><option value="space">基准价格空间</option></select></label><label className="ft-search"><span className="visually-hidden">搜索公司或代码</span><input type="search" name="company" autoComplete="off" spellCheck={false} placeholder="公司名称或代码…" value={query} onChange={e => change('q',e.target.value)} /></label></div>
     <div className="ft-results"><h3>{view === '1' ? '可买卖：价格已进入可操作区' : view === '2' ? '好公司，但价格太贵' : '全部观察'}</h3><span role="status" aria-live="polite">{rows.length} 家{pages > 1 ? ` · 第 ${page} / ${pages} 页` : ''}</span></div>
     <CompanyComparison rows={rows.slice((page-1)*20,page*20)} action={action} />

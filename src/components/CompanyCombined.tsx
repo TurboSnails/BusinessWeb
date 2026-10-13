@@ -60,6 +60,8 @@ export default function CompanyCombined({ companies, lynch, ratingOf, loading, i
       护城河: l?.m?.l || '未提供', 护城河证据: l?.m ? `${l.m.s}/${l.m.n}` : null,
       林奇判断: l?.v || l?.w.join('；') || '', 林奇指标: l ? { PE: l.pe ?? null, 盈利增速: l.g ?? null, 两年年化: l.c ?? null, PEG: l.peg ?? null, 股息率: l.dy ?? null } : null,
       林奇提示: l?.f || [],
+      DCF合理价: toolProgress(c.market, c.code, tools).dcf?.price ?? null,
+      DCF安全边际: toolProgress(c.market, c.code, tools).dcf?.mos ?? null,
     }))
     const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }))
     const anchor = document.createElement('a'); anchor.href = url

@@ -6,14 +6,9 @@ import type {
   FinancialSnapshot,
   ValuationReport,
 } from "../features/valuation";
-const localPage =
-  typeof location === "undefined" ||
-  ["localhost", "127.0.0.1"].includes(location.hostname);
-// 线上页面由浏览器直连用户本机的估值服务；本地开发走 Vite 代理
-export const hostedPage = !localPage;
-const base = localPage
-  ? "/api/valuation"
-  : `${(import.meta as ImportMeta & { env?: Record<string, string> }).env?.VITE_VALUATION_URL || "http://127.0.0.1:8788"}/api/valuation`;
+import { bridgeBase, ensureBridge, hostedPage } from "./localBridge";
+export { hostedPage };
+const base = bridgeBase;
 let token = "";
 async function request<T>(
   path: string,
@@ -38,6 +33,12 @@ async function request<T>(
   return value as T;
 }
 export async function connectValuation() {
+  // 线上页面：先走连接状态机（必要时唤起本地服务），再取 token
+  if (hostedPage) {
+    const state = await ensureBridge();
+    if (state.kind !== "connected")
+      throw Object.assign(new Error("本地服务未连接"), { bridgeState: state });
+  }
   const health = await request<{ ok: boolean; token: string; version?: number; features?: string[] }>("/health");
   token = health.token;
   return health;

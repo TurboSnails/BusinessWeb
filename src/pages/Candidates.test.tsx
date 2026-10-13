@@ -83,4 +83,13 @@ describe('候选池页', () => {
     fireEvent.click(screen.getByRole('button', { name: label.replace('加入我的池', '移出我的池') }))
     expect(screen.getByRole('tab', { name: /我的候选 · 0/ })).toBeTruthy()
   })
+
+  it('研究筛出：每行有 DCF 入口，可按 DCF 筛选', () => {
+    renderAt('/candidates?tab=research&view=4')
+    expect(screen.getAllByRole('link', { name: /^算 DCF/ }).length).toBeGreaterThan(0)
+    fireEvent.click(screen.getByRole('button', { name: '未算' }))
+    expect(screen.getAllByRole('link', { name: /^算 DCF/ }).length).toBeGreaterThan(0)
+    fireEvent.click(screen.getByRole('button', { name: '已算 DCF' }))
+    expect(screen.queryAllByRole('link', { name: /^算 DCF/ })).toHaveLength(0)
+  })
 })

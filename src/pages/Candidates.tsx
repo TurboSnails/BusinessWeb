@@ -1,8 +1,10 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { ListChecks, Microscope } from 'lucide-react'
 import CandidatePool from '../components/CandidatePool'
 import { PageTabs, PageTitle } from '../components/ui/PageTabs'
+import { DcfCell, DcfFilterChips } from '../components/DcfCell'
+import { matchDcfFilter, type DcfFilterId } from '../features/dcf/filter'
 import { Page } from '../components/ui'
 import { useCompanies } from '../data/companies'
 import { RESEARCH_INDEX, type ResearchSummary } from '../data/futureTrendsResearch'
@@ -33,19 +35,30 @@ export default function Candidates(): JSX.Element {
   // 从估值、DCF、网格页回来时重新读取本机记录，进度立即更新
   const tools = useToolSources()
 
+  const [dcfF, setDcfF] = useState<DcfFilterId>('all')
   const valued = cand.items.filter(i => { const p = toolProgress(i.market, i.code, tools); return p.dcf || p.valuation }).length
   const buyable = useMemo(() => RESEARCH_INDEX.filter(r => poolBucket(r) === 'buy').length, [])
+
+  // 研究筛出按 DCF 筛选：对应不上四个市场的公司没有 DCF 记录，只在「全部」和「未算」里出现
+  const dcfFilter = (r: ResearchSummary): boolean => {
+    if (dcfF === 'all') return true
+    const t = researchToCandidate(r, usLists)
+    return matchDcfFilter(dcfF, t ? toolProgress(t.market, t.code, tools).dcf : undefined)
+  }
 
   const addAction = (r: ResearchSummary): React.ReactNode => {
     const target = researchToCandidate(r, usLists)
     if (!target) return <span className="cand-add cand-add--off" title="目前只支持美股、港股与 A 股">该市场暂不支持</span>
     const on = cand.items.some(i => i.market === target.market && i.code === target.code)
     return (
+      <>
+      <DcfCell market={target.market} code={target.code} name={r.name} tools={tools} />
       <button type="button" className="cand-add" aria-pressed={on} aria-label={`${on ? '移出我的池' : '加入我的池'} ${r.name}`}
         onClick={() => cand.toggle(target.market, target.code)}>
         {on ? '✓ 已在我的池' : '＋ 加入我的池'}
         <span className="visually-hidden">（{MARKET_LABEL[target.market]}）</span>
       </button>
+      </>
     )
   }
 
@@ -79,7 +92,7 @@ export default function Candidates(): JSX.Element {
         </>
       ) : (
         <div className="cand-research">
-          <FutureTrendsPool action={addAction} />
+          <FutureTrendsPool action={addAction} filter={dcfFilter} toolbar={<div className="ui-cluster"><DcfFilterChips value={dcfF} onChange={setDcfF} className="ui-cluster" /></div>} />
         </div>
       )}
     </Page>

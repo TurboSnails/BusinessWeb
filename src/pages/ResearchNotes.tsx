@@ -40,9 +40,7 @@ import { useToolSources } from '../features/candidates/useToolSources'
 import { toolProgress } from '../features/candidates/links'
 import { matchDcfFilter, type DcfFilterId } from '../features/dcf/filter'
 import { useCandidates } from '../features/candidates/useCandidates'
-import { CN_REPORT } from '../data/cnReassessment'
 import ResearchNotice from '../components/research/ResearchNotice'
-import { SP500_REPORT, sp500Reassessment } from '../data/sp500Reassessment'
 import { NDX_CODES, NDX_ASOF } from '../data/ndx100'
 import { Page, PageDataFreshness, Stat, TableWrap } from '../components/ui'
 import '../styles/research.css'
@@ -680,31 +678,6 @@ export default function ResearchNotes(): JSX.Element {
 
             {catMarket === 'us' && (
               <div>
-                <details className="ui-card rn-card rn-details">
-                  <summary className="rn-summary">最近复核 · 2026-09-30 专家团圆桌（点开查看）</summary>
-                  <h3 className="rn-card-title rn-card-title--sub">腾讯自选股投研专家团 · 再分析汇总</h3>
-                  <p className="rn-text">
-                    2026-09-30：对本地 504 条研究记录完成旧模型口径审计，重点核实 8 个候选与 3 家 AI 公司公告。
-                    明确撤回“仅 ZTS、SPGI、PEP 达标”：PEP 基准赔率只有 0.73:1；AES 的现金收购、CINF 的投资重估、OMC 的并购口径和 UHS 的指引下调使旧模型需要撤回或重建。
-                    SPGI、CVS 保留经营质量与改善的复核优先级，ZTS 保留反转观察；本轮重点候选没有一家获得“已验证基准赔率 ≥2:1”的认证。其余记录保留上轮评级，未逐家公告复核，不代表已确认没有机会。
-                  </p>
-                  <TableWrap label="标普500 圆桌复核">
-                    <table className="ui-table rn-table rn-table--top">
-                      <thead><tr>{['公司', '上轮赔率', '本轮复核'].map(t => <th key={t} scope="col">{t}</th>)}</tr></thead>
-                      <tbody>{sp500Reassessment.map(r => <tr key={r.code}>
-                        <td className="rn-nowrap"><Link to={`/research-notes/us/${r.code}`} className="rn-link">{r.code} · {r.name}</Link></td>
-                        <td className="rn-mid">{r.oldRatio}</td>
-                        <td className="rn-wide">{r.conclusion}</td>
-                      </tr>)}</tbody>
-                    </table>
-                  </TableWrap>
-                  <p className="rn-text">
-                    <a href={`${import.meta.env.BASE_URL}${SP500_REPORT}`} target="_blank" rel="noreferrer">完整圆桌报告</a>
-                    {' · '}<a href={`${import.meta.env.BASE_URL}research/sp500-audit-2026-09-30.csv`} download>504 条逐项审计表（含旧结论）</a>
-                    {' · '}<a href={`${import.meta.env.BASE_URL}data/sp500-review-snapshot-2026-09-30.json`} target="_blank" rel="noreferrer">盘中行情快照</a>
-                  </p>
-                  <p className="rn-footnote">使用项目内腾讯自选股投研专家团 skill，行情来自 yfinance，财务以公司公告与 SEC 为准。结论明确区分公告事实与研究假设；完整证据和失效条件见报告。</p>
-                </details>
                 {viewSwitch()}
                 {view === 'list' && renderProgress()}
                 {view === 'lynch' && renderLynch()}
@@ -760,18 +733,6 @@ export default function ResearchNotes(): JSX.Element {
               </div>
             )}
 
-            {catMarket === 'cn' && <details className="ui-card rn-card rn-details">
-              <summary className="rn-summary">最近复核 · 2026-10-07 公司研究（点开查看）</summary>
-              <h3 className="rn-card-title rn-card-title--sub">金融82 · 房地产9 · 工业179</h3>
-              <p className="rn-text">本轮更新270家公司研究初稿，按55批整理，附财报来源、财务口径、旧结论修订和公司专属验证项。29家银行有普通股PB敏感性草案；其余241家价格待补证据，全部估值尚未完成独立双方法认证。财务为2026H1，行情锚点为9月30日最后报价。</p>
-              <a href={`${import.meta.env.BASE_URL}research/cn-finance-property-industrial-2026-10-07/index.md`} target="_blank" rel="noreferrer">金融、房地产、工业复核总览</a> · <a href={`${import.meta.env.BASE_URL}research/cn-finance-property-industrial-2026-10-07/summary.csv`} download>270家公司复核汇总</a>
-              <p className="rn-text">此前批次：<a href={`${import.meta.env.BASE_URL}research/cn-four-sectors-2026-10-07/index.md`} target="_blank" rel="noreferrer">机器人链、工程机械、新能源汽车、AI算力</a> · <a href={`${import.meta.env.BASE_URL}research/cn-sectors-2026-10-07/index.md`} target="_blank" rel="noreferrer">自动驾驶、新材料</a></p>
-              <h3 className="rn-card-title rn-card-title--sub">沪深研究池 · 2026-09-30 圆桌复核</h3>
-              <p className="rn-text">范围为832条研究记录（806程序化、26人工），包含沪深300、中证500及额外产业链公司；不是官方500只成分股。全池完成旧模型算术与字段审计，重点复核28家，未逐家完成一手深研。</p>
-              <p className="rn-text">旧数值超过2的26家均不再作为已认证机会。东鹏保留经营正面跟踪、平安和世纪华通保留研究优先级，估值均待重建；荣昌、三生撤回授权收入的持续EPS外推；工业富联实际1.993未达2；伯特利旧基准赔率约0.83，撤回增持认证。</p>
-              <p className="rn-text">下方旧行业排序、主观胜率及程序化评级保留筛选用途，未由本轮认证；银行现金流不能套用工业企业现金含量标准。旧结论见详情存档，原件缺失项明确待核。</p>
-              <a href={`${import.meta.env.BASE_URL}${CN_REPORT}`} target="_blank" rel="noreferrer">沪深完整圆桌报告</a> · <a href={`${import.meta.env.BASE_URL}research/cn-audit-2026-09-30.csv`} download>832条审计与旧结论</a>
-            </details>}
             {catMarket === 'cn' && (
               <div>
                 {viewSwitch()}

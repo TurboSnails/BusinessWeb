@@ -84,8 +84,47 @@ describe('宏观 AI 解读', () => {
   it('本地服务是旧版本时，直接提示重启而不是报“接口不存在”', async () => {
     vi.stubGlobal('fetch', vi.fn(async (url: string) => ({ ok: true, status: 200, json: async () => (url.endsWith('/health') ? { ok: true, token: 't', version: 1 } : url.includes('/backends') ? [{ id: 'codex', installed: true }] : []) }) as Response))
     render(<AiInterpretation us={us} cn={cn} />)
-    expect((await screen.findByRole('alert')).textContent).toMatch(/旧版本.*npm run valuation:server/)
+    expect((await screen.findByRole('alert')).textContent).toMatch(/旧版本.*businessweb-valuation-bridge install/)
     expect(screen.queryByRole('button', { name: '生成解读' })).toBeNull()
+  })
+
+  it('登录提示按失败任务启动时的 backend，而不是之后切换的下拉选项', async () => {
+    const f = vi.fn(async (url: string, init?: RequestInit) => {
+      if (init?.body && url.includes('/macro')) return { ok: false, status: 500, json: async () => ({ error: 'unauthorized' }) } as Response
+      return {
+        ok: true, status: 200,
+        json: async () => url.endsWith('/health') ? { ok: true, token: 't', features: ['macro-interpret'] }
+          : url.includes('/backends') ? [{ id: 'codex', installed: true }, { id: 'kimi', installed: true }]
+          : [],
+      } as Response
+    })
+    vi.stubGlobal('fetch', f)
+    render(<AiInterpretation us={us} cn={cn} />)
+    await waitFor(() => expect(screen.getByRole('button', { name: '生成解读' })).toBeTruthy())
+    fireEvent.click(screen.getByRole('button', { name: '生成解读' }))
+    const alert = await screen.findByRole('alert')
+    expect(alert.textContent).toContain('codex login')
+    fireEvent.change(screen.getByLabelText('本地 CLI'), { target: { value: 'kimi' } })
+    expect(screen.getByRole('alert').textContent).toContain('codex login')
+    expect(screen.getByRole('alert').textContent).not.toContain('kimi login')
+  })
+
+  it('重新连接按钮 3 秒内重复点击只触发一次连接', async () => {
+    const f = vi.fn().mockRejectedValue(new Error('离线'))
+    vi.stubGlobal('fetch', f)
+    let t = 1_000_000
+    const now = vi.spyOn(Date, 'now').mockImplementation(() => t)
+    render(<AiInterpretation us={us} cn={cn} />)
+    const btn = await screen.findByRole('button', { name: '重新连接' })
+    await waitFor(() => expect(f).toHaveBeenCalledTimes(1))
+    t += 5000
+    fireEvent.click(btn)
+    fireEvent.click(btn)
+    await waitFor(() => expect(f).toHaveBeenCalledTimes(2))
+    t += 3100
+    fireEvent.click(btn)
+    await waitFor(() => expect(f).toHaveBeenCalledTimes(3))
+    now.mockRestore()
   })
 
   it('快照不是实时数据时，生成解读前先刷新，并把体检结果随解读保存', async () => {

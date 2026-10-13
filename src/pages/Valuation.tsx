@@ -1,3 +1,6 @@
+import BridgeSetup from "../components/valuation/BridgeSetup";
+import { backendLabel, loginHintForError } from "../components/valuation/backends";
+import type { BridgeState } from "../services/localBridge";
 import { Page } from '../components/ui'
 import { useEffect, useRef, useState } from "react";
 import { PageTitle } from "../components/ui/PageTabs";
@@ -81,8 +84,11 @@ export default function Valuation() {
             "",
     ),
     [connected, setConnected] = useState(false),
+    [bridge, setBridge] = useState<BridgeState | null>(null),
     [backends, setBackends] = useState<BackendInfo[]>([]),
     [backend, setBackend] = useState<Backend>("codex"),
+    // 登录提示要对应实际失败任务启动时的 CLI，而不是之后下拉框里选中的
+    [startedBackend, setStartedBackend] = useState<Backend>("codex"),
     [models, setModels] = useState<ModelOption[]>([]),
     [model, setModel] = useState("default"),
     [manual, setManual] = useState(""),
@@ -130,8 +136,10 @@ export default function Valuation() {
   }
   async function connect() {
     setError("");
+    if (hostedPage) setBridge({ kind: "starting" });
     try {
       await connectValuation();
+      setBridge(null);
       const list = await fetchBackends();
       setBackends(list);
       setConnected(true);
@@ -141,9 +149,11 @@ export default function Valuation() {
           list.find((b) => b.installed)?.id ||
           "codex",
       );
-    } catch {
+    } catch (e) {
       setConnected(false);
-      setError("无法连接本地估值服务");
+      const state = (e as { bridgeState?: BridgeState }).bridgeState;
+      setBridge(state ?? null);
+      if (!state) setError("无法连接本地估值服务");
       if (loadRunning()) {
         // 服务连上后再接着恢复任务（见下方 connected 的 effect）
         setBusy(false);
@@ -268,6 +278,7 @@ export default function Valuation() {
   async function start(reuse = false) {
     if (!security) return;
     setError("");
+    setStartedBackend(backend);
     setBusy(true);
     setStatus("正在启动");
     setStage("queued");
@@ -318,15 +329,14 @@ export default function Valuation() {
           {!connected && (
             <div className="valuation-warning">
               {hostedPage ? (
-                <p>
-                  线上页面会连接你本机的估值服务：在 BusinessWeb 目录运行{" "}
-                  <code>npm run valuation:server</code>
-                  （无需 <code>npm run dev</code>
-                  ），再点“重新连接”。模型调用使用你本机的凭证： 在终端运行{" "}
-                  <code>pi</code> 后输入 <code>/login</code>，或使用已登录的
-                  codex、claude、opencode。Safari 会拦截访问本机服务，请使用
-                  Chrome 或 Edge。
-                </p>
+                bridge ? (
+                  <BridgeSetup
+                    state={bridge}
+                    onConnected={() => void connect()}
+                  />
+                ) : (
+                  <p>无法连接本地估值服务，请点“重新连接”。</p>
+                )
               ) : (
                 <p>
                   在 BusinessWeb 目录启动 <code>npm run valuation:server</code>
@@ -390,7 +400,7 @@ export default function Valuation() {
                   : [{ id: "codex" as Backend, installed: false }]
                 ).map((b) => (
                   <option key={b.id} value={b.id} disabled={!b.installed}>
-                    {b.id}
+                    {backendLabel(b.id)}
                     {b.installed ? "" : "（未安装）"}
                   </option>
                 ))}
@@ -541,6 +551,8 @@ export default function Valuation() {
           {error && (
             <p role="alert" className="valuation-error">
               {error}
+              {loginHintForError(startedBackend, error) &&
+                `（${backendLabel(startedBackend)} 可能未登录：${loginHintForError(startedBackend, error)}）`}
             </p>
           )}
         </section>
