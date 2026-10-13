@@ -4,7 +4,7 @@ import FutureCompanyLink from '../components/FutureCompanyLink'
 import { researchForCompany, researchPercent } from '../data/futureTrendsResearch'
 import { PageTabs, PageTitle } from '../components/ui/PageTabs'
 import { ADAS_LEVELS, ADAS_PICKS, ADAS_PICKS_ASOF, ADAS_RISK_RULES, ADAS_SUMMARY } from '../data/futureTrendsAdasPicks'
-import { AI_LEVELS, AI_PICKS, AI_PICKS_ASOF, AI_RISK_RULES, AI_PICKS_PRICE_DATE, AI_PICKS_SUMMARY } from '../data/futureTrendsAiPicks'
+import { AI_LEVELS, AI_PICKS, AI_PICKS_ASOF, AI_RISK_RULES, AI_PICKS_SUMMARY } from '../data/futureTrendsAiPicks'
 import type { AiLevel, AiPick } from '../data/futureTrendsAiPicks'
 import { FUTURE_TRENDS_ASOF, TRENDS, trendCoverage, TrendCompany } from '../data/futureTrends'
 import FutureTrendsCore from './FutureTrendsCore'
@@ -77,7 +77,7 @@ function PicksSection({ id, title, picks }: PicksSectionProps): JSX.Element {
 function AiPicks(): JSX.Element {
   return (
     <PicksSection id="ai-picks" title="AI 候选公司综合排序：适合买吗？壁垒、增长、盈亏比 × 胜率"
-      intro={`整理于 ${AI_PICKS_ASOF}；A 股价格截至 ${AI_PICKS_PRICE_DATE}（节前最后交易日），港股为 2026-10-07 延迟快照，不是收盘价。盈亏比 R = (基准价 − 现价) ÷ (现价 − 悲观价)，期望 = 胜率 × 上行 − (1 − 胜率) × 下行。基准、悲观价来自本站估值倍数假设，胜率是主观概率，不是回测胜率；壁垒、增长为研究者判断。基准价低于现价时不计算期望。仅供研究参考，不构成个人投资建议。`}
+      intro={`整理于 ${AI_PICKS_ASOF}；本轮行情核验于2026-10-13，各市场实际报价日见公司行；原研究假设未重估。盈亏比 R = (基准价 − 现价) ÷ (现价 − 悲观价)，期望 = 胜率 × 上行 − (1 − 胜率) × 下行。基准、悲观价来自本站估值倍数假设，胜率是主观概率，不是回测胜率；壁垒、增长为研究者判断。基准价低于现价时不计算期望。仅供研究参考，不构成个人投资建议。`}
       picks={[...AI_PICKS, ...AI_EXTRA_PICKS]} levels={[...AI_LEVELS, ...AI_EXTRA_LEVELS]} rules={AI_RISK_RULES}
       summary={[{ label: '适合买', text: AI_PICKS_SUMMARY.buy }, { label: '有壁垒', text: AI_PICKS_SUMMARY.moat }, { label: '增长空间', text: AI_PICKS_SUMMARY.growth }, { label: '回避', text: AI_PICKS_SUMMARY.avoid }]}
       footer="中际旭创、新易盛、金山办公、用友网络为 2026-10-08 补入，PE、PEG、增速与价位按本站程序化倍数模型计算（AI 赛道中位 PE 41×），未经公司级三情景认证；各公司“估值与增速”列为同一快照（PE 为腾讯行情 TTM，PEG = PE ÷ H1 归母同比）。未建模项（佰维存储、申菱环境、科士达、海天瑞声、拓尔思、联发科、金山办公、用友网络）以及腾讯、阿里巴巴、百度缺少经认证的三情景，不参与赔率排序；其余公司分部、FCF、一致预期多数 [MISSING]。若股价回落至各公司 2:1 价位（如胜宏约 166 元、沪电约 76 元）再重估。本报告仅供研究参考，不构成个人投资建议。" />

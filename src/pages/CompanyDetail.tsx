@@ -88,7 +88,7 @@ export default function CompanyDetail(): JSX.Element {
   const activeMetrics = company.metrics.filter(([label]) => !label.startsWith('上轮'))
   const metric = (re: RegExp): string | undefined => activeMetrics.find(([l]) => re.test(l))?.[1]
   const priceText = metric(/价格锚点|收盘价|现价|9\/18 收盘/)
-  const price = priceText ? nums(priceText)[0] : undefined
+  const price = company.marketRefresh?.tradability === 'unverified' ? undefined : priceText ? nums(priceText)[0] : undefined
   const priceAge = priceAnchorAge(priceText)
   const scenText = metric(/Bear \/ Base \/ Bull/)
   const scenNums = scenText && !/市值/.test(scenText) ? nums(scenText) : []

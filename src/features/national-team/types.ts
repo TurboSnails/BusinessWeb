@@ -7,6 +7,8 @@ export interface GroupStat {
 }
 
 export interface NtMeta {
+  checkedAt?: string
+  refreshNote?: string
   generatedAt: string
   reportDate: string
   prevReportDate: string | null
@@ -128,6 +130,9 @@ export interface EtfHistPoint {
 }
 
 export interface EtfRow {
+  priceDate?: string
+  priceCheckedAt?: string
+  priceSource?: string
   c: string
   n: string
   theme: string
@@ -142,6 +147,9 @@ export interface EtfRow {
 }
 
 export interface EtfMeta {
+  checkedAt?: string
+  holderFreshnessNote?: string
+  priceAsOf?: string
   generatedAt: string
   universeCount: number
   scanned: number

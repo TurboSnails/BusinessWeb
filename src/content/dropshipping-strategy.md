@@ -28,6 +28,8 @@
 
 以上海外平台边界依据 [eBay 代发政策](https://www.ebay.com/help/selling/posting-items/setting-shipping-options/drop-shipping?id=4176)、[Etsy 代发与转售说明](https://help.etsy.com/hc/en-us/articles/23948763872151-Does-Etsy-Allow-Drop-Shipping-or-Reselling)、[Etsy 创意标准](https://www.etsy.com/legal/creativity/)及 [Amazon 官方代发指南](https://sell.amazon.com/blog/dropshipping-on-amazon)。具体账号、站点和类目的要求仍应在上架前确认。
 
+本轮网页核验：**2026-10-13**。eBay 的批发供应商代发与零售套利边界、Etsy 的原创设计／生产伙伴及手工和派对用品例外已重新核对。Amazon 引用页仍标为 2025 年指南，保留该原始年份；本次访问时间不代表规则发布于 2026 年。国内平台及具体账号、站点、类目准入尚未完成逐项确认；上表的试验预算与费用继续属于假设。
+
 国内规则可从[闲鱼卖家服务协议](https://terms.alicdn.com/legal-agreement/terms/platform_service/20220929192826912/20220929192826912.html)和[小红书规则中心](https://school.xiaohongshu.com/rule/list/645b79800000000000000000?jumpFrom=school)进入核对。这里不把任何国内平台列为“无条件允许一件代发”。
 
 ## 3. 用场景选品，用样品验证供应商

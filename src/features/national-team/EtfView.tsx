@@ -10,6 +10,7 @@ function EtfDetail({ etf }: { etf: EtfRow }): JSX.Element {
   const periods = etf.hist.map(h => h.d)
   return (
     <div className="nt-detail">
+      {etf.priceDate && <p className="nt-muted">报价日期 {etf.priceDate}；核验 {etf.priceCheckedAt?.slice(0, 19)} UTC。持有份额仍按原报告期，不据旧份额推断当前持仓。</p>}
       <div>
         <h4>各报告期国家队持有</h4>
         <table className="nt-table nt-table--tight">
@@ -58,12 +59,13 @@ export default function EtfView({ data }: { data: EtfData }): JSX.Element {
   return (
     <div className="nt-stack">
       <p className="nt-note">
-        国家队通过 <b>ETF</b> 间接持股，和前面「个股」里的直接持股<b>口径独立，不能相加</b>。基金只在半年报、年报里披露十大持有人，最新一期是 <b>{meta.latestDate}</b>。
-        持有市值是估算值：报告期持有份额 × 最近价格。
+        国家队通过 <b>ETF</b> 间接持股，和前面「个股」里的直接持股<b>口径独立，不能相加</b>。本站取得的最新实名持有人记录为 <b>{meta.latestDate}</b>，不等于基金最新报告期。
+        下列金额按历史报告期持有份额 × 最近价格折算{meta.priceAsOf ? `（报价截至 ${meta.priceAsOf}，逐只日期见详情）` : ''}，不代表当前持仓未变。
+        {meta.checkedAt && ` 本轮核验 ${meta.checkedAt.slice(0, 10)}。`}{meta.holderFreshnessNote}
       </p>
       <section aria-label="ETF 关键数字" className="nt-stats">
         <Stat label="持有的 ETF" value={`${meta.numHolding} 只`} sub={`另有 ${meta.numExited} 只已退出十大持有人`} />
-        <Stat label="估算持有市值" value={formatYuan(meta.totalMv)} sub="份额 × 最近价格" />
+        <Stat label="历史份额按最新价折算" value={formatYuan(meta.totalMv)} sub="非当前持仓市值；历史份额 × 最新报价" />
         <Stat label="扫描范围" value={`${meta.scanned} 只`} sub={`沪深 ETF 共 ${meta.universeCount} 只`} />
       </section>
 

@@ -7,18 +7,18 @@
   "depth": "公司证据摘录＋情景草稿",
   "rating": "观察／等待估值证据",
   "headline": "2026H1 收入 3.75 亿元（同比 +44%），归母净利 0.78 亿元（+47%），毛利率 47.6%，经营现金流 0.63 亿元，资产负债率 40.3%；FY2025 EPS 0.1918；TTM PE 147.1，处近五年历史分位约 92%（周期股仅供参考）；一致预期 2027 EPS 均值 0.55（2 家，0.49–0.6）。数据取自 AKShare 财务摘要与同花顺一致预期，公告原件链接见来源，未逐表人工核对。",
-  "price": 35.78,
-  "priceText": "CNY 35.78",
-  "priceDate": "2026-10-09 16:14:54",
+  "price": 34.6,
+  "priceText": "CNY 34.60",
+  "priceDate": "2026-10-13T16:14:48+08:00",
   "currency": "CNY",
   "ratio": null,
-  "up": -0.5695919508105087,
-  "down": 0.7973728339854668,
+  "up": -0.5549132947976878,
+  "down": 0.7904624277456648,
   "threshold": 9.966666666666667,
   "breakEven": null,
-  "winRate": "假设胜率 0%（情景价 ≥ 现价 +10% 的概率合计；悲观/基准/乐观 = 30/50/20，主观研究概率，非历史回测）",
-  "expected": -0.5856623812185578,
-  "valuationStatus": "正常化 EPS 情景草稿；第二独立方法缺失，未认证",
+  "winRate": "假设胜率 0%（原研究主观情景概率按新报价复算；非历史回测，模型未重新认证）",
+  "expected": -0.5715317919075145,
+  "valuationStatus": "正常化 EPS 情景草稿；第二独立方法缺失，未认证；行情刷新不等于重估，旧情景未重新认证",
   "primaryTrend": "新材料",
   "riskGroup": "超硬材料",
   "core": false,
@@ -26,6 +26,11 @@
   "concern": "预测仅 2 家；TTM 估值偏高。",
   "certainty": "证据中等／估值低，非综合高确定性",
   "sources": [
+    {
+      "title": "本轮行情原始证据",
+      "url": "/research/data-refresh-2026-10-13/tencent-quotes.json",
+      "status": "行情 2026-10-13T16:14:48+08:00；核验 2026-10-13T08:49:25.273700+00:00；腾讯延迟行情，不代表财报或模型已重估"
+    },
     {
       "title": "本次公司级核对的业绩披露",
       "url": "http://www.cninfo.com.cn/new/disclosure/detail?stockCode=300179&announcementId=1225507117&orgId=9900012352&announcementTime=2026-08-26",
@@ -71,11 +76,15 @@
   "metrics": [
     [
       "本次价格",
-      "CNY 35.78"
+      "CNY 34.60"
     ],
     [
       "价格时间",
-      "2026-10-09 16:14:54"
+      "2026-10-13T16:14:48+08:00"
+    ],
+    [
+      "行情核验时间",
+      "2026-10-13T08:49:25.273700+00:00；来源 research/data-refresh-2026-10-13/tencent-quotes.json；研究与模型仍为 2026-10-09"
     ],
     [
       "一手事实摘录",
@@ -202,5 +211,9 @@
   "prior": [
     "旧资料只作审计轨迹，不沿用旧买入评级：未匹配既有研究页",
     "旧程序化输入：public/research/future-trends-2026-10-09/input-pool.json；其中旧赔率与固定胜率已撤回。"
-  ]
+  ],
+  "priceCheckedAt": "2026-10-13T08:49:25.273700+00:00",
+  "priceSource": "research/data-refresh-2026-10-13/tencent-quotes.json",
+  "modelAsOf": "2026-10-09",
+  "marketRefreshStatus": "行情已刷新；原研究模型未重估，不认证买入或胜率"
 }

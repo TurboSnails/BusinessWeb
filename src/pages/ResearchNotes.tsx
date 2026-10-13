@@ -39,7 +39,7 @@ import { useCandidates } from '../features/candidates/useCandidates'
 import { CN_REPORT } from '../data/cnReassessment'
 import ResearchNotice from '../components/research/ResearchNotice'
 import { SP500_REPORT, sp500Reassessment } from '../data/sp500Reassessment'
-import { NDX_CODES } from '../data/ndx100'
+import { NDX_CODES, NDX_ASOF } from '../data/ndx100'
 import { Page, Stat, TableWrap } from '../components/ui'
 import '../styles/research.css'
 
@@ -172,7 +172,7 @@ export default function ResearchNotes(): JSX.Element {
   )
 
   const usSectors = sectorsOf(usList)
-  // 纳指100 页签：100 个成分条目 = 引用「标普500 / 美股非标普」已有研究页 + 本页新增 10 家（market 为 ndx）
+  // 纳指页签：101只权益证券（100家公司）=引用已有研究页+10家手工研究（market为ndx）。
   const ndxByCode = new Map<string, Company>()
   for (const c of [...usList, ...adrList, ...ndxNewList]) if (!ndxByCode.has(c.code)) ndxByCode.set(c.code, c)
   // 本轮新增的 10 家排在最前（便于复核），其余按成分名单顺序
@@ -198,7 +198,7 @@ export default function ResearchNotes(): JSX.Element {
     const sp = ndxList.filter(c => c.market === 'us').length
     const ad = ndxList.filter(c => c.market === 'adr').length
     const nw = ndxList.filter(c => c.market === 'ndx').length
-    return `纳指100 页签按成分股名单列出 ${ndxList.length} 个条目（GOOGL 与 GOOG 为同一公司两类股）：其中 ${sp} 个与标普500 重合、${ad} 个属于「美股非标普」，这些直接引用已有研究页，不重复分析，行内标签标明来源；另有 ${nw} 家（ALNY、ALAB、CCEP、CRWV、FER、HONA、MSTR、NBIS、RKLB、TRI）此前不在站内任何名单中，本轮按股票分析标准逐家新做了完整研究页（市场标记为 ndx，不计入标普500 列表）。成分名单取自维基百科 2026-08 更新版，未与纳斯达克官方名单逐项核对；新增 10 家价格为 2026-10-06 美股收盘，财务来自 aktools 与公司 2026Q2（或 H1）公告摘要，二手摘要均需核实原文。10 家新增公司的盈亏比均低于 1:1（均不满足 2:1 门槛），评级为观察或回避；估值为研究假设，不是目标价，不构成投资建议。`
+    return `纳指100 页签列出 ${ndxList.length} 只权益证券（GOOGL 与 GOOG 为同一公司两类股）：其中 ${sp} 只与标普500 重合、${ad} 只属于「美股非标普」，直接引用已有研究页；另有 ${nw} 家手工研究，市场标记为 ndx，不计入标普500。${NDX_ASOF} 当前价格与采集时间逐家公司单列；原财务与模型不是本轮重新认证，估值仍为研究假设，不构成投资建议。`
   }
   const shownCompanies = secList.filter(c => (ratingF === '全部' || ratingOf(c) === ratingF) && (!q.trim() || (c.name + c.code).toLowerCase().includes(q.trim().toLowerCase())))
 

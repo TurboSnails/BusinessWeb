@@ -44,6 +44,7 @@ function DataStamp({ snap, label = '美国' }: { snap: MacroSnapshot<string>; la
   return (
     <p className={`macro-stamp${stale || old > 0 ? ' is-stale' : ''}`}>
       {label}数据{snap.fetchedAt ? '实时拉取于' : '更新于'} {snap.fetchedAt ? snap.fetchedAt.slice(0, 16).replace('T', ' ') + ' UTC' : snap.generatedAt} · 来源 {snap.source}
+      {snap.checkedAt && ` · 本轮核验 ${snap.checkedAt.slice(0, 16).replace('T', ' ')} UTC；各指标观测日另列，核验不代表已有新一期`}
       {snap.fetchedAt && ` · ${all.length - old} 项实时${old > 0 ? `，${old} 项沿用旧值（卡片上有标记）` : ''}`}
       {stale && ' · 已超过 40 天未更新，建议点右上角「刷新最新数据」'}
     </p>

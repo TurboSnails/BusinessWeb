@@ -68,6 +68,7 @@ export default function NationalTeam(): JSX.Element {
               报告期 <b>{m.reportDate}</b>
               {m.prevReportDate ? <>（对比 {m.prevReportDate}）</> : null}
               ，数据更新于 {m.generatedAt.slice(0, 10)}。十大流通股东季度披露，有 3 周到 4 个月的滞后，仅供了解背景，不是买卖信号。
+              {m.checkedAt && ` 本轮核验 ${m.checkedAt.slice(0, 10)}；报告期保持 ${m.reportDate}，核验不代表新一期已披露。`}
             </p>
             {tab === 'overview' && (industries.data ? (
               <OverviewView meta={m} industries={industries.data} changes={changes.data} onStock={toStock} onIndustry={toIndustry} />

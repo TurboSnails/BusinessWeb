@@ -3,6 +3,9 @@ import { describe, expect, it, vi } from 'vitest'
 import FutureTrends from './FutureTrends'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
 import FutureTrendsPool from './FutureTrendsPool'
+import { POOL } from '../data/futureTrendsPool'
+import { RESEARCH_BY_KEY } from '../data/futureTrendsResearch'
+import { poolBucket } from '../data/futureTrendsPresentation'
 import { TRENDS } from '../data/futureTrends'
 
 describe('主题研究（原未来趋势）', () => {
@@ -100,7 +103,7 @@ describe('主题研究（原未来趋势）', () => {
       fireEvent.click(screen.getByRole('button', { name: '海外' }))
       fireEvent.click(screen.getByRole('button', { name: '导出筛选结果 JSON' }))
       const pool = JSON.parse(await blobs[0].text())
-      expect(pool).toHaveLength(4)
+      expect(pool.map((r: { key: string }) => r.key).sort()).toEqual(POOL.filter(x => x.market === '海外' && poolBucket(RESEARCH_BY_KEY.get(x.key)!) === 'buy').map(x => x.key).sort())
       expect(pool.every((x: { key: string }) => x.key.startsWith('海外:'))).toBe(true)
       expect(pool[0]).toHaveProperty('valuationStatus')
       pooled.unmount()
@@ -133,7 +136,7 @@ describe('固态电池专题', () => {
     render(<MemoryRouter initialEntries={['/future-trends?tab=solid-state']}><FutureTrends /></MemoryRouter>)
     expect(screen.getByRole('heading', { name: '本轮 MCP 更新：覆盖范围与研究调整' })).toBeTruthy()
     expect(screen.getByRole('heading', { name: '2026H1 集团财务比较' })).toBeTruthy()
-    expect(screen.getByText(/贝特瑞旧价未获本轮 MCP 复核/)).toBeTruthy()
+    expect(screen.getByText(/贝特瑞已取得 920185 最新公开报价/)).toBeTruthy()
     const search = screen.getByRole('textbox', { name: '搜索公司 / 代码' })
     fireEvent.change(search, { target: { value: '五矿新能' } })
     expect(screen.getByRole('status').textContent).toMatch(/^显示 1 \/ /)

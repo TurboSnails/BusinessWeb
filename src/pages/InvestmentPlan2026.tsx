@@ -172,24 +172,26 @@ interface CalEvent {
   detail: string
   region: '美国' | '中国' | '个人'
   firm: boolean // true=官方已公布的固定日期；false=按往年规律估算
+  checkedAt?: string // 核验日，不是数据发布时间
+  source?: string
 }
 
 // 日期以官方发布为准；估算项标“约”。
 const CALENDAR: CalEvent[] = [
   { date: '2026-10-14', label: '美股三季报季开启', detail: '大型银行先发，看拨备与消费信贷质量', region: '美国', firm: false },
-  { date: '2026-10-27', label: 'FOMC 议息（10/27–28）', detail: '关注对降息路径与缩表的措辞', region: '美国', firm: true },
+  { date: '2026-10-27', label: 'FOMC 议息（10/27–28）', detail: '关注对降息路径与缩表的措辞', region: '美国', firm: true, checkedAt: '2026-10-13', source: 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm' },
   { date: '2026-10-29', label: '大型科技财报密集周', detail: '微软、谷歌、Meta、亚马逊、苹果：看资本开支与AI回报', region: '美国', firm: false },
-  { date: '2026-10-31', label: 'A股三季报披露截止', detail: '更新观察库与逻辑卡，为年度复盘收集材料', region: '中国', firm: true },
-  { date: '2026-11-03', label: '美国中期选举', detail: '政策不确定性上升；只检查，不据此交易', region: '美国', firm: true },
-  { date: '2026-11-06', label: '10月非农就业', detail: '更新“萨姆规则读数”与“初请”', region: '美国', firm: false },
-  { date: '2026-11-12', label: '10月 CPI', detail: '看核心服务通胀是否回落', region: '美国', firm: false },
+  { date: '2026-10-31', label: 'A股三季报披露截止', detail: '上市规则要求前九个月结束后一个月内披露；具体公司日期看预约与公告', region: '中国', firm: true, checkedAt: '2026-10-13', source: 'https://www.sse.com.cn/lawandrules/sselawsrules2025/stocks/mainipo/c/c_20260424_10816589.shtml' },
+  { date: '2026-11-03', label: '美国中期选举', detail: '政策不确定性上升；只检查，不据此交易', region: '美国', firm: true, checkedAt: '2026-10-13', source: 'https://www.fec.gov/introduction-campaign-finance/election-results-and-voting-information/' },
+  { date: '2026-11-06', label: '10月非农就业', detail: '08:30 美国东部时间；更新“萨姆规则读数”与“初请”', region: '美国', firm: true, checkedAt: '2026-10-13', source: 'https://www.bls.gov/schedule/news_release/empsit.htm' },
+  { date: '2026-11-10', label: '10月 CPI', detail: '08:30 美国东部时间；看核心服务通胀是否回落', region: '美国', firm: true, checkedAt: '2026-10-13', source: 'https://www.bls.gov/schedule/news_release/cpi.htm' },
   { date: '2026-11-20', label: '英伟达财报', detail: 'AI算力需求的风向标', region: '美国', firm: false },
-  { date: '2026-12-04', label: '11月非农就业', detail: '更新信号仪表盘', region: '美国', firm: false },
-  { date: '2026-12-09', label: 'FOMC 议息（12/8–9）+ 点阵图', detail: '2027年利率路径的最重要一次沟通', region: '美国', firm: true },
+  { date: '2026-12-04', label: '11月非农就业', detail: '08:30 美国东部时间；更新信号仪表盘', region: '美国', firm: true, checkedAt: '2026-10-13', source: 'https://www.bls.gov/schedule/news_release/empsit.htm' },
+  { date: '2026-12-09', label: 'FOMC 议息（12/8–9）+ 点阵图', detail: '关注2027年利率路径沟通', region: '美国', firm: true, checkedAt: '2026-10-13', source: 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm' },
   { date: '2026-12-15', label: '中央经济工作会议（约）', detail: '定下一年宏观政策基调', region: '中国', firm: false },
   { date: '2026-12-20', label: '检查明年资金需求', detail: '大额支出、应急、税费；决定2027年主动额度', region: '个人', firm: true },
   { date: '2026-12-31', label: '账户与税费整理', detail: '对账、整理持仓记录、移出长期无研究价值的标的', region: '个人', firm: true },
-  { date: '2027-01-08', label: '12月非农就业', detail: '更新信号仪表盘', region: '美国', firm: false },
+  { date: '2027-01-08', label: '12月非农就业', detail: '08:30 美国东部时间；更新信号仪表盘', region: '美国', firm: true, checkedAt: '2026-10-13', source: 'https://www.bls.gov/schedule/news_release/empsit.htm' },
   { date: '2027-01-15', label: '年度复盘', detail: '用本页“年度复盘”页签，对照年初判断与实际', region: '个人', firm: true }
 ]
 
@@ -1071,11 +1073,12 @@ const CalendarTab: React.FC<{ today: Date }> = ({ today }) => {
                   {soon && <Pill tone="red">{diff === 0 ? '今天' : `${diff} 天后`}</Pill>}
                 </div>
                 <div className="plan-small plan-muted">{e.detail}</div>
+                {e.checkedAt && e.source && <div className="plan-small plan-muted">核验 {e.checkedAt} · <a href={e.source} target="_blank" rel="noreferrer">官方来源</a></div>}
               </div>
             )
           })}
         </div>
-        <Note tone="gray">标「约」的是按往年规律估算，美国数据日期以 BLS、美联储、公司公告为准；A股披露截止日依据证监会现行规则，具体到公司看公告。</Note>
+        <Note tone="gray">BLS、FOMC 与美国选举日期于 2026-10-13 查官方来源核验；核验日不代表事件已经发生。标「约」的是估算，尚未获得本轮官方确认；具体公司财报仍以各公司公告为准。</Note>
       </Card>
 
       <div className={grid(320)}>

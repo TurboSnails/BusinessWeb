@@ -1,10 +1,28 @@
 {
-  "generatedAt": "2026-10-12T14:49:20.266Z",
+  "generatedAt": "2026-10-13T10:09:42.439Z",
   "versions": [
     {
       "tag": "unreleased",
       "date": null,
       "commits": [
+        {
+          "hash": "806ea5d",
+          "subject": "feat(invest): 投资板块按流程重组，新增观察盘、独立候选池与产业趋势",
+          "author": "hassan",
+          "date": "2026-10-13"
+        },
+        {
+          "hash": "8ada1cf",
+          "subject": "fix(test): 试问超时测试跟随 50 秒模型超时",
+          "author": "hassan",
+          "date": "2026-10-13"
+        },
+        {
+          "hash": "53e8aeb",
+          "subject": "refactor(invest): 行情卡片统一尺寸并优化已舍弃样式",
+          "author": "hassan",
+          "date": "2026-10-12"
+        },
         {
           "hash": "1549a42",
           "subject": "feat(ai): 试问 AI 流式回答、显示今日剩余次数并移至页面顶部",
@@ -164,24 +182,6 @@
         {
           "hash": "ed5ee4e",
           "subject": "chore: 忽略 Python __pycache__",
-          "author": "hassan",
-          "date": "2026-10-11"
-        },
-        {
-          "hash": "f36dffe",
-          "subject": "feat(solid-state): 固态电池 10 月 10 日 MCP 复核：候选与核心分层",
-          "author": "hassan",
-          "date": "2026-10-11"
-        },
-        {
-          "hash": "aaf43dd",
-          "subject": "feat(hub): 投资、AI实验室、自由空间三个栏目页改版",
-          "author": "hassan",
-          "date": "2026-10-11"
-        },
-        {
-          "hash": "5201314",
-          "subject": "refactor(nav): 快捷键提示抽成共用工具；桌面首页不再重复显示跳转框",
           "author": "hassan",
           "date": "2026-10-11"
         }

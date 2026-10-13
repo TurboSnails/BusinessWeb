@@ -61,7 +61,7 @@ export default function FutureTrendsSolidState(): JSX.Element {
       <p><a href={rawUrl(coreReview.report)} target="_blank" rel="noreferrer">完整竞选报告、估值审查与验证条件 →</a> · <a href={rawUrl(coreReview.manifest)} target="_blank" rel="noreferrer">本次重新查询的 MCP 调用记录 →</a></p>
     </Section>
     <Section id="solid-mcp" title="本轮 MCP 更新：覆盖范围与研究调整">
-      <p>{MCP.stats.validListings} 个有效证券记录，覆盖 A 股、美股、港股并保留原树的日、德、澳上市对照；同一发行人的多个上市地不重复计作公司。北交所 {MCP.stats.failedListings} 个 Yahoo 新旧代码请求均为空资料，另试 AKShare 的贝特瑞行情及两家公司资料也报错，缺失不填零。当前为 {MCP.asOf} 的研究快照，市场时间与抓取时间见原始文件。</p>
+      <p>{MCP.stats.validListings} 个有效证券记录，覆盖 A 股、美股、港股并保留原树的日、德、澳上市对照；同一发行人的多个上市地不重复计作公司。北交所旧代码 {MCP.stats.failedListings} 个记录未采纳占位报价；贝特瑞、纳科诺尔已按 920 新代码取得公开行情。研究日期保留 {MCP.asOf}，本轮行情核验于 2026-10-13，市场时间与抓取时间见逐证券来源。</p>
       <div className="solid-grid">
         <div><h3>设备：先看验收与现金</h3><p>先导和赢合 H1 经营现金流为正，具备继续拆专用订单的研究基础；需核预收款及旧订单回款，不能把集团现金全部归给固态。</p></div>
         <div><h3>电芯与资源：资本投入是约束</h3><p>国轩、赣锋及比亚迪的 H1 简化 FCF 为负；宁德现金流较强，但固态增量仍待单独验证。资源股首先受锂价和中周期成本驱动。</p></div>
@@ -126,7 +126,7 @@ export default function FutureTrendsSolidState(): JSX.Element {
       </div>)}</div>
     </Section>
     <Section id="solid-5" title="三情景与赔率：先拆经营，再到公司页定价">
-      <p>公司级 EPS×PE 假设、敏感性、现金桥与缺项已移入二级页。PB 和现金质量不能代替第二种独立估值；缺正常化盈利、项目成功率或摊薄桥时不认证目标价。贝特瑞旧价未获本轮 MCP 复核，不输出当前赔率。</p>
+      <p>公司级 EPS×PE 假设、敏感性、现金桥与缺项已移入二级页。PB 和现金质量不能代替第二种独立估值；缺正常化盈利、项目成功率或摊薄桥时不认证目标价。贝特瑞已取得 920185 最新公开报价，旧代码占位报价未采纳；本轮未完成盈利模型重估，不认证当前赔率。</p>
       <div className="solid-table"><table><thead><tr>{['情景', '经营假设', '盈利与现金处理', '验证 / 证伪'].map(x => <th key={x} scope="col">{x}</th>)}</tr></thead><tbody>{SCENARIOS.map(row => <tr key={row[0]}>{row.map((x, i) => <td key={i}>{x}</td>)}</tr>)}</tbody></table></div>
       <p>QS 客户账单与 GAAP 收入分列；SLDP 现金及短期投资与包括长期证券的全部流动性分列。两家公司都须计入后续现金投入和融资摊薄，不以市值减现金直接认定技术低估。</p>
       <Link to={solidCompanyPath(mcpCompany('QuantumScape')!)}>QuantumScape 二级研究 →</Link> · <Link to={solidCompanyPath(mcpCompany('Solid Power')!)}>Solid Power 二级研究 →</Link>

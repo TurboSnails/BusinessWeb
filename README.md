@@ -127,6 +127,7 @@ AI 实验室的 `/ai/dropshipping` 提供一件代发模式说明、30 天试验
 
 ## 相关文档
 
+- [docs/data-maintenance.md](docs/data-maintenance.md) — 数据过期盘点、更新台账、维护周期与验收方法
 - [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) — Vercel + Supabase 部署
 - [docs/AKSHARE.md](docs/AKSHARE.md) — AKTools 接入
 - [docs/design/ETF_GRID_TRADING.md](docs/design/ETF_GRID_TRADING.md) — 网格交易设计
