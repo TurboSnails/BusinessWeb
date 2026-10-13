@@ -1,0 +1,267 @@
+/* ETF 清单与研究笔记（/industry-etf、/notes）。颜色全部来自 index.css 令牌，深浅色共用。 */
+
+.notes-page,
+.industry-etf-page { padding-bottom: 60px; }
+
+.notes-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.notes-tags .tag {
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.notes-tags .tag--active {
+  background: var(--accent);
+  color: var(--bg-card);
+}
+
+.notes-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 16px 0 12px;
+}
+
+.note-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 12px 0 16px;
+}
+
+.note-meta {
+  margin: 4px 0 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.report-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-bottom: 16px;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Markdown 正文 ---------- */
+.md-heading { font-weight: 700; line-height: 1.4; margin: 18px 0 8px; font-size: 1.05rem; }
+.md-heading--1 { font-size: 1.6rem; margin: 24px 0 10px; }
+.md-heading--2 { font-size: 1.25rem; margin: 24px 0 10px; }
+.md-p { margin: 10px 0; line-height: 1.8; }
+.md-list { margin: 8px 0; padding-left: 22px; line-height: 1.8; }
+.md-hr { border: none; border-top: 1px solid var(--border-subtle); margin: 20px 0; }
+.md-code {
+  background: var(--system-gray6);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+.md-quote {
+  margin: 12px 0;
+  padding: 10px 16px;
+  border-left: 3px solid var(--accent);
+  background: var(--accent-soft);
+  border-radius: 0 8px 8px 0;
+  line-height: 1.7;
+}
+.md-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 12px 0;
+}
+.md-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+.md-table th {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 2px solid var(--accent);
+  background: var(--system-gray6);
+  white-space: nowrap;
+}
+.md-table td {
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: top;
+}
+
+/* ---------- 行业 / 宽基 ETF 清单 ---------- */
+.industry-etf-nav { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+.industry-etf-nav__group,
+.industry-etf-nav__subgroup { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.industry-etf-nav__group-label { color: var(--text-secondary); font-size: 0.85rem; }
+.industry-etf-nav__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+.industry-etf-nav__pill--primary { border-color: var(--accent); color: var(--accent-ink); }
+.industry-etf-nav__pill:hover { background: var(--accent-soft); }
+.industry-etf-nav__count { color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+
+.industry-etf-disclaimer {
+  margin: 16px 0 0;
+  padding: 12px 16px;
+  background: var(--accent-soft);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.industry-etf-main-section { margin-top: 36px; scroll-margin-top: 76px; }
+.industry-etf-main-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--border-subtle);
+}
+.industry-etf-main-title { margin: 0; font-size: 1.35rem; }
+.industry-etf-main-count { font-size: 0.9rem; color: var(--text-secondary); }
+
+.industry-group-section { margin-top: 24px; scroll-margin-top: 76px; }
+.industry-group-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.industry-group-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 14px 20px;
+  background: var(--system-gray6);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.industry-group-title { margin: 0; font-size: 1.1rem; }
+.industry-group-count {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  background: var(--bg-card);
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+}
+
+.industry-table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.industry-etf-table {
+  table-layout: fixed;
+  width: 100%;
+  min-width: 1030px;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+.industry-etf-table th {
+  background: var(--system-gray6);
+  color: var(--text-secondary);
+  font-weight: 600;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  text-align: left;
+  white-space: nowrap;
+}
+.industry-etf-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: middle;
+  line-height: 1.5;
+}
+.industry-etf-table tbody tr:last-child td { border-bottom: none; }
+.industry-etf-table tbody tr:hover { background: var(--accent-soft); }
+
+.industry-etf-table .etf-code-cell {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.industry-etf-table .etf-code-link { color: var(--accent-ink); text-decoration: none; }
+.industry-etf-table .etf-name-cell {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.industry-etf-table .etf-name-link { color: var(--text-primary); text-decoration: none; }
+.industry-etf-table .etf-code-link:hover,
+.industry-etf-table .etf-name-link:hover,
+.industry-etf-table .etf-ref-link:hover { text-decoration: underline; }
+.industry-etf-table .etf-name-link:hover { color: var(--accent-ink); }
+
+.industry-etf-table .subtheme-list { display: flex; flex-direction: column; gap: 5px; align-items: flex-start; }
+.industry-etf-table .subtheme-tag {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  white-space: normal;
+  word-break: break-word;
+}
+.industry-etf-table .subtheme-tag--block { display: block; width: fit-content; white-space: nowrap; }
+.industry-etf-table .etf-remark-cell {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  line-height: 1.55;
+  word-break: break-word;
+}
+.broad-etf-table .etf-subtheme-cell p { margin: 6px 0 0; font-size: 0.8rem; line-height: 1.55; }
+
+/* 趋势结论：A 股红涨绿跌，对应 --up / --down；震荡用暖黄 */
+.industry-etf-table .etf-trend { font-weight: 700; }
+.industry-etf-table .etf-trend--up { color: var(--up-ink); }
+.industry-etf-table .etf-trend--down { color: var(--down-ink); }
+.industry-etf-table .etf-trend--sideways {
+  color: var(--warm-ink);
+  background: var(--accent-warm-soft);
+  border-radius: 3px;
+  padding: 0 2px;
+}
+
+.industry-etf-table .etf-ref-link {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--accent-ink);
+  text-decoration: none;
+  font-size: 0.82rem;
+  vertical-align: middle;
+}
+.industry-etf-table .etf-empty-cell { color: var(--text-tertiary); }
+
+/* 列宽（原 colgroup 内联宽度）：代码 / 名称 / 分布 / 备注(自适应) / 参考 / 网格 */
+.industry-etf-table col:nth-child(1) { width: 92px; }
+.industry-etf-table col:nth-child(2) { width: 160px; }
+.industry-etf-table col:nth-child(3) { width: 260px; }
+.industry-etf-table col:nth-child(5) { width: 160px; }
+.industry-etf-table col:nth-child(6) { width: 92px; }
+.broad-etf-table col:nth-child(3) { width: 230px; }
+.broad-etf-table col:nth-child(5) { width: 92px; }

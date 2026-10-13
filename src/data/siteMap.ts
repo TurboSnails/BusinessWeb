@@ -90,6 +90,8 @@ export const INVEST_GROUPS: HubGroup[] = [
       { path: '/dcf', label: 'DCF 计算器', short: '手动填假设，算安全边际', desc: 'WACC + 五年现金流折现估值与安全边际，手动填写假设，无需本机服务，可保存记录' },
       { path: '/grid-trading', label: '网格交易', short: 'A 股 / ETF 网格回测', desc: 'A 股与 ETF 网格模拟、回测与记录' },
       { path: '/invest/etf', label: 'ETF 流派地图', short: '各类 ETF 与主要风险', desc: '宽基、因子、主题、债券、商品等流派的主要 ETF 与风险' },
+      { path: '/industry-etf', label: 'ETF 清单', short: '宽基与行业 ETF 选品', desc: '宽基首选与 7 个行业组共 59 只 ETF，附趋势备注与独立分析笔记' },
+      { path: '/notes', label: '研究笔记', short: 'ETF 估值与趋势分析', desc: '逐只 ETF 的估值、权重、趋势与失效条件分析笔记' },
     ],
   },
   {
