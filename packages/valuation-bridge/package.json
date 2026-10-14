@@ -1,11 +1,15 @@
 {
   "name": "businessweb-valuation-bridge",
-  "version": "0.1.0",
+  "version": "0.1.1",
+  "description": "BusinessWeb 公司估值页使用的本地服务：调用本机已登录的 AI 命令行完成估值",
+  "license": "MIT",
   "type": "module",
   "bin": {
     "valuation-bridge": "dist/cli.mjs"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "node build.mjs",
     "prepublishOnly": "node build.mjs",
@@ -19,5 +23,19 @@
   },
   "devDependencies": {
     "esbuild": "^0.21.5"
+  },
+  "keywords": [
+    "valuation",
+    "cli",
+    "codex",
+    "claude",
+    "opencode",
+    "kimi",
+    "antigravity"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TurboSnails/BusinessWeb.git",
+    "directory": "packages/valuation-bridge"
   }
 }

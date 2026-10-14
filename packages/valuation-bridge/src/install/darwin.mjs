@@ -37,8 +37,14 @@ export function render({ nodePath, cliPath }) {
   </dict></array>
 </dict></plist>
 `;
+  // 不带 -k：服务已在运行时是空操作，不会打断正在进行的估值；
+  // 服务没被加载（如被 bootout）时，用磁盘上的 plist 重新加载再启动
   const launcher = `#!/bin/sh
-exec /bin/launchctl kickstart -k "gui/$(/usr/bin/id -u)/${LABEL}"
+uid=$(/usr/bin/id -u)
+target="gui/$uid/${LABEL}"
+/bin/launchctl kickstart "$target" 2>/dev/null && exit 0
+/bin/launchctl bootstrap "gui/$uid" "$HOME/Library/LaunchAgents/${LABEL}.plist" 2>/dev/null
+exec /bin/launchctl kickstart "$target"
 `;
   return { plist, infoPlist, launcher };
 }
