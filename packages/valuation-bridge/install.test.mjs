@@ -18,7 +18,9 @@ test("macOS render produces launch agent and valuation URL app deterministically
   assert.match(first.plist, /<key>ThrottleInterval<\/key>\s*<integer>30<\/integer>/);
   assert.match(first.plist, /<key>ProgramArguments<\/key>\s*<array>\s*<string>\/Users\/Example User\/node&amp;tools\/node<\/string>\s*<string>\/tmp\/valuation bridge\/cli.mjs<\/string>\s*<string>serve<\/string>/);
   assert.match(first.infoPlist, /<key>CFBundleURLSchemes<\/key>\s*<array>\s*<string>valuation<\/string>/);
-  assert.match(first.launcher, /launchctl kickstart/);
+  assert.match(first.launcher, /launchctl kickstart "\$target"/);
+  assert.doesNotMatch(first.launcher, /kickstart -k/);
+  assert.match(first.launcher, /launchctl bootstrap .*LaunchAgents\/com\.businessweb\.valuation\.plist/);
   assert.match(first.launcher, /com\.businessweb\.valuation/);
 });
 
