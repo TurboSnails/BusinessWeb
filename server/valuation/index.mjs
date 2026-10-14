@@ -1,6 +1,7 @@
 import { resolve, basename } from "node:path";
 import { pathToFileURL } from "node:url";
 import { createValuationServer } from "./http.mjs";
+import { ensureCliPath } from "./cli/path.mjs";
 
 export async function startValuationServer({
   port = process.env.VALUATION_PORT || 8788,
@@ -20,6 +21,8 @@ export async function startValuationServer({
     });
   });
 
+  // 自启服务的 PATH 很短，后台补全以找到用户装的 CLI；请求处理会等它完成
+  ensureCliPath();
   const actualPort = server.address().port;
   console.log(`公司估值服务：http://127.0.0.1:${actualPort}${showDevHint ? "，请同时运行 npm run dev" : ""}`);
   const stop = () => server.close();

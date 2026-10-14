@@ -39,7 +39,7 @@ export async function connectValuation() {
     if (state.kind !== "connected")
       throw Object.assign(new Error("本地服务未连接"), { bridgeState: state });
   }
-  const health = await request<{ ok: boolean; token: string; version?: number; features?: string[] }>("/health");
+  const health = await request<{ ok: boolean; token: string; version?: number; features?: string[]; bridgeVersion?: string | null }>("/health");
   token = health.token;
   return health;
 }

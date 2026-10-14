@@ -86,3 +86,31 @@ describe("ensureBridge", () => {
     expect(d.launch).not.toHaveBeenCalled();
   });
 });
+
+import { bridgeOutdated, compareVersions, detectPlatform, MIN_BRIDGE_VERSION } from "./localBridge";
+
+describe("版本与平台判断", () => {
+  it("compareVersions 按数字逐段比较", () => {
+    expect(compareVersions("0.1.2", "0.1.10")).toBeLessThan(0);
+    expect(compareVersions("1.0.0", "0.9.9")).toBeGreaterThan(0);
+    expect(compareVersions("0.1.2", "0.1.2")).toBe(0);
+  });
+  it("没有版本号（旧服务不上报）或低于最低版本都算过旧", () => {
+    expect(bridgeOutdated(undefined)).toBe(true);
+    expect(bridgeOutdated(null)).toBe(true);
+    expect(bridgeOutdated("0.1.1")).toBe(true);
+    expect(bridgeOutdated(MIN_BRIDGE_VERSION)).toBe(false);
+    expect(bridgeOutdated("9.0.0")).toBe(false);
+  });
+  it("detectPlatform 区分 mac / windows / linux", () => {
+    expect(detectPlatform("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Chrome/120")).toBe("mac");
+    expect(detectPlatform("Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120")).toBe("windows");
+    expect(detectPlatform("Mozilla/5.0 (X11; Linux x86_64) Chrome/120")).toBe("linux");
+    expect(detectPlatform("")).toBe("linux");
+  });
+  it("连接成功时带上服务上报的 bridgeVersion", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ service: "valuation", version: 2, features: [], bridgeVersion: "0.1.2" }) });
+    const state = await ensureBridge({ deps: { fetch: fetchMock as unknown as typeof fetch, hosted: true, userAgent: "Chrome", launch: () => {}, base: "x" } });
+    expect(state).toMatchObject({ kind: "connected", bridgeVersion: "0.1.2" });
+  });
+});

@@ -38,7 +38,7 @@ const service = vi.fn(async (url: string, init?: RequestInit) => {
   if (init?.body) posted.push(JSON.parse(String(init.body)))
   return {
     ok: true, status: 200,
-    json: async () => url.endsWith('/health') ? { ok: true, token: 't', features: ['macro-interpret'] }
+    json: async () => url.endsWith('/health') ? { ok: true, token: 't', bridgeVersion: '0.1.2', features: ['macro-interpret'] }
       : url.includes('/backends') ? [{ id: 'codex', installed: true, cliVersion: '1', canListModels: true }]
       : url.includes('/models') ? [{ backend: 'codex', modelId: 'gpt-x', displayName: 'GPT X', availability: 'verified', isDefault: false }]
       : { id: 'm1', state: 'queued' },
@@ -84,7 +84,7 @@ describe('宏观 AI 解读', () => {
   it('本地服务是旧版本时，直接提示重启而不是报“接口不存在”', async () => {
     vi.stubGlobal('fetch', vi.fn(async (url: string) => ({ ok: true, status: 200, json: async () => (url.endsWith('/health') ? { ok: true, token: 't', version: 1 } : url.includes('/backends') ? [{ id: 'codex', installed: true }] : []) }) as Response))
     render(<AiInterpretation us={us} cn={cn} />)
-    expect((await screen.findByRole('alert')).textContent).toMatch(/旧版本.*businessweb-valuation-bridge install/)
+    expect((await screen.findByRole('alert')).textContent).toMatch(/旧版本.*businessweb-valuation-bridge@latest install/)
     expect(screen.queryByRole('button', { name: '生成解读' })).toBeNull()
   })
 
@@ -93,7 +93,7 @@ describe('宏观 AI 解读', () => {
       if (init?.body && url.includes('/macro')) return { ok: false, status: 500, json: async () => ({ error: 'unauthorized' }) } as Response
       return {
         ok: true, status: 200,
-        json: async () => url.endsWith('/health') ? { ok: true, token: 't', features: ['macro-interpret'] }
+        json: async () => url.endsWith('/health') ? { ok: true, token: 't', bridgeVersion: '0.1.2', features: ['macro-interpret'] }
           : url.includes('/backends') ? [{ id: 'codex', installed: true }, { id: 'kimi', installed: true }]
           : [],
       } as Response

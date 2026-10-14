@@ -50,6 +50,7 @@ test("health identifies the valuation service", async () => {
       ok: true,
       service: "valuation",
       version: 2,
+      bridgeVersion: null,
       features: ["macro-interpret", "activity-progress"],
       token: "test-session",
     });
@@ -116,4 +117,17 @@ test("HTTP blocks hostile origins, missing tokens and oversized payloads", async
     413,
   );
   server.close();
+});
+
+test("health reports the bridge version when the host sets it", async () => {
+  process.env.VALUATION_BRIDGE_VERSION = "9.9.9";
+  const server = createValuationServer();
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  try {
+    const body = await (await fetch(`http://127.0.0.1:${server.address().port}/api/valuation/health`)).json();
+    assert.equal(body.bridgeVersion, "9.9.9");
+  } finally {
+    delete process.env.VALUATION_BRIDGE_VERSION;
+    await new Promise((resolve) => server.close(resolve));
+  }
 });

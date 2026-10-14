@@ -1,12 +1,49 @@
-import { readFile } from "node:fs/promises";
+import { readFile, realpath, access } from "node:fs/promises";
+import { delimiter, dirname, join } from "node:path";
+import { pathToFileURL } from "node:url";
 import { modelOption } from "../models/index.mjs";
+import { ensureCliPath } from "../cli/path.mjs";
 let runtimePromise;
+const PI_PACKAGE = "@earendil-works/pi-coding-agent";
+
+/** 在 PATH 目录里找到 pi 可执行文件，沿符号链接上溯到包目录，返回包入口文件；找不到返回 null */
+export async function findPiPackage(pathValue = process.env.PATH || "") {
+  for (const dir of pathValue.split(delimiter)) {
+    if (!dir) continue;
+    let file;
+    try {
+      file = await realpath(join(dir, "pi"));
+    } catch {
+      continue;
+    }
+    for (let d = dirname(file); d !== dirname(d); d = dirname(d)) {
+      try {
+        const meta = JSON.parse(await readFile(join(d, "package.json"), "utf8"));
+        if (meta.name !== PI_PACKAGE) break;
+        const entry = join(d, meta.main || "index.js");
+        await access(entry);
+        return entry;
+      } catch {}
+    }
+  }
+  return null;
+}
+
+// 独立安装的服务副本里没有 node_modules：按名字导入失败时，改用全局安装的 pi 包
+async function importPi() {
+  try {
+    return await import(PI_PACKAGE);
+  } catch (error) {
+    await ensureCliPath();
+    const entry = await findPiPackage();
+    if (!entry) throw error;
+    return import(pathToFileURL(entry).href);
+  }
+}
 // pi 的做法：不启动别家 CLI，而是用 ModelRuntime 读取 ~/.pi/agent 的
 // auth.json（订阅登录/API key）、models.json（Ollama 等本地模型）与环境变量，直连模型接口。
 export function getRuntime() {
-  runtimePromise ||= import("@earendil-works/pi-coding-agent").then((m) =>
-    m.ModelRuntime.create(),
-  );
+  runtimePromise ||= importPi().then((m) => m.ModelRuntime.create());
   return runtimePromise;
 }
 export function resetRuntime(runtime) {

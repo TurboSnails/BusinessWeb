@@ -1,6 +1,10 @@
 import { startValuationServer } from "../../../server/valuation/index.mjs";
 import { install, installationStatus, uninstall } from "./install/index.mjs";
 import { fileURLToPath } from "node:url";
+import pkg from "../package.json" with { type: "json" };
+
+// 让 /health 上报自己的版本，页面据此判断是否需要更新
+process.env.VALUATION_BRIDGE_VERSION ||= pkg.version;
 
 const HEALTH_PATH = "/api/valuation/health";
 const PORT_OCCUPIED_EXIT_CODE = 75;

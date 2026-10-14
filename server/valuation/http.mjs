@@ -1,6 +1,7 @@
 import { createServer } from "node:http";
 import { randomBytes, timingSafeEqual } from "node:crypto";
 import { createJobStore } from "./jobs.mjs";
+import { ensureCliPath } from "./cli/path.mjs";
 import { interpretMacro } from "./macro/interpret.mjs";
 import { discoverBackends, BACKENDS } from "./cli/registry.mjs";
 import { listModels } from "./models/index.mjs";
@@ -51,12 +52,13 @@ export function createValuationServer({
       res.setHeader("Access-Control-Allow-Private-Network", "true");
       return res.end();
     }
+    await ensureCliPath();
     const url = new URL(req.url, "http://127.0.0.1"),
       path = url.pathname.replace(/^\/api\/valuation/, "");
     try {
       if (path === "/health" && req.method === "GET")
         // features：页面据此判断本地服务是否需要重启升级
-        return send(200, { ok: true, service: "valuation", version: 2, features: ["macro-interpret", "activity-progress"], token });
+        return send(200, { ok: true, service: "valuation", version: 2, bridgeVersion: process.env.VALUATION_BRIDGE_VERSION || null, features: ["macro-interpret", "activity-progress"], token });
       if (req.method === "POST") {
         const supplied = Buffer.from(
             String(req.headers["x-valuation-token"] || ""),

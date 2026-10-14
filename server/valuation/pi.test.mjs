@@ -47,3 +47,24 @@ test("explains missing auth and surfaces provider errors", async () => {
     /未找到该模型/,
   );
 });
+
+test("findPiPackage walks up from the pi executable to the package entry", async () => {
+  const { mkdtemp, mkdir, writeFile, symlink, rm, realpath } = await import("node:fs/promises");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const { findPiPackage } = await import("./pi/index.mjs");
+  const root = await mkdtemp(join(tmpdir(), "vb-pi-"));
+  try {
+    const pkg = join(root, "lib/node_modules/@earendil-works/pi-coding-agent");
+    await mkdir(join(pkg, "dist"), { recursive: true });
+    await mkdir(join(root, "bin"), { recursive: true });
+    await writeFile(join(pkg, "package.json"), JSON.stringify({ name: "@earendil-works/pi-coding-agent", main: "./dist/index.js" }));
+    await writeFile(join(pkg, "dist/cli.js"), "");
+    await writeFile(join(pkg, "dist/index.js"), "export {};");
+    await symlink(join(pkg, "dist/cli.js"), join(root, "bin/pi"));
+    assert.equal(await findPiPackage(join(root, "bin")), await realpath(join(pkg, "dist/index.js")));
+    assert.equal(await findPiPackage(join(root, "missing")), null);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});

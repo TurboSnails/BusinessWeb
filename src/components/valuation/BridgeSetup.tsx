@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Check, Copy, Server } from "lucide-react";
-import { ensureBridge, INSTALL_COMMAND, type BridgeState } from "../../services/localBridge";
+import { detectPlatform, ensureBridge, INSTALL_COMMAND, type BridgeState } from "../../services/localBridge";
+import BridgeHelp from "./BridgeHelp";
 
 // 安装命令引导：needsInstall 时轮询本机服务，装好后自动变为已连接
 export default function BridgeSetup({
@@ -79,7 +80,7 @@ export default function BridgeSetup({
           复制安装命令
         </button>
         {copied && <span role="status"> 已复制</span>}
-        <p>安装完成后回到本页，会自动连接，无需刷新。</p>
+        <BridgeHelp platform={detectPlatform(typeof navigator === "undefined" ? "" : navigator.userAgent)} />
       </div>
     );
   return <></>;

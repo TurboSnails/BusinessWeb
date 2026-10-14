@@ -18,7 +18,8 @@ import { buildDigest } from './digest'
 import { QUALITY_LABEL, checkQuality, type QualityReport } from './quality'
 import BridgeSetup from '../../components/valuation/BridgeSetup'
 import { backendLabel, loginHintForError } from '../../components/valuation/backends'
-import { INSTALL_COMMAND, type BridgeState } from '../../services/localBridge'
+import NoCliHint, { noCliDetected } from '../../components/valuation/NoCliHint'
+import { bridgeOutdated, INSTALL_COMMAND, type BridgeState } from '../../services/localBridge'
 import { elapsedText } from '../valuation/session'
 
 // 当前标签页内保留：进行中的任务、最近一次解读
@@ -62,6 +63,7 @@ export default function AiInterpretation({ us, cn, onRefresh }: Snapshots & { on
   const lastReconnect = useRef(0)
   const jobBackend = useRef<Backend | undefined>(running?.backend)
   const [outdated, setOutdated] = useState(false)
+  const [bridgeVersion, setBridgeVersion] = useState<string | null>(null)
   const stop = useRef<(() => void) | null>(null)
   const asOf = us.fetchedAt?.slice(0, 10) ?? us.generatedAt
 
@@ -72,6 +74,7 @@ export default function AiInterpretation({ us, cn, onRefresh }: Snapshots & { on
       const health = await connectValuation()
       setBridge(null)
       setOutdated(!health.features?.includes('macro-interpret'))
+      setBridgeVersion(health.bridgeVersion ?? null)
       const list = await fetchBackends()
       setBackends(list)
       setConnected(true)
@@ -191,6 +194,7 @@ export default function AiInterpretation({ us, cn, onRefresh }: Snapshots & { on
         </div>
       )}
 
+      {connected && !outdated && (bridgeOutdated(bridgeVersion) || noCliDetected(backends)) && <NoCliHint outdated={bridgeOutdated(bridgeVersion)} bridgeVersion={bridgeVersion} />}
       {connected && !outdated && (
         <div className="macro-ai__form">
           <label>本地 CLI

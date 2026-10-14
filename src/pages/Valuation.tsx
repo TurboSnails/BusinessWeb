@@ -1,4 +1,6 @@
 import BridgeSetup from "../components/valuation/BridgeSetup";
+import NoCliHint, { noCliDetected } from "../components/valuation/NoCliHint";
+import { bridgeOutdated } from "../services/localBridge";
 import { backendLabel, loginHintForError } from "../components/valuation/backends";
 import type { BridgeState } from "../services/localBridge";
 import { Page } from '../components/ui'
@@ -89,6 +91,7 @@ export default function Valuation() {
     [backend, setBackend] = useState<Backend>("codex"),
     // 登录提示要对应实际失败任务启动时的 CLI，而不是之后下拉框里选中的
     [startedBackend, setStartedBackend] = useState<Backend>("codex"),
+    [bridgeVersion, setBridgeVersion] = useState<string | null>(null),
     [models, setModels] = useState<ModelOption[]>([]),
     [model, setModel] = useState("default"),
     [manual, setManual] = useState(""),
@@ -138,7 +141,8 @@ export default function Valuation() {
     setError("");
     if (hostedPage) setBridge({ kind: "starting" });
     try {
-      await connectValuation();
+      const health = await connectValuation();
+      setBridgeVersion(health.bridgeVersion ?? null);
       setBridge(null);
       const list = await fetchBackends();
       setBackends(list);
@@ -357,6 +361,9 @@ export default function Valuation() {
                 </Link>
               </div>
             </div>
+          )}
+          {connected && (bridgeOutdated(bridgeVersion) || noCliDetected(backends)) && (
+            <NoCliHint outdated={bridgeOutdated(bridgeVersion)} bridgeVersion={bridgeVersion} />
           )}
           <div className="valuation-form-grid">
             <label className="valuation-company-input">
