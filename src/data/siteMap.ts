@@ -92,6 +92,7 @@ export const INVEST_GROUPS: HubGroup[] = [
       { path: '/invest/etf', label: 'ETF 流派地图', short: '各类 ETF 与主要风险', desc: '宽基、因子、主题、债券、商品等流派的主要 ETF 与风险' },
       { path: '/industry-etf', label: 'ETF 清单', short: '宽基与行业 ETF 选品', desc: '宽基首选与 7 个行业组共 59 只 ETF，附趋势备注与独立分析笔记' },
       { path: '/notes', label: '研究笔记', short: 'ETF 估值与趋势分析', desc: '逐只 ETF 的估值、权重、趋势与失效条件分析笔记' },
+      { path: '/invest/bond-fund-report', label: '债基研究报告', short: '1—3 年持有的债基梳理', desc: '2026 年 10 月债券基金报告原文：中短债、纯债与二级债基的历史数据和风险提示' },
     ],
   },
   {

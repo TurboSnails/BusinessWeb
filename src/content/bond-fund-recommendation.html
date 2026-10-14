@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>债基推荐报告 · 1-3年持有（2026-10）</title>
+<style>
+  :root{
+    --bg:#f6f8fb; --card:#ffffff; --ink:#1f2a37; --sub:#5b6b7c;
+    --line:#e4e9f0; --brand:#1f6feb; --warn:#b45309; --warnbg:#fff7ed;
+    --good:#0f7b56; --bad:#b42318;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    line-height:1.65;font-size:15px}
+  .wrap{max-width:960px;margin:0 auto;padding:28px 20px 60px}
+  header{border-bottom:3px solid var(--brand);padding-bottom:14px;margin-bottom:22px}
+  h1{font-size:24px;margin:0 0 6px}
+  .meta{color:var(--sub);font-size:13px}
+  .callout{background:#eef4ff;border-left:4px solid var(--brand);padding:12px 16px;border-radius:8px;margin:16px 0}
+  .warnbox{background:var(--warnbg);border:1px solid #fcd9a6;color:#7a3b06;padding:12px 16px;border-radius:8px;margin:16px 0;font-size:13.5px}
+  section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:18px 0;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+  h2{font-size:18px;margin:0 0 4px;display:flex;align-items:center;gap:8px}
+  h2 .tag{font-size:12px;background:var(--brand);color:#fff;padding:2px 8px;border-radius:20px;font-weight:600}
+  .lead{color:var(--sub);font-size:13.5px;margin:0 0 14px}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:#f1f5fb;font-weight:600;color:#243b53}
+  tr:nth-child(even) td{background:#fafcff}
+  .pos{color:var(--good);font-weight:600}
+  .neg{color:var(--bad);font-weight:600}
+  .pill{display:inline-block;font-size:11.5px;padding:1px 7px;border-radius:20px;background:#eef2f7;color:#46566a;margin:1px 2px}
+  .pill.warn{background:#fde8d8;color:#9a3412}
+  ul{margin:8px 0;padding-left:20px}
+  li{margin:4px 0}
+  .tier{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+  .tier .box{flex:1;min-width:200px;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .tier .box h3{margin:0 0 6px;font-size:15px}
+  .tier .box p{margin:4px 0;font-size:13px;color:var(--sub)}
+  .src{font-size:12px;color:var(--sub);border-top:1px dashed var(--line);margin-top:14px;padding-top:10px}
+  footer{color:var(--sub);font-size:12px;text-align:center;margin-top:24px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>📊 债基推荐报告 · 适合 1-3 年持有</h1>
+  <div class="meta">生成日期：2026-10-14 ｜ 数据截至：2026-06-30 ~ 2026-10-13（各源不一，已尽量标注）｜ 持有周期：1-3 年</div>
+</header>
+
+<div class="warnbox">
+  ⚠️ <b>数据来源与口径说明</b>：本环境专家默认的专用实时数据网关（neodata 本地代理）未启动、neodata 连接器未连接，无法走原定单一通道。本报告改用 <b>domain_search 多源权威检索</b>作为降级来源，数据来自 东财 Choice、晨星(Morningstar)、新浪财经、私募排排网、各公募基金公司季报/二季报等，已交叉核对；所有数字均为公开披露的历史业绩，<b>非模型记忆推断</b>。部分为不同份额（A/C/D 类）或不同截止日，已标注差异，请以基金合同与最新定期报告为准。
+</div>
+
+<div class="callout">
+  <b>一句话核心结论</b>：2026 年低利率（10 年国债约 1.73%）、票息收窄、A 股结构分化下，<b>中短债/纯债是 1-3 年持有的稳健底仓，二级债基是弹性增强层</b>。求稳选中短债（回撤 &lt;0.3%），均衡选中长期纯债（回撤 1%-1.4%），能承受 5% 左右波动、追求 4%+ 年化则选低波二级债基（大成元丰多利、华夏鼎泓）。可转债型与超长利率债集中度极高的纯债，不建议作为 1-3 年稳健配置。
+</div>
+
+<section>
+  <h2><span class="tag">环境</span>债市背景与产品梯度</h2>
+  <p class="lead">2026Q2 债券利率震荡下行、资金面充裕；股票呈 K 型分化（AI/半导体强、内需弱）。各类型债基近三年收益与回撤呈清晰梯度：</p>
+  <table>
+    <tr><th>类型</th><th>近3年年化（均值）</th><th>近3年最大回撤（均值）</th><th>近3年年化夏普</th><th>定位</th></tr>
+    <tr><td>短期纯债</td><td class="pos">2.36%</td><td class="neg">-0.46%</td><td>3.20</td><td>现金管理升级</td></tr>
+    <tr><td>中长期纯债</td><td class="pos">2.96%</td><td class="neg">-1.11%</td><td>3.27</td><td>稳健底仓</td></tr>
+    <tr><td>一级债基</td><td class="pos">3.40%</td><td class="neg">-1.95%</td><td>1.79</td><td>微增强</td></tr>
+    <tr><td><b>二级债基</b></td><td class="pos"><b>4.32%</b></td><td class="neg"><b>-5.34%</b></td><td>0.92</td><td>债券+权益增强</td></tr>
+    <tr><td>偏债混合</td><td class="pos">4.58%</td><td class="neg">-6.89%</td><td>0.74</td><td>高弹增强</td></tr>
+    <tr><td>可转债型</td><td class="pos">8.87%</td><td class="neg">-18.93%</td><td>0.54</td><td>高波动，不推荐稳健配置</td></tr>
+  </table>
+  <p class="src">数据来源：东财 Choice《纯债与固收+基金 2026 年二季报分析》（截至 2026-06-30，统计不含 Q2 新成立基金）。</p>
+</section>
+
+<section>
+  <h2><span class="tag">档一</span>中短债基金（波动最低，回撤多 &lt;0.3%）</h2>
+  <p class="lead">主投剩余期限 ≤3 年国债、政策金融债与中高等级信用债，<b>不投股票/可转债</b>，收益以票息为主。适合 1 年期以上闲钱底仓；注意普遍设有 30/90 天持有期。</p>
+  <table>
+    <tr><th>基金</th><th>代码</th><th>近3年收益</th><th>最大回撤</th><th>基金经理</th><th>亮点</th></tr>
+    <tr><td>富荣中短债A</td><td>—</td><td class="pos">+10.15%<br>(年化3.27%)</td><td class="neg">-0.27%</td><td>—</td><td>卡玛 11.99 / 夏普 3.79，性价比第一梯队</td></tr>
+    <tr><td>长城短债A</td><td>007194</td><td class="pos">+10.46%</td><td class="neg">-0.11%</td><td>邹德立</td><td>规模 97.5 亿，业绩更优、回撤略逊富荣</td></tr>
+    <tr><td>招商鑫诚短债A</td><td>—</td><td class="pos">年化2.23%</td><td class="neg">-0.06%</td><td>李家辉</td><td>近3年卡玛 38.58（全市场最佳）</td></tr>
+    <tr><td>国泰利民安悦30天持有</td><td>022007</td><td class="pos">成立+2.88%</td><td class="neg">-0.04%</td><td>—</td><td>入选工行"工盈研选"，2 个交易日修复回撤</td></tr>
+  </table>
+  <p class="src">数据来源：东财 Choice（截至 2026-04-30 / 天天基金）、私募排排网、晨星。</p>
+</section>
+
+<section>
+  <h2><span class="tag">档二</span>中长期纯债基金（稳健底仓，回撤 1%-1.4%）</h2>
+  <p class="lead">"存款搬家"首选。华夏系（柳万军/刘明宇）与招商（夏里鹏）是回撤控制标杆。</p>
+  <table>
+    <tr><th>基金</th><th>代码</th><th>近3年收益</th><th>最大回撤</th><th>基金经理</th><th>亮点</th></tr>
+    <tr><td>华夏纯债A</td><td>000015</td><td class="pos">+9.64%~9.85%</td><td class="neg">≤-0.80%</td><td>柳万军</td><td><b>2014-2025 连续 12 年正收益</b>，回撤控制标杆</td></tr>
+    <tr><td>招商招华纯债A</td><td>003448</td><td class="pos">+11.98%</td><td class="neg">-1.13%</td><td>夏里鹏</td><td>晨星五星；近5年同类 10/1725；风险回报率 4.41</td></tr>
+    <tr><td>华夏鼎茂A</td><td>004042</td><td class="pos">+13.71%~14.20%</td><td class="neg">-1.39%</td><td>刘明宇</td><td>近3/5年同类前3%，双五星；规模 354 亿；2020-2025 连续6年正收益</td></tr>
+    <tr><td>华安安浦A</td><td>—</td><td class="pos">+10.20%</td><td class="neg">-1.12%</td><td>李振宇</td><td>滚动持有 270 天正收益概率 100%</td></tr>
+    <tr><td>中信保诚稳悦A <span class="pill warn">慎</span></td><td>—</td><td class="pos">近1年+8.48%<br>(同类第2)</td><td class="neg">较高</td><td>吴秋君</td><td>⚠ 超长利率债仓位近 60%（25超长特别国债02占 59.98%），久期风险显著高于同类</td></tr>
+  </table>
+  <p class="src">数据来源：经济参考报（华夏固收 2026H1）、中国证券网、私募排排网、晨星、基金 2026Q2 季报。</p>
+</section>
+
+<section>
+  <h2><span class="tag">档三</span>二级债基（债券打底+权益增强，弹性最高）</h2>
+  <p class="lead">近3年年化可达 7%-12%，但回撤明显高于纯债。低波增强代表更适合 1-3 年持有中对波动敏感者。</p>
+  <table>
+    <tr><th>基金</th><th>代码</th><th>近3年收益</th><th>最大回撤</th><th>基金经理</th><th>亮点</th></tr>
+    <tr><td>大成元丰多利A</td><td>019372</td><td class="pos">成立+12.41%~13.76%</td><td class="neg">-0.95%</td><td>孙丹</td><td><b>低波增强代表</b>，回撤控制优秀，弹性 4.31%</td></tr>
+    <tr><td>华夏鼎泓A</td><td>007666</td><td class="pos">近1年+5.06%</td><td class="neg">≤-1.18%</td><td>刘明宇/靖博灵</td><td>量化增强；规模约 90 亿；连续 3 年正收益</td></tr>
+    <tr><td>招商安庆债券A <span class="pill warn">关注</span></td><td>006650</td><td class="pos">+19.81%~21.21%<br>(年化~7%)</td><td class="neg">-3.05%</td><td>马海林/刘万锋</td><td>近1年同类 95/2327；⚠ 基金经理近期变更频繁需关注</td></tr>
+    <tr><td>鹏华双债加利A</td><td>000143</td><td class="pos">+35.99%~40.65%<br>(年化~12%)</td><td class="neg">-6.74%</td><td>王石千</td><td>同类 9/481；股票 19%+转债 6.4%；长期最强但近3月 -4.11%、波动大</td></tr>
+  </table>
+  <p class="src">数据来源：财经网金融（鹏华双债加利 2026H1）、私募排排网、新浪财经、中国经济新闻网。</p>
+</section>
+
+<section>
+  <h2><span class="tag">经理</span>基金经理横向画像</h2>
+  <table>
+    <tr><th>基金经理</th><th>代表产品</th><th>风格</th></tr>
+    <tr><td>柳万军</td><td>华夏纯债A</td><td>固收老将，极致回撤控制，12 年连续正收益</td></tr>
+    <tr><td>夏里鹏</td><td>招商招华纯债A</td><td>信评出身，中高等级信用底仓</td></tr>
+    <tr><td>刘明宇</td><td>华夏鼎茂 / 华夏鼎泓</td><td>宏观研判、久期灵活、量化增强，在管 8 年+</td></tr>
+    <tr><td>孙丹</td><td>大成元丰多利A</td><td>大类资产配置，回撤严控（-0.95%）</td></tr>
+    <tr><td>王石千</td><td>鹏华双债加利A</td><td>中波固收+，科技成长+转债增强，在管 8.5 年</td></tr>
+    <tr><td>邹德立 / 李家辉</td><td>长城短债 / 招商鑫诚短债</td><td>短久期、极致低波，货币增强</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2><span class="tag">配置</span>1-3 年持有配置建议</h2>
+  <div class="tier">
+    <div class="box">
+      <h3>① 求稳（回撤容忍 &lt;1%）</h3>
+      <p>中短债为主：<span class="pill">富荣中短债A</span><span class="pill">长城短债A</span><span class="pill">国泰利民安悦30天</span></p>
+      <p>占比可较高，作闲钱底仓。</p>
+    </div>
+    <div class="box">
+      <h3>② 均衡（回撤容忍 1%-2%）</h3>
+      <p>中长期纯债为主：<span class="pill">华夏纯债A</span><span class="pill">招商招华纯债A</span><span class="pill">华夏鼎茂A</span></p>
+      <p>稳健增值、回撤可控。</p>
+    </div>
+    <div class="box">
+      <h3>③ 进取（回撤容忍 5%+，追 4%+ 年化）</h3>
+      <p>低波二级债基：<span class="pill">大成元丰多利A</span><span class="pill">华夏鼎泓A</span><span class="pill">鹏华双债加利A</span></p>
+      <p>需承受权益市场波动。</p>
+    </div>
+  </div>
+  <p class="lead"><b>不建议</b>作为 1-3 年稳健配置：可转债型（近3年最大回撤均值 -18.93%）、以及超长利率债集中度极高的纯债（如中信保诚稳悦，久期风险大）。</p>
+</section>
+
+<div class="warnbox">
+  📌 <b>风险提示</b>：以上均为客观历史数据整理，<b>基金过往业绩不预示未来表现</b>，不构成任何投资建议。二级债基含权益仓位，风险等级高于纯债；中短债多设持有期，请留意流动性。投资有风险，决策请结合自身风险承受能力，以基金合同与最新定期报告为准。
+</div>
+
+<footer>本报告由基金投研分析师基于公开多源数据整理生成 · 数据口径以各源披露为准</footer>
+
+</div>
+</body>
+</html>

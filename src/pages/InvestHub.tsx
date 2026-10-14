@@ -23,6 +23,7 @@ const ICONS: Record<string, LucideIcon> = {
   '/research-notes': Building2,
   '/invest/national-team': Landmark,
   '/invest/etf': PieChart,
+  '/invest/bond-fund-report': Landmark,
   '/candidates': ListChecks,
   '/valuation': Calculator,
   '/dcf': ChartLine,
