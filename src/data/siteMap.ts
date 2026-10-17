@@ -55,7 +55,7 @@ export const INVEST_GROUPS: HubGroup[] = [
     hint: '每天看一眼观察盘就够；细节页只在需要时打开。看环境，不据此下单。',
     links: [
       { path: '/watch', label: '观察盘', short: '宏观、全球、A股一页看完', desc: '宏观阶段与关键读数、全球主要指数与商品汇率、A 股涨跌停与资金流向，一页看完' },
-      { path: '/monitor', label: '宏观温度', short: '中美港周期与估值位置', desc: '中美港经济温度、周期阶段、估值分位与对应动作', minor: true },
+      { path: '/monitor', label: '宏观温度', short: '中美港宏观、牛熊与估值', desc: '中美港经济温度、牛熊周期六维证据、周月趋势、复盘记录与估值位置', minor: true },
       { path: '/pulse', label: '全球行情', short: '指数热力图与 A 股走势', desc: '全球指数热力图、A 股指数 K 线与成交', minor: true },
       { path: '/daily-analysis', label: 'A股每日复盘', short: '涨跌停、连板与资金', desc: '自动获取 A 股行情、涨跌停与连板复盘', minor: true },
       { path: '/sector-rotation', label: '板块轮动', short: '板块强弱与轮动', desc: '行业板块的相对强弱与轮动阶段', minor: true },

@@ -38,7 +38,7 @@ describe('INVEST_GROUPS', () => {
   it('收纳全部旧入口、候选池和 AI 工具，且无重复', () => {
     const all = allLinks.map(l => l.path).sort()
     expect(all).toEqual([
-      '/candidates', '/watch', '/dcf', '/first-book', '/future-trends', '/grid-trading', '/ai/ai-skills', '/invest/etf', '/industry-etf', '/notes', '/invest/national-team', '/industry-landscape', '/investment-plan-2026',
+      '/candidates', '/watch', '/dcf', '/first-book', '/future-trends', '/grid-trading', '/ai/ai-skills', '/invest/etf', '/industry-etf', '/notes', '/invest/bond-fund-report', '/invest/national-team', '/industry-landscape', '/investment-plan-2026',
       '/investment-strategy', '/investment-targets', '/limit-up-analysis', '/daily-analysis',
       '/mainland-investment-targets', '/monitor', '/pulse', '/research-notes',
       '/sector-rotation', '/trading-philosophy', '/valuation',
@@ -74,7 +74,7 @@ describe('INVEST_GROUPS', () => {
 
   it('候选池独立一组；工具与参考放三件工具和 ETF 流派地图；AI Skills 在「相关」', () => {
     expect(paths('candidates')).toEqual(['/candidates'])
-    expect(paths('tools')).toEqual(['/valuation', '/dcf', '/grid-trading', '/invest/etf', '/industry-etf', '/notes'])
+    expect(paths('tools')).toEqual(['/valuation', '/dcf', '/grid-trading', '/invest/etf', '/industry-etf', '/notes', '/invest/bond-fund-report'])
     const related = INVEST_GROUPS.find(g => g.id === 'related')!
     expect(related.links.map(l => [l.path, l.label])).toEqual([['/ai/ai-skills', 'AI 投研 Skills']])
   })

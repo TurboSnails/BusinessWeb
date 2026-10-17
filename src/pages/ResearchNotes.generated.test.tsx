@@ -50,11 +50,11 @@ describe('补全公司：研究笔记列表与详情', () => {
     expect(list.find(c => c.code === 'ACN')?.auto).toBe(true)
   })
 
-  it('标普列表展示圆桌汇总入口及研究边界', async () => {
+  it('标普列表展示研究边界，覆盖说明可从视图切换打开', async () => {
     renderAt('/research-notes?tab=category&m=us')
-    expect(screen.getByText('腾讯自选股投研专家团 · 再分析汇总')).toBeTruthy()
-    expect(screen.getByRole('link', { name: '完整圆桌报告' }).getAttribute('href')).toContain('sp500-roundtable-2026-09-30.html')
-    expect(screen.getByText(/504 条研究记录/)).toBeTruthy()
+    expect(screen.getByText(/这里是作者的个人研究笔记/).textContent).toContain('不是买卖建议')
+    fireEvent.click(screen.getByRole('button', { name: '覆盖与进度' }))
+    expect(screen.getByText(/本地共 504 条研究记录/)).toBeTruthy()
   })
 
   it('补全候选详情准确区分公告复核和未认证的程序化模型', async () => {
@@ -67,7 +67,7 @@ describe('补全公司：研究笔记列表与详情', () => {
   it('沪深列表加载补全数据，支持搜索与评级筛选、分页', async () => {
     renderAt('/research-notes?tab=category&m=cn')
     await waitFor(() => expect(screen.getByText(/显示更多/)).toBeTruthy(), { timeout: 8000 })
-    expect(screen.getByRole('link', { name: '金融、房地产、工业复核总览' }).getAttribute('href')).toContain('cn-finance-property-industrial-2026-10-07/index.md')
+    expect(screen.getByText(/这里是作者的个人研究笔记/).textContent).toContain('数据口径和核验状态见各页说明')
     const box = screen.getByPlaceholderText('搜索公司名称或代码') as HTMLInputElement
     fireEvent.change(box, { target: { value: '宁德时代' } })
     await waitFor(() => expect(screen.getAllByText(/宁德时代/).length).toBeGreaterThan(0))
@@ -237,10 +237,13 @@ it('两分类40家公司在初始与异步数据都显示原件复核，亏损�
   expect(rows.find(c => c.code === '688779')?.name).toBe('五矿新能')
 })
 
-it('沪深研究池提供汇总报告入口', async () => {
+it('沪深研究池提供覆盖范围并保留公司页入口', async () => {
   renderAt('/research-notes?tab=category&m=cn')
-  await waitFor(() => expect(screen.getByText('沪深研究池 · 2026-09-30 圆桌复核')).toBeTruthy())
-  expect(screen.getByRole('link', { name: '沪深完整圆桌报告' }).getAttribute('href')).toContain('cn-roundtable')
+  fireEvent.click(screen.getByRole('button', { name: '覆盖与进度' }))
+  expect(screen.getByRole('heading', { name: '覆盖范围与「沪深500」的定义' })).toBeTruthy()
+  expect(screen.getByText(/没有名为「沪深500」的官方指数/)).toBeTruthy()
+  fireEvent.click(screen.getByRole('button', { name: '评级列表' }))
+  await waitFor(() => expect(screen.getByRole('link', { name: /宁德时代 300750/ }).getAttribute('href')).toBe('/research-notes/cn/300750'))
 })
 
 it('沪深复核详情不会从历史指标重建被撤回的三情景', async () => {

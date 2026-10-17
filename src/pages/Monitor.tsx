@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { lazy, Suspense, useEffect, useState } from 'react'
 import { RefreshCw } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 import { OverviewTab } from '../components/monitor/OverviewTab'
@@ -20,12 +20,14 @@ import type { HkKey } from '../features/macro/hk'
 import { Page } from '../components/ui'
 import { PageDataFreshness } from '../components/ui/PageDataFreshness'
 
-type TabId = 'overview' | 'us' | 'cn' | 'hk' | 'cycles' | 'valuation' | 'stages' | 'guide' | 'archive'
+const MarketCycleView = lazy(() => import('../features/market-cycle/MarketCycleView'))
+type TabId = 'overview' | 'us' | 'cn' | 'hk' | 'market-cycle' | 'cycles' | 'valuation' | 'stages' | 'guide' | 'archive'
 const TABS: TabItem<TabId>[] = [
   { id: 'overview', label: '温度总览' },
   { id: 'us', label: '美国宏观' },
   { id: 'cn', label: '中国宏观' },
   { id: 'hk', label: '港股宏观' },
+  { id: 'market-cycle', label: '牛熊周期' },
   { id: 'cycles', label: '周期位置' },
   { id: 'valuation', label: '估值位置' },
   { id: 'stages', label: '阶段与动作' },
@@ -114,7 +116,7 @@ export default function Monitor(): JSX.Element {
     return next
   }, { replace: true })
 
-  const needsData = tab !== 'archive' && tab !== 'valuation'
+  const needsData = tab !== 'archive' && tab !== 'valuation' && tab !== 'market-cycle'
   const snap = data?.us
   return (
     <Page>
@@ -123,6 +125,7 @@ export default function Monitor(): JSX.Element {
       {needsData && snap && <PageDataFreshness checkedAt={[data.us, data.cn, data.hk].map(section => section?.checkedAt ?? section?.fetchedAt).filter(Boolean).sort().at(-1)} dataLabel="指标观测日期" dataDates={[...Object.values(snap.series).map(series => series.latest.date), ...Object.values(data?.cn?.series ?? {}).map(series => series.latest.date), ...Object.values(data?.hk?.series ?? {}).map(series => series.latest.date)]} note="各指标观测日期不同；页面显示本次核验日与可用数据日期。" />}
       {tab === 'valuation' && indexes && <PageDataFreshness checkedAt={indexes.checkedAt} dataLabel="指数数据日期" dataDates={Object.values(indexes.indexes).flatMap(index => [index.latest.date, index.agg?.date])} note={`快照生成于 ${indexes.generatedAt}。`} />}
       <div>
+        {tab === 'market-cycle' && <Suspense fallback={<p role="status">正在加载牛熊周期面板…</p>}><MarketCycleView /></Suspense>}
         {needsData && !snap && <p role={error ? 'alert' : 'status'} className="macro-muted">{error || '正在加载宏观数据…'}</p>}
         {snap && needsData && (
           <div className="page-toolbar">

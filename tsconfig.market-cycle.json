@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "noEmit": true, "lib": ["DOM", "ES2022"] },
+  "include": ["src/vite-env.d.ts", "src/features/market-cycle/**/*.ts", "src/features/market-cycle/**/*.tsx"]
+}
