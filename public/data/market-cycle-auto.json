@@ -1,6 +1,6 @@
 {
  "schemaVersion": 1,
- "generatedAt": "2026-10-17T14:59:40.423Z",
+ "generatedAt": "2026-10-18T06:57:06.251Z",
  "facts": [
   {
    "market": "csi300",
@@ -14,7 +14,7 @@
    "description": "中国10年期国债收益率；东财RPTA_WEB_TREASURYYIELD列EMM00166466=中国国债收益率10年（字段映射见akshare bond_zh_us_rate的rename：https://raw.githubusercontent.com/akfamily/akshare/main/akshare/bond/bond_em.py ；同表美国10年列与FRED DGS10同日吻合；东财转载原值，非中债官方直连）",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "cnh",
@@ -28,7 +28,7 @@
    "description": "Yahoo Finance CNH=X 离岸人民币兑美元(每美元CNH，非在岸CNY，不可与CNY互换)；非官方免费源，取最近一根日线(可能为盘中价)",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "market": "csi300",
@@ -42,7 +42,7 @@
    "description": "简化ERP=100/沪深300 PE−中国10年国债收益率(%)的5年滚动z-score，窗口2021-10-18~2026-10-16，同日交集1212点，样本标准差(n-1)，均值5.651、标准差0.707；PE官方、国债为东财转载(东财RPTA_WEB_TREASURYYIELD列EMM00166466=中国国债收益率10年（字段映射见akshare bond_zh_us_rate的rename：https://raw.githubusercontent.com/akfamily/akshare/main/akshare/bond/bond_em.py ；同表美国10年列与FRED DGS10同日吻合；东财转载原值，非中债官方直连）)",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "market": "csi300",
@@ -56,7 +56,7 @@
    "description": "简化ERP=100/PE(12.88)−10年国债(1.648%)，同日取值；仅为简化定义，非完整风险溢价；国债为东财转载，非中债直连",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "etf_shares_510300",
@@ -70,7 +70,7 @@
    "description": "上交所披露华泰柏瑞沪深300ETF(510300)总份额，单只白名单产品，不是宽基合计，不含深市产品",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "etf_shares_510310",
@@ -84,7 +84,7 @@
    "description": "上交所披露易方达沪深300ETF(510310)总份额，单只白名单产品，不是宽基合计，不含深市产品",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "etf_shares_510330",
@@ -98,7 +98,7 @@
    "description": "上交所披露华夏沪深300ETF(510330)总份额，单只白名单产品，不是宽基合计，不含深市产品",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "etf_shares_513130",
@@ -112,7 +112,7 @@
    "description": "上交所披露华泰柏瑞恒生科技ETF(513130)总份额，单只白名单产品，不是宽基合计，不含深市产品",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "etf_shares_513180",
@@ -126,7 +126,7 @@
    "description": "上交所披露华夏恒生科技ETF(513180)总份额，单只白名单产品，不是宽基合计，不含深市产品",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "etf_shares_513660",
@@ -140,7 +140,7 @@
    "description": "上交所披露华夏恒生ETF(港股通)(513660)总份额，单只白名单产品，不是宽基合计，不含深市产品",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "financing_buy",
@@ -154,35 +154,35 @@
    "description": "沪深两市合计融资买入额原值(东财RPTA_RZRQ_LSHJ.RZMRE，元÷1e8)；同范围成交额分母未核定，故不计占比",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "hkd",
    "market": "all",
    "value": 7.8476,
    "observationDate": "2026-10-09",
-   "source": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DEXHKUS&cosd=2026-09-02",
+   "source": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DEXHKUS&cosd=2026-09-03",
    "unit": "HKD/USD",
    "kind": "observed",
    "frequency": "daily",
    "description": "FRED DEXHKUS 港元兑美元(H.10)，每美元港元数；官方序列通常滞后约1周，保留原观测日",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "pe",
    "market": "csi300",
    "value": 12.88,
    "observationDate": "2026-10-16",
-   "source": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000300&startDate=20200101&endDate=20261017",
+   "source": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000300&startDate=20200101&endDate=20261018",
    "unit": "倍",
    "kind": "observed",
    "frequency": "daily",
    "description": "中证指数官网沪深300滚动市盈率(index-perf接口peg字段)；本次取到1644个非空日点，自2020-01-01起（探测：官方PE自2011-06-28起，历史超5年）",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "pe",
@@ -196,7 +196,7 @@
    "description": "恒生指数官方月末加权平均PE(倍)；文件仅12个月(2025-10-31~2026-09-30)，不足5年，无长期分位，不用于分位判断",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "pe",
@@ -210,7 +210,7 @@
    "description": "恒生指数官方月末加权平均PE(倍)；文件仅12个月(2025-10-31~2026-09-30)，不足5年，无长期分位，不用于分位判断",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "pe",
@@ -224,7 +224,7 @@
    "description": "恒生指数官方月末加权平均PE(倍)；文件仅12个月(2025-10-31~2026-09-30)，不足5年，无长期分位，不用于分位判断",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "pe",
@@ -238,7 +238,7 @@
    "description": "恒生指数官方月末加权平均PE(倍)；文件仅12个月(2025-10-31~2026-09-30)，不足5年，无长期分位，不用于分位判断",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "pe",
@@ -252,7 +252,7 @@
    "description": "恒生指数官方月末加权平均PE(倍)；文件仅12个月(2025-10-31~2026-09-30)，不足5年，无长期分位，不用于分位判断",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "pe",
@@ -266,7 +266,7 @@
    "description": "恒生指数官方月末加权平均PE(倍)；文件仅12个月(2025-10-31~2026-09-30)，不足5年，无长期分位，不用于分位判断",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "pe",
@@ -280,7 +280,7 @@
    "description": "恒生指数官方月末加权平均PE(倍)；文件仅12个月(2025-10-31~2026-09-30)，不足5年，无长期分位，不用于分位判断",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "pe",
@@ -294,7 +294,7 @@
    "description": "恒生指数官方月末加权平均PE(倍)；文件仅12个月(2025-10-31~2026-09-30)，不足5年，无长期分位，不用于分位判断",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "pe",
@@ -308,7 +308,7 @@
    "description": "恒生指数官方月末加权平均PE(倍)；文件仅12个月(2025-10-31~2026-09-30)，不足5年，无长期分位，不用于分位判断",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "pe",
@@ -322,7 +322,7 @@
    "description": "恒生指数官方月末加权平均PE(倍)；文件仅12个月(2025-10-31~2026-09-30)，不足5年，无长期分位，不用于分位判断",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "pe",
@@ -336,7 +336,7 @@
    "description": "恒生指数官方月末加权平均PE(倍)；文件仅12个月(2025-10-31~2026-09-30)，不足5年，无长期分位，不用于分位判断",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "pe",
@@ -350,7 +350,7 @@
    "description": "恒生指数官方月末加权平均PE(倍)；文件仅12个月(2025-10-31~2026-09-30)，不足5年，无长期分位，不用于分位判断",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "pe",
@@ -364,7 +364,7 @@
    "description": "恒生科技指数官方月末加权平均PE(倍)；文件仅12个月(2025-10-31~2026-09-30)，不足5年，无长期分位，不用于分位判断",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "pe",
@@ -378,7 +378,7 @@
    "description": "恒生科技指数官方月末加权平均PE(倍)；文件仅12个月(2025-10-31~2026-09-30)，不足5年，无长期分位，不用于分位判断",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "pe",
@@ -392,7 +392,7 @@
    "description": "恒生科技指数官方月末加权平均PE(倍)；文件仅12个月(2025-10-31~2026-09-30)，不足5年，无长期分位，不用于分位判断",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "pe",
@@ -406,7 +406,7 @@
    "description": "恒生科技指数官方月末加权平均PE(倍)；文件仅12个月(2025-10-31~2026-09-30)，不足5年，无长期分位，不用于分位判断",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "pe",
@@ -420,7 +420,7 @@
    "description": "恒生科技指数官方月末加权平均PE(倍)；文件仅12个月(2025-10-31~2026-09-30)，不足5年，无长期分位，不用于分位判断",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "pe",
@@ -434,7 +434,7 @@
    "description": "恒生科技指数官方月末加权平均PE(倍)；文件仅12个月(2025-10-31~2026-09-30)，不足5年，无长期分位，不用于分位判断",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "pe",
@@ -448,7 +448,7 @@
    "description": "恒生科技指数官方月末加权平均PE(倍)；文件仅12个月(2025-10-31~2026-09-30)，不足5年，无长期分位，不用于分位判断",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "pe",
@@ -462,7 +462,7 @@
    "description": "恒生科技指数官方月末加权平均PE(倍)；文件仅12个月(2025-10-31~2026-09-30)，不足5年，无长期分位，不用于分位判断",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "pe",
@@ -476,7 +476,7 @@
    "description": "恒生科技指数官方月末加权平均PE(倍)；文件仅12个月(2025-10-31~2026-09-30)，不足5年，无长期分位，不用于分位判断",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "pe",
@@ -490,7 +490,7 @@
    "description": "恒生科技指数官方月末加权平均PE(倍)；文件仅12个月(2025-10-31~2026-09-30)，不足5年，无长期分位，不用于分位判断",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "pe",
@@ -504,7 +504,7 @@
    "description": "恒生科技指数官方月末加权平均PE(倍)；文件仅12个月(2025-10-31~2026-09-30)，不足5年，无长期分位，不用于分位判断",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   },
   {
    "metricId": "pe",
@@ -518,7 +518,7 @@
    "description": "恒生科技指数官方月末加权平均PE(倍)；文件仅12个月(2025-10-31~2026-09-30)，不足5年，无长期分位，不用于分位判断",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-10-17T14:59:40.423Z"
+   "fetchedAt": "2026-10-18T06:57:06.251Z"
   }
  ],
  "issues": []
