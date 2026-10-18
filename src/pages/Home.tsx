@@ -28,7 +28,7 @@ const TOOL_ICONS: Record<string, LucideIcon> = {
 const COLUMNS = [
   { to: '/invest', title: '投资', desc: '规则、观察盘、分析筛选、候选池与工具。普通人用规则代替盯盘。' },
   { to: '/ai', title: 'AI实验室', desc: '把书里的框架做成小产品，边学边做。' },
-  { to: '/life', title: '自由空间', desc: '从 *** 到目标 400 万，再到自由生活的第一年。' },
+  { to: '/life', title: '自由之路', desc: '从 *** 到目标 400 万，在路上修身践行，向着远方的自由生活前行。' },
 ]
 
 export default function Home(): JSX.Element {

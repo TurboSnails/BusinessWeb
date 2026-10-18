@@ -86,16 +86,21 @@ describe('InvestHub', () => {
 })
 
 describe('LifeLab', () => {
-  it('LifeLab 标出“准备中”并给出阶段', () => {
+  it('LifeLab 标出“准备中”并给出「路上」与「远方」阶段', () => {
     wrap(<LifeLab />)
-    expect(screen.getByRole('heading', { level: 1, name: '自由空间' })).toBeTruthy()
+    expect(screen.getByRole('heading', { level: 1, name: '自由之路' })).toBeTruthy()
+    expect(screen.getByRole('heading', { level: 2, name: '路上' })).toBeTruthy()
+    expect(screen.getByRole('heading', { level: 2, name: '远方' })).toBeTruthy()
     expect(screen.getAllByText('准备中').length).toBeGreaterThan(0)
     expect(screen.getAllByText(/400/).length).toBeGreaterThan(0)
+    expect(screen.getByRole('heading', { name: '锻炼身体' })).toBeTruthy()
+    expect(screen.getByRole('heading', { name: '冥想' })).toBeTruthy()
+    expect(screen.getByRole('heading', { name: '前端全栈' })).toBeTruthy()
   })
 
   it('LifeLab 不公开起始金额：用 *** 代替，只写目标 400 万', () => {
     const { container } = wrap(<LifeLab />)
     expect(container.textContent).not.toMatch(/300/)
-    expect(screen.getByRole('heading', { level: 2, name: '*** → 目标 400 万' })).toBeTruthy()
+    expect(screen.getByRole('heading', { level: 3, name: '*** → 目标 400 万' })).toBeTruthy()
   })
 })

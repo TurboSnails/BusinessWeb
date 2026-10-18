@@ -17,7 +17,7 @@ export default function About(): JSX.Element {
         <ul className="about-list">
           <li><Link to="/invest" className="about-link">投资</Link>：书稿全文与 PDF、方法与框架、估值与网格工具、公司与产业研究</li>
           <li><Link to="/ai" className="about-link">AI实验室</Link>：用技术放大创造力，第一个作品从《正念投资》长出来</li>
-          <li><Link to="/life" className="about-link">自由空间</Link>：记录从积累本金到自由生活的过程</li>
+          <li><Link to="/life" className="about-link">自由之路</Link>：记录从积累本金到自由生活的过程</li>
         </ul>
         <h2 className="about-subhead">方法论</h2>
         <p className="about-lead">

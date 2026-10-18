@@ -16,7 +16,7 @@ function dateLabel(date: string): string {
 const nextStep: Record<string, { path: string; label: string; description: string }> = {
   '投资': { path: '/first-book', label: '走进《正念投资》', description: '从文章回到一套完整的投资方法。' },
   'AI': { path: '/ai', label: '探索 AI 实验室', description: '看看这些想法如何做成真实的工具。' },
-  '生活': { path: '/life', label: '看看自由空间', description: '继续读关于工作与生活的实践。' },
+  '生活': { path: '/life', label: '看看自由之路', description: '继续读关于工作与生活的实践。' },
 }
 
 export default function BlogArticle({ entries, markdownLoader = loadBlogMarkdown }: { entries?: BlogEntry[]; markdownLoader?: (file: string) => Promise<string> }): JSX.Element {

@@ -32,7 +32,7 @@ export const NAV_ITEMS: NavItem[] = [
   { path: '/ai', label: 'AI实验室' },
   { path: '/blog', label: '博客' },
   { path: '/knowledge', label: '知识图谱' },
-  { path: '/life', label: '自由空间' },
+  { path: '/life', label: '自由之路' },
   { path: '/about', label: '关于' },
 ]
 

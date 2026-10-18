@@ -372,7 +372,34 @@
   line-height: 1.85;
 }
 
-/* 自由空间：按真实阶段呈现路线，当前阶段同时用标记与文字说明。 */
+/* 自由之路：按真实阶段呈现路线，路上与远方分组展示，当前阶段同时用标记与文字说明。 */
+.life-hub .life-section {
+  margin-top: 48px;
+}
+
+.life-hub .life-section:first-of-type {
+  margin-top: 24px;
+}
+
+.life-hub .life-section__head {
+  margin-bottom: 24px;
+}
+
+.life-hub .life-section__head h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.life-hub .life-section__desc {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  max-width: 46em;
+}
+
 .life-hub .road {
   max-width: 900px;
   gap: 0;
@@ -412,9 +439,11 @@
   margin-bottom: 18px;
 }
 
-.life-hub .road__head h2 {
+.life-hub .road__head h2,
+.life-hub .road__head h3 {
   font-size: 1.375rem;
   line-height: 1.6;
+  margin: 0;
 }
 
 .life-hub .road__head .tag {
@@ -562,7 +591,8 @@
     margin-bottom: 16px;
   }
 
-  .life-hub .road__head h2 {
+  .life-hub .road__head h2,
+  .life-hub .road__head h3 {
     font-size: 1.25rem;
   }
 

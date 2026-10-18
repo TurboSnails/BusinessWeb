@@ -8,7 +8,7 @@ const appSource = readFileSync(resolve(__dirname, '../App.tsx'), 'utf8')
 describe('NAV_ITEMS', () => {
   it('包含博客与知识图谱，顺序固定', () => {
     expect(NAV_ITEMS.map(i => i.label)).toEqual([
-      '首页', '投资', 'AI实验室', '博客', '知识图谱', '自由空间', '关于',
+      '首页', '投资', 'AI实验室', '博客', '知识图谱', '自由之路', '关于',
     ])
     expect(NAV_ITEMS.map(i => i.path)).toEqual(['/', '/invest', '/ai', '/blog', '/knowledge', '/life', '/about'])
   })

@@ -27,7 +27,7 @@ const EXACT: Record<string, RouteSeo> = {
   '/blog': { title: '博客｜投资、AI 与自由生活', description: '关于投资的耐心、AI 的实践，和通往自由生活的每一步。' },
   '/ai/fullstack-roadmap': { title: 'AI 全栈学习路线', description: '从零到独立开发者的 AI 全栈学习计划。' },
   '/ai/dev-team': { title: 'dev-team 使用说明｜Orca 开发团队', description: 'Orca 开发团队 dev-team 的完整使用说明：安装、自检、项目配置、日常派工、交接与验证范围，含完整 ZIP 和原文下载。' },
-  '/life': { title: '生活实验室', description: '自由生活的长期实验记录。' },
+  '/life': { title: '自由之路', description: '自由生活的长期实验记录。' },
   '/about': { title: '关于', description: '《正念投资》作者，投资、AI 与独立开发的长期实验。' },
   '/pulse': { title: '市场脉搏', description: '每日市场情绪与宏观数据快照。' },
   '/investment-plan-2026': { title: '投资计划', description: '资产配置、纪律红线、风险阶段与产业趋势判断。' },
