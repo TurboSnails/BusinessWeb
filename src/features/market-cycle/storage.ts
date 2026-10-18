@@ -1,5 +1,9 @@
 import { z } from 'zod'
 import { safeUrl, validDate, type Market, type ManualDimension, type Observation } from './engine'
+import { parseAutomaticSnapshot, parseBreadthSnapshot, type AutomaticSnapshot, type BreadthSnapshot } from './automation'
+
+export const automaticSchema = z.custom<AutomaticSnapshot>(value => { try { parseAutomaticSnapshot(value); return true } catch { return false } })
+export const breadthSchema = z.custom<BreadthSnapshot>(value => { try { parseBreadthSnapshot(value); return true } catch { return false } })
 
 const date = z.string().refine(validDate)
 const bar = z.object({ date, close: z.number().positive().finite(), volume: z.number().nonnegative().finite() })
@@ -11,7 +15,11 @@ const observation = z.object({ date: z.string(), source: z.string().max(2000), v
 const observations = z.object({ valuation: observation.optional(), funding: observation.optional(), breadth: observation.optional() })
 const budgetSchema = z.object({ capital: z.number().nonnegative().finite().nullable(), maxDrawdown: z.number().min(0).max(100).nullable(), maxPosition: z.number().min(0).max(100).nullable(), currentPosition: z.number().min(0).max(100).nullable() })
 const evidence = z.object({ id: z.string(), name: z.string(), signal: z.enum(['bottom', 'positive', 'risk', 'neutral', 'missing']), detail: z.string(), date: z.string().optional(), source: z.string().optional(), available: z.boolean() })
-const logSchema = z.object({ id: z.string(), savedAt: z.string().datetime(), market: z.enum(['csi300', 'hsi', 'hstech']), version: z.string(), state: z.string(), note: z.string().max(2000), rows: z.array(evidence).length(6), budget: budgetSchema, observations, inputs: z.object({ price: price.optional(), cn: macroSchema.nullable(), us: macroSchema.nullable() }) })
+const shadow = z.object({ version: z.literal('cycle-shadow-v2'), valuationZone: z.string(), trendState: z.string(), riskGate: z.string(), dataQuality: z.string(), confirmations: z.number().int().min(0).max(2), weakWeeks: z.number().int().min(0).max(2) })
+const reportMarket = z.object({ legacyState: z.string(), shadow, rows: z.array(evidence).length(6) })
+export const reportSchema = z.object({ schemaVersion: z.literal(1), generatedAt: z.string().datetime(), issues: z.array(z.string()), records: z.array(z.object({ weekEnding: date, decisionAt: z.string().datetime(), ruleVersion: z.literal('cycle-shadow-v2'), inputHash: z.string().regex(/^[a-f0-9]{64}$/), markets: z.object({ csi300: reportMarket, hsi: reportMarket, hstech: reportMarket }) })).max(52) })
+export type AutomaticReport = z.infer<typeof reportSchema>
+const logSchema = z.object({ id: z.string(), savedAt: z.string().datetime(), market: z.enum(['csi300', 'hsi', 'hstech']), version: z.string(), state: z.string(), note: z.string().max(2000), rows: z.array(evidence).length(6), budget: budgetSchema, observations, inputs: z.object({ price: price.optional(), cn: macroSchema.nullable(), us: macroSchema.nullable(), automatic: automaticSchema.nullable().optional(), breadth: breadthSchema.nullable().optional(), manualOnly: z.array(z.enum(['valuation', 'funding', 'breadth'])).optional() }) })
 const stateSchema = z.object({ schemaVersion: z.literal(1), observations: z.object({ csi300: observations.optional(), hsi: observations.optional(), hstech: observations.optional() }), budgets: z.object({ csi300: budgetSchema.optional(), hsi: budgetSchema.optional(), hstech: budgetSchema.optional() }), logs: z.array(logSchema).max(52) })
 export type Budget = z.infer<typeof budgetSchema>
 export type ReviewLog = z.infer<typeof logSchema>

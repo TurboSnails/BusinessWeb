@@ -1,0 +1,2 @@
+# Official CSI constituent files use the older binary XLS format.
+xlrd==2.0.2

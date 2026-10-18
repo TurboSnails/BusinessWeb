@@ -1,4 +1,4 @@
-export const RULE_VERSION = 'cycle-observation-v1'
+export const RULE_VERSION = 'cycle-observation-v1.1-auto'
 export const MARKETS = [{ id: 'csi300', label: 'A股 · 沪深300' }, { id: 'hsi', label: '港股 · 恒生指数' }, { id: 'hstech', label: '港股 · 恒生科技' }] as const
 export type Market = typeof MARKETS[number]['id']
 export type Signal = 'bottom' | 'positive' | 'risk' | 'neutral' | 'missing'
@@ -138,8 +138,16 @@ export function summarize(rows: Evidence[]): { state: string; note: string; vali
   return { state, note, valid, bottom, positive, risk }
 }
 
-export function evaluate(market: Market, price: PriceData | undefined, manual: Partial<Record<ManualDimension, Observation>>, cn: MacroContext | null, us: MacroContext | null, asOf: string) {
+export function evaluate(market: Market, price: PriceData | undefined, manual: Partial<Record<ManualDimension, Observation>>, cn: MacroContext | null, us: MacroContext | null, asOf: string, automatic: Partial<Record<ManualDimension, Evidence>> = {}, manualOnly: ManualDimension[] = []) {
   const tech = technicalEvidence(price, asOf)
-  const rows = [assessManual('valuation', market, manual.valuation, asOf), assessManual('funding', market, manual.funding, asOf), assessManual('breadth', market, manual.breadth, asOf, tech.newHigh), macroEvidence(cn, asOf), tech.evidence, overseasEvidence(us, asOf)]
+  const dimensions: ManualDimension[] = ['valuation', 'funding', 'breadth']
+  const rows = [...dimensions.map(id => {
+    const entered = assessManual(id, market, manual[id], asOf, tech.newHigh)
+    if (manualOnly.includes(id)) return { ...entered, detail: `人工覆盖 · ${entered.detail}` }
+    const collected = automatic[id]
+    if (collected?.available) return collected
+    if (entered.available) return { ...entered, detail: `人工补缺 · ${entered.detail}` }
+    return collected ?? entered
+  }), macroEvidence(cn, asOf), tech.evidence, overseasEvidence(us, asOf)]
   return { ...tech, rows, summary: summarize(rows) }
 }

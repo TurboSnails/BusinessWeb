@@ -51,5 +51,5 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   await rename(`${FILE}.tmp`, FILE)
   for (const [market, d] of Object.entries(result.markets)) console.log(`${market}: ${d.week.length}周 / ${d.month.length}月，抓取于 ${d.fetchedAt}`)
   for (const w of result.warnings) console.warn(w)
-  if (result.warnings.length) process.exitCode = 1
+  // Partial success is publishable. Per-market warnings and original dates expose failures.
 }

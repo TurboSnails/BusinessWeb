@@ -16,3 +16,6 @@ obsidian-plugin/main.js
 
 # Python 运行缓存
 __pycache__/
+
+# Incremental per-security daily bars stay outside public snapshots and Git history.
+.cache/market-cycle-breadth/
