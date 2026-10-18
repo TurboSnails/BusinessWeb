@@ -82,7 +82,7 @@ test('update: falling not_fetched counts as progress even when eligible is uncha
   assert.equal(breadthCalls, 3) // round 3 repeats round 2's signature -> stop
 })
 
-test('update: a breaker trip ends the fill immediately', async () => {
+test('update: a stalled breaker stops after confirming no other market made progress', async () => {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'cycle-update-'))
   const outFile = path.join(dir, 'breadth.json')
   let breadthCalls = 0
@@ -92,7 +92,25 @@ test('update: a breaker trip ends the fill immediately', async () => {
     await writeFile(outFile, JSON.stringify({ ...snapshot({ hsi: null }, { eligible: 0, total: 95 }), issues: ['恒生指数日线连续失败5次，本轮熔断'] }))
   }
   await update(run, f => f, { outFile, deadlineMs: 60000 })
-  assert.equal(breadthCalls, 1)
+  assert.equal(breadthCalls, 2)
+})
+
+test('update: a market breaker cannot prevent another market from completing its breadth', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'cycle-update-'))
+  const outFile = path.join(dir, 'breadth.json')
+  let breadthCalls = 0
+  const run = async name => {
+    if (name !== 'market-cycle-breadth.mjs') return
+    breadthCalls++
+    const data = snapshot({ csi300: 25.7, hsi: null, hstech: null })
+    data.markets.hsi = { ...data.markets.hsi, eligible: 86, total: 95, coverage: 86 / 95 }
+    data.markets.hstech = { ...data.markets.hstech, eligible: Math.min(30, breadthCalls * 10), total: 30,
+      coverage: Math.min(1, breadthCalls / 3), exclusions: { not_fetched: Math.max(0, 30 - breadthCalls * 10) } }
+    data.issues = ['恒生指数日线连续失败5次，本轮熔断']
+    await writeFile(outFile, JSON.stringify(data))
+  }
+  await update(run, f => f, { outFile, deadlineMs: 60000 })
+  assert.equal(breadthCalls, 4) // HK tech progresses through 30/30, one final round confirms no progress.
 })
 
 test('update: never crosses the clamped 12-round cap while breadth stays unreachable', async () => {

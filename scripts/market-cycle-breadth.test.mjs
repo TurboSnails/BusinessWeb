@@ -393,3 +393,47 @@ test('run: corrupt cache files do not crash and are re-requested', async () => {
   const again = await run({ ...opts, now: new Date(`${TODAY}T11:00:00Z`) })
   assert.ok(again.snapshot.markets.csi300.exclusions.not_fetched >= 1)
 })
+
+async function preparedHkRun() {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'breadth-share-'))
+  const universeFile = path.join(dir, 'u.json')
+  const codes = Array.from({ length: 20 }, (_, i) => String(i + 1))
+  const universes = {}
+  for (const market of ['hsi', 'hstech']) {
+    const { hkSourceUrl } = await import('./market-cycle-hk-universe.mjs')
+    universes[market] = { status: 'ok', date: TODAY, fetchedAt: `${TODAY}T09:00:00.000Z`, source: hkSourceUrl(market), codes }
+  }
+  await writeFile(universeFile, JSON.stringify({ universes }))
+  const csiCodes = Array.from({ length: 300 }, (_, i) => String(600000 + i))
+  return { dir, codes, opts: { cacheDir: path.join(dir, 'c'), universeFile, outFile: path.join(dir, 'o.json'), now: new Date(`${TODAY}T10:00:00Z`), fetchImpl: hkFetchMock(csiCodes, { hsi: codes, hstech: codes }), parseXls: async () => JSON.stringify({ date: TODAY, indexCode: '000300', rows: csiCodes.map(code => ({ code })) }) } }
+}
+
+test('run: already confirmed HK pools receive requests before CSI300 consumes the entire round', async () => {
+  const { opts } = await preparedHkRun()
+  const out = await run({ ...opts, budget: 40 })
+  assert.ok(out.snapshot.markets.csi300.eligible > 0)
+  assert.ok(out.snapshot.markets.hsi.eligible > 0)
+  assert.ok(out.snapshot.markets.hstech.eligible > 0)
+  assert.ok(out.requests <= 40)
+})
+
+test('run: same HK security reuses verified forward-adjusted bars across indices without requests', async () => {
+  const { codes, opts } = await preparedHkRun()
+  const { mkdir } = await import('node:fs/promises')
+  await mkdir(path.join(opts.cacheDir, 'bars', 'hsi-em'), { recursive: true })
+  const meta = {}
+  for (const code of codes) {
+    // Different zero-padding is the same listed HK security.
+    const padded = code.padStart(5, '0')
+    meta[padded] = { fetchedAt: `${TODAY}T09:00:00.000Z`, src: 'em-fqt1' }
+    await writeFile(path.join(opts.cacheDir, 'bars', 'hsi-em', `${padded}.json`), JSON.stringify(series(260, TODAY, k => 100 + k)))
+  }
+  // Peer data with a wrong provenance cannot be imported.
+  meta['00020'].src = 'tencent-raw'
+  await writeFile(path.join(opts.cacheDir, 'meta-hsi.json'), JSON.stringify(meta))
+  const out = await run({ ...opts, budget: 0, fetchImpl: async () => { throw new Error('network prohibited') } })
+  assert.equal(out.requests, 0)
+  assert.equal(out.snapshot.markets.hstech.eligible, 19)
+  assert.equal(out.snapshot.markets.hstech.breadth, 100)
+  assert.equal(out.snapshot.markets.hstech.coverage, 0.95)
+})

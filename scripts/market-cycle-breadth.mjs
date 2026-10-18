@@ -1,5 +1,5 @@
 // Constituent MA200 breadth for the long-cycle board. Index constituents only (not the whole A-share market).
-// Official constituent list + per-stock Tencent qfq daily bars, fetched in small resumable batches into a gitignored cache.
+// Official constituent lists + verified forward-adjusted daily bars, fetched in resumable batches into a gitignored cache.
 // Anything that cannot be verified is reported as missing/progress; nothing is inferred or back-filled.
 import { readFile, writeFile, rename, mkdir } from 'node:fs/promises'
 import { spawn } from 'node:child_process'
@@ -316,6 +316,31 @@ async function loadBars(cacheDir, market, members, meta, today) {
   return map
 }
 
+/** Reuse the same HK security's verified Eastmoney bars across pools (codes may differ only by leading zeroes).
+ * Freshness and provenance are retained; corrupt, failed, future or stale entries never suppress a real fetch.
+ */
+async function reuseHkBars(cacheDir, market, members, meta, today) {
+  const peers = [market, market === 'hsi' ? 'hstech' : 'hsi']
+  for (const peer of peers) {
+    const stored = peer === market ? { ...meta } : await readJson(path.join(cacheDir, `meta-${peer}.json`))
+    if (!stored || typeof stored !== 'object' || Array.isArray(stored)) continue
+    const byCode = new Map(Object.entries(stored).filter(([code]) => /^\d{1,5}$/.test(code)).map(([code, m]) => [code.padStart(5, '0'), { code, m }]))
+    for (const { code } of members) {
+      const candidate = byCode.get(code.padStart(5, '0'))
+      const m = candidate?.m
+      const age = m?.fetchedAt && daysBetween(m.fetchedAt.slice(0, 10), today)
+      if (!m || m.src !== HK_BARS_SRC || m.failedAt || !isIso(m.fetchedAt) || age < 0 || age > CACHE_MAX_AGE_DAYS) continue
+      const own = meta[code]
+      if (own?.src === HK_BARS_SRC && !own.failedAt && own.fetchedAt >= m.fetchedAt && peer !== market) continue
+      if (peer === market && candidate.code === code) continue
+      const bars = await readJson(path.join(cacheDir, 'bars', barsDir(peer), `${candidate.code}.json`))
+      if (!sanitizeBars(bars, today)?.length) continue
+      await writeJson(path.join(cacheDir, 'bars', barsDir(market), `${code}.json`), bars)
+      meta[code] = { ...m }
+    }
+  }
+}
+
 export const clampBudget = v => {
   const n = Math.floor(Number(v ?? DEFAULT_BUDGET))
   return Number.isFinite(n) ? Math.min(MAX_BUDGET, Math.max(0, n)) : DEFAULT_BUDGET
@@ -400,6 +425,9 @@ export async function run(opts = {}) {
     const stored = await readJson(metaFile)
     const meta = stored && typeof stored === 'object' && !Array.isArray(stored) ? stored : {}
     for (const [k, v] of Object.entries(meta)) if (!v || typeof v.fetchedAt !== 'string' || !Number.isFinite(Date.parse(v.fetchedAt))) delete meta[k]
+    if (m !== 'csi300') await reuseHkBars(cacheDir, m, members, meta, today)
+    // Validate before scheduling so a corrupt fresh cache is re-requested in this round.
+    await loadBars(cacheDir, m, members, meta, today)
     const r = await fetchBatch({ market: m, codes: selectBatch(members, meta, today, cap), fetchImpl, today, meta, cacheDir, concurrency })
     used += r.requests
     const bars = await loadBars(cacheDir, m, members, meta, today)
@@ -411,7 +439,9 @@ export async function run(opts = {}) {
     if (result.breadth === null) issues.push(`${MARKETS[m].name}宽度进度：合格 ${result.eligible}/${result.total}，待后续轮次补齐`)
   }
   if (csi) {
-    await process_('csi300', csi, csi.fetchedAt, remaining())
+    // Already confirmed later markets get a fair share even while CSI300 is still filling.
+    const laterPools = ['hsi', 'hstech'].filter(m => usableHkUniverse(published?.universes?.[m], today, m)).length
+    await process_('csi300', csi, csi.fetchedAt, Math.ceil(remaining() / (1 + laterPools)))
     universes.csi300 = { id: MARKETS.csi300.id, date: csi.date, source: csi.source, fetchedAt: csi.fetchedAt, status: 'ok', codes: csi.codes }
   } else {
     issues.push('沪深300：无可用官方名单，宽度缺失')
@@ -438,7 +468,8 @@ export async function run(opts = {}) {
       } else issues.push(`请求预算为0或耗尽，未更新${MARKETS[m].name}名单`)
     }
     if (list) {
-      await process_(m, list, list.fetchedAt, remaining(), {
+      const laterPools = m === 'hsi' && usableHkUniverse(published?.universes?.hstech, today, 'hstech') ? 1 : 0
+      await process_(m, list, list.fetchedAt, Math.ceil(remaining() / (1 + laterPools)), {
         note: '港股前复权日线来源为东方财富kline(fqt=1，已核定)；腾讯不提供港股前复权',
         dateLabel: '名单快照日（官方实时成分快照，非生效变更日）',
         barsNote: '东方财富前复权日线(fqt=1)',

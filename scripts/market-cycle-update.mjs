@@ -34,7 +34,7 @@ const clampDeadline = v => Math.min(BREADTH_DEADLINE_MS, Math.max(1000, Number(v
 /**
  * One bounded update pass. The breadth collector runs in resumable rounds (<=40 requests, concurrency 2,
  * enforced inside the collector) until all three markets are observed past the 95% breadth threshold, a round
- * makes no progress, a round trips the consecutive-failure breaker, or the round/wall-clock budget is
+ * makes no progress or the round/wall-clock budget is
  * exhausted. The remaining wall-clock budget is handed to each spawned round as its hard timeout.
  * Snapshot/auto failures are isolated from the breadth fill.
  */
@@ -55,7 +55,8 @@ export async function update(run = runScript, report = writeReport, opts = {}) {
     catch (error) { failures.push(`market-cycle-breadth.mjs: ${error.message}`); break }
     const snapshot = await readJson(outFile)
     if (breadthDone(snapshot)) break
-    if (snapshot?.issues?.some(i => i.includes('熔断'))) break // the collector already recorded the details
+    // A breaker belongs to its market. Another market can still fill its cache in the next round;
+    // the progress signature and hard budgets stop repeated failures without blocking that work.
     const key = progressKey(snapshot)
     if (key === lastKey) break // no progress: further rounds would only repeat the same failures
     lastKey = key
