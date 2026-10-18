@@ -7,6 +7,23 @@ const renderView = () => render(<MemoryRouter><MarketCycleView /></MemoryRouter>
 
 afterEach(() => { cleanup(); localStorage.clear(); vi.unstubAllGlobals() })
 describe('牛熊周期复盘', () => {
+  it('人工补录默认收起，草稿汇总缺失但不代替本人确认，也不覆盖已有理由', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
+    renderView()
+    await screen.findByText(/6个数据文件未能加载/)
+    const manual = screen.getByText('手动补录或覆盖（可选）').closest('details')!
+    expect(manual.open).toBe(false)
+    fireEvent.click(screen.getByRole('button', { name: '生成复盘草稿' }))
+    const note = screen.getByLabelText('本次决定与理由') as HTMLTextAreaElement
+    expect(note.value).toContain('复盘草稿（待本人确认）')
+    expect(note.value).toContain('缺失证据：')
+    expect(note.value).toContain('本人实际操作与理由：待填写')
+    expect((screen.getByRole('button', { name: '保存本次复盘' }) as HTMLButtonElement).disabled).toBe(true)
+    expect(screen.getAllByRole('checkbox').every(box => !(box as HTMLInputElement).checked)).toBe(true)
+    fireEvent.change(note, { target: { value: '我的实际决定' } })
+    expect((screen.getByRole('button', { name: '生成复盘草稿' }) as HTMLButtonElement).disabled).toBe(true)
+    expect(note.value).toBe('我的实际决定')
+  })
   it('自动证据优先，可明确人工覆盖，保存时冻结自动输入与选择', async () => {
     const automatic = { schemaVersion: 1, generatedAt: '2026-10-17T10:00:00Z', issues: [], facts: [{ metricId: 'erp_z', market: 'csi300', value: 2.1,
       observationDate: '2026-10-16', availableAt: null, firstSeenAt: '2026-10-17T09:00:00Z', fetchedAt: '2026-10-17T10:00:00Z',
@@ -20,6 +37,7 @@ describe('牛熊周期复盘', () => {
     try {
       renderView()
       expect(await screen.findByText(/自动 · 简化ERP z-score 2.10/)).toBeTruthy()
+      fireEvent.click(screen.getByText('手动补录或覆盖（可选）'))
       fireEvent.change(screen.getByLabelText(/ERP z-score/), { target: { value: '-2' } })
       fireEvent.change(screen.getByLabelText('估值与赔率观测日期'), { target: { value: '2026-10-16' } })
       fireEvent.change(screen.getByLabelText('估值与赔率来源链接'), { target: { value: 'https://example.com/manual' } })
@@ -47,6 +65,7 @@ describe('牛熊周期复盘', () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
     const view = renderView()
     await screen.findByText(/6个数据文件未能加载/)
+    fireEvent.click(screen.getByText('手动补录或覆盖（可选）'))
     fireEvent.change(screen.getByLabelText(/ERP z-score/), { target: { value: '2.1' } })
     fireEvent.click(screen.getByRole('button', { name: '保存补录' }))
     expect(screen.getByRole('status').textContent).toMatch(/补录已保存在本机/)
