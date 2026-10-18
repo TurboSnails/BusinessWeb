@@ -3,7 +3,8 @@ import assert from 'node:assert/strict'
 import { mkdtemp, readFile, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
-import { computeBreadth, parseBars, sanitizeBars, selectBatch, tencentSymbol, validateUniverse, buildMarketEntry, clampBudget, clampConcurrency, run } from './market-cycle-breadth.mjs'
+import { computeBreadth, parseBars, parseEastmoneyHkBars, sanitizeBars, selectBatch, tencentSymbol, validateUniverse, buildMarketEntry, clampBudget, clampConcurrency, run } from './market-cycle-breadth.mjs'
+import { HK_INDEX_CODES } from './market-cycle-hk-universe.mjs'
 
 const TODAY = '2026-10-16'
 const day = i => new Date(Date.parse('2025-01-01') + i * 864e5).toISOString().slice(0, 10)
@@ -196,7 +197,7 @@ test('run: injected fetch, budget cap, resumable cache, honest missing for HSI/H
     second = await run({ ...opts, budget: 300 }) // clamped to 40 per round
     assert.ok(calls.length - before <= 40)
   }
-  assert.equal(calls.length, 11 + 290) // list cached, each stock requested exactly once
+  assert.equal(calls.length, 11 + 290 + 2) // list cached, each stock once; +2 failed official HSI/HSTECH universe attempts once CSI finishes and budget remains
   assert.equal(second.snapshot.markets.csi300.eligible, 300)
   assert.equal(second.snapshot.markets.csi300.breadth, 100)
   assert.equal(second.snapshot.markets.csi300.kind, 'observed')
@@ -245,13 +246,135 @@ test('run: budget 0 makes no requests, reuses cache and keeps the confirmation t
   assert.ok(failed.snapshot.issues.some(i => i.includes('更新失败')))
   const u2 = JSON.parse(await readFile(base.universeFile, 'utf8'))
   assert.equal(u2.universes.csi300.fetchedAt, `${TODAY}T10:00:00.000Z`)
-  // a statically configured HK list is always proxy
+  // a statically configured HK list with a non-whitelisted source is never upgraded: failed official
+  // confirmation leaves the market missing rather than voting on an unverified list
   const hkCodes = Array.from({ length: 30 }, (_, i) => String(i + 1))
   const hkFile = path.join(dir, 'hk.json')
   await writeFile(hkFile, JSON.stringify({ universes: { hsi: { id: 'hsi-constituents', status: 'ok', date: '2026-10-01', source: 'https://example.com/hsi', codes: hkCodes } } }))
   const hk = await run({ ...base, universeFile: hkFile, cacheDir: path.join(dir, 'hkc'), fetchImpl, parseXls, now: new Date(`${TODAY}T10:00:00Z`), budget: 5 })
-  assert.equal(hk.snapshot.markets.hsi.kind, 'proxy')
+  assert.equal(hk.snapshot.markets.hsi, undefined)
+  assert.ok(hk.snapshot.issues.some(i => i.includes('恒生指数'))) // budget exhausted before any official confirmation attempt
   assert.ok(hk.requests <= 5)
+  const huk = JSON.parse(await readFile(hkFile, 'utf8'))
+  assert.equal(huk.universes.hsi.status, 'missing')
+})
+
+test('parseBars stays strict: unadjusted HK day data is never accepted as qualified qfq bars', () => {
+  const rows = [['2026-10-15', '1', '300', '1', '1', '1'], ['2026-10-16', '1', '310', '1', '1', '1']]
+  const hkBody = { data: { hk00700: { day: rows } } }
+  assert.throws(() => parseBars(hkBody, 'hk00700', TODAY), /qfqday/)
+  // HK breadth votes only on Eastmoney fqt=1 bars, verified by response identity
+  const em = (code, klines) => ({ rc: 0, data: { code, market: 116, klines } })
+  const klines = ['2026-10-14,1,290,1,1,1,1', '2026-10-15,1,300,1,1,1,1', '2026-10-16,1,310,1,1,1,1']
+  assert.deepEqual(parseEastmoneyHkBars(em('00700', klines), '700', TODAY), [['2026-10-14', 290], ['2026-10-15', 300], ['2026-10-16', 310]])
+  assert.deepEqual(parseEastmoneyHkBars(em('00700', [...klines, '2026-10-20,1,999,1,1,1,1']), '700', TODAY), [['2026-10-14', 290], ['2026-10-15', 300], ['2026-10-16', 310]]) // future row dropped
+  assert.throws(() => parseEastmoneyHkBars(em('00700', []), '700', TODAY), /K线/)
+  assert.throws(() => parseEastmoneyHkBars(em('00001', klines), '700', TODAY), /身份不符/) // wrong code echoed
+  assert.throws(() => parseEastmoneyHkBars({ rc: 0, data: { code: '00700', market: 105, klines } }, '700', TODAY), /身份不符/) // wrong market
+  assert.throws(() => parseEastmoneyHkBars({ rc: 1, data: {} }, '700', TODAY), /rc/)
+  assert.throws(() => parseEastmoneyHkBars({ rc: 0, data: { code: '00700', market: 116, klines: ['2026-10-16,1,0,1,1,1,1'] } }, '700', TODAY), /有效/)
+})
+
+const HK_DATE_TIME = '2026-10-16 16:08:38'
+/** Minimal official Hang Seng Indexes metadata/v2 rt payload for run() tests. */
+const hkApiBody = (market, codes) => {
+  const indexCode = HK_INDEX_CODES[market]
+  const names = { hsi: 'Hang Seng Index', hstech: 'Hang Seng TECH Index' }
+  return {
+    code: '0', message: 'success',
+    data: {
+      numOfConsList: [{ indexName: names[market], indexCode, subIndexes: null, count: codes.length }],
+      viewConsDetail: { [indexCode]: codes.map(c => ({ indexCode, stockCode: String(c), stockName: `S${c}`, dateTime: HK_DATE_TIME, isDummy: 'N', stockType: 'HK' })) },
+    },
+  }
+}
+/** fetch mock serving the CSI xls, the HK official API, Tencent klines (csi300) and Eastmoney fqt=1 klines (HK). */
+const hkFetchMock = (csiCodes, hkLists, opts = {}) => async url => {
+  if (url.includes('000300cons.xls')) return { ok: opts.xlsOk ?? true, arrayBuffer: async () => Buffer.concat([Buffer.from([0xd0, 0xcf, 0x11, 0xe0]), Buffer.alloc(2000)]) }
+  if (url.includes('hsi.com.hk')) {
+    const sc = new URL(url).searchParams.get('seriesCode')
+    if (opts.hkApiDown) return { ok: false, status: 503 }
+    return { ok: true, json: async () => hkApiBody(sc, hkLists[sc]) }
+  }
+  if (url.includes('push2his.eastmoney.com')) {
+    const secid = new URL(url).searchParams.get('secid')
+    const emRows = series(260, TODAY, k => 100 + k).map(([d, c]) => `${d},1,${c},1,1,1,1`)
+    return { ok: true, json: async () => ({ rc: 0, data: { code: secid.split('.')[1], market: 116, klines: emRows } }) }
+  }
+  const sym = new URL(url).searchParams.get('param').split(',')[0]
+  const rows = series(260, TODAY, k => 100 + k).map(([d, c]) => [d, '1', String(c), '1', '1', '1'])
+  return { ok: true, json: async () => ({ data: { [sym]: { qfqday: rows } } }) }
+}
+
+test('run: official HSI/HSTECH universes are collected, confirmed and cached; rounds stay within 40 requests', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'breadth-hk-'))
+  const csiCodes = Array.from({ length: 300 }, (_, i) => String(600000 + i))
+  const hsiCodes = Array.from({ length: 95 }, (_, i) => i + 1)
+  const hstechCodes = Array.from({ length: 30 }, (_, i) => i + 100)
+  const fetchImpl = hkFetchMock(csiCodes, { hsi: hsiCodes, hstech: hstechCodes })
+  const parseXls = async () => JSON.stringify({ date: TODAY, indexCode: '000300', rows: csiCodes.map(code => ({ code, name: code })) })
+  const opts = { fetchImpl, parseXls, cacheDir: path.join(dir, 'cache'), outFile: path.join(dir, 'o.json'), universeFile: path.join(dir, 'u.json'), now: new Date(`${TODAY}T10:00:00Z`), budget: 40 }
+  let hkApiCalls = 0
+  const counted = async (...a) => { if (String(a[0]).includes('hsi.com.hk')) hkApiCalls++; return fetchImpl(...a) }
+  let out
+  for (let i = 0; i < 15; i++) {
+    const before = { req: out?.requests }
+    out = await run({ ...opts, fetchImpl: counted })
+    assert.ok(out.requests <= 40)
+    if (out.snapshot.markets.hsi?.breadth !== null && out.snapshot.markets.hstech?.breadth !== null && out.snapshot.markets.hsi?.breadth !== undefined) break
+    void before
+  }
+  assert.equal(hkApiCalls, 2) // both universes fetched once, then served from cache
+  assert.equal(out.snapshot.markets.hsi.total, 95)
+  assert.equal(out.snapshot.markets.hstech.total, 30)
+  assert.equal(out.snapshot.markets.hsi.kind, 'observed')
+  assert.equal(out.snapshot.markets.hstech.kind, 'observed')
+  assert.equal(out.snapshot.markets.hsi.universeDate, '2026-10-16')
+  assert.equal(out.snapshot.markets.hsi.breadth, 100)
+  assert.equal(out.snapshot.markets.hstech.breadth, 100)
+  const u = JSON.parse(await readFile(opts.universeFile, 'utf8'))
+  assert.equal(u.universes.hsi.status, 'ok')
+  assert.equal(u.universes.hsi.codes.length, 95)
+  assert.ok(u.universes.hsi.fetchedAt)
+  // next round with budget 0 reuses the confirmed lists and gives breadth without any request
+  const quiet = await run({ ...opts, fetchImpl: counted, budget: 0 })
+  assert.equal(quiet.requests, 0)
+  assert.equal(quiet.snapshot.markets.hsi.breadth, 100)
+  assert.equal(quiet.snapshot.markets.hstech.breadth, 100)
+  assert.equal(hkApiCalls, 2)
+})
+
+test('run: HK official API failure without cache or static list keeps status missing, no invented coverage', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'breadth-hk-'))
+  const csiCodes = Array.from({ length: 300 }, (_, i) => String(600000 + i))
+  const parseXls = async () => JSON.stringify({ date: TODAY, indexCode: '000300', rows: csiCodes.map(code => ({ code, name: code })) })
+  const out = await run({
+    fetchImpl: hkFetchMock(csiCodes, { hsi: [1, 2, 3], hstech: [100, 101, 102] }, { hkApiDown: true }),
+    parseXls, cacheDir: path.join(dir, 'c'), outFile: path.join(dir, 'o.json'), universeFile: path.join(dir, 'u.json'),
+    now: new Date(`${TODAY}T10:00:00Z`), budget: 300, // clamped to 40; CSI300 absorbs the round budget first
+  })
+  assert.equal(out.snapshot.markets.hsi, undefined)
+  const u = JSON.parse(await readFile(path.join(dir, 'u.json'), 'utf8'))
+  assert.equal(u.universes.hsi.status, 'missing')
+  assert.equal(u.universes.hstech.status, 'missing')
+})
+
+test('run: a statically configured HK list with a non-whitelisted source stays missing when official confirmation fails', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'breadth-hk-'))
+  const hkCodes = Array.from({ length: 30 }, (_, i) => String(i + 1))
+  const hkFile = path.join(dir, 'hk.json')
+  await writeFile(hkFile, JSON.stringify({ universes: { hsi: { id: 'hsi-constituents', status: 'ok', date: '2026-10-01', source: 'https://example.com/hsi', codes: hkCodes } } }))
+  const csiCodes = Array.from({ length: 300 }, (_, i) => String(600000 + i))
+  const parseXls = async () => JSON.stringify({ date: TODAY, indexCode: '000300', rows: csiCodes.map(code => ({ code, name: code })) })
+  const base = { parseXls, cacheDir: path.join(dir, 'c'), outFile: path.join(dir, 'o.json'), universeFile: hkFile, now: new Date(`${TODAY}T09:00:00Z`), budget: 40 }
+  const emptyHk = { hsi: [], hstech: [] }
+  for (let i = 0; i < 8; i++) await run({ ...base, fetchImpl: hkFetchMock(csiCodes, emptyHk) }) // finish CSI300 first; HK official parse fails on empty lists
+  // now the CSI pool is cached and costs nothing; the official HK API starts failing with HTTP 503
+  const out = await run({ ...base, fetchImpl: hkFetchMock(csiCodes, emptyHk, { hkApiDown: true }), budget: 5, now: new Date(`${TODAY}T10:00:00Z`) })
+  assert.equal(out.snapshot.markets.hsi, undefined)
+  assert.ok(out.snapshot.issues.some(i => i.includes('恒生指数') && i.includes('失败')))
+  const u = JSON.parse(await readFile(hkFile, 'utf8'))
+  assert.equal(u.universes.hsi.status, 'missing')
 })
 
 test('run: corrupt cache files do not crash and are re-requested', async () => {

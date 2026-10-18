@@ -17,7 +17,7 @@ export interface ShadowState {
   confirmations: number; weakWeeks: number
 }
 export function factLabel(id: string): string {
-  const names: Record<string, string> = { erp_z: 'ERP五年标准分', erp: '简化股债收益率差', pe: '指数市盈率', cn10y: '中国10年国债收益率', financing_buy: '两市融资买入额', cnh: '离岸人民币汇率', hkd: '港元汇率' }
+  const names: Record<string, string> = { erp_z: 'ERP五年标准分', erp: '简化股债收益率差', pe: '指数市盈率', cn10y: '中国10年国债收益率', financing_buy: '两市融资买入额', hk_south_20d: '南向20日净买入', cnh: '离岸人民币汇率', hkd: '港元汇率' }
   return names[id] ?? (id.startsWith('etf_shares_') ? `ETF ${id.slice(11)} 总份额` : id)
 }
 const dateOK = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && Number.isFinite(Date.parse(s)) && new Date(s).toISOString().slice(0, 10) === s
@@ -66,28 +66,99 @@ export function factUsable(f: AutomaticFact, asOf: string): boolean {
     && Date.parse(f.firstSeenAt) < Date.parse(asOf) + 86400000
 }
 
+/** HK funding is "whole-market background, not the index" — automatic rows are wired but never power a vote.
+ *  The detail must include the verified same-unit window and a clear "background" disclaimer, so the reader sees
+ *  why the row is non-voting instead of a generic "data missing". The CSI300 source/download URL is reserved
+ *  for the CSI300 market; HK funding cards must not borrow it. */
+
+
 export function automaticRows(market: Market, snapshot: AutomaticSnapshot | null, breadth: BreadthSnapshot | null, asOf: string, newHigh = false): Partial<Record<ManualDimension, Evidence>> {
   const out: Partial<Record<ManualDimension, Evidence>> = {}
-  const find = (id: string) => {
-    const candidates = snapshot?.facts.filter(f => f.metricId === id && (f.market === market || (id === 'financing_buy' && market === 'csi300' && f.market === 'all')))
+  const today = asOf.slice(0, 10)
+  // Pick the freshest observed fact for the scope. The hk_south_20d metric lives under market='all' but is the
+  // only funding signal we have for HK markets — accept it as the HK funding lookup. A-share financing_buy
+  // (market='all') serves CSI300 only.
+  const find = (metricId: string): AutomaticFact | undefined => {
+    const candidates = (snapshot?.facts ?? [])
+      .filter(f => f.metricId === metricId && (
+        f.market === market ||
+        (metricId === 'financing_buy' && market === 'csi300' && f.market === 'all') ||
+        (metricId === 'hk_south_20d' && (market === 'hsi' || market === 'hstech') && f.market === 'all')
+      ))
       .sort((a, b) => b.observationDate.localeCompare(a.observationDate))
-    const latest = candidates?.[0]
-    return latest && latest.kind === 'observed' && factUsable(latest, asOf) ? latest : undefined
+    const latest = candidates[0]
+    return latest && latest.kind === 'observed' && latest.observationDate <= today && factUsable(latest, asOf) ? latest : undefined
   }
-  const erp = find('erp_z'), pe = find('pe'), financing = find('financing_buy')
-  if (market === 'csi300' && erp) out.valuation = { id: 'valuation', name: '估值与赔率', signal: erp.value >= 1.5 ? 'bottom' : erp.value <= -1 ? 'risk' : 'neutral', available: true, source: erp.source, date: erp.observationDate, detail: `自动 · 简化ERP z-score ${erp.value.toFixed(2)}。${erp.description}` }
-  else if (pe) out.valuation = { id: 'valuation', name: '估值与赔率', signal: 'missing', available: false, source: pe.source, date: pe.observationDate, detail: `自动 · PE ${pe.value.toFixed(2)}。${pe.description} 尚无合格的长期分位，不计估值票。` }
-  if (financing) out.funding = { id: 'funding', name: '资金与杠杆', signal: 'missing', available: false, source: financing.source, date: financing.observationDate, detail: `自动 · 融资买入 ${financing.value.toLocaleString()} ${financing.unit}。${financing.description} 未核定同覆盖成交额分母，不计算杠杆占比、不计票。` }
-  const b = breadth?.markets[market]
-  if (b && b.observationDate <= asOf) {
+  const erp = find('erp_z'), pe = find('pe'), financing = find('financing_buy'), south = find('hk_south_20d')
+  // ---- valuation ----
+  if (market === 'csi300' && erp) {
+    out.valuation = { id: 'valuation', name: '估值与赔率', signal: erp.value >= 1.5 ? 'bottom' : erp.value <= -1 ? 'risk' : 'neutral', available: true, source: erp.source, date: erp.observationDate, detail: `自动 · 简化ERP z-score ${erp.value.toFixed(2)}。${erp.description}` }
+  } else if (pe) {
+    out.valuation = { id: 'valuation', name: '估值与赔率', signal: 'missing', available: false, source: pe.source, date: pe.observationDate, detail: `自动 · PE ${pe.value.toFixed(2)}。${pe.description} 尚无合格的长期分位，不计估值票。` }
+  }
+  // ---- funding: every market always emits a row, with a precise reason when data is missing ----
+  if (market === 'csi300') {
+    if (financing) {
+      out.funding = { id: 'funding', name: '资金与杠杆', signal: 'missing', available: false, source: financing.source, date: financing.observationDate,
+        detail: `自动 · 沪深两市合计融资买入额原值 ${financing.value.toLocaleString()} ${financing.unit}(东财RPTA_RZRQ_LSHJ.RZMRE，元÷1e8)；同覆盖成交额分母未核定，不计占比、不计票。` }
+    } else {
+      out.funding = { id: 'funding', name: '资金与杠杆', signal: 'missing', available: false,
+        detail: `自动 · 沪深两市融资买入额原值(东财RPTA_RZRQ_LSHJ.RZMRE)未采集或最新观测已过期，不假设值；需公开来源链接、≤14天观测日期才计票。` }
+    }
+  } else {
+    const idxName = market === 'hsi' ? '恒生指数' : '恒生科技指数'
+    if (south) {
+      out.funding = { id: 'funding', name: '资金与杠杆', signal: 'missing', available: false, source: south.source, date: south.observationDate,
+        detail: `自动 · 港股通南向合计（沪+深）近20个交易日净买入 ${south.value.toLocaleString()} ${south.unit}（人民币）。仅作全港股背景，不代表${idxName}成分股流入；还缺本指数完整周与前52周的同口径成交额，暂不计票。` }
+    } else {
+      out.funding = { id: 'funding', name: '资金与杠杆', signal: 'missing', available: false,
+        detail: `自动 · 港股通南向净买入未取得有效的近20个交易日数据；${idxName}完整周与前52周的同口径成交额也尚未补齐，暂不计票。` }
+    }
+  }
+  // ---- breadth: every market always emits a row, with a precise reason when no entry exists ----
+  const b = breadth?.markets?.[market]
+  if (b && b.observationDate <= today) {
     const age = (Date.parse(asOf) - Date.parse(b.observationDate)) / 86400000
     const qualified = b.kind === 'observed' && b.coverage >= 0.95 && b.total > 0 && b.eligible / b.total >= 0.95 && b.breadth !== null && b.priorBreadth !== null && age <= 14
-    out.breadth = { id: 'breadth', name: '指数成分宽度', available: qualified,
-      signal: !qualified ? 'missing' : b.breadth! <= 10 ? 'bottom' : b.priorBreadth! >= 85 && b.breadth! < 60 && newHigh ? 'risk' : b.breadth! >= 40 && b.priorBreadth! < 40 ? 'positive' : 'neutral',
-      date: b.observationDate, source: b.source,
-      detail: `自动 · ${b.universeId}，名单 ${b.universeDate}；覆盖 ${(b.coverage * 100).toFixed(1)}%（${b.eligible}/${b.total}）。MA200 ${b.breadth == null ? '缺失' : `${b.breadth.toFixed(1)}%`}，4周前 ${b.priorBreadth == null ? '缺失' : `${b.priorBreadth.toFixed(1)}%`}。${b.detail}${qualified ? '' : ' 未通过当期名单 / 95%覆盖 / 新鲜度门禁，不计票。'}` }
+    if (qualified) {
+      out.breadth = { id: 'breadth', name: '指数成分宽度', available: true,
+        signal: b.breadth! <= 10 ? 'bottom' : b.priorBreadth! >= 85 && b.breadth! < 60 && newHigh ? 'risk' : b.breadth! >= 40 && b.priorBreadth! < 40 ? 'positive' : 'neutral',
+        source: b.source, date: b.observationDate,
+        detail: `自动 · ${b.universeId}，名单 ${b.universeDate}；覆盖 ${(b.coverage * 100).toFixed(1)}%（${b.eligible}/${b.total}）。MA200 ${b.breadth!.toFixed(1)}%，4周前 ${b.priorBreadth!.toFixed(1)}%。${b.detail}` }
+    } else {
+      out.breadth = { id: 'breadth', name: '指数成分宽度', available: false, signal: 'missing', source: b.source, date: b.eligible > 0 ? b.observationDate : undefined,
+        detail: `自动 · ${b.universeId}已采集但不合格：名单快照 ${b.universeDate}；${b.kind !== 'observed' ? '名单为静态proxy无自动官方确认;' : ''}${b.exclusions.fetch_failed ? `行情请求失败 ${b.exclusions.fetch_failed} 只；` : ''}覆盖 ${(b.coverage * 100).toFixed(1)}%（${b.eligible}/${b.total}），MA200 ${b.breadth == null ? '缺失' : `${b.breadth.toFixed(1)}%`}，4周前 ${b.priorBreadth == null ? '缺失' : `${b.priorBreadth.toFixed(1)}%`}；未通过95%覆盖/前4周同口径/${age > 14 ? `观测日${b.observationDate}已超14天` : '14天内观测'}门禁，不计票。${b.detail}` }
+    }
+  } else {
+    const reason = breadthIssue(market, breadth, asOf)
+    out.breadth = { id: 'breadth', name: '指数成分宽度', signal: 'missing', available: false,
+      detail: `自动 · ${reason}` }
   }
   return out
+}
+
+/** Compact reason a market's breadth entry did not vote. Reads the snapshot's issues verbatim (no regex
+ *  truncation). Returns a per-market placeholder reason when the snapshot has no per-market issue at all. */
+export function breadthIssue(market: Market, breadth: BreadthSnapshot | null, asOf = breadth?.generatedAt.slice(0, 10) ?? ''): string {
+  const labels: Record<Market, string> = { csi300: '沪深300', hsi: '恒生指数', hstech: '恒生科技' }
+  const label = labels[market]
+  const entry = breadth?.markets?.[market]
+  if (entry) {
+    const ex = Object.entries(entry.exclusions || {}).map(([k, v]) => `${k} ${v}`).join('、')
+    const cov = `覆盖${(entry.coverage * 100).toFixed(1)}%（${entry.eligible}/${entry.total}）`
+    const age = (Date.parse(asOf) - Date.parse(entry.observationDate)) / 86400000
+    if (age < 0) return `${label}观测日 ${entry.observationDate} 晚于观察日 ${asOf}；未来数据不计票。`
+    if (entry.kind === 'observed' && entry.coverage >= 0.95 && entry.breadth !== null && entry.priorBreadth !== null && age <= 14) {
+      return `${label}已采集且合格：${cov}，MA200 ${entry.breadth.toFixed(1)}%，4周前 ${entry.priorBreadth.toFixed(1)}%。${entry.detail}` + (ex ? `剩余：${ex}` : '')
+    }
+    return `${label}已采集但不合格：${entry.kind === 'proxy' ? '名单为静态proxy无自动官方确认;' : ''}${cov}，未通过95%覆盖/前4周同口径/${age > 14 ? `观测日${entry.observationDate}已超14天` : '相关门禁'}。${entry.detail}` + (ex ? `排除：${ex}` : '')
+  }
+  // No entry at all — refer to the issues verbatim.
+  const issues = breadth?.issues ?? []
+  const issue = issues.find(i => i.startsWith(label) || i.includes(label))
+  if (issue) return `${label}官方全成分端点未通过验收，自动宽度未发布；采集端原始问题（原文）：${issue}`
+  if (!breadth) return `${label}宽度快照缺失，自动宽度未发布。`
+  return `${label}宽度快照中无该市场条目，自动宽度未发布。`
 }
 
 /** Pre-registered shadow rule: two distinct weekly confirmations to enter, immediate price-risk defense. */

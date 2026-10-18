@@ -26,6 +26,7 @@ export const URLS = {
   fredHkd: 'https://fred.stlouisfed.org/graph/fredgraph.csv?id=DEXHKUS',
   yahooCnh: 'https://query1.finance.yahoo.com/v8/finance/chart/CNH=X',
   sseEtf: 'https://query.sse.com.cn/commonQuery.do',
+  southbound: 'https://datacenter-web.eastmoney.com/api/data/v1/get',
 }
 // Names are checked against the SSE response so a re-used code cannot silently change meaning.
 export const ETF_WHITELIST = [
@@ -268,6 +269,58 @@ async function collectMargin(ctx) {
   }]
 }
 
+// ---------- HK southbound: single-channel 006 (Eastmoney 已发布的南向汇总=002+004，20天百万元值已cross-checked) ----------
+// MUTUAL_TYPE="006" 是港股通(沪)+港股通(深) 的合计，已等于各 002+004 之和；HTML 页面注："资金数据默认为人民币单位"。
+// AKShare stock_hsgt_em.py 同表用 NET_DEAL_AMT / 100 = 亿元；现有 macro-hk.json 20 日合计 400.1 亿元与之吻合（参考文档已下载到本机 /private/tmp/cycle-eastmoney-page.html）。
+// 本采集器不复算 002+004；仅取 006 单通道的"南向资金历史走势=每日成交净买额"。
+const SOUTH_TYPE = '006' // 港股通南北向汇总(S港股通+S港股通)
+export function parseSouthboundPage(body, type) {
+  if (body?.success !== true || !Array.isArray(body?.result?.data)) throw new Error(`南向资金 ${type}: success!=true 或 data 缺失`)
+  const rows = []
+  for (const r of body.result.data) {
+    if (r?.MUTUAL_TYPE !== type) throw new Error(`南向资金 ${type}: 出现非本通道MUTUAL_TYPE=${r?.MUTUAL_TYPE}`)
+    const raw = r?.NET_DEAL_AMT
+    if (raw == null || !['number', 'string'].includes(typeof raw) || (typeof raw === 'string' && !raw.trim())) throw new Error(`南向资金 ${type}: NET_DEAL_AMT 缺失或类型无效`)
+    const date = String(r?.TRADE_DATE ?? '').slice(0, 10)
+    if (!isDate(date)) throw new Error(`南向资金 ${type}: 日期非法 ${r?.TRADE_DATE}`)
+    const net = Number(r.NET_DEAL_AMT)
+    if (!Number.isFinite(net)) throw new Error(`南向资金 ${type}: NET_DEAL_AMT 非数 ${r.NET_DEAL_AMT}`)
+    rows.push({ date, net })
+  }
+  rows.sort((a, b) => a.date.localeCompare(b.date))
+  for (let i = 1; i < rows.length; i++) if (rows[i].date === rows[i - 1].date) throw new Error(`南向资金 ${type}: 重复日期 ${rows[i].date}`)
+  return rows
+}
+// Take the trailing N unique dates directly from the single-channel payload. No channel pairing. Each kept date
+// is a real southbound trading day Eastmoney published, with a verified NET_DEAL_AMT (non-null finite).
+export function parseSouthboundRows(rows, days = 20) {
+  const sorted = [...rows].sort((a, b) => a.date.localeCompare(b.date))
+  const unique = sorted.filter((r, i) => !i || sorted[i - 1].date !== r.date)
+  if (unique.length < days) throw new Error(`南向资金(006): 仅${unique.length}个唯一交易日，不足${days}`)
+  const window = unique.slice(-days)
+  const sumMn = window.reduce((s, r) => s + r.net, 0)
+  return {
+    observationDate: window.at(-1).date, // 最新一日作为观测日
+    windowStart: window[0].date,         // 最早一日作为窗口起点
+    days: window.length,
+    sumMn,
+  }
+}
+async function collectSouthbound(ctx) {
+  const base = `${URLS.southbound}?reportName=RPT_MUTUAL_DEAL_HISTORY&columns=MUTUAL_TYPE,TRADE_DATE,NET_DEAL_AMT&filter=${encodeURIComponent(`(MUTUAL_TYPE="${SOUTH_TYPE}")`)}&sortColumns=TRADE_DATE&sortTypes=-1&pageSize=30&pageNumber=1&source=WEB&client=WEB`
+  const headers = { Referer: 'https://data.eastmoney.com/hsgt/index.html' }
+  const body = await ctx.get(base, { headers })
+  const rows = parseSouthboundPage(body, SOUTH_TYPE)
+  const out = parseSouthboundRows(rows, 20)
+  // 百万元 → 亿元；已核对单位（HTML "资金数据默认为人民币单位" + AKShare /100 + 与 macro-hk.json 历史 400.1 亿元一致）
+  const sumYi = out.sumMn / 100
+  if (!Number.isFinite(sumYi) || Math.abs(sumYi) > 3000) throw new Error(`南向资金: 20日合计异常 ${sumYi} 亿元`)
+  return [{
+    metricId: 'hk_south_20d', market: 'all', value: round(sumYi, 2), observationDate: out.observationDate, source: base, unit: '亿元', kind: 'observed', frequency: 'daily',
+    description: `港股通南向合计（沪+深，MUTUAL_TYPE=006）近${out.days}个交易日净买入；原始单位百万元人民币÷100=亿元；窗口${out.windowStart}~${out.observationDate}。东财公开汇总，仅作全港股背景，不代表恒指或恒科成分股流入，不计票。`,
+  }]
+}
+
 // ---------- FRED HKD / Yahoo CNH ----------
 export function parseFredCsv(text, seriesId) {
   const lines = String(text).trim().split(/\r?\n/)
@@ -353,6 +406,7 @@ export const SOURCES = [
   { id: 'fred-hkd', produces: [['hkd', 'all']], run: collectHkd },
   { id: 'yahoo-cnh', produces: [['cnh', 'all']], run: collectCnh },
   { id: 'sse-etf', produces: ETF_WHITELIST.map(w => [`etf_shares_${w.code}`, w.market]), run: collectEtf },
+  { id: 'hk-south', produces: [['hk_south_20d', 'all']], run: collectSouthbound },
 ]
 
 /** Runs `tasks` with at most `limit` in flight. */

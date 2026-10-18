@@ -1,12 +1,38 @@
 import React from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import MarketCycleView from './MarketCycleView'
 const renderView = () => render(<MemoryRouter><MarketCycleView /></MemoryRouter>)
 
 afterEach(() => { cleanup(); localStorage.clear(); vi.unstubAllGlobals() })
 describe('牛熊周期复盘', () => {
+  it('港股原值已采集但不足计票时，区别于尚无数据的卡片', async () => {
+    const time = '2026-10-17T10:00:00Z'
+    const common = { availableAt: null, firstSeenAt: time, fetchedAt: time, source: 'https://www.hsi.com.hk/', kind: 'observed', description: '公开来源原值' }
+    const automatic = { schemaVersion: 1, generatedAt: time, issues: [], facts: [
+      { ...common, metricId: 'pe', market: 'hsi', value: 13.79, observationDate: '2026-09-30', unit: '倍', frequency: 'monthly' },
+      { ...common, metricId: 'hk_south_20d', market: 'all', value: 400.08, observationDate: '2026-10-16', unit: '亿元人民币', frequency: 'daily' },
+    ] }
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date('2026-10-19T04:00:00Z'))
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+      if (url.endsWith('market-cycle-auto.json')) return { ok: true, json: async () => automatic }
+      throw new Error('offline')
+    }))
+    try {
+      renderView()
+      fireEvent.click(screen.getByRole('button', { name: '港股 · 恒生指数' }))
+      await screen.findByText(/自动 · PE 13.79/)
+      const card = (name: string) => within(screen.getByRole('heading', { name }).closest('article')!)
+      expect(card('估值与赔率').getByText('已采集 · 证据不足')).toBeTruthy()
+      expect(card('资金与杠杆').getByText('已采集 · 证据不足')).toBeTruthy()
+      expect(card('资金与杠杆').getByText(/400.08/)).toBeTruthy()
+      expect(card('资金与杠杆').getByText(/前52周/)).toBeTruthy()
+      expect(card('指数成分宽度').getByText('待补齐')).toBeTruthy()
+      expect(card('指数成分宽度').getByText('尚无有效观测日期')).toBeTruthy()
+    } finally { vi.useRealTimers() }
+  })
   it('人工补录默认收起，草稿汇总缺失但不代替本人确认，也不覆盖已有理由', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
     renderView()

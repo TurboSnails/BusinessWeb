@@ -6,10 +6,18 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import {
   buildAutoSnapshot, computeErpZ, factProblem, isFatal, mergeFacts, parseCsindexPe, parseFredCsv, parseHsiPe, parseMargin,
+  parseSouthboundPage, parseSouthboundRows,
   parseSseEtf, parseTreasuryPage, parseYahooCnh, runXlsxParser, writeAtomic, ETF_WHITELIST, SOURCES, URLS,
 } from './market-cycle-auto.mjs'
 
 const NOW = '2026-10-17T10:00:00.000Z'
+
+test('southbound missing scalars never become a zero observation', () => {
+  for (const value of ['', '   ', false, []]) {
+    const body = { success: true, result: { data: [{ MUTUAL_TYPE: '006', TRADE_DATE: '2026-10-16', NET_DEAL_AMT: value }] } }
+    assert.throws(() => parseSouthboundPage(body, '006'), /NET_DEAL_AMT/)
+  }
+})
 const json = body => ({ ok: true, status: 200, json: async () => body, text: async () => (typeof body === 'string' ? body : JSON.stringify(body)) })
 const fact = (over = {}) => ({
   metricId: 'pe', market: 'csi300', value: 12.88, observationDate: '2026-10-16', availableAt: null, firstSeenAt: '2026-10-01T00:00:00.000Z',
@@ -76,6 +84,43 @@ test('Yahoo: only offshore CNH is accepted, never CNY', () => {
   assert.deepEqual(parseYahooCnh(body('CNH=X', 'CNH')), { date: '2026-10-15', value: 6.7 })
   assert.throws(() => parseYahooCnh(body('CNY=X', 'CNY')), /非离岸CNH/)
   assert.throws(() => parseYahooCnh(body('CNH=X', 'CNY')), /非离岸CNH/)
+})
+
+test('southbound: only 006 fields accepted, asc-sorted, null/non-finite dates rejected', () => {
+  // DESC input from Eastmoney is tolerantly re-sorted to ASC; duplicate dates still throw.
+  assert.deepEqual(parseSouthboundPage({ success: true, result: { data: [{ MUTUAL_TYPE: '006', TRADE_DATE: '2026-10-16 00:00:00', NET_DEAL_AMT: -3568.43 }, { MUTUAL_TYPE: '006', TRADE_DATE: '2026-10-15 00:00:00', NET_DEAL_AMT: -5080.23 }] } }, '006'), [{ date: '2026-10-15', net: -5080.23 }, { date: '2026-10-16', net: -3568.43 }])
+  assert.throws(() => parseSouthboundPage({ success: false }, '006'), /success/)
+  assert.throws(() => parseSouthboundPage({ success: true, result: { data: [{ MUTUAL_TYPE: '002', TRADE_DATE: '2026-10-16', NET_DEAL_AMT: 1 }] } }, '006'), /MUTUAL_TYPE/)
+  assert.throws(() => parseSouthboundPage({ success: true, result: { data: [{ MUTUAL_TYPE: '006', TRADE_DATE: '2026-10-16', NET_DEAL_AMT: null }] } }, '006'), /NET_DEAL_AMT/)
+  assert.throws(() => parseSouthboundPage({ success: true, result: { data: [{ MUTUAL_TYPE: '006', TRADE_DATE: '2026-13-40', NET_DEAL_AMT: 1 }] } }, '006'), /日期/)
+  assert.throws(() => parseSouthboundPage({ success: true, result: { data: [{ MUTUAL_TYPE: '006', TRADE_DATE: '2026-10-16', NET_DEAL_AMT: 'not-a-number' }] } }, '006'), /非数/)
+  // Real duplicate — same date twice in the same DESC payload. Our parser must refuse.
+  assert.throws(() => parseSouthboundPage({ success: true, result: { data: [{ MUTUAL_TYPE: '006', TRADE_DATE: '2026-10-16 00:00:00', NET_DEAL_AMT: 1 }, { MUTUAL_TYPE: '006', TRADE_DATE: '2026-10-16 00:00:00', NET_DEAL_AMT: 2 }] } }, '006'), /重复日期/)
+})
+
+test('parseSouthboundRows picks trailing N unique dates; refuses below N', () => {
+  // 22 unique trading days. dates[0]=newest, dates[21]=oldest — walk back from 2026-10-16 skipping weekends.
+  const dates = []
+  for (let t = new Date('2026-10-16T00:00:00Z').getTime(); dates.length < 22; t -= 864e5) {
+    const d = new Date(t)
+    if ([0, 6].includes(d.getUTCDay())) continue
+    dates.push(d.toISOString().slice(0, 10))
+  }
+  const rows = dates.map((date, i) => ({ date, net: 1000 + i }))
+  const out = parseSouthboundRows(rows, 20)
+  // Take the 20 newest unique dates → observationDate is dates[0] (newest), windowStart is dates[21-20]=dates[1]
+  // Wait: window = ASC-sorted unique dates, last 20. ASC row[0]=oldest, ASC[21]=newest.
+  // unique.slice(-20) = ASC[2..21] → first in window = ASC[2] = dates[20] (3rd from oldest), last in window = ASC[21] = dates[0] (newest).
+  const ascDates = [...dates].reverse()
+  assert.equal(out.observationDate, ascDates.at(-1)) // newest = dates[0]
+  assert.equal(out.windowStart, ascDates.slice(-20)[0]) // oldest of the 20 newest
+  assert.equal(out.days, 20)
+  // Refuses when fewer than N unique dates
+  assert.throws(() => parseSouthboundRows(rows.slice(0, 5), 20), /不足/)
+  // parseSouthboundPage is the gate for duplicates upstream; parseSouthboundRows is datem-set tolerant
+  // (silently drops dups via the unique step). 19 distinct dates still fail.
+  const nineteen = dates.slice(0, 19)
+  assert.throws(() => parseSouthboundRows(nineteen.map((d, i) => ({ date: d, net: i })), 20), /不足/)
 })
 
 test('SSE ETF whitelist checks name, date and presence', () => {
@@ -155,6 +200,21 @@ function fakeFetch(overrides = {}) {
       return json({ result: date === '2026-10-16' ? ETF_WHITELIST.map(w => ({ STAT_DATE: date, SEC_CODE: w.code, SEC_NAME: w.name, TOT_VOL: '1000' })) : [] })
     }
     if (url.includes('hsi.com.hk')) return { ok: true, status: 200, arrayBuffer: async () => Buffer.concat([Buffer.from('PK'), Buffer.alloc(2000)]) }
+    if (url.includes('RPT_MUTUAL_DEAL_HISTORY')) {
+      const m = /MUTUAL_TYPE%3D%22(\d+)%22/.exec(url)
+      const type = m ? m[1] : ''
+      // 22 trading-day quotes, ascending; the 006 channel is the unified south aggregate.
+      const dates = []
+      for (let t = new Date('2026-10-16T00:00:00Z').getTime(); dates.length < 22; t -= 864e5) {
+        const d = new Date(t)
+        if ([0, 6].includes(d.getUTCDay())) continue
+        dates.push(d.toISOString().slice(0, 10))
+      }
+      const want = type === '006' || type === '002' || type === '004'
+      if (!want) return json({ success: true, result: { data: [] } })
+      dates.reverse()
+      return json({ success: true, result: { data: dates.map((d, i) => ({ MUTUAL_TYPE: type, TRADE_DATE: `${d} 00:00:00`, NET_DEAL_AMT: type === '006' ? 1000 + i : type === '002' ? 500 + i : 500 + i })) } })
+    }
     throw new Error(`unexpected ${url}`)
   }
   impl.calls = calls
@@ -173,7 +233,10 @@ test('buildAutoSnapshot: all sources, treasury paging, contract-valid output', a
   assert.ok(fetchImpl.calls.filter(u => u.includes('RPTA_WEB_TREASURYYIELD')).length >= 3, 'treasury must be paged')
   for (const f of out.facts) assert.equal(factProblem(f, NOW), null)
   const ids = new Set(out.facts.map(f => `${f.metricId}/${f.market}`))
-  for (const id of ['erp_z/csi300', 'pe/csi300', 'pe/hsi', 'pe/hstech', 'financing_buy/all', 'hkd/all', 'cnh/all', 'etf_shares_510300/csi300']) assert.ok(ids.has(id), id)
+  for (const id of ['erp_z/csi300', 'pe/csi300', 'pe/hsi', 'pe/hstech', 'financing_buy/all', 'hkd/all', 'cnh/all', 'etf_shares_510300/csi300', 'hk_south_20d/all']) assert.ok(ids.has(id), id)
+  // Turnover pairs (1w vs 52w) are deliberately NOT published: HSI/HSTECH index-trade field unit and 52-week history
+  // cannot be verified without a one-handed source that distinguishes HK$ vs RMB or vendors the 252 trading-day window.
+  assert.equal([...ids].filter(s => s.startsWith('turnover_')).length, 0)
   const erpz = out.facts.find(f => f.metricId === 'erp_z')
   for (const id of ['erp_z', 'erp', 'cn10y']) assert.equal(out.facts.find(f => f.metricId === id).kind, 'observed')
   assert.match(out.facts.find(f => f.metricId === 'cn10y').description, /akshare\/main\/akshare\/bond\/bond_em\.py.*非中债官方直连/)
@@ -225,7 +288,7 @@ test('invalid previous facts are dropped with an issue; fatal only with nothing 
   const none = await buildAutoSnapshot(null, { fetchImpl: failAll, now: NOW, parseXlsx: fakeXlsx })
   assert.equal(none.facts.length, 0)
   assert.equal(isFatal(none), true)
-  assert.equal(SOURCES.length, 7)
+  assert.equal(SOURCES.length, 8)
 })
 
 test('writeAtomic leaves no temp file and round-trips', async () => {

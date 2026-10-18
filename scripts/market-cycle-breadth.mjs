@@ -5,6 +5,7 @@ import { readFile, writeFile, rename, mkdir } from 'node:fs/promises'
 import { spawn } from 'node:child_process'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { fetchHkUniverse, isOfficialHkSource } from './market-cycle-hk-universe.mjs'
 
 export const OUT_FILE = fileURLToPath(new URL('../public/data/market-cycle-breadth.json', import.meta.url))
 export const UNIVERSE_FILE = fileURLToPath(new URL('../public/data/market-cycle-universes.json', import.meta.url))
@@ -28,6 +29,8 @@ const REQUEST_TIMEOUT_MS = 15000
 
 export const CSI300_XLS = 'https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/file/autofile/cons/000300cons.xls'
 export const TENCENT = 'https://web.ifzq.gtimg.cn/appstock/app/fqkline/get'
+export const EASTMONEY_HK = 'https://push2his.eastmoney.com/api/qt/stock/kline/get'
+const HK_BARS_SRC = 'em-fqt1' // Eastmoney kline fqt=1 (forward-adjusted); Tencent has no HK qfq
 export const MARKETS = {
   csi300: { id: 'csi300-constituents', name: '沪深300' },
   hsi: { id: 'hsi-constituents', name: '恒生指数' },
@@ -61,6 +64,35 @@ export function parseBars(body, symbol, today) {
     seen.set(r[0], close)
   }
   return [...seen.entries()].sort((a, b) => a[0].localeCompare(b[0]))
+}
+
+/** Eastmoney HK kline body -> ascending [date, close], last FETCH_BARS rows. Response identity (rc/code/market) is verified; bars are forward-adjusted only because the request explicitly sets fqt=1. */
+export function parseEastmoneyHkBars(body, code, today) {
+  if (body?.rc !== 0) throw new Error(`东财接口rc=${body?.rc ?? '无'}`)
+  const d = body.data
+  const padded = String(code).padStart(5, '0')
+  if (!d || d.market !== 116 || String(d.code ?? '').padStart(5, '0') !== padded) throw new Error(`东财返回身份不符 ${d?.market}/${d?.code}`)
+  if (!Array.isArray(d.klines) || !d.klines.length) throw new Error('东财无K线')
+  const seen = new Map()
+  for (const r of d.klines) {
+    const f = typeof r === 'string' ? r.split(',') : null
+    const close = Number(f?.[2])
+    if (!f || !isDate(f[0]) || f[0] > today || !Number.isFinite(close) || close <= 0) continue
+    seen.set(f[0], close)
+  }
+  const bars = [...seen.entries()].sort((a, b) => a[0].localeCompare(b[0]))
+  if (!bars.length) throw new Error('东财无有效日线')
+  return bars.slice(-FETCH_BARS)
+}
+
+/** Eastmoney forward-adjusted (fqt=1) HK daily bars; bounded ~400d window, counts as one request. */
+async function fetchEastmoneyHkBars({ code, fetchImpl, today }) {
+  const digits = s => s.replaceAll('-', '')
+  const fields = 'fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57'
+  const url = `${EASTMONEY_HK}?secid=116.${String(code).padStart(5, '0')}&${fields}&klt=101&fqt=1&beg=${digits(addDays(today, -400))}&end=${digits(today)}&lmt=${FETCH_BARS}`
+  const res = await fetchImpl(url, { headers: { 'user-agent': UA, referer: 'https://quote.eastmoney.com/' }, signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) })
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  return parseEastmoneyHkBars(await res.json(), code, today)
 }
 
 /** Cached bars -> clean ascending [date, close] up to `today`, or null when the shape is corrupt (unordered, duplicate, non-finite). */
@@ -247,11 +279,12 @@ async function fetchBatch({ market, codes, fetchImpl, today, meta, cacheDir, con
       if (!sym) { meta[code] = { ...meta[code], fetchedAt: meta[code]?.fetchedAt ?? '1970-01-01T00:00:00Z', failedAt: now, error: '无法确定交易所' }; continue }
       requests++
       try {
-        const body = await fetchJson(fetchImpl, `${TENCENT}?param=${sym},day,,,${FETCH_BARS},qfq`)
-        const bars = parseBars(body, sym, today)
+        const bars = market === 'csi300'
+          ? parseBars(await fetchJson(fetchImpl, `${TENCENT}?param=${sym},day,,,${FETCH_BARS},qfq`), sym, today)
+          : await fetchEastmoneyHkBars({ code, fetchImpl, today })
         if (!bars.length) throw new Error('无有效日线')
-        await writeJson(path.join(cacheDir, 'bars', market, `${code}.json`), bars)
-        meta[code] = { fetchedAt: now, last: bars.at(-1)[0], n: bars.length }
+        await writeJson(path.join(cacheDir, 'bars', barsDir(market), `${code}.json`), bars)
+        meta[code] = { fetchedAt: now, last: bars.at(-1)[0], n: bars.length, src: market === 'csi300' ? 'tencent-qfq' : HK_BARS_SRC }
         streak = 0
       } catch (e) {
         streak++
@@ -264,13 +297,18 @@ async function fetchBatch({ market, codes, fetchImpl, today, meta, cacheDir, con
   return { requests, failures, tripped: streak >= BREAKER }
 }
 
-/** Loads cached bars; a corrupt file drops its meta entry so the next round re-requests it. */
+/** Bars cache subdirectory per market; HK uses a -em suffix so stale Tencent HK raw caches can never mix with Eastmoney fqt=1 bars. */
+const barsDir = market => (market === 'csi300' ? 'csi300' : `${market}-em`)
+const expectedSrc = market => (market === 'csi300' ? 'tencent-qfq' : HK_BARS_SRC)
+
+/** Loads cached bars; a corrupt file or wrong-source meta entry drops so the next round re-requests it. */
 async function loadBars(cacheDir, market, members, meta, today) {
   const map = new Map()
   await Promise.all(members.map(async ({ code }) => {
     const m = meta[code]
     if (!m) return
-    const bars = await readJson(path.join(cacheDir, 'bars', market, `${code}.json`))
+    if (m.src !== undefined && m.src !== expectedSrc(market)) { delete meta[code]; return }
+    const bars = await readJson(path.join(cacheDir, 'bars', barsDir(market), `${code}.json`))
     if (bars !== null && sanitizeBars(bars, today)?.length) map.set(code, bars)
     else if (m.failedAt) map.set(code, null)
     else { map.set(code, bars ?? []); delete meta[code] }
@@ -292,7 +330,7 @@ export const clampConcurrency = v => {
  * current list is judged by `confirmedAt`, the last time the official source was re-fetched. Without a verified confirmation
  * time (static configuration) the entry is proxy and cannot vote.
  */
-export function buildMarketEntry(market, universe, result, today, extraDetail = '') {
+export function buildMarketEntry(market, universe, result, today, extraDetail = '', { dateLabel = '名单生效日', barsNote = '腾讯前复权日线' } = {}) {
   const confirmedOk = !!universe.confirmedAt && daysBetween(universe.confirmedAt.slice(0, 10), today) <= CONFIRM_MAX_DAYS
   const kind = confirmedOk ? 'observed' : 'proxy'
   const ex = Object.entries(result.exclusions).map(([k, v]) => `${k} ${v}`).join('、')
@@ -304,8 +342,8 @@ export function buildMarketEntry(market, universe, result, today, extraDetail = 
   ex && `排除：${ex}`,
   kind === 'proxy' ? (universe.confirmedAt ? `名单最近官方确认 ${universe.confirmedAt.slice(0, 10)} 超过${CONFIRM_MAX_DAYS}天，按proxy记录` : '名单无自动官方确认时间，按proxy记录') : '',
   stale ? `统一观测日 ${result.observationDate} 已早于今日超过14天` : '',
-  `名单生效日 ${universe.date}`,
-  '指数成分内MA200以上占比，非全A股；腾讯前复权日线，个股须在统一观测日有真实日线且不少于220日', extraDetail].filter(Boolean).join('。')
+  `${dateLabel} ${universe.date}`,
+  `指数成分内MA200以上占比，非全A股；${barsNote}，个股须在统一观测日有真实日线且不少于220日`, extraDetail].filter(Boolean).join('。')
   return { universeId: MARKETS[market].id, universeDate: universe.date, source: universe.source, kind,
     observationDate: result.observationDate ?? universe.date, coverage: result.coverage, eligible: result.eligible, total: result.total,
     breadth: result.breadth, priorBreadth: result.priorBreadth, exclusions: result.exclusions, detail }
@@ -314,6 +352,11 @@ export function buildMarketEntry(market, universe, result, today, extraDetail = 
 /** A cached/published CSI300 list is reusable only if it validates; otherwise it is ignored. */
 function usableUniverse(u, today) {
   try { return u && validateUniverse({ ...u, source: u.source ?? CSI300_XLS }, today) && { ...u, source: u.source ?? CSI300_XLS } } catch { return null }
+}
+
+/** A cached/published official HK list is reusable only if it validates AND carries the exact whitelisted official source URL. */
+function usableHkUniverse(u, today, market) {
+  try { return u && isOfficialHkSource(u, market) && validateUniverse(u, today, { min: 20, max: 120, pattern: /^\d{1,5}$/ }) && u } catch { return null }
 }
 
 /**
@@ -351,7 +394,7 @@ export async function run(opts = {}) {
   }
 
   const universes = {}
-  const process_ = async (m, list, confirmedAt, cap) => {
+  const process_ = async (m, list, confirmedAt, cap, { note = '', dateLabel, barsNote } = {}) => {
     const members = list.codes.map(code => ({ code }))
     const metaFile = path.join(cacheDir, `meta-${m}.json`)
     const stored = await readJson(metaFile)
@@ -364,7 +407,7 @@ export async function run(opts = {}) {
     if (r.failures.length) issues.push(`${MARKETS[m].name}逐股日线失败 ${r.failures.length} 只，例：${r.failures.slice(0, 3).join('；')}`)
     if (r.tripped) issues.push(`${MARKETS[m].name}日线连续失败${BREAKER}次，本轮熔断`)
     const result = computeBreadth(members, bars, today)
-    markets[m] = buildMarketEntry(m, { date: list.date, source: list.source, confirmedAt }, result, today, `本轮请求 ${used}/${budget}`)
+    markets[m] = buildMarketEntry(m, { date: list.date, source: list.source, confirmedAt }, result, today, [`本轮请求 ${used}/${budget}`, note].filter(Boolean).join('，'), { dateLabel, barsNote })
     if (result.breadth === null) issues.push(`${MARKETS[m].name}宽度进度：合格 ${result.eligible}/${result.total}，待后续轮次补齐`)
   }
   if (csi) {
@@ -376,17 +419,34 @@ export async function run(opts = {}) {
   }
   for (const m of ['hsi', 'hstech']) {
     const configured = published?.universes?.[m]
-    let list = null
-    if (configured?.status === 'ok') {
-      try { list = validateUniverse(configured, today, { min: 20, max: 120, pattern: /^\d{1,5}$/ }); if (!list.source) throw new Error('source缺失') } catch (e) { issues.push(`${MARKETS[m].name}静态名单无效：${errText(e)}`); list = null }
+    const cached = usableHkUniverse(await readJson(path.join(cacheDir, `universe-${m}.json`)), today, m)
+    // A list published by a previous successful official fetch is the fallback when the cache is lost;
+    // only the whitelisted official source URL can confirm a list, anything else stays unconfirmed.
+    const fallback = usableHkUniverse(configured?.status === 'ok' ? configured : null, today, m)
+    // The newest confirmation wins; a verified official list votes observed, anything else stays proxy.
+    let list = [cached, fallback].filter(Boolean).sort((a, b) => (b.fetchedAt ?? '').localeCompare(a.fetchedAt ?? ''))[0] ?? null
+    if (!list || !list.fetchedAt || daysBetween(list.fetchedAt.slice(0, 10), today) > UNIVERSE_MAX_AGE_DAYS) {
+      if (remaining() > 0) {
+        used++
+        try {
+          const fresh = await fetchHkUniverse({ market: m, fetchImpl, today })
+          list = { ...fresh, fetchedAt: now.toISOString() }
+          await writeJson(path.join(cacheDir, `universe-${m}.json`), list)
+        } catch (e) {
+          issues.push(`${MARKETS[m].name}官方名单更新失败，沿用${list ? `快照日 ${list.date}、最近确认 ${list.fetchedAt ?? '未知'}` : '无'}的名单：${errText(e)}`)
+        }
+      } else issues.push(`请求预算为0或耗尽，未更新${MARKETS[m].name}名单`)
     }
     if (list) {
-      // Static configuration has no automatic official confirmation: always proxy, never counted as current/exact.
-      await process_(m, list, undefined, remaining())
-      universes[m] = configured
+      await process_(m, list, list.fetchedAt, remaining(), {
+        note: '港股前复权日线来源为东方财富kline(fqt=1，已核定)；腾讯不提供港股前复权',
+        dateLabel: '名单快照日（官方实时成分快照，非生效变更日）',
+        barsNote: '东方财富前复权日线(fqt=1)',
+      })
+      universes[m] = { id: MARKETS[m].id, date: list.date, source: list.source, fetchedAt: list.fetchedAt, status: 'ok', codes: list.codes }
     } else {
       issues.push(`${MARKETS[m].name}：尚无经核定的完整当期成分名单，宽度缺失`)
-      universes[m] = { id: MARKETS[m].id, status: 'missing', reason: configured?.reason ?? '官方全成分端点未核定；不使用静态旧名单冒充当期' }
+      universes[m] = { id: MARKETS[m].id, status: 'missing', reason: configured?.status === 'ok' ? '静态名单来源不在官方白名单' : (configured?.reason ?? '官方全成分端点获取失败且无已确认名单；不使用静态旧名单冒充当期') }
     }
   }
   await writeJson(universeFile, { schemaVersion: 1, generatedAt: now.toISOString(), universes })
