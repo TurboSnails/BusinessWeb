@@ -425,9 +425,9 @@ export async function run(opts = {}) {
     const stored = await readJson(metaFile)
     const meta = stored && typeof stored === 'object' && !Array.isArray(stored) ? stored : {}
     for (const [k, v] of Object.entries(meta)) if (!v || typeof v.fetchedAt !== 'string' || !Number.isFinite(Date.parse(v.fetchedAt))) delete meta[k]
-    if (m !== 'csi300') await reuseHkBars(cacheDir, m, members, meta, today)
-    // Validate before scheduling so a corrupt fresh cache is re-requested in this round.
+    // Drop corrupt own caches before comparing timestamps with a valid peer.
     await loadBars(cacheDir, m, members, meta, today)
+    if (m !== 'csi300') await reuseHkBars(cacheDir, m, members, meta, today)
     const r = await fetchBatch({ market: m, codes: selectBatch(members, meta, today, cap), fetchImpl, today, meta, cacheDir, concurrency })
     used += r.requests
     const bars = await loadBars(cacheDir, m, members, meta, today)

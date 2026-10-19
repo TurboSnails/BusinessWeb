@@ -437,3 +437,30 @@ test('run: same HK security reuses verified forward-adjusted bars across indices
   assert.equal(out.snapshot.markets.hstech.breadth, 100)
   assert.equal(out.snapshot.markets.hstech.coverage, 0.95)
 })
+
+test('run: a newer corrupt own cache does not hide valid peer bars', async () => {
+  const { codes, opts } = await preparedHkRun()
+  const { mkdir } = await import('node:fs/promises')
+  for (const market of ['hsi', 'hstech']) await mkdir(path.join(opts.cacheDir, 'bars', `${market}-em`), { recursive: true })
+  await writeFile(path.join(opts.cacheDir, 'meta-hsi.json'), JSON.stringify({ [codes[0]]: { fetchedAt: `${TODAY}T09:00:00.000Z`, src: 'em-fqt1' } }))
+  await writeFile(path.join(opts.cacheDir, 'bars', 'hsi-em', `${codes[0]}.json`), JSON.stringify(series(260, TODAY, k => 100 + k)))
+  await writeFile(path.join(opts.cacheDir, 'meta-hstech.json'), JSON.stringify({ [codes[0]]: { fetchedAt: `${TODAY}T09:30:00.000Z`, src: 'em-fqt1' } }))
+  await writeFile(path.join(opts.cacheDir, 'bars', 'hstech-em', `${codes[0]}.json`), '{bad')
+  const out = await run({ ...opts, budget: 0 })
+  assert.equal(out.snapshot.markets.hstech.eligible, 1)
+})
+
+test('run: peer reuse excludes stale, future, failed and corrupt bars', async () => {
+  const { codes, opts } = await preparedHkRun()
+  const { mkdir } = await import('node:fs/promises')
+  await mkdir(path.join(opts.cacheDir, 'bars', 'hsi-em'), { recursive: true })
+  const meta = Object.fromEntries(codes.slice(0, 5).map(code => [code, { fetchedAt: `${TODAY}T09:00:00.000Z`, src: 'em-fqt1' }]))
+  meta[codes[0]].fetchedAt = '2026-10-01T09:00:00.000Z'
+  meta[codes[1]].fetchedAt = '2026-10-17T09:00:00.000Z'
+  meta[codes[2]].failedAt = `${TODAY}T09:30:00.000Z`
+  for (const code of codes.slice(0, 5)) await writeFile(path.join(opts.cacheDir, 'bars', 'hsi-em', `${code}.json`), code === codes[3] ? '{bad' : JSON.stringify(series(260, TODAY, k => 100 + k)))
+  await writeFile(path.join(opts.cacheDir, 'meta-hsi.json'), JSON.stringify(meta))
+  const out = await run({ ...opts, budget: 0 })
+  assert.equal(out.snapshot.markets.hstech.eligible, 1)
+  assert.equal(out.snapshot.markets.hstech.exclusions.not_fetched, 19)
+})

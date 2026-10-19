@@ -52,6 +52,33 @@ describe('自动证据与影子规则', () => {
 
 describe('资金行精确状态（每市场必填，不伪造日期/来源）', () => {
   const mkSnap = (facts: AutomaticFact[]) => ({ schemaVersion: 1 as const, generatedAt: now, facts, issues: [] })
+  const turnover = (patch: Partial<AutomaticFact> = {}) => fact({ metricId: 'turnover_ratio_52w', market: 'hstech', value: 1.6,
+    unit: '倍', frequency: 'weekly', source: 'https://web.ifzq.gtimg.cn/', description: '恒科完整周与前52周同口径日均成交额', ...patch })
+  const south = (patch: Partial<AutomaticFact> = {}) => fact({ metricId: 'hk_south_20d', market: 'all', value: 400.08, unit: '亿元',
+    source: 'https://datacenter-web.eastmoney.com/', description: '港股通南向合计近20交易日', ...patch })
+  it('同指数成交额完整周比值与有效南向齐备时，按现有规则计资金票并列出两个来源', () => {
+    const r = automaticRows('hstech', mkSnap([turnover(), south()]), null, '2026-10-17').funding
+    expect(r?.available).toBe(true)
+    expect(r?.signal).toBe('positive')
+    expect(r?.detail).toContain('1.60')
+    expect(r?.detail).toContain('400.08')
+    expect(r?.detail).toContain('背景')
+    expect(r?.detail).toContain('https://datacenter-web.eastmoney.com/')
+    expect(r?.source).toBe('https://web.ifzq.gtimg.cn/')
+    expect(automaticRows('hsi', mkSnap([turnover(), south()]), null, '2026-10-17').funding?.available).toBe(false)
+  })
+  it('资金自动票沿用缩量与南向方向阈值，不把放量自动等同向上', () => {
+    expect(automaticRows('hstech', mkSnap([turnover(), south({ value: -1 })]), null, '2026-10-17').funding?.signal).toBe('risk')
+    expect(automaticRows('hstech', mkSnap([turnover({ value: 0.5 }), south()]), null, '2026-10-17').funding?.signal).toBe('bottom')
+    expect(automaticRows('hstech', mkSnap([turnover({ value: 1 }), south()]), null, '2026-10-17').funding?.signal).toBe('neutral')
+  })
+  it('成交额为代理、过期、超范围、错误单位或南向无效时不计资金票', () => {
+    for (const patch of [{ kind: 'proxy' as const }, { observationDate: '2026-10-01' }, { value: -1 }, { value: 31 }, { unit: '元' }]) {
+      expect(automaticRows('hstech', mkSnap([turnover(patch), south()]), null, '2026-10-17').funding?.available).toBe(false)
+    }
+    expect(automaticRows('hstech', mkSnap([turnover(), south({ kind: 'proxy' })]), null, '2026-10-17').funding?.available).toBe(false)
+    expect(automaticRows('hstech', mkSnap([turnover()]), null, '2026-10-17').funding?.detail).toContain('已采集')
+  })
   it('HK funding always emits a row; uses the verified 006-channel southbound fact as background, not vote', () => {
     const south = fact({ metricId: 'hk_south_20d', market: 'all', value: 400.08, unit: '亿元', observationDate: '2026-10-16',
       source: 'https://datacenter-web.eastmoney.com/api/data/v1/get?filter=MUTUAL_TYPE%3D%22006%22',

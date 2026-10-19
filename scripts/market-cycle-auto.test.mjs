@@ -187,6 +187,15 @@ function fakeFetch(overrides = {}) {
     calls.push(url)
     for (const [needle, handler] of Object.entries(overrides)) if (url.includes(needle)) return handler(url, init)
     if (url.startsWith(URLS.csindex)) return json({ data: pe.data })
+    if (url.includes('param=hkHSTECH') || url.includes('param=hkHSI')) {
+      const symbol = url.includes('hkHSTECH') ? 'HSTECH' : 'HSI', code = `hk${symbol}`
+      const day = []
+      for (let t = Date.parse('2025-03-05'); t <= Date.parse('2026-10-16'); t += 864e5) {
+        const d = new Date(t)
+        if (d.getUTCDay() > 0 && d.getUTCDay() < 6) day.push([d.toISOString().slice(0, 10), '1', '1', '1', '1', '100'])
+      }
+      return json({ code: 0, data: { [code]: { day, qt: { [code]: ['100', `${symbol} index`, symbol, ...Array(72).fill(''), 'HKD'] } } } })
+    }
     if (url.includes('RPTA_WEB_TREASURYYIELD')) {
       const page = Number(/pageNumber=(\d+)/.exec(url)[1])
       const slice = yieldDates.slice((page - 1) * 500, page * 500)
@@ -233,10 +242,7 @@ test('buildAutoSnapshot: all sources, treasury paging, contract-valid output', a
   assert.ok(fetchImpl.calls.filter(u => u.includes('RPTA_WEB_TREASURYYIELD')).length >= 3, 'treasury must be paged')
   for (const f of out.facts) assert.equal(factProblem(f, NOW), null)
   const ids = new Set(out.facts.map(f => `${f.metricId}/${f.market}`))
-  for (const id of ['erp_z/csi300', 'pe/csi300', 'pe/hsi', 'pe/hstech', 'financing_buy/all', 'hkd/all', 'cnh/all', 'etf_shares_510300/csi300', 'hk_south_20d/all']) assert.ok(ids.has(id), id)
-  // Turnover pairs (1w vs 52w) are deliberately NOT published: HSI/HSTECH index-trade field unit and 52-week history
-  // cannot be verified without a one-handed source that distinguishes HK$ vs RMB or vendors the 252 trading-day window.
-  assert.equal([...ids].filter(s => s.startsWith('turnover_')).length, 0)
+  for (const id of ['erp_z/csi300', 'pe/csi300', 'pe/hsi', 'pe/hstech', 'financing_buy/all', 'hkd/all', 'cnh/all', 'etf_shares_510300/csi300', 'hk_south_20d/all', 'turnover_ratio_52w/hstech']) assert.ok(ids.has(id), id)
   const erpz = out.facts.find(f => f.metricId === 'erp_z')
   for (const id of ['erp_z', 'erp', 'cn10y']) assert.equal(out.facts.find(f => f.metricId === id).kind, 'observed')
   assert.match(out.facts.find(f => f.metricId === 'cn10y').description, /akshare\/main\/akshare\/bond\/bond_em\.py.*非中债官方直连/)
@@ -288,7 +294,7 @@ test('invalid previous facts are dropped with an issue; fatal only with nothing 
   const none = await buildAutoSnapshot(null, { fetchImpl: failAll, now: NOW, parseXlsx: fakeXlsx })
   assert.equal(none.facts.length, 0)
   assert.equal(isFatal(none), true)
-  assert.equal(SOURCES.length, 8)
+  assert.equal(SOURCES.length, 10)
 })
 
 test('writeAtomic leaves no temp file and round-trips', async () => {

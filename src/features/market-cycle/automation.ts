@@ -1,3 +1,4 @@
+import { assessManual } from './engine'
 import type { Evidence, ManualDimension, Market } from './engine'
 
 export interface AutomaticFact {
@@ -17,7 +18,7 @@ export interface ShadowState {
   confirmations: number; weakWeeks: number
 }
 export function factLabel(id: string): string {
-  const names: Record<string, string> = { erp_z: 'ERP五年标准分', erp: '简化股债收益率差', pe: '指数市盈率', cn10y: '中国10年国债收益率', financing_buy: '两市融资买入额', hk_south_20d: '南向20日净买入', cnh: '离岸人民币汇率', hkd: '港元汇率' }
+  const names: Record<string, string> = { erp_z: 'ERP五年标准分', erp: '简化股债收益率差', pe: '指数市盈率', pe_history_5y_percentile: '恒指同源历史PE五年分位', cn10y: '中国10年国债收益率', financing_buy: '两市融资买入额', hk_south_20d: '南向20日净买入', turnover_ratio_52w: '指数周成交额/52周', cnh: '离岸人民币汇率', hkd: '港元汇率' }
   return names[id] ?? (id.startsWith('etf_shares_') ? `ETF ${id.slice(11)} 总份额` : id)
 }
 const dateOK = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && Number.isFinite(Date.parse(s)) && new Date(s).toISOString().slice(0, 10) === s
@@ -89,12 +90,15 @@ export function automaticRows(market: Market, snapshot: AutomaticSnapshot | null
     const latest = candidates[0]
     return latest && latest.kind === 'observed' && latest.observationDate <= today && factUsable(latest, asOf) ? latest : undefined
   }
-  const erp = find('erp_z'), pe = find('pe'), financing = find('financing_buy'), south = find('hk_south_20d')
+  const erp = find('erp_z'), pe = find('pe'), peHistory = market === 'hsi' ? find('pe_history_5y_percentile') : undefined
+  const financing = find('financing_buy'), south = find('hk_south_20d')
+  const turnover = find('turnover_ratio_52w')
   // ---- valuation ----
   if (market === 'csi300' && erp) {
     out.valuation = { id: 'valuation', name: '估值与赔率', signal: erp.value >= 1.5 ? 'bottom' : erp.value <= -1 ? 'risk' : 'neutral', available: true, source: erp.source, date: erp.observationDate, detail: `自动 · 简化ERP z-score ${erp.value.toFixed(2)}。${erp.description}` }
   } else if (pe) {
-    out.valuation = { id: 'valuation', name: '估值与赔率', signal: 'missing', available: false, source: pe.source, date: pe.observationDate, detail: `自动 · PE ${pe.value.toFixed(2)}。${pe.description} 尚无合格的长期分位，不计估值票。` }
+    const reference = peHistory ? `同源第三方历史PE五年分位 ${peHistory.value.toFixed(1)}%（观测 ${peHistory.observationDate}）；其PE盈利/加权公式未公开，作为参考展示，不替代该指数TTM口径，不计估值票。` : '尚无合格的长期同口径分位，不计估值票。'
+    out.valuation = { id: 'valuation', name: '估值与赔率', signal: 'missing', available: false, source: pe.source, date: pe.observationDate, detail: `自动 · PE ${pe.value.toFixed(2)}。${pe.description} ${reference}` }
   }
   // ---- funding: every market always emits a row, with a precise reason when data is missing ----
   if (market === 'csi300') {
@@ -107,12 +111,20 @@ export function automaticRows(market: Market, snapshot: AutomaticSnapshot | null
     }
   } else {
     const idxName = market === 'hsi' ? '恒生指数' : '恒生科技指数'
-    if (south) {
+    const validTurnover = market === 'hstech' && turnover?.frequency === 'weekly' && turnover.unit === '倍' && turnover.value > 0 && turnover.value <= 30 ? turnover : undefined
+    if (validTurnover && south) {
+      const vote = assessManual('funding', market, { date: validTurnover.observationDate, source: validTurnover.source,
+        values: { volumeRatio: validTurnover.value, south: south.value } }, asOf)
+      out.funding = { ...vote, detail: `自动 · 完整周指数成交额/此前52周同口径日均 ${validTurnover.value.toFixed(2)}倍；${south.value.toLocaleString()}亿元南向净买入仅作全港股背景，不代表${idxName}成分股流入。${validTurnover.description} 南向来源：${south.source}。` }
+    } else if (south) {
+      const turnoverDetail = validTurnover
+        ? `完整周指数成交额/此前52周同口径日均已采集 ${validTurnover.value.toFixed(2)}倍（观测 ${validTurnover.observationDate}）；南向数据无有效的近20交易日观测。`
+        : `${idxName}完整周与前52周同口径成交额尚未取得有效数据。`
       out.funding = { id: 'funding', name: '资金与杠杆', signal: 'missing', available: false, source: south.source, date: south.observationDate,
-        detail: `自动 · 港股通南向合计（沪+深）近20个交易日净买入 ${south.value.toLocaleString()} ${south.unit}（人民币）。仅作全港股背景，不代表${idxName}成分股流入；还缺本指数完整周与前52周的同口径成交额，暂不计票。` }
+        detail: `自动 · 港股通南向合计（沪+深）近20个交易日净买入 ${south.value.toLocaleString()} ${south.unit}（人民币），仅作全港股背景，不代表${idxName}成分股流入。${turnoverDetail}暂不计票。` }
     } else {
       out.funding = { id: 'funding', name: '资金与杠杆', signal: 'missing', available: false,
-        detail: `自动 · 港股通南向净买入未取得有效的近20个交易日数据；${idxName}完整周与前52周的同口径成交额也尚未补齐，暂不计票。` }
+        detail: `自动 · 港股通南向净买入未取得有效的近20个交易日数据；${validTurnover ? `${idxName}完整周成交额/前52周日均 ${validTurnover.value.toFixed(2)}倍已采集` : `${idxName}完整周与前52周的同口径成交额也尚未补齐`}，暂不计票。` }
     }
   }
   // ---- breadth: every market always emits a row, with a precise reason when no entry exists ----

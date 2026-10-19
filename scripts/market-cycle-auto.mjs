@@ -4,6 +4,8 @@
 import { readFile, writeFile, rename } from 'node:fs/promises'
 import { spawn } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
+import { collectHkLiquidity } from './market-cycle-liquidity.mjs'
+import { collectHsiPeHistory } from './market-cycle-hk-pe-history.mjs'
 
 export const OUT_FILE = fileURLToPath(new URL('../public/data/market-cycle-auto.json', import.meta.url))
 const XLSX_PY = fileURLToPath(new URL('./market-cycle-xlsx.py', import.meta.url))
@@ -402,11 +404,13 @@ export const SOURCES = [
   { id: 'csi300-erp', produces: [['pe', 'csi300'], ['erp_z', 'csi300'], ['erp', 'csi300'], ['cn10y', 'csi300']], run: collectCsi300 },
   { id: 'hsi-pe', produces: [['pe', 'hsi']], run: hsiSource('hsi', URLS.hsi, 'B', 'Hang Seng Index', '恒生指数') },
   { id: 'hstech-pe', produces: [['pe', 'hstech']], run: hsiSource('hstech', URLS.hstech, 'A', 'Hang Seng TECH Index', '恒生科技指数') },
+  { id: 'hsi-pe-history', produces: [['pe_history_5y_percentile', 'hsi']], run: collectHsiPeHistory },
   { id: 'margin', produces: [['financing_buy', 'all']], run: collectMargin },
   { id: 'fred-hkd', produces: [['hkd', 'all']], run: collectHkd },
   { id: 'yahoo-cnh', produces: [['cnh', 'all']], run: collectCnh },
   { id: 'sse-etf', produces: ETF_WHITELIST.map(w => [`etf_shares_${w.code}`, w.market]), run: collectEtf },
   { id: 'hk-south', produces: [['hk_south_20d', 'all']], run: collectSouthbound },
+  { id: 'hk-liquidity', produces: [['turnover_ratio_52w', 'hstech']], run: collectHkLiquidity },
 ]
 
 /** Runs `tasks` with at most `limit` in flight. */
