@@ -181,12 +181,14 @@ function peBody() {
 }
 function fakeFetch(overrides = {}) {
   const pe = peBody()
+  const hsiPeDates = dayList('2021-10-18', 2300).filter(d => ![0, 6].includes(new Date(d).getUTCDay())).filter(d => d <= '2026-10-16')
   const yieldDates = [...pe.dates].reverse()
   const calls = []
   const impl = async (url, init) => {
     calls.push(url)
     for (const [needle, handler] of Object.entries(overrides)) if (url.includes(needle)) return handler(url, init)
     if (url.startsWith(URLS.csindex)) return json({ data: pe.data })
+    if (url.includes('eniu.com/chart/peindex/hkhsi/t/60')) return json({ date: hsiPeDates, pe: hsiPeDates.map((_, i) => 12 + (i % 9) / 2) })
     if (url.includes('param=hkHSTECH') || url.includes('param=hkHSI')) {
       const symbol = url.includes('hkHSTECH') ? 'HSTECH' : 'HSI', code = `hk${symbol}`
       const day = []
