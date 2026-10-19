@@ -17,7 +17,7 @@ export interface ShadowState {
   confirmations: number; weakWeeks: number
 }
 export function factLabel(id: string): string {
-  const names: Record<string, string> = { erp_z: 'ERP五年标准分', erp: '简化股债收益率差', pe: '指数市盈率', pe_history_5y_percentile: '恒指同源历史PE五年分位', cn10y: '中国10年国债收益率', financing_buy: '两市融资买入额', hk_south_20d: '南向20日净买入', turnover_ratio_52w: '指数周成交额/52周', cnh: '离岸人民币汇率', hkd: '港元汇率' }
+  const names: Record<string, string> = { erp_z: 'ERP五年标准分', erp: '简化股债收益率差', pe: '指数市盈率', pe_history_5y_percentile: '恒指第三方日频PE五年分位', pe_official_5y_percentile: '官方月末PE五年分位', cn10y: '中国10年国债收益率', financing_buy: '两市融资买入额', financing_buy_ratio_pct: '两市融资买入占比', cn_turnover_yi: '沪深A股及上市基金成交额', hk_south_20d: '南向20日净买入', index_week_daily_turnover_hkd: '恒指完整周日均成交额', turnover_ratio_52w: '周日均成交额/52周基准', cnh: '离岸人民币汇率', hkd: '港元汇率' }
   return names[id] ?? (id.startsWith('etf_shares_') ? `ETF ${id.slice(11)} 总份额` : id)
 }
 const dateOK = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && Number.isFinite(Date.parse(s)) && new Date(s).toISOString().slice(0, 10) === s
@@ -66,10 +66,8 @@ export function factUsable(f: AutomaticFact, asOf: string): boolean {
     && Date.parse(f.firstSeenAt) < Date.parse(asOf) + 86400000
 }
 
-/** HK funding is "whole-market background, not the index" — automatic rows are wired but never power a vote.
- *  The detail must include the verified same-unit window and a clear "background" disclaimer, so the reader sees
- *  why the row is non-voting instead of a generic "data missing". The CSI300 source/download URL is reserved
- *  for the CSI300 market; HK funding cards must not borrow it. */
+/** Only same-index turnover can power a HK funding vote; southbound is whole-market context.
+ * A-share financing and turnover must use the same market scope and observation date. */
 
 
 export function automaticRows(market: Market, snapshot: AutomaticSnapshot | null, breadth: BreadthSnapshot | null, asOf: string, newHigh = false): Partial<Record<ManualDimension, Evidence>> {
@@ -90,41 +88,63 @@ export function automaticRows(market: Market, snapshot: AutomaticSnapshot | null
     return latest && latest.kind === 'observed' && latest.observationDate <= today && factUsable(latest, asOf) ? latest : undefined
   }
   const erp = find('erp_z'), pe = find('pe'), peHistory = market === 'hsi' ? find('pe_history_5y_percentile') : undefined
-  const financing = find('financing_buy'), south = find('hk_south_20d')
-  const turnover = find('turnover_ratio_52w')
+  const officialPe = find('pe_official_5y_percentile')
+  const financing = find('financing_buy'), financingRatio = find('financing_buy_ratio_pct'), south = find('hk_south_20d')
+  const turnover = find('turnover_ratio_52w'), weeklyAmount = find('index_week_daily_turnover_hkd')
   // ---- valuation ----
   if (market === 'csi300' && erp) {
     out.valuation = { id: 'valuation', name: '估值与赔率', signal: erp.value >= 1.5 ? 'bottom' : erp.value <= -1 ? 'risk' : 'neutral', available: true, source: erp.source, date: erp.observationDate, detail: `自动 · 简化ERP z-score ${erp.value.toFixed(2)}。${erp.description}` }
+  } else if (pe && officialPe?.frequency === 'monthly' && officialPe.unit === '%' && officialPe.value >= 0 && officialPe.value <= 100 && officialPe.observationDate === pe.observationDate) {
+    const signal = officialPe.value <= 10 ? 'bottom' : officialPe.value >= 90 ? 'risk' : 'neutral'
+    out.valuation = { id: 'valuation', name: '估值与赔率', signal, available: true, source: officialPe.source, date: officialPe.observationDate,
+      detail: `市盈率${pe.value.toFixed(2)}倍，处于近5年官方月末样本的${officialPe.value.toFixed(1)}%分位。${signal === 'bottom' ? '低于10%低估观察线。' : signal === 'risk' ? '高于90%偏贵观察线。' : '位于10%—90%的中间区间。'}`,
+      methodDetail: `${officialPe.description} ${pe.description}` }
   } else if (pe) {
-    const reference = peHistory ? `同源第三方历史PE五年分位 ${peHistory.value.toFixed(1)}%（观测 ${peHistory.observationDate}）；其PE盈利/加权公式未公开，作为参考展示，不替代该指数TTM口径，不计估值票。` : '尚无合格的长期同口径分位，不计估值票。'
-    out.valuation = { id: 'valuation', name: '估值与赔率', signal: 'missing', available: false, source: pe.source, date: pe.observationDate, detail: `自动 · PE ${pe.value.toFixed(2)}。${pe.description} ${reference}` }
+    const lossMonths = snapshot?.issues.some(s => s.startsWith(`${market}-official-pe:`) && s.includes('非正PE'))
+    out.valuation = { id: 'valuation', name: '估值与赔率', signal: 'missing', available: false, source: pe.source, date: pe.observationDate,
+      pendingReason: lossMonths ? '历史PE含亏损期' : '历史估值待补齐',
+      detail: `市盈率${pe.value.toFixed(2)}倍。${lossMonths ? '五年历史包含负市盈率，不能直接按普通PE分位判断贵贱。' : '尚缺足够的同口径历史，暂不能判断当前估值位置。'}`,
+      methodDetail: `${pe.description} ${lossMonths ? snapshot?.issues.filter(s => s.startsWith(`${market}-official-pe:`)).join('；') : ''}${peHistory ? `第三方日频PE分位${peHistory.value.toFixed(1)}%仅作参考；${peHistory.description}` : ''}` }
   }
   // ---- funding: every market always emits a row, with a precise reason when data is missing ----
   if (market === 'csi300') {
-    if (financing) {
+    const volume = turnover?.unit === '倍' && turnover.frequency === 'weekly' && turnover.value > 0 && turnover.value <= 30 ? turnover : undefined
+    const qualifiedRatio = (f: AutomaticFact) => f.metricId === 'financing_buy_ratio_pct' && f.market === 'csi300' && f.kind === 'observed' && f.unit === '%' && f.frequency === 'daily' && f.value >= 0 && f.value <= 100 && factUsable(f, asOf)
+    // Weekly assessment uses the financing ratio at the same completed week's close, even after newer daily data arrives.
+    const pairedRatio = volume ? snapshot?.facts.find(f => qualifiedRatio(f) && f.observationDate === volume.observationDate) : undefined
+    const ratio = pairedRatio ?? (financingRatio && qualifiedRatio(financingRatio) ? financingRatio : undefined)
+    if (ratio && volume && ratio.observationDate === volume.observationDate) {
+      const signal = ratio.value >= 10 ? 'risk' : volume.value <= 0.5 && ratio.value < 6 ? 'bottom' : volume.value >= 1.5 && ratio.value < 10 ? 'positive' : 'neutral'
+      out.funding = { id: 'funding', name: '资金与杠杆', signal, available: true, source: ratio.source, date: ratio.observationDate,
+        detail: `融资买入占沪深A股及上市基金成交额的${ratio.value.toFixed(2)}%；完整周日均成交额为此前52周基准的${volume.value.toFixed(2)}倍。${signal === 'risk' ? '融资占比已触及10%风险观察线。' : signal === 'bottom' ? '成交与融资均处于低位观察区。' : signal === 'positive' ? '成交放大，融资占比尚未触及风险线。' : '当前资金信号中性。'}`,
+        methodDetail: `两市全市场背景指标，并非沪深300成分股专属。融资占比与成交额基准统一截至完整周最后交易日${volume.observationDate}。${ratio.description} ${volume.description}` }
+    } else if (ratio) {
+      out.funding = { id: 'funding', name: '资金与杠杆', signal: 'missing', available: false, source: ratio.source, date: ratio.observationDate, pendingReason: '缺少成交额基准',
+        detail: `融资买入占比已核定为${ratio.value.toFixed(2)}%。${volume ? '周成交额与融资数据日期尚未对齐。' : '完整周与此前52周的成交额基准尚未齐备。'}`,
+        methodDetail: `${ratio.description} ${volume?.description ?? ''}` }
+    } else if (financing) {
       out.funding = { id: 'funding', name: '资金与杠杆', signal: 'missing', available: false, source: financing.source, date: financing.observationDate,
-        detail: `自动 · 沪深两市合计融资买入额原值 ${financing.value.toLocaleString()} ${financing.unit}(东财RPTA_RZRQ_LSHJ.RZMRE，元÷1e8)；同覆盖成交额分母未核定，不计占比、不计票。` }
+        pendingReason: '融资占比待核定', detail: `沪深两市融资买入额${financing.value.toLocaleString()}亿元。尚缺同日、同范围的成交额，暂不能计算融资占比。`, methodDetail: `需将融资买入额与同一交易日的沪深A股及上市基金成交额分母配对。${financing.description}` }
     } else {
       out.funding = { id: 'funding', name: '资金与杠杆', signal: 'missing', available: false,
-        detail: `自动 · 沪深两市融资买入额原值(东财RPTA_RZRQ_LSHJ.RZMRE)未采集或最新观测已过期，不假设值；需公开来源链接、≤14天观测日期才计票。` }
+        pendingReason: '融资数据待更新', detail: '尚无有效的两市融资买入数据，暂不能判断资金与杠杆状态。', methodDetail: '融资买入额及成交额须来自同一交易日，且观测距今不超过14天。' }
     }
   } else {
     const idxName = market === 'hsi' ? '恒生指数' : '恒生科技指数'
-    const validTurnover = market === 'hstech' && turnover?.frequency === 'weekly' && turnover.unit === '倍' && turnover.value > 0 && turnover.value <= 30 ? turnover : undefined
+    const validTurnover = turnover?.frequency === 'weekly' && turnover.unit === '倍' && turnover.value > 0 && turnover.value <= 30 ? turnover : undefined
+    const amount = market === 'hsi' && weeklyAmount?.frequency === 'weekly' && weeklyAmount.unit === '港元' && weeklyAmount.value > 0 ? weeklyAmount : undefined
     if (validTurnover && south) {
       const signal = validTurnover.value >= 1.5 ? south.value > 0 ? 'positive' : south.value < 0 ? 'risk' : 'neutral'
         : validTurnover.value <= 0.5 ? 'bottom' : 'neutral'
       out.funding = { id: 'funding', name: '资金与杠杆', signal, available: true, source: validTurnover.source, date: validTurnover.observationDate,
-        detail: `自动 · 完整周指数成交额/此前52周同口径日均 ${validTurnover.value.toFixed(2)}倍；${south.value.toLocaleString()}亿元南向净买入仅作全港股背景，不代表${idxName}成分股流入。${validTurnover.description} 南向来源：${south.source}。` }
+        detail: `完整周日均成交额为此前52周基准的${validTurnover.value.toFixed(2)}倍。南向近20个交易日合计净买入${south.value.toLocaleString()}亿元人民币，仅作全港股资金背景。`, methodDetail: `${validTurnover.description} 南向资金不代表${idxName}成分股流入；${south.description} 南向来源：${south.source}` }
     } else if (south) {
-      const turnoverDetail = validTurnover
-        ? `完整周指数成交额/此前52周同口径日均已采集 ${validTurnover.value.toFixed(2)}倍（观测 ${validTurnover.observationDate}）；南向数据无有效的近20交易日观测。`
-        : `${idxName}完整周与前52周同口径成交额尚未取得有效数据。`
-      out.funding = { id: 'funding', name: '资金与杠杆', signal: 'missing', available: false, source: south.source, date: south.observationDate,
-        detail: `自动 · 港股通南向合计（沪+深）近20个交易日净买入 ${south.value.toLocaleString()} ${south.unit}（人民币），仅作全港股背景，不代表${idxName}成分股流入。${turnoverDetail}暂不计票。` }
+      out.funding = { id: 'funding', name: '资金与杠杆', signal: 'missing', available: false, source: amount?.source ?? south.source, date: amount?.observationDate ?? south.observationDate,
+        pendingReason: '缺少成交额基准', detail: `${amount ? `恒指完整周日均成交额${(amount.value / 1e8).toFixed(2)}亿港元。` : ''}南向近20个交易日合计净买入${south.value.toLocaleString()}亿元人民币。尚缺${idxName}自身的52周成交额基准，暂不能给出完整资金判断。`, methodDetail: `${amount?.description ?? `${idxName}完整周及前52周同口径成交额尚未齐备。`} 南向为全港股背景，不能代表${idxName}成分股流入。${south.description} 南向来源：${south.source}` }
     } else {
       out.funding = { id: 'funding', name: '资金与杠杆', signal: 'missing', available: false,
-        detail: `自动 · 港股通南向净买入未取得有效的近20个交易日数据；${validTurnover ? `${idxName}完整周成交额/前52周日均 ${validTurnover.value.toFixed(2)}倍已采集` : `${idxName}完整周与前52周的同口径成交额也尚未补齐`}，暂不计票。` }
+        source: amount?.source, date: amount?.observationDate,
+        pendingReason: validTurnover ? '南向数据待更新' : '资金数据待补齐', detail: validTurnover ? `完整周成交额为52周基准的${validTurnover.value.toFixed(2)}倍；南向数据尚未更新，暂不能给出完整资金判断。` : `${amount ? `恒指完整周日均成交额${(amount.value / 1e8).toFixed(2)}亿港元。` : ''}尚缺${idxName}的52周成交额基准及有效南向资金数据。`, methodDetail: validTurnover?.description ?? amount?.description }
     }
   }
   // ---- breadth: every market always emits a row, with a precise reason when no entry exists ----
@@ -136,10 +156,10 @@ export function automaticRows(market: Market, snapshot: AutomaticSnapshot | null
       out.breadth = { id: 'breadth', name: '指数成分宽度', available: true,
         signal: b.breadth! <= 10 ? 'bottom' : b.priorBreadth! >= 85 && b.breadth! < 60 && newHigh ? 'risk' : b.breadth! >= 40 && b.priorBreadth! < 40 ? 'positive' : 'neutral',
         source: b.source, date: b.observationDate,
-        detail: `自动 · ${b.universeId}，名单 ${b.universeDate}；覆盖 ${(b.coverage * 100).toFixed(1)}%（${b.eligible}/${b.total}）。MA200 ${b.breadth!.toFixed(1)}%，4周前 ${b.priorBreadth!.toFixed(1)}%。${b.detail}` }
+        detail: `站上200日均线的成分股占${b.breadth!.toFixed(1)}%，4周前为${b.priorBreadth!.toFixed(1)}%。有效覆盖${b.eligible}/${b.total}只（${(b.coverage * 100).toFixed(1)}%）。`, methodDetail: `成分名单快照${b.universeDate}；${b.detail}` }
     } else {
       out.breadth = { id: 'breadth', name: '指数成分宽度', available: false, signal: 'missing', source: b.source, date: b.eligible > 0 ? b.observationDate : undefined,
-        detail: `自动 · ${b.universeId}已采集但不合格：名单快照 ${b.universeDate}；${b.kind !== 'observed' ? '名单为静态proxy无自动官方确认;' : ''}${b.exclusions.fetch_failed ? `行情请求失败 ${b.exclusions.fetch_failed} 只；` : ''}覆盖 ${(b.coverage * 100).toFixed(1)}%（${b.eligible}/${b.total}），MA200 ${b.breadth == null ? '缺失' : `${b.breadth.toFixed(1)}%`}，4周前 ${b.priorBreadth == null ? '缺失' : `${b.priorBreadth.toFixed(1)}%`}；未通过95%覆盖/前4周同口径/${age > 14 ? `观测日${b.observationDate}已超14天` : '14天内观测'}门禁，不计票。${b.detail}` }
+        pendingReason: age > 14 ? '宽度数据待更新' : '样本覆盖不足', detail: `有效覆盖${b.eligible}/${b.total}只（${(b.coverage * 100).toFixed(1)}%）。${age > 14 ? '观测已超过14天，需要更新。' : b.coverage < 0.95 ? '未达到95%覆盖要求，暂不判断市场宽度。' : '本期与4周前的有效样本尚未对齐。'}`, methodDetail: `名单${b.kind === 'observed' ? '已核定' : '为静态代理proxy，未自动核定'}；名单快照${b.universeDate}；${b.detail}` }
     }
   } else {
     const reason = breadthIssue(market, breadth, asOf)

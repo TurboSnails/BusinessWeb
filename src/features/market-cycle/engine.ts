@@ -1,4 +1,4 @@
-export const RULE_VERSION = 'cycle-observation-v1.1-auto'
+export const RULE_VERSION = 'cycle-observation-v1.2-official-monthly'
 export const MARKETS = [{ id: 'csi300', label: 'A股 · 沪深300' }, { id: 'hsi', label: '港股 · 恒生指数' }, { id: 'hstech', label: '港股 · 恒生科技' }] as const
 export type Market = typeof MARKETS[number]['id']
 export type Signal = 'bottom' | 'positive' | 'risk' | 'neutral' | 'missing'
@@ -6,7 +6,7 @@ export type ManualDimension = 'valuation' | 'funding' | 'breadth'
 export interface Bar { date: string; close: number; volume: number }
 export interface TechnicalPoint extends Bar { rsi: number | null; dif: number | null; dea: number | null; histogram: number | null; mid: number | null; upper: number | null; lower: number | null; bandwidth: number | null }
 export interface Observation { date: string; source: string; values: Record<string, number> }
-export interface Evidence { id: string; name: string; signal: Signal; detail: string; date?: string; source?: string; available: boolean }
+export interface Evidence { id: string; name: string; signal: Signal; detail: string; methodDetail?: string; pendingReason?: string; date?: string; source?: string; available: boolean }
 export interface PriceData { week: Bar[]; month: Bar[]; source: string; fetchedAt: string }
 export interface CycleSnapshot { schemaVersion: 1; generatedAt: string; markets: Partial<Record<Market, PriceData>>; warnings: string[] }
 export interface ContextSeries { latest: { date: string; value: number }; history: [string, number][]; source?: string }
@@ -64,7 +64,7 @@ export function technicalSeries(bars: Bar[]): TechnicalPoint[] {
 
 export const MANUAL_NAMES: Record<ManualDimension, string> = { valuation: '估值与赔率', funding: '资金与杠杆', breadth: '市场宽度' }
 export function manualFields(id: ManualDimension, market: Market): { key: string; label: string; min: number; max: number }[] {
-  if (id === 'valuation') return market === 'csi300' ? [{ key: 'erpZ', label: 'ERP z-score（同口径至少5年窗口）', min: -10, max: 10 }] : [{ key: 'pePercentile', label: '该指数TTM PE历史分位（%，同口径至少5年）', min: 0, max: 100 }]
+  if (id === 'valuation') return market === 'csi300' ? [{ key: 'erpZ', label: 'ERP z-score（同口径至少5年窗口）', min: -10, max: 10 }] : [{ key: 'pePercentile', label: '该指数PE历史分位（%，同口径至少5年；注明盈利及采样口径）', min: 0, max: 100 }]
   if (id === 'breadth') return [{ key: 'breadth', label: '本期站上MA200占比（%）', min: 0, max: 100 }, { key: 'priorBreadth', label: '4周前同一股票池占比（%）', min: 0, max: 100 }]
   return [{ key: 'volumeRatio', label: '完整周日均成交额 / 前52周日均成交额', min: 0, max: 30 }, market === 'csi300' ? { key: 'financing', label: '同覆盖市场融资买入占成交额（%）', min: 0, max: 100 } : { key: 'south', label: '南向近20日净买入（亿元人民币，背景代理）', min: -100000, max: 100000 }]
 }
@@ -77,7 +77,7 @@ export function assessManual(id: ManualDimension, market: Market, o: Observation
   if (id === 'valuation') {
     const x = market === 'csi300' ? v.erpZ : v.pePercentile
     signal = market === 'csi300' ? x >= 1.5 ? 'bottom' : x <= -1 ? 'risk' : 'neutral' : x <= 10 ? 'bottom' : x >= 90 ? 'risk' : 'neutral'
-    detail = market === 'csi300' ? `简化ERP z-score ${x.toFixed(2)}；≥1.5为便宜候选，≤−1为昂贵预警。需在来源记录PE类型、国债期限与历史窗口。` : `该指数TTM PE分位 ${x.toFixed(1)}%；≤10%为便宜候选，≥90%为昂贵预警。不能用沪深300 ERP替代。`
+    detail = market === 'csi300' ? `简化ERP z-score ${x.toFixed(2)}；≥1.5为便宜候选，≤−1为昂贵预警。需在来源记录PE类型、国债期限与历史窗口。` : `该指数同口径PE分位 ${x.toFixed(1)}%；≤10%为便宜候选，≥90%为昂贵预警。来源需注明盈利及采样口径。`
   } else if (id === 'funding') {
     signal = market === 'csi300' ? v.financing >= 10 ? 'risk' : v.volumeRatio <= 0.5 && v.financing < 6 ? 'bottom' : v.volumeRatio >= 1.5 && v.financing < 10 ? 'positive' : 'neutral'
       : v.volumeRatio >= 1.5 ? v.south > 0 ? 'positive' : v.south < 0 ? 'risk' : 'neutral' : v.volumeRatio <= 0.5 ? 'bottom' : 'neutral'

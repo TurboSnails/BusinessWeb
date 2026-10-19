@@ -1,16 +1,22 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { mkdtemp, readFile, readdir } from 'node:fs/promises'
+import { mkdtemp, readFile, readdir, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import {
-  buildAutoSnapshot, computeErpZ, factProblem, isFatal, mergeFacts, parseCsindexPe, parseFredCsv, parseHsiPe, parseMargin,
+  buildAutoSnapshot as buildProductionSnapshot, computeErpZ, factProblem, isFatal, mergeFacts, parseCsindexPe, parseFredCsv, parseHsiPe, parseMargin,
   parseSouthboundPage, parseSouthboundRows,
   parseSseEtf, parseTreasuryPage, parseYahooCnh, runXlsxParser, writeAtomic, ETF_WHITELIST, SOURCES, URLS,
 } from './market-cycle-auto.mjs'
+import { HSI_REPORT_METADATA_URL, hsiReportUrl } from './market-cycle-hsi-turnover.mjs'
 
 const NOW = '2026-10-17T10:00:00.000Z'
+async function buildAutoSnapshot(previous, options) {
+  const cacheDir = await mkdtemp(join(tmpdir(), 'cycle-auto-cn-test-'))
+  try { return await buildProductionSnapshot(previous, { ...options, cnTurnoverOptions: { cacheDir: join(cacheDir, 'cn') }, hsiTurnoverOptions: { cacheDir: join(cacheDir, 'hsi') } }) }
+  finally { await rm(cacheDir, { recursive: true, force: true }) }
+}
 
 test('southbound missing scalars never become a zero observation', () => {
   for (const value of ['', '   ', false, []]) {
@@ -183,12 +189,29 @@ function fakeFetch(overrides = {}) {
   const pe = peBody()
   const hsiPeDates = dayList('2021-10-18', 2300).filter(d => ![0, 6].includes(new Date(d).getUTCDay())).filter(d => d <= '2026-10-16')
   const yieldDates = [...pe.dates].reverse()
+  const reportDates = dayList('2026-09-01', 46).filter(d => ![0, 6].includes(new Date(d).getUTCDay()) && d !== '2026-10-01')
   const calls = []
   const impl = async (url, init) => {
     calls.push(url)
     for (const [needle, handler] of Object.entries(overrides)) if (url.includes(needle)) return handler(url, init)
     if (url.startsWith(URLS.csindex)) return json({ data: pe.data })
+    if (url === HSI_REPORT_METADATA_URL) {
+      assert.equal(new URL(url).searchParams.has('language'), false)
+      return json([{ seriesCode: 'hsi', reportList: [{ reportType: 'idx', reportDate: reportDates.map(date => ({ date, url: new URL(hsiReportUrl(date)).searchParams.get('resource') })) }] }])
+    }
+    if (url.includes('/content/gcs/download?resource=')) {
+      const date = reportDates.find(d => hsiReportUrl(d) === url)
+      assert.ok(date, 'only published official report paths may be requested')
+      const csv = `交易日\t指數\t指數貨幣\t指數成交額\t市場成交額\nTrade Date\tIndex\tIndex Currency\tIndex Turnover (Mn)\tMarket Turnover (Mn)\n${date.replaceAll('-', '')}\tHang Seng Index 恒生指數\tHKD\t100\t200\n`
+      return { ok: true, arrayBuffer: async () => Buffer.concat([Buffer.from([255, 254]), Buffer.from(csv, 'utf16le')]) }
+    }
     if (url.includes('eniu.com/chart/peindex/hkhsi/t/60')) return json({ date: hsiPeDates, pe: hsiPeDates.map((_, i) => 12 + (i % 9) / 2) })
+    if (url.includes('param=sh000300') || url.includes('param=sz399001')) {
+      const code = url.includes('sh000300') ? 'sh000300' : 'sz399001'
+      const dates = dayList('2025-03-05', 610).filter(d => d <= '2026-10-16' && ![0, 6].includes(new Date(d).getUTCDay()))
+        .filter(d => !(d >= '2026-02-16' && d <= '2026-02-27') && !(d.slice(5) >= '10-01' && d.slice(5) <= '10-07') && d !== '2026-01-01' && d !== '2026-01-02')
+      return json({ code: 0, data: { [code]: { day: dates.map(d => [d, '1', '1', '1', '1', '100']), qt: { [code]: ['', '', code.slice(2)] } } } })
+    }
     if (url.includes('param=hkHSTECH') || url.includes('param=hkHSI')) {
       const symbol = url.includes('hkHSTECH') ? 'HSTECH' : 'HSI', code = `hk${symbol}`
       const day = []
@@ -203,14 +226,22 @@ function fakeFetch(overrides = {}) {
       const slice = yieldDates.slice((page - 1) * 500, page * 500)
       return json({ result: { pages: Math.ceil(yieldDates.length / 500), data: slice.map(d => ({ SOLAR_DATE: `${d} 00:00:00`, EMM00166466: 2 + (Date.parse(d) % 5) / 10 })) } })
     }
-    if (url.includes('RPTA_RZRQ_LSHJ')) return json({ result: { data: [{ DIM_DATE: '2026-10-15 00:00:00', RZMRE: 124282324291 }] } })
+    if (url.includes('RPTA_RZRQ_LSHJ')) return json({ success: true, result: { data: [{ DIM_DATE: '2026-10-15 00:00:00', RZMRE: 124282324291 }] } })
     if (url.includes('fredgraph')) return json('observation_date,DEXHKUS\n2026-10-09,7.8476\n')
     if (url.includes('yahoo')) return json({ chart: { result: [{ meta: { symbol: 'CNH=X', currency: 'CNH' }, timestamp: [1792184382], indicators: { quote: [{ close: [6.6853] }] } }] } })
+    if (url.includes('COMMON_SSE_SJ_SCGM_C')) {
+      const date = new URL(url).searchParams.get('TRADE_DATE')
+      return json({ sqlId: 'COMMON_SSE_SJ_SCGM_C', result: ['主板A', '科创板', '基金'].map((PRODUCT_NAME, i) => ({ PRODUCT_NAME, TOTAL_TRADE_AMT: ['5250.21', '2118.93', '4417.26'][i], TRADE_DATE: date.replaceAll('-', '') })) })
+    }
+    if (url.includes('1803_sczm')) {
+      const date = new URL(url).searchParams.get('txtQueryDate')
+      return json([{ metadata: { catalogid: '1803_sczm', tabkey: 'tab1', subname: date, cols: { cjje: '成交金额(亿元)' } }, data: ['主板A股', '创业板A股', '基金'].map((lbmc, i) => ({ lbmc, cjje: ['4271.74', '3965.52', '1594.58'][i] })) }])
+    }
     if (url.includes('query.sse.com.cn')) {
       const date = /STAT_DATE=([\d-]+)/.exec(url)[1]
       return json({ result: date === '2026-10-16' ? ETF_WHITELIST.map(w => ({ STAT_DATE: date, SEC_CODE: w.code, SEC_NAME: w.name, TOT_VOL: '1000' })) : [] })
     }
-    if (url.includes('hsi.com.hk')) return { ok: true, status: 200, arrayBuffer: async () => Buffer.concat([Buffer.from('PK'), Buffer.alloc(2000)]) }
+    if (url.includes('hsi.com.hk')) return { ok: true, status: 200, arrayBuffer: async () => Buffer.concat([Buffer.from(url.includes('hstech') ? 'PKhstech' : 'PKhsi'), Buffer.alloc(2000)]) }
     if (url.includes('RPT_MUTUAL_DEAL_HISTORY')) {
       const m = /MUTUAL_TYPE%3D%22(\d+)%22/.exec(url)
       const type = m ? m[1] : ''
@@ -232,25 +263,31 @@ function fakeFetch(overrides = {}) {
   return impl
 }
 const fakeXlsx = async buf => (buf.length ? [
-  { r: 3, c: 'B', v: 'Hang Seng Index' }, { r: 3, c: 'A', v: 'Hang Seng TECH Index' }, { r: 4, c: 'A', v: 46295 }, { r: 4, c: 'B', v: 13.79 },
+  { r: 3, c: 'B', v: 'Hang Seng Index' }, { r: 3, c: 'A', v: 'Hang Seng TECH Index' }, { r: 4, c: 'A', v: 46295 }, { r: 4, c: 'B', v: buf.includes(Buffer.from('hstech')) ? 28.23 : 13.79 },
 ] : [])
 
 test('buildAutoSnapshot: all sources, treasury paging, contract-valid output', async () => {
   const fetchImpl = fakeFetch()
   const out = await buildAutoSnapshot(null, { fetchImpl, now: NOW, parseXlsx: fakeXlsx })
-  assert.deepEqual(out.issues, [])
+  assert.equal(out.issues.length, 2)
+  assert.ok(out.issues.some(i => /hstech-official-pe:.*非正PE/.test(i)))
+  assert.ok(out.issues.some(i => /hsi-turnover: 档案33日.*历史不足前52周/.test(i)))
   assert.equal(out.schemaVersion, 1)
   assert.equal(out.generatedAt, NOW)
   assert.ok(fetchImpl.calls.filter(u => u.includes('RPTA_WEB_TREASURYYIELD')).length >= 3, 'treasury must be paged')
   for (const f of out.facts) assert.equal(factProblem(f, NOW), null)
   const ids = new Set(out.facts.map(f => `${f.metricId}/${f.market}`))
-  for (const id of ['erp_z/csi300', 'pe/csi300', 'pe/hsi', 'pe/hstech', 'financing_buy/all', 'hkd/all', 'cnh/all', 'etf_shares_510300/csi300', 'hk_south_20d/all', 'turnover_ratio_52w/hstech']) assert.ok(ids.has(id), id)
+  for (const id of ['erp_z/csi300', 'pe/csi300', 'pe/hsi', 'pe/hstech', 'pe_official_5y_percentile/hsi', 'financing_buy/all', 'financing_buy_ratio_pct/csi300', 'cn_turnover_yi/csi300', 'hkd/all', 'cnh/all', 'etf_shares_510300/csi300', 'hk_south_20d/all', 'turnover_ratio_52w/hstech', 'turnover_ratio_52w/csi300', 'index_week_daily_turnover_hkd/hsi']) assert.ok(ids.has(id), id)
+  assert.equal(out.facts.find(f => f.metricId === 'index_week_daily_turnover_hkd' && f.market === 'hsi').value, 100e6)
+  assert.ok(!ids.has('turnover_ratio_52w/hsi'), '33 official reports cannot substitute for a full 52-week baseline')
+  assert.equal(out.facts.find(f => f.metricId === 'pe_official_5y_percentile' && f.market === 'hsi').value, 84.166667)
+  assert.ok(!ids.has('pe_official_5y_percentile/hstech'))
   const erpz = out.facts.find(f => f.metricId === 'erp_z')
   for (const id of ['erp_z', 'erp', 'cn10y']) assert.equal(out.facts.find(f => f.metricId === id).kind, 'observed')
   assert.match(out.facts.find(f => f.metricId === 'cn10y').description, /akshare\/main\/akshare\/bond\/bond_em\.py.*非中债官方直连/)
   assert.match(out.facts.find(f => f.metricId === 'erp').description, /简化定义.*非中债直连/)
   assert.match(erpz.description, /5年滚动z-score，窗口\d{4}-\d{2}-\d{2}~/)
-  assert.match(out.facts.find(f => f.metricId === 'pe' && f.market === 'hsi').description, /不足5年/)
+  assert.match(out.facts.find(f => f.metricId === 'pe' && f.market === 'hsi').description, /最新年度业绩.*不标作TTM/)
   assert.equal(out.facts.find(f => f.metricId === 'cnh').unit, 'CNH/USD')
   assert.ok(out.facts.every(f => f.availableAt === null))
 })
@@ -286,6 +323,41 @@ test('concurrency never exceeds 2 and a CNY response is not stored as CNH', asyn
   assert.ok(out.issues.some(i => i.startsWith('yahoo-cnh:') && i.includes('非离岸CNH') && i.includes('无旧值')))
 })
 
+test('global HTTP limit includes response bodies and source-local parallel requests', async () => {
+  let active = 0, peak = 0
+  const fetchImpl = async () => {
+    active++; peak = Math.max(peak, active)
+    return { ok: true, json: async () => { await new Promise(resolve => setTimeout(resolve, 5)); active--; return {} } }
+  }
+  const sources = [0, 1].map(id => ({ id: `parallel-${id}`, produces: [], run: async ctx => {
+    await Promise.all([0, 1, 2].map(i => ctx.get(`https://example.com/${id}/${i}`)))
+    return []
+  } }))
+  await buildAutoSnapshot(null, { fetchImpl, sources, now: NOW })
+  assert.equal(peak, 2)
+  assert.equal(active, 0)
+})
+
+test('timeouts cancel queued HTTP work without releasing an uncooperative active request early', async () => {
+  let active = 0, peak = 0, calls = 0
+  const fetchImpl = async () => {
+    calls++; active++; peak = Math.max(peak, active)
+    await new Promise(resolve => setTimeout(resolve, 60)) // deliberately ignores abort
+    active--
+    return json({})
+  }
+  const sources = [0, 1, 2].map(id => ({ id: `timeout-${id}`, produces: [], run: async ctx => {
+    await Promise.all([0, 1, 2].map(i => ctx.get(`https://example.com/${id}/${i}`)))
+    return []
+  } }))
+  const out = await buildAutoSnapshot(null, { fetchImpl, sources, now: NOW, requestTimeoutMs: 10, sourceTimeoutMs: 25 })
+  assert.equal(out.facts.length, 0)
+  await new Promise(resolve => setTimeout(resolve, 80))
+  assert.equal(peak, 2)
+  assert.equal(calls, 2, 'expired queue entries must never start after active requests settle')
+  assert.equal(active, 0)
+})
+
 test('invalid previous facts are dropped with an issue; fatal only with nothing at all', async () => {
   const bad = fact({ value: Infinity })
   const failAll = async () => { throw new Error('offline') }
@@ -296,7 +368,7 @@ test('invalid previous facts are dropped with an issue; fatal only with nothing 
   const none = await buildAutoSnapshot(null, { fetchImpl: failAll, now: NOW, parseXlsx: fakeXlsx })
   assert.equal(none.facts.length, 0)
   assert.equal(isFatal(none), true)
-  assert.equal(SOURCES.length, 10)
+  assert.equal(SOURCES.length, 13)
 })
 
 test('writeAtomic leaves no temp file and round-trips', async () => {

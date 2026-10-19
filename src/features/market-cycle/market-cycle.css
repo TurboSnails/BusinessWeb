@@ -19,6 +19,9 @@
 .cycle-row { display: grid; grid-template-columns: minmax(145px, 1fr) minmax(0, 3fr) minmax(130px, 1fr); gap: 20px; padding: 18px 0; border-bottom: 1px solid var(--border-subtle); align-items: start; }
 .cycle-row > * { min-width: 0; }
 .cycle-row p { margin: 0; font-size: .9rem; overflow-wrap: anywhere; }
+.cycle-method { margin-top: 8px; color: var(--text-secondary); }
+.cycle-method summary { font-size: .8rem; }
+.cycle-method p { font-size: .8rem; }
 .cycle-row__title { display: grid; gap: 10px; justify-items: start; }
 .cycle-row__meta { display: grid; gap: 10px; font-size: .8rem; color: var(--text-secondary); overflow-wrap: anywhere; }
 .cycle-signal { padding: 3px 9px; border-radius: var(--radius-md); font-size: .78rem; background: var(--bg-secondary); color: var(--text-secondary); }

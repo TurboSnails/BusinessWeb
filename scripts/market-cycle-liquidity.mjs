@@ -28,9 +28,9 @@ export function parseTencentIndexTurnover(body, symbol) {
 export function computeWeeklyTurnoverRatio(rows, calendarDates, asOf) {
   if (!dateOK(asOf)) throw new Error('观察日无效')
   const currentMonday = monday(asOf), weekday = new Date(asOf).getUTCDay()
-  // Friday/Saturday can confirm the just-ended HK week. Earlier weekdays use the prior week;
-  // Sunday is already the start of the following calendar week.
-  const weekStart = weekday === 5 || weekday === 6 ? currentMonday : add(currentMonday, -7)
+  // The automated run can happen before the Friday close, so never confirm a week on Friday.
+  // Saturday/Sunday may use the week that ended; weekdays use the prior calendar week.
+  const weekStart = weekday === 0 || weekday === 6 ? currentMonday : add(currentMonday, -7)
   const weekEnd = add(weekStart, 6), baselineStart = add(weekStart, -364)
   if (!rows.length || rows[0].date > baselineStart || !calendarDates.length || calendarDates[0] > baselineStart) throw new Error('历史不足前52周')
   const expected = calendarDates.filter(d => d >= baselineStart && d <= weekEnd)

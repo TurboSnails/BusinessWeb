@@ -1,0 +1,546 @@
+{
+  "schemaVersion": 1,
+  "definition": "Hang Seng Indexes official Monthly Roundup month-end PE Ratio (Times); no assertion of TTM earnings basis",
+  "rows": [
+    {
+      "date": "2021-09-30",
+      "month": "2021-09",
+      "hsi": 15.96,
+      "hstech": -139.82,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20211004T000000.pdf",
+      "publishedAt": "2021-10-04T04:00:00.000Z",
+      "sha256": "3b96d5b173b0e913358802ec4132ff3983d0cb619a0c747ac2f72a9a5d807827"
+    },
+    {
+      "date": "2021-10-31",
+      "month": "2021-10",
+      "hsi": 16.48,
+      "hstech": -146.12,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20211101T000000.pdf",
+      "publishedAt": "2021-11-01T04:00:00.000Z",
+      "sha256": "9096ac3e5225d6475e79d3f4bf0266b37bbe0386423e91bdd2e0b8974100bc34"
+    },
+    {
+      "date": "2021-11-30",
+      "month": "2021-11",
+      "hsi": 15.25,
+      "hstech": -138.09,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20211201T000000.pdf",
+      "publishedAt": "2021-12-01T04:00:00.000Z",
+      "sha256": "e8b655b4a57a8b1a93179596c37ad6d34477083bda1f539b2e28bd9aeb9009ec"
+    },
+    {
+      "date": "2021-12-31",
+      "month": "2021-12",
+      "hsi": 15.47,
+      "hstech": -141.52,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20220103T000000.pdf",
+      "publishedAt": "2022-01-03T04:00:00.000Z",
+      "sha256": "724aaeff96901cb98e58a1609f1b0526f78664025414d4a1cb9f467d92b70643"
+    },
+    {
+      "date": "2022-01-31",
+      "month": "2022-01",
+      "hsi": 15.65,
+      "hstech": -139.31,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20220204T000000.pdf",
+      "publishedAt": "2022-02-04T04:00:00.000Z",
+      "sha256": "80e77aa76d134f09ea7aa20a7325a96af2f7039d028155239c70e31bba7c1325"
+    },
+    {
+      "date": "2022-02-28",
+      "month": "2022-02",
+      "hsi": 13.68,
+      "hstech": -347.61,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20220301T000000.pdf",
+      "publishedAt": "2022-03-01T04:00:00.000Z",
+      "sha256": "354b5adb6be335a814b6f1624787b5b6bea0de6a01ad7c74b4360edb08484413"
+    },
+    {
+      "date": "2022-03-31",
+      "month": "2022-03",
+      "hsi": 13.06,
+      "hstech": 28.19,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20220401T000000.pdf",
+      "publishedAt": "2022-04-01T04:00:00.000Z",
+      "sha256": "dd282e710c4b9631cf3135da6ea3c9c7db1d2cfced3c7806f2da64a3babbd946"
+    },
+    {
+      "date": "2022-04-30",
+      "month": "2022-04",
+      "hsi": 11.64,
+      "hstech": 82.56,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20220503T000000.pdf",
+      "publishedAt": "2022-05-03T04:00:00.000Z",
+      "sha256": "0b243c4a927253feecc5c47f5e5b7e397a8e72d59adea0cffd6b52e203db8b09"
+    },
+    {
+      "date": "2022-05-31",
+      "month": "2022-05",
+      "hsi": 11.79,
+      "hstech": 89.83,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20220601T000000.pdf",
+      "publishedAt": "2022-06-01T04:00:00.000Z",
+      "sha256": "c108037e8da367aa7d9f775a87cc34378b24179b50a384cba9175077521a1f3d"
+    },
+    {
+      "date": "2022-06-30",
+      "month": "2022-06",
+      "hsi": 12.09,
+      "hstech": 95.0,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20220704T000000.pdf",
+      "publishedAt": "2022-07-04T04:00:00.000Z",
+      "sha256": "c4eb2f72e612cbd41e75febaaef025674847503dcee7bb60e46e2c22fd3d51d8"
+    },
+    {
+      "date": "2022-07-31",
+      "month": "2022-07",
+      "hsi": 11.14,
+      "hstech": 84.49,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20220801T000000.pdf",
+      "publishedAt": "2022-08-01T04:00:00.000Z",
+      "sha256": "afe2d63daa31b0ceb663931112ccc9d787da7f0169ce24d90ce0d0b32b6f7774"
+    },
+    {
+      "date": "2022-08-31",
+      "month": "2022-08",
+      "hsi": 11.03,
+      "hstech": 83.36,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20220901T000000.pdf",
+      "publishedAt": "2022-09-01T04:00:00.000Z",
+      "sha256": "c7a6c42e34ff440bf06e9d80a1d997507b02c891808d270b9b1b6f5fe84766ae"
+    },
+    {
+      "date": "2022-09-30",
+      "month": "2022-09",
+      "hsi": 9.69,
+      "hstech": 421.93,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20221003T000000.pdf",
+      "publishedAt": "2022-10-03T04:00:00.000Z",
+      "sha256": "695aaa3993b68b1a73a169ad18a4db93c9313791029b884238416d0aa2a712e1"
+    },
+    {
+      "date": "2022-10-31",
+      "month": "2022-10",
+      "hsi": 8.26,
+      "hstech": 348.85,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20221101T000000.pdf",
+      "publishedAt": "2022-11-01T04:00:00.000Z",
+      "sha256": "fc9a6c9213a6587b8ec0b02f53a405eaeb7cf9fe3dd511398f877b0b325414e2"
+    },
+    {
+      "date": "2022-11-30",
+      "month": "2022-11",
+      "hsi": 10.46,
+      "hstech": 464.5,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20221201T000000.pdf",
+      "publishedAt": "2022-12-01T04:00:00.000Z",
+      "sha256": "ed1c4bb0c0d2c90ff433b80ff31fdb1ce8934d29bf5d7fc4c373b908f043968f"
+    },
+    {
+      "date": "2022-12-31",
+      "month": "2022-12",
+      "hsi": 11.26,
+      "hstech": -289.82,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20230103T000000.pdf",
+      "publishedAt": "2023-01-03T04:00:00.000Z",
+      "sha256": "76d89b5532dc21665ca4b368ffee81a37d12da9a3ac93d4745c733d722310e06"
+    },
+    {
+      "date": "2023-01-31",
+      "month": "2023-01",
+      "hsi": 12.32,
+      "hstech": -317.52,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20230201T000000.pdf",
+      "publishedAt": "2023-02-01T04:00:00.000Z",
+      "sha256": "3a66b11aca2f059b66151cc55fa1ecb5077c0d7949d5b1b5d82a8c7c95275c94"
+    },
+    {
+      "date": "2023-02-28",
+      "month": "2023-02",
+      "hsi": 11.08,
+      "hstech": -828.14,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20230301T000000.pdf",
+      "publishedAt": "2023-03-01T04:00:00.000Z",
+      "sha256": "a2ec06bc6e1e26426026d375b52b837fdce1f6c3c572c6145e8e9c7f3f214356"
+    },
+    {
+      "date": "2023-03-31",
+      "month": "2023-03",
+      "hsi": 12.2,
+      "hstech": 102.39,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20230403T000000.pdf",
+      "publishedAt": "2023-04-03T04:00:00.000Z",
+      "sha256": "7ca8b3408c25ea44f40eb8e31349e1a5e3e91f01fb5f143a2a85d00477d6fb75"
+    },
+    {
+      "date": "2023-04-30",
+      "month": "2023-04",
+      "hsi": 12.07,
+      "hstech": 104.66,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20230502T000000.pdf",
+      "publishedAt": "2023-05-02T04:00:00.000Z",
+      "sha256": "272e978ba2eff29d36effd4ed726897fb30456656d236325f2582eb4bcd53faa"
+    },
+    {
+      "date": "2023-05-31",
+      "month": "2023-05",
+      "hsi": 11.02,
+      "hstech": 103.42,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20230601T000000.pdf",
+      "publishedAt": "2023-06-01T04:00:00.000Z",
+      "sha256": "afbb3a57aada9206b315868220fe998a92cedf3570dbdbd3cd1953fef3c48d5f"
+    },
+    {
+      "date": "2023-06-30",
+      "month": "2023-06",
+      "hsi": 11.55,
+      "hstech": 102.7,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20230703T000000.pdf",
+      "publishedAt": "2023-07-03T04:00:00.000Z",
+      "sha256": "dc281f548f4a17783632cadbb8eb780efd14e8c8b350a8c2645ebf39eb1b4f83"
+    },
+    {
+      "date": "2023-07-31",
+      "month": "2023-07",
+      "hsi": 12.26,
+      "hstech": 119.46,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20230801T000000.pdf",
+      "publishedAt": "2023-08-01T04:00:00.000Z",
+      "sha256": "95b7c8c30f0fed458b16a68296539c0974deb5c4258bc1029600c37db08162ac"
+    },
+    {
+      "date": "2023-08-31",
+      "month": "2023-08",
+      "hsi": 11.22,
+      "hstech": 109.74,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20230901T000000.pdf",
+      "publishedAt": "2023-09-01T04:00:00.000Z",
+      "sha256": "336fde1d31b5966614cc7508b225fba614b33ba146d18428debf8c576a97896e"
+    },
+    {
+      "date": "2023-09-29",
+      "month": "2023-09",
+      "hsi": 10.73,
+      "hstech": 90.15,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20231003T000000.pdf",
+      "publishedAt": "2023-10-03T04:00:00.000Z",
+      "sha256": "2930646dfdd68d1ae4015c1f5fb566ed2c74e4ed7c9b0bcb9db846dac9ef57ba"
+    },
+    {
+      "date": "2023-10-31",
+      "month": "2023-10",
+      "hsi": 10.31,
+      "hstech": 86.44,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20231101T000000.pdf",
+      "publishedAt": "2023-11-01T04:00:00.000Z",
+      "sha256": "2a07ee265bb0c015e293021a70dc111d9641758341469ae8c2ee96ce5bb05f75"
+    },
+    {
+      "date": "2023-11-30",
+      "month": "2023-11",
+      "hsi": 10.27,
+      "hstech": 89.67,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20231201T000000.pdf",
+      "publishedAt": "2023-12-01T04:00:00.000Z",
+      "sha256": "160a466de52ec5a690c826b67f5cd07aeb5598ab54321cf50b59f28a60ac67dd"
+    },
+    {
+      "date": "2023-12-29",
+      "month": "2023-12",
+      "hsi": 10.58,
+      "hstech": 91.55,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20240102T000000.pdf",
+      "publishedAt": "2024-01-02T04:00:00.000Z",
+      "sha256": "b50c4194c772a99157c69729c39b1848cbddcfdd0528b9c9e3ac44471e0f1470"
+    },
+    {
+      "date": "2024-01-31",
+      "month": "2024-01",
+      "hsi": 9.61,
+      "hstech": 73.1,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20240201T000000.pdf",
+      "publishedAt": "2024-02-01T04:00:00.000Z",
+      "sha256": "8fd3b3a3b29d3d97131088049087b8666842e77882372f808c27572fc7eb5c26"
+    },
+    {
+      "date": "2024-02-29",
+      "month": "2024-02",
+      "hsi": 9.56,
+      "hstech": 66.72,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20240301T000000.pdf",
+      "publishedAt": "2024-03-01T04:00:00.000Z",
+      "sha256": "f800edaa74994d5b6549daf1b054bf018a6bd53d2322d6e5adceb76bb1aacb70"
+    },
+    {
+      "date": "2024-03-28",
+      "month": "2024-03",
+      "hsi": 9.45,
+      "hstech": 24.89,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20240402T000000.pdf",
+      "publishedAt": "2024-04-02T04:00:00.000Z",
+      "sha256": "62d89a84e98e6ccd17f656bd1182969ef017d1a2761df9238144c96d0b595648"
+    },
+    {
+      "date": "2024-04-30",
+      "month": "2024-04",
+      "hsi": 10.2,
+      "hstech": 26.52,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20240502T000000.pdf",
+      "publishedAt": "2024-05-02T04:00:00.000Z",
+      "sha256": "94c5f170cddbe0a571cbf14d2b0dbfe1d3caa3ca5e36529fa8dd653ab977cdf6"
+    },
+    {
+      "date": "2024-05-31",
+      "month": "2024-05",
+      "hsi": 10.58,
+      "hstech": 27.34,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20240603T000000.pdf",
+      "publishedAt": "2024-06-03T04:00:00.000Z",
+      "sha256": "41e6277683f7cf82cda567311b630670fa950d724a0703f53e97e5185b1268d6"
+    },
+    {
+      "date": "2024-06-28",
+      "month": "2024-06",
+      "hsi": 10.26,
+      "hstech": 27.08,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20240702T000000.pdf",
+      "publishedAt": "2024-07-02T04:00:00.000Z",
+      "sha256": "cb6543d6268c40534ccd4f73f2838673570114b78435bb01ac1338e287a5bfdb"
+    },
+    {
+      "date": "2024-07-31",
+      "month": "2024-07",
+      "hsi": 10.05,
+      "hstech": 26.79,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20240801T160000.pdf",
+      "publishedAt": "2024-08-01T08:00:00.000Z",
+      "sha256": "68254e06026e0a77d20af24906504409206be4a5fddc6092ad1b600707c9d522"
+    },
+    {
+      "date": "2024-08-30",
+      "month": "2024-08",
+      "hsi": 10.42,
+      "hstech": 27.29,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20240902T000000.pdf",
+      "publishedAt": "2024-09-02T04:00:00.000Z",
+      "sha256": "5b875f835e3a8cc850bbcdfdeca14992b41742c05336a307c97e95207bdf2d7c"
+    },
+    {
+      "date": "2024-09-30",
+      "month": "2024-09",
+      "hsi": 12.32,
+      "hstech": 36.95,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20241002T000000.pdf",
+      "publishedAt": "2024-10-02T04:00:00.000Z",
+      "sha256": "83ca3840aa7742b55ab9b24a43ad9d521bbd154c9c5fa7771ed55daf0a564bb4"
+    },
+    {
+      "date": "2024-10-31",
+      "month": "2024-10",
+      "hsi": 11.83,
+      "hstech": 34.46,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20241101T113000.pdf",
+      "publishedAt": "2024-11-01T03:30:00.000Z",
+      "sha256": "f0978f8c1c874bac8f39c80c583d1e216adb72daa702cc7876371c488125b954"
+    },
+    {
+      "date": "2024-11-29",
+      "month": "2024-11",
+      "hsi": 11.31,
+      "hstech": 33.34,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20241202T000000.pdf",
+      "publishedAt": "2024-12-02T04:00:00.000Z",
+      "sha256": "8d7d71438fa31167f8d473e480e46f7fea4be9410fd827b53d078d8b58b17808"
+    },
+    {
+      "date": "2024-12-31",
+      "month": "2024-12",
+      "hsi": 11.75,
+      "hstech": 35.8,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20250102T000000.pdf",
+      "publishedAt": "2025-01-02T04:00:00.000Z",
+      "sha256": "795e35ba013dbaf3520b365e8751b779a11287b56076eb5c56ccb63f1ef09f05"
+    },
+    {
+      "date": "2025-02-28",
+      "month": "2025-02",
+      "hsi": 13.25,
+      "hstech": 41.91,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20250303T000000.pdf",
+      "publishedAt": "2025-03-03T04:00:00.000Z",
+      "sha256": "a4e7daf549d30819b5944ee2aef0b76c907ec571f32b81a64aa403aefc8d1a53"
+    },
+    {
+      "date": "2025-03-31",
+      "month": "2025-03",
+      "hsi": 11.76,
+      "hstech": 26.39,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20250401T170000.pdf",
+      "publishedAt": "2025-04-01T09:00:00.000Z",
+      "sha256": "bf29ca19b589f9a4a45d42d66267f8514389e6ad61966327eac694ad13b2c71b"
+    },
+    {
+      "date": "2025-04-30",
+      "month": "2025-04",
+      "hsi": 11.2,
+      "hstech": 25.23,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20250502T150000.pdf",
+      "publishedAt": "2025-05-02T07:00:00.000Z",
+      "sha256": "cac06c1380892870e7d5659a8d435729664f0a8b4569f4755ea6d1567d6f5100"
+    },
+    {
+      "date": "2025-05-30",
+      "month": "2025-05",
+      "hsi": 11.58,
+      "hstech": 23.86,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20250602T000000.pdf",
+      "publishedAt": "2025-06-02T04:00:00.000Z",
+      "sha256": "2c2400fa64e2dce5f3c7ac05f736a70fe58d3b21cab82eee77321957dcf3185e"
+    },
+    {
+      "date": "2025-06-30",
+      "month": "2025-06",
+      "hsi": 12.13,
+      "hstech": 22.82,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20250702T000000.pdf",
+      "publishedAt": "2025-07-02T04:00:00.000Z",
+      "sha256": "c80699d5bc9a24713686c5b0b9f23204723ae839ad1a3a2d841259acf69c4ee3"
+    },
+    {
+      "date": "2025-07-31",
+      "month": "2025-07",
+      "hsi": 12.45,
+      "hstech": 23.47,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20250801T000000.pdf",
+      "publishedAt": "2025-08-01T04:00:00.000Z",
+      "sha256": "a4c8b82b45f38509aa35c05969249225b1f44b6cc2e753fd03aab8532c214166"
+    },
+    {
+      "date": "2025-08-31",
+      "month": "2025-08",
+      "hsi": 12.6,
+      "hstech": 24.42,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20250901T000000.pdf",
+      "publishedAt": "2025-09-01T04:00:00.000Z",
+      "sha256": "9feb4162873e3e9914c1ff28177def7a0c5452f89a468b4bdbcee3bb97b77d89"
+    },
+    {
+      "date": "2025-09-30",
+      "month": "2025-09",
+      "hsi": 13.66,
+      "hstech": 28.0,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20251002T000000.pdf",
+      "publishedAt": "2025-10-02T04:00:00.000Z",
+      "sha256": "c3a1ac1befc4d43e4a404d22e671dbc76d4333900f4da3fead3bfd7d8a215c66"
+    },
+    {
+      "date": "2025-10-31",
+      "month": "2025-10",
+      "hsi": 13.17,
+      "hstech": 25.79,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20251104T000000.pdf",
+      "publishedAt": "2025-11-04T04:00:00.000Z",
+      "sha256": "8b5eb103da9ac5efcf93d572a46a79da26d74956d989175fb4a48c1b666c2a38"
+    },
+    {
+      "date": "2025-11-28",
+      "month": "2025-11",
+      "hsi": 13.15,
+      "hstech": 24.44,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20251201T000000.pdf",
+      "publishedAt": "2025-12-01T04:00:00.000Z",
+      "sha256": "38467fd22048eedd3abb4d13747cbbacc7ad825061859246f41a90b191c4d012"
+    },
+    {
+      "date": "2025-12-31",
+      "month": "2025-12",
+      "hsi": 13.21,
+      "hstech": 24.89,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20260102T000000.pdf",
+      "publishedAt": "2026-01-02T04:00:00.000Z",
+      "sha256": "bd9f19cfee5f74dccd9b3ae9adf9f3ce06a7a8d307d1764aefd5fc5e2294fb6b"
+    },
+    {
+      "date": "2026-01-30",
+      "month": "2026-01",
+      "hsi": 14.1,
+      "hstech": 25.8,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20260202T000000.pdf",
+      "publishedAt": "2026-02-02T04:00:00.000Z",
+      "sha256": "24e8c391fd7384b2825ebcd985d99cd22828a69f9600cc6e7a469d28a2a477e0"
+    },
+    {
+      "date": "2026-02-27",
+      "month": "2026-02",
+      "hsi": 13.65,
+      "hstech": 21.8,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20260302T000000.pdf",
+      "publishedAt": "2026-03-02T04:00:00.000Z",
+      "sha256": "6c0f06de5864fd15ac9adbcb7ee4b9662f4ff291db5ba60480447d1dcc8f0dcc"
+    },
+    {
+      "date": "2026-03-31",
+      "month": "2026-03",
+      "hsi": 13.52,
+      "hstech": 29.29,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20260401T000000.pdf",
+      "publishedAt": "2026-04-01T04:00:00.000Z",
+      "sha256": "05e965ecca69995fc183eb4528a5f7099d79a384844ecb14b072968364aede7e"
+    },
+    {
+      "date": "2026-04-30",
+      "month": "2026-04",
+      "hsi": 14.08,
+      "hstech": 30.8,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20260504T000000.pdf",
+      "publishedAt": "2026-05-04T04:00:00.000Z",
+      "sha256": "45533e25423c7389eb501ce6acba6bc2f598f7887b0780f99f79a749407defd3"
+    },
+    {
+      "date": "2026-05-29",
+      "month": "2026-05",
+      "hsi": 13.68,
+      "hstech": 30.83,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20260601T000000.pdf",
+      "publishedAt": "2026-06-01T04:00:00.000Z",
+      "sha256": "43840e4a041b7cc9e4dce3028d57ef63d88df59a6c7ebaf744af35c7086c8ef4"
+    },
+    {
+      "date": "2026-06-30",
+      "month": "2026-06",
+      "hsi": 12.68,
+      "hstech": 27.56,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20260702T000000.pdf",
+      "publishedAt": "2026-07-02T04:00:00.000Z",
+      "sha256": "efb7fe0aa8d9898165cbcffa43145ac7f565c04eba9ce1e17cecf9028fcbedec"
+    },
+    {
+      "date": "2026-07-31",
+      "month": "2026-07",
+      "hsi": 14.33,
+      "hstech": 29.76,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20260803T000000.pdf",
+      "publishedAt": "2026-08-03T04:00:00.000Z",
+      "sha256": "bdbeb8a6b7f2ddd1a6cd8b22805aa2d246663e764c26f560d094bf574a6d8271"
+    },
+    {
+      "date": "2026-08-31",
+      "month": "2026-08",
+      "hsi": 14.16,
+      "hstech": 30.78,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20260901T000000.pdf",
+      "publishedAt": "2026-09-01T04:00:00.000Z",
+      "sha256": "c58318d18099662d87f2a7c22acb98cd4c6b7209b246ed53ee2373e31d4c2df7"
+    },
+    {
+      "date": "2026-09-30",
+      "month": "2026-09",
+      "hsi": 13.79,
+      "hstech": 28.23,
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20261002T000000.pdf",
+      "publishedAt": "2026-10-02T00:00:00.000+08:00",
+      "sha256": "31c221821ecd5d468cb07bc8e845d719efa027dcd8a3f3aec222909a3c5ebf90"
+    }
+  ]
+}

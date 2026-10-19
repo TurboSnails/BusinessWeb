@@ -10,6 +10,28 @@ const fact = (patch: Partial<AutomaticFact> = {}): AutomaticFact => ({ metricId:
 const row = (id: string, signal: Evidence['signal']): Evidence => ({ id, signal, available: signal !== 'missing', name: id, detail: '' })
 
 describe('自动证据与影子规则', () => {
+  it('官方五年月末分位与同日PE配对后形成估值票，第三方日频参考不覆盖它', () => {
+    const pe = fact({ market: 'hsi', metricId: 'pe', value: 13.79, unit: '倍', frequency: 'monthly', observationDate: '2026-09-30' })
+    const percentile = fact({ market: 'hsi', metricId: 'pe_official_5y_percentile', value: 84.166667, unit: '%', frequency: 'monthly', observationDate: '2026-09-30', description: '官方月报60/61个月，2025-01缺失未插值' })
+    const snap = { schemaVersion: 1 as const, generatedAt: now, facts: [pe, percentile, fact({ market: 'hsi', metricId: 'pe_history_5y_percentile', value: 78.1 })], issues: [] }
+    const r = automaticRows('hsi', snap, null, '2026-10-17').valuation
+    expect(r?.available).toBe(true)
+    expect(r?.signal).toBe('neutral')
+    expect(r?.detail).toContain('84.2%')
+    expect(r?.detail).toContain('13.79')
+    expect(r?.detail).not.toContain('78.1')
+    expect(r?.methodDetail).toContain('60/61')
+    for (const patch of [{ unit: '倍' }, { value: 101 }, { observationDate: '2026-08-31' }, { kind: 'proxy' as const }, { frequency: 'daily' as const }]) {
+      expect(automaticRows('hsi', { ...snap, facts: [pe, { ...percentile, ...patch }] }, null, '2026-10-17').valuation?.available).toBe(false)
+    }
+  })
+  it('卡片摘要保留结论和数值，接口字段与计算过程放在可展开口径里', () => {
+    const r = automaticRows('csi300', { schemaVersion: 1, generatedAt: now, facts: [fact({ metricId: 'financing_buy', value: 1218.57, unit: '亿元', market: 'all' })], issues: [] }, null, '2026-10-17').funding
+    expect(r?.detail).toContain('1,218.57')
+    expect(r?.detail).not.toMatch(/RPTA_|RZMRE|元÷|不计占比/)
+    expect(r?.pendingReason).toBe('融资占比待核定')
+    expect(r?.methodDetail).toContain('分母')
+  })
   it('宽度缺失原因按观察时点判断，不把未来观测称为合格', () => {
     const b: BreadthSnapshot = { schemaVersion: 1, generatedAt: now, issues: [], markets: { hsi: {
       universeId: 'hsi', universeDate: '2026-10-16', source: 'https://www.hsi.com.hk/', kind: 'observed',
@@ -52,10 +74,38 @@ describe('自动证据与影子规则', () => {
 
 describe('资金行精确状态（每市场必填，不伪造日期/来源）', () => {
   const mkSnap = (facts: AutomaticFact[]) => ({ schemaVersion: 1 as const, generatedAt: now, facts, issues: [] })
+  it('两市融资占比与完整周同日配对后形成资金票，不借用指数成交额或最新未完成日', () => {
+    const ratio = fact({ metricId: 'financing_buy_ratio_pct', value: 5.636785, unit: '%', description: '融资1218.57375394亿元/沪深A股及基金21618.24亿元' })
+    const volume = fact({ metricId: 'turnover_ratio_52w', value: 0.741161, unit: '倍', frequency: 'weekly', description: '241+5个真实交易日' })
+    const r = automaticRows('csi300', mkSnap([ratio, volume]), null, '2026-10-17').funding
+    expect(r?.available).toBe(true)
+    expect(r?.signal).toBe('neutral')
+    expect(r?.detail).toContain('5.64%')
+    expect(r?.detail).toContain('0.74倍')
+    expect(r?.methodDetail).toContain('21618.24')
+    const nextDay = fact({ ...ratio, value: 12, observationDate: '2026-10-19', firstSeenAt: '2026-10-19T10:00:00Z', fetchedAt: '2026-10-19T10:00:00Z' })
+    expect(automaticRows('csi300', { ...mkSnap([ratio, nextDay, volume]), generatedAt: '2026-10-19T10:00:00Z' }, null, '2026-10-19').funding?.signal).toBe('neutral')
+    expect(automaticRows('csi300', mkSnap([ratio]), null, '2026-10-17').funding?.pendingReason).toBe('缺少成交额基准')
+    for (const patch of [{ value: 101 }, { kind: 'proxy' as const }, { unit: '亿元' }, { observationDate: '2026-10-15' }]) {
+      expect(automaticRows('csi300', mkSnap([{ ...ratio, ...patch }, volume]), null, '2026-10-17').funding?.available).toBe(false)
+    }
+  })
   const turnover = (patch: Partial<AutomaticFact> = {}) => fact({ metricId: 'turnover_ratio_52w', market: 'hstech', value: 1.6,
     unit: '倍', frequency: 'weekly', source: 'https://web.ifzq.gtimg.cn/', description: '恒科完整周与前52周同口径日均成交额', ...patch })
   const south = (patch: Partial<AutomaticFact> = {}) => fact({ metricId: 'hk_south_20d', market: 'all', value: 400.08, unit: '亿元',
     source: 'https://datacenter-web.eastmoney.com/', description: '港股通南向合计近20交易日', ...patch })
+  it('恒指实际周成交额可以展示，但不能冒充52周比值或借给恒科', () => {
+    const amount = fact({ metricId: 'index_week_daily_turnover_hkd', market: 'hsi', value: 80378000000, unit: '港元', frequency: 'weekly', description: '官方Index Turnover，33日报档案' })
+    const r = automaticRows('hsi', mkSnap([amount, south()]), null, '2026-10-17').funding
+    expect(r?.detail).toContain('803.78亿港元')
+    expect(r?.available).toBe(false)
+    expect(r?.pendingReason).toBe('缺少成交额基准')
+    expect(r?.methodDetail).toContain('33日报档案')
+    expect(automaticRows('hstech', mkSnap([amount, south()]), null, '2026-10-17').funding?.detail).not.toContain('803.78')
+    for (const patch of [{ unit: '亿元' }, { frequency: 'daily' as const }, { kind: 'proxy' as const }, { value: 0 }]) {
+      expect(automaticRows('hsi', mkSnap([{ ...amount, ...patch }, south()]), null, '2026-10-17').funding?.detail).not.toContain('803.78')
+    }
+  })
   it('同指数成交额完整周比值与有效南向齐备时，按现有规则计资金票并列出两个来源', () => {
     const r = automaticRows('hstech', mkSnap([turnover(), south()]), null, '2026-10-17').funding
     expect(r?.available).toBe(true)
@@ -63,7 +113,7 @@ describe('资金行精确状态（每市场必填，不伪造日期/来源）', 
     expect(r?.detail).toContain('1.60')
     expect(r?.detail).toContain('400.08')
     expect(r?.detail).toContain('背景')
-    expect(r?.detail).toContain('https://datacenter-web.eastmoney.com/')
+    expect(r?.methodDetail).toContain('https://datacenter-web.eastmoney.com/')
     expect(r?.source).toBe('https://web.ifzq.gtimg.cn/')
     expect(automaticRows('hsi', mkSnap([turnover(), south()]), null, '2026-10-17').funding?.available).toBe(false)
   })
@@ -77,7 +127,7 @@ describe('资金行精确状态（每市场必填，不伪造日期/来源）', 
       expect(automaticRows('hstech', mkSnap([turnover(patch), south()]), null, '2026-10-17').funding?.available).toBe(false)
     }
     expect(automaticRows('hstech', mkSnap([turnover(), south({ kind: 'proxy' })]), null, '2026-10-17').funding?.available).toBe(false)
-    expect(automaticRows('hstech', mkSnap([turnover()]), null, '2026-10-17').funding?.detail).toContain('已采集')
+    expect(automaticRows('hstech', mkSnap([turnover()]), null, '2026-10-17').funding?.pendingReason).toBe('南向数据待更新')
   })
   it('HK funding always emits a row; uses the verified 006-channel southbound fact as background, not vote', () => {
     const south = fact({ metricId: 'hk_south_20d', market: 'all', value: 400.08, unit: '亿元', observationDate: '2026-10-16',
@@ -87,19 +137,19 @@ describe('资金行精确状态（每市场必填，不伪造日期/来源）', 
     expect(rows.funding).toBeDefined()
     expect(rows.funding?.signal).toBe('missing')
     expect(rows.funding?.available).toBe(false)
-    expect(rows.funding?.detail).toMatch(/南向.*合计.*20.*亿元/)
+    expect(rows.funding?.detail).toMatch(/南向.*20.*合计.*亿元/)
     expect(rows.funding?.date).toBe('2026-10-16')
     expect(rows.funding?.source).toBe(south.source)
     expect(rows.funding?.detail).toContain('400.08')
-    expect(rows.funding?.detail).toContain('背景')
-    expect(rows.funding?.detail).toContain('前52周')
+    expect(rows.funding?.methodDetail).toContain('背景')
+    expect(rows.funding?.detail).toContain('52周')
   })
   it('HK funding absence still emits a precise reason — no fabricated date/source', () => {
     const rows = automaticRows('hsi', mkSnap([]), null, '2026-10-17')
     expect(rows.funding).toBeDefined()
     expect(rows.funding?.available).toBe(false)
     expect(rows.funding?.detail).not.toContain('需补齐')
-    expect(rows.funding?.detail).toMatch(/港股通南向.*未取得有效/)
+    expect(rows.funding?.detail).toMatch(/尚缺.*南向资金数据/)
     // No real observation date → no fabricated source either
     expect(rows.funding?.source).toBeUndefined()
     expect(rows.funding?.date).toBeUndefined()
@@ -109,7 +159,7 @@ describe('资金行精确状态（每市场必填，不伪造日期/来源）', 
     expect(rows.funding).toBeDefined()
     expect(rows.funding?.available).toBe(false)
     expect(rows.funding?.detail).not.toContain('需补齐')
-    expect(rows.funding?.detail).toMatch(/RPTA_RZRQ_LSHJ.*未采集/)
+    expect(rows.funding?.detail).toMatch(/尚无有效的两市融资买入数据/)
     expect(rows.funding?.source).toBeUndefined()
     expect(rows.funding?.date).toBeUndefined()
   })
@@ -131,7 +181,7 @@ describe('宽度行精确状态（每市场必填，缺失给原因）', () => {
     const r = automaticRows('hsi', null, b, '2026-10-17').breadth
     expect(r?.available).toBe(false)
     expect(r?.date).toBeUndefined()
-    expect(r?.detail).toContain('名单')
+    expect(r?.methodDetail).toContain('名单')
   })
   it('HK breadth missing: precise per-market reason, never CSI source', () => {
     const breadth: BreadthSnapshot = { schemaVersion: 1, generatedAt: now, markets: {}, issues: ['恒生指数：尚无经核定的完整当期成分名单，宽度缺失'] }
@@ -152,8 +202,8 @@ describe('宽度行精确状态（每市场必填，缺失给原因）', () => {
     const rows = automaticRows('hsi', null, breadth, '2026-10-17')
     expect(rows.breadth).toBeDefined()
     expect(rows.breadth?.available).toBe(false)
-    expect(rows.breadth?.detail).toMatch(/已采集但不合格/)
-    expect(rows.breadth?.detail).toMatch(/proxy/)
+    expect(rows.breadth?.pendingReason).toBe('样本覆盖不足')
+    expect(rows.breadth?.methodDetail).toMatch(/proxy/)
     expect(rows.breadth?.detail).toMatch(/60|30|case/)
     expect(rows.breadth?.source).not.toContain('000300cons')
   })

@@ -19,3 +19,5 @@ __pycache__/
 
 # Incremental per-security daily bars stay outside public snapshots and Git history.
 .cache/market-cycle-breadth/
+.cache/market-cycle-cn-turnover/
+.cache/market-cycle-hsi-turnover/

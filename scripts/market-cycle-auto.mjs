@@ -6,6 +6,10 @@ import { spawn } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { collectHkLiquidity } from './market-cycle-liquidity.mjs'
 import { collectHsiPeHistory } from './market-cycle-hk-pe-history.mjs'
+import { officialMonthlyPePercentile } from './market-cycle-hk-official-pe.mjs'
+import { collectCnFunding } from './market-cycle-cn-funding.mjs'
+import { collectCnTurnover } from './market-cycle-cn-turnover.mjs'
+import { collectHsiTurnover } from './market-cycle-hsi-turnover.mjs'
 
 export const OUT_FILE = fileURLToPath(new URL('../public/data/market-cycle-auto.json', import.meta.url))
 const XLSX_PY = fileURLToPath(new URL('./market-cycle-xlsx.py', import.meta.url))
@@ -91,13 +95,45 @@ function raceAbort(promise, signal) {
     promise.then(resolve, reject).finally(() => signal.removeEventListener('abort', onAbort))
   })
 }
-async function request(fetchImpl, url, { signal, headers = {}, as = 'json', timeoutMs = REQUEST_TIMEOUT_MS }) {
+// One gate for the entire snapshot, including helpers that issue their own Promise.all.
+// An aborted queue entry is removed; an already started request retains its slot until
+// its actual fetch/body promise settles, even if a custom fetch ignores AbortSignal.
+function requestGate(limit) {
+  let active = 0
+  const queue = []
+  const drain = () => {
+    while (active < limit && queue.length) {
+      const entry = queue.shift()
+      entry.signal.removeEventListener('abort', entry.abort)
+      if (entry.signal.aborted) { entry.reject(entry.signal.reason); continue }
+      active++
+      let released = false
+      entry.resolve(() => { if (!released) { released = true; active--; drain() } })
+    }
+  }
+  return { acquire: signal => new Promise((resolve, reject) => {
+    if (signal.aborted) return reject(signal.reason)
+    const entry = { signal, resolve, reject, abort: () => {
+      const index = queue.indexOf(entry)
+      if (index >= 0) queue.splice(index, 1)
+      reject(signal.reason)
+    } }
+    queue.push(entry)
+    signal.addEventListener('abort', entry.abort, { once: true })
+    drain()
+  }) }
+}
+async function request(fetchImpl, url, { signal, headers = {}, as = 'json', timeoutMs = REQUEST_TIMEOUT_MS }, gate) {
   const combined = AbortSignal.any([signal, AbortSignal.timeout(timeoutMs)])
+  const release = await gate.acquire(combined)
   return raceAbort((async () => {
-    const res = await fetchImpl(url, { signal: combined, headers: { 'User-Agent': UA, ...headers } })
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    if (as === 'buffer') return Buffer.from(await res.arrayBuffer())
-    return as === 'text' ? res.text() : res.json()
+    try {
+      combined.throwIfAborted()
+      const res = await fetchImpl(url, { signal: combined, headers: { 'User-Agent': UA, ...headers } })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      if (as === 'buffer') return Buffer.from(await res.arrayBuffer())
+      return as === 'text' ? await res.text() : await res.json()
+    } finally { release() }
   })(), combined)
 }
 
@@ -250,8 +286,18 @@ const hsiSource = (market, url, headerCol, headerText, name) => async ctx => {
   const buffer = await ctx.get(url, { as: 'buffer', timeoutMs: 30000 })
   if (buffer.length < 1000 || buffer.length > 5e6 || buffer.subarray(0, 2).toString() !== 'PK') throw new Error('恒生PE文件不是有效xlsx')
   const rows = parseHsiPe(await ctx.parseXlsx(buffer), { headerCol, headerText })
-  const note = `${name}官方月末加权平均PE(倍)；文件仅${rows.length}个月(${rows[0].date}~${rows[rows.length - 1].date})，不足5年，无长期分位，不用于分位判断`
-  return rows.map(r => ({ metricId: 'pe', market, value: r.pe, observationDate: r.date, source: url, unit: '倍', kind: 'observed', frequency: 'monthly', description: note }))
+  const note = `${name}官方月末PE（倍）；当前XLSX覆盖${rows.length}个月（${rows[0].date}~${rows.at(-1).date}）。官方盈利口径采用最新年度业绩，指数层面为经自由流通及上限因子调整后的市值÷成分股总盈利，不标作TTM。`
+  const facts = rows.map(r => ({ metricId: 'pe', market, value: r.pe, observationDate: r.date, source: url, unit: '倍', kind: 'observed', frequency: 'monthly', description: note }))
+  try {
+    const archive = JSON.parse(await readFile(new URL('../public/data/market-cycle-hk-pe-history.json', import.meta.url), 'utf8'))
+    // Retain previously collected official months as the publisher's 12-month XLSX rolls forward.
+    const accumulated = new Map((ctx.previous ?? []).filter(f => f.metricId === 'pe' && f.market === market && f.kind === 'observed' && f.source === url && f.frequency === 'monthly').map(f => [f.observationDate.slice(0, 7), { date: f.observationDate, pe: f.value }]))
+    for (const row of rows) accumulated.set(row.date.slice(0, 7), row)
+    const result = officialMonthlyPePercentile(archive, market, [...accumulated.values()], ctx.now.slice(0, 10))
+    facts.push({ metricId: 'pe_official_5y_percentile', market, value: round(result.value, 6), observationDate: result.observationDate, source: url, unit: '%', kind: 'observed', frequency: 'monthly',
+      description: `恒生官方同口径月末PE近五年中位秩分位；窗口${result.windowStart}~${result.observationDate}，${result.samples}/${result.expectedMonths}个月度样本（覆盖${(result.samples / result.expectedMonths * 100).toFixed(1)}%），缺失月份${result.missingMonths.join('、') || '无'}，未插值。以官方Monthly Roundup原始PE为历史，逐月核对与当前XLSX重叠值；同源月度采样，不与第三方日频分位混用。最新年度盈利口径与调整定义见官方运作指引10.15：https://www.hsi.com.hk/content/dam/wpb/hsil/index_operation/en_hk/index_operation_guide.pdf；逐月PDF来源和SHA256：https://turbosnails.github.io/BusinessWeb/data/market-cycle-hk-pe-history.json` })
+  } catch (e) { ctx.issue(`${market}-official-pe: ${errText(e)}`) }
+  return facts
 }
 
 // ---------- margin buying ----------
@@ -402,15 +448,18 @@ async function collectEtf(ctx) {
 
 export const SOURCES = [
   { id: 'csi300-erp', produces: [['pe', 'csi300'], ['erp_z', 'csi300'], ['erp', 'csi300'], ['cn10y', 'csi300']], run: collectCsi300 },
-  { id: 'hsi-pe', produces: [['pe', 'hsi']], run: hsiSource('hsi', URLS.hsi, 'B', 'Hang Seng Index', '恒生指数') },
-  { id: 'hstech-pe', produces: [['pe', 'hstech']], run: hsiSource('hstech', URLS.hstech, 'A', 'Hang Seng TECH Index', '恒生科技指数') },
+  { id: 'hsi-pe', produces: [['pe', 'hsi'], ['pe_official_5y_percentile', 'hsi']], run: hsiSource('hsi', URLS.hsi, 'B', 'Hang Seng Index', '恒生指数') },
+  { id: 'hstech-pe', produces: [['pe', 'hstech'], ['pe_official_5y_percentile', 'hstech']], run: hsiSource('hstech', URLS.hstech, 'A', 'Hang Seng TECH Index', '恒生科技指数') },
   { id: 'hsi-pe-history', produces: [['pe_history_5y_percentile', 'hsi']], run: collectHsiPeHistory },
   { id: 'margin', produces: [['financing_buy', 'all']], run: collectMargin },
+  { id: 'cn-funding', produces: [['financing_buy_ratio_pct', 'csi300'], ['cn_turnover_yi', 'csi300']], run: collectCnFunding },
+  { id: 'cn-turnover', produces: [['turnover_ratio_52w', 'csi300']], timeoutMs: 370000, run: ctx => collectCnTurnover(ctx, ctx.cnTurnoverOptions) },
   { id: 'fred-hkd', produces: [['hkd', 'all']], run: collectHkd },
   { id: 'yahoo-cnh', produces: [['cnh', 'all']], run: collectCnh },
   { id: 'sse-etf', produces: ETF_WHITELIST.map(w => [`etf_shares_${w.code}`, w.market]), run: collectEtf },
   { id: 'hk-south', produces: [['hk_south_20d', 'all']], run: collectSouthbound },
   { id: 'hk-liquidity', produces: [['turnover_ratio_52w', 'hstech']], run: collectHkLiquidity },
+  { id: 'hsi-turnover', produces: [['index_week_daily_turnover_hkd', 'hsi'], ['turnover_ratio_52w', 'hsi']], run: ctx => collectHsiTurnover(ctx, ctx.hsiTurnoverOptions) },
 ]
 
 /** Runs `tasks` with at most `limit` in flight. */
@@ -425,9 +474,11 @@ async function pool(tasks, limit) {
 
 export async function buildAutoSnapshot(previous, {
   fetchImpl = fetch, now = new Date().toISOString(), parseXlsx = runXlsxParser, sources = SOURCES, concurrency = 2,
-  requestTimeoutMs = REQUEST_TIMEOUT_MS, sourceTimeoutMs = SOURCE_TIMEOUT_MS,
+  requestTimeoutMs = REQUEST_TIMEOUT_MS, sourceTimeoutMs = SOURCE_TIMEOUT_MS, cnTurnoverOptions = {}, hsiTurnoverOptions = {},
 } = {}) {
   const issues = []
+  const maxConcurrency = Number.isFinite(concurrency) ? Math.max(1, Math.min(2, Math.floor(concurrency))) : 2
+  const gate = requestGate(maxConcurrency)
   const kept = []
   if (previous && previous.schemaVersion !== 1) issues.push(`旧文件schemaVersion=${JSON.stringify(previous.schemaVersion)}不受支持，已忽略其全部事实`)
   for (const f of previous?.schemaVersion === 1 && Array.isArray(previous.facts) ? previous.facts : []) {
@@ -437,10 +488,11 @@ export async function buildAutoSnapshot(previous, {
   }
   const outcomes = await pool(sources.map(src => async () => {
     const ac = new AbortController()
-    const timer = setTimeout(() => ac.abort(new Error(`数据源超时(${sourceTimeoutMs}ms)`)), sourceTimeoutMs)
+    const timeoutMs = src.timeoutMs ?? sourceTimeoutMs
+    const timer = setTimeout(() => ac.abort(new Error(`数据源超时(${timeoutMs}ms)`)), timeoutMs)
     const ctx = {
-      now, parseXlsx, signal: ac.signal, previous: kept, issue: msg => issues.push(msg),
-      get: (url, opts = {}) => request(fetchImpl, url, { timeoutMs: requestTimeoutMs, ...opts, signal: ac.signal }),
+      now, parseXlsx, signal: ac.signal, previous: kept, cnTurnoverOptions, hsiTurnoverOptions, issue: msg => issues.push(msg),
+      get: (url, opts = {}) => request(fetchImpl, url, { timeoutMs: requestTimeoutMs, ...opts, signal: ac.signal }, gate),
     }
     try {
       const raw = await raceAbort(src.run(ctx), ac.signal)
@@ -458,8 +510,8 @@ export async function buildAutoSnapshot(previous, {
       const latest = olds.map(f => f.observationDate).sort().pop()
       issues.push(`${src.id}: ${errText(e)}${latest ? `，保留旧值及原日期(最新观测${latest})` : '，无旧值可保留'}`)
       return []
-    } finally { clearTimeout(timer) }
-  }), concurrency)
+    } finally { clearTimeout(timer); ac.abort(new Error('数据源已结束')) }
+  }), maxConcurrency)
   return { schemaVersion: 1, generatedAt: now, facts: mergeFacts(kept, outcomes.flat()), issues }
 }
 

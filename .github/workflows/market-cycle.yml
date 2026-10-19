@@ -39,11 +39,22 @@ jobs:
           python-version: '3.12'
       - name: Install official XLS reader
         run: python -m pip install -r scripts/requirements-market-cycle.txt
+      # Keep the old single-path cache key/version so existing HSI breadth history is restored once.
       - uses: actions/cache@v4
         with:
           path: .cache/market-cycle-breadth
           key: market-cycle-breadth-v1-${{ github.run_id }}
           restore-keys: market-cycle-breadth-v1-
+      - uses: actions/cache@v4
+        with:
+          path: |
+            .cache/market-cycle-breadth
+            .cache/market-cycle-cn-turnover
+            .cache/market-cycle-hsi-turnover
+          key: market-cycle-evidence-v2-${{ github.run_id }}
+          restore-keys: |
+            market-cycle-evidence-v2-
+            market-cycle-breadth-v1-
       - name: Refresh macro background independently
         continue-on-error: true
         run: node scripts/macro-snapshot.mjs

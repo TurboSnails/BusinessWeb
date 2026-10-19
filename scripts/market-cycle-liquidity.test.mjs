@@ -33,9 +33,10 @@ test('collector never publishes HSI all-market turnover as index turnover', asyn
   const facts = await collectHkLiquidity({ now: '2026-10-19T01:00:00.000Z', get: async () => { throw Error('offline') }, issue: () => {} })
   assert.deepEqual(facts, [])
 })
-test('a full Friday or Saturday report observes the week that just ended; Monday uses last week', () => {
+test('Friday never uses an incomplete session; Saturday and Sunday confirm the week that ended', () => {
   const input = rows(), dates = input.map(r => r.date)
-  assert.equal(computeWeeklyTurnoverRatio(input, dates, '2026-10-16').weekStart, '2026-10-12')
+  assert.equal(computeWeeklyTurnoverRatio(input, dates, '2026-10-16').weekStart, '2026-10-05')
   assert.equal(computeWeeklyTurnoverRatio(input, dates, '2026-10-17').observationDate, '2026-10-16')
+  assert.equal(computeWeeklyTurnoverRatio(input, dates, '2026-10-18').weekStart, '2026-10-12')
   assert.equal(computeWeeklyTurnoverRatio(input, dates, '2026-10-19').weekStart, '2026-10-12')
 })
