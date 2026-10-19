@@ -34,6 +34,27 @@ describe('牛熊周期复盘', () => {
       expect(card('指数成分宽度').getByText('尚无有效观测日期')).toBeTruthy()
     } finally { vi.useRealTimers() }
   })
+  it('三市场一览可切换市场，周报给出维度变化，采集提示显示为中文', async () => {
+    const row = (id: string, name: string, signal: string) => ({ id, name, signal, available: signal !== 'missing', detail: 'x' })
+    const rows = (tech: string) => [row('valuation', '估值与赔率', 'neutral'), row('funding', '资金与杠杆', 'neutral'), row('breadth', '指数成分宽度', 'neutral'), row('macro', '国内流动性', 'neutral'), row('technical', '周 / 月技术', tech), row('overseas', '海外环境', 'neutral')]
+    const shadow = { version: 'cycle-shadow-v2', valuationZone: '中间区域', trendState: '防守', riskGate: '防守复核', dataQuality: '可作观察', confirmations: 0, weakWeeks: 0 }
+    const market = (tech: string) => ({ legacyState: 'x', shadow, rows: rows(tech) })
+    const record = (weekEnding: string, tech: string) => ({ weekEnding, decisionAt: `${weekEnding}T12:00:00.000Z`, ruleVersion: 'cycle-shadow-v2', inputHash: 'a'.repeat(64), markets: { csi300: market(tech), hsi: market(tech), hstech: market(tech) } })
+    const report = { schemaVersion: 1, generatedAt: '2026-10-18T12:00:00.000Z', issues: [], records: [record('2026-10-16', 'risk'), record('2026-10-09', 'neutral')] }
+    const automatic = { schemaVersion: 1, generatedAt: '2026-10-19T14:42:10.997Z', issues: ['cn-funding: fetch failed'], facts: [] }
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+      if (url.endsWith('market-cycle-report.json')) return { ok: true, json: async () => report }
+      if (url.endsWith('market-cycle-auto.json')) return { ok: true, json: async () => automatic }
+      throw new Error('offline')
+    }))
+    renderView()
+    expect(await screen.findByText(/周报2026-10-09→2026-10-16：技术 中性→偏空 \/ 风险/)).toBeTruthy()
+    expect(screen.getByText(/自动数据更新于 10\/19 22:42/)).toBeTruthy()
+    expect(screen.getByText('A股融资占比：网络请求失败')).toBeTruthy()
+    expect(within(screen.getByRole('table', { name: '三市场六维读数' })).getAllByRole('row')).toHaveLength(4)
+    fireEvent.click(screen.getByRole('button', { name: '查看港股 · 恒生科技' }))
+    expect(screen.getByLabelText(/该指数PE历史分位/)).toBeTruthy()
+  })
   it('人工补录默认收起，草稿汇总缺失但不代替本人确认，也不覆盖已有理由', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
     renderView()

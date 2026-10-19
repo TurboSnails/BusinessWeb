@@ -24,7 +24,10 @@ function validatePe(pe) {
 /**
  * Merge audited official PDF history with this market's latest official XLSX
  * rows; return a five-year monthly empirical midrank percentile. No imputation
- * or removal of loss months is allowed. A negative PE invalidates the window.
+ * or removal of loss months is allowed. Months are ranked by earnings yield
+ * (E/P = 1/PE): with all-positive PE this is exactly the PE percentile, and a
+ * loss month (negative E/P) correctly ranks as more expensive than any profit
+ * month instead of breaking the ordering.
  */
 export function officialMonthlyPePercentile(archive, market, currentRows, today) {
   if (!MARKETS.has(market)) throw new Error(`不支持的官方PE市场：${market}`)
@@ -61,12 +64,14 @@ export function officialMonthlyPePercentile(archive, market, currentRows, today)
   const missingMonths = []
   for (let index = start; index <= end; index++) if (!rows.has(monthLabel(index))) missingMonths.push(monthLabel(index))
   const expectedMonths = end - start + 1
-  if (window.some(row => row.pe <= 0)) throw new Error(`官方PE窗口含非正PE月份，不能排序或删除亏损月份：${window.filter(row => row.pe <= 0).map(row => row.date.slice(0, 7)).join('、')}`)
+  if (window.some(row => row.pe === 0)) throw new Error('官方PE为0，盈利收益率无定义')
   if (window.length < 60) throw new Error(`官方PE有效月度样本不足60个：${window.length}`)
   if (window.length / expectedMonths < 0.95) throw new Error(`官方PE月份覆盖不足95%：${window.length}/${expectedMonths}`)
-  const below = window.filter(row => row.pe < latest.pe).length
-  const equal = window.filter(row => row.pe === latest.pe).length
+  const yieldOf = row => 1 / row.pe, current = yieldOf(latest)
+  const below = window.filter(row => yieldOf(row) > current).length
+  const equal = window.filter(row => yieldOf(row) === current).length
   return {
+    lossMonths: window.filter(row => row.pe < 0).map(row => row.date.slice(0, 7)),
     value: (below + equal / 2) / window.length * 100,
     observationDate: latest.date,
     currentPe: latest.pe,

@@ -295,7 +295,7 @@ const hsiSource = (market, url, headerCol, headerText, name) => async ctx => {
     for (const row of rows) accumulated.set(row.date.slice(0, 7), row)
     const result = officialMonthlyPePercentile(archive, market, [...accumulated.values()], ctx.now.slice(0, 10))
     facts.push({ metricId: 'pe_official_5y_percentile', market, value: round(result.value, 6), observationDate: result.observationDate, source: url, unit: '%', kind: 'observed', frequency: 'monthly',
-      description: `恒生官方同口径月末PE近五年中位秩分位；窗口${result.windowStart}~${result.observationDate}，${result.samples}/${result.expectedMonths}个月度样本（覆盖${(result.samples / result.expectedMonths * 100).toFixed(1)}%），缺失月份${result.missingMonths.join('、') || '无'}，未插值。以官方Monthly Roundup原始PE为历史，逐月核对与当前XLSX重叠值；同源月度采样，不与第三方日频分位混用。最新年度盈利口径与调整定义见官方运作指引10.15：https://www.hsi.com.hk/content/dam/wpb/hsil/index_operation/en_hk/index_operation_guide.pdf；逐月PDF来源和SHA256：https://turbosnails.github.io/BusinessWeb/data/market-cycle-hk-pe-history.json` })
+      description: `恒生官方同口径月末PE近五年中位秩分位（按盈利收益率E/P=1/PE排序，盈利月份与PE分位完全一致${result.lossMonths.length ? `；窗口含${result.lossMonths.length}个指数整体亏损月份（${result.lossMonths.join('、')}），其E/P为负，按“比任何盈利月份更贵”参与排序，不删除、不插值` : ''}）；窗口${result.windowStart}~${result.observationDate}，${result.samples}/${result.expectedMonths}个月度样本（覆盖${(result.samples / result.expectedMonths * 100).toFixed(1)}%），缺失月份${result.missingMonths.join('、') || '无'}，未插值。以官方Monthly Roundup原始PE为历史，逐月核对与当前XLSX重叠值；同源月度采样，不与第三方日频分位混用。最新年度盈利口径与调整定义见官方运作指引10.15：https://www.hsi.com.hk/content/dam/wpb/hsil/index_operation/en_hk/index_operation_guide.pdf；逐月PDF来源和SHA256：https://turbosnails.github.io/BusinessWeb/data/market-cycle-hk-pe-history.json` })
   } catch (e) { ctx.issue(`${market}-official-pe: ${errText(e)}`) }
   return facts
 }
@@ -459,7 +459,7 @@ export const SOURCES = [
   { id: 'sse-etf', produces: ETF_WHITELIST.map(w => [`etf_shares_${w.code}`, w.market]), run: collectEtf },
   { id: 'hk-south', produces: [['hk_south_20d', 'all']], run: collectSouthbound },
   { id: 'hk-liquidity', produces: [['turnover_ratio_52w', 'hstech']], run: collectHkLiquidity },
-  { id: 'hsi-turnover', produces: [['index_week_daily_turnover_hkd', 'hsi'], ['turnover_ratio_52w', 'hsi']], run: ctx => collectHsiTurnover(ctx, ctx.hsiTurnoverOptions) },
+  { id: 'hsi-turnover', produces: [['index_week_daily_turnover_hkd', 'hsi'], ['turnover_ratio_52w', 'hsi']], timeoutMs: 240000, run: ctx => collectHsiTurnover(ctx, { pool: true, ...ctx.hsiTurnoverOptions }) },
 ]
 
 /** Runs `tasks` with at most `limit` in flight. */

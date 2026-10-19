@@ -32,7 +32,8 @@ test('missing, failed and short-history stocks are excluded with reasons and blo
   map.set(m[18].code, null) // failed
   // m[19] never fetched
   const r = computeBreadth(m, map, TODAY)
-  assert.deepEqual(r.exclusions, { insufficient_history: 1, fetch_failed: 1, not_fetched: 1 })
+  assert.deepEqual(r.exclusions, { new_listing: 1, fetch_failed: 1, not_fetched: 1 })
+  assert.equal(r.newListings, 1)
   assert.equal(r.eligible, 17)
   assert.equal(r.breadth, null)
   assert.equal(r.priorBreadth, null)
@@ -49,18 +50,36 @@ test('exactly 200 bars is not enough: 220 needed so prior MA200 exists', () => {
   assert.equal(ok.breadth, 100)
 })
 
-test('when prior breadth lacks 95% support, report current eligible coverage instead of zero', () => {
+test('recent listings without MA200 history leave the denominator, within a 10% cap', () => {
   const m = members(20)
   const map = new Map()
   m.forEach(({ code }, i) => map.set(code, series(i < 18 ? 230 : 150, TODAY, k => 100 + k)))
   const r = computeBreadth(m, map, TODAY)
-  assert.equal(r.observationDate, TODAY)
+  assert.equal(r.newListings, 2)
   assert.equal(r.eligible, 18)
-  assert.equal(r.coverage, 0.9)
+  assert.equal(r.coverage, 1)
+  assert.equal(r.breadth, 100)
+  assert.deepEqual(r.exclusions, { new_listing: 2 })
+})
+
+test('too many short histories count as failures and are not mislabelled as missing prior days', () => {
+  const m = members(20)
+  const map = new Map()
+  m.forEach(({ code }, i) => map.set(code, series(i < 17 ? 230 : 150, TODAY, k => 100 + k)))
+  const r = computeBreadth(m, map, TODAY)
+  assert.equal(r.newListings, 0)
+  assert.equal(r.eligible, 17)
+  assert.equal(r.coverage, 0.85)
   assert.equal(r.breadth, null)
-  assert.equal(r.priorBreadth, null)
-  assert.equal(r.exclusions.insufficient_history, 2)
-  assert.equal(r.exclusions.no_prior_trading_day, 18)
+  assert.deepEqual(r.exclusions, { insufficient_history: 3 })
+})
+
+test('a long-listed stock with gaps stays a data failure, not a new listing', () => {
+  const m = members(1)
+  const gappy = series(400, TODAY, k => 100 + k).filter((_, k) => k % 2 === 0)
+  const r = computeBreadth(m, new Map([[m[0].code, gappy]]), TODAY)
+  assert.equal(r.newListings, 0)
+  assert.equal(r.exclusions.insufficient_history, 1)
 })
 
 test('a security without a bar on the unified date is excluded, even if its last price is only one day old', () => {

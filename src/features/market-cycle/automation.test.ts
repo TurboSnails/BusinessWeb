@@ -183,6 +183,17 @@ describe('宽度行精确状态（每市场必填，缺失给原因）', () => {
     expect(r?.date).toBeUndefined()
     expect(r?.methodDetail).toContain('名单')
   })
+  it('次新股移出分母（不超过10%）后可计票，原始排除键显示为中文', () => {
+    const entry = (newListings: number, eligible: number) => ({ universeId: 'hstech', universeDate: '2026-10-16', source: 'https://www.hsi.com.hk/', kind: 'observed' as const,
+      observationDate: '2026-10-16', coverage: eligible / (30 - newListings), eligible, total: 30, newListings, breadth: 35, priorBreadth: 30, exclusions: (newListings ? { new_listing: newListings } : {}) as Record<string, number>, detail: '排除：new_listing 3' })
+    const ok = automaticRows('hstech', null, { schemaVersion: 1, generatedAt: now, issues: [], markets: { hstech: entry(3, 27) } }, '2026-10-17').breadth
+    expect(ok?.available).toBe(true)
+    expect(ok?.detail).toContain('27/27')
+    expect(ok?.detail).toContain('3只次新股')
+    expect(ok?.methodDetail).toContain('次新股（移出分母） 3')
+    const capped = automaticRows('hstech', null, { schemaVersion: 1, generatedAt: now, issues: [], markets: { hstech: { ...entry(4, 26), total: 30 } } }, '2026-10-17').breadth
+    expect(capped?.available).toBe(false)
+  })
   it('HK breadth missing: precise per-market reason, never CSI source', () => {
     const breadth: BreadthSnapshot = { schemaVersion: 1, generatedAt: now, markets: {}, issues: ['恒生指数：尚无经核定的完整当期成分名单，宽度缺失'] }
     const rows = automaticRows('hsi', null, breadth, '2026-10-17')

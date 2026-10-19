@@ -8,7 +8,7 @@ export interface AutomaticFact {
 export interface AutomaticSnapshot { schemaVersion: 1; generatedAt: string; facts: AutomaticFact[]; issues: string[] }
 export interface BreadthMarket {
   universeId: string; universeDate: string; source: string; kind: 'observed' | 'proxy'; observationDate: string
-  coverage: number; eligible: number; total: number; breadth: number | null; priorBreadth: number | null
+  coverage: number; eligible: number; total: number; newListings?: number; breadth: number | null; priorBreadth: number | null
   exclusions: Record<string, number>; detail: string
 }
 export interface BreadthSnapshot { schemaVersion: 1; generatedAt: string; markets: Partial<Record<Market, BreadthMarket>>; issues: string[] }
@@ -16,6 +16,11 @@ export interface ShadowState {
   version: 'cycle-shadow-v2'; valuationZone: string; trendState: string; riskGate: string; dataQuality: string
   confirmations: number; weakWeeks: number
 }
+const EXCLUSION_LABELS: Record<string, string> = { fetch_failed: '行情获取失败', not_fetched: '尚未采集', invalid_cache: '缓存损坏', no_valid_bars: '无有效日线', suspended_or_stale: '观测日停牌/无成交', suspended_or_stale_prior: '对照日停牌/无成交', insufficient_history: '历史不足220日', insufficient_prior_history: '对照日历史不足', no_prior_trading_day: '对照日样本不足', new_listing: '次新股（移出分母）' }
+export const exclusionText = (exclusions: Record<string, number>): string => Object.entries(exclusions).map(([k, v]) => `${EXCLUSION_LABELS[k] ?? k} ${v}只`).join('、')
+/** Readable form of collector detail strings that embed raw exclusion keys. */
+export const humanizeDetail = (text: string): string => Object.entries(EXCLUSION_LABELS).reduce((t, [k, v]) => t.replaceAll(k, v), text)
+const measurable = (b: BreadthMarket) => b.total - (b.newListings && b.newListings <= b.total * 0.1 ? b.newListings : 0)
 export function factLabel(id: string): string {
   const names: Record<string, string> = { erp_z: 'ERP五年标准分', erp: '简化股债收益率差', pe: '指数市盈率', pe_history_5y_percentile: '恒指第三方日频PE五年分位', pe_official_5y_percentile: '官方月末PE五年分位', cn10y: '中国10年国债收益率', financing_buy: '两市融资买入额', financing_buy_ratio_pct: '两市融资买入占比', cn_turnover_yi: '沪深A股及上市基金成交额', hk_south_20d: '南向20日净买入', index_week_daily_turnover_hkd: '恒指完整周日均成交额', turnover_ratio_52w: '周日均成交额/52周基准', cnh: '离岸人民币汇率', hkd: '港元汇率' }
   return names[id] ?? (id.startsWith('etf_shares_') ? `ETF ${id.slice(11)} 总份额` : id)
@@ -151,15 +156,15 @@ export function automaticRows(market: Market, snapshot: AutomaticSnapshot | null
   const b = breadth?.markets?.[market]
   if (b && b.observationDate <= today) {
     const age = (Date.parse(asOf) - Date.parse(b.observationDate)) / 86400000
-    const qualified = b.kind === 'observed' && b.coverage >= 0.95 && b.total > 0 && b.eligible / b.total >= 0.95 && b.breadth !== null && b.priorBreadth !== null && age <= 14
+    const qualified = b.kind === 'observed' && b.coverage >= 0.95 && measurable(b) > 0 && b.eligible / measurable(b) >= 0.95 && b.breadth !== null && b.priorBreadth !== null && age <= 14
     if (qualified) {
       out.breadth = { id: 'breadth', name: '指数成分宽度', available: true,
         signal: b.breadth! <= 10 ? 'bottom' : b.priorBreadth! >= 85 && b.breadth! < 60 && newHigh ? 'risk' : b.breadth! >= 40 && b.priorBreadth! < 40 ? 'positive' : 'neutral',
         source: b.source, date: b.observationDate,
-        detail: `站上200日均线的成分股占${b.breadth!.toFixed(1)}%，4周前为${b.priorBreadth!.toFixed(1)}%。有效覆盖${b.eligible}/${b.total}只（${(b.coverage * 100).toFixed(1)}%）。`, methodDetail: `成分名单快照${b.universeDate}；${b.detail}` }
+        detail: `站上200日均线的成分股占${b.breadth!.toFixed(1)}%，4周前为${b.priorBreadth!.toFixed(1)}%。有效覆盖${b.eligible}/${measurable(b)}只（${(b.coverage * 100).toFixed(1)}%）${b.newListings ? `；另有${b.newListings}只次新股尚无200日历史，不计入` : ''}。`, methodDetail: `成分名单快照${b.universeDate}；${humanizeDetail(b.detail)}` }
     } else {
       out.breadth = { id: 'breadth', name: '指数成分宽度', available: false, signal: 'missing', source: b.source, date: b.eligible > 0 ? b.observationDate : undefined,
-        pendingReason: age > 14 ? '宽度数据待更新' : '样本覆盖不足', detail: `有效覆盖${b.eligible}/${b.total}只（${(b.coverage * 100).toFixed(1)}%）。${age > 14 ? '观测已超过14天，需要更新。' : b.coverage < 0.95 ? '未达到95%覆盖要求，暂不判断市场宽度。' : '本期与4周前的有效样本尚未对齐。'}`, methodDetail: `名单${b.kind === 'observed' ? '已核定' : '为静态代理proxy，未自动核定'}；名单快照${b.universeDate}；${b.detail}` }
+        pendingReason: age > 14 ? '宽度数据待更新' : '样本覆盖不足', detail: `有效覆盖${b.eligible}/${measurable(b)}只（${(b.coverage * 100).toFixed(1)}%）。${age > 14 ? '观测已超过14天，需要更新。' : b.coverage < 0.95 ? '未达到95%覆盖要求，暂不判断市场宽度。' : '本期与4周前的有效样本尚未对齐。'}`, methodDetail: `名单${b.kind === 'observed' ? '已核定' : '为静态代理proxy，未自动核定'}；名单快照${b.universeDate}；${humanizeDetail(b.detail)}` }
     }
   } else {
     const reason = breadthIssue(market, breadth, asOf)
@@ -176,7 +181,7 @@ export function breadthIssue(market: Market, breadth: BreadthSnapshot | null, as
   const label = labels[market]
   const entry = breadth?.markets?.[market]
   if (entry) {
-    const ex = Object.entries(entry.exclusions || {}).map(([k, v]) => `${k} ${v}`).join('、')
+    const ex = exclusionText(entry.exclusions || {})
     const cov = `覆盖${(entry.coverage * 100).toFixed(1)}%（${entry.eligible}/${entry.total}）`
     const age = (Date.parse(asOf) - Date.parse(entry.observationDate)) / 86400000
     if (age < 0) return `${label}观测日 ${entry.observationDate} 晚于观察日 ${asOf}；未来数据不计票。`

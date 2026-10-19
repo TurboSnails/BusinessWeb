@@ -18,6 +18,11 @@ export const MIN_BARS = 220 // 200 for the MA plus 20 prior trading days of the 
 export const FETCH_BARS = 260
 export const PRIOR_DAYS = 28
 export const MIN_COVERAGE = 0.95
+// A constituent whose first bar is this recent cannot have 220 sessions yet: it is structurally
+// unmeasurable (MA200 undefined), not a data failure, so it leaves the denominator. Capped so a
+// broken feed can never pass as "everything is newly listed".
+export const NEW_LISTING_DAYS = 330
+export const MAX_NEW_LISTING_SHARE = 0.1
 export const DEFAULT_BUDGET = 40
 export const CONCURRENCY = 2 // also the maximum
 export const CACHE_MAX_AGE_DAYS = 6
@@ -172,23 +177,33 @@ export function computeBreadth(members, barsByCode, today) {
       else clean.set(code, bars)
     }
   }
-  const empty = (observationDate = null) => ({ observationDate, priorDate: null, total, eligible: 0, coverage: 0, breadth: null, priorBreadth: null, exclusions })
+  let newListings = 0
+  const empty = (observationDate = null) => ({ observationDate, priorDate: null, total, newListings, eligible: 0, coverage: 0, breadth: null, priorBreadth: null, exclusions })
   const obs = unifiedDate([...clean.values()], today, need)
   if (!obs) return empty()
   const observationDate = obs.date
-  const rows = []
+  const rows = [], fresh = []
   for (const bars of clean.values()) {
     const i = indexOnDate(bars, observationDate)
     if (i < 0) { bump('suspended_or_stale'); continue }
-    if (i + 1 < MIN_BARS) { bump('insufficient_history'); continue }
+    if (i + 1 < MIN_BARS) {
+      if (bars[0][0] > addDays(observationDate, -NEW_LISTING_DAYS)) fresh.push(bars)
+      else bump('insufficient_history')
+      continue
+    }
     rows.push({ bars, i })
   }
-  if (!obs.ok) return { ...empty(observationDate), eligible: rows.length, coverage: total ? Math.round((rows.length / total) * 10000) / 10000 : 0 }
-  const prior = unifiedDate(rows.map(r => r.bars), addDays(observationDate, -PRIOR_DAYS), need)
+  if (fresh.length <= total * MAX_NEW_LISTING_SHARE) newListings = fresh.length
+  else for (const _ of fresh) bump('insufficient_history')
+  if (newListings) exclusions.new_listing = newListings
+  const measurable = total - newListings
+  const needMeasurable = Math.ceil(measurable * MIN_COVERAGE)
+  const share = n => measurable ? Math.round((n / measurable) * 10000) / 10000 : 0
+  if (!obs.ok || rows.length < needMeasurable) return { ...empty(observationDate), eligible: rows.length, coverage: share(rows.length) }
+  const prior = unifiedDate(rows.map(r => r.bars), addDays(observationDate, -PRIOR_DAYS), needMeasurable)
   if (!prior?.ok) {
-    for (const _ of rows) bump('no_prior_trading_day')
-    return { ...empty(observationDate), eligible: rows.length,
-      coverage: total ? Math.round((rows.length / total) * 10000) / 10000 : 0 }
+    bump('no_prior_trading_day')
+    return { ...empty(observationDate), eligible: rows.length, coverage: share(rows.length) }
   }
   let above = 0, priorAbove = 0, eligible = 0
   for (const { bars, i } of rows) {
@@ -199,10 +214,9 @@ export function computeBreadth(members, barsByCode, today) {
     if (bars[i][1] > maAt(bars, i)) above++
     if (bars[j][1] > maAt(bars, j)) priorAbove++
   }
-  const coverage = total ? eligible / total : 0
-  const ok = eligible >= need && eligible > 0
+  const ok = eligible >= needMeasurable && eligible > 0
   const pct = n => Math.round((n / eligible) * 1000) / 10
-  return { observationDate, priorDate: prior.date, total, eligible, coverage: Math.round(coverage * 10000) / 10000,
+  return { observationDate, priorDate: prior.date, total, newListings, eligible, coverage: share(eligible),
     breadth: ok ? pct(above) : null, priorBreadth: ok ? pct(priorAbove) : null, exclusions }
 }
 
@@ -366,15 +380,16 @@ export function buildMarketEntry(market, universe, result, today, extraDetail = 
   const pct = `${(result.coverage * 100).toFixed(1)}%`
   const stale = result.observationDate && daysBetween(result.observationDate, today) > 14
   const detail = [result.breadth === null
-    ? `进度/缺失：合格 ${result.eligible}/${result.total}（${pct}），未达${MIN_COVERAGE * 100}%门槛，不给宽度`
+    ? `进度/缺失：合格 ${result.eligible}/${result.total - (result.newListings ?? 0)}（${pct}），未达${MIN_COVERAGE * 100}%门槛，不给宽度`
     : `当期与前期使用同一批 ${result.eligible} 只成分，统一观测日 ${result.observationDate}，对照日 ${result.priorDate}，覆盖 ${pct}`,
+  result.newListings ? `${result.newListings} 只成分上市不足220个交易日、尚无MA200，按行业惯例移出分母（上限为成分数的${MAX_NEW_LISTING_SHARE * 100}%）` : '',
   ex && `排除：${ex}`,
   kind === 'proxy' ? (universe.confirmedAt ? `名单最近官方确认 ${universe.confirmedAt.slice(0, 10)} 超过${CONFIRM_MAX_DAYS}天，按proxy记录` : '名单无自动官方确认时间，按proxy记录') : '',
   stale ? `统一观测日 ${result.observationDate} 已早于今日超过14天` : '',
   `${dateLabel} ${universe.date}`,
   `指数成分内MA200以上占比，非全A股；${barsNote}，个股须在统一观测日有真实日线且不少于220日`, extraDetail].filter(Boolean).join('。')
   return { universeId: MARKETS[market].id, universeDate: universe.date, source: universe.source, kind,
-    observationDate: result.observationDate ?? universe.date, coverage: result.coverage, eligible: result.eligible, total: result.total,
+    observationDate: result.observationDate ?? universe.date, coverage: result.coverage, eligible: result.eligible, total: result.total, newListings: result.newListings ?? 0,
     breadth: result.breadth, priorBreadth: result.priorBreadth, exclusions: result.exclusions, detail }
 }
 

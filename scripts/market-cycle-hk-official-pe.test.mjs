@@ -21,8 +21,11 @@ test('official 5-year month-end HSI sample uses midrank and reports its missing 
   assert.equal(out.source, seed.rows.at(-1).source)
 })
 
-test('negative PE months prevent HSTECH percentile instead of being discarded', () => {
-  assert.throws(() => officialMonthlyPePercentile(seed, 'hstech', [{ date: '2026-09-30', pe: 28.23 }], today), /非正PE/)
+test('negative PE months rank as most expensive via earnings yield instead of being discarded', () => {
+  const out = officialMonthlyPePercentile(seed, 'hstech', [{ date: '2026-09-30', pe: 28.23 }], today)
+  assert.equal(out.lossMonths.length, 9)
+  assert.equal(out.samples, 60)
+  assert.ok(Math.abs(out.value - 34.1667) < 0.01)
 })
 
 test('requires five years, 60 samples, and 95% of the expected months', () => {
