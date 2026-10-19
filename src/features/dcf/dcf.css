@@ -379,3 +379,60 @@
     text-align: left;
   }
 }
+.dcf-auto-alt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  font-size: 0.88rem;
+}
+
+/* 估值结论 */
+.dcf-verdict-card__lead {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+  font-weight: 650;
+  line-height: 1.6;
+}
+.dcf-verdict-card.is-good .dcf-verdict-card__lead { color: var(--up-ink, var(--system-red)); }
+.dcf-verdict-card.is-caution .dcf-verdict-card__lead { color: var(--text-primary); }
+.dcf-range { display: block; overflow: visible; margin: 6px 0 2px; }
+.dcf-range__axis { stroke: var(--border-subtle); stroke-width: 2; }
+.dcf-range__band { fill: color-mix(in srgb, var(--accent) 22%, transparent); }
+.dcf-range__base { stroke: var(--accent); stroke-width: 3; }
+.dcf-range__buy { stroke: var(--system-green); stroke-width: 2; stroke-dasharray: 4 3; }
+.dcf-range__price { stroke: var(--text-primary); stroke-width: 2; }
+.dcf-range__price-dot { fill: var(--text-primary); }
+.dcf-range__text { font-size: 11px; fill: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.dcf-range__legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0 0 12px; font-size: 0.78rem; color: var(--text-secondary); }
+.dcf-range__legend i { display: inline-block; width: 12px; height: 8px; margin-right: 5px; vertical-align: 0; border-radius: 2px; }
+.dcf-range__legend i.is-band { background: color-mix(in srgb, var(--accent) 22%, transparent); }
+.dcf-range__legend i.is-base { width: 3px; height: 12px; background: var(--accent); }
+.dcf-range__legend i.is-buy { width: 3px; height: 12px; background: var(--system-green); }
+.dcf-range__legend i.is-price { width: 8px; height: 8px; border-radius: 50%; background: var(--text-primary); }
+.dcf-scenarios { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.dcf-scenario { display: grid; gap: 4px; padding: 12px 14px; border-radius: var(--radius-md); background: var(--bg-secondary); }
+.dcf-scenario strong { font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+.dcf-scenario small { color: var(--text-secondary); font-size: 0.75rem; }
+.dcf-scenario.is-base { background: var(--accent-soft); }
+.dcf-scenario.is-buy { background: color-mix(in srgb, var(--system-green) 14%, transparent); }
+.dcf-verdict-card__facts p { margin: 10px 0 0; font-size: 0.88rem; line-height: 1.7; }
+.dcf-cred { display: inline-block; margin-right: 8px; padding: 1px 8px; border-radius: 999px; font-size: 0.78rem; font-weight: 600; }
+.dcf-cred.is-high { background: color-mix(in srgb, var(--system-green) 18%, transparent); }
+.dcf-cred.is-medium { background: color-mix(in srgb, var(--system-orange) 18%, transparent); }
+.dcf-cred.is-low { background: color-mix(in srgb, var(--system-red) 18%, transparent); }
+/* 关键假设滑块 */
+.dcf-sliders { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 24px; }
+.dcf-slider { display: grid; gap: 6px; }
+.dcf-slider__top { display: flex; justify-content: space-between; font-weight: 600; font-size: 0.9rem; }
+.dcf-slider__top strong { font-variant-numeric: tabular-nums; color: var(--accent); }
+.dcf-slider input { width: 100%; accent-color: var(--accent); }
+.dcf-slider small { color: var(--text-secondary); font-size: 0.76rem; line-height: 1.6; }
+/* 完整参数折叠 */
+.dcf-advanced { margin-bottom: 18px; }
+.dcf-advanced > summary { cursor: pointer; padding: 12px 4px; font-weight: 600; color: var(--text-secondary); }
+.dcf-advanced[open] > summary { margin-bottom: 8px; }
+@media (max-width: 720px) {
+  .dcf-scenarios { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dcf-sliders { grid-template-columns: minmax(0, 1fr); }
+}

@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import Dcf from "./Dcf";
 import { loadDcfRecords } from "../features/dcf";
@@ -122,10 +122,17 @@ describe("现金流折现估值页", () => {
     expect((screen.getByLabelText("公司名称") as HTMLInputElement).value).toBe("贵州茅台");
     expect((screen.getByLabelText("有息负债") as HTMLInputElement).value).toBe("2.3");
     expect(screen.getByText(/近3年平均（2023–2025年报/)).toBeTruthy();
-    expect(screen.getByText(/合理价/, { selector: ".dcf-auto-summary__price" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "估值结论 · 贵州茅台" })).toBeTruthy();
+    expect(screen.getByText("买入参考价", { selector: "small" })).toBeTruthy();
+    expect(screen.getByText(/^可信度/, { selector: ".dcf-cred" })).toBeTruthy();
+    // 一键估算后完整参数默认收起，关键假设用滑块调整
+    expect((screen.getByText(/完整参数（进阶）/).closest("details") as HTMLDetailsElement).open).toBe(false);
+    fireEvent.change(screen.getByRole("slider", { name: "折现率" }), { target: { value: "12" } });
+    expect((screen.getByLabelText("期望折现率 (%)") as HTMLInputElement).value).toBe("12");
     fill("五年成长率 (%)", "3");
     expect(screen.getByText(/已手动修改（自动值 11）/)).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "恢复" }));
+    const growthField = screen.getByLabelText("五年成长率 (%)").closest(".dcf-field") as HTMLElement;
+    fireEvent.click(within(growthField).getByRole("button", { name: "恢复" }));
     expect((screen.getByLabelText("五年成长率 (%)") as HTMLInputElement).value).toBe("11");
   });
 });

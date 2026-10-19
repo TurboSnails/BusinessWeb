@@ -36,7 +36,9 @@ import {
   deriveAutoFill,
   impliedGrowth,
   searchPrefill,
+  assess,
 } from "../features/dcf";
+import { VerdictCard, type MarketContext } from "../features/dcf/VerdictCard";
 import type {
   AutoField,
   AutoFill,
@@ -54,6 +56,8 @@ import "../features/dcf/dcf.css";
 
 const NUMERIC_FIELDS = [
   "baseFcf",
+  "fadeYears",
+  "minority",
   "growth",
   "perpetualGrowth",
   "discountRate",
@@ -240,6 +244,19 @@ export default function Dcf(): JSX.Element {
   const [library, setLibrary] = useState<PrefillLibrary | null | "error">(null);
   const [query, setQuery] = useState("");
   const [auto, setAuto] = useState<AutoFill | null>(null);
+  const [item, setItem] = useState<PrefillItem | null>(null);
+  // 一键估算后默认收起完整参数，手动填写时默认展开
+  const [advanced, setAdvanced] = useState(true);
+  const [cycle, setCycle] = useState<CycleReport | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    fetch(`${(import.meta as { env?: Record<string, string | undefined> }).env?.BASE_URL ?? "/"}data/market-cycle-report.json`, { cache: "no-cache" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((body: CycleReport | null) => { if (active && Array.isArray(body?.records)) setCycle(body); })
+      .catch(() => undefined);
+    return () => { active = false; };
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -268,6 +285,8 @@ export default function Dcf(): JSX.Element {
       return { ...f, ...fill.meta, moneyUnit: "yi", shareUnit: "yi", values };
     });
     setAuto(fill);
+    setItem(item);
+    setAdvanced(false);
     setQuery("");
     setError("");
     setNotice("");
@@ -284,6 +303,9 @@ export default function Dcf(): JSX.Element {
   const waccResult = calculateWacc(input);
   const bands = calculateMultiples(input);
   const sensitivity = calculateSensitivity(input);
+  const implied = result.status === "calculated" ? impliedGrowth(input) : null;
+  const assessment = assess(input, item && item.c === input.code ? item : null, implied);
+  const market = marketContext(cycle, item && item.c === input.code ? item : null);
   const key = makeDcfKey(input);
   const existing = records.find((r) => r.key === key) ?? null;
 
@@ -404,32 +426,19 @@ export default function Dcf(): JSX.Element {
             <p>
               <strong>{auto.meta.company}</strong> · {auto.statusText}
             </p>
-            {auto.status === "ok" && result.status === "calculated" && (
-              <p className="dcf-auto-summary__price">
-                合理价 <strong>{formatPrice(result.price, input.currency)}</strong>
-                {sensitivity && (
-                  <>
-                    （折现率 ±2%、永续增长 ±1% 区间 {formatPrice(sensitivity.minPrice, input.currency)} ~{" "}
-                    {formatPrice(sensitivity.maxPrice, input.currency)}）
-                  </>
-                )}
-                ，现价 {formatPrice(input.currentPrice, input.currency)}，安全边际{" "}
-                <strong className={result.mos == null ? "" : result.mos > 0 ? "dcf-up" : "dcf-down"}>
-                  {formatSignedPct((result.mos ?? 0) * 100)}
-                </strong>
+            {auto.alternatives.map((alt) => (
+              <p key={alt.field + alt.value} className="dcf-auto-alt">
+                {alt.reason}
+                <button
+                  type="button"
+                  className="dcf-button dcf-button--ghost"
+                  onClick={() => setNumber(alt.field as NumericField, alt.value)}
+                  disabled={form.values[alt.field as NumericField] === alt.value}
+                >
+                  改用{alt.label}
+                </button>
               </p>
-            )}
-            {auto.status === "ok" && result.status === "calculated" && (() => {
-              const implied = impliedGrowth(input);
-              return (
-                <p>
-                  {implied == null
-                    ? "现价无法用 -30%～60% 的五年成长率解释，说明市场看重的不是近年现金流（如转型、资产价值或亏损业务前景）。"
-                    : `反过来看：要支撑现价，未来五年自由现金流需年增约 ${formatPct(implied, 1)}（当前假设 ${formatPct(input.growth ?? 0, 1)}）。${
-                        implied > (input.growth ?? 0) + 3 ? "市场预期明显高于历史增速，估值偏乐观。" : implied < (input.growth ?? 0) - 3 ? "市场预期低于历史增速，若增长能延续则有安全边际。" : "市场预期与历史增速接近。"}`}
-                </p>
-              );
-            })()}
+            ))}
             {auto.notes.length > 0 && (
               <ul className="dcf-notes">
                 {auto.notes.map((n) => (
@@ -438,11 +447,48 @@ export default function Dcf(): JSX.Element {
               </ul>
             )}
             <p className="dcf-muted">
-              这是按统一规则得到的起点，不是目标价：成长率与折现率对结果影响最大，请结合公司前景调整。下方带“自动”标记的格子来自财报，改过的格子可一键恢复。
+              这是按统一规则得到的起点，不是目标价：成长率与折现率对结果影响最大，可以在下方“关键假设”里拖动调整。
             </p>
           </div>
         )}
       </section>
+
+      {assessment && (
+        <section className="dcf-card" aria-labelledby="dcf-verdict-title">
+          <div className="dcf-head">
+            <span className="dcf-badge">
+              <TrendingUp size={18} />
+            </span>
+            <div>
+              <h2 id="dcf-verdict-title">估值结论{input.company ? ` · ${input.company}` : ""}</h2>
+              <p>三种情景给出价格区间；买入参考价已按可信度留出安全边际。仅为研究参考，不是买卖指令。</p>
+            </div>
+          </div>
+          <VerdictCard a={assessment} currency={input.currency} price={input.currentPrice} impliedGrowth={implied} growth={input.growth} market={market} />
+        </section>
+      )}
+
+      {result.status === "calculated" && (
+        <section className="dcf-card" aria-labelledby="dcf-keys-title">
+          <div className="dcf-head">
+            <span className="dcf-badge">
+              <Percent size={18} />
+            </span>
+            <div>
+              <h2 id="dcf-keys-title">关键假设</h2>
+              <p>这几项对结果影响最大。拖动看看合理价怎么变：假设差一点，结果可能差很多。</p>
+            </div>
+          </div>
+          <div className="dcf-sliders">
+            {KEY_SLIDERS.map((k) => (
+              <KeySlider key={k.field} spec={k} value={form.values[k.field]} autoValue={auto?.values[k.field as AutoField]} onChange={(v) => setNumber(k.field, v)} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      <details className="dcf-advanced" open={advanced} onToggle={(e) => setAdvanced((e.target as HTMLDetailsElement).open)}>
+        <summary>完整参数（进阶）：财报数据、WACC、EBITDA 倍数{auto ? " · 已自动填好，可逐项核对修改" : ""}</summary>
 
       <section className="dcf-card">
         <div className="dcf-head">
@@ -533,6 +579,13 @@ export default function Dcf(): JSX.Element {
             auto={autoHint("perpetualGrowth")}
           />
           <Field
+            label="过渡期年数"
+            hint="0 = 原表两阶段；建议 5"
+            value={form.values.fadeYears}
+            onChange={(v) => setNumber("fadeYears", v)}
+            auto={autoHint("fadeYears")}
+          />
+          <Field
             label="期望折现率 (%)"
             hint="可填入下方算出的 WACC"
             value={form.values.discountRate}
@@ -552,6 +605,13 @@ export default function Dcf(): JSX.Element {
             value={form.values.debt}
             onChange={(v) => setNumber("debt", v)}
             auto={autoHint("debt")}
+          />
+          <Field
+            label="少数股东权益"
+            hint={amountHint("minority")}
+            value={form.values.minority}
+            onChange={(v) => setNumber("minority", v)}
+            auto={autoHint("minority")}
           />
           <Field
             label="流通股数"
@@ -689,13 +749,15 @@ export default function Dcf(): JSX.Element {
         </div>
       </section>
 
+      </details>
+
       <section className="dcf-card">
         <div className="dcf-head">
           <span className="dcf-badge">
             <Calculator size={18} />
           </span>
           <div>
-            <h2>估值结果</h2>
+            <h2>估值结果（明细）</h2>
             <p>{result.reason}</p>
           </div>
         </div>
@@ -939,6 +1001,47 @@ function BandCard({
       </small>
       <strong>{formatPrice(band.price, currency)}</strong>
       {band.status !== "calculated" && <small className="dcf-muted">{band.reason}</small>}
+    </div>
+  );
+}
+
+interface CycleReport {
+  records: { weekEnding: string; markets: Record<"csi300" | "hsi" | "hstech", { legacyState: string; shadow: { trendState: string; valuationZone: string } }> }[];
+}
+/** 个股所在市场的牛熊周期状态：A股看沪深300，港股科技看恒生科技，其余港股看恒指；美股暂无 */
+function marketContext(report: CycleReport | null, item: PrefillItem | null): MarketContext | null {
+  const latest = report?.records?.[0];
+  if (!latest || !item || item.m === "us") return null;
+  const id = item.m === "cn" ? "csi300" : item.g.includes("恒生科技") ? "hstech" : "hsi";
+  const m = latest.markets[id];
+  if (!m) return null;
+  const label = { csi300: "A股（沪深300）", hsi: "港股（恒生指数）", hstech: "港股（恒生科技）" }[id];
+  return { label, state: m.legacyState, trend: m.shadow.trendState, zone: m.shadow.valuationZone, weekEnding: latest.weekEnding };
+}
+
+interface SliderSpec { field: NumericField; label: string; min: number; max: number; step: number; unit: string; explain: string }
+const KEY_SLIDERS: SliderSpec[] = [
+  { field: "growth", label: "五年成长率", min: -10, max: 30, step: 0.5, unit: "%", explain: "未来 5 年自由现金流每年增长多少。参考历史增速和行业前景；成熟公司通常 3%～8%。" },
+  { field: "discountRate", label: "折现率", min: 5, max: 16, step: 0.1, unit: "%", explain: "你要求的年回报率。越高，未来的钱折算到今天越不值钱，合理价越低；风险越大的公司应越高。" },
+  { field: "perpetualGrowth", label: "永续增长率", min: 0, max: 4, step: 0.1, unit: "%", explain: "十年以后的长期增速，通常 2%～3%，不应高于经济的长期名义增速。" },
+  { field: "fadeYears", label: "过渡期", min: 0, max: 10, step: 1, unit: " 年", explain: "高增长结束后，用几年逐步降到长期增速。0 年表示一步到位，最保守。" },
+];
+function KeySlider({ spec, value, autoValue, onChange }: { spec: SliderSpec; value: string; autoValue?: string; onChange(v: string): void }): JSX.Element {
+  const n = parseNumber(value);
+  const current = n == null ? spec.min : Math.min(spec.max, Math.max(spec.min, n));
+  return (
+    <div className="dcf-slider">
+      <div className="dcf-slider__top">
+        <span>{spec.label}</span>
+        <strong>{n == null ? "—" : `${n}${spec.unit}`}</strong>
+      </div>
+      <input type="range" aria-label={spec.label} min={spec.min} max={spec.max} step={spec.step} value={current} onChange={(e) => onChange(e.target.value)} />
+      <small>
+        {spec.explain}
+        {autoValue != null && value.trim() !== autoValue && (
+          <button type="button" className="dcf-link" onClick={() => onChange(autoValue)}>恢复自动值 {autoValue}{spec.unit}</button>
+        )}
+      </small>
     </div>
   );
 }

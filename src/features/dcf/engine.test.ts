@@ -151,3 +151,28 @@ describe("calculateSheetDcf 边界与降级", () => {
     expect(r.warnings.join()).toContain("终值");
   });
 });
+
+describe("calculateSheetDcf 三阶段与少数股东权益", () => {
+  it("过渡期内增速线性降到永续增长率，终值接在过渡期末", () => {
+    const r = calculateSheetDcf({ ...sampleInput(), fadeYears: 3 });
+    expect(r.status).toBe("calculated");
+    expect(r.cashflows).toHaveLength(8);
+    // g=5%、gp=2%：过渡期增速 4%、3%、2%
+    expect(r.cashflows[5]).toBeCloseTo(GOLDEN.flows[4] * 1.04, 8);
+    expect(r.cashflows[7]).toBeCloseTo(GOLDEN.flows[4] * 1.04 * 1.03 * 1.02, 8);
+    expect(r.terminalValue).toBeCloseTo((r.cashflows[7] * 1.02) / 0.08, 6);
+    const pv = r.cashflows.reduce((s, f, i) => s + f / 1.1 ** (i + 1), 0) + r.terminalValue! / 1.1 ** 8;
+    expect(r.enterpriseValue).toBeCloseTo(pv, 6);
+    expect(r.reason).toContain("3 年过渡期");
+  });
+  it("增速高于永续时，三阶段估值高于两阶段", () => {
+    const fast = { ...sampleInput(), growth: 15 };
+    expect(calculateSheetDcf({ ...fast, fadeYears: 5 }).price!).toBeGreaterThan(calculateSheetDcf(fast).price!);
+  });
+  it("少数股东权益从股权价值中扣除；过渡期年数需为 0～10 的整数", () => {
+    const r = calculateSheetDcf({ ...sampleInput(), minority: 100 });
+    expect(r.equityValue).toBeCloseTo(GOLDEN.equityValue - 100, 6);
+    expect(calculateSheetDcf({ ...sampleInput(), fadeYears: 11 }).status).toBe("invalidInput");
+    expect(calculateSheetDcf({ ...sampleInput(), fadeYears: 2.5 }).status).toBe("invalidInput");
+  });
+});

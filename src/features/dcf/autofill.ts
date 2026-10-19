@@ -7,9 +7,9 @@ import type { Currency, DcfSheetInput, Market } from "./types.ts";
 export interface PrefillItem {
   m: "cn" | "hk" | "us"; c: string; n: string; g: string[]; px: number; pxDate: string | null; ccy: Currency
   fy: string; fin?: boolean; org?: string
-  /** [财年, 营收, 经营现金流, 资本开支]，基础单位（元/港元/美元），新到旧 */
-  years: [string, number | null, number | null, number | null][]
-  cash: number | null; inv: number | null; debt: number | null; shares: number | null
+  /** [财年, 营收, 经营现金流, 资本开支, 折旧摊销, 股权激励]，基础单位（元/港元/美元），新到旧；旧数据只有前四列 */
+  years: [string, number | null, number | null, number | null, (number | null)?, (number | null)?][]
+  cash: number | null; inv: number | null; debt: number | null; mi?: number | null; shares: number | null
   interest: number | null; pretax: number | null; tax: number | null; ebitda: number | null; ni: number | null
   beta: number | null; betaRaw: number | null; betaWeeks: number | null
   fx?: { from: string; rate: number; date: string }; notes?: string[]; src: string; at: string
@@ -25,11 +25,19 @@ export const AUTO_RULES = {
   /** 股权风险溢价：美股接近 Damodaran 隐含 ERP；A股、港股含新兴市场国家风险溢价 */
   erp: { cn: 6, hk: 6.5, us: 4.5 } as Record<"cn" | "hk" | "us", number>,
   debtSpread: 2,
+  /** A股/港股的联营、股权及金融投资按账面值的 70% 计入（流动性、控制权与税务折价）；美股为有价证券，按 100% */
+  investmentKeep: 0.7,
+  /** 维持性口径与默认口径相差超过此比例才提示，避免无意义的选项 */
+  altMinDiff: 0.1,
+  /** 第 6 年起用多少年把增速线性降到永续（三阶段） */
+  fadeYears: 5,
+  /** 资本开支超过折旧摊销这个倍数，视为处于扩张投入期，提供维持性资本开支口径 */
+  expansionRatio: 1.3,
   /** 折现率合理区间：A股、港股资金成本不宜低于 8%，避免低利率环境下系统性高估 */
   wacc: { cn: [8, 12], hk: [8, 13], us: [7, 12] } as Record<"cn" | "hk" | "us", [number, number]>,
 } as const
 
-export type AutoField = "baseFcf" | "growth" | "perpetualGrowth" | "discountRate" | "cash" | "debt" | "shares" | "currentPrice"
+export type AutoField = "baseFcf" | "growth" | "perpetualGrowth" | "discountRate" | "cash" | "debt" | "shares" | "currentPrice" | "fadeYears" | "minority"
   | "ebitda" | "marketCap" | "beta" | "interestExpense" | "pretaxIncome" | "taxPaid" | "riskFreeRate" | "marketReturn"
 export type AutoStatus = "ok" | "financial" | "negativeFcf" | "incomplete"
 export interface AutoFill {
@@ -40,6 +48,8 @@ export interface AutoFill {
   status: AutoStatus
   statusText: string
   notes: string[]
+  /** 可选的替代口径，例如扩张期公司的维持性资本开支自由现金流 */
+  alternatives: { field: AutoField; value: string; label: string; reason: string }[]
 }
 
 const YI = 1e8
@@ -59,11 +69,26 @@ export function deriveAutoFill(item: PrefillItem, riskFree: PrefillLibrary["risk
   const report = item.m === "us" ? "10-K" : "年报"
   if (item.fx) notes.push(`财报以 ${item.fx.from} 披露，已按 ${item.fx.date} 汇率 ${fmt(item.fx.rate, 4)} 折算为 ${item.ccy}`)
 
-  // ---- 起始自由现金流：近3年（经营现金流 − 资本开支）平均 ----
-  const fcfs = item.years.filter(([, , ocf, capex]) => ocf != null && capex != null).slice(0, AUTO_RULES.fcfYears).map(([y, , ocf, capex]) => [y, ocf! - capex!] as const)
+  // ---- 起始自由现金流：近3年（经营现金流 − 资本开支 − 股权激励）平均 ----
+  const usable = item.years.filter(([, , ocf, capex]) => ocf != null && capex != null).slice(0, AUTO_RULES.fcfYears)
+  const sbcDeducted = usable.some(r => (r[5] ?? 0) > 0)
+  const fcfs = usable.map(r => [r[0], r[2]! - r[3]! - (r[5] ?? 0)] as const)
   const avgFcf = fcfs.length >= 2 ? fcfs.reduce((s, [, v]) => s + v, 0) / fcfs.length : null
+  const alternatives: AutoFill["alternatives"] = []
   // 金融企业的经营现金流含存贷款变动，不是自由现金流，不预填，避免算出无意义的价格
-  if (avgFcf != null && !item.fin) set("baseFcf", avgFcf, `近${fcfs.length}年平均（${fcfs[fcfs.length - 1][0]}–${fcfs[0][0]}${report}：${fcfs.map(([, v]) => yi(v)).join(" / ")} 亿）`)
+  if (avgFcf != null && !item.fin) {
+    set("baseFcf", avgFcf, `近${fcfs.length}年平均（${fcfs[fcfs.length - 1][0]}–${fcfs[0][0]}${report}：${fcfs.map(([, v]) => yi(v)).join(" / ")} 亿${sbcDeducted ? "，已扣股权激励" : ""}）`)
+    // 扩张投入期：资本开支明显高于折旧摊销时，多出的部分是为增长而投，可用“维持性资本开支≈折旧摊销”口径对照
+    const withDa = usable.filter(r => r[4] != null && r[4]! > 0)
+    if (withDa.length === usable.length && usable.length >= 2) {
+      const capex = usable.reduce((s, r) => s + r[3]!, 0), da = withDa.reduce((s, r) => s + r[4]!, 0)
+      if (capex > da * AUTO_RULES.expansionRatio) {
+        const maint = usable.reduce((s, r) => s + r[2]! - Math.min(r[3]!, r[4]!) - (r[5] ?? 0), 0) / usable.length
+        if (Math.abs(maint - avgFcf) > Math.abs(avgFcf) * AUTO_RULES.altMinDiff) alternatives.push({ field: "baseFcf", value: yi(maint), label: `维持性口径 ${yi(maint)} 亿`,
+          reason: `近${usable.length}年资本开支是折旧摊销的 ${fmt(capex / da)} 倍，处于扩张投入期；把超出折旧的部分视为增长投资，自由现金流约 ${yi(maint)} 亿。该口径隐含这些投资能带来增长，适合投入期确定性较高的公司。` })
+      }
+    }
+  }
 
   // ---- 五年成长率：营收复合增速，封顶 15%、不低于 0 ----
   const revs = item.years.filter(([, r]) => r != null && r > 0)
@@ -78,8 +103,13 @@ export function deriveAutoFill(item: PrefillItem, riskFree: PrefillLibrary["risk
   set("perpetualGrowth", AUTO_RULES.perpetual, "长期名义增长，不高于 GDP 增速", false)
 
   // ---- 资产负债表 ----
-  const cashTotal = item.cash == null && item.inv == null ? null : (item.cash ?? 0) + Math.max(0, item.inv ?? 0)
-  set("cash", cashTotal, `${fyYear}${report}：现金 ${item.cash == null ? "—" : yi(item.cash)} 亿${item.inv ? ` + 金融及联营投资账面值 ${yi(item.inv)} 亿` : ""}`)
+  const keep = item.m === "us" ? 1 : AUTO_RULES.investmentKeep
+  const inv = Math.max(0, item.inv ?? 0) * keep
+  const cashTotal = item.cash == null && item.inv == null ? null : (item.cash ?? 0) + inv
+  set("cash", cashTotal, `${fyYear}${report}：现金 ${item.cash == null ? "—" : yi(item.cash)} 亿${inv ? item.m === "us" ? ` + 有价证券 ${yi(inv)} 亿` : ` + 金融及联营投资账面值 ${yi(item.inv!)} 亿 × ${keep * 100}%` : ""}`)
+  if (item.m !== "us" && item.cash != null && inv > Math.max(item.cash, 0)) notes.push(`投资资产（按七折 ${yi(inv)} 亿）超过现金，估值对这部分很敏感；上市投资可按市值、非上市投资宜保守`)
+  set("minority", item.mi ?? 0, item.mi ? `${fyYear}${report}少数股东权益（账面值），属于子公司其他股东` : "报表无少数股东权益")
+  set("fadeYears", AUTO_RULES.fadeYears, `三阶段：高增长 5 年后，再用 ${AUTO_RULES.fadeYears} 年把增速降到永续增长率`, false)
   set("debt", item.debt, `${fyYear}${report}有息负债（借款、债券、租赁），不含应付账款等经营负债`)
   set("shares", item.shares, `${fyYear}${report}总股本`)
   set("currentPrice", item.px, `${item.pxDate ?? ""} 收盘价`, false)
@@ -117,7 +147,7 @@ export function deriveAutoFill(item: PrefillItem, riskFree: PrefillLibrary["risk
   if (item.fin) { status = "financial"; statusText = `${item.org || "金融"}企业的现金流含存贷款等业务资金，不适用 DCF；建议改看市净率、股息率` }
   else if (avgFcf == null || item.shares == null) { status = "incomplete"; statusText = "关键财报数据不全，已填入可取得的部分，请补齐后再看结果" }
   else if (avgFcf <= 0) { status = "negativeFcf"; statusText = "近年平均自由现金流为负，DCF 不适用；可改看市销率或等待现金流转正" }
-  return { meta: { company: item.n, code: item.c, market: item.m, currency: item.ccy, baseYear: fyYear }, values, sources, status, statusText, notes }
+  return { meta: { company: item.n, code: item.c, market: item.m, currency: item.ccy, baseYear: fyYear }, values, sources, status, statusText, notes, alternatives }
 }
 const num = (s: string | undefined) => s == null || s === "" ? null : Number(s)
 

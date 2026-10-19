@@ -67,7 +67,8 @@ function validInput(v: any): boolean {
       "taxPaid",
       "riskFreeRate",
       "marketReturn",
-    ].every((k) => nullable(v[k]))
+    ].every((k) => nullable(v[k])) &&
+    ["fadeYears", "minority"].every((k) => v[k] === undefined || nullable(v[k]))
   );
 }
 function validResult(v: any): boolean {

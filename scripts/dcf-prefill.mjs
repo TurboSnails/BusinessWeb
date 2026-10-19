@@ -14,6 +14,8 @@ const UA = 'Mozilla/5.0 (BusinessWeb DCF research)'
 // SEC 要求 UA 写明联系邮箱（拒绝 noreply 与含 github 的写法）；生产用 SEC_USER_AGENT 密钥填真实联系方式
 const SEC_UA = process.env.SEC_USER_AGENT || 'BusinessWeb DCF research contact@example.org'
 export const FUNDAMENTAL_TTL_DAYS = 7
+/** 缓存结构版本：新增采集字段时加一，旧缓存视为过期重采 */
+const CACHE_SCHEMA = 2
 const YEARS = 5
 const EM_BASE = 'https://emweb.securities.eastmoney.com/PC_HSF10/NewFinanceAnalysis/'
 const HK_API = 'https://datacenter.eastmoney.com/securities/api/data/v1/get'
@@ -118,7 +120,7 @@ export async function collectCn(code, http) {
   const general = !orgType || orgType === '通用'
   const years = dates.map(d => {
     const e = cnEntries(pick(lrb, d), pick(zcfzb, d), pick(xjllb, d), general)
-    return { fy: d, revenue: num(e.revenue), ocf: num(e.operatingCashflow), capex: num(e.capex) }
+    return { fy: d, revenue: num(e.revenue), ocf: num(e.operatingCashflow), capex: num(e.capex), da: num(e.da), sbc: null }
   })
   const e = cnEntries(pick(lrb, dates[0]), pick(zcfzb, dates[0]), pick(xjllb, dates[0]), general)
   const z = pick(zcfzb, dates[0])
@@ -129,7 +131,7 @@ export async function collectCn(code, http) {
   return {
     currency: 'CNY', financial: !general, orgType, years, notes,
     latest: {
-      fy: dates[0], cash: num(e.cash), investments: num(e.nonOperating), debt, shares: num(e.shares),
+      fy: dates[0], cash: num(e.cash), investments: num(e.nonOperating), debt, shares: num(e.shares), minority: num(e.minority),
       interest: num(e.interestExpense), pretax: num(e.pretaxProfit), tax: num(e.incomeTax),
       ebitda: num(e.ebit) != null && num(e.da) != null ? num(e.ebit) + num(e.da) : null, netIncome: num(e.netIncome),
     },
@@ -163,7 +165,7 @@ export async function collectHk(code, http) {
   const cfAt = (d, c) => { const r = cfRows.find(x => day(x.REPORT_DATE) === d && x.STD_ITEM_CODE === c); return r ? Number(r.AMOUNT) : null }
   const years = main.slice(0, YEARS).map(r => {
     const d = day(r.REPORT_DATE), ppe = cfAt(d, '005005'), intangible = cfAt(d, '005007')
-    return { fy: d, revenue: num(r.OPERATE_INCOME), ocf: num(r.NETCASH_OPERATE) ?? cfAt(d, '003999'), capex: ppe == null ? null : ppe + (intangible ?? 0) }
+    return { fy: d, revenue: num(r.OPERATE_INCOME), ocf: num(r.NETCASH_OPERATE) ?? cfAt(d, '003999'), capex: ppe == null ? null : ppe + (intangible ?? 0), da: cfAt(d, '001009'), sbc: null }
   })
   const latestCf = new Map(['003999', '005005', '005007', '001009'].map(c => [c, cfAt(date, c)]).filter(([, v]) => v != null))
   const e = hkEntries(byCode(bal.result?.data), byCode(inc.result?.data), latestCf, row)
@@ -171,11 +173,12 @@ export async function collectHk(code, http) {
   const notes = []
   const debt = num(e.debt) ?? 0
   if (num(e.debt) == null) notes.push('报表未列示银行贷款或应付票据，有息负债按0')
+  notes.push('港股标准化现金流量表未单列股权激励，自由现金流未扣除；科技公司可能因此偏高')
   return {
     currency, financial: !!orgType && orgType !== '一般企业', orgType, years, notes,
     latest: {
       fy: date, cash: sumOrNull([num(e.cash), num(e.shortTermDeposits)]), investments: num(e.nonOperating) != null ? num(e.nonOperating) - (num(e.shortTermDeposits) ?? 0) : null,
-      debt, shares: num(e.shares), interest: num(e.interestExpense), pretax: num(e.pretaxProfit), tax: num(e.incomeTax),
+      debt, shares: num(e.shares), minority: num(e.minority), interest: num(e.interestExpense), pretax: num(e.pretaxProfit), tax: num(e.incomeTax),
       ebitda: num(e.ebit) != null && num(e.da) != null ? num(e.ebit) + num(e.da) : null, netIncome: num(e.netIncome),
     },
     source: `https://emweb.securities.eastmoney.com/PC_HKF10/FinancialAnalysis/index?type=web&code=${code}`,
@@ -187,6 +190,8 @@ const SEC = {
   revenue: ['RevenueFromContractWithCustomerExcludingAssessedTax', 'Revenues', 'SalesRevenueNet'],
   ocf: ['NetCashProvidedByUsedInOperatingActivities'],
   capex: ['PaymentsToAcquirePropertyPlantAndEquipment', 'PaymentsToAcquireProductiveAssets'],
+  da: ['DepreciationDepletionAndAmortization', 'DepreciationAndAmortization', 'DepreciationAmortizationAndAccretionNet'],
+  sbc: ['ShareBasedCompensation', 'AllocatedShareBasedCompensationExpense'],
 }
 /** Fiscal-year values from annual reports only: 10-Q filings also carry 12-month periods ending at quarter ends. */
 function secAnnual(fact, asOf, currency) {
@@ -226,7 +231,7 @@ export function collectUsFacts(raw, asOf) {
   const series = Object.fromEntries(Object.entries(SEC).map(([k, tags]) => [k, secSeries(gaap, tags, asOf, currency)]))
   const ends = [...series.revenue.keys(), ...series.ocf.keys()].filter((d, i, a) => a.indexOf(d) === i).sort().reverse().slice(0, YEARS)
   if (!ends.length) throw new Error('SEC 无年度营收或经营现金流')
-  const years = ends.map(d => ({ fy: d, revenue: series.revenue.get(d) ?? null, ocf: series.ocf.get(d) ?? null, capex: series.capex.get(d) ?? null }))
+  const years = ends.map(d => ({ fy: d, revenue: series.revenue.get(d) ?? null, ocf: series.ocf.get(d) ?? null, capex: series.capex.get(d) ?? null, da: series.da.get(d) ?? null, sbc: series.sbc.get(d) ?? null }))
   const L = (tags, instant = true) => {
     if (!instant) { for (const tag of tags) { const v = secAnnual(gaap[tag], asOf, currency).get(ends[0]); if (v != null) return v } return null }
     const f = secLatest(gaap, tags, asOf, true); return f?.currency === currency && (Date.parse(ends[0]) - Date.parse(f.periodEnd)) / 864e5 <= 120 ? f.value : null
@@ -246,7 +251,7 @@ export function collectUsFacts(raw, asOf) {
   return {
     currency, financial: false, orgType: '', years, notes,
     latest: {
-      fy: ends[0], cash: L(['CashAndCashEquivalentsAtCarryingValue', 'CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents']), investments: marketable, debt,
+      fy: ends[0], minority: L(['MinorityInterest']), cash: L(['CashAndCashEquivalentsAtCarryingValue', 'CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents']), investments: marketable, debt,
       shares: shares?.value ?? null, interest: L(['InterestExpense', 'InterestExpenseNonoperating', 'InterestExpenseDebt'], false),
       pretax: L(['IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest', 'IncomeLossFromContinuingOperationsBeforeIncomeTaxesMinorityInterestAndIncomeLossFromEquityMethodInvestments'], false),
       tax: L(['IncomeTaxExpenseBenefit'], false), ebitda: ebit != null && da != null ? ebit + da : null, netIncome: L(['NetIncomeLoss'], false),
@@ -333,7 +338,7 @@ export async function run({ fetchImpl = fetch, now = new Date(), timeLimitMs = N
   // 3) fundamentals, stale-first, bounded by time and budget
   const cachePath = u => join(CACHE, `${u.market}-${u.code}.json`)
   const cached = new Map(await Promise.all(universe.map(async u => [`${u.market}:${u.code}`, await readJson(cachePath(u), null)])))
-  const age = u => { const c = cached.get(`${u.market}:${u.code}`); return c?.fetchedAt ? (now - Date.parse(c.fetchedAt)) / 864e5 : Infinity }
+  const age = u => { const c = cached.get(`${u.market}:${u.code}`); return c?.fetchedAt && c.schema === CACHE_SCHEMA ? (now - Date.parse(c.fetchedAt)) / 864e5 : Infinity }
   const due = universe.filter(u => age(u) >= FUNDAMENTAL_TTL_DAYS).sort((a, b) => age(b) - age(a)).slice(0, budget)
   let next = 0, refreshed = 0, failed = 0
   await Promise.all(Array.from({ length: 3 }, async () => {
@@ -344,7 +349,7 @@ export async function run({ fetchImpl = fetch, now = new Date(), timeLimitMs = N
         const sym = yahooSymbol(u.market, u.code)
         let beta = null
         try { if (bench[u.market] && sym) beta = weeklyBeta(parseYahooWeekly(await http.json(weeklyUrl(sym))), bench[u.market]) } catch { /* beta optional */ }
-        const entry = { ...facts, beta, fetchedAt: now.toISOString() }
+        const entry = { ...facts, beta, schema: CACHE_SCHEMA, fetchedAt: now.toISOString() }
         await writeJson(cachePath(u), entry)
         cached.set(`${u.market}:${u.code}`, entry)
         refreshed++
@@ -378,8 +383,8 @@ export async function run({ fetchImpl = fetch, now = new Date(), timeLimitMs = N
     items.push({
       m: u.market, c: u.code, n: (q.name || u.name).normalize('NFKC').replace(/\s+/g, ''), g: u.groups, px: q.price, pxDate: q.date, ccy: quoteCcy[u.market],
       fy: c.latest.fy, fin: c.financial || undefined, org: c.orgType || undefined,
-      years: c.years.map(y => [y.fy.slice(0, 4), scale(y.revenue), scale(y.ocf), scale(y.capex)]),
-      cash: scale(c.latest.cash), inv: scale(c.latest.investments), debt: scale(c.latest.debt), shares: c.latest.shares,
+      years: c.years.map(y => [y.fy.slice(0, 4), scale(y.revenue), scale(y.ocf), scale(y.capex), scale(y.da ?? null), scale(y.sbc ?? null)]),
+      cash: scale(c.latest.cash), inv: scale(c.latest.investments), debt: scale(c.latest.debt), mi: scale(c.latest.minority ?? null), shares: c.latest.shares,
       interest: scale(c.latest.interest), pretax: scale(c.latest.pretax), tax: scale(c.latest.tax), ebitda: scale(c.latest.ebitda), ni: scale(c.latest.netIncome),
       beta: c.beta?.adjusted ?? null, betaRaw: c.beta?.raw ?? null, betaWeeks: c.beta?.weeks ?? null,
       fx: conv ? { from: c.currency, rate: conv.rate, date: conv.date } : undefined,

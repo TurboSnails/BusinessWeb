@@ -24,7 +24,9 @@ describe("DCF 自动预填", () => {
     expect(fill.values.growth).toBe("12.5"); // (1688/1062)^(1/4)-1 ≈ 12.3%，按 0.5 步长取整
     expect(fill.values.debt).toBe("2.3");
     expect(fill.sources.debt).toContain("不含应付账款");
-    expect(fill.values.cash).toBe("605.6");
+    expect(fill.values.cash).toBe("579"); // 516.9 + 88.7×70%
+    expect(fill.values.fadeYears).toBe("5");
+    expect(fill.values.minority).toBe("0");
     const r = Number(fill.values.discountRate);
     expect(r).toBeGreaterThanOrEqual(7);
     expect(r).toBeLessThanOrEqual(12);
@@ -75,5 +77,18 @@ describe("DCF 自动预填", () => {
     expect(Math.abs(calculateSheetDcf({ ...input, growth: g }).price! - 150)).toBeLessThan(1);
     expect(impliedGrowth({ ...input, currentPrice: 1e6 })).toBeNull();
     expect(impliedGrowth({ ...input, currentPrice: null })).toBeNull();
+  });
+  it("美股自由现金流扣股权激励；扩张期提供维持性资本开支口径；少数股东权益照扣", () => {
+    const amzn: PrefillItem = { ...moutai, m: "us", ccy: "USD", mi: 5 * YI,
+      years: [["2025", 7000 * YI, 1400 * YI, 1300 * YI, 600 * YI, 200 * YI], ["2024", 6300 * YI, 1150 * YI, 800 * YI, 500 * YI, 220 * YI], ["2023", 5700 * YI, 850 * YI, 500 * YI, 480 * YI, 240 * YI]] };
+    const fill = deriveAutoFill(amzn, riskFree);
+    expect(fill.values.baseFcf).toBe("46.67"); // (−100 + 130 + 110) / 3
+    expect(fill.sources.baseFcf).toContain("已扣股权激励");
+    expect(fill.values.minority).toBe("5");
+    const alt = fill.alternatives[0];
+    expect(alt.field).toBe("baseFcf");
+    expect(Number(alt.value)).toBeCloseTo(((1400 - 600 - 200) + (1150 - 500 - 220) + (850 - 480 - 240)) / 3, 1);
+    expect(alt.reason).toContain("扩张投入期");
+    expect(deriveAutoFill(moutai, riskFree).alternatives).toEqual([]);
   });
 });

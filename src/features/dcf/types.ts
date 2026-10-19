@@ -55,6 +55,13 @@ export interface DcfSheetInput extends WaccBlock {
   currentPrice: number | null;
   /** EBITDA（E4），用于倍数估值 */
   ebitda: number | null;
+  /**
+   * 过渡期年数：五年高增长之后再用这么多年把增速线性降到永续增长率（三阶段模型）。
+   * 缺省或 0 = 原表两阶段口径。
+   */
+  fadeYears?: number | null;
+  /** 少数股东权益：属于子公司其他股东，从股权价值中扣除；缺省按 0 */
+  minority?: number | null;
 }
 
 export interface DcfSheetResult {

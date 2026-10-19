@@ -7,3 +7,4 @@ export * from "./storage.ts";
 export * from "./sensitivity.ts";
 export * from "./prefill.ts";
 export * from "./autofill.ts";
+export * from "./assessment.ts";
