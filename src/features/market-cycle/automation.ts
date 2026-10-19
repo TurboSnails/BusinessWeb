@@ -61,7 +61,7 @@ export function parseBreadthSnapshot(input: unknown): BreadthSnapshot {
 export function factUsable(f: AutomaticFact, asOf: string): boolean {
   const age = (Date.parse(asOf) - Date.parse(f.observationDate)) / 86400000
   // Month-end PE is legitimately older than daily FX. availableAt remains unknown when the publisher gives no timestamp.
-  return age >= 0 && age <= ({ daily: 14, weekly: 21, monthly: 75 }[f.frequency])
+  return age >= 0 && age <= ({ daily: 14, weekly: 14, monthly: 75 }[f.frequency])
     && (f.availableAt === null || Date.parse(f.availableAt) < Date.parse(asOf) + 86400000)
     && Date.parse(f.firstSeenAt) < Date.parse(asOf) + 86400000
 }
