@@ -116,3 +116,24 @@
   .cycle-overview__head > :nth-child(3) { grid-column: 1; }
   .cycle-dot { flex-direction: column; gap: 2px; font-size: .7rem; white-space: normal; text-align: center; }
 }
+
+/* threshold gauges on evidence cards */
+.cycle-gauge { margin: 12px 0 4px; max-width: 560px; }
+.cycle-gauge__label { display: flex; justify-content: space-between; gap: 12px; font-size: .8rem; color: var(--text-secondary); margin-bottom: 2px; }
+.cycle-gauge__label strong { color: var(--text-primary); font-size: .95rem; font-variant-numeric: tabular-nums; }
+.cycle-gauge__svg { display: block; overflow: visible; }
+.cycle-gauge__zone { opacity: .4; }
+.cycle-gauge__zone.is-current { opacity: 1; }
+.cycle-gauge__zone--neutral { fill: color-mix(in srgb, var(--text-secondary) 25%, transparent); }
+.cycle-gauge__zone--bottom { fill: color-mix(in srgb, var(--accent) 35%, transparent); }
+.cycle-gauge__zone--positive { fill: color-mix(in srgb, var(--system-green) 35%, transparent); }
+.cycle-gauge__zone--risk { fill: color-mix(in srgb, var(--system-red) 35%, transparent); }
+.cycle-gauge__zone-label { font-size: 11px; fill: var(--text-primary); }
+.cycle-gauge__edge { stroke: var(--bg-card); stroke-width: 2; }
+.cycle-gauge__tick { font-size: 10px; fill: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.cycle-gauge__marker { stroke: var(--text-primary); stroke-width: 3; }
+.cycle-gauge__marker-head { fill: var(--text-primary); }
+.cycle-gauge__prior { fill: var(--bg-card); stroke: var(--text-primary); stroke-width: 2; }
+.cycle-gauge__hint { margin-top: 2px !important; font-size: .82rem !important; color: var(--text-secondary); }
+.cycle-gauge__key { display: inline-block; width: 3px; height: 10px; background: var(--text-primary); margin-right: 4px; vertical-align: -1px; }
+.cycle-gauge__key.is-prior { width: 9px; height: 9px; border: 2px solid var(--text-primary); border-radius: 50%; background: transparent; margin-left: 6px; box-sizing: border-box; }

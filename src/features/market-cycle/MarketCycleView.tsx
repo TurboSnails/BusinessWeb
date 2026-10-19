@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Segmented } from '../../components/ui/PageTabs'
-import { DIMENSION_RULES, evaluate, MANUAL_NAMES, MARKETS, manualFields, RULE_VERSION, safeUrl, SIGNAL_LABEL, STATE_RULES, type CycleSnapshot, type Evidence, type MacroContext, type ManualDimension, type Market, type Observation, type TechnicalPoint } from './engine'
+import { DIMENSION_RULES, evaluate, MANUAL_NAMES, MARKETS, manualFields, RULE_VERSION, safeUrl, SIGNAL_LABEL, STATE_RULES, type CycleSnapshot, type Evidence, type Gauge, type MacroContext, type ManualDimension, type Market, type Observation, type TechnicalPoint } from './engine'
 import { EMPTY_BUDGET, loadState, macroSchema, parseBackup, persistState, snapshotSchema, automaticSchema, breadthSchema, reportSchema, type AutomaticReport, type Budget, type LocalState, type ReviewLog } from './storage'
 import { automaticRows, factLabel, factUsable, humanizeDetail, shadowState, type AutomaticSnapshot, type BreadthSnapshot } from './automation'
 import './market-cycle.css'
@@ -30,6 +30,29 @@ function download(name: string, value: unknown) {
   const url = URL.createObjectURL(new Blob([JSON.stringify(value, null, 2)], { type: 'application/json' }))
   const a = document.createElement('a'); a.href = url; a.download = name; a.click()
   setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
+
+function GaugeBar({ g }: { g: Gauge }): JSX.Element {
+  const unit = g.unit === '个百分点' ? '%' : g.unit
+  const pct = (v: number) => Math.max(0, Math.min(100, (v - g.min) / (g.max - g.min) * 100))
+  const at = (v: number) => `${pct(v).toFixed(2)}%`
+  const show = (v: number) => `${Number(v.toFixed(g.digits))}${unit}`
+  const current = g.zones.find((z, i) => g.value < z.to || i === g.zones.length - 1)
+  // Percentage coordinates keep the SVG fluid without inline styles; text stays undistorted.
+  return <div className="cycle-gauge" role="img" aria-label={`${g.label}：${show(g.value)}。${g.hint}`}>
+    <div className="cycle-gauge__label"><span>{g.label}</span><strong>{show(g.value)}</strong></div>
+    <svg className="cycle-gauge__svg" width="100%" height="48" aria-hidden="true">
+      {g.zones.map(z => <g key={z.label}>
+        <rect x={at(z.from)} y="8" width={`${(pct(z.to) - pct(z.from)).toFixed(2)}%`} height="22" className={`cycle-gauge__zone cycle-gauge__zone--${z.tone}${z === current ? ' is-current' : ''}`} />
+        <text x={`${((pct(z.from) + pct(z.to)) / 2).toFixed(2)}%`} y="23" textAnchor="middle" className="cycle-gauge__zone-label">{pct(z.to) - pct(z.from) >= 12 ? z.label : ''}</text>
+      </g>)}
+      {g.zones.slice(0, -1).map(z => <g key={`edge-${z.to}`}><line x1={at(z.to)} x2={at(z.to)} y1="8" y2="30" className="cycle-gauge__edge" /><text x={at(z.to)} y="44" textAnchor="middle" className="cycle-gauge__tick">{Number(z.to.toFixed(2))}{unit}</text></g>)}
+      {g.prior !== undefined && <circle cx={at(g.prior)} cy="19" r="5" className="cycle-gauge__prior" />}
+      <line x1={at(g.value)} x2={at(g.value)} y1="2" y2="36" className="cycle-gauge__marker" />
+      <circle cx={at(g.value)} cy="3" r="3.5" className="cycle-gauge__marker-head" />
+    </svg>
+    <p className="cycle-gauge__hint">{g.prior !== undefined && <span className="cycle-gauge__legend"><span className="cycle-gauge__key" />{'本期 '}<span className="cycle-gauge__key is-prior" />{`${g.priorLabel ?? '前值'} ${show(g.prior)}；`}</span>}{g.hint}</p>
+  </div>
 }
 
 function TrendChart({ points, period }: { points: TechnicalPoint[]; period: string }): JSX.Element {
@@ -87,7 +110,7 @@ export default function MarketCycleView(): JSX.Element {
   const marketLabel = MARKETS.find(m => m.id === market)?.label
   const facts = [...new Map((automatic?.facts ?? []).filter(fact => fact.market === market || fact.market === 'all').sort((a, b) => a.observationDate.localeCompare(b.observationDate)).map(fact => [`${fact.market}-${fact.metricId}`, fact])).values()]
   const issues = [...(automatic?.issues ?? []), ...(breadth?.issues ?? [])]
-  const latestEvidence = result.rows.map(r => r.available ? r.date : undefined).filter((d): d is string => !!d && d <= asOf).sort().at(-1)
+  const latestEvidence = result.rows.flatMap(r => r.available && r.date ? r.date.split(' / ') : []).filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d) && d <= asOf).sort().at(-1)
   const [thisWeek, lastWeek] = report?.records ?? []
   const weekChanges = thisWeek && lastWeek ? changes(lastWeek.markets[market].rows, thisWeek.markets[market].rows) : []
   const sinceReport = thisWeek ? changes(thisWeek.markets[market].rows, result.rows) : []
@@ -196,7 +219,7 @@ export default function MarketCycleView(): JSX.Element {
       <details className="cycle-rules"><summary>这个结论怎么来的？（共6个维度，按顺序匹配第一条）</summary><ol>{STATE_RULES.map(r => <li key={r.state} className={r.state === result.summary.state ? 'is-current' : undefined}><strong>{r.state}</strong>：{r.rule}</li>)}</ol><p className="macro-muted">每个维度先各自判成 偏多 / 偏空 / 偏低估 / 中性 / 数据不足，再按上表汇总；缺失或过期的维度不计票，也不当作中性。分层读数（cycle-shadow-v2）把赔率与趋势分开看：低估可以与趋势防守并存；正向趋势需连续两份完整周确认，风险即时生效；少于4个有效维度或缺估值 / 宽度时暂停提高风险。页面刷新不增加确认次数。</p></details>
     </div>
 
-    <section aria-labelledby="cycle-evidence-title"><h3 id="cycle-evidence-title">六维证据</h3><div className="cycle-evidence">{result.rows.map(row => <article key={row.id} className="cycle-row"><div className="cycle-row__title"><h4>{row.name}</h4><span className={`cycle-signal cycle-signal--${row.signal}`}>{evidenceLabel(row)}</span></div><div className="cycle-row__content"><p className="cycle-row__headline">{row.headline ?? splitDetail(row.detail)[0]}</p><details className="cycle-row__more"><summary>依据与阈值</summary><p className="cycle-row__rule">判定规则：{DIMENSION_RULES[row.id]?.(market)}</p>{(row.headline ? row.detail : splitDetail(row.detail)[1]) && <p>{row.headline ? row.detail : splitDetail(row.detail)[1]}</p>}</details>{row.methodDetail && <details className="cycle-method"><summary>数据口径与来源</summary><p>{row.methodDetail}</p></details>}</div><div className="cycle-row__meta"><span>{row.date ? `观测：${row.date}` : '尚无有效观测日期'}</span>{row.source && safeUrl(row.source) && <a href={row.source} target="_blank" rel="noreferrer">公开来源</a>}</div></article>)}</div></section>
+    <section aria-labelledby="cycle-evidence-title"><h3 id="cycle-evidence-title">六维证据</h3><div className="cycle-evidence">{result.rows.map(row => <article key={row.id} className="cycle-row"><div className="cycle-row__title"><h4>{row.name}</h4><span className={`cycle-signal cycle-signal--${row.signal}`}>{evidenceLabel(row)}</span></div><div className="cycle-row__content"><p className="cycle-row__headline">{row.headline ?? splitDetail(row.detail)[0]}</p>{row.available && row.gauges?.map(g => <GaugeBar key={g.label} g={g} />)}<details className="cycle-row__more"><summary>依据与阈值</summary><p className="cycle-row__rule">判定规则：{DIMENSION_RULES[row.id]?.(market)}</p>{(row.headline ? row.detail : splitDetail(row.detail)[1]) && <p>{row.headline ? row.detail : splitDetail(row.detail)[1]}</p>}</details>{row.methodDetail && <details className="cycle-method"><summary>数据口径与来源</summary><p>{row.methodDetail}</p></details>}</div><div className="cycle-row__meta"><span>{row.date ? `观测：${row.date}` : '尚无有效观测日期'}</span>{row.source && safeUrl(row.source) && <a href={row.source} target="_blank" rel="noreferrer">公开来源</a>}</div></article>)}</div></section>
 
     <section className="cycle-section" aria-labelledby="cycle-chart-title"><div className="cycle-toolbar"><h3 id="cycle-chart-title">趋势与持仓防线</h3><Segmented label="图表周期" items={[{ id: 'week', label: '周线' }, { id: 'month', label: '月线' }]} value={period} onChange={setPeriod} /></div><TrendChart key={`${market}-${period}`} points={period === 'week' ? result.weekly : result.monthly} period={period === 'week' ? '周' : '月'} />{snapshot?.markets[market] && <p className="macro-muted">行情快照抓取于 {beijing(snapshot.markets[market]!.fetchedAt)}；图表只用已完成的周 / 月K线，周五收盘后于周六确认。</p>}</section>
 

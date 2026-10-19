@@ -6,12 +6,85 @@ export type ManualDimension = 'valuation' | 'funding' | 'breadth'
 export interface Bar { date: string; close: number; volume: number }
 export interface TechnicalPoint extends Bar { rsi: number | null; dif: number | null; dea: number | null; histogram: number | null; mid: number | null; upper: number | null; lower: number | null; bandwidth: number | null }
 export interface Observation { date: string; source: string; values: Record<string, number> }
-export interface Evidence { id: string; name: string; signal: Signal; detail: string; headline?: string; methodDetail?: string; pendingReason?: string; date?: string; source?: string; available: boolean }
+export interface Evidence { id: string; name: string; signal: Signal; detail: string; headline?: string; gauges?: Gauge[]; values?: Record<string, number>; methodDetail?: string; pendingReason?: string; date?: string; source?: string; available: boolean }
 export interface PriceData { week: Bar[]; month: Bar[]; source: string; fetchedAt: string }
 export interface CycleSnapshot { schemaVersion: 1; generatedAt: string; markets: Partial<Record<Market, PriceData>>; warnings: string[] }
 export interface ContextSeries { latest: { date: string; value: number }; history: [string, number][]; source?: string }
 export interface MacroContext { series: Record<string, ContextSeries> }
 export const SIGNAL_LABEL: Record<Signal, string> = { bottom: '偏低估', positive: '偏多', risk: '偏空 / 风险', neutral: '中性', missing: '数据不足' }
+
+/** One coloured band on a gauge. Bands are contiguous and their edges are the rule thresholds. */
+export interface GaugeZone { to: number; tone: Exclude<Signal, 'missing'>; label: string }
+export interface Gauge {
+  label: string; value: number; prior?: number; priorLabel?: string; min: number; max: number
+  unit: string; digits: number; zones: (GaugeZone & { from: number })[]; hint: string
+}
+interface Spec { label: string; value: number; prior?: number; priorLabel?: string; min: number; zones: GaugeZone[]; unit?: string; digits?: number; hint?: string; note?: string }
+
+const fmt = (n: number, digits: number) => Number(n.toFixed(digits)).toString()
+
+/** Builds a gauge whose hint says, in plain words, which band the value sits in and how far the nearest other band is. */
+export function gauge({ label, value, prior, priorLabel, min, zones, unit = '', digits = 1, hint, note }: Spec): Gauge {
+  const bands = zones.map((z, i) => ({ ...z, from: i === 0 ? min : zones[i - 1].to }))
+  const max = bands.at(-1)!.to
+  const index = Math.max(0, bands.findIndex((z, i) => value < z.to || i === bands.length - 1))
+  const here = bands[index]
+  const options = [
+    index > 0 && value > min ? { d: value - here.from, dir: '下降', to: bands[index - 1] } : null,
+    index < bands.length - 1 ? { d: here.to - value, dir: '上升', to: bands[index + 1] } : null,
+  ].filter((o): o is NonNullable<typeof o> => !!o && o.to.label !== here.label)
+  const nearest = options.sort((a, b) => a.d - b.d)[0]
+  const auto = `当前位于「${here.label}」区${nearest ? `，再${nearest.dir}${fmt(Math.max(nearest.d, 10 ** -digits), digits)}${unit}进入「${nearest.to.label}」区` : ''}。`
+  return { label, value, prior, priorLabel, min, max, unit, digits, zones: bands, hint: (hint ?? auto) + (note ? ` ${note}` : '') }
+}
+
+// ---- per-dimension gauges; edges mirror DIMENSION_RULES exactly ----
+export const valuationGauges = (csi: boolean, x: number): Gauge[] => [csi
+  ? gauge({ label: 'ERP 标准分（越高 = 股票相对国债越便宜）', value: x, min: -3, digits: 2, zones: [{ to: -1, tone: 'risk', label: '偏贵' }, { to: 1.5, tone: 'neutral', label: '中间' }, { to: 3, tone: 'bottom', label: '低估' }] })
+  : gauge({ label: 'PE 在近5年的分位（越低 = 越便宜）', value: x, min: 0, unit: '个百分点', zones: [{ to: 10, tone: 'bottom', label: '低估' }, { to: 90, tone: 'neutral', label: '中间' }, { to: 100, tone: 'risk', label: '偏贵' }] })]
+
+const turnoverGauge = (ratio: number, note?: string) => gauge({ label: '本周成交额 ÷ 过去52周日均（倍）', value: ratio, min: 0, unit: '倍', digits: 2, note,
+  zones: [{ to: 0.5, tone: 'bottom', label: '极度缩量' }, { to: 1.5, tone: 'neutral', label: '正常' }, { to: 2.5, tone: 'positive', label: '明显放量' }] })
+export const fundingGauges = (csi: boolean, ratio: number, other: number): Gauge[] => csi
+  ? [turnoverGauge(ratio), gauge({ label: '融资买入占成交额（杠杆热度）', value: other, min: 0, unit: '个百分点', digits: 2, note: '“底部”需缩量且融资<6%同时满足；“偏多”需放量且融资<10%。',
+      zones: [{ to: 6, tone: 'bottom', label: '低杠杆' }, { to: 10, tone: 'neutral', label: '正常' }, { to: 15, tone: 'risk', label: '过热' }] })]
+  : [turnoverGauge(ratio, `放量时看南向方向：南向近20日${other >= 0 ? '净买入' : '净卖出'}${Math.abs(other).toLocaleString()}亿元，${other >= 0 ? '放量会判偏多' : '放量会判风险'}。`)]
+
+export const breadthGauges = (now: number, prior: number): Gauge[] => [gauge({ label: '站上200日均线的成分股占比', value: now, prior, priorLabel: '4周前', min: 0, unit: '个百分点',
+  note: now >= 40 ? prior < 40 ? '4周前在40%以下、现在上穿，判偏多。' : '已在40%以上较久，不再算新的转强。' : '从40%以下向上穿越40%才算转强。',
+  zones: [{ to: 10, tone: 'bottom', label: '极度低迷' }, { to: 40, tone: 'neutral', label: '偏弱' }, { to: 100, tone: 'positive', label: '偏强' }] })]
+
+export const technicalGauges = (distance: number, rsi: number, histogram: number, brokenTwice: boolean): Gauge[] => [
+  gauge({ label: '周收盘距20周均线', value: Math.max(-15, Math.min(15, distance)), min: -15, unit: '%', digits: 1,
+    hint: distance < 0 ? `收在20周线下方${fmt(-distance, 1)}%。${brokenTwice ? '已连续两周在线下，触发“风险”。' : '若下周仍在线下，将触发“风险”。'}` : `收在20周线上方${fmt(distance, 1)}%，趋势未破。`,
+    zones: [{ to: 0, tone: 'risk', label: '线下' }, { to: 15, tone: 'positive', label: '线上' }] }),
+  gauge({ label: '月 RSI（动能，50为强弱分界）', value: rsi, min: 0, digits: 1, note: `偏多还需月MACD柱>0（当前${fmt(histogram, 2)}）且周收盘在20周线上。`,
+    zones: [{ to: 35, tone: 'bottom', label: '超卖' }, { to: 50, tone: 'neutral', label: '偏弱' }, { to: 100, tone: 'positive', label: '强势' }] }),
+]
+
+export const macroGauges = (values: number[]): Gauge[] => {
+  const steps = values.slice(1).map((v, i) => Math.sign(v - values[i]))
+  const net = steps.reduce((s, n) => s + n, 0)
+  return [gauge({ label: 'M1−M2 近3个月：改善(+1) / 恶化(−1) 合计', value: net, min: -3.5, digits: 0,
+    hint: `近3次变化：${steps.map(s => s > 0 ? '改善' : s < 0 ? '恶化' : '持平').join('、')}。需3次全部改善才判偏多，全部恶化才判风险。`,
+    zones: [{ to: -2.5, tone: 'risk', label: '连续恶化' }, { to: 2.5, tone: 'neutral', label: '方向不一' }, { to: 3.5, tone: 'positive', label: '连续改善' }] })]
+}
+
+export const overseasGauges = (vix: number, change: number): Gauge[] => [
+  gauge({ label: 'VIX 恐慌指数', value: Math.min(45, vix), min: 10, digits: 1, note: '“偏多”还需美债利率下行≥0.25个百分点。',
+    zones: [{ to: 25, tone: 'positive', label: '平稳' }, { to: 30, tone: 'neutral', label: '紧张' }, { to: 45, tone: 'risk', label: '恐慌' }] }),
+  gauge({ label: '美债10年利率近4期变化', value: Math.max(-1, Math.min(1, change)), min: -1, unit: '个百分点', digits: 2,
+    zones: [{ to: -0.25, tone: 'positive', label: '明显下行' }, { to: 0.5, tone: 'neutral', label: '平稳' }, { to: 1, tone: 'risk', label: '快速上行' }] }),
+]
+
+/** Gauges for the three collectable dimensions, from the same value keys as manual entry. */
+export function dimensionGauges(id: string, market: Market, v: Record<string, number> | undefined): Gauge[] | undefined {
+  const ok = (...keys: string[]) => !!v && keys.every(k => Number.isFinite(v[k]))
+  if (id === 'valuation') return market === 'csi300' ? ok('erpZ') ? valuationGauges(true, v!.erpZ) : undefined : ok('pePercentile') ? valuationGauges(false, v!.pePercentile) : undefined
+  if (id === 'funding') return market === 'csi300' ? ok('volumeRatio', 'financing') ? fundingGauges(true, v!.volumeRatio, v!.financing) : undefined : ok('volumeRatio', 'south') ? fundingGauges(false, v!.volumeRatio, v!.south) : undefined
+  if (id === 'breadth') return ok('breadth', 'priorBreadth') ? breadthGauges(v!.breadth, v!.priorBreadth) : undefined
+  return undefined
+}
 const DAY = 86400000
 export const validDate = (d: string): boolean => /^\d{4}-\d{2}-\d{2}$/.test(d) && Number.isFinite(Date.parse(d)) && new Date(d).toISOString().slice(0, 10) === d
 export const safeUrl = (s: string): boolean => { try { return ['https:', 'http:'].includes(new URL(s).protocol) } catch { return false } }
@@ -89,7 +162,7 @@ export function assessManual(id: ManualDimension, market: Market, o: Observation
     headline = `站上MA200 ${v.breadth.toFixed(1)}%（4周前 ${v.priorBreadth.toFixed(1)}%）`
     detail = `站上MA200 ${v.breadth.toFixed(1)}%，4周前 ${v.priorBreadth.toFixed(1)}%；${indexNewHigh ? '周收盘创52周新高' : '无周收盘52周新高确认'}。需保持股票池与复权口径一致。`
   }
-  return evidence(id, name, signal, detail, o.date, o.source, headline)
+  return { ...evidence(id, name, signal, detail, o.date, o.source, headline), values: { ...v } }
 }
 
 export function technicalEvidence(price: PriceData | undefined, asOf: string): { evidence: Evidence; weekly: TechnicalPoint[]; monthly: TechnicalPoint[]; newHigh: boolean } {
@@ -102,6 +175,7 @@ export function technicalEvidence(price: PriceData | undefined, asOf: string): {
     const broken = w.close < w.mid && prev.close < prev.mid
     const signal: Signal = broken ? 'risk' : m.rsi < 35 ? 'bottom' : m.histogram > 0 && m.rsi >= 50 && w.close >= w.mid ? 'positive' : 'neutral'
     e = evidence('technical', '周 / 月技术', signal, `月RSI ${m.rsi.toFixed(1)}；月MACD柱 ${m.histogram.toFixed(2)}；周收盘${w.close >= w.mid ? '高于' : '低于'}20周线 ${w.mid.toFixed(2)}。${broken ? '连续两周收于20周线下，独立触发防守复核。' : '多个价格指标合计只算一个维度。'}`, `${w.date} / ${m.date}`, price?.source ?? '', `月RSI ${m.rsi.toFixed(1)} · 月MACD柱 ${m.histogram.toFixed(2)} · 周收盘${w.close >= w.mid ? '在' : '跌破'}20周线`)
+    e.gauges = technicalGauges((w.close / w.mid - 1) * 100, m.rsi, m.histogram, broken)
   }
   return { evidence: e, weekly, monthly, newHigh }
 }
@@ -114,7 +188,8 @@ export function macroEvidence(cn: MacroContext | null, asOf: string): Evidence {
   const consecutive = h.every((p, i) => i === 0 || Number(p[0].slice(0, 4)) * 12 + Number(p[0].slice(5, 7)) === Number(h[i - 1][0].slice(0, 4)) * 12 + Number(h[i - 1][0].slice(5, 7)) + 1)
   if (!consecutive) return missing('macro', '国内流动性', 'M1−M2月份不连续，等待完整数据。')
   const up = h.every((p, i) => i === 0 || p[1] > h[i - 1][1]), down = h.every((p, i) => i === 0 || p[1] < h[i - 1][1])
-  return evidence('macro', '国内流动性', up ? 'positive' : down ? 'risk' : 'neutral', `M1−M2近4个月：${h.map(p => p[1].toFixed(1)).join(' → ')}个百分点。连续3次改善 / 恶化才改变方向；月度统计为背景，不代表资金直接入市。快照缺原始发布日期，不用于历史交易回测。`, h[3][0].slice(0, 7), 'https://www.pbc.gov.cn/', `M1−M2 ${h.map(p => p[1].toFixed(1)).join(' → ')}`)
+  const e = evidence('macro', '国内流动性', up ? 'positive' : down ? 'risk' : 'neutral', `M1−M2近4个月：${h.map(p => p[1].toFixed(1)).join(' → ')}个百分点。连续3次改善 / 恶化才改变方向；月度统计为背景，不代表资金直接入市。快照缺原始发布日期，不用于历史交易回测。`, h[3][0].slice(0, 7), 'https://www.pbc.gov.cn/', `M1−M2 ${h.map(p => p[1].toFixed(1)).join(' → ')}`)
+  return { ...e, gauges: macroGauges(h.map(p => p[1])) }
 }
 
 export function overseasEvidence(us: MacroContext | null, asOf: string): Evidence {
@@ -122,7 +197,8 @@ export function overseasEvidence(us: MacroContext | null, asOf: string): Evidenc
   const h = (rate?.history ?? []).filter(([d, v]) => validDate(d) && d <= asOf && Number.isFinite(v)).sort((a, b) => a[0].localeCompare(b[0])).slice(-4)
   if (!vix || !fresh(vix.date, asOf, 14) || !rate || !fresh(rate.latest.date, asOf, 14) || h.length < 4 || !Number.isFinite(vix.value) || !Number.isFinite(rate.latest.value)) return missing('overseas', '海外环境', '缺少14天内VIX或美债10年利率及4期利率历史；人民币与跨市场比值尚作人工复核。')
   const change = rate.latest.value - h[0][1]
-  return evidence('overseas', '海外环境', vix.value >= 30 || change >= 0.5 ? 'risk' : change <= -0.25 && vix.value < 25 ? 'positive' : 'neutral', `VIX ${vix.value.toFixed(2)}（${vix.date}）；美债10年 ${rate.latest.value.toFixed(2)}%（${rate.latest.date}），相对近4期首值 ${change >= 0 ? '+' : ''}${change.toFixed(2)}个百分点。仅利率 / 波动代理；需另核人民币、港元与相对收益，不把恐慌当必然买点。`, `${vix.date} / ${rate.latest.date}`, 'https://fred.stlouisfed.org/series/DGS10', `VIX ${vix.value.toFixed(1)} · 美债10年 ${rate.latest.value.toFixed(2)}%（${change >= 0 ? '+' : ''}${change.toFixed(2)}）`)
+  const e = evidence('overseas', '海外环境', vix.value >= 30 || change >= 0.5 ? 'risk' : change <= -0.25 && vix.value < 25 ? 'positive' : 'neutral', `VIX ${vix.value.toFixed(2)}（${vix.date}）；美债10年 ${rate.latest.value.toFixed(2)}%（${rate.latest.date}），相对近4期首值 ${change >= 0 ? '+' : ''}${change.toFixed(2)}个百分点。仅利率 / 波动代理；需另核人民币、港元与相对收益，不把恐慌当必然买点。`, `${vix.date} / ${rate.latest.date}`, 'https://fred.stlouisfed.org/series/DGS10', `VIX ${vix.value.toFixed(1)} · 美债10年 ${rate.latest.value.toFixed(2)}%（${change >= 0 ? '+' : ''}${change.toFixed(2)}）`)
+  return { ...e, gauges: overseasGauges(vix.value, change) }
 }
 
 export const DIMENSION_RULES: Record<string, (market: Market) => string> = {
@@ -166,10 +242,11 @@ export function evaluate(market: Market, price: PriceData | undefined, manual: P
   const dimensions: ManualDimension[] = ['valuation', 'funding', 'breadth']
   const rows = [...dimensions.map(id => {
     const entered = assessManual(id, market, manual[id], asOf, tech.newHigh)
-    if (manualOnly.includes(id)) return { ...entered, detail: `人工覆盖 · ${entered.detail}` }
+    const withGauges = (row: Evidence): Evidence => row.available ? { ...row, gauges: dimensionGauges(id, market, row.values) } : row
+    if (manualOnly.includes(id)) return withGauges({ ...entered, detail: `人工覆盖 · ${entered.detail}` })
     const collected = automatic[id]
-    if (collected?.available) return collected
-    if (entered.available) return { ...entered, detail: `人工补缺 · ${entered.detail}` }
+    if (collected?.available) return withGauges(collected)
+    if (entered.available) return withGauges({ ...entered, detail: `人工补缺 · ${entered.detail}` })
     return collected ?? entered
   }), macroEvidence(cn, asOf), tech.evidence, overseasEvidence(us, asOf)]
   return { ...tech, rows, summary: summarize(rows) }

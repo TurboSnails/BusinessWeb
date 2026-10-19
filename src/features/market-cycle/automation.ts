@@ -98,12 +98,12 @@ export function automaticRows(market: Market, snapshot: AutomaticSnapshot | null
   const turnover = find('turnover_ratio_52w'), weeklyAmount = find('index_week_daily_turnover_hkd')
   // ---- valuation ----
   if (market === 'csi300' && erp) {
-    out.valuation = { id: 'valuation', name: '估值与赔率', signal: erp.value >= 1.5 ? 'bottom' : erp.value <= -1 ? 'risk' : 'neutral', available: true, source: erp.source, date: erp.observationDate, detail: `自动 · 简化ERP z-score ${erp.value.toFixed(2)}。${erp.description}` }
+    out.valuation = { id: 'valuation', name: '估值与赔率', signal: erp.value >= 1.5 ? 'bottom' : erp.value <= -1 ? 'risk' : 'neutral', available: true, source: erp.source, date: erp.observationDate, detail: `自动 · 简化ERP z-score ${erp.value.toFixed(2)}。${erp.description}`, values: { erpZ: erp.value } }
   } else if (pe && officialPe?.frequency === 'monthly' && officialPe.unit === '%' && officialPe.value >= 0 && officialPe.value <= 100 && officialPe.observationDate === pe.observationDate) {
     const signal = officialPe.value <= 10 ? 'bottom' : officialPe.value >= 90 ? 'risk' : 'neutral'
     out.valuation = { id: 'valuation', name: '估值与赔率', signal, available: true, source: officialPe.source, date: officialPe.observationDate,
       detail: `市盈率${pe.value.toFixed(2)}倍，处于近5年官方月末样本的${officialPe.value.toFixed(1)}%分位。${signal === 'bottom' ? '低于10%低估观察线。' : signal === 'risk' ? '高于90%偏贵观察线。' : '位于10%—90%的中间区间。'}`,
-      methodDetail: `${officialPe.description} ${pe.description}` }
+      methodDetail: `${officialPe.description} ${pe.description}`, values: { pePercentile: officialPe.value } }
   } else if (pe) {
     const lossMonths = snapshot?.issues.some(s => s.startsWith(`${market}-official-pe:`) && s.includes('非正PE'))
     out.valuation = { id: 'valuation', name: '估值与赔率', signal: 'missing', available: false, source: pe.source, date: pe.observationDate,
@@ -122,7 +122,7 @@ export function automaticRows(market: Market, snapshot: AutomaticSnapshot | null
       const signal = ratio.value >= 10 ? 'risk' : volume.value <= 0.5 && ratio.value < 6 ? 'bottom' : volume.value >= 1.5 && ratio.value < 10 ? 'positive' : 'neutral'
       out.funding = { id: 'funding', name: '资金与杠杆', signal, available: true, source: ratio.source, date: ratio.observationDate,
         detail: `融资买入占沪深A股及上市基金成交额的${ratio.value.toFixed(2)}%；完整周日均成交额为此前52周基准的${volume.value.toFixed(2)}倍。${signal === 'risk' ? '融资占比已触及10%风险观察线。' : signal === 'bottom' ? '成交与融资均处于低位观察区。' : signal === 'positive' ? '成交放大，融资占比尚未触及风险线。' : '当前资金信号中性。'}`,
-        methodDetail: `两市全市场背景指标，并非沪深300成分股专属。融资占比与成交额基准统一截至完整周最后交易日${volume.observationDate}。${ratio.description} ${volume.description}` }
+        methodDetail: `两市全市场背景指标，并非沪深300成分股专属。融资占比与成交额基准统一截至完整周最后交易日${volume.observationDate}。${ratio.description} ${volume.description}`, values: { volumeRatio: volume.value, financing: ratio.value } }
     } else if (ratio) {
       out.funding = { id: 'funding', name: '资金与杠杆', signal: 'missing', available: false, source: ratio.source, date: ratio.observationDate, pendingReason: '缺少成交额基准',
         detail: `融资买入占比已核定为${ratio.value.toFixed(2)}%。${volume ? '周成交额与融资数据日期尚未对齐。' : '完整周与此前52周的成交额基准尚未齐备。'}`,
@@ -142,7 +142,7 @@ export function automaticRows(market: Market, snapshot: AutomaticSnapshot | null
       const signal = validTurnover.value >= 1.5 ? south.value > 0 ? 'positive' : south.value < 0 ? 'risk' : 'neutral'
         : validTurnover.value <= 0.5 ? 'bottom' : 'neutral'
       out.funding = { id: 'funding', name: '资金与杠杆', signal, available: true, source: validTurnover.source, date: validTurnover.observationDate,
-        detail: `完整周日均成交额为此前52周基准的${validTurnover.value.toFixed(2)}倍。南向近20个交易日合计净买入${south.value.toLocaleString()}亿元人民币，仅作全港股资金背景。`, methodDetail: `${validTurnover.description} 南向资金不代表${idxName}成分股流入；${south.description} 南向来源：${south.source}` }
+        detail: `完整周日均成交额为此前52周基准的${validTurnover.value.toFixed(2)}倍。南向近20个交易日合计净买入${south.value.toLocaleString()}亿元人民币，仅作全港股资金背景。`, methodDetail: `${validTurnover.description} 南向资金不代表${idxName}成分股流入；${south.description} 南向来源：${south.source}`, values: { volumeRatio: validTurnover.value, south: south.value } }
     } else if (south) {
       out.funding = { id: 'funding', name: '资金与杠杆', signal: 'missing', available: false, source: amount?.source ?? south.source, date: amount?.observationDate ?? south.observationDate,
         pendingReason: '缺少成交额基准', detail: `${amount ? `恒指完整周日均成交额${(amount.value / 1e8).toFixed(2)}亿港元。` : ''}南向近20个交易日合计净买入${south.value.toLocaleString()}亿元人民币。尚缺${idxName}自身的52周成交额基准，暂不能给出完整资金判断。`, methodDetail: `${amount?.description ?? `${idxName}完整周及前52周同口径成交额尚未齐备。`} 南向为全港股背景，不能代表${idxName}成分股流入。${south.description} 南向来源：${south.source}` }
@@ -161,7 +161,7 @@ export function automaticRows(market: Market, snapshot: AutomaticSnapshot | null
       out.breadth = { id: 'breadth', name: '指数成分宽度', available: true,
         signal: b.breadth! <= 10 ? 'bottom' : b.priorBreadth! >= 85 && b.breadth! < 60 && newHigh ? 'risk' : b.breadth! >= 40 && b.priorBreadth! < 40 ? 'positive' : 'neutral',
         source: b.source, date: b.observationDate,
-        detail: `站上200日均线的成分股占${b.breadth!.toFixed(1)}%，4周前为${b.priorBreadth!.toFixed(1)}%。有效覆盖${b.eligible}/${measurable(b)}只（${(b.coverage * 100).toFixed(1)}%）${b.newListings ? `；另有${b.newListings}只次新股尚无200日历史，不计入` : ''}。`, methodDetail: `成分名单快照${b.universeDate}；${humanizeDetail(b.detail)}` }
+        detail: `站上200日均线的成分股占${b.breadth!.toFixed(1)}%，4周前为${b.priorBreadth!.toFixed(1)}%。有效覆盖${b.eligible}/${measurable(b)}只（${(b.coverage * 100).toFixed(1)}%）${b.newListings ? `；另有${b.newListings}只次新股尚无200日历史，不计入` : ''}。`, methodDetail: `成分名单快照${b.universeDate}；${humanizeDetail(b.detail)}`, values: { breadth: b.breadth!, priorBreadth: b.priorBreadth! } }
     } else {
       out.breadth = { id: 'breadth', name: '指数成分宽度', available: false, signal: 'missing', source: b.source, date: b.eligible > 0 ? b.observationDate : undefined,
         pendingReason: age > 14 ? '宽度数据待更新' : '样本覆盖不足', detail: `有效覆盖${b.eligible}/${measurable(b)}只（${(b.coverage * 100).toFixed(1)}%）。${age > 14 ? '观测已超过14天，需要更新。' : b.coverage < 0.95 ? '未达到95%覆盖要求，暂不判断市场宽度。' : '本期与4周前的有效样本尚未对齐。'}`, methodDetail: `名单${b.kind === 'observed' ? '已核定' : '为静态代理proxy，未自动核定'}；名单快照${b.universeDate}；${humanizeDetail(b.detail)}` }
