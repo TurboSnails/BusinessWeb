@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { completedBars, technicalSeries, assessManual, summarize, macroEvidence, overseasEvidence, type Evidence, type Bar } from './engine'
+import { completedBars, technicalSeries, assessManual, summarize, STATE_RULES, macroEvidence, overseasEvidence, type Evidence, type Bar } from './engine'
 
 const bars = (n: number): Bar[] => Array.from({ length: n }, (_, i) => ({ date: `${2000 + Math.floor(i / 12)}-${String(i % 12 + 1).padStart(2, '0')}-01`, close: 100 + i, volume: 10 }))
 const ev = (id: string, signal: Evidence['signal']): Evidence => ({ id, name: id, signal, detail: '', date: '2026-10-16', source: 'https://example.com', available: true })
@@ -59,5 +59,18 @@ describe('长周期指标与证据纪律', () => {
     expect(overseasEvidence(us, '2026-10-17').signal).toBe('positive')
     expect(overseasEvidence(us, '2026-10-15').available).toBe(false)
     expect(overseasEvidence(us, '2026-11-17').available).toBe(false)
+  })
+  it('页面展示的判定规则与 summarize 的状态一一对应', () => {
+    const cases: Evidence[][] = [
+      [ev('technical', 'risk')],
+      [ev('technical', 'positive')],
+      [ev('technical', 'neutral'), ev('valuation', 'bottom'), ev('funding', 'bottom'), ev('breadth', 'risk'), ev('macro', 'risk')],
+      [ev('technical', 'neutral'), ev('valuation', 'risk'), ev('funding', 'risk'), ev('breadth', 'risk'), ev('macro', 'neutral')],
+      [ev('technical', 'neutral'), ev('valuation', 'bottom'), ev('funding', 'bottom'), ev('breadth', 'bottom'), ev('macro', 'neutral')],
+      [ev('technical', 'positive'), ev('valuation', 'bottom'), ev('funding', 'positive'), ev('breadth', 'positive'), ev('macro', 'neutral')],
+      [ev('technical', 'positive'), ev('valuation', 'neutral'), ev('funding', 'neutral'), ev('breadth', 'neutral'), ev('macro', 'neutral')],
+      [ev('technical', 'neutral'), ev('valuation', 'neutral'), ev('funding', 'neutral'), ev('breadth', 'neutral'), ev('macro', 'neutral')],
+    ]
+    expect(STATE_RULES.map(r => r.state)).toEqual(cases.map(rows => summarize(rows).state))
   })
 })
