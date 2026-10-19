@@ -605,5 +605,7 @@
    "fetchedAt": "2026-10-19T01:01:35.661Z"
   }
  ],
- "issues": []
+ "issues": [
+  "sse-etf: fetch failed，保留旧值及原日期(最新观测2026-10-16)"
+ ]
 }
