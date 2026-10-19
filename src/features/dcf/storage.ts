@@ -200,5 +200,6 @@ export function makeDcfRecord(
     result: draft.result,
     wacc: draft.wacc,
     multiples: draft.multiples,
+    debtBasis: "interestBearing",
   };
 }

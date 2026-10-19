@@ -25,7 +25,7 @@ function fail(
  *   flows[t] = 起始FCF * (1+g)^t        (D11..H11，t=1..5)
  *   终值 TV  = flows[5] * (1+gp)/(r-gp) (H12)
  *   EV       = NPV(r, D13:H13)          (C17，终值在第 5 期一并折现)
- *   股权价值 = EV + 现金 - 总负债        (C20)
+ *   股权价值 = EV + 现金 - 有息负债      (C20；原表写“总负债”，经营性负债不应扣减)
  *   合理价   = 股权价值 / 流通股数       (C22)
  *   安全边际 = (合理价 - 现价) / 现价    (C24)
  */
@@ -76,7 +76,7 @@ export function calculateSheetDcf(input: DcfSheetInput): DcfSheetResult {
   }
   if (debt == null) {
     debt = 0;
-    warnings.push("总负债未填，按 0 计入");
+    warnings.push("有息负债未填，按 0 计入");
   }
 
   const equityValue = enterpriseValue + cash - debt;

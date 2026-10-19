@@ -112,6 +112,8 @@ export interface DcfRecord {
   result: DcfSheetResult;
   wacc: WaccResult;
   multiples: MultipleBand[];
+  /** 负债口径：新记录为有息负债；旧记录缺省，当时按“总负债”填写，结果可能偏低 */
+  debtBasis?: "interestBearing";
 }
 
 export const MARKET_LABELS: Record<Market, string> = {

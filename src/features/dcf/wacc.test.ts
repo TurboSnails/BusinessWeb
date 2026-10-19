@@ -17,7 +17,7 @@ describe("calculateWacc", () => {
     expect(r.wacc).toBeCloseTo(8.125, 6);
   });
 
-  it("缺市值或总负债 → 缺数据", () => {
+  it("缺市值或有息负债 → 缺数据", () => {
     expect(calculateWacc(sampleInput({ marketCap: null })).status).toBe(
       "missingData",
     );

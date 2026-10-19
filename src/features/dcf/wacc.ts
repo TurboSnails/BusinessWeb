@@ -21,8 +21,8 @@ function fail(status: DcfStatus, reason: string, notes: string[] = []): WaccResu
 
 /**
  * 原表 C39:C45：
- *   负债比重 = 总负债/(市值+总负债)；股权比重 = 市值/(市值+总负债)
- *   负债成本 = 利息支出/总负债；股权成本 = 无风险利率 + β×(市场回报-无风险利率)
+ *   负债比重 = 有息负债/(市值+有息负债)；股权比重 = 市值/(市值+有息负债)
+ *   负债成本 = 利息支出/有息负债；股权成本 = 无风险利率 + β×(市场回报-无风险利率)
  *   税率     = 所得税/税前收入
  *   WACC     = 负债比重×负债成本×(1-税率) + 股权比重×股权成本
  * 缺项尽量降级而不是整体失败，算不出股权成本才整块失败。
@@ -38,10 +38,10 @@ export function calculateWacc(input: DcfSheetInput): WaccResult {
   const rm = pct(input.marketReturn);
 
   if (marketCap == null || debt == null)
-    return fail("missingData", "请填写市值与总负债以计算资本结构");
+    return fail("missingData", "请填写市值与有息负债以计算资本结构");
   const capital = marketCap + debt;
   if (capital <= 0)
-    return fail("missingData", "市值与总负债之和必须为正");
+    return fail("missingData", "市值与有息负债之和必须为正");
 
   const debtWeight = debt / capital;
   const equityWeight = marketCap / capital;
@@ -52,7 +52,7 @@ export function calculateWacc(input: DcfSheetInput): WaccResult {
       return fail("missingData", "有负债时请填写利息支出以计算负债成本", notes);
     costOfDebt = interest / debt;
     if (!Number.isFinite(costOfDebt))
-      return fail("invalidInput", "负债成本计算无效，请检查利息支出与总负债");
+      return fail("invalidInput", "负债成本计算无效，请检查利息支出与有息负债");
   } else {
     notes.push("无有息负债，负债成本按 0 计入");
   }

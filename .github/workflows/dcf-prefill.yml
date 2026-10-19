@@ -1,0 +1,72 @@
+name: Update DCF prefill
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/dcf-prefill.yml'
+      - 'scripts/dcf-prefill.mjs'
+  schedule:
+    # After the US close (Beijing morning) and after the A/H close; fundamentals refresh weekly per company.
+    - cron: '30 22 * * *'
+    - cron: '30 9 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: market-data-publish
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/cache@v4
+        with:
+          path: .cache/dcf-prefill
+          key: dcf-prefill-v1-${{ github.run_id }}
+          restore-keys: dcf-prefill-v1-
+      - name: Collect statements, quotes and beta
+        env:
+          DCF_TIME_LIMIT_MS: '1320000'
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+        run: node scripts/dcf-prefill.mjs
+      - name: Validate parsers
+        run: node --test scripts/dcf-prefill.test.mjs
+      - name: Publish
+        id: commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add public/data/dcf-prefill.json
+          if git diff --cached --quiet; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m "data(dcf): 预填库 $(date -u +%Y-%m-%d)"
+          for attempt in 1 2 3; do
+            if git push; then
+              echo 'changed=true' >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            git fetch origin main
+            git rebase origin/main
+          done
+          exit 1
+      - name: Deploy GitHub Pages
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --ref main

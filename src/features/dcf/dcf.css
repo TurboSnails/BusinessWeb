@@ -273,3 +273,109 @@
 .dcf-gap-sm { margin-top: 8px; }
 .dcf-sens__swatch.is-high { background: color-mix(in srgb, var(--up) 30%, transparent); }
 .dcf-sens__swatch.is-low { background: color-mix(in srgb, var(--down) 30%, transparent); }
+
+/* 一键估算 */
+.dcf-quick {
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border-subtle));
+}
+.dcf-search {
+  position: relative;
+}
+.dcf-search input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  color: inherit;
+  font: inherit;
+  font-size: 1rem;
+}
+.dcf-search input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.dcf-search__list {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 4px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-lg);
+}
+.dcf-search__list li.dcf-muted {
+  padding: 8px 10px;
+}
+.dcf-search__list button {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.dcf-search__list button:hover,
+.dcf-search__list button:focus-visible {
+  background: var(--accent-soft);
+}
+.dcf-search__list span {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  text-align: right;
+}
+.dcf-auto-summary {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  background: var(--accent-soft);
+}
+.dcf-auto-summary.is-financial,
+.dcf-auto-summary.is-negativeFcf,
+.dcf-auto-summary.is-incomplete {
+  background: var(--bg-secondary);
+}
+.dcf-auto-summary p {
+  margin: 0 0 6px;
+  line-height: 1.7;
+}
+.dcf-auto-summary__price {
+  font-size: 1rem;
+}
+.dcf-auto-summary__price strong {
+  font-size: 1.15rem;
+}
+.dcf-auto {
+  color: var(--text-secondary) !important;
+}
+.dcf-field.is-auto input {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border-subtle));
+}
+.dcf-field.is-modified input {
+  border-color: var(--system-orange);
+  border-width: 1.5px;
+}
+.dcf-link {
+  all: unset;
+  margin-left: 6px;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.dcf-link:focus-visible {
+  outline: 2px solid var(--accent);
+}
+@media (max-width: 600px) {
+  .dcf-search__list button {
+    flex-direction: column;
+    gap: 2px;
+  }
+  .dcf-search__list span {
+    text-align: left;
+  }
+}

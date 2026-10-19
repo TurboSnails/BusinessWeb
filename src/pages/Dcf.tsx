@@ -1,9 +1,10 @@
 import { Page } from '../components/ui'
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PageTitle } from "../components/ui/PageTabs";
 import {
   Building2,
   Calculator,
+  Search,
   Percent,
   Save,
   TrendingUp,
@@ -32,10 +33,17 @@ import {
   saveDcfRecord,
   toBaseAmount,
   toBaseShares,
+  deriveAutoFill,
+  impliedGrowth,
+  searchPrefill,
 } from "../features/dcf";
 import type {
+  AutoField,
+  AutoFill,
   Currency,
   DcfRecord,
+  PrefillItem,
+  PrefillLibrary,
   DcfSheetInput,
   Market,
   MoneyUnit,
@@ -124,20 +132,29 @@ function fromInput(input: DcfSheetInput): DcfForm {
   };
 }
 
+interface AutoHint {
+  source?: string;
+  autoValue?: string;
+  onReset?(): void;
+}
+
 function Field({
   label,
   hint,
   value,
   onChange,
+  auto,
 }: {
   label: string;
   hint?: string;
   value: string;
   onChange(next: string): void;
+  auto?: AutoHint;
 }): JSX.Element {
+  const modified = auto?.autoValue != null && value.trim() !== auto.autoValue;
   // 提示文字放在 label 外面：否则会和字段名连在一起变成可访问名称的一部分
   return (
-    <div className="dcf-field">
+    <div className={`dcf-field${auto?.autoValue != null ? (modified ? " is-modified" : " is-auto") : ""}`}>
       <label>
         {label}
         <input
@@ -150,6 +167,17 @@ function Field({
         />
       </label>
       <small>{hint ?? ""}</small>
+      {auto?.autoValue != null &&
+        (modified ? (
+          <small className="dcf-auto">
+            已手动修改（自动值 {auto.autoValue}）
+            <button type="button" className="dcf-link" onClick={auto.onReset}>
+              恢复
+            </button>
+          </small>
+        ) : (
+          <small className="dcf-auto">自动 · {auto.source}</small>
+        ))}
     </div>
   );
 }
@@ -209,6 +237,47 @@ export default function Dcf(): JSX.Element {
       : "",
   );
   const [error, setError] = useState("");
+  const [library, setLibrary] = useState<PrefillLibrary | null | "error">(null);
+  const [query, setQuery] = useState("");
+  const [auto, setAuto] = useState<AutoFill | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    fetch(`${(import.meta as { env?: Record<string, string | undefined> }).env?.BASE_URL ?? "/"}data/dcf-prefill.json`, { cache: "no-cache" })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((body: PrefillLibrary) => {
+        if (!active || body?.schemaVersion !== 1 || !Array.isArray(body.items)) throw new Error("bad");
+        setLibrary(body);
+        // 从公司研究页带代码进来时，库里有就直接估算
+        const code = initial.form.code.trim();
+        const hit = code ? body.items.find((i) => i.c === code && i.m === initial.form.market) : null;
+        if (hit) applyItem(hit, body);
+      })
+      .catch(() => active && setLibrary("error"));
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function applyItem(item: PrefillItem, lib: PrefillLibrary) {
+    const fill = deriveAutoFill(item, lib.riskFree);
+    setForm((f) => {
+      const values = { ...emptyForm().values };
+      for (const key of NUMERIC_FIELDS) values[key] = fill.values[key as AutoField] ?? "";
+      return { ...f, ...fill.meta, moneyUnit: "yi", shareUnit: "yi", values };
+    });
+    setAuto(fill);
+    setQuery("");
+    setError("");
+    setNotice("");
+  }
+  const autoHint = (field: NumericField): AutoHint | undefined => {
+    const autoValue = auto?.values[field as AutoField];
+    if (autoValue == null) return undefined;
+    return { source: auto?.sources[field as AutoField], autoValue, onReset: () => setNumber(field, autoValue) };
+  };
+  const matches = library && library !== "error" ? searchPrefill(library.items, query) : [];
 
   const input = toInput(form);
   const result = calculateSheetDcf(input);
@@ -285,11 +354,95 @@ export default function Dcf(): JSX.Element {
         </a>
       </div>
 
-      {prefillNote && (
+      {prefillNote && !auto && (
         <p className="dcf-banner" role="status">
           {prefillNote}
         </p>
       )}
+
+      <section className="dcf-card dcf-quick">
+        <div className="dcf-head">
+          <span className="dcf-badge">
+            <Search size={18} />
+          </span>
+          <div>
+            <h2>一键估算</h2>
+            <p>
+              输入股票名称或代码，按公开财报自动填好全部假设并算出合理价；下面每一项都可以改，结果随时重算。
+              {library && library !== "error" && ` 当前覆盖沪深300、恒指、恒生科技、纳指100及研究公司共 ${library.items.length} 家。`}
+            </p>
+          </div>
+        </div>
+        <div className="dcf-search">
+          <input
+            type="search"
+            aria-label="搜索股票名称或代码"
+            placeholder={library === "error" ? "预填库暂不可用，可在下方手动填写" : "例如：茅台、600519、腾讯、00700、AAPL"}
+            value={query}
+            disabled={library === "error"}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && matches[0] && library && library !== "error") applyItem(matches[0], library);
+            }}
+          />
+          {query.trim() && library && library !== "error" && (
+            <ul className="dcf-search__list" aria-label="搜索结果">
+              {matches.length === 0 && <li className="dcf-muted">预填库里没有找到；可直接在下方手动填写。</li>}
+              {matches.map((item) => (
+                <li key={`${item.m}:${item.c}`}>
+                  <button type="button" onClick={() => applyItem(item, library)}>
+                    <strong>{item.n}</strong>
+                    <span>{item.c} · {MARKET_LABELS[item.m]} · {item.g.join("、")}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        {auto && (
+          <div className={`dcf-auto-summary is-${auto.status}`} role="status">
+            <p>
+              <strong>{auto.meta.company}</strong> · {auto.statusText}
+            </p>
+            {auto.status === "ok" && result.status === "calculated" && (
+              <p className="dcf-auto-summary__price">
+                合理价 <strong>{formatPrice(result.price, input.currency)}</strong>
+                {sensitivity && (
+                  <>
+                    （折现率 ±2%、永续增长 ±1% 区间 {formatPrice(sensitivity.minPrice, input.currency)} ~{" "}
+                    {formatPrice(sensitivity.maxPrice, input.currency)}）
+                  </>
+                )}
+                ，现价 {formatPrice(input.currentPrice, input.currency)}，安全边际{" "}
+                <strong className={result.mos == null ? "" : result.mos > 0 ? "dcf-up" : "dcf-down"}>
+                  {formatSignedPct((result.mos ?? 0) * 100)}
+                </strong>
+              </p>
+            )}
+            {auto.status === "ok" && result.status === "calculated" && (() => {
+              const implied = impliedGrowth(input);
+              return (
+                <p>
+                  {implied == null
+                    ? "现价无法用 -30%～60% 的五年成长率解释，说明市场看重的不是近年现金流（如转型、资产价值或亏损业务前景）。"
+                    : `反过来看：要支撑现价，未来五年自由现金流需年增约 ${formatPct(implied, 1)}（当前假设 ${formatPct(input.growth ?? 0, 1)}）。${
+                        implied > (input.growth ?? 0) + 3 ? "市场预期明显高于历史增速，估值偏乐观。" : implied < (input.growth ?? 0) - 3 ? "市场预期低于历史增速，若增长能延续则有安全边际。" : "市场预期与历史增速接近。"}`}
+                </p>
+              );
+            })()}
+            {auto.notes.length > 0 && (
+              <ul className="dcf-notes">
+                {auto.notes.map((n) => (
+                  <li key={n}>{n}</li>
+                ))}
+              </ul>
+            )}
+            <p className="dcf-muted">
+              这是按统一规则得到的起点，不是目标价：成长率与折现率对结果影响最大，请结合公司前景调整。下方带“自动”标记的格子来自财报，改过的格子可一键恢复。
+            </p>
+          </div>
+        )}
+      </section>
 
       <section className="dcf-card">
         <div className="dcf-head">
@@ -363,48 +516,56 @@ export default function Dcf(): JSX.Element {
             hint={amountHint("baseFcf")}
             value={form.values.baseFcf}
             onChange={(v) => setNumber("baseFcf", v)}
+            auto={autoHint("baseFcf")}
           />
           <Field
             label="五年成长率 (%)"
             hint="每年复利增长"
             value={form.values.growth}
             onChange={(v) => setNumber("growth", v)}
+            auto={autoHint("growth")}
           />
           <Field
             label="永续增长率 (%)"
             hint="通常取 2%~3%"
             value={form.values.perpetualGrowth}
             onChange={(v) => setNumber("perpetualGrowth", v)}
+            auto={autoHint("perpetualGrowth")}
           />
           <Field
             label="期望折现率 (%)"
             hint="可填入下方算出的 WACC"
             value={form.values.discountRate}
             onChange={(v) => setNumber("discountRate", v)}
+            auto={autoHint("discountRate")}
           />
           <Field
             label="现金及其他投资"
             hint={amountHint("cash")}
             value={form.values.cash}
             onChange={(v) => setNumber("cash", v)}
+            auto={autoHint("cash")}
           />
           <Field
-            label="总负债"
+            label="有息负债"
             hint={amountHint("debt")}
             value={form.values.debt}
             onChange={(v) => setNumber("debt", v)}
+            auto={autoHint("debt")}
           />
           <Field
             label="流通股数"
             hint={shareHint()}
             value={form.values.shares}
             onChange={(v) => setNumber("shares", v)}
+            auto={autoHint("shares")}
           />
           <Field
             label="当前股价"
             hint="每股价格，不随金额单位换算"
             value={form.values.currentPrice}
             onChange={(v) => setNumber("currentPrice", v)}
+            auto={autoHint("currentPrice")}
           />
         </div>
       </section>
@@ -416,7 +577,7 @@ export default function Dcf(): JSX.Element {
           </span>
           <div>
             <h2>加权平均资本成本 WACC</h2>
-            <p>负债按税后成本计入，股权按 CAPM 估算；总负债沿用上一张卡的输入。</p>
+            <p>负债按税后成本计入，股权按 CAPM 估算；有息负债沿用上一张卡的输入。</p>
           </div>
         </div>
         <div className="dcf-form">
@@ -425,42 +586,49 @@ export default function Dcf(): JSX.Element {
             hint={amountHint("marketCap")}
             value={form.values.marketCap}
             onChange={(v) => setNumber("marketCap", v)}
+            auto={autoHint("marketCap")}
           />
           <Field
             label="β 值"
             hint="未填按 1 估算"
             value={form.values.beta}
             onChange={(v) => setNumber("beta", v)}
+            auto={autoHint("beta")}
           />
           <Field
             label="利息支出"
             hint={amountHint("interestExpense")}
             value={form.values.interestExpense}
             onChange={(v) => setNumber("interestExpense", v)}
+            auto={autoHint("interestExpense")}
           />
           <Field
             label="税前收入"
             hint={amountHint("pretaxIncome")}
             value={form.values.pretaxIncome}
             onChange={(v) => setNumber("pretaxIncome", v)}
+            auto={autoHint("pretaxIncome")}
           />
           <Field
             label="所得税"
             hint={amountHint("taxPaid")}
             value={form.values.taxPaid}
             onChange={(v) => setNumber("taxPaid", v)}
+            auto={autoHint("taxPaid")}
           />
           <Field
             label="无风险利率 (%)"
             hint="国债收益率"
             value={form.values.riskFreeRate}
             onChange={(v) => setNumber("riskFreeRate", v)}
+            auto={autoHint("riskFreeRate")}
           />
           <Field
             label="市场预期回报 (%)"
             hint="股指长期年化"
             value={form.values.marketReturn}
             onChange={(v) => setNumber("marketReturn", v)}
+            auto={autoHint("marketReturn")}
           />
         </div>
         <div className="dcf-actions dcf-gap">
@@ -511,6 +679,7 @@ export default function Dcf(): JSX.Element {
             hint={amountHint("ebitda")}
             value={form.values.ebitda}
             onChange={(v) => setNumber("ebitda", v)}
+            auto={autoHint("ebitda")}
           />
         </div>
         <div className="dcf-metrics dcf-gap">
@@ -721,6 +890,7 @@ export default function Dcf(): JSX.Element {
                   {new Date(record.savedAt).toLocaleString("zh-CN")} · 合理价{" "}
                   {formatPrice(record.result.price, record.input.currency)} ·
                   安全边际 {formatSignedPct((record.result.mos ?? 0) * 100)}
+                  {record.debtBasis !== "interestBearing" && " · 旧口径（按总负债扣减，合理价可能偏低）"}
                 </small>
               </div>
               <div className="dcf-actions">
