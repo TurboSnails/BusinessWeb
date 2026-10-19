@@ -185,7 +185,11 @@ export function computeBreadth(members, barsByCode, today) {
   }
   if (!obs.ok) return { ...empty(observationDate), eligible: rows.length, coverage: total ? Math.round((rows.length / total) * 10000) / 10000 : 0 }
   const prior = unifiedDate(rows.map(r => r.bars), addDays(observationDate, -PRIOR_DAYS), need)
-  if (!prior?.ok) { for (const _ of rows) bump('no_prior_trading_day'); return empty(observationDate) }
+  if (!prior?.ok) {
+    for (const _ of rows) bump('no_prior_trading_day')
+    return { ...empty(observationDate), eligible: rows.length,
+      coverage: total ? Math.round((rows.length / total) * 10000) / 10000 : 0 }
+  }
   let above = 0, priorAbove = 0, eligible = 0
   for (const { bars, i } of rows) {
     const j = indexOnDate(bars, prior.date)

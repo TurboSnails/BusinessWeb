@@ -49,6 +49,20 @@ test('exactly 200 bars is not enough: 220 needed so prior MA200 exists', () => {
   assert.equal(ok.breadth, 100)
 })
 
+test('when prior breadth lacks 95% support, report current eligible coverage instead of zero', () => {
+  const m = members(20)
+  const map = new Map()
+  m.forEach(({ code }, i) => map.set(code, series(i < 18 ? 230 : 150, TODAY, k => 100 + k)))
+  const r = computeBreadth(m, map, TODAY)
+  assert.equal(r.observationDate, TODAY)
+  assert.equal(r.eligible, 18)
+  assert.equal(r.coverage, 0.9)
+  assert.equal(r.breadth, null)
+  assert.equal(r.priorBreadth, null)
+  assert.equal(r.exclusions.insufficient_history, 2)
+  assert.equal(r.exclusions.no_prior_trading_day, 18)
+})
+
 test('a security without a bar on the unified date is excluded, even if its last price is only one day old', () => {
   const m = members(100)
   const map = new Map()
