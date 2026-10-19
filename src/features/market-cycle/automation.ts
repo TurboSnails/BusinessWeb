@@ -1,4 +1,3 @@
-import { assessManual } from './engine'
 import type { Evidence, ManualDimension, Market } from './engine'
 
 export interface AutomaticFact {
@@ -113,9 +112,10 @@ export function automaticRows(market: Market, snapshot: AutomaticSnapshot | null
     const idxName = market === 'hsi' ? '恒生指数' : '恒生科技指数'
     const validTurnover = market === 'hstech' && turnover?.frequency === 'weekly' && turnover.unit === '倍' && turnover.value > 0 && turnover.value <= 30 ? turnover : undefined
     if (validTurnover && south) {
-      const vote = assessManual('funding', market, { date: validTurnover.observationDate, source: validTurnover.source,
-        values: { volumeRatio: validTurnover.value, south: south.value } }, asOf)
-      out.funding = { ...vote, detail: `自动 · 完整周指数成交额/此前52周同口径日均 ${validTurnover.value.toFixed(2)}倍；${south.value.toLocaleString()}亿元南向净买入仅作全港股背景，不代表${idxName}成分股流入。${validTurnover.description} 南向来源：${south.source}。` }
+      const signal = validTurnover.value >= 1.5 ? south.value > 0 ? 'positive' : south.value < 0 ? 'risk' : 'neutral'
+        : validTurnover.value <= 0.5 ? 'bottom' : 'neutral'
+      out.funding = { id: 'funding', name: '资金与杠杆', signal, available: true, source: validTurnover.source, date: validTurnover.observationDate,
+        detail: `自动 · 完整周指数成交额/此前52周同口径日均 ${validTurnover.value.toFixed(2)}倍；${south.value.toLocaleString()}亿元南向净买入仅作全港股背景，不代表${idxName}成分股流入。${validTurnover.description} 南向来源：${south.source}。` }
     } else if (south) {
       const turnoverDetail = validTurnover
         ? `完整周指数成交额/此前52周同口径日均已采集 ${validTurnover.value.toFixed(2)}倍（观测 ${validTurnover.observationDate}）；南向数据无有效的近20交易日观测。`
