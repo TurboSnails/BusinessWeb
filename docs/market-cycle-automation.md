@@ -65,9 +65,10 @@
 - 恒指官方 PE 13.79、恒科28.23，观测日2026-09-30；官网文件只有12个月。另取得亿牛恒指PE历史1135个日点并复算近五年中位秩78.1%，与多期官方月末值吻合，但第三方未公开PE公式，页面只作参考，不计估值票。恒科五年历史估值仍缺，详见[来源核验](reviews/2026-10-19-hk-pe-sources.md)。
 - 南向最近20个交易日（2026-09-11至10-16）净买入400.08亿元人民币。006汇总与002+004分通道合计一致，币种参照[东财页面说明](https://data.eastmoney.com/hsgt/index.html)，换算另与[AKShare该表实现](https://github.com/akfamily/akshare/blob/main/akshare/stock_feature/stock_hsgt_em.py)交叉核对。保留原有事实历史及首次记录时间，不把重抓时间当成首次发现。
 - 沪深300合格292/300，覆盖97.33%，10-16站上MA200占比25.7%，9-18同池占比30.5%；已由协调者独立调用生产计算器重算。
-- [恒指官方名单](https://www.hsi.com.hk/api/wsit-hsi-ddoc-ea-public-website-proxy/v1/product-data/pub/constituent/metadata/v2?data=rt&seriesCode=hsi&language=en-hk)95只、[恒科官方名单](https://www.hsi.com.hk/api/wsit-hsi-ddoc-ea-public-website-proxy/v1/product-data/pub/constituent/metadata/v2?data=rt&seriesCode=hstech&language=en-hk)30只，快照日期均为10-16。调度修复后，云端已保留的东财前复权缓存跨指数复用：恒指86/95、恒科18/30，覆盖仍不足95%；东财个股端点继续断连，未用未复权价格补数。低覆盖仍不发布宽度、不计票。
+- [恒指官方名单](https://www.hsi.com.hk/api/wsit-hsi-ddoc-ea-public-website-proxy/v1/product-data/pub/constituent/metadata/v2?data=rt&seriesCode=hsi&language=en-hk)95只、[恒科官方名单](https://www.hsi.com.hk/api/wsit-hsi-ddoc-ea-public-website-proxy/v1/product-data/pub/constituent/metadata/v2?data=rt&seriesCode=hstech&language=en-hk)30只，快照日期均为10-16。最新已发布宽度快照生成于2026-10-19 01:15 UTC：恒指95/95（100%），MA200宽度38.9%、前期38.9%；恒科27/30（90%），不足95%门槛，故不发布宽度、不计票。恒科有3只成分股缺少至少220个有效复权日线，不能以未复权价格或臆造交易日补齐。
 - 恒科指数成交额使用腾讯HKD日额数据，2026-10-14至16与恒生官方Index Performance Summary的Index Turnover(Mn)逐日吻合。完整周10-12至16日均453.53亿港元，前52周日均695.26亿，比例0.652322倍；搭配有效南向20日净买入数据后，按预设规则给恒科资金维度出票。恒指腾讯hkHSI成交额字段经官方CSV核对实际是全港股市场额，不能作为恒指宽度/资金比值；恒指完整周与52周同口径成交额仍未补齐。
+- 恒生官网[指数报告页](https://www.hsi.com.hk/en-hk/index-resources/index-reports/)提供逐日Index Daily Bulletin与Hang Seng Family of Indexes Performance Summary下载入口，后者包含指数成交额；目前确认的是按日期选择并下载单日报告，尚未验证可稳定批量取得至少53周的逐日同口径历史。第三方[TabQuant数据目录](https://tabquant.com/datasets)将港股指数日线列为Pro/API-key数据，且其公开字段不含成交额，因此不能填补本指标。
 
-港股个股行情源持续可达性、恒指完整周与52周成交额、恒科长期估值口径仍未解决。相应维度仅在接口恢复且覆盖达标后产生合格读数；低覆盖宽度与未核定公式的PE不计票。新增恒科已核定成交额和恒指第三方PE参考可自动更新。
+恒科3只成分的有效复权历史、恒指自身完整周与52周成交额、恒科长期估值口径仍未解决。恒指宽度目前已达到全成分有效覆盖；恒科宽度仍低于95%覆盖门槛。相应维度仅在数据来源可复核且覆盖达标后产生合格读数；低覆盖宽度与未核定公式的PE不计票。恒科已核定成交额和恒指第三方PE参考可自动更新。
 
 最终验收：全项目1135项Vitest通过，周期采集/续采/快照脚本60项通过，类型检查与生产构建通过；浏览器复核三市场的真实数值、缺失说明与状态标签。协调者另外核对旧事实仍存在、同值重抓保留首次记录时间，以及港股背景和低覆盖宽度始终不计票。
