@@ -2,6 +2,8 @@
 
 改编自 Public Markets Investing 的 financials-normalizer、earnings-forecasting、core-assumption-insight、dcf-model、valuation-analysis。来源见 [sources.md](sources.md)。财报后更新、预测归因、DCF 或估值交叉验证时读取。
 
+综合估值的适配边界、研发资本化桥、逆向 DCF、价值时点、预期差及概率仓位纪律见 [多维估值与投资决策](multidimensional-valuation.md)。
+
 ## 先保存原数，再做标准化
 
 保留 as-reported 与标准化视图，逐项记录收入确认、租赁、研发资本化、股权激励、少数股东、联营和一次性项目的调整。标准化不覆盖披露原值，无法可靠桥接的科目保持不可比。资产负债表、现金变动、分部合计和每股口径须勾稽。

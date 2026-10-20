@@ -19,3 +19,6 @@ manager 开工后按实际目标补充业务入口、API 契约位置、验收�
 ## 自动化实施接续
 
 用户已授权实施及提交推送发布。Run run_0a5816e1e4ef：manager负责共享契约、前端、自动周报与CI，Claude完成事实采集及校验修复；Kimi宽度轮次因扩大探测且未交付代码由manager主动停止，同Task通过retry-of交给Claude；Antigravity负责只读交叉审查。当前自动化实现说明 docs/market-cycle-automation.md。自动观察与交易执行分开，尚无策略回测或自动下单。
+
+## 2026-10-20 综合估值方法论
+用户授权Codex与Claude讨论四维估值框架并纳入项目。正式裁决 docs/investment-valuation-framework.md；可迁移规范 .agents/skills/stock-analysis/references/public-markets/multidimensional-valuation.md。网站摘要源 src/data/notionNotes.ts，生成脚本 scripts/generate-investment-method.mjs。本轮只改研究标准与技能，不改引擎、不重算个股、不发布；已有ADR/HK估值会话改动保留。Claude独立Task成功并已release/ack，无reclaimable资源。
