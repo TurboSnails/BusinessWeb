@@ -561,3 +561,46 @@
     display: none;
   }
 }
+
+/* 今日待办：候选池需要动手的事项计数 */
+.home .home-today {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--accent-warm);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: border-color 180ms ease;
+}
+
+.home .home-today:hover {
+  border-color: var(--accent-warm);
+}
+
+.home-today__items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  font-size: 0.9rem;
+}
+
+.home-today__item strong {
+  margin-left: 2px;
+  color: var(--warm-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.home-today__go {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--accent-ink);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}

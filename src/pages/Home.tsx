@@ -7,6 +7,10 @@ import {
 import { WORKBENCH_TOOLS, findSearchablePage, type SearchablePage } from '../data/siteMap'
 import { readRecent } from '../features/recent-pages/store'
 import { summarizeLocalRecords } from '../features/workbench/localRecords'
+import { loadLocal } from '../features/candidates/store'
+import { useToolSources } from '../features/candidates/useToolSources'
+import { ALERT_LABEL, candidateAlerts, countAlerts, type AlertKind } from '../features/candidates/alerts'
+import { localDay } from '../components/DecisionDialog'
 import { useCommandPalette } from '../components/CommandPalette'
 import '../styles/home.css'
 import { Page } from '../components/ui'
@@ -31,6 +35,26 @@ const COLUMNS = [
   { to: '/life', title: '自由之路', desc: '从 *** 到目标 400 万，在路上修身践行，向着远方的自由生活前行。' },
 ]
 
+/** 候选池今天需要动手的事项计数；明细（含评级变化）在候选池页 */
+function TodayStrip(): JSX.Element | null {
+  const [items] = useState(() => loadLocal())
+  const tools = useToolSources()
+  if (!items.length) return null
+  const counts = countAlerts(candidateAlerts(items, tools, localDay()))
+  const kinds = (Object.keys(counts) as AlertKind[])
+  return (
+    <section className="home-block" aria-labelledby="home-today-title">
+      <h2 id="home-today-title" className="home-block__title">今日待办</h2>
+      <Link to="/candidates" className="home-today">
+        {kinds.length
+          ? <span className="home-today__items">{kinds.map(k => <span key={k} className="home-today__item">{ALERT_LABEL[k]} <strong>{counts[k]}</strong></span>)}</span>
+          : <span className="home-today__items">候选池 {items.length} 家，今天没有到期复查或进入买入区的公司</span>}
+        <span className="home-today__go">去候选池 <ArrowRight size={14} aria-hidden="true" /></span>
+      </Link>
+    </section>
+  )
+}
+
 export default function Home(): JSX.Element {
   const palette = useCommandPalette()
   // 首页不预渲染、不水合，首次渲染直接同步读本机数据，避免闪烁
@@ -47,6 +71,8 @@ export default function Home(): JSX.Element {
           <kbd className="home-jump__kbd">{SHORTCUT.keys}</kbd>
         </button>
       </header>
+
+      <TodayStrip />
 
       <section className="home-block" aria-labelledby="home-tools-title">
         <h2 id="home-tools-title" className="home-block__title">常用工具</h2>

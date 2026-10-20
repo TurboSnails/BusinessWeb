@@ -112,3 +112,17 @@ describe('RecentUpdates', () => {
     expect(container.textContent).not.toMatch(/更新0|chore:|feat\(|regenerate changelog/)
   })
 })
+
+describe('今日待办', () => {
+  it('没有候选时不显示；有到期的决策记录时显示计数并链接到候选池', async () => {
+    stubFetch(() => Promise.reject(new Error('offline')))
+    const first = render(<MemoryRouter><Home /></MemoryRouter>)
+    expect(screen.queryByText('今日待办')).toBeNull()
+    first.unmount()
+
+    localStorage.setItem('rn-candidates', JSON.stringify([{ market: 'us', code: 'PEP', addedAt: '2026-01-01T00:00:00.000Z', decisions: [{ at: '2026-01-01T00:00:00.000Z', action: 'watch', why: 'w', wrong: 'x', nextCheck: '2026-02-01' }] }]))
+    render(<MemoryRouter><Home /></MemoryRouter>)
+    const link = await screen.findByRole('link', { name: /到期复查 1/ })
+    expect(link.getAttribute('href')).toBe('/candidates')
+  })
+})
