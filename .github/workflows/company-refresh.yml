@@ -38,11 +38,16 @@ jobs:
           set -euo pipefail
           D=$(TZ=Asia/Yerevan date +%F)
           echo "D=$D" >> "$GITHUB_ENV"
+          # 当天已有手动全量刷新（目录存在且无 AUTO.txt）时不覆盖其完整证据
+          if [ -d "public/research/data-refresh-$D" ] && [ ! -f "public/research/data-refresh-$D/AUTO.txt" ]; then
+            echo "SKIP=1" >> "$GITHUB_ENV"; echo "今日已有手动全量刷新，跳过"; exit 0
+          fi
           for k in universe macro indexes; do node scripts/collect-market-refresh.mjs $k "$D"; done
           # Yahoo 匿名会话偶尔失败：留空文件，由腾讯行情兜底
           node scripts/collect-market-refresh.mjs yahoo-quotes "$D" || echo '{"requested":0,"quotes":{},"errors":["yahoo session failed"]}' > "public/research/data-refresh-$D/yahoo-quote-batch.json"
           for m in quotes quotes-etf; do uvx --python 3.12 --from yfinance-mcp-server==1.0.4 python scripts/collect-market-mcp.py --date "$D" --mode $m | tail -c 300; done
       - name: Apply to company data
+        if: env.SKIP != '1'
         shell: bash
         run: |
           set -euo pipefail
@@ -50,8 +55,10 @@ jobs:
           node scripts/collect-market-refresh.mjs apply-companies "$D"
           node scripts/slim-refresh-evidence.mjs "$D"
       - name: Validate research data
+        if: env.SKIP != '1'
         run: npx vitest run src/data
       - name: Publish
+        if: env.SKIP != '1'
         id: commit
         shell: bash
         run: |
