@@ -48,6 +48,7 @@ const EXACT: Record<string, RouteSeo> = {
   '/research-notes': { title: '研究笔记｜公司与行业研究', description: '沪深 A 股、港股、美股的公司研究笔记与审计报告。' },
   '/grid-trading': { title: '网格交易计算器', description: 'ETF 与个股网格交易的参数求解、回测与模拟。' },
   '/valuation': { title: '公司估值工作台', noindex: true },
+  '/invest/comprehensive-valuation': { title: '综合估值｜四维方法与三情景测算', description: '从资产质量、交叉估值、预期差到风险预算，手工测算三情景收益与赔率，导出公司研究卡。', noindex: true },
   '/dcf': { title: 'DCF 估值', noindex: true },
   '/radar': { title: '机会雷达', description: '低于 DCF 买入参考价、且比自身历史与同行更便宜的公司短名单，按信号多少排序，每日更新。' },
   '/knowledge': { title: '知识中心', noindex: true },

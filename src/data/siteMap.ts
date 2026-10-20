@@ -87,6 +87,7 @@ export const INVEST_GROUPS: HubGroup[] = [
     title: '工具与参考',
     hint: '估值看价格贵不贵，网格管买卖节奏，ETF 地图查选品。从候选池进入会自动带上公司。',
     links: [
+      { path: '/invest/comprehensive-valuation', label: '综合估值', short: '四维方法、情景测算与研究卡', desc: '资产质量、交叉估值、预期差与风险预算；三情景收益及赔率测算，导出研究卡' },
       { path: '/valuation', label: '估值工作台', short: '自动取财报，六法三情景', desc: '连接本机估值服务，自动采集财报，六方法三情景估值与报告导出' },
       { path: '/dcf', label: 'DCF 计算器', short: '输入股票一键估算', desc: '输入名称或代码自动取财报估算合理价、三情景与买入参考价，可逐项调整假设并保存记录' },
       { path: '/grid-trading', label: '网格交易', short: 'A 股 / ETF 网格回测', desc: 'A 股与 ETF 网格模拟、回测与记录' },

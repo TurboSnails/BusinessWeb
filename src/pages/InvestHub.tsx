@@ -26,6 +26,7 @@ const ICONS: Record<string, LucideIcon> = {
   '/invest/bond-fund-report': Landmark,
   '/candidates': ListChecks,
   '/valuation': Calculator,
+  '/invest/comprehensive-valuation': Calculator,
   '/dcf': ChartLine,
   '/grid-trading': Grid3x3,
 }
