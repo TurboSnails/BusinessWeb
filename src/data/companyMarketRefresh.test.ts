@@ -107,6 +107,22 @@ describe('本轮行情与旧研究模型分别标时',()=>{
         expect(updated.ratioNote).not.toMatch(/Infinity|NaN|旧情景/)
       }
     })
+    it('A 股 10-07 估值初稿（元为单位、无口径行标记）同样按新价复算，并保留「不认证可交易赔率」',()=>{
+      const cn:Company={...company(),market:'cn',pitfalls:['财务来源：公司公告'],
+        scenarios:[{name:'悲观',price:'80.00 元（估值初稿）',change:'-20%',assumption:'扣非 EPS × PE',trigger:'待验证'},
+          {name:'基准',price:'140.00 元（估值初稿）',change:'+40%',assumption:'扣非 EPS × PE',trigger:'待验证'}]}
+      const updated=applyCompanyMarketRefresh(cn,{...quote,currency:'CNY'})
+      expect(updated.scenarios?.[1].change).toBe('+16.7%（估值初稿／新报价）')
+      expect(updated.scenarios?.[1].assumption).toBe('扣非 EPS × PE')
+      expect(updated.ratioNote).toContain('0.50:1')
+      expect(updated.ratioNote).toContain('不认证可交易赔率')
+      expect(updated.ratioNote).not.toContain('旧情景')
+    })
+    it('旧研究页（情景价是纯数字）仍按旧情景处理',()=>{
+      const updated=applyCompanyMarketRefresh(company(),quote)
+      expect(updated.scenarios?.[1].change).toContain('旧情景／新报价')
+      expect(updated.scenarios?.[1].assumption).toBe('原研究假设（未重估）：旧假设')
+    })
     it('情景价全为 MISSING 的初稿保留自己的说明，不被改写成旧情景话术',()=>{
       const missing={...draft(),ratioNote:'现价 US$100；[MISSING]：TTM EPS 为负，不给赔率',
         scenarios:draft().scenarios!.map(sc=>({...sc,price:'[MISSING]（未建立可核验价值）'}))}

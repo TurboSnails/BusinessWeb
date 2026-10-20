@@ -20,8 +20,9 @@ export interface MarketRefreshQuote {
   valuationMarketTime?: string | null
 }
 
-/** v4：不再给结论加前缀；每次刷新只替换现价，不把上一轮刷新价堆成“上轮”指标，只保留原研究口径的那一条 */
-const ADAPTER_VERSION = 4
+/** v5：估值初稿（A 股逐家复核页、港股／ADR 覆盖层）按新价复算相对现价与盈亏比，不再写成「旧情景未重估」。
+ *  v4：不再给结论加前缀；每次刷新只替换现价，不把上一轮刷新价堆成“上轮”指标，只保留原研究口径的那一条 */
+const ADAPTER_VERSION = 5
 const REFRESH_ARCHIVE = /^上轮.*（原研究口径）$/
 
 export function applyCompanyMarketRefresh(company: Company, quote?: MarketRefreshQuote): Company {
@@ -61,9 +62,11 @@ export function applyCompanyMarketRefresh(company: Company, quote?: MarketRefres
     if (REFRESH_ARCHIVE.test(label) && carried.slice(i + 1).some(([later]) => later === label)) return
     metrics.push(carried[i])
   })
-  // 2026-10-20 起的估值初稿覆盖层（hkValuation／adrValuation）：口径行以「估值初稿（未认证）」开头，情景价带「（估值初稿）」后缀。
-  // 它不是旧研究，不能被说成「旧情景未重估」；价格变动时机械复算相对现价与盈亏比，评级仍按生成日价格判定。
-  const draft = Boolean(company.pitfalls?.some(p => p.startsWith('估值初稿（未认证）')))
+  // 估值初稿：10-07 起 A 股逐家复核页、2026-10-20 起港股／ADR 覆盖层，情景价都带「（估值初稿）」后缀；
+  // 港股／ADR 覆盖层的口径行还以「估值初稿（未认证）」开头（情景价全为 MISSING 的初稿靠它识别）。
+  // 它们不是旧研究，不能被说成「旧情景未重估」；价格变动时机械复算相对现价与盈亏比，评级仍按生成日价格判定。
+  const draftScenarios = Boolean(company.scenarios?.length) && company.scenarios!.every(sc => /（估值初稿）\s*$/.test(sc.price))
+  const draft = draftScenarios || Boolean(company.pitfalls?.some(p => p.startsWith('估值初稿（未认证）')))
   // 带「（估值初稿）」后缀的价格只在覆盖层（draft）下解析；A 股 10-07 估值初稿沿用原行为，由既有测试锁定为「不认证赔率」
   const scenarioPrice = (text: string) => {
     const match = text.trim().match(/^(?:US\$|HK\$|CNY|USD|HKD|\$)?\s*([\d,]+(?:\.\d+)?)\s*(?:元|美元|港元)?$/)
@@ -83,8 +86,8 @@ export function applyCompanyMarketRefresh(company: Company, quote?: MarketRefres
     const currency = quote.currency === 'USD' ? 'US$' : quote.currency === 'HKD' ? 'HK$' : `${quote.currency} `
     const stale = '评级与情景价按覆盖层生成日价格判定，现价变动后盈亏比随价格变化而评级不自动调整，需重新运行覆盖层脚本。'
     ratioNote = bearPrice < quote.price && quote.price < basePrice
-      ? `估值初稿（未认证）；按本轮报价机械复算：基准 ${(100 * (basePrice / quote.price - 1)).toFixed(1)}% / 悲观下行 ${(100 * (1 - bearPrice / quote.price)).toFixed(1)}%，${((basePrice - quote.price) / (quote.price - bearPrice)).toFixed(2)}:1；2:1 研究门槛约 ${currency}${((basePrice + 2 * bearPrice) / 3).toFixed(2)}，未认证为买点，悲观价不是止损保证。${stale}`
-      : `估值初稿（未认证）；新价不满足 Bear < P < Base，赔率不适用，须重新核对盈利、股本与下行情景。${stale}`
+      ? `估值初稿（未认证）；按本轮报价机械复算：基准 ${(100 * (basePrice / quote.price - 1)).toFixed(1)}% / 悲观下行 ${(100 * (1 - bearPrice / quote.price)).toFixed(1)}%，${((basePrice - quote.price) / (quote.price - bearPrice)).toFixed(2)}:1；2:1 研究门槛约 ${currency}${((basePrice + 2 * bearPrice) / 3).toFixed(2)}，未认证为买点，悲观价不是止损保证，本轮不认证可交易赔率。${stale}`
+      : `估值初稿（未认证）；新价不满足 Bear < P < Base，赔率不适用，须重新核对盈利、股本与下行情景，本轮不认证可交易赔率。${stale}`
   }
   else if (bearPrice != null && basePrice != null) {
     ratioNote = bearPrice < quote.price && quote.price < basePrice
