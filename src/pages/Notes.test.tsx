@@ -23,6 +23,7 @@ describe('Notes 列表', () => {
 
   it('点击标签只显示带该标签的笔记，点「全部」清除筛选', () => {
     renderAt()
+    fireEvent.click(screen.getByText('更多标签'))
     fireEvent.click(screen.getByRole('button', { name: /^行业研究 2$/ }))
     expect(titles()).toHaveLength(2)
     expect(screen.getByRole('button', { name: /^行业研究 2$/ }).getAttribute('aria-pressed')).toBe('true')
