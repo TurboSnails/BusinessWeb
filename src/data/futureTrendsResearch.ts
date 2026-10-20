@@ -8,7 +8,7 @@ export interface ResearchScenario {
 export interface ResearchSummary {
   id: string; key: string; name: string; code: string; asOf: string
   depth: string; rating: string; headline: string; price: number | null; priceText: string
-  priceDate: string; currency: string; ratio: number | null; up: number | null; down: number | null
+  priceDate: string; priceCheckedAt?: string; currency: string; ratio: number | null; up: number | null; down: number | null
   threshold: number | null; breakEven: number | null; winRate: string; expected: number | null
   valuationStatus: string; primaryTrend: string; riskGroup: string; core: boolean
   moat: string; concern: string; certainty: string; sources: ResearchSource[]

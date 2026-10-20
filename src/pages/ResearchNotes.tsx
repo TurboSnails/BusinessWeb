@@ -87,11 +87,13 @@ export default function ResearchNotes(): JSX.Element {
   const view = vParam === 'combined' ? 'combined' : vParam === 'overview' ? 'overview' : vParam === 'lynch' ? 'lynch' : 'list'
   const progSector = params.get('sec') || '全部'
   const inCategory = activeTab === 'companies'
-  const { list: usList, loading: usLoading } = useCompanies('us', inCategory)
-  const { list: cnList, loading: cnLoading } = useCompanies('cn', inCategory)
-  const { list: hkList, loading: hkLoading } = useCompanies('hk', inCategory)
-  const { list: adrList, loading: adrLoading } = useCompanies('adr', inCategory)
-  const { list: ndxNewList, loading: ndxNewLoading } = useCompanies('ndx', inCategory)
+  // 只加载当前市场需要的数据：纳指页签由美股 + ADR + 纳指新增三部分拼成
+  const needs = (m: Market): boolean => inCategory && (catMarket === m || (catMarket === 'ndx' && (m === 'us' || m === 'adr')))
+  const { list: usList, loading: usLoading } = useCompanies('us', needs('us'))
+  const { list: cnList, loading: cnLoading } = useCompanies('cn', needs('cn'))
+  const { list: hkList, loading: hkLoading } = useCompanies('hk', needs('hk'))
+  const { list: adrList, loading: adrLoading } = useCompanies('adr', needs('adr'))
+  const { list: ndxNewList, loading: ndxNewLoading } = useCompanies('ndx', needs('ndx'))
   const lynch = useLynch(inCategory)
   const cand = useCandidates(inCategory)
   const tools = useToolSources()

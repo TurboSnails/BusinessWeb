@@ -30,7 +30,7 @@ describe('AI 试问', () => {
       return new Promise((_, reject) => init.signal?.addEventListener('abort', () => reject(new Error('timeout')), { once: true }))
     })
     const res = response()
-    const pending = handler(request, res)
+    const pending = handler(request as never, res as never)
     await vi.advanceTimersByTimeAsync(50_001)
     await pending
     expect(res.code).toBe(502)
@@ -57,14 +57,14 @@ describe('AI 试问', () => {
       return new Response(null, { status: 503 })
     })
     const res = response()
-    await handler(request, res)
+    await handler(request as never, res as never)
     expect(res.code).toBe(502)
     expect(balances.get('2026-10-12')).toBe(0)
   })
 
   it('GitHub Pages 的预检通过后可调用问答接口', async () => {
     const res = response()
-    await handler({ method: 'OPTIONS', headers: { origin: 'https://turbosnails.github.io' } }, res)
+    await handler({ method: 'OPTIONS', headers: { origin: 'https://turbosnails.github.io' } } as never, res as never)
     expect(res.code).toBe(204)
     expect(res.headers['Access-Control-Allow-Origin']).toBe('https://turbosnails.github.io')
     expect(res.headers['Access-Control-Allow-Headers']).toContain('Authorization')

@@ -75,7 +75,7 @@ PEP最新Q3、官方事件日历、8项ETF费用／规则及纳指QQQ持仓代�
 
 1. 从 CSV 选本轮条目，记录执行日期、操作者、数据源和计划覆盖范围；保留本轮开始前的原始证据或 Git 版本。
 2. 先获取真实新输入，检查报价时间、报告期、披露日、币种、单位、复权、普通股／ADS、股本及合并／归母口径。没有新数据写“源无新披露”或“采集失败”，不算已完成刷新。
-3. 按依赖顺序重算并同步：**源／输入 → 结构化索引与 JSON → 手工详情覆盖层 → 情景和赔率 → 报告网页／导出／统计元数据**。`loadCompanies` 的覆盖顺序见 [companies.ts](../src/data/companies.ts)，未来趋势实际消费见 [FutureTrends.tsx](../src/pages/FutureTrends.tsx)。
+3. 按依赖顺序重算并同步：**源／输入 → 结构化索引与 JSON → 手工详情覆盖层 → 情景和赔率 → 报告网页／导出／统计元数据**。`loadCompanies` 的覆盖顺序见 [companyCore.ts](../src/data/companyCore.ts)，未来趋势实际消费见 [FutureTrends.tsx](../src/pages/FutureTrends.tsx)。
 4. 对比更新前后字段和缺失数量；抽查最终页面、来源链接及研究结论。按修改范围运行已有检查，不因为只是例行取数而机械扩大测试范围。
 5. 在 CSV 更新状态、`last_checked`、`next_review`；新增日期报告，附变更文件、源日期、采集失败项及验证结果。发布另按项目流程处理，未部署不能记录为线上已更新。
 

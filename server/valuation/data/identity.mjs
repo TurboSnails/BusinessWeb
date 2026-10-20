@@ -46,7 +46,7 @@ async function localCatalog() {
     validateSecurity({ market, code, name }),
   );
   const source = await readFile(
-    fileURLToPath(new URL("../../../src/data/companies.ts", import.meta.url)),
+    fileURLToPath(new URL("../../../src/data/companyCore.ts", import.meta.url)),
     "utf8",
   );
   for (const line of source.split("\n")) {

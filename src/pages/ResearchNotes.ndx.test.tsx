@@ -8,10 +8,13 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import ResearchNotes from './ResearchNotes'
 import CompanyDetail from './CompanyDetail'
-import { ndxCompanies, loadCompanies } from '../data/companies'
+import { loadBaseCompanies, loadCompanies, type Company } from '../data/companies'
+
+let ndxCompanies: Company[] = []
 import { NDX_CODES } from '../data/ndx100'
 
-beforeAll(() => {
+beforeAll(async () => {
+  ndxCompanies = await loadBaseCompanies('ndx')
   vi.stubGlobal('scrollTo', () => {})
   vi.stubGlobal('fetch', async (url: string) => {
     const u = String(url)

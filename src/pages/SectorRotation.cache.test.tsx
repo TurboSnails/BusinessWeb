@@ -40,7 +40,7 @@ it('每30秒只更新最新日期，刷新失败保留历史和快照，卸载�
 })
 it('跨入新的交易日后只获取最新一天，旧日期继续保留', async () => {
   vi.useFakeTimers(); vi.setSystemTime(new Date('2026-10-08T02:00:00Z')); seed()
-  const fetcher = vi.fn(async () => Response.json({ code: 200, data: { plate_stock: [{ secu_name: '机器人', secu_code: '1', change: 0.02, stock_list: [] }] } })); vi.stubGlobal('fetch', fetcher)
+  const fetcher = vi.fn(async (_url: string) => Response.json({ code: 200, data: { plate_stock: [{ secu_name: '机器人', secu_code: '1', change: 0.02, stock_list: [] }] } })); vi.stubGlobal('fetch', fetcher)
   const view = render(<SectorRotation />)
   await act(async () => { await vi.advanceTimersByTimeAsync(30_000) })
   expect(fetcher).toHaveBeenCalledTimes(1)

@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+// @ts-ignore 未带类型声明的 JS 函数入口
 import handler from '../../api/china-stock.js'
+// @ts-ignore 未带类型声明的服务端模块
 import { handleMarket } from '../../server/market.mjs'
 
 function response() {
@@ -40,7 +42,7 @@ describe('restricted market APIs', () => {
     expect(fetchImpl).not.toHaveBeenCalled()
   })
   it('提供白名单指数的日周月历史，拒绝其他证券及任意周期', async () => {
-    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ data: {} }))))
+    vi.stubGlobal('fetch', vi.fn(async (_url: string) => new Response(JSON.stringify({ data: {} }))))
     const accepted = response()
     await handleMarket({ method: 'GET', query: { kind: 'index-history', symbol: 'sh000852', period: 'month' } }, accepted)
     expect(accepted.statusCode).toBe(200)
@@ -68,7 +70,7 @@ describe('restricted market APIs', () => {
     expect(fetchImpl).not.toHaveBeenCalled()
   })
   it('decodes Sina GBK bytes into UTF-8 text', async () => {
-    vi.stubGlobal('fetch', vi.fn(async () => new Response(new Uint8Array([0xbb, 0xa6, 0xc9, 0xee]))))
+    vi.stubGlobal('fetch', vi.fn(async (_url: string) => new Response(new Uint8Array([0xbb, 0xa6, 0xc9, 0xee]))))
     const res = response(); await handler({ method: 'GET', query: { symbol: 'sh000001' } }, res)
     expect(res.body).toBe('沪深')
   })
@@ -86,7 +88,7 @@ describe('restricted market APIs', () => {
   })
   it('preserves Tencent GBK quote bytes and targets the fixed quote host', async () => {
     const bytes = new Uint8Array([0xbb, 0xa6, 0xc9, 0xee])
-    const fetchImpl = vi.fn(async () => new Response(bytes)); vi.stubGlobal('fetch', fetchImpl)
+    const fetchImpl = vi.fn(async (_url: string) => new Response(bytes)); vi.stubGlobal('fetch', fetchImpl)
     const res = response(); await handleMarket({ method: 'GET', query: { kind: 'quotes', symbols: 'sh510300,sz159915' } }, res)
     expect(new Uint8Array(res.body as Buffer)).toEqual(bytes)
     expect(fetchImpl.mock.calls[0][0]).toBe('https://qt.gtimg.cn/q=sh510300,sz159915')
@@ -94,7 +96,7 @@ describe('restricted market APIs', () => {
   })
   it('returns candle JSON from the fixed history host', async () => {
     const data = { data: { sh510300: { qfqday: [] } } }
-    const fetchImpl = vi.fn(async () => new Response(JSON.stringify(data))); vi.stubGlobal('fetch', fetchImpl)
+    const fetchImpl = vi.fn(async (_url: string) => new Response(JSON.stringify(data))); vi.stubGlobal('fetch', fetchImpl)
     const res = response(); await handleMarket({ method: 'GET', query: { kind: 'candles', symbol: 'sh510300', begin: '2020-01-01', end: '2026-10-02' } }, res)
     expect(res.body).toEqual(data)
     const url = new URL(fetchImpl.mock.calls[0][0])
@@ -119,7 +121,7 @@ describe('restricted market APIs', () => {
     expect(JSON.stringify(res.body)).not.toContain('secret')
   })
   it('returns 502 for upstream HTTP errors and 504 for a timed-out request', async () => {
-    vi.stubGlobal('fetch', vi.fn(async () => new Response('', { status: 429 })))
+    vi.stubGlobal('fetch', vi.fn(async (_url: string) => new Response('', { status: 429 })))
     const res = response(); await handleMarket({ method: 'GET', query: { kind: 'quotes', symbols: 'sh510300' } }, res)
     expect(res.statusCode).toBe(502)
     vi.useFakeTimers()

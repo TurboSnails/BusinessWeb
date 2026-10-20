@@ -8,10 +8,16 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import ResearchNotes from './ResearchNotes'
 import CompanyDetail from './CompanyDetail'
-import { findCompany, loadCompanies } from '../data/companies'
+import { loadBaseCompanies, loadCompanies, type Company, type Market } from '../data/companies'
+
+// 手工研究页（不含程序化补全），与原先同步导出的 usCompanies / cnCompanies 等价
+const base: Partial<Record<Market, Company[]>> = {}
+const findCompany = (market: Market, code: string): Company | undefined => base[market]?.find(c => c.code === code)
 
 // 程序化补全公司（public/data/*.json）的烟雾测试：列表加载、分页、搜索、评级筛选、详情页
-beforeAll(() => {
+beforeAll(async () => {
+  base.us = await loadBaseCompanies('us')
+  base.cn = await loadBaseCompanies('cn')
   vi.stubGlobal('scrollTo', () => {})
   vi.stubGlobal('fetch', async (url: string) => {
     const u = String(url)

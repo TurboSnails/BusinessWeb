@@ -13,7 +13,7 @@ const json = (status: number, body: unknown) => ({ ok: status < 400, status, jso
 
 describe('ChapterComments', () => {
   it('显示已审核评论，并按章节请求', async () => {
-    const fetchMock = vi.fn(async () => json(200, { comments: [{ id: '1', nickname: '小王', content: '<b>写得好</b>', created_at: '2026-10-09T00:00:00Z' }] }))
+    const fetchMock = vi.fn(async (_url: string, _init?: RequestInit) => json(200, { comments: [{ id: '1', nickname: '小王', content: '<b>写得好</b>', created_at: '2026-10-09T00:00:00Z' }] }))
     vi.stubGlobal('fetch', fetchMock)
     render(<ChapterComments slug="开篇.md" />)
     await waitFor(() => expect(screen.getByText('<b>写得好</b>')).toBeTruthy())

@@ -26,6 +26,7 @@ interface TableCellProps {
   colSpan?: number
   rowSpan?: number
   fontWeight?: 'normal' | '600' | '700'
+  textColor?: string
   style?: React.CSSProperties
 }
 

@@ -62,7 +62,7 @@ export async function loadUniverse() {
   for (const code of universes.hsi?.codes ?? []) add('hk', String(code).padStart(5, '0'), '恒生指数')
   for (const code of universes.hstech?.codes ?? []) add('hk', String(code).padStart(5, '0'), '恒生科技')
   for (const code of parseNdxCodes(await readFile(join(ROOT, 'src/data/ndx100.ts'), 'utf8'))) add('us', code, '纳指100')
-  for (const c of parseCompanyLines(await readFile(join(ROOT, 'src/data/companies.ts'), 'utf8'))) add(c.market, c.code, '研究公司', c.name)
+  for (const c of parseCompanyLines(await readFile(join(ROOT, 'src/data/companyCore.ts'), 'utf8'))) add(c.market, c.code, '研究公司', c.name)
   return [...items.values()]
 }
 

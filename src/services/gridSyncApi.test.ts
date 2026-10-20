@@ -34,12 +34,12 @@ describe('private Supabase grid sync API', () => {
     expect(post.statusCode).toBe(405); expect(fetchImpl).not.toHaveBeenCalled()
   })
   it('returns the snapshot revision without exposing service credentials', async () => {
-    const fetchImpl = vi.fn(async () => new Response(JSON.stringify([{ revision: 7, payload: { schemaVersion: 1, records: [] } }])))
+    const fetchImpl = vi.fn(async (_url: string, _init?: RequestInit) => new Response(JSON.stringify([{ revision: 7, payload: { schemaVersion: 1, records: [] } }])))
     vi.stubGlobal('fetch', fetchImpl)
     const res = response(); await handler(request(), res)
     expect(res.body).toEqual({ schemaVersion: 1, records: [] })
     expect(res.headers.etag).toBe('"7"'); expect(res.headers['cache-control']).toBe('no-store')
-    expect(new Headers(fetchImpl.mock.calls[0][1].headers).get('apikey')).toBe('sb_secret_test-only')
+    expect(new Headers(fetchImpl.mock.calls[0][1]!.headers).get('apikey')).toBe('sb_secret_test-only')
     expect(new URL(fetchImpl.mock.calls[0][0]).pathname).toBe('/rest/v1/businessweb_grid_snapshot')
   })
   it('requires a revision and rejects malformed records without writing', async () => {
@@ -50,20 +50,20 @@ describe('private Supabase grid sync API', () => {
     expect(invalid.statusCode).toBe(400); expect(fetchImpl).not.toHaveBeenCalled()
   })
   it('writes a valid snapshot through the atomic compare-and-set RPC', async () => {
-    const fetchImpl = vi.fn(async () => new Response('true')); vi.stubGlobal('fetch', fetchImpl)
+    const fetchImpl = vi.fn(async (_url: string, _init?: RequestInit) => new Response('true')); vi.stubGlobal('fetch', fetchImpl)
     const payload = { schemaVersion: 1, records: [{ id: 'deleted-record', deleted: true, updatedAt: '2026-10-02T00:00:00Z' }] }
     const res = response(); await handler(request('PUT', { headers: { authorization: `Bearer ${token}`, 'if-match': '"7"' }, body: payload }), res)
     expect(res.statusCode).toBe(200)
-    expect(JSON.parse(fetchImpl.mock.calls[0][1].body)).toEqual({ expected_revision: 7, next_payload: payload })
+    expect(JSON.parse(fetchImpl.mock.calls[0][1]!.body as string)).toEqual({ expected_revision: 7, next_payload: payload })
     expect(new URL(fetchImpl.mock.calls[0][0]).pathname).toBe('/rest/v1/rpc/businessweb_put_grid_snapshot')
   })
   it('reports a concurrent write as 409 rather than success', async () => {
-    vi.stubGlobal('fetch', vi.fn(async () => new Response('false')))
+    vi.stubGlobal('fetch', vi.fn(async (_url: string, _init?: RequestInit) => new Response('false')))
     const res = response(); await handler(request('PUT', { headers: { authorization: `Bearer ${token}`, 'if-match': '"7"' }, body: { schemaVersion: 1, records: [] } }), res)
     expect(res.statusCode).toBe(409)
   })
   it('does not expose database errors or secrets', async () => {
-    vi.stubGlobal('fetch', vi.fn(async () => new Response('sb_secret_test-only', { status: 500 })))
+    vi.stubGlobal('fetch', vi.fn(async (_url: string, _init?: RequestInit) => new Response('sb_secret_test-only', { status: 500 })))
     const res = response(); await handler(request(), res)
     expect(res.statusCode).toBe(502); expect(JSON.stringify(res.body)).not.toContain('sb_secret')
   })
