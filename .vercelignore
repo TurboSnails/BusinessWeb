@@ -15,4 +15,6 @@ obsidian-plugin/main.js
 .claude/
 .opencode/
 .codebuddy/
+# 本地智能体技能库，网站构建与接口都不读取
+agent-skills/
 valuation-reports/
