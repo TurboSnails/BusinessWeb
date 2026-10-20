@@ -129,6 +129,23 @@ MCP入口会实际initialize／list_tools／call_tool，不直接冒充MCP调用
 
 `normalize-market-refresh.py`只应用已保留的有效输入：行情不能倒退，旧北交所代码占位报价不能成为现价，空报表不能覆盖原件。旧研究／模型日期独立保留，已撤回的PEP盈利模型不会因新价格恢复赔率。它不会代替公司一手取证、完整估值、私人记录同步或PDF重新出版，也没有新增定时任务。
 
+## 估值初稿覆盖层与信号台账
+
+**港股 / ADR 估值初稿覆盖层（2026-10-20）**：10-07 事实复核撤回了未经验证的估值，评级几乎全为「观察」。覆盖层在事实复核之上补估值初稿与评级分档，合并顺序在 `src/data/companyDetails.ts`：港股 `extra → manual → hk → hkValuation`，ADR `extra → manual → adr → sofi → adrValuation`（SOFI 保留完整研究，不在覆盖层内）。
+
+```bash
+python3 scripts/review-hk-valuation-2026-10-20.py    # → src/data/details/hkValuation.ts、public/research/hk-valuation-2026-10-20/
+python3 scripts/review-adr-valuation-2026-10-20.py   # → src/data/details/adrValuation.ts、public/research/adr-valuation-2026-10-20/
+npx vitest run src/data                              # hkValuation／adrValuation 逐家重算 ratio 与评级
+```
+
+- 脚本可复现：连续运行两次输出字节一致；价格取 `companyMarketSnapshot.json`，盈利来自 10-07 的 `input.json`／`models.json` 与 Yahoo 快照（供应商口径，非公司指引）。倍数是行业类别研究假设，未校准历史分位；概率不赋值。
+- 评级沿用 A 股 `review-cn-itucd-2026-10-07.py` 的规则：单一估值方法最高「条件关注」；ratio>8、周期行业、经营现金流为负封顶「观察」；「回避」只给 10-07 复核为「等待证据」的公司，供应商 EPS 为负而原件复核为观察者保持观察并标待核读。
+- 刷新价格后**不会**自动重算覆盖层：价格进入情景价的 ratio，需要重新运行脚本并提交；`companyMarketSnapshot.json` 更新后若只改价格不重跑，页面显示的「相对现价」会与现价脱节。
+- 独立审查与返工记录见 `.dev-team/runs/hk-adr-valuation/`（`reports/review.md`）。审查留下、尚未处理的项：ADR 封顶原因统计写法有重复计数隐患（不影响评级）。
+
+**信号台账**：`scripts/signal-ledger.mjs` 在工作日行情刷新后（`company-refresh.yml` 的 `Record signal ledger` 步骤）写入 `public/data/signal-ledger-YYYY.json`，每周保留一期：当时的研究评级、价格、自动 DCF 与机会雷达信号。机会雷达页「信号复盘」在积累满 28 天后按市场比较各信号组的事后收益；只看价格变动，不含分红与汇率，样本少于 5 家的组不下结论。手动补一期：`node scripts/signal-ledger.mjs YYYY-MM-DD`（同一周以后写入的覆盖先前的）。
+
 ## 下次盘点的可复用任务
 
 > 按 `docs/data-maintenance.md` 和 `docs/data-maintenance.csv` 做本轮数据新鲜度盘点。以当天 Asia/Yerevan 日期和各市场实际交易日为基准，逐字段检查数据日期，不用生成日替代。先输出超期、待刷新、缺失、等待披露及历史归档清单，保存新的日期报告和公司价格明细；若本轮同时授权更新，再按台账入口取新输入、更新派生结果并验收。旧原件、回测和书籍案例保留。无法访问的私有／远端数据单列，不能声称已经全部检查。
