@@ -188,7 +188,7 @@
     },
     "researchReport": "research/adr-2026-10-07/TSM.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:47.388487+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:47.388487+00:00",
       "priceDate": "2026-10-19",
@@ -389,7 +389,7 @@
     },
     "researchReport": "research/adr-2026-10-07/ASML.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:42.196473+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:42.196473+00:00",
       "priceDate": "2026-10-19",
@@ -590,7 +590,7 @@
     },
     "researchReport": "research/adr-2026-10-07/NVO.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:45.576837+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:45.576837+00:00",
       "priceDate": "2026-10-19",
@@ -791,7 +791,7 @@
     },
     "researchReport": "research/adr-2026-10-07/SAP.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:46.228573+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:46.228573+00:00",
       "priceDate": "2026-10-19",
@@ -992,7 +992,7 @@
     },
     "researchReport": "research/adr-2026-10-07/TM.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:47.076057+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:47.076057+00:00",
       "priceDate": "2026-10-19",
@@ -1193,7 +1193,7 @@
     },
     "researchReport": "research/adr-2026-10-07/SONY.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:46.806551+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:46.806551+00:00",
       "priceDate": "2026-10-19",
@@ -1394,7 +1394,7 @@
     },
     "researchReport": "research/adr-2026-10-07/AZN.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:42.196473+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:42.196473+00:00",
       "priceDate": "2026-10-19",
@@ -1595,7 +1595,7 @@
     },
     "researchReport": "research/adr-2026-10-07/NVS.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:45.896332+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:45.896332+00:00",
       "priceDate": "2026-10-19",
@@ -1796,7 +1796,7 @@
     },
     "researchReport": "research/adr-2026-10-07/SNY.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:46.806551+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:46.806551+00:00",
       "priceDate": "2026-10-19",
@@ -1997,7 +1997,7 @@
     },
     "researchReport": "research/adr-2026-10-07/GSK.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:43.911529+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:43.911529+00:00",
       "priceDate": "2026-10-19",
@@ -2198,7 +2198,7 @@
     },
     "researchReport": "research/adr-2026-10-07/SHEL.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:46.806551+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:46.806551+00:00",
       "priceDate": "2026-10-19",
@@ -2399,7 +2399,7 @@
     },
     "researchReport": "research/adr-2026-10-07/TTE.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:47.388487+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:47.388487+00:00",
       "priceDate": "2026-10-19",
@@ -2600,7 +2600,7 @@
     },
     "researchReport": "research/adr-2026-10-07/BP.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:42.602645+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:42.602645+00:00",
       "priceDate": "2026-10-19",
@@ -2805,7 +2805,7 @@
     },
     "researchReport": "research/adr-2026-10-07/HSBC.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:44.458861+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:44.458861+00:00",
       "priceDate": "2026-10-19",
@@ -3006,7 +3006,7 @@
     },
     "researchReport": "research/adr-2026-10-07/MUFG.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:45.576837+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:45.576837+00:00",
       "priceDate": "2026-10-19",
@@ -3207,7 +3207,7 @@
     },
     "researchReport": "research/adr-2026-10-07/SMFG.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:46.806551+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:46.806551+00:00",
       "priceDate": "2026-10-19",
@@ -3412,7 +3412,7 @@
     },
     "researchReport": "research/adr-2026-10-07/TD.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:47.076057+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:47.076057+00:00",
       "priceDate": "2026-10-19",
@@ -3613,7 +3613,7 @@
     },
     "researchReport": "research/adr-2026-10-07/RY.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:46.228573+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:46.228573+00:00",
       "priceDate": "2026-10-19",
@@ -3814,7 +3814,7 @@
     },
     "researchReport": "research/adr-2026-10-07/SHOP.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:46.806551+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:46.806551+00:00",
       "priceDate": "2026-10-19",
@@ -4015,7 +4015,7 @@
     },
     "researchReport": "research/adr-2026-10-07/SPOT.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:46.806551+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:46.806551+00:00",
       "priceDate": "2026-10-19",
@@ -4216,7 +4216,7 @@
     },
     "researchReport": "research/adr-2026-10-07/ARM.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:42.196473+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:42.196473+00:00",
       "priceDate": "2026-10-19",
@@ -4413,7 +4413,7 @@
     },
     "researchReport": "research/adr-2026-10-07/HMC.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:44.458861+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:44.458861+00:00",
       "priceDate": "2026-10-19",
@@ -4614,7 +4614,7 @@
     },
     "researchReport": "research/adr-2026-10-07/E.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:43.328378+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:43.328378+00:00",
       "priceDate": "2026-10-19",
@@ -4815,7 +4815,7 @@
     },
     "researchReport": "research/adr-2026-10-07/CNI.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:42.772105+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:42.772105+00:00",
       "priceDate": "2026-10-19",
@@ -5016,7 +5016,7 @@
     },
     "researchReport": "research/adr-2026-10-07/LYG.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:45.020534+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:45.020534+00:00",
       "priceDate": "2026-10-19",
@@ -5217,7 +5217,7 @@
     },
     "researchReport": "research/adr-2026-10-07/BABA.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:42.196473+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:42.196473+00:00",
       "priceDate": "2026-10-19",
@@ -5418,7 +5418,7 @@
     },
     "researchReport": "research/adr-2026-10-07/PDD.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:45.896332+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:45.896332+00:00",
       "priceDate": "2026-10-19",
@@ -5619,7 +5619,7 @@
     },
     "researchReport": "research/adr-2026-10-07/JD.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:44.802909+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:44.802909+00:00",
       "priceDate": "2026-10-19",
@@ -5816,7 +5816,7 @@
     },
     "researchReport": "research/adr-2026-10-07/BIDU.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:42.602645+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:42.602645+00:00",
       "priceDate": "2026-10-19",
@@ -6017,7 +6017,7 @@
     },
     "researchReport": "research/adr-2026-10-07/NTES.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:45.576837+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:45.576837+00:00",
       "priceDate": "2026-10-19",
@@ -6218,7 +6218,7 @@
     },
     "researchReport": "research/adr-2026-10-07/TCOM.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:47.076057+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:47.076057+00:00",
       "priceDate": "2026-10-19",
@@ -6419,7 +6419,7 @@
     },
     "researchReport": "research/adr-2026-10-07/YUMC.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:47.944319+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:47.944319+00:00",
       "priceDate": "2026-10-19",
@@ -6616,7 +6616,7 @@
     },
     "researchReport": "research/adr-2026-10-07/NIO.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:45.576837+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:45.576837+00:00",
       "priceDate": "2026-10-19",
@@ -6813,7 +6813,7 @@
     },
     "researchReport": "research/adr-2026-10-07/XPEV.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:47.944319+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:47.944319+00:00",
       "priceDate": "2026-10-19",
@@ -7010,7 +7010,7 @@
     },
     "researchReport": "research/adr-2026-10-07/LI.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:45.020534+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:45.020534+00:00",
       "priceDate": "2026-10-19",
@@ -7211,7 +7211,7 @@
     },
     "researchReport": "research/adr-2026-10-07/ZTO.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:47.944319+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:47.944319+00:00",
       "priceDate": "2026-10-19",
@@ -7412,7 +7412,7 @@
     },
     "researchReport": "research/adr-2026-10-07/BEKE.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:42.196473+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:42.196473+00:00",
       "priceDate": "2026-10-19",
@@ -7613,7 +7613,7 @@
     },
     "researchReport": "research/adr-2026-10-07/TME.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:47.076057+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:47.076057+00:00",
       "priceDate": "2026-10-19",
@@ -7814,7 +7814,7 @@
     },
     "researchReport": "research/adr-2026-10-07/VIPS.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:47.397262+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:47.397262+00:00",
       "priceDate": "2026-10-19",
@@ -8015,7 +8015,7 @@
     },
     "researchReport": "research/adr-2026-10-07/BILI.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:42.602645+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:42.602645+00:00",
       "priceDate": "2026-10-19",
@@ -8216,7 +8216,7 @@
     },
     "researchReport": "research/adr-2026-10-07/MNSO.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:45.022654+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:45.022654+00:00",
       "priceDate": "2026-10-19",
@@ -8417,7 +8417,7 @@
     },
     "researchReport": "research/adr-2026-10-07/HTHT.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:44.458861+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:44.458861+00:00",
       "priceDate": "2026-10-19",
@@ -8618,7 +8618,7 @@
     },
     "researchReport": "research/adr-2026-10-07/FUTU.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:43.862654+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:43.862654+00:00",
       "priceDate": "2026-10-19",
@@ -8819,7 +8819,7 @@
     },
     "researchReport": "research/adr-2026-10-07/TAL.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:47.076057+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:47.076057+00:00",
       "priceDate": "2026-10-19",
@@ -9020,7 +9020,7 @@
     },
     "researchReport": "research/adr-2026-10-07/EDU.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:43.702760+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:43.702760+00:00",
       "priceDate": "2026-10-19",
@@ -9221,7 +9221,7 @@
     },
     "researchReport": "research/adr-2026-10-07/GRAB.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:43.911529+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:43.911529+00:00",
       "priceDate": "2026-10-19",
@@ -9422,7 +9422,7 @@
     },
     "researchReport": "research/adr-2026-10-07/SE.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:46.806551+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:46.806551+00:00",
       "priceDate": "2026-10-19",
@@ -9623,7 +9623,7 @@
     },
     "researchReport": "research/adr-2026-10-07/MELI.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:45.022654+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:45.022654+00:00",
       "priceDate": "2026-10-19",
@@ -9824,7 +9824,7 @@
     },
     "researchReport": "research/adr-2026-10-07/NU.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:45.576837+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:45.576837+00:00",
       "priceDate": "2026-10-19",
@@ -10021,7 +10021,7 @@
     },
     "researchReport": "research/adr-2026-10-07/CPNG.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:42.822208+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:42.822208+00:00",
       "priceDate": "2026-10-19",
@@ -10222,7 +10222,7 @@
     },
     "researchReport": "research/adr-2026-10-07/INFY.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:44.458861+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:44.458861+00:00",
       "priceDate": "2026-10-19",
@@ -10423,7 +10423,7 @@
     },
     "researchReport": "research/adr-2026-10-07/HDB.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:43.911529+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:43.911529+00:00",
       "priceDate": "2026-10-19",
@@ -10624,7 +10624,7 @@
     },
     "researchReport": "research/adr-2026-10-07/IBN.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:44.458861+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:44.458861+00:00",
       "priceDate": "2026-10-19",
@@ -10825,7 +10825,7 @@
     },
     "researchReport": "research/adr-2026-10-07/VALE.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:47.397262+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:47.397262+00:00",
       "priceDate": "2026-10-19",
@@ -11026,7 +11026,7 @@
     },
     "researchReport": "research/adr-2026-10-07/PBR.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:45.896332+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:45.896332+00:00",
       "priceDate": "2026-10-19",
@@ -11227,7 +11227,7 @@
     },
     "researchReport": "research/adr-2026-10-07/ITUB.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:44.802909+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:44.802909+00:00",
       "priceDate": "2026-10-19",
@@ -11428,7 +11428,7 @@
     },
     "researchReport": "research/adr-2026-10-07/STNE.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:47.076057+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:47.076057+00:00",
       "priceDate": "2026-10-19",
@@ -11629,7 +11629,7 @@
     },
     "researchReport": "research/adr-2026-10-07/PAGS.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:45.896332+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:45.896332+00:00",
       "priceDate": "2026-10-19",
@@ -11830,7 +11830,7 @@
     },
     "researchReport": "research/adr-2026-10-07/SKHY.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:46.806551+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:46.806551+00:00",
       "priceDate": "2026-10-19",
@@ -12027,7 +12027,7 @@
     },
     "researchReport": "research/adr-2026-10-07/SPCX.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:46.806551+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:46.806551+00:00",
       "priceDate": "2026-10-19",
@@ -12228,7 +12228,7 @@
     },
     "researchReport": "research/adr-2026-10-07/BHP.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:42.196473+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:42.196473+00:00",
       "priceDate": "2026-10-19",
@@ -12429,7 +12429,7 @@
     },
     "researchReport": "research/adr-2026-10-07/RIO.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:46.228573+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:46.228573+00:00",
       "priceDate": "2026-10-19",
@@ -12630,7 +12630,7 @@
     },
     "researchReport": "research/adr-2026-10-07/UL.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:47.388487+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:47.388487+00:00",
       "priceDate": "2026-10-19",
@@ -12831,7 +12831,7 @@
     },
     "researchReport": "research/adr-2026-10-07/DEO.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:43.328378+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:43.328378+00:00",
       "priceDate": "2026-10-19",
@@ -13032,7 +13032,7 @@
     },
     "researchReport": "research/adr-2026-10-07/BTI.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:42.602645+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:42.602645+00:00",
       "priceDate": "2026-10-19",
@@ -13233,7 +13233,7 @@
     },
     "researchReport": "research/adr-2026-10-07/ONC.html",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:45.896332+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:45.896332+00:00",
       "priceDate": "2026-10-19",
@@ -13357,7 +13357,7 @@
     "researchReport": "research/sofi-2026-10-07/SOFI.html",
     "ratioNote": "旧情景未重估；Bear/Base/Bull 关键估值输入未完成认证，本轮不认证赔率。",
     "marketRefresh": {
-      "adapterVersion": 4,
+      "adapterVersion": 6,
       "checkedAt": "2026-10-20T04:34:46.806551+00:00",
       "evidenceCheckedAt": "2026-10-20T04:34:46.806551+00:00",
       "priceDate": "2026-10-19",
