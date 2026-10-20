@@ -498,7 +498,10 @@ export default function Dcf(): JSX.Element {
                 cand.setNote(candMarket, current.c, candidateNote());
                 setCandNotice(`已${inPool ? "更新" : "加入"}候选池：${current.n}。可在“候选池”页查看`);
               },
-              onRemove: () => { cand.toggle(candMarket, current.c); setCandNotice(`已从候选池移出：${current.n}`); },
+              onRemove: () => {
+                if (cand.items.some((i) => i.market === candMarket && i.code === current.c && i.decisions?.length)) { setCandNotice(`${current.n} 有决策记录，请到“候选池”页移除`); return; }
+                cand.toggle(candMarket, current.c); setCandNotice(`已从候选池移出：${current.n}`);
+              },
             } : null}
           />
           {candNotice && <p className="dcf-muted dcf-gap-sm" role="status">{candNotice}</p>}

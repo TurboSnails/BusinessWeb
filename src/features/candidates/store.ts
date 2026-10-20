@@ -1,5 +1,5 @@
-import { MAX_NOTE, candidateKey, validCandidatesPayload } from './validation'
-import type { CandidateItem, CandidateMarket } from './validation'
+import { MAX_DECISIONS, MAX_NOTE, candidateKey, validCandidatesPayload } from './validation'
+import type { CandidateItem, CandidateMarket, DecisionRecord } from './validation'
 
 export const CANDIDATES_KEY = 'rn-candidates'
 export const CANDIDATES_TOKEN_KEY = 'rn-candidates-token'
@@ -9,8 +9,31 @@ type FetchLike = typeof fetch
 // ── 纯函数：列表操作，顺序即用户排序 ──
 export const hasCandidate = (list: CandidateItem[], market: string, code: string): boolean => list.some(i => i.market === market && i.code === code)
 
+// 已有决策记录的公司不会被「切换」移出，避免在公司页等处误点删掉档案；需要时用 removeCandidate 明确移除
 export function toggleCandidate(list: CandidateItem[], market: CandidateMarket, code: string, now = new Date().toISOString()): CandidateItem[] {
-  return hasCandidate(list, market, code) ? list.filter(i => candidateKey(i) !== `${market}:${code}`) : [...list, { market, code, addedAt: now }]
+  const existing = list.find(i => i.market === market && i.code === code)
+  if (existing?.decisions?.length) return list
+  return existing ? removeCandidate(list, market, code) : [...list, { market, code, addedAt: now }]
+}
+
+export function removeCandidate(list: CandidateItem[], market: string, code: string): CandidateItem[] {
+  return list.filter(i => candidateKey(i) !== `${market}:${code}`)
+}
+
+// ── 决策记录：只追加，不修改已有版本；超过上限时拒绝（返回原列表） ──
+export function addDecision(list: CandidateItem[], market: string, code: string, record: DecisionRecord): CandidateItem[] {
+  return list.map(i => {
+    if (i.market !== market || i.code !== code) return i
+    const decisions = i.decisions ?? []
+    if (decisions.length >= MAX_DECISIONS) return i
+    return { ...i, decisions: [...decisions, record] }
+  })
+}
+export const latestDecision = (item: CandidateItem): DecisionRecord | undefined => item.decisions?.[item.decisions.length - 1]
+/** 最新一条记录的下次检查日已到（含当天） */
+export const isReviewDue = (item: CandidateItem, today: string): boolean => {
+  const latest = latestDecision(item)
+  return !!latest && latest.nextCheck <= today
 }
 
 export function moveCandidate(list: CandidateItem[], from: number, to: number): CandidateItem[] {

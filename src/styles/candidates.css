@@ -8,7 +8,7 @@
 
 .cand-stats {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
   gap: var(--space-3);
   margin: 0 0 var(--space-5);
 }
@@ -98,8 +98,12 @@
 }
 
 .cand-table .cand-verdict {
-  min-width: 12rem;
-  max-width: 18rem;
+  min-width: 11rem;
+  max-width: 16rem;
+}
+
+.cand-table .rn-wide {
+  min-width: 11rem;
 }
 
 .cand-verdict strong {
@@ -169,6 +173,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  margin-top: 8px;
 }
 
 .cand-tools .tool-btn {
@@ -246,7 +251,7 @@
 
 @media (max-width: 560px) {
   .cand-stats {
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: var(--space-2);
   }
 
@@ -265,4 +270,159 @@
   .cand-add {
     min-height: 40px;
   }
+}
+
+/* 决策记录（第37章 37.4） */
+.cand-stats > div.is-due {
+  border-color: var(--accent-warm);
+}
+
+.cand-stats > div.is-due dd {
+  color: var(--warm-ink);
+}
+
+.cand-decision-cell {
+  min-width: 8.5rem;
+}
+
+.cand-decision {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.cand-decision > span {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.cand-decision small {
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.cand-decision small.is-due {
+  color: var(--warm-ink);
+  font-weight: 600;
+}
+
+.decision-lead,
+.decision-snapshot {
+  margin: 0 0 var(--space-3);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  line-height: 1.7;
+}
+
+.decision-snapshot {
+  margin-top: var(--space-3);
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+}
+
+.decision-quick {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.decision-quick .tool-btn {
+  padding: 2px 8px;
+  font-size: 0.75rem;
+}
+
+.decision-full {
+  margin: var(--space-3) 0;
+}
+
+.decision-full > summary {
+  margin-bottom: var(--space-3);
+  color: var(--accent);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.decision-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  align-self: end;
+  min-height: 40px;
+  font-size: 0.85rem;
+}
+
+.decision-error {
+  margin: var(--space-3) 0 0;
+  color: var(--system-red);
+  font-size: 0.82rem;
+}
+
+.decision-history {
+  margin: var(--space-4) 0 var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.decision-history h3 {
+  margin: 0 0 var(--space-2);
+  font-size: 0.9rem;
+}
+
+.decision-history ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.decision-history li + li {
+  margin-top: 6px;
+}
+
+.decision-history summary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.decision-history summary span {
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.decision-history dl {
+  display: grid;
+  grid-template-columns: 5.5em minmax(0, 1fr);
+  gap: 4px 10px;
+  margin: 8px 0 0;
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+.decision-history dt {
+  color: var(--text-secondary);
+}
+
+.decision-history dd {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 640px) {
+  .decision-dialog .ui-form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* 排序与移除按钮在候选池里允许两行排列，避免表格横向滚动 */
+.cand-table .rn-row-actions {
+  flex-wrap: wrap;
+  max-width: 8.5rem;
+  white-space: normal;
 }

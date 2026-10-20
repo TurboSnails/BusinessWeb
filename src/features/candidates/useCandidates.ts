@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { clearToken, loadLocal, loadToken, mergeCandidates, moveCandidate, readCloud, saveLocal, saveToken, setCandidateNote, toggleCandidate, writeCloud } from './store'
+import { addDecision, clearToken, loadLocal, loadToken, mergeCandidates, moveCandidate, readCloud, removeCandidate, saveLocal, saveToken, setCandidateNote, toggleCandidate, writeCloud } from './store'
 import type { CloudError } from './store'
-import type { CandidateItem, CandidateMarket } from './validation'
+import type { CandidateItem, CandidateMarket, DecisionRecord } from './validation'
 
 export type SyncState = 'no-token' | 'syncing' | 'synced' | 'error'
 
@@ -64,7 +64,13 @@ export function useCandidates(enabled: boolean) {
 
   return {
     items, state, message,
-    toggle: (market: CandidateMarket, code: string): void => push(toggleCandidate(itemsRef.current, market, code)),
+    toggle: (market: CandidateMarket, code: string): void => {
+      const next = toggleCandidate(itemsRef.current, market, code)
+      if (next === itemsRef.current) { setMessage('这家公司已有决策记录，如需移除请到候选池操作'); return }
+      push(next)
+    },
+    remove: (market: CandidateMarket, code: string): void => push(removeCandidate(itemsRef.current, market, code)),
+    addDecision: (market: CandidateMarket, code: string, record: DecisionRecord): void => push(addDecision(itemsRef.current, market, code, record)),
     move: (from: number, to: number): void => push(moveCandidate(itemsRef.current, from, to)),
     setNote: (market: CandidateMarket, code: string, note: string): void => push(setCandidateNote(itemsRef.current, market, code, note)),
     clear: (): void => push([]),

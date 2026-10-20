@@ -15,7 +15,7 @@ function Harness(): JSX.Element {
   return (
     <MemoryRouter>
       {companies.map(x => <button key={x.code} onClick={() => c.toggle(x.market, x.code)}>add-{x.code}</button>)}
-      <CandidatePool items={c.items} companies={companies} state={c.state} message={c.message} onMove={c.move} onRemove={i => c.toggle(i.market, i.code)} onNote={(i, t) => c.setNote(i.market, i.code, t)} onClear={c.clear} onConnect={c.connect} onRetry={c.retry} />
+      <CandidatePool items={c.items} companies={companies} state={c.state} message={c.message} onMove={c.move} onDecision={(i, r) => c.addDecision(i.market, i.code, r)} onRemove={i => c.remove(i.market, i.code)} onNote={(i, t) => c.setNote(i.market, i.code, t)} onClear={c.clear} onConnect={c.connect} onRetry={c.retry} />
     </MemoryRouter>
   )
 }
@@ -110,12 +110,58 @@ describe('CandidatePool：按 DCF 筛选', () => {
       input: { currency: 'USD' }, result: { price: r.price, mos: r.mos }, wacc: {}, multiples: [],
     }))
     const items = ['A', 'B', 'C'].map(code => ({ market: 'us' as const, code, addedAt: '2026-10-01T00:00:00Z' }))
-    render(<MemoryRouter><CandidatePool items={items} companies={companies} tools={{ dcf: dcf as never, valuation: [], grid: [] }} state="no-token" message="" onMove={() => {}} onRemove={() => {}} onNote={() => {}} onClear={() => {}} onConnect={() => true} onRetry={() => {}} /></MemoryRouter>)
+    render(<MemoryRouter><CandidatePool items={items} companies={companies} tools={{ dcf: dcf as never, valuation: [], grid: [] }} state="no-token" message="" onMove={() => {}} onDecision={() => {}} onRemove={() => {}} onNote={() => {}} onClear={() => {}} onConnect={() => true} onRetry={() => {}} /></MemoryRouter>)
     expect(order()).toEqual(['A', 'B', 'C'])
     fireEvent.click(screen.getByRole('button', { name: '安全边际 ≥20%' }))
     expect(order()).toEqual(['A'])
     expect(screen.getByRole('button', { name: '下移 A' }).hasAttribute('disabled')).toBe(true)
     fireEvent.click(screen.getByRole('button', { name: '不适用/未覆盖' }))
     expect(order()).toEqual(['C'])
+  })
+})
+
+describe('决策记录', () => {
+  beforeEach(() => { localStorage.clear(); vi.stubGlobal('fetch', vi.fn(async () => new Response('{}', { status: 503 }))) })
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('三行必填，保存为新版本并显示最新动作与下次检查日；有记录后切换不再移出，移除需确认', async () => {
+    render(<Harness />)
+    fireEvent.click(screen.getByText('add-A'))
+    fireEvent.click(screen.getByRole('button', { name: '写决策记录 A' }))
+    const dialog = screen.getByRole('dialog')
+    fireEvent.click(screen.getByRole('button', { name: '保存' }))
+    expect(screen.getByRole('alert').textContent).toContain('为什么买、什么情况说明我错了、下次检查日')
+
+    fireEvent.change(screen.getByLabelText(/我为什么买/), { target: { value: '续约稳定，现金回款与利润匹配' } })
+    fireEvent.change(screen.getByLabelText(/什么情况说明我错了/), { target: { value: '毛利率同比下降 5 个百分点以上' } })
+    fireEvent.change(screen.getByLabelText(/下次检查日/), { target: { value: '2027-04-30' } })
+    fireEvent.change(screen.getByLabelText('这次的决定'), { target: { value: 'buy' } })
+    fireEvent.click(screen.getByRole('button', { name: '保存' }))
+    expect(dialog.isConnected).toBe(false)
+    expect(screen.getByText('下次检查 2027-04-30')).toBeTruthy()
+    expect(screen.getByText('买入')).toBeTruthy()
+    const saved = JSON.parse(localStorage.getItem('rn-candidates') ?? '[]')
+    expect(saved[0].decisions[0]).toMatchObject({ action: 'buy', why: '续约稳定，现金回款与利润匹配', nextCheck: '2027-04-30', snapshot: { rating: '观察' } })
+
+    // 更新：沿用上一版内容，保存为第二个版本，旧版本保留
+    fireEvent.click(screen.getByRole('button', { name: '查看与更新决策记录 A' }))
+    expect((screen.getByLabelText(/我为什么买/) as HTMLTextAreaElement).value).toBe('续约稳定，现金回款与利润匹配')
+    fireEvent.change(screen.getByLabelText(/下次检查日/), { target: { value: '2027-10-31' } })
+    fireEvent.click(screen.getByRole('button', { name: '保存为新版本' }))
+    expect(JSON.parse(localStorage.getItem('rn-candidates') ?? '[]')[0].decisions.map((r: { nextCheck: string }) => r.nextCheck)).toEqual(['2027-04-30', '2027-10-31'])
+
+    fireEvent.click(screen.getByText('add-A'))
+    expect(order()).toEqual(['A'])
+    fireEvent.click(screen.getByRole('button', { name: '移除 A' }))
+    expect(order()).toEqual(['A'])
+    fireEvent.click(screen.getByRole('button', { name: '确认移除' }))
+    expect(order()).toEqual([])
+  })
+
+  it('下次检查日已到时标出待复查', () => {
+    localStorage.setItem('rn-candidates', JSON.stringify([{ market: 'us', code: 'B', addedAt: '2026-10-02T00:00:00.000Z', decisions: [{ at: '2026-01-01T00:00:00.000Z', action: 'watch', why: 'w', wrong: 'x', nextCheck: '2026-02-01' }] }]))
+    render(<Harness />)
+    expect(screen.getByText('待复查')).toBeTruthy()
+    expect(screen.getByRole('button', { name: '查看与更新决策记录 B' }).textContent).toContain('复查')
   })
 })

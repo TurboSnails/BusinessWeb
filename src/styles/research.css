@@ -414,6 +414,10 @@
   cursor: pointer;
 }
 
+a.rn-cand {
+  text-decoration: none;
+}
+
 .rn-cand[aria-pressed='true'] {
   border-color: transparent;
   background: color-mix(in srgb, var(--down) 14%, transparent);

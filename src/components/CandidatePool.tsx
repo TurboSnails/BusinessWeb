@@ -3,12 +3,14 @@ import { Link } from 'react-router-dom'
 import type { Company } from '../data/companies'
 import { researchForCode, researchPath } from '../data/futureTrendsResearch'
 import type { SyncState } from '../features/candidates/useCandidates'
-import { MAX_NOTE } from '../features/candidates/validation'
-import type { CandidateItem } from '../features/candidates/validation'
+import { DECISION_ACTIONS, MAX_NOTE } from '../features/candidates/validation'
+import type { CandidateItem, DecisionRecord, DecisionSnapshot } from '../features/candidates/validation'
+import { isReviewDue, latestDecision } from '../features/candidates/store'
+import DecisionDialog, { localDay } from './DecisionDialog'
 import { dcfOf, MARKET_LABEL, dcfLink, gridLink, toolProgress, valuationLink, type ToolProgress, type ToolSources } from '../features/candidates/links'
 import { matchDcfFilter, type DcfFilterId } from '../features/dcf/filter'
 import { DcfFilterChips } from './DcfCell'
-import { Card, TableWrap } from './ui'
+import { Badge, Card, TableWrap } from './ui'
 import '../styles/research.css'
 
 interface Props {
@@ -20,6 +22,7 @@ interface Props {
   message: string
   onMove: (from: number, to: number) => void
   onRemove: (item: CandidateItem) => void
+  onDecision: (item: CandidateItem, record: DecisionRecord) => void
   onNote: (item: CandidateItem, note: string) => void
   onClear: () => void
   onConnect: (token: string) => boolean
@@ -55,13 +58,44 @@ function Progress({ p }: { p: ToolProgress }): JSX.Element {
   )
 }
 
-export default function CandidatePool({ items, companies, tools = NO_TOOLS, state, message, onMove, onRemove, onNote, onClear, onConnect, onRetry }: Props): JSX.Element {
+/** 记录决策时自动带上的依据：研究评级、最新价格、本机 DCF */
+function snapshotOf(company: Company | undefined, rating: string, p: ToolProgress): DecisionSnapshot {
+  const s: DecisionSnapshot = {}
+  if (rating && rating !== '—') s.rating = rating.slice(0, 100)
+  const refresh = company?.marketRefresh
+  if (refresh && Number.isFinite(refresh.price)) { s.price = refresh.price; if (/^\d{4}-\d{2}-\d{2}$/.test(refresh.priceDate)) s.priceDate = refresh.priceDate }
+  if (p.dcf && p.dcf.price !== null && Number.isFinite(p.dcf.price)) {
+    s.dcfPrice = p.dcf.price; s.dcfCurrency = p.dcf.currency.slice(0, 8); s.dcfDate = p.dcf.savedAt.slice(0, 10)
+    if (p.dcf.mos !== null && Number.isFinite(p.dcf.mos)) s.dcfMos = p.dcf.mos
+  }
+  return s
+}
+
+/** 决策记录列：最新动作与下次检查日，到期标出待复查 */
+function DecisionCell({ item, today, onOpen }: { item: CandidateItem; today: string; onOpen: () => void }): JSX.Element {
+  const latest = latestDecision(item)
+  if (!latest) return <button type="button" className="tool-btn" onClick={onOpen} aria-label={`写决策记录 ${item.code}`}>写决策记录</button>
+  const due = isReviewDue(item, today)
+  return (
+    <div className="cand-decision">
+      <span><Badge tone="accent">{DECISION_ACTIONS[latest.action]}</Badge>{due && <Badge tone="warm">待复查</Badge>}</span>
+      <small className={due ? 'is-due' : undefined}>下次检查 {latest.nextCheck}</small>
+      <button type="button" className="tool-btn" onClick={onOpen} aria-label={`查看与更新决策记录 ${item.code}`}>{due ? '复查' : '更新'} · {item.decisions?.length}</button>
+    </div>
+  )
+}
+
+export default function CandidatePool({ items, companies, tools = NO_TOOLS, state, message, onMove, onRemove, onDecision, onNote, onClear, onConnect, onRetry }: Props): JSX.Element {
   const [dragFrom, setDragFrom] = useState<number | null>(null)
   const [over, setOver] = useState<number | null>(null)
   const [token, setToken] = useState('')
   const [tokenError, setTokenError] = useState(false)
   const [confirmClear, setConfirmClear] = useState(false)
   const [dcfF, setDcfF] = useState<DcfFilterId>('all')
+  const [editing, setEditing] = useState<string | null>(null)
+  const [confirmRemove, setConfirmRemove] = useState<string | null>(null)
+  const today = localDay()
+  const recordCount = items.reduce((n, i) => n + (i.decisions?.length ?? 0), 0)
   const byKey = new Map(companies.map(c => [`${c.market}:${c.code}`, c]))
 
   // 公司库优先；不在公司库的（从研究筛出加入的）用主题研究的结论
@@ -74,7 +108,7 @@ export default function CandidatePool({ items, companies, tools = NO_TOOLS, stat
   }
 
   const exportJson = (): void => {
-    const rows = items.map((i, n) => { const d = describe(i); return { 序号: n + 1, 市场: MARKET_LABEL[i.market], 代码: i.code, 公司: d.name, 备注: i.note ?? '', 评级: d.rating, 结论: d.headline, 加入时间: i.addedAt } })
+    const rows = items.map((i, n) => { const d = describe(i); return { 序号: n + 1, 市场: MARKET_LABEL[i.market], 代码: i.code, 公司: d.name, 备注: i.note ?? '', 评级: d.rating, 结论: d.headline, 加入时间: i.addedAt, 决策记录: i.decisions ?? [] } })
     const url = URL.createObjectURL(new Blob([JSON.stringify(rows, null, 2)], { type: 'application/json' }))
     const a = document.createElement('a'); a.href = url; a.download = `候选池-${new Date().toISOString().slice(0, 10)}.json`
     document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000)
@@ -93,7 +127,7 @@ export default function CandidatePool({ items, companies, tools = NO_TOOLS, stat
         <button type="button" className="tool-btn" disabled={!items.length} onClick={exportJson}>⬇ 导出 JSON</button>
         {confirmClear ? (
           <span className="cand-confirm" role="group" aria-label="确认清空">
-            <span>清空全部 {items.length} 家？会同步到云端。</span>
+            <span>清空全部 {items.length} 家{recordCount ? `（含 ${recordCount} 条决策记录）` : ''}？会同步到云端。</span>
             <button type="button" className="tool-btn tool-btn--danger" onClick={() => { setConfirmClear(false); onClear() }}>确认清空</button>
             <button type="button" className="tool-btn" onClick={() => setConfirmClear(false)}>取消</button>
           </span>
@@ -117,7 +151,7 @@ export default function CandidatePool({ items, companies, tools = NO_TOOLS, stat
       ) : (
         <TableWrap label="候选池列表">
           <table className="ui-table rn-table--top cand-table">
-            <thead><tr>{['#', '公司', '我的备注', '研究结论', '估值进度', '去估值', '排序'].map(h => <th key={h} scope="col">{h}</th>)}</tr></thead>
+            <thead><tr>{['#', '公司', '决策记录', '我的备注', '研究结论', '估值', '排序'].map(h => <th key={h} scope="col">{h}</th>)}</tr></thead>
             <tbody>{items.map((i, n) => {
               if (!matchDcfFilter(dcfF, dcfOf(i.market, i.code, tools))) return null
               const d = describe(i)
@@ -130,10 +164,11 @@ export default function CandidatePool({ items, companies, tools = NO_TOOLS, stat
                     {d.href ? <Link to={d.href} className="rn-link">{d.name || i.code} {i.code}</Link> : <span>{i.code}</span>}
                     <small>{MARKET_LABEL[i.market]} · <Link to={`/research-notes/company/${i.market}/${encodeURIComponent(i.code)}/notes`} className="rn-link">研究笔记</Link></small>
                   </td>
+                  <td className="cand-decision-cell"><DecisionCell item={i} today={today} onOpen={() => setEditing(`${i.market}:${i.code}`)} /></td>
                   <td className="rn-wide"><NoteEditor key={`${i.note ?? ''}`} code={i.code} value={i.note ?? ''} onSave={text => onNote(i, text)} /></td>
                   <td className="cand-verdict"><strong>{d.rating}</strong><span>{d.headline}</span></td>
-                  <td className="cand-progress-cell"><Progress p={toolProgress(i.market, i.code, tools)} /></td>
-                  <td>
+                  <td className="cand-progress-cell">
+                    <Progress p={toolProgress(i.market, i.code, tools)} />
                     <div className="cand-tools">
                       <Link className="tool-btn" to={valuationLink(i.market, i.code)} aria-label={`估值工作台 ${i.code}`}>估值</Link>
                       <Link className="tool-btn" to={dcfLink(i.market, i.code, d.name)} aria-label={`DCF ${i.code}`}>DCF</Link>
@@ -145,7 +180,15 @@ export default function CandidatePool({ items, companies, tools = NO_TOOLS, stat
                       <button type="button" className="tool-btn" aria-label={`上移 ${i.code}`} disabled={dcfF !== 'all' || n === 0} onClick={() => onMove(n, n - 1)}>↑</button>
                       <button type="button" className="tool-btn" aria-label={`下移 ${i.code}`} disabled={dcfF !== 'all' || n === items.length - 1} onClick={() => onMove(n, n + 1)}>↓</button>
                       <button type="button" className="tool-btn" aria-label={`置顶 ${i.code}`} disabled={dcfF !== 'all' || n === 0} onClick={() => onMove(n, 0)}>置顶</button>
-                      <button type="button" className="tool-btn" aria-label={`移除 ${i.code}`} onClick={() => onRemove(i)}>移除</button>
+                      {confirmRemove === `${i.market}:${i.code}` ? (
+                        <span className="cand-confirm" role="group" aria-label={`确认移除 ${i.code}`}>
+                          <span>含 {i.decisions?.length} 条决策记录，一并删除？</span>
+                          <button type="button" className="tool-btn tool-btn--danger" onClick={() => { setConfirmRemove(null); onRemove(i) }}>确认移除</button>
+                          <button type="button" className="tool-btn" onClick={() => setConfirmRemove(null)}>取消</button>
+                        </span>
+                      ) : (
+                        <button type="button" className="tool-btn" aria-label={`移除 ${i.code}`} onClick={() => (i.decisions?.length ? setConfirmRemove(`${i.market}:${i.code}`) : onRemove(i))}>移除</button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -154,6 +197,13 @@ export default function CandidatePool({ items, companies, tools = NO_TOOLS, stat
           </table>
         </TableWrap>
       )}
+      {(() => {
+        const item = items.find(i => `${i.market}:${i.code}` === editing)
+        if (!item) return null
+        const d = describe(item)
+        return <DecisionDialog key={editing ?? ''} open onClose={() => setEditing(null)} name={`${d.name || item.code} ${item.code}`} records={item.decisions ?? []}
+          snapshot={snapshotOf(byKey.get(`${item.market}:${item.code}`), d.rating, toolProgress(item.market, item.code, tools))} onSave={record => onDecision(item, record)} />
+      })()}
       <p className="cand-foot">拖动 ⠿ 序号或用 ↑ ↓ / 置顶调整优先级；备注 Enter 或点别处保存，Shift+Enter 换行，Esc 放弃。仅为个人研究清单，不构成投资建议。</p>
     </Card>
   )

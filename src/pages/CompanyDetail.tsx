@@ -9,6 +9,7 @@ import { CN_REPORT } from '../data/cnReassessment'
 import { SP500_REPORT } from '../data/sp500Reassessment'
 import CandidateButton from '../components/CandidateButton'
 import { useCandidates } from '../features/candidates/useCandidates'
+import { latestDecision } from '../features/candidates/store'
 import { priceAnchorAge } from '../features/dcf/priceAnchor'
 import { buildDcfLink } from '../features/dcf'
 import QuickDcf from '../components/QuickDcf'
@@ -155,7 +156,14 @@ export default function CompanyDetail(): JSX.Element {
         {company.marketRefresh && <PageDataFreshness checkedAt={company.marketRefresh.checkedAt} dataLabel="行情日期" dataDates={[company.marketRefresh.priceDate]} researchAsOf={company.marketRefresh.originalAsOf} />}
         <div className="ui-cluster">
           <span className="rn-rating" style={{ color: TONE_INK[tone] }}>{company.rating}</span>
-          <CandidateButton on={cand.items.some(i => i.market === company.market && i.code === company.code)} onClick={() => cand.toggle(company.market, company.code)} />
+          {(() => {
+            const item = cand.items.find(i => i.market === company.market && i.code === company.code)
+            const latest = item && latestDecision(item)
+            // 有决策记录的公司只在候选池里移除，这里直接链接到记录
+            return latest
+              ? <Link to="/candidates" className="rn-cand">✓ 已候选 · 决策记录 {item.decisions?.length} 条 · 下次检查 {latest.nextCheck}</Link>
+              : <CandidateButton on={!!item} onClick={() => cand.toggle(company.market, company.code)} />
+          })()}
         </div>
         {priceAge && (
           <p role="status" className={priceAge.stale ? 'rn-price-age is-stale' : 'rn-price-age'}>

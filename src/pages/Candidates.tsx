@@ -7,6 +7,8 @@ import { DcfCell, DcfFilterChips } from '../components/DcfCell'
 import { matchDcfFilter, type DcfFilterId } from '../features/dcf/filter'
 import { Page } from '../components/ui'
 import { useCompanies } from '../data/companies'
+import { localDay } from '../components/DecisionDialog'
+import { isReviewDue } from '../features/candidates/store'
 import { RESEARCH_INDEX, type ResearchSummary } from '../data/futureTrendsResearch'
 import { poolBucket } from '../data/futureTrendsPresentation'
 import { useCandidates } from '../features/candidates/useCandidates'
@@ -37,6 +39,9 @@ export default function Candidates(): JSX.Element {
 
   const [dcfF, setDcfF] = useState<DcfFilterId>('all')
   const valued = cand.items.filter(i => { const p = toolProgress(i.market, i.code, tools); return p.dcf || p.valuation }).length
+  const today = localDay()
+  const due = cand.items.filter(i => isReviewDue(i, today)).length
+  const recorded = cand.items.filter(i => i.decisions?.length).length
   const buyable = useMemo(() => RESEARCH_INDEX.filter(r => poolBucket(r) === 'buy').length, [])
 
   // 研究筛出按 DCF 筛选：对应不上四个市场的公司没有 DCF 记录，只在「全部」和「未算」里出现
@@ -70,6 +75,8 @@ export default function Candidates(): JSX.Element {
       <dl className="cand-stats" aria-label="候选池概况">
         <div><dt>我的候选</dt><dd>{cand.items.length}<small> 家</small></dd></div>
         <div><dt>已做估值</dt><dd>{valued}<small> / {cand.items.length}</small></dd></div>
+        <div><dt>有决策记录</dt><dd>{recorded}<small> / {cand.items.length}</small></dd></div>
+        <div className={due ? 'is-due' : undefined}><dt>到期待复查</dt><dd>{due}<small> 家</small></dd></div>
         <div><dt>研究筛出 · 可买卖</dt><dd>{buyable}<small> 家</small></dd></div>
       </dl>
 
@@ -82,12 +89,12 @@ export default function Candidates(): JSX.Element {
         <>
           <ol className="cand-flow" aria-label="使用流程">
             <li><strong>挑公司</strong>在<Link to="/research-notes">公司研究</Link>点「加入候选」，或在「研究筛出」里加入</li>
-            <li><strong>写条件</strong>备注里写清楚等什么价格、什么情况放弃</li>
+            <li><strong>写记录</strong>点「写决策记录」：为什么买、什么情况说明错了、下次检查日；到期会标出「待复查」</li>
             <li><strong>算价格</strong>点「估值」「DCF」，代码和市场自动带入；结果回到这里显示</li>
             <li><strong>管节奏</strong>A 股和 ETF 可以直接进「网格」回测</li>
           </ol>
           <CandidatePool items={cand.items} companies={companies} tools={tools} state={cand.state} message={cand.message}
-            onMove={cand.move} onRemove={i => cand.toggle(i.market, i.code)} onNote={(i, t) => cand.setNote(i.market, i.code, t)}
+            onMove={cand.move} onRemove={i => cand.remove(i.market, i.code)} onDecision={(i, r) => cand.addDecision(i.market, i.code, r)} onNote={(i, t) => cand.setNote(i.market, i.code, t)}
             onClear={cand.clear} onConnect={cand.connect} onRetry={cand.retry} />
         </>
       ) : (
