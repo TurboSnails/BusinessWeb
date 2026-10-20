@@ -1,19 +1,8 @@
 // 按“最终返回标准”补全的公司深度内容（来自 Notion 各公司研究页）。
 // key 为 “市场:代码”，如 'us:PEP'。字段覆盖 companies.ts 中的同名字段；未覆盖的字段保持原值。
 // 情景价、概率与期望收益均为研究假设，不是目标价，也不是历史回测胜率。
-import type { Company } from './companies'
+import type { Company, Market } from './companies'
 import { parseDetails, mergeDetails } from './detailParser'
-import { healthDetails } from './details/health'
-import { profileDetails } from './details/profiles'
-import { financeDetails } from './details/finance'
-import { consumerDetails } from './details/consumer'
-import { staplesDetails } from './details/staples'
-import { itDetails } from './details/it'
-import { cnDetails } from './details/cn'
-import { casinoDetails } from './details/casino'
-import { itCoreDetails } from './details/itCore'
-import { extraDetails } from './details/extra'
-import { ndxDetails } from './details/ndx'
 
 const manual: Record<string, Partial<Company>> = {
   'us:PEP': {
@@ -459,6 +448,38 @@ const manual: Record<string, Partial<Company>> = {
   },
 }
 
-// 本轮逐家原件复核优先于历史手写与批量文本，避免旧情景和价位重新覆盖。
-// 港股（hk）与 ADR（adr、sofi）详情体量大，见 details/hkGroup.ts、details/adrGroup.ts，由 companyCore 按市场懒加载后合并在最后。
-export const companyDetails: Record<string, Partial<Company>> = mergeDetails(parseDetails(healthDetails), parseDetails(financeDetails), parseDetails(consumerDetails), parseDetails(staplesDetails), parseDetails(itDetails), parseDetails(cnDetails), parseDetails(casinoDetails), parseDetails(profileDetails), parseDetails(itCoreDetails), parseDetails(extraDetails), parseDetails(ndxDetails), manual)
+type Details = Record<string, Partial<Company>>
+const text = (source: string): Details => parseDetails(source)
+
+// 各市场的详情来源与合并顺序（后者覆盖前者同名字段）。本轮逐家原件复核优先于历史手写与批量文本，
+// 避免旧情景和价位重新覆盖；手写 manual 位于批量文本之后、港股/ADR 原件复核之前，与拆分前的全局合并顺序一致。
+// 每个市场只下载自己的详情文件：美股批量文本约 250KB（gzip），不再随 A 股、港股等页面加载。
+const sources: Record<Market, () => Promise<Details[]>> = {
+  us: async () => {
+    const [health, finance, consumer, staples, it, casino, profiles, itCore] = await Promise.all([
+      import('./details/health'), import('./details/finance'), import('./details/consumer'), import('./details/staples'),
+      import('./details/it'), import('./details/casino'), import('./details/profiles'), import('./details/itCore'),
+    ])
+    return [text(health.healthDetails), text(finance.financeDetails), text(consumer.consumerDetails), text(staples.staplesDetails), text(it.itDetails),
+      text(casino.casinoDetails), text(profiles.profileDetails), text(itCore.itCoreDetails), manual]
+  },
+  cn: async () => {
+    const [cn, profiles] = await Promise.all([import('./details/cn'), import('./details/profiles')])
+    return [text(cn.cnDetails), text(profiles.profileDetails), manual]
+  },
+  hk: async () => {
+    const [extra, hk] = await Promise.all([import('./details/extra'), import('./details/hk')])
+    return [text(extra.extraDetails), manual, text(hk.hkDetails)]
+  },
+  adr: async () => {
+    const [extra, adr, sofi] = await Promise.all([import('./details/extra'), import('./details/adr'), import('./details/sofi')])
+    return [text(extra.extraDetails), manual, text(adr.adrDetails), text(sofi.sofiDetails)]
+  },
+  ndx: async () => [text((await import('./details/ndx')).ndxDetails), manual],
+}
+
+/** 某市场的公司深度内容，key 为“市场:代码”；只含该市场的条目 */
+export const loadCompanyDetails = async (market: Market): Promise<Details> => {
+  const merged = mergeDetails(...await sources[market]())
+  return Object.fromEntries(Object.entries(merged).filter(([key]) => key.startsWith(market + ':')))
+}

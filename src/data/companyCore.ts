@@ -1,10 +1,9 @@
 // 公司库重数据：手工行数据、深度研究页、复核覆盖与行情快照。
 // 只通过 companies.ts 的 loadCompanies 动态加载，避免进入引用 Company 类型或 hooks 的页面首包；
-// A 股分板块复核、港股与 ADR 详情体量大，再按市场单独拆包。
+// 深度详情（companyDetails）与 A 股分板块复核按市场单独拆包。
 import type { Company, Market } from './companies'
 import { notionIds, notionUrl } from './notionLinks'
-import { companyDetails } from './companyDetails'
-import { mergeDetails } from './detailParser'
+import { loadCompanyDetails } from './companyDetails'
 import { applyCnReassessment } from './cnReassessment'
 import { applySp500Reassessment } from './sp500Reassessment'
 import { applySectorFactReview } from './sectorFactReview'
@@ -534,15 +533,8 @@ AI 算力|算法与行业应用|300496|中科创达|产业链标的|布局端侧
 const cnKnown = new Set(cnCoreBase.map(c => c.code))
 const cnBase: Company[] = [...cnCoreBase, ...cnChain.filter(c => !cnKnown.has(c.code))]
 
-type Details = Record<string, Partial<Company>>
 type Apply = (company: Company) => Company
 
-// 港股 / ADR 详情只在对应市场加载；合并顺序与原先一致（extra、manual 在前，hk、adr、sofi 在后）
-const detailsOf = async (market: Market): Promise<Details> => {
-  if (market === 'hk') return mergeDetails(companyDetails, (await import('./details/hkGroup')).hkGroupDetails)
-  if (market === 'adr') return mergeDetails(companyDetails, (await import('./details/adrGroup')).adrGroupDetails)
-  return companyDetails
-}
 // A 股分板块复核最后覆盖，只对 cn 生效；其余市场为恒等变换
 const cnSectorOf = async (market: Market): Promise<Apply> =>
   market === 'cn' ? (await import('./cnSectorResearch')).applyCnSectorResearch : c => c
@@ -556,7 +548,7 @@ export interface ResolvedMarket {
 }
 
 export const resolveMarket = async (market: Market): Promise<ResolvedMarket> => {
-  const [details, applyCnSectorResearch] = await Promise.all([detailsOf(market), cnSectorOf(market)])
+  const [details, applyCnSectorResearch] = await Promise.all([loadCompanyDetails(market), cnSectorOf(market)])
   const withDetails = (list: Company[]): Company[] => list.map(c => (details[c.market + ':' + c.code] ? { ...c, ...details[c.market + ':' + c.code] } : c))
   const base =
     market === 'us' ? withDetails(usBase).map(applySp500Reassessment).map(applySectorFactReview).map(refreshMarket)
