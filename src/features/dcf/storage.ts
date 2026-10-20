@@ -17,6 +17,9 @@ const isStatus = (v: unknown): v is DcfStatus =>
   ["calculated", "notApplicable", "missingData", "invalidInput"].includes(
     v as string,
   );
+type Rec = Record<string, unknown>;
+/** 与 list.includes(x) 相同，只是接受 unknown */
+const oneOf = (list: readonly string[], x: unknown) => list.includes(x as string);
 const strings = (v: unknown): v is string[] =>
   Array.isArray(v) && v.every((x) => typeof x === "string");
 
@@ -40,15 +43,16 @@ export function makeDcfKey(
   return ["dcf", input.market ?? "other", code, name].join("|");
 }
 
-function validInput(v: any): boolean {
+function validInput(value: unknown): boolean {
+  const v = value as Rec;
   return (
     !!v &&
     typeof v.company === "string" &&
     typeof v.code === "string" &&
-    ["cn", "hk", "us", "other"].includes(v.market) &&
-    ["CNY", "HKD", "USD"].includes(v.currency) &&
-    ["yuan", "wan", "yi"].includes(v.moneyUnit) &&
-    ["share", "wan", "yi"].includes(v.shareUnit) &&
+    oneOf(["cn", "hk", "us", "other"], v.market) &&
+    oneOf(["CNY", "HKD", "USD"], v.currency) &&
+    oneOf(["yuan", "wan", "yi"], v.moneyUnit) &&
+    oneOf(["share", "wan", "yi"], v.shareUnit) &&
     Number.isFinite(v.baseYear) &&
     [
       "baseFcf",
@@ -71,7 +75,8 @@ function validInput(v: any): boolean {
     ["fadeYears", "minority"].every((k) => v[k] === undefined || nullable(v[k]))
   );
 }
-function validResult(v: any): boolean {
+function validResult(value: unknown): boolean {
+  const v = value as Rec;
   return (
     !!v &&
     isStatus(v.status) &&
@@ -87,7 +92,8 @@ function validResult(v: any): boolean {
     )
   );
 }
-function validWacc(v: any): boolean {
+function validWacc(value: unknown): boolean {
+  const v = value as Rec;
   return (
     !!v &&
     isStatus(v.status) &&
@@ -103,12 +109,14 @@ function validWacc(v: any): boolean {
     ].every((k) => nullable(v[k]))
   );
 }
-const validBands = (v: any): boolean =>
+const validBands = (v: unknown): boolean =>
   Array.isArray(v) &&
   v.every(
-    (b: any) =>
-      b && typeof b.label === "string" && finite(b.multiple) &&
-      nullable(b.price) && isStatus(b.status) && typeof b.reason === "string",
+    (item: unknown) => {
+      const b = item as Rec;
+      return !!b && typeof b.label === "string" && finite(b.multiple) &&
+        nullable(b.price) && isStatus(b.status) && typeof b.reason === "string";
+    },
   );
 
 export function isDcfRecord(value: unknown): value is DcfRecord {

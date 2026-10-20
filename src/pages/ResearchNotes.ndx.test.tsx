@@ -37,7 +37,7 @@ const renderAt = (path: string): void => {
 }
 
 const NEW_CODES = ['ALNY', 'ALAB', 'CCEP', 'CRWV', 'FER', 'HONA', 'MSTR', 'NBIS', 'RKLB', 'TRI']
-const num = (s: string): number => Number(s.replace(/[^0-9.\-]/g, ''))
+const num = (s: string): number => Number(s.replace(/[^0-9.-]/g, ''))
 
 describe('纳指100：单独分类', () => {
   it('新增 10 家都是 ndx 市场的手工研究页，含三情景、买入纪律与多空交锋', () => {

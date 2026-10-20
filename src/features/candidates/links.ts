@@ -123,7 +123,7 @@ export function researchToCandidate(ref: ResearchRef, usLists: { us: Set<string>
     if (hk) return { market: 'hk', code: hk[1].padStart(5, '0') }
     return null
   }
-  if (region === '海外' && /^[A-Z][A-Z.\-]{0,9}$/.test(primary) && !FOREIGN_SUFFIX.test(primary)) {
+  if (region === '海外' && /^[A-Z][A-Z.-]{0,9}$/.test(primary) && !FOREIGN_SUFFIX.test(primary)) {
     if (usLists.us.has(primary)) return { market: 'us', code: primary }
     if (usLists.ndx.has(primary)) return { market: 'ndx', code: primary }
     return { market: 'adr', code: primary }

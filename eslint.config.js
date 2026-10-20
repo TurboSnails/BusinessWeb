@@ -21,10 +21,17 @@ export default tseslint.config(
       // 清洗不可见字符的正则是有意为之；JSX 文本里的全角空格用于排版
       'no-control-regex': 'off',
       'no-irregular-whitespace': ['error', { skipJSXText: true, skipStrings: true, skipTemplates: true }],
-      // 存量较多，先以警告形式逐步收敛
-      '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/ban-ts-comment': 'warn',
-      'no-useless-escape': 'warn',
+      // 外部接口数据先用 unknown 接收，在使用处收窄
+      '@typescript-eslint/no-explicit-any': 'error',
+      'no-useless-escape': 'error',
+    },
+  },
+  {
+    // 测试里断言 JSON fixture 可以用 any；项目未装 @types/node，导入 node:fs 等需要 @ts-ignore
+    files: ['src/**/*.test.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/ban-ts-comment': 'off',
     },
   },
 )

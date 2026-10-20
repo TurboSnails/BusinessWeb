@@ -65,9 +65,9 @@ export function dcfLinkFromValuationQuery(query: string, security?: { market: st
   const raw = query.trim()
   const prefixed = /^(cn|hk|us):(.+)$/i.exec(raw)
   const code = (security?.code ?? (prefixed ? prefixed[2] : raw)).trim()
-  const looksLikeCode = /^[\w.\-]{1,20}$/.test(code)
+  const looksLikeCode = /^[\w.-]{1,20}$/.test(code)
   const market = (security?.market ?? prefixed?.[1]?.toLowerCase()
-    ?? (/^\d{6}$/.test(code) ? "cn" : /^\d{1,5}$/.test(code) ? "hk" : /^[A-Za-z][\w.\-]*$/.test(code) ? "us" : "cn")) as "cn" | "hk" | "us";
+    ?? (/^\d{6}$/.test(code) ? "cn" : /^\d{1,5}$/.test(code) ? "hk" : /^[A-Za-z][\w.-]*$/.test(code) ? "us" : "cn")) as "cn" | "hk" | "us";
   const currency: Currency = market === "hk" ? "HKD" : market === "us" ? "USD" : "CNY";
   const qs = new URLSearchParams({ market, currency });
   if (looksLikeCode) qs.set("code", code);

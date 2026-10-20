@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { fallbackPlates, matchesPlateType, parseSectorPayload, toSectors } from './classify'
+import { fallbackPlates, findPlate, matchesPlateType, parseSectorPayload, plateChangePercent, toHotStocks, toSectors } from './classify'
 
 describe('matchesPlateType', () => {
   it('接口带类型字段时以接口为准', () => {
@@ -65,5 +65,33 @@ describe('parseSectorPayload', () => {
     expect(parsed.classifiedBy).toBe('api')
     expect(parsed.sectors).toEqual([])
     expect(parsed.rawData).toEqual([])
+  })
+})
+
+describe('findPlate / plateChangePercent / toHotStocks', () => {
+  const plates = [{ secu_code: 'cls1', secu_name: '机器人', change: 0.031 }, { code: 'cls2', name: '光伏', change_percent: '2.5' }]
+
+  it('按代码或名称查找，空参数不参与匹配', () => {
+    expect(findPlate(plates, 'cls2', '')).toBe(plates[1])
+    expect(findPlate(plates, '', '机器人')).toBe(plates[0])
+    expect(findPlate(plates, '', '')).toBeUndefined()
+  })
+
+  it('涨跌幅兼容小数、百分数与数字字符串', () => {
+    expect(plateChangePercent(plates[0])).toBeCloseTo(3.1)
+    expect(plateChangePercent(plates[1])).toBe(2.5)
+    expect(plateChangePercent({})).toBe(0)
+  })
+
+  it('热门股票：代码取 6 位数字、按涨幅排序、去掉缺名称或代码的', () => {
+    const stocks = toHotStocks({ stock_list: [
+      { secu_code: 'sz002050', secu_name: '三花智控', last_px: '30.5', change: 0.0997, amount: 50000 },
+      { secu_code: 'sh600000', secu_name: '浦发银行', last_px: 10, change: 0.01 },
+      { secu_code: '', secu_name: '无代码' },
+    ] })
+    expect(stocks?.map(s => s.code)).toEqual(['002050', '600000'])
+    expect(stocks?.[0]).toMatchObject({ price: 30.5, amount: 5 })
+    expect(stocks?.[0].changePercent).toBeCloseTo(9.97)
+    expect(toHotStocks({ secu_name: '无成分股' })).toBeNull()
   })
 })

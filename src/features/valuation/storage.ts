@@ -6,11 +6,13 @@ const finite = (n: unknown) => typeof n === "number" && Number.isFinite(n);
 const nullable = (n: unknown) => n === null || finite(n);
 const strings = (v: unknown): v is string[] =>
   Array.isArray(v) && v.every((x) => typeof x === "string");
-function validDcf(d: any): boolean {
+type Rec = Record<string, unknown>;
+function validDcf(value: unknown): boolean {
+  const d = value as Rec | null;
   return (
     d === null ||
     (!!d &&
-      ["fcff", "fcfe"].includes(d.kind) &&
+      ["fcff", "fcfe"].includes(d.kind as string) &&
       Array.isArray(d.cashflows) &&
       d.cashflows.length > 0 &&
       d.cashflows.length <= 15 &&
@@ -27,8 +29,8 @@ function validDcf(d: any): boolean {
       (d.projections === undefined ||
         (Array.isArray(d.projections) &&
           d.projections.every(
-            (p: any) =>
-              p &&
+            (item: unknown) =>
+              !!item &&
               [
                 "revenue",
                 "ebitMargin",
@@ -36,7 +38,7 @@ function validDcf(d: any): boolean {
                 "da",
                 "capex",
                 "workingCapitalIncrease",
-              ].every((k) => finite(p[k])),
+              ].every((k) => finite((item as Rec)[k])),
           ))))
   );
 }

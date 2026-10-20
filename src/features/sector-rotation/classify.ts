@@ -1,4 +1,6 @@
 // 财联社板块分类与解析：从 SectorRotation 页面抽出的纯函数，便于单测。
+import type { ClsPlate } from '../../services/sectorCache'
+
 // 财联社接口通常不返回行业/概念类型字段，此时按名称关键词判断；关键词表沿用原页面（已去重，不改变匹配结果）。
 
 export type PlateType = 'industry' | 'concept'
@@ -12,8 +14,16 @@ export interface SectorData {
 }
 
 // 财联社原始板块数据，字段因接口版本而异
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type RawPlate = Record<string, any>
+export type RawPlate = ClsPlate
+
+export interface HotStock {
+  code: string // 股票代码
+  name: string // 股票名称
+  price: number // 最新价
+  changePercent: number // 涨跌幅
+  volume: number // 成交量
+  amount: number // 成交额（万元）
+}
 
 export interface ParsedSectors {
   sectors: SectorData[]
@@ -113,15 +123,49 @@ export function fallbackPlates(plates: RawPlate[], filterType: PlateType): RawPl
     })
 }
 
-/** 转成按涨跌幅排序的前 N 名；涨跌幅可能是百分数（5.2）或小数（0.052） */
+/** 板块涨跌幅（%）：接口可能给百分数（5.2）或小数（0.052），也可能是数字字符串 */
+export function plateChangePercent(plate: RawPlate): number {
+  const changeValue = (plate.change_percent || plate.change || plate.changePercent || 0) as number // 字符串时下方运算会自动转换
+  const changePercent = Math.abs(changeValue) > 1 ? changeValue : changeValue * 100
+  return parseFloat(String(changePercent)) || 0
+}
+
+/** 按代码或名称在原始数据里找板块 */
+export function findPlate(plates: RawPlate[], sectorCode: string, sectorName: string): RawPlate | undefined {
+  return plates.find(plate => {
+    const plateCode = String(plate.secu_code || plate.code || plate.plate_code || '').trim()
+    return (!!sectorCode && plateCode === sectorCode) || (!!sectorName && plateName(plate) === sectorName)
+  })
+}
+
+/** 板块成分股中涨幅前 20 的股票；change 是小数（0.0997 = 9.97%），成交额换算为万元 */
+export function toHotStocks(plate: RawPlate): HotStock[] | null {
+  if (!Array.isArray(plate.stock_list)) return null
+  return (plate.stock_list as RawPlate[])
+    .map(stock => {
+      const raw = String(stock.secu_code || stock.code || '').trim()
+      const digits = raw.replace(/[^0-9]/g, '') // 提取到 6 位数字就用数字部分
+      return {
+        code: digits.length === 6 ? digits : raw,
+        name: String(stock.secu_name || ''),
+        price: parseFloat(String(stock.last_px || stock.price || 0)),
+        changePercent: parseFloat(String(stock.change || 0)) * 100,
+        volume: parseFloat(String(stock.volume || stock.vol || 0)),
+        amount: parseFloat(String(stock.amount || stock.amt || 0)) / 10000,
+      }
+    })
+    .filter(s => s.name && s.code)
+    .sort((a, b) => b.changePercent - a.changePercent)
+    .slice(0, 20)
+}
+
+/** 转成按涨跌幅排序的前 N 名 */
 export function toSectors(plates: RawPlate[], date: string, topN: number): SectorData[] {
   return plates
     .map(plate => {
       const name = plate.secu_name || plate.name || plate.plate_name || ''
       const code = plate.secu_code || plate.code || plate.plate_code || ''
-      const changeValue = plate.change_percent || plate.change || plate.changePercent || 0
-      const changePercent = Math.abs(changeValue) > 1 ? changeValue : changeValue * 100
-      return { name: String(name).trim(), code: String(code).trim(), changePercent: parseFloat(String(changePercent)) || 0, rank: 0, date }
+      return { name: String(name).trim(), code: String(code).trim(), changePercent: plateChangePercent(plate), rank: 0, date }
     })
     .filter(sector => sector.name.length > 0)
     .sort((a, b) => b.changePercent - a.changePercent)
@@ -130,10 +174,10 @@ export function toSectors(plates: RawPlate[], date: string, topN: number): Secto
 }
 
 /** 解析财联社 up_down_analysis 返回：{ code: 200, data: { plate_stock: [...] } }；格式不符返回 null */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function parseSectorPayload(payload: any, date: string, filterType: PlateType, topN: number): ParsedSectors | null {
-  if (payload?.code !== 200 || !payload?.data?.plate_stock) return null
-  const plates: RawPlate[] = payload.data.plate_stock
+export function parseSectorPayload(payload: unknown, date: string, filterType: PlateType, topN: number): ParsedSectors | null {
+  const body = payload as { code?: unknown; data?: { plate_stock?: RawPlate[] } } | null | undefined
+  if (body?.code !== 200 || !body?.data?.plate_stock) return null
+  const plates = body.data.plate_stock
   const classifiedBy = plates.some(plate => apiTypeOf(plate)) ? 'api' : 'keyword'
   const filtered = plates.filter(plate => matchesPlateType(plate, filterType))
   if (!filtered.length && plates.length) {

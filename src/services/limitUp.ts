@@ -27,20 +27,24 @@ export interface LimitUpResult {
   concepts: LimitUpConcept[]
   fetchedAt: string
 }
-function parsePayload(body: any, date: string): LimitUpConcept[] {
+type Raw = Record<string, unknown>
+function parsePayload(payload: unknown, date: string): LimitUpConcept[] {
+  const body = payload as Raw | null | undefined
   if (body?.code !== 200) throw new Error(`数据源返回错误：${body?.msg || body?.code || '未知状态'}`)
-  if (!Array.isArray(body?.data?.plate_stock)) throw new Error('数据源响应缺少板块列表')
+  const plates = (body?.data as Raw | null | undefined)?.plate_stock
+  if (!Array.isArray(plates)) throw new Error('数据源响应缺少板块列表')
   const dates = new Set<string>()
-  const concepts: LimitUpConcept[] = body.data.plate_stock.map((p: any) => {
+  const concepts: LimitUpConcept[] = plates.map((p: Raw | null | undefined) => {
     if (typeof p?.secu_name !== 'string' || !Array.isArray(p.stock_list)) throw new Error('数据源板块格式异常')
-    const stocks = p.stock_list.map((s: any) => {
+    const stocks = p.stock_list.map((s: Raw | null | undefined) => {
       if (!s?.secu_code || !s?.secu_name) throw new Error('数据源股票格式异常')
       const time = String(s.time || '')
       if (/^\d{4}-\d{2}-\d{2}/.test(time)) dates.add(time.slice(0, 10))
       const boards = String(s.up_num || '').match(/(?:\d+天)?(\d+)板/)
-      return { code: s.secu_code, name: s.secu_name, currentPrice: Number(s.last_px ?? s.price ?? 0), changePercent: Number(s.change ?? 0) * 100, limitUpTime: time, marketCap: Number(s.cmc ?? 0) / 100000000, consecutiveDays: boards ? Number(boards[1]) : 0, description: s.up_reason || '' }
+      // 代码与名称保持数据源原值
+      return { code: s.secu_code as string, name: s.secu_name as string, currentPrice: Number(s.last_px ?? s.price ?? 0), changePercent: Number(s.change ?? 0) * 100, limitUpTime: time, marketCap: Number(s.cmc ?? 0) / 100000000, consecutiveDays: boards ? Number(boards[1]) : 0, description: (s.up_reason || '') as string }
     })
-    return { name: p.secu_name, stockCount: Number(p.plate_stock_up_num ?? stocks.length), changePercent: Number(p.change ?? 0) * 100, drivingFactor: p.up_reason || '', stocks }
+    return { name: p.secu_name, stockCount: Number(p.plate_stock_up_num ?? stocks.length), changePercent: Number(p.change ?? 0) * 100, drivingFactor: (p.up_reason || '') as string, stocks }
   })
   // 财联社可能忽略date返回最近数据，禁止将它冒充所选历史日期。
   if (dates.size && (dates.size !== 1 || !dates.has(date))) throw new Error(`数据日期不匹配：请求 ${date}，返回 ${Array.from(dates).join('、')}`)

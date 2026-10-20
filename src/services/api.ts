@@ -43,7 +43,7 @@ export async function fetchExample(): Promise<{ message: string }> {
 }
 
 // 简单缓存：避免短时间内重复请求
-const cache = new Map<string, { data: any; timestamp: number }>()
+const cache = new Map<string, { data: unknown; timestamp: number }>()
 const CACHE_TTL = 30000 // 30秒缓存
 
 function getCached<T>(key: string): T | null {
@@ -54,7 +54,7 @@ function getCached<T>(key: string): T | null {
   return null
 }
 
-function setCache(key: string, data: any) {
+function setCache(key: string, data: unknown) {
   cache.set(key, { data, timestamp: Date.now() })
 }
 
@@ -76,8 +76,25 @@ async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout 
       }
 }
 
+// Yahoo Finance chart 接口中用到的字段（其余字段忽略）
+interface YahooChart {
+  chart?: {
+    result?: Array<{
+      meta: {
+        regularMarketPrice?: number; previousClose?: number; chartPreviousClose?: number
+        regularMarketChange?: number; regularMarketChangePercent?: number; regularMarketVolume?: number
+        shortName?: string; longName?: string
+      }
+      indicators?: {
+        adjclose?: Array<{ adjclose?: (number | null)[] }>
+        quote?: Array<{ close?: (number | null)[] }>
+      }
+    }>
+  }
+}
+
 // 解析 Yahoo Finance 数据
-function parseYahooData(data: any, symbol: string): StockQuote | null {
+function parseYahooData(data: YahooChart, symbol: string): StockQuote | null {
   const result = data.chart?.result?.[0]
   if (!result) return null
   
@@ -149,7 +166,7 @@ const YAHOO_PROXIES = [CORS_PROXY_MAIN, CORS_PROXY_BACKUP, CORS_PROXY_THIRD]
 // ========== AkShare / AKTools 接入 ==========
 // 使用前需本地或服务器启动: pip install aktools && python -m aktools
 // 默认地址 http://127.0.0.1:8080 ，生产环境可配 VITE_AKTOOLS_BASE_URL
-const AKTOOLS_BASE = (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_AKTOOLS_BASE_URL) || 'http://127.0.0.1:8080'
+const AKTOOLS_BASE = import.meta.env.VITE_AKTOOLS_BASE_URL || 'http://127.0.0.1:8080'
 
 /** 调用 AKTools 暴露的 AkShare 接口，返回 JSON。接口名对应 akshare 方法名，如 stock_zh_a_hist */
 export async function fetchAkShare<T = unknown>(
@@ -486,7 +503,9 @@ async function fetchSectorData(type: 'industry' | 'concept', limit = 100): Promi
     
     console.log(`获取${type === 'industry' ? '行业' : '概念'}板块数据: ${diff.length}条`)
 
-    const sectors: SectorData[] = diff.map((item: any) => ({
+    // 东方财富 clist 接口字段：f12 代码、f14 名称、f2 价格、f3 涨跌幅、f4 涨跌额、f5 成交量、f6 成交额（元）、f104/f105/f106 成分股/上涨/下跌家数
+    type EastmoneySector = { f12?: string; f14?: string; f2?: number; f3?: number; f4?: number; f5?: number; f6?: number; f104?: number; f105?: number; f106?: number }
+    const sectors: SectorData[] = diff.map((item: EastmoneySector) => ({
       code: item.f12 || '',           // 板块代码
       name: item.f14 || '',           // 板块名称
       price: (item.f2 || 0) / 100,   // 最新价（需要除以100）
@@ -751,14 +770,14 @@ function parseCBOEHTML(html: string): { equityPC: number | null; spxPC: number |
   // 表格格式可能是：EQUITY PUT/CALL RATIO 后面跟着数值，或者在同一行
   const equityPatterns = [
     // 精确匹配：EQUITY PUT/CALL RATIO 后面跟着数值（可能在同一行或下一行）
-    /EQUITY\s+PUT[\/\s]?CALL\s+RATIO[\s\S]{0,500}?(\d+\.\d{2,3})/i,
+    /EQUITY\s+PUT[/\s]?CALL\s+RATIO[\s\S]{0,500}?(\d+\.\d{2,3})/i,
     /EQUITY\s+P\/C\s+RATIO[\s\S]{0,500}?(\d+\.\d{2,3})/i,
     // 匹配表格单元格：<td>EQUITY PUT/CALL RATIO</td><td>0.64</td>
-    /<td[^>]*>[\s]*EQUITY\s+PUT[\/\s]?CALL\s+RATIO[\s]*<\/td>[\s\S]{0,200}?<td[^>]*>[\s]*(\d+\.\d{2,3})[\s]*<\/td>/i,
+    /<td[^>]*>[\s]*EQUITY\s+PUT[/\s]?CALL\s+RATIO[\s]*<\/td>[\s\S]{0,200}?<td[^>]*>[\s]*(\d+\.\d{2,3})[\s]*<\/td>/i,
     // 匹配表格行：<tr>...EQUITY...0.64...</tr>
-    /<tr[^>]*>[\s\S]{0,500}?EQUITY[\s\S]{0,200}?PUT[\/\s]?CALL[\s\S]{0,200}?RATIO[\s\S]{0,500}?(\d+\.\d{2,3})[\s\S]{0,500}?<\/tr>/i,
+    /<tr[^>]*>[\s\S]{0,500}?EQUITY[\s\S]{0,200}?PUT[/\s]?CALL[\s\S]{0,200}?RATIO[\s\S]{0,500}?(\d+\.\d{2,3})[\s\S]{0,500}?<\/tr>/i,
     // 宽松匹配
-    /Equity\s+Put[\/\s]?Call\s+Ratio[\s\S]{0,500}?(\d+\.\d{2,3})/i
+    /Equity\s+Put[/\s]?Call\s+Ratio[\s\S]{0,500}?(\d+\.\d{2,3})/i
   ]
   
   for (const pattern of equityPatterns) {
@@ -775,15 +794,15 @@ function parseCBOEHTML(html: string): { equityPC: number | null; spxPC: number |
 
   const spxPatterns = [
     // 精确匹配：SPX + SPXW PUT/CALL RATIO
-    /SPX\s*\+\s*SPXW\s+PUT[\/\s]?CALL\s+RATIO[\s\S]{0,500}?(\d+\.\d{2,3})/i,
+    /SPX\s*\+\s*SPXW\s+PUT[/\s]?CALL\s+RATIO[\s\S]{0,500}?(\d+\.\d{2,3})/i,
     /SPX\s*\+\s*SPXW\s+P\/C\s+RATIO[\s\S]{0,500}?(\d+\.\d{2,3})/i,
     // 匹配表格单元格
-    /<td[^>]*>[\s]*SPX\s*\+\s*SPXW\s+PUT[\/\s]?CALL\s+RATIO[\s]*<\/td>[\s\S]{0,200}?<td[^>]*>[\s]*(\d+\.\d{2,3})[\s]*<\/td>/i,
+    /<td[^>]*>[\s]*SPX\s*\+\s*SPXW\s+PUT[/\s]?CALL\s+RATIO[\s]*<\/td>[\s\S]{0,200}?<td[^>]*>[\s]*(\d+\.\d{2,3})[\s]*<\/td>/i,
     // 匹配表格行
-    /<tr[^>]*>[\s\S]{0,500}?SPX[\s\S]{0,100}?\+[\s\S]{0,100}?SPXW[\s\S]{0,200}?PUT[\/\s]?CALL[\s\S]{0,200}?RATIO[\s\S]{0,500}?(\d+\.\d{2,3})[\s\S]{0,500}?<\/tr>/i,
+    /<tr[^>]*>[\s\S]{0,500}?SPX[\s\S]{0,100}?\+[\s\S]{0,100}?SPXW[\s\S]{0,200}?PUT[/\s]?CALL[\s\S]{0,200}?RATIO[\s\S]{0,500}?(\d+\.\d{2,3})[\s\S]{0,500}?<\/tr>/i,
     // 备用匹配
-    /SPX.*?PUT[\/\s]?CALL\s+RATIO[\s\S]{0,500}?(\d+\.\d{2,3})/i,
-    /INDEX\s+PUT[\/\s]?CALL\s+RATIO[\s\S]{0,500}?(\d+\.\d{2,3})/i
+    /SPX.*?PUT[/\s]?CALL\s+RATIO[\s\S]{0,500}?(\d+\.\d{2,3})/i,
+    /INDEX\s+PUT[/\s]?CALL\s+RATIO[\s\S]{0,500}?(\d+\.\d{2,3})/i
   ]
   
   for (const pattern of spxPatterns) {
@@ -820,7 +839,7 @@ function parseCBOEHTML(html: string): { equityPC: number | null; spxPC: number |
   // 方法3: 查找包含 "Equity" 和 "P/C" 或 "Put/Call" 的行（更宽松的匹配）
   if (!equityPC) {
     const equityPatterns2 = [
-      /Equity[\s\S]{0,200}?Put[\/\s]?Call[\s\S]{0,200}?(\d+\.\d{2,3})/i,
+      /Equity[\s\S]{0,200}?Put[/\s]?Call[\s\S]{0,200}?(\d+\.\d{2,3})/i,
       /Equity[\s\S]{0,200}?P\/C[\s\S]{0,200}?(\d+\.\d{2,3})/i,
       /Equity[\s\S]{0,500}?(\d+\.\d{2,3})/i
     ]
@@ -840,9 +859,9 @@ function parseCBOEHTML(html: string): { equityPC: number | null; spxPC: number |
   // 方法4: 查找包含 "SPX" 或 "Index" 和 "P/C" 的行
   if (!spxPC) {
     const spxPatterns2 = [
-      /SPX[\s\S]{0,200}?Put[\/\s]?Call[\s\S]{0,200}?(\d+\.\d{2,3})/i,
+      /SPX[\s\S]{0,200}?Put[/\s]?Call[\s\S]{0,200}?(\d+\.\d{2,3})/i,
       /SPX[\s\S]{0,200}?P\/C[\s\S]{0,200}?(\d+\.\d{2,3})/i,
-      /Index[\s\S]{0,200}?Put[\/\s]?Call[\s\S]{0,200}?(\d+\.\d{2,3})/i,
+      /Index[\s\S]{0,200}?Put[/\s]?Call[\s\S]{0,200}?(\d+\.\d{2,3})/i,
       /Index[\s\S]{0,200}?P\/C[\s\S]{0,200}?(\d+\.\d{2,3})/i
     ]
     

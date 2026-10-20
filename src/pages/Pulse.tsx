@@ -81,7 +81,7 @@ export default function Pulse({ view = 'market', notice }: { view?: 'market' | '
     let mounted = true
     const fetchAllData = async () => {
       setLoading(true)
-      const categoryConfig = [
+      const categoryConfig: { key: Parameters<typeof fetchMarketDataByType>[0]; title: string; icon: JSX.Element; color: string; bgColor: string }[] = [
         { key: 'us', title: '美股指数', icon: <TrendingUp size={18} />, color: 'var(--accent)', bgColor: 'var(--accent-soft)' },
         { key: 'cn', title: '中国A股', icon: <Globe size={18} />, color: 'var(--system-red)', bgColor: 'var(--system-red-light)' },
         { key: 'hk', title: '港股指数', icon: <Globe2 size={18} />, color: 'var(--system-green)', bgColor: 'var(--system-green-light)' },
@@ -94,7 +94,7 @@ export default function Pulse({ view = 'market', notice }: { view?: 'market' | '
         const [results, cnSectors, usSectors] = await Promise.all([
           Promise.all(
             categoryConfig.map(async (cat) => {
-              const data = await fetchMarketDataByType(cat.key as any)
+              const data = await fetchMarketDataByType(cat.key)
               console.log(`获取 ${cat.title} 数据:`, data.length, '条')
               return { ...cat, data }
             })

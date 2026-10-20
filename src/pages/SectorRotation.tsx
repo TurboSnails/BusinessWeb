@@ -6,7 +6,7 @@ import { shanghaiDate, isClosedDate, previousTradingDate } from '../services/lim
 import { Callout, Card, Dialog, EmptyState, Page, TableWrap } from '../components/ui'
 import '../styles/a-share.css'
 import { formatPercent } from '../utils/format'
-import { parseSectorPayload, type ParsedSectors, type RawPlate, type SectorData } from '../features/sector-rotation/classify'
+import { findPlate, parseSectorPayload, plateChangePercent, toHotStocks, type HotStock, type ParsedSectors, type RawPlate, type SectorData } from '../features/sector-rotation/classify'
 import {
   AlertTriangle,
   BarChart2,
@@ -24,15 +24,6 @@ interface SectorDetail {
   timesInTop10: number // 近1个月排进前10的次数
 }
 
-interface HotStock {
-  code: string // 股票代码
-  name: string // 股票名称
-  price: number // 最新价
-  changePercent: number // 涨跌幅
-  volume: number // 成交量
-  amount: number // 成交额
-}
-
 export default function SectorRotation(): JSX.Element {
   const [initialView] = useState(() => readSectorView())
   const restoredView = useRef(initialView)
@@ -40,7 +31,7 @@ export default function SectorRotation(): JSX.Element {
   const [selectedDates, setSelectedDates] = useState<string[]>(initialView?.selectedDates || [])
   const [sectorDataByDate, setSectorDataByDate] = useState<Record<string, SectorData[]>>(initialView?.sectorDataByDate || {})
   // 保存财联社返回的原始板块数据（包含stock_list），用于获取热门股票
-  const [plateRawDataByDate, setPlateRawDataByDate] = useState<Record<string, any[]>>(initialView?.plateRawDataByDate || {})
+  const [plateRawDataByDate, setPlateRawDataByDate] = useState<Record<string, RawPlate[]>>(initialView?.plateRawDataByDate || {})
   const [loading, setLoading] = useState(!initialView)
   const [loadingProgress, setLoadingProgress] = useState<{ loaded: number; total: number }>({ loaded: 0, total: 0 })
   const [error, setError] = useState<string | null>(null)
@@ -105,7 +96,7 @@ export default function SectorRotation(): JSX.Element {
         if (!active) return
 
         const dataByDate: Record<string, SectorData[]> = { ...sectorDataByDate }
-        const rawDataByDate: Record<string, any[]> = { ...plateRawDataByDate }
+        const rawDataByDate: Record<string, RawPlate[]> = { ...plateRawDataByDate }
 
         results.forEach((result, index) => {
           if (result.status === 'fulfilled' && result.value && result.value.sectors && result.value.sectors.length > 0) {
@@ -173,54 +164,10 @@ export default function SectorRotation(): JSX.Element {
       const rawData = plateRawDataByDate[date]
       if (!rawData || !Array.isArray(rawData)) continue
 
-      // 查找匹配的板块（通过代码或名称）
-      const matchedPlate = rawData.find((plate: any) => {
-        const plateCode = String(plate.secu_code || plate.code || plate.plate_code || '').trim()
-        const plateName = String(plate.secu_name || plate.name || '').trim()
-        return (sectorCode && plateCode === sectorCode) || (sectorName && plateName === sectorName)
-      })
-
-      if (matchedPlate && matchedPlate.stock_list && Array.isArray(matchedPlate.stock_list)) {
-
-        // 解析财联社返回的股票数据
-        // secu_code: 股票代码
-        // secu_name: 股票名称
-        // last_px: 最新价
-        // change: 涨跌幅（小数形式，需要乘以100）
-        // volume: 成交量（可能需要转换单位）
-        // amount: 成交额（可能需要转换单位）
-        const stocks: HotStock[] = matchedPlate.stock_list
-          .map((stock: any) => {
-            // 股票代码可能是6位数字，需要确保格式正确
-            let code = String(stock.secu_code || stock.code || '').trim()
-            // 如果代码包含非数字字符，只保留数字部分
-            const codeDigits = code.replace(/[^0-9]/g, '')
-            // 如果提取到6位数字，使用提取的数字；否则使用原始代码
-            code = codeDigits.length === 6 ? codeDigits : code
-            const name = stock.secu_name || ''
-            const price = parseFloat(stock.last_px || stock.price || 0)
-            // change 是小数形式，如 0.0997 表示 9.97%，需要乘以100
-            const changePercent = parseFloat(stock.change || 0) * 100
-            // 成交量单位可能是手，需要确认
-            const volume = parseFloat(stock.volume || stock.vol || 0)
-            // 成交额单位可能是元，需要转换为万元
-            const amount = parseFloat(stock.amount || stock.amt || 0) / 10000
-
-            return {
-              code,
-              name,
-              price,
-              changePercent,
-              volume,
-              amount
-            }
-          })
-          .filter((s: HotStock) => s.name && s.code)
-          .sort((a: HotStock, b: HotStock) => b.changePercent - a.changePercent) // 按涨跌幅排序
-          .slice(0, 20) // 只取前20只
-
-        return stocks
-      }
+      // 查找匹配的板块（通过代码或名称），直接使用财联社返回的 stock_list
+      const matchedPlate = findPlate(rawData, sectorCode, sectorName)
+      const stocks = matchedPlate && toHotStocks(matchedPlate)
+      if (stocks) return stocks
     }
 
     console.warn(`⚠️ 未在财联社数据中找到板块: ${sectorName} (代码: ${sectorCode})`)
@@ -373,21 +320,13 @@ export default function SectorRotation(): JSX.Element {
       // 如果在前N名中没找到，从原始数据中查找
       if (!sector) {
         const rawData = plateRawDataByDate[date] || []
-        const matchedPlate = rawData.find((plate: any) => {
-          const plateCode = String(plate.secu_code || plate.code || plate.plate_code || '').trim()
-          const plateName = String(plate.secu_name || plate.name || '').trim()
-          return (sectorCode && plateCode === sectorCode) || (sectorName && plateName === sectorName)
-        })
+        const matchedPlate = findPlate(rawData, sectorCode, sectorName)
 
         if (matchedPlate) {
-          // 计算涨幅
-          const changeValue = matchedPlate.change_percent || matchedPlate.change || matchedPlate.changePercent || 0
-          const changePercent = Math.abs(changeValue) > 1 ? changeValue : changeValue * 100
-
           sector = {
             name: sectorName,
             code: sectorCode,
-            changePercent: parseFloat(String(changePercent)) || 0,
+            changePercent: plateChangePercent(matchedPlate),
             rank: 0,
             date: date
           }
@@ -438,14 +377,10 @@ export default function SectorRotation(): JSX.Element {
   const getSectorLimitUpCount = useCallback((sectorName: string, sectorCode: string, date: string): number => {
     const rawData = plateRawDataByDate[date] || []
     // 查找匹配的板块
-    const matchedPlate = rawData.find((plate: any) => {
-      const plateCode = String(plate.secu_code || plate.code || plate.plate_code || '').trim()
-      const plateName = String(plate.secu_name || plate.name || '').trim()
-      return (sectorCode && plateCode === sectorCode) || (sectorName && plateName === sectorName)
-    })
+    const matchedPlate = findPlate(rawData, sectorCode, sectorName)
 
     if (matchedPlate) {
-      return parseInt(matchedPlate.plate_stock_up_num || '0', 10)
+      return parseInt(String(matchedPlate.plate_stock_up_num || '0'), 10)
     }
 
     return 0
