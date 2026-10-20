@@ -118,6 +118,13 @@ describe('本轮行情与旧研究模型分别标时',()=>{
       expect(updated.ratioNote).toContain('不认证可交易赔率')
       expect(updated.ratioNote).not.toContain('旧情景')
     })
+    it('旧版适配器已写进静态数据的「原研究假设（未重估）」前缀，估值初稿重新应用时被去掉',()=>{
+      const cn:Company={...company(),market:'cn',
+        scenarios:[{name:'悲观',price:'80.00 元（估值初稿）',change:'待核',assumption:'原研究假设（未重估）：扣非 EPS × PE',trigger:'待验证'},
+          {name:'基准',price:'140.00 元（估值初稿）',change:'待核',assumption:'原研究假设（未重估）：扣非 EPS × PE',trigger:'待验证'}]}
+      const updated=applyCompanyMarketRefresh(cn,{...quote,currency:'CNY'})
+      expect(updated.scenarios?.every(sc=>sc.assumption==='扣非 EPS × PE')).toBe(true)
+    })
     it('旧研究页（情景价是纯数字）仍按旧情景处理',()=>{
       const updated=applyCompanyMarketRefresh(company(),quote)
       expect(updated.scenarios?.[1].change).toContain('旧情景／新报价')

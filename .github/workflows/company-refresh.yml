@@ -54,6 +54,14 @@ jobs:
           python3 scripts/normalize-market-refresh.py --date "$D" | tail -5
           node scripts/collect-market-refresh.mjs apply-companies "$D"
           node scripts/slim-refresh-evidence.mjs "$D"
+      - name: Re-rate valuation overlays at the latest prices
+        if: env.SKIP != '1'
+        # 港股／ADR 估值初稿：盈利输入冻结（2026-10-20），价格取自刚写好的行情快照，评级随价格按规则重算。
+        # 必须在行情快照之后、信号台账之前：台账记录「评级+价格」，评级若停在生成日会污染事后复盘。
+        run: |
+          set -euo pipefail
+          python3 scripts/review-hk-valuation-2026-10-20.py | tail -1
+          python3 scripts/review-adr-valuation-2026-10-20.py | tail -1
       - name: Record signal ledger
         if: env.SKIP != '1'
         # 每周一期：评级、价格、自动 DCF 与雷达信号，供机会雷达页「信号复盘」事后检验

@@ -1,5 +1,6 @@
 {
-  "date": "2026-10-20",
+  "version": "2026-10-20",
+  "priceDate": "2026-10-20",
   "status": "估值初稿（未认证）",
   "sources": [
     "public/research/hk-2026-10-07/previous.json",

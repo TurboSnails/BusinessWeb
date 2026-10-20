@@ -20,9 +20,10 @@ export interface MarketRefreshQuote {
   valuationMarketTime?: string | null
 }
 
-/** v5：估值初稿（A 股逐家复核页、港股／ADR 覆盖层）按新价复算相对现价与盈亏比，不再写成「旧情景未重估」。
+/** v6：估值初稿重新应用时去掉旧版适配器写进静态数据的「原研究假设（未重估）」前缀。
+ *  v5：估值初稿（A 股逐家复核页、港股／ADR 覆盖层）按新价复算相对现价与盈亏比，不再写成「旧情景未重估」。
  *  v4：不再给结论加前缀；每次刷新只替换现价，不把上一轮刷新价堆成“上轮”指标，只保留原研究口径的那一条 */
-const ADAPTER_VERSION = 5
+const ADAPTER_VERSION = 6
 const REFRESH_ARCHIVE = /^上轮.*（原研究口径）$/
 
 export function applyCompanyMarketRefresh(company: Company, quote?: MarketRefreshQuote): Company {
@@ -99,7 +100,8 @@ export function applyCompanyMarketRefresh(company: Company, quote?: MarketRefres
   const scenarios = company.scenarios?.map(s => {
     const target = scenarioPrice(s.price)
     return { ...s,
-      assumption: draft || s.assumption.startsWith('原研究假设（未重估）') ? s.assumption : `原研究假设（未重估）：${s.assumption}`,
+      // 估值初稿不是原研究：去掉旧版适配器写进静态数据的前缀；旧研究页仍保留或补上该前缀
+      assumption: draft ? s.assumption.replace(/^原研究假设（未重估）：/, '') : s.assumption.startsWith('原研究假设（未重估）') ? s.assumption : `原研究假设（未重估）：${s.assumption}`,
       change: company.auto || withdrawn ? '原模型未认证／已暂停，待重估' : target != null && target > 0
         ? `${target >= quote.price ? '+' : ''}${(100 * (target / quote.price - 1)).toFixed(1)}%（${draft ? '估值初稿／新报价' : '旧情景／新报价'}）` : '不适用／待核',
     }

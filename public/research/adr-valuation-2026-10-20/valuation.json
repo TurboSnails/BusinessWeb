@@ -1,11 +1,11 @@
 {
- "date": "2026-10-20",
+ "version": "2026-10-20",
  "priceDate": "2026-10-19",
  "sources": {
   "price": "src/data/companyMarketSnapshot.json",
   "vendor": "public/research/data-refresh-2026-10-20/yahoo-quote-batch.json",
   "facts": "public/research/adr-2026-10-07",
-  "prefill": "public/data/dcf-prefill.json"
+  "prefill": "public/data/dcf-prefill.json (published FYH annotations frozen in script at 2026-10-20)"
  },
  "classes": {
   "foundry": {

@@ -2,17 +2,39 @@
 """Reproducible, explicitly uncertified HK valuation overlay from frozen local inputs."""
 import json, math, re
 from pathlib import Path
+from datetime import date
+import os
 
 ROOT = Path(__file__).resolve().parents[1]
+VERSION = '2026-10-20'
+EARNINGS_FROZEN_AT = '2026-10-20'
+FROZEN_VENDOR = f'research/data-refresh-{EARNINGS_FROZEN_AT}/yahoo-quote-batch.json'
+SNAPSHOT_PATH = Path(os.environ.get('SNAPSHOT_PATH', ROOT / 'src/data/companyMarketSnapshot.json'))
 SRC = ROOT / 'public/research/hk-2026-10-07'
-OUT = ROOT / 'public/research/hk-valuation-2026-10-20'
+OUT = Path(os.environ.get('OUT_DIR', ROOT / f'public/research/hk-valuation-{VERSION}'))
+TS = OUT / 'hkValuation.ts' if os.environ.get('OUT_DIR') else ROOT / 'src/data/details/hkValuation.ts'
 OUT.mkdir(parents=True, exist_ok=True)
 companies = json.loads((SRC / 'previous.json').read_text())['companies']
 data = json.loads((SRC / 'input.json').read_text())
 models = json.loads((SRC / 'models.json').read_text())
 reviewed = json.loads((SRC / 'audit.json').read_text())
-div_quotes = json.loads((ROOT / 'public/research/data-refresh-2026-10-20/yahoo-quote-batch.json').read_text())['quotes']
-snap = json.loads((ROOT / 'src/data/companyMarketSnapshot.json').read_text())
+div_quotes = json.loads((ROOT / 'public' / FROZEN_VENDOR).read_text())['quotes']
+snap = json.loads(SNAPSHOT_PATH.read_text())
+
+def input_note(price_date, fallback=False):
+    days = (date.fromisoformat(price_date[:10]) - date.fromisoformat(EARNINGS_FROZEN_AT)).days
+    note = f'盈利输入冻结于 {EARNINGS_FROZEN_AT}'
+    if days < 0 or days > 14:
+        note += f'；价格日期与盈利输入冻结日相差 {abs(days)} 天（价格日期{ "早于" if days < 0 else "晚于" }冻结日）'
+    if fallback:
+        note += '；快照缺失，使用冻结供应商/模型旧报价回退'
+    return note + '。'
+
+
+def price_range(records):
+    dates = sorted({r['priceDate'][:10] for r in records})
+    return dates[0] if dates[0] == dates[-1] else dates[0] + '～' + dates[-1]
+
 details = (ROOT / 'src/data/details/hk.ts').read_text()
 old = {}
 for block in re.split(r'(?m)^@', details)[1:]:
@@ -68,7 +90,7 @@ def dividend_inputs(code, price):
     # Yahoo forward dividendRate is in quote currency, unlike trailingAnnualDividendRate
     # which can remain in reporting currency (e.g. HSBC USD). Do not convert twice.
     dc=dq.get('currency')
-    calc={'method':'div','source':'public/research/data-refresh-2026-10-20/yahoo-quote-batch.json',
+    calc={'method':'div','source':'public/'+FROZEN_VENDOR,
           'symbol':symbol,'dividendRate':dps,'dividendYield':dy,'currency':dc,
           'financialCurrency':dq.get('financialCurrency'),'dividendCurrency':dc,
           'fx':1 if dc=='HKD' else None,'yields':DIV_YIELDS,'dpsFactors':DIV_FACTORS,
@@ -84,7 +106,7 @@ def dividend_inputs(code, price):
     if dy>DIV_MAX:
         return calc,f'供应商股息率 {dy:.2f}% > {DIV_MAX:.0f}%，可能含特别股息，未经公司公告核验，不硬算'
     vp=dq.get('regularMarketPrice')
-    if not valid(vp) or any(abs(dps/p*100/dy-1)>.05 for p in (vp,price)):
+    if not valid(vp) or abs(dps/vp*100/dy-1)>.05:
         return calc,'供应商 dividendRate 与 dividendYield/最新价不自洽（偏差>5%），股息币种或口径待核'
     calc['dpsHKD']=dps
     return calc,None
@@ -100,10 +122,11 @@ for c in companies:
     code=c['code']; key=f'hk:{code}'; q=quote_by_code.get(code,{})
     model=models.get(code,{})
     price_obj=snap.get(key)
-    if price_obj and price_obj.get('price') and str(price_obj.get('date','')).startswith('2026-10-'):
+    if price_obj and price_obj.get('price') and price_obj.get('date'):
         price=float(price_obj['price']); pdate=price_obj['date']; psource=price_obj.get('provider','行情快照')
     else:
-        price=float(model.get('price') or q.get('regularMarketPrice') or 0); pdate=model.get('quoteTime','2026-10-07 Yahoo Finance 快照'); psource='input.json/models.json 旧报价'
+        price=float(model.get('price') or q.get('regularMarketPrice') or 0); pdate=str(model.get('quoteTime') or '2026-10-07')[:10]; psource='input.json/models.json 旧报价'
+    note=input_note(pdate, not price_obj)
     cur=q.get('currency','HKD'); fcur=q.get('financialCurrency',cur)
     fx_mult=fx if cur=='HKD' and fcur=='CNY' else (data['fx']['USDHKD=X']['regularMarketPrice'] if cur=='HKD' and fcur=='USD' else 1.0)
     ttm=q.get('trailingEps'); forward=q.get('forwardEps')
@@ -168,6 +191,7 @@ for c in companies:
     rows.append(row)
     # Human-readable audit per company.
     lines=[f"# {code} {c['name']}：估值初稿（未认证）",'', '研究假设，仅供研究，不构成买卖建议。',f"- 现价：HK${money(price)}（{pdate}，{psource}；{price_obj.get('session','') if price_obj else '旧供应商报价'}）",f"- 输入追溯：public/research/hk-2026-10-07/input.json quotes[{q.get('symbol','')}], models.json[{code}]；公司事实复核截至2026-10-07。",f"- 盈利字段：trailingEps={ttm if ttm is not None else '[MISSING]'}；forwardEps={forward if forward is not None else '[MISSING]'}（2026-10-07 Yahoo供应商共识，非公司指引）；交易/财报币种={cur}/{fcur}" ]
+    lines.append('- '+note)
     if fx_mult!=1: lines.append(f'- 币种折算：1 {fcur} = {fx_mult:g} HKD，input.json fx 快照（2026-10-07）。')
     if is_fin:
         lines.append('- 金融股经营现金流口径不具可比性，不以供应商 operatingCashflow 为负封顶；仍受单一方法、ratio及复核规则约束。')
@@ -190,7 +214,7 @@ for c in companies:
     valuation_summary=(f"基准 {fmt_pct((scenarios[1][3]/price-1)*100)}，ratio {ratio:.2f}" if scenarios and ratio is not None else f"[MISSING]（{missing or '未建立有效盈亏比'}）")
     fact_mark='事实已复核；' if code in ('02269','02359') else ''
     retained={'09961':'历史核读：罚款35.21亿','09866':'历史核读：交割后预期持股30%'}.get(code)
-    rendered.append(f"@hk:{code}\nrt: {rating}\nh: {rating}（{fact_mark}估值初稿（未认证））：{review['judgment']}；估值：{valuation_summary}。仅为研究假设，不构成买卖建议。\n"+scenario_text+f"ratio: {ratio_line}；{cap}\nx: 估值初稿（未认证）；旧事实复核源 public/research/hk-2026-10-07；价格 {pdate}；估值方法 {method or '[MISSING]'}。\nz: [MISSING]（条件研究门槛未建立；估值不认证）\ni: {cap}；{retained+'；' if retained else ''}概率未赋值。\n")
+    rendered.append(f"@hk:{code}\nrt: {rating}\nh: {rating}（{fact_mark}估值初稿（未认证））：{review['judgment']}；估值：{valuation_summary}。仅为研究假设，不构成买卖建议。\n"+scenario_text+f"ratio: {ratio_line}；{cap}\nx: {note}估值初稿（未认证）；旧事实复核源 public/research/hk-2026-10-07；价格 {pdate}；估值方法 {method or '[MISSING]'}。\nz: [MISSING]（条件研究门槛未建立；估值不认证）\ni: {cap}；{retained+'；' if retained else ''}概率未赋值。\n")
     if retained:
         rendered[-1]=rendered[-1].replace('x: ',f'x: {retained}；',1)
 
@@ -198,8 +222,8 @@ for c in companies:
 assert {c['sector'] for c in companies} <= SECTOR_BANDS.keys(), '新增 sector 必须显式归类'
 counts={}
 for r in rows: counts[r['rating']]=counts.get(r['rating'],0)+1
-audit={'date':'2026-10-20','status':'估值初稿（未认证）','sources':['public/research/hk-2026-10-07/previous.json','input.json','models.json','src/data/companyMarketSnapshot.json','src/data/details/hk.ts','public/research/data-refresh-2026-10-20/yahoo-quote-batch.json'],'sectorBands':SECTOR_BANDS,'cyclicalSectors':sorted({r['sector'] for r in rows if r['cyclical']}),'cyclicalKeywords':CYCLICAL,'dividendAssumptions':{'minYield':DIV_MIN,'maxYield':DIV_MAX,'yields':DIV_YIELDS,'dpsFactors':DIV_FACTORS},'companies':rows,'ratingDistribution':counts}
+audit={'version':VERSION,'priceDate':price_range(rows),'status':'估值初稿（未认证）','sources':['public/research/hk-2026-10-07/previous.json','input.json','models.json','src/data/companyMarketSnapshot.json','src/data/details/hk.ts','public/'+FROZEN_VENDOR],'sectorBands':SECTOR_BANDS,'cyclicalSectors':sorted({r['sector'] for r in rows if r['cyclical']}),'cyclicalKeywords':CYCLICAL,'dividendAssumptions':{'minYield':DIV_MIN,'maxYield':DIV_MAX,'yields':DIV_YIELDS,'dpsFactors':DIV_FACTORS},'companies':rows,'ratingDistribution':counts}
 (OUT/'audit.json').write_text(json.dumps(audit,ensure_ascii=False,indent=2)+'\n')
 ts='export const hkValuationDetails = `\n'+''.join(rendered)+'`\n'
-(ROOT/'src/data/details/hkValuation.ts').write_text(ts)
+TS.write_text(ts)
 print(f"Rendered {len(rows)} HK companies; ratings={json.dumps(counts,ensure_ascii=False,sort_keys=True)}")

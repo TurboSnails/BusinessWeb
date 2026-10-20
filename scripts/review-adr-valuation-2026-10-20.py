@@ -1,9 +1,9 @@
 """Render the 2026-10-20 valuation draft and rating tiers for the 66 ADR companies (美股非标普; SOFI keeps src/data/details/sofi.ts).
 
 Inputs  public/research/adr-2026-10-07/{previous,patches,models,input}.json, focus.tsv   (2026-10-07 fact review)
-        src/data/companyMarketSnapshot.json                                           (price, 2026-10-19)
+        src/data/companyMarketSnapshot.json                                           (per-company price/date; SNAPSHOT_PATH override)
         public/research/data-refresh-2026-10-20/yahoo-quote-batch.json                (vendor EPS / dividend, the snapshot's valuationSource)
-        public/data/dcf-prefill.json                                                  (fyh history, ASML only)
+        public/data/dcf-prefill.json                                                  (original FYH annotations frozen below; live file not read)
 Outputs src/data/details/adrValuation.ts (rt/h/s/ratio/x/z/i overlay), public/research/adr-valuation-2026-10-20/{valuation.json,summary.csv,README.md}
 No network, no clock: re-running produces identical files.
 Rating ladder is copied from scripts/review-cn-itucd-2026-10-07.py (lines 214-236). Valuation is an uncertified research hypothesis.
@@ -13,14 +13,19 @@ import io
 import json
 from collections import Counter
 from pathlib import Path
+from datetime import date, datetime, timezone
+import os
 
 ROOT = Path(__file__).resolve().parents[1]
+VERSION = '2026-10-20'
+EARNINGS_FROZEN_AT = '2026-10-20'
+FROZEN_VENDOR = f'research/data-refresh-{EARNINGS_FROZEN_AT}/yahoo-quote-batch.json'
+SNAPSHOT_PATH = Path(os.environ.get('SNAPSHOT_PATH', ROOT / 'src/data/companyMarketSnapshot.json'))
 SRC = ROOT / 'public/research/adr-2026-10-07'
-OUT = ROOT / 'public/research/adr-valuation-2026-10-20'
-TS = ROOT / 'src/data/details/adrValuation.ts'
-DATE = '2026-10-20'
+OUT = Path(os.environ.get('OUT_DIR', ROOT / f'public/research/adr-valuation-{VERSION}'))
+TS = OUT / 'adrValuation.ts' if os.environ.get('OUT_DIR') else ROOT / 'src/data/details/adrValuation.ts'
 DISCLAIMER = '估值初稿（未认证），仅为研究假设，不构成买卖建议。'
-YAHOO_FILE = 'research/data-refresh-2026-10-20/yahoo-quote-batch.json'
+YAHOO_FILE = FROZEN_VENDOR
 OUT.mkdir(parents=True, exist_ok=True)
 
 previous = json.loads((SRC / 'previous.json').read_text())['companies']
@@ -33,9 +38,31 @@ for line in (SRC / 'focus.tsv').read_text().splitlines():
     if line.strip():
         c, biz, driver, risk, watch, method, segs = line.split('|')
         focus[c] = dict(biz=biz, driver=driver, risk=risk, watch=watch)
-snap = json.loads((ROOT / 'src/data/companyMarketSnapshot.json').read_text())
+snap = json.loads(SNAPSHOT_PATH.read_text())
+
+def input_note(price_date, fallback=False):
+    days = (date.fromisoformat(price_date[:10]) - date.fromisoformat(EARNINGS_FROZEN_AT)).days
+    note = f'盈利输入冻结于 {EARNINGS_FROZEN_AT}'
+    if days < 0 or days > 14:
+        note += f'；价格日期与盈利输入冻结日相差 {abs(days)} 天（价格日期{ "早于" if days < 0 else "晚于" }冻结日）'
+    if fallback:
+        note += '；快照缺失，使用冻结供应商/模型旧报价回退'
+    return note + '。'
+
+
+def price_range(records):
+    dates = sorted({r['priceDate'][:10] for r in records})
+    return dates[0] if dates[0] == dates[-1] else dates[0] + '～' + dates[-1]
+
 yq = {q['symbol']: q for q in json.loads((ROOT / 'public' / YAHOO_FILE).read_text())['quotes'].values()}
-prefill = {i['c']: i for i in json.loads((ROOT / 'public/data/dcf-prefill.json').read_text())['items'] if i['m'] == 'us'}
+# Cross-vendor validation compares simultaneous frozen quotes, not different trading days.
+frozen_tencent = json.loads((ROOT / f'public/research/data-refresh-{EARNINGS_FROZEN_AT}/tencent-quotes.json').read_text())['quotes']
+# FYH annotations frozen with this overlay version (original published x lines).
+# The live dcf-prefill.json is refreshed separately and must not drift on a price-only run.
+prefill = {code: dict(fyh=dict(now=now, pct=pct, med=med, n=n))
+           for code, now, pct, med, n in [
+               ('ASML', 1.92, 34, 2.43, 55), ('SHOP', 0.7, 77, 0.34, 55),
+               ('ARM', -0.03, 41, -0.03, 38), ('MELI', 11.55, 92, 4.45, 55)]}
 
 # class: (中文名, bear PE, base PE, bull PE, 倍数依据, bear growth offset)；结构与 cn-itucd CLS 相同，倍数为全球同业常见区间的研究假设
 CLS = {
@@ -131,20 +158,25 @@ CAP_TEXT = {
 
 records, blocks = [], []
 for code in codes:
-    s = snap[f'adr:{code}']
-    q = yq[s['symbol']]
+    q = yq[code]
+    s = snap.get(f'adr:{code}')
+    fallback = not s
+    if fallback:
+        s = dict(price=q['regularMarketPrice'], currency=q['currency'],
+                 date=datetime.fromtimestamp(q['regularMarketTime'], timezone.utc).date().isoformat(),
+                 provider='冻结 Yahoo 旧报价（快照缺失回退）', session='供应商旧报价')
     old = audit[code]['rating']
     judgment = audit[code]['judgment']
     fc = q.get('financialCurrency') or 'USD'
     fo = focus[code]
     cls = CLASS[code]
     P = s['price']
-    assert s['currency'] == 'USD' and s['date'] == '2026-10-19', code
+    assert s['currency'] == 'USD', code
     eps_t, eps_f = q.get('epsTrailingTwelveMonths'), q.get('epsForward')
     price_src = f'现价 {usd(P)}（companyMarketSnapshot adr:{code}，{s["date"]} {s["provider"]}，{s["session"]}）'
-    eps_src = (f'盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource={YAHOO_FILE}，2026-10-19），非公司指引、非一手财报：'
-               f'TTM EPS {usd(eps_t) if eps_t is not None else "[MISSING]"}/ADS（epsTrailingTwelveMonths，对应 trailingPE {s["trailingPE"] or "[MISSING]"}），'
-               f'前瞻 EPS {usd(eps_f) if eps_f is not None else "[MISSING]"}/ADS（epsForward 供应商共识，对应 forwardPE {s["forwardPE"] or "[MISSING]"}）')
+    eps_src = (f'盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource={YAHOO_FILE}，{datetime.fromtimestamp(q["regularMarketTime"], timezone.utc).date().isoformat()}），非公司指引、非一手财报：'
+               f'TTM EPS {usd(eps_t) if eps_t is not None else "[MISSING]"}/ADS（epsTrailingTwelveMonths，对应 trailingPE {q.get("trailingPE") or "[MISSING]"}），'
+               f'前瞻 EPS {usd(eps_f) if eps_f is not None else "[MISSING]"}/ADS（epsForward 供应商共识，对应 forwardPE {q.get("forwardPE") or "[MISSING]"}）')
     flags, scen, ratio, model, zone = [], [], None, None, None
     loss = eps_t is None or eps_t <= 0
     method = 'div' if cls == 'div' else 'pe'
@@ -165,9 +197,10 @@ for code in codes:
             g = (eps_f / eps_t - 1) * 100  # vendor-implied growth replaces cn-itucd analyst g; base EPS = epsForward
             if not 0.5 <= eps_f / eps_t <= 3:
                 flags.append(f'供应商前瞻 / TTM EPS 比值 {eps_f / eps_t:.2f} 超出 [0.5, 3]，口径或一次性项目待核')
-            if s['trailingPE'] and abs(q['regularMarketPrice'] / s['trailingPE'] / eps_t - 1) > 0.02:
+            if q.get('trailingPE') and abs(q['regularMarketPrice'] / q.get('trailingPE') / eps_t - 1) > 0.02:
                 flags.append('供应商 TTM PE 与 EPS 不自洽')
-            if abs(P / q['regularMarketPrice'] - 1) > 0.03:
+            frozen_price = frozen_tencent.get('us' + code, {}).get('price', q['regularMarketPrice'])
+            if abs(frozen_price / q['regularMarketPrice'] - 1) > 0.03:
                 flags.append('腾讯价与 Yahoo 价相差 >3%')
             eps = [eps_t * max(0.15, 1 + (g - bear_off) / 100), eps_t * (1 + g / 100), eps_t * (1 + (g + 20) / 100)]
             mult = [bearPE, basePE, bullPE]
@@ -275,7 +308,7 @@ for code in codes:
     method_txt = ('普通股 ROE-PB 法' if model and model['method'] == 'roe-pb' else '股息率法') if method == 'div' else 'PE 法'
     headline = f'{rating}（估值初稿，未认证）：{judgment}；估值：{cname}类{method_txt}，{base_txt}；{why_rt}。仅为研究假设，不构成买卖建议。'
 
-    x = [f'估值初稿（未认证）；{eps_src}。', price_src + '。', fx_note(fc) + f'；证券单位：{models[code]["instrument"]}。']
+    x = [f'{input_note(s["date"], fallback)}估值初稿（未认证）；{eps_src}。', price_src + '。', fx_note(fc) + f'；证券单位：{models[code]["instrument"]}。']
     if model:
         x.append(mult_note + ('；' + f'dcf-prefill fyh（FCF 收益率历史）now {prefill[code]["fyh"]["now"]}%、分位 {prefill[code]["fyh"]["pct"]}、中位 {prefill[code]["fyh"]["med"]}%（n={prefill[code]["fyh"]["n"]}），现 FCF 收益率低于历史中位' if code in prefill and prefill[code].get('fyh') else '；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准') + '。')
     x.append('经营现金流：2026-10-07 notes.tsv 未见经营现金为负的披露，完整 OCF [MISSING]；cn-itucd 的「经营现金为负封顶观察」本轮无逐家输入，未触发。')
@@ -308,8 +341,8 @@ dist = Counter(r['rating'] for r in records)
 old_dist = Counter(r['oldRating'] for r in records)
 caps = Counter(c for r in records for c in r['capReasons'])
 (OUT / 'valuation.json').write_text(json.dumps(dict(
-    date=DATE, priceDate='2026-10-19', sources=dict(price='src/data/companyMarketSnapshot.json', vendor='public/' + YAHOO_FILE,
-                                                    facts='public/research/adr-2026-10-07', prefill='public/data/dcf-prefill.json'),
+    version=VERSION, priceDate=price_range(records), sources=dict(price='src/data/companyMarketSnapshot.json', vendor='public/' + YAHOO_FILE,
+                                                    facts='public/research/adr-2026-10-07', prefill='public/data/dcf-prefill.json (published FYH annotations frozen in script at ' + EARNINGS_FROZEN_AT + ')'),
     classes={k: dict(name=v[0], pe=list(v[1:4]), bearOff=v[5], cyclical=k in CYCLICAL) for k, v in CLS.items()},
     dividend=dict(name=DIV[0], yields=list(DIV[1:4]), dpsFactors=[DIV[4], 1, DIV[5]], minYield=DIV_MIN, maxYield=DIV_MAX),
     distribution=dict(sorted(dist.items())), oldDistribution=dict(sorted(old_dist.items())), capReasons=dict(sorted(caps.items())),
@@ -328,12 +361,12 @@ readme = ['# ADR 估值初稿与评级分档（2026-10-20）', '',
           '估值初稿（未认证），仅为研究假设，不构成买卖建议。生成：`python3 scripts/review-adr-valuation-2026-10-20.py`（无联网、无时间戳，重跑输出不变）。', '',
           '## 方法', '',
           '- 覆盖 2026-10-07 ADR 事实复核的 66 家（public/research/adr-2026-10-07/previous.json）；SOFI 保留 src/data/details/sofi.ts 完整研究，不覆盖。',
-          '- 价格：src/data/companyMarketSnapshot.json `adr:<代码>` 的 price（2026-10-19 腾讯延迟行情）。',
+          f'- 价格：src/data/companyMarketSnapshot.json `adr:<代码>` 的 price/date（本次 {price_range(records)}）；盈利输入冻结于 {EARNINGS_FROZEN_AT}。',
           f'- 盈利基数：{YAHOO_FILE}（snapshot 的 valuationSource）中的 epsTrailingTwelveMonths / epsForward，即供应商 PE 反推的每 ADS 美元 EPS，非公司指引、非一手财报。2026-10-07 input.json 的 quotes 没有 forwardEps 字段，也没有 filings 字段（经 coordinator 确认改用此源）。',
           '- PE 法：与 cn-itucd 相同，EPS = TTM × [max(0.15, 1+(g−off)), 1+g, 1+g+20%]，g 为供应商前瞻相对 TTM 的增速（基准 EPS = epsForward）；价格 = EPS × 类别 PE。',
           f'- 银行 / 券商：股息率法，DPS = 供应商 dividendRate × [{DIV[4]}, 1, {DIV[5]}]，目标股息率 {DIV[1]}/{DIV[2]}/{DIV[3]}%；股息率 <{DIV_MIN:.0f}%（不适用）或 >{DIV_MAX:.0f}%（可能含特别股息）记 [MISSING]。PB–ROE 未用：供应商每 ADS 账面价值口径错乱。',
           '- 赔率 = (Base − P) ÷ (P − Bear)，仅在 Bear < P < Base 时计算；评级阶梯逐条照搬 scripts/review-cn-itucd-2026-10-07.py 214–236 行；TTM 亏损统一「回避」。',
-          '- 数据不稳定标记：前瞻 / TTM EPS 比值超出 [0.5, 3]、供应商 PE 与 EPS 不自洽、腾讯与 Yahoo 价差 >3%、悲观价 ≥ 现价。',
+          '- 数据不稳定标记：前瞻 / TTM EPS 比值超出 [0.5, 3]、供应商 PE 与 EPS 不自洽、冻结批次腾讯与 Yahoo 价差 >3%、悲观价 ≥ 现价。',
           '', '## 评级分布', '', '| 评级 | 本轮 | 2026-10-07 |', '| --- | --- | --- |']
 for k in sorted(set(dist) | set(old_dist)):
     readme.append(f'| {k} | {dist.get(k, 0)} | {old_dist.get(k, 0)} |')
