@@ -683,3 +683,79 @@ a.rn-cand {
 .rn-dcf__tag { display: inline-block; margin-right: 4px; padding: 0 5px; border-radius: 4px; font-size: 0.7rem; font-weight: 500; color: var(--text-secondary); background: var(--bg-secondary); }
 .rn-dcf__low { display: inline-block; margin-left: 5px; padding: 0 5px; border-radius: 4px; font-size: 0.7rem; color: var(--text-secondary); background: var(--bg-secondary); }
 .rn-dcf__buy { display: inline-block; margin-left: 5px; padding: 0 5px; border-radius: 4px; font-size: 0.7rem; color: var(--text-primary); background: color-mix(in srgb, var(--system-green) 18%, transparent); }
+
+/* 公司页：决策信号汇总 */
+.sig-table th[scope='row'] {
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.sig-table td strong {
+  white-space: nowrap;
+}
+
+.sig-detail {
+  min-width: 14rem;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+.sig-dir {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.sig-dir.is-pos {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+
+.sig-dir.is-neg {
+  background: var(--accent-warm-soft);
+  color: var(--warm-ink);
+}
+
+.sig-dir.is-neutral,
+.sig-dir.is-none {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+.sig-callout {
+  margin-top: var(--space-3);
+}
+
+@media (max-width: 640px) {
+  /* 窄屏：依据换到下一行，不用横向滑动 */
+  .sig-table thead {
+    display: none;
+  }
+
+  .sig-table tr {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 2px 10px;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .sig-table tr:last-child {
+    border-bottom: 0;
+  }
+
+  .sig-table th,
+  .sig-table td {
+    padding: 0;
+    border: 0;
+  }
+
+  .sig-table .sig-detail {
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+}

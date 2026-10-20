@@ -10,6 +10,11 @@ import { SP500_REPORT } from '../data/sp500Reassessment'
 import CandidateButton from '../components/CandidateButton'
 import { useCandidates } from '../features/candidates/useCandidates'
 import { latestDecision } from '../features/candidates/store'
+import { useToolSources } from '../features/candidates/useToolSources'
+import { dcfOf } from '../features/candidates/links'
+import { companySignals } from '../features/signals/companySignals'
+import SignalSummary from '../components/SignalSummary'
+import { localDay } from '../components/DecisionDialog'
 import { priceAnchorAge } from '../features/dcf/priceAnchor'
 import { buildDcfLink } from '../features/dcf'
 import QuickDcf from '../components/QuickDcf'
@@ -34,6 +39,7 @@ export default function CompanyDetail(): JSX.Element {
   const lynchAll = useLynch()
   const company = list.find(c => c.code === decodeURIComponent(code || ''))
   const cand = useCandidates(true)
+  const tools = useToolSources()
   usePageSeo(company ? `${company.name}（${company.code}）研究笔记` : undefined, company ? `${company.name}（${company.code}）：${company.headline}`.slice(0, 160) : undefined)
 
   useEffect(() => {
@@ -135,6 +141,20 @@ export default function CompanyDetail(): JSX.Element {
     ['验证日历', company.next.length > 0 || !!company.calendar],
   ]
   const done = completeness.filter(c => c[1]).length
+  const candItem = cand.items.find(i => i.market === company.market && i.code === company.code)
+  const lastDecision = candItem && latestDecision(candItem)
+  const lynchInfo = lynchAll[`${company.market}:${company.code}`]
+  const signals = companySignals({
+    rating: company.rating,
+    price,
+    priceDate: priceAge?.date,
+    priceStale: priceAge?.stale,
+    scenarios: company.scenarios ?? scenRows?.map(([name, value]) => ({ name, price: value })),
+    dcf: dcfOf(company.market, company.code, tools),
+    lynch: lynchInfo && { type: lynchInfo.t, attention: lynchInfo.r, moat: lynchInfo.m ? `护城河财务证据 ${lynchInfo.m.s}/${lynchInfo.m.n} 项通过` : undefined },
+    decision: lastDecision && { action: lastDecision.action, nextCheck: lastDecision.nextCheck, count: candItem?.decisions?.length ?? 0 },
+    today: localDay(),
+  })
   const pending = (label: string): JSX.Element => (
     <span className="rn-pending">待补充{label}（可在 Notion 原页查看）</span>
   )
@@ -156,14 +176,10 @@ export default function CompanyDetail(): JSX.Element {
         {company.marketRefresh && <PageDataFreshness checkedAt={company.marketRefresh.checkedAt} dataLabel="行情日期" dataDates={[company.marketRefresh.priceDate]} researchAsOf={company.marketRefresh.originalAsOf} />}
         <div className="ui-cluster">
           <span className="rn-rating" style={{ color: TONE_INK[tone] }}>{company.rating}</span>
-          {(() => {
-            const item = cand.items.find(i => i.market === company.market && i.code === company.code)
-            const latest = item && latestDecision(item)
-            // 有决策记录的公司只在候选池里移除，这里直接链接到记录
-            return latest
-              ? <Link to="/candidates" className="rn-cand">✓ 已候选 · 决策记录 {item.decisions?.length} 条 · 下次检查 {latest.nextCheck}</Link>
-              : <CandidateButton on={!!item} onClick={() => cand.toggle(company.market, company.code)} />
-          })()}
+          {/* 有决策记录的公司只在候选池里移除，这里直接链接到记录 */}
+          {lastDecision
+            ? <Link to="/candidates" className="rn-cand">✓ 已候选 · 决策记录 {candItem?.decisions?.length} 条 · 下次检查 {lastDecision.nextCheck}</Link>
+            : <CandidateButton on={!!candItem} onClick={() => cand.toggle(company.market, company.code)} />}
         </div>
         {priceAge && (
           <p role="status" className={priceAge.stale ? 'rn-price-age is-stale' : 'rn-price-age'}>
@@ -174,6 +190,7 @@ export default function CompanyDetail(): JSX.Element {
       </div>
 
       <div>
+        <SignalSummary summary={signals} />
         <ResearchNotice />
         <QuickDcf market={company.market} code={company.code} name={company.name} price={price} />
         {(company.market === 'us' || company.market === 'cn' || company.market === 'hk' || company.market === 'adr') && (company.researchReport || company.metrics.some(([key]) => key === '圆桌复核日期')) && (

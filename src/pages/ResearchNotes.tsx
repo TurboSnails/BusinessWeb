@@ -33,6 +33,7 @@ import {
   Tone
 } from '../data/notionNotes'
 import { useCompanies, useLynch, sectorsOf, Market, Company, LynchInfo } from '../data/companies'
+import { ratingBucket } from '../features/signals/companySignals'
 import CompanyCombined from '../components/CompanyCombined'
 import CandidateButton from '../components/CandidateButton'
 import { DcfCell, DcfFilterChips } from '../components/DcfCell'
@@ -189,15 +190,8 @@ export default function ResearchNotes(): JSX.Element {
   const combinedLoading = catMarket === 'cn' ? cnLoading : catMarket === 'hk' ? hkLoading : catMarket === 'adr' ? adrLoading : catMarket === 'ndx' ? ndxLoading : usLoading
   const progSectors = sectorsOf(progList)
   const secList = progSector === '全部' ? progList : progList.filter(c => c.sector === progSector)
-  // 各来源评级用语不一（Notion 手写：逢低增持/买入/首选/核心配置…），统一归到四档；未识别的一律「观察」
-  const ratingOf = (c: { rating: string }): string => {
-    const r = c.rating
-    if (/^未估值/.test(r)) return '未估值'
-    if (/^(回避|暂不|暂缓)/.test(r)) return '回避'
-    if (/^(优先关注|优先跟踪|买入|首选|核心配置|均衡优选|稳健增配)/.test(r)) return '优先关注'
-    if (/^(条件|HOLD（条件候选）|优先观察|观察优先|重点观察|邮轮组优先|质地优先|增长可持续|质量观察（第|优质但待价|逢低增持)/.test(r)) return '条件关注'
-    return '观察'
-  }
+  // 评级归档规则见 features/signals/companySignals 的 ratingBucket（公司页信号汇总共用）
+  const ratingOf = (c: { rating: string }): string => ratingBucket(c.rating)
   const hkNote = '港股范围 = 恒生指数成分股（取自维基百科 2026-01 名单）∪ 恒生科技与主要 H 股龙头补充，共 127 家，全部已覆盖（领展、药明生物、药明康德因东方财富接口失败，改用第三方 stockanalysis.com 数据，需核实）。这不是官方指数口径，是「港股大盘蓝筹」的研究池。数据来自东方财富：PE/PB/股息率直接取其已换算值（港股报告币种常与交易币种不同，不能自行用 EPS 除股价）；增速按财年窗口计算，并附最新中期利润同比。127 家港股均已按股票分析专家标准做成手工研究页：用 aktools（东方财富）取财务与估值，联网搜索公司 2026 中期业绩核对，给出三情景、买入区与评级；其中赣锋锂业、中国铝业、中国铁建、中国交建、中国建材、信义玻璃、信义光能 7 家因搜索额度用尽，只有东方财富口径的 H1 同比加第三方（stockanalysis.com）的年度/TTM 数据，分部、产量等标 [MISSING]；海螺水泥仅有东方财富口径，结论信息不全；比亚迪电子等数页缺 H1 公告数据；电能实业、长江基建 PE 含出售 UKPN 一次性收益，页内改用估算的经常性 EPS。多数公司盈亏比低于 1:1，评级以观察为主，反映价格已含较高预期而非数据缺失。'
   const adrNote = '美股非标普研究池共66家，按四个分类覆盖：海外龙头30家、中概21家、新兴市场平台13家、新上市/热门2家；名单是自选研究池，不是官方指数。2026-10-07已逐家核读公司或监管财务原件，更新常规交易价快照、证券单位、财报期、一次性损益、旧结论修正与风险证伪。采用单模型多视角复核，15个批次每批3–5家。汇丰与道明银行有静态BV/ROE敏感性草案，全部66家均未完成两种独立估值认证；旧买入区、赔率及未经核实的美元EPS折算不作为当前结论。每家公司可打开本轮完整报告；缺证据标[MISSING]，不把缺证直接解释成经营恶化。'
   const ndxNote = (): string => {
