@@ -8,7 +8,6 @@ type Response = {
 }
 const object = (value: unknown): value is Record<string, unknown> => !!value && typeof value === 'object' && !Array.isArray(value)
 const first = (value: string | string[] | undefined): string => (Array.isArray(value) ? value[0] : value) ?? ''
-// eslint-disable-next-line no-control-regex
 const CONTROL = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/
 const HOURLY_LIMIT = 5
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i

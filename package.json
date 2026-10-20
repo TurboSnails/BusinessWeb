@@ -18,7 +18,7 @@
     "valuation:app": "node scripts/valuation-app.mjs",
     "test:valuation-server": "node --test server/valuation/*.test.mjs",
     "test": "node scripts/run-vitest.mjs",
-    "lint": "eslint src",
+    "lint": "eslint src server api scripts",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.grid.json && tsc --noEmit -p tsconfig.server.json && tsc --noEmit -p tsconfig.valuation.json && tsc --noEmit -p tsconfig.knowledge.json && tsc --noEmit -p tsconfig.company-notes.json && tsc --noEmit -p tsconfig.daily-analysis.json && tsc --noEmit -p tsconfig.market-cycle.json",
     "prebuild": "node scripts/generate-blog-catalog.mjs && node scripts/generate-changelog.mjs && node scripts/generate-sitemap.mjs",
     "build": "vite build && node scripts/prerender-routes.mjs",

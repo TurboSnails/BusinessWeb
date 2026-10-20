@@ -27,6 +27,9 @@ jobs:
       - run: npm test
       - run: npm run typecheck
       - run: npm run lint
+      - run: npm run test:scripts
+      - run: npm run test:valuation-server
+      - run: npm run test:knowledge
       - run: npm ci --prefix obsidian-plugin
       - run: npm test -- --run --config vitest.sync.config.ts
       - run: npm run typecheck --prefix obsidian-plugin

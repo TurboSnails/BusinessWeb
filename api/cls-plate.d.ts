@@ -1,6 +1,7 @@
-export default function handler(req: { method?: string; query: Record<string, unknown> }, res: {
+interface Res {
   setHeader(name: string, value: string): unknown
-  status(code: number): any
+  status(code: number): Res
   json(body: unknown): unknown
   end(): unknown
-}): Promise<unknown>
+}
+export default function handler(req: { method?: string; query: Record<string, unknown> }, res: Res): Promise<unknown>

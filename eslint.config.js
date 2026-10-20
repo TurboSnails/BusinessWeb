@@ -3,7 +3,6 @@ import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import tseslint from 'typescript-eslint'
 
-// 只检查前端源码；脚本与服务端（.mjs）后续再逐步纳入
 export default tseslint.config(
   { ignores: ['dist', 'node_modules', 'public', 'src/data/details/**'] },
   {
@@ -14,7 +13,7 @@ export default tseslint.config(
     linterOptions: { reportUnusedDisableDirectives: 'error' },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrors: 'none' }],
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrors: 'none', ignoreRestSiblings: true }],
       // `cond && fn()` / 三元调用是本仓库的常见写法
       '@typescript-eslint/no-unused-expressions': ['error', { allowShortCircuit: true, allowTernary: true }],
       'no-empty': ['error', { allowEmptyCatch: true }],
@@ -24,6 +23,19 @@ export default tseslint.config(
       // 外部接口数据先用 unknown 接收，在使用处收窄
       '@typescript-eslint/no-explicit-any': 'error',
       'no-useless-escape': 'error',
+    },
+  },
+  {
+    // 服务端、Vercel 函数与数据脚本：Node 环境，只用基础规则
+    files: ['server/**/*.{js,mjs,ts}', 'api/**/*.{js,ts}', 'scripts/**/*.mjs'],
+    extends: [js.configs.recommended, ...tseslint.configs.recommended],
+    languageOptions: { ecmaVersion: 2022, sourceType: 'module', globals: globals.node },
+    linterOptions: { reportUnusedDisableDirectives: 'error' },
+    rules: {
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrors: 'none', ignoreRestSiblings: true }],
+      '@typescript-eslint/no-unused-expressions': ['error', { allowShortCircuit: true, allowTernary: true }],
+      'no-empty': ['error', { allowEmptyCatch: true }],
+      'no-control-regex': 'off',
     },
   },
   {

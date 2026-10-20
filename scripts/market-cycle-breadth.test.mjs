@@ -7,7 +7,6 @@ import { computeBreadth, parseBars, parseEastmoneyHkBars, sanitizeBars, selectBa
 import { HK_INDEX_CODES } from './market-cycle-hk-universe.mjs'
 
 const TODAY = '2026-10-16'
-const day = i => new Date(Date.parse('2025-01-01') + i * 864e5).toISOString().slice(0, 10)
 /** n consecutive calendar-day bars ending at `end`, closes from fn(i). */
 const series = (n, end, fn) => Array.from({ length: n }, (_, i) => [new Date(Date.parse(end) - (n - 1 - i) * 864e5).toISOString().slice(0, 10), fn(i)])
 const members = n => Array.from({ length: n }, (_, i) => ({ code: String(600000 + i) }))

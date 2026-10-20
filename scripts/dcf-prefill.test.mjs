@@ -43,7 +43,7 @@ test('SEC shares sum share classes from the latest filing', () => {
 })
 
 test('SEC series merge tags across years and keep the reporting currency', () => {
-  const annual = (end, val, unit = 'EUR') => ({ start: `${Number(end.slice(0, 4)) - 1}${end.slice(4)}`.replace(/-12-31$/, '-12-31'), end, val, filed: `${Number(end.slice(0, 4)) + 1}-02-01` })
+  const annual = (end, val) => ({ start: `${Number(end.slice(0, 4)) - 1}${end.slice(4)}`.replace(/-12-31$/, '-12-31'), end, val, filed: `${Number(end.slice(0, 4)) + 1}-02-01` })
   const yr = (y, v) => ({ ...annual(`${y}-12-31`, v), start: `${y}-01-01`, fp: 'FY', form: '10-K' })
   const raw = { facts: { 'us-gaap': {
     Revenues: { units: { EUR: [yr(2025, 300)] } },
