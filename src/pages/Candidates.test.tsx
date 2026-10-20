@@ -1,8 +1,9 @@
 import React from 'react'
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import Candidates from './Candidates'
+import { loadBaseCompanies } from '../data/companies'
 
 vi.mock('../features/candidates/links', async importOriginal => {
   const actual = await importOriginal<typeof import('../features/candidates/links')>()
@@ -18,6 +19,12 @@ vi.mock('../features/candidates/links', async importOriginal => {
 
 const seed = (items: unknown[]): void => localStorage.setItem('rn-candidates', JSON.stringify(items))
 const renderAt = (path = '/candidates') => render(<MemoryRouter initialEntries={[path]}><Candidates /></MemoryRouter>)
+
+// 页面挂载会懒加载 companyCore 及深度研究模块。先等待这些模块就绪，
+// 避免同步断言结束后，CI 仍在导入模块时就销毁测试环境。
+beforeAll(async () => {
+  await Promise.all((['us', 'cn', 'hk', 'adr', 'ndx'] as const).map(loadBaseCompanies))
+})
 
 beforeEach(() => {
   localStorage.clear()
