@@ -10,6 +10,13 @@ export interface SiteUpdate {
 // 使用中文描述结果和使用方式，不从 Git 提交、构建或日常数据刷新自动生成。
 export const SITE_UPDATES: readonly SiteUpdate[] = [
   {
+    id: 'matt-workflow',
+    date: '2026-10-20',
+    title: 'Matt Pocock 开发工作流 Skill 上线',
+    description: '中文版 Skills v1.3：从追问设计、写 spec、拆 tickets 到实现、双轴审查、写 PR 和复盘的完整流程，新增并行实现 implement-spec、pr 与 retro，可下载独立安装包。',
+    href: '/ai/ai-skills#development-skills',
+  },
+  {
     id: 'dropshipping-strategy',
     date: '2026-10-11',
     title: '无货源电商：30 天实施方案',

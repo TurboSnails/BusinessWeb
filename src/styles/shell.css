@@ -462,6 +462,7 @@
 
 .skill-card .skill-card__alias { font-size: 0.85rem; overflow-wrap: anywhere; }
 .skill-card .skill-card__focus { color: var(--accent); font-weight: 600; }
+.skill-card pre { overflow-x: auto; margin: 0; font-size: 12px; line-height: 1.5; }
 .skill-card > .skill-download { margin-top: auto; }
 
 .skill-download-actions {

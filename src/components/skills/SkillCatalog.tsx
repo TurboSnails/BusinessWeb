@@ -3,6 +3,7 @@ import { Download } from 'lucide-react'
 import { INVESTMENT_SKILLS, INVESTMENT_SKILL_TAG, investmentSkillDownloadUrl } from '../../data/investmentSkills'
 import { WRITING_SKILLS } from '../../data/writingSkills'
 import DevTeamSkillCard from './DevTeamSkillCard'
+import MattWorkflowSkillCard from './MattWorkflowSkillCard'
 
 export default function SkillCatalog(): JSX.Element {
   return (
@@ -20,6 +21,7 @@ export default function SkillCatalog(): JSX.Element {
         <h2 id="development-skills-title">开发协作</h2>
         <div className="skill-grid">
           <DevTeamSkillCard />
+          <MattWorkflowSkillCard />
         </div>
       </section>
 
