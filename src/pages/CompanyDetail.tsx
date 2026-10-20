@@ -30,7 +30,7 @@ export default function CompanyDetail(): JSX.Element {
   const { market, code } = useParams()
   const navigate = useNavigate()
   const mk = (market === 'cn' ? 'cn' : market === 'hk' ? 'hk' : market === 'adr' ? 'adr' : market === 'ndx' ? 'ndx' : 'us') as Market
-  const { list, loading } = useCompanies(mk)
+  const { list, loading, failed } = useCompanies(mk)
   const lynchAll = useLynch()
   const company = list.find(c => c.code === decodeURIComponent(code || ''))
   const cand = useCandidates(true)
@@ -74,10 +74,10 @@ export default function CompanyDetail(): JSX.Element {
 
   if (!company) {
     return (
-      <Page variant="reading" title={loading ? '公司研究' : '未找到该公司'}>
+      <Page variant="reading" title={loading || failed ? '公司研究' : '未找到该公司'}>
         {back}
-        <EmptyState title={loading ? '正在加载…' : '未找到该公司'}>
-          {loading ? '正在读取补全公司数据。' : '该公司还没有整理进公司库。'}
+        <EmptyState title={loading ? '正在加载…' : failed ? '公司数据加载失败' : '未找到该公司'}>
+          {loading ? '正在读取补全公司数据。' : failed ? '网络中断或页面已更新，请刷新后重试。' : '该公司还没有整理进公司库。'}
         </EmptyState>
       </Page>
     )

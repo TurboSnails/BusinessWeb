@@ -51,9 +51,16 @@ const genCache: Partial<Record<Market, Promise<Company[]>>> = {}
 const resolved: Partial<Record<Market, Company[]>> = {}
 const coreOf = (market: Market) => import('./companyCore').then(m => m.resolveMarket(market))
 
+// 加载失败（如分包下载中断）时清掉缓存，下次调用可以重试，而不是永远拿到同一个失败结果
+function remember(cache: Partial<Record<Market, Promise<Company[]>>>, market: Market, p: Promise<Company[]>): Promise<Company[]> {
+  cache[market] = p
+  p.catch(() => { if (cache[market] === p) delete cache[market] })
+  return p
+}
+
 // 只含手工研究页（不拉取程序化补全 JSON）
 export const loadBaseCompanies = (market: Market): Promise<Company[]> =>
-  (baseCache[market] ??= coreOf(market).then(r => r.base))
+  baseCache[market] ?? remember(baseCache, market, coreOf(market).then(r => r.base))
 
 export const loadCompanies = (market: Market): Promise<Company[]> => {
   const cached = genCache[market]
@@ -61,23 +68,25 @@ export const loadCompanies = (market: Market): Promise<Company[]> => {
   const gen = fetch(`${import.meta.env.BASE_URL}data/${market}.json`)
     .then(r => (r.ok ? (r.json() as Promise<Company[]>) : []))
     .catch(() => [] as Company[])
-  const p = Promise.all([coreOf(market), gen]).then(([core, g]) => (resolved[market] = core.merge(g)))
-  genCache[market] = p
-  return p
+  return remember(genCache, market, Promise.all([coreOf(market), gen]).then(([core, g]) => (resolved[market] = core.merge(g))))
 }
 
-export const useCompanies = (market: Market, enabled = true): { list: Company[]; loading: boolean } => {
+export const useCompanies = (market: Market, enabled = true): { list: Company[]; loading: boolean; failed: boolean } => {
   const [list, setList] = useState<Company[]>(() => resolved[market] ?? [])
   const [loading, setLoading] = useState(enabled && !resolved[market])
+  const [failed, setFailed] = useState(false)
   useEffect(() => {
     if (!enabled) return
     let alive = true
-    if (resolved[market]) { setList(resolved[market]!); setLoading(false); return }
+    if (resolved[market]) { setList(resolved[market]!); setLoading(false); setFailed(false); return }
     setLoading(true)
-    loadCompanies(market).then(l => { if (alive) { setList(l); setLoading(false) } })
+    loadCompanies(market).then(
+      l => { if (alive) { setList(l); setLoading(false); setFailed(false) } },
+      () => { if (alive) { setLoading(false); setFailed(true) } },
+    )
     return () => { alive = false }
   }, [market, enabled])
-  return { list, loading }
+  return { list, loading, failed }
 }
 
 // ───────── 林奇分类 + 护城河证据（脚本按统一规则生成，public/data/lynch.json，键为 market:code）─────────
