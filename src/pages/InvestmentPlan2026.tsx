@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { SIGNALS, STAGES, computeStage, signalTone, type Stage } from '../features/macro/stages'
+import { SIGNALS, computeStage, signalTone, type Stage } from '../features/macro/stages'
 import { ageInDays, signalValues } from '../features/macro/indicators'
 import { signalReadout } from '../features/macro/readout'
 import { cycleReadout, QUADRANTS } from '../features/macro/cycle'
@@ -1185,7 +1185,6 @@ const CalendarTab: React.FC<{ today: Date }> = ({ today }) => {
   }
   useEffect(() => {
     load(days)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [days])
 
   const sorted = useMemo(

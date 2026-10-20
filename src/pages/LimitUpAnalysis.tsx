@@ -5,12 +5,7 @@ import {
   Calendar,
   RefreshCcw,
   AlertTriangle,
-  BarChart2,
-  TrendingDown,
-  Info,
-  ChevronDown,
-  ChevronUp,
-  ArrowRight
+  BarChart2
 } from 'lucide-react'
 import { loadLimitUp, shanghaiDate, isClosedDate, type LimitUpResult } from '../services/limitUp'
 import { getLimitUpCache, saveLimitUpCache, readLimitUpView, saveLimitUpView } from '../services/limitUpCache'

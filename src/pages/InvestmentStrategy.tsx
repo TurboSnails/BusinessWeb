@@ -4,17 +4,12 @@ import { Page } from '../components/ui'
 import {
   TrendingUp,
   Globe,
-  BarChart2,
   Shield,
   Target,
   CheckCircle2,
-  AlertTriangle,
   Layers,
   RefreshCw,
-  ArrowRight,
-  Clock,
-  Zap,
-  Star
+  Zap
 } from 'lucide-react'
 
 type TabId = 'dna' | 'cycle' | 'filter' | 'execute' | 'risk'

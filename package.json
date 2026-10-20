@@ -18,6 +18,7 @@
     "valuation:app": "node scripts/valuation-app.mjs",
     "test:valuation-server": "node --test server/valuation/*.test.mjs",
     "test": "node scripts/run-vitest.mjs",
+    "lint": "eslint src",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.grid.json && tsc --noEmit -p tsconfig.server.json && tsc --noEmit -p tsconfig.valuation.json && tsc --noEmit -p tsconfig.knowledge.json && tsc --noEmit -p tsconfig.company-notes.json && tsc --noEmit -p tsconfig.daily-analysis.json && tsc --noEmit -p tsconfig.market-cycle.json",
     "prebuild": "node scripts/generate-blog-catalog.mjs && node scripts/generate-changelog.mjs && node scripts/generate-sitemap.mjs",
     "build": "vite build && node scripts/prerender-routes.mjs",
@@ -56,6 +57,7 @@
   },
   "devDependencies": {
     "@earendil-works/pi-coding-agent": "^1.0.2",
+    "@eslint/js": "^9.39.4",
     "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.6.7",
     "@types/node": "^24.19.0",
@@ -63,8 +65,12 @@
     "@types/react-dom": "^18.2.7",
     "@types/three": "^0.186.0",
     "@vitejs/plugin-react": "^4.0.0",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^16.5.0",
     "jsdom": "^29.1.1",
     "typescript": "^5.1.0",
+    "typescript-eslint": "^8.72.0",
     "vite": "^5.0.0",
     "vitest": "^4.1.11"
   },

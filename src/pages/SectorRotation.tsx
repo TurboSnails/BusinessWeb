@@ -12,16 +12,6 @@ import {
   BarChart2,
   Flame,
   Tag,
-  ArrowRight,
-  ChevronDown,
-  TrendingUp,
-  TrendingDown,
-  Target,
-  Clock,
-  RefreshCcw,
-  Calendar,
-  Info,
-  ChevronUp,
   Loader2
 } from 'lucide-react'
 
@@ -71,17 +61,13 @@ export default function SectorRotation(): JSX.Element {
   const [matchWarning, setMatchWarning] = useState<string | null>(null) // 匹配度警告
 
   // 从东方财富接口获取的板块类型映射（板块名称 -> 类型）（已注释）
-  const [sectorTypeMap, setSectorTypeMap] = useState<Map<string, 'industry' | 'concept'>>(new Map())
-  const [sectorTypeMapLoaded, setSectorTypeMapLoaded] = useState(false)
+  const [sectorTypeMap] = useState<Map<string, 'industry' | 'concept'>>(new Map())
+  const [sectorTypeMapLoaded] = useState(false)
 
   // 从财联社接口获取的板块类型映射（优先使用）
   const [caiLianSheTypeMap, setCaiLianSheTypeMap] = useState<Map<string, 'industry' | 'concept'>>(new Map())
   const [caiLianSheTypeMapLoaded, setCaiLianSheTypeMapLoaded] = useState(!!initialView)
 
-  // CORS代理配置
-  const CORS_PROXY_MAIN = (url: string) => `https://corsproxy.io/?${encodeURIComponent(url)}`
-  const CORS_PROXY_BACKUP = (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
-  const CORS_PROXY_THIRD = (url: string) => `https://proxy.cors.sh/${url}`
   const CORS_PROXIES = [clsProxy] // 使用有超时和数据库缓存的自有接口
 
   // 从东方财富接口获取板块类型映射（已注释，暂时不使用）
@@ -212,10 +198,8 @@ export default function SectorRotation(): JSX.Element {
 
     try {
       // 尝试获取财联社的板块列表接口，看是否有类型信息
-      const today = previousTradingDate(shanghaiDate()).replace(/-/g, '')
-      const apiUrl = `https://x-quote.cls.cn/v2/quote/a/plate/up_down_analysis?up_limit=0&date=${today}`
 
-      for (const proxy of CORS_PROXIES) {
+      for (const _proxy of CORS_PROXIES) {
         try {
           const data = peekSectorPayload(previousTradingDate(shanghaiDate()))
           if (data) {
@@ -308,14 +292,12 @@ export default function SectorRotation(): JSX.Element {
       return { sectors: [], rawData: [] }
     }
 
-    const dateStr = date.replace(/-/g, '')
-    // 财联社API支持历史日期参数
-    const apiUrl = `https://x-quote.cls.cn/v2/quote/a/plate/up_down_analysis?up_limit=0&date=${dateStr}`
 
     console.log(`📅 获取概念板块数据，日期: ${date}`)
 
     // 尝试多个代理
-    for (const proxy of CORS_PROXIES) {
+    for (const _proxy of CORS_PROXIES) {
+      // eslint-disable-next-line no-useless-catch -- 历史结构：拆分 SectorRotation 时连同代理循环一起移除
       try {
         const data = await loadSectorPayload(date, refresh, signal)
 
@@ -331,10 +313,7 @@ export default function SectorRotation(): JSX.Element {
 
           const filteredData = plateStockData.filter((plate: any) => {
             const name = String(plate.secu_name || plate.name || '').trim()
-            const code = String(plate.secu_code || plate.code || plate.plate_code || '').trim()
 
-            // 记录该板块使用的匹配方法（用于统计）
-            let plateMatchMethod: 'api' | 'apiMap' | 'keyword' = 'keyword'
 
             // 方法1：检查API是否有类型字段（最可靠，优先使用财联社自己的类型字段）
             // 检查所有可能的类型字段
@@ -342,7 +321,6 @@ export default function SectorRotation(): JSX.Element {
               plate.plate_category || plate.plate_kind || plate.secu_type || plate.secu_category
             if (plateType) {
               hasApiMatch = true
-              plateMatchMethod = 'api'
               const typeStr = String(plateType).toLowerCase()
               const isIndustry = (filterType as string) === 'industry'
               if (isIndustry) {
@@ -375,7 +353,6 @@ export default function SectorRotation(): JSX.Element {
               let mappedType = caiLianSheTypeMap.get(name)
               if (mappedType) {
                 hasApiMapMatch = true
-                plateMatchMethod = 'apiMap'
                 return mappedType === filterType
               }
 
@@ -383,7 +360,6 @@ export default function SectorRotation(): JSX.Element {
               mappedType = caiLianSheTypeMap.get(nameCleaned)
               if (mappedType) {
                 hasApiMapMatch = true
-                plateMatchMethod = 'apiMap'
                 return mappedType === filterType
               }
 
@@ -394,173 +370,9 @@ export default function SectorRotation(): JSX.Element {
                   name.includes(mappedName) || mappedName.includes(name) ||
                   nameCleaned.includes(mappedNameCleaned) || mappedNameCleaned.includes(nameCleaned)) {
                   hasApiMapMatch = true
-                  plateMatchMethod = 'apiMap'
                   return mappedType === filterType
                 }
               }
-            }
-
-            // 方法3：使用从东方财富接口获取的板块类型映射（已注释，暂时不使用）
-            // if (sectorTypeMapLoaded && sectorTypeMap.size > 0) {
-            if (false) { // 暂时禁用东方财富接口
-              // 清理名称：去掉常见后缀，用于匹配
-              const cleanName = (n: string) => {
-                return n
-                  .replace(/概念$|题材$|主题$|行业$|板块$|产业链$/, '')
-                  .trim()
-              }
-
-              const nameCleaned = cleanName(name)
-
-              // 调试：只在第一个板块时输出详细信息
-              const isFirstPlate = plateStockData.indexOf(plate) === 0
-
-              // 调试：输出匹配尝试信息（仅对特定板块）
-              if (isFirstPlate || name === '纺织服装' || name === '有色金属概念') {
-                console.log(`  🔍 尝试匹配板块: "${name}" (清理后: "${nameCleaned}"), 目标类型: ${filterType}`)
-              }
-
-              // 1. 精确匹配
-              let mappedType = sectorTypeMap.get(name)
-              if (mappedType) {
-                hasApiMapMatch = true
-                plateMatchMethod = 'apiMap'
-                if (isFirstPlate || name === '纺织服装' || name === '有色金属概念') {
-                  console.log(`  ✅ 精确匹配: "${name}" -> ${mappedType}`)
-                }
-                return mappedType === filterType
-              }
-
-              // 2. 清理后的名称匹配（去掉"概念"等后缀后匹配）
-              mappedType = sectorTypeMap.get(nameCleaned)
-              if (mappedType) {
-                hasApiMapMatch = true
-                plateMatchMethod = 'apiMap'
-                if (isFirstPlate || name === '纺织服装' || name === '有色金属概念') {
-                  console.log(`  ✅ 清理后匹配: "${nameCleaned}" -> ${mappedType}`)
-                }
-                return mappedType === filterType
-              }
-
-              // 调试：如果"纺织服装"或"有色金属概念"没有匹配上，输出详细信息
-              if (name === '纺织服装' || name === '有色金属概念') {
-                console.log(`  ⚠️ "${name}" 未在步骤1-2中匹配`)
-                console.log(`  检查映射表: has("${name}") = ${sectorTypeMap.has(name)}, has("${nameCleaned}") = ${sectorTypeMap.has(nameCleaned)}`)
-                if (name === '有色金属概念') {
-                  console.log(`  检查"有色金属": has("有色金属") = ${sectorTypeMap.has('有色金属')}, type = ${sectorTypeMap.get('有色金属')}`)
-                }
-              }
-
-              // 3. 反向清理匹配（映射表中的名称去掉后缀后，与财联社名称匹配）
-              for (const [mappedName, mappedType] of sectorTypeMap.entries()) {
-                const mappedNameCleaned = cleanName(mappedName)
-                // 如果财联社名称（清理后）等于映射表名称（清理后），则匹配
-                if (nameCleaned === mappedNameCleaned && nameCleaned.length > 0) {
-                  hasApiMapMatch = true
-                  plateMatchMethod = 'apiMap'
-                  if (isFirstPlate) {
-                    console.log(`  ✅ 反向清理匹配: "${nameCleaned}" <-> "${mappedNameCleaned}" -> ${mappedType}`)
-                  }
-                  return mappedType === filterType
-                }
-                // 如果财联社名称（清理后）等于映射表原始名称，也匹配
-                if (nameCleaned === mappedName && nameCleaned.length > 0) {
-                  hasApiMapMatch = true
-                  plateMatchMethod = 'apiMap'
-                  if (isFirstPlate) {
-                    console.log(`  ✅ 反向清理匹配2: "${nameCleaned}" <-> "${mappedName}" -> ${mappedType}`)
-                  }
-                  return mappedType === filterType
-                }
-                // 如果财联社原始名称等于映射表名称（清理后），也匹配
-                if (name === mappedNameCleaned && mappedNameCleaned.length > 0) {
-                  hasApiMapMatch = true
-                  plateMatchMethod = 'apiMap'
-                  if (isFirstPlate) {
-                    console.log(`  ✅ 反向清理匹配3: "${name}" <-> "${mappedNameCleaned}" -> ${mappedType}`)
-                  }
-                  return mappedType === filterType
-                }
-                // 如果财联社原始名称等于映射表原始名称，也匹配（这个应该在步骤1就匹配了，但为了保险再加一次）
-                if (name === mappedName) {
-                  hasApiMapMatch = true
-                  plateMatchMethod = 'apiMap'
-                  if (isFirstPlate) {
-                    console.log(`  ✅ 反向清理匹配4: "${name}" <-> "${mappedName}" -> ${mappedType}`)
-                  }
-                  return mappedType === filterType
-                }
-              }
-
-              // 4. 双向包含匹配（更宽松）
-              for (const [mappedName, mappedType] of sectorTypeMap.entries()) {
-                const mappedNameCleaned = cleanName(mappedName)
-
-                // 双向包含匹配（原始名称和清理后的名称都尝试）
-                if (name === mappedName || nameCleaned === mappedNameCleaned ||
-                  name.includes(mappedName) || mappedName.includes(name) ||
-                  nameCleaned.includes(mappedNameCleaned) || mappedNameCleaned.includes(nameCleaned) ||
-                  name.includes(mappedNameCleaned) || mappedNameCleaned.includes(name) ||
-                  mappedName.includes(nameCleaned) || nameCleaned.includes(mappedName)) {
-                  hasApiMapMatch = true
-                  plateMatchMethod = 'apiMap'
-                  if (isFirstPlate) {
-                    console.log(`  ✅ 包含匹配: "${name}" <-> "${mappedName}" -> ${mappedType}`)
-                  }
-                  return mappedType === filterType
-                }
-              }
-
-              // 4. 关键词匹配（提取核心关键词，至少3个字）
-              const extractKeywords = (n: string) => {
-                const keywords: string[] = []
-                // 提取3-6字的关键词（更精确）
-                for (let len = 6; len >= 3; len--) {
-                  for (let i = 0; i <= n.length - len; i++) {
-                    const keyword = n.substring(i, i + len)
-                    if (keyword.length >= 3) {
-                      keywords.push(keyword)
-                    }
-                  }
-                }
-                return keywords
-              }
-
-              const nameKeywords = extractKeywords(nameCleaned)
-              for (const [mappedName, mappedType] of sectorTypeMap.entries()) {
-                const mappedNameCleaned = cleanName(mappedName)
-                const mappedKeywords = extractKeywords(mappedNameCleaned)
-
-                // 检查是否有共同的关键词（至少3个字匹配）
-                const commonKeywords = nameKeywords.filter(k =>
-                  mappedKeywords.some(mk => k === mk && k.length >= 3)
-                )
-
-                if (commonKeywords.length > 0) {
-                  hasApiMapMatch = true
-                  plateMatchMethod = 'apiMap'
-                  if (isFirstPlate) {
-                    console.log(`  ✅ 关键词匹配: "${name}" <-> "${mappedName}" (共同关键词: ${commonKeywords.join(', ')}) -> ${mappedType}`)
-                  }
-                  return mappedType === filterType
-                }
-              }
-
-              // 如果所有匹配都失败，输出调试信息
-              if (isFirstPlate) {
-                console.log(`  ⚠️ 板块 "${name}" 未在映射表中找到匹配`)
-                console.log(`  映射表大小: ${sectorTypeMap.size}`)
-                // 显示映射表中的前20个板块名称作为参考
-                const sampleNames = Array.from(sectorTypeMap.keys()).slice(0, 20)
-                console.log(`  映射表示例（前20个）:`, sampleNames)
-                // 显示财联社的板块名称
-                const clsNames = plateStockData.slice(0, 10).map((p: any) => p.secu_name || p.name)
-                console.log(`  财联社板块名称（前10个）:`, clsNames)
-              }
-              // 如果接口映射已加载但匹配失败，继续执行到降级方案
-              // 不在这里return，让代码继续执行
-            } else {
-              // 如果接口映射未加载，继续执行到降级方案
             }
 
             // 方法3：根据板块代码模式判断（如果有规律）
@@ -919,35 +731,6 @@ export default function SectorRotation(): JSX.Element {
 
           console.log(`📊 ${(filterType as string) === 'industry' ? '行业' : '概念'}板块过滤: ${filteredData.length} 个 (总共 ${plateStockData.length} 个)`)
 
-          // 计算匹配度：使用接口映射匹配的板块数量 / 总板块数量
-          let matchedByApiMapCount = 0
-          if (sectorTypeMapLoaded && sectorTypeMap.size > 0) {
-            // 重新统计使用接口映射匹配的板块数量（简化统计）
-            filteredData.forEach((plate: any) => {
-              const name = String(plate.secu_name || plate.name || '').trim()
-              const cleanName = (n: string) => n.replace(/概念$|题材$|主题$|行业$|板块$|产业链$/, '').trim()
-              const nameCleaned = cleanName(name)
-
-              // 检查是否在映射表中
-              if (sectorTypeMap.has(name) || sectorTypeMap.has(nameCleaned)) {
-                matchedByApiMapCount++
-              } else {
-                // 检查是否通过包含匹配
-                for (const [mappedName] of sectorTypeMap.entries()) {
-                  const mappedNameCleaned = cleanName(mappedName)
-                  if (name === mappedName || nameCleaned === mappedNameCleaned ||
-                    name.includes(mappedName) || mappedName.includes(name) ||
-                    nameCleaned.includes(mappedNameCleaned) || mappedNameCleaned.includes(nameCleaned)) {
-                    matchedByApiMapCount++
-                    break
-                  }
-                }
-              }
-            })
-          }
-
-          const matchRatio = filteredData.length > 0 ? (matchedByApiMapCount / filteredData.length) : 0
-          const isLowMatchRatio = matchRatio < 0.5 && sectorTypeMapLoaded && sectorTypeMap.size > 0
 
           // 数据量检查：如果过滤后数据太少，使用降级方案
           if (filteredData.length === 0) {
@@ -1051,84 +834,6 @@ export default function SectorRotation(): JSX.Element {
                 // 行业板块降级方案：只显示在行业关键词列表中的板块
                 // 这样逻辑才对称：概念显示非行业，行业显示行业列表中的
                 console.warn(`🔄 行业板块过滤后为空，使用降级方案：只显示行业关键词列表中的板块`)
-                const strictIndustryKeywords = [
-                  // 金融业
-                  '银行', '保险', '证券', '多元金融', '金融', '信托', '期货', '基金', '租赁', '担保',
-                  // 房地产业
-                  '房地产开发', '房地产服务', '房地产', '物业管理', '园区开发',
-                  // 建筑业
-                  '建筑', '建材', '水泥', '水泥建材', '工程建设', '工程机械', '工程咨询服务', '装修装饰', '装修建材', '装饰', '装修',
-                  // 采矿业
-                  '采掘行业', '采掘', '煤炭', '石油', '石油行业', '钢铁', '钢铁行业', '有色金属', '贵金属', '小金属', '能源金属',
-                  // 制造业 - 基础材料
-                  '化工', '化学', '化学原料', '化学制品', '化学制药', '化纤行业', '化纤', '塑料制品', '橡胶', '玻璃玻纤', '非金属材料', '包装材料',
-                  // 制造业 - 机械设备
-                  '机械', '设备', '通用设备', '专用设备', '工程机械', '交运设备', '电机', '电源设备', '电网设备', '风电设备', '光伏设备', '仪器仪表',
-                  // 制造业 - 电子
-                  '电子元件', '电子化学品', '消费电子', '光学光电子', '计算机设备',
-                  // 制造业 - 汽车
-                  '汽车整车', '汽车零部件', '汽车服务',
-                  // 制造业 - 家电
-                  '家电',
-                  // 制造业 - 轻工
-                  '轻工', '纺织服装', '造纸', '造纸印刷', '印刷', '包装', '家具', '珠宝首饰',
-                  // 制造业 - 食品
-                  '食品饮料', '酿酒',
-                  // 制造业 - 医药
-                  '医药商业', '医疗服务', '医疗器械', '生物制品', '中药',
-                  // 电力、热力、燃气及水生产和供应业
-                  '电力', '公用事业', '燃气', '水务', '热力',
-                  // 交通运输、仓储和邮政业
-                  '交通运输', '物流', '港口', '航运', '航运港口', '航空机场', '铁路公路', '高速公路', '机场', '航空', '铁路', '公路', '水运', '仓储',
-                  // 信息传输、软件和信息技术服务业
-                  '通信服务', '通信设备', '互联网服务', '软件开发', '信息服务', 'IT服务', '云计算', '大数据',
-                  // 批发和零售业
-                  '商业百货', '商业零售', '零售', '百货', '贸易行业', '贸易', '批发', '超市', '连锁',
-                  // 住宿和餐饮业
-                  '餐饮', '旅游酒店', '酒店', '旅游', '住宿',
-                  // 文化、体育和娱乐业
-                  '文化传媒', '传媒', '文化', '影视', '娱乐', '体育', '游戏', '出版', '广告', '演艺',
-                  // 教育
-                  '教育', '培训', '在线教育',
-                  // 科学研究和技术服务业
-                  '专业服务', '咨询服务', '技术服务', '检测服务', '认证服务',
-                  // 水利、环境和公共设施管理业
-                  '环保行业', '环保', '水务', '园林', '绿化',
-                  // 居民服务、修理和其他服务业
-                  '美容护理', '美发', '洗浴', '家政', '维修',
-                  // 综合
-                  '综合行业', '综合',
-                  // 其他常见行业名称
-                  '船舶制造', '船舶', '航空装备', '航天装备', '军工', '国防', '安防', '消防',
-                  '通信', '电信', '移动通信', '固定通信',
-                  '农业', '畜牧', '渔业', '林业', '种植', '化肥', '农药', '种子', '农牧饲渔', '农牧',
-                  '新能源', '清洁能源', '传统能源',
-                  '新材料', '复合材料',
-                  '生物医药', '医药', '医疗',
-                  '纺织', '服装', '鞋帽',
-                  '食品', '饮料', '乳制品',
-                  '建筑装饰', '装修材料',
-                  '金属制品', '金属加工',
-                  '电气设备', '电气', '电力设备',
-                  '通信设备', '网络设备',
-                  '计算机', '软件', '硬件',
-                  '半导体', '芯片制造',
-                  '显示器件', '面板',
-                  '电池', '储能设备',
-                  '汽车', '摩托车', '自行车',
-                  '船舶', '海洋工程',
-                  '航空航天', '航天航空', '航空', '航天',
-                  '轨道交通', '高铁', '地铁',
-                  '物流运输', '快递', '配送',
-                  '商业地产', '住宅地产', '工业地产',
-                  '零售', '批发', '贸易',
-                  '餐饮服务', '酒店服务', '旅游服务',
-                  '文化创意', '数字内容', '新媒体',
-                  '教育培训', '职业教育', '高等教育',
-                  '医疗服务', '健康服务', '养老服务',
-                  '环保服务', '节能服务', '资源回收',
-                  '金融服务', '投资服务', '资产管理'
-                ]
                 // 行业板块降级方案：显示所有不明确是概念的板块（更宽松的策略）
                 // 只排除明确包含"概念"、"题材"、"主题"的板块，其他都当作行业
                 fallbackData = plateStockData.filter((plate: any) => {
@@ -1315,7 +1020,7 @@ export default function SectorRotation(): JSX.Element {
         // 注意：这里统计的是"通过接口映射匹配"的板块，不包括使用关键词匹配的板块
         let totalFiltered = 0
         let totalMatchedByApiMap = 0
-        let unmatchedSectors: string[] = [] // 记录未匹配的板块名称，用于调试
+        const unmatchedSectors: string[] = [] // 记录未匹配的板块名称，用于调试
         const cleanName = (n: string) => n.replace(/概念$|题材$|主题$|行业$|板块$|产业链$/, '').trim()
 
         Object.values(dataByDate).forEach((sectors: SectorData[]) => {
@@ -1651,7 +1356,7 @@ export default function SectorRotation(): JSX.Element {
       if (foundCount >= 7) break // 最多统计7个有数据的日期
 
       // 先从筛选后的数据中查找（前N名）
-      let sectors = sectorDataByDate[date] || []
+      const sectors = sectorDataByDate[date] || []
       let sector = sectors.find(s => s.name === sectorName && s.code === sectorCode)
 
       // 如果在前N名中没找到，从原始数据中查找

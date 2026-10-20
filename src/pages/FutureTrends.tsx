@@ -10,7 +10,7 @@ import type { AiLevel, AiPick } from '../data/futureTrendsAiPicks'
 import { FUTURE_TRENDS_ASOF, TRENDS, trendCoverage, TrendCompany } from '../data/futureTrends'
 import FutureTrendsCore from './FutureTrendsCore'
 import FutureTrendsSolidState from './FutureTrendsSolidState'
-import { ADAS_EXTRA_LEVELS, ADAS_EXTRA_PICKS, AI_EXTRA_LEVELS, AI_EXTRA_PICKS, SECTOR_PICKS, SECTOR_PICKS_ASOF, TREND_METRICS, US_PICKS } from '../data/futureTrendsSectorPicks'
+import { ADAS_EXTRA_LEVELS, ADAS_EXTRA_PICKS, AI_EXTRA_LEVELS, AI_EXTRA_PICKS, SECTOR_PICKS, SECTOR_PICKS_ASOF, US_PICKS } from '../data/futureTrendsSectorPicks'
 import { Page, TableWrap } from '../components/ui'
 
 function Companies({ title, list }: { title: string; list: TrendCompany[] }): JSX.Element {

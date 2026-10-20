@@ -37,7 +37,7 @@ import CompanyCombined from '../components/CompanyCombined'
 import CandidateButton from '../components/CandidateButton'
 import { DcfCell, DcfFilterChips } from '../components/DcfCell'
 import { useToolSources } from '../features/candidates/useToolSources'
-import { dcfOf, toolProgress } from '../features/candidates/links'
+import { dcfOf } from '../features/candidates/links'
 import { matchDcfFilter, type DcfFilterId } from '../features/dcf/filter'
 import { useCandidates } from '../features/candidates/useCandidates'
 import ResearchNotice from '../components/research/ResearchNotice'
@@ -119,7 +119,6 @@ export default function ResearchNotes(): JSX.Element {
     }, { replace: true })
   const setActiveTab = (t: TabId): void => updateParams({ tab: t, n: null })
   const setCatMarket = (m: Market): void => updateParams({ tab: 'companies', m, sec: null, v: null })
-  const setProgSector = (sec: string): void => updateParams({ sec: sec === '全部' ? null : sec })
   const [showBackToTop, setShowBackToTop] = useState(false)
   const [zoomImg, setZoomImg] = useState<{ src: string; title: string } | null>(null)
 

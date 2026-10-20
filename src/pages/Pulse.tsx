@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { PageTabs, PageTitle } from '../components/ui/PageTabs'
+import { PageTitle } from '../components/ui/PageTabs'
 import { fetchMarketDataByType, fetchSectorCategories, fetchUSSectorCategories } from '../services/api'
 import type { DailyReview, MarketCategory, SectorCategory, NewsSource } from '../types'
 import { loadReviews, saveReviews, loadNewsSources, saveNewsSources, loadTombstones, saveTombstones } from '../utils/storage'
@@ -20,18 +20,8 @@ import {
   Box,
   Repeat,
   Cloud,
-  Download,
   Search,
-  Settings,
-  Upload,
-  ArrowRight,
-  RefreshCw,
-  Link as LinkIcon,
-  ShieldCheck,
-  Target,
-  BarChart2,
-  AlertTriangle,
-  History
+  Link as LinkIcon
 } from 'lucide-react'
 
 // 复盘录入表单的字段（顺序即表单顺序）

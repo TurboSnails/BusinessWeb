@@ -139,7 +139,6 @@ export const ageInDays = (date: string, today = new Date()): number => Math.floo
 
 /** 从快照里取出阶段信号（KRE 需手动，不在快照里） */
 export function stageFromSnapshot(snap: MacroSnapshot) {
-  const s = snap.series
   return computeStage(signalValues(snap))
 }
 

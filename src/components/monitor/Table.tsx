@@ -52,6 +52,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
       <tr style={{ 
         background: bgColor, 
         borderBottom: `2px solid ${borderColor}`,
+        color: textColor,
         ...style 
       }}>
         {children}

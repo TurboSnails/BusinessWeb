@@ -177,7 +177,7 @@ export const VALUATIONS: Valuation[] = [
 
 export function evaluate(v: Valuation) {
   const prices = v.eps.map((e, i) => e * v.pe[i]) as [number, number, number]
-  const [bear, base, bull] = prices
+  const [bear, base] = prices
   const expected = prices.reduce((s, p, i) => s + p * v.prob[i], 0)
   const winRate = prices.reduce((s, p, i) => s + (p >= v.price * 1.1 ? v.prob[i] : 0), 0)
   const valid = bear < v.price && v.price < base

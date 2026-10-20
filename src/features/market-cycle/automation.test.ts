@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { automaticRows, breadthIssue, parseAutomaticSnapshot, parseBreadthSnapshot, shadowState } from './automation'
+import { automaticRows, breadthIssue, parseAutomaticSnapshot, shadowState } from './automation'
 import type { AutomaticFact, BreadthSnapshot } from './automation'
-import type { Evidence, Market } from './engine'
+import type { Evidence } from './engine'
 
 const now = '2026-10-17T10:00:00Z'
 const fact = (patch: Partial<AutomaticFact> = {}): AutomaticFact => ({ metricId: 'erp_z', market: 'csi300', value: 2,

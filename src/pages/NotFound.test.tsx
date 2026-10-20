@@ -1,3 +1,7 @@
+// @ts-ignore 测试环境在 Node 中运行，项目未安装 @types/node
+import { readFileSync } from 'node:fs'
+// @ts-ignore
+import { resolve } from 'node:path'
 import React from 'react'
 import { cleanup, render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
@@ -31,8 +35,7 @@ describe('NotFound', () => {
   })
 
   it('App.tsx 确实注册了 path="*" 兜底路由', () => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const src = require('node:fs').readFileSync(require('node:path').resolve(__dirname, '../App.tsx'), 'utf8') as string
+    const src = readFileSync(resolve(__dirname, '../App.tsx'), 'utf8') as string
     expect(src).toMatch(/<Route path="\*" element=\{<NotFound \/>\} \/>/)
   })
 })

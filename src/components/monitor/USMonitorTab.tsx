@@ -3,28 +3,20 @@ import {
   TrendingDown,
   Search,
   Lightbulb,
-  BarChart2,
   AlertTriangle,
   Pin,
   Calendar,
   Target,
-  FileText,
   AlertCircle,
   TrendingUp,
   Activity,
-  Shield,
-  Zap,
-  Cpu,
-  ArrowRight,
-  Info
+  Shield
 } from 'lucide-react';
 import {
   tableWrapperStyle,
   tableStyle,
   thStyle,
-  tdStyle,
-  getTrStyle,
-  contentStyle
+  tdStyle
 } from '../TableStyles';
 
 const StatusBadge: React.FC<{ type: 'red' | 'orange' | 'green', text: string }> = ({ type, text }) => {
