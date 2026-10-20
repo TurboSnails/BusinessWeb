@@ -6,13 +6,209 @@
     "input.json",
     "models.json",
     "src/data/companyMarketSnapshot.json",
-    "src/data/details/hk.ts"
+    "src/data/details/hk.ts",
+    "public/research/data-refresh-2026-10-20/yahoo-quote-batch.json"
   ],
+  "sectorBands": {
+    "综合企业": [
+      8,
+      10,
+      12
+    ],
+    "公用事业": [
+      8,
+      10,
+      12
+    ],
+    "电讯": [
+      8,
+      10,
+      12
+    ],
+    "专业零售": [
+      10,
+      13,
+      16
+    ],
+    "消费者主要零售商": [
+      10,
+      13,
+      16
+    ],
+    "食物饮品": [
+      10,
+      13,
+      16
+    ],
+    "家庭电器及用品": [
+      10,
+      13,
+      16
+    ],
+    "旅游及消闲设施": [
+      10,
+      13,
+      16
+    ],
+    "纺织及服饰": [
+      10,
+      13,
+      16
+    ],
+    "资讯科技器材": [
+      12,
+      16,
+      20
+    ],
+    "软件服务": [
+      12,
+      16,
+      20
+    ],
+    "半导体": [
+      12,
+      16,
+      20
+    ],
+    "药品及生物科技": [
+      12,
+      16,
+      20
+    ],
+    "医疗保健": [
+      12,
+      16,
+      20
+    ],
+    "地产": [
+      8,
+      11,
+      14
+    ],
+    "银行": [
+      8,
+      11,
+      14
+    ],
+    "汽车": [
+      8,
+      11,
+      14
+    ],
+    "保险": [
+      8,
+      11,
+      14
+    ],
+    "建筑": [
+      8,
+      11,
+      14
+    ],
+    "其他金融": [
+      8,
+      11,
+      14
+    ],
+    "媒体及娱乐": [
+      8,
+      11,
+      14
+    ],
+    "工用运输": [
+      8,
+      11,
+      14
+    ],
+    "石油及天然气": [
+      8,
+      11,
+      14
+    ],
+    "煤炭": [
+      8,
+      11,
+      14
+    ],
+    "一般金属及矿石": [
+      8,
+      11,
+      14
+    ],
+    "工业工程": [
+      8,
+      11,
+      14
+    ],
+    "工用支援": [
+      8,
+      11,
+      14
+    ],
+    "黄金及贵金属": [
+      8,
+      11,
+      14
+    ],
+    "房地产投资信托": [
+      8,
+      11,
+      14
+    ]
+  },
+  "cyclicalSectors": [
+    "一般金属及矿石",
+    "汽车",
+    "煤炭",
+    "石油及天然气",
+    "黄金及贵金属"
+  ],
+  "cyclicalKeywords": [
+    "资源",
+    "煤炭",
+    "石油",
+    "油气",
+    "航运",
+    "钢铁",
+    "化工",
+    "地产开发",
+    "有色",
+    "铝业",
+    "金属",
+    "矿业",
+    "造纸",
+    "水泥",
+    "建材",
+    "航空",
+    "汽车",
+    "周期"
+  ],
+  "dividendAssumptions": {
+    "minYield": 3.0,
+    "maxYield": 8.0,
+    "yields": [
+      7.0,
+      5.0,
+      4.0
+    ],
+    "dpsFactors": [
+      0.8,
+      1.0,
+      1.05
+    ]
+  },
   "companies": [
     {
       "code": "00001",
       "name": "长和",
       "sector": "综合企业",
+      "sectorBand": [
+        8,
+        10,
+        12
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 65.7,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -68,6 +264,13 @@
       "code": "00002",
       "name": "中电控股",
       "sector": "公用事业",
+      "sectorBand": [
+        8,
+        10,
+        12
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 76.6,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -123,6 +326,13 @@
       "code": "00003",
       "name": "香港中华煤气",
       "sector": "公用事业",
+      "sectorBand": [
+        8,
+        10,
+        12
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 7.245,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -178,6 +388,13 @@
       "code": "00005",
       "name": "汇丰控股",
       "sector": "银行",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": true,
       "price": 145.7,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -186,19 +403,69 @@
       "ttmEps": 10.94,
       "forwardEps": 14.490736,
       "operatingCashflow": -70560997376,
-      "method": null,
-      "calculation": {},
-      "scenarios": [],
-      "ratio": null,
+      "method": "股息率法（单一方法；目标股息率7/5/4%，未校准历史分位）",
+      "calculation": {
+        "method": "div",
+        "source": "public/research/data-refresh-2026-10-20/yahoo-quote-batch.json",
+        "symbol": "0005.HK",
+        "dividendRate": 5.87,
+        "dividendYield": 3.92,
+        "currency": "HKD",
+        "financialCurrency": "USD",
+        "dividendCurrency": "HKD",
+        "fx": 1,
+        "yields": [
+          7.0,
+          5.0,
+          4.0
+        ],
+        "dpsFactors": [
+          0.8,
+          1.0,
+          1.05
+        ],
+        "latestPrice": 145.7,
+        "vendorPrice": 145.7,
+        "specialDividendCheck": "仅排查供应商股息率>8%异常；特别股息未经公司公告核验",
+        "dpsHKD": 5.87
+      },
+      "scenarios": [
+        {
+          "name": "悲观",
+          "assumption": "yahoo-quote-batch.json 0005.HK dividendRate=5.87 HKD/股 × 0.8（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=USD，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.03%；是否含特别股息未经公司公告核验",
+          "multiple": "目标股息率 7%（单一股息率方法，研究假设）",
+          "price": 67.09
+        },
+        {
+          "name": "基准",
+          "assumption": "yahoo-quote-batch.json 0005.HK dividendRate=5.87 HKD/股 × 1（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=USD，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.03%；是否含特别股息未经公司公告核验",
+          "multiple": "目标股息率 5%（单一股息率方法，研究假设）",
+          "price": 117.4
+        },
+        {
+          "name": "乐观",
+          "assumption": "yahoo-quote-batch.json 0005.HK dividendRate=5.87 HKD/股 × 1.05（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=USD，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.03%；是否含特别股息未经公司公告核验",
+          "multiple": "目标股息率 4%（单一股息率方法，研究假设）",
+          "price": 154.09
+        }
+      ],
+      "ratio": -0.3600050884111435,
       "rating": "观察",
-      "capReason": "金融股无可用、已定义的普通股PB–ROE/股息率数值模型",
-      "missing": "金融股无可用、已定义的普通股PB–ROE/股息率数值模型",
+      "capReason": "ratio<1",
+      "missing": null,
       "oldRating": "观察"
     },
     {
       "code": "00006",
       "name": "电能实业",
       "sector": "公用事业",
+      "sectorBand": [
+        8,
+        10,
+        12
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 60.35,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -254,6 +521,13 @@
       "code": "00012",
       "name": "恒基地产",
       "sector": "地产",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 27.38,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -309,6 +583,13 @@
       "code": "00016",
       "name": "新鸿基地产",
       "sector": "地产",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 106.3,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -364,6 +645,13 @@
       "code": "00027",
       "name": "银河娱乐",
       "sector": "旅游及消闲设施",
+      "sectorBand": [
+        10,
+        13,
+        16
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 33.4,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -372,16 +660,16 @@
       "ttmEps": 2.44,
       "forwardEps": 2.62254,
       "operatingCashflow": 13903136768,
-      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 8/11/14×）",
+      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 10/13/16×）",
       "calculation": {
         "forwardEps": 2.62254,
         "financialCurrency": "HKD",
         "currency": "HKD",
         "fx": 1.0,
         "multiples": [
-          8,
-          11,
-          14
+          10,
+          13,
+          16
         ],
         "scenarioFactors": [
           0.8,
@@ -393,23 +681,23 @@
         {
           "name": "悲观",
           "assumption": "input.json quotes.forwardEps=2.62254 HKD（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 0.8",
-          "multiple": "8× PE；旅游及消闲设施行业假设，单一倍数方法",
-          "price": 16.78
+          "multiple": "10× PE；旅游及消闲设施行业假设，单一倍数方法",
+          "price": 20.98
         },
         {
           "name": "基准",
           "assumption": "input.json quotes.forwardEps=2.62254 HKD（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1",
-          "multiple": "11× PE；旅游及消闲设施行业假设，单一倍数方法",
-          "price": 28.85
+          "multiple": "13× PE；旅游及消闲设施行业假设，单一倍数方法",
+          "price": 34.09
         },
         {
           "name": "乐观",
           "assumption": "input.json quotes.forwardEps=2.62254 HKD（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1.15",
-          "multiple": "14× PE；旅游及消闲设施行业假设，单一倍数方法",
-          "price": 42.22
+          "multiple": "16× PE；旅游及消闲设施行业假设，单一倍数方法",
+          "price": 48.25
         }
       ],
-      "ratio": -0.2737665463297231,
+      "ratio": 0.055555555555555955,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -419,6 +707,13 @@
       "code": "00066",
       "name": "港铁公司",
       "sector": "旅游及消闲设施",
+      "sectorBand": [
+        10,
+        13,
+        16
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 32.54,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -427,16 +722,16 @@
       "ttmEps": 3.67,
       "forwardEps": 1.60534,
       "operatingCashflow": 13255000064,
-      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 8/11/14×）",
+      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 10/13/16×）",
       "calculation": {
         "forwardEps": 1.60534,
         "financialCurrency": "HKD",
         "currency": "HKD",
         "fx": 1.0,
         "multiples": [
-          8,
-          11,
-          14
+          10,
+          13,
+          16
         ],
         "scenarioFactors": [
           0.8,
@@ -448,23 +743,23 @@
         {
           "name": "悲观",
           "assumption": "input.json quotes.forwardEps=1.60534 HKD（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 0.8",
-          "multiple": "8× PE；旅游及消闲设施行业假设，单一倍数方法",
-          "price": 10.27
+          "multiple": "10× PE；旅游及消闲设施行业假设，单一倍数方法",
+          "price": 12.84
         },
         {
           "name": "基准",
           "assumption": "input.json quotes.forwardEps=1.60534 HKD（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1",
-          "multiple": "11× PE；旅游及消闲设施行业假设，单一倍数方法",
-          "price": 17.66
+          "multiple": "13× PE；旅游及消闲设施行业假设，单一倍数方法",
+          "price": 20.87
         },
         {
           "name": "乐观",
           "assumption": "input.json quotes.forwardEps=1.60534 HKD（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1.15",
-          "multiple": "14× PE；旅游及消闲设施行业假设，单一倍数方法",
-          "price": 25.85
+          "multiple": "16× PE；旅游及消闲设施行业假设，单一倍数方法",
+          "price": 29.54
         }
       ],
-      "ratio": -0.6681634485855411,
+      "ratio": -0.5923857868020304,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -474,6 +769,13 @@
       "code": "00101",
       "name": "恒隆地产",
       "sector": "地产",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 6.44,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -529,6 +831,13 @@
       "code": "00175",
       "name": "吉利汽车",
       "sector": "汽车",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": true,
+      "financial": false,
       "price": 14.98,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -584,6 +893,13 @@
       "code": "00241",
       "name": "阿里健康",
       "sector": "药品及生物科技",
+      "sectorBand": [
+        12,
+        16,
+        20
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 3.045,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -639,6 +955,13 @@
       "code": "00267",
       "name": "中信股份",
       "sector": "综合企业",
+      "sectorBand": [
+        8,
+        10,
+        12
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 12.55,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -694,6 +1017,13 @@
       "code": "00268",
       "name": "金蝶国际",
       "sector": "软件服务",
+      "sectorBand": [
+        12,
+        16,
+        20
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 8.88,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -749,6 +1079,13 @@
       "code": "00285",
       "name": "比亚迪电子",
       "sector": "资讯科技器材",
+      "sectorBand": [
+        12,
+        16,
+        20
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 22.08,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -804,6 +1141,13 @@
       "code": "00288",
       "name": "万洲国际",
       "sector": "食物饮品",
+      "sectorBand": [
+        10,
+        13,
+        16
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 6.435,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -812,16 +1156,16 @@
       "ttmEps": 0.94,
       "forwardEps": 0.9746298,
       "operatingCashflow": 2439000064,
-      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 8/11/14×）",
+      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 10/13/16×）",
       "calculation": {
         "forwardEps": 0.9746298,
         "financialCurrency": "USD",
         "currency": "HKD",
         "fx": 7.8474,
         "multiples": [
-          8,
-          11,
-          14
+          10,
+          13,
+          16
         ],
         "scenarioFactors": [
           0.8,
@@ -833,20 +1177,20 @@
         {
           "name": "悲观",
           "assumption": "input.json quotes.forwardEps=0.97463 USD（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 0.8；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "8× PE；食物饮品行业假设，单一倍数方法",
-          "price": 48.95
+          "multiple": "10× PE；食物饮品行业假设，单一倍数方法",
+          "price": 61.19
         },
         {
           "name": "基准",
           "assumption": "input.json quotes.forwardEps=0.97463 USD（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "11× PE；食物饮品行业假设，单一倍数方法",
-          "price": 84.13
+          "multiple": "13× PE；食物饮品行业假设，单一倍数方法",
+          "price": 99.43
         },
         {
           "name": "乐观",
           "assumption": "input.json quotes.forwardEps=0.97463 USD（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1.15；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "14× PE；食物饮品行业假设，单一倍数方法",
-          "price": 123.14
+          "multiple": "16× PE；食物饮品行业假设，单一倍数方法",
+          "price": 140.73
         }
       ],
       "ratio": null,
@@ -859,6 +1203,13 @@
       "code": "00291",
       "name": "华润啤酒",
       "sector": "食物饮品",
+      "sectorBand": [
+        10,
+        13,
+        16
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 19.63,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -867,16 +1218,16 @@
       "ttmEps": 0.95,
       "forwardEps": 2.05019,
       "operatingCashflow": 7482999808,
-      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 8/11/14×）",
+      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 10/13/16×）",
       "calculation": {
         "forwardEps": 2.05019,
         "financialCurrency": "CNY",
         "currency": "HKD",
         "fx": 1.1698,
         "multiples": [
-          8,
-          11,
-          14
+          10,
+          13,
+          16
         ],
         "scenarioFactors": [
           0.8,
@@ -888,25 +1239,25 @@
         {
           "name": "悲观",
           "assumption": "input.json quotes.forwardEps=2.05019 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 0.8；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "8× PE；食物饮品行业假设，单一倍数方法",
-          "price": 15.35
+          "multiple": "10× PE；食物饮品行业假设，单一倍数方法",
+          "price": 19.19
         },
         {
           "name": "基准",
           "assumption": "input.json quotes.forwardEps=2.05019 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "11× PE；食物饮品行业假设，单一倍数方法",
-          "price": 26.38
+          "multiple": "13× PE；食物饮品行业假设，单一倍数方法",
+          "price": 31.18
         },
         {
           "name": "乐观",
           "assumption": "input.json quotes.forwardEps=2.05019 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1.15；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "14× PE；食物饮品行业假设，单一倍数方法",
-          "price": 38.61
+          "multiple": "16× PE；食物饮品行业假设，单一倍数方法",
+          "price": 44.13
         }
       ],
-      "ratio": 1.577102803738318,
-      "rating": "条件关注",
-      "capReason": "ratio在1至2",
+      "ratio": 26.25000000000014,
+      "rating": "观察",
+      "capReason": "ratio>8，压力情景不足",
       "missing": null,
       "oldRating": "观察"
     },
@@ -914,6 +1265,13 @@
       "code": "00300",
       "name": "美的集团",
       "sector": "家庭电器及用品",
+      "sectorBand": [
+        10,
+        13,
+        16
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 93.95,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -922,16 +1280,16 @@
       "ttmEps": 6.54,
       "forwardEps": 7.754196,
       "operatingCashflow": 53617004544,
-      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 8/11/14×）",
+      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 10/13/16×）",
       "calculation": {
         "forwardEps": 7.754196,
         "financialCurrency": "CNY",
         "currency": "HKD",
         "fx": 1.1698,
         "multiples": [
-          8,
-          11,
-          14
+          10,
+          13,
+          16
         ],
         "scenarioFactors": [
           0.8,
@@ -943,25 +1301,25 @@
         {
           "name": "悲观",
           "assumption": "input.json quotes.forwardEps=7.7542 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 0.8；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "8× PE；家庭电器及用品行业假设，单一倍数方法",
-          "price": 58.05
+          "multiple": "10× PE；家庭电器及用品行业假设，单一倍数方法",
+          "price": 72.57
         },
         {
           "name": "基准",
           "assumption": "input.json quotes.forwardEps=7.7542 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "11× PE；家庭电器及用品行业假设，单一倍数方法",
-          "price": 99.78
+          "multiple": "13× PE；家庭电器及用品行业假设，单一倍数方法",
+          "price": 117.92
         },
         {
           "name": "乐观",
           "assumption": "input.json quotes.forwardEps=7.7542 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1.15；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "14× PE；家庭电器及用品行业假设，单一倍数方法",
-          "price": 146.04
+          "multiple": "16× PE；家庭电器及用品行业假设，单一倍数方法",
+          "price": 166.9
         }
       ],
-      "ratio": 0.1623955431754874,
-      "rating": "观察",
-      "capReason": "ratio<1",
+      "ratio": 1.1211412535079508,
+      "rating": "条件关注",
+      "capReason": "ratio在1至2",
       "missing": null,
       "oldRating": "观察"
     },
@@ -969,6 +1327,13 @@
       "code": "00316",
       "name": "东方海外国际",
       "sector": "工用运输",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 156.9,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -1024,6 +1389,13 @@
       "code": "00322",
       "name": "康师傅控股",
       "sector": "食物饮品",
+      "sectorBand": [
+        10,
+        13,
+        16
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 12.35,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -1032,16 +1404,16 @@
       "ttmEps": 0.92,
       "forwardEps": 0.9907179,
       "operatingCashflow": 8419615744,
-      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 8/11/14×）",
+      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 10/13/16×）",
       "calculation": {
         "forwardEps": 0.9907179,
         "financialCurrency": "CNY",
         "currency": "HKD",
         "fx": 1.1698,
         "multiples": [
-          8,
-          11,
-          14
+          10,
+          13,
+          16
         ],
         "scenarioFactors": [
           0.8,
@@ -1053,23 +1425,23 @@
         {
           "name": "悲观",
           "assumption": "input.json quotes.forwardEps=0.990718 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 0.8；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "8× PE；食物饮品行业假设，单一倍数方法",
-          "price": 7.42
+          "multiple": "10× PE；食物饮品行业假设，单一倍数方法",
+          "price": 9.27
         },
         {
           "name": "基准",
           "assumption": "input.json quotes.forwardEps=0.990718 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "11× PE；食物饮品行业假设，单一倍数方法",
-          "price": 12.75
+          "multiple": "13× PE；食物饮品行业假设，单一倍数方法",
+          "price": 15.07
         },
         {
           "name": "乐观",
           "assumption": "input.json quotes.forwardEps=0.990718 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1.15；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "14× PE；食物饮品行业假设，单一倍数方法",
-          "price": 18.66
+          "multiple": "16× PE；食物饮品行业假设，单一倍数方法",
+          "price": 21.32
         }
       ],
-      "ratio": 0.08113590263691692,
+      "ratio": 0.8831168831168833,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -1079,6 +1451,13 @@
       "code": "00386",
       "name": "中国石油化工股份",
       "sector": "石油及天然气",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": true,
+      "financial": false,
       "price": 4.46,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -1134,6 +1513,13 @@
       "code": "00388",
       "name": "香港交易所",
       "sector": "其他金融",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": true,
       "price": 372.4,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -1142,19 +1528,69 @@
       "ttmEps": 15.63,
       "forwardEps": 16.39453,
       "operatingCashflow": 22708000768,
-      "method": null,
-      "calculation": {},
-      "scenarios": [],
-      "ratio": null,
+      "method": "股息率法（单一方法；目标股息率7/5/4%，未校准历史分位）",
+      "calculation": {
+        "method": "div",
+        "source": "public/research/data-refresh-2026-10-20/yahoo-quote-batch.json",
+        "symbol": "0388.HK",
+        "dividendRate": 14.86,
+        "dividendYield": 3.97,
+        "currency": "HKD",
+        "financialCurrency": "HKD",
+        "dividendCurrency": "HKD",
+        "fx": 1,
+        "yields": [
+          7.0,
+          5.0,
+          4.0
+        ],
+        "dpsFactors": [
+          0.8,
+          1.0,
+          1.05
+        ],
+        "latestPrice": 372.4,
+        "vendorPrice": 372.4,
+        "specialDividendCheck": "仅排查供应商股息率>8%异常；特别股息未经公司公告核验",
+        "dpsHKD": 14.86
+      },
+      "scenarios": [
+        {
+          "name": "悲观",
+          "assumption": "yahoo-quote-batch.json 0388.HK dividendRate=14.86 HKD/股 × 0.8（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=HKD，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 3.99%；是否含特别股息未经公司公告核验",
+          "multiple": "目标股息率 7%（单一股息率方法，研究假设）",
+          "price": 169.83
+        },
+        {
+          "name": "基准",
+          "assumption": "yahoo-quote-batch.json 0388.HK dividendRate=14.86 HKD/股 × 1（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=HKD，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 3.99%；是否含特别股息未经公司公告核验",
+          "multiple": "目标股息率 5%（单一股息率方法，研究假设）",
+          "price": 297.2
+        },
+        {
+          "name": "乐观",
+          "assumption": "yahoo-quote-batch.json 0388.HK dividendRate=14.86 HKD/股 × 1.05（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=HKD，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 3.99%；是否含特别股息未经公司公告核验",
+          "multiple": "目标股息率 4%（单一股息率方法，研究假设）",
+          "price": 390.08
+        }
+      ],
+      "ratio": -0.37122969837587005,
       "rating": "观察",
-      "capReason": "金融股无可用、已定义的普通股PB–ROE/股息率数值模型",
-      "missing": "金融股无可用、已定义的普通股PB–ROE/股息率数值模型",
+      "capReason": "ratio<1",
+      "missing": null,
       "oldRating": "观察"
     },
     {
       "code": "00390",
       "name": "中国中铁",
       "sector": "建筑",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 3.22,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -1210,6 +1646,13 @@
       "code": "00522",
       "name": "ASMPT",
       "sector": "半导体",
+      "sectorBand": [
+        12,
+        16,
+        20
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 135.2,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -1265,6 +1708,13 @@
       "code": "00669",
       "name": "创科实业",
       "sector": "家庭电器及用品",
+      "sectorBand": [
+        10,
+        13,
+        16
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 130.3,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -1273,16 +1723,16 @@
       "ttmEps": 5.58,
       "forwardEps": 7.2467885,
       "operatingCashflow": 2244638976,
-      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 8/11/14×）",
+      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 10/13/16×）",
       "calculation": {
         "forwardEps": 7.2467885,
         "financialCurrency": "USD",
         "currency": "HKD",
         "fx": 7.8474,
         "multiples": [
-          8,
-          11,
-          14
+          10,
+          13,
+          16
         ],
         "scenarioFactors": [
           0.8,
@@ -1294,20 +1744,20 @@
         {
           "name": "悲观",
           "assumption": "input.json quotes.forwardEps=7.24679 USD（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 0.8；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "8× PE；家庭电器及用品行业假设，单一倍数方法",
-          "price": 363.96
+          "multiple": "10× PE；家庭电器及用品行业假设，单一倍数方法",
+          "price": 454.95
         },
         {
           "name": "基准",
           "assumption": "input.json quotes.forwardEps=7.24679 USD（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "11× PE；家庭电器及用品行业假设，单一倍数方法",
-          "price": 625.55
+          "multiple": "13× PE；家庭电器及用品行业假设，单一倍数方法",
+          "price": 739.29
         },
         {
           "name": "乐观",
           "assumption": "input.json quotes.forwardEps=7.24679 USD（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1.15；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "14× PE；家庭电器及用品行业假设，单一倍数方法",
-          "price": 915.58
+          "multiple": "16× PE；家庭电器及用品行业假设，单一倍数方法",
+          "price": 1046.38
         }
       ],
       "ratio": null,
@@ -1320,6 +1770,13 @@
       "code": "00688",
       "name": "中国海外发展",
       "sector": "地产",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 12.74,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -1367,7 +1824,7 @@
       ],
       "ratio": 3.1542553191489358,
       "rating": "条件关注",
-      "capReason": "单一倍数方法，优先关注封顶条件关注",
+      "capReason": "单一方法，优先关注封顶条件关注",
       "missing": null,
       "oldRating": "观察"
     },
@@ -1375,6 +1832,13 @@
       "code": "00700",
       "name": "腾讯控股",
       "sector": "软件服务",
+      "sectorBand": [
+        12,
+        16,
+        20
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 410.8,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -1430,6 +1894,13 @@
       "code": "00728",
       "name": "中国电信",
       "sector": "电讯",
+      "sectorBand": [
+        8,
+        10,
+        12
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 4.61,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -1485,6 +1956,13 @@
       "code": "00762",
       "name": "中国联通",
       "sector": "电讯",
+      "sectorBand": [
+        8,
+        10,
+        12
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 5.59,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -1540,6 +2018,13 @@
       "code": "00780",
       "name": "同程旅行",
       "sector": "旅游及消闲设施",
+      "sectorBand": [
+        10,
+        13,
+        16
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 9.975,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -1548,16 +2033,16 @@
       "ttmEps": 1.16,
       "forwardEps": 2.0314438,
       "operatingCashflow": 3909590016,
-      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 8/11/14×）",
+      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 10/13/16×）",
       "calculation": {
         "forwardEps": 2.0314438,
         "financialCurrency": "CNY",
         "currency": "HKD",
         "fx": 1.1698,
         "multiples": [
-          8,
-          11,
-          14
+          10,
+          13,
+          16
         ],
         "scenarioFactors": [
           0.8,
@@ -1569,20 +2054,20 @@
         {
           "name": "悲观",
           "assumption": "input.json quotes.forwardEps=2.03144 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 0.8；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "8× PE；旅游及消闲设施行业假设，单一倍数方法",
-          "price": 15.21
+          "multiple": "10× PE；旅游及消闲设施行业假设，单一倍数方法",
+          "price": 19.01
         },
         {
           "name": "基准",
           "assumption": "input.json quotes.forwardEps=2.03144 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "11× PE；旅游及消闲设施行业假设，单一倍数方法",
-          "price": 26.14
+          "multiple": "13× PE；旅游及消闲设施行业假设，单一倍数方法",
+          "price": 30.89
         },
         {
           "name": "乐观",
           "assumption": "input.json quotes.forwardEps=2.03144 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1.15；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "14× PE；旅游及消闲设施行业假设，单一倍数方法",
-          "price": 38.26
+          "multiple": "16× PE；旅游及消闲设施行业假设，单一倍数方法",
+          "price": 43.73
         }
       ],
       "ratio": null,
@@ -1595,6 +2080,13 @@
       "code": "00836",
       "name": "华润电力",
       "sector": "公用事业",
+      "sectorBand": [
+        8,
+        10,
+        12
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 19.43,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -1642,7 +2134,7 @@
       ],
       "ratio": 2.195876288659794,
       "rating": "条件关注",
-      "capReason": "单一倍数方法，优先关注封顶条件关注",
+      "capReason": "单一方法，优先关注封顶条件关注",
       "missing": null,
       "oldRating": "观察"
     },
@@ -1650,6 +2142,13 @@
       "code": "00857",
       "name": "中国石油股份",
       "sector": "石油及天然气",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": true,
+      "financial": false,
       "price": 10.05,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -1705,6 +2204,13 @@
       "code": "00868",
       "name": "信义玻璃",
       "sector": "工业工程",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 8.15,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -1760,6 +2266,13 @@
       "code": "00881",
       "name": "中升控股",
       "sector": "专业零售",
+      "sectorBand": [
+        10,
+        13,
+        16
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 2.385,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -1781,6 +2294,13 @@
       "code": "00883",
       "name": "中国海洋石油",
       "sector": "石油及天然气",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": true,
+      "financial": false,
       "price": 24.46,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -1836,6 +2356,13 @@
       "code": "00914",
       "name": "海螺水泥",
       "sector": "建筑",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 16.26,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -1891,6 +2418,13 @@
       "code": "00939",
       "name": "建设银行",
       "sector": "银行",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": true,
       "price": 9.81,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -2017,7 +2551,7 @@
       ],
       "ratio": 0.5929648241206028,
       "rating": "观察",
-      "capReason": "input.json operatingCashflow为负",
+      "capReason": "ratio<1",
       "missing": null,
       "oldRating": "观察"
     },
@@ -2025,6 +2559,13 @@
       "code": "00941",
       "name": "中国移动",
       "sector": "电讯",
+      "sectorBand": [
+        8,
+        10,
+        12
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 80.65,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -2080,6 +2621,13 @@
       "code": "00960",
       "name": "龙湖集团",
       "sector": "地产",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 4.96,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -2101,6 +2649,13 @@
       "code": "00968",
       "name": "信义光能",
       "sector": "工业工程",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 1.895,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -2156,6 +2711,13 @@
       "code": "00981",
       "name": "中芯国际",
       "sector": "半导体",
+      "sectorBand": [
+        12,
+        16,
+        20
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 51.8,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -2211,6 +2773,13 @@
       "code": "00992",
       "name": "联想集团",
       "sector": "资讯科技器材",
+      "sectorBand": [
+        12,
+        16,
+        20
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 25.94,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -2266,6 +2835,13 @@
       "code": "01024",
       "name": "快手-W",
       "sector": "媒体及娱乐",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 28.7,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -2321,6 +2897,13 @@
       "code": "01038",
       "name": "长江基建集团",
       "sector": "公用事业",
+      "sectorBand": [
+        8,
+        10,
+        12
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 67.45,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -2376,6 +2959,13 @@
       "code": "01044",
       "name": "恒安国际",
       "sector": "消费者主要零售商",
+      "sectorBand": [
+        10,
+        13,
+        16
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 19.87,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -2431,6 +3021,13 @@
       "code": "01088",
       "name": "中国神华",
       "sector": "煤炭",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": true,
+      "financial": false,
       "price": 41.88,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -2486,6 +3083,13 @@
       "code": "01093",
       "name": "石药集团",
       "sector": "药品及生物科技",
+      "sectorBand": [
+        12,
+        16,
+        20
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 8.91,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -2533,7 +3137,7 @@
       ],
       "ratio": 2.514084507042254,
       "rating": "条件关注",
-      "capReason": "单一倍数方法，优先关注封顶条件关注",
+      "capReason": "单一方法，优先关注封顶条件关注",
       "missing": null,
       "oldRating": "观察"
     },
@@ -2541,6 +3145,13 @@
       "code": "01099",
       "name": "国药控股",
       "sector": "药品及生物科技",
+      "sectorBand": [
+        12,
+        16,
+        20
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 15.57,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -2596,6 +3207,13 @@
       "code": "01109",
       "name": "华润置地",
       "sector": "地产",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 30.4,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -2651,6 +3269,13 @@
       "code": "01113",
       "name": "长实集团",
       "sector": "地产",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 44.96,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -2706,6 +3331,13 @@
       "code": "01171",
       "name": "兖矿能源",
       "sector": "煤炭",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": true,
+      "financial": false,
       "price": 10.78,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -2761,6 +3393,13 @@
       "code": "01177",
       "name": "中国生物制药",
       "sector": "药品及生物科技",
+      "sectorBand": [
+        12,
+        16,
+        20
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 5.395,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -2816,6 +3455,13 @@
       "code": "01186",
       "name": "中国铁建",
       "sector": "建筑",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 4.35,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -2871,6 +3517,13 @@
       "code": "01209",
       "name": "华润万象生活",
       "sector": "地产",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 39.36,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -2926,6 +3579,13 @@
       "code": "01211",
       "name": "比亚迪股份",
       "sector": "汽车",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": true,
+      "financial": false,
       "price": 73.8,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -2981,6 +3641,13 @@
       "code": "01288",
       "name": "农业银行",
       "sector": "银行",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": true,
       "price": 6.69,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -3107,7 +3774,7 @@
       ],
       "ratio": 0.17757009345794372,
       "rating": "观察",
-      "capReason": "input.json operatingCashflow为负",
+      "capReason": "ratio<1",
       "missing": null,
       "oldRating": "观察"
     },
@@ -3115,6 +3782,13 @@
       "code": "01299",
       "name": "友邦保险",
       "sector": "保险",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": true,
       "price": 72.9,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -3123,19 +3797,49 @@
       "ttmEps": 5.94,
       "forwardEps": 6.8157954,
       "operatingCashflow": 4107000064,
-      "method": null,
-      "calculation": {},
+      "method": "股息率法（单一方法；目标股息率7/5/4%，未校准历史分位）",
+      "calculation": {
+        "method": "div",
+        "source": "public/research/data-refresh-2026-10-20/yahoo-quote-batch.json",
+        "symbol": "1299.HK",
+        "dividendRate": 1.98,
+        "dividendYield": 2.7,
+        "currency": "HKD",
+        "financialCurrency": "USD",
+        "dividendCurrency": "HKD",
+        "fx": 1,
+        "yields": [
+          7.0,
+          5.0,
+          4.0
+        ],
+        "dpsFactors": [
+          0.8,
+          1.0,
+          1.05
+        ],
+        "latestPrice": 72.9,
+        "vendorPrice": 72.9,
+        "specialDividendCheck": "仅排查供应商股息率>8%异常；特别股息未经公司公告核验"
+      },
       "scenarios": [],
       "ratio": null,
       "rating": "观察",
-      "capReason": "金融股无可用、已定义的普通股PB–ROE/股息率数值模型",
-      "missing": "金融股无可用、已定义的普通股PB–ROE/股息率数值模型",
+      "capReason": "股息率法不适用：供应商股息率 2.70% < 3%，股息不是主要价值来源",
+      "missing": "股息率法不适用：供应商股息率 2.70% < 3%，股息不是主要价值来源",
       "oldRating": "条件关注"
     },
     {
       "code": "01336",
       "name": "新华保险",
       "sector": "保险",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": true,
       "price": 40.82,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -3144,19 +3848,69 @@
       "ttmEps": 15.85,
       "forwardEps": 12.647486,
       "operatingCashflow": 108387000320,
-      "method": null,
-      "calculation": {},
-      "scenarios": [],
-      "ratio": null,
+      "method": "股息率法（单一方法；目标股息率7/5/4%，未校准历史分位）",
+      "calculation": {
+        "method": "div",
+        "source": "public/research/data-refresh-2026-10-20/yahoo-quote-batch.json",
+        "symbol": "1336.HK",
+        "dividendRate": 1.71,
+        "dividendYield": 4.07,
+        "currency": "HKD",
+        "financialCurrency": "CNY",
+        "dividendCurrency": "HKD",
+        "fx": 1,
+        "yields": [
+          7.0,
+          5.0,
+          4.0
+        ],
+        "dpsFactors": [
+          0.8,
+          1.0,
+          1.05
+        ],
+        "latestPrice": 40.82,
+        "vendorPrice": 40.82,
+        "specialDividendCheck": "仅排查供应商股息率>8%异常；特别股息未经公司公告核验",
+        "dpsHKD": 1.71
+      },
+      "scenarios": [
+        {
+          "name": "悲观",
+          "assumption": "yahoo-quote-batch.json 1336.HK dividendRate=1.71 HKD/股 × 0.8（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.19%；是否含特别股息未经公司公告核验",
+          "multiple": "目标股息率 7%（单一股息率方法，研究假设）",
+          "price": 19.54
+        },
+        {
+          "name": "基准",
+          "assumption": "yahoo-quote-batch.json 1336.HK dividendRate=1.71 HKD/股 × 1（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.19%；是否含特别股息未经公司公告核验",
+          "multiple": "目标股息率 5%（单一股息率方法，研究假设）",
+          "price": 34.2
+        },
+        {
+          "name": "乐观",
+          "assumption": "yahoo-quote-batch.json 1336.HK dividendRate=1.71 HKD/股 × 1.05（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.19%；是否含特别股息未经公司公告核验",
+          "multiple": "目标股息率 4%（单一股息率方法，研究假设）",
+          "price": 44.89
+        }
+      ],
+      "ratio": -0.31109022556390964,
       "rating": "观察",
-      "capReason": "金融股无可用、已定义的普通股PB–ROE/股息率数值模型",
-      "missing": "金融股无可用、已定义的普通股PB–ROE/股息率数值模型",
+      "capReason": "ratio<1",
+      "missing": null,
       "oldRating": "观察（净利含投资收益的周期高位）"
     },
     {
       "code": "01347",
       "name": "华虹宏力",
       "sector": "半导体",
+      "sectorBand": [
+        12,
+        16,
+        20
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 74.1,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -3212,6 +3966,13 @@
       "code": "01378",
       "name": "中国宏桥",
       "sector": "一般金属及矿石",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": true,
+      "financial": false,
       "price": 19.06,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -3267,6 +4028,13 @@
       "code": "01385",
       "name": "上海复旦",
       "sector": "半导体",
+      "sectorBand": [
+        12,
+        16,
+        20
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 23.9,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -3314,7 +4082,7 @@
       ],
       "ratio": 2.5052356020942406,
       "rating": "条件关注",
-      "capReason": "单一倍数方法，优先关注封顶条件关注",
+      "capReason": "单一方法，优先关注封顶条件关注",
       "missing": null,
       "oldRating": "观察"
     },
@@ -3322,6 +4090,13 @@
       "code": "01398",
       "name": "工商银行",
       "sector": "银行",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": true,
       "price": 7.49,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -3448,7 +4223,7 @@
       ],
       "ratio": 0.8727272727272729,
       "rating": "观察",
-      "capReason": "input.json operatingCashflow为负",
+      "capReason": "ratio<1",
       "missing": null,
       "oldRating": "观察"
     },
@@ -3456,6 +4231,13 @@
       "code": "01658",
       "name": "邮储银行",
       "sector": "银行",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": true,
       "price": 5.615,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -3582,7 +4364,7 @@
       ],
       "ratio": 0.46138613861386135,
       "rating": "观察",
-      "capReason": "input.json operatingCashflow为负",
+      "capReason": "ratio<1",
       "missing": null,
       "oldRating": "观察"
     },
@@ -3590,6 +4372,13 @@
       "code": "01772",
       "name": "赣锋锂业",
       "sector": "一般金属及矿石",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": true,
+      "financial": false,
       "price": 23.4,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -3645,6 +4434,13 @@
       "code": "01797",
       "name": "东方甄选",
       "sector": "媒体及娱乐",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 28.5,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -3700,6 +4496,13 @@
       "code": "01800",
       "name": "中国交通建设",
       "sector": "建筑",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 3.315,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -3755,6 +4558,13 @@
       "code": "01801",
       "name": "信达生物",
       "sector": "药品及生物科技",
+      "sectorBand": [
+        12,
+        16,
+        20
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 87.6,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -3810,6 +4620,13 @@
       "code": "01810",
       "name": "小米集团-W",
       "sector": "资讯科技器材",
+      "sectorBand": [
+        12,
+        16,
+        20
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 27.08,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -3865,6 +4682,13 @@
       "code": "01876",
       "name": "百威亚太",
       "sector": "食物饮品",
+      "sectorBand": [
+        10,
+        13,
+        16
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 6.05,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -3873,16 +4697,16 @@
       "ttmEps": 0.32,
       "forwardEps": 0.373922,
       "operatingCashflow": 1214000000,
-      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 8/11/14×）",
+      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 10/13/16×）",
       "calculation": {
         "forwardEps": 0.373922,
         "financialCurrency": "USD",
         "currency": "HKD",
         "fx": 7.8474,
         "multiples": [
-          8,
-          11,
-          14
+          10,
+          13,
+          16
         ],
         "scenarioFactors": [
           0.8,
@@ -3894,20 +4718,20 @@
         {
           "name": "悲观",
           "assumption": "input.json quotes.forwardEps=0.373922 USD（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 0.8；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "8× PE；食物饮品行业假设，单一倍数方法",
-          "price": 18.78
+          "multiple": "10× PE；食物饮品行业假设，单一倍数方法",
+          "price": 23.47
         },
         {
           "name": "基准",
           "assumption": "input.json quotes.forwardEps=0.373922 USD（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "11× PE；食物饮品行业假设，单一倍数方法",
-          "price": 32.28
+          "multiple": "13× PE；食物饮品行业假设，单一倍数方法",
+          "price": 38.15
         },
         {
           "name": "乐观",
           "assumption": "input.json quotes.forwardEps=0.373922 USD（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1.15；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "14× PE；食物饮品行业假设，单一倍数方法",
-          "price": 47.24
+          "multiple": "16× PE；食物饮品行业假设，单一倍数方法",
+          "price": 53.99
         }
       ],
       "ratio": null,
@@ -3920,6 +4744,13 @@
       "code": "01898",
       "name": "中煤能源",
       "sector": "煤炭",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": true,
+      "financial": false,
       "price": 10.04,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -3975,6 +4806,13 @@
       "code": "01919",
       "name": "中远海控",
       "sector": "工用运输",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 16.72,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -4030,6 +4868,13 @@
       "code": "01928",
       "name": "金沙中国有限公司",
       "sector": "旅游及消闲设施",
+      "sectorBand": [
+        10,
+        13,
+        16
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 11.42,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -4038,16 +4883,16 @@
       "ttmEps": 0.85,
       "forwardEps": 1.1176853,
       "operatingCashflow": 2072999936,
-      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 8/11/14×）",
+      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 10/13/16×）",
       "calculation": {
         "forwardEps": 1.1176853,
         "financialCurrency": "USD",
         "currency": "HKD",
         "fx": 7.8474,
         "multiples": [
-          8,
-          11,
-          14
+          10,
+          13,
+          16
         ],
         "scenarioFactors": [
           0.8,
@@ -4059,20 +4904,20 @@
         {
           "name": "悲观",
           "assumption": "input.json quotes.forwardEps=1.11769 USD（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 0.8；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "8× PE；旅游及消闲设施行业假设，单一倍数方法",
-          "price": 56.13
+          "multiple": "10× PE；旅游及消闲设施行业假设，单一倍数方法",
+          "price": 70.17
         },
         {
           "name": "基准",
           "assumption": "input.json quotes.forwardEps=1.11769 USD（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "11× PE；旅游及消闲设施行业假设，单一倍数方法",
-          "price": 96.48
+          "multiple": "13× PE；旅游及消闲设施行业假设，单一倍数方法",
+          "price": 114.02
         },
         {
           "name": "乐观",
           "assumption": "input.json quotes.forwardEps=1.11769 USD（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1.15；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "14× PE；旅游及消闲设施行业假设，单一倍数方法",
-          "price": 141.21
+          "multiple": "16× PE；旅游及消闲设施行业假设，单一倍数方法",
+          "price": 161.38
         }
       ],
       "ratio": null,
@@ -4085,6 +4930,13 @@
       "code": "01929",
       "name": "周大福",
       "sector": "专业零售",
+      "sectorBand": [
+        10,
+        13,
+        16
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 11.32,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -4140,6 +4992,13 @@
       "code": "01958",
       "name": "北京汽车",
       "sector": "汽车",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": true,
+      "financial": false,
       "price": 0.705,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -4161,6 +5020,13 @@
       "code": "01997",
       "name": "九龙仓置业",
       "sector": "地产",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 30.82,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -4182,6 +5048,13 @@
       "code": "02015",
       "name": "理想汽车-W",
       "sector": "汽车",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": true,
+      "financial": false,
       "price": 45.66,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -4203,6 +5076,13 @@
       "code": "02020",
       "name": "安踏体育",
       "sector": "纺织及服饰",
+      "sectorBand": [
+        10,
+        13,
+        16
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 76.65,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -4211,16 +5091,16 @@
       "ttmEps": 6.32,
       "forwardEps": 6.640707,
       "operatingCashflow": 23146000384,
-      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 8/11/14×）",
+      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 10/13/16×）",
       "calculation": {
         "forwardEps": 6.640707,
         "financialCurrency": "CNY",
         "currency": "HKD",
         "fx": 1.1698,
         "multiples": [
-          8,
-          11,
-          14
+          10,
+          13,
+          16
         ],
         "scenarioFactors": [
           0.8,
@@ -4232,25 +5112,25 @@
         {
           "name": "悲观",
           "assumption": "input.json quotes.forwardEps=6.64071 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 0.8；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "8× PE；纺织及服饰行业假设，单一倍数方法",
-          "price": 49.72
+          "multiple": "10× PE；纺织及服饰行业假设，单一倍数方法",
+          "price": 62.15
         },
         {
           "name": "基准",
           "assumption": "input.json quotes.forwardEps=6.64071 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "11× PE；纺织及服饰行业假设，单一倍数方法",
-          "price": 85.45
+          "multiple": "13× PE；纺织及服饰行业假设，单一倍数方法",
+          "price": 100.99
         },
         {
           "name": "乐观",
           "assumption": "input.json quotes.forwardEps=6.64071 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1.15；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "14× PE；纺织及服饰行业假设，单一倍数方法",
-          "price": 125.07
+          "multiple": "16× PE；纺织及服饰行业假设，单一倍数方法",
+          "price": 142.94
         }
       ],
-      "ratio": 0.3267731154845895,
-      "rating": "观察",
-      "capReason": "ratio<1",
+      "ratio": 1.6786206896551708,
+      "rating": "条件关注",
+      "capReason": "ratio在1至2",
       "missing": null,
       "oldRating": "观察"
     },
@@ -4258,6 +5138,13 @@
       "code": "02057",
       "name": "中通快递-W",
       "sector": "工用运输",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 159.8,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -4305,7 +5192,7 @@
       ],
       "ratio": 2.8643256185155623,
       "rating": "条件关注",
-      "capReason": "单一倍数方法，优先关注封顶条件关注",
+      "capReason": "单一方法，优先关注封顶条件关注",
       "missing": null,
       "oldRating": "观察"
     },
@@ -4313,6 +5200,13 @@
       "code": "02196",
       "name": "复星医药",
       "sector": "药品及生物科技",
+      "sectorBand": [
+        12,
+        16,
+        20
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 17.16,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -4360,7 +5254,7 @@
       ],
       "ratio": 5.222891566265059,
       "rating": "条件关注",
-      "capReason": "单一倍数方法，优先关注封顶条件关注",
+      "capReason": "单一方法，优先关注封顶条件关注",
       "missing": null,
       "oldRating": "观察"
     },
@@ -4368,6 +5262,13 @@
       "code": "02238",
       "name": "广汽集团",
       "sector": "汽车",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": true,
+      "financial": false,
       "price": 2.095,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -4389,6 +5290,13 @@
       "code": "02313",
       "name": "申洲国际",
       "sector": "纺织及服饰",
+      "sectorBand": [
+        10,
+        13,
+        16
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 36.62,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -4397,16 +5305,16 @@
       "ttmEps": 3.39,
       "forwardEps": 4.241488,
       "operatingCashflow": 4780852224,
-      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 8/11/14×）",
+      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 10/13/16×）",
       "calculation": {
         "forwardEps": 4.241488,
         "financialCurrency": "CNY",
         "currency": "HKD",
         "fx": 1.1698,
         "multiples": [
-          8,
-          11,
-          14
+          10,
+          13,
+          16
         ],
         "scenarioFactors": [
           0.8,
@@ -4418,32 +5326,39 @@
         {
           "name": "悲观",
           "assumption": "input.json quotes.forwardEps=4.24149 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 0.8；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "8× PE；纺织及服饰行业假设，单一倍数方法",
-          "price": 31.75
+          "multiple": "10× PE；纺织及服饰行业假设，单一倍数方法",
+          "price": 39.69
         },
         {
           "name": "基准",
           "assumption": "input.json quotes.forwardEps=4.24149 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "11× PE；纺织及服饰行业假设，单一倍数方法",
-          "price": 54.58
+          "multiple": "13× PE；纺织及服饰行业假设，单一倍数方法",
+          "price": 64.5
         },
         {
           "name": "乐观",
           "assumption": "input.json quotes.forwardEps=4.24149 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1.15；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "14× PE；纺织及服饰行业假设，单一倍数方法",
-          "price": 79.88
+          "multiple": "16× PE；纺织及服饰行业假设，单一倍数方法",
+          "price": 91.3
         }
       ],
-      "ratio": 3.6878850102669425,
-      "rating": "条件关注",
-      "capReason": "单一倍数方法，优先关注封顶条件关注",
-      "missing": null,
+      "ratio": null,
+      "rating": "观察",
+      "capReason": "悲观价不低于现价，盈亏比异常；保留情景但评级观察",
+      "missing": "悲观价不低于现价，盈亏比异常；保留情景但评级观察",
       "oldRating": "观察"
     },
     {
       "code": "02318",
       "name": "中国平安",
       "sector": "保险",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": true,
       "price": 49.58,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -4452,19 +5367,69 @@
       "ttmEps": 9.3,
       "forwardEps": 10.750226,
       "operatingCashflow": 688483991552,
-      "method": null,
-      "calculation": {},
-      "scenarios": [],
-      "ratio": null,
+      "method": "股息率法（单一方法；目标股息率7/5/4%，未校准历史分位）",
+      "calculation": {
+        "method": "div",
+        "source": "public/research/data-refresh-2026-10-20/yahoo-quote-batch.json",
+        "symbol": "2318.HK",
+        "dividendRate": 3.14,
+        "dividendYield": 6.28,
+        "currency": "HKD",
+        "financialCurrency": "CNY",
+        "dividendCurrency": "HKD",
+        "fx": 1,
+        "yields": [
+          7.0,
+          5.0,
+          4.0
+        ],
+        "dpsFactors": [
+          0.8,
+          1.0,
+          1.05
+        ],
+        "latestPrice": 49.58,
+        "vendorPrice": 49.58,
+        "specialDividendCheck": "仅排查供应商股息率>8%异常；特别股息未经公司公告核验",
+        "dpsHKD": 3.14
+      },
+      "scenarios": [
+        {
+          "name": "悲观",
+          "assumption": "yahoo-quote-batch.json 2318.HK dividendRate=3.14 HKD/股 × 0.8（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 6.33%；是否含特别股息未经公司公告核验",
+          "multiple": "目标股息率 7%（单一股息率方法，研究假设）",
+          "price": 35.89
+        },
+        {
+          "name": "基准",
+          "assumption": "yahoo-quote-batch.json 2318.HK dividendRate=3.14 HKD/股 × 1（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 6.33%；是否含特别股息未经公司公告核验",
+          "multiple": "目标股息率 5%（单一股息率方法，研究假设）",
+          "price": 62.8
+        },
+        {
+          "name": "乐观",
+          "assumption": "yahoo-quote-batch.json 2318.HK dividendRate=3.14 HKD/股 × 1.05（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 6.33%；是否含特别股息未经公司公告核验",
+          "multiple": "目标股息率 4%（单一股息率方法，研究假设）",
+          "price": 82.43
+        }
+      ],
+      "ratio": 0.9656683710737766,
       "rating": "观察",
-      "capReason": "金融股无可用、已定义的普通股PB–ROE/股息率数值模型",
-      "missing": "金融股无可用、已定义的普通股PB–ROE/股息率数值模型",
+      "capReason": "ratio<1",
+      "missing": null,
       "oldRating": "观察"
     },
     {
       "code": "02319",
       "name": "蒙牛乳业",
       "sector": "食物饮品",
+      "sectorBand": [
+        10,
+        13,
+        16
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 18.99,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -4473,16 +5438,16 @@
       "ttmEps": 0.54,
       "forwardEps": 1.6801959,
       "operatingCashflow": 8437767168,
-      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 8/11/14×）",
+      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 10/13/16×）",
       "calculation": {
         "forwardEps": 1.6801959,
         "financialCurrency": "CNY",
         "currency": "HKD",
         "fx": 1.1698,
         "multiples": [
-          8,
-          11,
-          14
+          10,
+          13,
+          16
         ],
         "scenarioFactors": [
           0.8,
@@ -4494,25 +5459,25 @@
         {
           "name": "悲观",
           "assumption": "input.json quotes.forwardEps=1.6802 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 0.8；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "8× PE；食物饮品行业假设，单一倍数方法",
-          "price": 12.58
+          "multiple": "10× PE；食物饮品行业假设，单一倍数方法",
+          "price": 15.72
         },
         {
           "name": "基准",
           "assumption": "input.json quotes.forwardEps=1.6802 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "11× PE；食物饮品行业假设，单一倍数方法",
-          "price": 21.62
+          "multiple": "13× PE；食物饮品行业假设，单一倍数方法",
+          "price": 25.55
         },
         {
           "name": "乐观",
           "assumption": "input.json quotes.forwardEps=1.6802 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1.15；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "14× PE；食物饮品行业假设，单一倍数方法",
-          "price": 31.64
+          "multiple": "16× PE；食物饮品行业假设，单一倍数方法",
+          "price": 36.17
         }
       ],
-      "ratio": 0.41029641185647475,
-      "rating": "观察",
-      "capReason": "ratio<1",
+      "ratio": 2.0061162079510724,
+      "rating": "条件关注",
+      "capReason": "单一方法，优先关注封顶条件关注",
       "missing": null,
       "oldRating": "观察"
     },
@@ -4520,6 +5485,13 @@
       "code": "02331",
       "name": "李宁",
       "sector": "纺织及服饰",
+      "sectorBand": [
+        10,
+        13,
+        16
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 13.22,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -4528,16 +5500,16 @@
       "ttmEps": 1.3,
       "forwardEps": 1.2822194,
       "operatingCashflow": 3394191104,
-      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 8/11/14×）",
+      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 10/13/16×）",
       "calculation": {
         "forwardEps": 1.2822194,
         "financialCurrency": "CNY",
         "currency": "HKD",
         "fx": 1.1698,
         "multiples": [
-          8,
-          11,
-          14
+          10,
+          13,
+          16
         ],
         "scenarioFactors": [
           0.8,
@@ -4549,25 +5521,25 @@
         {
           "name": "悲观",
           "assumption": "input.json quotes.forwardEps=1.28222 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 0.8；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "8× PE；纺织及服饰行业假设，单一倍数方法",
-          "price": 9.6
+          "multiple": "10× PE；纺织及服饰行业假设，单一倍数方法",
+          "price": 12.0
         },
         {
           "name": "基准",
           "assumption": "input.json quotes.forwardEps=1.28222 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "11× PE；纺织及服饰行业假设，单一倍数方法",
-          "price": 16.5
+          "multiple": "13× PE；纺织及服饰行业假设，单一倍数方法",
+          "price": 19.5
         },
         {
           "name": "乐观",
           "assumption": "input.json quotes.forwardEps=1.28222 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1.15；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "14× PE；纺织及服饰行业假设，单一倍数方法",
-          "price": 24.15
+          "multiple": "16× PE；纺织及服饰行业假设，单一倍数方法",
+          "price": 27.6
         }
       ],
-      "ratio": 0.9060773480662979,
-      "rating": "观察",
-      "capReason": "ratio<1",
+      "ratio": 5.147540983606554,
+      "rating": "条件关注",
+      "capReason": "单一方法，优先关注封顶条件关注",
       "missing": null,
       "oldRating": "观察"
     },
@@ -4575,6 +5547,13 @@
       "code": "02333",
       "name": "长城汽车",
       "sector": "汽车",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": true,
+      "financial": false,
       "price": 7.075,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -4630,6 +5609,13 @@
       "code": "02378",
       "name": "保诚",
       "sector": "保险",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": true,
       "price": 92.65,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -4638,19 +5624,49 @@
       "ttmEps": 11.11,
       "forwardEps": 10.579437,
       "operatingCashflow": 1708999936,
-      "method": null,
-      "calculation": {},
+      "method": "股息率法（单一方法；目标股息率7/5/4%，未校准历史分位）",
+      "calculation": {
+        "method": "div",
+        "source": "public/research/data-refresh-2026-10-20/yahoo-quote-batch.json",
+        "symbol": "2378.HK",
+        "dividendRate": 2.18,
+        "dividendYield": 2.32,
+        "currency": "HKD",
+        "financialCurrency": "USD",
+        "dividendCurrency": "HKD",
+        "fx": 1,
+        "yields": [
+          7.0,
+          5.0,
+          4.0
+        ],
+        "dpsFactors": [
+          0.8,
+          1.0,
+          1.05
+        ],
+        "latestPrice": 92.65,
+        "vendorPrice": 92.65,
+        "specialDividendCheck": "仅排查供应商股息率>8%异常；特别股息未经公司公告核验"
+      },
       "scenarios": [],
       "ratio": null,
       "rating": "观察",
-      "capReason": "金融股无可用、已定义的普通股PB–ROE/股息率数值模型",
-      "missing": "金融股无可用、已定义的普通股PB–ROE/股息率数值模型",
+      "capReason": "股息率法不适用：供应商股息率 2.32% < 3%，股息不是主要价值来源",
+      "missing": "股息率法不适用：供应商股息率 2.32% < 3%，股息不是主要价值来源",
       "oldRating": "条件关注"
     },
     {
       "code": "02382",
       "name": "舜宇光学科技",
       "sector": "资讯科技器材",
+      "sectorBand": [
+        12,
+        16,
+        20
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 60.1,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -4698,7 +5714,7 @@
       ],
       "ratio": 6.969827586206895,
       "rating": "条件关注",
-      "capReason": "单一倍数方法，优先关注封顶条件关注",
+      "capReason": "单一方法，优先关注封顶条件关注",
       "missing": null,
       "oldRating": "观察"
     },
@@ -4706,6 +5722,13 @@
       "code": "02388",
       "name": "中银香港",
       "sector": "银行",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": true,
       "price": 50.4,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -4714,19 +5737,69 @@
       "ttmEps": 3.94,
       "forwardEps": 4.34862,
       "operatingCashflow": -171664998400,
-      "method": null,
-      "calculation": {},
-      "scenarios": [],
-      "ratio": null,
+      "method": "股息率法（单一方法；目标股息率7/5/4%，未校准历史分位）",
+      "calculation": {
+        "method": "div",
+        "source": "public/research/data-refresh-2026-10-20/yahoo-quote-batch.json",
+        "symbol": "2388.HK",
+        "dividendRate": 2.13,
+        "dividendYield": 4.24,
+        "currency": "HKD",
+        "financialCurrency": "HKD",
+        "dividendCurrency": "HKD",
+        "fx": 1,
+        "yields": [
+          7.0,
+          5.0,
+          4.0
+        ],
+        "dpsFactors": [
+          0.8,
+          1.0,
+          1.05
+        ],
+        "latestPrice": 50.4,
+        "vendorPrice": 50.4,
+        "specialDividendCheck": "仅排查供应商股息率>8%异常；特别股息未经公司公告核验",
+        "dpsHKD": 2.13
+      },
+      "scenarios": [
+        {
+          "name": "悲观",
+          "assumption": "yahoo-quote-batch.json 2388.HK dividendRate=2.13 HKD/股 × 0.8（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=HKD，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.23%；是否含特别股息未经公司公告核验",
+          "multiple": "目标股息率 7%（单一股息率方法，研究假设）",
+          "price": 24.34
+        },
+        {
+          "name": "基准",
+          "assumption": "yahoo-quote-batch.json 2388.HK dividendRate=2.13 HKD/股 × 1（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=HKD，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.23%；是否含特别股息未经公司公告核验",
+          "multiple": "目标股息率 5%（单一股息率方法，研究假设）",
+          "price": 42.6
+        },
+        {
+          "name": "乐观",
+          "assumption": "yahoo-quote-batch.json 2388.HK dividendRate=2.13 HKD/股 × 1.05（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=HKD，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.23%；是否含特别股息未经公司公告核验",
+          "multiple": "目标股息率 4%（单一股息率方法，研究假设）",
+          "price": 55.91
+        }
+      ],
+      "ratio": -0.2993092862624711,
       "rating": "观察",
-      "capReason": "金融股无可用、已定义的普通股PB–ROE/股息率数值模型",
-      "missing": "金融股无可用、已定义的普通股PB–ROE/股息率数值模型",
+      "capReason": "ratio<1",
+      "missing": null,
       "oldRating": "观察"
     },
     {
       "code": "02600",
       "name": "中国铝业",
       "sector": "一般金属及矿石",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": true,
+      "financial": false,
       "price": 7.13,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -4782,6 +5855,13 @@
       "code": "02601",
       "name": "中国太保",
       "sector": "保险",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": true,
       "price": 26.16,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -4790,19 +5870,69 @@
       "ttmEps": 6.24,
       "forwardEps": 6.7748313,
       "operatingCashflow": 190099996672,
-      "method": null,
-      "calculation": {},
-      "scenarios": [],
-      "ratio": null,
-      "rating": "观察",
-      "capReason": "金融股无可用、已定义的普通股PB–ROE/股息率数值模型",
-      "missing": "金融股无可用、已定义的普通股PB–ROE/股息率数值模型",
+      "method": "股息率法（单一方法；目标股息率7/5/4%，未校准历史分位）",
+      "calculation": {
+        "method": "div",
+        "source": "public/research/data-refresh-2026-10-20/yahoo-quote-batch.json",
+        "symbol": "2601.HK",
+        "dividendRate": 1.81,
+        "dividendYield": 6.83,
+        "currency": "HKD",
+        "financialCurrency": "CNY",
+        "dividendCurrency": "HKD",
+        "fx": 1,
+        "yields": [
+          7.0,
+          5.0,
+          4.0
+        ],
+        "dpsFactors": [
+          0.8,
+          1.0,
+          1.05
+        ],
+        "latestPrice": 26.16,
+        "vendorPrice": 26.16,
+        "specialDividendCheck": "仅排查供应商股息率>8%异常；特别股息未经公司公告核验",
+        "dpsHKD": 1.81
+      },
+      "scenarios": [
+        {
+          "name": "悲观",
+          "assumption": "yahoo-quote-batch.json 2601.HK dividendRate=1.81 HKD/股 × 0.8（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 6.92%；是否含特别股息未经公司公告核验",
+          "multiple": "目标股息率 7%（单一股息率方法，研究假设）",
+          "price": 20.69
+        },
+        {
+          "name": "基准",
+          "assumption": "yahoo-quote-batch.json 2601.HK dividendRate=1.81 HKD/股 × 1（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 6.92%；是否含特别股息未经公司公告核验",
+          "multiple": "目标股息率 5%（单一股息率方法，研究假设）",
+          "price": 36.2
+        },
+        {
+          "name": "乐观",
+          "assumption": "yahoo-quote-batch.json 2601.HK dividendRate=1.81 HKD/股 × 1.05（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 6.92%；是否含特别股息未经公司公告核验",
+          "multiple": "目标股息率 4%（单一股息率方法，研究假设）",
+          "price": 47.51
+        }
+      ],
+      "ratio": 1.8354661791590503,
+      "rating": "条件关注",
+      "capReason": "ratio在1至2",
+      "missing": null,
       "oldRating": "观察"
     },
     {
       "code": "02618",
       "name": "京东物流",
       "sector": "工用支援",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 10.28,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -4858,6 +5988,13 @@
       "code": "02628",
       "name": "中国人寿",
       "sector": "保险",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": true,
       "price": 23.12,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -4866,19 +6003,69 @@
       "ttmEps": 9.78,
       "forwardEps": 5.7477484,
       "operatingCashflow": 442362003456,
-      "method": null,
-      "calculation": {},
-      "scenarios": [],
-      "ratio": null,
+      "method": "股息率法（单一方法；目标股息率7/5/4%，未校准历史分位）",
+      "calculation": {
+        "method": "div",
+        "source": "public/research/data-refresh-2026-10-20/yahoo-quote-batch.json",
+        "symbol": "2628.HK",
+        "dividendRate": 1.13,
+        "dividendYield": 4.77,
+        "currency": "HKD",
+        "financialCurrency": "CNY",
+        "dividendCurrency": "HKD",
+        "fx": 1,
+        "yields": [
+          7.0,
+          5.0,
+          4.0
+        ],
+        "dpsFactors": [
+          0.8,
+          1.0,
+          1.05
+        ],
+        "latestPrice": 23.12,
+        "vendorPrice": 23.12,
+        "specialDividendCheck": "仅排查供应商股息率>8%异常；特别股息未经公司公告核验",
+        "dpsHKD": 1.13
+      },
+      "scenarios": [
+        {
+          "name": "悲观",
+          "assumption": "yahoo-quote-batch.json 2628.HK dividendRate=1.13 HKD/股 × 0.8（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.89%；是否含特别股息未经公司公告核验",
+          "multiple": "目标股息率 7%（单一股息率方法，研究假设）",
+          "price": 12.91
+        },
+        {
+          "name": "基准",
+          "assumption": "yahoo-quote-batch.json 2628.HK dividendRate=1.13 HKD/股 × 1（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.89%；是否含特别股息未经公司公告核验",
+          "multiple": "目标股息率 5%（单一股息率方法，研究假设）",
+          "price": 22.6
+        },
+        {
+          "name": "乐观",
+          "assumption": "yahoo-quote-batch.json 2628.HK dividendRate=1.13 HKD/股 × 1.05（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.89%；是否含特别股息未经公司公告核验",
+          "multiple": "目标股息率 4%（单一股息率方法，研究假设）",
+          "price": 29.66
+        }
+      ],
+      "ratio": -0.05093046033300681,
       "rating": "观察",
-      "capReason": "金融股无可用、已定义的普通股PB–ROE/股息率数值模型",
-      "missing": "金融股无可用、已定义的普通股PB–ROE/股息率数值模型",
+      "capReason": "ratio<1",
+      "missing": null,
       "oldRating": "观察（净利含投资收益的周期高位）"
     },
     {
       "code": "02688",
       "name": "新奥能源",
       "sector": "公用事业",
+      "sectorBand": [
+        8,
+        10,
+        12
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 49.18,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -4934,6 +6121,13 @@
       "code": "02899",
       "name": "紫金矿业",
       "sector": "黄金及贵金属",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": true,
+      "financial": false,
       "price": 31.04,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -4989,6 +6183,13 @@
       "code": "03323",
       "name": "中国建材",
       "sector": "建筑",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 2.945,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -5010,6 +6211,13 @@
       "code": "03328",
       "name": "交通银行",
       "sector": "银行",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": true,
       "price": 8.495,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -5136,7 +6344,7 @@
       ],
       "ratio": 0.06652587117212277,
       "rating": "观察",
-      "capReason": "input.json operatingCashflow为负",
+      "capReason": "ratio<1",
       "missing": null,
       "oldRating": "观察"
     },
@@ -5144,6 +6352,13 @@
       "code": "03606",
       "name": "福耀玻璃",
       "sector": "汽车",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": true,
+      "financial": false,
       "price": 55.85,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -5199,6 +6414,13 @@
       "code": "03690",
       "name": "美团-W",
       "sector": "专业零售",
+      "sectorBand": [
+        10,
+        13,
+        16
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 75.2,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -5220,6 +6442,13 @@
       "code": "03692",
       "name": "翰森制药",
       "sector": "药品及生物科技",
+      "sectorBand": [
+        12,
+        16,
+        20
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 34.12,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -5275,6 +6504,13 @@
       "code": "03888",
       "name": "金山软件",
       "sector": "软件服务",
+      "sectorBand": [
+        12,
+        16,
+        20
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 25.78,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -5330,6 +6566,13 @@
       "code": "03908",
       "name": "中金公司",
       "sector": "其他金融",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": true,
       "price": 18.78,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -5338,19 +6581,49 @@
       "ttmEps": 3,
       "forwardEps": 3.7880824,
       "operatingCashflow": 63106514944,
-      "method": null,
-      "calculation": {},
+      "method": "股息率法（单一方法；目标股息率7/5/4%，未校准历史分位）",
+      "calculation": {
+        "method": "div",
+        "source": "public/research/data-refresh-2026-10-20/yahoo-quote-batch.json",
+        "symbol": "3908.HK",
+        "dividendRate": 0.36,
+        "dividendYield": 1.88,
+        "currency": "HKD",
+        "financialCurrency": "CNY",
+        "dividendCurrency": "HKD",
+        "fx": 1,
+        "yields": [
+          7.0,
+          5.0,
+          4.0
+        ],
+        "dpsFactors": [
+          0.8,
+          1.0,
+          1.05
+        ],
+        "latestPrice": 18.78,
+        "vendorPrice": 18.78,
+        "specialDividendCheck": "仅排查供应商股息率>8%异常；特别股息未经公司公告核验"
+      },
       "scenarios": [],
       "ratio": null,
       "rating": "观察",
-      "capReason": "金融股无可用、已定义的普通股PB–ROE/股息率数值模型",
-      "missing": "金融股无可用、已定义的普通股PB–ROE/股息率数值模型",
+      "capReason": "股息率法不适用：供应商股息率 1.88% < 3%，股息不是主要价值来源",
+      "missing": "股息率法不适用：供应商股息率 1.88% < 3%，股息不是主要价值来源",
       "oldRating": "观察（净利含股市高位的周期因素）"
     },
     {
       "code": "03968",
       "name": "招商银行",
       "sector": "银行",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": true,
       "price": 53.25,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -5485,6 +6758,13 @@
       "code": "03988",
       "name": "中国银行",
       "sector": "银行",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": true,
       "price": 6.14,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -5619,6 +6899,13 @@
       "code": "06030",
       "name": "中信证券",
       "sector": "其他金融",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": true,
       "price": 22.26,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -5627,19 +6914,69 @@
       "ttmEps": 2.9,
       "forwardEps": 3.401,
       "operatingCashflow": 149377007616,
-      "method": null,
-      "calculation": {},
-      "scenarios": [],
-      "ratio": null,
+      "method": "股息率法（单一方法；目标股息率7/5/4%，未校准历史分位）",
+      "calculation": {
+        "method": "div",
+        "source": "public/research/data-refresh-2026-10-20/yahoo-quote-batch.json",
+        "symbol": "6030.HK",
+        "dividendRate": 0.79,
+        "dividendYield": 3.4,
+        "currency": "HKD",
+        "financialCurrency": "CNY",
+        "dividendCurrency": "HKD",
+        "fx": 1,
+        "yields": [
+          7.0,
+          5.0,
+          4.0
+        ],
+        "dpsFactors": [
+          0.8,
+          1.0,
+          1.05
+        ],
+        "latestPrice": 22.26,
+        "vendorPrice": 22.26,
+        "specialDividendCheck": "仅排查供应商股息率>8%异常；特别股息未经公司公告核验",
+        "dpsHKD": 0.79
+      },
+      "scenarios": [
+        {
+          "name": "悲观",
+          "assumption": "yahoo-quote-batch.json 6030.HK dividendRate=0.79 HKD/股 × 0.8（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 3.55%；是否含特别股息未经公司公告核验",
+          "multiple": "目标股息率 7%（单一股息率方法，研究假设）",
+          "price": 9.03
+        },
+        {
+          "name": "基准",
+          "assumption": "yahoo-quote-batch.json 6030.HK dividendRate=0.79 HKD/股 × 1（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 3.55%；是否含特别股息未经公司公告核验",
+          "multiple": "目标股息率 5%（单一股息率方法，研究假设）",
+          "price": 15.8
+        },
+        {
+          "name": "乐观",
+          "assumption": "yahoo-quote-batch.json 6030.HK dividendRate=0.79 HKD/股 × 1.05（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 3.55%；是否含特别股息未经公司公告核验",
+          "multiple": "目标股息率 4%（单一股息率方法，研究假设）",
+          "price": 20.74
+        }
+      ],
+      "ratio": -0.48828420256991684,
       "rating": "观察",
-      "capReason": "金融股无可用、已定义的普通股PB–ROE/股息率数值模型",
-      "missing": "金融股无可用、已定义的普通股PB–ROE/股息率数值模型",
+      "capReason": "ratio<1",
+      "missing": null,
       "oldRating": "观察（净利含股市高位的周期因素）"
     },
     {
       "code": "06060",
       "name": "众安在线",
       "sector": "保险",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": true,
       "price": 9.35,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -5648,19 +6985,49 @@
       "ttmEps": 1.31,
       "forwardEps": 1.1617318,
       "operatingCashflow": 2252788992,
-      "method": null,
-      "calculation": {},
+      "method": "股息率法（单一方法；目标股息率7/5/4%，未校准历史分位）",
+      "calculation": {
+        "method": "div",
+        "source": "public/research/data-refresh-2026-10-20/yahoo-quote-batch.json",
+        "symbol": "6060.HK",
+        "dividendRate": null,
+        "dividendYield": 0,
+        "currency": "HKD",
+        "financialCurrency": "CNY",
+        "dividendCurrency": "HKD",
+        "fx": 1,
+        "yields": [
+          7.0,
+          5.0,
+          4.0
+        ],
+        "dpsFactors": [
+          0.8,
+          1.0,
+          1.05
+        ],
+        "latestPrice": 9.35,
+        "vendorPrice": 9.35,
+        "specialDividendCheck": "仅排查供应商股息率>8%异常；特别股息未经公司公告核验"
+      },
       "scenarios": [],
       "ratio": null,
       "rating": "观察",
-      "capReason": "金融股无可用、已定义的普通股PB–ROE/股息率数值模型",
-      "missing": "金融股无可用、已定义的普通股PB–ROE/股息率数值模型",
+      "capReason": "股息率法输入缺失：dividendRate/dividendYield 缺失、为零或无效，不硬算",
+      "missing": "股息率法输入缺失：dividendRate/dividendYield 缺失、为零或无效，不硬算",
       "oldRating": "观察"
     },
     {
       "code": "06098",
       "name": "碧桂园服务",
       "sector": "地产",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 5.115,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -5716,6 +7083,13 @@
       "code": "06160",
       "name": "百济神州",
       "sector": "药品及生物科技",
+      "sectorBand": [
+        12,
+        16,
+        20
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 224.8,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -5771,6 +7145,13 @@
       "code": "06186",
       "name": "中国飞鹤",
       "sector": "食物饮品",
+      "sectorBand": [
+        10,
+        13,
+        16
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 2.5,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -5779,16 +7160,16 @@
       "ttmEps": 0.21,
       "forwardEps": 0.28662807,
       "operatingCashflow": 4388851200,
-      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 8/11/14×）",
+      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 10/13/16×）",
       "calculation": {
         "forwardEps": 0.28662807,
         "financialCurrency": "CNY",
         "currency": "HKD",
         "fx": 1.1698,
         "multiples": [
-          8,
-          11,
-          14
+          10,
+          13,
+          16
         ],
         "scenarioFactors": [
           0.8,
@@ -5800,32 +7181,39 @@
         {
           "name": "悲观",
           "assumption": "input.json quotes.forwardEps=0.286628 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 0.8；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "8× PE；食物饮品行业假设，单一倍数方法",
-          "price": 2.15
+          "multiple": "10× PE；食物饮品行业假设，单一倍数方法",
+          "price": 2.68
         },
         {
           "name": "基准",
           "assumption": "input.json quotes.forwardEps=0.286628 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "11× PE；食物饮品行业假设，单一倍数方法",
-          "price": 3.69
+          "multiple": "13× PE；食物饮品行业假设，单一倍数方法",
+          "price": 4.36
         },
         {
           "name": "乐观",
           "assumption": "input.json quotes.forwardEps=0.286628 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1.15；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "14× PE；食物饮品行业假设，单一倍数方法",
-          "price": 5.4
+          "multiple": "16× PE；食物饮品行业假设，单一倍数方法",
+          "price": 6.17
         }
       ],
-      "ratio": 3.399999999999999,
-      "rating": "条件关注",
-      "capReason": "单一倍数方法，优先关注封顶条件关注",
-      "missing": null,
+      "ratio": null,
+      "rating": "观察",
+      "capReason": "悲观价不低于现价，盈亏比异常；保留情景但评级观察",
+      "missing": "悲观价不低于现价，盈亏比异常；保留情景但评级观察",
       "oldRating": "观察"
     },
     {
       "code": "06618",
       "name": "京东健康",
       "sector": "药品及生物科技",
+      "sectorBand": [
+        12,
+        16,
+        20
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 39.26,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -5873,7 +7261,7 @@
       ],
       "ratio": 2.5401929260450173,
       "rating": "条件关注",
-      "capReason": "单一倍数方法，优先关注封顶条件关注",
+      "capReason": "单一方法，优先关注封顶条件关注",
       "missing": null,
       "oldRating": "条件关注"
     },
@@ -5881,6 +7269,13 @@
       "code": "06690",
       "name": "海尔智家",
       "sector": "家庭电器及用品",
+      "sectorBand": [
+        10,
+        13,
+        16
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 19.7,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -5889,16 +7284,16 @@
       "ttmEps": 2.15,
       "forwardEps": 2.63329,
       "operatingCashflow": 24615929856,
-      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 8/11/14×）",
+      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 10/13/16×）",
       "calculation": {
         "forwardEps": 2.63329,
         "financialCurrency": "CNY",
         "currency": "HKD",
         "fx": 1.1698,
         "multiples": [
-          8,
-          11,
-          14
+          10,
+          13,
+          16
         ],
         "scenarioFactors": [
           0.8,
@@ -5910,20 +7305,20 @@
         {
           "name": "悲观",
           "assumption": "input.json quotes.forwardEps=2.63329 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 0.8；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "8× PE；家庭电器及用品行业假设，单一倍数方法",
-          "price": 19.71
+          "multiple": "10× PE；家庭电器及用品行业假设，单一倍数方法",
+          "price": 24.64
         },
         {
           "name": "基准",
           "assumption": "input.json quotes.forwardEps=2.63329 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "11× PE；家庭电器及用品行业假设，单一倍数方法",
-          "price": 33.88
+          "multiple": "13× PE；家庭电器及用品行业假设，单一倍数方法",
+          "price": 40.05
         },
         {
           "name": "乐观",
           "assumption": "input.json quotes.forwardEps=2.63329 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1.15；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "14× PE；家庭电器及用品行业假设，单一倍数方法",
-          "price": 49.59
+          "multiple": "16× PE；家庭电器及用品行业假设，单一倍数方法",
+          "price": 56.68
         }
       ],
       "ratio": null,
@@ -5936,6 +7331,13 @@
       "code": "06862",
       "name": "海底捞",
       "sector": "旅游及消闲设施",
+      "sectorBand": [
+        10,
+        13,
+        16
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 9.56,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -5944,16 +7346,16 @@
       "ttmEps": 0.85,
       "forwardEps": 0.9719913,
       "operatingCashflow": 5319034880,
-      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 8/11/14×）",
+      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 10/13/16×）",
       "calculation": {
         "forwardEps": 0.9719913,
         "financialCurrency": "CNY",
         "currency": "HKD",
         "fx": 1.1698,
         "multiples": [
-          8,
-          11,
-          14
+          10,
+          13,
+          16
         ],
         "scenarioFactors": [
           0.8,
@@ -5965,25 +7367,25 @@
         {
           "name": "悲观",
           "assumption": "input.json quotes.forwardEps=0.971991 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 0.8；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "8× PE；旅游及消闲设施行业假设，单一倍数方法",
-          "price": 7.28
+          "multiple": "10× PE；旅游及消闲设施行业假设，单一倍数方法",
+          "price": 9.1
         },
         {
           "name": "基准",
           "assumption": "input.json quotes.forwardEps=0.971991 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "11× PE；旅游及消闲设施行业假设，单一倍数方法",
-          "price": 12.51
+          "multiple": "13× PE；旅游及消闲设施行业假设，单一倍数方法",
+          "price": 14.78
         },
         {
           "name": "乐观",
           "assumption": "input.json quotes.forwardEps=0.971991 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1.15；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "14× PE；旅游及消闲设施行业假设，单一倍数方法",
-          "price": 18.31
+          "multiple": "16× PE；旅游及消闲设施行业假设，单一倍数方法",
+          "price": 20.92
         }
       ],
-      "ratio": 1.2938596491228065,
-      "rating": "条件关注",
-      "capReason": "ratio在1至2",
+      "ratio": 11.347826086956498,
+      "rating": "观察",
+      "capReason": "ratio>8，压力情景不足",
       "missing": null,
       "oldRating": "观察"
     },
@@ -5991,6 +7393,13 @@
       "code": "06881",
       "name": "中国银河",
       "sector": "其他金融",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": true,
       "price": 7.12,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -5999,19 +7408,69 @@
       "ttmEps": 1.28,
       "forwardEps": 1.6302067,
       "operatingCashflow": -56696254464,
-      "method": null,
-      "calculation": {},
-      "scenarios": [],
-      "ratio": null,
+      "method": "股息率法（单一方法；目标股息率7/5/4%，未校准历史分位）",
+      "calculation": {
+        "method": "div",
+        "source": "public/research/data-refresh-2026-10-20/yahoo-quote-batch.json",
+        "symbol": "6881.HK",
+        "dividendRate": 0.4,
+        "dividendYield": 5.41,
+        "currency": "HKD",
+        "financialCurrency": "CNY",
+        "dividendCurrency": "HKD",
+        "fx": 1,
+        "yields": [
+          7.0,
+          5.0,
+          4.0
+        ],
+        "dpsFactors": [
+          0.8,
+          1.0,
+          1.05
+        ],
+        "latestPrice": 7.12,
+        "vendorPrice": 7.12,
+        "specialDividendCheck": "仅排查供应商股息率>8%异常；特别股息未经公司公告核验",
+        "dpsHKD": 0.4
+      },
+      "scenarios": [
+        {
+          "name": "悲观",
+          "assumption": "yahoo-quote-batch.json 6881.HK dividendRate=0.4 HKD/股 × 0.8（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 5.62%；是否含特别股息未经公司公告核验",
+          "multiple": "目标股息率 7%（单一股息率方法，研究假设）",
+          "price": 4.57
+        },
+        {
+          "name": "基准",
+          "assumption": "yahoo-quote-batch.json 6881.HK dividendRate=0.4 HKD/股 × 1（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 5.62%；是否含特别股息未经公司公告核验",
+          "multiple": "目标股息率 5%（单一股息率方法，研究假设）",
+          "price": 8.0
+        },
+        {
+          "name": "乐观",
+          "assumption": "yahoo-quote-batch.json 6881.HK dividendRate=0.4 HKD/股 × 1.05（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 5.62%；是否含特别股息未经公司公告核验",
+          "multiple": "目标股息率 4%（单一股息率方法，研究假设）",
+          "price": 10.5
+        }
+      ],
+      "ratio": 0.34509803921568627,
       "rating": "观察",
-      "capReason": "金融股无可用、已定义的普通股PB–ROE/股息率数值模型",
-      "missing": "金融股无可用、已定义的普通股PB–ROE/股息率数值模型",
+      "capReason": "ratio<1",
+      "missing": null,
       "oldRating": "观察（净利含股市高位的周期因素）"
     },
     {
       "code": "09618",
       "name": "京东集团-SW",
       "sector": "专业零售",
+      "sectorBand": [
+        10,
+        13,
+        16
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 104.5,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -6067,6 +7526,13 @@
       "code": "09626",
       "name": "哔哩哔哩-W",
       "sector": "媒体及娱乐",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 108.7,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -6122,6 +7588,13 @@
       "code": "09633",
       "name": "农夫山泉",
       "sector": "食物饮品",
+      "sectorBand": [
+        10,
+        13,
+        16
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 42.14,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -6130,16 +7603,16 @@
       "ttmEps": 1.7,
       "forwardEps": 2.103018,
       "operatingCashflow": 21447917568,
-      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 8/11/14×）",
+      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 10/13/16×）",
       "calculation": {
         "forwardEps": 2.103018,
         "financialCurrency": "CNY",
         "currency": "HKD",
         "fx": 1.1698,
         "multiples": [
-          8,
-          11,
-          14
+          10,
+          13,
+          16
         ],
         "scenarioFactors": [
           0.8,
@@ -6151,23 +7624,23 @@
         {
           "name": "悲观",
           "assumption": "input.json quotes.forwardEps=2.10302 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 0.8；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "8× PE；食物饮品行业假设，单一倍数方法",
-          "price": 15.74
+          "multiple": "10× PE；食物饮品行业假设，单一倍数方法",
+          "price": 19.68
         },
         {
           "name": "基准",
           "assumption": "input.json quotes.forwardEps=2.10302 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "11× PE；食物饮品行业假设，单一倍数方法",
-          "price": 27.06
+          "multiple": "13× PE；食物饮品行业假设，单一倍数方法",
+          "price": 31.98
         },
         {
           "name": "乐观",
           "assumption": "input.json quotes.forwardEps=2.10302 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1.15；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "14× PE；食物饮品行业假设，单一倍数方法",
-          "price": 39.61
+          "multiple": "16× PE；食物饮品行业假设，单一倍数方法",
+          "price": 45.27
         }
       ],
-      "ratio": -0.5712121212121213,
+      "ratio": -0.45235975066785394,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -6177,6 +7650,13 @@
       "code": "09698",
       "name": "万国数据-SW",
       "sector": "软件服务",
+      "sectorBand": [
+        12,
+        16,
+        20
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 22.84,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -6232,6 +7712,13 @@
       "code": "09866",
       "name": "蔚来-SW",
       "sector": "汽车",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": true,
+      "financial": false,
       "price": 26.42,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -6253,6 +7740,13 @@
       "code": "09868",
       "name": "小鹏集团-W",
       "sector": "汽车",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": true,
+      "financial": false,
       "price": 37.34,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -6274,6 +7768,13 @@
       "code": "09888",
       "name": "百度集团-W",
       "sector": "媒体及娱乐",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 78.55,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -6295,6 +7796,13 @@
       "code": "09961",
       "name": "携程集团-S",
       "sector": "旅游及消闲设施",
+      "sectorBand": [
+        10,
+        13,
+        16
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 314.6,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -6303,16 +7811,16 @@
       "ttmEps": 38.72,
       "forwardEps": 32.388985,
       "operatingCashflow": null,
-      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 8/11/14×）",
+      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 10/13/16×）",
       "calculation": {
         "forwardEps": 32.388985,
         "financialCurrency": "CNY",
         "currency": "HKD",
         "fx": 1.1698,
         "multiples": [
-          8,
-          11,
-          14
+          10,
+          13,
+          16
         ],
         "scenarioFactors": [
           0.8,
@@ -6324,25 +7832,25 @@
         {
           "name": "悲观",
           "assumption": "input.json quotes.forwardEps=32.389 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 0.8；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "8× PE；旅游及消闲设施行业假设，单一倍数方法",
-          "price": 242.49
+          "multiple": "10× PE；旅游及消闲设施行业假设，单一倍数方法",
+          "price": 303.11
         },
         {
           "name": "基准",
           "assumption": "input.json quotes.forwardEps=32.389 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "11× PE；旅游及消闲设施行业假设，单一倍数方法",
-          "price": 416.77
+          "multiple": "13× PE；旅游及消闲设施行业假设，单一倍数方法",
+          "price": 492.55
         },
         {
           "name": "乐观",
           "assumption": "input.json quotes.forwardEps=32.389 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1.15；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "14× PE；旅游及消闲设施行业假设，单一倍数方法",
-          "price": 610.01
+          "multiple": "16× PE；旅游及消闲设施行业假设，单一倍数方法",
+          "price": 697.15
         }
       ],
-      "ratio": 1.4168631257800575,
-      "rating": "条件关注",
-      "capReason": "ratio在1至2",
+      "ratio": 15.487380330722354,
+      "rating": "观察",
+      "capReason": "ratio>8，压力情景不足",
       "missing": null,
       "oldRating": "条件关注"
     },
@@ -6350,6 +7858,13 @@
       "code": "09987",
       "name": "百胜中国",
       "sector": "旅游及消闲设施",
+      "sectorBand": [
+        10,
+        13,
+        16
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 351.4,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -6358,16 +7873,16 @@
       "ttmEps": 21.33,
       "forwardEps": 25.997896,
       "operatingCashflow": 1578000000,
-      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 8/11/14×）",
+      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 10/13/16×）",
       "calculation": {
         "forwardEps": 25.997896,
         "financialCurrency": "USD",
         "currency": "HKD",
         "fx": 7.8474,
         "multiples": [
-          8,
-          11,
-          14
+          10,
+          13,
+          16
         ],
         "scenarioFactors": [
           0.8,
@@ -6379,20 +7894,20 @@
         {
           "name": "悲观",
           "assumption": "input.json quotes.forwardEps=25.9979 USD（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 0.8；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "8× PE；旅游及消闲设施行业假设，单一倍数方法",
-          "price": 1305.7
+          "multiple": "10× PE；旅游及消闲设施行业假设，单一倍数方法",
+          "price": 1632.13
         },
         {
           "name": "基准",
           "assumption": "input.json quotes.forwardEps=25.9979 USD（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "11× PE；旅游及消闲设施行业假设，单一倍数方法",
-          "price": 2244.17
+          "multiple": "13× PE；旅游及消闲设施行业假设，单一倍数方法",
+          "price": 2652.21
         },
         {
           "name": "乐观",
           "assumption": "input.json quotes.forwardEps=25.9979 USD（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1.15；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "14× PE；旅游及消闲设施行业假设，单一倍数方法",
-          "price": 3284.66
+          "multiple": "16× PE；旅游及消闲设施行业假设，单一倍数方法",
+          "price": 3753.89
         }
       ],
       "ratio": null,
@@ -6405,6 +7920,13 @@
       "code": "09988",
       "name": "阿里巴巴-W",
       "sector": "专业零售",
+      "sectorBand": [
+        10,
+        13,
+        16
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 105.4,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -6460,6 +7982,13 @@
       "code": "09992",
       "name": "泡泡玛特",
       "sector": "家庭电器及用品",
+      "sectorBand": [
+        10,
+        13,
+        16
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 137.7,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -6468,16 +7997,16 @@
       "ttmEps": 11.1,
       "forwardEps": 11.80046,
       "operatingCashflow": 8525002752,
-      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 8/11/14×）",
+      "method": "前瞻 EPS × 行业 PE（单一倍数法；倍数为研究假设 10/13/16×）",
       "calculation": {
         "forwardEps": 11.80046,
         "financialCurrency": "CNY",
         "currency": "HKD",
         "fx": 1.1698,
         "multiples": [
-          8,
-          11,
-          14
+          10,
+          13,
+          16
         ],
         "scenarioFactors": [
           0.8,
@@ -6489,25 +8018,25 @@
         {
           "name": "悲观",
           "assumption": "input.json quotes.forwardEps=11.8005 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 0.8；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "8× PE；家庭电器及用品行业假设，单一倍数方法",
-          "price": 88.35
+          "multiple": "10× PE；家庭电器及用品行业假设，单一倍数方法",
+          "price": 110.43
         },
         {
           "name": "基准",
           "assumption": "input.json quotes.forwardEps=11.8005 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "11× PE；家庭电器及用品行业假设，单一倍数方法",
-          "price": 151.85
+          "multiple": "13× PE；家庭电器及用品行业假设，单一倍数方法",
+          "price": 179.45
         },
         {
           "name": "乐观",
           "assumption": "input.json quotes.forwardEps=11.8005 CNY（2026-10-07 Yahoo 供应商共识，非公司指引）×情景系数 1.15；换算至 HKD 汇率 1.1698（CNYHKD=X，快照2026-10-07）",
-          "multiple": "14× PE；家庭电器及用品行业假设，单一倍数方法",
-          "price": 222.25
+          "multiple": "16× PE；家庭电器及用品行业假设，单一倍数方法",
+          "price": 254.0
         }
       ],
-      "ratio": 0.28672745694022306,
-      "rating": "观察",
-      "capReason": "ratio<1",
+      "ratio": 1.530986431976532,
+      "rating": "条件关注",
+      "capReason": "ratio在1至2",
       "missing": null,
       "oldRating": "观察"
     },
@@ -6515,6 +8044,13 @@
       "code": "09999",
       "name": "网易",
       "sector": "软件服务",
+      "sectorBand": [
+        12,
+        16,
+        20
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 197.0,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -6570,6 +8106,13 @@
       "code": "02269",
       "name": "药明生物",
       "sector": "医疗保健",
+      "sectorBand": [
+        12,
+        16,
+        20
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 50.85,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -6625,6 +8168,13 @@
       "code": "02359",
       "name": "药明康德",
       "sector": "医疗保健",
+      "sectorBand": [
+        12,
+        16,
+        20
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 198.9,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -6680,6 +8230,13 @@
       "code": "00823",
       "name": "领展房产基金",
       "sector": "房地产投资信托",
+      "sectorBand": [
+        8,
+        11,
+        14
+      ],
+      "cyclical": false,
+      "financial": false,
       "price": 38.36,
       "priceDate": "2026-10-20",
       "priceSource": "腾讯延迟行情",
@@ -6822,8 +8379,8 @@
     }
   ],
   "ratingDistribution": {
-    "观察": 106,
-    "条件关注": 16,
+    "观察": 105,
+    "条件关注": 17,
     "回避": 5
   }
 }
