@@ -144,6 +144,31 @@ npx vitest run src/data                              # hkValuation／adrValuatio
 - 刷新价格后**不会**自动重算覆盖层：价格进入情景价的 ratio，需要重新运行脚本并提交；`companyMarketSnapshot.json` 更新后若只改价格不重跑，页面显示的「相对现价」会与现价脱节。
 - 独立审查与返工记录见 `.dev-team/runs/hk-adr-valuation/`（`reports/review.md`）。审查留下、尚未处理的项：ADR 封顶原因统计写法有重复计数隐患（不影响评级）。
 
+**已知限制：评级对价格有阈值跳变**（2026-10-20 差距分析，`.dev-team/runs/hk-adr-valuation/reports/framework-gap.md`）。盈利冻结、价格每天变，评级由「ratio 阶梯 + ratio>8／悲观价失效封顶」决定，封顶是分段跳变的：把全部价格上下波动 5% 做模拟，港股 17/127（13.4%）、ADR 6/66（9.1%）会变档，且方向可能反直觉（价格上涨反而升到条件关注、下跌反而降档）。这是价格贴近悲观价时 ratio 飙升触发封顶造成的阈值噪声，不是基本面信号。含义：信号台账里评级的变化有一部分是噪声；今日待办的「评级变化」只比较你写过决策记录的公司，范围小。**不要据此改规则**：模拟是上限情形，真实每日波动多数小于 5%，且无回测前不宜引入缓冲带。
+
+观察期做法：每日重算会让 `src/data/details/hkValuation.ts`／`adrValuation.ts` 的 `rt:` 行逐日提交，git 历史就是真实翻转记录。积累约两周后量化真实频率：
+
+```bash
+# 近 N 次提交中，每家公司评级改变了几次（港股；ADR 把文件名换成 adrValuation.ts、前缀换成 @adr:）
+python3 - <<'PY'
+import subprocess, re, collections
+f = 'src/data/details/hkValuation.ts'
+shas = subprocess.check_output(['git', 'log', '--format=%h', '-30', '--', f]).decode().split()[::-1]
+prev, flips = {}, collections.Counter()
+for sha in shas:
+    t = subprocess.check_output(['git', 'show', f'{sha}:{f}']).decode()
+    cur = {m.group(1): m.group(2) for m in re.finditer(r'^@hk:(\S+)\nrt: (.+)$', t, re.M)}
+    for k, v in cur.items():
+        if prev.get(k) not in (None, v): flips[k] += 1
+    prev = cur
+print(len(shas), '期；有翻转的公司', len(flips), '；翻转≥2 次的', sum(1 for n in flips.values() if n >= 2))
+PY
+```
+
+注意：2026-10-20 当天的几次提交是手动改方法（倍数映射、金融股股息率法等）造成的变档，不是价格波动，统计时应从每日自动刷新开始的提交算起，否则会把方法改动误当作价格噪声。
+
+若多数翻转来自少数几家贴近阈值的公司，再考虑对这几类（ratio>8、悲观价≥现价）加「连续确认」缓冲；先做回测再改规则，不要凭模拟直接改。
+
 **信号台账**：`scripts/signal-ledger.mjs` 在工作日行情刷新后（`company-refresh.yml` 的 `Record signal ledger` 步骤）写入 `public/data/signal-ledger-YYYY.json`，每周保留一期：当时的研究评级、价格、自动 DCF 与机会雷达信号。机会雷达页「信号复盘」在积累满 28 天后按市场比较各信号组的事后收益；只看价格变动，不含分红与汇率，样本少于 5 家的组不下结论。手动补一期：`node scripts/signal-ledger.mjs YYYY-MM-DD`（同一周以后写入的覆盖先前的）。
 
 ## 下次盘点的可复用任务

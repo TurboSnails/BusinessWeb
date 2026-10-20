@@ -292,10 +292,9 @@ for code in codes:
     elif model is None:
         cap_reasons.append('missing-value')
     else:
-        if any('悲观价' in f for f in flags):
-            cap_reasons.append('bear>=price')
-        if any('悲观价' not in f for f in flags):
-            cap_reasons.append('data-flag')
+        # Count each flag category once per company, even when both are present.
+        flag_reasons = {'bear>=price' if '悲观价' in f else 'data-flag' for f in flags}
+        cap_reasons.extend(reason for reason in ('bear>=price', 'data-flag') if reason in flag_reasons)
         if capped:
             cap_reasons.append(capped)
         if cls in CYCLICAL and not capped:
