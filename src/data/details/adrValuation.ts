@@ -7,7 +7,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$15.72/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$15.72/ADS（供应商）；前瞻盈利较 TTM +49%（基准 = 供应商共识 epsForward，悲观 −35 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$23.39|22× PE（晶圆代工类假设，单一倍数方法，未校准历史分位）|US$514.48（估值初稿）|+22%|验证：HPC收入占比、3nm/2nm利用率、CoWoS扩产、毛利率及资本开支
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$15.72/ADS（供应商）；前瞻盈利较 TTM +69%（基准 = 供应商共识 epsForward，悲观 −35 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$26.53|28× PE（晶圆代工类假设，单一倍数方法，未校准历史分位）|US$742.82（估值初稿）|+77%|兑现：先进制程晶圆需求、HPC结构与封装产能能否把资本开支转化为自由现金流
 ratio: 现价 US$420.22；(Base 514.48 − P 420.22) ÷ (P 420.22 − Bear 286.13) = 0.70:1；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$15.72/ADS（epsTrailingTwelveMonths，对应 trailingPE 26.731552），前瞻 EPS US$23.39/ADS（epsForward 供应商共识，对应 forwardPE 17.969416）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$15.72/ADS（epsTrailingTwelveMonths，对应 trailingPE 26.731552），前瞻 EPS US$23.39/ADS（epsForward 供应商共识，对应 forwardPE 17.969416）。
 x: 现价 US$420.22（companyMarketSnapshot adr:TSM，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 TWD、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx TWDUSD=X 0.0313785（2026-10-07 Yahoo 快照）；证券单位：ADS底层比例 [MISSING]；公司直接披露的每ADS美元盈利可引用，不能据本币普通股EPS猜倍率。
 x: 晶圆代工类倍数 16/22/28× 为研究假设（代工资本密集、盈利取决于稼动率与折旧，取全球代工龙头常见 PE 区间）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -23,7 +23,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$40.78/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$40.78/ADS（供应商）；前瞻盈利较 TTM +54%（基准 = 供应商共识 epsForward，悲观 −35 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$62.78|30× PE（半导体设备类假设，单一倍数方法，未校准历史分位）|US$1,883.39（估值初稿）|+14%|验证：系统收入、服务收入、订单、积压与毛利率
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$40.78/ADS（供应商）；前瞻盈利较 TTM +74%（基准 = 供应商共识 epsForward，悲观 −35 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$70.94|38× PE（半导体设备类假设，单一倍数方法，未校准历史分位）|US$2,695.55（估值初稿）|+64%|兑现：EUV与High-NA出货、服务升级和订单转换影响收入确认
 ratio: 现价 US$1,647.12；(Base 1883.39 − P 1647.12) ÷ (P 1647.12 − Bear 1067.14) = 0.41:1；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$40.78/ADS（epsTrailingTwelveMonths，对应 trailingPE 40.39039），前瞻 EPS US$62.78/ADS（epsForward 供应商共识，对应 forwardPE 26.23657）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$40.78/ADS（epsTrailingTwelveMonths，对应 trailingPE 40.39039），前瞻 EPS US$62.78/ADS（epsForward 供应商共识，对应 forwardPE 26.23657）。
 x: 现价 US$1,647.12（companyMarketSnapshot adr:ASML，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 EUR、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx EURUSD=X 1.11919（2026-10-07 Yahoo 快照）；证券单位：美国交易的是直接上市/注册普通股；不能套用ADR倍率；股本与类别变化仍需核对。
 x: 半导体设备类倍数 22/30/38× 为研究假设（设备订单随晶圆厂资本开支波动，龙头享技术垄断溢价但不外推高景气）；dcf-prefill fyh（FCF 收益率历史）now 1.92%、分位 34、中位 2.43%（n=55），现 FCF 收益率低于历史中位。
@@ -39,7 +39,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$4.25/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$4.25/ADS（供应商）；前瞻盈利较 TTM -19%（基准 = 供应商共识 epsForward，悲观 −25 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$3.43|15× PE（大型制药类假设，单一倍数方法，未校准历史分位）|US$51.41（估值初稿）|+34%|验证：Ozempic/Wegovy销售、量价、美国净价格、研发及指引
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$4.25/ADS（供应商）；前瞻盈利较 TTM +1%（基准 = 供应商共识 epsForward，悲观 −25 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$4.28|19× PE（大型制药类假设，单一倍数方法，未校准历史分位）|US$81.27（估值初稿）|+112%|兑现：GLP-1销量、净实现价格与新增适应症决定盈利持续性
 ratio: 现价 US$38.42；(Base 51.41 − P 38.42) ÷ (P 38.42 − Bear 26.02) = 1.05:1；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$4.25/ADS（epsTrailingTwelveMonths，对应 trailingPE 9.04），前瞻 EPS US$3.43/ADS（epsForward 供应商共识，对应 forwardPE 11.208964）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$4.25/ADS（epsTrailingTwelveMonths，对应 trailingPE 9.04），前瞻 EPS US$3.43/ADS（epsForward 供应商共识，对应 forwardPE 11.208964）。
 x: 现价 US$38.42（companyMarketSnapshot adr:NVO，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 DKK、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx DKKUSD=X 0.149665（2026-10-07 Yahoo 快照）；证券单位：ADS底层比例 [MISSING]；公司直接披露的每ADS美元盈利可引用，不能据本币普通股EPS猜倍率。
 x: 大型制药类倍数 11/15/19× 为研究假设（专利悬崖与管线兑现决定盈利，取全球大型药企常见 PE 区间）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -55,7 +55,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$7.85/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$7.85/ADS（供应商）；前瞻盈利较 TTM +22%（基准 = 供应商共识 epsForward，悲观 −25 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$9.60|27× PE（企业软件类假设，单一倍数方法，未校准历史分位）|US$259.24（估值初稿）|+15%|验证：当前云积压、云收入、IFRS利润、FCF和SBC
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$7.85/ADS（供应商）；前瞻盈利较 TTM +42%（基准 = 供应商共识 epsForward，悲观 −25 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$11.17|34× PE（企业软件类假设，单一倍数方法，未校准历史分位）|US$379.83（估值初稿）|+68%|兑现：云积压转为收入、迁移客户与费用率推动利润
 ratio: 现价 US$226.03；(Base 259.24 − P 226.03) ÷ (P 226.03 − Bear 152.78) = 0.45:1；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$7.85/ADS（epsTrailingTwelveMonths，对应 trailingPE 28.79363），前瞻 EPS US$9.60/ADS（epsForward 供应商共识，对应 forwardPE 23.54126）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$7.85/ADS（epsTrailingTwelveMonths，对应 trailingPE 28.79363），前瞻 EPS US$9.60/ADS（epsForward 供应商共识，对应 forwardPE 23.54126）。
 x: 现价 US$226.03（companyMarketSnapshot adr:SAP，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 EUR、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx EURUSD=X 1.11919（2026-10-07 Yahoo 快照）；证券单位：1 ADS = 1 股普通股；实施日期、后续发行/回购仍需逐项桥接。
 x: 企业软件类倍数 20/27/34× 为研究假设（订阅与云积压提供可见度，取成熟企业软件常见 PE 区间）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -71,7 +71,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$22.69/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$22.69/ADS（供应商）；前瞻盈利较 TTM -30%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$15.78|8× PE（汽车整车类假设，单一倍数方法，未校准历史分位）|US$126.24（估值初稿）|-35%|验证：销量、汽车营业利润、汇率敏感性、金融信用成本
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$22.69/ADS（供应商）；前瞻盈利较 TTM -10%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$20.32|11× PE（汽车整车类假设，单一倍数方法，未校准历史分位）|US$223.50（估值初稿）|+15%|兑现：混动结构、销量和地域定价推动利润，金融业务须单独估值
 ratio: 现价 US$194.06；不成立：现价 US$194.06 ≥ 基准价 US$126.24；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$22.69/ADS（epsTrailingTwelveMonths，对应 trailingPE 8.552666），前瞻 EPS US$15.78/ADS（epsForward 供应商共识，对应 forwardPE 12.297846）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$22.69/ADS（epsTrailingTwelveMonths，对应 trailingPE 8.552666），前瞻 EPS US$15.78/ADS（epsForward 供应商共识，对应 forwardPE 12.297846）。
 x: 现价 US$194.06（companyMarketSnapshot adr:TM，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 JPY、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx JPYUSD=X 0.0063298（2026-10-07 Yahoo 快照）；证券单位：ADS底层比例 [MISSING]；公司直接披露的每ADS美元盈利可引用，不能据本币普通股EPS猜倍率。
 x: 汽车整车类倍数 6/8/11× 为研究假设（整车盈利受销量、价格战、关税与汇率影响；cn-itucd 未把汽车列入周期封顶集合，本轮一致不封顶但倍数取低位）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -87,7 +87,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$1.20/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$1.20/ADS（供应商）；前瞻盈利较 TTM -1%（基准 = 供应商共识 epsForward，悲观 −25 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$1.19|18× PE（消费电子 / 娱乐类假设，单一倍数方法，未校准历史分位）|US$21.42（估值初稿）|-14%|验证：G&NS利润、音乐利润、I&SS毛利率、分拆后持续经营EPS
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$1.20/ADS（供应商）；前瞻盈利较 TTM +19%（基准 = 供应商共识 epsForward，悲观 −25 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$1.43|23× PE（消费电子 / 娱乐类假设，单一倍数方法，未校准历史分位）|US$32.89（估值初稿）|+33%|兑现：游戏服务、音乐版权复购与传感器结构驱动利润
 ratio: 现价 US$24.77；不成立：现价 US$24.77 ≥ 基准价 US$21.42；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$1.20/ADS（epsTrailingTwelveMonths，对应 trailingPE 20.641666），前瞻 EPS US$1.19/ADS（epsForward 供应商共识，对应 forwardPE 20.815125）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$1.20/ADS（epsTrailingTwelveMonths，对应 trailingPE 20.641666），前瞻 EPS US$1.19/ADS（epsForward 供应商共识，对应 forwardPE 20.815125）。
 x: 现价 US$24.77（companyMarketSnapshot adr:SONY，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 JPY、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx JPYUSD=X 0.0063298（2026-10-07 Yahoo 快照）；证券单位：ADS底层比例 [MISSING]；公司直接披露的每ADS美元盈利可引用，不能据本币普通股EPS猜倍率。
 x: 消费电子 / 娱乐类倍数 14/18/23× 为研究假设（游戏、音乐、影视与传感器多分部，取综合娱乐公司常见区间）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -103,7 +103,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$6.69/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$6.69/ADS（供应商）；前瞻盈利较 TTM +70%（基准 = 供应商共识 epsForward，悲观 −25 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$11.34|15× PE（大型制药类假设，单一倍数方法，未校准历史分位）|US$170.15（估值初稿）|+4%|验证：产品收入、恒汇率增长、reported/core EPS桥接、研发
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$6.69/ADS（供应商）；前瞻盈利较 TTM +90%（基准 = 供应商共识 epsForward，悲观 −25 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$12.68|19× PE（大型制药类假设，单一倍数方法，未校准历史分位）|US$240.95（估值初稿）|+47%|兑现：新药上市、适应症扩展和地域渗透推动增长
 ratio: 现价 US$163.95；(Base 170.15 − P 163.95) ÷ (P 163.95 − Bear 106.38) = 0.11:1；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$6.69/ADS（epsTrailingTwelveMonths，对应 trailingPE 24.506725），前瞻 EPS US$11.34/ADS（epsForward 供应商共识，对应 forwardPE 14.453427）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$6.69/ADS（epsTrailingTwelveMonths，对应 trailingPE 24.506725），前瞻 EPS US$11.34/ADS（epsForward 供应商共识，对应 forwardPE 14.453427）。
 x: 现价 US$163.95（companyMarketSnapshot adr:AZN，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 USD，与交易币种一致，无需换算；证券单位：ADS底层比例 [MISSING]；公司直接披露的每ADS美元盈利可引用，不能据本币普通股EPS猜倍率。
 x: 大型制药类倍数 11/15/19× 为研究假设（专利悬崖与管线兑现决定盈利，取全球大型药企常见 PE 区间）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -119,7 +119,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$6.60/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$6.60/ADS（供应商）；前瞻盈利较 TTM +49%（基准 = 供应商共识 epsForward，悲观 −25 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$9.80|15× PE（大型制药类假设，单一倍数方法，未校准历史分位）|US$147.04（估值初稿）|-2%|验证：产品销量、core/IFRS盈利桥接、FCF、专利时间
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$6.60/ADS（供应商）；前瞻盈利较 TTM +69%（基准 = 供应商共识 epsForward，悲观 −25 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$11.12|19× PE（大型制药类假设，单一倍数方法，未校准历史分位）|US$211.33（估值初稿）|+41%|兑现：核心药物推广、适应症扩张与研发效率推动收入
 ratio: 现价 US$150.20；不成立：现价 US$150.20 ≥ 基准价 US$147.04；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$6.60/ADS（epsTrailingTwelveMonths，对应 trailingPE 22.757576），前瞻 EPS US$9.80/ADS（epsForward 供应商共识，对应 forwardPE 15.322417）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$6.60/ADS（epsTrailingTwelveMonths，对应 trailingPE 22.757576），前瞻 EPS US$9.80/ADS（epsForward 供应商共识，对应 forwardPE 15.322417）。
 x: 现价 US$150.20（companyMarketSnapshot adr:NVS，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 USD，与交易币种一致，无需换算；证券单位：ADS底层比例 [MISSING]；公司直接披露的每ADS美元盈利可引用，不能据本币普通股EPS猜倍率。
 x: 大型制药类倍数 11/15/19× 为研究假设（专利悬崖与管线兑现决定盈利，取全球大型药企常见 PE 区间）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -135,7 +135,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$1.90/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$1.90/ADS（供应商）；前瞻盈利较 TTM +178%（基准 = 供应商共识 epsForward，悲观 −25 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$5.28|15× PE（大型制药类假设，单一倍数方法，未校准历史分位）|US$79.23（估值初稿）|+100%|验证：Dupixent收入、疫苗、持续经营IFRS/business EPS、净债务
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$1.90/ADS（供应商）；前瞻盈利较 TTM +198%（基准 = 供应商共识 epsForward，悲观 −25 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$5.66|19× PE（大型制药类假设，单一倍数方法，未校准历史分位）|US$107.58（估值初稿）|+172%|兑现：Dupixent渗透、新药与疫苗带来结构变化
 ratio: 现价 US$39.57；不可计算：悲观价 US$52.88 ≥ 现价 US$39.57，数据异常，评级封顶观察；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$1.90/ADS（epsTrailingTwelveMonths，对应 trailingPE 20.826317），前瞻 EPS US$5.28/ADS（epsForward 供应商共识，对应 forwardPE 7.491324）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$1.90/ADS（epsTrailingTwelveMonths，对应 trailingPE 20.826317），前瞻 EPS US$5.28/ADS（epsForward 供应商共识，对应 forwardPE 7.491324）。
 x: 现价 US$39.57（companyMarketSnapshot adr:SNY，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 EUR、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx EURUSD=X 1.11919（2026-10-07 Yahoo 快照）；证券单位：1 ADS = 0.5 股普通股；实施日期、后续发行/回购仍需逐项桥接。
 x: 大型制药类倍数 11/15/19× 为研究假设（专利悬崖与管线兑现决定盈利，取全球大型药企常见 PE 区间）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -152,7 +152,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$3.17/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$3.17/ADS（供应商）；前瞻盈利较 TTM +55%（基准 = 供应商共识 epsForward，悲观 −25 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$4.92|15× PE（大型制药类假设，单一倍数方法，未校准历史分位）|US$73.85（估值初稿）|+49%|验证：产品销售、reported/core EPS、诉讼拨备、现金分派覆盖
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$3.17/ADS（供应商）；前瞻盈利较 TTM +75%（基准 = 供应商共识 epsForward，悲观 −25 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$5.56|19× PE（大型制药类假设，单一倍数方法，未校准历史分位）|US$105.59（估值初稿）|+113%|兑现：呼吸/免疫药、HIV与疫苗的销量及产品结构
 ratio: 现价 US$49.46；(Base 73.85 − P 49.46) ÷ (P 49.46 − Bear 45.44) = 6.06:1；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$3.17/ADS（epsTrailingTwelveMonths，对应 trailingPE 15.602523），前瞻 EPS US$4.92/ADS（epsForward 供应商共识，对应 forwardPE 10.04629）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$3.17/ADS（epsTrailingTwelveMonths，对应 trailingPE 15.602523），前瞻 EPS US$4.92/ADS（epsForward 供应商共识，对应 forwardPE 10.04629）。
 x: 现价 US$49.46（companyMarketSnapshot adr:GSK，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 GBP、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx GBPUSD=X 1.32377（2026-10-07 Yahoo 快照）；证券单位：ADS底层比例 [MISSING]；公司直接披露的每ADS美元盈利可引用，不能据本币普通股EPS猜倍率。
 x: 大型制药类倍数 11/15/19× 为研究假设（专利悬崖与管线兑现决定盈利，取全球大型药企常见 PE 区间）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -169,7 +169,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$9.06/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$9.06/ADS（供应商）；前瞻盈利较 TTM +16%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$10.48|10× PE（石油天然气类假设，单一倍数方法，未校准历史分位）|US$104.84（估值初稿）|+0%|验证：LNG产量、realised价格、CFFO、现金资本开支、净债务
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$9.06/ADS（供应商）；前瞻盈利较 TTM +36%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$12.30|13× PE（石油天然气类假设，单一倍数方法，未校准历史分位）|US$159.85（估值初稿）|+52%|兑现：LNG产销和综合业务现金流提供穿越周期能力
 ratio: 现价 US$104.82；(Base 104.84 − P 104.82) ÷ (P 104.82 − Bear 54.36) = 0.00:1；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$9.06/ADS（epsTrailingTwelveMonths，对应 trailingPE 11.569536），前瞻 EPS US$10.48/ADS（epsForward 供应商共识，对应 forwardPE 9.997977）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$9.06/ADS（epsTrailingTwelveMonths，对应 trailingPE 11.569536），前瞻 EPS US$10.48/ADS（epsForward 供应商共识，对应 forwardPE 9.997977）。
 x: 现价 US$104.82（companyMarketSnapshot adr:SHEL，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 USD，与交易币种一致，无需换算；证券单位：ADS底层比例 [MISSING]；公司直接披露的每ADS美元盈利可引用，不能据本币普通股EPS猜倍率。
 x: 石油天然气类倍数 7/10/13× 为研究假设（油气盈利随油价与炼化价差波动，按资源周期处理）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -185,7 +185,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$7.99/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$7.99/ADS（供应商）；前瞻盈利较 TTM +37%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$10.95|10× PE（石油天然气类假设，单一倍数方法，未校准历史分位）|US$109.54（估值初稿）|+22%|验证：产量、adjusted net income与IFRS、现金流、净债务
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$7.99/ADS（供应商）；前瞻盈利较 TTM +57%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$12.55|13× PE（石油天然气类假设，单一倍数方法，未校准历史分位）|US$163.17（估值初稿）|+81%|兑现：上游产量、LNG和电力组合提高多元现金流
 ratio: 现价 US$89.95；(Base 109.54 − P 89.95) ÷ (P 89.95 − Bear 59.90) = 0.65:1；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$7.99/ADS（epsTrailingTwelveMonths，对应 trailingPE 11.257822），前瞻 EPS US$10.95/ADS（epsForward 供应商共识，对应 forwardPE 8.211852）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$7.99/ADS（epsTrailingTwelveMonths，对应 trailingPE 11.257822），前瞻 EPS US$10.95/ADS（epsForward 供应商共识，对应 forwardPE 8.211852）。
 x: 现价 US$89.95（companyMarketSnapshot adr:TTE，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 USD，与交易币种一致，无需换算；证券单位：ADS底层比例 [MISSING]；公司直接披露的每ADS美元盈利可引用，不能据本币普通股EPS猜倍率。
 x: 石油天然气类倍数 7/10/13× 为研究假设（油气盈利随油价与炼化价差波动，按资源周期处理）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -201,7 +201,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$2.02/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$2.02/ADS（供应商）；前瞻盈利较 TTM +178%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$5.62|10× PE（石油天然气类假设，单一倍数方法，未校准历史分位）|US$56.17（估值初稿）|+14%|验证：underlying RC利润桥接、净债务、CFFO、资本开支
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$2.02/ADS（供应商）；前瞻盈利较 TTM +198%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$6.02|13× PE（石油天然气类假设，单一倍数方法，未校准历史分位）|US$78.27（估值初稿）|+58%|兑现：上游产量、成本重整和资本配置能否恢复现金
 ratio: 现价 US$49.44；(Base 56.17 − P 49.44) ÷ (P 49.44 − Bear 35.07) = 0.47:1；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$2.02/ADS（epsTrailingTwelveMonths，对应 trailingPE 24.475246），前瞻 EPS US$5.62/ADS（epsForward 供应商共识，对应 forwardPE 8.802494）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$2.02/ADS（epsTrailingTwelveMonths，对应 trailingPE 24.475246），前瞻 EPS US$5.62/ADS（epsForward 供应商共识，对应 forwardPE 8.802494）。
 x: 现价 US$49.44（companyMarketSnapshot adr:BP，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 USD，与交易币种一致，无需换算；证券单位：ADS底层比例 [MISSING]；公司直接披露的每ADS美元盈利可引用，不能据本币普通股EPS猜倍率。
 x: 石油天然气类倍数 7/10/13× 为研究假设（油气盈利随油价与炼化价差波动，按资源周期处理）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -217,7 +217,7 @@ s: 悲观|[MISSING]（未赋概率）|ROE 8%、Ke 12%、g 2%、权益折减 10%�
 s: 基准|[MISSING]（未赋概率）|ROE 12%、Ke 11%、g 2%、权益折减 0%；BVPS 10.08 USD/股 × 5 股/证券 × 汇率 1（models.json 已核对）；静态 BV，未预测2027BV|1.11× PB（普通股 ROE-PB：(ROE−g)/(Ke−g)×(1−折减)；折减前 1.11×；单一方法，未校准历史分位）|US$56.00（估值初稿）|-40%|验证：普通股RoTE、NIM、预期信用损失、CET1、普通股BVPS
 s: 乐观|[MISSING]（未赋概率）|ROE 15%、Ke 10%、g 2%、权益折减 0%；BVPS 10.08 USD/股 × 5 股/证券 × 汇率 1（models.json 已核对）；静态 BV，未预测2027BV|1.62× PB（普通股 ROE-PB：(ROE−g)/(Ke−g)×(1−折减)；折减前 1.62×；单一方法，未校准历史分位）|US$81.90（估值初稿）|-12%|兑现：亚洲财富费用与存贷业务收入支撑资本回报
 ratio: 现价 US$92.96；不成立：现价 US$92.96 ≥ 基准价 US$56.00；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$6.88/ADS（epsTrailingTwelveMonths，对应 trailingPE 13.511627），前瞻 EPS US$9.51/ADS（epsForward 供应商共识，对应 forwardPE 9.77222）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$6.88/ADS（epsTrailingTwelveMonths，对应 trailingPE 13.511627），前瞻 EPS US$9.51/ADS（epsForward 供应商共识，对应 forwardPE 9.77222）。
 x: 现价 US$92.96（companyMarketSnapshot adr:HSBC，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 USD，与交易币种一致，无需换算；证券单位：1 ADS = 5 股普通股；实施日期、后续发行/回购仍需逐项桥接。
 x: 沿用 10-07 逐家核读的普通股 ROE-PB 草案（models.json）；方法单一、未预测 2027BV；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -233,7 +233,7 @@ s: 悲观|[MISSING]（未赋概率）|股息率法不适用：供应商股息率
 s: 基准|[MISSING]（未赋概率）|补齐一手财报的每 ADS 账面价值 / 股息政策后重建：净利息收入、信用成本、普通股ROE、CET1|股息率法 / PB–ROE 输入不可核验|[MISSING]（未建立可核验价值）|[MISSING]|验证：净利息收入、信用成本、普通股ROE、CET1
 s: 乐观|[MISSING]（未赋概率）|日元利率变化、贷款需求与海外业务推动利差兑现并转为可核实盈利与现金|股息率法 / PB–ROE 输入不可核验|[MISSING]（未建立可核验价值）|[MISSING]|兑现：日元利率变化、贷款需求与海外业务推动利差
 ratio: 现价 US$21.66；[MISSING]：股息率法不适用：供应商股息率 2.49% < 3%，股息不是主要价值来源；PB–ROE 所需每 ADS 账面价值在供应商口径中币种 / ADS 比例错乱（priceToBook 1.70），不可核验；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$1.53/ADS（epsTrailingTwelveMonths，对应 trailingPE 14.156863），前瞻 EPS US$1.03/ADS（epsForward 供应商共识，对应 forwardPE 21.029127）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$1.53/ADS（epsTrailingTwelveMonths，对应 trailingPE 14.156863），前瞻 EPS US$1.03/ADS（epsForward 供应商共识，对应 forwardPE 21.029127）。
 x: 现价 US$21.66（companyMarketSnapshot adr:MUFG，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 JPY、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx JPYUSD=X 0.0063298（2026-10-07 Yahoo 快照）；证券单位：ADS底层比例 [MISSING]；公司直接披露的每ADS美元盈利可引用，不能据本币普通股EPS猜倍率。
 x: 经营现金流：2026-10-07 notes.tsv 未见经营现金为负的披露，完整 OCF [MISSING]；cn-itucd 的「经营现金为负封顶观察」本轮无逐家输入，未触发。
@@ -248,7 +248,7 @@ s: 悲观|[MISSING]（未赋概率）|股息率法不适用：供应商股息率
 s: 基准|[MISSING]（未赋概率）|补齐一手财报的每 ADS 账面价值 / 股息政策后重建：NIM、信用成本、普通股ROE、CET1与股数|股息率法 / PB–ROE 输入不可核验|[MISSING]（未建立可核验价值）|[MISSING]|验证：NIM、信用成本、普通股ROE、CET1与股数
 s: 乐观|[MISSING]（未赋概率）|利率正常化、费用业务和资产配置影响回报兑现并转为可核实盈利与现金|股息率法 / PB–ROE 输入不可核验|[MISSING]（未建立可核验价值）|[MISSING]|兑现：利率正常化、费用业务和资产配置影响回报
 ratio: 现价 US$24.41；[MISSING]：股息率法不适用：供应商股息率 2.43% < 3%，股息不是主要价值来源；PB–ROE 所需每 ADS 账面价值在供应商口径中币种 / ADS 比例错乱（priceToBook 1.52），不可核验；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$1.73/ADS（epsTrailingTwelveMonths，对应 trailingPE 14.109826），前瞻 EPS US$0.41/ADS（epsForward 供应商共识，对应 forwardPE 59.536587）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$1.73/ADS（epsTrailingTwelveMonths，对应 trailingPE 14.109826），前瞻 EPS US$0.41/ADS（epsForward 供应商共识，对应 forwardPE 59.536587）。
 x: 现价 US$24.41（companyMarketSnapshot adr:SMFG，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 JPY、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx JPYUSD=X 0.0063298（2026-10-07 Yahoo 快照）；证券单位：1 ADS = 0.6 股普通股；实施日期、后续发行/回购仍需逐项桥接。
 x: 经营现金流：2026-10-07 notes.tsv 未见经营现金为负的披露，完整 OCF [MISSING]；cn-itucd 的「经营现金为负封顶观察」本轮无逐家输入，未触发。
@@ -263,7 +263,7 @@ s: 悲观|[MISSING]（未赋概率）|ROE 8%、Ke 12%、g 2%、权益折减 10%�
 s: 基准|[MISSING]（未赋概率）|ROE 12%、Ke 11%、g 2%、权益折减 0%；BVPS 69.69 CAD/股 × 1 股/证券 × 汇率 0.7028197（models.json 已核对）；静态 BV，未预测2027BV|1.11× PB（普通股 ROE-PB：(ROE−g)/(Ke−g)×(1−折减)；折减前 1.11×；单一方法，未校准历史分位）|US$54.42（估值初稿）|-55%|验证：reported/adjusted EPS桥接、美国资产、费用、CET1
 s: 乐观|[MISSING]（未赋概率）|ROE 15%、Ke 10%、g 2%、权益折减 0%；BVPS 69.69 CAD/股 × 1 股/证券 × 汇率 0.7028197（models.json 已核对）；静态 BV，未预测2027BV|1.62× PB（普通股 ROE-PB：(ROE−g)/(Ke−g)×(1−折减)；折减前 1.62×；单一方法，未校准历史分位）|US$79.59（估值初稿）|-34%|兑现：加拿大银行、财富业务和美国业务整改后的盈利
 ratio: 现价 US$120.06；不成立：现价 US$120.06 ≥ 基准价 US$54.42；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$6.72/ADS（epsTrailingTwelveMonths，对应 trailingPE 17.866072），前瞻 EPS US$7.93/ADS（epsForward 供应商共识，对应 forwardPE 15.14409）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$6.72/ADS（epsTrailingTwelveMonths，对应 trailingPE 17.866072），前瞻 EPS US$7.93/ADS（epsForward 供应商共识，对应 forwardPE 15.14409）。
 x: 现价 US$120.06（companyMarketSnapshot adr:TD，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 CAD、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx CADUSD=X 0.70282（2026-10-07 Yahoo 快照）；证券单位：美国交易的是直接上市/注册普通股；不能套用ADR倍率；股本与类别变化仍需核对。
 x: 沿用 10-07 逐家核读的普通股 ROE-PB 草案（models.json）；方法单一、未预测 2027BV；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -279,7 +279,7 @@ s: 悲观|[MISSING]（未赋概率）|股息率法不适用：供应商股息率
 s: 基准|[MISSING]（未赋概率）|补齐一手财报的每 ADS 账面价值 / 股息政策后重建：分部利润、信用成本、CET1、reported/adjusted EPS|股息率法 / PB–ROE 输入不可核验|[MISSING]（未建立可核验价值）|[MISSING]|验证：分部利润、信用成本、CET1、reported/adjusted EPS
 s: 乐观|[MISSING]（未赋概率）|银行、财富与资本市场的收入多元化兑现并转为可核实盈利与现金|股息率法 / PB–ROE 输入不可核验|[MISSING]（未建立可核验价值）|[MISSING]|兑现：银行、财富与资本市场的收入多元化
 ratio: 现价 US$196.30；[MISSING]：股息率法不适用：供应商股息率 2.54% < 3%，股息不是主要价值来源；PB–ROE 所需每 ADS 账面价值在供应商口径中币种 / ADS 比例错乱（priceToBook 2.87），不可核验；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$11.44/ADS（epsTrailingTwelveMonths，对应 trailingPE 17.159092），前瞻 EPS US$12.65/ADS（epsForward 供应商共识，对应 forwardPE 15.519123）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$11.44/ADS（epsTrailingTwelveMonths，对应 trailingPE 17.159092），前瞻 EPS US$12.65/ADS（epsForward 供应商共识，对应 forwardPE 15.519123）。
 x: 现价 US$196.30（companyMarketSnapshot adr:RY，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 CAD、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx CADUSD=X 0.70282（2026-10-07 Yahoo 快照）；证券单位：美国交易的是直接上市/注册普通股；不能套用ADR倍率；股本与类别变化仍需核对。
 x: 经营现金流：2026-10-07 notes.tsv 未见经营现金为负的披露，完整 OCF [MISSING]；cn-itucd 的「经营现金为负封顶观察」本轮无逐家输入，未触发。
@@ -294,7 +294,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$1.49/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$1.49/ADS（供应商）；前瞻盈利较 TTM +65%（基准 = 供应商共识 epsForward，悲观 −35 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$2.46|32× PE（全球互联网 / 平台成长类假设，单一倍数方法，未校准历史分位）|US$78.57（估值初稿）|-54%|验证：GMV、merchant/subscription收入、FCF、SBC、投资损益
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$1.49/ADS（供应商）；前瞻盈利较 TTM +85%（基准 = 供应商共识 epsForward，悲观 −35 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$2.75|42× PE（全球互联网 / 平台成长类假设，单一倍数方法，未校准历史分位）|US$115.64（估值初稿）|-32%|兑现：GMV、支付渗透和商户订阅推动增长
 ratio: 现价 US$171.06；不成立：现价 US$171.06 ≥ 基准价 US$78.57；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$1.49/ADS（epsTrailingTwelveMonths，对应 trailingPE 114.80537），前瞻 EPS US$2.46/ADS（epsForward 供应商共识，对应 forwardPE 69.666）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$1.49/ADS（epsTrailingTwelveMonths，对应 trailingPE 114.80537），前瞻 EPS US$2.46/ADS（epsForward 供应商共识，对应 forwardPE 69.666）。
 x: 现价 US$171.06（companyMarketSnapshot adr:SHOP，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 USD，与交易币种一致，无需换算；证券单位：美国交易的是直接上市/注册普通股；不能套用ADR倍率；股本与类别变化仍需核对。
 x: 全球互联网 / 平台成长类倍数 22/32/42× 为研究假设（平台成长股盈利基数低、增速高，倍数按成长平台常见区间）；dcf-prefill fyh（FCF 收益率历史）now 0.7%、分位 77、中位 0.34%（n=55），现 FCF 收益率低于历史中位。
@@ -310,7 +310,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$17.02/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$17.02/ADS（供应商）；前瞻盈利较 TTM +1%（基准 = 供应商共识 epsForward，悲观 −35 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$17.18|32× PE（全球互联网 / 平台成长类假设，单一倍数方法，未校准历史分位）|US$549.86（估值初稿）|+6%|验证：付费用户、ARPU、毛利率、operating income及FCF
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$17.02/ADS（供应商）；前瞻盈利较 TTM +21%（基准 = 供应商共识 epsForward，悲观 −35 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$20.59|42× PE（全球互联网 / 平台成长类假设，单一倍数方法，未校准历史分位）|US$864.66（估值初稿）|+67%|兑现：付费用户、ARPU、版权结构和广告变现
 ratio: 现价 US$518.76；(Base 549.86 − P 518.76) ÷ (P 518.76 − Bear 246.98) = 0.11:1；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$17.02/ADS（epsTrailingTwelveMonths，对应 trailingPE 30.479435），前瞻 EPS US$17.18/ADS（epsForward 供应商共识，对应 forwardPE 30.189985）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$17.02/ADS（epsTrailingTwelveMonths，对应 trailingPE 30.479435），前瞻 EPS US$17.18/ADS（epsForward 供应商共识，对应 forwardPE 30.189985）。
 x: 现价 US$518.76（companyMarketSnapshot adr:SPOT，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 EUR、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx EURUSD=X 1.11919（2026-10-07 Yahoo 快照）；证券单位：美国交易的是直接上市/注册普通股；不能套用ADR倍率；股本与类别变化仍需核对。
 x: 全球互联网 / 平台成长类倍数 22/32/42× 为研究假设（平台成长股盈利基数低、增速高，倍数按成长平台常见区间）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -326,7 +326,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$0.97/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$0.97/ADS（供应商）；前瞻盈利较 TTM +216%（基准 = 供应商共识 epsForward，悲观 −35 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$3.06|50× PE（芯片 IP / 授权类假设，单一倍数方法，未校准历史分位）|US$153.14（估值初稿）|-33%|验证：royalty/licensing、Armv9占比、GAAP与adjusted盈利、SBC
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$0.97/ADS（供应商）；前瞻盈利较 TTM +236%（基准 = 供应商共识 epsForward，悲观 −35 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$3.26|65× PE（芯片 IP / 授权类假设，单一倍数方法，未校准历史分位）|US$211.69（估值初稿）|-7%|兑现：新架构版税、计算平台渗透与授权合同
 ratio: 现价 US$228.05；不成立：现价 US$228.05 ≥ 基准价 US$153.14；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$0.97/ADS（epsTrailingTwelveMonths，对应 trailingPE 235.10309），前瞻 EPS US$3.06/ADS（epsForward 供应商共识，对应 forwardPE 74.458984）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$0.97/ADS（epsTrailingTwelveMonths，对应 trailingPE 235.10309），前瞻 EPS US$3.06/ADS（epsForward 供应商共识，对应 forwardPE 74.458984）。
 x: 现价 US$228.05（companyMarketSnapshot adr:ARM，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 USD，与交易币种一致，无需换算；证券单位：ADS底层比例 [MISSING]；公司直接披露的每ADS美元盈利可引用，不能据本币普通股EPS猜倍率。
 x: 芯片 IP / 授权类倍数 35/50/65× 为研究假设（授权与版税模式毛利高、增速依赖新架构渗透，倍数对增速极敏感）；dcf-prefill fyh（FCF 收益率历史）now -0.03%、分位 41、中位 -0.03%（n=38），现 FCF 收益率低于历史中位。
@@ -343,7 +343,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS 为负（供应商 epsTrailingTwel
 s: 基准|[MISSING]（未赋概率）|先证明：摩托车/汽车利润、资本开支、金融信用成本；至少连续两个季度盈利为正再重建情景|持续盈利 PE 不适用|[MISSING]（未建立可核验价值）|[MISSING]|验证：摩托车/汽车利润、资本开支、金融信用成本
 s: 乐观|[MISSING]（未赋概率）|摩托车现金流、混动车型及销量结构兑现并转为可核实盈利与现金|持续盈利 PE 不适用|[MISSING]（未建立可核验价值）|[MISSING]|兑现：摩托车现金流、混动车型及销量结构
 ratio: 现价 US$34.06；[MISSING]：TTM EPS 为负（供应商 epsTrailingTwelveMonths -0.72），不套 PE 情景、不给赔率；与 2026-10-07 原件复核「观察」口径冲突，待核读，不机械判回避；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$-0.72/ADS（epsTrailingTwelveMonths，对应 trailingPE [MISSING]），前瞻 EPS US$4.96/ADS（epsForward 供应商共识，对应 forwardPE 6.8669357）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$-0.72/ADS（epsTrailingTwelveMonths，对应 trailingPE [MISSING]），前瞻 EPS US$4.96/ADS（epsForward 供应商共识，对应 forwardPE 6.8669357）。
 x: 现价 US$34.06（companyMarketSnapshot adr:HMC，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 JPY、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx JPYUSD=X 0.0063298（2026-10-07 Yahoo 快照）；证券单位：1 ADS = 3 股普通股；实施日期、后续发行/回购仍需逐项桥接。
 x: 经营现金流：2026-10-07 notes.tsv 未见经营现金为负的披露，完整 OCF [MISSING]；cn-itucd 的「经营现金为负封顶观察」本轮无逐家输入，未触发。
@@ -358,7 +358,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$2.86/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$2.86/ADS（供应商）；前瞻盈利较 TTM +129%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$6.56|10× PE（石油天然气类假设，单一倍数方法，未校准历史分位）|US$65.57（估值初稿）|+11%|验证：产量、adjusted/IFRS利润、现金资本开支与净债务
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$2.86/ADS（供应商）；前瞻盈利较 TTM +149%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$7.13|13× PE（石油天然气类假设，单一倍数方法，未校准历史分位）|US$92.68（估值初稿）|+57%|兑现：油气产量和天然气组合提供经营现金
 ratio: 现价 US$58.85；(Base 65.57 − P 58.85) ÷ (P 58.85 − Bear 39.89) = 0.35:1；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$2.86/ADS（epsTrailingTwelveMonths，对应 trailingPE 20.576923），前瞻 EPS US$6.56/ADS（epsForward 供应商共识，对应 forwardPE 8.975004）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$2.86/ADS（epsTrailingTwelveMonths，对应 trailingPE 20.576923），前瞻 EPS US$6.56/ADS（epsForward 供应商共识，对应 forwardPE 8.975004）。
 x: 现价 US$58.85（companyMarketSnapshot adr:E，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 EUR、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx EURUSD=X 1.11919（2026-10-07 Yahoo 快照）；证券单位：1 ADS = 2 股普通股；实施日期、后续发行/回购仍需逐项桥接。
 x: 石油天然气类倍数 7/10/13× 为研究假设（油气盈利随油价与炼化价差波动，按资源周期处理）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -374,7 +374,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$5.64/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$5.64/ADS（供应商）；前瞻盈利较 TTM +12%（基准 = 供应商共识 epsForward，悲观 −20 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$6.32|19× PE（铁路运输类假设，单一倍数方法，未校准历史分位）|US$120.05（估值初稿）|-0%|验证：RTM、price/mix、operating ratio、FCF
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$5.64/ADS（供应商）；前瞻盈利较 TTM +32%（基准 = 供应商共识 epsForward，悲观 −20 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$7.45|23× PE（铁路运输类假设，单一倍数方法，未校准历史分位）|US$171.26（估值初稿）|+43%|兑现：货运量、价格及营运效率推动现金流
 ratio: 现价 US$120.09；不成立：现价 US$120.09 ≥ 基准价 US$120.05；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$5.64/ADS（epsTrailingTwelveMonths，对应 trailingPE 21.292553），前瞻 EPS US$6.32/ADS（epsForward 供应商共识，对应 forwardPE 19.007084）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$5.64/ADS（epsTrailingTwelveMonths，对应 trailingPE 21.292553），前瞻 EPS US$6.32/ADS（epsForward 供应商共识，对应 forwardPE 19.007084）。
 x: 现价 US$120.09（companyMarketSnapshot adr:CNI，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 CAD、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx CADUSD=X 0.70282（2026-10-07 Yahoo 快照）；证券单位：美国交易的是直接上市/注册普通股；不能套用ADR倍率；股本与类别变化仍需核对。
 x: 铁路运输类倍数 15/19/23× 为研究假设（铁路特许网络现金流稳定、运量随工业周期温和波动）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -390,7 +390,7 @@ s: 悲观|[MISSING]（未赋概率）|股息较供应商前瞻年化股息 US$0.
 s: 基准|[MISSING]（未赋概率）|维持供应商前瞻年化股息 US$0.22/ADS（dividendRate，现价股息率 4.03%）；是否含特别股息未经公司公告核验|目标股息率 5.0%（银行 / 券商股息率法假设，单一方法，未校准历史分位）|US$4.40（估值初稿）|-19%|验证：NIM、汽车金融拨备、RoTE、CET1及普通股BVPS
 s: 乐观|[MISSING]（未赋概率）|股息上调 5% → US$0.23；是否含特别股息未经公司公告核验|目标股息率 4.0%（银行 / 券商股息率法假设，单一方法，未校准历史分位）|US$5.78（估值初稿）|+7%|兑现：英国存贷款利差、费用及业务数字化
 ratio: 现价 US$5.41；不成立：现价 US$5.41 ≥ 基准价 US$4.40；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$0.42/ADS（epsTrailingTwelveMonths，对应 trailingPE 12.880953），前瞻 EPS US$0.62/ADS（epsForward 供应商共识，对应 forwardPE 8.697888）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$0.42/ADS（epsTrailingTwelveMonths，对应 trailingPE 12.880953），前瞻 EPS US$0.62/ADS（epsForward 供应商共识，对应 forwardPE 8.697888）。
 x: 现价 US$5.41（companyMarketSnapshot adr:LYG，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 GBP、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx GBPUSD=X 1.32377（2026-10-07 Yahoo 快照）；证券单位：ADS底层比例 [MISSING]；公司直接披露的每ADS美元盈利可引用，不能据本币普通股EPS猜倍率。
 x: 银行 / 券商目标股息率 7.0/5.0/4.0% 为研究假设（成熟银行常见股息率区间；PB–ROE 因供应商账面价值口径错乱未采用）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -406,7 +406,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$4.11/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$4.11/ADS（供应商）；前瞻盈利较 TTM +126%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$9.27|13× PE（中概互联网类假设，单一倍数方法，未校准历史分位）|US$120.55（估值初稿）|+11%|验证：电商EBITA、云外部收入、即时零售亏损、FCF、SBC
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$4.11/ADS（供应商）；前瞻盈利较 TTM +146%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$10.10|17× PE（中概互联网类假设，单一倍数方法，未校准历史分位）|US$171.62（估值初稿）|+58%|兑现：云AI收入、电商变现和国际规模经济能否覆盖补贴投入
 ratio: 现价 US$108.57；(Base 120.55 − P 108.57) ÷ (P 108.57 − Bear 72.36) = 0.33:1；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$4.11/ADS（epsTrailingTwelveMonths，对应 trailingPE 26.416058），前瞻 EPS US$9.27/ADS（epsForward 供应商共识，对应 forwardPE 11.708112）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$4.11/ADS（epsTrailingTwelveMonths，对应 trailingPE 26.416058），前瞻 EPS US$9.27/ADS（epsForward 供应商共识，对应 forwardPE 11.708112）。
 x: 现价 US$108.57（companyMarketSnapshot adr:BABA，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 CNY、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx CNYUSD=X 0.149403（2026-10-07 Yahoo 快照）；证券单位：1 ADS = 8 股普通股；实施日期、后续发行/回购仍需逐项桥接。
 x: 中概互联网类倍数 9/13/17× 为研究假设（中概股含监管、竞争与地缘折价，倍数低于美国同业）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -422,7 +422,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$8.94/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$8.94/ADS（供应商）；前瞻盈利较 TTM +38%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$12.34|13× PE（中概互联网类假设，单一倍数方法，未校准历史分位）|US$160.43（估值初稿）|+97%|验证：交易服务/营销收入、营业利润、商户补贴、现金受限
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$8.94/ADS（供应商）；前瞻盈利较 TTM +58%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$14.13|17× PE（中概互联网类假设，单一倍数方法，未校准历史分位）|US$240.19（估值初稿）|+195%|兑现：国内商户服务与跨境交易的量价及投入回报
 ratio: 现价 US$81.39；不可计算：悲观价 US$86.93 ≥ 现价 US$81.39，数据异常，评级封顶观察；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$8.94/ADS（epsTrailingTwelveMonths，对应 trailingPE 9.104027），前瞻 EPS US$12.34/ADS（epsForward 供应商共识，对应 forwardPE 6.595324）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$8.94/ADS（epsTrailingTwelveMonths，对应 trailingPE 9.104027），前瞻 EPS US$12.34/ADS（epsForward 供应商共识，对应 forwardPE 6.595324）。
 x: 现价 US$81.39（companyMarketSnapshot adr:PDD，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 CNY、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx CNYUSD=X 0.149403（2026-10-07 Yahoo 快照）；证券单位：1 ADS = 4 股普通股；实施日期、后续发行/回购仍需逐项桥接。
 x: 中概互联网类倍数 9/13/17× 为研究假设（中概股含监管、竞争与地缘折价，倍数低于美国同业）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -439,7 +439,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$1.43/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$1.43/ADS（供应商）；前瞻盈利较 TTM +185%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$4.08|13× PE（中概互联网类假设，单一倍数方法，未校准历史分位）|US$52.98（估值初稿）|+98%|验证：JD Retail利润、物流外部收入、新业务亏损、FCF
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$1.43/ADS（供应商）；前瞻盈利较 TTM +205%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$4.36|17× PE（中概互联网类假设，单一倍数方法，未校准历史分位）|US$74.14（估值初稿）|+177%|兑现：零售效率、物流外部客户及投入回报
 ratio: 现价 US$26.78；不可计算：悲观价 US$32.82 ≥ 现价 US$26.78，数据异常，评级封顶观察；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$1.43/ADS（epsTrailingTwelveMonths，对应 trailingPE 18.727274），前瞻 EPS US$4.08/ADS（epsForward 供应商共识，对应 forwardPE 6.5711293）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$1.43/ADS（epsTrailingTwelveMonths，对应 trailingPE 18.727274），前瞻 EPS US$4.08/ADS（epsForward 供应商共识，对应 forwardPE 6.5711293）。
 x: 现价 US$26.78（companyMarketSnapshot adr:JD，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 CNY、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx CNYUSD=X 0.149403（2026-10-07 Yahoo 快照）；证券单位：1 ADS = 2 股普通股；实施日期、后续发行/回购仍需逐项桥接。
 x: 中概互联网类倍数 9/13/17× 为研究假设（中概股含监管、竞争与地缘折价，倍数低于美国同业）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -456,7 +456,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS 为负（供应商 epsTrailingTwel
 s: 基准|[MISSING]（未赋概率）|先证明：core收入、云收入、广告、FCF与SBC；至少连续两个季度盈利为正再重建情景|持续盈利 PE 不适用|[MISSING]（未建立可核验价值）|[MISSING]|验证：core收入、云收入、广告、FCF与SBC
 s: 乐观|[MISSING]（未赋概率）|云算力和AI产品能否抵消传统广告压力兑现并转为可核实盈利与现金|持续盈利 PE 不适用|[MISSING]（未建立可核验价值）|[MISSING]|兑现：云算力和AI产品能否抵消传统广告压力
 ratio: 现价 US$79.78；[MISSING]：TTM EPS 为负（供应商 epsTrailingTwelveMonths -2.23），不套 PE 情景、不给赔率；与 2026-10-07 原件复核「观察」口径冲突，待核读，不机械判回避；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$-2.23/ADS（epsTrailingTwelveMonths，对应 trailingPE [MISSING]），前瞻 EPS US$7.52/ADS（epsForward 供应商共识，对应 forwardPE 10.609103）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$-2.23/ADS（epsTrailingTwelveMonths，对应 trailingPE [MISSING]），前瞻 EPS US$7.52/ADS（epsForward 供应商共识，对应 forwardPE 10.609103）。
 x: 现价 US$79.78（companyMarketSnapshot adr:BIDU，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 CNY、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx CNYUSD=X 0.149403（2026-10-07 Yahoo 快照）；证券单位：1 ADS = 8 股普通股；实施日期、后续发行/回购仍需逐项桥接。
 x: 经营现金流：2026-10-07 notes.tsv 未见经营现金为负的披露，完整 OCF [MISSING]；cn-itucd 的「经营现金为负封顶观察」本轮无逐家输入，未触发。
@@ -471,7 +471,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$7.15/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$7.15/ADS（供应商）；前瞻盈利较 TTM +51%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$10.78|13× PE（中概互联网类假设，单一倍数方法，未校准历史分位）|US$140.08（估值初稿）|+12%|验证：游戏净收入、递延收入、毛利率、经营现金流
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$7.15/ADS（供应商）；前瞻盈利较 TTM +71%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$12.21|17× PE（中概互联网类假设，单一倍数方法，未校准历史分位）|US$207.50（估值初稿）|+66%|兑现：老游戏流水、新产品与海外增长
 ratio: 现价 US$125.25；(Base 140.08 − P 125.25) ÷ (P 125.25 − Bear 77.68) = 0.31:1；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$7.15/ADS（epsTrailingTwelveMonths，对应 trailingPE 17.517483），前瞻 EPS US$10.78/ADS（epsForward 供应商共识，对应 forwardPE 11.623445）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$7.15/ADS（epsTrailingTwelveMonths，对应 trailingPE 17.517483），前瞻 EPS US$10.78/ADS（epsForward 供应商共识，对应 forwardPE 11.623445）。
 x: 现价 US$125.25（companyMarketSnapshot adr:NTES，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 CNY、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx CNYUSD=X 0.149403（2026-10-07 Yahoo 快照）；证券单位：1 ADS = 5 股普通股；实施日期、后续发行/回购仍需逐项桥接。
 x: 中概互联网类倍数 9/13/17× 为研究假设（中概股含监管、竞争与地缘折价，倍数低于美国同业）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -487,7 +487,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$4.96/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$4.96/ADS（供应商）；前瞻盈利较 TTM -17%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$4.11|13× PE（中概互联网类假设，单一倍数方法，未校准历史分位）|US$53.48（估值初稿）|+35%|验证：国内/国际预订、reported/adjusted净利、处罚现金和整改
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$4.96/ADS（供应商）；前瞻盈利较 TTM +3%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$5.11|17× PE（中概互联网类假设，单一倍数方法，未校准历史分位）|US$86.79（估值初稿）|+119%|兑现：出境游与国际平台增长能否抵消监管后影响
 ratio: 现价 US$39.59；(Base 53.48 − P 39.59) ÷ (P 39.59 − Bear 23.63) = 0.87:1；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$4.96/ADS（epsTrailingTwelveMonths，对应 trailingPE 7.981855），前瞻 EPS US$4.11/ADS（epsForward 供应商共识，对应 forwardPE 9.624262）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$4.96/ADS（epsTrailingTwelveMonths，对应 trailingPE 7.981855），前瞻 EPS US$4.11/ADS（epsForward 供应商共识，对应 forwardPE 9.624262）。
 x: 现价 US$39.59（companyMarketSnapshot adr:TCOM，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 CNY、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx CNYUSD=X 0.149403（2026-10-07 Yahoo 快照）；证券单位：1 ADS = 1 股普通股；实施日期、后续发行/回购仍需逐项桥接。
 x: 中概互联网类倍数 9/13/17× 为研究假设（中概股含监管、竞争与地缘折价，倍数低于美国同业）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -503,7 +503,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$2.72/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$2.72/ADS（供应商）；前瞻盈利较 TTM +24%（基准 = 供应商共识 epsForward，悲观 −25 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$3.38|15× PE（中概消费 / 服务类假设，单一倍数方法，未校准历史分位）|US$50.65（估值初稿）|+13%|验证：KFC/Pizza Hut同店、净开店、餐厅利润率、现金回报
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$2.72/ADS（供应商）；前瞻盈利较 TTM +44%（基准 = 供应商共识 epsForward，悲观 −25 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$3.92|19× PE（中概消费 / 服务类假设，单一倍数方法，未校准历史分位）|US$74.50（估值初稿）|+66%|兑现：同店销量、门店扩张、加盟和效率提高
 ratio: 现价 US$45.01；(Base 50.65 − P 45.01) ÷ (P 45.01 − Bear 29.67) = 0.37:1；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$2.72/ADS（epsTrailingTwelveMonths，对应 trailingPE 16.547792），前瞻 EPS US$3.38/ADS（epsForward 供应商共识，对应 forwardPE 13.329028）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$2.72/ADS（epsTrailingTwelveMonths，对应 trailingPE 16.547792），前瞻 EPS US$3.38/ADS（epsForward 供应商共识，对应 forwardPE 13.329028）。
 x: 现价 US$45.01（companyMarketSnapshot adr:YUMC，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 USD，与交易币种一致，无需换算；证券单位：美国交易的是直接上市/注册普通股；不能套用ADR倍率；股本与类别变化仍需核对。
 x: 中概消费 / 服务类倍数 11/15/19× 为研究假设（餐饮、零售与酒店盈利取决于同店与扩店，含中概折价）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -519,7 +519,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS 为负（供应商 epsTrailingTwel
 s: 基准|[MISSING]（未赋概率）|先证明：交付、车辆毛利、GAAP/adjusted利润、自由现金流；至少连续两个季度盈利为正再重建情景|持续盈利 PE 不适用|[MISSING]（未建立可核验价值）|[MISSING]|验证：交付、车辆毛利、GAAP/adjusted利润、自由现金流
 s: 乐观|[MISSING]（未赋概率）|交付、车辆毛利和品牌结构改善现金消耗兑现并转为可核实盈利与现金|持续盈利 PE 不适用|[MISSING]（未建立可核验价值）|[MISSING]|兑现：交付、车辆毛利和品牌结构改善现金消耗
 ratio: 现价 US$3.39；[MISSING]：TTM EPS 为负（供应商 epsTrailingTwelveMonths -0.25），不套 PE 情景、不给赔率；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$-0.25/ADS（epsTrailingTwelveMonths，对应 trailingPE [MISSING]），前瞻 EPS US$0.13/ADS（epsForward 供应商共识，对应 forwardPE 26.635942）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$-0.25/ADS（epsTrailingTwelveMonths，对应 trailingPE [MISSING]），前瞻 EPS US$0.13/ADS（epsForward 供应商共识，对应 forwardPE 26.635942）。
 x: 现价 US$3.39（companyMarketSnapshot adr:NIO，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 CNY、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx CNYUSD=X 0.149403（2026-10-07 Yahoo 快照）；证券单位：1 ADS = 1 股普通股；实施日期、后续发行/回购仍需逐项桥接。
 x: 经营现金流：2026-10-07 notes.tsv 未见经营现金为负的披露，完整 OCF [MISSING]；cn-itucd 的「经营现金为负封顶观察」本轮无逐家输入，未触发。
@@ -534,7 +534,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS 为负（供应商 epsTrailingTwel
 s: 基准|[MISSING]（未赋概率）|先证明：交付、汽车毛利、技术服务、GAAP利润与现金；至少连续两个季度盈利为正再重建情景|持续盈利 PE 不适用|[MISSING]（未建立可核验价值）|[MISSING]|验证：交付、汽车毛利、技术服务、GAAP利润与现金
 s: 乐观|[MISSING]（未赋概率）|交付、车型结构及技术收入改善盈利兑现并转为可核实盈利与现金|持续盈利 PE 不适用|[MISSING]（未建立可核验价值）|[MISSING]|兑现：交付、车型结构及技术收入改善盈利
 ratio: 现价 US$9.21；[MISSING]：TTM EPS 为负（供应商 epsTrailingTwelveMonths -0.47），不套 PE 情景、不给赔率；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$-0.47/ADS（epsTrailingTwelveMonths，对应 trailingPE [MISSING]），前瞻 EPS US$0.18/ADS（epsForward 供应商共识，对应 forwardPE 49.9019）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$-0.47/ADS（epsTrailingTwelveMonths，对应 trailingPE [MISSING]），前瞻 EPS US$0.18/ADS（epsForward 供应商共识，对应 forwardPE 49.9019）。
 x: 现价 US$9.21（companyMarketSnapshot adr:XPEV，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 CNY、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx CNYUSD=X 0.149403（2026-10-07 Yahoo 快照）；证券单位：1 ADS = 2 股普通股；实施日期、后续发行/回购仍需逐项桥接。
 x: 经营现金流：2026-10-07 notes.tsv 未见经营现金为负的披露，完整 OCF [MISSING]；cn-itucd 的「经营现金为负封顶观察」本轮无逐家输入，未触发。
@@ -549,7 +549,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS 为负（供应商 epsTrailingTwel
 s: 基准|[MISSING]（未赋概率）|先证明：交付、车辆毛利、GAAP利润、库存和FCF；至少连续两个季度盈利为正再重建情景|持续盈利 PE 不适用|[MISSING]（未建立可核验价值）|[MISSING]|验证：交付、车辆毛利、GAAP利润、库存和FCF
 s: 乐观|[MISSING]（未赋概率）|新车型销量、毛利和渠道恢复能否扭转亏损兑现并转为可核实盈利与现金|持续盈利 PE 不适用|[MISSING]（未建立可核验价值）|[MISSING]|兑现：新车型销量、毛利和渠道恢复能否扭转亏损
 ratio: 现价 US$11.29；[MISSING]：TTM EPS 为负（供应商 epsTrailingTwelveMonths -0.65），不套 PE 情景、不给赔率；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$-0.65/ADS（epsTrailingTwelveMonths，对应 trailingPE [MISSING]），前瞻 EPS US$0.56/ADS（epsForward 供应商共识，对应 forwardPE 20.326584）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$-0.65/ADS（epsTrailingTwelveMonths，对应 trailingPE [MISSING]），前瞻 EPS US$0.56/ADS（epsForward 供应商共识，对应 forwardPE 20.326584）。
 x: 现价 US$11.29（companyMarketSnapshot adr:LI，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 CNY、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx CNYUSD=X 0.149403（2026-10-07 Yahoo 快照）；证券单位：1 ADS = 2 股普通股；实施日期、后续发行/回购仍需逐项桥接。
 x: 经营现金流：2026-10-07 notes.tsv 未见经营现金为负的披露，完整 OCF [MISSING]；cn-itucd 的「经营现金为负封顶观察」本轮无逐家输入，未触发。
@@ -564,7 +564,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$1.83/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$1.83/ADS（供应商）；前瞻盈利较 TTM +23%（基准 = 供应商共识 epsForward，悲观 −25 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$2.24|12× PE（快递物流类假设，单一倍数方法，未校准历史分位）|US$26.91（估值初稿）|+34%|验证：包裹量、单票价格/成本、毛利率、OCF及资本开支
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$1.83/ADS（供应商）；前瞻盈利较 TTM +43%（基准 = 供应商共识 epsForward，悲观 −25 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$2.61|15× PE（快递物流类假设，单一倍数方法，未校准历史分位）|US$39.13（估值初稿）|+95%|兑现：包裹量、单票收入及单票成本决定利润
 ratio: 现价 US$20.06；(Base 26.91 − P 20.06) ÷ (P 20.06 − Bear 16.07) = 1.72:1；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$1.83/ADS（epsTrailingTwelveMonths，对应 trailingPE 10.961748），前瞻 EPS US$2.24/ADS（epsForward 供应商共识，对应 forwardPE 8.944419）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$1.83/ADS（epsTrailingTwelveMonths，对应 trailingPE 10.961748），前瞻 EPS US$2.24/ADS（epsForward 供应商共识，对应 forwardPE 8.944419）。
 x: 现价 US$20.06（companyMarketSnapshot adr:ZTO，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 CNY、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx CNYUSD=X 0.149403（2026-10-07 Yahoo 快照）；证券单位：ADS底层比例 [MISSING]；公司直接披露的每ADS美元盈利可引用，不能据本币普通股EPS猜倍率。
 x: 快递物流类倍数 9/12/15× 为研究假设（快递价格战与件量增速决定盈利，资本开支较高）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -580,7 +580,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$0.59/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$0.59/ADS（供应商）；前瞻盈利较 TTM +114%（基准 = 供应商共识 epsForward，悲观 −35 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$1.26|14× PE（房产交易服务类假设，单一倍数方法，未校准历史分位）|US$17.71（估值初稿）|-1%|验证：存量/新房GTV、收入确认、家装利润和FCF
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$0.59/ADS（供应商）；前瞻盈利较 TTM +134%（基准 = 供应商共识 epsForward，悲观 −35 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$1.38|18× PE（房产交易服务类假设，单一倍数方法，未校准历史分位）|US$24.89（估值初稿）|+39%|兑现：存量房交易和家装渗透影响服务利润
 ratio: 现价 US$17.91；不成立：现价 US$17.91 ≥ 基准价 US$17.71；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$0.59/ADS（epsTrailingTwelveMonths，对应 trailingPE 30.355934），前瞻 EPS US$1.26/ADS（epsForward 供应商共识，对应 forwardPE 14.16017）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$0.59/ADS（epsTrailingTwelveMonths，对应 trailingPE 30.355934），前瞻 EPS US$1.26/ADS（epsForward 供应商共识，对应 forwardPE 14.16017）。
 x: 现价 US$17.91（companyMarketSnapshot adr:BEKE，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 CNY、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx CNYUSD=X 0.149403（2026-10-07 Yahoo 快照）；证券单位：1 ADS = 3 股普通股；实施日期、后续发行/回购仍需逐项桥接。
 x: 房产交易服务类倍数 10/14/18× 为研究假设（佣金收入随房地产成交量波动，按地产链周期处理）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -596,7 +596,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$0.82/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$0.82/ADS（供应商）；前瞻盈利较 TTM +23%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$1.01|13× PE（中概互联网类假设，单一倍数方法，未校准历史分位）|US$13.11（估值初稿）|+51%|验证：付费用户、ARPPU、在线音乐/社交收入、SBC和FCF
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$0.82/ADS（供应商）；前瞻盈利较 TTM +43%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$1.17|17× PE（中概互联网类假设，单一倍数方法，未校准历史分位）|US$19.94（估值初稿）|+130%|兑现：订阅人数、ARPPU和版权变现推动现金
 ratio: 现价 US$8.67；(Base 13.11 − P 8.67) ÷ (P 8.67 − Bear 6.86) = 2.46:1；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$0.82/ADS（epsTrailingTwelveMonths，对应 trailingPE 10.573171），前瞻 EPS US$1.01/ADS（epsForward 供应商共识，对应 forwardPE 8.5947895）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$0.82/ADS（epsTrailingTwelveMonths，对应 trailingPE 10.573171），前瞻 EPS US$1.01/ADS（epsForward 供应商共识，对应 forwardPE 8.5947895）。
 x: 现价 US$8.67（companyMarketSnapshot adr:TME，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 CNY、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx CNYUSD=X 0.149403（2026-10-07 Yahoo 快照）；证券单位：1 ADS = 2 股普通股；实施日期、后续发行/回购仍需逐项桥接。
 x: 中概互联网类倍数 9/13/17× 为研究假设（中概股含监管、竞争与地缘折价，倍数低于美国同业）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -613,7 +613,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$2.97/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$2.97/ADS（供应商）；前瞻盈利较 TTM -15%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$2.51|13× PE（中概互联网类假设，单一倍数方法，未校准历史分位）|US$32.69（估值初稿）|+155%|验证：活跃客户、GMV、利润率、库存与FCF
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$2.97/ADS（供应商）；前瞻盈利较 TTM +5%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$3.11|17× PE（中概互联网类假设，单一倍数方法，未校准历史分位）|US$52.84（估值初稿）|+313%|兑现：客户复购、客单价与履约效率
 ratio: 现价 US$12.80；不可计算：悲观价 US$14.61 ≥ 现价 US$12.80，数据异常，评级封顶观察；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$2.97/ADS（epsTrailingTwelveMonths，对应 trailingPE 4.3097644），前瞻 EPS US$2.51/ADS（epsForward 供应商共识，对应 forwardPE 5.0904636）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$2.97/ADS（epsTrailingTwelveMonths，对应 trailingPE 4.3097644），前瞻 EPS US$2.51/ADS（epsForward 供应商共识，对应 forwardPE 5.0904636）。
 x: 现价 US$12.80（companyMarketSnapshot adr:VIPS，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 CNY、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx CNYUSD=X 0.149403（2026-10-07 Yahoo 快照）；证券单位：1 ADS = 0.2 股普通股；实施日期、后续发行/回购仍需逐项桥接。
 x: 中概互联网类倍数 9/13/17× 为研究假设（中概股含监管、竞争与地缘折价，倍数低于美国同业）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -630,7 +630,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$0.51/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$0.51/ADS（供应商）；前瞻盈利较 TTM +151%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$1.28|13× PE（中概互联网类假设，单一倍数方法，未校准历史分位）|US$16.62（估值初稿）|+19%|验证：广告/游戏收入、DAU、GAAP营业利润、SBC和OCF
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$0.51/ADS（供应商）；前瞻盈利较 TTM +171%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$1.38|17× PE（中概互联网类假设，单一倍数方法，未校准历史分位）|US$23.47（估值初稿）|+68%|兑现：广告负载、游戏流水和费用控制推动盈利
 ratio: 现价 US$14.01；(Base 16.62 − P 14.01) ÷ (P 14.01 − Bear 10.13) = 0.67:1；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$0.51/ADS（epsTrailingTwelveMonths，对应 trailingPE 27.470589），前瞻 EPS US$1.28/ADS（epsForward 供应商共识，对应 forwardPE 10.956209）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$0.51/ADS（epsTrailingTwelveMonths，对应 trailingPE 27.470589），前瞻 EPS US$1.28/ADS（epsForward 供应商共识，对应 forwardPE 10.956209）。
 x: 现价 US$14.01（companyMarketSnapshot adr:BILI，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 CNY、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx CNYUSD=X 0.149403（2026-10-07 Yahoo 快照）；证券单位：1 ADS = 1 股普通股；实施日期、后续发行/回购仍需逐项桥接。
 x: 中概互联网类倍数 9/13/17× 为研究假设（中概股含监管、竞争与地缘折价，倍数低于美国同业）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -646,7 +646,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$0.59/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$0.59/ADS（供应商）；前瞻盈利较 TTM +156%（基准 = 供应商共识 epsForward，悲观 −25 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$1.51|15× PE（中概消费 / 服务类假设，单一倍数方法，未校准历史分位）|US$22.64（估值初稿）|+121%|验证：海外同店、门店数、TOP TOY收入、现金/并购债务
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$0.59/ADS（供应商）；前瞻盈利较 TTM +176%（基准 = 供应商共识 epsForward，悲观 −25 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$1.63|19× PE（中概消费 / 服务类假设，单一倍数方法，未校准历史分位）|US$30.92（估值初稿）|+202%|兑现：MINISO海外开店和TOP TOY扩张提高规模
 ratio: 现价 US$10.25；不可计算：悲观价 US$14.98 ≥ 现价 US$10.25，数据异常，评级封顶观察；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$0.59/ADS（epsTrailingTwelveMonths，对应 trailingPE 17.372883），前瞻 EPS US$1.51/ADS（epsForward 供应商共识，对应 forwardPE 6.7899723）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$0.59/ADS（epsTrailingTwelveMonths，对应 trailingPE 17.372883），前瞻 EPS US$1.51/ADS（epsForward 供应商共识，对应 forwardPE 6.7899723）。
 x: 现价 US$10.25（companyMarketSnapshot adr:MNSO，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 CNY、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx CNYUSD=X 0.149403（2026-10-07 Yahoo 快照）；证券单位：1 ADS = 4 股普通股；实施日期、后续发行/回购仍需逐项桥接。
 x: 中概消费 / 服务类倍数 11/15/19× 为研究假设（餐饮、零售与酒店盈利取决于同店与扩店，含中概折价）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -663,7 +663,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$1.34/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$1.34/ADS（供应商）；前瞻盈利较 TTM +137%（基准 = 供应商共识 epsForward，悲观 −25 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$3.17|15× PE（中概消费 / 服务类假设，单一倍数方法，未校准历史分位）|US$47.56（估值初稿）|+2%|验证：RevPAR、ADR/入住率、开店、经营现金与租赁
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$1.34/ADS（供应商）；前瞻盈利较 TTM +157%（基准 = 供应商共识 epsForward，悲观 −25 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$3.44|19× PE（中概消费 / 服务类假设，单一倍数方法，未校准历史分位）|US$65.34（估值初稿）|+41%|兑现：加盟扩张、RevPAR和直营成本带来利润
 ratio: 现价 US$46.45；(Base 47.56 − P 46.45) ÷ (P 46.45 − Bear 31.19) = 0.07:1；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$1.34/ADS（epsTrailingTwelveMonths，对应 trailingPE 34.664177），前瞻 EPS US$3.17/ADS（epsForward 供应商共识，对应 forwardPE 14.649441）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$1.34/ADS（epsTrailingTwelveMonths，对应 trailingPE 34.664177），前瞻 EPS US$3.17/ADS（epsForward 供应商共识，对应 forwardPE 14.649441）。
 x: 现价 US$46.45（companyMarketSnapshot adr:HTHT，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 CNY、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx CNYUSD=X 0.149403（2026-10-07 Yahoo 快照）；证券单位：1 ADS = 10 股普通股；实施日期、后续发行/回购仍需逐项桥接。
 x: 中概消费 / 服务类倍数 11/15/19× 为研究假设（餐饮、零售与酒店盈利取决于同店与扩店，含中概折价）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -679,7 +679,7 @@ s: 悲观|[MISSING]（未赋概率）|股息率法不适用：供应商股息率
 s: 基准|[MISSING]（未赋概率）|补齐一手财报的每 ADS 账面价值 / 股息政策后重建：付费客户、客户资产、佣金/利息、资本约束|股息率法 / PB–ROE 输入不可核验|[MISSING]（未建立可核验价值）|[MISSING]|验证：付费客户、客户资产、佣金/利息、资本约束
 s: 乐观|[MISSING]（未赋概率）|客户资产、交易量和净息收入驱动利润兑现并转为可核实盈利与现金|股息率法 / PB–ROE 输入不可核验|[MISSING]（未建立可核验价值）|[MISSING]|兑现：客户资产、交易量和净息收入驱动利润
 ratio: 现价 US$105.50；[MISSING]：股息率法不适用：供应商股息率 2.46% < 3%，股息不是主要价值来源；PB–ROE 所需每 ADS 账面价值在供应商口径中币种 / ADS 比例错乱（priceToBook 2.95），不可核验；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$10.08/ADS（epsTrailingTwelveMonths，对应 trailingPE 10.4662695），前瞻 EPS US$12.57/ADS（epsForward 供应商共识，对应 forwardPE 8.393446）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$10.08/ADS（epsTrailingTwelveMonths，对应 trailingPE 10.4662695），前瞻 EPS US$12.57/ADS（epsForward 供应商共识，对应 forwardPE 8.393446）。
 x: 现价 US$105.50（companyMarketSnapshot adr:FUTU，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 HKD、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx HKDUSD=X 0.127429（2026-10-07 Yahoo 快照）；证券单位：1 ADS = 8 股普通股；实施日期、后续发行/回购仍需逐项桥接。
 x: 经营现金流：2026-10-07 notes.tsv 未见经营现金为负的披露，完整 OCF [MISSING]；cn-itucd 的「经营现金为负封顶观察」本轮无逐家输入，未触发。
@@ -694,7 +694,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$1.59/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$1.59/ADS（供应商）；前瞻盈利较 TTM -26%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$1.17|17× PE（教育服务类假设，单一倍数方法，未校准历史分位）|US$19.93（估值初稿）|+68%|验证：学习服务收入、内容毛利、GAAP/adjusted利润、SBC
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$1.59/ADS（供应商）；前瞻盈利较 TTM -6%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$1.49|22× PE（教育服务类假设，单一倍数方法，未校准历史分位）|US$32.79（估值初稿）|+176%|兑现：学习中心、课程招生和内容销售增长
 ratio: 现价 US$11.89；(Base 19.93 − P 11.89) ÷ (P 11.89 − Bear 8.35) = 2.27:1；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$1.59/ADS（epsTrailingTwelveMonths，对应 trailingPE 7.4779873），前瞻 EPS US$1.17/ADS（epsForward 供应商共识，对应 forwardPE 10.139687）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$1.59/ADS（epsTrailingTwelveMonths，对应 trailingPE 7.4779873），前瞻 EPS US$1.17/ADS（epsForward 供应商共识，对应 forwardPE 10.139687）。
 x: 现价 US$11.89（companyMarketSnapshot adr:TAL，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 USD，与交易币种一致，无需换算；证券单位：3 ADS = 1 股普通股（1 ADS = 1/3 普通股）；实施日期、后续发行/回购仍需逐项桥接。
 x: 教育服务类倍数 12/17/22× 为研究假设（教培盈利取决于报名人数与监管边界，现金预收较多）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -711,7 +711,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$2.98/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$2.98/ADS（供应商）；前瞻盈利较 TTM +68%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$5.00|17× PE（教育服务类假设，单一倍数方法，未校准历史分位）|US$84.99（估值初稿）|+40%|验证：分部收入、GAAP/adjusted利润、中心数、OCF
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$2.98/ADS（供应商）；前瞻盈利较 TTM +88%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$5.60|22× PE（教育服务类假设，单一倍数方法，未校准历史分位）|US$123.10（估值初稿）|+103%|兑现：非学科、留学培训和教育服务增长
 ratio: 现价 US$60.50；(Base 84.99 − P 60.50) ÷ (P 60.50 − Bear 49.27) = 2.18:1；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$2.98/ADS（epsTrailingTwelveMonths，对应 trailingPE 20.302013），前瞻 EPS US$5.00/ADS（epsForward 供应商共识，对应 forwardPE 12.101306）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$2.98/ADS（epsTrailingTwelveMonths，对应 trailingPE 20.302013），前瞻 EPS US$5.00/ADS（epsForward 供应商共识，对应 forwardPE 12.101306）。
 x: 现价 US$60.50（companyMarketSnapshot adr:EDU，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 USD，与交易币种一致，无需换算；证券单位：1 ADS = 10 股普通股；实施日期、后续发行/回购仍需逐项桥接。
 x: 教育服务类倍数 12/17/22× 为研究假设（教培盈利取决于报名人数与监管边界，现金预收较多）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -728,7 +728,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$0.11/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$0.11/ADS（供应商）；前瞻盈利较 TTM +20%（基准 = 供应商共识 epsForward，悲观 −35 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$0.13|32× PE（全球互联网 / 平台成长类假设，单一倍数方法，未校准历史分位）|US$4.23（估值初稿）|+47%|验证：出行/配送EBITDA、GAAP利润、金融贷款与损失
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$0.11/ADS（供应商）；前瞻盈利较 TTM +40%（基准 = 供应商共识 epsForward，悲观 −35 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$0.15|42× PE（全球互联网 / 平台成长类假设，单一倍数方法，未校准历史分位）|US$6.48（估值初稿）|+126%|兑现：GMV、变现率和单位经济改善
 ratio: 现价 US$2.87；(Base 4.23 − P 2.87) ÷ (P 2.87 − Bear 2.06) = 1.69:1；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$0.11/ADS（epsTrailingTwelveMonths，对应 trailingPE 26.090908），前瞻 EPS US$0.13/ADS（epsForward 供应商共识，对应 forwardPE 21.701323）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$0.11/ADS（epsTrailingTwelveMonths，对应 trailingPE 26.090908），前瞻 EPS US$0.13/ADS（epsForward 供应商共识，对应 forwardPE 21.701323）。
 x: 现价 US$2.87（companyMarketSnapshot adr:GRAB，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 USD，与交易币种一致，无需换算；证券单位：美国交易的是直接上市/注册普通股；不能套用ADR倍率；股本与类别变化仍需核对。
 x: 全球互联网 / 平台成长类倍数 22/32/42× 为研究假设（平台成长股盈利基数低、增速高，倍数按成长平台常见区间）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -744,7 +744,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$2.44/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$2.44/ADS（供应商）；前瞻盈利较 TTM +113%（基准 = 供应商共识 epsForward，悲观 −35 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$5.21|32× PE（全球互联网 / 平台成长类假设，单一倍数方法，未校准历史分位）|US$166.68（估值初稿）|+88%|验证：GMV、分部营业利润、贷款/逾期、bookings
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$2.44/ADS（供应商）；前瞻盈利较 TTM +133%（基准 = 供应商共识 epsForward，悲观 −35 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$5.70|42× PE（全球互联网 / 平台成长类假设，单一倍数方法，未校准历史分位）|US$239.26（估值初稿）|+170%|兑现：Shopee盈利、Monee信贷和Garena流水增长
 ratio: 现价 US$88.47；不可计算：悲观价 US$95.80 ≥ 现价 US$88.47，数据异常，评级封顶观察；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$2.44/ADS（epsTrailingTwelveMonths，对应 trailingPE 36.258198），前瞻 EPS US$5.21/ADS（epsForward 供应商共识，对应 forwardPE 16.985077）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$2.44/ADS（epsTrailingTwelveMonths，对应 trailingPE 36.258198），前瞻 EPS US$5.21/ADS（epsForward 供应商共识，对应 forwardPE 16.985077）。
 x: 现价 US$88.47（companyMarketSnapshot adr:SE，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 USD，与交易币种一致，无需换算；证券单位：1 ADS = 1 股普通股；实施日期、后续发行/回购仍需逐项桥接。
 x: 全球互联网 / 平台成长类倍数 22/32/42× 为研究假设（平台成长股盈利基数低、增速高，倍数按成长平台常见区间）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -761,7 +761,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$36.77/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$36.77/ADS（供应商）；前瞻盈利较 TTM +54%（基准 = 供应商共识 epsForward，悲观 −35 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$56.65|32× PE（全球互联网 / 平台成长类假设，单一倍数方法，未校准历史分位）|US$1,812.75（估值初稿）|-1%|验证：GMV、TPV、信用组合、NPL、营业利润和现金
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$36.77/ADS（供应商）；前瞻盈利较 TTM +74%（基准 = 供应商共识 epsForward，悲观 −35 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$64.00|42× PE（全球互联网 / 平台成长类假设，单一倍数方法，未校准历史分位）|US$2,688.10（估值初稿）|+46%|兑现：电商渗透、物流效率、支付和信贷增长
 ratio: 现价 US$1,839.72；不成立：现价 US$1,839.72 ≥ 基准价 US$1,812.75；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$36.77/ADS（epsTrailingTwelveMonths，对应 trailingPE 50.033176），前瞻 EPS US$56.65/ADS（epsForward 供应商共识，对应 forwardPE 32.476074）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$36.77/ADS（epsTrailingTwelveMonths，对应 trailingPE 50.033176），前瞻 EPS US$56.65/ADS（epsForward 供应商共识，对应 forwardPE 32.476074）。
 x: 现价 US$1,839.72（companyMarketSnapshot adr:MELI，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 USD，与交易币种一致，无需换算；证券单位：美国交易的是直接上市/注册普通股；不能套用ADR倍率；股本与类别变化仍需核对。
 x: 全球互联网 / 平台成长类倍数 22/32/42× 为研究假设（平台成长股盈利基数低、增速高，倍数按成长平台常见区间）；dcf-prefill fyh（FCF 收益率历史）now 11.55%、分位 92、中位 4.45%（n=55），现 FCF 收益率低于历史中位。
@@ -777,7 +777,7 @@ s: 悲观|[MISSING]（未赋概率）|股息率法不适用：供应商股息率
 s: 基准|[MISSING]（未赋概率）|补齐一手财报的每 ADS 账面价值 / 股息政策后重建：活跃客户、ARPAC、信用损失、ROE与资本|股息率法 / PB–ROE 输入不可核验|[MISSING]（未建立可核验价值）|[MISSING]|验证：活跃客户、ARPAC、信用损失、ROE与资本
 s: 乐观|[MISSING]（未赋概率）|活跃客户、每客户收入和低成本获客改善回报兑现并转为可核实盈利与现金|股息率法 / PB–ROE 输入不可核验|[MISSING]（未建立可核验价值）|[MISSING]|兑现：活跃客户、每客户收入和低成本获客改善回报
 ratio: 现价 US$14.51；[MISSING]：股息率法不适用：供应商股息率 0.00% < 3%，股息不是主要价值来源；PB–ROE 所需每 ADS 账面价值在供应商口径中币种 / ADS 比例错乱（priceToBook 5.29），不可核验；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$0.73/ADS（epsTrailingTwelveMonths，对应 trailingPE 19.876713），前瞻 EPS US$1.13/ADS（epsForward 供应商共识，对应 forwardPE 12.880718）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$0.73/ADS（epsTrailingTwelveMonths，对应 trailingPE 19.876713），前瞻 EPS US$1.13/ADS（epsForward 供应商共识，对应 forwardPE 12.880718）。
 x: 现价 US$14.51（companyMarketSnapshot adr:NU，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 USD，与交易币种一致，无需换算；证券单位：美国交易的是直接上市/注册普通股；不能套用ADR倍率；股本与类别变化仍需核对。
 x: 经营现金流：2026-10-07 notes.tsv 未见经营现金为负的披露，完整 OCF [MISSING]；cn-itucd 的「经营现金为负封顶观察」本轮无逐家输入，未触发。
@@ -792,7 +792,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS 为负（供应商 epsTrailingTwel
 s: 基准|[MISSING]（未赋概率）|先证明：Product Commerce利润、Developing Offerings亏损、FCF；至少连续两个季度盈利为正再重建情景|持续盈利 PE 不适用|[MISSING]（未建立可核验价值）|[MISSING]|验证：Product Commerce利润、Developing Offerings亏损、FCF
 s: 乐观|[MISSING]（未赋概率）|产品电商效率、WOW复购与海外规模兑现并转为可核实盈利与现金|持续盈利 PE 不适用|[MISSING]（未建立可核验价值）|[MISSING]|兑现：产品电商效率、WOW复购与海外规模
 ratio: 现价 US$14.34；[MISSING]：TTM EPS 为负（供应商 epsTrailingTwelveMonths -0.43），不套 PE 情景、不给赔率；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$-0.43/ADS（epsTrailingTwelveMonths，对应 trailingPE [MISSING]），前瞻 EPS US$0.28/ADS（epsForward 供应商共识，对应 forwardPE 51.724136）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$-0.43/ADS（epsTrailingTwelveMonths，对应 trailingPE [MISSING]），前瞻 EPS US$0.28/ADS（epsForward 供应商共识，对应 forwardPE 51.724136）。
 x: 现价 US$14.34（companyMarketSnapshot adr:CPNG，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 USD，与交易币种一致，无需换算；证券单位：美国交易的是直接上市/注册普通股；不能套用ADR倍率；股本与类别变化仍需核对。
 x: 经营现金流：2026-10-07 notes.tsv 未见经营现金为负的披露，完整 OCF [MISSING]；cn-itucd 的「经营现金为负封顶观察」本轮无逐家输入，未触发。
@@ -807,7 +807,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$0.81/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$0.81/ADS（供应商）；前瞻盈利较 TTM +4%（基准 = 供应商共识 epsForward，悲观 −20 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$0.85|21× PE（IT 服务外包类假设，单一倍数方法，未校准历史分位）|US$17.77（估值初稿）|+46%|验证：恒汇率收入、订单TCV、利润率、员工利用率
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$0.81/ADS（供应商）；前瞻盈利较 TTM +24%（基准 = 供应商共识 epsForward，悲观 −20 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$1.01|26× PE（IT 服务外包类假设，单一倍数方法，未校准历史分位）|US$26.22（估值初稿）|+115%|兑现：客户预算、大单转换及交付效率
 ratio: 现价 US$12.20；(Base 17.77 − P 12.20) ÷ (P 12.20 − Bear 10.95) = 4.46:1；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$0.81/ADS（epsTrailingTwelveMonths，对应 trailingPE 15.0617285），前瞻 EPS US$0.85/ADS（epsForward 供应商共识，对应 forwardPE 14.414499）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$0.81/ADS（epsTrailingTwelveMonths，对应 trailingPE 15.0617285），前瞻 EPS US$0.85/ADS（epsForward 供应商共识，对应 forwardPE 14.414499）。
 x: 现价 US$12.20（companyMarketSnapshot adr:INFY，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 USD，与交易币种一致，无需换算；证券单位：1 ADS = 1 股普通股；实施日期、后续发行/回购仍需逐项桥接。
 x: IT 服务外包类倍数 16/21/26× 为研究假设（IT 外包盈利取决于大客户预算与人员利用率，增长温和）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -824,7 +824,7 @@ s: 悲观|[MISSING]（未赋概率）|股息率法不适用：供应商股息率
 s: 基准|[MISSING]（未赋概率）|补齐一手财报的每 ADS 账面价值 / 股息政策后重建：NIM、贷款/存款、NPA、CET1、普通股ROE|股息率法 / PB–ROE 输入不可核验|[MISSING]（未建立可核验价值）|[MISSING]|验证：NIM、贷款/存款、NPA、CET1、普通股ROE
 s: 乐观|[MISSING]（未赋概率）|合并后存款、贷款与负债优化改善回报兑现并转为可核实盈利与现金|股息率法 / PB–ROE 输入不可核验|[MISSING]（未建立可核验价值）|[MISSING]|兑现：合并后存款、贷款与负债优化改善回报
 ratio: 现价 US$23.08；[MISSING]：股息率法不适用：供应商股息率 1.71% < 3%，股息不是主要价值来源；PB–ROE 所需每 ADS 账面价值在供应商口径中币种 / ADS 比例错乱（priceToBook 5.76），不可核验；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$1.50/ADS（epsTrailingTwelveMonths，对应 trailingPE 15.386666），前瞻 EPS US$1.38/ADS（epsForward 供应商共识，对应 forwardPE 16.707203）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$1.50/ADS（epsTrailingTwelveMonths，对应 trailingPE 15.386666），前瞻 EPS US$1.38/ADS（epsForward 供应商共识，对应 forwardPE 16.707203）。
 x: 现价 US$23.08（companyMarketSnapshot adr:HDB，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 INR、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx INRUSD=X 0.0103332（2026-10-07 Yahoo 快照）；证券单位：ADS底层比例 [MISSING]；公司直接披露的每ADS美元盈利可引用，不能据本币普通股EPS猜倍率。
 x: 经营现金流：2026-10-07 notes.tsv 未见经营现金为负的披露，完整 OCF [MISSING]；cn-itucd 的「经营现金为负封顶观察」本轮无逐家输入，未触发。
@@ -839,7 +839,7 @@ s: 悲观|[MISSING]（未赋概率）|股息率法不适用：供应商股息率
 s: 基准|[MISSING]（未赋概率）|补齐一手财报的每 ADS 账面价值 / 股息政策后重建：NIM、NPA、贷款/存款、普通股ROE及CET1|股息率法 / PB–ROE 输入不可核验|[MISSING]（未建立可核验价值）|[MISSING]|验证：NIM、NPA、贷款/存款、普通股ROE及CET1
 s: 乐观|[MISSING]（未赋概率）|贷款增长、资金成本与费用收入改善利润兑现并转为可核实盈利与现金|股息率法 / PB–ROE 输入不可核验|[MISSING]（未建立可核验价值）|[MISSING]|兑现：贷款增长、资金成本与费用收入改善利润
 ratio: 现价 US$29.48；[MISSING]：股息率法不适用：供应商股息率 0.85% < 3%，股息不是主要价值来源；PB–ROE 所需每 ADS 账面价值在供应商口径中币种 / ADS 比例错乱（priceToBook 2.68），不可核验；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$1.71/ADS（epsTrailingTwelveMonths，对应 trailingPE 17.239765），前瞻 EPS US$1.87/ADS（epsForward 供应商共识，对应 forwardPE 15.753586）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$1.71/ADS（epsTrailingTwelveMonths，对应 trailingPE 17.239765），前瞻 EPS US$1.87/ADS（epsForward 供应商共识，对应 forwardPE 15.753586）。
 x: 现价 US$29.48（companyMarketSnapshot adr:IBN，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 INR、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx INRUSD=X 0.0103332（2026-10-07 Yahoo 快照）；证券单位：1 ADS = 2 股普通股；实施日期、后续发行/回购仍需逐项桥接。
 x: 经营现金流：2026-10-07 notes.tsv 未见经营现金为负的披露，完整 OCF [MISSING]；cn-itucd 的「经营现金为负封顶观察」本轮无逐家输入，未触发。
@@ -854,7 +854,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$0.50/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$0.50/ADS（供应商）；前瞻盈利较 TTM +273%（基准 = 供应商共识 epsForward，悲观 −35 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$1.86|10× PE（矿业类假设，单一倍数方法，未校准历史分位）|US$18.65（估值初稿）|+42%|验证：销量、实现价格、C1成本、赔偿现金与净债务
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$0.50/ADS（供应商）；前瞻盈利较 TTM +293%（基准 = 供应商共识 epsForward，悲观 −35 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$1.96|13× PE（矿业类假设，单一倍数方法，未校准历史分位）|US$25.54（估值初稿）|+95%|兑现：铁矿品位、产量和成本带来现金，金属项目改变结构
 ratio: 现价 US$13.11；(Base 18.65 − P 13.11) ÷ (P 13.11 − Bear 11.83) = 4.32:1；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$0.50/ADS（epsTrailingTwelveMonths，对应 trailingPE 26.22），前瞻 EPS US$1.86/ADS（epsForward 供应商共识，对应 forwardPE 7.0309987）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$0.50/ADS（epsTrailingTwelveMonths，对应 trailingPE 26.22），前瞻 EPS US$1.86/ADS（epsForward 供应商共识，对应 forwardPE 7.0309987）。
 x: 现价 US$13.11（companyMarketSnapshot adr:VALE，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 BRL、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx BRLUSD=X 0.200989（2026-10-07 Yahoo 快照）；证券单位：1 ADS = 1 股普通股；实施日期、后续发行/回购仍需逐项桥接。
 x: 矿业类倍数 7/10/13× 为研究假设（铁矿、铜等商品价格决定盈利，按资源周期处理）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -871,7 +871,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$3.96/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$3.96/ADS（供应商）；前瞻盈利较 TTM +4%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$4.14|10× PE（石油天然气类假设，单一倍数方法，未校准历史分位）|US$41.37（估值初稿）|+62%|验证：产量、FCF、资本开支、净债务与股息覆盖
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$3.96/ADS（供应商）；前瞻盈利较 TTM +24%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$4.93|13× PE（石油天然气类假设，单一倍数方法，未校准历史分位）|US$64.07（估值初稿）|+151%|兑现：盐下油田产量和成本优势形成现金
 ratio: 现价 US$25.56；(Base 41.37 − P 25.56) ÷ (P 25.56 − Bear 20.64) = 3.21:1；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$3.96/ADS（epsTrailingTwelveMonths，对应 trailingPE 6.454545），前瞻 EPS US$4.14/ADS（epsForward 供应商共识，对应 forwardPE 6.1788826）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$3.96/ADS（epsTrailingTwelveMonths，对应 trailingPE 6.454545），前瞻 EPS US$4.14/ADS（epsForward 供应商共识，对应 forwardPE 6.1788826）。
 x: 现价 US$25.56（companyMarketSnapshot adr:PBR，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 BRL、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx BRLUSD=X 0.200989（2026-10-07 Yahoo 快照）；证券单位：ADS底层比例 [MISSING]；公司直接披露的每ADS美元盈利可引用，不能据本币普通股EPS猜倍率。
 x: 石油天然气类倍数 7/10/13× 为研究假设（油气盈利随油价与炼化价差波动，按资源周期处理）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -888,7 +888,7 @@ s: 悲观|[MISSING]（未赋概率）|股息率法不适用：供应商股息率
 s: 基准|[MISSING]（未赋概率）|补齐一手财报的每 ADS 账面价值 / 股息政策后重建：recurring/IFRS利润桥接、NPL、ROE、资本|股息率法 / PB–ROE 输入不可核验|[MISSING]（未建立可核验价值）|[MISSING]|验证：recurring/IFRS利润桥接、NPL、ROE、资本
 s: 乐观|[MISSING]（未赋概率）|信贷结构、服务费用与数字效率支持回报兑现并转为可核实盈利与现金|股息率法 / PB–ROE 输入不可核验|[MISSING]（未建立可核验价值）|[MISSING]|兑现：信贷结构、服务费用与数字效率支持回报
 ratio: 现价 US$9.43；[MISSING]：股息率法不适用：供应商股息率 1.82% < 3%，股息不是主要价值来源；PB–ROE 所需每 ADS 账面价值在供应商口径中币种 / ADS 比例错乱（priceToBook 2.42），不可核验；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$0.78/ADS（epsTrailingTwelveMonths，对应 trailingPE 12.089745），前瞻 EPS US$0.97/ADS（epsForward 供应商共识，对应 forwardPE 9.724457）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$0.78/ADS（epsTrailingTwelveMonths，对应 trailingPE 12.089745），前瞻 EPS US$0.97/ADS（epsForward 供应商共识，对应 forwardPE 9.724457）。
 x: 现价 US$9.43（companyMarketSnapshot adr:ITUB，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 BRL、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx BRLUSD=X 0.200989（2026-10-07 Yahoo 快照）；证券单位：1 ADS = 1 股优先股；实施日期、后续发行/回购仍需逐项桥接。
 x: 经营现金流：2026-10-07 notes.tsv 未见经营现金为负的披露，完整 OCF [MISSING]；cn-itucd 的「经营现金为负封顶观察」本轮无逐家输入，未触发。
@@ -903,7 +903,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$2.63/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$2.63/ADS（供应商）；前瞻盈利较 TTM -10%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$2.36|8× PE（支付 / 金融科技类假设，单一倍数方法，未校准历史分位）|US$18.85（估值初稿）|+64%|验证：TPV、take rate、贷款逾期、持续经营利润
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$2.63/ADS（供应商）；前瞻盈利较 TTM +10%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$2.88|11× PE（支付 / 金融科技类假设，单一倍数方法，未校准历史分位）|US$31.71（估值初稿）|+176%|兑现：商户支付、存款和信贷提高单位经济
 ratio: 现价 US$11.49；(Base 18.85 − P 11.49) ÷ (P 11.49 − Bear 7.84) = 2.02:1；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$2.63/ADS（epsTrailingTwelveMonths，对应 trailingPE 4.368821），前瞻 EPS US$2.36/ADS（epsForward 供应商共识，对应 forwardPE 4.8757706）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$2.63/ADS（epsTrailingTwelveMonths，对应 trailingPE 4.368821），前瞻 EPS US$2.36/ADS（epsForward 供应商共识，对应 forwardPE 4.8757706）。
 x: 现价 US$11.49（companyMarketSnapshot adr:STNE，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 BRL、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx BRLUSD=X 0.200989（2026-10-07 Yahoo 快照）；证券单位：美国交易的是直接上市/注册普通股；不能套用ADR倍率；股本与类别变化仍需核对。
 x: 支付 / 金融科技类倍数 5/8/11× 为研究假设（巴西支付机构盈利受利率与信用成本影响，含当地高利率折价）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -920,7 +920,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$1.43/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$1.43/ADS（供应商）；前瞻盈利较 TTM +33%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$1.90|8× PE（支付 / 金融科技类假设，单一倍数方法，未校准历史分位）|US$15.18（估值初稿）|+36%|验证：TPV、银行客户、信贷损失、净利润/现金
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$1.43/ADS（供应商）；前瞻盈利较 TTM +53%（基准 = 供应商共识 epsForward，悲观 −30 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$2.18|11× PE（支付 / 金融科技类假设，单一倍数方法，未校准历史分位）|US$24.02（估值初稿）|+116%|兑现：商户支付和银行客户提高收入及存款
 ratio: 现价 US$11.13；(Base 15.18 − P 11.13) ÷ (P 11.13 − Bear 7.34) = 1.07:1；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$1.43/ADS（epsTrailingTwelveMonths，对应 trailingPE 7.783217），前瞻 EPS US$1.90/ADS（epsForward 供应商共识，对应 forwardPE 5.8664603）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$1.43/ADS（epsTrailingTwelveMonths，对应 trailingPE 7.783217），前瞻 EPS US$1.90/ADS（epsForward 供应商共识，对应 forwardPE 5.8664603）。
 x: 现价 US$11.13（companyMarketSnapshot adr:PAGS，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 BRL、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx BRLUSD=X 0.200989（2026-10-07 Yahoo 快照）；证券单位：美国交易的是直接上市/注册普通股；不能套用ADR倍率；股本与类别变化仍需核对。
 x: 支付 / 金融科技类倍数 5/8/11× 为研究假设（巴西支付机构盈利受利率与信用成本影响，含当地高利率折价）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -936,7 +936,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$16.41/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$16.41/ADS（供应商）；前瞻盈利较 TTM +110%（基准 = 供应商共识 epsForward，悲观 −40 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$34.48|11× PE（存储类假设，单一倍数方法，未校准历史分位）|US$379.24（估值初稿）|+165%|验证：HBM收入、DRAM/NAND价格、资本开支、ADS股数
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$16.41/ADS（供应商）；前瞻盈利较 TTM +130%（基准 = 供应商共识 epsForward，悲观 −40 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$37.76|15× PE（存储类假设，单一倍数方法，未校准历史分位）|US$566.37（估值初稿）|+296%|兑现：HBM出货和高端结构提升利润，但须看周期现金
 ratio: 现价 US$142.87；不可计算：悲观价 US$195.38 ≥ 现价 US$142.87，数据异常，评级封顶观察；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$16.41/ADS（epsTrailingTwelveMonths，对应 trailingPE 8.706277），前瞻 EPS US$34.48/ADS（epsForward 供应商共识，对应 forwardPE 4.1440444）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$16.41/ADS（epsTrailingTwelveMonths，对应 trailingPE 8.706277），前瞻 EPS US$34.48/ADS（epsForward 供应商共识，对应 forwardPE 4.1440444）。
 x: 现价 US$142.87（companyMarketSnapshot adr:SKHY，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 KRW、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx KRWUSD=X 0.000747379（2026-10-07 Yahoo 快照）；证券单位：1 ADS = 0.1 股普通股；实施日期、后续发行/回购仍需逐项桥接。
 x: 存储类倍数 7/11/15× 为研究假设（存储盈利随 DRAM/NAND 价格周期大幅波动，沿用 cn-itucd 存储类倍数）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -953,7 +953,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS 为负（供应商 epsTrailingTwel
 s: 基准|[MISSING]（未赋概率）|先证明：分部收入、现金资本开支、SBC、普通股总数与关联交易；至少连续两个季度盈利为正再重建情景|持续盈利 PE 不适用|[MISSING]（未建立可核验价值）|[MISSING]|验证：分部收入、现金资本开支、SBC、普通股总数与关联交易
 s: 乐观|[MISSING]（未赋概率）|Starlink复购、发射服务和上市后资本配置兑现并转为可核实盈利与现金|持续盈利 PE 不适用|[MISSING]（未建立可核验价值）|[MISSING]|兑现：Starlink复购、发射服务和上市后资本配置
 ratio: 现价 US$147.96；[MISSING]：TTM EPS 为负（供应商 epsTrailingTwelveMonths -1.1），不套 PE 情景、不给赔率；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$-1.10/ADS（epsTrailingTwelveMonths，对应 trailingPE [MISSING]），前瞻 EPS US$2.05/ADS（epsForward 供应商共识，对应 forwardPE 72.33617）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$-1.10/ADS（epsTrailingTwelveMonths，对应 trailingPE [MISSING]），前瞻 EPS US$2.05/ADS（epsForward 供应商共识，对应 forwardPE 72.33617）。
 x: 现价 US$147.96（companyMarketSnapshot adr:SPCX，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 USD，与交易币种一致，无需换算；证券单位：美国交易的是直接上市/注册普通股；不能套用ADR倍率；股本与类别变化仍需核对。
 x: 经营现金流：2026-10-07 notes.tsv 未见经营现金为负的披露，完整 OCF [MISSING]；cn-itucd 的「经营现金为负封顶观察」本轮无逐家输入，未触发。
@@ -968,7 +968,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$3.86/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$3.86/ADS（供应商）；前瞻盈利较 TTM +24%（基准 = 供应商共识 epsForward，悲观 −35 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$4.78|10× PE（矿业类假设，单一倍数方法，未校准历史分位）|US$47.82（估值初稿）|-43%|验证：铁矿/铜产量、unit cost、FCF、钾肥项目及净债务
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$3.86/ADS（供应商）；前瞻盈利较 TTM +44%（基准 = 供应商共识 epsForward，悲观 −35 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$5.55|13× PE（矿业类假设，单一倍数方法，未校准历史分位）|US$72.21（估值初稿）|-13%|兑现：资源产量、成本和铜需求决定穿越周期现金
 ratio: 现价 US$83.22；不成立：现价 US$83.22 ≥ 基准价 US$47.82；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$3.86/ADS（epsTrailingTwelveMonths，对应 trailingPE 21.559586），前瞻 EPS US$4.78/ADS（epsForward 供应商共识，对应 forwardPE 17.401196）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$3.86/ADS（epsTrailingTwelveMonths，对应 trailingPE 21.559586），前瞻 EPS US$4.78/ADS（epsForward 供应商共识，对应 forwardPE 17.401196）。
 x: 现价 US$83.22（companyMarketSnapshot adr:BHP，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 USD，与交易币种一致，无需换算；证券单位：1 ADS = 2 股普通股；实施日期、后续发行/回购仍需逐项桥接。
 x: 矿业类倍数 7/10/13× 为研究假设（铁矿、铜等商品价格决定盈利，按资源周期处理）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -984,7 +984,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$7.32/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$7.32/ADS（供应商）；前瞻盈利较 TTM +17%（基准 = 供应商共识 epsForward，悲观 −35 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$8.56|10× PE（矿业类假设，单一倍数方法，未校准历史分位）|US$85.59（估值初稿）|-4%|验证：Pilbara产量、实现价格、FCF、Simandou进度和债务
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$7.32/ADS（供应商）；前瞻盈利较 TTM +37%（基准 = 供应商共识 epsForward，悲观 −35 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$10.02|13× PE（矿业类假设，单一倍数方法，未校准历史分位）|US$130.30（估值初稿）|+46%|兑现：产量、品位、成本和新矿投产影响现金流
 ratio: 现价 US$89.50；不成立：现价 US$89.50 ≥ 基准价 US$85.59；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$7.32/ADS（epsTrailingTwelveMonths，对应 trailingPE 12.226776），前瞻 EPS US$8.56/ADS（epsForward 供应商共识，对应 forwardPE 10.456366）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$7.32/ADS（epsTrailingTwelveMonths，对应 trailingPE 12.226776），前瞻 EPS US$8.56/ADS（epsForward 供应商共识，对应 forwardPE 10.456366）。
 x: 现价 US$89.50（companyMarketSnapshot adr:RIO，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 USD，与交易币种一致，无需换算；证券单位：ADS底层比例 [MISSING]；公司直接披露的每ADS美元盈利可引用，不能据本币普通股EPS猜倍率。
 x: 矿业类倍数 7/10/13× 为研究假设（铁矿、铜等商品价格决定盈利，按资源周期处理）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -1000,7 +1000,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$4.87/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$4.87/ADS（供应商）；前瞻盈利较 TTM -23%（基准 = 供应商共识 epsForward，悲观 −20 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$3.75|19× PE（必选消费类假设，单一倍数方法，未校准历史分位）|US$71.29（估值初稿）|+9%|验证：USG量价、分部利润、持续经营EPS、现金分派覆盖
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$4.87/ADS（供应商）；前瞻盈利较 TTM -3%（基准 = 供应商共识 epsForward，悲观 −20 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$4.73|23× PE（必选消费类假设，单一倍数方法，未校准历史分位）|US$108.70（估值初稿）|+67%|兑现：真实销量、价格和产品结构推动持续经营增长
 ratio: 现价 US$65.15；(Base 71.29 − P 65.15) ÷ (P 65.15 − Bear 41.67) = 0.26:1；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$4.87/ADS（epsTrailingTwelveMonths，对应 trailingPE 13.377824），前瞻 EPS US$3.75/ADS（epsForward 供应商共识，对应 forwardPE 17.363026）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$4.87/ADS（epsTrailingTwelveMonths，对应 trailingPE 13.377824），前瞻 EPS US$3.75/ADS（epsForward 供应商共识，对应 forwardPE 17.363026）。
 x: 现价 US$65.15（companyMarketSnapshot adr:UL，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 EUR、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx EURUSD=X 1.11919（2026-10-07 Yahoo 快照）；证券单位：ADS底层比例 [MISSING]；公司直接披露的每ADS美元盈利可引用，不能据本币普通股EPS猜倍率。
 x: 必选消费类倍数 15/19/23× 为研究假设（品牌消费品盈利稳定、增长慢，取全球必选消费常见区间）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -1016,7 +1016,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$3.12/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$3.12/ADS（供应商）；前瞻盈利较 TTM +130%（基准 = 供应商共识 epsForward，悲观 −20 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$7.19|19× PE（必选消费类假设，单一倍数方法，未校准历史分位）|US$136.54（估值初稿）|+46%|验证：有机量价、地区销售、库存、FCF和净债务
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$3.12/ADS（供应商）；前瞻盈利较 TTM +150%（基准 = 供应商共识 epsForward，悲观 −20 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$7.81|23× PE（必选消费类假设，单一倍数方法，未校准历史分位）|US$179.64（估值初稿）|+92%|兑现：品牌价格、渠道去库存与销量恢复决定利润
 ratio: 现价 US$93.49；不可计算：悲观价 US$98.44 ≥ 现价 US$93.49，数据异常，评级封顶观察；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$3.12/ADS（epsTrailingTwelveMonths，对应 trailingPE 29.964745），前瞻 EPS US$7.19/ADS（epsForward 供应商共识，对应 forwardPE 13.009295）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$3.12/ADS（epsTrailingTwelveMonths，对应 trailingPE 29.964745），前瞻 EPS US$7.19/ADS（epsForward 供应商共识，对应 forwardPE 13.009295）。
 x: 现价 US$93.49（companyMarketSnapshot adr:DEO，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 USD，与交易币种一致，无需换算；证券单位：ADS底层比例 [MISSING]；公司直接披露的每ADS美元盈利可引用，不能据本币普通股EPS猜倍率。
 x: 必选消费类倍数 15/19/23× 为研究假设（品牌消费品盈利稳定、增长慢，取全球必选消费常见区间）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -1033,7 +1033,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$3.90/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$3.90/ADS（供应商）；前瞻盈利较 TTM +34%（基准 = 供应商共识 epsForward，悲观 −15 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$5.24|10× PE（烟草类假设，单一倍数方法，未校准历史分位）|US$52.39（估值初稿）|-10%|验证：销量/价格、新品类利润、adjusted/IFRS EPS、FCF
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$3.90/ADS（供应商）；前瞻盈利较 TTM +54%（基准 = 供应商共识 epsForward，悲观 −15 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$6.02|12× PE（烟草类假设，单一倍数方法，未校准历史分位）|US$72.23（估值初稿）|+23%|兑现：定价、燃烧类现金与新品类盈亏平衡
 ratio: 现价 US$58.51；不成立：现价 US$58.51 ≥ 基准价 US$52.39；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$3.90/ADS（epsTrailingTwelveMonths，对应 trailingPE 15.002563），前瞻 EPS US$5.24/ADS（epsForward 供应商共识，对应 forwardPE 11.168503）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$3.90/ADS（epsTrailingTwelveMonths，对应 trailingPE 15.002563），前瞻 EPS US$5.24/ADS（epsForward 供应商共识，对应 forwardPE 11.168503）。
 x: 现价 US$58.51（companyMarketSnapshot adr:BTI，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 GBP、交易币种 USD：供应商 EPS/股息已是每 ADS 美元口径，本轮不再二次换算以免重复折算；参考汇率 input.json fx GBPUSD=X 1.32377（2026-10-07 Yahoo 快照）；证券单位：ADS底层比例 [MISSING]；公司直接披露的每ADS美元盈利可引用，不能据本币普通股EPS猜倍率。
 x: 烟草类倍数 8/10/12× 为研究假设（烟草现金流稳定但量下滑、监管风险高，倍数低）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。
@@ -1049,7 +1049,7 @@ s: 悲观|[MISSING]（未赋概率）|TTM EPS US$5.61/ADS（供应商）；前�
 s: 基准|[MISSING]（未赋概率）|TTM EPS US$5.61/ADS（供应商）；前瞻盈利较 TTM +83%（基准 = 供应商共识 epsForward，悲观 −35 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$10.25|35× PE（创新药 / 生物科技类假设，单一倍数方法，未校准历史分位）|US$358.92（估值初稿）|-3%|验证：BRUKINSA收入、GAAP营业利润、研发、SBC与现金
 s: 乐观|[MISSING]（未赋概率）|TTM EPS US$5.61/ADS（供应商）；前瞻盈利较 TTM +103%（基准 = 供应商共识 epsForward，悲观 −35 个百分点、乐观 +20 个百分点，研究假设非公司指引）→ EPS US$11.38|45× PE（创新药 / 生物科技类假设，单一倍数方法，未校准历史分位）|US$511.95（估值初稿）|+38%|兑现：BRUKINSA等产品放量与研发杠杆能否形成现金盈利
 ratio: 现价 US$370.17；不成立：现价 US$370.17 ≥ 基准价 US$358.92；未四舍五入计算；盈利 / 股息与倍数均为研究假设，不认证可交易赔率。
-x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$5.61/ADS（epsTrailingTwelveMonths，对应 trailingPE 65.983955），前瞻 EPS US$10.25/ADS（epsForward 供应商共识，对应 forwardPE 36.09749）。
+x: 盈利输入冻结于 2026-10-20；价格日期与盈利输入冻结日相差 1 天（价格日期早于冻结日）。情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；悲观价不是最低价，不代表最大损失；评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。估值初稿（未认证）；盈利基数为 Yahoo 供应商 PE 反推（companyMarketSnapshot valuationSource=research/data-refresh-2026-10-20/yahoo-quote-batch.json，2026-10-19），非公司指引、非一手财报：TTM EPS US$5.61/ADS（epsTrailingTwelveMonths，对应 trailingPE 65.983955），前瞻 EPS US$10.25/ADS（epsForward 供应商共识，对应 forwardPE 36.09749）。
 x: 现价 US$370.17（companyMarketSnapshot adr:ONC，2026-10-19 腾讯延迟行情，供应商最后报价，非交易所认证收盘）。
 x: 财报币种 USD，与交易币种一致，无需换算；证券单位：1 ADS = 13 股普通股；实施日期、后续发行/回购仍需逐项桥接。
 x: 创新药 / 生物科技类倍数 25/35/45× 为研究假设（刚转盈利的创新药企估值依赖新药放量，倍数高且波动大）；dcf-prefill 未覆盖该 ADR，无历史倍数分位校准。

@@ -8,6 +8,10 @@ import os
 ROOT = Path(__file__).resolve().parents[1]
 VERSION = '2026-10-20'
 EARNINGS_FROZEN_AT = '2026-10-20'
+# 每家口径行统一带的说明（2026-10-20 差距分析建议 1）：不改任何评级与情景价，只讲清三件事
+FRAMING = ('情景价=冻结盈利×所选倍数的条件情景，期限未定义，不是今日 DCF 价值，也不是 12 个月目标价；'
+           '悲观价不是最低价，不代表最大损失；'
+           '评级每个工作日随价格按规则重算，价格贴近悲观价时盈亏比会跳变，评级变化不等于基本面变化。')
 FROZEN_VENDOR = f'research/data-refresh-{EARNINGS_FROZEN_AT}/yahoo-quote-batch.json'
 SNAPSHOT_PATH = Path(os.environ.get('SNAPSHOT_PATH', ROOT / 'src/data/companyMarketSnapshot.json'))
 SRC = ROOT / 'public/research/hk-2026-10-07'
@@ -28,7 +32,7 @@ def input_note(price_date, fallback=False):
         note += f'；价格日期与盈利输入冻结日相差 {abs(days)} 天（价格日期{ "早于" if days < 0 else "晚于" }冻结日）'
     if fallback:
         note += '；快照缺失，使用冻结供应商/模型旧报价回退'
-    return note + '。'
+    return note + '。' + FRAMING
 
 
 def price_range(records):

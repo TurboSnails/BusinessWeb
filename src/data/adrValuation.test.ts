@@ -35,6 +35,11 @@ describe('ADR 2026-10-20 valuation overlay', () => {
       expect(scenarios.every(s => s.prob?.includes('[MISSING]')), key).toBe(true)
       expect(item.headline, key).toContain('（估值初稿，未认证）')
       expect(item.headline, key).toContain('不构成买卖建议')
+      // 口径行须讲清时点、非保底与评级对价格的敏感性（页面「口径与陷阱」展示，2026-10-20 差距分析建议 1）
+      const notes = (item.pitfalls ?? []).join('\n')
+      expect(notes, key).toContain('不是今日 DCF 价值，也不是 12 个月目标价')
+      expect(notes, key).toContain('悲观价不是最低价，不代表最大损失')
+      expect(notes, key).toContain('评级每个工作日随价格按规则重算')
       expect(item.headline, key).toContain(auditRow[code].judgment)
       expect(item.headline!.startsWith(item.rating!), key).toBe(true)
       expect(item.discipline?.invalid, key).toBeTruthy()
