@@ -40,7 +40,8 @@ describe('港股本轮研究不会被历史手工页和筛选数据覆盖', () =
     const find = (code: string) => companies.find(c => c.code === code)!
     expect(find('00823').rating).toBe('观察')
     expect(find('00823').metrics.find(([k]) => k === '原件财务核读')?.[1]).toContain('DPU2.5361')
-    for (const code of ['02269', '02359', '00823']) expect(find(code).headline).toContain('事实已复核')
+    for (const code of ['02269', '02359']) expect(find(code).headline).toContain('事实已复核')
+    expect(find('00823').headline).toContain('观察')
     expect(find('00241').metrics.find(([k]) => k === '财报期')?.[1]).toContain('2026-03-31的全年')
     expect(find('02015').metrics.find(([k]) => k === '原件财务核读')?.[1]).toContain('2026放右')
     expect(find('09961').pitfalls?.join(' ')).toContain('罚款35.21亿')
@@ -55,14 +56,26 @@ describe('港股本轮研究不会被历史手工页和筛选数据覆盖', () =
     expect(models['01288'].bvpsCny).toBe(8.17)
     expect(models['00823'].nav).toBe(57.75)
     for (const company of companies) {
+      const row = read('audit.json').companies.find((r: any) => r.code === company.code)!
+      expect(company.headline).toContain(row.judgment)
       const model = models[company.code]
       expect(model.certified).toBe(false)
       expect(model.independentMethodsClosed).toBe(false)
-      if (!model.numericDraft) expect(company.scenarios?.every(s => s.price.includes('[MISSING]'))).toBe(true)
-      else {
+      const prices = company.scenarios?.map(s => Number((s.price.match(/[-+]?[0-9]+(?:\.[0-9]+)?/) || [])[0]))
+      const allMissing = company.scenarios?.every(s => s.price.includes('[MISSING]'))
+      const allDraftIncreasing = company.scenarios?.every(s => s.price.includes('估值初稿')) && prices![0] < prices![1] && prices![1] < prices![2]
+      const unresolvedLoss = ['00881', '00960', '01997', '03323', '03690', '09888'].includes(company.code)
+      expect(allMissing || allDraftIncreasing || unresolvedLoss).toBe(true)
+      if (model.numericDraft) {
         expect(model.bear).toBeLessThan(model.base)
         expect(model.base).toBeLessThan(model.bull)
       }
+    }
+    for (const code of ['01958', '02015', '02238', '09866', '09868']) {
+      expect(companies.find(c => c.code === code)?.rating).toBe('回避')
+    }
+    for (const code of ['00881', '00960', '01997', '03323', '03690', '09888', '00823']) {
+      expect(companies.find(c => c.code === code)?.rating).toBe('观察')
     }
   })
 })

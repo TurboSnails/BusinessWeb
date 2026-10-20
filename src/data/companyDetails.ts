@@ -468,8 +468,9 @@ const sources: Record<Market, () => Promise<Details[]>> = {
     return [text(cn.cnDetails), text(profiles.profileDetails), manual]
   },
   hk: async () => {
-    const [extra, hk] = await Promise.all([import('./details/extra'), import('./details/hk')])
-    return [text(extra.extraDetails), manual, text(hk.hkDetails)]
+    const [extra, hk, valuation] = await Promise.all([import('./details/extra'), import('./details/hk'), import('./details/hkValuation')])
+    // 2026-10-20 估值初稿覆盖层（scripts/review-hk-valuation-2026-10-20.py）：覆盖评级、结论、情景与口径，事实复核内容保留
+    return [text(extra.extraDetails), manual, text(hk.hkDetails), text(valuation.hkValuationDetails)]
   },
   adr: async () => {
     const [extra, adr, sofi] = await Promise.all([import('./details/extra'), import('./details/adr'), import('./details/sofi')])
