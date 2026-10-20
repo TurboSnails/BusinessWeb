@@ -23,3 +23,9 @@
 .radar-signal.is-on { color: var(--text-primary); background: var(--accent-soft); text-decoration: none; }
 .radar-more { margin: 8px 0 16px; }
 .radar-foot { margin-top: 24px; line-height: 1.7; }
+
+/* 信号复盘 */
+.radar-review { margin-top: var(--space-6); padding-top: var(--space-4); border-top: 1px solid var(--border-subtle); }
+.radar-review h2 { margin: 0 0 var(--space-2); font-size: 1.1rem; }
+.radar-table caption { padding: 6px 0; text-align: left; color: var(--text-secondary); font-size: 0.82rem; }
+.radar-neg { font-weight: 650; color: var(--down-ink, var(--system-green)); }

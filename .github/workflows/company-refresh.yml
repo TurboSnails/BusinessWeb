@@ -54,6 +54,10 @@ jobs:
           python3 scripts/normalize-market-refresh.py --date "$D" | tail -5
           node scripts/collect-market-refresh.mjs apply-companies "$D"
           node scripts/slim-refresh-evidence.mjs "$D"
+      - name: Record signal ledger
+        if: env.SKIP != '1'
+        # 每周一期：评级、价格、自动 DCF 与雷达信号，供机会雷达页「信号复盘」事后检验
+        run: node scripts/signal-ledger.mjs "$D"
       - name: Validate research data
         if: env.SKIP != '1'
         run: npx vitest run src/data

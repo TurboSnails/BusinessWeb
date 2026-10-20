@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Page } from '../components/ui'
 import { PageTitle } from '../components/ui/PageTabs'
 import CandidateButton from '../components/CandidateButton'
+import SignalReview from '../components/SignalReview'
 import { buildAutoDcf } from '../features/dcf/autoDcf'
 import type { PrefillLibrary } from '../features/dcf/autofill'
 import { radarRows, RADAR_RULES, type RadarRow } from '../features/dcf/radar'
@@ -130,6 +131,8 @@ export default function Radar(): JSX.Element {
         规则：自动 DCF 采用近 3 年平均自由现金流、营收增速（上限 15%）、CAPM 折现率与三阶段模型；买入参考价按可信度在合理价上留 20%（高）/ 30%（中）安全边际；
         “比自己过去便宜”指自由现金流收益率高于近 5 年 {RADAR_RULES.historyPct}% 以上的月份；“比同行便宜”指收益率不低于同市场同行业中位数（同行至少 4 家）。
       </p>
+
+      <SignalReview />
     </Page>
   )
 }
