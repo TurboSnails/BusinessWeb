@@ -114,7 +114,7 @@ for c in companies:
     valuation_summary=(f"基准 {fmt_pct((scenarios[1][3]/price-1)*100)}，ratio {ratio:.2f}" if scenarios and ratio is not None else f"[MISSING]（{missing or '未建立有效盈亏比'}）")
     fact_mark='事实已复核；' if code in ('02269','02359') else ''
     retained={'09961':'历史核读：罚款35.21亿','09866':'历史核读：交割后预期持股30%'}.get(code)
-    rendered.append(f"@hk:{code}\nrt: {rating}\nh: {rating}（{fact_mark}估值初稿（未认证））：{review['judgment']}；估值：{valuation_summary}\n"+scenario_text+f"ratio: {ratio_line}；{cap}\nx: 估值初稿（未认证）；旧事实复核源 public/research/hk-2026-10-07；价格 {pdate}；估值方法 {method or '[MISSING]'}。\nz: [MISSING]（条件研究门槛未建立；估值不认证）\ni: {cap}；{retained+'；' if retained else ''}概率未赋值。\n")
+    rendered.append(f"@hk:{code}\nrt: {rating}\nh: {rating}（{fact_mark}估值初稿（未认证））：{review['judgment']}；估值：{valuation_summary}。仅为研究假设，不构成买卖建议。\n"+scenario_text+f"ratio: {ratio_line}；{cap}\nx: 估值初稿（未认证）；旧事实复核源 public/research/hk-2026-10-07；价格 {pdate}；估值方法 {method or '[MISSING]'}。\nz: [MISSING]（条件研究门槛未建立；估值不认证）\ni: {cap}；{retained+'；' if retained else ''}概率未赋值。\n")
     if retained:
         rendered[-1]=rendered[-1].replace('x: ',f'x: {retained}；',1)
 

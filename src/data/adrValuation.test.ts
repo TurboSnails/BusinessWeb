@@ -34,6 +34,7 @@ describe('ADR 2026-10-20 valuation overlay', () => {
       expect(scenarios.map(s => s.name), key).toEqual(['悲观', '基准', '乐观'])
       expect(scenarios.every(s => s.prob?.includes('[MISSING]')), key).toBe(true)
       expect(item.headline, key).toContain('（估值初稿，未认证）')
+      expect(item.headline, key).toContain('不构成买卖建议')
       expect(item.headline, key).toContain(auditRow[code].judgment)
       expect(item.headline!.startsWith(item.rating!), key).toBe(true)
       expect(item.discipline?.invalid, key).toBeTruthy()

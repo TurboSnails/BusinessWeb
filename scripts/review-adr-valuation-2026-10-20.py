@@ -199,7 +199,8 @@ for code in codes:
             for i, x in enumerate(ms):
                 scen.append(dict(name=names[i], prob='[MISSING]（未赋概率）',
                                  assumption=f'ROE {x["roe"]}%、Ke {x["ke"]}%、g {x["g"]}%、权益折减 {x["equityHaircut"] * 100:.0f}%；BVPS {md["bvps"]} {md["bvCurrency"]}/股 × {md["ordinaryPerUsInstrument"]} 股/证券 × 汇率 {md["usdPerReportCurrency"]}（models.json 已核对）；静态 BV，未预测2027BV',
-                                 multiple=f'{x["pb"]:.2f}× PB（普通股 ROE-PB：(ROE−g)/(Ke−g)×(1−折减)，单一方法，未校准历史分位）',
+                                 # 标签显示折减后的有效倍数 = 价格 ÷ 每证券账面价值（models.json 的 pb 字段是折减前的，直接引用会与价格对不上）
+                                 multiple=f'{values[i] / (md["bvps"] * md["ordinaryPerUsInstrument"] * md["usdPerReportCurrency"]):.2f}× PB（普通股 ROE-PB：(ROE−g)/(Ke−g)×(1−折减)；折减前 {x["pb"]:.2f}×；单一方法，未校准历史分位）',
                                  price=f'{usd(values[i])}（估值初稿）', change=chg(values[i], P), trigger=trig[i]))
             model = dict(method='roe-pb', source='models.json', bvps=md['bvps'], bvCurrency=md['bvCurrency'], ordinaryPerUsInstrument=md['ordinaryPerUsInstrument'],
                          usdPerReportCurrency=md['usdPerReportCurrency'], price=values)

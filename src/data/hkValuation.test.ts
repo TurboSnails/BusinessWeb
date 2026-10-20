@@ -22,6 +22,7 @@ describe('HK 2026-10-20 valuation overlay', () => {
       expect(item?.rating, key).toBeTruthy()
       expect(item?.scenarios, key).toHaveLength(3)
       expect(item?.headline, key).toContain('估值初稿（未认证）')
+      expect(item?.headline, key).toContain('不构成买卖建议') // 覆盖层的结论是用户直接看到的内容，须自带免责声明
       const scenarios = item!.scenarios!
       expect(scenarios.map(({ name }) => name), key).toEqual(['悲观', '基准', '乐观'])
       expect(scenarios.every(({ prob }) => prob?.includes('[MISSING]')), key).toBe(true)
