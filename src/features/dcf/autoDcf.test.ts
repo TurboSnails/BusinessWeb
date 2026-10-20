@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildAutoDcf, autoDcfKey } from "./autoDcf";
+import { buildAutoDcf, autoDcfKey, encodeAutoSummary, parseAutoSummary } from "./autoDcf";
 import { dcfOf } from "../candidates/links";
 import { matchDcfFilter } from "./filter";
 import type { PrefillItem, PrefillLibrary } from "./autofill";
@@ -43,5 +43,16 @@ describe("列表里的 DCF：本人优先、自动补位、按最新价", () => 
     const cheap = { price: 200, mos: 1, current: 100, buyBelow: 160 };
     expect(matchDcfFilter("buy", cheap)).toBe(true);
     expect(matchDcfFilter("buy", { ...cheap, current: 170 })).toBe(false);
+  });
+  it("云端预算的摘要解析后与浏览器现算完全一致", async () => {
+    const parsed = parseAutoSummary(JSON.parse(JSON.stringify(encodeAutoSummary(auto, "t"))))!;
+    expect([...parsed.keys()].sort()).toEqual([...auto.keys()].sort());
+    for (const [k, v] of auto) {
+      const p = parsed.get(k)!;
+      expect(p.status).toBe(v.status);
+      expect(p.credibility).toBe(v.credibility);
+      if (v.fair != null) expect(p.fair!).toBeCloseTo(v.fair, 3); else expect(p.fair).toBeNull();
+    }
+    expect(parseAutoSummary({ schemaVersion: 2, items: {} })).toBeNull();
   });
 });

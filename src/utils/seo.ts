@@ -49,6 +49,7 @@ const EXACT: Record<string, RouteSeo> = {
   '/grid-trading': { title: '网格交易计算器', description: 'ETF 与个股网格交易的参数求解、回测与模拟。' },
   '/valuation': { title: '公司估值工作台', noindex: true },
   '/dcf': { title: 'DCF 估值', noindex: true },
+  '/radar': { title: '机会雷达', description: '低于 DCF 买入参考价、且比自身历史与同行更便宜的公司短名单，按信号多少排序，每日更新。' },
   '/knowledge': { title: '知识中心', noindex: true },
   '/monitor': { title: '监控面板', noindex: true },
 }

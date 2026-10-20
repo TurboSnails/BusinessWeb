@@ -79,6 +79,7 @@ export const INVEST_GROUPS: HubGroup[] = [
     hint: '研究筛出来的公司和你自己挑的公司放在一起，逐家估值、跟踪价格条件。',
     links: [
       { path: '/candidates', label: '候选池', short: '我的候选与研究筛出', desc: '我的候选池（备注、排序、云同步）与研究筛出的可买卖、价格太贵公司，一键进入估值、DCF 与网格' },
+      { path: '/radar', label: '机会雷达', short: '估值信号共振的短名单', desc: '低于 DCF 买入参考价、且比自身历史与同行更便宜的公司，按信号多少排序，每日更新；可一键加入候选池' },
     ],
   },
   {
@@ -87,7 +88,7 @@ export const INVEST_GROUPS: HubGroup[] = [
     hint: '估值看价格贵不贵，网格管买卖节奏，ETF 地图查选品。从候选池进入会自动带上公司。',
     links: [
       { path: '/valuation', label: '估值工作台', short: '自动取财报，六法三情景', desc: '连接本机估值服务，自动采集财报，六方法三情景估值与报告导出' },
-      { path: '/dcf', label: 'DCF 计算器', short: '手动填假设，算安全边际', desc: 'WACC + 五年现金流折现估值与安全边际，手动填写假设，无需本机服务，可保存记录' },
+      { path: '/dcf', label: 'DCF 计算器', short: '输入股票一键估算', desc: '输入名称或代码自动取财报估算合理价、三情景与买入参考价，可逐项调整假设并保存记录' },
       { path: '/grid-trading', label: '网格交易', short: 'A 股 / ETF 网格回测', desc: 'A 股与 ETF 网格模拟、回测与记录' },
       { path: '/invest/etf', label: 'ETF 流派地图', short: '各类 ETF 与主要风险', desc: '宽基、因子、主题、债券、商品等流派的主要 ETF 与风险' },
       { path: '/industry-etf', label: 'ETF 清单', short: '宽基与行业 ETF 选品', desc: '宽基首选与 7 个行业组共 59 只 ETF，附趋势备注与独立分析笔记' },

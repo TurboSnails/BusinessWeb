@@ -9,6 +9,7 @@
     "src/features/valuation/**/*.ts",
     "src/features/dcf/**/*.ts",
     "src/pages/Dcf.tsx",
+    "src/pages/Radar.tsx",
     "src/services/valuationApi.ts",
     "src/pages/Valuation.tsx",
     "src/components/valuation/**/*.tsx"

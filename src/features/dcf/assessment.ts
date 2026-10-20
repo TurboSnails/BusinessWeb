@@ -25,6 +25,8 @@ export const ASSESSMENT_RULES = {
   /** 自由现金流波动（变异系数）超过此值视为不稳定 */
   volatileCv: 0.5,
   terminalShareHigh: 0.8,
+  /** 合理价 / 现价超过此倍数视为异常，可信度降为低 */
+  outlierMultiple: 3,
 } as const;
 
 /** 悲观：增速减半、折现率 +1%；乐观：增速 ×1.5（最多 +5 个百分点）、折现率 −1%（且高于永续增长 1% 以上） */
@@ -69,7 +71,14 @@ export function assess(input: DcfSheetInput, item: PrefillItem | null, impliedGr
   const base = calculateSheetDcf(input);
   if (base.status !== "calculated" || base.price == null) return null;
   const list = scenarios(input);
-  const { level, reasons } = credibility(item, base.terminalShare);
+  const cred = credibility(item, base.terminalShare);
+  let level = cred.level;
+  const reasons = [...cred.reasons];
+  // 合理价远超现价时多半是口径问题（股本、现金、预收款推高的现金流），而不是真有几倍空间
+  if (input.currentPrice && input.currentPrice > 0 && base.price / input.currentPrice > ASSESSMENT_RULES.outlierMultiple) {
+    level = "low";
+    reasons.push(`合理价超过现价 ${ASSESSMENT_RULES.outlierMultiple} 倍，常见原因是股本或现金口径、预收款推高的经营现金流，需人工核对`);
+  }
   const requiredMargin = ASSESSMENT_RULES.margin[level];
   const buyBelow = base.price > 0 ? base.price * (1 - requiredMargin) : null;
   const price = input.currentPrice;

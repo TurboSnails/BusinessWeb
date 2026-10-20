@@ -30,7 +30,19 @@ describe('本轮行情与旧研究模型分别标时',()=>{
     expect(updated.scenarios?.[1].change).toContain('+16.7%')
     expect(updated.ratioNote).toContain('0.50:1')
     expect(updated.ratioNote).toContain('未重估')
-    expect(updated.headline).toContain('原研究')
+    expect(updated.headline).toBe('基于旧价格的研究判断')
+  })
+  it('多次刷新只替换现价：不叠加上一轮刷新价，原研究价只留一条，旧前缀被清除',()=>{
+    const first=applyCompanyMarketRefresh({...company(),headline:'原研究（行情已更新，模型待复核）：基于旧价格的研究判断'},quote)
+    const second=applyCompanyMarketRefresh(first,{...quote,price:125,date:'2026-10-19',marketTime:'2026-10-19T16:00:00-04:00',checkedAt:'2026-10-20T09:00:00Z'})
+    const third=applyCompanyMarketRefresh(second,{...quote,price:130,date:'2026-10-26',marketTime:'2026-10-26T16:00:00-04:00',checkedAt:'2026-10-27T09:00:00Z'})
+    expect(third.headline).toBe('基于旧价格的研究判断')
+    expect(third.metrics.filter(([k])=>k==='价格锚点')).toHaveLength(1)
+    expect(third.metrics.find(([k])=>k==='价格锚点')?.[1]).toContain('130')
+    const archived=third.metrics.filter(([k])=>k==='上轮价格锚点（原研究口径）')
+    expect(archived).toHaveLength(1)
+    expect(archived[0][1]).toContain('$100')
+    expect(third.metrics.some(([,v])=>v.includes('US$120')||v.includes('US$125'))).toBe(false)
   })
   it('价格越过基准或悲观端时不产生负数/无穷赔率',()=>{
     for(const price of [70,80,140,150]){

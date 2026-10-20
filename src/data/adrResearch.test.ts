@@ -26,7 +26,7 @@ describe('非标普全部分类的原件复核与运行时覆盖', () => {
       expect(company.scenarios).toHaveLength(3)
       expect(company.discipline?.zone).toContain('[MISSING]')
       expect(company.ratioNote).toContain('未完成认证')
-      expect(metric(row.code, '价格锚点')).toContain('2026-10-19')
+      expect(metric(row.code, '价格锚点')).toMatch(/\d{4}-\d{2}-\d{2}T/)
       expect(metric(row.code, '价格锚点')).toContain('非交易所认证收盘')
       expect(company.researchReport).toBe(`research/adr-2026-10-07/${row.code}.html`)
       expect(existsSync(resolve('public', company.researchReport!))).toBe(true)
@@ -91,8 +91,11 @@ describe('非标普全部分类的原件复核与运行时覆盖', () => {
     expect(sofi.scenarios?.map(s => s.name)).toEqual(['悲观', '基准', '乐观'])
     expect(sofi.scenarios?.map(s => s.price)).toEqual(['$8', '$19', '$28'])
     expect(sofi.discipline?.zone).toContain('$11.7')
-    expect(metric('SOFI', '价格锚点')).toContain('$14.3')
-    expect(sofi.ratioNote).toContain(((19 - 14.3) / (14.3 - 8)).toFixed(2) + ':1')
+    // 行情每日刷新：按当前价格锚点复算赔率，而不是锁定某一天的价格
+    const sofiPrice = Number(metric('SOFI', '价格锚点').match(/US\$([\d.]+)/)?.[1])
+    expect(sofiPrice).toBeGreaterThan(0)
+    if (sofiPrice > 8 && sofiPrice < 19) expect(sofi.ratioNote).toContain(((19 - sofiPrice) / (sofiPrice - 8)).toFixed(2) + ':1')
+    else expect(sofi.ratioNote).toContain('赔率不适用')
     expect(sofi.metrics.some(([k, v]) => k.startsWith('上轮') && v.includes('0.42:1'))).toBe(true)
     const { bear, base, bull } = evidence.scenarios
     expect(bear.price).toBeLessThan(evidence.priceAnchor.price)

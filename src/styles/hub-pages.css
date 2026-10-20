@@ -871,6 +871,11 @@
   gap: var(--space-3);
 }
 
+/* 右侧两张小卡（研究筛出、机会雷达）上下排列，主卡占两行 */
+.invest-hub .inv-pool__main {
+  grid-row: span 2;
+}
+
 .invest-hub .inv-pool__main,
 .invest-hub .inv-pool__side {
   display: flex;
@@ -937,6 +942,10 @@
   .inv-rules,
   .inv-pool {
     grid-template-columns: 1fr;
+  }
+
+  .invest-hub .inv-pool__main {
+    grid-row: auto;
   }
 
   .inv-book__icon {

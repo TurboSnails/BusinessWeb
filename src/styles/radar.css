@@ -1,0 +1,25 @@
+.radar-intro { margin: 8px 0 16px; }
+.radar-intro h2 { margin: 0 0 8px; font-size: 1.2rem; }
+.radar-intro p { margin: 0 0 8px; line-height: 1.75; font-size: 0.92rem; }
+.radar-muted { color: var(--text-secondary); font-size: 0.84rem; }
+.radar-cycle { padding: 8px 12px; border-radius: var(--radius-md); background: var(--bg-secondary); font-size: 0.86rem; }
+.radar-filters { margin-bottom: 12px; }
+.radar-tier { margin: 20px 0; }
+.radar-tier h3 { margin: 0 0 4px; font-size: 1.05rem; }
+.radar-count { font-weight: 400; color: var(--text-secondary); font-size: 0.85rem; }
+.radar-table-wrap { overflow-x: auto; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); background: var(--bg-card); }
+.radar-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; font-variant-numeric: tabular-nums; }
+.radar-table th, .radar-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border-subtle); vertical-align: middle; }
+.radar-table th { font-weight: 400; font-size: 0.78rem; color: var(--text-secondary); background: var(--bg-secondary); white-space: nowrap; }
+.radar-table td:first-child { min-width: 150px; }
+.radar-table td:first-child a { font-weight: 600; }
+.radar-table td small { display: block; color: var(--text-secondary); font-size: 0.74rem; margin-top: 2px; }
+.radar-mos { font-weight: 650; color: var(--up-ink, var(--system-red)); }
+.radar-cred { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 0.76rem; }
+.radar-cred.is-high { background: color-mix(in srgb, var(--system-green) 18%, transparent); }
+.radar-cred.is-medium { background: color-mix(in srgb, var(--system-orange) 18%, transparent); }
+.radar-signals { display: flex; flex-wrap: wrap; gap: 4px; min-width: 220px; }
+.radar-signal { padding: 1px 7px; border-radius: 4px; font-size: 0.72rem; color: var(--text-tertiary, var(--text-secondary)); background: var(--bg-secondary); text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--text-secondary) 40%, transparent); }
+.radar-signal.is-on { color: var(--text-primary); background: var(--accent-soft); text-decoration: none; }
+.radar-more { margin: 8px 0 16px; }
+.radar-foot { margin-top: 24px; line-height: 1.7; }

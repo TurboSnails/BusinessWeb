@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { collectUsFacts, yahooSymbol, parseYahooWeekly, parseYahooMonthly, fcfYieldHistory, sicIndustry, parseCompanyLines, parseNdxCodes, parseQuotes, parseWeekly, secShares, tencentSymbol, weeklyBeta } from './dcf-prefill.mjs'
+import { cleanName, collectUsFacts, yahooSymbol, parseYahooWeekly, parseYahooMonthly, fcfYieldHistory, sicIndustry, parseCompanyLines, parseNdxCodes, parseQuotes, parseWeekly, secShares, tencentSymbol, weeklyBeta } from './dcf-prefill.mjs'
 
 test('universe parsers read NDX array and research company lines', () => {
   assert.deepEqual(parseNdxCodes("export const NDX_CODES: string[] = [\n  'ADBE', 'GOOGL',\n  'BRK.B',\n]\nconst X = ['ZZZ']"), ['ADBE', 'GOOGL', 'BRK.B'])
@@ -14,10 +14,10 @@ test('universe parsers read NDX array and research company lines', () => {
 })
 
 test('Tencent quote batch keeps name, price and date; skips suspended rows', () => {
-  const row = (sym, name, price, date) => { const v = Array(40).fill(''); v[1] = name; v[3] = price; v[30] = date; return `v_${sym}="${v.join('~')}";` }
-  const text = [row('sh600519', '贵州茅台', '1324.97', '20261019161457'), row('usAAPL', '苹果', '342.94', '2026-10-19 16:00:01'), row('hk09999', '停牌', '0', '')].join('\n')
+  const row = (sym, name, price, date, shares = '') => { const v = Array(88).fill(''); v[1] = name; v[3] = price; v[30] = date; v[sym.startsWith('hk') ? 70 : 73] = shares; return `v_${sym}="${v.join('~')}";` }
+  const text = [row('sh600519', '贵州茅台', '1324.97', '20261019161457', '1250081601'), row('usAAPL', '苹果', '342.94', '2026-10-19 16:00:01'), row('hk09999', '停牌', '0', '')].join('\n')
   const q = parseQuotes(text)
-  assert.deepEqual(q.get('sh600519'), { name: '贵州茅台', price: 1324.97, date: '2026-10-19' })
+  assert.deepEqual(q.get('sh600519'), { name: '贵州茅台', price: 1324.97, date: '2026-10-19', totalShares: 1250081601 })
   assert.equal(q.get('usAAPL').date, '2026-10-19')
   assert.equal(q.has('hk09999'), false)
 })
@@ -77,4 +77,10 @@ test('FCF yield history uses the latest annual FCF published 4 months after year
   assert.deepEqual(parseYahooMonthly({ chart: { result: [{ timestamp: [1759276800], indicators: { quote: [{ close: [1323.554] }] } }] } }), [['2025-10', 1323.55]])
   assert.equal(sicIndustry(7372, 'Services-Prepackaged Software'), '软件与互联网服务')
   assert.equal(sicIndustry(9999, 'Nonclassifiable'), 'Nonclassifiable')
+})
+
+test('names: full-width to half-width, CJK spaces removed, English spaces kept', () => {
+  assert.equal(cleanName('万  科Ａ'), '万科A')
+  assert.equal(cleanName('Adobe  Inc.'), 'Adobe Inc.')
+  assert.equal(cleanName('Meta Platforms'), 'Meta Platforms')
 })

@@ -37,10 +37,11 @@ describe('SectionChrome', () => {
     expect(current?.textContent).toBe('网格交易')
   })
 
-  it('候选池单独一组，没有同组切换条', () => {
+  it('候选池一组只有候选池与机会雷达两页，用同组切换条互相跳转', () => {
     renderAt('/candidates')
     expect(screen.getByRole('navigation', { name: '面包屑' }).textContent).toContain('候选池')
-    expect(screen.queryByRole('navigation', { name: '同组页面' })).toBeNull()
+    const links = within(screen.getByRole('navigation', { name: '同组页面' })).getAllByRole('link')
+    expect(links.map(a => a.getAttribute('href'))).toEqual(['/candidates', '/radar'])
   })
 
   it('观察盘的细节页切换条里第一个是「观察盘」，可以随时回到一页总览', () => {

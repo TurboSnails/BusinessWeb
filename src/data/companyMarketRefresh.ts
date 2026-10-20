@@ -20,6 +20,10 @@ export interface MarketRefreshQuote {
   valuationMarketTime?: string | null
 }
 
+/** v4：不再给结论加前缀；每次刷新只替换现价，不把上一轮刷新价堆成“上轮”指标，只保留原研究口径的那一条 */
+const ADAPTER_VERSION = 4
+const REFRESH_ARCHIVE = /^上轮.*（原研究口径）$/
+
 export function applyCompanyMarketRefresh(company: Company, quote?: MarketRefreshQuote): Company {
   if (!quote || !Number.isFinite(quote.price) || quote.price <= 0) return company
   const dateMs = Date.parse(`${quote.date}T00:00:00Z`)
@@ -28,7 +32,7 @@ export function applyCompanyMarketRefresh(company: Company, quote?: MarketRefres
   const oldPrice = company.metrics.find(([label]) => /价格锚点|收盘价|现价|9\/18 收盘/.test(label) && !label.startsWith('上轮'))
   const oldDate = oldPrice?.[1].match(/\d{4}-\d{2}-\d{2}/)?.[0]
   if (oldDate && quote.date < oldDate) return company
-  if (company.marketRefresh?.adapterVersion === 3 && company.marketRefresh.checkedAt === quote.checkedAt && company.marketRefresh.evidenceCheckedAt === (quote.financialCheckedAt ?? quote.checkedAt) && company.marketRefresh.price === quote.price && oldDate === quote.date && company.asOf.startsWith('行情 ') && company.marketRefresh.programmatic === Boolean(company.auto)) return company
+  if (company.marketRefresh?.adapterVersion === ADAPTER_VERSION && company.marketRefresh.checkedAt === quote.checkedAt && company.marketRefresh.evidenceCheckedAt === (quote.financialCheckedAt ?? quote.checkedAt) && company.marketRefresh.price === quote.price && oldDate === quote.date && company.asOf.startsWith('行情 ') && company.marketRefresh.programmatic === Boolean(company.auto)) return company
 
   const amount = quote.price.toLocaleString('en-US', { maximumFractionDigits: 4 })
   const money = quote.currency === 'CNY' ? `${amount} 元` : quote.currency === 'HKD' ? `HK$${amount}` : `${quote.currency === 'USD' ? 'US$' : quote.currency + ' '}${amount}`
@@ -44,12 +48,19 @@ export function applyCompanyMarketRefresh(company: Company, quote?: MarketRefres
   if (quote.forwardPE != null && quote.forwardPE > 0) metrics.push(['本轮供应商 Forward PE', `${quote.forwardPE.toFixed(2)}×；一致预期口径待核，不等于研究者正常化盈利`])
   if (quote.low52 != null && quote.high52 != null) metrics.push(['本轮供应商52周区间', `${quote.currency} ${quote.low52}–${quote.high52}；供应商统计，非逐日独立复算`])
   if (quote.financialSource) metrics.push(['供应商摘要来源', quote.financialSource])
+  const carried: [string, string][] = []
   for (const [label, value] of company.metrics) {
-    if (label === '价格锚点' && company.marketRefresh?.price === quote.price && oldDate === quote.date) continue
+    // 已刷新过的公司，现有“价格锚点”是上一轮刷新价而非原研究价：直接被新价替换
+    if (label === '价格锚点' && company.marketRefresh) continue
     if (/^行情核验时间$|^研究与模型状态$|^本轮供应商|^供应商最新财务期末$|^供应商摘要来源$/.test(label)) continue
     const sensitive = /价格锚点|收盘价|现价|9\/18 收盘|52\s*周|PE|PEG|PB|PS|赔率|市值|股息率|最新单季/.test(label)
-    metrics.push([sensitive && !label.startsWith('上轮') ? `上轮${label}（原研究口径）` : label, value])
+    carried.push([sensitive && !label.startsWith('上轮') ? `上轮${label}（原研究口径）` : label, value])
   }
+  // 同名“上轮…（原研究口径）”只留最后一条，即最早的原研究值
+  carried.forEach(([label], i) => {
+    if (REFRESH_ARCHIVE.test(label) && carried.slice(i + 1).some(([later]) => later === label)) return
+    metrics.push(carried[i])
+  })
   const scenarioPrice = (text: string) => {
     const match = text.trim().match(/^(?:US\$|HK\$|CNY|USD|HKD|\$)?\s*([\d,]+(?:\.\d+)?)\s*(?:元|美元|港元)?$/)
     return match ? Number(match[1].replace(/,/g, '')) : null
@@ -81,8 +92,8 @@ export function applyCompanyMarketRefresh(company: Company, quote?: MarketRefres
   const originalAsOf = company.asOf.startsWith('行情 ') ? company.marketRefresh?.originalAsOf ?? company.asOf : company.asOf
   const oldHeadline = company.headline.replace(/^原研究（行情已更新，模型待复核）：/, '')
   return { ...company, metrics, scenarios, ratioNote,
-    headline: `原研究（行情已更新，模型待复核）：${oldHeadline}`,
+    headline: oldHeadline,
     asOf: `行情 ${quote.marketTime}；核验 ${quote.checkedAt}。原研究：${originalAsOf}`,
-    marketRefresh: { adapterVersion: 3, checkedAt: quote.checkedAt, evidenceCheckedAt: quote.financialCheckedAt ?? quote.checkedAt, priceDate: quote.date, price: quote.price, source: quote.source, originalAsOf, programmatic: Boolean(company.auto), tradability: restriction ? 'unverified' : 'no-known-restriction', quoteDateKind: restriction ? 'provider-label' : 'provider-market-time' },
+    marketRefresh: { adapterVersion: ADAPTER_VERSION, checkedAt: quote.checkedAt, evidenceCheckedAt: quote.financialCheckedAt ?? quote.checkedAt, priceDate: quote.date, price: quote.price, source: quote.source, originalAsOf, programmatic: Boolean(company.auto), tradability: restriction ? 'unverified' : 'no-known-restriction', quoteDateKind: restriction ? 'provider-label' : 'provider-market-time' },
   }
 }

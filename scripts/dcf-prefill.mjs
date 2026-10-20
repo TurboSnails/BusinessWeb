@@ -9,6 +9,8 @@ import { annualFact } from '../server/valuation/data/normalize.mjs'
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
 export const OUT_FILE = join(ROOT, 'public/data/dcf-prefill.json')
+/** 列表页用的自动 DCF 摘要（约 30KB），与 DCF 页一键估算同一规则，避免每个列表页下载并现算整个预填库 */
+export const SUMMARY_FILE = join(ROOT, 'public/data/dcf-auto.json')
 const CACHE = process.env.DCF_CACHE_DIR || join(ROOT, '.cache/dcf-prefill')
 const UA = 'Mozilla/5.0 (BusinessWeb DCF research)'
 // SEC 要求 UA 写明联系邮箱（拒绝 noreply 与含 github 的写法）；生产用 SEC_USER_AGENT 密钥填真实联系方式
@@ -115,7 +117,7 @@ export function parseWeekly(body, symbol) {
   return rows.filter(r => /^\d{4}-\d{2}-\d{2}$/.test(r?.[0]) && Number(r[2]) > 0).map(r => [r[0], Number(r[2])])
 }
 
-/** Tencent qt batch: name, last price and quote date per symbol. */
+/** Tencent qt batch: name, last price, quote date and total shares (A股第73位、港股第70位；股本科目按面值计，面值非1元时不等于股数). */
 export function parseQuotes(text) {
   const out = new Map()
   for (const m of text.matchAll(/v_([a-zA-Z]+[\w.]+)="([^"]*)"/g)) {
@@ -124,7 +126,8 @@ export function parseQuotes(text) {
     if (!(price > 0)) continue
     const raw = v[30] ?? ''
     const date = raw.replace(/\//g, '-').match(/^\d{4}-\d{2}-\d{2}/)?.[0] ?? (/^(\d{4})(\d{2})(\d{2})/.exec(raw)?.slice(1).join('-') ?? null)
-    out.set(m[1], { name: v[1], price, date })
+    const total = Number(m[1].startsWith('hk') ? v[70] : m[1].startsWith('us') ? NaN : v[73])
+    out.set(m[1], { name: v[1], price, date, ...(total > 0 ? { totalShares: total } : {}) })
   }
   return out
 }
@@ -290,7 +293,7 @@ export function collectUsFacts(raw, asOf) {
   }
 }
 // SEC SIC 过细（苹果单独一类），按三位数归并为常见行业，未列出的用英文描述
-const SIC3 = { 737: '软件与互联网服务', 367: '半导体与电子元件', 357: '计算机与外设', 366: '通信设备', 283: '医药与生物科技', 384: '医疗器械', 382: '仪器仪表', 481: '电信服务', 483: '广播电视', 484: '有线与付费电视', 491: '电力', 492: '燃气', 493: '公用事业', 591: '药店', 596: '电商与零售', 531: '百货零售', 533: '综合零售', 541: '食品零售', 581: '餐饮', 701: '酒店', 451: '航空', 401: '铁路', 421: '货运物流', 731: '广告与营销', 781: '影视娱乐', 794: '娱乐服务', 801: '医疗服务', 806: '医院', 873: '研发与检测服务', 874: '咨询与外包服务', 371: '汽车', 372: '航空航天', 353: '工程机械', 356: '通用机械', 358: '暖通与制冷设备', 208: '饮料', 209: '食品', 284: '日化', 291: '能源', 131: '油气开采', 138: '油气服务', 671: '控股公司', 679: '投资控股', 602: '银行', 621: '证券', 631: '保险', 651: '房地产' }
+const SIC3 = { 737: '软件与互联网服务', 738: '商业服务', 734: '商业服务', 736: '人力资源服务', 739: '商业服务', 367: '半导体与电子元件', 357: '计算机与外设', 366: '通信设备', 283: '医药与生物科技', 384: '医疗器械', 382: '仪器仪表', 481: '电信服务', 483: '广播电视', 484: '有线与付费电视', 491: '电力', 492: '燃气', 493: '公用事业', 591: '药店', 596: '电商与零售', 531: '百货零售', 533: '综合零售', 541: '食品零售', 581: '餐饮', 701: '酒店', 451: '航空', 401: '铁路', 421: '货运物流', 731: '广告与营销', 781: '影视娱乐', 794: '娱乐服务', 801: '医疗服务', 806: '医院', 873: '研发与检测服务', 874: '咨询与外包服务', 371: '汽车', 372: '航空航天', 353: '工程机械', 356: '通用机械', 358: '暖通与制冷设备', 208: '饮料', 209: '食品', 284: '日化', 291: '能源', 131: '油气开采', 138: '油气服务', 671: '控股公司', 679: '投资控股', 602: '银行', 621: '证券', 631: '保险', 651: '房地产' }
 export const sicIndustry = (sic, description) => { const n = Math.floor(Number(sic) / 10); return SIC3[n] ?? (description || null) }
 let tickerMap
 export async function collectUs(code, http, asOf) {
@@ -302,6 +305,15 @@ export async function collectUs(code, http, asOf) {
   let industry = null
   try { const sub = await http.json(`https://data.sec.gov/submissions/CIK${String(cik).padStart(10, '0')}.json`, { headers: { 'User-Agent': SEC_UA } }); industry = sicIndustry(sub.sic, sub.sicDescription) } catch { /* optional */ }
   return { ...facts, industry, source: `https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${cik}&type=10-K` }
+}
+
+/** 全角转半角；只去掉汉字之间的空格（“万  科Ａ”→“万科A”），保留英文名中的空格（“Adobe Inc.”） */
+export const cleanName = name => String(name).normalize('NFKC').replace(/\s+/g, ' ').replace(/(?<=[\u3400-\u9fff])\s+|\s+(?=[\u3400-\u9fff])/g, '').trim()
+
+// ---------- 列表摘要 ----------
+export async function autoSummary(lib) {
+  const { buildAutoDcf, encodeAutoSummary } = await import('../src/features/dcf/autoDcf.ts')
+  return encodeAutoSummary(buildAutoDcf(lib), lib.generatedAt)
 }
 
 // ---------- run ----------
@@ -414,24 +426,25 @@ export async function run({ fetchImpl = fetch, now = new Date(), timeLimitMs = N
     const conv = c?.years && c.currency !== quoteCcy[u.market] ? fx[`${c.currency}${quoteCcy[u.market]}`] : null
     const usable = c?.years && q && (c.currency === quoteCcy[u.market] || conv)
     if (!usable) {
-      if (old) { items.push(q ? { ...old, px: q.price, pxDate: q.date } : old); carried++ }
+      if (old) { items.push(q ? { ...old, px: q.price, pxDate: q.date, ...(q.totalShares ? { shares: q.totalShares } : {}) } : old); carried++ }
       continue
     }
     const k = conv?.rate ?? 1, scale = v => v == null ? null : Math.round(v * k)
     items.push({
-      m: u.market, c: u.code, n: (q.name || u.name).normalize('NFKC').replace(/\s+/g, ''), g: u.groups, px: q.price, pxDate: q.date, ccy: quoteCcy[u.market],
+      m: u.market, c: u.code, n: cleanName(q.name || u.name), g: u.groups, px: q.price, pxDate: q.date, ccy: quoteCcy[u.market],
       fy: c.latest.fy, fin: c.financial || undefined, org: c.orgType || undefined,
       years: c.years.map(y => [y.fy.slice(0, 4), scale(y.revenue), scale(y.ocf), scale(y.capex), scale(y.da ?? null), scale(y.sbc ?? null)]),
-      cash: scale(c.latest.cash), inv: scale(c.latest.investments), debt: scale(c.latest.debt), mi: scale(c.latest.minority ?? null), shares: c.latest.shares,
+      cash: scale(c.latest.cash), inv: scale(c.latest.investments), debt: scale(c.latest.debt), mi: scale(c.latest.minority ?? null), shares: q.totalShares ?? c.latest.shares,
       interest: scale(c.latest.interest), pretax: scale(c.latest.pretax), tax: scale(c.latest.tax), ebitda: scale(c.latest.ebitda), ni: scale(c.latest.netIncome),
       beta: c.beta?.adjusted ?? null, betaRaw: c.beta?.raw ?? null, betaWeeks: c.beta?.weeks ?? null,
       fx: conv ? { from: c.currency, rate: conv.rate, date: conv.date } : undefined,
-      ind: c.industry || undefined, fyh: fcfYieldHistory(c.years, c.monthly, c.latest.shares, k, q.price) || undefined,
+      ind: c.industry || undefined, fyh: fcfYieldHistory(c.years, c.monthly, q.totalShares ?? c.latest.shares, k, q.price) || undefined,
       notes: c.notes?.length ? c.notes : undefined, src: c.source, at: c.fetchedAt.slice(0, 10),
     })
   }
   const out = { schemaVersion: 1, generatedAt: now.toISOString(), riskFree: await riskFree(), universe: universe.length, issues, items }
   await writeJson(OUT_FILE, out)
+  await writeJson(SUMMARY_FILE, await autoSummary(out))
   log(`DCF预填：${items.length}/${universe.length} 家可用（沿用上次 ${carried}）；本次刷新 ${refreshed}、失败 ${failed}、待续 ${Math.max(0, due.length - next)}；用时 ${Math.round((Date.now() - started) / 1000)}s`)
   return out
 }

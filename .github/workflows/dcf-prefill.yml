@@ -48,7 +48,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          git add public/data/dcf-prefill.json
+          git add public/data/dcf-prefill.json public/data/dcf-auto.json
           if git diff --cached --quiet; then
             echo 'changed=false' >> "$GITHUB_OUTPUT"
             exit 0

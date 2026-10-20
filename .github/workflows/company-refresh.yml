@@ -1,0 +1,81 @@
+name: Refresh company quotes
+
+# 每个工作日港股收盘后刷新公司库行情（流程同 docs/data-maintenance.md）：只更新行情与供应商返回字段，
+# 原研究模型、评级与研究日期保留；证据精简后留存 14 天。手动全量刷新（含 MCP 公司资料）仍按文档执行。
+on:
+  schedule:
+    - cron: '40 10 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: market-data-publish
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: astral-sh/setup-uv@v5
+      - run: npm ci
+      - name: Collect quotes, macro and indexes
+        shell: bash
+        run: |
+          set -euo pipefail
+          D=$(TZ=Asia/Yerevan date +%F)
+          echo "D=$D" >> "$GITHUB_ENV"
+          for k in universe macro indexes; do node scripts/collect-market-refresh.mjs $k "$D"; done
+          # Yahoo 匿名会话偶尔失败：留空文件，由腾讯行情兜底
+          node scripts/collect-market-refresh.mjs yahoo-quotes "$D" || echo '{"requested":0,"quotes":{},"errors":["yahoo session failed"]}' > "public/research/data-refresh-$D/yahoo-quote-batch.json"
+          for m in quotes quotes-etf; do uvx --python 3.12 --from yfinance-mcp-server==1.0.4 python scripts/collect-market-mcp.py --date "$D" --mode $m | tail -c 300; done
+      - name: Apply to company data
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/normalize-market-refresh.py --date "$D" | tail -5
+          node scripts/collect-market-refresh.mjs apply-companies "$D"
+          node scripts/slim-refresh-evidence.mjs "$D"
+      - name: Validate research data
+        run: npx vitest run src/data
+      - name: Publish
+        id: commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add public/data public/research src/data
+          if git diff --cached --quiet; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m "data(companies): 行情刷新 $D"
+          for attempt in 1 2 3; do
+            if git push; then
+              echo 'changed=true' >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            git fetch origin main
+            # 数据文件冲突时以本次新生成的为准
+            git rebase -X theirs origin/main
+          done
+          exit 1
+      - name: Deploy GitHub Pages
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --ref main

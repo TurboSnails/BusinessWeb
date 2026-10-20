@@ -75,6 +75,7 @@ function CardGroup({ g, step, foldTitle }: { g: HubGroup; step: string; foldTitl
 export default function InvestHub(): JSX.Element {
   const rules = group('rules')
   const pool = group('candidates').links[0]
+  const radar = group('candidates').links.find(l => l.path === '/radar')
   const related = group('related')
   const archived = group('archived')
   // 只读本机缓存的条数，不触发云同步；读不到就当 0
@@ -131,6 +132,12 @@ export default function InvestHub(): JSX.Element {
             <span className="inv-pool__title">研究筛出</span>
             <span className="inv-card__desc">可买卖 · 好公司价格太贵 · 全部观察</span>
           </Link>
+          {radar && (
+            <Link to={radar.path} className="inv-pool__side">
+              <span className="inv-pool__title">{radar.label}</span>
+              <span className="inv-card__desc">低于买入参考价，且比自身历史与同行便宜</span>
+            </Link>
+          )}
         </div>
       </section>
 

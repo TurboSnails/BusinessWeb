@@ -69,7 +69,7 @@ PEP最新Q3、官方事件日历、8项ETF费用／规则及纳指QQQ持仓代�
 | A／港／ADR 公司复核 | `scripts/fetch-*-2026-10-07.py`、`review-*-2026-10-07.py`、`render-*-2026-10-07.mjs` 及手工详情 | 多个脚本绑定旧目录、检索截止日或缓存，必须先参数化／建立新轮次；重新渲染不是重新取证。ADR 重生成后须合入 SOFI，见 `src/data/details/sofi.ts` |
 | 公司行情、供应商摘要、林奇PE | 本轮新增 `collect-market-mcp.py`／`collect-market-refresh.mjs` → `normalize-market-refresh.py` → `apply-companies`，完整命令见下文 | 原分类／增速／护城河与估值仍需逐公司复核；不以新报价认证旧模型 |
 
-已有 GitHub Actions：每日分析工作日北京时间 **15:35、17:10**；国家队每周一 **10:30**；宏观＋指数每月 8 日 **14:00**。配置见 [.github/workflows](../.github/workflows)。本次 GitHub CLI 未登录，未核验远端最近运行／部署状态。任务存在不等于已经成功运行。
+已有 GitHub Actions：公司库行情工作日北京时间 **18:40**（`company-refresh.yml`，只刷新行情，证据精简后保留 14 天，MCP 公司资料仍需手动全量刷新）；DCF 预填库每日两次（`dcf-prefill.yml`）；每日分析工作日北京时间 **15:35、17:10**；国家队每周一 **10:30**；宏观＋指数每月 8 日 **14:00**。配置见 [.github/workflows](../.github/workflows)。本次 GitHub CLI 未登录，未核验远端最近运行／部署状态。任务存在不等于已经成功运行。
 
 ## 一次更新如何验收与留痕
 

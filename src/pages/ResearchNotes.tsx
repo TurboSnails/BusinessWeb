@@ -407,7 +407,7 @@ export default function ResearchNotes(): JSX.Element {
         dataLabel="行情日期"
         dataDates={progList.map(c => c.marketRefresh?.priceDate)}
         researchAsOf={catMarket === 'ndx' ? NDX_ASOF : undefined}
-        note="按当前市场汇总；具体公司行情日期见公司详情。"
+        note="行情已更新到上述日期；评级与一句话结论来自原研究，模型待逐家复核。具体公司行情日期见公司详情。"
       />}
       {activeTab === 'companies' && (
         <p className="rn-pool-jump"><Link to="/candidates" className="rn-link"><Star size={14} aria-hidden="true" /> 我的候选池 · {cand.items.length} 家：估值、DCF、网格都从这里进 →</Link></p>

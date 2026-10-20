@@ -40,14 +40,35 @@ export function buildAutoDcf(lib: PrefillLibrary): Map<string, AutoDcf> {
   return out;
 }
 
+const STATUS: AutoStatus[] = ["ok", "financial", "negativeFcf", "incomplete"];
+const CRED: Record<string, Credibility> = { h: "high", m: "medium", l: "low" };
+type SummaryRow = [number, number | null, number | null, string | null, number, string];
+/** 编码为紧凑摘要：{ "cn:600519": [状态, 合理价, 买入参考价, 可信度, 现价, 币种] } */
+export function encodeAutoSummary(map: Map<string, AutoDcf>, generatedAt: string): { schemaVersion: 1; generatedAt: string; items: Record<string, SummaryRow> } {
+  const r = (v: number | null) => (v == null ? null : Number(v.toPrecision(6)));
+  const items: Record<string, SummaryRow> = {};
+  for (const [key, a] of map) items[key] = [STATUS.indexOf(a.status), r(a.fair), r(a.buyBelow), a.credibility ? a.credibility[0] : null, a.current, a.currency];
+  return { schemaVersion: 1, generatedAt, items };
+}
+/** 解析云端预先算好的摘要（scripts/dcf-prefill.mjs → public/data/dcf-auto.json） */
+export function parseAutoSummary(body: unknown): Map<string, AutoDcf> | null {
+  const items = (body as { schemaVersion?: number; items?: Record<string, SummaryRow> })?.items;
+  if ((body as { schemaVersion?: number })?.schemaVersion !== 1 || !items || typeof items !== "object") return null;
+  const out = new Map<string, AutoDcf>();
+  for (const [key, [s, fair, buyBelow, cred, current, currency]] of Object.entries(items))
+    if (STATUS[s] && Number.isFinite(current)) out.set(key, { status: STATUS[s], fair, buyBelow, credibility: cred ? CRED[cred] ?? null : null, current, currency });
+  return out;
+}
+
 let pending: Promise<Map<string, AutoDcf>> | null = null;
-/** 全站共用一次加载；失败时返回空表，不影响页面其他内容 */
+/** 全站共用一次加载：优先用约 30KB 的预算摘要，缺失时退回下载整个预填库现算；都失败返回空表，不影响页面其他内容 */
 export function loadAutoDcf(fetchImpl: typeof fetch = fetch): Promise<Map<string, AutoDcf>> {
   if (!pending) {
     const base = (import.meta as { env?: Record<string, string | undefined> }).env?.BASE_URL ?? "/";
-    pending = fetchImpl(`${base}data/dcf-prefill.json`, { cache: "no-cache" })
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-      .then((lib: PrefillLibrary) => (lib?.schemaVersion === 1 && Array.isArray(lib.items) ? buildAutoDcf(lib) : new Map()))
+    const get = (name: string) => fetchImpl(`${base}data/${name}`, { cache: "no-cache" }).then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))));
+    pending = get("dcf-auto.json")
+      .then((body) => parseAutoSummary(body) ?? Promise.reject(new Error("bad summary")))
+      .catch(() => get("dcf-prefill.json").then((lib: PrefillLibrary) => (lib?.schemaVersion === 1 && Array.isArray(lib.items) ? buildAutoDcf(lib) : new Map())))
       .catch(() => { pending = null; return new Map<string, AutoDcf>(); });
   }
   return pending;
