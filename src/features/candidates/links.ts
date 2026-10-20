@@ -1,6 +1,8 @@
 // 候选池与各工具之间的连接：市场换算、带参数的工具链接、按公司汇总已保存的工具结果。
 // 只读本机记录，不改动任何工具的存储格式。
 import { buildDcfLink } from '../dcf/prefill'
+import { autoDcfKey, type AutoDcf } from '../dcf/autoDcf'
+import type { DcfSummary } from '../dcf/filter'
 import { loadDcfRecords } from '../dcf/storage'
 import type { DcfRecord } from '../dcf/types'
 import { readRecords } from '../grid-trading/repository'
@@ -38,6 +40,8 @@ export interface ToolSources {
   dcf: DcfRecord[]
   valuation: ValuationReport[]
   grid: SavedRecord[]
+  /** 预填库的自动 DCF（异步加载，可能尚未就绪） */
+  auto?: Map<string, AutoDcf>
 }
 
 /** 三类记录分别读取，任何一类损坏都只当作没有记录 */
@@ -55,6 +59,26 @@ export interface ToolProgress {
 const time = (iso: string | undefined): number => { const t = Date.parse(iso ?? ''); return Number.isFinite(t) ? t : 0 }
 const latest = <T,>(list: T[], at: (x: T) => string | undefined): T | undefined =>
   list.reduce<T | undefined>((best, x) => (!best || time(at(x)) > time(at(best)) ? x : best), undefined)
+
+/**
+ * 列表里展示与筛选用的 DCF：本人保存的记录优先，否则用预填库的自动估值。
+ * 安全边际一律按最新股价重算（本人记录的合理价不变），避免沿用保存当天的旧价。
+ */
+export function dcfOf(market: CandidateMarket, code: string, sources: ToolSources): DcfSummary | undefined {
+  const venue = venueOf(market)
+  const auto = sources.auto?.get(autoDcfKey(venue, codeKey(venue, code)))
+  const mine = toolProgress(market, code, sources).dcf
+  if (mine) {
+    const current = auto && auto.currency === mine.currency ? auto.current : null
+    const mos = mine.price != null && current ? (mine.price - current) / current : mine.mos
+    return { price: mine.price, mos, source: 'mine', savedAt: mine.savedAt, current, buyBelow: null, status: 'ok', currency: mine.currency }
+  }
+  if (!auto) return undefined
+  return {
+    price: auto.fair, mos: auto.fair != null ? (auto.fair - auto.current) / auto.current : null, source: 'auto',
+    current: auto.current, buyBelow: auto.buyBelow, status: auto.status, credibility: auto.credibility, currency: auto.currency,
+  }
+}
 
 /** 某家公司最近一次的 DCF、估值报告与网格记录 */
 export function toolProgress(market: CandidateMarket, code: string, sources: ToolSources): ToolProgress {

@@ -115,7 +115,7 @@ describe('CandidatePool：按 DCF 筛选', () => {
     fireEvent.click(screen.getByRole('button', { name: '安全边际 ≥20%' }))
     expect(order()).toEqual(['A'])
     expect(screen.getByRole('button', { name: '下移 A' }).hasAttribute('disabled')).toBe(true)
-    fireEvent.click(screen.getByRole('button', { name: '未算' }))
+    fireEvent.click(screen.getByRole('button', { name: '不适用/未覆盖' }))
     expect(order()).toEqual(['C'])
   })
 })

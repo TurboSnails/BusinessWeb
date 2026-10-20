@@ -10,7 +10,7 @@ import { useCompanies } from '../data/companies'
 import { RESEARCH_INDEX, type ResearchSummary } from '../data/futureTrendsResearch'
 import { poolBucket } from '../data/futureTrendsPresentation'
 import { useCandidates } from '../features/candidates/useCandidates'
-import { MARKET_LABEL, researchToCandidate, toolProgress } from '../features/candidates/links'
+import { dcfOf, MARKET_LABEL, researchToCandidate, toolProgress } from '../features/candidates/links'
 import { useToolSources } from '../features/candidates/useToolSources'
 import FutureTrendsPool from './FutureTrendsPool'
 import '../styles/candidates.css'
@@ -43,7 +43,7 @@ export default function Candidates(): JSX.Element {
   const dcfFilter = (r: ResearchSummary): boolean => {
     if (dcfF === 'all') return true
     const t = researchToCandidate(r, usLists)
-    return matchDcfFilter(dcfF, t ? toolProgress(t.market, t.code, tools).dcf : undefined)
+    return matchDcfFilter(dcfF, t ? dcfOf(t.market, t.code, tools) : undefined)
   }
 
   const addAction = (r: ResearchSummary): React.ReactNode => {

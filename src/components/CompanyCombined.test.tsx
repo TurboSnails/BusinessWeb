@@ -91,7 +91,7 @@ describe('综合分类：DCF 列与筛选', () => {
     localStorage.setItem('businessweb.dcf.v1', JSON.stringify([rec]))
     show([a, b, c])
     expect(screen.getByRole('link', { name: '算 DCF 002' }).getAttribute('href')).toContain('/dcf?')
-    expect(screen.getByRole('link', { name: /DCF 001 安全边际 30%/ })).toBeTruthy()
+    expect(screen.getByRole('link', { name: /DCF 001 我的 安全边际 \+30%/ })).toBeTruthy()
     fireEvent.change(screen.getByRole('combobox', { name: 'DCF' }), { target: { value: 'mos20' } })
     expect(screen.getByRole('link', { name: '甲公司 001' })).toBeTruthy()
     expect(screen.queryByRole('link', { name: '乙公司 002' })).toBeNull()

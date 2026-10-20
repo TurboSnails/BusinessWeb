@@ -123,6 +123,8 @@ node scripts/collect-market-refresh.mjs apply-companies YYYY-MM-DD
 node scripts/collect-market-refresh.mjs universe-after YYYY-MM-DD
 ```
 
+2026-10-20 刷新经验：`../.agents/mcp` 启动器目前缺失，`probe/collect/retry-*` 无法运行；`quotes`、`quotes-etf` 不依赖启动器，可单独运行。uvx 下载的 Python 没有系统根证书，腾讯行情会全部报 `CERTIFICATE_VERIFY_FAILED`、返回 0 条，需要先设置 `SSL_CERT_FILE=$(uvx --python 3.12 --from yfinance-mcp-server==1.0.4 python -c "import certifi;print(certifi.where())")`。刷新后 `adrResearch／hkResearch／solidState` 测试里锁定的价格锚点日期与样例价格需同步改为本轮值。
+
 MCP入口会实际initialize／list_tools／call_tool，不直接冒充MCP调用。当前注册配置有迁移前旧绝对路径，本轮使用工作区父目录中已存在的启动器，未改外部配置。独立迁移项目时需要一并配置可用启动器和其依赖；缺失时先修正环境，不把空返回当数据。
 
 `normalize-market-refresh.py`只应用已保留的有效输入：行情不能倒退，旧北交所代码占位报价不能成为现价，空报表不能覆盖原件。旧研究／模型日期独立保留，已撤回的PEP盈利模型不会因新价格恢复赔率。它不会代替公司一手取证、完整估值、私人记录同步或PDF重新出版，也没有新增定时任务。

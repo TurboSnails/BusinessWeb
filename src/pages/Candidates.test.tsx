@@ -87,9 +87,9 @@ describe('候选池页', () => {
   it('研究筛出：每行有 DCF 入口，可按 DCF 筛选', () => {
     renderAt('/candidates?tab=research&view=4')
     expect(screen.getAllByRole('link', { name: /^算 DCF/ }).length).toBeGreaterThan(0)
-    fireEvent.click(screen.getByRole('button', { name: '未算' }))
+    fireEvent.click(screen.getByRole('button', { name: '不适用/未覆盖' }))
     expect(screen.getAllByRole('link', { name: /^算 DCF/ }).length).toBeGreaterThan(0)
-    fireEvent.click(screen.getByRole('button', { name: '已算 DCF' }))
+    fireEvent.click(screen.getByRole('button', { name: '有 DCF 估值' }))
     expect(screen.queryAllByRole('link', { name: /^算 DCF/ })).toHaveLength(0)
   })
 })

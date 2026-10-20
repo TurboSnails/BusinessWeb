@@ -675,3 +675,7 @@
 .rn-dcf { white-space: nowrap; font-size: 0.82rem; }
 .rn-dcf.is-good { color: var(--system-green); font-weight: 600; }
 .rn-dcf.is-bad { color: var(--system-red); font-weight: 600; }
+.rn-dcf.is-na { color: var(--text-tertiary, var(--text-secondary)); }
+.rn-dcf__tag { display: inline-block; margin-right: 4px; padding: 0 5px; border-radius: 4px; font-size: 0.7rem; font-weight: 500; color: var(--text-secondary); background: var(--bg-secondary); }
+.rn-dcf__low { display: inline-block; margin-left: 5px; padding: 0 5px; border-radius: 4px; font-size: 0.7rem; color: var(--text-secondary); background: var(--bg-secondary); }
+.rn-dcf__buy { display: inline-block; margin-left: 5px; padding: 0 5px; border-radius: 4px; font-size: 0.7rem; color: var(--text-primary); background: color-mix(in srgb, var(--system-green) 18%, transparent); }

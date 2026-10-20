@@ -7,9 +7,9 @@
   "depth": "逐家初筛／既有研究复核，未认证",
   "rating": "观察／等待估值证据",
   "headline": "既有研究待核：H1 营收 201.6 亿（+25%），归母 33.70 亿（+5%），毛利率 40.1%；52 周 385.86–967.24。",
-  "price": 591.0,
-  "priceText": "CNY 591.00",
-  "priceDate": "2026-10-13T16:14:57+08:00",
+  "price": 573.1,
+  "priceText": "CNY 573.10",
+  "priceDate": "2026-10-20T12:05:24+08:00",
   "currency": "CNY",
   "ratio": null,
   "up": null,
@@ -26,6 +26,11 @@
   "concern": "归母仅 +5%，PE 79×。",
   "certainty": "待核",
   "sources": [
+    {
+      "title": "本轮行情原始证据",
+      "url": "/research/data-refresh-2026-10-20/tencent-quotes.json",
+      "status": "行情 2026-10-20T12:05:24+08:00；核验 2026-10-20T04:34:29.858872+00:00；腾讯延迟行情，不代表财报或模型已重估"
+    },
     {
       "title": "本轮行情原始证据",
       "url": "/research/data-refresh-2026-10-13/tencent-quotes.json",
@@ -83,15 +88,15 @@
   "metrics": [
     [
       "本次价格",
-      "CNY 591.00"
+      "CNY 573.10"
     ],
     [
       "价格时间",
-      "2026-10-13T16:14:57+08:00"
+      "2026-10-20T12:05:24+08:00"
     ],
     [
       "行情核验时间",
-      "2026-10-13T08:49:22.931841+00:00；来源 research/data-refresh-2026-10-13/tencent-quotes.json；研究与模型仍为 2026-10-09"
+      "2026-10-20T04:34:29.858872+00:00；来源 research/data-refresh-2026-10-20/tencent-quotes.json；研究与模型仍为 2026-10-09"
     ],
     [
       "一手事实摘录",
@@ -276,8 +281,8 @@
     "旧资料只作审计轨迹，不沿用旧买入评级：观察：半导体设备龙头，电子工艺装备95.3%，营收+25%；扣非仅+5%：营收增速快于利润；市值4470亿元，估值对增长依赖极高。扣非 TTM PE 81.3×，赔率 不成立：现价 ≥ 基准价。",
     "旧程序化输入：public/research/future-trends-2026-10-09/input-pool.json；其中旧赔率与固定胜率已撤回。"
   ],
-  "priceCheckedAt": "2026-10-13T08:49:22.931841+00:00",
-  "priceSource": "research/data-refresh-2026-10-13/tencent-quotes.json",
+  "priceCheckedAt": "2026-10-20T04:34:29.858872+00:00",
+  "priceSource": "research/data-refresh-2026-10-20/tencent-quotes.json",
   "modelAsOf": "2026-10-09",
   "marketRefreshStatus": "行情已刷新；原研究模型未重估，不认证买入或胜率"
 }

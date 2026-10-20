@@ -5,7 +5,7 @@ import { researchForCode, researchPath } from '../data/futureTrendsResearch'
 import type { SyncState } from '../features/candidates/useCandidates'
 import { MAX_NOTE } from '../features/candidates/validation'
 import type { CandidateItem } from '../features/candidates/validation'
-import { MARKET_LABEL, dcfLink, gridLink, toolProgress, valuationLink, type ToolProgress, type ToolSources } from '../features/candidates/links'
+import { dcfOf, MARKET_LABEL, dcfLink, gridLink, toolProgress, valuationLink, type ToolProgress, type ToolSources } from '../features/candidates/links'
 import { matchDcfFilter, type DcfFilterId } from '../features/dcf/filter'
 import { DcfFilterChips } from './DcfCell'
 import { Card, TableWrap } from './ui'
@@ -119,7 +119,7 @@ export default function CandidatePool({ items, companies, tools = NO_TOOLS, stat
           <table className="ui-table rn-table--top cand-table">
             <thead><tr>{['#', '公司', '我的备注', '研究结论', '估值进度', '去估值', '排序'].map(h => <th key={h} scope="col">{h}</th>)}</tr></thead>
             <tbody>{items.map((i, n) => {
-              if (!matchDcfFilter(dcfF, toolProgress(i.market, i.code, tools).dcf)) return null
+              if (!matchDcfFilter(dcfF, dcfOf(i.market, i.code, tools))) return null
               const d = describe(i)
               const grid = gridLink(i.market, i.code, d.name)
               return (

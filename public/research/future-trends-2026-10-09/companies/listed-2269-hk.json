@@ -7,9 +7,9 @@
   "depth": "逐家初筛／既有研究复核，未认证",
   "rating": "观察／等待估值证据",
   "headline": "既有研究待核：H1 营收 117.9 亿（+18%），归母 24.40 亿（+4%），毛利率 46.2%；52 周 28.48–58。",
-  "price": 51.25,
-  "priceText": "HKD 51.25",
-  "priceDate": "2026-10-13T16:08:29+08:00",
+  "price": 50.85,
+  "priceText": "HKD 50.85",
+  "priceDate": "2026-10-20T11:59:59+08:00",
   "currency": "HKD",
   "ratio": null,
   "up": null,
@@ -26,6 +26,11 @@
   "concern": "归母仅 +4.3%；美国生物安全法案；PE 43× 处 52 周高位。",
   "certainty": "待核",
   "sources": [
+    {
+      "title": "本轮行情原始证据",
+      "url": "/research/data-refresh-2026-10-20/tencent-quotes.json",
+      "status": "行情 2026-10-20T11:59:59+08:00；核验 2026-10-20T04:34:32.436862+00:00；腾讯延迟行情，不代表财报或模型已重估"
+    },
     {
       "title": "本轮行情原始证据",
       "url": "/research/data-refresh-2026-10-13/tencent-quotes.json",
@@ -85,15 +90,15 @@
   "metrics": [
     [
       "本次价格",
-      "HKD 51.25"
+      "HKD 50.85"
     ],
     [
       "价格时间",
-      "2026-10-13T16:08:29+08:00"
+      "2026-10-20T11:59:59+08:00"
     ],
     [
       "行情核验时间",
-      "2026-10-13T08:49:25.018273+00:00；来源 research/data-refresh-2026-10-13/tencent-quotes.json；研究与模型仍为 2026-10-09"
+      "2026-10-20T04:34:32.436862+00:00；来源 research/data-refresh-2026-10-20/tencent-quotes.json；研究与模型仍为 2026-10-09"
     ],
     [
       "一手事实摘录",
@@ -278,8 +283,8 @@
     "旧资料只作审计轨迹，不沿用旧买入评级：观察（事实已复核，估值待证）：经营毛利改善未等比例转化净利，处置、融资及调整项目需桥接。",
     "旧程序化输入：public/research/future-trends-2026-10-09/input-pool.json；其中旧赔率与固定胜率已撤回。"
   ],
-  "priceCheckedAt": "2026-10-13T08:49:25.018273+00:00",
-  "priceSource": "research/data-refresh-2026-10-13/tencent-quotes.json",
+  "priceCheckedAt": "2026-10-20T04:34:32.436862+00:00",
+  "priceSource": "research/data-refresh-2026-10-20/tencent-quotes.json",
   "modelAsOf": "2026-10-09",
   "marketRefreshStatus": "行情已刷新；原研究模型未重估，不认证买入或胜率"
 }

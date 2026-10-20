@@ -37,7 +37,7 @@ import CompanyCombined from '../components/CompanyCombined'
 import CandidateButton from '../components/CandidateButton'
 import { DcfCell, DcfFilterChips } from '../components/DcfCell'
 import { useToolSources } from '../features/candidates/useToolSources'
-import { toolProgress } from '../features/candidates/links'
+import { dcfOf, toolProgress } from '../features/candidates/links'
 import { matchDcfFilter, type DcfFilterId } from '../features/dcf/filter'
 import { useCandidates } from '../features/candidates/useCandidates'
 import ResearchNotice from '../components/research/ResearchNotice'
@@ -96,7 +96,7 @@ export default function ResearchNotes(): JSX.Element {
   const cand = useCandidates(inCategory)
   const tools = useToolSources()
   const [dcfF, setDcfF] = useState<DcfFilterId>('all')
-  const dcfOk = (c: Company): boolean => dcfF === 'all' || matchDcfFilter(dcfF, toolProgress(c.market, c.code, tools).dcf)
+  const dcfOk = (c: Company): boolean => dcfF === 'all' || matchDcfFilter(dcfF, dcfOf(c.market, c.code, tools))
   const isCand = (c: Company): boolean => cand.items.some(i => i.market === c.market && i.code === c.code)
   const toggleCand = (c: Company): void => cand.toggle(c.market, c.code)
   const [lTier, setLTier] = useState('全部')

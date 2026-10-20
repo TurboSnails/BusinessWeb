@@ -4,7 +4,7 @@ import type { Company, LynchInfo } from '../data/companies'
 import CandidateButton from './CandidateButton'
 import { DcfCell } from './DcfCell'
 import { useToolSources } from '../features/candidates/useToolSources'
-import { toolProgress } from '../features/candidates/links'
+import { dcfOf, toolProgress } from '../features/candidates/links'
 import { DCF_FILTERS, matchDcfFilter, type DcfFilterId } from '../features/dcf/filter'
 import { Card, TableWrap } from './ui'
 import '../styles/research.css'
@@ -41,7 +41,7 @@ export default function CompanyCombined({ companies, lynch, ratingOf, loading, i
     (type === '全部' || (l?.t || '未分类') === type) &&
     (tier === '全部' || l?.r === tier) &&
     (moat === '全部' || (moat === '未提供' ? !l?.m : l?.m?.l.startsWith(moat))) &&
-    (dcfF === 'all' || matchDcfFilter(dcfF, toolProgress(c.market, c.code, tools).dcf)) &&
+    (dcfF === 'all' || matchDcfFilter(dcfF, dcfOf(c.market, c.code, tools))) &&
     (!query.trim() || `${c.name} ${c.code}`.toLowerCase().includes(query.trim().toLowerCase())),
   )
   useEffect(() => { setLimit(60) }, [query, sector, rating, type, tier, moat, dcfF])
