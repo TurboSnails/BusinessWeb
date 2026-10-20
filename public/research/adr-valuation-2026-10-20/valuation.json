@@ -1,0 +1,2990 @@
+{
+ "date": "2026-10-20",
+ "priceDate": "2026-10-19",
+ "sources": {
+  "price": "src/data/companyMarketSnapshot.json",
+  "vendor": "public/research/data-refresh-2026-10-20/yahoo-quote-batch.json",
+  "facts": "public/research/adr-2026-10-07",
+  "prefill": "public/data/dcf-prefill.json"
+ },
+ "classes": {
+  "foundry": {
+   "name": "晶圆代工",
+   "pe": [
+    16,
+    22,
+    28
+   ],
+   "bearOff": 35,
+   "cyclical": true
+  },
+  "semieq": {
+   "name": "半导体设备",
+   "pe": [
+    22,
+    30,
+    38
+   ],
+   "bearOff": 35,
+   "cyclical": false
+  },
+  "chipip": {
+   "name": "芯片 IP / 授权",
+   "pe": [
+    35,
+    50,
+    65
+   ],
+   "bearOff": 35,
+   "cyclical": false
+  },
+  "mem": {
+   "name": "存储",
+   "pe": [
+    7,
+    11,
+    15
+   ],
+   "bearOff": 40,
+   "cyclical": true
+  },
+  "pharma": {
+   "name": "大型制药",
+   "pe": [
+    11,
+    15,
+    19
+   ],
+   "bearOff": 25,
+   "cyclical": false
+  },
+  "biotech": {
+   "name": "创新药 / 生物科技",
+   "pe": [
+    25,
+    35,
+    45
+   ],
+   "bearOff": 35,
+   "cyclical": false
+  },
+  "software": {
+   "name": "企业软件",
+   "pe": [
+    20,
+    27,
+    34
+   ],
+   "bearOff": 25,
+   "cyclical": false
+  },
+  "netgrowth": {
+   "name": "全球互联网 / 平台成长",
+   "pe": [
+    22,
+    32,
+    42
+   ],
+   "bearOff": 35,
+   "cyclical": false
+  },
+  "cninternet": {
+   "name": "中概互联网",
+   "pe": [
+    9,
+    13,
+    17
+   ],
+   "bearOff": 30,
+   "cyclical": false
+  },
+  "cnconsumer": {
+   "name": "中概消费 / 服务",
+   "pe": [
+    11,
+    15,
+    19
+   ],
+   "bearOff": 25,
+   "cyclical": false
+  },
+  "cnlogistics": {
+   "name": "快递物流",
+   "pe": [
+    9,
+    12,
+    15
+   ],
+   "bearOff": 25,
+   "cyclical": false
+  },
+  "cnedu": {
+   "name": "教育服务",
+   "pe": [
+    12,
+    17,
+    22
+   ],
+   "bearOff": 30,
+   "cyclical": false
+  },
+  "propsvc": {
+   "name": "房产交易服务",
+   "pe": [
+    10,
+    14,
+    18
+   ],
+   "bearOff": 35,
+   "cyclical": true
+  },
+  "auto": {
+   "name": "汽车整车",
+   "pe": [
+    6,
+    8,
+    11
+   ],
+   "bearOff": 30,
+   "cyclical": false
+  },
+  "media": {
+   "name": "消费电子 / 娱乐",
+   "pe": [
+    14,
+    18,
+    23
+   ],
+   "bearOff": 25,
+   "cyclical": false
+  },
+  "oilmaj": {
+   "name": "石油天然气",
+   "pe": [
+    7,
+    10,
+    13
+   ],
+   "bearOff": 30,
+   "cyclical": true
+  },
+  "mining": {
+   "name": "矿业",
+   "pe": [
+    7,
+    10,
+    13
+   ],
+   "bearOff": 35,
+   "cyclical": true
+  },
+  "rail": {
+   "name": "铁路运输",
+   "pe": [
+    15,
+    19,
+    23
+   ],
+   "bearOff": 20,
+   "cyclical": false
+  },
+  "staples": {
+   "name": "必选消费",
+   "pe": [
+    15,
+    19,
+    23
+   ],
+   "bearOff": 20,
+   "cyclical": false
+  },
+  "tobacco": {
+   "name": "烟草",
+   "pe": [
+    8,
+    10,
+    12
+   ],
+   "bearOff": 15,
+   "cyclical": false
+  },
+  "itsvc": {
+   "name": "IT 服务外包",
+   "pe": [
+    16,
+    21,
+    26
+   ],
+   "bearOff": 20,
+   "cyclical": false
+  },
+  "fintech": {
+   "name": "支付 / 金融科技",
+   "pe": [
+    5,
+    8,
+    11
+   ],
+   "bearOff": 30,
+   "cyclical": false
+  }
+ },
+ "dividend": {
+  "name": "银行 / 券商",
+  "yields": [
+   7.0,
+   5.0,
+   4.0
+  ],
+  "dpsFactors": [
+   0.8,
+   1,
+   1.05
+  ],
+  "minYield": 3.0,
+  "maxYield": 8.0
+ },
+ "distribution": {
+  "回避": 5,
+  "条件关注": 10,
+  "观察": 51
+ },
+ "oldDistribution": {
+  "等待证据": 5,
+  "观察": 61
+ },
+ "capReasons": {
+  "bear>=price": 8,
+  "cyclical": 1,
+  "cyclical(no-effect)": 10,
+  "data-flag": 2,
+  "loss": 5,
+  "loss-vendor-conflict": 2,
+  "missing-value": 8,
+  "single-method": 6
+ },
+ "companies": [
+  {
+   "code": "TSM",
+   "name": "台积电",
+   "cls": "foundry",
+   "cyclical": true,
+   "method": "pe",
+   "price": 420.22,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "TWD",
+   "epsTTM": 15.72,
+   "epsForward": 23.38529,
+   "dividendRate": 3.77,
+   "dividendYield": 0.9,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 15.72,
+    "epsF": 23.38529,
+    "g": 48.761386768447835,
+    "bearOff": 35,
+    "eps": [
+     17.883290000000002,
+     23.38529,
+     26.52929
+    ],
+    "mult": [
+     16,
+     22,
+     28
+    ],
+    "price": [
+     286.13264000000004,
+     514.4763800000001,
+     742.82012
+    ],
+    "threshold": 362.24722
+   },
+   "ratio": 0.7029475410657652,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [
+    "cyclical(no-effect)"
+   ],
+   "missing": null
+  },
+  {
+   "code": "ASML",
+   "name": "阿斯麦",
+   "cls": "semieq",
+   "cyclical": false,
+   "method": "pe",
+   "price": 1647.12,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "EUR",
+   "epsTTM": 40.78,
+   "epsForward": 62.779545,
+   "dividendRate": 9.08,
+   "dividendYield": 0.55,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 40.78,
+    "epsF": 62.779545,
+    "g": 53.9468979892104,
+    "bearOff": 35,
+    "eps": [
+     48.50654500000001,
+     62.779545,
+     70.935545
+    ],
+    "mult": [
+     22,
+     30,
+     38
+    ],
+    "price": [
+     1067.1439900000003,
+     1883.38635,
+     2695.55071
+    ],
+    "threshold": 1339.224776666667
+   },
+   "ratio": 0.4073726256367057,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [],
+   "missing": null
+  },
+  {
+   "code": "NVO",
+   "name": "诺和诺德",
+   "cls": "pharma",
+   "cyclical": false,
+   "method": "pe",
+   "price": 38.42,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "DKK",
+   "epsTTM": 4.25,
+   "epsForward": 3.4276135,
+   "dividendRate": 1.8,
+   "dividendYield": 4.68,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 4.25,
+    "epsF": 3.4276135,
+    "g": -19.350270588235297,
+    "bearOff": 25,
+    "eps": [
+     2.3651135,
+     3.4276135,
+     4.2776135
+    ],
+    "mult": [
+     11,
+     15,
+     19
+    ],
+    "price": [
+     26.0162485,
+     51.4142025,
+     81.2746565
+    ],
+    "threshold": 34.48223316666667
+   },
+   "ratio": 1.0476026144187103,
+   "rating": "条件关注",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [],
+   "missing": null
+  },
+  {
+   "code": "SAP",
+   "name": "SAP",
+   "cls": "software",
+   "cyclical": false,
+   "method": "pe",
+   "price": 226.03,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "EUR",
+   "epsTTM": 7.85,
+   "epsForward": 9.60144,
+   "dividendRate": 2.93,
+   "dividendYield": 1.3,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 7.85,
+    "epsF": 9.60144,
+    "g": 22.311337579617852,
+    "bearOff": 25,
+    "eps": [
+     7.638940000000001,
+     9.60144,
+     11.17144
+    ],
+    "mult": [
+     20,
+     27,
+     34
+    ],
+    "price": [
+     152.77880000000002,
+     259.23888,
+     379.82896
+    ],
+    "threshold": 188.26549333333332
+   },
+   "ratio": 0.45335612249355645,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [],
+   "missing": null
+  },
+  {
+   "code": "TM",
+   "name": "丰田汽车",
+   "cls": "auto",
+   "cyclical": false,
+   "method": "pe",
+   "price": 194.06,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "JPY",
+   "epsTTM": 22.69,
+   "epsForward": 15.78,
+   "dividendRate": 6.27,
+   "dividendYield": 3.23,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 22.69,
+    "epsF": 15.78,
+    "g": -30.453944468929052,
+    "bearOff": 30,
+    "eps": [
+     8.972999999999997,
+     15.78,
+     20.317999999999998
+    ],
+    "mult": [
+     6,
+     8,
+     11
+    ],
+    "price": [
+     53.83799999999998,
+     126.24,
+     223.498
+    ],
+    "threshold": 77.97199999999998
+   },
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [],
+   "missing": null
+  },
+  {
+   "code": "SONY",
+   "name": "索尼",
+   "cls": "media",
+   "cyclical": false,
+   "method": "pe",
+   "price": 24.77,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "JPY",
+   "epsTTM": 1.2,
+   "epsForward": 1.19,
+   "dividendRate": 0.16,
+   "dividendYield": 0.64,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 1.2,
+    "epsF": 1.19,
+    "g": -0.8333333333333304,
+    "bearOff": 25,
+    "eps": [
+     0.89,
+     1.19,
+     1.43
+    ],
+    "mult": [
+     14,
+     18,
+     23
+    ],
+    "price": [
+     12.46,
+     21.419999999999998,
+     32.89
+    ],
+    "threshold": 15.446666666666667
+   },
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [],
+   "missing": null
+  },
+  {
+   "code": "AZN",
+   "name": "阿斯利康",
+   "cls": "pharma",
+   "cyclical": false,
+   "method": "pe",
+   "price": 163.95,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "USD",
+   "epsTTM": 6.69,
+   "epsForward": 11.34333,
+   "dividendRate": 3.2,
+   "dividendYield": 1.95,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 6.69,
+    "epsF": 11.34333,
+    "g": 69.55650224215246,
+    "bearOff": 25,
+    "eps": [
+     9.67083,
+     11.34333,
+     12.68133
+    ],
+    "mult": [
+     11,
+     15,
+     19
+    ],
+    "price": [
+     106.37913,
+     170.14995,
+     240.94527000000002
+    ],
+    "threshold": 127.63607
+   },
+   "ratio": 0.10769248406355511,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [],
+   "missing": null
+  },
+  {
+   "code": "NVS",
+   "name": "诺华",
+   "cls": "pharma",
+   "cyclical": false,
+   "method": "pe",
+   "price": 150.2,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "USD",
+   "epsTTM": 6.6,
+   "epsForward": 9.80263,
+   "dividendRate": 4.74,
+   "dividendYield": 3.16,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 6.6,
+    "epsF": 9.80263,
+    "g": 48.52469696969699,
+    "bearOff": 25,
+    "eps": [
+     8.15263,
+     9.80263,
+     11.122630000000001
+    ],
+    "mult": [
+     11,
+     15,
+     19
+    ],
+    "price": [
+     89.67893000000001,
+     147.03945000000002,
+     211.32997
+    ],
+    "threshold": 108.79910333333335
+   },
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [],
+   "missing": null
+  },
+  {
+   "code": "SNY",
+   "name": "赛诺菲",
+   "cls": "pharma",
+   "cyclical": false,
+   "method": "pe",
+   "price": 39.57,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "EUR",
+   "epsTTM": 1.9,
+   "epsForward": 5.28211,
+   "dividendRate": 2.42,
+   "dividendYield": 6.12,
+   "loss": false,
+   "flags": [
+    "悲观价 ≥ 现价，视为数据异常"
+   ],
+   "model": {
+    "method": "pe",
+    "epsT": 1.9,
+    "epsF": 5.28211,
+    "g": 178.00578947368427,
+    "bearOff": 25,
+    "eps": [
+     4.8071100000000015,
+     5.282110000000001,
+     5.662110000000001
+    ],
+    "mult": [
+     11,
+     15,
+     19
+    ],
+    "price": [
+     52.87821000000002,
+     79.23165000000002,
+     107.58009000000003
+    ],
+    "threshold": 61.66269000000002
+   },
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [
+    "bear>=price"
+   ],
+   "missing": null
+  },
+  {
+   "code": "GSK",
+   "name": "葛兰素史克",
+   "cls": "pharma",
+   "cyclical": false,
+   "method": "pe",
+   "price": 49.46,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "GBP",
+   "epsTTM": 3.17,
+   "epsForward": 4.92321,
+   "dividendRate": 1.82,
+   "dividendYield": 3.67,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 3.17,
+    "epsF": 4.92321,
+    "g": 55.306309148265,
+    "bearOff": 25,
+    "eps": [
+     4.1307100000000005,
+     4.92321,
+     5.55721
+    ],
+    "mult": [
+     11,
+     15,
+     19
+    ],
+    "price": [
+     45.437810000000006,
+     73.84815,
+     105.58699000000001
+    ],
+    "threshold": 54.907923333333336
+   },
+   "ratio": 6.063400784149937,
+   "rating": "条件关注",
+   "oldRating": "观察",
+   "capped": "single-method",
+   "capReasons": [
+    "single-method"
+   ],
+   "missing": null
+  },
+  {
+   "code": "SHEL",
+   "name": "壳牌",
+   "cls": "oilmaj",
+   "cyclical": true,
+   "method": "pe",
+   "price": 104.82,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "USD",
+   "epsTTM": 9.06,
+   "epsForward": 10.48412,
+   "dividendRate": 3.12,
+   "dividendYield": 2.98,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 9.06,
+    "epsF": 10.48412,
+    "g": 15.718763796909485,
+    "bearOff": 30,
+    "eps": [
+     7.766119999999999,
+     10.48412,
+     12.29612
+    ],
+    "mult": [
+     7,
+     10,
+     13
+    ],
+    "price": [
+     54.36283999999999,
+     104.84120000000001,
+     159.84956
+    ],
+    "threshold": 71.18896
+   },
+   "ratio": 0.0004201584076476291,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [
+    "cyclical(no-effect)"
+   ],
+   "missing": null
+  },
+  {
+   "code": "TTE",
+   "name": "道达尔能源",
+   "cls": "oilmaj",
+   "cyclical": true,
+   "method": "pe",
+   "price": 89.95,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "USD",
+   "epsTTM": 7.99,
+   "epsForward": 10.95368,
+   "dividendRate": 4.04,
+   "dividendYield": 4.49,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 7.99,
+    "epsF": 10.95368,
+    "g": 37.09236545682102,
+    "bearOff": 30,
+    "eps": [
+     8.55668,
+     10.95368,
+     12.551680000000001
+    ],
+    "mult": [
+     7,
+     10,
+     13
+    ],
+    "price": [
+     59.89676,
+     109.5368,
+     163.17184
+    ],
+    "threshold": 76.44344
+   },
+   "ratio": 0.6517367179046251,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [
+    "cyclical(no-effect)"
+   ],
+   "missing": null
+  },
+  {
+   "code": "BP",
+   "name": "英国石油",
+   "cls": "oilmaj",
+   "cyclical": true,
+   "method": "pe",
+   "price": 49.44,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "USD",
+   "epsTTM": 2.02,
+   "epsForward": 5.61659,
+   "dividendRate": 2.02,
+   "dividendYield": 4.08,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 2.02,
+    "epsF": 5.61659,
+    "g": 178.04900990099011,
+    "bearOff": 30,
+    "eps": [
+     5.0105900000000005,
+     5.61659,
+     6.02059
+    ],
+    "mult": [
+     7,
+     10,
+     13
+    ],
+    "price": [
+     35.074130000000004,
+     56.16590000000001,
+     78.26767000000001
+    ],
+    "threshold": 42.10472000000001
+   },
+   "ratio": 0.4681860548647602,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [
+    "cyclical(no-effect)"
+   ],
+   "missing": null
+  },
+  {
+   "code": "HSBC",
+   "name": "汇丰控股",
+   "cls": "div",
+   "cyclical": false,
+   "method": "roe-pb",
+   "price": 92.96,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "USD",
+   "epsTTM": 6.88,
+   "epsForward": 9.51268,
+   "dividendRate": 3.75,
+   "dividendYield": 4.03,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "roe-pb",
+    "source": "models.json",
+    "bvps": 10.08,
+    "bvCurrency": "USD",
+    "ordinaryPerUsInstrument": 5,
+    "usdPerReportCurrency": 1,
+    "price": [
+     27.215999999999998,
+     56.0,
+     81.89999999999999
+    ],
+    "threshold": 36.81066666666666
+   },
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [],
+   "missing": null
+  },
+  {
+   "code": "MUFG",
+   "name": "三菱日联金融",
+   "cls": "div",
+   "cyclical": false,
+   "method": "div",
+   "price": 21.66,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "JPY",
+   "epsTTM": 1.53,
+   "epsForward": 1.03,
+   "dividendRate": 0.54,
+   "dividendYield": 2.49,
+   "loss": false,
+   "flags": [],
+   "model": null,
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [
+    "missing-value"
+   ],
+   "missing": "股息率法不适用：供应商股息率 2.49% < 3%，股息不是主要价值来源；PB–ROE 所需每 ADS 账面价值在供应商口径中币种 / ADS 比例错乱（priceToBook 1.70），不可核验"
+  },
+  {
+   "code": "SMFG",
+   "name": "三井住友金融",
+   "cls": "div",
+   "cyclical": false,
+   "method": "div",
+   "price": 24.41,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "JPY",
+   "epsTTM": 1.73,
+   "epsForward": 0.41,
+   "dividendRate": 0.59,
+   "dividendYield": 2.43,
+   "loss": false,
+   "flags": [],
+   "model": null,
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [
+    "missing-value"
+   ],
+   "missing": "股息率法不适用：供应商股息率 2.43% < 3%，股息不是主要价值来源；PB–ROE 所需每 ADS 账面价值在供应商口径中币种 / ADS 比例错乱（priceToBook 1.52），不可核验"
+  },
+  {
+   "code": "TD",
+   "name": "多伦多道明银行",
+   "cls": "div",
+   "cyclical": false,
+   "method": "roe-pb",
+   "price": 120.06,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "CAD",
+   "epsTTM": 6.72,
+   "epsForward": 7.927845,
+   "dividendRate": 3.17,
+   "dividendYield": 2.64,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "roe-pb",
+    "source": "models.json",
+    "bvps": 69.69,
+    "bvCurrency": "CAD",
+    "ordinaryPerUsInstrument": 1,
+    "usdPerReportCurrency": 0.7028197,
+    "price": [
+     26.44893264222,
+     54.42167210333334,
+     79.591695451125
+    ],
+    "threshold": 35.773179129257784
+   },
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [],
+   "missing": null
+  },
+  {
+   "code": "RY",
+   "name": "加拿大皇家银行",
+   "cls": "div",
+   "cyclical": false,
+   "method": "div",
+   "price": 196.3,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "CAD",
+   "epsTTM": 11.44,
+   "epsForward": 12.6489105,
+   "dividendRate": 4.99,
+   "dividendYield": 2.54,
+   "loss": false,
+   "flags": [],
+   "model": null,
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [
+    "missing-value"
+   ],
+   "missing": "股息率法不适用：供应商股息率 2.54% < 3%，股息不是主要价值来源；PB–ROE 所需每 ADS 账面价值在供应商口径中币种 / ADS 比例错乱（priceToBook 2.87），不可核验"
+  },
+  {
+   "code": "SHOP",
+   "name": "Shopify",
+   "cls": "netgrowth",
+   "cyclical": false,
+   "method": "pe",
+   "price": 171.06,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "USD",
+   "epsTTM": 1.49,
+   "epsForward": 2.45543,
+   "dividendRate": null,
+   "dividendYield": 0,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 1.49,
+    "epsF": 2.45543,
+    "g": 64.79395973154361,
+    "bearOff": 35,
+    "eps": [
+     1.93393,
+     2.45543,
+     2.75343
+    ],
+    "mult": [
+     22,
+     32,
+     42
+    ],
+    "price": [
+     42.546459999999996,
+     78.57376,
+     115.64406
+    ],
+    "threshold": 54.55555999999999
+   },
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [],
+   "missing": null
+  },
+  {
+   "code": "SPOT",
+   "name": "Spotify",
+   "cls": "netgrowth",
+   "cyclical": false,
+   "method": "pe",
+   "price": 518.76,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "EUR",
+   "epsTTM": 17.02,
+   "epsForward": 17.183182,
+   "dividendRate": null,
+   "dividendYield": 0,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 17.02,
+    "epsF": 17.183182,
+    "g": 0.9587661574617989,
+    "bearOff": 35,
+    "eps": [
+     11.226181999999996,
+     17.183182,
+     20.587182
+    ],
+    "mult": [
+     22,
+     32,
+     42
+    ],
+    "price": [
+     246.9760039999999,
+     549.861824,
+     864.6616439999999
+    ],
+    "threshold": 347.93794399999996
+   },
+   "ratio": 0.11443581836216711,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [],
+   "missing": null
+  },
+  {
+   "code": "ARM",
+   "name": "Arm 控股",
+   "cls": "chipip",
+   "cyclical": false,
+   "method": "pe",
+   "price": 228.05,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "USD",
+   "epsTTM": 0.97,
+   "epsForward": 3.06276,
+   "dividendRate": null,
+   "dividendYield": 0,
+   "loss": false,
+   "flags": [
+    "供应商前瞻 / TTM EPS 比值 3.16 超出 [0.5, 3]，口径或一次性项目待核"
+   ],
+   "model": {
+    "method": "pe",
+    "epsT": 0.97,
+    "epsF": 3.06276,
+    "g": 215.74845360824742,
+    "bearOff": 35,
+    "eps": [
+     2.72326,
+     3.06276,
+     3.25676
+    ],
+    "mult": [
+     35,
+     50,
+     65
+    ],
+    "price": [
+     95.3141,
+     153.138,
+     211.68939999999998
+    ],
+    "threshold": 114.58873333333334
+   },
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [
+    "data-flag"
+   ],
+   "missing": null
+  },
+  {
+   "code": "HMC",
+   "name": "本田汽车",
+   "cls": "auto",
+   "cyclical": false,
+   "method": "pe",
+   "price": 34.06,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "JPY",
+   "epsTTM": -0.72,
+   "epsForward": 4.96,
+   "dividendRate": 1.33,
+   "dividendYield": 3.91,
+   "loss": true,
+   "flags": [],
+   "model": null,
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [
+    "loss-vendor-conflict"
+   ],
+   "missing": "TTM EPS 为负（供应商 epsTrailingTwelveMonths -0.72），不套 PE 情景、不给赔率；与 2026-10-07 原件复核「观察」口径冲突，待核读，不机械判回避"
+  },
+  {
+   "code": "E",
+   "name": "埃尼",
+   "cls": "oilmaj",
+   "cyclical": true,
+   "method": "pe",
+   "price": 58.85,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "EUR",
+   "epsTTM": 2.86,
+   "epsForward": 6.5571,
+   "dividendRate": 2.44,
+   "dividendYield": 4.15,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 2.86,
+    "epsF": 6.5571,
+    "g": 129.26923076923077,
+    "bearOff": 30,
+    "eps": [
+     5.6991,
+     6.5571,
+     7.1291
+    ],
+    "mult": [
+     7,
+     10,
+     13
+    ],
+    "price": [
+     39.893699999999995,
+     65.571,
+     92.67830000000001
+    ],
+    "threshold": 48.452799999999996
+   },
+   "ratio": 0.35455231242383767,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [
+    "cyclical(no-effect)"
+   ],
+   "missing": null
+  },
+  {
+   "code": "CNI",
+   "name": "加拿大国家铁路",
+   "cls": "rail",
+   "cyclical": false,
+   "method": "pe",
+   "price": 120.09,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "CAD",
+   "epsTTM": 5.64,
+   "epsForward": 6.3181705,
+   "dividendRate": 2.58,
+   "dividendYield": 2.15,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 5.64,
+    "epsF": 6.3181705,
+    "g": 12.02429964539007,
+    "bearOff": 20,
+    "eps": [
+     5.1901705,
+     6.3181705,
+     7.446170499999999
+    ],
+    "mult": [
+     15,
+     19,
+     23
+    ],
+    "price": [
+     77.8525575,
+     120.0452395,
+     171.26192149999997
+    ],
+    "threshold": 91.91678483333334
+   },
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [],
+   "missing": null
+  },
+  {
+   "code": "LYG",
+   "name": "劳埃德银行",
+   "cls": "div",
+   "cyclical": false,
+   "method": "div",
+   "price": 5.41,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "GBP",
+   "epsTTM": 0.42,
+   "epsForward": 0.62199,
+   "dividendRate": 0.22,
+   "dividendYield": 4.03,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "div",
+    "dps": 0.22,
+    "dy": 4.03,
+    "dps3": [
+     0.17600000000000002,
+     0.22,
+     0.231
+    ],
+    "yields": [
+     7.0,
+     5.0,
+     4.0
+    ],
+    "price": [
+     2.5142857142857142,
+     4.3999999999999995,
+     5.775
+    ],
+    "threshold": 3.1428571428571423
+   },
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [],
+   "missing": null
+  },
+  {
+   "code": "BABA",
+   "name": "阿里巴巴",
+   "cls": "cninternet",
+   "cyclical": false,
+   "method": "pe",
+   "price": 108.57,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "CNY",
+   "epsTTM": 4.11,
+   "epsForward": 9.273058,
+   "dividendRate": 1.05,
+   "dividendYield": 0.97,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 4.11,
+    "epsF": 9.273058,
+    "g": 125.62184914841849,
+    "bearOff": 30,
+    "eps": [
+     8.040058,
+     9.273058,
+     10.095058000000002
+    ],
+    "mult": [
+     9,
+     13,
+     17
+    ],
+    "price": [
+     72.360522,
+     120.54975400000001,
+     171.61598600000002
+    ],
+    "threshold": 88.42359933333334
+   },
+   "ratio": 0.33084580782965217,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [],
+   "missing": null
+  },
+  {
+   "code": "PDD",
+   "name": "拼多多",
+   "cls": "cninternet",
+   "cyclical": false,
+   "method": "pe",
+   "price": 81.39,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "CNY",
+   "epsTTM": 8.94,
+   "epsForward": 12.340561,
+   "dividendRate": null,
+   "dividendYield": 0,
+   "loss": false,
+   "flags": [
+    "悲观价 ≥ 现价，视为数据异常"
+   ],
+   "model": {
+    "method": "pe",
+    "epsT": 8.94,
+    "epsF": 12.340561,
+    "g": 38.03759507829978,
+    "bearOff": 30,
+    "eps": [
+     9.658560999999999,
+     12.340561,
+     14.128561
+    ],
+    "mult": [
+     9,
+     13,
+     17
+    ],
+    "price": [
+     86.92704899999998,
+     160.427293,
+     240.18553699999998
+    ],
+    "threshold": 111.42713033333332
+   },
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [
+    "bear>=price"
+   ],
+   "missing": null
+  },
+  {
+   "code": "JD",
+   "name": "京东",
+   "cls": "cninternet",
+   "cyclical": false,
+   "method": "pe",
+   "price": 26.78,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "CNY",
+   "epsTTM": 1.43,
+   "epsForward": 4.075403,
+   "dividendRate": 1,
+   "dividendYield": 3.73,
+   "loss": false,
+   "flags": [
+    "悲观价 ≥ 现价，视为数据异常"
+   ],
+   "model": {
+    "method": "pe",
+    "epsT": 1.43,
+    "epsF": 4.075403,
+    "g": 184.99321678321675,
+    "bearOff": 30,
+    "eps": [
+     3.646403,
+     4.075403,
+     4.361402999999999
+    ],
+    "mult": [
+     9,
+     13,
+     17
+    ],
+    "price": [
+     32.817627,
+     52.980239,
+     74.14385099999998
+    ],
+    "threshold": 39.538497666666665
+   },
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [
+    "bear>=price"
+   ],
+   "missing": null
+  },
+  {
+   "code": "BIDU",
+   "name": "百度",
+   "cls": "cninternet",
+   "cyclical": false,
+   "method": "pe",
+   "price": 79.78,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "CNY",
+   "epsTTM": -2.23,
+   "epsForward": 7.5199566,
+   "dividendRate": null,
+   "dividendYield": 0,
+   "loss": true,
+   "flags": [],
+   "model": null,
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [
+    "loss-vendor-conflict"
+   ],
+   "missing": "TTM EPS 为负（供应商 epsTrailingTwelveMonths -2.23），不套 PE 情景、不给赔率；与 2026-10-07 原件复核「观察」口径冲突，待核读，不机械判回避"
+  },
+  {
+   "code": "NTES",
+   "name": "网易",
+   "cls": "cninternet",
+   "cyclical": false,
+   "method": "pe",
+   "price": 125.25,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "CNY",
+   "epsTTM": 7.15,
+   "epsForward": 10.775636,
+   "dividendRate": 2.93,
+   "dividendYield": 2.34,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 7.15,
+    "epsF": 10.775636,
+    "g": 50.70819580419581,
+    "bearOff": 30,
+    "eps": [
+     8.630636,
+     10.775636,
+     12.205636
+    ],
+    "mult": [
+     9,
+     13,
+     17
+    ],
+    "price": [
+     77.675724,
+     140.083268,
+     207.495812
+    ],
+    "threshold": 98.47823866666666
+   },
+   "ratio": 0.31179177587484475,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [],
+   "missing": null
+  },
+  {
+   "code": "TCOM",
+   "name": "携程",
+   "cls": "cninternet",
+   "cyclical": false,
+   "method": "pe",
+   "price": 39.59,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "CNY",
+   "epsTTM": 4.96,
+   "epsForward": 4.113562,
+   "dividendRate": null,
+   "dividendYield": 0,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 4.96,
+    "epsF": 4.113562,
+    "g": -17.065282258064517,
+    "bearOff": 30,
+    "eps": [
+     2.6255620000000004,
+     4.113562,
+     5.105562
+    ],
+    "mult": [
+     9,
+     13,
+     17
+    ],
+    "price": [
+     23.630058000000005,
+     53.476306,
+     86.794554
+    ],
+    "threshold": 33.57880733333334
+   },
+   "ratio": 0.8700724601630757,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [],
+   "missing": null
+  },
+  {
+   "code": "YUMC",
+   "name": "百胜中国",
+   "cls": "cnconsumer",
+   "cyclical": false,
+   "method": "pe",
+   "price": 45.01,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "USD",
+   "epsTTM": 2.72,
+   "epsForward": 3.37684,
+   "dividendRate": 1.16,
+   "dividendYield": 2.58,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 2.72,
+    "epsF": 3.37684,
+    "g": 24.148529411764706,
+    "bearOff": 25,
+    "eps": [
+     2.6968400000000003,
+     3.3768400000000005,
+     3.92084
+    ],
+    "mult": [
+     11,
+     15,
+     19
+    ],
+    "price": [
+     29.665240000000004,
+     50.65260000000001,
+     74.49596
+    ],
+    "threshold": 36.66102666666667
+   },
+   "ratio": 0.3677216196278085,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [],
+   "missing": null
+  },
+  {
+   "code": "NIO",
+   "name": "蔚来",
+   "cls": "auto",
+   "cyclical": false,
+   "method": "pe",
+   "price": 3.39,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "CNY",
+   "epsTTM": -0.25,
+   "epsForward": 0.12727164,
+   "dividendRate": null,
+   "dividendYield": 0,
+   "loss": true,
+   "flags": [],
+   "model": null,
+   "ratio": null,
+   "rating": "回避",
+   "oldRating": "等待证据",
+   "capped": null,
+   "capReasons": [
+    "loss"
+   ],
+   "missing": "TTM EPS 为负（供应商 epsTrailingTwelveMonths -0.25），不套 PE 情景、不给赔率"
+  },
+  {
+   "code": "XPEV",
+   "name": "小鹏汽车",
+   "cls": "auto",
+   "cyclical": false,
+   "method": "pe",
+   "price": 9.21,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "CNY",
+   "epsTTM": -0.47,
+   "epsForward": 0.1845621,
+   "dividendRate": null,
+   "dividendYield": 0,
+   "loss": true,
+   "flags": [],
+   "model": null,
+   "ratio": null,
+   "rating": "回避",
+   "oldRating": "等待证据",
+   "capped": null,
+   "capReasons": [
+    "loss"
+   ],
+   "missing": "TTM EPS 为负（供应商 epsTrailingTwelveMonths -0.47），不套 PE 情景、不给赔率"
+  },
+  {
+   "code": "LI",
+   "name": "理想汽车",
+   "cls": "auto",
+   "cyclical": false,
+   "method": "pe",
+   "price": 11.29,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "CNY",
+   "epsTTM": -0.65,
+   "epsForward": 0.5554303,
+   "dividendRate": null,
+   "dividendYield": 0,
+   "loss": true,
+   "flags": [],
+   "model": null,
+   "ratio": null,
+   "rating": "回避",
+   "oldRating": "等待证据",
+   "capped": null,
+   "capReasons": [
+    "loss"
+   ],
+   "missing": "TTM EPS 为负（供应商 epsTrailingTwelveMonths -0.65），不套 PE 情景、不给赔率"
+  },
+  {
+   "code": "ZTO",
+   "name": "中通快递",
+   "cls": "cnlogistics",
+   "cyclical": false,
+   "method": "pe",
+   "price": 20.06,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "CNY",
+   "epsTTM": 1.83,
+   "epsForward": 2.2427392,
+   "dividendRate": 0.69,
+   "dividendYield": 3.44,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 1.83,
+    "epsF": 2.2427392,
+    "g": 22.55405464480873,
+    "bearOff": 25,
+    "eps": [
+     1.7852392,
+     2.2427392,
+     2.6087391999999996
+    ],
+    "mult": [
+     9,
+     12,
+     15
+    ],
+    "price": [
+     16.0671528,
+     26.9128704,
+     39.13108799999999
+    ],
+    "threshold": 19.682391999999997
+   },
+   "ratio": 1.7162866638122292,
+   "rating": "条件关注",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [],
+   "missing": null
+  },
+  {
+   "code": "BEKE",
+   "name": "贝壳",
+   "cls": "propsvc",
+   "cyclical": true,
+   "method": "pe",
+   "price": 17.91,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "CNY",
+   "epsTTM": 0.59,
+   "epsForward": 1.2648153,
+   "dividendRate": 0.28,
+   "dividendYield": 1.54,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 0.59,
+    "epsF": 1.2648153,
+    "g": 114.3754745762712,
+    "bearOff": 35,
+    "eps": [
+     1.0583152999999998,
+     1.2648153,
+     1.3828152999999999
+    ],
+    "mult": [
+     10,
+     14,
+     18
+    ],
+    "price": [
+     10.583153,
+     17.7074142,
+     24.8906754
+    ],
+    "threshold": 12.957906733333331
+   },
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [
+    "cyclical(no-effect)"
+   ],
+   "missing": null
+  },
+  {
+   "code": "TME",
+   "name": "腾讯音乐",
+   "cls": "cninternet",
+   "cyclical": false,
+   "method": "pe",
+   "price": 8.67,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "CNY",
+   "epsTTM": 0.82,
+   "epsForward": 1.0087507,
+   "dividendRate": 0.24,
+   "dividendYield": 2.77,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 0.82,
+    "epsF": 1.0087507,
+    "g": 23.018378048780484,
+    "bearOff": 30,
+    "eps": [
+     0.7627506999999999,
+     1.0087507,
+     1.1727507
+    ],
+    "mult": [
+     9,
+     13,
+     17
+    ],
+    "price": [
+     6.864756299999999,
+     13.1137591,
+     19.9367619
+    ],
+    "threshold": 8.947757233333332
+   },
+   "ratio": 2.461584050951125,
+   "rating": "条件关注",
+   "oldRating": "观察",
+   "capped": "single-method",
+   "capReasons": [
+    "single-method"
+   ],
+   "missing": null
+  },
+  {
+   "code": "VIPS",
+   "name": "唯品会",
+   "cls": "cninternet",
+   "cyclical": false,
+   "method": "pe",
+   "price": 12.8,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "CNY",
+   "epsTTM": 2.97,
+   "epsForward": 2.5145059,
+   "dividendRate": 0.62,
+   "dividendYield": 4.84,
+   "loss": false,
+   "flags": [
+    "悲观价 ≥ 现价，视为数据异常"
+   ],
+   "model": {
+    "method": "pe",
+    "epsT": 2.97,
+    "epsF": 2.5145059,
+    "g": -15.336501683501691,
+    "bearOff": 30,
+    "eps": [
+     1.6235058999999998,
+     2.5145059,
+     3.1085059
+    ],
+    "mult": [
+     9,
+     13,
+     17
+    ],
+    "price": [
+     14.611553099999998,
+     32.6885767,
+     52.844600299999996
+    ],
+    "threshold": 20.63722763333333
+   },
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [
+    "bear>=price"
+   ],
+   "missing": null
+  },
+  {
+   "code": "BILI",
+   "name": "哔哩哔哩",
+   "cls": "cninternet",
+   "cyclical": false,
+   "method": "pe",
+   "price": 14.01,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "CNY",
+   "epsTTM": 0.51,
+   "epsForward": 1.2787269,
+   "dividendRate": null,
+   "dividendYield": 0,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 0.51,
+    "epsF": 1.2787269,
+    "g": 150.7307647058824,
+    "bearOff": 30,
+    "eps": [
+     1.1257269000000003,
+     1.2787269000000003,
+     1.3807269000000002
+    ],
+    "mult": [
+     9,
+     13,
+     17
+    ],
+    "price": [
+     10.131542100000003,
+     16.623449700000005,
+     23.472357300000002
+    ],
+    "threshold": 12.295511300000003
+   },
+   "ratio": 0.6738373259124477,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [],
+   "missing": null
+  },
+  {
+   "code": "MNSO",
+   "name": "名创优品",
+   "cls": "cnconsumer",
+   "cyclical": false,
+   "method": "pe",
+   "price": 10.25,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "CNY",
+   "epsTTM": 0.59,
+   "epsForward": 1.5095791,
+   "dividendRate": 0.67,
+   "dividendYield": 6.5,
+   "loss": false,
+   "flags": [
+    "悲观价 ≥ 现价，视为数据异常"
+   ],
+   "model": {
+    "method": "pe",
+    "epsT": 0.59,
+    "epsF": 1.5095791,
+    "g": 155.86086440677968,
+    "bearOff": 25,
+    "eps": [
+     1.3620791,
+     1.5095791,
+     1.6275791000000002
+    ],
+    "mult": [
+     11,
+     15,
+     19
+    ],
+    "price": [
+     14.982870100000001,
+     22.6436865,
+     30.924002900000005
+    ],
+    "threshold": 17.536475566666667
+   },
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [
+    "bear>=price"
+   ],
+   "missing": null
+  },
+  {
+   "code": "HTHT",
+   "name": "华住",
+   "cls": "cnconsumer",
+   "cyclical": false,
+   "method": "pe",
+   "price": 46.45,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "CNY",
+   "epsTTM": 1.34,
+   "epsForward": 3.1707695,
+   "dividendRate": 2.17,
+   "dividendYield": 4.67,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 1.34,
+    "epsF": 3.1707695,
+    "g": 136.6245895522388,
+    "bearOff": 25,
+    "eps": [
+     2.8357695,
+     3.1707695,
+     3.4387695000000003
+    ],
+    "mult": [
+     11,
+     15,
+     19
+    ],
+    "price": [
+     31.1934645,
+     47.5615425,
+     65.33662050000001
+    ],
+    "threshold": 36.649490500000006
+   },
+   "ratio": 0.07285680946372121,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [],
+   "missing": null
+  },
+  {
+   "code": "FUTU",
+   "name": "富途",
+   "cls": "div",
+   "cyclical": false,
+   "method": "div",
+   "price": 105.5,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "HKD",
+   "epsTTM": 10.08,
+   "epsForward": 12.569331,
+   "dividendRate": 2.6,
+   "dividendYield": 2.46,
+   "loss": false,
+   "flags": [],
+   "model": null,
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [
+    "missing-value"
+   ],
+   "missing": "股息率法不适用：供应商股息率 2.46% < 3%，股息不是主要价值来源；PB–ROE 所需每 ADS 账面价值在供应商口径中币种 / ADS 比例错乱（priceToBook 2.95），不可核验"
+  },
+  {
+   "code": "TAL",
+   "name": "好未来",
+   "cls": "cnedu",
+   "cyclical": false,
+   "method": "pe",
+   "price": 11.89,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "USD",
+   "epsTTM": 1.59,
+   "epsForward": 1.17262,
+   "dividendRate": null,
+   "dividendYield": 0,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 1.59,
+    "epsF": 1.17262,
+    "g": -26.25031446540881,
+    "bearOff": 30,
+    "eps": [
+     0.6956200000000001,
+     1.17262,
+     1.49062
+    ],
+    "mult": [
+     12,
+     17,
+     22
+    ],
+    "price": [
+     8.347440000000002,
+     19.93454,
+     32.79364
+    ],
+    "threshold": 12.209806666666667
+   },
+   "ratio": 2.2708267467594063,
+   "rating": "条件关注",
+   "oldRating": "观察",
+   "capped": "single-method",
+   "capReasons": [
+    "single-method"
+   ],
+   "missing": null
+  },
+  {
+   "code": "EDU",
+   "name": "新东方",
+   "cls": "cnedu",
+   "cyclical": false,
+   "method": "pe",
+   "price": 60.5,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "USD",
+   "epsTTM": 2.98,
+   "epsForward": 4.99946,
+   "dividendRate": 1.2,
+   "dividendYield": 1.98,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 2.98,
+    "epsF": 4.99946,
+    "g": 67.76711409395972,
+    "bearOff": 30,
+    "eps": [
+     4.10546,
+     4.99946,
+     5.595459999999999
+    ],
+    "mult": [
+     12,
+     17,
+     22
+    ],
+    "price": [
+     49.265519999999995,
+     84.99082,
+     123.10011999999998
+    ],
+    "threshold": 61.17395333333334
+   },
+   "ratio": 2.1799691663521577,
+   "rating": "条件关注",
+   "oldRating": "观察",
+   "capped": "single-method",
+   "capReasons": [
+    "single-method"
+   ],
+   "missing": null
+  },
+  {
+   "code": "GRAB",
+   "name": "Grab",
+   "cls": "netgrowth",
+   "cyclical": false,
+   "method": "pe",
+   "price": 2.87,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "USD",
+   "epsTTM": 0.11,
+   "epsForward": 0.13225,
+   "dividendRate": null,
+   "dividendYield": 0,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 0.11,
+    "epsF": 0.13225,
+    "g": 20.227272727272737,
+    "bearOff": 35,
+    "eps": [
+     0.09375000000000001,
+     0.13225,
+     0.15425
+    ],
+    "mult": [
+     22,
+     32,
+     42
+    ],
+    "price": [
+     2.0625000000000004,
+     4.232,
+     6.4785
+    ],
+    "threshold": 2.785666666666667
+   },
+   "ratio": 1.6866873065015489,
+   "rating": "条件关注",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [],
+   "missing": null
+  },
+  {
+   "code": "SE",
+   "name": "Sea",
+   "cls": "netgrowth",
+   "cyclical": false,
+   "method": "pe",
+   "price": 88.47,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "USD",
+   "epsTTM": 2.44,
+   "epsForward": 5.20869,
+   "dividendRate": null,
+   "dividendYield": 0,
+   "loss": false,
+   "flags": [
+    "悲观价 ≥ 现价，视为数据异常"
+   ],
+   "model": {
+    "method": "pe",
+    "epsT": 2.44,
+    "epsF": 5.20869,
+    "g": 113.47090163934426,
+    "bearOff": 35,
+    "eps": [
+     4.35469,
+     5.20869,
+     5.69669
+    ],
+    "mult": [
+     22,
+     32,
+     42
+    ],
+    "price": [
+     95.80318,
+     166.67808,
+     239.26098000000002
+    ],
+    "threshold": 119.42814666666668
+   },
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [
+    "bear>=price"
+   ],
+   "missing": null
+  },
+  {
+   "code": "MELI",
+   "name": "MercadoLibre",
+   "cls": "netgrowth",
+   "cyclical": false,
+   "method": "pe",
+   "price": 1839.72,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "USD",
+   "epsTTM": 36.77,
+   "epsForward": 56.64847,
+   "dividendRate": null,
+   "dividendYield": 0,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 36.77,
+    "epsF": 56.64847,
+    "g": 54.06165352189285,
+    "bearOff": 35,
+    "eps": [
+     43.77897000000001,
+     56.64847,
+     64.00247
+    ],
+    "mult": [
+     22,
+     32,
+     42
+    ],
+    "price": [
+     963.1373400000002,
+     1812.75104,
+     2688.10374
+    ],
+    "threshold": 1246.3419066666668
+   },
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [],
+   "missing": null
+  },
+  {
+   "code": "NU",
+   "name": "Nu Holdings",
+   "cls": "div",
+   "cyclical": false,
+   "method": "div",
+   "price": 14.51,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "USD",
+   "epsTTM": 0.73,
+   "epsForward": 1.12649,
+   "dividendRate": null,
+   "dividendYield": 0,
+   "loss": false,
+   "flags": [],
+   "model": null,
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [
+    "missing-value"
+   ],
+   "missing": "股息率法不适用：供应商股息率 0.00% < 3%，股息不是主要价值来源；PB–ROE 所需每 ADS 账面价值在供应商口径中币种 / ADS 比例错乱（priceToBook 5.29），不可核验"
+  },
+  {
+   "code": "CPNG",
+   "name": "Coupang",
+   "cls": "netgrowth",
+   "cyclical": false,
+   "method": "pe",
+   "price": 14.34,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "USD",
+   "epsTTM": -0.43,
+   "epsForward": 0.27724,
+   "dividendRate": null,
+   "dividendYield": 0,
+   "loss": true,
+   "flags": [],
+   "model": null,
+   "ratio": null,
+   "rating": "回避",
+   "oldRating": "等待证据",
+   "capped": null,
+   "capReasons": [
+    "loss"
+   ],
+   "missing": "TTM EPS 为负（供应商 epsTrailingTwelveMonths -0.43），不套 PE 情景、不给赔率"
+  },
+  {
+   "code": "INFY",
+   "name": "印孚瑟斯",
+   "cls": "itsvc",
+   "cyclical": false,
+   "method": "pe",
+   "price": 12.2,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "USD",
+   "epsTTM": 0.81,
+   "epsForward": 0.84637,
+   "dividendRate": 0.52,
+   "dividendYield": 4.29,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 0.81,
+    "epsF": 0.84637,
+    "g": 4.490123456790118,
+    "bearOff": 20,
+    "eps": [
+     0.68437,
+     0.8463700000000001,
+     1.00837
+    ],
+    "mult": [
+     16,
+     21,
+     26
+    ],
+    "price": [
+     10.94992,
+     17.773770000000003,
+     26.21762
+    ],
+    "threshold": 13.224536666666667
+   },
+   "ratio": 4.458730641238968,
+   "rating": "条件关注",
+   "oldRating": "观察",
+   "capped": "single-method",
+   "capReasons": [
+    "single-method"
+   ],
+   "missing": null
+  },
+  {
+   "code": "HDB",
+   "name": "HDFC 银行",
+   "cls": "div",
+   "cyclical": false,
+   "method": "div",
+   "price": 23.08,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "INR",
+   "epsTTM": 1.5,
+   "epsForward": 1.38144,
+   "dividendRate": 0.41,
+   "dividendYield": 1.71,
+   "loss": false,
+   "flags": [],
+   "model": null,
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [
+    "missing-value"
+   ],
+   "missing": "股息率法不适用：供应商股息率 1.71% < 3%，股息不是主要价值来源；PB–ROE 所需每 ADS 账面价值在供应商口径中币种 / ADS 比例错乱（priceToBook 5.76），不可核验"
+  },
+  {
+   "code": "IBN",
+   "name": "ICICI 银行",
+   "cls": "div",
+   "cyclical": false,
+   "method": "div",
+   "price": 29.48,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "INR",
+   "epsTTM": 1.71,
+   "epsForward": 1.87132,
+   "dividendRate": 0.25,
+   "dividendYield": 0.85,
+   "loss": false,
+   "flags": [],
+   "model": null,
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [
+    "missing-value"
+   ],
+   "missing": "股息率法不适用：供应商股息率 0.85% < 3%，股息不是主要价值来源；PB–ROE 所需每 ADS 账面价值在供应商口径中币种 / ADS 比例错乱（priceToBook 2.68），不可核验"
+  },
+  {
+   "code": "VALE",
+   "name": "淡水河谷",
+   "cls": "mining",
+   "cyclical": true,
+   "method": "pe",
+   "price": 13.11,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "BRL",
+   "epsTTM": 0.5,
+   "epsForward": 1.8646,
+   "dividendRate": 0.84,
+   "dividendYield": 6.43,
+   "loss": false,
+   "flags": [
+    "供应商前瞻 / TTM EPS 比值 3.73 超出 [0.5, 3]，口径或一次性项目待核"
+   ],
+   "model": {
+    "method": "pe",
+    "epsT": 0.5,
+    "epsF": 1.8646,
+    "g": 272.92,
+    "bearOff": 35,
+    "eps": [
+     1.6896,
+     1.8646,
+     1.9646000000000001
+    ],
+    "mult": [
+     7,
+     10,
+     13
+    ],
+    "price": [
+     11.8272,
+     18.646,
+     25.539800000000003
+    ],
+    "threshold": 14.100133333333332
+   },
+   "ratio": 4.315559713127535,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [
+    "data-flag",
+    "cyclical(no-effect)"
+   ],
+   "missing": null
+  },
+  {
+   "code": "PBR",
+   "name": "巴西石油",
+   "cls": "oilmaj",
+   "cyclical": true,
+   "method": "pe",
+   "price": 25.56,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "BRL",
+   "epsTTM": 3.96,
+   "epsForward": 4.13667,
+   "dividendRate": 1.43,
+   "dividendYield": 5.59,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 3.96,
+    "epsF": 4.13667,
+    "g": 4.461363636363624,
+    "bearOff": 30,
+    "eps": [
+     2.9486699999999995,
+     4.13667,
+     4.928669999999999
+    ],
+    "mult": [
+     7,
+     10,
+     13
+    ],
+    "price": [
+     20.640689999999996,
+     41.366699999999994,
+     64.07270999999999
+    ],
+    "threshold": 27.549359999999997
+   },
+   "ratio": 3.2131945333796783,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": "cyclical",
+   "capReasons": [
+    "cyclical"
+   ],
+   "missing": null
+  },
+  {
+   "code": "ITUB",
+   "name": "伊塔乌联合银行",
+   "cls": "div",
+   "cyclical": false,
+   "method": "div",
+   "price": 9.43,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "BRL",
+   "epsTTM": 0.78,
+   "epsForward": 0.96972,
+   "dividendRate": 0.17,
+   "dividendYield": 1.82,
+   "loss": false,
+   "flags": [],
+   "model": null,
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [
+    "missing-value"
+   ],
+   "missing": "股息率法不适用：供应商股息率 1.82% < 3%，股息不是主要价值来源；PB–ROE 所需每 ADS 账面价值在供应商口径中币种 / ADS 比例错乱（priceToBook 2.42），不可核验"
+  },
+  {
+   "code": "STNE",
+   "name": "StoneCo",
+   "cls": "fintech",
+   "cyclical": false,
+   "method": "pe",
+   "price": 11.49,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "BRL",
+   "epsTTM": 2.63,
+   "epsForward": 2.3565505,
+   "dividendRate": null,
+   "dividendYield": 0,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 2.63,
+    "epsF": 2.3565505,
+    "g": -10.397319391634973,
+    "bearOff": 30,
+    "eps": [
+     1.5675505,
+     2.3565505,
+     2.8825505
+    ],
+    "mult": [
+     5,
+     8,
+     11
+    ],
+    "price": [
+     7.837752500000001,
+     18.852404,
+     31.708055499999997
+    ],
+    "threshold": 11.509303000000001
+   },
+   "ratio": 2.0158557162404795,
+   "rating": "条件关注",
+   "oldRating": "观察",
+   "capped": "single-method",
+   "capReasons": [
+    "single-method"
+   ],
+   "missing": null
+  },
+  {
+   "code": "PAGS",
+   "name": "PagSeguro",
+   "cls": "fintech",
+   "cyclical": false,
+   "method": "pe",
+   "price": 11.13,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "BRL",
+   "epsTTM": 1.43,
+   "epsForward": 1.8972259,
+   "dividendRate": 1.12,
+   "dividendYield": 10.06,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 1.43,
+    "epsF": 1.8972259,
+    "g": 32.67313986013987,
+    "bearOff": 30,
+    "eps": [
+     1.4682259,
+     1.8972259,
+     2.1832259
+    ],
+    "mult": [
+     5,
+     8,
+     11
+    ],
+    "price": [
+     7.3411295,
+     15.1778072,
+     24.0154849
+    ],
+    "threshold": 9.9533554
+   },
+   "ratio": 1.0683413962023771,
+   "rating": "条件关注",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [],
+   "missing": null
+  },
+  {
+   "code": "SKHY",
+   "name": "SK 海力士",
+   "cls": "mem",
+   "cyclical": true,
+   "method": "pe",
+   "price": 142.87,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "KRW",
+   "epsTTM": 16.41,
+   "epsForward": 34.47598,
+   "dividendRate": 0.11,
+   "dividendYield": 0.08,
+   "loss": false,
+   "flags": [
+    "悲观价 ≥ 现价，视为数据异常"
+   ],
+   "model": {
+    "method": "pe",
+    "epsT": 16.41,
+    "epsF": 34.47598,
+    "g": 110.09128580134062,
+    "bearOff": 40,
+    "eps": [
+     27.911979999999996,
+     34.47597999999999,
+     37.757979999999996
+    ],
+    "mult": [
+     7,
+     11,
+     15
+    ],
+    "price": [
+     195.38385999999997,
+     379.2357799999999,
+     566.3697
+    ],
+    "threshold": 256.66783333333325
+   },
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [
+    "bear>=price",
+    "cyclical(no-effect)"
+   ],
+   "missing": null
+  },
+  {
+   "code": "SPCX",
+   "name": "SpaceX",
+   "cls": "netgrowth",
+   "cyclical": false,
+   "method": "pe",
+   "price": 147.96,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "USD",
+   "epsTTM": -1.1,
+   "epsForward": 2.04545,
+   "dividendRate": null,
+   "dividendYield": 0,
+   "loss": true,
+   "flags": [],
+   "model": null,
+   "ratio": null,
+   "rating": "回避",
+   "oldRating": "等待证据",
+   "capped": null,
+   "capReasons": [
+    "loss"
+   ],
+   "missing": "TTM EPS 为负（供应商 epsTrailingTwelveMonths -1.1），不套 PE 情景、不给赔率"
+  },
+  {
+   "code": "BHP",
+   "name": "必和必拓",
+   "cls": "mining",
+   "cyclical": true,
+   "method": "pe",
+   "price": 83.22,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "USD",
+   "epsTTM": 3.86,
+   "epsForward": 4.78243,
+   "dividendRate": 3.96,
+   "dividendYield": 4.76,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 3.86,
+    "epsF": 4.78243,
+    "g": 23.897150259067356,
+    "bearOff": 35,
+    "eps": [
+     3.4314299999999998,
+     4.78243,
+     5.55443
+    ],
+    "mult": [
+     7,
+     10,
+     13
+    ],
+    "price": [
+     24.02001,
+     47.824299999999994,
+     72.20759
+    ],
+    "threshold": 31.954773333333332
+   },
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [
+    "cyclical(no-effect)"
+   ],
+   "missing": null
+  },
+  {
+   "code": "RIO",
+   "name": "力拓",
+   "cls": "mining",
+   "cyclical": true,
+   "method": "pe",
+   "price": 89.5,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "USD",
+   "epsTTM": 7.32,
+   "epsForward": 8.55938,
+   "dividendRate": 4.65,
+   "dividendYield": 5.2,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 7.32,
+    "epsF": 8.55938,
+    "g": 16.93142076502734,
+    "bearOff": 35,
+    "eps": [
+     5.9973800000000015,
+     8.55938,
+     10.023380000000001
+    ],
+    "mult": [
+     7,
+     10,
+     13
+    ],
+    "price": [
+     41.98166000000001,
+     85.59380000000002,
+     130.30394
+    ],
+    "threshold": 56.51904000000002
+   },
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [
+    "cyclical(no-effect)"
+   ],
+   "missing": null
+  },
+  {
+   "code": "UL",
+   "name": "联合利华",
+   "cls": "staples",
+   "cyclical": false,
+   "method": "pe",
+   "price": 65.15,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "EUR",
+   "epsTTM": 4.87,
+   "epsForward": 3.752226,
+   "dividendRate": 2.12,
+   "dividendYield": 3.26,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 4.87,
+    "epsF": 3.752226,
+    "g": -22.95223819301848,
+    "bearOff": 20,
+    "eps": [
+     2.778226,
+     3.752226,
+     4.726226
+    ],
+    "mult": [
+     15,
+     19,
+     23
+    ],
+    "price": [
+     41.67339,
+     71.292294,
+     108.70319799999999
+    ],
+    "threshold": 51.546358
+   },
+   "ratio": 0.26163462271597093,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [],
+   "missing": null
+  },
+  {
+   "code": "DEO",
+   "name": "帝亚吉欧",
+   "cls": "staples",
+   "cyclical": false,
+   "method": "pe",
+   "price": 93.49,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "USD",
+   "epsTTM": 3.12,
+   "epsForward": 7.1864,
+   "dividendRate": 2,
+   "dividendYield": 2.14,
+   "loss": false,
+   "flags": [
+    "悲观价 ≥ 现价，视为数据异常"
+   ],
+   "model": {
+    "method": "pe",
+    "epsT": 3.12,
+    "epsF": 7.1864,
+    "g": 130.33333333333331,
+    "bearOff": 20,
+    "eps": [
+     6.562399999999999,
+     7.1864,
+     7.8104
+    ],
+    "mult": [
+     15,
+     19,
+     23
+    ],
+    "price": [
+     98.43599999999999,
+     136.5416,
+     179.6392
+    ],
+    "threshold": 111.13786666666665
+   },
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [
+    "bear>=price"
+   ],
+   "missing": null
+  },
+  {
+   "code": "BTI",
+   "name": "英美烟草",
+   "cls": "tobacco",
+   "cyclical": false,
+   "method": "pe",
+   "price": 58.51,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "GBP",
+   "epsTTM": 3.9,
+   "epsForward": 5.23884,
+   "dividendRate": 3.34,
+   "dividendYield": 5.71,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 3.9,
+    "epsF": 5.23884,
+    "g": 34.329230769230755,
+    "bearOff": 15,
+    "eps": [
+     4.65384,
+     5.23884,
+     6.018839999999999
+    ],
+    "mult": [
+     8,
+     10,
+     12
+    ],
+    "price": [
+     37.23072,
+     52.3884,
+     72.22608
+    ],
+    "threshold": 42.28328
+   },
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [],
+   "missing": null
+  },
+  {
+   "code": "ONC",
+   "name": "百济神州（BeOne）",
+   "cls": "biotech",
+   "cyclical": false,
+   "method": "pe",
+   "price": 370.17,
+   "priceDate": "2026-10-19",
+   "financialCurrency": "USD",
+   "epsTTM": 5.61,
+   "epsForward": 10.25473,
+   "dividendRate": null,
+   "dividendYield": 0,
+   "loss": false,
+   "flags": [],
+   "model": {
+    "method": "pe",
+    "epsT": 5.61,
+    "epsF": 10.25473,
+    "g": 82.79376114081995,
+    "bearOff": 35,
+    "eps": [
+     8.291229999999999,
+     10.25473,
+     11.376729999999998
+    ],
+    "mult": [
+     25,
+     35,
+     45
+    ],
+    "price": [
+     207.28074999999995,
+     358.91555,
+     511.95284999999996
+    ],
+    "threshold": 257.8256833333333
+   },
+   "ratio": null,
+   "rating": "观察",
+   "oldRating": "观察",
+   "capped": null,
+   "capReasons": [],
+   "missing": null
+  }
+ ]
+}

@@ -61,7 +61,7 @@ describe('港股本轮研究不会被历史手工页和筛选数据覆盖', () =
       const model = models[company.code]
       expect(model.certified).toBe(false)
       expect(model.independentMethodsClosed).toBe(false)
-      const prices = company.scenarios?.map(s => Number((s.price.match(/[-+]?[0-9]+(?:\.[0-9]+)?/) || [])[0]))
+      const prices = company.scenarios?.map(s => Number((s.price.match(/[0-9][0-9,]*(?:\.[0-9]+)?/) || [''])[0].replace(/,/g, '')))
       const allMissing = company.scenarios?.every(s => s.price.includes('[MISSING]'))
       const allDraftIncreasing = company.scenarios?.every(s => s.price.includes('估值初稿')) && prices![0] < prices![1] && prices![1] < prices![2]
       const unresolvedLoss = ['00881', '00960', '01997', '03323', '03690', '09888'].includes(company.code)

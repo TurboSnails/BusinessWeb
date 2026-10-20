@@ -5,8 +5,8 @@ import { parseDetails } from './detailParser'
 
 const priceOf = (text?: string) => {
   if (!text || text.includes('[MISSING]')) return null
-  const match = text.match(/HK\$([\d.]+)/)
-  return match ? Number(match[1]) : null
+  const match = text.match(/HK\$([\d,.]+)/)
+  return match ? Number(match[1].replace(/,/g, '')) : null
 }
 
 describe('HK 2026-10-20 valuation overlay', () => {

@@ -1,0 +1,67 @@
+code,name,class,method,price,bear,base,bull,ratio,oldRating,rating,capReasons
+TSM,台积电,foundry,pe,420.22,286.13,514.48,742.82,0.70,观察,观察,cyclical(no-effect)
+ASML,阿斯麦,semieq,pe,1647.12,1067.14,1883.39,2695.55,0.41,观察,观察,
+NVO,诺和诺德,pharma,pe,38.42,26.02,51.41,81.27,1.05,观察,条件关注,
+SAP,SAP,software,pe,226.03,152.78,259.24,379.83,0.45,观察,观察,
+TM,丰田汽车,auto,pe,194.06,53.84,126.24,223.50,,观察,观察,
+SONY,索尼,media,pe,24.77,12.46,21.42,32.89,,观察,观察,
+AZN,阿斯利康,pharma,pe,163.95,106.38,170.15,240.95,0.11,观察,观察,
+NVS,诺华,pharma,pe,150.20,89.68,147.04,211.33,,观察,观察,
+SNY,赛诺菲,pharma,pe,39.57,52.88,79.23,107.58,,观察,观察,bear>=price
+GSK,葛兰素史克,pharma,pe,49.46,45.44,73.85,105.59,6.06,观察,条件关注,single-method
+SHEL,壳牌,oilmaj,pe,104.82,54.36,104.84,159.85,0.00,观察,观察,cyclical(no-effect)
+TTE,道达尔能源,oilmaj,pe,89.95,59.90,109.54,163.17,0.65,观察,观察,cyclical(no-effect)
+BP,英国石油,oilmaj,pe,49.44,35.07,56.17,78.27,0.47,观察,观察,cyclical(no-effect)
+HSBC,汇丰控股,div,roe-pb,92.96,27.22,56.00,81.90,,观察,观察,
+MUFG,三菱日联金融,div,div,21.66,[MISSING],[MISSING],[MISSING],,观察,观察,missing-value
+SMFG,三井住友金融,div,div,24.41,[MISSING],[MISSING],[MISSING],,观察,观察,missing-value
+TD,多伦多道明银行,div,roe-pb,120.06,26.45,54.42,79.59,,观察,观察,
+RY,加拿大皇家银行,div,div,196.30,[MISSING],[MISSING],[MISSING],,观察,观察,missing-value
+SHOP,Shopify,netgrowth,pe,171.06,42.55,78.57,115.64,,观察,观察,
+SPOT,Spotify,netgrowth,pe,518.76,246.98,549.86,864.66,0.11,观察,观察,
+ARM,Arm 控股,chipip,pe,228.05,95.31,153.14,211.69,,观察,观察,data-flag
+HMC,本田汽车,auto,pe,34.06,[MISSING],[MISSING],[MISSING],,观察,观察,loss-vendor-conflict
+E,埃尼,oilmaj,pe,58.85,39.89,65.57,92.68,0.35,观察,观察,cyclical(no-effect)
+CNI,加拿大国家铁路,rail,pe,120.09,77.85,120.05,171.26,,观察,观察,
+LYG,劳埃德银行,div,div,5.41,2.51,4.40,5.78,,观察,观察,
+BABA,阿里巴巴,cninternet,pe,108.57,72.36,120.55,171.62,0.33,观察,观察,
+PDD,拼多多,cninternet,pe,81.39,86.93,160.43,240.19,,观察,观察,bear>=price
+JD,京东,cninternet,pe,26.78,32.82,52.98,74.14,,观察,观察,bear>=price
+BIDU,百度,cninternet,pe,79.78,[MISSING],[MISSING],[MISSING],,观察,观察,loss-vendor-conflict
+NTES,网易,cninternet,pe,125.25,77.68,140.08,207.50,0.31,观察,观察,
+TCOM,携程,cninternet,pe,39.59,23.63,53.48,86.79,0.87,观察,观察,
+YUMC,百胜中国,cnconsumer,pe,45.01,29.67,50.65,74.50,0.37,观察,观察,
+NIO,蔚来,auto,pe,3.39,[MISSING],[MISSING],[MISSING],,等待证据,回避,loss
+XPEV,小鹏汽车,auto,pe,9.21,[MISSING],[MISSING],[MISSING],,等待证据,回避,loss
+LI,理想汽车,auto,pe,11.29,[MISSING],[MISSING],[MISSING],,等待证据,回避,loss
+ZTO,中通快递,cnlogistics,pe,20.06,16.07,26.91,39.13,1.72,观察,条件关注,
+BEKE,贝壳,propsvc,pe,17.91,10.58,17.71,24.89,,观察,观察,cyclical(no-effect)
+TME,腾讯音乐,cninternet,pe,8.67,6.86,13.11,19.94,2.46,观察,条件关注,single-method
+VIPS,唯品会,cninternet,pe,12.80,14.61,32.69,52.84,,观察,观察,bear>=price
+BILI,哔哩哔哩,cninternet,pe,14.01,10.13,16.62,23.47,0.67,观察,观察,
+MNSO,名创优品,cnconsumer,pe,10.25,14.98,22.64,30.92,,观察,观察,bear>=price
+HTHT,华住,cnconsumer,pe,46.45,31.19,47.56,65.34,0.07,观察,观察,
+FUTU,富途,div,div,105.50,[MISSING],[MISSING],[MISSING],,观察,观察,missing-value
+TAL,好未来,cnedu,pe,11.89,8.35,19.93,32.79,2.27,观察,条件关注,single-method
+EDU,新东方,cnedu,pe,60.50,49.27,84.99,123.10,2.18,观察,条件关注,single-method
+GRAB,Grab,netgrowth,pe,2.87,2.06,4.23,6.48,1.69,观察,条件关注,
+SE,Sea,netgrowth,pe,88.47,95.80,166.68,239.26,,观察,观察,bear>=price
+MELI,MercadoLibre,netgrowth,pe,1839.72,963.14,1812.75,2688.10,,观察,观察,
+NU,Nu Holdings,div,div,14.51,[MISSING],[MISSING],[MISSING],,观察,观察,missing-value
+CPNG,Coupang,netgrowth,pe,14.34,[MISSING],[MISSING],[MISSING],,等待证据,回避,loss
+INFY,印孚瑟斯,itsvc,pe,12.20,10.95,17.77,26.22,4.46,观察,条件关注,single-method
+HDB,HDFC 银行,div,div,23.08,[MISSING],[MISSING],[MISSING],,观察,观察,missing-value
+IBN,ICICI 银行,div,div,29.48,[MISSING],[MISSING],[MISSING],,观察,观察,missing-value
+VALE,淡水河谷,mining,pe,13.11,11.83,18.65,25.54,4.32,观察,观察,data-flag;cyclical(no-effect)
+PBR,巴西石油,oilmaj,pe,25.56,20.64,41.37,64.07,3.21,观察,观察,cyclical
+ITUB,伊塔乌联合银行,div,div,9.43,[MISSING],[MISSING],[MISSING],,观察,观察,missing-value
+STNE,StoneCo,fintech,pe,11.49,7.84,18.85,31.71,2.02,观察,条件关注,single-method
+PAGS,PagSeguro,fintech,pe,11.13,7.34,15.18,24.02,1.07,观察,条件关注,
+SKHY,SK 海力士,mem,pe,142.87,195.38,379.24,566.37,,观察,观察,bear>=price;cyclical(no-effect)
+SPCX,SpaceX,netgrowth,pe,147.96,[MISSING],[MISSING],[MISSING],,等待证据,回避,loss
+BHP,必和必拓,mining,pe,83.22,24.02,47.82,72.21,,观察,观察,cyclical(no-effect)
+RIO,力拓,mining,pe,89.50,41.98,85.59,130.30,,观察,观察,cyclical(no-effect)
+UL,联合利华,staples,pe,65.15,41.67,71.29,108.70,0.26,观察,观察,
+DEO,帝亚吉欧,staples,pe,93.49,98.44,136.54,179.64,,观察,观察,bear>=price
+BTI,英美烟草,tobacco,pe,58.51,37.23,52.39,72.23,,观察,观察,
+ONC,百济神州（BeOne）,biotech,pe,370.17,207.28,358.92,511.95,,观察,观察,

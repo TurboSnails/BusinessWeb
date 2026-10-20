@@ -473,8 +473,9 @@ const sources: Record<Market, () => Promise<Details[]>> = {
     return [text(extra.extraDetails), manual, text(hk.hkDetails), text(valuation.hkValuationDetails)]
   },
   adr: async () => {
-    const [extra, adr, sofi] = await Promise.all([import('./details/extra'), import('./details/adr'), import('./details/sofi')])
-    return [text(extra.extraDetails), manual, text(adr.adrDetails), text(sofi.sofiDetails)]
+    const [extra, adr, sofi, valuation] = await Promise.all([import('./details/extra'), import('./details/adr'), import('./details/sofi'), import('./details/adrValuation')])
+    // 2026-10-20 估值初稿覆盖层（scripts/review-adr-valuation-2026-10-20.py）；SOFI 保留完整研究，不在覆盖层内
+    return [text(extra.extraDetails), manual, text(adr.adrDetails), text(sofi.sofiDetails), text(valuation.adrValuationDetails)]
   },
   ndx: async () => [text((await import('./details/ndx')).ndxDetails), manual],
 }

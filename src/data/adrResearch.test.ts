@@ -24,7 +24,9 @@ describe('非标普全部分类的原件复核与运行时覆盖', () => {
       const company = find(row.code)
       expect(company.headline).toContain(row.judgment)
       expect(company.scenarios).toHaveLength(3)
-      expect(company.discipline?.zone).toContain('[MISSING]')
+      // 估值初稿覆盖层给出数字情景价的公司有条件研究门槛（带「不是已认证买入区」声明）；其余仍为 [MISSING]
+      const hasDraftPrice = company.scenarios?.every(sc => sc.price.includes('估值初稿'))
+      expect(company.discipline?.zone).toContain(hasDraftPrice ? '不是已认证买入区' : '[MISSING]')
       expect(company.ratioNote).toContain('未完成认证')
       expect(metric(row.code, '价格锚点')).toMatch(/\d{4}-\d{2}-\d{2}T/)
       expect(metric(row.code, '价格锚点')).toContain('非交易所认证收盘')
@@ -56,9 +58,13 @@ describe('非标普全部分类的原件复核与运行时覆盖', () => {
     expect(metric('DEO', '财报期')).toContain('全年')
     expect(metric('SHOP', '原件财务核读')).toContain('1,063m')
     expect(metric('VIPS', '原件财务核读')).toContain('5.79bn')
-    expect(find('CPNG').rating).toBe('等待证据')
+    // 10-07 复核的「等待证据」在 2026-10-20 估值初稿中统一记为回避；其余公司不因供应商 EPS 为负而机械回避
+    for (const code of ['CPNG', 'NIO', 'XPEV', 'LI', 'SPCX']) expect(find(code).rating).toBe('回避')
+    for (const code of ['BIDU', 'HMC']) expect(find(code).rating).toBe('观察')
     expect(find('SPCX').segments?.map(s => s.name)).toEqual(['Space', 'Connectivity', 'AI'])
-    for (const code of ['BHP', 'RIO', 'UL', 'DEO', 'BTI', 'ONC']) expect(find(code).headline).toContain('事实已复核')
+    // 估值初稿覆盖层的结论格式为「评级（估值初稿，未认证）：{10-07 公司专属判断}；估值：…」，事实复核结论仍随 judgment 保留
+    const audit = read('audit.json')
+    for (const code of ['BHP', 'RIO', 'UL', 'DEO', 'BTI', 'ONC']) expect(find(code).headline).toContain(audit.companies.find((r: { code: string }) => r.code === code).judgment)
   })
 
   it('只发布两家银行的静态敏感性，不认证价格/赔率；每股单位不混用', () => {
@@ -73,8 +79,12 @@ describe('非标普全部分类的原件复核与运行时覆盖', () => {
       const model = models[company.code]
       expect(model.certified).toBe(false)
       expect(model.independentMethodsClosed).toBe(false)
-      if (!model.numericDraft) expect(company.scenarios?.every(s => s.price.includes('[MISSING]'))).toBe(true)
-      else {
+      // 情景价要么全为 [MISSING]，要么全部标注（估值初稿）且三档递增（2026-10-20 覆盖层）
+      const prices = company.scenarios?.map(sc => Number((sc.price.match(/[0-9][0-9,]*(?:\.[0-9]+)?/) || [''])[0].replace(/,/g, '')))
+      const allMissing = company.scenarios?.every(sc => sc.price.includes('[MISSING]'))
+      const allDraftIncreasing = company.scenarios?.every(sc => sc.price.includes('估值初稿')) && prices![0] < prices![1] && prices![1] < prices![2]
+      expect(allMissing || allDraftIncreasing).toBe(true)
+      if (model.numericDraft) {
         expect(model.bear).toBeLessThan(model.base)
         expect(model.base).toBeLessThan(model.bull)
         expect(company.scenarios?.every(s => s.assumption.includes('未预测2027BV'))).toBe(true)
