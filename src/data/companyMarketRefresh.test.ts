@@ -84,4 +84,36 @@ describe('本轮行情与旧研究模型分别标时',()=>{
     expect(updated.ratioNote).toContain('已撤回')
     expect(updated.ratioNote).not.toContain('0.50:1')
   })
+
+  describe('估值初稿覆盖层（2026-10-20）',()=>{
+    const draft=():Company=>({...company(),
+      pitfalls:['估值初稿（未认证）；旧事实复核源 public/research/hk-2026-10-07；价格 2026-10-20'],
+      ratioNote:'现价 US$100；(140−100)÷(100−80)=2.00:1',
+      scenarios:[{name:'悲观',price:'US$80.00（估值初稿）',change:'-20%',assumption:'前瞻 EPS × 行业 PE',trigger:'待验证'},
+        {name:'基准',price:'US$140.00（估值初稿）',change:'+40%',assumption:'前瞻 EPS × 行业 PE',trigger:'待验证'}]})
+    it('带「（估值初稿）」后缀的情景价也按新价复算，不被当作旧情景或解析失败',()=>{
+      const updated=applyCompanyMarketRefresh(draft(),quote)
+      expect(updated.scenarios?.[1].change).toBe('+16.7%（估值初稿／新报价）')
+      expect(updated.scenarios?.[0].assumption).toBe('前瞻 EPS × 行业 PE')
+      expect(updated.ratioNote).toContain('0.50:1')
+      expect(updated.ratioNote).toContain('估值初稿（未认证）')
+      expect(updated.ratioNote).toContain('评级不自动调整')
+      expect(updated.ratioNote).not.toContain('旧情景')
+    })
+    it('价格越过端点时赔率不适用，且仍不说旧情景',()=>{
+      for(const price of [70,80,140,150]){
+        const updated=applyCompanyMarketRefresh(draft(),{...quote,price})
+        expect(updated.ratioNote).toContain('赔率不适用')
+        expect(updated.ratioNote).not.toMatch(/Infinity|NaN|旧情景/)
+      }
+    })
+    it('情景价全为 MISSING 的初稿保留自己的说明，不被改写成旧情景话术',()=>{
+      const missing={...draft(),ratioNote:'现价 US$100；[MISSING]：TTM EPS 为负，不给赔率',
+        scenarios:draft().scenarios!.map(sc=>({...sc,price:'[MISSING]（未建立可核验价值）'}))}
+      const updated=applyCompanyMarketRefresh(missing,quote)
+      expect(updated.ratioNote).toBe('现价 US$100；[MISSING]：TTM EPS 为负，不给赔率')
+      expect(updated.scenarios?.every(sc=>sc.change==='不适用／待核')).toBe(true)
+      expect(updated.scenarios?.[0].assumption).toBe('前瞻 EPS × 行业 PE')
+    })
+  })
 })

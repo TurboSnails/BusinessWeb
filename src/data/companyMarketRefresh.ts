@@ -61,19 +61,31 @@ export function applyCompanyMarketRefresh(company: Company, quote?: MarketRefres
     if (REFRESH_ARCHIVE.test(label) && carried.slice(i + 1).some(([later]) => later === label)) return
     metrics.push(carried[i])
   })
+  // 2026-10-20 起的估值初稿覆盖层（hkValuation／adrValuation）：口径行以「估值初稿（未认证）」开头，情景价带「（估值初稿）」后缀。
+  // 它不是旧研究，不能被说成「旧情景未重估」；价格变动时机械复算相对现价与盈亏比，评级仍按生成日价格判定。
+  const draft = Boolean(company.pitfalls?.some(p => p.startsWith('估值初稿（未认证）')))
+  // 带「（估值初稿）」后缀的价格只在覆盖层（draft）下解析；A 股 10-07 估值初稿沿用原行为，由既有测试锁定为「不认证赔率」
   const scenarioPrice = (text: string) => {
     const match = text.trim().match(/^(?:US\$|HK\$|CNY|USD|HKD|\$)?\s*([\d,]+(?:\.\d+)?)\s*(?:元|美元|港元)?$/)
+      ?? (draft ? text.trim().match(/^(?:US\$|HK\$|CNY|USD|HKD|\$)?\s*([\d,]+(?:\.\d+)?)\s*(?:元|美元|港元)?\s*（估值初稿）$/) : null)
     return match ? Number(match[1].replace(/,/g, '')) : null
   }
   const bear = company.scenarios?.find(s => /悲观|熊市/.test(s.name))
   const base = company.scenarios?.find(s => /基准|中性/.test(s.name))
   const bearPrice = bear ? scenarioPrice(bear.price) : null
   const basePrice = base ? scenarioPrice(base.price) : null
-  let ratioNote = '旧情景未重估；Bear/Base/Bull 关键估值输入未完成认证，本轮不认证赔率。'
+  let ratioNote = draft ? company.ratioNote ?? '估值初稿（未认证）；未建立有效盈亏比。' : '旧情景未重估；Bear/Base/Bull 关键估值输入未完成认证，本轮不认证赔率。'
   const withdrawn = Boolean(restriction) || /不作为当前判断|已撤回|撤回旧|暂停沿用/.test(company.ratioNote ?? '')
   if (restriction) ratioNote = '可交易性未认证；报价仅作历史参考，估值与赔率未完成认证，待核上市状态。'
   else if (company.auto) ratioNote = '旧程序化情景未重估，不能因行情更新自动认证赔率或买入资格。'
   else if (withdrawn) ratioNote = '旧盈利模型已撤回／暂停使用，未重估；本轮不认证赔率，刷新行情不恢复原模型。'
+  else if (draft && bearPrice != null && basePrice != null) {
+    const currency = quote.currency === 'USD' ? 'US$' : quote.currency === 'HKD' ? 'HK$' : `${quote.currency} `
+    const stale = '评级与情景价按覆盖层生成日价格判定，现价变动后盈亏比随价格变化而评级不自动调整，需重新运行覆盖层脚本。'
+    ratioNote = bearPrice < quote.price && quote.price < basePrice
+      ? `估值初稿（未认证）；按本轮报价机械复算：基准 ${(100 * (basePrice / quote.price - 1)).toFixed(1)}% / 悲观下行 ${(100 * (1 - bearPrice / quote.price)).toFixed(1)}%，${((basePrice - quote.price) / (quote.price - bearPrice)).toFixed(2)}:1；2:1 研究门槛约 ${currency}${((basePrice + 2 * bearPrice) / 3).toFixed(2)}，未认证为买点，悲观价不是止损保证。${stale}`
+      : `估值初稿（未认证）；新价不满足 Bear < P < Base，赔率不适用，须重新核对盈利、股本与下行情景。${stale}`
+  }
   else if (bearPrice != null && basePrice != null) {
     ratioNote = bearPrice < quote.price && quote.price < basePrice
       ? `旧情景未重估；仅按本轮报价机械复算：基准 ${(100 * (basePrice / quote.price - 1)).toFixed(1)}% / 悲观下行 ${(100 * (1 - bearPrice / quote.price)).toFixed(1)}%，${((basePrice - quote.price) / (quote.price - bearPrice)).toFixed(2)}:1。关键估值输入未完成认证，原情景不等于已认证估值，悲观价不是止损保证。`
@@ -84,9 +96,9 @@ export function applyCompanyMarketRefresh(company: Company, quote?: MarketRefres
   const scenarios = company.scenarios?.map(s => {
     const target = scenarioPrice(s.price)
     return { ...s,
-      assumption: s.assumption.startsWith('原研究假设（未重估）') ? s.assumption : `原研究假设（未重估）：${s.assumption}`,
+      assumption: draft || s.assumption.startsWith('原研究假设（未重估）') ? s.assumption : `原研究假设（未重估）：${s.assumption}`,
       change: company.auto || withdrawn ? '原模型未认证／已暂停，待重估' : target != null && target > 0
-        ? `${target >= quote.price ? '+' : ''}${(100 * (target / quote.price - 1)).toFixed(1)}%（旧情景／新报价）` : '不适用／待核',
+        ? `${target >= quote.price ? '+' : ''}${(100 * (target / quote.price - 1)).toFixed(1)}%（${draft ? '估值初稿／新报价' : '旧情景／新报价'}）` : '不适用／待核',
     }
   })
   const originalAsOf = company.asOf.startsWith('行情 ') ? company.marketRefresh?.originalAsOf ?? company.asOf : company.asOf

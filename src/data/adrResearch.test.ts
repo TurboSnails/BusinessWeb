@@ -27,7 +27,8 @@ describe('非标普全部分类的原件复核与运行时覆盖', () => {
       // 估值初稿覆盖层给出数字情景价的公司有条件研究门槛（带「不是已认证买入区」声明）；其余仍为 [MISSING]
       const hasDraftPrice = company.scenarios?.every(sc => sc.price.includes('估值初稿'))
       expect(company.discipline?.zone).toContain(hasDraftPrice ? '不是已认证买入区' : '[MISSING]')
-      expect(company.ratioNote).toContain('未完成认证')
+      // 盈亏比文字必须写明未认证：估值初稿为「估值初稿（未认证）…」，无情景价的初稿为「…不认证可交易赔率」，旧页为「…未完成认证」
+      expect(company.ratioNote).toMatch(/未完成认证|估值初稿（未认证）|不认证/)
       expect(metric(row.code, '价格锚点')).toMatch(/\d{4}-\d{2}-\d{2}T/)
       expect(metric(row.code, '价格锚点')).toContain('非交易所认证收盘')
       expect(company.researchReport).toBe(`research/adr-2026-10-07/${row.code}.html`)
