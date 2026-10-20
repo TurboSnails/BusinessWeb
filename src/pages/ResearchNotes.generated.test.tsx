@@ -83,12 +83,14 @@ describe('补全公司：研究笔记列表与详情', () => {
     await waitFor(() => expect(screen.queryAllByText(/^回避/).length).toBeGreaterThan(0))
   })
 
-  it('美股列表包含标普500 补全公司，并标注程序化', async () => {
+  it('美股列表包含标普500 补全公司，程序化页标注为「初筛」并可按成熟度筛选', async () => {
     renderAt('/research-notes?tab=category&m=us')
     await waitFor(() => expect(screen.getByText(/显示更多/)).toBeTruthy(), { timeout: 8000 })
     fireEvent.change(screen.getByPlaceholderText('搜索公司名称或代码'), { target: { value: 'ACN' } })
     await waitFor(() => expect(screen.getAllByText(/埃森哲/).length).toBeGreaterThan(0))
-    expect(screen.getAllByText('程序化').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('初筛').length).toBeGreaterThan(0)
+    fireEvent.click(screen.getByRole('button', { name: /^事实已复核/ }))
+    await waitFor(() => expect(screen.queryAllByText(/埃森哲/)).toHaveLength(0))
   })
 
   it('补全公司详情页渲染程序化标识、三情景与买入纪律', async () => {

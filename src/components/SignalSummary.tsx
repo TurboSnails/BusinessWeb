@@ -1,6 +1,7 @@
 import React from 'react'
 import { Callout, Card, TableWrap } from './ui'
 import type { Direction, SignalSummary as Summary } from '../features/signals/companySignals'
+import { OWN_STAGE, RESEARCH_STAGE, type OwnStage, type ResearchStage } from '../features/signals/maturity'
 import '../styles/research.css'
 
 const DIRECTION: Record<string, { label: string; className: string }> = {
@@ -12,9 +13,14 @@ const DIRECTION: Record<string, { label: string; className: string }> = {
 const dir = (d: Direction) => DIRECTION[String(d)]
 
 /** 公司页顶部：各信号的结论、依据与方向，方向相反时列出分歧 */
-export default function SignalSummary({ summary }: { summary: Summary }): JSX.Element {
+export default function SignalSummary({ summary, stage, own }: { summary: Summary; stage: ResearchStage; own: OwnStage }): JSX.Element {
   return (
     <Card title="决策信号汇总" className="rn-card sig-card">
+      <p className="sig-maturity">
+        <span title={RESEARCH_STAGE[stage].desc}>研究成熟度 <strong>{RESEARCH_STAGE[stage].label}</strong></span>
+        <span>本人 <strong className={own === 'recorded' ? 'is-done' : undefined}>{OWN_STAGE[own]}</strong></span>
+        {own !== 'recorded' && <span className="sig-maturity__hint">据此行动前，先自己估值并写决策记录</span>}
+      </p>
       <TableWrap label="决策信号汇总">
         <table className="ui-table sig-table">
           <thead><tr>{['信号', '结论', '方向', '依据'].map(h => <th key={h} scope="col">{h}</th>)}</tr></thead>

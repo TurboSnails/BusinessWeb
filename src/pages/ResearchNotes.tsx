@@ -34,6 +34,7 @@ import {
 } from '../data/notionNotes'
 import { useCompanies, useLynch, sectorsOf, Market, Company, LynchInfo } from '../data/companies'
 import { ratingBucket } from '../features/signals/companySignals'
+import { RESEARCH_STAGE, researchStage, type ResearchStage } from '../features/signals/maturity'
 import CompanyCombined from '../components/CompanyCombined'
 import CandidateButton from '../components/CandidateButton'
 import { DcfCell, DcfFilterChips } from '../components/DcfCell'
@@ -107,10 +108,11 @@ export default function ResearchNotes(): JSX.Element {
   const [lType, setLType] = useState('全部')
   const [q, setQ] = useState('')
   const [ratingF, setRatingF] = useState('全部')
+  const [stageF, setStageF] = useState<ResearchStage | '全部'>('全部')
   const [limit, setLimit] = useState(60)
   // 切换市场时清空筛选，避免上一个市场的评级/类型筛选让新市场的列表为空
-  useEffect(() => { setRatingF('全部'); setQ(''); setLTier('全部'); setLMoat('全部'); setLType('全部') }, [catMarket])
-  const resetFilters = (): void => { setRatingF('全部'); setQ(''); setLTier('全部'); setLMoat('全部'); setLType('全部'); updateParams({ sec: null }) }
+  useEffect(() => { setRatingF('全部'); setStageF('全部'); setQ(''); setLTier('全部'); setLMoat('全部'); setLType('全部') }, [catMarket])
+  const resetFilters = (): void => { setRatingF('全部'); setStageF('全部'); setQ(''); setLTier('全部'); setLMoat('全部'); setLType('全部'); updateParams({ sec: null }) }
   useEffect(() => { setLimit(60) }, [catMarket, progSector, q, ratingF, lTier, lMoat, lType, view, dcfF])
   const updateParams = (patch: Record<string, string | null>): void =>
     setParams(prev => {
@@ -200,11 +202,11 @@ export default function ResearchNotes(): JSX.Element {
     const nw = ndxList.filter(c => c.market === 'ndx').length
     return `纳指100 页签列出 ${ndxList.length} 只权益证券（GOOGL 与 GOOG 为同一公司两类股）：其中 ${sp} 只与标普500 重合、${ad} 只属于「美股非标普」，直接引用已有研究页；另有 ${nw} 家手工研究，市场标记为 ndx，不计入标普500。${NDX_ASOF} 当前价格与采集时间逐家公司单列；原财务与模型不是本轮重新认证，估值仍为研究假设，不构成投资建议。`
   }
-  const shownCompanies = secList.filter(c => dcfOk(c) && (ratingF === '全部' || ratingOf(c) === ratingF) && (!q.trim() || (c.name + c.code).toLowerCase().includes(q.trim().toLowerCase())))
+  const shownCompanies = secList.filter(c => dcfOk(c) && (ratingF === '全部' || ratingOf(c) === ratingF) && (stageF === '全部' || researchStage(c) === stageF) && (!q.trim() || (c.name + c.code).toLowerCase().includes(q.trim().toLowerCase())))
 
   // 导出：公司、代码、评级、结论（当前筛选 / 全部）
   const exportJson = (list: typeof progList, label: string): void => {
-    const rows = list.map(c => ({ 市场: marketLabel(c.market), 代码: c.code, 公司: c.name, 板块: c.sector, 评级: c.rating, 归类: ratingOf(c), 结论: c.headline }))
+    const rows = list.map(c => ({ 市场: marketLabel(c.market), 代码: c.code, 公司: c.name, 板块: c.sector, 评级: c.rating, 归类: ratingOf(c), 成熟度: RESEARCH_STAGE[researchStage(c)].label, 结论: c.headline }))
     const blob = new Blob([JSON.stringify(rows, null, 2)], { type: 'application/json' })
     const a = document.createElement('a')
     a.href = URL.createObjectURL(blob)
@@ -316,6 +318,14 @@ export default function ResearchNotes(): JSX.Element {
         ))}
         <DcfFilterChips value={dcfF} onChange={setDcfF} className="ui-cluster" />
       </div>
+      <div className="ui-cluster rn-filters" role="group" aria-label="研究成熟度">
+        <span className="rn-inline-label">成熟度</span>
+        {(['全部', 'verified', 'draft', 'screen'] as const).map(id => (
+          <button type="button" key={id} onClick={() => setStageF(id)} className={chip(stageF === id)} aria-pressed={stageF === id} title={id === '全部' ? undefined : RESEARCH_STAGE[id].desc}>
+            {id === '全部' ? '全部' : RESEARCH_STAGE[id].label} <span className="ui-chip__count">{id === '全部' ? secList.length : secList.filter(c => researchStage(c) === id).length}</span>
+          </button>
+        ))}
+      </div>
       <div className="ui-cluster rn-filters">
         {[[`导出当前筛选（${shownCompanies.length}）`, shownCompanies, `${catMarket}-${progSector}-${ratingF}`], [`导出该市场全部（${progList.length}）`, progList, `${catMarket}-全部`]].map(([label, list, name]) => (
           <button type="button" key={label as string} onClick={() => exportJson(list as typeof progList, name as string)} className="tool-btn">
@@ -327,7 +337,7 @@ export default function ResearchNotes(): JSX.Element {
         <Table
           heads={['公司', '评级', '一句话结论', 'DCF', '候选']}
           rows={shownCompanies.slice(0, limit).map(c => [
-            <span>{companyLink(c.market, c.code, `${c.name} ${c.code}`)}{c.auto ? <span className={badge('gray', 'rn-badge-inline')}>程序化</span> : null}{catMarket === 'ndx' ? <span className={badge(c.market === 'ndx' ? 'blue' : 'gray', 'rn-badge-inline')}>{c.market === 'ndx' ? '纳指新增' : c.market === 'us' ? '同属标普500' : '美股非标普'}</span> : null}</span>,
+            <span>{companyLink(c.market, c.code, `${c.name} ${c.code}`)}{(() => { const st = researchStage(c); return <span className={badge(st === 'verified' ? 'blue' : 'gray', 'rn-badge-inline')} title={RESEARCH_STAGE[st].desc}>{RESEARCH_STAGE[st].label}</span> })()}{catMarket === 'ndx' ? <span className={badge(c.market === 'ndx' ? 'blue' : 'gray', 'rn-badge-inline')}>{c.market === 'ndx' ? '纳指新增' : c.market === 'us' ? '同属标普500' : '美股非标普'}</span> : null}</span>,
             <span className={badge(toneOf(c.rating))}>{c.rating.length > 12 ? c.rating.slice(0, 12) + '…' : c.rating}</span>,
             <span className="rn-cell-wide">{c.headline}</span>,
             <DcfCell market={c.market} code={c.code} name={c.name} tools={tools} />,
@@ -341,7 +351,7 @@ export default function ResearchNotes(): JSX.Element {
           </div>
         )}
         <p className="rn-footnote">
-          点击公司名称进入该公司的分析页；标有「程序化」的公司页由脚本按统一规则生成。{(usLoading || cnLoading || hkLoading || adrLoading || ndxNewLoading) ? ' 正在加载补全公司…' : ''}
+          点击公司名称进入该公司的分析页。成熟度：初筛＝程序化补全或没有可用情景价；情景草案＝有情景价但未逐家核读最新公告；事实已复核＝已核读公司原件，估值仍是未认证草案。能否据此决策，取决于你自己的估值与决策记录。{(usLoading || cnLoading || hkLoading || adrLoading || ndxNewLoading) ? ' 正在加载补全公司…' : ''}
         </p>
       </div>
     </>

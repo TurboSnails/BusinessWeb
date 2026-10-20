@@ -11,8 +11,9 @@ import CandidateButton from '../components/CandidateButton'
 import { useCandidates } from '../features/candidates/useCandidates'
 import { latestDecision } from '../features/candidates/store'
 import { useToolSources } from '../features/candidates/useToolSources'
-import { dcfOf } from '../features/candidates/links'
 import { companySignals } from '../features/signals/companySignals'
+import { ownStage, researchStage } from '../features/signals/maturity'
+import { dcfOf, toolProgress } from '../features/candidates/links'
 import SignalSummary from '../components/SignalSummary'
 import { localDay } from '../components/DecisionDialog'
 import { priceAnchorAge } from '../features/dcf/priceAnchor'
@@ -190,7 +191,7 @@ export default function CompanyDetail(): JSX.Element {
       </div>
 
       <div>
-        <SignalSummary summary={signals} />
+        <SignalSummary summary={signals} stage={researchStage(company)} own={ownStage(!!lastDecision, (() => { const p = toolProgress(company.market, company.code, tools); return !!(p.dcf || p.valuation) })())} />
         <ResearchNotice />
         <QuickDcf market={company.market} code={company.code} name={company.name} price={price} />
         {(company.market === 'us' || company.market === 'cn' || company.market === 'hk' || company.market === 'adr') && (company.researchReport || company.metrics.some(([key]) => key === '圆桌复核日期')) && (
