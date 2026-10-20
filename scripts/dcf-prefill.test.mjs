@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { collectUsFacts, yahooSymbol, parseYahooWeekly, parseCompanyLines, parseNdxCodes, parseQuotes, parseWeekly, secShares, tencentSymbol, weeklyBeta } from './dcf-prefill.mjs'
+import { collectUsFacts, yahooSymbol, parseYahooWeekly, parseYahooMonthly, fcfYieldHistory, sicIndustry, parseCompanyLines, parseNdxCodes, parseQuotes, parseWeekly, secShares, tencentSymbol, weeklyBeta } from './dcf-prefill.mjs'
 
 test('universe parsers read NDX array and research company lines', () => {
   assert.deepEqual(parseNdxCodes("export const NDX_CODES: string[] = [\n  'ADBE', 'GOOGL',\n  'BRK.B',\n]\nconst X = ['ZZZ']"), ['ADBE', 'GOOGL', 'BRK.B'])
@@ -61,4 +61,20 @@ test('SEC series merge tags across years and keep the reporting currency', () =>
   assert.equal(out.latest.shares, 3.9e8)
   assert.ok(out.notes.some(n => n.includes('加权平均稀释股数')))
   assert.throws(() => collectUsFacts({ facts: { dei: {} } }, '2026-10-20'), /US-GAAP/)
+})
+
+test('FCF yield history uses the latest annual FCF published 4 months after year end, against current shares', () => {
+  const months = []
+  for (let y = 2022; y <= 2026; y++) for (let m = 1; m <= 12; m++) if (y < 2026 || m <= 10) months.push([`${y}-${String(m).padStart(2, '0')}`, 100])
+  const years = [{ fy: '2025-12-31', ocf: 120, capex: 20, sbc: 0 }, { fy: '2024-12-31', ocf: 60, capex: 10 }, { fy: '2023-12-31', ocf: 40, capex: 10 }]
+  const h = fcfYieldHistory(years, months, 10, 1, 100)
+  // price 100 × 10 shares = 1000; FCF 100 (2025, from 2026-05), 50 (2024), 30 (2023)
+  assert.equal(h.now, 10)
+  assert.equal(h.hi, 10)
+  assert.equal(h.lo, 3)
+  assert.ok(h.pct > 80)
+  assert.equal(fcfYieldHistory(years, months.slice(-10), 10, 1, 100), null)
+  assert.deepEqual(parseYahooMonthly({ chart: { result: [{ timestamp: [1759276800], indicators: { quote: [{ close: [1323.554] }] } }] } }), [['2025-10', 1323.55]])
+  assert.equal(sicIndustry(7372, 'Services-Prepackaged Software'), '软件与互联网服务')
+  assert.equal(sicIndustry(9999, 'Nonclassifiable'), 'Nonclassifiable')
 })

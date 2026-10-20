@@ -15,7 +15,7 @@ const UA = 'Mozilla/5.0 (BusinessWeb DCF research)'
 const SEC_UA = process.env.SEC_USER_AGENT || 'BusinessWeb DCF research contact@example.org'
 export const FUNDAMENTAL_TTL_DAYS = 7
 /** 缓存结构版本：新增采集字段时加一，旧缓存视为过期重采 */
-const CACHE_SCHEMA = 2
+const CACHE_SCHEMA = 3
 const YEARS = 5
 const EM_BASE = 'https://emweb.securities.eastmoney.com/PC_HSF10/NewFinanceAnalysis/'
 const HK_API = 'https://datacenter.eastmoney.com/securities/api/data/v1/get'
@@ -84,6 +84,30 @@ export function parseYahooWeekly(body) {
   if (!Array.isArray(ts) || !Array.isArray(close)) throw new Error('Yahoo周线无效')
   return ts.map((t, i) => [new Date(t * 1000).toISOString().slice(0, 10), close[i]]).filter(([, c]) => Number(c) > 0)
 }
+/** 月末收盘价（未复权，用于与当期财报算收益率）：[[YYYY-MM, close]] */
+export function parseYahooMonthly(body) {
+  const r = body?.chart?.result?.[0], ts = r?.timestamp, close = r?.indicators?.quote?.[0]?.close
+  if (!Array.isArray(ts) || !Array.isArray(close)) throw new Error('Yahoo月线无效')
+  return ts.map((t, i) => [new Date(t * 1000 + 864e5).toISOString().slice(0, 7), close[i]]).filter(([, c]) => Number(c) > 0).map(([m, c]) => [m, Number(Number(c).toPrecision(6))])
+}
+
+/**
+ * 近5年自由现金流收益率的位置：每个月用当时已公布（财年结束后4个月）的最近一年 FCF ÷（月末价 × 当前股本）。
+ * 当前股本近似历史股本，回购多的公司历史收益率略被低估。分位 = 历史月份中收益率低于当前的比例（越高越便宜）。
+ */
+export function fcfYieldHistory(years, monthly, shares, fx, price) {
+  if (!Array.isArray(monthly) || !(shares > 0) || !(price > 0)) return null
+  const fcf = years.filter(y => y.ocf != null && y.capex != null).map(y => ({ avail: new Date(Date.parse(y.fy) + 122 * 864e5).toISOString().slice(0, 7), v: (y.ocf - y.capex - (y.sbc ?? 0)) * fx }))
+  if (!fcf.length) return null
+  const hist = monthly.map(([m, close]) => { const f = fcf.find(x => x.avail <= m); return f ? f.v / (close * shares) : null }).filter(v => v != null)
+  if (hist.length < 24) return null
+  const now = fcf[0].v / (price * shares)
+  const sorted = [...hist].sort((a, b) => a - b)
+  const below = hist.filter(v => v < now).length, equal = hist.filter(v => v === now).length
+  const r4 = v => Number((v * 100).toFixed(2))
+  return { now: r4(now), pct: Math.round((below + equal / 2) / hist.length * 100), med: r4(sorted[Math.floor(sorted.length / 2)]), lo: r4(sorted[0]), hi: r4(sorted[sorted.length - 1]), n: hist.length }
+}
+
 export function parseWeekly(body, symbol) {
   const d = body?.data?.[symbol]
   const rows = d?.qfqweek ?? d?.week
@@ -109,6 +133,8 @@ export function parseQuotes(text) {
 export async function collectCn(code, http) {
   const secu = (/^[69]/.test(code) ? 'SH' : /^[48]/.test(code) ? 'BJ' : 'SZ') + code
   const html = await http.text(`${EM_BASE}Index?type=web&code=${secu}`)
+  let industry = null
+  try { industry = String((await http.json(`https://emweb.securities.eastmoney.com/PC_HSF10/CompanySurvey/PageAjax?code=${secu}`)).jbzl?.[0]?.EM2016 ?? '').split('-')[0] || null } catch { /* optional */ }
   const type = html.match(/id=["']hidctype["'][^>]*value=["'](\d+)["']/)?.[1]
   if (!type) throw new Error('公司类型字段缺失')
   const url = (path, extra = {}) => { const u = new URL(EM_BASE + path); for (const [k, v] of Object.entries({ ...extra, companyType: type, reportDateType: '1', code: secu })) u.searchParams.set(k, v); return u.toString() }
@@ -129,7 +155,7 @@ export async function collectCn(code, http) {
   const debt = num(e.debt) ?? (general ? sumOrNull(borrowings) ?? 0 : null)
   if (general && num(e.debt) == null) notes.push(debt ? '未见借款/债券科目，有息负债仅含租赁与一年内到期负债' : '报表未列示借款、债券科目，有息负债按0')
   return {
-    currency: 'CNY', financial: !general, orgType, years, notes,
+    currency: 'CNY', financial: !general, orgType, industry, years, notes,
     latest: {
       fy: dates[0], cash: num(e.cash), investments: num(e.nonOperating), debt, shares: num(e.shares), minority: num(e.minority),
       interest: num(e.interestExpense), pretax: num(e.pretaxProfit), tax: num(e.incomeTax),
@@ -158,6 +184,11 @@ export async function collectHk(code, http) {
     http.json(hkUrl('RPT_HKF10_FN_INCOME_PC', code, `(REPORT_DATE='${date}')`)),
     http.json(hkUrl('RPT_HKF10_FN_CASHFLOW_PC', code, '(STD_ITEM_CODE in ("003999","005005","005007","001009"))(DATE_TYPE_CODE="001")', { columns: 'REPORT_DATE,STD_ITEM_CODE,AMOUNT' })),
   ])
+  let industry = null
+  try {
+    const type = (await http.json(hkUrl('RPT_HKF10_INFO_ORGPROFILE', code, '', { columns: 'SECUCODE,INDUSTRY_TYPE,BELONG_INDUSTRY', pageSize: '1', sortColumns: 'SECUCODE' }))).result?.data?.[0]
+    industry = String(type?.INDUSTRY_TYPE ?? '').split('-')[1] || type?.BELONG_INDUSTRY || null
+  } catch { /* optional */ }
   const report = summary.result?.data?.[0]?.REPORT_LIST?.find(r => day(r.REPORT_DATE) === date)
   const currency = HK_CCY[report?.CURRENCY] ?? report?.CURRENCY
   if (!/^[A-Z]{3}$/.test(currency ?? '')) throw new Error('无法核实港股财报币种')
@@ -175,7 +206,7 @@ export async function collectHk(code, http) {
   if (num(e.debt) == null) notes.push('报表未列示银行贷款或应付票据，有息负债按0')
   notes.push('港股标准化现金流量表未单列股权激励，自由现金流未扣除；科技公司可能因此偏高')
   return {
-    currency, financial: !!orgType && orgType !== '一般企业', orgType, years, notes,
+    currency, financial: !!orgType && orgType !== '一般企业', orgType, industry, years, notes,
     latest: {
       fy: date, cash: sumOrNull([num(e.cash), num(e.shortTermDeposits)]), investments: num(e.nonOperating) != null ? num(e.nonOperating) - (num(e.shortTermDeposits) ?? 0) : null,
       debt, shares: num(e.shares), minority: num(e.minority), interest: num(e.interestExpense), pretax: num(e.pretaxProfit), tax: num(e.incomeTax),
@@ -258,6 +289,9 @@ export function collectUsFacts(raw, asOf) {
     },
   }
 }
+// SEC SIC 过细（苹果单独一类），按三位数归并为常见行业，未列出的用英文描述
+const SIC3 = { 737: '软件与互联网服务', 367: '半导体与电子元件', 357: '计算机与外设', 366: '通信设备', 283: '医药与生物科技', 384: '医疗器械', 382: '仪器仪表', 481: '电信服务', 483: '广播电视', 484: '有线与付费电视', 491: '电力', 492: '燃气', 493: '公用事业', 591: '药店', 596: '电商与零售', 531: '百货零售', 533: '综合零售', 541: '食品零售', 581: '餐饮', 701: '酒店', 451: '航空', 401: '铁路', 421: '货运物流', 731: '广告与营销', 781: '影视娱乐', 794: '娱乐服务', 801: '医疗服务', 806: '医院', 873: '研发与检测服务', 874: '咨询与外包服务', 371: '汽车', 372: '航空航天', 353: '工程机械', 356: '通用机械', 358: '暖通与制冷设备', 208: '饮料', 209: '食品', 284: '日化', 291: '能源', 131: '油气开采', 138: '油气服务', 671: '控股公司', 679: '投资控股', 602: '银行', 621: '证券', 631: '保险', 651: '房地产' }
+export const sicIndustry = (sic, description) => { const n = Math.floor(Number(sic) / 10); return SIC3[n] ?? (description || null) }
 let tickerMap
 export async function collectUs(code, http, asOf) {
   tickerMap ??= http.json('https://www.sec.gov/files/company_tickers.json', { headers: { 'User-Agent': SEC_UA } })
@@ -265,7 +299,9 @@ export async function collectUs(code, http, asOf) {
   if (!cik) throw new Error('未找到 SEC CIK')
   const url = `https://data.sec.gov/api/xbrl/companyfacts/CIK${String(cik).padStart(10, '0')}.json`
   const facts = collectUsFacts(await http.json(url, { headers: { 'User-Agent': SEC_UA } }), asOf)
-  return { ...facts, source: `https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${cik}&type=10-K` }
+  let industry = null
+  try { const sub = await http.json(`https://data.sec.gov/submissions/CIK${String(cik).padStart(10, '0')}.json`, { headers: { 'User-Agent': SEC_UA } }); industry = sicIndustry(sub.sic, sub.sicDescription) } catch { /* optional */ }
+  return { ...facts, industry, source: `https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${cik}&type=10-K` }
 }
 
 // ---------- run ----------
@@ -349,7 +385,9 @@ export async function run({ fetchImpl = fetch, now = new Date(), timeLimitMs = N
         const sym = yahooSymbol(u.market, u.code)
         let beta = null
         try { if (bench[u.market] && sym) beta = weeklyBeta(parseYahooWeekly(await http.json(weeklyUrl(sym))), bench[u.market]) } catch { /* beta optional */ }
-        const entry = { ...facts, beta, schema: CACHE_SCHEMA, fetchedAt: now.toISOString() }
+        let monthly = null
+        try { if (sym) monthly = parseYahooMonthly(await http.json(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?range=5y&interval=1mo`)) } catch { /* optional */ }
+        const entry = { ...facts, beta, monthly, schema: CACHE_SCHEMA, fetchedAt: now.toISOString() }
         await writeJson(cachePath(u), entry)
         cached.set(`${u.market}:${u.code}`, entry)
         refreshed++
@@ -388,6 +426,7 @@ export async function run({ fetchImpl = fetch, now = new Date(), timeLimitMs = N
       interest: scale(c.latest.interest), pretax: scale(c.latest.pretax), tax: scale(c.latest.tax), ebitda: scale(c.latest.ebitda), ni: scale(c.latest.netIncome),
       beta: c.beta?.adjusted ?? null, betaRaw: c.beta?.raw ?? null, betaWeeks: c.beta?.weeks ?? null,
       fx: conv ? { from: c.currency, rate: conv.rate, date: conv.date } : undefined,
+      ind: c.industry || undefined, fyh: fcfYieldHistory(c.years, c.monthly, c.latest.shares, k, q.price) || undefined,
       notes: c.notes?.length ? c.notes : undefined, src: c.source, at: c.fetchedAt.slice(0, 10),
     })
   }

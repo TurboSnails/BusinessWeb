@@ -112,7 +112,8 @@ describe("现金流折现估值页", () => {
       items: [{ m: "cn", c: "600519", n: "贵州茅台", g: ["沪深300"], px: 1324.97, pxDate: "2026-10-19", ccy: "CNY", fy: "2025-12-31",
         years: [["2025", 1688 * YI, 615 * YI, 31 * YI], ["2024", 1709 * YI, 925 * YI, 47 * YI], ["2023", 1477 * YI, 666 * YI, 26 * YI], ["2022", 1241 * YI, 367 * YI, 53 * YI]],
         cash: 516.9 * YI, inv: 88.7 * YI, debt: 2.3 * YI, shares: 12.5 * YI, interest: 0.3 * YI, pretax: 1147.6 * YI, tax: 294.4 * YI, ebitda: 1170.7 * YI, ni: 823.2 * YI,
-        beta: 0.9, betaRaw: 0.85, betaWeeks: 104, src: "https://example.com", at: "2026-10-20" }] };
+        beta: 0.9, betaRaw: 0.85, betaWeeks: 104, src: "https://example.com", at: "2026-10-20",
+        ind: "食品饮料", fyh: { now: 3.5, pct: 64, med: 3.3, lo: 1.3, hi: 5.1, n: 55 } }] };
     vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, json: async () => library })));
     render(<Dcf />);
     const search = await screen.findByLabelText("搜索股票名称或代码");
@@ -131,6 +132,12 @@ describe("现金流折现估值页", () => {
     expect((screen.getByLabelText("期望折现率 (%)") as HTMLInputElement).value).toBe("12");
     fill("五年成长率 (%)", "3");
     expect(screen.getByText(/已手动修改（自动值 11）/)).toBeTruthy();
+    expect(screen.getByText(/高于近 5 年/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "加入候选池（记下买入参考价）" }));
+    const pool = JSON.parse(localStorage.getItem("rn-candidates") ?? "[]");
+    expect(pool[0]).toMatchObject({ market: "cn", code: "600519" });
+    expect(pool[0].note).toMatch(/^DCF .*买入参考 ¥/);
+    expect(screen.getByRole("button", { name: "移出候选池" })).toBeTruthy();
     const growthField = screen.getByLabelText("五年成长率 (%)").closest(".dcf-field") as HTMLElement;
     fireEvent.click(within(growthField).getByRole("button", { name: "恢复" }));
     expect((screen.getByLabelText("五年成长率 (%)") as HTMLInputElement).value).toBe("11");

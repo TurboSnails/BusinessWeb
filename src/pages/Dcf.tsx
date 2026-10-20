@@ -36,8 +36,12 @@ import {
   deriveAutoFill,
   impliedGrowth,
   searchPrefill,
+  CREDIBILITY_LABEL,
   assess,
+  peerStats,
 } from "../features/dcf";
+import { useCandidates } from "../features/candidates/useCandidates";
+import type { CandidateMarket } from "../features/candidates/validation";
 import { VerdictCard, type MarketContext } from "../features/dcf/VerdictCard";
 import type {
   AutoField,
@@ -248,6 +252,7 @@ export default function Dcf(): JSX.Element {
   // 一键估算后默认收起完整参数，手动填写时默认展开
   const [advanced, setAdvanced] = useState(true);
   const [cycle, setCycle] = useState<CycleReport | null>(null);
+  const [candNotice, setCandNotice] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -287,6 +292,7 @@ export default function Dcf(): JSX.Element {
     setAuto(fill);
     setItem(item);
     setAdvanced(false);
+    setCandNotice("");
     setQuery("");
     setError("");
     setNotice("");
@@ -305,7 +311,15 @@ export default function Dcf(): JSX.Element {
   const sensitivity = calculateSensitivity(input);
   const implied = result.status === "calculated" ? impliedGrowth(input) : null;
   const assessment = assess(input, item && item.c === input.code ? item : null, implied);
-  const market = marketContext(cycle, item && item.c === input.code ? item : null);
+  const current = item && item.c === input.code ? item : null;
+  const market = marketContext(cycle, current);
+  const peers = current && library && library !== "error" ? peerStats(library.items, current) : null;
+  const cand = useCandidates(true);
+  const candMarket: CandidateMarket | null = current ? (current.m === "us" && !current.g.includes("研究公司") ? "ndx" : current.m) : null;
+  const inPool = !!candMarket && cand.items.some((i) => i.market === candMarket && i.code === current!.c);
+  const candidateNote = () => assessment
+    ? `DCF ${new Date().toISOString().slice(0, 10)}：基准 ${formatPrice(assessment.scenarios[1].price, input.currency)}，买入参考 ${formatPrice(assessment.buyBelow, input.currency)}（可信度${CREDIBILITY_LABEL[assessment.credibility]}，增速 ${input.growth}%、折现 ${input.discountRate}%）`
+    : "";
   const key = makeDcfKey(input);
   const existing = records.find((r) => r.key === key) ?? null;
 
@@ -464,7 +478,30 @@ export default function Dcf(): JSX.Element {
               <p>三种情景给出价格区间；买入参考价已按可信度留出安全边际。仅为研究参考，不是买卖指令。</p>
             </div>
           </div>
-          <VerdictCard a={assessment} currency={input.currency} price={input.currentPrice} impliedGrowth={implied} growth={input.growth} market={market} />
+          <VerdictCard
+            a={assessment}
+            currency={input.currency}
+            price={input.currentPrice}
+            impliedGrowth={implied}
+            growth={input.growth}
+            market={market}
+            history={current?.fyh}
+            peers={peers}
+            onPeer={(code) => {
+              const hit = library && library !== "error" ? library.items.find((i) => i.c === code && i.m === current?.m) : null;
+              if (hit && library && library !== "error") { applyItem(hit, library); window.scrollTo({ top: 0, behavior: "smooth" }); }
+            }}
+            candidate={candMarket && current ? {
+              inPool,
+              onAdd: () => {
+                if (!inPool) cand.toggle(candMarket, current.c);
+                cand.setNote(candMarket, current.c, candidateNote());
+                setCandNotice(`已${inPool ? "更新" : "加入"}候选池：${current.n}。可在“候选池”页查看`);
+              },
+              onRemove: () => { cand.toggle(candMarket, current.c); setCandNotice(`已从候选池移出：${current.n}`); },
+            } : null}
+          />
+          {candNotice && <p className="dcf-muted dcf-gap-sm" role="status">{candNotice}</p>}
         </section>
       )}
 

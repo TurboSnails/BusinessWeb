@@ -62,7 +62,8 @@ jobs:
               exit 0
             fi
             git fetch origin main
-            git rebase origin/main
+            # 数据文件冲突时以本次新生成的为准（并发采集同一文件）
+            git rebase -X theirs origin/main
           done
           exit 1
       - name: Deploy GitHub Pages

@@ -65,8 +65,6 @@ export function credibility(item: PrefillItem | null, terminalShare: number | un
   return { level, reasons };
 }
 
-const pct = (v: number) => `${v >= 0 ? "+" : ""}${(v * 100).toFixed(0)}%`;
-
 export function assess(input: DcfSheetInput, item: PrefillItem | null, impliedGrowth: number | null): Assessment | null {
   const base = calculateSheetDcf(input);
   if (base.status !== "calculated" || base.price == null) return null;
@@ -85,7 +83,7 @@ export function assess(input: DcfSheetInput, item: PrefillItem | null, impliedGr
   } else if (price <= base.price) {
     verdict = `现价低于基准合理价但安全边际不足 ${requiredMargin * 100}%，可列入观察，等更好的价格。`; tone = "neutral";
   } else if (bull.price != null && price <= bull.price) {
-    verdict = `现价高于基准合理价（${pct(base.price / price - 1)}），只有乐观情景能支撑，需要相信更高的增长。`; tone = "caution";
+    verdict = `现价比基准合理价高约 ${Math.round((price / base.price - 1) * 100)}%，只有乐观情景能支撑，需要相信更高的增长。`; tone = "caution";
   } else {
     verdict = `现价高于乐观情景，按历史现金流难以支撑${impliedGrowth != null ? `，市场隐含未来五年增速约 ${impliedGrowth.toFixed(1)}%` : ""}。`; tone = "caution";
   }

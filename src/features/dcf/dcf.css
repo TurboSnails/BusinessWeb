@@ -436,3 +436,15 @@
   .dcf-scenarios { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .dcf-sliders { grid-template-columns: minmax(0, 1fr); }
 }
+.dcf-verdict-card__block { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border-subtle); }
+.dcf-verdict-card__block h3 { margin: 0 0 6px; font-size: 0.95rem; }
+.dcf-verdict-card__block p { margin: 0 0 6px; font-size: 0.88rem; line-height: 1.7; }
+.dcf-hist { display: block; overflow: visible; max-width: 560px; }
+.dcf-hist__band { fill: var(--bg-secondary); stroke: var(--border-subtle); }
+.dcf-hist__med { stroke: var(--text-secondary); stroke-width: 2; }
+.dcf-hist__now { fill: var(--accent); }
+.dcf-peers { width: 100%; max-width: 560px; border-collapse: collapse; font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+.dcf-peers th, .dcf-peers td { text-align: left; padding: 6px 10px 6px 0; border-bottom: 1px solid var(--border-subtle); }
+.dcf-peers th { font-weight: 400; color: var(--text-secondary); font-size: 0.78rem; }
+.dcf-peers tr.is-self td { font-weight: 650; background: var(--accent-soft); }
+.dcf-peers .dcf-link { margin-left: 0; }

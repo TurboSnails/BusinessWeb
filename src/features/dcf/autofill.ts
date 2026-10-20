@@ -13,6 +13,10 @@ export interface PrefillItem {
   interest: number | null; pretax: number | null; tax: number | null; ebitda: number | null; ni: number | null
   beta: number | null; betaRaw: number | null; betaWeeks: number | null
   fx?: { from: string; rate: number; date: string }; notes?: string[]; src: string; at: string
+  /** 行业（A股东财一级、港股二级、美股 SIC 归并） */
+  ind?: string
+  /** 近5年自由现金流收益率位置（%）：当前、分位、中位、最低、最高、样本月数 */
+  fyh?: { now: number; pct: number; med: number; lo: number; hi: number; n: number }
 }
 export interface RiskFree { value: number; date: string | null; label: string }
 export interface PrefillLibrary { schemaVersion: 1; generatedAt: string; riskFree: { cn: RiskFree; us: RiskFree }; universe: number; issues: string[]; items: PrefillItem[] }

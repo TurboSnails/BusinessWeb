@@ -2,6 +2,8 @@ import type { Assessment } from "./assessment.ts";
 import { CREDIBILITY_LABEL } from "./assessment.ts";
 import { formatPct, formatPrice } from "./units.ts";
 import type { Currency } from "./types.ts";
+import type { PrefillItem } from "./autofill.ts";
+import type { PeerStats } from "./peers.ts";
 
 export interface MarketContext { label: string; state: string; trend: string; zone: string; weekEnding: string }
 
@@ -34,9 +36,30 @@ function RangeChart({ a, price, currency }: { a: Assessment; price: number | nul
   );
 }
 
-export function VerdictCard({ a, currency, price, impliedGrowth, growth, market }: {
+/** 近5年自由现金流收益率区间：横条为最低～最高，竖线为中位，圆点为当前 */
+function HistoryBar({ h }: { h: NonNullable<PrefillItem["fyh"]> }): JSX.Element {
+  const lo = Math.min(h.lo, h.now), hi = Math.max(h.hi, h.now), span = hi - lo || 1;
+  const x = (v: number) => `${(4 + ((v - lo) / span) * 92).toFixed(2)}%`;
+  return (
+    <svg className="dcf-hist" width="100%" height="34" role="img" aria-label={`近5年自由现金流收益率 ${h.lo}%～${h.hi}%，中位 ${h.med}%，当前 ${h.now}%`}>
+      <rect x={x(h.lo)} y="10" width={`${(((h.hi - h.lo) / span) * 92).toFixed(2)}%`} height="10" rx="5" className="dcf-hist__band" />
+      <line x1={x(h.med)} x2={x(h.med)} y1="6" y2="24" className="dcf-hist__med" />
+      <circle cx={x(h.now)} cy="15" r="6" className="dcf-hist__now" />
+      <text x={x(h.lo)} y="33" textAnchor="start" className="dcf-range__text">{h.lo}%（贵）</text>
+      <text x={x(h.hi)} y="33" textAnchor="end" className="dcf-range__text">{h.hi}%（便宜）</text>
+    </svg>
+  );
+}
+
+const fmt1 = (v: number | null) => (v == null ? "—" : `${v.toFixed(1)}%`);
+
+export interface CandidateAction { inPool: boolean; onAdd(): void; onRemove(): void }
+
+export function VerdictCard({ a, currency, price, impliedGrowth, growth, market, history, peers, onPeer, candidate }: {
   a: Assessment; currency: Currency; price: number | null; impliedGrowth: number | null; growth: number | null; market: MarketContext | null;
+  history?: PrefillItem["fyh"] | null; peers?: PeerStats | null; onPeer?(code: string): void; candidate?: CandidateAction | null;
 }): JSX.Element {
+  const shown = peers ? [...peers.rows.slice(0, 5), ...(peers.rank > 5 ? [peers.self] : [])] : [];
   return (
     <div className={`dcf-verdict-card is-${a.tone}`}>
       <p className="dcf-verdict-card__lead">{a.verdict}</p>
@@ -76,6 +99,54 @@ export function VerdictCard({ a, currency, price, impliedGrowth, growth, market 
           </p>
         )}
       </div>
+      {history && (
+        <div className="dcf-verdict-card__block">
+          <h3>和自己的过去比</h3>
+          <p>
+            当前自由现金流收益率 <strong>{history.now}%</strong>，高于近 5 年 <strong>{history.pct}%</strong> 的时间
+            （中位 {history.med}%）。{history.pct >= 70 ? "比自己过去大多数时候便宜。" : history.pct <= 30 ? "比自己过去大多数时候贵。" : "处于自己过去的中间水平。"}
+            收益率 = 每年自由现金流 ÷ 市值，越高越便宜。
+          </p>
+          <HistoryBar h={history} />
+        </div>
+      )}
+      {peers && (
+        <div className="dcf-verdict-card__block">
+          <h3>和同行比：{peers.industry}（共 {peers.count} 家）</h3>
+          <p>
+            自由现金流收益率排第 <strong>{peers.rank}</strong> 位（本公司 {fmt1(peers.self.fcfYield)}，同行中位 {fmt1(peers.medianYield)}）；
+            营收增速本公司 {fmt1(peers.self.growth)}，同行中位 {fmt1(peers.medianGrowth)}。
+            {peers.self.fcfYield > peers.medianYield && (peers.self.growth ?? 0) >= (peers.medianGrowth ?? 0) ? "比同行更便宜且增长不慢，值得细看。"
+              : peers.self.fcfYield < peers.medianYield && (peers.self.growth ?? 0) <= (peers.medianGrowth ?? 0) ? "比同行贵且增长不快，需要更强的理由。"
+              : "便宜与增长需要权衡：收益率高的往往增长慢。"}
+          </p>
+          <table className="dcf-peers">
+            <thead><tr><th scope="col">公司</th><th scope="col">FCF 收益率</th><th scope="col">营收增速</th></tr></thead>
+            <tbody>
+              {shown.map((r) => (
+                <tr key={r.code} className={r.self ? "is-self" : undefined}>
+                  <td>{r.self || !onPeer ? r.name : <button type="button" className="dcf-link" onClick={() => onPeer(r.code)}>{r.name}</button>}</td>
+                  <td>{fmt1(r.fcfYield)}</td>
+                  <td>{fmt1(r.growth)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {candidate && (
+        <div className="dcf-actions dcf-gap">
+          {candidate.inPool ? (
+            <>
+              <button type="button" className="dcf-button dcf-button--ghost" onClick={candidate.onAdd}>更新候选池备注</button>
+              <button type="button" className="dcf-button dcf-button--ghost" onClick={candidate.onRemove}>移出候选池</button>
+              <span className="dcf-muted">已在候选池，备注会写入本次合理价与买入参考价</span>
+            </>
+          ) : (
+            <button type="button" className="dcf-button" onClick={candidate.onAdd}>加入候选池（记下买入参考价）</button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

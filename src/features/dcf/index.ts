@@ -8,3 +8,4 @@ export * from "./sensitivity.ts";
 export * from "./prefill.ts";
 export * from "./autofill.ts";
 export * from "./assessment.ts";
+export * from "./peers.ts";
