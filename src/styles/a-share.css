@@ -443,11 +443,15 @@
 @media (max-width: 640px) { .limitup-tier { grid-template-columns: 56px minmax(0, 1fr); } .limitup-tier__stocks { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); } }
 
 /* 板块排行矩阵 */
-.plate-rank-table { font-variant-numeric: tabular-nums; }
-.plate-rank-name { white-space: nowrap; font-weight: 600; }
-.plate-rank-date { font-size: .75rem; white-space: nowrap; }
-.plate-rank-cell { font-size: .8rem; color: var(--text-secondary); }
-.plate-rank-cell.is-hot { background: color-mix(in srgb, var(--up, #b42318) 14%, transparent); color: var(--up, #b42318); font-weight: 600; }
-.plate-rank-cell.is-down { color: var(--down, #067647); }
+.plate-rank-table { font-variant-numeric: tabular-nums; border-collapse: collapse; }
+.plate-rank-table th, .plate-rank-table td { text-align: center; vertical-align: middle; }
+.plate-rank-name { white-space: nowrap; font-weight: 600; text-align: left !important; min-width: 96px; }
+.plate-rank-date { font-size: .78rem; white-space: nowrap; min-width: 96px; }
+.plate-rank-cell { padding: 8px 6px; border-bottom: 1px solid var(--border-subtle); line-height: 1.5; }
+.plate-rank-cell strong { display: block; font-size: .95rem; }
+.plate-rank-cell.is-empty { color: var(--text-tertiary); }
+.plate-rank-cell.is-hot { background: color-mix(in srgb, var(--up, #b42318) 10%, transparent); }
+.plate-rank-sub { display: block; font-size: .72rem; color: var(--text-secondary); white-space: nowrap; }
+.plate-rank-sub b { display: inline-block; margin-left: 2px; padding: 0 5px; border-radius: 4px; background: var(--accent-soft); font-weight: 500; color: var(--text-primary); }
 .plate-rank-more { padding: 12px; text-align: center; }
 .limitup-down { color: var(--down, #067647); }
