@@ -133,3 +133,9 @@
 .grid-form input, .grid-form select { width:100%; box-sizing:border-box; }
 
 .grid-row-removed { opacity: 0.5; }
+
+.grid-sensitivity-scroll { overflow-x: auto; margin-top: 10px; }
+.grid-sensitivity table { width: 100%; border-collapse: collapse; font-size: .85rem; white-space: nowrap; }
+.grid-sensitivity th, .grid-sensitivity td { padding: 8px 10px; text-align: right; border-bottom: 1px solid var(--accent-soft); }
+.grid-sensitivity th:first-child, .grid-sensitivity td:first-child { text-align: left; }
+.grid-sensitivity tr.is-current td { background: var(--accent-soft); font-weight: 600; }

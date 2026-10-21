@@ -1,9 +1,10 @@
 import FeeNote from '../features/grid-trading/FeeNote'
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { PageTitle } from '../components/ui/PageTabs'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowRight, BarChart3, Save, Wand2 } from 'lucide-react'
 import { calculateGrid } from '../features/grid-trading/simulation'
+import { gridSensitivity } from '../features/grid-trading/sensitivity'
 import { fetchQuotes, getCandles, marketToday, mergeQuote } from '../features/grid-trading/marketData'
 import { saveRecord } from '../features/grid-trading/repository'
 import { isEtf, symbolOf } from '../features/grid-trading/types'
@@ -204,6 +205,7 @@ export default function GridCalculator(): JSX.Element {
     <PageTitle>网格交易</PageTitle>
     <div className="page-toolbar">
       <span className="page-toolbar__note">用前复权日线推演网格策略，回测记录默认保存在当前浏览器，不会自动上传。</span>
+      <Link className="tool-btn" to="/etf-review">ETF 复盘</Link>
       <Link className="tool-btn" to="/grid-trading/records">查看已保存记录 <ArrowRight size={15} /></Link>
     </div>
 
@@ -254,11 +256,29 @@ export default function GridCalculator(): JSX.Element {
       {calculated.result.floorHitDate && <p className="grid-error-text" role="alert">已于 {calculated.result.floorHitDate} 触及价格下沿 ¥{calculated.row.floorPrice!.toFixed(3)}，此后停止买入；卖出仍可触发，持仓可继续出清。</p>}
       {calculated.result.budgetExceeded && calculated.row.budget !== undefined && <p className="grid-error-text" role="alert">最大资金占用 {money(calculated.result.maxCapital)} 已超过你设定的资金预算 {money(calculated.row.budget)}：这张网需要的资金超出计划，请考虑缩小每格金额、减少格数或设置价格下沿。</p>}
       <div className="grid-chart-wrap"><h3>资金盈亏曲线</h3><EquityPreview result={calculated.result} /></div>
+      <SensitivityTable row={calculated.row} candles={calculated.candles} />
       <p className="grid-data-caption">{calculated.source} · 数据获取于 {calculated.fetchedAt} · 算法 notes-grid-v1</p>
       <p className="grid-data-caption">历史模拟不代表未来表现；模拟未含滑点与买卖价差，实盘成本会更高。</p>
       {calculated.result.warnings?.map(warning => <p className="grid-error-text" key={warning}>{warning}</p>)}
     </section>}
   </Page>
+}
+
+function SensitivityTable({ row, candles }: { row: GridParams; candles: Candle[] }): JSX.Element {
+  const { rows, buyHoldPnl } = useMemo(() => gridSensitivity(row, candles), [row, candles])
+  return <div className="grid-chart-wrap grid-sensitivity">
+    <h3>步长敏感性</h3>
+    <p className="grid-data-caption">同一段行情只改网格步长，其余参数不变；对比同样本金一直持有（{money(buyHoldPnl)}）。</p>
+    <div className="grid-sensitivity-scroll"><table>
+      <thead><tr><th>步长</th><th>总盈亏</th><th>最大资金占用</th><th>盈亏/占用</th><th>成交次数</th></tr></thead>
+      <tbody>{rows.map(item => <tr key={item.scale} className={item.isCurrent ? 'is-current' : ''}>
+        <td>{item.step}{item.isCurrent ? '（当前）' : ` (×${item.scale})`}</td>
+        <td className={item.pnl >= 0 ? 'grid-positive' : 'grid-negative'}>{money(item.pnl)}</td>
+        <td>{money(item.maxCapital)}</td><td>{(item.returnOnCapital * 100).toFixed(1)}%</td><td>{item.trades}</td>
+      </tr>)}</tbody>
+    </table></div>
+    <p className="grid-data-caption">只是这一段历史行情上的结果，换一个区间排名可能完全不同；不要据此挑“最优步长”。</p>
+  </div>
 }
 
 function Metric({ label, value, positive }: { label: string; value: string; positive?: boolean }): JSX.Element {
