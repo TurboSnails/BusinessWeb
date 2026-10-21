@@ -1,0 +1,35 @@
+.etf-review-gap { margin-bottom: 14px; }
+.etf-review-toolbar { flex-wrap: wrap; gap: 8px; }
+.etf-review-message { margin: 8px 0; font-size: .85rem; color: var(--text-secondary); }
+.etf-review-filters { margin: 12px 0; }
+.etf-review-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; margin-top: 12px; }
+.etf-review-card { display: flex; flex-direction: column; gap: 10px; }
+.etf-review-card__head { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
+.etf-review-code { margin-left: 8px; font-size: .8rem; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.etf-review-group { width: auto; max-width: 110px; padding: 2px 6px; font-size: .8rem; }
+.etf-review-quote small { margin-left: 8px; color: var(--text-secondary); }
+.etf-review-last { display: flex; flex-direction: column; gap: 6px; font-size: .85rem; }
+.etf-review-last p { margin: 0; color: var(--text-secondary); line-height: 1.5; }
+.etf-review-remark { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.etf-review-badges { display: flex; flex-wrap: wrap; gap: 6px; }
+.etf-review-badge { padding: 1px 9px; border-radius: 999px; background: var(--accent-soft); font-size: .78rem; color: var(--text-secondary); }
+.etf-review-badge--up { color: var(--up, #b42318); }
+.etf-review-badge--down { color: var(--down, #067647); }
+.etf-review-empty { margin: 0; font-size: .85rem; color: var(--text-tertiary); }
+.etf-review-card__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; }
+.etf-review-form { display: flex; flex-direction: column; gap: 12px; }
+.etf-review-form label { display: flex; flex-direction: column; gap: 4px; font-size: .85rem; color: var(--text-secondary); }
+.etf-review-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.etf-review-choice { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: .85rem; color: var(--text-secondary); }
+.etf-review-choice > span { min-width: 64px; }
+.etf-review-error { margin: 0; color: var(--down-ink, #b42318); font-size: .85rem; }
+.etf-review-hint { margin: 0 0 8px; font-size: .82rem; color: var(--text-secondary); }
+.etf-review-grouplist { list-style: none; margin: 0 0 12px; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.etf-review-grouplist li { display: flex; gap: 8px; align-items: center; }
+.etf-review-grouplist li > span { flex: 1; }
+.etf-review-addgroup { display: flex; gap: 8px; }
+.etf-review-history { list-style: none; margin: 16px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--border-subtle); padding-top: 12px; }
+.etf-review-history li { display: flex; gap: 10px; align-items: center; font-size: .85rem; }
+.etf-review-history li > span { flex: 1; color: var(--text-secondary); }
+.etf-review-history__date { border: none; background: none; color: var(--accent-ink); cursor: pointer; font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) { .etf-review-row { grid-template-columns: 1fr; } }
