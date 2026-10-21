@@ -455,3 +455,12 @@
 .plate-rank-sub b { display: inline-block; margin-left: 2px; padding: 0 5px; border-radius: 4px; background: var(--accent-soft); font-weight: 500; color: var(--text-primary); }
 .plate-rank-more { padding: 12px; text-align: center; }
 .limitup-down { color: var(--down, #067647); }
+
+.limitup-sort {
+  all: unset;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  white-space: nowrap;
+}
+.limitup-sort:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }

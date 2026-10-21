@@ -79,3 +79,22 @@ it('损坏缓存不导致页面崩溃，而是重新加载', async () => {
   expect(fetcher).toHaveBeenCalledTimes(1)
   expect(screen.getByText('贝瑞基因')).toBeTruthy()
 })
+
+it('板块明细表头可排序，复制本板块写入剪贴板', async () => {
+  const two = { code: 200, data: { plate_stock: [{ secu_name: '医药', change: .02, plate_stock_up_num: 2, stock_list: [
+    { secu_code: 'sz000710', secu_name: '贝瑞基因', time: '2026-09-30 09:33:06', last_px: 10, change: .1, cmc: 100000000, up_num: '1天1板' },
+    { secu_code: 'sz000001', secu_name: '平安银行', time: '2026-09-30 09:31:00', last_px: 20, change: .1, cmc: 200000000, up_num: '1天1板' },
+  ] }] } }
+  await show('2026-09-30', two)
+  const writeText = vi.fn(async () => undefined)
+  vi.stubGlobal('navigator', { ...navigator, clipboard: { writeText } })
+  await act(async () => fireEvent.click(screen.getByRole('tab', { name: '板块明细' })))
+  const order = (): string[] => screen.getAllByText(/贝瑞基因|平安银行/).map(el => el.textContent ?? '')
+  expect(order()).toEqual(['贝瑞基因', '平安银行'])
+  await act(async () => fireEvent.click(screen.getByRole('button', { name: /现价/ })))
+  expect(order()).toEqual(['平安银行', '贝瑞基因'])
+  await act(async () => fireEvent.click(screen.getByRole('button', { name: /现价/ })))
+  expect(order()).toEqual(['贝瑞基因', '平安银行'])
+  await act(async () => fireEvent.click(screen.getByRole('button', { name: '复制本板块' })))
+  expect(writeText).toHaveBeenCalledWith('贝瑞基因(000710)、平安银行(000001)')
+})

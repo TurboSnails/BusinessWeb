@@ -11,11 +11,28 @@ import {
 } from 'lucide-react'
 import { loadLimitUp, shanghaiDate, isClosedDate, type LimitUpResult } from '../services/limitUp'
 import { getLimitUpCache, saveLimitUpCache, readLimitUpView, saveLimitUpView } from '../services/limitUpCache'
-import type { LimitUpConcept } from '../types'
+import type { LimitUpConcept, LimitUpStock } from '../types'
 import { EmptyState, Page, TableWrap } from '../components/ui'
 import '../styles/a-share.css'
 
 type View = 'ladder' | 'plates'
+type SortKey = 'limitUpTime' | 'marketCap' | 'changePercent' | 'currentPrice'
+const SORT_COLUMNS: Array<{ key: SortKey; label: string; className: string }> = [
+  { key: 'currentPrice', label: '现价', className: 'num' },
+  { key: 'changePercent', label: '涨幅', className: 'num' },
+  { key: 'limitUpTime', label: '涨停时间', className: 'limitup-center' },
+  { key: 'marketCap', label: '流通市值', className: 'num' },
+]
+const stockLine = (s: LimitUpStock): string => `${s.name}(${s.code.replace(/^[a-z]+/i, '')})`
+function sortStocks(stocks: LimitUpStock[], key: SortKey | null, desc: boolean): LimitUpStock[] {
+  if (!key) return stocks
+  const value = (s: LimitUpStock): number | string => key === 'limitUpTime' ? (s.limitUpTime || '99') : s[key]
+  return [...stocks].sort((a, b) => {
+    const x = value(a), y = value(b)
+    const order = typeof x === 'string' ? x.localeCompare(y as string) : x - (y as number)
+    return desc ? -order : order
+  })
+}
 const VIEWS: Array<{ id: View; label: string }> = [{ id: 'ladder', label: '涨停梯队' }, { id: 'plates', label: '板块明细' }]
 
 export default function LimitUpAnalysis(): JSX.Element {
@@ -30,6 +47,8 @@ export default function LimitUpAnalysis(): JSX.Element {
   const [selectedDate, setSelectedDate] = useState(initial.date)
   const [result, setResult] = useState<LimitUpResult | null>(initial.cached?.result || null)
   const [refresh, setRefresh] = useState(0)
+  const [sort, setSort] = useState<{ key: SortKey | null; desc: boolean }>({ key: null, desc: true })
+  const [copied, setCopied] = useState('')
   const lastRefresh = useRef(0)
   const fetchLimitUpData = (): void => setRefresh(n => n + 1)
   useEffect(() => {
@@ -70,6 +89,12 @@ export default function LimitUpAnalysis(): JSX.Element {
     setExpandedStocks(next)
   }
 
+  const toggleSort = (key: SortKey): void => setSort(prev => prev.key === key ? { key, desc: !prev.desc } : { key, desc: key !== 'limitUpTime' })
+  const copyText = (id: string, text: string): void => {
+    navigator.clipboard?.writeText(text).then(() => { setCopied(id); window.setTimeout(() => setCopied(''), 1500) }).catch(() => undefined)
+  }
+  const allStocksText = (): string => filteredConcepts.map(c => `${c.name}：${c.stocks.map(stockLine).join('、')}`).join('\n')
+
   return (
     <Page className="limitup-page">
       <PageTitle>每日板块涨停分析</PageTitle>
@@ -83,6 +108,9 @@ export default function LimitUpAnalysis(): JSX.Element {
           <Calendar size={18} aria-hidden="true" />
           <input type="date" className="ui-input" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} aria-label="查询日期" max={shanghaiDate()} />
         </label>
+        <button type="button" className="tool-btn" disabled={!filteredConcepts.length} onClick={() => copyText('all', allStocksText())}>
+          {copied === 'all' ? '已复制' : '复制全部'}
+        </button>
         <button type="button" onClick={fetchLimitUpData} disabled={loading} className="tool-btn tool-btn--primary">
           <RefreshCcw size={18} className={loading ? 'animate-spin' : ''} aria-hidden="true" />
           {loading ? '刷新中...' : '刷新数据'}
@@ -133,6 +161,9 @@ export default function LimitUpAnalysis(): JSX.Element {
             <span className={currentConcept.changePercent >= 0 ? 'limitup-change is-up' : 'limitup-change is-down'}>
               {currentConcept.changePercent >= 0 ? '+' : ''}{currentConcept.changePercent.toFixed(2)}%
             </span>
+            <button type="button" className="tool-btn" onClick={() => copyText('plate', currentConcept.stocks.map(stockLine).join('、'))}>
+              {copied === 'plate' ? '已复制' : '复制本板块'}
+            </button>
           </div>
 
           {currentConcept.drivingFactor && (
@@ -151,16 +182,19 @@ export default function LimitUpAnalysis(): JSX.Element {
                 <thead>
                   <tr>
                     <th scope="col">简称</th>
-                    <th scope="col" className="num">现价</th>
-                    <th scope="col" className="num">涨幅</th>
-                    <th scope="col" className="limitup-center">涨停时间</th>
-                    <th scope="col" className="num">流通市值</th>
+                    {SORT_COLUMNS.map(col => (
+                      <th key={col.key} scope="col" className={col.className} aria-sort={sort.key === col.key ? (sort.desc ? 'descending' : 'ascending') : 'none'}>
+                        <button type="button" className="limitup-sort" onClick={() => toggleSort(col.key)}>
+                          {col.label}{sort.key === col.key ? (sort.desc ? ' ↓' : ' ↑') : ' ⇅'}
+                        </button>
+                      </th>
+                    ))}
                     <th scope="col" className="limitup-center">连板</th>
                     <th scope="col" className="limitup-center">详情</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {currentConcept.stocks.map((stock) => {
+                  {sortStocks(currentConcept.stocks, sort.key, sort.desc).map((stock) => {
                     const isExpanded = expandedStocks.has(stock.code)
                     return (
                       <React.Fragment key={stock.code}>
