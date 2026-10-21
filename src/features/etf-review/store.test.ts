@@ -6,7 +6,7 @@ const note = (over = {}) => ({ code: '510300', date: '2026-10-20', premium: 0.1,
 
 describe('etf-review store', () => {
   it('只接受 6 位代码且不重复添加', () => {
-    let s = base()
+    const s = base()
     expect(addItem(s, '510300', 'x', '').items).toHaveLength(1)
     expect(addItem(s, '12345', 'x', '').items).toHaveLength(1)
     expect(addItem(s, '159915', '', '不存在的分组').items[1]).toEqual({ code: '159915', name: '159915', group: '' })
