@@ -4,8 +4,10 @@ import EtfDocumentRemark from './EtfDocumentRemark'
 import { latestEtfNote } from '../utils/etfJudgment'
 import '../styles/etf-notes.css'
 import { BROAD_ETFS } from '../data/broadEtf'
+import EtfTechCell from '../components/EtfTechCell'
+import type { EtfTechRecord } from '../data/etfTechnical'
 
-export default function BroadEtfList(): JSX.Element {
+export default function BroadEtfList({ tech }: { tech: Map<string, EtfTechRecord> }): JSX.Element {
   return (
     <section id="broad-etf" className="industry-group-section" aria-labelledby="broad-etf-title">
       <div className="industry-group-card">
@@ -18,9 +20,9 @@ export default function BroadEtfList(): JSX.Element {
             <colgroup>
               <col /><col />
               <col />
-              <col /><col /><col />
+              <col /><col /><col /><col />
             </colgroup>
-            <thead><tr><th>代码</th><th>名称</th><th>指数与定位</th><th>备注</th><th>参考</th><th>网格</th></tr></thead>
+            <thead><tr><th>代码</th><th>名称</th><th>指数与定位</th><th>技术面</th><th>备注</th><th>参考</th><th>网格</th></tr></thead>
             <tbody>{BROAD_ETFS.map(item => {
               const analysisSlug = latestEtfNote(item.code)?.slug
               return (
@@ -28,6 +30,7 @@ export default function BroadEtfList(): JSX.Element {
                 <td className="etf-code-cell">{analysisSlug ? <Link className="etf-code-link" to={`/notes/${analysisSlug}`}>{item.code}</Link> : item.code}</td>
                 <td className="etf-name-cell">{analysisSlug ? <Link className="etf-name-link" to={`/notes/${analysisSlug}`}>{item.name}</Link> : item.name}</td>
                 <td className="etf-subtheme-cell"><strong>{item.family}</strong><div>{item.category}</div><p>{item.coverage}</p></td>
+                <td className="etf-tech-cell"><EtfTechCell rec={tech.get(item.code)} /></td>
                 <td className="etf-remark-cell"><EtfDocumentRemark code={item.code} /></td>
                 <td className="etf-ref-cell">
                   {analysisSlug && <div><Link className="etf-ref-link" to={`/notes/${analysisSlug}`}>分析报告</Link></div>}

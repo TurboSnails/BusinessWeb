@@ -328,11 +328,38 @@
 }
 .industry-etf-table .etf-empty-cell { color: var(--text-tertiary); }
 
-/* 列宽（原 colgroup 内联宽度）：代码 / 名称 / 分布 / 备注(自适应) / 参考 / 网格 */
-.industry-etf-table col:nth-child(1) { width: 92px; }
-.industry-etf-table col:nth-child(2) { width: 160px; }
-.industry-etf-table col:nth-child(3) { width: 260px; }
-.industry-etf-table col:nth-child(5) { width: 160px; }
-.industry-etf-table col:nth-child(6) { width: 92px; }
-.broad-etf-table col:nth-child(3) { width: 230px; }
-.broad-etf-table col:nth-child(5) { width: 92px; }
+/* 列宽：行业/宽基表 代码 / 名称 / 分布 / 技术面 / 备注(自适应) / 参考 / 网格 */
+.industry-etf-table { min-width: 1180px; }
+.industry-etf-table col:nth-child(1) { width: 84px; }
+.industry-etf-table col:nth-child(2) { width: 190px; }
+.industry-etf-table col:nth-child(3) { width: 220px; }
+.industry-etf-table col:nth-child(4) { width: 150px; }
+.industry-etf-table col:nth-child(6) { width: 110px; }
+.industry-etf-table col:nth-child(7) { width: 84px; }
+/* 策略/商品/货币：代码 / 名称 / 类别 / 收盘 / 技术面 / 备注(自适应) / 网格 */
+.other-etf-table { min-width: 1060px; }
+.other-etf-table col:nth-child(3) { width: 150px; }
+.other-etf-table col:nth-child(4) { width: 110px; }
+.other-etf-table col:nth-child(5) { width: 150px; }
+.other-etf-table col:nth-child(6) { width: auto; }
+.other-etf-table col:nth-child(7) { width: 84px; }
+/* 债基：代码 / 名称 / 净值 / 近20日 / 技术面 / 参考 */
+.bond-fund-table { min-width: 860px; }
+.bond-fund-table col:nth-child(2) { width: 260px; }
+.bond-fund-table col:nth-child(3) { width: 140px; }
+.bond-fund-table col:nth-child(4) { width: 100px; }
+.bond-fund-table col:nth-child(5) { width: 150px; }
+.bond-fund-table col:nth-child(6) { width: auto; }
+.industry-etf-table .etf-num-cell { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.industry-etf-table .etf-num-cell small { display: block; color: var(--text-secondary); font-size: .78rem; }
+.industry-etf-table .etf-tech-cell { vertical-align: top; }
+.industry-etf-table td { vertical-align: top; }
+
+.etf-tech { display: flex; flex-direction: column; gap: 4px; min-width: 128px; }
+.etf-tech__chip { display: inline-flex; gap: 4px; align-items: baseline; padding: 1px 8px; border-radius: 999px; font-size: .78rem; line-height: 1.6; background: var(--accent-soft); color: var(--text-secondary); width: fit-content; cursor: help; }
+.etf-tech__chip b { font-weight: 600; color: var(--text-primary); }
+.etf-tech__chip i { font-style: normal; opacity: .8; }
+.etf-tech__chip--up { color: #b42318; }
+.etf-tech__chip--down { color: #067647; }
+.etf-tech__rsi { font-size: .75rem; color: var(--text-secondary); cursor: help; }
+.etf-other-note { margin: 8px 0 0; font-size: .82rem; color: var(--text-secondary); line-height: 1.6; }

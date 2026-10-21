@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom'
 import { ListChecks } from 'lucide-react'
 import PageHero from '../components/PageHero'
 import { Page } from '../components/ui'
+import EtfTechCell from '../components/EtfTechCell'
+import { useEtfTechnical, type EtfTechRecord } from '../data/etfTechnical'
+import { OtherEtfList, BondFundList, OTHER_ETFS, BOND_FUNDS } from './EtfOtherList'
 import '../styles/etf-notes.css'
 import BroadEtfList from './BroadEtfList'
 import EtfDocumentRemark from './EtfDocumentRemark'
@@ -102,12 +105,14 @@ function SubThemeCell({ subTheme }: { subTheme: string }): JSX.Element {
 }
 
 export default function IndustryEtf(): JSX.Element {
+  const tech = useEtfTechnical()
+  const asOf = [...tech.values()][0]?.day.asOf
   return (
     <Page className="industry-etf-page">
       <PageHero
         icon={<ListChecks size={22} />}
-        title="宽基与行业 ETF 清单"
-        subtitle={`${BROAD_ETFS.length} 类宽基首选；${INDUSTRY_GROUPS.length} 个行业组，共 ${TOTAL_ETF_COUNT} 只 ETF。宽基、因子与主题的流派说明请看「ETF 流派地图」。`}
+        title="ETF 与债券基金清单"
+        subtitle={`${BROAD_ETFS.length} 类宽基；${OTHER_ETFS.length} 只策略、商品与货币 ETF；${BOND_FUNDS.length} 只债券基金（场外）；${INDUSTRY_GROUPS.length} 个行业组，共 ${TOTAL_ETF_COUNT} 只行业 ETF。宽基、因子与主题的流派说明请看「ETF 流派地图」。${asOf ? `技术面按 ${asOf} 收盘（场外基金按实际披露净值日）计算。` : ''}`}
       />
       <p className="industry-etf-disclaimer" role="note">本页为公开资料整理与个人研究记录，不构成投资建议；ETF 价格会波动，决策请自行判断并承担风险。</p>
       <div>
@@ -115,6 +120,8 @@ export default function IndustryEtf(): JSX.Element {
           <div className="industry-etf-nav__group">
             <span className="industry-etf-nav__group-label">一级分类：</span>
             <a href="#broad-etf" className="industry-etf-nav__pill industry-etf-nav__pill--primary"><span>宽基 ETF</span><span className="industry-etf-nav__count">{BROAD_ETFS.length}</span></a>
+            <a href="#other-etf" className="industry-etf-nav__pill industry-etf-nav__pill--primary"><span>策略/商品/货币 ETF</span><span className="industry-etf-nav__count">{OTHER_ETFS.length}</span></a>
+            <a href="#bond-fund" className="industry-etf-nav__pill industry-etf-nav__pill--primary"><span>债券基金（场外）</span><span className="industry-etf-nav__count">{BOND_FUNDS.length}</span></a>
             <a href="#industry-etf" className="industry-etf-nav__pill industry-etf-nav__pill--primary"><span>行业 ETF</span><span className="industry-etf-nav__count">{TOTAL_ETF_COUNT}</span></a>
           </div>
           <div className="industry-etf-nav__subgroup" aria-label="行业 ETF 二级分类">
@@ -129,7 +136,9 @@ export default function IndustryEtf(): JSX.Element {
         </nav>
       </div>
 
-      <BroadEtfList />
+      <BroadEtfList tech={tech} />
+      <OtherEtfList tech={tech} />
+      <BondFundList tech={tech} />
 
       <section id="industry-etf" className="industry-etf-main-section" aria-labelledby="industry-etf-main-title">
         <div className="industry-etf-main-header">
@@ -151,18 +160,14 @@ export default function IndustryEtf(): JSX.Element {
             <div className="industry-table-wrapper" role="region" aria-label={`${group.name} ETF 表格`} tabIndex={0}>
               <table className="report-table industry-etf-table">
                 <colgroup>
-                  <col />
-                  <col />
-                  <col />
-                  <col />
-                  <col />
-                  <col />
+                  <col /><col /><col /><col /><col /><col /><col />
                 </colgroup>
                 <thead>
                   <tr>
                     <th>代码</th>
                     <th>名称</th>
                     <th>行业分布</th>
+                    <th>技术面</th>
                     <th>备注</th>
                     <th>参考</th>
                     <th>网格</th>
@@ -173,6 +178,7 @@ export default function IndustryEtf(): JSX.Element {
                     <tr key={`${item.code}-${item.name}`}>
                       <NoteCells item={item} />
                       <SubThemeCell subTheme={item.subTheme} />
+                      <td className="etf-tech-cell"><EtfTechCell rec={tech.get(item.code)} /></td>
                       <td className="etf-remark-cell"><EtfDocumentRemark code={item.code} /></td>
                       <td className="etf-ref-cell">
                         <Reference item={item} />

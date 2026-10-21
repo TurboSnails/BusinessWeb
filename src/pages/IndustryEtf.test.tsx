@@ -10,9 +10,9 @@ const renderPage = () => render(<MemoryRouter><IndustryEtf /></MemoryRouter>)
 describe('IndustryEtf', () => {
   it('显示 7 个行业组与 59 只 ETF，总数与各组数量一致，且行业组为二级分类', () => {
     renderPage()
-    expect(screen.getByText(/7 个行业组，共 59 只 ETF/)).toBeTruthy()
-    expect(screen.getAllByRole('table')).toHaveLength(8)
-    const rows = screen.getAllByRole('row').filter(r => !r.closest('#broad-etf') && within(r).queryAllByRole('columnheader').length === 0)
+    expect(screen.getByText(/7 个行业组，共 59 只行业 ETF/)).toBeTruthy()
+    expect(screen.getAllByRole('table')).toHaveLength(10)
+    const rows = screen.getAllByRole('row').filter(r => !r.closest('#broad-etf') && !r.closest('#other-etf') && !r.closest('#bond-fund') && within(r).queryAllByRole('columnheader').length === 0)
     expect(rows).toHaveLength(59)
     // 一级分类：行业 ETF
     expect(screen.getByRole('heading', { level: 2, name: '行业 ETF' })).toBeTruthy()
@@ -103,12 +103,21 @@ describe('IndustryEtf', () => {
 
   it('每只 ETF 都有网格详情入口，按代码打开（本站 /grid-trading）', () => {
     renderPage()
-    const links = screen.getAllByRole('link', { name: '行情·网格' }).filter(link => !link.closest('#broad-etf'))
+    const links = screen.getAllByRole('link', { name: '行情·网格' }).filter(link => !link.closest('#broad-etf') && !link.closest('#other-etf'))
     expect(links).toHaveLength(59)
     const row = screen.getByText('159928').closest('tr')!
     const href = within(row).getByRole('link', { name: '行情·网格' }).getAttribute('href')!
     expect(href.startsWith('/grid-trading?code=159928&name=')).toBe(true)
     expect(new URL(href, 'http://x').searchParams.get('name')).toBeTruthy()
+  })
+
+  it('列出策略/商品/货币 ETF 与 7 只场外债基，技术面取不到时显示占位而不报错', () => {
+    renderPage()
+    const other = screen.getByRole('heading', { name: '策略、商品与货币 ETF' }).closest('section')!
+    expect(within(other).getAllByRole('row').slice(1)).toHaveLength(3)
+    const bond = screen.getByRole('heading', { name: '债券基金（场外）' }).closest('section')!
+    expect(within(bond).getAllByRole('row').slice(1)).toHaveLength(7)
+    expect(within(bond).getAllByRole('link', { name: '债基研究报告' })).toHaveLength(7)
   })
 
   it('外部参考链接在新标签页打开并带 rel=noopener noreferrer', () => {
