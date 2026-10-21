@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-export const ETF_TECHNICAL_FILE = 'etf-technical-2026-10-21.json'
+export const ETF_TECHNICAL_FILE = 'etf-technical-latest.json'
 
 export type TechPeriod = {
   asOf: string; complete: boolean; count: number; limited?: boolean

@@ -363,3 +363,7 @@
 .etf-tech__chip--down { color: #067647; }
 .etf-tech__rsi { font-size: .75rem; color: var(--text-secondary); cursor: help; }
 .etf-other-note { margin: 8px 0 0; font-size: .82rem; color: var(--text-secondary); line-height: 1.6; }
+
+.etf-method ul { margin: 8px 0 0; padding-left: 1.2em; font-size: .88rem; line-height: 1.8; color: var(--text-secondary); }
+.etf-method strong { color: var(--text-primary); }
+@media (max-width: 720px) { .industry-table-wrapper { box-shadow: inset -12px 0 10px -12px rgba(0,0,0,.25); } .industry-table-wrapper::before { content: '← 左右滑动查看全部列'; display: block; padding: 6px 14px 0; font-size: .75rem; color: var(--text-tertiary); } }

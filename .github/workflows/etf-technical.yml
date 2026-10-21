@@ -1,0 +1,49 @@
+name: Update ETF technical data
+
+on:
+  schedule:
+    # 北京时间交易日 15:50，收盘后；场外基金净值次日披露，晚间再跑一次补净值
+    - cron: '50 7 * * 1-5'
+    - cron: '30 13 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: etf-technical
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Collect ETF and bond fund technical indicators
+        run: node scripts/etf-technical.mjs
+      - name: Commit updated data
+        id: commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- public/data/etf-technical-latest.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/data/etf-technical-latest.json
+          git commit -m "data(etf): 更新 ETF 与债基技术面"
+          git pull --rebase origin main
+          git push
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+      - name: Deploy GitHub Pages
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --ref main

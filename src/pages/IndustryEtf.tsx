@@ -4,7 +4,7 @@ import { ListChecks } from 'lucide-react'
 import PageHero from '../components/PageHero'
 import { Page } from '../components/ui'
 import EtfTechCell from '../components/EtfTechCell'
-import { useEtfTechnical, type EtfTechRecord } from '../data/etfTechnical'
+import { ETF_TECHNICAL_FILE, useEtfTechnical } from '../data/etfTechnical'
 import { OtherEtfList, BondFundList, OTHER_ETFS, BOND_FUNDS } from './EtfOtherList'
 import '../styles/etf-notes.css'
 import BroadEtfList from './BroadEtfList'
@@ -196,6 +196,20 @@ export default function IndustryEtf(): JSX.Element {
           </div>
         </section>
       ))}
+      </section>
+
+      <section id="etf-method" className="industry-group-section" aria-labelledby="etf-method-title">
+        <div className="industry-group-card etf-method">
+          <h2 id="etf-method-title" className="industry-group-title">指标依据</h2>
+          <ul>
+            <li><strong>均线</strong>：收盘价 &gt; MA5 &gt; MA10 &gt; MA20 为多头，反之为空头，其余为震荡；K 线不足 20 根不判断。</li>
+            <li><strong>MACD</strong>：DIF = EMA12 − EMA26，DEA = EMA9(DIF)，柱 = 2 × (DIF − DEA)；DIF 在 DEA 之上为偏多，之下为偏空。</li>
+            <li><strong>RSI</strong>：Wilder 14 周期；≥70 超买，≤30 超卖。债基净值走势平滑，RSI 常年偏高，参考价值有限。</li>
+            <li><strong>周线、月线</strong>：由日线聚合，周线按周五收盘完成，月线本月未结束时随行情变化，悬停标签可看是否已完成。</li>
+            <li><strong>数据来源</strong>：ETF 为腾讯行情前复权日线（无复权数据时用不复权）；场外债基为天天基金披露净值，按实际披露日计算，不用估算净值。</li>
+          </ul>
+          <p className="etf-other-note">技术指标只描述价格走势，不判断估值高低，也不构成投资建议。<a href={`${import.meta.env.BASE_URL}data/${ETF_TECHNICAL_FILE}`} target="_blank" rel="noopener noreferrer">查看行情复算数据 ↗</a></p>
+        </div>
       </section>
     </Page>
   )

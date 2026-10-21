@@ -110,6 +110,8 @@ export async function generateDataset(asOf, { universe, load, fixtureDir } = {})
   }
 }
 
+const MIN_RECORDS = 70
+
 async function main() {
   const args = process.argv.slice(2)
   let asOf, fixtureDir
@@ -122,8 +124,15 @@ async function main() {
   }
   asOf ??= new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10)
   const dataset = await generateDataset(asOf, { fixtureDir })
+  // 线上只保留一份最新文件，历史靠 git；有效记录太少时不覆盖，避免接口故障把好数据冲掉
   const path = fixtureDir ? resolve(fixtureDir, `etf-technical-${asOf}.json`)
-    : fileURLToPath(new URL(`../public/data/etf-technical-${asOf}.json`, import.meta.url))
+    : fileURLToPath(new URL('../public/data/etf-technical-latest.json', import.meta.url))
+  if (!fixtureDir && dataset.records.length < MIN_RECORDS) {
+    console.error(`有效记录 ${dataset.records.length}/79 低于 ${MIN_RECORDS}，保留原文件`)
+    for (const error of dataset.errors) console.warn(`${error.code}: ${error.reason}`)
+    process.exitCode = 1
+    return
+  }
   const text = JSON.stringify(dataset, null, 2) + '\n'
   await writeFile(path, text)
   console.log(`${path}: ${Buffer.byteLength(text)} bytes, ${dataset.records.length}/79 records, ${dataset.errors.length} errors`)
