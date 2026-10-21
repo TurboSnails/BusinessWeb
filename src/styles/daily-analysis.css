@@ -100,3 +100,25 @@
 .daily-trend__ranks li small { margin: 0; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
 .daily-trend__names { text-align: left !important; white-space: normal; min-width: 96px; }
 @media (max-width: 720px) { .daily-sparks { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* 市场情绪 */
+.sentiment-block { margin-top: 18px; }
+.sentiment-block:first-of-type { margin-top: 0; }
+.sentiment-block h3 { margin: 0 0 10px; font-size: .95rem; }
+.sentiment-block h3 small { margin-left: 8px; font-weight: 400; font-size: .78rem; color: var(--text-secondary); }
+.sentiment-unavailable { margin: 0; font-size: .85rem; color: var(--text-secondary); }
+.sentiment-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 0 28px; }
+.sentiment-split { display: block; width: 100%; height: 14px; border-radius: 999px; background: var(--accent-soft); }
+.sentiment-split .is-up, .sentiment-buckets .is-up { fill: var(--up, #d92d20); }
+.sentiment-split .is-down, .sentiment-buckets .is-down { fill: var(--down, #12b76a); }
+.sentiment-split .is-flat, .sentiment-buckets .is-flat { fill: var(--border-subtle, #cfd4dc); }
+.sentiment-split__legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 8px 0 14px; font-size: .82rem; color: var(--text-secondary); }
+.sentiment-buckets { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; }
+.sentiment-buckets li { display: grid; grid-template-columns: 56px minmax(0, 1fr) 44px; gap: 8px; align-items: center; font-size: .8rem; }
+.sentiment-buckets__label { color: var(--text-secondary); text-align: right; }
+.sentiment-buckets__track { display: block; width: 100%; height: 10px; border-radius: 6px; background: var(--accent-soft); }
+.sentiment-buckets__n { font-variant-numeric: tabular-nums; }
+.sentiment-line { margin: 0 0 8px; font-size: .88rem; color: var(--text-secondary); line-height: 1.6; }
+.sentiment-chips { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.sentiment-chips li { display: inline-flex; gap: 6px; align-items: baseline; padding: 3px 10px; border-radius: 999px; background: var(--accent-soft); font-size: .8rem; font-variant-numeric: tabular-nums; }
+.sentiment-chips small { color: var(--text-secondary); }

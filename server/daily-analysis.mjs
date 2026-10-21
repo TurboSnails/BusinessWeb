@@ -1,4 +1,5 @@
 import { readFile } from 'node:fs/promises'
+import { buildMarketSentiment } from './market-sentiment-sources.mjs'
 
 const INDEX_NAMES = { sh000001: '上证指数', sz399001: '深证成指', sz399006: '创业板指' }
 const SINA = 'https://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/'
@@ -82,7 +83,7 @@ export async function readDailyArchive() {
   } catch { return [] }
 }
 
-export async function buildDailyAnalysis({ fetchImpl = fetch, now = new Date(), history } = {}) {
+export async function buildDailyAnalysis({ fetchImpl = fetch, now = new Date(), history, sentimentOptions = {} } = {}) {
   const today = shanghaiDate(now)
   const fetchedAt = now.toISOString()
   const sources = []
@@ -92,7 +93,7 @@ export async function buildDailyAnalysis({ fetchImpl = fetch, now = new Date(), 
     return kind === 'quotes' ? new TextDecoder('gb18030').decode(await response.arrayBuffer()) : response.json()
   }
   const collect = async (id, label, url, parser, kind) => {
-    const source = { id, label, url, date: null, status: 'unavailable', note: '' }
+    const source = { id, label, url, date: null, fetchedAt, status: 'unavailable', note: '' }
     sources.push(source)
     try { return { source, value: parser(await get(url, kind)) } }
     catch (error) { source.note = error instanceof Error ? error.message : '数据源暂时不可用'; return { source, value: null } }
@@ -152,8 +153,13 @@ export async function buildDailyAnalysis({ fetchImpl = fetch, now = new Date(), 
   const lbRate = upStocks && previous?.upStocks?.length
     ? round(previous.upStocks.filter(row => currentCodes.has(row.code)).length / previous.upStocks.length * 100, 1) : null
   const localHour = Number(new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Shanghai', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(now).replace(':', ''))
+  const previousDates = []
+  for (let date = previousDate; date && previousDates.length < 5; date = previousMarketDate(date)) previousDates.push(date)
+  const sentiment = await buildMarketSentiment({ get, poolUrl, parsePool, parseQuotes,
+    dataDate, today, fetchedAt, history: archives, previousDates, up, broken, down, indexRows,
+    blueChipSymbols: sentimentOptions.blueChipSymbols, drawdownThreshold: sentimentOptions.drawdownThreshold })
   return {
-    schemaVersion: 1, dataDate, fetchedAt,
+    schemaVersion: 1, dataDate, fetchedAt, sentiment,
     session: dataDate !== today ? 'previous' : localHour >= 1515 ? 'closed' : 'intraday',
     metrics: {
       ztCount: upStocks?.length ?? null, ztOpen: brokenStocks?.length ?? null,

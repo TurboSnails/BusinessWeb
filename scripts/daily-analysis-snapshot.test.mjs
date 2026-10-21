@@ -57,3 +57,19 @@ test('其他来源恢复也不能覆盖已经取得的涨停股池', async () =>
     assert.equal(JSON.parse(await readFile(file, 'utf8')).snapshots[0].upStocks.length, 1)
   } finally { await rm(dir, { recursive: true, force: true }) }
 })
+
+test('可选情绪数据兼容旧快照，已成功的情绪块不能被失败块覆盖', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'daily-sentiment-'))
+  const file = join(dir, 'daily-analysis.json')
+  const first = snapshot('2026-10-12')
+  const sentiment = { asOf: '2026-10-12', breadth: { status: 'ready', total: 5000 } }
+  try {
+    await writeFile(file, JSON.stringify({ schemaVersion: 1, snapshots: [first] }))
+    const next = { ...first, fetchedAt: '2026-10-12T09:00:00Z', sentiment }
+    assert.equal((await updateDailyArchive({ file, now, build: async () => next })).saved, true)
+    for (const degraded of [undefined, { ...sentiment, breadth: { status: 'error', reason: 'offline' } }, { ...sentiment, breadth: { status: 'incomplete', reason: 'short' } }]) {
+      assert.equal((await updateDailyArchive({ file, now, build: async () => ({ ...next, fetchedAt: '2026-10-12T10:00:00Z', sentiment: degraded }) })).saved, false)
+    }
+    assert.equal(JSON.parse(await readFile(file, 'utf8')).snapshots[0].sentiment.breadth.total, 5000)
+  } finally { await rm(dir, { recursive: true, force: true }) }
+})

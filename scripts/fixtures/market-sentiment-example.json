@@ -1,0 +1,240 @@
+{
+  "asOf": "2026-10-21",
+  "breadth": {
+    "status": "ready",
+    "total": 4000,
+    "up": 3999,
+    "down": 1,
+    "flat": 0,
+    "suspended": 0,
+    "buckets": {
+      "limitUp": 1,
+      "above7": 0,
+      "from5To7": 0,
+      "from3To5": 0,
+      "from0To3": 3998,
+      "flat": 0,
+      "from0ToMinus3": 0,
+      "fromMinus3ToMinus5": 0,
+      "fromMinus5ToMinus7": 1,
+      "belowMinus7": 0,
+      "limitDown": 0
+    },
+    "medianPct": 1
+  },
+  "turnover": {
+    "status": "ready",
+    "amount": 200,
+    "vsPreviousPct": null,
+    "vsFiveDayAveragePct": null
+  },
+  "limitUp": {
+    "status": "ready",
+    "yesterdayCount": 1,
+    "averagePct": -6,
+    "redRate": 0,
+    "reLimitUpCount": 0,
+    "brokenCount": 1,
+    "sealRate": 0
+  },
+  "drawdown": {
+    "status": "ready",
+    "threshold": -5,
+    "count": 1,
+    "consecutiveCount": 1,
+    "stocks": [
+      {
+        "code": "600000",
+        "name": "浦发银行",
+        "pct": -6
+      }
+    ]
+  },
+  "weight": {
+    "status": "ready",
+    "indices": [
+      {
+        "symbol": "sh000001",
+        "code": "000001",
+        "name": "上证指数",
+        "change": 1
+      },
+      {
+        "symbol": "sz399001",
+        "code": "399001",
+        "name": "深证成指",
+        "change": 1
+      },
+      {
+        "symbol": "sh000300",
+        "code": "000300",
+        "name": "sh000300",
+        "change": 1
+      },
+      {
+        "symbol": "sh000016",
+        "code": "000016",
+        "name": "sh000016",
+        "change": 1
+      },
+      {
+        "symbol": "sz399006",
+        "code": "399006",
+        "name": "创业板指",
+        "change": 1
+      }
+    ],
+    "blueChips": [
+      {
+        "code": "600519",
+        "name": "sh600519",
+        "pct": 1
+      },
+      {
+        "code": "300750",
+        "name": "sz300750",
+        "pct": 1
+      },
+      {
+        "code": "600036",
+        "name": "sh600036",
+        "pct": 1
+      },
+      {
+        "code": "601318",
+        "name": "sh601318",
+        "pct": 1
+      },
+      {
+        "code": "601398",
+        "name": "sh601398",
+        "pct": 1
+      },
+      {
+        "code": "601939",
+        "name": "sh601939",
+        "pct": 1
+      },
+      {
+        "code": "601288",
+        "name": "sh601288",
+        "pct": 1
+      },
+      {
+        "code": "601988",
+        "name": "sh601988",
+        "pct": 1
+      },
+      {
+        "code": "601857",
+        "name": "sh601857",
+        "pct": 1
+      },
+      {
+        "code": "600028",
+        "name": "sh600028",
+        "pct": 1
+      },
+      {
+        "code": "600900",
+        "name": "sh600900",
+        "pct": 1
+      },
+      {
+        "code": "601088",
+        "name": "sh601088",
+        "pct": 1
+      },
+      {
+        "code": "600030",
+        "name": "sh600030",
+        "pct": 1
+      },
+      {
+        "code": "601166",
+        "name": "sh601166",
+        "pct": 1
+      },
+      {
+        "code": "600276",
+        "name": "sh600276",
+        "pct": 1
+      },
+      {
+        "code": "600887",
+        "name": "sh600887",
+        "pct": 1
+      },
+      {
+        "code": "000858",
+        "name": "sz000858",
+        "pct": 1
+      },
+      {
+        "code": "000333",
+        "name": "sz000333",
+        "pct": 1
+      },
+      {
+        "code": "000651",
+        "name": "sz000651",
+        "pct": 1
+      },
+      {
+        "code": "002594",
+        "name": "sz002594",
+        "pct": 1
+      }
+    ],
+    "averagePct": 1,
+    "marketMedianPct": 1,
+    "strength": "equal"
+  },
+  "sources": [
+    {
+      "id": "sentimentBreadthCount",
+      "label": "新浪A股总数",
+      "url": "https://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeStockCount?node=hs_a",
+      "date": null,
+      "fetchedAt": "2026-10-21T08:00:00.000Z",
+      "status": "undated",
+      "note": "hs_a A股；无源交易日期，仅代表本次采集"
+    },
+    {
+      "id": "sentimentBreadth",
+      "label": "新浪A股分页行情（无交易日期）",
+      "url": "https://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?node=hs_a&sort=symbol&asc=1&num=80&page=1",
+      "date": null,
+      "fetchedAt": "2026-10-21T08:00:00.000Z",
+      "status": "undated",
+      "note": "hs_a A股；无源交易日期，仅代表本次采集"
+    },
+    {
+      "id": "sentimentYesterday",
+      "label": "东方财富昨日涨停股池",
+      "url": "https://push2ex.eastmoney.com/getYesterdayZTPool?ut=7eea3edcaed734bea9cbfc24409ed989&dpt=wz.ztzt&Pageindex=0&pagesize=10000&sort=zs%3Adesc&date=20261021",
+      "date": "2026-10-21",
+      "fetchedAt": "2026-10-21T08:00:00.000Z",
+      "status": "ready",
+      "note": ""
+    },
+    {
+      "id": "sentimentWeight",
+      "label": "腾讯主要指数与蓝筹批量行情",
+      "url": "https://qt.gtimg.cn/q=sh000001,sz399001,sh000300,sh000016,sz399006,sh600519,sz300750,sh600036,sh601318,sh601398,sh601939,sh601288,sh601988,sh601857,sh600028,sh600900,sh601088,sh600030,sh601166,sh600276,sh600887,sz000858,sz000333,sz000651,sz002594",
+      "date": "2026-10-21",
+      "fetchedAt": "2026-10-21T08:00:00.000Z",
+      "status": "ready",
+      "note": ""
+    },
+    {
+      "id": "sentimentYesterdayQuotes0",
+      "label": "腾讯昨日涨停股今日行情",
+      "url": "https://qt.gtimg.cn/q=sh600000",
+      "date": "2026-10-21",
+      "fetchedAt": "2026-10-21T08:00:00.000Z",
+      "status": "ready",
+      "note": ""
+    }
+  ]
+}

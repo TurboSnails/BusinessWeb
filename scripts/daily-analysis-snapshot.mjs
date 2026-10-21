@@ -2,6 +2,7 @@ import { readFile, rename, rm, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { buildDailyAnalysis } from '../server/daily-analysis.mjs'
+import { canReplaceSentiment } from '../server/market-sentiment.mjs'
 import { canReplaceSnapshot } from '../src/features/daily-analysis/quality.mjs'
 
 const DEFAULT_FILE = fileURLToPath(new URL('../public/data/daily-analysis.json', import.meta.url))
@@ -18,6 +19,10 @@ export async function updateDailyArchive({ file = DEFAULT_FILE, now = new Date()
   if (snapshot.dataDate !== today || snapshot.session !== 'closed') return { saved: false, dataDate: snapshot.dataDate, reason: '未取得当日收盘快照，保留已有归档' }
   const previous = history.find(row => row.dataDate === snapshot.dataDate)
   if (previous && !canReplaceSnapshot(previous, snapshot)) return { saved: false, dataDate: snapshot.dataDate, reason: '新快照未更新或有来源退化，保留已有归档' }
+  if (previous?.sentiment && (!canReplaceSentiment(previous.sentiment, snapshot.sentiment)
+    || !canReplaceSnapshot({ ...previous, sources: previous.sentiment.sources ?? [] }, { ...snapshot, sources: snapshot.sentiment?.sources ?? [] }))) {
+    return { saved: false, dataDate: snapshot.dataDate, reason: '情绪数据退化，保留已有归档' }
+  }
   const snapshots = [snapshot, ...history.filter(row => row.dataDate !== snapshot.dataDate)].sort((a, b) => b.dataDate.localeCompare(a.dataDate)).slice(0, 60)
   const temporary = `${file}.${process.pid}.tmp`
   try {

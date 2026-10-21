@@ -27,7 +27,7 @@ export function MarketStats({ data }: { data: DailySnapshot }): JSX.Element {
       <Stat label="连板股票" value={valueText(m.lbCount)} sub="连续涨停 ≥ 2 个交易日" />
       <Stat label="最高连板" value={valueText(m.maxBoard, ' 板')} />
       <Stat label="涨停晋级率" value={valueText(m.lbRate, '%')} sub={m.lbRate === null ? '需上一交易日同源完整快照' : '昨日涨停股今日再次涨停的比例'} />
-      <Stat label="上涨 / 下跌" value={m.upCount === null || m.downCount === null ? '—' : `${m.upCount} / ${m.downCount}`} sub="全市场家数来源尚未覆盖" />
+      <Stat label="上涨 / 下跌" value={m.upCount === null || m.downCount === null ? '—' : `${m.upCount} / ${m.downCount}`} sub={m.upCount === null ? '见下方「市场情绪」涨跌统计' : '全市场家数'} />
     </StatGrid>
     <div className="daily-missing"><div>跌停打开数 <strong>—</strong></div><div>跌停封板率 <strong>—</strong></div><p>尚无覆盖所有“曾跌停后打开”股票的可靠数据，保留缺失值。</p></div>
   </Card>
