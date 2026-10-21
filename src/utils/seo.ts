@@ -20,6 +20,7 @@ const EXACT: Record<string, RouteSeo> = {
   '/': { title: 'Live｜投资 · AI · 独立开发 · 自由生活', description: DEFAULT_DESCRIPTION },
   '/invest': { title: '投资｜A 股与美股研究、方法与工具', description: '沪深 A 股与美股标普 500 的研究笔记、投资方法、ETF 指南与网格交易工具。' },
   '/ai/ai-skills': { title: 'AI Skills 工具库｜AI实验室', description: '可下载的 AI Skills：Orca 开发团队、投资分析、视频创作与小说写作，含安装方法和提示词示例。' },
+  '/industry-etf': { title: 'ETF 与债券基金清单', description: '宽基、策略、商品、货币 ETF、场外债基与 7 个行业组 59 只行业 ETF，附日周月均线、MACD、RSI 技术面与研究备注。' },
   '/invest/etf': { title: 'ETF 投资指南', description: 'ETF 的选择、定投与网格交易思路。' },
   '/invest/bond-fund-report': { title: '债基研究报告｜1—3 年持有', description: '2026 年 10 月债券基金研究报告存档，整理中短债、纯债与二级债基的历史数据和风险。原文数据未逐条复核。', noindex: true },
   '/invest/national-team': { title: '国家队持仓｜汇金、证金、社保的 A 股持仓', description: '按报告期追踪中央汇金、证金公司、社保基金等持有的 A 股：机构、行业、个股持仓与季度变化。' },

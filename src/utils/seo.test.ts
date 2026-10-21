@@ -16,4 +16,7 @@ describe('blog route SEO', () => {
     expect(resolveSeo('/blog/slow-investing', [{ ...post, status: 'draft' }])).toMatchObject({ known: false, noindex: true })
     expect(resolveSeo('/blog/unknown', [post])).toMatchObject({ known: false, noindex: true })
   })
+  it('ETF 清单页有独立标题而不是「页面不存在」', () => {
+    expect(resolveSeo('/industry-etf')).toMatchObject({ known: true, title: 'ETF 与债券基金清单' })
+  })
 })
