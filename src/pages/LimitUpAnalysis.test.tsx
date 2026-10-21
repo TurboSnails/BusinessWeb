@@ -20,6 +20,14 @@ describe('每日涨停状态展示', () => {
     await act(async () => fireEvent.click(screen.getByRole('checkbox', { name: '只看涨停' })))
     expect(String(fetcher.mock.calls[fetcher.mock.calls.length - 1]?.[0])).toContain('up_limit=0')
   })
+  it('默认显示涨停梯队，可切到板块明细并点梯队里的概念跳转', async () => {
+    await show('2026-09-30', valid)
+    expect(screen.getByRole('region', { name: '涨停梯队图' })).toBeTruthy()
+    expect(screen.queryByRole('group', { name: '概念板块' })).toBeNull()
+    await act(async () => fireEvent.click(screen.getByRole('tab', { name: '板块明细' })))
+    expect(screen.getByRole('group', { name: '概念板块' })).toBeTruthy()
+    expect(screen.queryByRole('region', { name: '涨停梯队图' })).toBeNull()
+  })
   it('接口故障显示错误而不显示无数据结论', async () => {
     await show('2026-09-30', { error: '失败' }, 502)
     expect(screen.getByRole('status').textContent).toContain('接口失败')

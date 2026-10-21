@@ -423,3 +423,31 @@
 .limitup-nowrap {
   white-space: nowrap;
 }
+
+/* 涨停梯队图 */
+.limitup-ladder__head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; }
+.limitup-ladder__head small { font-weight: 400; font-size: .8rem; color: var(--text-secondary); margin-left: 6px; }
+.limitup-ladder__tiers { display: flex; flex-direction: column; gap: 10px; }
+.limitup-tier { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 12px; align-items: start; padding: 10px 0; border-top: 1px solid var(--border-subtle); }
+.limitup-tier:first-child { border-top: none; }
+.limitup-tier__label { display: flex; flex-direction: column; align-items: center; padding: 8px 0; border-radius: 12px; background: var(--accent-soft); color: var(--up, #b42318); font-size: .85rem; }
+.limitup-tier__label strong { font-size: 1.5rem; line-height: 1.1; }
+.limitup-tier__label span { margin-top: 2px; font-size: .72rem; color: var(--text-secondary); }
+.limitup-tier__stocks { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
+.limitup-tier__stock { display: flex; flex-direction: column; gap: 3px; padding: 8px 10px; border: 1px solid var(--border-subtle); border-radius: 10px; min-width: 0; }
+.limitup-tier__name { font-weight: 600; color: var(--text-primary); }
+.limitup-tier__meta { font-size: .75rem; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.limitup-tier__tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.limitup-tier__tag { border: none; background: var(--accent-soft); color: var(--text-secondary); font-size: .72rem; padding: 1px 7px; border-radius: 999px; cursor: pointer; }
+.limitup-tier__tag:hover { color: var(--accent-ink); }
+@media (max-width: 640px) { .limitup-tier { grid-template-columns: 56px minmax(0, 1fr); } .limitup-tier__stocks { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); } }
+
+/* 板块排行矩阵 */
+.plate-rank-table { font-variant-numeric: tabular-nums; }
+.plate-rank-name { white-space: nowrap; font-weight: 600; }
+.plate-rank-date { font-size: .75rem; white-space: nowrap; }
+.plate-rank-cell { font-size: .8rem; color: var(--text-secondary); }
+.plate-rank-cell.is-hot { background: color-mix(in srgb, var(--up, #b42318) 14%, transparent); color: var(--up, #b42318); font-weight: 600; }
+.plate-rank-cell.is-down { color: var(--down, #067647); }
+.plate-rank-more { padding: 12px; text-align: center; }
+.limitup-down { color: var(--down, #067647); }

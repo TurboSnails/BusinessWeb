@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { PageTitle } from '../components/ui/PageTabs'
+import { PageTabs, PageTitle } from '../components/ui/PageTabs'
+import LimitUpLadder from '../features/limit-up/LimitUpLadder'
+import { buildLadder } from '../features/limit-up/ladder'
 import {
   
   Calendar,
@@ -13,7 +15,11 @@ import type { LimitUpConcept } from '../types'
 import { EmptyState, Page, TableWrap } from '../components/ui'
 import '../styles/a-share.css'
 
+type View = 'ladder' | 'plates'
+const VIEWS: Array<{ id: View; label: string }> = [{ id: 'ladder', label: '涨停梯队' }, { id: 'plates', label: '板块明细' }]
+
 export default function LimitUpAnalysis(): JSX.Element {
+  const [view, setView] = useState<View>('ladder')
   const [initial] = useState(() => { const view = readLimitUpView(shanghaiDate()); return { ...view, cached: getLimitUpCache(view.date, view.only) } })
   const [concepts, setConcepts] = useState<LimitUpConcept[]>(initial.cached?.result.concepts || [])
   const [selectedConcept, setSelectedConcept] = useState<string | null>(null)
@@ -100,8 +106,14 @@ export default function LimitUpAnalysis(): JSX.Element {
 
       {!selectedDate.startsWith('2026-') && <p className="limitup-note">当前节假日表已核实2026年；其他年份仅识别周末，节假日请另行核实。</p>}
 
+      <PageTabs label="涨停视图" items={VIEWS} value={view} onChange={setView} />
+
+      {view === 'ladder' && filteredConcepts.length > 0 && (
+        <LimitUpLadder tiers={buildLadder(filteredConcepts, onlyLimitUp)} onPickConcept={name => { setSelectedConcept(name); setView('plates') }} />
+      )}
+
       {/* 概念分类标签 */}
-      {filteredConcepts.length > 0 && (
+      {view === 'plates' && filteredConcepts.length > 0 && (
         <div className="ui-cluster ui-cluster--scroll limitup-concepts" role="group" aria-label="概念板块">
           {filteredConcepts.map((concept) => (
             <button type="button" key={concept.name} onClick={() => setSelectedConcept(concept.name)}
@@ -114,7 +126,7 @@ export default function LimitUpAnalysis(): JSX.Element {
       )}
 
       {/* 当前概念详情 */}
-      {currentConcept && (
+      {view === 'plates' && currentConcept && (
         <section className="ui-card limitup-detail" aria-label={currentConcept.name}>
           <div className="limitup-detail__head">
             <h2 className="limitup-detail__title">{currentConcept.name}</h2>

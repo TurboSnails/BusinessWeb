@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
-import { PageTitle } from '../components/ui/PageTabs'
+import { PageTabs, PageTitle } from '../components/ui/PageTabs'
+import PlateRanking from '../features/sector-rotation/PlateRanking'
 import { loadSectorPayload, readSectorView, saveSectorView, sectorStorageStatus, sectorUpdatedAt } from '../services/sectorCache'
 import { useSectorRefresh } from '../services/useSectorRefresh'
 import { shanghaiDate, isClosedDate, previousTradingDate } from '../services/limitUp'
@@ -24,7 +25,20 @@ interface SectorDetail {
   timesInTop10: number // 近1个月排进前10的次数
 }
 
+type SectorView = 'rotation' | 'ranking'
+const VIEW_TABS: Array<{ id: SectorView; label: string }> = [{ id: 'rotation', label: '板块轮动' }, { id: 'ranking', label: '板块排行' }]
+
+/** 入口：板块轮动（近 7 日前 N 名）与板块排行（近 20 日涨幅矩阵）两个标签；#plate-ranking 直达排行 */
 export default function SectorRotation(): JSX.Element {
+  const [view, setView] = useState<SectorView>(() => (typeof window !== 'undefined' && window.location.hash === '#plate-ranking' ? 'ranking' : 'rotation'))
+  const tabs = <PageTabs label="板块视图" items={VIEW_TABS} value={view} onChange={setView} />
+  if (view === 'ranking') {
+    return <Page className="sector-page"><PageTitle>板块轮动</PageTitle>{tabs}<PlateRanking /></Page>
+  }
+  return <SectorRotationView tabs={tabs} />
+}
+
+function SectorRotationView({ tabs }: { tabs: React.ReactNode }): JSX.Element {
   const [initialView] = useState(() => readSectorView())
   const restoredView = useRef(initialView)
   const [updatedAt, setUpdatedAt] = useState<string | null>(initialView?.updatedAt || null)
@@ -525,6 +539,7 @@ export default function SectorRotation(): JSX.Element {
   return (
     <Page className="sector-page">
       <PageTitle>板块轮动</PageTitle>
+      {tabs}
       <Callout tone="muted" className="sector-gap">
         这里只反映最近的价格强弱，不说明主题值不值得持有。涨得快的板块往往已经反映了预期，追涨容易买在高位。要研究一个主题，先看书第31章的三个问题，仓位只放主动额度（第9章）。不构成投资建议。
       </Callout>
