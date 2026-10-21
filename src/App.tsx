@@ -39,6 +39,7 @@ const EtfReview = lazy(() => import('./pages/EtfReview'))
 const GridRecordDetail = lazy(() => import('./pages/GridRecordDetail'))
 const Valuation = lazy(() => import('./pages/Valuation'))
 const ComprehensiveValuation = lazy(() => import('./pages/ComprehensiveValuation'))
+const FundamentalQuant = lazy(() => import('./pages/FundamentalQuant'))
 const Dcf = lazy(() => import('./pages/Dcf'))
 const Candidates = lazy(() => import('./pages/Candidates'))
 const Radar = lazy(() => import('./pages/Radar'))
@@ -112,6 +113,7 @@ export default function App(): JSX.Element {
         <Routes>
           <Route path="/valuation" element={<Valuation />} />
           <Route path="/invest/comprehensive-valuation" element={<ComprehensiveValuation />} />
+          <Route path="/invest/fundamental-quant" element={<FundamentalQuant />} />
           <Route path="/dcf" element={<Dcf />} />
           <Route path="/" element={<Home />} />
           <Route path="/invest" element={<InvestHub />} />

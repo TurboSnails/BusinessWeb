@@ -6,7 +6,7 @@ import { blogPaths } from './lib/blog-routes.mjs'
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const ORIGIN = (process.env.VITE_SITE_URL || 'https://business-web-black.vercel.app').replace(/\/+$/, '')
 
-const STATIC = ['/', '/invest', '/invest/etf', '/industry-etf', '/notes', '/invest/national-team', '/ai', '/ai/fullstack-roadmap', '/ai/dev-team', '/blog', '/life', '/about', '/pulse',
+const STATIC = ['/', '/invest', '/invest/etf', '/invest/fundamental-quant', '/industry-etf', '/notes', '/invest/national-team', '/ai', '/ai/fullstack-roadmap', '/ai/dev-team', '/blog', '/life', '/about', '/pulse',
   '/investment-plan-2026', '/investment-targets', '/mainland-investment-targets', '/limit-up-analysis', '/trading-philosophy',
   '/sector-rotation', '/daily-analysis', '/investment-strategy', '/first-book', '/first-book/slow-is-fast', '/future-trends', '/industry-landscape', '/research-notes', '/radar', '/grid-trading']
 
