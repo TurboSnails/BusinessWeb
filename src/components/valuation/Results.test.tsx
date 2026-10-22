@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { MemoryRouter } from 'react-router-dom';
 import { render, screen, fireEvent } from "@testing-library/react";
 import { it, expect } from "vitest";
 import Results from "./Results";
@@ -19,7 +20,7 @@ it("recalculates scenario prices from user assumptions and retains financial fac
       />
     );
   }
-  render(<Workbench />);
+  render(<MemoryRouter><Workbench /></MemoryRouter>);
   fireEvent.change(screen.getByLabelText("预测 EPS"), {
     target: { value: "10" },
   });

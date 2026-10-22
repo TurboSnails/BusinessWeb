@@ -5,11 +5,12 @@
 | Skill 文件夹 | 适合的问题 | 交付 |
 | --- | --- | --- |
 | stock-analysis | 美股、港股、A 股公司研究、商业模式、核心假设、盈利预测、估值、专家圆桌；按需回测与组合风险 | 结论卡、业务驱动树、假设与敏感性、预测桥、三情景与盈亏比、专家分歧解决变量、证据索引与验证日历 |
+| comprehensive-equity-valuation | PE/PEG/PB、DCF与行业估值、现价对比及多人批量公司估值 | 四维精简分析、主辅锚推导、时点与币种、方法分歧、来源和缺项、可校验JSON |
 | trading-analysis-team | 多空辩论、交易情景、风险提案与裁决 | 多空交锋、交易情景、风险评估、Markdown 与 HTML 报告 |
 
 ## 安装
 
-1. 解压 ZIP。股票分析和交易分析单套包各有一个 Skill 文件夹；投资分析合集有上表两套。旧名称兼容包包含旧入口与完整 stock-analysis，两者一起保留。
+1. 解压 ZIP。各单套包有一个 Skill 文件夹；投资分析合集有上表三套。旧名称兼容包包含旧入口与完整 stock-analysis，两者一起保留。
 2. 保留整个文件夹，包括 `SKILL.md` 和全部 `references/`，不要只复制入口。
 3. 放到项目的 `.agents/skills/`（Codex / Antigravity CLI）、`.claude/skills/`（Claude Code）、`.opencode/skills/`（OpenCode）或 `.codebuddy/skills/`（CodeBuddy Code）。统一入口示例：`.agents/skills/stock-analysis/SKILL.md`。
 4. 重新打开会话，说明 Skill 名称、公司代码、市场、研究问题与期限。
@@ -21,6 +22,7 @@
 - 用股票分析比较两期同年度盈利预测，区分业务变化、假设变化和股本变化；没有旧快照时说明缺口。
 - 用股票分析对比 AAPL 与 MSFT，统一估值与财年口径，列出各自最大反证与下一次验证条件。
 - 用股票分析更新已有研究，说明哪些旧结论保留、调整或撤回，以及原因。
+- 用 comprehensive-equity-valuation 对公司清单做综合估值，分别评估PE/PEG/PB适用性，保留推导和来源，按同一口径比较现价；缺关键证据的公司标为等待证据。
 - 用交易分析团队对 NVDA 做风险诊断，说明主要风险和失效条件。
 
 ## 内容与使用条件
@@ -41,6 +43,6 @@
 
 ## 项目内更新下载包
 
-在 BusinessWeb 目录执行 `npm run skills:package`，先将网站研究方法同步到统一 Skill，再生成单套与合集 ZIP。正式合集包含股票分析和交易分析团队两套；兼容旧下载地址的两套 ZIP 也会更新。
+在 BusinessWeb 目录执行 `npm run skills:package`，先将网站研究方法同步到统一 Skill，再生成单套与合集 ZIP。正式合集包含股票分析、综合股票估值和交易分析团队三套；兼容旧下载地址的两套 ZIP 也会更新。
 
-`.agents/skills/stock-analysis/` 为统一来源，供 Codex 与 Antigravity CLI 共用。打包时将统一 Skill 和两套旧名称兼容入口及资料同步到 `.claude/skills/`、`.opencode/skills/` 与 `.codebuddy/skills/`，保持五种工具的项目版本一致。从 BusinessWeb 目录启动对应工具；重新打开会话确认列表出现 `stock-analysis`，再提出研究任务。
+`.agents/skills/` 为三套技能的权威来源，供 Codex 与 Antigravity CLI 共用。打包时将统一 Skill 和两套旧名称兼容入口及资料同步到 `.claude/skills/`、`.opencode/skills/` 与 `.codebuddy/skills/`，保持五种工具的项目版本一致。从 BusinessWeb 目录启动对应工具；重新打开会话确认列表出现对应技能，再提出研究任务。Kimi 等工具也可以显式读取 `comprehensive-equity-valuation/SKILL.md` 与其相对引用文件，按同一契约分析。

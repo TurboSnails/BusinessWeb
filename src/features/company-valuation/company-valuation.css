@@ -1,0 +1,28 @@
+.rn-valuation { display: flex; flex-direction: column; gap: 4px; min-width: 240px; max-width: 270px; color: var(--accent-ink); text-decoration: none; line-height: 1.55; overflow-wrap: anywhere; }
+.rn-valuation > span { font-size: .8rem; }
+.rn-valuation > small { font-size: .77rem; color: var(--text-secondary); white-space: normal; }
+.rn-valuation:hover strong { text-decoration: underline; text-underline-offset: 4px; }
+.rn-valuation__headline { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.rn-valuation__judgment { padding: 3px 9px; border-radius: 6px; font-size: .88rem; font-weight: 750; background: color-mix(in srgb, currentColor 10%, transparent); white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
+.rn-valuation.is-under.is-muted .rn-valuation__judgment { color: var(--text-secondary); background: color-mix(in srgb, var(--system-green) 6%, transparent); }
+.rn-valuation.is-under.is-strong .rn-valuation__judgment { color: color-mix(in srgb, var(--system-green) 65%, var(--text-primary)); background: color-mix(in srgb, var(--system-green) 12%, transparent); }
+.rn-valuation.is-under:not(.is-muted):not(.is-strong) .rn-valuation__judgment { color: color-mix(in srgb, var(--system-green) 75%, var(--text-primary)); }
+.rn-valuation.is-over.is-muted .rn-valuation__judgment { color: var(--text-secondary); background: color-mix(in srgb, var(--system-red) 6%, transparent); }
+.rn-valuation.is-over.is-strong .rn-valuation__judgment { color: color-mix(in srgb, var(--system-red) 65%, var(--text-primary)); background: color-mix(in srgb, var(--system-red) 12%, transparent); }
+.rn-valuation.is-over:not(.is-muted):not(.is-strong) .rn-valuation__judgment { color: color-mix(in srgb, var(--system-red) 75%, var(--text-primary)); }
+.rn-valuation.is-fair .rn-valuation__judgment { color: var(--text-secondary); background: color-mix(in srgb, currentColor 8%, transparent); }
+.rn-valuation.is-waiting { color: var(--text-secondary); }
+.rn-valuation.is-waiting .rn-valuation__judgment { color: var(--text-secondary); background: color-mix(in srgb, currentColor 8%, transparent); }
+.rn-valuation__qualifier { font-size: .7rem; color: var(--text-secondary); }
+.rn-valuation__evidence { font-size: .73rem; color: color-mix(in srgb, var(--text-secondary) 85%, var(--text-primary)); line-height: 1.4; overflow-wrap: anywhere; }
+.company-valuation-detail { scroll-margin-top: 100px; }
+.company-valuation-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding-block: 12px; border-block: 1px solid var(--border-subtle); }
+.company-valuation-table { min-width: 720px; }
+.company-valuation-table td { overflow-wrap: anywhere; }
+.company-valuation-table td pre { max-width: 350px; white-space: pre-wrap; font-size: .8rem; }
+.company-valuation-evidence { display: grid; grid-template-columns: 110px 1fr; gap: 12px; margin-block: 24px; }
+.company-valuation-evidence dt { color: var(--text-secondary); }
+.company-valuation-evidence dd { margin: 0; line-height: 1.8; }
+.company-valuation-detail li { line-height: 1.85; overflow-wrap: anywhere; }
+.company-valuation-detail details summary { cursor: pointer; min-height: var(--tap); align-content: center; }
+@media (max-width: 700px) { .company-valuation-summary { grid-template-columns: 1fr; gap: 0; } .company-valuation-evidence { grid-template-columns: 1fr; gap: 6px; } }

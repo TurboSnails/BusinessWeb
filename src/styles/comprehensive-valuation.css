@@ -70,7 +70,30 @@
 .cv-checklist input { flex-shrink: 0; width: 18px; height: 18px; margin: 3px 0 0; accent-color: var(--accent-ink); }
 .cv-sources { max-width: 76ch; margin-top: 52px; padding-top: var(--space-6); border-top: 1px solid var(--border-subtle); color: var(--text-secondary); font-size: .88rem; }
 .cv-sources h2 { font-size: 1.1rem; color: var(--text-primary); }
+.cv-import { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; margin-block: 20px; }
+.cv-import > label { display: flex; flex-direction: column; gap: 8px; max-width: 100%; }
+.cv-file { flex-basis: 100%; }
+.cv-file input { max-width: 440px; }
+.cv-button:disabled { opacity: .5; cursor: not-allowed; }
+.cv-source { padding: 16px; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); overflow-wrap: anywhere; }
+.cv-source summary { cursor: pointer; min-height: var(--tap); align-content: center; color: var(--accent-ink); }
+.cv-source p, .cv-source li { font-size: .85rem; }
+.cv-multiple-context { margin-block: 24px; align-items: center; }
+.cv-evidence { display: flex; flex-direction: column; gap: 8px; margin-block: 20px; }
+.cv-multiples-input { min-width: 880px; }
+.cv-multiples-input input { min-width: 100px; }
+.cv-multiple-methods { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); margin-block: 28px; }
+.cv-multiple-methods article { min-width: 0; border-top: 2px solid var(--border-subtle); padding-top: 16px; }
+.cv-multiple-methods h3 { font: 600 1.3rem/1.5 var(--font-serif); margin-top: 0; }
+.cv-multiple-methods p { font-size: .85rem; min-height: 5em; }
+.cv-method-toggle { display: flex; align-items: start; gap: 8px; min-height: var(--tap); }
+.cv-method-toggle input { flex-shrink: 0; margin-top: 3px; }
+.cv-multiple-methods dl > div { padding-block: 12px; border-bottom: 1px solid var(--border-subtle); }
+.cv-multiple-methods dt { font-size: .83rem; color: var(--text-secondary); }
+.cv-multiple-methods dd { margin: 4px 0 0; overflow-wrap: anywhere; }
+.cv-multiple-methods dd small { display: block; margin-top: 6px; }
 @media (max-width: 700px) {
+  .cv-multiple-methods { grid-template-columns: 1fr; }
   .cv-header h1 { font-size: 1.8rem; }
   .cv-overview { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .cv-overview a { padding: 16px 8px; }

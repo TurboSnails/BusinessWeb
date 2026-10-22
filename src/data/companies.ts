@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
+import { loadCompanyValuations, type CompanyValuation } from '../features/company-valuation/model'
 // 数据来源：Notion「投资计划 / 标普500分类」及「沪深产业分类」下的公司研究页，汇总于 2026-09-29。
 // 仅为个人研究笔记，情景价值与价位均为研究假设，不构成目标价或投资建议。
 
 export type Market = 'us' | 'cn' | 'hk' | 'adr' | 'ndx'
 
 export interface Company {
-  marketRefresh?: { adapterVersion?: number; checkedAt: string; evidenceCheckedAt?: string; priceDate: string; price: number; source: string; originalAsOf: string; programmatic?: boolean; tradability?: 'unverified' | 'no-known-restriction'; quoteDateKind?: 'provider-label' | 'provider-market-time' }
+  valuation?: CompanyValuation
+  marketRefresh?: { adapterVersion?: number; checkedAt: string; evidenceCheckedAt?: string; priceDate: string; price: number; currency?: string; source: string; originalAsOf: string; programmatic?: boolean; tradability?: 'unverified' | 'no-known-restriction'; quoteDateKind?: 'provider-label' | 'provider-market-time' }
   code: string
   name: string
   market: Market
@@ -68,7 +70,8 @@ export const loadCompanies = (market: Market): Promise<Company[]> => {
   const gen = fetch(`${import.meta.env.BASE_URL}data/${market}.json`)
     .then(r => (r.ok ? (r.json() as Promise<Company[]>) : []))
     .catch(() => [] as Company[])
-  return remember(genCache, market, Promise.all([coreOf(market), gen]).then(([core, g]) => (resolved[market] = core.merge(g))))
+  return remember(genCache, market, Promise.all([coreOf(market), gen, loadCompanyValuations(market)]).then(([core, g, valuations]) =>
+    (resolved[market] = core.merge(g).map(c => ({ ...c, valuation: valuations.get(c.code) })))))
 }
 
 export const useCompanies = (market: Market, enabled = true): { list: Company[]; loading: boolean; failed: boolean } => {

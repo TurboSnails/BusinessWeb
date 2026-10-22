@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, ExternalLink, CheckCircle2, AlertTriangle, ArrowRight } from 'lucide-react'
 import { useCompanies, useLynch, Market } from '../data/companies'
 import { usePageSeo } from '../components/RouteSeo'
@@ -19,6 +19,7 @@ import { localDay } from '../components/DecisionDialog'
 import { priceAnchorAge } from '../features/dcf/priceAnchor'
 import { buildDcfLink } from '../features/dcf'
 import QuickDcf from '../components/QuickDcf'
+import { CompanyValuationDetail } from '../features/company-valuation/CompanyValuation'
 import { Badge, Card, EmptyState, Page, Stat, StatGrid, TableWrap } from '../components/ui'
 import { PageDataFreshness } from '../components/ui/PageDataFreshness'
 import '../styles/research.css'
@@ -35,6 +36,7 @@ const TONE_INK: Record<Tone, string> = {
 export default function CompanyDetail(): JSX.Element {
   const { market, code } = useParams()
   const navigate = useNavigate()
+  const { hash } = useLocation()
   const mk = (market === 'cn' ? 'cn' : market === 'hk' ? 'hk' : market === 'adr' ? 'adr' : market === 'ndx' ? 'ndx' : 'us') as Market
   const { list, loading, failed } = useCompanies(mk)
   const lynchAll = useLynch()
@@ -46,6 +48,9 @@ export default function CompanyDetail(): JSX.Element {
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [market, code])
+  useEffect(() => {
+    if (hash === '#company-valuation' && company) document.getElementById('company-valuation')?.scrollIntoView?.()
+  }, [hash, company])
 
   const row = (text: string, accent: string, key: number, warn = false): JSX.Element => (
     <div key={key} className="rn-check">
@@ -193,6 +198,7 @@ export default function CompanyDetail(): JSX.Element {
       <div>
         <SignalSummary summary={signals} stage={researchStage(company)} own={ownStage(!!lastDecision, (() => { const p = toolProgress(company.market, company.code, tools); return !!(p.dcf || p.valuation) })())} />
         <ResearchNotice />
+        <CompanyValuationDetail company={company} />
         <QuickDcf market={company.market} code={company.code} name={company.name} price={price} />
         {(company.market === 'us' || company.market === 'cn' || company.market === 'hk' || company.market === 'adr') && (company.researchReport || company.metrics.some(([key]) => key === '圆桌复核日期')) && (
           <Card title={company.researchReport ? '公司研究 · 本轮事实复核与估值初稿' : '腾讯自选股投研专家团 · 本轮公告复核'}>

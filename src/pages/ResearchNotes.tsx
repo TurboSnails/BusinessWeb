@@ -41,6 +41,8 @@ import { DcfCell, DcfFilterChips } from '../components/DcfCell'
 import { useToolSources } from '../features/candidates/useToolSources'
 import { dcfOf } from '../features/candidates/links'
 import { matchDcfFilter, type DcfFilterId } from '../features/dcf/filter'
+import { CompanyValuationCell, CompanyValuationFilterChips } from '../features/company-valuation/CompanyValuation'
+import { matchValuationFilter, type ValuationFilter } from '../features/company-valuation/model'
 import { useCandidates } from '../features/candidates/useCandidates'
 import ResearchNotice from '../components/research/ResearchNotice'
 import { NDX_CODES, NDX_ASOF } from '../data/ndx100'
@@ -100,6 +102,7 @@ export default function ResearchNotes(): JSX.Element {
   const cand = useCandidates(inCategory)
   const tools = useToolSources()
   const [dcfF, setDcfF] = useState<DcfFilterId>('all')
+  const [valuationF, setValuationF] = useState<ValuationFilter>('all')
   const dcfOk = (c: Company): boolean => dcfF === 'all' || matchDcfFilter(dcfF, dcfOf(c.market, c.code, tools))
   const isCand = (c: Company): boolean => cand.items.some(i => i.market === c.market && i.code === c.code)
   const toggleCand = (c: Company): void => cand.toggle(c.market, c.code)
@@ -111,9 +114,9 @@ export default function ResearchNotes(): JSX.Element {
   const [stageF, setStageF] = useState<ResearchStage | '全部'>('全部')
   const [limit, setLimit] = useState(60)
   // 切换市场时清空筛选，避免上一个市场的评级/类型筛选让新市场的列表为空
-  useEffect(() => { setRatingF('全部'); setStageF('全部'); setQ(''); setLTier('全部'); setLMoat('全部'); setLType('全部') }, [catMarket])
+  useEffect(() => { setRatingF('全部'); setStageF('全部'); setQ(''); setLTier('全部'); setLMoat('全部'); setLType('全部'); setValuationF('all') }, [catMarket])
   const resetFilters = (): void => { setRatingF('全部'); setStageF('全部'); setQ(''); setLTier('全部'); setLMoat('全部'); setLType('全部'); updateParams({ sec: null }) }
-  useEffect(() => { setLimit(60) }, [catMarket, progSector, q, ratingF, lTier, lMoat, lType, view, dcfF])
+  useEffect(() => { setLimit(60) }, [catMarket, progSector, q, ratingF, lTier, lMoat, lType, view, dcfF, valuationF])
   const updateParams = (patch: Record<string, string | null>): void =>
     setParams(prev => {
       const next = new URLSearchParams(prev)
@@ -202,11 +205,11 @@ export default function ResearchNotes(): JSX.Element {
     const nw = ndxList.filter(c => c.market === 'ndx').length
     return `纳指100 页签列出 ${ndxList.length} 只权益证券（GOOGL 与 GOOG 为同一公司两类股）：其中 ${sp} 只与标普500 重合、${ad} 只属于「美股非标普」，直接引用已有研究页；另有 ${nw} 家手工研究，市场标记为 ndx，不计入标普500。${NDX_ASOF} 当前价格与采集时间逐家公司单列；原财务与模型不是本轮重新认证，估值仍为研究假设，不构成投资建议。`
   }
-  const shownCompanies = secList.filter(c => dcfOk(c) && (ratingF === '全部' || ratingOf(c) === ratingF) && (stageF === '全部' || researchStage(c) === stageF) && (!q.trim() || (c.name + c.code).toLowerCase().includes(q.trim().toLowerCase())))
+  const shownCompanies = secList.filter(c => matchValuationFilter(valuationF, c.valuation, c.marketRefresh) && (ratingF === '全部' || ratingOf(c) === ratingF) && (stageF === '全部' || researchStage(c) === stageF) && (!q.trim() || (c.name + c.code).toLowerCase().includes(q.trim().toLowerCase())))
 
   // 导出：公司、代码、评级、结论（当前筛选 / 全部）
   const exportJson = (list: typeof progList, label: string): void => {
-    const rows = list.map(c => ({ 市场: marketLabel(c.market), 代码: c.code, 公司: c.name, 板块: c.sector, 评级: c.rating, 归类: ratingOf(c), 成熟度: RESEARCH_STAGE[researchStage(c)].label, 结论: c.headline }))
+    const rows = list.map(c => ({ 市场: marketLabel(c.market), 代码: c.code, 公司: c.name, 板块: c.sector, 评级: c.rating, 归类: ratingOf(c), 成熟度: RESEARCH_STAGE[researchStage(c)].label, 结论: c.headline, 综合估值: c.valuation ?? null }))
     const blob = new Blob([JSON.stringify(rows, null, 2)], { type: 'application/json' })
     const a = document.createElement('a')
     a.href = URL.createObjectURL(blob)
@@ -302,6 +305,7 @@ export default function ResearchNotes(): JSX.Element {
 
   const renderProgress = (): JSX.Element => (
     <>
+      <p className="rn-hint">偏低 / 偏高按现价相对基准价的折溢价显示；区间内用淡色，区间外加强颜色。情景区间是模型敏感性，不认证为今日内在价值；未来情景单列，待核原因与完整推导可点击查看。原研究评级保留。</p>
       <div className="ui-cluster ui-cluster--scroll rn-filters" role="group" aria-label="板块">
         {['全部', ...progSectors].map(sec => (
           <button type="button" key={sec} onClick={() => updateParams({ sec: sec === '全部' ? null : sec })} className={chip(progSector === sec)} aria-pressed={progSector === sec}>
@@ -316,7 +320,7 @@ export default function ResearchNotes(): JSX.Element {
             {r} <span className="ui-chip__count">{r === '全部' ? secList.length : secList.filter(c => ratingOf(c) === r).length}</span>
           </button>
         ))}
-        <DcfFilterChips value={dcfF} onChange={setDcfF} className="ui-cluster" />
+        <CompanyValuationFilterChips value={valuationF} onChange={setValuationF} />
       </div>
       <div className="ui-cluster rn-filters" role="group" aria-label="研究成熟度">
         <span className="rn-inline-label">成熟度</span>
@@ -335,12 +339,12 @@ export default function ResearchNotes(): JSX.Element {
       </div>
       <div className="ui-card rn-card">
         <Table
-          heads={['公司', '评级', '一句话结论', 'DCF', '候选']}
+          heads={['公司', '评级', '一句话结论', '估值', '候选']}
           rows={shownCompanies.slice(0, limit).map(c => [
             <span>{companyLink(c.market, c.code, `${c.name} ${c.code}`)}{(() => { const st = researchStage(c); return <span className={badge(st === 'verified' ? 'blue' : 'gray', 'rn-badge-inline')} title={RESEARCH_STAGE[st].desc}>{RESEARCH_STAGE[st].label}</span> })()}{catMarket === 'ndx' ? <span className={badge(c.market === 'ndx' ? 'blue' : 'gray', 'rn-badge-inline')}>{c.market === 'ndx' ? '纳指新增' : c.market === 'us' ? '同属标普500' : '美股非标普'}</span> : null}</span>,
             <span className={badge(toneOf(c.rating))}>{c.rating.length > 12 ? c.rating.slice(0, 12) + '…' : c.rating}</span>,
             <span className="rn-cell-wide">{c.headline}</span>,
-            <DcfCell market={c.market} code={c.code} name={c.name} tools={tools} />,
+            <CompanyValuationCell company={c} />,
             <CandidateButton on={isCand(c)} onClick={() => toggleCand(c)} />,
           ])}
         />

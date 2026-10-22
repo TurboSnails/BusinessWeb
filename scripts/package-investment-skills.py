@@ -1,12 +1,12 @@
 """Package the complete investment skills with reproducible ZIP contents."""
 from pathlib import Path
-from shutil import copytree
+from shutil import copytree, ignore_patterns
 from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / '.agents' / 'skills'
 OUTPUT = ROOT / 'public' / 'investment-skills'
-SKILLS = ('stock-analysis', 'trading-analysis-team')
+SKILLS = ('stock-analysis', 'comprehensive-equity-valuation', 'trading-analysis-team')
 LEGACY_SKILLS = ('stock-research-expert', 'tencent-stock-research-team')
 
 
@@ -20,7 +20,7 @@ def write_package(filename, skills):
             entries.extend(
                 (f'{skill}/{path.relative_to(directory).as_posix()}', path)
                 for path in sorted(directory.rglob('*'))
-                if path.is_file() and not any(part.startswith('.') for part in path.relative_to(directory).parts)
+                if path.is_file() and not any(part.startswith('.') or part == '__pycache__' for part in path.relative_to(directory).parts) and path.suffix != '.pyc'
             )
         for name, path in entries:
             info = ZipInfo(name, date_time=(2026, 10, 6, 0, 0, 0))
@@ -33,8 +33,8 @@ def write_package(filename, skills):
 OUTPUT.mkdir(parents=True, exist_ok=True)
 # Codex and Antigravity share .agents; sync the unified skill and its legacy names.
 for platform in ('.claude', '.opencode', '.codebuddy'):
-    for skill in ('stock-analysis',) + LEGACY_SKILLS:
-        copytree(SOURCE / skill, ROOT / platform / 'skills' / skill, dirs_exist_ok=True)
+    for skill in ('stock-analysis', 'comprehensive-equity-valuation') + LEGACY_SKILLS:
+        copytree(SOURCE / skill, ROOT / platform / 'skills' / skill, dirs_exist_ok=True, ignore=ignore_patterns('__pycache__', '*.pyc'))
 for skill in SKILLS:
     write_package(f'{skill}.zip', (skill,))
 for skill in LEGACY_SKILLS:

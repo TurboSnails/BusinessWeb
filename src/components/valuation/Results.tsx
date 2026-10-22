@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from 'react-router-dom';
 import {
   METHODS,
   SCENARIOS,
@@ -65,6 +66,7 @@ export default function Results({
             </p>
           </div>
           <div className="valuation-actions">
+            <Link to="/invest/comprehensive-valuation">到综合估值比较 PE / PEG / PB</Link>
             <button
               onClick={() => {
                 const r = saveReport(report);

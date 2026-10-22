@@ -54,7 +54,7 @@ export function isReport(value: unknown): value is ValuationReport {
       !v.results ||
       typeof v.createdAt !== "string" ||
       !Number.isFinite(Date.parse(v.createdAt)) ||
-      !["pi", "codex", "claude", "opencode"].includes(v.backend) ||
+      !["pi", "codex", "claude", "opencode", "agy", "kimi"].includes(v.backend) ||
       typeof v.requestedModelId !== "string" ||
       typeof v.cliVersion !== "string" ||
       !(v.resolvedModelId === null || typeof v.resolvedModelId === "string")

@@ -724,7 +724,7 @@ export default function Valuation() {
                 </button>
               )}
             </div>
-            <Results report={report} onChange={setReport} />
+            <Results report={report} onChange={value => { setReport(value); saveLast(value) }} />
           </>
         ) : (
           <section className="valuation-empty">

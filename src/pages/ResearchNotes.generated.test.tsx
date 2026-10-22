@@ -21,6 +21,11 @@ beforeAll(async () => {
   vi.stubGlobal('scrollTo', () => {})
   vi.stubGlobal('fetch', async (url: string) => {
     const u = String(url)
+    if (u.includes('data/company-valuations/')) {
+      const marketFile = u.split('/').at(-1)!
+      const text = readFileSync(resolve('public/data/company-valuations', marketFile), 'utf8')
+      return { ok: true, json: async () => JSON.parse(text) } as Response
+    }
     const name = u.includes('us.json') ? 'us.json' : u.includes('hk.json') ? 'hk.json' : u.includes('adr.json') ? 'adr.json' : u.includes('lynch.json') ? 'lynch.json' : 'cn.json'
     const text = readFileSync(resolve('public/data', name), 'utf8')
     return { ok: true, json: async () => JSON.parse(text) } as Response
@@ -40,6 +45,23 @@ const renderAt = (path: string): void => {
 }
 
 describe('补全公司：研究笔记列表与详情', () => {
+  it('情景区间筛选与列表方向一致，区间内记录不再被筛成空列表', async () => {
+    renderAt('/research-notes?tab=category&m=us')
+    await waitFor(() => expect(screen.getByRole('link', { name: /估值 MSFT/ }).textContent).toContain('区间内'))
+    expect(screen.getByRole('link', { name: /估值 MSFT/ }).textContent).toContain('22.4%')
+    fireEvent.click(screen.getByRole('button', { name: '低于情景区间' }))
+    await waitFor(() => expect(screen.queryByRole('link', { name: /估值 MSFT/ })).toBeNull())
+    expect(screen.getByRole('link', { name: /估值 NVDA/ }).textContent).toContain('低于区间')
+    fireEvent.click(screen.getByRole('button', { name: '区间内' }))
+    await waitFor(() => expect(screen.getByRole('link', { name: /估值 MSFT/ })).toBeTruthy())
+    expect(screen.queryByRole('link', { name: /估值 NVDA/ })).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: '高于情景区间' }))
+    await waitFor(() => expect(screen.queryByRole('link', { name: /估值 MSFT/ })).toBeNull())
+    const valuationLinks = screen.getAllByRole('link', { name: /^估值 / })
+    expect(valuationLinks.length).toBeGreaterThan(0)
+    expect(valuationLinks.every(link => link.textContent?.includes('高于区间'))).toBe(true)
+  })
+
   it('圆桌复核同时覆盖手工与异步补全，撤回未验证的达标标签', async () => {
     expect(findCompany('us', 'PEP')?.headline).toContain('2026Q3 已披露')
     const list = await loadCompanies('us')

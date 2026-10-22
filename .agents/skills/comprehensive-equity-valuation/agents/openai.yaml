@@ -1,0 +1,4 @@
+interface:
+  display_name: "综合股票估值"
+  short_description: "统一 PE、PEG、PB 与现金流估值口径，生成可追溯的公司估值和现价对比"
+  default_prompt: "使用 $comprehensive-equity-valuation 对指定公司或公司清单做综合估值，记录来源、推导、分歧与现价对比。"

@@ -10,6 +10,13 @@ export interface SiteUpdate {
 // 使用中文描述结果和使用方式，不从 Git 提交、构建或日常数据刷新自动生成。
 export const SITE_UPDATES: readonly SiteUpdate[] = [
   {
+    id: 'comprehensive-company-valuation',
+    date: '2026-10-22',
+    title: '综合估值与公司价格对比上线',
+    description: '新增综合股票估值 Skill，统一评估 PE、PEG、PB 与现金流方法。公司研究可查看情景基准、现价与区间位置，筛选偏离情景区间的公司，并展开推导、来源和待核证据；未来情景单独展示。',
+    href: '/research-notes',
+  },
+  {
     id: 'matt-workflow',
     date: '2026-10-20',
     title: 'Matt Pocock 开发工作流 Skill 上线',

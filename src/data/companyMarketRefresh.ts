@@ -34,7 +34,7 @@ export function applyCompanyMarketRefresh(company: Company, quote?: MarketRefres
   const oldPrice = company.metrics.find(([label]) => /价格锚点|收盘价|现价|9\/18 收盘/.test(label) && !label.startsWith('上轮'))
   const oldDate = oldPrice?.[1].match(/\d{4}-\d{2}-\d{2}/)?.[0]
   if (oldDate && quote.date < oldDate) return company
-  if (company.marketRefresh?.adapterVersion === ADAPTER_VERSION && company.marketRefresh.checkedAt === quote.checkedAt && company.marketRefresh.evidenceCheckedAt === (quote.financialCheckedAt ?? quote.checkedAt) && company.marketRefresh.price === quote.price && oldDate === quote.date && company.asOf.startsWith('行情 ') && company.marketRefresh.programmatic === Boolean(company.auto)) return company
+  if (company.marketRefresh?.adapterVersion === ADAPTER_VERSION && company.marketRefresh.checkedAt === quote.checkedAt && company.marketRefresh.evidenceCheckedAt === (quote.financialCheckedAt ?? quote.checkedAt) && company.marketRefresh.price === quote.price && company.marketRefresh.currency === quote.currency && oldDate === quote.date && company.asOf.startsWith('行情 ') && company.marketRefresh.programmatic === Boolean(company.auto)) return company
 
   const amount = quote.price.toLocaleString('en-US', { maximumFractionDigits: 4 })
   const money = quote.currency === 'CNY' ? `${amount} 元` : quote.currency === 'HKD' ? `HK$${amount}` : `${quote.currency === 'USD' ? 'US$' : quote.currency + ' '}${amount}`
@@ -111,6 +111,6 @@ export function applyCompanyMarketRefresh(company: Company, quote?: MarketRefres
   return { ...company, metrics, scenarios, ratioNote,
     headline: oldHeadline,
     asOf: `行情 ${quote.marketTime}；核验 ${quote.checkedAt}。原研究：${originalAsOf}`,
-    marketRefresh: { adapterVersion: ADAPTER_VERSION, checkedAt: quote.checkedAt, evidenceCheckedAt: quote.financialCheckedAt ?? quote.checkedAt, priceDate: quote.date, price: quote.price, source: quote.source, originalAsOf, programmatic: Boolean(company.auto), tradability: restriction ? 'unverified' : 'no-known-restriction', quoteDateKind: restriction ? 'provider-label' : 'provider-market-time' },
+    marketRefresh: { adapterVersion: ADAPTER_VERSION, checkedAt: quote.checkedAt, evidenceCheckedAt: quote.financialCheckedAt ?? quote.checkedAt, priceDate: quote.date, price: quote.price, currency: quote.currency, source: quote.source, originalAsOf, programmatic: Boolean(company.auto), tradability: restriction ? 'unverified' : 'no-known-restriction', quoteDateKind: restriction ? 'provider-label' : 'provider-market-time' },
   }
 }

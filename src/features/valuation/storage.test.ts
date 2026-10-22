@@ -17,6 +17,11 @@ it("reports storage errors instead of claiming a save succeeded", () => {
 });
 
 import fixture from "./report.fixture.json";
+it('accepts reports from every supported local valuation backend', () => {
+  for (const backend of ['pi', 'codex', 'claude', 'opencode', 'agy', 'kimi']) {
+    expect(importReport(JSON.stringify({ ...fixture, backend })).backend).toBe(backend)
+  }
+});
 it("rejects malformed nested analysis and DCF in imported reports", () => {
   const valid = importReport(JSON.stringify(fixture));
   expect(valid.snapshot.security.code).toBe("AAPL");
