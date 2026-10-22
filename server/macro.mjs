@@ -8,11 +8,20 @@ const FINRA_MARGIN = 'https://www.finra.org/sites/default/files/2021-03/margin-s
 const TIMEOUT_MS = 12000 // 东方财富偶尔较慢；Vercel 函数上限已设为 30 秒
 const get = (url, init = {}) => fetch(url, { ...init, signal: AbortSignal.timeout(TIMEOUT_MS) })
 
-/** 解析 FRED CSV：跳过表头与缺失值（"."） */
+const isCalendarDate = s => {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s)
+  if (!m) return false
+  const d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]))
+  return d.getUTCFullYear() === +m[1] && d.getUTCMonth() === +m[2] - 1 && d.getUTCDate() === +m[3]
+}
+
+/** 解析 FRED CSV：表头须为 observation_date/DATE；跳过缺失值（"."）、非法日期与非数值（HTML 错误页不会产生观测） */
 export function parseCsv(text) {
-  return text.trim().split('\n').slice(1)
-    .map(line => line.split(','))
-    .filter(([date, v]) => date && v && v !== '.' && Number.isFinite(Number(v)))
+  const [header, ...lines] = text.trim().split(/\r?\n/)
+  if (!/^(observation_date|date)\s*,/i.test(header ?? '')) return []
+  return lines
+    .map(line => line.split(',').map(c => c.trim()))
+    .filter(([date, v]) => isCalendarDate(date) && v && v !== '.' && Number.isFinite(Number(v)))
     .map(([date, v]) => [date, Number(v)])
 }
 
