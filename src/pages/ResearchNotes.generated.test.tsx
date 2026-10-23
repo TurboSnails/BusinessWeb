@@ -47,19 +47,33 @@ const renderAt = (path: string): void => {
 describe('补全公司：研究笔记列表与详情', () => {
   it('情景区间筛选与列表方向一致，区间内记录不再被筛成空列表', async () => {
     renderAt('/research-notes?tab=category&m=us')
-    await waitFor(() => expect(screen.getByRole('link', { name: /估值 MSFT/ }).textContent).toContain('区间内'))
-    expect(screen.getByRole('link', { name: /估值 MSFT/ }).textContent).toContain('22.4%')
+    const valuationLinks = () => screen.getAllByRole('link', { name: /^估值 / })
+    const pickIn = (position: 'below' | 'within' | 'above') => valuationLinks().find(link => {
+      const text = link.textContent ?? ''
+      if (position === 'below') return text.includes('低于区间')
+      if (position === 'above') return text.includes('高于区间')
+      return text.includes('区间内')
+    })
+    const hrefOf = (link: HTMLElement) => link.getAttribute('href') ?? ''
+    const linkByHref = (href: string) => screen.queryAllByRole('link').find(link => link.getAttribute('href') === href)
+
     fireEvent.click(screen.getByRole('button', { name: '低于情景区间' }))
-    await waitFor(() => expect(screen.queryByRole('link', { name: /估值 MSFT/ })).toBeNull())
-    expect(screen.getByRole('link', { name: /估值 NVDA/ }).textContent).toContain('低于区间')
+    await waitFor(() => expect(pickIn('below')).toBeTruthy())
+    const belowHref = hrefOf(pickIn('below')!)
+    expect(pickIn('below')!.textContent).toContain('低于区间')
+
     fireEvent.click(screen.getByRole('button', { name: '区间内' }))
-    await waitFor(() => expect(screen.getByRole('link', { name: /估值 MSFT/ })).toBeTruthy())
-    expect(screen.queryByRole('link', { name: /估值 NVDA/ })).toBeNull()
+    await waitFor(() => expect(pickIn('within')).toBeTruthy())
+    const withinHref = hrefOf(pickIn('within')!)
+    expect(pickIn('within')!.textContent).toMatch(/\d+(\.\d+)?%/)
+    expect(linkByHref(belowHref)).toBeUndefined()
+
     fireEvent.click(screen.getByRole('button', { name: '高于情景区间' }))
-    await waitFor(() => expect(screen.queryByRole('link', { name: /估值 MSFT/ })).toBeNull())
-    const valuationLinks = screen.getAllByRole('link', { name: /^估值 / })
-    expect(valuationLinks.length).toBeGreaterThan(0)
-    expect(valuationLinks.every(link => link.textContent?.includes('高于区间'))).toBe(true)
+    await waitFor(() => expect(pickIn('above')).toBeTruthy())
+    expect(linkByHref(withinHref)).toBeUndefined()
+    const links = valuationLinks()
+    expect(links.length).toBeGreaterThan(0)
+    expect(links.every(link => link.textContent?.includes('高于区间'))).toBe(true)
   })
 
   it('圆桌复核同时覆盖手工与异步补全，撤回未验证的达标标签', async () => {

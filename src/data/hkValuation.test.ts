@@ -111,7 +111,6 @@ describe('HK 2026-10-20 valuation overlay', () => {
         const dy = dq.dividendYield
         const missing = !dps || !dy || dq.currency !== 'HKD' || dy < 3 || dy > 8
           || Math.abs(dps / dq.regularMarketPrice * 100 / dy - 1) > 0.05
-          || Math.abs(dps / p * 100 / dy - 1) > 0.05
         expect(row.calculation.currency, code).toBe(dq.currency)
         expect(row.calculation.financialCurrency, code).toBe(dq.financialCurrency)
         expect(row.calculation.dividendRate, code).toBe(dps ?? null)

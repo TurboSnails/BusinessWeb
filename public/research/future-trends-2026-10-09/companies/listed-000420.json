@@ -7,9 +7,9 @@
   "depth": "数据初筛（财务摘要＋一致预期），未建模",
   "rating": "观察／等待估值证据",
   "headline": "初筛未建模（H1 经营现金流为负）：2026H1 收入 27.54 亿元（+5%），归母净利 0.32 亿元（+45%），毛利率 11.0%，ROE 0.72%（半年累计），经营现金流 -0.65 亿元，资产负债率 66.9%；FY2025 EPS 0.0092；TTM PE 286.41，近五年分位约 85%；一致预期 2027 EPS 均值 0.1（4 家，0.08–0.11）。数据取自 AKShare 财务摘要与同花顺一致预期，未逐表核对公告原件。",
-  "price": 3.82,
-  "priceText": "CNY 3.82",
-  "priceDate": "2026-10-20T12:05:03+08:00",
+  "price": 3.92,
+  "priceText": "CNY 3.92",
+  "priceDate": "2026-10-23T15:52:00+08:00",
   "currency": "CNY",
   "ratio": null,
   "up": null,
@@ -26,6 +26,11 @@
   "concern": "非上市或证券主体待核；财务、股本、估值与退出流动性不足，不能给公开市场买入结论。",
   "certainty": "待核",
   "sources": [
+    {
+      "title": "本轮行情原始证据",
+      "url": "/research/data-refresh-2026-10-23/tencent-quotes.json",
+      "status": "行情 2026-10-23T15:52:00+08:00；核验 2026-10-23T07:52:05.880989+00:00；腾讯延迟行情，不代表财报或模型已重估"
+    },
     {
       "title": "本轮行情原始证据",
       "url": "/research/data-refresh-2026-10-20/tencent-quotes.json",
@@ -83,15 +88,15 @@
   "metrics": [
     [
       "本次价格",
-      "CNY 3.82"
+      "CNY 3.92"
     ],
     [
       "价格时间",
-      "2026-10-20T12:05:03+08:00"
+      "2026-10-23T15:52:00+08:00"
     ],
     [
       "行情核验时间",
-      "2026-10-20T04:34:28.294105+00:00；来源 research/data-refresh-2026-10-20/tencent-quotes.json；研究与模型仍为 2026-10-09"
+      "2026-10-23T07:52:05.880989+00:00；来源 research/data-refresh-2026-10-23/tencent-quotes.json；研究与模型仍为 2026-10-09"
     ],
     [
       "一手事实摘录",
@@ -222,8 +227,8 @@
     "旧资料只作审计轨迹，不沿用旧买入评级：未匹配既有研究页",
     "旧程序化输入：public/research/future-trends-2026-10-09/input-pool.json；其中旧赔率与固定胜率已撤回。"
   ],
-  "priceCheckedAt": "2026-10-20T04:34:28.294105+00:00",
-  "priceSource": "research/data-refresh-2026-10-20/tencent-quotes.json",
+  "priceCheckedAt": "2026-10-23T07:52:05.880989+00:00",
+  "priceSource": "research/data-refresh-2026-10-23/tencent-quotes.json",
   "modelAsOf": "2026-10-09",
   "marketRefreshStatus": "行情已刷新；原研究模型未重估，不认证买入或胜率"
 }

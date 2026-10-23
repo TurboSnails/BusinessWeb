@@ -58,8 +58,12 @@ describe('ADR 2026-10-20 valuation overlay', () => {
         const ratio = bear! < P && P < base! ? (base! - P) / (P - bear!) : null
         const shown = item.ratioNote!.match(/= (-?[\d.]+):1/)
         // 发布的 ratio 用未四舍五入价格，复算用已四舍五入价格，允许最后一位小数差
-        if (ratio !== null) expect(Number(shown?.[1]), key).toBeCloseTo(ratio, 1)
-        else expect(shown, key).toBeNull()
+        if (ratio !== null) {
+          const denominator = P - bear!
+          const rounding = Math.abs(base! - P) * 0.005 / (denominator * denominator)
+            + Math.abs(base! - bear!) * 0.005 / denominator
+          expect(Math.abs(Number(shown?.[1]) - ratio), key).toBeLessThanOrEqual(0.005 + rounding)
+        } else expect(shown, key).toBeNull()
       }
 
       let expected: string

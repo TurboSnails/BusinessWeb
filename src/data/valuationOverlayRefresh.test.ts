@@ -33,8 +33,32 @@ for (const market of ['hk', 'adr'] as const) {
         )
         expect(baseline.audit.version).toBe('2026-10-20')
         expect(baseline.audit).not.toHaveProperty('date')
-        const up = `${market}:${market === 'hk' ? '00300' : 'NVO'}`
-        const down = `${market}:${market === 'hk' ? '00016' : 'NVS'}`
+        const rows = baseline.audit.companies as Array<{
+          code: string
+          rating: string
+          capReason?: string
+          capReasons?: string[]
+          scenarios?: Array<{ price: number }>
+          model?: { price: number[] }
+        }>
+        const bearBase = (row: typeof rows[number]) => (row.scenarios ? row.scenarios.map(s => s.price) : row.model?.price ?? []) as number[]
+        const ratioAfter = (row: typeof rows[number], factor: number) => {
+          const [bear, base] = bearBase(row)
+          const price = snapshot[`${market}:${row.code}`]?.price
+          if (bear == null || base == null || price == null) return null
+          const moved = price * factor
+          return bear < moved ? (base - moved) / (moved - bear) : null
+        }
+        const caps = (row: typeof rows[number]) => row.capReason ?? (row.capReasons ?? []).join('|')
+        const upRow = rows.find(row => row.rating === '条件关注' && !caps(row).includes('cyclical')
+          && (() => { const moved = ratioAfter(row, 1.3); return moved === null || moved < 1 })())
+        const downRow = rows.find(row => row.rating === '观察'
+          && (market === 'hk' ? row.capReason === 'ratio<1' : !caps(row).includes('data-flag') && !caps(row).includes('cyclical'))
+          && (() => { const moved = ratioAfter(row, 0.7); return moved !== null && moved >= 1 && moved <= 8 })())
+        expect(upRow?.code, '需要一只评级条件关注、涨价后赔率跌破 1 的公司').toBeTruthy()
+        expect(downRow?.code, '需要一只评级观察、跌价后赔率回到 1~8 的公司').toBeTruthy()
+        const up = `${market}:${upRow!.code}`
+        const down = `${market}:${downRow!.code}`
         const modified = structuredClone(snapshot)
         modified[up] = { ...modified[up], price: snapshot[up].price * 1.3, date: '2026-11-20', trailingPE: 999, forwardPE: 999 }
         modified[down] = { ...modified[down], price: snapshot[down].price * 0.7, date: '2026-10-01' }
