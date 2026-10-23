@@ -1,10 +1,28 @@
 {
-  "generatedAt": "2026-10-23T14:36:46.665Z",
+  "generatedAt": "2026-10-23T14:55:55.908Z",
   "versions": [
     {
       "tag": "unreleased",
       "date": null,
       "commits": [
+        {
+          "hash": "154774f",
+          "subject": "feat(life): add Human 3.0 interview and private analysis",
+          "author": "hassan",
+          "date": "2026-10-23"
+        },
+        {
+          "hash": "844e3c1",
+          "subject": "data(dcf): 预填库 2026-10-23",
+          "author": "github-actions[bot]",
+          "date": "2026-10-23"
+        },
+        {
+          "hash": "0eaa4dc",
+          "subject": "data(daily-analysis): archive verified market snapshot",
+          "author": "github-actions[bot]",
+          "date": "2026-10-23"
+        },
         {
           "hash": "c01adb2",
           "subject": "data(refresh): 行情层过期数据刷新 2026-10-23",
@@ -164,24 +182,6 @@
         {
           "hash": "7174e5e",
           "subject": "fix(seo): 补 /industry-etf 的标题与描述，预渲染不再显示「页面不存在」",
-          "author": "hassan",
-          "date": "2026-10-21"
-        },
-        {
-          "hash": "3f9e3d3",
-          "subject": "fix(etf-review): 测试里 let 改 const，修复 CI lint 失败",
-          "author": "hassan",
-          "date": "2026-10-21"
-        },
-        {
-          "hash": "d9f5450",
-          "subject": "feat(daily-analysis): 每日复盘新增市场情绪（涨跌统计、量能、涨停表现、大幅回撤、权重表现）",
-          "author": "hassan",
-          "date": "2026-10-21"
-        },
-        {
-          "hash": "a65086b",
-          "subject": "feat(etf): 技术面数据改为 latest 文件并加每日自动更新，补指标依据说明与窄屏提示",
           "author": "hassan",
           "date": "2026-10-21"
         }
