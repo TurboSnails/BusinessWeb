@@ -57,6 +57,8 @@ const NoteDetail = lazy(() => import('./pages/NoteDetail'))
 const NationalTeam = lazy(() => import('./pages/NationalTeam'))
 const AiLabDirection = lazy(() => import('./pages/AiLabDirection'))
 const AiLearningPlan = lazy(() => import('./pages/AiLearningPlan'))
+const PersonalLifeAnalysis = lazy(() => import('./pages/PersonalLifeAnalysis'))
+const HumanLifePlan = lazy(() => import('./pages/HumanLifePlan'))
 const DevTeamGuide = lazy(() => import('./pages/DevTeamGuide'))
 
 function LegacyAiToolsRedirect(): JSX.Element {
@@ -130,6 +132,8 @@ export default function App(): JSX.Element {
           <Route path="/ai/:slug" element={<AiLabDirection />} />
           <Route path="/knowledge" element={<KnowledgeCenter />} />
           <Route path="/life" element={<LifeLab />} />
+          <Route path="/life/human-3" element={<HumanLifePlan />} />
+          <Route path="/life/my-analysis" element={<PersonalLifeAnalysis />} />
           <Route path="/about" element={<About />} />
           <Route path="/blog" element={<BlogIndex />} />
           <Route path="/blog/:slug" element={<BlogArticle />} />

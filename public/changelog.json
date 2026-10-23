@@ -1,189 +1,189 @@
 {
-  "generatedAt": "2026-10-18T15:34:00.779Z",
+  "generatedAt": "2026-10-23T14:36:46.665Z",
   "versions": [
     {
       "tag": "unreleased",
       "date": null,
       "commits": [
         {
-          "hash": "8b1978c",
-          "subject": "data(cycle): 自动证据与质量复盘 2026-10-18",
+          "hash": "c01adb2",
+          "subject": "data(refresh): 行情层过期数据刷新 2026-10-23",
+          "author": "hassan",
+          "date": "2026-10-23"
+        },
+        {
+          "hash": "c39919a",
+          "subject": "docs(plan): 2026-10-23 行情层过期数据刷新实施计划",
+          "author": "hassan",
+          "date": "2026-10-23"
+        },
+        {
+          "hash": "c06ebe2",
+          "subject": "docs(spec): 2026-10-23 行情层过期数据刷新设计",
+          "author": "hassan",
+          "date": "2026-10-23"
+        },
+        {
+          "hash": "39c4042",
+          "subject": "data(etf): 更新 ETF 与债基技术面",
           "author": "github-actions[bot]",
-          "date": "2026-10-18"
+          "date": "2026-10-23"
         },
         {
-          "hash": "b076914",
-          "subject": "docs(cycle): record audited CLI source research",
-          "author": "hassan",
-          "date": "2026-10-18"
-        },
-        {
-          "hash": "6cb1654",
-          "subject": "fix(cycle): clarify automatic evidence and draft personal reviews",
-          "author": "hassan",
-          "date": "2026-10-18"
-        },
-        {
-          "hash": "be3fe8b",
-          "subject": "fix(cycle): wrap long evidence sources on mobile",
-          "author": "hassan",
-          "date": "2026-10-18"
-        },
-        {
-          "hash": "fd5ab80",
-          "subject": "data(cycle): 自动证据与质量复盘 2026-10-18",
-          "author": "github-actions[bot]",
-          "date": "2026-10-18"
-        },
-        {
-          "hash": "f16b1ae",
-          "subject": "feat(cycle): automate evidence collection and weekly shadow reviews",
-          "author": "hassan",
-          "date": "2026-10-18"
-        },
-        {
-          "hash": "5538172",
-          "subject": "feat(invest): add China and Hong Kong market cycle review board",
-          "author": "hassan",
-          "date": "2026-10-17"
-        },
-        {
-          "hash": "163c0a8",
+          "hash": "a07c87e",
           "subject": "data(daily-analysis): archive verified market snapshot",
           "author": "github-actions[bot]",
-          "date": "2026-10-16"
+          "date": "2026-10-23"
         },
         {
-          "hash": "d33ad3e",
+          "hash": "f7e4d74",
+          "subject": "data(cycle): 自动证据与质量复盘 2026-10-23",
+          "author": "github-actions[bot]",
+          "date": "2026-10-23"
+        },
+        {
+          "hash": "ea000ae",
+          "subject": "data(dcf): 预填库 2026-10-23",
+          "author": "github-actions[bot]",
+          "date": "2026-10-23"
+        },
+        {
+          "hash": "c51ba34",
+          "subject": "data(cycle): 自动证据与质量复盘 2026-10-22",
+          "author": "github-actions[bot]",
+          "date": "2026-10-22"
+        },
+        {
+          "hash": "d51d5c1",
+          "subject": "data(etf): 更新 ETF 与债基技术面",
+          "author": "github-actions[bot]",
+          "date": "2026-10-22"
+        },
+        {
+          "hash": "4d5be71",
+          "subject": "data(dcf): 预填库 2026-10-22",
+          "author": "github-actions[bot]",
+          "date": "2026-10-22"
+        },
+        {
+          "hash": "1d93663",
           "subject": "data(daily-analysis): archive verified market snapshot",
           "author": "github-actions[bot]",
-          "date": "2026-10-16"
+          "date": "2026-10-22"
         },
         {
-          "hash": "fd3fcb2",
+          "hash": "d36fd2d",
+          "subject": "data(etf): 更新 ETF 与债基技术面",
+          "author": "github-actions[bot]",
+          "date": "2026-10-22"
+        },
+        {
+          "hash": "60c871b",
           "subject": "data(daily-analysis): archive verified market snapshot",
           "author": "github-actions[bot]",
-          "date": "2026-10-15"
+          "date": "2026-10-22"
         },
         {
-          "hash": "e2f3eb1",
+          "hash": "08535d5",
+          "subject": "data(cycle): 自动证据与质量复盘 2026-10-22",
+          "author": "github-actions[bot]",
+          "date": "2026-10-22"
+        },
+        {
+          "hash": "ec0cbc9",
+          "subject": "data(dcf): 预填库 2026-10-22",
+          "author": "github-actions[bot]",
+          "date": "2026-10-22"
+        },
+        {
+          "hash": "7f3c2da",
+          "subject": "fix(macro): reject error pages and restore valid release snapshots",
+          "author": "hassan",
+          "date": "2026-10-22"
+        },
+        {
+          "hash": "e30a1e1",
+          "subject": "feat(valuation): publish comprehensive company valuations and shared skill",
+          "author": "hassan",
+          "date": "2026-10-22"
+        },
+        {
+          "hash": "64ec375",
+          "subject": "data(cycle): 自动证据与质量复盘 2026-10-21",
+          "author": "github-actions[bot]",
+          "date": "2026-10-21"
+        },
+        {
+          "hash": "526f77c",
+          "subject": "data(etf): 更新 ETF 与债基技术面",
+          "author": "github-actions[bot]",
+          "date": "2026-10-21"
+        },
+        {
+          "hash": "8e70e2f",
+          "subject": "feat(invest): add fundamental quant research handbook",
+          "author": "hassan",
+          "date": "2026-10-21"
+        },
+        {
+          "hash": "be32a63",
+          "subject": "feat(limit-up): 板块明细表头可排序，新增复制本板块/复制全部",
+          "author": "hassan",
+          "date": "2026-10-21"
+        },
+        {
+          "hash": "0e728b9",
+          "subject": "data(dcf): 预填库 2026-10-21",
+          "author": "github-actions[bot]",
+          "date": "2026-10-21"
+        },
+        {
+          "hash": "7bb42c6",
           "subject": "data(daily-analysis): archive verified market snapshot",
           "author": "github-actions[bot]",
-          "date": "2026-10-15"
+          "date": "2026-10-21"
         },
         {
-          "hash": "2c2dac8",
+          "hash": "4cf8bf2",
           "subject": "data(daily-analysis): archive verified market snapshot",
           "author": "github-actions[bot]",
-          "date": "2026-10-14"
+          "date": "2026-10-21"
         },
         {
-          "hash": "e894d46",
-          "subject": "data(daily-analysis): archive verified market snapshot",
+          "hash": "d9d8983",
+          "subject": "data(cycle): 自动证据与质量复盘 2026-10-21",
           "author": "github-actions[bot]",
-          "date": "2026-10-14"
+          "date": "2026-10-21"
         },
         {
-          "hash": "6795047",
-          "subject": "feat(invest): integrate bond fund report",
+          "hash": "a5e0eea",
+          "subject": "fix(sector-rotation): 板块排行改为每格涨幅+涨停板数+连板率，日期新到旧，按最近热门优先排序",
           "author": "hassan",
-          "date": "2026-10-14"
+          "date": "2026-10-21"
         },
         {
-          "hash": "537d2b1",
-          "subject": "fix(valuation): detect CLIs under launchd, report bridge version, per-OS setup help",
+          "hash": "7174e5e",
+          "subject": "fix(seo): 补 /industry-etf 的标题与描述，预渲染不再显示「页面不存在」",
           "author": "hassan",
-          "date": "2026-10-14"
+          "date": "2026-10-21"
         },
         {
-          "hash": "caa453d",
-          "subject": "feat(valuation-bridge): v0.1.1 packaging metadata and safer macOS launcher",
+          "hash": "3f9e3d3",
+          "subject": "fix(etf-review): 测试里 let 改 const，修复 CI lint 失败",
           "author": "hassan",
-          "date": "2026-10-14"
+          "date": "2026-10-21"
         },
         {
-          "hash": "e5fd0e8",
-          "subject": "test(valuation-bridge): tighten macOS launcher assertions",
+          "hash": "d9f5450",
+          "subject": "feat(daily-analysis): 每日复盘新增市场情绪（涨跌统计、量能、涨停表现、大幅回撤、权重表现）",
           "author": "hassan",
-          "date": "2026-10-14"
+          "date": "2026-10-21"
         },
         {
-          "hash": "f5dd7be",
-          "subject": "feat(valuation): local bridge setup, backends and related page updates",
+          "hash": "a65086b",
+          "subject": "feat(etf): 技术面数据改为 latest 文件并加每日自动更新，补指标依据说明与窄屏提示",
           "author": "hassan",
-          "date": "2026-10-13"
-        },
-        {
-          "hash": "4942ce2",
-          "subject": "feat(etf): add industry/broad ETF lists and research notes",
-          "author": "hassan",
-          "date": "2026-10-13"
-        },
-        {
-          "hash": "3e0681f",
-          "subject": "data(daily-analysis): archive verified market snapshot",
-          "author": "github-actions[bot]",
-          "date": "2026-10-13"
-        },
-        {
-          "hash": "fbdcab3",
-          "subject": "fix(blog): serve prerendered routes on Vercel",
-          "author": "hassan",
-          "date": "2026-10-13"
-        },
-        {
-          "hash": "54255ff",
-          "subject": "fix(blog): publish only approved content and harden imports",
-          "author": "hassan",
-          "date": "2026-10-13"
-        },
-        {
-          "hash": "886d4c9",
-          "subject": "feat(blog): prerender and index published articles",
-          "author": "hassan",
-          "date": "2026-10-13"
-        },
-        {
-          "hash": "9df19a8",
-          "subject": "feat(blog): add accessible article reader",
-          "author": "hassan",
-          "date": "2026-10-13"
-        },
-        {
-          "hash": "fad802c",
-          "subject": "feat(blog): add searchable blog index and site entry",
-          "author": "hassan",
-          "date": "2026-10-13"
-        },
-        {
-          "hash": "5302ec0",
-          "subject": "feat(blog): add article catalog and safe Markdown renderer",
-          "author": "hassan",
-          "date": "2026-10-13"
-        },
-        {
-          "hash": "31af4db",
-          "subject": "feat(blog): add explicit Markdown import pipeline",
-          "author": "hassan",
-          "date": "2026-10-13"
-        },
-        {
-          "hash": "14e9577",
-          "subject": "docs: plan Live blog implementation",
-          "author": "hassan",
-          "date": "2026-10-13"
-        },
-        {
-          "hash": "4e8845a",
-          "subject": "docs: design Live blog content and reading flow",
-          "author": "hassan",
-          "date": "2026-10-13"
-        },
-        {
-          "hash": "65a70f3",
-          "subject": "feat(dcf): 个股分析里便捷使用并按 DCF 筛选",
-          "author": "hassan",
-          "date": "2026-10-13"
+          "date": "2026-10-21"
         }
       ]
     }

@@ -165,6 +165,7 @@ export interface WorkbenchTool {
 
 // 不在导航和投资分组里、但有固定路径的页面
 const EXTRA_PAGES: SearchablePage[] = [
+  { path: '/life/human-3', label: 'Human 3.0 人生规划', group: '自由之路', desc: '心智、身体、精神、事业四象限访谈与90天行动计划' },
   { path: '/daily-analysis/legacy', label: '每日分析 · 历史旧版', group: '投资 · 历史旧版', desc: '原有手工复盘、导入导出与云同步', archived: true },
   { path: '/first-book/slow-is-fast', label: '书的目录', group: '投资 · 规则', desc: '《正念投资》目录与章节' },
   { path: '/grid-trading/records', label: '网格记录', group: '投资 · 工具', desc: '已保存的网格模拟与回测记录' },

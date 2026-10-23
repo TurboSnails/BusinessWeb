@@ -40,7 +40,16 @@ export default function AskLab(): JSX.Element | null {
 
   useEffect(() => {
     const fromHash = takeTokenFromHash()
-    if (fromHash) writeToken(fromHash)
+    if (fromHash) {
+      writeToken(fromHash)
+      try {
+        if (sessionStorage.getItem('askLab.returnTo') === 'human3') {
+          sessionStorage.removeItem('askLab.returnTo')
+          window.location.replace(`${import.meta.env.BASE_URL}life/human-3`)
+          return
+        }
+      } catch { /* Fall back to the existing AI page when storage is unavailable. */ }
+    }
     setToken(fromHash || readToken())
   }, [])
 

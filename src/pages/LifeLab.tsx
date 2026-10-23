@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import '../styles/hub-pages.css'
 import { Page } from '../components/ui'
 
@@ -74,6 +75,14 @@ export default function LifeLab(): JSX.Element {
         <h1>自由之路</h1>
         <p>一个普通程序员关于钱、技术与自由生活的长期实验。钱不是终点，是选择权。</p>
       </header>
+      <section className="life-section" aria-labelledby="life-planning-title">
+        <div className="life-section__head">
+          <h2 id="life-planning-title">人生规划</h2>
+          <p className="life-section__desc">从想要的一天出发，用真实经历梳理四象限，再确定90天的行动。</p>
+        </div>
+        <p><Link className="tool-btn" to="/life/human-3">开始 Human 3.0 访谈</Link></p>
+        <p><Link className="tool-btn" to="/life/my-analysis">阅读我的人生解析（需密码）</Link></p>
+      </section>
       {SECTIONS.map(sec => (
         <section key={sec.id} className="life-section" aria-labelledby={`sec-${sec.id}`}>
           <div className="life-section__head">

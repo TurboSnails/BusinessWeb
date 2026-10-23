@@ -1,6 +1,8 @@
 // AI 试问：Google / GitHub 登录（Supabase Auth）后，每人每天 DAILY_LIMIT 次。
 // 模型 key 只存在服务端环境变量里，浏览器拿不到。
 import { createHash } from 'node:crypto'
+import { validConversation, MIN_REPORT_ANSWERS } from '../src/features/human3/model.js'
+import { human3Prompt } from '../src/features/human3/prompt.js'
 
 type Request = { method?: string; headers: Record<string, string | string[] | undefined>; body?: unknown }
 type Response = {
@@ -64,8 +66,17 @@ export default async function handler(req: Request, res: Response): Promise<unkn
 
   let body = req.body
   if (typeof body === 'string') { try { body = JSON.parse(body) } catch { body = null } }
-  const question = body && typeof body === 'object' && 'question' in body ? String((body as { question: unknown }).question).trim() : ''
-  if (req.method === 'POST' && (question.length < 2 || question.length > MAX_QUESTION)) return res.status(400).json({ error: `问题长度需在 2–${MAX_QUESTION} 字之间` })
+  const payload = body && typeof body === 'object' ? body as Record<string, unknown> : {}
+  const life = payload.mode === 'human3'
+  const report = life && payload.action === 'report'
+  const question = typeof payload.question === 'string' ? payload.question.trim() : ''
+  if (req.method === 'POST') {
+    if (payload.mode !== undefined && !life) return res.status(400).json({ error: '不支持的问答模式' })
+    if (life) {
+      if (!['interview', 'report'].includes(String(payload.action)) || !validConversation(payload.messages)) return res.status(400).json({ error: '访谈记录格式不正确或过长，请导出后重新开始' })
+      if (report && payload.messages.filter(item => item.role === 'user').length < MIN_REPORT_ANSWERS) return res.status(400).json({ error: '请先完成至少5轮回答，再生成规划' })
+    } else if (question.length < 2 || question.length > MAX_QUESTION) return res.status(400).json({ error: `问题长度需在 2–${MAX_QUESTION} 字之间` })
+  }
 
   const forwarded = first(req.headers['x-forwarded-for']).split(',')[0].trim() || first(req.headers['x-real-ip']).trim()
   const ip = createHash('sha256').update(`ask:${forwarded || 'unknown'}:${secret}`).digest('hex')
@@ -121,7 +132,7 @@ export default async function handler(req: Request, res: Response): Promise<unkn
       model = await fetch(`${modelBase}/v1/messages`, {
         method: 'POST',
         headers: { 'x-api-key': modelKey, authorization: `Bearer ${modelKey}`, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-        body: JSON.stringify({ model: process.env.MINIMAX_MODEL || DEFAULT_MODEL, max_tokens: MAX_TOKENS, stream: true, system: SYSTEM_PROMPT, messages: [{ role: 'user', content: question }] }),
+        body: JSON.stringify({ model: process.env.MINIMAX_MODEL || DEFAULT_MODEL, max_tokens: life ? (report ? 5000 : 900) : MAX_TOKENS, stream: true, system: life ? human3Prompt(report) : SYSTEM_PROMPT, messages: life ? payload.messages : [{ role: 'user', content: question }] }),
         signal: controller.signal,
         redirect: 'error',
       })
@@ -139,31 +150,41 @@ export default async function handler(req: Request, res: Response): Promise<unkn
     send({ type: 'phase', phase: 'model' })
     let reply = ''
     let thinking = false
+    let complete = false
+    let truncated = false
     try {
       const reader = model.body.getReader()
       const decoder = new TextDecoder()
       let buffer = ''
-      for (;;) {
-        const { done, value } = await reader.read()
-        if (done) break
-        buffer += decoder.decode(value, { stream: true })
-        const lines = buffer.split('\n')
-        buffer = lines.pop() ?? ''
-        for (const line of lines) {
-          if (!line.startsWith('data:')) continue
-          let event: { type?: string; content_block?: { type?: string }; delta?: { type?: string; text?: string } }
-          try { event = JSON.parse(line.slice(5).trim()) } catch { continue }
-          if (event.type === 'error') throw new Error('model')
-          const isThinking = event.content_block?.type === 'thinking' || event.delta?.type === 'thinking_delta'
-          if (isThinking && !thinking && !reply) { thinking = true; send({ type: 'phase', phase: 'thinking' }) }
-          if (event.delta?.type === 'text_delta' && event.delta.text) {
-            if (!reply) send({ type: 'phase', phase: 'writing' })
-            reply += event.delta.text
-            send({ type: 'delta', text: event.delta.text })
-          }
+      const handleLine = (line: string) => {
+        if (!line.startsWith('data:')) return
+        let event: { type?: string; content_block?: { type?: string }; delta?: { type?: string; text?: string; stop_reason?: string } }
+        try { event = JSON.parse(line.slice(5).trim()) } catch { return }
+        if (event.type === 'error') throw new Error('model')
+        if (event.type === 'message_stop') complete = true
+        if (event.delta?.stop_reason === 'max_tokens') truncated = true
+        const isThinking = event.content_block?.type === 'thinking' || event.delta?.type === 'thinking_delta'
+        if (isThinking && !thinking && !reply) { thinking = true; send({ type: 'phase', phase: 'thinking' }) }
+        if (event.delta?.type === 'text_delta' && event.delta.text) {
+          if (!reply) send({ type: 'phase', phase: 'writing' })
+          reply += event.delta.text
+          send({ type: 'delta', text: event.delta.text })
         }
       }
-      if (!reply.trim()) throw new Error('empty')
+      try {
+        for (;;) {
+          const { done, value } = await reader.read()
+          buffer += decoder.decode(value, { stream: !done })
+          const lines = buffer.split('\n')
+          buffer = lines.pop() ?? ''
+          lines.forEach(handleLine)
+          if (done) { handleLine(buffer); break }
+        }
+      } finally {
+        await reader.cancel().catch(() => {})
+        reader.releaseLock()
+      }
+      if (!reply.trim() || (life && (!complete || truncated))) throw new Error('incomplete')
     } catch {
       const refunded = await refund()
       send({ type: 'error', error: refunded ? 'AI 回答中断，这次不扣次数' : 'AI 回答中断，额度退还未确认，请稍后联系站点作者' })

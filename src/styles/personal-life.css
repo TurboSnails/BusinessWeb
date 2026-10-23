@@ -1,0 +1,34 @@
+.personal-life { padding-bottom: 64px; }
+.personal-life__back { display: inline-flex; align-items: center; gap: 6px; color: var(--accent-ink); margin-bottom: 28px; }
+.personal-life__header h1 { font-family: var(--font-serif); font-size: clamp(28px, 4vw, 38px); margin: 0 0 12px; }
+.personal-life__header > p { color: var(--text-secondary); line-height: 1.8; }
+.personal-life__gate { padding: 36px 0; margin-top: 30px; border-top: 1px solid var(--border-subtle); }
+.personal-life__gate > svg { color: var(--accent); }
+.personal-life__gate h2 { font-family: var(--font-serif); font-size: 23px; margin: 20px 0 12px; }
+.personal-life__gate > p { color: var(--text-secondary); line-height: 1.9; }
+.personal-life__gate form { display: grid; gap: 12px; max-width: 360px; margin-top: 26px; }
+.personal-life__gate label { font-weight: 600; }
+.personal-life__gate input { min-height: 48px; min-width: 0; width: 100%; padding: 10px 14px; color: var(--text-primary); background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; font: inherit; }
+.personal-life .tool-btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.personal-life input:focus-visible, .personal-life button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.personal-life__gate [role="alert"] { color: var(--up-ink); }
+.personal-life__toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; padding: 22px 0; margin-top: 28px; border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); }
+.personal-life__toolbar > span { color: var(--text-secondary); font-size: 14px; }
+.personal-life__document { line-height: 1.95; overflow-wrap: anywhere; }
+.personal-life__document > p:first-child { margin-top: 30px; }
+.personal-life__document h2, .personal-life__document h3 { font-family: var(--font-serif); line-height: 1.6; margin: 36px 0 16px; }
+.personal-life__document h2 { font-size: 25px; }
+.personal-life__document h3 { font-size: 20px; }
+.personal-life__document p, .personal-life__document ul { margin: 16px 0; }
+.personal-life__document ul { padding-left: 24px; }
+.personal-life__document li { margin: 8px 0; }
+.personal-life__document a { color: var(--accent-ink); text-decoration: underline; text-underline-offset: 3px; }
+.personal-life__document .md-table-wrap { overflow-x: auto; margin: 24px 0; }
+.personal-life__document table { border-collapse: collapse; width: 100%; font-size: 14px; }
+.personal-life__document th, .personal-life__document td { padding: 12px; vertical-align: top; text-align: left; border-bottom: 1px solid var(--border-subtle); min-width: 130px; }
+.personal-life__document td:last-child { min-width: 280px; }
+@media (max-width: 600px) {
+  .personal-life__header > p { font-size: 14px; }
+  .personal-life__document h2 { font-size: 22px; }
+  .personal-life__toolbar { align-items: flex-start; }
+}

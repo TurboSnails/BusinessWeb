@@ -1,0 +1,66 @@
+.human-life { max-width: 1160px; padding-bottom: 72px; }
+.human-life__back { display: inline-flex; align-items: center; gap: 6px; color: var(--accent-ink); margin-bottom: 28px; }
+.human-life__header { max-width: 760px; margin-bottom: 44px; }
+.human-life__header h1 { font-family: var(--font-serif); font-size: clamp(28px, 4vw, 42px); line-height: 1.5; margin: 0 0 16px; font-weight: 600; }
+.human-life__header p { color: var(--text-secondary); font-size: 17px; line-height: 1.9; }
+.human-life__layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 56px; align-items: start; }
+.human-life__guide h2, .human-life__section-head h2 { margin: 0; font-size: 20px; font-family: var(--font-serif); }
+.human-life__guide dl { margin: 24px 0; }
+.human-life__guide dl > div { padding: 14px 0; border-bottom: 1px solid var(--border-subtle); }
+.human-life__guide dt { font-weight: 600; }
+.human-life__guide dt span { margin-left: 8px; font-weight: 400; font-size: 13px; color: var(--text-secondary); }
+.human-life__guide dd { margin: 6px 0 0; font-size: 14px; color: var(--text-secondary); }
+.human-life__guide details { margin: 20px 0; }
+.human-life summary { cursor: pointer; color: var(--accent-ink); padding: 8px 0; }
+.human-life__note, .human-life__quota, .human-life__privacy p, .human-life__report-action p { color: var(--text-secondary); font-size: 14px; line-height: 1.85; }
+.human-life__guide a, .human-life__privacy a { color: var(--accent-ink); text-decoration: underline; text-underline-offset: 3px; }
+.human-life__work { min-width: 0; }
+.human-life__section-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.human-life__section-head > span { color: var(--text-secondary); font-size: 14px; }
+.human-life__question { margin: 28px 0; padding: 24px 0; border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); }
+.human-life__question h3 { font-size: 14px; color: var(--text-secondary); font-weight: 400; margin: 0 0 14px; }
+.human-life__question p { font-family: var(--font-serif); font-size: 20px; line-height: 1.95; white-space: pre-wrap; margin: 0; overflow-wrap: anywhere; }
+.human-life form > label { display: block; margin-bottom: 10px; font-weight: 600; }
+.human-life textarea { width: 100%; display: block; resize: vertical; min-height: 170px; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--bg-card); color: var(--text-primary); padding: 16px; font: inherit; line-height: 1.85; }
+.human-life textarea:focus-visible, .human-life button:focus-visible, .human-life summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.human-life__composer-actions { display: flex; gap: 16px; justify-content: space-between; align-items: center; flex-wrap: wrap; margin: 12px 0 28px; }
+.human-life__composer-actions > span { font-size: 13px; color: var(--text-secondary); }
+.human-life .tool-btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 44px; }
+.human-life .tool-btn:disabled { cursor: not-allowed; opacity: .55; }
+.human-life__history { margin-top: 20px; }
+.human-life__history article { margin: 16px 0; padding-bottom: 16px; border-bottom: 1px solid var(--border-subtle); }
+.human-life__history h3 { font-size: 14px; color: var(--accent-ink); margin: 0 0 8px; }
+.human-life__history article p, .human-life__partial { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.9; }
+.human-life__history article p { margin: 0; }
+.human-life__pending, .human-life__notice { padding: 16px; background: var(--accent-soft); border-radius: 12px; margin: 20px 0; }
+.human-life__notice { color: var(--warm-ink); background: var(--accent-warm-soft); }
+.human-life__report-action { padding: 24px 0; border-top: 1px solid var(--border-subtle); }
+.human-life__report-action p { margin-bottom: 0; }
+.human-life__privacy { border-top: 1px solid var(--border-subtle); padding-top: 24px; }
+.human-life__privacy > label { display: flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; }
+.human-life__privacy input { width: 18px; height: 18px; accent-color: var(--accent); }
+.human-life__record-actions, .human-life__login { display: flex; gap: 12px; flex-wrap: wrap; }
+.human-life__login { margin-bottom: 24px; }
+.human-life__login p { flex-basis: 100%; font-size: 14px; color: var(--text-secondary); }
+.human-life__reset { margin-top: 20px; }
+.human-life__reset button { margin: 0 10px 10px 0; }
+.human-life__report { margin: 56px auto 0; max-width: 850px; border-top: 1px solid var(--border-subtle); padding-top: 32px; }
+.human-life__report > h2 { font-family: var(--font-serif); }
+.human-life__markdown { line-height: 1.95; overflow-wrap: anywhere; }
+.human-life__markdown h1, .human-life__markdown h2, .human-life__markdown h3 { margin-top: 28px; font-family: var(--font-serif); }
+.human-life__markdown .md-table-wrap { overflow-x: auto; }
+.human-life__markdown table { border-collapse: collapse; width: 100%; font-size: 14px; }
+.human-life__markdown th, .human-life__markdown td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-subtle); min-width: 110px; }
+@media (max-width: 760px) {
+  .human-life__layout { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+  .human-life__header { margin-bottom: 28px; }
+  .human-life__guide { order: 2; border-top: 1px solid var(--border-subtle); padding-top: 28px; }
+  .human-life__question p { font-size: 18px; }
+  .human-life__composer-actions > button { width: 100%; }
+}
+
+.human-life__balance { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+
+.human-life__prompt { margin-bottom: 40px; padding: 24px 0; border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); }
+.human-life__prompt > p { margin: 12px 0; }
+.human-life__prompt textarea { margin-top: 12px; font-size: 14px; line-height: 1.9; }
