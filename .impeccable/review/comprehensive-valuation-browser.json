@@ -1,0 +1,11 @@
+{
+  "route": "http://localhost:5196/invest/comprehensive-valuation",
+  "desktop": "1440x1000",
+  "mobile": "390x844",
+  "ratio": "1.67:1",
+  "expectedReturn": "28.75%",
+  "invalidPrice": "blocked",
+  "export": "company, checks, missing evidence included",
+  "horizontalOverflow": false,
+  "pageErrors": []
+}
