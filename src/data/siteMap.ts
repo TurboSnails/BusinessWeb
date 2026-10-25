@@ -88,6 +88,7 @@ export const INVEST_GROUPS: HubGroup[] = [
     hint: '估值看价格贵不贵，网格管买卖节奏，ETF 地图查选品。从候选池进入会自动带上公司。',
     links: [
       { path: '/invest/comprehensive-valuation', label: '综合估值', short: '四维方法、情景测算与研究卡', desc: '资产质量、交叉估值、预期差与风险预算；三情景收益及赔率测算，导出研究卡' },
+      { path: '/invest/ai-token-economics', label: 'AI 降价与利润', short: 'Token 用量、降价与毛利', desc: 'Ramp 企业样本的 Token 用量、支出与价格变化，OpenAI / Anthropic 收入集中度、单位毛利敏感性与跟踪清单；数据整理自 AI 对话，待独立核实' },
       { path: '/invest/fundamental-quant', label: '基本面量化', short: '书籍方法、因子与策略验证', desc: '以《投资策略实战分析》为起点的基本面量化方法库：因子口径、策略草案、林奇分类衔接与 A 股验证路径' },
       { path: '/valuation', label: '估值工作台', short: '自动取财报，六法三情景', desc: '连接本机估值服务，自动采集财报，六方法三情景估值与报告导出' },
       { path: '/dcf', label: 'DCF 计算器', short: '输入股票一键估算', desc: '输入名称或代码自动取财报估算合理价、三情景与买入参考价，可逐项调整假设并保存记录' },

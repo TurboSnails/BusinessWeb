@@ -1,0 +1,72 @@
+{
+  "snapshots": [
+    {
+      "weekEnding": "2026-10-11",
+      "comparedWeekEnding": "2026-09-13",
+      "tokenUsage": 0.524,
+      "tokenSpend": 0.23,
+      "price": {
+        "combined": {
+          "now": 0.64,
+          "prev": 0.86,
+          "change": -0.254
+        },
+        "openai": {
+          "now": 0.48,
+          "prev": 0.73,
+          "change": -0.345
+        },
+        "anthropic": {
+          "now": 0.8,
+          "prev": 1,
+          "change": -0.192
+        }
+      },
+      "spendShare": {
+        "anthropic": {
+          "now": 0.601,
+          "prev": 0.538
+        },
+        "openai": {
+          "now": 0.364,
+          "prev": 0.424
+        },
+        "xai": {
+          "now": 0.02,
+          "prev": 0.021
+        },
+        "google": {
+          "now": 0.012,
+          "prev": 0.013
+        },
+        "cursor": {
+          "now": 0.001,
+          "prev": 0.002
+        }
+      },
+      "volumeShare": {
+        "anthropic": {
+          "now": 0.589,
+          "prev": 0.577
+        },
+        "openai": {
+          "now": 0.382,
+          "prev": 0.389
+        },
+        "xai": {
+          "now": 0.013,
+          "prev": 0.016
+        },
+        "google": {
+          "now": 0.012,
+          "prev": 0.014
+        },
+        "cursor": {
+          "now": 0.001,
+          "prev": 0.003
+        }
+      },
+      "source": "https://ramp.com/data/ai-index"
+    }
+  ]
+}

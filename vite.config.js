@@ -2,6 +2,7 @@ import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import { marketMiddleware } from './server/market.mjs'
 import { macroMiddleware } from './server/macro.mjs'
+import { rampMiddleware } from './server/ramp-ai-index.mjs'
 import { indexesMiddleware } from './server/indexes.mjs'
 import { sentimentMiddleware } from './server/sentiment.mjs'
 import { dailyAnalysisMiddleware } from './server/daily-analysis.mjs'
@@ -11,6 +12,7 @@ import { knowledgePrivateDeny } from './server/knowledge/private-files.mjs'
 export default defineConfig({
   plugins: [react(), { name: 'businessweb-market-api', configureServer(server) { server.middlewares.use(marketMiddleware) } },
     { name: 'businessweb-macro-api', configureServer(server) { server.middlewares.use(macroMiddleware) } },
+    { name: 'businessweb-ai-token-api', configureServer(server) { server.middlewares.use(rampMiddleware) } },
     { name: 'businessweb-indexes-api', configureServer(server) { server.middlewares.use(indexesMiddleware) } },
     { name: 'businessweb-sentiment-api', configureServer(server) { server.middlewares.use(sentimentMiddleware) } },
     { name: 'businessweb-daily-analysis-api', configureServer(server) { server.middlewares.use(dailyAnalysisMiddleware) } },

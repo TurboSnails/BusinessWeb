@@ -27,7 +27,7 @@ describe('InvestHub', () => {
     const titles = screen.getAllByRole('heading', { level: 2 }).map(h => h.textContent)
     expect(titles.filter(t => ['观察盘', '分析筛选', '候选池', '工具与参考'].includes(t ?? ''))).toEqual(['观察盘', '分析筛选', '候选池', '工具与参考'])
     const tools = screen.getByRole('region', { name: '工具与参考' })
-    expect(within(tools).getAllByRole('link').map(a => a.getAttribute('href'))).toEqual(['/invest/comprehensive-valuation', '/invest/fundamental-quant', '/valuation', '/dcf', '/grid-trading', '/invest/etf', '/industry-etf', '/notes', '/invest/bond-fund-report'])
+    expect(within(tools).getAllByRole('link').map(a => a.getAttribute('href'))).toEqual(['/invest/comprehensive-valuation', '/invest/ai-token-economics', '/invest/fundamental-quant', '/valuation', '/dcf', '/grid-trading', '/invest/etf', '/industry-etf', '/notes', '/invest/bond-fund-report'])
   })
 
   it('观察盘只有一张整行主卡片，五个细节页收进默认折叠区', () => {

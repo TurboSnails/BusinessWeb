@@ -53,6 +53,7 @@ const EXACT: Record<string, RouteSeo> = {
   '/etf-review': { title: 'ETF 复盘', description: '自选 ETF 每日复盘笔记：溢价、情绪、结论与计划动作。', noindex: true },
   '/grid-trading': { title: '网格交易计算器', description: 'ETF 与个股网格交易的参数求解、回测与模拟。' },
   '/valuation': { title: '公司估值工作台', noindex: true },
+  '/invest/ai-token-economics': { title: 'AI 降价与利润｜Token 用量、价格与毛利', description: 'Ramp 企业样本的 Token 用量、支出与价格变化，OpenAI 与 Anthropic 的收入集中度及单位毛利敏感性。数据整理自 AI 对话，未独立核实。', noindex: true },
   '/invest/comprehensive-valuation': { title: '综合估值｜四维方法与三情景测算', description: '从资产质量、交叉估值、预期差到风险预算，手工测算三情景收益与赔率，导出公司研究卡。', noindex: true },
   '/dcf': { title: 'DCF 估值', noindex: true },
   '/radar': { title: '机会雷达', description: '低于 DCF 买入参考价、且比自身历史与同行更便宜的公司短名单，按信号多少排序，每日更新。' },

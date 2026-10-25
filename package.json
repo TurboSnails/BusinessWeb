@@ -28,6 +28,7 @@
     "test:scripts": "node --test scripts/*.test.mjs",
     "knowledge:cloud": "node scripts/knowledge-cloud.mjs",
     "macro:update": "node scripts/macro-snapshot.mjs",
+    "ai-token:update": "node scripts/ai-token-economics.mjs",
     "market-cycle:update": "node scripts/market-cycle-update.mjs",
     "market-cycle:prices": "node scripts/market-cycle-snapshot.mjs",
     "market-cycle:report": "node scripts/market-cycle-report.mjs",
