@@ -7,9 +7,9 @@
   "depth": "逐家初筛／既有研究复核，未认证",
   "rating": "观察／等待估值证据",
   "headline": "既有研究待核：最近季营收 +23%、盈利 −47%，毛利率 22%、营业利润率 9%、ROE 15%；52 周 228.63–412.7。",
-  "price": 255.21,
-  "priceText": "USD 255.21",
-  "priceDate": "2026-10-22T16:00:01-04:00",
+  "price": 253.38,
+  "priceText": "USD 253.38",
+  "priceDate": "2026-10-26T13:00:19-04:00",
   "currency": "USD",
   "ratio": null,
   "up": null,
@@ -26,6 +26,11 @@
   "concern": "EPS −47%，电价与监管。 盈利同比下滑超 20%，模型按营收外推偏乐观，降为观察。",
   "certainty": "待核",
   "sources": [
+    {
+      "title": "本轮行情原始证据",
+      "url": "/research/data-refresh-2026-10-26/tencent-quotes.json",
+      "status": "行情 2026-10-26T13:00:19-04:00；核验 2026-10-26T17:00:31.511401+00:00；腾讯延迟行情，不代表财报或模型已重估"
+    },
     {
       "title": "本轮行情原始证据",
       "url": "/research/data-refresh-2026-10-23/tencent-quotes.json",
@@ -92,15 +97,15 @@
   "metrics": [
     [
       "本次价格",
-      "USD 255.21"
+      "USD 253.38"
     ],
     [
       "价格时间",
-      "2026-10-22T16:00:01-04:00"
+      "2026-10-26T13:00:19-04:00"
     ],
     [
       "行情核验时间",
-      "2026-10-23T07:52:18.947493+00:00；来源 research/data-refresh-2026-10-23/tencent-quotes.json；研究与模型仍为 2026-10-09"
+      "2026-10-26T17:00:31.511401+00:00；来源 research/data-refresh-2026-10-26/tencent-quotes.json；研究与模型仍为 2026-10-09"
     ],
     [
       "一手事实摘录",
@@ -257,8 +262,8 @@
     "旧资料只作审计轨迹，不沿用旧买入评级：观察：TTM PE 25.8×（板块中位 19.3×），基准 +2% ÷ 悲观 −62% ≈ 0.03:1（数据稳定性存疑，见劣势）；最新季营收 +23.0%、毛利率 46.4%",
     "旧程序化输入：public/research/future-trends-2026-10-09/input-pool.json；其中旧赔率与固定胜率已撤回。"
   ],
-  "priceCheckedAt": "2026-10-23T07:52:18.947493+00:00",
-  "priceSource": "research/data-refresh-2026-10-23/tencent-quotes.json",
+  "priceCheckedAt": "2026-10-26T17:00:31.511401+00:00",
+  "priceSource": "research/data-refresh-2026-10-26/tencent-quotes.json",
   "modelAsOf": "2026-10-09",
   "marketRefreshStatus": "行情已刷新；原研究模型未重估，不认证买入或胜率"
 }
