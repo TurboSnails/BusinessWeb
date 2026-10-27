@@ -47,6 +47,7 @@
 .rn-hint,
 .rn-text {
   margin: 0 0 var(--space-3);
+  overflow-wrap: anywhere; /* 长链接不撑出页面 */
   color: var(--text-secondary);
   font-size: 0.875rem;
   line-height: 1.8;
