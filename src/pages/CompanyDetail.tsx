@@ -214,7 +214,7 @@ export default function CompanyDetail(): JSX.Element {
           const cls = ly.r === '高' ? 'rn-card--good' : ly.r === '中' ? 'rn-card--lead' : undefined
           return (
             <Card className={cls} title={<>林奇分类：{ly.t}（同类关注度 {ly.r}）{ly.m ? ` · ${ly.m.l}` : ''}</>}>
-              <p className="rn-text">{[...ly.w, ly.v].filter(Boolean).join('；')}</p>
+              <p className="rn-text">{displayMissing([...ly.w, ly.v].filter(Boolean).join('；'))}</p>
               <p className="rn-footnote rn-footnote--top">
                 {ly.pe ? `PE ${ly.pe}×` : 'PE 不适用'}{ly.g !== null && ly.g !== undefined ? ` · 利润近一年 ${ly.g > 0 ? '+' : ''}${ly.g}%` : ''}{ly.c !== null && ly.c !== undefined ? `（两年年化 ${ly.c > 0 ? '+' : ''}${ly.c}%）` : ''}{ly.peg ? ` · PEG ${ly.peg}` : ''}{ly.ph ? ` · 周期位置：${ly.ph}` : ''}{ly.dy !== null && ly.dy !== undefined ? ` · 股息率 ${ly.dy}%` : ''}
               </p>
@@ -246,7 +246,7 @@ export default function CompanyDetail(): JSX.Element {
           </Card>
         )}
         <Card title="公司简介与业务分布">
-          {company.profile ? <p className="rn-text">{company.profile}</p> : <p className="rn-text">{pending('公司简介')}</p>}
+          {company.profile ? <p className="rn-text">{displayMissing(company.profile)}</p> : <p className="rn-text">{pending('公司简介')}</p>}
           {company.segments
             ? <DataTable label="业务分布" heads={['业务 / 分部', '占比', '说明']} rows={company.segments.map(r => [r.name, <span className="rn-nowrap">{r.share || '—'}</span>, r.note || ''])} />
             : pending('业务分布')}
@@ -323,7 +323,7 @@ export default function CompanyDetail(): JSX.Element {
           ) : scenRows ? (
             <DataTable label="三情景估值" heads={['情景', '隐含价', '相对价格锚点', '触发 / 证伪方向']} rows={scenRows} />
           ) : (
-            scenText ? <p className="rn-text">{scenText}</p> : pending('三情景估值表')
+            scenText ? <p className="rn-text">{displayMissing(scenText)}</p> : pending('三情景估值表')
           )}
           <p className="rn-footnote">情景价 = 正常化 EPS × 合理倍数，为研究假设，不是目标价；概率与期望收益如有，也不是历史回测胜率。</p>
         </Card>
@@ -374,7 +374,7 @@ export default function CompanyDetail(): JSX.Element {
         )}
 
         <Card title="数据口径">
-          <p className="rn-text">{company.asOf}</p>
+          <p className="rn-text">{displayMissing(company.asOf)}</p>
           {company.url && (
             <a href={company.url} target="_blank" rel="noreferrer" className="rn-back">
               <ExternalLink size={14} aria-hidden="true" /> 在 Notion 查看完整研究页
