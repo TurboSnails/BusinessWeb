@@ -13,6 +13,8 @@ export interface PrefillItem {
   interest: number | null; pretax: number | null; tax: number | null; ebitda: number | null; ni: number | null
   beta: number | null; betaRaw: number | null; betaWeeks: number | null
   fx?: { from: string; rate: number; date: string }; notes?: string[]; src: string; at: string
+  /** 价格取自收盘前的盘中报价（pxTime 为报价时刻 HH:MM），不是收盘价 */
+  pxLive?: boolean; pxTime?: string
   /** 行业（A股东财一级、港股二级、美股 SIC 归并） */
   ind?: string
   /** 近5年自由现金流收益率位置（%）：当前、分位、中位、最低、最高、样本月数 */
@@ -118,7 +120,7 @@ export function deriveAutoFill(item: PrefillItem, riskFree: PrefillLibrary["risk
   // 有息负债取 0 却有利息支出，多半是披露标签没取到，而不是真的无债；数值不改，提示读者核对
   if (!item.fin && item.debt === 0 && (item.interest ?? 0) > 0) notes.push(`有息负债为 0 但报表有利息支出，可能是借款科目未取到，请对照${fyYear}${report}核对后再采信估值`)
   set("shares", item.shares, `${fyYear}${report}总股本`)
-  set("currentPrice", item.px, `${item.pxDate ?? ""} 收盘价`, false)
+  set("currentPrice", item.px, item.pxLive ? `${item.pxDate ?? ""} 盘中价（${item.pxTime ?? "收盘前"}，非收盘价）` : `${item.pxDate ?? ""} 收盘价`, false)
   set("ebitda", item.ebitda, `${fyYear}${report}：经营利润 + 折旧摊销`)
 
   // ---- WACC 各项 ----

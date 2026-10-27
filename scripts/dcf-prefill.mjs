@@ -117,6 +117,18 @@ export function parseWeekly(body, symbol) {
   return rows.filter(r => /^\d{4}-\d{2}-\d{2}$/.test(r?.[0]) && Number(r[2]) > 0).map(r => [r[0], Number(r[2])])
 }
 
+const liveFields = q => q.live ? { pxLive: true, pxTime: q.time } : {}
+
+/** 收盘前取到的 A 股/港股报价是盘中价，不是收盘价；返回 'HH:MM'，已收盘或美股返回 null。 */
+export function liveQuoteTime(symbol, raw) {
+  const close = symbol.startsWith('hk') ? '16:00' : symbol.startsWith('us') ? null : '15:00'
+  if (!close) return null
+  const t = raw.match(/[ T](\d{2}):(\d{2})/) ?? raw.match(/^\d{8}(\d{2})(\d{2})/)
+  if (!t) return null
+  const hhmm = `${t[1]}:${t[2]}`
+  return hhmm < close ? hhmm : null
+}
+
 /** Tencent qt batch: name, last price, quote date and total shares (A股第73位、港股第70位；股本科目按面值计，面值非1元时不等于股数). */
 export function parseQuotes(text) {
   const out = new Map()
@@ -127,7 +139,8 @@ export function parseQuotes(text) {
     const raw = v[30] ?? ''
     const date = raw.replace(/\//g, '-').match(/^\d{4}-\d{2}-\d{2}/)?.[0] ?? (/^(\d{4})(\d{2})(\d{2})/.exec(raw)?.slice(1).join('-') ?? null)
     const total = Number(m[1].startsWith('hk') ? v[70] : m[1].startsWith('us') ? NaN : v[73])
-    out.set(m[1], { name: v[1], price, date, ...(total > 0 ? { totalShares: total } : {}) })
+    const live = liveQuoteTime(m[1], raw)
+    out.set(m[1], { name: v[1], price, date, ...(live ? { live: true, time: live } : {}), ...(total > 0 ? { totalShares: total } : {}) })
   }
   return out
 }
@@ -426,12 +439,12 @@ export async function run({ fetchImpl = fetch, now = new Date(), timeLimitMs = N
     const conv = c?.years && c.currency !== quoteCcy[u.market] ? fx[`${c.currency}${quoteCcy[u.market]}`] : null
     const usable = c?.years && q && (c.currency === quoteCcy[u.market] || conv)
     if (!usable) {
-      if (old) { items.push(q ? { ...old, px: q.price, pxDate: q.date, ...(q.totalShares ? { shares: q.totalShares } : {}) } : old); carried++ }
+      if (old) { items.push(q ? { ...old, px: q.price, pxDate: q.date, pxLive: undefined, pxTime: undefined, ...liveFields(q), ...(q.totalShares ? { shares: q.totalShares } : {}) } : old); carried++ }
       continue
     }
     const k = conv?.rate ?? 1, scale = v => v == null ? null : Math.round(v * k)
     items.push({
-      m: u.market, c: u.code, n: cleanName(q.name || u.name), g: u.groups, px: q.price, pxDate: q.date, ccy: quoteCcy[u.market],
+      m: u.market, c: u.code, n: cleanName(q.name || u.name), g: u.groups, px: q.price, pxDate: q.date, ...liveFields(q), ccy: quoteCcy[u.market],
       fy: c.latest.fy, fin: c.financial || undefined, org: c.orgType || undefined,
       years: c.years.map(y => [y.fy.slice(0, 4), scale(y.revenue), scale(y.ocf), scale(y.capex), scale(y.da ?? null), scale(y.sbc ?? null)]),
       cash: scale(c.latest.cash), inv: scale(c.latest.investments), debt: scale(c.latest.debt), mi: scale(c.latest.minority ?? null), shares: q.totalShares ?? c.latest.shares,

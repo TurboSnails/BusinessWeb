@@ -22,6 +22,20 @@ test('Tencent quote batch keeps name, price and date; skips suspended rows', () 
   assert.equal(q.has('hk09999'), false)
 })
 
+test('Tencent quotes taken before the session close are flagged as live with their time', () => {
+  const row = (sym, price, date) => { const v = Array(88).fill(''); v[1] = '样本'; v[3] = price; v[30] = date; return `v_${sym}="${v.join('~')}";` }
+  const q = parseQuotes([
+    row('sz002001', '25.88', '20261027093412'), row('sh600519', '1300', '20261027150003'), row('sh600547', '25', '20261027113000'),
+    row('hk03690', '75.2', '2026/10/27 10:15:00'), row('hk00700', '500', '2026/10/27 16:08:30'), row('usAAPL', '300', '2026-10-26 16:00:01'),
+  ].join('\n'))
+  assert.deepEqual([q.get('sz002001').live, q.get('sz002001').time], [true, '09:34'])
+  assert.equal(q.get('sh600519').live, undefined)
+  assert.equal(q.get('sh600547').live, true)
+  assert.equal(q.get('hk03690').live, true)
+  assert.equal(q.get('hk00700').live, undefined)
+  assert.equal(q.get('usAAPL').live, undefined)
+})
+
 test('beta is the OLS slope of aligned weekly returns, Blume-adjusted and clamped', () => {
   const weeks = Array.from({ length: 80 }, (_, i) => new Date(Date.UTC(2025, 0, 3 + 7 * i)).toISOString().slice(0, 10))
   let b = 100, s = 100

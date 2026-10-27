@@ -16,6 +16,13 @@ const moutai: PrefillItem = {
 };
 
 describe("DCF 自动预填", () => {
+  it("盘中取到的价格不标为收盘价", () => {
+    const live = deriveAutoFill({ ...moutai, pxLive: true, pxTime: "09:34" }, riskFree);
+    expect(live.sources.currentPrice).toContain("盘中价");
+    expect(live.sources.currentPrice).toContain("09:34");
+    expect(live.sources.currentPrice).not.toMatch(/(?<!非)收盘价/);
+    expect(deriveAutoFill(moutai, riskFree).sources.currentPrice).toContain("收盘价");
+  });
   it("非金融公司现金与投资都未取到时标为数据不全，不静默当成 0", () => {
     const fill = deriveAutoFill({ ...moutai, cash: null, inv: null }, riskFree);
     expect(fill.status).toBe("incomplete");
