@@ -281,10 +281,16 @@ export function collectUsFacts(raw, asOf) {
   const years = ends.map(d => ({ fy: d, revenue: series.revenue.get(d) ?? null, ocf: series.ocf.get(d) ?? null, capex: series.capex.get(d) ?? null, da: series.da.get(d) ?? null, sbc: series.sbc.get(d) ?? null }))
   const L = (tags, instant = true) => {
     if (!instant) { for (const tag of tags) { const v = secAnnual(gaap[tag], asOf, currency).get(ends[0]); if (v != null) return v } return null }
-    const f = secLatest(gaap, tags, asOf, true); return f?.currency === currency && (Date.parse(ends[0]) - Date.parse(f.periodEnd)) / 864e5 <= 120 ? f.value : null
+    // 逐个标签找：第一个标签停在多年前时，不能挡住后面仍在更新的标签
+    for (const tag of tags) {
+      const f = secLatest(gaap, [tag], asOf, true)
+      if (f?.currency === currency && (Date.parse(ends[0]) - Date.parse(f.periodEnd)) / 864e5 <= 120) return f.value
+    }
+    return null
   }
   const notes = []
   const longTerm = L(['LongTermDebt']) ?? sumOrNull([L(['LongTermDebtNoncurrent']), L(['LongTermDebtCurrent'])])
+    ?? sumOrNull([L(['LongTermDebtAndCapitalLeaseObligations']), L(['LongTermDebtAndCapitalLeaseObligationsCurrent'])]) ?? L(['DebtAndCapitalLeaseObligations'])
   const debt = sumOrNull([longTerm, L(['CommercialPaper']), L(['ShortTermBorrowings'])]) ?? 0
   notes.push('有息负债 = 长期债务（含一年内到期）+ 商业票据 + 短期借款；不含经营租赁，XBRL 标签由公司自选，可能有遗漏')
   const marketable = sumOrNull([L(['MarketableSecuritiesCurrent', 'AvailableForSaleSecuritiesDebtSecuritiesCurrent', 'ShortTermInvestments']), L(['MarketableSecuritiesNoncurrent', 'AvailableForSaleSecuritiesDebtSecuritiesNoncurrent'])])

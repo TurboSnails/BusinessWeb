@@ -77,6 +77,28 @@ test('SEC series merge tags across years and keep the reporting currency', () =>
   assert.throws(() => collectUsFacts({ facts: { dei: {} } }, '2026-10-20'), /US-GAAP/)
 })
 
+test('SEC balance sheet: a stale first tag does not block a fresh fallback tag; debt reads capital-lease tags', () => {
+  const yr = (y, v) => ({ start: `${y}-01-01`, end: `${y}-12-31`, val: v, filed: `${y + 1}-02-01`, fp: 'FY', form: '10-K' })
+  const inst = (end, val) => ({ end, val, filed: `${Number(end.slice(0, 4)) + 1}-02-01`, form: '10-K' })
+  const base = {
+    Revenues: { units: { USD: [yr(2025, 1000), yr(2024, 900), yr(2023, 800)] } },
+    NetCashProvidedByUsedInOperatingActivities: { units: { USD: [yr(2025, 300), yr(2024, 280), yr(2023, 250)] } },
+    PaymentsToAcquirePropertyPlantAndEquipment: { units: { USD: [yr(2025, 100), yr(2024, 90), yr(2023, 80)] } },
+    WeightedAverageNumberOfDilutedSharesOutstanding: { units: { shares: [yr(2025, 1e8)] } },
+  }
+  const out = collectUsFacts({ facts: { 'us-gaap': {
+    ...base,
+    CashAndCashEquivalentsAtCarryingValue: { units: { USD: [inst('2022-12-31', 2000)] } },
+    CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents: { units: { USD: [inst('2025-12-31', 670)] } },
+    LongTermDebtAndCapitalLeaseObligations: { units: { USD: [inst('2025-12-31', 18165)] } },
+    LongTermDebtAndCapitalLeaseObligationsCurrent: { units: { USD: [inst('2025-12-31', 708)] } },
+  } } }, '2026-10-20')
+  assert.equal(out.latest.cash, 670)
+  assert.equal(out.latest.debt, 18873)
+  const total = collectUsFacts({ facts: { 'us-gaap': { ...base, DebtAndCapitalLeaseObligations: { units: { USD: [inst('2025-12-31', 500)] } } } } }, '2026-10-20')
+  assert.equal(total.latest.debt, 500)
+})
+
 test('FCF yield history uses the latest annual FCF published 4 months after year end, against current shares', () => {
   const months = []
   for (let y = 2022; y <= 2026; y++) for (let m = 1; m <= 12; m++) if (y < 2026 || m <= 10) months.push([`${y}-${String(m).padStart(2, '0')}`, 100])
