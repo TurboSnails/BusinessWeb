@@ -12,3 +12,6 @@ export const formatPercent = (percent: number): string => {
   return `${sign}${percent.toFixed(2)}%`
 }
 
+
+// 数据层的 [MISSING] 占位符只用于程序判断，展示给读者时统一写成「未取得」
+export const displayMissing = (text: string): string => text.replace(/\[MISSING\]/g, '未取得')

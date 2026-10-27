@@ -20,6 +20,7 @@ import { priceAnchorAge } from '../features/dcf/priceAnchor'
 import { buildDcfLink } from '../features/dcf'
 import QuickDcf from '../components/QuickDcf'
 import { CompanyValuationDetail } from '../features/company-valuation/CompanyValuation'
+import { displayMissing } from '../utils/format'
 import { Badge, Card, EmptyState, Page, Stat, StatGrid, TableWrap } from '../components/ui'
 import { PageDataFreshness } from '../components/ui/PageDataFreshness'
 import '../styles/research.css'
@@ -55,7 +56,7 @@ export default function CompanyDetail(): JSX.Element {
   const row = (text: string, accent: string, key: number, warn = false): JSX.Element => (
     <div key={key} className="rn-check">
       {warn ? <AlertTriangle size={16} color={accent} aria-hidden="true" /> : <CheckCircle2 size={16} color={accent} aria-hidden="true" />}
-      <span>{text}</span>
+      <span>{displayMissing(text)}</span>
     </div>
   )
 
@@ -287,7 +288,7 @@ export default function CompanyDetail(): JSX.Element {
           <>
             <p className="rn-eyebrow">关键指标</p>
             <StatGrid className="rn-stat-grid rn-stat-grid--metrics rn-card">
-              {company.metrics.map(([label, value]) => <Stat key={label} label={label} value={value} />)}
+              {company.metrics.map(([label, value]) => <Stat key={label} label={label} value={displayMissing(value)} />)}
             </StatGrid>
           </>
         )}

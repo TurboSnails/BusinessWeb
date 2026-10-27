@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatPercent, formatPrice } from './format'
+import { displayMissing, formatPercent, formatPrice } from './format'
 
 describe('formatPrice', () => {
   it.each([
@@ -68,5 +68,16 @@ describe('formatPercent 符号', () => {
     expect(formatPercent(-0.9)).toBe('-0.90%')
     expect(formatPercent(1.84)).toBe('+1.84%')
     expect(formatPercent(0)).toBe('+0.00%')
+  })
+})
+
+describe('displayMissing', () => {
+  it.each([
+    ['FCF [MISSING]', 'FCF 未取得'],
+    ['[MISSING]；[MISSING]', '未取得；未取得'],
+    ['PE 5.5×', 'PE 5.5×'],
+    ['', ''],
+  ])('replaces the placeholder in %j', (input, expected) => {
+    expect(displayMissing(input)).toBe(expected)
   })
 })
