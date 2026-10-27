@@ -21,6 +21,7 @@ import { buildDcfLink } from '../features/dcf'
 import QuickDcf from '../components/QuickDcf'
 import { CompanyValuationDetail } from '../features/company-valuation/CompanyValuation'
 import { displayMissing } from '../utils/format'
+import { scrubMissing } from '../utils/scrubMissing'
 import { Badge, Card, EmptyState, Page, Stat, StatGrid, TableWrap } from '../components/ui'
 import { PageDataFreshness } from '../components/ui/PageDataFreshness'
 import '../styles/research.css'
@@ -64,7 +65,7 @@ export default function CompanyDetail(): JSX.Element {
     <TableWrap label={label}>
       <table className="ui-table rn-table rn-table--top">
         {heads && <thead><tr>{heads.map(h => <th key={h} scope="col">{h}</th>)}</tr></thead>}
-        <tbody>{rows.map((r, i) => <tr key={i}>{r.map((c, j) => <td key={j}>{c}</td>)}</tr>)}</tbody>
+        <tbody>{rows.map((r, i) => <tr key={i}>{r.map((c, j) => <td key={j}>{scrubMissing(c)}</td>)}</tr>)}</tbody>
       </table>
     </TableWrap>
   )
@@ -268,7 +269,7 @@ export default function CompanyDetail(): JSX.Element {
         </Card>
 
         <Card className="rn-card--lead">
-          <p className="rn-lead">{company.headline}</p>
+          <p className="rn-lead">{displayMissing(company.headline)}</p>
           {(company.certainty || company.duration || company.ratioNote) && (
             <div className="rn-facts">
               {company.certainty && <div><strong className="rn-strong">确定性：</strong>{company.certainty}</div>}
@@ -341,15 +342,15 @@ export default function CompanyDetail(): JSX.Element {
             <>
               <div className="rn-bullbear">
                 <Badge tone="down">多头最强论点</Badge>
-                <p>{company.bullBear.bull}</p>
+                <p>{displayMissing(company.bullBear.bull)}</p>
               </div>
               <div className="rn-bullbear">
                 <Badge tone="up">空头最强论点</Badge>
-                <p>{company.bullBear.bear}</p>
+                <p>{displayMissing(company.bullBear.bear)}</p>
               </div>
               <div className="rn-bullbear">
                 <Badge tone="accent">裁决</Badge>
-                <p>{company.bullBear.verdict}</p>
+                <p>{displayMissing(company.bullBear.verdict)}</p>
               </div>
               <p className="rn-footnote">整理自研究页内容，不是独立的多空对抗检验。</p>
             </>
@@ -360,7 +361,7 @@ export default function CompanyDetail(): JSX.Element {
           {(company.next.length > 0 || company.calendar) ? [...company.next, ...(company.calendar || [])].map((t, i) => (
             <div key={i} className="rn-check">
               <ArrowRight size={16} color="var(--accent)" aria-hidden="true" />
-              <span>{t}</span>
+              <span>{displayMissing(t)}</span>
             </div>
           )) : pending('')}
         </Card>
