@@ -167,7 +167,7 @@ export default function CompanyDetail(): JSX.Element {
     <span className="rn-pending">待补充{label}（可在 Notion 原页查看）</span>
   )
 
-  return (
+  return scrubMissing(
     <Page variant="reading" className="rn-page">
       {/* 页面头部 */}
       <div className="page-hero">
@@ -274,7 +274,7 @@ export default function CompanyDetail(): JSX.Element {
             <div className="rn-facts">
               {company.certainty && <div><strong className="rn-strong">确定性：</strong>{company.certainty}</div>}
               {company.duration && <div><strong className="rn-strong">增长可持续期限：</strong>{company.duration}</div>}
-              {company.ratioNote && <div><strong className="rn-strong">盈亏比：</strong>{company.ratioNote}</div>}
+              {company.ratioNote && <div><strong className="rn-strong">盈亏比：</strong>{displayMissing(company.ratioNote)}</div>}
             </div>
           )}
           <div className="rn-badges" aria-label={`最终返回标准完整度 ${done}/${completeness.length}`}>
@@ -387,5 +387,5 @@ export default function CompanyDetail(): JSX.Element {
         </p>
       </div>
     </Page>
-  )
+  ) as JSX.Element
 }
