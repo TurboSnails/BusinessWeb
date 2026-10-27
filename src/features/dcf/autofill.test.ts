@@ -16,6 +16,22 @@ const moutai: PrefillItem = {
 };
 
 describe("DCF 自动预填", () => {
+  it("非金融公司现金与投资都未取到时标为数据不全，不静默当成 0", () => {
+    const fill = deriveAutoFill({ ...moutai, cash: null, inv: null }, riskFree);
+    expect(fill.status).toBe("incomplete");
+    expect(fill.statusText).toContain("现金");
+    expect(fill.values.cash).toBeUndefined();
+  });
+  it("有息负债为 0 但有利息支出时只加提示，数值与状态保持原样", () => {
+    const fill = deriveAutoFill({ ...moutai, debt: 0, interest: 1 * YI }, riskFree);
+    expect(fill.status).toBe("ok");
+    expect(fill.values.debt).toBe("0");
+    expect(fill.notes.some(n => n.includes("有息负债为 0") && n.includes("核对"))).toBe(true);
+  });
+  it("有息负债为 0 且无利息支出时不加提示", () => {
+    const fill = deriveAutoFill({ ...moutai, debt: 0, interest: 0 }, riskFree);
+    expect(fill.notes.some(n => n.includes("有息负债为 0"))).toBe(false);
+  });
   it("近3年平均自由现金流、营收增速与 WACC 都附来源，且能直接算出合理价", () => {
     const fill = deriveAutoFill(moutai, riskFree);
     expect(fill.status).toBe("ok");

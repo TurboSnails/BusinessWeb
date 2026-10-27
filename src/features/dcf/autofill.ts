@@ -115,6 +115,8 @@ export function deriveAutoFill(item: PrefillItem, riskFree: PrefillLibrary["risk
   set("minority", item.mi ?? 0, item.mi ? `${fyYear}${report}少数股东权益（账面值），属于子公司其他股东` : "报表无少数股东权益")
   set("fadeYears", AUTO_RULES.fadeYears, `三阶段：高增长 5 年后，再用 ${AUTO_RULES.fadeYears} 年把增速降到永续增长率`, false)
   set("debt", item.debt, `${fyYear}${report}有息负债（借款、债券、租赁），不含应付账款等经营负债`)
+  // 有息负债取 0 却有利息支出，多半是披露标签没取到，而不是真的无债；数值不改，提示读者核对
+  if (!item.fin && item.debt === 0 && (item.interest ?? 0) > 0) notes.push(`有息负债为 0 但报表有利息支出，可能是借款科目未取到，请对照${fyYear}${report}核对后再采信估值`)
   set("shares", item.shares, `${fyYear}${report}总股本`)
   set("currentPrice", item.px, `${item.pxDate ?? ""} 收盘价`, false)
   set("ebitda", item.ebitda, `${fyYear}${report}：经营利润 + 折旧摊销`)
@@ -150,6 +152,7 @@ export function deriveAutoFill(item: PrefillItem, riskFree: PrefillLibrary["risk
   let status: AutoStatus = "ok", statusText = "已按公开财报自动估算，可逐项修改"
   if (item.fin) { status = "financial"; statusText = `${item.org || "金融"}企业的现金流含存贷款等业务资金，不适用 DCF；建议改看市净率、股息率` }
   else if (avgFcf == null || item.shares == null) { status = "incomplete"; statusText = "关键财报数据不全，已填入可取得的部分，请补齐后再看结果" }
+  else if (item.cash == null && item.inv == null) { status = "incomplete"; statusText = "未取到现金及投资，估值会漏掉账上现金，请按财报补填现金后再看结果" }
   else if (avgFcf <= 0) { status = "negativeFcf"; statusText = "近年平均自由现金流为负，DCF 不适用；可改看市销率或等待现金流转正" }
   return { meta: { company: item.n, code: item.c, market: item.m, currency: item.ccy, baseYear: fyYear }, values, sources, status, statusText, notes, alternatives }
 }
