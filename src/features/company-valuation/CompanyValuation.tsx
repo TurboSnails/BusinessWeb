@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import type { Company } from '../../data/companies'
 import { Card, TableWrap } from '../../components/ui'
+import { scrubMissing } from '../../utils/scrubMissing'
 import { compareValuation, STATUS_LABEL, VALUATION_FILTERS, type ValuationFilter } from './model'
 import { getValuationPresentation } from './presentation'
 import './company-valuation.css'
@@ -54,7 +55,7 @@ function sourceHref(url: string) {
 export function CompanyValuationDetail({ company }: { company: Company }) {
   const r = company.valuation
   const c = r ? compareValuation(r, company.marketRefresh?.tradability === 'unverified' ? undefined : company.marketRefresh) : null
-  return <section id="company-valuation" className="company-valuation-detail" aria-label="综合估值分析">
+  return scrubMissing(<section id="company-valuation" className="company-valuation-detail" aria-label="综合估值分析">
     <Card title={`综合估值 · ${r ? STATUS_LABEL[r.status] : '等待数据'}`}>
       {!r ? <p>尚未加载该公司的综合估值记录；不以旧 DCF 或旧情景价格冒充本轮估值。</p> : <>
         <p className="rn-text">估值日期 {r.asOf} · {r.currency} · {r.review.mode === 'programmatic' ? '批量条件分析，未经逐项独立核验' : r.review.note}。研究评级仍沿用原研究；下列估值与价格关系不自动改变评级。</p>
@@ -72,5 +73,5 @@ export function CompanyValuationDetail({ company }: { company: Company }) {
       </>}
       <p><Link to="/invest/comprehensive-valuation">按综合估值方法继续研究 →</Link></p>
     </Card>
-  </section>
+  </section>) as JSX.Element
 }
