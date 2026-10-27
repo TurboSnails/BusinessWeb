@@ -9,7 +9,7 @@ import { SIGNALS, signalTone } from '../features/macro/stages'
 import { useMacroSnapshot } from '../features/macro/useMacroSnapshot'
 import { loadDailyAnalysis, loadDailySnapshots } from '../features/daily-analysis/data'
 import type { DailySnapshot } from '../features/daily-analysis/types'
-import { MARKET_GROUPS, moodOf, readQuoteCache, writeQuoteCache, type QuoteCache, type QuoteRow } from '../features/watch/sentiment'
+import { MARKET_GROUPS, metricsWithBreadth, moodOf, readQuoteCache, writeQuoteCache, type QuoteCache, type QuoteRow } from '../features/watch/sentiment'
 import '../styles/watch.css'
 
 const KEY_READINGS: Array<{ key: 'vix' | 'tenYear' | 'hy' | 'dxy' | 'gold' | 'wti'; name: string; digits: number; unit: string }> = [
@@ -138,7 +138,7 @@ function MarketsBlock({ groups, loading }: { groups: Record<string, GroupState>;
 
 function AShareBlock({ data, loading, error }: { data: DailySnapshot | undefined; loading: boolean; error: string | null }): JSX.Element {
   if (!data) return <section className="watch-block" aria-label="A股情绪"><BlockHead title="A股情绪" to="/daily-analysis" link="每日复盘" /><p className="watch-muted" role={error ? 'alert' : 'status'}>{loading ? '正在获取 A 股复盘…' : error ?? '暂未取得复盘数据'}</p></section>
-  const m = data.metrics
+  const m = metricsWithBreadth(data)
   const { mood, reason } = moodOf(m)
   const up = m.upCount ?? 0, down = m.downCount ?? 0
   const stats: Array<[string, string]> = [

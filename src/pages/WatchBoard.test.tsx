@@ -3,7 +3,7 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-li
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import WatchBoard from './WatchBoard'
-import { moodOf } from '../features/watch/sentiment'
+import { metricsWithBreadth, moodOf } from '../features/watch/sentiment'
 import { stageFromSnapshot, type MacroSnapshot } from '../features/macro/indicators'
 import type { DailySnapshot } from '../features/daily-analysis/types'
 
@@ -101,6 +101,21 @@ describe('moodOf', () => {
     expect(moodOf({ ...base, upCount: null, downCount: null, ztCount: 100, dtCount: 5 }).mood).toBe('偏热')
     expect(moodOf({ ...base, upCount: null, downCount: null, ztCount: 20, dtCount: 40 }).mood).toBe('偏冷')
     expect(moodOf({ ...base, upCount: null, downCount: null, ztCount: null, dtCount: null }).mood).toBe('数据不足')
+  })
+})
+
+describe('metricsWithBreadth', () => {
+  const nulls = { ...snapshot.metrics, upCount: null, downCount: null }
+  const breadth = { status: 'ready' as const, total: 5576, up: 2252, down: 3156, flat: 165, suspended: 3, medianPct: null, buckets: {} }
+  it('指标缺涨跌家数时回退到情绪面的涨跌统计', () => {
+    const m = metricsWithBreadth({ ...snapshot, metrics: nulls, sentiment: { breadth } as unknown as typeof snapshot.sentiment })
+    expect([m.upCount, m.downCount]).toEqual([2252, 3156])
+  })
+  it('指标已有家数、或情绪面未就绪时保持原样', () => {
+    const own = { ...nulls, upCount: 10, downCount: 20 }
+    expect(metricsWithBreadth({ ...snapshot, metrics: own, sentiment: { breadth } as unknown as typeof snapshot.sentiment })).toEqual(own)
+    expect(metricsWithBreadth({ ...snapshot, metrics: nulls, sentiment: { breadth: { status: 'error' } } as unknown as typeof snapshot.sentiment })).toEqual(nulls)
+    expect(metricsWithBreadth({ ...snapshot, metrics: nulls })).toEqual(nulls)
   })
 })
 

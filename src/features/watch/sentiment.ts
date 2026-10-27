@@ -1,5 +1,12 @@
 import type { DailySnapshot } from '../daily-analysis/types'
 
+/** 指标里没有涨跌家数、但情绪面的涨跌统计已就绪时，用后者补上，避免明明有数据却不展示 */
+export function metricsWithBreadth(s: DailySnapshot): DailySnapshot['metrics'] {
+  const b = s.sentiment?.breadth
+  if (s.metrics.upCount !== null || s.metrics.downCount !== null || !b || b.status !== 'ready') return s.metrics
+  return { ...s.metrics, upCount: b.up, downCount: b.down }
+}
+
 export type Mood = '偏热' | '中性' | '偏冷' | '数据不足'
 
 /**
