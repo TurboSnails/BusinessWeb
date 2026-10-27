@@ -1,19 +1,19 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { copyFile, mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 
 const directory = await mkdtemp(join(tmpdir(), 'businessweb-functions-'))
 try {
-  const compiled = spawnSync(process.execPath, ['node_modules/typescript/bin/tsc', '-p', 'tsconfig.server.json', '--noEmit', 'false', '--outDir', directory], { encoding: 'utf8' })
+  const compiled = spawnSync(process.execPath, ['node_modules/typescript/bin/tsc', '-p', 'tsconfig.server.json', '--noEmit', 'false', '--allowImportingTsExtensions', 'false', '--rewriteRelativeImportExtensions', 'true', '--outDir', directory], { encoding: 'utf8' })
   assert.equal(compiled.status, 0, compiled.stdout + compiled.stderr)
   const pkg = JSON.parse(await readFile('package.json', 'utf8'))
   await writeFile(join(directory, 'package.json'), JSON.stringify({ type: pkg.type ?? 'commonjs' }))
   await mkdir(join(directory, 'server/knowledge'), { recursive: true })
   for (const file of ['api/china-stock.js', 'api/grid-market.js', 'server/market.mjs', 'api/cls-plate.js', 'server/sectorHistory.js', 'server/knowledge/links.mjs']) await copyFile(resolve(file), join(directory, file))
   await mkdir(join(directory, 'server/functions'), { recursive: true })
-  for (const file of ['server/functions/daily-analysis.js', 'server/daily-analysis.mjs']) await copyFile(resolve(file), join(directory, file))
+  for (const file of ['server/functions/daily-analysis.js', ...(await readdir('server')).filter(name => /\.(mjs|js)$/.test(name) && !name.includes('.test.')).map(name => `server/${name}`)]) await copyFile(resolve(file), join(directory, file))
   await writeFile(join(directory, 'check.mjs'), `
 import assert from 'node:assert/strict';
 import sync from './api/grid-sync.js';
