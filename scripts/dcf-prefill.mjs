@@ -189,6 +189,26 @@ const hkUrl = (report, code, filter, extra = {}) => {
 }
 const byCode = rows => new Map((rows ?? []).map(r => [r.STD_ITEM_CODE, Number(r.AMOUNT)]))
 const HK_CCY = { 人民币: 'CNY', 港元: 'HKD', 港币: 'HKD', 美元: 'USD', 欧元: 'EUR' }
+/** A+H 同名公司的匹配键：去掉港股后缀（-W/-S）与「股份」「有限公司」。 */
+const listingKey = name => cleanName(name).replace(/-(?:W|S|SW|R)+$/i, '').replace(/(?:股份)?(?:有限公司)?$/, '').trim()
+/**
+ * A+H 公司：港股行情里的总股本只含 H 股，而财报是全公司口径，直接相除会把每股价值放大数倍到二十倍。
+ * 用同名 A 股行情里的总股本（含 H 股）代替；两边相差不足 5% 视为口径一致，保持原值。返回 'hk:代码' → 总股本。
+ */
+export function dualListedShares(universe, quotes) {
+  const aShares = new Map()
+  for (const u of universe) if (u.market === 'cn') {
+    const q = quotes.get(tencentSymbol('cn', u.code))
+    if (q?.totalShares) aShares.set(listingKey(q.name || u.name), q.totalShares)
+  }
+  const out = new Map()
+  for (const u of universe) if (u.market === 'hk') {
+    const q = quotes.get(tencentSymbol('hk', u.code))
+    const a = aShares.get(listingKey(q?.name || u.name))
+    if (q?.totalShares && a && a > q.totalShares * 1.05) out.set(`hk:${u.code}`, a)
+  }
+  return out
+}
 /** 财报金额实际所用币种：港股标准化报表恒为港元（旧缓存里存的是原报告币种，不能再据此折算）。 */
 export const statementCurrency = (market, cached) => market === 'hk' ? 'HKD' : cached?.currency
 const HK_CCY_NAME = { CNY: '人民币', HKD: '港元', USD: '美元', EUR: '欧元' }
@@ -443,6 +463,8 @@ export async function run({ fetchImpl = fetch, now = new Date(), timeLimitMs = N
   const pairs = universe.map(u => [statementCurrency(u.market, cached.get(`${u.market}:${u.code}`)), quoteCcy[u.market]]).filter(([a, b]) => a && a !== b)
   const fx = await fxRates(http, [...new Map(pairs.map(p => [p.join(''), p])).values()], issues)
   // 5) publish; a company not yet in this machine's cache keeps its last published entry (with today's price)
+  const dual = dualListedShares(universe, quotes)
+  const sharesOf = (u, q, c) => dual.get(`${u.market}:${u.code}`) ?? q?.totalShares ?? c?.latest?.shares ?? null
   const previous = new Map(((await readJson(OUT_FILE, null))?.items ?? []).map(i => [`${i.m}:${i.c}`, i]))
   const items = []
   let carried = 0
@@ -453,7 +475,7 @@ export async function run({ fetchImpl = fetch, now = new Date(), timeLimitMs = N
     const conv = c?.years && stmtCcy !== quoteCcy[u.market] ? fx[`${stmtCcy}${quoteCcy[u.market]}`] : null
     const usable = c?.years && q && (stmtCcy === quoteCcy[u.market] || conv)
     if (!usable) {
-      if (old) { items.push(q ? { ...old, px: q.price, pxDate: q.date, pxLive: undefined, pxTime: undefined, ...liveFields(q), ...(q.totalShares ? { shares: q.totalShares } : {}) } : old); carried++ }
+      if (old) { items.push(q ? { ...old, px: q.price, pxDate: q.date, pxLive: undefined, pxTime: undefined, ...liveFields(q), ...(sharesOf(u, q, null) ? { shares: sharesOf(u, q, null) } : {}) } : old); carried++ }
       continue
     }
     const k = conv?.rate ?? 1, scale = v => v == null ? null : Math.round(v * k)
@@ -461,12 +483,12 @@ export async function run({ fetchImpl = fetch, now = new Date(), timeLimitMs = N
       m: u.market, c: u.code, n: cleanName(q.name || u.name), g: u.groups, px: q.price, pxDate: q.date, ...liveFields(q), ccy: quoteCcy[u.market],
       fy: c.latest.fy, fin: c.financial || undefined, org: c.orgType || undefined,
       years: c.years.map(y => [y.fy.slice(0, 4), scale(y.revenue), scale(y.ocf), scale(y.capex), scale(y.da ?? null), scale(y.sbc ?? null)]),
-      cash: scale(c.latest.cash), inv: scale(c.latest.investments), debt: scale(c.latest.debt), mi: scale(c.latest.minority ?? null), shares: q.totalShares ?? c.latest.shares,
+      cash: scale(c.latest.cash), inv: scale(c.latest.investments), debt: scale(c.latest.debt), mi: scale(c.latest.minority ?? null), shares: sharesOf(u, q, c),
       interest: scale(c.latest.interest), pretax: scale(c.latest.pretax), tax: scale(c.latest.tax), ebitda: scale(c.latest.ebitda), ni: scale(c.latest.netIncome),
       beta: c.beta?.adjusted ?? null, betaRaw: c.beta?.raw ?? null, betaWeeks: c.beta?.weeks ?? null,
       fx: conv ? { from: stmtCcy, rate: conv.rate, date: conv.date } : undefined,
-      ind: c.industry || undefined, fyh: fcfYieldHistory(c.years, c.monthly, q.totalShares ?? c.latest.shares, k, q.price) || undefined,
-      notes: c.notes?.length ? c.notes : undefined, src: c.source, at: c.fetchedAt.slice(0, 10),
+      ind: c.industry || undefined, fyh: fcfYieldHistory(c.years, c.monthly, sharesOf(u, q, c), k, q.price) || undefined,
+      notes: (c.notes?.length || dual.has(`${u.market}:${u.code}`)) ? [...(c.notes ?? []), ...(dual.has(`${u.market}:${u.code}`) ? ['A+H 公司：每股价值按 A 股总股本（含 H 股）计算，港股报价仅为 H 股价格'] : [])] : undefined, src: c.source, at: c.fetchedAt.slice(0, 10),
     })
   }
   const out = { schemaVersion: 1, generatedAt: now.toISOString(), riskFree: await riskFree(), universe: universe.length, issues, items }

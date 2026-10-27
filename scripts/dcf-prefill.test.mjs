@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { cleanName, collectHk, statementCurrency, collectUsFacts, yahooSymbol, parseYahooWeekly, parseYahooMonthly, fcfYieldHistory, sicIndustry, parseCompanyLines, parseNdxCodes, parseQuotes, parseWeekly, secShares, tencentSymbol, weeklyBeta } from './dcf-prefill.mjs'
+import { cleanName, collectHk, dualListedShares, statementCurrency, collectUsFacts, yahooSymbol, parseYahooWeekly, parseYahooMonthly, fcfYieldHistory, sicIndustry, parseCompanyLines, parseNdxCodes, parseQuotes, parseWeekly, secShares, tencentSymbol, weeklyBeta } from './dcf-prefill.mjs'
 
 test('universe parsers read NDX array and research company lines', () => {
   assert.deepEqual(parseNdxCodes("export const NDX_CODES: string[] = [\n  'ADBE', 'GOOGL',\n  'BRK.B',\n]\nconst X = ['ZZZ']"), ['ADBE', 'GOOGL', 'BRK.B'])
@@ -96,6 +96,30 @@ test('statementCurrency: HK statements are always HKD, including entries cached 
   assert.equal(statementCurrency('us', { currency: 'EUR' }), 'EUR')
   assert.equal(statementCurrency('cn', { currency: 'CNY' }), 'CNY')
   assert.equal(statementCurrency('us', undefined), undefined)
+})
+
+test('A+H companies: per-share value uses the A-share total capital, not the H-share count', () => {
+  const universe = [
+    { market: 'hk', code: '00300', name: '美的集团' }, { market: 'cn', code: '000333', name: '美的集团' },
+    { market: 'hk', code: '02899', name: '紫金矿业' }, { market: 'cn', code: '601899', name: '紫金矿业' },
+    { market: 'hk', code: '00857', name: '中国石油股份' }, { market: 'cn', code: '601857', name: '中国石油' },
+    { market: 'hk', code: '00700', name: '腾讯控股' }, { market: 'cn', code: '600000', name: '浦发银行' },
+    { market: 'hk', code: '00941', name: '中国移动' }, { market: 'cn', code: '600941', name: '中国移动' },
+  ]
+  const quote = (name, totalShares) => ({ name, price: 1, date: '2026-10-27', totalShares })
+  const quotes = new Map([
+    ['hk00300', quote('美的集团', 650204000)], ['sz000333', quote('美的集团', 7630305722)],
+    ['hk02899', quote('紫金矿业', 5989005101)], ['sh601899', quote('紫金矿业', 26590798241)],
+    ['hk00857', quote('中国石油股份', 21098900000)], ['sh601857', quote('中国石油', 183020977818)],
+    ['hk00700', quote('腾讯控股', 9e9)], ['sh600000', quote('浦发银行', 2.9e10)],
+    ['hk00941', quote('中国移动', 21.6e9)], ['sh600941', quote('中国移动', 21.6e9)],
+  ])
+  const out = dualListedShares(universe, quotes)
+  assert.equal(out.get('hk:00300'), 7630305722)
+  assert.equal(out.get('hk:02899'), 26590798241)
+  assert.equal(out.get('hk:00857'), 183020977818)
+  assert.equal(out.has('hk:00700'), false) // 只在港股上市，不套用
+  assert.equal(out.has('hk:00941'), false) // 两边股本一致（差距不足 5%），保持原值
 })
 
 test('SEC balance sheet: a stale first tag does not block a fresh fallback tag; debt reads capital-lease tags', () => {
