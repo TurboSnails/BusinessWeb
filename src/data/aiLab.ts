@@ -50,7 +50,7 @@ export const VERDICT_LABEL: Record<LabVerdict, string> = {
 
 // 只放已经做出来、能直接用的东西
 export const LAB_SHOWCASE: LabShowcaseItem[] = [
-  { title: 'AI Skills 工具库', desc: '开发团队、投资分析、视频与写作 Skills，含完整下载与使用说明', path: '/ai/ai-skills' },
+  { title: 'AI Skills 工具库', desc: '任务深挖、开发团队、投资分析、视频与写作 Skills，含完整下载与使用说明', path: '/ai/ai-skills' },
   { title: '公司估值', desc: '六方法三情景估值与报告导出', path: '/valuation' },
   { title: '网格交易', desc: 'ETF / 个股网格模拟、回测与记录', path: '/grid-trading' },
   { title: '这个网站', desc: '用 React 自己搭的个人站，本身就是第一个作品', path: '/about' },
@@ -70,6 +70,7 @@ export const LAB_DIRECTIONS: LabDirection[] = [
     startCost: '¥0',
     firstStep: '试用可独立安装的 dev-team 开发团队和投资分析 Skills，整理使用反馈与实际交付记录。',
     logs: [
+      { date: '2026-10-27', did: '新增任务深挖 deepen-task Skill，以专家视角、一手材料、具体方法与独立验证重写提示词', result: '「AI Skills 工具库 › 思考与提问」提供描述、使用示例、英文原始提示词与独立 ZIP' },
       { date: '2026-10-20', did: '上线 Matt Pocock 开发工作流 Skills v1.3 中文版，含 implement-spec、pr、retro 三个新 Skill', result: '「AI Skills 工具库 › 开发协作」提供独立安装 ZIP' },
       { date: '2026-10-11', did: '更新 Orca 开发团队 dev-team 完整 ZIP，补充独立 README、安装自检、项目配置与验证范围', result: 'AI 实验室与 AI 工具列表提供新版下载和使用说明，建议从只读评审开始' },
       { date: '2026-10-06', did: '发布三套投资分析 Skill 的介绍页与完整下载包', result: '已上线到「投资 › AI 工具」' },

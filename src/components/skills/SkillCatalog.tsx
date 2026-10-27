@@ -4,11 +4,13 @@ import { INVESTMENT_SKILLS, INVESTMENT_SKILL_TAG, investmentSkillDownloadUrl } f
 import { WRITING_SKILLS } from '../../data/writingSkills'
 import DevTeamSkillCard from './DevTeamSkillCard'
 import MattWorkflowSkillCard from './MattWorkflowSkillCard'
+import DeepenTaskSkillCard from './DeepenTaskSkillCard'
 
 export default function SkillCatalog(): JSX.Element {
   return (
     <>
       <nav className="hub-jump-nav" aria-label="Skills 分类目录">
+        <a href="#thinking-skills">思考与提问</a>
         <a href="#development-skills">开发协作</a>
         <a href="#investment-skills">投资分析</a>
         <a href="#video-skills">视频创作</a>
@@ -16,6 +18,13 @@ export default function SkillCatalog(): JSX.Element {
         <a href="#skill-install">安装与使用</a>
         <a href="#skill-experiment">实验记录</a>
       </nav>
+
+      <section id="thinking-skills" className="hub-group" aria-labelledby="thinking-skills-title">
+        <h2 id="thinking-skills-title">思考与提问</h2>
+        <div className="skill-grid">
+          <DeepenTaskSkillCard />
+        </div>
+      </section>
 
       <section id="development-skills" className="hub-group" aria-labelledby="development-skills-title">
         <h2 id="development-skills-title">开发协作</h2>
@@ -115,7 +124,7 @@ export default function SkillCatalog(): JSX.Element {
         <ol>
           <li>解压 ZIP，保留每套 Skill 的整个文件夹，包括 SKILL.md 和 references。</li>
           <li>放到项目的 <code>.agents/skills/</code>（Codex / Antigravity CLI）、<code>.claude/skills/</code>（Claude Code）、<code>.opencode/skills/</code>（OpenCode）或 <code>.codebuddy/skills/</code>（CodeBuddy Code）目录。</li>
-          <li>重新打开会话，在提问时写出 Skill 名称和任务背景：开发协作提供目标项目、平台和验收要求；投资研究提供代码、市场和问题；视频创作提供主体、场景、风格和时长；小说写作提供设定、稿件和创作目标。</li>
+          <li>重新打开会话，在提问时写出 Skill 名称和任务背景：任务深挖提供原始提示词和范围约束；开发协作提供目标项目、平台和验收要求；投资研究提供代码、市场和问题；视频创作提供主体、场景、风格和时长；小说写作提供设定、稿件和创作目标。</li>
         </ol>
         <p>Skill 是供 AI 助手读取的任务流程。投资分析需准备公开数据查询能力；团队类 Skill 还需助手支持子代理编排。具体要求见包内说明。</p>
         <p>dev-team 请使用卡片中的初始化命令安装，再通过 Orca 派工；各执行器的登录与额度需自行准备。</p>

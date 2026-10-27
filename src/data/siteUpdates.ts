@@ -10,6 +10,13 @@ export interface SiteUpdate {
 // 使用中文描述结果和使用方式，不从 Git 提交、构建或日常数据刷新自动生成。
 export const SITE_UPDATES: readonly SiteUpdate[] = [
   {
+    id: 'deepen-task',
+    date: '2026-10-27',
+    title: '任务深挖 Skill 上线',
+    description: '新增 deepen-task：保持原任务范围，从专家补充工作、一手材料、方法工具与独立验证四方面诊断，再重写提示词。Skills 工具库提供说明、示例、英文原始提示词和 ZIP 下载。',
+    href: '/ai/ai-skills#thinking-skills',
+  },
+  {
     id: 'comprehensive-company-valuation',
     date: '2026-10-22',
     title: '综合估值与公司价格对比上线',

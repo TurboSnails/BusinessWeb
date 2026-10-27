@@ -103,7 +103,7 @@ export const INVEST_GROUPS: HubGroup[] = [
     id: 'related',
     title: '相关',
     links: [
-      { path: '/ai/ai-skills', label: 'AI 投研 Skills', desc: '开发协作、投资分析、视频创作与小说写作 Skills 的介绍和下载包' },
+      { path: '/ai/ai-skills', label: 'AI 投研 Skills', desc: '任务深挖、开发协作、投资分析、视频创作与小说写作 Skills 的介绍和下载包' },
     ],
   },
   {

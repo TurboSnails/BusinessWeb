@@ -76,6 +76,10 @@ node /path/to/dev-team/scripts/dev-team.mjs init --project /path/to/other-projec
 
 AI 实验室的 `/ai/dropshipping` 提供一件代发模式说明、30 天试验步骤、交互利润测算和订单记账模板。正文维护在 [src/content/dropshipping-strategy.md](src/content/dropshipping-strategy.md)，预算与首页摘要维护在 `src/data/aiLab.ts`；平台规则引用官方资料并标注核对日期。页面保持“未开始”，实际经营后再更新实验日志。
 
+## 任务深挖 Skill
+
+[deepen-task](agent-skills/skills/deepen-task/SKILL.md) 保持原任务范围，从专家补充工作、一手材料、具体方法与工具、独立验证四方面诊断，再重写提示词。用法：`用 deepen-task 深挖这个任务：<原始提示词和约束>`。网站「AI Skills 工具库 › 思考与提问」提供描述、示例与 [ZIP 下载](public/ai-skills/deepen-task.zip)；解压后将 `deepen-task/` 放入助手的 Skills 目录。执行 `python3 scripts/package-deepen-task.py` 可从仓库源文件重新打包。
+
 ## AI 投研 skills
 
 项目以 `stock-analysis` 融合研究方法、股票研究专家、腾讯自选股投研专家团与 Public Markets Investing，位于「AI 工具」第一项。新增商业模式驱动树、核心假设、预测归因、行业周期及证据追溯；回测与组合风险按需启用。交易分析团队保留独立入口；旧两套名称转入融合版。
