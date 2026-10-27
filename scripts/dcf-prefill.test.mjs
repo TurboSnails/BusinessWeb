@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { cleanName, collectUsFacts, yahooSymbol, parseYahooWeekly, parseYahooMonthly, fcfYieldHistory, sicIndustry, parseCompanyLines, parseNdxCodes, parseQuotes, parseWeekly, secShares, tencentSymbol, weeklyBeta } from './dcf-prefill.mjs'
+import { cleanName, collectHk, statementCurrency, collectUsFacts, yahooSymbol, parseYahooWeekly, parseYahooMonthly, fcfYieldHistory, sicIndustry, parseCompanyLines, parseNdxCodes, parseQuotes, parseWeekly, secShares, tencentSymbol, weeklyBeta } from './dcf-prefill.mjs'
 
 test('universe parsers read NDX array and research company lines', () => {
   assert.deepEqual(parseNdxCodes("export const NDX_CODES: string[] = [\n  'ADBE', 'GOOGL',\n  'BRK.B',\n]\nconst X = ['ZZZ']"), ['ADBE', 'GOOGL', 'BRK.B'])
@@ -75,6 +75,27 @@ test('SEC series merge tags across years and keep the reporting currency', () =>
   assert.equal(out.latest.shares, 3.9e8)
   assert.ok(out.notes.some(n => n.includes('加权平均稀释股数')))
   assert.throws(() => collectUsFacts({ facts: { dei: {} } }, '2026-10-20'), /US-GAAP/)
+})
+
+test('HK statements are standardised in HKD even when the filing currency is USD or CNY', async () => {
+  const reply = (url) => {
+    const name = new URL(url).searchParams.get('reportName')
+    if (name === 'RPT_HKF10_FN_MAININDICATOR') return { result: { data: [{ REPORT_DATE: '2025-12-31 00:00:00', CURRENCY: 'HKD', OPERATE_INCOME: 52315358400, NETCASH_OPERATE: 14796000000, ORG_TYPE: '' }] } }
+    if (name === 'RPT_CUSTOM_HKSK_APPFN_CASHFLOW_SUMMARY') return { result: { data: [{ REPORT_LIST: [{ REPORT_DATE: '2025-12-31 00:00:00', CURRENCY: '美元' }] }] } }
+    return { result: { data: [] } }
+  }
+  const out = await collectHk('01928', { json: async (url) => reply(url) })
+  assert.equal(out.currency, 'HKD')
+  assert.equal(out.years[0].revenue, 52315358400)
+  assert.ok(out.notes.some(n => n.includes('原报告币种') && n.includes('美元')))
+})
+
+test('statementCurrency: HK statements are always HKD, including entries cached with the filing currency', () => {
+  assert.equal(statementCurrency('hk', { currency: 'USD' }), 'HKD')
+  assert.equal(statementCurrency('hk', { currency: 'CNY' }), 'HKD')
+  assert.equal(statementCurrency('us', { currency: 'EUR' }), 'EUR')
+  assert.equal(statementCurrency('cn', { currency: 'CNY' }), 'CNY')
+  assert.equal(statementCurrency('us', undefined), undefined)
 })
 
 test('SEC balance sheet: a stale first tag does not block a fresh fallback tag; debt reads capital-lease tags', () => {

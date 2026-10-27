@@ -189,6 +189,9 @@ const hkUrl = (report, code, filter, extra = {}) => {
 }
 const byCode = rows => new Map((rows ?? []).map(r => [r.STD_ITEM_CODE, Number(r.AMOUNT)]))
 const HK_CCY = { 人民币: 'CNY', 港元: 'HKD', 港币: 'HKD', 美元: 'USD', 欧元: 'EUR' }
+/** 财报金额实际所用币种：港股标准化报表恒为港元（旧缓存里存的是原报告币种，不能再据此折算）。 */
+export const statementCurrency = (market, cached) => market === 'hk' ? 'HKD' : cached?.currency
+const HK_CCY_NAME = { CNY: '人民币', HKD: '港元', USD: '美元', EUR: '欧元' }
 export async function collectHk(code, http) {
   const main = (await http.json(hkUrl('RPT_HKF10_FN_MAININDICATOR', code, '(DATE_TYPE_CODE="001")', { pageSize: String(YEARS + 1) }))).result?.data ?? []
   const row = main[0]
@@ -206,7 +209,10 @@ export async function collectHk(code, http) {
     industry = String(type?.INDUSTRY_TYPE ?? '').split('-')[1] || type?.BELONG_INDUSTRY || null
   } catch { /* optional */ }
   const report = summary.result?.data?.[0]?.REPORT_LIST?.find(r => day(r.REPORT_DATE) === date)
-  const currency = HK_CCY[report?.CURRENCY] ?? report?.CURRENCY
+  // 东方财富港股标准化报表（指标、资产负债、利润、现金流）一律是港元口径；「报告币种」只是原始财报币种，
+  // 不能据此再折算（实测 88 家折算过的公司，存储值/来源值恰好等于汇率）
+  const filingCurrency = HK_CCY[report?.CURRENCY] ?? report?.CURRENCY
+  const currency = HK_CCY[row.CURRENCY] ?? row.CURRENCY ?? filingCurrency
   if (!/^[A-Z]{3}$/.test(currency ?? '')) throw new Error('无法核实港股财报币种')
   const cfRows = cf.result?.data ?? []
   const cfAt = (d, c) => { const r = cfRows.find(x => day(x.REPORT_DATE) === d && x.STD_ITEM_CODE === c); return r ? Number(r.AMOUNT) : null }
@@ -221,6 +227,7 @@ export async function collectHk(code, http) {
   const debt = num(e.debt) ?? 0
   if (num(e.debt) == null) notes.push('报表未列示银行贷款或应付票据，有息负债按0')
   notes.push('港股标准化现金流量表未单列股权激励，自由现金流未扣除；科技公司可能因此偏高')
+  if (filingCurrency && filingCurrency !== currency) notes.push(`原报告币种 ${HK_CCY_NAME[filingCurrency] ?? filingCurrency}，东方财富标准化报表已按 ${currency} 列示，本页未再折算`)
   return {
     currency, financial: !!orgType && orgType !== '一般企业', orgType, industry, years, notes,
     latest: {
@@ -433,7 +440,7 @@ export async function run({ fetchImpl = fetch, now = new Date(), timeLimitMs = N
   if (next < due.length) issues.push(`时限内未刷新 ${due.length - next} 家，下次继续`)
   // 4) FX for statements reported in a currency other than the quote currency
   const quoteCcy = { cn: 'CNY', hk: 'HKD', us: 'USD' }
-  const pairs = universe.map(u => [cached.get(`${u.market}:${u.code}`)?.currency, quoteCcy[u.market]]).filter(([a, b]) => a && a !== b)
+  const pairs = universe.map(u => [statementCurrency(u.market, cached.get(`${u.market}:${u.code}`)), quoteCcy[u.market]]).filter(([a, b]) => a && a !== b)
   const fx = await fxRates(http, [...new Map(pairs.map(p => [p.join(''), p])).values()], issues)
   // 5) publish; a company not yet in this machine's cache keeps its last published entry (with today's price)
   const previous = new Map(((await readJson(OUT_FILE, null))?.items ?? []).map(i => [`${i.m}:${i.c}`, i]))
@@ -442,8 +449,9 @@ export async function run({ fetchImpl = fetch, now = new Date(), timeLimitMs = N
   for (const u of universe) {
     const c = cached.get(`${u.market}:${u.code}`), q = quotes.get(tencentSymbol(u.market, u.code))
     const old = previous.get(`${u.market}:${u.code}`)
-    const conv = c?.years && c.currency !== quoteCcy[u.market] ? fx[`${c.currency}${quoteCcy[u.market]}`] : null
-    const usable = c?.years && q && (c.currency === quoteCcy[u.market] || conv)
+    const stmtCcy = statementCurrency(u.market, c)
+    const conv = c?.years && stmtCcy !== quoteCcy[u.market] ? fx[`${stmtCcy}${quoteCcy[u.market]}`] : null
+    const usable = c?.years && q && (stmtCcy === quoteCcy[u.market] || conv)
     if (!usable) {
       if (old) { items.push(q ? { ...old, px: q.price, pxDate: q.date, pxLive: undefined, pxTime: undefined, ...liveFields(q), ...(q.totalShares ? { shares: q.totalShares } : {}) } : old); carried++ }
       continue
@@ -456,7 +464,7 @@ export async function run({ fetchImpl = fetch, now = new Date(), timeLimitMs = N
       cash: scale(c.latest.cash), inv: scale(c.latest.investments), debt: scale(c.latest.debt), mi: scale(c.latest.minority ?? null), shares: q.totalShares ?? c.latest.shares,
       interest: scale(c.latest.interest), pretax: scale(c.latest.pretax), tax: scale(c.latest.tax), ebitda: scale(c.latest.ebitda), ni: scale(c.latest.netIncome),
       beta: c.beta?.adjusted ?? null, betaRaw: c.beta?.raw ?? null, betaWeeks: c.beta?.weeks ?? null,
-      fx: conv ? { from: c.currency, rate: conv.rate, date: conv.date } : undefined,
+      fx: conv ? { from: stmtCcy, rate: conv.rate, date: conv.date } : undefined,
       ind: c.industry || undefined, fyh: fcfYieldHistory(c.years, c.monthly, q.totalShares ?? c.latest.shares, k, q.price) || undefined,
       notes: c.notes?.length ? c.notes : undefined, src: c.source, at: c.fetchedAt.slice(0, 10),
     })
