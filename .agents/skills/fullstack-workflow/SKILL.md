@@ -59,8 +59,7 @@ description: 全栈 AI 开发工作流总控：OpenSpec 管规范、Matt 管澄�
 - 共享同一份 OpenSpec，但各 Implementer 在独立分支或 git worktree 里工作。
 - 同一文件的修改串行：tasks.md 里标注文件 owner，有冲突的任务不并行派出。
 - Reviewer 必须与 Implementer 不同；Verifier 以 CI 结果为准，Agent 只解读不替代。
-- 需要跨 Codex / Claude / Cursor / Kimi / OpenCode / Antigravity 派工时，可交给项目里的 `dev-team` skill 做实际派发，本 skill 只定义任务卡与门禁。
-- 执行者按能力分梯队：Claude / Codex 做推理岗位，Cursor / Kimi 做独立模块，OpenCode（倒数第二）与 Antigravity（agy，最后）只做步骤写死的流程性工作，不参与推理与判断。
+- 需要跨 Codex / Claude / Kimi / OpenCode 派工时，可交给项目里的 `dev-team` skill 做实际派发，本 skill 只定义任务卡与门禁。
 
 ## 门禁与审批
 

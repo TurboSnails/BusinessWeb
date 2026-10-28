@@ -12,9 +12,9 @@ export default function FullstackWorkflowSkillCard(): JSX.Element {
       <p className="skill-card__focus">Web · App · 后端 · 数据库 · 云服务，不绑定语言框架</p>
       <pre><code>{FLOW}</code></pre>
       <p>一个入口 skill 把三套工具编排成一条流程：OpenSpec 是唯一规范来源，Matt 的 grill-with-docs 负责把需求想清楚，Superpowers 的 TDD、系统化调试与验证负责把代码做扎实，CI 负责证明结果。拿到需求先判快速、标准或严格模式，一个按钮不走全流程，支付、认证、破坏性迁移必走严格模式并设审批门。</p>
-      <p>多 Agent 分工明确：Orchestrator、Architect、Implementer、Reviewer、Verifier 各有边界，共享 Spec 但隔离 worktree，同一文件串行，Reviewer 不能是实现者。执行者按能力分梯队：Claude / Codex 负责推理，Cursor / Kimi 做独立模块，OpenCode（倒数第二）和 Antigravity（最后）只做步骤写死的流程性工作，不参与推理。缺少某个工具时给出替代做法，不会卡住。</p>
+      <p>多 Agent 分工明确：Orchestrator、Architect、Implementer、Reviewer、Verifier 各有边界，共享 Spec 但隔离 worktree，同一文件串行，Reviewer 不能是实现者。缺少某个工具时给出替代做法，不会卡住。</p>
       <p><strong>产出：</strong>模式判定、需求澄清记录、OpenSpec change（proposal / specs / design / tasks）、架构审查结论、派工任务卡与回执、验证报告、发布与归档清单。</p>
-      <p><strong>运行要求：</strong>支持 Skills 的助手。OpenSpec、Matt Skills、Superpowers 均可选装；多 Agent 并行需 git worktree 与子代理，支持 Claude Code、Codex、Cursor、Kimi、OpenCode、Antigravity 等执行器，跨执行器派工可配合 dev-team。CI 由项目自行配置。</p>
+      <p><strong>运行要求：</strong>支持 Skills 的助手。OpenSpec、Matt Skills、Superpowers 均可选装；多 Agent 并行需 git worktree 与子代理，跨执行器派工可配合 dev-team。CI 由项目自行配置。</p>
       <details className="skill-example">
         <summary>试一句提示词</summary>
         <p><code>/fullstack-workflow 订单列表支持按状态筛选并导出 CSV</code>，skill 会判为标准模式，先澄清再 <code>/opsx:propose</code>。</p>
