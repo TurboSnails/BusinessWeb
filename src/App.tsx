@@ -34,6 +34,7 @@ const ResearchNotes = lazy(() => import('./pages/ResearchNotes'))
 const CompanyNotes = lazy(() => import('./features/company-notes/CompanyNotes'))
 const CompanyDetail = lazy(() => import('./pages/CompanyDetail'))
 const GridCalculator = lazy(() => import('./pages/GridCalculator'))
+const MoneyFreedom = lazy(() => import('./pages/MoneyFreedom'))
 const GridRecords = lazy(() => import('./pages/GridRecords'))
 const EtfReview = lazy(() => import('./pages/EtfReview'))
 const GridRecordDetail = lazy(() => import('./pages/GridRecordDetail'))
@@ -165,6 +166,7 @@ export default function App(): JSX.Element {
           <Route path="/research-notes/company/:market/:code/notes" element={<CompanyNotes />} />
           <Route path="/research-notes/:market/:code" element={<CompanyDetail />} />
           <Route path="/grid-trading" element={<GridCalculator />} />
+          <Route path="/money-freedom" element={<MoneyFreedom />} />
           <Route path="/etf-review" element={<EtfReview />} />
           <Route path="/grid-trading/records" element={<GridRecords />} />
           <Route path="/grid-trading/records/:recordId" element={<GridRecordDetail />} />

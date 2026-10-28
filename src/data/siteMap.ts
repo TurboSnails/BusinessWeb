@@ -93,6 +93,7 @@ export const INVEST_GROUPS: HubGroup[] = [
       { path: '/valuation', label: '估值工作台', short: '自动取财报，六法三情景', desc: '连接本机估值服务，自动采集财报，六方法三情景估值与报告导出' },
       { path: '/dcf', label: 'DCF 计算器', short: '输入股票一键估算', desc: '输入名称或代码自动取财报估算合理价、三情景与买入参考价，可逐项调整假设并保存记录' },
       { path: '/grid-trading', label: '网格交易', short: 'A 股 / ETF 网格回测', desc: 'A 股与 ETF 网格模拟、回测与记录' },
+      { path: '/money-freedom', label: '财富自由计算器', short: '多少钱可以财富自由', desc: '480X + K×n + M + H 估算一生所需，结合储蓄与收益率推算自由年龄，并对照 4% 法则' },
       { path: '/invest/etf', label: 'ETF 流派地图', short: '各类 ETF 与主要风险', desc: '宽基、因子、主题、债券、商品等流派的主要 ETF 与风险' },
       { path: '/industry-etf', label: 'ETF 清单', short: '宽基与行业 ETF 选品', desc: '宽基首选与 7 个行业组共 59 只 ETF，附趋势备注与独立分析笔记' },
       { path: '/notes', label: '研究笔记', short: 'ETF 估值与趋势分析', desc: '逐只 ETF 的估值、权重、趋势与失效条件分析笔记' },
