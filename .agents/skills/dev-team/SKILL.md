@@ -1,6 +1,6 @@
 ---
 name: dev-team
-description: 用 Orca 组织可迁移的多执行器开发团队：一个 manager 入口协调 Codex、Claude、Kimi、Antigravity 和 OpenCode MiniMax M3，执行 Android、Web 前端、后端或全栈开发，并在额度不足时交接与替换执行器。用户提到 dev_team、开发团队、多 harness 协作或跨项目迁移这套开发流程时使用。
+description: 用 Orca 组织可迁移的多执行器开发团队：一个 manager 入口协调 Codex、Claude、Cursor、Kimi、OpenCode MiniMax M3 和 Antigravity，执行 Android、Web 前端、后端或全栈开发，并在额度不足时交接与替换执行器。用户提到 dev_team、开发团队、多 harness 协作或跨项目迁移这套开发流程时使用。
 ---
 
 # dev_team
@@ -28,7 +28,7 @@ description: 用 Orca 组织可迁移的多执行器开发团队：一个 manage
 
 ## 管理与执行
 
-- 路由以配置为准：manager/架构/Android/后端优先 Codex，主要前端/设计/交叉审查优先 Claude；Kimi、AGY、OpenCode M3 参与辅助或替补。配置是团队默认分工，不宣称某模型必然更强。没有指定模型时继承用户默认；OpenCode M3 使用经该主机模型列表确认的完整 ID。
+- 路由以配置为准：manager/架构/Android/后端优先 Codex，主要前端/设计/交叉审查优先 Claude；Cursor、Kimi 参与辅助或替补；OpenCode M3（倒数第二）与 AGY（最后）能力较弱，只接步骤写死的流程性任务（跑指定命令、套模板、整理输出、按清单改名或格式化），不担任 manager、architect、designer、reviewer、researcher，也不做排错和需要取舍的实现；它们的产出必须由更强的执行器复核。配置是团队默认分工，不宣称某模型必然更强。没有指定模型时继承用户默认；OpenCode M3 使用经该主机模型列表确认的完整 ID。
 - `route --role <角色> [--avoid <上次实现的 harness>]` 给候选。review 优先不同 harness；仅一家有额度时新会话独立审查，注明独立性降低。不能因少了某一家而放弃整个流程。
 - `register --id <短名>` 把计划登记为 Orca Run 与有依赖的 Tasks；`start --id <短名> --task <任务键>` 创建一轮原生 worker-start。启动全部独立可就绪任务后再等结果，最多 config.maxParallel 个。脚本**只负责首次派工**，失败重试与后续修复按原生 Orca recovery 流程处理。
 - 执行者默认在当前 Orca 工作区的新会话中工作。写入范围不能重叠，共享文件单 owner；不同分支、相互干扰的构建/生成任务才用 Orca 独立 worktree，先加载 placement 文档。新 checkout 不包含未提交/未跟踪的技能和上下文，派工前须把这些材料显式复制到该 checkout 或提供可读路径。

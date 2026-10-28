@@ -1,122 +1,25 @@
 {
   "version": 1,
   "maxParallel": 3,
-  "paths": {
-    "android": [],
-    "frontend": [
-      "src"
-    ],
-    "backend": [
-      "server",
-      "api",
-      "supabase",
-      "packages"
-    ]
-  },
-  "checks": {
-    "android": [],
-    "frontend": [
-      "npm run typecheck",
-      "npm run test",
-      "npm run build"
-    ],
-    "backend": [
-      "npm run test:knowledge",
-      "npm run test:valuation-server"
-    ]
-  },
+  "paths": {"android": [], "frontend": ["src"], "backend": ["server", "api", "supabase", "packages"]},
+  "checks": {"android": [], "frontend": ["npm run typecheck", "npm run test", "npm run build"], "backend": ["npm run test:knowledge", "npm run test:valuation-server"]},
   "harnesses": {
-    "codex": {
-      "agent": "codex",
-      "command": "codex",
-      "enabled": true
-    },
-    "claude": {
-      "agent": "claude",
-      "command": "claude",
-      "enabled": true
-    },
-    "opencode-m3": {
-      "agent": "opencode",
-      "command": "opencode",
-      "model": "minimax-cn/MiniMax-M3",
-      "launchMode": "terminal",
-      "enabled": true
-    },
-    "kimi": {
-      "agent": "kimi",
-      "command": "kimi",
-      "enabled": true
-    },
-    "agy": {
-      "agent": "antigravity",
-      "command": "agy",
-      "enabled": true
-    }
+    "codex": {"agent": "codex", "command": "codex", "enabled": true},
+    "claude": {"agent": "claude", "command": "claude", "enabled": true},
+    "cursor": {"agent": "cursor", "command": "cursor-agent", "enabled": true},
+    "opencode-m3": {"agent": "opencode", "command": "opencode", "model": "minimax-cn/MiniMax-M3", "launchMode": "terminal", "enabled": true},
+    "kimi": {"agent": "kimi", "command": "kimi", "enabled": true},
+    "agy": {"agent": "antigravity", "command": "agy", "enabled": true}
   },
   "routing": {
-    "manager": [
-      "codex",
-      "claude",
-      "kimi",
-      "agy",
-      "opencode-m3"
-    ],
-    "architect": [
-      "codex",
-      "claude",
-      "opencode-m3",
-      "kimi",
-      "agy"
-    ],
-    "designer": [
-      "claude",
-      "codex",
-      "agy",
-      "kimi",
-      "opencode-m3"
-    ],
-    "android": [
-      "codex",
-      "claude",
-      "opencode-m3",
-      "kimi",
-      "agy"
-    ],
-    "frontend": [
-      "claude",
-      "codex",
-      "opencode-m3",
-      "agy",
-      "kimi"
-    ],
-    "backend": [
-      "codex",
-      "claude",
-      "opencode-m3",
-      "kimi",
-      "agy"
-    ],
-    "reviewer": [
-      "claude",
-      "codex",
-      "kimi",
-      "opencode-m3",
-      "agy"
-    ],
-    "qa": [
-      "codex",
-      "claude",
-      "kimi",
-      "opencode-m3",
-      "agy"
-    ],
-    "researcher": [
-      "kimi",
-      "agy",
-      "claude",
-      "codex",
-      "opencode-m3"
-    ]
+    "manager": ["codex", "claude", "cursor", "kimi"],
+    "architect": ["codex", "claude", "cursor", "kimi"],
+    "designer": ["claude", "codex", "cursor", "kimi"],
+    "android": ["codex", "claude", "cursor", "kimi", "opencode-m3", "agy"],
+    "frontend": ["claude", "codex", "cursor", "kimi", "opencode-m3", "agy"],
+    "backend": ["codex", "claude", "cursor", "kimi", "opencode-m3", "agy"],
+    "reviewer": ["claude", "codex", "cursor", "kimi"],
+    "qa": ["codex", "claude", "cursor", "kimi", "opencode-m3", "agy"],
+    "researcher": ["kimi", "claude", "codex", "cursor"]
   }
 }

@@ -12,7 +12,9 @@
 | qa | 核对行为与执行适用验证 | 契约、实现、审查结论 | 命令/退出码、观察结果、未测项 | 代码只读；报告目录可写 |
 | researcher | 查官方文档、调查现状与替代方案 | 具体问题与版本/平台 | 来源/日期、结论、适用限制 | 代码只读 |
 
-角色是职责，harness 是执行工具，模型是其配置。`agy` CLI 在 Orca 的 agent ID 是 `antigravity`；`opencode-m3` 是本技能的路由名，Orca 的 agent ID 是 `opencode`，模型 ID 单独传递。Codex/Claude 不强绑模型版本，沿用用户设置。
+执行器梯队按推理能力从强到弱：Codex/Claude → Cursor/Kimi → OpenCode M3（倒数第二）→ AGY（最后）。后两者只派流程性任务：任务卡逐步写明命令与预期输出，偏离预期立即停下回报 manager，不自行排错；不担任 manager、architect、designer、reviewer、researcher。
+
+角色是职责，harness 是执行工具，模型是其配置。`cursor-agent` CLI 在 Orca 的 agent ID 是 `cursor`；`agy` CLI 在 Orca 的 agent ID 是 `antigravity`；`opencode-m3` 是本技能的路由名，Orca 的 agent ID 是 `opencode`，模型 ID 单独传递。Codex/Claude 不强绑模型版本，沿用用户设置。
 
 每个 worker 只接一个自包含任务，输入项目约束、相关代码、依赖产物、验收和所有权。不要复制整段 manager 聊天历史。按需给文件路径；持久进度在项目中，不依赖某家私有会话历史。worker 不自行扮演 manager 或启动下属。
 

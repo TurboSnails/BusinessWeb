@@ -49,7 +49,7 @@ orca orchestration request-show --request <记录的 requestId> --json
 
 ## manager 耗尽/更换
 
-持久上下文在 PROJECT.md、任务卡、MANAGER.md、报告和原生 Run 中。替补 manager 优先 Claude，再 Kimi/AGY/OpenCode；用户始终只面对当前唯一 manager。
+持久上下文在 PROJECT.md、任务卡、MANAGER.md、报告和原生 Run 中。替补 manager 优先 Claude，再 Cursor/Kimi；OpenCode 与 AGY 不接 manager；用户始终只面对当前唯一 manager。
 
 1. 确定原 manager 已停止协调，留下最后交接点。不要在它仍协调时争抢 Run。
 2. 新会话先只读 `run-show/task-list/worker-list` 和本地文件，加载本版本 `run-use --help` 及 legacy-contract-migration 指南，按运行时支持的身份绑定/接管方式恢复。**不能把旧 handle 写成自己的身份**。不能凭一份文本 checkpoint 宣称获得 live Dispatch 权限。

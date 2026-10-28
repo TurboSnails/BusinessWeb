@@ -1,7 +1,7 @@
 # dev-team 使用说明（可迁移包）
 
 用 **Orca** 组织多执行器开发团队：当前对话的 agent 是唯一 manager，负责拆任务、通过真实 Orca 派工给
-Codex / Claude / Kimi / Antigravity / OpenCode(MiniMax M3)、验收、整合；适用于 Android、前端、后端、全栈项目。
+Codex / Claude / Cursor / Kimi / OpenCode(MiniMax M3) / Antigravity、验收、整合；适用于 Android、前端、后端、全栈项目。
 
 本包 = `dev-team/`（技能本体）+ 本说明。技能本体不含任何项目名称、绝对路径、对话记录、凭据或活跃的 Orca 身份。
 
@@ -11,7 +11,7 @@ Codex / Claude / Kimi / Antigravity / OpenCode(MiniMax M3)、验收、整合；�
 |---|---|
 | Node.js | 20+（无 npm 依赖） |
 | Orca | 已启动，且版本支持 orchestration（实测 1.4.224） |
-| 执行器 | 至少一个已登录、有额度的 CLI：`codex` / `claude` / `kimi` / `opencode` / `agy` |
+| 执行器 | 至少一个已登录、有额度的 CLI：`codex` / `claude` / `cursor-agent` / `kimi` / `opencode` / `agy` |
 | Python 3 | 仅 `pack` 打包时需要 |
 
 注意：**命令存在、能登录、有额度是三件事**。`doctor` 只能确认前者，登录与额度只有真实派一次任务才知道。
@@ -46,14 +46,18 @@ node .agents/skills/dev-team/scripts/dev-team.mjs doctor --models
 - `checks` 是候选命令，不是每次全量执行清单；小改动不应默认跑全量测试。
 - 建议同时在 `.dev-team/PROJECT.md` 补充该项目的构建/测试约定、共享文件 owner 等（本包不带这些）。
 
+### 执行器梯队
+
+Codex / Claude 负责推理岗位，Cursor / Kimi 做辅助与替补，**OpenCode M3 排倒数第二、AGY 排最后**，只接步骤写死的流程性任务（跑指定命令、套模板、整理输出），不担任 manager、architect、designer、reviewer、researcher，产出须由更强的执行器复核。
+
 ### 可选：让别人评审、自己不评审自己
 
 默认评审顺序是 Claude 优先。想"谁写代码就别让谁评审"，改 `routing`：
 
 ```json
 "routing": {
-  "reviewer": ["codex", "kimi", "opencode-m3", "agy", "claude"],
-  "backend":  ["claude", "codex", "opencode-m3", "kimi", "agy"]
+  "reviewer": ["codex", "cursor", "kimi", "claude"],
+  "backend":  ["claude", "codex", "cursor", "kimi", "opencode-m3", "agy"]
 }
 ```
 
@@ -96,7 +100,7 @@ node $S status --id x                      # 本地回执 + Orca Tasks/Workers
 在一个 Android 项目中用 Codex 完成过一次真实的只读评审（派工→回执→核实→释放→ack 全链路）。
 
 **未验证**：后端/前端项目里的真实派工；让执行器改代码的任务；多任务并行；独立 worktree；额度耗尽后的接力；
-Kimi / OpenCode / Antigravity 的实际派工（只确认了命令存在与模型列表）。
+Cursor / Kimi / OpenCode / Antigravity 的实际派工（只确认了命令存在与模型列表）。
 
 ## 7. 升级与再打包
 

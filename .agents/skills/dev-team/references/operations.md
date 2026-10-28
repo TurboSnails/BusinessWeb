@@ -17,7 +17,7 @@ node .agents/skills/dev-team/scripts/dev-team.mjs doctor --models
 $dev-team 开发一个订单列表，包含 Web 前端、后端分页接口与权限校验。
 ```
 
-本对话是 manager；执行会话由 Orca 按需启动。无需每次打开五家工具常驻。Claude Code `/dev-team`、Kimi `/skill:dev-team`；菜单未刷新时开新会话，或直接指定 SKILL.md 路径读取。
+本对话是 manager；执行会话由 Orca 按需启动。无需每次打开六家工具常驻。Claude Code `/dev-team`、Kimi `/skill:dev-team`；菜单未刷新时开新会话，或直接指定 SKILL.md 路径读取。
 
 初始化探测 `src/`、`server/`、`api/`、`supabase/` 与 Android module manifest，保存**候选路径**。Monorepo、非 JS 后端、自定义 Android 模块务必修改 config.paths/checks。空路径禁止派工；不要把目标项目中未受影响的端加入 fullstack 计划。检查命令来自清单，但 build 可能有 prebuild 副作用，manager 核对后再运行。
 
@@ -84,7 +84,7 @@ orca orchestration worker-list --run <run_id> --terminal-state reclaimable --jso
 .dev-team/runs/<id>/              任务卡、报告、MANAGER.md、操作回执；默认忽略 Git
 ```
 
-实体不复制五份；Codex/Kimi/AGY 读 `.agents/skills`，Claude 读 `.claude/skills`，OpenCode 原生/兼容目录都指向同一份。Windows junction 记录绝对路径，搬家后重建链接；链接创建受限时手动复制技能到 provider 目录，并自行同步更新。脚本不会替换已有的其他 skill、根 AGENTS.md/CLAUDE.md、权限或登录配置。
+实体不复制多份；Codex/Cursor/Kimi/AGY 读 `.agents/skills`，Claude 读 `.claude/skills`，OpenCode 原生/兼容目录都指向同一份。Windows junction 记录绝对路径，搬家后重建链接；链接创建受限时手动复制技能到 provider 目录，并自行同步更新。脚本不会替换已有的其他 skill、根 AGENTS.md/CLAUDE.md、权限或登录配置。
 
 选定 Orca CLI：优先 ORCA_CLI_COMMAND，其次 dev 会话 ORCA_DEV_REPO_ROOT→orca-dev；Linux 非 Orca 终端用 orca-ide；其余用 orca。选中的文件失败时报告原错误，不换另一套 runtime。Windows 要让 Node 能直接执行选定命令，脚本不通过 shell 执行 .cmd 内容；若只有 .cmd shim，用原生 Orca 命令协调，或配置真正可执行的 launcher。
 
