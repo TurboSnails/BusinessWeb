@@ -40,4 +40,4 @@
 
 ## Coding Agents 与派工
 
-本 skill 不绑定执行器。推荐分工见 [agents.md](agents.md)。需要真实跨 Codex / Claude / Kimi / OpenCode 派工、回执、替补时，使用项目里的 `dev-team` skill：它负责派发与执行器管理，本 skill 负责任务卡、门禁与 OpenSpec 状态。
+本 skill 不绑定执行器。推荐分工见 [agents.md](agents.md)。需要真实跨 Codex / Claude / Cursor / Kimi / OpenCode / Antigravity 派工、回执、替补时，使用项目里的 `dev-team` skill：它负责派发与执行器管理，本 skill 负责任务卡、门禁与 OpenSpec 状态。OpenCode 与 agy 能力较弱，只派流程性任务，见 agents.md 的“机械执行者”。

@@ -9,11 +9,29 @@
 | Orchestrator | 当前对话 agent（Claude 或 Codex） | 定模式、维护 OpenSpec 状态、派工、核实回执、守门禁、向用户汇报 | 不直接大段写业务代码；快速模式可兼任 Implementer |
 | Architect | Claude | ③ 的 design.md、④ 架构审查、方案比较 | 不写实现代码；严格模式下与 Implementer 分属不同会话 |
 | Implementer | Codex | 按任务卡 TDD 实现、调试、自测、请求审查 | 只改任务卡列出的文件；spec 有误回报而不是自行改 spec |
-| Secondary Implementer | OpenCode / Kimi | 独立模块、并行任务、文档与测试补充 | 同上；不碰契约类文件 |
+| Secondary Implementer | Cursor / Kimi | 独立模块、并行任务、文档与测试补充 | 同上；不碰契约类文件 |
+| Mechanical Runner | OpenCode、Antigravity（agy） | 只做步骤已写死的流程性工作，见下文“机械执行者” | 不推理、不决策；任务卡必须自带完整步骤与预期输出 |
 | Reviewer | 与 Implementer 不同的 Agent | Standards 轴 + Spec 轴审查，安全相关加安全轴 | 只读；发现问题回给 Implementer，不自己改 |
 | Verifier | CI + 一个 Agent | 跑门禁、`/opsx:verify`、写验证报告 | 只解读 CI 输出，不以本地结果替代 CI |
 
 一人多岗允许，但 Reviewer ≠ Implementer、Verifier ≠ Implementer 这两条不能破。
+
+## 执行者梯队
+
+按推理能力从强到弱排序，派工时先从前往后选；额度不足时顺序补位，但越靠后的越不能接需要判断的任务。
+
+1. Claude / Codex：Orchestrator、Architect、Implementer、Reviewer 等需要推理的岗位。
+2. Cursor、Kimi：Secondary Implementer，做边界清晰的独立模块、测试与文档。
+3. **OpenCode（倒数第二）**、**Antigravity / agy（最后）**：Mechanical Runner，只能做最简单的流程工作。
+
+### 机械执行者
+
+OpenCode 与 agy 能力偏弱，只接**不需要推理**的任务，尽量不让它们参与分析、设计和排错：
+
+- 可以做：按任务卡给定的命令跑测试、构建、lint 并如实贴出输出；按明确清单重命名、移动、格式化文件；套用模板生成样板文件；勾选 tasks.md；整理 CI 输出、日志和变更清单；合入已审查的分支并按固定顺序跑门禁预检。
+- 不做：写 spec、design、架构审查；设计或改动契约、数据库迁移；定位 Bug 根因；写业务逻辑或需要取舍的重构；担任 Reviewer 或 Verifier 的判断部分；解读失败原因。
+- 任务卡要求：步骤逐条写死，给出要执行的命令与预期输出；遇到偏离预期的结果立即停下回报 Orchestrator，不自行猜测或修补。
+- 同样遵守 Reviewer ≠ Implementer：它们的产出同样必须由更强的执行者复核。
 
 ## 并行与隔离
 
@@ -33,7 +51,7 @@ tasks.md ──► 任务卡(模板) ──► Implementer(worktree) ──► �
 
 - 一次只派 frontier 上无阻塞依赖的任务；派出数量不超过可用执行器数量。
 - 派工前检查执行器状态；需要真实跨 harness 派工时用 `dev-team` 的 `plan` 与派发流程，任务卡内容直接作为其任务描述。
-- 执行器额度耗尽或失联：任务卡回收，标记 `handoff`，附当前 worktree 路径与已完成步骤，交给替补执行者继续。
+- 执行器额度耗尽或失联：任务卡回收，标记 `handoff`，附当前 worktree 路径与已完成步骤，按执行者梯队交给替补继续；需要推理的任务不得降级交给 OpenCode 或 agy，宁可等待或回到 Orchestrator。
 
 ## 上下文纪律
 

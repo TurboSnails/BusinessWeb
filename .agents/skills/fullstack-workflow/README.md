@@ -41,8 +41,8 @@
 
 ## 运行要求
 
-- 支持 Skills 的助手（Claude Code、Codex、OpenCode、Kimi 等）。
-- 多 Agent 并行需要 git worktree 与子代理能力；跨执行器真实派工可配合 `dev-team` skill。
+- 支持 Skills 的助手（Claude Code、Codex、Cursor、Kimi、OpenCode、Antigravity 等）。
+- 多 Agent 并行需要 git worktree 与子代理能力；跨执行器真实派工可配合 `dev-team` skill。OpenCode 与 Antigravity（agy）排在执行者梯队末位，只做步骤写死的流程性工作，不参与推理。
 - CI 流水线由项目自行配置；本 skill 只定义门禁要求，不替代 CI。
 
 ## 许可

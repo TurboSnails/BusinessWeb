@@ -18,6 +18,7 @@
 | 完成定义 | 验收命令通过 + 新增测试覆盖本任务场景 + 审查通过 |
 | 依赖 | blocked-by: <task-id> / 无 |
 | 方法 | test-driven-development；异常时 systematic-debugging |
+| 逐步命令 | 仅执行者为 OpenCode / agy 时填写：逐条写死要执行的命令与预期输出；结果与预期不符立即停下回报，不自行排错 |
 
 ## 回执（Implementer 填写）
 
