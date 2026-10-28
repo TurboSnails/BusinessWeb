@@ -10,6 +10,13 @@ export interface SiteUpdate {
 // 使用中文描述结果和使用方式，不从 Git 提交、构建或日常数据刷新自动生成。
 export const SITE_UPDATES: readonly SiteUpdate[] = [
   {
+    id: 'kf-deeper',
+    date: '2026-10-28',
+    title: 'kf-deeper 更深 Skill 上线',
+    description: '新增 kf-deeper：不扩大范围，用专业补足、原始材料、方法工具与独立验证四问把任务改写得更深，改写后停下等你确认。Skills 工具库提供说明、示例和 ZIP 下载。',
+    href: '/ai/ai-skills#thinking-skills',
+  },
+  {
     id: 'fullstack-workflow',
     date: '2026-10-28',
     title: '全栈 AI 开发工作流 Skill 上线',

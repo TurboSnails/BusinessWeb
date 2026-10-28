@@ -70,6 +70,7 @@ export const LAB_DIRECTIONS: LabDirection[] = [
     startCost: '¥0',
     firstStep: '试用可独立安装的 dev-team 开发团队和投资分析 Skills，整理使用反馈与实际交付记录。',
     logs: [
+      { date: '2026-10-28', did: '新增 kf-deeper Skill，用四问把任务改写得更深而不扩大范围，改写后等待确认', result: '「AI Skills 工具库 › 思考与提问」提供说明、示例与独立 ZIP' },
       { date: '2026-10-28', did: '新增全栈 AI 开发工作流 fullstack-workflow Skill，把 OpenSpec、Matt、Superpowers 与多 Agent 分工编排成七阶段、三种模式的流程', result: '「AI Skills 工具库 › 开发协作」提供说明、六份参考文档、五个模板与独立 ZIP' },
       { date: '2026-10-27', did: '新增任务深挖 deepen-task Skill，以专家视角、一手材料、具体方法与独立验证重写提示词', result: '「AI Skills 工具库 › 思考与提问」提供描述、使用示例、英文原始提示词与独立 ZIP' },
       { date: '2026-10-20', did: '上线 Matt Pocock 开发工作流 Skills v1.3 中文版，含 implement-spec、pr、retro 三个新 Skill', result: '「AI Skills 工具库 › 开发协作」提供独立安装 ZIP' },

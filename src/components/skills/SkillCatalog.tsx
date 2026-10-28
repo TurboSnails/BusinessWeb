@@ -5,6 +5,7 @@ import { WRITING_SKILLS } from '../../data/writingSkills'
 import DevTeamSkillCard from './DevTeamSkillCard'
 import MattWorkflowSkillCard from './MattWorkflowSkillCard'
 import DeepenTaskSkillCard from './DeepenTaskSkillCard'
+import KfDeeperSkillCard from './KfDeeperSkillCard'
 import FullstackWorkflowSkillCard from './FullstackWorkflowSkillCard'
 
 export default function SkillCatalog(): JSX.Element {
@@ -24,6 +25,7 @@ export default function SkillCatalog(): JSX.Element {
         <h2 id="thinking-skills-title">思考与提问</h2>
         <div className="skill-grid">
           <DeepenTaskSkillCard />
+          <KfDeeperSkillCard />
         </div>
       </section>
 
