@@ -4,7 +4,7 @@
     {
       "schemaVersion": 1,
       "dataDate": "2026-10-28",
-      "fetchedAt": "2026-10-28T14:25:58.260Z",
+      "fetchedAt": "2026-10-28T15:59:26.615Z",
       "sentiment": {
         "asOf": "2026-10-28",
         "breadth": {
@@ -228,7 +228,7 @@
             "label": "新浪A股总数",
             "url": "https://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeStockCount?node=hs_a",
             "date": null,
-            "fetchedAt": "2026-10-28T14:25:58.260Z",
+            "fetchedAt": "2026-10-28T15:59:26.615Z",
             "status": "undated",
             "note": "hs_a A股；无源交易日期，仅代表本次采集"
           },
@@ -237,7 +237,7 @@
             "label": "新浪A股分页行情（无交易日期）",
             "url": "https://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?node=hs_a&sort=symbol&asc=1&num=80&page=1",
             "date": null,
-            "fetchedAt": "2026-10-28T14:25:58.260Z",
+            "fetchedAt": "2026-10-28T15:59:26.615Z",
             "status": "undated",
             "note": "hs_a A股；无源交易日期，仅代表本次采集"
           },
@@ -246,7 +246,7 @@
             "label": "东方财富昨日涨停股池",
             "url": "https://push2ex.eastmoney.com/getYesterdayZTPool?ut=7eea3edcaed734bea9cbfc24409ed989&dpt=wz.ztzt&Pageindex=0&pagesize=10000&sort=zs%3Adesc&date=20261028",
             "date": "2026-10-28",
-            "fetchedAt": "2026-10-28T14:25:58.260Z",
+            "fetchedAt": "2026-10-28T15:59:26.615Z",
             "status": "ready",
             "note": ""
           },
@@ -255,7 +255,7 @@
             "label": "腾讯主要指数与蓝筹批量行情",
             "url": "https://qt.gtimg.cn/q=sh000001,sz399001,sh000300,sh000016,sz399006,sh600519,sz300750,sh600036,sh601318,sh601398,sh601939,sh601288,sh601988,sh601857,sh600028,sh600900,sh601088,sh600030,sh601166,sh600276,sh600887,sz000858,sz000333,sz000651,sz002594",
             "date": "2026-10-28",
-            "fetchedAt": "2026-10-28T14:25:58.260Z",
+            "fetchedAt": "2026-10-28T15:59:26.615Z",
             "status": "ready",
             "note": ""
           },
@@ -264,7 +264,7 @@
             "label": "腾讯昨日涨停股今日行情",
             "url": "https://qt.gtimg.cn/q=sz000058,sz000678,sz000888,sz001219,sz001318,sz001331,sz001400,sz002011,sz002093,sz002187,sz002205,sz002249,sz002284,sz002623,sz002708,sz002724,sz002820,sz002823,sz300504,sz300539,sz301314,sz301479,sz301682,sh600303,sh600626,sh600715,sh600785,sh600828,sh600838,sh601086,sh601566,sh601956,sh603028,sh603037,sh603370,sh603376,sh603528,sh603565,sh603758,sh603813,sh605333",
             "date": "2026-10-28",
-            "fetchedAt": "2026-10-28T14:25:58.260Z",
+            "fetchedAt": "2026-10-28T15:59:26.615Z",
             "status": "ready",
             "note": ""
           }
@@ -888,7 +888,7 @@
           "label": "腾讯指数行情",
           "url": "https://qt.gtimg.cn/q=sh000001,sz399001,sz399006",
           "date": "2026-10-28",
-          "fetchedAt": "2026-10-28T14:25:58.260Z",
+          "fetchedAt": "2026-10-28T15:59:26.615Z",
           "status": "ready",
           "note": ""
         },
@@ -897,7 +897,7 @@
           "label": "东方财富涨停股池",
           "url": "https://push2ex.eastmoney.com/getTopicZTPool?ut=7eea3edcaed734bea9cbfc24409ed989&dpt=wz.ztzt&Pageindex=0&pagesize=10000&sort=fbt%3Aasc&date=20261028",
           "date": "2026-10-28",
-          "fetchedAt": "2026-10-28T14:25:58.260Z",
+          "fetchedAt": "2026-10-28T15:59:26.615Z",
           "status": "ready",
           "note": ""
         },
@@ -906,7 +906,7 @@
           "label": "东方财富炸板股池",
           "url": "https://push2ex.eastmoney.com/getTopicZBPool?ut=7eea3edcaed734bea9cbfc24409ed989&dpt=wz.ztzt&Pageindex=0&pagesize=10000&sort=fbt%3Aasc&date=20261028",
           "date": "2026-10-28",
-          "fetchedAt": "2026-10-28T14:25:58.260Z",
+          "fetchedAt": "2026-10-28T15:59:26.615Z",
           "status": "ready",
           "note": ""
         },
@@ -915,7 +915,7 @@
           "label": "东方财富跌停股池",
           "url": "https://push2ex.eastmoney.com/getTopicDTPool?ut=7eea3edcaed734bea9cbfc24409ed989&dpt=wz.ztzt&Pageindex=0&pagesize=10000&sort=fund%3Aasc&date=20261028",
           "date": "2026-10-28",
-          "fetchedAt": "2026-10-28T14:25:58.260Z",
+          "fetchedAt": "2026-10-28T15:59:26.615Z",
           "status": "ready",
           "note": ""
         },
@@ -924,7 +924,7 @@
           "label": "新浪成交额排名 / 腾讯报价",
           "url": "https://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?node=hs_a&sort=amount&asc=0&num=5&page=1",
           "date": "2026-10-28",
-          "fetchedAt": "2026-10-28T14:25:58.260Z",
+          "fetchedAt": "2026-10-28T15:59:26.615Z",
           "status": "ready",
           "note": ""
         },
@@ -933,7 +933,7 @@
           "label": "新浪换手率排名 / 腾讯报价",
           "url": "https://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?node=hs_a&sort=turnoverratio&asc=0&num=5&page=1",
           "date": "2026-10-28",
-          "fetchedAt": "2026-10-28T14:25:58.260Z",
+          "fetchedAt": "2026-10-28T15:59:26.615Z",
           "status": "ready",
           "note": ""
         },
@@ -942,7 +942,7 @@
           "label": "新浪行业资金流",
           "url": "https://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/MoneyFlow.ssl_bkzj_bk?paixu=op%2Fturnover&fenlei=0",
           "date": null,
-          "fetchedAt": "2026-10-28T14:25:58.260Z",
+          "fetchedAt": "2026-10-28T15:59:26.615Z",
           "status": "undated",
           "note": "源未标注交易日期；仅代表本次获取的行业资金流快照，非主力净流入口径"
         }
