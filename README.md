@@ -80,6 +80,10 @@ node /path/to/dev-team/scripts/dev-team.mjs init --project /path/to/other-projec
 
 AI 实验室的 `/ai/dropshipping` 提供一件代发模式说明、30 天试验步骤、交互利润测算和订单记账模板。正文维护在 [src/content/dropshipping-strategy.md](src/content/dropshipping-strategy.md)，预算与首页摘要维护在 `src/data/aiLab.ts`；平台规则引用官方资料并标注核对日期。页面保持“未开始”，实际经营后再更新实验日志。
 
+## Skills 同步工具
+
+[sync-skills](.agents/skills/sync-skills/README.md) 不是 Skill，而是命令行工具：把 `.agents/skills/` 同步到全局中心库 `~/.agents/skills`，再用软链接分发给 Claude、Codex、Cursor、Kimi、OpenCode、Antigravity 等 agent，不必每个项目各装一份。默认只预览：`node .agents/skills/sync-skills/scripts/sync-skills.mjs`，加 `--apply` 执行，覆盖前自动备份。
+
 ## kf-deeper Skill
 
 [kf-deeper](.agents/skills/kf-deeper/SKILL.md) 把现有任务改写得更深而不扩大范围：回答专业补足、原始材料、方法与工具、独立验证四问，给出改写提示词后停下等待确认。用法：`$kf-deeper <任务>`。网站「AI Skills 工具库 › 思考与提问」提供说明与 [ZIP 下载](public/ai-skills/kf-deeper.zip)；执行 `python3 scripts/package-kf-deeper.py` 可重新打包。
