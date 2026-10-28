@@ -1,0 +1,30 @@
+{
+  "us": {
+    "total": 294,
+    "changed": 294,
+    "quoteDates": [
+      "2026-10-28"
+    ]
+  },
+  "cn": {
+    "total": 811,
+    "changed": 811,
+    "quoteDates": [
+      "2026-10-28"
+    ]
+  },
+  "hk": {
+    "total": 127,
+    "changed": 127,
+    "quoteDates": [
+      "2026-10-28"
+    ]
+  },
+  "adr": {
+    "total": 67,
+    "changed": 67,
+    "quoteDates": [
+      "2026-10-28"
+    ]
+  }
+}

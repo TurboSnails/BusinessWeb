@@ -7,9 +7,9 @@
   "depth": "逐家初筛／既有研究复核，未认证",
   "rating": "观察／等待估值证据",
   "headline": "既有研究待核：最近季营收 +14%、盈利 −52%，毛利率 24%、营业利润率 5%、ROE 8%；52 周 135.75–464.25。",
-  "price": 108.06,
-  "priceText": "USD 108.06",
-  "priceDate": "2026-10-27T12:02:18-04:00",
+  "price": 109.01,
+  "priceText": "USD 109.01",
+  "priceDate": "2026-10-28T12:50:59-04:00",
   "currency": "USD",
   "ratio": null,
   "up": null,
@@ -26,6 +26,11 @@
   "concern": "EPS −52%。",
   "certainty": "待核",
   "sources": [
+    {
+      "title": "本轮行情原始证据",
+      "url": "/research/data-refresh-2026-10-28/tencent-quotes.json",
+      "status": "行情 2026-10-28T12:50:59-04:00；核验 2026-10-28T16:51:04.601211+00:00；腾讯延迟行情，不代表财报或模型已重估"
+    },
     {
       "title": "本轮行情原始证据",
       "url": "/research/data-refresh-2026-10-27/tencent-quotes.json",
@@ -92,15 +97,15 @@
   "metrics": [
     [
       "本次价格",
-      "USD 108.06"
+      "USD 109.01"
     ],
     [
       "价格时间",
-      "2026-10-27T12:02:18-04:00"
+      "2026-10-28T12:50:59-04:00"
     ],
     [
       "行情核验时间",
-      "2026-10-27T16:02:37.123849+00:00；来源 research/data-refresh-2026-10-27/tencent-quotes.json；研究与模型仍为 2026-10-09"
+      "2026-10-28T16:51:04.601211+00:00；来源 research/data-refresh-2026-10-28/tencent-quotes.json；研究与模型仍为 2026-10-09"
     ],
     [
       "一手事实摘录",
@@ -231,8 +236,8 @@
     "旧资料只作审计轨迹，不沿用旧买入评级：未匹配既有研究页",
     "旧程序化输入：public/research/future-trends-2026-10-09/input-pool.json；其中旧赔率与固定胜率已撤回。"
   ],
-  "priceCheckedAt": "2026-10-27T16:02:37.123849+00:00",
-  "priceSource": "research/data-refresh-2026-10-27/tencent-quotes.json",
+  "priceCheckedAt": "2026-10-28T16:51:04.601211+00:00",
+  "priceSource": "research/data-refresh-2026-10-28/tencent-quotes.json",
   "modelAsOf": "2026-10-09",
   "marketRefreshStatus": "行情已刷新；原研究模型未重估，不认证买入或胜率"
 }

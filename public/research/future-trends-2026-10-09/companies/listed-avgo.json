@@ -7,17 +7,17 @@
   "depth": "公司证据摘录＋情景草稿",
   "rating": "观察／等待估值证据",
   "headline": "FY26Q3（截至 2026-08-02）收入 295.9 亿美元，+86%；AI 半导体收入 167 亿，+221%；非 GAAP EPS 3.32，GAAP EPS 2.68；自由现金流 137 亿。Q4 指引收入约 348 亿、AI 半导体约 217 亿。",
-  "price": 342.82,
-  "priceText": "USD 342.82",
-  "priceDate": "2026-10-27T12:02:20-04:00",
+  "price": 347.4,
+  "priceText": "USD 347.40",
+  "priceDate": "2026-10-28T12:50:40-04:00",
   "currency": "USD",
-  "ratio": 0.546193984039288,
-  "up": 0.20763082667288968,
-  "down": 0.38014118196137914,
+  "ratio": 0.4936990363232026,
+  "up": 0.1917098445595855,
+  "down": 0.38831318364997114,
   "threshold": 279.6666666666667,
-  "breakEven": 0.6467493796526054,
+  "breakEven": 0.6694789081885856,
   "winRate": "假设胜率 75%（原研究主观情景概率按新报价复算；非历史回测，模型未重新认证）",
-  "expected": 0.20799544950702997,
+  "expected": 0.19206966033390915,
   "valuationStatus": "正常化 EPS 情景草稿；第二独立方法缺失，未认证；行情刷新不等于重估，旧情景未重新认证",
   "primaryTrend": "人工智能",
   "riskGroup": "AI 资本开支与变现",
@@ -26,6 +26,11 @@
   "concern": "AI 收入集中于少数云厂商；客户可自研或换供应商；非 GAAP 利润剔除大额股权激励；需求从训练转向推理时定价与份额不确定。",
   "certainty": "证据中等／估值低，非综合高确定性",
   "sources": [
+    {
+      "title": "本轮行情原始证据",
+      "url": "/research/data-refresh-2026-10-28/tencent-quotes.json",
+      "status": "行情 2026-10-28T12:50:40-04:00；核验 2026-10-28T16:51:03.133320+00:00；腾讯延迟行情，不代表财报或模型已重估"
+    },
     {
       "title": "本轮行情原始证据",
       "url": "/research/data-refresh-2026-10-27/tencent-quotes.json",
@@ -105,15 +110,15 @@
   "metrics": [
     [
       "本次价格",
-      "USD 342.82"
+      "USD 347.40"
     ],
     [
       "价格时间",
-      "2026-10-27T12:02:20-04:00"
+      "2026-10-28T12:50:40-04:00"
     ],
     [
       "行情核验时间",
-      "2026-10-27T16:02:35.866832+00:00；来源 research/data-refresh-2026-10-27/tencent-quotes.json；研究与模型仍为 2026-10-09"
+      "2026-10-28T16:51:03.133320+00:00；来源 research/data-refresh-2026-10-28/tencent-quotes.json；研究与模型仍为 2026-10-09"
     ],
     [
       "一手事实摘录",
@@ -243,8 +248,8 @@
     "旧资料只作审计轨迹，不沿用旧买入评级：未匹配既有研究页",
     "旧程序化输入：public/research/future-trends-2026-10-09/input-pool.json；其中旧赔率与固定胜率已撤回。"
   ],
-  "priceCheckedAt": "2026-10-27T16:02:35.866832+00:00",
-  "priceSource": "research/data-refresh-2026-10-27/tencent-quotes.json",
+  "priceCheckedAt": "2026-10-28T16:51:03.133320+00:00",
+  "priceSource": "research/data-refresh-2026-10-28/tencent-quotes.json",
   "modelAsOf": "2026-10-09",
   "marketRefreshStatus": "行情已刷新；原研究模型未重估，不认证买入或胜率"
 }

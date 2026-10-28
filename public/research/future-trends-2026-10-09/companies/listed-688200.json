@@ -7,9 +7,9 @@
   "depth": "逐家初筛／既有研究复核，未认证",
   "rating": "观察／等待估值证据",
   "headline": "既有研究待核：H1 营收 7.4 亿（+38%），归母 4.16 亿（+113%），毛利率 74.7%；52 周 109.31–570。",
-  "price": 232.43,
-  "priceText": "CNY 232.43",
-  "priceDate": "2026-10-27T16:14:44+08:00",
+  "price": 243.79,
+  "priceText": "CNY 243.79",
+  "priceDate": "2026-10-28T16:14:58+08:00",
   "currency": "CNY",
   "ratio": null,
   "up": null,
@@ -26,6 +26,11 @@
   "concern": "PE 99×。",
   "certainty": "待核",
   "sources": [
+    {
+      "title": "本轮行情原始证据",
+      "url": "/research/data-refresh-2026-10-28/tencent-quotes.json",
+      "status": "行情 2026-10-28T16:14:58+08:00；核验 2026-10-28T16:51:01.832754+00:00；腾讯延迟行情，不代表财报或模型已重估"
+    },
     {
       "title": "本轮行情原始证据",
       "url": "/research/data-refresh-2026-10-27/tencent-quotes.json",
@@ -103,15 +108,15 @@
   "metrics": [
     [
       "本次价格",
-      "CNY 232.43"
+      "CNY 243.79"
     ],
     [
       "价格时间",
-      "2026-10-27T16:14:44+08:00"
+      "2026-10-28T16:14:58+08:00"
     ],
     [
       "行情核验时间",
-      "2026-10-27T16:02:34.471585+00:00；来源 research/data-refresh-2026-10-27/tencent-quotes.json；研究与模型仍为 2026-10-09"
+      "2026-10-28T16:51:01.832754+00:00；来源 research/data-refresh-2026-10-28/tencent-quotes.json；研究与模型仍为 2026-10-09"
     ],
     [
       "一手事实摘录",
@@ -296,8 +301,8 @@
     "旧资料只作审计轨迹，不沿用旧买入评级：观察：测试系统86.8%，毛利75%，营收+38%、扣非+39%；客户集中与订单。扣非 TTM PE 134.2×，赔率 不成立：现价 ≥ 基准价。",
     "旧程序化输入：public/research/future-trends-2026-10-09/input-pool.json；其中旧赔率与固定胜率已撤回。"
   ],
-  "priceCheckedAt": "2026-10-27T16:02:34.471585+00:00",
-  "priceSource": "research/data-refresh-2026-10-27/tencent-quotes.json",
+  "priceCheckedAt": "2026-10-28T16:51:01.832754+00:00",
+  "priceSource": "research/data-refresh-2026-10-28/tencent-quotes.json",
   "modelAsOf": "2026-10-09",
   "marketRefreshStatus": "行情已刷新；原研究模型未重估，不认证买入或胜率"
 }
