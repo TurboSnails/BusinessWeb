@@ -72,6 +72,10 @@ node /path/to/dev-team/scripts/dev-team.mjs init --project /path/to/other-projec
 
 依赖 Node 20+、支持 orchestration 的 Orca 和至少一个可用执行器；需在 Orca 打开目标项目后派工。当前网站下载包包含 `dev-team/` 与独立 [README 使用说明](src/content/dev-team-README.md)，介绍自检、项目配置、日常操作与验证范围。网站 `/ai/dev-team` 渲染完整说明，并提供 ZIP 与 Markdown 原文下载；旧原文阅读链接转向网页说明。`pack` 仅输出技能本体，更新网站下载包时需同时保留独立 README；项目运行记录与凭据不随包发布。
 
+## 全栈 AI 开发工作流 fullstack-workflow
+
+[fullstack-workflow](.agents/skills/fullstack-workflow/SKILL.md) 把 OpenSpec（唯一规范来源）、Matt Skills（需求澄清）、Superpowers（TDD、调试、审查、验证）与多 Agent 分工编排成七阶段流程，按快速 / 标准 / 严格三种模式执行，含质量门禁、审批门与五个模板。用法：`/fullstack-workflow <需求>`，skill 先判定模式，每阶段结束等用户确认。参考文档在 `references/`，模板在 `templates/`，包内 [README](.agents/skills/fullstack-workflow/README.md) 说明三个工具的安装与缺省替代。网站「AI Skills 工具库 › 开发协作」提供说明与 [ZIP 下载](public/ai-skills/fullstack-workflow.zip)；执行 `python3 scripts/package-fullstack-workflow.py` 可重新打包。
+
 ## 无货源电商实施方案
 
 AI 实验室的 `/ai/dropshipping` 提供一件代发模式说明、30 天试验步骤、交互利润测算和订单记账模板。正文维护在 [src/content/dropshipping-strategy.md](src/content/dropshipping-strategy.md)，预算与首页摘要维护在 `src/data/aiLab.ts`；平台规则引用官方资料并标注核对日期。页面保持“未开始”，实际经营后再更新实验日志。

@@ -5,6 +5,7 @@ import { WRITING_SKILLS } from '../../data/writingSkills'
 import DevTeamSkillCard from './DevTeamSkillCard'
 import MattWorkflowSkillCard from './MattWorkflowSkillCard'
 import DeepenTaskSkillCard from './DeepenTaskSkillCard'
+import FullstackWorkflowSkillCard from './FullstackWorkflowSkillCard'
 
 export default function SkillCatalog(): JSX.Element {
   return (
@@ -29,6 +30,7 @@ export default function SkillCatalog(): JSX.Element {
       <section id="development-skills" className="hub-group" aria-labelledby="development-skills-title">
         <h2 id="development-skills-title">开发协作</h2>
         <div className="skill-grid">
+          <FullstackWorkflowSkillCard />
           <DevTeamSkillCard />
           <MattWorkflowSkillCard />
         </div>

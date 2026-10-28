@@ -10,6 +10,13 @@ export interface SiteUpdate {
 // 使用中文描述结果和使用方式，不从 Git 提交、构建或日常数据刷新自动生成。
 export const SITE_UPDATES: readonly SiteUpdate[] = [
   {
+    id: 'fullstack-workflow',
+    date: '2026-10-28',
+    title: '全栈 AI 开发工作流 Skill 上线',
+    description: '新增 fullstack-workflow：把 OpenSpec 规范、Matt 需求澄清、Superpowers 工程方法与多 Agent 分工编排成七阶段流程，按快速、标准、严格三种模式执行，含质量门禁、审批门、任务卡与验证报告模板。Skills 工具库提供说明与 ZIP 下载。',
+    href: '/ai/ai-skills#development-skills',
+  },
+  {
     id: 'deepen-task',
     date: '2026-10-27',
     title: '任务深挖 Skill 上线',
