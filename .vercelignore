@@ -15,6 +15,9 @@ obsidian-plugin/main.js
 .claude/
 .opencode/
 .codebuddy/
-# 本地智能体技能库，网站构建与接口都不读取
-agent-skills/
+# 本地智能体技能库；仅 deepen-task 的 SKILL.md 被任务深挖卡片在构建时读取
+agent-skills/*
+!agent-skills/skills/
+agent-skills/skills/*
+!agent-skills/skills/deepen-task/
 valuation-reports/
