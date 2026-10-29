@@ -7,9 +7,9 @@
   "depth": "逐家初筛／既有研究复核，未认证",
   "rating": "观察／等待估值证据",
   "headline": "既有研究待核：光模块与器件，营收 +26%、扣非 +58%。",
-  "price": 123.6,
-  "priceText": "CNY 123.60",
-  "priceDate": "2026-10-28T16:14:27+08:00",
+  "price": 112.34,
+  "priceText": "CNY 112.34",
+  "priceDate": "2026-10-29T16:14:15+08:00",
   "currency": "CNY",
   "ratio": null,
   "up": null,
@@ -26,6 +26,11 @@
   "concern": "扣非 PE 122×，毛利 25.5%，H1 经营现金 −12.4 亿，价格竞争。",
   "certainty": "待核",
   "sources": [
+    {
+      "title": "本轮行情原始证据",
+      "url": "/research/data-refresh-2026-10-29/tencent-quotes.json",
+      "status": "行情 2026-10-29T16:14:15+08:00；核验 2026-10-29T17:05:50.690247+00:00；腾讯延迟行情，不代表财报或模型已重估"
+    },
     {
       "title": "本轮行情原始证据",
       "url": "/research/data-refresh-2026-10-28/tencent-quotes.json",
@@ -109,15 +114,15 @@
   "metrics": [
     [
       "本次价格",
-      "CNY 123.60"
+      "CNY 112.34"
     ],
     [
       "价格时间",
-      "2026-10-28T16:14:27+08:00"
+      "2026-10-29T16:14:15+08:00"
     ],
     [
       "行情核验时间",
-      "2026-10-28T16:50:56.459099+00:00；来源 research/data-refresh-2026-10-28/tencent-quotes.json；研究与模型仍为 2026-10-09"
+      "2026-10-29T17:05:50.690247+00:00；来源 research/data-refresh-2026-10-29/tencent-quotes.json；研究与模型仍为 2026-10-09"
     ],
     [
       "一手事实摘录",
@@ -302,8 +307,8 @@
     "旧资料只作审计轨迹，不沿用旧买入评级：观察：数据与接入65.2%、传输34.5%，光模块与器件，营收+26%、扣非+58%；估值已高；客户集中度与价格竞争。扣非 TTM PE 121.5×，赔率 不成立：现价 ≥ 基准价。",
     "旧程序化输入：public/research/future-trends-2026-10-09/input-pool.json；其中旧赔率与固定胜率已撤回。"
   ],
-  "priceCheckedAt": "2026-10-28T16:50:56.459099+00:00",
-  "priceSource": "research/data-refresh-2026-10-28/tencent-quotes.json",
+  "priceCheckedAt": "2026-10-29T17:05:50.690247+00:00",
+  "priceSource": "research/data-refresh-2026-10-29/tencent-quotes.json",
   "modelAsOf": "2026-10-09",
   "marketRefreshStatus": "行情已刷新；原研究模型未重估，不认证买入或胜率"
 }

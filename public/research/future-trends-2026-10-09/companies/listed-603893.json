@@ -7,9 +7,9 @@
   "depth": "逐家初筛／既有研究复核，未认证",
   "rating": "观察／等待估值证据",
   "headline": "既有研究待核：本池确定性评级最高：扣非为正、现金覆盖，营收 +41%、扣非 +63%，ROIC 18%。",
-  "price": 206.32,
-  "priceText": "CNY 206.32",
-  "priceDate": "2026-10-28T16:14:52+08:00",
+  "price": 190.1,
+  "priceText": "CNY 190.10",
+  "priceDate": "2026-10-29T16:14:42+08:00",
   "currency": "CNY",
   "ratio": null,
   "up": null,
@@ -26,6 +26,11 @@
   "concern": "AI 为边缘端概念，估值 68×；赔率不成立。",
   "certainty": "待核",
   "sources": [
+    {
+      "title": "本轮行情原始证据",
+      "url": "/research/data-refresh-2026-10-29/tencent-quotes.json",
+      "status": "行情 2026-10-29T16:14:42+08:00；核验 2026-10-29T17:05:55.973485+00:00；腾讯延迟行情，不代表财报或模型已重估"
+    },
     {
       "title": "本轮行情原始证据",
       "url": "/research/data-refresh-2026-10-28/tencent-quotes.json",
@@ -111,15 +116,15 @@
   "metrics": [
     [
       "本次价格",
-      "CNY 206.32"
+      "CNY 190.10"
     ],
     [
       "价格时间",
-      "2026-10-28T16:14:52+08:00"
+      "2026-10-29T16:14:42+08:00"
     ],
     [
       "行情核验时间",
-      "2026-10-28T16:51:01.241973+00:00；来源 research/data-refresh-2026-10-28/tencent-quotes.json；研究与模型仍为 2026-10-09"
+      "2026-10-29T17:05:55.973485+00:00；来源 research/data-refresh-2026-10-29/tencent-quotes.json；研究与模型仍为 2026-10-09"
     ],
     [
       "一手事实摘录",
@@ -304,8 +309,8 @@
     "旧资料只作审计轨迹，不沿用旧买入评级：观察：智能应用处理器芯片90.4%，营收+41%、扣非+63%；估值高；消费电子与终端需求。扣非 TTM PE 68.4×，赔率 不成立：现价 ≥ 基准价。",
     "旧程序化输入：public/research/future-trends-2026-10-09/input-pool.json；其中旧赔率与固定胜率已撤回。"
   ],
-  "priceCheckedAt": "2026-10-28T16:51:01.241973+00:00",
-  "priceSource": "research/data-refresh-2026-10-28/tencent-quotes.json",
+  "priceCheckedAt": "2026-10-29T17:05:55.973485+00:00",
+  "priceSource": "research/data-refresh-2026-10-29/tencent-quotes.json",
   "modelAsOf": "2026-10-09",
   "marketRefreshStatus": "行情已刷新；原研究模型未重估，不认证买入或胜率"
 }
