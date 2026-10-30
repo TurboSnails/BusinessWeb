@@ -7,9 +7,9 @@
   "depth": "逐家初筛／既有研究复核，未认证",
   "rating": "观察／等待估值证据",
   "headline": "既有研究待核：国内稀缺的先进与成熟制程产能，壁垒来自资本与工艺积累：H1 收入 55.1 亿美元，归母 6.77 亿美元，经营现金 32.1 亿美元，A 股口径 H1 经营现金 207.6 亿元。",
-  "price": 101.0,
-  "priceText": "CNY 101.00",
-  "priceDate": "2026-10-29T16:15:00+08:00",
+  "price": 96.79,
+  "priceText": "CNY 96.79",
+  "priceDate": "2026-10-30T16:14:56+08:00",
   "currency": "CNY",
   "ratio": null,
   "up": null,
@@ -26,6 +26,11 @@
   "concern": "毛利率仅 23.2%、ROIC 2.0%，重资本折旧；出口限制。A 股相对 H 股溢价约 2 倍（按港元兑人民币约 0.9 粗算），同一公司若买，H 股明显更便宜；A 股基准价仅 26.6 元（现价 −76%）。",
   "certainty": "待核",
   "sources": [
+    {
+      "title": "本轮行情原始证据",
+      "url": "/research/data-refresh-2026-10-30/tencent-quotes.json",
+      "status": "行情 2026-10-30T16:14:56+08:00；核验 2026-10-30T16:50:25.215866+00:00；腾讯延迟行情，不代表财报或模型已重估"
+    },
     {
       "title": "本轮行情原始证据",
       "url": "/research/data-refresh-2026-10-29/tencent-quotes.json",
@@ -121,15 +126,15 @@
   "metrics": [
     [
       "本次价格",
-      "CNY 101.00"
+      "CNY 96.79"
     ],
     [
       "价格时间",
-      "2026-10-29T16:15:00+08:00"
+      "2026-10-30T16:14:56+08:00"
     ],
     [
       "行情核验时间",
-      "2026-10-29T17:05:57.235842+00:00；来源 research/data-refresh-2026-10-29/tencent-quotes.json；研究与模型仍为 2026-10-09"
+      "2026-10-30T16:50:25.215866+00:00；来源 research/data-refresh-2026-10-30/tencent-quotes.json；研究与模型仍为 2026-10-09"
     ],
     [
       "一手事实摘录",
@@ -314,8 +319,8 @@
     "旧资料只作审计轨迹，不沿用旧买入评级：观察：集成电路晶圆代工92.8%，大陆晶圆代工龙头；市值9589亿元已定价；毛利23%、扣非仅29.9亿元。扣非 TTM PE 183.9×，赔率 不成立：现价 ≥ 基准价。",
     "旧程序化输入：public/research/future-trends-2026-10-09/input-pool.json；其中旧赔率与固定胜率已撤回。"
   ],
-  "priceCheckedAt": "2026-10-29T17:05:57.235842+00:00",
-  "priceSource": "research/data-refresh-2026-10-29/tencent-quotes.json",
+  "priceCheckedAt": "2026-10-30T16:50:25.215866+00:00",
+  "priceSource": "research/data-refresh-2026-10-30/tencent-quotes.json",
   "modelAsOf": "2026-10-09",
   "marketRefreshStatus": "行情已刷新；原研究模型未重估，不认证买入或胜率"
 }

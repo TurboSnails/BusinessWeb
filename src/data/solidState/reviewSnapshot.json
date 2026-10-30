@@ -35,11 +35,11 @@
         "low": 23.44,
         "high": 28.16,
         "analysts": 11,
-        "priceToEps": 8.929653880892989,
+        "priceToEps": 9.079735373194199,
         "currentYearEps": 20.731,
         "previous30DaysEps": 25.01154,
         "source": "research/data-refresh-2026-10-13/mcp/retry-get_earnings_estimates-300750.SZ.json",
-        "priceDate": "2026-10-29",
+        "priceDate": "2026-10-30",
         "checkedAt": "2026-10-13T09:23:07.537133+00:00",
         "estimateAsOf": "2026-10-13",
         "refreshStatus": "本轮已更新供应商预测；对应财年与口径待公司原件桥接，不等于研究者估值"
@@ -98,11 +98,11 @@
         "low": 1.68695,
         "high": 2.12,
         "analysts": 7,
-        "priceToEps": 15.254352592716634,
+        "priceToEps": 15.934649620865233,
         "currentYearEps": 1.43965,
         "previous30DaysEps": 1.8705,
         "source": "research/data-refresh-2026-10-13/mcp/retry-get_earnings_estimates-300450.SZ.json",
-        "priceDate": "2026-10-29",
+        "priceDate": "2026-10-30",
         "checkedAt": "2026-10-13T09:23:10.919841+00:00",
         "estimateAsOf": "2026-10-13",
         "refreshStatus": "本轮已更新供应商预测；对应财年与口径待公司原件桥接，不等于研究者估值"
@@ -161,11 +161,11 @@
         "low": 1.42,
         "high": 1.99,
         "analysts": 2,
-        "priceToEps": 11.642228739002933,
+        "priceToEps": 11.759530791788857,
         "currentYearEps": 1.365,
         "previous30DaysEps": 1.42,
         "source": "research/data-refresh-2026-10-13/mcp/retry-get_earnings_estimates-603659.SS.json",
-        "priceDate": "2026-10-29",
+        "priceDate": "2026-10-30",
         "checkedAt": "2026-10-13T09:23:00.665081+00:00",
         "estimateAsOf": "2026-10-13",
         "refreshStatus": "本轮已更新供应商预测；对应财年与口径待公司原件桥接，不等于研究者估值"
@@ -224,11 +224,11 @@
         "low": 2.97177,
         "high": 2.97177,
         "analysts": 1,
-        "priceToEps": 16.444745050929246,
+        "priceToEps": 16.11834024840415,
         "currentYearEps": 2.39464,
         "previous30DaysEps": 2.97177,
         "source": "research/data-refresh-2026-10-13/mcp/retry-get_earnings_estimates-300037.SZ.json",
-        "priceDate": "2026-10-29",
+        "priceDate": "2026-10-30",
         "checkedAt": "2026-10-13T09:23:17.691028+00:00",
         "estimateAsOf": "2026-10-13",
         "refreshStatus": "本轮已更新供应商预测；对应财年与口径待公司原件桥接，不等于研究者估值"
@@ -287,11 +287,11 @@
         "low": 1.08846,
         "high": 1.23,
         "analysts": 3,
-        "priceToEps": 15.721696995233456,
+        "priceToEps": 15.572468157199413,
         "currentYearEps": 0.91922,
         "previous30DaysEps": 1.14491,
         "source": "research/data-refresh-2026-10-13/mcp/retry-get_earnings_estimates-300457.SZ.json",
-        "priceDate": "2026-10-29",
+        "priceDate": "2026-10-30",
         "checkedAt": "2026-10-13T09:23:14.327604+00:00",
         "estimateAsOf": "2026-10-13",
         "refreshStatus": "本轮已更新供应商预测；对应财年与口径待公司原件桥接，不等于研究者估值"
@@ -354,7 +354,7 @@
         "currentYearEps": 2.24218,
         "previous30DaysEps": 0.0,
         "source": "research/data-refresh-2026-10-13/mcp/retry-get_earnings_estimates-300073.SZ.json",
-        "priceDate": "2026-10-29",
+        "priceDate": "2026-10-30",
         "checkedAt": "2026-10-13T09:22:53.816977+00:00",
         "estimateAsOf": "2026-10-13",
         "refreshStatus": "本轮已更新供应商预测；对应财年与口径待公司原件桥接，不等于研究者估值"
@@ -413,11 +413,11 @@
         "low": 2.41,
         "high": 2.65,
         "analysts": 3.0,
-        "priceToEps": 14.203187250996017,
+        "priceToEps": 14.382470119521914,
         "currentYearEps": 2.05333,
         "previous30DaysEps": 2.51,
         "source": "research/data-refresh-2026-10-13/mcp/retry-get_earnings_estimates-688778.SS.json",
-        "priceDate": "2026-10-29",
+        "priceDate": "2026-10-30",
         "checkedAt": "2026-10-13T09:22:57.299986+00:00",
         "estimateAsOf": "2026-10-13",
         "refreshStatus": "本轮已更新供应商预测；对应财年与口径待公司原件桥接，不等于研究者估值"
@@ -476,11 +476,11 @@
         "low": 1.61,
         "high": 1.61,
         "analysts": 1,
-        "priceToEps": 20.366459627329192,
+        "priceToEps": 19.93167701863354,
         "currentYearEps": 1.08,
         "previous30DaysEps": 2.44,
         "source": "research/data-refresh-2026-10-13/mcp/retry-get_earnings_estimates-688116.SS.json",
-        "priceDate": "2026-10-29",
+        "priceDate": "2026-10-30",
         "checkedAt": "2026-10-13T09:23:04.127009+00:00",
         "estimateAsOf": "2026-10-13",
         "refreshStatus": "本轮已更新供应商预测；对应财年与口径待公司原件桥接，不等于研究者估值"
@@ -2518,5 +2518,5 @@
       "sources": []
     }
   ],
-  "marketCheckedAt": "2026-10-29T17:05:46.347Z"
+  "marketCheckedAt": "2026-10-30T16:50:14.091Z"
 }
