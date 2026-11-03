@@ -7,9 +7,9 @@
   "depth": "逐家初筛／既有研究复核，未认证",
   "rating": "观察／等待估值证据",
   "headline": "既有研究待核：2026Q2 营收 NT$1522 亿（同比 +1.2%），毛利率 46.2%（同比 −2.9pt），EPS 15.28（去年同期 17.5）。",
-  "price": 3970,
-  "priceText": "TWD 3,970.00",
-  "priceDate": "2026-11-02T13:30:06+08:00",
+  "price": 3675,
+  "priceText": "TWD 3,675.00",
+  "priceDate": "2026-11-03T13:30:04+08:00",
   "currency": "TWD",
   "ratio": null,
   "up": null,
@@ -29,7 +29,7 @@
     {
       "title": "本轮行情原始证据",
       "url": "/research/data-refresh-2026-11-03/yahoo-quote-batch.json",
-      "status": "行情 2026-11-02T13:30:06+08:00；核验 2026-11-02T20:31:17.067Z；Yahoo Finance 延迟报价，不代表财报或模型已重估"
+      "status": "行情 2026-11-03T13:30:04+08:00；核验 2026-11-03T18:04:48.182Z；Yahoo Finance 延迟报价，不代表财报或模型已重估"
     },
     {
       "title": "本轮行情原始证据",
@@ -108,15 +108,15 @@
   "metrics": [
     [
       "本次价格",
-      "TWD 3,970.00"
+      "TWD 3,675.00"
     ],
     [
       "价格时间",
-      "2026-11-02T13:30:06+08:00"
+      "2026-11-03T13:30:04+08:00"
     ],
     [
       "行情核验时间",
-      "2026-11-02T20:31:17.067Z；来源 research/data-refresh-2026-11-03/yahoo-quote-batch.json；研究与模型仍为 2026-10-09"
+      "2026-11-03T18:04:48.182Z；来源 research/data-refresh-2026-11-03/yahoo-quote-batch.json；研究与模型仍为 2026-10-09"
     ],
     [
       "一手事实摘录",
@@ -249,7 +249,7 @@
     "旧资料只作审计轨迹，不沿用旧买入评级：未匹配既有研究页",
     "旧程序化输入：public/research/future-trends-2026-10-09/input-pool.json；其中旧赔率与固定胜率已撤回。"
   ],
-  "priceCheckedAt": "2026-11-02T20:31:17.067Z",
+  "priceCheckedAt": "2026-11-03T18:04:48.182Z",
   "priceSource": "research/data-refresh-2026-11-03/yahoo-quote-batch.json",
   "modelAsOf": "2026-10-09",
   "marketRefreshStatus": "行情已刷新；原研究模型未重估，不认证买入或胜率"

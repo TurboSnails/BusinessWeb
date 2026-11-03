@@ -1,6 +1,6 @@
 {
   "auditDate": "2026-11-03",
-  "normalizedAt": "2026-11-02T20:31:34.812238+00:00",
+  "normalizedAt": "2026-11-03T18:05:04.782433+00:00",
   "mcpInfoSuccess": 0,
   "mcpInfoErrors": 0,
   "quoteSymbols": 1870,
@@ -8,6 +8,7 @@
   "companyRecordsRequested": 1540,
   "macroUpdatedFields": {
     "us": [
+      "hy",
       "dxy",
       "gold",
       "silver",

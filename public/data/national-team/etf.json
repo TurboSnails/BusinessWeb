@@ -5,7 +5,7 @@
     "scanned": 1696,
     "numHolding": 49,
     "numExited": 6,
-    "totalMv": 1341997845317.6,
+    "totalMv": 1338430484068.8,
     "latestDate": "2025-12-31",
     "dates": [
       "2005-02-16",
@@ -105,80 +105,80 @@
       {
         "theme": "宽基",
         "n": 22,
-        "mv": 1329592502078.4
+        "mv": 1326021672345.6
       },
       {
         "theme": "大金融",
         "n": 1,
-        "mv": 3473623800.0
+        "mv": 3491568720.0000005
       },
       {
         "theme": "其他",
         "n": 4,
-        "mv": 3408431131.4
+        "mv": 3395552282.6
       },
       {
         "theme": "港股海外",
         "n": 4,
-        "mv": 1808567403.0
+        "mv": 1823775127.0
       },
       {
         "theme": "人工智能软件",
         "n": 3,
-        "mv": 1074448201.0
+        "mv": 1049734549.0
       },
       {
         "theme": "医药生物",
         "n": 2,
-        "mv": 727668348.0
+        "mv": 736135016.0
       },
       {
         "theme": "军工制造",
         "n": 3,
-        "mv": 522235153.3
+        "mv": 522654599.1999999
       },
       {
         "theme": "食品饮料消费",
         "n": 4,
-        "mv": 473996222.0
+        "mv": 482757038.4
       },
       {
         "theme": "黄金商品",
         "n": 2,
-        "mv": 469087137.4
+        "mv": 470188289.3
       },
       {
         "theme": "半导体电子",
         "n": 1,
-        "mv": 223853433.0
+        "mv": 212926920.0
       },
       {
         "theme": "银行",
         "n": 1,
-        "mv": 128115000.0
+        "mv": 127575000.0
       },
       {
         "theme": "新能源电力",
         "n": 1,
-        "mv": 51663089.599999994
+        "mv": 52188731.5
       },
       {
         "theme": "红利价值",
         "n": 1,
-        "mv": 43654320.5
+        "mv": 43755450.2
       }
     ],
-    "checkedAt": "2026-11-02T20:31:34.805651+00:00",
+    "checkedAt": "2026-11-03T18:05:04.775950+00:00",
     "holderFreshnessNote": "实名榜单源最新仍为2025-12-31。本轮已核510300、510500、510050的2026H1原件，仅披露匿名持有人结构；其他基金实名字段逐项原件仍待核。旧份额按现价折算只作历史持仓重估，不代表当前持仓市值，不能推断国家队清仓。",
-    "priceAsOf": "2026-11-02",
-    "priceCheckedAt": "2026-11-02T20:31:33.250160+00:00"
+    "priceAsOf": "2026-11-03",
+    "priceCheckedAt": "2026-11-03T18:05:04.103887+00:00"
   },
   "etfs": [
     {
       "c": "510300",
       "n": "沪深300ETF华泰柏瑞",
       "theme": "宽基",
-      "price": 4.085,
+      "price": 4.092,
       "scale": 106582796052,
       "status": "hold",
       "latest": {
@@ -191,7 +191,7 @@
         "shares": 73513100000,
         "ratio": 78.17
       },
-      "mv": 300301013500.0,
+      "mv": 300815605200.0,
       "groups": [
         "汇金资管",
         "中央汇金"
@@ -628,15 +628,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453423+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322134+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "510310",
       "n": "沪深300ETF易方达",
       "theme": "宽基",
-      "price": 3.97,
+      "price": 3.971,
       "scale": 51144227708,
       "status": "hold",
       "latest": {
@@ -649,7 +649,7 @@
         "shares": 56148100000,
         "ratio": 82.24
       },
-      "mv": 222907957000.0,
+      "mv": 222964105100.0,
       "groups": [
         "汇金资管",
         "中央汇金"
@@ -970,15 +970,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453423+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322134+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "510330",
       "n": "沪深300ETF华夏",
       "theme": "宽基",
-      "price": 4.259,
+      "price": 4.272,
       "scale": 38776902715,
       "status": "hold",
       "latest": {
@@ -991,7 +991,7 @@
         "shares": 42028000000,
         "ratio": 87.62
       },
-      "mv": 178997252000.0,
+      "mv": 179543616000.0,
       "groups": [
         "汇金资管",
         "中央汇金"
@@ -1402,15 +1402,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453423+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322134+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "159919",
       "n": "沪深300ETF嘉实",
       "theme": "宽基",
-      "price": 4.264,
+      "price": 4.272,
       "scale": 31068169555,
       "status": "hold",
       "latest": {
@@ -1423,7 +1423,7 @@
         "shares": 35498500000,
         "ratio": 86.08
       },
-      "mv": 151365604000.0,
+      "mv": 151649592000.0,
       "groups": [
         "中央汇金",
         "汇金资管"
@@ -1855,15 +1855,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453423+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322134+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "510050",
       "n": "上证50ETF华夏",
       "theme": "宽基",
-      "price": 2.871,
+      "price": 2.884,
       "scale": 20768067729,
       "status": "hold",
       "latest": {
@@ -1876,7 +1876,7 @@
         "shares": 48759000000,
         "ratio": 82.71
       },
-      "mv": 139987089000.0,
+      "mv": 140620956000.0,
       "groups": [
         "中央汇金",
         "汇金资管"
@@ -2378,15 +2378,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453423+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322134+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "510500",
       "n": "中证500ETF南方",
       "theme": "宽基",
-      "price": 6.456,
+      "price": 6.38,
       "scale": 40363257717,
       "status": "hold",
       "latest": {
@@ -2399,7 +2399,7 @@
         "shares": 14407161000,
         "ratio": 75.77
       },
-      "mv": 93012631416.0,
+      "mv": 91917687180.0,
       "groups": [
         "中央汇金",
         "汇金资管"
@@ -2840,15 +2840,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453423+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322134+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "512100",
       "n": "中证1000ETF南方",
       "theme": "宽基",
-      "price": 2.574,
+      "price": 2.535,
       "scale": 23002000413,
       "status": "hold",
       "latest": {
@@ -2861,7 +2861,7 @@
         "shares": 22168890000,
         "ratio": 87.47
       },
-      "mv": 57062722860.0,
+      "mv": 56198136150.0,
       "groups": [
         "汇金资管",
         "中央汇金"
@@ -3034,15 +3034,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453423+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322134+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "159915",
       "n": "创业板ETF易方达",
       "theme": "宽基",
-      "price": 2.473,
+      "price": 2.403,
       "scale": 66101477289,
       "status": "hold",
       "latest": {
@@ -3055,7 +3055,7 @@
         "shares": 17019820000,
         "ratio": 42.42
       },
-      "mv": 42090014860.0,
+      "mv": 40898627460.0,
       "groups": [
         "中央汇金",
         "汇金资管"
@@ -3376,15 +3376,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453423+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322134+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "159845",
       "n": "中证1000ETF华夏",
       "theme": "宽基",
-      "price": 2.645,
+      "price": 2.6,
       "scale": 8112117306,
       "status": "hold",
       "latest": {
@@ -3397,7 +3397,7 @@
         "shares": 13725910000,
         "ratio": 93.66
       },
-      "mv": 36305031950.0,
+      "mv": 35687366000.0,
       "groups": [
         "汇金资管",
         "中央汇金"
@@ -3523,15 +3523,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453423+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322134+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "588080",
       "n": "科创50ETF易方达",
       "theme": "宽基",
-      "price": 1.222,
+      "price": 1.178,
       "scale": 41531303648,
       "status": "hold",
       "latest": {
@@ -3544,7 +3544,7 @@
         "shares": 21606740000,
         "ratio": 35.46
       },
-      "mv": 26403436280.0,
+      "mv": 25452739720.0,
       "groups": [
         "中央汇金",
         "汇金资管"
@@ -3683,15 +3683,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453423+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322134+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "560010",
       "n": "中证1000ETF广发",
       "theme": "宽基",
-      "price": 2.641,
+      "price": 2.597,
       "scale": 7287559082,
       "status": "hold",
       "latest": {
@@ -3704,7 +3704,7 @@
         "shares": 10549840000,
         "ratio": 89.43
       },
-      "mv": 27862127440.0,
+      "mv": 27397934480.0,
       "groups": [
         "汇金资管",
         "中央汇金"
@@ -3805,15 +3805,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453423+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322134+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "510180",
       "n": "上证180ETF华安",
       "theme": "宽基",
-      "price": 3.62,
+      "price": 3.64,
       "scale": 16800683835,
       "status": "hold",
       "latest": {
@@ -3826,7 +3826,7 @@
         "shares": 5231570000,
         "ratio": 90.88
       },
-      "mv": 18938283400.0,
+      "mv": 19042914800.0,
       "groups": [
         "中央汇金"
       ],
@@ -4260,15 +4260,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453423+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322134+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "512500",
       "n": "中证500ETF华夏",
       "theme": "宽基",
-      "price": 3.652,
+      "price": 3.603,
       "scale": 7730573046,
       "status": "hold",
       "latest": {
@@ -4281,7 +4281,7 @@
         "shares": 2455390000,
         "ratio": 61.12
       },
-      "mv": 10422406280.0,
+      "mv": 10282565670.0,
       "groups": [
         "中央汇金",
         "汇金资管"
@@ -4521,15 +4521,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453423+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322134+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "159629",
       "n": "中证1000ETF富国",
       "theme": "宽基",
-      "price": 2.654,
+      "price": 2.608,
       "scale": 2647880303,
       "status": "hold",
       "latest": {
@@ -4542,7 +4542,7 @@
         "shares": 3633970000,
         "ratio": 79.18
       },
-      "mv": 9644556380.0,
+      "mv": 9477393760.0,
       "groups": [
         "汇金资管",
         "中央汇金"
@@ -4643,15 +4643,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453423+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322134+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "159922",
       "n": "中证500ETF嘉实",
       "theme": "宽基",
-      "price": 2.617,
+      "price": 2.58,
       "scale": 8045235152,
       "status": "hold",
       "latest": {
@@ -4664,7 +4664,7 @@
         "shares": 2310720000,
         "ratio": 48.43
       },
-      "mv": 6047154240.0,
+      "mv": 5961657600.0,
       "groups": [
         "中央汇金"
       ],
@@ -4930,15 +4930,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453423+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322134+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "510230",
       "n": "金融ETF国泰",
       "theme": "大金融",
-      "price": 1.355,
+      "price": 1.362,
       "scale": 868753912,
       "status": "hold",
       "latest": {
@@ -4951,7 +4951,7 @@
         "shares": 2563560000,
         "ratio": 71.51
       },
-      "mv": 3473623800.0,
+      "mv": 3491568720.0000005,
       "groups": [
         "中央汇金"
       ],
@@ -5311,15 +5311,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453423+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322134+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "159901",
       "n": "深证100ETF易方达",
       "theme": "宽基",
-      "price": 2.814,
+      "price": 2.792,
       "scale": 3464629466,
       "status": "hold",
       "latest": {
@@ -5332,7 +5332,7 @@
         "shares": 958528300,
         "ratio": 40.91
       },
-      "mv": 2697298636.2000003,
+      "mv": 2676211013.6,
       "groups": [
         "汇金资管",
         "中央汇金"
@@ -6149,15 +6149,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453423+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322134+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "159952",
       "n": "创业板ETF广发",
       "theme": "宽基",
-      "price": 1.501,
+      "price": 1.461,
       "scale": 11546583892,
       "status": "hold",
       "latest": {
@@ -6170,7 +6170,7 @@
         "shares": 1091030000,
         "ratio": 14.19
       },
-      "mv": 1637636029.9999998,
+      "mv": 1593994830.0,
       "groups": [
         "中央汇金"
       ],
@@ -6318,15 +6318,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453423+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322134+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "515800",
       "n": "中证800ETF汇添富",
       "theme": "宽基",
-      "price": 1.106,
+      "price": 1.101,
       "scale": 4421333519,
       "status": "hold",
       "latest": {
@@ -6339,7 +6339,7 @@
         "shares": 1307630000,
         "ratio": 27.83
       },
-      "mv": 1446238780.0000002,
+      "mv": 1439700630.0,
       "groups": [
         "汇金资管"
       ],
@@ -6527,15 +6527,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453423+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322134+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "588050",
       "n": "科创50ETF工银",
       "theme": "宽基",
-      "price": 1.224,
+      "price": 1.177,
       "scale": 10194878845,
       "status": "hold",
       "latest": {
@@ -6548,7 +6548,7 @@
         "shares": 969748000,
         "ratio": 8.6
       },
-      "mv": 1186971552.0,
+      "mv": 1141393396.0,
       "groups": [
         "中央汇金"
       ],
@@ -6675,15 +6675,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453423+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322134+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "513050",
       "n": "中概互联网ETF易方达",
       "theme": "港股海外",
-      "price": 0.952,
+      "price": 0.963,
       "scale": 34989271569,
       "status": "hold",
       "latest": {
@@ -6696,7 +6696,7 @@
         "shares": 970000000,
         "ratio": 3.96
       },
-      "mv": 923440000.0,
+      "mv": 934110000.0,
       "groups": [
         "汇金资管"
       ],
@@ -6893,15 +6893,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453423+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322134+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "560170",
       "n": "央企科技ETF南方",
       "theme": "人工智能软件",
-      "price": 1.003,
+      "price": 0.985,
       "scale": 511680982,
       "status": "hold",
       "latest": {
@@ -6914,7 +6914,7 @@
         "shares": 861279000,
         "ratio": 52.69
       },
-      "mv": 863862836.9999999,
+      "mv": 848359815.0,
       "groups": [
         "国新投资"
       ],
@@ -6991,15 +6991,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453423+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322134+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "159977",
       "n": "创业板ETF天弘",
       "theme": "宽基",
-      "price": 1.284,
+      "price": 1.25,
       "scale": 6488803501,
       "status": "hold",
       "latest": {
@@ -7012,7 +7012,7 @@
         "shares": 231006000,
         "ratio": 5.75
       },
-      "mv": 593223408.0,
+      "mv": 577515000.0,
       "groups": [
         "中央汇金"
       ],
@@ -7130,15 +7130,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453423+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322134+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "512010",
       "n": "医药ETF易方达",
       "theme": "医药生物",
-      "price": 0.374,
+      "price": 0.379,
       "scale": 14572517239,
       "status": "hold",
       "latest": {
@@ -7151,7 +7151,7 @@
         "shares": 1739274000,
         "ratio": 3.11
       },
-      "mv": 650488476.0,
+      "mv": 659184846.0,
       "groups": [
         "汇金资管"
       ],
@@ -7387,15 +7387,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453423+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322134+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "159605",
       "n": "中概互联ETF广发",
       "theme": "港股海外",
-      "price": 0.72,
+      "price": 0.729,
       "scale": 3240874213,
       "status": "hold",
       "latest": {
@@ -7408,7 +7408,7 @@
         "shares": 800000000,
         "ratio": 19.13
       },
-      "mv": 504000000.0,
+      "mv": 510300000.0,
       "groups": [
         "汇金资管"
       ],
@@ -7524,15 +7524,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453423+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322134+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "560050",
       "n": "中国A50ETF汇添富",
       "theme": "宽基",
-      "price": 0.937,
+      "price": 0.931,
       "scale": 2173770785,
       "status": "hold",
       "latest": {
@@ -7545,7 +7545,7 @@
         "shares": 453089000,
         "ratio": 8.59
       },
-      "mv": 424544393.0,
+      "mv": 421825859.0,
       "groups": [
         "汇金资管"
       ],
@@ -7660,15 +7660,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453423+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322134+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "512660",
       "n": "军工ETF国泰",
       "theme": "军工制造",
-      "price": 1.004,
+      "price": 1.003,
       "scale": 7585988491,
       "status": "hold",
       "latest": {
@@ -7681,7 +7681,7 @@
         "shares": 467681000,
         "ratio": 3.43
       },
-      "mv": 420239260.0,
+      "mv": 419820694.99999994,
       "groups": [
         "汇金资管"
       ],
@@ -7922,15 +7922,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453423+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322134+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "512400",
       "n": "有色金属ETF南方",
       "theme": "黄金商品",
-      "price": 1.385,
+      "price": 1.387,
       "scale": 22581662515,
       "status": "hold",
       "latest": {
@@ -7943,7 +7943,7 @@
         "shares": 423306000,
         "ratio": 10.25
       },
-      "mv": 311731645.0,
+      "mv": 312181799.0,
       "groups": [
         "汇金资管"
       ],
@@ -8139,15 +8139,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453423+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322134+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "159995",
       "n": "芯片ETF华夏",
       "theme": "半导体电子",
-      "price": 0.799,
+      "price": 0.76,
       "scale": 24596523362,
       "status": "hold",
       "latest": {
@@ -8160,7 +8160,7 @@
         "shares": 354910000,
         "ratio": 1.71
       },
-      "mv": 223853433.0,
+      "mv": 212926920.0,
       "groups": [
         "汇金资管"
       ],
@@ -8307,15 +8307,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453423+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322134+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "510100",
       "n": "上证50ETF易方达",
       "theme": "宽基",
-      "price": 2.826,
+      "price": 2.835,
       "scale": 2834152264,
       "status": "hold",
       "latest": {
@@ -8328,7 +8328,7 @@
         "shares": 91758200,
         "ratio": 5.75
       },
-      "mv": 259308673.20000002,
+      "mv": 260134497.0,
       "groups": [
         "中央汇金"
       ],
@@ -8446,15 +8446,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453423+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322134+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "512690",
       "n": "酒ETF鹏华",
       "theme": "食品饮料消费",
-      "price": 0.446,
+      "price": 0.454,
       "scale": 13236570363,
       "status": "hold",
       "latest": {
@@ -8467,7 +8467,7 @@
         "shares": 581000000,
         "ratio": 2.55
       },
-      "mv": 259126000.0,
+      "mv": 263774000.0,
       "groups": [
         "汇金资管"
       ],
@@ -8618,15 +8618,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453918+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322677+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "520990",
       "n": "港股央企红利ETF景顺",
       "theme": "港股海外",
-      "price": 0.988,
+      "price": 0.983,
       "scale": 3233757319,
       "status": "hold",
       "latest": {
@@ -8639,7 +8639,7 @@
         "shares": 215792000,
         "ratio": 4.45
       },
-      "mv": 213202496.0,
+      "mv": 212123536.0,
       "groups": [
         "国新投资"
       ],
@@ -8710,15 +8710,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453918+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322677+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "159562",
       "n": "黄金股ETF华夏",
       "theme": "黄金商品",
-      "price": 1.692,
+      "price": 1.699,
       "scale": 5489162506,
       "status": "hold",
       "latest": {
@@ -8731,7 +8731,7 @@
         "shares": 36343400,
         "ratio": 9.71
       },
-      "mv": 157355492.4,
+      "mv": 158006490.3,
       "groups": [
         "汇金资管"
       ],
@@ -8788,15 +8788,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453918+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322677+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "515050",
       "n": "通信ETF华夏",
       "theme": "人工智能软件",
-      "price": 0.678,
+      "price": 0.635,
       "scale": 15467906433,
       "status": "hold",
       "latest": {
@@ -8809,7 +8809,7 @@
         "shares": 200000000,
         "ratio": 3.5
       },
-      "mv": 135600000.0,
+      "mv": 127000000.0,
       "groups": [
         "汇金资管"
       ],
@@ -8927,15 +8927,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453918+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322677+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "520660",
       "n": "港股通央企红利ETF南方",
       "theme": "港股海外",
-      "price": 0.983,
+      "price": 0.979,
       "scale": 1908380359,
       "status": "hold",
       "latest": {
@@ -8948,7 +8948,7 @@
         "shares": 170829000,
         "ratio": 15.26
       },
-      "mv": 167924907.0,
+      "mv": 167241591.0,
       "groups": [
         "国新投资"
       ],
@@ -9006,15 +9006,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453918+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322677+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "515020",
       "n": "银行ETF华夏",
       "theme": "银行",
-      "price": 1.898,
+      "price": 1.89,
       "scale": 763868215,
       "status": "hold",
       "latest": {
@@ -9027,7 +9027,7 @@
         "shares": 0,
         "ratio": 0
       },
-      "mv": 128115000.0,
+      "mv": 127575000.0,
       "groups": [
         "汇金资管"
       ],
@@ -9124,15 +9124,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453918+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322677+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "515170",
       "n": "食品饮料ETF华夏",
       "theme": "食品饮料消费",
-      "price": 0.484,
+      "price": 0.492,
       "scale": 3949681083,
       "status": "hold",
       "latest": {
@@ -9145,7 +9145,7 @@
         "shares": 235233000,
         "ratio": 4.17
       },
-      "mv": 113852772.0,
+      "mv": 115734636.0,
       "groups": [
         "汇金资管"
       ],
@@ -9273,15 +9273,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453918+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322677+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "159852",
       "n": "软件ETF嘉实",
       "theme": "人工智能软件",
-      "price": 0.614,
+      "price": 0.609,
       "scale": 9050555695,
       "status": "hold",
       "latest": {
@@ -9294,7 +9294,7 @@
         "shares": 56725700,
         "ratio": 1.44
       },
-      "mv": 74985364.0,
+      "mv": 74374734.0,
       "groups": [
         "汇金资管"
       ],
@@ -9387,15 +9387,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453918+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322677+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "512170",
       "n": "医疗ETF华宝",
       "theme": "医药生物",
-      "price": 0.336,
+      "price": 0.335,
       "scale": 23461665075,
       "status": "hold",
       "latest": {
@@ -9408,7 +9408,7 @@
         "shares": 229702000,
         "ratio": 0.29
       },
-      "mv": 77179872.0,
+      "mv": 76950170.0,
       "groups": [
         "汇金资管"
       ],
@@ -9561,15 +9561,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453918+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322677+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "159865",
       "n": "养殖ETF国泰",
       "theme": "食品饮料消费",
-      "price": 0.52,
+      "price": 0.533,
       "scale": 6422382776,
       "status": "hold",
       "latest": {
@@ -9582,7 +9582,7 @@
         "shares": 83552600,
         "ratio": 1.39
       },
-      "mv": 66919320.0,
+      "mv": 68592303.0,
       "groups": [
         "汇金资管"
       ],
@@ -9689,15 +9689,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453918+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322677+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "516110",
       "n": "汽车ETF国泰",
       "theme": "军工制造",
-      "price": 1.05,
+      "price": 1.059,
       "scale": 269485270,
       "status": "hold",
       "latest": {
@@ -9710,7 +9710,7 @@
         "shares": 62506900,
         "ratio": 20.25
       },
-      "mv": 64792245.0,
+      "mv": 65347607.099999994,
       "groups": [
         "汇金资管"
       ],
@@ -9824,15 +9824,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453918+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322677+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "515790",
       "n": "光伏ETF华泰柏瑞",
       "theme": "新能源电力",
-      "price": 0.688,
+      "price": 0.695,
       "scale": 4481539404,
       "status": "hold",
       "latest": {
@@ -9845,7 +9845,7 @@
         "shares": 0,
         "ratio": 0
       },
-      "mv": 51663089.599999994,
+      "mv": 52188731.5,
       "groups": [
         "汇金资管"
       ],
@@ -9952,15 +9952,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453918+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322677+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "561580",
       "n": "央企红利ETF华泰柏瑞",
       "theme": "红利价值",
-      "price": 1.295,
+      "price": 1.298,
       "scale": 2525720691,
       "status": "hold",
       "latest": {
@@ -9973,7 +9973,7 @@
         "shares": 33709900,
         "ratio": 7.87
       },
-      "mv": 43654320.5,
+      "mv": 43755450.2,
       "groups": [
         "汇金资管"
       ],
@@ -10043,15 +10043,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453918+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322677+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "515210",
       "n": "钢铁ETF国泰",
       "theme": "军工制造",
-      "price": 1.053,
+      "price": 1.061,
       "scale": 1102756954,
       "status": "hold",
       "latest": {
@@ -10064,7 +10064,7 @@
         "shares": 40926800,
         "ratio": 4.26
       },
-      "mv": 37203648.3,
+      "mv": 37486297.1,
       "groups": [
         "汇金资管"
       ],
@@ -10190,15 +10190,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453918+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322677+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "562510",
       "n": "旅游ETF华夏",
       "theme": "食品饮料消费",
-      "price": 0.55,
+      "price": 0.559,
       "scale": 623676064,
       "status": "hold",
       "latest": {
@@ -10211,7 +10211,7 @@
         "shares": 61996600,
         "ratio": 6
       },
-      "mv": 34098130.0,
+      "mv": 34656099.400000006,
       "groups": [
         "汇金资管"
       ],
@@ -10306,15 +10306,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453918+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322677+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "159200",
       "n": "159200",
       "theme": "其他",
-      "price": 102.502,
+      "price": 102.7,
       "scale": null,
       "status": "hold",
       "latest": {
@@ -10327,7 +10327,7 @@
         "shares": 0,
         "ratio": 0
       },
-      "mv": 506687886.4,
+      "mv": 507666640.0,
       "groups": [
         "养老基金"
       ],
@@ -10352,15 +10352,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453918+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322677+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "159649",
       "n": "159649",
       "theme": "其他",
-      "price": 110.791,
+      "price": 110.835,
       "scale": null,
       "status": "hold",
       "latest": {
@@ -10373,7 +10373,7 @@
         "shares": 849200,
         "ratio": 2.15
       },
-      "mv": 111123373.0,
+      "mv": 111167505.0,
       "groups": [
         "养老基金"
       ],
@@ -10441,15 +10441,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453918+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322677+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "159726",
       "n": "港股通红利ETF华夏",
       "theme": "港股海外",
-      "price": 1.323,
+      "price": 1.345,
       "scale": 312192186,
       "status": "exited",
       "latest": {
@@ -10534,15 +10534,15 @@
           "nt": []
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453918+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322677+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "159766",
       "n": "旅游ETF富国",
       "theme": "食品饮料消费",
-      "price": 0.54,
+      "price": 0.549,
       "scale": 2904977196,
       "status": "exited",
       "latest": {
@@ -10654,15 +10654,15 @@
           "nt": []
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453918+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322677+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "159870",
       "n": "化工ETF鹏华",
       "theme": "军工制造",
-      "price": 0.674,
+      "price": 0.682,
       "scale": 11267731771,
       "status": "exited",
       "latest": {
@@ -10780,15 +10780,15 @@
           "nt": []
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453918+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322677+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "511090",
       "n": "511090",
       "theme": "其他",
-      "price": 120.59,
+      "price": 121.312,
       "scale": null,
       "status": "exited",
       "latest": {
@@ -10848,15 +10848,15 @@
           "nt": []
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453918+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322677+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "511180",
       "n": "511180",
       "theme": "其他",
-      "price": 11.464,
+      "price": 11.416,
       "scale": null,
       "status": "hold",
       "latest": {
@@ -10869,7 +10869,7 @@
         "shares": 15000000,
         "ratio": 2.85
       },
-      "mv": 590396000.0,
+      "mv": 587924000.0,
       "groups": [
         "社保基金",
         "养老基金"
@@ -10981,15 +10981,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453918+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322677+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "511220",
       "n": "511220",
       "theme": "其他",
-      "price": 10.424,
+      "price": 10.44,
       "scale": null,
       "status": "exited",
       "latest": {
@@ -11157,15 +11157,15 @@
           "nt": []
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453918+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322677+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "511380",
       "n": "511380",
       "theme": "其他",
-      "price": 12.32,
+      "price": 12.256,
       "scale": null,
       "status": "hold",
       "latest": {
@@ -11178,7 +11178,7 @@
         "shares": 51383900,
         "ratio": 1.73
       },
-      "mv": 2200223872.0,
+      "mv": 2188794137.6,
       "groups": [
         "社保基金",
         "养老基金"
@@ -11310,15 +11310,15 @@
           ]
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453918+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322677+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     },
     {
       "c": "515260",
       "n": "电子ETF华宝",
       "theme": "半导体电子",
-      "price": 0.6,
+      "price": 0.577,
       "scale": 661232953,
       "status": "exited",
       "latest": {
@@ -11442,8 +11442,8 @@
           "nt": []
         }
       ],
-      "priceDate": "2026-11-02",
-      "priceCheckedAt": "2026-11-02T20:31:32.453918+00:00",
+      "priceDate": "2026-11-03",
+      "priceCheckedAt": "2026-11-03T18:05:03.322677+00:00",
       "priceSource": "research/data-refresh-2026-11-03/etf-quotes.json"
     }
   ]

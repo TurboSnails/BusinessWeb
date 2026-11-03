@@ -7,9 +7,9 @@
   "depth": "逐家初筛／既有研究复核，未认证",
   "rating": "观察／等待估值证据",
   "headline": "既有研究待核：最近季营收 +26%、盈利 +833%，毛利率 15%、营业利润率 9%、ROE 31%；52 周 119.45–220.2。",
-  "price": 191.8,
-  "priceText": "DKK 191.80",
-  "priceDate": "2026-11-02T16:59:52+01:00",
+  "price": 197.45,
+  "priceText": "DKK 197.45",
+  "priceDate": "2026-11-03T16:59:46+01:00",
   "currency": "DKK",
   "ratio": null,
   "up": null,
@@ -29,7 +29,7 @@
     {
       "title": "本轮行情原始证据",
       "url": "/research/data-refresh-2026-11-03/yahoo-quote-batch.json",
-      "status": "行情 2026-11-02T16:59:52+01:00；核验 2026-11-02T20:31:18.697Z；Yahoo Finance 延迟报价，不代表财报或模型已重估"
+      "status": "行情 2026-11-03T16:59:46+01:00；核验 2026-11-03T18:04:49.607Z；Yahoo Finance 延迟报价，不代表财报或模型已重估"
     },
     {
       "title": "本轮行情原始证据",
@@ -107,15 +107,15 @@
   "metrics": [
     [
       "本次价格",
-      "DKK 191.80"
+      "DKK 197.45"
     ],
     [
       "价格时间",
-      "2026-11-02T16:59:52+01:00"
+      "2026-11-03T16:59:46+01:00"
     ],
     [
       "行情核验时间",
-      "2026-11-02T20:31:18.697Z；来源 research/data-refresh-2026-11-03/yahoo-quote-batch.json；研究与模型仍为 2026-10-09"
+      "2026-11-03T18:04:49.607Z；来源 research/data-refresh-2026-11-03/yahoo-quote-batch.json；研究与模型仍为 2026-10-09"
     ],
     [
       "一手事实摘录",
@@ -248,7 +248,7 @@
     "旧资料只作审计轨迹，不沿用旧买入评级：未匹配既有研究页",
     "旧程序化输入：public/research/future-trends-2026-10-09/input-pool.json；其中旧赔率与固定胜率已撤回。"
   ],
-  "priceCheckedAt": "2026-11-02T20:31:18.697Z",
+  "priceCheckedAt": "2026-11-03T18:04:49.607Z",
   "priceSource": "research/data-refresh-2026-11-03/yahoo-quote-batch.json",
   "modelAsOf": "2026-10-09",
   "marketRefreshStatus": "行情已刷新；原研究模型未重估，不认证买入或胜率"
