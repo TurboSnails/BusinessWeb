@@ -39,6 +39,7 @@
     "index:fpe": "node scripts/index-snapshot.mjs fpe",
     "index:fpe-import": "node scripts/index-snapshot.mjs fpe-import",
     "index:ref-import": "node scripts/index-snapshot.mjs ref-import",
+    "sp500:update": "node scripts/refresh-sp500-membership.mjs",
     "national-team:update": "node scripts/national-team-snapshot.mjs && node scripts/national-team-etf-snapshot.mjs",
     "national-team:stocks": "node scripts/national-team-snapshot.mjs",
     "national-team:etf": "node scripts/national-team-etf-snapshot.mjs"

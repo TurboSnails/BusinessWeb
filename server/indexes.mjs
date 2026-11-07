@@ -4,12 +4,14 @@
 // 用市值加权的调和平均汇总成指数 PE，每次更新写入当月一个点，历史从第一次运行起逐月积累。
 // 没有成分股名单的指数，Forward PE 仍可手动录入（npm run index:fpe）。
 import { CSI300_MEMBERS, CSI500_MEMBERS, CHINEXT_MEMBERS } from './indexMembersCn.mjs'
+import { SPX_MEMBERS, SPX_ASOF, SPX_SOURCE } from './sp500Members.mjs'
 const TIMEOUT_MS = 12000
 const UA = { 'User-Agent': 'Mozilla/5.0' }
 
 // NDX采用2026-10-09 Invesco官方QQQ权益持仓代理，2026-10-13核验；101只证券去掉GOOG重复股类后为100家公司。不是Nasdaq官方权重导出；SOX仍取主要成分。
 export const NDX_MEMBERS = ["AAPL", "ABNB", "ADBE", "ADI", "ADP", "ADSK", "AEP", "ALAB", "ALNY", "AMAT", "AMD", "AMGN", "AMZN", "APP", "ARM", "ASML", "AVGO", "AXON", "BKNG", "BKR", "CCEP", "CDNS", "CEG", "CMCSA", "COST", "CPRT", "CRWD", "CRWV", "CSCO", "CSX", "CTAS", "DASH", "DDOG", "DXCM", "EXC", "FANG", "FAST", "FER", "FTNT", "GEHC", "GILD", "GOOGL", "HON", "HONA", "IDXX", "INTC", "INTU", "ISRG", "KDP", "KLAC", "LIN", "LITE", "LRCX", "MAR", "MCHP", "MDLZ", "MELI", "META", "MNST", "MPWR", "MRNA", "MRVL", "MSFT", "MSTR", "MU", "NBIS", "NFLX", "NVDA", "NXPI", "ODFL", "ORLY", "PANW", "PAYX", "PCAR", "PDD", "PEP", "PLTR", "PYPL", "QCOM", "REGN", "RKLB", "ROP", "ROST", "SBUX", "SHOP", "SNDK", "SNPS", "SPCX", "STX", "TER", "TMUS", "TRI", "TSLA", "TTWO", "TXN", "VRTX", "WDAY", "WDC", "WMT", "XEL"]
 export const SOX_MEMBERS = ['NVDA', 'AVGO', 'AMD', 'TSM', 'ASML', 'QCOM', 'TXN', 'INTC', 'MU', 'AMAT', 'LRCX', 'KLAC', 'ADI', 'MRVL', 'NXPI', 'MCHP', 'ON', 'TER', 'MPWR', 'ARM', 'SWKS', 'QRVO', 'ENTG']
+export { SPX_MEMBERS, SPX_ASOF, SPX_SOURCE }
 // 外部参考序列：Siblis Research 免费 API，只有月末/季末快照（不到 10 个点）；口径与本站成分股汇总不同，图上单独标注
 // 没有长历史的指数：Siblis Research 免费 API，只有半年一个点（8 个月末/季末快照）。
 // 指数一致的（恒生、上证）再用每日价格估算成逐日序列
@@ -41,13 +43,13 @@ export async function fetchHistoryOfMarket(key) {
   return points
 }
 
-const MEMBERS = { ndx: NDX_MEMBERS, sox: SOX_MEMBERS, csi300: CSI300_MEMBERS, csi500: CSI500_MEMBERS, chinext: CHINEXT_MEMBERS }
+const MEMBERS = { ndx: NDX_MEMBERS, sox: SOX_MEMBERS, spx: SPX_MEMBERS, csi300: CSI300_MEMBERS, csi500: CSI500_MEMBERS, chinext: CHINEXT_MEMBERS }
 
 /** 要跟踪的指数；group 决定表格分组，顺序即显示顺序 */
 export const INDEXES = [
   { key: 'ndx', symbol: '^NDX', name: '纳斯达克 100', group: '美股', note: '科技与成长权重最高；本站 NDX 公司库的对应指数' },
   { key: 'sox', symbol: '^SOX', name: '费城半导体 SOX', group: '美股', note: '半导体周期的温度计，波动是纳指的两倍以上' },
-  { key: 'spx', symbol: '^GSPC', name: '标普 500', group: '美股', note: '美股大盘基准' },
+  { key: 'spx', symbol: '^GSPC', name: '标普 500', group: '美股', note: `美股大盘基准；Forward PE 由成分代理名单汇总（asOf ${SPX_ASOF}；${SPX_SOURCE}）` },
   { key: 'rsp', symbol: '^SPXEW', name: '标普 500 等权重 SPW', group: '美股', note: '500 家各占相同权重（彭博代码 SPW），不被大科技股拉着走；没有可用的 Forward PE 历史，只看价格位置',
     links: [{ label: '彭博 SPW 行情（含 Forward PE 图）', url: 'https://www.bloomberg.com/quote/SPW:IND' }, { label: 'Yahoo ^SPXEW', url: 'https://finance.yahoo.com/quote/%5ESPXEW' }] },
   { key: 'rut', symbol: '^RUT', name: '罗素 2000', group: '美股', note: '小盘股，对利率和信用更敏感；没有可用的 Forward PE 历史，只看价格位置' },
