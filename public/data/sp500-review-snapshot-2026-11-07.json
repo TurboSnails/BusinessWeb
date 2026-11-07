@@ -1,0 +1,125 @@
+{
+  "source": "companyMarketSnapshot + yahoo-quote-batch + index-history spx（Yahoo 直连失败：Yahoo quote HTTP 401）",
+  "retrievalDate": "2026-11-07",
+  "note": "供应商延迟/收盘报价；第三方财务字段未经统一期别复核，不用于替代公司公告。圆桌研究结论仍以 2026-09-30 报告为准；本文件只刷新价格锚点。",
+  "previousSnapshot": "public/data/sp500-review-snapshot-2026-09-30.json",
+  "missing": [],
+  "snapshots": {
+    "ZTS": {
+      "regularMarketPrice": 79.4,
+      "regularMarketTime": 1793998934,
+      "marketState": "CLOSED",
+      "currency": "USD",
+      "trailingPE": 13.503402,
+      "forwardPE": 12.393103,
+      "trailingEps": 5.879999721551651,
+      "forwardEps": 6.406789324675184
+    },
+    "SPGI": {
+      "regularMarketPrice": 467.8,
+      "regularMarketTime": 1793998802,
+      "marketState": "CLOSED",
+      "currency": "USD",
+      "trailingPE": 27.945042,
+      "forwardPE": 23.177828,
+      "trailingEps": 16.739999889783668,
+      "forwardEps": 20.183081865997107
+    },
+    "PEP": {
+      "regularMarketPrice": 141.34,
+      "regularMarketTime": 1793998800,
+      "marketState": "CLOSED",
+      "currency": "USD",
+      "trailingPE": 17.778616,
+      "forwardPE": 16.36105,
+      "trailingEps": 7.950000157492575,
+      "forwardEps": 8.638809856335627
+    },
+    "MSFT": {
+      "regularMarketPrice": 530.61,
+      "regularMarketTime": 1793998801,
+      "marketState": "CLOSED",
+      "currency": "USD",
+      "trailingPE": 27.693632,
+      "forwardPE": 21.944775,
+      "trailingEps": 19.1600003928701,
+      "forwardEps": 24.179331982214446
+    },
+    "NVDA": {
+      "regularMarketPrice": 186.64,
+      "regularMarketTime": 1793998800,
+      "marketState": "CLOSED",
+      "currency": "USD",
+      "trailingPE": 23.59545,
+      "forwardPE": 11.727595,
+      "trailingEps": 7.909999597380003,
+      "forwardEps": 15.914601416573472
+    },
+    "ORCL": {
+      "regularMarketPrice": 116.1,
+      "regularMarketTime": 1793998995,
+      "marketState": "CLOSED",
+      "currency": "USD",
+      "trailingPE": 18.19749,
+      "forwardPE": 10.49391,
+      "trailingEps": 6.380000758346344,
+      "forwardEps": 11.06355972178149
+    },
+    "CVS": {
+      "regularMarketPrice": 83.85,
+      "regularMarketTime": 1793998802,
+      "marketState": "CLOSED",
+      "currency": "USD",
+      "trailingPE": 9.738676,
+      "forwardPE": 9.7415495,
+      "trailingEps": 8.609999963033989,
+      "forwardEps": 8.60746024028313
+    },
+    "AES": {
+      "regularMarketPrice": 14.87,
+      "regularMarketTime": 1793998803,
+      "marketState": "CLOSED",
+      "currency": "USD",
+      "trailingPE": 5.9718876,
+      "forwardPE": 6.2397194,
+      "trailingEps": 2.489999979236046,
+      "forwardEps": 2.3831199845300732
+    },
+    "CINF": {
+      "regularMarketPrice": 185.48,
+      "regularMarketTime": 1793998801,
+      "marketState": "CLOSED",
+      "currency": "USD",
+      "trailingPE": 10.884975,
+      "forwardPE": 20.157452,
+      "trailingEps": 17.04000238861366,
+      "forwardEps": 9.201559800316032
+    },
+    "OMC": {
+      "regularMarketPrice": 86.37,
+      "regularMarketTime": 1793998802,
+      "marketState": "CLOSED",
+      "currency": "USD",
+      "trailingPE": 87.242424,
+      "forwardPE": 7.753379,
+      "trailingEps": 0.9900000027509552,
+      "forwardEps": 11.139659237604663
+    },
+    "UHS": {
+      "regularMarketPrice": 195.5,
+      "regularMarketTime": 1793998802,
+      "marketState": "CLOSED",
+      "currency": "USD",
+      "trailingPE": 8.18334,
+      "forwardPE": 8.496753,
+      "trailingEps": 23.89000090427625,
+      "forwardEps": 23.008789357534578
+    },
+    "^GSPC": {
+      "regularMarketPrice": 7376.86,
+      "regularMarketTime": 1793995200,
+      "marketState": "CLOSED",
+      "currency": "USD"
+    }
+  }
+}
