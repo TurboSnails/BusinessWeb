@@ -21,10 +21,20 @@ from zoneinfo import ZoneInfo
 
 REPO = Path(__file__).resolve().parent.parent
 SNAPSHOT = REPO / 'src/data/companyMarketSnapshot.json'
-YAHOO = REPO / 'public/research/data-refresh-2026-10-20/yahoo-quote-batch.json'
 LYNCH = REPO / 'public/data/lynch.json'
 DCF_PREFILL = REPO / 'public/data/dcf-prefill.json'
 DCF_AUTO = REPO / 'public/data/dcf-auto.json'
+
+
+def latest_yahoo_batch(repo=REPO):
+    """Prefer the newest data-refresh-*/yahoo-quote-batch.json; fall back to the 2026-10-20 archive."""
+    matches = sorted((repo / 'public/research').glob('data-refresh-*/yahoo-quote-batch.json'), reverse=True)
+    if matches:
+        return matches[0]
+    archived = repo / 'public/research/data-refresh-2026-10-20/yahoo-quote-batch.json'
+    if archived.exists():
+        return archived
+    raise FileNotFoundError('no yahoo-quote-batch.json under public/research/data-refresh-*')
 
 SCENARIO_ORDER = {'悲观': 'low', '基准': 'base', '乐观': 'high'}
 PB_APPLICABLE_SECTORS = {'金融', '房地产', '公用事业', '能源', '材料', '工业'}
@@ -163,10 +173,17 @@ def build_record(entry, asof, snapshot, yahoo, yahoo_checked, lynch, dcf, dcf_au
                         'url': f'research/comprehensive-valuation-2026-10-22/universe-{market}.json',
                         'asOf': research_date})
 
+    # 自动行情精简批次常只留 PE；用现价÷PE 回填 EPS（与供应商 PE 同口径），避免估值层整批 insufficient
     eps_ttm = quote.get('epsTrailingTwelveMonths')
     eps_fwd = quote.get('epsForward')
+    pe_t = quote.get('trailingPE') if num(quote.get('trailingPE')) else (snap or {}).get('trailingPE')
+    pe_f = quote.get('forwardPE') if num(quote.get('forwardPE')) else (snap or {}).get('forwardPE')
+    if not num(eps_ttm) and num(price_value) and num(pe_t) and pe_t > 0:
+        eps_ttm = price_value / pe_t
+    if not num(eps_fwd) and num(price_value) and num(pe_f) and pe_f > 0:
+        eps_fwd = price_value / pe_f
     book = quote.get('bookValue')
-    currency = quote.get('currency') or 'USD'
+    currency = quote.get('currency') or (snap or {}).get('currency') or 'USD'
     shares = quote.get('sharesOutstanding')
 
     assumptions, missing = [], []
@@ -432,6 +449,7 @@ def main():
     parser.add_argument('--universe', required=True, type=Path)
     parser.add_argument('--as-of', required=True, help='valuation base date YYYY-MM-DD')
     parser.add_argument('--output', required=True, type=Path)
+    parser.add_argument('--yahoo', type=Path, default=None, help='yahoo-quote-batch.json (default: newest data-refresh-*)')
     parser.add_argument('--limit', type=int, default=0, help='first N companies only (sample check)')
     args = parser.parse_args()
 
@@ -439,11 +457,13 @@ def main():
     if args.limit:
         universe = universe[:args.limit]
     snapshot = load_json(SNAPSHOT)
-    yahoo = load_json(YAHOO)['quotes']
+    yahoo_path = args.yahoo or latest_yahoo_batch()
+    yahoo_doc = load_json(yahoo_path)
+    yahoo = yahoo_doc['quotes']
     lynch = load_json(LYNCH)
     dcf = {row['c']: row for row in load_json(DCF_PREFILL)['items'] if row.get('m') == 'us'}
 
-    yahoo_checked = load_json(YAHOO)['checkedAt'][:10]
+    yahoo_checked = yahoo_doc['checkedAt'][:10]
     dcf_auto = load_json(DCF_AUTO)['items']
     dcf_checked = load_json(DCF_PREFILL)['generatedAt'][:10]
     records = [build_record(entry, args.as_of, snapshot, yahoo, yahoo_checked, lynch, dcf, dcf_auto, dcf_checked)

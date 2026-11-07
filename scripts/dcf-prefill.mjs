@@ -32,7 +32,7 @@ const num = x => { const v = Number(val(x)); return x == null || val(x) == null 
 const sumOrNull = values => values.some(v => v != null) ? values.reduce((a, v) => a + (v ?? 0), 0) : null
 const day = s => String(s ?? '').slice(0, 10)
 export const tencentSymbol = (market, code) => market === 'us' ? `us${code}` : market === 'hk' ? `hk${code}`
-  : `${/^[69]/.test(code) ? 'sh' : /^[48]/.test(code) ? 'bj' : 'sz'}${code}`
+  : `${/^(92|[48])/.test(code) ? 'bj' : /^[69]/.test(code) ? 'sh' : 'sz'}${code}`
 
 // ---------- universe ----------
 export function parseNdxCodes(source) {
@@ -147,7 +147,8 @@ export function parseQuotes(text) {
 
 // ---------- A 股 ----------
 export async function collectCn(code, http) {
-  const secu = (/^[69]/.test(code) ? 'SH' : /^[48]/.test(code) ? 'BJ' : 'SZ') + code
+  // 920/4/8=北交所；6/其余9=上交所；其余深交所（与 national-team.cnExchangePrefix 一致）
+  const secu = (/^(92|[48])/.test(code) ? 'BJ' : /^[69]/.test(code) ? 'SH' : 'SZ') + code
   const html = await http.text(`${EM_BASE}Index?type=web&code=${secu}`)
   let industry = null
   try { industry = String((await http.json(`https://emweb.securities.eastmoney.com/PC_HSF10/CompanySurvey/PageAjax?code=${secu}`)).jbzl?.[0]?.EM2016 ?? '').split('-')[0] || null } catch { /* optional */ }

@@ -23,7 +23,15 @@ async function slim(name, transform) {
 
 await slim('tencent-quotes.json', d => ({ ...d, quotes: Object.fromEntries(Object.entries(d.quotes ?? {}).map(([k, q]) => [k, pick(q, ['symbols', 'price', 'name', 'marketTime', 'retrievedAt', 'currency', 'error'])])) }))
 await slim('etf-quotes.json', d => ({ ...d, quotes: Object.fromEntries(Object.entries(d.quotes ?? {}).map(([k, q]) => [k, pick(q, ['symbols', 'price', 'name', 'marketTime', 'retrievedAt', 'currency'])])) }))
-await slim('yahoo-quote-batch.json', d => ({ ...d, quotes: Object.fromEntries(Object.entries(d.quotes ?? {}).map(([k, q]) => [k, pick(q, ['symbol', 'shortName', 'currency', 'regularMarketPrice', 'regularMarketTime', 'exchangeTimezoneName', 'trailingPE', 'forwardPE', 'fiftyTwoWeekLow', 'fiftyTwoWeekHigh', 'checkedAt'])])) }))
+// 保留 EPS/BVPS/股息字段：估值覆盖层重建依赖它们；只剥掉无关的展示字段以控制体积
+await slim('yahoo-quote-batch.json', d => ({ ...d, quotes: Object.fromEntries(Object.entries(d.quotes ?? {}).map(([k, q]) => [k, pick(q, [
+  'symbol', 'shortName', 'currency', 'financialCurrency',
+  'regularMarketPrice', 'regularMarketTime', 'exchangeTimezoneName',
+  'trailingPE', 'forwardPE', 'fiftyTwoWeekLow', 'fiftyTwoWeekHigh',
+  'epsTrailingTwelveMonths', 'epsForward', 'epsCurrentYear', 'bookValue',
+  'sharesOutstanding', 'dividendRate', 'dividendYield', 'trailingAnnualDividendRate', 'trailingAnnualDividendYield',
+  'checkedAt',
+])])) }))
 for (const name of ['company-universe.json', 'company-universe-after.json', 'changes.json', 'changes-initial.json', 'universe-symbols.json', 'macro-collected.json', 'indexes-collected.json']) await rm(join(dir, name), { force: true })
 await writeFile(join(dir, 'AUTO.txt'), `每日自动行情刷新 ${date}；证据已精简，仅保留报价与汇总。保留 ${KEEP_DAYS} 天。\n`)
 

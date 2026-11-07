@@ -182,19 +182,44 @@ export function findUnclassified(rows) {
   return [...seen.entries()].sort((a, b) => b[1] - a[1]).map(([holder, count]) => ({ holder, count }))
 }
 
-/** 所属行业：取 BOARD_TYPE='行业' 中层级最小者为主行业；取不到返回 null（调用方不缓存失败）。 */
+/** A 股代码 → 交易所前缀。920/4/8=北交所；6/其余9=上交所；其余深交所。 */
+export function cnExchangePrefix(code) {
+  const c = String(code ?? '')
+  if (/^(92|[48])/.test(c)) return 'BJ'
+  if (/^[69]/.test(c)) return 'SH'
+  return 'SZ'
+}
+
+/** 公司概况页备用行业：EM2016 形如「白酒-食品饮料」，取首段。 */
+async function fetchIndustryFromSurvey(code, fetchImpl) {
+  const prefix = cnExchangePrefix(code)
+  const url = `https://emweb.securities.eastmoney.com/PC_HSF10/CompanySurvey/PageAjax?code=${prefix}${code}`
+  const res = await fetchImpl(url, { headers: HEADERS, signal: AbortSignal.timeout(20000) })
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  const json = await res.json()
+  const primary = String(json?.jbzl?.[0]?.EM2016 ?? '').split('-')[0].trim()
+  return primary || null
+}
+
+/** 所属行业：东财板块树优先；失败再试公司概况 EM2016。取不到返回 null（调用方不缓存失败）。 */
 export async function fetchIndustry(code, { fetchImpl = fetch } = {}) {
-  const secucode = `${code}${code.startsWith('6') || code.startsWith('9') ? '.SH' : code.startsWith('4') || code.startsWith('8') ? '.BJ' : '.SZ'}`
-  const result = await getJson({
-    type: 'RPT_F10_CORETHEME_BOARDTYPE', sty: 'BOARD_NAME,BOARD_TYPE,BOARD_LEVEL',
-    filter: `(SECUCODE="${secucode}")`, p: '1', ps: '50', source: 'HSF10', client: 'PC',
-  }, { fetchImpl })
-  const rows = (result?.data ?? [])
-    .filter(r => r.BOARD_TYPE === '行业' && r.BOARD_NAME)
-    .map(r => ({ level: Number(r.BOARD_LEVEL) || 9, name: String(r.BOARD_NAME).trim() }))
-    .sort((a, b) => a.level - b.level)
-  if (!rows.length) return null
-  return { primary: rows[0].name, all: rows.map(r => r.name) }
+  const secucode = `${code}.${cnExchangePrefix(code)}`
+  try {
+    const result = await getJson({
+      type: 'RPT_F10_CORETHEME_BOARDTYPE', sty: 'BOARD_NAME,BOARD_TYPE,BOARD_LEVEL',
+      filter: `(SECUCODE="${secucode}")`, p: '1', ps: '50', source: 'HSF10', client: 'PC',
+    }, { fetchImpl })
+    const rows = (result?.data ?? [])
+      .filter(r => r.BOARD_TYPE === '行业' && r.BOARD_NAME)
+      .map(r => ({ level: Number(r.BOARD_LEVEL) || 9, name: String(r.BOARD_NAME).trim() }))
+      .sort((a, b) => a.level - b.level)
+    if (rows.length) return { primary: rows[0].name, all: rows.map(r => r.name) }
+  } catch { /* 走概况页兜底 */ }
+  try {
+    const primary = await fetchIndustryFromSurvey(code, fetchImpl)
+    if (primary) return { primary, all: [primary] }
+  } catch { /* 双源皆失败 */ }
+  return null
 }
 
 // ---------------------------------------------------------------------------

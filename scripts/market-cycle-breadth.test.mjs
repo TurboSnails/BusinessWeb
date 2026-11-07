@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { mkdtemp, readFile, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
-import { computeBreadth, parseBars, parseEastmoneyHkBars, sanitizeBars, selectBatch, tencentSymbol, validateUniverse, buildMarketEntry, clampBudget, clampConcurrency, run } from './market-cycle-breadth.mjs'
+import { computeBreadth, parseBars, parseEastmoneyHkBars, parseEastmoneyBars, eastmoneyCnSecid, sanitizeBars, selectBatch, tencentSymbol, validateUniverse, buildMarketEntry, clampBudget, clampConcurrency, run } from './market-cycle-breadth.mjs'
 import { HK_INDEX_CODES } from './market-cycle-hk-universe.mjs'
 
 const TODAY = '2026-10-16'
@@ -495,4 +495,43 @@ test('run: peer reuse excludes stale, future, failed and corrupt bars', async ()
   const out = await run({ ...opts, budget: 0 })
   assert.equal(out.snapshot.markets.hstech.eligible, 1)
   assert.equal(out.snapshot.markets.hstech.exclusions.not_fetched, 19)
+})
+
+test('eastmoneyCnSecid and parseEastmoneyBars cover A-share identity', () => {
+  assert.deepEqual(eastmoneyCnSecid('600519'), { secid: '1.600519', market: 1 })
+  assert.deepEqual(eastmoneyCnSecid('000001'), { secid: '0.000001', market: 0 })
+  assert.equal(eastmoneyCnSecid('830799'), null)
+  const klines = ['2026-10-14,1,290,1,1,1,1', '2026-10-15,1,300,1,1,1,1', '2026-10-16,1,310,1,1,1,1']
+  assert.deepEqual(parseEastmoneyBars({ rc: 0, data: { code: '600519', market: 1, klines } }, { code: '600519', market: 1, today: TODAY }), [['2026-10-14', 290], ['2026-10-15', 300], ['2026-10-16', 310]])
+  assert.throws(() => parseEastmoneyBars({ rc: 0, data: { code: '600519', market: 0, klines } }, { code: '600519', market: 1, today: TODAY }), /身份不符/)
+})
+
+test('run: CSI300 falls back to Eastmoney when Tencent fails, avoiding breaker trip', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'breadth-em-'))
+  const codes = Array.from({ length: 300 }, (_, i) => String(600000 + i))
+  let tencentHits = 0, emHits = 0
+  const fetchImpl = async url => {
+    if (url.includes('000300cons.xls')) return { ok: true, arrayBuffer: async () => Buffer.concat([Buffer.from([0xd0, 0xcf, 0x11, 0xe0]), Buffer.alloc(2000)]) }
+    if (url.includes('ifzq.gtimg.cn')) {
+      tencentHits++
+      return { ok: false, status: 501 }
+    }
+    if (url.includes('push2his.eastmoney.com')) {
+      emHits++
+      const secid = new URL(url).searchParams.get('secid')
+      const code = secid.split('.')[1]
+      const market = Number(secid.split('.')[0])
+      const klines = series(260, TODAY, k => 100 + k).map(([d, c]) => `${d},1,${c},1,1,1,1`)
+      return { ok: true, json: async () => ({ rc: 0, data: { code, market, klines } }) }
+    }
+    return { ok: false, status: 404 }
+  }
+  const parseXls = async () => JSON.stringify({ date: '2026-10-16', indexCode: '000300', rows: codes.map(code => ({ code, name: code })) })
+  const out = await run({ fetchImpl, parseXls, cacheDir: path.join(dir, 'cache'), outFile: path.join(dir, 'out.json'), universeFile: path.join(dir, 'u.json'), now: new Date(`${TODAY}T10:00:00Z`), budget: 11 })
+  assert.equal(out.snapshot.markets.csi300.eligible, 10)
+  assert.ok(tencentHits >= 10)
+  assert.ok(emHits >= 10)
+  assert.ok(!out.snapshot.issues.some(i => i.includes('熔断')))
+  const meta = JSON.parse(await readFile(path.join(dir, 'cache', 'meta-csi300.json'), 'utf8'))
+  assert.equal(meta[codes[0]].src, 'em-fqt1')
 })

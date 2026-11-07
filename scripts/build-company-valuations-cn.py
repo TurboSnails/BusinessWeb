@@ -32,9 +32,18 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 SNAPSHOT = REPO / 'src/data/companyMarketSnapshot.json'
-YAHOO = REPO / 'public/research/data-refresh-2026-10-20/yahoo-quote-batch.json'
 LYNCH = REPO / 'public/data/lynch.json'
 DCF_PREFILL = REPO / 'public/data/dcf-prefill.json'
+
+
+def latest_yahoo_batch(repo=REPO):
+    matches = sorted((repo / 'public/research').glob('data-refresh-*/yahoo-quote-batch.json'), reverse=True)
+    if matches:
+        return matches[0]
+    archived = repo / 'public/research/data-refresh-2026-10-20/yahoo-quote-batch.json'
+    if archived.exists():
+        return archived
+    raise FileNotFoundError('no yahoo-quote-batch.json under public/research/data-refresh-*')
 
 SCENARIO_ORDER = {'悲观': 'low', '基准': 'base', '乐观': 'high'}
 PE_TRIPLET = re.compile(r'([\d.]+)\s*×\s*PE')
@@ -192,6 +201,12 @@ def build_record(entry, asof, snapshot, yahoo, yahoo_checked, lynch, dcf):
 
     eps_ttm = quote.get('epsTrailingTwelveMonths')
     eps_fwd = quote.get('epsForward')
+    pe_t = quote.get('trailingPE') if num(quote.get('trailingPE')) else (snap or {}).get('trailingPE')
+    pe_f = quote.get('forwardPE') if num(quote.get('forwardPE')) else (snap or {}).get('forwardPE')
+    if not num(eps_ttm) and num(price_value) and num(pe_t) and pe_t > 0:
+        eps_ttm = price_value / pe_t
+    if not num(eps_fwd) and num(price_value) and num(pe_f) and pe_f > 0:
+        eps_fwd = price_value / pe_f
     book = quote.get('bookValue')
     currency = quote.get('currency') or 'CNY'
     scenarios = entry.get('scenarios') or []
@@ -577,6 +592,7 @@ def main():
     parser.add_argument('--universe', required=True, type=Path)
     parser.add_argument('--as-of', required=True, help='valuation base date YYYY-MM-DD')
     parser.add_argument('--output', required=True, type=Path)
+    parser.add_argument('--yahoo', type=Path, default=None, help='yahoo-quote-batch.json (default: newest data-refresh-*)')
     parser.add_argument('--limit', type=int, default=0, help='first N companies only (sample check)')
     parser.add_argument('--codes', default='', help='comma-separated codes to include (sample check, e.g. 603596,000001,000009)')
     args = parser.parse_args()
@@ -588,7 +604,7 @@ def main():
     elif args.limit:
         universe = universe[:args.limit]
     snapshot = load_json(SNAPSHOT)
-    yahoo_doc = load_json(YAHOO)
+    yahoo_doc = load_json(args.yahoo or latest_yahoo_batch())
     yahoo = yahoo_doc['quotes']
     lynch = load_json(LYNCH)
     dcf = {row['c']: row for row in load_json(DCF_PREFILL)['items'] if row.get('m') == 'cn'}

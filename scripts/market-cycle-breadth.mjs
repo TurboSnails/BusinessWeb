@@ -34,8 +34,12 @@ const REQUEST_TIMEOUT_MS = 15000
 
 export const CSI300_XLS = 'https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/file/autofile/cons/000300cons.xls'
 export const TENCENT = 'https://web.ifzq.gtimg.cn/appstock/app/fqkline/get'
-export const EASTMONEY_HK = 'https://push2his.eastmoney.com/api/qt/stock/kline/get'
+export const EASTMONEY_KLINE = 'https://push2his.eastmoney.com/api/qt/stock/kline/get'
+/** @deprecated 兼容旧测试引用；与 EASTMONEY_KLINE 同址 */
+export const EASTMONEY_HK = EASTMONEY_KLINE
 const HK_BARS_SRC = 'em-fqt1' // Eastmoney kline fqt=1 (forward-adjusted); Tencent has no HK qfq
+const CN_BARS_SRC_TENCENT = 'tencent-qfq'
+const CN_BARS_SRC_EM = 'em-fqt1' // A 股东财前复权；腾讯 WAF/限流时回退
 export const MARKETS = {
   csi300: { id: 'csi300-constituents', name: '沪深300' },
   hsi: { id: 'hsi-constituents', name: '恒生指数' },
@@ -71,12 +75,21 @@ export function parseBars(body, symbol, today) {
   return [...seen.entries()].sort((a, b) => a[0].localeCompare(b[0]))
 }
 
-/** Eastmoney HK kline body -> ascending [date, close], last FETCH_BARS rows. Response identity (rc/code/market) is verified; bars are forward-adjusted only because the request explicitly sets fqt=1. */
-export function parseEastmoneyHkBars(body, code, today) {
+/** Eastmoney A-share secid + market id, or null when the exchange cannot be determined. */
+export function eastmoneyCnSecid(code) {
+  if (!/^\d{6}$/.test(code)) return null
+  if (/^(6|9)/.test(code)) return { secid: `1.${code}`, market: 1 }
+  if (/^(0|2|3)/.test(code)) return { secid: `0.${code}`, market: 0 }
+  return null
+}
+
+/** Eastmoney CN/HK kline body -> ascending [date, close]. Response identity (rc/code/market) is verified. */
+export function parseEastmoneyBars(body, { code, market, today }) {
   if (body?.rc !== 0) throw new Error(`东财接口rc=${body?.rc ?? '无'}`)
   const d = body.data
-  const padded = String(code).padStart(5, '0')
-  if (!d || d.market !== 116 || String(d.code ?? '').padStart(5, '0') !== padded) throw new Error(`东财返回身份不符 ${d?.market}/${d?.code}`)
+  const padded = String(code).padStart(market === 116 ? 5 : 6, '0')
+  const got = String(d?.code ?? '').padStart(market === 116 ? 5 : 6, '0')
+  if (!d || d.market !== market || got !== padded) throw new Error(`东财返回身份不符 ${d?.market}/${d?.code}`)
   if (!Array.isArray(d.klines) || !d.klines.length) throw new Error('东财无K线')
   const seen = new Map()
   for (const r of d.klines) {
@@ -90,14 +103,29 @@ export function parseEastmoneyHkBars(body, code, today) {
   return bars.slice(-FETCH_BARS)
 }
 
-/** Eastmoney forward-adjusted (fqt=1) HK daily bars; bounded ~400d window, counts as one request. */
-async function fetchEastmoneyHkBars({ code, fetchImpl, today }) {
+/** @deprecated 兼容旧测试；港股身份校验走 parseEastmoneyBars(market=116) */
+export function parseEastmoneyHkBars(body, code, today) {
+  return parseEastmoneyBars(body, { code, market: 116, today })
+}
+
+/** Eastmoney forward-adjusted (fqt=1) daily bars; bounded ~400d window, counts as one request. */
+async function fetchEastmoneyBars({ secid, code, market, fetchImpl, today }) {
   const digits = s => s.replaceAll('-', '')
   const fields = 'fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57'
-  const url = `${EASTMONEY_HK}?secid=116.${String(code).padStart(5, '0')}&${fields}&klt=101&fqt=1&beg=${digits(addDays(today, -400))}&end=${digits(today)}&lmt=${FETCH_BARS}`
+  const url = `${EASTMONEY_KLINE}?secid=${secid}&${fields}&klt=101&fqt=1&beg=${digits(addDays(today, -400))}&end=${digits(today)}&lmt=${FETCH_BARS}`
   const res = await fetchImpl(url, { headers: { 'user-agent': UA, referer: 'https://quote.eastmoney.com/' }, signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) })
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
-  return parseEastmoneyHkBars(await res.json(), code, today)
+  return parseEastmoneyBars(await res.json(), { code, market, today })
+}
+
+async function fetchEastmoneyHkBars({ code, fetchImpl, today }) {
+  return fetchEastmoneyBars({ secid: `116.${String(code).padStart(5, '0')}`, code, market: 116, fetchImpl, today })
+}
+
+async function fetchEastmoneyCnBars({ code, fetchImpl, today }) {
+  const id = eastmoneyCnSecid(code)
+  if (!id) throw new Error('无法确定东财交易所')
+  return fetchEastmoneyBars({ ...id, code, fetchImpl, today })
 }
 
 /** Cached bars -> clean ascending [date, close] up to `today`, or null when the shape is corrupt (unordered, duplicate, non-finite). */
@@ -285,6 +313,23 @@ export async function fetchCsi300Universe({ fetchImpl = fetch, parseXls, python 
   return validateUniverse({ date: parsed.date, source: CSI300_XLS, codes: parsed.rows.map(r => r.code) }, today)
 }
 
+/** CSI300：腾讯前复权优先，失败再试东财 fqt=1（同为前复权；腾讯 WAF 时避免整批熔断）。 */
+async function fetchCsi300Bars({ code, sym, fetchImpl, today }) {
+  let lastErr
+  try {
+    const bars = parseBars(await fetchJson(fetchImpl, `${TENCENT}?param=${sym},day,,,${FETCH_BARS},qfq`), sym, today)
+    if (!bars.length) throw new Error('无有效日线')
+    return { bars, src: CN_BARS_SRC_TENCENT }
+  } catch (e) { lastErr = e }
+  try {
+    const bars = await fetchEastmoneyCnBars({ code, fetchImpl, today })
+    if (!bars.length) throw new Error('无有效日线')
+    return { bars, src: CN_BARS_SRC_EM }
+  } catch (e) {
+    throw new Error(`腾讯失败：${errText(lastErr)}；东财失败：${errText(e)}`)
+  }
+}
+
 /** Bounded-concurrency fetch of the selected securities; stops early after BREAKER consecutive failures. */
 async function fetchBatch({ market, codes, fetchImpl, today, meta, cacheDir, concurrency }) {
   let next = 0, streak = 0, requests = 0
@@ -294,15 +339,20 @@ async function fetchBatch({ market, codes, fetchImpl, today, meta, cacheDir, con
       const code = codes[next++]
       const sym = tencentSymbol(market, code)
       const now = new Date().toISOString()
-      if (!sym) { meta[code] = { ...meta[code], fetchedAt: meta[code]?.fetchedAt ?? '1970-01-01T00:00:00Z', failedAt: now, error: '无法确定交易所' }; continue }
+      if (market === 'csi300' && !sym) { meta[code] = { ...meta[code], fetchedAt: meta[code]?.fetchedAt ?? '1970-01-01T00:00:00Z', failedAt: now, error: '无法确定交易所' }; continue }
+      if (market === 'csi300' && !eastmoneyCnSecid(code)) { meta[code] = { ...meta[code], fetchedAt: meta[code]?.fetchedAt ?? '1970-01-01T00:00:00Z', failedAt: now, error: '无法确定交易所' }; continue }
       requests++
       try {
-        const bars = market === 'csi300'
-          ? parseBars(await fetchJson(fetchImpl, `${TENCENT}?param=${sym},day,,,${FETCH_BARS},qfq`), sym, today)
-          : await fetchEastmoneyHkBars({ code, fetchImpl, today })
+        let bars, src
+        if (market === 'csi300') {
+          ;({ bars, src } = await fetchCsi300Bars({ code, sym, fetchImpl, today }))
+        } else {
+          bars = await fetchEastmoneyHkBars({ code, fetchImpl, today })
+          src = HK_BARS_SRC
+        }
         if (!bars.length) throw new Error('无有效日线')
         await writeJson(path.join(cacheDir, 'bars', barsDir(market), `${code}.json`), bars)
-        meta[code] = { fetchedAt: now, last: bars.at(-1)[0], n: bars.length, src: market === 'csi300' ? 'tencent-qfq' : HK_BARS_SRC }
+        meta[code] = { fetchedAt: now, last: bars.at(-1)[0], n: bars.length, src }
         streak = 0
       } catch (e) {
         streak++
@@ -317,15 +367,16 @@ async function fetchBatch({ market, codes, fetchImpl, today, meta, cacheDir, con
 
 /** Bars cache subdirectory per market; HK uses a -em suffix so stale Tencent HK raw caches can never mix with Eastmoney fqt=1 bars. */
 const barsDir = market => (market === 'csi300' ? 'csi300' : `${market}-em`)
-const expectedSrc = market => (market === 'csi300' ? 'tencent-qfq' : HK_BARS_SRC)
+const acceptedSrc = market => (market === 'csi300' ? new Set([CN_BARS_SRC_TENCENT, CN_BARS_SRC_EM]) : new Set([HK_BARS_SRC]))
 
 /** Loads cached bars; a corrupt file or wrong-source meta entry drops so the next round re-requests it. */
 async function loadBars(cacheDir, market, members, meta, today) {
   const map = new Map()
+  const okSrc = acceptedSrc(market)
   await Promise.all(members.map(async ({ code }) => {
     const m = meta[code]
     if (!m) return
-    if (m.src !== undefined && m.src !== expectedSrc(market)) { delete meta[code]; return }
+    if (m.src !== undefined && !okSrc.has(m.src)) { delete meta[code]; return }
     const bars = await readJson(path.join(cacheDir, 'bars', barsDir(market), `${code}.json`))
     if (bars !== null && sanitizeBars(bars, today)?.length) map.set(code, bars)
     else if (m.failedAt) map.set(code, null)
@@ -373,7 +424,7 @@ export const clampConcurrency = v => {
  * current list is judged by `confirmedAt`, the last time the official source was re-fetched. Without a verified confirmation
  * time (static configuration) the entry is proxy and cannot vote.
  */
-export function buildMarketEntry(market, universe, result, today, extraDetail = '', { dateLabel = '名单生效日', barsNote = '腾讯前复权日线' } = {}) {
+export function buildMarketEntry(market, universe, result, today, extraDetail = '', { dateLabel = '名单生效日', barsNote = '腾讯前复权优先，失败回退东财fqt=1' } = {}) {
   const confirmedOk = !!universe.confirmedAt && daysBetween(universe.confirmedAt.slice(0, 10), today) <= CONFIRM_MAX_DAYS
   const kind = confirmedOk ? 'observed' : 'proxy'
   const ex = Object.entries(result.exclusions).map(([k, v]) => `${k} ${v}`).join('、')

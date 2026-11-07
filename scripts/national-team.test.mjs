@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
-  buildDataset, classifyHolder, disclosureOpen, fetchPeriodRows, findUnclassified,
+  buildDataset, classifyHolder, cnExchangePrefix, disclosureOpen, fetchIndustry, fetchPeriodRows, findUnclassified,
   matureEnds, quarterEnds, summarizePeriod,
 } from './lib/national-team.mjs'
 
@@ -105,6 +105,34 @@ test('fetchPeriodRows 校验行数与唯一性', async () => {
   // 大量重复（分页错乱的特征）：拒绝
   const many = Array.from({ length: 60 }, () => good[0])
   await assert.rejects(fetchPeriodRows('2026-06-30', { fetchImpl: mk(many, 60) }), /大量重复/)
+})
+
+test('cnExchangePrefix：920 北交所优先于 9 开头上交所 B 股', () => {
+  assert.equal(cnExchangePrefix('920982'), 'BJ')
+  assert.equal(cnExchangePrefix('830799'), 'BJ')
+  assert.equal(cnExchangePrefix('430047'), 'BJ')
+  assert.equal(cnExchangePrefix('900901'), 'SH')
+  assert.equal(cnExchangePrefix('600519'), 'SH')
+  assert.equal(cnExchangePrefix('000001'), 'SZ')
+  assert.equal(cnExchangePrefix('300750'), 'SZ')
+})
+
+test('fetchIndustry：板块树失败时回退公司概况 EM2016', async () => {
+  const calls = []
+  const fetchImpl = async (url) => {
+    calls.push(url)
+    if (String(url).includes('datacenter.eastmoney.com')) {
+      return { ok: true, json: async () => ({ success: true, result: { data: [] } }) }
+    }
+    if (String(url).includes('CompanySurvey')) {
+      return { ok: true, json: async () => ({ jbzl: [{ EM2016: '白酒-食品饮料' }] }) }
+    }
+    return { ok: false, status: 404 }
+  }
+  const ind = await fetchIndustry('600519', { fetchImpl })
+  assert.deepEqual(ind, { primary: '白酒', all: ['白酒'] })
+  assert.ok(calls.some(u => String(u).includes('datacenter')))
+  assert.ok(calls.some(u => String(u).includes('CompanySurvey')))
 })
 
 test('buildDataset 点位聚合、较上期、退出个股只留历史', () => {

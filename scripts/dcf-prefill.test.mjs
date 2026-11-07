@@ -9,6 +9,8 @@ test('universe parsers read NDX array and research company lines', () => {
   assert.equal(tencentSymbol('cn', '600519'), 'sh600519')
   assert.equal(tencentSymbol('cn', '000001'), 'sz000001')
   assert.equal(tencentSymbol('cn', '830799'), 'bj830799')
+  assert.equal(tencentSymbol('cn', '920982'), 'bj920982')
+  assert.equal(tencentSymbol('cn', '900901'), 'sh900901')
   assert.deepEqual(['cn:600519', 'cn:000001', 'cn:300750', 'hk:00700', 'hk:09988', 'us:BRK.B', 'cn:830799'].map(k => yahooSymbol(...k.split(':'))), ['600519.SS', '000001.SZ', '300750.SZ', '0700.HK', '9988.HK', 'BRK-B', null])
   assert.deepEqual(parseYahooWeekly({ chart: { result: [{ timestamp: [1760918400, 1761523200], indicators: { adjclose: [{ adjclose: [10, null] }] } }] } }), [['2025-10-20', 10]])
 })
