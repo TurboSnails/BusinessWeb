@@ -1,6 +1,6 @@
 {
  "schemaVersion": 1,
- "generatedAt": "2026-11-06T23:43:53.893Z",
+ "generatedAt": "2026-11-07T10:05:04.023Z",
  "facts": [
   {
    "market": "csi300",
@@ -15,6 +15,20 @@
    "availableAt": null,
    "firstSeenAt": "2026-10-19T06:26:56.915Z",
    "fetchedAt": "2026-10-19T06:26:56.915Z"
+  },
+  {
+   "market": "csi300",
+   "observationDate": "2026-11-05",
+   "kind": "observed",
+   "frequency": "daily",
+   "metricId": "cn_turnover_yi",
+   "value": 28494.46,
+   "unit": "亿元",
+   "source": "https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-11-05",
+   "description": "沪深全市场融资买入额1870.76亿元人民币（股票/基金，含ETF）÷同日沪深A股与全部上市基金成交额28494.46亿元人民币×100；沪市主板A 6369.34+科创板3441.66+基金5345.20，深市主板A 5601.50+创业板A 5793.94+基金1942.82；不含B股、直接债券、优先股、回购、期权，债券ETF仍归基金；分母含非融资标的的A股与基金，非融资标的内部杠杆占比，也非沪深300成分股专属。融资来源：https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPTA_RZRQ_LSHJ&columns=DIM_DATE%2CRZMRE&pageSize=5&sortColumns=DIM_DATE&sortTypes=-1；沪市分类：https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-11-05；深市分类：https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=1803_sczm&TABKEY=tab1&txtQueryDate=2026-11-05",
+   "availableAt": null,
+   "firstSeenAt": "2026-11-07T09:47:26.388Z",
+   "fetchedAt": "2026-11-07T10:05:04.023Z"
   },
   {
    "market": "csi300",
@@ -238,7 +252,7 @@
    "description": "中国10年期国债收益率；东财RPTA_WEB_TREASURYYIELD列EMM00166466=中国国债收益率10年（字段映射见akshare bond_zh_us_rate的rename：https://raw.githubusercontent.com/akfamily/akshare/main/akshare/bond/bond_em.py ；同表美国10年列与FRED DGS10同日吻合；东财转载原值，非中债官方直连）",
    "availableAt": null,
    "firstSeenAt": "2026-11-06T15:04:51.661Z",
-   "fetchedAt": "2026-11-06T23:43:53.893Z"
+   "fetchedAt": "2026-11-07T10:05:04.023Z"
   },
   {
    "metricId": "cnh",
@@ -504,7 +518,7 @@
    "description": "Yahoo Finance CNH=X 离岸人民币兑美元(每美元CNH，非在岸CNY，不可与CNY互换)；非官方免费源，取最近一根日线(可能为盘中价)",
    "availableAt": null,
    "firstSeenAt": "2026-11-06T23:43:53.893Z",
-   "fetchedAt": "2026-11-06T23:43:53.893Z"
+   "fetchedAt": "2026-11-07T10:05:04.023Z"
   },
   {
    "market": "csi300",
@@ -728,7 +742,7 @@
    "description": "简化ERP=100/沪深300 PE−中国10年国债收益率(%)的5年滚动z-score，窗口2021-11-08~2026-11-06，同日交集1212点，样本标准差(n-1)，均值5.674、标准差0.691；PE官方、国债为东财转载(东财RPTA_WEB_TREASURYYIELD列EMM00166466=中国国债收益率10年（字段映射见akshare bond_zh_us_rate的rename：https://raw.githubusercontent.com/akfamily/akshare/main/akshare/bond/bond_em.py ；同表美国10年列与FRED DGS10同日吻合；东财转载原值，非中债官方直连）)",
    "availableAt": null,
    "firstSeenAt": "2026-11-06T15:04:51.661Z",
-   "fetchedAt": "2026-11-06T23:43:53.893Z"
+   "fetchedAt": "2026-11-07T10:05:04.023Z"
   },
   {
    "market": "csi300",
@@ -952,7 +966,7 @@
    "description": "简化ERP=100/PE(13.13)−10年国债(1.5868%)，同日取值；仅为简化定义，非完整风险溢价；国债为东财转载，非中债直连",
    "availableAt": null,
    "firstSeenAt": "2026-11-06T15:04:51.661Z",
-   "fetchedAt": "2026-11-06T23:43:53.893Z"
+   "fetchedAt": "2026-11-07T10:05:04.023Z"
   },
   {
    "metricId": "etf_shares_510300",
@@ -1162,7 +1176,7 @@
    "description": "上交所披露华泰柏瑞沪深300ETF(510300)总份额，单只白名单产品，不是宽基合计，不含深市产品",
    "availableAt": null,
    "firstSeenAt": "2026-11-06T23:43:53.893Z",
-   "fetchedAt": "2026-11-06T23:43:53.893Z"
+   "fetchedAt": "2026-11-07T10:05:04.023Z"
   },
   {
    "metricId": "etf_shares_510310",
@@ -1372,7 +1386,7 @@
    "description": "上交所披露易方达沪深300ETF(510310)总份额，单只白名单产品，不是宽基合计，不含深市产品",
    "availableAt": null,
    "firstSeenAt": "2026-11-06T23:43:53.893Z",
-   "fetchedAt": "2026-11-06T23:43:53.893Z"
+   "fetchedAt": "2026-11-07T10:05:04.023Z"
   },
   {
    "metricId": "etf_shares_510330",
@@ -1582,7 +1596,7 @@
    "description": "上交所披露华夏沪深300ETF(510330)总份额，单只白名单产品，不是宽基合计，不含深市产品",
    "availableAt": null,
    "firstSeenAt": "2026-11-06T23:43:53.893Z",
-   "fetchedAt": "2026-11-06T23:43:53.893Z"
+   "fetchedAt": "2026-11-07T10:05:04.023Z"
   },
   {
    "metricId": "etf_shares_513130",
@@ -1792,7 +1806,7 @@
    "description": "上交所披露华泰柏瑞恒生科技ETF(513130)总份额，单只白名单产品，不是宽基合计，不含深市产品",
    "availableAt": null,
    "firstSeenAt": "2026-11-06T23:43:53.893Z",
-   "fetchedAt": "2026-11-06T23:43:53.893Z"
+   "fetchedAt": "2026-11-07T10:05:04.023Z"
   },
   {
    "metricId": "etf_shares_513180",
@@ -2002,7 +2016,7 @@
    "description": "上交所披露华夏恒生科技ETF(513180)总份额，单只白名单产品，不是宽基合计，不含深市产品",
    "availableAt": null,
    "firstSeenAt": "2026-11-06T23:43:53.893Z",
-   "fetchedAt": "2026-11-06T23:43:53.893Z"
+   "fetchedAt": "2026-11-07T10:05:04.023Z"
   },
   {
    "metricId": "etf_shares_513660",
@@ -2212,7 +2226,7 @@
    "description": "上交所披露华夏恒生ETF(港股通)(513660)总份额，单只白名单产品，不是宽基合计，不含深市产品",
    "availableAt": null,
    "firstSeenAt": "2026-11-06T23:43:53.893Z",
-   "fetchedAt": "2026-11-06T23:43:53.893Z"
+   "fetchedAt": "2026-11-07T10:05:04.023Z"
   },
   {
    "market": "csi300",
@@ -2227,6 +2241,20 @@
    "availableAt": null,
    "firstSeenAt": "2026-10-19T06:26:56.915Z",
    "fetchedAt": "2026-10-19T06:26:56.915Z"
+  },
+  {
+   "market": "csi300",
+   "observationDate": "2026-11-05",
+   "kind": "observed",
+   "frequency": "daily",
+   "metricId": "financing_buy_ratio_pct",
+   "value": 6.565337,
+   "unit": "%",
+   "source": "https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPTA_RZRQ_LSHJ&columns=DIM_DATE%2CRZMRE&pageSize=5&sortColumns=DIM_DATE&sortTypes=-1",
+   "description": "沪深全市场融资买入额1870.76亿元人民币（股票/基金，含ETF）÷同日沪深A股与全部上市基金成交额28494.46亿元人民币×100；沪市主板A 6369.34+科创板3441.66+基金5345.20，深市主板A 5601.50+创业板A 5793.94+基金1942.82；不含B股、直接债券、优先股、回购、期权，债券ETF仍归基金；分母含非融资标的的A股与基金，非融资标的内部杠杆占比，也非沪深300成分股专属。融资来源：https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPTA_RZRQ_LSHJ&columns=DIM_DATE%2CRZMRE&pageSize=5&sortColumns=DIM_DATE&sortTypes=-1；沪市分类：https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-11-05；深市分类：https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=1803_sczm&TABKEY=tab1&txtQueryDate=2026-11-05",
+   "availableAt": null,
+   "firstSeenAt": "2026-11-07T09:47:26.388Z",
+   "fetchedAt": "2026-11-07T10:05:04.023Z"
   },
   {
    "metricId": "financing_buy",
@@ -2450,7 +2478,7 @@
    "description": "沪深两市合计融资买入额原值(东财RPTA_RZRQ_LSHJ.RZMRE，元÷1e8)；同范围成交额分母未核定，故不计占比",
    "availableAt": null,
    "firstSeenAt": "2026-11-06T15:04:51.661Z",
-   "fetchedAt": "2026-11-06T23:43:53.893Z"
+   "fetchedAt": "2026-11-07T10:05:04.023Z"
   },
   {
    "metricId": "hk_south_20d",
@@ -2660,7 +2688,7 @@
    "description": "港股通南向合计（沪+深，MUTUAL_TYPE=006）近20个交易日净买入；原始单位百万元人民币÷100=亿元；窗口2026-10-09~2026-11-06。东财公开汇总，仅作全港股背景，不代表恒指或恒科成分股流入，不计票。",
    "availableAt": null,
    "firstSeenAt": "2026-11-06T15:04:51.661Z",
-   "fetchedAt": "2026-11-06T23:43:53.893Z"
+   "fetchedAt": "2026-11-07T10:05:04.023Z"
   },
   {
    "metricId": "hkd",
@@ -2709,14 +2737,14 @@
    "market": "all",
    "value": 7.8449,
    "observationDate": "2026-10-30",
-   "source": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DEXHKUS&cosd=2026-09-22",
+   "source": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DEXHKUS&cosd=2026-09-23",
    "unit": "HKD/USD",
    "kind": "observed",
    "frequency": "daily",
    "description": "FRED DEXHKUS 港元兑美元(H.10)，每美元港元数；官方序列通常滞后约1周，保留原观测日",
    "availableAt": null,
    "firstSeenAt": "2026-11-03T01:36:21.716Z",
-   "fetchedAt": "2026-11-06T23:43:53.893Z"
+   "fetchedAt": "2026-11-07T10:05:04.023Z"
   },
   {
    "metricId": "index_week_daily_turnover_hkd",
@@ -2759,6 +2787,20 @@
    "availableAt": null,
    "firstSeenAt": "2026-10-31T13:40:00.695Z",
    "fetchedAt": "2026-11-06T23:43:53.893Z"
+  },
+  {
+   "metricId": "index_week_daily_turnover_hkd",
+   "market": "hsi",
+   "value": 111136600000,
+   "observationDate": "2026-11-06",
+   "source": "https://www.hsi.com.hk/api/wsit-hsi-ddoc-ea-public-website-proxy/v1/content/gcs/download?resource=%2Fpublic-website%2Fwebapp%2Fcontents%2Fen%2Findexes%2Freport%2Fhsi%2Fidx_6Nov26.csv",
+   "unit": "港元",
+   "kind": "observed",
+   "frequency": "weekly",
+   "description": "恒生官方Index Performance Summary中Hang Seng Index恒指自身Index Turnover(Mn)×100万=港元，非Market Turnover全港金额；完整周2026-11-02~2026-11-08共5个真实交易日，日均1111.37亿港元；原始日报档案覆盖2026-10-02~2026-11-06共25日。尚缺此前完整52周同口径档案，当前金额仅展示，不计资金票。逐日官方来源：2026-11-02 https://www.hsi.com.hk/api/wsit-hsi-ddoc-ea-public-website-proxy/v1/content/gcs/download?resource=%2Fpublic-website%2Fwebapp%2Fcontents%2Fen%2Findexes%2Freport%2Fhsi%2Fidx_2Nov26.csv；2026-11-03 https://www.hsi.com.hk/api/wsit-hsi-ddoc-ea-public-website-proxy/v1/content/gcs/download?resource=%2Fpublic-website%2Fwebapp%2Fcontents%2Fen%2Findexes%2Freport%2Fhsi%2Fidx_3Nov26.csv；2026-11-04 https://www.hsi.com.hk/api/wsit-hsi-ddoc-ea-public-website-proxy/v1/content/gcs/download?resource=%2Fpublic-website%2Fwebapp%2Fcontents%2Fen%2Findexes%2Freport%2Fhsi%2Fidx_4Nov26.csv；2026-11-05 https://www.hsi.com.hk/api/wsit-hsi-ddoc-ea-public-website-proxy/v1/content/gcs/download?resource=%2Fpublic-website%2Fwebapp%2Fcontents%2Fen%2Findexes%2Freport%2Fhsi%2Fidx_5Nov26.csv；2026-11-06 https://www.hsi.com.hk/api/wsit-hsi-ddoc-ea-public-website-proxy/v1/content/gcs/download?resource=%2Fpublic-website%2Fwebapp%2Fcontents%2Fen%2Findexes%2Freport%2Fhsi%2Fidx_6Nov26.csv",
+   "availableAt": null,
+   "firstSeenAt": "2026-11-07T09:39:39.446Z",
+   "fetchedAt": "2026-11-07T09:39:39.446Z"
   },
   {
    "metricId": "pe_history_5y_percentile",
@@ -2898,7 +2940,7 @@
    "description": "第三方恒指历史PE序列近5年中位秩分位；2021-11-08~2026-10-30共1131个日点，当前同源PE 13.05倍，分位69.5%。与恒生官方月末PE多期吻合（2025-10-31 13.17、2026-09-30 13.79），2026-10-16与官方日值13.53接近；网站未公开PE加权与盈利口径，不与官方PE/TTM拼接，不单独计估值票。",
    "availableAt": null,
    "firstSeenAt": "2026-11-05T15:28:48.939Z",
-   "fetchedAt": "2026-11-06T23:43:53.893Z"
+   "fetchedAt": "2026-11-07T10:05:04.023Z"
   },
   {
    "metricId": "pe_official_5y_percentile",
@@ -2926,7 +2968,7 @@
    "description": "恒生官方同口径月末PE近五年中位秩分位（按盈利收益率E/P=1/PE排序，盈利月份与PE分位完全一致）；窗口2021-10-31~2026-10-30，60/61个月度样本（覆盖98.4%），缺失月份2025-01，未插值。以官方Monthly Roundup原始PE为历史，逐月核对与当前XLSX重叠值；同源月度采样，不与第三方日频分位混用。最新年度盈利口径与调整定义见官方运作指引10.15：https://www.hsi.com.hk/content/dam/wpb/hsil/index_operation/en_hk/index_operation_guide.pdf；逐月PDF来源和SHA256：https://turbosnails.github.io/BusinessWeb/data/market-cycle-hk-pe-history.json",
    "availableAt": null,
    "firstSeenAt": "2026-10-30T14:10:52.709Z",
-   "fetchedAt": "2026-11-06T23:43:53.893Z"
+   "fetchedAt": "2026-11-07T10:05:04.023Z"
   },
   {
    "metricId": "pe_official_5y_percentile",
@@ -3157,14 +3199,14 @@
    "market": "csi300",
    "value": 13.13,
    "observationDate": "2026-11-06",
-   "source": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000300&startDate=20200101&endDate=20261106",
+   "source": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000300&startDate=20200101&endDate=20261107",
    "unit": "倍",
    "kind": "observed",
    "frequency": "daily",
    "description": "中证指数官网沪深300滚动市盈率(index-perf接口peg字段)；本次取到1659个非空日点，自2020-01-01起（探测：官方PE自2011-06-28起，历史超5年）",
    "availableAt": null,
    "firstSeenAt": "2026-11-06T15:04:51.661Z",
-   "fetchedAt": "2026-11-06T23:43:53.893Z"
+   "fetchedAt": "2026-11-07T10:05:04.023Z"
   },
   {
    "metricId": "pe",
@@ -3192,7 +3234,7 @@
    "description": "恒生指数官方月末PE（倍）；当前XLSX覆盖12个月（2025-11-28~2026-10-30）。官方盈利口径采用最新年度业绩，指数层面为经自由流通及上限因子调整后的市值÷成分股总盈利，不标作TTM。",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-11-06T23:43:53.893Z"
+   "fetchedAt": "2026-11-07T10:05:04.023Z"
   },
   {
    "metricId": "pe",
@@ -3206,7 +3248,7 @@
    "description": "恒生指数官方月末PE（倍）；当前XLSX覆盖12个月（2025-11-28~2026-10-30）。官方盈利口径采用最新年度业绩，指数层面为经自由流通及上限因子调整后的市值÷成分股总盈利，不标作TTM。",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-11-06T23:43:53.893Z"
+   "fetchedAt": "2026-11-07T10:05:04.023Z"
   },
   {
    "metricId": "pe",
@@ -3220,7 +3262,7 @@
    "description": "恒生指数官方月末PE（倍）；当前XLSX覆盖12个月（2025-11-28~2026-10-30）。官方盈利口径采用最新年度业绩，指数层面为经自由流通及上限因子调整后的市值÷成分股总盈利，不标作TTM。",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-11-06T23:43:53.893Z"
+   "fetchedAt": "2026-11-07T10:05:04.023Z"
   },
   {
    "metricId": "pe",
@@ -3234,7 +3276,7 @@
    "description": "恒生指数官方月末PE（倍）；当前XLSX覆盖12个月（2025-11-28~2026-10-30）。官方盈利口径采用最新年度业绩，指数层面为经自由流通及上限因子调整后的市值÷成分股总盈利，不标作TTM。",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-11-06T23:43:53.893Z"
+   "fetchedAt": "2026-11-07T10:05:04.023Z"
   },
   {
    "metricId": "pe",
@@ -3248,7 +3290,7 @@
    "description": "恒生指数官方月末PE（倍）；当前XLSX覆盖12个月（2025-11-28~2026-10-30）。官方盈利口径采用最新年度业绩，指数层面为经自由流通及上限因子调整后的市值÷成分股总盈利，不标作TTM。",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-11-06T23:43:53.893Z"
+   "fetchedAt": "2026-11-07T10:05:04.023Z"
   },
   {
    "metricId": "pe",
@@ -3262,7 +3304,7 @@
    "description": "恒生指数官方月末PE（倍）；当前XLSX覆盖12个月（2025-11-28~2026-10-30）。官方盈利口径采用最新年度业绩，指数层面为经自由流通及上限因子调整后的市值÷成分股总盈利，不标作TTM。",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-11-06T23:43:53.893Z"
+   "fetchedAt": "2026-11-07T10:05:04.023Z"
   },
   {
    "metricId": "pe",
@@ -3276,7 +3318,7 @@
    "description": "恒生指数官方月末PE（倍）；当前XLSX覆盖12个月（2025-11-28~2026-10-30）。官方盈利口径采用最新年度业绩，指数层面为经自由流通及上限因子调整后的市值÷成分股总盈利，不标作TTM。",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-11-06T23:43:53.893Z"
+   "fetchedAt": "2026-11-07T10:05:04.023Z"
   },
   {
    "metricId": "pe",
@@ -3290,7 +3332,7 @@
    "description": "恒生指数官方月末PE（倍）；当前XLSX覆盖12个月（2025-11-28~2026-10-30）。官方盈利口径采用最新年度业绩，指数层面为经自由流通及上限因子调整后的市值÷成分股总盈利，不标作TTM。",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-11-06T23:43:53.893Z"
+   "fetchedAt": "2026-11-07T10:05:04.023Z"
   },
   {
    "metricId": "pe",
@@ -3304,7 +3346,7 @@
    "description": "恒生指数官方月末PE（倍）；当前XLSX覆盖12个月（2025-11-28~2026-10-30）。官方盈利口径采用最新年度业绩，指数层面为经自由流通及上限因子调整后的市值÷成分股总盈利，不标作TTM。",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-11-06T23:43:53.893Z"
+   "fetchedAt": "2026-11-07T10:05:04.023Z"
   },
   {
    "metricId": "pe",
@@ -3318,7 +3360,7 @@
    "description": "恒生指数官方月末PE（倍）；当前XLSX覆盖12个月（2025-11-28~2026-10-30）。官方盈利口径采用最新年度业绩，指数层面为经自由流通及上限因子调整后的市值÷成分股总盈利，不标作TTM。",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-11-06T23:43:53.893Z"
+   "fetchedAt": "2026-11-07T10:05:04.023Z"
   },
   {
    "metricId": "pe",
@@ -3332,7 +3374,7 @@
    "description": "恒生指数官方月末PE（倍）；当前XLSX覆盖12个月（2025-11-28~2026-10-30）。官方盈利口径采用最新年度业绩，指数层面为经自由流通及上限因子调整后的市值÷成分股总盈利，不标作TTM。",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-11-06T23:43:53.893Z"
+   "fetchedAt": "2026-11-07T10:05:04.023Z"
   },
   {
    "metricId": "pe",
@@ -3346,7 +3388,7 @@
    "description": "恒生指数官方月末PE（倍）；当前XLSX覆盖12个月（2025-11-28~2026-10-30）。官方盈利口径采用最新年度业绩，指数层面为经自由流通及上限因子调整后的市值÷成分股总盈利，不标作TTM。",
    "availableAt": null,
    "firstSeenAt": "2026-10-30T14:10:52.709Z",
-   "fetchedAt": "2026-11-06T23:43:53.893Z"
+   "fetchedAt": "2026-11-07T10:05:04.023Z"
   },
   {
    "metricId": "pe",
@@ -3532,6 +3574,20 @@
   },
   {
    "metricId": "turnover_ratio_52w",
+   "market": "csi300",
+   "value": 0.754645,
+   "observationDate": "2026-10-30",
+   "source": "https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-10-30",
+   "unit": "倍",
+   "kind": "observed",
+   "frequency": "weekly",
+   "description": "沪深A股与全部上市基金成交额（亿元人民币，与融资比例同分母，非沪深300成分成交额）；完整周2026-10-26~2026-11-01，5个真实交易日，日均21775.51亿元；此前52个日历周2025-10-27~2026-10-25，241个真实交易日，日均28855.29亿元；按真实交易日均值相除，整周休市不补零；沪市主板A+科创板+基金，深市主板A+创业板A+基金；逐日官方历史查询（各日替换日期参数）：https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-10-30；https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=1803_sczm&TABKEY=tab1&txtQueryDate=2026-10-30；沪深交易日历交叉核验：https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh000300,day,,,400,qfq；https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sz399001,day,,,400,qfq",
+   "availableAt": null,
+   "firstSeenAt": "2026-11-07T09:39:39.446Z",
+   "fetchedAt": "2026-11-07T09:39:39.446Z"
+  },
+  {
+   "metricId": "turnover_ratio_52w",
    "market": "hsi",
    "value": 0.721963,
    "observationDate": "2026-10-16",
@@ -3574,6 +3630,20 @@
   },
   {
    "metricId": "turnover_ratio_52w",
+   "market": "hsi",
+   "value": 1.010431,
+   "observationDate": "2026-11-06",
+   "source": "https://www.hsi.com.hk/api/wsit-hsi-ddoc-ea-public-website-proxy/v1/content/gcs/download?resource=%2Fpublic-website%2Fwebapp%2Fcontents%2Fen%2Findexes%2Freport%2Fhsi%2Fidx_6Nov26.csv",
+   "unit": "倍",
+   "kind": "observed",
+   "frequency": "weekly",
+   "description": "恒指当前成分池口径：官方日报只开放约25个交易日，无法直接取得恒指自身52周成交额，改用名单2026-11-03的95只成分逐股成交额（腾讯日线，港元）加总。恒指Index Turnover即成分股成交额之和；本完整周5个交易日与官方日报逐日核对，最大偏差0.00%（门槛0.5%），官方档案25日中25日吻合（不吻合日期为旧名单期间）。基准仅用上市满一年的95只（占本周成交额100.0%），完整周日均1111.37亿港元，此前52周2025-11-03~2026-11-01共245个交易日日均1099.89亿港元；比值1.0104。历史期按当前成分回看，与当时官方指数成交额存在成分变更差异（实测约3%~7%），属同池比较口径。",
+   "availableAt": null,
+   "firstSeenAt": "2026-11-07T09:39:39.446Z",
+   "fetchedAt": "2026-11-07T09:39:39.446Z"
+  },
+  {
+   "metricId": "turnover_ratio_52w",
    "market": "hstech",
    "value": 0.652322,
    "observationDate": "2026-10-16",
@@ -3613,13 +3683,29 @@
    "availableAt": null,
    "firstSeenAt": "2026-10-31T13:40:00.695Z",
    "fetchedAt": "2026-11-06T23:43:53.893Z"
+  },
+  {
+   "metricId": "turnover_ratio_52w",
+   "market": "hstech",
+   "value": 0.950942,
+   "observationDate": "2026-11-06",
+   "source": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=hkHSTECH,day,,,400,qfq",
+   "unit": "倍",
+   "kind": "observed",
+   "frequency": "weekly",
+   "description": "恒生科技指数成交额（腾讯hkHSTECH day第6列，港元；与恒生官方Index Performance Summary的Index Turnover(Mn)核对2026-10-14/15/16吻合，非全港股成交额）；完整周2026-11-02~2026-11-08共5个真实交易日，日均639.37亿港元；基准为此前52个日历周2025-11-03~2026-11-01，245个真实交易日，日均672.36亿港元，排除当前周；与恒指交易日历逐日交叉校验。官方核验来源：https://www.hsi.com.hk/en-hk/index-resources/index-reports/",
+   "availableAt": null,
+   "firstSeenAt": "2026-11-07T09:39:39.446Z",
+   "fetchedAt": "2026-11-07T09:39:39.446Z"
   }
  ],
  "issues": [
   "hstech-pe: 恒生PE文件不是有效xlsx，保留旧值及原日期(最新观测2026-09-30)",
-  "cn-funding: fetch failed",
-  "cn-funding: 无有效事实，保留旧值及原日期(最新观测2026-10-16)",
-  "cn-turnover: 53周246个真实交易日，两所均具备0日，缺246日（2025-10-27,2025-10-28,2025-10-29,2025-10-30,2025-10-31）；本轮请求248/500，szse 2025-10-27: fetch failed；szse 2025-10-28: fetch failed；szse 2025-10-29: fetch failed",
-  "cn-turnover: 无有效事实，保留旧值及原日期(最新观测2026-10-16)"
+  "cn-turnover: HTTP 501",
+  "cn-turnover: 无有效事实，保留旧值及原日期(最新观测2026-10-30)",
+  "hstech-liquidity: HTTP 501",
+  "hk-liquidity: 无有效事实，保留旧值及原日期(最新观测2026-11-06)",
+  "hsi-turnover: HTTP 501",
+  "hsi-turnover: 无有效事实，保留旧值及原日期(最新观测2026-11-06)"
  ]
 }
