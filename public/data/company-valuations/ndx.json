@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "asOf": "2026-10-22",
+  "asOf": "2026-11-06",
   "generatedBy": "scripts/build-company-valuations-us.py",
   "records": [
     {
@@ -10,39 +10,39 @@
       "name": "Alnylam",
       "sector": "医疗保健",
       "currency": "USD",
-      "asOf": "2026-10-22",
+      "asOf": "2026-11-06",
       "price": {
-        "value": 233.29,
-        "date": "2026-10-19",
+        "value": 155.94,
+        "date": "2026-11-06",
         "currency": "USD",
         "source": "yahoo-batch"
       },
       "status": "conditional",
       "value": {
-        "low": 271.85,
-        "base": 395.42,
-        "high": 444.85,
+        "low": 245.32,
+        "base": 356.84,
+        "high": 401.44,
         "kind": "undated",
         "date": null,
         "primaryMethod": "PE"
       },
       "comparison": {
         "label": "敏感性价相对现价差额（估值 / 现价 − 1，未定期限）",
-        "priceValue": 233.29,
-        "priceDate": "2026-10-19",
-        "low": 0.17,
-        "base": 0.69,
-        "high": 0.91
+        "priceValue": 155.94,
+        "priceDate": "2026-11-06",
+        "low": 0.57,
+        "base": 1.29,
+        "high": 1.57
       },
       "methods": [
         {
           "name": "PE",
           "applicable": true,
-          "reason": "盈利为正（TTM 5.97、前瞻 12.36），可用 PE；倍数沿用原研究情景（悲观/基准/乐观 22×/32×/36×，未重估）",
+          "reason": "盈利为正（TTM 19.80、前瞻 11.15），可用 PE；倍数沿用原研究情景（悲观/基准/乐观 22×/32×/36×，未重估）",
           "formula": "前瞻 EPS（供应商一致预期）× 研究情景 PE（悲观/基准/乐观）",
           "inputs": {
-            "epsTrailingTwelveMonths": 5.97,
-            "epsForward": 12.35687,
+            "epsTrailingTwelveMonths": 19.799998933435994,
+            "epsForward": 11.151129193061271,
             "researchMultiples": {
               "low": 22.0,
               "base": 32.0,
@@ -55,16 +55,16 @@
             },
             "forwardYearBound": false,
             "researchScenarioCount": 3,
-            "yahooTrailingPE": 39.077053,
-            "yahooForwardPE": 18.879375,
-            "priceUsed": 233.29,
+            "yahooTrailingPE": 7.875758,
+            "yahooForwardPE": 13.984234,
+            "priceUsed": 155.94,
             "dcfPrefillAnnualEPS": 2.34,
             "dcfPrefillFY": "2025-12-31"
           },
           "values": [
-            271.85,
-            395.42,
-            444.85
+            245.32,
+            356.84,
+            401.44
           ],
           "sourceIds": [
             "yahoo-batch",
@@ -78,8 +78,8 @@
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
             "growthPercent": null,
-            "yahooForwardPE": 18.879375,
-            "currentForwardPEComputed": 18.88
+            "yahooForwardPE": 13.984234,
+            "currentForwardPEComputed": 13.98
           },
           "values": null,
           "sourceIds": []
@@ -90,8 +90,8 @@
           "reason": "研发与管线价值主导，账面值对价值约束弱；不以PB定价",
           "formula": "普通股 BVPS × 合理 PB（需 ROE/股权成本依据）",
           "inputs": {
-            "bookValuePerShare": 10.125,
-            "yahooPriceToBook": 23.040987,
+            "bookValuePerShare": null,
+            "yahooPriceToBook": null,
             "currency": "USD"
           },
           "values": null,
@@ -106,11 +106,11 @@
           "formula": "FCFF 显式期现值 + 终值；股权价 = (EV − 债务 + 现金 − 少数权益) ÷ 摊薄股数",
           "inputs": {
             "fy": "2025-12-31",
-            "cash": 1708318000,
+            "cash": 1754340000,
             "debt": 0,
             "minorityInterest": null,
-            "shares": 133809118,
-            "beta": 0.943
+            "shares": 133937576,
+            "beta": 0.95
           },
           "values": null,
           "sourceIds": [
@@ -119,19 +119,20 @@
         }
       ],
       "quality": "原研究口径（未重核）：中：Amvuttra 放量确定，但指引下调说明需求正常化的节奏不确定；利润率仍在爬坡；单品放量快：TTR 营收 Q2 同比 +89%，总营收 TTM US$48.0 亿，较一年前翻倍以上；技术与专利：RNAi 平台专利与十余年商业化经验，Amvuttra 皮下给药每季度或每半年一次，转换成本较高",
-      "pricing": "现价 233.29（2026-10-19，Yahoo）；PE 敏感性（未定期限，非今日价值）：前瞻 EPS 12.36 × 研究倍数 → 悲观/基准/乐观 271.85/395.42/444.85，相对现价 +69.5%（基准）；一致预期 EPS 与原研究基准 EPS 口径差 +45.4%；PEG：缺增速来源（Lynch 未覆盖），PEG 不适用；PB：研发与管线价值主导，账面值对价值约束弱；不以PB定价",
-      "expectations": "前瞻 EPS 一致预期 12.36（供应商口径）；验证节点：2026Q3 财报：待公告（按往年节奏约 10 月底至 11 月初）；验证 TTR 环比、指引、非 GAAP 营业利润率；持续期：Amvuttra 的 ATTR-CM 渗透可见度到 2027 年底；增速会从 +67% 回落，关键是回落到哪里",
-      "risk": "下一季 TTR 营收环比转负（验证：2026Q3 财报，约 2026-10 底至 11 月初，待公告）；全年指引再次下调或 2027 增速共识降到 +10% 以下（验证：Q3 财报指引与电话会）；单品集中：TTR 约占 Q2 营收的 80%，任何竞争或支付端变化直接冲击全公司；压力：悲观价 271.85 相对现价 +16.5%，倍数压缩情景而非下限，另需检融资与股权稀释",
+      "pricing": "现价 155.94（2026-11-06，Yahoo）；PE 敏感性（未定期限，非今日价值）：前瞻 EPS 11.15 × 研究倍数 → 悲观/基准/乐观 245.32/356.84/401.44，相对现价 +128.8%（基准）；一致预期 EPS 与原研究基准 EPS 口径差 +31.2%；PEG：缺增速来源（Lynch 未覆盖），PEG 不适用；PB：研发与管线价值主导，账面值对价值约束弱；不以PB定价",
+      "expectations": "前瞻 EPS 一致预期 11.15（供应商口径）；验证节点：2026Q3 财报：待公告（按往年节奏约 10 月底至 11 月初）；验证 TTR 环比、指引、非 GAAP 营业利润率；持续期：Amvuttra 的 ATTR-CM 渗透可见度到 2027 年底；增速会从 +67% 回落，关键是回落到哪里",
+      "risk": "下一季 TTR 营收环比转负（验证：2026Q3 财报，约 2026-10 底至 11 月初，待公告）；全年指引再次下调或 2027 增速共识降到 +10% 以下（验证：Q3 财报指引与电话会）；单品集中：TTR 约占 Q2 营收的 80%，任何竞争或支付端变化直接冲击全公司；压力：悲观价 245.32 相对现价 +57.3%，倍数压缩情景而非下限，另需检融资与股权稀释",
       "assumptions": [
         "PE 倍数取原研究情景（22×/32×/36×，未重估，研究假设）",
-        "分母为 Yahoo 前瞻 EPS（12.36，一致预期口径，待与公司披露核对），非价格÷PE 倒推",
+        "分母为 Yahoo 前瞻 EPS（11.15，一致预期口径，待与公司披露核对），非价格÷PE 倒推",
         "悲观/乐观仅改变倍数，EPS 不变（不等于原研究的 EPS 与倍数同时下修/上修情景）",
-        "方法分歧：原研究基准 EPS 假设 8.5（未重估）与前瞻一致预期 12.36 相差 +45.4%；本批次采用一致预期口径，原研究 EPS 口径未采用",
-        "价格 233.29（2026-10-19，供应商最后报价）",
+        "方法分歧：原研究基准 EPS 假设 8.5（未重估）与前瞻一致预期 11.15 相差 +31.2%；本批次采用一致预期口径，原研究 EPS 口径未采用",
+        "价格 155.94（2026-11-06，供应商最后报价）",
         "原研究资料日期：2026-10-09（原文：名单采用2026-10-09 Invesco官方QQQ持仓代理，2026-10-13核验：101只权益证券、100家公司）"
       ],
       "missing": [
         "DCF 缺显式预测期、再投资与终值假设，未计值",
+        "基准倍数 32× 相对现价前瞻 PE 偏离过大（基准价相对现价 +128.8%），需重核研究倍数依据后才可作估值参考",
         "前瞻 EPS 预测财年未绑定，PE 值仅为未定期限敏感性，不是今日估值；需确定预测年度与倍数时点",
         "一手财报与公司公告未在本批次逐家重读（仅供应商 TTM/前瞻 EPS 与原研究）",
         "DCF、FCF 与资本开支未纳入本批次自动计值"
@@ -141,7 +142,7 @@
           "id": "yahoo-batch",
           "title": "Yahoo 批量报价（EPS、BVPS、前瞻 EPS 一致预期、价格交叉核对）",
           "url": "research/data-refresh-2026-10-20/yahoo-quote-batch.json",
-          "asOf": "2026-10-20"
+          "asOf": "2026-11-07"
         },
         {
           "id": "research-ndx",
@@ -153,7 +154,7 @@
           "id": "dcf-prefill",
           "title": "DCF 预取财报（历史收入、利润、股数、资产负债项）",
           "url": "data/dcf-prefill.json",
-          "asOf": "2026-10-21"
+          "asOf": "2026-11-07"
         }
       ],
       "review": {
@@ -177,39 +178,39 @@
       "name": "Astera Labs",
       "sector": "信息技术",
       "currency": "USD",
-      "asOf": "2026-10-22",
+      "asOf": "2026-11-06",
       "price": {
-        "value": 286.58,
-        "date": "2026-10-19",
+        "value": 190.71,
+        "date": "2026-11-06",
         "currency": "USD",
         "source": "yahoo-batch"
       },
       "status": "conditional",
       "value": {
-        "low": 224.11,
-        "base": 352.17,
-        "high": 416.2,
+        "low": 248.94,
+        "base": 391.18,
+        "high": 462.31,
         "kind": "undated",
         "date": null,
         "primaryMethod": "PE"
       },
       "comparison": {
         "label": "敏感性价相对现价差额（估值 / 现价 − 1，未定期限）",
-        "priceValue": 286.58,
-        "priceDate": "2026-10-19",
-        "low": -0.22,
-        "base": 0.23,
-        "high": 0.45
+        "priceValue": 190.71,
+        "priceDate": "2026-11-06",
+        "low": 0.31,
+        "base": 1.05,
+        "high": 1.42
       },
       "methods": [
         {
           "name": "PE",
           "applicable": true,
-          "reason": "盈利为正（TTM 2.03、前瞻 6.40），可用 PE；倍数沿用原研究情景（悲观/基准/乐观 35×/55×/65×，未重估）",
+          "reason": "盈利为正（TTM 2.53、前瞻 7.11），可用 PE；倍数沿用原研究情景（悲观/基准/乐观 35×/55×/65×，未重估）",
           "formula": "前瞻 EPS（供应商一致预期）× 研究情景 PE（悲观/基准/乐观）",
           "inputs": {
-            "epsTrailingTwelveMonths": 2.03,
-            "epsForward": 6.40305,
+            "epsTrailingTwelveMonths": 2.5299998872371714,
+            "epsForward": 7.112439989836495,
             "researchMultiples": {
               "low": 35.0,
               "base": 55.0,
@@ -222,16 +223,16 @@
             },
             "forwardYearBound": false,
             "researchScenarioCount": 3,
-            "yahooTrailingPE": 141.17241,
-            "yahooForwardPE": 44.756794,
-            "priceUsed": 286.58,
+            "yahooTrailingPE": 75.37945,
+            "yahooForwardPE": 26.813583,
+            "priceUsed": 190.71,
             "dcfPrefillAnnualEPS": 1.26,
             "dcfPrefillFY": "2025-12-31"
           },
           "values": [
-            224.11,
-            352.17,
-            416.2
+            248.94,
+            391.18,
+            462.31
           ],
           "sourceIds": [
             "yahoo-batch",
@@ -245,8 +246,8 @@
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
             "growthPercent": null,
-            "yahooForwardPE": 44.756794,
-            "currentForwardPEComputed": 44.76
+            "yahooForwardPE": 26.813583,
+            "currentForwardPEComputed": 26.81
           },
           "values": null,
           "sourceIds": []
@@ -257,8 +258,8 @@
           "reason": "轻资产，无形资产与商誉占比高，账面值对价值约束弱；不以PB定价",
           "formula": "普通股 BVPS × 合理 PB（需 ROE/股权成本依据）",
           "inputs": {
-            "bookValuePerShare": 9.947,
-            "yahooPriceToBook": 28.810698,
+            "bookValuePerShare": null,
+            "yahooPriceToBook": null,
             "currency": "USD"
           },
           "values": null,
@@ -277,7 +278,7 @@
             "debt": 0,
             "minorityInterest": null,
             "shares": 173485104,
-            "beta": 2.255
+            "beta": 2.101
           },
           "values": null,
           "sourceIds": [
@@ -286,19 +287,20 @@
         }
       ],
       "quality": "原研究口径（未重核）：中：订单与指引强，但客户集中于少数云厂商与 GPU 平台，估值对增速容错极低；高毛利：Q2 GAAP 毛利率 73.3%、非 GAAP 73.7%，营收近四季环比持续抬升（US$2.71 亿 → 3.08 亿 → 3.92 亿）；技术与生态：重定时器与交换芯片已进入主流 AI 服务器参考设计，客户认证周期长、转换成本高",
-      "pricing": "现价 286.58（2026-10-19，Yahoo）；PE 敏感性（未定期限，非今日价值）：前瞻 EPS 6.40 × 研究倍数 → 悲观/基准/乐观 224.11/352.17/416.2，相对现价 +22.9%（基准）；一致预期 EPS 与原研究基准 EPS 口径差 +14.3%；PEG：缺增速来源（Lynch 未覆盖），PEG 不适用；PB：轻资产，无形资产与商誉占比高，账面值对价值约束弱；不以PB定价",
-      "expectations": "前瞻 EPS 一致预期 6.40（供应商口径）；验证节点：2026Q3 财报：待公告（按往年节奏约 11 月初）；验证营收是否 ≥ US$5.4 亿、毛利率、Q4 指引；持续期：Scorpio 放量可见度到 2027 年；增速从 +104% 回落是确定的，关键看回落后的基数",
-      "risk": "Q3 营收低于 US$5.4 亿（验证：2026Q3 财报，约 11 月初，待公告）；非 GAAP 毛利率跌破 70%（验证：Q3 财报）；估值透支：TTM GAAP PE 193×，按 Q3 指引中值年化非 GAAP EPS 约 4.74 的 PE 约 82×；压力：悲观价 224.11 相对现价 -21.8%，倍数压缩情景而非下限，另需检融资与股权稀释",
+      "pricing": "现价 190.71（2026-11-06，Yahoo）；PE 敏感性（未定期限，非今日价值）：前瞻 EPS 7.11 × 研究倍数 → 悲观/基准/乐观 248.94/391.18/462.31，相对现价 +105.1%（基准）；一致预期 EPS 与原研究基准 EPS 口径差 +27.0%；PEG：缺增速来源（Lynch 未覆盖），PEG 不适用；PB：轻资产，无形资产与商誉占比高，账面值对价值约束弱；不以PB定价",
+      "expectations": "前瞻 EPS 一致预期 7.11（供应商口径）；验证节点：2026Q3 财报：待公告（按往年节奏约 11 月初）；验证营收是否 ≥ US$5.4 亿、毛利率、Q4 指引；持续期：Scorpio 放量可见度到 2027 年；增速从 +104% 回落是确定的，关键看回落后的基数",
+      "risk": "Q3 营收低于 US$5.4 亿（验证：2026Q3 财报，约 11 月初，待公告）；非 GAAP 毛利率跌破 70%（验证：Q3 财报）；估值透支：TTM GAAP PE 193×，按 Q3 指引中值年化非 GAAP EPS 约 4.74 的 PE 约 82×；压力：悲观价 248.94 相对现价 +30.5%，倍数压缩情景而非下限，另需检融资与股权稀释",
       "assumptions": [
         "PE 倍数取原研究情景（35×/55×/65×，未重估，研究假设）",
-        "分母为 Yahoo 前瞻 EPS（6.40，一致预期口径，待与公司披露核对），非价格÷PE 倒推",
+        "分母为 Yahoo 前瞻 EPS（7.11，一致预期口径，待与公司披露核对），非价格÷PE 倒推",
         "悲观/乐观仅改变倍数，EPS 不变（不等于原研究的 EPS 与倍数同时下修/上修情景）",
-        "方法分歧：原研究基准 EPS 假设 5.6（未重估）与前瞻一致预期 6.40 相差 +14.3%；本批次采用一致预期口径，原研究 EPS 口径未采用",
-        "价格 286.58（2026-10-19，供应商最后报价）",
+        "方法分歧：原研究基准 EPS 假设 5.6（未重估）与前瞻一致预期 7.11 相差 +27.0%；本批次采用一致预期口径，原研究 EPS 口径未采用",
+        "价格 190.71（2026-11-06，供应商最后报价）",
         "原研究资料日期：2026-10-09（原文：名单采用2026-10-09 Invesco官方QQQ持仓代理，2026-10-13核验：101只权益证券、100家公司）"
       ],
       "missing": [
         "DCF 缺显式预测期、再投资与终值假设，未计值",
+        "基准倍数 55× 相对现价前瞻 PE 偏离过大（基准价相对现价 +105.1%），需重核研究倍数依据后才可作估值参考",
         "前瞻 EPS 预测财年未绑定，PE 值仅为未定期限敏感性，不是今日估值；需确定预测年度与倍数时点",
         "一手财报与公司公告未在本批次逐家重读（仅供应商 TTM/前瞻 EPS 与原研究）",
         "DCF、FCF 与资本开支未纳入本批次自动计值"
@@ -308,7 +310,7 @@
           "id": "yahoo-batch",
           "title": "Yahoo 批量报价（EPS、BVPS、前瞻 EPS 一致预期、价格交叉核对）",
           "url": "research/data-refresh-2026-10-20/yahoo-quote-batch.json",
-          "asOf": "2026-10-20"
+          "asOf": "2026-11-07"
         },
         {
           "id": "research-ndx",
@@ -320,7 +322,7 @@
           "id": "dcf-prefill",
           "title": "DCF 预取财报（历史收入、利润、股数、资产负债项）",
           "url": "data/dcf-prefill.json",
-          "asOf": "2026-10-21"
+          "asOf": "2026-11-07"
         }
       ],
       "review": {
@@ -344,39 +346,39 @@
       "name": "可口可乐欧洲太平洋",
       "sector": "日常消费",
       "currency": "USD",
-      "asOf": "2026-10-22",
+      "asOf": "2026-11-06",
       "price": {
-        "value": 111.87,
-        "date": "2026-10-19",
+        "value": 116.13,
+        "date": "2026-11-06",
         "currency": "USD",
         "source": "yahoo-batch"
       },
       "status": "conditional",
       "value": {
-        "low": 93.62,
-        "base": 110.14,
-        "high": 121.16,
+        "low": 94.25,
+        "base": 110.88,
+        "high": 121.97,
         "kind": "undated",
         "date": null,
         "primaryMethod": "PE"
       },
       "comparison": {
         "label": "敏感性价相对现价差额（估值 / 现价 − 1，未定期限）",
-        "priceValue": 111.87,
-        "priceDate": "2026-10-19",
-        "low": -0.16,
-        "base": -0.02,
-        "high": 0.08
+        "priceValue": 116.13,
+        "priceDate": "2026-11-06",
+        "low": -0.19,
+        "base": -0.05,
+        "high": 0.05
       },
       "methods": [
         {
           "name": "PE",
           "applicable": true,
-          "reason": "盈利为正（TTM 5.18、前瞻 5.51），可用 PE；倍数沿用原研究情景（悲观/基准/乐观 17×/20×/22×，未重估）",
+          "reason": "盈利为正（TTM 5.18、前瞻 5.54），可用 PE；倍数沿用原研究情景（悲观/基准/乐观 17×/20×/22×，未重估）",
           "formula": "前瞻 EPS（供应商一致预期）× 研究情景 PE（悲观/基准/乐观）",
           "inputs": {
-            "epsTrailingTwelveMonths": 5.18,
-            "epsForward": 5.507105,
+            "epsTrailingTwelveMonths": 5.179999981265823,
+            "epsForward": 5.543886908717107,
             "researchMultiples": {
               "low": 17.0,
               "base": 20.0,
@@ -389,14 +391,14 @@
             },
             "forwardYearBound": false,
             "researchScenarioCount": 3,
-            "yahooTrailingPE": 21.596527,
-            "yahooForwardPE": 20.313759,
-            "priceUsed": 111.87
+            "yahooTrailingPE": 22.418919,
+            "yahooForwardPE": 20.947397,
+            "priceUsed": 116.13
           },
           "values": [
-            93.62,
-            110.14,
-            121.16
+            94.25,
+            110.88,
+            121.97
           ],
           "sourceIds": [
             "yahoo-batch",
@@ -410,8 +412,8 @@
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
             "growthPercent": null,
-            "yahooForwardPE": 20.313759,
-            "currentForwardPEComputed": 20.31
+            "yahooForwardPE": 20.947397,
+            "currentForwardPEComputed": 20.95
           },
           "values": null,
           "sourceIds": []
@@ -422,8 +424,8 @@
           "reason": "品牌与渠道价值主导，账面值约束弱；不以PB定价",
           "formula": "普通股 BVPS × 合理 PB（需 ROE/股权成本依据）",
           "inputs": {
-            "bookValuePerShare": 20.926085,
-            "yahooPriceToBook": 5.3459597,
+            "bookValuePerShare": null,
+            "yahooPriceToBook": null,
             "currency": "USD"
           },
           "values": null,
@@ -442,15 +444,15 @@
         }
       ],
       "quality": "原研究口径（未重核）：高（业务）/ 中（价格）：软饮需求稳定、现金流可预期，但历史倍数分位未取到 [MISSING]，且受汇率影响；业务稳：H1 日调整销量 +2.2%，FX 中性营收 +6.1%，可比营业利润 FX 中性 +8.1%；授权与规模：可口可乐系统的区域独家装瓶与分销权，规模优势使单位成本与渠道谈判占优",
-      "pricing": "现价 111.87（2026-10-19，Yahoo）；PE 敏感性（未定期限，非今日价值）：前瞻 EPS 5.51 × 研究倍数 → 悲观/基准/乐观 93.62/110.14/121.16，相对现价 -1.5%（基准）；PEG：缺增速来源（Lynch 未覆盖），PEG 不适用；PB：品牌与渠道价值主导，账面值约束弱；不以PB定价",
-      "expectations": "前瞻 EPS 一致预期 5.51（供应商口径）；验证节点：2026Q3 交易更新：待公告（按往年节奏约 10 月底至 11 月初）；验证销量、全年指引；持续期：现金流与回购可见度到 2027 年底；增速以中个位数为主，不是高增长",
-      "risk": "H2 日调整销量转负（验证：2026Q3 交易更新，约 10 月底至 11 月初，待公告）；全年营业利润增速指引由 ~7% 下调（验证：Q3 更新）；杠杆偏高：2026-07-03 净债务 €102.84 亿；2025 年底净债务/可比 EBITDA 为 2.7×（公司口径，年报日期）；半年 EBITDA 不能直接年化出杠杆；压力：悲观价 93.62 相对现价 -16.3%，倍数压缩情景而非下限，另需检融资与股权稀释",
+      "pricing": "现价 116.13（2026-11-06，Yahoo）；PE 敏感性（未定期限，非今日价值）：前瞻 EPS 5.54 × 研究倍数 → 悲观/基准/乐观 94.25/110.88/121.97，相对现价 -4.5%（基准）；PEG：缺增速来源（Lynch 未覆盖），PEG 不适用；PB：品牌与渠道价值主导，账面值约束弱；不以PB定价",
+      "expectations": "前瞻 EPS 一致预期 5.54（供应商口径）；验证节点：2026Q3 交易更新：待公告（按往年节奏约 10 月底至 11 月初）；验证销量、全年指引；持续期：现金流与回购可见度到 2027 年底；增速以中个位数为主，不是高增长",
+      "risk": "H2 日调整销量转负（验证：2026Q3 交易更新，约 10 月底至 11 月初，待公告）；全年营业利润增速指引由 ~7% 下调（验证：Q3 更新）；杠杆偏高：2026-07-03 净债务 €102.84 亿；2025 年底净债务/可比 EBITDA 为 2.7×（公司口径，年报日期）；半年 EBITDA 不能直接年化出杠杆；压力：悲观价 94.25 相对现价 -18.8%，倍数压缩情景而非下限，另需检融资与股权稀释",
       "assumptions": [
         "PE 倍数取原研究情景（17×/20×/22×，未重估，研究假设）",
-        "分母为 Yahoo 前瞻 EPS（5.51，一致预期口径，待与公司披露核对），非价格÷PE 倒推",
+        "分母为 Yahoo 前瞻 EPS（5.54，一致预期口径，待与公司披露核对），非价格÷PE 倒推",
         "悲观/乐观仅改变倍数，EPS 不变（不等于原研究的 EPS 与倍数同时下修/上修情景）",
         "方法分歧：原研究 EPS 假设为欧元口径，未换算，不与前瞻 EPS 比较",
-        "价格 111.87（2026-10-19，供应商最后报价）",
+        "价格 116.13（2026-11-06，供应商最后报价）",
         "原研究资料日期：2026-10-09（原文：名单采用2026-10-09 Invesco官方QQQ持仓代理，2026-10-13核验：101只权益证券、100家公司）"
       ],
       "missing": [
@@ -463,7 +465,7 @@
           "id": "yahoo-batch",
           "title": "Yahoo 批量报价（EPS、BVPS、前瞻 EPS 一致预期、价格交叉核对）",
           "url": "research/data-refresh-2026-10-20/yahoo-quote-batch.json",
-          "asOf": "2026-10-20"
+          "asOf": "2026-11-07"
         },
         {
           "id": "research-ndx",
@@ -493,10 +495,10 @@
       "name": "CoreWeave",
       "sector": "信息技术",
       "currency": "USD",
-      "asOf": "2026-10-22",
+      "asOf": "2026-11-06",
       "price": {
-        "value": 61.12,
-        "date": "2026-10-19",
+        "value": 46.4,
+        "date": "2026-11-06",
         "currency": "USD",
         "source": "yahoo-batch"
       },
@@ -507,11 +509,11 @@
         {
           "name": "PE",
           "applicable": false,
-          "reason": "TTM EPS 或前瞻 EPS 不为正（供应商口径），PE 不适用；不以前瞻 EPS 替代正常化盈利",
+          "reason": "供应商无 EPS，PE 不适用",
           "formula": "前瞻 EPS（供应商一致预期）× 研究情景 PE（悲观/基准/乐观）",
           "inputs": {
-            "epsTrailingTwelveMonths": -3.67,
-            "epsForward": -1.84672,
+            "epsTrailingTwelveMonths": null,
+            "epsForward": null,
             "researchMultiples": {
               "low": null,
               "base": null,
@@ -525,8 +527,8 @@
             "forwardYearBound": false,
             "researchScenarioCount": 3,
             "yahooTrailingPE": null,
-            "yahooForwardPE": -33.096516,
-            "priceUsed": 61.12,
+            "yahooForwardPE": -22.619913,
+            "priceUsed": 46.4,
             "dcfPrefillAnnualEPS": -2.68,
             "dcfPrefillFY": "2025-12-31"
           },
@@ -543,7 +545,7 @@
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
             "growthPercent": null,
-            "yahooForwardPE": -33.096516,
+            "yahooForwardPE": -22.619913,
             "currentForwardPEComputed": null
           },
           "values": null,
@@ -555,8 +557,8 @@
           "reason": "轻资产，无形资产与商誉占比高，账面值对价值约束弱；不以PB定价",
           "formula": "普通股 BVPS × 合理 PB（需 ROE/股权成本依据）",
           "inputs": {
-            "bookValuePerShare": 9.118,
-            "yahooPriceToBook": 6.703224,
+            "bookValuePerShare": null,
+            "yahooPriceToBook": null,
             "currency": "USD"
           },
           "values": null,
@@ -575,7 +577,7 @@
             "debt": 24859000000,
             "minorityInterest": null,
             "shares": 436000000,
-            "beta": 1.573
+            "beta": 1.601
           },
           "values": null,
           "sourceIds": [
@@ -584,16 +586,16 @@
         }
       ],
       "quality": "原研究口径（未重核）：低：订单可见度高，但盈利被利息吞噬，需外部融资持续到位；积压订单大：US$1,042 亿（同比 +246%），且 Q3 初新增超过 US$250 亿；规模与合同：多年期合同与已交付容量提供收入可见度",
-      "pricing": "现价 61.12（2026-10-19）；PE 不计数值：TTM EPS 或前瞻 EPS 不为正（供应商口径），PE 不适用；不以前瞻 EPS 替代正常化盈利；PEG：TTM EPS 为负，PEG 无意义；PB：轻资产，无形资产与商誉占比高，账面值对价值约束弱；不以PB定价",
-      "expectations": "前瞻 EPS 一致预期 -1.85（供应商口径）；验证节点：2026Q3 财报：待公告（按往年节奏约 11 月中旬）；验证利息覆盖、2026 指引、新增融资；持续期：积压订单兑现可见度到 2027–2028 年，但利润取决于融资成本与客户履约",
+      "pricing": "现价 46.4（2026-11-06）；PE 不计数值：供应商无 EPS，PE 不适用；PEG：TTM EPS 为负，PEG 无意义；PB：轻资产，无形资产与商誉占比高，账面值对价值约束弱；不以PB定价",
+      "expectations": "前瞻 EPS 缺失；验证节点：2026Q3 财报：待公告（按往年节奏约 11 月中旬）；验证利息覆盖、2026 指引、新增融资；持续期：积压订单兑现可见度到 2027–2028 年，但利润取决于融资成本与客户履约",
       "risk": "净利息支出对调整后营业利润的覆盖比（验证：2026Q3 财报，约 11 月中旬，待公告）；新增债务融资成本与规模（验证：公司融资公告与 10-Q）；利息吞噬利润：Q2 净利息支出 US$6.4 亿，对比调整后营业利润 US$1.28 亿，GAAP 净利率 −24%",
       "assumptions": [
-        "价格 61.12（2026-10-19，供应商最后报价）",
+        "价格 46.4（2026-11-06，供应商最后报价）",
         "原研究资料日期：2026-10-09（原文：名单采用2026-10-09 Invesco官方QQQ持仓代理，2026-10-13核验：101只权益证券、100家公司）"
       ],
       "missing": [
         "DCF 缺显式预测期、再投资与终值假设，未计值",
-        "PE 敏感性未计值：TTM EPS 或前瞻 EPS 不为正（供应商口径），PE 不适用；不以前瞻 EPS 替代正常化盈利",
+        "PE 敏感性未计值：供应商无 EPS，PE 不适用",
         "一手财报与公司公告未在本批次逐家重读（仅供应商 TTM/前瞻 EPS 与原研究）",
         "DCF、FCF 与资本开支未纳入本批次自动计值"
       ],
@@ -602,7 +604,7 @@
           "id": "yahoo-batch",
           "title": "Yahoo 批量报价（EPS、BVPS、前瞻 EPS 一致预期、价格交叉核对）",
           "url": "research/data-refresh-2026-10-20/yahoo-quote-batch.json",
-          "asOf": "2026-10-20"
+          "asOf": "2026-11-07"
         },
         {
           "id": "research-ndx",
@@ -614,7 +616,7 @@
           "id": "dcf-prefill",
           "title": "DCF 预取财报（历史收入、利润、股数、资产负债项）",
           "url": "data/dcf-prefill.json",
-          "asOf": "2026-10-21"
+          "asOf": "2026-11-07"
         }
       ],
       "review": {
@@ -638,39 +640,39 @@
       "name": "Ferrovial",
       "sector": "工业",
       "currency": "USD",
-      "asOf": "2026-10-22",
+      "asOf": "2026-11-06",
       "price": {
-        "value": 49.25,
-        "date": "2026-10-19",
+        "value": 58.71,
+        "date": "2026-11-06",
         "currency": "USD",
         "source": "yahoo-batch"
       },
       "status": "conditional",
       "value": {
-        "low": 59.87,
-        "base": 73.18,
-        "high": 79.83,
+        "low": 63.27,
+        "base": 77.33,
+        "high": 84.36,
         "kind": "undated",
         "date": null,
         "primaryMethod": "PE"
       },
       "comparison": {
         "label": "敏感性价相对现价差额（估值 / 现价 − 1，未定期限）",
-        "priceValue": 49.25,
-        "priceDate": "2026-10-19",
-        "low": 0.22,
-        "base": 0.49,
-        "high": 0.62
+        "priceValue": 58.71,
+        "priceDate": "2026-11-06",
+        "low": 0.08,
+        "base": 0.32,
+        "high": 0.44
       },
       "methods": [
         {
           "name": "PE",
           "applicable": true,
-          "reason": "盈利为正（TTM 1.82、前瞻 1.33），可用 PE；倍数沿用原研究情景（悲观/基准/乐观 45×/55×/60×，未重估）",
+          "reason": "盈利为正（TTM 1.82、前瞻 1.41），可用 PE；倍数沿用原研究情景（悲观/基准/乐观 45×/55×/60×，未重估）",
           "formula": "前瞻 EPS（供应商一致预期）× 研究情景 PE（悲观/基准/乐观）",
           "inputs": {
-            "epsTrailingTwelveMonths": 1.82,
-            "epsForward": 1.3304712,
+            "epsTrailingTwelveMonths": 1.8200000991994603,
+            "epsForward": 1.4060499953155616,
             "researchMultiples": {
               "low": 45.0,
               "base": 55.0,
@@ -683,14 +685,14 @@
             },
             "forwardYearBound": false,
             "researchScenarioCount": 3,
-            "yahooTrailingPE": 27.060438,
-            "yahooForwardPE": 37.01696,
-            "priceUsed": 49.25
+            "yahooTrailingPE": 32.25824,
+            "yahooForwardPE": 41.755272,
+            "priceUsed": 58.71
           },
           "values": [
-            59.87,
-            73.18,
-            79.83
+            63.27,
+            77.33,
+            84.36
           ],
           "sourceIds": [
             "yahoo-batch",
@@ -704,20 +706,20 @@
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
             "growthPercent": null,
-            "yahooForwardPE": 37.01696,
-            "currentForwardPEComputed": 37.02
+            "yahooForwardPE": 41.755272,
+            "currentForwardPEComputed": 41.76
           },
           "values": null,
           "sourceIds": []
         },
         {
           "name": "PB",
-          "applicable": true,
-          "reason": "资产与产能型；目标PB需可持续ROE依据，原研究未给出，未计值",
+          "applicable": false,
+          "reason": "供应商无账面每股值，PB 不适用",
           "formula": "普通股 BVPS × 合理 PB（需 ROE/股权成本依据）",
           "inputs": {
-            "bookValuePerShare": 8.916096,
-            "yahooPriceToBook": 5.5237184,
+            "bookValuePerShare": null,
+            "yahooPriceToBook": null,
             "currency": "USD"
           },
           "values": null,
@@ -736,29 +738,28 @@
         }
       ],
       "quality": "原研究口径（未重核）：中：现金回报稳定、407 ETR 分红确定，但净利受资产出售时点扰动大，估值需分部 NAV 验证；现金回收强：H1 北美高速公路分红 €3.57 亿，407 ETR 批准 Q3 派息 CAD 5.5 亿；特许经营权：407 ETR 与美国管理车道为多年期特许经营，定价与经营权壁垒强",
-      "pricing": "现价 49.25（2026-10-19，Yahoo）；PE 敏感性（未定期限，非今日价值）：前瞻 EPS 1.33 × 研究倍数 → 悲观/基准/乐观 59.87/73.18/79.83，相对现价 +48.6%（基准）；PEG：缺增速来源（Lynch 未覆盖），PEG 不适用；PB：适用但缺目标倍数",
-      "expectations": "前瞻 EPS 一致预期 1.33（供应商口径）；验证节点：2026Q3 交易更新：待公告（按往年节奏约 11 月初）；验证建筑项目与 EBITDA 增速；持续期：美国管理车道与 407 ETR 现金流可见度到 2027 年底；净利是否扣除出售收益是主要口径问题",
-      "risk": "建筑板块出现项目减值（验证：2026Q3 交易更新，约 11 月初，待公告）；407 ETR 派息被削减（验证：公告与 407 ETR 季度披露）；净利波动大：H1 净利 €2.58 亿，对比上年 €5.40 亿（含资产轮动收益），TTM 净利难代表经常性盈利；压力：悲观价 59.87 相对现价 +21.6%，倍数压缩情景而非下限，另需检融资与股权稀释",
+      "pricing": "现价 58.71（2026-11-06，Yahoo）；PE 敏感性（未定期限，非今日价值）：前瞻 EPS 1.41 × 研究倍数 → 悲观/基准/乐观 63.27/77.33/84.36，相对现价 +31.7%（基准）；PEG：缺增速来源（Lynch 未覆盖），PEG 不适用；PB：供应商无账面每股值，PB 不适用",
+      "expectations": "前瞻 EPS 一致预期 1.41（供应商口径）；验证节点：2026Q3 交易更新：待公告（按往年节奏约 11 月初）；验证建筑项目与 EBITDA 增速；持续期：美国管理车道与 407 ETR 现金流可见度到 2027 年底；净利是否扣除出售收益是主要口径问题",
+      "risk": "建筑板块出现项目减值（验证：2026Q3 交易更新，约 11 月初，待公告）；407 ETR 派息被削减（验证：公告与 407 ETR 季度披露）；净利波动大：H1 净利 €2.58 亿，对比上年 €5.40 亿（含资产轮动收益），TTM 净利难代表经常性盈利；压力：悲观价 63.27 相对现价 +7.8%，倍数压缩情景而非下限，另需检融资与股权稀释",
       "assumptions": [
         "PE 倍数取原研究情景（45×/55×/60×，未重估，研究假设）",
-        "分母为 Yahoo 前瞻 EPS（1.33，一致预期口径，待与公司披露核对），非价格÷PE 倒推",
+        "分母为 Yahoo 前瞻 EPS（1.41，一致预期口径，待与公司披露核对），非价格÷PE 倒推",
         "悲观/乐观仅改变倍数，EPS 不变（不等于原研究的 EPS 与倍数同时下修/上修情景）",
         "方法分歧：原研究 EPS 假设为欧元口径，未换算，不与前瞻 EPS 比较",
-        "价格 49.25（2026-10-19，供应商最后报价）",
+        "价格 58.71（2026-11-06，供应商最后报价）",
         "原研究资料日期：2026-10-09（原文：名单采用2026-10-09 Invesco官方QQQ持仓代理，2026-10-13核验：101只权益证券、100家公司）"
       ],
       "missing": [
         "前瞻 EPS 预测财年未绑定，PE 值仅为未定期限敏感性，不是今日估值；需确定预测年度与倍数时点",
         "一手财报与公司公告未在本批次逐家重读（仅供应商 TTM/前瞻 EPS 与原研究）",
-        "DCF、FCF 与资本开支未纳入本批次自动计值",
-        "PB 目标倍数缺同口径 ROE/股权成本依据"
+        "DCF、FCF 与资本开支未纳入本批次自动计值"
       ],
       "sources": [
         {
           "id": "yahoo-batch",
           "title": "Yahoo 批量报价（EPS、BVPS、前瞻 EPS 一致预期、价格交叉核对）",
           "url": "research/data-refresh-2026-10-20/yahoo-quote-batch.json",
-          "asOf": "2026-10-20"
+          "asOf": "2026-11-07"
         },
         {
           "id": "research-ndx",
@@ -788,39 +789,39 @@
       "name": "霍尼韦尔航空航天",
       "sector": "工业",
       "currency": "USD",
-      "asOf": "2026-10-22",
+      "asOf": "2026-11-06",
       "price": {
-        "value": 162.49,
-        "date": "2026-10-19",
+        "value": 152.92,
+        "date": "2026-11-06",
         "currency": "USD",
         "source": "yahoo-batch"
       },
       "status": "conditional",
       "value": {
-        "low": 151.57,
-        "base": 187.24,
-        "high": 213.99,
+        "low": 150.38,
+        "base": 185.76,
+        "high": 212.3,
         "kind": "undated",
         "date": null,
         "primaryMethod": "PE"
       },
       "comparison": {
         "label": "敏感性价相对现价差额（估值 / 现价 − 1，未定期限）",
-        "priceValue": 162.49,
-        "priceDate": "2026-10-19",
-        "low": -0.07,
-        "base": 0.15,
-        "high": 0.32
+        "priceValue": 152.92,
+        "priceDate": "2026-11-06",
+        "low": -0.02,
+        "base": 0.21,
+        "high": 0.39
       },
       "methods": [
         {
           "name": "PE",
           "applicable": true,
-          "reason": "盈利为正（TTM 3.17、前瞻 8.92），可用 PE；倍数沿用原研究情景（悲观/基准/乐观 17×/21×/24×，未重估）",
+          "reason": "盈利为正（TTM 3.53、前瞻 8.85），可用 PE；倍数沿用原研究情景（悲观/基准/乐观 17×/21×/24×，未重估）",
           "formula": "前瞻 EPS（供应商一致预期）× 研究情景 PE（悲观/基准/乐观）",
           "inputs": {
-            "epsTrailingTwelveMonths": 3.17,
-            "epsForward": 8.91615,
+            "epsTrailingTwelveMonths": 3.5299999441368044,
+            "epsForward": 8.84578986216487,
             "researchMultiples": {
               "low": 17.0,
               "base": 21.0,
@@ -833,14 +834,14 @@
             },
             "forwardYearBound": false,
             "researchScenarioCount": 3,
-            "yahooTrailingPE": 51.258675,
-            "yahooForwardPE": 18.224234,
-            "priceUsed": 162.49
+            "yahooTrailingPE": 43.320114,
+            "yahooForwardPE": 17.28732,
+            "priceUsed": 152.92
           },
           "values": [
-            151.57,
-            187.24,
-            213.99
+            150.38,
+            185.76,
+            212.3
           ],
           "sourceIds": [
             "yahoo-batch",
@@ -854,8 +855,8 @@
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
             "growthPercent": null,
-            "yahooForwardPE": 18.224234,
-            "currentForwardPEComputed": 18.22
+            "yahooForwardPE": 17.28732,
+            "currentForwardPEComputed": 17.29
           },
           "values": null,
           "sourceIds": []
@@ -863,11 +864,11 @@
         {
           "name": "PB",
           "applicable": false,
-          "reason": "账面权益为负，PB 不适用",
+          "reason": "供应商无账面每股值，PB 不适用",
           "formula": "普通股 BVPS × 合理 PB（需 ROE/股权成本依据）",
           "inputs": {
-            "bookValuePerShare": -17.974,
-            "yahooPriceToBook": -9.04028,
+            "bookValuePerShare": null,
+            "yahooPriceToBook": null,
             "currency": "USD"
           },
           "values": null,
@@ -886,15 +887,15 @@
         }
       ],
       "quality": "原研究口径（未重核）：中：航空后市场与国防需求稳，但供应链限制出货且分拆后资本结构与成本数据尚短；售后市场占比最大：Q2 商用售后营收 US$20.26 亿（占 44.8%，+8%），利润率通常高于原厂配套；认证与装机基数：航空部件需长周期认证，已装机基数带来多年售后收入",
-      "pricing": "现价 162.49（2026-10-19，Yahoo）；PE 敏感性（未定期限，非今日价值）：前瞻 EPS 8.92 × 研究倍数 → 悲观/基准/乐观 151.57/187.24/213.99，相对现价 +15.2%（基准）；一致预期 EPS 与原研究基准 EPS 口径差 +4.3%；PEG：缺增速来源（Lynch 未覆盖），PEG 不适用；PB：账面权益为负，PB 不适用",
-      "expectations": "前瞻 EPS 一致预期 8.92（供应商口径）；验证节点：2026Q3 财报：待公告（约 11 月初）；验证指引、H2 FCF、售后增速；持续期：积压订单可见度到 2027–2028 年；但指引下调说明短期供应链是瓶颈",
-      "risk": "2026 指引再次下调（验证：2026Q3 财报，约 11 月初，待公告）；H2 自由现金流低于 US$10 亿（验证：Q3 与 Q4 财报）；指引大幅下调：有机增速 7–9% → 4–5%，调整后 EBIT US$46.5–47.5 亿 → US$43.5–44.5 亿，供应链限制出货；压力：悲观价 151.57 相对现价 -6.7%，倍数压缩情景而非下限，另需检融资与股权稀释",
+      "pricing": "现价 152.92（2026-11-06，Yahoo）；PE 敏感性（未定期限，非今日价值）：前瞻 EPS 8.85 × 研究倍数 → 悲观/基准/乐观 150.38/185.76/212.3，相对现价 +21.5%（基准）；一致预期 EPS 与原研究基准 EPS 口径差 +3.5%；PEG：缺增速来源（Lynch 未覆盖），PEG 不适用；PB：供应商无账面每股值，PB 不适用",
+      "expectations": "前瞻 EPS 一致预期 8.85（供应商口径）；验证节点：2026Q3 财报：待公告（约 11 月初）；验证指引、H2 FCF、售后增速；持续期：积压订单可见度到 2027–2028 年；但指引下调说明短期供应链是瓶颈",
+      "risk": "2026 指引再次下调（验证：2026Q3 财报，约 11 月初，待公告）；H2 自由现金流低于 US$10 亿（验证：Q3 与 Q4 财报）；指引大幅下调：有机增速 7–9% → 4–5%，调整后 EBIT US$46.5–47.5 亿 → US$43.5–44.5 亿，供应链限制出货；压力：悲观价 150.38 相对现价 -1.7%，倍数压缩情景而非下限，另需检融资与股权稀释",
       "assumptions": [
         "PE 倍数取原研究情景（17×/21×/24×，未重估，研究假设）",
-        "分母为 Yahoo 前瞻 EPS（8.92，一致预期口径，待与公司披露核对），非价格÷PE 倒推",
+        "分母为 Yahoo 前瞻 EPS（8.85，一致预期口径，待与公司披露核对），非价格÷PE 倒推",
         "悲观/乐观仅改变倍数，EPS 不变（不等于原研究的 EPS 与倍数同时下修/上修情景）",
-        "方法分歧：原研究基准 EPS 假设 8.55（未重估）与前瞻一致预期 8.92 相差 +4.3%；本批次采用一致预期口径，原研究 EPS 口径未采用",
-        "价格 162.49（2026-10-19，供应商最后报价）",
+        "方法分歧：原研究基准 EPS 假设 8.55（未重估）与前瞻一致预期 8.85 相差 +3.5%；本批次采用一致预期口径，原研究 EPS 口径未采用",
+        "价格 152.92（2026-11-06，供应商最后报价）",
         "原研究资料日期：2026-10-09（原文：名单采用2026-10-09 Invesco官方QQQ持仓代理，2026-10-13核验：101只权益证券、100家公司）"
       ],
       "missing": [
@@ -907,7 +908,7 @@
           "id": "yahoo-batch",
           "title": "Yahoo 批量报价（EPS、BVPS、前瞻 EPS 一致预期、价格交叉核对）",
           "url": "research/data-refresh-2026-10-20/yahoo-quote-batch.json",
-          "asOf": "2026-10-20"
+          "asOf": "2026-11-07"
         },
         {
           "id": "research-ndx",
@@ -937,10 +938,10 @@
       "name": "Strategy（MicroStrategy）",
       "sector": "信息技术",
       "currency": "USD",
-      "asOf": "2026-10-22",
+      "asOf": "2026-11-06",
       "price": {
-        "value": 136.02,
-        "date": "2026-10-19",
+        "value": 128.93,
+        "date": "2026-11-06",
         "currency": "USD",
         "source": "yahoo-batch"
       },
@@ -954,8 +955,8 @@
           "reason": "TTM EPS 或前瞻 EPS 不为正（供应商口径），PE 不适用；不以前瞻 EPS 替代正常化盈利",
           "formula": "前瞻 EPS（供应商一致预期）× 研究情景 PE（悲观/基准/乐观）",
           "inputs": {
-            "epsTrailingTwelveMonths": -98.49,
-            "epsForward": 49.49,
+            "epsTrailingTwelveMonths": null,
+            "epsForward": 17.240000652533958,
             "researchMultiples": {
               "low": null,
               "base": null,
@@ -969,8 +970,8 @@
             "forwardYearBound": false,
             "researchScenarioCount": 3,
             "yahooTrailingPE": null,
-            "yahooForwardPE": 2.748434,
-            "priceUsed": 136.02,
+            "yahooForwardPE": 7.478538,
+            "priceUsed": 128.93,
             "dcfPrefillAnnualEPS": -13.86,
             "dcfPrefillFY": "2025-12-31"
           },
@@ -987,7 +988,7 @@
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
             "growthPercent": null,
-            "yahooForwardPE": 2.748434,
+            "yahooForwardPE": 7.478538,
             "currentForwardPEComputed": null
           },
           "values": null,
@@ -999,8 +1000,8 @@
           "reason": "轻资产，无形资产与商誉占比高，账面值对价值约束弱；不以PB定价",
           "formula": "普通股 BVPS × 合理 PB（需 ROE/股权成本依据）",
           "inputs": {
-            "bookValuePerShare": 83.116,
-            "yahooPriceToBook": 1.6365081,
+            "bookValuePerShare": null,
+            "yahooPriceToBook": null,
             "currency": "USD"
           },
           "values": null,
@@ -1015,11 +1016,11 @@
           "formula": "FCFF 显式期现值 + 终值；股权价 = (EV − 债务 + 现金 − 少数权益) ÷ 摊薄股数",
           "inputs": {
             "fy": "2025-12-31",
-            "cash": 1711837000,
-            "debt": 6709928000,
+            "cash": 2501456000,
+            "debt": 6715414000,
             "minorityInterest": null,
             "shares": 277660000,
-            "beta": 1.356
+            "beta": 1.395
           },
           "values": null,
           "sourceIds": [
@@ -1028,11 +1029,11 @@
         }
       ],
       "quality": "原研究口径（未重核）：低：价值几乎完全由比特币价格与融资市场决定，不是经营盈利；比特币敞口大：843,775 枚，是全球最大企业持有者，相对 BTC 现价的净资产价值约 US$153/股（估算）；无传统护城河：不是经营型公司，没有竞争壁垒；融资能力与「持币」标签是它的优势，也是脆弱点",
-      "pricing": "现价 136.02（2026-10-19）；PE 不计数值：TTM EPS 或前瞻 EPS 不为正（供应商口径），PE 不适用；不以前瞻 EPS 替代正常化盈利；PEG：TTM EPS 为负，PEG 无意义；PB：轻资产，无形资产与商誉占比高，账面值对价值约束弱；不以PB定价",
-      "expectations": "前瞻 EPS 一致预期 49.49（供应商口径）；验证节点：2026Q3 财报：待公告（约 11 月初）；验证比特币持仓、美元储备、优先股规模；持续期：无经营盈利增长可言；只取决于比特币与资本市场对优先股的需求",
+      "pricing": "现价 128.93（2026-11-06）；PE 不计数值：TTM EPS 或前瞻 EPS 不为正（供应商口径），PE 不适用；不以前瞻 EPS 替代正常化盈利；PEG：TTM EPS 为负，PEG 无意义；PB：轻资产，无形资产与商誉占比高，账面值对价值约束弱；不以PB定价",
+      "expectations": "前瞻 EPS 一致预期 17.24（供应商口径）；验证节点：2026Q3 财报：待公告（约 11 月初）；验证比特币持仓、美元储备、优先股规模；持续期：无经营盈利增长可言；只取决于比特币与资本市场对优先股的需求",
       "risk": "比特币价格跌破 US$58,000（验证：比特币日线；52 周低点 US$58,559）；美元储备覆盖期低于 1 年（验证：2026Q3 财报，约 11 月初，待公告）；盈利无意义：GAAP 利润随比特币价格上下波动 ±US$80–120 亿，TTM 亏损，PE 不适用",
       "assumptions": [
-        "价格 136.02（2026-10-19，供应商最后报价）",
+        "价格 128.93（2026-11-06，供应商最后报价）",
         "原研究资料日期：2026-10-09（原文：名单采用2026-10-09 Invesco官方QQQ持仓代理，2026-10-13核验：101只权益证券、100家公司）"
       ],
       "missing": [
@@ -1046,7 +1047,7 @@
           "id": "yahoo-batch",
           "title": "Yahoo 批量报价（EPS、BVPS、前瞻 EPS 一致预期、价格交叉核对）",
           "url": "research/data-refresh-2026-10-20/yahoo-quote-batch.json",
-          "asOf": "2026-10-20"
+          "asOf": "2026-11-07"
         },
         {
           "id": "research-ndx",
@@ -1058,7 +1059,7 @@
           "id": "dcf-prefill",
           "title": "DCF 预取财报（历史收入、利润、股数、资产负债项）",
           "url": "data/dcf-prefill.json",
-          "asOf": "2026-10-21"
+          "asOf": "2026-11-07"
         }
       ],
       "review": {
@@ -1082,10 +1083,10 @@
       "name": "Nebius",
       "sector": "信息技术",
       "currency": "USD",
-      "asOf": "2026-10-22",
+      "asOf": "2026-11-06",
       "price": {
-        "value": 170.24,
-        "date": "2026-10-19",
+        "value": 129.49,
+        "date": "2026-11-06",
         "currency": "USD",
         "source": "yahoo-batch"
       },
@@ -1099,8 +1100,8 @@
           "reason": "TTM EPS 或前瞻 EPS 不为正（供应商口径），PE 不适用；不以前瞻 EPS 替代正常化盈利",
           "formula": "前瞻 EPS（供应商一致预期）× 研究情景 PE（悲观/基准/乐观）",
           "inputs": {
-            "epsTrailingTwelveMonths": 1.28,
-            "epsForward": -3.55801,
+            "epsTrailingTwelveMonths": 1.2799999051046484,
+            "epsForward": null,
             "researchMultiples": {
               "low": null,
               "base": null,
@@ -1113,9 +1114,9 @@
             },
             "forwardYearBound": false,
             "researchScenarioCount": 3,
-            "yahooTrailingPE": 133,
-            "yahooForwardPE": -47.84697,
-            "priceUsed": 170.24
+            "yahooTrailingPE": 101.16407,
+            "yahooForwardPE": -35.99114,
+            "priceUsed": 129.49
           },
           "values": null,
           "sourceIds": [
@@ -1130,7 +1131,7 @@
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
             "growthPercent": null,
-            "yahooForwardPE": -47.84697,
+            "yahooForwardPE": -35.99114,
             "currentForwardPEComputed": null
           },
           "values": null,
@@ -1142,8 +1143,8 @@
           "reason": "轻资产，无形资产与商誉占比高，账面值对价值约束弱；不以PB定价",
           "formula": "普通股 BVPS × 合理 PB（需 ROE/股权成本依据）",
           "inputs": {
-            "bookValuePerShare": 37.722,
-            "yahooPriceToBook": 4.513016,
+            "bookValuePerShare": null,
+            "yahooPriceToBook": null,
             "currency": "USD"
           },
           "values": null,
@@ -1162,11 +1163,11 @@
         }
       ],
       "quality": "原研究口径（未重核）：低：增长与合同已有，但融资规模与兑现节奏仍在假设中；增长快：营收 Q2 +454%，ARR US$30 亿，年底目标 US$70–90 亿，Q2 签约 4 笔平均超 US$10 亿的大单；电力与先发：已获得的电力容量与站点需要数年建设，短期难复制",
-      "pricing": "现价 170.24（2026-10-19）；PE 不计数值：TTM EPS 或前瞻 EPS 不为正（供应商口径），PE 不适用；不以前瞻 EPS 替代正常化盈利；PEG：缺增速来源（Lynch 未覆盖），PEG 不适用；PB：轻资产，无形资产与商誉占比高，账面值对价值约束弱；不以PB定价",
-      "expectations": "前瞻 EPS 一致预期 -3.56（供应商口径）；验证节点：2026Q3 财报：待公告（按往年节奏约 11 月中旬）；验证 ARR、预付款与资本开支进度；持续期：2026 年底 ARR 目标可见；2027 年需要新增合同与预付款继续到位",
+      "pricing": "现价 129.49（2026-11-06）；PE 不计数值：TTM EPS 或前瞻 EPS 不为正（供应商口径），PE 不适用；不以前瞻 EPS 替代正常化盈利；PEG：缺增速来源（Lynch 未覆盖），PEG 不适用；PB：轻资产，无形资产与商誉占比高，账面值对价值约束弱；不以PB定价",
+      "expectations": "前瞻 EPS 缺失；验证节点：2026Q3 财报：待公告（按往年节奏约 11 月中旬）；验证 ARR、预付款与资本开支进度；持续期：2026 年底 ARR 目标可见；2027 年需要新增合同与预付款继续到位",
       "risk": "2026 年底 ARR 低于 US$70 亿（验证：2026Q4 财报，约 2027-02，待公告）；客户预付款占资本开支比例低于 40%（验证：2026Q3 财报，约 11 月中旬）；资本开支巨大：2026 年 US$200–250 亿，对比 TTM 营收 US$13.6 亿，兑现完全依赖交付与融资",
       "assumptions": [
-        "价格 170.24（2026-10-19，供应商最后报价）",
+        "价格 129.49（2026-11-06，供应商最后报价）",
         "原研究资料日期：2026-10-09（原文：名单采用2026-10-09 Invesco官方QQQ持仓代理，2026-10-13核验：101只权益证券、100家公司）"
       ],
       "missing": [
@@ -1179,7 +1180,7 @@
           "id": "yahoo-batch",
           "title": "Yahoo 批量报价（EPS、BVPS、前瞻 EPS 一致预期、价格交叉核对）",
           "url": "research/data-refresh-2026-10-20/yahoo-quote-batch.json",
-          "asOf": "2026-10-20"
+          "asOf": "2026-11-07"
         },
         {
           "id": "research-ndx",
@@ -1209,10 +1210,10 @@
       "name": "Rocket Lab",
       "sector": "工业",
       "currency": "USD",
-      "asOf": "2026-10-22",
+      "asOf": "2026-11-06",
       "price": {
-        "value": 51.36,
-        "date": "2026-10-19",
+        "value": 53.07,
+        "date": "2026-11-06",
         "currency": "USD",
         "source": "yahoo-batch"
       },
@@ -1226,8 +1227,8 @@
           "reason": "TTM EPS 或前瞻 EPS 不为正（供应商口径），PE 不适用；不以前瞻 EPS 替代正常化盈利",
           "formula": "前瞻 EPS（供应商一致预期）× 研究情景 PE（悲观/基准/乐观）",
           "inputs": {
-            "epsTrailingTwelveMonths": -0.27,
-            "epsForward": 0.06499,
+            "epsTrailingTwelveMonths": null,
+            "epsForward": 0.057489999616191695,
             "researchMultiples": {
               "low": null,
               "base": null,
@@ -1241,8 +1242,8 @@
             "forwardYearBound": false,
             "researchScenarioCount": 3,
             "yahooTrailingPE": null,
-            "yahooForwardPE": 790.27545,
-            "priceUsed": 51.36,
+            "yahooForwardPE": 923.11707,
+            "priceUsed": 53.07,
             "dcfPrefillAnnualEPS": -0.33,
             "dcfPrefillFY": "2025-12-31"
           },
@@ -1259,7 +1260,7 @@
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
             "growthPercent": null,
-            "yahooForwardPE": 790.27545,
+            "yahooForwardPE": 923.11707,
             "currentForwardPEComputed": null
           },
           "values": null,
@@ -1267,12 +1268,12 @@
         },
         {
           "name": "PB",
-          "applicable": true,
-          "reason": "资产与产能型；目标PB需可持续ROE依据，原研究未给出，未计值",
+          "applicable": false,
+          "reason": "供应商无账面每股值，PB 不适用",
           "formula": "普通股 BVPS × 合理 PB（需 ROE/股权成本依据）",
           "inputs": {
-            "bookValuePerShare": 5.838,
-            "yahooPriceToBook": 8.797534,
+            "bookValuePerShare": null,
+            "yahooPriceToBook": null,
             "currency": "USD"
           },
           "values": null,
@@ -1291,7 +1292,7 @@
             "debt": 13129000,
             "minorityInterest": null,
             "shares": 598350482,
-            "beta": 2.244
+            "beta": 2.4
           },
           "values": null,
           "sourceIds": [
@@ -1300,11 +1301,11 @@
         }
       ],
       "quality": "原研究口径（未重核）：低：订单与增长可见，但盈利尚未实现，且 Neutron 首飞与量产是估值的关键假设；增长快且稳：近五季营收同比 +36% → +48% → +36% → +63% → +62%（aktools 与公司公告）；技术与执行：已有高频次商业发射记录，从发射到卫星平台的垂直整合",
-      "pricing": "现价 51.36（2026-10-19）；PE 不计数值：TTM EPS 或前瞻 EPS 不为正（供应商口径），PE 不适用；不以前瞻 EPS 替代正常化盈利；PEG：TTM EPS 为负，PEG 无意义；PB：资产与产能型；目标PB需可持续ROE依据，原研究未给出，未计值",
+      "pricing": "现价 53.07（2026-11-06）；PE 不计数值：TTM EPS 或前瞻 EPS 不为正（供应商口径），PE 不适用；不以前瞻 EPS 替代正常化盈利；PEG：TTM EPS 为负，PEG 无意义；PB：供应商无账面每股值，PB 不适用",
       "expectations": "前瞻 EPS 一致预期 0.06（供应商口径）；验证节点：2026Q3 财报：待公告（按往年节奏约 11 月初）；验证 Q3 营收 ≥ US$2.5 亿、积压、Neutron 进度；持续期：订单可见度到 2027–2028 年；Neutron 首飞（2026Q4 交付发射台）是 2027 增长与估值的前置条件",
       "risk": "Neutron 首飞推迟或失败（验证：公司发射公告，目标 2026Q4 交付发射台，待公告）；Q3 营收低于 US$2.5 亿（验证：2026Q3 财报，约 11 月初，待公告）；估值透支：市值约 US$460 亿（约 6.15 亿股，按净亏损 ÷ 每股亏损反推），TTM 营收约 US$7.7 亿，P/S 约 60×",
       "assumptions": [
-        "价格 51.36（2026-10-19，供应商最后报价）",
+        "价格 53.07（2026-11-06，供应商最后报价）",
         "原研究资料日期：2026-10-09（原文：名单采用2026-10-09 Invesco官方QQQ持仓代理，2026-10-13核验：101只权益证券、100家公司）"
       ],
       "missing": [
@@ -1318,7 +1319,7 @@
           "id": "yahoo-batch",
           "title": "Yahoo 批量报价（EPS、BVPS、前瞻 EPS 一致预期、价格交叉核对）",
           "url": "research/data-refresh-2026-10-20/yahoo-quote-batch.json",
-          "asOf": "2026-10-20"
+          "asOf": "2026-11-07"
         },
         {
           "id": "research-ndx",
@@ -1330,7 +1331,7 @@
           "id": "dcf-prefill",
           "title": "DCF 预取财报（历史收入、利润、股数、资产负债项）",
           "url": "data/dcf-prefill.json",
-          "asOf": "2026-10-21"
+          "asOf": "2026-11-07"
         }
       ],
       "review": {
@@ -1354,39 +1355,39 @@
       "name": "汤森路透",
       "sector": "工业",
       "currency": "USD",
-      "asOf": "2026-10-22",
+      "asOf": "2026-11-06",
       "price": {
-        "value": 108.23,
-        "date": "2026-10-19",
+        "value": 112.57,
+        "date": "2026-11-06",
         "currency": "USD",
         "source": "yahoo-batch"
       },
       "status": "conditional",
       "value": {
-        "low": 85.78,
-        "base": 126.15,
-        "high": 151.38,
+        "low": 80.35,
+        "base": 118.17,
+        "high": 141.8,
         "kind": "undated",
         "date": null,
         "primaryMethod": "PE"
       },
       "comparison": {
         "label": "敏感性价相对现价差额（估值 / 现价 − 1，未定期限）",
-        "priceValue": 108.23,
-        "priceDate": "2026-10-19",
-        "low": -0.21,
-        "base": 0.17,
-        "high": 0.4
+        "priceValue": 112.57,
+        "priceDate": "2026-11-06",
+        "low": -0.29,
+        "base": 0.05,
+        "high": 0.26
       },
       "methods": [
         {
           "name": "PE",
           "applicable": true,
-          "reason": "盈利为正（TTM 3.78、前瞻 5.05），可用 PE；倍数沿用原研究情景（悲观/基准/乐观 17×/25×/30×，未重估）",
+          "reason": "盈利为正（TTM 3.26、前瞻 4.73），可用 PE；倍数沿用原研究情景（悲观/基准/乐观 17×/25×/30×，未重估）",
           "formula": "前瞻 EPS（供应商一致预期）× 研究情景 PE（悲观/基准/乐观）",
           "inputs": {
-            "epsTrailingTwelveMonths": 3.78,
-            "epsForward": 5.04615,
+            "epsTrailingTwelveMonths": 3.2600000799289353,
+            "epsForward": 4.726679753737339,
             "researchMultiples": {
               "low": 17.0,
               "base": 25.0,
@@ -1399,14 +1400,14 @@
             },
             "forwardYearBound": false,
             "researchScenarioCount": 3,
-            "yahooTrailingPE": 28.632277,
-            "yahooForwardPE": 21.448034,
-            "priceUsed": 108.23
+            "yahooTrailingPE": 34.530674,
+            "yahooForwardPE": 23.815872,
+            "priceUsed": 112.57
           },
           "values": [
-            85.78,
-            126.15,
-            151.38
+            80.35,
+            118.17,
+            141.8
           ],
           "sourceIds": [
             "yahoo-batch",
@@ -1420,20 +1421,20 @@
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
             "growthPercent": null,
-            "yahooForwardPE": 21.448034,
-            "currentForwardPEComputed": 21.45
+            "yahooForwardPE": 23.815872,
+            "currentForwardPEComputed": 23.82
           },
           "values": null,
           "sourceIds": []
         },
         {
           "name": "PB",
-          "applicable": true,
-          "reason": "资产与产能型；目标PB需可持续ROE依据，原研究未给出，未计值",
+          "applicable": false,
+          "reason": "供应商无账面每股值，PB 不适用",
           "formula": "普通股 BVPS × 合理 PB（需 ROE/股权成本依据）",
           "inputs": {
-            "bookValuePerShare": 25.68,
-            "yahooPriceToBook": 4.214564,
+            "bookValuePerShare": null,
+            "yahooPriceToBook": null,
             "currency": "USD"
           },
           "values": null,
@@ -1452,29 +1453,28 @@
         }
       ],
       "quality": "原研究口径（未重核）：中—高：订阅收入占比高、续约率稳，但 AI 替代的长期风险没有被财务数据排除；增长在加速：营收同比 +3.4% → +5.2% → +9.8% → +9.5%，三大业务有机增速升至 10%（公司 2026Q2 公告）；内容与数据：Westlaw 等权威法律内容库，积累数十年，对手难以复制",
-      "pricing": "现价 108.23（2026-10-19，Yahoo）；PE 敏感性（未定期限，非今日价值）：前瞻 EPS 5.05 × 研究倍数 → 悲观/基准/乐观 85.78/126.15/151.38，相对现价 +16.6%（基准）；一致预期 EPS 与原研究基准 EPS 口径差 +12.1%；PEG：缺增速来源（Lynch 未覆盖），PEG 不适用；PB：适用但缺目标倍数",
-      "expectations": "前瞻 EPS 一致预期 5.05（供应商口径）；验证节点：2026Q3 财报：待公告（按往年节奏约 11 月初）；验证有机增速、调整后 EBITDA 利润率、2026 指引；持续期：订阅与合同收入可见度到 2027 年底；增长约 8–10%，不是高增长",
-      "risk": "三大业务有机增速降到 9% 以下（验证：2026Q3 财报，约 11 月初，待公告）；调整后 EBITDA 利润率低于 38%（验证：Q3 财报）；AI 替代风险：股价较高点 −40% 反映市场对生成式 AI 压低法律与研究信息定价的担忧，财务数据尚未显示恶化；压力：悲观价 85.78 相对现价 -20.7%，倍数压缩情景而非下限，另需检融资与股权稀释",
+      "pricing": "现价 112.57（2026-11-06，Yahoo）；PE 敏感性（未定期限，非今日价值）：前瞻 EPS 4.73 × 研究倍数 → 悲观/基准/乐观 80.35/118.17/141.8，相对现价 +5.0%（基准）；一致预期 EPS 与原研究基准 EPS 口径差 +5.0%；PEG：缺增速来源（Lynch 未覆盖），PEG 不适用；PB：供应商无账面每股值，PB 不适用",
+      "expectations": "前瞻 EPS 一致预期 4.73（供应商口径）；验证节点：2026Q3 财报：待公告（按往年节奏约 11 月初）；验证有机增速、调整后 EBITDA 利润率、2026 指引；持续期：订阅与合同收入可见度到 2027 年底；增长约 8–10%，不是高增长",
+      "risk": "三大业务有机增速降到 9% 以下（验证：2026Q3 财报，约 11 月初，待公告）；调整后 EBITDA 利润率低于 38%（验证：Q3 财报）；AI 替代风险：股价较高点 −40% 反映市场对生成式 AI 压低法律与研究信息定价的担忧，财务数据尚未显示恶化；压力：悲观价 80.35 相对现价 -28.6%，倍数压缩情景而非下限，另需检融资与股权稀释",
       "assumptions": [
         "PE 倍数取原研究情景（17×/25×/30×，未重估，研究假设）",
-        "分母为 Yahoo 前瞻 EPS（5.05，一致预期口径，待与公司披露核对），非价格÷PE 倒推",
+        "分母为 Yahoo 前瞻 EPS（4.73，一致预期口径，待与公司披露核对），非价格÷PE 倒推",
         "悲观/乐观仅改变倍数，EPS 不变（不等于原研究的 EPS 与倍数同时下修/上修情景）",
-        "方法分歧：原研究基准 EPS 假设 4.5（未重估）与前瞻一致预期 5.05 相差 +12.1%；本批次采用一致预期口径，原研究 EPS 口径未采用",
-        "价格 108.23（2026-10-19，供应商最后报价）",
+        "方法分歧：原研究基准 EPS 假设 4.5（未重估）与前瞻一致预期 4.73 相差 +5.0%；本批次采用一致预期口径，原研究 EPS 口径未采用",
+        "价格 112.57（2026-11-06，供应商最后报价）",
         "原研究资料日期：2026-10-09（原文：名单采用2026-10-09 Invesco官方QQQ持仓代理，2026-10-13核验：101只权益证券、100家公司）"
       ],
       "missing": [
         "前瞻 EPS 预测财年未绑定，PE 值仅为未定期限敏感性，不是今日估值；需确定预测年度与倍数时点",
         "一手财报与公司公告未在本批次逐家重读（仅供应商 TTM/前瞻 EPS 与原研究）",
-        "DCF、FCF 与资本开支未纳入本批次自动计值",
-        "PB 目标倍数缺同口径 ROE/股权成本依据"
+        "DCF、FCF 与资本开支未纳入本批次自动计值"
       ],
       "sources": [
         {
           "id": "yahoo-batch",
           "title": "Yahoo 批量报价（EPS、BVPS、前瞻 EPS 一致预期、价格交叉核对）",
           "url": "research/data-refresh-2026-10-20/yahoo-quote-batch.json",
-          "asOf": "2026-10-20"
+          "asOf": "2026-11-07"
         },
         {
           "id": "research-ndx",

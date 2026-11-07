@@ -52,7 +52,7 @@
           "price": 38.22,
           "marketTime": "2026-11-06T16:14:57+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:42.280599+00:00",
+          "retrievedAt": "2026-11-07T09:31:15.824206+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 12.018868,
           "marketCap": 80135659520,
@@ -88,10 +88,10 @@
             "checkedAt": "2026-10-13T08:50:17.690446+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-017.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:42.280599+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:15.824206+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:04:57+08:00"
         },
         {
@@ -103,7 +103,7 @@
           "price": 25.04,
           "marketTime": "2026-11-06T16:08:54+08:00",
           "timezone": "Asia/Hong_Kong",
-          "retrievedAt": "2026-11-06T17:42:43.164087+00:00",
+          "retrievedAt": "2026-11-07T09:31:17.108164+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 6.9362884,
           "marketCap": 52501229568,
@@ -139,10 +139,10 @@
             "checkedAt": "2026-10-13T08:50:34.932634+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-029.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:43.164087+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:17.108164+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T16:08:50+08:00"
         }
       ],
@@ -237,7 +237,7 @@
           "price": 51.94,
           "marketTime": "2026-11-06T16:14:58+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:47.228173+00:00",
+          "retrievedAt": "2026-11-07T09:31:23.686487+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": null,
           "marketCap": 9114435584,
@@ -273,10 +273,10 @@
             "checkedAt": "2026-10-13T08:51:41.465889+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-076.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:47.228173+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:23.686487+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:00:01+08:00"
         }
       ],
@@ -380,7 +380,7 @@
           "price": 14.81,
           "marketTime": "2026-11-06T16:14:48+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:44.466288+00:00",
+          "retrievedAt": "2026-11-07T09:31:19.209185+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 32.195652,
           "marketCap": 10860666880,
@@ -416,10 +416,10 @@
             "checkedAt": "2026-10-13T08:50:57.113667+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-044.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:44.466288+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:19.209185+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:04:49+08:00"
         }
       ],
@@ -514,7 +514,7 @@
           "price": 13.56,
           "marketTime": "2026-11-06T16:14:51+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:43.935957+00:00",
+          "retrievedAt": "2026-11-07T09:31:18.697766+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 26.588236,
           "marketCap": 10607296512,
@@ -550,10 +550,10 @@
             "checkedAt": "2026-10-13T08:50:46.753252+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-038.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:43.935957+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:18.697766+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:04:52+08:00"
         }
       ],
@@ -648,7 +648,7 @@
           "price": 34.99,
           "marketTime": "2026-11-06T16:14:15+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:43.753075+00:00",
+          "retrievedAt": "2026-11-07T09:31:17.922976+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 24.640846,
           "marketCap": 19044837376,
@@ -684,10 +684,10 @@
             "checkedAt": "2026-10-13T08:50:41.042985+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-034.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:43.753075+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:17.922976+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:04:16+08:00"
         }
       ],
@@ -814,7 +814,7 @@
           "price": 19.27,
           "marketTime": "2026-11-06T16:14:57+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:47.836462+00:00",
+          "retrievedAt": "2026-11-07T09:31:24.456085+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": null,
           "marketCap": 13770703872,
@@ -850,10 +850,10 @@
             "checkedAt": "2026-10-13T08:51:50.468171+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-083.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:47.836462+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:24.456085+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:00:00+08:00"
         }
       ],
@@ -957,7 +957,7 @@
           "price": 6.91,
           "marketTime": "2026-11-06T16:14:45+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:48.871935+00:00",
+          "retrievedAt": "2026-11-07T09:31:25.787967+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 18.675674,
           "marketCap": 13330911232,
@@ -993,10 +993,10 @@
             "checkedAt": "2026-10-13T09:26:56.087510+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/retry-info-013.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:48.871935+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:25.787967+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:00:01+08:00"
         }
       ],
@@ -1091,7 +1091,7 @@
           "price": 39.81,
           "marketTime": "2026-11-06T16:14:42+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:48.871935+00:00",
+          "retrievedAt": "2026-11-07T09:31:25.787967+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 21.175533,
           "marketCap": 20091752448,
@@ -1127,10 +1127,10 @@
             "checkedAt": "2026-10-13T09:26:49.041682+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/retry-info-012.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:48.871935+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:25.787967+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:00:00+08:00"
         }
       ],
@@ -1257,7 +1257,7 @@
           "price": 18.61,
           "marketTime": "2026-11-06T15:32:32+08:00",
           "timezone": null,
-          "retrievedAt": "2026-11-06T17:42:48.871935+00:00",
+          "retrievedAt": "2026-11-07T09:31:25.787967+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": null,
           "marketCap": null,
@@ -1291,10 +1291,10 @@
             "cfo": null,
             "fcf": null
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:48.871935+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:25.787967+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": null
         },
         {
@@ -1342,7 +1342,7 @@
           },
           "source": "research/solid-state-core-review-2026-10-09/yfinance-info-835185.BJ.json",
           "issue": "旧北交所代码不作为当前证券；同日09:00占位行情未采纳",
-          "checkedAt": "2026-11-06T17:42:53.689994+00:00"
+          "checkedAt": "2026-11-07T09:31:33.371867+00:00"
         }
       ],
       "financials": {
@@ -1397,7 +1397,7 @@
           "price": 11.03,
           "marketTime": "2026-11-06T16:15:00+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:46.069693+00:00",
+          "retrievedAt": "2026-11-07T09:31:21.592494+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 16.71212,
           "marketCap": 24769398784,
@@ -1433,10 +1433,10 @@
             "checkedAt": "2026-10-13T08:51:21.522640+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-062.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:46.069693+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:21.592494+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:00:00+08:00"
         }
       ],
@@ -1540,7 +1540,7 @@
           "price": 21.49,
           "marketTime": "2026-11-06T16:14:34+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:47.468476+00:00",
+          "retrievedAt": "2026-11-07T09:31:23.928223+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 15.35,
           "marketCap": 45871816704,
@@ -1576,10 +1576,10 @@
             "checkedAt": "2026-10-13T08:51:43.959612+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-078.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:47.468476+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:23.928223+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:00:00+08:00"
         }
       ],
@@ -1697,7 +1697,7 @@
           "price": 51.39,
           "marketTime": "2026-11-06T16:15:00+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:42.881036+00:00",
+          "retrievedAt": "2026-11-07T09:31:16.608905+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 24.826088,
           "marketCap": 50429960192,
@@ -1733,10 +1733,10 @@
             "checkedAt": "2026-10-13T08:50:23.521965+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-021.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:42.881036+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:16.608905+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:04:00+08:00"
         }
       ],
@@ -1840,7 +1840,7 @@
           "price": 12.65,
           "marketTime": "2026-11-06T16:14:45+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:43.935957+00:00",
+          "retrievedAt": "2026-11-07T09:31:18.697766+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 66.57895,
           "marketCap": 18917052416,
@@ -1876,10 +1876,10 @@
             "checkedAt": "2026-10-13T08:50:51.145701+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-040.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:43.935957+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:18.697766+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:04:19+08:00"
         }
       ],
@@ -1983,7 +1983,7 @@
           "price": 34.56,
           "marketTime": "2026-11-06T16:14:48+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:47.989698+00:00",
+          "retrievedAt": "2026-11-07T09:31:24.457012+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 49.371433,
           "marketCap": 12667348992,
@@ -2019,10 +2019,10 @@
             "checkedAt": "2026-10-13T09:25:24.617765+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/retry-info-001.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:47.989698+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:24.457012+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:00:01+08:00"
         }
       ],
@@ -2140,7 +2140,7 @@
           "price": 254.22,
           "marketTime": "2026-11-06T16:14:57+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:44.300345+00:00",
+          "retrievedAt": "2026-11-07T09:31:18.967579+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 13.206234,
           "marketCap": 1176339480576,
@@ -2176,10 +2176,10 @@
             "checkedAt": "2026-10-23T07:50:49.809115+00:00",
             "source": "research/data-refresh-2026-10-23/mcp/yfinance-probe-get_multiple_tickers_info.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:44.300345+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:18.967579+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:04:58+08:00"
         },
         {
@@ -2191,7 +2191,7 @@
           "price": 380.0,
           "marketTime": "2026-11-06T16:08:54+08:00",
           "timezone": "Asia/Hong_Kong",
-          "retrievedAt": "2026-11-06T17:42:44.750963+00:00",
+          "retrievedAt": "2026-11-07T09:31:19.493356+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 17.407238,
           "marketCap": 1758354866176,
@@ -2200,7 +2200,7 @@
           "industry": "Electrical Equipment & Parts",
           "country": "China",
           "valuation": {
-            "forwardPE": 14.263617,
+            "forwardPE": 14.336831,
             "priceToBook": 5.0891356,
             "priceToSalesTrailing12Months": 4.3582335,
             "enterpriseValue": 1935876423680,
@@ -2227,10 +2227,10 @@
             "checkedAt": "2026-10-13T08:50:59.233196+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-046.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:44.750963+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:19.493356+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T16:08:50+08:00"
         }
       ],
@@ -2348,7 +2348,7 @@
           "price": 85.23,
           "marketTime": "2026-11-06T16:14:33+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:42.280599+00:00",
+          "retrievedAt": "2026-11-07T09:31:15.824206+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 24.56196,
           "marketCap": 777058779136,
@@ -2384,10 +2384,10 @@
             "checkedAt": "2026-10-13T08:50:18.628864+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-019.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:42.280599+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:15.824206+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:04:33+08:00"
         },
         {
@@ -2399,7 +2399,7 @@
           "price": 74.15,
           "marketTime": "2026-11-06T16:08:54+08:00",
           "timezone": "Asia/Hong_Kong",
-          "retrievedAt": "2026-11-06T17:42:43.164087+00:00",
+          "retrievedAt": "2026-11-07T09:31:17.108164+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 18.819798,
           "marketCap": 676040212480,
@@ -2435,10 +2435,10 @@
             "checkedAt": "2026-10-13T08:50:34.866016+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-028.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:43.164087+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:17.108164+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T16:08:50+08:00"
         }
       ],
@@ -2533,7 +2533,7 @@
           "price": 24.9,
           "marketTime": "2026-11-06T16:14:30+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:42.163390+00:00",
+          "retrievedAt": "2026-11-07T09:31:15.555828+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 63.846157,
           "marketCap": 45186662400,
@@ -2569,10 +2569,10 @@
             "checkedAt": "2026-10-13T08:50:06.963400+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-011.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:42.163390+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:15.555828+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:04:21+08:00"
         }
       ],
@@ -2667,7 +2667,7 @@
           "price": 9.94,
           "marketTime": "2026-11-06T16:14:43+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:48.548548+00:00",
+          "retrievedAt": "2026-11-07T09:31:25.786695+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": null,
           "marketCap": 12147713024,
@@ -2703,10 +2703,10 @@
             "checkedAt": "2026-10-13T09:26:33.438955+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/retry-info-010.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:48.548548+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:25.786695+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:00:01+08:00"
         }
       ],
@@ -2801,7 +2801,7 @@
           "price": 52.02,
           "marketTime": "2026-11-06T16:14:00+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:43.753075+00:00",
+          "retrievedAt": "2026-11-07T09:31:17.922976+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 16.780645,
           "marketCap": 113054908416,
@@ -2810,7 +2810,7 @@
           "industry": "Electrical Equipment & Parts",
           "country": "China",
           "valuation": {
-            "forwardPE": 11.896486,
+            "forwardPE": 12.017965,
             "priceToBook": 2.2232811,
             "priceToSalesTrailing12Months": 1.4119691,
             "enterpriseValue": 127588409344,
@@ -2837,10 +2837,10 @@
             "checkedAt": "2026-10-13T08:50:40.885989+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-033.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:43.753075+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:17.922976+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:04:01+08:00"
         }
       ],
@@ -2944,7 +2944,7 @@
           "price": 18.49,
           "marketTime": "2026-11-06T16:14:00+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:43.872559+00:00",
+          "retrievedAt": "2026-11-07T09:31:18.182203+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 132.07143,
           "marketCap": 34159579136,
@@ -2980,10 +2980,10 @@
             "checkedAt": "2026-10-13T08:50:45.767326+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-036.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:43.872559+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:18.182203+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:04:01+08:00"
         }
       ],
@@ -3123,7 +3123,7 @@
           "price": 32.53,
           "marketTime": "2026-11-06T16:14:21+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:43.935957+00:00",
+          "retrievedAt": "2026-11-07T09:31:18.697766+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 27.108332,
           "marketCap": 54462423040,
@@ -3159,10 +3159,10 @@
             "checkedAt": "2026-10-13T08:50:46.753252+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-038.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:43.935957+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:18.697766+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:04:22+08:00"
         },
         {
@@ -3174,7 +3174,7 @@
           "price": 22.12,
           "marketTime": "2026-11-06T16:08:52+08:00",
           "timezone": "Asia/Hong_Kong",
-          "retrievedAt": "2026-11-06T17:42:43.048403+00:00",
+          "retrievedAt": "2026-11-07T09:31:16.872442+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 16.264706,
           "marketCap": 37033779200,
@@ -3210,10 +3210,10 @@
             "checkedAt": "2026-10-13T08:50:29.169374+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-025.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:43.048403+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:16.872442+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T16:08:50+08:00"
         }
       ],
@@ -3331,7 +3331,7 @@
           "price": 19.1,
           "marketTime": "2026-11-06T16:14:12+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:43.935957+00:00",
+          "retrievedAt": "2026-11-07T09:31:18.697766+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 17.850468,
           "marketCap": 12320777216,
@@ -3367,10 +3367,10 @@
             "checkedAt": "2026-10-13T08:50:47.832546+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-039.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:43.935957+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:18.697766+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:04:13+08:00"
         }
       ],
@@ -3497,7 +3497,7 @@
           "price": 38.49,
           "marketTime": "2026-11-06T16:14:50+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:48.548548+00:00",
+          "retrievedAt": "2026-11-07T09:31:25.786695+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 56.602943,
           "marketCap": 9536245760,
@@ -3533,10 +3533,10 @@
             "checkedAt": "2026-10-13T09:26:33.438955+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/retry-info-010.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:48.548548+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:25.786695+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:00:01+08:00"
         }
       ],
@@ -3631,7 +3631,7 @@
           "price": 46.15,
           "marketTime": "2026-11-06T16:14:50+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:48.548548+00:00",
+          "retrievedAt": "2026-11-07T09:31:25.786695+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 135.73529,
           "marketCap": 7786821120,
@@ -3667,10 +3667,10 @@
             "checkedAt": "2026-10-13T09:26:26.335303+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/retry-info-009.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:48.548548+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:25.786695+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:00:02+08:00"
         }
       ],
@@ -3762,19 +3762,19 @@
           "providerName": "NIO Inc.",
           "currency": "USD",
           "financialCurrency": "CNY",
-          "price": 3.36,
-          "marketTime": "2026-11-06T12:42:40-05:00",
+          "price": 3.39,
+          "marketTime": "2026-11-06T16:03:41-05:00",
           "timezone": "America/New_York",
-          "retrievedAt": "2026-11-06T17:42:51.559646+00:00",
+          "retrievedAt": "2026-11-07T09:31:30.237582+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": null,
-          "marketCap": 8430066176,
+          "marketCap": 8494211584,
           "businessSummary": "NIO Inc. designs, develops, manufactures, and sells smart electric vehicles in China, Europe, and internationally. It offers five and six-seater electric SUVs, as well as smart electric sedans. The company also offers power solutions, including Power Home, a home charging solution; Power Swap, a battery-swapping service; Power Charger and Destination Charger; Power Mobile, a mobile charging service through charging vans; Power Map, an application that provides access to a network of public chargers and their real-time information; and One Click for power valet service. In addition, it provides repair, maintenance, car beauty, and inspection services through its service centers and authorized third-party service centers; vehicle transportation and delivery, pre-delivery inspections, guidance on vehicle features, assistance with vehicle registration, and insurance processing services; insurance, maintenance, repairs, accident rescue, car washing, chauffeur services, and valet parking services; and remote monitoring and real-time diagnostics services, as well as technical, warranty, and auto financing arrangements. Further, the company is involved in the provision of energy and service packages to its users; design and technology development activities; manufacture of electric powertrains, battery packs, and components; and sales and after-sales management activities. Additionally, it operates in app NIO Auto Mall where users can select from various accessories and value added services; and online auction platform. The company was formerly known as NextEV Inc. and changed its name to NIO Inc. in July 2017. NIO Inc. was incorporated in 2014 and is headquartered in Shanghai, China.",
           "website": "https://www.nio.com",
           "industry": "Auto Manufacturers",
           "country": "China",
           "valuation": {
-            "forwardPE": 27.016651,
+            "forwardPE": 27.222225,
             "priceToBook": 14.84474,
             "priceToSalesTrailing12Months": 0.07911121,
             "enterpriseValue": 4625707008,
@@ -3801,11 +3801,11 @@
             "checkedAt": "2026-10-13T09:32:58.668130+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/retry-info-060.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:51.559646+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
-          "valuationMarketTime": "2026-11-06T12:41:47-05:00"
+          "marketCheckedAt": "2026-11-07T09:31:30.237582+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
+          "valuationMarketTime": "2026-11-06T16:01:54-05:00"
         },
         {
           "symbol": "9866.HK",
@@ -3816,7 +3816,7 @@
           "price": 25.28,
           "marketTime": "2026-11-06T16:08:54+08:00",
           "timezone": "Asia/Hong_Kong",
-          "retrievedAt": "2026-11-06T17:42:49.003537+00:00",
+          "retrievedAt": "2026-11-07T09:31:26.028573+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": null,
           "marketCap": 63684751360,
@@ -3852,10 +3852,10 @@
             "checkedAt": "2026-10-13T09:27:12.831738+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/retry-info-015.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:49.003537+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:26.028573+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T16:08:50+08:00"
         }
       ],
@@ -3968,7 +3968,7 @@
           "price": 10.46,
           "marketTime": "2026-11-06T16:14:49+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:44.819770+00:00",
+          "retrievedAt": "2026-11-07T09:31:20.023344+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 15.61194,
           "marketCap": 120240603136,
@@ -4004,10 +4004,10 @@
             "checkedAt": "2026-10-13T08:51:05.396458+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-050.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:44.819770+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:20.023344+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:00:01+08:00"
         }
       ],
@@ -4111,7 +4111,7 @@
           "price": 3338,
           "marketTime": "2026-11-06T15:30:00+09:00",
           "timezone": "Asia/Tokyo",
-          "retrievedAt": "2026-11-06T17:42:37.713Z",
+          "retrievedAt": "2026-11-07T09:31:05.503Z",
           "quoteStatus": "供应商常规交易时段最后报价，非交易所认证收盘",
           "peTtm": 9.671158,
           "marketCap": 39315790888960,
@@ -4147,10 +4147,10 @@
             "checkedAt": "2026-10-13T09:27:05.565731+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/retry-info-014.json"
           },
-          "source": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "source": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:37.713Z",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:05.503Z",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:30:00+09:00"
         }
       ],
@@ -4251,19 +4251,19 @@
           "providerName": "QuantumScape Corporation",
           "currency": "USD",
           "financialCurrency": "USD",
-          "price": 4.14,
-          "marketTime": "2026-11-06T12:42:39-05:00",
+          "price": 4.28,
+          "marketTime": "2026-11-06T16:00:01-05:00",
           "timezone": "America/New_York",
-          "retrievedAt": "2026-11-06T17:42:52.066768+00:00",
+          "retrievedAt": "2026-11-07T09:31:30.966326+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": null,
-          "marketCap": 2565482496,
+          "marketCap": 2649806080,
           "businessSummary": "QuantumScape Corporation, together with its subsidiaries, develops solid-state lithium-metal battery technology for electric vehicles and other applications in the United States. The company was founded in 2010 and is headquartered in San Jose, California.",
           "website": "https://www.quantumscape.com",
           "industry": "Auto Parts",
           "country": "United States",
           "valuation": {
-            "forwardPE": -6.4931517,
+            "forwardPE": -6.706572,
             "priceToBook": 2.6923215,
             "priceToSalesTrailing12Months": null,
             "enterpriseValue": 2043655808,
@@ -4290,11 +4290,11 @@
             "checkedAt": "2026-10-13T09:33:52.107212+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/retry-info-067.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:52.066768+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
-          "valuationMarketTime": "2026-11-06T12:41:58-05:00"
+          "marketCheckedAt": "2026-11-07T09:31:30.966326+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
+          "valuationMarketTime": "2026-11-06T16:00:00-05:00"
         }
       ],
       "financials": {
@@ -4397,7 +4397,7 @@
           "price": 7.9,
           "marketTime": "2026-11-06T16:14:39+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:42.881036+00:00",
+          "retrievedAt": "2026-11-07T09:31:16.608905+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 31.6,
           "marketCap": 4934332928,
@@ -4433,10 +4433,10 @@
             "checkedAt": "2026-10-13T08:50:23.466093+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-020.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:42.881036+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:16.608905+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:04:39+08:00"
         }
       ],
@@ -4531,7 +4531,7 @@
           "price": 21.44,
           "marketTime": "2026-11-06T16:15:00+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:48.347147+00:00",
+          "retrievedAt": "2026-11-07T09:31:25.259646+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 24.363638,
           "marketCap": 14148413440,
@@ -4567,10 +4567,10 @@
             "checkedAt": "2026-10-13T09:26:18.468833+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/retry-info-008.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:48.347147+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:25.259646+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:00:01+08:00"
         }
       ],
@@ -4674,7 +4674,7 @@
           "price": 9.67,
           "marketTime": "2026-11-06T16:14:54+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:42.881036+00:00",
+          "retrievedAt": "2026-11-07T09:31:16.608905+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 96.7,
           "marketCap": 4061338368,
@@ -4710,10 +4710,10 @@
             "checkedAt": "2026-10-13T08:50:23.805722+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-022.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:42.881036+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:16.608905+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:04:54+08:00"
         }
       ],
@@ -4808,7 +4808,7 @@
           "price": 23.15,
           "marketTime": "2026-11-06T16:15:00+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:40.894044+00:00",
+          "retrievedAt": "2026-11-07T09:31:14.349991+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 9.487704,
           "marketCap": 122499907584,
@@ -4844,10 +4844,10 @@
             "checkedAt": "2026-10-13T08:50:00.785638+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-006.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:40.894044+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:14.349991+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:04:24+08:00"
         }
       ],
@@ -4951,7 +4951,7 @@
           "price": 66.38,
           "marketTime": "2026-11-06T16:14:15+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:40.892928+00:00",
+          "retrievedAt": "2026-11-07T09:31:14.349644+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 14.430434,
           "marketCap": 104144560128,
@@ -4987,10 +4987,10 @@
             "checkedAt": "2026-10-13T08:49:55.178142+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-002.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:40.892928+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:14.349644+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:04:06+08:00"
         }
       ],
@@ -5085,7 +5085,7 @@
           "price": 19.21,
           "marketTime": "2026-11-06T16:15:00+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:40.894044+00:00",
+          "retrievedAt": "2026-11-07T09:31:14.349991+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 160.08333,
           "marketCap": 10004936704,
@@ -5121,10 +5121,10 @@
             "checkedAt": "2026-10-13T08:50:00.785638+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-006.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:40.894044+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:14.349991+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:04:48+08:00"
         }
       ],
@@ -5228,7 +5228,7 @@
           "price": 35.93,
           "marketTime": "2026-11-06T16:14:15+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:42.881036+00:00",
+          "retrievedAt": "2026-11-07T09:31:16.608905+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 12.651409,
           "marketCap": 19369920512,
@@ -5264,10 +5264,10 @@
             "checkedAt": "2026-10-13T08:50:23.521965+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-021.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:42.881036+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:16.608905+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:04:09+08:00"
         }
       ],
@@ -5362,7 +5362,7 @@
           "price": 37.16,
           "marketTime": "2026-11-06T16:14:30+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:42.280599+00:00",
+          "retrievedAt": "2026-11-07T09:31:15.824206+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 10.897361,
           "marketCap": 63658987520,
@@ -5398,10 +5398,10 @@
             "checkedAt": "2026-10-13T08:50:18.621943+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-018.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:42.280599+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:15.824206+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:04:27+08:00"
         },
         {
@@ -5413,7 +5413,7 @@
           "price": 24.12,
           "marketTime": "2026-11-06T16:08:54+08:00",
           "timezone": "Asia/Hong_Kong",
-          "retrievedAt": "2026-11-06T17:42:48.871935+00:00",
+          "retrievedAt": "2026-11-07T09:31:25.787967+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 6.2325587,
           "marketCap": 41322827776,
@@ -5449,10 +5449,10 @@
             "checkedAt": "2026-10-13T09:27:12.831738+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/retry-info-015.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:48.871935+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:25.787967+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T16:08:50+08:00"
         }
       ],
@@ -5556,7 +5556,7 @@
           "price": 37.28,
           "marketTime": "2026-11-06T16:14:03+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:42.881036+00:00",
+          "retrievedAt": "2026-11-07T09:31:16.608905+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 14.338462,
           "marketCap": 27191468032,
@@ -5592,10 +5592,10 @@
             "checkedAt": "2026-10-13T08:50:23.521965+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-021.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:42.881036+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:16.608905+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:04:03+08:00"
         }
       ],
@@ -5690,7 +5690,7 @@
           "price": 51.93,
           "marketTime": "2026-11-06T16:14:30+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:42.163855+00:00",
+          "retrievedAt": "2026-11-07T09:31:15.560646+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 8.389338,
           "marketCap": 13483894784,
@@ -5726,10 +5726,10 @@
             "checkedAt": "2026-10-13T08:50:12.383777+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-013.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:42.163855+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:15.560646+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:04:21+08:00"
         }
       ],
@@ -5833,7 +5833,7 @@
           "price": 13.41,
           "marketTime": "2026-11-06T16:14:45+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:42.280599+00:00",
+          "retrievedAt": "2026-11-07T09:31:15.824206+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 8.541401,
           "marketCap": 15455863808,
@@ -5869,10 +5869,10 @@
             "checkedAt": "2026-10-13T08:50:18.621943+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-018.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:42.280599+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:15.824206+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:04:09+08:00"
         }
       ],
@@ -5976,7 +5976,7 @@
           "price": 20.57,
           "marketTime": "2026-11-06T16:14:39+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:42.163855+00:00",
+          "retrievedAt": "2026-11-07T09:31:15.560646+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 17.141666,
           "marketCap": 18827595776,
@@ -6012,10 +6012,10 @@
             "checkedAt": "2026-10-13T08:50:12.786349+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-014.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:42.163855+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:15.560646+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:04:39+08:00"
         }
       ],
@@ -6107,19 +6107,19 @@
           "providerName": "Sociedad Química y Minera de Chile S.A.",
           "currency": "USD",
           "financialCurrency": "USD",
-          "price": 57.62,
-          "marketTime": "2026-11-06T12:42:24-05:00",
+          "price": 57.52,
+          "marketTime": "2026-11-06T16:03:41-05:00",
           "timezone": "America/New_York",
-          "retrievedAt": "2026-11-06T17:42:52.268115+00:00",
+          "retrievedAt": "2026-11-07T09:31:31.206200+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
-          "peTtm": 11.856667,
-          "marketCap": 16459422720,
+          "peTtm": 11.835391,
+          "marketCap": 16429887488,
           "businessSummary": "Sociedad Química y Minera de Chile S.A. produces and sells specialty plant nutrients, and iodine and its derivatives in Chile, Latin America, the Caribbean, Europe, North America, Asia, and internationally. It offers potassium nitrate, sodium nitrate, specialty blends, and other specialty fertilizers under the Ultrasol, Qrop, Speedfol, Allganic, Ultrasoline, Prop, and Prohydric brands. The company also provides iodine and its derivatives for use in medical, agricultural, industrial, and human and animal nutrition products comprising x-ray contrast media, biocides, antiseptics and disinfectants, pharmaceutical intermediates, polarizing films for LCD and LED screens, chemicals, organic compounds, and pigments, as well as added to edible salt to prevent iodine deficiency disorders. In addition, it produces lithium carbonate and lithium hydroxide which are used in the production of cathode material for, secondary batteries; lithium chloride; and basic lithium chemicals and lithium derivatives used in lubricating greases for heat-resistant glass, chips for the ceramic and glazing industry, and air conditioning chemicals, as well as other pharmaceutical syntheses and metal alloys. Further, the company produces potassium sulfate; and potassium chloride which are used to nourish various crops. Additionally, it produces and markets industrial chemicals, such as sodium nitrate mainly used in the production of glass and explosives, metal processing and recycling, and production of insulating materials and adhesives; potassium nitrate used as a raw material to produce frits and special ty glass, as well as in the enamel, metal treatment, and pyrotechnic sectors; solar salts used as a thermal storage medium in solar power generation plants; and potassium chloride as an additive in oil drilling and food processing sectors, as well as sells third-party fertilizers. Sociedad Química y Minera de Chile S.A. was founded in 1926 and is headquartered in Santiago, Chile.",
           "website": "https://www.sqm.com",
           "industry": "Specialty Chemicals",
           "country": "Chile",
           "valuation": {
-            "forwardPE": 8.288656,
+            "forwardPE": 8.273783,
             "priceToBook": 2.924191,
             "priceToSalesTrailing12Months": 2.7440703,
             "enterpriseValue": 21759619072,
@@ -6146,11 +6146,11 @@
             "checkedAt": "2026-10-13T09:34:37.186732+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/retry-info-073.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:52.268115+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
-          "valuationMarketTime": "2026-11-06T12:41:54-05:00"
+          "marketCheckedAt": "2026-11-07T09:31:31.206200+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
+          "valuationMarketTime": "2026-11-06T16:00:02-05:00"
         }
       ],
       "financials": {
@@ -6250,19 +6250,19 @@
           "providerName": "Albemarle Corporation",
           "currency": "USD",
           "financialCurrency": "USD",
-          "price": 98.54,
-          "marketTime": "2026-11-06T12:42:38-05:00",
+          "price": 99.25,
+          "marketTime": "2026-11-06T16:03:41-05:00",
           "timezone": "America/New_York",
-          "retrievedAt": "2026-11-06T17:42:49.235271+00:00",
+          "retrievedAt": "2026-11-07T09:31:26.833783+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
-          "peTtm": 23.744577,
-          "marketCap": 11628690432,
+          "peTtm": 23.915663,
+          "marketCap": 11712477184,
           "businessSummary": "Albemarle Corporation provides energy storage solutions worldwide. It operates through three segments: Energy Storage, Specialties, and Ketjen. The Energy Storage segment offers lithium compounds, including lithium carbonate, lithium hydroxide, and lithium chloride for use in lithium batteries used in consumer electronics and electric vehicles; power grids and solar panels; high-performance greases; and specialty glass used in consumer appliances and electronics. The Specialties segment provides bromine and highly specialized lithium solutions for various industries, such as energy, mobility, connectivity, and health comprising fire safety compounds; bromine-based specialty chemical products, including elemental bromine, alkyl bromides, inorganic bromides, brominated powdered activated carbon, and various bromine fine chemicals; lithium specialties, such as butyllithium and lithium aluminum hydride; cesium products for the chemical and pharmaceutical industries; and zirconium, barium, and titanium products for pyrotechnical applications, including airbag initiators. This segment also provides organic synthesis processes in the areas of steroid chemistry and vitamins, and various life science applications, as well as intermediates for the pharmaceutical industry; technical services, including handling and use of reactive lithium products; and recycling services for lithium-containing by-products. The Ketjen segment offers clean fuels technologies, including hydroprocessing catalysts together with isomerization and alkylation catalysts; fluidized catalytic cracking catalysts and additives; and performance catalyst solutions comprising organometallics and curatives. It serves the grid storage, automotive, aerospace, conventional energy, electronics, construction, agriculture and food, pharmaceuticals, and medical device industries. Albemarle Corporation was founded in 1887 and is headquartered in Charlotte, North Carolina.",
           "website": "https://www.albemarle.com",
           "industry": "Specialty Chemicals",
           "country": "United States",
           "valuation": {
-            "forwardPE": 9.434621,
+            "forwardPE": 9.5026,
             "priceToBook": 1.502128,
             "priceToSalesTrailing12Months": 2.0444489,
             "enterpriseValue": 14909356032,
@@ -6289,11 +6289,11 @@
             "checkedAt": "2026-10-13T09:27:44.359247+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/retry-info-019.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:49.235271+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
-          "valuationMarketTime": "2026-11-06T12:42:24-05:00"
+          "marketCheckedAt": "2026-11-07T09:31:26.833783+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
+          "valuationMarketTime": "2026-11-06T16:00:03-05:00"
         }
       ],
       "financials": {
@@ -6396,7 +6396,7 @@
           "price": 2.83,
           "marketTime": "2026-11-06T16:18:13+11:00",
           "timezone": "Australia/Sydney",
-          "retrievedAt": "2026-11-06T17:42:38.338Z",
+          "retrievedAt": "2026-11-07T09:31:06.400Z",
           "quoteStatus": "供应商常规交易时段最后报价，非交易所认证收盘",
           "peTtm": 17.6875,
           "marketCap": 9129428992,
@@ -6432,10 +6432,10 @@
             "checkedAt": "2026-10-13T09:33:37.465988+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/retry-info-065.json"
           },
-          "source": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "source": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:38.338Z",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:06.400Z",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T16:18:13+11:00"
         }
       ],
@@ -6484,7 +6484,7 @@
           "price": 33.04,
           "marketTime": "2026-11-06T16:14:58+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:47.468476+00:00",
+          "retrievedAt": "2026-11-07T09:31:23.928223+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 10.589745,
           "marketCap": 62562152448,
@@ -6520,10 +6520,10 @@
             "checkedAt": "2026-10-13T08:51:46.692465+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-080.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:47.468476+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:23.928223+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:00:01+08:00"
         }
       ],
@@ -6618,7 +6618,7 @@
           "price": 5.81,
           "marketTime": "2026-11-06T16:14:39+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:42.164369+00:00",
+          "retrievedAt": "2026-11-07T09:31:15.823389+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 17.60606,
           "marketCap": 29644707840,
@@ -6654,10 +6654,10 @@
             "checkedAt": "2026-10-13T08:50:12.541725+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-015.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:42.164369+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:15.823389+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:04:39+08:00"
         }
       ],
@@ -6752,7 +6752,7 @@
           "price": 17.01,
           "marketTime": "2026-11-06T16:14:51+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:42.163390+00:00",
+          "retrievedAt": "2026-11-07T09:31:15.555828+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 154.63637,
           "marketCap": 6841987072,
@@ -6788,10 +6788,10 @@
             "checkedAt": "2026-10-13T08:50:07.099429+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-010.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:42.163390+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:15.555828+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:04:51+08:00"
         }
       ],
@@ -6813,7 +6813,7 @@
           "price": 43.66,
           "marketTime": "2026-11-06T16:14:47+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:46.346768+00:00",
+          "retrievedAt": "2026-11-07T09:31:22.367819+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 256.82352,
           "marketCap": 76055068672,
@@ -6849,10 +6849,10 @@
             "checkedAt": "2026-10-13T08:51:27.706205+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-066.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:46.346768+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:22.367819+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:00:02+08:00"
         }
       ],
@@ -6947,7 +6947,7 @@
           "price": 14.56,
           "marketTime": "2026-11-06T16:08:54+08:00",
           "timezone": "Asia/Hong_Kong",
-          "retrievedAt": "2026-11-06T17:42:43.040374+00:00",
+          "retrievedAt": "2026-11-07T09:31:16.871798+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 8.416185,
           "marketCap": 157046226944,
@@ -6983,10 +6983,10 @@
             "checkedAt": "2026-10-13T08:50:29.108821+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-024.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:43.040374+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:16.871798+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T16:08:50+08:00"
         }
       ],
@@ -7054,7 +7054,7 @@
           "price": 4.97,
           "marketTime": "2026-11-06T16:14:58+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:46.585456+00:00",
+          "retrievedAt": "2026-11-07T09:31:22.637907+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": null,
           "marketCap": 50679414784,
@@ -7090,10 +7090,10 @@
             "checkedAt": "2026-10-13T08:51:30.099354+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-068.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:46.585456+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:22.637907+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:00:01+08:00"
         },
         {
@@ -7105,7 +7105,7 @@
           "price": 2.04,
           "marketTime": "2026-11-06T16:08:54+08:00",
           "timezone": "Asia/Hong_Kong",
-          "retrievedAt": "2026-11-06T17:42:43.591070+00:00",
+          "retrievedAt": "2026-11-07T09:31:17.922381+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": null,
           "marketCap": 20802013184,
@@ -7141,10 +7141,10 @@
             "checkedAt": "2026-10-13T08:50:35.823130+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-031.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:43.591070+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:17.922381+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T16:08:50+08:00"
         }
       ],
@@ -7239,9 +7239,9 @@
           "price": 41.555,
           "marketTime": "2026-11-06T17:36:19+01:00",
           "timezone": "Europe/Berlin",
-          "retrievedAt": "2026-11-06T17:42:38.217Z",
+          "retrievedAt": "2026-11-07T09:31:06.154Z",
           "quoteStatus": "供应商常规交易时段最后报价，非交易所认证收盘",
-          "peTtm": 7.2903514,
+          "peTtm": 7.0551786,
           "marketCap": 39445348352,
           "businessSummary": "Mercedes-Benz Group AG operates as an automotive company in Europe, Germany, North America, the United States, Asia, China, and internationally. It operates through Mercedes-Benz Cars, Mercedes-Benz Vans, and Mercedes-Benz Financial Services segments. The company develops, manufactures, and sells cars and vans under the Mercedes-Benz, Mercedes-AMG, Mercedes-Maybach, G-Class brands, as well as related spare parts and accessories. It also provides financing, leasing, vehicle subscription and rental, fleet management, insurance, and digital services related to charging electric vehicles. The company was formerly known as Daimler AG and changed its name to Mercedes-Benz Group AG in February 2022. Mercedes-Benz Group AG was founded in 1886 and is headquartered in Stuttgart, Germany.",
           "website": "https://group.mercedes-benz.com",
@@ -7275,10 +7275,10 @@
             "checkedAt": "2026-10-13T09:32:19.942861+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/retry-info-055.json"
           },
-          "source": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "source": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:38.217Z",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:06.154Z",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T17:36:19+01:00"
         }
       ],
@@ -7373,16 +7373,16 @@
           "price": 59.36,
           "marketTime": "2026-11-06T17:35:52+01:00",
           "timezone": "Europe/Berlin",
-          "retrievedAt": "2026-11-06T17:42:37.961Z",
+          "retrievedAt": "2026-11-07T09:31:05.652Z",
           "quoteStatus": "供应商常规交易时段最后报价，非交易所认证收盘",
-          "peTtm": 5.8714147,
+          "peTtm": 5.6803827,
           "marketCap": 35089694720,
           "businessSummary": "Bayerische Motoren Werke Aktiengesellschaft develops, manufactures, and sells automobiles and motorcycles, spare parts, and accessories worldwide. It operates through Automotive, Motorcycles, and Financial Services segments. The company offers automobiles under the BMW, MINI, and Rolls-Royce brands. It also develops, manufactures, and sells scooters, and motorcycles for private use and special-purpose vehicles for operational use under the BMW Motorrad brand. In addition, the company provides car rentals; credit financing; leasing that include insurance and service products; financing for dealership and customer deposits; vehicle fleet financing services for corporate car fleets under the Alphabet brand; and financial services for the automotive sector. It sells its products through retail outlet, agent, and independent dealerships. Bayerische Motoren Werke Aktiengesellschaft was founded in 1916 and is headquartered in Munich, Germany.",
           "website": "https://www.bmwgroup.com",
           "industry": "Auto Manufacturers",
           "country": "Germany",
           "valuation": {
-            "forwardPE": 6.939703,
+            "forwardPE": 7.257407,
             "priceToBook": 0.33853596,
             "priceToSalesTrailing12Months": 0.25198948,
             "enterpriseValue": 134488326144,
@@ -7409,10 +7409,10 @@
             "checkedAt": "2026-10-13T09:28:30.310837+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/retry-info-025.json"
           },
-          "source": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "source": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:37.961Z",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:05.652Z",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T17:35:52+01:00"
         }
       ],
@@ -7507,7 +7507,7 @@
           "price": 81.97,
           "marketTime": "2026-11-06T16:14:45+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:43.872559+00:00",
+          "retrievedAt": "2026-11-07T09:31:18.182203+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 20.441395,
           "marketCap": 169941139456,
@@ -7516,7 +7516,7 @@
           "industry": "Electrical Equipment & Parts",
           "country": "China",
           "valuation": {
-            "forwardPE": 12.4980755,
+            "forwardPE": 12.699627,
             "priceToBook": 3.3155258,
             "priceToSalesTrailing12Months": 2.1846795,
             "enterpriseValue": 140846399488,
@@ -7543,10 +7543,10 @@
             "checkedAt": "2026-10-13T08:50:45.767326+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-036.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:43.872559+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:18.182203+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:04:28+08:00"
         }
       ],
@@ -7650,7 +7650,7 @@
           "price": 2.91,
           "marketTime": "2026-11-06T16:14:12+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:43.753075+00:00",
+          "retrievedAt": "2026-11-07T09:31:17.922976+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": null,
           "marketCap": 2614248960,
@@ -7686,10 +7686,10 @@
             "checkedAt": "2026-10-13T08:50:41.042985+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-034.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:43.753075+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:17.922976+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:04:13+08:00"
         }
       ],
@@ -7781,19 +7781,19 @@
           "providerName": "Tesla, Inc.",
           "currency": "USD",
           "financialCurrency": "USD",
-          "price": 358.03,
-          "marketTime": "2026-11-06T12:42:40-05:00",
+          "price": 358.22,
+          "marketTime": "2026-11-06T16:00:01-05:00",
           "timezone": "America/New_York",
-          "retrievedAt": "2026-11-06T17:42:52.564231+00:00",
+          "retrievedAt": "2026-11-07T09:31:31.757929+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
-          "peTtm": 393.47803,
-          "marketCap": 1415344291840,
+          "peTtm": 393.64835,
+          "marketCap": 1415956922368,
           "businessSummary": "Tesla, Inc. designs, develops, manufactures, leases, and sells electric vehicles, and energy generation and storage systems in the United States, China, and internationally. The company operates in two segments, Automotive; and Energy Generation and Storage. The company offers electric vehicles, as well as sells automotive regulatory credits; and non-warranty maintenance services and collision, automotive insurance services, as well as part sales and retail merchandise sale. It also provides sedans and sport utility vehicles through direct and used vehicle sales, a network of Tesla Superchargers, and in-app upgrades; purchase financing and leasing services; services for electric vehicles through its company-owned service locations and Tesla mobile service technicians; and vehicle limited warranties and extended service plans. In addition, the company engages in the design, manufacture, installation, sale, and leasing of solar energy generation and energy storage products, and related services to residential, commercial, and industrial customers and utilities through its website, stores, and galleries, as well as through a network of channel partners. Further, it provides services and repairs to its energy product customers, including under warranty and extended service plans; and various financing options to its residential customers; lithium-ion battery energy storage products, such as Powerwall and Megapack; energy generation products, including solar panels and solar roof; self-driving development and artificial intelligence software, vehicle control and infotainment software, and battery and powertrain. The company was formerly known as Tesla Motors, Inc. and changed its name to Tesla, Inc. in February 2017. Tesla, Inc. was incorporated in 2003 and is headquartered in Austin, Texas.",
           "website": "https://www.tesla.com",
           "industry": "Auto Manufacturers",
           "country": "United States",
           "valuation": {
-            "forwardPE": 165.83072,
+            "forwardPE": 165.9025,
             "priceToBook": 17.653572,
             "priceToSalesTrailing12Months": 14.800096,
             "enterpriseValue": 1454297317376,
@@ -7820,11 +7820,11 @@
             "checkedAt": "2026-10-13T09:35:18.870191+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/retry-info-078.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:52.564231+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
-          "valuationMarketTime": "2026-11-06T12:42:37-05:00"
+          "marketCheckedAt": "2026-11-07T09:31:31.757929+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
+          "valuationMarketTime": "2026-11-06T16:00:01-05:00"
         }
       ],
       "financials": {
@@ -7927,7 +7927,7 @@
           "price": 30.38,
           "marketTime": "2026-11-06T16:08:54+08:00",
           "timezone": "Asia/Hong_Kong",
-          "retrievedAt": "2026-11-06T17:42:43.164087+00:00",
+          "retrievedAt": "2026-11-07T09:31:17.108164+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 22.338234,
           "marketCap": 781798014976,
@@ -7936,7 +7936,7 @@
           "industry": "Consumer Electronics",
           "country": "China",
           "valuation": {
-            "forwardPE": 20.290752,
+            "forwardPE": 20.317379,
             "priceToBook": 2.1138368,
             "priceToSalesTrailing12Months": 1.5256593,
             "enterpriseValue": 530875908096,
@@ -7963,10 +7963,10 @@
             "checkedAt": "2026-10-13T08:50:35.827987+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-030.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:43.164087+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:17.108164+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T16:08:50+08:00"
         }
       ],
@@ -8061,7 +8061,7 @@
           "price": 64.5,
           "marketTime": "2026-11-06T16:08:54+08:00",
           "timezone": "Asia/Hong_Kong",
-          "retrievedAt": "2026-11-06T17:42:49.003537+00:00",
+          "retrievedAt": "2026-11-07T09:31:26.028573+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": null,
           "marketCap": 32469389312,
@@ -8097,10 +8097,10 @@
             "checkedAt": "2026-10-13T09:27:12.831738+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/retry-info-015.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:49.003537+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:26.028573+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T16:08:50+08:00"
         }
       ],
@@ -8119,19 +8119,19 @@
           "providerName": "Solid Power, Inc.",
           "currency": "USD",
           "financialCurrency": "USD",
-          "price": 1.98,
-          "marketTime": "2026-11-06T12:42:35-05:00",
+          "price": 1.99,
+          "marketTime": "2026-11-06T16:00:01-05:00",
           "timezone": "America/New_York",
-          "retrievedAt": "2026-11-06T17:42:52.268115+00:00",
+          "retrievedAt": "2026-11-07T09:31:31.206200+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": null,
-          "marketCap": 453792896,
+          "marketCap": 454938848,
           "businessSummary": "Solid Power, Inc., a research and development-stage company, develops solid-state battery technologies for the electric vehicles markets in the United States. It engages in the development of sulfide-based solid electrolytes. The company was founded in 2011 and is headquartered in Louisville, Colorado.",
           "website": "https://www.solidpowerbattery.com",
           "industry": "Auto Parts",
           "country": "United States",
           "valuation": {
-            "forwardPE": -4.4,
+            "forwardPE": -4.4111114,
             "priceToBook": 1.0824276,
             "priceToSalesTrailing12Months": 73.62178,
             "enterpriseValue": 317468544,
@@ -8158,11 +8158,11 @@
             "checkedAt": "2026-10-13T09:34:30.112901+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/retry-info-072.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:52.268115+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
-          "valuationMarketTime": "2026-11-06T12:42:35-05:00"
+          "marketCheckedAt": "2026-11-07T09:31:31.206200+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
+          "valuationMarketTime": "2026-11-06T16:00:00-05:00"
         }
       ],
       "financials": {
@@ -8265,7 +8265,7 @@
           "price": 54.69,
           "marketTime": "2026-11-06T16:14:27+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:43.753075+00:00",
+          "retrievedAt": "2026-11-07T09:31:17.922976+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 22.599173,
           "marketCap": 41230061568,
@@ -8301,10 +8301,10 @@
             "checkedAt": "2026-10-13T08:50:41.042985+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-034.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:43.753075+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:17.922976+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:04:28+08:00"
         }
       ],
@@ -8431,7 +8431,7 @@
           "price": 28.64,
           "marketTime": "2026-11-06T16:14:30+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:42.881036+00:00",
+          "retrievedAt": "2026-11-07T09:31:16.608905+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 11.883817,
           "marketCap": 58384408576,
@@ -8467,10 +8467,10 @@
             "checkedAt": "2026-10-13T08:50:23.466093+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-020.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:42.881036+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:16.608905+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:04:03+08:00"
         }
       ],
@@ -8574,7 +8574,7 @@
           "price": 29.76,
           "marketTime": "2026-11-06T16:14:46+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-06T17:42:47.468476+00:00",
+          "retrievedAt": "2026-11-07T09:31:23.928223+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 99.2,
           "marketCap": 17664647168,
@@ -8610,10 +8610,10 @@
             "checkedAt": "2026-10-13T08:51:45.866635+00:00",
             "source": "research/data-refresh-2026-10-13/mcp/yfinance-info-079.json"
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:47.468476+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:23.928223+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-06T15:00:02+08:00"
         }
       ],
@@ -8708,7 +8708,7 @@
           "price": 18.73,
           "marketTime": "2026-11-06T15:32:32+08:00",
           "timezone": null,
-          "retrievedAt": "2026-11-06T17:42:48.871935+00:00",
+          "retrievedAt": "2026-11-07T09:31:25.787967+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": null,
           "marketCap": null,
@@ -8742,10 +8742,10 @@
             "cfo": null,
             "fcf": null
           },
-          "source": "research/data-refresh-2026-11-06/tencent-quotes.json",
+          "source": "research/data-refresh-2026-11-07/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-06T17:42:48.871935+00:00",
-          "valuationSource": "research/data-refresh-2026-11-06/yahoo-quote-batch.json",
+          "marketCheckedAt": "2026-11-07T09:31:25.787967+00:00",
+          "valuationSource": "research/data-refresh-2026-11-07/yahoo-quote-batch.json",
           "valuationMarketTime": null
         },
         {
@@ -8793,13 +8793,13 @@
           },
           "source": "research/solid-state-core-review-2026-10-09/yfinance-info-832522.BJ.json",
           "issue": "旧北交所代码不作为当前证券；同日09:00占位行情未采纳",
-          "checkedAt": "2026-11-06T17:42:53.689994+00:00"
+          "checkedAt": "2026-11-07T09:31:33.371867+00:00"
         }
       ],
       "financials": null,
       "latestFinancialTables": null
     }
   ],
-  "marketCheckedAt": "2026-11-06T17:42:38.591Z",
-  "priceAsOf": "2026-11-06"
+  "marketCheckedAt": "2026-11-07T09:31:06.721Z",
+  "priceAsOf": "2026-11-07"
 }
