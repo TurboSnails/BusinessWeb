@@ -77,7 +77,7 @@
           "reason": "利润增速 32%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 32.0,
+            "growthPercent": 32,
             "yahooForwardPE": 21.944775,
             "currentForwardPEComputed": 21.94
           },
@@ -271,7 +271,7 @@
           "reason": "增速 125% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 125.0,
+            "growthPercent": 125,
             "yahooForwardPE": 11.727595,
             "currentForwardPEComputed": 11.73
           },
@@ -464,7 +464,7 @@
           "reason": "增速 100% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 100.0,
+            "growthPercent": 100,
             "yahooForwardPE": 15.088052,
             "currentForwardPEComputed": 15.09
           },
@@ -659,7 +659,7 @@
           "reason": "利润增速 12%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 12.0,
+            "growthPercent": 12,
             "yahooForwardPE": 8.731961,
             "currentForwardPEComputed": 8.73
           },
@@ -853,7 +853,7 @@
           "reason": "增速 59% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 59.0,
+            "growthPercent": 59,
             "yahooForwardPE": 20.578537,
             "currentForwardPEComputed": 20.58
           },
@@ -1047,7 +1047,7 @@
           "reason": "增速 111% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 111.0,
+            "growthPercent": 111,
             "yahooForwardPE": 13.617018,
             "currentForwardPEComputed": 13.62
           },
@@ -1241,7 +1241,7 @@
           "reason": "利润增速 25%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 25.0,
+            "growthPercent": 25,
             "yahooForwardPE": 29.63431,
             "currentForwardPEComputed": 29.63
           },
@@ -1435,7 +1435,7 @@
           "reason": "利润增速 36%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 36.0,
+            "growthPercent": 36,
             "yahooForwardPE": 32.494793,
             "currentForwardPEComputed": 32.49
           },
@@ -1629,7 +1629,7 @@
           "reason": "利润增速 20%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 20.0,
+            "growthPercent": 20,
             "yahooForwardPE": 23.985214,
             "currentForwardPEComputed": 23.99
           },
@@ -1823,7 +1823,7 @@
           "reason": "增速 115% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 115.0,
+            "growthPercent": 115,
             "yahooForwardPE": 22.032898,
             "currentForwardPEComputed": 22.03
           },
@@ -2017,7 +2017,7 @@
           "reason": "利润增速 38%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 38.0,
+            "growthPercent": 38,
             "yahooForwardPE": 17.929884,
             "currentForwardPEComputed": 17.93
           },
@@ -2211,7 +2211,7 @@
           "reason": "利润增速 38%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 38.0,
+            "growthPercent": 38,
             "yahooForwardPE": 16.380728,
             "currentForwardPEComputed": 16.38
           },
@@ -2388,7 +2388,7 @@
           "reason": "增速 696% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 696.0,
+            "growthPercent": 696,
             "yahooForwardPE": 3.321132,
             "currentForwardPEComputed": 3.32
           },
@@ -2560,7 +2560,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -58.0,
+            "growthPercent": -58,
             "yahooForwardPE": 25.686668,
             "currentForwardPEComputed": 25.69
           },
@@ -2750,7 +2750,7 @@
           "reason": "利润增速 32%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 32.0,
+            "growthPercent": 32,
             "yahooForwardPE": 32.412743,
             "currentForwardPEComputed": 32.41
           },
@@ -2944,7 +2944,7 @@
           "reason": "利润增速 35%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 35.0,
+            "growthPercent": 35,
             "yahooForwardPE": 13.711024,
             "currentForwardPEComputed": 13.71
           },
@@ -3138,7 +3138,7 @@
           "reason": "增速 65% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 65.0,
+            "growthPercent": 65,
             "yahooForwardPE": 19.508821,
             "currentForwardPEComputed": 19.51
           },
@@ -3333,7 +3333,7 @@
           "reason": "增速 152% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 152.0,
+            "growthPercent": 152,
             "yahooForwardPE": 18.198353,
             "currentForwardPEComputed": 18.2
           },
@@ -3527,7 +3527,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -35.0,
+            "growthPercent": -35,
             "yahooForwardPE": 12.6745205,
             "currentForwardPEComputed": 12.67
           },
@@ -3721,7 +3721,7 @@
           "reason": "利润增速 40%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 40.0,
+            "growthPercent": 40,
             "yahooForwardPE": 13.536861,
             "currentForwardPEComputed": 13.54
           },
@@ -3915,7 +3915,7 @@
           "reason": "利润增速 20%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 20.0,
+            "growthPercent": 20,
             "yahooForwardPE": 24.909351,
             "currentForwardPEComputed": 24.91
           },
@@ -4109,7 +4109,7 @@
           "reason": "增速 144% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 144.0,
+            "growthPercent": 144,
             "yahooForwardPE": 19.61518,
             "currentForwardPEComputed": 19.62
           },
@@ -4303,7 +4303,7 @@
           "reason": "利润增速 2%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 2.0,
+            "growthPercent": 2,
             "yahooForwardPE": 26.36709,
             "currentForwardPEComputed": 26.37
           },
@@ -4497,7 +4497,7 @@
           "reason": "利润增速 13%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 13.0,
+            "growthPercent": 13,
             "yahooForwardPE": 30.480703,
             "currentForwardPEComputed": 30.48
           },
@@ -4691,7 +4691,7 @@
           "reason": "利润增速 31%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 31.0,
+            "growthPercent": 31,
             "yahooForwardPE": 16.693258,
             "currentForwardPEComputed": 16.69
           },
@@ -4867,7 +4867,7 @@
           "reason": "增速 43% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 43.0,
+            "growthPercent": 43,
             "yahooForwardPE": 57.427868,
             "currentForwardPEComputed": 57.43
           },
@@ -5057,7 +5057,7 @@
           "reason": "增速 59% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 59.0,
+            "growthPercent": 59,
             "yahooForwardPE": 13.340426,
             "currentForwardPEComputed": 13.34
           },
@@ -5251,7 +5251,7 @@
           "reason": "增速 60% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 60.0,
+            "growthPercent": 60,
             "yahooForwardPE": 18.431778,
             "currentForwardPEComputed": 18.43
           },
@@ -5427,7 +5427,7 @@
           "reason": "增速 378% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 378.0,
+            "growthPercent": 378,
             "yahooForwardPE": 6.528426,
             "currentForwardPEComputed": 6.53
           },
@@ -5617,7 +5617,7 @@
           "reason": "利润增速 11%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 11.0,
+            "growthPercent": 11,
             "yahooForwardPE": 15.560002,
             "currentForwardPEComputed": 15.56
           },
@@ -5793,7 +5793,7 @@
           "reason": "增速 105% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 105.0,
+            "growthPercent": 105,
             "yahooForwardPE": 7.05508,
             "currentForwardPEComputed": 7.06
           },
@@ -5983,7 +5983,7 @@
           "reason": "增速 124% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 124.0,
+            "growthPercent": 124,
             "yahooForwardPE": 25.453012,
             "currentForwardPEComputed": 25.45
           },
@@ -6177,7 +6177,7 @@
           "reason": "增速 133% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 133.0,
+            "growthPercent": 133,
             "yahooForwardPE": 23.453314,
             "currentForwardPEComputed": 23.45
           },
@@ -6354,7 +6354,7 @@
           "reason": "增速 53% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 53.0,
+            "growthPercent": 53,
             "yahooForwardPE": 14.56623,
             "currentForwardPEComputed": 14.57
           },
@@ -6526,7 +6526,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -56.0,
+            "growthPercent": -56,
             "yahooForwardPE": 24.15918,
             "currentForwardPEComputed": 24.16
           },
@@ -6716,7 +6716,7 @@
           "reason": "增速 146% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 146.0,
+            "growthPercent": 146,
             "yahooForwardPE": 10.842485,
             "currentForwardPEComputed": 10.84
           },
@@ -6892,7 +6892,7 @@
           "reason": "增速 121% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 121.0,
+            "growthPercent": 121,
             "yahooForwardPE": 21.233576,
             "currentForwardPEComputed": 21.23
           },
@@ -7207,7 +7207,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -17.0,
+            "growthPercent": -17,
             "yahooForwardPE": 13.244223,
             "currentForwardPEComputed": 13.24
           },
@@ -7383,7 +7383,7 @@
           "reason": "增速 101% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 101.0,
+            "growthPercent": 101,
             "yahooForwardPE": 13.396221,
             "currentForwardPEComputed": 13.4
           },
@@ -7555,7 +7555,7 @@
           "reason": "增速 64% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 64.0,
+            "growthPercent": 64,
             "yahooForwardPE": 10.785322,
             "currentForwardPEComputed": 10.79
           },
@@ -7745,7 +7745,7 @@
           "reason": "增速 48% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 48.0,
+            "growthPercent": 48,
             "yahooForwardPE": 10.49391,
             "currentForwardPEComputed": 10.49
           },
@@ -7922,7 +7922,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -68.0,
+            "growthPercent": -68,
             "yahooForwardPE": 64.296844,
             "currentForwardPEComputed": 64.3
           },
@@ -8112,7 +8112,7 @@
           "reason": "增速 134% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 134.0,
+            "growthPercent": 134,
             "yahooForwardPE": 9.454422,
             "currentForwardPEComputed": 9.45
           },
@@ -8307,7 +8307,7 @@
           "reason": "利润增速 25%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 25.0,
+            "growthPercent": 25,
             "yahooForwardPE": 15.144259,
             "currentForwardPEComputed": 15.14
           },
@@ -8673,7 +8673,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -4.0,
+            "growthPercent": -4,
             "yahooForwardPE": 9.024178,
             "currentForwardPEComputed": 9.02
           },
@@ -8867,7 +8867,7 @@
           "reason": "利润增速 26%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 26.0,
+            "growthPercent": 26,
             "yahooForwardPE": 4.762157,
             "currentForwardPEComputed": 4.76
           },
@@ -9044,7 +9044,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -23.0,
+            "growthPercent": -23,
             "yahooForwardPE": 11.213573,
             "currentForwardPEComputed": 11.21
           },
@@ -9578,7 +9578,7 @@
           "reason": "增速 95% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 95.0,
+            "growthPercent": 95,
             "yahooForwardPE": 26.8897,
             "currentForwardPEComputed": 26.89
           },
@@ -9772,7 +9772,7 @@
           "reason": "利润增速 22%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 22.0,
+            "growthPercent": 22,
             "yahooForwardPE": 36.314728,
             "currentForwardPEComputed": 36.31
           },
@@ -9966,7 +9966,7 @@
           "reason": "增速 69% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 69.0,
+            "growthPercent": 69,
             "yahooForwardPE": 17.996552,
             "currentForwardPEComputed": 18.0
           },
@@ -10160,7 +10160,7 @@
           "reason": "利润增速 32%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 32.0,
+            "growthPercent": 32,
             "yahooForwardPE": 18.425976,
             "currentForwardPEComputed": 18.43
           },
@@ -10354,7 +10354,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -46.0,
+            "growthPercent": -46,
             "yahooForwardPE": 15.272467,
             "currentForwardPEComputed": 15.27
           },
@@ -10548,7 +10548,7 @@
           "reason": "增速 83% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 83.0,
+            "growthPercent": 83,
             "yahooForwardPE": 9.28122,
             "currentForwardPEComputed": 9.28
           },
@@ -10914,7 +10914,7 @@
           "reason": "增速 78% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 78.0,
+            "growthPercent": 78,
             "yahooForwardPE": 13.850287,
             "currentForwardPEComputed": 13.85
           },
@@ -11108,7 +11108,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -8.0,
+            "growthPercent": -8,
             "yahooForwardPE": 23.775463,
             "currentForwardPEComputed": 23.78
           },
@@ -11302,7 +11302,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -81.0,
+            "growthPercent": -81,
             "yahooForwardPE": 16.29924,
             "currentForwardPEComputed": 16.3
           },
@@ -11668,7 +11668,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -60.0,
+            "growthPercent": -60,
             "yahooForwardPE": 10.006673,
             "currentForwardPEComputed": 10.01
           },
@@ -11862,7 +11862,7 @@
           "reason": "利润增速 2%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 2.0,
+            "growthPercent": 2,
             "yahooForwardPE": 12.787383,
             "currentForwardPEComputed": 12.79
           },
@@ -12056,7 +12056,7 @@
           "reason": "利润增速 23%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 23.0,
+            "growthPercent": 23,
             "yahooForwardPE": 27.467173,
             "currentForwardPEComputed": 27.47
           },
@@ -12402,7 +12402,7 @@
           "reason": "利润增速 5%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 5.0,
+            "growthPercent": 5,
             "yahooForwardPE": 12.393103,
             "currentForwardPEComputed": 12.39
           },
@@ -12592,7 +12592,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -61.0,
+            "growthPercent": -61,
             "yahooForwardPE": 18.516178,
             "currentForwardPEComputed": 18.52
           },
@@ -12784,7 +12784,7 @@
           "reason": "增速 47% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 47.0,
+            "growthPercent": 47,
             "yahooForwardPE": 13.653741,
             "currentForwardPEComputed": 13.65
           },
@@ -12978,7 +12978,7 @@
           "reason": "增速 76% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 76.0,
+            "growthPercent": 76,
             "yahooForwardPE": 25.331518,
             "currentForwardPEComputed": 25.33
           },
@@ -13172,7 +13172,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -75.0,
+            "growthPercent": -75,
             "yahooForwardPE": 30.125439,
             "currentForwardPEComputed": 30.13
           },
@@ -13366,7 +13366,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -11.0,
+            "growthPercent": -11,
             "yahooForwardPE": 14.991811,
             "currentForwardPEComputed": 14.99
           },
@@ -13560,7 +13560,7 @@
           "reason": "利润增速 18%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 18.0,
+            "growthPercent": 18,
             "yahooForwardPE": 40.042576,
             "currentForwardPEComputed": 40.04
           },
@@ -13754,7 +13754,7 @@
           "reason": "利润增速 12%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 12.0,
+            "growthPercent": 12,
             "yahooForwardPE": 15.891178,
             "currentForwardPEComputed": 15.89
           },
@@ -13948,7 +13948,7 @@
           "reason": "增速 63% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 63.0,
+            "growthPercent": 63,
             "yahooForwardPE": 18.851294,
             "currentForwardPEComputed": 18.85
           },
@@ -14142,7 +14142,7 @@
           "reason": "利润增速 10%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 10.0,
+            "growthPercent": 10,
             "yahooForwardPE": 17.790298,
             "currentForwardPEComputed": 17.79
           },
@@ -14336,7 +14336,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -11.0,
+            "growthPercent": -11,
             "yahooForwardPE": 26.021326,
             "currentForwardPEComputed": 26.02
           },
@@ -14530,7 +14530,7 @@
           "reason": "利润增速 25%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 25.0,
+            "growthPercent": 25,
             "yahooForwardPE": 20.459383,
             "currentForwardPEComputed": 20.46
           },
@@ -14724,7 +14724,7 @@
           "reason": "利润增速 28%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 28.0,
+            "growthPercent": 28,
             "yahooForwardPE": 19.981445,
             "currentForwardPEComputed": 19.98
           },
@@ -14918,7 +14918,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -0.0,
+            "growthPercent": 0,
             "yahooForwardPE": 11.708388,
             "currentForwardPEComputed": 11.71
           },
@@ -15112,7 +15112,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -3.0,
+            "growthPercent": -3,
             "yahooForwardPE": 13.48254,
             "currentForwardPEComputed": 13.48
           },
@@ -15306,7 +15306,7 @@
           "reason": "增速 44% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 44.0,
+            "growthPercent": 44,
             "yahooForwardPE": 13.289263,
             "currentForwardPEComputed": 13.29
           },
@@ -15500,7 +15500,7 @@
           "reason": "增速 279% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 279.0,
+            "growthPercent": 279,
             "yahooForwardPE": 12.438841,
             "currentForwardPEComputed": 12.44
           },
@@ -16060,7 +16060,7 @@
           "reason": "利润增速 7%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 7.0,
+            "growthPercent": 7,
             "yahooForwardPE": 14.943626,
             "currentForwardPEComputed": 14.94
           },
@@ -16254,7 +16254,7 @@
           "reason": "利润增速 17%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 17.0,
+            "growthPercent": 17,
             "yahooForwardPE": 38.467422,
             "currentForwardPEComputed": 38.47
           },
@@ -16448,7 +16448,7 @@
           "reason": "利润增速 19%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 19.0,
+            "growthPercent": 19,
             "yahooForwardPE": 26.008041,
             "currentForwardPEComputed": 26.01
           },
@@ -16642,7 +16642,7 @@
           "reason": "利润增速 30%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 30.0,
+            "growthPercent": 30,
             "yahooForwardPE": 8.792073,
             "currentForwardPEComputed": 8.79
           },
@@ -16836,7 +16836,7 @@
           "reason": "利润增速 17%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 17.0,
+            "growthPercent": 17,
             "yahooForwardPE": 19.137552,
             "currentForwardPEComputed": 19.14
           },
@@ -17030,7 +17030,7 @@
           "reason": "增速 49% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 49.0,
+            "growthPercent": 49,
             "yahooForwardPE": 20.620619,
             "currentForwardPEComputed": 20.62
           },
@@ -17224,7 +17224,7 @@
           "reason": "利润增速 20%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 20.0,
+            "growthPercent": 20,
             "yahooForwardPE": 24.705173,
             "currentForwardPEComputed": 24.71
           },
@@ -17418,7 +17418,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -32.0,
+            "growthPercent": -32,
             "yahooForwardPE": 34.4701,
             "currentForwardPEComputed": 34.47
           },
@@ -17612,7 +17612,7 @@
           "reason": "利润增速 13%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 13.0,
+            "growthPercent": 13,
             "yahooForwardPE": 32.56267,
             "currentForwardPEComputed": 32.56
           },
@@ -17786,7 +17786,7 @@
           "reason": "增速 150% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 150.0,
+            "growthPercent": 150,
             "yahooForwardPE": 31.488361,
             "currentForwardPEComputed": 31.49
           },
@@ -17976,7 +17976,7 @@
           "reason": "利润增速 8%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 8.0,
+            "growthPercent": 8,
             "yahooForwardPE": 25.006525,
             "currentForwardPEComputed": 25.01
           },
@@ -18170,7 +18170,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -64.0,
+            "growthPercent": -64,
             "yahooForwardPE": 27.656433,
             "currentForwardPEComputed": 27.66
           },
@@ -18364,7 +18364,7 @@
           "reason": "利润增速 25%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 25.0,
+            "growthPercent": 25,
             "yahooForwardPE": 29.597803,
             "currentForwardPEComputed": 29.6
           },
@@ -18540,7 +18540,7 @@
           "reason": "利润增速 12%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 12.0,
+            "growthPercent": 12,
             "yahooForwardPE": 19.009974,
             "currentForwardPEComputed": 19.01
           },
@@ -18730,7 +18730,7 @@
           "reason": "利润增速 38%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 38.0,
+            "growthPercent": 38,
             "yahooForwardPE": 15.246087,
             "currentForwardPEComputed": 15.25
           },
@@ -18924,7 +18924,7 @@
           "reason": "利润增速 11%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 11.0,
+            "growthPercent": 11,
             "yahooForwardPE": 14.337509,
             "currentForwardPEComputed": 14.34
           },
@@ -19118,7 +19118,7 @@
           "reason": "利润增速 20%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 20.0,
+            "growthPercent": 20,
             "yahooForwardPE": 13.079781,
             "currentForwardPEComputed": 13.08
           },
@@ -19310,7 +19310,7 @@
           "reason": "利润增速 27%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 27.0,
+            "growthPercent": 27,
             "yahooForwardPE": 9.54065,
             "currentForwardPEComputed": 9.54
           },
@@ -19502,7 +19502,7 @@
           "reason": "利润增速 18%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 18.0,
+            "growthPercent": 18,
             "yahooForwardPE": 10.487401,
             "currentForwardPEComputed": 10.49
           },
@@ -19694,7 +19694,7 @@
           "reason": "利润增速 40%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 40.0,
+            "growthPercent": 40,
             "yahooForwardPE": 13.272744,
             "currentForwardPEComputed": 13.27
           },
@@ -19886,7 +19886,7 @@
           "reason": "增速 43% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 43.0,
+            "growthPercent": 43,
             "yahooForwardPE": 11.661233,
             "currentForwardPEComputed": 11.66
           },
@@ -20078,7 +20078,7 @@
           "reason": "利润增速 40%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 40.0,
+            "growthPercent": 40,
             "yahooForwardPE": 9.74119,
             "currentForwardPEComputed": 9.74
           },
@@ -20270,7 +20270,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -22.0,
+            "growthPercent": -22,
             "yahooForwardPE": 10.681081,
             "currentForwardPEComputed": 10.68
           },
@@ -20462,7 +20462,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -4.0,
+            "growthPercent": -4,
             "yahooForwardPE": 8.852445,
             "currentForwardPEComputed": 8.85
           },
@@ -20846,7 +20846,7 @@
           "reason": "利润增速 20%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 20.0,
+            "growthPercent": 20,
             "yahooForwardPE": 10.313976,
             "currentForwardPEComputed": 10.31
           },
@@ -21038,7 +21038,7 @@
           "reason": "利润增速 14%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 14.0,
+            "growthPercent": 14,
             "yahooForwardPE": 9.9361925,
             "currentForwardPEComputed": 9.94
           },
@@ -21210,7 +21210,7 @@
           "reason": "利润增速 24%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 24.0,
+            "growthPercent": 24,
             "yahooForwardPE": 10.567934,
             "currentForwardPEComputed": 10.57
           },
@@ -21378,7 +21378,7 @@
           "reason": "利润增速 19%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 19.0,
+            "growthPercent": 19,
             "yahooForwardPE": 10.098202,
             "currentForwardPEComputed": 10.1
           },
@@ -21548,7 +21548,7 @@
           "reason": "利润增速 20%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 20.0,
+            "growthPercent": 20,
             "yahooForwardPE": 10.144116,
             "currentForwardPEComputed": 10.14
           },
@@ -21718,7 +21718,7 @@
           "reason": "利润增速 16%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 16.0,
+            "growthPercent": 16,
             "yahooForwardPE": 15.878245,
             "currentForwardPEComputed": 15.88
           },
@@ -21888,7 +21888,7 @@
           "reason": "增速 729% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 729.0,
+            "growthPercent": 729,
             "yahooForwardPE": 8.459483,
             "currentForwardPEComputed": 8.46
           },
@@ -22058,7 +22058,7 @@
           "reason": "增速 65% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 65.0,
+            "growthPercent": 65,
             "yahooForwardPE": 12.703021,
             "currentForwardPEComputed": 12.7
           },
@@ -22228,7 +22228,7 @@
           "reason": "利润增速 27%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 27.0,
+            "growthPercent": 27,
             "yahooForwardPE": 12.385571,
             "currentForwardPEComputed": 12.39
           },
@@ -22398,7 +22398,7 @@
           "reason": "增速 135% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 135.0,
+            "growthPercent": 135,
             "yahooForwardPE": 9.025295,
             "currentForwardPEComputed": 9.03
           },
@@ -22568,7 +22568,7 @@
           "reason": "增速 112% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 112.0,
+            "growthPercent": 112,
             "yahooForwardPE": 16.139587,
             "currentForwardPEComputed": 16.14
           },
@@ -22738,7 +22738,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -13.0,
+            "growthPercent": -13,
             "yahooForwardPE": 8.804182,
             "currentForwardPEComputed": 8.8
           },
@@ -22909,7 +22909,7 @@
           "reason": "增速 149% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 149.0,
+            "growthPercent": 149,
             "yahooForwardPE": 8.6887455,
             "currentForwardPEComputed": 8.69
           },
@@ -23079,7 +23079,7 @@
           "reason": "利润增速 4%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 4.0,
+            "growthPercent": 4,
             "yahooForwardPE": 8.866279,
             "currentForwardPEComputed": 8.87
           },
@@ -23249,7 +23249,7 @@
           "reason": "利润增速 32%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 32.0,
+            "growthPercent": 32,
             "yahooForwardPE": 10.751902,
             "currentForwardPEComputed": 10.75
           },
@@ -23566,7 +23566,7 @@
           "reason": "利润增速 27%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 27.0,
+            "growthPercent": 27,
             "yahooForwardPE": 10.659517,
             "currentForwardPEComputed": 10.66
           },
@@ -23736,7 +23736,7 @@
           "reason": "利润增速 11%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 11.0,
+            "growthPercent": 11,
             "yahooForwardPE": 10.687654,
             "currentForwardPEComputed": 10.69
           },
@@ -23906,7 +23906,7 @@
           "reason": "增速 188% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 188.0,
+            "growthPercent": 188,
             "yahooForwardPE": 9.474187,
             "currentForwardPEComputed": 9.47
           },
@@ -24076,7 +24076,7 @@
           "reason": "利润增速 1%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 1.0,
+            "growthPercent": 1,
             "yahooForwardPE": 18.186565,
             "currentForwardPEComputed": 18.19
           },
@@ -24246,7 +24246,7 @@
           "reason": "增速 50% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 50.0,
+            "growthPercent": 50,
             "yahooForwardPE": 13.429732,
             "currentForwardPEComputed": 13.43
           },
@@ -24416,7 +24416,7 @@
           "reason": "TTM EPS 为负，PEG 无意义",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -49.0,
+            "growthPercent": -49,
             "yahooForwardPE": 10.973476,
             "currentForwardPEComputed": null
           },
@@ -24586,7 +24586,7 @@
           "reason": "利润增速 15%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 15.0,
+            "growthPercent": 15,
             "yahooForwardPE": 19.199627,
             "currentForwardPEComputed": 19.2
           },
@@ -24756,7 +24756,7 @@
           "reason": "利润增速 36%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 36.0,
+            "growthPercent": 36,
             "yahooForwardPE": 19.280315,
             "currentForwardPEComputed": 19.28
           },
@@ -24926,7 +24926,7 @@
           "reason": "利润增速 14%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 14.0,
+            "growthPercent": 14,
             "yahooForwardPE": 23.119295,
             "currentForwardPEComputed": 23.12
           },
@@ -25096,7 +25096,7 @@
           "reason": "利润增速 26%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 26.0,
+            "growthPercent": 26,
             "yahooForwardPE": 23.177828,
             "currentForwardPEComputed": 23.18
           },
@@ -25266,7 +25266,7 @@
           "reason": "利润增速 34%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 34.0,
+            "growthPercent": 34,
             "yahooForwardPE": 27.124872,
             "currentForwardPEComputed": 27.12
           },
@@ -25436,7 +25436,7 @@
           "reason": "增速 50% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 50.0,
+            "growthPercent": 50,
             "yahooForwardPE": 22.82616,
             "currentForwardPEComputed": 22.83
           },
@@ -25624,7 +25624,7 @@
           "reason": "利润增速 15%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 15.0,
+            "growthPercent": 15,
             "yahooForwardPE": 24.677958,
             "currentForwardPEComputed": 24.68
           },
@@ -25814,7 +25814,7 @@
           "reason": "利润增速 23%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 23.0,
+            "growthPercent": 23,
             "yahooForwardPE": 28.191427,
             "currentForwardPEComputed": 28.19
           },
@@ -26006,7 +26006,7 @@
           "reason": "利润增速 13%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 13.0,
+            "growthPercent": 13,
             "yahooForwardPE": 10.038143,
             "currentForwardPEComputed": 10.04
           },
@@ -26198,7 +26198,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -88.0,
+            "growthPercent": -88,
             "yahooForwardPE": 16.118631,
             "currentForwardPEComputed": 16.12
           },
@@ -26390,7 +26390,7 @@
           "reason": "利润增速 12%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 12.0,
+            "growthPercent": 12,
             "yahooForwardPE": 14.304499,
             "currentForwardPEComputed": 14.3
           },
@@ -26582,7 +26582,7 @@
           "reason": "增速 3517% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 3517.0,
+            "growthPercent": 3517,
             "yahooForwardPE": 4.810582,
             "currentForwardPEComputed": 4.81
           },
@@ -26756,7 +26756,7 @@
           "reason": "TTM EPS 为负，PEG 无意义",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -13.0,
+            "growthPercent": -13,
             "yahooForwardPE": 7.8868446,
             "currentForwardPEComputed": null
           },
@@ -27136,7 +27136,7 @@
           "reason": "利润增速 12%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 12.0,
+            "growthPercent": 12,
             "yahooForwardPE": 21.667292,
             "currentForwardPEComputed": 21.67
           },
@@ -27328,7 +27328,7 @@
           "reason": "利润增速 32%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 32.0,
+            "growthPercent": 32,
             "yahooForwardPE": 22.562456,
             "currentForwardPEComputed": 22.56
           },
@@ -27520,7 +27520,7 @@
           "reason": "利润增速 21%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 21.0,
+            "growthPercent": 21,
             "yahooForwardPE": 28.583609,
             "currentForwardPEComputed": 28.58
           },
@@ -27712,7 +27712,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -6.0,
+            "growthPercent": -6,
             "yahooForwardPE": 15.079313,
             "currentForwardPEComputed": 15.08
           },
@@ -28236,7 +28236,7 @@
           "reason": "利润增速 35%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 35.0,
+            "growthPercent": 35,
             "yahooForwardPE": 23.781048,
             "currentForwardPEComputed": 23.78
           },
@@ -28430,7 +28430,7 @@
           "reason": "利润增速 7%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 7.0,
+            "growthPercent": 7,
             "yahooForwardPE": 17.727337,
             "currentForwardPEComputed": 17.73
           },
@@ -28624,7 +28624,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -3.0,
+            "growthPercent": -3,
             "yahooForwardPE": 21.50708,
             "currentForwardPEComputed": 21.51
           },
@@ -28818,7 +28818,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -3.0,
+            "growthPercent": -3,
             "yahooForwardPE": 17.291779,
             "currentForwardPEComputed": 17.29
           },
@@ -29012,7 +29012,7 @@
           "reason": "利润增速 9%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 9.0,
+            "growthPercent": 9,
             "yahooForwardPE": 24.180117,
             "currentForwardPEComputed": 24.18
           },
@@ -29206,7 +29206,7 @@
           "reason": "利润增速 5%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 5.0,
+            "growthPercent": 5,
             "yahooForwardPE": 20.088442,
             "currentForwardPEComputed": 20.09
           },
@@ -29400,7 +29400,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -6.0,
+            "growthPercent": -6,
             "yahooForwardPE": 17.628258,
             "currentForwardPEComputed": 17.63
           },
@@ -29594,7 +29594,7 @@
           "reason": "增速 66% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 66.0,
+            "growthPercent": 66,
             "yahooForwardPE": 13.79636,
             "currentForwardPEComputed": 13.8
           },
@@ -29770,7 +29770,7 @@
           "reason": "利润增速 6%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 6.0,
+            "growthPercent": 6,
             "yahooForwardPE": 22.410482,
             "currentForwardPEComputed": 22.41
           },
@@ -29942,7 +29942,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -3.0,
+            "growthPercent": -3,
             "yahooForwardPE": 24.783728,
             "currentForwardPEComputed": 24.78
           },
@@ -30114,7 +30114,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -17.0,
+            "growthPercent": -17,
             "yahooForwardPE": 12.814285,
             "currentForwardPEComputed": 12.81
           },
@@ -30286,7 +30286,7 @@
           "reason": "利润增速 27%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 27.0,
+            "growthPercent": 27,
             "yahooForwardPE": 18.015734,
             "currentForwardPEComputed": 18.02
           },
@@ -30458,7 +30458,7 @@
           "reason": "增速 1057% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 1057.0,
+            "growthPercent": 1057,
             "yahooForwardPE": 14.482954,
             "currentForwardPEComputed": 14.48
           },
@@ -30630,7 +30630,7 @@
           "reason": "利润增速 8%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 8.0,
+            "growthPercent": 8,
             "yahooForwardPE": 10.601462,
             "currentForwardPEComputed": 10.6
           },
@@ -30802,7 +30802,7 @@
           "reason": "利润增速 31%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 31.0,
+            "growthPercent": 31,
             "yahooForwardPE": 25.666086,
             "currentForwardPEComputed": 25.67
           },
@@ -30974,7 +30974,7 @@
           "reason": "利润增速 23%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 23.0,
+            "growthPercent": 23,
             "yahooForwardPE": 23.48457,
             "currentForwardPEComputed": 23.48
           },
@@ -31164,7 +31164,7 @@
           "reason": "利润增速 5%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 5.0,
+            "growthPercent": 5,
             "yahooForwardPE": 20.17094,
             "currentForwardPEComputed": 20.17
           },
@@ -31358,7 +31358,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -25.0,
+            "growthPercent": -25,
             "yahooForwardPE": 28.274836,
             "currentForwardPEComputed": 28.27
           },
@@ -31534,7 +31534,7 @@
           "reason": "增速 57% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 57.0,
+            "growthPercent": 57,
             "yahooForwardPE": 23.930521,
             "currentForwardPEComputed": 23.93
           },
@@ -31724,7 +31724,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -3.0,
+            "growthPercent": -3,
             "yahooForwardPE": 25.951805,
             "currentForwardPEComputed": 25.95
           },
@@ -31918,7 +31918,7 @@
           "reason": "利润增速 2%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 2.0,
+            "growthPercent": 2,
             "yahooForwardPE": 16.202785,
             "currentForwardPEComputed": 16.2
           },
@@ -32112,7 +32112,7 @@
           "reason": "利润增速 10%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 10.0,
+            "growthPercent": 10,
             "yahooForwardPE": 18.260012,
             "currentForwardPEComputed": 18.26
           },
@@ -32288,7 +32288,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -35.0,
+            "growthPercent": -35,
             "yahooForwardPE": 165.9025,
             "currentForwardPEComputed": 165.9
           },
@@ -32630,7 +32630,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -59.0,
+            "growthPercent": -59,
             "yahooForwardPE": 5.8204346,
             "currentForwardPEComputed": 5.82
           },
@@ -32820,7 +32820,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -76.0,
+            "growthPercent": -76,
             "yahooForwardPE": 6.5135174,
             "currentForwardPEComputed": 6.51
           },
@@ -33014,7 +33014,7 @@
           "reason": "利润增速 6%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 6.0,
+            "growthPercent": 6,
             "yahooForwardPE": 15.089147,
             "currentForwardPEComputed": 15.09
           },
@@ -33208,7 +33208,7 @@
           "reason": "利润增速 5%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 5.0,
+            "growthPercent": 5,
             "yahooForwardPE": 16.741644,
             "currentForwardPEComputed": 16.74
           },
@@ -33402,7 +33402,7 @@
           "reason": "利润增速 13%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 13.0,
+            "growthPercent": 13,
             "yahooForwardPE": 24.550518,
             "currentForwardPEComputed": 24.55
           },
@@ -33596,7 +33596,7 @@
           "reason": "增速 42% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 42.0,
+            "growthPercent": 42,
             "yahooForwardPE": 34.632095,
             "currentForwardPEComputed": 34.63
           },
@@ -33790,7 +33790,7 @@
           "reason": "利润增速 7%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 7.0,
+            "growthPercent": 7,
             "yahooForwardPE": 30.47867,
             "currentForwardPEComputed": 30.48
           },
@@ -33964,7 +33964,7 @@
           "reason": "利润增速 23%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 23.0,
+            "growthPercent": 23,
             "yahooForwardPE": 13.133586,
             "currentForwardPEComputed": 13.13
           },
@@ -34136,7 +34136,7 @@
           "reason": "增速 97% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 97.0,
+            "growthPercent": 97,
             "yahooForwardPE": 10.47359,
             "currentForwardPEComputed": 10.47
           },
@@ -34308,7 +34308,7 @@
           "reason": "利润增速 9%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 9.0,
+            "growthPercent": 9,
             "yahooForwardPE": 31.098463,
             "currentForwardPEComputed": 31.1
           },
@@ -34480,7 +34480,7 @@
           "reason": "利润增速 5%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 5.0,
+            "growthPercent": 5,
             "yahooForwardPE": 35.992073,
             "currentForwardPEComputed": 35.99
           },
@@ -34653,7 +34653,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -32.0,
+            "growthPercent": -32,
             "yahooForwardPE": 11.488673,
             "currentForwardPEComputed": 11.49
           },
@@ -34825,7 +34825,7 @@
           "reason": "利润增速 21%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 21.0,
+            "growthPercent": 21,
             "yahooForwardPE": 15.972465,
             "currentForwardPEComputed": 15.97
           },
@@ -34997,7 +34997,7 @@
           "reason": "利润增速 10%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 10.0,
+            "growthPercent": 10,
             "yahooForwardPE": 12.616609,
             "currentForwardPEComputed": 12.62
           },
@@ -35187,7 +35187,7 @@
           "reason": "利润增速 30%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 30.0,
+            "growthPercent": 30,
             "yahooForwardPE": 13.161126,
             "currentForwardPEComputed": 13.16
           },
@@ -35381,7 +35381,7 @@
           "reason": "增速 103% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 103.0,
+            "growthPercent": 103,
             "yahooForwardPE": 23.320545,
             "currentForwardPEComputed": 23.32
           },
@@ -35575,7 +35575,7 @@
           "reason": "利润增速 21%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 21.0,
+            "growthPercent": 21,
             "yahooForwardPE": 17.786673,
             "currentForwardPEComputed": 17.79
           },
@@ -35769,7 +35769,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -16.0,
+            "growthPercent": -16,
             "yahooForwardPE": 14.095888,
             "currentForwardPEComputed": 14.1
           },
@@ -35963,7 +35963,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -48.0,
+            "growthPercent": -48,
             "yahooForwardPE": 16.995214,
             "currentForwardPEComputed": 17.0
           },
@@ -36157,7 +36157,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -27.0,
+            "growthPercent": -27,
             "yahooForwardPE": 14.08096,
             "currentForwardPEComputed": 14.08
           },
@@ -36351,7 +36351,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -19.0,
+            "growthPercent": -19,
             "yahooForwardPE": 18.183783,
             "currentForwardPEComputed": 18.18
           },
@@ -36739,7 +36739,7 @@
           "reason": "利润增速 18%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 18.0,
+            "growthPercent": 18,
             "yahooForwardPE": 27.11896,
             "currentForwardPEComputed": 27.12
           },
@@ -36933,7 +36933,7 @@
           "reason": "利润增速 39%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 39.0,
+            "growthPercent": 39,
             "yahooForwardPE": 16.36105,
             "currentForwardPEComputed": 16.36
           },
@@ -37125,7 +37125,7 @@
           "reason": "利润增速 34%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 34.0,
+            "growthPercent": 34,
             "yahooForwardPE": 35.21637,
             "currentForwardPEComputed": 35.22
           },
@@ -37319,7 +37319,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -12.0,
+            "growthPercent": -12,
             "yahooForwardPE": 14.440818,
             "currentForwardPEComputed": 14.44
           },
@@ -37513,7 +37513,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -27.0,
+            "growthPercent": -27,
             "yahooForwardPE": 19.630348,
             "currentForwardPEComputed": 19.63
           },
@@ -37879,7 +37879,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -3.0,
+            "growthPercent": -3,
             "yahooForwardPE": 18.78824,
             "currentForwardPEComputed": 18.79
           },
@@ -38073,7 +38073,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -54.0,
+            "growthPercent": -54,
             "yahooForwardPE": 14.009536,
             "currentForwardPEComputed": 14.01
           },
@@ -38439,7 +38439,7 @@
           "reason": "利润增速 7%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 7.0,
+            "growthPercent": 7,
             "yahooForwardPE": 15.02457,
             "currentForwardPEComputed": 15.02
           },
@@ -38827,7 +38827,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -26.0,
+            "growthPercent": -26,
             "yahooForwardPE": 15.467671,
             "currentForwardPEComputed": 15.47
           },
@@ -39019,7 +39019,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -0.0,
+            "growthPercent": 0,
             "yahooForwardPE": 16.396238,
             "currentForwardPEComputed": 16.4
           },
@@ -39182,7 +39182,7 @@
           "reason": "增速 61% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 61.0,
+            "growthPercent": 61,
             "yahooForwardPE": 12.331276,
             "currentForwardPEComputed": 12.33
           },
@@ -39347,7 +39347,7 @@
           "reason": "利润增速 10%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 10.0,
+            "growthPercent": 10,
             "yahooForwardPE": 22.417963,
             "currentForwardPEComputed": 22.42
           },
@@ -39539,7 +39539,7 @@
           "reason": "利润增速 25%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 25.0,
+            "growthPercent": 25,
             "yahooForwardPE": 19.441042,
             "currentForwardPEComputed": 19.44
           },
@@ -39702,7 +39702,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -15.0,
+            "growthPercent": -15,
             "yahooForwardPE": 18.377792,
             "currentForwardPEComputed": 18.38
           },
@@ -39876,7 +39876,7 @@
           "reason": "增速 84% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 84.0,
+            "growthPercent": 84,
             "yahooForwardPE": 6.2397194,
             "currentForwardPEComputed": 6.24
           },
@@ -40035,7 +40035,7 @@
           "reason": "增速 52% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 52.0,
+            "growthPercent": 52,
             "yahooForwardPE": 12.775378,
             "currentForwardPEComputed": 12.78
           },
@@ -40194,7 +40194,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -9.0,
+            "growthPercent": -9,
             "yahooForwardPE": 19.024462,
             "currentForwardPEComputed": 19.02
           },
@@ -40349,7 +40349,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -1.0,
+            "growthPercent": -1,
             "yahooForwardPE": 11.989449,
             "currentForwardPEComputed": 11.99
           },
@@ -40649,7 +40649,7 @@
           "reason": "利润增速 6%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 6.0,
+            "growthPercent": 6,
             "yahooForwardPE": 18.250443,
             "currentForwardPEComputed": 18.25
           },
@@ -40812,7 +40812,7 @@
           "reason": "利润增速 7%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 7.0,
+            "growthPercent": 7,
             "yahooForwardPE": 10.368812,
             "currentForwardPEComputed": 10.37
           },
@@ -40976,7 +40976,7 @@
           "reason": "利润增速 10%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 10.0,
+            "growthPercent": 10,
             "yahooForwardPE": 23.775091,
             "currentForwardPEComputed": 23.78
           },
@@ -41139,7 +41139,7 @@
           "reason": "利润增速 29%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 29.0,
+            "growthPercent": 29,
             "yahooForwardPE": 9.721407,
             "currentForwardPEComputed": 9.72
           },
@@ -41298,7 +41298,7 @@
           "reason": "增速 164% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 164.0,
+            "growthPercent": 164,
             "yahooForwardPE": 26.941479,
             "currentForwardPEComputed": 26.94
           },
@@ -41472,7 +41472,7 @@
           "reason": "增速 52% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 52.0,
+            "growthPercent": 52,
             "yahooForwardPE": 16.570215,
             "currentForwardPEComputed": 16.57
           },
@@ -41649,7 +41649,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 0.0,
+            "growthPercent": 0,
             "yahooForwardPE": 17.074642,
             "currentForwardPEComputed": 17.07
           },
@@ -41812,7 +41812,7 @@
           "reason": "增速 58% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 58.0,
+            "growthPercent": 58,
             "yahooForwardPE": 8.315214,
             "currentForwardPEComputed": 8.32
           },
@@ -42118,7 +42118,7 @@
           "reason": "增速 85% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 85.0,
+            "growthPercent": 85,
             "yahooForwardPE": 18.9477,
             "currentForwardPEComputed": 18.95
           },
@@ -42466,7 +42466,7 @@
           "reason": "利润增速 16%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 16.0,
+            "growthPercent": 16,
             "yahooForwardPE": 17.719284,
             "currentForwardPEComputed": 17.72
           },
@@ -42629,7 +42629,7 @@
           "reason": "利润增速 2%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 2.0,
+            "growthPercent": 2,
             "yahooForwardPE": 16.860186,
             "currentForwardPEComputed": 16.86
           },
@@ -42774,7 +42774,7 @@
           "reason": "利润增速 4%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 4.0,
+            "growthPercent": 4,
             "yahooForwardPE": 22.797739,
             "currentForwardPEComputed": 22.8
           },
@@ -42917,7 +42917,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -40.0,
+            "growthPercent": -40,
             "yahooForwardPE": 32.780087,
             "currentForwardPEComputed": 32.78
           },
@@ -43268,7 +43268,7 @@
           "reason": "增速 83% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 83.0,
+            "growthPercent": 83,
             "yahooForwardPE": 14.736917,
             "currentForwardPEComputed": 14.74
           },
@@ -43413,7 +43413,7 @@
           "reason": "增速 524% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 524.0,
+            "growthPercent": 524,
             "yahooForwardPE": 32.539993,
             "currentForwardPEComputed": 32.54
           },
@@ -43572,7 +43572,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -13.0,
+            "growthPercent": -13,
             "yahooForwardPE": 17.842869,
             "currentForwardPEComputed": 17.84
           },
@@ -43735,7 +43735,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -49.0,
+            "growthPercent": -49,
             "yahooForwardPE": 8.990138,
             "currentForwardPEComputed": 8.99
           },
@@ -43901,7 +43901,7 @@
           "reason": "利润增速 1%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 1.0,
+            "growthPercent": 1,
             "yahooForwardPE": 16.771246,
             "currentForwardPEComputed": 16.77
           },
@@ -44093,7 +44093,7 @@
           "reason": "利润增速 31%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 31.0,
+            "growthPercent": 31,
             "yahooForwardPE": 14.150333,
             "currentForwardPEComputed": 14.15
           },
@@ -44270,7 +44270,7 @@
           "reason": "利润增速 36%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 36.0,
+            "growthPercent": 36,
             "yahooForwardPE": 16.457178,
             "currentForwardPEComputed": 16.46
           },
@@ -44433,7 +44433,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -9.0,
+            "growthPercent": -9,
             "yahooForwardPE": 15.172235,
             "currentForwardPEComputed": 15.17
           },
@@ -44610,7 +44610,7 @@
           "reason": "利润增速 20%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 20.0,
+            "growthPercent": 20,
             "yahooForwardPE": 16.195814,
             "currentForwardPEComputed": 16.2
           },
@@ -44769,7 +44769,7 @@
           "reason": "增速 6100% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 6100.0,
+            "growthPercent": 6100,
             "yahooForwardPE": 31.168644,
             "currentForwardPEComputed": 31.17
           },
@@ -44943,7 +44943,7 @@
           "reason": "利润增速 30%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 30.0,
+            "growthPercent": 30,
             "yahooForwardPE": 9.113694,
             "currentForwardPEComputed": 9.11
           },
@@ -45102,7 +45102,7 @@
           "reason": "TTM EPS 为负，PEG 无意义",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -68.0,
+            "growthPercent": -68,
             "yahooForwardPE": 16.4585,
             "currentForwardPEComputed": null
           },
@@ -45261,7 +45261,7 @@
           "reason": "利润增速 33%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 33.0,
+            "growthPercent": 33,
             "yahooForwardPE": 29.24791,
             "currentForwardPEComputed": 29.25
           },
@@ -45424,7 +45424,7 @@
           "reason": "利润增速 18%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 18.0,
+            "growthPercent": 18,
             "yahooForwardPE": 17.320469,
             "currentForwardPEComputed": 17.32
           },
@@ -45569,7 +45569,7 @@
           "reason": "利润增速 22%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 22.0,
+            "growthPercent": 22,
             "yahooForwardPE": 15.289681,
             "currentForwardPEComputed": 15.29
           },
@@ -45899,7 +45899,7 @@
           "reason": "利润增速 3%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 3.0,
+            "growthPercent": 3,
             "yahooForwardPE": 12.603507,
             "currentForwardPEComputed": 12.6
           },
@@ -46064,7 +46064,7 @@
           "reason": "利润增速 7%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 7.0,
+            "growthPercent": 7,
             "yahooForwardPE": 18.606316,
             "currentForwardPEComputed": 18.61
           },
@@ -46256,7 +46256,7 @@
           "reason": "增速 76% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 76.0,
+            "growthPercent": 76,
             "yahooForwardPE": 10.513607,
             "currentForwardPEComputed": 10.51
           },
@@ -46419,7 +46419,7 @@
           "reason": "增速 47% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 47.0,
+            "growthPercent": 47,
             "yahooForwardPE": 26.967361,
             "currentForwardPEComputed": 26.97
           },
@@ -46582,7 +46582,7 @@
           "reason": "利润增速 19%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 19.0,
+            "growthPercent": 19,
             "yahooForwardPE": 16.78171,
             "currentForwardPEComputed": 16.78
           },
@@ -46727,7 +46727,7 @@
           "reason": "利润增速 5%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 5.0,
+            "growthPercent": 5,
             "yahooForwardPE": 2.5243018,
             "currentForwardPEComputed": 2.52
           },
@@ -46886,7 +46886,7 @@
           "reason": "增速 478% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 478.0,
+            "growthPercent": 478,
             "yahooForwardPE": 20.517027,
             "currentForwardPEComputed": 20.52
           },
@@ -47031,7 +47031,7 @@
           "reason": "增速 84% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 84.0,
+            "growthPercent": 84,
             "yahooForwardPE": 20.157452,
             "currentForwardPEComputed": 20.16
           },
@@ -47204,7 +47204,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -2.0,
+            "growthPercent": -2,
             "yahooForwardPE": 23.550127,
             "currentForwardPEComputed": 23.55
           },
@@ -47367,7 +47367,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -26.0,
+            "growthPercent": -26,
             "yahooForwardPE": 16.160898,
             "currentForwardPEComputed": 16.16
           },
@@ -47532,7 +47532,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -49.0,
+            "growthPercent": -49,
             "yahooForwardPE": 6.925298,
             "currentForwardPEComputed": 6.93
           },
@@ -47724,7 +47724,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -8.0,
+            "growthPercent": -8,
             "yahooForwardPE": 13.182784,
             "currentForwardPEComputed": 13.18
           },
@@ -47888,7 +47888,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -1.0,
+            "growthPercent": -1,
             "yahooForwardPE": 16.692806,
             "currentForwardPEComputed": 16.69
           },
@@ -48192,7 +48192,7 @@
           "reason": "利润增速 19%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 19.0,
+            "growthPercent": 19,
             "yahooForwardPE": 19.427032,
             "currentForwardPEComputed": 19.43
           },
@@ -48496,7 +48496,7 @@
           "reason": "利润增速 1%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 1.0,
+            "growthPercent": 1,
             "yahooForwardPE": 12.140732,
             "currentForwardPEComputed": 12.14
           },
@@ -48661,7 +48661,7 @@
           "reason": "利润增速 14%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 14.0,
+            "growthPercent": 14,
             "yahooForwardPE": 42.051052,
             "currentForwardPEComputed": 42.05
           },
@@ -48855,7 +48855,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -3.0,
+            "growthPercent": -3,
             "yahooForwardPE": 17.651936,
             "currentForwardPEComputed": 17.65
           },
@@ -49029,7 +49029,7 @@
           "reason": "增速 111% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 111.0,
+            "growthPercent": 111,
             "yahooForwardPE": 132.58667,
             "currentForwardPEComputed": 132.59
           },
@@ -49203,7 +49203,7 @@
           "reason": "增速 56% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 56.0,
+            "growthPercent": 56,
             "yahooForwardPE": 15.868022,
             "currentForwardPEComputed": 15.87
           },
@@ -49348,7 +49348,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -24.0,
+            "growthPercent": -24,
             "yahooForwardPE": 17.266716,
             "currentForwardPEComputed": 17.27
           },
@@ -49524,7 +49524,7 @@
           "reason": "利润增速 7%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 7.0,
+            "growthPercent": 7,
             "yahooForwardPE": 20.994774,
             "currentForwardPEComputed": 20.99
           },
@@ -49718,7 +49718,7 @@
           "reason": "利润增速 12%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 12.0,
+            "growthPercent": 12,
             "yahooForwardPE": 36.091778,
             "currentForwardPEComputed": 36.09
           },
@@ -49910,7 +49910,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -5.0,
+            "growthPercent": -5,
             "yahooForwardPE": 10.310297,
             "currentForwardPEComputed": 10.31
           },
@@ -50073,7 +50073,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -26.0,
+            "growthPercent": -26,
             "yahooForwardPE": 10.587659,
             "currentForwardPEComputed": 10.59
           },
@@ -50219,7 +50219,7 @@
           "reason": "增速 157% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 157.0,
+            "growthPercent": 157,
             "yahooForwardPE": 9.7415495,
             "currentForwardPEComputed": 9.74
           },
@@ -50360,7 +50360,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -17.0,
+            "growthPercent": -17,
             "yahooForwardPE": 12.869038,
             "currentForwardPEComputed": 12.87
           },
@@ -50501,7 +50501,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -0.0,
+            "growthPercent": 0,
             "yahooForwardPE": 17.961828,
             "currentForwardPEComputed": 17.96
           },
@@ -50660,7 +50660,7 @@
           "reason": "利润增速 22%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 22.0,
+            "growthPercent": 22,
             "yahooForwardPE": 11.947807,
             "currentForwardPEComputed": 11.95
           },
@@ -50964,7 +50964,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -6.0,
+            "growthPercent": -6,
             "yahooForwardPE": 29.315985,
             "currentForwardPEComputed": 29.32
           },
@@ -51127,7 +51127,7 @@
           "reason": "增速 42% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 42.0,
+            "growthPercent": 42,
             "yahooForwardPE": 16.084904,
             "currentForwardPEComputed": 16.08
           },
@@ -51290,7 +51290,7 @@
           "reason": "利润增速 13%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 13.0,
+            "growthPercent": 13,
             "yahooForwardPE": 21.341875,
             "currentForwardPEComputed": 21.34
           },
@@ -51453,7 +51453,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -24.0,
+            "growthPercent": -24,
             "yahooForwardPE": 15.575368,
             "currentForwardPEComputed": 15.58
           },
@@ -51598,7 +51598,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -46.0,
+            "growthPercent": -46,
             "yahooForwardPE": 57.40479,
             "currentForwardPEComputed": 57.4
           },
@@ -51917,7 +51917,7 @@
           "reason": "增速 46% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 46.0,
+            "growthPercent": 46,
             "yahooForwardPE": 144.71428,
             "currentForwardPEComputed": 144.71
           },
@@ -52091,7 +52091,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -50.0,
+            "growthPercent": -50,
             "yahooForwardPE": 17.302448,
             "currentForwardPEComputed": 17.3
           },
@@ -52395,7 +52395,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -9.0,
+            "growthPercent": -9,
             "yahooForwardPE": 16.466583,
             "currentForwardPEComputed": 16.47
           },
@@ -52558,7 +52558,7 @@
           "reason": "利润增速 8%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 8.0,
+            "growthPercent": 8,
             "yahooForwardPE": 17.822796,
             "currentForwardPEComputed": 17.82
           },
@@ -52721,7 +52721,7 @@
           "reason": "利润增速 20%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 20.0,
+            "growthPercent": 20,
             "yahooForwardPE": 11.342338,
             "currentForwardPEComputed": 11.34
           },
@@ -52884,7 +52884,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -6.0,
+            "growthPercent": -6,
             "yahooForwardPE": 7.8955927,
             "currentForwardPEComputed": 7.9
           },
@@ -53188,7 +53188,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -1.0,
+            "growthPercent": -1,
             "yahooForwardPE": 31.968258,
             "currentForwardPEComputed": 31.97
           },
@@ -53351,7 +53351,7 @@
           "reason": "利润增速 11%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 11.0,
+            "growthPercent": 11,
             "yahooForwardPE": 18.248983,
             "currentForwardPEComputed": 18.25
           },
@@ -53514,7 +53514,7 @@
           "reason": "利润增速 11%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 11.0,
+            "growthPercent": 11,
             "yahooForwardPE": 19.88196,
             "currentForwardPEComputed": 19.88
           },
@@ -53677,7 +53677,7 @@
           "reason": "增速 151% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 151.0,
+            "growthPercent": 151,
             "yahooForwardPE": 6.7880445,
             "currentForwardPEComputed": 6.79
           },
@@ -53854,7 +53854,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -7.0,
+            "growthPercent": -7,
             "yahooForwardPE": 9.123922,
             "currentForwardPEComputed": 9.12
           },
@@ -54158,7 +54158,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -4.0,
+            "growthPercent": -4,
             "yahooForwardPE": 14.053404,
             "currentForwardPEComputed": 14.05
           },
@@ -54321,7 +54321,7 @@
           "reason": "利润增速 32%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 32.0,
+            "growthPercent": 32,
             "yahooForwardPE": 14.885933,
             "currentForwardPEComputed": 14.89
           },
@@ -54484,7 +54484,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -2.0,
+            "growthPercent": -2,
             "yahooForwardPE": 20.226347,
             "currentForwardPEComputed": 20.23
           },
@@ -54647,7 +54647,7 @@
           "reason": "利润增速 25%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 25.0,
+            "growthPercent": 25,
             "yahooForwardPE": 9.078635,
             "currentForwardPEComputed": 9.08
           },
@@ -54792,7 +54792,7 @@
           "reason": "增速 52% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 52.0,
+            "growthPercent": 52,
             "yahooForwardPE": 48.93501,
             "currentForwardPEComputed": 48.94
           },
@@ -54966,7 +54966,7 @@
           "reason": "增速 133% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 133.0,
+            "growthPercent": 133,
             "yahooForwardPE": 14.319755,
             "currentForwardPEComputed": 14.32
           },
@@ -55129,7 +55129,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -8.0,
+            "growthPercent": -8,
             "yahooForwardPE": 20.485373,
             "currentForwardPEComputed": 20.49
           },
@@ -55306,7 +55306,7 @@
           "reason": "增速 66% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 66.0,
+            "growthPercent": 66,
             "yahooForwardPE": 14.173458,
             "currentForwardPEComputed": 14.17
           },
@@ -55451,7 +55451,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -48.0,
+            "growthPercent": -48,
             "yahooForwardPE": 43.424915,
             "currentForwardPEComputed": 43.42
           },
@@ -55625,7 +55625,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -1.0,
+            "growthPercent": -1,
             "yahooForwardPE": 20.909742,
             "currentForwardPEComputed": 20.91
           },
@@ -55788,7 +55788,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -3.0,
+            "growthPercent": -3,
             "yahooForwardPE": 21.619158,
             "currentForwardPEComputed": 21.62
           },
@@ -55951,7 +55951,7 @@
           "reason": "利润增速 8%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 8.0,
+            "growthPercent": 8,
             "yahooForwardPE": 19.164042,
             "currentForwardPEComputed": 19.16
           },
@@ -56114,7 +56114,7 @@
           "reason": "利润增速 4%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 4.0,
+            "growthPercent": 4,
             "yahooForwardPE": 15.050443,
             "currentForwardPEComputed": 15.05
           },
@@ -56306,7 +56306,7 @@
           "reason": "增速 2869% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 2869.0,
+            "growthPercent": 2869,
             "yahooForwardPE": 10.430434,
             "currentForwardPEComputed": 10.43
           },
@@ -56469,7 +56469,7 @@
           "reason": "利润增速 12%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 12.0,
+            "growthPercent": 12,
             "yahooForwardPE": 21.164026,
             "currentForwardPEComputed": 21.16
           },
@@ -56614,7 +56614,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -2.0,
+            "growthPercent": -2,
             "yahooForwardPE": 33.139523,
             "currentForwardPEComputed": 33.14
           },
@@ -56772,7 +56772,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -64.0,
+            "growthPercent": -64,
             "yahooForwardPE": 8.211762,
             "currentForwardPEComputed": 8.21
           },
@@ -56962,7 +56962,7 @@
           "reason": "利润增速 13%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 13.0,
+            "growthPercent": 13,
             "yahooForwardPE": 37.559452,
             "currentForwardPEComputed": 37.56
           },
@@ -57136,7 +57136,7 @@
           "reason": "增速 54% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 54.0,
+            "growthPercent": 54,
             "yahooForwardPE": 13.987824,
             "currentForwardPEComputed": 13.99
           },
@@ -57295,7 +57295,7 @@
           "reason": "利润增速 1%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 1.0,
+            "growthPercent": 1,
             "yahooForwardPE": 14.723675,
             "currentForwardPEComputed": 14.72
           },
@@ -57458,7 +57458,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -26.0,
+            "growthPercent": -26,
             "yahooForwardPE": 23.992231,
             "currentForwardPEComputed": 23.99
           },
@@ -57621,7 +57621,7 @@
           "reason": "利润增速 15%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 15.0,
+            "growthPercent": 15,
             "yahooForwardPE": 15.754791,
             "currentForwardPEComputed": 15.75
           },
@@ -57784,7 +57784,7 @@
           "reason": "利润增速 39%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 39.0,
+            "growthPercent": 39,
             "yahooForwardPE": 18.414799,
             "currentForwardPEComputed": 18.41
           },
@@ -57947,7 +57947,7 @@
           "reason": "增速 109% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 109.0,
+            "growthPercent": 109,
             "yahooForwardPE": 15.167376,
             "currentForwardPEComputed": 15.17
           },
@@ -58093,7 +58093,7 @@
           "reason": "利润增速 14%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 14.0,
+            "growthPercent": 14,
             "yahooForwardPE": 8.970481,
             "currentForwardPEComputed": 8.97
           },
@@ -58252,7 +58252,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -24.0,
+            "growthPercent": -24,
             "yahooForwardPE": 9.6538725,
             "currentForwardPEComputed": 9.65
           },
@@ -58415,7 +58415,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -24.0,
+            "growthPercent": -24,
             "yahooForwardPE": 11.367416,
             "currentForwardPEComputed": 11.37
           },
@@ -58560,7 +58560,7 @@
           "reason": "利润增速 25%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 25.0,
+            "growthPercent": 25,
             "yahooForwardPE": 34.347572,
             "currentForwardPEComputed": 34.35
           },
@@ -58734,7 +58734,7 @@
           "reason": "利润增速 39%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 39.0,
+            "growthPercent": 39,
             "yahooForwardPE": 8.71515,
             "currentForwardPEComputed": 8.72
           },
@@ -58897,7 +58897,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -24.0,
+            "growthPercent": -24,
             "yahooForwardPE": 19.709112,
             "currentForwardPEComputed": 19.71
           },
@@ -59060,7 +59060,7 @@
           "reason": "利润增速 10%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 10.0,
+            "growthPercent": 10,
             "yahooForwardPE": 18.750378,
             "currentForwardPEComputed": 18.75
           },
@@ -59223,7 +59223,7 @@
           "reason": "利润增速 20%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 20.0,
+            "growthPercent": 20,
             "yahooForwardPE": 10.180685,
             "currentForwardPEComputed": 10.18
           },
@@ -59386,7 +59386,7 @@
           "reason": "利润增速 18%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 18.0,
+            "growthPercent": 18,
             "yahooForwardPE": 34.709255,
             "currentForwardPEComputed": 34.71
           },
@@ -59531,7 +59531,7 @@
           "reason": "利润增速 24%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 24.0,
+            "growthPercent": 24,
             "yahooForwardPE": 8.926218,
             "currentForwardPEComputed": 8.93
           },
@@ -59690,7 +59690,7 @@
           "reason": "增速 742% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 742.0,
+            "growthPercent": 742,
             "yahooForwardPE": 29.929232,
             "currentForwardPEComputed": 29.93
           },
@@ -59853,7 +59853,7 @@
           "reason": "利润增速 20%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 20.0,
+            "growthPercent": 20,
             "yahooForwardPE": 9.596657,
             "currentForwardPEComputed": 9.6
           },
@@ -60013,7 +60013,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -28.0,
+            "growthPercent": -28,
             "yahooForwardPE": 12.68362,
             "currentForwardPEComputed": 12.68
           },
@@ -60156,7 +60156,7 @@
           "reason": "增速 112% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 112.0,
+            "growthPercent": 112,
             "yahooForwardPE": 18.395075,
             "currentForwardPEComputed": 18.4
           },
@@ -60328,7 +60328,7 @@
           "reason": "增速 112% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 112.0,
+            "growthPercent": 112,
             "yahooForwardPE": 18.450144,
             "currentForwardPEComputed": 18.45
           },
@@ -60516,7 +60516,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -0.0,
+            "growthPercent": 0,
             "yahooForwardPE": 27.727892,
             "currentForwardPEComputed": 27.73
           },
@@ -60679,7 +60679,7 @@
           "reason": "利润增速 15%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 15.0,
+            "growthPercent": 15,
             "yahooForwardPE": 10.842508,
             "currentForwardPEComputed": 10.84
           },
@@ -60842,7 +60842,7 @@
           "reason": "利润增速 26%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 26.0,
+            "growthPercent": 26,
             "yahooForwardPE": 15.826694,
             "currentForwardPEComputed": 15.83
           },
@@ -61005,7 +61005,7 @@
           "reason": "利润增速 40%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 40.0,
+            "growthPercent": 40,
             "yahooForwardPE": 9.837363,
             "currentForwardPEComputed": 9.84
           },
@@ -61183,7 +61183,7 @@
           "reason": "利润增速 26%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 26.0,
+            "growthPercent": 26,
             "yahooForwardPE": 14.119618,
             "currentForwardPEComputed": 14.12
           },
@@ -61330,7 +61330,7 @@
           "reason": "利润增速 20%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 20.0,
+            "growthPercent": 20,
             "yahooForwardPE": 22.331984,
             "currentForwardPEComputed": 22.33
           },
@@ -61518,7 +61518,7 @@
           "reason": "利润增速 15%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 15.0,
+            "growthPercent": 15,
             "yahooForwardPE": 23.702806,
             "currentForwardPEComputed": 23.7
           },
@@ -61677,7 +61677,7 @@
           "reason": "增速 60% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 60.0,
+            "growthPercent": 60,
             "yahooForwardPE": 23.46013,
             "currentForwardPEComputed": 23.46
           },
@@ -61851,7 +61851,7 @@
           "reason": "利润增速 9%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 9.0,
+            "growthPercent": 9,
             "yahooForwardPE": 18.628643,
             "currentForwardPEComputed": 18.63
           },
@@ -62014,7 +62014,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -19.0,
+            "growthPercent": -19,
             "yahooForwardPE": 25.38225,
             "currentForwardPEComputed": 25.38
           },
@@ -62177,7 +62177,7 @@
           "reason": "利润增速 36%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 36.0,
+            "growthPercent": 36,
             "yahooForwardPE": 30.963772,
             "currentForwardPEComputed": 30.96
           },
@@ -62340,7 +62340,7 @@
           "reason": "利润增速 31%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 31.0,
+            "growthPercent": 31,
             "yahooForwardPE": 22.891613,
             "currentForwardPEComputed": 22.89
           },
@@ -62517,7 +62517,7 @@
           "reason": "利润增速 23%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 23.0,
+            "growthPercent": 23,
             "yahooForwardPE": 18.512865,
             "currentForwardPEComputed": 18.51
           },
@@ -62680,7 +62680,7 @@
           "reason": "利润增速 12%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 12.0,
+            "growthPercent": 12,
             "yahooForwardPE": 23.088243,
             "currentForwardPEComputed": 23.09
           },
@@ -62966,7 +62966,7 @@
           "reason": "利润增速 24%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 24.0,
+            "growthPercent": 24,
             "yahooForwardPE": 37.05527,
             "currentForwardPEComputed": 37.06
           },
@@ -63281,7 +63281,7 @@
           "reason": "增速 90% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 90.0,
+            "growthPercent": 90,
             "yahooForwardPE": 20.996094,
             "currentForwardPEComputed": 21.0
           },
@@ -63426,7 +63426,7 @@
           "reason": "增速 900% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 900.0,
+            "growthPercent": 900,
             "yahooForwardPE": 39.21929,
             "currentForwardPEComputed": 39.22
           },
@@ -63600,7 +63600,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -31.0,
+            "growthPercent": -31,
             "yahooForwardPE": 11.523022,
             "currentForwardPEComputed": 11.52
           },
@@ -63763,7 +63763,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -3.0,
+            "growthPercent": -3,
             "yahooForwardPE": 22.750168,
             "currentForwardPEComputed": 22.75
           },
@@ -64081,7 +64081,7 @@
           "reason": "利润增速 6%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 6.0,
+            "growthPercent": 6,
             "yahooForwardPE": 18.077168,
             "currentForwardPEComputed": 18.08
           },
@@ -64244,7 +64244,7 @@
           "reason": "利润增速 28%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 28.0,
+            "growthPercent": 28,
             "yahooForwardPE": 22.09704,
             "currentForwardPEComputed": 22.1
           },
@@ -64407,7 +64407,7 @@
           "reason": "利润增速 21%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 21.0,
+            "growthPercent": 21,
             "yahooForwardPE": 18.235691,
             "currentForwardPEComputed": 18.24
           },
@@ -64570,7 +64570,7 @@
           "reason": "增速 132% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 132.0,
+            "growthPercent": 132,
             "yahooForwardPE": 19.529829,
             "currentForwardPEComputed": 19.53
           },
@@ -64716,7 +64716,7 @@
           "reason": "利润增速 2%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 2.0,
+            "growthPercent": 2,
             "yahooForwardPE": 28.75493,
             "currentForwardPEComputed": 28.75
           },
@@ -64890,7 +64890,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -19.0,
+            "growthPercent": -19,
             "yahooForwardPE": 15.170403,
             "currentForwardPEComputed": 15.17
           },
@@ -65053,7 +65053,7 @@
           "reason": "利润增速 28%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 28.0,
+            "growthPercent": 28,
             "yahooForwardPE": 19.401003,
             "currentForwardPEComputed": 19.4
           },
@@ -65216,7 +65216,7 @@
           "reason": "利润增速 24%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 24.0,
+            "growthPercent": 24,
             "yahooForwardPE": 12.368888,
             "currentForwardPEComputed": 12.37
           },
@@ -65379,7 +65379,7 @@
           "reason": "利润增速 18%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 18.0,
+            "growthPercent": 18,
             "yahooForwardPE": 15.57836,
             "currentForwardPEComputed": 15.58
           },
@@ -65524,7 +65524,7 @@
           "reason": "利润增速 29%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 29.0,
+            "growthPercent": 29,
             "yahooForwardPE": 37.83103,
             "currentForwardPEComputed": 37.83
           },
@@ -65697,7 +65697,7 @@
           "reason": "利润增速 1%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 1.0,
+            "growthPercent": 1,
             "yahooForwardPE": 10.914351,
             "currentForwardPEComputed": 10.91
           },
@@ -65860,7 +65860,7 @@
           "reason": "利润增速 33%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 33.0,
+            "growthPercent": 33,
             "yahooForwardPE": 18.713465,
             "currentForwardPEComputed": 18.71
           },
@@ -66023,7 +66023,7 @@
           "reason": "利润增速 11%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 11.0,
+            "growthPercent": 11,
             "yahooForwardPE": 19.037943,
             "currentForwardPEComputed": 19.04
           },
@@ -66186,7 +66186,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -4.0,
+            "growthPercent": -4,
             "yahooForwardPE": 14.572546,
             "currentForwardPEComputed": 14.57
           },
@@ -66351,7 +66351,7 @@
           "reason": "利润增速 10%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 10.0,
+            "growthPercent": 10,
             "yahooForwardPE": 26.365843,
             "currentForwardPEComputed": 26.37
           },
@@ -66715,7 +66715,7 @@
           "reason": "增速 53% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 53.0,
+            "growthPercent": 53,
             "yahooForwardPE": 17.037458,
             "currentForwardPEComputed": 17.04
           },
@@ -66878,7 +66878,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -21.0,
+            "growthPercent": -21,
             "yahooForwardPE": 19.746906,
             "currentForwardPEComputed": 19.75
           },
@@ -67023,7 +67023,7 @@
           "reason": "增速 147% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 147.0,
+            "growthPercent": 147,
             "yahooForwardPE": 10.647319,
             "currentForwardPEComputed": 10.65
           },
@@ -67446,7 +67446,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -30.0,
+            "growthPercent": -30,
             "yahooForwardPE": 36.2639,
             "currentForwardPEComputed": 36.26
           },
@@ -67620,7 +67620,7 @@
           "reason": "利润增速 15%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 15.0,
+            "growthPercent": 15,
             "yahooForwardPE": 17.487701,
             "currentForwardPEComputed": 17.49
           },
@@ -67785,7 +67785,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -4.0,
+            "growthPercent": -4,
             "yahooForwardPE": 17.144897,
             "currentForwardPEComputed": 17.14
           },
@@ -67977,7 +67977,7 @@
           "reason": "利润增速 10%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 10.0,
+            "growthPercent": 10,
             "yahooForwardPE": 26.331799,
             "currentForwardPEComputed": 26.33
           },
@@ -68140,7 +68140,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -22.0,
+            "growthPercent": -22,
             "yahooForwardPE": 18.658577,
             "currentForwardPEComputed": 18.66
           },
@@ -68303,7 +68303,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -8.0,
+            "growthPercent": -8,
             "yahooForwardPE": 12.8537445,
             "currentForwardPEComputed": 12.85
           },
@@ -68607,7 +68607,7 @@
           "reason": "增速 332% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 332.0,
+            "growthPercent": 332,
             "yahooForwardPE": 5.9983616,
             "currentForwardPEComputed": 6.0
           },
@@ -68771,7 +68771,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -2.0,
+            "growthPercent": -2,
             "yahooForwardPE": 17.865772,
             "currentForwardPEComputed": 17.87
           },
@@ -69120,7 +69120,7 @@
           "reason": "利润增速 24%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 24.0,
+            "growthPercent": 24,
             "yahooForwardPE": 23.866852,
             "currentForwardPEComputed": 23.87
           },
@@ -69265,7 +69265,7 @@
           "reason": "增速 56% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 56.0,
+            "growthPercent": 56,
             "yahooForwardPE": 19.873058,
             "currentForwardPEComputed": 19.87
           },
@@ -69424,7 +69424,7 @@
           "reason": "增速 42% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 42.0,
+            "growthPercent": 42,
             "yahooForwardPE": 12.092947,
             "currentForwardPEComputed": 12.09
           },
@@ -69571,7 +69571,7 @@
           "reason": "利润增速 35%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 35.0,
+            "growthPercent": 35,
             "yahooForwardPE": 16.813652,
             "currentForwardPEComputed": 16.81
           },
@@ -69759,7 +69759,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -0.0,
+            "growthPercent": 0,
             "yahooForwardPE": 19.556166,
             "currentForwardPEComputed": 19.56
           },
@@ -69922,7 +69922,7 @@
           "reason": "利润增速 16%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 16.0,
+            "growthPercent": 16,
             "yahooForwardPE": 17.534954,
             "currentForwardPEComputed": 17.53
           },
@@ -70067,7 +70067,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -12.0,
+            "growthPercent": -12,
             "yahooForwardPE": 8.349576,
             "currentForwardPEComputed": 8.35
           },
@@ -70226,7 +70226,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -21.0,
+            "growthPercent": -21,
             "yahooForwardPE": 22.047161,
             "currentForwardPEComputed": 22.05
           },
@@ -70389,7 +70389,7 @@
           "reason": "利润增速 37%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 37.0,
+            "growthPercent": 37,
             "yahooForwardPE": 13.222861,
             "currentForwardPEComputed": 13.22
           },
@@ -70566,7 +70566,7 @@
           "reason": "增速 126% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 126.0,
+            "growthPercent": 126,
             "yahooForwardPE": 11.36304,
             "currentForwardPEComputed": 11.36
           },
@@ -70729,7 +70729,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -50.0,
+            "growthPercent": -50,
             "yahooForwardPE": 19.156986,
             "currentForwardPEComputed": 19.16
           },
@@ -70892,7 +70892,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -50.0,
+            "growthPercent": -50,
             "yahooForwardPE": 17.45363,
             "currentForwardPEComputed": 17.45
           },
@@ -71037,7 +71037,7 @@
           "reason": "利润增速 33%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 33.0,
+            "growthPercent": 33,
             "yahooForwardPE": 38.016254,
             "currentForwardPEComputed": 38.02
           },
@@ -71213,7 +71213,7 @@
           "reason": "利润增速 1%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 1.0,
+            "growthPercent": 1,
             "yahooForwardPE": 24.425102,
             "currentForwardPEComputed": 24.43
           },
@@ -71405,7 +71405,7 @@
           "reason": "利润增速 13%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 13.0,
+            "growthPercent": 13,
             "yahooForwardPE": 13.917797,
             "currentForwardPEComputed": 13.92
           },
@@ -71550,7 +71550,7 @@
           "reason": "利润增速 3%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 3.0,
+            "growthPercent": 3,
             "yahooForwardPE": 7.753379,
             "currentForwardPEComputed": 7.75
           },
@@ -71709,7 +71709,7 @@
           "reason": "利润增速 3%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 3.0,
+            "growthPercent": 3,
             "yahooForwardPE": 17.59033,
             "currentForwardPEComputed": 17.59
           },
@@ -71854,7 +71854,7 @@
           "reason": "增速 278% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 278.0,
+            "growthPercent": 278,
             "yahooForwardPE": 11.241713,
             "currentForwardPEComputed": 11.24
           },
@@ -71995,7 +71995,7 @@
           "reason": "增速 77% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 77.0,
+            "growthPercent": 77,
             "yahooForwardPE": 23.229013,
             "currentForwardPEComputed": 23.23
           },
@@ -72156,7 +72156,7 @@
           "reason": "利润增速 13%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 13.0,
+            "growthPercent": 13,
             "yahooForwardPE": 18.323378,
             "currentForwardPEComputed": 18.32
           },
@@ -72350,7 +72350,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -18.0,
+            "growthPercent": -18,
             "yahooForwardPE": 14.858244,
             "currentForwardPEComputed": 14.86
           },
@@ -72542,7 +72542,7 @@
           "reason": "利润增速 26%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 26.0,
+            "growthPercent": 26,
             "yahooForwardPE": 7.1983175,
             "currentForwardPEComputed": 7.2
           },
@@ -72705,7 +72705,7 @@
           "reason": "利润增速 1%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 1.0,
+            "growthPercent": 1,
             "yahooForwardPE": 15.638293,
             "currentForwardPEComputed": 15.64
           },
@@ -72868,7 +72868,7 @@
           "reason": "增速 45% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 45.0,
+            "growthPercent": 45,
             "yahooForwardPE": 11.032725,
             "currentForwardPEComputed": 11.03
           },
@@ -73045,7 +73045,7 @@
           "reason": "利润增速 2%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 2.0,
+            "growthPercent": 2,
             "yahooForwardPE": 22.3528,
             "currentForwardPEComputed": 22.35
           },
@@ -73208,7 +73208,7 @@
           "reason": "利润增速 12%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 12.0,
+            "growthPercent": 12,
             "yahooForwardPE": 14.026222,
             "currentForwardPEComputed": 14.03
           },
@@ -73385,7 +73385,7 @@
           "reason": "利润增速 5%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 5.0,
+            "growthPercent": 5,
             "yahooForwardPE": 22.60169,
             "currentForwardPEComputed": 22.6
           },
@@ -73548,7 +73548,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -23.0,
+            "growthPercent": -23,
             "yahooForwardPE": 17.543072,
             "currentForwardPEComputed": 17.54
           },
@@ -73693,7 +73693,7 @@
           "reason": "利润增速 22%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 22.0,
+            "growthPercent": 22,
             "yahooForwardPE": 35.24219,
             "currentForwardPEComputed": 35.24
           },
@@ -73869,7 +73869,7 @@
           "reason": "增速 290% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 290.0,
+            "growthPercent": 290,
             "yahooForwardPE": 63.83741,
             "currentForwardPEComputed": 63.84
           },
@@ -74061,7 +74061,7 @@
           "reason": "利润增速 32%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 32.0,
+            "growthPercent": 32,
             "yahooForwardPE": 21.884031,
             "currentForwardPEComputed": 21.88
           },
@@ -74224,7 +74224,7 @@
           "reason": "利润增速 9%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 9.0,
+            "growthPercent": 9,
             "yahooForwardPE": 12.854407,
             "currentForwardPEComputed": 12.85
           },
@@ -74387,7 +74387,7 @@
           "reason": "利润增速 8%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 8.0,
+            "growthPercent": 8,
             "yahooForwardPE": 18.6809,
             "currentForwardPEComputed": 18.68
           },
@@ -74550,7 +74550,7 @@
           "reason": "增速 58% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 58.0,
+            "growthPercent": 58,
             "yahooForwardPE": 14.141862,
             "currentForwardPEComputed": 14.14
           },
@@ -74713,7 +74713,7 @@
           "reason": "利润增速 26%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 26.0,
+            "growthPercent": 26,
             "yahooForwardPE": 16.910164,
             "currentForwardPEComputed": 16.91
           },
@@ -74858,7 +74858,7 @@
           "reason": "利润增速 14%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 14.0,
+            "growthPercent": 14,
             "yahooForwardPE": 35.742313,
             "currentForwardPEComputed": 35.74
           },
@@ -75165,7 +75165,7 @@
           "reason": "增速 322% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 322.0,
+            "growthPercent": 322,
             "yahooForwardPE": 7.6125703,
             "currentForwardPEComputed": 7.61
           },
@@ -75310,7 +75310,7 @@
           "reason": "利润增速 35%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 35.0,
+            "growthPercent": 35,
             "yahooForwardPE": 24.997622,
             "currentForwardPEComputed": 25.0
           },
@@ -75469,7 +75469,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -26.0,
+            "growthPercent": -26,
             "yahooForwardPE": 19.89427,
             "currentForwardPEComputed": 19.89
           },
@@ -75632,7 +75632,7 @@
           "reason": "增速 250% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 250.0,
+            "growthPercent": 250,
             "yahooForwardPE": 10.241499,
             "currentForwardPEComputed": 10.24
           },
@@ -75778,7 +75778,7 @@
           "reason": "利润增速 38%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 38.0,
+            "growthPercent": 38,
             "yahooForwardPE": 29.938753,
             "currentForwardPEComputed": 29.94
           },
@@ -75952,7 +75952,7 @@
           "reason": "利润增速 12%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 12.0,
+            "growthPercent": 12,
             "yahooForwardPE": 9.939172,
             "currentForwardPEComputed": 9.94
           },
@@ -76129,7 +76129,7 @@
           "reason": "利润增速 25%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 25.0,
+            "growthPercent": 25,
             "yahooForwardPE": 22.435078,
             "currentForwardPEComputed": 22.44
           },
@@ -76292,7 +76292,7 @@
           "reason": "利润增速 9%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 9.0,
+            "growthPercent": 9,
             "yahooForwardPE": 30.733475,
             "currentForwardPEComputed": 30.73
           },
@@ -76457,7 +76457,7 @@
           "reason": "利润增速 19%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 19.0,
+            "growthPercent": 19,
             "yahooForwardPE": 19.349129,
             "currentForwardPEComputed": 19.35
           },
@@ -76649,7 +76649,7 @@
           "reason": "利润增速 4%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 4.0,
+            "growthPercent": 4,
             "yahooForwardPE": 30.818459,
             "currentForwardPEComputed": 30.82
           },
@@ -76812,7 +76812,7 @@
           "reason": "利润增速 25%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 25.0,
+            "growthPercent": 25,
             "yahooForwardPE": 23.51985,
             "currentForwardPEComputed": 23.52
           },
@@ -76957,7 +76957,7 @@
           "reason": "利润增速 14%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 14.0,
+            "growthPercent": 14,
             "yahooForwardPE": 23.91561,
             "currentForwardPEComputed": 23.92
           },
@@ -77131,7 +77131,7 @@
           "reason": "增速 48% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 48.0,
+            "growthPercent": 48,
             "yahooForwardPE": 11.724751,
             "currentForwardPEComputed": 11.72
           },
@@ -77308,7 +77308,7 @@
           "reason": "利润增速 8%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 8.0,
+            "growthPercent": 8,
             "yahooForwardPE": 26.044485,
             "currentForwardPEComputed": 26.04
           },
@@ -77471,7 +77471,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -29.0,
+            "growthPercent": -29,
             "yahooForwardPE": 16.225492,
             "currentForwardPEComputed": 16.23
           },
@@ -77634,7 +77634,7 @@
           "reason": "利润增速 5%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 5.0,
+            "growthPercent": 5,
             "yahooForwardPE": 17.652687,
             "currentForwardPEComputed": 17.65
           },
@@ -77969,7 +77969,7 @@
           "reason": "利润增速 7%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 7.0,
+            "growthPercent": 7,
             "yahooForwardPE": 18.74859,
             "currentForwardPEComputed": 18.75
           },
@@ -78114,7 +78114,7 @@
           "reason": "增速 119% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 119.0,
+            "growthPercent": 119,
             "yahooForwardPE": 33.723442,
             "currentForwardPEComputed": 33.72
           },
@@ -78288,7 +78288,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -17.0,
+            "growthPercent": -17,
             "yahooForwardPE": 14.111101,
             "currentForwardPEComputed": 14.11
           },
@@ -78451,7 +78451,7 @@
           "reason": "增速 61% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 61.0,
+            "growthPercent": 61,
             "yahooForwardPE": 10.415391,
             "currentForwardPEComputed": 10.42
           },
@@ -78760,7 +78760,7 @@
           "reason": "增速 42% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 42.0,
+            "growthPercent": 42,
             "yahooForwardPE": 13.552143,
             "currentForwardPEComputed": 13.55
           },
@@ -78901,7 +78901,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -31.0,
+            "growthPercent": -31,
             "yahooForwardPE": 17.645477,
             "currentForwardPEComputed": 17.65
           },
@@ -79060,7 +79060,7 @@
           "reason": "利润增速 18%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 18.0,
+            "growthPercent": 18,
             "yahooForwardPE": 7.0343666,
             "currentForwardPEComputed": 7.03
           },
@@ -79237,7 +79237,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -2.0,
+            "growthPercent": -2,
             "yahooForwardPE": 14.289034,
             "currentForwardPEComputed": 14.29
           },
@@ -79400,7 +79400,7 @@
           "reason": "利润增速 28%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 28.0,
+            "growthPercent": 28,
             "yahooForwardPE": 8.332691,
             "currentForwardPEComputed": 8.33
           },
@@ -79563,7 +79563,7 @@
           "reason": "利润增速 9%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 9.0,
+            "growthPercent": 9,
             "yahooForwardPE": 24.601736,
             "currentForwardPEComputed": 24.6
           },
@@ -79726,7 +79726,7 @@
           "reason": "利润增速 14%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 14.0,
+            "growthPercent": 14,
             "yahooForwardPE": 22.30238,
             "currentForwardPEComputed": 22.3
           },
@@ -79889,7 +79889,7 @@
           "reason": "利润增速 12%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 12.0,
+            "growthPercent": 12,
             "yahooForwardPE": 16.58603,
             "currentForwardPEComputed": 16.59
           },
@@ -80052,7 +80052,7 @@
           "reason": "利润增速 39%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 39.0,
+            "growthPercent": 39,
             "yahooForwardPE": 40.80098,
             "currentForwardPEComputed": 40.8
           },
@@ -80217,7 +80217,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -10.0,
+            "growthPercent": -10,
             "yahooForwardPE": 11.364585,
             "currentForwardPEComputed": 11.36
           },
@@ -80391,7 +80391,7 @@
           "reason": "利润增速 17%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 17.0,
+            "growthPercent": 17,
             "yahooForwardPE": 3.7248356,
             "currentForwardPEComputed": 3.72
           },
@@ -80550,7 +80550,7 @@
           "reason": "增速 46% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 46.0,
+            "growthPercent": 46,
             "yahooForwardPE": 21.837505,
             "currentForwardPEComputed": 21.84
           },
@@ -80854,7 +80854,7 @@
           "reason": "利润增速 5%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 5.0,
+            "growthPercent": 5,
             "yahooForwardPE": 22.720242,
             "currentForwardPEComputed": 22.72
           },
@@ -81189,7 +81189,7 @@
           "reason": "利润增速 20%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 20.0,
+            "growthPercent": 20,
             "yahooForwardPE": 11.580983,
             "currentForwardPEComputed": 11.58
           },
@@ -81352,7 +81352,7 @@
           "reason": "利润增速 8%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 8.0,
+            "growthPercent": 8,
             "yahooForwardPE": 27.039696,
             "currentForwardPEComputed": 27.04
           },
@@ -81515,7 +81515,7 @@
           "reason": "利润增速 7%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 7.0,
+            "growthPercent": 7,
             "yahooForwardPE": 9.584265,
             "currentForwardPEComputed": 9.58
           },
@@ -81678,7 +81678,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -22.0,
+            "growthPercent": -22,
             "yahooForwardPE": 15.596647,
             "currentForwardPEComputed": 15.6
           },
@@ -81823,7 +81823,7 @@
           "reason": "增速 313% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 313.0,
+            "growthPercent": 313,
             "yahooForwardPE": 65.321434,
             "currentForwardPEComputed": 65.32
           },
@@ -81979,7 +81979,7 @@
           "reason": "利润增速 29%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 29.0,
+            "growthPercent": 29,
             "yahooForwardPE": 8.496753,
             "currentForwardPEComputed": 8.5
           },
@@ -82138,7 +82138,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -33.0,
+            "growthPercent": -33,
             "yahooForwardPE": 16.9264,
             "currentForwardPEComputed": 16.93
           },
@@ -82301,7 +82301,7 @@
           "reason": "利润增速 7%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 7.0,
+            "growthPercent": 7,
             "yahooForwardPE": 20.158316,
             "currentForwardPEComputed": 20.16
           },
@@ -82464,7 +82464,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -20.0,
+            "growthPercent": -20,
             "yahooForwardPE": 13.377406,
             "currentForwardPEComputed": 13.38
           },
@@ -82627,7 +82627,7 @@
           "reason": "利润增速 8%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 8.0,
+            "growthPercent": 8,
             "yahooForwardPE": 17.1812,
             "currentForwardPEComputed": 17.18
           },
@@ -82772,7 +82772,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -1.0,
+            "growthPercent": -1,
             "yahooForwardPE": 8.29097,
             "currentForwardPEComputed": 8.29
           },
@@ -82946,7 +82946,7 @@
           "reason": "增速 904% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 904.0,
+            "growthPercent": 904,
             "yahooForwardPE": 6.4763584,
             "currentForwardPEComputed": 6.48
           },
@@ -83110,7 +83110,7 @@
           "reason": "利润增速 11%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 11.0,
+            "growthPercent": 11,
             "yahooForwardPE": 24.005413,
             "currentForwardPEComputed": 24.01
           },
@@ -83273,7 +83273,7 @@
           "reason": "利润增速 18%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 18.0,
+            "growthPercent": 18,
             "yahooForwardPE": 27.973219,
             "currentForwardPEComputed": 27.97
           },
@@ -83418,7 +83418,7 @@
           "reason": "TTM EPS 为负，PEG 无意义",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -13.0,
+            "growthPercent": -13,
             "yahooForwardPE": 44.523438,
             "currentForwardPEComputed": null
           },
@@ -83592,7 +83592,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 0.0,
+            "growthPercent": 0,
             "yahooForwardPE": 23.515118,
             "currentForwardPEComputed": 23.52
           },
@@ -83755,7 +83755,7 @@
           "reason": "利润增速 10%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 10.0,
+            "growthPercent": 10,
             "yahooForwardPE": 28.156078,
             "currentForwardPEComputed": 28.16
           },
@@ -83918,7 +83918,7 @@
           "reason": "增速 111% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 111.0,
+            "growthPercent": 111,
             "yahooForwardPE": 18.578934,
             "currentForwardPEComputed": 18.58
           },
@@ -84082,7 +84082,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -5.0,
+            "growthPercent": -5,
             "yahooForwardPE": 13.092796,
             "currentForwardPEComputed": 13.09
           },
@@ -84227,7 +84227,7 @@
           "reason": "利润增速 26%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 26.0,
+            "growthPercent": 26,
             "yahooForwardPE": 127.697845,
             "currentForwardPEComputed": 127.7
           },
@@ -84401,7 +84401,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -10.0,
+            "growthPercent": -10,
             "yahooForwardPE": 8.61073,
             "currentForwardPEComputed": 8.61
           },
@@ -84564,7 +84564,7 @@
           "reason": "利润增速 11%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 11.0,
+            "growthPercent": 11,
             "yahooForwardPE": 22.541851,
             "currentForwardPEComputed": 22.54
           },
@@ -84860,7 +84860,7 @@
           "reason": "增速为零或负，PEG 不适用",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": -1.0,
+            "growthPercent": -1,
             "yahooForwardPE": 19.22509,
             "currentForwardPEComputed": 19.23
           },
@@ -85005,7 +85005,7 @@
           "reason": "利润增速 23%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 23.0,
+            "growthPercent": 23,
             "yahooForwardPE": 76.56562,
             "currentForwardPEComputed": 76.57
           },
@@ -85179,7 +85179,7 @@
           "reason": "利润增速 5%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 5.0,
+            "growthPercent": 5,
             "yahooForwardPE": 26.405258,
             "currentForwardPEComputed": 26.41
           },
@@ -85342,7 +85342,7 @@
           "reason": "利润增速 26%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 26.0,
+            "growthPercent": 26,
             "yahooForwardPE": 24.624182,
             "currentForwardPEComputed": 24.62
           },
@@ -85507,7 +85507,7 @@
           "reason": "利润增速 4%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 4.0,
+            "growthPercent": 4,
             "yahooForwardPE": 38.90344,
             "currentForwardPEComputed": 38.9
           },
@@ -85699,7 +85699,7 @@
           "reason": "利润增速 11%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 11.0,
+            "growthPercent": 11,
             "yahooForwardPE": 15.503765,
             "currentForwardPEComputed": 15.5
           },
@@ -85876,7 +85876,7 @@
           "reason": "增速 1014% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 1014.0,
+            "growthPercent": 1014,
             "yahooForwardPE": 14.344518,
             "currentForwardPEComputed": 14.34
           },
@@ -86035,7 +86035,7 @@
           "reason": "增速 74% 过高且可能来自低基数或一次性项目，不机械应用 PEG",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 74.0,
+            "growthPercent": 74,
             "yahooForwardPE": 48.349926,
             "currentForwardPEComputed": 48.35
           },
@@ -86211,7 +86211,7 @@
           "reason": "利润增速 1%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 1.0,
+            "growthPercent": 1,
             "yahooForwardPE": 17.438562,
             "currentForwardPEComputed": 17.44
           },
@@ -86403,7 +86403,7 @@
           "reason": "利润增速 10%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 10.0,
+            "growthPercent": 10,
             "yahooForwardPE": 13.448802,
             "currentForwardPEComputed": 13.45
           },
@@ -86566,7 +86566,7 @@
           "reason": "利润增速 9%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 9.0,
+            "growthPercent": 9,
             "yahooForwardPE": 16.58338,
             "currentForwardPEComputed": 16.58
           },
@@ -86729,7 +86729,7 @@
           "reason": "利润增速 3%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
           "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
           "inputs": {
-            "growthPercent": 3.0,
+            "growthPercent": 3,
             "yahooForwardPE": 14.477995,
             "currentForwardPEComputed": 14.48
           },
