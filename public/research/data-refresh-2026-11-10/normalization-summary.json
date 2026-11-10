@@ -1,6 +1,6 @@
 {
   "auditDate": "2026-11-10",
-  "normalizedAt": "2026-11-09T21:06:53.867297+00:00",
+  "normalizedAt": "2026-11-10T18:17:42.828408+00:00",
   "mcpInfoSuccess": 0,
   "mcpInfoErrors": 0,
   "quoteSymbols": 1870,
@@ -8,7 +8,8 @@
   "companyRecordsRequested": 1540,
   "macroUpdatedFields": {
     "us": [
-      "vix",
+      "hy",
+      "dd",
       "dxy",
       "gold",
       "silver",
