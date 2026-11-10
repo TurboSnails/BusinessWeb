@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react'
 import { ToneBadge } from './MacroViews'
 import type { Tone } from './stages'
 import { niceTicks, signed } from './spread'
-import { US_HORIZONS, bucketOf, channelCheck, forwardPairs, horizonLabel, percentileRank, quantile, spreadBuckets, type UsSpreadSnapshot } from './usSpread'
+import { US_HORIZONS, bucketOf, channelCheck, correlation, forwardPairs, horizonLabel, percentileRank, periodAverages, quantile, realSpreads, spreadBuckets, type UsSpreadSnapshot } from './usSpread'
 import './macro.css'
 
 const W = 720
@@ -13,6 +13,14 @@ const HS = 300
 const RANGES = [{ id: '10y', label: '10 年', years: 10 }, { id: '20y', label: '20 年', years: 20 }, { id: 'all', label: '全部', years: 0 }] as const
 type RangeId = (typeof RANGES)[number]['id']
 const GROUP_NAMES = ['最低 20%', '20%–40%', '40%–60%', '60%–80%', '最高 20%']
+const PERIODS = [
+  { label: '1990–97', from: '1990', to: '1997' },
+  { label: '1998–2002（泡沫）', from: '1998', to: '2002' },
+  { label: '2003–07', from: '2003', to: '2007' },
+  { label: '2009–21（零利率 / QE）', from: '2009', to: '2021' },
+  { label: '2022 至今', from: '2022', to: '2099' },
+]
+const num = (v: number | undefined, d = 2, unit = ''): string => (v === undefined ? '—' : `${v.toFixed(d)}${unit}`)
 const fmtR = (r: number): string => (Number.isFinite(r) ? `${r >= 0 ? '+' : ''}${r.toFixed(2)}` : '—')
 
 function levelOf(pct: number): { tone: Tone; label: string; text: string } {
@@ -25,6 +33,7 @@ function levelOf(pct: number): { tone: Tone; label: string; text: string } {
 export function UsSpreadView({ data }: { data: UsSpreadSnapshot }): JSX.Element {
   const [range, setRange] = useState<RangeId>('all')
   const [showBand, setShowBand] = useState(false)
+  const [showReal, setShowReal] = useState(true)
   const [hover, setHover] = useState<number | null>(null)
   const { rows } = data
   const values = useMemo(() => rows.map(r => r[1]), [rows])
@@ -34,6 +43,13 @@ export function UsSpreadView({ data }: { data: UsSpreadSnapshot }): JSX.Element 
   const pairs3 = useMemo(() => forwardPairs(rows, 156), [rows])
   const ey3 = useMemo(() => forwardPairs(rows, 156, r => 100 / r[3]), [rows])
   const check = useMemo(() => channelCheck(rows, data.window, data.k), [rows, data.window, data.k])
+  const real = useMemo(() => realSpreads(data), [data])
+  const realVals = useMemo(() => real.filter((v): v is number => v !== undefined), [real])
+  const periods = useMemo(() => periodAverages(rows, real, PERIODS), [rows, real])
+  const real3 = useMemo(() => {
+    const pairs = pairs3.points.filter(p => real[p[2]] !== undefined)
+    return { r: correlation(pairs.map(p => real[p[2]]!), pairs.map(p => p[1])), n: pairs.length, from: pairs[0] ? rows[pairs[0][2]][0] : '', to: pairs.at(-1) ? rows[pairs.at(-1)![2]][0] : '' }
+  }, [pairs3, real, rows])
 
   const last = rows.length - 1
   if (last < 200) return <p role="alert" className="macro-muted">美股股债息差数据不足。</p>
@@ -47,6 +63,11 @@ export function UsSpreadView({ data }: { data: UsSpreadSnapshot }): JSX.Element 
   const y1Row = check.rows.find(r => r.h === 52)
   const y3Row = check.rows.find(r => r.h === 156)
   const ly = data.latestYield && data.latestYield.date > now[0] ? data.latestYield : undefined
+  const lr = data.latestReal && data.latestReal.date > now[0] ? data.latestReal : undefined
+  const realNow = real[last]
+  const realFirst = real.findIndex(v => v !== undefined)
+  const realPct = realNow === undefined ? undefined : percentileRank(realVals, realNow)
+  const tipsNow = realNow === undefined ? undefined : 100 / now[3] - realNow
 
   // —— 走势图 ——
   const years = RANGES.find(r => r.id === range)!.years
@@ -58,7 +79,8 @@ export function UsSpreadView({ data }: { data: UsSpreadSnapshot }): JSX.Element 
   let sLo = Infinity, sHi = -Infinity, pLo = Infinity, pHi = -Infinity
   for (const i of idx) {
     const b = check.bands[i], [, s, p] = rows[i]
-    sLo = Math.min(sLo, s, showBand && b ? b.lower : s); sHi = Math.max(sHi, s, showBand && b ? b.upper : s)
+    const rv = showReal ? real[i] ?? s : s
+    sLo = Math.min(sLo, s, rv, showBand && b ? b.lower : s); sHi = Math.max(sHi, s, rv, showBand && b ? b.upper : s)
     pLo = Math.min(pLo, p); pHi = Math.max(pHi, p)
   }
   const sPad = (sHi - sLo) * 0.08, sA = sLo - sPad, sB = sHi + sPad
@@ -112,15 +134,17 @@ export function UsSpreadView({ data }: { data: UsSpreadSnapshot }): JSX.Element 
           <div><dt>10 年期美债</dt><dd>{now[4].toFixed(2)}%</dd></div>
           <div><dt>标普500</dt><dd>{now[2].toFixed(0)}</dd></div>
         </dl>
-        {ly && <p className="macro-muted macro-spread__note">Forward PE 序列只更新到 {now[0]}；10 年期美债最新为 {ly.value.toFixed(2)}%（{ly.date}），没有同期 PE，不拼进序列。</p>}
+        {realNow !== undefined && realPct !== undefined && <p className="macro-hero__summary">换成实际口径（盈利收益率 − 10 年期 TIPS 实际利率 {num(tipsNow, 2, '%')}）是 <b>{realNow.toFixed(2)}</b> 个百分点，在 {rows[realFirst][0].slice(0, 4)} 年以来排在 {realPct.toFixed(0)}% 分位：扣掉通胀的影响之后，股票多拿的补偿依然很薄。</p>}
+        {(ly || lr) && <p className="macro-muted macro-spread__note">Forward PE 序列只更新到 {now[0]}；{ly && `10 年期美债最新为 ${ly.value.toFixed(2)}%（${ly.date}）`}{ly && lr && '，'}{lr && `TIPS 实际利率最新为 ${lr.value.toFixed(2)}%（${lr.date}）`}，没有同期 PE，不拼进序列。</p>}
       </section>
 
       <section className="macro-card" aria-label="走势">
         <figure className="macro-long macro-spread__figure">
           <div className="macro-long__bar" role="group" aria-label="美股股债息差时间范围">
             {RANGES.map(r => <button key={r.id} type="button" className={`macro-long__tab${range === r.id ? ' is-on' : ''}`} aria-pressed={range === r.id} onClick={() => { setRange(r.id); setHover(null) }}>{r.label}</button>)}
+            <button type="button" className={`macro-long__tab${showReal ? ' is-on' : ''}`} aria-pressed={showReal} onClick={() => setShowReal(v => !v)}>显示扣除通胀后的息差</button>
             <button type="button" className={`macro-long__tab${showBand ? ' is-on' : ''}`} aria-pressed={showBand} onClick={() => setShowBand(v => !v)}>叠加 A 股式通道</button>
-            <span className="macro-long__pct">{rows[cur][0]} · 息差 {rows[cur][1].toFixed(2)} · PE {rows[cur][3].toFixed(1)} · 10Y {rows[cur][4].toFixed(2)}% · 标普 {rows[cur][2].toFixed(0)}</span>
+            <span className="macro-long__pct">{rows[cur][0]} · 息差 {rows[cur][1].toFixed(2)} · PE {rows[cur][3].toFixed(1)} · 10Y {rows[cur][4].toFixed(2)}%{real[cur] !== undefined && ` · 扣通胀 ${real[cur]!.toFixed(2)}`} · 标普 {rows[cur][2].toFixed(0)}</span>
           </div>
           <h3 className="macro-h3">息差（百分点）与全样本分位线</h3>
           <svg viewBox={`0 0 ${W} ${H1}`} role="img" onPointerMove={onMove} onPointerLeave={() => setHover(null)}
@@ -130,8 +154,10 @@ export function UsSpreadView({ data }: { data: UsSpreadSnapshot }): JSX.Element 
             {area && <path className="macro-spread__band" d={area} />}
             {showBand && <path className="macro-spread__rail" d={line(i => check.bands[i]?.mid, y1)} strokeDasharray="4 3" />}
             {pLines.map(p => <g key={p.q}><line className="macro-spread__pct" x1={PAD.l} x2={W - PAD.r} y1={y1(p.v)} y2={y1(p.v)} /><text className="macro-long__label" x={W - PAD.r + 5} y={y1(p.v) + 3.5}>{p.q * 100}%</text></g>)}
+            {showReal && <path className="macro-spread__real" d={line(i => real[i], y1)} />}
             <path className="macro-spread__line" d={line(i => rows[i][1], y1)} />
             {hover !== null && <line className="macro-spark__cross" x1={x(hover)} x2={x(hover)} y1={PAD.t} y2={H1 - PAD.b} />}
+            {showReal && real[cur] !== undefined && <circle className="macro-spread__realdot" cx={x(cur)} cy={y1(real[cur]!)} r={3.5} />}
             <circle className="macro-spark__dot" cx={x(cur)} cy={y1(rows[cur][1])} r={4} />
           </svg>
           <h3 className="macro-h3 macro-spread__sub">标普500（对数坐标）</h3>
@@ -143,11 +169,32 @@ export function UsSpreadView({ data }: { data: UsSpreadSnapshot }): JSX.Element 
             <circle className="macro-long__mark" cx={x(cur)} cy={y2(rows[cur][2])} r={4} />
           </svg>
           <figcaption className="macro-muted macro-spread__legend">
-            <span><svg width="18" height="8" aria-hidden="true"><line className="macro-spread__line" x1="0" y1="4" x2="18" y2="4" /></svg>息差</span>
+            <span><svg width="18" height="8" aria-hidden="true"><line className="macro-spread__line" x1="0" y1="4" x2="18" y2="4" /></svg>息差（对名义 10 年期）</span>
+            {showReal && <span><svg width="18" height="8" aria-hidden="true"><line className="macro-spread__real" x1="0" y1="4" x2="18" y2="4" /></svg>扣除通胀后的息差（盈利收益率 − TIPS 实际利率，2003 年起）</span>}
             <span><svg width="18" height="8" aria-hidden="true"><line className="macro-spread__pct" x1="0" y1="4" x2="18" y2="4" /></svg>1990 年以来 20% / 50% / 80% 分位</span>
             {showBand && <span><svg width="18" height="10" aria-hidden="true"><rect className="macro-spread__band" width="18" height="10" /></svg>{data.window} 周 ±{data.k} 倍标准差通道</span>}
           </figcaption>
         </figure>
+      </section>
+
+      <section className="macro-card" aria-label="实际口径">
+        <h3>扣除通胀后的息差（实际口径）：盈利收益率 − 10 年期 TIPS 实际利率</h3>
+        <p className="macro-muted">盈利收益率（PE 的倒数）对应的是会随通胀增长的企业盈利，更接近实际回报；名义国债利率里含了通胀补偿。拿两者直接相减，通胀高、利率高的年份息差会被压低。换成 TIPS 实际利率，就把"利率高只是因为通胀高"这部分扣掉了。TIPS 是美国的通胀保值国债，本金随通胀调整，它的收益率就是扣掉通胀后的真实利率。</p>
+        <div className="macro-table-wrap">
+          <table className="macro-table macro-val">
+            <thead><tr><th>时期</th><th className="macro-val__n">名义息差</th><th className="macro-val__n">实际口径</th><th className="macro-val__n">10 年期美债</th><th className="macro-val__n">Forward PE</th></tr></thead>
+            <tbody>
+              {periods.map(p => <tr key={p.label}><td>{p.label}</td><td className="macro-val__n">{num(p.spread)}</td><td className="macro-val__n">{num(p.real)}</td><td className="macro-val__n">{num(p.y10, 2, '%')}</td><td className="macro-val__n">{num(p.pe, 1)}</td></tr>)}
+              <tr className="macro-spread__now"><td><b>现在（{now[0]}）</b></td><td className="macro-val__n"><b>{now[1].toFixed(2)}</b></td><td className="macro-val__n"><b>{num(realNow)}</b></td><td className="macro-val__n"><b>{now[4].toFixed(2)}%</b></td><td className="macro-val__n"><b>{now[3].toFixed(1)}</b></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <ul>
+          <li><b>名义口径看，现在低是"利率回到正常"的结果：</b>2009–21 年零利率把息差撑到 4 以上，那段才是例外；1990 年代息差长期为负，美股照样大涨。</li>
+          <li><b>实际口径看，补偿确实很薄：</b>现在 {num(realNow)}，处在 {rows[realFirst]?.[0].slice(0, 4)} 年以来 {realPct === undefined ? '—' : realPct.toFixed(0)}% 分位。TIPS 实际利率 {num(tipsNow, 2, '%')}，是 2008 年以来的高位，债券是真的变得有吸引力了，不只是通胀推高了名义利率。</li>
+          <li><b>同样低，构成不同：</b>1990 年代是利率高、PE 低（约 16 倍），之后还有 30 年利率下行的顺风；现在是利率高、PE 也高（约 20 倍）。要让息差修复，需要利率回落或盈利高增长，两者都没有时，只能靠 PE 下降。</li>
+          <li><b>证据强度：</b>实际口径与 3 年后年化收益的相关系数 {fmtR(real3.r)}（{real3.from.slice(0, 4)}–{real3.to.slice(0, 4)} 年起点，{real3.n} 周）。样本只有 20 年左右、真正独立的 3 年段不到 10 段，只能当参考，不能当规律。</li>
+        </ul>
       </section>
 
       <section className="macro-card" aria-label="分组收益">
@@ -218,10 +265,10 @@ export function UsSpreadView({ data }: { data: UsSpreadSnapshot }): JSX.Element 
         <ul>
           <li><b>回测结果：</b>触及上轨之后 1 年平均 {signed(y1Row?.up)}，低于平时的 {signed(y1Row?.base)}（上涨 {y1Row?.upWin}/{y1Row?.upN} 次）；3 年平均 {signed(y3Row?.up)}，和平时的 {signed(y3Row?.base)} 差不多。2007 年底到 2008 年连续触发上轨，之后一年标普跌了 17%～40%。跌破下轨之后 1 年平均 {signed(y1Row?.down)}，也没有更容易下跌，2022–2023 年几次跌破后一年反而涨了 15%～22%。两条轨都不能当买卖信号。</li>
           <li><b>原因一，美股盈利周期性强：</b>Forward PE 用的是分析师预测，衰退初期预测还没下调，PE 看着便宜（2008 年只有 12～14 倍），息差被抬高，实际是价值陷阱。沪深300 银行权重高，盈利相对平稳，这个问题小得多。</li>
-          <li><b>原因二，美债利率有长期趋势：</b>10 年期从 1990 年的 8% 一路降到 2020 年的 1% 以下，又回到 4% 以上。息差的大部分波动来自利率换挡，不是股票本身贵贱。这也是"美联储模型"常被批评的地方：盈利收益率是实际量，国债收益率是名义量，通胀变化时两者不可比。</li>
+          <li><b>原因二，美债利率有长期趋势：</b>10 年期从 1990 年的 8% 一路降到 2020 年的 1% 以下，又回到 4% 以上。息差的大部分波动来自利率换挡，不是股票本身贵贱。这也是"美联储模型"常被批评的地方：盈利收益率是实际量，国债收益率是名义量，通胀变化时两者不可比。上面的「实际口径」就是对这个问题的修正。</li>
           <li><b>原因三，滚动窗口会适应新常态：</b>3 年窗口的通道会跟着息差整体漂移。息差长期处在低位时，通道也一起下移，结果显示"中轨附近"，看不出风险。打开图上的"叠加 A 股式通道"可以直接看到。</li>
           <li><b>还剩下的用处：</b>息差水平对 1 年后的涨跌几乎没有解释力（相关系数 {fmtR(pairs1.r)}），对 3 年后的年化收益有一定参考（{fmtR(pairs3.r)}，只看 PE 倒数是 {fmtR(ey3.r)}）。分组表里最低一档 1 年内照样可能大涨（1995–1999 年泡沫期），但 3 年后的表现明显最差。所以这里只把它当慢变量：看现在处在历史哪一档、那一档过去 3 年的平均表现，不给买卖时点。</li>
-          <li><b>局限：</b>分位和分组用的是全样本，包含了"未来"数据，只能描述历史，不能当实时可得的规则；3 年前瞻收益的样本大量重叠，真正独立的观测只有十来段，相关系数看着比实际更可靠；指数不含分红（年化少约 1.5～2 个百分点）；Forward PE 与 A 股版的 TTM PE 口径不同，两边数值不能直接比较。</li>
+          <li><b>局限：</b>分位和分组用的是全样本，包含了"未来"数据，只能描述历史，不能当实时可得的规则；3 年前瞻收益的样本大量重叠，真正独立的观测只有十来段，相关系数看着比实际更可靠；1990–1997 年的 Forward PE 只有季度数据，按周计数的分位和分组里这段权重偏小，结论更偏向 1998 年以后；指数不含分红（年化少约 1.5～2 个百分点）；Forward PE 与 A 股版的 TTM PE 口径不同，两边数值不能直接比较。</li>
           <li><b>数据：</b>{data.source}。快照生成于 {data.generatedAt}，更新命令：<code>npm run spread:us-update</code>（先跑 <code>npm run index:update</code> 才能拿到新的 Forward PE）。</li>
         </ul>
       </section>

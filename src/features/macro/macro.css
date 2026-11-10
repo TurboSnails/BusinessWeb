@@ -183,3 +183,5 @@
 .macro-spread__figure { margin: 0; }
 .macro-spread__sub { margin-top: 12px; }
 .macro-spread__note { margin-top: 10px; }
+.macro-spread__real { fill: none; stroke: var(--accent-warm); stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; }
+.macro-spread__realdot { fill: var(--accent-warm); stroke: var(--bg-card); stroke-width: 1.5; }

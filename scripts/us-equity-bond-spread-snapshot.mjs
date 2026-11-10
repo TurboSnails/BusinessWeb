@@ -4,6 +4,7 @@
 // 息差 = 100 / 标普500 12 个月 Forward PE − 10 年期美债收益率（百分点），周度。
 // - Forward PE：public/data/index-history.json 里 spx.ref.points（History of Market，周度，随 npm run index:update 维护）
 // - 10 年期美债：FRED DGS10（取不晚于该周的最近一个观测）
+// - 10 年期 TIPS 实际利率：FRED DFII10（2003 年起），用于「盈利收益率 − 实际利率」口径
 // - 标普500 收盘：Yahoo ^GSPC 周线（价格指数，不含分红）
 // 只保存原始序列，分位、分组和通道回测都在前端计算。用法：npm run spread:us-update
 import { readFile, writeFile } from 'node:fs/promises'
@@ -21,9 +22,9 @@ function lastOnOrBefore(dates, values, day) {
   return hit >= 0 ? { date: dates[hit], value: values[hit] } : null
 }
 
-async function fredDgs10() {
-  const res = await fetch('https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS10&cosd=1989-01-01', { headers: UA, signal: AbortSignal.timeout(TIMEOUT_MS) })
-  if (!res.ok) throw new Error(`FRED DGS10 HTTP ${res.status}`)
+async function fred(id) {
+  const res = await fetch(`https://fred.stlouisfed.org/graph/fredgraph.csv?id=${id}&cosd=1989-01-01`, { headers: UA, signal: AbortSignal.timeout(TIMEOUT_MS) })
+  if (!res.ok) throw new Error(`FRED ${id} HTTP ${res.status}`)
   const lines = (await res.text()).trim().split(/\r?\n/).slice(1)
   const pts = lines.map(l => l.split(',')).filter(([, v]) => v && v !== '.').map(([d, v]) => [d, Number(v)])
   return { dates: pts.map(p => p[0]), values: pts.map(p => p[1]) }
@@ -44,26 +45,32 @@ async function main() {
   const spx = JSON.parse(await readFile(INDEX_FILE, 'utf8')).indexes.spx
   const fpe = spx?.ref?.points
   if (!Array.isArray(fpe) || fpe.length < 500) throw new Error('index-history.json 里的 spx.ref.points 缺失或过短')
-  const [y10, px] = await Promise.all([fredDgs10(), yahooWeekly()])
+  const [y10, tips, px] = await Promise.all([fred('DGS10'), fred('DFII10'), yahooWeekly()])
   const rows = []
+  /** [日期, TIPS 实际利率]，只收 TIPS 已有观测、且该观测不早于 10 天前的周 */
+  const real = []
   for (const [day, pe] of fpe) {
     const y = lastOnOrBefore(y10.dates, y10.values, day)
     const p = lastOnOrBefore(px.dates, px.values, day)
     if (!y || !p || !(pe > 0)) continue
     rows.push([day, Number((100 / pe - y.value).toFixed(3)), Number(p.value.toFixed(2)), pe, y.value])
+    const t = lastOnOrBefore(tips.dates, tips.values, day)
+    if (t && (Date.parse(day) - Date.parse(t.date)) / 86400000 <= 10) real.push([day, t.value])
   }
   if (rows.length < 1000) throw new Error(`只拼出 ${rows.length} 行，疑似上游异常，未写入`)
   const snapshot = {
     generatedAt: new Date().toISOString().slice(0, 10),
-    source: `Forward PE：${spx.ref.source}；10 年期美债：FRED DGS10；标普500：Yahoo ^GSPC 周线收盘（价格指数，不含分红）`,
+    source: `Forward PE：${spx.ref.source}；10 年期美债：FRED DGS10；10 年期 TIPS 实际利率：FRED DFII10；标普500：Yahoo ^GSPC 周线收盘（价格指数，不含分红）`,
     latestYield: { date: y10.dates.at(-1), value: y10.values.at(-1) },
+    latestReal: { date: tips.dates.at(-1), value: tips.values.at(-1) },
     window: 156,
     k: 2,
     rows,
+    real,
   }
   await writeFile(OUT, JSON.stringify(snapshot) + '\n')
   const last = rows.at(-1)
-  console.log(`已写入 ${OUT}：${rows.length} 行，${rows[0][0]} 至 ${last[0]}，最新息差 ${last[1]}（PE ${last[3]}，10Y ${last[4]}）`)
+  console.log(`已写入 ${OUT}：${rows.length} 行，${rows[0][0]} 至 ${last[0]}，最新息差 ${last[1]}（PE ${last[3]}，10Y ${last[4]}）；TIPS ${real.length} 周，自 ${real[0]?.[0]}`)
 }
 
 main().catch(e => { console.error(e.message); process.exitCode = 1 })

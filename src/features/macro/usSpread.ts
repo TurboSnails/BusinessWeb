@@ -10,6 +10,10 @@ export interface UsSpreadSnapshot {
   source: string
   /** FRED 上 10 年期美债的最新观测，可能比 PE 序列新 */
   latestYield?: { date: string; value: number }
+  /** FRED 上 10 年期 TIPS 实际利率的最新观测 */
+  latestReal?: { date: string; value: number }
+  /** [日期, 10 年期 TIPS 实际利率]，日期与 rows 对齐，2003 年起 */
+  real?: [string, number][]
   /** 对照用通道：窗口（周）与标准差倍数 */
   window: number
   k: number
@@ -110,4 +114,27 @@ export function channelCheck(rows: UsSpreadRow[], window: number, k: number, gap
       return { h, up: u.mean, down: d.mean, base: baselineReturn(rows, from, h), upWin: u.win, upN: u.n, downWin: d.win, downN: d.n }
     }),
   }
+}
+
+/** 实际口径息差：盈利收益率 − 10 年期 TIPS 实际利率，与 rows 一一对齐，没有 TIPS 的周为 undefined。
+ * 盈利收益率本身接近实际回报，用实际利率比较可以扣掉「利率高只是因为通胀高」的部分。 */
+export function realSpreads(data: UsSpreadSnapshot): (number | undefined)[] {
+  const tips = new Map(data.real ?? [])
+  return data.rows.map(r => { const t = tips.get(r[0]); return t === undefined ? undefined : 100 / r[3] - t })
+}
+
+export interface PeriodAvg { label: string; spread?: number; real?: number; y10?: number; pe?: number }
+
+/** 按时期统计名义、实际口径息差及 10 年期、PE 的均值；from/to 为含首尾的日期前缀 */
+export function periodAverages(rows: UsSpreadRow[], real: (number | undefined)[], periods: { label: string; from: string; to: string }[]): PeriodAvg[] {
+  return periods.map(({ label, from, to }) => {
+    const idx = rows.map((r, i) => (r[0] >= from && r[0].slice(0, to.length) <= to ? i : -1)).filter(i => i >= 0)
+    return {
+      label,
+      spread: average(idx.map(i => rows[i][1])),
+      real: average(idx.map(i => real[i])),
+      y10: average(idx.map(i => rows[i][4])),
+      pe: average(idx.map(i => rows[i][3])),
+    }
+  })
 }

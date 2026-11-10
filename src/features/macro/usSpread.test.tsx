@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { UsSpreadView } from './UsSpreadView'
-import { annualize, bucketOf, channelCheck, correlation, forwardPairs, percentileRank, quantile, spreadBuckets, type UsSpreadRow, type UsSpreadSnapshot } from './usSpread'
+import { annualize, bucketOf, channelCheck, correlation, forwardPairs, percentileRank, periodAverages, quantile, realSpreads, spreadBuckets, type UsSpreadRow, type UsSpreadSnapshot } from './usSpread'
 
 const day = (i: number): string => new Date(Date.UTC(1990, 0, 1 + i * 7)).toISOString().slice(0, 10)
 /** 构造周度行：息差、价格、PE、10Y */
@@ -49,6 +49,24 @@ describe('美股股债息差计算', () => {
     expect(forwardPairs(rows, 156).points).toHaveLength(44)
   })
 
+  it('实际口径：盈利收益率减同日 TIPS，没有 TIPS 的周留空', () => {
+    const rows = rowsOf(3, () => 2)
+    const snap: UsSpreadSnapshot = { generatedAt: '', source: '', window: 156, k: 2, rows, real: [[rows[1][0], 1.5], [rows[2][0], 2]] }
+    const real = realSpreads(snap)
+    expect(real[0]).toBeUndefined()
+    expect(real[1]).toBeCloseTo(100 / 20 - 1.5)
+    expect(real[2]).toBeCloseTo(3)
+  })
+
+  it('时期均值按年份前缀含首尾截取', () => {
+    // 1990-01-01 起每 7 天一个点，1990 年内共 53 个点（下标 0–52）
+    const rows = rowsOf(120, i => (rowsOf(120, () => 0)[i][0] < '1991' ? 1 : 3))
+    const [p] = periodAverages(rows, rows.map(() => undefined), [{ label: '1990', from: '1990', to: '1990' }])
+    expect(p.spread).toBeCloseTo(1)
+    expect(p.real).toBeUndefined()
+    expect(p.pe).toBe(20)
+  })
+
   it('通道对照沿用 A 股的触轨规则', () => {
     const spreads = [...Array(200).fill(1).map((v, i) => v + (i % 2) * 0.01), 5, 5, 1, 1, ...Array(60).fill(1)]
     const check = channelCheck(rowsOf(spreads.length, i => spreads[i]), 156, 2, 4, [13])
@@ -62,6 +80,7 @@ describe('UsSpreadView', () => {
     generatedAt: '2026-11-10', source: '测试', window: 156, k: 2,
     latestYield: { date: '2099-01-01', value: 4.1 },
     rows: rowsOf(600, i => 3 + Math.sin(i / 40)),
+    real: rowsOf(600, () => 0).slice(300).map(r => [r[0], 2]),
   }
 
   it('显示当前息差、分位与对照表，并能叠加通道', () => {
@@ -69,6 +88,8 @@ describe('UsSpreadView', () => {
     expect(screen.getByRole('heading', { level: 2 }).textContent).toContain(snap.rows.at(-1)![1].toFixed(2))
     expect(screen.getByText(/不拼进序列/)).toBeTruthy()
     expect(screen.getByText(/把 A 股的通道规则原样套到美股/)).toBeTruthy()
+    expect(screen.getByText(/换成实际口径/)).toBeTruthy()
+    expect(screen.getByRole('button', { name: '显示扣除通胀后的息差' }).getAttribute('aria-pressed')).toBe('true')
     const toggle = screen.getByRole('button', { name: '叠加 A 股式通道' })
     fireEvent.click(toggle)
     expect(toggle.getAttribute('aria-pressed')).toBe('true')
