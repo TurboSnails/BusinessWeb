@@ -15,6 +15,8 @@ import { ValuationView } from '../features/macro/ValuationView'
 import type { IndexSnapshot } from '../features/macro/valuation'
 import { SpreadView } from '../features/macro/SpreadView'
 import type { SpreadSnapshot } from '../features/macro/spread'
+import { UsSpreadView } from '../features/macro/UsSpreadView'
+import type { UsSpreadSnapshot } from '../features/macro/usSpread'
 import { ChinaView, GuideView, HkView, OverviewView, StagesView, UsView } from '../features/macro/MacroViews'
 import type { MacroSnapshot } from '../features/macro/indicators'
 import type { CnKey } from '../features/macro/china'
@@ -67,6 +69,9 @@ const timeText = (iso: string) => new Date(iso).toLocaleString('zh-CN', { month:
 
 let indexCache: IndexSnapshot | null = null
 let spreadCache: SpreadSnapshot | null = null
+let usSpreadCache: UsSpreadSnapshot | null = null
+type SpreadMarket = 'cn' | 'us'
+const SPREAD_MARKETS: TabItem<SpreadMarket>[] = [{ id: 'cn', label: 'A 股 · 沪深300' }, { id: 'us', label: '美股 · 标普500' }]
 
 export default function Monitor(): JSX.Element {
   const [params, setParams] = useSearchParams()
@@ -74,6 +79,9 @@ export default function Monitor(): JSX.Element {
   const [indexError, setIndexError] = useState(false)
   const [spread, setSpread] = useState<SpreadSnapshot | null>(spreadCache)
   const [spreadError, setSpreadError] = useState(false)
+  const [usSpread, setUsSpread] = useState<UsSpreadSnapshot | null>(usSpreadCache)
+  const [usSpreadError, setUsSpreadError] = useState(false)
+  const spreadMarket: SpreadMarket = params.get('mkt') === 'us' ? 'us' : 'cn'
   const tabParam = params.get('tab')
   const tab: TabId = TABS.some(t => t.id === tabParam) ? (tabParam as TabId) : 'overview'
   const archiveParam = params.get('old')
@@ -118,7 +126,8 @@ export default function Monitor(): JSX.Element {
 
   useEffect(() => {
     if (params.get('tab') !== 'spread') return
-    load('equity-bond-spread.json', { cache: 'no-cache' }).then((d: SpreadSnapshot) => { spreadCache = d; setSpread(d) }).catch(() => setSpreadError(true))
+    if (params.get('mkt') === 'us') load('us-equity-bond-spread.json', { cache: 'no-cache' }).then((d: UsSpreadSnapshot) => { usSpreadCache = d; setUsSpread(d) }).catch(() => setUsSpreadError(true))
+    else load('equity-bond-spread.json', { cache: 'no-cache' }).then((d: SpreadSnapshot) => { spreadCache = d; setSpread(d) }).catch(() => setSpreadError(true))
   }, [params])
 
   const go = (patch: Record<string, string | null>): void => setParams(prev => {
@@ -152,7 +161,13 @@ export default function Monitor(): JSX.Element {
         {snap && tab === 'hk' && (data.hk ? <HkView snap={data.hk} /> : <p role="alert" className="macro-muted">港股数据加载失败，请刷新重试。</p>)}
         {snap && tab === 'cycles' && <CyclesView us={snap} cn={data.cn} />}
         {tab === 'valuation' && (indexes ? <ValuationView data={indexes} onData={d => { indexCache = d }} /> : <p role={indexError ? 'alert' : 'status'} className="macro-muted">{indexError ? '指数数据加载失败，请刷新重试。' : '正在加载指数数据…'}</p>)}
-        {tab === 'spread' && (spread ? <SpreadView data={spread} /> : <p role={spreadError ? 'alert' : 'status'} className="macro-muted">{spreadError ? '股债息差数据加载失败，请刷新重试。' : '正在加载股债息差数据…'}</p>)}
+        {tab === 'spread' && (
+          <>
+            <div className="macro-spread__market"><Segmented label="股债息差市场" items={SPREAD_MARKETS} value={spreadMarket} onChange={id => go({ mkt: id === 'cn' ? null : id })} /></div>
+            {spreadMarket === 'cn' && (spread ? <SpreadView data={spread} /> : <p role={spreadError ? 'alert' : 'status'} className="macro-muted">{spreadError ? '股债息差数据加载失败，请刷新重试。' : '正在加载股债息差数据…'}</p>)}
+            {spreadMarket === 'us' && (usSpread ? <UsSpreadView data={usSpread} /> : <p role={usSpreadError ? 'alert' : 'status'} className="macro-muted">{usSpreadError ? '美股股债息差数据加载失败，请刷新重试。' : '正在加载美股股债息差数据…'}</p>)}
+          </>
+        )}
         {snap && tab === 'stages' && <StagesView snap={snap} />}
         {snap && tab === 'guide' && <GuideView snap={snap} cn={data.cn} hk={data.hk} />}
         {tab === 'archive' && (

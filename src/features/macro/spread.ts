@@ -1,8 +1,8 @@
 /** 股债息差通道：沪深300 盈利收益率减 10 年期国债收益率，配滚动均值加减 k 倍标准差。
  * 通道只用当天及之前的数据计算，不含未来数值。 */
 
-/** [日期, 息差（百分点）, 沪深300 收盘] */
-export type SpreadRow = [string, number, number]
+/** [日期, 息差（百分点）, 指数收盘, ...其他字段] —— 美股版额外带 Forward PE 与 10 年期收益率 */
+export type SpreadRow = [string, number, number, ...number[]]
 export interface SpreadSnapshot {
   generatedAt: string
   source: string
@@ -73,4 +73,15 @@ export function baselineReturn(rows: SpreadRow[], from: number, h: number): numb
 export const average = (values: (number | undefined)[]): number | undefined => {
   const v = values.filter((x): x is number => x !== undefined)
   return v.length ? v.reduce((a, b) => a + b, 0) / v.length : undefined
+}
+
+/** 带正负号的百分比文本 */
+export const signed = (v: number | undefined, d = 1): string => (v === undefined ? '—' : `${v > 0 ? '+' : ''}${v.toFixed(d)}%`)
+/** 坐标轴刻度：取 1/2/5 倍数的整齐步长 */
+export const niceTicks = (lo: number, hi: number, n: number): number[] => {
+  const raw = (hi - lo) / n, mag = 10 ** Math.floor(Math.log10(raw)), f = raw / mag
+  const step = (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * mag
+  const out: number[] = []
+  for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(Number(v.toFixed(6)))
+  return out
 }

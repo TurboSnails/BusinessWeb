@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import { ToneBadge } from './MacroViews'
 import type { Tone } from './stages'
-import { HORIZONS, average, baselineReturn, buildChannel, forwardReturn, sigmaOf, touchEvents, zoneOf, type SpreadSnapshot, type Zone } from './spread'
+import { HORIZONS, average, niceTicks, signed, baselineReturn, buildChannel, forwardReturn, sigmaOf, touchEvents, zoneOf, type SpreadSnapshot, type Zone } from './spread'
 import './macro.css'
 
 const W = 720
@@ -16,14 +16,6 @@ const ZONE: Record<Zone, { tone: Tone; label: string; text: string }> = {
   lower: { tone: 'red', label: '已跌破下轨', text: '股票相对债券处在历史上很贵的位置。' },
   above: { tone: 'gray', label: '中轨与上轨之间', text: '' },
   below: { tone: 'gray', label: '下轨与中轨之间', text: '' },
-}
-const signed = (v: number | undefined, d = 1): string => (v === undefined ? '—' : `${v > 0 ? '+' : ''}${v.toFixed(d)}%`)
-const niceTicks = (lo: number, hi: number, n: number): number[] => {
-  const raw = (hi - lo) / n, mag = 10 ** Math.floor(Math.log10(raw)), f = raw / mag
-  const step = (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * mag
-  const out: number[] = []
-  for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(Number(v.toFixed(6)))
-  return out
 }
 
 function EventTable({ title, hint, events, data, base }: { title: string; hint: string; events: number[]; data: SpreadSnapshot; base: (number | undefined)[] }): JSX.Element {

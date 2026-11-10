@@ -176,3 +176,7 @@
 .macro-spread__legend span { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
 .macro-long .macro-spread__legend svg { flex: none; display: inline-block; width: auto; cursor: default; }
 .macro-spread__tables { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 16px; align-items: start; }
+.macro-spread__pct { fill: none; stroke: var(--text-tertiary); stroke-width: 1; stroke-dasharray: 2 4; }
+.macro-spread__dot { fill: var(--accent); fill-opacity: 0.22; stroke: none; }
+.macro-spread__nowline { stroke: var(--accent-warm); stroke-width: 1.5; }
+.macro-spread__market { margin-bottom: 4px; }
