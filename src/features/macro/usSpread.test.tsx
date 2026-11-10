@@ -82,6 +82,19 @@ describe('美股股债息差计算', () => {
     expect(pe.years).toBe(0)                 // PE 中位数就是 20，已在中位数上
   })
 
+  it('回到中位数：扣除通胀的口径另给零利率之前与 2022 年以来两个锚点', () => {
+    const day0 = (y: number, w: number): string => new Date(Date.UTC(y, 0, 1 + w * 7)).toISOString().slice(0, 10)
+    const rows: UsSpreadRow[] = [2004, 2015, 2023].flatMap(y => Array.from({ length: 30 }, (_, w) => [day0(y, w), 1, 100, 20, 3] as UsSpreadRow))
+    const tipsOf = (d: string): number => (d < '2009' ? 1 : d < '2022' ? 0 : 2)
+    const snap: UsSpreadSnapshot = { generatedAt: '', source: '', window: 156, k: 2, rows, real: rows.map(r => [r[0], tipsOf(r[0])]) }
+    const labels = reversionScenarios(snap, realSpreads(snap), 0.07).map(r => r.label)
+    expect(labels.filter(l => l.startsWith('扣除通胀'))).toHaveLength(3)
+    const pre = reversionScenarios(snap, realSpreads(snap), 0.07).find(r => r.label.includes('2003–2008'))!
+    expect(pre.median).toBeCloseTo(5 - 1)    // 盈利收益率 5% − TIPS 1%
+    const cur = reversionScenarios(snap, realSpreads(snap), 0.07).find(r => r.label.includes('2022'))!
+    expect(cur.median).toBeCloseTo(5 - 2)
+  })
+
   it('通道对照沿用 A 股的触轨规则', () => {
     const spreads = [...Array(200).fill(1).map((v, i) => v + (i % 2) * 0.01), 5, 5, 1, 1, ...Array(60).fill(1)]
     const check = channelCheck(rowsOf(spreads.length, i => spreads[i]), 156, 2, 4, [13])

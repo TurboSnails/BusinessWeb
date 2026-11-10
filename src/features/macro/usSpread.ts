@@ -177,7 +177,16 @@ export function reversionScenarios(data: UsSpreadSnapshot, real: (number | undef
   const pre = rows.filter(r => r[0] < '2009').map(r => r[1])
   if (pre.length) { const m = median(pre); add('名义息差 · 1990–2008 中位数（零利率之前）', m, 'pp', 100 / (m + y10), ey - m, '10 年期美债') }
   const rv = real.filter((v): v is number => v !== undefined)
-  if (rv.length && tips !== undefined) { const m = median(rv); add(`扣除通胀后的息差 · ${rows[real.findIndex(v => v !== undefined)][0].slice(0, 4)} 年以来中位数`, m, 'pp', 100 / (m + tips), ey - m, 'TIPS 实际利率') }
+  if (rv.length && tips !== undefined) {
+    const m = median(rv)
+    add(`扣除通胀后的息差 · ${rows[real.findIndex(v => v !== undefined)][0].slice(0, 4)} 年以来中位数`, m, 'pp', 100 / (m + tips), ey - m, 'TIPS 实际利率')
+    // 2003 年以来大半是零利率期，另给零利率之前与本轮高利率期两个对照
+    const slice = (from: string, to: string): number[] => real.filter((v, i): v is number => v !== undefined && rows[i][0].slice(0, 4) >= from && rows[i][0].slice(0, 4) <= to)
+    for (const [label, from, to] of [['2003–2008 中位数（零利率之前）', '2003', '2008'], ['2022 年至今中位数（本轮高利率期）', '2022', '9999']] as const) {
+      const v = slice(from, to)
+      if (v.length >= 26) { const mm = median(v); add(`扣除通胀后的息差 · ${label}`, mm, 'pp', 100 / (mm + tips), ey - mm, 'TIPS 实际利率') }
+    }
+  }
   const pm = median(rows.map(r => r[3]))
   add('Forward PE · 1990 年以来中位数', pm, 'x', pm)
   return out
