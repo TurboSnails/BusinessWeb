@@ -112,11 +112,11 @@ export function UsSpreadView({ data }: { data: UsSpreadSnapshot }): JSX.Element 
           <div><dt>10 年期美债</dt><dd>{now[4].toFixed(2)}%</dd></div>
           <div><dt>标普500</dt><dd>{now[2].toFixed(0)}</dd></div>
         </dl>
-        {ly && <p className="macro-muted" style={{ marginTop: 10 }}>Forward PE 序列只更新到 {now[0]}；10 年期美债最新为 {ly.value.toFixed(2)}%（{ly.date}），没有同期 PE，不拼进序列。</p>}
+        {ly && <p className="macro-muted macro-spread__note">Forward PE 序列只更新到 {now[0]}；10 年期美债最新为 {ly.value.toFixed(2)}%（{ly.date}），没有同期 PE，不拼进序列。</p>}
       </section>
 
       <section className="macro-card" aria-label="走势">
-        <figure className="macro-long" style={{ margin: 0 }}>
+        <figure className="macro-long macro-spread__figure">
           <div className="macro-long__bar" role="group" aria-label="美股股债息差时间范围">
             {RANGES.map(r => <button key={r.id} type="button" className={`macro-long__tab${range === r.id ? ' is-on' : ''}`} aria-pressed={range === r.id} onClick={() => { setRange(r.id); setHover(null) }}>{r.label}</button>)}
             <button type="button" className={`macro-long__tab${showBand ? ' is-on' : ''}`} aria-pressed={showBand} onClick={() => setShowBand(v => !v)}>叠加 A 股式通道</button>
@@ -134,7 +134,7 @@ export function UsSpreadView({ data }: { data: UsSpreadSnapshot }): JSX.Element 
             {hover !== null && <line className="macro-spark__cross" x1={x(hover)} x2={x(hover)} y1={PAD.t} y2={H1 - PAD.b} />}
             <circle className="macro-spark__dot" cx={x(cur)} cy={y1(rows[cur][1])} r={4} />
           </svg>
-          <h3 className="macro-h3" style={{ marginTop: 12 }}>标普500（对数坐标）</h3>
+          <h3 className="macro-h3 macro-spread__sub">标普500（对数坐标）</h3>
           <svg viewBox={`0 0 ${W} ${H2}`} role="img" onPointerMove={onMove} onPointerLeave={() => setHover(null)} aria-label={`标普500 同期走势，最新 ${now[2].toFixed(0)}`}>
             {priceTicks.map(v => <g key={v}><line className="macro-spark__threshold" x1={PAD.l} x2={W - PAD.r} y1={y2(v)} y2={y2(v)} /><text className="macro-long__label" x={PAD.l - 5} y={y2(v) + 3.5} textAnchor="end">{v}</text></g>)}
             {xAxis(H2)}

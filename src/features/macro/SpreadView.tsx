@@ -125,7 +125,7 @@ export function SpreadView({ data }: { data: SpreadSnapshot }): JSX.Element {
       </section>
 
       <section className="macro-card" aria-label="走势">
-        <figure className="macro-long" style={{ margin: 0 }}>
+        <figure className="macro-long macro-spread__figure">
           <div className="macro-long__bar" role="group" aria-label="股债息差时间范围">
             {RANGES.map(r => <button key={r.id} type="button" className={`macro-long__tab${range === r.id ? ' is-on' : ''}`} aria-pressed={range === r.id} onClick={() => { setRange(r.id); setHover(null) }}>{r.label}</button>)}
             <span className="macro-long__pct">{rows[cur][0]} · 息差 {rows[cur][1].toFixed(2)}{cb && ` · 偏离 ${sigmaOf(rows[cur][1], cb, data.k) >= 0 ? '+' : ''}${sigmaOf(rows[cur][1], cb, data.k).toFixed(2)} 倍`} · 沪深300 {rows[cur][2].toFixed(0)}</span>
@@ -145,7 +145,7 @@ export function SpreadView({ data }: { data: SpreadSnapshot }): JSX.Element {
             {hover !== null && <line className="macro-spark__cross" x1={x(hover)} x2={x(hover)} y1={PAD.t} y2={H1 - PAD.b} />}
             <circle className="macro-spark__dot" cx={x(cur)} cy={s1.y(rows[cur][1])} r={4} />
           </svg>
-          <h3 className="macro-h3" style={{ marginTop: 12 }}>沪深300 指数</h3>
+          <h3 className="macro-h3 macro-spread__sub">沪深300 指数</h3>
           <svg viewBox={`0 0 ${W} ${H2}`} role="img" onPointerMove={onMove} onPointerLeave={() => setHover(null)} aria-label={`沪深300 指数同期走势，最新 ${now[2].toFixed(0)}`}>
             {axis(H2, niceTicks(s2.lo, s2.hi, 4), s2.y, 0)}
             <path className="macro-spark__line" d={line(i => rows[i][2], s2.y)} />
