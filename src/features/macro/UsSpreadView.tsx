@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react'
 import { ToneBadge } from './MacroViews'
 import type { Tone } from './stages'
 import { niceTicks, signed } from './spread'
-import { US_HORIZONS, bucketOf, channelCheck, correlation, forwardPairs, horizonLabel, percentileRank, periodAverages, quantile, realSpreads, spreadBuckets, type UsSpreadSnapshot } from './usSpread'
+import { US_HORIZONS, bucketOf, channelCheck, correlation, forwardPairs, horizonLabel, percentileRank, periodAverages, quantile, realSpreads, reversionScenarios, spreadBuckets, type UsSpreadSnapshot } from './usSpread'
 import './macro.css'
 
 const W = 720
@@ -20,6 +20,7 @@ const PERIODS = [
   { label: '2009–21（零利率 / QE）', from: '2009', to: '2021' },
   { label: '2022 至今', from: '2022', to: '2099' },
 ]
+const GROWTHS = [0.05, 0.07, 0.1] as const
 const num = (v: number | undefined, d = 2, unit = ''): string => (v === undefined ? '—' : `${v.toFixed(d)}${unit}`)
 const fmtR = (r: number): string => (Number.isFinite(r) ? `${r >= 0 ? '+' : ''}${r.toFixed(2)}` : '—')
 
@@ -34,6 +35,7 @@ export function UsSpreadView({ data }: { data: UsSpreadSnapshot }): JSX.Element 
   const [range, setRange] = useState<RangeId>('all')
   const [showBand, setShowBand] = useState(false)
   const [showReal, setShowReal] = useState(true)
+  const [growth, setGrowth] = useState<(typeof GROWTHS)[number]>(0.07)
   const [hover, setHover] = useState<number | null>(null)
   const { rows } = data
   const values = useMemo(() => rows.map(r => r[1]), [rows])
@@ -46,6 +48,7 @@ export function UsSpreadView({ data }: { data: UsSpreadSnapshot }): JSX.Element 
   const real = useMemo(() => realSpreads(data), [data])
   const realVals = useMemo(() => real.filter((v): v is number => v !== undefined), [real])
   const periods = useMemo(() => periodAverages(rows, real, PERIODS), [rows, real])
+  const reversions = useMemo(() => (rows.length ? reversionScenarios(data, real, growth) : []), [data, real, growth, rows.length])
   const real3 = useMemo(() => {
     const pairs = pairs3.points.filter(p => real[p[2]] !== undefined)
     return { r: correlation(pairs.map(p => real[p[2]]!), pairs.map(p => p[1])), n: pairs.length, from: pairs[0] ? rows[pairs[0][2]][0] : '', to: pairs.at(-1) ? rows[pairs.at(-1)![2]][0] : '' }
@@ -175,6 +178,37 @@ export function UsSpreadView({ data }: { data: UsSpreadSnapshot }): JSX.Element 
             {showBand && <span><svg width="18" height="10" aria-hidden="true"><rect className="macro-spread__band" width="18" height="10" /></svg>{data.window} 周 ±{data.k} 倍标准差通道</span>}
           </figcaption>
         </figure>
+      </section>
+
+      <section className="macro-card" aria-label="回到中位数">
+        <h3>如果回到历史中位数，离现在有多远</h3>
+        <p className="macro-muted">息差 = 盈利收益率 − 利率，要回到中位数有三条路：指数下跌、利率下降，或者价格横着走、等盈利增长把 PE 消化掉。下表分别算出每条路要走多远（以 {now[0]} 的 PE {now[3].toFixed(1)}、10 年期 {now[4].toFixed(2)}% 为起点，假设 Forward EPS 不变）。</p>
+        <div className="macro-long__bar" role="group" aria-label="假设的盈利年增速">
+          <span className="macro-muted">横盘消化时假设盈利年增</span>
+          {GROWTHS.map(g => <button key={g} type="button" className={`macro-long__tab${growth === g ? ' is-on' : ''}`} aria-pressed={growth === g} onClick={() => setGrowth(g)}>{Math.round(g * 100)}%</button>)}
+        </div>
+        <div className="macro-table-wrap">
+          <table className="macro-table macro-val">
+            <thead><tr><th>回到哪个中位数</th><th className="macro-val__n">中位数</th><th className="macro-val__n">对应 PE</th><th className="macro-val__n">① 利率不变，指数需要</th><th className="macro-val__n">② 价格不变，利率需降到</th><th className="macro-val__n">③ 价格横盘，需要</th></tr></thead>
+            <tbody>
+              {reversions.map(r => (
+                <tr key={r.label}>
+                  <td>{r.label}</td>
+                  <td className="macro-val__n">{r.unit === 'pp' ? `${r.median.toFixed(2)} 个百分点` : `${r.median.toFixed(1)} 倍`}</td>
+                  <td className="macro-val__n">{r.targetPe.toFixed(1)}</td>
+                  <td className="macro-val__n"><b>{signed(r.priceChange)}</b></td>
+                  <td className="macro-val__n">{r.rateNeeded === undefined ? '—' : `${r.rateName} ${r.rateNeeded.toFixed(2)}%`}</td>
+                  <td className="macro-val__n">{r.years > 0 ? `${r.years.toFixed(1)} 年` : '已在中位数之上'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <ul>
+          <li><b>这是"距离"，不是"预测"：</b>均值回归不是必然。1990 年代息差长期低于全样本中位数，标普照样大涨；现实中也常常是三条路混着走，比如跌一些、利率降一些、盈利再涨一些。</li>
+          <li><b>中位数取哪段很关键：</b>全样本中位数被 2009–21 年零利率期抬高了，所以另给了"零利率之前"的中位数作对照，两者算出来的距离差别不小。</li>
+          <li><b>没算进去的：</b>Forward EPS 本身会被上调或下调；跌价那一列是"今天立刻回到中位数"的瞬时距离，没有算分红。{ly && `10 年期已经升到 ${ly.value.toFixed(2)}%（${ly.date}），如果 PE 没变，距离会比表里更远。`}</li>
+        </ul>
       </section>
 
       <section className="macro-card" aria-label="实际口径">

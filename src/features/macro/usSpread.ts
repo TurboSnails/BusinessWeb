@@ -138,3 +138,47 @@ export function periodAverages(rows: UsSpreadRow[], real: (number | undefined)[]
     }
   })
 }
+
+export interface Reversion {
+  label: string
+  /** 中位数取值（息差为百分点，PE 为倍数） */
+  median: number
+  unit: 'pp' | 'x'
+  targetPe: number
+  /** 利率和 Forward EPS 不变时，指数需要的涨跌（%） */
+  priceChange: number
+  /** 价格和 EPS 不变时，利率需要降到多少（%），以及是哪种利率；PE 锚点为 undefined */
+  rateNeeded?: number
+  rateName?: string
+  /** 价格横盘、EPS 按 g 增长时，需要几年把 PE 消化到目标；目标高于现值时为 0 */
+  years: number
+}
+
+/** 「回到中位数」的几种锚点：名义息差（全样本 / 零利率之前）、扣除通胀后的息差、Forward PE 本身。
+ * 只算现在离中位数有多远，不代表一定会回去。 */
+export function reversionScenarios(data: UsSpreadSnapshot, real: (number | undefined)[], growth: number): Reversion[] {
+  const { rows } = data
+  const last = rows.length - 1
+  const now = rows[last]
+  const pe = now[3], ey = 100 / pe, y10 = now[4]
+  const median = (v: number[]): number => quantile([...v].sort((a, b) => a - b), 0.5)
+  const realNow = real[last]
+  const tips = realNow === undefined ? undefined : ey - realNow
+  const out: Reversion[] = []
+  const add = (label: string, m: number, unit: Reversion['unit'], targetPe: number, rateNeeded?: number, rateName?: string): void => {
+    out.push({
+      label, median: m, unit, targetPe, rateNeeded, rateName,
+      priceChange: (targetPe / pe - 1) * 100,
+      years: targetPe >= pe ? 0 : Math.log(pe / targetPe) / Math.log(1 + growth),
+    })
+  }
+  const all = median(rows.map(r => r[1]))
+  add('名义息差 · 1990 年以来中位数', all, 'pp', 100 / (all + y10), ey - all, '10 年期美债')
+  const pre = rows.filter(r => r[0] < '2009').map(r => r[1])
+  if (pre.length) { const m = median(pre); add('名义息差 · 1990–2008 中位数（零利率之前）', m, 'pp', 100 / (m + y10), ey - m, '10 年期美债') }
+  const rv = real.filter((v): v is number => v !== undefined)
+  if (rv.length && tips !== undefined) { const m = median(rv); add(`扣除通胀后的息差 · ${rows[real.findIndex(v => v !== undefined)][0].slice(0, 4)} 年以来中位数`, m, 'pp', 100 / (m + tips), ey - m, 'TIPS 实际利率') }
+  const pm = median(rows.map(r => r[3]))
+  add('Forward PE · 1990 年以来中位数', pm, 'x', pm)
+  return out
+}

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { UsSpreadView } from './UsSpreadView'
-import { annualize, bucketOf, channelCheck, correlation, forwardPairs, percentileRank, periodAverages, quantile, realSpreads, spreadBuckets, type UsSpreadRow, type UsSpreadSnapshot } from './usSpread'
+import { annualize, bucketOf, channelCheck, correlation, forwardPairs, percentileRank, periodAverages, quantile, realSpreads, reversionScenarios, spreadBuckets, type UsSpreadRow, type UsSpreadSnapshot } from './usSpread'
 
 const day = (i: number): string => new Date(Date.UTC(1990, 0, 1 + i * 7)).toISOString().slice(0, 10)
 /** 构造周度行：息差、价格、PE、10Y */
@@ -67,6 +67,21 @@ describe('美股股债息差计算', () => {
     expect(p.pe).toBe(20)
   })
 
+  it('回到中位数：利率不变时的目标 PE、所需利率与横盘年数', () => {
+    // 息差 2 和 4 混合；最后一周 PE 20（盈利收益率 5%）、10Y 3
+    const rows = rowsOf(100, i => (i < 50 ? 2 : 4)).map((r, i, all) => (i === all.length - 1 ? [r[0], 2, r[2], 20, 3] as UsSpreadRow : r))
+    const snap: UsSpreadSnapshot = { generatedAt: '', source: '', window: 156, k: 2, rows }
+    const [nominal] = reversionScenarios(snap, rows.map(() => undefined), 0.1)
+    expect([2, 3, 4]).toContain(Math.round(nominal.median))
+    expect(nominal.targetPe).toBeCloseTo(100 / (nominal.median + 3))
+    expect(nominal.priceChange).toBeCloseTo((nominal.targetPe / 20 - 1) * 100)
+    expect(nominal.rateNeeded).toBeCloseTo(5 - nominal.median)
+    expect(nominal.years).toBeCloseTo(Math.log(20 / nominal.targetPe) / Math.log(1.1))
+    const pe = reversionScenarios(snap, rows.map(() => undefined), 0.1).at(-1)!
+    expect(pe.unit).toBe('x')
+    expect(pe.years).toBe(0)                 // PE 中位数就是 20，已在中位数上
+  })
+
   it('通道对照沿用 A 股的触轨规则', () => {
     const spreads = [...Array(200).fill(1).map((v, i) => v + (i % 2) * 0.01), 5, 5, 1, 1, ...Array(60).fill(1)]
     const check = channelCheck(rowsOf(spreads.length, i => spreads[i]), 156, 2, 4, [13])
@@ -89,6 +104,9 @@ describe('UsSpreadView', () => {
     expect(screen.getByText(/不拼进序列/)).toBeTruthy()
     expect(screen.getByText(/把 A 股的通道规则原样套到美股/)).toBeTruthy()
     expect(screen.getByText(/换成实际口径/)).toBeTruthy()
+    expect(screen.getByText(/如果回到历史中位数/)).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: '10%' }))
+    expect(screen.getByRole('button', { name: '10%' }).getAttribute('aria-pressed')).toBe('true')
     expect(screen.getByRole('button', { name: '显示扣除通胀后的息差' }).getAttribute('aria-pressed')).toBe('true')
     const toggle = screen.getByRole('button', { name: '叠加 A 股式通道' })
     fireEvent.click(toggle)
