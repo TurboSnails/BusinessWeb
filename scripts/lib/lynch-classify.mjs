@@ -75,7 +75,6 @@ export function computePeg(type, entry) {
 
 export function attentionAssessment(type, attention, entry) {
   const pe = num(entry?.pe)
-  const eg = effectiveGrowth(entry)
   const peTxt = pe == null ? 'PE 缺失' : `PE ${round1(pe)}×`
   if (type === '快速增长型') {
     const peg = computePeg(type, entry)

@@ -3,7 +3,7 @@
 // 成分来源：datasets/s-and-p-500-companies（维基同步维护的公开 CSV，非标普官方权重导出）。
 // 圆桌快照：Yahoo 批量报价，只覆盖既有圆桌标的与 ^GSPC，不重写研究结论。
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
-import { dirname, join } from 'node:path'
+import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
@@ -183,7 +183,7 @@ export const SPX_MEMBERS = [${symbolsLiteral}]
     quoteSource = `${local.source}（Yahoo 直连失败：${e instanceof Error ? e.message : e}）`
   }
   const missing = ROUNDTABLE.filter(s => !quotes[s])
-  for (const [sym, q] of Object.entries(quotes)) {
+  for (const q of Object.values(quotes)) {
     if (q.epsTrailingTwelveMonths != null && q.trailingEps == null) q.trailingEps = q.epsTrailingTwelveMonths
     if (q.epsForward != null && q.forwardEps == null) q.forwardEps = q.epsForward
   }
