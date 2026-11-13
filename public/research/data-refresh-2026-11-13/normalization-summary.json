@@ -1,0 +1,54 @@
+{
+  "auditDate": "2026-11-13",
+  "normalizedAt": "2026-11-13T15:48:24.544394+00:00",
+  "mcpInfoSuccess": 1857,
+  "mcpInfoErrors": 275,
+  "quoteSymbols": 1870,
+  "companyRecordsCovered": 1540,
+  "companyRecordsRequested": 1540,
+  "macroUpdatedFields": {
+    "us": [
+      "dxy",
+      "silver",
+      "wti"
+    ],
+    "cn": [],
+    "hk": []
+  },
+  "futureUpdated": 625,
+  "solidListingsUpdated": 68,
+  "solidReviewFinancialAbstractsUpdated": 46,
+  "lynchPeUpdated": 1517,
+  "unresolvedMcpSymbols": [
+    "601059.SS",
+    "601198.SS",
+    "832522.BJ",
+    "835185.BJ",
+    "873593.BJ",
+    "920185.BJ",
+    "920522.BJ",
+    "BK",
+    "GWH",
+    "KVUE",
+    "PSKY",
+    "PSTG",
+    "QRVO",
+    "WBD",
+    "ZF"
+  ],
+  "rejected": [
+    {
+      "symbol": "832522.BJ",
+      "reason": "Obsolete BSE ticker; use the verified 920 code, not the same-day 09:00 stub"
+    },
+    {
+      "symbol": "835185.BJ",
+      "reason": "Obsolete BSE ticker; use the verified 920 code, not the same-day 09:00 stub"
+    },
+    {
+      "symbol": "ZF",
+      "reason": "Quote older than live research quote"
+    }
+  ],
+  "researchBoundary": "仅行情和实际返回摘要字段更新；原模型、原件精度、研究日期保留；空表/限流不能算财报更新"
+}

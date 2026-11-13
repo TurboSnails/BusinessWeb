@@ -49,7 +49,7 @@ export const notionIds: Record<string, string> = {
   'BDX': '3e3ebbd590c681a79702d2faf59be633',
   'BEN': '3e3ebbd590c681df9f2df9fdc9708f31',
   'BIIB': '3e2ebbd590c681a58b94da54fcab82a8',
-  'BK': '3e3ebbd590c681e98c6dfe2b06a78fce',
+  'BNY': '3e3ebbd590c681e98c6dfe2b06a78fce', // 原 BK；纽约梅隆现行代码 BNY
   'BKNG': '3eaebbd590c681cea337d75330968357',
   'BLK': '3e3ebbd590c681eab278f5a9dfb94338',
   'BMY': '3e2ebbd590c681148b45dff68d1ad4d3',

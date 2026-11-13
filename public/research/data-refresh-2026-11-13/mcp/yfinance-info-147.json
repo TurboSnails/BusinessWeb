@@ -1,0 +1,76 @@
+{
+  "server": "yfinance",
+  "tool": "get_multiple_tickers_info",
+  "arguments": {
+    "symbols": [
+      "SYK",
+      "SYM",
+      "SYY",
+      "T",
+      "TAL",
+      "TCOM",
+      "TD",
+      "TDG",
+      "TDY",
+      "TEAM",
+      "TECH",
+      "TEL"
+    ]
+  },
+  "requestedAt": "2026-11-13T15:30:16.117131+00:00",
+  "retrievedAt": "2026-11-13T15:30:19.201727+00:00",
+  "data": {
+    "symbols": [
+      "SYK",
+      "SYM",
+      "SYY",
+      "T",
+      "TAL",
+      "TCOM",
+      "TD",
+      "TDG",
+      "TDY",
+      "TEAM",
+      "TECH",
+      "TEL"
+    ],
+    "results": {
+      "SYK": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "SYM": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "SYY": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "T": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "TAL": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "TCOM": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "TD": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "TDG": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "TDY": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "TEAM": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "TECH": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "TEL": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      }
+    }
+  }
+}

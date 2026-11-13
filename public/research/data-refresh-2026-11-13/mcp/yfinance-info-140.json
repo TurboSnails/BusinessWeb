@@ -1,0 +1,76 @@
+{
+  "server": "yfinance",
+  "tool": "get_multiple_tickers_info",
+  "arguments": {
+    "symbols": [
+      "PSX",
+      "PTC",
+      "PWR",
+      "PYPL",
+      "Q",
+      "QBTS",
+      "QCOM",
+      "QNT",
+      "QRVO",
+      "QS",
+      "QUBT",
+      "RBLX"
+    ]
+  },
+  "requestedAt": "2026-11-13T15:30:04.445115+00:00",
+  "retrievedAt": "2026-11-13T15:30:07.694442+00:00",
+  "data": {
+    "symbols": [
+      "PSX",
+      "PTC",
+      "PWR",
+      "PYPL",
+      "Q",
+      "QBTS",
+      "QCOM",
+      "QNT",
+      "QRVO",
+      "QS",
+      "QUBT",
+      "RBLX"
+    ],
+    "results": {
+      "PSX": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "PTC": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "PWR": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "PYPL": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "Q": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "QBTS": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "QCOM": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "QNT": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "QRVO": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "QS": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "QUBT": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "RBLX": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      }
+    }
+  }
+}

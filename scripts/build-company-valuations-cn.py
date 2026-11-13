@@ -51,27 +51,19 @@ PB_TRIPLET = re.compile(r'=\s*([\d.]+)\s*×')  # 稳态PB=(ROE−g)/(Ke−g)=0.7
 RESEARCH_EPS = re.compile(r'正常化归母利润\s*([\d.]+)\s*亿元[^×]*?÷参考股数\s*([\d.]+)\s*亿股')
 RESEARCH_BVPS = re.compile(r'普通股BVPS\s*([\d.]+)\s*元')
 
-PB_APPLICABLE_SECTORS = {'金融', '房地产', '公用事业', '能源', '原材料', '化工', '新材料', '工业',
-                         '新能源汽车', '自动驾驶', '机器人链', '工程机械', 'AI 算力', '高盛增持'}
+# sector 一律为中证一级（主题桶与「高盛增持」已移到 theme 字段，不参与 PB 判断；见 src/data/sectorTaxonomy.ts）
+PB_APPLICABLE_SECTORS = {'金融', '房地产', '公用事业', '能源', '原材料', '工业'}
 PB_NOT_APPLICABLE_SECTORS = {'信息技术', '医药卫生', '通信服务', '可选消费', '主要消费'}
 PB_CONTEXT = {
     '金融': '银行/保险以稳态PB=(ROE−g)/(CoE−g)为锚，证券与控股层需母公司NAV折价桥接；目标PB须同口径ROE与股权成本依据',
     '房地产': '资产型（开发物业与投资性房地产），账面值有约束力但重估与减值缺口大；NAV桥接未闭合前不给目标PB',
     '公用事业': '受监管资产型，账面值有约束力；目标PB缺受监管回报率同口径依据，未计值',
     '能源': '资源与资产型，账面值受油价/煤价/周期影响大；目标PB缺中周期ROE依据，未计值',
-    '原材料': '周期资产型；目标PB需中周期ROE依据，原研究未给出，未计值',
-    '化工': '周期资产型（资本密集产能）；目标PB需中周期ROE依据，未计值',
-    '新材料': '材料产能资产型；目标PB需中周期ROE依据，未计值',
-    '工业': '资产与产能型；旧盈利模型已撤回，目标PB缺可持续ROE依据，未计值',
-    '新能源汽车': '整车/零部件制造，账面值有参照但技术迭代与产能利用率扰动大；目标PB未计值',
-    '自动驾驶': '汽车零部件制造，账面值有参照；目标PB缺同口径ROE依据，未计值',
-    '机器人链': '设备与零部件制造，账面值有参照；目标PB缺同口径ROE依据，未计值',
-    '工程机械': '重资产制造，账面值有参照；目标PB缺同口径ROE依据，未计值',
-    'AI 算力': '硬件制造（服务器/光模块/IDC），资本开支重；账面值有参照但折旧与迭代快，目标PB未计值',
-    '高盛增持': '该标签为研究批次非行业；按底层业务（工程/资源/半导体制造）账面值有一定约束力，目标PB未计值',
+    '原材料': '周期资产型（化工/有色/非金属材料产能）；目标PB需中周期ROE依据，原研究未给出，未计值',
+    '工业': '资产与产能型（机械/电池与电力设备/建筑等制造与工程）；目标PB缺可持续ROE依据，未计值',
 }
 PB_NOT_APPLICABLE_CONTEXT = {
-    '信息技术': '轻资产（软件/芯片设计/Fabless），研发与人力资本不在账面，账面值约束弱；不以PB定价',
+    '信息技术': '研发与人力资本主导（软件/芯片设计；硬件与晶圆制造的技术迭代快），账面值约束弱；不以PB定价',
     '医药卫生': '研发管线与品牌主导，账面值约束弱；不以PB定价',
     '可选消费': '品牌/渠道/并购商誉主导，账面值约束弱；不以PB定价',
     '主要消费': '品牌与定价权主导，账面值约束弱；不以PB定价',
@@ -374,7 +366,7 @@ def build_record(entry, asof, snapshot, yahoo, yahoo_checked, lynch, dcf):
     # ---- SOTP/行业锚（辅锚：控股层/多元业务/NAV 情形评估，桥接未闭合不计值）
     sotp_hints = any(('NAV' in (s.get('multiple') or '') or 'EV桥接' in (s.get('multiple') or '') or 'NAV' in (s.get('assumption') or ''))
                      for s in scenarios)
-    sotp_relevant = sector in ('工业', '房地产', '金融', '高盛增持') or sotp_hints
+    sotp_relevant = sector in ('工业', '房地产', '金融') or sotp_hints
     segments = [seg.get('name') for seg in (entry.get('segments') or []) if isinstance(seg, dict) and seg.get('name')]
     if is_pb_research and sector == '金融':
         sotp_applicable = False

@@ -23,6 +23,15 @@
 
 现有量化规则：公司价格超过 **7 个自然日**才触发提示，见 [priceAnchor.ts](../src/features/dcf/priceAnchor.ts)；宏观使用 [quality.ts](../src/features/macro/quality.ts) 的逐指标阈值。提示未超期也不等于价格实时可用。月度指标日期通常代表统计月份，季度指标代表报告期间；阈值越界只表示需要查新，不证明源已经发布下一期。交易日判断以市场日历和接口实际行情日期为准，不按自然日机械补档。
 
+## 2026-11-13 全量刷新与重新分类
+
+执行日期：2026-11-13（Asia/Yerevan）。证据目录 `public/research/data-refresh-2026-11-13/`（手动全量，无 AUTO.txt）。
+
+- **刷新**：本地复刻 `company-refresh.yml` 全流程，并加跑 MCP `collect` / `retry-info` / `retry-core` / `ak-financial` 与估值覆盖层重建（`build-company-valuations-*.py --as-of 2026-11-13`）。1,538 条公司记录行情日均为 2026-11-13；us/adr/ndx 为美股**盘中**供应商报价（带真实时间戳，非收盘），下一次定时任务会换成收盘价。138 条林奇 PE 供应商未返回、5 个代码公司资料重试失败，均保留原值与原日期。
+- **板块口径**：板块在 `src/data/sectorTaxonomy.ts` 统一，经 `resolveMarket` 生效（JSON 同步写入，每日刷新不会回退）。A 股主题桶与「高盛增持」改为中证一级，原主题移到 `theme`；ADR 改为 GICS 一级，地域分组移到 `region`。两份估值脚本的 PB/SOTP 适用集合同步修正。GRMN→可选消费、SOFI→金融、02269/02359→药品及生物科技；BK 并入 BNY；QRVO（2026-10-06 被 Skyworks 并购）移出美股列表，详情存档保留。
+- **林奇规则**（`scripts/lib/lynch-classify.mjs`、`lynch-industry.mjs`、`lynch-overrides.mjs`）：强周期优先于增速与困境反转，周期型不按 PEG 给关注度；困境反转 / 资产型在输入齐全时重判；PE 缺失时关注度为「待定」；重算只改变化条目，不再批量改写 `v` / `classificationAsOf` / `peg`。显式 `cyclical:false`：化学药 14 家、芯片设计 / IP / EDA 31 家；新和成保持周期。重算 147 条变化（类型 109、关注度 96），二次干跑 0 变化。`normalize-market-refresh.py` 不再清掉 `classificationAsOf` / `classificationNote`（已在隔离副本按 10-20 输入实跑验证）。
+- **遗留**：林奇表仍缺 BRK.B、BHP、RIO、UL、DEO、BTI、ONC、SOFI、港股 02269/02359/00823 及纳指页签 10 家（仓库内无可生成增速 / 护城河的入口，未编造）；寒武纪缺两年增速判为「数据不足」；港铁、京东物流、恒安板块未经恒生官方分类独立核实；林奇原始生成脚本不在仓库内。
+
 ## 2026-10-23 刷新后状态
 
 原盘点报告和1,299条价格明细保留为更新前证据。本轮在本地复刻 `company-refresh.yml` 的每日流水线跑完一整轮（采集 → 规范化 → 应用 → 覆盖层重算 → 信号台账 → 验收）：四市场1,540条页面记录均取得供应商报价，us/adr 294+67条更新至2026-10-22，cn/hk 811+127条更新至2026-10-23，无旧日期残留、无空值；601059／601198两条换股流程报价仍只作历史参考。未来趋势625家上市报价、固态68条有效上市报价、林奇1,517条PE、指数10项价格与5项PE汇总、宏观日频读数、国家队55只ETF报价同步更新（ETF价格10-23），26个未来趋势待核对象与固态旧占位代码继续不造报价。

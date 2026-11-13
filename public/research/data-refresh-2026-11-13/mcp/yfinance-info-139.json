@@ -1,0 +1,76 @@
+{
+  "server": "yfinance",
+  "tool": "get_multiple_tickers_info",
+  "arguments": {
+    "symbols": [
+      "PM",
+      "PNC",
+      "PNR",
+      "PNW",
+      "PODD",
+      "PONY",
+      "PPG",
+      "PPL",
+      "PRU",
+      "PSA",
+      "PSKY",
+      "PSTG"
+    ]
+  },
+  "requestedAt": "2026-11-13T15:30:03.282594+00:00",
+  "retrievedAt": "2026-11-13T15:30:06.602190+00:00",
+  "data": {
+    "symbols": [
+      "PM",
+      "PNC",
+      "PNR",
+      "PNW",
+      "PODD",
+      "PONY",
+      "PPG",
+      "PPL",
+      "PRU",
+      "PSA",
+      "PSKY",
+      "PSTG"
+    ],
+    "results": {
+      "PM": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "PNC": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "PNR": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "PNW": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "PODD": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "PONY": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "PPG": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "PPL": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "PRU": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "PSA": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "PSKY": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "PSTG": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      }
+    }
+  }
+}

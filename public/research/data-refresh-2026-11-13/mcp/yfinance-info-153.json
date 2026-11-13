@@ -1,0 +1,76 @@
+{
+  "server": "yfinance",
+  "tool": "get_multiple_tickers_info",
+  "arguments": {
+    "symbols": [
+      "VTOL",
+      "VTR",
+      "VTRS",
+      "VWS.CO",
+      "VZ",
+      "WAB",
+      "WAT",
+      "WBD",
+      "WDAY",
+      "WDC",
+      "WEC",
+      "WELL"
+    ]
+  },
+  "requestedAt": "2026-11-13T15:30:25.448972+00:00",
+  "retrievedAt": "2026-11-13T15:30:28.591869+00:00",
+  "data": {
+    "symbols": [
+      "VTOL",
+      "VTR",
+      "VTRS",
+      "VWS.CO",
+      "VZ",
+      "WAB",
+      "WAT",
+      "WBD",
+      "WDAY",
+      "WDC",
+      "WEC",
+      "WELL"
+    ],
+    "results": {
+      "VTOL": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "VTR": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "VTRS": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "VWS.CO": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "VZ": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "WAB": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "WAT": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "WBD": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "WDAY": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "WDC": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "WEC": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "WELL": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      }
+    }
+  }
+}

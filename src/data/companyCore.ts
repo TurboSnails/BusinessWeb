@@ -7,6 +7,7 @@ import { loadCompanyDetails } from './companyDetails'
 import { applyCnReassessment } from './cnReassessment'
 import { applySp500Reassessment } from './sp500Reassessment'
 import { applySectorFactReview } from './sectorFactReview'
+import { applySectorTaxonomy } from './sectorTaxonomy'
 import { ndxBase } from './ndx100'
 import marketSnapshot from './companyMarketSnapshot.json'
 import { applyCompanyMarketRefresh, type MarketRefreshQuote } from './companyMarketRefresh'
@@ -51,7 +52,6 @@ WDAY|Workday|软件·应用|38|中性观察|193.87|39.5|+12.7%|75.1%|6.7%|48.9%|
 SNPS|新思科技|软件·EDA|38|中性观察|384.97|67.3|+41.9%|61.6%|3.8%|35.0%|-18.0%|并购 Ansys 后毛利率 −14.4pct、ROE 3.8%、长债 106.8 亿；先拆分恶化成因
 DELL|戴尔科技|硬件·系统|37|条件关注|568.06|33.0|+19.7%|18.6%|—|103.1%|+355.4%|YTD +355% 严重透支，毛利率仅 18.6%、权益为负；不追高
 NOW|ServiceNow|软件·应用|36|中性观察|135.47|84.7|+24.0%|70.7%|14.2%|60.5%|-11.6%|最新季净利 −22.6%、毛利率 −6.8pct、长债 +171%；先解释毛利率下滑
-QRVO|Qorvo|芯片·射频|35|中性观察|117.18|27.2|+1.1%|47.3%|6.3%|42.4%|+38.7%|营收 +1.1%，利润跳升驱动待核实；先核实利润构成（已不在最新成分股名单）
 QCOM|高通|芯片·移动|34|中性观察|177.72|20.3|-3.5%|53.8%|36.1%|52.3%|+5.5%|营收 −3.5%，等 non-phone 业务验证；只跟踪
 ON|安森美半导体|芯片·功率|34|中性观察|69.98|45.7|+9.2%|38.6%|8.3%|46.3%|+29.2%|回撤最深（近 60 日 −39.5%），周期底部待确认；只跟踪
 JBL|捷普科技|硬件·代工|34|中性观察|299.57|37.5|+23.1%|8.7%|59.9%|93.5%|+31.5%|薄利（毛利率 8.7%）+ 高杠杆（负债率 93.5%）；不适合配置
@@ -66,6 +66,8 @@ SWKS|思佳讯|芯片·射频|25|暂不考虑|88.76|46.0|-1.0%|40.8%|6.2%|27.0%|
 MCHP|微芯科技|芯片·MCU|22|暂不考虑|73.27|107.8|-2.0%|41.2%|-2.9%|53.7%|+16.9%|周期下行，TTM 亏损 −1.85 亿、ROE −2.85%；不参与
 INTC|英特尔|芯片·算力|16|暂不考虑|108.60|亏损|+25.4%|40.4%|-12.2%|49.0%|+194.3%|未盈利，TTM 净利 −112.9 亿、ROE −12.2%；不参与`
 
+// QRVO 已移出：Skyworks 于 2026-10-06 完成合并（每股 $32.50 现金 + 0.960 股 SWKS），QRVO 不再交易、已不在标普500名单；
+// 研究页 details（@us:QRVO）保留为存档，不再进入公司列表。
 const aiCompanies: Company[] = AI_ROWS.split('\n').map(line => {
   const [code, name, sub, score, rating, price, pe, rev, gm, roe, debt, ytd, thesis] = line.split('|')
   return {
@@ -182,7 +184,7 @@ MET|大都会人寿|第6批·保险与再保险|高质量观察|$95.05|$72 / $11
 PRU|保德信金融|第6批·保险与再保险|股息/事件观察|$116.33|$96 / $139.5 / $170.5|1.14×|4.77% 股息率与资产管理增长具吸引力|日本销售暂停对全年税前调整后利润影响约 $525m–575m|日本销售恢复
 AIG|美国国际集团|第6批·保险与再保险|价值修复观察|$74.19|$60 / $88 / $112|0.98×|PB 0.96× 与大额回购有修复价值|国际商业险综合成本率 91.3% 与准备金质量决定重估是否成立|综合成本率与准备金
 ACGL|阿奇资本|第6批·保险与再保险|周期质量观察|$95.33|$68.4 / $102 / $127.5|0.25×|综合成本率 83.5%、$1.2bn 回购最强|低 PE 反映再保险软周期与主动缩量预期|再保险软周期
-BK|纽约梅隆银行|第7批·托管与资管|质量观察|$153.89|$126 / $162 / $198|0.29×|托管网络强、ROTCE 高|NII 贡献与 AUM 累计流出需拆开看|费率收入与 NII
+BNY|纽约梅隆银行|第7批·托管与资管|质量观察|$153.89|$126 / $162 / $198|0.29×|托管网络强、ROTCE 高|NII 贡献与 AUM 累计流出需拆开看|费率收入与 NII
 STT|道富银行|第7批·托管与资管|优先跟踪|$178.20|$150 / $195 / $234|0.59×|流入、费率、NII 和正经营杠杆四项协同最完整|高位市场与费用投资|流入与费率
 TROW|普信集团|第7批·托管与资管|高股息观察|$102.95|$80 / $110 / $132|0.30×|低 PE 与高股息|不能替代流入与费率拐点；主动权益压力仍是估值核心|净流入与费率
 BEN|富兰克林邓普顿|第7批·托管与资管|转型观察|$32.75|$24 / $34.8 / $43.5|0.23×|另类、私募和资金流反转有预期差|调整后口径、高债务与整合成本需验证|净流量与整合
@@ -551,10 +553,10 @@ export const resolveMarket = async (market: Market): Promise<ResolvedMarket> => 
   const [details, applyCnSectorResearch] = await Promise.all([loadCompanyDetails(market), cnSectorOf(market)])
   const withDetails = (list: Company[]): Company[] => list.map(c => (details[c.market + ':' + c.code] ? { ...c, ...details[c.market + ':' + c.code] } : c))
   const base =
-    market === 'us' ? withDetails(usBase).map(applySp500Reassessment).map(applySectorFactReview).map(refreshMarket)
-    : market === 'cn' ? withDetails(cnBase).map(applyCnReassessment).map(applyCnSectorResearch).map(refreshMarket)
+    market === 'us' ? withDetails(usBase).map(applySp500Reassessment).map(applySectorFactReview).map(applySectorTaxonomy).map(refreshMarket)
+    : market === 'cn' ? withDetails(cnBase).map(applyCnReassessment).map(applyCnSectorResearch).map(applySectorTaxonomy).map(refreshMarket)
     // 纳指100 新增（不在标普500 / 美股非标普池内）的公司，全部为手工研究页
-    : market === 'ndx' ? withDetails(ndxBase).map(refreshMarket)
+    : market === 'ndx' ? withDetails(ndxBase).map(applySectorTaxonomy).map(refreshMarket)
     : []
   const merge = (generated: Company[]): Company[] => {
     const map = new Map(base.map(c => [c.code, c]))
@@ -564,7 +566,7 @@ export const resolveMarket = async (market: Market): Promise<ResolvedMarket> => 
       const d = details[g.market + ':' + g.code] // 手工研究页（details/*.ts）覆盖程序化页
       map.set(g.code, d && d.scenarios && d.scenarios.length ? { ...g, ...d, auto: false } : { ...g, auto: g.auto === false ? false : true }) // auto:false = 已按公司复核重写的页（如 cn-itucd-2026-10-07）
     }
-    return Array.from(map.values()).map(applySp500Reassessment).map(applySectorFactReview).map(applyCnReassessment).map(applyCnSectorResearch).map(refreshMarket)
+    return Array.from(map.values()).map(applySp500Reassessment).map(applySectorFactReview).map(applyCnReassessment).map(applyCnSectorResearch).map(applySectorTaxonomy).map(refreshMarket)
   }
   return { base, merge }
 }

@@ -1,0 +1,19 @@
+{
+  "server": "yfinance",
+  "tool": "get_income_statement",
+  "arguments": {
+    "symbol": "0470.HK",
+    "quarterly": true
+  },
+  "requestedAt": "2026-11-13T15:30:52.647595+00:00",
+  "retrievedAt": "2026-11-13T15:30:53.148524+00:00",
+  "data": {
+    "symbol": "0470.HK",
+    "type": "quarterly",
+    "data": {
+      "columns": [],
+      "indexName": null,
+      "rows": []
+    }
+  }
+}

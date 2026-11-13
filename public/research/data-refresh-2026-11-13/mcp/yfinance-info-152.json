@@ -1,0 +1,76 @@
+{
+  "server": "yfinance",
+  "tool": "get_multiple_tickers_info",
+  "arguments": {
+    "symbols": [
+      "VIPS",
+      "VKTX",
+      "VLO",
+      "VLTO",
+      "VMC",
+      "VMRK",
+      "VRSK",
+      "VRSN",
+      "VRT",
+      "VRTX",
+      "VSAT",
+      "VST"
+    ]
+  },
+  "requestedAt": "2026-11-13T15:30:23.367338+00:00",
+  "retrievedAt": "2026-11-13T15:30:26.496945+00:00",
+  "data": {
+    "symbols": [
+      "VIPS",
+      "VKTX",
+      "VLO",
+      "VLTO",
+      "VMC",
+      "VMRK",
+      "VRSK",
+      "VRSN",
+      "VRT",
+      "VRTX",
+      "VSAT",
+      "VST"
+    ],
+    "results": {
+      "VIPS": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "VKTX": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "VLO": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "VLTO": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "VMC": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "VMRK": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "VRSK": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "VRSN": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "VRT": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "VRTX": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "VSAT": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "VST": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      }
+    }
+  }
+}

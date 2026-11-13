@@ -16,6 +16,7 @@ const c = company('003', '丙公司', '银行', '观察')
 const lynch: Record<string, LynchInfo> = {
   'cn:001': { t: '快速增长型', r: '高', m: { l: '宽护城河迹象', s: 5, n: 6, i: [] }, v: '甲林奇结论', w: [], f: [] },
   'cn:002': { t: '快速增长型', r: '低', m: null, w: ['乙林奇结论'], f: [] },
+  'cn:006': { t: '数据不足', r: '待定', m: null, w: ['利润窗口不足，无法分类'], f: [] },
 }
 const show = (companies: Company[] = [a, b, c, a]) => render(<MemoryRouter><CompanyCombined companies={companies} lynch={lynch} ratingOf={x => x.rating} loading={false} /></MemoryRouter>)
 const companyLinks = () => screen.getAllByRole('link').filter(l => !/DCF/.test(l.getAttribute('aria-label') ?? ''))
@@ -30,6 +31,20 @@ describe('综合分类公司并集', () => {
     expect(screen.getByRole('link', { name: '丙公司 003' })).toBeTruthy()
     expect(screen.getByRole('link', { name: '美股甲 001' })).toBeTruthy()
     expect(screen.queryByRole('link', { name: '甲公司 001' })).toBeNull()
+  })
+
+  it('林奇类型可选「数据不足」，同类关注度可选「待定」', () => {
+    const f = company('006', '己公司', '保险', '观察')
+    show([a, b, c, f])
+    const typeOptions = within(screen.getByRole('combobox', { name: '林奇类型' })).getAllByRole('option').map(o => o.textContent)
+    expect(typeOptions).toContain('数据不足')
+    const tierOptions = within(screen.getByRole('combobox', { name: '同类关注度' })).getAllByRole('option').map(o => o.textContent)
+    expect(tierOptions).toEqual(['全部', '高', '中', '低', '待定'])
+    fireEvent.change(screen.getByRole('combobox', { name: '同类关注度' }), { target: { value: '待定' } })
+    expect(companyLinks().map(l => l.textContent)).toEqual(['己公司 006'])
+    fireEvent.change(screen.getByRole('combobox', { name: '同类关注度' }), { target: { value: '全部' } })
+    fireEvent.change(screen.getByRole('combobox', { name: '林奇类型' }), { target: { value: '数据不足' } })
+    expect(companyLinks().map(l => l.textContent)).toEqual(['己公司 006'])
   })
 
   it('研究评级下拉按固定顺序：优先关注排在最前', () => {

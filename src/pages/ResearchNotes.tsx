@@ -32,7 +32,7 @@ import {
   toneOf,
   Tone
 } from '../data/notionNotes'
-import { useCompanies, useLynch, sectorsOf, Market, Company, LynchInfo } from '../data/companies'
+import { useCompanies, useLynch, lynchFor, sectorsOf, Market, Company, LynchInfo } from '../data/companies'
 import { ratingBucket } from '../features/signals/companySignals'
 import { RESEARCH_STAGE, researchStage, type ResearchStage } from '../features/signals/maturity'
 import CompanyCombined from '../components/CompanyCombined'
@@ -90,6 +90,7 @@ export default function ResearchNotes(): JSX.Element {
   const vParam = params.get('v')
   const view = vParam === 'combined' ? 'combined' : vParam === 'overview' ? 'overview' : vParam === 'lynch' ? 'lynch' : 'list'
   const progSector = params.get('sec') || '全部'
+  const progGroup = params.get('grp') || '全部' // adr/ndx 地域分组（region）或 cn 主题（theme）
   const inCategory = activeTab === 'companies'
   // 只加载当前市场需要的数据：纳指页签由美股 + ADR + 纳指新增三部分拼成
   const needs = (m: Market): boolean => inCategory && (catMarket === m || (catMarket === 'ndx' && (m === 'us' || m === 'adr')))
@@ -115,8 +116,8 @@ export default function ResearchNotes(): JSX.Element {
   const [limit, setLimit] = useState(60)
   // 切换市场时清空筛选，避免上一个市场的评级/类型筛选让新市场的列表为空
   useEffect(() => { setRatingF('全部'); setStageF('全部'); setQ(''); setLTier('全部'); setLMoat('全部'); setLType('全部'); setValuationF('all') }, [catMarket])
-  const resetFilters = (): void => { setRatingF('全部'); setStageF('全部'); setQ(''); setLTier('全部'); setLMoat('全部'); setLType('全部'); updateParams({ sec: null }) }
-  useEffect(() => { setLimit(60) }, [catMarket, progSector, q, ratingF, lTier, lMoat, lType, view, dcfF, valuationF])
+  const resetFilters = (): void => { setRatingF('全部'); setStageF('全部'); setQ(''); setLTier('全部'); setLMoat('全部'); setLType('全部'); updateParams({ sec: null, grp: null }) }
+  useEffect(() => { setLimit(60) }, [catMarket, progSector, progGroup, q, ratingF, lTier, lMoat, lType, view, dcfF, valuationF])
   const updateParams = (patch: Record<string, string | null>): void =>
     setParams(prev => {
       const next = new URLSearchParams(prev)
@@ -124,7 +125,7 @@ export default function ResearchNotes(): JSX.Element {
       return next
     }, { replace: true })
   const setActiveTab = (t: TabId): void => updateParams({ tab: t, n: null })
-  const setCatMarket = (m: Market): void => updateParams({ tab: 'companies', m, sec: null, v: null })
+  const setCatMarket = (m: Market): void => updateParams({ tab: 'companies', m, sec: null, grp: null, v: null })
   const [showBackToTop, setShowBackToTop] = useState(false)
   const [zoomImg, setZoomImg] = useState<{ src: string; title: string } | null>(null)
 
@@ -194,11 +195,15 @@ export default function ResearchNotes(): JSX.Element {
   const progList = catMarket === 'cn' ? cnList : catMarket === 'hk' ? hkList : catMarket === 'adr' ? adrList : catMarket === 'ndx' ? ndxList : usList
   const combinedLoading = catMarket === 'cn' ? cnLoading : catMarket === 'hk' ? hkLoading : catMarket === 'adr' ? adrLoading : catMarket === 'ndx' ? ndxLoading : usLoading
   const progSectors = sectorsOf(progList)
-  const secList = progSector === '全部' ? progList : progList.filter(c => c.sector === progSector)
+  // 板块统一为 GICS / 中证一级后，ADR 地域分组与 A 股主题单列一排筛选，不再混在板块里
+  const groupOf = (c: Company): string | undefined => c.region ?? c.theme
+  const groupLabel = catMarket === 'cn' ? '主题' : '地区'
+  const progGroups = Array.from(new Set(progList.map(groupOf).filter((g): g is string => !!g)))
+  const secList = progList.filter(c => (progSector === '全部' || c.sector === progSector) && (progGroup === '全部' || groupOf(c) === progGroup))
   // 评级归档规则见 features/signals/companySignals 的 ratingBucket（公司页信号汇总共用）
   const ratingOf = (c: { rating: string }): string => ratingBucket(c.rating)
   const hkNote = '港股范围 = 恒生指数成分股（取自维基百科 2026-01 名单）∪ 恒生科技与主要 H 股龙头补充，共 127 家，全部已覆盖（领展、药明生物、药明康德因东方财富接口失败，改用第三方 stockanalysis.com 数据，需核实）。这不是官方指数口径，是「港股大盘蓝筹」的研究池。数据来自东方财富：PE/PB/股息率直接取其已换算值（港股报告币种常与交易币种不同，不能自行用 EPS 除股价）；增速按财年窗口计算，并附最新中期利润同比。127 家港股均已按股票分析专家标准做成手工研究页：用 aktools（东方财富）取财务与估值，联网搜索公司 2026 中期业绩核对，给出三情景、买入区与评级；其中赣锋锂业、中国铝业、中国铁建、中国交建、中国建材、信义玻璃、信义光能 7 家因搜索额度用尽，只有东方财富口径的 H1 同比加第三方（stockanalysis.com）的年度/TTM 数据，分部、产量等标 [MISSING]；海螺水泥仅有东方财富口径，结论信息不全；比亚迪电子等数页缺 H1 公告数据；电能实业、长江基建 PE 含出售 UKPN 一次性收益，页内改用估算的经常性 EPS。多数公司盈亏比低于 1:1，评级以观察为主，反映价格已含较高预期而非数据缺失。'
-  const adrNote = '美股非标普研究池共66家，按四个分类覆盖：海外龙头30家、中概21家、新兴市场平台13家、新上市/热门2家；名单是自选研究池，不是官方指数。2026-10-07已逐家核读公司或监管财务原件，更新常规交易价快照、证券单位、财报期、一次性损益、旧结论修正与风险证伪。采用单模型多视角复核，15个批次每批3–5家。汇丰与道明银行有静态BV/ROE敏感性草案，全部66家均未完成两种独立估值认证；旧买入区、赔率及未经核实的美元EPS折算不作为当前结论。每家公司可打开本轮完整报告；缺证据标[MISSING]，不把缺证直接解释成经营恶化。'
+  const adrNote = '美股非标普研究池（2026-10-07 复核时66家）按地区分组覆盖：海外龙头30家、中概21家、新兴市场平台13家、新上市/热门2家；板块按 GICS 一级，地区分组见「地区」筛选；名单是自选研究池，不是官方指数。2026-10-07已逐家核读公司或监管财务原件，更新常规交易价快照、证券单位、财报期、一次性损益、旧结论修正与风险证伪。采用单模型多视角复核，15个批次每批3–5家。汇丰与道明银行有静态BV/ROE敏感性草案，全部66家均未完成两种独立估值认证；旧买入区、赔率及未经核实的美元EPS折算不作为当前结论。每家公司可打开本轮完整报告；缺证据标[MISSING]，不把缺证直接解释成经营恶化。'
   const ndxNote = (): string => {
     const sp = ndxList.filter(c => c.market === 'us').length
     const ad = ndxList.filter(c => c.market === 'adr').length
@@ -209,7 +214,7 @@ export default function ResearchNotes(): JSX.Element {
 
   // 导出：公司、代码、评级、结论（当前筛选 / 全部）
   const exportJson = (list: typeof progList, label: string): void => {
-    const rows = list.map(c => ({ 市场: marketLabel(c.market), 代码: c.code, 公司: c.name, 板块: c.sector, 评级: c.rating, 归类: ratingOf(c), 成熟度: RESEARCH_STAGE[researchStage(c)].label, 结论: c.headline, 综合估值: c.valuation ?? null }))
+    const rows = list.map(c => ({ 市场: marketLabel(c.market), 代码: c.code, 公司: c.name, 板块: c.sector, 分组: groupOf(c) ?? null, 评级: c.rating, 归类: ratingOf(c), 成熟度: RESEARCH_STAGE[researchStage(c)].label, 结论: c.headline, 综合估值: c.valuation ?? null }))
     const blob = new Blob([JSON.stringify(rows, null, 2)], { type: 'application/json' })
     const a = document.createElement('a')
     a.href = URL.createObjectURL(blob)
@@ -218,11 +223,12 @@ export default function ResearchNotes(): JSX.Element {
     setTimeout(() => URL.revokeObjectURL(a.href), 1000)
   }
 
-  const LYNCH_TYPES = ['快速增长型', '稳健型', '缓慢增长型', '周期型', '困境反转型', '资产型']
-  const tierRank: Record<string, number> = { 高: 0, 中: 1, 低: 2 }
+  const LYNCH_TYPES = ['快速增长型', '稳健型', '缓慢增长型', '周期型', '困境反转型', '资产型', '数据不足']
+  const LYNCH_TIERS = ['高', '中', '低', '待定'] // 待定：PE 等估值输入缺失，排在「低」之后
+  const tierRank: Record<string, number> = { 高: 0, 中: 1, 低: 2, 待定: 3 }
   const moatTone = (l: string): Tone => (l.startsWith('宽') ? 'green' : l.startsWith('窄') ? 'blue' : 'gray')
-  const tierTone = (t: string): Tone => (t === '高' ? 'green' : t === '中' ? 'blue' : 'gray')
-  const lynchOf = (c: Company): LynchInfo | undefined => lynch[`${c.market}:${c.code}`]
+  const tierTone = (t: string): Tone => (t === '高' ? 'green' : t === '中' ? 'blue' : t === '待定' ? 'orange' : 'gray')
+  const lynchOf = (c: Company): LynchInfo | undefined => lynchFor(lynch, c)
   const fmt1 = (x: number | null | undefined, sfx = '', plus = false): string => (x === null || x === undefined ? '—' : `${plus && x > 0 ? '+' : ''}${x}${sfx}`)
   const lynchBase = progList.filter(c => lynchOf(c))
   const lynchShown = lynchBase
@@ -232,13 +238,13 @@ export default function ResearchNotes(): JSX.Element {
     })
     .sort((a, b) => {
       const la = lynchOf(a) as LynchInfo; const lb = lynchOf(b) as LynchInfo
-      const d = (tierRank[la.r] ?? 3) - (tierRank[lb.r] ?? 3)
+      const d = (tierRank[la.r] ?? 4) - (tierRank[lb.r] ?? 4)
       if (d) return d
       const ma = la.m && la.m.n ? la.m.s / la.m.n : -1; const mb = lb.m && lb.m.n ? lb.m.s / lb.m.n : -1
       return mb - ma
     })
   const exportLynch = (): void => {
-    const rows = lynchShown.map(c => { const l = lynchOf(c) as LynchInfo; return { 市场: marketLabel(c.market), 代码: c.code, 公司: c.name, 板块: c.sector, 林奇类型: l.t, 同类关注度: l.r, 护城河: l.m ? `${l.m.l}（${l.m.s}/${l.m.n}）` : '—', 结论: [l.v, ...l.w].filter(Boolean).join('；'), 站内评级: c.rating } })
+    const rows = lynchShown.map(c => { const l = lynchOf(c) as LynchInfo; return { 市场: marketLabel(c.market), 代码: c.code, 公司: c.name, 板块: c.sector, 分组: groupOf(c) ?? null, 林奇类型: l.t, 同类关注度: l.r, 护城河: l.m ? `${l.m.l}（${l.m.s}/${l.m.n}）` : '—', 结论: [l.v, ...l.w].filter(Boolean).join('；'), 站内评级: c.rating } })
     const blob = new Blob([JSON.stringify(rows, null, 2)], { type: 'application/json' })
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob)
     a.download = `${catMarket}-林奇-${lType}-${lTier}-${lMoat}-${new Date().toISOString().slice(0, 10)}.json`; a.click()
@@ -258,8 +264,8 @@ export default function ResearchNotes(): JSX.Element {
         <summary className="rn-summary">分组规则（点开查看）：林奇六类 × 巴菲特式护城河财务证据</summary>
         <div>
           <p className="rn-text">回答的是「这家公司该用什么标准买」，与「全部公司分类」里的评级（现在价格有没有赔率）互补，两者独立计算，不互相覆盖。全部由脚本按统一规则算出，用于初筛，边界公司会分错。</p>
-          <p className="rn-text"><b>类型（按顺序判定）</b>：① 困境反转：TTM 归母亏损/刚由亏转盈/利润从谷底回升 ≥1.3 倍；② 周期：行业属强周期，或近三个 TTM 窗口利润「先升后降/先降后升」且波动 ≥1.6 倍（单边高增不算周期）；③ 资产：PB &lt;1 的非金融股、REIT；④ 快速增长：有效增速 ≥20% 且营收 ≥10%；⑤ 稳健：有效增速 8–20%；⑥ 缓慢增长：&lt;8%。有效增速 = 「近一年」与「两年年化」中较小者，要求持续性。</p>
-          <p className="rn-text"><b>同类关注度</b>不是买卖评级：它只回答「按这一类公司该用的标准，当前价格算不算合理」，高/中/低只在同类型内比较，跨类型不能比（周期股的「高」与成长股的「高」标准不同）。判定方式：快速增长看 PEG（PE ÷ 增速，增速封顶 50%；&lt;1 高、1–1.5 中）；稳健看 PE（≤15 高、≤22 中）；缓慢增长只在低 PE 或高股息（港股有股息数据）时给「中」；周期按盈利位置——三年高位一律「低」（低 PE 往往是顶部信号），刚从低位回升给「中」；困境反转看杠杆与最近季度是否改善；资产型看 PB 折价。</p>
+          <p className="rn-text"><b>类型（按顺序判定）</b>：① 周期：行业属强周期（利润单边高增、从谷底回升也仍算周期——周期股高位时 PE 最低），或近三个 TTM 窗口利润「先升后降/先降后升」且波动 ≥1.6 倍；② 困境反转：TTM 归母亏损/刚由亏转盈/利润从谷底回升 ≥1.3 倍，利润回到谷底前水平之上即视为反转完成、按增速重判；③ 资产：PB &lt;1 的非金融股、REIT（PB 回到 1 以上即按增速重判）；④ 快速增长：有效增速 ≥20% 且营收 ≥10%；⑤ 稳健：有效增速 8–20%；⑥ 缓慢增长：&lt;8%。有效增速 = 「近一年」与「两年年化」中较小者，要求持续性。</p>
+          <p className="rn-text"><b>同类关注度</b>不是买卖评级：它只回答「按这一类公司该用的标准，当前价格算不算合理」，高/中/低只在同类型内比较，跨类型不能比（周期股的「高」与成长股的「高」标准不同）。判定方式：快速增长看 PEG（PE ÷ 增速，增速封顶 50%；&lt;1 高、1–1.5 中）；稳健看 PE（≤15 高、≤22 中）；缓慢增长只在低 PE 或高股息（港股有股息数据）时给「中」；周期按盈利位置、不看 PEG——三年高位或连续高增一律「低」（低 PE 往往是顶部信号），刚从低位回升给「中」，位置不明为「待定」；PE 缺失时关注度为「待定」，不按「低」处理；困境反转看杠杆与最近季度是否改善；资产型看 PB 折价。</p>
           <p className="rn-text"><b>护城河（仅财务证据）</b>：定价权（毛利率显著高于同行业）、毛利稳定、资本回报（ROE 三年持续 ≥15%）、盈利持续、财务稳健、需求韧性，通过率 ≥83% 为「宽护城河迹象」、≥60% 为「窄」。它只能检验品牌/网络效应/转换成本通常留下的财务痕迹，不能证明护城河本身；金融股部分项不适用，数据不足的项不计分。局限：增速用历史值而非预期；无 FCF、无股息（A 股/美股）、无存货数据；一次性项目只在明显时剔除。</p>
         </div>
       </details>
@@ -270,7 +276,7 @@ export default function ResearchNotes(): JSX.Element {
       </div>
       <div className="ui-cluster rn-filters">
         <input value={q} onChange={e => setQ(e.target.value)} placeholder="搜索公司名称或代码" aria-label="搜索公司名称或代码" className="rn-search" />
-        {['全部', '高', '中', '低'].map(t => <button key={t} onClick={() => setLTier(t)} className={chip(lTier === t)} aria-pressed={lTier === t}>{t === '全部' ? '关注度：全部' : `关注度：${t}`}</button>)}
+        {['全部', ...LYNCH_TIERS].map(t => <button key={t} onClick={() => setLTier(t)} className={chip(lTier === t)} aria-pressed={lTier === t}>{t === '全部' ? '关注度：全部' : `关注度：${t}`}</button>)}
         <DcfFilterChips value={dcfF} onChange={setDcfF} className="ui-cluster" />
         {['全部', '宽', '窄'].map(t => <button key={t} onClick={() => setLMoat(t)} className={chip(lMoat === t)} aria-pressed={lMoat === t}>{t === '全部' ? '护城河：全部' : `护城河：${t}`}</button>)}
         <button type="button" onClick={exportLynch} className="tool-btn">⬇ 导出当前（{lynchShown.length}）JSON</button>
@@ -313,6 +319,16 @@ export default function ResearchNotes(): JSX.Element {
           </button>
         ))}
       </div>
+      {progGroups.length > 0 && (
+        <div className="ui-cluster ui-cluster--scroll rn-filters" role="group" aria-label={groupLabel}>
+          <span className="rn-inline-label">{groupLabel}</span>
+          {['全部', ...progGroups].map(g => (
+            <button type="button" key={g} onClick={() => updateParams({ grp: g === '全部' ? null : g })} className={chip(progGroup === g)} aria-pressed={progGroup === g}>
+              {g} <span className="ui-chip__count">{g === '全部' ? progList.length : progList.filter(c => groupOf(c) === g).length}</span>
+            </button>
+          ))}
+        </div>
+      )}
       <div className="ui-cluster rn-filters">
         <input value={q} onChange={e => setQ(e.target.value)} placeholder="搜索公司名称或代码" aria-label="搜索公司名称或代码" className="rn-search" />
         {['全部', '优先关注', '条件关注', '观察', '回避', ...(catMarket === 'adr' ? ['未估值'] : [])].map(r => (

@@ -1,0 +1,604 @@
+{
+  "server": "yfinance",
+  "tool": "get_income_statement",
+  "arguments": {
+    "symbol": "300457.SZ",
+    "quarterly": true
+  },
+  "requestedAt": "2026-11-13T15:43:50.288094+00:00",
+  "retrievedAt": "2026-11-13T15:43:50.798109+00:00",
+  "data": {
+    "symbol": "300457.SZ",
+    "type": "quarterly",
+    "data": {
+      "columns": [
+        "2026-09-30T00:00:00",
+        "2026-06-30T00:00:00",
+        "2026-03-31T00:00:00",
+        "2025-12-31T00:00:00",
+        "2025-09-30T00:00:00",
+        "2025-06-30T00:00:00",
+        "2025-03-31T00:00:00"
+      ],
+      "indexName": null,
+      "rows": [
+        {
+          "metric": "Tax Effect Of Unusual Items",
+          "values": [
+            -16036966.41,
+            -23829042.995,
+            574111.249816,
+            -3384238.608302,
+            null,
+            -12385006.909867,
+            null
+          ]
+        },
+        {
+          "metric": "Tax Rate For Calcs",
+          "values": [
+            0.25,
+            0.25,
+            0.028639,
+            0.035864,
+            null,
+            0.114659,
+            null
+          ]
+        },
+        {
+          "metric": "Normalized EBITDA",
+          "values": [
+            167178609.57,
+            376289548.3,
+            58038380.71,
+            368747744.19,
+            null,
+            493550014.23,
+            null
+          ]
+        },
+        {
+          "metric": "Total Unusual Items",
+          "values": [
+            -64147865.64,
+            -95316171.98,
+            20046405.77,
+            -94362627.3,
+            null,
+            -108015688.64,
+            null
+          ]
+        },
+        {
+          "metric": "Total Unusual Items Excluding Goodwill",
+          "values": [
+            -64147865.64,
+            -95316171.98,
+            20046405.77,
+            -94362627.3,
+            null,
+            -108015688.64,
+            null
+          ]
+        },
+        {
+          "metric": "Net Income From Continuing Operation Net Minority Interest",
+          "values": [
+            99815866.99,
+            288842204.7,
+            61898948.0,
+            236049861.65,
+            null,
+            255885136.61,
+            null
+          ]
+        },
+        {
+          "metric": "Reconciled Cost Of Revenue",
+          "values": [
+            1898818748.73,
+            3180633004.89,
+            1677632105.89,
+            1939313760.87,
+            null,
+            2142750306.5,
+            null
+          ]
+        },
+        {
+          "metric": "EBITDA",
+          "values": [
+            103030743.93,
+            280973376.32,
+            78084786.48,
+            274385116.89,
+            null,
+            385534325.59,
+            null
+          ]
+        },
+        {
+          "metric": "EBIT",
+          "values": [
+            103030743.93,
+            280973376.32,
+            78084786.48,
+            274385116.89,
+            null,
+            385534325.59,
+            null
+          ]
+        },
+        {
+          "metric": "Net Interest Income",
+          "values": [
+            -20871826.29,
+            14516125.45,
+            -8157463.82,
+            -28222631.07,
+            null,
+            -15101231.93,
+            null
+          ]
+        },
+        {
+          "metric": "Interest Expense",
+          "values": [
+            1639563.85,
+            2231186.43,
+            1202201.6,
+            2161306.99,
+            null,
+            2813263.74,
+            null
+          ]
+        },
+        {
+          "metric": "Interest Income",
+          "values": [
+            11516857.99,
+            5813358.53,
+            6205838.05,
+            4762410.23,
+            null,
+            8206793.07,
+            null
+          ]
+        },
+        {
+          "metric": "Normalized Income",
+          "values": [
+            147926766.22,
+            360329333.685,
+            42426653.479816,
+            327028250.341698,
+            null,
+            351515818.340133,
+            null
+          ]
+        },
+        {
+          "metric": "Net Income From Continuing And Discontinued Operation",
+          "values": [
+            99815866.99,
+            288842204.7,
+            61898948.0,
+            236049861.65,
+            null,
+            255885136.61,
+            null
+          ]
+        },
+        {
+          "metric": "Total Expenses",
+          "values": [
+            2296028659.31,
+            3657462963.17,
+            1973654131.15,
+            2295246166.32,
+            null,
+            2447612600.86,
+            null
+          ]
+        },
+        {
+          "metric": "Total Operating Income As Reported",
+          "values": [
+            100810268.74,
+            276054524.64,
+            87297845.22,
+            261212882.15,
+            null,
+            385378612.97,
+            null
+          ]
+        },
+        {
+          "metric": "Diluted Average Shares",
+          "values": [
+            null,
+            null,
+            618989480.0,
+            null,
+            null,
+            null,
+            758209828.0
+          ]
+        },
+        {
+          "metric": "Basic Average Shares",
+          "values": [
+            null,
+            null,
+            618989480.0,
+            null,
+            null,
+            null,
+            758209828.0
+          ]
+        },
+        {
+          "metric": "Diluted EPS",
+          "values": [
+            null,
+            null,
+            0.1,
+            null,
+            null,
+            null,
+            0.02
+          ]
+        },
+        {
+          "metric": "Basic EPS",
+          "values": [
+            null,
+            null,
+            0.1,
+            null,
+            null,
+            null,
+            0.02
+          ]
+        },
+        {
+          "metric": "Net Income Common Stockholders",
+          "values": [
+            99815866.99,
+            288842204.7,
+            61898948.0,
+            236049861.65,
+            null,
+            255885136.61,
+            null
+          ]
+        },
+        {
+          "metric": "Otherunder Preferred Stock Dividend",
+          "values": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            null,
+            0.0,
+            null
+          ]
+        },
+        {
+          "metric": "Net Income",
+          "values": [
+            99815866.99,
+            288842204.7,
+            61898948.0,
+            236049861.65,
+            null,
+            255885136.61,
+            null
+          ]
+        },
+        {
+          "metric": "Minority Interests",
+          "values": [
+            -2317141.83,
+            -4584693.94,
+            -12781787.96,
+            -26410863.5,
+            null,
+            -82953383.22,
+            null
+          ]
+        },
+        {
+          "metric": "Net Income Including Noncontrolling Interests",
+          "values": [
+            102133008.82,
+            293426898.64,
+            74680735.96,
+            262460725.15,
+            null,
+            338838519.83,
+            null
+          ]
+        },
+        {
+          "metric": "Net Income Continuous Operations",
+          "values": [
+            102133008.82,
+            293426898.64,
+            74680735.96,
+            262460725.15,
+            null,
+            338838519.83,
+            null
+          ]
+        },
+        {
+          "metric": "Tax Provision",
+          "values": [
+            -741828.74,
+            -14684708.75,
+            2201848.92,
+            9763084.75,
+            null,
+            43882542.02,
+            null
+          ]
+        },
+        {
+          "metric": "Pretax Income",
+          "values": [
+            101391180.08,
+            278742189.89,
+            76882584.88,
+            272223809.9,
+            null,
+            382721061.85,
+            null
+          ]
+        },
+        {
+          "metric": "Other Non Operating Income Expenses",
+          "values": [
+            580911.34,
+            2687665.25,
+            -10415260.34,
+            11010927.75,
+            null,
+            -2657551.12,
+            null
+          ]
+        },
+        {
+          "metric": "Special Income Charges",
+          "values": [
+            -64147865.64,
+            -95316171.98,
+            20046405.77,
+            -94362627.3,
+            null,
+            -108015688.64,
+            null
+          ]
+        },
+        {
+          "metric": "Other Special Charges",
+          "values": [
+            510726.19,
+            -88223.84,
+            43030.78,
+            13952329.64,
+            null,
+            -371934.39,
+            null
+          ]
+        },
+        {
+          "metric": "Write Off",
+          "values": [
+            42413138.67,
+            -10243605.12,
+            -30898858.2,
+            -48141731.16,
+            null,
+            84718615.49,
+            null
+          ]
+        },
+        {
+          "metric": "Impairment Of Capital Assets",
+          "values": [
+            21224000.78,
+            105648000.94,
+            10809421.65,
+            128552028.82,
+            null,
+            23669007.54,
+            null
+          ]
+        },
+        {
+          "metric": "Net Non Operating Interest Income Expense",
+          "values": [
+            -20871826.29,
+            14516125.45,
+            -8157463.82,
+            -28222631.07,
+            null,
+            -15101231.93,
+            null
+          ]
+        },
+        {
+          "metric": "Total Other Finance Cost",
+          "values": [
+            30749120.43,
+            -10933953.35,
+            13161100.27,
+            30823734.31,
+            null,
+            20494761.26,
+            null
+          ]
+        },
+        {
+          "metric": "Interest Expense Non Operating",
+          "values": [
+            1639563.85,
+            2231186.43,
+            1202201.6,
+            2161306.99,
+            null,
+            2813263.74,
+            null
+          ]
+        },
+        {
+          "metric": "Interest Income Non Operating",
+          "values": [
+            11516857.99,
+            5813358.53,
+            6205838.05,
+            4762410.23,
+            null,
+            8206793.07,
+            null
+          ]
+        },
+        {
+          "metric": "Operating Income",
+          "values": [
+            163257309.88,
+            383579557.4,
+            75408903.27,
+            365917565.7,
+            null,
+            478186916.99,
+            null
+          ]
+        },
+        {
+          "metric": "Operating Expense",
+          "values": [
+            397209910.58,
+            476829958.28,
+            296022025.26,
+            355932405.45,
+            null,
+            304862294.36,
+            null
+          ]
+        },
+        {
+          "metric": "Other Operating Expenses",
+          "values": [
+            10415153.81,
+            23559720.07,
+            11843015.56,
+            25441077.48,
+            null,
+            14918109.4,
+            null
+          ]
+        },
+        {
+          "metric": "Research And Development",
+          "values": [
+            213717626.31,
+            318425604.0,
+            128208184.72,
+            139775769.86,
+            null,
+            171397924.63,
+            null
+          ]
+        },
+        {
+          "metric": "Selling General And Administration",
+          "values": [
+            339803021.22,
+            -9114825.45,
+            177376767.77,
+            -123188968.79,
+            null,
+            -13171033.18,
+            null
+          ]
+        },
+        {
+          "metric": "Selling And Marketing Expense",
+          "values": [
+            151040780.05,
+            -5303874.56,
+            97980863.87,
+            -14255290.72,
+            124395115.72,
+            null,
+            null
+          ]
+        },
+        {
+          "metric": "General And Administrative Expense",
+          "values": [
+            188762241.17,
+            -3810950.89,
+            79395903.9,
+            -108933678.07,
+            176557764.78,
+            null,
+            null
+          ]
+        },
+        {
+          "metric": "Gross Profit",
+          "values": [
+            560467220.46,
+            860409515.68,
+            371430928.53,
+            721849971.15,
+            null,
+            783049211.35,
+            null
+          ]
+        },
+        {
+          "metric": "Cost Of Revenue",
+          "values": [
+            1898818748.73,
+            3180633004.89,
+            1677632105.89,
+            1939313760.87,
+            null,
+            2142750306.5,
+            null
+          ]
+        },
+        {
+          "metric": "Total Revenue",
+          "values": [
+            2459285969.19,
+            4041042520.57,
+            2049063034.42,
+            2661163732.02,
+            null,
+            2925799517.85,
+            null
+          ]
+        },
+        {
+          "metric": "Operating Revenue",
+          "values": [
+            2459285969.19,
+            4041042520.57,
+            2049063034.42,
+            2661163732.02,
+            null,
+            2925799517.85,
+            null
+          ]
+        }
+      ]
+    }
+  }
+}

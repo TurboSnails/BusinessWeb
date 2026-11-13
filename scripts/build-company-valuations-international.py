@@ -46,8 +46,9 @@ def latest_yahoo_batch(repo=REPO):
 HK_AUDIT_FILE = REPO / 'public/research/hk-valuation-2026-10-20/audit.json'
 ADR_VALUATION_FILE = REPO / 'public/research/adr-valuation-2026-10-20/valuation.json'
 
+# sector 口径：hk 为恒生行业，adr 为 GICS 一级（地域分组已移到 region 字段，不参与 PB 判断；见 src/data/sectorTaxonomy.ts）
 PB_APPLICABLE_SECTORS = {'金融', '银行', '保险', '其他金融', '地产', '房地产', '公用事业', '能源', '石油及天然气', '煤炭', '材料', '一般金属及矿石', '工业', '建筑', '工用运输'}
-PB_NOT_APPLICABLE_SECTORS = {'资讯科技器材', '软件服务', '信息技术', '半导体', '药品及生物科技', '医疗保健', '专业零售', '消费者主要零售商', '可选消费', '日常消费', '媒体及娱乐', '通信服务', '旅游及消闲设施', '海外龙头', '中概', '新兴市场平台', '美股本土成长'}
+PB_NOT_APPLICABLE_SECTORS = {'资讯科技器材', '软件服务', '信息技术', '半导体', '药品及生物科技', '医疗保健', '专业零售', '消费者主要零售商', '可选消费', '日常消费', '媒体及娱乐', '通信服务', '旅游及消闲设施'}
 
 PB_CONTEXT = {
     '金融': '银行/保险/金融的目标PB取决于可持续ROE、股权成本与监管资本；原研究未给出这三项的同口径依据',
@@ -62,6 +63,9 @@ PB_CONTEXT = {
     '一般金属及矿石': '矿业资产型，受商品价格周期影响；目标PB缺中周期依据，未计值',
     '建筑': '产能与垫资施工型，应收账款与减值影响账面真实性；目标PB缺同口径依据，未计值',
     '工用运输': '重资产网络型，运价与周期波动大；目标PB缺可持续ROE依据，未计值',
+    '房地产': '资产型（持有物业/房地产服务），账面值有一定约束力但受重估与减值影响；目标PB缺同口径依据，未计值',
+    '材料': '矿业/材料资源资产型，账面值受商品价格周期影响大；目标PB缺中周期ROE依据，未计值',
+    '工业': '资产与网络型（铁路/物流/运输/航天制造），账面值有一定约束力；目标PB缺可持续ROE依据，未计值',
 }
 
 PB_NOT_APPLICABLE_CONTEXT = {
@@ -77,10 +81,10 @@ PB_NOT_APPLICABLE_CONTEXT = {
     '旅游及消闲设施': '特许经营与客流驱动，账面值约束弱；不以PB定价',
     '纺织及服饰': '供应链与品牌主导，账面值约束弱；不以PB定价',
     '媒体及娱乐': '内容与平台网络主导，账面值约束弱；不以PB定价',
-    '海外龙头': '全球平台/科技/品牌龙头，账面值无法约束真实盈利能力；不以PB主锚定价',
-    '中概': '互联网与消费服务平台，轻资产与商誉居多，账面值约束弱；不以PB定价',
-    '新兴市场平台': '平台网络与用户增长主导，轻资产模式，账面值约束弱；不以PB定价',
-    '美股本土成长': '高成长与高无形资产比重，账面值约束弱；不以PB定价',
+    '信息技术': '研发、技术与生态主导（含晶圆制造的先进制程溢价），账面值无法反映真实壁垒；不以PB定价',
+    '可选消费': '品牌、平台网络与渠道价值主导，账面值约束弱；不以PB定价',
+    '日常消费': '品牌与定价权主导，账面值约束弱；不以PB定价',
+    '通信服务': '内容与平台网络主导，无形资产与商誉占比高，账面值约束弱；不以PB定价',
 }
 
 
@@ -196,7 +200,12 @@ def build_record(entry, asof, snapshot, yahoo, lynch, dcf, hk_audit_map, adr_val
         if m:
             pe_mults.append(float(m.group(1)))
 
-    is_financial = any(w in sector for w in ['银行', '保险', '金融', '券商']) or (adr_entry and adr_entry.get('cls') == 'div')
+    # hk 按恒生行业名识别金融股；adr 只认估值初稿的 cls=='div'（银行股息率法）。adr sector 改为 GICS 后，
+    # 金融科技/券商（NU、STNE、PAGS、FUTU、SOFI）不因 sector=金融 自动切到金融方法，估值方法保持原口径。
+    if market == 'adr':
+        is_financial = bool(adr_entry and adr_entry.get('cls') == 'div')
+    else:
+        is_financial = any(w in sector for w in ['银行', '保险', '金融', '券商'])
     has_pos_earnings = num(eps_ttm) and eps_ttm > 0 and num(eps_fwd) and eps_fwd > 0
 
     # 现价与 Yahoo EPS 可能来自不同批次：implied PE 偏离供应商 PE >5% 时，优先用现价÷PE 对齐 EPS，

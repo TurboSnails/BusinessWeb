@@ -1,0 +1,19 @@
+{
+  "server": "yfinance",
+  "tool": "get_balance_sheet",
+  "arguments": {
+    "symbol": "PEP",
+    "quarterly": true
+  },
+  "requestedAt": "2026-11-13T15:31:33.535745+00:00",
+  "retrievedAt": "2026-11-13T15:31:34.093238+00:00",
+  "data": {
+    "symbol": "PEP",
+    "type": "quarterly",
+    "data": {
+      "columns": [],
+      "indexName": null,
+      "rows": []
+    }
+  }
+}

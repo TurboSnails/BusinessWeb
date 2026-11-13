@@ -1,0 +1,76 @@
+{
+  "server": "yfinance",
+  "tool": "get_multiple_tickers_info",
+  "arguments": {
+    "symbols": [
+      "TEM",
+      "TER",
+      "TFC",
+      "TGT",
+      "TJX",
+      "TKO",
+      "TM",
+      "TME",
+      "TMO",
+      "TMUS",
+      "TPL",
+      "TPR"
+    ]
+  },
+  "requestedAt": "2026-11-13T15:30:17.048593+00:00",
+  "retrievedAt": "2026-11-13T15:30:20.187493+00:00",
+  "data": {
+    "symbols": [
+      "TEM",
+      "TER",
+      "TFC",
+      "TGT",
+      "TJX",
+      "TKO",
+      "TM",
+      "TME",
+      "TMO",
+      "TMUS",
+      "TPL",
+      "TPR"
+    ],
+    "results": {
+      "TEM": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "TER": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "TFC": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "TGT": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "TJX": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "TKO": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "TM": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "TME": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "TMO": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "TMUS": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "TPL": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "TPR": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      }
+    }
+  }
+}

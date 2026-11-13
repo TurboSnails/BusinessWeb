@@ -1,0 +1,15 @@
+{
+  "server": "akshare",
+  "tool": "stock_zh_a_hist_tx",
+  "arguments": {
+    "symbol": "sz300750",
+    "start_date": "20261109",
+    "end_date": "20261113",
+    "timeout": 15
+  },
+  "requestedAt": "2026-11-13T15:23:13.862268+00:00",
+  "retrievedAt": "2026-11-13T15:23:13.864862+00:00",
+  "data": {
+    "text": "1 validation error for call[stock_zh_a_hist_tx]\ntimeout\n  Unexpected keyword argument [type=unexpected_keyword_argument, input_value=15, input_type=int]\n    For further information visit https://errors.pydantic.dev/2.14/v/unexpected_keyword_argument"
+  }
+}

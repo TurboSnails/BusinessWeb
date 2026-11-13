@@ -1,0 +1,76 @@
+{
+  "server": "yfinance",
+  "tool": "get_multiple_tickers_info",
+  "arguments": {
+    "symbols": [
+      "ROK",
+      "ROL",
+      "ROP",
+      "ROST",
+      "RR.L",
+      "RSG",
+      "RTX",
+      "RVTY",
+      "RXRX",
+      "RY",
+      "RYAAY",
+      "SAF.PA"
+    ]
+  },
+  "requestedAt": "2026-11-13T15:30:07.695104+00:00",
+  "retrievedAt": "2026-11-13T15:30:10.831445+00:00",
+  "data": {
+    "symbols": [
+      "ROK",
+      "ROL",
+      "ROP",
+      "ROST",
+      "RR.L",
+      "RSG",
+      "RTX",
+      "RVTY",
+      "RXRX",
+      "RY",
+      "RYAAY",
+      "SAF.PA"
+    ],
+    "results": {
+      "ROK": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "ROL": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "ROP": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "ROST": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "RR.L": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "RSG": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "RTX": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "RVTY": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "RXRX": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "RY": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "RYAAY": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "SAF.PA": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      }
+    }
+  }
+}

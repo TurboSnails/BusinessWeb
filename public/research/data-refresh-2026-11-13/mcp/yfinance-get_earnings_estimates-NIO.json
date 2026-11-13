@@ -1,0 +1,13 @@
+{
+  "server": "yfinance",
+  "tool": "get_earnings_estimates",
+  "arguments": {
+    "symbol": "NIO"
+  },
+  "requestedAt": "2026-11-13T15:30:56.450645+00:00",
+  "retrievedAt": "2026-11-13T15:30:56.759590+00:00",
+  "data": {
+    "error": "Too Many Requests. Rate limited. Try after a while.",
+    "symbol": "NIO"
+  }
+}

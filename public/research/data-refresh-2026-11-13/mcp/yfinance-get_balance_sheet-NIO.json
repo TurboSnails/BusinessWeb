@@ -1,0 +1,19 @@
+{
+  "server": "yfinance",
+  "tool": "get_balance_sheet",
+  "arguments": {
+    "symbol": "NIO",
+    "quarterly": true
+  },
+  "requestedAt": "2026-11-13T15:30:55.945481+00:00",
+  "retrievedAt": "2026-11-13T15:30:56.449927+00:00",
+  "data": {
+    "symbol": "NIO",
+    "type": "quarterly",
+    "data": {
+      "columns": [],
+      "indexName": null,
+      "rows": []
+    }
+  }
+}

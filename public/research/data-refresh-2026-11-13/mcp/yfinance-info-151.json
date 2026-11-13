@@ -1,0 +1,76 @@
+{
+  "server": "yfinance",
+  "tool": "get_multiple_tickers_info",
+  "arguments": {
+    "symbols": [
+      "UMI.BR",
+      "UNH",
+      "UNP",
+      "UPS",
+      "URI",
+      "USB",
+      "V",
+      "VALE",
+      "VCT.L",
+      "VEEV",
+      "VGNT",
+      "VICI"
+    ]
+  },
+  "requestedAt": "2026-11-13T15:30:22.323560+00:00",
+  "retrievedAt": "2026-11-13T15:30:25.447979+00:00",
+  "data": {
+    "symbols": [
+      "UMI.BR",
+      "UNH",
+      "UNP",
+      "UPS",
+      "URI",
+      "USB",
+      "V",
+      "VALE",
+      "VCT.L",
+      "VEEV",
+      "VGNT",
+      "VICI"
+    ],
+    "results": {
+      "UMI.BR": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "UNH": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "UNP": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "UPS": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "URI": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "USB": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "V": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "VALE": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "VCT.L": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "VEEV": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "VGNT": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "VICI": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      }
+    }
+  }
+}

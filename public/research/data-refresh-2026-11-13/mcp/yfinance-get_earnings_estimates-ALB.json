@@ -1,0 +1,13 @@
+{
+  "server": "yfinance",
+  "tool": "get_earnings_estimates",
+  "arguments": {
+    "symbol": "ALB"
+  },
+  "requestedAt": "2026-11-13T15:31:14.280314+00:00",
+  "retrievedAt": "2026-11-13T15:31:14.600422+00:00",
+  "data": {
+    "error": "Too Many Requests. Rate limited. Try after a while.",
+    "symbol": "ALB"
+  }
+}

@@ -22,6 +22,14 @@ describe('companySignals', () => {
     expect(byId(companySignals({ rating: '观察', scenarios: scen('80', '120'), today: '2026-10-20' }), 'scenario').detail).toContain('缺少可交易的最新价')
   })
 
+  it('林奇：关注度高/中/低给方向，「待定」（PE 缺失）不参与', () => {
+    const lynch = (attention: string) => byId(companySignals({ rating: '观察', lynch: { type: '稳健型', attention }, today: '2026-10-20' }), 'lynch').direction
+    expect(lynch('高')).toBe(1)
+    expect(lynch('中')).toBe(0)
+    expect(lynch('低')).toBe(-1)
+    expect(lynch('待定')).toBeNull()
+  })
+
   it('DCF：安全边际 ≥20% 偏积极、低于 −10% 偏谨慎；低可信度与不适用不参与', () => {
     const dcf = (mos: number, extra = {}) => byId(companySignals({ rating: '观察', dcf: { price: 100, mos, source: 'auto', currency: 'USD', current: 90, buyBelow: 95, ...extra }, today: '2026-10-20' }), 'dcf')
     expect(dcf(0.25)).toMatchObject({ direction: 1 })

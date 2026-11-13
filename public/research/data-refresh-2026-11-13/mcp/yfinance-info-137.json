@@ -1,0 +1,76 @@
+{
+  "server": "yfinance",
+  "tool": "get_multiple_tickers_info",
+  "arguments": {
+    "symbols": [
+      "OXY",
+      "P",
+      "PAGS",
+      "PANW",
+      "PAYX",
+      "PBR",
+      "PCAR",
+      "PCG",
+      "PDD",
+      "PEG",
+      "PEP",
+      "PFE"
+    ]
+  },
+  "requestedAt": "2026-11-13T15:30:00.132514+00:00",
+  "retrievedAt": "2026-11-13T15:30:03.281770+00:00",
+  "data": {
+    "symbols": [
+      "OXY",
+      "P",
+      "PAGS",
+      "PANW",
+      "PAYX",
+      "PBR",
+      "PCAR",
+      "PCG",
+      "PDD",
+      "PEG",
+      "PEP",
+      "PFE"
+    ],
+    "results": {
+      "OXY": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "P": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "PAGS": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "PANW": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "PAYX": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "PBR": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "PCAR": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "PCG": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "PDD": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "PEG": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "PEP": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "PFE": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      }
+    }
+  }
+}

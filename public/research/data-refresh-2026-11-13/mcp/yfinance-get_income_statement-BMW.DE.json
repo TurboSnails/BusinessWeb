@@ -1,0 +1,19 @@
+{
+  "server": "yfinance",
+  "tool": "get_income_statement",
+  "arguments": {
+    "symbol": "BMW.DE",
+    "quarterly": true
+  },
+  "requestedAt": "2026-11-13T15:31:23.043198+00:00",
+  "retrievedAt": "2026-11-13T15:31:23.686177+00:00",
+  "data": {
+    "symbol": "BMW.DE",
+    "type": "quarterly",
+    "data": {
+      "columns": [],
+      "indexName": null,
+      "rows": []
+    }
+  }
+}

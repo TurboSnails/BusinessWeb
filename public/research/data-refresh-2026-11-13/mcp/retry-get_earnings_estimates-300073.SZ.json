@@ -1,0 +1,356 @@
+{
+  "server": "yfinance",
+  "tool": "get_earnings_estimates",
+  "arguments": {
+    "symbol": "300073.SZ"
+  },
+  "requestedAt": "2026-11-13T15:43:18.785079+00:00",
+  "retrievedAt": "2026-11-13T15:43:22.108737+00:00",
+  "data": {
+    "symbol": "300073.SZ",
+    "earnings_estimate": {
+      "columns": [
+        "avg",
+        "low",
+        "high",
+        "yearAgoEps",
+        "numberOfAnalysts",
+        "growth",
+        "currency",
+        "methodology"
+      ],
+      "indexName": "period",
+      "rows": [
+        {
+          "metric": "0q",
+          "values": [
+            0.47237,
+            0.47237,
+            0.47237,
+            0.24,
+            1.0,
+            0.96819997,
+            "CNY",
+            "normalized"
+          ]
+        },
+        {
+          "metric": "+1q",
+          "values": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "CNY",
+            "normalized"
+          ]
+        },
+        {
+          "metric": "0y",
+          "values": [
+            1.43085,
+            1.43085,
+            1.43085,
+            null,
+            1.0,
+            null,
+            "CNY",
+            "normalized"
+          ]
+        },
+        {
+          "metric": "+1y",
+          "values": [
+            2.01344,
+            2.01344,
+            2.01344,
+            1.43085,
+            1.0,
+            0.4072,
+            "CNY",
+            "normalized"
+          ]
+        }
+      ]
+    },
+    "revenue_estimate": {
+      "columns": [
+        "avg",
+        "low",
+        "high",
+        "numberOfAnalysts",
+        "yearAgoRevenue",
+        "growth",
+        "currency"
+      ],
+      "indexName": "period",
+      "rows": [
+        {
+          "metric": "0q",
+          "values": [
+            5884975520,
+            5884975520,
+            5884975520,
+            1,
+            2974986620.0,
+            0.9782,
+            "CNY"
+          ]
+        },
+        {
+          "metric": "+1q",
+          "values": [
+            0,
+            0,
+            0,
+            0,
+            null,
+            null,
+            "CNY"
+          ]
+        },
+        {
+          "metric": "0y",
+          "values": [
+            20808203210,
+            16646000000,
+            23539902070,
+            5,
+            10374236040.0,
+            1.0058,
+            "CNY"
+          ]
+        },
+        {
+          "metric": "+1y",
+          "values": [
+            27929766460,
+            20303000000,
+            36639039830,
+            6,
+            20808203210.0,
+            0.3422,
+            "CNY"
+          ]
+        }
+      ]
+    },
+    "earnings_history": {
+      "columns": [
+        "epsActual",
+        "epsEstimate",
+        "epsDifference",
+        "surprisePercent",
+        "methodology"
+      ],
+      "indexName": "quarter",
+      "rows": [
+        {
+          "metric": "2025-12-31T00:00:00",
+          "values": [
+            0.24,
+            0.51025,
+            -0.27,
+            -0.52959996,
+            "normalized"
+          ]
+        },
+        {
+          "metric": "2026-03-31T00:00:00",
+          "values": [
+            0.5086,
+            0.36155,
+            0.15,
+            0.4067,
+            "normalized"
+          ]
+        },
+        {
+          "metric": "2026-06-30T00:00:00",
+          "values": [
+            0.45,
+            0.51309,
+            -0.06,
+            -0.123,
+            "normalized"
+          ]
+        },
+        {
+          "metric": "2026-09-30T00:00:00",
+          "values": [
+            0.22,
+            0.46099,
+            -0.24,
+            -0.52279997,
+            "normalized"
+          ]
+        }
+      ]
+    },
+    "eps_trend": {
+      "columns": [
+        "current",
+        "7daysAgo",
+        "30daysAgo",
+        "60daysAgo",
+        "90daysAgo",
+        "currency",
+        "methodology"
+      ],
+      "indexName": "period",
+      "rows": [
+        {
+          "metric": "0q",
+          "values": [
+            0.47237,
+            0.47237,
+            0.47237,
+            0.4766,
+            0.4766,
+            "CNY",
+            "normalized"
+          ]
+        },
+        {
+          "metric": "+1q",
+          "values": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            "CNY",
+            "normalized"
+          ]
+        },
+        {
+          "metric": "0y",
+          "values": [
+            1.43085,
+            2.24218,
+            2.24218,
+            0.0,
+            0.0,
+            "CNY",
+            "normalized"
+          ]
+        },
+        {
+          "metric": "+1y",
+          "values": [
+            2.01344,
+            2.96,
+            2.96,
+            0.0,
+            0.0,
+            "CNY",
+            "normalized"
+          ]
+        }
+      ]
+    },
+    "eps_revisions": {
+      "columns": [
+        "upLast7days",
+        "upLast30days",
+        "downLast30days",
+        "downLast7Days",
+        "currency",
+        "methodology"
+      ],
+      "indexName": "period",
+      "rows": [
+        {
+          "metric": "0q",
+          "values": [
+            0.0,
+            0.0,
+            1.0,
+            1.0,
+            "CNY",
+            "normalized"
+          ]
+        },
+        {
+          "metric": "+1q",
+          "values": [
+            null,
+            null,
+            null,
+            null,
+            "CNY",
+            "normalized"
+          ]
+        },
+        {
+          "metric": "0y",
+          "values": [
+            0.0,
+            0.0,
+            1.0,
+            1.0,
+            "CNY",
+            "normalized"
+          ]
+        },
+        {
+          "metric": "+1y",
+          "values": [
+            0.0,
+            0.0,
+            1.0,
+            1.0,
+            "CNY",
+            "normalized"
+          ]
+        }
+      ]
+    },
+    "growth_estimates": {
+      "columns": [
+        "stockTrend",
+        "indexTrend"
+      ],
+      "indexName": "period",
+      "rows": [
+        {
+          "metric": "0q",
+          "values": [
+            null,
+            0.2916
+          ]
+        },
+        {
+          "metric": "+1q",
+          "values": [
+            null,
+            0.2708
+          ]
+        },
+        {
+          "metric": "0y",
+          "values": [
+            null,
+            0.3335
+          ]
+        },
+        {
+          "metric": "+1y",
+          "values": [
+            0.4072,
+            0.1665
+          ]
+        },
+        {
+          "metric": "LTG",
+          "values": [
+            null,
+            0.122
+          ]
+        }
+      ]
+    }
+  }
+}

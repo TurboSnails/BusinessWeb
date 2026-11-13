@@ -1,0 +1,76 @@
+{
+  "server": "yfinance",
+  "tool": "get_multiple_tickers_info",
+  "arguments": {
+    "symbols": [
+      "STLD",
+      "STM",
+      "STNE",
+      "STT",
+      "STX",
+      "STZ",
+      "SU.PA",
+      "SW",
+      "SWK",
+      "SWKS",
+      "SYENS.BR",
+      "SYF"
+    ]
+  },
+  "requestedAt": "2026-11-13T15:30:13.982589+00:00",
+  "retrievedAt": "2026-11-13T15:30:17.047819+00:00",
+  "data": {
+    "symbols": [
+      "STLD",
+      "STM",
+      "STNE",
+      "STT",
+      "STX",
+      "STZ",
+      "SU.PA",
+      "SW",
+      "SWK",
+      "SWKS",
+      "SYENS.BR",
+      "SYF"
+    ],
+    "results": {
+      "STLD": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "STM": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "STNE": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "STT": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "STX": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "STZ": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "SU.PA": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "SW": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "SWK": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "SWKS": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "SYENS.BR": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "SYF": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      }
+    }
+  }
+}

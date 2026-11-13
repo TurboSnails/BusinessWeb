@@ -360,9 +360,11 @@ for key, entry in lynch.items():
     entry.setdefault('historicalPeg', entry.get('peg'))
     entry['pe'] = q.get('trailingPE')
     entry['peg'] = None
+    # 规则重算（scripts/rebuild-lynch-classification.mjs）写下的 classificationAsOf / classificationNote / cyclical 不随行情刷新清掉
     entry.update(peAsOf=(q.get('valuationMarketTime') or q['marketTime'])[:10], checkedAt=q['checkedAt'],
-                 classificationAsOf=None, financialPeriod=q.get('financialPeriod'), source=q['valuationSource'])
-    entry['v'] = f'PE行情字段于{q["checkedAt"]}核验；分类、增速和护城河为原研究，原核验日期缺失，未按新报表重新认证。PEG待同口径盈利预测，不沿用旧值。'
+                 classificationAsOf=entry.get('classificationAsOf'), financialPeriod=q.get('financialPeriod'), source=q['valuationSource'])
+    note = entry.get('classificationNote')
+    entry['v'] = f'PE行情字段于{q["checkedAt"]}核验；分类、增速和护城河为原研究，原核验日期缺失，未按新报表重新认证。PEG待同口径盈利预测，不沿用旧值。' + (f'{note}' if note else '')
     lynch_count += 1
 save(lynch_path, lynch)
 

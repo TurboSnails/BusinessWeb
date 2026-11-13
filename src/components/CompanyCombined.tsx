@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import type { Company, LynchInfo } from '../data/companies'
+import { lynchFor, type Company, type LynchInfo } from '../data/companies'
 import CandidateButton from './CandidateButton'
 import { DcfCell } from './DcfCell'
 import { useToolSources } from '../features/candidates/useToolSources'
@@ -18,11 +18,13 @@ interface Props {
   onToggleCandidate?: (company: Company) => void
 }
 const ratingOrder = ['优先关注', '条件关注', '观察', '回避', '未估值']
-const types = ['快速增长型', '稳健型', '缓慢增长型', '周期型', '困境反转型', '资产型', '未分类']
+const types = ['快速增长型', '稳健型', '缓慢增长型', '周期型', '困境反转型', '资产型', '数据不足', '未分类']
+const tiers = ['高', '中', '低', '待定'] // 待定：PE 等估值输入缺失
 
 export default function CompanyCombined({ companies, lynch, ratingOf, loading, isCandidate, onToggleCandidate }: Props): JSX.Element {
   const [query, setQuery] = useState('')
   const [sector, setSector] = useState('全部')
+  const [group, setGroup] = useState('全部') // adr 地区（region）/ cn 主题（theme）
   const [rating, setRating] = useState('全部')
   const [type, setType] = useState('全部')
   const [tier, setTier] = useState('全部')
@@ -33,10 +35,13 @@ export default function CompanyCombined({ companies, lynch, ratingOf, loading, i
   // 公司池为左表，林奇数据补充字段；缺标签不丢公司，跨市场同代码不合并。
   const unique = Array.from(new Map(companies.map(c => [`${c.market}:${c.code}`, c])).values())
   const sectors = Array.from(new Set(unique.map(c => c.sector))).sort()
+  const groupOf = (c: Company): string | undefined => c.region ?? c.theme
+  const groups = Array.from(new Set(unique.map(groupOf).filter((g): g is string => !!g))).sort()
   const ratings = Array.from(new Set(unique.map(ratingOf))).sort((a, b) => (ratingOrder.indexOf(a) + 1 || 99) - (ratingOrder.indexOf(b) + 1 || 99))
-  const rows = unique.map(company => ({ company, info: lynch[`${company.market}:${company.code}`] }))
+  const rows = unique.map(company => ({ company, info: lynchFor(lynch, company) }))
   const shown = rows.filter(({ company: c, info: l }) =>
     (sector === '全部' || c.sector === sector) &&
+    (group === '全部' || groupOf(c) === group) &&
     (rating === '全部' || ratingOf(c) === rating) &&
     (type === '全部' || (l?.t || '未分类') === type) &&
     (tier === '全部' || l?.r === tier) &&
@@ -44,8 +49,8 @@ export default function CompanyCombined({ companies, lynch, ratingOf, loading, i
     (dcfF === 'all' || matchDcfFilter(dcfF, dcfOf(c.market, c.code, tools))) &&
     (!query.trim() || `${c.name} ${c.code}`.toLowerCase().includes(query.trim().toLowerCase())),
   )
-  useEffect(() => { setLimit(60) }, [query, sector, rating, type, tier, moat, dcfF])
-  const reset = (): void => { setQuery(''); setSector('全部'); setRating('全部'); setType('全部'); setTier('全部'); setMoat('全部'); setDcfF('all') }
+  useEffect(() => { setLimit(60) }, [query, sector, group, rating, type, tier, moat, dcfF])
+  const reset = (): void => { setQuery(''); setSector('全部'); setGroup('全部'); setRating('全部'); setType('全部'); setTier('全部'); setMoat('全部'); setDcfF('all') }
   const select = (label: string, value: string, values: string[], change: (value: string) => void): JSX.Element => (
     <label className="rn-select-label">
       {label}<select aria-label={label} value={value} onChange={e => change(e.target.value)} className="rn-select">
@@ -55,7 +60,7 @@ export default function CompanyCombined({ companies, lynch, ratingOf, loading, i
   )
   const exportRows = (all: boolean): void => {
     const data = (all ? rows : shown).map(({ company: c, info: l }) => ({
-      市场: c.market, 代码: c.code, 公司: c.name, 行业: c.sector, 评级: c.rating, 评级归类: ratingOf(c),
+      市场: c.market, 代码: c.code, 公司: c.name, 行业: c.sector, 分组: groupOf(c) ?? null, 评级: c.rating, 评级归类: ratingOf(c),
       研究结论: c.headline, 研究时点: c.asOf, 林奇类型: l?.t || '未分类', 同类关注度: l?.r || '未提供',
       护城河: l?.m?.l || '未提供', 护城河证据: l?.m ? `${l.m.s}/${l.m.n}` : null,
       林奇判断: l?.v || l?.w.join('；') || '', 林奇指标: l ? { PE: l.pe ?? null, 盈利增速: l.g ?? null, 两年年化: l.c ?? null, PEG: l.peg ?? null, 股息率: l.dy ?? null } : null,
@@ -77,9 +82,10 @@ export default function CompanyCombined({ companies, lynch, ratingOf, loading, i
       <div className="ui-cluster rn-filters">
         <input aria-label="搜索综合分类" placeholder="搜索公司名称或代码" value={query} onChange={e => setQuery(e.target.value)} className="rn-search" />
         {select('行业', sector, sectors, setSector)}
+        {groups.length > 0 && select('分组', group, groups, setGroup)}
         {select('研究评级', rating, ratings, setRating)}
         {select('林奇类型', type, types, setType)}
-        {select('同类关注度', tier, ['高', '中', '低'], setTier)}
+        {select('同类关注度', tier, tiers, setTier)}
         {select('护城河', moat, ['宽', '窄', '未提供'], setMoat)}
         <label className="rn-select-label">
           DCF<select aria-label="DCF" value={dcfF} onChange={e => setDcfF(e.target.value as DcfFilterId)} className="rn-select">

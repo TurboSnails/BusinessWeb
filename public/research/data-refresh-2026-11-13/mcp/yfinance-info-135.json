@@ -1,0 +1,76 @@
+{
+  "server": "yfinance",
+  "tool": "get_multiple_tickers_info",
+  "arguments": {
+    "symbols": [
+      "NTES",
+      "NTLA",
+      "NTRS",
+      "NU",
+      "NUE",
+      "NVDA",
+      "NVO",
+      "NVR",
+      "NVS",
+      "NWS",
+      "NWSA",
+      "NXPI"
+    ]
+  },
+  "requestedAt": "2026-11-13T15:29:56.881175+00:00",
+  "retrievedAt": "2026-11-13T15:30:00.131373+00:00",
+  "data": {
+    "symbols": [
+      "NTES",
+      "NTLA",
+      "NTRS",
+      "NU",
+      "NUE",
+      "NVDA",
+      "NVO",
+      "NVR",
+      "NVS",
+      "NWS",
+      "NWSA",
+      "NXPI"
+    ],
+    "results": {
+      "NTES": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "NTLA": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "NTRS": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "NU": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "NUE": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "NVDA": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "NVO": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "NVR": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "NVS": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "NWS": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "NWSA": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      },
+      "NXPI": {
+        "error": "Too Many Requests. Rate limited. Try after a while."
+      }
+    }
+  }
+}

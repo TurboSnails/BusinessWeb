@@ -27,3 +27,5 @@ npm test -- --run src/features/company-valuation
 生成器接受 `--universe public/research/comprehensive-valuation-2026-10-22/universe-MARKET.json --as-of 2026-10-22 --output OUTPUT.json`。US/NDX用 `scripts/build-company-valuations-us.py`，CN用 `scripts/build-company-valuations-cn.py`，HK/ADR用 `scripts/build-company-valuations-international.py`。输出可指向临时目录对比，不必覆盖交付文件。
 
 契约校验和算术复算不证明财务事实或目标倍数有效。下一轮应优先补：已撤回模型的重新立论、财报/预测财年与股份单位桥接、可持续盈利和资本回报、目标倍数/股息率依据、DCF预测与再投资。不得通过删除证据不足的公司提高完成率。
+
+2026-11-13 公司库维护：`universe-us.json` 去掉 `us:BK`（与 `us:BNY` 是同一家纽约梅隆银行，研究页并入现行代码 BNY）和 `us:QRVO`（Skyworks 于 2026-10-06 完成合并，QRVO 停止交易），美股覆盖 504→502；其余记录未改。

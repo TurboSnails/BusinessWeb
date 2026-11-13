@@ -1,0 +1,13 @@
+{
+  "server": "yfinance",
+  "tool": "get_earnings_estimates",
+  "arguments": {
+    "symbol": "PLS.AX"
+  },
+  "requestedAt": "2026-11-13T15:31:15.303914+00:00",
+  "retrievedAt": "2026-11-13T15:31:15.654344+00:00",
+  "data": {
+    "error": "Too Many Requests. Rate limited. Try after a while.",
+    "symbol": "PLS.AX"
+  }
+}

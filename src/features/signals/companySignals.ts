@@ -92,7 +92,8 @@ function lynchSignal(lynch: SignalInput['lynch']): Signal {
   if (!lynch) return { id: 'lynch', label: '林奇分类', verdict: '暂无', detail: '分类数据加载中或未覆盖', direction: null }
   return {
     id: 'lynch', label: '林奇分类', verdict: `${lynch.type} · 关注度${lynch.attention}`, detail: lynch.moat ?? '同类内关注度按统一规则计算',
-    direction: lynch.attention === '高' ? 1 : lynch.attention === '低' ? -1 : 0,
+    // 「待定」= 估值输入缺失，不参与分歧判断
+    direction: lynch.attention === '高' ? 1 : lynch.attention === '低' ? -1 : lynch.attention === '中' ? 0 : null,
   }
 }
 

@@ -11,8 +11,10 @@ export interface Company {
   code: string
   name: string
   market: Market
-  sector: string // 板块分组
+  sector: string // 板块分组：us/adr/ndx 为 GICS 一级，cn 为中证一级，hk 为恒生行业（见 sectorTaxonomy.ts）
   batch: string // 研究批次
+  theme?: string // cn 主题/来源标签（新能源汽车、AI 算力、高盛增持等），与中证一级 sector 分开
+  region?: string // adr 地域/题材分组（海外龙头、中概、新兴市场平台、新上市/热门、美股本土成长）
   rating: string // 条件化评级
   headline: string // 一句话结论
   metrics: [string, string][] // 关键指标
@@ -95,11 +97,19 @@ export const useCompanies = (market: Market, enabled = true): { list: Company[];
 // ───────── 林奇分类 + 护城河证据（脚本按统一规则生成，public/data/lynch.json，键为 market:code）─────────
 export interface LynchInfo {
   t: string // 林奇类型
-  r: string // 同类内关注度：高/中/低
+  r: string // 同类内关注度：高/中/低/待定（待定 = PE 等估值输入缺失）
   pe?: number | null; g?: number | null; c?: number | null; rg?: number | null; peg?: number | null
   ph?: string | null; dy?: number | null; pb?: number | null
   v?: string; w: string[]; f: string[]
+  classificationNote?: string | null // 规则重算时的变更说明
   m: { s: number; n: number; l: string; i: [string, boolean | null, string][] } | null
+}
+/** 林奇数据键：market:code；纳指页签手工新增的公司（market 为 ndx）为美股上市，回退查 us: / adr: 键 */
+export const lynchKeysOf = (c: { market: Market; code: string }): string[] =>
+  c.market === 'ndx' ? [`ndx:${c.code}`, `us:${c.code}`, `adr:${c.code}`] : [`${c.market}:${c.code}`]
+export const lynchFor = (lynch: Record<string, LynchInfo>, c: { market: Market; code: string }): LynchInfo | undefined => {
+  for (const key of lynchKeysOf(c)) if (lynch[key]) return lynch[key]
+  return undefined
 }
 let lynchCache: Promise<Record<string, LynchInfo>> | null = null
 export const loadLynch = (): Promise<Record<string, LynchInfo>> => {

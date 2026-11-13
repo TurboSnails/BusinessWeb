@@ -1,0 +1,19 @@
+{
+  "server": "yfinance",
+  "tool": "get_balance_sheet",
+  "arguments": {
+    "symbol": "MBG.DE",
+    "quarterly": true
+  },
+  "requestedAt": "2026-11-13T15:31:22.331572+00:00",
+  "retrievedAt": "2026-11-13T15:31:22.700866+00:00",
+  "data": {
+    "symbol": "MBG.DE",
+    "type": "quarterly",
+    "data": {
+      "columns": [],
+      "indexName": null,
+      "rows": []
+    }
+  }
+}

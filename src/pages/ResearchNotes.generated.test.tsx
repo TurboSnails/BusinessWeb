@@ -180,6 +180,9 @@ describe('林奇分组、港股、导出', () => {
     fireEvent.click(screen.getByRole('button', { name: /^周期型 \d+/ }))
     await waitFor(() => expect(screen.queryAllByText('周期型').length).toBeGreaterThan(1))
     expect(screen.getByText(/导出当前/)).toBeTruthy()
+    // 「数据不足」类型与「待定」关注度可单独筛选
+    expect(screen.getByRole('button', { name: /^数据不足 \d+/ })).toBeTruthy()
+    expect(screen.getByRole('button', { name: '关注度：待定' })).toBeTruthy()
   })
 
   it('港股标签页列表可加载并搜索腾讯', async () => {
@@ -264,9 +267,12 @@ it('沪深复核保留未重建公司；伯特利使用最新未认证研究初�
 })
 
 it('两分类40家公司在初始与异步数据都显示原件复核，亏损公司不恢复旧PE', async () => {
-  const rows = (await loadCompanies('cn')).filter(c => ['自动驾驶', '新材料'].includes(c.sector))
-  expect(rows.filter(c => c.sector === '自动驾驶')).toHaveLength(21)
-  expect(rows.filter(c => c.sector === '新材料')).toHaveLength(19)
+  // 主题桶已从 sector 移到 theme；sector 为中证一级
+  const rows = (await loadCompanies('cn')).filter(c => ['自动驾驶', '新材料'].includes(c.theme ?? ''))
+  expect(rows.filter(c => c.theme === '自动驾驶')).toHaveLength(21)
+  expect(rows.filter(c => c.theme === '新材料')).toHaveLength(19)
+  expect(rows.some(c => ['自动驾驶', '新材料'].includes(c.sector))).toBe(false)
+  expect(rows.find(c => c.code === '688772')?.sector).toBe('工业') // 珠海冠宇：中证 工业-电池
   for (const company of rows) {
     expect(company.auto).toBe(false)
     expect(company.asOf).toContain('2026-10-07')

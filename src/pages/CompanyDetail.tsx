@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, ExternalLink, CheckCircle2, AlertTriangle, ArrowRight } from 'lucide-react'
-import { useCompanies, useLynch, Market } from '../data/companies'
+import { useCompanies, useLynch, lynchFor, Market } from '../data/companies'
 import { usePageSeo } from '../components/RouteSeo'
 import ResearchNotice from '../components/research/ResearchNotice'
 import { toneOf, Tone } from '../data/notionNotes'
@@ -151,7 +151,7 @@ export default function CompanyDetail(): JSX.Element {
   const done = completeness.filter(c => c[1]).length
   const candItem = cand.items.find(i => i.market === company.market && i.code === company.code)
   const lastDecision = candItem && latestDecision(candItem)
-  const lynchInfo = lynchAll[`${company.market}:${company.code}`]
+  const lynchInfo = lynchFor(lynchAll, company)
   const signals = companySignals({
     rating: company.rating,
     price,
@@ -179,7 +179,7 @@ export default function CompanyDetail(): JSX.Element {
         </div>
         <h1 className="rn-hero-title">{company.name}</h1>
         <p className="rn-hero-meta">
-          {company.market === 'us' ? '标普500' : company.market === 'hk' ? '港股' : company.market === 'adr' ? '美股非标普' : company.market === 'ndx' ? '纳指100' : '沪深'} · {company.code} · {company.sector} · {company.batch}
+          {company.market === 'us' ? '标普500' : company.market === 'hk' ? '港股' : company.market === 'adr' ? '美股非标普' : company.market === 'ndx' ? '纳指100' : '沪深'} · {company.code} · {company.sector}{company.region ? ` · ${company.region}` : ''}{company.theme ? ` · ${company.theme}` : ''} · {company.batch}
         </p>
         {company.marketRefresh && <PageDataFreshness checkedAt={company.marketRefresh.checkedAt} dataLabel="行情日期" dataDates={[company.marketRefresh.priceDate]} researchAsOf={company.marketRefresh.originalAsOf} />}
         <div className="ui-cluster">
@@ -209,7 +209,7 @@ export default function CompanyDetail(): JSX.Element {
           </Card>
         )}
         {(() => {
-          const ly = lynchAll[`${company.market}:${company.code}`]
+          const ly = lynchFor(lynchAll, company)
           if (!ly || ((company.market === 'hk' || company.market === 'adr') && company.researchReport)) return null
           const cls = ly.r === '高' ? 'rn-card--good' : ly.r === '中' ? 'rn-card--lead' : undefined
           return (
