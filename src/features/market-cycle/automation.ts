@@ -1,5 +1,8 @@
 import type { Evidence, ManualDimension, Market } from './engine'
 
+// Kept local: Node runs this file with type stripping, so a runtime import from './engine' would not resolve.
+const isUs = (market: Market): boolean => market === 'spx' || market === 'ndx'
+
 export interface AutomaticFact {
   metricId: string; market: Market | 'all'; value: number; observationDate: string; availableAt: string | null
   firstSeenAt: string; fetchedAt: string; source: string; unit: string; kind: 'observed' | 'proxy' | 'backfilled'
@@ -22,7 +25,7 @@ export const exclusionText = (exclusions: Record<string, number>): string => Obj
 export const humanizeDetail = (text: string): string => Object.entries(EXCLUSION_LABELS).reduce((t, [k, v]) => t.replaceAll(k, v), text)
 const measurable = (b: BreadthMarket) => b.total - (b.newListings && b.newListings <= b.total * 0.1 ? b.newListings : 0)
 export function factLabel(id: string): string {
-  const names: Record<string, string> = { erp_z: 'ERP五年标准分', erp: '简化股债收益率差', pe: '指数市盈率', pe_history_5y_percentile: '恒指第三方日频PE五年分位', pe_official_5y_percentile: '官方月末PE五年分位', cn10y: '中国10年国债收益率', financing_buy: '两市融资买入额', financing_buy_ratio_pct: '两市融资买入占比', cn_turnover_yi: '沪深A股及上市基金成交额', hk_south_20d: '南向20日净买入', index_week_daily_turnover_hkd: '恒指完整周日均成交额', turnover_ratio_52w: '周日均成交额/52周基准', cnh: '离岸人民币汇率', hkd: '港元汇率' }
+  const names: Record<string, string> = { erp_z: 'ERP五年标准分', erp: '简化股债收益率差', pe: '指数市盈率', pe_history_5y_percentile: '恒指第三方日频PE五年分位', pe_official_5y_percentile: '官方月末PE五年分位', cn10y: '中国10年国债收益率', financing_buy: '两市融资买入额', financing_buy_ratio_pct: '两市融资买入占比', cn_turnover_yi: '沪深A股及上市基金成交额', hk_south_20d: '南向20日净买入', fwd_pe: '12个月Forward PE', fwd_pe_5y_percentile: 'Forward PE近5年分位', index_week_daily_turnover_hkd: '恒指完整周日均成交额', turnover_ratio_52w: '周日均成交额/52周基准', cnh: '离岸人民币汇率', hkd: '港元汇率' }
   return names[id] ?? (id.startsWith('etf_shares_') ? `ETF ${id.slice(11)} 总份额` : id)
 }
 const dateOK = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && Number.isFinite(Date.parse(s)) && new Date(s).toISOString().slice(0, 10) === s
@@ -30,7 +33,7 @@ const timeOK = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d\
 const urlOK = (s: unknown) => { try { return typeof s === 'string' && ['http:', 'https:'].includes(new URL(s).protocol) } catch { return false } }
 const obj = (x: unknown): x is Record<string, unknown> => !!x && typeof x === 'object' && !Array.isArray(x)
 const finite = (x: unknown): x is number => typeof x === 'number' && Number.isFinite(x)
-const markets = ['csi300', 'hsi', 'hstech']
+const markets = ['csi300', 'hsi', 'hstech', 'spx', 'ndx']
 const issuesOK = (x: unknown) => Array.isArray(x) && x.length <= 1000 && x.every(v => typeof v === 'string')
 
 /** Shared by the browser and unattended review job. Unknown schemas fail closed. */
@@ -78,6 +81,7 @@ export function factUsable(f: AutomaticFact, asOf: string): boolean {
 export function automaticRows(market: Market, snapshot: AutomaticSnapshot | null, breadth: BreadthSnapshot | null, asOf: string, newHigh = false): Partial<Record<ManualDimension, Evidence>> {
   const out: Partial<Record<ManualDimension, Evidence>> = {}
   const today = asOf.slice(0, 10)
+  if (isUs(market)) return usAutomaticRows(market, snapshot, asOf)
   // Pick the freshest observed fact for the scope. The hk_south_20d metric lives under market='all' but is the
   // only funding signal we have for HK markets — accept it as the HK funding lookup. A-share financing_buy
   // (market='all') serves CSI300 only.
@@ -174,10 +178,31 @@ export function automaticRows(market: Market, snapshot: AutomaticSnapshot | null
   return out
 }
 
+/** US indexes: valuation from the forward-PE facts; funding is computed in the engine from price + FINRA; breadth not yet collected. */
+function usAutomaticRows(market: Market, snapshot: AutomaticSnapshot | null, asOf: string): Partial<Record<ManualDimension, Evidence>> {
+  const idx = market === 'spx' ? '标普500' : '纳指100'
+  const latest = (metricId: string) => (snapshot?.facts ?? []).filter(f => f.metricId === metricId && f.market === market && f.kind === 'observed' && f.observationDate <= asOf.slice(0, 10))
+    .sort((a, b) => b.observationDate.localeCompare(a.observationDate))[0]
+  const pe = latest('fwd_pe'), pct = latest('fwd_pe_5y_percentile')
+  let valuation: Evidence
+  if (pe && pct && pe.observationDate === pct.observationDate && factUsable(pct, asOf) && pct.value >= 0 && pct.value <= 100) {
+    const signal = pct.value <= 10 ? 'bottom' : pct.value >= 90 ? 'risk' : 'neutral'
+    valuation = { id: 'valuation', name: '估值与赔率', signal, available: true, source: pct.source, date: pct.observationDate,
+      detail: `${idx} 12个月Forward PE ${pe.value.toFixed(2)}倍，处于近5年周度样本的${pct.value.toFixed(1)}%分位。${signal === 'bottom' ? '低于10%低估观察线。' : signal === 'risk' ? '高于90%偏贵观察线。' : '位于10%—90%的中间区间。'}`,
+      methodDetail: pct.description, values: { pePercentile: pct.value } }
+  } else if (pct) {
+    valuation = { id: 'valuation', name: '估值与赔率', signal: 'missing', available: false, source: pct.source, date: pct.observationDate, pendingReason: '估值数据待更新',
+      detail: `${idx} Forward PE 最新一期停在${pct.observationDate}（${pe ? `${pe.value.toFixed(2)}倍，` : ''}近5年${pct.value.toFixed(1)}%分位），已超过14天，不计票。数据源恢复周度更新后自动生效。`, methodDetail: pct.description }
+  } else {
+    valuation = { id: 'valuation', name: '估值与赔率', signal: 'missing', available: false, pendingReason: '估值数据待采集', detail: `尚无${idx} Forward PE 周度历史。` }
+  }
+  return { valuation, breadth: { id: 'breadth', name: '指数成分宽度', signal: 'missing', available: false, pendingReason: '宽度暂未接入', detail: `${idx}成分股站上200日均线占比尚未接入，本维度不计票。` } }
+}
+
 /** Compact reason a market's breadth entry did not vote. Reads the snapshot's issues verbatim (no regex
  *  truncation). Returns a per-market placeholder reason when the snapshot has no per-market issue at all. */
 export function breadthIssue(market: Market, breadth: BreadthSnapshot | null, asOf = breadth?.generatedAt.slice(0, 10) ?? ''): string {
-  const labels: Record<Market, string> = { csi300: '沪深300', hsi: '恒生指数', hstech: '恒生科技' }
+  const labels: Record<Market, string> = { csi300: '沪深300', hsi: '恒生指数', hstech: '恒生科技', spx: '标普500', ndx: '纳指100' }
   const label = labels[market]
   const entry = breadth?.markets?.[market]
   if (entry) {

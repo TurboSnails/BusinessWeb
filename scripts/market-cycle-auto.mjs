@@ -10,11 +10,12 @@ import { officialMonthlyPePercentile } from './market-cycle-hk-official-pe.mjs'
 import { collectCnFunding } from './market-cycle-cn-funding.mjs'
 import { collectCnTurnover } from './market-cycle-cn-turnover.mjs'
 import { collectHsiTurnover } from './market-cycle-hsi-turnover.mjs'
+import { collectUsForwardPe } from './market-cycle-us-valuation.mjs'
 
 export const OUT_FILE = fileURLToPath(new URL('../public/data/market-cycle-auto.json', import.meta.url))
 const XLSX_PY = fileURLToPath(new URL('./market-cycle-xlsx.py', import.meta.url))
 const UA = 'Mozilla/5.0'
-const MARKETS = ['csi300', 'hsi', 'hstech', 'all']
+const MARKETS = ['csi300', 'hsi', 'hstech', 'spx', 'ndx', 'all']
 const KINDS = ['observed', 'proxy', 'backfilled']
 const FREQUENCIES = ['daily', 'weekly', 'monthly']
 export const MAX_PER_SERIES = 60
@@ -459,6 +460,7 @@ export const SOURCES = [
   { id: 'sse-etf', produces: ETF_WHITELIST.map(w => [`etf_shares_${w.code}`, w.market]), run: collectEtf },
   { id: 'hk-south', produces: [['hk_south_20d', 'all']], run: collectSouthbound },
   { id: 'hk-liquidity', produces: [['turnover_ratio_52w', 'hstech']], run: collectHkLiquidity },
+  { id: 'us-fwd-pe', produces: [['fwd_pe', 'spx'], ['fwd_pe_5y_percentile', 'spx'], ['fwd_pe', 'ndx'], ['fwd_pe_5y_percentile', 'ndx']], run: collectUsForwardPe },
   { id: 'hsi-turnover', produces: [['index_week_daily_turnover_hkd', 'hsi'], ['turnover_ratio_52w', 'hsi']], timeoutMs: 240000, run: ctx => collectHsiTurnover(ctx, { pool: true, ...ctx.hsiTurnoverOptions }) },
 ]
 

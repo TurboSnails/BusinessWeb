@@ -15,7 +15,7 @@ export function parseMacroInput(body) {
 }
 export function parsePriceInput(body) {
   if (body?.schemaVersion !== 1 || !body.markets || typeof body.markets !== 'object' || !Array.isArray(body.warnings)) throw new Error('Invalid price snapshot')
-  for (const market of ['csi300', 'hsi', 'hstech']) {
+  for (const market of ['csi300', 'hsi', 'hstech', 'spx', 'ndx']) {
     const price = body.markets[market]
     if (price && (!Array.isArray(price.week) || !Array.isArray(price.month) || !safeUrl(price.source) || !Number.isFinite(Date.parse(price.fetchedAt))
       || [...price.week, ...price.month].some(b => !b || typeof b.date !== 'string' || !validDate(b.date) || !Number.isFinite(b.close) || b.close <= 0 || !Number.isFinite(b.volume) || b.volume < 0))) throw new Error('Invalid market price')
@@ -57,7 +57,7 @@ export function buildReport(inputs, previous = null, now = new Date().toISOStrin
   const last = history.find(r => (Date.parse(week) - Date.parse(r.weekEnding)) / 86400000 === 7)
   const record = { weekEnding: week, decisionAt: now, ruleVersion: 'cycle-shadow-v2',
     inputHash: createHash('sha256').update(JSON.stringify(inputs)).digest('hex'), markets: {} }
-  for (const market of ['csi300', 'hsi', 'hstech']) {
+  for (const market of ['csi300', 'hsi', 'hstech', 'spx', 'ndx']) {
     const price = inputs.price?.markets?.[market]
     const base = evaluate(market, price, {}, inputs.cn, inputs.us, asOf)
     const automatic = automaticRows(market, inputs.automatic, inputs.breadth, asOf, base.newHigh)

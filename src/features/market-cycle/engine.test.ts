@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { completedBars, technicalSeries, assessManual, summarize, STATE_RULES, macroEvidence, overseasEvidence, type Evidence, type Bar } from './engine'
+import { completedBars, technicalSeries, assessManual, summarize, STATE_RULES, macroEvidence, overseasEvidence, usLiquidityEvidence, usFundingSignal, usFundingEvidence, evaluate, type Evidence, type Bar } from './engine'
 
 const bars = (n: number): Bar[] => Array.from({ length: n }, (_, i) => ({ date: `${2000 + Math.floor(i / 12)}-${String(i % 12 + 1).padStart(2, '0')}-01`, close: 100 + i, volume: 10 }))
 const ev = (id: string, signal: Evidence['signal']): Evidence => ({ id, name: id, signal, detail: '', date: '2026-10-16', source: 'https://example.com', available: true })
@@ -72,5 +72,36 @@ describe('长周期指标与证据纪律', () => {
       [ev('technical', 'neutral'), ev('valuation', 'neutral'), ev('funding', 'neutral'), ev('breadth', 'neutral'), ev('macro', 'neutral')],
     ]
     expect(STATE_RULES.map(r => r.state)).toEqual(cases.map(rows => summarize(rows).state))
+  })
+})
+
+describe('美股维度', () => {
+  const asOf = '2026-11-13'
+  const nfci = (values: number[]) => ({ series: { nfci: { latest: { date: '2026-11-06', value: values.at(-1)! }, history: values.map((v, i): [string, number] => [`2026-${String(8 + i).padStart(2, '0')}-0${i === 3 ? 6 : 1}`, v]) } } })
+  it('NFCI 连续三次同向且累计≥0.1 才投票，微小抖动判中性', () => {
+    expect(usLiquidityEvidence(nfci([-0.546, -0.509, -0.465, -0.462]), asOf).signal).toBe('neutral')
+    expect(usLiquidityEvidence(nfci([-0.6, -0.5, -0.45, -0.4]), asOf).signal).toBe('risk')
+    expect(usLiquidityEvidence(nfci([-0.3, -0.4, -0.45, -0.5]), asOf).signal).toBe('positive')
+    expect(usLiquidityEvidence(null, asOf).signal).toBe('missing')
+  })
+  it('资金：杠杆极重判风险，出清判底部，放量收涨判偏多', () => {
+    expect(usFundingSignal(1.0, 0.8, 1)).toBe('risk')
+    expect(usFundingSignal(2.0, 95, -3)).toBe('bottom')
+    expect(usFundingSignal(1.6, 50, 1.2)).toBe('positive')
+    expect(usFundingSignal(1.6, 50, -1.2)).toBe('neutral')
+  })
+  it('资金证据由指数周成交量与 FINRA 长历史计算', () => {
+    const bars = Array.from({ length: 60 }, (_, i) => ({ date: new Date(Date.parse('2025-09-06') + i * 7 * 864e5).toISOString().slice(0, 10), close: 100 + i, volume: i === 59 ? 300 : 100 }))
+    const long = Array.from({ length: 200 }, (_, i): [string, number] => [`${2000 + Math.floor(i / 12)}-${String(i % 12 + 1).padStart(2, '0')}-01`, 40 + i])
+    const us = { series: { cashDebt: { latest: { date: '2026-09-01', value: 50 }, history: [], long } } }
+    const e = usFundingEvidence(bars, us, asOf)
+    expect(e.available).toBe(true)
+    expect(e.values).toMatchObject({ volumeRatio: 3, cashPercentile: 5.5 })
+    expect(e.signal).toBe('risk')
+    expect(usFundingEvidence(bars, { series: {} }, asOf).pendingReason).toBe('保证金数据待更新')
+  })
+  it('美股缺宽度与估值时只计4维，海外维度改名为利率与波动', () => {
+    const result = evaluate('spx', undefined, {}, null, null, asOf)
+    expect(result.rows.map(r => r.name)).toEqual(['估值与赔率', '资金与杠杆', '市场宽度', '美国金融条件', '周 / 月技术', '利率与波动'])
   })
 })

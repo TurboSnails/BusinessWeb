@@ -3,7 +3,21 @@ import { readFile, writeFile, rename } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 
 const FILE = fileURLToPath(new URL('../public/data/market-cycle.json', import.meta.url))
-const SYMBOLS = { csi300: 'sh000300', hsi: 'hkHSI', hstech: 'hkHSTECH' }
+const SYMBOLS = { csi300: 'sh000300', hsi: 'hkHSI', hstech: 'hkHSTECH', spx: 'yahoo:^GSPC', ndx: 'yahoo:^NDX' }
+const YAHOO = 'https://query1.finance.yahoo.com/v8/finance/chart/'
+/** Yahoo chart → bars. The last bar may be the running week/month; engine.completedBars drops it. */
+export function parseYahooBars(body, symbol) {
+  const r = body?.chart?.result?.[0]
+  const ts = r?.timestamp, q = r?.indicators?.quote?.[0]
+  if (!Array.isArray(ts) || !ts.length || !Array.isArray(q?.close) || !Array.isArray(q?.volume)) throw new Error(`${symbol}: 无K线`)
+  const byDate = new Map()
+  ts.forEach((t, i) => {
+    const close = Number(q.close[i]), volume = Number(q.volume[i] ?? 0)
+    if (q.close[i] == null || !Number.isFinite(close) || close <= 0 || !Number.isFinite(volume) || volume < 0) return
+    byDate.set(new Date(t * 1000).toISOString().slice(0, 10), { close, volume })
+  })
+  return [...byDate].sort((a, b) => a[0].localeCompare(b[0])).map(([date, b]) => ({ date, close: Number(b.close.toFixed(2)), volume: b.volume }))
+}
 export function parseBars(body, symbol, period) {
   const data = body?.data?.[symbol]
   const rows = data?.[period] ?? data?.[`qfq${period}`]
@@ -26,6 +40,13 @@ async function get(url) {
 export async function buildSnapshot(previous, fetchJson = get, now = new Date().toISOString()) {
   const result = { schemaVersion: 1, generatedAt: now, markets: {}, warnings: [] }
   const outcomes = await Promise.allSettled(Object.entries(SYMBOLS).map(async ([market, symbol]) => {
+    if (symbol.startsWith('yahoo:')) {
+      const ticker = encodeURIComponent(symbol.slice(6)), source = `${YAHOO}${ticker}?range=20y&interval=1wk`
+      const [week, month] = await Promise.all([['1wk', '10y'], ['1mo', '20y']].map(async ([interval, range]) => parseYahooBars(await fetchJson(`${YAHOO}${ticker}?range=${range}&interval=${interval}`), symbol)))
+      if (week.length < 52 || month.length < 60) throw new Error('历史覆盖不足：需52周 / 60个月')
+      if ([...week, ...month].some(b => b.date > now.slice(0, 10))) throw new Error('行情日期晚于抓取日期')
+      return [market, { week: week.slice(-800), month: month.slice(-800), source, fetchedAt: now }]
+    }
     const source = `https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=${symbol}`
     const [week, month] = await Promise.all(['week', 'month'].map(async period => parseBars(await fetchJson(`${source},${period},,,800,qfq`), symbol, period)))
     if (week.length < 52 || month.length < 60) throw new Error('历史覆盖不足：需52周 / 60个月')

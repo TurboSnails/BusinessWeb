@@ -14,7 +14,9 @@ import { HSI_REPORT_METADATA_URL, hsiReportUrl } from './market-cycle-hsi-turnov
 const NOW = '2026-10-17T10:00:00.000Z'
 async function buildAutoSnapshot(previous, options) {
   const cacheDir = await mkdtemp(join(tmpdir(), 'cycle-auto-cn-test-'))
-  try { return await buildProductionSnapshot(previous, { ...options, cnTurnoverOptions: { cacheDir: join(cacheDir, 'cn') }, hsiTurnoverOptions: { cacheDir: join(cacheDir, 'hsi') } }) }
+  // us-fwd-pe reads the committed index-history.json, not the network; keep it out of the offline-source tests.
+  const sources = options?.sources ?? SOURCES.filter(s => s.id !== 'us-fwd-pe')
+  try { return await buildProductionSnapshot(previous, { ...options, sources, cnTurnoverOptions: { cacheDir: join(cacheDir, 'cn') }, hsiTurnoverOptions: { cacheDir: join(cacheDir, 'hsi') } }) }
   finally { await rm(cacheDir, { recursive: true, force: true }) }
 }
 
@@ -370,7 +372,7 @@ test('invalid previous facts are dropped with an issue; fatal only with nothing 
   const none = await buildAutoSnapshot(null, { fetchImpl: failAll, now: NOW, parseXlsx: fakeXlsx })
   assert.equal(none.facts.length, 0)
   assert.equal(isFatal(none), true)
-  assert.equal(SOURCES.length, 13)
+  assert.equal(SOURCES.length, 14)
 })
 
 test('writeAtomic leaves no temp file and round-trips', async () => {

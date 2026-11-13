@@ -9,7 +9,7 @@ import './market-cycle.css'
 const CHECKS = ['已核对数据日期、来源与缺失项', '已复核多空冲突及策略失效条件', '已检查策略资金范围与回撤预算', '已写明本次动作或继续观察的理由']
 const DIMENSIONS: ManualDimension[] = ['valuation', 'funding', 'breadth']
 const DIMENSION_SHORT: Record<string, string> = { valuation: '估值', funding: '资金', breadth: '宽度', macro: '流动性', technical: '技术', overseas: '海外' }
-const SOURCE_NAMES: Record<string, string> = { 'csi300-erp': '沪深300估值', 'hsi-pe': '恒指PE', 'hstech-pe': '恒科PE', 'hsi-official-pe': '恒指官方PE分位', 'hstech-official-pe': '恒科官方PE分位', 'hsi-pe-history': '恒指第三方PE', margin: '两市融资', 'cn-funding': 'A股融资占比', 'cn-turnover': 'A股成交额基准', 'fred-hkd': '港元汇率', 'yahoo-cnh': '离岸人民币', 'sse-etf': 'ETF份额', 'hk-south': '南向资金', 'hk-liquidity': '恒科成交额', 'hstech-liquidity': '恒科成交额', 'hsi-turnover': '恒指成交额' }
+const SOURCE_NAMES: Record<string, string> = { 'csi300-erp': '沪深300估值', 'hsi-pe': '恒指PE', 'hstech-pe': '恒科PE', 'hsi-official-pe': '恒指官方PE分位', 'hstech-official-pe': '恒科官方PE分位', 'hsi-pe-history': '恒指第三方PE', margin: '两市融资', 'cn-funding': 'A股融资占比', 'cn-turnover': 'A股成交额基准', 'fred-hkd': '港元汇率', 'yahoo-cnh': '离岸人民币', 'sse-etf': 'ETF份额', 'hk-south': '南向资金', 'hk-liquidity': '恒科成交额', 'hstech-liquidity': '恒科成交额', 'hsi-turnover': '恒指成交额', 'us-fwd-pe': '美股Forward PE' }
 const today = () => new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Shanghai' })
 const f = (v: number | null | undefined, digits = 2) => v == null ? '—' : v.toFixed(digits)
 const beijing = (iso: string) => new Date(iso).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false })
@@ -112,8 +112,9 @@ export default function MarketCycleView(): JSX.Element {
   const issues = [...(automatic?.issues ?? []), ...(breadth?.issues ?? [])]
   const latestEvidence = result.rows.flatMap(r => r.available && r.date ? r.date.split(' / ') : []).filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d) && d <= asOf).sort().at(-1)
   const [thisWeek, lastWeek] = report?.records ?? []
-  const weekChanges = thisWeek && lastWeek ? changes(lastWeek.markets[market].rows, thisWeek.markets[market].rows) : []
-  const sinceReport = thisWeek ? changes(thisWeek.markets[market].rows, result.rows) : []
+  const thisMarket = thisWeek?.markets[market], lastMarket = lastWeek?.markets[market]
+  const weekChanges = thisMarket && lastMarket ? changes(lastMarket.rows, thisMarket.rows) : []
+  const sinceReport = thisMarket ? changes(thisMarket.rows, result.rows) : []
   useEffect(() => {
     const controller = new AbortController()
     let active = true
@@ -184,14 +185,14 @@ export default function MarketCycleView(): JSX.Element {
     try { const next = parseBackup(await file.text()); if (commit(next, '备份已恢复。')) setChecks(CHECKS.map(() => false)) }
     catch { setStatus('导入失败：备份格式、版本或数值不合法，原记录未改动。') }
   }
-  return <section className="cycle-board" aria-label="A股港股牛熊周期">
+  return <section className="cycle-board" aria-label="A股港股美股牛熊周期">
     <header className="cycle-intro"><div><h2>用完整周与月，观察牛熊周期</h2><p>估值看赔率，资金看燃料，趋势决定何时复核。每周15分钟，少做一次情绪决策。</p></div><span className="cycle-version">观察版 · 规则未经回测 · 非交易指令</span></header>
     {errors.length > 0 && <p role="alert" className="cycle-notice">{errors.length}个数据文件未能加载：{errors.join('、')}。成功加载的部分仍可用；重读失败时保留原数据及日期。</p>}
     {snapshot?.warnings.map(w => <p key={w} className="cycle-notice">{w}</p>)}
 
     <section aria-labelledby="cycle-overview-title">
-      <div className="cycle-toolbar"><h3 id="cycle-overview-title">三市场一览</h3><span className="macro-muted">{automatic ? `自动数据更新于 ${beijing(automatic.generatedAt)}（北京时间）` : loading ? '读取中…' : '等待首次采集'}</span></div>
-      <div className="cycle-overview" role="table" aria-label="三市场六维读数">
+      <div className="cycle-toolbar"><h3 id="cycle-overview-title">五市场一览</h3><span className="macro-muted">{automatic ? `自动数据更新于 ${beijing(automatic.generatedAt)}（北京时间）` : loading ? '读取中…' : '等待首次采集'}</span></div>
+      <div className="cycle-overview" role="table" aria-label="五市场六维读数">
         <div role="row" className="cycle-overview__head"><span role="columnheader">市场</span><span role="columnheader">观察状态</span>{result.rows.map(row => <span key={row.id} role="columnheader">{DIMENSION_SHORT[row.id]}</span>)}</div>
         {MARKETS.map(m => { const r = all[m.id].result; return <div role="row" key={m.id} className={m.id === market ? 'is-current' : undefined}>
           <span role="cell"><button type="button" className="cycle-overview__market" aria-label={`查看${m.label}`} aria-current={m.id === market || undefined} onClick={() => selectMarket(m.id)}>{m.label.split(' · ')[1]}</button></span>
@@ -213,7 +214,7 @@ export default function MarketCycleView(): JSX.Element {
       <dl><div><dt>偏多</dt><dd>{result.summary.positive}</dd></div><div><dt>偏空 / 风险</dt><dd>{result.summary.risk}</dd></div><div><dt>偏低估</dt><dd>{result.summary.bottom}</dd></div><div><dt>数据不足</dt><dd>{6 - result.summary.valid}</dd></div></dl>
       <ul className="cycle-chips" aria-label="分层读数">{[['赔率', shadow.valuationZone], ['趋势', shadow.trendState], ['风险约束', shadow.riskGate], ['数据质量', shadow.dataQuality]].map(([k, v]) => <li key={k}><span>{k}</span>{v}</li>)}</ul>
       <div className="cycle-changes">
-        {thisWeek ? <p><strong>较上期：</strong>{lastWeek ? weekChanges.length ? `周报${lastWeek.weekEnding}→${thisWeek.weekEnding}：${weekChanges.join('；')}` : `周报${lastWeek.weekEnding}→${thisWeek.weekEnding}无维度变化` : `首份自动周报${thisWeek.weekEnding}，下周起显示周度变化`}{sinceReport.length ? `。周报后新数据：${sinceReport.join('；')}` : ''}。趋势连续确认 {thisWeek.markets[market].shadow.confirmations}/2 周。</p>
+        {thisWeek && thisMarket ? <p><strong>较上期：</strong>{lastWeek && lastMarket ? weekChanges.length ? `周报${lastWeek.weekEnding}→${thisWeek.weekEnding}：${weekChanges.join('；')}` : `周报${lastWeek.weekEnding}→${thisWeek.weekEnding}无维度变化` : `首份自动周报${thisWeek.weekEnding}，下周起显示周度变化`}{sinceReport.length ? `。周报后新数据：${sinceReport.join('；')}` : ''}。趋势连续确认 {thisMarket.shadow.confirmations}/2 周。</p>
           : <p className="macro-muted">尚无自动周报，暂无周度对比。</p>}
       </div>
       <details className="cycle-rules"><summary>这个结论怎么来的？（共6个维度，按顺序匹配第一条）</summary><ol>{STATE_RULES.map(r => <li key={r.state} className={r.state === result.summary.state ? 'is-current' : undefined}><strong>{r.state}</strong>：{r.rule}</li>)}</ol><p className="macro-muted">每个维度先各自判成 偏多 / 偏空 / 偏低估 / 中性 / 数据不足，再按上表汇总；缺失或过期的维度不计票，也不当作中性。分层读数（cycle-shadow-v2）把赔率与趋势分开看：低估可以与趋势防守并存；正向趋势需连续两份完整周确认，风险即时生效；少于4个有效维度或缺估值 / 宽度时暂停提高风险。页面刷新不增加确认次数。</p></details>
@@ -242,6 +243,6 @@ export default function MarketCycleView(): JSX.Element {
 
     <details className="cycle-section"><summary>手动补录或覆盖（可选）</summary><p className="macro-muted">合格自动证据优先，缺失时使用有效人工补录；也可明确选择人工覆盖。每项补录需数值、同一口径的观测日和公开来源，14天后过期。覆盖选择会随本次复盘留档。宽度仅指各指数成分，不代表全A股。</p><div className="cycle-editors">{DIMENSIONS.map(id => <fieldset key={id}><legend>{MANUAL_NAMES[id]}</legend><p className="macro-muted">{collected[id]?.available ? `已有自动证据（${collected[id]?.date}），默认使用，无需填写。` : collected[id] ? '已取得部分自动数据，尚未通过判断门槛；详见上方六维证据。不补录也可继续查看和复盘。' : '暂缺合格自动证据，不要求补录；如有可信数据，可在此补充。'}{manualOnly.includes(id) ? ' 当前已选择人工覆盖，将使用下方数值。' : ''}</p><label>{MANUAL_NAMES[id]}证据模式<select aria-label={`${MANUAL_NAMES[id]}证据模式`} value={manualOnly.includes(id) ? 'manual' : 'auto'} onChange={e => { setManualModes(old => ({ ...old, [market]: e.target.value === 'manual' ? [...new Set([...manualOnly, id])] : manualOnly.filter(x => x !== id) })); setChecks(CHECKS.map(() => false)) }}><option value="auto">自动优先，人工补缺</option><option value="manual">本次使用人工覆盖</option></select></label>{manualFields(id, market).map(field => <label key={field.key}>{field.label}<input type="number" step="any" min={field.min} max={field.max} value={manual[id]?.values[field.key] ?? ''} onChange={e => { const values = { ...manual[id]?.values }; if (e.target.value === '') delete values[field.key]; else values[field.key] = Number(e.target.value); updateObservation(id, { values }) }} /></label>)}<label>{MANUAL_NAMES[id]}观测日期<input type="date" max={asOf} value={manual[id]?.date ?? ''} onChange={e => updateObservation(id, { date: e.target.value })} /></label><label>{MANUAL_NAMES[id]}来源链接<input type="url" placeholder="https://" value={manual[id]?.source ?? ''} onChange={e => updateObservation(id, { source: e.target.value })} /></label></fieldset>)}</div><button type="button" className="tool-btn" onClick={() => commit(local, '补录已保存在本机；不完整或过期项目仍不计票。')}>保存补录</button></details>
 
-    <details className="cycle-section"><summary>规则、来源与适用边界</summary><p>规则版本 {RULE_VERSION}。六维等权，技术只算一维。底部需3维极端且无风险；右侧需至少4维支持、技术向上且无风险；不足4维不提高风险；趋势破位独立复核。所有门槛均为研究假设，尚未完成多周期、成本后及样本外验证；输出是观察状态，不是牛熊概率。</p><p>周线 / 月线MACD(12,26,9)以SMA初始化EMA，柱=DIF−DEA；RSI(14)使用Wilder平滑；BOLL(20,2)使用总体标准差。只采用完成K线，保留至少60个月预热。放量与带宽不单独预测方向，顶部背离尚不自动识别。</p><p>A股ERP需固定PE、10年国债与历史窗口。港股使用官方同口径五年月末PE分位，按盈利收益率（E/P）排序：全为盈利月份时与PE分位一致，指数整体亏损的月份视为比任何盈利月份更贵，不删除样本；盈利依据最新年度业绩，不标作TTM。A股融资占比以同日沪深A股及上市基金成交额为分母，并与相同范围的53周成交额历史配对。港股指数成交额与全市场成交额严格区分；恒指官方日报仅开放约1–2个月，52周基准由当前成分逐股成交额加总，且完整周须与官方日报逐日吻合才发布。宽度需当期名单及95%覆盖门禁；上市不足220个交易日、尚无MA200的次新股移出分母（最多占成分10%）。海外维度仅为利率与VIX代理，不使用固定60%～70%权重。</p><p>M1−M2只使用2025年后新口径；宏观快照没有完整原始发布日期，当前观察读数不用于历史交易回测。港股国内宏观与南向资金存在相关性，六票不等于六个独立证据。</p><p><a href="https://www.pbc.gov.cn/en/3688247/3688978/3709137/5838983/index.html" target="_blank" rel="noreferrer">人民银行M1口径说明</a> · <a href="https://www.bollingerbands.com/bollinger-band-rules" target="_blank" rel="noreferrer">布林带官方使用规则</a> · <a href="https://www.cboe.com/tradable_products/vix/" target="_blank" rel="noreferrer">Cboe VIX说明</a></p><p>本面板仅供研究参考，不构成个人投资建议。</p></details>
+    <details className="cycle-section"><summary>规则、来源与适用边界</summary><p>规则版本 {RULE_VERSION}。六维等权，技术只算一维。底部需3维极端且无风险；右侧需至少4维支持、技术向上且无风险；不足4维不提高风险；趋势破位独立复核。所有门槛均为研究假设，尚未完成多周期、成本后及样本外验证；输出是观察状态，不是牛熊概率。</p><p>周线 / 月线MACD(12,26,9)以SMA初始化EMA，柱=DIF−DEA；RSI(14)使用Wilder平滑；BOLL(20,2)使用总体标准差。只采用完成K线，保留至少60个月预热。放量与带宽不单独预测方向，顶部背离尚不自动识别。</p><p>美股（标普500、纳指100）：估值用History of Market周度12个月Forward PE的近5年分位；资金用指数自身完整周成交量与FINRA客户现金÷保证金债务的历史分位（全美券商口径）；流动性维度换成芝加哥联储金融条件指数NFCI；第六维为VIX与美债10年利率；成分股宽度暂未接入。</p><p>A股ERP需固定PE、10年国债与历史窗口。港股使用官方同口径五年月末PE分位，按盈利收益率（E/P）排序：全为盈利月份时与PE分位一致，指数整体亏损的月份视为比任何盈利月份更贵，不删除样本；盈利依据最新年度业绩，不标作TTM。A股融资占比以同日沪深A股及上市基金成交额为分母，并与相同范围的53周成交额历史配对。港股指数成交额与全市场成交额严格区分；恒指官方日报仅开放约1–2个月，52周基准由当前成分逐股成交额加总，且完整周须与官方日报逐日吻合才发布。宽度需当期名单及95%覆盖门禁；上市不足220个交易日、尚无MA200的次新股移出分母（最多占成分10%）。海外维度仅为利率与VIX代理，不使用固定60%～70%权重。</p><p>M1−M2只使用2025年后新口径；宏观快照没有完整原始发布日期，当前观察读数不用于历史交易回测。港股国内宏观与南向资金存在相关性，六票不等于六个独立证据。</p><p><a href="https://www.pbc.gov.cn/en/3688247/3688978/3709137/5838983/index.html" target="_blank" rel="noreferrer">人民银行M1口径说明</a> · <a href="https://www.bollingerbands.com/bollinger-band-rules" target="_blank" rel="noreferrer">布林带官方使用规则</a> · <a href="https://www.cboe.com/tradable_products/vix/" target="_blank" rel="noreferrer">Cboe VIX说明</a></p><p>本面板仅供研究参考，不构成个人投资建议。</p></details>
   </section>
 }

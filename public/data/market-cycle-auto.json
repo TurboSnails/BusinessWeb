@@ -1,6 +1,6 @@
 {
  "schemaVersion": 1,
- "generatedAt": "2026-11-13T00:26:23.302Z",
+ "generatedAt": "2026-11-13T15:10:40.765Z",
  "facts": [
   {
    "market": "csi300",
@@ -3081,6 +3081,62 @@
    "availableAt": null,
    "firstSeenAt": "2026-11-12T01:33:01.063Z",
    "fetchedAt": "2026-11-13T00:26:23.302Z"
+  },
+  {
+   "market": "ndx",
+   "observationDate": "2026-08-05",
+   "source": "https://historyofmarket.com/api/ndx/forward-pe.json",
+   "kind": "observed",
+   "frequency": "weekly",
+   "metricId": "fwd_pe_5y_percentile",
+   "value": 18.7,
+   "unit": "%",
+   "description": "History of Market（CC BY 4.0）纳指100 12个月一致预期Forward PE，周度；分位=近5年262个周度点中不高于最新值的占比（2021-08-06至2026-08-05）。",
+   "availableAt": null,
+   "firstSeenAt": "2026-11-13T15:10:40.765Z",
+   "fetchedAt": "2026-11-13T15:10:40.765Z"
+  },
+  {
+   "market": "spx",
+   "observationDate": "2026-08-05",
+   "source": "https://historyofmarket.com/api/sp500/forward-pe.json",
+   "kind": "observed",
+   "frequency": "weekly",
+   "metricId": "fwd_pe_5y_percentile",
+   "value": 44.7,
+   "unit": "%",
+   "description": "History of Market（CC BY 4.0）标普500 12个月一致预期Forward PE，周度；分位=近5年262个周度点中不高于最新值的占比（2021-08-06至2026-08-05）。",
+   "availableAt": null,
+   "firstSeenAt": "2026-11-13T15:10:40.765Z",
+   "fetchedAt": "2026-11-13T15:10:40.765Z"
+  },
+  {
+   "market": "ndx",
+   "observationDate": "2026-08-05",
+   "source": "https://historyofmarket.com/api/ndx/forward-pe.json",
+   "kind": "observed",
+   "frequency": "weekly",
+   "metricId": "fwd_pe",
+   "value": 22.37,
+   "unit": "倍",
+   "description": "History of Market（CC BY 4.0）纳指100 12个月一致预期Forward PE，周度；分位=近5年262个周度点中不高于最新值的占比（2021-08-06至2026-08-05）。",
+   "availableAt": null,
+   "firstSeenAt": "2026-11-13T15:10:40.765Z",
+   "fetchedAt": "2026-11-13T15:10:40.765Z"
+  },
+  {
+   "market": "spx",
+   "observationDate": "2026-08-05",
+   "source": "https://historyofmarket.com/api/sp500/forward-pe.json",
+   "kind": "observed",
+   "frequency": "weekly",
+   "metricId": "fwd_pe",
+   "value": 20.12,
+   "unit": "倍",
+   "description": "History of Market（CC BY 4.0）标普500 12个月一致预期Forward PE，周度；分位=近5年262个周度点中不高于最新值的占比（2021-08-06至2026-08-05）。",
+   "availableAt": null,
+   "firstSeenAt": "2026-11-13T15:10:40.765Z",
+   "fetchedAt": "2026-11-13T15:10:40.765Z"
   },
   {
    "metricId": "hk_south_20d",

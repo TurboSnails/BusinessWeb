@@ -51,7 +51,7 @@ describe('牛熊周期复盘', () => {
     expect(await screen.findByText(/周报2026-10-09→2026-10-16：技术 中性→偏空 \/ 风险/)).toBeTruthy()
     expect(screen.getByText(/自动数据更新于 10\/19 22:42/)).toBeTruthy()
     expect(screen.getByText('A股融资占比：网络请求失败')).toBeTruthy()
-    expect(within(screen.getByRole('table', { name: '三市场六维读数' })).getAllByRole('row')).toHaveLength(4)
+    expect(within(screen.getByRole('table', { name: '五市场六维读数' })).getAllByRole('row')).toHaveLength(6)
     fireEvent.click(screen.getByRole('button', { name: '查看港股 · 恒生科技' }))
     expect(screen.getByLabelText(/该指数PE历史分位/)).toBeTruthy()
   })

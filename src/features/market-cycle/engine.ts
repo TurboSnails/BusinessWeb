@@ -1,6 +1,7 @@
-export const RULE_VERSION = 'cycle-observation-v1.2-official-monthly'
-export const MARKETS = [{ id: 'csi300', label: 'A股 · 沪深300' }, { id: 'hsi', label: '港股 · 恒生指数' }, { id: 'hstech', label: '港股 · 恒生科技' }] as const
+export const RULE_VERSION = 'cycle-observation-v1.3-us-indexes'
+export const MARKETS = [{ id: 'csi300', label: 'A股 · 沪深300' }, { id: 'hsi', label: '港股 · 恒生指数' }, { id: 'hstech', label: '港股 · 恒生科技' }, { id: 'spx', label: '美股 · 标普500' }, { id: 'ndx', label: '美股 · 纳指100' }] as const
 export type Market = typeof MARKETS[number]['id']
+export const isUs = (market: Market): boolean => market === 'spx' || market === 'ndx'
 export type Signal = 'bottom' | 'positive' | 'risk' | 'neutral' | 'missing'
 export type ManualDimension = 'valuation' | 'funding' | 'breadth'
 export interface Bar { date: string; close: number; volume: number }
@@ -9,7 +10,7 @@ export interface Observation { date: string; source: string; values: Record<stri
 export interface Evidence { id: string; name: string; signal: Signal; detail: string; headline?: string; gauges?: Gauge[]; values?: Record<string, number>; methodDetail?: string; pendingReason?: string; date?: string; source?: string; available: boolean }
 export interface PriceData { week: Bar[]; month: Bar[]; source: string; fetchedAt: string }
 export interface CycleSnapshot { schemaVersion: 1; generatedAt: string; markets: Partial<Record<Market, PriceData>>; warnings: string[] }
-export interface ContextSeries { latest: { date: string; value: number }; history: [string, number][]; source?: string }
+export interface ContextSeries { latest: { date: string; value: number }; history: [string, number][]; long?: [string, number][]; source?: string }
 export interface MacroContext { series: Record<string, ContextSeries> }
 export const SIGNAL_LABEL: Record<Signal, string> = { bottom: '偏低估', positive: '偏多', risk: '偏空 / 风险', neutral: '中性', missing: '数据不足' }
 
@@ -39,16 +40,23 @@ export function gauge({ label, value, prior, priorLabel, min, zones, unit = '', 
 }
 
 // ---- per-dimension gauges; edges mirror DIMENSION_RULES exactly ----
-export const valuationGauges = (csi: boolean, x: number): Gauge[] => [csi
+export const valuationGauges = (csi: boolean, x: number, us = false): Gauge[] => [csi
   ? gauge({ label: 'ERP 标准分（越高 = 股票相对国债越便宜）', value: x, min: -3, digits: 2, zones: [{ to: -1, tone: 'risk', label: '偏贵' }, { to: 1.5, tone: 'neutral', label: '中间' }, { to: 3, tone: 'bottom', label: '低估' }] })
-  : gauge({ label: 'PE 在近5年的分位（越低 = 越便宜）', value: x, min: 0, unit: '个百分点', zones: [{ to: 10, tone: 'bottom', label: '低估' }, { to: 90, tone: 'neutral', label: '中间' }, { to: 100, tone: 'risk', label: '偏贵' }] })]
+  : gauge({ label: `${us ? 'Forward PE' : 'PE'} 在近5年的分位（越低 = 越便宜）`, value: x, min: 0, unit: '个百分点', zones: [{ to: 10, tone: 'bottom', label: '低估' }, { to: 90, tone: 'neutral', label: '中间' }, { to: 100, tone: 'risk', label: '偏贵' }] })]
 
-const turnoverGauge = (ratio: number, note?: string) => gauge({ label: '本周成交额 ÷ 过去52周日均（倍）', value: ratio, min: 0, unit: '倍', digits: 2, note,
+const turnoverGauge = (ratio: number, note?: string, label = '本周成交额 ÷ 过去52周日均（倍）') => gauge({ label, value: ratio, min: 0, unit: '倍', digits: 2, note,
   zones: [{ to: 0.5, tone: 'bottom', label: '极度缩量' }, { to: 1.5, tone: 'neutral', label: '正常' }, { to: 2.5, tone: 'positive', label: '明显放量' }] })
 export const fundingGauges = (csi: boolean, ratio: number, other: number): Gauge[] => csi
   ? [turnoverGauge(ratio), gauge({ label: '融资买入占成交额（杠杆热度）', value: other, min: 0, unit: '个百分点', digits: 2, note: '“底部”需缩量且融资<6%同时满足；“偏多”需放量且融资<10%。',
       zones: [{ to: 6, tone: 'bottom', label: '低杠杆' }, { to: 10, tone: 'neutral', label: '正常' }, { to: 15, tone: 'risk', label: '过热' }] })]
   : [turnoverGauge(ratio, `放量时看南向方向：南向近20日${other >= 0 ? '净买入' : '净卖出'}${Math.abs(other).toLocaleString()}亿元，${other >= 0 ? '放量会判偏多' : '放量会判风险'}。`)]
+
+/** US funding: index volume vs its 52-week norm, plus FINRA customer cash ÷ margin debt as a historical percentile (low = heavy leverage). */
+export const usFundingGauges = (ratio: number, cashPct: number): Gauge[] => [
+  turnoverGauge(ratio, '放量只在当周收涨时算偏多；美股放量常伴随恐慌下跌。', '完整周成交量 ÷ 此前52周平均（倍）'),
+  gauge({ label: '客户现金 ÷ 保证金债务的历史分位（越低 = 杠杆越重）', value: cashPct, min: 0, unit: '个百分点', digits: 1, note: '分位 ≤10 判风险，≥90 判杠杆出清（偏低估）。',
+    zones: [{ to: 10, tone: 'risk', label: '杠杆过重' }, { to: 90, tone: 'neutral', label: '正常' }, { to: 100, tone: 'bottom', label: '杠杆出清' }] }),
+]
 
 export const breadthGauges = (now: number, prior: number): Gauge[] => [gauge({ label: '站上200日均线的成分股占比', value: now, prior, priorLabel: '4周前', min: 0, unit: '个百分点',
   note: now >= 40 ? prior < 40 ? '4周前在40%以下、现在上穿，判偏多。' : '已在40%以上较久，不再算新的转强。' : '从40%以下向上穿越40%才算转强。',
@@ -62,10 +70,10 @@ export const technicalGauges = (distance: number, rsi: number, histogram: number
     zones: [{ to: 35, tone: 'bottom', label: '超卖' }, { to: 50, tone: 'neutral', label: '偏弱' }, { to: 100, tone: 'positive', label: '强势' }] }),
 ]
 
-export const macroGauges = (values: number[]): Gauge[] => {
-  const steps = values.slice(1).map((v, i) => Math.sign(v - values[i]))
+export const macroGauges = (values: number[], label = 'M1−M2 近3个月：改善(+1) / 恶化(−1) 合计', improveWhenFalling = false): Gauge[] => {
+  const steps = values.slice(1).map((v, i) => Math.sign(v - values[i]) * (improveWhenFalling ? -1 : 1))
   const net = steps.reduce((s, n) => s + n, 0)
-  return [gauge({ label: 'M1−M2 近3个月：改善(+1) / 恶化(−1) 合计', value: net, min: -3.5, digits: 0,
+  return [gauge({ label, value: net, min: -3.5, digits: 0,
     hint: `近3次变化：${steps.map(s => s > 0 ? '改善' : s < 0 ? '恶化' : '持平').join('、')}。需3次全部改善才判偏多，全部恶化才判风险。`,
     zones: [{ to: -2.5, tone: 'risk', label: '连续恶化' }, { to: 2.5, tone: 'neutral', label: '方向不一' }, { to: 3.5, tone: 'positive', label: '连续改善' }] })]
 }
@@ -80,7 +88,8 @@ export const overseasGauges = (vix: number, change: number): Gauge[] => [
 /** Gauges for the three collectable dimensions, from the same value keys as manual entry. */
 export function dimensionGauges(id: string, market: Market, v: Record<string, number> | undefined): Gauge[] | undefined {
   const ok = (...keys: string[]) => !!v && keys.every(k => Number.isFinite(v[k]))
-  if (id === 'valuation') return market === 'csi300' ? ok('erpZ') ? valuationGauges(true, v!.erpZ) : undefined : ok('pePercentile') ? valuationGauges(false, v!.pePercentile) : undefined
+  if (id === 'valuation') return market === 'csi300' ? ok('erpZ') ? valuationGauges(true, v!.erpZ) : undefined : ok('pePercentile') ? valuationGauges(false, v!.pePercentile, isUs(market)) : undefined
+  if (id === 'funding' && isUs(market)) return ok('volumeRatio', 'cashPercentile') ? usFundingGauges(v!.volumeRatio, v!.cashPercentile) : undefined
   if (id === 'funding') return market === 'csi300' ? ok('volumeRatio', 'financing') ? fundingGauges(true, v!.volumeRatio, v!.financing) : undefined : ok('volumeRatio', 'south') ? fundingGauges(false, v!.volumeRatio, v!.south) : undefined
   if (id === 'breadth') return ok('breadth', 'priorBreadth') ? breadthGauges(v!.breadth, v!.priorBreadth) : undefined
   return undefined
@@ -137,9 +146,31 @@ export function technicalSeries(bars: Bar[]): TechnicalPoint[] {
 
 export const MANUAL_NAMES: Record<ManualDimension, string> = { valuation: '估值与赔率', funding: '资金与杠杆', breadth: '市场宽度' }
 export function manualFields(id: ManualDimension, market: Market): { key: string; label: string; min: number; max: number }[] {
+  if (id === 'valuation' && isUs(market)) return [{ key: 'pePercentile', label: '该指数12个月Forward PE近5年分位（%，周度同口径）', min: 0, max: 100 }]
+  if (id === 'funding' && isUs(market)) return [{ key: 'volumeRatio', label: '完整周成交量 / 前52周平均', min: 0, max: 30 }, { key: 'cashPercentile', label: 'FINRA客户现金÷保证金债务的历史分位（%）', min: 0, max: 100 }, { key: 'weekChange', label: '当周涨跌幅（%）', min: -50, max: 50 }]
   if (id === 'valuation') return market === 'csi300' ? [{ key: 'erpZ', label: 'ERP z-score（同口径至少5年窗口）', min: -10, max: 10 }] : [{ key: 'pePercentile', label: '该指数PE历史分位（%，同口径至少5年；注明盈利及采样口径）', min: 0, max: 100 }]
   if (id === 'breadth') return [{ key: 'breadth', label: '本期站上MA200占比（%）', min: 0, max: 100 }, { key: 'priorBreadth', label: '4周前同一股票池占比（%）', min: 0, max: 100 }]
   return [{ key: 'volumeRatio', label: '完整周日均成交额 / 前52周日均成交额', min: 0, max: 30 }, market === 'csi300' ? { key: 'financing', label: '同覆盖市场融资买入占成交额（%）', min: 0, max: 100 } : { key: 'south', label: '南向近20日净买入（亿元人民币，背景代理）', min: -100000, max: 100000 }]
+}
+
+export const usFundingSignal = (volumeRatio: number, cashPercentile: number, weekChange: number): Signal =>
+  cashPercentile <= 10 ? 'risk' : cashPercentile >= 90 ? 'bottom' : volumeRatio >= 1.5 && weekChange > 0 ? 'positive' : 'neutral'
+const usFundingDetail = (volumeRatio: number, cashPercentile: number, weekChange: number) =>
+  `完整周成交量为此前52周平均的${volumeRatio.toFixed(2)}倍，当周${weekChange >= 0 ? '上涨' : '下跌'}${Math.abs(weekChange).toFixed(1)}%；FINRA客户现金÷保证金债务处于1997年以来${cashPercentile.toFixed(1)}%分位${cashPercentile <= 10 ? '，杠杆相对现金处在历史最重的一成' : cashPercentile >= 90 ? '，杠杆已基本出清' : ''}。保证金数据为全美券商口径，不是本指数专属。`
+
+/** US funding is computed from the index's own weekly volume and the FINRA series already in the US macro snapshot. */
+export function usFundingEvidence(weekly: Bar[], us: MacroContext | null, asOf: string): Evidence {
+  const name = MANUAL_NAMES.funding
+  const s = us?.series.cashDebt
+  const long = (s?.long ?? []).filter(([d, v]) => validDate(d) && d <= asOf && Number.isFinite(v))
+  const w = weekly.at(-1), prev = weekly.at(-2), base = weekly.slice(-53, -1).map(b => b.volume)
+  if (!s || long.length < 120 || !fresh(monthEnd(s.latest.date), asOf, 75)) return { ...missing('funding', name, '缺少75天内的FINRA客户现金÷保证金债务，或其长历史不足10年。'), pendingReason: '保证金数据待更新' }
+  if (!w || !prev || base.length < 52 || mean(base) <= 0 || w.volume <= 0 || !fresh(w.date, asOf, 21)) return { ...missing('funding', name, '缺少21天内的完整周成交量或此前52周基准。'), pendingReason: '缺少成交量基准' }
+  const values = { volumeRatio: Number((w.volume / mean(base)).toFixed(2)), cashPercentile: Number((long.filter(([, v]) => v <= s.latest.value).length / long.length * 100).toFixed(1)), weekChange: Number(((w.close / prev.close - 1) * 100).toFixed(2)) }
+  const signal = usFundingSignal(values.volumeRatio, values.cashPercentile, values.weekChange)
+  return { ...evidence('funding', name, signal, usFundingDetail(values.volumeRatio, values.cashPercentile, values.weekChange), `${w.date} / ${s.latest.date.slice(0, 7)}`, 'https://www.finra.org/rules-guidance/key-topics/margin-accounts/margin-statistics',
+    `成交量 ${values.volumeRatio.toFixed(2)}倍52周基准 · 客户现金/保证金债务 ${values.cashPercentile.toFixed(1)}%分位`), values,
+    methodDetail: `成交量取指数自身完整周K线（雅虎财经），与此前52个完整周平均相比。客户现金=现金账户+保证金账户闲置现金，分母为保证金借方余额，月度，${long[0][0].slice(0, 4)}年起共${long.length}个月。` }
 }
 
 export function assessManual(id: ManualDimension, market: Market, o: Observation | undefined, asOf: string, indexNewHigh = false): Evidence {
@@ -152,6 +183,10 @@ export function assessManual(id: ManualDimension, market: Market, o: Observation
     signal = market === 'csi300' ? x >= 1.5 ? 'bottom' : x <= -1 ? 'risk' : 'neutral' : x <= 10 ? 'bottom' : x >= 90 ? 'risk' : 'neutral'
     headline = market === 'csi300' ? `ERP z-score ${x.toFixed(2)}` : `PE历史分位 ${x.toFixed(1)}%`
     detail = market === 'csi300' ? `简化ERP z-score ${x.toFixed(2)}；≥1.5为便宜候选，≤−1为昂贵预警。需在来源记录PE类型、国债期限与历史窗口。` : `该指数同口径PE分位 ${x.toFixed(1)}%；≤10%为便宜候选，≥90%为昂贵预警。来源需注明盈利及采样口径。`
+  } else if (id === 'funding' && isUs(market)) {
+    signal = usFundingSignal(v.volumeRatio, v.cashPercentile, v.weekChange)
+    headline = `成交量 ${v.volumeRatio.toFixed(2)}倍52周基准 · 客户现金/保证金债务 ${v.cashPercentile.toFixed(1)}%分位`
+    detail = usFundingDetail(v.volumeRatio, v.cashPercentile, v.weekChange)
   } else if (id === 'funding') {
     signal = market === 'csi300' ? v.financing >= 10 ? 'risk' : v.volumeRatio <= 0.5 && v.financing < 6 ? 'bottom' : v.volumeRatio >= 1.5 && v.financing < 10 ? 'positive' : 'neutral'
       : v.volumeRatio >= 1.5 ? v.south > 0 ? 'positive' : v.south < 0 ? 'risk' : 'neutral' : v.volumeRatio <= 0.5 ? 'bottom' : 'neutral'
@@ -165,7 +200,7 @@ export function assessManual(id: ManualDimension, market: Market, o: Observation
   return { ...evidence(id, name, signal, detail, o.date, o.source, headline), values: { ...v } }
 }
 
-export function technicalEvidence(price: PriceData | undefined, asOf: string): { evidence: Evidence; weekly: TechnicalPoint[]; monthly: TechnicalPoint[]; newHigh: boolean } {
+export function technicalEvidence(price: PriceData | undefined, asOf: string): { evidence: Evidence; weekly: TechnicalPoint[]; monthly: TechnicalPoint[]; newHigh: boolean; weeklyBars: Bar[] } {
   const weekly = technicalSeries(completedBars(price?.week ?? [], 'week', asOf))
   const monthly = technicalSeries(completedBars(price?.month ?? [], 'month', asOf))
   const w = weekly.at(-1), prev = weekly.at(-2), m = monthly.at(-1)
@@ -177,7 +212,7 @@ export function technicalEvidence(price: PriceData | undefined, asOf: string): {
     e = evidence('technical', '周 / 月技术', signal, `月RSI ${m.rsi.toFixed(1)}；月MACD柱 ${m.histogram.toFixed(2)}；周收盘${w.close >= w.mid ? '高于' : '低于'}20周线 ${w.mid.toFixed(2)}。${broken ? '连续两周收于20周线下，独立触发防守复核。' : '多个价格指标合计只算一个维度。'}`, `${w.date} / ${m.date}`, price?.source ?? '', `月RSI ${m.rsi.toFixed(1)} · 月MACD柱 ${m.histogram.toFixed(2)} · 周收盘${w.close >= w.mid ? '在' : '跌破'}20周线`)
     e.gauges = technicalGauges((w.close / w.mid - 1) * 100, m.rsi, m.histogram, broken)
   }
-  return { evidence: e, weekly, monthly, newHigh }
+  return { evidence: e, weekly, monthly, newHigh, weeklyBars: weekly }
 }
 
 export function macroEvidence(cn: MacroContext | null, asOf: string): Evidence {
@@ -192,20 +227,35 @@ export function macroEvidence(cn: MacroContext | null, asOf: string): Evidence {
   return { ...e, gauges: macroGauges(h.map(p => p[1])) }
 }
 
-export function overseasEvidence(us: MacroContext | null, asOf: string): Evidence {
+/** US financial conditions: Chicago Fed NFCI, last 4 monthly samples. Lower NFCI = looser conditions. */
+export function usLiquidityEvidence(us: MacroContext | null, asOf: string): Evidence {
+  const s = us?.series.nfci
+  const h = (s?.history ?? []).filter(([d, v]) => validDate(d) && d <= asOf && Number.isFinite(v)).sort((a, b) => a[0].localeCompare(b[0])).slice(-4)
+  if (h.length < 4 || !fresh(h[3][0], asOf, 45)) return missing('macro', '美国金融条件', '缺少45天内连续4个月度采样的芝加哥联储金融条件指数（NFCI）。')
+  // NFCI moves by thousandths week to week; three tiny same-direction steps are noise, so the move must total ≥0.1.
+  const total = h[3][1] - h[0][1]
+  const looser = h.every((p, i) => i === 0 || p[1] < h[i - 1][1]) && total <= -0.1, tighter = h.every((p, i) => i === 0 || p[1] > h[i - 1][1]) && total >= 0.1
+  const e = evidence('macro', '美国金融条件', looser ? 'positive' : tighter ? 'risk' : 'neutral', `NFCI近4个采样点：${h.map(p => p[1].toFixed(3)).join(' → ')}。数值越低金融条件越宽松，0为历史平均；连续3次放松 / 收紧且累计变动≥0.1才改变方向（本次累计${total >= 0 ? '+' : ''}${total.toFixed(3)}）。`, h[3][0], 'https://fred.stlouisfed.org/series/NFCI', `NFCI ${h.map(p => p[1].toFixed(2)).join(' → ')}`)
+  const [g] = macroGauges(h.map(p => p[1]), 'NFCI 近3次：放松(+1) / 收紧(−1) 合计', true)
+  const sameWay = h.every((p, i) => i === 0 || p[1] < h[i - 1][1]) || h.every((p, i) => i === 0 || p[1] > h[i - 1][1])
+  const hint = `${g.hint.split('。')[0]}，累计${total >= 0 ? '+' : ''}${total.toFixed(3)}。${sameWay && !looser && !tighter ? '方向一致但累计变动不足0.1，按微小波动判中性。' : '需3次同向且累计≥0.1才判偏多 / 风险。'}`
+  return { ...e, gauges: [{ ...g, hint }] }
+}
+
+export function overseasEvidence(us: MacroContext | null, asOf: string, name = '海外环境'): Evidence {
   const vix = us?.series.vix?.latest, rate = us?.series.tenYear
   const h = (rate?.history ?? []).filter(([d, v]) => validDate(d) && d <= asOf && Number.isFinite(v)).sort((a, b) => a[0].localeCompare(b[0])).slice(-4)
-  if (!vix || !fresh(vix.date, asOf, 14) || !rate || !fresh(rate.latest.date, asOf, 14) || h.length < 4 || !Number.isFinite(vix.value) || !Number.isFinite(rate.latest.value)) return missing('overseas', '海外环境', '缺少14天内VIX或美债10年利率及4期利率历史；人民币与跨市场比值尚作人工复核。')
+  if (!vix || !fresh(vix.date, asOf, 14) || !rate || !fresh(rate.latest.date, asOf, 14) || h.length < 4 || !Number.isFinite(vix.value) || !Number.isFinite(rate.latest.value)) return missing('overseas', name, '缺少14天内VIX或美债10年利率及4期利率历史；人民币与跨市场比值尚作人工复核。')
   const change = rate.latest.value - h[0][1]
-  const e = evidence('overseas', '海外环境', vix.value >= 30 || change >= 0.5 ? 'risk' : change <= -0.25 && vix.value < 25 ? 'positive' : 'neutral', `VIX ${vix.value.toFixed(2)}（${vix.date}）；美债10年 ${rate.latest.value.toFixed(2)}%（${rate.latest.date}），相对近4期首值 ${change >= 0 ? '+' : ''}${change.toFixed(2)}个百分点。仅利率 / 波动代理；需另核人民币、港元与相对收益，不把恐慌当必然买点。`, `${vix.date} / ${rate.latest.date}`, 'https://fred.stlouisfed.org/series/DGS10', `VIX ${vix.value.toFixed(1)} · 美债10年 ${rate.latest.value.toFixed(2)}%（${change >= 0 ? '+' : ''}${change.toFixed(2)}）`)
+  const e = evidence('overseas', name, vix.value >= 30 || change >= 0.5 ? 'risk' : change <= -0.25 && vix.value < 25 ? 'positive' : 'neutral', `VIX ${vix.value.toFixed(2)}（${vix.date}）；美债10年 ${rate.latest.value.toFixed(2)}%（${rate.latest.date}），相对近4期首值 ${change >= 0 ? '+' : ''}${change.toFixed(2)}个百分点。${name === '海外环境' ? '仅利率 / 波动代理；需另核人民币、港元与相对收益，' : ''}不把恐慌当必然买点。`, `${vix.date} / ${rate.latest.date}`, 'https://fred.stlouisfed.org/series/DGS10', `VIX ${vix.value.toFixed(1)} · 美债10年 ${rate.latest.value.toFixed(2)}%（${change >= 0 ? '+' : ''}${change.toFixed(2)}）`)
   return { ...e, gauges: overseasGauges(vix.value, change) }
 }
 
 export const DIMENSION_RULES: Record<string, (market: Market) => string> = {
-  valuation: market => market === 'csi300' ? 'ERP z-score ≥1.5 → 偏低估；≤−1 → 偏贵预警；其余中性。' : '指数同口径PE历史分位 ≤10% → 偏低估；≥90% → 偏贵预警；其余中性。',
-  funding: market => market === 'csi300' ? '融资买入占成交额 ≥10% → 风险；成交额 ≤0.5倍52周基准且融资占比 <6% → 底部；成交额 ≥1.5倍且融资占比 <10% → 偏多；其余中性。' : '成交额 ≥1.5倍52周基准：南向净买入为正 → 偏多，为负 → 风险；成交额 ≤0.5倍 → 底部；其余中性。',
-  breadth: () => '站上MA200 ≤10% → 底部；4周前 ≥85% 且现在 <60% 且指数创52周新高 → 风险；现在 ≥40% 且4周前 <40% → 偏多；其余中性。',
-  macro: () => 'M1−M2 连续3次改善 → 偏多；连续3次恶化 → 风险；其余中性。只用2025年新口径的近4个月。',
+  valuation: market => isUs(market) ? '12个月Forward PE近5年周度分位 ≤10% → 偏低估；≥90% → 偏贵预警；其余中性。' : market === 'csi300' ? 'ERP z-score ≥1.5 → 偏低估；≤−1 → 偏贵预警；其余中性。' : '指数同口径PE历史分位 ≤10% → 偏低估；≥90% → 偏贵预警；其余中性。',
+  funding: market => isUs(market) ? 'FINRA客户现金÷保证金债务历史分位 ≤10% → 风险；≥90% → 底部（杠杆出清）；成交量 ≥1.5倍52周基准且当周收涨 → 偏多；其余中性。' : market === 'csi300' ? '融资买入占成交额 ≥10% → 风险；成交额 ≤0.5倍52周基准且融资占比 <6% → 底部；成交额 ≥1.5倍且融资占比 <10% → 偏多；其余中性。' : '成交额 ≥1.5倍52周基准：南向净买入为正 → 偏多，为负 → 风险；成交额 ≤0.5倍 → 底部；其余中性。',
+  breadth: market => isUs(market) ? '标普500 / 纳指100 成分股宽度暂未接入，本维度不计票。' : '站上MA200 ≤10% → 底部；4周前 ≥85% 且现在 <60% 且指数创52周新高 → 风险；现在 ≥40% 且4周前 <40% → 偏多；其余中性。',
+  macro: market => isUs(market) ? 'NFCI 连续3次下降（放松）且累计≥0.1 → 偏多；连续3次上升（收紧）且累计≥0.1 → 风险；其余中性。' : 'M1−M2 连续3次改善 → 偏多；连续3次恶化 → 风险；其余中性。只用2025年新口径的近4个月。',
   technical: () => '连续两周收于20周线下 → 风险；月RSI <35 → 底部；月MACD柱 >0、月RSI ≥50 且周收盘在20周线上 → 偏多；其余中性。',
   overseas: () => 'VIX ≥30 或美债10年近4期上行 ≥0.5个百分点 → 风险；下行 ≥0.25个百分点且VIX <25 → 偏多；其余中性。',
 }
@@ -244,10 +294,10 @@ export function evaluate(market: Market, price: PriceData | undefined, manual: P
     const entered = assessManual(id, market, manual[id], asOf, tech.newHigh)
     const withGauges = (row: Evidence): Evidence => row.available ? { ...row, gauges: dimensionGauges(id, market, row.values) } : row
     if (manualOnly.includes(id)) return withGauges({ ...entered, detail: `人工覆盖 · ${entered.detail}` })
-    const collected = automatic[id]
+    const collected = id === 'funding' && isUs(market) && !automatic.funding ? usFundingEvidence(tech.weeklyBars, us, asOf) : automatic[id]
     if (collected?.available) return withGauges(collected)
     if (entered.available) return withGauges({ ...entered, detail: `人工补缺 · ${entered.detail}` })
     return collected ?? entered
-  }), macroEvidence(cn, asOf), tech.evidence, overseasEvidence(us, asOf)]
+  }), isUs(market) ? usLiquidityEvidence(us, asOf) : macroEvidence(cn, asOf), tech.evidence, overseasEvidence(us, asOf, isUs(market) ? '利率与波动' : '海外环境')]
   return { ...tech, rows, summary: summarize(rows) }
 }
