@@ -41,7 +41,7 @@ describe('INVEST_GROUPS', () => {
       '/invest/comprehensive-valuation', '/invest/ai-token-economics', '/invest/fundamental-quant', '/candidates', '/radar', '/watch', '/dcf', '/first-book', '/future-trends', '/grid-trading', '/ai/ai-skills', '/invest/etf', '/industry-etf', '/notes', '/invest/bond-fund-report', '/invest/national-team', '/industry-landscape', '/investment-plan-2026',
       '/investment-strategy', '/investment-targets', '/limit-up-analysis', '/daily-analysis',
       '/mainland-investment-targets',
-      '/money-freedom', '/monitor', '/pulse', '/research-notes',
+      '/money-freedom', '/monitor', '/pulse', '/research-notes', '/earnings',
       '/sector-rotation', '/trading-philosophy', '/valuation',
     ].sort())
     expect(new Set(all).size).toBe(all.length)
@@ -69,7 +69,7 @@ describe('INVEST_GROUPS', () => {
   })
 
   it('分析筛选从行业到公司，不放带具体买卖建议的观察池', () => {
-    expect(paths('research')).toEqual(['/industry-landscape', '/future-trends', '/research-notes', '/invest/national-team'])
+    expect(paths('research')).toEqual(['/industry-landscape', '/future-trends', '/research-notes', '/earnings', '/invest/national-team'])
     expect(INVEST_GROUPS.find(g => g.id === 'research')!.links.find(l => l.path === '/future-trends')!.label).toBe('主题研究')
   })
 

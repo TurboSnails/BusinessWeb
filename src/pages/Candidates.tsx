@@ -13,6 +13,8 @@ import { candidateAlerts, priceAlertStates } from '../features/candidates/alerts
 import { addDays, priceObservations, SNOOZE_DAYS, VENUE_CURRENCY, type PriceObservation } from '../features/candidates/priceAlert'
 import CandidateAlerts from '../components/CandidateAlerts'
 import WeeklyChanges from '../components/WeeklyChanges'
+import EarningsSoonList from '../components/EarningsSoonList'
+import { useEarningsCalendar } from '../features/earnings/loadCalendar'
 import { RESEARCH_INDEX, type ResearchSummary } from '../data/futureTrendsResearch'
 import { poolBucket } from '../data/futureTrendsPresentation'
 import { useCandidates } from '../features/candidates/useCandidates'
@@ -56,6 +58,8 @@ export default function Candidates(): JSX.Element {
   ]])), [cand.items, tools, anchorPrices])
   const alertStates = useMemo(() => priceAlertStates(cand.items, tools, today, anchorPrices), [cand.items, tools, today, anchorPrices])
   const pausedAlerts = [...alertStates.values()].filter(r => r.status === 'skipped' && (r.reason === 'stale' || r.reason === 'currency-mismatch' || r.reason === 'no-price')).length
+  // 财报临近：与「本周变化」的下周财报共用一次 earnings-calendar.json 请求（模块级缓存）
+  const { cal: earningsCal } = useEarningsCalendar(tab === 'mine' && cand.items.length > 0)
   const buyable = useMemo(() => RESEARCH_INDEX.filter(r => poolBucket(r) === 'buy').length, [])
 
   // 研究筛出按 DCF 筛选：对应不上四个市场的公司没有 DCF 记录，只在「全部」和「未算」里出现
@@ -108,6 +112,7 @@ export default function Candidates(): JSX.Element {
             <li><strong>管节奏</strong>A 股和 ETF 可以直接进「网格」回测</li>
           </ol>
           <WeeklyChanges items={cand.items} companies={companies} observations={weeklyObservations} />
+          {cand.items.length > 0 && <EarningsSoonList items={cand.items} cal={earningsCal} today={today} />}
           {cand.items.length > 0 && <CandidateAlerts alerts={alerts} companies={companies} paused={pausedAlerts}
             onSeen={a => cand.markAlertSeen(a.market, a.code)} onSnooze={a => cand.snoozeAlert(a.market, a.code, addDays(today, SNOOZE_DAYS))} />}
           <CandidatePool items={cand.items} companies={companies} tools={tools} state={cand.state} message={cand.message}

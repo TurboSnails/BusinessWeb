@@ -42,6 +42,7 @@ export const THRESHOLDS = {
   breadth: { unit: 'days', max: 14 },
   cycleReport: { unit: 'days', max: 8 },
   fpe: { unit: 'days', max: 62 },
+  earningsSource: { unit: 'days', max: 3 },
   disclosureSlackDays: 14,
   staleShare: 0.1,
 }
@@ -446,6 +447,24 @@ function checkMethodReviews(root, now) {
   return out
 }
 
+/**
+ * 财报前瞻（daily）：earnings-calendar.json 各源 sources[id].fetchedAt 的日期，3 个自然日内算新鲜。
+ * 某源失败时生成器沿用上次的 fetchedAt，所以连续失败会在这里变成过期；A 股淡季预约表为空不影响 fetchedAt。
+ */
+export const EARNINGS_SOURCES = [['yahoo', 'Yahoo Finance'], ['hkex', '港交所董事会会议通告'], ['cnAppoint', '东方财富预约披露']]
+function checkEarningsCalendar(root, now) {
+  const file = 'public/data/earnings-calendar.json'
+  return guarded('earnings', file, () => {
+    const body = readJson(root, file)
+    return EARNINGS_SOURCES.map(([id, label]) => {
+      const src = body.sources?.[id]
+      const judged = judgeDate({ observed: typeof src?.fetchedAt === 'string' ? src.fetchedAt.slice(0, 10) : null, ...THRESHOLDS.earningsSource, now })
+      return item({ id: `earnings.${id}`, group: '财报前瞻', label: `${label} fetchedAt`, file }, judged,
+        { detail: src?.ok === false && src.error ? `最近一次抓取失败：${String(src.error).slice(0, 120)}` : undefined })
+    })
+  })
+}
+
 export async function runDataChecks(root, now) {
   return [
     ...checkCompanyQuotes(root, now),
@@ -461,6 +480,7 @@ export async function runDataChecks(root, now) {
     ...checkNationalTeam(root, now),
     ...checkDcfPrefill(root, now),
     ...checkMethodReviews(root, now),
+    ...checkEarningsCalendar(root, now),
   ]
 }
 

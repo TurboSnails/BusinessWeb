@@ -10,7 +10,8 @@ import {
   Crosshair,
   CheckCircle2,
   AlertTriangle,
-  ArrowRight
+  ArrowRight,
+  CalendarClock
 } from 'lucide-react'
 import {
   NOTION_SYNC_DATE,
@@ -436,7 +437,10 @@ export default function ResearchNotes(): JSX.Element {
         note="行情已更新到上述日期；评级与一句话结论来自原研究，模型待逐家复核。具体公司行情日期见公司详情。"
       />}
       {activeTab === 'companies' && (
-        <p className="rn-pool-jump"><Link to="/candidates" className="rn-link"><Star size={14} aria-hidden="true" /> 我的候选池 · {cand.items.length} 家：估值、DCF、网格都从这里进 →</Link></p>
+        <>
+          <p className="rn-pool-jump"><Link to="/candidates" className="rn-link"><Star size={14} aria-hidden="true" /> 我的候选池 · {cand.items.length} 家：估值、DCF、网格都从这里进 →</Link></p>
+          <p className="rn-pool-jump"><Link to="/earnings" className="rn-link"><CalendarClock size={14} aria-hidden="true" /> 财报前瞻：未来六周公司库财报日与这次要验证的事 →</Link></p>
+        </>
       )}
 
       {/* 内容区 */}

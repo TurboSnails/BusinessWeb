@@ -24,6 +24,11 @@ const CYCLE = { schemaVersion: 1, generatedAt: '2026-11-14T10:00:00Z', issues: [
   { weekEnding: '2026-11-14', decisionAt: '2026-11-14T10:00:00Z', ruleVersion: 'cycle-shadow-v2', markets: { csi300: { legacyState: '趋势防守', shadow }, hsi: { legacyState: '趋势防守', shadow } } },
   { weekEnding: '2026-11-07', decisionAt: '2026-11-13T10:00:00Z', ruleVersion: 'cycle-shadow-v2', markets: { csi300: { legacyState: '趋势防守', shadow }, hsi: { legacyState: '趋势防守', shadow } } },
 ] }
+const EARNINGS = { schemaVersion: 1, generatedAt: '2026-11-15T23:30:00Z', today: '2026-11-15', sources: { yahoo: { label: 'Yahoo Finance（yfinance）' }, cnAppoint: { label: '东方财富·定期报告预约披露' } }, items: [
+  { market: 'cn', code: '600519', name: '贵州茅台', date: '2026-11-18', time: 'unknown', confirmed: true, period: null, dateSource: 'cnAppoint', research: { rating: '观察' } },
+  { market: 'us', code: 'NVDA', name: '英伟达', date: '2026-11-17', time: 'amc', confirmed: true, period: 'FY2027Q3', dateSource: 'yahoo', research: { rating: '条件关注' } },
+  { market: 'us', code: 'WMT', name: '沃尔玛', date: '2026-11-19', time: 'bmo', confirmed: false, period: null, dateSource: 'yahoo', research: { rating: '观察' } },
+] }
 const MACRO = { generatedAt: '2026-11-14', series: { vix: { latest: { date: '2026-11-13', value: 16 }, history: [['2026-10-30', 15]] } } }
 
 const res = () => ({
@@ -35,7 +40,7 @@ const res = () => ({
 const req = ({ auth = `Bearer ${SECRET}`, method = 'GET', dryRun = false } = {}) => ({ method, headers: auth ? { authorization: auth } : {}, query: { weekly: '1', ...(dryRun ? { dryRun: '1' } : {}) } })
 const capture = () => { const lines: string[] = []; const push = (...a: unknown[]) => { lines.push(a.join(' ')) }; return { lines, info: push, warn: push, error: push } }
 
-function fakeBackend({ items = ITEMS, ledger = LEDGER as unknown, logTable = true, logReadStatus = 200, sent = [] as string[], logged = [] as { fingerprint: string; kind: string; day: string }[] } = {}) {
+function fakeBackend({ items = ITEMS, ledger = LEDGER as unknown, earnings = null as unknown, logTable = true, logReadStatus = 200, sent = [] as string[], logged = [] as { fingerprint: string; kind: string; day: string }[] } = {}) {
   const log = new Map<string, { kind: string; day: string }>(logged.map(r => [r.fingerprint, r]))
   for (const f of sent) log.set(f, { kind: 'digest', day: '2026-11-16' })
   const calls: { url: string; method: string; body?: string }[] = []
@@ -47,7 +52,7 @@ function fakeBackend({ items = ITEMS, ledger = LEDGER as unknown, logTable = tru
   const fetchImpl = vi.fn(async (url: string, init: Record<string, any> = {}) => {
     const method = init.method ?? 'GET'
     calls.push({ url, method, body: init.body })
-    const files: Record<string, unknown> = { 'dcf-auto.json': AUTO, 'company-refs.json': REFS, 'signal-ledger-2026.json': ledger, 'market-cycle-report.json': CYCLE, 'macro-us.json': MACRO }
+    const files: Record<string, unknown> = { 'dcf-auto.json': AUTO, 'company-refs.json': REFS, 'signal-ledger-2026.json': ledger, 'market-cycle-report.json': CYCLE, 'macro-us.json': MACRO, ...(earnings ? { 'earnings-calendar.json': earnings } : {}) }
     for (const [name, body] of Object.entries(files)) if (url === `${SITE}/data/${name}`) return reply(200, body)
     if (url.startsWith('https://demo.supabase.co/rest/v1/businessweb_candidates_snapshot')) return reply(200, [{ payload: { schemaVersion: 1, items } }])
     if (url.startsWith('https://demo.supabase.co/rest/v1/businessweb_candidate_alert_log')) {
@@ -160,6 +165,30 @@ describe('weekly 试运行与发送', () => {
   it('没有变化：不发信、不写去重表', async () => {
     const backend = fakeBackend({ items: [], ledger: { schemaVersion: 1, snapshots: { '2026-11-07': { 'us:KO': [1, 2] }, '2026-11-13': { 'us:KO': [1, 2] } } } })
     const { handler, mailer } = setup(backend)
+    const r = res(); await handler(req(), r)
+    expect(r.body).toMatchObject({ ok: true, sent: false, skipped: 'no-changes', count: 0 })
+    expect(mailer.createTransport).not.toHaveBeenCalled()
+    expect(backend.log.size).toBe(0)
+  })
+
+  it('下周财报：只限候选池与条件关注以上，作为背景附在有变化的邮件里，不计入标题项数', async () => {
+    const { handler } = setup(fakeBackend({ earnings: EARNINGS }))
+    const r = res(); await handler(req({ dryRun: true }), r)
+    expect(r.body.sections).toEqual([{ id: 'candidates', lines: 2, more: 0 }, { id: 'library', lines: 2, more: 0 }, { id: 'earnings', lines: 2, more: 0, context: true }])
+    expect(r.body.count).toBe(4)
+    expect(r.body.subject).toBe('每周变化摘要 · 2026-W46（11-09–11-15）· 4 项')
+    expect(r.body.text).toContain('【下周财报】2 家')
+    expect(r.body.text).toContain('贵州茅台（600519 · A股）：11-18公布（日期已确认；候选池）')
+    expect(r.body.text).toContain('英伟达（NVDA · 标普500）：11-17 盘后公布 FY2027Q3（日期已确认；站内评级「条件关注」）')
+    expect(r.body.text).not.toContain('沃尔玛')
+  })
+
+  it('只有下周财报、没有变化：不发信（财报不单独触发邮件）', async () => {
+    const backend = fakeBackend({ items: [{ market: 'us', code: 'WMT', addedAt: '2026-10-01T00:00:00Z' }], earnings: EARNINGS, ledger: { schemaVersion: 1, snapshots: { '2026-11-07': { 'us:KO': [1, 2] }, '2026-11-13': { 'us:KO': [1, 2] } } } })
+    const { handler, mailer } = setup(backend)
+    const dry = res(); await handler(req({ dryRun: true }), dry)
+    expect(dry.body).toMatchObject({ wouldSend: false, count: 0 })
+    expect(dry.body.sections.map((s: any) => s.id)).toEqual(['earnings'])
     const r = res(); await handler(req(), r)
     expect(r.body).toMatchObject({ ok: true, sent: false, skipped: 'no-changes', count: 0 })
     expect(mailer.createTransport).not.toHaveBeenCalled()

@@ -181,6 +181,7 @@ curl -s -H "Authorization: Bearer $CRON_SECRET" "https://business-web-black.verc
 | 公司库 | 评级档位变化总数；新进 / 跌出「优先关注」「条件关注」各最多 8 家 | `public/data/signal-ledger-YYYY.json`（本周一期 vs 本周之前最近一期；跨年读两个文件） |
 | 牛熊周期 | 各市场总体状态、趋势、风险闸门、估值区域的变化 | `public/data/market-cycle-report.json`（weekEnding 落在本周 / 上周的记录） |
 | 宏观温度 | 宏观阶段变化（六项风险信号按 `stages.ts` 规则，取各周日及之前最近的观测） | `public/data/macro-us.json` 的 history / latest；两周末可用信号项不同时不比较 |
+| 下周财报（背景） | 摘要周下一周有财报的公司，只限候选池或站内评级「条件关注 / 优先关注」；候选池在前，最多 12 家，其余写「另有 N 家」 | `public/data/earnings-calendar.json`；**不计入标题项数，也不决定是否发信**（只有财报、没有变化时照样 `no-changes` 不发） |
 
 未纳入：`lynch.json` 只有当前分类没有历史，`dcf-auto.json` 不留历史，无法做周比较。
 
@@ -199,6 +200,24 @@ curl -s -H "Authorization: Bearer $CRON_SECRET" "https://business-web-black.verc
 返回 `week`（周编号与起止日）、`sections`（各节条数）、`summary`（全部条目，含日期、来源、链接）、`notes`（数据缺口）、`subject` / `text`、`alreadySent`、`wouldSend`、`sentLog`。
 
 **关闭**：删掉 `vercel.json` 里 `?weekly=1` 那条 cron 并部署。单测：`npx vitest run src/features/weekly src/components/WeeklyChanges.test.tsx`。
+
+## 财报前瞻 earnings-calendar.json（2026-11-14 新增）
+
+**做什么**：`/earnings` 页（`src/pages/Earnings.tsx`）、公司页「下次财报」徽章、候选池「财报临近」（未来 14 天）和每周摘要「下周财报」共用的数据。只收**公司库内**的公司，窗口为**今天 −14 天到 +42 天**；只整理事实（日期、时段、是否确认、一致预期、历史超预期、已公布结果）与站内研究摘要，不做预测。
+
+**生成**：`node scripts/earnings-calendar.mjs`（约 12 分钟；需要 `uv`，yfinance 固定 `1.8.0`，由 `scripts/earnings-calendar-yf.py` 采集，可用 `EARNINGS_YF_CMD` 覆盖命令）。`--refresh-research` 只按当前公司库离线重建各条目的研究摘要（评级、情景带、验证事项），不重新抓取。单测：`node --test scripts/earnings-calendar.test.mjs`（fixtures 在 `scripts/fixtures/earnings/`）。
+
+**节奏**：工作流 `.github/workflows/earnings-calendar.yml`，只提交这一个文件（`data(earnings): …`）。准点触发是 Vercel Cron 每天 **23:00 UTC**（北京 07:00，美股盘后财报已公布、A 股 / 港股开盘前）经 `cron-dispatch` 调 `workflow_dispatch`；GitHub schedule **23:40 UTC** 只作兜底，20 小时内已有 `data(earnings)` 提交就跳过（`cron-dispatch` 见到 6 小时内已成功的运行也不再派发）。数据新鲜度检查 `scripts/data-freshness-check.mjs` 的 `earnings.*` 按 `sources.yahoo / hkex / cnAppoint` 的 `fetchedAt` 日期判断，超过 3 个自然日算过期。
+
+| 源（`sources` 键） | 提供什么 |
+| --- | --- |
+| Yahoo Finance（`yahoo`，yfinance） | 美股（标普 / 纳指 100 / ADR）与港股财报日、盘前 / 盘后（BMO / AMC）、是否确认、EPS 与营收一致预期、近 4 季超预期幅度、季度营收 |
+| 港交所披露易董事会会议通告（`hkex`） | 港股官方董事会会议日期；与 Yahoo 冲突时**优先用港交所** |
+| 东方财富（`cnAppoint` 预约披露、`cnForecast` 业绩预告、`cnExpress` 业绩快报、`cnReport` 业绩报表、`cnConsensus` 机构盈利预测） | A 股预约披露日与变更、业绩预告 / 快报 / 报表；盈利预测只有年度口径，**没有 A 股季度一致预期** |
+
+**不使用 Nasdaq**：其条款禁止自动抓取与再分发。
+
+**失败与空表**：每个源独立；某源失败时保留上次文件里该源的条目和**原来的日期**（条目标 `carried`，`sources[id].ok = false`、`fetchedAt` 保持上次成功时间，连续失败会在新鲜度检查里变成过期）。A 股非披露季（如 11–12 月）预约披露表为空属正常，不是故障。
 
 ## 一次更新如何验收与留痕
 

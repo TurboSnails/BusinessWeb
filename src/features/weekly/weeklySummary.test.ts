@@ -1,7 +1,7 @@
 // 每周变化摘要（纯函数）：周边界、空状态、四节内容、每条带日期和来源、邮件正文。
 import { describe, expect, it } from 'vitest'
 import {
-  buildWeeklySummary, companyIndexFrom, completedWeek, composeWeeklyEmail, EMPTY_TEXT, isoWeekId, ledgerPair, ledgerYears, macroStageAsOf,
+  buildWeeklySummary, companyIndexFrom, completedWeek, composeWeeklyEmail, EARNINGS_TOP, EMPTY_TEXT, isoWeekId, ledgerPair, ledgerYears, macroStageAsOf,
   mergeLedgers, mergePriceHits, priceHitFromFingerprint, RATING_CODES, weekRange, weeklyCount, weeklyPriceHits,
   type CycleReportLike, type LedgerLike, type MacroLike,
 } from './weeklySummary'
@@ -209,5 +209,63 @@ describe('邮件正文', () => {
     const m = composeWeeklyEmail(s, 'https://example.test')
     expect(m.html).toContain('A&amp;B')
     expect(m.html).not.toContain('<b>x</b>')
+  })
+})
+
+describe('下周财报（财报前瞻）', () => {
+  const EARN = {
+    schemaVersion: 1 as const, generatedAt: '2026-11-15T23:30:00Z',
+    sources: { yahoo: { label: 'Yahoo Finance（yfinance）' } },
+    items: [
+      { market: 'us' as const, code: 'NVDA', name: '英伟达', date: '2026-11-17', time: 'amc', confirmed: true, period: 'FY2027Q3', dateSource: 'yahoo', research: { rating: '条件关注' } },
+      { market: 'us' as const, code: 'WMT', name: '沃尔玛', date: '2026-11-19', time: 'bmo', confirmed: false, period: null, dateSource: 'yahoo', research: { rating: '中性观察' } },
+      { market: 'us' as const, code: 'CSCO', name: '思科', date: '2026-11-12', time: 'amc', confirmed: true, period: null, dateSource: 'yahoo', research: { rating: '优先关注' } },
+    ],
+  }
+  it('摘要周的下一周：候选池全部列出，条件关注以上补充；带日期、来源与链接，不写预期数字', () => {
+    const s = buildWeeklySummary({ week: W46, candidates: [{ market: 'us', code: 'WMT', addedAt: '2026-11-01T00:00:00Z' }], earnings: EARN })
+    const sec = s.sections.find(x => x.id === 'earnings')!
+    expect(sec.title).toBe('下周财报')
+    expect(sec.lines.map(l => l.text)).toEqual([
+      '沃尔玛（WMT · 标普500）：11-19 盘前公布（日期为预估；候选池）',
+      '英伟达（NVDA · 标普500）：11-17 盘后公布 FY2027Q3（日期已确认；站内评级「条件关注」）',
+    ])
+    expect(sec.lines[0]).toMatchObject({ kind: 'earnings', date: '2026-11-19', href: '/research-notes/us/WMT' })
+    expect(sec.lines[0].source).toBe('财报前瞻 earnings-calendar.json（Yahoo Finance（yfinance），生成于 2026-11-15）')
+    expect(sec.summary).toContain('候选池 1 家、条件关注以上 1 家')
+  })
+  it('下一周没有相关公司或不传财报数据时不生成这一节', () => {
+    expect(buildWeeklySummary({ week: weekRange('2026-10-19'), earnings: EARN }).sections.some(x => x.id === 'earnings')).toBe(false)
+    expect(buildWeeklySummary({ week: W46 }).sections.some(x => x.id === 'earnings')).toBe(false)
+  })
+  it('只限候选池或「条件关注」以上：不在池里、评级也不够的公司不列', () => {
+    const sec = buildWeeklySummary({ week: W46, earnings: EARN }).sections.find(x => x.id === 'earnings')!
+    expect(sec.lines.map(l => l.href)).toEqual(['/research-notes/us/NVDA'])
+  })
+  it('最多列 EARNINGS_TOP 家（候选池在前），其余写「另有 N 家」', () => {
+    const many = Array.from({ length: 15 }, (_, i) => ({ ...EARN.items[0], code: `R${String(i).padStart(2, '0')}`, name: `公司${i}` }))
+    const s = buildWeeklySummary({ week: W46, candidates: [{ market: 'us', code: 'WMT', addedAt: '2026-11-01T00:00:00Z' }], earnings: { ...EARN, items: [...EARN.items, ...many] } })
+    const sec = s.sections.find(x => x.id === 'earnings')!
+    expect(sec.lines).toHaveLength(EARNINGS_TOP)
+    expect(sec.lines[0].href).toBe('/research-notes/us/WMT')
+    expect(sec.more).toBe(1 + 16 - EARNINGS_TOP)
+    expect(sec.summary).toContain(`另有 ${1 + 16 - EARNINGS_TOP} 家未逐条列出`)
+  })
+  it('背景信息：不计入事项数、不让空摘要变成“有变化”；邮件标题项数不含财报', () => {
+    const only = buildWeeklySummary({ week: W46, candidates: [{ market: 'us', code: 'WMT', addedAt: '2026-11-01T00:00:00Z' }], earnings: EARN })
+    expect(only).toMatchObject({ empty: true, total: 0 })
+    expect(weeklyCount(only)).toBe(0)
+    expect(only.sections.find(x => x.id === 'earnings')?.context).toBe(true)
+    const emptyMail = composeWeeklyEmail(only, 'https://example.test')
+    expect(emptyMail.subject).toContain('无变化')
+
+    const withChanges = buildWeeklySummary({ week: W46, ledger: LEDGER, companies: COMPANIES, earnings: EARN })
+    const plain = buildWeeklySummary({ week: W46, ledger: LEDGER, companies: COMPANIES })
+    expect(withChanges.total).toBe(plain.total)
+    expect(weeklyCount(withChanges)).toBe(weeklyCount(plain))
+    const m = composeWeeklyEmail(withChanges, 'https://example.test')
+    expect(m.subject).toBe(composeWeeklyEmail(plain, 'https://example.test').subject)
+    expect(m.text).toContain('【下周财报】1 家')
+    expect(m.text).toContain('英伟达（NVDA · 标普500）：11-17 盘后公布 FY2027Q3')
   })
 })

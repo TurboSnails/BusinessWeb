@@ -1,0 +1,72 @@
+name: Update earnings calendar
+
+# 「财报前瞻」页 /earnings 的数据 public/data/earnings-calendar.json（scripts/earnings-calendar.mjs）：
+# 公司库内公司今天前 14 天到后 42 天的财报日、一致预期、历史超预期幅度与已公布结果，附站内研究摘要。
+# 来源：Yahoo Finance（yfinance，美股 / 港股）、港交所披露易董事会会议通告、东方财富（A 股预约披露、业绩预告 / 快报 / 报表、盈利预测）。
+# 每个源独立，失败时沿用上次文件里该源的条目与原日期；只写这一个文件。
+# 准点触发由 Vercel Cron（vercel.json，UTC 23:00–23:59，每天）调用 workflow_dispatch：美股盘后财报（约 UTC 21:00）已公布、
+# Yahoo 实际 EPS 已更新，且在 A 股 / 港股开盘（北京时间 09:30）之前。下面的 schedule 只作兜底：GitHub 排程常迟到数小时，
+# 若 20 小时内已有本工作流的提交则跳过（反过来，cron-dispatch 见到 6 小时内已成功的运行也不再派发）。
+on:
+  schedule:
+    - cron: '40 23 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: earnings-calendar
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: astral-sh/setup-uv@v5
+      # esbuild（devDependency）用来按 UI 同一口径合并公司库
+      - run: npm ci
+      - name: Collect earnings calendar
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "schedule" ] && [ -n "$(git log -1 --since='20 hours ago' --grep='^data(earnings): ' --format=%H)" ]; then
+            echo "20 小时内已有财报前瞻提交（Vercel Cron 准点触发），兜底排程跳过"; exit 0
+          fi
+          node scripts/earnings-calendar.mjs
+      - name: Commit updated calendar
+        id: commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add public/data/earnings-calendar.json
+          if git diff --cached --quiet; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m "data(earnings): 更新财报前瞻 $(TZ=Asia/Shanghai date +%Y-%m-%d)"
+          for attempt in 1 2 3; do
+            if git push; then
+              echo 'changed=true' >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            git fetch origin main
+            git rebase -X theirs origin/main
+          done
+          exit 1
+      - name: Deploy GitHub Pages
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --ref main

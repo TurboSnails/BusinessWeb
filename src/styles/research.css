@@ -424,6 +424,25 @@ a.rn-cand {
   text-decoration: none;
 }
 
+/* 下次财报徽章（链接到 /earnings） */
+.rn-earnings-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.rn-earnings-badge:hover {
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
 .rn-cand[aria-pressed='true'] {
   border-color: transparent;
   background: color-mix(in srgb, var(--down) 14%, transparent);

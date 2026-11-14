@@ -1,9 +1,10 @@
 // 每周变化摘要邮件：Vercel Cron（vercel.json，UTC 周一 00:00 = 北京周一 08:00–08:59）
 // → /api/market-data/candidate-alerts-digest?weekly=1（与每日提醒同一路由、同一鉴权、同一 Gmail、同一去重表）
-// → 读 Supabase 候选池快照 + 站点静态 JSON（信号台账、牛熊周期自动周报、宏观快照、自动 DCF、公司参考数据）
+// → 读 Supabase 候选池快照 + 站点静态 JSON（信号台账、牛熊周期自动周报、宏观快照、自动 DCF、公司参考数据、财报前瞻）
 // → 用站内同一份规则（src/features/weekly/weeklySummary.ts）生成上一个完整自然周的变化 → 发给本人。
 //
 // 不含 AI，只列可复核的事实，每条带日期和来源；没有变化时不发信。
+// 「下周财报」只是背景信息：不计入标题项数，也不会让一封本来没有变化的邮件发出去。
 // 去重：businessweb_candidate_alert_log 里写一行 fingerprint = weekly|YYYY-Www、kind = 'digest'（表的 kind 检查约束已允许 digest，
 // 不需要新迁移；每日提醒用的是 digest|YYYY-MM-DD，前缀不同不会冲突）。同一周最多一封；发信失败会删掉这行，下次再发。
 // ?weekly=1&dryRun=1：照常鉴权与生成，返回摘要 JSON，不发信、不写去重表。
@@ -13,7 +14,7 @@ import { priceObservations, VENUE_CURRENCY, type PriceObservation } from '../src
 import { candidateKey, type CandidateItem, type CandidateMarket } from '../src/features/candidates/validation.js'
 import { autoDcfKey, parseAutoSummary } from '../src/features/dcf/autoDcfSummary.js'
 import {
-  addDays, asCycleReport, asLedger, asMacro, beijingDay, buildWeeklySummary, companyIndexFrom, completedWeek, composeWeeklyEmail,
+  addDays, asCycleReport, asEarningsCalendar, asLedger, asMacro, beijingDay, buildWeeklySummary, companyIndexFrom, completedWeek, composeWeeklyEmail,
   ledgerYears, mergeLedgers, mergePriceHits, priceHitFromFingerprint, weeklyCount, weeklyPriceHits, type PriceHit,
 } from '../src/features/weekly/weeklySummary.js'
 import type { CompanyRef } from './candidate-alerts-digest.js'
@@ -78,12 +79,14 @@ export function createWeeklyDigest({ env, now, log, site, logTable, fetchJson, r
     const settled = async <T>(label: string, p: Promise<T>): Promise<T | null> => {
       try { return await p } catch { warnings.push(`${label}未能读取，相关部分未比较。`); return null }
     }
-    const [candidates, autoBody, refsBody, cycleBody, macroBody, ...ledgerBodies] = await Promise.all([
+    const [candidates, autoBody, refsBody, cycleBody, macroBody, earningsBody, ...ledgerBodies] = await Promise.all([
       settled('云端候选池', repo.snapshot()),
       settled('自动 DCF 预填库', fetchJson(`${site}/data/dcf-auto.json`)),
       settled('公司参考数据', fetchJson(`${site}/data/company-refs.json`)),
       settled('牛熊周期自动周报', fetchJson(`${site}/data/market-cycle-report.json`)),
       settled('宏观快照', fetchJson(`${site}/data/macro-us.json`)),
+      // 背景信息：读不到时只是少一节「下周财报」，不写进数据缺口说明
+      fetchJson(`${site}/data/earnings-calendar.json`).catch(() => null),
       ...ledgerYears(week).map(y => settled(`信号台账 ${y}`, fetchJson(`${site}/data/signal-ledger-${y}.json`))),
     ])
     const auto = parseAutoSummary(autoBody) ?? new Map()
@@ -113,11 +116,11 @@ export function createWeeklyDigest({ env, now, log, site, logTable, fetchJson, r
     }))
     const summary = buildWeeklySummary({
       week, candidates: items, priceHits: mergePriceHits(weeklyPriceHits(items, observations, week), logged),
-      ledger: mergeLedgers(...ledgerBodies.map(asLedger)), cycle: asCycleReport(cycleBody), macro: asMacro(macroBody), companies,
+      ledger: mergeLedgers(...ledgerBodies.map(asLedger)), cycle: asCycleReport(cycleBody), macro: asMacro(macroBody), earnings: asEarningsCalendar(earningsBody), companies,
     })
     summary.notes.push(...warnings)
     const mail = summary.empty ? null : composeWeeklyEmail(summary, site)
-    const info = { today, week, count: weeklyCount(summary), sections: summary.sections.map(s => ({ id: s.id, lines: s.lines.length, more: s.more ?? 0 })), notes: summary.notes, sentLog }
+    const info = { today, week, count: weeklyCount(summary), sections: summary.sections.map(s => ({ id: s.id, lines: s.lines.length, more: s.more ?? 0, ...(s.context ? { context: true } : {}) })), notes: summary.notes, sentLog }
 
     if (dryRun) {
       return res.status(200).json({ ok: true, weekly: true, dryRun: true, ...info, alreadySent, mailConfigured: !missingMail.length,

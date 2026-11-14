@@ -70,6 +70,7 @@ export const INVEST_GROUPS: HubGroup[] = [
       { path: '/industry-landscape', label: '产业格局', short: '行业结构、龙头与格局', desc: '固态电池、半导体、AI算力、AI应用、机器人、军工、新能源车、光伏储能、核电电网、创新药、低空与商业航天、消费电子、白酒、银行、新材料、前沿科技，和一页纸主题研究卡' },
       { path: '/future-trends', label: '主题研究', short: '按主题看产业链与公司', desc: 'AI、智驾、机器人、固态电池、创新药、航空航天、新能源等主题的产业链、核心公司与逐家研究' },
       { path: '/research-notes', label: '公司研究', short: '四个市场的公司库', desc: '美股、港股、A 股公司库、林奇六分类与研究方法' },
+      { path: '/earnings', label: '财报前瞻', short: '财报日、预期与待验证', desc: '公司库未来六周财报日历（盘前 / 盘后、是否确认）、一致预期与近四季超预期幅度、已公布结果，附站内评级、三情景与「这次要验证什么」' },
       { path: '/invest/national-team', label: '国家队持仓', short: '汇金证金社保持仓变化', desc: '汇金、证金、社保等持有哪些 A 股：按机构、行业、个股看持仓与季度变化' },
     ],
   },

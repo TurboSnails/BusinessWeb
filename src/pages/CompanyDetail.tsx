@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, ExternalLink, CheckCircle2, AlertTriangle, ArrowRight } from 'lucide-react'
+import { ArrowLeft, ExternalLink, CheckCircle2, AlertTriangle, ArrowRight, CalendarClock } from 'lucide-react'
 import { useCompanies, useLynch, lynchFor, Market } from '../data/companies'
 import { usePageSeo } from '../components/RouteSeo'
 import ResearchNotice from '../components/research/ResearchNotice'
@@ -25,6 +25,8 @@ import { scrubMissing } from '../utils/scrubMissing'
 import { Badge, Card, EmptyState, Page, Stat, StatGrid, TableWrap } from '../components/ui'
 import { PageDataFreshness } from '../components/ui/PageDataFreshness'
 import CompanyChartSection from '../features/company-chart/CompanyChartSection'
+import { useEarningsCalendar } from '../features/earnings/loadCalendar'
+import { TIME_LABEL, venueKey, type EarningsCalendar, type EarningsItem } from '../features/earnings/model'
 import '../styles/research.css'
 
 // 评级语气的文字色：只用色板 token
@@ -36,6 +38,15 @@ const TONE_INK: Record<Tone, string> = {
   gray: 'var(--text-secondary)',
 }
 
+/** 这家公司下一次财报：日历里 date >= 日历当天的最早一条（同交易地 + 统一代码匹配，us / ndx / adr 视为同一家） */
+function nextEarnings(cal: EarningsCalendar | null, market: string, code: string): EarningsItem | null {
+  if (!cal) return null
+  const key = venueKey(market as EarningsItem['market'], code)
+  const today = cal.today || cal.generatedAt.slice(0, 10)
+  return cal.items.filter(i => i.date >= today && venueKey(i.market, i.code) === key).sort((a, b) => a.date.localeCompare(b.date))[0] ?? null
+}
+const confirmedText = (c: boolean | null): string => (c === true ? '已确认' : c === false ? '预估' : '确认未知')
+
 export default function CompanyDetail(): JSX.Element {
   const { market, code } = useParams()
   const navigate = useNavigate()
@@ -46,6 +57,8 @@ export default function CompanyDetail(): JSX.Element {
   const company = list.find(c => c.code === decodeURIComponent(code || ''))
   const cand = useCandidates(true)
   const tools = useToolSources()
+  // 财报前瞻：模块级缓存，公司之间切换不重复请求；读不到就不显示徽章
+  const { cal: earningsCal } = useEarningsCalendar()
   usePageSeo(company ? `${company.name}（${company.code}）研究笔记` : undefined, company ? `${company.name}（${company.code}）：${company.headline}`.slice(0, 160) : undefined)
 
   useEffect(() => {
@@ -99,6 +112,7 @@ export default function CompanyDetail(): JSX.Element {
   }
 
   const tone = toneOf(company.rating)
+  const earningsNext = nextEarnings(earningsCal, company.market, company.code)
 
   // ── 按“最终返回标准”整理：三情景表、买入纪律、完整度 ──
   const nums = (t: string): number[] => (t.match(/[\d,]+(?:\.\d+)?/g) || []).map(x => Number(x.replace(/,/g, ''))).filter(n => !Number.isNaN(n))
@@ -186,6 +200,12 @@ export default function CompanyDetail(): JSX.Element {
         {company.marketRefresh && <PageDataFreshness checkedAt={company.marketRefresh.checkedAt} dataLabel="行情日期" dataDates={[company.marketRefresh.priceDate]} researchAsOf={company.marketRefresh.originalAsOf} />}
         <div className="ui-cluster">
           <span className="rn-rating" style={{ color: TONE_INK[tone] }}>{company.rating}</span>
+          {earningsNext && (
+            <Link to="/earnings" className="rn-earnings-badge" title={`日期来源：${earningsCal?.sources[earningsNext.dateSource]?.label ?? earningsNext.dateSource}`}>
+              <CalendarClock size={14} aria-hidden="true" />
+              下次财报 {earningsNext.date}{earningsNext.time !== 'unknown' ? ` ${TIME_LABEL[earningsNext.time]}` : ''}（{confirmedText(earningsNext.confirmed)}）
+            </Link>
+          )}
           {/* 有决策记录的公司只在候选池里移除，这里直接链接到记录 */}
           {lastDecision
             ? <Link to="/candidates" className="rn-cand">✓ 已候选 · 决策记录 {candItem?.decisions?.length} 条 · 下次检查 {lastDecision.nextCheck}</Link>

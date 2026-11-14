@@ -19,6 +19,8 @@ export const WORKFLOWS = Object.freeze({
   'company-refresh.yml': { skipIfSucceededWithinMinutes: 360 },
   'spread-snapshot.yml': { skipIfSucceededWithinMinutes: 360 },
   'etf-technical.yml': { skipIfSucceededWithinMinutes: 360 },
+  // 财报前瞻：每天 UTC 23 点（美股盘后财报已出、亚洲开盘前）；GitHub 兜底排程 23:40
+  'earnings-calendar.yml': { skipIfSucceededWithinMinutes: 360 },
 })
 
 const ACTIVE = new Set(['queued', 'in_progress', 'waiting', 'requested', 'pending'])

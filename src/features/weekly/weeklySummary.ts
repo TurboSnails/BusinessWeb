@@ -7,6 +7,7 @@
 // - 候选池记录：决策记录（新写的记录、下周到期的复查）、价位提醒规则 + 收盘价观测（本周触及条件价）
 // - 牛熊周期自动周报 public/data/market-cycle-report.json：每周一条记录（周状态变化）
 // - 宏观快照 public/data/macro-us.json：六项风险信号的历史观测，按阶段规则算周末阶段（阶段变化）
+// - 财报前瞻 public/data/earnings-calendar.json：下周（摘要周的下一周）候选池与「条件关注」以上公司的财报日（下周财报）
 import { computeStage, SIGNALS } from '../macro/stages.js'
 import { codeKey, MARKET_LABEL, venueOf, type Venue } from '../candidates/markets.js'
 import { reached, type PriceObservation } from '../candidates/priceAlert.js'
@@ -75,6 +76,12 @@ export interface MacroLike { generatedAt?: string; series: Record<string, MacroS
 /** 宏观阶段的六项信号（与 indicators.ts 的 signalValues 一致） */
 export const MACRO_SIGNAL_IDS = ['sahm', 'claims', 'hy', 'vix', 'dd', 'kre'] as const
 
+/** 财报前瞻 earnings-calendar.json 里这里用到的字段（scripts/earnings-calendar.mjs 生成） */
+export interface EarningsEntryLike { market: CandidateMarket; code: string; name: string; date: string; time: string; confirmed: boolean | null; period: string | null; dateSource: string; research?: { rating?: string | null } | null }
+export interface EarningsCalendarLike { schemaVersion: 1; generatedAt: string; items: EarningsEntryLike[]; sources?: Record<string, { label?: string } | undefined> }
+/** 下周财报：最多列出这么多家（候选池在前，再补「条件关注」以上），其余只计数「另有 N 家」 */
+export const EARNINGS_TOP = 12
+
 /** 公司名称与链接：键为台账键 venue:CODE（大写） */
 export interface CompanyInfo { name: string; market: CandidateMarket; code: string }
 export type CompanyIndex = Map<string, CompanyInfo>
@@ -102,12 +109,14 @@ export interface WeeklyInputs {
   ledger?: LedgerLike | null
   cycle?: CycleReportLike | null
   macro?: MacroLike | null
+  /** 财报前瞻；不传时不生成「下周财报」一节 */
+  earnings?: EarningsCalendarLike | null
   companies?: CompanyIndex
 }
 
-export type SectionId = 'candidates' | 'library' | 'cycle' | 'macro'
+export type SectionId = 'candidates' | 'library' | 'cycle' | 'macro' | 'earnings'
 export interface WeeklyLine {
-  kind: 'rating' | 'price-hit' | 'decision' | 'review-next' | 'library-up' | 'library-down' | 'cycle' | 'macro'
+  kind: 'rating' | 'price-hit' | 'decision' | 'review-next' | 'library-up' | 'library-down' | 'cycle' | 'macro' | 'earnings'
   text: string
   /** 依据的数据日期 YYYY-MM-DD */
   date: string
@@ -116,8 +125,19 @@ export interface WeeklyLine {
   /** 站内相对链接 */
   href?: string
 }
-export interface WeeklySection { id: SectionId; title: string; lines: WeeklyLine[]; /** 一句概括，如「共 12 家评级档位变化」 */ summary?: string; /** 只计数未列出的条数 */ more?: number }
-export interface WeeklySummary { week: WeekRange; sections: WeeklySection[]; /** 列出的事项数（不含 more） */ total: number; empty: boolean; emptyText: string; /** 数据缺口说明，不计入事项 */ notes: string[] }
+export interface WeeklySection {
+  id: SectionId; title: string; lines: WeeklyLine[]
+  /** 一句概括，如「共 12 家评级档位变化」 */ summary?: string
+  /** 只计数未列出的条数 */ more?: number
+  /** 背景信息（下周财报）：不是“变化”，不计入事项数、不决定是否发信 */ context?: boolean
+}
+export interface WeeklySummary {
+  week: WeekRange; sections: WeeklySection[]
+  /** 列出的变化事项数（不含 more，不含背景信息节） */ total: number
+  /** 没有变化事项（背景信息节可能仍在 sections 里） */ empty: boolean
+  emptyText: string
+  /** 数据缺口说明，不计入事项 */ notes: string[]
+}
 
 const companyHref = (c: { market: string; code: string }): string => `/research-notes/${c.market}/${encodeURIComponent(c.code)}`
 const label = (name: string | undefined, code: string, market: CandidateMarket): string => `${name ? `${name}（` : ''}${code} · ${MARKET_LABEL[market]}${name ? '）' : ''}`
@@ -197,7 +217,41 @@ export function macroStageAsOf(macro: MacroLike, day: string): { level: number; 
 }
 
 /** 生成摘要：各节没有事项时省略；全部为空时 empty = true，显示 EMPTY_TEXT */
-export function buildWeeklySummary({ week, candidates = [], priceHits = [], ledger, cycle, macro, companies = new Map() }: WeeklyInputs): WeeklySummary {
+/**
+ * 下周财报：摘要周的下一周（week.nextStart–nextEnd）内，只限候选池公司与站内评级「优先关注 / 优先跟踪 / 条件关注」的公司；
+ * 候选池在前，合计最多列 EARNINGS_TOP 家，其余写「另有 N 家」。
+ * 只写日期、时段、报告期与日期是否确认；不写一致预期数字（摘要里不判断“好坏”）。
+ * 这一节是背景信息（context）：不计入事项数，也不会单独触发每周邮件。
+ */
+export function earningsSection(earnings: EarningsCalendarLike, week: WeekRange, candidates: CandidateItem[]): WeeklySection | null {
+  const venueKey = (market: CandidateMarket, code: string): string => { const v = venueOf(market); return `${v}:${codeKey(v, code)}` }
+  const pool = new Set(candidates.map(c => venueKey(c.market, c.code)))
+  const rows = earnings.items.filter(i => inWeek(i.date, week.nextStart, week.nextEnd))
+    .sort((a, b) => a.date.localeCompare(b.date) || a.code.localeCompare(b.code))
+  const mine = rows.filter(i => pool.has(venueKey(i.market, i.code)))
+  const rated = rows.filter(i => !pool.has(venueKey(i.market, i.code)) && /优先关注|优先跟踪|条件关注/.test(i.research?.rating ?? ''))
+  if (!mine.length && !rated.length) return null
+  const generated = earnings.generatedAt.slice(0, 10)
+  const line = (i: EarningsEntryLike, inPool: boolean): WeeklyLine => {
+    const time = i.time === 'bmo' ? ' 盘前' : i.time === 'amc' ? ' 盘后' : ''
+    const conf = i.confirmed === true ? '日期已确认' : i.confirmed === false ? '日期为预估' : '确认状态未知'
+    const tag = inPool ? '候选池' : `站内评级「${i.research?.rating}」`
+    return {
+      kind: 'earnings', date: i.date, href: companyHref(i),
+      source: `财报前瞻 earnings-calendar.json（${earnings.sources?.[i.dateSource]?.label ?? i.dateSource}，生成于 ${generated}）`,
+      text: `${label(i.name, i.code, i.market)}：${shortDay(i.date)}${time}公布${i.period ? ` ${i.period}` : ''}（${conf}；${tag}）`,
+    }
+  }
+  const all = [...mine.map(i => line(i, true)), ...rated.map(i => line(i, false))]
+  const listed = all.slice(0, EARNINGS_TOP)
+  const more = all.length - listed.length
+  return {
+    id: 'earnings', title: '下周财报', lines: listed, more, context: true,
+    summary: `${shortDay(week.nextStart)} 至 ${shortDay(week.nextEnd)}：候选池 ${mine.length} 家、条件关注以上 ${rated.length} 家有财报${more > 0 ? `；另有 ${more} 家未逐条列出` : ''}。背景信息，不计入变化项数；详见 /earnings。`,
+  }
+}
+
+export function buildWeeklySummary({ week, candidates = [], priceHits = [], ledger, cycle, macro, earnings, companies = new Map() }: WeeklyInputs): WeeklySummary {
   const sections: WeeklySection[] = []
   const notes: string[] = []
   const pair = ledgerPair(ledger, week)
@@ -290,12 +344,22 @@ export function buildWeeklySummary({ week, candidates = [], priceHits = [], ledg
     } else if (a.level !== b.level) notes.push('宏观阶段两个周末可用的信号项不同，未比较。')
   }
 
-  const total = sections.reduce((n, s) => n + s.lines.length, 0)
+  // (e) 下周财报
+  if (earnings?.items) {
+    const sec = earningsSection(earnings, week, candidates)
+    if (sec) sections.push(sec)
+  }
+
+  const total = sections.reduce((n, s) => n + (s.context ? 0 : s.lines.length), 0)
   return { week, sections, total, empty: total === 0, emptyText: EMPTY_TEXT, notes }
 }
 
-/** 计数（含公司库未列出的条数），站内标题「本周变化 · N 项」用 */
-export const weeklyCount = (s: WeeklySummary): number => s.sections.reduce((n, x) => n + x.lines.length + (x.more ?? 0), 0)
+/** 计数（含公司库未列出的条数；不含背景信息节「下周财报」），站内标题「本周变化 · N 项」与邮件标题用 */
+export const weeklyCount = (s: WeeklySummary): number => s.sections.reduce((n, x) => n + (x.context ? 0 : x.lines.length + (x.more ?? 0)), 0)
+/** 变化事项节与背景信息节 */
+export const changeSections = (s: WeeklySummary): WeeklySection[] => s.sections.filter(x => !x.context)
+export const contextSections = (s: WeeklySummary): WeeklySection[] => s.sections.filter(x => x.context)
+const sectionCount = (sec: WeeklySection): string => (sec.context ? `${sec.lines.length} 家` : `${sec.lines.length} 项`)
 
 // ── 邮件正文：纯文本 + 简单 HTML ──
 const escapeHtml = (s: string): string => s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c] as string)
@@ -308,16 +372,17 @@ export function composeWeeklyEmail(s: WeeklySummary, site: string): { subject: s
   const abs = (href?: string): string | null => (href ? `${site}${href}` : null)
   const text = [
     lead, '',
-    ...(s.empty ? [s.emptyText, ''] : s.sections.flatMap(sec => [
-      `【${sec.title}】${sec.lines.length} 项`, ...(sec.summary ? [sec.summary] : []),
+    ...(s.empty ? [s.emptyText, ''] : []),
+    ...(s.empty ? contextSections(s) : s.sections).flatMap(sec => [
+      `【${sec.title}】${sectionCount(sec)}`, ...(sec.summary ? [sec.summary] : []),
       ...sec.lines.flatMap(l => [`- ${l.text}`, `  日期 ${l.date} · 来源：${l.source}`, ...(abs(l.href) ? [`  ${abs(l.href)}`] : [])]), '',
-    ])),
+    ]),
     ...(s.notes.length ? [...s.notes, ''] : []),
     `打开候选池：${site}/candidates`, '', '—', FOOTER,
   ].join('\n')
   const html = `<!doctype html><html lang="zh-CN"><body style="font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;font-size:15px;line-height:1.6;color:#1f2328;max-width:640px">
 <p>${escapeHtml(lead)}</p>
-${s.empty ? `<p>${escapeHtml(s.emptyText)}</p>` : s.sections.map(sec => `<h3 style="font-size:16px;margin:20px 0 8px">${escapeHtml(sec.title)} · ${sec.lines.length} 项</h3>
+${s.empty ? `<p>${escapeHtml(s.emptyText)}</p>` : ''}${(s.empty ? contextSections(s) : s.sections).map(sec => `<h3 style="font-size:16px;margin:20px 0 8px">${escapeHtml(sec.title)} · ${sectionCount(sec)}</h3>
 ${sec.summary ? `<p style="margin:0 0 8px">${escapeHtml(sec.summary)}</p>` : ''}<ul style="padding-left:20px;margin:0">${sec.lines.map(l => `<li style="margin-bottom:10px">${abs(l.href) ? `<a href="${escapeHtml(abs(l.href) as string)}">${escapeHtml(l.text)}</a>` : escapeHtml(l.text)}<br><span style="color:#59636e;font-size:13px">日期 ${escapeHtml(l.date)} · 来源：${escapeHtml(l.source)}</span></li>`).join('')}</ul>`).join('\n')}
 ${s.notes.map(n => `<p style="color:#59636e">${escapeHtml(n)}</p>`).join('')}
 <p><a href="${escapeHtml(site)}/candidates">打开候选池</a></p>
@@ -338,6 +403,10 @@ export const asCycleReport = (v: unknown): CycleReportLike | null => {
 export const asMacro = (v: unknown): MacroLike | null => {
   const x = v as MacroLike | null
   return x && x.series && typeof x.series === 'object' && !Array.isArray(x.series) ? x : null
+}
+export const asEarningsCalendar = (v: unknown): EarningsCalendarLike | null => {
+  const x = v as EarningsCalendarLike | null
+  return x && x.schemaVersion === 1 && typeof x.generatedAt === 'string' && Array.isArray(x.items) ? { ...x, items: x.items.filter(i => i && typeof i.code === 'string' && typeof i.date === 'string') } : null
 }
 /** 信号台账按年分文件：本周与上一周可能跨年，合并两个年份的快照 */
 export function mergeLedgers(...ledgers: (LedgerLike | null | undefined)[]): LedgerLike | null {

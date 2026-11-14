@@ -66,6 +66,12 @@ function healthyFiles(day = '2026-11-13') {
     'public/data/signal-ledger-2026.json': { schemaVersion: 1, snapshots: { '2026-11-06': {}, [day]: {} } },
     'public/data/rating-review.json': { schemaVersion: 1, asOf: day },
     'public/data/market-cycle-backtest.json': { schemaVersion: 1, asOf: day },
+    'public/data/earnings-calendar.json': { schemaVersion: 1, generatedAt: '2026-11-14T12:22:01Z', sources: {
+      yahoo: { ok: true, fetchedAt: '2026-11-14T12:22:02Z', error: null },
+      hkex: { ok: true, fetchedAt: '2026-11-14T12:22:01Z', error: null },
+      cnAppoint: { ok: true, fetchedAt: '2026-11-14T12:22:01Z', error: null },
+      cnConsensus: { ok: null, fetchedAt: null, error: '本次未运行' },
+    }, items: [] },
     'public/data/dcf-prefill.json': { riskFree: { cn: { date: '2026-11-11', label: '中国10年期国债' } }, issues: [], items: [{ m: 'cn', c: '000001', pxDate: day }] },
     '.github/workflows/demo.yml': "name: Demo job\non:\n  schedule:\n    - cron: '40 10 * * 1-5'\n",
     '.github/workflows/data-freshness.yml': "name: Monitor\non:\n  schedule:\n    - cron: '20 23 * * *'\n",
@@ -312,6 +318,27 @@ test('FRED HKD uses its weekly-release lag; a missed Monday release still alarms
   await withRepo(files, async root => {
     const result = await runFreshnessCheck({ root, now: NOW, gh: null })
     assert.equal(result.items.find(i => i.id === 'cycle.fact.all.hkd').status, 'stale')
+  })
+})
+
+test('earnings calendar: each source fetchedAt within 3 days; a failed source keeps its old date and goes stale', async () => {
+  const files = healthyFiles()
+  files['public/data/earnings-calendar.json'].sources.hkex = { ok: false, fetchedAt: '2026-11-10T12:00:00Z', error: 'HTTP 503' }
+  files['public/data/earnings-calendar.json'].sources.cnAppoint = { ok: true, fetchedAt: '2026-11-11T23:10:00Z', error: null }
+  await withRepo(files, async root => {
+    const result = await runFreshnessCheck({ root, now: NOW, gh: noGh })
+    const byId = id => result.items.find(i => i.id === id)
+    assert.deepEqual([byId('earnings.yahoo').status, byId('earnings.yahoo').lag], ['ok', 0])
+    assert.deepEqual([byId('earnings.cnAppoint').status, byId('earnings.cnAppoint').lag], ['ok', 3])
+    assert.deepEqual([byId('earnings.hkex').status, byId('earnings.hkex').lag], ['stale', 4])
+    assert.match(byId('earnings.hkex').detail, /HTTP 503/)
+    assert.ok(result.alarmIds.includes('earnings.hkex'))
+    assert.equal(result.items.some(i => i.id === 'earnings.cnConsensus'), false)
+  })
+  delete files['public/data/earnings-calendar.json']
+  await withRepo(files, async root => {
+    const result = await runFreshnessCheck({ root, now: NOW, gh: noGh })
+    assert.equal(result.items.find(i => i.id === 'earnings.load').status, 'error')
   })
 })
 

@@ -1,6 +1,7 @@
 // 单测：node --test server/functions/cron-dispatch.test.mjs
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { existsSync, readFileSync } from 'node:fs'
 import { createCronDispatch, WORKFLOWS } from './cron-dispatch.js'
 import marketRoute from '../../api/market-data/[marketRoute].js'
 
@@ -145,6 +146,27 @@ test('runs lookup failure falls back to dispatching; GitHub dispatch errors surf
   const down = fakeFetch({ throwOn: '/dispatches' })
   r = res(); await createCronDispatch({ fetchImpl: down.impl, env: ENV, now: () => NOW, log: silent })(req('company-refresh.yml'), r)
   assert.equal(r.code, 502)
+})
+
+test('every vercel.json cron-dispatch path names an allowlisted workflow file that exists; earnings calendar is scheduled daily', () => {
+  const vercel = JSON.parse(readFileSync(new URL('../../vercel.json', import.meta.url), 'utf8'))
+  const dispatched = vercel.crons.map(c => [new URL(c.path, 'https://x').searchParams.get('workflow'), c.schedule, c.path]).filter(([, , path]) => path.startsWith('/api/market-data/cron-dispatch'))
+  for (const [workflow] of dispatched) {
+    assert.ok(Object.hasOwn(WORKFLOWS, workflow), `${workflow} not in WORKFLOWS`)
+    assert.ok(existsSync(new URL(`../../.github/workflows/${workflow}`, import.meta.url)), `${workflow} missing`)
+  }
+  assert.deepEqual(dispatched.filter(([w]) => w === 'earnings-calendar.yml').map(([, s]) => s), ['0 23 * * *'])
+  assert.deepEqual(WORKFLOWS['earnings-calendar.yml'], { skipIfSucceededWithinMinutes: 360 })
+})
+
+test('earnings calendar dispatch skips when a run succeeded within 6 hours', async () => {
+  const recent = fakeFetch({ runs: [run('2026-11-16T19:00:00Z')] })
+  let r = res(); await createCronDispatch({ fetchImpl: recent.impl, env: ENV, now: () => NOW, log: silent })(req('earnings-calendar.yml'), r)
+  assert.equal(r.body.dispatched, false)
+  const old = fakeFetch({ runs: [run('2026-11-15T23:10:00Z')] })
+  r = res(); await createCronDispatch({ fetchImpl: old.impl, env: ENV, now: () => NOW, log: silent })(req('earnings-calendar.yml'), r)
+  assert.equal(r.body.dispatched, true)
+  assert.equal(old.calls.at(-1).url, 'https://api.github.com/repos/TurboSnails/BusinessWeb/actions/workflows/earnings-calendar.yml/dispatches')
 })
 
 test('shared market-data function routes cron-dispatch (unauthenticated request is rejected)', async () => {

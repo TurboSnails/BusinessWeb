@@ -5,6 +5,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import WeeklyChanges from './WeeklyChanges'
 import type { Company } from '../data/companies'
+import { resetEarningsCalendarCache } from '../features/earnings/loadCalendar'
 
 const NOW = new Date('2026-11-18T04:00:00Z') // 北京周三 → 上一完整周 2026-W46
 const shadow = { trendState: '防守', riskGate: '防守复核', valuationZone: '中间区域' }
@@ -23,7 +24,7 @@ const stubFetch = (map: Record<string, unknown>) => vi.stubGlobal('fetch', vi.fn
 const summaryText = (re: RegExp) => screen.getByText((_, el) => el?.tagName === 'SUMMARY' && re.test(el.textContent ?? ''))
 const companies = [{ market: 'cn', code: '600519', name: '贵州茅台' }] as Company[]
 
-afterEach(() => { vi.unstubAllGlobals() })
+afterEach(() => { vi.unstubAllGlobals(); resetEarningsCalendarCache() })
 
 describe('WeeklyChanges', () => {
   it('有变化：标题「本周变化 · N 项」，展开后每条带日期与来源', async () => {
@@ -42,5 +43,17 @@ describe('WeeklyChanges', () => {
     await waitFor(() => expect(summaryText(/本周变化 · 无/)).toBeTruthy())
     expect(screen.getByText('本周没有需要复核的变化')).toBeTruthy()
     expect(screen.getByText('宏观快照未能读取，相关部分未比较。')).toBeTruthy()
+  })
+
+  it('下周财报是背景信息：只有财报时仍是「无」，但列出下周财报', async () => {
+    stubFetch({ ...files({ schemaVersion: 1, snapshots: { '2026-11-07': {}, '2026-11-13': {} } }), 'earnings-calendar.json': {
+      schemaVersion: 1, generatedAt: '2026-11-17T23:30:00Z', today: '2026-11-18', sources: { cnAppoint: { label: '东方财富·定期报告预约披露' } },
+      items: [{ market: 'cn', code: '600519', name: '贵州茅台', date: '2026-11-20', time: 'unknown', confirmed: true, period: null, dateSource: 'cnAppoint', research: null }],
+    } })
+    render(<MemoryRouter><WeeklyChanges items={[{ market: 'cn', code: '600519', addedAt: '2026-10-01T00:00:00Z' }]} companies={companies} observations={new Map()} now={NOW} /></MemoryRouter>)
+    await waitFor(() => expect(summaryText(/本周变化 · 无/)).toBeTruthy())
+    expect(screen.getByText('本周没有需要复核的变化')).toBeTruthy()
+    expect(screen.getByRole('heading', { name: '下周财报 · 1 家' })).toBeTruthy()
+    expect(screen.getByRole('link', { name: '贵州茅台（600519 · A股）：11-20公布（日期已确认；候选池）' })).toBeTruthy()
   })
 })

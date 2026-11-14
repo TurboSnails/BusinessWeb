@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
-  ArrowRight, BookOpen, Building2, Calculator, Calendar, CalendarCheck, ChartLine, ChevronDown, Factory, Globe,
+  ArrowRight, BookOpen, Building2, Calculator, Calendar, CalendarCheck, CalendarClock, ChartLine, ChevronDown, Factory, Globe,
   Gauge, Grid3x3, Landmark, ListChecks, PieChart, Rocket, RotateCw, Sparkles, Thermometer, TrendingUp, type LucideIcon,
 } from 'lucide-react'
 import { INVEST_GROUPS, type HubGroup, type HubLink } from '../data/siteMap'
@@ -25,6 +25,7 @@ const ICONS: Record<string, LucideIcon> = {
   '/invest/etf': PieChart,
   '/invest/bond-fund-report': Landmark,
   '/candidates': ListChecks,
+  '/earnings': CalendarClock,
   '/valuation': Calculator,
   '/invest/comprehensive-valuation': Calculator,
   '/invest/ai-token-economics': TrendingUp,
