@@ -5,12 +5,10 @@ import {
   Compass,
   Layers,
   Grid3x3,
-  Wrench,
   Star,
   Crosshair,
   CheckCircle2,
   AlertTriangle,
-  ArrowRight,
   CalendarClock
 } from 'lucide-react'
 import {
@@ -28,8 +26,6 @@ import {
   tradeWatch,
   tradeEvents,
   hkWatchTargets,
-  devIdeas,
-  batchTool,
   toneOf,
   Tone
 } from '../data/notionNotes'
@@ -51,14 +47,13 @@ import { NDX_CODES, NDX_ASOF } from '../data/ndx100'
 import { Page, PageDataFreshness, Stat, TableWrap } from '../components/ui'
 import '../styles/research.css'
 
-type TabId = 'companies' | 'pool' | 'watch' | 'method' | 'notes' | 'dev'
+type TabId = 'companies' | 'pool' | 'watch' | 'method' | 'notes'
 
 // 顺序按使用频率：先查公司，方法和配套笔记放后面，存档垫底。候选池已独立成 /candidates 页
 const tabs: { id: TabId; label: string; icon: React.ElementType }[] = [
   { id: 'companies', label: '公司库', icon: Grid3x3 },
   { id: 'method', label: '研究方法', icon: Compass },
   { id: 'notes', label: '配置笔记', icon: Layers },
-  { id: 'dev', label: '工具设想', icon: Wrench },
   // 历史买卖价位与“潜力标的”和书的“不荐股”相悖，只留存档，放最后
   { id: 'watch', label: '历史价位（存档）', icon: Crosshair },
 ]
@@ -874,52 +869,6 @@ export default function ResearchNotes(): JSX.Element {
           </div>
         )}
 
-        {/* ── 工具设想 ── */}
-        {activeTab === 'dev' && (
-          <div>
-            <p className="rn-eyebrow">多模型协作 Agent 设想</p>
-            <div className="ui-card rn-card rn-card--lead">
-              {quote(devIdeas.vision)}
-              {devIdeas.architecture.map((a, i) => flowStep(i + 1, (
-                <>
-                  <strong className="rn-strong">{a.step}</strong>
-                  <span className={badge('blue', 'rn-badge-inline')}>{a.mode}</span>
-                  <div>{a.text}</div>
-                </>
-              )))}
-            </div>
-
-            <div className="ui-card rn-card">
-              <h3 className="rn-card-title">设计原则</h3>
-              {devIdeas.principles.map((t, i) => checkRow(t, 'var(--system-green)', i))}
-            </div>
-
-            <div className="ui-card rn-card">
-              <h3 className="rn-card-title">参考项目</h3>
-              <Table heads={['项目', '值得抄的部分']} rows={devIdeas.refs.map(r => [r.name, r.note])} />
-            </div>
-
-            <div className="ui-card rn-card">
-              <h3 className="rn-card-title">学习路径</h3>
-              {devIdeas.learning.map((t, i) => (
-                <div key={i} className="rn-check">
-                  <ArrowRight size={16} color="var(--accent)" aria-hidden="true" />
-                  <span>{t}</span>
-                </div>
-              ))}
-            </div>
-
-            <p className="rn-eyebrow rn-eyebrow--gap">{batchTool.title}</p>
-            <div className="ui-card rn-card">
-              <h3 className="rn-card-title">使用流程</h3>
-              {batchTool.steps.map((t, i) => flowStep(i + 1, t))}
-              <hr className="rn-rule" />
-              <h3 className="rn-card-title">数据质量规则</h3>
-              {batchTool.rules.map((t, i) => checkRow(t, 'var(--system-blue)', i))}
-              <div className="rn-gap"><span className={badge('orange')}>{batchTool.note}</span></div>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* 图片放大 */}
