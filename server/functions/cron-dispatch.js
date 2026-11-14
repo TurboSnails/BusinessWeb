@@ -5,7 +5,7 @@
 // 环境变量（Production）：
 //   CRON_SECRET            Vercel 调用 cron 时自动带 `Authorization: Bearer <CRON_SECRET>`
 //   GITHUB_DISPATCH_TOKEN  细粒度 PAT，仅限本仓库，Actions: Read and write
-import { timingSafeEqual } from 'node:crypto'
+import { requireCron } from './cron-auth.js'
 
 export const REPO = 'TurboSnails/BusinessWeb'
 export const REF = 'main'
@@ -23,12 +23,6 @@ export const WORKFLOWS = Object.freeze({
 
 const ACTIVE = new Set(['queued', 'in_progress', 'waiting', 'requested', 'pending'])
 const GITHUB_TIMEOUT_MS = 10_000
-
-function safeEqual(a, b) {
-  const x = Buffer.from(String(a))
-  const y = Buffer.from(String(b))
-  return x.length === y.length && timingSafeEqual(x, y)
-}
 
 function githubHeaders(token) {
   return {
@@ -59,18 +53,7 @@ const summarize = run => ({ id: run.id, event: run.event, status: run.status, co
 
 export function createCronDispatch({ fetchImpl = globalThis.fetch, env = process.env, now = () => new Date(), log = console } = {}) {
   return async function cronDispatch(req, res) {
-    res.setHeader('Cache-Control', 'no-store')
-    if (req.method !== 'GET') {
-      res.setHeader('Allow', 'GET')
-      return res.status(405).json({ ok: false, error: '只支持 GET（Vercel Cron 以 GET 调用）' })
-    }
-    const secret = env.CRON_SECRET
-    if (!secret) {
-      log.error('[cron-dispatch] CRON_SECRET 未配置：在 Vercel 项目 Production 环境变量中设置后重新部署')
-      return res.status(503).json({ ok: false, error: 'CRON_SECRET 未配置' })
-    }
-    const auth = req.headers?.authorization ?? req.headers?.Authorization ?? ''
-    if (!safeEqual(auth, `Bearer ${secret}`)) return res.status(401).json({ ok: false, error: '未授权' })
+    if (!requireCron(req, res, { env, log, tag: 'cron-dispatch' })) return
 
     const workflow = req.query?.workflow
     const config = typeof workflow === 'string' && Object.hasOwn(WORKFLOWS, workflow) ? WORKFLOWS[workflow] : null

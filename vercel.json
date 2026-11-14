@@ -28,7 +28,8 @@
     { "path": "/api/market-data/cron-dispatch?workflow=etf-technical.yml", "schedule": "0 8 * * 1-5" },
     { "path": "/api/market-data/cron-dispatch?workflow=daily-analysis-snapshot.yml", "schedule": "0 10 * * 1-5" },
     { "path": "/api/market-data/cron-dispatch?workflow=spread-snapshot.yml", "schedule": "0 10 * * 1-5" },
-    { "path": "/api/market-data/cron-dispatch?workflow=company-refresh.yml", "schedule": "0 22 * * 1-5" }
+    { "path": "/api/market-data/cron-dispatch?workflow=company-refresh.yml", "schedule": "0 22 * * 1-5" },
+    { "path": "/api/market-data/candidate-alerts-digest", "schedule": "0 23 * * 1-5" }
   ],
   "rewrites": [
     { "source": "/api/macro", "destination": "/api/market-data/macro" },

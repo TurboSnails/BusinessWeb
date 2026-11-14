@@ -2,17 +2,8 @@
 // 标出方向不一致之处。规则固定、可复核，只帮助发现分歧，不是买卖建议。
 import type { DcfSummary } from '../dcf/filter'
 import { DECISION_ACTIONS, type DecisionAction } from '../candidates/validation'
-
-export type RatingBucket = '优先关注' | '条件关注' | '观察' | '回避' | '未估值'
-
-/** 各来源评级用语不一（逢低增持/买入/首选/核心配置…），统一归到五档；未识别的一律「观察」 */
-export function ratingBucket(rating: string): RatingBucket {
-  if (/^未估值/.test(rating)) return '未估值'
-  if (/^(回避|暂不|暂缓)/.test(rating)) return '回避'
-  if (/^(优先关注|优先跟踪|买入|首选|核心配置|均衡优选|稳健增配)/.test(rating)) return '优先关注'
-  if (/^(条件|HOLD（条件候选）|优先观察|观察优先|重点观察|邮轮组优先|质地优先|增长可持续|质量观察（第|优质但待价|逢低增持)/.test(rating)) return '条件关注'
-  return '观察'
-}
+import { ratingBucket, type RatingBucket } from './ratingBucket'
+export { ratingBucket, type RatingBucket }
 
 /** 偏积极 / 中性 / 偏谨慎；null 表示数据不足，不参与分歧判断 */
 export type Direction = 1 | 0 | -1 | null

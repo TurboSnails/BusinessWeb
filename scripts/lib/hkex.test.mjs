@@ -82,14 +82,12 @@ test('mapEquityQuote maps quote, valuation and HSICS fields and keeps raw', () =
 test('client caches token and refreshes once on 403 (injected fetch, no network)', async () => {
   const calls = []
   let pageHits = 0
-  let quoteHits = 0
   const fetchImpl = async url => {
     calls.push(url)
     if (url.includes('Equities-Quote')) {
       pageHits++
       return { ok: true, status: 200, text: async () => PAGE.replace('abc', pageHits === 1 ? 'old' : 'new') }
     }
-    quoteHits++
     if (url.includes('old')) return { ok: false, status: 403, text: async () => 'Forbidden' }
     const cb = /callback=(\w+)/.exec(url)[1]
     return { ok: true, status: 200, text: async () => `${cb}(${JSON.stringify(QUOTE)})` }

@@ -125,7 +125,7 @@ function hasCyclicalText(e) {
   return !!(e && ((e.w || []).some(x => x.includes(CYCLICAL_W)) || (e.f || []).some(x => x.includes('所属行业有周期属性'))))
 }
 
-function toEntry(key, r, { cutoff, evidence, quotesPath }) {
+function toEntry(key, r, { cutoff: _cutoff, evidence, quotesPath }) {
   const { inputs, raw, peer, q } = r
   const pe = q?.trailingPE != null ? q.trailingPE : null
   const base = {

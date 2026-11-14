@@ -1,7 +1,7 @@
 // 候选池「触及条件价」规则：纯函数，不读 DOM / localStorage，日后服务端定时任务可直接复用。
 // 只按收盘价判断；行情过期、币种不同、盘中价都不比较，并说明原因。这是复核提示，不是买卖信号。
-import { thresholdInRange, validAlertRule, ALERT_ANCHOR_LABEL } from './validation'
-import type { AlertAnchor, AlertAnchorType, AlertCurrency, AlertDirection, CandidateAlertRule } from './validation'
+import { thresholdInRange, validAlertRule, ALERT_ANCHOR_LABEL } from './validation.js'
+import type { AlertAnchor, AlertAnchorType, AlertCurrency, AlertDirection, CandidateAlertRule } from './validation.js'
 
 /** 一条带日期的价格观测（收盘价） */
 export interface PriceObservation {

@@ -173,7 +173,7 @@ test('A 股累计报表拆单季，年报口径毛利率/ROE', () => {
 })
 
 test('东方财富美股单季 → 输入，EPS 口径与 ROE 四季合计', () => {
-  const rows = quarters(12, i => ({})).map((q, i) => ({
+  const rows = quarters(12, _i => ({})).map((q, i) => ({
     REPORT_DATE: `${q.end} 00:00:00`, OPERATE_INCOME: 100 + i, GROSS_PROFIT: 60, PARENT_HOLDER_NETPROFIT: 10, DILUTED_EPS: 1 + i * 0.1,
     ROE_AVG: 5, DEBT_ASSET_RATIO: 50, CURRENT_RATIO: 1.2,
   }))

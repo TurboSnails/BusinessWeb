@@ -29,12 +29,8 @@ export function addDecision(list: CandidateItem[], market: string, code: string,
     return { ...i, decisions: [...decisions, record] }
   })
 }
-export const latestDecision = (item: CandidateItem): DecisionRecord | undefined => item.decisions?.[item.decisions.length - 1]
-/** 最新一条记录的下次检查日已到（含当天） */
-export const isReviewDue = (item: CandidateItem, today: string): boolean => {
-  const latest = latestDecision(item)
-  return !!latest && latest.nextCheck <= today
-}
+// 规则与服务端每日提醒邮件共用，定义在 alertRules.ts
+export { isReviewDue, latestDecision } from './alertRules'
 
 // ── 价位提醒：每家公司最多一条；传 undefined 删除。规则不合规时拒绝（返回原列表） ──
 export function setCandidateAlert(list: CandidateItem[], market: string, code: string, alert: CandidateAlertRule | undefined): CandidateItem[] {

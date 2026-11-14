@@ -112,7 +112,7 @@ PEP最新Q3、官方事件日历、8项ETF费用／规则及纳指QQQ持仓代�
 
 未纳入：`dcf-prefill`（基本面按周、价格不要求当日）、`market-cycle`（增量采集，每日两次，迟到不影响）、`macro-snapshot`（周六一次）、`national-team`（每周）、`data-freshness`（按实际运行时刻推算，迟到不误报）。
 
-**Hobby 计划限制**（[官方](https://vercel.com/docs/cron-jobs/usage-and-pricing)）：每个 cron 每天最多一次（更频繁的表达式会让部署失败）；只保证在指定的**那个小时内**触发（`0 8` 可能是 08:00–08:59 任一时刻），所以上表按「整小时窗口都可接受」选档、分钟一律写 0。Pro 计划精确到分钟。每项目 100 个 cron，本项目用 5 个。Vercel 不重试失败的调用，也可能偶尔重复调用；cron 只在 Production 部署上运行。
+**Hobby 计划限制**（[官方](https://vercel.com/docs/cron-jobs/usage-and-pricing)）：每个 cron 每天最多一次（更频繁的表达式会让部署失败）；只保证在指定的**那个小时内**触发（`0 8` 可能是 08:00–08:59 任一时刻），所以上表按「整小时窗口都可接受」选档、分钟一律写 0。Pro 计划精确到分钟。每项目 100 个 cron，本项目用 6 个（5 个派发工作流 + 候选池提醒邮件）。Vercel 不重试失败的调用，也可能偶尔重复调用；cron 只在 Production 部署上运行。
 
 **重复运行的处理**（GitHub `schedule` 保留为兜底，未删除）：
 
@@ -145,6 +145,31 @@ PEP最新Q3、官方事件日历、8项ETF费用／规则及纳指QQQ持仓代�
    - GitHub → Actions → 对应工作流应出现一条 Event 为 **workflow_dispatch** 的运行（`gh run list --workflow spread-snapshot.yml --limit 3` 的 EVENT 列）。
    - 命令行自测：`curl -s -H "Authorization: Bearer $CRON_SECRET" "https://business-web-black.vercel.app/api/market-data/cron-dispatch?workflow=spread-snapshot.yml"`；不带头应返回 401。
    - 排错：401 = `CRON_SECRET` 不一致或部署早于设置（重新部署）；503 = 变量没配到 Production；502 + `HTTP 401/403/404` = PAT 过期、权限不足或没选中本仓库。
+
+## 候选池每日提醒邮件（2026-11-14 新增）
+
+**做什么**：每个工作日早上给本人发一封汇总邮件，列出候选池里**新出现**的事项：触及条件价（收盘价、行情日期、来源、条件价及其锚点来源）、到期复查、评级变化。措辞是「到了你设的价位，该复核一眼」，页脚「观察提醒，不是买卖指令；行情为收盘价，数据日期见各条」。没有新事项不发；每天最多一封；同一事项（价位提醒按「交易日 + 条件」，复查按检查日，评级按档位变化）只发一次。「进入买入区」「DCF 过期」依赖本机保存的 DCF，服务端看不到，只在站内显示。暂停（`snoozedUntil`）、关闭（`enabled`）、「已看过」（`lastSeenAt`）与站内同一口径。
+
+**入口**：`vercel.json` 的 cron `/api/market-data/candidate-alerts-digest`，`0 23 * * 1-5`（UTC 23:00–23:59 = 北京周二至周六 07:00–07:59，排在 22:00 `company-refresh` 之后）。路由挂在 `api/market-data/[marketRoute].js`（不新增函数），代码 `server/candidate-alerts-digest.ts`；判断规则与站内共用 `src/features/candidates/alertRules.ts`、`priceAlert.ts`。数据：Supabase 候选池快照（与云同步同一张表，只读）＋站点自己的静态文件 `/data/dcf-auto.json`（自动 DCF 收盘价与日期）和 `/data/company-refs.json`（构建时由 `scripts/build-company-index.mjs` 生成：公司名称、研究评级、公司页价格锚点）。去重记录在 Supabase 表 `businessweb_candidate_alert_log`。
+
+**环境变量（Vercel Production）**：`CRON_SECRET`（与派发共用）、`SUPABASE_URL`、`SUPABASE_SECRET_KEY`（与候选池云同步共用）、`GMAIL_USER`、`GMAIL_APP_PASSWORD`（Google 账号 → 安全性 → 两步验证 → 应用专用密码）、`ALERT_EMAIL_TO`。缺任一邮件变量时返回 503 并在 Vercel 日志打印缺哪个变量名；邮箱地址和密码不写进日志、响应或仓库。
+
+**一次性设置**：
+
+1. Supabase SQL Editor 执行 `supabase/migrations/202611140001_candidate_alert_log.sql`（幂等）。没执行时函数退回「当日保护」：只发最新收盘日触发的价位提醒和刚到期的复查、不发评级变化，日志提示执行迁移。
+2. 补齐上面的环境变量，重新部署 Production。
+
+**试运行**（不发信、不写去重表，同样需要 `CRON_SECRET`）：
+
+```bash
+curl -s -H "Authorization: Bearer $CRON_SECRET" "https://business-web-black.vercel.app/api/market-data/candidate-alerts-digest?dryRun=1"
+```
+
+返回 `items`（每条的类别、文案、数据日期、去重键、是否新）、`subject`、`text`（邮件正文）、`sentLog`（`ok` / `missing` = 表未建 / `error`）、`mailConfigured`、`wouldSend`、`warnings`（行情文件读不到等）。去掉 `?dryRun=1` 即真实发送；同一天重复调用会返回 `skipped: "nothing-new"` 或 `"already-sent-today"`。Vercel → Schedules → Cron Jobs 里对这条点 Run 也可以。
+
+**排错**：401 = `CRON_SECRET` 不一致；503 = 环境变量没配到 Production 或部署早于设置；502 + `Gmail 登录失败` = 应用专用密码错误或两步验证未开；502 + `读取候选池失败` = Supabase 配置或候选池迁移问题；`sentLog: "error"` 时为避免重复，本次不发。
+
+**关闭**：删掉 `vercel.json` 里这条 cron 并部署；或临时删除 Production 的 `GMAIL_APP_PASSWORD`（函数返回 503，不发信）。重新开启按相反步骤。单测：`npx vitest run src/features/candidates/digest.test.ts`。
 
 ## 一次更新如何验收与留痕
 

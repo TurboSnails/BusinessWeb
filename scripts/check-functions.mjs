@@ -13,7 +13,7 @@ try {
   await mkdir(join(directory, 'server/knowledge'), { recursive: true })
   for (const file of ['api/china-stock.js', 'api/grid-market.js', 'server/market.mjs', 'api/cls-plate.js', 'server/sectorHistory.js', 'server/knowledge/links.mjs']) await copyFile(resolve(file), join(directory, file))
   await mkdir(join(directory, 'server/functions'), { recursive: true })
-  for (const file of ['server/functions/daily-analysis.js', ...(await readdir('server')).filter(name => /\.(mjs|js)$/.test(name) && !name.includes('.test.')).map(name => `server/${name}`)]) await copyFile(resolve(file), join(directory, file))
+  for (const file of ['server/functions/daily-analysis.js', 'server/functions/candidate-alerts-digest.js', 'server/functions/cron-auth.js', ...(await readdir('server')).filter(name => /\.(mjs|js)$/.test(name) && !name.includes('.test.')).map(name => `server/${name}`)]) await copyFile(resolve(file), join(directory, file))
   await writeFile(join(directory, 'check.mjs'), `
 import assert from 'node:assert/strict';
 import sync from './api/grid-sync.js';
@@ -27,14 +27,17 @@ import cls from './api/cls-plate.js';
 import comments from './api/comments.js';
 import ask from './api/ask.js';
 import dailyAnalysis from './server/functions/daily-analysis.js';
+import candidateAlertsDigest from './server/functions/candidate-alerts-digest.js';
 const res = () => ({code:200, body:null, setHeader(){}, status(code){this.code=code;return this}, json(body){this.body=body;return this}});
 for (const [handler, request, code] of [[companyNotes,{method:'GET',headers:{},query:{action:'list',market:'cn',code:'600900'}},503],[companyNotes,{method:'POST',headers:{},query:{action:'unlock'}},503],[knowledge,{method:'GET',headers:{},query:{action:'status'}},503],[sync,{method:'GET',headers:{}},503],[pulse,{method:'GET',headers:{}},503],[pulse,{method:'POST',headers:{}},405],[candidates,{method:'GET',headers:{}},503],[candidates,{method:'POST',headers:{}},405],[market,{method:'GET',query:{}},400],[china,{method:'GET',query:{}},400],[cls,{method:'GET',query:{}},400],[comments,{method:'GET',headers:{},query:{}},503],[comments,{method:'PUT',headers:{}},405],[ask,{method:'PUT',headers:{}},405],[ask,{method:'GET',headers:{}},503],[ask,{method:'POST',headers:{}},503]]) {
  const response=res(); await handler(request,response); assert.equal(response.code,code);
 }
 console.log('Native Node function loading and unconfigured/invalid requests: passed');
 const dailyResponse=res(); await dailyAnalysis({method:'POST'},dailyResponse); assert.equal(dailyResponse.code,405);
+for (const [request, code] of [[{method:'POST',headers:{}},405],[{method:'GET',headers:{}},503]]) { const response=res(); await candidateAlertsDigest(request,response); assert.equal(response.code,code); }
+console.log('Candidate alerts digest (TS from src, native ESM) loads and rejects unconfigured requests: passed');
 `)
-  const env = { ...process.env, SUPABASE_URL: '', SUPABASE_SECRET_KEY: '', GRID_SYNC_TOKEN: '', PULSE_SYNC_TOKEN: '', COMPANY_NOTES_WRITE_TOKEN: '' }
+  const env = { ...process.env, CRON_SECRET: '', SUPABASE_URL: '', SUPABASE_SECRET_KEY: '', GRID_SYNC_TOKEN: '', PULSE_SYNC_TOKEN: '', COMPANY_NOTES_WRITE_TOKEN: '' }
   const run = spawnSync(process.execPath, ['--no-experimental-detect-module', join(directory, 'check.mjs')], { env, encoding: 'utf8' })
   assert.equal(run.status, 0, run.stdout + run.stderr)
   process.stdout.write(run.stdout)

@@ -229,7 +229,7 @@ export function normalizeSec(raw) {
   const qRev = quarterly(rev), qGp = quarterly(gp), qCogs = quarterly(cogs), qNi = quarterly(ni), qEps = quarterly(eps)
   const ends = [...new Set([...qRev.keys(), ...qNi.keys()])].sort()
   const eqEnds = [...equity.keys()].sort()
-  const quarters = ends.map((end, i) => {
+  const quarters = ends.map((end, _i) => {
     const revenue = qRev.get(end) ?? null
     const grossProfit = qGp.get(end) ?? (revenue != null && qCogs.get(end) != null ? revenue - qCogs.get(end) : null)
     const netIncome = qNi.get(end) ?? null
