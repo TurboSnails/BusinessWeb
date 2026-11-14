@@ -278,3 +278,13 @@ PY
 > 按 `docs/data-maintenance.md` 和 `docs/data-maintenance.csv` 做本轮数据新鲜度盘点。以当天 Asia/Yerevan 日期和各市场实际交易日为基准，逐字段检查数据日期，不用生成日替代。先输出超期、待刷新、缺失、等待披露及历史归档清单，保存新的日期报告和公司价格明细；若本轮同时授权更新，再按台账入口取新输入、更新派生结果并验收。旧原件、回测和书籍案例保留。无法访问的私有／远端数据单列，不能声称已经全部检查。
 
 > 2026-10-23 轮次的延续项：一是 `gh` 登录后核查 `company-refresh.yml` 自 10-21 起的运行日志，确认行情步骤停滞的根因（采集失败或验证失败），必要时补 `SSL_CERT_FILE` 后重跑；二是核对 `public/data/company-valuations/*.json` 的内置价格与 `comparison` 是否已随行情重算（台账 VALUATION-01）；三是国家队 ETF 持有人报告期源恢复后补采。
+
+## 深交所数据本机刷新（2026-11-14）
+
+深交所（szse.cn）拒绝境外机房 IP，GitHub Actions 取不到两市融资占比（cn-funding）与 A 股 52 周成交额基准（cn-turnover）的深市部分；本机家用网络可以。另：腾讯日 K 在本机偶发 WAF 501，交易日历已加雅虎日线兜底（仍做沪深双日历交叉核验）。
+
+- 采集：`node scripts/market-cycle-local-szse.mjs`（只跑上述两个源，合并进 `market-cycle-auto.json` 并重算周报）
+- 定时：`scripts/szse-local-refresh.sh` 复制为 `~/.businessweb-szse/run.sh`，由 launchd `~/Library/LaunchAgents/com.businessweb.szse-refresh.plist` 在工作日本地 14:30（UTC+4，即北京 18:30）运行；独立仓库副本 `~/.businessweb-szse/repo`，只提交牛熊周期两个数据文件；日志 `~/Library/Logs/businessweb-szse.log`。电脑睡眠错过时唤醒后补跑；北京时间周末自动跳过（`SZSE_FORCE=1` 可强制）。
+- 手动触发：`launchctl kickstart gui/$(id -u)/com.businessweb.szse-refresh`
+- 卸载：`launchctl bootout gui/$(id -u)/com.businessweb.szse-refresh && rm ~/Library/LaunchAgents/com.businessweb.szse-refresh.plist && rm -rf ~/.businessweb-szse`
+- 两融数据 T+1 早上公布，周五数据下周一才有；成交额基准只认已完整结束的一周（周日之后）。

@@ -8,6 +8,20 @@ export const CN_CALENDAR_URLS = {
   sh000300: 'https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh000300,day,,,400,qfq',
   sz399001: 'https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sz399001,day,,,400,qfq',
 }
+// 腾讯日 K 在部分网络（如本机境外家用 IP）返回 WAF 501；此时用雅虎同一指数的日线取交易日历，仍做沪深双日历交叉核验
+export const CN_CALENDAR_FALLBACK_URLS = {
+  sh000300: 'https://query1.finance.yahoo.com/v8/finance/chart/000300.SS?range=2y&interval=1d',
+  sz399001: 'https://query1.finance.yahoo.com/v8/finance/chart/399001.SZ?range=2y&interval=1d',
+}
+/** 雅虎日线 → 交易日（按北京时间取日期；只收有收盘价的工作日，升序去重） */
+export function parseYahooCnCalendar(body,symbol,today) {
+  const r=body?.chart?.result?.[0], ts=r?.timestamp, close=r?.indicators?.quote?.[0]?.close
+  const want={sh000300:'000300.SS',sz399001:'399001.SZ'}[symbol]
+  if(!want||r?.meta?.symbol!==want||!Array.isArray(ts)||!Array.isArray(close)||!ts.length)throw new Error('雅虎沪深参考指数身份/日历无效')
+  const dates=[...new Set(ts.map((t,i)=>close[i]==null?null:new Date(t*1000+8*3600e3).toISOString().slice(0,10)).filter(Boolean))].sort()
+  if(dates.some(d=>![1,2,3,4,5].includes(new Date(d).getUTCDay())))throw new Error('雅虎交易日历含周末')
+  return dates.filter(d=>d<=today)
+}
 export const CN_TURNOVER_CACHE = fileURLToPath(new URL('../.cache/market-cycle-cn-turnover', import.meta.url))
 const dateOK = d => typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d) && Number.isFinite(Date.parse(d)) && new Date(d).toISOString().slice(0,10) === d
 const add = (d,n) => new Date(Date.parse(d)+n*864e5).toISOString().slice(0,10)
@@ -52,7 +66,12 @@ export async function collectCnTurnover(ctx,opts={}) {
   const today=ctx.now.slice(0,10);let requests=0
   try {
     const calendars=[]
-    for(const [symbol,url] of Object.entries(CN_CALENDAR_URLS)){requests++;calendars.push(parseCnTradingCalendar(await ctx.get(url),symbol,today))}
+    const calendarSources=[]
+    for(const [symbol,url] of Object.entries(CN_CALENDAR_URLS)){
+      requests++
+      try{calendars.push(parseCnTradingCalendar(await ctx.get(url),symbol,today));calendarSources.push(url)}
+      catch(e){requests++;calendars.push(parseYahooCnCalendar(await ctx.get(CN_CALENDAR_FALLBACK_URLS[symbol]),symbol,today));calendarSources.push(CN_CALENDAR_FALLBACK_URLS[symbol]);ctx.issue?.(`cn-turnover: ${symbol} 腾讯日历不可用（${e instanceof Error?e.message:e}），改用雅虎日线核验交易日`)}
+    }
     const w=cnTurnoverWindow(today),calendar=calendars[0]
     const inWindow=ds=>ds.filter(d=>d>=w.baselineStart&&d<=w.weekEnd)
     if(JSON.stringify(inWindow(calendar))!==JSON.stringify(inWindow(calendars[1])))throw new Error('沪深参考交易日历不一致')
@@ -79,6 +98,6 @@ export async function collectCnTurnover(ctx,opts={}) {
     const breaker=['sse','szse'].filter(blocked).map(ex=>`${ex}连续${net[ex].fail}次网络失败已熔断（深交所拒绝境外数据中心IP，需在境内/住宅网络运行）`).join('；')
     if(missing.length)throw new Error(`53周${dates.length}个真实交易日，两所均具备${rows.length}日，缺${missing.length}日（${missing.slice(0,5).join(',')}）；本轮请求${requests}/${maxRequests}，${breaker?`${breaker}；`:''}${failures.slice(0,3).join('；')||'预算/时限耗尽'}`)
     const r=computeCnWeeklyTurnoverRatio(rows,calendar,today),sources=cnTurnoverUrls(r.observationDate)
-    return [{metricId:'turnover_ratio_52w',market:'csi300',value:Number(r.value.toFixed(6)),observationDate:r.observationDate,source:sources.sse,unit:'倍',kind:'observed',frequency:'weekly',description:`沪深A股与全部上市基金成交额（亿元人民币，与融资比例同分母，非沪深300成分成交额）；完整周${r.weekStart}~${r.weekEnd}，${r.days}个真实交易日，日均${r.weekDailyAverage.toFixed(2)}亿元；此前52个日历周${r.baselineStart}~${r.baselineEnd}，${r.baselineDays}个真实交易日，日均${r.baselineDailyAverage.toFixed(2)}亿元；按真实交易日均值相除，整周休市不补零；沪市主板A+科创板+基金，深市主板A+创业板A+基金；逐日官方历史查询（各日替换日期参数）：${sources.sse}；${sources.szse}；沪深交易日历交叉核验：${Object.values(CN_CALENDAR_URLS).join('；')}`}]
+    return [{metricId:'turnover_ratio_52w',market:'csi300',value:Number(r.value.toFixed(6)),observationDate:r.observationDate,source:sources.sse,unit:'倍',kind:'observed',frequency:'weekly',description:`沪深A股与全部上市基金成交额（亿元人民币，与融资比例同分母，非沪深300成分成交额）；完整周${r.weekStart}~${r.weekEnd}，${r.days}个真实交易日，日均${r.weekDailyAverage.toFixed(2)}亿元；此前52个日历周${r.baselineStart}~${r.baselineEnd}，${r.baselineDays}个真实交易日，日均${r.baselineDailyAverage.toFixed(2)}亿元；按真实交易日均值相除，整周休市不补零；沪市主板A+科创板+基金，深市主板A+创业板A+基金；逐日官方历史查询（各日替换日期参数）：${sources.sse}；${sources.szse}；沪深交易日历交叉核验：${calendarSources.join('；')}`}]
   }catch(e){ctx.issue(`cn-turnover: ${e instanceof Error?e.message:String(e)}`);return []}
 }

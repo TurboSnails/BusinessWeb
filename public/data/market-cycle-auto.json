@@ -1,6 +1,6 @@
 {
  "schemaVersion": 1,
- "generatedAt": "2026-11-14T10:48:37.929Z",
+ "generatedAt": "2026-11-14T10:50:20.009Z",
  "facts": [
   {
    "market": "csi300",
@@ -42,7 +42,7 @@
    "description": "沪深全市场融资买入额1287.48亿元人民币（股票/基金，含ETF）÷同日沪深A股与全部上市基金成交额23005.65亿元人民币×100；沪市主板A 5152.27+科创板2579.07+基金4533.83，深市主板A 4414.50+创业板A 4442.20+基金1883.78；不含B股、直接债券、优先股、回购、期权，债券ETF仍归基金；分母含非融资标的的A股与基金，非融资标的内部杠杆占比，也非沪深300成分股专属。融资来源：https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPTA_RZRQ_LSHJ&columns=DIM_DATE%2CRZMRE&pageSize=5&sortColumns=DIM_DATE&sortTypes=-1；沪市分类：https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-11-06；深市分类：https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=1803_sczm&TABKEY=tab1&txtQueryDate=2026-11-06",
    "availableAt": null,
    "firstSeenAt": "2026-11-14T07:56:50.038Z",
-   "fetchedAt": "2026-11-14T10:48:37.929Z"
+   "fetchedAt": "2026-11-14T10:50:20.009Z"
   },
   {
    "market": "csi300",
@@ -56,7 +56,7 @@
    "description": "沪深全市场融资买入额1208.57亿元人民币（股票/基金，含ETF）÷同日沪深A股与全部上市基金成交额20222.52亿元人民币×100；沪市主板A 4624.29+科创板2207.42+基金3911.66，深市主板A 3955.28+创业板A 4053.48+基金1470.39；不含B股、直接债券、优先股、回购、期权，债券ETF仍归基金；分母含非融资标的的A股与基金，非融资标的内部杠杆占比，也非沪深300成分股专属。融资来源：https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPTA_RZRQ_LSHJ&columns=DIM_DATE%2CRZMRE&pageSize=5&sortColumns=DIM_DATE&sortTypes=-1；沪市分类：https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-11-09；深市分类：https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=1803_sczm&TABKEY=tab1&txtQueryDate=2026-11-09",
    "availableAt": null,
    "firstSeenAt": "2026-11-14T07:56:50.038Z",
-   "fetchedAt": "2026-11-14T10:48:37.929Z"
+   "fetchedAt": "2026-11-14T10:50:20.009Z"
   },
   {
    "market": "csi300",
@@ -70,7 +70,7 @@
    "description": "沪深全市场融资买入额1318.59亿元人民币（股票/基金，含ETF）÷同日沪深A股与全部上市基金成交额20106.66亿元人民币×100；沪市主板A 4518.49+科创板2226.35+基金3782.31，深市主板A 4128.74+创业板A 4190.34+基金1260.43；不含B股、直接债券、优先股、回购、期权，债券ETF仍归基金；分母含非融资标的的A股与基金，非融资标的内部杠杆占比，也非沪深300成分股专属。融资来源：https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPTA_RZRQ_LSHJ&columns=DIM_DATE%2CRZMRE&pageSize=5&sortColumns=DIM_DATE&sortTypes=-1；沪市分类：https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-11-10；深市分类：https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=1803_sczm&TABKEY=tab1&txtQueryDate=2026-11-10",
    "availableAt": null,
    "firstSeenAt": "2026-11-14T07:56:50.038Z",
-   "fetchedAt": "2026-11-14T10:48:37.929Z"
+   "fetchedAt": "2026-11-14T10:50:20.009Z"
   },
   {
    "market": "csi300",
@@ -84,7 +84,7 @@
    "description": "沪深全市场融资买入额1513.23亿元人民币（股票/基金，含ETF）÷同日沪深A股与全部上市基金成交额21752.82亿元人民币×100；沪市主板A 4913.96+科创板2460.78+基金3612.53，深市主板A 4605.10+创业板A 4811.41+基金1349.04；不含B股、直接债券、优先股、回购、期权，债券ETF仍归基金；分母含非融资标的的A股与基金，非融资标的内部杠杆占比，也非沪深300成分股专属。融资来源：https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPTA_RZRQ_LSHJ&columns=DIM_DATE%2CRZMRE&pageSize=5&sortColumns=DIM_DATE&sortTypes=-1；沪市分类：https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-11-11；深市分类：https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=1803_sczm&TABKEY=tab1&txtQueryDate=2026-11-11",
    "availableAt": null,
    "firstSeenAt": "2026-11-14T07:56:50.038Z",
-   "fetchedAt": "2026-11-14T10:48:37.929Z"
+   "fetchedAt": "2026-11-14T10:50:20.009Z"
   },
   {
    "market": "csi300",
@@ -98,7 +98,7 @@
    "description": "沪深全市场融资买入额1733.79亿元人民币（股票/基金，含ETF）÷同日沪深A股与全部上市基金成交额23828.36亿元人民币×100；沪市主板A 5580.54+科创板3222.44+基金3269.56，深市主板A 5255.41+创业板A 5278.42+基金1221.99；不含B股、直接债券、优先股、回购、期权，债券ETF仍归基金；分母含非融资标的的A股与基金，非融资标的内部杠杆占比，也非沪深300成分股专属。融资来源：https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPTA_RZRQ_LSHJ&columns=DIM_DATE%2CRZMRE&pageSize=5&sortColumns=DIM_DATE&sortTypes=-1；沪市分类：https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-11-12；深市分类：https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=1803_sczm&TABKEY=tab1&txtQueryDate=2026-11-12",
    "availableAt": null,
    "firstSeenAt": "2026-11-14T07:56:50.038Z",
-   "fetchedAt": "2026-11-14T10:48:37.929Z"
+   "fetchedAt": "2026-11-14T10:50:20.009Z"
   },
   {
    "market": "csi300",
@@ -2968,7 +2968,7 @@
    "description": "沪深全市场融资买入额1287.48亿元人民币（股票/基金，含ETF）÷同日沪深A股与全部上市基金成交额23005.65亿元人民币×100；沪市主板A 5152.27+科创板2579.07+基金4533.83，深市主板A 4414.50+创业板A 4442.20+基金1883.78；不含B股、直接债券、优先股、回购、期权，债券ETF仍归基金；分母含非融资标的的A股与基金，非融资标的内部杠杆占比，也非沪深300成分股专属。融资来源：https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPTA_RZRQ_LSHJ&columns=DIM_DATE%2CRZMRE&pageSize=5&sortColumns=DIM_DATE&sortTypes=-1；沪市分类：https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-11-06；深市分类：https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=1803_sczm&TABKEY=tab1&txtQueryDate=2026-11-06",
    "availableAt": null,
    "firstSeenAt": "2026-11-14T07:56:50.038Z",
-   "fetchedAt": "2026-11-14T10:48:37.929Z"
+   "fetchedAt": "2026-11-14T10:50:20.009Z"
   },
   {
    "market": "csi300",
@@ -2982,7 +2982,7 @@
    "description": "沪深全市场融资买入额1208.57亿元人民币（股票/基金，含ETF）÷同日沪深A股与全部上市基金成交额20222.52亿元人民币×100；沪市主板A 4624.29+科创板2207.42+基金3911.66，深市主板A 3955.28+创业板A 4053.48+基金1470.39；不含B股、直接债券、优先股、回购、期权，债券ETF仍归基金；分母含非融资标的的A股与基金，非融资标的内部杠杆占比，也非沪深300成分股专属。融资来源：https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPTA_RZRQ_LSHJ&columns=DIM_DATE%2CRZMRE&pageSize=5&sortColumns=DIM_DATE&sortTypes=-1；沪市分类：https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-11-09；深市分类：https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=1803_sczm&TABKEY=tab1&txtQueryDate=2026-11-09",
    "availableAt": null,
    "firstSeenAt": "2026-11-14T07:56:50.038Z",
-   "fetchedAt": "2026-11-14T10:48:37.929Z"
+   "fetchedAt": "2026-11-14T10:50:20.009Z"
   },
   {
    "market": "csi300",
@@ -2996,7 +2996,7 @@
    "description": "沪深全市场融资买入额1318.59亿元人民币（股票/基金，含ETF）÷同日沪深A股与全部上市基金成交额20106.66亿元人民币×100；沪市主板A 4518.49+科创板2226.35+基金3782.31，深市主板A 4128.74+创业板A 4190.34+基金1260.43；不含B股、直接债券、优先股、回购、期权，债券ETF仍归基金；分母含非融资标的的A股与基金，非融资标的内部杠杆占比，也非沪深300成分股专属。融资来源：https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPTA_RZRQ_LSHJ&columns=DIM_DATE%2CRZMRE&pageSize=5&sortColumns=DIM_DATE&sortTypes=-1；沪市分类：https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-11-10；深市分类：https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=1803_sczm&TABKEY=tab1&txtQueryDate=2026-11-10",
    "availableAt": null,
    "firstSeenAt": "2026-11-14T07:56:50.038Z",
-   "fetchedAt": "2026-11-14T10:48:37.929Z"
+   "fetchedAt": "2026-11-14T10:50:20.009Z"
   },
   {
    "market": "csi300",
@@ -3010,7 +3010,7 @@
    "description": "沪深全市场融资买入额1513.23亿元人民币（股票/基金，含ETF）÷同日沪深A股与全部上市基金成交额21752.82亿元人民币×100；沪市主板A 4913.96+科创板2460.78+基金3612.53，深市主板A 4605.10+创业板A 4811.41+基金1349.04；不含B股、直接债券、优先股、回购、期权，债券ETF仍归基金；分母含非融资标的的A股与基金，非融资标的内部杠杆占比，也非沪深300成分股专属。融资来源：https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPTA_RZRQ_LSHJ&columns=DIM_DATE%2CRZMRE&pageSize=5&sortColumns=DIM_DATE&sortTypes=-1；沪市分类：https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-11-11；深市分类：https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=1803_sczm&TABKEY=tab1&txtQueryDate=2026-11-11",
    "availableAt": null,
    "firstSeenAt": "2026-11-14T07:56:50.038Z",
-   "fetchedAt": "2026-11-14T10:48:37.929Z"
+   "fetchedAt": "2026-11-14T10:50:20.009Z"
   },
   {
    "market": "csi300",
@@ -3024,7 +3024,7 @@
    "description": "沪深全市场融资买入额1733.79亿元人民币（股票/基金，含ETF）÷同日沪深A股与全部上市基金成交额23828.36亿元人民币×100；沪市主板A 5580.54+科创板3222.44+基金3269.56，深市主板A 5255.41+创业板A 5278.42+基金1221.99；不含B股、直接债券、优先股、回购、期权，债券ETF仍归基金；分母含非融资标的的A股与基金，非融资标的内部杠杆占比，也非沪深300成分股专属。融资来源：https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPTA_RZRQ_LSHJ&columns=DIM_DATE%2CRZMRE&pageSize=5&sortColumns=DIM_DATE&sortTypes=-1；沪市分类：https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-11-12；深市分类：https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=1803_sczm&TABKEY=tab1&txtQueryDate=2026-11-12",
    "availableAt": null,
    "firstSeenAt": "2026-11-14T07:56:50.038Z",
-   "fetchedAt": "2026-11-14T10:48:37.929Z"
+   "fetchedAt": "2026-11-14T10:50:20.009Z"
   },
   {
    "metricId": "financing_buy",
@@ -4662,7 +4662,7 @@
    "description": "沪深A股与全部上市基金成交额（亿元人民币，与融资比例同分母，非沪深300成分成交额）；完整周2026-11-02~2026-11-08，5个真实交易日，日均24980.32亿元；此前52个日历周2025-11-03~2026-11-01，241个真实交易日，日均28714.46亿元；按真实交易日均值相除，整周休市不补零；沪市主板A+科创板+基金，深市主板A+创业板A+基金；逐日官方历史查询（各日替换日期参数）：https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-11-06；https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=1803_sczm&TABKEY=tab1&txtQueryDate=2026-11-06；沪深交易日历交叉核验：https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh000300,day,,,400,qfq；https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sz399001,day,,,400,qfq",
    "availableAt": null,
    "firstSeenAt": "2026-11-14T07:56:50.038Z",
-   "fetchedAt": "2026-11-14T07:56:50.038Z"
+   "fetchedAt": "2026-11-14T10:50:20.009Z"
   },
   {
    "metricId": "turnover_ratio_52w",
@@ -4807,8 +4807,6 @@
  ],
  "issues": [
   "hsi-pe-history: 恒指历史PE最新观测2026-10-30超过14天（亿牛网恒指序列自2026-10-30起停更，无同口径替代源）",
-  "hsi-pe-history: 无有效事实，保留旧值及原日期(最新观测2026-10-30)",
-  "cn-turnover: HTTP 501",
-  "cn-turnover: 无有效事实，保留旧值及原日期(最新观测2026-11-06)"
+  "hsi-pe-history: 无有效事实，保留旧值及原日期(最新观测2026-10-30)"
  ]
 }

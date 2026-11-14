@@ -58,3 +58,11 @@ test('a blocked exchange trips the circuit breaker instead of spending the whole
  assert.ok(szse>=4&&szse<=5,`szse calls=${szse}`)
  assert.match(f.issues[0],/szse连续4次网络失败已熔断/)
 })
+
+test('腾讯日历不可用时的雅虎兜底：身份校验、北京时间取日、去掉无收盘价与未来日', async () => {
+  const { parseYahooCnCalendar } = await import('./market-cycle-cn-turnover.mjs')
+  const t = d => Date.parse(`${d}T01:30:00Z`) / 1000 // 北京时间 09:30 开盘
+  const body = { chart: { result: [{ meta: { symbol: '000300.SS' }, timestamp: [t('2026-11-11'), t('2026-11-12'), t('2026-11-13'), t('2026-11-16')], indicators: { quote: [{ close: [1, null, 3, 4] }] } }] } }
+  assert.deepEqual(parseYahooCnCalendar(body, 'sh000300', '2026-11-14'), ['2026-11-11', '2026-11-13'])
+  assert.throws(() => parseYahooCnCalendar(body, 'sz399001', '2026-11-14'), /身份/)
+})
