@@ -11,8 +11,9 @@ export type Answers = Partial<Record<Qid, Answer>>
 
 export type Route = 'foundation' | 'simple' | 'combined' | 'research'
 
-export const RULES_VERSION = 1 as const
-export const QUESTIONNAIRE_VERSION = 1 as const
+// v2（2026-11-14）：Q3 改为「不到 3 年 / 3 年到不足 5 年 / 5 年及以上」（家庭财务底座 底座.5、9.10）；Q5 增加「没经历过，不确定」
+export const RULES_VERSION = 2 as const
+export const QUESTIONNAIRE_VERSION = 2 as const
 export const SCHEMA_VERSION = 1 as const
 
 /** 研究路线本人额度的硬上限：2000bps = 20%（书 9.1/9.4/33.1 作者案例上限） */

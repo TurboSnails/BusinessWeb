@@ -4,10 +4,10 @@
 // 判断顺序：
 //   R0 红线（独立，不参与路线）
 //   不完整 → incomplete（不给任何入市比例）
-//   R1 先打底：Q1≠c OR Q2=a OR Q3=a（资金规模不能覆盖期限）
+//   R1 先打底：Q1≠c OR Q2=a OR Q3=a（3 年内要用，底座.5：不放权益；资金规模不能覆盖期限）
 //   R2 Q4=a → 省心，额度 0
-//   R3 Q4=b / Q6∈{a,b} / Q7=a / Q5=a / Q8=a → 省心，额度 0
-//   eligible：Q4∈{c,d} 且 Q6∈{c,d} 且 Q7∈{b,c} 且 Q5∈{b,c} 且 Q8∈{b,c,d}
+//   R3 Q3=b（3—5 年，9.10 最保守档的适用情形）/ Q4=b / Q6∈{a,b} / Q7=a / Q5∈{a,d} / Q8=a → 省心，额度 0
+//   eligible：Q3=c 且 Q4∈{c,d} 且 Q6∈{c,d} 且 Q7∈{b,c} 且 Q5∈{b,c} 且 Q8∈{b,c,d}
 //     R5（先判）Q6=d 且 Q7=c 且 Q8=c → 研究，建议起点 500bps
 //     R4 其余 → 结合，建议起点 500bps
 //   任何意外输入 fail closed 为 incomplete，绝不默认为研究
@@ -35,14 +35,17 @@ export const R2_RULES: Rule[] = [
 ]
 
 export const R3_RULES: Rule[] = [
+  { id: 'R3-horizon', when: a => a.q3 === 'b', reasonId: 'horizon-mid' },
   { id: 'R3-amount', when: a => a.q4 === 'b', reasonId: 'amount-mid' },
   { id: 'R3-time', when: a => a.q6 === 'a' || a.q6 === 'b', reasonId: 'time-short' },
   { id: 'R3-ability', when: a => a.q7 === 'a', reasonId: 'ability-none' },
   { id: 'R3-sell', when: a => a.q5 === 'a', reasonId: 'behavior-sell' },
+  { id: 'R3-unknown', when: a => a.q5 === 'd', reasonId: 'behavior-unknown' },
   { id: 'R3-chase', when: a => a.q8 === 'a', reasonId: 'behavior-chase' },
 ]
 
 export const isEligible = (a: Full): boolean =>
+  a.q3 === 'c' &&
   (a.q4 === 'c' || a.q4 === 'd') &&
   (a.q6 === 'c' || a.q6 === 'd') &&
   (a.q7 === 'b' || a.q7 === 'c') &&

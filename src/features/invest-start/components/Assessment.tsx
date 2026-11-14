@@ -3,6 +3,13 @@ import { QUESTIONS } from '../content'
 import { answeredCount } from '../recommend'
 import type { Answer, Answers, Qid } from '../types'
 import { ChapterLinks } from './ChapterLinks'
+import { localToday } from '../checks'
+
+/** 完成时间按浏览器本地日期显示（不截 UTC 字符串，避免东八区凌晨显示成前一天） */
+const localDayOf = (iso: string): string => {
+  const d = new Date(iso)
+  return Number.isNaN(d.getTime()) ? '' : localToday(d)
+}
 
 /**
  * 自测：单一 fieldset 流程，一次一题，可前后退；手机与桌面同一套 DOM（不做两套可编辑 radio）。
@@ -45,7 +52,7 @@ export function Assessment({ answers, index, onIndex, onAnswer, onFinish, onRest
       <div className="is-assess-summary">
         <p>
           {complete ? `已完成全部 ${total} 题` : `已答 ${done} / ${total} 题`}
-          {complete && assessedAt ? `（${assessedAt.slice(0, 10)}）` : ''}。答案只存在这台设备上。
+          {complete && assessedAt ? `（${localDayOf(assessedAt)}）` : ''}。答案只存在这台设备上。
         </p>
         <div className="is-actions">
           <button type="button" className="tool-btn is-btn" onClick={() => go(complete ? 0 : Math.max(0, QUESTIONS.findIndex(q => !answers[q.id])))}>
@@ -88,6 +95,7 @@ export function Assessment({ answers, index, onIndex, onAnswer, onFinish, onRest
           <button type="button" className="tool-btn tool-btn--primary is-btn" disabled={!value} onClick={() => go(index + 1)}>下一题</button>
         )}
       </div>
+      {!value && <p className="is-muted">选好后点「{last ? '查看结果' : '下一题'}」。</p>}
       {last && done < total && <p className="is-muted">还有题目没答，答完 {total} 题才给结果。</p>}
     </div>
   )

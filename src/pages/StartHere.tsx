@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Callout, Card, Page, Segmented } from '../components/ui'
 import { localToday, reviewStatus } from '../features/invest-start/checks'
 import {
-  DISCLAIMER, PRIVACY_NOTE, REF, RISK_NOTE, ROUTE_INFO, ROUTE_STEPS, chapterHref,
+  BETWEEN_CHECKS, DISCLAIMER, PRIVACY_NOTE, REF, RISK_NOTE, ROUTE_INFO, ROUTE_STEPS, chapterHref,
 } from '../features/invest-start/content'
 import { answeredCount, evaluate } from '../features/invest-start/recommend'
 import { RULES_VERSION, type Answer, type Qid, type Route } from '../features/invest-start/types'
@@ -93,13 +93,21 @@ export default function StartHere(): JSX.Element {
       ? <>先做 5 分钟自测：9 道单选，答案只存在这台设备上。<a href="#start-assessment">开始自测 →</a></>
       : <>继续自测：还剩 {TOTAL - done} 题。<a href="#start-assessment">回到自测 →</a></>
   } else if (systemRoute === 'foundation') {
-    nextLine = result.foundationOnlyHorizon
-      ? <>这笔钱 1 年内要用，不进市场。如果还有 5 年以上不用的钱，按那笔钱重做一次自测。</>
-      : <>先攒应急金、还高息欠款，读<Link to={chapterHref(REF.openingFourSteps)}>开篇四步</Link>。现在不需要选任何产品。</>
+    if (result.foundationOnlyHorizon) {
+      nextLine = <>这笔钱 3 年内要用，不进股票类资产。如果还有 3 年以后才用的钱，按那笔钱重做一次自测。</>
+    } else {
+      // 只说和答案相关的那部分：没答「有高息欠款」就不让人还欠款
+      const todo = [
+        state.answers.q1 !== 'c' && '先攒应急金',
+        state.answers.q2 === 'a' && '先还高息欠款',
+        state.answers.q3 === 'a' && '3 年内要用的钱先单独放好',
+      ].filter(Boolean).join('、')
+      nextLine = <>{todo}，读<Link to={chapterHref(REF.openingFourSteps)}>开篇四步</Link>。现在不需要选任何产品。</>
+    }
   } else if (review) {
     nextLine = review.due
-      ? <>检查日 {review.due} 已到：先更新金额，再看是否越过阈值。<a href="#start-review">去检查 →</a></>
-      : <>下次检查日 {review.next}，还有 {review.daysToNext} 天。未到例行检查日，仍需留意资金与产品变化。</>
+      ? <>检查日 {review.due} 已到：先更新金额，再看是否达到事先定的调整条件。<a href="#start-review">去检查 →</a></>
+      : <>下次检查日 {review.next}，还有 {review.daysToNext} 天。{BETWEEN_CHECKS}</>
   } else {
     nextLine = firstOpenStep
       ? <>勾选路线清单的下一步：{firstOpenStep.title}。<a href="#start-route">去清单 →</a></>
@@ -121,7 +129,7 @@ export default function StartHere(): JSX.Element {
         <p>先确认该不该投，再决定投什么、投多少、什么时候检查。</p>
       </header>
 
-      <Callout tone="muted" title="不构成投资建议，不承诺收益" className="is-disclaimer">
+      <Callout tone="warn" title="不构成投资建议，不承诺收益" className="is-disclaimer">
         <p>{DISCLAIMER}</p>
         <p>{RISK_NOTE}</p>
       </Callout>
@@ -136,8 +144,9 @@ export default function StartHere(): JSX.Element {
           <p className="is-redline__title">先停下：有人承诺收益、带单或让你转账</p>
           <p>
             承诺收益、拉你进「老师带单」群、让你把钱转到别人名下，任何一条都应该立刻停下，不要继续转账。
-            书里列了五条红线和已经转账后该怎么做：<Link to={chapterHref(REF.s7_8)}>第7章 7.8 五条红线</Link>。
+            书里列了五条红线：<Link to={chapterHref(REF.s7_8)}>第7章 7.8 五条红线</Link>。
           </p>
+          <p>如果已经转了：立即停止继续转账，保留聊天记录和转账凭证，向平台投诉并报警。</p>
         </div>
       )}
 
@@ -152,7 +161,7 @@ export default function StartHere(): JSX.Element {
       )}
       {questionnaireChanged && <Callout tone="info">题目已经更新，旧答案不再沿用，请重新做一次自测；清单勾选和检查日都保留了。</Callout>}
       {rulesOutdated && complete && (
-        <Callout tone="info">推荐规则已经更新，下面的结果按新规则重新计算；建议重做一次自测核对。</Callout>
+        <Callout tone="info">自测规则已经更新，下面的结果按新规则重新计算；建议重做一次自测核对。</Callout>
       )}
 
       <section id="start-assessment" ref={assessRef} className="is-section" aria-labelledby="is-assess-title">
@@ -212,8 +221,8 @@ export default function StartHere(): JSX.Element {
 
       <Card as="section" id="start-review" className="is-section-card" title="检查日" label="检查日">
         <p className="is-muted">
-          每季度或每半年核对一次资金用途、产品与比例，越过事先定的阈值才调整（<Link to={chapterHref(REF.openingFourSteps)}>开篇四步③</Link>、
-          <Link to={chapterHref(REF.s8_2)}>8.2</Link>）。
+          每季度或每半年核对一次资金用途、产品与比例，达到事先定的调整条件才调整（<Link to={chapterHref(REF.openingFourSteps)}>开篇四步③</Link>）。
+          书里有两种触发方式：到期就调回目标，或偏离超过阈值才调，由你事先选一种（<Link to={chapterHref(REF.s8_2)}>8.2</Link>）。
         </p>
         <ReviewPanel review={state.review} today={today} onChange={r => update(s => {
           const next = { ...s }
@@ -223,6 +232,7 @@ export default function StartHere(): JSX.Element {
         })} />
       </Card>
 
+      {legacy.status !== 'missing' && (
       <section className="is-section" aria-label="投资计划页的旧记录">
         <LegacyPlanCard
           legacy={legacy}
@@ -234,6 +244,7 @@ export default function StartHere(): JSX.Element {
           })}
         />
       </section>
+      )}
 
       <section className="is-section" aria-labelledby="is-notyet-title">
         <h2 id="is-notyet-title" className="is-h2">这些先别开</h2>

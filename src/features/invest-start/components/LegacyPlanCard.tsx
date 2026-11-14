@@ -54,8 +54,8 @@ export function LegacyPlanCard({ legacy, onConfirm, onRevoke }: {
             />
           </ul>
           <p className="is-muted">
-            旧页的「配置底仓 / 主动 / 备用金」是投资预算的分法，不是书 <Link to={chapterHref(REF.s7_1)}>7.1</Link> 的「近期用款 / 应急金 / 长期钱」；
-            备用金不能当应急金。
+            旧页的「配置底仓 / 主动 / 备用金」沿用书 <Link to={chapterHref(REF.s9_1)}>9.1</Link> 案例，是参考总额内的投资预算分法，
+            不是书 <Link to={chapterHref(REF.s7_1)}>7.1</Link> 先单独留出的「近期用款 / 应急金 / 长期钱」。旧页的备用金在参考总额之内，不能代替应急金。
           </p>
           {show && calculatedDeviation && (
             <div className="is-legacy__dev">

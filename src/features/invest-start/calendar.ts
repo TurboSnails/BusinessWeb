@@ -4,7 +4,7 @@ import { addDays, exportCount, occurrence } from './checks'
 import type { Day, ReviewSchedule } from './types'
 
 export const ICS_SUMMARY = '投资计划检查'
-export const ICS_DESCRIPTION = '核对资金用途、产品与配置比例；越过事先定的阈值才调整。本文件不含任何金额。'
+export const ICS_DESCRIPTION = '核对资金用途、产品与配置比例；达到事先定的调整条件才调整。本文件不含任何金额。'
 export const ICS_FILENAME = 'invest-review.ics'
 
 /** 界面上与下载按钮放在一起的说明（不宣称提醒一定会响） */

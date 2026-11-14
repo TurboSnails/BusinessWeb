@@ -5,7 +5,7 @@ import type { Answer, Answers, AssessmentResult, Qid } from './types'
 
 type Full = Record<Qid, Answer>
 
-/** 枚举全部合法答案组合：3×2×3×4×3×4×3×4×2 = 20736 */
+/** 枚举全部合法答案组合：3×2×3×4×4×4×3×4×2 = 27648 */
 function allCombos(): Full[] {
   let acc: Array<Partial<Full>> = [{}]
   for (const q of QUESTIONS) {
@@ -17,11 +17,12 @@ function allCombos(): Full[] {
 const SAFE: Full = { q1: 'c', q2: 'b', q3: 'c', q4: 'c', q5: 'b', q6: 'c', q7: 'b', q8: 'b', q9: 'b' }
 const with_ = (patch: Partial<Full>): Full => ({ ...SAFE, ...patch })
 
-/** 独立写一遍规格（docs/reviews/2026-11-14-newcomer-entry.md），与实现交叉核对 */
+/** 独立写一遍规格（docs/reviews/2026-11-14-newcomer-entry.md + 2026-11-14 走查修订），与实现交叉核对 */
 function specRoute(a: Full): AssessmentResult['route'] {
+  // Q3：a 不到 3 年 → 不放权益（底座.5）；b 3—5 年 → 9.10 最保守档的适用情形，不研究个股
   if (a.q1 !== 'c' || a.q2 === 'a' || a.q3 === 'a') return 'foundation'
   if (a.q4 === 'a') return 'simple'
-  if (a.q4 === 'b' || a.q6 === 'a' || a.q6 === 'b' || a.q7 === 'a' || a.q5 === 'a' || a.q8 === 'a') return 'simple'
+  if (a.q3 === 'b' || a.q4 === 'b' || a.q6 === 'a' || a.q6 === 'b' || a.q7 === 'a' || a.q5 === 'a' || a.q5 === 'd' || a.q8 === 'a') return 'simple'
   if (a.q6 === 'd' && a.q7 === 'c' && a.q8 === 'c') return 'research'
   return 'combined'
 }
@@ -29,8 +30,8 @@ function specRoute(a: Full): AssessmentResult['route'] {
 describe('evaluate · 全部合法组合', () => {
   const combos = allCombos()
 
-  it('组合数为 20736（Q6 / Q8 各 4 个选项）', () => {
-    expect(combos).toHaveLength(20736)
+  it('组合数为 27648（Q4 / Q5 / Q6 / Q8 各 4 个选项）', () => {
+    expect(combos).toHaveLength(27648)
   })
 
   it('每个组合都得到唯一、完整、与规格一致的结果', () => {
@@ -69,6 +70,22 @@ describe('evaluate · 全部合法组合', () => {
     }
   })
 
+  it('期限：3 年内要用（Q3=a）永远先打底；3—5 年（Q3=b）永远不进结合 / 研究，额度 0，理由第一条写期限', () => {
+    for (const a of combos.filter(c => c.q3 === 'a')) expect(evaluate(a).route).toBe('foundation')
+    for (const a of combos.filter(c => c.q3 === 'b')) {
+      const r = evaluate(a)
+      expect(['foundation', 'simple']).toContain(r.route)
+      if (r.route === 'simple') {
+        expect(r.suggestedResearchCapBps).toBe(0)
+        if (a.q4 !== 'a') expect(r.reasonIds[0]).toBe('horizon-mid')
+      }
+    }
+  })
+
+  it('Q5=d（没经历过，不确定）按保守处理：永远不进结合 / 研究', () => {
+    for (const a of combos.filter(c => c.q5 === 'd')) expect(['foundation', 'simple']).toContain(evaluate(a).route)
+  })
+
   it('Q8=d（还没开始 / 不足一年）永远不进研究路线', () => {
     for (const a of combos.filter(c => c.q8 === 'd')) expect(evaluate(a).route).not.toBe('research')
   })
@@ -87,7 +104,10 @@ describe('evaluate · 规则顺序与边界（表驱动）', () => {
     { name: '应急金不到 3 个月', a: with_({ q1: 'a' }), route: 'foundation', rules: ['R1-emergency'] },
     { name: '应急金 3—6 个月同样先打底（不只拦 Q1=a）', a: with_({ q1: 'b' }), route: 'foundation', rules: ['R1-emergency'] },
     { name: '高息欠款', a: with_({ q2: 'a' }), route: 'foundation', rules: ['R1-debt'] },
-    { name: '1 年内要用，即使 100 万以上', a: with_({ q3: 'a', q4: 'd' }), route: 'foundation', rules: ['R1-horizon'] },
+    { name: '3 年内要用，即使 100 万以上', a: with_({ q3: 'a', q4: 'd' }), route: 'foundation', rules: ['R1-horizon'] },
+    { name: '3—5 年内可能动用 → 省心（不研究个股）', a: with_({ q3: 'b' }), route: 'simple', rules: ['R3-horizon'] },
+    { name: '3—5 年且满足研究条件也只到省心', a: with_({ q3: 'b', q4: 'd', q6: 'd', q7: 'c', q8: 'c', q5: 'c' }), route: 'simple', rules: ['R3-horizon'] },
+    { name: '没经历过大跌、不确定 → 省心', a: with_({ q5: 'd' }), route: 'simple', rules: ['R3-unknown'] },
     { name: 'R1 多条同时命中全部列出', a: with_({ q1: 'a', q2: 'a', q3: 'a' }), route: 'foundation', rules: ['R1-emergency', 'R1-debt', 'R1-horizon'] },
     { name: '不到 1 万 → 省心', a: with_({ q4: 'a' }), route: 'simple', rules: ['R2-small'] },
     { name: 'R2 先于 R3', a: with_({ q4: 'a', q6: 'a' }), route: 'simple', rules: ['R2-small'] },
@@ -97,7 +117,7 @@ describe('evaluate · 规则顺序与边界（表驱动）', () => {
     { name: '看不懂财报', a: with_({ q7: 'a' }), route: 'simple', rules: ['R3-ability'] },
     { name: '跌 30% 会卖', a: with_({ q5: 'a' }), route: 'simple', rules: ['R3-sell'] },
     { name: '经常追涨', a: with_({ q8: 'a' }), route: 'simple', rules: ['R3-chase'] },
-    { name: 'R3 多条命中全部列出', a: with_({ q4: 'b', q6: 'a', q7: 'a', q5: 'a', q8: 'a' }), route: 'simple', rules: ['R3-amount', 'R3-time', 'R3-ability', 'R3-sell', 'R3-chase'] },
+    { name: 'R3 多条命中全部列出（期限排第一）', a: with_({ q3: 'b', q4: 'b', q6: 'a', q7: 'a', q5: 'a', q8: 'a' }), route: 'simple', rules: ['R3-horizon', 'R3-amount', 'R3-time', 'R3-ability', 'R3-sell', 'R3-chase'] },
     { name: 'R5 可达（先于 R4 判断）', a: with_({ q6: 'd', q7: 'c', q8: 'c' }), route: 'research', rules: ['R5-research'] },
     { name: 'R5 缺 Q7=c → 结合', a: with_({ q6: 'd', q7: 'b', q8: 'c' }), route: 'combined', rules: ['R4-combined'] },
     { name: 'R5 缺 Q6=d → 结合', a: with_({ q6: 'c', q7: 'c', q8: 'c' }), route: 'combined', rules: ['R4-combined'] },
@@ -126,14 +146,45 @@ describe('evaluate · 规则顺序与边界（表驱动）', () => {
   it('isEligible / isResearch 与规格一致', () => {
     expect(isEligible(SAFE)).toBe(true)
     expect(isEligible(with_({ q4: 'b' }))).toBe(false)
+    expect(isEligible(with_({ q3: 'b' }))).toBe(false)
+    expect(isEligible(with_({ q5: 'd' }))).toBe(false)
     expect(isResearch(with_({ q6: 'd', q7: 'c', q8: 'c' }))).toBe(true)
+  })
+})
+
+describe('回归：模拟走查「陈阿姨」（30 万元 3 年内要用作生活费）', () => {
+  // 原题「1—5 年」不拦截，她拿到了「省心：宽基加债券」。书：底座.5「近期确定支出 3年内 … 不放权益」
+  const retiree: Full = { q1: 'c', q2: 'b', q3: 'a', q4: 'c', q5: 'a', q6: 'a', q7: 'a', q8: 'd', q9: 'b' }
+  it('选「不到 3 年」→ 先打底，不给任何比例，理由引用家庭财务底座 · 按日期分开装', () => {
+    const r = evaluate(retiree)
+    expect(r.route).toBe('foundation')
+    expect(r.suggestedResearchCapBps).toBeUndefined()
+    expect(r.reasonIds).toContain('foundation-horizon')
+    expect(REASONS['foundation-horizon'].text).toMatch(/3 年内.*不放股票类资产/)
+    expect(REASONS['foundation-horizon'].refs.map(x => x.heading)).toContain('底座.5')
+  })
+  it('即使她选了「3 年到不足 5 年」，也只到省心、额度 0，第一条理由是期限', () => {
+    const r = evaluate({ ...retiree, q3: 'b' })
+    expect(r.route).toBe('simple')
+    expect(r.suggestedResearchCapBps).toBe(0)
+    expect(r.reasonIds[0]).toBe('horizon-mid')
+    expect(REASONS['horizon-mid'].refs.map(x => x.heading)).toContain('9.10')
+  })
+})
+
+describe('回归：文案审读 P1（不像批准或许可）', () => {
+  it('结合 / 研究理由不说「过了门槛」「可以走研究路线」，并声明不是资格审核', () => {
+    const all = Object.values(REASONS).map(r => r.text).join('\n')
+    expect(all).not.toMatch(/过了起步门槛|可以走研究路线|建议起点/)
+    expect(REASONS['eligible-combined'].text).toContain('不是资格审核')
+    expect(REASONS['research-ready'].text).toContain('不是能力认证')
   })
 })
 
 describe('evaluate · 未答完与非法输入', () => {
   it('空答案 → incomplete，没有路线、没有任何比例', () => {
     const r = evaluate({})
-    expect(r).toEqual({ rulesVersion: 1, status: 'incomplete', ruleIds: [], reasonIds: [], safetyWarning: false, allocation: 'needs-confirmation' })
+    expect(r).toEqual({ rulesVersion: 2, status: 'incomplete', ruleIds: [], reasonIds: [], safetyWarning: false, allocation: 'needs-confirmation' })
   })
 
   it('缺任意一题都是 incomplete，不给入市比例（包括明显会先打底的答案）', () => {

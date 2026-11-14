@@ -168,7 +168,7 @@ export interface WorkbenchTool {
 
 // 不在导航和投资分组里、但有固定路径的页面
 const EXTRA_PAGES: SearchablePage[] = [
-  { path: '/invest/start', label: '从这里开始', group: '投资 · 规则', desc: '新手入门：5 分钟自测该不该投、走哪条路线（先打底 / 省心定投 / 结合 / 研究），定检查日；答案只存在本机' },
+  { path: '/invest/start', label: '从这里开始', group: '投资 · 规则', desc: '新手入门：5 分钟自测该不该投、走哪条路线（先打底 / 省心 / 结合 / 研究），了解定投与检查日；答案只存在本机' },
   { path: '/life/human-3', label: 'Human 3.0 人生规划', group: '自由之路', desc: '心智、身体、精神、事业四象限访谈与90天行动计划' },
   { path: '/daily-analysis/legacy', label: '每日分析 · 历史旧版', group: '投资 · 历史旧版', desc: '原有手工复盘、导入导出与云同步', archived: true },
   { path: '/first-book/slow-is-fast', label: '书的目录', group: '投资 · 规则', desc: '《正念投资》目录与章节' },

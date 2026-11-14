@@ -84,7 +84,7 @@ describe('parseStartState', () => {
   })
 
   it('题目版本变了：丢弃答案，保留清单和检查日', () => {
-    const r = parseStartState({ ...sample(), questionnaireVersion: 2 })
+    const r = parseStartState({ ...sample(), questionnaireVersion: 1 })
     expect(r.ok && r.questionnaireChanged).toBe(true)
     if (r.ok) {
       expect(r.state.answers).toEqual({})

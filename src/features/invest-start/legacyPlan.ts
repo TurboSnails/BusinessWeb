@@ -116,7 +116,7 @@ function parseHoldings(v: unknown): Field<LegacyRow[]> {
  */
 export function calculateDeviation(rows: LegacyRow[]): { ok: true; value: CalculatedDeviation } | { ok: false; issue: string } {
   if (!rows.length) return { ok: false, issue: '没有配置类别' }
-  if (new Set(rows.map(r => r.id)).size !== rows.length) return { ok: false, issue: '类别 id 重复' }
+  if (new Set(rows.map(r => r.id)).size !== rows.length) return { ok: false, issue: '有重复的配置类别' }
   if (rows.some(r => r.amount.trim() === '')) return { ok: false, issue: '有类别还没填金额，不能计算偏离' }
   if (!rows.every(r => nonNeg(r.amount))) return { ok: false, issue: '有金额不是有效数字' }
   const targets = rows.map(r => numStr(r.target))
