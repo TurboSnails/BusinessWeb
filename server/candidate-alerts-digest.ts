@@ -220,6 +220,28 @@ export function createCandidateAlertsDigest({ fetchImpl = globalThis.fetch as un
   return async function candidateAlertsDigest(req: Request, res: Response): Promise<unknown> {
     if (!requireCron(req, res, { env, log, tag: 'candidate-alerts' })) return
     const dryRun = ['1', 'true'].includes(String(req.query?.dryRun ?? ''))
+    // ?testEmail=1：只验证 Gmail 发信链路，发一封固定内容的测试邮件；不读候选池、不写去重表
+    if (['1', 'true'].includes(String(req.query?.testEmail ?? ''))) {
+      const missing = ['GMAIL_USER', 'GMAIL_APP_PASSWORD', 'ALERT_EMAIL_TO'].filter(k => !env[k])
+      if (missing.length) return res.status(503).json({ ok: false, error: `邮件未配置：${missing.join('、')}` })
+      const day = beijingDay(now())
+      let transport: MailTransport | undefined
+      try {
+        transport = await createTransport({
+          host: 'smtp.gmail.com', port: 465, secure: true, auth: { user: env.GMAIL_USER, pass: env.GMAIL_APP_PASSWORD },
+          connectionTimeout: 10_000, greetingTimeout: 10_000, socketTimeout: 15_000,
+        })
+        const text = `这是一封测试邮件，说明候选池每日提醒的发信链路已经接通。\n\n以后工作日北京时间 7–8 点，如果候选池有新触发的提醒（触及条件价、到期复查、评级变化），会收到一封汇总；没有新事项就不发。\n\n候选池：${SITE}/candidates`
+        await transport.sendMail({ from: `"候选池提醒" <${env.GMAIL_USER}>`, to: env.ALERT_EMAIL_TO as string, subject: `候选池提醒 · 测试邮件 · ${day}`, text, html: `<p>${text.replace(/\n/g, '<br>')}</p>` })
+      } catch (error) {
+        const e = error as { code?: unknown; responseCode?: unknown }
+        log.error(`[candidate-alerts] 测试邮件发送失败 code=${String(e?.code ?? 'unknown')} responseCode=${String(e?.responseCode ?? '-')}`)
+        return res.status(502).json({ ok: false, test: true, error: e?.responseCode === 535 || e?.code === 'EAUTH' ? 'Gmail 登录失败：检查 GMAIL_USER 与应用专用密码' : '发信失败' })
+      } finally {
+        transport?.close?.()
+      }
+      return res.status(200).json({ ok: true, test: true, sent: true, day })
+    }
     const db = supabaseConfig(env)
     if (!db) {
       log.error('[candidate-alerts] SUPABASE_URL / SUPABASE_SECRET_KEY 未配置或无效')
