@@ -7,13 +7,17 @@ import { fileURLToPath } from 'node:url'
 import { collectHkLiquidity } from './market-cycle-liquidity.mjs'
 import { collectHsiPeHistory } from './market-cycle-hk-pe-history.mjs'
 import { officialMonthlyPePercentile } from './market-cycle-hk-official-pe.mjs'
+import { collectLatestRoundup, ROUNDUP_URL } from './market-cycle-hk-roundup.mjs'
 import { collectCnFunding } from './market-cycle-cn-funding.mjs'
-import { collectCnTurnover } from './market-cycle-cn-turnover.mjs'
+import { collectCnTurnover, CN_TURNOVER_CACHE } from './market-cycle-cn-turnover.mjs'
 import { collectHsiTurnover } from './market-cycle-hsi-turnover.mjs'
 import { collectUsForwardPe } from './market-cycle-us-valuation.mjs'
 
 export const OUT_FILE = fileURLToPath(new URL('../public/data/market-cycle-auto.json', import.meta.url))
 const XLSX_PY = fileURLToPath(new URL('./market-cycle-xlsx.py', import.meta.url))
+const PDF_PY = fileURLToPath(new URL('./market-cycle-pdf-text.py', import.meta.url))
+// Override for a local interpreter that has pypdf (CI installs scripts/requirements-market-cycle.txt into python3).
+const PYTHON = process.env.MARKET_CYCLE_PYTHON || 'python3'
 const UA = 'Mozilla/5.0'
 const MARKETS = ['csi300', 'hsi', 'hstech', 'spx', 'ndx', 'all']
 const KINDS = ['observed', 'proxy', 'backfilled']
@@ -28,6 +32,7 @@ export const URLS = {
   csindex: 'https://www.csindex.com.cn/csindex-home/perf/index-perf',
   treasury: 'https://datacenter-web.eastmoney.com/api/data/v1/get',
   hsi: 'https://www.hsi.com.hk/content/dam/wpb/hsil/index_operation/historical_pe/en_hk/hsi/hsi.xlsx',
+  // Withdrawn by the publisher in 2026-10 (302 → /errors/404/); kept only to recognise previously collected facts.
   hstech: 'https://www.hsi.com.hk/content/dam/wpb/hsil/index_operation/historical_pe/en_hk/hstech/hstech.xlsx',
   margin: 'https://datacenter-web.eastmoney.com/api/data/v1/get',
   fredHkd: 'https://fred.stlouisfed.org/graph/fredgraph.csv?id=DEXHKUS',
@@ -124,13 +129,21 @@ function requestGate(limit) {
     drain()
   }) }
 }
-async function request(fetchImpl, url, { signal, headers = {}, as = 'json', timeoutMs = REQUEST_TIMEOUT_MS }, gate) {
+// undici reports every network failure as "fetch failed"; keep the cause code (ECONNRESET, UND_ERR_CONNECT_TIMEOUT…)
+// so CI-only blocks are distinguishable from parse errors in the issue log.
+const withCause = e => {
+  const c = e?.cause
+  const code = c?.code ?? c?.name
+  return e instanceof Error && e.message === 'fetch failed' && code ? new Error(`fetch failed(${code}${c?.message && c.message !== code ? `: ${String(c.message).slice(0, 80)}` : ''})`) : e
+}
+async function request(fetchImpl, url, { signal, headers = {}, as = 'json', timeoutMs = REQUEST_TIMEOUT_MS, redirect }, gate) {
   const combined = AbortSignal.any([signal, AbortSignal.timeout(timeoutMs)])
   const release = await gate.acquire(combined)
   return raceAbort((async () => {
     try {
       combined.throwIfAborted()
-      const res = await fetchImpl(url, { signal: combined, headers: { 'User-Agent': UA, ...headers } })
+      let res
+      try { res = await fetchImpl(url, { signal: combined, headers: { 'User-Agent': UA, ...headers }, ...(redirect ? { redirect } : {}) }) } catch (e) { throw withCause(e) }
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       if (as === 'buffer') return Buffer.from(await res.arrayBuffer())
       return as === 'text' ? await res.text() : await res.json()
@@ -283,6 +296,22 @@ export function runXlsxParser(buffer, { timeoutMs = 20000, script = XLSX_PY } = 
   })
 }
 
+export function runPdfText(buffer, { timeoutMs = 30000, script = PDF_PY, python = PYTHON } = {}) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(python, ['-I', script], { stdio: ['pipe', 'pipe', 'pipe'], timeout: timeoutMs })
+    const out = [], err = []
+    child.stdout.on('data', d => out.push(d))
+    child.stderr.on('data', d => err.push(d))
+    child.on('error', reject)
+    child.on('close', code => {
+      if (code !== 0) return reject(new Error(`pdf解析失败(${code}): ${Buffer.concat(err).toString().trim().slice(0, 120)}`))
+      try { resolve(JSON.parse(Buffer.concat(out).toString()).pages) } catch { reject(new Error('pdf解析输出无效')) }
+    })
+    child.stdin.on('error', () => {})
+    child.stdin.end(buffer)
+  })
+}
+
 const hsiSource = (market, url, headerCol, headerText, name) => async ctx => {
   const buffer = await ctx.get(url, { as: 'buffer', timeoutMs: 30000 })
   if (buffer.length < 1000 || buffer.length > 5e6 || buffer.subarray(0, 2).toString() !== 'PK') throw new Error('恒生PE文件不是有效xlsx')
@@ -298,6 +327,27 @@ const hsiSource = (market, url, headerCol, headerText, name) => async ctx => {
     facts.push({ metricId: 'pe_official_5y_percentile', market, value: round(result.value, 6), observationDate: result.observationDate, source: url, unit: '%', kind: 'observed', frequency: 'monthly',
       description: `恒生官方同口径月末PE近五年中位秩分位（按盈利收益率E/P=1/PE排序，盈利月份与PE分位完全一致${result.lossMonths.length ? `；窗口含${result.lossMonths.length}个指数整体亏损月份（${result.lossMonths.join('、')}），其E/P为负，按“比任何盈利月份更贵”参与排序，不删除、不插值` : ''}）；窗口${result.windowStart}~${result.observationDate}，${result.samples}/${result.expectedMonths}个月度样本（覆盖${(result.samples / result.expectedMonths * 100).toFixed(1)}%），缺失月份${result.missingMonths.join('、') || '无'}，未插值。以官方Monthly Roundup原始PE为历史，逐月核对与当前XLSX重叠值；同源月度采样，不与第三方日频分位混用。最新年度盈利口径与调整定义见官方运作指引10.15：https://www.hsi.com.hk/content/dam/wpb/hsil/index_operation/en_hk/index_operation_guide.pdf；逐月PDF来源和SHA256：https://turbosnails.github.io/BusinessWeb/data/market-cycle-hk-pe-history.json` })
   } catch (e) { ctx.issue(`${market}-official-pe: ${errText(e)}`) }
+  return facts
+}
+
+// HSTECH: the per-index XLSX was withdrawn, so read the same publisher's Monthly Roundup PDF (see market-cycle-hk-roundup.mjs).
+const isHstechOfficial = f => f.metricId === 'pe' && f.market === 'hstech' && f.kind === 'observed' && f.frequency === 'monthly' && (f.source === URLS.hstech || ROUNDUP_URL.test(f.source))
+async function collectHstechRoundup(ctx) {
+  const held = (ctx.previous ?? []).filter(isHstechOfficial).sort((a, b) => a.observationDate.localeCompare(b.observationDate))
+  const latest = held.at(-1)
+  const { rows, errors } = await collectLatestRoundup(ctx, { latestDate: latest?.observationDate, knownUrl: [...held].reverse().find(f => ROUNDUP_URL.test(f.source))?.source })
+  if (!rows.length) throw new Error(`未取得恒生Monthly Roundup新月报${errors.length ? `（${errors.slice(0, 2).join('；')}）` : ''}`)
+  const note = r => `恒生科技指数官方月末PE（倍），取自恒生指数公司Monthly Roundup“PE Ratio (Times)”列（报告As at ${r.date}）。原恒科historical_pe XLSX已于2026-10下架（302至404页），月报与该XLSX及已审计的60个月月报归档同源同列（2026-09均为28.23）。官方盈利口径采用最新年度业绩，指数层面为经自由流通及上限因子调整后的市值÷成分股总盈利，不标作TTM。`
+  const facts = rows.map(r => ({ metricId: 'pe', market: 'hstech', value: r.hstech, observationDate: r.date, source: r.url, unit: '倍', kind: 'observed', frequency: 'monthly', description: note(r) }))
+  try {
+    const archive = JSON.parse(await readFile(new URL('../public/data/market-cycle-hk-pe-history.json', import.meta.url), 'utf8'))
+    const accumulated = new Map(held.map(f => [f.observationDate.slice(0, 7), { date: f.observationDate, pe: f.value, ...(ROUNDUP_URL.test(f.source) ? { source: f.source } : {}) }]))
+    for (const r of rows) accumulated.set(r.date.slice(0, 7), { date: r.date, pe: r.hstech, source: r.url })
+    const result = officialMonthlyPePercentile(archive, 'hstech', [...accumulated.values()], ctx.now.slice(0, 10))
+    const source = rows.find(r => r.date === result.observationDate)?.url ?? result.source
+    facts.push({ metricId: 'pe_official_5y_percentile', market: 'hstech', value: round(result.value, 6), observationDate: result.observationDate, source, unit: '%', kind: 'observed', frequency: 'monthly',
+      description: `恒生官方同口径月末PE近五年中位秩分位（按盈利收益率E/P=1/PE排序，盈利月份与PE分位完全一致${result.lossMonths.length ? `；窗口含${result.lossMonths.length}个指数整体亏损月份（${result.lossMonths.join('、')}），其E/P为负，按“比任何盈利月份更贵”参与排序，不删除、不插值` : ''}）；窗口${result.windowStart}~${result.observationDate}，${result.samples}/${result.expectedMonths}个月度样本（覆盖${(result.samples / result.expectedMonths * 100).toFixed(1)}%），缺失月份${result.missingMonths.join('、') || '无'}，未插值。历史为官方Monthly Roundup原始PE，新月份同样取自Monthly Roundup（原恒科XLSX已下架），逐月核对重叠值；同源月度采样，不与第三方日频分位混用。最新年度盈利口径与调整定义见官方运作指引10.15：https://www.hsi.com.hk/content/dam/wpb/hsil/index_operation/en_hk/index_operation_guide.pdf；逐月PDF来源和SHA256：https://turbosnails.github.io/BusinessWeb/data/market-cycle-hk-pe-history.json` })
+  } catch (e) { ctx.issue(`hstech-official-pe: ${errText(e)}`) }
   return facts
 }
 
@@ -450,10 +500,10 @@ async function collectEtf(ctx) {
 export const SOURCES = [
   { id: 'csi300-erp', produces: [['pe', 'csi300'], ['erp_z', 'csi300'], ['erp', 'csi300'], ['cn10y', 'csi300']], run: collectCsi300 },
   { id: 'hsi-pe', produces: [['pe', 'hsi'], ['pe_official_5y_percentile', 'hsi']], run: hsiSource('hsi', URLS.hsi, 'B', 'Hang Seng Index', '恒生指数') },
-  { id: 'hstech-pe', produces: [['pe', 'hstech'], ['pe_official_5y_percentile', 'hstech']], run: hsiSource('hstech', URLS.hstech, 'A', 'Hang Seng TECH Index', '恒生科技指数') },
+  { id: 'hstech-pe', produces: [['pe', 'hstech'], ['pe_official_5y_percentile', 'hstech']], timeoutMs: 150000, run: collectHstechRoundup },
   { id: 'hsi-pe-history', produces: [['pe_history_5y_percentile', 'hsi']], run: collectHsiPeHistory },
   { id: 'margin', produces: [['financing_buy', 'all']], run: collectMargin },
-  { id: 'cn-funding', produces: [['financing_buy_ratio_pct', 'csi300'], ['cn_turnover_yi', 'csi300']], run: collectCnFunding },
+  { id: 'cn-funding', produces: [['financing_buy_ratio_pct', 'csi300'], ['cn_turnover_yi', 'csi300']], run: ctx => collectCnFunding(ctx, { cacheDir: ctx.cnTurnoverOptions?.cacheDir ?? process.env.MARKET_CYCLE_CN_TURNOVER_CACHE_DIR ?? CN_TURNOVER_CACHE }) },
   { id: 'cn-turnover', produces: [['turnover_ratio_52w', 'csi300']], timeoutMs: 370000, run: ctx => collectCnTurnover(ctx, ctx.cnTurnoverOptions) },
   { id: 'fred-hkd', produces: [['hkd', 'all']], run: collectHkd },
   { id: 'yahoo-cnh', produces: [['cnh', 'all']], run: collectCnh },
@@ -475,7 +525,7 @@ async function pool(tasks, limit) {
 }
 
 export async function buildAutoSnapshot(previous, {
-  fetchImpl = fetch, now = new Date().toISOString(), parseXlsx = runXlsxParser, sources = SOURCES, concurrency = 2,
+  fetchImpl = fetch, now = new Date().toISOString(), parseXlsx = runXlsxParser, parsePdf = runPdfText, sources = SOURCES, concurrency = 2,
   requestTimeoutMs = REQUEST_TIMEOUT_MS, sourceTimeoutMs = SOURCE_TIMEOUT_MS, cnTurnoverOptions = {}, hsiTurnoverOptions = {},
 } = {}) {
   const issues = []
@@ -493,7 +543,7 @@ export async function buildAutoSnapshot(previous, {
     const timeoutMs = src.timeoutMs ?? sourceTimeoutMs
     const timer = setTimeout(() => ac.abort(new Error(`数据源超时(${timeoutMs}ms)`)), timeoutMs)
     const ctx = {
-      now, parseXlsx, signal: ac.signal, previous: kept, cnTurnoverOptions, hsiTurnoverOptions, issue: msg => issues.push(msg),
+      now, parseXlsx, parsePdf, signal: ac.signal, previous: kept, cnTurnoverOptions, hsiTurnoverOptions, issue: msg => issues.push(msg),
       get: (url, opts = {}) => request(fetchImpl, url, { timeoutMs: requestTimeoutMs, ...opts, signal: ac.signal }, gate),
     }
     try {

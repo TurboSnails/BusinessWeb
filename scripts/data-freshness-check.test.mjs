@@ -7,8 +7,8 @@ import {
   isTradingDay, latestReadySession, tradingDaysBetween, recentTradingDays,
 } from './lib/trading-calendar.mjs'
 import {
-  ALLOWLIST, applyAllowlist, checkWorkflows, expectedReportPeriod, firesBetween, judgeCollection, judgeDate,
-  judgeWorkflow, parseCron, renderMarkdown, runFreshnessCheck, scheduleDelays,
+  ALLOWLIST, applyAllowlist, checkWorkflows, dispatchDelays, expectedReportPeriod, firesBetween, judgeCollection, judgeDate,
+  judgeWorkflow, listScheduledWorkflows, parseCron, renderMarkdown, runFreshnessCheck, scheduleDelays,
 } from './data-freshness-check.mjs'
 
 globalThis.fetch = async () => { throw new Error('Network forbidden in offline tests') }
@@ -46,6 +46,9 @@ function healthyFiles(day = '2026-11-13') {
       { market: 'csi300', metricId: 'pe', frequency: 'daily', kind: 'observed', observationDate: '2026-10-01' },
       { market: 'spx', metricId: 'fwd_pe', frequency: 'weekly', kind: 'observed', observationDate: '2026-08-05' },
       { market: 'hsi', metricId: 'pe', frequency: 'monthly', kind: 'observed', observationDate: '2026-10-30' },
+      // FRED H.10 is published every Monday through the prior Friday: an 8-day-old Friday is the normal state.
+      { market: 'all', metricId: 'hkd', frequency: 'daily', kind: 'observed', observationDate: '2026-11-06' },
+      { market: 'hsi', metricId: 'pe_history_5y_percentile', frequency: 'daily', kind: 'observed', observationDate: '2026-10-30' },
     ] },
     'public/data/market-cycle-breadth.json': { markets: { csi300: { observationDate: '2026-11-06' } } },
     'public/data/market-cycle-hk-pe-history.json': { rows: [{ date: '2026-10-31' }] },
@@ -202,6 +205,49 @@ test('checkWorkflows skips gracefully without gh and flags workflows missing on 
   assert.match(notPushed.workflows[0].detail, /远端默认分支尚无/)
 }))
 
+test('Vercel Cron dispatch: vercel.json crons map to workflows, dispatch delays pair within 2h, on-time dispatch satisfies the schedule check', () => withRepo({
+  ...healthyFiles(),
+  'vercel.json': { crons: [
+    { path: '/api/market-data/cron-dispatch?workflow=demo.yml', schedule: '0 22 * * 1-5' },
+    { path: '/api/market-data/cron-dispatch?workflow=only-vercel.yml', schedule: '0 8 * * 1-5' },
+    { path: '/api/other', schedule: '0 1 * * *' },
+  ] },
+  '.github/workflows/only-vercel.yml': 'name: Only Vercel\non:\n  workflow_dispatch:\n',
+}, root => {
+  const listed = listScheduledWorkflows(root)
+  assert.deepEqual(listed.map(w => [w.file, w.crons, w.dispatchCrons]), [
+    ['demo.yml', ['40 10 * * 1-5'], ['0 22 * * 1-5']],
+    ['only-vercel.yml', [], ['0 8 * * 1-5']],
+  ])
+  const crons = ['0 22 * * 1-5']
+  const delays = dispatchDelays(crons, [
+    { event: 'workflow_dispatch', createdAt: '2026-11-12T22:41:00Z' }, // Hobby 小时内抖动
+    { event: 'workflow_dispatch', createdAt: '2026-11-13T15:00:00Z' }, // 手动触发，配不上
+    { event: 'schedule', createdAt: '2026-11-13T04:00:00Z' },
+    { event: 'workflow_dispatch', createdAt: '2026-11-13T22:03:00Z' },
+  ])
+  assert.deepEqual(delays.map(d => d.delayMinutes), [41, 3])
+  assert.deepEqual(dispatchDelays([], [{ event: 'workflow_dispatch', createdAt: '2026-11-13T22:03:00Z' }]), [])
+
+  const wf = { file: 'demo.yml', name: 'Demo', crons: ['0 22 * * 1-5'], dispatchCrons: crons }
+  const run = (createdAt, event, conclusion = 'success') => ({ createdAt, event, conclusion, status: 'completed', url: `u/${createdAt}` })
+  // GitHub 兜底排程被丢弃，但 Vercel 准点派发了：不提示
+  const onTime = judgeWorkflow(wf, [run('2026-11-13T22:04:00Z', 'workflow_dispatch'), run('2026-11-12T22:02:00Z', 'workflow_dispatch')], NOW)
+  assert.equal(onTime.status, 'ok', onTime.detail)
+  assert.deepEqual(onTime.dispatchDelay, { last: 4, median: 2, max: 4, samples: 2 })
+  // Vercel 没派发（环境变量未配置），只有迟到的 GitHub 兜底排程：提示去看 Vercel 日志
+  const missing = judgeWorkflow(wf, [run('2026-11-14T05:30:00Z', 'schedule'), run('2026-11-13T05:10:00Z', 'schedule')], NOW)
+  assert.equal(missing.status, 'warn')
+  assert.match(missing.detail, /Vercel Cron 2026-11-13T22:00Z/)
+  // 派发端因 6 小时内已成功而跳过时，触发前的运行也算数
+  const skipped = judgeWorkflow(wf, [run('2026-11-13T19:00:00Z', 'workflow_dispatch')], NOW)
+  assert.doesNotMatch(skipped.detail ?? '', /Vercel Cron/)
+  // 没配 Vercel Cron 的工作流：手动 workflow_dispatch 不能顶替定时运行
+  const plain = judgeWorkflow({ ...wf, dispatchCrons: [] }, [run('2026-11-14T10:00:00Z', 'workflow_dispatch')], NOW)
+  assert.match(plain.detail, /24 小时内没有定时运行/)
+  assert.match(renderMarkdown({ checkedAt: NOW.toISOString(), alarm: false, counts: {}, items: [], workflows: [onTime], workflowsSkipped: null, fingerprint: 'x' }), /0 22 \* \* 1-5 · 0h02m \/ 0h04m/)
+}))
+
 // ---------------------------------------------------------------- end to end on fixture repos
 
 test('healthy fixture: no alarm; known source stops are acknowledged, not alarmed', async () => {
@@ -214,7 +260,8 @@ test('healthy fixture: no alarm; known source stops are acknowledged, not alarme
     assert.deepEqual(bad.map(i => `${i.id}: ${i.detail}`), [])
     assert.equal(result.alarm, false)
     const known = result.items.filter(i => i.status === 'known').map(i => i.id).sort()
-    assert.deepEqual(known, ['cycle.fact.spx.fwd_pe', 'nationalTeam.etfHolders', 'spread.us.forwardPe'])
+    assert.deepEqual(known, ['cycle.fact.hsi.pe_history_5y_percentile', 'cycle.fact.spx.fwd_pe', 'nationalTeam.etfHolders', 'spread.us.forwardPe'])
+    assert.equal(result.items.find(i => i.id === 'cycle.fact.all.hkd').status, 'ok')
     assert.equal(result.workflows[0].delay.last, 443)
     const md = renderMarkdown(result)
     assert.match(md, /结论：正常/)
@@ -253,5 +300,14 @@ test('daily analysis behind the latest A-share session alarms even when nothing 
     const result = await runFreshnessCheck({ root, now: NOW, skipGh: true })
     const latest = result.items.find(i => i.id === 'dailyAnalysis.latest')
     assert.deepEqual([latest.status, latest.observed, latest.expected, latest.lag], ['stale', '2026-11-12', '2026-11-13', 1])
+  })
+})
+
+test('FRED HKD uses its weekly-release lag; a missed Monday release still alarms', async () => {
+  const files = healthyFiles()
+  files['public/data/market-cycle-auto.json'].facts.find(f => f.metricId === 'hkd').observationDate = '2026-10-30'
+  await withRepo(files, async root => {
+    const result = await runFreshnessCheck({ root, now: NOW, gh: null })
+    assert.equal(result.items.find(i => i.id === 'cycle.fact.all.hkd').status, 'stale')
   })
 })

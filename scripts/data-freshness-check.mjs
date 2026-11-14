@@ -23,6 +23,8 @@ const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url))
  * - cycleDaily：周期页日频事实（融资、成交额、国债、ERP 等），部分官方源 T+1～T+2 才发布，放宽到 5 个交易日。
  * - weekly：周度序列（Forward PE、换手率 52 周比、周期周报），10 个自然日。
  * - monthly：月末观测（恒生官方 PE 月报，次月初发布），45 个自然日。
+ * - fredWeeklyRelease：FRED DEXHKUS（美联储 H.10）是日频观测但每周一才批量发布到上周五，最新观测正常就滞后 3–10 天
+ *   （周一假日顺延一天），按 12 个自然日判断，不当作日频 5 个交易日。
  * - breadth：成分 MA200 宽度分批轮询，沿用生产脚本自身的 14 天口径（market-cycle-breadth.mjs）。
  * - fpe：手动/月度录入的指数 Forward PE（日期标在月初），62 天。
  * - macro：逐指标阈值直接调用 src/features/macro/quality.ts。
@@ -36,6 +38,7 @@ export const THRESHOLDS = {
   cycleDaily: { unit: 'trading', max: 5 },
   weekly: { unit: 'days', max: 10 },
   monthly: { unit: 'days', max: 45 },
+  fredWeeklyRelease: { unit: 'days', max: 12 },
   breadth: { unit: 'days', max: 14 },
   cycleReport: { unit: 'days', max: 8 },
   fpe: { unit: 'days', max: 62 },
@@ -53,6 +56,7 @@ export const ALLOWLIST = [
   { id: 'spread.us.forwardPe', observedDate: '2026-08-05', until: '2027-06-30', reason: 'History of Market 的标普/纳指 Forward PE 周度序列自 2026-08-05 起停更（market-cycle-report 同样记为不计票），等待替代源' },
   { id: 'cycle.fact.spx.fwd_pe*', observedDate: '2026-08-05', until: '2027-06-30', reason: '同上：History of Market Forward PE 停更于 2026-08-05' },
   { id: 'cycle.fact.ndx.fwd_pe*', observedDate: '2026-08-05', until: '2027-06-30', reason: '同上：History of Market Forward PE 停更于 2026-08-05' },
+  { id: 'cycle.fact.hsi.pe_history_5y_percentile', observedDate: '2026-10-30', until: '2027-03-31', reason: '亿牛网恒指日频PE序列（eniu.com/chart/peindex/hkhsi）自 2026-10-30 起停更（其个股序列仍日更）；无同口径替代源（蛋卷HKHSI为周频且PE约10.8，与恒生官方口径不符）。该指标仅作参考不计票，估值维度用恒生官方月末PE分位' },
   { id: 'macro.us.equityShare', until: '2026-12-31', reason: '美联储 Z.1 资金流量表季度发布（日期标季初），2026Q3 版预计 12 月中旬发布' },
   { id: 'macro.us.buffett', until: '2026-12-31', reason: '分子取 Z.1 季度数据，随 Z.1 发布节奏更新' },
   { id: 'macro.us.debtService', until: '2026-12-31', reason: '美联储家庭偿债比季度发布，滞后约一个季度' },
@@ -269,7 +273,7 @@ function checkMarketCycle(root, now) {
     return [...latest.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([key, f]) => {
       const m = cycleMarketOf(f.market, f.metricId)
       return item({ id: `cycle.fact.${key}`, group: '市场周期', label: `${key}（${f.frequency}）`, file, market: m },
-        judgeDate({ observed: f.observationDate, market: m, ...(byFreq[f.frequency] ?? THRESHOLDS.weekly), now }))
+        judgeDate({ observed: f.observationDate, market: m, ...(f.metricId === 'hkd' ? THRESHOLDS.fredWeeklyRelease : byFreq[f.frequency] ?? THRESHOLDS.weekly), now }))
     })
   }))
   out.push(...guarded('cycle', 'public/data/market-cycle-breadth.json', () => {
@@ -499,16 +503,50 @@ export function scheduleDelays(crons, runs) {
   })
 }
 
+/**
+ * vercel.json 里经 /api/market-data/cron-dispatch?workflow=<file> 准点派发的 Vercel Cron：Map(file → [schedule])。
+ * 这些运行在 GitHub 上的 event 是 workflow_dispatch（GitHub 自带 schedule 常迟到 6–10 小时，只作兜底）。
+ */
+export function listVercelDispatchCrons(root) {
+  let config
+  try { config = JSON.parse(readFileSync(join(root, 'vercel.json'), 'utf8')) } catch { return new Map() }
+  const out = new Map()
+  for (const c of config?.crons ?? []) {
+    const m = /\/cron-dispatch\?(?:[^#]*&)?workflow=([^&#]+)/.exec(c?.path ?? '')
+    if (!m || typeof c.schedule !== 'string') continue
+    const file = decodeURIComponent(m[1])
+    out.set(file, [...(out.get(file) ?? []), c.schedule])
+  }
+  return out
+}
+
 export function listScheduledWorkflows(root) {
   const dir = join(root, '.github/workflows')
   let files = []
   try { files = readdirSync(dir).filter(f => /\.ya?ml$/.test(f)).sort() } catch { return [] }
+  const vercel = listVercelDispatchCrons(root)
   return files.filter(f => f !== 'data-freshness.yml').map(file => {
     const text = readFileSync(join(dir, file), 'utf8')
     const name = text.match(/^name:\s*(.+)$/m)?.[1]?.trim().replace(/^['"]|['"]$/g, '') ?? file
     const crons = [...text.matchAll(/^\s*-\s*cron:\s*['"]([^'"]+)['"]/gm)].map(m => m[1])
-    return { file, name, crons }
-  }).filter(w => w.crons.length)
+    return { file, name, crons, dispatchCrons: vercel.get(file) ?? [] }
+  }).filter(w => w.crons.length || w.dispatchCrons.length)
+}
+
+/**
+ * Vercel Cron 派发的延迟：workflow_dispatch 运行配对到它之前 DISPATCH_PAIR_MINUTES 内最近的 Vercel 触发时刻。
+ * 配不上的视为手动触发，不计入。Hobby 计划 Vercel 只保证在该小时内触发（±59 分钟），所以延迟含这段抖动。
+ */
+const DISPATCH_PAIR_MINUTES = 120
+export function dispatchDelays(dispatchCrons, runs) {
+  if (!dispatchCrons?.length) return []
+  const dispatched = runs.filter(r => r.event === 'workflow_dispatch').map(r => ({ ...r, at: new Date(r.createdAt) })).sort((a, b) => a.at - b.at)
+  if (!dispatched.length) return []
+  const fires = firesBetween(dispatchCrons, new Date(dispatched[0].at.getTime() - DISPATCH_PAIR_MINUTES * 60_000), dispatched.at(-1).at)
+  return dispatched.flatMap(r => {
+    const fire = fires.filter(t => t <= r.at && r.at - t <= DISPATCH_PAIR_MINUTES * 60_000).at(-1)
+    return fire ? [{ createdAt: r.createdAt, fire: fire.toISOString(), delayMinutes: Math.round((r.at - fire) / 60_000) }] : []
+  })
 }
 
 const median = xs => { const s = [...xs].sort((a, b) => a - b); return s.length ? s[Math.floor((s.length - 1) / 2)] : null }
@@ -524,6 +562,9 @@ export function judgeWorkflow(wf, runs, now, meta = null) {
   const lastCompleted = sorted.find(r => r.status === 'completed') ?? null
   const delays = scheduleDelays(wf.crons, runs).filter(d => d.delayMinutes !== null)
   const recent = delays.slice(-10).map(d => d.delayMinutes)
+  const dispatchCrons = wf.dispatchCrons ?? []
+  const dDelays = dispatchDelays(dispatchCrons, runs)
+  const dRecent = dDelays.slice(-10).map(d => d.delayMinutes)
   const notes = []
   let status = 'ok'
   const bump = s => { if (status === 'ok' || (s === 'stale' && status === 'warn')) status = s }
@@ -532,19 +573,30 @@ export function judgeWorkflow(wf, runs, now, meta = null) {
   else if (lastCompleted?.conclusion === 'cancelled') { bump('warn'); notes.push('最近完成的运行被取消') }
   const since = Math.max(now.getTime() - 40 * 86_400_000, meta?.createdAt ? Date.parse(meta.createdAt) : 0)
   const dueFire = firesBetween(wf.crons, new Date(since), new Date(now.getTime() - 24 * 3_600_000)).at(-1)
-  const lastScheduled = sorted.find(r => r.event === 'schedule')
+  // 配了 Vercel Cron 的工作流，准点的 workflow_dispatch 运行同样算「排程已执行」（GitHub 兜底排程被跳过或丢弃都无妨）
+  const lastScheduled = sorted.find(r => r.event === 'schedule' || (dispatchCrons.length && r.event === 'workflow_dispatch'))
   if (dueFire && (!lastScheduled || new Date(lastScheduled.createdAt) < dueFire)) {
     bump('warn')
     notes.push(`排程 ${dueFire.toISOString().slice(0, 16)}Z 之后 24 小时内没有定时运行（被 GitHub 丢弃或工作流被停用？）`)
+  }
+  // Vercel 派发：最近一个已过 DISPATCH_PAIR_MINUTES 的触发前 6 小时到后 2 小时内应有运行（6 小时内已成功时派发端会跳过）
+  const dueDispatch = firesBetween(dispatchCrons, new Date(since), new Date(now.getTime() - DISPATCH_PAIR_MINUTES * 60_000)).at(-1)
+  if (dueDispatch && !sorted.some(r => {
+    const t = Date.parse(r.createdAt)
+    return t >= dueDispatch.getTime() - 6 * 3_600_000 && t <= dueDispatch.getTime() + DISPATCH_PAIR_MINUTES * 60_000
+  })) {
+    bump('warn')
+    notes.push(`Vercel Cron ${dueDispatch.toISOString().slice(0, 16)}Z 前后没有运行（CRON_SECRET／GITHUB_DISPATCH_TOKEN 未配置或派发失败？查 Vercel → Cron Jobs → View Logs）`)
   }
   if (!last && !dueFire) notes.push('创建后尚未到首次排程')
   const failures = sorted.filter(r => FAILED.has(r.conclusion))
   if (failures.length && !(lastCompleted && FAILED.has(lastCompleted.conclusion))) notes.push(`近 ${sorted.length} 次运行中失败 ${failures.length} 次（最近 ${failures[0].createdAt.slice(0, 10)}），已恢复`)
   return {
-    file: wf.file, name: wf.name, crons: wf.crons, status,
+    file: wf.file, name: wf.name, crons: wf.crons, dispatchCrons, status,
     lastRun: last && { createdAt: last.createdAt, event: last.event, status: last.status, conclusion: last.conclusion, url: last.url },
     lastCompleted: lastCompleted && { createdAt: lastCompleted.createdAt, conclusion: lastCompleted.conclusion, url: lastCompleted.url },
     delay: { last: delays.at(-1)?.delayMinutes ?? null, median: median(recent), max: recent.length ? Math.max(...recent) : null, samples: recent.length },
+    dispatchDelay: { last: dDelays.at(-1)?.delayMinutes ?? null, median: median(dRecent), max: dRecent.length ? Math.max(...dRecent) : null, samples: dRecent.length },
     detail: notes.join('；') || undefined,
   }
 }
@@ -641,8 +693,8 @@ export function renderMarkdown(result) {
   lines.push('## 定时任务（最近结论与排程延迟）', '')
   if (result.workflowsSkipped) lines.push(`未查询：${result.workflowsSkipped}`, '')
   else {
-    lines.push('| 状态 | 工作流 | cron (UTC) | 最近运行 | 最近完成结论 | 最近定时延迟 | 近 10 次延迟 中位/最大 | 说明 |', '| --- | --- | --- | --- | --- | --- | --- | --- |',
-      ...workflows.map(w => `| ${STATUS_LABEL[w.status] ?? w.status} | ${cell(w.name)} \`${w.file}\` | ${cell(w.crons.join(' ; '))} | ${cell(w.lastRun ? `${w.lastRun.createdAt} ${w.lastRun.event}` : null)} | ${cell(w.lastCompleted?.conclusion)} | ${fmtMin(w.delay?.last)} | ${fmtMin(w.delay?.median)} / ${fmtMin(w.delay?.max)} | ${cell(w.detail)} |`), '')
+    lines.push('| 状态 | 工作流 | cron (UTC) | 最近运行 | 最近完成结论 | 最近定时延迟 | 近 10 次延迟 中位/最大 | Vercel Cron 派发 · 近 10 次延迟 中位/最大 | 说明 |', '| --- | --- | --- | --- | --- | --- | --- | --- | --- |',
+      ...workflows.map(w => `| ${STATUS_LABEL[w.status] ?? w.status} | ${cell(w.name)} \`${w.file}\` | ${cell(w.crons.join(' ; '))} | ${cell(w.lastRun ? `${w.lastRun.createdAt} ${w.lastRun.event}` : null)} | ${cell(w.lastCompleted?.conclusion)} | ${fmtMin(w.delay?.last)} | ${fmtMin(w.delay?.median)} / ${fmtMin(w.delay?.max)} | ${w.dispatchCrons?.length ? `${cell(w.dispatchCrons.join(' ; '))} · ${fmtMin(w.dispatchDelay?.median)} / ${fmtMin(w.dispatchDelay?.max)}` : '—'} | ${cell(w.detail)} |`), '')
   }
   lines.push('<details><summary>全部检查项</summary>', '', ...itemTable(items), '', '</details>', '', `<!-- freshness-fingerprint: ${result.fingerprint} -->`, '')
   let md = lines.join('\n')

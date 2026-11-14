@@ -8,7 +8,7 @@ export const CN_CALENDAR_URLS = {
   sh000300: 'https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh000300,day,,,400,qfq',
   sz399001: 'https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sz399001,day,,,400,qfq',
 }
-const DEFAULT_CACHE = fileURLToPath(new URL('../.cache/market-cycle-cn-turnover', import.meta.url))
+export const CN_TURNOVER_CACHE = fileURLToPath(new URL('../.cache/market-cycle-cn-turnover', import.meta.url))
 const dateOK = d => typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d) && Number.isFinite(Date.parse(d)) && new Date(d).toISOString().slice(0,10) === d
 const add = (d,n) => new Date(Date.parse(d)+n*864e5).toISOString().slice(0,10)
 const monday = d => add(d,-((new Date(d).getUTCDay()+6)%7))
@@ -47,7 +47,7 @@ async function atomic(file,value){await mkdir(path.dirname(file),{recursive:true
  * Missing dates stay missing. Cache entries retain the raw official response, exact dated URL and original fetch time.
  */
 export async function collectCnTurnover(ctx,opts={}) {
-  const cacheDir=opts.cacheDir??process.env.MARKET_CYCLE_CN_TURNOVER_CACHE_DIR??DEFAULT_CACHE
+  const cacheDir=opts.cacheDir??process.env.MARKET_CYCLE_CN_TURNOVER_CACHE_DIR??CN_TURNOVER_CACHE
   const maxRequests=Math.min(500,Math.max(2,Number(opts.maxRequests??500))),deadline=Date.now()+Math.min(360000,Math.max(0,Number(opts.deadlineMs??360000)))
   const today=ctx.now.slice(0,10);let requests=0
   try {
@@ -65,14 +65,19 @@ export async function collectCnTurnover(ctx,opts={}) {
       try {if(!cached||cached.url!==url||typeof cached.fetchedAt!=='string'||!Number.isFinite(Date.parse(cached.fetchedAt))||cached.fetchedAt.slice(0,10)>today)throw new Error('uncached');const p=parse(cached.body,date);parts.set(`${exchange}:${date}`,p.amountYi)}catch{jobs.push({date,exchange,url,file,parse})}
     }}
     let next=0
-    const worker=async()=>{while(next<jobs.length&&requests<maxRequests&&Date.now()<deadline&&!ctx.signal?.aborted){const j=jobs[next++];requests++;try{
+    // Circuit breaker: SZSE resets/403s every non-mainland datacenter IP (GitHub runners included). After 4 network-level
+    // failures with no success from an exchange, stop asking it this round instead of spending the whole request budget.
+    const net={sse:{ok:0,fail:0},szse:{ok:0,fail:0}},blocked=ex=>net[ex].ok===0&&net[ex].fail>=4
+    const worker=async()=>{while(next<jobs.length&&requests<maxRequests&&Date.now()<deadline&&!ctx.signal?.aborted){const j=jobs[next++];if(blocked(j.exchange))continue;requests++;try{
       const body=await ctx.get(j.url,{headers:{Referer:j.exchange==='sse'?'https://www.sse.com.cn/':'https://www.szse.cn/'}})
+      net[j.exchange].ok++
       const parsed=j.parse(body,j.date);await atomic(j.file,{url:j.url,fetchedAt:ctx.now,body});parts.set(`${j.exchange}:${j.date}`,parsed.amountYi)
-    }catch(e){failures.push(`${j.exchange} ${j.date}: ${e instanceof Error?e.message:String(e)}`)}}}
+    }catch(e){const msg=e instanceof Error?e.message:String(e);if(/fetch failed|HTTP 403|超时|timeout|abort/i.test(msg))net[j.exchange].fail++;failures.push(`${j.exchange} ${j.date}: ${msg}`)}}}
     await Promise.all([worker(),worker()])
     const rows=[],missing=[]
     for(const date of dates){const sh=parts.get(`sse:${date}`),sz=parts.get(`szse:${date}`);if(sh===undefined||sz===undefined)missing.push(date);else rows.push({date,amount:Number((sh+sz).toFixed(2))})}
-    if(missing.length)throw new Error(`53周${dates.length}个真实交易日，两所均具备${rows.length}日，缺${missing.length}日（${missing.slice(0,5).join(',')}）；本轮请求${requests}/${maxRequests}，${failures.slice(0,3).join('；')||'预算/时限耗尽'}`)
+    const breaker=['sse','szse'].filter(blocked).map(ex=>`${ex}连续${net[ex].fail}次网络失败已熔断（深交所拒绝境外数据中心IP，需在境内/住宅网络运行）`).join('；')
+    if(missing.length)throw new Error(`53周${dates.length}个真实交易日，两所均具备${rows.length}日，缺${missing.length}日（${missing.slice(0,5).join(',')}）；本轮请求${requests}/${maxRequests}，${breaker?`${breaker}；`:''}${failures.slice(0,3).join('；')||'预算/时限耗尽'}`)
     const r=computeCnWeeklyTurnoverRatio(rows,calendar,today),sources=cnTurnoverUrls(r.observationDate)
     return [{metricId:'turnover_ratio_52w',market:'csi300',value:Number(r.value.toFixed(6)),observationDate:r.observationDate,source:sources.sse,unit:'倍',kind:'observed',frequency:'weekly',description:`沪深A股与全部上市基金成交额（亿元人民币，与融资比例同分母，非沪深300成分成交额）；完整周${r.weekStart}~${r.weekEnd}，${r.days}个真实交易日，日均${r.weekDailyAverage.toFixed(2)}亿元；此前52个日历周${r.baselineStart}~${r.baselineEnd}，${r.baselineDays}个真实交易日，日均${r.baselineDailyAverage.toFixed(2)}亿元；按真实交易日均值相除，整周休市不补零；沪市主板A+科创板+基金，深市主板A+创业板A+基金；逐日官方历史查询（各日替换日期参数）：${sources.sse}；${sources.szse}；沪深交易日历交叉核验：${Object.values(CN_CALENDAR_URLS).join('；')}`}]
   }catch(e){ctx.issue(`cn-turnover: ${e instanceof Error?e.message:String(e)}`);return []}

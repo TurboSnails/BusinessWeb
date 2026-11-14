@@ -1,5 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { mkdtemp, readFile } from 'node:fs/promises'
+import os from 'node:os'
+import path from 'node:path'
 import { parseSseFundingTurnover, parseSzseFundingTurnover, computeCnFinancingRatio, collectCnFunding } from './market-cycle-cn-funding.mjs'
 const date = '2026-10-16'
 const sse = () => ({ sqlId: 'COMMON_SSE_SJ_SCGM_C', result: [
@@ -48,4 +51,50 @@ test('collector joins newest margin day, outputs exact ratio contract and reject
   assert.equal(seen.length, 0)
   assert.deepEqual(await collectCnFunding({ ...ctx, now: '2026-11-10T02:00:00.000Z' }), [])
   assert.deepEqual(await collectCnFunding({ ...ctx, now: '2026-10-15T02:00:00.000Z' }), [])
+})
+
+const sseOn = d => { const b = sse(); for (const r of b.result) r.TRADE_DATE = d.replaceAll('-', ''); return b }
+const szseOn = d => { const b = szse(); b[0].metadata.subname = d; return b }
+const multiCtx = (failSzse = new Set()) => {
+  const seen = [], calls = []
+  const margin = [['2026-10-16', 121857375394], ['2026-10-15', 124282324291], ['2026-10-14', 110000000000]]
+  return { seen, calls, ctx: { now: '2026-10-19T02:00:00.000Z', issue: s => seen.push(s), get: async url => {
+    calls.push(url)
+    if (url.includes('eastmoney')) return { success: true, result: { data: margin.map(([d, v]) => ({ DIM_DATE: `${d} 00:00:00`, RZMRE: v })) } }
+    const u = new URL(url), d = u.searchParams.get('TRADE_DATE') ?? u.searchParams.get('txtQueryDate')
+    if (url.includes('szse.cn') && failSzse.has(d)) throw new TypeError('fetch failed(ECONNRESET)')
+    return url.includes('sse.com.cn') ? sseOn(d) : szseOn(d)
+  } } }
+}
+test('collector emits a same-date ratio for every recent margin day so the weekly close can be paired', async () => {
+  const { ctx, seen } = multiCtx()
+  const out = await collectCnFunding(ctx)
+  const ratios = out.filter(f => f.metricId === 'financing_buy_ratio_pct')
+  assert.deepEqual(ratios.map(f => f.observationDate), ['2026-10-16', '2026-10-15', '2026-10-14'])
+  assert.equal(ratios[0].value, 5.636785)
+  for (const f of out) assert.match(f.description, new RegExp(`TRADE_DATE=${f.observationDate}.*txtQueryDate=${f.observationDate}`))
+  assert.equal(seen.length, 0)
+})
+test('an older day whose exchange data is missing is skipped silently; a newest-day failure is reported', async () => {
+  const older = multiCtx(new Set(['2026-10-15']))
+  assert.deepEqual((await collectCnFunding(older.ctx)).filter(f => f.metricId === 'financing_buy_ratio_pct').map(f => f.observationDate), ['2026-10-16', '2026-10-14'])
+  assert.equal(older.seen.length, 0)
+  const newest = multiCtx(new Set(['2026-10-16']))
+  assert.deepEqual((await collectCnFunding(newest.ctx)).filter(f => f.metricId === 'financing_buy_ratio_pct').map(f => f.observationDate), ['2026-10-15', '2026-10-14'])
+  assert.match(newest.seen.join(), /cn-funding: 2026-10-16: fetch failed\(ECONNRESET\)/)
+  const blocked = multiCtx(new Set(['2026-10-16', '2026-10-15', '2026-10-14']))
+  assert.deepEqual(await collectCnFunding(blocked.ctx), [])
+  assert.equal(blocked.calls.filter(u => u.includes('szse.cn')).length, 2, 'an unreachable exchange is not retried for every older date')
+})
+test('with a cache dir the official raw responses are shared with the 53-week collector and reused', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'cn-funding-'))
+  const first = multiCtx()
+  await collectCnFunding(first.ctx, { cacheDir: dir })
+  const cached = JSON.parse(await readFile(path.join(dir, 'szse', '2026-10-16.json'), 'utf8'))
+  assert.equal(cached.url, 'https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=1803_sczm&TABKEY=tab1&txtQueryDate=2026-10-16')
+  assert.equal(cached.fetchedAt, '2026-10-19T02:00:00.000Z')
+  const second = multiCtx(new Set(['2026-10-16', '2026-10-15', '2026-10-14']))
+  const out = await collectCnFunding(second.ctx, { cacheDir: dir })
+  assert.equal(out.filter(f => f.metricId === 'financing_buy_ratio_pct').length, 3)
+  assert.equal(second.calls.filter(u => !u.includes('eastmoney')).length, 0)
 })

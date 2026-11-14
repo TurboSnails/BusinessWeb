@@ -16,7 +16,7 @@ async function buildAutoSnapshot(previous, options) {
   const cacheDir = await mkdtemp(join(tmpdir(), 'cycle-auto-cn-test-'))
   // us-fwd-pe reads the committed index-history.json, not the network; keep it out of the offline-source tests.
   const sources = options?.sources ?? SOURCES.filter(s => s.id !== 'us-fwd-pe')
-  try { return await buildProductionSnapshot(previous, { ...options, sources, cnTurnoverOptions: { cacheDir: join(cacheDir, 'cn') }, hsiTurnoverOptions: { cacheDir: join(cacheDir, 'hsi') } }) }
+  try { return await buildProductionSnapshot(previous, { parsePdf: fakePdf, ...options, sources, cnTurnoverOptions: { cacheDir: join(cacheDir, 'cn') }, hsiTurnoverOptions: { cacheDir: join(cacheDir, 'hsi') } }) }
   finally { await rm(cacheDir, { recursive: true, force: true }) }
 }
 
@@ -243,6 +243,8 @@ function fakeFetch(overrides = {}) {
       const date = /STAT_DATE=([\d-]+)/.exec(url)[1]
       return json({ result: date === '2026-10-16' ? ETF_WHITELIST.map(w => ({ STAT_DATE: date, SEC_CODE: w.code, SEC_NAME: w.name, TOT_VOL: '1000' })) : [] })
     }
+    // HSTECH: only the real 2026-10-02 Monthly Roundup exists; every other candidate answers 302 (→ /errors/404/).
+    if (url.includes('/monthly_roundup/content/')) return url.endsWith('/20261002T000000.pdf') ? { ok: true, status: 200, arrayBuffer: async () => Buffer.concat([Buffer.from('%PDF-1.7 roundup'), Buffer.alloc(2000)]) } : { ok: false, status: 302 }
     if (url.includes('hsi.com.hk')) return { ok: true, status: 200, arrayBuffer: async () => Buffer.concat([Buffer.from(url.includes('hstech') ? 'PKhstech' : 'PKhsi'), Buffer.alloc(2000)]) }
     if (url.includes('RPT_MUTUAL_DEAL_HISTORY')) {
       const m = /MUTUAL_TYPE%3D%22(\d+)%22/.exec(url)
@@ -264,6 +266,11 @@ function fakeFetch(overrides = {}) {
   impl.calls = calls
   return impl
 }
+// Text layout as extracted by pypdf from the real 2026-10-02 Monthly Roundup (pages 1, 6 and 7).
+const ROUNDUP_PAGES = ['Highlights\n• As at 30 September, assets under management (‘AUM’) in products passively tracking indexes',
+  'Change\nIndex Name 1-Month 3-Month 12-Month YTD\nHang Seng Index and its related indexes\nHang Seng Index -3.73% 7.57% -8.35% -3.97% 13.79 2.97%\nHang Seng Index - Finance -1.45% 11.49% 22.65% 13.14% 9.80 3.94%',
+  'Change\nIndex Name 1-Month 3-Month 12-Month YTD\nPE Ratio \n(Times)\nDividend \nYield\nHang Seng TECH Index and its related indexes\nHang Seng TECH Index -7.92% -4.88% -34.21% -22.88% 28.23 1.10%\nHSTECH SCHK Index -8.02% -4.10% -34.00% -22.00% 27.90 1.20%']
+const fakePdf = async buf => { assert.equal(buf.subarray(0, 4).toString(), '%PDF'); return ROUNDUP_PAGES }
 const fakeXlsx = async buf => (buf.length ? [
   { r: 3, c: 'B', v: 'Hang Seng Index' }, { r: 3, c: 'A', v: 'Hang Seng TECH Index' }, { r: 4, c: 'A', v: 46295 }, { r: 4, c: 'B', v: buf.includes(Buffer.from('hstech')) ? 28.23 : 13.79 },
 ] : [])
@@ -286,6 +293,12 @@ test('buildAutoSnapshot: all sources, treasury paging, contract-valid output', a
   const tech = out.facts.find(f => f.metricId === 'pe_official_5y_percentile' && f.market === 'hstech')
   assert.ok(Math.abs(tech.value - 34.166667) < 1e-6)
   assert.match(tech.description, /E\/P.*9个指数整体亏损月份/)
+  const techPe = out.facts.find(f => f.metricId === 'pe' && f.market === 'hstech')
+  assert.deepEqual([techPe.value, techPe.observationDate, techPe.frequency], [28.23, '2026-09-30', 'monthly'])
+  assert.equal(techPe.source, 'https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20261002T000000.pdf')
+  assert.equal(tech.source, techPe.source)
+  assert.match(techPe.description, /Monthly Roundup.*XLSX已于2026-10下架.*不标作TTM/)
+  assert.ok(!fetchImpl.calls.some(u => u.includes('historical_pe/en_hk/hstech')), 'the withdrawn HSTECH XLSX is no longer requested')
   const erpz = out.facts.find(f => f.metricId === 'erp_z')
   for (const id of ['erp_z', 'erp', 'cn10y']) assert.equal(out.facts.find(f => f.metricId === id).kind, 'observed')
   assert.match(out.facts.find(f => f.metricId === 'cn10y').description, /akshare\/main\/akshare\/bond\/bond_em\.py.*非中债官方直连/)
@@ -403,4 +416,10 @@ test('unsupported previous schemaVersion is ignored; bad-only previous is fatal'
   }
   const out = await buildAutoSnapshot({ schemaVersion: 2, facts: [fact()] }, { fetchImpl: failAll, now: NOW, parseXlsx: fakeXlsx })
   assert.ok(out.issues.some(i => i.includes('schemaVersion')))
+})
+
+test('network failures keep the undici cause code so CI-only blocks are visible in issues', async () => {
+  const fetchImpl = async () => { throw new TypeError('fetch failed', { cause: Object.assign(new Error('read ECONNRESET'), { code: 'ECONNRESET' }) }) }
+  const out = await buildAutoSnapshot(null, { fetchImpl, now: NOW, parseXlsx: fakeXlsx, sources: SOURCES.filter(s => s.id === 'margin') })
+  assert.match(out.issues.join('\n'), /margin: fetch failed\(ECONNRESET: read ECONNRESET\)/)
 })

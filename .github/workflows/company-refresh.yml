@@ -1,10 +1,13 @@
 name: Refresh company quotes
 
-# 每个工作日港股收盘后刷新公司库行情（流程同 docs/data-maintenance.md）：只更新行情与供应商返回字段，
-# 原研究模型、评级与研究日期保留；证据精简后留存 14 天。手动全量刷新（含 MCP 公司资料）仍按文档执行。
+# 每个工作日美股收盘后（A 股、港股、美股都已收盘）刷新公司库行情（流程同 docs/data-maintenance.md）：
+# 只更新行情与供应商返回字段，原研究模型、评级与研究日期保留；证据精简后留存 14 天。
+# 手动全量刷新（含 MCP 公司资料）仍按文档执行。
+# 准点触发由 Vercel Cron（vercel.json，UTC 22:00–22:59）调用 workflow_dispatch；下面的 schedule 只作兜底，
+# GitHub 排程常迟到 6–10 小时，若 20 小时内已有行情刷新提交则跳过，见「Collect」步骤。
 on:
   schedule:
-    - cron: '40 10 * * 1-5'
+    - cron: '0 22 * * 1-5'
   workflow_dispatch:
 
 permissions:
@@ -36,8 +39,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          D=$(TZ=Asia/Yerevan date +%F)
+          # 目录与快照日期取纽约日期：UTC 22:00 运行时等于刚收盘的美股交易日，也就是 A/H 股当天；
+          # 若用 Asia/Yerevan（UTC+4），22:00 UTC 已是次日，周五收盘会被记成周六。
+          D=$(TZ=America/New_York date +%F)
           echo "D=$D" >> "$GITHUB_ENV"
+          # 兜底排程：Vercel Cron 已按时触发过（20 小时内有行情刷新提交）就不再跑，避免迟到的排程在亚洲盘中用盘中价覆盖收盘价
+          if [ "${{ github.event_name }}" = "schedule" ] && [ -n "$(git log -1 --since='20 hours ago' --grep='^data(companies): 行情刷新' --format=%H)" ]; then
+            echo "SKIP=1" >> "$GITHUB_ENV"; echo "20 小时内已有行情刷新（Vercel Cron 准点触发），兜底排程跳过"; exit 0
+          fi
           # 当天已有手动全量刷新（目录存在且无 AUTO.txt）时不覆盖其完整证据
           if [ -d "public/research/data-refresh-$D" ] && [ ! -f "public/research/data-refresh-$D/AUTO.txt" ]; then
             echo "SKIP=1" >> "$GITHUB_ENV"; echo "今日已有手动全量刷新，跳过"; exit 0

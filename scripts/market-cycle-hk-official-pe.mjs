@@ -50,11 +50,13 @@ export function officialMonthlyPePercentile(archive, market, currentRows, today)
     const month = row.date.slice(0, 7)
     if (currentMonths.has(month)) throw new Error(`官方PE最新行重复月份：${month}`)
     currentMonths.add(month)
+    // A current row may cite its own official Monthly Roundup PDF (HSTECH's XLSX was withdrawn in 2026-10).
+    if (row.source !== undefined && !PDF.test(row.source) && row.source !== XLSX(market)) throw new Error(`官方PE最新行来源不在白名单：${row.source}`)
     const prior = rows.get(month)
-    if (prior && Math.abs(prior.pe - row.pe) > 1e-8) throw new Error(`官方PE历史与XLSX重叠月份冲突：${month} ${prior.pe}/${row.pe}`)
+    if (prior && Math.abs(prior.pe - row.pe) > 1e-8) throw new Error(`官方PE历史与最新行重叠月份冲突：${month} ${prior.pe}/${row.pe}`)
     // Preserve the archive's stable per-report citation when corroborated, but
-    // use the date actually published by the current XLSX for the observation.
-    rows.set(month, { date: row.date, pe: row.pe, source: prior?.source ?? XLSX(market) })
+    // use the date actually published by the current XLSX/PDF for the observation.
+    rows.set(month, { date: row.date, pe: row.pe, source: prior?.source ?? row.source ?? XLSX(market) })
   }
   const ordered = [...rows.values()].sort((a, b) => a.date.localeCompare(b.date))
   const latest = ordered.at(-1)

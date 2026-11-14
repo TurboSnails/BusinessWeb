@@ -83,3 +83,12 @@ test('does not mutate the archive or assert an unverified earnings definition', 
   assert.equal('ttm' in out, false)
   assert.throws(() => officialMonthlyPePercentile(seed, 'csi300', current, today), /市场/)
 })
+
+test('a new month may cite its own official Monthly Roundup PDF (HSTECH XLSX withdrawn); other sources are rejected', () => {
+  const pdf = 'https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20261102T000000.pdf'
+  const out = officialMonthlyPePercentile(seed, 'hstech', [{ date: '2026-10-30', pe: 25.43, source: pdf }], '2026-11-14')
+  assert.equal(out.observationDate, '2026-10-30')
+  assert.equal(out.source, pdf)
+  assert.ok(out.sources.includes(pdf))
+  assert.throws(() => officialMonthlyPePercentile(seed, 'hstech', [{ date: '2026-10-30', pe: 25.43, source: 'https://eniu.com/x.pdf' }], '2026-11-14'), /白名单/)
+})

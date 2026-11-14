@@ -40,7 +40,7 @@ export async function collectHsiPeHistory(ctx) {
   try {
     const rows = parseHsiPeHistory(await ctx.get(HSI_PE_HISTORY_URL), ctx.now.slice(0, 10))
     const result = hsiPe5yPercentile(rows)
-    if ((Date.parse(ctx.now.slice(0, 10)) - Date.parse(result.observationDate)) / 864e5 > 14) throw new Error('恒指历史PE最新观测超过14天')
+    if ((Date.parse(ctx.now.slice(0, 10)) - Date.parse(result.observationDate)) / 864e5 > 14) throw new Error(`恒指历史PE最新观测${result.observationDate}超过14天（亿牛网恒指序列自2026-10-30起停更，无同口径替代源）`)
     return [{ metricId: 'pe_history_5y_percentile', market: 'hsi', value: Number(result.value.toFixed(1)), observationDate: result.observationDate,
       source: HSI_PE_HISTORY_URL, unit: '%', kind: 'observed', frequency: 'daily',
       description: `第三方恒指历史PE序列近5年中位秩分位；${result.windowStart}~${result.observationDate}共${result.samples}个日点，当前同源PE ${result.currentPe.toFixed(2)}倍，分位${result.value.toFixed(1)}%。与恒生官方月末PE多期吻合（2025-10-31 13.17、2026-09-30 13.79），2026-10-16与官方日值13.53接近；网站未公开PE加权与盈利口径，不与官方PE/TTM拼接，不单独计估值票。` }]

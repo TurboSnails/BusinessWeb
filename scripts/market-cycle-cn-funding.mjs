@@ -1,3 +1,5 @@
+import { readFile, writeFile, mkdir, rename } from 'node:fs/promises'
+import path from 'node:path'
 // Financing purchases / total mainland A-share and listed-fund turnover, same session, RMB.
 // A listed bond ETF is a fund in both exchanges' classification; direct bonds, B-shares,
 // preferred shares, repo and options are excluded. This is a whole-market background for CSI300.
@@ -57,24 +59,60 @@ export function computeCnFinancingRatio(margin, sse, szse) {
   if (value > 100) throw new Error('融资买入额超过市场成交额')
   return { date: margin.date, value, denominatorYi, numeratorYi }
 }
-export async function collectCnFunding(ctx) {
+async function readCached(file) { try { return JSON.parse(await readFile(file, 'utf8')) } catch { return null } }
+async function writeCached(file, value) { await mkdir(path.dirname(file), { recursive: true }); const tmp = `${file}.${process.pid}.funding-${Math.random().toString(36).slice(2)}.tmp`; await writeFile(tmp, JSON.stringify(value)); await rename(tmp, file) }
+/**
+ * One exchange's classified turnover for `date`. With `cacheDir` (the cn-turnover evidence cache: raw official body,
+ * exact dated URL, original fetch time) a valid cached response is reused and a fresh one is stored, so the daily ratio
+ * and the 53-week series read the very same official numbers.
+ */
+async function exchangeTurnover(ctx, exchange, date, cacheDir) {
+  const url = cnTurnoverUrls(date)[exchange], parse = exchange === 'sse' ? parseSseFundingTurnover : parseSzseFundingTurnover
+  const file = cacheDir ? path.join(cacheDir, exchange, `${date}.json`) : null
+  if (file) {
+    const cached = await readCached(file)
+    if (cached && cached.url === url && typeof cached.fetchedAt === 'string' && Number.isFinite(Date.parse(cached.fetchedAt)) && cached.fetchedAt.slice(0, 10) <= ctx.now.slice(0, 10)) {
+      try { return parse(cached.body, date) } catch { /* refetch */ }
+    }
+  }
+  const body = await ctx.get(url, { headers: { Referer: exchange === 'sse' ? 'https://www.sse.com.cn/' : 'https://www.szse.cn/' } })
+  const parsed = parse(body, date)
+  if (file) await writeCached(file, { url, fetchedAt: ctx.now, body }).catch(() => {})
+  return parsed
+}
+/**
+ * Emits the ratio for every margin date of the last 14 days whose same-date official turnover from both exchanges is
+ * available — not only the newest — so the weekly funding assessment can pair the ratio with the completed week's
+ * last session. A date whose turnover cannot be fetched is skipped (never filled from another date).
+ */
+export async function collectCnFunding(ctx, { cacheDir } = {}) {
   try {
     const body = await ctx.get(CN_MARGIN_URL)
     if (!body?.success || !Array.isArray(body.result?.data) || !body.result.data.length) throw new Error('融资买入额响应无效')
     const rows = body.result.data.map(r => ({ date: String(r?.DIM_DATE ?? '').slice(0, 10), valueYuan: r?.RZMRE }))
     if (rows.some(r => !dateOK(r.date) || typeof r.valueYuan !== 'number' || !Number.isFinite(r.valueYuan) || r.valueYuan < 0) || new Set(rows.map(r => r.date)).size !== rows.length) throw new Error('融资日期/金额无效或重复')
-    const margin = rows.sort((a, b) => b.date.localeCompare(a.date))[0]
-    const age = (Date.parse(ctx.now.slice(0, 10)) - Date.parse(margin.date)) / 864e5
-    if (age < 0 || age > 14) throw new Error('融资观测为未来或已超14天')
-    const urls = cnTurnoverUrls(margin.date)
-    const [shBody, szBody] = await Promise.all([ctx.get(urls.sse, { headers: { Referer: 'https://www.sse.com.cn/' } }), ctx.get(urls.szse, { headers: { Referer: 'https://www.szse.cn/' } })])
-    const sh = parseSseFundingTurnover(shBody, margin.date), sz = parseSzseFundingTurnover(szBody, margin.date)
-    const ratio = computeCnFinancingRatio(margin, sh, sz)
-    const common = { market: 'csi300', observationDate: margin.date, kind: 'observed', frequency: 'daily' }
-    const description = `沪深全市场融资买入额${ratio.numeratorYi.toFixed(2)}亿元人民币（股票/基金，含ETF）÷同日沪深A股与全部上市基金成交额${ratio.denominatorYi.toFixed(2)}亿元人民币×100；沪市主板A ${sh.parts['主板A'].toFixed(2)}+科创板${sh.parts['科创板'].toFixed(2)}+基金${sh.parts['基金'].toFixed(2)}，深市主板A ${sz.parts['主板A股'].toFixed(2)}+创业板A ${sz.parts['创业板A股'].toFixed(2)}+基金${sz.parts['基金'].toFixed(2)}；不含B股、直接债券、优先股、回购、期权，债券ETF仍归基金；分母含非融资标的的A股与基金，非融资标的内部杠杆占比，也非沪深300成分股专属。融资来源：${CN_MARGIN_URL}；沪市分类：${urls.sse}；深市分类：${urls.szse}`
-    return [
-      { ...common, metricId: 'financing_buy_ratio_pct', value: round(ratio.value), unit: '%', source: CN_MARGIN_URL, description },
-      { ...common, metricId: 'cn_turnover_yi', value: ratio.denominatorYi, unit: '亿元', source: urls.sse, description },
-    ]
+    const ageOf = d => (Date.parse(ctx.now.slice(0, 10)) - Date.parse(d)) / 864e5
+    const margins = rows.sort((a, b) => b.date.localeCompare(a.date)).filter(r => ageOf(r.date) >= 0 && ageOf(r.date) <= 14)
+    if (!margins.length || ageOf(rows[0].date) < 0) throw new Error('融资观测为未来或已超14天')
+    const facts = [], failures = []
+    for (const margin of margins) {
+      try {
+        const urls = cnTurnoverUrls(margin.date)
+        const sh = await exchangeTurnover(ctx, 'sse', margin.date, cacheDir), sz = await exchangeTurnover(ctx, 'szse', margin.date, cacheDir)
+        const ratio = computeCnFinancingRatio(margin, sh, sz)
+        const common = { market: 'csi300', observationDate: margin.date, kind: 'observed', frequency: 'daily' }
+        const description = `沪深全市场融资买入额${ratio.numeratorYi.toFixed(2)}亿元人民币（股票/基金，含ETF）÷同日沪深A股与全部上市基金成交额${ratio.denominatorYi.toFixed(2)}亿元人民币×100；沪市主板A ${sh.parts['主板A'].toFixed(2)}+科创板${sh.parts['科创板'].toFixed(2)}+基金${sh.parts['基金'].toFixed(2)}，深市主板A ${sz.parts['主板A股'].toFixed(2)}+创业板A ${sz.parts['创业板A股'].toFixed(2)}+基金${sz.parts['基金'].toFixed(2)}；不含B股、直接债券、优先股、回购、期权，债券ETF仍归基金；分母含非融资标的的A股与基金，非融资标的内部杠杆占比，也非沪深300成分股专属。融资来源：${CN_MARGIN_URL}；沪市分类：${urls.sse}；深市分类：${urls.szse}`
+        facts.push(
+          { ...common, metricId: 'financing_buy_ratio_pct', value: round(ratio.value), unit: '%', source: CN_MARGIN_URL, description },
+          { ...common, metricId: 'cn_turnover_yi', value: ratio.denominatorYi, unit: '亿元', source: urls.sse, description },
+        )
+      } catch (e) {
+        failures.push(`${margin.date}: ${e instanceof Error ? e.message : String(e)}`)
+        // An unreachable exchange will not answer for older dates either (SZSE resets non-mainland datacenter IPs).
+        if (/fetch failed|超时|abort/i.test(failures.at(-1)) && !facts.length && failures.length >= 2) break
+      }
+    }
+    if (failures.length && (!facts.length || failures.some(f => f.startsWith(margins[0].date)))) ctx.issue(`cn-funding: ${failures.slice(0, 2).join('；')}`)
+    return facts
   } catch (e) { ctx.issue(`cn-funding: ${e instanceof Error ? e.message : String(e)}`); return [] }
 }

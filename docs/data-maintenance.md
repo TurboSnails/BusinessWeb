@@ -90,11 +90,61 @@ PEP最新Q3、官方事件日历、8项ETF费用／规则及纳指QQQ持仓代�
 | 公司行情、供应商摘要、林奇PE | 本轮新增 `collect-market-mcp.py`／`collect-market-refresh.mjs` → `normalize-market-refresh.py` → `apply-companies`，完整命令见下文 | 原分类／增速／护城河与估值仍需逐公司复核；不以新报价认证旧模型 |
 | 数据新鲜度巡检（只读） | `node scripts/data-freshness-check.mjs [--md out.md] [--json out.json] [--now ISO] [--no-gh]`；单测 `node --test scripts/data-freshness-check.test.mjs`；每日 `data-freshness.yml` | 只读真实观测日期，不改数据；阈值与已知停更白名单（带原因、到期日、观测日锁定）写在脚本顶部 `THRESHOLDS`／`ALLOWLIST`。源恢复或白名单到期后会重新告警，不要靠延长到期日消警 |
 
-已有 GitHub Actions：公司库行情工作日北京时间 **18:40**（`company-refresh.yml`，只刷新行情，证据精简后保留 14 天，MCP 公司资料仍需手动全量刷新）；DCF 预填库每日两次（`dcf-prefill.yml`）；每日分析工作日北京时间 **15:35、17:10**；国家队每周一 **10:30**；宏观＋指数每月 8 日 **14:00**。配置见 [.github/workflows](../.github/workflows)。本次 GitHub CLI 未登录，未核验远端最近运行／部署状态。任务存在不等于已经成功运行。
+已有 GitHub Actions：公司库行情工作日美股收盘后 **UTC 22:00**（`company-refresh.yml`，由 Vercel Cron 准点触发，见下文「Vercel Cron 准点触发」；只刷新行情，证据精简后保留 14 天，MCP 公司资料仍需手动全量刷新）；DCF 预填库每日两次（`dcf-prefill.yml`）；每日分析工作日北京时间 **16 点、18 点**（Vercel Cron；GitHub 排程 15:35、17:10 兜底）；国家队每周一 **10:30**；宏观＋指数每月 8 日 **14:00**。配置见 [.github/workflows](../.github/workflows)。本次 GitHub CLI 未登录，未核验远端最近运行／部署状态。任务存在不等于已经成功运行。
 
 **数据新鲜度巡检**（2026-11-14 新增，`data-freshness.yml`，每日 UTC 23:20＋手动）：起因是 2026-11-12 `company-refresh.yml` 因价格耦合测试失败、`daily-analysis-snapshot.yml` 因排程迟到约 8.5 小时没拿到当日收盘快照而空跑，均无人察觉。巡检读各文件内的观测日期（公司 `价格锚点`、行情快照 `date`、林奇 `peAsOf`、估值覆盖层记录 `price.date`、每日分析 `dataDate`、宏观逐指标（直接调用 `quality.ts`）、周期事实 `observationDate`、指数、股债利差、ETF 技术面、国家队报告期、DCF `pxDate`／无风险利率），按市场交易日（`scripts/lib/trading-calendar.mjs`：A 股含上交所 2026 休市、美股含 NYSE 2026 假期、港股暂只排周末）推算「应已落地」的最近交易日。主要阈值：日频行情 >3 个交易日；每日分析落后 1 个交易日或近 10 个交易日有缺档；周期日频事实 >5 个交易日；周度 >10 天；月末 >45 天；国家队按披露截止日 +14 天。另用 `gh` 汇总各定时工作流最近结论与排程延迟（近 10 次中位／最大），最近完成的运行失败或工作流被停用也告警。有告警时创建／更新唯一的「数据新鲜度告警」issue（标签 `data-freshness`，告警项变化才追加评论），恢复后自动评论并关闭；不提交报告文件。
 
 2026-10-23 观察：`company-refresh.yml` 的行情步骤自 2026-10-20 起没有产出可提交的新值（远端四市场报价停滞于 10-19／10-20），而每日分析、DCF 预填、周期复盘仍持续提交。工作流的发布步骤排在 `npx vitest run src/data` 之后，验证失败即不提交；本轮修复的 4 处价格强耦合断言原先会在价格漂移后让该步骤失败。根因需 `gh` 登录后查运行日志；若确认为采集步骤失败，可先给工作流补 `SSL_CERT_FILE=$(uvx --python 3.12 --from yfinance-mcp-server==1.0.4 python -c "import certifi;print(certifi.where())")` 再重跑。
+
+## Vercel Cron 准点触发（2026-11-14 新增）
+
+**为什么**：GitHub 的 `schedule` 实测迟到 6–10 小时（2026-11-14 统计近 10 次中位 5h44m–8h04m，最大 10h36m）。每日分析跑到北京时间次日凌晨，当天收盘快照已取不到；公司行情 cron 10:40 UTC 实际约 18:00 UTC 才跑，正值美股盘中，存进去的美股价是盘中价。
+
+**怎么做**：`vercel.json` 的 `crons` 按 UTC 时刻调用 `/api/market-data/cron-dispatch?workflow=<file>.yml`（与行情接口共用 `api/market-data/[marketRoute].js`，不新增函数——Hobby 函数数量已近上限）。处理代码在 `server/functions/cron-dispatch.js`：校验 `Authorization: Bearer $CRON_SECRET`（Vercel 自动带）→ 只接受白名单工作流 → 用 `GITHUB_DISPATCH_TOKEN` 调 GitHub `POST /repos/TurboSnails/BusinessWeb/actions/workflows/{file}/dispatches`（`{"ref":"main"}`）。环境变量缺失时返回 503 并在 Vercel 日志打印 `[cron-dispatch] … 未配置`。单测 `node --test server/functions/cron-dispatch.test.mjs`（已并入 `npm run test:scripts`）。
+
+| Vercel Cron（UTC） | 工作流 | 对应北京／纽约时间 | 理由 |
+| --- | --- | --- | --- |
+| `0 8 * * 1-5` | `daily-analysis-snapshot.yml` | 北京 16:00–16:59 | A 股 15:00 收盘后；脚本 15:15 后才落盘，所以不用 07 点档（Hobby 可能 07:00 就触发） |
+| `0 10 * * 1-5` | `daily-analysis-snapshot.yml` | 北京 18:00–18:59 | 第二次核验，补晚发布的源；与第一档至少隔 1 小时 |
+| `0 8 * * 1-5` | `etf-technical.yml` | 北京 16:00–16:59 | 收盘后技术面；晚间补净值仍由 GitHub 排程 13:30 负责 |
+| `0 10 * * 1-5` | `spread-snapshot.yml` | 北京 18:00–18:59 | A 股收盘、中债收益率发布之后（需晚于 09:30 UTC） |
+| `0 22 * * 1-5` | `company-refresh.yml` | 纽约 17:00（冬令时）／18:00（夏令时） | 美股 16:00 收盘后，三地市场当天都已收盘；冬令时收盘是 21:00 UTC，所以不用 21 点档 |
+
+未纳入：`dcf-prefill`（基本面按周、价格不要求当日）、`market-cycle`（增量采集，每日两次，迟到不影响）、`macro-snapshot`（周六一次）、`national-team`（每周）、`data-freshness`（按实际运行时刻推算，迟到不误报）。
+
+**Hobby 计划限制**（[官方](https://vercel.com/docs/cron-jobs/usage-and-pricing)）：每个 cron 每天最多一次（更频繁的表达式会让部署失败）；只保证在指定的**那个小时内**触发（`0 8` 可能是 08:00–08:59 任一时刻），所以上表按「整小时窗口都可接受」选档、分钟一律写 0。Pro 计划精确到分钟。每项目 100 个 cron，本项目用 5 个。Vercel 不重试失败的调用，也可能偶尔重复调用；cron 只在 Production 部署上运行。
+
+**重复运行的处理**（GitHub `schedule` 保留为兜底，未删除）：
+
+- 派发前查该工作流最近 10 次运行：已有排队／运行中的 → 跳过；`company-refresh`、`spread-snapshot`、`etf-technical` 6 小时内已有成功运行 → 跳过；`daily-analysis` 只看排队／运行中（一天两次核验，第二次不能因第一次成功跳过）。查询失败时照常派发（宁可重复不漏跑），响应里 `duplicateCheck` 写明原因。
+- `daily-analysis-snapshot.yml`：幂等（只追加缺失日期、无变化不提交），迟到的兜底排程再跑一次也无害，还顺带回补。
+- `spread-snapshot.yml`、`etf-technical.yml`：生成最新快照，无变化不提交；重复运行无害。
+- `company-refresh.yml`：兜底排程改为与 Vercel 相同的 `0 22 * * 1-5`，并且 **schedule 事件下 20 小时内已有 `data(companies): 行情刷新` 提交就跳过**——否则迟到 6–10 小时的兜底会落在亚洲盘中，用盘中价覆盖刚存的收盘价。Vercel 未配置时兜底照常运行（届时港股/A 股为盘中价，次日准点运行会覆盖）。手动全量刷新目录（无 `AUTO.txt`）仍保护不被覆盖。
+- `company-refresh.yml` 的日期变量 `D` 由 `TZ=Asia/Yerevan` 改为 `TZ=America/New_York`：22:00 UTC 时埃里温已是次日 02:00，周五收盘会被记成周六的目录／快照日期，手动目录检查也会对错日子；纽约日期在 22:00 UTC 正好等于刚收盘的交易日（也是 A/H 股当天）。`AUTO.txt` 标记与 14 天清理逻辑不变。
+
+**巡检**：`scripts/data-freshness-check.mjs` 从 `vercel.json` 读出这些 cron，报告多一列「Vercel Cron 派发 · 近 10 次延迟」（`workflow_dispatch` 运行配对到它之前 2 小时内的触发时刻；Hobby 下含小时内抖动）；准点派发的运行也算「排程已执行」；最近一个触发前 6 小时到后 2 小时内没有任何运行时提示「Vercel Cron … 前后没有运行」。环境变量配好之前，这条提示会一直出现（只是提示，不开告警 issue）。
+
+### 需要人工完成的一次性设置
+
+1. **建 PAT**：GitHub → 右上头像 → Settings → Developer settings → Personal access tokens → **Fine-grained tokens** → Generate new token。
+   - Token name：`businessweb-vercel-cron`；Expiration：自选（到期前记得轮换，过期后派发返回 401，Vercel 日志可见）。
+   - Resource owner：`TurboSnails`；Repository access：**Only select repositories** → `TurboSnails/BusinessWeb`。
+   - Repository permissions：**Actions: Read and write**（Metadata: Read-only 会自动带上）。**不需要 Contents** 或其他权限。
+   - 生成后复制 `github_pat_…`。
+2. **生成 CRON_SECRET**：`openssl rand -hex 32`（只含字母数字，粘贴时别带空格或换行）。
+3. **配置 Vercel 环境变量（Production）**，二选一：
+   - 网页：Vercel → 项目 business-web → **Settings → Environment Variables** → Add：Key `CRON_SECRET`、Value 上一步的随机串、Environment 只勾 **Production**，建议勾 Sensitive → Save；再加 `GITHUB_DISPATCH_TOKEN` = PAT，同样只勾 Production。
+   - 命令行（已 `vercel link` 的仓库目录）：
+     ```bash
+     vercel env add CRON_SECRET production          # 粘贴随机串
+     vercel env add GITHUB_DISPATCH_TOKEN production # 粘贴 PAT
+     ```
+4. **重新部署 Production**：环境变量只对之后的部署生效。推送含本改动的提交到 `main`，或 Vercel → Deployments → 最新 Production → ⋯ → Redeploy。
+5. **验证**：
+   - Vercel → 项目 → **Schedules → Cron Jobs**（旧界面为 Settings → Cron Jobs）应列出 5 个 `/api/market-data/cron-dispatch?workflow=…`；对 `company-refresh.yml` 那条点 **Run**（盘中手动运行会取到盘中价，可以改选 `spread-snapshot.yml` 验证），再点 **View Logs**，应看到 200 和 `[cron-dispatch] … 已派发`，或 `跳过：…`。
+   - GitHub → Actions → 对应工作流应出现一条 Event 为 **workflow_dispatch** 的运行（`gh run list --workflow spread-snapshot.yml --limit 3` 的 EVENT 列）。
+   - 命令行自测：`curl -s -H "Authorization: Bearer $CRON_SECRET" "https://business-web-black.vercel.app/api/market-data/cron-dispatch?workflow=spread-snapshot.yml"`；不带头应返回 401。
+   - 排错：401 = `CRON_SECRET` 不一致或部署早于设置（重新部署）；503 = 变量没配到 Production；502 + `HTTP 401/403/404` = PAT 过期、权限不足或没选中本仓库。
 
 ## 一次更新如何验收与留痕
 

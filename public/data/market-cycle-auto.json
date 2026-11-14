@@ -1,6 +1,6 @@
 {
  "schemaVersion": 1,
- "generatedAt": "2026-11-14T00:20:56.206Z",
+ "generatedAt": "2026-11-14T07:58:05.441Z",
  "facts": [
   {
    "market": "csi300",
@@ -29,6 +29,76 @@
    "availableAt": null,
    "firstSeenAt": "2026-11-07T09:47:26.388Z",
    "fetchedAt": "2026-11-07T10:05:04.023Z"
+  },
+  {
+   "market": "csi300",
+   "observationDate": "2026-11-06",
+   "kind": "observed",
+   "frequency": "daily",
+   "metricId": "cn_turnover_yi",
+   "value": 23005.65,
+   "unit": "亿元",
+   "source": "https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-11-06",
+   "description": "沪深全市场融资买入额1287.48亿元人民币（股票/基金，含ETF）÷同日沪深A股与全部上市基金成交额23005.65亿元人民币×100；沪市主板A 5152.27+科创板2579.07+基金4533.83，深市主板A 4414.50+创业板A 4442.20+基金1883.78；不含B股、直接债券、优先股、回购、期权，债券ETF仍归基金；分母含非融资标的的A股与基金，非融资标的内部杠杆占比，也非沪深300成分股专属。融资来源：https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPTA_RZRQ_LSHJ&columns=DIM_DATE%2CRZMRE&pageSize=5&sortColumns=DIM_DATE&sortTypes=-1；沪市分类：https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-11-06；深市分类：https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=1803_sczm&TABKEY=tab1&txtQueryDate=2026-11-06",
+   "availableAt": null,
+   "firstSeenAt": "2026-11-14T07:56:50.038Z",
+   "fetchedAt": "2026-11-14T07:56:50.038Z"
+  },
+  {
+   "market": "csi300",
+   "observationDate": "2026-11-09",
+   "kind": "observed",
+   "frequency": "daily",
+   "metricId": "cn_turnover_yi",
+   "value": 20222.52,
+   "unit": "亿元",
+   "source": "https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-11-09",
+   "description": "沪深全市场融资买入额1208.57亿元人民币（股票/基金，含ETF）÷同日沪深A股与全部上市基金成交额20222.52亿元人民币×100；沪市主板A 4624.29+科创板2207.42+基金3911.66，深市主板A 3955.28+创业板A 4053.48+基金1470.39；不含B股、直接债券、优先股、回购、期权，债券ETF仍归基金；分母含非融资标的的A股与基金，非融资标的内部杠杆占比，也非沪深300成分股专属。融资来源：https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPTA_RZRQ_LSHJ&columns=DIM_DATE%2CRZMRE&pageSize=5&sortColumns=DIM_DATE&sortTypes=-1；沪市分类：https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-11-09；深市分类：https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=1803_sczm&TABKEY=tab1&txtQueryDate=2026-11-09",
+   "availableAt": null,
+   "firstSeenAt": "2026-11-14T07:56:50.038Z",
+   "fetchedAt": "2026-11-14T07:56:50.038Z"
+  },
+  {
+   "market": "csi300",
+   "observationDate": "2026-11-10",
+   "kind": "observed",
+   "frequency": "daily",
+   "metricId": "cn_turnover_yi",
+   "value": 20106.66,
+   "unit": "亿元",
+   "source": "https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-11-10",
+   "description": "沪深全市场融资买入额1318.59亿元人民币（股票/基金，含ETF）÷同日沪深A股与全部上市基金成交额20106.66亿元人民币×100；沪市主板A 4518.49+科创板2226.35+基金3782.31，深市主板A 4128.74+创业板A 4190.34+基金1260.43；不含B股、直接债券、优先股、回购、期权，债券ETF仍归基金；分母含非融资标的的A股与基金，非融资标的内部杠杆占比，也非沪深300成分股专属。融资来源：https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPTA_RZRQ_LSHJ&columns=DIM_DATE%2CRZMRE&pageSize=5&sortColumns=DIM_DATE&sortTypes=-1；沪市分类：https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-11-10；深市分类：https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=1803_sczm&TABKEY=tab1&txtQueryDate=2026-11-10",
+   "availableAt": null,
+   "firstSeenAt": "2026-11-14T07:56:50.038Z",
+   "fetchedAt": "2026-11-14T07:56:50.038Z"
+  },
+  {
+   "market": "csi300",
+   "observationDate": "2026-11-11",
+   "kind": "observed",
+   "frequency": "daily",
+   "metricId": "cn_turnover_yi",
+   "value": 21752.82,
+   "unit": "亿元",
+   "source": "https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-11-11",
+   "description": "沪深全市场融资买入额1513.23亿元人民币（股票/基金，含ETF）÷同日沪深A股与全部上市基金成交额21752.82亿元人民币×100；沪市主板A 4913.96+科创板2460.78+基金3612.53，深市主板A 4605.10+创业板A 4811.41+基金1349.04；不含B股、直接债券、优先股、回购、期权，债券ETF仍归基金；分母含非融资标的的A股与基金，非融资标的内部杠杆占比，也非沪深300成分股专属。融资来源：https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPTA_RZRQ_LSHJ&columns=DIM_DATE%2CRZMRE&pageSize=5&sortColumns=DIM_DATE&sortTypes=-1；沪市分类：https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-11-11；深市分类：https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=1803_sczm&TABKEY=tab1&txtQueryDate=2026-11-11",
+   "availableAt": null,
+   "firstSeenAt": "2026-11-14T07:56:50.038Z",
+   "fetchedAt": "2026-11-14T07:56:50.038Z"
+  },
+  {
+   "market": "csi300",
+   "observationDate": "2026-11-12",
+   "kind": "observed",
+   "frequency": "daily",
+   "metricId": "cn_turnover_yi",
+   "value": 23828.36,
+   "unit": "亿元",
+   "source": "https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-11-12",
+   "description": "沪深全市场融资买入额1733.79亿元人民币（股票/基金，含ETF）÷同日沪深A股与全部上市基金成交额23828.36亿元人民币×100；沪市主板A 5580.54+科创板3222.44+基金3269.56，深市主板A 5255.41+创业板A 5278.42+基金1221.99；不含B股、直接债券、优先股、回购、期权，债券ETF仍归基金；分母含非融资标的的A股与基金，非融资标的内部杠杆占比，也非沪深300成分股专属。融资来源：https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPTA_RZRQ_LSHJ&columns=DIM_DATE%2CRZMRE&pageSize=5&sortColumns=DIM_DATE&sortTypes=-1；沪市分类：https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-11-12；深市分类：https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=1803_sczm&TABKEY=tab1&txtQueryDate=2026-11-12",
+   "availableAt": null,
+   "firstSeenAt": "2026-11-14T07:56:50.038Z",
+   "fetchedAt": "2026-11-14T07:56:50.038Z"
   },
   {
    "market": "csi300",
@@ -2887,6 +2957,76 @@
    "fetchedAt": "2026-11-07T10:05:04.023Z"
   },
   {
+   "market": "csi300",
+   "observationDate": "2026-11-06",
+   "kind": "observed",
+   "frequency": "daily",
+   "metricId": "financing_buy_ratio_pct",
+   "value": 5.596368,
+   "unit": "%",
+   "source": "https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPTA_RZRQ_LSHJ&columns=DIM_DATE%2CRZMRE&pageSize=5&sortColumns=DIM_DATE&sortTypes=-1",
+   "description": "沪深全市场融资买入额1287.48亿元人民币（股票/基金，含ETF）÷同日沪深A股与全部上市基金成交额23005.65亿元人民币×100；沪市主板A 5152.27+科创板2579.07+基金4533.83，深市主板A 4414.50+创业板A 4442.20+基金1883.78；不含B股、直接债券、优先股、回购、期权，债券ETF仍归基金；分母含非融资标的的A股与基金，非融资标的内部杠杆占比，也非沪深300成分股专属。融资来源：https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPTA_RZRQ_LSHJ&columns=DIM_DATE%2CRZMRE&pageSize=5&sortColumns=DIM_DATE&sortTypes=-1；沪市分类：https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-11-06；深市分类：https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=1803_sczm&TABKEY=tab1&txtQueryDate=2026-11-06",
+   "availableAt": null,
+   "firstSeenAt": "2026-11-14T07:56:50.038Z",
+   "fetchedAt": "2026-11-14T07:56:50.038Z"
+  },
+  {
+   "market": "csi300",
+   "observationDate": "2026-11-09",
+   "kind": "observed",
+   "frequency": "daily",
+   "metricId": "financing_buy_ratio_pct",
+   "value": 5.976379,
+   "unit": "%",
+   "source": "https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPTA_RZRQ_LSHJ&columns=DIM_DATE%2CRZMRE&pageSize=5&sortColumns=DIM_DATE&sortTypes=-1",
+   "description": "沪深全市场融资买入额1208.57亿元人民币（股票/基金，含ETF）÷同日沪深A股与全部上市基金成交额20222.52亿元人民币×100；沪市主板A 4624.29+科创板2207.42+基金3911.66，深市主板A 3955.28+创业板A 4053.48+基金1470.39；不含B股、直接债券、优先股、回购、期权，债券ETF仍归基金；分母含非融资标的的A股与基金，非融资标的内部杠杆占比，也非沪深300成分股专属。融资来源：https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPTA_RZRQ_LSHJ&columns=DIM_DATE%2CRZMRE&pageSize=5&sortColumns=DIM_DATE&sortTypes=-1；沪市分类：https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-11-09；深市分类：https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=1803_sczm&TABKEY=tab1&txtQueryDate=2026-11-09",
+   "availableAt": null,
+   "firstSeenAt": "2026-11-14T07:56:50.038Z",
+   "fetchedAt": "2026-11-14T07:56:50.038Z"
+  },
+  {
+   "market": "csi300",
+   "observationDate": "2026-11-10",
+   "kind": "observed",
+   "frequency": "daily",
+   "metricId": "financing_buy_ratio_pct",
+   "value": 6.557964,
+   "unit": "%",
+   "source": "https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPTA_RZRQ_LSHJ&columns=DIM_DATE%2CRZMRE&pageSize=5&sortColumns=DIM_DATE&sortTypes=-1",
+   "description": "沪深全市场融资买入额1318.59亿元人民币（股票/基金，含ETF）÷同日沪深A股与全部上市基金成交额20106.66亿元人民币×100；沪市主板A 4518.49+科创板2226.35+基金3782.31，深市主板A 4128.74+创业板A 4190.34+基金1260.43；不含B股、直接债券、优先股、回购、期权，债券ETF仍归基金；分母含非融资标的的A股与基金，非融资标的内部杠杆占比，也非沪深300成分股专属。融资来源：https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPTA_RZRQ_LSHJ&columns=DIM_DATE%2CRZMRE&pageSize=5&sortColumns=DIM_DATE&sortTypes=-1；沪市分类：https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-11-10；深市分类：https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=1803_sczm&TABKEY=tab1&txtQueryDate=2026-11-10",
+   "availableAt": null,
+   "firstSeenAt": "2026-11-14T07:56:50.038Z",
+   "fetchedAt": "2026-11-14T07:56:50.038Z"
+  },
+  {
+   "market": "csi300",
+   "observationDate": "2026-11-11",
+   "kind": "observed",
+   "frequency": "daily",
+   "metricId": "financing_buy_ratio_pct",
+   "value": 6.956489,
+   "unit": "%",
+   "source": "https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPTA_RZRQ_LSHJ&columns=DIM_DATE%2CRZMRE&pageSize=5&sortColumns=DIM_DATE&sortTypes=-1",
+   "description": "沪深全市场融资买入额1513.23亿元人民币（股票/基金，含ETF）÷同日沪深A股与全部上市基金成交额21752.82亿元人民币×100；沪市主板A 4913.96+科创板2460.78+基金3612.53，深市主板A 4605.10+创业板A 4811.41+基金1349.04；不含B股、直接债券、优先股、回购、期权，债券ETF仍归基金；分母含非融资标的的A股与基金，非融资标的内部杠杆占比，也非沪深300成分股专属。融资来源：https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPTA_RZRQ_LSHJ&columns=DIM_DATE%2CRZMRE&pageSize=5&sortColumns=DIM_DATE&sortTypes=-1；沪市分类：https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-11-11；深市分类：https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=1803_sczm&TABKEY=tab1&txtQueryDate=2026-11-11",
+   "availableAt": null,
+   "firstSeenAt": "2026-11-14T07:56:50.038Z",
+   "fetchedAt": "2026-11-14T07:56:50.038Z"
+  },
+  {
+   "market": "csi300",
+   "observationDate": "2026-11-12",
+   "kind": "observed",
+   "frequency": "daily",
+   "metricId": "financing_buy_ratio_pct",
+   "value": 7.276164,
+   "unit": "%",
+   "source": "https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPTA_RZRQ_LSHJ&columns=DIM_DATE%2CRZMRE&pageSize=5&sortColumns=DIM_DATE&sortTypes=-1",
+   "description": "沪深全市场融资买入额1733.79亿元人民币（股票/基金，含ETF）÷同日沪深A股与全部上市基金成交额23828.36亿元人民币×100；沪市主板A 5580.54+科创板3222.44+基金3269.56，深市主板A 5255.41+创业板A 5278.42+基金1221.99；不含B股、直接债券、优先股、回购、期权，债券ETF仍归基金；分母含非融资标的的A股与基金，非融资标的内部杠杆占比，也非沪深300成分股专属。融资来源：https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPTA_RZRQ_LSHJ&columns=DIM_DATE%2CRZMRE&pageSize=5&sortColumns=DIM_DATE&sortTypes=-1；沪市分类：https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-11-12；深市分类：https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=1803_sczm&TABKEY=tab1&txtQueryDate=2026-11-12",
+   "availableAt": null,
+   "firstSeenAt": "2026-11-14T07:56:50.038Z",
+   "fetchedAt": "2026-11-14T07:56:50.038Z"
+  },
+  {
    "metricId": "financing_buy",
    "market": "all",
    "value": 1242.82,
@@ -3178,7 +3318,7 @@
    "description": "沪深两市合计融资买入额原值(东财RPTA_RZRQ_LSHJ.RZMRE，元÷1e8)；同范围成交额分母未核定，故不计占比",
    "availableAt": null,
    "firstSeenAt": "2026-11-13T15:14:43.466Z",
-   "fetchedAt": "2026-11-14T00:20:56.206Z"
+   "fetchedAt": "2026-11-14T07:56:50.038Z"
   },
   {
    "market": "ndx",
@@ -3584,7 +3724,7 @@
    "description": "FRED DEXHKUS 港元兑美元(H.10)，每美元港元数；官方序列通常滞后约1周，保留原观测日",
    "availableAt": null,
    "firstSeenAt": "2026-11-10T02:10:05.513Z",
-   "fetchedAt": "2026-11-14T00:20:56.206Z"
+   "fetchedAt": "2026-11-14T07:56:50.038Z"
   },
   {
    "metricId": "index_week_daily_turnover_hkd",
@@ -3822,7 +3962,7 @@
    "description": "恒生官方同口径月末PE近五年中位秩分位（按盈利收益率E/P=1/PE排序，盈利月份与PE分位完全一致）；窗口2021-10-31~2026-10-30，60/61个月度样本（覆盖98.4%），缺失月份2025-01，未插值。以官方Monthly Roundup原始PE为历史，逐月核对与当前XLSX重叠值；同源月度采样，不与第三方日频分位混用。最新年度盈利口径与调整定义见官方运作指引10.15：https://www.hsi.com.hk/content/dam/wpb/hsil/index_operation/en_hk/index_operation_guide.pdf；逐月PDF来源和SHA256：https://turbosnails.github.io/BusinessWeb/data/market-cycle-hk-pe-history.json",
    "availableAt": null,
    "firstSeenAt": "2026-10-30T14:10:52.709Z",
-   "fetchedAt": "2026-11-14T00:20:56.206Z"
+   "fetchedAt": "2026-11-14T07:56:50.038Z"
   },
   {
    "metricId": "pe_official_5y_percentile",
@@ -3837,6 +3977,20 @@
    "availableAt": null,
    "firstSeenAt": "2026-10-19T21:22:53.773Z",
    "fetchedAt": "2026-10-30T14:10:52.709Z"
+  },
+  {
+   "metricId": "pe_official_5y_percentile",
+   "market": "hstech",
+   "value": 15.833333,
+   "observationDate": "2026-10-30",
+   "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20261102T000000.pdf",
+   "unit": "%",
+   "kind": "observed",
+   "frequency": "monthly",
+   "description": "恒生官方同口径月末PE近五年中位秩分位（按盈利收益率E/P=1/PE排序，盈利月份与PE分位完全一致；窗口含8个指数整体亏损月份（2021-10、2021-11、2021-12、2022-01、2022-02、2022-12、2023-01、2023-02），其E/P为负，按“比任何盈利月份更贵”参与排序，不删除、不插值）；窗口2021-10-31~2026-10-30，60/61个月度样本（覆盖98.4%），缺失月份2025-01，未插值。历史为官方Monthly Roundup原始PE，新月份同样取自Monthly Roundup（原恒科XLSX已下架），逐月核对重叠值；同源月度采样，不与第三方日频分位混用。最新年度盈利口径与调整定义见官方运作指引10.15：https://www.hsi.com.hk/content/dam/wpb/hsil/index_operation/en_hk/index_operation_guide.pdf；逐月PDF来源和SHA256：https://turbosnails.github.io/BusinessWeb/data/market-cycle-hk-pe-history.json",
+   "availableAt": null,
+   "firstSeenAt": "2026-11-14T07:56:50.038Z",
+   "fetchedAt": "2026-11-14T07:56:50.038Z"
   },
   {
    "metricId": "pe",
@@ -4130,7 +4284,7 @@
    "description": "恒生指数官方月末PE（倍）；当前XLSX覆盖12个月（2025-11-28~2026-10-30）。官方盈利口径采用最新年度业绩，指数层面为经自由流通及上限因子调整后的市值÷成分股总盈利，不标作TTM。",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-11-14T00:20:56.206Z"
+   "fetchedAt": "2026-11-14T07:56:50.038Z"
   },
   {
    "metricId": "pe",
@@ -4144,7 +4298,7 @@
    "description": "恒生指数官方月末PE（倍）；当前XLSX覆盖12个月（2025-11-28~2026-10-30）。官方盈利口径采用最新年度业绩，指数层面为经自由流通及上限因子调整后的市值÷成分股总盈利，不标作TTM。",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-11-14T00:20:56.206Z"
+   "fetchedAt": "2026-11-14T07:56:50.038Z"
   },
   {
    "metricId": "pe",
@@ -4158,7 +4312,7 @@
    "description": "恒生指数官方月末PE（倍）；当前XLSX覆盖12个月（2025-11-28~2026-10-30）。官方盈利口径采用最新年度业绩，指数层面为经自由流通及上限因子调整后的市值÷成分股总盈利，不标作TTM。",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-11-14T00:20:56.206Z"
+   "fetchedAt": "2026-11-14T07:56:50.038Z"
   },
   {
    "metricId": "pe",
@@ -4172,7 +4326,7 @@
    "description": "恒生指数官方月末PE（倍）；当前XLSX覆盖12个月（2025-11-28~2026-10-30）。官方盈利口径采用最新年度业绩，指数层面为经自由流通及上限因子调整后的市值÷成分股总盈利，不标作TTM。",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-11-14T00:20:56.206Z"
+   "fetchedAt": "2026-11-14T07:56:50.038Z"
   },
   {
    "metricId": "pe",
@@ -4186,7 +4340,7 @@
    "description": "恒生指数官方月末PE（倍）；当前XLSX覆盖12个月（2025-11-28~2026-10-30）。官方盈利口径采用最新年度业绩，指数层面为经自由流通及上限因子调整后的市值÷成分股总盈利，不标作TTM。",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-11-14T00:20:56.206Z"
+   "fetchedAt": "2026-11-14T07:56:50.038Z"
   },
   {
    "metricId": "pe",
@@ -4200,7 +4354,7 @@
    "description": "恒生指数官方月末PE（倍）；当前XLSX覆盖12个月（2025-11-28~2026-10-30）。官方盈利口径采用最新年度业绩，指数层面为经自由流通及上限因子调整后的市值÷成分股总盈利，不标作TTM。",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-11-14T00:20:56.206Z"
+   "fetchedAt": "2026-11-14T07:56:50.038Z"
   },
   {
    "metricId": "pe",
@@ -4214,7 +4368,7 @@
    "description": "恒生指数官方月末PE（倍）；当前XLSX覆盖12个月（2025-11-28~2026-10-30）。官方盈利口径采用最新年度业绩，指数层面为经自由流通及上限因子调整后的市值÷成分股总盈利，不标作TTM。",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-11-14T00:20:56.206Z"
+   "fetchedAt": "2026-11-14T07:56:50.038Z"
   },
   {
    "metricId": "pe",
@@ -4228,7 +4382,7 @@
    "description": "恒生指数官方月末PE（倍）；当前XLSX覆盖12个月（2025-11-28~2026-10-30）。官方盈利口径采用最新年度业绩，指数层面为经自由流通及上限因子调整后的市值÷成分股总盈利，不标作TTM。",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-11-14T00:20:56.206Z"
+   "fetchedAt": "2026-11-14T07:56:50.038Z"
   },
   {
    "metricId": "pe",
@@ -4242,7 +4396,7 @@
    "description": "恒生指数官方月末PE（倍）；当前XLSX覆盖12个月（2025-11-28~2026-10-30）。官方盈利口径采用最新年度业绩，指数层面为经自由流通及上限因子调整后的市值÷成分股总盈利，不标作TTM。",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-11-14T00:20:56.206Z"
+   "fetchedAt": "2026-11-14T07:56:50.038Z"
   },
   {
    "metricId": "pe",
@@ -4256,7 +4410,7 @@
    "description": "恒生指数官方月末PE（倍）；当前XLSX覆盖12个月（2025-11-28~2026-10-30）。官方盈利口径采用最新年度业绩，指数层面为经自由流通及上限因子调整后的市值÷成分股总盈利，不标作TTM。",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-11-14T00:20:56.206Z"
+   "fetchedAt": "2026-11-14T07:56:50.038Z"
   },
   {
    "metricId": "pe",
@@ -4270,7 +4424,7 @@
    "description": "恒生指数官方月末PE（倍）；当前XLSX覆盖12个月（2025-11-28~2026-10-30）。官方盈利口径采用最新年度业绩，指数层面为经自由流通及上限因子调整后的市值÷成分股总盈利，不标作TTM。",
    "availableAt": null,
    "firstSeenAt": "2026-10-17T14:59:29.164Z",
-   "fetchedAt": "2026-11-14T00:20:56.206Z"
+   "fetchedAt": "2026-11-14T07:56:50.038Z"
   },
   {
    "metricId": "pe",
@@ -4284,7 +4438,7 @@
    "description": "恒生指数官方月末PE（倍）；当前XLSX覆盖12个月（2025-11-28~2026-10-30）。官方盈利口径采用最新年度业绩，指数层面为经自由流通及上限因子调整后的市值÷成分股总盈利，不标作TTM。",
    "availableAt": null,
    "firstSeenAt": "2026-10-30T14:10:52.709Z",
-   "fetchedAt": "2026-11-14T00:20:56.206Z"
+   "fetchedAt": "2026-11-14T07:56:50.038Z"
   },
   {
    "metricId": "pe",
@@ -4455,6 +4609,20 @@
    "fetchedAt": "2026-10-30T14:10:52.709Z"
   },
   {
+   "metricId": "pe",
+   "market": "hstech",
+   "value": 25.43,
+   "observationDate": "2026-10-30",
+   "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/en_hk/monthly_roundup/content/20261102T000000.pdf",
+   "unit": "倍",
+   "kind": "observed",
+   "frequency": "monthly",
+   "description": "恒生科技指数官方月末PE（倍），取自恒生指数公司Monthly Roundup“PE Ratio (Times)”列（报告As at 2026-10-30）。原恒科historical_pe XLSX已于2026-10下架（302至404页），月报与该XLSX及已审计的60个月月报归档同源同列（2026-09均为28.23）。官方盈利口径采用最新年度业绩，指数层面为经自由流通及上限因子调整后的市值÷成分股总盈利，不标作TTM。",
+   "availableAt": null,
+   "firstSeenAt": "2026-11-14T07:56:50.038Z",
+   "fetchedAt": "2026-11-14T07:56:50.038Z"
+  },
+  {
    "metricId": "turnover_ratio_52w",
    "market": "csi300",
    "value": 0.741161,
@@ -4481,6 +4649,20 @@
    "availableAt": null,
    "firstSeenAt": "2026-11-07T09:39:39.446Z",
    "fetchedAt": "2026-11-07T09:39:39.446Z"
+  },
+  {
+   "metricId": "turnover_ratio_52w",
+   "market": "csi300",
+   "value": 0.869956,
+   "observationDate": "2026-11-06",
+   "source": "https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-11-06",
+   "unit": "倍",
+   "kind": "observed",
+   "frequency": "weekly",
+   "description": "沪深A股与全部上市基金成交额（亿元人民币，与融资比例同分母，非沪深300成分成交额）；完整周2026-11-02~2026-11-08，5个真实交易日，日均24980.32亿元；此前52个日历周2025-11-03~2026-11-01，241个真实交易日，日均28714.46亿元；按真实交易日均值相除，整周休市不补零；沪市主板A+科创板+基金，深市主板A+创业板A+基金；逐日官方历史查询（各日替换日期参数）：https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_SJ_SCGM_C&isPagination=false&TRADE_DATE=2026-11-06；https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=1803_sczm&TABKEY=tab1&txtQueryDate=2026-11-06；沪深交易日历交叉核验：https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh000300,day,,,400,qfq；https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sz399001,day,,,400,qfq",
+   "availableAt": null,
+   "firstSeenAt": "2026-11-14T07:56:50.038Z",
+   "fetchedAt": "2026-11-14T07:56:50.038Z"
   },
   {
    "metricId": "turnover_ratio_52w",
@@ -4624,12 +4806,7 @@
   }
  ],
  "issues": [
-  "hstech-pe: 恒生PE文件不是有效xlsx，保留旧值及原日期(最新观测2026-09-30)",
-  "hsi-pe-history: 恒指历史PE最新观测超过14天",
-  "hsi-pe-history: 无有效事实，保留旧值及原日期(最新观测2026-10-30)",
-  "cn-funding: fetch failed",
-  "cn-funding: 无有效事实，保留旧值及原日期(最新观测2026-11-05)",
-  "cn-turnover: 53周246个真实交易日，两所均具备0日，缺246日（2025-11-03,2025-11-04,2025-11-05,2025-11-06,2025-11-07）；本轮请求248/500，szse 2025-11-03: fetch failed；szse 2025-11-04: fetch failed；szse 2025-11-05: fetch failed",
-  "cn-turnover: 无有效事实，保留旧值及原日期(最新观测2026-10-30)"
+  "hsi-pe-history: The operation was aborted due to timeout",
+  "hsi-pe-history: 无有效事实，保留旧值及原日期(最新观测2026-10-30)"
  ]
 }

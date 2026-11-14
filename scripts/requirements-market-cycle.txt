@@ -1,2 +1,4 @@
 # Official CSI constituent files use the older binary XLS format.
 xlrd==2.0.2
+# Hang Seng Monthly Roundup PDFs (official HSTECH month-end PE after its historical_pe XLSX was withdrawn).
+pypdf==5.1.0

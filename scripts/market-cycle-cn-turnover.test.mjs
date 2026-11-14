@@ -50,3 +50,11 @@ test('collector refuses conflicting calendars and enforces the network cap on pa
  const capped=await fixture();assert.deepEqual(await collectCnTurnover(capped.ctx,{cacheDir:capped.dir,maxRequests:8}),[])
  assert.equal(capped.calls(),8);assert.match(capped.issues[0],/缺.*日/)
 })
+
+test('a blocked exchange trips the circuit breaker instead of spending the whole request budget',async()=>{
+ const f=await fixture();const original=f.ctx.get;let szse=0
+ f.ctx.get=async url=>{if(url.includes('szse.cn')){szse++;throw new TypeError('fetch failed(ECONNRESET)')}return original(url)}
+ assert.deepEqual(await collectCnTurnover(f.ctx,{cacheDir:f.dir}),[])
+ assert.ok(szse>=4&&szse<=5,`szse calls=${szse}`)
+ assert.match(f.issues[0],/szse连续4次网络失败已熔断/)
+})

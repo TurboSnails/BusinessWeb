@@ -31,6 +31,8 @@ npm run build
 5. 验证首页、`/grid-trading`、`/grid-trading/records` 和详情链接直接访问及刷新。
 6. 打开 `/api/grid-market?kind=quotes&symbols=sh510300`，应返回腾讯行情文本。错误 `/api/...` 应为 404，而不是页面 HTML。
 
+数据工作流的准点触发（Vercel Cron → GitHub workflow_dispatch）需要 Production 环境变量 `CRON_SECRET`、`GITHUB_DISPATCH_TOKEN`，设置步骤见 [数据维护台账 · Vercel Cron 准点触发](data-maintenance.md#vercel-cron-准点触发2026-11-14-新增)。
+
 Vercel Hobby 适用个人非商业用途；实际额度和用途限制以官方页面为准：
 https://vercel.com/docs/plans/hobby
 
