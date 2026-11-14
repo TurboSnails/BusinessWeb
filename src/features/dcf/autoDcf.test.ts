@@ -54,5 +54,10 @@ describe("列表里的 DCF：本人优先、自动补位、按最新价", () => 
       if (v.fair != null) expect(p.fair!).toBeCloseTo(v.fair, 3); else expect(p.fair).toBeNull();
     }
     expect(parseAutoSummary({ schemaVersion: 2, items: {} })).toBeNull();
+    // 现价日期随摘要往返；旧版 6 列摘要没有日期也能解析
+    expect(parsed.get(autoDcfKey("cn", "600001"))?.priceDate).toBe("2026-10-20");
+    const old = parseAutoSummary({ schemaVersion: 1, items: { "cn:1": [0, 10, 8, "m", 9, "CNY"] } })!;
+    expect(old.get("cn:1")).toMatchObject({ current: 9, priceDate: null });
+    expect(old.get("cn:1")?.priceLive).toBeUndefined();
   });
 });

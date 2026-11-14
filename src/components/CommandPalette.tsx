@@ -1,7 +1,15 @@
 import React, { createContext, useCallback, useContext, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { CornerDownLeft, Search, X } from 'lucide-react'
-import { findSearchablePage, searchPages, type SearchablePage } from '../data/siteMap'
+import {
+  COMPANY_MARKET_LABEL,
+  companyPath,
+  findSearchablePage,
+  searchCompanies,
+  searchPages,
+  type CompanyIndexEntry,
+  type SearchablePage,
+} from '../data/siteMap'
 import { readRecent } from '../features/recent-pages/store'
 import '../styles/command-palette.css'
 
@@ -16,16 +24,50 @@ export function useCommandPalette(): PaletteApi {
   return useContext(PaletteContext)
 }
 
+const NO_COMPANIES: CompanyIndexEntry[] = []
+
 const isTypingTarget = (el: EventTarget | null): boolean =>
   el instanceof HTMLElement && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName))
 
-interface Section {
-  title: string
-  items: SearchablePage[]
+interface PaletteItem extends SearchablePage {
+  code?: string // 公司代码，单独显示成标签
 }
 
-function buildSections(query: string): Section[] {
-  if (query.trim()) return [{ title: '搜索结果', items: searchPages(query) }]
+interface Section {
+  title: string
+  items: PaletteItem[]
+}
+
+/** 公司索引：首次打开面板时才去取，provider 内缓存；失败后下次打开重试 */
+type CompanyIndexState =
+  | { status: 'idle' | 'loading' | 'error' }
+  | { status: 'ready'; entries: CompanyIndexEntry[] }
+
+const COMPANY_LIMIT = 8
+
+async function fetchCompanyIndex(): Promise<CompanyIndexEntry[]> {
+  const res = await fetch(`${import.meta.env.BASE_URL}data/company-index.json`)
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  const data = (await res.json()) as { items?: unknown }
+  if (!Array.isArray(data.items)) throw new Error('索引格式不对')
+  return data.items as CompanyIndexEntry[]
+}
+
+const companyItem = (e: CompanyIndexEntry): PaletteItem => ({
+  path: companyPath(e),
+  label: e.n,
+  code: e.c,
+  // 市场写进可读文本，读屏能听到
+  group: [COMPANY_MARKET_LABEL[e.m] ?? e.m.toUpperCase(), e.s].filter(Boolean).join(' · '),
+})
+
+function buildSections(query: string, companies: CompanyIndexEntry[]): Section[] {
+  if (query.trim()) {
+    return [
+      { title: '公司', items: searchCompanies(query, companies, COMPANY_LIMIT).map(companyItem) },
+      { title: '页面', items: searchPages(query) },
+    ]
+  }
   const recent = readRecent().map(findSearchablePage).filter((p): p is SearchablePage => p !== null)
   const seen = new Set(recent.map(p => p.path))
   const rest = searchPages('').filter(p => !seen.has(p.path))
@@ -36,6 +78,20 @@ export function CommandPaletteProvider({ children }: { children: React.ReactNode
   const [isOpen, setOpen] = useState(false)
   const open = useCallback(() => setOpen(true), [])
   const { pathname } = useLocation()
+  const [companyIndex, setCompanyIndex] = useState<CompanyIndexState>({ status: 'idle' })
+
+  const indexStatusRef = useRef<CompanyIndexState['status']>('idle')
+
+  // 不阻塞首屏：面板第一次打开时才取索引；载入中或已就绪不重取，失败的下次打开再试
+  useEffect(() => {
+    if (!isOpen || indexStatusRef.current === 'loading' || indexStatusRef.current === 'ready') return
+    const update = (next: CompanyIndexState) => {
+      indexStatusRef.current = next.status
+      setCompanyIndex(next)
+    }
+    update({ status: 'loading' })
+    fetchCompanyIndex().then(entries => update({ status: 'ready', entries }), () => update({ status: 'error' }))
+  }, [isOpen])
 
   useEffect(() => {
     setOpen(false)
@@ -61,12 +117,12 @@ export function CommandPaletteProvider({ children }: { children: React.ReactNode
   return (
     <PaletteContext.Provider value={value}>
       {children}
-      {isOpen && <Palette onClose={() => setOpen(false)} />}
+      {isOpen && <Palette onClose={() => setOpen(false)} companyIndex={companyIndex} />}
     </PaletteContext.Provider>
   )
 }
 
-function Palette({ onClose }: { onClose: () => void }): JSX.Element {
+function Palette({ onClose, companyIndex }: { onClose: () => void; companyIndex: CompanyIndexState }): JSX.Element {
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
   const [active, setActive] = useState(0)
@@ -77,7 +133,14 @@ function Palette({ onClose }: { onClose: () => void }): JSX.Element {
   const listId = `${baseId}-list`
   const optionId = (i: number) => `${baseId}-opt-${i}`
 
-  const sections = useMemo(() => buildSections(query), [query])
+  const companies = companyIndex.status === 'ready' ? companyIndex.entries : NO_COMPANIES
+  const sections = useMemo(() => buildSections(query, companies), [query, companies])
+  const hasQuery = query.trim() !== ''
+  const companyStatus =
+    !hasQuery ? null
+    : companyIndex.status === 'loading' || companyIndex.status === 'idle' ? '正在载入公司索引…'
+    : companyIndex.status === 'error' ? '公司索引载入失败，暂时只能搜页面'
+    : null
   const flat = useMemo(() => sections.flatMap(s => s.items), [sections])
 
   // 打开时记住原焦点并锁滚动，关闭时恢复
@@ -94,13 +157,13 @@ function Palette({ onClose }: { onClose: () => void }): JSX.Element {
 
   useEffect(() => {
     setActive(0)
-  }, [query])
+  }, [query, companies])
 
   useEffect(() => {
     listRef.current?.querySelector<HTMLElement>('[aria-selected="true"]')?.scrollIntoView?.({ block: 'nearest' })
   }, [active, flat])
 
-  const go = (page: SearchablePage | undefined) => {
+  const go = (page: PaletteItem | undefined) => {
     if (!page) return
     // 路由变化会触发 provider 关闭面板；同一路径时手动关
     navigate(page.path)
@@ -153,7 +216,7 @@ function Palette({ onClose }: { onClose: () => void }): JSX.Element {
             aria-controls={listId}
             aria-autocomplete="list"
             aria-activedescendant={flat.length ? optionId(active) : undefined}
-            placeholder="输入页面名，如 估值、网格、国家队"
+            placeholder="输入页面或公司，如 估值、腾讯、700、AAPL"
             value={query}
             onChange={e => setQuery(e.target.value)}
             autoComplete="off"
@@ -165,7 +228,13 @@ function Palette({ onClose }: { onClose: () => void }): JSX.Element {
           </button>
         </div>
 
-        <div ref={listRef} id={listId} className="cmdk__list" role="listbox" aria-label="页面">
+        {companyStatus && (
+          <p className="cmdk__empty cmdk__status" role="status">
+            {companyStatus}
+          </p>
+        )}
+
+        <div ref={listRef} id={listId} className="cmdk__list" role="listbox" aria-label="页面和公司">
           {flat.length === 0 && <p className="cmdk__empty">没有匹配的页面</p>}
           {sections.map(section =>
             section.items.length === 0 ? null : (
@@ -188,6 +257,7 @@ function Palette({ onClose }: { onClose: () => void }): JSX.Element {
                     >
                       <span className="cmdk__item-main">
                         <span className="cmdk__item-label">{page.label}</span>
+                        {page.code && <span className="cmdk__tag">{page.code}</span>}
                         {page.archived && <span className="cmdk__tag">已舍弃</span>}
                       </span>
                       <span className="cmdk__item-group">{page.group}</span>

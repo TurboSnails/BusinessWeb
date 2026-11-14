@@ -467,3 +467,85 @@
   color: var(--text-secondary);
   font-size: 0.85rem;
 }
+
+/* 价位提醒：候选行入口、对话框、今日待处理里的操作 */
+.cand-alert-set {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  margin-top: 6px;
+}
+
+.cand-decision-cell > .cand-alert-btn {
+  margin-top: 6px;
+}
+
+.cand-alert-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  font-variant-numeric: tabular-nums;
+}
+
+.cand-alert-set small,
+.cand-alerts-paused {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  line-height: 1.6;
+}
+
+.cand-alert-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.alert-lead,
+.alert-price,
+.alert-note {
+  margin: 0 0 var(--space-3);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  line-height: 1.7;
+}
+
+.alert-price {
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.alert-price small,
+.alert-source small {
+  margin-left: 4px;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+}
+
+.alert-sources,
+.decision-alert {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 var(--space-3);
+  padding: 10px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.alert-sources legend,
+.decision-alert legend {
+  padding: 0 4px;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.alert-source {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}

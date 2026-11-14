@@ -14,6 +14,10 @@ export interface AutoDcf {
   /** 预填库里的最新股价 */
   current: number;
   currency: string;
+  /** 现价的行情日期（YYYY-MM-DD）；旧版摘要没有这一列 */
+  priceDate?: string | null;
+  /** 现价是收盘前的盘中报价（不是收盘价） */
+  priceLive?: boolean;
 }
 
 export const autoDcfKey = (venue: "cn" | "hk" | "us", code: string): string => `${venue}:${code.toUpperCase()}`;
@@ -34,7 +38,7 @@ export function buildAutoDcf(lib: PrefillLibrary): Map<string, AutoDcf> {
     out.set(autoDcfKey(item.m, item.c), {
       status: ok ? "ok" : fill.status === "ok" ? "incomplete" : fill.status,
       fair: a?.scenarios[1].price ?? null, buyBelow: a?.buyBelow ?? null, credibility: a?.credibility ?? null,
-      current: item.px, currency: item.ccy,
+      current: item.px, currency: item.ccy, priceDate: item.pxDate || null, ...(item.pxLive ? { priceLive: true } : {}),
     });
   }
   return out;
@@ -42,12 +46,12 @@ export function buildAutoDcf(lib: PrefillLibrary): Map<string, AutoDcf> {
 
 const STATUS: AutoStatus[] = ["ok", "financial", "negativeFcf", "incomplete"];
 const CRED: Record<string, Credibility> = { h: "high", m: "medium", l: "low" };
-type SummaryRow = [number, number | null, number | null, string | null, number, string];
-/** 编码为紧凑摘要：{ "cn:600519": [状态, 合理价, 买入参考价, 可信度, 现价, 币种] } */
+type SummaryRow = [number, number | null, number | null, string | null, number, string, (string | null)?, (1 | 0)?];
+/** 编码为紧凑摘要：{ "cn:600519": [状态, 合理价, 买入参考价, 可信度, 现价, 币种, 现价日期, 是否盘中价] }；后两列为后加，解析时可缺 */
 export function encodeAutoSummary(map: Map<string, AutoDcf>, generatedAt: string): { schemaVersion: 1; generatedAt: string; items: Record<string, SummaryRow> } {
   const r = (v: number | null) => (v == null ? null : Number(v.toPrecision(6)));
   const items: Record<string, SummaryRow> = {};
-  for (const [key, a] of map) items[key] = [STATUS.indexOf(a.status), r(a.fair), r(a.buyBelow), a.credibility ? a.credibility[0] : null, a.current, a.currency];
+  for (const [key, a] of map) items[key] = [STATUS.indexOf(a.status), r(a.fair), r(a.buyBelow), a.credibility ? a.credibility[0] : null, a.current, a.currency, a.priceDate ?? null, a.priceLive ? 1 : 0];
   return { schemaVersion: 1, generatedAt, items };
 }
 /** 解析云端预先算好的摘要（scripts/dcf-prefill.mjs → public/data/dcf-auto.json） */
@@ -55,8 +59,11 @@ export function parseAutoSummary(body: unknown): Map<string, AutoDcf> | null {
   const items = (body as { schemaVersion?: number; items?: Record<string, SummaryRow> })?.items;
   if ((body as { schemaVersion?: number })?.schemaVersion !== 1 || !items || typeof items !== "object") return null;
   const out = new Map<string, AutoDcf>();
-  for (const [key, [s, fair, buyBelow, cred, current, currency]] of Object.entries(items))
-    if (STATUS[s] && Number.isFinite(current)) out.set(key, { status: STATUS[s], fair, buyBelow, credibility: cred ? CRED[cred] ?? null : null, current, currency });
+  for (const [key, [s, fair, buyBelow, cred, current, currency, priceDate, live]] of Object.entries(items))
+    if (STATUS[s] && Number.isFinite(current)) out.set(key, {
+      status: STATUS[s], fair, buyBelow, credibility: cred ? CRED[cred] ?? null : null, current, currency,
+      priceDate: typeof priceDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(priceDate) ? priceDate : null, ...(live === 1 ? { priceLive: true } : {}),
+    });
   return out;
 }
 

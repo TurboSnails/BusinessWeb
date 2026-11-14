@@ -222,3 +222,36 @@ export function searchPages(query: string, pages: SearchablePage[] = SEARCHABLE_
   })
   return scored.sort((a, b) => a.rank - b.rank || a.index - b.index).map(s => s.page)
 }
+
+/** ⌘K 公司索引的一条（public/data/company-index.json，由 scripts/build-company-index.mjs 生成） */
+export interface CompanyIndexEntry {
+  c: string // 代码
+  n: string // 名称
+  m: 'us' | 'ndx' | 'adr' | 'hk' | 'cn'
+  s?: string // 板块
+}
+
+export const COMPANY_MARKET_LABEL: Record<CompanyIndexEntry['m'], string> = { us: '标普500', ndx: '纳指100', adr: '美股非标普', hk: '港股', cn: 'A股' }
+
+export const companyPath = (e: Pick<CompanyIndexEntry, 'c' | 'm'>): string => `/research-notes/${e.m}/${encodeURIComponent(e.c)}`
+
+const stripZeros = (s: string): string => s.replace(/^0+(?=.)/, '')
+
+/**
+ * 代码精确 > 代码前缀 > 名称前缀 > 名称包含；不分大小写。
+ * 纯数字查询对港股去掉前导零再比（700 / 0700 / 00700 都命中 00700）。
+ */
+export function searchCompanies(query: string, entries: CompanyIndexEntry[], limit = 8): CompanyIndexEntry[] {
+  const q = query.trim().toLowerCase()
+  if (!q) return []
+  const digits = /^\d+$/.test(q)
+  const scored = entries.flatMap((e, index) => {
+    const code = e.c.toLowerCase()
+    const name = e.n.toLowerCase()
+    const codeQ = digits && e.m === 'hk' ? stripZeros(q) : q
+    const codeV = digits && e.m === 'hk' ? stripZeros(code) : code
+    const rank = codeV === codeQ ? 0 : codeV.startsWith(codeQ) ? 1 : name.startsWith(q) ? 2 : name.includes(q) ? 3 : -1
+    return rank < 0 ? [] : [{ e, index, rank }]
+  })
+  return scored.sort((a, b) => a.rank - b.rank || a.index - b.index).slice(0, limit).map(s => s.e)
+}

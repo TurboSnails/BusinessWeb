@@ -165,3 +165,47 @@ describe('决策记录', () => {
     expect(screen.getByRole('button', { name: '查看与更新决策记录 B' }).textContent).toContain('复查')
   })
 })
+
+describe('价位提醒', () => {
+  const valued: Company[] = [{ ...company('A'), valuation: { currency: 'USD', asOf: '2026-11-13', value: { low: 90, base: 120, high: 150, kind: 'undated', date: null, primaryMethod: 'PE' } } as never,
+    marketRefresh: { checkedAt: '2026-11-14', priceDate: '2026-11-13', price: 100, currency: 'USD', source: 'snap-us', originalAsOf: '' } }]
+  function AlertHarness(): JSX.Element {
+    const c = useCandidates(true)
+    return (
+      <MemoryRouter>
+        <button onClick={() => c.toggle('us', 'A')}>add-A</button>
+        <CandidatePool items={c.items} companies={valued} state={c.state} message={c.message} onMove={c.move} onDecision={(i, r) => c.addDecision(i.market, i.code, r)} onRemove={i => c.remove(i.market, i.code)} onNote={(i, t) => c.setNote(i.market, i.code, t)} onClear={c.clear} onConnect={c.connect} onRetry={c.retry}
+          onAlert={(i, rule) => c.setAlert(i.market, i.code, rule)} />
+      </MemoryRouter>
+    )
+  }
+  beforeEach(() => { localStorage.clear(); vi.stubGlobal('fetch', vi.fn(async () => new Response('{}', { status: 503 }))) })
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('候选行「提醒」打开对话框，按研究悲观价预填，保存后写进候选条目并显示条件', async () => {
+    render(<AlertHarness />)
+    fireEvent.click(screen.getByText('add-A'))
+    fireEvent.click(screen.getByRole('button', { name: '设置价位提醒 A' }))
+    expect(screen.getByText(/最新收盘价 USD 100/).textContent).toContain('2026-11-13')
+    expect((screen.getByLabelText(/条件价（USD）/) as HTMLInputElement).value).toBe('90')
+    fireEvent.click(screen.getByRole('button', { name: '保存' }))
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+    const saved = JSON.parse(localStorage.getItem('rn-candidates') ?? '[]')
+    expect(saved[0].alert).toMatchObject({ kind: 'price-below', threshold: 90, currency: 'USD', anchor: { type: 'research-bear', value: 90, asOf: '2026-11-13' } })
+    expect(screen.getByRole('button', { name: '修改价位提醒 A' }).textContent).toContain('≤ 90')
+  })
+
+  it('决策记录完整版里可以勾选「把条件价设为提醒」', async () => {
+    render(<AlertHarness />)
+    fireEvent.click(screen.getByText('add-A'))
+    fireEvent.click(screen.getByRole('button', { name: '写决策记录 A' }))
+    fireEvent.change(screen.getByLabelText(/我为什么买/), { target: { value: '理由' } })
+    fireEvent.change(screen.getByLabelText(/什么情况说明我错了/), { target: { value: '条件' } })
+    fireEvent.change(screen.getByLabelText(/下次检查日/), { target: { value: '2027-04-30' } })
+    fireEvent.click(screen.getByLabelText(/保存时设为价位提醒/))
+    fireEvent.change(screen.getByLabelText(/条件价（USD）/), { target: { value: '88' } })
+    fireEvent.click(screen.getByRole('button', { name: '保存' }))
+    await waitFor(() => expect(JSON.parse(localStorage.getItem('rn-candidates') ?? '[]')[0].alert?.threshold).toBe(88))
+    expect(JSON.parse(localStorage.getItem('rn-candidates') ?? '[]')[0].decisions).toHaveLength(1)
+  })
+})

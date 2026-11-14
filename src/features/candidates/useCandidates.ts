@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { addDecision, clearToken, loadLocal, loadToken, mergeCandidates, moveCandidate, readCloud, removeCandidate, saveLocal, saveToken, setCandidateNote, toggleCandidate, writeCloud } from './store'
+import { addDecision, clearToken, markAlertSeen, setCandidateAlert, snoozeAlert, loadLocal, loadToken, mergeCandidates, moveCandidate, readCloud, removeCandidate, saveLocal, saveToken, setCandidateNote, toggleCandidate, writeCloud } from './store'
 import type { CloudError } from './store'
-import type { CandidateItem, CandidateMarket, DecisionRecord } from './validation'
+import type { CandidateAlertRule, CandidateItem, CandidateMarket, DecisionRecord } from './validation'
 
 export type SyncState = 'no-token' | 'syncing' | 'synced' | 'error'
 
@@ -43,10 +43,12 @@ export function useCandidates(enabled: boolean) {
 
   useEffect(() => { if (enabled && token) void pull(token) }, [enabled, token, pull])
 
-  const push = (next: CandidateItem[]): void => {
+  // 返回这次云端写入的结果：null 为成功或仅本机保存，否则为错误（本机已写入；冲突时已换成云端最新数据）
+  const push = (next: CandidateItem[]): Promise<CloudError | null> => {
     apply(next)
     const tk = token
-    if (!tk) return
+    if (!tk) return Promise.resolve(null)
+    let result: CloudError | null = null
     queue.current = queue.current.then(async () => {
       if (revision.current === null) return
       setState('syncing')
@@ -55,11 +57,13 @@ export function useCandidates(enabled: boolean) {
         revision.current += 1; setState('synced'); setMessage('')
       } catch (e) {
         dirty.current = true
+        result = (e as CloudError) ?? { kind: 'unavailable', message: '同步失败' }
         if ((e as CloudError)?.kind === 'conflict') {
           try { const cloud = await readCloud(tk); revision.current = cloud.revision; apply(cloud.items); dirty.current = false; setState('synced'); setMessage('其他设备已更新候选池，已刷新为最新，请重新操作') } catch (e2) { fail(e2) }
         } else fail(e)
       }
     })
+    return queue.current.then(() => result)
   }
 
   return {
@@ -67,13 +71,23 @@ export function useCandidates(enabled: boolean) {
     toggle: (market: CandidateMarket, code: string): void => {
       const next = toggleCandidate(itemsRef.current, market, code)
       if (next === itemsRef.current) { setMessage('这家公司已有决策记录，如需移除请到候选池操作'); return }
-      push(next)
+      void push(next)
     },
-    remove: (market: CandidateMarket, code: string): void => push(removeCandidate(itemsRef.current, market, code)),
-    addDecision: (market: CandidateMarket, code: string, record: DecisionRecord): void => push(addDecision(itemsRef.current, market, code, record)),
-    move: (from: number, to: number): void => push(moveCandidate(itemsRef.current, from, to)),
-    setNote: (market: CandidateMarket, code: string, note: string): void => push(setCandidateNote(itemsRef.current, market, code, note)),
-    clear: (): void => push([]),
+    remove: (market: CandidateMarket, code: string): void => void push(removeCandidate(itemsRef.current, market, code)),
+    addDecision: (market: CandidateMarket, code: string, record: DecisionRecord): void => void push(addDecision(itemsRef.current, market, code, record)),
+    /** 保存或删除价位提醒。规则不合规、或云端冲突（本机已换成云端最新）时抛错，调用方保留输入；其他云端失败只提示，本机已保存 */
+    setAlert: async (market: CandidateMarket, code: string, alert: CandidateAlertRule | undefined): Promise<{ synced: boolean; message?: string }> => {
+      const next = setCandidateAlert(itemsRef.current, market, code, alert)
+      if (next === itemsRef.current) throw new Error('提醒设置无效，请检查条件价')
+      const err = await push(next)
+      if (err?.kind === 'conflict') throw new Error('其他设备刚更新了候选池，已刷新为最新，请再保存一次')
+      return err ? { synced: false, message: `已保存在本机，云端同步失败：${err.message}` } : { synced: true }
+    },
+    markAlertSeen: (market: CandidateMarket, code: string): void => { void push(markAlertSeen(itemsRef.current, market, code)) },
+    snoozeAlert: (market: CandidateMarket, code: string, until: string): void => { void push(snoozeAlert(itemsRef.current, market, code, until)) },
+    move: (from: number, to: number): void => void push(moveCandidate(itemsRef.current, from, to)),
+    setNote: (market: CandidateMarket, code: string, note: string): void => void push(setCandidateNote(itemsRef.current, market, code, note)),
+    clear: (): void => void push([]),
     connect: (value: string): boolean => { if (!saveToken(value)) return false; revision.current = null; setToken(value.trim()); return true },
     retry: (): void => { if (token) void pull(token) },
   }

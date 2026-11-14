@@ -1,0 +1,476 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`PriceLevels 状态 > 价格锚点过期：百分比变灰并写明按旧价算 1`] = `
+<figure
+  class="cc-levels is-stale"
+>
+  <figcaption
+    class="cc-levels__caption"
+  >
+    研究价位刻度
+    ：价格锚点 100（2026-10-01）
+    <span
+      class="cc-levels__stale"
+    >
+      价格锚点 
+      44
+       天前，百分比按旧价算
+    </span>
+  </figcaption>
+  <div
+    aria-hidden="true"
+    class="cc-scale"
+  >
+    <div
+      class="cc-scale__track"
+    />
+    <span
+      class="cc-scale__mark cc-scale__mark--anchor"
+      style="--cc-pos: 30.285714285714285%;"
+    >
+      <span
+        class="cc-scale__label"
+      >
+        现价
+      </span>
+    </span>
+    <span
+      class="cc-scale__mark cc-scale__mark--bear"
+      style="--cc-pos: 4%;"
+    >
+      <span
+        class="cc-scale__label"
+      >
+        悲观
+      </span>
+    </span>
+    <span
+      class="cc-scale__mark cc-scale__mark--base"
+      style="--cc-pos: 56.57142857142857%;"
+    >
+      <span
+        class="cc-scale__label"
+      >
+        基准
+      </span>
+    </span>
+    <span
+      class="cc-scale__mark cc-scale__mark--bull"
+      style="--cc-pos: 96%;"
+    >
+      <span
+        class="cc-scale__label"
+      >
+        乐观
+      </span>
+    </span>
+  </div>
+  <dl
+    class="cc-levels__list"
+  >
+    <div
+      class="cc-levels__row"
+    >
+      <dt>
+        悲观情景
+      </dt>
+      <dd>
+        <span
+          class="cc-levels__value"
+        >
+          80
+           USD
+        </span>
+        <span
+          class="cc-levels__change is-stale"
+        >
+          距现价 
+          −20.0%
+        </span>
+      </dd>
+    </div>
+    <div
+      class="cc-levels__row"
+    >
+      <dt>
+        基准情景
+      </dt>
+      <dd>
+        <span
+          class="cc-levels__value"
+        >
+          120
+           USD
+        </span>
+        <span
+          class="cc-levels__change is-stale"
+        >
+          距现价 
+          +20.0%
+        </span>
+      </dd>
+    </div>
+    <div
+      class="cc-levels__row"
+    >
+      <dt>
+        乐观情景
+      </dt>
+      <dd>
+        <span
+          class="cc-levels__value"
+        >
+          150
+           USD
+        </span>
+        <span
+          class="cc-levels__change is-stale"
+        >
+          距现价 
+          +50.0%
+        </span>
+      </dd>
+    </div>
+  </dl>
+  <p
+    class="cc-levels__foot"
+  >
+    <a
+      class="rn-link"
+      href="#company-scenarios"
+    >
+      核对三情景假设 →
+    </a>
+  </p>
+</figure>
+`;
+
+exports[`PriceLevels 状态 > 币种不一致：不比较、不上刻度 1`] = `
+<figure
+  class="cc-levels"
+>
+  <figcaption
+    class="cc-levels__caption"
+  >
+    研究价位刻度
+    ：价格锚点 50
+  </figcaption>
+  <div
+    aria-hidden="true"
+    class="cc-scale"
+  >
+    <div
+      class="cc-scale__track"
+    />
+    <span
+      class="cc-scale__mark cc-scale__mark--anchor"
+      style="--cc-pos: 4%;"
+    >
+      <span
+        class="cc-scale__label"
+      >
+        现价
+      </span>
+    </span>
+    <span
+      class="cc-scale__mark cc-scale__mark--base"
+      style="--cc-pos: 50%;"
+    >
+      <span
+        class="cc-scale__label"
+      >
+        基准
+      </span>
+    </span>
+    <span
+      class="cc-scale__mark cc-scale__mark--bull"
+      style="--cc-pos: 96%;"
+    >
+      <span
+        class="cc-scale__label"
+      >
+        乐观
+      </span>
+    </span>
+  </div>
+  <dl
+    class="cc-levels__list"
+  >
+    <div
+      class="cc-levels__row is-muted"
+    >
+      <dt>
+        自动 DCF买入参考价
+      </dt>
+      <dd>
+        <span
+          class="cc-levels__value"
+        >
+          7
+           USD
+        </span>
+        <span
+          class="cc-levels__reason"
+        >
+          币种不同（美元 vs 价格锚点港元），不比较
+        </span>
+      </dd>
+    </div>
+    <div
+      class="cc-levels__row is-muted"
+    >
+      <dt>
+        自动 DCF合理价
+      </dt>
+      <dd>
+        <span
+          class="cc-levels__value"
+        >
+          9
+           USD
+        </span>
+        <span
+          class="cc-levels__reason"
+        >
+          币种不同（美元 vs 价格锚点港元），不比较
+        </span>
+      </dd>
+    </div>
+    <div
+      class="cc-levels__row is-muted"
+    >
+      <dt>
+        悲观情景
+      </dt>
+      <dd>
+        <span
+          class="cc-levels__value"
+        >
+          40
+           CNY
+        </span>
+        <span
+          class="cc-levels__reason"
+        >
+          币种不同（人民币 vs 价格锚点港元），不比较
+        </span>
+      </dd>
+    </div>
+    <div
+      class="cc-levels__row"
+    >
+      <dt>
+        基准情景
+      </dt>
+      <dd>
+        <span
+          class="cc-levels__value"
+        >
+          60
+           HKD
+        </span>
+        <span
+          class="cc-levels__change cc-tone-red"
+        >
+          距现价 
+          +20.0%
+        </span>
+      </dd>
+    </div>
+    <div
+      class="cc-levels__row"
+    >
+      <dt>
+        乐观情景
+      </dt>
+      <dd>
+        <span
+          class="cc-levels__value"
+        >
+          70
+           HKD
+        </span>
+        <span
+          class="cc-levels__change cc-tone-red"
+        >
+          距现价 
+          +40.0%
+        </span>
+      </dd>
+    </div>
+  </dl>
+  <p
+    class="cc-levels__foot"
+  >
+    <a
+      class="rn-link"
+      href="#company-scenarios"
+    >
+      核对三情景假设 →
+    </a>
+  </p>
+</figure>
+`;
+
+exports[`PriceLevels 状态 > 有情景价：画刻度并显示距现价（美股绿涨红跌） 1`] = `
+<figure
+  class="cc-levels"
+>
+  <figcaption
+    class="cc-levels__caption"
+  >
+    研究价位刻度
+    ：价格锚点 200（2026-11-13）
+  </figcaption>
+  <div
+    aria-hidden="true"
+    class="cc-scale"
+  >
+    <div
+      class="cc-scale__track"
+    />
+    <span
+      class="cc-scale__mark cc-scale__mark--anchor"
+      style="--cc-pos: 34.666666666666664%;"
+    >
+      <span
+        class="cc-scale__label"
+      >
+        现价
+      </span>
+    </span>
+    <span
+      class="cc-scale__mark cc-scale__mark--bear"
+      style="--cc-pos: 4%;"
+    >
+      <span
+        class="cc-scale__label"
+      >
+        悲观
+      </span>
+    </span>
+    <span
+      class="cc-scale__mark cc-scale__mark--base"
+      style="--cc-pos: 53.06666666666666%;"
+    >
+      <span
+        class="cc-scale__label"
+      >
+        基准
+      </span>
+    </span>
+    <span
+      class="cc-scale__mark cc-scale__mark--bull"
+      style="--cc-pos: 96%;"
+    >
+      <span
+        class="cc-scale__label"
+      >
+        乐观
+      </span>
+    </span>
+  </div>
+  <dl
+    class="cc-levels__list"
+  >
+    <div
+      class="cc-levels__row"
+    >
+      <dt>
+        悲观情景
+      </dt>
+      <dd>
+        <span
+          class="cc-levels__value"
+        >
+          150
+           USD
+        </span>
+        <span
+          class="cc-levels__change cc-tone-red"
+        >
+          距现价 
+          −25.0%
+        </span>
+      </dd>
+    </div>
+    <div
+      class="cc-levels__row"
+    >
+      <dt>
+        基准情景
+      </dt>
+      <dd>
+        <span
+          class="cc-levels__value"
+        >
+          230
+           USD
+        </span>
+        <span
+          class="cc-levels__change cc-tone-green"
+        >
+          距现价 
+          +15.0%
+        </span>
+      </dd>
+    </div>
+    <div
+      class="cc-levels__row"
+    >
+      <dt>
+        乐观情景
+      </dt>
+      <dd>
+        <span
+          class="cc-levels__value"
+        >
+          300
+           USD
+        </span>
+        <span
+          class="cc-levels__change cc-tone-green"
+        >
+          距现价 
+          +50.0%
+        </span>
+      </dd>
+    </div>
+  </dl>
+  <p
+    class="cc-levels__foot"
+  >
+    <a
+      class="rn-link"
+      href="#company-scenarios"
+    >
+      核对三情景假设 →
+    </a>
+  </p>
+</figure>
+`;
+
+exports[`PriceLevels 状态 > 没有情景价：空状态，不画默认值 1`] = `
+<div
+  class="cc-levels cc-levels--empty"
+  role="note"
+>
+  <p>
+    本公司还没有三情景价或 DCF 价位，刻度条不画默认值。
+     
+    <a
+      class="rn-link"
+      href="/research-notes?tab=method"
+    >
+      研究标准
+    </a>
+  </p>
+  <p
+    class="cc-levels__anchor-only"
+  >
+    价格锚点 
+    400
+    （2026-11-13）
+  </p>
+</div>
+`;

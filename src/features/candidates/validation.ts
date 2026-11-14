@@ -1,7 +1,39 @@
 // 候选池云同步的严格校验：服务端（api/candidates-sync.ts）与客户端共用。
 const object = (value: unknown): value is Record<string, unknown> => !!value && typeof value === 'object' && !Array.isArray(value)
 export type CandidateMarket = 'us' | 'cn' | 'hk' | 'adr' | 'ndx'
-export type CandidateItem = { market: CandidateMarket; code: string; addedAt: string; note?: string; decisions?: DecisionRecord[] }
+export type CandidateItem = { market: CandidateMarket; code: string; addedAt: string; note?: string; decisions?: DecisionRecord[]; alert?: CandidateAlertRule }
+
+// ── 价位提醒（可选字段，schemaVersion 仍为 1）：条件价必须挂在一个研究锚点上，记录来源与日期 ──
+// 只是「到了你设的价位，该复核一眼」，不是买卖指令。站内与日后的服务端定时任务共用同一份规则。
+export type AlertDirection = 'price-below' | 'price-above'
+export type AlertAnchorType = 'manual' | 'dcf-buy-below' | 'research-bear' | 'research-base'
+export type AlertCurrency = 'CNY' | 'HKD' | 'USD'
+export const ALERT_CURRENCIES: readonly AlertCurrency[] = ['CNY', 'HKD', 'USD']
+export const ALERT_ANCHOR_LABEL: Record<AlertAnchorType, string> = {
+  manual: '手动填写', 'dcf-buy-below': '自动 DCF 买入参考价', 'research-bear': '研究估值·悲观价', 'research-base': '研究估值·基准价',
+}
+export interface AlertAnchor {
+  type: AlertAnchorType
+  /** 锚点价格（手动时为设置当时的现价，用来做 0.1×–10× 合理性检查） */
+  value: number
+  /** 锚点日期 YYYY-MM-DD */
+  asOf: string
+  /** 研究版本标识（如 valuation:2026-11-13:PE），研究更新后可据此判断条件价是否过时 */
+  researchVersion?: string
+}
+export interface CandidateAlertRule {
+  kind: AlertDirection
+  /** 条件价，正数，币种同 currency；只按收盘价比较 */
+  threshold: number
+  currency: AlertCurrency
+  anchor: AlertAnchor
+  enabled: boolean
+  createdAt: string // ISO
+  /** 暂停到这一天（YYYY-MM-DD，当天恢复） */
+  snoozedUntil?: string
+  /** 上次点「已看过」的时间（ISO）；同一行情日不再重复列出 */
+  lastSeenAt?: string
+}
 
 // ── 统一决策记录（《正念投资》第37章 37.4）：只追加不覆盖，每次观察/暂缓/买入/调整/卖出都是一个新版本 ──
 export type DecisionAction = 'watch' | 'hold' | 'buy' | 'adjust' | 'sell'
@@ -68,7 +100,33 @@ export type CandidatesPayload = { schemaVersion: 1; items: CandidateItem[] }
 export const MAX_CANDIDATES = 2000
 export const MAX_NOTE = 500
 const MARKETS = new Set<string>(['us', 'cn', 'hk', 'adr', 'ndx'])
-const ITEM_KEYS = new Set(['market', 'code', 'addedAt', 'note', 'decisions'])
+const ITEM_KEYS = new Set(['market', 'code', 'addedAt', 'note', 'decisions', 'alert'])
+const ALERT_KEYS = new Set(['kind', 'threshold', 'currency', 'anchor', 'enabled', 'createdAt', 'snoozedUntil', 'lastSeenAt'])
+const ANCHOR_KEYS = new Set(['type', 'value', 'asOf', 'researchVersion'])
+const ALERT_KINDS = new Set<string>(['price-below', 'price-above'])
+const MAX_PRICE = 1e7
+const positive = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v) && v > 0 && v < MAX_PRICE
+const isoTime = (v: unknown): boolean => typeof v === 'string' && v.length <= 40 && !Number.isNaN(Date.parse(v))
+
+/** 条件价相对锚点的合理范围（开区间），沿用公司页情景价的 0.1×–10× 判断 */
+export const thresholdInRange = (threshold: number, anchor: number): boolean => threshold > anchor * 0.1 && threshold < anchor * 10
+
+export function validAlertRule(value: unknown): value is CandidateAlertRule {
+  if (!object(value) || !Object.keys(value).every(k => ALERT_KEYS.has(k))) return false
+  const a = value.anchor
+  return typeof value.kind === 'string' && ALERT_KINDS.has(value.kind)
+    && positive(value.threshold)
+    && typeof value.currency === 'string' && (ALERT_CURRENCIES as readonly string[]).includes(value.currency)
+    && object(a) && Object.keys(a).every(k => ANCHOR_KEYS.has(k))
+    && typeof a.type === 'string' && Object.hasOwn(ALERT_ANCHOR_LABEL, a.type)
+    && positive(a.value) && validDay(a.asOf)
+    && (a.researchVersion === undefined || (typeof a.researchVersion === 'string' && a.researchVersion.length > 0 && a.researchVersion.length <= 100))
+    && thresholdInRange(value.threshold, a.value)
+    && typeof value.enabled === 'boolean'
+    && isoTime(value.createdAt)
+    && (value.snoozedUntil === undefined || validDay(value.snoozedUntil))
+    && (value.lastSeenAt === undefined || isoTime(value.lastSeenAt))
+}
 
 export const candidateKey = (item: { market: string; code: string }): string => `${item.market}:${item.code}`
 
@@ -80,6 +138,7 @@ export function validCandidateItem(value: unknown): value is CandidateItem {
     && typeof value.addedAt === 'string' && !Number.isNaN(Date.parse(value.addedAt))
     && (value.note === undefined || (typeof value.note === 'string' && value.note.length <= MAX_NOTE))
     && (value.decisions === undefined || validDecisions(value.decisions))
+    && (value.alert === undefined || validAlertRule(value.alert))
 }
 
 export function validCandidatesPayload(value: unknown): value is CandidatesPayload {

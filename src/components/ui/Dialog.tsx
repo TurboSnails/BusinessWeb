@@ -1,7 +1,7 @@
 import React, { useEffect, useId, useRef } from 'react'
 import { cx } from './Page'
 
-/** 模态对话框：遮罩点击或 Esc 关闭，打开时聚焦对话框、关闭后焦点归还，并锁定背景滚动 */
+/** 模态对话框：遮罩点击或 Esc 关闭，打开时聚焦对话框、Tab 在对话框内循环、关闭后焦点归还，并锁定背景滚动 */
 export function Dialog({ open, onClose, title, icon, children, actions, size = 'md', className }: {
   open: boolean
   onClose: () => void
@@ -25,7 +25,19 @@ export function Dialog({ open, onClose, title, icon, children, actions, size = '
     document.body.style.overflow = 'hidden'
     const first = panelRef.current?.querySelector<HTMLElement>('input, select, textarea, button, [href]')
     ;(first ?? panelRef.current)?.focus()
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onCloseRef.current() }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { onCloseRef.current(); return }
+      // Tab 只在对话框内循环
+      const panel = panelRef.current
+      if (e.key !== 'Tab' || !panel) return
+      const focusable = [...panel.querySelectorAll<HTMLElement>('input, select, textarea, button, [href], [tabindex]:not([tabindex="-1"])')]
+        .filter(el => !(el as HTMLButtonElement).disabled)
+      if (!focusable.length) { e.preventDefault(); panel.focus(); return }
+      const first = focusable[0], last = focusable[focusable.length - 1]
+      const active = document.activeElement
+      if (e.shiftKey && (active === first || active === panel)) { e.preventDefault(); last.focus() }
+      else if (!e.shiftKey && (active === last || !panel.contains(active))) { e.preventDefault(); first.focus() }
+    }
     document.addEventListener('keydown', onKey)
     return () => {
       document.removeEventListener('keydown', onKey)

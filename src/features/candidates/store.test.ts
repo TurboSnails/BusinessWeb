@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
-import { mergeCandidates, moveCandidate, readCloud, setCandidateNote, toggleCandidate, writeCloud } from './store'
+import { markAlertSeen, mergeCandidates, moveCandidate, readCloud, setCandidateAlert, setCandidateNote, snoozeAlert, toggleCandidate, writeCloud } from './store'
 import { validCandidatesPayload } from './validation'
-import type { CandidateItem } from './validation'
+import type { CandidateAlertRule, CandidateItem } from './validation'
 
 const item = (code: string, market: CandidateItem['market'] = 'us'): CandidateItem => ({ market, code, addedAt: '2026-10-02T00:00:00.000Z' })
 const codes = (l: CandidateItem[]): string[] => l.map(i => i.code)
@@ -36,6 +36,25 @@ describe('notes', () => {
     expect(validCandidatesPayload({ schemaVersion: 1, items: [{ ...item('A'), note: 'ok' }] })).toBe(true)
     expect(validCandidatesPayload({ schemaVersion: 1, items: [{ ...item('A'), note: 'x'.repeat(501) }] })).toBe(false)
     expect(validCandidatesPayload({ schemaVersion: 1, items: [{ ...item('A'), note: 5 }] })).toBe(false)
+  })
+})
+
+describe('price alerts', () => {
+  const rule: CandidateAlertRule = { kind: 'price-below', threshold: 100, currency: 'USD', anchor: { type: 'manual', value: 120, asOf: '2026-11-14' }, enabled: true, createdAt: '2026-11-14T00:00:00.000Z' }
+  it('sets, replaces and removes the alert on one item only; rejects invalid rules', () => {
+    const l = [item('A'), item('B')]
+    const set = setCandidateAlert(l, 'us', 'A', rule)
+    expect(set[0].alert).toEqual(rule); expect(set[1]).toBe(l[1])
+    expect(validCandidatesPayload({ schemaVersion: 1, items: set })).toBe(true)
+    expect(setCandidateAlert(set, 'us', 'A', undefined)[0]).not.toHaveProperty('alert')
+    expect(setCandidateAlert(l, 'us', 'A', { ...rule, threshold: 5000 })).toBe(l)
+  })
+  it('marks seen and snoozes without changing the rule itself', () => {
+    const set = setCandidateAlert([item('A')], 'us', 'A', rule)
+    const seen = markAlertSeen(set, 'us', 'A', '2026-11-15T00:00:00.000Z')
+    expect(seen[0].alert).toEqual({ ...rule, lastSeenAt: '2026-11-15T00:00:00.000Z' })
+    expect(snoozeAlert(seen, 'us', 'A', '2026-11-22')[0].alert?.snoozedUntil).toBe('2026-11-22')
+    expect(markAlertSeen([item('B')], 'us', 'B')[0]).not.toHaveProperty('alert')
   })
 })
 

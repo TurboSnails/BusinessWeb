@@ -24,6 +24,7 @@ import { displayMissing } from '../utils/format'
 import { scrubMissing } from '../utils/scrubMissing'
 import { Badge, Card, EmptyState, Page, Stat, StatGrid, TableWrap } from '../components/ui'
 import { PageDataFreshness } from '../components/ui/PageDataFreshness'
+import CompanyChartSection from '../features/company-chart/CompanyChartSection'
 import '../styles/research.css'
 
 // 评级语气的文字色：只用色板 token
@@ -152,13 +153,14 @@ export default function CompanyDetail(): JSX.Element {
   const candItem = cand.items.find(i => i.market === company.market && i.code === company.code)
   const lastDecision = candItem && latestDecision(candItem)
   const lynchInfo = lynchFor(lynchAll, company)
+  const dcfSummary = dcfOf(company.market, company.code, tools)
   const signals = companySignals({
     rating: company.rating,
     price,
     priceDate: priceAge?.date,
     priceStale: priceAge?.stale,
     scenarios: company.scenarios ?? scenRows?.map(([name, value]) => ({ name, price: value })),
-    dcf: dcfOf(company.market, company.code, tools),
+    dcf: dcfSummary,
     lynch: lynchInfo && { type: lynchInfo.t, attention: lynchInfo.r, moat: lynchInfo.m ? `护城河财务证据 ${lynchInfo.m.s}/${lynchInfo.m.n} 项通过` : undefined },
     decision: lastDecision && { action: lastDecision.action, nextCheck: lastDecision.nextCheck, count: candItem?.decisions?.length ?? 0 },
     today: localDay(),
@@ -199,6 +201,19 @@ export default function CompanyDetail(): JSX.Element {
 
       <div>
         <SignalSummary summary={signals} stage={researchStage(company)} own={ownStage(!!lastDecision, (() => { const p = toolProgress(company.market, company.code, tools); return !!(p.dcf || p.valuation) })())} />
+        <CompanyChartSection
+          market={company.market}
+          code={company.code}
+          name={company.name}
+          priceDate={company.marketRefresh?.priceDate}
+          scenariosHref="#company-scenarios"
+          levels={{
+            market: company.market,
+            anchor: { price, date: priceAge?.date, days: priceAge?.days, stale: priceAge?.stale, currency: company.marketRefresh?.currency },
+            scenarios: company.scenarios ?? scenRows?.map(([name, value]) => ({ name, price: value })),
+            dcf: dcfSummary,
+          }}
+        />
         <ResearchNotice />
         <CompanyValuationDetail company={company} />
         <QuickDcf market={company.market} code={company.code} name={company.name} price={price} />
@@ -310,7 +325,7 @@ export default function CompanyDetail(): JSX.Element {
           )}
         </Card>
 
-        <Card title="三情景估值">
+        <Card title="三情景估值" id="company-scenarios">
           {company.scenarios ? (
             <DataTable label="三情景估值" heads={['情景（概率）', '盈利与倍数假设', '隐含价', '相对现价', '触发 / 证伪']}
               rows={company.scenarios.map(r => [

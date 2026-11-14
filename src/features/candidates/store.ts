@@ -1,5 +1,5 @@
-import { MAX_DECISIONS, MAX_NOTE, candidateKey, validCandidatesPayload } from './validation'
-import type { CandidateItem, CandidateMarket, DecisionRecord } from './validation'
+import { MAX_DECISIONS, MAX_NOTE, candidateKey, validAlertRule, validCandidatesPayload } from './validation'
+import type { CandidateAlertRule, CandidateItem, CandidateMarket, DecisionRecord } from './validation'
 
 export const CANDIDATES_KEY = 'rn-candidates'
 export const CANDIDATES_TOKEN_KEY = 'rn-candidates-token'
@@ -35,6 +35,22 @@ export const isReviewDue = (item: CandidateItem, today: string): boolean => {
   const latest = latestDecision(item)
   return !!latest && latest.nextCheck <= today
 }
+
+// ── 价位提醒：每家公司最多一条；传 undefined 删除。规则不合规时拒绝（返回原列表） ──
+export function setCandidateAlert(list: CandidateItem[], market: string, code: string, alert: CandidateAlertRule | undefined): CandidateItem[] {
+  if (alert !== undefined && !validAlertRule(alert)) return list
+  return list.map(i => {
+    if (i.market !== market || i.code !== code) return i
+    const { alert: _old, ...rest } = i
+    return alert ? { ...rest, alert } : rest
+  })
+}
+const patchAlert = (list: CandidateItem[], market: string, code: string, patch: Partial<CandidateAlertRule>): CandidateItem[] =>
+  list.map(i => (i.market === market && i.code === code && i.alert ? { ...i, alert: { ...i.alert, ...patch } } : i))
+/** 「已看过」：只标记已读，不删除提醒；同一行情日不再列出 */
+export const markAlertSeen = (list: CandidateItem[], market: string, code: string, at = new Date().toISOString()): CandidateItem[] => patchAlert(list, market, code, { lastSeenAt: at })
+/** 「暂停 N 天」：until 为恢复日 YYYY-MM-DD */
+export const snoozeAlert = (list: CandidateItem[], market: string, code: string, until: string): CandidateItem[] => patchAlert(list, market, code, { snoozedUntil: until })
 
 export function moveCandidate(list: CandidateItem[], from: number, to: number): CandidateItem[] {
   if (from === to || from < 0 || to < 0 || from >= list.length || to >= list.length) return list

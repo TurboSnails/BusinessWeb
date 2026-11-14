@@ -1,13 +1,16 @@
 import React, { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Bell } from 'lucide-react'
 import type { Company } from '../data/companies'
 import { researchForCode, researchPath } from '../data/futureTrendsResearch'
 import type { SyncState } from '../features/candidates/useCandidates'
 import { DECISION_ACTIONS, MAX_NOTE } from '../features/candidates/validation'
-import type { CandidateItem, DecisionRecord, DecisionSnapshot } from '../features/candidates/validation'
+import type { CandidateAlertRule, CandidateItem, DecisionRecord, DecisionSnapshot } from '../features/candidates/validation'
 import { isReviewDue, latestDecision } from '../features/candidates/store'
 import DecisionDialog, { localDay } from './DecisionDialog'
-import { dcfOf, MARKET_LABEL, dcfLink, gridLink, toolProgress, valuationLink, type ToolProgress, type ToolSources } from '../features/candidates/links'
+import { autoDcfOf, dcfOf, MARKET_LABEL, dcfLink, gridLink, toolProgress, valuationLink, venueOf, type ToolProgress, type ToolSources } from '../features/candidates/links'
+import { anchorOptions, DIRECTION_TEXT, pickObservation, priceObservations, SKIP_TEXT, VENUE_CURRENCY, type AnchorOption, type PriceAlertEvaluation, type PriceObservation } from '../features/candidates/priceAlert'
+import CandidateAlertDialog, { type AlertSaveResult } from './CandidateAlertDialog'
 import { matchDcfFilter, type DcfFilterId } from '../features/dcf/filter'
 import { DcfFilterChips } from './DcfCell'
 import { Badge, Card, TableWrap } from './ui'
@@ -27,6 +30,10 @@ interface Props {
   onClear: () => void
   onConnect: (token: string) => boolean
   onRetry: () => void
+  /** 保存或删除价位提醒（不传则不显示「提醒」入口） */
+  onAlert?: (item: CandidateItem, rule: CandidateAlertRule | undefined) => Promise<AlertSaveResult | void> | AlertSaveResult | void
+  /** 每家设了提醒的候选当前的判断结果（market:code → 结果），用来说明暂停原因 */
+  alertStates?: Map<string, PriceAlertEvaluation>
 }
 
 const NO_TOOLS: ToolSources = { dcf: [], valuation: [], grid: [] }
@@ -71,6 +78,30 @@ function snapshotOf(company: Company | undefined, rating: string, p: ToolProgres
   return s
 }
 
+/** 一家候选可用的收盘价与条件价来源（纯计算，供提醒对话框与决策记录预填） */
+function alertContext(item: CandidateItem, company: Company | undefined, tools: ToolSources, today: string): { anchors: AnchorOption[]; price?: PriceObservation; currency: 'CNY' | 'HKD' | 'USD' } {
+  const currency = VENUE_CURRENCY[venueOf(item.market)]
+  const auto = autoDcfOf(item.market, item.code, tools)
+  const anchors = anchorOptions({ valuation: company?.valuation, autoDcf: auto })
+  const observations = priceObservations({ venueCurrency: currency, autoDcf: auto, marketRefresh: company?.marketRefresh })
+  const wanted = anchors[0]?.currency ?? currency
+  return { anchors, currency, price: pickObservation(observations, wanted, today) ?? pickObservation(observations, observations[0]?.currency ?? currency, today) }
+}
+
+const money4 = (n: number): string => n.toLocaleString('zh-CN', { maximumFractionDigits: 4 })
+/** 提醒入口：没有提醒时写「提醒」，有提醒时显示条件和暂停原因 */
+function AlertCell({ item, state, onOpen }: { item: CandidateItem; state?: PriceAlertEvaluation; onOpen: () => void }): JSX.Element {
+  const rule = item.alert
+  if (!rule) return <button type="button" className="tool-btn cand-alert-btn" onClick={onOpen} aria-label={`设置价位提醒 ${item.code}`}><Bell size={14} aria-hidden="true" /> 提醒</button>
+  const why = state?.status === 'skipped' ? (state.reason === 'snoozed' ? `暂停至 ${rule.snoozedUntil}` : SKIP_TEXT[state.reason]) : state?.status === 'hit' ? '已触及，见今日待处理' : ''
+  return (
+    <span className="cand-alert-set">
+      <button type="button" className="tool-btn cand-alert-btn" onClick={onOpen} aria-label={`修改价位提醒 ${item.code}`}><Bell size={14} aria-hidden="true" /> 提醒 {DIRECTION_TEXT[rule.kind]} {money4(rule.threshold)}</button>
+      {why && <small>{why}</small>}
+    </span>
+  )
+}
+
 /** 决策记录列：最新动作与下次检查日，到期标出待复查 */
 function DecisionCell({ item, today, onOpen }: { item: CandidateItem; today: string; onOpen: () => void }): JSX.Element {
   const latest = latestDecision(item)
@@ -85,7 +116,7 @@ function DecisionCell({ item, today, onOpen }: { item: CandidateItem; today: str
   )
 }
 
-export default function CandidatePool({ items, companies, tools = NO_TOOLS, state, message, onMove, onRemove, onDecision, onNote, onClear, onConnect, onRetry }: Props): JSX.Element {
+export default function CandidatePool({ items, companies, tools = NO_TOOLS, state, message, onMove, onRemove, onDecision, onNote, onClear, onConnect, onRetry, onAlert, alertStates }: Props): JSX.Element {
   const [dragFrom, setDragFrom] = useState<number | null>(null)
   const [over, setOver] = useState<number | null>(null)
   const [token, setToken] = useState('')
@@ -93,6 +124,7 @@ export default function CandidatePool({ items, companies, tools = NO_TOOLS, stat
   const [confirmClear, setConfirmClear] = useState(false)
   const [dcfF, setDcfF] = useState<DcfFilterId>('all')
   const [editing, setEditing] = useState<string | null>(null)
+  const [alerting, setAlerting] = useState<string | null>(null)
   const [confirmRemove, setConfirmRemove] = useState<string | null>(null)
   const today = localDay()
   const recordCount = items.reduce((n, i) => n + (i.decisions?.length ?? 0), 0)
@@ -164,7 +196,10 @@ export default function CandidatePool({ items, companies, tools = NO_TOOLS, stat
                     {d.href ? <Link to={d.href} className="rn-link">{d.name || i.code} {i.code}</Link> : <span>{i.code}</span>}
                     <small>{MARKET_LABEL[i.market]} · <Link to={`/research-notes/company/${i.market}/${encodeURIComponent(i.code)}/notes`} className="rn-link">研究笔记</Link></small>
                   </td>
-                  <td className="cand-decision-cell"><DecisionCell item={i} today={today} onOpen={() => setEditing(`${i.market}:${i.code}`)} /></td>
+                  <td className="cand-decision-cell">
+                    <DecisionCell item={i} today={today} onOpen={() => setEditing(`${i.market}:${i.code}`)} />
+                    {onAlert && <AlertCell item={i} state={alertStates?.get(`${i.market}:${i.code}`)} onOpen={() => setAlerting(`${i.market}:${i.code}`)} />}
+                  </td>
                   <td className="rn-wide"><NoteEditor key={`${i.note ?? ''}`} code={i.code} value={i.note ?? ''} onSave={text => onNote(i, text)} /></td>
                   <td className="cand-verdict"><strong>{d.rating}</strong><span>{d.headline}</span></td>
                   <td className="cand-progress-cell">
@@ -201,8 +236,19 @@ export default function CandidatePool({ items, companies, tools = NO_TOOLS, stat
         const item = items.find(i => `${i.market}:${i.code}` === editing)
         if (!item) return null
         const d = describe(item)
+        const company = byKey.get(`${item.market}:${item.code}`)
+        const ctx = onAlert ? alertContext(item, company, tools, today) : null
         return <DecisionDialog key={editing ?? ''} open onClose={() => setEditing(null)} name={`${d.name || item.code} ${item.code}`} records={item.decisions ?? []}
-          snapshot={snapshotOf(byKey.get(`${item.market}:${item.code}`), d.rating, toolProgress(item.market, item.code, tools))} onSave={record => onDecision(item, record)} />
+          snapshot={snapshotOf(company, d.rating, toolProgress(item.market, item.code, tools))} onSave={record => onDecision(item, record)}
+          alert={ctx && onAlert ? { option: ctx.anchors[0], price: ctx.price, currency: ctx.currency, today, hasRule: !!item.alert, onSet: rule => onAlert(item, rule) } : undefined} />
+      })()}
+      {(() => {
+        const item = onAlert ? items.find(i => `${i.market}:${i.code}` === alerting) : undefined
+        if (!item || !onAlert) return null
+        const d = describe(item)
+        const ctx = alertContext(item, byKey.get(`${item.market}:${item.code}`), tools, today)
+        return <CandidateAlertDialog key={alerting ?? ''} open onClose={() => setAlerting(null)} name={`${d.name || item.code} ${item.code}`} rule={item.alert}
+          anchors={ctx.anchors} price={ctx.price} currency={ctx.currency} cloud={state === 'synced' || state === 'syncing'} today={today} onSave={rule => onAlert(item, rule)} />
       })()}
       <p className="cand-foot">拖动 ⠿ 序号或用 ↑ ↓ / 置顶调整优先级；备注 Enter 或点别处保存，Shift+Enter 换行，Esc 放弃。仅为个人研究清单，不构成投资建议。</p>
     </Card>

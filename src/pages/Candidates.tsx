@@ -9,12 +9,13 @@ import { Page } from '../components/ui'
 import { useCompanies } from '../data/companies'
 import { localDay } from '../components/DecisionDialog'
 import { isReviewDue } from '../features/candidates/store'
-import { candidateAlerts } from '../features/candidates/alerts'
+import { candidateAlerts, priceAlertStates } from '../features/candidates/alerts'
+import { addDays, priceObservations, SNOOZE_DAYS, VENUE_CURRENCY, type PriceObservation } from '../features/candidates/priceAlert'
 import CandidateAlerts from '../components/CandidateAlerts'
 import { RESEARCH_INDEX, type ResearchSummary } from '../data/futureTrendsResearch'
 import { poolBucket } from '../data/futureTrendsPresentation'
 import { useCandidates } from '../features/candidates/useCandidates'
-import { dcfOf, MARKET_LABEL, researchToCandidate, toolProgress } from '../features/candidates/links'
+import { dcfOf, MARKET_LABEL, researchToCandidate, toolProgress, venueOf } from '../features/candidates/links'
 import { useToolSources } from '../features/candidates/useToolSources'
 import FutureTrendsPool from './FutureTrendsPool'
 import '../styles/candidates.css'
@@ -44,7 +45,12 @@ export default function Candidates(): JSX.Element {
   const today = localDay()
   const due = cand.items.filter(i => isReviewDue(i, today)).length
   const recorded = cand.items.filter(i => i.decisions?.length).length
-  const alerts = useMemo(() => candidateAlerts(cand.items, tools, today, new Map(companies.map(c => [`${c.market}:${c.code}`, c.rating]))), [cand.items, tools, today, companies])
+  // 价位提醒的另一个价格来源：公司页价格锚点（带行情日期）；自动 DCF 预填库的现价由 alerts.ts 自己读
+  const anchorPrices = useMemo(() => new Map<string, PriceObservation[]>(companies.filter(c => c.marketRefresh).map(c => [`${c.market}:${c.code}`,
+    priceObservations({ venueCurrency: VENUE_CURRENCY[venueOf(c.market)], marketRefresh: c.marketRefresh })])), [companies])
+  const alerts = useMemo(() => candidateAlerts(cand.items, tools, today, new Map(companies.map(c => [`${c.market}:${c.code}`, c.rating])), anchorPrices), [cand.items, tools, today, companies, anchorPrices])
+  const alertStates = useMemo(() => priceAlertStates(cand.items, tools, today, anchorPrices), [cand.items, tools, today, anchorPrices])
+  const pausedAlerts = [...alertStates.values()].filter(r => r.status === 'skipped' && (r.reason === 'stale' || r.reason === 'currency-mismatch' || r.reason === 'no-price')).length
   const buyable = useMemo(() => RESEARCH_INDEX.filter(r => poolBucket(r) === 'buy').length, [])
 
   // 研究筛出按 DCF 筛选：对应不上四个市场的公司没有 DCF 记录，只在「全部」和「未算」里出现
@@ -96,10 +102,12 @@ export default function Candidates(): JSX.Element {
             <li><strong>算价格</strong>点「估值」「DCF」，代码和市场自动带入；结果回到这里显示</li>
             <li><strong>管节奏</strong>A 股和 ETF 可以直接进「网格」回测</li>
           </ol>
-          {cand.items.length > 0 && <CandidateAlerts alerts={alerts} companies={companies} />}
+          {cand.items.length > 0 && <CandidateAlerts alerts={alerts} companies={companies} paused={pausedAlerts}
+            onSeen={a => cand.markAlertSeen(a.market, a.code)} onSnooze={a => cand.snoozeAlert(a.market, a.code, addDays(today, SNOOZE_DAYS))} />}
           <CandidatePool items={cand.items} companies={companies} tools={tools} state={cand.state} message={cand.message}
             onMove={cand.move} onRemove={i => cand.remove(i.market, i.code)} onDecision={(i, r) => cand.addDecision(i.market, i.code, r)} onNote={(i, t) => cand.setNote(i.market, i.code, t)}
-            onClear={cand.clear} onConnect={cand.connect} onRetry={cand.retry} />
+            onClear={cand.clear} onConnect={cand.connect} onRetry={cand.retry}
+            onAlert={(i, rule) => cand.setAlert(i.market, i.code, rule)} alertStates={alertStates} />
         </>
       ) : (
         <div className="cand-research">

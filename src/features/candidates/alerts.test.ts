@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { candidateAlerts, countAlerts } from './alerts'
+import { candidateAlerts, countAlerts, priceAlertStates } from './alerts'
 import type { ToolSources } from './links'
 import type { AutoDcf } from '../dcf/autoDcf'
-import type { CandidateItem, DecisionRecord } from './validation'
+import type { CandidateAlertRule, CandidateItem, DecisionRecord } from './validation'
 
 const TODAY = '2026-10-20'
 const record = (over: Partial<DecisionRecord> = {}): DecisionRecord => ({ at: '2026-06-01T00:00:00.000Z', action: 'watch', why: 'w', wrong: 'x', nextCheck: '2026-12-01', ...over })
@@ -46,5 +46,33 @@ describe('candidateAlerts', () => {
     const alerts = candidateAlerts([item('600519')], tools, TODAY)
     expect(alerts.map(a => a.kind)).toEqual(['buy-zone', 'stale-dcf'])
     expect(countAlerts(alerts)).toEqual({ 'buy-zone': 1, 'stale-dcf': 1 })
+  })
+
+  describe('触及条件价', () => {
+    const rule = (over: Partial<CandidateAlertRule> = {}): CandidateAlertRule => ({ kind: 'price-below', threshold: 90, currency: 'CNY', anchor: { type: 'research-bear', value: 90, asOf: '2026-10-16' }, enabled: true, createdAt: '2026-10-01T00:00:00.000Z', ...over })
+    const priced = (current: number, priceDate = '2026-10-19'): ToolSources => auto([['cn:600519', { current, priceDate, buyBelow: null }]])
+
+    it('用预填库收盘价判断：触及时写明触发价、行情日期、来源和条件价来源，措辞是复核不是买入', () => {
+      const alerts = candidateAlerts([item('600519', { alert: rule() })], priced(90), TODAY)
+      expect(alerts).toHaveLength(1)
+      expect(alerts[0]).toMatchObject({ kind: 'price-hit', price: { price: 90, date: '2026-10-19' } })
+      expect(alerts[0].text).toContain('到了你设的价位，该复核一眼')
+      expect(alerts[0].text).toContain('2026-10-19')
+      expect(alerts[0].text).toContain('研究估值·悲观价')
+      expect(alerts[0].text).not.toMatch(/买入信号/)
+      expect(countAlerts(alerts)).toEqual({ 'price-hit': 1 })
+    })
+    it('高于条件价、旧版摘要没有行情日期、暂停中都不列出', () => {
+      expect(candidateAlerts([item('600519', { alert: rule() })], priced(91), TODAY)).toEqual([])
+      expect(candidateAlerts([item('600519', { alert: rule() })], auto([['cn:600519', { current: 80, buyBelow: null }]]), TODAY)).toEqual([])
+      expect(candidateAlerts([item('600519', { alert: rule({ snoozedUntil: '2026-10-27' }) })], priced(80), TODAY)).toEqual([])
+    })
+    it('调用方补充的价格锚点也参与（取同币种最新）；判断结果给页面说明暂停原因', () => {
+      const items = [item('600519', { alert: rule() })]
+      const extra = new Map([['cn:600519', [{ price: 85, currency: 'CNY', date: '2026-10-20', source: '公司页价格锚点' }]]])
+      expect(candidateAlerts(items, priced(95, '2026-10-16'), TODAY, undefined, extra)[0]?.price?.source).toBe('公司页价格锚点')
+      expect(priceAlertStates(items, priced(80, '2026-10-01'), TODAY).get('cn:600519')).toMatchObject({ status: 'skipped', reason: 'stale' })
+      expect(priceAlertStates(items, auto([['cn:600519', { current: 80, currency: 'USD', priceDate: '2026-10-19' }]]), TODAY).get('cn:600519')).toMatchObject({ reason: 'currency-mismatch' })
+    })
   })
 })

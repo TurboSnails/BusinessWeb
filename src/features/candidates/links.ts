@@ -60,13 +60,18 @@ const time = (iso: string | undefined): number => { const t = Date.parse(iso ?? 
 const latest = <T,>(list: T[], at: (x: T) => string | undefined): T | undefined =>
   list.reduce<T | undefined>((best, x) => (!best || time(at(x)) > time(at(best)) ? x : best), undefined)
 
+/** 预填库里这家公司的自动 DCF 原始条目（含现价与行情日期） */
+export function autoDcfOf(market: CandidateMarket, code: string, sources: ToolSources): AutoDcf | undefined {
+  const venue = venueOf(market)
+  return sources.auto?.get(autoDcfKey(venue, codeKey(venue, code)))
+}
+
 /**
  * 列表里展示与筛选用的 DCF：本人保存的记录优先，否则用预填库的自动估值。
  * 安全边际一律按最新股价重算（本人记录的合理价不变），避免沿用保存当天的旧价。
  */
 export function dcfOf(market: CandidateMarket, code: string, sources: ToolSources): DcfSummary | undefined {
-  const venue = venueOf(market)
-  const auto = sources.auto?.get(autoDcfKey(venue, codeKey(venue, code)))
+  const auto = autoDcfOf(market, code, sources)
   const mine = toolProgress(market, code, sources).dcf
   if (mine) {
     const current = auto && auto.currency === mine.currency ? auto.current : null

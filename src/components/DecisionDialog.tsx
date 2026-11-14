@@ -4,7 +4,20 @@ import { ClipboardList } from 'lucide-react'
 import { Dialog, Field } from './ui'
 import '../styles/candidates.css'
 import { DECISION_ACTIONS, DECISION_TYPES, MAX_DECISION_TEXT, MAX_DECISIONS, validDecisionRecord } from '../features/candidates/validation'
-import type { DecisionAction, DecisionRecord, DecisionSnapshot, DecisionType } from '../features/candidates/validation'
+import type { AlertCurrency, CandidateAlertRule, DecisionAction, DecisionRecord, DecisionSnapshot, DecisionType } from '../features/candidates/validation'
+import { alertProblem, buildAlertRule, manualAnchor, type AnchorOption, type PriceObservation } from '../features/candidates/priceAlert'
+
+/** 「把条件价设为提醒」需要的上下文；不传则不显示这一项 */
+export interface DecisionAlertOption {
+  /** 研究给出的条件价（优先悲观价），没有时按手动填写、以当前收盘价作参照 */
+  option?: AnchorOption
+  price?: PriceObservation
+  currency: AlertCurrency
+  today: string
+  /** 这家公司已经设过提醒（勾选后会替换） */
+  hasRule?: boolean
+  onSet: (rule: CandidateAlertRule) => unknown
+}
 
 const BOOK_LINK = '/first-book/read/第37章-犯错与复盘.md'
 const OPTIONAL_FIELDS = [
@@ -75,7 +88,7 @@ function History({ records }: { records: DecisionRecord[] }): JSX.Element {
   )
 }
 
-export default function DecisionDialog({ open, onClose, name, records, snapshot, onSave }: {
+export default function DecisionDialog({ open, onClose, name, records, snapshot, onSave, alert }: {
   open: boolean
   onClose: () => void
   name: string
@@ -83,10 +96,14 @@ export default function DecisionDialog({ open, onClose, name, records, snapshot,
   /** 记录时自动带上的研究评级、价格与 DCF */
   snapshot?: DecisionSnapshot
   onSave: (record: DecisionRecord) => void
+  alert?: DecisionAlertOption
 }): JSX.Element | null {
   const latest = records[records.length - 1]
   const [draft, setDraft] = useState<Draft>(() => initialDraft(latest))
   const [tried, setTried] = useState(false)
+  const [setAlert, setSetAlert] = useState(false)
+  const [alertPrice, setAlertPrice] = useState<string>(() => (alert?.option ? String(alert.option.value) : ''))
+  const [alertError, setAlertError] = useState('')
   const set = <K extends keyof Draft>(key: K, value: Draft[K]): void => setDraft(d => ({ ...d, [key]: value }))
   const full = records.length >= MAX_DECISIONS
   const missing = [!draft.why.trim() && '为什么买', !draft.wrong.trim() && '什么情况说明我错了', !draft.nextCheck && '下次检查日'].filter(Boolean)
@@ -95,7 +112,18 @@ export default function DecisionDialog({ open, onClose, name, records, snapshot,
     setTried(true)
     const record = toRecord(draft, snapshot, new Date().toISOString())
     if (full || !validDecisionRecord(record)) return
+    let rule: CandidateAlertRule | undefined
+    if (alert && setAlert) {
+      const value = Number(alertPrice)
+      const currency = alert.option?.currency ?? alert.currency
+      const anchor = alert.option ?? manualAnchor(alert.price?.currency === currency ? alert.price : undefined, value, alert.today)
+      rule = buildAlertRule({ kind: 'price-below', threshold: value, currency, anchor, enabled: true, createdAt: record.at })
+      const problem = alertPrice.trim() === '' ? '条件价要填一个大于 0 的数' : alertProblem(rule)
+      if (problem) { setAlertError(problem); return }
+    }
     onSave(record)
+    // 提醒写入失败（如云端冲突）时，候选池顶部的同步状态会提示；决策记录本身已保存
+    if (alert && rule) Promise.resolve(alert.onSet(rule)).catch(() => undefined)
     onClose()
   }
 
@@ -140,6 +168,18 @@ export default function DecisionDialog({ open, onClose, name, records, snapshot,
               <textarea rows={2} maxLength={MAX_DECISION_TEXT} value={draft[key] ?? ''} onChange={e => set(key, e.target.value)} />
             </Field>
           ))}
+          {alert && (
+            <fieldset className="decision-alert ui-field--wide">
+              <legend>把条件价设为提醒</legend>
+              <label className="decision-check"><input type="checkbox" checked={setAlert} onChange={e => { setSetAlert(e.target.checked); setAlertError('') }} /> 保存时设为价位提醒（收盘价 ≤ 条件价时提示复核）{alert.hasRule ? '，替换现有提醒' : ''}</label>
+              {setAlert && (
+                <Field label={`条件价（${alert.option?.currency ?? alert.currency}）`} hint={alert.option ? `来自${alert.option.label}（${alert.option.asOf}），可改` : '手动填写，以当前收盘价作参照'}>
+                  <input type="number" inputMode="decimal" min="0" step="any" value={alertPrice} onChange={e => { setAlertPrice(e.target.value); setAlertError('') }} />
+                </Field>
+              )}
+              {alertError && <p role="alert" className="decision-error">{alertError}</p>}
+            </fieldset>
+          )}
         </div>
       </details>
       {tried && missing.length > 0 && <p role="alert" className="decision-error">还缺：{missing.join('、')}。写不出的那一行，就是还不该行动的原因。</p>}

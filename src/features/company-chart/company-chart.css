@@ -1,0 +1,56 @@
+/* 公司页「价格走势与情景价位」 */
+.cc-section__note { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0 0 var(--space-3); color: var(--text-secondary); font-size: .8rem; line-height: 1.6; }
+.cc-section__note strong { color: var(--text-primary); font-weight: 600; }
+.cc-section__empty { margin: 0 0 var(--space-3); padding: 12px 14px; border-radius: var(--radius-md); background: var(--bg-secondary); color: var(--text-secondary); font-size: .85rem; line-height: 1.7; }
+
+.cc-chart { position: relative; min-width: 0; margin: 0 0 var(--space-4); }
+.cc-skip { position: absolute; left: 0; top: -2px; z-index: 2; padding: 4px 8px; border-radius: var(--radius-sm); background: var(--bg-card); color: var(--accent-ink, var(--accent)); font-size: .75rem; transform: translateY(-120%); opacity: 0; pointer-events: none; }
+.cc-skip:focus { transform: none; opacity: 1; pointer-events: auto; outline: 2px solid var(--accent); }
+.cc-chart__frame { position: relative; height: 420px; min-width: 0; overflow: hidden; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); background: var(--bg-card); }
+.cc-chart__frame--auto { height: auto; min-height: 300px; padding: 8px; }
+.cc-chart__frame tv-advanced-chart { display: block; width: 100%; height: 100%; }
+.cc-chart__placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; height: 100%; min-height: 280px; padding: 16px; color: var(--text-secondary); font-size: .85rem; line-height: 1.7; text-align: center; }
+.cc-chart__placeholder p { margin: 0; }
+.cc-chart__placeholder .tool-btn { min-height: 44px; }
+.cc-chart__caption { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-top: 8px; color: var(--text-tertiary); font-size: .75rem; line-height: 1.7; }
+.cc-chart__caption .page-data-freshness { margin: 0; }
+.cc-cn-plot { min-height: 200px; }
+
+/* 价位刻度条 */
+.cc-levels { margin: 0; }
+.cc-levels--empty p { margin: 0 0 6px; color: var(--text-secondary); font-size: .85rem; line-height: 1.7; }
+.cc-levels__caption { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-bottom: 10px; color: var(--text-primary); font-size: .85rem; font-weight: 600; }
+.cc-levels__stale { color: var(--warm-ink, var(--text-secondary)); font-weight: 500; }
+.cc-scale { position: relative; height: 66px; margin: 0 4px 10px; }
+.cc-scale__track { position: absolute; left: 0; right: 0; top: 30px; height: 4px; border-radius: 2px; background: var(--bg-secondary); }
+.cc-scale__mark { position: absolute; left: var(--cc-pos, 50%); top: 24px; width: 2px; height: 16px; margin-left: -1px; background: var(--text-tertiary); }
+.cc-scale__mark--anchor { top: 20px; width: 4px; height: 24px; margin-left: -2px; background: var(--text-primary); }
+.cc-scale__mark--bear { background: var(--warm-ink, #9a5b13); }
+.cc-scale__mark--base { background: var(--accent); }
+.cc-scale__mark--bull { background: var(--accent-ink, var(--accent)); }
+.cc-scale__label { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); white-space: nowrap; color: var(--text-secondary); font-size: .7rem; }
+.cc-scale__mark--anchor .cc-scale__label,
+.cc-scale__mark--dcf-buy .cc-scale__label,
+.cc-scale__mark--dcf-fair .cc-scale__label { bottom: auto; top: 20px; }
+.cc-scale__mark--anchor .cc-scale__label { top: 26px; color: var(--text-primary); font-weight: 600; }
+.cc-levels.is-stale .cc-scale__mark--anchor { opacity: .5; }
+.cc-levels__list { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px 16px; margin: 0; }
+.cc-levels__row { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: var(--radius-sm); background: var(--bg-secondary); }
+.cc-levels__row dt { color: var(--text-secondary); font-size: .75rem; }
+.cc-levels__row dt small { color: var(--text-tertiary); }
+.cc-levels__row dd { display: flex; flex-wrap: wrap; gap: 2px 10px; margin: 0; font-variant-numeric: tabular-nums; }
+.cc-levels__value { color: var(--text-primary); font-weight: 600; }
+.cc-levels__change { font-size: .8rem; }
+.cc-levels__change.is-stale { color: var(--text-tertiary); }
+.cc-levels__reason { color: var(--text-tertiary); font-size: .75rem; }
+.cc-levels__row.is-muted .cc-levels__value { color: var(--text-secondary); font-weight: 500; }
+.cc-tone-red { color: var(--up-ink); }
+.cc-tone-green { color: var(--down-ink); }
+.cc-levels__skipped, .cc-levels__foot { margin: 8px 0 0; color: var(--text-tertiary); font-size: .75rem; line-height: 1.6; }
+
+@media (max-width: 640px) {
+  .cc-chart__frame { height: 300px; }
+  .cc-chart__frame--auto { height: auto; }
+  .cc-levels__list { grid-template-columns: minmax(0, 1fr); }
+  .cc-scale__label { font-size: .65rem; }
+}
