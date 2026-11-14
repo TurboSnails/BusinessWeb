@@ -3,6 +3,8 @@
 // - cn：sector 一律为中证一级（中证行业分类标准，巨潮资讯 stock_industry_change_cninfo 于 2026-11-13 逐家查询的「行业门类」）；
 //   原主题桶（新能源汽车 / 自动驾驶 / AI 算力 / 新材料 / 化工 / 机器人链）与券商评级来源「高盛增持」改放 theme。
 // - adr：sector 为 GICS 一级（原 batch 字段），地域/题材分组（海外龙头 / 中概 / 新兴市场平台 / 新上市/热门 / 美股本土成长）改放 region。
+// - hk：sector 为恒生行业分类（HSICS）第二层「业务类别」；2026-11-13 经港交所报价页逐家核对 126/127 一致（00823 领展为 REIT，港交所页不显示 HSICS），
+//   证据 data-raw/hk-hsics-2026-11-13/hsics.json，复核入口 scripts/hk-hsics-sync.mjs（--apply 会把差异写进下方 SECTOR_FIXES）。
 // - 个别纠错见 SECTOR_FIXES。
 import type { Company } from './companies'
 
@@ -37,8 +39,8 @@ export const CN_CSI_LEVEL1: Record<string, string> = {
 export const SECTOR_FIXES: Record<string, string> = {
   'us:GRMN': '可选消费', // GICS：Garmin 属可选消费（消费电子），原随「53 家 AI 情景研究」整组记为信息技术
   'adr:SOFI': '金融', // 原 batch「金融科技」；与 NU / STNE / PAGS / FUTU 同归金融
-  'hk:02269': '药品及生物科技', // 恒生行业（东方财富港股资料「所属行业」2026-11-13 核对），原停在行业层级「医疗保健」
-  'hk:02359': '药品及生物科技',
+  'hk:02269': '药品及生物科技', // HSICS（港交所报价页 2026-11-13：医疗保健业 - 药品及生物科技 - 医药及生物科技合约服务），原停在行业层级「医疗保健」
+  'hk:02359': '药品及生物科技', // 同上（港交所报价页 2026-11-13 HSICS 核对）
 }
 
 /** ADR 的 GICS 一级：batch 已是 GICS 一级；SOFI 的 batch 为子行业「金融科技」，由 SECTOR_FIXES 归金融 */

@@ -1,0 +1,1530 @@
+{
+  "asOf": "2026-11-13",
+  "source": "港交所「證券價格 › 股本證券」报价页「行業 … (恒生行業分類)」栏（恒生指数有限公司提供）",
+  "method": "2026-11-13 在浏览器逐家打开港交所繁体报价页读取渲染后的 HSICS 文字（行业 - 业务类别 - 子业务类别），繁转简后存档；与 scripts/hk-hsics-sync.mjs（getequityquote lang=chn）同源。本机自动化令牌抓取被权限策略拦截，故本份证据非 CLI 直采。",
+  "crossCheck": {
+    "source": "https://www.hsi.com.hk/api/wsit-hsi-ddoc-ea-public-website-proxy/v1/product-data/pub/constituent/metadata/v2?data=top10&indexCode=00011.09&language=zh-cn",
+    "note": "恒生综合行业指数-地产建筑业前十大成份（tradeDate 2026-11-12）含 823 领展房产基金，行业层级为地产建筑业"
+  },
+  "rows": [
+    {
+      "code": "00001",
+      "name": "长和",
+      "hsics": {
+        "industry": "综合企业",
+        "sector": "综合企业",
+        "subSector": "综合企业",
+        "label": "综合企业 - 综合企业 - 综合企业"
+      },
+      "hkexText": "綜合企業 - 綜合企業 - 綜合企業",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1&sc_lang=zh-HK"
+    },
+    {
+      "code": "00002",
+      "name": "中电控股",
+      "hsics": {
+        "industry": "公用事业",
+        "sector": "公用事业",
+        "subSector": "常规电力",
+        "label": "公用事业 - 公用事业 - 常规电力"
+      },
+      "hkexText": "公用事業 - 公用事業 - 常規電力",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=2&sc_lang=zh-HK"
+    },
+    {
+      "code": "00003",
+      "name": "香港中华煤气",
+      "hsics": {
+        "industry": "公用事业",
+        "sector": "公用事业",
+        "subSector": "燃气供应",
+        "label": "公用事业 - 公用事业 - 燃气供应"
+      },
+      "hkexText": "公用事業 - 公用事業 - 燃氣供應",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=3&sc_lang=zh-HK"
+    },
+    {
+      "code": "00005",
+      "name": "汇丰控股",
+      "hsics": {
+        "industry": "金融业",
+        "sector": "银行",
+        "subSector": "银行",
+        "label": "金融业 - 银行 - 银行"
+      },
+      "hkexText": "金融業 - 銀行 - 銀行",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=5&sc_lang=zh-HK"
+    },
+    {
+      "code": "00006",
+      "name": "电能实业",
+      "hsics": {
+        "industry": "公用事业",
+        "sector": "公用事业",
+        "subSector": "常规电力",
+        "label": "公用事业 - 公用事业 - 常规电力"
+      },
+      "hkexText": "公用事業 - 公用事業 - 常規電力",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=6&sc_lang=zh-HK"
+    },
+    {
+      "code": "00012",
+      "name": "恒基地产",
+      "hsics": {
+        "industry": "地产建筑业",
+        "sector": "地产",
+        "subSector": "地产发展商",
+        "label": "地产建筑业 - 地产 - 地产发展商"
+      },
+      "hkexText": "地產建築業 - 地產 - 地產發展商",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=12&sc_lang=zh-HK"
+    },
+    {
+      "code": "00016",
+      "name": "新鸿基地产",
+      "hsics": {
+        "industry": "地产建筑业",
+        "sector": "地产",
+        "subSector": "地产发展商",
+        "label": "地产建筑业 - 地产 - 地产发展商"
+      },
+      "hkexText": "地產建築業 - 地產 - 地產發展商",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=16&sc_lang=zh-HK"
+    },
+    {
+      "code": "00027",
+      "name": "银河娱乐",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "旅游及消闲设施",
+        "subSector": "赌场及博彩",
+        "label": "非必需性消费 - 旅游及消闲设施 - 赌场及博彩"
+      },
+      "hkexText": "非必需性消費 - 旅遊及消閒設施 - 賭場及博彩",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=27&sc_lang=zh-HK"
+    },
+    {
+      "code": "00066",
+      "name": "港铁公司",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "旅游及消闲设施",
+        "subSector": "公共运输",
+        "label": "非必需性消费 - 旅游及消闲设施 - 公共运输"
+      },
+      "hkexText": "非必需性消費 - 旅遊及消閒設施 - 公共運輸",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=66&sc_lang=zh-HK"
+    },
+    {
+      "code": "00101",
+      "name": "恒隆地产",
+      "hsics": {
+        "industry": "地产建筑业",
+        "sector": "地产",
+        "subSector": "地产投资",
+        "label": "地产建筑业 - 地产 - 地产投资"
+      },
+      "hkexText": "地產建築業 - 地產 - 地產投資",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=101&sc_lang=zh-HK"
+    },
+    {
+      "code": "00175",
+      "name": "吉利汽车",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "汽车",
+        "subSector": "汽车",
+        "label": "非必需性消费 - 汽车 - 汽车"
+      },
+      "hkexText": "非必需性消費 - 汽車 - 汽車",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=175&sc_lang=zh-HK"
+    },
+    {
+      "code": "00241",
+      "name": "阿里健康",
+      "hsics": {
+        "industry": "医疗保健业",
+        "sector": "药品及生物科技",
+        "subSector": "药品分销",
+        "label": "医疗保健业 - 药品及生物科技 - 药品分销"
+      },
+      "hkexText": "醫療保健業 - 藥品及生物科技 - 藥品分銷",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=241&sc_lang=zh-HK"
+    },
+    {
+      "code": "00267",
+      "name": "中信股份",
+      "hsics": {
+        "industry": "综合企业",
+        "sector": "综合企业",
+        "subSector": "综合企业",
+        "label": "综合企业 - 综合企业 - 综合企业"
+      },
+      "hkexText": "綜合企業 - 綜合企業 - 綜合企業",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=267&sc_lang=zh-HK"
+    },
+    {
+      "code": "00268",
+      "name": "金蝶国际",
+      "hsics": {
+        "industry": "资讯科技业",
+        "sector": "软件服务",
+        "subSector": "应用软件",
+        "label": "资讯科技业 - 软件服务 - 应用软件"
+      },
+      "hkexText": "資訊科技業 - 軟件服務 - 應用軟件",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=268&sc_lang=zh-HK"
+    },
+    {
+      "code": "00285",
+      "name": "比亚迪电子",
+      "hsics": {
+        "industry": "资讯科技业",
+        "sector": "资讯科技器材",
+        "subSector": "消费性电讯设备及零件",
+        "label": "资讯科技业 - 资讯科技器材 - 消费性电讯设备及零件"
+      },
+      "hkexText": "資訊科技業 - 資訊科技器材 - 消費性電訊設備及零件",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=285&sc_lang=zh-HK"
+    },
+    {
+      "code": "00288",
+      "name": "万洲国际",
+      "hsics": {
+        "industry": "必需性消费",
+        "sector": "食物饮品",
+        "subSector": "包装食品",
+        "label": "必需性消费 - 食物饮品 - 包装食品"
+      },
+      "hkexText": "必需性消費 - 食物飲品 - 包裝食品",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=288&sc_lang=zh-HK"
+    },
+    {
+      "code": "00291",
+      "name": "华润啤酒",
+      "hsics": {
+        "industry": "必需性消费",
+        "sector": "食物饮品",
+        "subSector": "酒精饮料",
+        "label": "必需性消费 - 食物饮品 - 酒精饮料"
+      },
+      "hkexText": "必需性消費 - 食物飲品 - 酒精飲料",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=291&sc_lang=zh-HK"
+    },
+    {
+      "code": "00300",
+      "name": "美的集团",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "家庭电器及用品",
+        "subSector": "家庭电器",
+        "label": "非必需性消费 - 家庭电器及用品 - 家庭电器"
+      },
+      "hkexText": "非必需性消費 - 家庭電器及用品 - 家庭電器",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=300&sc_lang=zh-HK"
+    },
+    {
+      "code": "00316",
+      "name": "东方海外国际",
+      "hsics": {
+        "industry": "工业",
+        "sector": "工用运输",
+        "subSector": "航运及港口",
+        "label": "工业 - 工用运输 - 航运及港口"
+      },
+      "hkexText": "工業 - 工用運輸 - 航運及港口",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=316&sc_lang=zh-HK"
+    },
+    {
+      "code": "00322",
+      "name": "康师傅控股",
+      "hsics": {
+        "industry": "必需性消费",
+        "sector": "食物饮品",
+        "subSector": "非酒精饮料",
+        "label": "必需性消费 - 食物饮品 - 非酒精饮料"
+      },
+      "hkexText": "必需性消費 - 食物飲品 - 非酒精飲料",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=322&sc_lang=zh-HK"
+    },
+    {
+      "code": "00386",
+      "name": "中国石油化工股份",
+      "hsics": {
+        "industry": "能源业",
+        "sector": "石油及天然气",
+        "subSector": "油气生产商",
+        "label": "能源业 - 石油及天然气 - 油气生产商"
+      },
+      "hkexText": "能源業 - 石油及天然氣 - 油氣生產商",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=386&sc_lang=zh-HK"
+    },
+    {
+      "code": "00388",
+      "name": "香港交易所",
+      "hsics": {
+        "industry": "金融业",
+        "sector": "其他金融",
+        "subSector": "其他金融",
+        "label": "金融业 - 其他金融 - 其他金融"
+      },
+      "hkexText": "金融業 - 其他金融 - 其他金融",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=388&sc_lang=zh-HK"
+    },
+    {
+      "code": "00390",
+      "name": "中国中铁",
+      "hsics": {
+        "industry": "地产建筑业",
+        "sector": "建筑",
+        "subSector": "重型基建",
+        "label": "地产建筑业 - 建筑 - 重型基建"
+      },
+      "hkexText": "地產建築業 - 建築 - 重型基建",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=390&sc_lang=zh-HK"
+    },
+    {
+      "code": "00522",
+      "name": "ASMPT",
+      "hsics": {
+        "industry": "资讯科技业",
+        "sector": "半导体",
+        "subSector": "半导体设备与材料",
+        "label": "资讯科技业 - 半导体 - 半导体设备与材料"
+      },
+      "hkexText": "資訊科技業 - 半導體 - 半導體設備與材料",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=522&sc_lang=zh-HK"
+    },
+    {
+      "code": "00669",
+      "name": "创科实业",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "家庭电器及用品",
+        "subSector": "家庭电器",
+        "label": "非必需性消费 - 家庭电器及用品 - 家庭电器"
+      },
+      "hkexText": "非必需性消費 - 家庭電器及用品 - 家庭電器",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=669&sc_lang=zh-HK"
+    },
+    {
+      "code": "00688",
+      "name": "中国海外发展",
+      "hsics": {
+        "industry": "地产建筑业",
+        "sector": "地产",
+        "subSector": "地产发展商",
+        "label": "地产建筑业 - 地产 - 地产发展商"
+      },
+      "hkexText": "地產建築業 - 地產 - 地產發展商",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=688&sc_lang=zh-HK"
+    },
+    {
+      "code": "00700",
+      "name": "腾讯控股",
+      "hsics": {
+        "industry": "资讯科技业",
+        "sector": "软件服务",
+        "subSector": "数码解决方案服务",
+        "label": "资讯科技业 - 软件服务 - 数码解决方案服务"
+      },
+      "hkexText": "資訊科技業 - 軟件服務 - 數碼解決方案服務",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=700&sc_lang=zh-HK"
+    },
+    {
+      "code": "00728",
+      "name": "中国电信",
+      "hsics": {
+        "industry": "电讯业",
+        "sector": "电讯",
+        "subSector": "电讯服务",
+        "label": "电讯业 - 电讯 - 电讯服务"
+      },
+      "hkexText": "電訊業 - 電訊 - 電訊服務",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=728&sc_lang=zh-HK"
+    },
+    {
+      "code": "00762",
+      "name": "中国联通",
+      "hsics": {
+        "industry": "电讯业",
+        "sector": "电讯",
+        "subSector": "电讯服务",
+        "label": "电讯业 - 电讯 - 电讯服务"
+      },
+      "hkexText": "電訊業 - 電訊 - 電訊服務",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=762&sc_lang=zh-HK"
+    },
+    {
+      "code": "00780",
+      "name": "同程旅行",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "旅游及消闲设施",
+        "subSector": "旅游及观光",
+        "label": "非必需性消费 - 旅游及消闲设施 - 旅游及观光"
+      },
+      "hkexText": "非必需性消費 - 旅遊及消閒設施 - 旅遊及觀光",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=780&sc_lang=zh-HK"
+    },
+    {
+      "code": "00836",
+      "name": "华润电力",
+      "hsics": {
+        "industry": "公用事业",
+        "sector": "公用事业",
+        "subSector": "常规电力",
+        "label": "公用事业 - 公用事业 - 常规电力"
+      },
+      "hkexText": "公用事業 - 公用事業 - 常規電力",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=836&sc_lang=zh-HK"
+    },
+    {
+      "code": "00857",
+      "name": "中国石油股份",
+      "hsics": {
+        "industry": "能源业",
+        "sector": "石油及天然气",
+        "subSector": "油气生产商",
+        "label": "能源业 - 石油及天然气 - 油气生产商"
+      },
+      "hkexText": "能源業 - 石油及天然氣 - 油氣生產商",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=857&sc_lang=zh-HK"
+    },
+    {
+      "code": "00868",
+      "name": "信义玻璃",
+      "hsics": {
+        "industry": "工业",
+        "sector": "工业工程",
+        "subSector": "工业零件及器材",
+        "label": "工业 - 工业工程 - 工业零件及器材"
+      },
+      "hkexText": "工業 - 工業工程 - 工業零件及器材",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=868&sc_lang=zh-HK"
+    },
+    {
+      "code": "00881",
+      "name": "中升控股",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "专业零售",
+        "subSector": "汽车零售商",
+        "label": "非必需性消费 - 专业零售 - 汽车零售商"
+      },
+      "hkexText": "非必需性消費 - 專業零售 - 汽車零售商",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=881&sc_lang=zh-HK"
+    },
+    {
+      "code": "00883",
+      "name": "中国海洋石油",
+      "hsics": {
+        "industry": "能源业",
+        "sector": "石油及天然气",
+        "subSector": "油气生产商",
+        "label": "能源业 - 石油及天然气 - 油气生产商"
+      },
+      "hkexText": "能源業 - 石油及天然氣 - 油氣生產商",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=883&sc_lang=zh-HK"
+    },
+    {
+      "code": "00914",
+      "name": "海螺水泥",
+      "hsics": {
+        "industry": "地产建筑业",
+        "sector": "建筑",
+        "subSector": "建筑材料",
+        "label": "地产建筑业 - 建筑 - 建筑材料"
+      },
+      "hkexText": "地產建築業 - 建築 - 建築材料",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=914&sc_lang=zh-HK"
+    },
+    {
+      "code": "00939",
+      "name": "建设银行",
+      "hsics": {
+        "industry": "金融业",
+        "sector": "银行",
+        "subSector": "银行",
+        "label": "金融业 - 银行 - 银行"
+      },
+      "hkexText": "金融業 - 銀行 - 銀行",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=939&sc_lang=zh-HK"
+    },
+    {
+      "code": "00941",
+      "name": "中国移动",
+      "hsics": {
+        "industry": "电讯业",
+        "sector": "电讯",
+        "subSector": "电讯服务",
+        "label": "电讯业 - 电讯 - 电讯服务"
+      },
+      "hkexText": "電訊業 - 電訊 - 電訊服務",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=941&sc_lang=zh-HK"
+    },
+    {
+      "code": "00960",
+      "name": "龙湖集团",
+      "hsics": {
+        "industry": "地产建筑业",
+        "sector": "地产",
+        "subSector": "地产发展商",
+        "label": "地产建筑业 - 地产 - 地产发展商"
+      },
+      "hkexText": "地產建築業 - 地產 - 地產發展商",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=960&sc_lang=zh-HK"
+    },
+    {
+      "code": "00968",
+      "name": "信义光能",
+      "hsics": {
+        "industry": "工业",
+        "sector": "工业工程",
+        "subSector": "新能源物料",
+        "label": "工业 - 工业工程 - 新能源物料"
+      },
+      "hkexText": "工業 - 工業工程 - 新能源物料",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=968&sc_lang=zh-HK"
+    },
+    {
+      "code": "00981",
+      "name": "中芯国际",
+      "hsics": {
+        "industry": "资讯科技业",
+        "sector": "半导体",
+        "subSector": "半导体",
+        "label": "资讯科技业 - 半导体 - 半导体"
+      },
+      "hkexText": "資訊科技業 - 半導體 - 半導體",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=981&sc_lang=zh-HK"
+    },
+    {
+      "code": "00992",
+      "name": "联想集团",
+      "hsics": {
+        "industry": "资讯科技业",
+        "sector": "资讯科技器材",
+        "subSector": "电脑及周边器材",
+        "label": "资讯科技业 - 资讯科技器材 - 电脑及周边器材"
+      },
+      "hkexText": "資訊科技業 - 資訊科技器材 - 電腦及週邊器材",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=992&sc_lang=zh-HK"
+    },
+    {
+      "code": "01024",
+      "name": "快手-W",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "媒体及娱乐",
+        "subSector": "互动媒体及服务",
+        "label": "非必需性消费 - 媒体及娱乐 - 互动媒体及服务"
+      },
+      "hkexText": "非必需性消費 - 媒體及娛樂 - 互動媒體及服務",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1024&sc_lang=zh-HK"
+    },
+    {
+      "code": "01038",
+      "name": "长江基建集团",
+      "hsics": {
+        "industry": "公用事业",
+        "sector": "公用事业",
+        "subSector": "常规电力",
+        "label": "公用事业 - 公用事业 - 常规电力"
+      },
+      "hkexText": "公用事業 - 公用事業 - 常規電力",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1038&sc_lang=zh-HK"
+    },
+    {
+      "code": "01044",
+      "name": "恒安国际",
+      "hsics": {
+        "industry": "必需性消费",
+        "sector": "消费者主要零售商",
+        "subSector": "个人护理",
+        "label": "必需性消费 - 消费者主要零售商 - 个人护理"
+      },
+      "hkexText": "必需性消費 - 消費者主要零售商 - 個人護理",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1044&sc_lang=zh-HK"
+    },
+    {
+      "code": "01088",
+      "name": "中国神华",
+      "hsics": {
+        "industry": "能源业",
+        "sector": "煤炭",
+        "subSector": "煤炭",
+        "label": "能源业 - 煤炭 - 煤炭"
+      },
+      "hkexText": "能源業 - 煤炭 - 煤炭",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1088&sc_lang=zh-HK"
+    },
+    {
+      "code": "01093",
+      "name": "石药集团",
+      "hsics": {
+        "industry": "医疗保健业",
+        "sector": "药品及生物科技",
+        "subSector": "药品",
+        "label": "医疗保健业 - 药品及生物科技 - 药品"
+      },
+      "hkexText": "醫療保健業 - 藥品及生物科技 - 藥品",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1093&sc_lang=zh-HK"
+    },
+    {
+      "code": "01099",
+      "name": "国药控股",
+      "hsics": {
+        "industry": "医疗保健业",
+        "sector": "药品及生物科技",
+        "subSector": "药品分销",
+        "label": "医疗保健业 - 药品及生物科技 - 药品分销"
+      },
+      "hkexText": "醫療保健業 - 藥品及生物科技 - 藥品分銷",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1099&sc_lang=zh-HK"
+    },
+    {
+      "code": "01109",
+      "name": "华润置地",
+      "hsics": {
+        "industry": "地产建筑业",
+        "sector": "地产",
+        "subSector": "地产发展商",
+        "label": "地产建筑业 - 地产 - 地产发展商"
+      },
+      "hkexText": "地產建築業 - 地產 - 地產發展商",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1109&sc_lang=zh-HK"
+    },
+    {
+      "code": "01113",
+      "name": "长实集团",
+      "hsics": {
+        "industry": "地产建筑业",
+        "sector": "地产",
+        "subSector": "地产发展商",
+        "label": "地产建筑业 - 地产 - 地产发展商"
+      },
+      "hkexText": "地產建築業 - 地產 - 地產發展商",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1113&sc_lang=zh-HK"
+    },
+    {
+      "code": "01171",
+      "name": "兖矿能源",
+      "hsics": {
+        "industry": "能源业",
+        "sector": "煤炭",
+        "subSector": "煤炭",
+        "label": "能源业 - 煤炭 - 煤炭"
+      },
+      "hkexText": "能源業 - 煤炭 - 煤炭",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1171&sc_lang=zh-HK"
+    },
+    {
+      "code": "01177",
+      "name": "中国生物制药",
+      "hsics": {
+        "industry": "医疗保健业",
+        "sector": "药品及生物科技",
+        "subSector": "药品",
+        "label": "医疗保健业 - 药品及生物科技 - 药品"
+      },
+      "hkexText": "醫療保健業 - 藥品及生物科技 - 藥品",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1177&sc_lang=zh-HK"
+    },
+    {
+      "code": "01186",
+      "name": "中国铁建",
+      "hsics": {
+        "industry": "地产建筑业",
+        "sector": "建筑",
+        "subSector": "重型基建",
+        "label": "地产建筑业 - 建筑 - 重型基建"
+      },
+      "hkexText": "地產建築業 - 建築 - 重型基建",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1186&sc_lang=zh-HK"
+    },
+    {
+      "code": "01209",
+      "name": "华润万象生活",
+      "hsics": {
+        "industry": "地产建筑业",
+        "sector": "地产",
+        "subSector": "物业服务及管理",
+        "label": "地产建筑业 - 地产 - 物业服务及管理"
+      },
+      "hkexText": "地產建築業 - 地產 - 物業服務及管理",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1209&sc_lang=zh-HK"
+    },
+    {
+      "code": "01211",
+      "name": "比亚迪股份",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "汽车",
+        "subSector": "汽车",
+        "label": "非必需性消费 - 汽车 - 汽车"
+      },
+      "hkexText": "非必需性消費 - 汽車 - 汽車",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1211&sc_lang=zh-HK"
+    },
+    {
+      "code": "01288",
+      "name": "农业银行",
+      "hsics": {
+        "industry": "金融业",
+        "sector": "银行",
+        "subSector": "银行",
+        "label": "金融业 - 银行 - 银行"
+      },
+      "hkexText": "金融業 - 銀行 - 銀行",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1288&sc_lang=zh-HK"
+    },
+    {
+      "code": "01299",
+      "name": "友邦保险",
+      "hsics": {
+        "industry": "金融业",
+        "sector": "保险",
+        "subSector": "保险",
+        "label": "金融业 - 保险 - 保险"
+      },
+      "hkexText": "金融業 - 保險 - 保險",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1299&sc_lang=zh-HK"
+    },
+    {
+      "code": "01336",
+      "name": "新华保险",
+      "hsics": {
+        "industry": "金融业",
+        "sector": "保险",
+        "subSector": "保险",
+        "label": "金融业 - 保险 - 保险"
+      },
+      "hkexText": "金融業 - 保險 - 保險",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1336&sc_lang=zh-HK"
+    },
+    {
+      "code": "01347",
+      "name": "华虹宏力",
+      "hsics": {
+        "industry": "资讯科技业",
+        "sector": "半导体",
+        "subSector": "半导体",
+        "label": "资讯科技业 - 半导体 - 半导体"
+      },
+      "hkexText": "資訊科技業 - 半導體 - 半導體",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1347&sc_lang=zh-HK"
+    },
+    {
+      "code": "01378",
+      "name": "中国宏桥",
+      "hsics": {
+        "industry": "原材料业",
+        "sector": "一般金属及矿石",
+        "subSector": "铝",
+        "label": "原材料业 - 一般金属及矿石 - 铝"
+      },
+      "hkexText": "原材料業 - 一般金屬及礦石 - 鋁",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1378&sc_lang=zh-HK"
+    },
+    {
+      "code": "01385",
+      "name": "上海复旦",
+      "hsics": {
+        "industry": "资讯科技业",
+        "sector": "半导体",
+        "subSector": "半导体",
+        "label": "资讯科技业 - 半导体 - 半导体"
+      },
+      "hkexText": "資訊科技業 - 半導體 - 半導體",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1385&sc_lang=zh-HK"
+    },
+    {
+      "code": "01398",
+      "name": "工商银行",
+      "hsics": {
+        "industry": "金融业",
+        "sector": "银行",
+        "subSector": "银行",
+        "label": "金融业 - 银行 - 银行"
+      },
+      "hkexText": "金融業 - 銀行 - 銀行",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1398&sc_lang=zh-HK"
+    },
+    {
+      "code": "01658",
+      "name": "邮储银行",
+      "hsics": {
+        "industry": "金融业",
+        "sector": "银行",
+        "subSector": "银行",
+        "label": "金融业 - 银行 - 银行"
+      },
+      "hkexText": "金融業 - 銀行 - 銀行",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1658&sc_lang=zh-HK"
+    },
+    {
+      "code": "01772",
+      "name": "赣锋锂业",
+      "hsics": {
+        "industry": "原材料业",
+        "sector": "一般金属及矿石",
+        "subSector": "其他金属及矿物",
+        "label": "原材料业 - 一般金属及矿石 - 其他金属及矿物"
+      },
+      "hkexText": "原材料業 - 一般金屬及礦石 - 其他金屬及礦物",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1772&sc_lang=zh-HK"
+    },
+    {
+      "code": "01797",
+      "name": "东方甄选",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "媒体及娱乐",
+        "subSector": "互动媒体及服务",
+        "label": "非必需性消费 - 媒体及娱乐 - 互动媒体及服务"
+      },
+      "hkexText": "非必需性消費 - 媒體及娛樂 - 互動媒體及服務",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1797&sc_lang=zh-HK"
+    },
+    {
+      "code": "01800",
+      "name": "中国交通建设",
+      "hsics": {
+        "industry": "地产建筑业",
+        "sector": "建筑",
+        "subSector": "重型基建",
+        "label": "地产建筑业 - 建筑 - 重型基建"
+      },
+      "hkexText": "地產建築業 - 建築 - 重型基建",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1800&sc_lang=zh-HK"
+    },
+    {
+      "code": "01801",
+      "name": "信达生物",
+      "hsics": {
+        "industry": "医疗保健业",
+        "sector": "药品及生物科技",
+        "subSector": "药品",
+        "label": "医疗保健业 - 药品及生物科技 - 药品"
+      },
+      "hkexText": "醫療保健業 - 藥品及生物科技 - 藥品",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1801&sc_lang=zh-HK"
+    },
+    {
+      "code": "01810",
+      "name": "小米集团-W",
+      "hsics": {
+        "industry": "资讯科技业",
+        "sector": "资讯科技器材",
+        "subSector": "消费性电讯设备及零件",
+        "label": "资讯科技业 - 资讯科技器材 - 消费性电讯设备及零件"
+      },
+      "hkexText": "資訊科技業 - 資訊科技器材 - 消費性電訊設備及零件",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1810&sc_lang=zh-HK"
+    },
+    {
+      "code": "01876",
+      "name": "百威亚太",
+      "hsics": {
+        "industry": "必需性消费",
+        "sector": "食物饮品",
+        "subSector": "酒精饮料",
+        "label": "必需性消费 - 食物饮品 - 酒精饮料"
+      },
+      "hkexText": "必需性消費 - 食物飲品 - 酒精飲料",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1876&sc_lang=zh-HK"
+    },
+    {
+      "code": "01898",
+      "name": "中煤能源",
+      "hsics": {
+        "industry": "能源业",
+        "sector": "煤炭",
+        "subSector": "煤炭",
+        "label": "能源业 - 煤炭 - 煤炭"
+      },
+      "hkexText": "能源業 - 煤炭 - 煤炭",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1898&sc_lang=zh-HK"
+    },
+    {
+      "code": "01919",
+      "name": "中远海控",
+      "hsics": {
+        "industry": "工业",
+        "sector": "工用运输",
+        "subSector": "航运及港口",
+        "label": "工业 - 工用运输 - 航运及港口"
+      },
+      "hkexText": "工業 - 工用運輸 - 航運及港口",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1919&sc_lang=zh-HK"
+    },
+    {
+      "code": "01928",
+      "name": "金沙中国有限公司",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "旅游及消闲设施",
+        "subSector": "赌场及博彩",
+        "label": "非必需性消费 - 旅游及消闲设施 - 赌场及博彩"
+      },
+      "hkexText": "非必需性消費 - 旅遊及消閒設施 - 賭場及博彩",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1928&sc_lang=zh-HK"
+    },
+    {
+      "code": "01929",
+      "name": "周大福",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "专业零售",
+        "subSector": "其他零售商",
+        "label": "非必需性消费 - 专业零售 - 其他零售商"
+      },
+      "hkexText": "非必需性消費 - 專業零售 - 其他零售商",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1929&sc_lang=zh-HK"
+    },
+    {
+      "code": "01958",
+      "name": "北京汽车",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "汽车",
+        "subSector": "汽车",
+        "label": "非必需性消费 - 汽车 - 汽车"
+      },
+      "hkexText": "非必需性消費 - 汽車 - 汽車",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1958&sc_lang=zh-HK"
+    },
+    {
+      "code": "01997",
+      "name": "九龙仓置业",
+      "hsics": {
+        "industry": "地产建筑业",
+        "sector": "地产",
+        "subSector": "地产投资",
+        "label": "地产建筑业 - 地产 - 地产投资"
+      },
+      "hkexText": "地產建築業 - 地產 - 地產投資",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=1997&sc_lang=zh-HK"
+    },
+    {
+      "code": "02015",
+      "name": "理想汽车-W",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "汽车",
+        "subSector": "汽车",
+        "label": "非必需性消费 - 汽车 - 汽车"
+      },
+      "hkexText": "非必需性消費 - 汽車 - 汽車",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=2015&sc_lang=zh-HK"
+    },
+    {
+      "code": "02020",
+      "name": "安踏体育",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "纺织及服饰",
+        "subSector": "服装",
+        "label": "非必需性消费 - 纺织及服饰 - 服装"
+      },
+      "hkexText": "非必需性消費 - 紡織及服飾 - 服裝",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=2020&sc_lang=zh-HK"
+    },
+    {
+      "code": "02057",
+      "name": "中通快递-W",
+      "hsics": {
+        "industry": "工业",
+        "sector": "工用运输",
+        "subSector": "航空货运及物流",
+        "label": "工业 - 工用运输 - 航空货运及物流"
+      },
+      "hkexText": "工業 - 工用運輸 - 航空貨運及物流",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=2057&sc_lang=zh-HK"
+    },
+    {
+      "code": "02196",
+      "name": "复星医药",
+      "hsics": {
+        "industry": "医疗保健业",
+        "sector": "药品及生物科技",
+        "subSector": "药品",
+        "label": "医疗保健业 - 药品及生物科技 - 药品"
+      },
+      "hkexText": "醫療保健業 - 藥品及生物科技 - 藥品",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=2196&sc_lang=zh-HK"
+    },
+    {
+      "code": "02238",
+      "name": "广汽集团",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "汽车",
+        "subSector": "汽车",
+        "label": "非必需性消费 - 汽车 - 汽车"
+      },
+      "hkexText": "非必需性消費 - 汽車 - 汽車",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=2238&sc_lang=zh-HK"
+    },
+    {
+      "code": "02313",
+      "name": "申洲国际",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "纺织及服饰",
+        "subSector": "服装",
+        "label": "非必需性消费 - 纺织及服饰 - 服装"
+      },
+      "hkexText": "非必需性消費 - 紡織及服飾 - 服裝",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=2313&sc_lang=zh-HK"
+    },
+    {
+      "code": "02318",
+      "name": "中国平安",
+      "hsics": {
+        "industry": "金融业",
+        "sector": "保险",
+        "subSector": "保险",
+        "label": "金融业 - 保险 - 保险"
+      },
+      "hkexText": "金融業 - 保險 - 保險",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=2318&sc_lang=zh-HK"
+    },
+    {
+      "code": "02319",
+      "name": "蒙牛乳业",
+      "hsics": {
+        "industry": "必需性消费",
+        "sector": "食物饮品",
+        "subSector": "乳制品",
+        "label": "必需性消费 - 食物饮品 - 乳制品"
+      },
+      "hkexText": "必需性消費 - 食物飲品 - 乳製品",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=2319&sc_lang=zh-HK"
+    },
+    {
+      "code": "02331",
+      "name": "李宁",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "纺织及服饰",
+        "subSector": "鞋类",
+        "label": "非必需性消费 - 纺织及服饰 - 鞋类"
+      },
+      "hkexText": "非必需性消費 - 紡織及服飾 - 鞋類",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=2331&sc_lang=zh-HK"
+    },
+    {
+      "code": "02333",
+      "name": "长城汽车",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "汽车",
+        "subSector": "汽车",
+        "label": "非必需性消费 - 汽车 - 汽车"
+      },
+      "hkexText": "非必需性消費 - 汽車 - 汽車",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=2333&sc_lang=zh-HK"
+    },
+    {
+      "code": "02378",
+      "name": "保诚",
+      "hsics": {
+        "industry": "金融业",
+        "sector": "保险",
+        "subSector": "保险",
+        "label": "金融业 - 保险 - 保险"
+      },
+      "hkexText": "金融業 - 保險 - 保險",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=2378&sc_lang=zh-HK"
+    },
+    {
+      "code": "02382",
+      "name": "舜宇光学科技",
+      "hsics": {
+        "industry": "资讯科技业",
+        "sector": "资讯科技器材",
+        "subSector": "消费性电讯设备及零件",
+        "label": "资讯科技业 - 资讯科技器材 - 消费性电讯设备及零件"
+      },
+      "hkexText": "資訊科技業 - 資訊科技器材 - 消費性電訊設備及零件",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=2382&sc_lang=zh-HK"
+    },
+    {
+      "code": "02388",
+      "name": "中银香港",
+      "hsics": {
+        "industry": "金融业",
+        "sector": "银行",
+        "subSector": "银行",
+        "label": "金融业 - 银行 - 银行"
+      },
+      "hkexText": "金融業 - 銀行 - 銀行",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=2388&sc_lang=zh-HK"
+    },
+    {
+      "code": "02600",
+      "name": "中国铝业",
+      "hsics": {
+        "industry": "原材料业",
+        "sector": "一般金属及矿石",
+        "subSector": "铝",
+        "label": "原材料业 - 一般金属及矿石 - 铝"
+      },
+      "hkexText": "原材料業 - 一般金屬及礦石 - 鋁",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=2600&sc_lang=zh-HK"
+    },
+    {
+      "code": "02601",
+      "name": "中国太保",
+      "hsics": {
+        "industry": "金融业",
+        "sector": "保险",
+        "subSector": "保险",
+        "label": "金融业 - 保险 - 保险"
+      },
+      "hkexText": "金融業 - 保險 - 保險",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=2601&sc_lang=zh-HK"
+    },
+    {
+      "code": "02618",
+      "name": "京东物流",
+      "hsics": {
+        "industry": "工业",
+        "sector": "工用支援",
+        "subSector": "采购及供应链管理",
+        "label": "工业 - 工用支援 - 采购及供应链管理"
+      },
+      "hkexText": "工業 - 工用支援 - 採購及供應鏈管理",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=2618&sc_lang=zh-HK"
+    },
+    {
+      "code": "02628",
+      "name": "中国人寿",
+      "hsics": {
+        "industry": "金融业",
+        "sector": "保险",
+        "subSector": "保险",
+        "label": "金融业 - 保险 - 保险"
+      },
+      "hkexText": "金融業 - 保險 - 保險",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=2628&sc_lang=zh-HK"
+    },
+    {
+      "code": "02688",
+      "name": "新奥能源",
+      "hsics": {
+        "industry": "公用事业",
+        "sector": "公用事业",
+        "subSector": "燃气供应",
+        "label": "公用事业 - 公用事业 - 燃气供应"
+      },
+      "hkexText": "公用事業 - 公用事業 - 燃氣供應",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=2688&sc_lang=zh-HK"
+    },
+    {
+      "code": "02899",
+      "name": "紫金矿业",
+      "hsics": {
+        "industry": "原材料业",
+        "sector": "黄金及贵金属",
+        "subSector": "黄金及贵金属",
+        "label": "原材料业 - 黄金及贵金属 - 黄金及贵金属"
+      },
+      "hkexText": "原材料業 - 黃金及貴金屬 - 黃金及貴金屬",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=2899&sc_lang=zh-HK"
+    },
+    {
+      "code": "03323",
+      "name": "中国建材",
+      "hsics": {
+        "industry": "地产建筑业",
+        "sector": "建筑",
+        "subSector": "建筑材料",
+        "label": "地产建筑业 - 建筑 - 建筑材料"
+      },
+      "hkexText": "地產建築業 - 建築 - 建築材料",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=3323&sc_lang=zh-HK"
+    },
+    {
+      "code": "03328",
+      "name": "交通银行",
+      "hsics": {
+        "industry": "金融业",
+        "sector": "银行",
+        "subSector": "银行",
+        "label": "金融业 - 银行 - 银行"
+      },
+      "hkexText": "金融業 - 銀行 - 銀行",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=3328&sc_lang=zh-HK"
+    },
+    {
+      "code": "03606",
+      "name": "福耀玻璃",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "汽车",
+        "subSector": "汽车零件",
+        "label": "非必需性消费 - 汽车 - 汽车零件"
+      },
+      "hkexText": "非必需性消費 - 汽車 - 汽車零件",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=3606&sc_lang=zh-HK"
+    },
+    {
+      "code": "03690",
+      "name": "美团-W",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "专业零售",
+        "subSector": "线上零售商",
+        "label": "非必需性消费 - 专业零售 - 线上零售商"
+      },
+      "hkexText": "非必需性消費 - 專業零售 - 線上零售商",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=3690&sc_lang=zh-HK"
+    },
+    {
+      "code": "03692",
+      "name": "翰森制药",
+      "hsics": {
+        "industry": "医疗保健业",
+        "sector": "药品及生物科技",
+        "subSector": "药品",
+        "label": "医疗保健业 - 药品及生物科技 - 药品"
+      },
+      "hkexText": "醫療保健業 - 藥品及生物科技 - 藥品",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=3692&sc_lang=zh-HK"
+    },
+    {
+      "code": "03888",
+      "name": "金山软件",
+      "hsics": {
+        "industry": "资讯科技业",
+        "sector": "软件服务",
+        "subSector": "应用软件",
+        "label": "资讯科技业 - 软件服务 - 应用软件"
+      },
+      "hkexText": "資訊科技業 - 軟件服務 - 應用軟件",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=3888&sc_lang=zh-HK"
+    },
+    {
+      "code": "03908",
+      "name": "中金公司",
+      "hsics": {
+        "industry": "金融业",
+        "sector": "其他金融",
+        "subSector": "证券及经纪",
+        "label": "金融业 - 其他金融 - 证券及经纪"
+      },
+      "hkexText": "金融業 - 其他金融 - 證券及經紀",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=3908&sc_lang=zh-HK"
+    },
+    {
+      "code": "03968",
+      "name": "招商银行",
+      "hsics": {
+        "industry": "金融业",
+        "sector": "银行",
+        "subSector": "银行",
+        "label": "金融业 - 银行 - 银行"
+      },
+      "hkexText": "金融業 - 銀行 - 銀行",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=3968&sc_lang=zh-HK"
+    },
+    {
+      "code": "03988",
+      "name": "中国银行",
+      "hsics": {
+        "industry": "金融业",
+        "sector": "银行",
+        "subSector": "银行",
+        "label": "金融业 - 银行 - 银行"
+      },
+      "hkexText": "金融業 - 銀行 - 銀行",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=3988&sc_lang=zh-HK"
+    },
+    {
+      "code": "06030",
+      "name": "中信证券",
+      "hsics": {
+        "industry": "金融业",
+        "sector": "其他金融",
+        "subSector": "投资及资产管理",
+        "label": "金融业 - 其他金融 - 投资及资产管理"
+      },
+      "hkexText": "金融業 - 其他金融 - 投資及資產管理",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=6030&sc_lang=zh-HK"
+    },
+    {
+      "code": "06060",
+      "name": "众安在线",
+      "hsics": {
+        "industry": "金融业",
+        "sector": "保险",
+        "subSector": "保险",
+        "label": "金融业 - 保险 - 保险"
+      },
+      "hkexText": "金融業 - 保險 - 保險",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=6060&sc_lang=zh-HK"
+    },
+    {
+      "code": "06098",
+      "name": "碧桂园服务",
+      "hsics": {
+        "industry": "地产建筑业",
+        "sector": "地产",
+        "subSector": "物业服务及管理",
+        "label": "地产建筑业 - 地产 - 物业服务及管理"
+      },
+      "hkexText": "地產建築業 - 地產 - 物業服務及管理",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=6098&sc_lang=zh-HK"
+    },
+    {
+      "code": "06160",
+      "name": "百济神州",
+      "hsics": {
+        "industry": "医疗保健业",
+        "sector": "药品及生物科技",
+        "subSector": "生物技术",
+        "label": "医疗保健业 - 药品及生物科技 - 生物技术"
+      },
+      "hkexText": "醫療保健業 - 藥品及生物科技 - 生物技術",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=6160&sc_lang=zh-HK"
+    },
+    {
+      "code": "06186",
+      "name": "中国飞鹤",
+      "hsics": {
+        "industry": "必需性消费",
+        "sector": "食物饮品",
+        "subSector": "乳制品",
+        "label": "必需性消费 - 食物饮品 - 乳制品"
+      },
+      "hkexText": "必需性消費 - 食物飲品 - 乳製品",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=6186&sc_lang=zh-HK"
+    },
+    {
+      "code": "06618",
+      "name": "京东健康",
+      "hsics": {
+        "industry": "医疗保健业",
+        "sector": "药品及生物科技",
+        "subSector": "药品分销",
+        "label": "医疗保健业 - 药品及生物科技 - 药品分销"
+      },
+      "hkexText": "醫療保健業 - 藥品及生物科技 - 藥品分銷",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=6618&sc_lang=zh-HK"
+    },
+    {
+      "code": "06690",
+      "name": "海尔智家",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "家庭电器及用品",
+        "subSector": "家庭电器",
+        "label": "非必需性消费 - 家庭电器及用品 - 家庭电器"
+      },
+      "hkexText": "非必需性消費 - 家庭電器及用品 - 家庭電器",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=6690&sc_lang=zh-HK"
+    },
+    {
+      "code": "06862",
+      "name": "海底捞",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "旅游及消闲设施",
+        "subSector": "餐饮",
+        "label": "非必需性消费 - 旅游及消闲设施 - 餐饮"
+      },
+      "hkexText": "非必需性消費 - 旅遊及消閒設施 - 餐飲",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=6862&sc_lang=zh-HK"
+    },
+    {
+      "code": "06881",
+      "name": "中国银河",
+      "hsics": {
+        "industry": "金融业",
+        "sector": "其他金融",
+        "subSector": "证券及经纪",
+        "label": "金融业 - 其他金融 - 证券及经纪"
+      },
+      "hkexText": "金融業 - 其他金融 - 證券及經紀",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=6881&sc_lang=zh-HK"
+    },
+    {
+      "code": "09618",
+      "name": "京东集团-SW",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "专业零售",
+        "subSector": "线上零售商",
+        "label": "非必需性消费 - 专业零售 - 线上零售商"
+      },
+      "hkexText": "非必需性消費 - 專業零售 - 線上零售商",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=9618&sc_lang=zh-HK"
+    },
+    {
+      "code": "09626",
+      "name": "哔哩哔哩-W",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "媒体及娱乐",
+        "subSector": "互动媒体及服务",
+        "label": "非必需性消费 - 媒体及娱乐 - 互动媒体及服务"
+      },
+      "hkexText": "非必需性消費 - 媒體及娛樂 - 互動媒體及服務",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=9626&sc_lang=zh-HK"
+    },
+    {
+      "code": "09633",
+      "name": "农夫山泉",
+      "hsics": {
+        "industry": "必需性消费",
+        "sector": "食物饮品",
+        "subSector": "非酒精饮料",
+        "label": "必需性消费 - 食物饮品 - 非酒精饮料"
+      },
+      "hkexText": "必需性消費 - 食物飲品 - 非酒精飲料",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=9633&sc_lang=zh-HK"
+    },
+    {
+      "code": "09698",
+      "name": "万国数据-SW",
+      "hsics": {
+        "industry": "资讯科技业",
+        "sector": "软件服务",
+        "subSector": "互联网服务及基础设施",
+        "label": "资讯科技业 - 软件服务 - 互联网服务及基础设施"
+      },
+      "hkexText": "資訊科技業 - 軟件服務 - 互聯網服務及基礎設施",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=9698&sc_lang=zh-HK"
+    },
+    {
+      "code": "09866",
+      "name": "蔚来-SW",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "汽车",
+        "subSector": "汽车",
+        "label": "非必需性消费 - 汽车 - 汽车"
+      },
+      "hkexText": "非必需性消費 - 汽車 - 汽車",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=9866&sc_lang=zh-HK"
+    },
+    {
+      "code": "09868",
+      "name": "小鹏集团-W",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "汽车",
+        "subSector": "汽车",
+        "label": "非必需性消费 - 汽车 - 汽车"
+      },
+      "hkexText": "非必需性消費 - 汽車 - 汽車",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=9868&sc_lang=zh-HK"
+    },
+    {
+      "code": "09888",
+      "name": "百度集团-W",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "媒体及娱乐",
+        "subSector": "互动媒体及服务",
+        "label": "非必需性消费 - 媒体及娱乐 - 互动媒体及服务"
+      },
+      "hkexText": "非必需性消費 - 媒體及娛樂 - 互動媒體及服務",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=9888&sc_lang=zh-HK"
+    },
+    {
+      "code": "09961",
+      "name": "携程集团-S",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "旅游及消闲设施",
+        "subSector": "旅游及观光",
+        "label": "非必需性消费 - 旅游及消闲设施 - 旅游及观光"
+      },
+      "hkexText": "非必需性消費 - 旅遊及消閒設施 - 旅遊及觀光",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=9961&sc_lang=zh-HK"
+    },
+    {
+      "code": "09987",
+      "name": "百胜中国",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "旅游及消闲设施",
+        "subSector": "餐饮",
+        "label": "非必需性消费 - 旅游及消闲设施 - 餐饮"
+      },
+      "hkexText": "非必需性消費 - 旅遊及消閒設施 - 餐飲",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=9987&sc_lang=zh-HK"
+    },
+    {
+      "code": "09988",
+      "name": "阿里巴巴-W",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "专业零售",
+        "subSector": "线上零售商",
+        "label": "非必需性消费 - 专业零售 - 线上零售商"
+      },
+      "hkexText": "非必需性消費 - 專業零售 - 線上零售商",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=9988&sc_lang=zh-HK"
+    },
+    {
+      "code": "09992",
+      "name": "泡泡玛特",
+      "hsics": {
+        "industry": "非必需性消费",
+        "sector": "家庭电器及用品",
+        "subSector": "玩具及消闲用品",
+        "label": "非必需性消费 - 家庭电器及用品 - 玩具及消闲用品"
+      },
+      "hkexText": "非必需性消費 - 家庭電器及用品 - 玩具及消閒用品",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=9992&sc_lang=zh-HK"
+    },
+    {
+      "code": "09999",
+      "name": "网易",
+      "hsics": {
+        "industry": "资讯科技业",
+        "sector": "软件服务",
+        "subSector": "游戏软件",
+        "label": "资讯科技业 - 软件服务 - 游戏软件"
+      },
+      "hkexText": "資訊科技業 - 軟件服務 - 遊戲軟件",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=9999&sc_lang=zh-HK"
+    },
+    {
+      "code": "02269",
+      "name": "药明生物",
+      "hsics": {
+        "industry": "医疗保健业",
+        "sector": "药品及生物科技",
+        "subSector": "医药及生物科技合约服务",
+        "label": "医疗保健业 - 药品及生物科技 - 医药及生物科技合约服务"
+      },
+      "hkexText": "醫療保健業 - 藥品及生物科技 - 醫藥及生物科技合約服務",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=2269&sc_lang=zh-HK"
+    },
+    {
+      "code": "02359",
+      "name": "药明康德",
+      "hsics": {
+        "industry": "医疗保健业",
+        "sector": "药品及生物科技",
+        "subSector": "医药及生物科技合约服务",
+        "label": "医疗保健业 - 药品及生物科技 - 医药及生物科技合约服务"
+      },
+      "hkexText": "醫療保健業 - 藥品及生物科技 - 醫藥及生物科技合約服務",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=2359&sc_lang=zh-HK"
+    },
+    {
+      "code": "00823",
+      "name": "领展房产基金",
+      "hsics": null,
+      "error": "港交所报价页无恒生行业分类（REIT 走 Real-Estate-Investment-Trusts-Quote 页，未显示 HSICS）",
+      "source": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Real-Estate-Investment-Trusts/Real-Estate-Investment-Trusts-Quote?sym=823&sc_lang=zh-HK"
+    }
+  ]
+}

@@ -62,7 +62,24 @@ const CHIP_DESIGN = {
   'cn:688582': '芯动联科：MEMS 惯性传感器设计 Fabless',
 }
 
+/**
+ * 2026-11-13 新增条目（build-lynch-inputs.mjs 生成）：站内板块只标「材料」，lynch-industry 的强周期行业词表匹配不到，
+ * 但利润由铁矿石/铜/铝/煤等大宗商品价格主导，按强周期处理（与 FCX、NEM、紫金等既有条目一致）。
+ */
+const DIVERSIFIED_MINERS = {
+  'adr:BHP': '必和必拓：铁矿石/铜/冶金煤，大宗商品价格周期主导利润',
+  'adr:RIO': '力拓：铁矿石/铝/铜，大宗商品价格周期主导利润',
+}
+
+/** 三窗利润波动来自一次性处置收益，不是经营周期：按增长 / 困境规则判断 */
+const ONE_OFF_SWING = {
+  'ndx:FER': 'Ferrovial：收费公路与机场特许经营，利润波动来自资产处置收益',
+  'ndx:NBIS': 'Nebius：AI 云基础设施，利润波动来自出售子公司股权的一次性收益',
+}
+
 export const LYNCH_CYCLICAL_OVERRIDES = {
+  ...Object.fromEntries(Object.entries(ONE_OFF_SWING).map(([k, why]) => [k, [false, `${why}，不按周期处理`]])),
+  ...Object.fromEntries(Object.entries(DIVERSIFIED_MINERS).map(([k, why]) => [k, [true, why]])),
   ...Object.fromEntries(Object.entries(CHEM_PHARMA).map(([k, name]) => [k, [false, `${name}：化学药，原「行业属强周期」为生成器误判`]])),
   // 新和成名义上在中证「化学药」，但主业是维生素/蛋氨酸/香精香料，产品价格周期决定利润（TTM 利润 34 亿→73 亿→72 亿），保留强周期
   'cn:002001': [true, '新和成：维生素/蛋氨酸价格周期主导利润，保留强周期'],

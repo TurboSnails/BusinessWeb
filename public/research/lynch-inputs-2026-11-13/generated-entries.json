@@ -1,0 +1,1541 @@
+{
+ "us:BRK.B": {
+  "t": "缓慢增长型",
+  "r": "低",
+  "pe": 16.54814,
+  "g": 14,
+  "c": -15,
+  "rg": 9,
+  "peg": null,
+  "ph": null,
+  "dy": null,
+  "pb": null,
+  "v": "增速、护城河与类型输入于 2026-11-13 由 scripts/build-lynch-inputs.mjs 按SEC EDGAR XBRL companyfacts（取回 2026-11-13T16:54:59.093567+00:00）重算：三个 TTM 窗口截至 2026-09-30/2025-09-30/2024-09-30（归母净利润），财报币种 USD，口径 US GAAP（SEC XBRL）；首选源 em-us 最新窗口 2026-09-30 较旧，改用 sec；同行业毛利率中位取us 全市场中位（板块样本不足 4 家，沿用原研究退回值）；PE 行情字段于 2026-11-13T15:21:56.485Z 核验。PEG待同口径盈利预测，不沿用旧值。",
+  "w": [
+   "有效增速 -15%（<8%）"
+  ],
+  "f": [
+   "EPS 缺期，三窗利润改用归母净利润"
+  ],
+  "m": {
+   "s": 0,
+   "n": 3,
+   "l": "数据不足",
+   "i": [
+    [
+     "定价权",
+     null,
+     "金融/无毛利率数据"
+    ],
+    [
+     "毛利稳定",
+     null,
+     "数据不足"
+    ],
+    [
+     "资本回报",
+     false,
+     "近三年 ROE 11%/10%/19%（要求最新 ≥15% 且三年最低 ≥12%）"
+    ],
+    [
+     "盈利持续",
+     false,
+     "三个 TTM 窗口利润 7.71e+10/6.75e+10/1.07e+11（要求全正、未萎缩、回撤 ≤30%）"
+    ],
+    [
+     "财务稳健",
+     null,
+     "金融股杠杆属业务本身，不按此项评"
+    ],
+    [
+     "需求韧性",
+     false,
+     "三个 TTM 窗口营收逐年未持续增长"
+    ]
+   ]
+  },
+  "historicalAssessment": "PE 16.5×，缓慢增长型价格未达关注门槛",
+  "historicalPeg": null,
+  "peAsOf": "2026-11-13",
+  "checkedAt": "2026-11-13T15:21:56.485Z",
+  "classificationAsOf": "2026-11-13",
+  "financialPeriod": "2026-09-30",
+  "source": "research/data-refresh-2026-11-13/yahoo-quote-batch.json",
+  "inputSource": "research/lynch-inputs-2026-11-13/us-BRK.B.sec.json",
+  "inputRetrievedAt": "2026-11-13T16:54:59.093567+00:00",
+  "inputBasis": "TTM 窗口",
+  "inputWindows": [
+   "2026-09-30",
+   "2025-09-30",
+   "2024-09-30"
+  ]
+ },
+ "hk:02269": {
+  "t": "快速增长型",
+  "r": "低",
+  "pe": 35.142857,
+  "g": 46,
+  "c": 20,
+  "rg": 17,
+  "peg": null,
+  "ph": null,
+  "dy": 0,
+  "pb": null,
+  "v": "增速、护城河与类型输入于 2026-11-13 由 scripts/build-lynch-inputs.mjs 按东方财富港股财务指标（akshare stock_financial_hk_analysis_indicator_em 报告期+年度）（取回 2026-11-13T16:54:19.309152+00:00）重算：三个财年窗口 2025-12-31/2024-12-31/2023-12-31（归母净利润），财报币种 人民币，口径 HKFRS/IFRS（东方财富港股口径）；同行业毛利率中位取hk·药品及生物科技 板块中位（沿用原研究同组取值，9 家）；PE 行情字段于 2026-11-13T15:21:55.123Z 核验。PEG待同口径盈利预测，不沿用旧值。",
+  "w": [
+   "利润 +46%（两年年化 +20%）",
+   "营收 +17%"
+  ],
+  "f": [
+   "按财年窗口（最新财年 2025-12-31）计算增速",
+   "最新中期（2026-06-30）利润同比 +4%"
+  ],
+  "m": {
+   "s": 2,
+   "n": 6,
+   "l": "证据不足",
+   "i": [
+    [
+     "定价权",
+     false,
+     "毛利率 46.0%（同行业中位 65.6%）"
+    ],
+    [
+     "毛利稳定",
+     false,
+     "近三年毛利率区间 40.1%–46.0%（极差 5.9pt）"
+    ],
+    [
+     "资本回报",
+     false,
+     "近三年 ROE 11%/8%/9%（要求最新 ≥15% 且三年最低 ≥12%）"
+    ],
+    [
+     "盈利持续",
+     false,
+     "三个 TTM 窗口利润 4.91e+09/3.36e+09/3.4e+09（要求全正、未萎缩、回撤 ≤30%）"
+    ],
+    [
+     "财务稳健",
+     true,
+     "资产负债率 17%，流动比率 3.32"
+    ],
+    [
+     "需求韧性",
+     true,
+     "三个 TTM 窗口营收逐年增长"
+    ]
+   ]
+  },
+  "historicalAssessment": "PEG 1.76>1.5：估值偏贵于增速",
+  "historicalPeg": null,
+  "peAsOf": "2026-11-13",
+  "checkedAt": "2026-11-13T15:21:55.123Z",
+  "classificationAsOf": "2026-11-13",
+  "financialPeriod": "2025-12-31",
+  "source": "research/data-refresh-2026-11-13/yahoo-quote-batch.json",
+  "inputSource": "research/lynch-inputs-2026-11-13/hk-02269.em-hk.json",
+  "inputRetrievedAt": "2026-11-13T16:54:19.309152+00:00",
+  "inputBasis": "财年窗口",
+  "inputWindows": [
+   "2025-12-31",
+   "2024-12-31",
+   "2023-12-31"
+  ]
+ },
+ "hk:02359": {
+  "t": "快速增长型",
+  "r": "高",
+  "pe": 18.876848,
+  "g": 105,
+  "c": 34,
+  "rg": 21,
+  "peg": null,
+  "ph": null,
+  "dy": 0.6,
+  "pb": null,
+  "v": "增速、护城河与类型输入于 2026-11-13 由 scripts/build-lynch-inputs.mjs 按东方财富港股财务指标（akshare stock_financial_hk_analysis_indicator_em 报告期+年度）（取回 2026-11-13T16:54:24.384732+00:00）重算：三个财年窗口 2025-12-31/2024-12-31/2023-12-31（归母净利润），财报币种 人民币，口径 HKFRS/IFRS（东方财富港股口径）；同行业毛利率中位取hk·药品及生物科技 板块中位（沿用原研究同组取值，9 家）；PE 行情字段于 2026-11-13T15:21:55.123Z 核验。PEG待同口径盈利预测，不沿用旧值。",
+  "w": [
+   "利润 +105%（两年年化 +34%）",
+   "营收 +21%"
+  ],
+  "f": [
+   "按财年窗口（最新财年 2025-12-31）计算增速",
+   "最新中期（2026-06-30）利润同比 +34%"
+  ],
+  "m": {
+   "s": 2,
+   "n": 6,
+   "l": "证据不足",
+   "i": [
+    [
+     "定价权",
+     false,
+     "毛利率 48.3%（同行业中位 65.6%）"
+    ],
+    [
+     "毛利稳定",
+     false,
+     "近三年毛利率区间 40.6%–48.3%（极差 7.7pt）"
+    ],
+    [
+     "资本回报",
+     true,
+     "近三年 ROE 28%/16%/21%（要求最新 ≥15% 且三年最低 ≥12%）"
+    ],
+    [
+     "盈利持续",
+     false,
+     "三个 TTM 窗口利润 1.92e+10/9.35e+09/1.07e+10（要求全正、未萎缩、回撤 ≤30%）"
+    ],
+    [
+     "财务稳健",
+     true,
+     "资产负债率 22%，流动比率 3.43"
+    ],
+    [
+     "需求韧性",
+     false,
+     "三个 TTM 窗口营收逐年未持续增长"
+    ]
+   ]
+  },
+  "historicalAssessment": "PEG 0.56<1：增速支撑估值",
+  "historicalPeg": null,
+  "peAsOf": "2026-11-13",
+  "checkedAt": "2026-11-13T15:21:55.123Z",
+  "classificationAsOf": "2026-11-13",
+  "financialPeriod": "2025-12-31",
+  "source": "research/data-refresh-2026-11-13/yahoo-quote-batch.json",
+  "inputSource": "research/lynch-inputs-2026-11-13/hk-02359.em-hk.json",
+  "inputRetrievedAt": "2026-11-13T16:54:24.384732+00:00",
+  "inputBasis": "财年窗口",
+  "inputWindows": [
+   "2025-12-31",
+   "2024-12-31",
+   "2023-12-31"
+  ]
+ },
+ "hk:00823": {
+  "t": "资产型",
+  "r": "中",
+  "pe": null,
+  "g": null,
+  "c": null,
+  "rg": -2,
+  "peg": null,
+  "ph": null,
+  "dy": 6.1,
+  "pb": 0.72,
+  "v": "增速、护城河与类型输入于 2026-11-13 由 scripts/build-lynch-inputs.mjs 按yfinance 年报（第三方汇总，最后手段）（取回 2026-11-13T17:01:18.117571+00:00）重算：三个财年窗口 2026-03-31/2025-03-31/2024-03-31（归母净利润），财报币种 HKD，口径 yfinance 年报（第三方汇总，未逐项核对公告）；同行业毛利率中位取hk 全市场中位（板块样本不足 4 家，沿用原研究退回值）；PE 行情字段缺失（供应商未给 trailingPE，常见于 TTM 亏损）。PEG待同口径盈利预测，不沿用旧值。",
+  "w": [
+   "REIT/地产持有，按 NAV/FFO 而非 PE 估值"
+  ],
+  "f": [
+   "按财年窗口（最新财年 2026-03-31）计算增速"
+  ],
+  "m": {
+   "s": 2,
+   "n": 6,
+   "l": "证据不足",
+   "i": [
+    [
+     "定价权",
+     true,
+     "毛利率 73.4%（同行业中位 30.8%）"
+    ],
+    [
+     "毛利稳定",
+     true,
+     "近三年毛利率区间 73.4%–74.7%（极差 1.3pt）"
+    ],
+    [
+     "资本回报",
+     false,
+     "近三年 ROE -5%/-5%/-1%（要求最新 ≥15% 且三年最低 ≥12%）"
+    ],
+    [
+     "盈利持续",
+     false,
+     "三个 TTM 窗口利润 -7.4e+09/-8.86e+09/-1.98e+09（要求全正、未萎缩、回撤 ≤30%）"
+    ],
+    [
+     "财务稳健",
+     false,
+     "资产负债率 32%，流动比率 0.37"
+    ],
+    [
+     "需求韧性",
+     false,
+     "三个 TTM 窗口营收逐年未持续增长"
+    ]
+   ]
+  },
+  "historicalAssessment": "资产型 · 关注度中",
+  "historicalPeg": null,
+  "peAsOf": "2026-11-13",
+  "checkedAt": "2026-11-13T15:21:54.781Z",
+  "classificationAsOf": "2026-11-13",
+  "financialPeriod": "2026-03-31",
+  "source": "research/data-refresh-2026-11-13/yahoo-quote-batch.json",
+  "inputSource": "research/lynch-inputs-2026-11-13/hk-00823.yf.json",
+  "inputRetrievedAt": "2026-11-13T17:01:18.117571+00:00",
+  "inputBasis": "财年窗口",
+  "inputWindows": [
+   "2026-03-31",
+   "2025-03-31",
+   "2024-03-31"
+  ]
+ },
+ "adr:BHP": {
+  "t": "周期型",
+  "r": "低",
+  "pe": 20.593264,
+  "g": 9,
+  "c": 12,
+  "rg": 15,
+  "peg": null,
+  "ph": "不明",
+  "dy": null,
+  "pb": null,
+  "v": "增速、护城河与类型输入于 2026-11-13 由 scripts/build-lynch-inputs.mjs 按东方财富美股年报指标（akshare stock_financial_us_analysis_indicator_em 年报）（取回 2026-11-13T16:55:23.637251+00:00）重算：三个财年窗口 2026-06-30/2025-06-30/2024-06-30（归母净利润），财报币种 USD，口径 国际会计准则；首选源 sec 三窗不全或已停更，改用 em-us-y；同行业毛利率中位取adr 全市场中位（板块样本不足 4 家，沿用原研究退回值）；PE 行情字段于 2026-11-13T15:21:56.476Z 核验。PEG待同口径盈利预测，不沿用旧值。",
+  "w": [
+   "行业属强周期"
+  ],
+  "f": [
+   "按财年窗口（最新财年 2026-06-30）计算增速"
+  ],
+  "m": {
+   "s": 3,
+   "n": 4,
+   "l": "窄护城河迹象",
+   "i": [
+    [
+     "定价权",
+     null,
+     "金融/无毛利率数据"
+    ],
+    [
+     "毛利稳定",
+     null,
+     "数据不足"
+    ],
+    [
+     "资本回报",
+     true,
+     "近三年 ROE 20%/20%/18%（要求最新 ≥15% 且三年最低 ≥12%）"
+    ],
+    [
+     "盈利持续",
+     true,
+     "三个 TTM 窗口利润 9.83e+09/9.02e+09/7.9e+09（要求全正、未萎缩、回撤 ≤30%）"
+    ],
+    [
+     "财务稳健",
+     true,
+     "资产负债率 54%，流动比率 1.88"
+    ],
+    [
+     "需求韧性",
+     false,
+     "三个 TTM 窗口营收逐年未持续增长"
+    ]
+   ]
+  },
+  "historicalAssessment": "强周期行业：利润处于高位或下行，低 PE 往往是顶部信号，不按 PEG 判断",
+  "historicalPeg": null,
+  "peAsOf": "2026-11-13",
+  "checkedAt": "2026-11-13T15:21:56.476Z",
+  "classificationAsOf": "2026-11-13",
+  "financialPeriod": "2026-06-30",
+  "source": "research/data-refresh-2026-11-13/yahoo-quote-batch.json",
+  "inputSource": "research/lynch-inputs-2026-11-13/adr-BHP.em-us-y.json",
+  "inputRetrievedAt": "2026-11-13T16:55:23.637251+00:00",
+  "inputBasis": "财年窗口",
+  "inputWindows": [
+   "2026-06-30",
+   "2025-06-30",
+   "2024-06-30"
+  ]
+ },
+ "adr:RIO": {
+  "t": "周期型",
+  "r": "低",
+  "pe": 11.273712,
+  "g": -14,
+  "c": 0,
+  "rg": 7,
+  "peg": null,
+  "ph": "盈利下行",
+  "dy": null,
+  "pb": null,
+  "v": "增速、护城河与类型输入于 2026-11-13 由 scripts/build-lynch-inputs.mjs 按东方财富美股年报指标（akshare stock_financial_us_analysis_indicator_em 年报）（取回 2026-11-13T16:55:25.673395+00:00）重算：三个财年窗口 2025-12-31/2024-12-31/2023-12-31（归母净利润），财报币种 USD，口径 国际会计准则；首选源 sec 最新窗口 2025-12-31 较旧，改用 em-us-y；同行业毛利率中位取adr 全市场中位（板块样本不足 4 家，沿用原研究退回值）；PE 行情字段于 2026-11-13T15:21:57.224Z 核验。PEG待同口径盈利预测，不沿用旧值。",
+  "w": [
+   "行业属强周期"
+  ],
+  "f": [
+   "按财年窗口（最新财年 2025-12-31）计算增速"
+  ],
+  "m": {
+   "s": 3,
+   "n": 6,
+   "l": "证据不足",
+   "i": [
+    [
+     "定价权",
+     false,
+     "毛利率 27.5%（同行业中位 40.9%）"
+    ],
+    [
+     "毛利稳定",
+     true,
+     "近三年毛利率区间 27.5%–31.4%（极差 3.9pt）"
+    ],
+    [
+     "资本回报",
+     true,
+     "近三年 ROE 17%/21%/19%（要求最新 ≥15% 且三年最低 ≥12%）"
+    ],
+    [
+     "盈利持续",
+     false,
+     "三个 TTM 窗口利润 9.97e+09/1.16e+10/1.01e+10（要求全正、未萎缩、回撤 ≤30%）"
+    ],
+    [
+     "财务稳健",
+     true,
+     "资产负债率 48%，流动比率 1.44"
+    ],
+    [
+     "需求韧性",
+     false,
+     "三个 TTM 窗口营收逐年未持续增长"
+    ]
+   ]
+  },
+  "historicalAssessment": "强周期行业：利润处于高位或下行，低 PE 往往是顶部信号，不按 PEG 判断",
+  "historicalPeg": null,
+  "peAsOf": "2026-11-13",
+  "checkedAt": "2026-11-13T15:21:57.224Z",
+  "classificationAsOf": "2026-11-13",
+  "financialPeriod": "2025-12-31",
+  "source": "research/data-refresh-2026-11-13/yahoo-quote-batch.json",
+  "inputSource": "research/lynch-inputs-2026-11-13/adr-RIO.em-us-y.json",
+  "inputRetrievedAt": "2026-11-13T16:55:25.673395+00:00",
+  "inputBasis": "财年窗口",
+  "inputWindows": [
+   "2025-12-31",
+   "2024-12-31",
+   "2023-12-31"
+  ]
+ },
+ "adr:UL": {
+  "t": "稳健型",
+  "r": "高",
+  "pe": 13.39192,
+  "g": 65,
+  "c": 21,
+  "rg": -4,
+  "peg": null,
+  "ph": null,
+  "dy": null,
+  "pb": null,
+  "v": "增速、护城河与类型输入于 2026-11-13 由 scripts/build-lynch-inputs.mjs 按SEC EDGAR XBRL companyfacts（取回 2026-11-13T16:54:51.617826+00:00）重算：三个财年窗口 2025-12-31/2024-12-31/2023-12-31（归母净利润），财报币种 EUR，口径 IFRS（SEC 20-F XBRL）；同行业毛利率中位取adr 全市场中位（板块样本不足 4 家，沿用原研究退回值）；PE 行情字段于 2026-11-13T15:21:57.413Z 核验。PEG待同口径盈利预测，不沿用旧值。",
+  "w": [
+   "利润 +65%（两年年化 +21%）"
+  ],
+  "f": [
+   "按财年窗口（最新财年 2025-12-31）计算增速"
+  ],
+  "m": {
+   "s": 3,
+   "n": 6,
+   "l": "证据不足",
+   "i": [
+    [
+     "定价权",
+     true,
+     "毛利率 46.9%（同行业中位 40.9%）"
+    ],
+    [
+     "毛利稳定",
+     true,
+     "近三年毛利率区间 43.5%–46.9%（极差 3.4pt）"
+    ],
+    [
+     "资本回报",
+     true,
+     "近三年 ROE 53%/30%/35%（要求最新 ≥15% 且三年最低 ≥12%）"
+    ],
+    [
+     "盈利持续",
+     false,
+     "三个 TTM 窗口利润 9.47e+09/5.74e+09/6.49e+09（要求全正、未萎缩、回撤 ≤30%）"
+    ],
+    [
+     "财务稳健",
+     false,
+     "资产负债率 75%，流动比率 0.79"
+    ],
+    [
+     "需求韧性",
+     false,
+     "三个 TTM 窗口营收逐年未持续增长"
+    ]
+   ]
+  },
+  "historicalAssessment": "PE 13.4× 不高，稳健增长",
+  "historicalPeg": null,
+  "peAsOf": "2026-11-13",
+  "checkedAt": "2026-11-13T15:21:57.413Z",
+  "classificationAsOf": "2026-11-13",
+  "financialPeriod": "2025-12-31",
+  "source": "research/data-refresh-2026-11-13/yahoo-quote-batch.json",
+  "inputSource": "research/lynch-inputs-2026-11-13/adr-UL.sec.json",
+  "inputRetrievedAt": "2026-11-13T16:54:51.617826+00:00",
+  "inputBasis": "财年窗口",
+  "inputWindows": [
+   "2025-12-31",
+   "2024-12-31",
+   "2023-12-31"
+  ]
+ },
+ "adr:DEO": {
+  "t": "缓慢增长型",
+  "r": "低",
+  "pe": 32.516026,
+  "g": -26,
+  "c": -33,
+  "rg": -3,
+  "peg": null,
+  "ph": null,
+  "dy": null,
+  "pb": null,
+  "v": "增速、护城河与类型输入于 2026-11-13 由 scripts/build-lynch-inputs.mjs 按东方财富美股年报指标（akshare stock_financial_us_analysis_indicator_em 年报）（取回 2026-11-13T16:55:29.868730+00:00）重算：三个财年窗口 2026-06-30/2025-06-30/2024-06-30（归母净利润），财报币种 USD，口径 国际会计准则；首选源 sec 三窗不全或已停更，改用 em-us-y；同行业毛利率中位取adr 全市场中位（板块样本不足 4 家，沿用原研究退回值）；PE 行情字段于 2026-11-13T15:21:56.697Z 核验。PEG待同口径盈利预测，不沿用旧值。",
+  "w": [
+   "有效增速 -33%（<8%）"
+  ],
+  "f": [
+   "按财年窗口（最新财年 2026-06-30）计算增速"
+  ],
+  "m": {
+   "s": 3,
+   "n": 6,
+   "l": "证据不足",
+   "i": [
+    [
+     "定价权",
+     true,
+     "毛利率 59.5%（同行业中位 40.9%）"
+    ],
+    [
+     "毛利稳定",
+     true,
+     "近三年毛利率区间 59.5%–60.2%（极差 0.7pt）"
+    ],
+    [
+     "资本回报",
+     true,
+     "近三年 ROE 16%/22%/39%（要求最新 ≥15% 且三年最低 ≥12%）"
+    ],
+    [
+     "盈利持续",
+     false,
+     "三个 TTM 窗口利润 1.74e+09/2.35e+09/3.87e+09（要求全正、未萎缩、回撤 ≤30%）"
+    ],
+    [
+     "财务稳健",
+     false,
+     "资产负债率 72%，流动比率 1.60"
+    ],
+    [
+     "需求韧性",
+     false,
+     "三个 TTM 窗口营收逐年未持续增长"
+    ]
+   ]
+  },
+  "historicalAssessment": "PE 32.5×，缓慢增长型价格未达关注门槛",
+  "historicalPeg": null,
+  "peAsOf": "2026-11-13",
+  "checkedAt": "2026-11-13T15:21:56.697Z",
+  "classificationAsOf": "2026-11-13",
+  "financialPeriod": "2026-06-30",
+  "source": "research/data-refresh-2026-11-13/yahoo-quote-batch.json",
+  "inputSource": "research/lynch-inputs-2026-11-13/adr-DEO.em-us-y.json",
+  "inputRetrievedAt": "2026-11-13T16:55:29.868730+00:00",
+  "inputBasis": "财年窗口",
+  "inputWindows": [
+   "2026-06-30",
+   "2025-06-30",
+   "2024-06-30"
+  ]
+ },
+ "adr:BTI": {
+  "t": "稳健型",
+  "r": "中",
+  "pe": 15.749999,
+  "g": 153,
+  "c": null,
+  "rg": -1,
+  "peg": null,
+  "ph": null,
+  "dy": null,
+  "pb": null,
+  "v": "增速、护城河与类型输入于 2026-11-13 由 scripts/build-lynch-inputs.mjs 按SEC EDGAR XBRL companyfacts（取回 2026-11-13T16:54:54.813844+00:00）重算：三个财年窗口 2025-12-31/2024-12-31/2023-12-31（归母净利润），财报币种 GBP，口径 IFRS（SEC 20-F XBRL）；同行业毛利率中位取adr 全市场中位（板块样本不足 4 家，沿用原研究退回值）；PE 行情字段于 2026-11-13T15:21:56.485Z 核验。PEG待同口径盈利预测，不沿用旧值。",
+  "w": [
+   "利润 +153%"
+  ],
+  "f": [
+   "按财年窗口（最新财年 2025-12-31）计算增速",
+   "增速 >50% 不可外推，PEG 以 50% 封顶",
+   "增速 >80% 多来自低基数或一次性因素，PEG 偏乐观，评级下调一档"
+  ],
+  "m": {
+   "s": 0,
+   "n": 4,
+   "l": "证据不足",
+   "i": [
+    [
+     "定价权",
+     null,
+     "金融/无毛利率数据"
+    ],
+    [
+     "毛利稳定",
+     null,
+     "数据不足"
+    ],
+    [
+     "资本回报",
+     false,
+     "近三年 ROE 17%/6%/-23%（要求最新 ≥15% 且三年最低 ≥12%）"
+    ],
+    [
+     "盈利持续",
+     false,
+     "三个 TTM 窗口利润 7.76e+09/3.07e+09/-1.44e+10（要求全正、未萎缩、回撤 ≤30%）"
+    ],
+    [
+     "财务稳健",
+     false,
+     "资产负债率 58%，流动比率 0.87"
+    ],
+    [
+     "需求韧性",
+     false,
+     "三个 TTM 窗口营收逐年未持续增长"
+    ]
+   ]
+  },
+  "historicalAssessment": "PE 15.7× 尚可，稳健型可观察",
+  "historicalPeg": null,
+  "peAsOf": "2026-11-13",
+  "checkedAt": "2026-11-13T15:21:56.485Z",
+  "classificationAsOf": "2026-11-13",
+  "financialPeriod": "2025-12-31",
+  "source": "research/data-refresh-2026-11-13/yahoo-quote-batch.json",
+  "inputSource": "research/lynch-inputs-2026-11-13/adr-BTI.sec.json",
+  "inputRetrievedAt": "2026-11-13T16:54:54.813844+00:00",
+  "inputBasis": "财年窗口",
+  "inputWindows": [
+   "2025-12-31",
+   "2024-12-31",
+   "2023-12-31"
+  ]
+ },
+ "adr:ONC": {
+  "t": "快速增长型",
+  "r": "低",
+  "pe": 53.05705,
+  "g": 1236,
+  "c": null,
+  "rg": 33,
+  "peg": null,
+  "ph": null,
+  "dy": null,
+  "pb": null,
+  "v": "增速、护城河与类型输入于 2026-11-13 由 scripts/build-lynch-inputs.mjs 按SEC EDGAR XBRL companyfacts（取回 2026-11-13T16:55:09.510023+00:00）重算：三个 TTM 窗口截至 2026-09-30/2025-09-30/2024-09-30（归母净利润），财报币种 USD，口径 US GAAP（SEC XBRL）；首选源 em-us 最新窗口 2026-09-30 较旧，改用 sec；同行业毛利率中位取adr·医疗保健 板块中位（沿用原研究同组取值，5 家）；PE 行情字段于 2026-11-13T15:21:57.227Z 核验。PEG待同口径盈利预测，不沿用旧值。",
+  "w": [
+   "利润增速 1236%",
+   "营收 +33%"
+  ],
+  "f": [
+   "增速 >50% 不可外推，PEG 以 50% 封顶",
+   "增速 >80% 多来自低基数或一次性因素，PEG 偏乐观，评级下调一档"
+  ],
+  "m": {
+   "s": 3,
+   "n": 6,
+   "l": "证据不足",
+   "i": [
+    [
+     "定价权",
+     true,
+     "毛利率 89.4%（同行业中位 74.7%）"
+    ],
+    [
+     "毛利稳定",
+     false,
+     "近三年毛利率区间 83.7%–89.4%（极差 5.6pt）"
+    ],
+    [
+     "资本回报",
+     false,
+     "近三年 ROE 18%/1%/-24%（要求最新 ≥15% 且三年最低 ≥12%）"
+    ],
+    [
+     "盈利持续",
+     false,
+     "三个 TTM 窗口利润 9.16e+08/6.86e+07/-8.6e+08（要求全正、未萎缩、回撤 ≤30%）"
+    ],
+    [
+     "财务稳健",
+     true,
+     "资产负债率 41%，流动比率 3.55"
+    ],
+    [
+     "需求韧性",
+     true,
+     "三个 TTM 窗口营收逐年增长"
+    ]
+   ]
+  },
+  "historicalAssessment": "PE 53.1×：增速不足，PEG 不适用",
+  "historicalPeg": null,
+  "peAsOf": "2026-11-13",
+  "checkedAt": "2026-11-13T15:21:57.227Z",
+  "classificationAsOf": "2026-11-13",
+  "financialPeriod": "2026-09-30",
+  "source": "research/data-refresh-2026-11-13/yahoo-quote-batch.json",
+  "inputSource": "research/lynch-inputs-2026-11-13/adr-ONC.sec.json",
+  "inputRetrievedAt": "2026-11-13T16:55:09.510023+00:00",
+  "inputBasis": "TTM 窗口",
+  "inputWindows": [
+   "2026-09-30",
+   "2025-09-30",
+   "2024-09-30"
+  ]
+ },
+ "adr:SOFI": {
+  "t": "稳健型",
+  "r": "低",
+  "pe": 27.481817,
+  "g": 15,
+  "c": 86,
+  "rg": 6,
+  "peg": null,
+  "ph": null,
+  "dy": null,
+  "pb": null,
+  "v": "增速、护城河与类型输入于 2026-11-13 由 scripts/build-lynch-inputs.mjs 按SEC EDGAR XBRL companyfacts（取回 2026-11-13T16:54:56.439897+00:00）重算：三个 TTM 窗口截至 2026-09-30/2025-09-30/2024-09-30（归母净利润），财报币种 USD，口径 US GAAP（SEC XBRL）；同行业毛利率中位取adr 全市场中位（板块样本不足 4 家，沿用原研究退回值）；PE 行情字段于 2026-11-13T15:21:57.375Z 核验。PEG待同口径盈利预测，不沿用旧值。",
+  "w": [
+   "利润 +15%（两年年化 +86%）"
+  ],
+  "f": [],
+  "m": {
+   "s": 1,
+   "n": 3,
+   "l": "数据不足",
+   "i": [
+    [
+     "定价权",
+     null,
+     "金融/无毛利率数据"
+    ],
+    [
+     "毛利稳定",
+     null,
+     "数据不足"
+    ],
+    [
+     "资本回报",
+     false,
+     "近三年 ROE 7%/10%/4%（要求最新 ≥15% 且三年最低 ≥12%）"
+    ],
+    [
+     "盈利持续",
+     false,
+     "三个 TTM 窗口利润 7.38e+08/6.4e+08/2.14e+08（要求全正、未萎缩、回撤 ≤30%）"
+    ],
+    [
+     "财务稳健",
+     null,
+     "金融股杠杆属业务本身，不按此项评"
+    ],
+    [
+     "需求韧性",
+     true,
+     "三个 TTM 窗口营收逐年增长"
+    ]
+   ]
+  },
+  "historicalAssessment": "PE 27.5× 偏高，稳健型不宜为高估值付费",
+  "historicalPeg": null,
+  "peAsOf": "2026-11-13",
+  "checkedAt": "2026-11-13T15:21:57.375Z",
+  "classificationAsOf": "2026-11-13",
+  "financialPeriod": "2026-09-30",
+  "source": "research/data-refresh-2026-11-13/yahoo-quote-batch.json",
+  "inputSource": "research/lynch-inputs-2026-11-13/adr-SOFI.sec.json",
+  "inputRetrievedAt": "2026-11-13T16:54:56.439897+00:00",
+  "inputBasis": "TTM 窗口",
+  "inputWindows": [
+   "2026-09-30",
+   "2025-09-30",
+   "2024-09-30"
+  ]
+ },
+ "ndx:ALNY": {
+  "t": "快速增长型",
+  "r": "低",
+  "pe": 8.41793,
+  "g": 2308,
+  "c": null,
+  "rg": 56,
+  "peg": null,
+  "ph": null,
+  "dy": null,
+  "pb": null,
+  "v": "增速、护城河与类型输入于 2026-11-13 由 scripts/build-lynch-inputs.mjs 按东方财富美股单季指标（akshare stock_financial_us_analysis_indicator_em 单季报）（取回 2026-11-13T16:48:09.755541+00:00）重算：三个 TTM 窗口截至 2026-09-30/2025-09-30/2024-09-30（稀释 EPS（四季合计）），财报币种 USD，口径 美国会计准则；同行业毛利率中位取us·医疗保健 板块中位（沿用原研究同组取值，57 家）；PE 行情字段于 2026-11-13T15:21:56.471Z 核验。PEG待同口径盈利预测，不沿用旧值。",
+  "w": [
+   "利润增速 2308%",
+   "营收 +56%"
+  ],
+  "f": [
+   "增速 >50% 不可外推，PEG 以 50% 封顶",
+   "增速 >80% 多来自低基数或一次性因素，PEG 偏乐观，评级下调一档",
+   "营收同比波动 +17%/+149%（并购/分拆/口径变化可能）"
+  ],
+  "m": {
+   "s": 3,
+   "n": 5,
+   "l": "窄护城河迹象",
+   "i": [
+    [
+     "定价权",
+     true,
+     "毛利率 77.3%（同行业中位 62.5%）"
+    ],
+    [
+     "毛利稳定",
+     false,
+     "近三年毛利率区间 77.3%–85.4%（极差 8.1pt）"
+    ],
+    [
+     "资本回报",
+     null,
+     "ROE 数据不足"
+    ],
+    [
+     "盈利持续",
+     false,
+     "三个 TTM 窗口利润 19.3/0.8/-2.62（要求全正、未萎缩、回撤 ≤30%）"
+    ],
+    [
+     "财务稳健",
+     true,
+     "资产负债率 55%，流动比率 2.48"
+    ],
+    [
+     "需求韧性",
+     true,
+     "三个 TTM 窗口营收逐年增长"
+    ]
+   ]
+  },
+  "historicalAssessment": "PE 8.4×：增速不足，PEG 不适用",
+  "historicalPeg": null,
+  "peAsOf": "2026-11-13",
+  "checkedAt": "2026-11-13T15:21:56.471Z",
+  "classificationAsOf": "2026-11-13",
+  "financialPeriod": "2026-09-30",
+  "source": "research/data-refresh-2026-11-13/yahoo-quote-batch.json",
+  "inputSource": "research/lynch-inputs-2026-11-13/us-ALNY.em-us.json",
+  "inputRetrievedAt": "2026-11-13T16:48:09.755541+00:00",
+  "inputBasis": "TTM 窗口",
+  "inputWindows": [
+   "2026-09-30",
+   "2025-09-30",
+   "2024-09-30"
+  ]
+ },
+ "ndx:ALAB": {
+  "t": "快速增长型",
+  "r": "低",
+  "pe": 83.007904,
+  "g": 106,
+  "c": null,
+  "rg": 115,
+  "peg": null,
+  "ph": null,
+  "dy": null,
+  "pb": null,
+  "v": "增速、护城河与类型输入于 2026-11-13 由 scripts/build-lynch-inputs.mjs 按SEC EDGAR XBRL companyfacts（取回 2026-11-13T16:55:04.261702+00:00）重算：三个 TTM 窗口截至 2026-09-30/2025-09-30/2024-09-30（稀释 EPS（四季合计）），财报币种 USD，口径 US GAAP（SEC XBRL）；首选源 em-us 最新窗口 2026-09-30 较旧，改用 sec；同行业毛利率中位取us·信息技术 板块中位（沿用原研究同组取值，74 家）；PE 行情字段于 2026-11-13T15:21:56.471Z 核验。PEG待同口径盈利预测，不沿用旧值。",
+  "w": [
+   "利润增速 106%",
+   "营收 +115%"
+  ],
+  "f": [
+   "增速 >50% 不可外推，PEG 以 50% 封顶",
+   "增速 >80% 多来自低基数或一次性因素，PEG 偏乐观，评级下调一档",
+   "营收同比波动 +154%/+104%（并购/分拆/口径变化可能）"
+  ],
+  "m": {
+   "s": 4,
+   "n": 6,
+   "l": "窄护城河迹象",
+   "i": [
+    [
+     "定价权",
+     true,
+     "毛利率 73.9%（同行业中位 58.8%）"
+    ],
+    [
+     "毛利稳定",
+     true,
+     "近三年毛利率区间 73.9%–77.6%（极差 3.7pt）"
+    ],
+    [
+     "资本回报",
+     false,
+     "近三年 ROE 28%/18%/-41%（要求最新 ≥15% 且三年最低 ≥12%）"
+    ],
+    [
+     "盈利持续",
+     false,
+     "三个 TTM 窗口利润 2.51/1.22/-1.47（要求全正、未萎缩、回撤 ≤30%）"
+    ],
+    [
+     "财务稳健",
+     true,
+     "资产负债率 13%，流动比率 8.03"
+    ],
+    [
+     "需求韧性",
+     true,
+     "三个 TTM 窗口营收逐年增长"
+    ]
+   ]
+  },
+  "historicalAssessment": "PE 83×：增速不足，PEG 不适用",
+  "historicalPeg": null,
+  "peAsOf": "2026-11-13",
+  "checkedAt": "2026-11-13T15:21:56.471Z",
+  "classificationAsOf": "2026-11-13",
+  "financialPeriod": "2026-09-30",
+  "source": "research/data-refresh-2026-11-13/yahoo-quote-batch.json",
+  "inputSource": "research/lynch-inputs-2026-11-13/us-ALAB.sec.json",
+  "inputRetrievedAt": "2026-11-13T16:55:04.261702+00:00",
+  "inputBasis": "TTM 窗口",
+  "inputWindows": [
+   "2026-09-30",
+   "2025-09-30",
+   "2024-09-30"
+  ]
+ },
+ "ndx:CCEP": {
+  "t": "稳健型",
+  "r": "低",
+  "pe": 22.836872,
+  "g": 38,
+  "c": 8,
+  "rg": 2,
+  "peg": null,
+  "ph": null,
+  "dy": null,
+  "pb": null,
+  "v": "增速、护城河与类型输入于 2026-11-13 由 scripts/build-lynch-inputs.mjs 按SEC EDGAR XBRL companyfacts（取回 2026-11-13T16:55:05.742725+00:00）重算：三个财年窗口 2025-12-31/2024-12-31/2023-12-31（稀释 EPS（财年）），财报币种 EUR，口径 IFRS（SEC 20-F XBRL）；首选源 em-us 三窗不全或已停更，改用 sec；同行业毛利率中位取us·日常消费 板块中位（沿用原研究同组取值，32 家）；PE 行情字段于 2026-11-13T15:21:56.485Z 核验。PEG待同口径盈利预测，不沿用旧值。",
+  "w": [
+   "利润 +38%（两年年化 +8%）"
+  ],
+  "f": [
+   "按财年窗口（最新财年 2025-12-31）计算增速"
+  ],
+  "m": {
+   "s": 4,
+   "n": 6,
+   "l": "窄护城河迹象",
+   "i": [
+    [
+     "定价权",
+     false,
+     "毛利率 35.6%（同行业中位 38.5%）"
+    ],
+    [
+     "毛利稳定",
+     true,
+     "近三年毛利率区间 35.3%–36.7%（极差 1.4pt）"
+    ],
+    [
+     "资本回报",
+     true,
+     "近三年 ROE 24%/17%/22%（要求最新 ≥15% 且三年最低 ≥12%）"
+    ],
+    [
+     "盈利持续",
+     true,
+     "三个 TTM 窗口利润 4.26/3.08/3.63（要求全正、未萎缩、回撤 ≤30%）"
+    ],
+    [
+     "财务稳健",
+     false,
+     "资产负债率 72%，流动比率 0.80"
+    ],
+    [
+     "需求韧性",
+     true,
+     "三个 TTM 窗口营收逐年增长"
+    ]
+   ]
+  },
+  "historicalAssessment": "PE 22.8× 偏高，稳健型不宜为高估值付费",
+  "historicalPeg": null,
+  "peAsOf": "2026-11-13",
+  "checkedAt": "2026-11-13T15:21:56.485Z",
+  "classificationAsOf": "2026-11-13",
+  "financialPeriod": "2025-12-31",
+  "source": "research/data-refresh-2026-11-13/yahoo-quote-batch.json",
+  "inputSource": "research/lynch-inputs-2026-11-13/us-CCEP.sec.json",
+  "inputRetrievedAt": "2026-11-13T16:55:05.742725+00:00",
+  "inputBasis": "财年窗口",
+  "inputWindows": [
+   "2025-12-31",
+   "2024-12-31",
+   "2023-12-31"
+  ]
+ },
+ "ndx:CRWV": {
+  "t": "困境反转型",
+  "r": "待定",
+  "pe": null,
+  "g": null,
+  "c": null,
+  "rg": 168,
+  "peg": null,
+  "ph": null,
+  "dy": null,
+  "pb": null,
+  "v": "增速、护城河与类型输入于 2026-11-13 由 scripts/build-lynch-inputs.mjs 按SEC EDGAR XBRL companyfacts（取回 2026-11-13T16:55:01.340866+00:00）重算：三个财年窗口 2025-12-31/2024-12-31/2023-12-31（稀释 EPS（财年）），财报币种 USD，口径 US GAAP（SEC XBRL）；首选源 em-us 三窗不全或已停更，改用 sec；同行业毛利率中位取us·信息技术 板块中位（沿用原研究同组取值，74 家）；PE 行情字段缺失（供应商未给 trailingPE，常见于 TTM 亏损）。PEG待同口径盈利预测，不沿用旧值。",
+  "w": [
+   "TTM 归母亏损"
+  ],
+  "f": [
+   "按财年窗口（最新财年 2025-12-31）计算增速"
+  ],
+  "m": {
+   "s": 2,
+   "n": 6,
+   "l": "证据不足",
+   "i": [
+    [
+     "定价权",
+     true,
+     "毛利率 71.7%（同行业中位 58.8%）"
+    ],
+    [
+     "毛利稳定",
+     false,
+     "近三年毛利率区间 69.9%–74.3%（极差 4.4pt）"
+    ],
+    [
+     "资本回报",
+     false,
+     "近三年 ROE -80%/171%/195%（要求最新 ≥15% 且三年最低 ≥12%）"
+    ],
+    [
+     "盈利持续",
+     false,
+     "三个 TTM 窗口利润 -2.81/-4.3/-3.09（要求全正、未萎缩、回撤 ≤30%）"
+    ],
+    [
+     "财务稳健",
+     false,
+     "资产负债率 96%，流动比率 0.44"
+    ],
+    [
+     "需求韧性",
+     true,
+     "三个 TTM 窗口营收逐年增长"
+    ]
+   ]
+  },
+  "historicalAssessment": "困境反转型 · 关注度待定",
+  "historicalPeg": null,
+  "peAsOf": "2026-11-13",
+  "checkedAt": "2026-11-13T15:21:56.697Z",
+  "classificationAsOf": "2026-11-13",
+  "financialPeriod": "2025-12-31",
+  "source": "research/data-refresh-2026-11-13/yahoo-quote-batch.json",
+  "inputSource": "research/lynch-inputs-2026-11-13/us-CRWV.sec.json",
+  "inputRetrievedAt": "2026-11-13T16:55:01.340866+00:00",
+  "inputBasis": "财年窗口",
+  "inputWindows": [
+   "2025-12-31",
+   "2024-12-31",
+   "2023-12-31"
+  ]
+ },
+ "ndx:FER": {
+  "t": "周期型",
+  "r": "低",
+  "pe": 33.670326,
+  "g": -72,
+  "c": 64,
+  "rg": 5,
+  "peg": null,
+  "ph": "盈利下行",
+  "dy": null,
+  "pb": null,
+  "v": "增速、护城河与类型输入于 2026-11-13 由 scripts/build-lynch-inputs.mjs 按SEC EDGAR XBRL companyfacts（取回 2026-11-13T16:54:57.533558+00:00）重算：三个财年窗口 2025-12-31/2024-12-31/2023-12-31（稀释 EPS（财年）），财报币种 EUR，口径 IFRS（SEC 20-F XBRL）；同行业毛利率中位取us·工业 板块中位（沿用原研究同组取值，75 家）；PE 行情字段于 2026-11-13T15:21:56.874Z 核验。PEG待同口径盈利预测，不沿用旧值。",
+  "w": [
+   "近三个 TTM 窗口利润先升后降/先降后升，波动 ≥1.6 倍或符号翻转"
+  ],
+  "f": [
+   "按财年窗口（最新财年 2025-12-31）计算增速"
+  ],
+  "m": {
+   "s": 1,
+   "n": 4,
+   "l": "证据不足",
+   "i": [
+    [
+     "定价权",
+     null,
+     "金融/无毛利率数据"
+    ],
+    [
+     "毛利稳定",
+     null,
+     "数据不足"
+    ],
+    [
+     "资本回报",
+     false,
+     "近三年 ROE 15%/66%/9%（要求最新 ≥15% 且三年最低 ≥12%）"
+    ],
+    [
+     "盈利持续",
+     false,
+     "三个 TTM 窗口利润 1.24/4.47/0.46（要求全正、未萎缩、回撤 ≤30%）"
+    ],
+    [
+     "财务稳健",
+     false,
+     "资产负债率 72%，流动比率 1.13"
+    ],
+    [
+     "需求韧性",
+     true,
+     "三个 TTM 窗口营收逐年增长"
+    ]
+   ]
+  },
+  "historicalAssessment": "强周期行业：利润处于高位或下行，低 PE 往往是顶部信号，不按 PEG 判断",
+  "historicalPeg": null,
+  "peAsOf": "2026-11-13",
+  "checkedAt": "2026-11-13T15:21:56.874Z",
+  "classificationAsOf": "2026-11-13",
+  "financialPeriod": "2025-12-31",
+  "source": "research/data-refresh-2026-11-13/yahoo-quote-batch.json",
+  "inputSource": "research/lynch-inputs-2026-11-13/us-FER.sec.json",
+  "inputRetrievedAt": "2026-11-13T16:54:57.533558+00:00",
+  "inputBasis": "财年窗口",
+  "inputWindows": [
+   "2025-12-31",
+   "2024-12-31",
+   "2023-12-31"
+  ]
+ },
+ "ndx:HONA": {
+  "t": "数据不足",
+  "r": "待定",
+  "pe": 46.518417,
+  "g": null,
+  "c": null,
+  "rg": null,
+  "peg": null,
+  "ph": null,
+  "dy": null,
+  "pb": null,
+  "v": "增速、护城河与类型输入于 2026-11-13 由 scripts/build-lynch-inputs.mjs 按东方财富美股单季指标（akshare stock_financial_us_analysis_indicator_em 单季报）（取回 2026-11-13T16:48:21.847924+00:00）重算：可用单季仅 11 期，不足三年窗口，财报币种 USD，口径 美国会计准则；同行业毛利率中位取us·工业 板块中位（沿用原研究同组取值，75 家）；PE 行情字段于 2026-11-13T15:21:56.858Z 核验。PEG待同口径盈利预测，不沿用旧值。",
+  "w": [
+   "上市不足 12 个季度或财报不连续，无法做三年窗口的林奇分类与护城河评分"
+  ],
+  "f": [
+   "数据源只有 11 个连续单季财报期（2024-03-30 至 2026-09-26），无三年财务窗口"
+  ],
+  "m": null,
+  "historicalAssessment": "数据不足 · 关注度待定",
+  "historicalPeg": null,
+  "peAsOf": "2026-11-13",
+  "checkedAt": "2026-11-13T15:21:56.858Z",
+  "classificationAsOf": "2026-11-13",
+  "financialPeriod": null,
+  "source": "research/data-refresh-2026-11-13/yahoo-quote-batch.json",
+  "inputSource": "research/lynch-inputs-2026-11-13/us-HONA.em-us.json",
+  "inputRetrievedAt": "2026-11-13T16:48:21.847924+00:00",
+  "inputBasis": "TTM 窗口",
+  "inputWindows": null
+ },
+ "ndx:MSTR": {
+  "t": "困境反转型",
+  "r": "待定",
+  "pe": null,
+  "g": null,
+  "c": null,
+  "rg": 4,
+  "peg": null,
+  "ph": null,
+  "dy": null,
+  "pb": null,
+  "v": "增速、护城河与类型输入于 2026-11-13 由 scripts/build-lynch-inputs.mjs 按东方财富美股单季指标（akshare stock_financial_us_analysis_indicator_em 单季报）（取回 2026-11-13T16:48:24.382889+00:00）重算：三个 TTM 窗口截至 2026-09-30/2025-09-30/2024-09-30（稀释 EPS（四季合计）），财报币种 USD，口径 美国会计准则；同行业毛利率中位取us·信息技术 板块中位（沿用原研究同组取值，74 家）；PE 行情字段缺失（供应商未给 trailingPE，常见于 TTM 亏损）。PEG待同口径盈利预测，不沿用旧值。",
+  "w": [
+   "TTM 归母亏损",
+   "最近季度亏损收窄/转正"
+  ],
+  "f": [
+   "隐含股本在近 5 个季度变动 >25%（增发/并购/回购）",
+   "近四季 EPS 波动过大或符号翻转"
+  ],
+  "m": {
+   "s": 3,
+   "n": 6,
+   "l": "证据不足",
+   "i": [
+    [
+     "定价权",
+     true,
+     "毛利率 67.8%（同行业中位 58.8%）"
+    ],
+    [
+     "毛利稳定",
+     false,
+     "近三年毛利率区间 67.8%–73.6%（极差 5.7pt）"
+    ],
+    [
+     "资本回报",
+     false,
+     "近三年 ROE -32%/7%/-11%（要求最新 ≥15% 且三年最低 ≥12%）"
+    ],
+    [
+     "盈利持续",
+     false,
+     "三个 TTM 窗口利润 -60.9/21.5/-2.1（要求全正、未萎缩、回撤 ≤30%）"
+    ],
+    [
+     "财务稳健",
+     true,
+     "资产负债率 11%，流动比率 4.04"
+    ],
+    [
+     "需求韧性",
+     true,
+     "三个 TTM 窗口营收逐年增长"
+    ]
+   ]
+  },
+  "historicalAssessment": "困境反转型 · 关注度待定",
+  "historicalPeg": null,
+  "peAsOf": "2026-11-13",
+  "checkedAt": "2026-11-13T15:21:57.047Z",
+  "classificationAsOf": "2026-11-13",
+  "financialPeriod": "2026-09-30",
+  "source": "research/data-refresh-2026-11-13/yahoo-quote-batch.json",
+  "inputSource": "research/lynch-inputs-2026-11-13/us-MSTR.em-us.json",
+  "inputRetrievedAt": "2026-11-13T16:48:24.382889+00:00",
+  "inputBasis": "TTM 窗口",
+  "inputWindows": [
+   "2026-09-30",
+   "2025-09-30",
+   "2024-09-30"
+  ]
+ },
+ "ndx:NBIS": {
+  "t": "周期型",
+  "r": "低",
+  "pe": null,
+  "g": -34,
+  "c": null,
+  "rg": 549,
+  "peg": null,
+  "ph": "盈利下行",
+  "dy": null,
+  "pb": null,
+  "v": "增速、护城河与类型输入于 2026-11-13 由 scripts/build-lynch-inputs.mjs 按东方财富美股单季指标（akshare stock_financial_us_analysis_indicator_em 单季报）（取回 2026-11-13T16:48:26.727769+00:00）重算：三个 TTM 窗口截至 2026-09-30/2025-09-30/2024-09-30（归母净利润），财报币种 USD，口径 美国会计准则；同行业毛利率中位取us·信息技术 板块中位（沿用原研究同组取值，74 家）；PE 行情字段缺失（供应商未给 trailingPE，常见于 TTM 亏损）。PEG待同口径盈利预测，不沿用旧值。",
+  "w": [
+   "近三个 TTM 窗口利润先升后降/先降后升，波动 ≥1.6 倍或符号翻转"
+  ],
+  "f": [
+   "营收同比波动 +571%/+355%（并购/分拆/口径变化可能）",
+   "近四季 EPS 波动过大或符号翻转",
+   "EPS 缺期，三窗利润改用归母净利润"
+  ],
+  "m": {
+   "s": 2,
+   "n": 6,
+   "l": "证据不足",
+   "i": [
+    [
+     "定价权",
+     true,
+     "毛利率 76.0%（同行业中位 58.8%）"
+    ],
+    [
+     "毛利稳定",
+     false,
+     "近三年毛利率区间 43.9%–76.0%（极差 32.1pt）"
+    ],
+    [
+     "资本回报",
+     false,
+     "近三年 ROE 3%/6%/-3%（要求最新 ≥15% 且三年最低 ≥12%）"
+    ],
+    [
+     "盈利持续",
+     false,
+     "三个 TTM 窗口利润 1.44e+08/2.18e+08/-5.81e+08（要求全正、未萎缩、回撤 ≤30%）"
+    ],
+    [
+     "财务稳健",
+     false,
+     "资产负债率 68%，流动比率 5.31"
+    ],
+    [
+     "需求韧性",
+     true,
+     "三个 TTM 窗口营收逐年增长"
+    ]
+   ]
+  },
+  "historicalAssessment": "强周期行业：利润处于高位或下行，低 PE 往往是顶部信号，不按 PEG 判断",
+  "historicalPeg": null,
+  "peAsOf": "2026-11-13",
+  "checkedAt": "2026-11-13T15:21:57.047Z",
+  "classificationAsOf": "2026-11-13",
+  "financialPeriod": "2026-09-30",
+  "source": "research/data-refresh-2026-11-13/yahoo-quote-batch.json",
+  "inputSource": "research/lynch-inputs-2026-11-13/us-NBIS.em-us.json",
+  "inputRetrievedAt": "2026-11-13T16:48:26.727769+00:00",
+  "inputBasis": "TTM 窗口",
+  "inputWindows": [
+   "2026-09-30",
+   "2025-09-30",
+   "2024-09-30"
+  ]
+ },
+ "ndx:RKLB": {
+  "t": "困境反转型",
+  "r": "待定",
+  "pe": null,
+  "g": null,
+  "c": null,
+  "rg": 59,
+  "peg": null,
+  "ph": null,
+  "dy": null,
+  "pb": null,
+  "v": "增速、护城河与类型输入于 2026-11-13 由 scripts/build-lynch-inputs.mjs 按东方财富美股单季指标（akshare stock_financial_us_analysis_indicator_em 单季报）（取回 2026-11-13T16:48:28.818373+00:00）重算：三个 TTM 窗口截至 2026-09-30/2025-09-30/2024-09-30（稀释 EPS（四季合计）），财报币种 USD，口径 美国会计准则；同行业毛利率中位取us·工业 板块中位（沿用原研究同组取值，75 家）；PE 行情字段缺失（供应商未给 trailingPE，常见于 TTM 亏损）。PEG待同口径盈利预测，不沿用旧值。",
+  "w": [
+   "TTM 归母亏损"
+  ],
+  "f": [
+   "营收同比波动 +73%/+48%（并购/分拆/口径变化可能）",
+   "隐含股本在近 5 个季度变动 >25%（增发/并购/回购）"
+  ],
+  "m": {
+   "s": 2,
+   "n": 5,
+   "l": "证据不足",
+   "i": [
+    [
+     "定价权",
+     false,
+     "毛利率 36.2%（同行业中位 37.7%）"
+    ],
+    [
+     "毛利稳定",
+     false,
+     "近三年毛利率区间 26.1%–36.2%（极差 10.2pt）"
+    ],
+    [
+     "资本回报",
+     null,
+     "ROE 数据不足"
+    ],
+    [
+     "盈利持续",
+     false,
+     "三个 TTM 窗口利润 -0.37/-0.385/-0.375（要求全正、未萎缩、回撤 ≤30%）"
+    ],
+    [
+     "财务稳健",
+     true,
+     "资产负债率 12%，流动比率 8.55"
+    ],
+    [
+     "需求韧性",
+     true,
+     "三个 TTM 窗口营收逐年增长"
+    ]
+   ]
+  },
+  "historicalAssessment": "困境反转型 · 关注度待定",
+  "historicalPeg": null,
+  "peAsOf": "2026-11-13",
+  "checkedAt": "2026-11-13T15:21:57.224Z",
+  "classificationAsOf": "2026-11-13",
+  "financialPeriod": "2026-09-30",
+  "source": "research/data-refresh-2026-11-13/yahoo-quote-batch.json",
+  "inputSource": "research/lynch-inputs-2026-11-13/us-RKLB.em-us.json",
+  "inputRetrievedAt": "2026-11-13T16:48:28.818373+00:00",
+  "inputBasis": "TTM 窗口",
+  "inputWindows": [
+   "2026-09-30",
+   "2025-09-30",
+   "2024-09-30"
+  ]
+ },
+ "ndx:TRI": {
+  "t": "缓慢增长型",
+  "r": "低",
+  "pe": 33.595093,
+  "g": -8,
+  "c": -16,
+  "rg": 9,
+  "peg": null,
+  "ph": null,
+  "dy": null,
+  "pb": null,
+  "v": "增速、护城河与类型输入于 2026-11-13 由 scripts/build-lynch-inputs.mjs 按东方财富美股单季指标（akshare stock_financial_us_analysis_indicator_em 单季报）（取回 2026-11-13T16:48:30.912926+00:00）重算：三个 TTM 窗口截至 2026-09-30/2025-09-30/2024-09-30（稀释 EPS（四季合计）），财报币种 USD，口径 国际会计准则；同行业毛利率中位取us·工业 板块中位（沿用原研究同组取值，75 家）；PE 行情字段于 2026-11-13T15:21:57.413Z 核验。PEG待同口径盈利预测，不沿用旧值。",
+  "w": [
+   "有效增速 -16%（<8%）"
+  ],
+  "f": [],
+  "m": {
+   "s": 2,
+   "n": 4,
+   "l": "证据不足",
+   "i": [
+    [
+     "定价权",
+     null,
+     "金融/无毛利率数据"
+    ],
+    [
+     "毛利稳定",
+     null,
+     "数据不足"
+    ],
+    [
+     "资本回报",
+     false,
+     "近三年 ROE 14%/14%/20%（要求最新 ≥15% 且三年最低 ≥12%）"
+    ],
+    [
+     "盈利持续",
+     false,
+     "三个 TTM 窗口利润 3.57/3.89/5.08（要求全正、未萎缩、回撤 ≤30%）"
+    ],
+    [
+     "财务稳健",
+     true,
+     "资产负债率 41%，流动比率 1.08"
+    ],
+    [
+     "需求韧性",
+     true,
+     "三个 TTM 窗口营收逐年增长"
+    ]
+   ]
+  },
+  "historicalAssessment": "PE 33.6×，缓慢增长型价格未达关注门槛",
+  "historicalPeg": null,
+  "peAsOf": "2026-11-13",
+  "checkedAt": "2026-11-13T15:21:57.413Z",
+  "classificationAsOf": "2026-11-13",
+  "financialPeriod": "2026-09-30",
+  "source": "research/data-refresh-2026-11-13/yahoo-quote-batch.json",
+  "inputSource": "research/lynch-inputs-2026-11-13/us-TRI.em-us.json",
+  "inputRetrievedAt": "2026-11-13T16:48:30.912926+00:00",
+  "inputBasis": "TTM 窗口",
+  "inputWindows": [
+   "2026-09-30",
+   "2025-09-30",
+   "2024-09-30"
+  ]
+ },
+ "cn:688256": {
+  "t": "快速增长型",
+  "r": "低",
+  "pe": 148.76596,
+  "g": 122,
+  "c": null,
+  "rg": 104,
+  "peg": null,
+  "ph": null,
+  "dy": null,
+  "pb": 40.7,
+  "v": "增速、护城河与类型输入于 2026-11-13 由 scripts/build-lynch-inputs.mjs 按新浪财经 A 股财务摘要（akshare stock_financial_abstract）（取回 2026-11-13T16:48:33.767519+00:00）重算：三个 TTM 窗口截至 2026-09-30/2025-09-30/2024-09-30（归母净利润），财报币种 CNY，口径 中国企业会计准则；同行业毛利率中位取cn·信息技术 板块中位（沿用原研究同组取值，150 家）；PE 行情字段于 2026-11-13T15:21:56.185Z 核验。PEG待同口径盈利预测，不沿用旧值。",
+  "w": [
+   "利润增速 122%",
+   "营收 +104%"
+  ],
+  "f": [
+   "增速 >50% 不可外推，PEG 以 50% 封顶",
+   "增速 >80% 多来自低基数或一次性因素，PEG 偏乐观，评级下调一档"
+  ],
+  "m": {
+   "s": 3,
+   "n": 6,
+   "l": "证据不足",
+   "i": [
+    [
+     "定价权",
+     true,
+     "毛利率 55.2%（同行业中位 31.7%）"
+    ],
+    [
+     "毛利稳定",
+     false,
+     "近三年毛利率区间 55.2%–69.2%（极差 14.0pt）"
+    ],
+    [
+     "资本回报",
+     false,
+     "近三年 ROE 27%/-8%/-15%（要求最新 ≥15% 且三年最低 ≥12%）"
+    ],
+    [
+     "盈利持续",
+     false,
+     "三个 TTM 窗口利润 4.17e+09/1.88e+09/-7.65e+08（要求全正、未萎缩、回撤 ≤30%）"
+    ],
+    [
+     "财务稳健",
+     true,
+     "资产负债率 32%，流动比率 2.89"
+    ],
+    [
+     "需求韧性",
+     true,
+     "三个 TTM 窗口营收逐年增长"
+    ]
+   ]
+  },
+  "historicalAssessment": "PE 148.8×：增速不足，PEG 不适用",
+  "historicalPeg": null,
+  "peAsOf": "2026-11-13",
+  "checkedAt": "2026-11-13T15:21:56.185Z",
+  "classificationAsOf": "2026-11-13",
+  "financialPeriod": "2026-09-30",
+  "source": "research/data-refresh-2026-11-13/yahoo-quote-batch.json",
+  "inputSource": "research/lynch-inputs-2026-11-13/cn-688256.sina-cn.json",
+  "inputRetrievedAt": "2026-11-13T16:48:33.767519+00:00",
+  "inputBasis": "TTM 窗口",
+  "inputWindows": [
+   "2026-09-30",
+   "2025-09-30",
+   "2024-09-30"
+  ]
+ }
+}
