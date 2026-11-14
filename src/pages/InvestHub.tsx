@@ -139,7 +139,7 @@ export default function InvestHub(): JSX.Element {
           {radar && (
             <Link to={radar.path} className="inv-pool__side">
               <span className="inv-pool__title">{radar.label}</span>
-              <span className="inv-card__desc">低于买入参考价，且比自身历史与同行便宜</span>
+              <span className="inv-card__desc">价值回归与快速增长两条线的研究短名单</span>
             </Link>
           )}
         </div>

@@ -15,7 +15,6 @@ import {
   NOTION_SYNC_DATE,
   portfolioV6,
   philosophy,
-  researchStandard,
   sp500Sectors,
   sp500Note,
   cnChains,
@@ -42,7 +41,7 @@ import { CompanyValuationCell, CompanyValuationFilterChips } from '../features/c
 import { matchValuationFilter, type ValuationFilter } from '../features/company-valuation/model'
 import { useCandidates } from '../features/candidates/useCandidates'
 import ResearchNotice from '../components/research/ResearchNotice'
-import RatingReview from '../features/signals/RatingReview'
+import ResearchMethod from '../features/research-method/ResearchMethod'
 import { NDX_CODES, NDX_ASOF } from '../data/ndx100'
 import { Page, PageDataFreshness, Stat, TableWrap } from '../components/ui'
 import '../styles/research.css'
@@ -579,118 +578,11 @@ export default function ResearchNotes(): JSX.Element {
           </div>
         )}
 
-        {/* ── 研究方法 ── */}
+        {/* ── 研究方法：林奇两主线 + 巴菲特边界（features/research-method） ── */}
         {activeTab === 'method' && (
           <div>
-            <p className="rn-eyebrow">研究方法 · 适用于所有公司</p>
-            <div className="ui-card rn-card rn-card--lead">
-              <h3 className="rn-card-title">核心投资目标</h3>
-              {quote(researchStandard.goal)}
-              {researchStandard.applies.map((t, i) => checkRow(t, 'var(--system-blue)', i))}
-            </div>
-
-            <div className="ui-card rn-card">
-              <h3 className="rn-card-title">研究流程（五步）</h3>
-              {researchStandard.flow.map((f, i) => flowStep(i + 1, (
-                <>
-                  <strong className="rn-strong">{f.title}</strong>
-                  <span className={badge('blue', 'rn-badge-inline')}>{f.skill}</span>
-                  <div>{f.desc}</div>
-                </>
-              )))}
-            </div>
-
-            <div className="ui-card rn-card">
-              <h3 className="rn-card-title">统一股票分析 Skill 与交易分析的分工</h3>
-              <Table heads={['skill', '什么时候用', '特点']} rows={researchStandard.skills.map(k => [<span><strong className="rn-strong">{k[0]}</strong><br /><code className="rn-code">{k[1]}</code></span>, k[2], k[3]])} />
-              <p className="rn-footnote">股票分析已融合本页研究方法、股票研究专家、腾讯自选股投研专家团与 Public Markets Investing，位于「AI 工具」第一项。从商业模式和核心假设连接盈利预测与估值，综合评级与专家立场分别展示，所有价位均为条件化研究区间。</p>
-            </div>
-
-            <div className="ui-card rn-card">
-              <h3 className="rn-card-title">立论：资深 PM 七问</h3>
-              {researchStandard.pmQuestions.map((t, i) => flowStep(i + 1, t))}
-            </div>
-
-            <div className="ui-card rn-card">
-              <h3 className="rn-card-title">数据纪律</h3>
-              {researchStandard.dataRules.map((t, i) => checkRow(t, 'var(--system-green)', i))}
-              <h3 className="rn-card-title rn-card-title--sub">各市场财报节奏与看点</h3>
-              <Table heads={['市场', '披露节奏', '口径与看点']} rows={researchStandard.calendar} />
-            </div>
-
-            <div className="ui-card rn-card">
-              <h3 className="rn-card-title">口径纪律</h3>
-              <Table heads={['项目', '要求']} rows={researchStandard.caliber} />
-            </div>
-
-            <div className="ui-card rn-card">
-              <h3 className="rn-card-title">程序化研究页的规则（补全批）</h3>
-              <p className="rn-text">为补齐标普500 与沪深500 成分股，脚本对每家公司按同一套规则取数并计算；定性部分只做简述。它用于筛选与排序，不含公司特有催化与风险，不等同于逐家深度研究。</p>
-              <Table heads={['项目', '规则']} rows={[
-                ['数据源', '美股：东方财富单季财务 + 新浪日线；A 股：同花顺财务摘要（累计口径还原为单季）+ 新浪日线 + 中证/巨潮行业分类。成分股：标普500 公开名单（2026-09-30）、中证500 成分。'],
-                ['TTM 口径', '美股：最近四个单季稀释 EPS 之和（GAAP）；A 股：TTM 归母净利 ÷ 最新隐含股本（规避送转前后 EPS 新旧口径混用）。'],
-                ['拆股/除权', '美股按隐含股本的持续阶跃与价格跳变折算；A 股按财报发布后的价格跳变（≥1.28 倍）折算。页面会标出折算记录，需核实。'],
-                ['一次性项归一化', '最近四季中若有 1 个季度净利率明显偏离其余三季的紧密区间，用其余三季中位净利率替换；金融、地产不做。归一化前后 EPS 均列出。'],
-                ['基准情景', 'EPS = 归一化 TTM ×(1+g)，g = 最新季营收同比 ×0.7，限 −5%~+20%；倍数 = 现倍数与板块中位的中点，但不高于现倍数 1.25 倍，限 7–40。'],
-                ['悲观 / 乐观', '悲观：EPS ×(1−h)，h 为 15%（防御）/20%（一般）/25–30%（周期），倍数 = min(现倍数, 0.6×板块中位)，下限 5。乐观：EPS ×(1+2g+8%)，倍数 = 1.15×基准。'],
-                ['买入区', '由 (Base−P)/(P−Bear)=2 反推 P=(Base+2Bear)/3，取 ±5%。'],
-                ['评级', '盈亏比 ≥2 优先关注；1–2 条件关注；其余观察；TTM 亏损回避。封顶为观察的情形：数据不稳定（营收同比波动 >40–50%、股本变动 >25%、EPS 符号翻转）、悲观价 ≥ 现价；金融股最高条件关注；非金融负债率 >80% 最高条件关注。'],
-                ['不做的事', 'REIT 不做 EPS 情景（需 FFO）；亏损公司不做 EPS 情景；未取到的一律标 [MISSING]。'],
-                ['已知局限', '规则对高 PE 公司偏严（悲观倍数压到板块中位的 60%），对低 PE 公司偏宽；一次性项识别可能漏判或误判；FCF、分部占比、一致预期、下跌原因均未取到。盈亏比只比较情景价差：没有计入各情景发生的概率，也没有计入兑现需要的时间（同样 2:1，三年兑现和一年兑现的年化回报差很多），分红也未计入。'],
-              ]} />
-            </div>
-
-            <RatingReview />
-
-            {researchStandard.checklist.map((c, i) => (
-              <div key={c.title} className="ui-card rn-card">
-                <h3 className="rn-card-title">{i + 1}. {c.title}</h3>
-                {c.items.map((t, j) => checkRow(t, 'var(--system-green)', j))}
-              </div>
-            ))}
-
-            <div className="ui-card rn-card">
-              <h3 className="rn-card-title">估值方法</h3>
-              {researchStandard.valuation.map((t, i) => checkRow(t, 'var(--system-blue)', i))}
-            </div>
-
-            <div className="ui-card rn-card">
-              <h3 className="rn-card-title">常见数据陷阱</h3>
-              <Table heads={['陷阱', '典型表现', '做法']} rows={researchStandard.traps} />
-            </div>
-
-            <div className="ui-card rn-card">
-              <h3 className="rn-card-title">对抗检验</h3>
-              {researchStandard.adversarial.map((t, i) => checkRow(t, 'var(--system-orange)', i, 'warn'))}
-            </div>
-
-            <div className="ui-card rn-card">
-              <h3 className="rn-card-title">最终返回标准（每家公司的成稿必须包含）</h3>
-              <Table heads={['#', '模块', '必含内容', '最低要求']} rows={researchStandard.finalReport} />
-              <h3 className="rn-card-title rn-card-title--sub">深度分级</h3>
-              <Table heads={['形式', '包含', '什么时候用']} rows={researchStandard.depth} />
-              <p className="rn-text">{researchStandard.chat}</p>
-            </div>
-
-            <div className="ui-card rn-card">
-              <h3 className="rn-card-title">固定结论格式</h3>
-              <Table heads={['项目', '要求']} rows={researchStandard.verdict.map(v => [v.label, v.text])} />
-              <div className="rn-gap">
-                <span className="rn-inline-label">行动分类</span>
-                {researchStandard.action.map(a => <span key={a} className={badge('gray')}>{a}</span>)}
-              </div>
-            </div>
-
-            <div className="ui-card rn-card">
-              <h3 className="rn-card-title">仓位与风控</h3>
-              {researchStandard.position.map((t, i) => checkRow(t, 'var(--system-red)', i, 'warn'))}
-            </div>
-
-            <div className="ui-card rn-card">
-              <h3 className="rn-card-title">红线</h3>
-              {researchStandard.redlines.map((t, i) => checkRow(t, 'var(--system-red)', i, 'warn'))}
-            </div>
-            {disclaimer}
+            <ResearchMethod />
+            <p className="rn-disclaimer">主体摘自《正念投资》第15、18—24章，通用纪律整理自 Notion 个人笔记（{NOTION_SYNC_DATE}），仅为研究记录，不构成投资建议。</p>
           </div>
         )}
 

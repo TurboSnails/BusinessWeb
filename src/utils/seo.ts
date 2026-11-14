@@ -58,7 +58,7 @@ const EXACT: Record<string, RouteSeo> = {
   '/invest/comprehensive-valuation': { title: '综合估值｜四维方法与三情景测算', description: '从资产质量、交叉估值、预期差到风险预算，手工测算三情景收益与赔率，导出公司研究卡。', noindex: true },
   '/dcf': { title: 'DCF 估值', noindex: true },
   '/earnings': { title: '财报前瞻', description: '公司库未来六周的财报日、一致预期与历史超预期幅度，附站内评级、三情景位置与这次要验证的事项。不预测、不荐股。' },
-  '/radar': { title: '机会雷达', description: '低于 DCF 买入参考价、且比自身历史与同行更便宜的公司短名单，按信号多少排序，每日更新。' },
+  '/radar': { title: '机会雷达', description: '按林奇分类分两条线的研究短名单：价值回归（正常盈利 + DCF 买入参考价）与快速增长（增速持续 + PE 压力条件），护城河与财务稳健加减分，每日更新。' },
   '/knowledge': { title: '知识中心', noindex: true },
   '/monitor': { title: '监控面板', noindex: true },
 }

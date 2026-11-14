@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildSnapshot, mergeSnapshot, reviewLedger, validLedger, weekOf, type Ledger, type LedgerRow } from './ledger'
+import { buildSnapshot, mergeSnapshot, radarRuleOf, reviewLedger, validLedger, weekOf, type Ledger, type LedgerRow } from './ledger'
 
 describe('信号台账', () => {
   it('快照：预填库价格优先，带评级档位、DCF 与雷达信号', () => {
@@ -44,5 +44,37 @@ describe('信号台账', () => {
     expect(g('radar2').n).toBe(6)
     expect(g('below-buy').n).toBe(6)
     expect(g('rating:2')).toMatchObject({ n: 1, mean: null })
+  })
+
+  it('雷达规则版本：每期记下版本，同周覆盖时一并替换；缺省按第 1 版解读', () => {
+    let l = mergeSnapshot(null, '2026-11-13', {})
+    expect(l.radarRule).toBeUndefined()
+    expect(radarRuleOf(l, '2026-11-13')).toBe(1)
+    l = mergeSnapshot(l, '2026-11-20', {}, 2)
+    expect(l.radarRule).toEqual({ '2026-11-20': 2 })
+    l = mergeSnapshot(l, '2026-11-21', {}, 2) // 同周覆盖
+    expect(Object.keys(l.snapshots)).toEqual(['2026-11-13', '2026-11-21'])
+    expect(l.radarRule).toEqual({ '2026-11-21': 2 })
+    expect(validLedger(l)).toBe(true)
+    expect(validLedger({ ...l, radarRule: { '2026-11-21': 'x' } })).toBe(false)
+  })
+
+  it('复盘按起始快照的规则版本拆雷达分组：第 1 版三项共振，第 2 版两条主线', () => {
+    const row = (price: number, radar = -1): LedgerRow => [price, null, null, null, null, radar]
+    const start: Record<string, LedgerRow> = {}, end: Record<string, LedgerRow> = {}
+    for (let i = 0; i < 5; i++) { start[`cn:V${i}`] = row(100, 1); end[`cn:V${i}`] = row(110) }
+    for (let i = 0; i < 5; i++) { start[`cn:G${i}`] = row(100, 2); end[`cn:G${i}`] = row(90) }
+    const v2: Ledger = { schemaVersion: 1, snapshots: { '2026-11-20': start, '2026-12-20': end }, radarRule: { '2026-11-20': 2 } }
+    const review = reviewLedger(v2).reviews[0]
+    expect(review.radarRule).toBe(2)
+    const ids = review.venues[0].groups.map(g => g.id)
+    expect(ids).toEqual(expect.arrayContaining(['radar', 'radar-value', 'radar-growth']))
+    expect(ids).not.toContain('radar2')
+    const g = (id: string) => review.venues[0].groups.find(x => x.id === id)!
+    expect(g('radar-value').mean).toBeCloseTo(0.1)
+    expect(g('radar-growth').mean).toBeCloseTo(-0.1)
+    const v1 = reviewLedger({ schemaVersion: 1, snapshots: v2.snapshots }).reviews[0]
+    expect(v1.radarRule).toBe(1)
+    expect(v1.venues[0].groups.map(x => x.id)).toContain('radar2')
   })
 })

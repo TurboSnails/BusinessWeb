@@ -4,16 +4,27 @@ import { ratingBucket, type RatingBucket } from './companySignals'
 
 export const RATING_CODES: RatingBucket[] = ['优先关注', '条件关注', '观察', '回避', '未估值']
 export type Venue = 'cn' | 'hk' | 'us'
-/** [价格, 评级档位下标|null, 自动 DCF 合理价|null, 买入参考价|null, 可信度 h/m/l|null, 雷达加分信号数（不在雷达为 -1）] */
+/**
+ * [价格, 评级档位下标|null, 自动 DCF 合理价|null, 买入参考价|null, 可信度 h/m/l|null, 雷达列（不在雷达为 -1）]
+ * 雷达列的含义随雷达规则版本变化，按 Ledger.radarRule[快照日期] 解读（缺省为第 1 版）：
+ * - 第 1 版：加分信号数 0–2（比自身历史便宜、比同行便宜）
+ * - 第 2 版：所在主线 1 = 价值回归，2 = 快速增长（src/features/dcf/radar.ts RADAR_LEDGER_CODE）
+ */
 export type LedgerRow = [number, number | null, number | null, number | null, 'h' | 'm' | 'l' | null, number]
 export type Snapshot = Record<string, LedgerRow>
-export interface Ledger { schemaVersion: 1; snapshots: Record<string, Snapshot> }
+export interface Ledger {
+  schemaVersion: 1; snapshots: Record<string, Snapshot>
+  /** 各期快照写入时的雷达规则版本（快照日期 → 版本）；没有记录的快照按第 1 版解读 */
+  radarRule?: Record<string, number>
+}
+/** 某期快照的雷达规则版本 */
+export const radarRuleOf = (ledger: Ledger, date: string): number => ledger.radarRule?.[date] ?? 1
 
 export interface SnapshotInput {
   companies: { venue: Venue; code: string; rating: string; price?: number }[]
   /** 自动 DCF 与预填库价格，键为 venue:CODE */
   dcf: Map<string, { current: number; fair: number | null; buyBelow: number | null; credibility: 'high' | 'medium' | 'low' | null }>
-  /** 机会雷达：键为 venue:CODE，值为加分信号数 */
+  /** 机会雷达：键为 venue:CODE，值按当期雷达规则版本编码（见 LedgerRow） */
   radar: Map<string, number>
 }
 
@@ -41,27 +52,37 @@ export function weekOf(date: string): string {
   return d.toISOString().slice(0, 10)
 }
 
-export function mergeSnapshot(ledger: Ledger | null, date: string, snapshot: Snapshot): Ledger {
+/** radarRule：本期快照的雷达规则版本（写入 Ledger.radarRule）；不传则本期按第 1 版解读 */
+export function mergeSnapshot(ledger: Ledger | null, date: string, snapshot: Snapshot, radarRule?: number): Ledger {
   const snapshots = Object.fromEntries(Object.entries(ledger?.snapshots ?? {}).filter(([d]) => weekOf(d) !== weekOf(date)))
   snapshots[date] = snapshot
-  return { schemaVersion: 1, snapshots: Object.fromEntries(Object.entries(snapshots).sort(([a], [b]) => a.localeCompare(b))) }
+  const rules = Object.fromEntries(Object.entries(ledger?.radarRule ?? {}).filter(([d]) => d !== date && d in snapshots))
+  if (radarRule != null && radarRule !== 1) rules[date] = radarRule
+  const sorted = <T>(o: Record<string, T>) => Object.fromEntries(Object.entries(o).sort(([a], [b]) => a.localeCompare(b)))
+  return { schemaVersion: 1, snapshots: sorted(snapshots), ...(Object.keys(rules).length ? { radarRule: sorted(rules) } : {}) }
 }
 
 export function validLedger(value: unknown): value is Ledger {
   const v = value as Ledger | null
   return !!v && v.schemaVersion === 1 && !!v.snapshots && typeof v.snapshots === 'object'
     && Object.entries(v.snapshots).every(([d, s]) => /^\d{4}-\d{2}-\d{2}$/.test(d) && !!s && typeof s === 'object')
+    && (v.radarRule === undefined || (!!v.radarRule && typeof v.radarRule === 'object' && Object.values(v.radarRule).every(x => Number.isInteger(x) && x >= 1)))
 }
 
 // ── 复盘 ──
 export const REVIEW_RULES = { minDays: 28, minSample: 5 } as const
-export type GroupId = `rating:${number}` | 'radar' | 'radar2' | 'below-buy'
-export const GROUP_LABEL = (id: GroupId): string =>
-  id === 'radar' ? '进入机会雷达' : id === 'radar2' ? '雷达三项共振' : id === 'below-buy' ? '低于 DCF 买入参考价' : `评级：${RATING_CODES[Number(id.split(':')[1])]}`
+export type GroupId = `rating:${number}` | 'radar' | 'radar2' | 'radar-value' | 'radar-growth' | 'below-buy'
+const RADAR_LABEL: Record<string, string> = { radar: '进入机会雷达', radar2: '雷达三项共振（第 1 版规则）', 'radar-value': '雷达：价值回归', 'radar-growth': '雷达：快速增长', 'below-buy': '低于 DCF 买入参考价' }
+export const GROUP_LABEL = (id: GroupId): string => RADAR_LABEL[id] ?? `评级：${RATING_CODES[Number(id.split(':')[1])]}`
+/** 各版雷达规则在复盘里拆出的分组（第 1 版：三项共振；第 2 版：两条主线） */
+const RADAR_GROUPS = (rule: number): GroupId[] => (rule >= 2 ? ['radar', 'radar-value', 'radar-growth'] : ['radar', 'radar2'])
+const inRadarGroup = (id: GroupId, v: number): boolean =>
+  id === 'radar' ? v >= 0 : id === 'radar2' ? v === 2 : id === 'radar-value' ? v === 1 : id === 'radar-growth' ? v === 2 : false
 
 export interface GroupStat { id: GroupId; n: number; mean: number | null; excess: number | null; beatRate: number | null }
 export interface VenueReview { venue: Venue; n: number; mean: number; groups: GroupStat[] }
-export interface Review { from: string; to: string; days: number; venues: VenueReview[] }
+/** radarRule：起始快照的雷达规则版本，决定雷达分组的含义 */
+export interface Review { from: string; to: string; days: number; radarRule: number; venues: VenueReview[] }
 
 const mean = (xs: number[]): number => xs.reduce((s, x) => s + x, 0) / xs.length
 const median = (xs: number[]): number => { const s = [...xs].sort((a, b) => a - b); const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2 }
@@ -70,6 +91,7 @@ const days = (a: string, b: string): number => Math.round((Date.parse(`${b}T00:0
 /** 某期快照到最新一期：按市场分组，比较各信号组与同市场全部公司（等权）的收益 */
 export function reviewFrom(ledger: Ledger, from: string, to: string): Review {
   const start = ledger.snapshots[from], end = ledger.snapshots[to]
+  const rule = radarRuleOf(ledger, from)
   const venues: VenueReview[] = []
   for (const venue of ['cn', 'hk', 'us'] as Venue[]) {
     const rows: { r: LedgerRow; ret: number }[] = []
@@ -80,8 +102,8 @@ export function reviewFrom(ledger: Ledger, from: string, to: string): Review {
     }
     if (!rows.length) continue
     const all = rows.map(x => x.ret), base = mean(all), mid = median(all)
-    const ids: GroupId[] = [...RATING_CODES.slice(0, 4).map((_, i) => `rating:${i}` as GroupId), 'radar', 'radar2', 'below-buy']
-    const pick = (id: GroupId) => rows.filter(({ r }) => id === 'radar' ? r[5] >= 0 : id === 'radar2' ? r[5] === 2 : id === 'below-buy' ? r[3] != null && r[0] <= r[3] : r[1] === Number(id.split(':')[1]))
+    const ids: GroupId[] = [...RATING_CODES.slice(0, 4).map((_, i) => `rating:${i}` as GroupId), ...RADAR_GROUPS(rule), 'below-buy']
+    const pick = (id: GroupId) => rows.filter(({ r }) => id.startsWith('radar') ? inRadarGroup(id, r[5]) : id === 'below-buy' ? r[3] != null && r[0] <= r[3] : r[1] === Number(id.split(':')[1]))
     const groups = ids.map(id => {
       const g = pick(id).map(x => x.ret)
       const enough = g.length >= REVIEW_RULES.minSample
@@ -89,7 +111,7 @@ export function reviewFrom(ledger: Ledger, from: string, to: string): Review {
     }).filter(g => g.n > 0)
     venues.push({ venue, n: rows.length, mean: base, groups })
   }
-  return { from, to, days: days(from, to), venues }
+  return { from, to, days: days(from, to), radarRule: rule, venues }
 }
 
 /** 满 minDays 的各期复盘（最近的在前），以及台账概况 */

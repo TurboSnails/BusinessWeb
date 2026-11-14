@@ -340,7 +340,7 @@ describe('页面结构：公司库优先，旧链接可用', () => {
     expect(screen.getByText(/交易观察清单/)).toBeTruthy()
     cleanup()
     renderAt('/research-notes?tab=standard')
-    expect(screen.getByText('研究方法 · 适用于所有公司')).toBeTruthy()
+    expect(screen.getByText('研究方法 · 林奇两主线 + 巴菲特边界')).toBeTruthy()
     cleanup()
     renderAt('/research-notes?tab=strategy')
     expect(screen.getByText('配置表（300 万示例）')).toBeTruthy()

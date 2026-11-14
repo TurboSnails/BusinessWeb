@@ -1,4 +1,5 @@
 // 信号台账：把当天的研究评级、价格、自动 DCF 与机会雷达信号存为一期快照（每周一期），
+// 雷达列按当期雷达规则版本编码，版本记在台账的 radarRule 里（见 src/features/signals/ledger.ts），
 // 写入 public/data/signal-ledger-YYYY.json，供机会雷达页的「信号复盘」事后检验。
 // 用法：node scripts/signal-ledger.mjs [YYYY-MM-DD]（默认今天，上海时间）
 import { readFile, writeFile } from 'node:fs/promises'
@@ -21,21 +22,21 @@ globalThis.fetch = async (input) => {
 try {
   const companiesMod = await server.ssrLoadModule('/src/data/companies.ts')
   const { buildAutoDcf } = await server.ssrLoadModule('/src/features/dcf/autoDcf.ts')
-  const { radarRows } = await server.ssrLoadModule('/src/features/dcf/radar.ts')
+  const { buildRadar, radarLedgerMap, RADAR_VERSION } = await server.ssrLoadModule('/src/features/dcf/radar.ts')
   const ledgerMod = await server.ssrLoadModule('/src/features/signals/ledger.ts')
 
   const companies = (await Promise.all(['us', 'cn', 'hk', 'adr', 'ndx'].map(m => companiesMod.loadCompanies(m)))).flat()
     .map(c => ({ venue: venueOf(c.market), code: c.code, rating: c.rating, price: c.marketRefresh?.price }))
   const lib = await read('public/data/dcf-prefill.json')
   const auto = buildAutoDcf(lib)
-  const radar = new Map(radarRows(lib.items, auto).map(r => [`${r.item.m}:${r.item.c.toUpperCase()}`, r.score]))
+  const radar = radarLedgerMap(buildRadar(lib.items, auto, await read('public/data/lynch.json')))
   const snapshot = ledgerMod.buildSnapshot({ companies, dcf: auto, radar })
 
   const file = `public/data/signal-ledger-${date.slice(0, 4)}.json`
   let previous = null
   try { previous = await read(file) } catch { /* 新的一年 */ }
   if (previous && !ledgerMod.validLedger(previous)) throw new Error(`${file} 结构无效，拒绝覆盖`)
-  const next = ledgerMod.mergeSnapshot(previous, date, snapshot)
+  const next = ledgerMod.mergeSnapshot(previous, date, snapshot, RADAR_VERSION)
   await writeFile(`${root}/${file}`, JSON.stringify(next) + '\n')
   console.log(JSON.stringify({ date, file, securities: Object.keys(snapshot).length, rated: Object.values(snapshot).filter(r => r[1] !== null).length, radar: radar.size, snapshots: Object.keys(next.snapshots).length }))
 } finally {

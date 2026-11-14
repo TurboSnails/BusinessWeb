@@ -13,13 +13,14 @@ async function loadLedger(fetchImpl: typeof fetch = fetch): Promise<Ledger | nul
     .then(r => (r.ok ? r.json() : null)).catch(() => null)))
   const valid = parts.filter(validLedger)
   if (!valid.length) return null
-  return { schemaVersion: 1, snapshots: Object.assign({}, ...valid.map(l => l.snapshots)) }
+  const radarRule = Object.assign({}, ...valid.map(l => l.radarRule ?? {})) as Record<string, number>
+  return { schemaVersion: 1, snapshots: Object.assign({}, ...valid.map(l => l.snapshots)), ...(Object.keys(radarRule).length ? { radarRule } : {}) }
 }
 
 function ReviewTable({ review }: { review: Review }): JSX.Element {
   return (
     <section className="radar-tier" aria-label={`${review.from} 至 ${review.to}`}>
-      <h3>{review.from} → {review.to}<span className="radar-count">{review.days} 天</span></h3>
+      <h3>{review.from} → {review.to}<span className="radar-count">{review.days} 天 · 雷达规则第 {review.radarRule} 版</span></h3>
       {review.venues.map(v => (
         <div key={v.venue} className="radar-table-wrap">
           <table className="radar-table">
@@ -56,6 +57,7 @@ export default function SignalReview(): JSX.Element {
       <p className="radar-muted">
         每个工作日行情刷新后留存一期快照（每周保留一期）：当时的研究评级、价格、自动 DCF 与雷达信号。满 {REVIEW_RULES.minDays} 天后，按市场比较各信号组到最新一期的平均收益与同市场全部公司等权平均。
         只看价格变动、不含分红与汇率，样本少于 {REVIEW_RULES.minSample} 家的组不下结论；短期结果受市场风格影响大，需积累多期再判断。
+        雷达规则在 2026-11 改为第 2 版（价值回归、快速增长两条主线），每期快照记下当时的规则版本，雷达分组按起始快照的版本解读，两版结果不混在一起比较。
       </p>
       {reviews.length === 0 ? (
         <p role="status" className="radar-muted">
