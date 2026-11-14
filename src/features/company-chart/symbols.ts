@@ -1,21 +1,32 @@
 // 公司页走势图的「研究代码 → 图表数据源」契约（见 .dev-team/runs/openstock-eval/reports/arch.md §3）。
-// - 美股 / ADR / 纳指：TradingView 官方 Advanced Chart（延迟行情）。交易所取自 usExchanges.json
-//   （yfinance 原始返回的 exchange 字段，scripts/build-us-exchanges.mjs 生成），不按 us/adr/ndx 分组猜 NASDAQ；
-//   查不到时用不带前缀的代码，交给 TradingView 自行解析，并标记 exchange=null。
-// - 沪深：一期不用 TradingView，改为站内自绘日/周线（腾讯前复权日线，/api/grid-market?kind=candles）。
-//   cnTradingViewSymbol 只用来生成「在 TradingView 查看」外链，不用于嵌入。
-// - 北交所（8xxxxx / 4xxxxx / 92xxxx）：腾讯 candles 接口与 TradingView 免费 widget 都不覆盖 → 不出图。
-// - 港股：HKEX 不在 TradingView 免费 widget 范围 → 不出图，只给港交所报价页外链。
+// 所有市场都用站内 Lightweight Charts 画图（LwChart），数据走 /api/grid-market?kind=candles（server/market.mjs）：
+// - 沪深：腾讯前复权日线，sh/sz + 六位代码。
+// - 港股：腾讯港股日线，hk + 五位代码。
+// - 美股 / ADR / 纳指：Yahoo chart 日线（服务端代理），us + 代码（BRK.B 由服务端转成 BRK-B）。
+// - 北交所（8xxxxx / 4xxxxx / 92xxxx）：candles 接口不覆盖 → 不出图。
+// 美股交易所取自 usExchanges.json（yfinance 原始 exchange 字段，scripts/build-us-exchanges.mjs 生成），
+// 只用于生成「在 TradingView 查看」外链，不按 us/adr/ndx 分组猜 NASDAQ；查不到时用不带前缀的代码。
 import type { Market } from '../../data/companies'
 import usExchanges from './usExchanges.json'
 
 export type UsExchange = 'NASDAQ' | 'NYSE' | 'AMEX'
 export type CnExchange = 'SSE' | 'SZSE' | 'BSE'
 
+export type ChartCurrency = 'USD' | 'CNY' | 'HKD'
+
 export type ChartTarget =
-  | { kind: 'tradingview'; tvSymbol: string; exchange: UsExchange | null; dataMode: 'delayed'; externalUrl: string }
-  | { kind: 'cn'; tencentSymbol: string; exchange: 'SSE' | 'SZSE'; dataMode: 'eod'; externalUrl: string }
-  | { kind: 'none'; reason: 'hk' | 'bse' | 'invalid'; externalUrl?: string }
+  | {
+    kind: 'chart'
+    /** /api/grid-market?kind=candles 的 symbol：sh600519 / hk00700 / usAAPL */
+    candleSymbol: string
+    source: 'tencent' | 'yahoo'
+    currency: ChartCurrency
+    externalUrl: string
+    externalLabel: string
+    /** 美股：交易所是否来自本站记录（否则 TradingView 外链用裸代码） */
+    exchangeKnown?: boolean
+  }
+  | { kind: 'none'; reason: 'bse' | 'invalid'; externalUrl?: string }
 
 const EXCHANGES = (usExchanges as { exchanges: Record<string, string> }).exchanges
 
@@ -69,18 +80,23 @@ export function hkexQuoteUrl(code: string): string | null {
 
 export function chartTargetOf(market: Market, code: string): ChartTarget {
   if (market === 'hk') {
-    const url = hkexQuoteUrl(code)
-    return url ? { kind: 'none', reason: 'hk', externalUrl: url } : { kind: 'none', reason: 'invalid' }
+    const c = code.trim()
+    const url = hkexQuoteUrl(c)
+    if (!url) return { kind: 'none', reason: 'invalid' }
+    return { kind: 'chart', candleSymbol: `hk${c.padStart(5, '0')}`, source: 'tencent', currency: 'HKD', externalUrl: url, externalLabel: '在港交所查看报价' }
   }
   if (market === 'cn') {
     const ex = cnExchangeOf(code)
     if (ex === 'BSE') return { kind: 'none', reason: 'bse' }
     const tencentSymbol = cnTencentSymbol(code)
     const tv = cnTradingViewSymbol(code)
-    if (!tencentSymbol || !tv || (ex !== 'SSE' && ex !== 'SZSE')) return { kind: 'none', reason: 'invalid' }
-    return { kind: 'cn', tencentSymbol, exchange: ex, dataMode: 'eod', externalUrl: tradingViewSymbolUrl(tv) }
+    if (!tencentSymbol || !tv) return { kind: 'none', reason: 'invalid' }
+    return { kind: 'chart', candleSymbol: tencentSymbol, source: 'tencent', currency: 'CNY', externalUrl: tradingViewSymbolUrl(tv), externalLabel: '在 TradingView 查看' }
   }
   const tvSymbol = usTradingViewSymbol(code)
   if (!tvSymbol) return { kind: 'none', reason: 'invalid' }
-  return { kind: 'tradingview', tvSymbol, exchange: usExchangeOf(code), dataMode: 'delayed', externalUrl: tradingViewSymbolUrl(tvSymbol) }
+  return {
+    kind: 'chart', candleSymbol: `us${code.trim().toUpperCase()}`, source: 'yahoo', currency: 'USD',
+    externalUrl: tradingViewSymbolUrl(tvSymbol), externalLabel: '在 TradingView 查看', exchangeKnown: usExchangeOf(code) !== null,
+  }
 }

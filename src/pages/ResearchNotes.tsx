@@ -45,6 +45,7 @@ import { CompanyValuationCell, CompanyValuationFilterChips } from '../features/c
 import { matchValuationFilter, type ValuationFilter } from '../features/company-valuation/model'
 import { useCandidates } from '../features/candidates/useCandidates'
 import ResearchNotice from '../components/research/ResearchNotice'
+import RatingReview from '../features/signals/RatingReview'
 import { NDX_CODES, NDX_ASOF } from '../data/ndx100'
 import { Page, PageDataFreshness, Stat, TableWrap } from '../components/ui'
 import '../styles/research.css'
@@ -639,6 +640,8 @@ export default function ResearchNotes(): JSX.Element {
                 ['已知局限', '规则对高 PE 公司偏严（悲观倍数压到板块中位的 60%），对低 PE 公司偏宽；一次性项识别可能漏判或误判；FCF、分部占比、一致预期、下跌原因均未取到。盈亏比只比较情景价差：没有计入各情景发生的概率，也没有计入兑现需要的时间（同样 2:1，三年兑现和一年兑现的年化回报差很多），分红也未计入。'],
               ]} />
             </div>
+
+            <RatingReview />
 
             {researchStandard.checklist.map((c, i) => (
               <div key={c.title} className="ui-card rn-card">

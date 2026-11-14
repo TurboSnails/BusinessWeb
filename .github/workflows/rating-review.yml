@@ -1,0 +1,66 @@
+name: Weekly method review
+
+# 研究方法的事后检验，每周一次，只写两个输出文件：
+# 1. 评级复盘 public/data/rating-review.json：读信号台账（company-refresh 每个工作日 UTC 22:00 后写入，
+#    同一周只保留最后一次，即周五收盘那期）与 market-cycle.json 的指数周K。
+# 2. 趋势规则回测 public/data/market-cycle-backtest.json：读 market-cycle.json（market-cycle 工作流 UTC 07:15 / 19:15 刷新，
+#    周六那次归档完整周）。
+# 排在周六 UTC 09:30（周五台账与周六行情归档之后）；周日同一时间兜底重跑。两个脚本只由输入决定、不读当前时间，
+# 输入没变就不会产生提交。
+on:
+  schedule:
+    - cron: '30 9 * * 6,0'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: market-data-publish
+  cancel-in-progress: false
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Validate computations
+        run: node --test scripts/rating-review.test.mjs scripts/cycle-backtest.test.mjs
+      - name: Rating forward-return review
+        run: node scripts/rating-review.mjs
+      - name: Market-cycle trend rule backtest
+        run: node scripts/cycle-backtest.mjs
+      - name: Commit updated reviews
+        id: commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add public/data/rating-review.json public/data/market-cycle-backtest.json
+          if git diff --cached --quiet; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m "data(review): 评级复盘与趋势规则回测 $(date -u +%Y-%m-%d)"
+          for attempt in 1 2 3; do
+            if git push; then
+              echo 'changed=true' >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            git fetch origin main
+            git rebase -X theirs origin/main
+          done
+          exit 1
+      - name: Deploy GitHub Pages
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --ref main

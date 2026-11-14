@@ -1,0 +1,18 @@
+/* 研究方法页「评级复盘」 */
+.rr-caveat { margin: 0 0 var(--space-3); padding: 10px 12px; border-left: 3px solid var(--warm-ink, var(--system-orange)); background: color-mix(in srgb, var(--system-orange) 8%, transparent); color: var(--text-primary); font-size: .9rem; line-height: 1.6; }
+.rr-caveat strong { margin-right: 6px; }
+.rr-card .seg { margin: 4px 0 10px; }
+.rr-table th[scope='row'] { white-space: nowrap; font-weight: 600; text-align: left; }
+.rr-table td { font-variant-numeric: tabular-nums; vertical-align: top; min-width: 96px; }
+.rr-table td small { display: block; color: var(--text-secondary); font-size: .74rem; }
+.rr-table td span > small { margin-top: 2px; }
+.rr-muted { color: var(--text-secondary); font-size: .82rem; }
+.rr-muted small { display: block; font-size: .72rem; }
+.rr-early strong { font-style: italic; opacity: .85; }
+.rr-pos { color: var(--up-ink, var(--system-red)); }
+.rr-neg { color: var(--down-ink, var(--system-green)); }
+.rr-spread th, .rr-spread td { border-top: 1px dashed var(--border-subtle); font-size: .85rem; }
+.rr-notes { margin: 10px 0 0; padding-left: 1.2em; color: var(--text-secondary); font-size: .85rem; line-height: 1.6; }
+.rr-method { margin-top: 8px; font-size: .85rem; color: var(--text-secondary); }
+.rr-method summary { cursor: pointer; color: var(--text-primary); }
+.rr-method ul { padding-left: 1.2em; line-height: 1.6; }

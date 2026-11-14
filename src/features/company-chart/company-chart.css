@@ -7,14 +7,36 @@
 .cc-skip { position: absolute; left: 0; top: -2px; z-index: 2; padding: 4px 8px; border-radius: var(--radius-sm); background: var(--bg-card); color: var(--accent-ink, var(--accent)); font-size: .75rem; transform: translateY(-120%); opacity: 0; pointer-events: none; }
 .cc-skip:focus { transform: none; opacity: 1; pointer-events: auto; outline: 2px solid var(--accent); }
 .cc-chart__frame { position: relative; height: 420px; min-width: 0; overflow: hidden; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); background: var(--bg-card); }
-.cc-chart__frame--auto { height: auto; min-height: 300px; padding: 8px; }
-.cc-chart__frame tv-advanced-chart { display: block; width: 100%; height: 100%; }
 .cc-chart__placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; height: 100%; min-height: 280px; padding: 16px; color: var(--text-secondary); font-size: .85rem; line-height: 1.7; text-align: center; }
 .cc-chart__placeholder p { margin: 0; }
 .cc-chart__placeholder .tool-btn { min-height: 44px; }
 .cc-chart__caption { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-top: 8px; color: var(--text-tertiary); font-size: .75rem; line-height: 1.7; }
 .cc-chart__caption .page-data-freshness { margin: 0; }
-.cc-cn-plot { min-height: 200px; }
+
+/* Lightweight Charts 走势图 */
+.cc-lw__toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+.cc-lw__periods { display: flex; gap: 2px; padding: 3px; background: var(--bg-secondary); border-radius: var(--radius-md); }
+.cc-lw__periods button { min-height: 36px; padding: 4px 14px; border: 1px solid transparent; border-radius: var(--radius-sm); background: transparent; color: var(--text-secondary); cursor: pointer; font: inherit; font-size: .8rem; }
+.cc-lw__periods button[aria-pressed="true"] { background: var(--bg-card); color: var(--text-primary); border-color: var(--border-subtle); font-weight: 600; }
+.cc-lw__periods button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.cc-lw__unit { margin-left: auto; color: var(--text-secondary); font-size: .75rem; }
+.cc-lw__frame { display: flex; flex-direction: column; height: auto; min-height: 300px; padding: 6px 4px 4px; }
+.cc-lw__readout { display: flex; flex-wrap: wrap; gap: 2px 12px; min-height: 22px; padding: 0 6px 4px; color: var(--text-secondary); font-size: .78rem; font-variant-numeric: tabular-nums; }
+.cc-lw__readout .cc-lw__date { color: var(--text-primary); font-weight: 600; }
+.cc-lw__canvas { position: relative; width: 100%; height: 380px; }
+.cc-lw__legend { margin-top: 8px; color: var(--text-secondary); font-size: .78rem; line-height: 1.7; }
+.cc-lw__legend ul { display: flex; flex-wrap: wrap; gap: 2px 16px; margin: 0; padding: 0; list-style: none; }
+.cc-lw__legend li { display: inline-flex; align-items: center; gap: 6px; }
+.cc-lw__legend p { margin: 4px 0 0; color: var(--text-tertiary); font-size: .75rem; }
+.cc-lw__swatch { display: inline-block; width: 18px; height: 0; border-top: 2px solid var(--text-tertiary); }
+.cc-lw__swatch--ma20 { border-top-color: var(--system-yellow); }
+.cc-lw__swatch--ma60 { border-top-color: var(--system-teal); }
+.cc-lw__swatch--bear { border-top: 2px dashed var(--warm-ink); }
+.cc-lw__swatch--base { border-top: 2px dashed var(--accent-ink); }
+.cc-lw__swatch--bull { border-top: 2px dashed var(--system-purple); }
+.cc-lw__swatch--dcf-buy { border-top: 2px dotted var(--accent-warm); }
+.cc-lw__swatch--dcf-fair { border-top: 2px dotted var(--text-secondary); }
+.cc-lw__notice { color: var(--text-tertiary); }
 
 /* 价位刻度条 */
 .cc-levels { margin: 0; }
@@ -50,7 +72,9 @@
 
 @media (max-width: 640px) {
   .cc-chart__frame { height: 300px; }
-  .cc-chart__frame--auto { height: auto; }
+  .cc-lw__frame { height: auto; }
+  .cc-lw__canvas { height: 280px; }
+  .cc-lw__unit { margin-left: 0; }
   .cc-levels__list { grid-template-columns: minmax(0, 1fr); }
   .cc-scale__label { font-size: .65rem; }
 }

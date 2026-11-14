@@ -200,6 +200,10 @@ export function assessManual(id: ManualDimension, market: Market, o: Observation
   return { ...evidence(id, name, signal, detail, o.date, o.source, headline), values: { ...v } }
 }
 
+/** 趋势防守的价格条件：最近两根完整周K都收在20周线下。实时面板与 scripts/cycle-backtest.mjs 共用同一判定。 */
+export const trendBroken = (w: TechnicalPoint | undefined, prev: TechnicalPoint | undefined): boolean =>
+  !!w && !!prev && w.mid != null && prev.mid != null && w.close < w.mid && prev.close < prev.mid
+
 export function technicalEvidence(price: PriceData | undefined, asOf: string): { evidence: Evidence; weekly: TechnicalPoint[]; monthly: TechnicalPoint[]; newHigh: boolean; weeklyBars: Bar[] } {
   const weekly = technicalSeries(completedBars(price?.week ?? [], 'week', asOf))
   const monthly = technicalSeries(completedBars(price?.month ?? [], 'month', asOf))
@@ -207,7 +211,7 @@ export function technicalEvidence(price: PriceData | undefined, asOf: string): {
   const newHigh = weekly.length >= 52 && !!w && w.close >= Math.max(...weekly.slice(-52).map(b => b.close))
   let e = missing('technical', '周 / 月技术', '需要至少60个月、52周完整K线；周数据21天内、月数据75天内。')
   if (weekly.length >= 52 && monthly.length >= 60 && w?.mid != null && prev?.mid != null && m?.histogram != null && m.rsi != null && fresh(w.date, asOf, 21) && fresh(m.date, asOf, 75)) {
-    const broken = w.close < w.mid && prev.close < prev.mid
+    const broken = trendBroken(w, prev)
     const signal: Signal = broken ? 'risk' : m.rsi < 35 ? 'bottom' : m.histogram > 0 && m.rsi >= 50 && w.close >= w.mid ? 'positive' : 'neutral'
     e = evidence('technical', '周 / 月技术', signal, `月RSI ${m.rsi.toFixed(1)}；月MACD柱 ${m.histogram.toFixed(2)}；周收盘${w.close >= w.mid ? '高于' : '低于'}20周线 ${w.mid.toFixed(2)}。${broken ? '连续两周收于20周线下，独立触发防守复核。' : '多个价格指标合计只算一个维度。'}`, `${w.date} / ${m.date}`, price?.source ?? '', `月RSI ${m.rsi.toFixed(1)} · 月MACD柱 ${m.histogram.toFixed(2)} · 周收盘${w.close >= w.mid ? '在' : '跌破'}20周线`)
     e.gauges = technicalGauges((w.close / w.mid - 1) * 100, m.rsi, m.histogram, broken)

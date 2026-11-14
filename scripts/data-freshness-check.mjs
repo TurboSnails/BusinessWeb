@@ -21,7 +21,7 @@ const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url))
  *   允许 GitHub 排程迟到 7–9 小时或偶发一次失败，超过 3 个交易日才告警。
  * - dailyAnalysis：每日分析只在当天收盘后落盘，少一个交易日就告警（2026-11-12 漏档即属此类），近 10 个交易日缺档也告警。
  * - cycleDaily：周期页日频事实（融资、成交额、国债、ERP 等），部分官方源 T+1～T+2 才发布，放宽到 5 个交易日。
- * - weekly：周度序列（Forward PE、换手率 52 周比、周期周报），10 个自然日。
+ * - weekly：周度序列（Forward PE、换手率 52 周比、周期周报、信号台账、评级复盘、趋势规则回测），10 个自然日。
  * - monthly：月末观测（恒生官方 PE 月报，次月初发布），45 个自然日。
  * - fredWeeklyRelease：FRED DEXHKUS（美联储 H.10）是日频观测但每周一才批量发布到上周五，最新观测正常就滞后 3–10 天
  *   （周一假日顺延一天），按 12 个自然日判断，不当作日频 5 个交易日。
@@ -417,6 +417,35 @@ function checkDcfPrefill(root, now) {
   })
 }
 
+/**
+ * 研究方法复盘（weekly）：信号台账最新一期、评级复盘 asOf（应等于台账最新一期）、趋势规则回测的最后完整周。
+ * 三者都按周度 10 个自然日判断；复盘落后于台账时提示（每周工作流没跑或失败）。
+ */
+function checkMethodReviews(root, now) {
+  let ledgerLatest = null
+  const out = guarded('review', 'public/data/signal-ledger-*.json', () => {
+    const files = readdirSync(join(root, 'public/data')).filter(f => /^signal-ledger-\d{4}\.json$/.test(f)).sort()
+    if (!files.length) throw new Error('没有 signal-ledger-YYYY.json')
+    ledgerLatest = maxDate(files.flatMap(f => Object.keys(readJson(root, `public/data/${f}`).snapshots ?? {})))
+    return [item({ id: 'review.signalLedger', group: '方法复盘', label: '信号台账最新一期', file: `public/data/${files.at(-1)}` },
+      judgeDate({ observed: ledgerLatest, ...THRESHOLDS.weekly, now }))]
+  })
+  out.push(...guarded('review', 'public/data/rating-review.json', () => {
+    const file = 'public/data/rating-review.json'
+    const body = readJson(root, file)
+    const judged = judgeDate({ observed: body.asOf ?? null, ...THRESHOLDS.weekly, now })
+    const behind = judged.status === 'ok' && ledgerLatest && body.asOf < ledgerLatest
+    return [item({ id: 'review.rating', group: '方法复盘', label: '评级复盘 asOf', file }, behind ? { ...judged, status: 'warn' } : judged,
+      { detail: behind ? `复盘 ${body.asOf} 落后于台账最新一期 ${ledgerLatest}（每周复盘工作流未跑？）` : undefined })]
+  }))
+  out.push(...guarded('review', 'public/data/market-cycle-backtest.json', () => {
+    const file = 'public/data/market-cycle-backtest.json'
+    return [item({ id: 'review.cycleBacktest', group: '方法复盘', label: '趋势规则回测最后完整周', file },
+      judgeDate({ observed: readJson(root, file).asOf ?? null, ...THRESHOLDS.weekly, now }))]
+  }))
+  return out
+}
+
 export async function runDataChecks(root, now) {
   return [
     ...checkCompanyQuotes(root, now),
@@ -431,6 +460,7 @@ export async function runDataChecks(root, now) {
     ...checkEtfTechnical(root, now),
     ...checkNationalTeam(root, now),
     ...checkDcfPrefill(root, now),
+    ...checkMethodReviews(root, now),
   ]
 }
 

@@ -63,6 +63,9 @@ function healthyFiles(day = '2026-11-13') {
     'public/data/etf-technical-latest.json': { asOf: '2026-11-14', records: [{ code: '510300', asOf: day }], errors: [] },
     'public/data/national-team/meta.json': { reportDate: '2026-09-30' },
     'public/data/national-team/etf.json': { meta: { latestDate: '2025-12-31', priceAsOf: day } },
+    'public/data/signal-ledger-2026.json': { schemaVersion: 1, snapshots: { '2026-11-06': {}, [day]: {} } },
+    'public/data/rating-review.json': { schemaVersion: 1, asOf: day },
+    'public/data/market-cycle-backtest.json': { schemaVersion: 1, asOf: day },
     'public/data/dcf-prefill.json': { riskFree: { cn: { date: '2026-11-11', label: '中国10年期国债' } }, issues: [], items: [{ m: 'cn', c: '000001', pxDate: day }] },
     '.github/workflows/demo.yml': "name: Demo job\non:\n  schedule:\n    - cron: '40 10 * * 1-5'\n",
     '.github/workflows/data-freshness.yml': "name: Monitor\non:\n  schedule:\n    - cron: '20 23 * * *'\n",
@@ -309,5 +312,20 @@ test('FRED HKD uses its weekly-release lag; a missed Monday release still alarms
   await withRepo(files, async root => {
     const result = await runFreshnessCheck({ root, now: NOW, gh: null })
     assert.equal(result.items.find(i => i.id === 'cycle.fact.all.hkd').status, 'stale')
+  })
+})
+
+test('method reviews: rating review lagging the ledger warns; a stale backtest alarms', async () => {
+  const files = healthyFiles()
+  files['public/data/rating-review.json'] = { schemaVersion: 1, asOf: '2026-11-06' }
+  files['public/data/market-cycle-backtest.json'] = { schemaVersion: 1, asOf: '2026-10-23' }
+  await withRepo(files, async root => {
+    const result = await runFreshnessCheck({ root, now: NOW, gh: noGh })
+    const byId = id => result.items.find(i => i.id === id)
+    assert.equal(byId('review.signalLedger').status, 'ok')
+    assert.equal(byId('review.rating').status, 'warn')
+    assert.match(byId('review.rating').detail, /落后于台账/)
+    assert.equal(byId('review.cycleBacktest').status, 'stale')
+    assert.ok(result.alarmIds.includes('review.cycleBacktest'))
   })
 })

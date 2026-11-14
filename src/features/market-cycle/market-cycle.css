@@ -137,3 +137,31 @@
 .cycle-gauge__hint { margin-top: 2px !important; font-size: .82rem !important; color: var(--text-secondary); }
 .cycle-gauge__key { display: inline-block; width: 3px; height: 10px; background: var(--text-primary); margin-right: 4px; vertical-align: -1px; }
 .cycle-gauge__key.is-prior { width: 9px; height: 9px; border: 2px solid var(--text-primary); border-radius: 50%; background: transparent; margin-left: 6px; box-sizing: border-box; }
+
+/* rule backtest (scripts/cycle-backtest.mjs) */
+.cycle-bt-caveat { margin: 8px 0 12px; padding: 10px 12px; border-left: 3px solid var(--system-orange); background: color-mix(in srgb, var(--system-orange) 8%, transparent); font-size: .9rem; line-height: 1.6; }
+.cycle-bt-caveat strong { margin-right: 6px; }
+.cycle-bt-chart { margin: 12px 0 0; }
+.cycle-bt-chart svg { display: block; width: 100%; height: auto; }
+.cycle-bt-chart path { fill: none; stroke-linejoin: round; }
+.cycle-bt-chart__bh { stroke: var(--text-secondary); stroke-width: 1.4; stroke-dasharray: 4 3; opacity: .8; }
+.cycle-bt-chart__def { stroke: var(--accent); stroke-width: 2.2; }
+.cycle-bt-chart__shade { fill: color-mix(in srgb, var(--system-red) 10%, transparent); }
+.cycle-bt-chart__grid { stroke: var(--border-subtle); stroke-dasharray: 3 4; }
+.cycle-bt-chart__tick { font-size: 11px; fill: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.cycle-bt-chart figcaption { display: flex; flex-wrap: wrap; gap: 6px 18px; padding-top: 6px; font-size: .82rem; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.cycle-bt-key { display: inline-block; width: 14px; height: 3px; margin-right: 6px; vertical-align: middle; }
+.cycle-bt-key--bh { background: repeating-linear-gradient(90deg, var(--text-secondary) 0 4px, transparent 4px 7px); }
+.cycle-bt-key--def { background: var(--accent); }
+.cycle-bt-key--shade { height: 10px; background: color-mix(in srgb, var(--system-red) 18%, transparent); }
+.cycle-bt-summary { margin: 14px 0 8px; font-size: .9rem; }
+.cycle-bt-table { overflow-x: auto; max-width: 100%; margin: 8px 0; }
+.cycle-bt-table table { border-collapse: collapse; width: 100%; font-size: .82rem; font-variant-numeric: tabular-nums; }
+.cycle-bt-table th, .cycle-bt-table td { padding: 6px 8px; border-bottom: 1px solid var(--border-subtle); text-align: right; white-space: nowrap; }
+.cycle-bt-table th[scope='row'], .cycle-bt-table td:nth-child(2) { text-align: left; }
+.cycle-bt-table thead th { color: var(--text-secondary); font-weight: 500; text-align: center; }
+.cycle-bt-table small { display: block; color: var(--text-secondary); font-size: .72rem; }
+.cycle-bt-table tr.is-current { background: color-mix(in srgb, var(--accent) 7%, transparent); }
+.cycle-bt-more { margin-top: 12px; font-size: .85rem; }
+.cycle-bt-more summary { cursor: pointer; }
+.cycle-bt-more ul { padding-left: 1.2em; line-height: 1.6; }

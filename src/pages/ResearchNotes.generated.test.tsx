@@ -74,7 +74,7 @@ describe('补全公司：研究笔记列表与详情', () => {
     const links = valuationLinks()
     expect(links.length).toBeGreaterThan(0)
     expect(links.every(link => link.textContent?.includes('高于区间'))).toBe(true)
-  })
+  }, 20_000) // 整页集成渲染较重，CI 或高负载机器上可能超过默认 5 秒
 
   it('圆桌复核同时覆盖手工与异步补全，撤回未验证的达标标签', async () => {
     expect(findCompany('us', 'PEP')?.headline).toContain('2026Q3 已披露')

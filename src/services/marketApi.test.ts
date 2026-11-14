@@ -103,16 +103,69 @@ describe('restricted market APIs', () => {
     expect(url.hostname).toBe('web.ifzq.gtimg.cn')
     expect(url.searchParams.get('param')).toBe('sh510300,day,2020-01-01,2026-10-02,640,qfq')
   })
-  it('允许港股即时报价，仍拒绝港股日线及注入参数', async () => {
+  it('允许港股即时报价，拒绝注入参数', async () => {
     const f = vi.fn(async (_url: string) => new Response('v_r_hk00700=""')); vi.stubGlobal('fetch', f)
     const res = response()
     await handleMarket({ method: 'GET', query: { kind: 'quotes', symbols: 'r_hk00700,r_hk00005' } }, res)
     expect(res.statusCode).toBe(200)
     expect(f.mock.calls[0][0]).toBe('https://qt.gtimg.cn/q=r_hk00700,r_hk00005')
-    for (const query of [{ kind: 'quotes', symbols: 'r_hk00700&x=1' }, { kind: 'candles', symbol: 'r_hk00700', begin: '2026-01-01', end: '2026-10-02' }]) {
-      const rejected = response(); await handleMarket({ method: 'GET', query }, rejected)
-      expect(rejected.statusCode).toBe(400)
+    const rejected = response(); await handleMarket({ method: 'GET', query: { kind: 'quotes', symbols: 'r_hk00700&x=1' } }, rejected)
+    expect(rejected.statusCode).toBe(400)
+  })
+  it('港股日线：只接受 hk + 五位代码，转发腾讯前复权日线并缓存 5 分钟', async () => {
+    const data = { code: 0, data: { hk00700: { day: [['2026-10-02', '422.000', '421.200', '425.000', '419.800', '19108045.000', { cqr: '2026-10-02' }]] } } }
+    const f = vi.fn(async (_url: string) => new Response(JSON.stringify(data))); vi.stubGlobal('fetch', f)
+    const res = response(); await handleMarket({ method: 'GET', query: { kind: 'candles', symbol: 'hk00700', begin: '2023-11-14', end: '2026-11-14' } }, res)
+    expect(res.statusCode).toBe(200)
+    expect(res.body).toEqual(data)
+    expect(res.headers['cache-control']).toBe('public, max-age=0, s-maxage=300')
+    const url = new URL(f.mock.calls[0][0])
+    expect(url.hostname).toBe('web.ifzq.gtimg.cn')
+    expect(url.searchParams.get('param')).toBe('hk00700,day,2023-11-14,2026-11-14,640,qfq')
+    f.mockClear()
+    for (const symbol of ['hk0700', 'hk000700', 'r_hk00700', 'HK00700', 'hk00700,sh600519', 'hk00700&x=1', 'hkABCDE']) {
+      const rejected = response(); await handleMarket({ method: 'GET', query: { kind: 'candles', symbol, begin: '2026-01-01', end: '2026-10-02' } }, rejected)
+      expect(rejected.statusCode, symbol).toBe(400)
     }
+    expect(f).not.toHaveBeenCalled()
+  })
+  it('美股日线：us + 代码（^[A-Z.-]{1,10}$），请求 Yahoo chart 并整理成腾讯同形结构', async () => {
+    const yahoo = { chart: { result: [{
+      meta: { currency: 'USD', exchangeTimezoneName: 'America/New_York' },
+      // 2026-11-12 / 2026-11-13 美东 09:30 开盘；中间一行缺值应丢弃；最后一行 high 低于 close（浮点误差）应夹紧
+      timestamp: [1794493800, 1794500000, 1794580200],
+      indicators: { quote: [{ open: [351.35, null, 357.96], close: [354.88, null, 356.27], high: [356.1, null, 356.0], low: [349.33, null, 355.75], volume: [100, null, 200] }] },
+    }], error: null } }
+    const f = vi.fn(async (_url: string, _init?: RequestInit) => new Response(JSON.stringify(yahoo))); vi.stubGlobal('fetch', f)
+    const res = response(); await handleMarket({ method: 'GET', query: { kind: 'candles', symbol: 'usBRK.B', begin: '2023-11-14', end: '2026-11-14' } }, res)
+    expect(res.statusCode).toBe(200)
+    expect(res.headers['cache-control']).toBe('public, max-age=0, s-maxage=300')
+    const url = new URL(f.mock.calls[0][0])
+    expect(url.hostname).toBe('query1.finance.yahoo.com')
+    expect(url.pathname).toBe('/v8/finance/chart/BRK-B')
+    expect(url.searchParams.get('interval')).toBe('1d')
+    expect(url.searchParams.get('period1')).toBe(String(Date.parse('2023-11-14') / 1000))
+    expect(url.searchParams.get('period2')).toBe(String(Date.parse('2026-11-14') / 1000 + 86400))
+    expect((f.mock.calls[0][1]?.headers as Record<string, string>)['User-Agent']).toBeTruthy()
+    expect(res.body).toEqual({ code: 0, source: 'yahoo', adjustment: 'split', currency: 'USD', data: { 'usBRK.B': { day: [
+      ['2026-11-12', 351.35, 354.88, 356.1, 349.33, 100],
+      ['2026-11-13', 357.96, 356.27, 357.96, 355.75, 200],
+    ] } } })
+    f.mockClear()
+    for (const symbol of ['usaapl', 'us', 'usAAPL1', 'usTOOLONGTICKER', 'us.AAPL', 'usBRK..B', 'usBRK.', 'usAAPL/../x', 'usAAPL?x=1', 'AAPL']) {
+      const rejected = response(); await handleMarket({ method: 'GET', query: { kind: 'candles', symbol, begin: '2026-01-01', end: '2026-10-02' } }, rejected)
+      expect(rejected.statusCode, symbol).toBe(400)
+    }
+    expect(f).not.toHaveBeenCalled()
+  })
+  it('美股日线：Yahoo 404（代码不存在）返回空日线；其它错误 502', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response('{"chart":{"result":null,"error":{"code":"Not Found"}}}', { status: 404 })))
+    const res = response(); await handleMarket({ method: 'GET', query: { kind: 'candles', symbol: 'usZZZZ', begin: '2026-01-01', end: '2026-10-02' } }, res)
+    expect(res.statusCode).toBe(200)
+    expect((res.body as { data: Record<string, { day: unknown[] }> }).data.usZZZZ.day).toEqual([])
+    vi.stubGlobal('fetch', vi.fn(async () => new Response('', { status: 429 })))
+    const failed = response(); await handleMarket({ method: 'GET', query: { kind: 'candles', symbol: 'usAAPL', begin: '2026-01-01', end: '2026-10-02' } }, failed)
+    expect(failed.statusCode).toBe(502)
   })
   it('reports upstream failures without exposing exception details', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => { throw new Error('secret upstream detail') }))
