@@ -1,0 +1,64 @@
+name: Update equity-bond spreads
+
+# 监控页「股债息差」两份原始序列：沪深300（akshare：沪深300 PE + 中债10年）与标普500（index-history.json 里的
+# Forward PE + FRED DGS10/DFII10 + Yahoo ^GSPC）。只写这两个文件；分位与通道在前端计算。
+# 标普500 Forward PE 源停更时序列停在源末日，脚本不拼接其他口径。
+on:
+  schedule:
+    # 北京时间交易日 17:50（A 股收盘、中债收益率发布之后）；GitHub 定时常延迟数小时，对日频收盘数据无影响
+    - cron: '50 9 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: spread-snapshot
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: astral-sh/setup-uv@v5
+      - name: A-share spread (CSI 300)
+        continue-on-error: true
+        run: uv run --python 3.12 --with akshare python scripts/equity-bond-spread-snapshot.py
+      - name: US spread (S&P 500)
+        continue-on-error: true
+        run: node scripts/us-equity-bond-spread-snapshot.mjs
+      - name: Commit updated spreads
+        id: commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add public/data/equity-bond-spread.json public/data/us-equity-bond-spread.json
+          if git diff --cached --quiet; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m "data(spread): 更新股债息差 $(date -u +%Y-%m-%d)"
+          for attempt in 1 2 3; do
+            if git push; then
+              echo 'changed=true' >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            git fetch origin main
+            git rebase -X theirs origin/main
+          done
+          exit 1
+      - name: Deploy GitHub Pages
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --ref main

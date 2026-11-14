@@ -18,7 +18,7 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -26,6 +26,9 @@ jobs:
           node-version: '24'
       - name: Collect and archive verified daily market data
         run: node scripts/daily-analysis-snapshot.mjs
+      - name: Backfill missed trading days
+        # GitHub 定时任务常延迟数小时，跑到次日凌晨时当天收盘快照已取不到；回补最近 7 个交易日的缺口（只补缺失日期，不改已有归档）
+        run: node scripts/daily-analysis-backfill.mjs 7 || echo "::warning::回补失败，保留已有归档"
       - name: Commit updated public market snapshot
         id: commit
         shell: bash

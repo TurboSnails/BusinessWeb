@@ -57,8 +57,12 @@ describe('ADR 2026-10-20 valuation overlay', () => {
       } else {
         const ratio = bear! < P && P < base! ? (base! - P) / (P - bear!) : null
         const shown = item.ratioNote!.match(/= (-?[\d.]+):1/)
+        // 现价与悲观价/基准价相差不到 1 美分时，四舍五入可能把价格翻到边界另一侧（2026-11-12 STNE：
+        // 发布值 4899.85:1、复算判为不适用），此时只校验评级，不校验赔率是否显示
+        const onEdge = Math.abs(P - bear!) <= 0.01 || Math.abs(base! - P) <= 0.01
         // 发布的 ratio 用未四舍五入价格，复算用已四舍五入价格，允许最后一位小数差
-        if (ratio !== null) {
+        if (onEdge) { /* 边界：赔率是否显示取决于未四舍五入的价格 */ }
+        else if (ratio !== null) {
           const denominator = P - bear!
           const rounding = Math.abs(base! - P) * 0.005 / (denominator * denominator)
             + Math.abs(base! - bear!) * 0.005 / denominator
