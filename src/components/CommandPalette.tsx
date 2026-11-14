@@ -216,7 +216,7 @@ function Palette({ onClose, companyIndex }: { onClose: () => void; companyIndex:
             aria-controls={listId}
             aria-autocomplete="list"
             aria-activedescendant={flat.length ? optionId(active) : undefined}
-            placeholder="输入页面或公司，如 估值、腾讯、700、AAPL"
+            placeholder="输入页面或公司，如 估值、腾讯、txkg、700、AAPL"
             value={query}
             onChange={e => setQuery(e.target.value)}
             autoComplete="off"

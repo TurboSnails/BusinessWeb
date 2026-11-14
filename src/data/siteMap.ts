@@ -229,6 +229,8 @@ export interface CompanyIndexEntry {
   n: string // 名称
   m: 'us' | 'ndx' | 'adr' | 'hk' | 'cn'
   s?: string // 板块
+  p?: string // 拼音首字母（仅含汉字的名称，构建时生成，如 txkg）
+  q?: string // 全拼，无声调无空格（如 tengxunkonggu）
 }
 
 export const COMPANY_MARKET_LABEL: Record<CompanyIndexEntry['m'], string> = { us: '标普500', ndx: '纳指100', adr: '美股非标普', hk: '港股', cn: 'A股' }
@@ -238,19 +240,26 @@ export const companyPath = (e: Pick<CompanyIndexEntry, 'c' | 'm'>): string => `/
 const stripZeros = (s: string): string => s.replace(/^0+(?=.)/, '')
 
 /**
- * 代码精确 > 代码前缀 > 名称前缀 > 名称包含；不分大小写。
+ * 代码精确 > 代码前缀 > 名称前缀 > 名称包含 > 拼音首字母（精确 > 前缀）> 全拼（精确 > 前缀 > 包含）；不分大小写。
  * 纯数字查询对港股去掉前导零再比（700 / 0700 / 00700 都命中 00700）。
+ * 拼音只对 2 个及以上纯字母的查询生效（可带空格，如 teng xun），排在代码和名称命中之后，
+ * 所以 aapl 这类美股代码仍是代码命中排第一；全拼包含（maotai → 贵州茅台）至少 3 个字母，免得太散。
  */
 export function searchCompanies(query: string, entries: CompanyIndexEntry[], limit = 8): CompanyIndexEntry[] {
   const q = query.trim().toLowerCase()
   if (!q) return []
   const digits = /^\d+$/.test(q)
+  const py = /^[a-z\s]+$/.test(q) ? q.replace(/\s+/g, '') : ''
+  const usePinyin = py.length >= 2
   const scored = entries.flatMap((e, index) => {
     const code = e.c.toLowerCase()
     const name = e.n.toLowerCase()
     const codeQ = digits && e.m === 'hk' ? stripZeros(q) : q
     const codeV = digits && e.m === 'hk' ? stripZeros(code) : code
-    const rank = codeV === codeQ ? 0 : codeV.startsWith(codeQ) ? 1 : name.startsWith(q) ? 2 : name.includes(q) ? 3 : -1
+    let rank = codeV === codeQ ? 0 : codeV.startsWith(codeQ) ? 1 : name.startsWith(q) ? 2 : name.includes(q) ? 3 : -1
+    if (rank < 0 && usePinyin) {
+      rank = e.p === py ? 4 : e.p?.startsWith(py) ? 5 : e.q === py ? 6 : e.q?.startsWith(py) ? 7 : py.length >= 3 && e.q?.includes(py) ? 8 : -1
+    }
     return rank < 0 ? [] : [{ e, index, rank }]
   })
   return scored.sort((a, b) => a.rank - b.rank || a.index - b.index).slice(0, limit).map(s => s.e)

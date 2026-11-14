@@ -2,7 +2,8 @@
 // 公司列表和 UI 一致（companyCore.resolveMarket 合并手工研究页 + public/data/{m}.json 程序化补全），
 // 只保留搜索要用的字段，避免为了搜索去加载 cn.json 这类大文件。
 // 输出不带时间戳，内容不变就不产生 diff；生成失败时保留已提交的旧文件，不让构建失败。
-// 拼音首字母：仓库没有拼音库，为了不加依赖暂不生成。
+// 拼音：含汉字的名称在构建时用 pinyin-pro（devDependency，不进前端包）算出首字母 p 和全拼 q（无声调无空格），
+// 供 ⌘K 输入 txkg / tengxun 找到腾讯控股；pinyin-pro 按词组处理多音字（重庆 chong、长江 chang、银行 hang）。
 //
 // 同一次合并顺带生成 public/data/company-refs.json：每家公司的名称、研究评级和公司页价格锚点（marketRefresh），
 // 供服务端每日候选池提醒邮件（server/functions/candidate-alerts-digest.js）按站内同一口径判断，不用下载 cn.json 这类大文件。
@@ -10,6 +11,7 @@ import { readFile, writeFile, rm, mkdtemp } from 'node:fs/promises'
 import { join, resolve, dirname } from 'node:path'
 import { tmpdir } from 'node:os'
 import { fileURLToPath, pathToFileURL } from 'node:url'
+import { pinyin, customPinyin } from 'pinyin-pro'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const OUT = join(ROOT, 'public/data/company-index.json')
@@ -48,6 +50,35 @@ async function collectCompanies() {
   }
 }
 
+// pinyin-pro 词库在公司名上读错的个别多音字：公司名里的「都」都是地名读 dū（成都、洪都、大都会），
+// 厦钨新能的「厦」读 xià，藏格矿业的「藏」读 zàng（西藏）
+customPinyin({ 都: 'dū', 厦钨: 'xià wū', 藏格: 'zàng gé' })
+
+const CJK = /[\u3400-\u9fff\uf900-\ufaff]/
+
+/**
+ * 名称的拼音首字母和全拼（小写、无声调、ü 写 v）；名称不含汉字返回 null。
+ * 汉字以外只保留英文字母和数字（万科A → wka / wankea），去掉开头的 *ST / ST 风险警示标记。
+ */
+export function namePinyin(name) {
+  const text = String(name || '').trim().replace(/^\*?ST\s*/i, '')
+  if (!CJK.test(text)) return null
+  let p = ''
+  let q = ''
+  for (const t of pinyin(text, { type: 'all', toneType: 'none', v: true, nonZh: 'consecutive' })) {
+    if (t.isZh && t.pinyin) {
+      const py = t.pinyin.toLowerCase().replace(/[^a-z]/g, '')
+      p += py[0] || ''
+      q += py
+    } else {
+      const raw = t.origin.toLowerCase().replace(/[^a-z0-9]/g, '')
+      p += raw
+      q += raw
+    }
+  }
+  return p ? { p, q } : null
+}
+
 export function toIndex(rows) {
   const seen = new Set()
   const items = []
@@ -58,7 +89,8 @@ export function toIndex(rows) {
     const key = `${r.m}:${code}`
     if (seen.has(key)) continue
     seen.add(key)
-    items.push({ c: code, n: name, m: r.m, ...(r.s ? { s: String(r.s) } : {}) })
+    const py = namePinyin(name)
+    items.push({ c: code, n: name, m: r.m, ...(r.s ? { s: String(r.s) } : {}), ...(py ? py : {}) })
   }
   return items
 }

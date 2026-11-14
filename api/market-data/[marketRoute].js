@@ -12,7 +12,7 @@ const handlers = new Map([
   ['ai-token-economics', aiTokenEconomics],
   // Vercel Cron 专用：/api/market-data/cron-dispatch?workflow=<file>.yml，需 CRON_SECRET
   ['cron-dispatch', cronDispatch],
-  // Vercel Cron 专用：候选池每日提醒邮件，需 CRON_SECRET；?dryRun=1 只返回 JSON 不发信。
+  // Vercel Cron 专用：候选池每日提醒邮件，需 CRON_SECRET；?dryRun=1 只返回 JSON 不发信；?weekly=1 为每周变化摘要（周一 00:00 UTC）。
   // 按需加载：它引用 src 下的 TypeScript（Vercel 构建时编译），其他路由与本地 node --test 不必加载
   ['candidate-alerts-digest', (req, res) => import('../../server/functions/candidate-alerts-digest.js').then(m => m.default(req, res))],
 ])

@@ -9,12 +9,14 @@
 // 环境变量（Production）：CRON_SECRET；SUPABASE_URL、SUPABASE_SECRET_KEY（与 api/candidates-sync.ts 相同）；
 // GMAIL_USER、GMAIL_APP_PASSWORD、ALERT_EMAIL_TO。邮箱地址与密钥一律不写日志、不进响应。
 // ?dryRun=1：照常鉴权与判断，返回邮件 JSON，不发信、不写去重表。
+// ?weekly=1：每周变化摘要（server/weekly-digest.ts），同一鉴权、Gmail 与去重表；可与 ?dryRun=1 同用。
 import { requireCron, type CronLog } from './functions/cron-auth.js'
 import { itemAlerts, type CandidateAlert } from '../src/features/candidates/alertRules.js'
 import { codeKey, MARKET_LABEL, venueOf } from '../src/features/candidates/markets.js'
 import { priceObservations, tradingDaysBetween, VENUE_CURRENCY, type PriceInputs } from '../src/features/candidates/priceAlert.js'
 import { candidateKey, validCandidatesPayload, type CandidateItem } from '../src/features/candidates/validation.js'
 import { autoDcfKey, parseAutoSummary, type AutoDcf } from '../src/features/dcf/autoDcfSummary.js'
+import { createWeeklyDigest } from './weekly-digest.js'
 
 type Env = Record<string, string | undefined>
 type FetchLike = (url: string, init?: Record<string, unknown>) => Promise<{ ok: boolean; status: number; json(): Promise<unknown> }>
@@ -137,7 +139,7 @@ export function supabaseConfig(env: Env): Db | null {
   }
 }
 
-class LogUnavailable extends Error {}
+export class LogUnavailable extends Error {}
 /** PostgREST 报「表不存在」：迁移还没执行 */
 const missingTable = (status: number, body: unknown): boolean => {
   const code = (body as { code?: string } | null)?.code
@@ -145,7 +147,7 @@ const missingTable = (status: number, body: unknown): boolean => {
 }
 const inList = (values: string[]): string => `in.(${values.map(v => `"${v.replace(/["\\]/g, c => `\\${c}`)}"`).join(',')})`
 
-function createRepository(db: Db, fetchImpl: FetchLike) {
+export function createRepository(db: Db, fetchImpl: FetchLike) {
   const call = async (path: string, init: Record<string, unknown> = {}): Promise<{ status: number; ok: boolean; body: unknown }> => {
     const r = await fetchImpl(`${db.origin}/rest/v1/${path}`, { ...init, headers: { ...db.headers, ...(init.headers as Record<string, string> | undefined) }, redirect: 'error', signal: AbortSignal.timeout(TIMEOUT_MS) })
     let body: unknown = null
@@ -182,6 +184,11 @@ function createRepository(db: Db, fetchImpl: FetchLike) {
       const inserted = await logCall(`${LOG_TABLE}?on_conflict=fingerprint`, { method: 'POST', headers: { Prefer: 'resolution=ignore-duplicates,return=representation' }, body: JSON.stringify(rows) })
       return new Set((Array.isArray(inserted) ? inserted : []).map(r => String((r as { fingerprint?: unknown }).fingerprint)))
     },
+    /** 某类发送记录里 day 落在 [from, to] 的去重键（每周摘要读取本周已发过的价位提醒） */
+    async loggedFingerprints(kind: string, from: string, to: string): Promise<string[]> {
+      const rows = await logCall(`${LOG_TABLE}?select=fingerprint&kind=eq.${encodeURIComponent(kind)}&day=gte.${from}&day=lte.${to}&limit=1000`)
+      return (Array.isArray(rows) ? rows : []).map(r => String((r as { fingerprint?: unknown }).fingerprint))
+    },
     async release(fingerprints: string[]): Promise<void> {
       if (!fingerprints.length) return
       await logCall(`${LOG_TABLE}?fingerprint=${encodeURIComponent(inList(fingerprints))}`, { method: 'DELETE', headers: { Prefer: 'return=minimal' } })
@@ -189,7 +196,7 @@ function createRepository(db: Db, fetchImpl: FetchLike) {
   }
 }
 
-async function fetchJson(fetchImpl: FetchLike, url: string): Promise<unknown> {
+export async function fetchJson(fetchImpl: FetchLike, url: string): Promise<unknown> {
   const r = await fetchImpl(url, { cache: 'no-store', redirect: 'follow', signal: AbortSignal.timeout(TIMEOUT_MS) })
   if (!r.ok) throw new Error(`HTTP ${r.status}`)
   return r.json()
@@ -211,11 +218,32 @@ const defaultTransport: CreateTransport = async options => {
   return nodemailer.createTransport(options)
 }
 
+/** 用 Gmail SMTP 发一封信给本人（ALERT_EMAIL_TO）；调用方负责捕获错误，错误里只取 code / responseCode 记日志 */
+export async function sendGmail(env: Env, createTransport: CreateTransport, fromName: string, message: { subject: string; text: string; html: string }): Promise<void> {
+  let transport: MailTransport | undefined
+  try {
+    transport = await createTransport({
+      host: 'smtp.gmail.com', port: 465, secure: true, auth: { user: env.GMAIL_USER, pass: env.GMAIL_APP_PASSWORD },
+      connectionTimeout: 10_000, greetingTimeout: 10_000, socketTimeout: 15_000,
+    })
+    await transport.sendMail({ from: `"${fromName}" <${env.GMAIL_USER}>`, to: env.ALERT_EMAIL_TO as string, subject: message.subject, text: message.text, html: message.html })
+  } finally {
+    transport?.close?.()
+  }
+}
+
 export interface DigestDeps { fetchImpl?: FetchLike; env?: Env; now?: () => Date; log?: CronLog; createTransport?: CreateTransport }
 
 export function createCandidateAlertsDigest({ fetchImpl = globalThis.fetch as unknown as FetchLike, env = process.env, now = () => new Date(), log = console, createTransport = defaultTransport }: DigestDeps = {}) {
   /** 去重表不可用时，本实例当天已发过的北京日期（只是附加保护，跨实例不共享） */
   let fallbackSentDay: string | null = null
+  const weekly = createWeeklyDigest({
+    env, now, log, site: SITE, logTable: LOG_TABLE,
+    fetchJson: url => fetchJson(fetchImpl, url),
+    repository: () => { const db = supabaseConfig(env); return db ? createRepository(db, fetchImpl) : null },
+    isLogMissing: error => error instanceof LogUnavailable && error.message === 'missing',
+    send: message => sendGmail(env, createTransport, '每周变化摘要', message),
+  })
 
   return async function candidateAlertsDigest(req: Request, res: Response): Promise<unknown> {
     if (!requireCron(req, res, { env, log, tag: 'candidate-alerts' })) return
@@ -242,6 +270,8 @@ export function createCandidateAlertsDigest({ fetchImpl = globalThis.fetch as un
       }
       return res.status(200).json({ ok: true, test: true, sent: true, day })
     }
+    // ?weekly=1：每周变化摘要（Vercel Cron 周一 00:00 UTC），去重键 weekly|YYYY-Www，每周最多一封
+    if (['1', 'true'].includes(String(req.query?.weekly ?? ''))) return weekly(res, dryRun)
     const db = supabaseConfig(env)
     if (!db) {
       log.error('[candidate-alerts] SUPABASE_URL / SUPABASE_SECRET_KEY 未配置或无效')

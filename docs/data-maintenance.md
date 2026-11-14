@@ -112,7 +112,7 @@ PEP最新Q3、官方事件日历、8项ETF费用／规则及纳指QQQ持仓代�
 
 未纳入：`dcf-prefill`（基本面按周、价格不要求当日）、`market-cycle`（增量采集，每日两次，迟到不影响）、`macro-snapshot`（周六一次）、`national-team`（每周）、`data-freshness`（按实际运行时刻推算，迟到不误报）。
 
-**Hobby 计划限制**（[官方](https://vercel.com/docs/cron-jobs/usage-and-pricing)）：每个 cron 每天最多一次（更频繁的表达式会让部署失败）；只保证在指定的**那个小时内**触发（`0 8` 可能是 08:00–08:59 任一时刻），所以上表按「整小时窗口都可接受」选档、分钟一律写 0。Pro 计划精确到分钟。每项目 100 个 cron，本项目用 6 个（5 个派发工作流 + 候选池提醒邮件）。Vercel 不重试失败的调用，也可能偶尔重复调用；cron 只在 Production 部署上运行。
+**Hobby 计划限制**（[官方](https://vercel.com/docs/cron-jobs/usage-and-pricing)）：每个 cron 每天最多一次（更频繁的表达式会让部署失败）；只保证在指定的**那个小时内**触发（`0 8` 可能是 08:00–08:59 任一时刻），所以上表按「整小时窗口都可接受」选档、分钟一律写 0。Pro 计划精确到分钟。每项目 100 个 cron，本项目用 7 个（5 个派发工作流 + 候选池每日提醒邮件 + 每周变化摘要）。Vercel 不重试失败的调用，也可能偶尔重复调用；cron 只在 Production 部署上运行。
 
 **重复运行的处理**（GitHub `schedule` 保留为兜底，未删除）：
 
@@ -170,6 +170,35 @@ curl -s -H "Authorization: Bearer $CRON_SECRET" "https://business-web-black.verc
 **排错**：401 = `CRON_SECRET` 不一致；503 = 环境变量没配到 Production 或部署早于设置；502 + `Gmail 登录失败` = 应用专用密码错误或两步验证未开；502 + `读取候选池失败` = Supabase 配置或候选池迁移问题；`sentLog: "error"` 时为避免重复，本次不发。
 
 **关闭**：删掉 `vercel.json` 里这条 cron 并部署；或临时删除 Production 的 `GMAIL_APP_PASSWORD`（函数返回 503，不发信）。重新开启按相反步骤。单测：`npx vitest run src/features/candidates/digest.test.ts`。
+
+## 每周变化摘要（站内「本周变化」+ 周邮件，2026-11-14 新增）
+
+**做什么**：把上一个完整自然周（北京时间周一至周日）与再前一周相比的**可复核事实**列出来，不含 AI、不做预测；每条写明数据日期与来源，没有变化时写「本周没有需要复核的变化」。规则只有一份：`src/features/weekly/weeklySummary.ts`（纯函数，站内与服务端共用，单测 `weeklySummary.test.ts`）。
+
+| 一节 | 内容 | 数据来源 |
+| --- | --- | --- |
+| 候选池 | 评级档位变化；本周触及条件价；本周新写的决策记录；下周到期的复查 | 信号台账两期快照；候选池记录（本机 / 云端快照）；收盘价观测与「今日待处理」同源（`dcf-auto.json` 收盘价 + 公司页价格锚点），邮件另并入本周每日提醒已发过的 `price-hit` 记录 |
+| 公司库 | 评级档位变化总数；新进 / 跌出「优先关注」「条件关注」各最多 8 家 | `public/data/signal-ledger-YYYY.json`（本周一期 vs 本周之前最近一期；跨年读两个文件） |
+| 牛熊周期 | 各市场总体状态、趋势、风险闸门、估值区域的变化 | `public/data/market-cycle-report.json`（weekEnding 落在本周 / 上周的记录） |
+| 宏观温度 | 宏观阶段变化（六项风险信号按 `stages.ts` 规则，取各周日及之前最近的观测） | `public/data/macro-us.json` 的 history / latest；两周末可用信号项不同时不比较 |
+
+未纳入：`lynch.json` 只有当前分类没有历史，`dcf-auto.json` 不留历史，无法做周比较。
+
+**站内**：候选池「我的候选」页签，「今日待处理」上方的折叠区「本周变化 · N 项」（`src/components/WeeklyChanges.tsx`）。只读站点静态 JSON 与本机候选池，不需要服务端；某个文件读不到时，那一部分不比较并写明。
+
+**周邮件**：同一路由加参数 `/api/market-data/candidate-alerts-digest?weekly=1`（代码 `server/weekly-digest.ts`，挂在每日提醒的处理函数里，不新增函数），复用 `CRON_SECRET` 鉴权、Gmail 环境变量和去重表。`vercel.json` cron `0 0 * * 1`：UTC 周一 00:00–00:59 = 北京周一 08:00–08:59。每日提醒是 `0 23 * * 1-5`（北京周二至周六早上），所以周一早上只有周邮件，两者不会在同一天早上都发。没有变化时不发信（`skipped: "no-changes"`）。
+
+**去重**：每周一封，去重键 `weekly|YYYY-Www`（ISO 周，如 `weekly|2026-W46`）写入现有表 `businessweb_candidate_alert_log`，`kind = 'digest'`。表的检查约束本来就允许 `digest`，**不需要新迁移**；每日提醒的键是 `digest|YYYY-MM-DD`，逐项键是 `price-hit|…` 等，前缀不同互不影响。先认领再发信，发信失败删除认领、下次再发；同一周重复调用或周中补跑返回 `skipped: "already-sent-this-week"`。表不存在时退回「本实例同周只发一次」并在日志提示执行迁移；表读取出错时不发。
+
+**试运行**（不发信、不写去重表）：
+
+```bash
+curl -s -H "Authorization: Bearer $CRON_SECRET" "https://business-web-black.vercel.app/api/market-data/candidate-alerts-digest?weekly=1&dryRun=1"
+```
+
+返回 `week`（周编号与起止日）、`sections`（各节条数）、`summary`（全部条目，含日期、来源、链接）、`notes`（数据缺口）、`subject` / `text`、`alreadySent`、`wouldSend`、`sentLog`。
+
+**关闭**：删掉 `vercel.json` 里 `?weekly=1` 那条 cron 并部署。单测：`npx vitest run src/features/weekly src/components/WeeklyChanges.test.tsx`。
 
 ## 一次更新如何验收与留痕
 

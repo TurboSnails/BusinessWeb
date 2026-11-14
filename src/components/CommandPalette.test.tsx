@@ -7,14 +7,18 @@ import { RECENT_PAGES_KEY } from '../features/recent-pages/store'
 import { searchCompanies, type CompanyIndexEntry } from '../data/siteMap'
 
 const INDEX: CompanyIndexEntry[] = [
-  { c: 'MSFT', n: '微软', m: 'us', s: '信息技术' },
-  { c: 'AAPL', n: '苹果', m: 'us', s: '信息技术' },
+  { c: 'MSFT', n: '微软', m: 'us', s: '信息技术', p: 'wr', q: 'weiruan' },
+  { c: 'AAPL', n: '苹果', m: 'us', s: '信息技术', p: 'pg', q: 'pingguo' },
   { c: 'AAP', n: 'Advance Auto Parts', m: 'us', s: '可选消费' },
-  { c: '00700', n: '腾讯控股', m: 'hk', s: '软件服务' },
-  { c: '09988', n: '阿里巴巴-W', m: 'hk' },
-  { c: '600519', n: '贵州茅台', m: 'cn', s: '主要消费' },
-  { c: '600700', n: '某某股份', m: 'cn' },
-  { c: 'BABA', n: '阿里巴巴', m: 'adr' },
+  { c: '00700', n: '腾讯控股', m: 'hk', s: '软件服务', p: 'txkg', q: 'tengxunkonggu' },
+  { c: '09988', n: '阿里巴巴-W', m: 'hk', p: 'albbw', q: 'alibabaw' },
+  { c: '600519', n: '贵州茅台', m: 'cn', s: '主要消费', p: 'gzmt', q: 'guizhoumaotai' },
+  { c: '600700', n: '某某股份', m: 'cn', p: 'mmgf', q: 'moumougufen' },
+  { c: 'BABA', n: '阿里巴巴', m: 'adr', p: 'albb', q: 'alibaba' },
+  { c: 'TME', n: '腾讯音乐', m: 'adr', p: 'txyy', q: 'tengxunyinyue' },
+  { c: '600036', n: '招商银行', m: 'cn', p: 'zsyh', q: 'zhaoshangyinhang' },
+  { c: '600132', n: '重庆啤酒', m: 'cn', p: 'cqpj', q: 'chongqingpijiu' },
+  { c: '601857', n: '中石', m: 'cn', p: 'zs', q: 'zhongshi' },
 ]
 
 const okFetch = () => vi.fn(async () => new Response(JSON.stringify({ version: 1, count: INDEX.length, items: INDEX }), { status: 200 }))
@@ -189,6 +193,17 @@ describe('CommandPalette', () => {
     expect(screen.getAllByRole('option')[0].getAttribute('data-path')).toBe('/dcf')
   })
 
+  it('输入拼音首字母找到公司，回车进入研究页', async () => {
+    setup()
+    fireEvent.click(screen.getByRole('button', { name: '打开' }))
+    const box = screen.getByRole('combobox')
+    fireEvent.change(box, { target: { value: 'gzmt' } })
+    await screen.findByRole('group', { name: '公司' })
+    expect(screen.getAllByRole('option')[0].getAttribute('data-path')).toBe('/research-notes/cn/600519')
+    fireEvent.keyDown(box, { key: 'Enter' })
+    expect(screen.getByTestId('where').textContent).toBe('/research-notes/cn/600519')
+  })
+
   it('索引载入失败时提示，页面搜索照常', async () => {
     fetchMock = vi.fn(async () => { throw new Error('offline') })
     vi.stubGlobal('fetch', fetchMock)
@@ -245,6 +260,55 @@ describe('searchCompanies', () => {
     expect(codes('阿里巴巴')).toEqual(['hk:09988', 'adr:BABA'])
     expect(codes('控股')).toEqual(['hk:00700'])
     expect(codes('auto parts')).toEqual(['us:AAP'])
+  })
+
+  it('拼音首字母和全拼前缀都能命中', () => {
+    expect(codes('txkg')).toEqual(['hk:00700'])
+    expect(codes('TXKG')).toEqual(['hk:00700'])
+    expect(codes('gzmt')).toEqual(['cn:600519'])
+    expect(codes('gz')).toEqual(['cn:600519'])
+    expect(codes('maotai')).toEqual(['cn:600519'])
+    expect(codes('yinhang')).toEqual(['cn:600036'])
+    expect(codes('guizhoumao')).toEqual(['cn:600519'])
+    expect(codes('tengxun')).toEqual(['hk:00700', 'adr:TME'])
+    // 全拼包含排在前缀后；两个字母不做包含匹配
+    expect(codes('guzhou')).toEqual([])
+    expect(codes('gufen')).toEqual(['cn:600700'])
+    expect(codes('ao')).toEqual([])
+    expect(codes('teng xun yin')).toEqual(['adr:TME'])
+    expect(codes('tx')).toEqual(['hk:00700', 'adr:TME'])
+    expect(codes('cqpj')).toEqual(['cn:600132'])
+    expect(codes('chongqing')).toEqual(['cn:600132'])
+  })
+
+  it('拼音排在代码和名称命中之后，首字母精确先于前缀', () => {
+    // pg 是苹果首字母，但 aapl 是代码精确命中，仍只出 AAPL 且排第一
+    expect(codes('aapl')).toEqual(['us:AAPL'])
+    // alibaba：英文名称不含它，靠全拼；首字母 albb 精确排在 albbw 前缀前
+    expect(codes('albb')).toEqual(['adr:BABA', 'hk:09988'])
+    // zs：首字母精确的「中石」排在前缀命中的「招商银行」前
+    expect(codes('zs')).toEqual(['cn:601857', 'cn:600036'])
+    // 代码前缀命中排在拼音前：ms 先出 MSFT，再出首字母 mm… 不会命中
+    expect(codes('ms')).toEqual(['us:MSFT'])
+    const mixed: CompanyIndexEntry[] = [
+      { c: 'ZSX', n: '某美股', m: 'us', p: 'mmg', q: 'moumeigu' },
+      { c: '600036', n: '招商银行', m: 'cn', p: 'zsyh', q: 'zhaoshangyinhang' },
+    ]
+    expect(searchCompanies('zs', mixed).map(e => e.c)).toEqual(['ZSX', '600036'])
+    const maotai: CompanyIndexEntry[] = [
+      { c: '600519', n: '贵州茅台', m: 'cn', p: 'gzmt', q: 'guizhoumaotai' },
+      { c: '000001', n: '茅台酒', m: 'cn', p: 'mtj', q: 'maotaijiu' },
+    ]
+    // 全拼前缀先于全拼包含（与索引顺序无关）
+    expect(searchCompanies('maotai', maotai).map(e => e.c)).toEqual(['000001', '600519'])
+  })
+
+  it('单个字母、带数字或符号的查询不走拼音', () => {
+    expect(codes('t')).not.toContain('hk:00700')
+    expect(codes('txkg1')).toEqual([])
+    expect(codes('tx-kg')).toEqual([])
+    // 没有拼音字段的条目（英文名）不受影响
+    expect(codes('advance')).toEqual(['us:AAP'])
   })
 
   it('空查询返回空，结果数有上限', () => {

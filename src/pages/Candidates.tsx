@@ -12,10 +12,11 @@ import { isReviewDue } from '../features/candidates/store'
 import { candidateAlerts, priceAlertStates } from '../features/candidates/alerts'
 import { addDays, priceObservations, SNOOZE_DAYS, VENUE_CURRENCY, type PriceObservation } from '../features/candidates/priceAlert'
 import CandidateAlerts from '../components/CandidateAlerts'
+import WeeklyChanges from '../components/WeeklyChanges'
 import { RESEARCH_INDEX, type ResearchSummary } from '../data/futureTrendsResearch'
 import { poolBucket } from '../data/futureTrendsPresentation'
 import { useCandidates } from '../features/candidates/useCandidates'
-import { dcfOf, MARKET_LABEL, researchToCandidate, toolProgress, venueOf } from '../features/candidates/links'
+import { autoDcfOf, dcfOf, MARKET_LABEL, researchToCandidate, toolProgress, venueOf } from '../features/candidates/links'
 import { useToolSources } from '../features/candidates/useToolSources'
 import FutureTrendsPool from './FutureTrendsPool'
 import '../styles/candidates.css'
@@ -49,6 +50,10 @@ export default function Candidates(): JSX.Element {
   const anchorPrices = useMemo(() => new Map<string, PriceObservation[]>(companies.filter(c => c.marketRefresh).map(c => [`${c.market}:${c.code}`,
     priceObservations({ venueCurrency: VENUE_CURRENCY[venueOf(c.market)], marketRefresh: c.marketRefresh })])), [companies])
   const alerts = useMemo(() => candidateAlerts(cand.items, tools, today, new Map(companies.map(c => [`${c.market}:${c.code}`, c.rating])), anchorPrices), [cand.items, tools, today, companies, anchorPrices])
+  // 本周变化里的「本周触及条件价」：与今日待处理同一价格来源（自动 DCF 预填库收盘价 + 公司页价格锚点）
+  const weeklyObservations = useMemo(() => new Map<string, PriceObservation[]>(cand.items.filter(i => i.alert).map(i => [`${i.market}:${i.code}`, [
+    ...priceObservations({ venueCurrency: VENUE_CURRENCY[venueOf(i.market)], autoDcf: autoDcfOf(i.market, i.code, tools) }), ...(anchorPrices.get(`${i.market}:${i.code}`) ?? []),
+  ]])), [cand.items, tools, anchorPrices])
   const alertStates = useMemo(() => priceAlertStates(cand.items, tools, today, anchorPrices), [cand.items, tools, today, anchorPrices])
   const pausedAlerts = [...alertStates.values()].filter(r => r.status === 'skipped' && (r.reason === 'stale' || r.reason === 'currency-mismatch' || r.reason === 'no-price')).length
   const buyable = useMemo(() => RESEARCH_INDEX.filter(r => poolBucket(r) === 'buy').length, [])
@@ -102,6 +107,7 @@ export default function Candidates(): JSX.Element {
             <li><strong>算价格</strong>点「估值」「DCF」，代码和市场自动带入；结果回到这里显示</li>
             <li><strong>管节奏</strong>A 股和 ETF 可以直接进「网格」回测</li>
           </ol>
+          <WeeklyChanges items={cand.items} companies={companies} observations={weeklyObservations} />
           {cand.items.length > 0 && <CandidateAlerts alerts={alerts} companies={companies} paused={pausedAlerts}
             onSeen={a => cand.markAlertSeen(a.market, a.code)} onSnooze={a => cand.snoozeAlert(a.market, a.code, addDays(today, SNOOZE_DAYS))} />}
           <CandidatePool items={cand.items} companies={companies} tools={tools} state={cand.state} message={cand.message}

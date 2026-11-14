@@ -34,8 +34,8 @@ for (const [handler, request, code] of [[companyNotes,{method:'GET',headers:{},q
 }
 console.log('Native Node function loading and unconfigured/invalid requests: passed');
 const dailyResponse=res(); await dailyAnalysis({method:'POST'},dailyResponse); assert.equal(dailyResponse.code,405);
-for (const [request, code] of [[{method:'POST',headers:{}},405],[{method:'GET',headers:{}},503]]) { const response=res(); await candidateAlertsDigest(request,response); assert.equal(response.code,code); }
-console.log('Candidate alerts digest (TS from src, native ESM) loads and rejects unconfigured requests: passed');
+for (const [request, code] of [[{method:'POST',headers:{}},405],[{method:'GET',headers:{}},503],[{method:'GET',headers:{},query:{weekly:'1'}},503]]) { const response=res(); await candidateAlertsDigest(request,response); assert.equal(response.code,code); }
+console.log('Candidate alerts digest + weekly mode (TS from src, native ESM) load and reject unconfigured requests: passed');
 `)
   const env = { ...process.env, CRON_SECRET: '', SUPABASE_URL: '', SUPABASE_SECRET_KEY: '', GRID_SYNC_TOKEN: '', PULSE_SYNC_TOKEN: '', COMPANY_NOTES_WRITE_TOKEN: '' }
   const run = spawnSync(process.execPath, ['--no-experimental-detect-module', join(directory, 'check.mjs')], { env, encoding: 'utf8' })
