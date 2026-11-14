@@ -2,6 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://business-web-black.vercel.app/</loc></url>
   <url><loc>https://business-web-black.vercel.app/invest</loc></url>
+  <url><loc>https://business-web-black.vercel.app/invest/start</loc></url>
   <url><loc>https://business-web-black.vercel.app/invest/etf</loc></url>
   <url><loc>https://business-web-black.vercel.app/invest/fundamental-quant</loc></url>
   <url><loc>https://business-web-black.vercel.app/industry-etf</loc></url>

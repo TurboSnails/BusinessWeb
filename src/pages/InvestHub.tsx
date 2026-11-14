@@ -90,6 +90,7 @@ export default function InvestHub(): JSX.Element {
       <header className="page-head">
         <h1>投资</h1>
         <p>不盯盘、不预测的普通人投资方法：用规则代替盯盘。</p>
+        <p><Link to="/invest/start">第一次来？从这里开始 →</Link></p>
       </header>
 
       {/* 规则：书与年度计划，所有决策的前提 */}

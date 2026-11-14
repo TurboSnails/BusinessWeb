@@ -140,6 +140,7 @@ export default function Home(): JSX.Element {
           <div className="home-book-band__actions">
             <Link to="/first-book" className="home-read">开始阅读<ArrowRight size={18} aria-hidden="true" /></Link>
             <Link to="/first-book/slow-is-fast" className="home-contents">看目录<ArrowRight size={16} aria-hidden="true" /></Link>
+            <Link to="/invest/start" className="home-contents">不懂投资？从这里开始<ArrowRight size={16} aria-hidden="true" /></Link>
           </div>
           <p className="home-manifesto">上班，是为了有一天不上班；<br />生活，从来不该被工作定义。</p>
         </div>

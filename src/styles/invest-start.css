@@ -1,0 +1,199 @@
+/* 从这里开始 /invest/start。颜色只用全站变量；手机 300px 不横向滚动；触控目标 ≥ 44px；尊重减少动态效果。 */
+.invest-start {
+  max-width: 46em;
+  overflow-wrap: anywhere;
+}
+
+.invest-start .is-breadcrumb { margin: 4px 0 8px; }
+
+.invest-start .is-head { margin: 8px 0 16px; }
+.invest-start .is-head h1 { font-family: var(--font-serif); }
+.invest-start .is-head p { line-height: 1.75; }
+
+.invest-start .is-disclaimer { margin: 0 0 16px; }
+.invest-start .is-disclaimer p { margin: 0; line-height: 1.7; }
+.invest-start .is-disclaimer p + p { margin-top: 4px; }
+
+.invest-start .is-next-step {
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+  background: var(--accent-soft);
+}
+.invest-start .is-next-step__title { margin: 0 0 4px; font-size: 0.95rem; color: var(--accent-ink); }
+.invest-start .is-next-step p { margin: 0; line-height: 1.75; }
+
+.invest-start .is-redline {
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  border: 2px solid var(--up);
+  border-radius: var(--radius-md);
+  background: var(--system-red-light);
+}
+.invest-start .is-redline p { margin: 0; line-height: 1.75; }
+.invest-start .is-redline__title { font-weight: 700; color: var(--up-ink); margin-bottom: 4px !important; }
+
+.invest-start .is-section { margin: 24px 0; }
+.invest-start .is-section-card { margin: 24px 0; scroll-margin-top: 72px; }
+.invest-start .is-section,
+.invest-start .is-result { scroll-margin-top: 72px; }
+
+.invest-start .is-h2 { margin: 0 0 8px; font-size: 1.2rem; font-family: var(--font-serif); }
+.invest-start .is-h2:focus { outline: none; }
+.invest-start .is-h2:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.invest-start .is-h3 { margin: 16px 0 6px; font-size: 1rem; }
+.invest-start .is-muted { color: var(--text-secondary); font-size: 0.88rem; line-height: 1.7; }
+.invest-start .is-error { color: var(--up-ink); font-size: 0.9rem; margin: 6px 0; }
+.invest-start p { line-height: 1.75; }
+
+/* 按钮与触控目标：按钮、选项、清单标题、引用 / 步骤 / 下一步链接都 ≥ 44px。
+   句中行内书链（红线卡、算式说明、额度说明、检查日简介）按 WCAG 2.5.8「行内目标」例外保留文字行高，不撑开行距。 */
+.invest-start .is-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 0; }
+.invest-start .is-btn { min-height: 44px; font-size: 0.92rem; }
+.invest-start a { text-underline-offset: 3px; }
+.invest-start .is-refs a,
+.invest-start .is-step__links a,
+.invest-start .is-next a,
+.invest-start .is-next-step a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+/* 自测 */
+.invest-start .is-progress { margin: 0 0 8px; color: var(--text-secondary); font-size: 0.9rem; }
+.invest-start .is-fieldset {
+  margin: 0;
+  padding: 14px 16px;
+  min-width: 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+}
+.invest-start .is-fieldset:focus { outline: none; }
+.invest-start .is-fieldset:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.invest-start .is-legend { padding: 0; font-weight: 650; font-size: 1.02rem; line-height: 1.6; }
+.invest-start .is-hint { margin: 4px 0 0; color: var(--text-secondary); font-size: 0.9rem; }
+.invest-start .is-options { display: grid; gap: 8px; margin: 12px 0 4px; }
+.invest-start .is-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+  cursor: pointer;
+  line-height: 1.5;
+}
+.invest-start .is-option input { flex: none; width: 20px; height: 20px; margin: 0; accent-color: var(--accent); }
+.invest-start .is-option--on { border-color: var(--accent); background: var(--accent-soft); }
+.invest-start .is-option:focus-within { outline: 2px solid var(--accent); outline-offset: 1px; }
+.invest-start .is-option--inline { display: inline-flex; margin: 4px 8px 4px 0; }
+.invest-start .is-assess-summary p { margin: 0; }
+
+/* 结果卡 */
+.invest-start .is-result { margin: 24px 0; }
+.invest-start .is-result--foundation { border-color: var(--accent-warm); }
+.invest-start .is-result__kicker { margin: 0 0 6px; }
+.invest-start .is-reasons { margin: 0; padding-left: 20px; }
+.invest-start .is-reasons li { margin: 6px 0; line-height: 1.75; }
+.invest-start .is-next { margin: 12px 0 0; font-weight: 600; }
+.invest-start .is-cap { margin: 10px 0 0; padding: 10px 12px; border: 1px dashed var(--border-subtle); border-radius: var(--radius-sm); }
+.invest-start .is-cap summary,
+.invest-start .is-legacy summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.invest-start .is-acks { display: grid; gap: 6px; margin: 8px 0; }
+.invest-start .is-check { display: flex; gap: 8px; align-items: flex-start; min-height: 44px; line-height: 1.6; }
+.invest-start .is-check input { flex: none; width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--accent); }
+
+/* 表单字段 */
+.invest-start .is-field { display: grid; gap: 4px; font-size: 0.9rem; min-width: 0; }
+.invest-start .is-field input {
+  min-height: 44px;
+  width: 100%;
+  max-width: 16em;
+  padding: 6px 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font: inherit;
+  box-sizing: border-box;
+}
+.invest-start .is-field input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.invest-start .is-inline-fieldset { margin: 10px 0 0; padding: 0; border: 0; min-width: 0; }
+.invest-start .is-inline-fieldset legend { padding: 0; font-size: 0.9rem; margin-bottom: 4px; }
+
+/* 路线清单 */
+.invest-start .is-route-tabs { margin: 8px 0 12px; max-width: 100%; overflow-x: auto; }
+.invest-start .is-route-tabs .seg__btn { min-height: 44px; }
+.invest-start .is-group { margin: 12px 0 20px; }
+.invest-start .is-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.invest-start .is-step {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+}
+.invest-start .is-step > input { flex: none; width: 22px; height: 22px; margin: 11px 0 0; accent-color: var(--accent); }
+.invest-start .is-step__body { min-width: 0; flex: 1; }
+.invest-start .is-step__title { display: flex; align-items: center; min-height: 44px; font-weight: 600; line-height: 1.6; cursor: pointer; }
+.invest-start .is-step--done .is-step__title { color: var(--text-secondary); text-decoration: line-through; text-decoration-color: var(--text-tertiary); }
+.invest-start .is-step__detail { margin: 0; color: var(--text-secondary); font-size: 0.9rem; }
+.invest-start .is-step__links { margin: 2px 0 0; font-size: 0.88rem; }
+
+/* 应急金算式 */
+.invest-start .is-calc__row { display: flex; flex-wrap: wrap; gap: 12px; }
+.invest-start .is-calc__row .is-field { flex: 1 1 12em; }
+.invest-start .is-calc__result { margin: 12px 0 4px; font-weight: 600; }
+
+/* 检查日 */
+.invest-start .is-review__line { font-weight: 600; margin: 4px 0; }
+
+/* 旧计划只读卡 */
+.invest-start .is-legacy { padding: 4px 14px 12px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); background: var(--bg-card); }
+.invest-start .is-legacy__list { margin: 6px 0; padding-left: 20px; }
+.invest-start .is-legacy__list li { margin: 4px 0; line-height: 1.7; }
+.invest-start .is-legacy__label { font-weight: 600; }
+.invest-start .is-legacy__dev ul { margin: 4px 0; padding-left: 20px; font-size: 0.9rem; }
+.invest-start .is-legacy .tool-btn { min-height: 44px; }
+
+/* 参考区 */
+.invest-start .is-notyet { margin: 0; padding-left: 20px; line-height: 1.8; }
+.invest-start .is-legend-list,
+.invest-start .is-glossary { margin: 0; display: grid; gap: 8px; }
+.invest-start .is-legend-item,
+.invest-start .is-glossary__item { display: grid; grid-template-columns: minmax(5.5em, auto) 1fr; gap: 4px 12px; align-items: baseline; }
+.invest-start .is-legend-item dd,
+.invest-start .is-glossary__item dd { margin: 0; line-height: 1.7; font-size: 0.92rem; }
+.invest-start .is-glossary__item dt { font-weight: 600; }
+.invest-start .is-privacy { padding-top: 12px; border-top: 1px solid var(--border-subtle); }
+
+@media (max-width: 480px) {
+  .invest-start .is-legend-item,
+  .invest-start .is-glossary__item { grid-template-columns: 1fr; }
+  .invest-start .is-fieldset { padding: 12px; }
+  .invest-start .is-step { padding: 8px 10px; gap: 10px; }
+  .invest-start .is-actions .is-btn { flex: 1 1 auto; justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .invest-start *,
+  .invest-start *::before,
+  .invest-start *::after {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+}
