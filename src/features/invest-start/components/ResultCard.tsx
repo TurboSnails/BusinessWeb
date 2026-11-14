@@ -13,10 +13,14 @@ const pct = (bps: number): string => `${(bps / 100).toFixed(bps % 100 === 0 ? 0 
 export const ResultCard = forwardRef<HTMLHeadingElement, {
   result: AssessmentResult
   userCapBps?: number
+  /** 计划内额度是否已确认；仅 planExists 时有意义 */
+  planCapConfirmed?: boolean
   candidateCount: number | null
+  /** 已有「我的计划」时额度只读展示，编辑入口去 MyPlan */
+  planExists?: boolean
   onRedoOtherMoney: () => void
   onUserCap: (bps: number | undefined) => void
-}>(function ResultCard({ result, userCapBps, candidateCount, onRedoOtherMoney, onUserCap }, headingRef) {
+}>(function ResultCard({ result, userCapBps, planCapConfirmed, candidateCount, planExists, onRedoOtherMoney, onUserCap }, headingRef) {
   if (result.status === 'incomplete' || !result.route) {
     return (
       <Card as="section" className="is-result" label="自测结果">
@@ -78,7 +82,20 @@ export const ResultCard = forwardRef<HTMLHeadingElement, {
                     : `候选池里观察 ${candidateCount} 家。`}
                 观察名单可以放很多家，观察不等于买入；观察可以宽，资金要严（<Link to={chapterHref(REF.s36_4)}>36.4</Link>）。
               </p>
-              {route === 'research' && <ResearchCap userCapBps={userCapBps} onUserCap={onUserCap} />}
+              {route === 'research' && (
+                planExists ? (
+                  <p>
+                    我的主动额度上限：
+                    {userCapBps !== undefined
+                      ? `计划中记录 ${pct(userCapBps)}（${planCapConfirmed ? '已确认' : '待确认'}）`
+                      : '未在计划中填写'}
+                    。已有本页计划时，请到「我的计划」编辑额度，不再写入本页自测记录。
+                    {' '}<Link to="/invest/my-plan">去我的计划编辑 →</Link>
+                  </p>
+                ) : (
+                  <ResearchCap userCapBps={userCapBps} onUserCap={onUserCap} />
+                )
+              )}
             </>
           )}
         </>

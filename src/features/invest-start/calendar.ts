@@ -98,21 +98,29 @@ export function buildIcs({ review, today, now, pageUrl }: IcsInput): string {
 
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', '0.0.0.0'])
 
+export type PublicPagePath = 'invest/start' | 'invest/my-plan'
+
 /**
- * 日历回链：当前部署的 origin + 构建时的 BASE_URL（GitHub Pages 为 /BusinessWeb/）+ invest/start。
+ * 日历回链：当前部署的 origin + 构建时的 BASE_URL（GitHub Pages 为 /BusinessWeb/）+ path。
  * 只用受信来源（当前页面 origin 或配置的正式站），不接受用户输入、不带查询参数；
  * 本机开发地址不导出，改用正式站（它部署在根路径）。
+ * 第四参数默认 'invest/start'，现有调用不变。
  */
-export function publicPageUrl(locationOrigin: string, baseUrl: string, siteOrigin: string): string {
+export function publicPageUrl(
+  locationOrigin: string,
+  baseUrl: string,
+  siteOrigin: string,
+  path: PublicPagePath = 'invest/start',
+): string {
   const trim = (s: string): string => s.replace(/\/+$/, '')
   let origin: string | null = null
   try {
     const u = new URL(locationOrigin)
     if ((u.protocol === 'https:' || u.protocol === 'http:') && !LOCAL_HOSTS.has(u.hostname)) origin = u.origin
   } catch { /* 非法 origin（如 "null"）走正式站 */ }
-  if (!origin) return `${trim(siteOrigin)}/invest/start`
+  if (!origin) return `${trim(siteOrigin)}/${path}`
   const base = baseUrl.split('/').filter(Boolean).join('/')
-  return `${trim(origin)}/${base ? `${base}/` : ''}invest/start`
+  return `${trim(origin)}/${base ? `${base}/` : ''}${path}`
 }
 
 /** 显式点击后生成并下载；下载后释放 ObjectURL。无网络请求 */

@@ -1,7 +1,7 @@
 // start:v1 的运行时校验：JSON.parse 之后一律当 unknown，逐字段核对；不认识的数据不当成空状态覆盖。
-import { sanitizeAnswers, validUserCapBps } from './recommend'
-import { QUESTIONNAIRE_VERSION, SCHEMA_VERSION } from './types'
-import type { Day, ReviewSchedule, StartState, StepProgress } from './types'
+import { sanitizeAnswers, validUserCapBps } from './recommend.js'
+import { QUESTIONNAIRE_VERSION, SCHEMA_VERSION } from './types.js'
+import type { Day, ReviewSchedule, StartState, StepProgress } from './types.js'
 
 const MAX_STEPS = 200
 const MAX_COMPLETED = 200

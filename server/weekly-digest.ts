@@ -17,6 +17,8 @@ import {
   addDays, asCycleReport, asEarningsCalendar, asLedger, asMacro, beijingDay, buildWeeklySummary, companyIndexFrom, completedWeek, composeWeeklyEmail,
   ledgerYears, mergeLedgers, mergePriceHits, priceHitFromFingerprint, weeklyCount, weeklyPriceHits, type PriceHit,
 } from '../src/features/weekly/weeklySummary.js'
+import { planWeeklyFacts, snapshotDayFromInstant, type PlanWeeklyFacts } from '../src/features/investment-plan/weekly.js'
+import { parsePlanDocument } from '../src/features/investment-plan/validation.js'
 import type { CompanyRef } from './candidate-alerts-digest.js'
 
 type Env = Record<string, string | undefined>
@@ -40,12 +42,66 @@ export interface WeeklyDeps {
   repository: () => WeeklyRepository | null
   isLogMissing: (error: unknown) => boolean
   send: (message: { subject: string; text: string; html: string }) => Promise<void>
+  /** 可选：注入站长计划投影（测试用）；默认走私有表读取 */
+  loadPlanFacts?: (today: string) => Promise<{ facts: PlanWeeklyFacts | null; warning?: string }>
 }
 
 const MAIL_VARS = ['GMAIL_USER', 'GMAIL_APP_PASSWORD', 'ALERT_EMAIL_TO']
 export const weeklyKey = (weekId: string): string => `weekly|${weekId}`
 
-export function createWeeklyDigest({ env, now, log, site, logTable, fetchJson, repository, isLogMissing, send }: WeeklyDeps) {
+function parseSupabaseOrigin(raw: string | undefined): string | null {
+  try {
+    const url = new URL(raw ?? '')
+    if (url.protocol !== 'https:' || !url.hostname.endsWith('.supabase.co') || url.username || url.password || url.pathname !== '/' || url.search || url.hash || url.port) return null
+    return url.origin
+  } catch {
+    return null
+  }
+}
+
+/** 独立读取 private plan 表；失败只返回 warning，绝不抛出金额 */
+export async function loadOwnerPlanWeeklyFacts(
+  env: Env,
+  today: string,
+  fetchImpl: typeof fetch = fetch,
+): Promise<{ facts: PlanWeeklyFacts | null; warning?: string }> {
+  const origin = parseSupabaseOrigin(env.SUPABASE_URL)
+  const key = env.SUPABASE_SECRET_KEY
+  if (!origin || !key) return { facts: null }
+
+  const headers: Record<string, string> = { apikey: key, 'content-type': 'application/json' }
+  if (!key.startsWith('sb_secret_')) headers.authorization = `Bearer ${key}`
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), 6_000)
+  try {
+    const res = await fetchImpl(
+      `${origin}/rest/v1/businessweb_plan_snapshot?id=eq.1&select=payload,updated_at`,
+      { method: 'GET', headers, signal: controller.signal, redirect: 'error' },
+    )
+    if (!res.ok) return { facts: null, warning: '站长计划未能读取，相关提醒已省略。' }
+    const data: unknown = await res.json()
+    const row = Array.isArray(data) && data[0] && typeof data[0] === 'object' ? data[0] as Record<string, unknown> : null
+    if (!row || row.payload == null) return { facts: null }
+    const parsed = parsePlanDocument(row.payload)
+    if (!parsed.ok) return { facts: null, warning: '站长计划校验失败，相关提醒已省略。' }
+    if (!parsed.value.notifications.ownerWeeklyEnabled) return { facts: null }
+    const facts = planWeeklyFacts(parsed.value, today)
+    if (!facts) return { facts: null }
+    const updated = typeof row.updated_at === 'string' ? row.updated_at : parsed.value.updatedAt
+    return {
+      facts: {
+        ...facts,
+        snapshotDate: snapshotDayFromInstant(updated, today),
+      },
+    }
+  } catch {
+    return { facts: null, warning: '站长计划读取超时或失败，相关提醒已省略。' }
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
+export function createWeeklyDigest({ env, now, log, site, logTable, fetchJson, repository, isLogMissing, send, loadPlanFacts }: WeeklyDeps) {
   /** 去重表不可用时，本实例已发过的周（附加保护，跨实例不共享） */
   let fallbackSentWeek: string | null = null
 
@@ -114,13 +170,32 @@ export function createWeeklyDigest({ env, now, log, site, logTable, fetchJson, r
       const i = k.indexOf(':')
       return i > 0 && r?.n ? [{ market: k.slice(0, i) as CandidateMarket, code: k.slice(i + 1), name: r.n }] : []
     }))
+
+    // 计划 section：sentLog 非 ok 时必须省略；失败隔离，不影响原周报
+    let planFacts: PlanWeeklyFacts | null = null
+    if (sentLog === 'ok') {
+      const loader = loadPlanFacts ?? ((d: string) => loadOwnerPlanWeeklyFacts(env, d))
+      try {
+        const planLoad = await loader(today)
+        planFacts = planLoad.facts
+        if (planLoad.warning) warnings.push(planLoad.warning)
+      } catch {
+        warnings.push('站长计划未能读取，相关提醒已省略。')
+      }
+    }
+
     const summary = buildWeeklySummary({
       week, candidates: items, priceHits: mergePriceHits(weeklyPriceHits(items, observations, week), logged),
       ledger: mergeLedgers(...ledgerBodies.map(asLedger)), cycle: asCycleReport(cycleBody), macro: asMacro(macroBody), earnings: asEarningsCalendar(earningsBody), companies,
+      plan: planFacts,
     })
     summary.notes.push(...warnings)
     const mail = summary.empty ? null : composeWeeklyEmail(summary, site)
-    const info = { today, week, count: weeklyCount(summary), sections: summary.sections.map(s => ({ id: s.id, lines: s.lines.length, more: s.more ?? 0, ...(s.context ? { context: true } : {}) })), notes: summary.notes, sentLog }
+    // dryRun / 响应：只暴露投影与固定模板字段，禁止 PlanDocument
+    const planProjection = planFacts
+      ? { dueDate: planFacts.dueDate, upcomingDate: planFacts.upcomingDate, deferred: planFacts.deferred, snapshotDate: planFacts.snapshotDate }
+      : null
+    const info = { today, week, count: weeklyCount(summary), sections: summary.sections.map(s => ({ id: s.id, lines: s.lines.length, more: s.more ?? 0, ...(s.context ? { context: true } : {}) })), notes: summary.notes, sentLog, plan: planProjection }
 
     if (dryRun) {
       return res.status(200).json({ ok: true, weekly: true, dryRun: true, ...info, alreadySent, mailConfigured: !missingMail.length,

@@ -12,6 +12,7 @@ import { computeStage, SIGNALS } from '../macro/stages.js'
 import { codeKey, MARKET_LABEL, venueOf, type Venue } from '../candidates/markets.js'
 import { reached, type PriceObservation } from '../candidates/priceAlert.js'
 import { validAlertRule, type AlertDirection, type CandidateItem, type CandidateMarket } from '../candidates/validation.js'
+import type { PlanWeeklyFacts } from '../investment-plan/weekly.js'
 
 export const EMPTY_TEXT = '本周没有需要复核的变化'
 export const FOOTER = '观察提醒，不是买卖指令；每条写明数据日期与来源。'
@@ -112,11 +113,13 @@ export interface WeeklyInputs {
   /** 财报前瞻；不传时不生成「下周财报」一节 */
   earnings?: EarningsCalendarLike | null
   companies?: CompanyIndex
+  /** 站长计划检查日投影（无金额）；不传则访客摘要无此节 */
+  plan?: PlanWeeklyFacts | null
 }
 
-export type SectionId = 'candidates' | 'library' | 'cycle' | 'macro' | 'earnings'
+export type SectionId = 'candidates' | 'library' | 'cycle' | 'macro' | 'earnings' | 'plan'
 export interface WeeklyLine {
-  kind: 'rating' | 'price-hit' | 'decision' | 'review-next' | 'library-up' | 'library-down' | 'cycle' | 'macro' | 'earnings'
+  kind: 'rating' | 'price-hit' | 'decision' | 'review-next' | 'library-up' | 'library-down' | 'cycle' | 'macro' | 'earnings' | 'plan-review'
   text: string
   /** 依据的数据日期 YYYY-MM-DD */
   date: string
@@ -251,7 +254,30 @@ export function earningsSection(earnings: EarningsCalendarLike, week: WeekRange,
   }
 }
 
-export function buildWeeklySummary({ week, candidates = [], priceHits = [], ledger, cycle, macro, earnings, companies = new Map() }: WeeklyInputs): WeeklySummary {
+/** 站长计划检查日：context 节，不计变化项数，不单独触发发信 */
+export function planReviewSection(facts: PlanWeeklyFacts): WeeklySection | null {
+  if (!facts.dueDate && !facts.upcomingDate) return null
+  const date = facts.dueDate ?? (facts.upcomingDate as string)
+  const text = facts.dueDate
+    ? `我的计划：检查日 ${facts.dueDate} 已到，仍待核对。`
+    : `我的计划：未来 7 天内有检查日 ${facts.upcomingDate}。`
+  const lines: WeeklyLine[] = [{
+    kind: 'plan-review',
+    date,
+    source: `站长已同步的计划（同步日期 ${facts.snapshotDate}）`,
+    href: '/invest/my-plan',
+    text: facts.deferred ? `${text}上次记为暂缓，仍待复核。` : text,
+  }]
+  return {
+    id: 'plan',
+    title: '我的计划',
+    lines,
+    context: true,
+    summary: '仅检查日与待核事实，无金额；背景信息，不计入变化项数。',
+  }
+}
+
+export function buildWeeklySummary({ week, candidates = [], priceHits = [], ledger, cycle, macro, earnings, companies = new Map(), plan = null }: WeeklyInputs): WeeklySummary {
   const sections: WeeklySection[] = []
   const notes: string[] = []
   const pair = ledgerPair(ledger, week)
@@ -350,6 +376,12 @@ export function buildWeeklySummary({ week, candidates = [], priceHits = [], ledg
     if (sec) sections.push(sec)
   }
 
+  // (f) 站长计划检查日（无金额，context）
+  if (plan) {
+    const sec = planReviewSection(plan)
+    if (sec) sections.push(sec)
+  }
+
   const total = sections.reduce((n, s) => n + (s.context ? 0 : s.lines.length), 0)
   return { week, sections, total, empty: total === 0, emptyText: EMPTY_TEXT, notes }
 }
@@ -359,7 +391,10 @@ export const weeklyCount = (s: WeeklySummary): number => s.sections.reduce((n, x
 /** 变化事项节与背景信息节 */
 export const changeSections = (s: WeeklySummary): WeeklySection[] => s.sections.filter(x => !x.context)
 export const contextSections = (s: WeeklySummary): WeeklySection[] => s.sections.filter(x => x.context)
-const sectionCount = (sec: WeeklySection): string => (sec.context ? `${sec.lines.length} 家` : `${sec.lines.length} 项`)
+const sectionCount = (sec: WeeklySection): string => {
+  if (sec.id === 'plan') return `${sec.lines.length} 项`
+  return sec.context ? `${sec.lines.length} 家` : `${sec.lines.length} 项`
+}
 
 // ── 邮件正文：纯文本 + 简单 HTML ──
 const escapeHtml = (s: string): string => s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c] as string)

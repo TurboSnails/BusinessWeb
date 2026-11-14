@@ -77,6 +77,19 @@ describe('空状态', () => {
     expect(unchanged.notes).toEqual([])
   })
 
+  it('访客不传 plan → 无计划节；传入 plan 为 context 且不计入变化项', () => {
+    expect(buildWeeklySummary({ week: W46 }).sections.find(s => s.id === 'plan')).toBeUndefined()
+    const withPlan = buildWeeklySummary({
+      week: W46,
+      plan: { snapshotDate: '2026-11-14', dueDate: '2026-11-16', upcomingDate: null, deferred: false },
+    })
+    expect(withPlan.empty).toBe(true)
+    expect(weeklyCount(withPlan)).toBe(0)
+    expect(withPlan.sections.find(s => s.id === 'plan')?.context).toBe(true)
+    expect(withPlan.sections.find(s => s.id === 'plan')?.lines[0].kind).toBe('plan-review')
+    expect(JSON.stringify(withPlan)).not.toMatch(/amount|fen|token/i)
+  })
+
   it('台账没有本周一期：不比较并写明原因（不算事项）', () => {
     const s = buildWeeklySummary({ week: W46, ledger: { schemaVersion: 1, snapshots: { '2026-11-07': {} } } })
     expect(s.empty).toBe(true)

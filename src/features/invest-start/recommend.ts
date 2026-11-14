@@ -11,9 +11,9 @@
 //     R5（先判）Q6=d 且 Q7=c 且 Q8=c → 研究，建议起点 500bps
 //     R4 其余 → 结合，建议起点 500bps
 //   任何意外输入 fail closed 为 incomplete，绝不默认为研究
-import { QIDS, allowedAnswers } from './content'
-import { RULES_VERSION, SUGGESTED_CAP_BPS, USER_CAP_MAX_BPS } from './types'
-import type { Answer, Answers, AssessmentResult, Qid, Route } from './types'
+import { QIDS, allowedAnswers } from './content.js'
+import { RULES_VERSION, SUGGESTED_CAP_BPS, USER_CAP_MAX_BPS } from './types.js'
+import type { Answer, Answers, AssessmentResult, Qid, Route } from './types.js'
 
 type Full = Record<Qid, Answer>
 

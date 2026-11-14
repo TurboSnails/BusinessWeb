@@ -3,5 +3,5 @@
   "compilerOptions": { "types": ["node"], "noEmit": true },
   "include": ["api/**/*.ts", "src/features/grid-trading/validation.ts", "src/features/grid-trading/types.ts", "src/features/pulse/validation.ts", "src/features/candidates/validation.ts",
     "server/candidate-alerts-digest.ts", "src/features/candidates/alertRules.ts", "src/features/candidates/priceAlert.ts", "src/features/candidates/markets.ts", "src/features/dcf/autoDcfSummary.ts", "src/features/signals/ratingBucket.ts",
-    "server/weekly-digest.ts", "src/features/weekly/weeklySummary.ts", "src/features/macro/stages.ts"]
+    "server/weekly-digest.ts", "server/plan-sync.ts", "src/features/weekly/weeklySummary.ts", "src/features/macro/stages.ts"]
 }

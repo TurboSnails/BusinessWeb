@@ -117,4 +117,8 @@ describe('publicPageUrl', () => {
     expect(publicPageUrl('http://127.0.0.1:5191', '/', 'https://canon.test')).toBe('https://canon.test/invest/start')
     expect(publicPageUrl('null', '/', 'https://canon.test')).toBe('https://canon.test/invest/start')
   })
+  it('第四参数可切到 invest/my-plan；默认仍是 invest/start', () => {
+    expect(publicPageUrl('https://canon.test', '/', 'https://canon.test', 'invest/my-plan')).toBe('https://canon.test/invest/my-plan')
+    expect(publicPageUrl('https://canon.test', '/', 'https://canon.test')).toBe('https://canon.test/invest/start')
+  })
 })

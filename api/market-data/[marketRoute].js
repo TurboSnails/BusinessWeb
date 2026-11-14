@@ -15,6 +15,8 @@ const handlers = new Map([
   // Vercel Cron 专用：候选池每日提醒邮件，需 CRON_SECRET；?dryRun=1 只返回 JSON 不发信；?weekly=1 为每周变化摘要（周一 00:00 UTC）。
   // 按需加载：它引用 src 下的 TypeScript（Vercel 构建时编译），其他路由与本地 node --test 不必加载
   ['candidate-alerts-digest', (req, res) => import('../../server/functions/candidate-alerts-digest.js').then(m => m.default(req, res))],
+  // 站长计划云同步：需 PLAN_SYNC_TOKEN；惰性加载，不增加顶层 api 函数数量
+  ['plan-sync', (req, res) => import('../../server/functions/plan-sync.js').then(m => m.default(req, res))],
 ])
 
 export default function handler(req, res) {

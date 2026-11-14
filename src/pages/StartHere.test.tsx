@@ -5,6 +5,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import StartHere from './StartHere'
 import { START_KEY } from '../features/invest-start/store'
+import { resetPlanRepositoryForTests } from '../features/investment-plan/repository'
 
 const fetchSpy = vi.fn()
 
@@ -17,6 +18,7 @@ afterEach(() => {
   cleanup()
   vi.unstubAllGlobals()
   window.localStorage.clear()
+  resetPlanRepositoryForTests()
 })
 
 const NEXT_YEAR = new Date().getFullYear() + 1
@@ -231,24 +233,16 @@ describe('StartHere', () => {
     expect(localStorage.getItem('rn-candidates')).toBe('[]')
   })
 
-  it('旧计划卡：默认值视为未填写；本人数据在确认前不显示金额', async () => {
-    localStorage.setItem('plan2026:fund-total', '"100"')
-    localStorage.setItem('plan2026:fund-split', JSON.stringify({ base: '75', active: '20', reserve: '5' }))
-    localStorage.setItem('plan2026:fund-cap', '"5"')
-    const { unmount } = renderPage()
-    expect(document.body.textContent).toContain('还没有填写（投资计划页打开时会自动存一份示例值')
-    unmount()
-
+  it('计划摘要卡：无计划时引导去 my-plan；有计划后不显示个人金额；旧记录迁移入口已移走', async () => {
     localStorage.setItem('plan2026:fund-total', '"38"')
-    const user = userEvent.setup()
+    localStorage.setItem('plan2026:fund-split', JSON.stringify({ base: '70', active: '20', reserve: '10' }))
     renderPage()
-    const card = screen.getByText(/投资计划页里的旧记录/).closest('details')!
-    expect(card.textContent).not.toContain('38 万元')
-    expect(card.textContent).toContain('已填写（确认后显示）')
-    expect(card.textContent).toContain('不是书')
-    await user.click(screen.getByRole('button', { name: '这些是我自己填的，显示金额' }))
-    expect(card.textContent).toContain('38 万元')
-    expect(card.textContent).not.toMatch(/区间内|安全/)
+    const card = screen.getByLabelText('我的计划摘要')
+    expect(card.textContent).toContain('还没有本页计划')
+    expect(card.textContent).not.toContain('38')
+    expect(card.textContent).not.toContain('万元')
+    expect(screen.queryByText(/投资计划页里的旧记录/)).toBeNull()
+    expect(within(card).getByRole('link', { name: /去我的计划/ }).getAttribute('href')).toBe('/invest/my-plan')
   })
 
   it('检查日：日号限 1—28；保存后可下载 .ics（无网络请求），并显示提醒说明', async () => {

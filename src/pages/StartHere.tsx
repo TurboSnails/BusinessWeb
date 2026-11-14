@@ -10,20 +10,27 @@ import { RULES_VERSION, type Answer, type Qid, type Route } from '../features/in
 import { useStartState } from '../features/invest-start/useStartState'
 import { Assessment } from '../features/invest-start/components/Assessment'
 import { EmergencyCalc } from '../features/invest-start/components/EmergencyCalc'
-import { LegacyPlanCard } from '../features/invest-start/components/LegacyPlanCard'
 import { Glossary, Legend, NotYet } from '../features/invest-start/components/References'
 import { ResultCard } from '../features/invest-start/components/ResultCard'
 import { ReviewPanel } from '../features/invest-start/components/ReviewPanel'
 import { RouteChecklist } from '../features/invest-start/components/RouteChecklist'
 import { QUESTIONS } from '../features/invest-start/content'
+import { PlanSummaryCard } from '../features/investment-plan/components/PlanSummaryCard'
+import { usePlan } from '../features/investment-plan/usePlan'
 import '../styles/invest-start.css'
+import '../styles/investment-plan.css'
 
 const TOTAL = QUESTIONS.length
 const ROUTE_TABS: Array<{ id: Route; label: string }> = (['foundation', 'simple', 'combined', 'research'] as Route[]).map(id => ({ id, label: ROUTE_INFO[id].title }))
 
 /** /invest/start「从这里开始」：纯前端；唯一写入 localStorage['start:v1']，不发任何网络请求 */
 export default function StartHere(): JSX.Element {
-  const { state, update, reset, mode, saveFailed, deleteFailed, questionnaireChanged, rulesOutdated, legacy, candidateCount } = useStartState()
+  const { state, update, reset, mode, saveFailed, deleteFailed, questionnaireChanged, rulesOutdated, candidateCount } = useStartState()
+  const { snapshot: planSnap } = usePlan()
+  // 坏文档/未保存也不回退到 start 检查日与额度（§6.3）
+  const planExists =
+    !!planSnap.document || planSnap.mode === 'corrupt' || (planSnap.unsaved && planSnap.mode === 'unavailable')
+  const planDoc = planSnap.document
   const result = useMemo(() => evaluate(state.answers), [state.answers])
   const done = answeredCount(state.answers)
   const [assessIndex, setAssessIndex] = useState<number | null>(() =>
@@ -72,6 +79,10 @@ export default function StartHere(): JSX.Element {
     jumpToQuestion(0)
   }
 
+  const planExistsNote = planExists
+    ? '已有「我的计划」本机记录，重做自测不会自动改动那份计划；需要更新时请在我的计划页显式预览。'
+    : null
+
   const redoOtherMoney = (): void => {
     update(s => {
       const answers = { ...s.answers }
@@ -84,7 +95,8 @@ export default function StartHere(): JSX.Element {
   }
 
   const firstOpenStep = groups.flatMap(g => g.steps).find(s => !state.steps[s.id]?.checked)
-  const review = state.review ? reviewStatus(state.review, today) : null
+  const startReview = !planDoc && state.review ? reviewStatus(state.review, today) : null
+  const planReview = planDoc?.review ? reviewStatus(planDoc.review, today) : null
 
   // 一句话下一步
   let nextLine: React.ReactNode
@@ -104,10 +116,18 @@ export default function StartHere(): JSX.Element {
       ].filter(Boolean).join('、')
       nextLine = <>{todo}，读<Link to={chapterHref(REF.openingFourSteps)}>开篇四步</Link>。现在不需要选任何产品。</>
     }
-  } else if (review) {
-    nextLine = review.due
-      ? <>检查日 {review.due} 已到：先更新金额，再看是否达到事先定的调整条件。<a href="#start-review">去检查 →</a></>
-      : <>下次检查日 {review.next}，还有 {review.daysToNext} 天。{BETWEEN_CHECKS}</>
+  } else if (planDoc) {
+    if (!planDoc.review) {
+      nextLine = <>已有本页计划，但还没设检查日。<Link to="/invest/my-plan">去我的计划设检查日 →</Link></>
+    } else if (planReview?.due) {
+      nextLine = <>检查日 {planReview.due} 已到：先核对用途与记录，再看事先约定条件。<Link to="/invest/my-plan">去我的计划检查 →</Link></>
+    } else {
+      nextLine = <>下次检查日 {planReview!.next}，还有 {planReview!.daysToNext} 天。{BETWEEN_CHECKS} <Link to="/invest/my-plan">去我的计划 →</Link></>
+    }
+  } else if (startReview) {
+    nextLine = startReview.due
+      ? <>检查日 {startReview.due} 已到：先更新金额，再看是否达到事先定的调整条件。<a href="#start-review">去检查 →</a></>
+      : <>下次检查日 {startReview.next}，还有 {startReview.daysToNext} 天。{BETWEEN_CHECKS}</>
   } else {
     nextLine = firstOpenStep
       ? <>勾选路线清单的下一步：{firstOpenStep.title}。<a href="#start-route">去清单 →</a></>
@@ -181,16 +201,22 @@ export default function StartHere(): JSX.Element {
       <ResultCard
         ref={resultRef}
         result={result}
-        userCapBps={state.userResearchCapBps}
+        userCapBps={planDoc ? planDoc.limits.researchCapBps ?? undefined : state.userResearchCapBps}
+        planCapConfirmed={planDoc ? !!planDoc.limits.confirmedAt : undefined}
         candidateCount={candidateCount}
+        planExists={planExists}
         onRedoOtherMoney={redoOtherMoney}
-        onUserCap={bps => update(s => {
-          const next = { ...s }
-          if (bps === undefined) delete next.userResearchCapBps
-          else next.userResearchCapBps = bps
-          return next
-        })}
+        onUserCap={bps => {
+          if (planExists) return
+          update(s => {
+            const next = { ...s }
+            if (bps === undefined) delete next.userResearchCapBps
+            else next.userResearchCapBps = bps
+            return next
+          })
+        }}
       />
+      {planExistsNote && <Callout tone="info">{planExistsNote}</Callout>}
 
       <section id="start-route" className="is-section" aria-labelledby="is-route-title">
         <h2 id="is-route-title" className="is-h2">
@@ -222,29 +248,35 @@ export default function StartHere(): JSX.Element {
       <Card as="section" id="start-review" className="is-section-card" title="检查日" label="检查日">
         <p className="is-muted">
           每季度或每半年核对一次资金用途、产品与比例，达到事先定的调整条件才调整（<Link to={chapterHref(REF.openingFourSteps)}>开篇四步③</Link>）。
-          书里有两种触发方式：到期就调回目标，或偏离超过阈值才调，由你事先选一种（<Link to={chapterHref(REF.s8_2)}>8.2</Link>）。
+          书里有两种触发方式：到期就调回目标，或偏离超过带宽（事先定的偏离范围，按目标的相对比例算）才调，由你事先选一种（<Link to={chapterHref(REF.s8_2)}>8.2</Link>）。
         </p>
-        <ReviewPanel review={state.review} today={today} onChange={r => update(s => {
-          const next = { ...s }
-          if (r) next.review = r
-          else delete next.review
-          return next
-        })} />
+        {planExists ? (
+          planDoc?.review ? (
+            <p>
+              检查日已由「我的计划」管理
+              {planReview?.due
+                ? `：${planReview.due} 已到`
+                : `：下次 ${planReview?.next}，还有 ${planReview?.daysToNext} 天`}
+              。<Link to="/invest/my-plan">去我的计划检查 →</Link>
+            </p>
+          ) : planSnap.mode === 'corrupt' ? (
+            <p>本机计划无法识别；不能回退到本页旧检查日。<Link to="/invest/my-plan">去我的计划处理 →</Link></p>
+          ) : (
+            <p>已有本页计划，但还没设检查日；不能回退到本页旧检查日。<Link to="/invest/my-plan">去设检查日 →</Link></p>
+          )
+        ) : (
+          <ReviewPanel review={state.review} today={today} onChange={r => update(s => {
+            const next = { ...s }
+            if (r) next.review = r
+            else delete next.review
+            return next
+          })} />
+        )}
       </Card>
 
-      {legacy.status !== 'missing' && (
-      <section className="is-section" aria-label="投资计划页的旧记录">
-        <LegacyPlanCard
-          legacy={legacy}
-          onConfirm={() => update(s => ({ ...s, legacyConfirmation: { fingerprint: legacy.fingerprint, confirmedAt: new Date().toISOString() } }))}
-          onRevoke={() => update(s => {
-            const next = { ...s }
-            delete next.legacyConfirmation
-            return next
-          })}
-        />
+      <section className="is-section" aria-label="我的计划摘要">
+        <PlanSummaryCard snapshot={planSnap} today={today} />
       </section>
-      )}
 
       <section className="is-section" aria-labelledby="is-notyet-title">
         <h2 id="is-notyet-title" className="is-h2">这些先别开</h2>
@@ -265,10 +297,11 @@ export default function StartHere(): JSX.Element {
       <section className="is-section is-privacy" aria-labelledby="is-privacy-title">
         <h2 id="is-privacy-title" className="is-h2">本机记录</h2>
         <p>{PRIVACY_NOTE}</p>
+        <p className="is-muted">自测进度与「我的计划」是两份本机记录；清除本页只清自测，不会清除我的计划。</p>
         {deleteFailed && (
           <p className="is-error" role="alert">清除失败：浏览器没有允许删除，这台设备上的记录仍然保留。可以换一个允许本机存储的窗口再试，或在浏览器设置里清除本站数据。</p>
         )}
-        <p className="is-muted">清除只删除本页的记录，不动投资计划页和其他页面的数据；已经导入日历的检查日需要在日历里自己删除。</p>
+        <p className="is-muted">清除只删除本页的自测记录，不动「我的计划」、旧投资计划页和其他页面的数据；已经导入日历的检查日需要在日历里自己删除。</p>
         <div className="is-actions">
           {confirmClear ? (
             <>

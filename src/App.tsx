@@ -55,6 +55,7 @@ const KnowledgeCenter = lazy(() => import('./pages/KnowledgeCenter'))
 const EtfGuide = lazy(() => import('./pages/EtfGuide'))
 const BondFundReport = lazy(() => import('./pages/BondFundReport'))
 const StartHere = lazy(() => import('./pages/StartHere'))
+const MyPlan = lazy(() => import('./pages/MyPlan'))
 const IndustryEtf = lazy(() => import('./pages/IndustryEtf'))
 const Notes = lazy(() => import('./pages/Notes'))
 const NoteDetail = lazy(() => import('./pages/NoteDetail'))
@@ -125,6 +126,7 @@ export default function App(): JSX.Element {
           <Route path="/" element={<Home />} />
           <Route path="/invest" element={<InvestHub />} />
           <Route path="/invest/start" element={<StartHere />} />
+          <Route path="/invest/my-plan" element={<MyPlan />} />
           <Route path="/invest/ai-tools" element={<LegacyAiToolsRedirect />} />
           <Route path="/invest/etf" element={<EtfGuide />} />
           <Route path="/invest/bond-fund-report" element={<BondFundReport />} />
