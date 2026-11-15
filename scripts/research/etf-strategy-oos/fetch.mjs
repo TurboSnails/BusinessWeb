@@ -9,7 +9,8 @@ const collect = (x) => { if (Array.isArray(x)) x.forEach(collect); else if (x &&
 for (const f of ['industryEtf.json', 'strategyAssetEtf.json', 'etfMacdGood.json', 'etfHs300Timing.json', 'etfReviewResearch.json']) { try { collect(JSON.parse(fs.readFileSync(FR + f, 'utf8'))) } catch (e) { console.error('skip', f, e.message) } }
 const sym = (c) => (/^(5|6)/.test(c) ? 'sh' : 'sz') + c
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
-let ok = 0, fail = []
+let ok = 0
+const fail = []
 for (const c of codes) {
   const out = dir + c + '.json'
   if (fs.existsSync(out)) { ok++; continue }
