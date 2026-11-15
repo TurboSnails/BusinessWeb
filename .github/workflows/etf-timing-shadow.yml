@@ -32,6 +32,8 @@ jobs:
       - name: Record weekly snapshot
         run: node scripts/research/etf-strategy-oos/shadow.mjs
       - name: Commit if changed
+        # 数据不全时脚本以失败退出，但仍提交已取得的快照（标 complete:false）
+        if: success() || failure()
         shell: bash
         run: |
           set -euo pipefail
