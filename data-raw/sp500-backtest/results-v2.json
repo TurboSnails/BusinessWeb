@@ -1,0 +1,1429 @@
+{
+  "prereg": "sp500-valuation-predict-prereg-v2-2026-11-15",
+  "elapsedMs": 11558,
+  "dataEnd": "2026-10",
+  "judgmentsA": [
+    {
+      "id": "P1_h12",
+      "name": "P1",
+      "h": 12,
+      "oosR2": -0.084195,
+      "shiftP": 0.979457,
+      "pHolm": 1,
+      "r2_1985_2004": -0.051877,
+      "r2_2005_end": -0.111465,
+      "verdict": "无",
+      "nOos": 489,
+      "nNonOverlap": 41,
+      "oosStart": "1985-01",
+      "oosEnd": "2025-09"
+    },
+    {
+      "id": "P1_h36",
+      "name": "P1",
+      "h": 36,
+      "oosR2": -0.176052,
+      "shiftP": 0.956925,
+      "pHolm": 1,
+      "r2_1985_2004": -0.109264,
+      "r2_2005_end": -0.261629,
+      "verdict": "无",
+      "nOos": 465,
+      "nNonOverlap": 13,
+      "oosStart": "1985-01",
+      "oosEnd": "2023-09"
+    },
+    {
+      "id": "P1_h60",
+      "name": "P1",
+      "h": 60,
+      "oosR2": -0.22562,
+      "shiftP": 0.944997,
+      "pHolm": 1,
+      "r2_1985_2004": 0.027952,
+      "r2_2005_end": -0.640657,
+      "verdict": "无",
+      "nOos": 441,
+      "nNonOverlap": 8,
+      "oosStart": "1985-01",
+      "oosEnd": "2021-09"
+    },
+    {
+      "id": "P1_h120",
+      "name": "P1",
+      "h": 120,
+      "oosR2": -0.270977,
+      "shiftP": 0.880716,
+      "pHolm": 1,
+      "r2_1985_2004": 0.327342,
+      "r2_2005_end": -1.422452,
+      "verdict": "无",
+      "nOos": 381,
+      "nNonOverlap": 4,
+      "oosStart": "1985-01",
+      "oosEnd": "2016-09"
+    },
+    {
+      "id": "P2_h12",
+      "name": "P2",
+      "h": 12,
+      "oosR2": -0.025931,
+      "shiftP": 0.770709,
+      "pHolm": 1,
+      "r2_1985_2004": -0.080194,
+      "r2_2005_end": 0.019855,
+      "verdict": "无",
+      "nOos": 489,
+      "nNonOverlap": 41,
+      "oosStart": "1985-01",
+      "oosEnd": "2025-09"
+    },
+    {
+      "id": "P2_h36",
+      "name": "P2",
+      "h": 36,
+      "oosR2": -0.080907,
+      "shiftP": 0.777999,
+      "pHolm": 1,
+      "r2_1985_2004": -0.177358,
+      "r2_2005_end": 0.042678,
+      "verdict": "无",
+      "nOos": 465,
+      "nNonOverlap": 13,
+      "oosStart": "1985-01",
+      "oosEnd": "2023-09"
+    },
+    {
+      "id": "P2_h60",
+      "name": "P2",
+      "h": 60,
+      "oosR2": -0.104814,
+      "shiftP": 0.7389,
+      "pHolm": 1,
+      "r2_1985_2004": -0.163276,
+      "r2_2005_end": -0.009126,
+      "verdict": "无",
+      "nOos": 441,
+      "nNonOverlap": 8,
+      "oosStart": "1985-01",
+      "oosEnd": "2021-09"
+    },
+    {
+      "id": "P2_h120",
+      "name": "P2",
+      "h": 120,
+      "oosR2": 0.021438,
+      "shiftP": 0.15507,
+      "pHolm": 1,
+      "r2_1985_2004": 0.182272,
+      "r2_2005_end": -0.288089,
+      "verdict": "未证实",
+      "nOos": 381,
+      "nNonOverlap": 4,
+      "oosStart": "1985-01",
+      "oosEnd": "2016-09"
+    },
+    {
+      "id": "P4_h12",
+      "name": "P4",
+      "h": 12,
+      "oosR2": -0.03194,
+      "shiftP": 0.336,
+      "pHolm": 1,
+      "r2_1985_2004": 0.005864,
+      "r2_2005_end": -0.06384,
+      "verdict": "无",
+      "nOos": 489,
+      "nNonOverlap": 41,
+      "oosStart": "1985-01",
+      "oosEnd": "2025-09"
+    },
+    {
+      "id": "P4_h36",
+      "name": "P4",
+      "h": 36,
+      "oosR2": 0.031618,
+      "shiftP": 0.112,
+      "pHolm": 1,
+      "r2_1985_2004": 0.051052,
+      "r2_2005_end": 0.006716,
+      "verdict": "未证实",
+      "nOos": 465,
+      "nNonOverlap": 13,
+      "oosStart": "1985-01",
+      "oosEnd": "2023-09"
+    },
+    {
+      "id": "P4_h60",
+      "name": "P4",
+      "h": 60,
+      "oosR2": -0.037962,
+      "shiftP": 0.172571,
+      "pHolm": 1,
+      "r2_1985_2004": 0.015982,
+      "r2_2005_end": -0.126253,
+      "verdict": "无",
+      "nOos": 441,
+      "nNonOverlap": 8,
+      "oosStart": "1985-01",
+      "oosEnd": "2021-09"
+    },
+    {
+      "id": "P4_h120",
+      "name": "P4",
+      "h": 120,
+      "oosR2": -0.108532,
+      "shiftP": 0.137143,
+      "pHolm": 1,
+      "r2_1985_2004": -0.013405,
+      "r2_2005_end": -0.291606,
+      "verdict": "无",
+      "nOos": 381,
+      "nNonOverlap": 4,
+      "oosStart": "1985-01",
+      "oosEnd": "2016-09"
+    }
+  ],
+  "common": {
+    "12": {
+      "P1": {
+        "oosR2": -0.084195,
+        "nOos": 489,
+        "nNonOverlap": 41,
+        "r2_1985_2004": -0.051877,
+        "r2_2005_end": -0.111465,
+        "shiftP": 0.979457,
+        "shiftN": 1508,
+        "family": "main",
+        "oosStart": "1985-01",
+        "oosEnd": "2025-09",
+        "pHolm": 1,
+        "verdict": "无"
+      },
+      "P2": {
+        "oosR2": -0.025931,
+        "nOos": 489,
+        "nNonOverlap": 41,
+        "r2_1985_2004": -0.080194,
+        "r2_2005_end": 0.019855,
+        "shiftP": 0.770709,
+        "shiftN": 1508,
+        "family": "main",
+        "oosStart": "1985-01",
+        "oosEnd": "2025-09",
+        "pHolm": 1,
+        "verdict": "无"
+      },
+      "P3": {
+        "oosR2": -0.036532,
+        "nOos": 489,
+        "nNonOverlap": 41,
+        "r2_1985_2004": 0.062823,
+        "r2_2005_end": -0.120367,
+        "shiftP": 0.8,
+        "shiftN": 729,
+        "family": "exploratory",
+        "oosStart": "1985-01",
+        "oosEnd": "2025-09"
+      },
+      "P4": {
+        "oosR2": -0.03194,
+        "nOos": 489,
+        "nNonOverlap": 41,
+        "r2_1985_2004": 0.005864,
+        "r2_2005_end": -0.06384,
+        "shiftP": 0.336,
+        "shiftN": 874,
+        "family": "main",
+        "oosStart": "1985-01",
+        "oosEnd": "2025-09",
+        "pHolm": 1,
+        "verdict": "无"
+      },
+      "PC": {
+        "oosR2": -0.030812,
+        "nOos": 489,
+        "family": "benchmark",
+        "note": "等权 P1/P2/P4"
+      },
+      "PC3": {
+        "oosR2": -0.015307,
+        "nOos": 489,
+        "family": "exploratory",
+        "note": "等权含 P3"
+      }
+    },
+    "36": {
+      "P1": {
+        "oosR2": -0.176052,
+        "nOos": 465,
+        "nNonOverlap": 13,
+        "r2_1985_2004": -0.109264,
+        "r2_2005_end": -0.261629,
+        "shiftP": 0.956925,
+        "shiftN": 1508,
+        "family": "main",
+        "oosStart": "1985-01",
+        "oosEnd": "2023-09",
+        "pHolm": 1,
+        "verdict": "无"
+      },
+      "P2": {
+        "oosR2": -0.080907,
+        "nOos": 465,
+        "nNonOverlap": 13,
+        "r2_1985_2004": -0.177358,
+        "r2_2005_end": 0.042678,
+        "shiftP": 0.777999,
+        "shiftN": 1508,
+        "family": "main",
+        "oosStart": "1985-01",
+        "oosEnd": "2023-09",
+        "pHolm": 1,
+        "verdict": "无"
+      },
+      "P3": {
+        "oosR2": -0.030803,
+        "nOos": 465,
+        "nNonOverlap": 13,
+        "r2_1985_2004": 0.217337,
+        "r2_2005_end": -0.34875,
+        "shiftP": 0.749315,
+        "shiftN": 729,
+        "family": "exploratory",
+        "oosStart": "1985-01",
+        "oosEnd": "2023-09"
+      },
+      "P4": {
+        "oosR2": 0.031618,
+        "nOos": 465,
+        "nNonOverlap": 13,
+        "r2_1985_2004": 0.051052,
+        "r2_2005_end": 0.006716,
+        "shiftP": 0.112,
+        "shiftN": 874,
+        "family": "main",
+        "oosStart": "1985-01",
+        "oosEnd": "2023-09",
+        "pHolm": 1,
+        "verdict": "未证实"
+      },
+      "PC": {
+        "oosR2": -0.03989,
+        "nOos": 465,
+        "family": "benchmark",
+        "note": "等权 P1/P2/P4"
+      },
+      "PC3": {
+        "oosR2": -0.00212,
+        "nOos": 465,
+        "family": "exploratory",
+        "note": "等权含 P3"
+      }
+    },
+    "60": {
+      "P1": {
+        "oosR2": -0.22562,
+        "nOos": 441,
+        "nNonOverlap": 8,
+        "r2_1985_2004": 0.027952,
+        "r2_2005_end": -0.640657,
+        "shiftP": 0.944997,
+        "shiftN": 1508,
+        "family": "main",
+        "oosStart": "1985-01",
+        "oosEnd": "2021-09",
+        "pHolm": 1,
+        "verdict": "无"
+      },
+      "P2": {
+        "oosR2": -0.104814,
+        "nOos": 441,
+        "nNonOverlap": 8,
+        "r2_1985_2004": -0.163276,
+        "r2_2005_end": -0.009126,
+        "shiftP": 0.7389,
+        "shiftN": 1508,
+        "family": "main",
+        "oosStart": "1985-01",
+        "oosEnd": "2021-09",
+        "pHolm": 1,
+        "verdict": "无"
+      },
+      "P3": {
+        "oosR2": -0.047538,
+        "nOos": 441,
+        "nNonOverlap": 8,
+        "r2_1985_2004": 0.361232,
+        "r2_2005_end": -0.716595,
+        "shiftP": 0.761644,
+        "shiftN": 729,
+        "family": "exploratory",
+        "oosStart": "1985-01",
+        "oosEnd": "2021-09"
+      },
+      "P4": {
+        "oosR2": -0.037962,
+        "nOos": 441,
+        "nNonOverlap": 8,
+        "r2_1985_2004": 0.015982,
+        "r2_2005_end": -0.126253,
+        "shiftP": 0.172571,
+        "shiftN": 874,
+        "family": "main",
+        "oosStart": "1985-01",
+        "oosEnd": "2021-09",
+        "pHolm": 1,
+        "verdict": "无"
+      },
+      "PC": {
+        "oosR2": -0.066644,
+        "nOos": 441,
+        "family": "benchmark",
+        "note": "等权 P1/P2/P4"
+      },
+      "PC3": {
+        "oosR2": 0.008228,
+        "nOos": 441,
+        "family": "exploratory",
+        "note": "等权含 P3"
+      }
+    },
+    "120": {
+      "P1": {
+        "oosR2": -0.270977,
+        "nOos": 381,
+        "nNonOverlap": 4,
+        "r2_1985_2004": 0.327342,
+        "r2_2005_end": -1.422452,
+        "shiftP": 0.880716,
+        "shiftN": 1508,
+        "family": "main",
+        "oosStart": "1985-01",
+        "oosEnd": "2016-09",
+        "pHolm": 1,
+        "verdict": "无"
+      },
+      "P2": {
+        "oosR2": 0.021438,
+        "nOos": 381,
+        "nNonOverlap": 4,
+        "r2_1985_2004": 0.182272,
+        "r2_2005_end": -0.288089,
+        "shiftP": 0.15507,
+        "shiftN": 1508,
+        "family": "main",
+        "oosStart": "1985-01",
+        "oosEnd": "2016-09",
+        "pHolm": 1,
+        "verdict": "未证实"
+      },
+      "P3": {
+        "oosR2": -0.277724,
+        "nOos": 381,
+        "nNonOverlap": 4,
+        "r2_1985_2004": 0.380378,
+        "r2_2005_end": -1.544252,
+        "shiftP": 0.789041,
+        "shiftN": 729,
+        "family": "exploratory",
+        "oosStart": "1985-01",
+        "oosEnd": "2016-09"
+      },
+      "P4": {
+        "oosR2": -0.108532,
+        "nOos": 381,
+        "nNonOverlap": 4,
+        "r2_1985_2004": -0.013405,
+        "r2_2005_end": -0.291606,
+        "shiftP": 0.137143,
+        "shiftN": 874,
+        "family": "main",
+        "oosStart": "1985-01",
+        "oosEnd": "2016-09",
+        "pHolm": 1,
+        "verdict": "无"
+      },
+      "PC": {
+        "oosR2": 0.012474,
+        "nOos": 381,
+        "family": "benchmark",
+        "note": "等权 P1/P2/P4"
+      },
+      "PC3": {
+        "oosR2": 0.145136,
+        "nOos": 381,
+        "family": "exploratory",
+        "note": "等权含 P3"
+      }
+    }
+  },
+  "longWin": {
+    "12": {
+      "P1": {
+        "start": "1954-11",
+        "end": "2025-09",
+        "oosR2": -0.137621,
+        "nOos": 851,
+        "nNonOverlap": 71
+      },
+      "P2": {
+        "start": "1954-11",
+        "end": "2025-09",
+        "oosR2": 0.040176,
+        "nOos": 851,
+        "nNonOverlap": 71
+      },
+      "P4": {
+        "start": "1954-11",
+        "end": "2025-09",
+        "oosR2": 0.073023,
+        "nOos": 851,
+        "nNonOverlap": 71
+      }
+    },
+    "36": {
+      "P1": {
+        "start": "1956-11",
+        "end": "2023-09",
+        "oosR2": -0.334981,
+        "nOos": 803,
+        "nNonOverlap": 23
+      },
+      "P2": {
+        "start": "1956-11",
+        "end": "2023-09",
+        "oosR2": 0.058055,
+        "nOos": 803,
+        "nNonOverlap": 23
+      },
+      "P4": {
+        "start": "1956-11",
+        "end": "2023-09",
+        "oosR2": 0.184314,
+        "nOos": 803,
+        "nNonOverlap": 23
+      }
+    },
+    "60": {
+      "P1": {
+        "start": "1958-11",
+        "end": "2021-09",
+        "oosR2": -0.288491,
+        "nOos": 755,
+        "nNonOverlap": 13
+      },
+      "P2": {
+        "start": "1958-11",
+        "end": "2021-09",
+        "oosR2": 0.164276,
+        "nOos": 755,
+        "nNonOverlap": 13
+      },
+      "P4": {
+        "start": "1958-11",
+        "end": "2021-09",
+        "oosR2": 0.254545,
+        "nOos": 755,
+        "nNonOverlap": 13
+      }
+    },
+    "120": {
+      "P1": {
+        "start": "1963-11",
+        "end": "2016-09",
+        "oosR2": -0.360779,
+        "nOos": 635,
+        "nNonOverlap": 6
+      },
+      "P2": {
+        "start": "1963-11",
+        "end": "2016-09",
+        "oosR2": 0.28985,
+        "nOos": 635,
+        "nNonOverlap": 6
+      },
+      "P4": {
+        "start": "1963-11",
+        "end": "2016-09",
+        "oosR2": 0.391787,
+        "nOos": 635,
+        "nNonOverlap": 6
+      }
+    }
+  },
+  "coverage": {
+    "12": {
+      "P1": {
+        "expand": {
+          "coverage": 0.7975460122699386,
+          "n": 489,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": null
+        },
+        "oos1985": {
+          "coverage": 0.7458033573141487,
+          "n": 417,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": "1985-01"
+        }
+      },
+      "P2": {
+        "expand": {
+          "coverage": 0.7627811860940695,
+          "n": 489,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": null
+        },
+        "oos1985": {
+          "coverage": 0.7721822541966427,
+          "n": 417,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": "1985-01"
+        }
+      },
+      "P3": {
+        "expand": {
+          "coverage": 0.7075664621676891,
+          "n": 489,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": null
+        },
+        "oos1985": {
+          "coverage": 0.7194244604316546,
+          "n": 417,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": "1985-01"
+        }
+      },
+      "P4": {
+        "expand": {
+          "coverage": 0.787321063394683,
+          "n": 489,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": null
+        },
+        "oos1985": {
+          "coverage": 0.7985611510791367,
+          "n": 417,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": "1985-01"
+        }
+      }
+    },
+    "36": {
+      "P1": {
+        "expand": {
+          "coverage": 0.7161290322580646,
+          "n": 465,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": null
+        },
+        "oos1985": {
+          "coverage": 0.6585365853658537,
+          "n": 369,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": "1985-01"
+        }
+      },
+      "P2": {
+        "expand": {
+          "coverage": 0.6473118279569893,
+          "n": 465,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": null
+        },
+        "oos1985": {
+          "coverage": 0.6666666666666666,
+          "n": 369,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": "1985-01"
+        }
+      },
+      "P3": {
+        "expand": {
+          "coverage": 0.6645161290322581,
+          "n": 465,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": null
+        },
+        "oos1985": {
+          "coverage": 0.6341463414634146,
+          "n": 369,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": "1985-01"
+        }
+      },
+      "P4": {
+        "expand": {
+          "coverage": 0.6881720430107527,
+          "n": 465,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": null
+        },
+        "oos1985": {
+          "coverage": 0.6449864498644986,
+          "n": 369,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": "1985-01"
+        }
+      }
+    },
+    "60": {
+      "P1": {
+        "expand": {
+          "coverage": 0.655328798185941,
+          "n": 441,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": null
+        },
+        "oos1985": {
+          "coverage": 0.719626168224299,
+          "n": 321,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": "1985-01"
+        }
+      },
+      "P2": {
+        "expand": {
+          "coverage": 0.691609977324263,
+          "n": 441,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": null
+        },
+        "oos1985": {
+          "coverage": 0.735202492211838,
+          "n": 321,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": "1985-01"
+        }
+      },
+      "P3": {
+        "expand": {
+          "coverage": 0.47619047619047616,
+          "n": 441,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": null
+        },
+        "oos1985": {
+          "coverage": 0.6635514018691588,
+          "n": 321,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": "1985-01"
+        }
+      },
+      "P4": {
+        "expand": {
+          "coverage": 0.673469387755102,
+          "n": 441,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": null
+        },
+        "oos1985": {
+          "coverage": 0.6479750778816199,
+          "n": 321,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": "1985-01"
+        }
+      }
+    },
+    "120": {
+      "P1": {
+        "expand": {
+          "coverage": 0.2992125984251969,
+          "n": 381,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": null
+        },
+        "oos1985": {
+          "coverage": 0.5522388059701493,
+          "n": 201,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": "1985-01"
+        }
+      },
+      "P2": {
+        "expand": {
+          "coverage": 0.4776902887139108,
+          "n": 381,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": null
+        },
+        "oos1985": {
+          "coverage": 0.8208955223880597,
+          "n": 201,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": "1985-01"
+        }
+      },
+      "P3": {
+        "expand": {
+          "coverage": 0.08794788273615635,
+          "n": 307,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": null
+        },
+        "oos1985": {
+          "coverage": 0.08955223880597014,
+          "n": 201,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": "1985-01"
+        }
+      },
+      "P4": {
+        "expand": {
+          "coverage": 0.7427821522309711,
+          "n": 381,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": null
+        },
+        "oos1985": {
+          "coverage": 0.6268656716417911,
+          "n": 201,
+          "level": 0.8,
+          "minPool": 60,
+          "poolStartDate": "1985-01"
+        }
+      }
+    }
+  },
+  "refTests": {
+    "12": {
+      "P1": {
+        "clarkWest": {
+          "stat": 0.306587,
+          "p": 0.379579,
+          "n": 489,
+          "pHolm": 1
+        }
+      },
+      "P2": {
+        "clarkWest": {
+          "stat": 0.650072,
+          "p": 0.257823,
+          "n": 489,
+          "pHolm": 1
+        }
+      },
+      "P4": {
+        "dm": {
+          "stat": -0.537106,
+          "p": 0.704403,
+          "n": 489,
+          "pHolm": 1
+        }
+      }
+    },
+    "36": {
+      "P1": {
+        "clarkWest": {
+          "stat": -0.049774,
+          "p": 0.519849,
+          "n": 465,
+          "pHolm": 1
+        }
+      },
+      "P2": {
+        "clarkWest": {
+          "stat": 0.346616,
+          "p": 0.36444,
+          "n": 465,
+          "pHolm": 1
+        }
+      },
+      "P4": {
+        "dm": {
+          "stat": 0.193963,
+          "p": 0.423103,
+          "n": 465,
+          "pHolm": 1
+        }
+      }
+    },
+    "60": {
+      "P1": {
+        "clarkWest": {
+          "stat": 0.140649,
+          "p": 0.444073,
+          "n": 441,
+          "pHolm": 1
+        }
+      },
+      "P2": {
+        "clarkWest": {
+          "stat": 0.508929,
+          "p": 0.305401,
+          "n": 441,
+          "pHolm": 1
+        }
+      },
+      "P4": {
+        "dm": {
+          "stat": -0.185738,
+          "p": 0.573675,
+          "n": 441,
+          "pHolm": 1
+        }
+      }
+    },
+    "120": {
+      "P1": {
+        "clarkWest": {
+          "stat": 0.600441,
+          "p": 0.274106,
+          "n": 381,
+          "pHolm": 1
+        }
+      },
+      "P2": {
+        "clarkWest": {
+          "stat": 1.019836,
+          "p": 0.153903,
+          "n": 381,
+          "pHolm": 1
+        }
+      },
+      "P4": {
+        "dm": {
+          "stat": -0.223964,
+          "p": 0.588607,
+          "n": 381,
+          "pHolm": 1
+        }
+      }
+    }
+  },
+  "refHolm": {
+    "cw": [
+      {
+        "id": "CW_P1_h12",
+        "name": "P1",
+        "h": 12,
+        "p": 0.379579,
+        "pHolm": 1,
+        "shiftP": 0.979457
+      },
+      {
+        "id": "CW_P2_h12",
+        "name": "P2",
+        "h": 12,
+        "p": 0.257823,
+        "pHolm": 1,
+        "shiftP": 0.770709
+      },
+      {
+        "id": "CW_P1_h36",
+        "name": "P1",
+        "h": 36,
+        "p": 0.519849,
+        "pHolm": 1,
+        "shiftP": 0.956925
+      },
+      {
+        "id": "CW_P2_h36",
+        "name": "P2",
+        "h": 36,
+        "p": 0.36444,
+        "pHolm": 1,
+        "shiftP": 0.777999
+      },
+      {
+        "id": "CW_P1_h60",
+        "name": "P1",
+        "h": 60,
+        "p": 0.444073,
+        "pHolm": 1,
+        "shiftP": 0.944997
+      },
+      {
+        "id": "CW_P2_h60",
+        "name": "P2",
+        "h": 60,
+        "p": 0.305401,
+        "pHolm": 1,
+        "shiftP": 0.7389
+      },
+      {
+        "id": "CW_P1_h120",
+        "name": "P1",
+        "h": 120,
+        "p": 0.274106,
+        "pHolm": 1,
+        "shiftP": 0.880716
+      },
+      {
+        "id": "CW_P2_h120",
+        "name": "P2",
+        "h": 120,
+        "p": 0.153903,
+        "pHolm": 1,
+        "shiftP": 0.15507
+      }
+    ],
+    "dm": [
+      {
+        "id": "DM_P4_h12",
+        "name": "P4",
+        "h": 12,
+        "p": 0.704403,
+        "pHolm": 1,
+        "shiftP": 0.336
+      },
+      {
+        "id": "DM_P4_h36",
+        "name": "P4",
+        "h": 36,
+        "p": 0.423103,
+        "pHolm": 1,
+        "shiftP": 0.112
+      },
+      {
+        "id": "DM_P4_h60",
+        "name": "P4",
+        "h": 60,
+        "p": 0.573675,
+        "pHolm": 1,
+        "shiftP": 0.172571
+      },
+      {
+        "id": "DM_P4_h120",
+        "name": "P4",
+        "h": 120,
+        "p": 0.588607,
+        "pHolm": 1,
+        "shiftP": 0.137143
+      }
+    ]
+  },
+  "secondary": {
+    "12": {
+      "D12P": {
+        "oosR2": -0.146764,
+        "nOos": 489
+      },
+      "MktGDP": {
+        "oosR2": -0.142134,
+        "nOos": 489
+      },
+      "TobinQ": {
+        "oosR2": -0.127541,
+        "nOos": 489
+      },
+      "MktGVA": {
+        "oosR2": -0.139335,
+        "nOos": 489
+      }
+    },
+    "36": {
+      "D12P": {
+        "oosR2": -0.355784,
+        "nOos": 465
+      },
+      "MktGDP": {
+        "oosR2": -0.390844,
+        "nOos": 465
+      },
+      "TobinQ": {
+        "oosR2": -0.307079,
+        "nOos": 465
+      },
+      "MktGVA": {
+        "oosR2": -0.398443,
+        "nOos": 465
+      }
+    },
+    "60": {
+      "D12P": {
+        "oosR2": -0.603912,
+        "nOos": 441
+      },
+      "MktGDP": {
+        "oosR2": -0.642492,
+        "nOos": 441
+      },
+      "TobinQ": {
+        "oosR2": -0.476389,
+        "nOos": 441
+      },
+      "MktGVA": {
+        "oosR2": -0.681036,
+        "nOos": 441
+      }
+    },
+    "120": {
+      "D12P": {
+        "oosR2": -1.138125,
+        "nOos": 381
+      },
+      "MktGDP": {
+        "oosR2": -1.244625,
+        "nOos": 381
+      },
+      "TobinQ": {
+        "oosR2": -0.973271,
+        "nOos": 381
+      },
+      "MktGVA": {
+        "oosR2": -1.297097,
+        "nOos": 381
+      }
+    }
+  },
+  "robustness": {
+    "byHorizon": {
+      "12": {
+        "P1_noCT": -0.095383,
+        "P2_noCT": -0.031581,
+        "P3_noCT": -0.040978,
+        "P1_oos1975": -0.275959,
+        "P2_oos1975": -0.046669,
+        "P4_oos1975": -0.008243,
+        "P4_arith": -0.030553,
+        "P3_extraLag3m": -0.028722,
+        "MktGDP_extraLag3m": -0.151305,
+        "TobinQ_extraLag3m": -0.130728,
+        "MktGVA_extraLag3m": -0.1477
+      },
+      "36": {
+        "P1_noCT": -0.176052,
+        "P2_noCT": -0.081179,
+        "P3_noCT": -0.034428,
+        "P1_oos1975": -0.651898,
+        "P2_oos1975": -0.175012,
+        "P4_oos1975": 0.01565,
+        "P4_arith": 0.038669,
+        "P3_extraLag3m": -0.02435,
+        "MktGDP_extraLag3m": -0.383935,
+        "TobinQ_extraLag3m": -0.281069,
+        "MktGVA_extraLag3m": -0.385913
+      },
+      "60": {
+        "P1_noCT": -0.22562,
+        "P2_noCT": -0.105389,
+        "P3_noCT": -0.045811,
+        "P1_oos1975": -0.877297,
+        "P2_oos1975": -0.226681,
+        "P4_oos1975": -0.09171,
+        "P4_arith": -0.028026,
+        "P3_extraLag3m": -0.061789,
+        "MktGDP_extraLag3m": -0.642849,
+        "TobinQ_extraLag3m": -0.476346,
+        "MktGVA_extraLag3m": -0.680278
+      },
+      "120": {
+        "P1_noCT": -0.270977,
+        "P2_noCT": 0.022808,
+        "P3_noCT": -0.275544,
+        "P1_oos1975": -2.114428,
+        "P2_oos1975": -0.134349,
+        "P4_oos1975": -0.289728,
+        "P4_arith": -0.085932,
+        "P3_extraLag3m": -0.323708,
+        "MktGDP_extraLag3m": -1.249114,
+        "TobinQ_extraLag3m": -0.98514,
+        "MktGVA_extraLag3m": -1.300587
+      }
+    },
+    "trade": {
+      "T1_cost30": {
+        "name": "T1_cost30",
+        "deltaCer": 0.001208,
+        "p": 0.0984,
+        "ci95": [
+          -0.000614,
+          0.003144
+        ],
+        "highCostDeltaCer": 0.001208,
+        "metrics": {
+          "cagr": 0.082412,
+          "vol": 0.06924,
+          "sharpe": 0.549254,
+          "maxDrawdown": -0.281602,
+          "cer": 0.030963,
+          "avgWeight": 0.576947,
+          "turnoverAnn": 0.135893,
+          "n": 802,
+          "start": "1960-01",
+          "end": "2026-10"
+        }
+      },
+      "T2_cost30": {
+        "name": "T2_cost30",
+        "deltaCer": 0.002522,
+        "p": 0.0952,
+        "ci95": [
+          -0.00133,
+          0.006194
+        ],
+        "highCostDeltaCer": 0.002522,
+        "metrics": {
+          "cagr": 0.083554,
+          "vol": 0.069312,
+          "sharpe": 0.564521,
+          "maxDrawdown": -0.338607,
+          "cer": 0.032031,
+          "avgWeight": 0.570659,
+          "turnoverAnn": 0.123176,
+          "n": 802,
+          "start": "1960-01",
+          "end": "2026-10"
+        }
+      },
+      "T1_valOnly": {
+        "name": "T1_valOnly",
+        "deltaCer": 0.001394,
+        "p": 0.0743,
+        "ci95": [
+          -0.000486,
+          0.003363
+        ],
+        "highCostDeltaCer": 0.00135,
+        "metrics": {
+          "cagr": 0.082408,
+          "vol": 0.070267,
+          "sharpe": 0.542164,
+          "maxDrawdown": -0.313538,
+          "cer": 0.03081,
+          "avgWeight": 0.564296,
+          "turnoverAnn": 0.101007,
+          "n": 802,
+          "start": "1960-01",
+          "end": "2026-10"
+        }
+      },
+      "T1_momOnly": {
+        "name": "T1_momOnly",
+        "deltaCer": 0.001148,
+        "p": 0.2666,
+        "ci95": [
+          -0.002367,
+          0.00484
+        ],
+        "highCostDeltaCer": 0.0008,
+        "metrics": {
+          "cagr": 0.083194,
+          "vol": 0.069713,
+          "sharpe": 0.55638,
+          "maxDrawdown": -0.26105,
+          "cer": 0.031626,
+          "avgWeight": 0.591582,
+          "turnoverAnn": 0.250442,
+          "n": 802,
+          "start": "1960-01",
+          "end": "2026-10"
+        }
+      }
+    }
+  },
+  "trade": {
+    "evalStart": "1960-01",
+    "evalEnd": "2026-10",
+    "nMonths": 802,
+    "judgments": [
+      {
+        "name": "T1",
+        "verdict": "未证实",
+        "deltaCer": 0.001324,
+        "p": 0.0791,
+        "pHolm": 0.1582,
+        "ci95": [
+          -0.000499,
+          0.003264
+        ],
+        "subperiods": {
+          "1960-1984": 0.000915,
+          "1985-2004": 0.00194,
+          "2005-end": 0.001232
+        },
+        "drop24": 0.000609,
+        "highCostDeltaCer": 0.001208,
+        "conditions": {
+          "a_holm": false,
+          "b_subperiods": true,
+          "c_drop24": true,
+          "d_cost30bps": true
+        },
+        "metrics": {
+          "cagr": 0.082706,
+          "vol": 0.069242,
+          "sharpe": 0.553177,
+          "maxDrawdown": -0.281232,
+          "cer": 0.031236,
+          "avgWeight": 0.576947,
+          "turnoverAnn": 0.135893,
+          "n": 802,
+          "start": "1960-01",
+          "end": "2026-10"
+        }
+      },
+      {
+        "name": "T2",
+        "verdict": "未证实",
+        "deltaCer": 0.002612,
+        "p": 0.0873,
+        "pHolm": 0.1582,
+        "ci95": [
+          -0.001233,
+          0.00627
+        ],
+        "subperiods": {
+          "1960-1984": 0.005059,
+          "1985-2004": 0.001564,
+          "2005-end": 0.000758
+        },
+        "drop24": 0.001513,
+        "highCostDeltaCer": 0.002522,
+        "conditions": {
+          "a_holm": false,
+          "b_subperiods": true,
+          "c_drop24": true,
+          "d_cost30bps": true
+        },
+        "metrics": {
+          "cagr": 0.083821,
+          "vol": 0.069316,
+          "sharpe": 0.568066,
+          "maxDrawdown": -0.338242,
+          "cer": 0.032278,
+          "avgWeight": 0.570659,
+          "turnoverAnn": 0.123176,
+          "n": 802,
+          "start": "1960-01",
+          "end": "2026-10"
+        }
+      }
+    ],
+    "variants": {
+      "T1_cost30": {
+        "name": "T1_cost30",
+        "deltaCer": 0.001208,
+        "p": 0.0984,
+        "ci95": [
+          -0.000614,
+          0.003144
+        ],
+        "highCostDeltaCer": 0.001208,
+        "metrics": {
+          "cagr": 0.082412,
+          "vol": 0.06924,
+          "sharpe": 0.549254,
+          "maxDrawdown": -0.281602,
+          "cer": 0.030963,
+          "avgWeight": 0.576947,
+          "turnoverAnn": 0.135893,
+          "n": 802,
+          "start": "1960-01",
+          "end": "2026-10"
+        }
+      },
+      "T2_cost30": {
+        "name": "T2_cost30",
+        "deltaCer": 0.002522,
+        "p": 0.0952,
+        "ci95": [
+          -0.00133,
+          0.006194
+        ],
+        "highCostDeltaCer": 0.002522,
+        "metrics": {
+          "cagr": 0.083554,
+          "vol": 0.069312,
+          "sharpe": 0.564521,
+          "maxDrawdown": -0.338607,
+          "cer": 0.032031,
+          "avgWeight": 0.570659,
+          "turnoverAnn": 0.123176,
+          "n": 802,
+          "start": "1960-01",
+          "end": "2026-10"
+        }
+      },
+      "T1_valOnly": {
+        "name": "T1_valOnly",
+        "deltaCer": 0.001394,
+        "p": 0.0743,
+        "ci95": [
+          -0.000486,
+          0.003363
+        ],
+        "highCostDeltaCer": 0.00135,
+        "metrics": {
+          "cagr": 0.082408,
+          "vol": 0.070267,
+          "sharpe": 0.542164,
+          "maxDrawdown": -0.313538,
+          "cer": 0.03081,
+          "avgWeight": 0.564296,
+          "turnoverAnn": 0.101007,
+          "n": 802,
+          "start": "1960-01",
+          "end": "2026-10"
+        }
+      },
+      "T1_momOnly": {
+        "name": "T1_momOnly",
+        "deltaCer": 0.001148,
+        "p": 0.2666,
+        "ci95": [
+          -0.002367,
+          0.00484
+        ],
+        "highCostDeltaCer": 0.0008,
+        "metrics": {
+          "cagr": 0.083194,
+          "vol": 0.069713,
+          "sharpe": 0.55638,
+          "maxDrawdown": -0.26105,
+          "cer": 0.031626,
+          "avgWeight": 0.591582,
+          "turnoverAnn": 0.250442,
+          "n": 802,
+          "start": "1960-01",
+          "end": "2026-10"
+        }
+      }
+    }
+  },
+  "choices": [
+    "Z.1 FRED 季初月 +5 月作为「季末后第 3 个月」可用月（Q1=01→06）。",
+    "缺失季不插值；月度前向填充最近一个完整可得季的 AIAE。",
+    "市值/GDP、市值/GVA：先把 GDP/GVA 从十亿×1000 成百万，再与 NCBCEL（百万）相除。",
+    "循环平移在变量有效区间 [lo,hi] 上取 N，偏移 [120,N−120]，每次完整重跑扩张 OLS+CT+OOS R²。",
+    "扩张 OLS 用累加和 O(1) 更新；最小训练量按 OLS 实际样本数（SOP 按已实现标签数）；P4 为 h/12×SOP。",
+    "预测区间：残差池=自首个可预测月起全部扩张预测的已实现残差（t′≤t−h−1）；池<60 该月不计入覆盖率；另报仅 1985 起残差池对照。",
+    "B 部分评估起点取 T1/T2 均可算且 ≥1960-01 的首月。",
+    "z 分数用总体标准差 /n，历史含当期，至少 240 个月。",
+    "参考检验：CW/DM 用 NW HAC + 正态单侧 p；CW 族与 DM 族各自 Holm，与平移 p 并列，判定仍以平移为准。"
+  ]
+}

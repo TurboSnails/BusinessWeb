@@ -25,3 +25,5 @@ manager 开工后按实际目标补充业务入口、API 契约位置、验收�
 
 ## 2026-11-15 标普500仓位规则回测
 先讨论（Cursor/Codex/Claude 三方，结论：不做 0–100 总分）后实施。预注册 docs/research/sp500-allocation-backtest-prereg-2026-11-15.md 先于代码提交；实现 scripts/sp500-allocation-backtest.mjs（Cursor），独立审查 Claude（0 阻断，R1–R6 已修）。结果 docs/research/sp500-allocation-backtest-results-2026-11-15.md：S1 趋势/S3 CAPE/S4 组合均"未证实"，S2 波动目标"无效"。分支 research/sp500-allocation-backtest，未推送。下一步候选：信用利差层、国际数据交叉验证（需新预注册版本）。
+### v2（同日）：估值预测力
+预注册 v2.1（Codex 审后修订）先于代码提交；Claude 文献 + Cursor 数据调研 → Cursor 实现 → Claude 独立复现审查（1 阻断已修）。结果 docs/research/sp500-valuation-predict-results-v2-2026-11-15.md：1985 起共同窗口 CAPE收益率/ECY/SOP × 1–10 年全部"无/未证实"；长窗口（1955/63 起）ECY、SOP 10 年 OOS R² +0.29/+0.39；交易规则 T1 估值+动量、T2 SOP 倾斜 ΔCER +0.13%/+0.26%，Holm p=0.16 未证实。AIAE 等 Z.1 变量仅探索性（无 vintage）。

@@ -25,6 +25,12 @@ export function popVar(xs) {
   return xs.reduce((s, x) => s + (x - m) ** 2, 0) / xs.length
 }
 
+/** 总体标准差（/n）。v2 z 分数用。 */
+export function popStd(xs) {
+  if (xs.length < 2) return null
+  return Math.sqrt(popVar(xs))
+}
+
 /** @deprecated 使用 popVar */
 export const sampleVar = popVar
 
