@@ -1,0 +1,821 @@
+{
+  "prereg": "sp500-allocation-backtest-prereg-2026-11-15",
+  "rawDataEnd": "2026-10",
+  "eEnd": "2026-06",
+  "lastCapeMonth": "2026-09",
+  "dataEnd": "2026-09",
+  "kenFrench": "跳过（下载连接被重置）",
+  "main": {
+    "lag": 2,
+    "cost": 0.001,
+    "W": 0.6,
+    "evalStart": "1935-01",
+    "evalEnd": "2026-10",
+    "nMonths": 1102,
+    "strategies": {
+      "B100": {
+        "cagr": 0.113505,
+        "vol": 0.127261,
+        "sharpe": 0.638445,
+        "maxDrawdown": -0.490389,
+        "calmar": 0.231458,
+        "cvar5": -0.083547,
+        "turnoverAnn": 0,
+        "avgWeight": 1,
+        "cer": 0.057136,
+        "start": "1935-01",
+        "end": "2026-10",
+        "n": 1102
+      },
+      "C60": {
+        "cagr": 0.083563,
+        "vol": 0.076317,
+        "sharpe": 0.637391,
+        "maxDrawdown": -0.320413,
+        "calmar": 0.260799,
+        "cvar5": -0.049037,
+        "turnoverAnn": 0.0808,
+        "avgWeight": 0.6,
+        "cer": 0.040082,
+        "start": "1935-01",
+        "end": "2026-10",
+        "n": 1102
+      },
+      "S1": {
+        "cagr": 0.079088,
+        "vol": 0.063174,
+        "sharpe": 0.690666,
+        "maxDrawdown": -0.305858,
+        "calmar": 0.258577,
+        "cvar5": -0.039231,
+        "turnoverAnn": 0.407516,
+        "avgWeight": 0.522958,
+        "cer": 0.037785,
+        "start": "1935-01",
+        "end": "2026-10",
+        "n": 1102
+      },
+      "S2": {
+        "cagr": 0.073954,
+        "vol": 0.065165,
+        "sharpe": 0.597578,
+        "maxDrawdown": -0.251046,
+        "calmar": 0.294586,
+        "cvar5": -0.042619,
+        "turnoverAnn": 0.22087,
+        "avgWeight": 0.526849,
+        "cer": 0.032718,
+        "start": "1935-01",
+        "end": "2026-10",
+        "n": 1102
+      },
+      "S3": {
+        "cagr": 0.082339,
+        "vol": 0.073614,
+        "sharpe": 0.642027,
+        "maxDrawdown": -0.288301,
+        "calmar": 0.2856,
+        "cvar5": -0.046701,
+        "turnoverAnn": 0.125629,
+        "avgWeight": 0.566606,
+        "cer": 0.03933,
+        "start": "1935-01",
+        "end": "2026-10",
+        "n": 1102
+      },
+      "S4": {
+        "cagr": 0.07785,
+        "vol": 0.060444,
+        "sharpe": 0.699281,
+        "maxDrawdown": -0.286703,
+        "calmar": 0.271534,
+        "cvar5": -0.036633,
+        "turnoverAnn": 0.429917,
+        "avgWeight": 0.489564,
+        "cer": 0.036955,
+        "start": "1935-01",
+        "end": "2026-10",
+        "n": 1102
+      }
+    },
+    "cm": {
+      "S1": {
+        "avgWeight": 0.522958,
+        "cagr": 0.077563,
+        "vol": 0.066542,
+        "sharpe": 0.637188,
+        "maxDrawdown": -0.282883,
+        "cer": 0.035909
+      },
+      "S2": {
+        "avgWeight": 0.526849,
+        "cagr": 0.077868,
+        "vol": 0.067035,
+        "sharpe": 0.637198,
+        "maxDrawdown": -0.284819,
+        "cer": 0.036126
+      },
+      "S3": {
+        "avgWeight": 0.566606,
+        "cagr": 0.080971,
+        "vol": 0.072077,
+        "sharpe": 0.637303,
+        "maxDrawdown": -0.304348,
+        "cer": 0.038308
+      },
+      "S4": {
+        "avgWeight": 0.489564,
+        "cagr": 0.07494,
+        "vol": 0.062312,
+        "sharpe": 0.6371,
+        "maxDrawdown": -0.266096,
+        "cer": 0.034011
+      }
+    },
+    "judgments": [
+      {
+        "id": "S1_vs_CM",
+        "strategy": "S1",
+        "deltaCer": 0.001876642189308518,
+        "p": 0.2296,
+        "ci95": [
+          -0.002919,
+          0.006842
+        ],
+        "subperiods": {
+          "1935-1964": -0.001378,
+          "1965-1994": 0.000395,
+          "1995-end": 0.006346
+        },
+        "drop24": 0.000211,
+        "pHolm": 0.5997,
+        "conditions": {
+          "a_holm": false,
+          "b_subperiods": false,
+          "c_drop24": true,
+          "d_cost30bps": true
+        },
+        "highCostDeltaCer": 0.001224,
+        "verdict": "未证实"
+      },
+      {
+        "id": "S2_vs_CM",
+        "strategy": "S2",
+        "deltaCer": -0.0034082500537985713,
+        "p": 0.9653,
+        "ci95": [
+          -0.007278,
+          0.000276
+        ],
+        "subperiods": {
+          "1935-1964": 0.000262,
+          "1965-1994": -0.006786,
+          "1995-end": -0.003651
+        },
+        "drop24": -0.004109,
+        "pHolm": 0.9653,
+        "conditions": {
+          "a_holm": false,
+          "b_subperiods": false,
+          "c_drop24": false,
+          "d_cost30bps": false
+        },
+        "highCostDeltaCer": -0.003684,
+        "verdict": "无效"
+      },
+      {
+        "id": "S3_vs_CM",
+        "strategy": "S3",
+        "deltaCer": 0.0010220683861998994,
+        "p": 0.1999,
+        "ci95": [
+          -0.001329,
+          0.003279
+        ],
+        "subperiods": {
+          "1935-1964": 0.00545,
+          "1965-1994": 0.000787,
+          "1995-end": -0.002913
+        },
+        "drop24": 0.00041,
+        "pHolm": 0.5997,
+        "conditions": {
+          "a_holm": false,
+          "b_subperiods": false,
+          "c_drop24": true,
+          "d_cost30bps": true
+        },
+        "highCostDeltaCer": 0.000936,
+        "verdict": "未证实"
+      },
+      {
+        "id": "S4_vs_CM",
+        "strategy": "S4",
+        "deltaCer": 0.002943782756748281,
+        "p": 0.1485,
+        "ci95": [
+          -0.002396,
+          0.00863
+        ],
+        "subperiods": {
+          "1935-1964": 0.004267,
+          "1965-1994": 0.001538,
+          "1995-end": 0.003032
+        },
+        "drop24": 0.001109,
+        "pHolm": 0.594,
+        "conditions": {
+          "a_holm": false,
+          "b_subperiods": true,
+          "c_drop24": true,
+          "d_cost30bps": true
+        },
+        "highCostDeltaCer": 0.002246,
+        "verdict": "未证实"
+      }
+    ],
+    "incremental": [
+      {
+        "id": "S4_vs_S3",
+        "deltaCer": -0.002376,
+        "p": 0.7892,
+        "ci95": [
+          -0.008079,
+          0.003814
+        ]
+      },
+      {
+        "id": "S4_vs_S1",
+        "deltaCer": -0.000831,
+        "p": 0.7412,
+        "ci95": [
+          -0.003442,
+          0.00167
+        ]
+      },
+      {
+        "id": "S3_vs_C60",
+        "deltaCer": -0.000751,
+        "p": 0.7193,
+        "ci95": [
+          -0.003404,
+          0.00179
+        ]
+      }
+    ],
+    "highCostDeltaCer": {
+      "S1": 0.001224,
+      "S2": -0.003684,
+      "S3": 0.000936,
+      "S4": 0.002246
+    },
+    "subperiodCmRecalc": {
+      "S1": {
+        "1935-1964": {
+          "avgWeight": 0.519167,
+          "deltaCer": -0.001038
+        },
+        "1965-1994": {
+          "avgWeight": 0.513333,
+          "deltaCer": 0.000511
+        },
+        "1995-end": {
+          "avgWeight": 0.535602,
+          "deltaCer": 0.005512
+        }
+      },
+      "S2": {
+        "1935-1964": {
+          "avgWeight": 0.516417,
+          "deltaCer": 0.001199
+        },
+        "1965-1994": {
+          "avgWeight": 0.53651,
+          "deltaCer": -0.006897
+        },
+        "1995-end": {
+          "avgWeight": 0.527577,
+          "deltaCer": -0.003699
+        }
+      },
+      "S3": {
+        "1935-1964": {
+          "avgWeight": 0.589167,
+          "deltaCer": 0.003491
+        },
+        "1965-1994": {
+          "avgWeight": 0.606667,
+          "deltaCer": 0.000423
+        },
+        "1995-end": {
+          "avgWeight": 0.507592,
+          "deltaCer": 0.00096
+        }
+      },
+      "S4": {
+        "1935-1964": {
+          "avgWeight": 0.508333,
+          "deltaCer": 0.002558
+        },
+        "1965-1994": {
+          "avgWeight": 0.52,
+          "deltaCer": 0.001153
+        },
+        "1995-end": {
+          "avgWeight": 0.443194,
+          "deltaCer": 0.006229
+        }
+      }
+    },
+    "bootstrapB": 10000
+  },
+  "w80": {
+    "judgments": [
+      {
+        "id": "S1_vs_CM",
+        "strategy": "S1",
+        "deltaCer": 0.002362396791612445,
+        "p": 0.181,
+        "ci95": [
+          -0.002731,
+          0.007351
+        ],
+        "subperiods": {
+          "1935-1964": -0.001048,
+          "1965-1994": 0.000923,
+          "1995-end": 0.006939
+        },
+        "drop24": 0.000598,
+        "pHolm": 0.543,
+        "conditions": {
+          "a_holm": false,
+          "b_subperiods": false,
+          "c_drop24": true,
+          "d_cost30bps": true
+        },
+        "highCostDeltaCer": 0.0017,
+        "verdict": "未证实"
+      },
+      {
+        "id": "S2_vs_CM",
+        "strategy": "S2",
+        "deltaCer": -0.0037365988803992264,
+        "p": 0.9595,
+        "ci95": [
+          -0.008319,
+          0.000476
+        ],
+        "subperiods": {
+          "1935-1964": 0.000408,
+          "1965-1994": -0.008278,
+          "1995-end": -0.003309
+        },
+        "drop24": -0.004596,
+        "pHolm": 0.9595,
+        "conditions": {
+          "a_holm": false,
+          "b_subperiods": false,
+          "c_drop24": false,
+          "d_cost30bps": false
+        },
+        "highCostDeltaCer": -0.004091,
+        "verdict": "无效"
+      },
+      {
+        "id": "S3_vs_CM",
+        "strategy": "S3",
+        "deltaCer": 0.0009437982678593554,
+        "p": 0.2105,
+        "ci95": [
+          -0.001373,
+          0.003343
+        ],
+        "subperiods": {
+          "1935-1964": 0.005205,
+          "1965-1994": 0.000246,
+          "1995-end": -0.002395
+        },
+        "drop24": 0.00035,
+        "pHolm": 0.543,
+        "conditions": {
+          "a_holm": false,
+          "b_subperiods": false,
+          "c_drop24": true,
+          "d_cost30bps": true
+        },
+        "highCostDeltaCer": 0.000858,
+        "verdict": "未证实"
+      },
+      {
+        "id": "S4_vs_CM",
+        "strategy": "S4",
+        "deltaCer": 0.003352032524128072,
+        "p": 0.1215,
+        "ci95": [
+          -0.002119,
+          0.009209
+        ],
+        "subperiods": {
+          "1935-1964": 0.004354,
+          "1965-1994": 0.001525,
+          "1995-end": 0.004144
+        },
+        "drop24": 0.001391,
+        "pHolm": 0.486,
+        "conditions": {
+          "a_holm": false,
+          "b_subperiods": true,
+          "c_drop24": true,
+          "d_cost30bps": true
+        },
+        "highCostDeltaCer": 0.002647,
+        "verdict": "未证实"
+      }
+    ],
+    "strategies": {
+      "B100": {
+        "cagr": 0.113505,
+        "vol": 0.127261,
+        "sharpe": 0.638445,
+        "maxDrawdown": -0.490389,
+        "calmar": 0.231458,
+        "cvar5": -0.083547,
+        "turnoverAnn": 0,
+        "avgWeight": 1,
+        "cer": 0.057136,
+        "start": "1935-01",
+        "end": "2026-10",
+        "n": 1102
+      },
+      "C60": {
+        "cagr": 0.098796,
+        "vol": 0.101763,
+        "sharpe": 0.637918,
+        "maxDrawdown": -0.410391,
+        "calmar": 0.240736,
+        "cvar5": -0.06627,
+        "turnoverAnn": 0.053866,
+        "avgWeight": 0.8,
+        "cer": 0.049575,
+        "start": "1935-01",
+        "end": "2026-10",
+        "n": 1102
+      },
+      "S1": {
+        "cagr": 0.094705,
+        "vol": 0.0877,
+        "sharpe": 0.682361,
+        "maxDrawdown": -0.377567,
+        "calmar": 0.25083,
+        "cvar5": -0.055633,
+        "turnoverAnn": 0.395271,
+        "avgWeight": 0.722958,
+        "cer": 0.048509,
+        "start": "1935-01",
+        "end": "2026-10",
+        "n": 1102
+      },
+      "S2": {
+        "cagr": 0.08753,
+        "vol": 0.087953,
+        "sharpe": 0.605403,
+        "maxDrawdown": -0.336442,
+        "calmar": 0.260164,
+        "cvar5": -0.058219,
+        "turnoverAnn": 0.245304,
+        "avgWeight": 0.710551,
+        "cer": 0.041832,
+        "start": "1935-01",
+        "end": "2026-10",
+        "n": 1102
+      },
+      "S3": {
+        "cagr": 0.097652,
+        "vol": 0.098916,
+        "sharpe": 0.642305,
+        "maxDrawdown": -0.381625,
+        "calmar": 0.255886,
+        "cvar5": -0.06384,
+        "turnoverAnn": 0.103069,
+        "avgWeight": 0.766606,
+        "cer": 0.049068,
+        "start": "1935-01",
+        "end": "2026-10",
+        "n": 1102
+      },
+      "S4": {
+        "cagr": 0.093544,
+        "vol": 0.08478,
+        "sharpe": 0.689763,
+        "maxDrawdown": -0.359743,
+        "calmar": 0.260031,
+        "cvar5": -0.052881,
+        "turnoverAnn": 0.42131,
+        "avgWeight": 0.689564,
+        "cer": 0.047924,
+        "start": "1935-01",
+        "end": "2026-10",
+        "n": 1102
+      }
+    },
+    "bootstrapB": 2000
+  },
+  "noSkip": {
+    "judgments": [
+      {
+        "id": "S1_vs_CM",
+        "strategy": "S1",
+        "deltaCer": 0.007466932404282874,
+        "p": 0.0015,
+        "ci95": [
+          0.002968,
+          0.011932
+        ],
+        "subperiods": {
+          "1935-1964": 0.00549,
+          "1965-1994": 0.007429,
+          "1995-end": 0.009362
+        },
+        "drop24": 0.006153,
+        "pHolm": 0.006,
+        "conditions": {
+          "a_holm": true,
+          "b_subperiods": true,
+          "c_drop24": true,
+          "d_cost30bps": true
+        },
+        "highCostDeltaCer": 0.006838,
+        "verdict": "有效"
+      },
+      {
+        "id": "S2_vs_CM",
+        "strategy": "S2",
+        "deltaCer": -0.002503895634516584,
+        "p": 0.8975,
+        "ci95": [
+          -0.006674,
+          0.001189
+        ],
+        "subperiods": {
+          "1935-1964": 0.000951,
+          "1965-1994": -0.005666,
+          "1995-end": -0.00275
+        },
+        "drop24": -0.00337,
+        "pHolm": 0.915,
+        "conditions": {
+          "a_holm": false,
+          "b_subperiods": false,
+          "c_drop24": false,
+          "d_cost30bps": false
+        },
+        "highCostDeltaCer": -0.002749,
+        "verdict": "无效"
+      },
+      {
+        "id": "S3_vs_CM",
+        "strategy": "S3",
+        "deltaCer": 0.0000910968582168506,
+        "p": 0.4575,
+        "ci95": [
+          -0.002136,
+          0.002335
+        ],
+        "subperiods": {
+          "1935-1964": 0.004135,
+          "1965-1994": 0.000656,
+          "1995-end": -0.004242
+        },
+        "drop24": -0.000481,
+        "pHolm": 0.915,
+        "conditions": {
+          "a_holm": false,
+          "b_subperiods": false,
+          "c_drop24": false,
+          "d_cost30bps": true
+        },
+        "highCostDeltaCer": 0.000001,
+        "verdict": "未证实"
+      },
+      {
+        "id": "S4_vs_CM",
+        "strategy": "S4",
+        "deltaCer": 0.007633456837018174,
+        "p": 0.0025,
+        "ci95": [
+          0.00268,
+          0.012616
+        ],
+        "subperiods": {
+          "1935-1964": 0.009845,
+          "1965-1994": 0.008406,
+          "1995-end": 0.004822
+        },
+        "drop24": 0.006163,
+        "pHolm": 0.0075,
+        "conditions": {
+          "a_holm": true,
+          "b_subperiods": true,
+          "c_drop24": true,
+          "d_cost30bps": true
+        },
+        "highCostDeltaCer": 0.006956,
+        "verdict": "有效"
+      }
+    ],
+    "bootstrapB": 2000
+  },
+  "from1950": {
+    "judgments": [
+      {
+        "id": "S1_vs_CM",
+        "strategy": "S1",
+        "deltaCer": 0.0033474181963053587,
+        "p": 0.1035,
+        "ci95": [
+          -0.00168,
+          0.008476
+        ],
+        "subperiods": {
+          "1935-1964": 0.003898,
+          "1965-1994": 0.000327,
+          "1995-end": 0.005964
+        },
+        "drop24": 0.001334,
+        "pHolm": 0.414,
+        "conditions": {
+          "a_holm": false,
+          "b_subperiods": true,
+          "c_drop24": true,
+          "d_cost30bps": true
+        },
+        "highCostDeltaCer": 0.00272,
+        "verdict": "未证实"
+      },
+      {
+        "id": "S2_vs_CM",
+        "strategy": "S2",
+        "deltaCer": -0.004101599042746269,
+        "p": 0.982,
+        "ci95": [
+          -0.00835,
+          -0.000314
+        ],
+        "subperiods": {
+          "1935-1964": 0.002367,
+          "1965-1994": -0.006924,
+          "1995-end": -0.004446
+        },
+        "drop24": -0.005076,
+        "pHolm": 0.982,
+        "conditions": {
+          "a_holm": false,
+          "b_subperiods": false,
+          "c_drop24": false,
+          "d_cost30bps": false
+        },
+        "highCostDeltaCer": -0.004352,
+        "verdict": "无效"
+      },
+      {
+        "id": "S3_vs_CM",
+        "strategy": "S3",
+        "deltaCer": 0.00017818822640261467,
+        "p": 0.4475,
+        "ci95": [
+          -0.002063,
+          0.00256
+        ],
+        "subperiods": {
+          "1935-1964": 0.004046,
+          "1965-1994": 0.000882,
+          "1995-end": -0.002311
+        },
+        "drop24": -0.000476,
+        "pHolm": 0.895,
+        "conditions": {
+          "a_holm": false,
+          "b_subperiods": false,
+          "c_drop24": false,
+          "d_cost30bps": true
+        },
+        "highCostDeltaCer": 0.000115,
+        "verdict": "未证实"
+      },
+      {
+        "id": "S4_vs_CM",
+        "strategy": "S4",
+        "deltaCer": 0.0035256476304478257,
+        "p": 0.115,
+        "ci95": [
+          -0.001876,
+          0.009348
+        ],
+        "subperiods": {
+          "1935-1964": 0.007985,
+          "1965-1994": 0.001586,
+          "1995-end": 0.003273
+        },
+        "drop24": 0.001373,
+        "pHolm": 0.414,
+        "conditions": {
+          "a_holm": false,
+          "b_subperiods": true,
+          "c_drop24": true,
+          "d_cost30bps": true
+        },
+        "highCostDeltaCer": 0.00286,
+        "verdict": "未证实"
+      }
+    ],
+    "bootstrapB": 2000
+  },
+  "post2007": {
+    "evalStart": "2007-01",
+    "evalEnd": "2026-10",
+    "nMonths": 238,
+    "bootstrapB": 2000,
+    "judgments": [
+      {
+        "id": "S1_vs_CM",
+        "strategy": "S1",
+        "deltaCer": 0.002195763631179286,
+        "p": 0.4055,
+        "ci95": [
+          -0.01015,
+          0.017711
+        ],
+        "subperiods": {
+          "1935-1964": null,
+          "1965-1994": null,
+          "1995-end": 0.002196
+        },
+        "drop24": -0.00682,
+        "pHolm": 0.9735,
+        "conditions": {
+          "a_holm": false,
+          "b_subperiods": false,
+          "c_drop24": false,
+          "d_cost30bps": true
+        },
+        "highCostDeltaCer": 0.001622,
+        "verdict": "未证实"
+      },
+      {
+        "id": "S4_vs_CM",
+        "strategy": "S4",
+        "deltaCer": 0.0034958840149079615,
+        "p": 0.3245,
+        "ci95": [
+          -0.0084,
+          0.018762
+        ],
+        "subperiods": {
+          "1935-1964": null,
+          "1965-1994": null,
+          "1995-end": 0.003496
+        },
+        "drop24": -0.004185,
+        "pHolm": 0.9735,
+        "conditions": {
+          "a_holm": false,
+          "b_subperiods": false,
+          "c_drop24": false,
+          "d_cost30bps": true
+        },
+        "highCostDeltaCer": 0.002884,
+        "verdict": "未证实"
+      }
+    ],
+    "strategies": {
+      "S1": {
+        "cagr": 0.069049,
+        "vol": 0.063528,
+        "sharpe": 0.841221,
+        "maxDrawdown": -0.180078,
+        "calmar": 0.383442,
+        "cvar5": -0.042602,
+        "turnoverAnn": 0.371008,
+        "avgWeight": 0.538235,
+        "cer": 0.047295,
+        "start": "2007-01",
+        "end": "2026-10",
+        "n": 238
+      },
+      "S4": {
+        "cagr": 0.062413,
+        "vol": 0.053154,
+        "sharpe": 0.87581,
+        "maxDrawdown": -0.142992,
+        "calmar": 0.436478,
+        "cvar5": -0.034867,
+        "turnoverAnn": 0.389363,
+        "avgWeight": 0.45042,
+        "cer": 0.042215,
+        "start": "2007-01",
+        "end": "2026-10",
+        "n": 238
+      }
+    }
+  }
+}
