@@ -67,7 +67,7 @@ function stratMa20(bars) {
 }
 // 区间统计：[from, to) 按收盘权益
 function stats(bars, eq, from, to, startIdx = 0) {
-  let i0 = bars.findIndex((b, i) => i >= startIdx && b.date >= from); if (i0 < 0) return null
+  const i0 = bars.findIndex((b, i) => i >= startIdx && b.date >= from); if (i0 < 0) return null
   let i1 = to ? bars.findIndex((b) => b.date >= to) - 1 : bars.length - 1; if (i1 < 0) i1 = bars.length - 1
   if (i1 <= i0) return null
   const years = (Date.parse(bars[i1].date) - Date.parse(bars[i0].date)) / (365.25 * 864e5)
