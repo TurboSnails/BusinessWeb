@@ -51,7 +51,7 @@
 - [x] `202611140001_candidate_alert_log.sql` 已执行（表存在）。
 - [x] 生产 `/api/market-data/plan-sync` 不带口令 GET/PUT 均 401。
 - [x] 站长同步实测（生产）：读取云端（空，版本 0）→ 本机改动后未重新比较时拒绝上传 → 比较后上传成功（版本 1）→ 再比较与基线一致。口令存于本机 `~/.businessweb-plan-sync-token`（Vercel 中为 sensitive，读不出）。
-- [ ] 周报 dryRun：`?weekly=1&dryRun=1`，检查计划一节只有日期与待核事项、无金额。需要 `CRON_SECRET`（本机未保存）；拿不到则以周一实际周报邮件核对。
+- [ ] 周报 dryRun（`bash scripts/weekly-dryrun.sh`，2026-11-15 选择跳过，改为核对 11-16 周一实际周报）：`?weekly=1&dryRun=1`，检查计划一节只有日期与待核事项、无金额。需要 `CRON_SECRET`（本机未保存）；拿不到则以周一实际周报邮件核对。
 - [ ] 周报纳入计划提醒：勾选框默认关闭，由站长决定是否开启。
 - [ ] 两个日历实测 `.ics`（如苹果日历、Google 日历）：提醒时间正确、内容无金额。
 - [ ] 手机宽度（300/375/390px）无横向滚动；纯键盘走完 `/invest/start` 与 `/invest/my-plan` 全流程，焦点清晰。
