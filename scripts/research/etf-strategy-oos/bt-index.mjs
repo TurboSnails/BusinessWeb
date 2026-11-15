@@ -3,6 +3,7 @@
 // 全收益指数只有收盘价 → 信号次日收盘成交。规则来自 2019 年后的 ETF 数据，2011—2018 对它是真正的样本外。
 // 输出：docs/research/etf-timing-long-history.md 与 data-raw/etf-timing-research/long-history.json。
 import fs from 'node:fs'
+import { publish } from './publish.mjs'
 import { ratioTiming, timingGold, macdOnly, ma20, windowStats } from './strategies.mjs'
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
@@ -83,4 +84,5 @@ if (errs.length) lines.push('## 取数失败', '', ...errs.map((e) => `- ${e.cod
 fs.mkdirSync('data-raw/etf-timing-research', { recursive: true })
 fs.writeFileSync('data-raw/etf-timing-research/long-history.json', JSON.stringify({ generatedAt: new Date().toISOString(), windows: WINDOWS, results, verdict }, null, 1))
 fs.writeFileSync('docs/research/etf-timing-long-history.md', lines.join('\n'))
+publish()
 console.log(lines.slice(0, 8).join('\n'))

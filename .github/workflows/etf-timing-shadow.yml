@@ -1,6 +1,6 @@
 name: ETF timing shadow run
 
-# 第 ② 步：每周六记录一次冻结名单上「择时＋只认金叉」的状态（只存档 data-raw/，不在网站展示，不是买卖指令）。
+# 第 ② 步：每周六记录一次冻结名单上「择时＋只认金叉」的状态（存档 data-raw/，只在实验页 /lab/etf-timing 展示，不是买卖指令）。
 on:
   schedule:
     # 每周六 UTC 08:00（北京时间 16:00），周五已收盘
@@ -15,6 +15,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: market-data-publish
@@ -32,15 +33,23 @@ jobs:
       - name: Record weekly snapshot
         run: node scripts/research/etf-strategy-oos/shadow.mjs
       - name: Commit if changed
+        id: commit
         # 数据不全时脚本以失败退出，但仍提交已取得的快照（标 complete:false）
         if: success() || failure()
         shell: bash
         run: |
           set -euo pipefail
-          git add data-raw/etf-timing-shadow
+          git add data-raw/etf-timing-shadow public/data/etf-timing.json
           if git diff --cached --quiet; then exit 0; fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git commit -m "data(etf-timing): 影子运行快照 $(date -u +%Y-%m-%d)"
           git pull --rebase origin main
           git push
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+      # GITHUB_TOKEN 推送不会触发其他工作流：手动触发 Pages 部署（Vercel 由其 GitHub 应用照常部署）
+      - name: Deploy GitHub Pages
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --ref main

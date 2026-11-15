@@ -1,6 +1,7 @@
 import React from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render, screen, within } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import CycleBacktest, { validBacktest, type BacktestData, type BacktestMarket } from './CycleBacktest'
 
 const perf = (cagr: number, dd: number) => ({ totalReturn: cagr * 5, cagr, maxDrawdown: dd, volatility: 0.15 })
@@ -22,7 +23,7 @@ afterEach(() => { cleanup(); vi.unstubAllGlobals() })
 describe('规则回测', () => {
   it('展示净值曲线、统计表与远期收益，并如实汇总回撤与成本后结果', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => data })))
-    render(<CycleBacktest market="csi300" />)
+    render(<MemoryRouter><CycleBacktest market="csi300" /></MemoryRouter>)
     expect(await screen.findByRole('img', { name: /A股 · 沪深300 2012-04-13 至 2026-11-13/ })).toBeTruthy()
     expect(screen.getByRole('note').textContent).toMatch(/只回测了一条规则，而且是样本内/)
     expect(screen.getByText(/最大回撤小于买入持有的有/).textContent).toMatch(/有 1 个.*高于买入持有的有 1 个/)
@@ -34,7 +35,7 @@ describe('规则回测', () => {
   })
   it('取数失败或结构不对时只提示无法加载', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => [] })))
-    render(<CycleBacktest market="hsi" />)
+    render(<MemoryRouter><CycleBacktest market="hsi" /></MemoryRouter>)
     expect(await screen.findByText('回测结果暂时无法加载。')).toBeTruthy()
     expect(validBacktest(data)).toBe(true)
     expect(validBacktest({ schemaVersion: 1 })).toBe(false)

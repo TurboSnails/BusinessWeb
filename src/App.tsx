@@ -46,6 +46,7 @@ const Dcf = lazy(() => import('./pages/Dcf'))
 const Candidates = lazy(() => import('./pages/Candidates'))
 const Radar = lazy(() => import('./pages/Radar'))
 const Earnings = lazy(() => import('./pages/Earnings'))
+const EtfTimingLab = lazy(() => import('./pages/EtfTimingLab'))
 const WatchBoard = lazy(() => import('./pages/WatchBoard'))
 const FutureTrends = lazy(() => import('./pages/FutureTrends'))
 const SolidStateCompany = lazy(() => import('./pages/SolidStateCompany'))
@@ -168,6 +169,7 @@ export default function App(): JSX.Element {
           <Route path="/candidates" element={<Candidates />} />
           <Route path="/radar" element={<Radar />} />
           <Route path="/earnings" element={<Earnings />} />
+          <Route path="/lab/etf-timing" element={<EtfTimingLab />} />
           <Route path="/research-notes" element={<ResearchNotes />} />
           <Route path="/research-notes/company/:market/:code/notes" element={<CompanyNotes />} />
           <Route path="/research-notes/:market/:code" element={<CompanyDetail />} />

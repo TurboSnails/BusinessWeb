@@ -1,8 +1,9 @@
-// 第 ② 步：影子运行。每周记录一次冻结名单（universe.json）上「择时＋只认金叉」的状态，只存档，不在网站展示。
+// 第 ② 步：影子运行。每周记录一次冻结名单（universe.json）上「择时＋只认金叉」的状态，存档到 data-raw/，并通过 publish.mjs 只在实验页 /lab/etf-timing 展示（不进导航、noindex）。
 // 输出：data-raw/etf-timing-shadow/<YYYY-MM-DD>.json（同一周重跑覆盖同一文件，以最近交易日命名）。
 // 数据：腾讯前复权日线（GitHub Actions 网络），每只一次请求取最近约 4 年；单只失败记入 missing，不中断。
 // 注：持仓状态由近 4 年数据推算，与全历史推算可能在个别 ETF 上不同；事后复算以快照为准。历史统计，不构成投资建议。
 import fs from 'node:fs'
+import { publish } from './publish.mjs'
 import { ratioTiming, timingGold } from './strategies.mjs'
 
 const here = new URL('.', import.meta.url).pathname
@@ -45,6 +46,7 @@ const snap = {
 }
 fs.mkdirSync('data-raw/etf-timing-shadow', { recursive: true })
 fs.writeFileSync(`data-raw/etf-timing-shadow/${asOf}.json`, JSON.stringify(snap, null, 1))
+publish()
 console.log(JSON.stringify({ asOf, complete: snap.complete, timing: snap.timing, summary: snap.summary }))
 // 缺失超过 10% 时仍存档（标 complete:false），但以失败退出提醒复跑；同一周复跑覆盖同名文件
 if (!snap.complete) process.exitCode = 1

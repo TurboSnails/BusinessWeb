@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import React, { useEffect, useState } from 'react'
 import { MARKETS, type Market } from './engine'
 
@@ -123,6 +124,7 @@ export default function CycleBacktest({ market }: { market: Market }): JSX.Eleme
           <p className="macro-muted">数据截至 {data.asOf}；规则版本 {data.ruleVersion}，回测版本 {data.version}。每周由 scripts/cycle-backtest.mjs 用同一份行情快照重算。</p>
         </details>
       </>}
+      <p className="macro-muted">另一条 ETF 择时规则（择时＋只认金叉）正在单独检验：<Link to="/lab/etf-timing">择时实验（观察中）</Link>。</p>
     </section>
   )
 }
