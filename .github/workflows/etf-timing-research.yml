@@ -1,0 +1,41 @@
+name: ETF timing research (long history)
+
+# 第 ① 步：2011 年起中证全收益指数检验「择时＋只认金叉」。手动触发；脚本改动推送时自动跑一次。
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/etf-timing-research.yml'
+      - 'scripts/research/etf-strategy-oos/bt-index.mjs'
+      - 'scripts/research/etf-strategy-oos/strategies.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: market-data-publish
+  cancel-in-progress: false
+
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Run long-history backtest
+        run: node scripts/research/etf-strategy-oos/bt-index.mjs
+      - name: Commit if changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add docs/research/etf-timing-long-history.md data-raw/etf-timing-research
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m "research(etf-timing): 长历史指数检验 $(date -u +%Y-%m-%d)"
+          git pull --rebase origin main
+          git push
