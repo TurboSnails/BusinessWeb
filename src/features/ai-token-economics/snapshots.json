@@ -67,6 +67,66 @@
         }
       },
       "source": "https://ramp.com/data/ai-index"
+    },
+    {
+      "weekEnding": "2026-11-01",
+      "comparedWeekEnding": "2026-10-04",
+      "tokenUsage": 0.29,
+      "tokenSpend": 0.105,
+      "price": {
+        "combined": {
+          "now": 0.53,
+          "prev": 0.62,
+          "change": -0.148
+        },
+        "openai": {
+          "now": 0.5,
+          "prev": 0.61,
+          "change": -0.177
+        },
+        "anthropic": {
+          "now": 0.55,
+          "prev": 0.63,
+          "change": -0.125
+        }
+      },
+      "spendShare": {
+        "anthropic": {
+          "now": 0.493,
+          "prev": 0.532
+        },
+        "openai": {
+          "now": 0.461,
+          "prev": 0.423
+        },
+        "xai": {
+          "now": 0.024,
+          "prev": 0.025
+        },
+        "google": {
+          "now": 0.017,
+          "prev": 0.017
+        }
+      },
+      "volumeShare": {
+        "anthropic": {
+          "now": 0.551,
+          "prev": 0.568
+        },
+        "openai": {
+          "now": 0.414,
+          "prev": 0.399
+        },
+        "xai": {
+          "now": 0.015,
+          "prev": 0.014
+        },
+        "google": {
+          "now": 0.012,
+          "prev": 0.015
+        }
+      },
+      "source": "https://ramp.com/data/ai-index"
     }
   ]
 }
