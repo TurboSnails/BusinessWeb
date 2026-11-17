@@ -8,11 +8,16 @@ export type Ranking = { inflow: EtfRow[]; outflow: EtfRow[] }
 export type CategoryAgg = { cat: string; n: number; flow1: Num; flow5: Num; flow20: Num; covered: Record<Window, number>; rank: Record<Window, Ranking> }
 export type Stock = { code: string; name: string }
 export type Rebalance = { id: string; title: string; publishDate: string; effectiveDate: string | null; url: string; attachmentUrl: string | null; status: 'parsed' | 'pending'; indexes: Array<{ index: string; out: Stock[]; in: Stock[] }> }
+/** 各交易所份额在数据日的状态。深交所站点不可达（境外采集）时 szse.status = 'unavailable'，数据日只有沪市；
+ * inferredDates 为近 20 个交易日里深交所份额取自腾讯行情总份额字段（按规则推断日期并与存档交叉校验）的日期。 */
+export type ExchangeStatus = { status: 'ok' | 'unavailable'; source: string | null; date: string | null; n: number; inferredDates?: string[]; reason?: string | null }
+export type Totals = { flow1: Num; flow5: Num; flow20: Num; scale: Num }
 export type ThsEtfData = {
   version: 1; asOf: string; generatedAt: string; historyStart: string; backfill: { from: string; to: string } | null
-  broad: { list: BroadRow[]; byIndex: IndexAgg[]; total: { flow1: Num; flow5: Num; flow20: Num; scale: Num }; history: Array<{ date: string; flow: Num; missing?: number | null }> }
+  broad: { list: BroadRow[]; byIndex: IndexAgg[]; total: Totals; partial?: Totals & { scope: 'sse'; n: number }; history: Array<{ date: string; flow: Num; missing?: number | null }> }
   market: { n: number; categories: CategoryAgg[] }
   rebalance: Rebalance[]
+  exchanges?: { sse: ExchangeStatus; szse: ExchangeStatus }
   sources: Array<{ label: string; url: string }>
 }
 
@@ -50,6 +55,10 @@ function ranking(x: unknown, key: 'flow1' | 'flow5' | 'flow20'): boolean {
   return ok(x.inflow, 1) && ok(x.outflow, -1)
 }
 
+const totals = (x: unknown): boolean => obj(x) && ['flow1', 'flow5', 'flow20', 'scale'].every(k => nul(x[k]))
+const exchange = (x: unknown): boolean => obj(x) && (x.status === 'ok' || x.status === 'unavailable') && (x.source === null || str(x.source)) && (x.date === null || isDate(x.date)) && num(x.n)
+  && (x.inferredDates === undefined || (Array.isArray(x.inferredDates) && x.inferredDates.every(isDate))) && (x.reason === undefined || x.reason === null || typeof x.reason === 'string')
+
 /** 拒绝 HTML 回退、半份数据、字符串数字与非有限数。 */
 export function asThsEtf(x: unknown): ThsEtfData | null {
   if (!obj(x) || x.version !== 1 || !isDate(x.asOf) || !isDate(x.historyStart) || typeof x.generatedAt !== 'string' || !Number.isFinite(Date.parse(x.generatedAt))) return null
@@ -57,7 +66,8 @@ export function asThsEtf(x: unknown): ThsEtfData | null {
   const b = x.broad
   if (!obj(b) || !Array.isArray(b.list) || !b.list.length || !b.list.every(r => row(r) && obj(r) && str(r.index) && ['shares', 'sharesChg', 'close'].every(k => nul(r[k])))) return null
   if (!Array.isArray(b.byIndex) || !b.byIndex.length || !b.byIndex.every(r => obj(r) && str(r.index) && num(r.n) && ['scale', 'flow1', 'flow5', 'flow20'].every(k => nul(r[k])))) return null
-  if (!obj(b.total) || !['flow1', 'flow5', 'flow20', 'scale'].every(k => nul((b.total as Record<string, unknown>)[k]))) return null
+  if (!totals(b.total)) return null
+  if (b.partial !== undefined && !(totals(b.partial) && obj(b.partial) && b.partial.scope === 'sse' && num(b.partial.n))) return null
   if (!Array.isArray(b.history) || !b.history.every((h, i, hs) => obj(h) && isDate(h.date) && h.date <= String(x.asOf) && nul(h.flow) && (!i || String(h.date) > String((hs[i - 1] as Record<string, unknown>).date)))) return null
   const m = x.market
   if (!obj(m) || !num(m.n) || !Array.isArray(m.categories) || m.categories.length !== CATEGORIES.length) return null
@@ -65,9 +75,15 @@ export function asThsEtf(x: unknown): ThsEtfData | null {
     && WINDOWS.every(w => num((c.covered as Record<string, unknown>)[w.id]) && ranking((c.rank as Record<string, unknown>)[w.id], w.key)))) return null
   if (!Array.isArray(x.rebalance) || !x.rebalance.every(r => obj(r) && str(r.id) && str(r.title) && isDate(r.publishDate) && (r.effectiveDate === null || isDate(r.effectiveDate)) && https(r.url) && (r.attachmentUrl === null || https(r.attachmentUrl))
     && (r.status === 'parsed' || r.status === 'pending') && Array.isArray(r.indexes) && r.indexes.every(i => obj(i) && str(i.index) && Array.isArray(i.in) && Array.isArray(i.out) && [...i.in, ...i.out].every(s => obj(s) && code(s.code) && str(s.name))))) return null
+  // exchanges 是后加的字段：旧文件没有时视为两市都正常；有则必须完整，深交所缺席时必须给出仅沪市合计
+  if (x.exchanges !== undefined && !(obj(x.exchanges) && exchange(x.exchanges.sse) && exchange(x.exchanges.szse))) return null
+  if (obj(x.exchanges) && obj(x.exchanges.szse) && x.exchanges.szse.status === 'unavailable' && b.partial === undefined) return null
   if (!Array.isArray(x.sources) || !x.sources.length || !x.sources.every(s => obj(s) && str(s.label) && https(s.url))) return null
   return x as unknown as ThsEtfData
 }
+
+/** 深交所份额推断来源的说明文字。 */
+export const SZSE_FALLBACK = '深交所站点（szse.cn）在境外采集环境连不上时，深交所份额改用腾讯行情的「总份额」字段：行情里是交易所上一交易日公布的份额（T 日快照里是 T−1 的份额），所以只能补上一交易日，并与已有存档交叉校验（同日交易所数据须一致、与前一日须有足够变化），校验不过就不用；之后能连上深交所时会用交易所原始数据覆盖。'
 
 export const yi = (x: Num, sign = true): string => x === null ? '—' : `${sign && x > 0 ? '+' : ''}${(x / 1e8).toFixed(2).replace('-', '−')} 亿`
 export const yiShares = (x: Num, sign = false): string => x === null ? '—' : `${sign && x > 0 ? '+' : ''}${(x / 1e8).toFixed(2).replace('-', '−')} 亿份`

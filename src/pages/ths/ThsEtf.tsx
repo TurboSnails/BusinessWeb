@@ -5,7 +5,7 @@ import { Card, EmptyState, Page, Segmented, TableWrap } from '../../components/u
 import { PageTitle } from '../../components/ui/PageTabs'
 import ThsTabs, { THS_DISCLAIMER } from '../../features/ths-tabs/ThsTabs'
 import MoodChart from '../../features/market-mood/MoodChart'
-import { CATEGORIES, METHOD, WINDOWS, asThsEtf, tone, yi, yiShares, type EtfRow, type Rebalance, type ThsEtfData, type Window } from '../../features/ths-etf/model'
+import { CATEGORIES, METHOD, SZSE_FALLBACK, WINDOWS, asThsEtf, tone, yi, yiShares, type EtfRow, type Rebalance, type ThsEtfData, type Window } from '../../features/ths-etf/model'
 import '../../styles/market-mood.css'
 import '../../styles/ths-etf.css'
 
@@ -67,6 +67,9 @@ export default function ThsEtf(): JSX.Element {
   const history = data ? data.broad.history.slice(-Number(range)) : []
   const category = data?.market.categories.find(c => c.cat === cat)
   const winLabel = WINDOWS.find(w => w.id === win)?.label ?? ''
+  const szse = data?.exchanges?.szse
+  const szseMissing = szse?.status === 'unavailable'
+  const partial = szseMissing ? data?.broad.partial : undefined
   return (
     <Page className="mm-page te-page">
       <PageTitle>同花顺 · ETF资金</PageTitle>
@@ -76,11 +79,16 @@ export default function ThsEtf(): JSX.Element {
         <p className="mm-method">数据日期：{data.asOf}（交易所公布的当日份额） · 采集时间：{new Date(data.generatedAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false })}（北京）。
           {data.backfill && ` ${data.backfill.from} ~ ${data.backfill.to} 的历史为一次性回补（同样取交易所带日期的每日份额与日 K 收盘价），之后每日收盘后追加。`}
           深交所 T 日晚间公布的份额为参考值，次日早间修订，脚本每次会重抓最近 6 个交易日覆盖。</p>
+        {szseMissing && <p className="mm-method te-callout" role="note"><strong>深交所 {data.asOf} 的 ETF 份额暂缺。</strong>采集时深交所站点不可达，本期只发布沪市当日数据：含深市 ETF 的宽基合计、按指数汇总与当日历史记为缺失（—），全市场排行只含沪市 ETF；深交所份额最新到 {szse?.date ?? '—'}。能连上深交所后重跑会自动补齐并替换。</p>}
+        {!!szse?.inferredDates?.length && <p className="mm-method">深交所 {szse.inferredDates.join('、')} 的份额取自腾讯行情（不是交易所原始文件）。{SZSE_FALLBACK}</p>}
         <p className="mm-method">{METHOD.flow}</p>
 
         <Card title="宽基 ETF 申购净流入（国家队 ETF 口径）" as="section" className="mm-card" description="33 只主流宽基 ETF 合计；按份额变化推算，不代表一定是国家队资金。金额单位：亿元。">
           <dl className="te-summary">{([['当日', data.broad.total.flow1], ['近 5 日', data.broad.total.flow5], ['近 20 日', data.broad.total.flow20]] as const).map(([label, v]) => <div key={label}><dt>{label}</dt><dd className={tone(v)}>{yi(v)}</dd></div>)}
             <div><dt>名单合计规模</dt><dd>{yi(data.broad.total.scale, false)}</dd></div></dl>
+          {partial && <dl className="te-summary" aria-label={`仅沪市 ${partial.n} 只合计`}>{([['当日（仅沪市）', partial.flow1], ['近 5 日（仅沪市）', partial.flow5], ['近 20 日（仅沪市）', partial.flow20]] as const).map(([label, v]) => <div key={label}><dt>{label}</dt><dd className={tone(v)}>{yi(v)}</dd></div>)}
+            <div><dt>沪市 {partial.n} 只规模</dt><dd>{yi(partial.scale, false)}</dd></div></dl>}
+          {partial && <p className="mm-method">深交所份额暂缺，上面一行只加总名单里的沪市 {partial.n} 只，与 33 只合计不是同一口径。</p>}
           <Segmented items={RANGES} value={range} onChange={setRange} label="历史范围" />
           <MoodChart label="宽基 ETF 每日申购净流入" kind="bar" colorBy="sign" points={history.map(h => ({ date: h.date, value: h.flow === null ? null : h.flow / 1e8 }))} format={v => `${v.toFixed(1)} 亿`} refs={[{ value: 0, label: '零' }]} />
           <p className="mm-method">每天的净额，不是累计值；红柱为净申购、绿柱为净赎回；缺失日期不补零。{METHOD.broad}</p>
@@ -116,7 +124,7 @@ export default function ThsEtf(): JSX.Element {
         </Card>
 
         <h2 className="te-h2">全市场 ETF 资金排行</h2>
-        <Card title="按类别汇总" as="section" className="mm-card" description={`沪深两市 ${data.market.n} 只非货币 ETF；类别合计只加总有数据的产品，「有数据」列给出覆盖只数。`}>
+        <Card title="按类别汇总" as="section" className="mm-card" description={`${szseMissing ? '仅沪市（深交所份额暂缺）' : '沪深两市'} ${data.market.n} 只非货币 ETF；类别合计只加总有数据的产品，「有数据」列给出覆盖只数。`}>
           <TableWrap label="ETF 按类别汇总" stickyFirst>
             <table className="mm-table te-table">
               <thead><tr>{['类别', '只数', '当日', '近 5 日', '近 20 日', '有数据（当日/5日/20日）'].map(h => <th key={h} scope="col">{h}</th>)}</tr></thead>
