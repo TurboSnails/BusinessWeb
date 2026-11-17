@@ -7,11 +7,11 @@
 //       DATE=YYYY-MM-DD node scripts/kpl-review.mjs     只用带日期的数据重算某日：快照仓已有该日（日 K 回补）且股池 qdate = 该日
 //       BACKFILL_ONLY=1 BACKFILL_MAX=6000 node ...      只做快照仓回补
 import fs from 'node:fs'
-import { isTradingDay, prevTradingDay } from './market-mood-lib.mjs'
+import { calendarCovers, isTradingDay, prevTradingDay } from './market-mood-lib.mjs'
 import { mapDt, mapYzt, mapZb, mapZt, parseSinaFull, poolRaw } from './kpl-daban-lib.mjs'
 import {
-  BACKFILL_DAYS, KEEP_CLOSE_DAYS, TAGS, buildDay, firstSeenOf, formatCloses, historyOf, mergeKline, mergeStore, newHighHistory, newHighsAt,
-  nextPerf, parseCloses, parseKline, pctAt, seedDays, sinaToRows, tagStats,
+  BACKFILL_DAYS, KEEP_CLOSE_DAYS, NEW_HIGH_DAYS, TAGS, buildDay, canReplaceOut, firstSeenOf, formatCloses, historyOf, mergeKline, mergeStore, newHighHistory, newHighsAt,
+  nextPerf, parseCloses, parseKline, pctAt, seedDays, sinaToRows, snapshotComplete, tagStats, tradingWindow,
 } from './kpl-review-lib.mjs'
 
 const OUT = 'public/data/kpl-review.json'
@@ -39,11 +39,12 @@ async function get(url, { kind = 'json', headers = {} } = {}) {
 }
 const readJson = (f, dflt) => { try { return JSON.parse(fs.readFileSync(f, 'utf8')) } catch { return dflt } }
 
-const bj = new Date(Date.now() + 8 * 3600_000)
-const bjToday = bj.toISOString().slice(0, 10)
+const bjNow = () => { const bj = new Date(Date.now() + 8 * 3600_000); return { day: bj.toISOString().slice(0, 10), minutes: bj.getUTCHours() * 60 + bj.getUTCMinutes() } }
+const { day: bjToday, minutes } = bjNow()
 const override = /^\d{4}-\d{2}-\d{2}$/.test(process.env.DATE ?? '') ? process.env.DATE : null
 const date = override ?? bjToday
-const minutes = bj.getUTCHours() * 60 + bj.getUTCMinutes()
+// 无日期快照（新浪）取回前后都要核：仍是同一个北京日期且在 15:10 之后（回补可能拖过午夜）
+const stillLive = () => { const n = bjNow(); return n.day === date && n.minutes >= 15 * 60 + 10 }
 const backfillOnly = process.env.BACKFILL_ONLY === '1'
 
 /* ---------- 快照仓读写 ---------- */
@@ -110,7 +111,9 @@ async function backfill(meta) {
 }
 
 /* ---------- 主流程 ---------- */
+if (!calendarCovers(date) || !calendarCovers(tradingWindow(date, NEW_HIGH_DAYS)[0])) { console.log(`${date} 或其百日窗口所在年份不在休市表内（scripts/market-mood-lib.mjs），无法确定交易日，跳过`); process.exit(0) }
 if (!isTradingDay(date)) { console.log(`${date} 非交易日，跳过`); process.exit(0) }
+if (!backfillOnly && !canReplaceOut(readJson(OUT, null), date)) { console.log(`${OUT} 已是比 ${date} 更新的日期，跳过（不倒退）`); process.exit(0) }
 if (!override && !backfillOnly && minutes < 15 * 60 + 10) { console.log(`${date} 未收盘（北京 ${Math.floor(minutes / 60)}:${String(minutes % 60).padStart(2, '0')}），跳过`); process.exit(0) }
 
 let meta = readJson(`${RAW}/meta.json`, null)
@@ -157,7 +160,9 @@ if (!override) {
     if ((await count()) !== total || new Set(rows.map((r) => r.code)).size !== total) throw new Error('新浪全市场总数变化或证券重复')
     return rows
   }
+  if (!stillLive()) { console.log(`已不在 ${date} 收盘后的当天（可能回补拖过了午夜），不采集无日期快照`); process.exit(0) }
   const rows = await sinaMarket()
+  if (!stillLive()) { console.log(`新浪快照取回时已不在 ${date} 收盘后的当天，放弃（无日期快照不能记到别的日期）`); process.exit(0) }
   const older = listDays().filter((d) => d < date).slice(-15).map(loadDay)
   const lastClose = (code) => { for (let j = older.length - 1; j >= 0; j--) { const r = older[j].rows.get(code); if (r) return r.c } return null }
   fs.writeFileSync(`${CLOSES}/${date}.csv`, formatCloses(date, 'sina', sinaToRows(rows, lastClose)))
@@ -165,6 +170,8 @@ if (!override) {
   for (const d of listDays().slice(0, -KEEP_CLOSE_DAYS)) fs.unlinkSync(`${CLOSES}/${d}.csv`)
 } else if (!fs.existsSync(`${CLOSES}/${date}.csv`)) {
   console.log(`快照仓没有 ${date}（指定日期只用带日期的日 K 数据），跳过`); process.exit(0)
+} else if (!snapshotComplete(loadDay(date).meta, bf?.complete)) {
+  console.log(`快照仓 ${date} 是回补中的日 K 快照（${bf?.done?.length ?? 0} / ${meta.list.length}），回补完成前不出历史日数据，跳过`); process.exit(0)
 }
 
 const days = loadAll()
@@ -184,7 +191,9 @@ try {
 const yDate = prevTradingDay(date)
 const prevRec = store.days[yDate] && !store.days[yDate].seeded ? store.days[yDate] : null
 const yZbFallback = Array.isArray(daban[yDate]?.zb) ? new Set(daban[yDate].zb) : null
-const { record, tags, dist, intraday } = buildDay({ date, pools, days, prevRec, yZbFallback })
+const yi = days[i - 1]?.date === yDate ? i - 1 : -1
+const yUsable = yi >= 0 && snapshotComplete(days[yi].meta, storeComplete)
+const { record, tags, dist, intraday } = buildDay({ date, pools, days, prevRec, yZbFallback, yUsable })
 // 上一交易日标签的次日（今日）表现
 if (prevRec?.tags) store.days[yDate] = { ...prevRec, next: nextPerf(prevRec.tags, days, i) }
 store = mergeStore(store, { [date]: { ...record, next: store.days[date]?.next } })
