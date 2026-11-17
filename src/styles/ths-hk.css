@@ -1,0 +1,9 @@
+/* 同花顺 · 港股通与AH：窄屏只在表格容器内滚动；正负沿用站点红涨绿跌。 */
+.th-page, .th-page .mm-card { min-width: 0; max-width: 100%; }
+.th-page .mm-method { overflow-wrap: anywhere; }
+.th-stats { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); margin-bottom: 16px; }
+.th-sub { font-size: 0.95rem; font-weight: 600; margin: 18px 0 8px; color: var(--text-primary); }
+.th-split { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 16px; min-width: 0; }
+.th-split > div { min-width: 0; }
+.th-skip { margin: 0 0 8px; padding-left: 1.2em; }
+.th-skip li { margin: 4px 0; }
