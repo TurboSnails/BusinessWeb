@@ -42,3 +42,31 @@ export const platesFixture = () => ({
   seededDays: ['2026-11-13'],
   sources: [{ id: 'boards', label: '东方财富行业 / 概念板块行情', url: 'https://quote.eastmoney.com/center/boardlist.html' }],
 })
+
+const T = ['09:30', '09:31', '11:30', '13:01', '15:00']
+/** 附加模块：板块分布、分时叠加、概念成分变动 */
+export const platesExtras = () => ({
+  dist: {
+    source: 'daban', counts: { zt: 37, zb: 20, dt: 67, natural: 34, touched: 25 },
+    industry: [{ code: 'BK0001', name: '电子化学品Ⅱ', zt: 3, zb: 1, dt: 0, natural: 3, touched: 0 }],
+    concept: [{ code: 'BK1002', name: '央国企改革', zt: 11, zb: 6, dt: 30, natural: 10, touched: 7 }],
+  },
+  intraday: {
+    date: '2026-11-17', times: T,
+    boards: [
+      { code: 'BK0001', name: '电子化学品Ⅱ', kind: 'industry', strength: 63, pct: 1.86, pre: 1000, values: [-0.9, -0.5, 0.8, 1.2, 1.86] },
+      { code: 'BK0002', name: '贵金属', kind: 'industry', strength: 55, pct: 2.5, pre: 500, values: [0.2, 0.4, null, 2, 2.5] },
+      { code: 'BK1001', name: '光刻机', kind: 'concept', strength: 81, pct: 3.08, pre: 2000, values: [0.5, 1, 2, 2.5, 3.08] },
+      { code: 'BK1002', name: '央国企改革', kind: 'concept', strength: 40, pct: -0.5, pre: 900, values: [0, -0.2, -0.3, -0.4, -0.5] },
+    ],
+  },
+  members: {
+    date: '2026-11-17', base: '2026-11-16', prevDay: '2026-11-16', stocks: 5930, withConcepts: 5519, unmatchedNames: 0,
+    today: {
+      base: '2026-11-16', skipped: 2,
+      concepts: [{ code: 'BK1001', name: '光刻机', members: 80, addedCount: 2, removedCount: 1, added: [{ code: '000001', name: '新进甲' }, { code: '000002', name: '新进乙' }], removed: [{ code: '000003', name: '剔除丙' }] }],
+      newConcepts: [{ code: 'BK1999', name: '新概念', members: 12 }], droppedConcepts: [],
+    },
+    recent: [{ date: '2026-11-16', base: '2026-11-13', concepts: 3, added: 5, removed: 1, newConcepts: [], droppedConcepts: [] }],
+  },
+})

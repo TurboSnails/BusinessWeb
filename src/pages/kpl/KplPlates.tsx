@@ -1,5 +1,6 @@
 // 开盘啦 · 板块题材（/market-mood/plates）：功能对照开盘啦 App「板块」列表（强度、涨幅、主力净额、领涨股）与题材涨停分布。
-// 模块：今日概览、行业 / 概念排行、题材涨停分布（连板梯队）、板块近 N 日走势、近几日强势板块。
+// 模块：今日概览、行业 / 概念排行、板块涨停 / 炸板 / 跌停分布、题材涨停分布（连板梯队）、板块叠加（当日分时）、
+// 板块近 N 日走势、近几日强势板块、概念成分变动。
 // 数据：public/data/kpl-plates.json（scripts/kpl-plates.mjs 收盘后生成）。盘后统计，不是买卖建议。
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -7,7 +8,8 @@ import { Callout, Card, EmptyState, Page, PageDataFreshness, Segmented, TableWra
 import { PageTitle } from '../../components/ui/PageTabs'
 import KplTabs, { KPL_DISCLAIMER } from '../../features/market-mood/KplTabs'
 import MoodChart from '../../features/market-mood/MoodChart'
-import { asKplPlates, KINDS, METHOD, SORTS, sortBoards, type Board, type Kind, type KplPlates, type SortKey, type Trend, type ZtGroup } from '../../features/kpl-plates/model'
+import { asKplPlates, KINDS, METHOD, OVERLAY_MAX, SORTS, sortBoards, type Board, type ConceptChange, type DistRow, type Kind, type KplPlates, type SortKey, type Trend, type ZtGroup } from '../../features/kpl-plates/model'
+import OverlayChart from '../../features/kpl-plates/OverlayChart'
 import '../../styles/market-mood.css'
 import '../../styles/kpl-plates.css'
 
@@ -218,6 +220,120 @@ function StrongCard({ m }: { m: KplPlates }): JSX.Element {
   )
 }
 
+/* ---------- 板块涨停 / 炸板 / 跌停分布 ---------- */
+const DIST_COLS: Array<{ key: keyof Omit<DistRow, 'code' | 'name'>; label: string; cls: string }> = [
+  { key: 'zt', label: '涨停', cls: 'mm-up' }, { key: 'zb', label: '炸板', cls: '' }, { key: 'dt', label: '跌停', cls: 'mm-down' },
+  { key: 'natural', label: '自然涨停', cls: 'mm-up' }, { key: 'touched', label: '曾跌停', cls: '' },
+]
+function DistCard({ m }: { m: KplPlates }): JSX.Element | null {
+  const [kind, setKind] = useState<Kind>('industry')
+  const [all, setAll] = useState(false)
+  const d = m.dist
+  if (!d) return null
+  const rows = d[kind]
+  const shown = all ? rows : rows.slice(0, PAGE)
+  const cnt = (k: string): string => (d.counts[k] == null ? '—' : String(d.counts[k]))
+  return (
+    <Card title="板块涨停 / 炸板 / 跌停分布" as="section" className="mm-card" actions={<Segmented items={KINDS.map(k => ({ ...k }))} value={kind} onChange={k => { setKind(k); setAll(false) }} label="分布板块类型" />}>
+      <p className="kp-dist__total">全市场：涨停 {cnt('zt')} · 炸板 {cnt('zb')} · 跌停 {cnt('dt')} · 自然涨停 {cnt('natural')} · 曾跌停 {cnt('touched')}</p>
+      {rows.length ? (
+        <TableWrap label={`${kindLabel(kind)}涨停 / 炸板 / 跌停分布`}>
+          <table className="mm-table kp-table">
+            <thead><tr><th>板块</th>{DIST_COLS.map(c => <th key={c.key} className="num">{c.label}</th>)}</tr></thead>
+            <tbody>
+              {shown.map(r => (
+                <tr key={r.code}>
+                  <td className="kp-name">{r.name}</td>
+                  {DIST_COLS.map(c => { const v = r[c.key]; return <td key={c.key} className={`num ${v ? c.cls : 'kp-muted'}`}>{v == null ? '—' : v}</td> })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </TableWrap>
+      ) : <p className="mm-empty">今日暂无</p>}
+      {rows.length > PAGE && <button type="button" className="kp-more" onClick={() => setAll(v => !v)}>{all ? '收起' : `显示全部 ${rows.length} 个`}</button>}
+      <p className="mm-method">{METHOD.dist}{d.source === 'pools' ? ` ${METHOD.distPools}` : ''} 按涨停、炸板、跌停家数排序，只列至少有一项不为 0 的板块（最多 80 个）。</p>
+    </Card>
+  )
+}
+
+/* ---------- 板块叠加（当日分时） ---------- */
+function OverlayCard({ m }: { m: KplPlates }): JSX.Element | null {
+  const it = m.intraday
+  const [kind, setKind] = useState<Kind>('industry')
+  const [picked, setPicked] = useState<string[]>(() => (it ? it.boards.filter(b => b.kind === 'industry').slice(0, 2).map(b => b.code) : []))
+  if (!it) return null
+  const list = it.boards.filter(b => b.kind === kind)
+  const toggle = (code: string): void => setPicked(p => (p.includes(code) ? p.filter(c => c !== code) : p.length >= OVERLAY_MAX ? p : [...p, code]))
+  const series = picked.map(c => it.boards.find(b => b.code === c)).filter((b): b is NonNullable<typeof b> => !!b)
+  return (
+    <Card title="板块叠加" as="section" className="mm-card" description={`${it.date} 分时，最多选 ${OVERLAY_MAX} 个板块对比（已选 ${series.length} 个），行业与概念可混选。`} actions={<Segmented items={KINDS.map(k => ({ ...k }))} value={kind} onChange={setKind} label="叠加板块类型" />}>
+      <div className="kp-chips" role="group" aria-label="选择叠加板块">
+        {list.map(b => {
+          const on = picked.includes(b.code)
+          return (
+            <button key={b.code} type="button" className={`kp-chip${on ? ' is-on' : ''}`} aria-pressed={on} disabled={!on && picked.length >= OVERLAY_MAX} onClick={() => toggle(b.code)}>
+              {b.name}<small className={tone(b.pct)}>{pct(b.pct)}</small>
+            </button>
+          )
+        })}
+      </div>
+      {picked.length > 0 && <button type="button" className="kp-more" onClick={() => setPicked([])}>清空选择</button>}
+      <OverlayChart times={it.times} series={series} label={`板块叠加：${series.map(s => s.name).join('、') || '未选择'}`} />
+      <p className="mm-method">{METHOD.intraday}</p>
+    </Card>
+  )
+}
+
+/* ---------- 概念成分变动 ---------- */
+function MembersCard({ m }: { m: KplPlates }): JSX.Element | null {
+  const mb = m.members
+  const [open, setOpen] = useState<string | null>(null)
+  if (!mb) return null
+  const t = mb.today
+  const names = (xs: ConceptChange['added'], n: number): string => xs.map(x => x.name).join('、') + (n > xs.length ? ` 等 ${n} 只` : '')
+  return (
+    <Card title="概念成分变动" as="section" className="mm-card" description={t ? `${mb.date} 与 ${t.base} 相比` : `${mb.date} 已存快照（${mb.stocks} 只股票）`}>
+      {!t && <p className="mm-empty">{mb.base === null ? `上一交易日（${mb.prevDay}）没有成分快照（首次采集或上一交易日未采集成功），暂无比较对象；下一个交易日起显示变动。` : '暂无比较结果'}</p>}
+      {t && (t.concepts.length || t.newConcepts.length || t.droppedConcepts.length ? (
+        <>
+          {t.newConcepts.length > 0 && <p className="kp-mb__line">新上线概念：{t.newConcepts.map(c => `${c.name}（${c.members} 只）`).join('、')}</p>}
+          {t.droppedConcepts.length > 0 && <p className="kp-mb__line">下线概念：{t.droppedConcepts.map(c => `${c.name}（原 ${c.members} 只）`).join('、')}</p>}
+          <ul className="kp-mb">
+            {t.concepts.map(c => (
+              <li key={c.code}>
+                <button type="button" className="kp-mb__head" aria-expanded={open === c.code} onClick={() => setOpen(o => (o === c.code ? null : c.code))}>
+                  <b>{c.name}</b>
+                  <span>{c.addedCount ? <span className="mm-up">+{c.addedCount}</span> : null}{c.removedCount ? <span className="mm-down"> −{c.removedCount}</span> : null}</span>
+                  <small>现 {c.members} 只</small>
+                </button>
+                {open === c.code && (
+                  <div className="kp-mb__body">
+                    {c.added.length > 0 && <p><span className="mm-up">新增</span> {names(c.added, c.addedCount)}</p>}
+                    {c.removed.length > 0 && <p><span className="mm-down">剔除</span> {names(c.removed, c.removedCount)}</p>}
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : <p className="mm-empty">与上一交易日相比没有成分变动</p>)}
+      {t && t.skipped > 0 && <p className="mm-method">另有 {t.skipped} 只股票当天所属概念为空，视为数据缺失，未计入剔除。</p>}
+      {mb.recent.length > 0 && (
+        <ul className="kp-strong" aria-label="近几日成分变动">
+          {mb.recent.map(r => (
+            <li key={r.date}>
+              <span className="kp-strong__date">{r.date.slice(5)}</span>
+              <span className="kp-strong__list"><span>{r.concepts} 个概念变动</span><span className="mm-up">新增 {r.added}</span><span className="mm-down">剔除 {r.removed}</span>{r.newConcepts.length ? <span>新上线 {r.newConcepts.join('、')}</span> : null}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="mm-method">{METHOD.members}</p>
+    </Card>
+  )
+}
+
 export default function KplPlates(): JSX.Element {
   const load = usePlates()
   return (
@@ -239,11 +355,14 @@ function PlatesBody({ m }: { m: KplPlates }): JSX.Element {
       <PageDataFreshness checkedAt={m.generatedAt} dataDates={[m.asOf]} note="收盘后更新" />
       <Overview m={m} />
       <Ranking m={m} />
+      <DistCard m={m} />
       <Groups m={m} />
+      <OverlayCard m={m} />
       <TrendCard m={m} />
       <StrongCard m={m} />
+      <MembersCard m={m} />
       <Card title="暂未提供" as="section" className="mm-card">
-        <p className="mm-empty">开盘啦「题材挖掘」「互动精灵」「股权拍卖」依赖它自有的编辑内容、问答抓取与拍卖数据，没有可靠的公开来源，本页不提供；板块分时、区间强度等盘中数据也不提供。</p>
+        <p className="mm-empty">开盘啦「题材挖掘」「互动精灵」「股权拍卖」依赖它自有的编辑内容、问答抓取与拍卖数据，没有可靠的公开来源，本页不提供；板块叠加只用收盘后预存的当日分时，盘中实时分时、区间强度等盘中数据不提供。</p>
       </Card>
       <Callout title="口径与来源">
         <p>{m.note} {METHOD.scope}{m.seededDays.length ? ` ${METHOD.seeded}` : ''}</p>

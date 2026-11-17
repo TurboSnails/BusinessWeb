@@ -250,3 +250,79 @@ export function buildDaban({ date, zt, zb, dt, yzt, cx, rows, limits, store }) {
   }
   return { payload, record, store: merged }
 }
+
+/* ---------- 涨停股题材要点（东财 F10「核心题材」） ---------- */
+// 来源：emweb.securities.eastmoney.com/PC_HSF10/CoreConception/PageAjax?code=SZ000001 的 hxtc（核心题材要点）。
+// 这是公司 F10 资料里的题材 / 主营 / 竞争力摘要，不注明日期、也不是当日涨停原因；按抓取日期缓存，同一股票 F10_TTL 天内不重复抓。
+export const F10_TTL = 30
+export const F10_KEEP = 90 // 超过 90 天没再涨停的股票从缓存里删掉
+const F10_EVENT = new Set(['重大事项', '对外扩张', '对内扩张', '规模扩张', '其他扩张', '募资投向', '其他项目'])
+const F10_MAX = 140
+
+/** 东财 F10 代码前缀：沪市 SH、北交所 BJ（4 / 8 / 92 开头）、其余深市 SZ */
+export const f10Code = (code) => `${/^6/.test(code) ? 'SH' : /^(4|8|92)/.test(code) ? 'BJ' : 'SZ'}${code}`
+
+const clip = (s) => { const t = String(s ?? '').replace(/\s+/g, ' ').trim(); return t.length > F10_MAX ? `${t.slice(0, F10_MAX)}…` : t }
+
+/**
+ * hxtc → 最多 3 条要点 [{ c: 分类, k: 关键词, t: 内容 }]：先取第一条「主营业务」，再取一条公司事项（重大事项 / 扩张 / 募资投向 / 其他项目），
+ * 再取第一条「核心竞争力」，不足 3 条用其余主营业务补。「经营范围」「行业背景」「自愿锁定」等通用内容不取。
+ * 结构不对或代码对不上时报错（不缓存）；公司没有这些要点时返回 []。
+ */
+export function parseF10(body, code) {
+  if (!body || typeof body !== 'object' || body.status === -1) throw new Error('东财 F10 返回异常')
+  const rows = Array.isArray(body.hxtc) ? body.hxtc : null
+  if (!rows) throw new Error('东财 F10 缺核心题材')
+  const ok = rows.filter((r) => r && (r.SECURITY_CODE === undefined || r.SECURITY_CODE === code) && typeof r.KEYWORD === 'string' && typeof r.MAINPOINT_CONTENT === 'string' && r.MAINPOINT_CONTENT.trim())
+    .sort((a, b) => (Number(a.MAINPOINT) || 0) - (Number(b.MAINPOINT) || 0))
+  if (rows.length && !ok.length && rows.some((r) => r?.SECURITY_CODE && r.SECURITY_CODE !== code)) throw new Error('东财 F10 代码对不上')
+  const main = ok.filter((r) => r.KEY_CLASSIF === '主营业务')
+  const picks = [main[0], ok.find((r) => F10_EVENT.has(r.KEY_CLASSIF)), ok.find((r) => r.KEY_CLASSIF === '核心竞争力'), ...main.slice(1)].filter(Boolean)
+  return [...new Set(picks)].slice(0, 3).map((r) => ({ c: r.KEY_CLASSIF ?? '', k: r.KEYWORD.trim(), t: clip(r.MAINPOINT_CONTENT) }))
+}
+
+const dayDiff = (a, b) => Math.round((Date.parse(`${b}T00:00:00Z`) - Date.parse(`${a}T00:00:00Z`)) / 86400_000)
+
+/** 需要（重新）抓取的代码：缓存里没有，或抓取日期距 today 已满 F10_TTL 天 */
+export function f10Due(codes, cache, today, ttl = F10_TTL) {
+  return [...new Set(codes)].filter((c) => { const e = cache?.[c]; return !e || !/^\d{4}-\d{2}-\d{2}$/.test(e.at ?? '') || dayDiff(e.at, today) >= ttl })
+}
+
+/** 缓存清理：抓取日期超过 keep 天的删掉（下次涨停会重新抓） */
+export function pruneF10(cache, today, keep = F10_KEEP) {
+  return Object.fromEntries(Object.entries(cache ?? {}).filter(([, e]) => /^\d{4}-\d{2}-\d{2}$/.test(e?.at ?? '') && dayDiff(e.at, today) < keep).sort(([a], [b]) => a.localeCompare(b)))
+}
+
+/** 给涨停行挂上题材要点：{ at: 抓取日期, points } 或 null（没抓到） */
+export function attachTopics(ztRows, cache) {
+  return ztRows.map((r) => { const e = cache?.[r.code]; return { ...r, topics: e && Array.isArray(e.points) ? { at: e.at, points: e.points } : null } })
+}
+
+/* ---------- 涨停历史检索（导出 public/data/kpl-daban-history.json） ---------- */
+// data-raw/kpl-daban/stocks.json：{ 代码: [名称, 行业 | null] }，名称取最近一次见到的，行业取东财股池的行业（hybk），没有时用东财个股所属行业（f100）补。
+
+/** 把股池行（{ code, name, sector }）的名称与行业并入名录 */
+export function mergeStocks(stocks, rows) {
+  const out = { ...(stocks ?? {}) }
+  for (const r of rows ?? []) {
+    if (!/^\d{6}$/.test(r?.code ?? '')) continue
+    const old = out[r.code] ?? [null, null]
+    const name = typeof r.name === 'string' && r.name.trim() ? r.name.trim() : old[0]
+    const ind = typeof r.sector === 'string' && r.sector.trim() ? r.sector.trim() : old[1]
+    out[r.code] = [name ?? r.code, ind ?? null]
+  }
+  return out
+}
+
+/** 精简导出：每天的涨停名单 [日期, 是否补算, [[代码, 连板数]]] 与名录（只含出现过的股票） */
+export function buildHistoryExport(store, stocks) {
+  const days = Object.entries(store?.days ?? {}).sort(([a], [b]) => a.localeCompare(b))
+  const used = new Set(days.flatMap(([, r]) => r.zt.map(([c]) => c)))
+  const full = days.filter(([, r]) => !r.seeded)
+  return {
+    version: 1,
+    from: days[0]?.[0] ?? null, to: days.at(-1)?.[0] ?? null, fullFrom: full[0]?.[0] ?? null,
+    stocks: Object.fromEntries([...used].sort().map((c) => [c, stocks?.[c] ?? [c, null]])),
+    days: days.map(([d, r]) => [d, r.seeded ? 1 : 0, r.zt]),
+  }
+}
