@@ -1,0 +1,18 @@
+/* 开盘啦 · 时间线（/market-mood/timeline）。汇总格、表格沿用 kpl-daban.css 的 kd-*；颜色全部取站点变量。 */
+.kt-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.kt-chip { font: inherit; font-size: 0.8rem; padding: 3px 10px; border-radius: var(--radius-full); border: 1px solid var(--border-primary); background: var(--bg-card); color: var(--text-tertiary); cursor: pointer; }
+.kt-chip strong { font-variant-numeric: tabular-nums; margin-left: 2px; }
+.kt-chip[aria-pressed='true'] { border-color: var(--accent); color: var(--text-primary); }
+.kt-chip:disabled { cursor: default; opacity: 0.5; }
+.kt-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.kt-timeline { list-style: none; margin: 0; padding: 0; max-height: 640px; overflow-y: auto; font-size: 0.86rem; border-left: 2px solid var(--border-light); }
+.kt-ev { display: flex; gap: 10px; padding: 6px 0 6px 10px; border-bottom: 1px solid var(--border-light); min-width: 0; }
+.kt-ev time { flex: 0 0 auto; color: var(--text-secondary); font-variant-numeric: tabular-nums; width: 4.6em; }
+.kt-ev time small { color: var(--text-tertiary); font-size: 0.75em; }
+.kt-ev__body { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; min-width: 0; overflow-wrap: anywhere; }
+.kt-ev__kind { font-size: 0.72rem; line-height: 1.5; padding: 0 6px; border-radius: var(--radius-full); border: 1px solid var(--border-primary); color: var(--text-secondary); }
+.kt-ev--index .kt-ev__kind, .kt-ev--board .kt-ev__kind { border-color: var(--accent); color: var(--text-primary); }
+.kt-ev--index .kt-ev__title, .kt-ev--board .kt-ev__title { font-weight: 600; }
+.kt-ev__detail { color: var(--text-secondary); }
+.kt-hint { color: var(--text-tertiary); font-size: 0.8rem; flex-basis: 100%; }
+.kt-stocks { white-space: normal; min-width: 12em; }
