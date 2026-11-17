@@ -98,7 +98,7 @@ describe('同花顺页签', () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, status: 200, headers: { get: () => 'application/json' }, json: async () => thsFixture() })))
     renderPage()
     const tabs = screen.getByRole('tablist', { name: '同花顺页签' })
-    expect(within(tabs).getAllByRole('tab').map(t => t.textContent)).toEqual(['市场情绪', '市场', '可转债', '数据中心', '港股通与AH', 'ETF资金'])
+    expect(within(tabs).getAllByRole('tab').map(t => t.textContent)).toEqual(['市场情绪', '市场', '可转债', '数据中心', '港股通与AH', 'ETF资金', '技术选股', '行业景气'])
     expect(within(tabs).getByRole('tab', { name: '市场情绪' }).getAttribute('aria-selected')).toBe('true')
   })
 })

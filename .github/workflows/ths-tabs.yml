@@ -44,7 +44,7 @@ jobs:
       - name: Run tab scripts
         shell: bash
         run: |
-          for tab in market cbond datacenter hk etf; do
+          for tab in market cbond datacenter hk etf screener industry; do
             f="scripts/ths-$tab.mjs"
             [ -f "$f" ] || continue
             node "$f" || echo "::warning::$f 运行失败，保留上一份数据"
