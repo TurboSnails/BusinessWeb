@@ -1,0 +1,49 @@
+/* 开盘啦 · 板块题材页（/market-mood/plates）。走势图、表格等通用部分复用 market-mood.css 的 mm-* 类；这里只放本页独有的样式。
+   A 股习惯：红涨绿跌，用 --up / --down；颜色全部取站点变量，深色模式随变量切换。 */
+.kp-top { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.kp-top__name { font-size: 1.25rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kp-muted { color: var(--text-tertiary); }
+
+/* 排行表 */
+.kp-table td { white-space: nowrap; }
+.kp-table td small { margin-left: 4px; font-size: 0.75rem; }
+.kp-rank { color: var(--text-tertiary); }
+.kp-name { font-weight: 600; }
+.kp-hi { color: var(--up-ink); }
+.kp-strength { display: inline-flex; align-items: center; gap: 6px; justify-content: flex-end; }
+.kp-strength svg { width: 40px; height: 6px; display: block; }
+.kp-strength__track { fill: var(--bg-secondary); }
+.kp-strength__fill { fill: var(--text-tertiary); }
+.kp-strength__fill.is-hot { fill: var(--up); }
+.kp-strength__fill.is-cold { fill: var(--down); }
+.kp-strength b { font-variant-numeric: tabular-nums; min-width: 2ch; text-align: right; }
+.kp-more { margin-top: 8px; background: none; border: 1px solid var(--border-primary); color: var(--text-secondary); border-radius: var(--radius-full); padding: 4px 14px; font-size: 0.85rem; cursor: pointer; }
+.kp-more:hover { color: var(--text-primary); border-color: var(--text-tertiary); }
+
+/* 题材涨停分布 */
+.kp-groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.kp-group { background: var(--bg-secondary); border-radius: var(--radius-sm); padding: 10px 12px; min-width: 0; }
+.kp-group__head { margin: 0 0 6px; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+.kp-group__head > span { font-size: 0.85rem; color: var(--text-secondary); }
+.kp-group__head > span.mm-up { color: var(--up-ink); }
+.kp-group__head > span.mm-down { color: var(--down-ink); }
+.kp-tier { display: flex; gap: 10px; align-items: baseline; margin-top: 4px; }
+.kp-tier__boards { flex: none; width: 3em; font-size: 0.8rem; font-weight: 600; color: var(--up-ink); }
+.kp-tier__stocks { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 0.88rem; min-width: 0; }
+
+/* 走势 */
+.kp-trend__bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-bottom: 10px; font-size: 0.88rem; color: var(--text-secondary); }
+.kp-trend__bar b { font-variant-numeric: tabular-nums; }
+.kp-select { width: auto; max-width: 100%; }
+
+/* 近几日强势板块 */
+.kp-strong { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.kp-strong li { display: flex; gap: 10px; align-items: baseline; }
+.kp-strong__date { flex: none; width: 3.2em; color: var(--text-tertiary); font-variant-numeric: tabular-nums; font-size: 0.85rem; }
+.kp-strong__list { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 0.88rem; }
+.kp-strong__list small { margin-left: 3px; color: var(--up-ink); font-variant-numeric: tabular-nums; }
+
+@media (max-width: 640px) {
+  .kp-top { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kp-groups { grid-template-columns: 1fr; }
+}
