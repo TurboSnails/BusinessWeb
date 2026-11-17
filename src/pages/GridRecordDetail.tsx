@@ -7,12 +7,18 @@ import { fetchQuotes, getCandles, mergeQuote } from '../features/grid-trading/ma
 import { addManualTrade, assertPosition, positionOf, appendBackup, appendParamStage, createBackup, refreshBackupSnapshot, removeManualTrade, replayBackup, setGridTradeDeleted, updateBackupOverride, updateTradeOverride } from '../features/grid-trading/recordMutations'
 import { comparisonRows } from '../features/grid-trading/comparison'
 import GridChart from '../features/grid-trading/GridChart'
+import CandleChart from '../features/grid-trading/CandleChart'
 import type { Candle, SavedRecord, Trade } from '../features/grid-trading/types'
 import '../features/grid-trading/gridTrading.css'
 import { Page } from '../components/ui'
 
 const amount = (v: number) => v.toLocaleString('zh-CN', { maximumFractionDigits: 2 })
 export default function GridRecordDetail(): JSX.Element {
+  const { recordId } = useParams()
+  return <GridRecordDetailView key={recordId} />
+}
+
+function GridRecordDetailView(): JSX.Element {
   const { recordId } = useParams()
   const [record, setRecord] = useState(() => readRecords().find(r => r.id === recordId))
   const [candles, setCandles] = useState<Candle[]>([])
@@ -83,6 +89,7 @@ export default function GridRecordDetail(): JSX.Element {
   return <Page className="grid-page">
     <section className="grid-hero grid-hero-compact"><div className="grid-eyebrow">网格记录详情</div><h1>{record.row.name} · {record.row.code}</h1><p>{result.range} · {backup ? '快照续跑视图' : '当前实际记录'}</p><div className="grid-hero-links"><Link to="/grid-trading/records">返回记录列表</Link><button className="grid-button grid-button-secondary" disabled={busy} onClick={() => void load(true)}>{busy ? '加载中…' : '刷新行情'}</button></div></section>
     <p role="status" className="grid-inline-message">{notice}</p>
+    <CandleChart key={record.row.code} code={record.row.code} name={record.row.name} endDate={record.endDate} />
     <section className="grid-card"><div className="grid-metrics">{[
       ['最新价', result.current.toFixed(3)], ['总盈亏', `¥${amount(result.pnl)}`], ['持仓市值', `¥${amount(positionOf(result) * result.current)}`], ['持仓份额', amount(positionOf(result))],
       ['最大占用资金', `¥${amount(result.maxCapital)}`], ['买入 / 卖出', `${result.buys} / ${result.sells}`], ['下一买价', result.nextBuy.toFixed(3)], ['下一卖价', result.nextSell.toFixed(3)],

@@ -1,4 +1,5 @@
 import React from 'react'
+import './EtfTechCell.css'
 import type { EtfTechRecord, TechPeriod } from '../data/etfTechnical'
 import { fmt } from '../data/etfTechnical'
 
@@ -19,7 +20,7 @@ export default function EtfTechCell({ rec }: { rec: EtfTechRecord | undefined })
         const p = rec[key]
         return (
           <span key={key} className={`etf-tech__chip etf-tech__chip--${tone(p)}`} title={detail(label, p)}>
-            <b>{label}</b>{p.ma ?? '—'}{p.macd ? <i>· {p.macd}</i> : null}
+            <b>{label}{!p.complete && '（未完）'}</b>{p.ma ?? '—'}{p.macd ? <i>· {p.macd}</i> : null}
           </span>
         )
       })}

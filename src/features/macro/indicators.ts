@@ -1,6 +1,6 @@
 import { SIGNALS, computeStage, type Tone } from './stages'
 
-export type SeriesKey = 'gdp' | 'unrate' | 'sahm' | 'claims' | 'corePce' | 'realRate' | 'curve' | 'hy' | 'nfci' | 'vix' | 'dd' | 'kre' | 'marginGdp' | 'cashDebt' | 'dxy' | 'gold' | 'silver' | 'wti' | 'equityShare' | 'buffett' | 'debtService' | 'ccDelinq' | 'tenYear' | 'saving'
+export type SeriesKey = 'gdp' | 'unrate' | 'sahm' | 'claims' | 'corePce' | 'realRate' | 'curve' | 'hy' | 'nfci' | 'vix' | 'dd' | 'kre' | 'marginGdp' | 'cashDebt' | 'putCall' | 'dxy' | 'gold' | 'silver' | 'wti' | 'equityShare' | 'buffett' | 'debtService' | 'ccDelinq' | 'tenYear' | 'saving'
 
 export interface Indicator<K extends string = SeriesKey> {
   key: K
@@ -72,6 +72,8 @@ export const INDICATORS: Indicator[] = [
     why: '家庭每年还本付息占可支配收入的比例。它用来区分“证券市场过热”和“整个家庭资产负债表脆弱”：2007 年前后它在历史高位，现在没有明显恶化。', limit: '只统计有债务的偿付额，不反映负债人群内部的分化；数据始于 2005 年，历史分位样本较短。' },
   { key: 'cashDebt', name: '客户现金 ÷ 保证金债务', module: 'leverage', crowded: 'low', digits: 1, freq: '月度',
     why: '券商账户里闲置现金相对借款的比例，反映散户手里还有多少子弹。比例越低，说明现金已经压到股市里，缺少新增买盘。', limit: '只统计 FINRA 会员券商，不含银行账户和货币基金里的现金；是存量比例，不等于散户整体仓位。' },
+  { key: 'putCall', name: '期权 Put/Call（Put ÷ Call）', module: 'leverage', digits: 2, freq: '每日（历史按月抽样）',
+    why: 'Cboe 全产品看跌期权成交量除以看涨期权成交量。较高表示防守或悲观需求较多，较低表示乐观情绪较多；与杠杆、现金和估值一起观察。2019 年后历史为月末交易日抽样，非月均。', limit: '背景指标，不打分。成交量比不是持仓比、资金盈亏比或全市场完整日历史；包含指数对冲与短期期权，2019 年后历史为月末交易日抽样，不能单独用来择时。' },
 ]
 
 /** 当前值在全部历史中的百分位（0-100）；样本不足 24 个返回 undefined */

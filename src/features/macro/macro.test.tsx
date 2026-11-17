@@ -6,7 +6,7 @@ import React from 'react'
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
-import Monitor from '../../pages/Monitor'
+import Monitor, { mergeSnapshot } from '../../pages/Monitor'
 import { INDICATORS, toneOf } from './indicators'
 import { computeStage } from './stages'
 import type { MacroSnapshot } from './indicators'
@@ -34,6 +34,12 @@ describe('宏观指标规则', () => {
   it('阶段分数：多项红灯进入危机', () => {
     expect(computeStage({ sahm: 0.1, claims: 20, hy: 300, vix: 15, dd: 2 }).stage.name).toBe('常态')
     expect(computeStage({ sahm: 0.6, claims: 32, hy: 550, vix: 35, dd: 25 }).stage.name).toBe('危机')
+  })
+
+  it('实时刷新返回较短历史时保留原长历史，不降低分位样本', () => {
+    const old = { ...snapshot, series: { putCall: { ...snapshot.series.vix, long: [['2020-01-01', 1], ['2020-02-01', 1.2]] as [string, number][] } } }
+    const fresh = { ...snapshot, series: { putCall: { ...snapshot.series.vix, long: [['2020-02-01', 1.2]] as [string, number][] } } }
+    expect(mergeSnapshot(old, fresh)?.series.putCall.long).toEqual(old.series.putCall.long)
   })
 
   it('中美快照覆盖所有指标且每项都有日期和走势', () => {

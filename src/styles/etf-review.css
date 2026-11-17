@@ -2,7 +2,7 @@
 .etf-review-toolbar { flex-wrap: wrap; gap: 8px; }
 .etf-review-message { margin: 8px 0; font-size: .85rem; color: var(--text-secondary); }
 .etf-review-filters { margin: 12px 0; }
-.etf-review-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; margin-top: 12px; }
+.etf-review-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 14px; margin-top: 12px; }
 .etf-review-card { display: flex; flex-direction: column; gap: 10px; }
 .etf-review-card__head { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
 .etf-review-code { margin-left: 8px; font-size: .8rem; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
@@ -28,6 +28,15 @@
 .etf-review-grouplist li { display: flex; gap: 8px; align-items: center; }
 .etf-review-grouplist li > span { flex: 1; }
 .etf-review-addgroup { display: flex; gap: 8px; }
+.etf-review-tags { max-width: 60%; min-width: 0; overflow-wrap: anywhere; font-size: .8rem; }
+.etf-review-tags summary { cursor: pointer; padding: 4px; }
+.etf-review-tags fieldset { display: grid; gap: 6px; margin: 6px 0; border: 1px solid var(--border-subtle); }
+.etf-review-tags label { display: flex; align-items: center; gap: 6px; min-height: 32px; }
+.etf-review-technical { margin: 16px 0; padding: 12px; border: 1px solid var(--border-subtle); border-radius: 10px; }
+.etf-review-technical .page-toolbar { align-items: center; }
+.etf-review-technical label { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: .85rem; }
+.etf-review-technical select { width: auto; max-width: 100%; }
+.etf-review-page :is(button, summary, input, select, a):focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 3px; }
 .etf-review-history { list-style: none; margin: 16px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--border-subtle); padding-top: 12px; }
 .etf-review-history li { display: flex; gap: 10px; align-items: center; font-size: .85rem; }
 .etf-review-history li > span { flex: 1; color: var(--text-secondary); }

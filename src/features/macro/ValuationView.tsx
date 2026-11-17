@@ -5,8 +5,11 @@ import LongHistoryChart from './LongHistoryChart'
 import { ToneBadge } from './MacroViews'
 import { estimateFpe, mergeLive, pctTone, statsOf, type IndexData, type IndexSnapshot, type Member } from './valuation'
 import './macro.css'
+import IndexExplorer from '../index-catalog/IndexExplorer'
+import IndexQuality from '../index-catalog/IndexQuality'
+import IndexEtfLinks from '../index-catalog/IndexEtfLinks'
 
-const GROUPS = ['美股', '港股', 'A 股']
+const GROUPS = ['美股', '港股', 'A 股', 'A 股行业']
 const num = (v: number, d = 0) => v.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d })
 const pe = (v: number | null | undefined) => (v === null || v === undefined ? '—' : `${v.toFixed(1)}x`)
 const signed = (v: number | undefined, d = 1) => (v === undefined ? '—' : `${v > 0 ? '+' : ''}${v.toFixed(d)}%`)
@@ -56,9 +59,9 @@ function Row({ id, ix, open, onToggle }: { id: string; ix: IndexData; open: bool
         <td className="macro-val__n">{signed(s.drawdown)}</td>
         <td className="macro-val__n">{signed(s.ret1y)}</td>
         <td className="macro-val__n">{s.pricePct === undefined ? '—' : <ToneBadge tone="gray" label={`${s.pricePct}%`} />}</td>
-        <td className="macro-val__n">{f ? f.value.toFixed(1) : '—'}{f && <div className="macro-muted">{f.date.slice(0, 7)}</div>}</td>
+        <td className="macro-val__n">{f ? f.value.toFixed(1) : '—'}{f && <div className="macro-muted">{f.kind === 'trailing' ? 'TTM' : 'Forward'} · {f.date}</div>}</td>
         <td className="macro-val__n">{ix.agg ? pe(ix.agg.ttm) : '—'}</td>
-        <td className="macro-val__n">{f ? (f.pct === undefined ? <span className="macro-muted">仅 {f.count} 个月</span> : <ToneBadge tone={pctTone(f.pct)} label={`${f.pct}%`} />) : '—'}</td>
+        <td className="macro-val__n">{f ? (f.pct === undefined ? <span className="macro-muted">覆盖不足 · {f.count} 个观测</span> : <ToneBadge tone={pctTone(f.pct)} label={`${f.pct}%`} />) : '—'}</td>
         <td className="macro-val__n">{f ? `${f.min.toFixed(1)} – ${f.max.toFixed(1)}` : '—'}{f && <div className="macro-muted">中位 {f.median.toFixed(1)}</div>}</td>
       </tr>
       {open && (
@@ -80,7 +83,9 @@ function Row({ id, ix, open, onToggle }: { id: string; ix: IndexData; open: bool
             )}
             <h4>价格走势（月收盘）</h4>
             <LongHistoryChart points={ix.monthly} digits={0} label={`${ix.name}价格`} />
-            <p className="macro-muted">历史最高月收盘 {num(s.peak.value)}（{s.peak.date.slice(0, 7)}）。</p>
+            <p className="macro-muted">{s.peak ? `历史最高月收盘 ${num(s.peak.value)}（${s.peak.date.slice(0, 7)}）。` : '暂无可用历史月收盘。'}</p>
+            <IndexQuality ix={ix} />
+            <IndexEtfLinks indexKey={id} />
           </td>
         </tr>
       )}
@@ -112,6 +117,7 @@ export function ValuationView({ data: initial, onData }: { data: IndexSnapshot; 
     } finally { setBusy(false) }
   }
   const entries = Object.entries(data.indexes)
+  const pendingIndustry = ['csiMedicine', 'csiBank', 'csiBroker', 'csiConsumption'].filter(key => !data.indexes[key])
   return (
     <div className="macro-stack">
       <section className="macro-card macro-card--note" role="note">
@@ -124,6 +130,7 @@ export function ValuationView({ data: initial, onData }: { data: IndexSnapshot; 
           <RefreshCw size={15} className={busy ? 'animate-spin' : ''} aria-hidden="true" />{busy ? '正在拉取…' : '刷新最新数据'}
         </button>
       </div>
+      <IndexExplorer indexes={data.indexes} />
       <h2 className="macro-h2">价格位置</h2>
       {GROUPS.map(g => {
         const rows = entries.filter(([, ix]) => ix.group === g)
@@ -133,17 +140,18 @@ export function ValuationView({ data: initial, onData }: { data: IndexSnapshot; 
             <h3 className="macro-h3">{g}</h3>
             <div className="macro-table-wrap">
               <table className="macro-table macro-val">
-                <thead><tr><th>指数</th><th>现价</th><th>距历史高点</th><th>近 1 年</th><th>价格 10 年分位</th><th>Forward PE</th><th>滚动 PE</th><th>PE 历史分位</th><th>PE 区间</th></tr></thead>
+                <thead><tr><th>指数</th><th>现价</th><th>距历史高点</th><th>近 1 年</th><th>价格 10 年分位</th><th>参考 PE（标明口径）</th><th>成分汇总滚动 PE</th><th>PE 历史分位</th><th>PE 区间</th></tr></thead>
                 <tbody>{rows.map(([id, ix]) => <Row key={id} id={id} ix={ix} open={open === id} onToggle={() => setOpen(open === id ? null : id)} />)}</tbody>
               </table>
             </div>
           </section>
         )
       })}
+      {pendingIndustry.length > 0 && <p className="macro-muted" role="note">行业指数扩展：医药、银行、证券、主要消费由同一指数采集管线更新；尚有 {pendingIndustry.length} 项未取得有效历史，取得前不显示替代数据。可点击刷新尝试获取。</p>}
       <section className="macro-card">
         <h3>数据说明与录入</h3>
         <ul>
-          <li>价格：{data.source.split('；')[0]}，月收盘，更新于 {data.generatedAt}；GitHub Action 每月 8 日随宏观数据一起更新。</li>
+          <li>价格：{data.source.split('；')[0]}，月收盘；A股注册指数使用腾讯指数月线，具体观测日期见各指数展开说明。GitHub Action 每周六随宏观数据更新，抓取时间不代表每个字段的实际观测日期。</li>
           <li>NDX、SOX 的 PE：没有免费的指数 PE 接口，所以逐只取成分股的 Forward PE（未来 12 个月预期）和市值，按市值加权汇总。成分股名单是近似的，未与官方名单核对，权重也不是指数的实际权重，读数与官方或 FactSet 口径会有出入，适合和自己的历史比。历史从第一次更新起每月记一个点，满 24 个月才显示分位。</li>
           <li>标普 500、NDX、SOX 的历史线：来自 <a href="https://historyofmarket.com/" target="_blank" rel="noreferrer">History of Market</a>（CC BY 4.0）的 12 个月一致预期 Forward PE 周度序列。标普 500 取 1990 年起的全部读数；NDX、SOX 取 2011 年起（SOX 在 2011 年前盈利接近零或为负，PE 失真，所以不取，且剔除超过 50 倍的值；NDX 2001 年有互联网泡沫的极端值，也不取）。该来源更新有滞后，最后一个读数可能早于今天。</li>
           <li>恒生、上证只有 Siblis Research 免费版的 8 个半年快照（2023-12 至 2026-06），再用每日价格估算成逐日线，图上标明是估算。想要 2008 年起的完整历史，请导出 CSV 后用 npm run index:ref-import 导入。</li>

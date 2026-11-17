@@ -7,15 +7,18 @@ export type Sentiment = (typeof SENTIMENTS)[number]
 export type Conclusion = (typeof CONCLUSIONS)[number]
 export type Action = (typeof ACTIONS)[number]
 
-export type WatchItem = { code: string; name: string; group: string }
+// group 保留为首个标签，兼容旧调用方；v2 的 groups 为完整多标签。
+export type WatchItem = { code: string; name: string; group: string; groups?: string[] }
 export type DailyNote = {
   id: string; code: string; date: string
   premium: number | null; sentiment: Sentiment | null; conclusion: Conclusion | null; action: Action | null
   risk: string; remark: string; updatedAt: string
 }
-export type ReviewState = { version: 1; groups: string[]; items: WatchItem[]; notes: DailyNote[] }
+export type ReviewState = { version: 1 | 2; groups: string[]; items: WatchItem[]; notes: DailyNote[] }
 
-export const emptyState = (): ReviewState => ({ version: 1, groups: [], items: [], notes: [] })
+export const emptyState = (): ReviewState => ({ version: 2, groups: [], items: [], notes: [] })
+export const groupsOf = (item: WatchItem): string[] => item.groups ?? (item.group ? [item.group] : [])
+const withGroups = (item: WatchItem, groups: string[]): WatchItem => ({ ...item, groups, group: groups[0] ?? '' })
 
 const isCode = (code: unknown): code is string => typeof code === 'string' && /^\d{6}$/.test(code)
 const oneOf = <T extends string>(list: readonly T[], value: unknown): T | null => (list as readonly string[]).includes(value as string) ? (value as T) : null
@@ -31,8 +34,8 @@ export function normalizeState(input: unknown): ReviewState {
     const o = it as Record<string, unknown>
     if (!isCode(o?.code) || seen.has(o.code)) continue
     seen.add(o.code)
-    const group = text(o.group, 20).trim()
-    items.push({ code: o.code, name: text(o.name, 40).trim() || o.code, group: groups.includes(group) ? group : '' })
+    const tags = [...new Set((Array.isArray(o.groups) ? o.groups : [o.group]).map(g => text(g, 20).trim()).filter(g => groups.includes(g)))]
+    items.push(withGroups({ code: o.code, name: text(o.name, 40).trim() || o.code, group: '' }, tags))
   }
   const notes: DailyNote[] = []
   const noteKeys = new Set<string>()
@@ -49,7 +52,7 @@ export function normalizeState(input: unknown): ReviewState {
       risk: text(o.risk, 500), remark: text(o.remark, 2000), updatedAt: text(o.updatedAt, 40) || new Date(0).toISOString(),
     })
   }
-  return { version: 1, groups, items, notes }
+  return { version: 2, groups, items, notes }
 }
 
 export function loadState(): ReviewState {
@@ -71,7 +74,9 @@ export function addItem(state: ReviewState, code: string, name: string, group: s
 export const removeItem = (state: ReviewState, code: string): ReviewState =>
   ({ ...state, items: state.items.filter(i => i.code !== code), notes: state.notes.filter(n => n.code !== code) })
 export const setItemGroup = (state: ReviewState, code: string, group: string): ReviewState =>
-  ({ ...state, items: state.items.map(i => i.code === code ? { ...i, group: state.groups.includes(group) ? group : '' } : i) })
+  setItemGroups(state, code, group ? [group] : [])
+export const setItemGroups = (state: ReviewState, code: string, groups: string[]): ReviewState =>
+  ({ ...state, version: 2, items: state.items.map(i => i.code === code ? withGroups(i, [...new Set(groups.filter(g => state.groups.includes(g)))]) : i) })
 
 export function addGroup(state: ReviewState, name: string): ReviewState {
   const n = name.trim().slice(0, 20)
@@ -80,11 +85,24 @@ export function addGroup(state: ReviewState, name: string): ReviewState {
 export function renameGroup(state: ReviewState, from: string, to: string): ReviewState {
   const n = to.trim().slice(0, 20)
   if (!n || n === from || state.groups.includes(n) || !state.groups.includes(from)) return state
-  return { ...state, groups: state.groups.map(g => g === from ? n : g), items: state.items.map(i => i.group === from ? { ...i, group: n } : i) }
+  return { ...state, version: 2, groups: state.groups.map(g => g === from ? n : g), items: state.items.map(i => withGroups(i, groupsOf(i).map(g => g === from ? n : g))) }
 }
 /** 删除分组只移除标签，标的与笔记保留 */
 export const deleteGroup = (state: ReviewState, name: string): ReviewState =>
-  ({ ...state, groups: state.groups.filter(g => g !== name), items: state.items.map(i => i.group === name ? { ...i, group: '' } : i) })
+  ({ ...state, version: 2, groups: state.groups.filter(g => g !== name), items: state.items.map(i => withGroups(i, groupsOf(i).filter(g => g !== name))) })
+
+/** 合并导入保留当前同日笔记、名称与标签，并补入新标的/标签；替换需由 UI 单独确认。 */
+export function mergeReviewState(current: ReviewState, incoming: ReviewState): ReviewState {
+  const groups = [...new Set([...current.groups, ...incoming.groups])]
+  const items = new Map(current.items.map(i => [i.code, i]))
+  for (const item of incoming.items) {
+    const existing = items.get(item.code)
+    items.set(item.code, existing ? withGroups(existing, [...new Set([...groupsOf(existing), ...groupsOf(item)])]) : item)
+  }
+  const notes = new Map(incoming.notes.map(n => [`${n.code}|${n.date}`, n]))
+  for (const n of current.notes) notes.set(`${n.code}|${n.date}`, n)
+  return normalizeState({ version: 2, groups, items: [...items.values()], notes: [...notes.values()] })
+}
 
 /** 同一标的同一天只保留一条笔记，再次保存即覆盖 */
 export function upsertNote(state: ReviewState, note: Omit<DailyNote, 'id' | 'updatedAt'>, now = new Date()): ReviewState {

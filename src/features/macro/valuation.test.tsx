@@ -26,6 +26,17 @@ describe('statsOf', () => {
   it('Forward PE 满 24 个月给出分位', () => {
     expect(statsOf(ix({ fpe: months(30, i => 15 + i / 2) })).fpe!.pct).toBe(100)
   })
+  it('周频 PE 先取每月最后观测，避免高密度月份主导长期分位', () => {
+    const points: [string, number][] = []
+    for (let i = 0; i < 24; i++) {
+      const year = 2020 + Math.floor(i / 12), month = String(i % 12 + 1).padStart(2, '0')
+      if (i < 12) points.push([`${year}-${month}-15`, 50])
+      else for (const day of ['01', '08', '15', '22']) points.push([`${year}-${month}-${day}`, 10])
+    }
+    const f = statsOf(ix({ ref: { source: 'weekly', points } })).fpe!
+    expect(f.count).toBe(24)
+    expect(f.pct).toBe(50)
+  })
 })
 
 describe('pctTone', () => {
@@ -40,7 +51,7 @@ describe('ValuationView', () => {
     render(<ValuationView data={data} />)
     expect(screen.getByRole('heading', { name: '美股' })).toBeTruthy()
     expect(screen.getByRole('heading', { name: '港股' })).toBeTruthy()
-    fireEvent.click(screen.getByRole('button', { name: /纳斯达克 100/ }))
+    fireEvent.click(screen.getByRole('button', { name: /纳斯达克 100/, expanded: false }))
     expect(screen.getByRole('img', { name: /Forward PE/ })).toBeTruthy()
   })
 })
@@ -50,7 +61,7 @@ describe('成分股', () => {
     const d: IndexSnapshot = { generatedAt: 'x', source: 'y', indexes: { sox: ix({ name: '费城半导体', agg: { date: '2026-10-08', fwd: 16.5, fwdCovered: 1, fwdCount: 2, ttm: 34, medianFwd: 27, total: 2, got: 2 }, fpe: [['2026-10-01', 16.5]],
       members: [{ code: 'NVDA', name: 'NVIDIA', mcap: 5700, fwd: 14.9, ttm: 29.9 }, { code: 'INTC', name: 'Intel', mcap: 580, fwd: 52.9, ttm: null }] }) } }
     render(<ValuationView data={d} />)
-    fireEvent.click(screen.getByRole('button', { name: /费城半导体/ }))
+    fireEvent.click(screen.getByRole('button', { name: /费城半导体/, expanded: false }))
     expect(screen.getByText('NVDA')).toBeTruthy()
     expect(screen.getByText('+221%')).toBeTruthy()
     expect(screen.getByText('亏损')).toBeTruthy()
@@ -120,7 +131,7 @@ describe('没有 PE 历史的指数', () => {
   it('只显示价格图，不显示 Forward PE 走势', () => {
     const d: IndexSnapshot = { generatedAt: 'x', source: 'y', indexes: { rut: ix({ name: '罗素 2000', fpe: [] }) } }
     const { container } = render(<ValuationView data={d} />)
-    fireEvent.click(screen.getByRole('button', { name: /罗素 2000/ }))
+    fireEvent.click(screen.getByRole('button', { name: /罗素 2000/, expanded: false }))
     const heads = Array.from(container.querySelectorAll('h4')).map(h => h.textContent)
     expect(heads).toContain('价格走势（月收盘）')
     expect(heads.some(h => /PE/.test(h ?? ''))).toBe(false)
@@ -131,7 +142,7 @@ describe('展开标记', () => {
   it('收起时箭头不旋转，展开后加 is-open，再点一次恢复', () => {
     const d: IndexSnapshot = { generatedAt: 'x', source: 'y', indexes: { rut: ix({ name: '罗素 2000' }) } }
     const { container } = render(<ValuationView data={d} />)
-    const btn = screen.getByRole('button', { name: /罗素 2000/ })
+    const btn = screen.getByRole('button', { name: /罗素 2000/, expanded: false })
     const chev = () => container.querySelector('.macro-val__chev')!
     expect(chev().classList.contains('is-open')).toBe(false)
     expect(btn.getAttribute('aria-expanded')).toBe('false')
@@ -147,9 +158,30 @@ describe('外部链接', () => {
   it('展开后显示外部查看入口，新窗口打开', () => {
     const d: IndexSnapshot = { generatedAt: 'x', source: 'y', indexes: { rsp: ix({ name: '标普 500 等权重 SPW', fpe: [], links: [{ label: '彭博 SPW', url: 'https://www.bloomberg.com/quote/SPW:IND' }] }) } }
     render(<ValuationView data={d} />)
-    fireEvent.click(screen.getByRole('button', { name: /等权重/ }))
+    fireEvent.click(screen.getByRole('button', { name: /等权重/, expanded: false }))
     const a = screen.getByRole('link', { name: '彭博 SPW' }) as HTMLAnchorElement
     expect(a.href).toBe('https://www.bloomberg.com/quote/SPW:IND')
     expect(a.target).toBe('_blank')
   })
+})
+
+describe('真实历史覆盖', () => {
+  it('周频24点不足24个月；稀疏锚点估算不能增加样本', () => {
+    const weeks: [string, number][] = Array.from({ length: 30 }, (_, i) => [new Date(Date.UTC(2020, 0, 1 + i * 7)).toISOString().slice(0, 10), 10 + i])
+    expect(statsOf(ix({ ref: { source: 'weekly', points: weeks } })).fpe?.pct).toBeUndefined()
+    expect(statsOf(ix({ ref: { source: 'anchors', points: [['2020-01-01', 10], ['2022-01-01', 20]] } }), months(30, () => 15)).fpe?.pct).toBeUndefined()
+  })
+  it('稀疏跨出十年窗口或119个月加未完成当月均不显示十年分位', () => {
+    const monthly: [string, number][] = [...months(120, i => 10 + i).slice(1), ['2020-01-01', 130]]
+    expect(statsOf(ix({ monthly, latest: { date: '2020-01-15', value: 130 } })).pricePct).toBeUndefined()
+    const sparse = monthly.filter((_, i) => i !== 100)
+    expect(statsOf(ix({ monthly: sparse, latest: { date: '2020-01-15', value: 130 } })).pricePct).toBeUndefined()
+  })
+})
+
+it('价格月线为空时明确没有历史，不因新增缺失数据崩溃', () => {
+  const s = statsOf(ix({ monthly: [] }))
+  expect(s.peak).toBeUndefined()
+  expect(s.drawdown).toBeUndefined()
+  expect(s.pricePct).toBeUndefined()
 })

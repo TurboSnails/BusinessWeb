@@ -27,3 +27,11 @@ manager 开工后按实际目标补充业务入口、API 契约位置、验收�
 先讨论（Cursor/Codex/Claude 三方，结论：不做 0–100 总分）后实施。预注册 docs/research/sp500-allocation-backtest-prereg-2026-11-15.md 先于代码提交；实现 scripts/sp500-allocation-backtest.mjs（Cursor），独立审查 Claude（0 阻断，R1–R6 已修）。结果 docs/research/sp500-allocation-backtest-results-2026-11-15.md：S1 趋势/S3 CAPE/S4 组合均"未证实"，S2 波动目标"无效"。分支 research/sp500-allocation-backtest，未推送。下一步候选：信用利差层、国际数据交叉验证（需新预注册版本）。
 ### v2（同日）：估值预测力
 预注册 v2.1（Codex 审后修订）先于代码提交；Claude 文献 + Cursor 数据调研 → Cursor 实现 → Claude 独立复现审查（1 阻断已修）。结果 docs/research/sp500-valuation-predict-results-v2-2026-11-15.md：1985 起共同窗口 CAPE收益率/ECY/SOP × 1–10 年全部"无/未证实"；长窗口（1955/63 起）ECY、SOP 10 年 OOS R² +0.29/+0.39；交易规则 T1 估值+动量、T2 SOP 倾斜 ΔCER +0.13%/+0.26%，Holm p=0.16 未证实。AIAE 等 Z.1 变量仅探索性（无 vintage）。
+
+## 2026-11-16 朋友更新集成
+用户已授权 dev-team 先复核 docs/reviews/2026-11-16-friend-project-update-evaluation.md，合理则实施并由团队交叉检查。Run计划 friend-integration-20261116，基线 d47cc4fa。重点六项为指数比较/官方ETF关系、网格行情图、技术筛选、跨页联动及质量解释；候选资金流/主升浪/择时须沿研究门禁，不引入优选名单和未核实EPS。本次未授权推送部署。先独立架构与产品复核，再冻结owner拆实现。
+
+已完成实现及原生 Orca Run `run_c2f7b56af8d8` 交叉复核、修复回查和真实浏览器验收。全量264文件/1884测试、脚本346测试、typecheck、生产构建通过，lint 0 error。三页桌面/390px主路径及焦点回验通过；真实日K最初两次HTTP 502，随后上游恢复，完整六页均200，日K绘制、MACD、放大和刷新复验通过，触控手势未专项验证。维护说明见 docs/friend-update-integration.md，报告见 `.dev-team/runs/friend-integration-final-review/reports/`。所有Task completed、worker released；未提交、推送或部署。
+
+## 2026-11-17 Cboe Put/Call
+按用户“美股盈亏比”需求，以期权 Put÷Call 成交量比接入「杠杆与资金」，不是账户交易盈亏比。官方历史 CSV + `?dt=` 日页面补建241个连续月份，最新2026-11-16=0.95、历史49%分位；背景指标不打阶段分。采集/补建 `npm run macro:putcall-history`，日常沿用 `macro:update`。桌面/390px及刷新保留长历史已实测；数据口径见 docs/data-maintenance.md 末节。未提交、推送或部署。

@@ -39,7 +39,7 @@ export function OtherEtfList({ tech }: { tech: Map<string, EtfTechRecord> }): JS
                   <td className="etf-num-cell">{rec ? <>{fmt(rec.close, 3)}<small>{pct(rec.changePct)}</small></> : '—'}</td>
                   <td className="etf-tech-cell"><EtfTechCell rec={rec} /></td>
                   <td className="etf-remark-cell"><EtfDocumentRemark code={item.code} /></td>
-                  <td className="etf-grid-cell"><Link className="etf-ref-link" to={`/grid-trading?code=${item.code}&name=${encodeURIComponent(name)}`}>行情·网格</Link></td>
+                  <td className="etf-grid-cell"><Link className="etf-ref-link" to={`/grid-trading?code=${item.code}&name=${encodeURIComponent(name)}`}>行情·网格</Link><br /><Link className="etf-ref-link" to={`/etf-review?code=${item.code}&name=${encodeURIComponent(name)}`}>加入复盘</Link></td>
                 </tr>
               )
             })}</tbody>

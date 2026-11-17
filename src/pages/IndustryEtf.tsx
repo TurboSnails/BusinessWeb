@@ -187,6 +187,7 @@ export default function IndustryEtf(): JSX.Element {
                         <Link to={gridDetailHref(item)} className="etf-ref-link" title="打开网格交易计算器并带入该 ETF">
                           行情·网格
                         </Link>
+                        <Link className="etf-ref-link" to={`/etf-review?code=${item.code}&name=${encodeURIComponent(item.name)}`}>加入复盘</Link>
                       </td>
                     </tr>
                   ))}

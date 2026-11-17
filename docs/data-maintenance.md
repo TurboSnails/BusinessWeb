@@ -358,3 +358,12 @@ PY
 - 手动触发：`launchctl kickstart gui/$(id -u)/com.businessweb.szse-refresh`
 - 卸载：`launchctl bootout gui/$(id -u)/com.businessweb.szse-refresh && rm ~/Library/LaunchAgents/com.businessweb.szse-refresh.plist && rm -rf ~/.businessweb-szse`
 - 两融数据 T+1 早上公布，周五数据下周一才有；成交额基准只认已完整结束的一周（周日之后）。
+
+
+## Cboe Put/Call（2026-11-17 新增）
+
+- 页面：`/monitor?tab=us` 与温度总览的「杠杆与资金」。指标是 Cboe 全产品期权成交量 **Put÷Call**，不是账户盈亏比、持仓比或独立交易信号；只作背景，不打阶段分。
+- 来源：2006-11 至 2019-10 使用官方 `totalpc.csv`；2019-10 起由官方每日统计页 `?dt=YYYY-MM-DD` 取每月最后可得交易日，属于月度抽样而非月均。最新日值与全产品 Call/Put 成交量交叉核对。
+- 日常更新：现有 `npm run macro:update` 和每周 `macro-snapshot.yml` 自动追加最新日值；某次失败沿用快照原值及原日期。
+- 历史补建／修复：`npm run macro:putcall-history`。任一月份无有效交易日、档案覆盖不足或最新值未发布都会停止，不写半截历史。前端实时刷新若返回较短 `long`，保留原快照长历史。
+- 校验：日期合法、Call>0、Put≥0、Total=Call+Put、官方比率与 Put÷Call 的四舍五入值一致。数据源仍受 Cboe 网站条款约束，公开可取不等于开放许可证。

@@ -119,6 +119,59 @@ function packLong(rows, meta) {
   return { ...pack(rows, meta), long: monthly(rows) }
 }
 
+const CBOE_PUT_CALL_ARCHIVE = 'https://cdn.cboe.com/resources/options/volume_and_call_put_ratios/totalpc.csv'
+const CBOE_DAILY = 'https://www.cboe.com/markets/us/options/market-statistics/daily/'
+
+/** Cboe 官方历史 CSV：日期、成交量与比率同时校验，非法行不进入序列。 */
+export function parseCboeRatioCsv(text) {
+  if (!/^DATE\s*,\s*CALLS\s*,\s*PUTS\s*,\s*TOTAL\s*,\s*P\/C Ratio/m.test(text)) return []
+  const rows = new Map()
+  for (const line of text.split(/\r?\n/)) {
+    const m = /^\s*(\d{1,2})\/(\d{1,2})\/(\d{4})\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*([0-9.]+)\s*$/.exec(line)
+    if (!m) continue
+    const [, month, day, year, callText, putText, totalText, ratioText] = m
+    const date = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
+    const call = Number(callText), put = Number(putText), total = Number(totalText), value = Number(ratioText)
+    if (!isCalendarDate(date) || call <= 0 || put < 0 || total !== call + put || !Number.isFinite(value) || value < 0 || Math.abs(value - put / call) > 0.011) continue
+    rows.set(date, [date, value])
+  }
+  return [...rows.values()].sort((a, b) => a[0].localeCompare(b[0]))
+}
+
+/** Cboe 历史日页面的 RSC 数据；非交易日没有比率时返回 null。 */
+export function parseCboeDaily(html) {
+  const match = re => html.match(re)?.[1]
+  const date = match(/\\?"selectedDate\\?":\\?"([^"\\]+)/)
+  const valueText = match(/\\?"name\\?":\\?"TOTAL PUT\/CALL RATIO\\?",\\?"value\\?":\\?"([0-9.]+)\\?"/)
+  const callText = match(/\\?"SUM OF ALL PRODUCTS\\?":\[\{\\?"name\\?":\\?"VOLUME\\?",\\?"call\\?":(\d+)/)
+  const putText = match(/\\?"SUM OF ALL PRODUCTS\\?":\[\{\\?"name\\?":\\?"VOLUME\\?",\\?"call\\?":\d+,\\?"put\\?":(\d+)/)
+  if (!date || !isCalendarDate(date) || !valueText || !callText || !putText) return null
+  const value = Number(valueText), call = Number(callText), put = Number(putText)
+  if (call <= 0 || put < 0 || !Number.isFinite(value) || value < 0 || Math.abs(value - put / call) > 0.011) throw new Error('Cboe 比率与成交量不一致')
+  return { date, value }
+}
+
+export async function fetchCboePutCallDay(date) {
+  const res = await get(`${CBOE_DAILY}${date ? `?dt=${date}` : ''}`)
+  if (!res.ok) throw new Error(`Cboe: HTTP ${res.status}`)
+  return parseCboeDaily(await res.text())
+}
+
+export function packPutCall(rows) {
+  const unique = new Map()
+  for (const [date, value] of rows) if (isCalendarDate(date) && Number.isFinite(value) && value >= 0) unique.set(date, [date, value])
+  const points = [...unique.values()].sort((a, b) => a[0].localeCompare(b[0]))
+  if (!points.length) throw new Error('Cboe: 无有效 Put/Call 数据')
+  return packLong(points, { source: 'Cboe Volume and Put/Call Ratio', unit: '', note: 'Cboe 全产品期权成交量 Put÷Call；2006–2019 为官方 CSV，2019-10 起为每月末可得交易日抽样（非月均）；最新值为每日读数' })
+}
+
+async function buildCboePutCall(previousRows = []) {
+  const latest = await fetchCboePutCallDay()
+  if (!latest) throw new Error('Cboe: 当日尚未发布 Put/Call 数据')
+  const historical = previousRows.length ? previousRows : parseCboeRatioCsv(await (await get(CBOE_PUT_CALL_ARCHIVE)).text())
+  return packPutCall([...historical, [latest.date, latest.value]])
+}
+
 /** 连续多少周 a 的周涨幅低于 b（从最近一周往前数） */
 export function underperformStreak(a, b) {
   const bm = new Map(b.map(([d, v]) => [d, v]))
@@ -207,7 +260,7 @@ async function collect(builders, previous, warnings) {
   return out
 }
 
-export const US_SOURCE = 'FRED, Federal Reserve Bank of St. Louis；KRE/SPY：Yahoo Finance'
+export const US_SOURCE = 'FRED, Federal Reserve Bank of St. Louis；KRE/SPY：Yahoo Finance；Put/Call：Cboe'
 export const HK_SOURCE = '雅虎财经（恒生指数）、FRED（港元汇率、联邦基金利率）、东方财富（南向资金）'
 export const CN_SOURCE = '国家统计局、中国人民银行（经东方财富数据中心）'
 
@@ -249,6 +302,7 @@ export async function buildSnapshots(previous = null) {
       const rows = (await finra()).map(r => [r.date, round(((r.cash + r.margin) / r.debit) * 100, 1)])
       return packLong(rows, { source: 'FINRA 保证金统计', unit: '%', note: '客户现金账户与保证金账户的闲置现金余额 ÷ 保证金债务' })
     },
+    putCall: async () => buildCboePutCall(previous?.us?.series?.putCall?.long ?? []),
     equityShare: async () => packLong(await series('BOGZ1FL153064486Q'), { fred: 'BOGZ1FL153064486Q', unit: '%', note: '美联储资金流量表 Z.1：家庭及非营利机构直接+间接持有的股票占金融资产比重' }),
     buffett: async () => {
       const [mcap, gdp] = await Promise.all([series('NCBEILQ027S'), series('GDP')])

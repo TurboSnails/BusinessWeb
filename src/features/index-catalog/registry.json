@@ -1,0 +1,41 @@
+{
+  "csi300": {
+    "code": "000300",
+    "provider": "CSI",
+    "market": "CN"
+  },
+  "csi500": {
+    "code": "000905",
+    "provider": "CSI",
+    "market": "CN"
+  },
+  "chinext": {
+    "code": "399006",
+    "provider": "SZSE",
+    "market": "CN"
+  },
+  "csiMedicine": {
+    "code": "000991",
+    "provider": "CSI",
+    "market": "CN",
+    "name": "全指医药卫生"
+  },
+  "csiBank": {
+    "code": "399986",
+    "provider": "CSI",
+    "market": "CN",
+    "name": "中证银行"
+  },
+  "csiBroker": {
+    "code": "399975",
+    "provider": "CSI",
+    "market": "CN",
+    "name": "证券公司"
+  },
+  "csiConsumption": {
+    "code": "000932",
+    "provider": "CSI",
+    "market": "CN",
+    "name": "中证主要消费"
+  }
+}
