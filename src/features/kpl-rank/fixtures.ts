@@ -37,14 +37,14 @@ export function rankFixture(): KplRank {
         missing: 0,
         leaders: [{ date: '2026-11-16', code: 'BK0001', name: '行业甲', pct: 3.02 }, { date: '2026-11-17', code: 'BK0001', name: '行业甲', pct: 1.86 }],
       },
-      concept: { rows: [board('BK1001', '概念甲', { r5: 9.9 })], missing: 1, leaders: [{ date: '2026-11-17', code: 'BK1001', name: '概念甲', pct: 3.12 }] },
+      concept: { rows: [board('BK1001', '概念甲', { r5: 9.9, lead5: null, lead10: null, lead20: null })], missing: 1, leaders: null },
       region: { rows: [board('BK0161', '辽宁板块', { r5: -4.43 }), board('BK0175', '内蒙古', { r5: 1.5 })], missing: 0 },
     },
     inst: {
       date: '2026-11-17',
       windows: [
-        { days: 3, from: '2026-11-13', to: '2026-11-17', missing: [], totals: { net: -1.4e9, stocks: 66 }, buy: [{ code: '301313', name: '机构甲', buy: 2.17e8, sell: 4.6e7, net: 1.71e8, times: 2, seats: 5, last: '2026-11-17', lastPct: -13.88 }], sell: [{ code: '600010', name: '机构乙', buy: null, sell: 3e8, net: -3e8, times: 1, seats: 2, last: '2026-11-16', lastPct: -10 }] },
-        { days: 20, from: '2026-10-21', to: '2026-11-17', missing: ['2026-10-22'], totals: { net: -6.8e9, stocks: 356 }, buy: [], sell: [] },
+        { days: 3, from: '2026-11-13', to: '2026-11-17', missing: [], complete: true, totals: { net: -1.4e9, stocks: 66 }, buy: [{ code: '301313', name: '机构甲', buy: 2.17e8, sell: 4.6e7, net: 1.71e8, times: 2, seats: 5, last: '2026-11-17', lastPct: -13.88 }], sell: [{ code: '600010', name: '机构乙', buy: null, sell: 3e8, net: -3e8, times: 1, seats: 2, last: '2026-11-16', lastPct: -10 }] },
+        { days: 20, from: '2026-10-21', to: '2026-11-17', missing: ['2026-10-22'], complete: false, totals: { net: null, stocks: null }, buy: [], sell: [] },
       ],
     },
     sources: [{ id: 'popularity', label: '东方财富股吧 · 人气榜', url: 'https://guba.eastmoney.com/rank/' }],

@@ -1,8 +1,8 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
-  auctionRatio, checkSnapshot, dayStats, groupSummary, historyRow, isBj, marketDay, mergeHistory, num, parseMinutes, parseSnapshotRow,
-  pickCandidates, secidOf, stockRow, topBy,
+  EXPECTED_MINUTES, auctionRatio, checkSnapshot, completeBars, dayStats, groupSummary, historyRow, isBj, isRegression, marketDay, mergeHistory, mergeSameDay, num,
+  parseMinutes, parseSnapshotRow, pickCandidates, secidOf, snapshotCovers, stockRow, topBy,
 } from './kpl-auction-lib.mjs'
 
 // 合成一天 241 根分钟线：09:30 竞价、09:31…15:00；opts 覆盖关键几根
@@ -71,6 +71,21 @@ test('dayStats：竞价无成交时竞价涨幅为 null；不足 241 根返回 n
   assert.equal(dayStats(short, '2026-11-18', null, 10), null)
 })
 
+test('分钟线完整性：241 个不重复的交易分钟，重复一根 + 缺一根不算完整', () => {
+  assert.equal(EXPECTED_MINUTES.length, 241)
+  assert.deepEqual([EXPECTED_MINUTES[0], EXPECTED_MINUTES[1], EXPECTED_MINUTES[120], EXPECTED_MINUTES[121], EXPECTED_MINUTES[240]], ['09:30', '09:31', '11:30', '13:01', '15:00'])
+  const bars = dayBars('2026-11-17')
+  assert.equal(completeBars(parseMinutes(body(bars)).days['2026-11-17']), true)
+  const i = bars.findIndex((x) => x.includes(' 10:00,'))
+  const dup = [...bars]; dup[i] = bars[i - 1] // 10:00 缺失，09:59 重复，总数仍是 241
+  const m = parseMinutes(body(dup))
+  assert.equal(m.days['2026-11-17'].length, 241)
+  assert.equal(completeBars(m.days['2026-11-17']), false)
+  assert.equal(dayStats(m, '2026-11-17', null, 10), null)
+  const odd = [...bars]; odd[i] = '2026-11-17 12:00,10.3,2000000' // 午休时间的分钟
+  assert.equal(dayStats(parseMinutes(body(odd)), '2026-11-17', null, 10), null)
+})
+
 test('pickCandidates：成交额前 N + 涨停 + 昨日涨停，剔除北交所，合并标签', () => {
   const snapshot = [
     { code: '600001', name: 'A', market: 1, amount: 9e9, industry: '银行' },
@@ -97,13 +112,49 @@ test('parseSnapshotRow：缺失行业为空串、缺失金额为 null', () => {
   assert.equal(num(0), 0)
 })
 
-test('checkSnapshot：成交额前列对得上才通过', () => {
-  const snapshot = Array.from({ length: 40 }, (_, i) => ({ code: String(i), amount: 1e9 + i }))
+test('checkSnapshot：成交额前列对得上才通过；快照被截断时不降低门槛', () => {
+  const snapshot = Array.from({ length: 120 }, (_, i) => ({ code: String(i), amount: 1e9 + i }))
   const good = new Map(snapshot.map((r) => [r.code, { dayAmount: r.amount * 1.01 }]))
   assert.equal(checkSnapshot(snapshot, good).pass, true)
   const bad = new Map(snapshot.map((r, i) => [r.code, { dayAmount: r.amount * (i % 2 ? 1.5 : 1) }]))
   assert.equal(checkSnapshot(snapshot, bad).pass, false)
   assert.equal(checkSnapshot(snapshot, new Map()).pass, false)
+  // 截断成只有 20 行：即使全部对得上也不通过
+  const cut = snapshot.slice(0, 20)
+  assert.equal(checkSnapshot(cut, good).pass, false)
+  // 前 100 只里只有 20 只有分时：样本不足
+  const few = new Map(snapshot.sort((a, b) => b.amount - a.amount).slice(0, 20).map((r) => [r.code, { dayAmount: r.amount }]))
+  assert.equal(checkSnapshot(snapshot, few).pass, false)
+})
+
+test('snapshotCovers：剔除北交所后有成交额的行必须够 topN', () => {
+  const rows = Array.from({ length: 400 }, (_, i) => ({ code: String(600000 + i), amount: 1e8 }))
+  assert.equal(snapshotCovers(rows, 400), true)
+  assert.equal(snapshotCovers(rows.slice(0, 399), 400), false)
+  assert.equal(snapshotCovers([...rows.slice(0, 399), { code: '920001', amount: 1e8 }], 400), false)
+  assert.equal(snapshotCovers([...rows.slice(0, 399), { code: '600999', amount: null }], 400), false)
+})
+
+test('同一天重跑合并 / 日期回退保护', () => {
+  const D = '2026-11-17'
+  const mk = (over) => ({ asOf: D, universe: { failed: 0 }, indexes: [1, 2, 3, 4, 5], boards: [{ kind: 'industry' }, { kind: 'industry' }], ...over })
+  const prev = mk()
+  // 指数 / 板块缺：沿用旧的
+  const m = mergeSameDay(prev, mk({ indexes: [1, 2], boards: [] }))
+  assert.equal(m.indexes.length, 5)
+  assert.equal(m.boards.length, 2)
+  // 个股失败更多：整份不替换
+  assert.equal(mergeSameDay(prev, mk({ universe: { failed: 3 } })), null)
+  // 更全：用新的
+  const better = mk({ boards: [{ kind: 'industry' }, { kind: 'industry' }, { kind: 'industry' }] })
+  assert.equal(mergeSameDay(prev, better).boards.length, 3)
+  // 新的一天直接替换
+  const nextDay = mk({ asOf: '2026-11-18', boards: [] })
+  assert.equal(mergeSameDay(prev, nextDay), nextDay)
+  assert.equal(mergeSameDay(null, nextDay), nextDay)
+  assert.equal(isRegression({ asOf: '2026-11-18' }, D), true)
+  assert.equal(isRegression({ asOf: D }, D), false)
+  assert.equal(isRegression(null, D), false)
 })
 
 test('groupSummary：分布、高开率、均值只算有竞价涨幅的', () => {

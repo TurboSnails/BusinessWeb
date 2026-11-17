@@ -243,7 +243,7 @@ function BoardsCard({ d }: { d: Data }): JSX.Element {
         </table>
       </TableWrap>
       <More shown={shown.length} total={rows.length} onMore={() => setAll(true)} />
-      {b[kind].missing > 0 && <p className="mm-method">另有 {b[kind].missing} 个板块 {b.date} 没有日线（新设或停用），未列入。</p>}
+      {b[kind].missing > 0 && <p className="mm-method">另有 {b[kind].missing} 个板块 {b.date} 没有日线（新设或停用），未列入。{kind !== 'region' && '缺日线的板块可能正是某天的涨幅第一，这次不统计领涨次数与每日领涨。'}</p>}
       {leaders.length > 0 && (
         <section className="kr-leaders" aria-label={`${kindItems.find(k => k.id === kind)?.label ?? ''}每日领涨板块`}>
           <p className="kr-leaders__title">近 {Math.min(10, leaders.length)} 个交易日每日涨幅第一</p>
@@ -277,13 +277,15 @@ function InstCard({ d }: { d: Data }): JSX.Element {
   const shown = all ? rows : rows.slice(0, PAGE)
   return (
     <Card title={`机构多日榜 · 截至 ${inst.date}`} as="section" className="mm-card"
-      description={<>近 {w.days} 个交易日（{md(w.from)}–{md(w.to)}）{w.totals.stocks} 只个股出现机构专用席位，合计净买 <b className={tone(w.totals.net)}>{money(w.totals.net, true)}</b></>}>
+      description={w.complete
+        ? <>近 {w.days} 个交易日（{md(w.from)}–{md(w.to)}）{w.totals.stocks ?? '—'} 只个股出现机构专用席位，合计净买 <b className={tone(w.totals.net)}>{money(w.totals.net, true)}</b></>
+        : <>近 {w.days} 个交易日（{md(w.from)}–{md(w.to)}）的龙虎榜明细不全，不统计。</>}>
       <div className="kr-controls">
         <Segmented items={INST_WINDOW_DAYS.filter(x => inst.windows.some(y => y.days === x)).map(x => ({ id: String(x), label: `${x} 日` }))} value={String(w.days)} onChange={v => { setDays(v); setAll(false) }} label="机构统计天数" />
         <Segmented items={[{ id: 'buy', label: '净买入' }, { id: 'sell', label: '净卖出' }]} value={side} onChange={v => { setSide(v); setAll(false) }} label="机构方向" />
       </div>
-      {w.missing.length > 0 && <p className="mm-method">缺少 {w.missing.map(md).join('、')} 的龙虎榜明细，这几天未计入。</p>}
-      {rows.length ? (
+      {!w.complete && <p className="mm-method">缺少 {w.missing.map(md).join('、')} 的龙虎榜明细，按更短区间合计会被误读成 {w.days} 日，所以这个窗口不发布合计与排行。</p>}
+      {!w.complete ? null : rows.length ? (
         <TableWrap label={`近 ${w.days} 日机构${side === 'buy' ? '净买入' : '净卖出'}排行`}>
           <table className="mm-table kr-table">
             <thead>

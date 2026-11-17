@@ -30,14 +30,16 @@ export type BoardRow = {
   r5: number | null; r10: number | null; r20: number | null
   net5: number | null; net10: number | null; net20: number | null
   in5: number | null; in10: number | null; in20: number | null
-  lead5: number; lead10: number; lead20: number
+  /** 有板块缺日线时为 null（缺的板块可能就是某天第一，不发布领涨次数） */
+  lead5: number | null; lead10: number | null; lead20: number | null
 }
 export type Leader = { date: string; code: string | null; name: string | null; pct: number | null }
-export type BoardKind = { rows: BoardRow[]; missing: number; leaders?: Leader[] }
+export type BoardKind = { rows: BoardRow[]; missing: number; leaders?: Leader[] | null }
 export type Boards = { date: string; industry: BoardKind; concept: BoardKind; region: BoardKind }
 
 export type InstRow = { code: string; name: string; buy: number | null; sell: number | null; net: number | null; times: number; seats: number; last: string; lastPct: number | null }
-export type InstWindow = { days: number; from: string; to: string; missing: string[]; totals: { net: number | null; stocks: number }; buy: InstRow[]; sell: InstRow[] }
+/** complete 为 false：窗口内缺某天明细，合计与排行都不发布（不把更短的区间当 N 日榜） */
+export type InstWindow = { days: number; from: string; to: string; missing: string[]; complete: boolean; totals: { net: number | null; stocks: number | null }; buy: InstRow[]; sell: InstRow[] }
 export type Inst = { date: string; windows: InstWindow[] }
 
 export type KplRank = {
@@ -89,6 +91,7 @@ function asInst(x: unknown): Inst | null {
   const windows = arr<Record<string, unknown>>(x.windows, w => isObj(w) && typeof w.days === 'number' && isDate(w.from) && isDate(w.to)).map(w => ({
     days: w.days as number, from: w.from as string, to: w.to as string,
     missing: arr<string>(w.missing, isDate),
+    complete: w.complete !== false && arr<string>(w.missing, isDate).length === 0,
     totals: isObj(w.totals) ? (w.totals as InstWindow['totals']) : { net: null, stocks: 0 },
     buy: arr<InstRow>(w.buy, isCode), sell: arr<InstRow>(w.sell, isCode),
   }))

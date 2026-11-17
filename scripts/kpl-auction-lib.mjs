@@ -41,10 +41,29 @@ export function parseMinutes(body) {
   return { code: String(d.code ?? ''), name: String(d.name ?? ''), preClose: num(d.preClose), days }
 }
 
+const hhmm = (m) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`
+/** 一个交易日应有的 241 个分钟时间戳：09:30、09:31…11:30、13:01…15:00（2026-11-17 实测各股各日一致） */
+export const EXPECTED_MINUTES = [
+  '09:30',
+  ...Array.from({ length: 120 }, (_, i) => hhmm(9 * 60 + 31 + i)),
+  ...Array.from({ length: 120 }, (_, i) => hhmm(13 * 60 + 1 + i)),
+]
+const EXPECTED_SET = new Set(EXPECTED_MINUTES)
+/** 分钟线是否恰好是 241 个不重复、且都在交易时段内的时间戳（重复一根 + 缺一根也不算完整） */
+export function completeBars(bars) {
+  if (!Array.isArray(bars) || bars.length !== EXPECTED_MINUTES.length) return false
+  const seen = new Set()
+  for (const b of bars) {
+    if (!EXPECTED_SET.has(b?.t) || seen.has(b.t)) return false
+    seen.add(b.t)
+  }
+  return seen.size === EXPECTED_MINUTES.length
+}
+
 export const latestDay = (m) => Object.keys(m?.days ?? {}).sort().at(-1) ?? null
 
 /**
- * 某一交易日的竞价 / 尾盘指标。bars 不完整（不是 241 根或缺 09:30 / 15:00）返回 null。
+ * 某一交易日的竞价 / 尾盘指标。bars 不完整（不是 241 个不重复的交易分钟）返回 null。
  * prevClose：优先用调用方给的昨收（最近一天用东财 preClose，已按除权调整）；否则取 prevDate 那天 15:00 收盘价；都没有则相关涨幅为 null。
  * 早盘：auctionPrice = 09:30 价，auctionAmount = 09:30 成交额（为 0 说明竞价没有撮合成交，此时竞价涨幅记 null）。
  * 尾盘：ref = 14:59 那根的收盘价（收盘集合竞价开始前最后的连续竞价价格），closeAuctionAmount = 15:00 成交额，
@@ -52,7 +71,7 @@ export const latestDay = (m) => Object.keys(m?.days ?? {}).sort().at(-1) ?? null
  */
 export function dayStats(m, date, prevDate, prevCloseOverride = null) {
   const bars = m?.days?.[date]
-  if (!Array.isArray(bars) || bars.length < 241) return null
+  if (!completeBars(bars)) return null
   const at = (t) => bars.find((b) => b.t === t) ?? null
   const open = at('09:30'), last = at('15:00'), before = at('14:59')
   if (!open || !last) return null
@@ -115,6 +134,8 @@ export function parseSnapshotRow(r) {
 /**
  * 快照是否就是目标交易日收盘后的：拿成交额前列候选股的快照成交额与分时当日合计对比。
  * 快照是不带日期的实时行情，只拿来挑候选股和行业名；所有数值都来自带日期的分时。
+ * 样本固定为前 sample 只：快照有效行不足 sample（被截断）直接不通过，不能随快照变短而降低门槛；
+ * 其中至少 minMatch 比例要有分时，有分时的里面也至少 minMatch 比例对得上。
  */
 export function checkSnapshot(snapshot, statsByCode, { tolerance = SNAPSHOT_TOLERANCE, minMatch = SNAPSHOT_MIN_MATCH, sample = 100 } = {}) {
   const top = snapshot.filter((r) => num(r.amount) > 0).sort((a, b) => b.amount - a.amount).slice(0, sample)
@@ -125,8 +146,33 @@ export function checkSnapshot(snapshot, statsByCode, { tolerance = SNAPSHOT_TOLE
     n++
     if (Math.abs(r.amount / s.dayAmount - 1) <= tolerance) ok++
   }
-  return { n, ok, pass: n >= Math.min(30, top.length) && n > 0 && ok / n >= minMatch }
+  return { n, ok, pass: top.length >= sample && n >= sample * minMatch && ok / n >= minMatch }
 }
+
+/**
+ * 快照必须覆盖完整候选范围：剔除北交所后有成交额的行至少 topN 行，否则「成交额前 N」其实是残缺列表。
+ */
+export function snapshotCovers(snapshot, topN) {
+  return snapshot.filter((r) => r.code && !isBj(r.code) && num(r.amount) > 0).length >= topN
+}
+
+/**
+ * 同一天重跑时与已发布文件合并：指数、板块段旧的更全就保留旧的；个股段（失败数）更差返回 null（整份不替换）。
+ * 新的一天（或没有旧文件）直接用新的。
+ */
+export function mergeSameDay(prev, next) {
+  if (!prev || prev.asOf !== next.asOf) return next
+  if (num(prev.universe?.failed) !== null && prev.universe.failed < next.universe.failed) return null
+  const industries = (p) => (Array.isArray(p?.boards) ? p.boards.filter((b) => b?.kind === 'industry').length : 0)
+  return {
+    ...next,
+    indexes: Array.isArray(prev.indexes) && prev.indexes.length > next.indexes.length ? prev.indexes : next.indexes,
+    boards: industries(prev) > industries(next) ? prev.boards : next.boards,
+  }
+}
+
+/** 日期回退保护：已发布文件的 asOf 比本次目标日新时不替换 */
+export const isRegression = (prev, date) => typeof prev?.asOf === 'string' && prev.asOf > date
 
 /** 个股输出行（金额单位：元） */
 export function stockRow(c, s) {
