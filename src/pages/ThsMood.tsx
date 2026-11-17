@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom'
 import { Callout, Card, EmptyState, Page, PageDataFreshness, Segmented, TableWrap } from '../components/ui'
 import { PageTitle } from '../components/ui/PageTabs'
 import MoodChart from '../features/market-mood/MoodChart'
+import ThsTabs, { THS_DISCLAIMER } from '../features/ths-tabs/ThsTabs'
 import { asThsMood, METHOD, PART_LABELS, previousDay, SKIPPED, zoneTone, type ThsDay, type ThsLatest, type ThsMood as ThsMoodData } from '../features/ths-mood/model'
 import '../styles/market-mood.css'
 import '../styles/ths-mood.css'
@@ -332,7 +333,8 @@ export default function ThsMood(): JSX.Element {
   return (
     <Page className="mm-page">
       <PageTitle>同花顺 · 市场情绪</PageTitle>
-      <p className="mm-disclaimer">功能参照同花顺 App 的市场情绪与涨停相关模块，数据来自公开行情、收盘后更新，与同花顺官方无关。</p>
+      <ThsTabs />
+      <p className="mm-disclaimer">{THS_DISCLAIMER}</p>
       {load.state === 'loading' && <p className="mm-empty">加载中…</p>}
       {load.state === 'error' && <EmptyState title="市场情绪数据暂不可用">{load.message}</EmptyState>}
       {load.state === 'ok' && <Body m={load.data} />}

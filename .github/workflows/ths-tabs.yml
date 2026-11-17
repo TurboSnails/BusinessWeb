@@ -1,0 +1,67 @@
+name: Update THS tabs
+
+# 「三方平台 · 同花顺」除市场情绪外的页签（市场、可转债、数据中心、港股通与AH、ETF资金）：收盘后各跑一次自己的脚本 scripts/ths-<页签>.mjs，
+# 产出 public/data/ths-tab-<页签>.json 与 data-raw/ths-tab-<页签>/。单个脚本失败只记警告，不影响其他页签。
+# 主触发接在「Update daily analysis」之后（北京 15:35 / 17:10）；兜底北京 18:30（龙虎榜数据约 18 点后公布）。
+on:
+  workflow_run:
+    workflows: ['Update daily analysis']
+    types: [completed]
+  schedule:
+    - cron: '30 10 * * 1-5'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ths-tabs.yml'
+      - 'scripts/ths-*.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: ths-tabs
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Run tab scripts
+        shell: bash
+        run: |
+          for tab in market cbond datacenter hk etf; do
+            f="scripts/ths-$tab.mjs"
+            [ -f "$f" ] || continue
+            node "$f" || echo "::warning::$f 运行失败，保留上一份数据"
+          done
+      - name: Commit if changed
+        id: commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add public/data/ths-tab-*.json data-raw/ths-tab-* 2>/dev/null || true
+          if git diff --cached --quiet; then echo "changed=false" >> "$GITHUB_OUTPUT"; exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m "data(ths): 同花顺页签数据 $(TZ=Asia/Shanghai date +%Y-%m-%d)"
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && git push && break
+            if [ "$i" = 5 ]; then echo "::error::推送 5 次都失败"; exit 1; fi
+            git rebase --abort 2>/dev/null || true
+            sleep $((i * 10))
+          done
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+      - name: Deploy GitHub Pages
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --ref main
