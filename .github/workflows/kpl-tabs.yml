@@ -37,11 +37,29 @@ jobs:
           node-version: '24'
       - name: Run tab scripts
         shell: bash
+        # 每个脚本单独限时（最多 10 分钟），并给提交步骤留出时间：总预算用完就跳过剩下的脚本，已跑完的结果照常提交
         run: |
+          budget=$(( JOB_MINUTES * 60 - 300 ))
           for tab in daban lhb plates funds abnormal review rank auction disclosure timeline holders irm; do
             f="scripts/kpl-$tab.mjs"
             [ -f "$f" ] || continue
-            node "$f" || echo "::warning::$f 运行失败，保留上一份数据"
+            left=$(( budget - SECONDS ))
+            if [ "$left" -lt 60 ]; then echo "::warning::时间预算用完，跳过 $f 及之后的脚本"; break; fi
+            limit=$(( left < 600 ? left : 600 ))
+            timeout --kill-after=10 "$limit" node "$f" || echo "::warning::$f 运行失败或超时（上限 ${limit} 秒），保留上一份数据"
+          done
+        env:
+          JOB_MINUTES: '55' # 与上面的 timeout-minutes 保持一致
+      - name: Restore any half-written JSON
+        shell: bash
+        # 脚本被超时杀掉时可能留下写了一半的文件：解析失败的一律还原成上一版，不提交坏文件
+        run: |
+          for f in public/data/kpl-*.json $(git ls-files -m -o --exclude-standard 'data-raw/' | grep '\.json$' || true); do
+            [ -f "$f" ] || continue
+            if ! node -e "JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8'))" "$f" 2>/dev/null; then
+              echo "::warning::$f 不是合法 JSON，已还原"
+              git checkout -- "$f" 2>/dev/null || rm -f "$f"
+            fi
           done
       - name: Commit if changed
         id: commit
