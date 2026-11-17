@@ -1,0 +1,21 @@
+/* 同花顺 · 可转债页（/ths-mood/cbond）。沿用 market-mood.css 的 mm-* 与 kpl-daban.css 的 kd-* 类；颜色全部取站点变量，A 股红涨绿跌。 */
+.cb-block { margin-top: 12px; }
+.cb-subtitle { font-size: 1rem; margin: 20px 0 8px; }
+
+.cb-hist { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; align-items: end; }
+.cb-hist--5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.cb-hist--7 { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.cb-hist li { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
+.cb-hist__col { width: 60%; height: 120px; display: block; }
+.cb-hist__n { font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+.cb-hist__label { font-size: 0.7rem; color: var(--text-tertiary); white-space: nowrap; }
+.cb-hist .is-neutral { fill: var(--accent); }
+.cb-hist .is-up { fill: var(--up); }
+.cb-hist .is-down { fill: var(--down); }
+.cb-hist .is-flat { fill: var(--system-gray); }
+
+@media (max-width: 640px) {
+  .cb-hist { gap: 2px; }
+  .cb-hist__col { width: 80%; height: 96px; }
+  .cb-hist__label { font-size: 0.6rem; }
+}
