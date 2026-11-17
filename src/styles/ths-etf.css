@@ -1,0 +1,16 @@
+/* 同花顺 · ETF资金：窄屏只在表格容器内滚动；资金正负沿用站点红涨绿跌。 */
+.te-page, .te-page .mm-card { min-width: 0; max-width: 100%; }
+.te-page .mm-method { overflow-wrap: anywhere; }
+.te-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin: 0 0 16px; }
+.te-summary dt { color: var(--text-secondary); font-size: 0.82rem; }
+.te-summary dd { margin: 4px 0 0; font-size: 1.3rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.te-table { min-width: 640px; }
+.te-table th, .te-table td { white-space: nowrap; }
+.te-table th small, .te-adjust small { display: block; font-weight: normal; color: var(--text-tertiary); }
+.te-table td.te-key { font-weight: 600; }
+.te-adjust { min-width: 280px; }
+.te-details { margin: 8px 0; }
+.te-details summary { cursor: pointer; font-weight: 600; padding: 4px 0; }
+.te-controls { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 0 0 12px; }
+.te-h2 { font-size: 1.15rem; margin: 24px 0 8px; }
+.te-callout { border-left: 3px solid var(--border-subtle); padding-left: 12px; }
