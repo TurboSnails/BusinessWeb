@@ -1,0 +1,34 @@
+/* 开盘啦 · 持仓两融页签（/market-mood/holders）：在 market-mood.css 的 mm-* 与 kpl-daban.css 的 kd-* 基础上补充 */
+.hd-top { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.hd-top__cell { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.hd-top__label, .hd-top__sub { color: var(--text-secondary); font-size: 0.8rem; overflow-wrap: anywhere; }
+.hd-top__value { font-size: 1.45rem; font-variant-numeric: tabular-nums; line-height: 1.25; }
+
+.hd-bar { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-bottom: 10px; align-items: center; }
+.hd-search { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-secondary); max-width: 100%; }
+.hd-search input { font: inherit; color: var(--text-primary); background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: var(--radius-sm); padding: 5px 10px; min-width: 0; width: 16em; max-width: 100%; }
+.hd-warn { margin: 0 0 10px; padding: 8px 12px; border-left: 3px solid var(--up); background: var(--bg-secondary); border-radius: var(--radius-sm); font-size: 0.82rem; color: var(--text-secondary); }
+.hd-sub { margin: 12px 0 6px; font-size: 0.9rem; font-weight: 600; }
+.hd-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.hd-two > div { min-width: 0; }
+.hd-picked { margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border-light); }
+
+.hd-table { font-size: 0.85rem; }
+.hd-table th, .hd-table td { padding: 7px 10px; white-space: nowrap; }
+.hd-table th[scope='row'] { font-weight: 500; text-align: left; }
+.hd-table small { color: var(--text-tertiary); margin-left: 6px; font-size: 0.75rem; font-weight: 400; }
+.hd-tag { display: inline-block; padding: 0 6px; border-radius: var(--radius-full); border: 1px solid var(--border-primary); color: var(--text-secondary); font-size: 0.72rem; line-height: 1.5; white-space: nowrap; }
+.hd-tag.is-up { color: var(--up-ink); border-color: var(--up); }
+.hd-tag.is-down { color: var(--down-ink); border-color: var(--down); }
+.hd-name { appearance: none; background: none; border: 0; padding: 0; font: inherit; font-weight: 500; color: var(--accent-ink); cursor: pointer; text-align: left; }
+.hd-name[aria-pressed='true'] { text-decoration: underline; }
+.hd-more { appearance: none; margin-top: 10px; margin-left: 8px; background: none; border: 1px solid var(--border-primary); border-radius: var(--radius-sm); padding: 2px 10px; font: inherit; font-size: 0.82rem; font-weight: 400; color: var(--text-secondary); cursor: pointer; }
+.hd-more:hover { color: var(--text-primary); }
+
+@media (max-width: 900px) {
+  .hd-two { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 640px) {
+  .hd-top { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .hd-top__value { font-size: 1.25rem; }
+}
