@@ -98,3 +98,38 @@ export function composeTimingEmail(d: TimingDigest, site: string): { subject: st
   ].join('\n')
   return { subject, text, html }
 }
+
+/** 影子运行断更提醒：快照之后、today 之前漏掉的工作日数（不含两端） */
+export function missedWeekdays(asOf: string, today: string): number {
+  let n = 0
+  for (let d = previousWeekday(today); d > asOf; d = previousWeekday(d)) n++
+  return n
+}
+
+/** 连续漏掉 STALE_ALERT_DAYS 个以上工作日才提醒：单日失败或单日休市不打扰，下一次成功时信号会补列 */
+export const STALE_ALERT_DAYS = 2
+export const staleKey = (asOf: string): string => `timing-stale|${asOf}`
+
+/**
+ * 快照断更时的提醒邮件（同一个快照日期只提醒一次，由调用方按 staleKey 去重）。
+ * 长假休市也会触发一次，正文说明；不需要处理。
+ */
+export function staleTimingAlert(data: EtfTiming | null, today: string, site: string): { key: string; asOf: string; missed: number; subject: string; text: string; html: string } | null {
+  const asOf = data?.latest?.asOf
+  if (!asOf) return null
+  const missed = missedWeekdays(asOf, today)
+  if (missed < STALE_ALERT_DAYS) return null
+  const subject = `ETF 择时观察 · 影子运行已 ${missed} 个工作日没有更新`
+  const lines = [
+    `最近一份快照的数据日期是 ${asOf}，之后已有 ${missed} 个工作日没有新快照，择时观察邮件这几天都不会发。`,
+    '如果这几天是 A 股休市（长假），可以忽略。',
+    '否则请到 GitHub Actions 查看「ETF timing shadow run」的运行记录：腾讯和东财都失败、任务没被触发、或提交失败都会导致断更。',
+    '恢复后第一封邮件会补列断更期间出现的信号。同一个快照日期只提醒这一次。',
+  ]
+  const url = `${site}${TIMING_SITE_PATH}`
+  return {
+    key: staleKey(asOf), asOf, missed, subject,
+    text: [...lines, `实验页：${url}`].join('\n\n'),
+    html: [...lines.map(l => `<p>${esc(l)}</p>`), `<p><a href="${esc(url)}">打开实验页</a></p>`].join('\n'),
+  }
+}

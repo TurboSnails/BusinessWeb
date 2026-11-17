@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { asEtfTiming } from './model'
 import { fixture } from './fixtures'
-import { buildTimingDigest, composeTimingEmail, previousWeekday, TIMING_FOOTER } from './digest'
+import { buildTimingDigest, composeTimingEmail, missedWeekdays, previousWeekday, staleTimingAlert, TIMING_FOOTER } from './digest'
 
 const rule = (holding: boolean, date?: string, side: 'buy' | 'sell' = 'buy', pending: 'buy' | 'sell' | null = null) => ({ holding, pending, lastSignal: date ? { date, side } : null })
 
@@ -129,5 +129,24 @@ describe('composeTimingEmail', () => {
     expect(m.subject).toBe('ETF 择时观察 · 11-13 · 择时转偏防守')
     expect(m.text).toContain('与 2026-11-12 相比由偏进攻转为偏防守')
     expect(m.text).toContain('不开新仓')
+  })
+})
+
+describe('staleTimingAlert', () => {
+  it('数漏掉的工作日，跳过周末', () => {
+    expect(missedWeekdays('2026-11-13', '2026-11-16')).toBe(0) // 周一早上看上周五
+    expect(missedWeekdays('2026-11-13', '2026-11-17')).toBe(1) // 漏周一
+    expect(missedWeekdays('2026-11-12', '2026-11-17')).toBe(2) // 漏周五、周一
+  })
+
+  it('漏一天不提醒，漏两天以上提醒一次，正文说明休市可忽略', () => {
+    const d = data()
+    expect(staleTimingAlert(d, '2026-11-17', 'https://x.test')).toBeNull()
+    expect(staleTimingAlert(d, '2026-11-18', 'https://x.test')).toMatchObject({ key: 'timing-stale|2026-11-13', missed: 2 })
+    const m = staleTimingAlert(d, '2026-11-18', 'https://x.test')!
+    expect(m.subject).toBe('ETF 择时观察 · 影子运行已 2 个工作日没有更新')
+    expect(m.text).toContain('休市')
+    expect(m.text).toContain('https://x.test/lab/etf-timing')
+    expect(staleTimingAlert(null, '2026-11-18', 'https://x.test')).toBeNull()
   })
 })
