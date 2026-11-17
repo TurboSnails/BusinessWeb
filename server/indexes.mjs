@@ -58,6 +58,10 @@ export const INDEXES = [
   { key: 'csi300', tencent: 'sh000300', symbol: '000300.SS', name: '沪深 300', group: 'A 股', note: '沪深两市最大的 300 家，A 股大盘基准；Forward PE 由成分股汇总，走势线是中证指数官网公布的滚动 PE（2011 年起）' },
   { key: 'csi500', tencent: 'sh000905', symbol: '000905.SS', name: '中证 500', group: 'A 股', note: '剔除沪深 300 后市值居前的 500 家，中盘代表；Forward PE 由成分股汇总，走势线是中证指数官网公布的滚动 PE（2011 年起）' },
   { key: 'chinext', tencent: 'sz399006', symbol: '399006.SZ', name: '创业板指', group: 'A 股', note: '创业板中市值最大、流动性最好的 100 家（新能源、医药、电子居多）；Forward PE 由成分股汇总，暂无长历史，随每月更新逐点积累' },
+  { key: 'csiMedicine', tencent: 'sh000991', symbol: '000991.SS', name: '全指医药卫生', group: 'A 股行业', note: '中证全指医药卫生指数（000991）；只比较真实指数价格，暂无同口径PE历史。' },
+  { key: 'csiBank', tencent: 'sz399986', symbol: '399986.SZ', name: '中证银行', group: 'A 股行业', note: '中证银行指数（399986）；非银行ETF净值。暂无同口径PE历史。' },
+  { key: 'csiBroker', tencent: 'sz399975', symbol: '399975.SZ', name: '证券公司', group: 'A 股行业', note: '中证全指证券公司指数（399975）；只比较真实指数价格，暂无同口径PE历史。' },
+  { key: 'csiConsumption', tencent: 'sh000932', symbol: '000932.SS', name: '中证主要消费', group: 'A 股行业', note: '中证主要消费指数（000932）；与全指可选消费、全指主要消费不同，不能互相代替。暂无同口径PE历史。' },
 ]
 
 // 中证指数官网按日公布的滚动 PE（沪深 300、中证 500），2011 年起；日度太密，取每周最后一个交易日
@@ -165,7 +169,7 @@ export async function buildIndexSnapshot(previous = null) {
       const { rows, latestTime } = ix.tencent ? await fetchTencentMonthly(ix.tencent) : await fetchMonthly(ix.symbol)
       if (rows.length < 24) throw new Error('历史数据不足')
       const date = latestTime ? new Date(latestTime * 1000).toISOString().slice(0, 10) : rows[rows.length - 1][0]
-      out[ix.key] = { symbol: ix.symbol, name: ix.name, group: ix.group, note: ix.note, links: ix.links, latest: { date, value: rows[rows.length - 1][1] }, monthly: rows, fpe: old?.fpe ?? [] }
+      out[ix.key] = { symbol: ix.symbol, name: ix.name, group: ix.group, note: ix.note, links: ix.links, priceSource: ix.tencent ? '腾讯证券指数月线（不含分红）' : 'Yahoo Finance 指数月线（不含分红）', latest: { date, value: rows[rows.length - 1][1] }, monthly: rows, fpe: old?.fpe ?? [] }
     } catch (e) {
       warnings.push(`${ix.name}：${e instanceof Error ? e.message : '拉取失败'}${old ? '，沿用旧数据' : ''}`)
       if (old) out[ix.key] = old

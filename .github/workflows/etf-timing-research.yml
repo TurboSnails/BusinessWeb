@@ -12,7 +12,6 @@ on:
 
 permissions:
   contents: write
-  actions: write
 
 concurrency:
   group: market-data-publish
@@ -30,21 +29,13 @@ jobs:
       - name: Run long-history backtest
         run: node scripts/research/etf-strategy-oos/bt-index.mjs
       - name: Commit if changed
-        id: commit
         shell: bash
         run: |
           set -euo pipefail
-          git add docs/research/etf-timing-long-history.md data-raw/etf-timing-research public/data/etf-timing.json
+          git add docs/research/etf-timing-long-history.md data-raw/etf-timing-research
           if git diff --cached --quiet; then exit 0; fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git commit -m "research(etf-timing): 长历史指数检验 $(date -u +%Y-%m-%d)"
           git pull --rebase origin main
           git push
-          echo "changed=true" >> "$GITHUB_OUTPUT"
-      # GITHUB_TOKEN 推送不会触发其他工作流：手动触发 Pages 部署（Vercel 由其 GitHub 应用照常部署）
-      - name: Deploy GitHub Pages
-        if: steps.commit.outputs.changed == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh workflow run pages.yml --ref main

@@ -1,0 +1,7 @@
+.etf-tech { display: flex; flex-direction: column; gap: 4px; min-width: 128px; }
+.etf-tech__chip { display: inline-flex; gap: 4px; align-items: baseline; padding: 1px 8px; border-radius: 999px; font-size: .78rem; line-height: 1.6; background: var(--accent-soft); color: var(--text-secondary); width: fit-content; cursor: help; }
+.etf-tech__chip b { font-weight: 600; color: var(--text-primary); }
+.etf-tech__chip i { font-style: normal; opacity: .8; }
+.etf-tech__chip--up { color: #b42318; }
+.etf-tech__chip--down { color: #067647; }
+.etf-tech__rsi { font-size: .75rem; color: var(--text-secondary); cursor: help; }

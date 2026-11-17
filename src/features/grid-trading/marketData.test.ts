@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { fetchQuotes, getCandles, mergeQuote } from './marketData'
+import { fetchQuotes, getCandles, getObservationCandles, mergeQuote } from './marketData'
 
 const response = (body: unknown): Response => new Response(JSON.stringify(body), { status: 200 })
 
@@ -58,7 +58,7 @@ describe('marketData', () => {
 
     const result = await getCandles('510300', '2026-09-29', { force: true }, fetchImpl)
 
-    expect(result.candles).toEqual([{ date: '2026-09-29', close: 3.5, high: 3.6, low: 3.3 }])
+    expect(result.candles).toEqual([{ date: '2026-09-29', open: 3.4, close: 3.5, high: 3.6, low: 3.3 }])
     expect(result.source).toContain('腾讯')
     expect(result.fetchedOn).toMatch(/^\d{4}-\d{2}-\d{2}$/)
   })
@@ -140,4 +140,48 @@ describe('marketData', () => {
     expect(fetchImpl).toHaveBeenCalledTimes(2)
     vi.useRealTimers()
   })
+})
+
+
+it('keeps real open/volume fields and reports unadjusted fallback honestly', async () => {
+  localStorage.clear()
+  const fetchImpl = vi.fn(async () => response({ data: { sh510300: { day: [['2026-09-29', '3.4', '3.5', '3.6', '3.3', '4200']] } } }))
+  const result = await getCandles('510300', '2026-09-29', { force: true }, fetchImpl)
+  expect(result.candles[0]).toMatchObject({ open: 3.4, volume: 4200 })
+  expect(result.source).toContain('未复权')
+  expect(mergeQuote(result.candles, { code: '510300', name: 'ETF', price: 3.52, high: 3.6, low: 3.3, date: '2026-09-29' })[0]).toMatchObject({ open: 3.4, volume: 4200 })
+})
+
+it('does not turn missing or invalid optional candle fields into zero', async () => {
+  localStorage.clear()
+  const fetchImpl = vi.fn(async () => response({ data: { sh510300: { qfqday: [['2026-09-29', '', '3.5', '3.6', '3.3', ''], ['2026-09-30', '8', '3.5', '3.6', '3.3', '-1']] } } }))
+  const result = await getCandles('510300', '2026-09-29', { force: true }, fetchImpl)
+  expect(result.candles.every(c => c.open === undefined && c.volume === undefined)).toBe(true)
+})
+
+it('rejects mixed adjusted/unadjusted history pages and preserves the prior valid cache', async () => {
+  localStorage.clear()
+  await getCandles('510300', '2020-01-01', { force: true }, vi.fn(async () => response({ data: { sh510300: { qfqday: [['2026-01-01', '3.4', '3.5', '3.6', '3.3', '10']] } } })))
+  const key = 'businessweb.grid-trading.candles.v1:510300:qfq'
+  const previous = localStorage.getItem(key)
+  const dates = Array.from({ length: 640 }, (_, i) => new Date(Date.UTC(2024, 0, i + 2)).toISOString().slice(0, 10))
+  let call = 0
+  const mixed = vi.fn(async () => response({ data: { sh510300: call++ === 0
+    ? { qfqday: dates.map(d => [d, '3.4', '3.5', '3.6', '3.3', '10']) }
+    : { day: [['2024-01-01', '3.4', '3.5', '3.6', '3.3', '10']] } } }))
+  await expect(getCandles('510300', '2020-01-01', { force: true }, mixed)).rejects.toThrow('复权口径不一致')
+  expect(localStorage.getItem(key)).toBe(previous)
+})
+
+
+it('observation candles use session-only cache and never expand account localStorage', async () => {
+  localStorage.clear()
+  const write = vi.spyOn(Storage.prototype, 'setItem')
+  const fetchImpl = vi.fn(async () => response({ data: { sh519999: { qfqday: [['2026-09-29', '3.4', '3.5', '3.6', '3.3', '10']] } } }))
+  await getObservationCandles('519999', { force: true }, fetchImpl)
+  await getObservationCandles('519999', {}, fetchImpl)
+  expect(fetchImpl).toHaveBeenCalledTimes(1)
+  expect(write).not.toHaveBeenCalled()
+  expect(localStorage.getItem('businessweb.grid-trading.candles.v1:519999:qfq')).toBeNull()
+  write.mockRestore()
 })

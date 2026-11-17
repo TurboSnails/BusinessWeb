@@ -8,8 +8,10 @@
 
 - **公司估值工作台**：`/valuation`支持本地Pi/Codex/Claude/OpenCode及具体模型版本选择、财务采集、六方法三情景估值、参数复算和报告导出。启动方法见[本地估值说明](docs/valuation-local-setup.md)。
 
-- **网格交易**：`src/features/grid-trading/` 实现了完整的 ETF / 个股网格模拟器——行情接入、参数求解、回测、记录、导入导出、可选 Supabase 同步。记录默认保存在浏览器，云同步只在手动配置独立 Supabase + token 后才启用。
+- **网格交易**：`src/features/grid-trading/` 实现了完整的 ETF / 个股网格模拟器——行情接入、参数求解、回测、记录、导入导出、可选 Supabase 同步。记录默认保存在浏览器，云同步只在手动配置独立 Supabase + token 后才启用。计算器和记录详情可按需加载独立日 K、成交量、MA10/20 与 MACD 观察图；缺失开盘价使用收盘线，不补造行情。
 - **AI 投研**：项目自带统一股票分析与交易分析 skill（见 [AI 投研 skills](#ai-投研-skills)），支持深度研究、圆桌观点与交易风险分析。
+- **指数比较与 ETF 复盘**：`/monitor?tab=valuation` 支持指数搜索、收藏与共同月份的价格比较，显示字段来源、覆盖及已核验的代表 ETF；行业指数未取到数据时显示待采集。`/etf-review` 支持多分组、日/周/月 MACD 状态及交叉筛选、旧备份迁移和合并预览。清单及指数入口仅预填，确认后才加入复盘。详见[集成说明](docs/friend-update-integration.md)。
+
 - **多市场数据**：通过 MCP（yahoo-finance、baostock）和 `src/services/api.ts` 的本地封装，覆盖美股行情、A 股行情、ETF 实时数据、AkShare 数据字典。
 - **每日分析**：`/daily-analysis` 自动获取 A 股指数、涨跌停、连板梯队和榜单，保存交易日快照；原手工记录保留在「历史旧版」。数据口径与定时归档见[每日分析说明](docs/daily-analysis.md)。
 

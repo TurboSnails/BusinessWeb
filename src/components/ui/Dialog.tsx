@@ -2,7 +2,7 @@ import React, { useEffect, useId, useRef } from 'react'
 import { cx } from './Page'
 
 /** 模态对话框：遮罩点击或 Esc 关闭，打开时聚焦对话框、Tab 在对话框内循环、关闭后焦点归还，并锁定背景滚动 */
-export function Dialog({ open, onClose, title, icon, children, actions, size = 'md', className }: {
+export function Dialog({ open, onClose, title, icon, children, actions, size = 'md', className, fallbackFocusRef }: {
   open: boolean
   onClose: () => void
   title: React.ReactNode
@@ -11,6 +11,7 @@ export function Dialog({ open, onClose, title, icon, children, actions, size = '
   actions?: React.ReactNode
   size?: 'sm' | 'md' | 'lg'
   className?: string
+  fallbackFocusRef?: React.RefObject<HTMLElement>
 }): JSX.Element | null {
   const titleId = useId()
   const panelRef = useRef<HTMLDivElement>(null)
@@ -21,6 +22,7 @@ export function Dialog({ open, onClose, title, icon, children, actions, size = '
   useEffect(() => {
     if (!open) return
     const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    const fallback = fallbackFocusRef?.current
     const overflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     const first = panelRef.current?.querySelector<HTMLElement>('input, select, textarea, button, [href]')
@@ -42,9 +44,10 @@ export function Dialog({ open, onClose, title, icon, children, actions, size = '
     return () => {
       document.removeEventListener('keydown', onKey)
       document.body.style.overflow = overflow
-      previous?.focus?.()
+      const target = previous && previous !== document.body && previous.isConnected ? previous : fallback
+      target?.focus()
     }
-  }, [open])
+  }, [open, fallbackFocusRef])
 
   if (!open) return null
   return (

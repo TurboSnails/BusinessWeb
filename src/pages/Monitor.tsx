@@ -63,7 +63,12 @@ const apiBase = (import.meta.env.VITE_API_BASE || '').replace(/\/$/, '')
 /** 实时结果覆盖快照；某项没拉到时沿用快照里的旧值 */
 export function mergeSnapshot<T extends MacroSnapshot<string>>(old: T | null, fresh: T | undefined): T | null {
   if (!fresh || !Object.keys(fresh.series).length) return old
-  return { ...fresh, series: { ...(old?.series ?? {}), ...fresh.series } } as T
+  const series = { ...(old?.series ?? {}), ...fresh.series }
+  for (const [key, previous] of Object.entries(old?.series ?? {})) {
+    const incoming = fresh.series[key]
+    if (previous.long && incoming && (!incoming.long || incoming.long.length < previous.long.length)) series[key] = { ...incoming, long: previous.long }
+  }
+  return { ...fresh, series } as T
 }
 const timeText = (iso: string) => new Date(iso).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
 

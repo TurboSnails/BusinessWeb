@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addGroup, addItem, deleteGroup, emptyState, normalizeState, removeItem, renameGroup, upsertNote, notesOf } from './store'
+import { addGroup, addItem, deleteGroup, emptyState, normalizeState, removeItem, renameGroup, upsertNote, notesOf, groupsOf, setItemGroups, mergeReviewState } from './store'
 
 const base = () => addItem(addGroup(emptyState(), '宽基'), '510300', '沪深300ETF', '宽基')
 const note = (over = {}) => ({ code: '510300', date: '2026-10-20', premium: 0.1, sentiment: '冷静' as const, conclusion: '中性' as const, action: '观望' as const, risk: '', remark: '', ...over })
@@ -37,5 +37,31 @@ describe('etf-review store', () => {
     expect(s.notes).toHaveLength(1)
     expect(s.notes[0]).toMatchObject({ sentiment: null, premium: null })
     expect(normalizeState('垃圾')).toEqual(emptyState())
+  })
+  it('v1多分组迁移与v2往返不丢笔记，改名/删标签保留其他组', () => {
+    const old = upsertNote(base(), note())
+    let migrated = normalizeState({ ...old, version: 1 })
+    expect(migrated.version).toBe(2)
+    expect(groupsOf(migrated.items[0])).toEqual(['宽基'])
+    migrated = setItemGroups(addGroup(migrated, '观察'), '510300', ['宽基', '观察'])
+    migrated = normalizeState(JSON.parse(JSON.stringify(migrated)))
+    migrated = renameGroup(migrated, '宽基', '核心')
+    expect(groupsOf(migrated.items[0])).toEqual(['核心', '观察'])
+    migrated = deleteGroup(migrated, '核心')
+    expect(groupsOf(migrated.items[0])).toEqual(['观察'])
+    expect(migrated.items[0].group).toBe('观察')
+    expect(migrated.notes).toEqual(old.notes)
+  })
+  it('合并备份保留当前同日笔记并合并标签、新标的和非冲突笔记', () => {
+    const current = upsertNote(base(), note({ risk: '保留当前' }))
+    let incoming = addItem(addGroup(emptyState(), '观察'), '159915', '创业板ETF', '观察')
+    incoming = addItem(incoming, '510300', '导入名称', '观察')
+    incoming = upsertNote(upsertNote(incoming, note({ risk: '不要覆盖' })), note({ date: '2026-10-19' }))
+    const merged = mergeReviewState(current, incoming)
+    expect(merged.items.map(i => i.code)).toEqual(['510300', '159915'])
+    expect(merged.items.find(i => i.code === '510300')?.name).toBe('沪深300ETF')
+    expect(groupsOf(merged.items.find(i => i.code === '510300')!)).toEqual(['宽基', '观察'])
+    expect(merged.notes.find(n => n.date === '2026-10-20')?.risk).toBe('保留当前')
+    expect(merged.notes).toHaveLength(2)
   })
 })

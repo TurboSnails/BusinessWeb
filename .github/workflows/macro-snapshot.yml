@@ -2,7 +2,9 @@ name: Update macro snapshot
 
 on:
   schedule:
-    # 每周六 UTC 06:00：本地市场与美国周五均已收盘，供周末长周期复盘
+    # 工作日美股收盘后（与 company-refresh 同窗）；Vercel Cron 准点派发，本排程作迟到兜底
+    - cron: '30 22 * * 1-5'
+    # 周六补一轮：周末复盘用（Put/Call、大宗等周五收盘后仍可对齐）
     - cron: '0 6 * * 6'
   workflow_dispatch:
 

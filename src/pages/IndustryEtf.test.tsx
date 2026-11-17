@@ -58,17 +58,18 @@ describe('IndustryEtf', () => {
   it('有研究笔记的 ETF，代码和名称都能点进对应笔记', () => {
     renderPage()
     const row = screen.getByText('159928').closest('tr')!
-    const links = within(row).getAllByRole('link').filter(a => !a.getAttribute('href')!.startsWith('/grid-trading'))
+    const links = within(row).getAllByRole('link').filter(a => a.getAttribute('href')!.startsWith('/notes/'))
     expect(links.map(a => a.getAttribute('href'))).toEqual(Array(links.length).fill('/notes/159928-consumer-etf-analysis'))
     expect(links.length).toBe(3)
+    expect(within(row).getByRole('link', { name: '加入复盘' }).getAttribute('href')).toContain('/etf-review?code=159928&name=')
     expect(screen.getByRole('link', { name: '562500' }).getAttribute('href')).toBe('/notes/562500-robot-etf-analysis')
     expect(screen.getByRole('link', { name: '159865' }).getAttribute('href')).toBe('/notes/159865-livestock-etf-analysis')
     const chipRow = screen.getByText('588200').closest('tr')!
-    const chipLinks = within(chipRow).getAllByRole('link').filter(a => !a.getAttribute('href')!.startsWith('/grid-trading'))
+    const chipLinks = within(chipRow).getAllByRole('link').filter(a => a.getAttribute('href')!.startsWith('/notes/'))
     expect(chipLinks.map(a => a.getAttribute('href'))).toEqual(Array(3).fill('/notes/588200-star-chip-etf-analysis'))
     expect(chipLinks[2].textContent).toBe('科创芯片ETF')
     const semiconductorRow = screen.getByText('588170').closest('tr')!
-    const semiconductorLinks = within(semiconductorRow).getAllByRole('link').filter(a => !a.getAttribute('href')!.startsWith('/grid-trading'))
+    const semiconductorLinks = within(semiconductorRow).getAllByRole('link').filter(a => a.getAttribute('href')!.startsWith('/notes/'))
     expect(semiconductorLinks.map(a => a.getAttribute('href'))).toEqual(Array(3).fill('/notes/588170-star-semiconductor-etf-analysis'))
     expect(semiconductorLinks[2].textContent).toBe('科创半导体ETF')
     const communicationsRow = screen.getByText('515880').closest('tr')!

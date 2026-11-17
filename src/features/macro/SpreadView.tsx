@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import { ToneBadge } from './MacroViews'
 import type { Tone } from './stages'
-import { HORIZONS, average, niceTicks, signed, baselineReturn, buildChannel, forwardReturn, sigmaOf, touchEvents, zoneOf, type SpreadSnapshot, type Zone } from './spread'
+import { HORIZONS, average, niceTicks, signed, baselineReturn, buildChannel, forwardReturn, sigmaOf, touchEvents, zoneOf, type SpreadSeries, type SpreadSnapshot, type Zone } from './spread'
 import './macro.css'
 
 const W = 720
@@ -38,8 +38,20 @@ function EventTable({ title, hint, events, data, base }: { title: string; hint: 
   )
 }
 
-/** 股债息差通道：当前位置、走势图（与沪深300 共用时间轴）、历次触轨之后的指数表现 */
+/** 股债息差通道：可切换指数与 PE 口径，查看当前位置、走势和触轨后的表现 */
 export function SpreadView({ data }: { data: SpreadSnapshot }): JSX.Element {
+  const list: SpreadSeries[] = [{ id: 'csi300', name: '沪深300', label: data.extra?.length ? '沪深300（市值加权）' : '沪深300', note: '', rows: data.rows }, ...(data.extra ?? [])]
+  const [which, setWhich] = useState(() => new URLSearchParams(window.location.search).get('index') ?? 'csi300')
+  const item = list.find(x => x.id === which) ?? list[0]
+  return <>
+    {list.length > 1 && <div className="macro-long__bar" role="group" aria-label="选择指数或口径">
+      {list.map(x => <button key={x.id} type="button" className={`macro-long__tab${x.id === item.id ? ' is-on' : ''}`} aria-pressed={x.id === item.id} onClick={() => setWhich(x.id)}>{x.label ?? x.name}</button>)}
+    </div>}
+    <SpreadPanel key={item.id} data={{ ...data, rows: item.rows }} name={item.name} label={item.label ?? item.name} note={item.note} />
+  </>
+}
+
+function SpreadPanel({ data, name, label, note }: { data: SpreadSnapshot; name: string; label: string; note: string }): JSX.Element {
   const [range, setRange] = useState<RangeId>('5y')
   const [hover, setHover] = useState<number | null>(null)
   const { rows } = data
@@ -111,7 +123,7 @@ export function SpreadView({ data }: { data: SpreadSnapshot }): JSX.Element {
     <div className="macro-stack">
       <section className={`macro-hero${z.tone === 'gray' ? '' : ` macro-hero--${z.tone}`}`} aria-label="当前位置">
         <div className="macro-hero__head">
-          <span className="macro-muted">沪深300 盈利收益率 − 10 年期国债收益率 · 截至 {now[0]}</span>
+          <span className="macro-muted">{label} 盈利收益率 − 10 年期国债收益率 · 截至 {now[0]}</span>
           <ToneBadge tone={z.tone} label={z.label} />
         </div>
         <h2 className="macro-hero__name">{now[1].toFixed(2)}<small className="macro-spread__unit"> 个百分点</small></h2>
@@ -120,7 +132,7 @@ export function SpreadView({ data }: { data: SpreadSnapshot }): JSX.Element {
           <div><dt>上轨</dt><dd>{nowBand.upper.toFixed(2)}</dd></div>
           <div><dt>中轨</dt><dd>{nowBand.mid.toFixed(2)}</dd></div>
           <div><dt>下轨</dt><dd>{nowBand.lower.toFixed(2)}</dd></div>
-          <div><dt>沪深300</dt><dd>{now[2].toFixed(0)}</dd></div>
+          <div><dt>{name}</dt><dd>{now[2].toFixed(0)}</dd></div>
         </dl>
       </section>
 
@@ -128,11 +140,11 @@ export function SpreadView({ data }: { data: SpreadSnapshot }): JSX.Element {
         <figure className="macro-long macro-spread__figure">
           <div className="macro-long__bar" role="group" aria-label="股债息差时间范围">
             {RANGES.map(r => <button key={r.id} type="button" className={`macro-long__tab${range === r.id ? ' is-on' : ''}`} aria-pressed={range === r.id} onClick={() => { setRange(r.id); setHover(null) }}>{r.label}</button>)}
-            <span className="macro-long__pct">{rows[cur][0]} · 息差 {rows[cur][1].toFixed(2)}{cb && ` · 偏离 ${sigmaOf(rows[cur][1], cb, data.k) >= 0 ? '+' : ''}${sigmaOf(rows[cur][1], cb, data.k).toFixed(2)} 倍`} · 沪深300 {rows[cur][2].toFixed(0)}</span>
+            <span className="macro-long__pct">{rows[cur][0]} · 息差 {rows[cur][1].toFixed(2)}{cb && ` · 偏离 ${sigmaOf(rows[cur][1], cb, data.k) >= 0 ? '+' : ''}${sigmaOf(rows[cur][1], cb, data.k).toFixed(2)} 倍`} · {name} {rows[cur][2].toFixed(0)}</span>
           </div>
           <h3 className="macro-h3">息差与通道（百分点）</h3>
           <svg viewBox={`0 0 ${W} ${H1}`} role="img" onPointerMove={onMove} onPointerLeave={() => setHover(null)}
-            aria-label={`股债息差 ${rows[i0][0].slice(0, 4)} 年至今走势：最新 ${now[1].toFixed(2)}，上轨 ${nowBand.upper.toFixed(2)}，下轨 ${nowBand.lower.toFixed(2)}`}>
+            aria-label={`${label}股债息差 ${rows[i0][0].slice(0, 4)} 年至今走势：最新 ${now[1].toFixed(2)}，上轨 ${nowBand.upper.toFixed(2)}，下轨 ${nowBand.lower.toFixed(2)}`}>
             {axis(H1, niceTicks(s1.lo, s1.hi, 5), s1.y, 1)}
             {area && <path className="macro-spread__band" d={area} />}
             <path className="macro-spread__rail" d={line(i => bands[i]?.upper, s1.y)} />
@@ -145,8 +157,8 @@ export function SpreadView({ data }: { data: SpreadSnapshot }): JSX.Element {
             {hover !== null && <line className="macro-spark__cross" x1={x(hover)} x2={x(hover)} y1={PAD.t} y2={H1 - PAD.b} />}
             <circle className="macro-spark__dot" cx={x(cur)} cy={s1.y(rows[cur][1])} r={4} />
           </svg>
-          <h3 className="macro-h3 macro-spread__sub">沪深300 指数</h3>
-          <svg viewBox={`0 0 ${W} ${H2}`} role="img" onPointerMove={onMove} onPointerLeave={() => setHover(null)} aria-label={`沪深300 指数同期走势，最新 ${now[2].toFixed(0)}`}>
+          <h3 className="macro-h3 macro-spread__sub">{name} 指数</h3>
+          <svg viewBox={`0 0 ${W} ${H2}`} role="img" onPointerMove={onMove} onPointerLeave={() => setHover(null)} aria-label={`${name} 指数同期走势，最新 ${now[2].toFixed(0)}`}>
             {axis(H2, niceTicks(s2.lo, s2.hi, 4), s2.y, 0)}
             <path className="macro-spark__line" d={line(i => rows[i][2], s2.y)} />
             {shown(ups).map(i => <path key={`u${i}`} className="macro-spread__up" d={tri(x(i), s2.y(rows[i][2]) + 20, true)} />)}
@@ -164,17 +176,18 @@ export function SpreadView({ data }: { data: SpreadSnapshot }): JSX.Element {
       </section>
 
       <div className="macro-spread__tables">
-        <EventTable title="历次触及上轨" hint="之后沪深300 的涨跌。连续多天触轨算一次，取第一天。" events={ups} data={data} base={base} />
-        <EventTable title="历次跌破下轨" hint="同样的算法。这一侧在 2006 年和 2014 年之后指数还大涨过。" events={downs} data={data} base={base} />
+        <EventTable title="历次触及上轨" hint={`之后${name} 的涨跌。连续多天触轨算一次，取第一天。`} events={ups} data={data} base={base} />
+        <EventTable title="历次跌破下轨" hint="同样的算法，只统计当前所选序列的历史事件。" events={downs} data={data} base={base} />
       </div>
 
       <section className="macro-card">
         <h3>怎么看这张图</h3>
         <ul>
-          <li>息差 = 沪深300 的盈利收益率（市盈率的倒数）减 10 年期国债收益率。息差高，说明买股票比买国债多拿的回报多；息差低则相反。</li>
+          <li>息差 = {name} 的盈利收益率（市盈率的倒数）减 10 年期国债收益率。息差高，说明买股票比买国债多拿的回报多；息差低则相反。</li>
           <li>通道 = 最近 {data.window} 个交易日的均值加减 {data.k} 倍标准差，只用当天及之前的数据，没有用到未来的数值。</li>
-          <li>历史上触及上轨之后半年，沪深300 上涨的次数明显多于平时；跌破下轨之后并没有更容易下跌。下轨一侧不适合当作卖出依据。</li>
+          <li>触轨表用于核对{name} 在历次触轨后的实际指数表现；上下轨都不能直接当成买卖依据。</li>
           <li>局限：样本只有十几次，每次间隔一两年；窗口和倍数是事先选定的，换一组参数结果会有出入；历史表现不代表以后。这里只给位置，不做预测。</li>
+          {note && <li>当前口径：{note}</li>}
           <li>数据：{data.source}，更新于 {data.generatedAt}。更新命令：<code>npm run spread:update</code>。</li>
         </ul>
       </section>

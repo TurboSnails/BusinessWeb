@@ -1,4 +1,4 @@
-export type Candle = { date: string; close: number; high: number; low: number }
+export type Candle = { date: string; close: number; high: number; low: number; open?: number; volume?: number }
 
 export type Trade = {
   manual?: boolean

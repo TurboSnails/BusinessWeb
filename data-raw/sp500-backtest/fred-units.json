@@ -1,0 +1,123 @@
+[
+  {
+    "id": "NCBEILQ027S",
+    "units": "Millions of U.S. Dollars",
+    "multiplier_to_millions": 1,
+    "units_source": "FRED series page Units meta (verified 2026-11-15); fallback table in fetch script",
+    "download_source": "research cache sp500-val-fred-87516 (data-cursor 2026-11-15 fredgraph.csv)",
+    "sha256": "112da708e015b147ec5eb5be0ca05f3dad14f5cd17e44279ddf4bd0bd617e633",
+    "rows": 323,
+    "non_null": 305,
+    "file": "fred-ncbeilq027s.csv"
+  },
+  {
+    "id": "FBCELLQ027S",
+    "units": "Millions of U.S. Dollars",
+    "multiplier_to_millions": 1,
+    "units_source": "FRED series page Units meta (verified 2026-11-15); fallback table in fetch script",
+    "download_source": "research cache sp500-val-fred-87516 (data-cursor 2026-11-15 fredgraph.csv)",
+    "sha256": "11a96c769f45efa2c3da45a82101a392df9f82852b1ba9e3acc3faff82319782",
+    "rows": 323,
+    "non_null": 305,
+    "file": "fred-fbcellq027s.csv"
+  },
+  {
+    "id": "FGSDODNS",
+    "units": "Millions of U.S. Dollars",
+    "multiplier_to_millions": 1,
+    "units_source": "FRED series page Units meta (verified 2026-11-15); fallback table in fetch script",
+    "download_source": "manager scratchpad 2026-11-15 curl --http1.1 fredgraph.csv",
+    "sha256": "e2d6e93134f07840023a454827e89b81654c1c0aabd154c67ab2fd73e6c541e8",
+    "rows": 323,
+    "non_null": 305,
+    "file": "fred-fgsdodns.csv"
+  },
+  {
+    "id": "CMDEBT",
+    "units": "Millions of U.S. Dollars",
+    "multiplier_to_millions": 1,
+    "units_source": "FRED series page Units meta (verified 2026-11-15); fallback table in fetch script",
+    "download_source": "manager scratchpad 2026-11-15 curl --http1.1 fredgraph.csv",
+    "sha256": "bdfc78a03c7e50b69db1511be48adea4a6b70e02c38a87d5322d7b8315aa67c2",
+    "rows": 323,
+    "non_null": 305,
+    "file": "fred-cmdebt.csv"
+  },
+  {
+    "id": "BCNSDODNS",
+    "units": "Millions of U.S. Dollars",
+    "multiplier_to_millions": 1,
+    "units_source": "FRED series page Units meta (verified 2026-11-15); fallback table in fetch script",
+    "download_source": "manager scratchpad 2026-11-15 curl --http1.1 fredgraph.csv",
+    "sha256": "2998b9f6444731b864e14b628a13fa08b608efe72151da12374ba663a6f091d2",
+    "rows": 323,
+    "non_null": 305,
+    "file": "fred-bcnsdodns.csv"
+  },
+  {
+    "id": "DODFFSWCMI",
+    "units": "Millions of U.S. Dollars",
+    "multiplier_to_millions": 1,
+    "units_source": "FRED series page Units meta (verified 2026-11-15); fallback table in fetch script",
+    "download_source": "manager scratchpad 2026-11-15 curl --http1.1 fredgraph.csv",
+    "sha256": "9c5af2cabb232b8733b0a22a797b74d56ee7fe30d995a3e07d2b1cdb80e34b53",
+    "rows": 323,
+    "non_null": 305,
+    "file": "fred-dodffswcmi.csv"
+  },
+  {
+    "id": "SLGSDODNS",
+    "units": "Millions of U.S. Dollars",
+    "multiplier_to_millions": 1,
+    "units_source": "FRED series page Units meta (verified 2026-11-15); fallback table in fetch script",
+    "download_source": "manager scratchpad 2026-11-15 curl --http1.1 fredgraph.csv",
+    "sha256": "f7d052abd842d8cef274ed6e48a77df0bf694c177085c4a6fe6160fa3fc6f789",
+    "rows": 323,
+    "non_null": 305,
+    "file": "fred-slgsdodns.csv"
+  },
+  {
+    "id": "NCBCEL",
+    "units": "Millions of U.S. Dollars",
+    "multiplier_to_millions": 1,
+    "units_source": "FRED series page Units meta (verified 2026-11-15); fallback table in fetch script",
+    "download_source": "research cache sp500-val-fred-87516 (data-cursor 2026-11-15 fredgraph.csv)",
+    "sha256": "d1eca0a586190a1c697f1763b13b9769b4a5d9ef181f703fdc2cd72356a58bca",
+    "rows": 323,
+    "non_null": 305,
+    "file": "fred-ncbcel.csv"
+  },
+  {
+    "id": "GDP",
+    "units": "Billions of Dollars",
+    "multiplier_to_millions": 1000,
+    "units_source": "FRED series page Units meta (verified 2026-11-15); fallback table in fetch script",
+    "download_source": "research cache sp500-val-fred-87516 (data-cursor 2026-11-15 fredgraph.csv)",
+    "sha256": "386be1a7360fdaadfe34d422800c317ec0213f81f692cfdfdbcb3e98b1895d1d",
+    "rows": 319,
+    "non_null": 319,
+    "file": "fred-gdp.csv"
+  },
+  {
+    "id": "BOGZ1FL105015005Q",
+    "units": "Millions of U.S. Dollars",
+    "multiplier_to_millions": 1,
+    "units_source": "FRED series page Units meta (verified 2026-11-15); fallback table in fetch script",
+    "download_source": "research cache sp500-val-fred-87516 (data-cursor 2026-11-15 fredgraph.csv)",
+    "sha256": "ba7389349c9a3d9115c898b7cad6037049c6d5970d53508a12019229d3fbe0a4",
+    "rows": 323,
+    "non_null": 305,
+    "file": "fred-bogz1fl105015005q.csv"
+  },
+  {
+    "id": "A455RC1Q027SBEA",
+    "units": "Billions of Dollars",
+    "multiplier_to_millions": 1000,
+    "units_source": "FRED series page Units meta (verified 2026-11-15); fallback table in fetch script",
+    "download_source": "research cache sp500-val-fred-87516 (data-cursor 2026-11-15 fredgraph.csv)",
+    "sha256": "58eb67751107ae7ae2f8ef6a2f5bcde1148b7cddf5c7fdd8ee7eccacedc6641b",
+    "rows": 318,
+    "non_null": 318,
+    "file": "fred-a455rc1q027sbea.csv"
+  }
+]

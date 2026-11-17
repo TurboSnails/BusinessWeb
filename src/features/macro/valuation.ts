@@ -1,4 +1,5 @@
 import { percentileOf } from './indicators'
+import { hasHistory, monthlySeries, validDate } from '../index-catalog/catalog'
 import type { Tone } from './stages'
 
 export interface Member { code: string; name: string; /** 市值，十亿美元 */ mcap: number; fwd: number | null; ttm: number | null }
@@ -9,6 +10,7 @@ export interface IndexData {
   name: string
   group: string
   note: string
+  priceSource?: string
   /** 外部查看入口（站内没有的数据，比如彭博的 PE 历史） */
   links?: { label: string; url: string }[]
   latest: { date: string; value: number }
@@ -28,32 +30,38 @@ export interface IndexSnapshot { generatedAt: string; checkedAt?: string; source
 
 export interface IndexStats {
   /** 距历史最高月收盘的回撤（%，≤0） */
-  drawdown: number
+  drawdown: number | undefined
   /** 近 12 个月涨幅（%） */
   ret1y: number | undefined
   /** 当前价在近 10 年月收盘中的分位 */
   pricePct: number | undefined
-  peak: { date: string; value: number }
-  fpe: { value: number; date: string; pct: number | undefined; min: number; max: number; median: number; count: number } | undefined
+  peak: { date: string; value: number } | undefined
+  fpe: { value: number; date: string; pct: number | undefined; min: number; max: number; median: number; count: number; kind: 'forward' | 'trailing' } | undefined
 }
 
 /** est：估算的长序列（外部参考太稀时用）。PE 位置优先用外部长序列，其次估算序列，最后才是本站自己记录的点 */
 export function statsOf(ix: IndexData, est?: [string, number][]): IndexStats {
   const cur = ix.latest.value
-  const peak = ix.monthly.reduce((m, p) => (p[1] > m[1] ? p : m), ix.monthly[0])
-  const ago = ix.monthly[ix.monthly.length - 13]
-  const ten = ix.monthly.slice(-120)
-  const f = ix.ref && ix.ref.points.length > 24 ? ix.ref.points : est && est.length > 24 ? est : ix.fpe
+  const history = [...monthlySeries(ix.monthly).values()].filter(p => !validDate(ix.latest.date) || p[0] <= ix.latest.date)
+  const peak = history.length ? history.reduce((m, p) => (p[1] > m[1] ? p : m)) : undefined
+  const latestMonth = ix.latest.date.slice(0, 7)
+  const [year, month] = latestMonth.split('-').map(Number)
+  const ago = history.find(p => p[0].slice(0, 7) === `${year - 1}-${String(month).padStart(2, '0')}`)
+  // 只统计最新观测之前十个完整日历年的月线；未完成当月不凑第120个样本。
+  const ten = history.filter(p => p[0].slice(0, 7) >= `${year - 10}-${String(month).padStart(2, '0')}` && p[0].slice(0, 7) < latestMonth)
+  // 统计只认真实观测；估算序列仍可画图，不以插值点数认证长期覆盖。
+  void est
+  const f = [...monthlySeries(ix.ref?.points.length ? ix.ref.points : ix.fpe).values()].filter(p => p[0] <= new Date().toISOString().slice(0, 10))
   const fv = f.map(p => p[1]).sort((a, b) => a - b)
   const last = f[f.length - 1]
   return {
-    drawdown: (Math.min(cur, peak[1]) / peak[1] - 1) * 100,
+    drawdown: peak ? (Math.min(cur, peak[1]) / peak[1] - 1) * 100 : undefined,
     ret1y: ago ? (cur / ago[1] - 1) * 100 : undefined,
-    pricePct: percentileOf(ten, cur),
-    peak: { date: peak[0], value: peak[1] },
+    pricePct: hasHistory(ten, 120) ? percentileOf(ten, cur) : undefined,
+    peak: peak ? { date: peak[0], value: peak[1] } : undefined,
     fpe: last && {
-      value: last[1], date: last[0], pct: percentileOf(f, last[1]), min: fv[0], max: fv[fv.length - 1],
-      median: fv.length % 2 ? fv[(fv.length - 1) / 2] : (fv[fv.length / 2 - 1] + fv[fv.length / 2]) / 2, count: f.length,
+      value: last[1], date: last[0], pct: hasHistory(f) ? percentileOf(f, last[1]) : undefined, min: fv[0], max: fv[fv.length - 1],
+      median: fv.length % 2 ? fv[(fv.length - 1) / 2] : (fv[fv.length / 2 - 1] + fv[fv.length / 2]) / 2, count: f.length, kind: ix.ref?.points.length && ix.ref.kind === 'trailing' ? 'trailing' : 'forward',
     },
   }
 }

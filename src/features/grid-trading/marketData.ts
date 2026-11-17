@@ -8,7 +8,7 @@ const REQUEST_TIMEOUT = 10_000
 const MAX_HISTORY_PAGES = 20
 const PAGE_SIZE = 640
 
-type CandleCache = { fetchedOn: string; from: string; candles: Candle[] }
+type CandleCache = { fetchedOn: string; from: string; candles: Candle[]; adjustment?: 'qfq' | 'raw' | 'unknown' }
 type QuoteCache = Record<string, { at: number; quote: Quote }>
 type FetchLike = typeof fetch
 
@@ -54,10 +54,11 @@ async function request(url: string, fetchImpl: FetchLike): Promise<Response> {
   }
 }
 
-async function downloadCandles(code: string, begin: string, fetchImpl: FetchLike): Promise<Candle[]> {
+async function downloadCandles(code: string, begin: string, fetchImpl: FetchLike): Promise<{ candles: Candle[]; adjustment: 'qfq' | 'raw' }> {
   const symbol = symbolOf(code)
   let end = marketToday()
   const lines: string[][] = []
+  let adjustment: 'qfq' | 'raw' = 'qfq'
   for (let page = 0; page < MAX_HISTORY_PAGES; page += 1) {
     const params = new URLSearchParams({ param: `${symbol},day,${begin},${end},${PAGE_SIZE},qfq` })
     const url = import.meta.env.VITE_MARKET_DIRECT === 'true'
@@ -70,7 +71,13 @@ async function downloadCandles(code: string, begin: string, fetchImpl: FetchLike
     } catch {
       throw new Error('行情服务返回了无法解析的数据')
     }
-    const batch = payload.data?.[symbol]?.qfqday ?? payload.data?.[symbol]?.day ?? []
+    const adjusted = payload.data?.[symbol]?.qfqday
+    const batch = adjusted?.length ? adjusted : payload.data?.[symbol]?.day ?? []
+    const pageAdjustment = adjusted?.length ? 'qfq' : 'raw'
+    if (batch.length) {
+      if (lines.length && adjustment !== pageAdjustment) throw new Error('历史分页的复权口径不一致，已停止合并，请稍后重试')
+      adjustment = pageAdjustment
+    }
     if (!Array.isArray(batch) || batch.some(line => !Array.isArray(line) || !/^\d{4}-\d{2}-\d{2}$/.test(line[0]) || ![line[2], line[3], line[4]].every(value => Number.isFinite(Number(value)) && Number(value) > 0) || Number(line[4]) > Number(line[3]))) throw new Error('行情包含无效日线，数据不完整；请刷新后重试')
     if (!batch.length) break
     lines.unshift(...batch)
@@ -83,12 +90,16 @@ async function downloadCandles(code: string, begin: string, fetchImpl: FetchLike
 
   const unique = new Map<string, Candle>()
   for (const line of lines) {
-    const [date, , closeValue, highValue, lowValue] = line
+    const [date, openValue, closeValue, highValue, lowValue, volumeValue] = line
     const close = Number(closeValue), high = Number(highValue), low = Number(lowValue)
     if (!date || date < begin || ![close, high, low].every(value => Number.isFinite(value) && value > 0) || low > high) continue
-    unique.set(date, { date, close, high, low })
+    const open = Number(openValue), volume = Number(volumeValue)
+    unique.set(date, { date, close, high, low,
+      ...(openValue != null && openValue !== '' && Number.isFinite(open) && open >= low && open <= high ? { open } : {}),
+      ...(volumeValue != null && volumeValue !== '' && Number.isFinite(volume) && volume >= 0 ? { volume } : {}),
+    })
   }
-  return [...unique.values()].sort((a, b) => a.date.localeCompare(b.date))
+  return { candles: [...unique.values()].sort((a, b) => a.date.localeCompare(b.date)), adjustment }
 }
 
 export async function getCandles(
@@ -102,14 +113,39 @@ export async function getCandles(
   const key = `${CANDLE_CACHE_PREFIX}${code.trim()}:qfq`
   const cached = parseCached<CandleCache | null>(localStorage, key, null)
   if (!options.force && cached?.fetchedOn === marketToday() && cached.from <= begin && cached.candles.length) {
-    return { ...cached, candles: cached.candles.filter(candle => candle.date >= begin), source: '腾讯前复权日线（本地缓存）' }
+    return { ...cached, candles: cached.candles.filter(candle => candle.date >= begin), source: `腾讯${cached.adjustment === 'qfq' ? '前复权' : cached.adjustment === 'raw' ? '未复权' : '复权口径未记录的'}日线（本地缓存）` }
   }
   const from = cached && cached.from < begin ? cached.from : begin
-  const candles = await downloadCandles(code, from, fetchImpl)
+  const { candles, adjustment } = await downloadCandles(code, from, fetchImpl)
   if (!candles.length) throw new Error('腾讯行情服务没有返回有效日线数据')
-  const entry: CandleCache = { fetchedOn: marketToday(), from, candles }
+  const entry: CandleCache = { fetchedOn: marketToday(), from, candles, adjustment }
   cacheValue(localStorage, key, entry)
-  return { ...entry, candles: candles.filter(candle => candle.date >= begin), source: '腾讯前复权日线' }
+  return { ...entry, candles: candles.filter(candle => candle.date >= begin), source: `腾讯${adjustment === 'qfq' ? '前复权' : '未复权'}日线` }
+}
+
+const observationCache = new Map<string, CandleCache>()
+const OBSERVATION_CACHE_LIMIT = 3
+
+export async function getObservationCandles(
+  code: string,
+  options: { force?: boolean } = {},
+  fetchImpl: FetchLike = fetch,
+): Promise<CandleResult> {
+  if (!/^\d{6}$/.test(code.trim())) throw new Error('证券代码必须为六位数字')
+  const key = code.trim()
+  const cached = observationCache.get(key)
+  if (!options.force && cached?.fetchedOn === marketToday() && cached.candles.length) {
+    observationCache.delete(key)
+    observationCache.set(key, cached)
+    return { ...cached, source: `腾讯${cached.adjustment === 'qfq' ? '前复权' : cached.adjustment === 'raw' ? '未复权' : '复权口径未记录的'}日线（本次会话缓存）` }
+  }
+  const { candles, adjustment } = await downloadCandles(key, '2000-01-01', fetchImpl)
+  if (!candles.length) throw new Error('腾讯行情服务没有返回有效日线数据')
+  const entry: CandleCache = { fetchedOn: marketToday(), from: '2000-01-01', candles, adjustment }
+  observationCache.delete(key)
+  observationCache.set(key, entry)
+  while (observationCache.size > OBSERVATION_CACHE_LIMIT) observationCache.delete(observationCache.keys().next().value!)
+  return { ...entry, source: `腾讯${adjustment === 'qfq' ? '前复权' : '未复权'}日线` }
 }
 
 function parseQuoteText(text: string): Quote[] {
@@ -172,7 +208,7 @@ export function mergeQuote(candles: Candle[], quote?: Quote): Candle[] {
   if (index >= 0) {
     const merged = [...candles]
     const previous = candles[index]
-    merged[index] = { date: quote.date, close: quote.price, high: Math.max(previous.high, quote.high), low: Math.min(previous.low, quote.low) }
+    merged[index] = { ...previous, date: quote.date, close: quote.price, high: Math.max(previous.high, quote.high), low: Math.min(previous.low, quote.low) }
     return merged
   }
   const last = candles[candles.length - 1]

@@ -73,33 +73,3 @@ export function windowStats(bars, eq, from, to) {
   for (let i = i0; i <= i1; i++) { peak = Math.max(peak, eq[i]); dd = Math.min(dd, eq[i] / peak - 1) }
   return { years, total: (ret - 1) * 100, annual: years >= 1 ? (ret ** (1 / years) - 1) * 100 : null, dd: dd * 100 }
 }
-
-/** 择时+KD10（朋友方案）：牛市时空仓出现 MACD 金叉，或收盘由 10 日线下/平站上 10 日线且 KDJ(9,3,3) K−D ≥ threshold → 次日买；
- *  持仓时死叉，或择时为熊且收盘跌破 10 日线 → 当日收盘卖（买入当日触发则次日卖）。只有收盘价时 KD 用收盘近似。 */
-export function kd10(bars, bull, { warmup = 120, fill = 'open', threshold = 5.3 } = {}) {
-  const { gold, dead } = macdCross(bars); const n = bars.length
-  const above = [], below = [], kd = []; let sum = 0, k = 50, d = 50
-  for (let i = 0; i < n; i++) {
-    sum += bars[i].close; if (i >= 10) sum -= bars[i - 10].close
-    const ma = i >= 9 ? sum / 10 : NaN; const eps = Math.abs(bars[i].close) * 1e-9
-    above.push(i >= 9 && bars[i].close > ma + eps); below.push(i >= 9 && bars[i].close < ma - eps)
-    let hi = -Infinity, lo = Infinity
-    for (let j = Math.max(0, i - 8); j <= i; j++) { hi = Math.max(hi, bars[j].high); lo = Math.min(lo, bars[j].low) }
-    const rsv = hi > lo ? 100 * (bars[i].close - lo) / (hi - lo) : 50
-    k = (2 * k + rsv) / 3; d = (2 * d + k) / 3; kd.push(k - d)
-  }
-  const eq = []; let cash = 1, units = 0, pend, buyIdx = -1, lastBull
-  for (let i = 0; i < n; i++) {
-    const b = bars[i]; const t = bull.get(b.date); if (t !== undefined) lastBull = t; const isBull = lastBull !== false
-    const px = fill === 'open' ? b.open : b.close
-    if (pend === 'buy') { units = cash * (1 - COST) / px; cash = 0; buyIdx = i } else if (pend === 'sell') { cash = units * px * (1 - COST); units = 0 }
-    pend = undefined
-    if (i >= warmup) {
-      if (units) {
-        if (dead[i] || (!isBull && below[i])) { if (buyIdx === i) pend = 'sell'; else { cash = units * b.close * (1 - COST); units = 0 } }
-      } else if (isBull && (gold[i] || (above[i] && !above[i - 1] && kd[i] >= threshold))) pend = 'buy'
-    }
-    eq.push(units ? units * b.close : cash)
-  }
-  return { eq }
-}

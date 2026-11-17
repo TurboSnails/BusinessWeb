@@ -36,7 +36,7 @@ export default function BroadEtfList({ tech }: { tech: Map<string, EtfTechRecord
                   {analysisSlug && <div><Link className="etf-ref-link" to={`/notes/${analysisSlug}`}>分析报告</Link></div>}
                   <a className="etf-ref-link" href={item.sourceUrl} target="_blank" rel="noopener noreferrer">基金档案 ↗</a>
                 </td>
-                <td className="etf-grid-cell"><Link className="etf-ref-link" to={`/grid-trading?code=${item.code}&name=${encodeURIComponent(item.name)}`}>行情·网格</Link></td>
+                <td className="etf-grid-cell"><Link className="etf-ref-link" to={`/grid-trading?code=${item.code}&name=${encodeURIComponent(item.name)}`}>行情·网格</Link><br /><Link className="etf-ref-link" to={`/etf-review?code=${item.code}&name=${encodeURIComponent(item.name)}`}>加入复盘</Link></td>
               </tr>
             )})}</tbody>
           </table>

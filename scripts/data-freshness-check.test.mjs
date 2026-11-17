@@ -19,7 +19,7 @@ const NOW = new Date('2026-11-14T23:30:00Z')
 
 // ---------------------------------------------------------------- fixture repo
 
-const US_KEYS = ['gdp', 'unrate', 'sahm', 'claims', 'corePce', 'realRate', 'curve', 'hy', 'nfci', 'vix', 'dd', 'kre', 'marginGdp', 'cashDebt', 'equityShare', 'buffett', 'debtService', 'ccDelinq', 'tenYear', 'saving', 'dxy', 'gold', 'silver', 'wti']
+const US_KEYS = ['gdp', 'unrate', 'sahm', 'claims', 'corePce', 'realRate', 'curve', 'hy', 'nfci', 'vix', 'dd', 'kre', 'marginGdp', 'cashDebt', 'putCall', 'hfEquityLs', 'equityShare', 'buffett', 'debtService', 'ccDelinq', 'tenYear', 'saving', 'dxy', 'gold', 'silver', 'wti']
 const CN_KEYS = ['gdp', 'pmi', 'nmpmi', 'cpi', 'ppi', 'ip', 'm1m2', 'lpr', 'marginGdp', 'marginMcap']
 const HK_KEYS = ['hsiDd', 'hsi12m', 'hkd', 'fed', 'south']
 const VALUE = { hy: 300, gold: 2000, silver: 30, wti: 70, dxy: 100, claims: 220, equityShare: 40, buffett: 150, debtService: 10, pmi: 50, nmpmi: 50, hkd: 7.8 }

@@ -1,5 +1,6 @@
 import FeeNote from '../features/grid-trading/FeeNote'
-import React, { useMemo, useState } from 'react'
+import CandleChart from '../features/grid-trading/CandleChart'
+import React, { useMemo, useRef, useState } from 'react'
 import { PageTitle } from '../components/ui/PageTabs'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowRight, BarChart3, Save, Wand2 } from 'lucide-react'
@@ -100,9 +101,11 @@ export default function GridCalculator(): JSX.Element {
   const [quoteNotice, setQuoteNotice] = useState('')
   const [busy, setBusy] = useState(false)
   const [saved, setSaved] = useState(false)
+  const symbolRevision = useRef(0)
 
   const update = (key: keyof FormState, value: string) => {
-    setForm(current => ({ ...current, [key]: value }))
+    if (key === 'code') { symbolRevision.current += 1; setCalculated(null); setQuoteNotice(''); setSuggestNotice('') }
+    setForm(current => ({ ...current, [key]: value, ...(key === 'code' ? { name: '' } : {}) }))
     setSaved(false)
   }
 
@@ -110,6 +113,7 @@ export default function GridCalculator(): JSX.Element {
   const suggest = async () => {
     const code = form.code.trim()
     if (!/^\d{6}$/.test(code)) { setError('请先填写六位证券代码。'); return }
+    const revision = symbolRevision.current
     const date = form.date || oneYearBefore(marketToday())
     setError('')
     setSuggestNotice('')
@@ -122,6 +126,7 @@ export default function GridCalculator(): JSX.Element {
       if (!name.trim()) {
         try { name = (await fetchQuotes([code])).get(code)?.name ?? '' } catch { /* 名称可选 */ }
       }
+      if (revision !== symbolRevision.current) return
       const etf = isEtf(code)
       setForm(current => ({
         ...current, name, date: first.date,
@@ -133,7 +138,7 @@ export default function GridCalculator(): JSX.Element {
       setSaved(false)
       setSuggestNotice(`已按 ${first.date} 收盘价 ${first.close} 填入建仓价，步长取价格的 3%；金额是起步值，请按自己的预算调整。`)
     } catch (suggestError) {
-      setError(suggestError instanceof Error ? suggestError.message : '获取行情失败，请稍后再试。')
+      if (revision === symbolRevision.current) setError(suggestError instanceof Error ? suggestError.message : '获取行情失败，请稍后再试。')
     } finally {
       setSuggesting(false)
     }
@@ -145,6 +150,7 @@ export default function GridCalculator(): JSX.Element {
     if (validation) { setError(validation); return }
     setError('')
     setQuoteNotice('')
+    const revision = symbolRevision.current
     setBusy(true)
     setCalculated(null)
     try {
@@ -153,9 +159,9 @@ export default function GridCalculator(): JSX.Element {
       try {
         const quote = (await fetchQuotes([form.code.trim()])).get(form.code.trim())
         candles = mergeQuote(candles, quote)
-        if (quote) setQuoteNotice(`已合并 ${quote.date} 实时报价`)
+        if (quote && revision === symbolRevision.current) setQuoteNotice(`已合并 ${quote.date} 实时报价`)
       } catch (quoteError) {
-        setQuoteNotice(quoteError instanceof Error ? `实时行情暂不可用：${quoteError.message}；使用日线数据` : '实时行情暂不可用；使用日线数据')
+        if (revision === symbolRevision.current) setQuoteNotice(quoteError instanceof Error ? `实时行情暂不可用：${quoteError.message}；使用日线数据` : '实时行情暂不可用；使用日线数据')
       }
       if (form.endDate) candles = candles.filter(candle => candle.date <= form.endDate)
       if (!candles.length) throw new Error('所选回测日期范围内没有行情数据。')
@@ -172,10 +178,11 @@ export default function GridCalculator(): JSX.Element {
         ...(form.floorPrice.trim() !== '' ? { floorPrice: Number(form.floorPrice) } : {}),
         ...(form.budget.trim() !== '' ? { budget: Number(form.budget) } : {}),
       }
+      if (revision !== symbolRevision.current) return
       const result = calculateGrid(row, candles)
       setCalculated({ row, result, candles, source: history.source, fetchedAt: history.fetchedOn, endDate: form.endDate })
     } catch (runError) {
-      setError(runError instanceof Error ? runError.message : '回测失败，请检查输入和行情服务。')
+      if (revision === symbolRevision.current) setError(runError instanceof Error ? runError.message : '回测失败，请检查输入和行情服务。')
     } finally {
       setBusy(false)
     }
@@ -240,6 +247,8 @@ export default function GridCalculator(): JSX.Element {
       {error && <p className="grid-error-text" role="alert">{error}</p>}
       {quoteNotice && <p className="grid-inline-message" role="status">{quoteNotice}</p>}
     </section>
+
+    <CandleChart key={form.code.trim()} code={form.code.trim()} name={form.name.trim()} endDate={form.endDate} />
 
     {calculated && <section className="grid-card grid-result-card">
       <div className="grid-section-heading"><div><h2>回测结果</h2><p>{calculated.row.name} · {calculated.row.code} · {calculated.result.range}</p></div><button type="button" className="grid-button" onClick={save}><Save size={16} /> {saved ? '已保存' : '保存记录'}</button></div>

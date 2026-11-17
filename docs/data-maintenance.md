@@ -90,7 +90,7 @@ PEP最新Q3、官方事件日历、8项ETF费用／规则及纳指QQQ持仓代�
 | 公司行情、供应商摘要、林奇PE | 本轮新增 `collect-market-mcp.py`／`collect-market-refresh.mjs` → `normalize-market-refresh.py` → `apply-companies`，完整命令见下文 | 原分类／增速／护城河与估值仍需逐公司复核；不以新报价认证旧模型 |
 | 数据新鲜度巡检（只读） | `node scripts/data-freshness-check.mjs [--md out.md] [--json out.json] [--now ISO] [--no-gh]`；单测 `node --test scripts/data-freshness-check.test.mjs`；每日 `data-freshness.yml` | 只读真实观测日期，不改数据；阈值与已知停更白名单（带原因、到期日、观测日锁定）写在脚本顶部 `THRESHOLDS`／`ALLOWLIST`。源恢复或白名单到期后会重新告警，不要靠延长到期日消警 |
 
-已有 GitHub Actions：公司库行情工作日美股收盘后 **UTC 22:00**（`company-refresh.yml`，由 Vercel Cron 准点触发，见下文「Vercel Cron 准点触发」；只刷新行情，证据精简后保留 14 天，MCP 公司资料仍需手动全量刷新）；DCF 预填库每日两次（`dcf-prefill.yml`）；每日分析工作日北京时间 **16 点、18 点**（Vercel Cron；GitHub 排程 15:35、17:10 兜底）；国家队每周一 **10:30**；宏观＋指数每月 8 日 **14:00**。配置见 [.github/workflows](../.github/workflows)。本次 GitHub CLI 未登录，未核验远端最近运行／部署状态。任务存在不等于已经成功运行。
+已有 GitHub Actions：公司库行情与宏观快照工作日美股收盘后 **UTC 22:00**（`company-refresh.yml`／`macro-snapshot.yml`，由 Vercel Cron 准点触发，见下文「Vercel Cron 准点触发」）；DCF 预填库每日两次（`dcf-prefill.yml`）；每日分析工作日北京时间 **16 点、18 点**（Vercel Cron；GitHub 排程 15:35、17:10 兜底）；国家队每周一 **10:30**。配置见 [.github/workflows](../.github/workflows)。任务存在不等于已经成功运行。
 
 **数据新鲜度巡检**（2026-11-14 新增，`data-freshness.yml`，每日 UTC 23:20＋手动）：起因是 2026-11-12 `company-refresh.yml` 因价格耦合测试失败、`daily-analysis-snapshot.yml` 因排程迟到约 8.5 小时没拿到当日收盘快照而空跑，均无人察觉。巡检读各文件内的观测日期（公司 `价格锚点`、行情快照 `date`、林奇 `peAsOf`、估值覆盖层记录 `price.date`、每日分析 `dataDate`、宏观逐指标（直接调用 `quality.ts`）、周期事实 `observationDate`、指数、股债利差、ETF 技术面、国家队报告期、DCF `pxDate`／无风险利率），按市场交易日（`scripts/lib/trading-calendar.mjs`：A 股含上交所 2026 休市、美股含 NYSE 2026 假期、港股暂只排周末）推算「应已落地」的最近交易日。主要阈值：日频行情 >3 个交易日；每日分析落后 1 个交易日或近 10 个交易日有缺档；周期日频事实 >5 个交易日；周度 >10 天；月末 >45 天；国家队按披露截止日 +14 天。另用 `gh` 汇总各定时工作流最近结论与排程延迟（近 10 次中位／最大），最近完成的运行失败或工作流被停用也告警。有告警时创建／更新唯一的「数据新鲜度告警」issue（标签 `data-freshness`，告警项变化才追加评论），恢复后自动评论并关闭；不提交报告文件。
 
@@ -109,10 +109,11 @@ PEP最新Q3、官方事件日历、8项ETF费用／规则及纳指QQQ持仓代�
 | `0 8 * * 1-5` | `etf-technical.yml` | 北京 16:00–16:59 | 收盘后技术面；晚间补净值仍由 GitHub 排程 13:30 负责 |
 | `0 10 * * 1-5` | `spread-snapshot.yml` | 北京 18:00–18:59 | A 股收盘、中债收益率发布之后（需晚于 09:30 UTC） |
 | `0 22 * * 1-5` | `company-refresh.yml` | 纽约 17:00（冬令时）／18:00（夏令时） | 美股 16:00 收盘后，三地市场当天都已收盘；冬令时收盘是 21:00 UTC，所以不用 21 点档 |
+| `0 22 * * 1-5` | `macro-snapshot.yml` | 同上 | 宏观温度日频指标（VIX/利率/HY/Put/Call 等）阈值约 7 天；周更会过期。与行情刷新同窗，GitHub 兜底 `30 22 * * 1-5`，周六 `0 6 * * 6` 再补一轮 |
 
-未纳入：`dcf-prefill`（基本面按周、价格不要求当日）、`market-cycle`（增量采集，每日两次，迟到不影响）、`macro-snapshot`（周六一次）、`national-team`（每周）、`data-freshness`（按实际运行时刻推算，迟到不误报）。
+未纳入：`dcf-prefill`（基本面按周、价格不要求当日）、`market-cycle`（增量采集，每日两次，迟到不影响）、`national-team`（每周）、`data-freshness`（按实际运行时刻推算，迟到不误报）。
 
-**Hobby 计划限制**（[官方](https://vercel.com/docs/cron-jobs/usage-and-pricing)）：每个 cron 每天最多一次（更频繁的表达式会让部署失败）；只保证在指定的**那个小时内**触发（`0 8` 可能是 08:00–08:59 任一时刻），所以上表按「整小时窗口都可接受」选档、分钟一律写 0。Pro 计划精确到分钟。每项目 100 个 cron，本项目用 7 个（5 个派发工作流 + 候选池每日提醒邮件 + 每周变化摘要）。Vercel 不重试失败的调用，也可能偶尔重复调用；cron 只在 Production 部署上运行。
+**Hobby 计划限制**（[官方](https://vercel.com/docs/cron-jobs/usage-and-pricing)）：每个 cron 每天最多一次（更频繁的表达式会让部署失败）；只保证在指定的**那个小时内**触发（`0 8` 可能是 08:00–08:59 任一时刻），所以上表按「整小时窗口都可接受」选档、分钟一律写 0。Pro 计划精确到分钟。每项目 100 个 cron，本项目用 8 个（6 个派发工作流 + 候选池每日提醒邮件 + 每周变化摘要）。Vercel 不重试失败的调用，也可能偶尔重复调用；cron 只在 Production 部署上运行。
 
 **重复运行的处理**（GitHub `schedule` 保留为兜底，未删除）：
 
@@ -358,3 +359,30 @@ PY
 - 手动触发：`launchctl kickstart gui/$(id -u)/com.businessweb.szse-refresh`
 - 卸载：`launchctl bootout gui/$(id -u)/com.businessweb.szse-refresh && rm ~/Library/LaunchAgents/com.businessweb.szse-refresh.plist && rm -rf ~/.businessweb-szse`
 - 两融数据 T+1 早上公布，周五数据下周一才有；成交额基准只认已完整结束的一周（周日之后）。
+
+
+## Cboe Put/Call（2026-11-17 新增）
+
+- 页面：`/monitor?tab=us` 与温度总览的「杠杆与资金」。指标是 Cboe 全产品期权成交量 **Put÷Call**，不是账户盈亏比、持仓比或独立交易信号；只作背景，不打阶段分。
+- 来源：2006-11 至 2019-10 使用官方 `totalpc.csv`；2019-10 起由官方每日统计页 `?dt=YYYY-MM-DD` 取每月最后可得交易日，属于月度抽样而非月均。最新日值与全产品 Call/Put 成交量交叉核对。
+- 日常更新：`npm run macro:update`；自动为工作日 UTC 22:00 Vercel Cron 派发 `macro-snapshot.yml`（GitHub `30 22` 兜底）+ 周六 UTC 06:00。失败沿用快照原值及原日期。
+- 历史补建／修复：`npm run macro:putcall-history`。任一月份无有效交易日、档案覆盖不足或最新值未发布都会停止，不写半截历史。前端实时刷新若返回较短 `long`，保留原快照长历史。
+- 校验：日期合法、Call>0、Put≥0、Total=Call+Put、官方比率与 Put÷Call 的四舍五入值一致。数据源仍受 Cboe 网站条款约束，公开可取不等于开放许可证。
+
+
+## OFR 对冲基金股票多空比（2026-11-17 新增）
+
+- 页面：同上「杠杆与资金」，键名 `hfEquityLs`。公式为 Qualifying Hedge Funds 的股票多头名义敞口 ÷ 空头名义敞口（Form PF / OFR Hedge Fund Monitor）。
+- **不是**高盛/摩根 Prime 客户科技行业多空比，也不是 Cboe Put/Call；只作背景，不打阶段分。
+- 来源：`https://data.financialresearch.gov/hf/v1/series/multifull`，mnemonic `FPF-ASSETCLASS_EQUITIES_LGNE_SUM` 与 `FPF-ASSETCLASS_EQUITIES_SGNE_SUM`；无 API key。
+- 日常更新：随 `npm run macro:update` / `macro-snapshot.yml` 全量重拉；失败则沿用快照旧值。季频且滞后数月属正常。
+- 校验：日期合法、多空两侧同日对齐、两侧名义敞口 > 0。
+
+
+## 股债息差对照序列（2026-11-17 补充）
+
+- 在沪深300主序列之外，新增沪深300中位数 PE 与上证50两条对照；不纳入科创50价格趋势，因为它不是股债息差。
+- 更新入口仍为 `npm run spread:update`。使用 AkShare `stock_ebs_lg`、`stock_index_pe_lg`、`index_zh_daily_sina`、`bond_zh_us_yield_em`；后两者是 1.20.x 的新接口名。
+- 补充序列只有月度 PE：以最近月末的指数÷PE 得到盈利水平并向后沿用，再按每日指数收盘和10年期国债收益率推算日度息差。不是实际每日 PE，也不保证触轨日精确。
+- 页面按指数/口径切换后，当前位置、通道、指数图、事件表和说明同步更新；月度推算限制显示在当前口径下。主序列仍使用上游直接提供的日度股债利差。
+- 写盘前每条序列至少500行，先写临时文件再替换；失败不写入半截数据。

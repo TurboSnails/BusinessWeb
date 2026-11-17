@@ -350,12 +350,12 @@ export function GuideView({ snap, cn, hk = null }: { snap: MacroSnapshot; cn: Ma
         <h3>为什么只看这些</h3>
         <p>宏观指标成百上千，这里只留能回答“风险预算还撑不撑得住”的少数几项：就业和信用最先反映衰退，通胀决定央行能不能救，市场指标描述当下情绪。没有一项能预测拐点，几项同时走坏才值得调整预算。</p>
       </section>
-      <section aria-label="美国指标"><h2 className="macro-h2">美国</h2><GuideTable indicators={INDICATORS} snap={snap} sourceOf={d => d.fred ?? ''} /></section>
+      <section aria-label="美国指标"><h2 className="macro-h2">美国</h2><GuideTable indicators={INDICATORS} snap={snap} sourceOf={d => d.fred ?? d.source ?? ''} /></section>
       {cn && <section aria-label="中国指标"><h2 className="macro-h2">中国</h2><GuideTable indicators={CN_INDICATORS} snap={cn} sourceOf={d => d.source ?? ''} /></section>}
       {hk && <section aria-label="港股指标"><h2 className="macro-h2">港股</h2><GuideTable indicators={HK_INDICATORS} snap={hk} sourceOf={d => d.fred ?? d.source ?? ''} /></section>}
       <section className="macro-card">
         <h3>怎么更新</h3>
-        <p>页面右上角「刷新最新数据」会实时拉取：本地开发时由本机 Node 拉取，线上由 Vercel 函数拉取，某项失败时沿用快照。快照文件由 GitHub Action 每月 8 日自动运行 <code>npm run macro:update</code> 更新，从 FRED、雅虎财经和东方财富数据中心拉取最新数据写入 <code>public/data/</code>，提交后网页自动更新；也可以在 BusinessWeb 目录手动运行。某个数据源失败时会保留上一次的读数。</p>
+        <p>页面右上角「刷新最新数据」会实时拉取：本地开发时由本机 Node 拉取，线上由 Vercel 函数拉取，某项失败时沿用快照。快照文件由 GitHub Action 每周六自动运行 <code>npm run macro:update</code> 更新，从 FRED、雅虎财经、Cboe 和东方财富数据中心拉取最新数据写入 <code>public/data/</code>，提交后网页自动更新；也可以在 BusinessWeb 目录手动运行。某个数据源失败时会保留上一次的读数。</p>
       </section>
     </div>
   )

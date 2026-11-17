@@ -7,7 +7,7 @@ import { cleanup, fireEvent, render, screen, within } from '@testing-library/rea
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 // @ts-ignore 纯 JS 模块
-import { gdpTtm, parseFinraMargin, ratioToGdp } from '../../../server/macro.mjs'
+import { computeEquityLongShort, gdpTtm, parseCboeDaily, parseCboeRatioCsv, parseFinraMargin, parseOfrTimeseries, ratioToGdp } from '../../../server/macro.mjs'
 import Monitor from '../../pages/Monitor'
 import { INDICATORS, percentileOf, toneOf, type MacroSnapshot } from './indicators'
 import { CN_INDICATORS, type CnKey } from './china'
@@ -41,6 +41,27 @@ describe('杠杆数据整理', () => {
 
   it('占 GDP 比例：每月取不晚于该月的最新一期 GDP', () => {
     expect(ratioToGdp([['2026-01-01', 10], ['2026-05-01', 30]], [['2025-10-01', 1000], ['2026-04-01', 1500]])).toEqual([['2026-01-01', 1], ['2026-05-01', 2]])
+  })
+
+  it('Cboe 历史 CSV 校验日期、总量与 Put÷Call 比率', () => {
+    const csv = 'DATE,CALLS,PUTS,TOTAL,P/C Ratio\n1/2/2024,100,65,165,0.65\n1/3/2024,100,65,160,0.65\ninvalid'
+    expect(parseCboeRatioCsv(csv)).toEqual([['2024-01-02', 0.65]])
+    expect(parseCboeRatioCsv('<html>denied</html>')).toEqual([])
+  })
+
+  it('Cboe 日页面交叉核对成交量；非交易日不伪造观测', () => {
+    const html = String.raw`{\"ratios\":[{\"name\":\"TOTAL PUT/CALL RATIO\",\"value\":\"0.94\"}],\"SUM OF ALL PRODUCTS\":[{\"name\":\"VOLUME\",\"call\":3913822,\"put\":3684247}],\"selectedDate\":\"2024-01-02\"}`
+    expect(parseCboeDaily(html)).toEqual({ date: '2024-01-02', value: 0.94 })
+    expect(parseCboeDaily(String.raw`{\"selectedDate\":\"2024-01-06\"}`)).toBeNull()
+    expect(() => parseCboeDaily(html.replace('0.94', '1.94'))).toThrow(/不一致/)
+  })
+
+  it('OFR 多空敞口按同日对齐计算 L/S，丢弃非法与非正值', () => {
+    expect(parseOfrTimeseries([['2026-06-30', 100], ['bad', 1], ['2026-03-31', 0], ['2026-03-31', -1], ['2026-09-30', 50]])).toEqual([['2026-06-30', 100], ['2026-09-30', 50]])
+    expect(computeEquityLongShort(
+      [['2026-03-31', 300], ['2026-06-30', 6194], ['2026-09-30', 100]],
+      [['2026-03-31', 200], ['2026-06-30', 4121]],
+    )).toEqual([['2026-03-31', 1.5], ['2026-06-30', 1.503]])
   })
 })
 
@@ -81,14 +102,21 @@ describe('新旧数据标记', () => {
 describe('杠杆与资金页面', () => {
   it('美国、中国都有杠杆卡：带历史分位和可切换的长历史图', async () => {
     renderAt('/monitor?tab=us')
-    expect((await screen.findAllByText(/处于历史 \d+% 分位/)).length).toBe(5)
+    expect((await screen.findAllByText(/处于历史 \d+% 分位/)).length).toBe(7)
+    const putCall = screen.getByText('期权 Put/Call（Put ÷ Call）').closest('article')!
+    expect(within(putCall).getByText('背景指标，不打分')).toBeTruthy()
+    expect(within(putCall).getByText(/2019 年后历史为月末交易日抽样/)).toBeTruthy()
+    const hfLs = screen.getByText('对冲基金股票多空比（OFR）').closest('article')!
+    expect(within(hfLs).getByText('背景指标，不打分')).toBeTruthy()
+    expect(within(hfLs).getByText(/不是高盛\/摩根 Prime 客户账簿/)).toBeTruthy()
     expect(screen.getByRole('table', { name: '保证金债务 ÷ GDP危机参考读数' }).textContent).toContain('3.00%')
     expect(within(screen.getByRole('table', { name: '客户现金 ÷ 保证金债务危机参考读数' })).getByRole('row', { name: /金融危机.*2009-03/ }).textContent).toContain('143.1%')
     const tab = screen.getAllByRole('button', { name: '全部' })[0]
     fireEvent.click(tab)
     expect(tab.getAttribute('aria-pressed')).toBe('true')
     expect(screen.getAllByRole('img', { name: /1997年至今走势/ }).length).toBe(1)
-    expect(screen.getAllByRole('img', { name: /2016年至今走势/ }).length).toBe(1)
+    expect(screen.getAllByRole('img', { name: /2016年至今走势/ }).length).toBe(2)
+    expect(screen.getAllByRole('img', { name: /2013年至今走势/ }).length).toBe(1)
     cleanup()
     renderAt('/monitor?tab=cn')
     expect((await screen.findAllByText(/处于历史 \d+% 分位/)).length).toBe(CN_INDICATORS.filter(i => i.crowded).length)
