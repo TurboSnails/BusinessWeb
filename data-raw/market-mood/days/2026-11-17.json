@@ -1,0 +1,603 @@
+{
+ "date": "2026-11-17",
+ "amount": {
+  "total": 14672,
+  "sh": 4468,
+  "kcb": 2432,
+  "sz": 3978,
+  "cyb": 3693,
+  "bj": 100
+ },
+ "up": 1325,
+ "down": 4119,
+ "flat": 133,
+ "zt": 37,
+ "dt": 67,
+ "ztReal": 37,
+ "dtReal": 67,
+ "broken": 20,
+ "sealRate": 64.9,
+ "brokenRate": 35.1,
+ "boards": {
+  "b1": 31,
+  "b2": 5,
+  "b3": 1,
+  "b4": 0,
+  "high": 0,
+  "max": 3
+ },
+ "rates": {
+  "r12": 23.8,
+  "r23": 12.5,
+  "r34": 0,
+  "rHigh": 0,
+  "lb": 18.8,
+  "lbPromotion": 9.1
+ },
+ "perf": {
+  "zt": 0.23,
+  "lb": -3.81,
+  "broken": null,
+  "ztRed": 50
+ },
+ "mood": 0.23,
+ "lbStrength": 17,
+ "retreat": 41,
+ "composite": 31,
+ "buckets": {
+  "limitUp": 37,
+  "above7": 34,
+  "from5To7": 34,
+  "from3To5": 131,
+  "from0To3": 1089,
+  "flat": 133,
+  "from0ToMinus3": 2814,
+  "fromMinus3ToMinus5": 771,
+  "fromMinus5ToMinus7": 275,
+  "belowMinus7": 192,
+  "limitDown": 67
+ },
+ "medianPct": -1.31,
+ "suspended": 2,
+ "retreatStocks": [
+  {
+   "code": "300916",
+   "name": "朗特智能",
+   "pct": -4.21,
+   "retreat": 16.31,
+   "sector": ""
+  },
+  {
+   "code": "002905",
+   "name": "金逸影视",
+   "pct": -5.88,
+   "retreat": 15.89,
+   "sector": "影视院线"
+  },
+  {
+   "code": "300652",
+   "name": "雷迪克",
+   "pct": -5.44,
+   "retreat": 13.41,
+   "sector": ""
+  },
+  {
+   "code": "603021",
+   "name": "*ST华鹏",
+   "pct": -3.25,
+   "retreat": 12.66,
+   "sector": ""
+  },
+  {
+   "code": "002086",
+   "name": "东方海洋",
+   "pct": -4.61,
+   "retreat": 12.44,
+   "sector": ""
+  },
+  {
+   "code": "300530",
+   "name": "领湃科技",
+   "pct": -3.2,
+   "retreat": 12.15,
+   "sector": "电池"
+  },
+  {
+   "code": "300829",
+   "name": "金丹科技",
+   "pct": 3.95,
+   "retreat": 11.88,
+   "sector": ""
+  },
+  {
+   "code": "688371",
+   "name": "菲沃泰",
+   "pct": 4.83,
+   "retreat": 11.85,
+   "sector": ""
+  },
+  {
+   "code": "001318",
+   "name": "阳光乳业",
+   "pct": -3.15,
+   "retreat": 11.63,
+   "sector": "饮料乳品"
+  },
+  {
+   "code": "000020",
+   "name": "深华发Ａ",
+   "pct": -1.6,
+   "retreat": 11.6,
+   "sector": "光学光电"
+  },
+  {
+   "code": "601929",
+   "name": "吉视传媒",
+   "pct": -6.76,
+   "retreat": 11.49,
+   "sector": "电视广播"
+  },
+  {
+   "code": "002419",
+   "name": "天虹股份",
+   "pct": -1.11,
+   "retreat": 11.11,
+   "sector": "一般零售"
+  },
+  {
+   "code": "301595",
+   "name": "太力科技",
+   "pct": 2.47,
+   "retreat": 10.71,
+   "sector": ""
+  },
+  {
+   "code": "301010",
+   "name": "晶雪节能",
+   "pct": -2.02,
+   "retreat": 10.34,
+   "sector": ""
+  },
+  {
+   "code": "688691",
+   "name": "灿芯股份",
+   "pct": 7.2,
+   "retreat": 9.73,
+   "sector": ""
+  },
+  {
+   "code": "605068",
+   "name": "明新旭腾",
+   "pct": -1.47,
+   "retreat": 9.65,
+   "sector": ""
+  },
+  {
+   "code": "688168",
+   "name": "安博通",
+   "pct": 2.58,
+   "retreat": 9.15,
+   "sector": ""
+  },
+  {
+   "code": "002356",
+   "name": "鹏飞绿能",
+   "pct": -1.98,
+   "retreat": 8.73,
+   "sector": "一般零售"
+  },
+  {
+   "code": "601188",
+   "name": "龙江交通",
+   "pct": 0.21,
+   "retreat": 8.67,
+   "sector": "铁路公路"
+  },
+  {
+   "code": "688203",
+   "name": "海正生材",
+   "pct": -0.29,
+   "retreat": 8.65,
+   "sector": ""
+  },
+  {
+   "code": "301133",
+   "name": "金钟股份",
+   "pct": 2.13,
+   "retreat": 8.43,
+   "sector": ""
+  },
+  {
+   "code": "688172",
+   "name": "燕东微",
+   "pct": 3.13,
+   "retreat": 8.25,
+   "sector": ""
+  },
+  {
+   "code": "000880",
+   "name": "潍柴重机",
+   "pct": -1.08,
+   "retreat": 8.17,
+   "sector": ""
+  },
+  {
+   "code": "300062",
+   "name": "中能电气",
+   "pct": 7.92,
+   "retreat": 8.1,
+   "sector": ""
+  },
+  {
+   "code": "000156",
+   "name": "华数传媒",
+   "pct": -9.95,
+   "retreat": 7.85,
+   "sector": "电视广播"
+  },
+  {
+   "code": "688323",
+   "name": "瑞华泰",
+   "pct": 0.24,
+   "retreat": 7.82,
+   "sector": ""
+  },
+  {
+   "code": "301697",
+   "name": "贝特利",
+   "pct": 0.22,
+   "retreat": 7.82,
+   "sector": ""
+  },
+  {
+   "code": "688663",
+   "name": "新风光",
+   "pct": 0.96,
+   "retreat": 7.67,
+   "sector": ""
+  },
+  {
+   "code": "300201",
+   "name": "海伦哲",
+   "pct": 0.32,
+   "retreat": 7.66,
+   "sector": ""
+  },
+  {
+   "code": "920202",
+   "name": "安达股份",
+   "pct": 1.67,
+   "retreat": 7.56,
+   "sector": ""
+  },
+  {
+   "code": "002148",
+   "name": "北纬科技",
+   "pct": -7.31,
+   "retreat": 7.54,
+   "sector": "通信服务"
+  },
+  {
+   "code": "000819",
+   "name": "岳阳兴长",
+   "pct": -10,
+   "retreat": 7.52,
+   "sector": "炼化及贸"
+  },
+  {
+   "code": "002989",
+   "name": "中天精装",
+   "pct": 2.11,
+   "retreat": 7.32,
+   "sector": ""
+  },
+  {
+   "code": "600156",
+   "name": "华升股份",
+   "pct": 2.8,
+   "retreat": 7.27,
+   "sector": ""
+  },
+  {
+   "code": "002682",
+   "name": "龙洲股份",
+   "pct": 1.32,
+   "retreat": 7.27,
+   "sector": ""
+  },
+  {
+   "code": "603823",
+   "name": "百合花",
+   "pct": 2.76,
+   "retreat": 7.26,
+   "sector": "化学制品"
+  },
+  {
+   "code": "300905",
+   "name": "宝丽迪",
+   "pct": 7.74,
+   "retreat": 7.25,
+   "sector": ""
+  },
+  {
+   "code": "603983",
+   "name": "丸美生物",
+   "pct": 2.77,
+   "retreat": 7.15,
+   "sector": "化妆品"
+  },
+  {
+   "code": "688392",
+   "name": "骄成超声",
+   "pct": 0.22,
+   "retreat": 7.04,
+   "sector": ""
+  },
+  {
+   "code": "688233",
+   "name": "神工股份",
+   "pct": 1.38,
+   "retreat": 7.03,
+   "sector": ""
+  },
+  {
+   "code": "002388",
+   "name": "新亚制程",
+   "pct": 1.95,
+   "retreat": 7,
+   "sector": ""
+  }
+ ],
+ "vane": [
+  {
+   "sector": "IT服务Ⅱ",
+   "count": 3,
+   "stocks": [
+    {
+     "code": "600936",
+     "name": "北投科技",
+     "boards": 2
+    },
+    {
+     "code": "600410",
+     "name": "华胜天成",
+     "boards": 1
+    },
+    {
+     "code": "002771",
+     "name": "真视通",
+     "boards": 1
+    }
+   ]
+  },
+  {
+   "sector": "环保设备",
+   "count": 3,
+   "stocks": [
+    {
+     "code": "300786",
+     "name": "国林科技",
+     "boards": 1
+    },
+    {
+     "code": "603324",
+     "name": "盛剑科技",
+     "boards": 1
+    },
+    {
+     "code": "301288",
+     "name": "清研环境",
+     "boards": 1
+    }
+   ]
+  }
+ ],
+ "ladder": [
+  {
+   "boards": 3,
+   "stocks": [
+    {
+     "code": "002685",
+     "name": "华东重机",
+     "sector": "工程机械"
+    }
+   ]
+  },
+  {
+   "boards": 2,
+   "stocks": [
+    {
+     "code": "000533",
+     "name": "顺钠股份",
+     "sector": "电网设备"
+    },
+    {
+     "code": "000521",
+     "name": "长虹美菱",
+     "sector": "白色家电"
+    },
+    {
+     "code": "600936",
+     "name": "北投科技",
+     "sector": "IT服务Ⅱ"
+    },
+    {
+     "code": "002861",
+     "name": "瀛通通讯",
+     "sector": "消费电子"
+    },
+    {
+     "code": "002959",
+     "name": "小熊电器",
+     "sector": "小家电"
+    }
+   ]
+  }
+ ],
+ "weight": {
+  "indices": [
+   {
+    "symbol": "sh000001",
+    "name": "上证指数",
+    "price": 3584.58,
+    "pct": -0.5
+   },
+   {
+    "symbol": "sz399001",
+    "name": "深证成指",
+    "price": 10638.52,
+    "pct": -0.49
+   },
+   {
+    "symbol": "sz399006",
+    "name": "创业板指",
+    "price": 2292.2,
+    "pct": -1.2
+   },
+   {
+    "symbol": "sh000688",
+    "name": "科创50",
+    "price": 1221.19,
+    "pct": 0.62
+   },
+   {
+    "symbol": "sh000300",
+    "name": "沪深300",
+    "price": 3976.46,
+    "pct": -0.08
+   },
+   {
+    "symbol": "sh000016",
+    "name": "上证50",
+    "price": 2768.36,
+    "pct": 0.06
+   }
+  ],
+  "stocks": [
+   {
+    "code": "600519",
+    "name": "贵州茅台",
+    "pct": 0.261,
+    "amount": 51
+   },
+   {
+    "code": "300750",
+    "name": "宁德时代",
+    "pct": -0.832,
+    "amount": 78
+   },
+   {
+    "code": "600036",
+    "name": "招商银行",
+    "pct": 0.115,
+    "amount": 32
+   },
+   {
+    "code": "601318",
+    "name": "中国平安",
+    "pct": 0,
+    "amount": 29
+   },
+   {
+    "code": "601398",
+    "name": "工商银行",
+    "pct": 0.11,
+    "amount": 31
+   },
+   {
+    "code": "601939",
+    "name": "建设银行",
+    "pct": 0.326,
+    "amount": 18
+   },
+   {
+    "code": "601288",
+    "name": "农业银行",
+    "pct": 0.264,
+    "amount": 27
+   },
+   {
+    "code": "601988",
+    "name": "中国银行",
+    "pct": 0.683,
+    "amount": 17
+   },
+   {
+    "code": "601857",
+    "name": "中国石油",
+    "pct": -0.561,
+    "amount": 19
+   },
+   {
+    "code": "600028",
+    "name": "中国石化",
+    "pct": 0.856,
+    "amount": 13
+   },
+   {
+    "code": "600900",
+    "name": "长江电力",
+    "pct": 0.361,
+    "amount": 28
+   },
+   {
+    "code": "601088",
+    "name": "中国神华",
+    "pct": -0.178,
+    "amount": 13
+   },
+   {
+    "code": "600030",
+    "name": "中信证券",
+    "pct": 0,
+    "amount": 18
+   },
+   {
+    "code": "601166",
+    "name": "兴业银行",
+    "pct": 0.298,
+    "amount": 20
+   },
+   {
+    "code": "600276",
+    "name": "恒瑞医药",
+    "pct": -0.75,
+    "amount": 20
+   },
+   {
+    "code": "600887",
+    "name": "伊利股份",
+    "pct": 0.652,
+    "amount": 18
+   },
+   {
+    "code": "000858",
+    "name": "五 粮 液",
+    "pct": 0.38,
+    "amount": 14
+   },
+   {
+    "code": "000333",
+    "name": "美的集团",
+    "pct": 0.701,
+    "amount": 33
+   },
+   {
+    "code": "000651",
+    "name": "格力电器",
+    "pct": 1.27,
+    "amount": 26
+   },
+   {
+    "code": "002594",
+    "name": "比亚迪",
+    "pct": -0.174,
+    "amount": 15
+   }
+  ],
+  "avg": 0.19
+ },
+ "moodStatus": "不活跃",
+ "zone": "中性",
+ "comment": "上涨 1325 家、下跌 4119 家，普跌；涨停 37 家、跌停 67 家，封板率 64.9%；沪深京成交 14672 亿，沪深较上一交易日缩量 273 亿；最高 3 板，连板晋级率 9.1%；昨日涨停今日平均 +0.23%；短线情绪不活跃，综合强度中性。"
+}

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
-  ArrowRight, BookOpen, Building2, Calculator, Calendar, CalendarCheck, CalendarClock, ChartLine, ChevronDown, Factory, Globe,
+  Activity, ArrowRight, BookOpen, Building2, Calculator, Calendar, CalendarCheck, CalendarClock, ChartLine, ChevronDown, Factory, Globe,
   Gauge, Grid3x3, Landmark, ListChecks, PieChart, Rocket, RotateCw, Sparkles, Thermometer, TrendingUp, type LucideIcon,
 } from 'lucide-react'
 import { INVEST_GROUPS, type HubGroup, type HubLink } from '../data/siteMap'
@@ -18,6 +18,7 @@ const ICONS: Record<string, LucideIcon> = {
   '/sector-rotation': RotateCw,
   '/daily-analysis': Calendar,
   '/limit-up-analysis': TrendingUp,
+  '/market-mood': Activity,
   '/industry-landscape': Factory,
   '/future-trends': Rocket,
   '/research-notes': Building2,
@@ -50,14 +51,14 @@ function Card({ l }: { l: HubLink }): JSX.Element {
 }
 
 /** 卡片组：主入口是卡片；次要入口（minor）收进组内折叠区 */
-function CardGroup({ g, step, foldTitle }: { g: HubGroup; step: string; foldTitle?: string }): JSX.Element {
+function CardGroup({ g, step, foldTitle }: { g: HubGroup; step?: string; foldTitle?: string }): JSX.Element {
   const titleId = `invest-${g.id}-title`
   const main = g.links.filter(l => !l.minor)
   const minor = g.links.filter(l => l.minor)
   return (
     <section className="inv-group" aria-labelledby={titleId}>
       <div className="inv-group__head">
-        <span className="inv-group__step" aria-hidden="true">{step}</span>
+        {step && <span className="inv-group__step" aria-hidden="true">{step}</span>}
         <h2 id={titleId}>{g.title}</h2>
         {g.hint && <p className="inv-group__hint">{g.hint}</p>}
       </div>
@@ -147,6 +148,9 @@ export default function InvestHub(): JSX.Element {
       </section>
 
       <CardGroup g={group('tools')} step="4" />
+
+      {/* 三方平台：参照第三方 App 做的页面，不属于 1–4 的流程，不编号 */}
+      <CardGroup g={group('third-party')} />
 
       <p className="inv-related">
         <span className="inv-related__label">{related.title}</span>

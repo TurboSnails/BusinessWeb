@@ -42,7 +42,7 @@ describe('INVEST_GROUPS', () => {
       '/investment-strategy', '/investment-targets', '/limit-up-analysis', '/daily-analysis',
       '/mainland-investment-targets',
       '/money-freedom', '/monitor', '/pulse', '/research-notes', '/earnings',
-      '/sector-rotation', '/trading-philosophy', '/valuation',
+      '/sector-rotation', '/trading-philosophy', '/valuation', '/market-mood',
     ].sort())
     expect(new Set(all).size).toBe(all.length)
   })
@@ -54,7 +54,7 @@ describe('INVEST_GROUPS', () => {
   })
 
   it('分组按投资流程：规则 → 观察盘 → 分析筛选 → 候选池 → 工具与参考 → 相关，已舍弃垫底', () => {
-    expect(INVEST_GROUPS.map(g => g.id)).toEqual(['rules', 'watch', 'research', 'candidates', 'tools', 'related', 'archived'])
+    expect(INVEST_GROUPS.map(g => g.id)).toEqual(['rules', 'watch', 'research', 'candidates', 'tools', 'third-party', 'related', 'archived'])
     expect(INVEST_GROUPS.slice(0, 5).map(g => g.title)).toEqual(['规则', '观察盘', '分析筛选', '候选池', '工具与参考'])
   })
 
@@ -76,6 +76,7 @@ describe('INVEST_GROUPS', () => {
   it('候选池独立一组；工具与参考放三件工具和 ETF 流派地图；AI Skills 在「相关」', () => {
     expect(paths('candidates')).toEqual(['/candidates', '/radar'])
     expect(paths('tools')).toEqual(['/invest/comprehensive-valuation', '/invest/ai-token-economics', '/invest/fundamental-quant', '/valuation', '/dcf', '/grid-trading', '/money-freedom', '/invest/etf', '/industry-etf', '/notes', '/invest/bond-fund-report'])
+    expect(INVEST_GROUPS.find(g => g.id === 'third-party')!.links.map(l => [l.path, l.label])).toEqual([['/market-mood', '开盘啦']])
     const related = INVEST_GROUPS.find(g => g.id === 'related')!
     expect(related.links.map(l => [l.path, l.label])).toEqual([['/ai/ai-skills', 'AI 投研 Skills']])
   })
