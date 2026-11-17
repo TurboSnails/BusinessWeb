@@ -6,7 +6,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import KplDaban from './KplDaban'
 import { dabanFixture } from '../../features/kpl-daban/fixtures'
-import { asKplDaban } from '../../features/kpl-daban/model'
+import { asHistoryExport, asKplDaban, searchHistory } from '../../features/kpl-daban/model'
 
 const renderPage = () => render(<MemoryRouter initialEntries={['/market-mood/daban']}><KplDaban /></MemoryRouter>)
 const stub = (body: unknown, status = 200) => vi.stubGlobal('fetch', vi.fn(async () => ({ ok: status === 200, status, json: async () => body })))
@@ -112,10 +112,75 @@ describe('数据模型', () => {
   })
 
   it('样式约束：页面与组件里没有内联样式和硬编码颜色', () => {
-    for (const f of ['KplDaban.tsx', '../../features/kpl-daban/StockTable.tsx']) {
+    for (const f of ['KplDaban.tsx', '../../features/kpl-daban/StockTable.tsx', '../../features/kpl-daban/HistorySearch.tsx']) {
       const src = readFileSync(resolve(__dirname, f), 'utf8')
       expect(src).not.toMatch(/style=\{\{/)
       expect(src).not.toMatch(/#[0-9a-fA-F]{3,6}\b|rgba?\(/)
     }
+  })
+})
+
+const historyExport = () => ({
+  version: 1, from: '2026-11-13', to: '2026-11-17', fullFrom: '2026-11-17',
+  stocks: { '000001': ['高标甲', '工程机械'], '000002': ['换手乙', '算力'], '600003': ['银行丙', null] },
+  days: [
+    ['2026-11-13', 1, [['000001', 1], ['600003', 1]]],
+    ['2026-11-16', 1, [['000001', 2]]],
+    ['2026-11-17', 0, [['000001', 3], ['000002', 1]]],
+  ],
+})
+const stubByUrl = (map: Record<string, unknown>) => vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+  const key = Object.keys(map).find(k => String(url).includes(k))
+  return key ? { ok: true, status: 200, json: async () => map[key] } : { ok: false, status: 404, json: async () => null }
+}))
+
+describe('题材要点与涨停历史检索', () => {
+  it('涨停表可展开 F10 题材要点，写明是公司资料、不是当日涨停原因', async () => {
+    const f = dabanFixture()
+    ;(f.zt[1] as Record<string, unknown>).topics = { at: '2026-11-18', points: [{ c: '主营业务', k: '算力租赁', t: '公司提供算力租赁服务。' }] }
+    stubByUrl({ 'kpl-daban.json': f })
+    renderPage()
+    const table = await screen.findByRole('region', { name: '涨停个股' })
+    expect(within(table).queryByRole('button', { name: '高标甲 题材' })).toBeNull() // 没有要点的不显示按钮
+    const btn = within(table).getByRole('button', { name: '换手乙 题材' })
+    fireEvent.click(btn)
+    expect(btn.getAttribute('aria-expanded')).toBe('true')
+    expect(within(table).getByText('算力租赁')).toBeTruthy()
+    expect(within(table).getByText(/非当日涨停原因；2026-11-18 抓取/)).toBeTruthy()
+    fireEvent.click(btn)
+    expect(within(table).queryByText('算力租赁')).toBeNull()
+  })
+
+  it('按名称 / 代码 / 行业 / 日期检索历次涨停与连板数', async () => {
+    stubByUrl({ 'kpl-daban.json': dabanFixture(), 'kpl-daban-history.json': historyExport() })
+    renderPage()
+    const box = await screen.findByRole('searchbox', { name: /搜索涨停历史/ })
+    expect(screen.getByText(/输入名称、代码或行业/)).toBeTruthy()
+    fireEvent.change(box, { target: { value: '工程' } })
+    const hit = screen.getByRole('listitem', { name: '高标甲 涨停 3 次' })
+    expect(hit.textContent).toContain('11-17 3连板')
+    expect(hit.textContent).toContain('11-13 首板')
+    fireEvent.change(box, { target: { value: '' } })
+    fireEvent.change(screen.getByLabelText('按涨停日期筛选'), { target: { value: '2026-11-17' } })
+    expect(screen.getByText(/找到 2 只股票/)).toBeTruthy()
+    fireEvent.change(screen.getByLabelText('按涨停日期筛选'), { target: { value: '2026-11-15' } })
+    expect(screen.getByText(/2026-11-15 没有记录/)).toBeTruthy()
+  })
+
+  it('涨停历史文件缺失时提示尚未生成', async () => {
+    stubByUrl({ 'kpl-daban.json': dabanFixture() })
+    renderPage()
+    expect(await screen.findByText('涨停历史尚未生成。')).toBeTruthy()
+  })
+
+  it('检索函数：行业缺失不报错，排序按涨停次数', () => {
+    const h = asHistoryExport(historyExport())!
+    expect(searchHistory(h, '')).toEqual([])
+    expect(searchHistory(h, '6000').map(s => s.code)).toEqual(['600003'])
+    expect(searchHistory(h, '', '2026-11-17').map(s => s.code)).toEqual(['000001', '000002'])
+    expect(searchHistory(h, '证券')).toEqual([])
+    expect(searchHistory(h, '算力').map(s => s.code)).toEqual(['000002'])
+    expect(asHistoryExport({ version: 2 })).toBeNull()
+    expect(asKplDaban(dabanFixture())!.zt[0].topics).toBeNull()
   })
 })

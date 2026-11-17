@@ -7,8 +7,9 @@ import { Callout, Card, EmptyState, Page, PageDataFreshness, Segmented } from '.
 import { PageTitle } from '../../components/ui/PageTabs'
 import KplTabs, { KPL_DISCLAIMER } from '../../features/market-mood/KplTabs'
 import MoodChart from '../../features/market-mood/MoodChart'
-import { asKplDaban, METHOD, type AuctionRow, type DtRow, type HistoryDay, type KplDaban as Data, type NewRow, type TouchedRow, type ZbRow, type ZtRow } from '../../features/kpl-daban/model'
+import { asKplDaban, METHOD, type Topics, type AuctionRow, type DtRow, type HistoryDay, type KplDaban as Data, type NewRow, type TouchedRow, type ZbRow, type ZtRow } from '../../features/kpl-daban/model'
 import StockTable, { money, num, pct, streakLabel, tone, type Col } from '../../features/kpl-daban/StockTable'
+import HistorySearch from '../../features/kpl-daban/HistorySearch'
 import '../../styles/market-mood.css'
 import '../../styles/kpl-daban.css'
 
@@ -108,6 +109,19 @@ const GENE_COLS: Array<Col<ZtRow>> = [
   { key: 'lb', label: '连板率', num: true, render: r => (r.gene ? <>{pct(r.gene.lbRate, 1, false)}<small>{r.gene.lbBase ? ratio(r.gene.lb, r.gene.lbBase) : ''}</small></> : '—'), sort: r => r.gene?.lbRate ?? null },
 ]
 
+/** 展开行：F10 题材要点 */
+function topicsView(t: Topics | null): React.ReactNode | null {
+  if (!t) return null
+  return (
+    <div className="kd-topics">
+      <p className="kd-topics__src">东方财富 F10 核心题材（公司资料，非当日涨停原因；{t.at} 抓取）</p>
+      {t.points.length ? (
+        <ul>{t.points.map(p => <li key={`${p.c}-${p.k}`}><b>{p.k}</b><small>{p.c}</small><span>{p.t}</span></li>)}</ul>
+      ) : <p className="kd-topics__src">F10 资料里没有主营业务、公司事项或核心竞争力要点。</p>}
+    </div>
+  )
+}
+
 /* ---------- 顶部汇总 ---------- */
 function Summary({ d }: { d: Data }): JSX.Element {
   const s = d.summary
@@ -144,7 +158,7 @@ function Lists({ d }: { d: Data }): JSX.Element {
   const counts: Record<View, number> = { auction: d.auction.length, zt: d.zt.length, zb: d.zb.length, dt: d.dt.length, new: d.newStocks.length, natural: d.zt.filter(r => r.natural).length, touched: d.touched.length }
   const body: Record<View, [React.ReactNode, string]> = {
     auction: [<StockTable key="a" label="竞价：昨日涨停股今日开盘" rows={d.auction} cols={AUCTION_COLS} initial={{ key: 'open', dir: 'desc' }} empty="昨日没有涨停股记录" />, METHOD.auction],
-    zt: [<StockTable key="z" label="涨停个股" rows={d.zt} cols={ZT_COLS} initial={{ key: 'boards', dir: 'desc' }} />, METHOD.zt],
+    zt: [<StockTable key="z" label="涨停个股" rows={d.zt} cols={ZT_COLS} initial={{ key: 'boards', dir: 'desc' }} expand={r => topicsView(r.topics)} expandLabel="题材" />, `${METHOD.zt} 点名称旁的「题材」查看公司 F10 题材要点（公司资料，不是当日涨停原因）。`],
     zb: [<StockTable key="b" label="炸板个股" rows={d.zb} cols={ZB_COLS} initial={{ key: 'first', dir: 'asc' }} />, METHOD.zb],
     dt: [<StockTable key="d" label="跌停个股" rows={d.dt} cols={DT_COLS} initial={{ key: 'days', dir: 'desc' }} />, METHOD.dt],
     new: [<StockTable key="n" label="新股" rows={d.newStocks} cols={NEW_COLS} initial={{ key: 'list', dir: 'desc' }} />, METHOD.newStocks],
@@ -221,9 +235,10 @@ function DabanBody({ d }: { d: Data }): JSX.Element {
       <Summary d={d} />
       <Lists d={d} />
       <Genes d={d} />
+      <HistorySearch asOf={d.asOf} />
       <Trend d={d} />
       <Callout title="口径与来源">
-        <p>{d.note}</p>
+        <p>{d.note} {METHOD.topics}{d.f10 ? `当日 ${d.zt.length} 只涨停股中 ${d.f10.cached} 只有题材要点。` : ''}</p>
         <p>来源：{d.sources.map((s, i) => <React.Fragment key={s.id}>{i ? '、' : ''}<a href={s.url} target="_blank" rel="noreferrer">{s.label}</a></React.Fragment>)}。另见 <Link to="/market-mood">市场情绪</Link>、<Link to="/limit-up-analysis">涨停板块</Link>。</p>
       </Callout>
     </>
