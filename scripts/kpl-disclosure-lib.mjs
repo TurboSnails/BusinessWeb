@@ -25,6 +25,30 @@ export function checkComplete(rows, count, label) {
   return rows
 }
 
+/**
+ * 东财数据中心分页取全：fetchPage(page) 返回接口原始 body。
+ * 只有第 1 页可以「返回数据为空」（code 9201，表示确实没有数据）；第 2 页起再返回为空说明数据在翻页途中变化或接口抖动，
+ * 直接抛错（由调用方放弃本节 / 本次发布），不能拿已取到的半张表或空表当结果。取完后行数必须等于报表给出的总数。
+ */
+export async function paginate(fetchPage, label, maxPages = 200) {
+  const rows = []
+  let count = null, pages = null
+  for (let page = 1; ; page++) {
+    const body = await fetchPage(page)
+    if (body?.code === 9201 || (body?.success === false && /为空/.test(body?.message ?? ''))) {
+      if (page === 1) return []
+      throw new Error(`${label} 第 ${page} 页返回为空（已取 ${rows.length}/${count}）`)
+    }
+    if (!body?.success || !Array.isArray(body?.result?.data)) throw new Error(`${label} 返回异常：${body?.message ?? '无结果'}`)
+    count ??= body.result.count
+    pages ??= body.result.pages
+    rows.push(...body.result.data)
+    if (page >= pages) break
+    if (page >= maxPages) throw new Error(`${label} 页数过多`)
+  }
+  return checkComplete(rows, count, label)
+}
+
 /** 板块：main 沪深主板 / gem 创业板 / star 科创板 / bj 北交所 */
 export function boardOf(code) {
   const c = String(code)
@@ -262,9 +286,34 @@ export function perfAfter(notice, kline, asOf) {
   const t1 = isTradingDay(notice) ? notice : nextTradingDay(notice)
   if (t1 > asOf) return { start: t1, base: null, d1: null, d3: null, d5: null }
   const base = prevTradingDay(t1)
-  const idx = kline.findIndex((k) => k.date === base)
-  const at = (k) => { if (idx < 0) return null; const x = kline[idx + k]; return x && x.date <= asOf ? round((x.close / kline[idx].close - 1) * 100, 2) : null }
+  // 按确切交易日取价：第 k 日 = 基准日之后第 k 个交易日；那天没有收盘（停牌或存档缺失）就是 null，不能顺延用下一条记录
+  const close = new Map(kline.map((k) => [k.date, k.close]))
+  const b = close.get(base)
+  const days = nextTradingDays(base, 5)
+  const at = (k) => {
+    const d = days[k - 1], c = close.get(d)
+    return d > asOf || b === undefined || b === null || b <= 0 || c === undefined || c === null ? null : round((c / b - 1) * 100, 2)
+  }
   return { start: t1, base, d1: at(1), d3: at(3), d5: at(5) }
+}
+
+/** 除权除息日（RPT_SHAREBONUS_DET 的 EX_DIVIDEND_DATE，含送转与现金分红）：code → 落在 [from, to] 内的日期 */
+export function exDividendDates(rows, from, to) {
+  const out = new Map()
+  for (const r of rows) {
+    const d = day(r?.EX_DIVIDEND_DATE)
+    if (!isCode(r?.SECURITY_CODE) || !d || d < from || d > to) continue
+    const list = out.get(String(r.SECURITY_CODE)) ?? out.set(String(r.SECURITY_CODE), []).get(String(r.SECURITY_CODE))
+    if (!list.includes(d)) list.push(d)
+  }
+  return out
+}
+/** 东财 push2his 的 secid：沪市 A 股（6 开头）1.，深市与北交所（含 92 开头）0. */
+export const secidOf = (code) => `${/^6/.test(String(code)) ? 1 : 0}.${code}`
+/** push2his 前复权日 K（fields2=f51,f53）→ [{date, close}]；必须是请求的那只股票 */
+export function parseAdjKline(body, code) {
+  if (String(body?.data?.code ?? '') !== String(code)) throw new Error(`${code} 前复权 K 线为空`)
+  return parseKline(body)
 }
 
 /** 预约披露：未来交易日日历 + 最近一期披露进度 */
@@ -275,7 +324,9 @@ export function buildCalendar(rows, asOf, n = 10) {
   for (const r of rows) {
     if (!isAShareType(r)) continue
     const d = day(r.APPOINT_PUBLISH_DATE)
-    if (!d || d < from || d > to || String(r.IS_PUBLISH) === '1') continue
+    // 已披露只认实际披露日不晚于 asOf 的（指定 asOf 为过去某天时，之后才披露的仍算当时未披露）
+    const actual = day(r.ACTUAL_PUBLISH_DATE)
+    if (!d || d < from || d > to || (String(r.IS_PUBLISH) === '1' && (!actual || actual <= asOf))) continue
     const list = by.get(d) ?? by.set(d, []).get(d) // 非交易日（周末）预约也单独列出
     list.push({ code: String(r.SECURITY_CODE), name: str(r.SECURITY_NAME_ABBR), period: day(r.REPORT_DATE), label: str(r.REPORT_TYPE_NAME), change: str(r.APPOINT_CHANGE) || null })
   }
@@ -339,6 +390,26 @@ export function buildHolders(latestRows, decRows, asOf, { minEnd, since, recentD
   }
 }
 
+/**
+ * 股东户数按 asOf 截断：「最新一期」表里公告日晚于 asOf 的个股，换成历次表（older）中公告日不晚于 asOf 的最近一期；
+ * 历次表也没有就不列入（asOf 当时还没有可用记录）。
+ */
+export function boundHolders(latestRows, olderRows, asOf) {
+  const prior = new Map()
+  for (const r of olderRows) {
+    const end = day(r?.END_DATE), notice = day(r?.HOLD_NOTICE_DATE)
+    if (!isCode(r?.SECURITY_CODE) || !end || !notice || notice > asOf) continue
+    const old = prior.get(String(r.SECURITY_CODE))
+    if (!old || end > day(old.END_DATE)) prior.set(String(r.SECURITY_CODE), r)
+  }
+  return latestRows.flatMap((r) => {
+    const notice = day(r?.HOLD_NOTICE_DATE)
+    if (!notice || notice <= asOf) return [r]
+    const p = prior.get(String(r.SECURITY_CODE))
+    return p ? [p] : []
+  })
+}
+
 /* ---------------- 大宗交易 ---------------- */
 export const isInst = (name) => String(name ?? '').trim() === '机构专用'
 export function parseBlock(rows) {
@@ -392,12 +463,14 @@ export function buildSurvey(events, asOf, windows = { short: 5, long: 20 }) {
     const by = new Map()
     for (const e of events) {
       if (e.notice < from || e.notice > asOf) continue
-      const x = by.get(e.code) ?? by.set(e.code, { code: e.code, name: e.name, events: 0, orgs: 0, orgsKnown: false, last: e.notice }).get(e.code)
+      const x = by.get(e.code) ?? by.set(e.code, { code: e.code, name: e.name, events: 0, orgs: 0, orgsMissing: 0, last: e.notice }).get(e.code)
       x.events++
-      if (e.orgs !== null) { x.orgs += e.orgs; x.orgsKnown = true }
+      if (e.orgs !== null) x.orgs += e.orgs
+      else x.orgsMissing++
       if (e.notice > x.last) x.last = e.notice
     }
-    return [...by.values()].map(({ orgsKnown, ...x }) => ({ ...x, orgs: orgsKnown ? x.orgs : null })).sort((a, b) => (b.orgs ?? 0) - (a.orgs ?? 0) || b.events - a.events).slice(0, 40)
+    // 接待机构数 = 有家数的调研合计；全部缺失为 null，部分缺失时 orgsMissing 记缺失的调研次数（页面显示为「≥ 合计」）
+    return [...by.values()].map((x) => ({ ...x, orgs: x.orgsMissing === x.events ? null : x.orgs })).sort((a, b) => (b.orgs ?? 0) - (a.orgs ?? 0) || b.events - a.events).slice(0, 40)
   }
   const inLong = events.filter((e) => e.notice >= longDates[0] && e.notice <= asOf)
   return {
@@ -409,3 +482,13 @@ export function buildSurvey(events, asOf, windows = { short: 5, long: 20 }) {
 
 /** 写文件前比较：去掉 generatedAt 后内容相同就不写 */
 export const sameContent = (a, b) => { if (!a || !b) return false; const { generatedAt: _x, ...x } = a; const { generatedAt: _y, ...y } = b; return JSON.stringify(x) === JSON.stringify(y) }
+
+/**
+ * 发布前的完整性判断：某节失败（failed 为节名）且上一份文件是更早日期、该节有内容时放弃发布，保留上一份文件——
+ * 不能用缺节的新文件覆盖完整的旧文件。上一份文件本来就缺这一节（或没有上一份）时可以发布，该节显示暂缺。
+ */
+export function publishDecision(failed, prevOut, asOf) {
+  if (!failed.length) return { ok: true, reason: null }
+  const lost = prevOut && prevOut.asOf !== asOf ? failed.filter((k) => prevOut[k] !== null && prevOut[k] !== undefined) : []
+  return lost.length ? { ok: false, reason: `${lost.join('、')} 失败，上一份文件（${prevOut.asOf}）这些节完整` } : { ok: true, reason: null }
+}

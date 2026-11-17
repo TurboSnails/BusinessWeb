@@ -323,7 +323,7 @@ function BlockCard({ d }: { d: Data }): JSX.Element {
 const surveyItems = [{ id: 'short', label: '近 5 日' }, { id: 'long', label: '近 20 日' }, { id: 'latest', label: '当日公告' }] as const
 type SurveyKey = (typeof surveyItems)[number]['id']
 const surveyCols: Array<Col<SurveyRank>> = [
-  { key: 'orgs', label: '接待机构数', num: true, render: r => (fin(r.orgs) ? `${r.orgs}` : '—'), sort: r => r.orgs },
+  { key: 'orgs', label: '接待机构数', num: true, render: r => (fin(r.orgs) ? `${r.orgsMissing ? '≥' : ''}${r.orgs}` : '—'), sort: r => r.orgs },
   { key: 'events', label: '调研次数', num: true, render: r => `${r.events}`, sort: r => r.events },
   { key: 'last', label: '最近公告', render: r => md(r.last), sort: r => r.last },
 ]
