@@ -1,8 +1,9 @@
-// 第 ② 步：影子运行。每周记录一次冻结名单（universe.json）上「择时＋只认金叉」的状态，只存档，不在网站展示。
-// 输出：data-raw/etf-timing-shadow/<YYYY-MM-DD>.json（同一周重跑覆盖同一文件，以最近交易日命名）。
+// 第 ② 步：影子运行。每个工作日收盘后记录一次冻结名单（universe.json）上「择时＋只认金叉」的状态，只存档，不在网站展示。
+// 输出：data-raw/etf-timing-shadow/<YYYY-MM-DD>.json（以最近交易日命名，节假日重跑覆盖同一文件），并刷新 public/data/etf-timing.json（实验页与择时观察邮件读取）。
 // 数据：腾讯前复权日线（GitHub Actions 网络）；单只失败记入 missing，不中断。历史统计，不构成投资建议。
 import fs from 'node:fs'
 import { ratioTiming, timingGold } from './strategies.mjs'
+import { publish } from './publish.mjs'
 
 const here = new URL('.', import.meta.url).pathname
 const universe = JSON.parse(fs.readFileSync(here + 'universe.json', 'utf8'))
@@ -41,3 +42,4 @@ const snap = {
 fs.mkdirSync('data-raw/etf-timing-shadow', { recursive: true })
 fs.writeFileSync(`data-raw/etf-timing-shadow/${asOf}.json`, JSON.stringify(snap, null, 1))
 console.log(JSON.stringify({ asOf, timing: snap.timing, summary: snap.summary }))
+console.log(publish())
