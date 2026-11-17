@@ -8,13 +8,22 @@ import { publish } from './publish.mjs'
 const here = new URL('.', import.meta.url).pathname
 const universe = JSON.parse(fs.readFileSync(here + 'universe.json', 'utf8'))
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+// 腾讯对连续请求会返回 HTML 拦截页：退避重试，仍失败再交给第二轮补抓
+async function getJson(url) {
+  for (let attempt = 0; ; attempt++) {
+    try { return await (await fetch(url, { signal: AbortSignal.timeout(20000) })).json() } catch (e) {
+      if (attempt >= 2) throw e
+      await sleep([3000, 10000][attempt])
+    }
+  }
+}
 const sym = (c) => (/^(5|6)/.test(c) ? 'sh' : 'sz') + c
 async function bars(code) {
   const out = new Map(); const end = new Date().getFullYear()
   for (let y = 2010; y <= end; y += 3) {
     const host = y % 2 ? 'https://proxy.finance.qq.com/ifzqgtimg' : 'https://web.ifzq.gtimg.cn'
     const url = `${host}/appstock/app/fqkline/get?param=${sym(code)},day,${y}-01-01,${y + 2}-12-31,1000,qfq`
-    const j = await (await fetch(url, { signal: AbortSignal.timeout(20000) })).json()
+    const j = await getJson(url)
     const d = j?.data?.[sym(code)]; for (const r of d?.qfqday || d?.day || []) out.set(r[0], { date: r[0], open: +r[1], close: +r[2], high: +r[3], low: +r[4] })
     await sleep(400)
   }
@@ -24,14 +33,24 @@ async function bars(code) {
 const [hs300, div, cybEtf] = [await bars('510300'), await bars('510880'), await bars('159915')]
 const tHs = ratioTiming(hs300, div), tCyb = ratioTiming(cybEtf, div)
 const asOf = div.at(-1).date
-const items = [], missing = []
-for (const { code, name } of universe.items) {
-  try {
-    const b = await bars(code); if (b.length < 150) throw new Error('too few ' + b.length)
-    const pick = (r) => ({ holding: r.pos.at(-1) === 1, pending: r.pending ?? null, lastSignal: r.lastSignal ?? null })
-    items.push({ code, name, close: b.at(-1).close, date: b.at(-1).date, hs: pick(timingGold(b, tHs)), cyb: pick(timingGold(b, tCyb)) })
-  } catch (e) { missing.push({ code, error: e.message.slice(0, 80) }) }
+const items = []
+let missing = []
+const pick = (r) => ({ holding: r.pos.at(-1) === 1, pending: r.pending ?? null, lastSignal: r.lastSignal ?? null })
+async function collect(list) {
+  const failed = []
+  for (const { code, name } of list) {
+    try {
+      const b = await bars(code); if (b.length < 150) throw new Error('too few ' + b.length)
+      items.push({ code, name, close: b.at(-1).close, date: b.at(-1).date, hs: pick(timingGold(b, tHs)), cyb: pick(timingGold(b, tCyb)) })
+    } catch (e) { failed.push({ code, name, error: e.message.slice(0, 80) }) }
+  }
+  return failed
 }
+let failed = await collect(universe.items)
+// 第二轮：歇一分钟再补抓失败的（拦截通常是短时限流）
+if (failed.length) { await sleep(60000); failed = await collect(failed) }
+missing = failed.map(({ code, error }) => ({ code, error }))
+items.sort((a, b) => universe.items.findIndex((u) => u.code === a.code) - universe.items.findIndex((u) => u.code === b.code))
 const snap = {
   asOf, generatedAt: new Date().toISOString(), universeVersion: universe.version,
   timing: { hs300Bull: [...tHs.values()].at(-1), cybBull: [...tCyb.values()].at(-1) },
@@ -40,6 +59,10 @@ const snap = {
   note: '影子运行存档：用于事后检验规则，不是买卖指令。',
 }
 fs.mkdirSync('data-raw/etf-timing-shadow', { recursive: true })
-fs.writeFileSync(`data-raw/etf-timing-shadow/${asOf}.json`, JSON.stringify(snap, null, 1))
+const file = `data-raw/etf-timing-shadow/${asOf}.json`
+// 同一数据日期重跑（兜底排程、节假日）时，不用更不完整的结果覆盖已有快照
+const prevN = fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, 'utf8')).summary?.n ?? 0) : -1
+if (items.length >= prevN) fs.writeFileSync(file, JSON.stringify(snap, null, 1))
+else console.log(`保留已有快照：已有 ${prevN} 只，本次只取到 ${items.length} 只`)
 console.log(JSON.stringify({ asOf, timing: snap.timing, summary: snap.summary }))
 console.log(publish())

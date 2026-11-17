@@ -77,7 +77,8 @@ export function composeTimingEmail(d: TimingDigest, site: string): { subject: st
   const list = (xs: SignalLine[]) => [...xs.slice(0, MAX_LIST).map(fmtLine), ...(xs.length > MAX_LIST ? [`另有 ${xs.length - MAX_LIST} 只，见实验页`] : [])]
   if (d.buys.length) sections.push({ title: '新出现的买入信号（规则在下一交易日开盘进场）', lines: list(d.buys) })
   if (d.sells.length) sections.push({ title: '新出现的卖出信号（MACD 死叉）', lines: list(d.sells) })
-  const head = `数据日期 ${d.asOf}（收盘），冻结名单 ${d.n} 只，规则「沪深300择时＋只认金叉」；规则持有中 ${d.holding} / ${d.n} 只。`
+  const scope = d.missing ? `冻结名单 ${d.n + d.missing} 只（本次取到 ${d.n} 只）` : `冻结名单 ${d.n} 只`
+  const head = `数据日期 ${d.asOf}（收盘），${scope}，规则「沪深300择时＋只认金叉」；取到的标的中规则持有 ${d.holding} / ${d.n} 只。`
   const notes = [...(d.complete ? [] : [`数据不完整：缺 ${d.missing} 只，本封只按已取到的判断。`]), TIMING_CAVEAT, TIMING_FOOTER]
   const url = `${site}${TIMING_SITE_PATH}`
   const text = [head, ...sections.map(s => `${s.title}：\n${s.lines.map(l => `- ${l}`).join('\n')}`), notes.join('\n'), `实验页：${url}`].join('\n\n')

@@ -82,6 +82,17 @@ describe('composeTimingEmail', () => {
     expect(m.html).not.toContain('<芯片>')
   })
 
+  it('数据不完整时写明名单总数与实际取到的只数', () => {
+    const base = data()
+    base.latest!.summary.missing = 2
+    base.latest!.complete = false
+    const r = buildTimingDigest(base, '2026-11-14')
+    if (!('digest' in r)) throw new Error('expected digest')
+    const m = composeTimingEmail(r.digest, 'https://x.test')
+    expect(m.text).toContain(`冻结名单 ${r.digest.n + 2} 只（本次取到 ${r.digest.n} 只）`)
+    expect(m.text).toContain('数据不完整：缺 2 只')
+  })
+
   it('翻转写进标题，偏防守时说明不开新仓', () => {
     const base = data()
     base.latest!.items = base.latest!.items.filter(i => i.code === '159915')
