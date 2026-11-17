@@ -1,16 +1,20 @@
 name: ETF timing shadow run
 
-# 第 ② 步：每周六记录一次冻结名单上「择时＋只认金叉」的状态（只存档 data-raw/，不在网站展示，不是买卖指令）。
+# 第 ② 步：每个工作日收盘后记录冻结名单上「择时＋只认金叉」的状态（存档 data-raw/，刷新实验页数据 public/data/etf-timing.json，
+# 供 /lab/etf-timing 与次日早上的择时观察邮件读取；不是买卖指令）。
 on:
   schedule:
-    # 每周六 UTC 08:00（北京时间 16:00），周五已收盘
-    - cron: '0 8 * * 6'
+    # 主触发是 Vercel Cron（vercel.json，UTC 8 点周一至周五 → cron-dispatch）；这里是 GitHub 兜底排程，
+    # 兜底运行时设 SKIP_IF_COMPLETE：当天已有完整快照就直接退出；不完整时补跑，且不会用更少的结果覆盖
+    - cron: '45 8 * * 1-5'
   push:
     branches: [main]
     paths:
       - '.github/workflows/etf-timing-shadow.yml'
       - 'scripts/research/etf-strategy-oos/shadow.mjs'
       - 'scripts/research/etf-strategy-oos/universe.json'
+      - 'scripts/research/etf-strategy-oos/strategies.mjs'
+      - 'scripts/research/etf-strategy-oos/publish.mjs'
   workflow_dispatch:
 
 permissions:
@@ -23,19 +27,21 @@ concurrency:
 jobs:
   shadow:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: Record weekly snapshot
+      - name: Record daily snapshot
+        env:
+          SKIP_IF_COMPLETE: ${{ github.event_name == 'schedule' && '1' || '' }}
         run: node scripts/research/etf-strategy-oos/shadow.mjs
       - name: Commit if changed
         shell: bash
         run: |
           set -euo pipefail
-          git add data-raw/etf-timing-shadow
+          git add data-raw/etf-timing-shadow public/data/etf-timing.json
           if git diff --cached --quiet; then exit 0; fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'

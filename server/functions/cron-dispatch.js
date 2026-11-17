@@ -23,6 +23,8 @@ export const WORKFLOWS = Object.freeze({
   'macro-snapshot.yml': { skipIfSucceededWithinMinutes: 360 },
   // 财报前瞻：每天 UTC 23 点（美股盘后财报已出、亚洲开盘前）；GitHub 兜底排程 23:40
   'earnings-calendar.yml': { skipIfSucceededWithinMinutes: 360 },
+  // ETF 择时影子运行：工作日 A 股收盘后（UTC 8 点 = 北京 16:00–16:59），次日早上的择时观察邮件读取它的产物
+  'etf-timing-shadow.yml': { skipIfSucceededWithinMinutes: 360 },
 })
 
 const ACTIVE = new Set(['queued', 'in_progress', 'waiting', 'requested', 'pending'])

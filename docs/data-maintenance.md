@@ -110,10 +110,11 @@ PEP最新Q3、官方事件日历、8项ETF费用／规则及纳指QQQ持仓代�
 | `0 10 * * 1-5` | `spread-snapshot.yml` | 北京 18:00–18:59 | A 股收盘、中债收益率发布之后（需晚于 09:30 UTC） |
 | `0 22 * * 1-5` | `company-refresh.yml` | 纽约 17:00（冬令时）／18:00（夏令时） | 美股 16:00 收盘后，三地市场当天都已收盘；冬令时收盘是 21:00 UTC，所以不用 21 点档 |
 | `0 22 * * 1-5` | `macro-snapshot.yml` | 同上 | 宏观温度日频指标（VIX/利率/HY/Put/Call 等）阈值约 7 天；周更会过期。与行情刷新同窗，GitHub 兜底 `30 22 * * 1-5`，周六 `0 6 * * 6` 再补一轮 |
+| `0 8 * * 1-5` | `etf-timing-shadow.yml` | 北京 16:00–16:59 | A 股收盘后记录择时影子运行并刷新 `public/data/etf-timing.json`；次日早上的择时观察邮件读取它（GitHub 兜底 `45 8 * * 1-5`） |
 
 未纳入：`dcf-prefill`（基本面按周、价格不要求当日）、`market-cycle`（增量采集，每日两次，迟到不影响）、`national-team`（每周）、`data-freshness`（按实际运行时刻推算，迟到不误报）。
 
-**Hobby 计划限制**（[官方](https://vercel.com/docs/cron-jobs/usage-and-pricing)）：每个 cron 每天最多一次（更频繁的表达式会让部署失败）；只保证在指定的**那个小时内**触发（`0 8` 可能是 08:00–08:59 任一时刻），所以上表按「整小时窗口都可接受」选档、分钟一律写 0。Pro 计划精确到分钟。每项目 100 个 cron，本项目用 8 个（6 个派发工作流 + 候选池每日提醒邮件 + 每周变化摘要）。Vercel 不重试失败的调用，也可能偶尔重复调用；cron 只在 Production 部署上运行。
+**Hobby 计划限制**（[官方](https://vercel.com/docs/cron-jobs/usage-and-pricing)）：每个 cron 每天最多一次（更频繁的表达式会让部署失败）；只保证在指定的**那个小时内**触发（`0 8` 可能是 08:00–08:59 任一时刻），所以上表按「整小时窗口都可接受」选档、分钟一律写 0。Pro 计划精确到分钟。每项目 100 个 cron，本项目用 11 个（8 条派发工作流 + 候选池每日提醒邮件 + 每周变化摘要 + ETF 择时观察邮件）。Vercel 不重试失败的调用，也可能偶尔重复调用；cron 只在 Production 部署上运行。
 
 **重复运行的处理**（GitHub `schedule` 保留为兜底，未删除）：
 
@@ -201,6 +202,20 @@ curl -s -H "Authorization: Bearer $CRON_SECRET" "https://business-web-black.verc
 返回 `week`（周编号与起止日）、`sections`（各节条数）、`summary`（全部条目，含日期、来源、链接）、`notes`（数据缺口）、`subject` / `text`、`alreadySent`、`wouldSend`、`sentLog`。
 
 **关闭**：删掉 `vercel.json` 里 `?weekly=1` 那条 cron 并部署。单测：`npx vitest run src/features/weekly src/components/WeeklyChanges.test.tsx`。
+
+
+## ETF 择时观察邮件（2026-11-17 新增）
+
+**做什么**：每个工作日收盘后记录「沪深300择时＋只认金叉」在冻结名单（76 只）上的状态；次日开盘前，如果出现新的买入/卖出信号或择时状态翻转，发一封观察邮件给本人。规则仍在验证（[TODO](TODO-投资工具优化.md) ①②），邮件写明不是买卖指令，也不推送盘中预估。
+
+**链路**：Vercel cron `0 8 * * 1-5` → `cron-dispatch` → `etf-timing-shadow.yml` 运行 `scripts/research/etf-strategy-oos/shadow.mjs`（腾讯前复权日线）→ 写 `data-raw/etf-timing-shadow/<数据日期>.json` 并刷新 `public/data/etf-timing.json` → 提交后随站点部署。Vercel cron `0 23 * * 1-5`（北京周二至周六 07:00–07:59）调用 `/api/market-data/candidate-alerts-digest?timing=1`（代码 `server/timing-digest.ts`，判断与正文 `src/features/etf-timing/digest.ts`），复用 `CRON_SECRET`、Gmail 环境变量和去重表（`timing|<数据日期>`，kind `digest`，无需迁移）。
+
+**什么时候不发**：没有新信号且择时没翻转（`skipped: "no-changes"`）；快照早于前一个工作日——节假日或采集失败（`skipped: "stale"`）；同一数据日期已发过。
+
+```sh
+# 试运行：返回将要发出的标题与正文，不发信、不写去重表
+curl -s -H "Authorization: Bearer $CRON_SECRET" "https://business-web-black.vercel.app/api/market-data/candidate-alerts-digest?timing=1&dryRun=1"
+```
 
 ## 财报前瞻 earnings-calendar.json（2026-11-14 新增）
 

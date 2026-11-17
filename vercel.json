@@ -26,11 +26,13 @@
   "crons": [
     { "path": "/api/market-data/cron-dispatch?workflow=daily-analysis-snapshot.yml", "schedule": "0 8 * * 1-5" },
     { "path": "/api/market-data/cron-dispatch?workflow=etf-technical.yml", "schedule": "0 8 * * 1-5" },
+    { "path": "/api/market-data/cron-dispatch?workflow=etf-timing-shadow.yml", "schedule": "0 8 * * 1-5" },
     { "path": "/api/market-data/cron-dispatch?workflow=daily-analysis-snapshot.yml", "schedule": "0 10 * * 1-5" },
     { "path": "/api/market-data/cron-dispatch?workflow=spread-snapshot.yml", "schedule": "0 10 * * 1-5" },
     { "path": "/api/market-data/cron-dispatch?workflow=company-refresh.yml", "schedule": "0 22 * * 1-5" },
     { "path": "/api/market-data/cron-dispatch?workflow=macro-snapshot.yml", "schedule": "0 22 * * 1-5" },
     { "path": "/api/market-data/candidate-alerts-digest", "schedule": "0 23 * * 1-5" },
+    { "path": "/api/market-data/candidate-alerts-digest?timing=1", "schedule": "0 23 * * 1-5" },
     { "path": "/api/market-data/cron-dispatch?workflow=earnings-calendar.yml", "schedule": "0 23 * * *" },
     { "path": "/api/market-data/candidate-alerts-digest?weekly=1", "schedule": "0 0 * * 1" }
   ],

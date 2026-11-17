@@ -10,6 +10,7 @@
 // GMAIL_USER、GMAIL_APP_PASSWORD、ALERT_EMAIL_TO。邮箱地址与密钥一律不写日志、不进响应。
 // ?dryRun=1：照常鉴权与判断，返回邮件 JSON，不发信、不写去重表。
 // ?weekly=1：每周变化摘要（server/weekly-digest.ts），同一鉴权、Gmail 与去重表；可与 ?dryRun=1 同用。
+// ?timing=1：ETF 择时每日观察（server/timing-digest.ts），同一鉴权、Gmail 与去重表；可与 ?dryRun=1 同用。
 import { requireCron, type CronLog } from './functions/cron-auth.js'
 import { itemAlerts, type CandidateAlert } from '../src/features/candidates/alertRules.js'
 import { codeKey, MARKET_LABEL, venueOf } from '../src/features/candidates/markets.js'
@@ -17,6 +18,7 @@ import { priceObservations, tradingDaysBetween, VENUE_CURRENCY, type PriceInputs
 import { candidateKey, validCandidatesPayload, type CandidateItem } from '../src/features/candidates/validation.js'
 import { autoDcfKey, parseAutoSummary, type AutoDcf } from '../src/features/dcf/autoDcfSummary.js'
 import { createWeeklyDigest } from './weekly-digest.js'
+import { createTimingDigest } from './timing-digest.js'
 
 type Env = Record<string, string | undefined>
 type FetchLike = (url: string, init?: Record<string, unknown>) => Promise<{ ok: boolean; status: number; json(): Promise<unknown> }>
@@ -244,6 +246,13 @@ export function createCandidateAlertsDigest({ fetchImpl = globalThis.fetch as un
     isLogMissing: error => error instanceof LogUnavailable && error.message === 'missing',
     send: message => sendGmail(env, createTransport, '每周变化摘要', message),
   })
+  const timing = createTimingDigest({
+    env, now, log, site: SITE, logTable: LOG_TABLE,
+    fetchJson: url => fetchJson(fetchImpl, url),
+    repository: () => { const db = supabaseConfig(env); return db ? createRepository(db, fetchImpl) : null },
+    isLogMissing: error => error instanceof LogUnavailable && error.message === 'missing',
+    send: message => sendGmail(env, createTransport, 'ETF 择时观察', message),
+  })
 
   return async function candidateAlertsDigest(req: Request, res: Response): Promise<unknown> {
     if (!requireCron(req, res, { env, log, tag: 'candidate-alerts' })) return
@@ -272,6 +281,8 @@ export function createCandidateAlertsDigest({ fetchImpl = globalThis.fetch as un
     }
     // ?weekly=1：每周变化摘要（Vercel Cron 周一 00:00 UTC），去重键 weekly|YYYY-Www，每周最多一封
     if (['1', 'true'].includes(String(req.query?.weekly ?? ''))) return weekly(res, dryRun)
+    // ?timing=1：ETF 择时每日观察（Vercel Cron 周一至周五 UTC 23 点），去重键 timing|数据日期，有新信号或择时翻转才发
+    if (['1', 'true'].includes(String(req.query?.timing ?? ''))) return timing(res, dryRun)
     const db = supabaseConfig(env)
     if (!db) {
       log.error('[candidate-alerts] SUPABASE_URL / SUPABASE_SECRET_KEY 未配置或无效')
