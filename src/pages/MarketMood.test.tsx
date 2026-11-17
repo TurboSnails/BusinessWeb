@@ -90,3 +90,13 @@ describe('数据模型', () => {
     expect(asMarketMood({ ...moodFixture(), history: [{ date: 'x' }] })).toBeNull()
   })
 })
+
+describe('开盘啦页签', () => {
+  it('五个页签，点击切换到子页面', async () => {
+    stub(moodFixture())
+    renderPage()
+    const tabs = await screen.findByRole('tablist', { name: '开盘啦页签' })
+    expect(within(tabs).getAllByRole('tab').map(t => t.textContent)).toEqual(['市场情绪', '打板', '龙虎榜', '板块题材', '资金'])
+    expect(within(tabs).getByRole('tab', { name: '市场情绪' }).getAttribute('aria-selected')).toBe('true')
+  })
+})
