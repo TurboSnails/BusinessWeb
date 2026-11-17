@@ -3,7 +3,7 @@
 // 同花顺的情绪指数、盘面评分、强弱指数等数值在它的服务器上计算，安装包里没有算法；这里的公式是本站自定，页面上写明口径。
 // 只做盘后统计，不做盘中预测，不构成投资建议。
 import { computeBreadth } from '../server/market-sentiment.mjs'
-import { isST, lin, parseSinaRow } from './market-mood-lib.mjs'
+import { isST, lin, parseSinaRow, prevTradingDay } from './market-mood-lib.mjs'
 
 export const EMO_HOT = 70 // 情绪指数 ≥ 70：贪婪风险区（区间名沿用同花顺 App）
 export const EMO_COLD = 30 // ≤ 30：恐慌机会区；其余为情绪中立区
@@ -31,7 +31,8 @@ export function parsePoolFull(body, date) {
   const d = body?.data
   const qdate = String(d?.qdate ?? '')
   if (body?.rc !== 0 || !d || qdate !== date.replaceAll('-', '') || !Array.isArray(d.pool) || d.tc !== d.pool.length) throw new Error(`股池日期或完整性校验失败（${qdate || '无日期'}）`)
-  const num = (x) => (Number.isFinite(Number(x)) ? Number(x) : null)
+  // null / 空串不能当 0：缺失就是缺失
+  const num = (x) => (x === null || x === undefined || String(x).trim() === '' || !Number.isFinite(Number(x)) ? null : Number(x))
   return d.pool.map((r) => {
     if (!/^\d{6}$/.test(r?.c) || typeof r.n !== 'string') throw new Error('股池字段不完整')
     return {
@@ -46,7 +47,7 @@ export function parsePoolFull(body, date) {
 /** 东财日 K（fields2=f51,f53,f57：日期、收盘、成交额）→ 升序 [{date, close, amount}] */
 export function parseKline(body) {
   if (body?.rc !== 0 || !Array.isArray(body?.data?.klines) || !body.data.klines.length) throw new Error('东财日 K 数据异常')
-  return body.data.klines.map((s) => { const [date, close, amount] = String(s).split(','); return { date, close: Number(close), amount: Number(amount) } })
+  return body.data.klines.map((s) => { const [date, close, amount] = String(s).split(','); return { date, close: close?.trim() ? Number(close) : NaN, amount: amount?.trim() ? Number(amount) : NaN } })
     .filter((r) => /^\d{4}-\d{2}-\d{2}$/.test(r.date) && Number.isFinite(r.close))
     .sort((a, b) => a.date.localeCompare(b.date))
 }
@@ -54,7 +55,7 @@ export function parseKline(body) {
 /** 沪深两市成交额（亿元）：上证综指 + 深证综指 日 K 成交额 */
 export function hsAmounts(sh, sz) {
   const szMap = new Map(sz.map((r) => [r.date, r.amount]))
-  return sh.filter((r) => szMap.has(r.date) && Number.isFinite(r.amount)).map((r) => ({ date: r.date, total: Math.round((r.amount + szMap.get(r.date)) / 1e8) }))
+  return sh.filter((r) => Number.isFinite(szMap.get(r.date)) && Number.isFinite(r.amount)).map((r) => ({ date: r.date, total: Math.round((r.amount + szMap.get(r.date)) / 1e8) }))
 }
 
 /** Wilder RSI：period 日平均涨幅 ÷（平均涨幅 + 平均跌幅）× 100；返回与 closes 等长的数组（前 period 个为 null） */
@@ -276,8 +277,9 @@ export function saveZtCodes(store, date, zt, keep = 15) {
 
 /** 状态文件：按日期保存最近几天的封成比；取早于 date 的最近一天 */
 export function pickPrevFcb(store, date) {
-  const key = Object.keys(store?.days ?? {}).filter((d) => d < date).sort().at(-1)
-  return key ? store.days[key].fcb ?? null : null
+  // 只认上一交易日：中间漏采一天时，前天的封成比不能当昨天的用
+  const key = prevTradingDay(date)
+  return store?.days?.[key]?.fcb ?? null
 }
 export function saveState(store, state, keep = 5) {
   const days = { ...(store?.days ?? {}), [state.date]: { fcb: state.fcb } }

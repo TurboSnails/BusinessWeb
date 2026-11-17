@@ -177,3 +177,11 @@ test('归档种子：有全市场涨跌的日期算情绪指数，没有的留�
   assert.deepEqual(ztStore.days['2026-11-13'], ['000001', '000002'])
   assert.equal(ztStore.names['000001'], '甲')
 })
+
+test('审查回归：漏采一天时不拿前天的封成比；股池缺失字段记为缺失', () => {
+  const store = saveState(null, { date: '2026-11-16', fcb: { a: 1 } })
+  assert.equal(pickPrevFcb(store, '2026-11-18'), null) // 11-17 漏采
+  const pool = parsePoolFull({ rc: 0, data: { qdate: 20261117, tc: 1, pool: [{ c: '000001', n: '甲', zdp: null, fund: '', amount: 1 }] } }, '2026-11-17')
+  assert.equal(pool[0].pct, null)
+  assert.equal(pool[0].fund, null)
+})
