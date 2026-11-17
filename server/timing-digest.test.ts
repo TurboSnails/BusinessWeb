@@ -81,11 +81,38 @@ describe('timing digest handler', () => {
     expect(send).not.toHaveBeenCalled()
   })
 
-  it('快照过旧时跳过', async () => {
-    const f = body(); f.latest.asOf = '2026-11-10'
+  it('只漏一个工作日时静默跳过', async () => {
+    const f = body(); f.latest.asOf = '2026-11-12'
     const { run, send } = setup({ data: f })
     const r = res(); await run(r, false)
     expect(r.body).toMatchObject({ sent: false, skipped: 'stale' })
     expect(send).not.toHaveBeenCalled()
+  })
+
+  it('连续漏两个工作日以上发一次断更提醒，按快照日期去重', async () => {
+    const f = body(); f.latest.asOf = '2026-11-10'
+    const { run, repo, send } = setup({ data: f })
+    const r = res(); await run(r, false)
+    expect(r.body).toMatchObject({ sent: true, staleAlert: true, missed: 3, asOf: '2026-11-10' })
+    expect(repo.claim).toHaveBeenCalledWith([{ fingerprint: 'timing-stale|2026-11-10', day: '2026-11-14', kind: 'digest' }])
+    expect(send).toHaveBeenCalledWith(expect.objectContaining({ subject: 'ETF 择时观察 · 影子运行已 3 个工作日没有更新' }))
+
+    const again = setup({ data: f, sent: new Set(['timing-stale|2026-11-10']) })
+    const r2 = res(); await again.run(r2, false)
+    expect(r2.body).toMatchObject({ sent: false, skipped: 'already-sent' })
+    expect(again.send).not.toHaveBeenCalled()
+  })
+
+  it('去重表缺失时本实例内同一键只发一次', async () => {
+    const repo = { sent: vi.fn(async () => { throw new Error('missing') }), claim: vi.fn(), release: vi.fn() }
+    const send = vi.fn(async () => {})
+    const run = createTimingDigest({
+      env: ENV, now: () => NOW, log: { info: vi.fn(), warn: vi.fn(), error: vi.fn() }, site: 'https://x.test', logTable: 't',
+      fetchJson: async () => body(), repository: () => repo as never, isLogMissing: () => true, send,
+    })
+    await run(res(), false)
+    const r = res(); await run(r, false)
+    expect(send).toHaveBeenCalledOnce()
+    expect(r.body).toMatchObject({ skipped: 'already-sent' })
   })
 })

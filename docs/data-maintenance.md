@@ -208,9 +208,13 @@ curl -s -H "Authorization: Bearer $CRON_SECRET" "https://business-web-black.verc
 
 **做什么**：每个工作日收盘后记录「沪深300择时＋只认金叉」在冻结名单（76 只）上的状态；次日开盘前，如果出现新的买入/卖出信号或择时状态翻转，发一封观察邮件给本人。规则仍在验证（[TODO](TODO-投资工具优化.md) ①②），邮件写明不是买卖指令，也不推送盘中预估。
 
-**链路**：Vercel cron `0 8 * * 1-5` → `cron-dispatch` → `etf-timing-shadow.yml` 运行 `scripts/research/etf-strategy-oos/shadow.mjs`（腾讯前复权日线）→ 写 `data-raw/etf-timing-shadow/<数据日期>.json` 并刷新 `public/data/etf-timing.json` → 提交后随站点部署。Vercel cron `0 23 * * 1-5`（北京周二至周六 07:00–07:59）调用 `/api/market-data/candidate-alerts-digest?timing=1`（代码 `server/timing-digest.ts`，判断与正文 `src/features/etf-timing/digest.ts`），复用 `CRON_SECRET`、Gmail 环境变量和去重表（`timing|<数据日期>`，kind `digest`，无需迁移）。
+**链路**：Vercel cron `0 8 * * 1-5` → `cron-dispatch` → `etf-timing-shadow.yml` 运行 `scripts/research/etf-strategy-oos/shadow.mjs`（腾讯前复权日线；腾讯拦截时逐只回落东财前复权 `fqt=1`，解析在 `sources.mjs`）→ 写 `data-raw/etf-timing-shadow/<数据日期>.json` 并刷新 `public/data/etf-timing.json` → 提交后随站点部署。Vercel cron `0 23 * * 1-5`（北京周二至周六 07:00–07:59）调用 `/api/market-data/candidate-alerts-digest?timing=1`（代码 `server/timing-digest.ts`，判断与正文 `src/features/etf-timing/digest.ts`），复用 `CRON_SECRET`、Gmail 环境变量和去重表（`timing|<数据日期>`，kind `digest`，无需迁移）。
 
 **什么时候不发**：没有新信号且择时没翻转（`skipped: "no-changes"`）；快照早于前一个工作日——节假日或采集失败（`skipped: "stale"`）；同一数据日期已发过。
+
+**断更提醒**：快照之后连续漏掉 2 个以上工作日（单日失败或单日休市不提醒），同一个 cron 改发一封「影子运行已 N 个工作日没有更新」，去重键 `timing-stale|<快照日期>`，每次断更只提醒一次。长假休市也会触发一次，正文已说明可忽略。恢复后的第一封观察邮件会补列断更期间的信号（新信号按「上一份快照之后」判断）。
+
+**数据来源**：每只 ETF 在快照里记 `src`（`tencent` / `em`），快照 `sources` 汇总基准（510300、510880、159915）与各来源只数。腾讯连续失败 5 次后，本轮剩余的先走东财。2026-11-17 本机对比 23 只两源都取到的 ETF：持仓、待执行、最近信号完全一致；择时比值只在 2022 年及以前的 35 天有边界分歧。新浪日线不复权（分红日跳空会造成假死叉），不作备用。
 
 ```sh
 # 试运行：返回将要发出的标题与正文，不发信、不写去重表

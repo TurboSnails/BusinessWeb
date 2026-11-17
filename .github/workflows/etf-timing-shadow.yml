@@ -15,6 +15,7 @@ on:
       - 'scripts/research/etf-strategy-oos/universe.json'
       - 'scripts/research/etf-strategy-oos/strategies.mjs'
       - 'scripts/research/etf-strategy-oos/publish.mjs'
+      - 'scripts/research/etf-strategy-oos/sources.mjs'
   workflow_dispatch:
 
 permissions:
