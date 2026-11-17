@@ -5,7 +5,7 @@ name: ETF timing shadow run
 on:
   schedule:
     # 主触发是 Vercel Cron（vercel.json，UTC 8 点周一至周五 → cron-dispatch）；这里是 GitHub 兜底排程，
-    # 主触发 6 小时内成功过会被 cron-dispatch 跳过，兜底重复运行也只会覆盖同一天的快照
+    # 兜底运行时设 SKIP_IF_COMPLETE：当天已有完整快照就直接退出；不完整时补跑，且不会用更少的结果覆盖
     - cron: '45 8 * * 1-5'
   push:
     branches: [main]
@@ -27,13 +27,15 @@ concurrency:
 jobs:
   shadow:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
       - name: Record daily snapshot
+        env:
+          SKIP_IF_COMPLETE: ${{ github.event_name == 'schedule' && '1' || '' }}
         run: node scripts/research/etf-strategy-oos/shadow.mjs
       - name: Commit if changed
         shell: bash

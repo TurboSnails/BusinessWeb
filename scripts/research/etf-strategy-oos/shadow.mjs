@@ -8,12 +8,24 @@ import { publish } from './publish.mjs'
 const here = new URL('.', import.meta.url).pathname
 const universe = JSON.parse(fs.readFileSync(here + 'universe.json', 'utf8'))
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
-// 腾讯对连续请求会返回 HTML 拦截页：退避重试，仍失败再交给第二轮补抓
+// 整轮抓取的时间预算：GitHub 任务限时 45 分钟，超时被杀会连已取到的一起丢掉，所以到点就停下保存已有结果
+const DEADLINE = Date.now() + 25 * 60_000
+const overBudget = () => Date.now() > DEADLINE
+// 北京时间：15:30 前当天的日线还没收盘（盘中手动或 push 触发时），一律丢掉当天这根，避免用盘中 MACD 记录信号
+const bj = new Date(Date.now() + 8 * 3600_000)
+const bjToday = bj.toISOString().slice(0, 10)
+const beforeClose = bj.getUTCHours() * 60 + bj.getUTCMinutes() < 15 * 60 + 30
+// 兜底排程（SKIP_IF_COMPLETE=1）：今天已有完整快照就不再跑，免得重复抓取加重限流、重复提交
+if (process.env.SKIP_IF_COMPLETE === '1' && !beforeClose) {
+  const f = `data-raw/etf-timing-shadow/${bjToday}.json`
+  if (fs.existsSync(f) && (JSON.parse(fs.readFileSync(f, 'utf8')).missing ?? [1]).length === 0) { console.log(`今天（${bjToday}）已有完整快照，跳过`); process.exit(0) }
+}
+// 腾讯对连续请求会返回 HTML 拦截页：退避重试一次，仍失败交给第二轮补抓
 async function getJson(url) {
   for (let attempt = 0; ; attempt++) {
-    try { return await (await fetch(url, { signal: AbortSignal.timeout(20000) })).json() } catch (e) {
-      if (attempt >= 2) throw e
-      await sleep([3000, 10000][attempt])
+    try { return await (await fetch(url, { signal: AbortSignal.timeout(10000) })).json() } catch (e) {
+      if (attempt >= 1 || overBudget()) throw e
+      await sleep(5000)
     }
   }
 }
@@ -27,7 +39,7 @@ async function bars(code) {
     const d = j?.data?.[sym(code)]; for (const r of d?.qfqday || d?.day || []) out.set(r[0], { date: r[0], open: +r[1], close: +r[2], high: +r[3], low: +r[4] })
     await sleep(400)
   }
-  return [...out.values()].sort((a, b) => a.date.localeCompare(b.date)).filter((b) => b.open > 0 && b.close > 0)
+  return [...out.values()].sort((a, b) => a.date.localeCompare(b.date)).filter((b) => b.open > 0 && b.close > 0 && !(beforeClose && b.date === bjToday))
 }
 
 const [hs300, div, cybEtf] = [await bars('510300'), await bars('510880'), await bars('159915')]
@@ -39,6 +51,7 @@ const pick = (r) => ({ holding: r.pos.at(-1) === 1, pending: r.pending ?? null, 
 async function collect(list) {
   const failed = []
   for (const { code, name } of list) {
+    if (overBudget()) { failed.push({ code, name, error: 'time budget exceeded' }); continue }
     try {
       const b = await bars(code); if (b.length < 150) throw new Error('too few ' + b.length)
       items.push({ code, name, close: b.at(-1).close, date: b.at(-1).date, hs: pick(timingGold(b, tHs)), cyb: pick(timingGold(b, tCyb)) })
@@ -48,7 +61,7 @@ async function collect(list) {
 }
 let failed = await collect(universe.items)
 // 第二轮：歇一分钟再补抓失败的（拦截通常是短时限流）
-if (failed.length) { await sleep(60000); failed = await collect(failed) }
+if (failed.length && !overBudget()) { await sleep(60000); failed = await collect(failed) }
 missing = failed.map(({ code, error }) => ({ code, error }))
 items.sort((a, b) => universe.items.findIndex((u) => u.code === a.code) - universe.items.findIndex((u) => u.code === b.code))
 const snap = {

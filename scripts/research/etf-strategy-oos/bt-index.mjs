@@ -81,9 +81,11 @@ for (const [label] of WINDOWS) {
 }
 const errs = results.filter((r) => r.error)
 if (errs.length) lines.push('## 取数失败', '', ...errs.map((e) => `- ${e.code}：${e.error}`), '')
-// 取数大面积失败（如中证官网返回拦截页）时不覆盖上一份有效结果：一半以上指数失败就保留旧文件并以失败退出
-if (ok.length * 2 < results.length) {
-  console.error(`取数失败 ${errs.length}/${results.length}，保留上一份结果，不写入。`)
+// 取数大面积失败（如中证官网返回拦截页）时不覆盖上一份有效结果：一半以上失败、或成功数少于上一份，就保留旧文件并以失败退出
+const PREV = 'data-raw/etf-timing-research/long-history.json'
+const prevOk = fs.existsSync(PREV) ? JSON.parse(fs.readFileSync(PREV, 'utf8')).results.filter((r) => !r.error).length : 0
+if (ok.length * 2 < results.length || ok.length < prevOk) {
+  console.error(`取数成功 ${ok.length}/${results.length}（上一份 ${prevOk}），保留上一份结果，不写入。`)
   for (const e of errs.slice(0, 5)) console.error(`- ${e.code}：${e.error.slice(0, 120)}`)
   process.exit(1)
 }

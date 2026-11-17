@@ -41,6 +41,30 @@ describe('buildTimingDigest', () => {
     expect(d.empty).toBe(false)
   })
 
+  it('上一份快照之后的信号都算新信号；上一份缺数据时把那天也算进来', () => {
+    const base = data()
+    base.latest!.items[3].hs = rule(true, '2026-11-12') as never // 上一份当天的信号
+    const ok = buildTimingDigest(base, '2026-11-14')
+    if (!('digest' in ok)) throw new Error('expected digest')
+    expect(ok.digest.buys.map(b => b.code)).toEqual(['512760'])
+    base.history[0].complete = false
+    const gap = buildTimingDigest(base, '2026-11-14')
+    if (!('digest' in gap)) throw new Error('expected digest')
+    expect(gap.digest.buys.map(b => [b.code, b.date])).toEqual([['512760', '2026-11-13'], ['159915', '2026-11-12']])
+    expect(composeTimingEmail(gap.digest, 'https://x.test').text).toContain('信号日 2026-11-12')
+  })
+
+  it('上一天运行失败时，跨两天的信号都列出', () => {
+    const base = data()
+    base.history = base.history.filter(h => h.asOf !== '2026-11-12')
+    base.history.unshift({ asOf: '2026-11-11', complete: true, hs300Bull: true, cybBull: true, n: 4, hsHolding: 1, cybHolding: 2, missing: 0 })
+    base.latest!.items[3].hs = rule(true, '2026-11-12') as never
+    const r = buildTimingDigest(base, '2026-11-14')
+    if (!('digest' in r)) throw new Error('expected digest')
+    expect(r.digest.prevAsOf).toBe('2026-11-11')
+    expect(r.digest.buys.map(b => b.code)).toEqual(['512760', '159915'])
+  })
+
   it('择时状态翻转也算有事', () => {
     const base = data()
     base.latest!.items = base.latest!.items.filter(i => i.code === '159915')
@@ -101,7 +125,7 @@ describe('composeTimingEmail', () => {
     if (!('digest' in r)) throw new Error('expected digest')
     const m = composeTimingEmail(r.digest, 'https://x.test')
     expect(m.subject).toBe('ETF 择时观察 · 11-13 · 择时转偏防守')
-    expect(m.text).toContain('由偏进攻转为偏防守')
+    expect(m.text).toContain('与 2026-11-12 相比由偏进攻转为偏防守')
     expect(m.text).toContain('不开新仓')
   })
 })
