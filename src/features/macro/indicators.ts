@@ -1,6 +1,6 @@
 import { SIGNALS, computeStage, type Tone } from './stages'
 
-export type SeriesKey = 'gdp' | 'unrate' | 'sahm' | 'claims' | 'corePce' | 'realRate' | 'curve' | 'hy' | 'nfci' | 'vix' | 'dd' | 'kre' | 'marginGdp' | 'cashDebt' | 'putCall' | 'dxy' | 'gold' | 'silver' | 'wti' | 'equityShare' | 'buffett' | 'debtService' | 'ccDelinq' | 'tenYear' | 'saving'
+export type SeriesKey = 'gdp' | 'unrate' | 'sahm' | 'claims' | 'corePce' | 'realRate' | 'curve' | 'hy' | 'nfci' | 'vix' | 'dd' | 'kre' | 'marginGdp' | 'cashDebt' | 'putCall' | 'hfEquityLs' | 'dxy' | 'gold' | 'silver' | 'wti' | 'equityShare' | 'buffett' | 'debtService' | 'ccDelinq' | 'tenYear' | 'saving'
 
 export interface Indicator<K extends string = SeriesKey> {
   key: K
@@ -74,6 +74,8 @@ export const INDICATORS: Indicator[] = [
     why: '券商账户里闲置现金相对借款的比例，反映散户手里还有多少子弹。比例越低，说明现金已经压到股市里，缺少新增买盘。', limit: '只统计 FINRA 会员券商，不含银行账户和货币基金里的现金；是存量比例，不等于散户整体仓位。' },
   { key: 'putCall', name: '期权 Put/Call（Put ÷ Call）', module: 'leverage', digits: 2, freq: '每日（历史按月抽样）',
     why: 'Cboe 全产品看跌期权成交量除以看涨期权成交量。较高表示防守或悲观需求较多，较低表示乐观情绪较多；与杠杆、现金和估值一起观察。2019 年后历史为月末交易日抽样，非月均。', limit: '背景指标，不打分。成交量比不是持仓比、资金盈亏比或全市场完整日历史；包含指数对冲与短期期权，2019 年后历史为月末交易日抽样，不能单独用来择时。' },
+  { key: 'hfEquityLs', name: '对冲基金股票多空比（OFR）', module: 'leverage', digits: 3, freq: '季度',
+    why: '美国 OFR 汇总的 Qualifying Hedge Funds：股票多头名义敞口 ÷ 空头名义敞口。比值下降表示多头相对空头变薄；量级常在 1.5 附近。全股票、非科技行业切分，也不是高盛/摩根 Prime 客户账簿或期权 Put/Call。', limit: '背景指标，不打分。Form PF 季频且滞后数月；与券商 Prime 周报样本不同，不能用来验证媒体转述的科技多空比点位。' },
 ]
 
 /** 当前值在全部历史中的百分位（0-100）；样本不足 24 个返回 undefined */

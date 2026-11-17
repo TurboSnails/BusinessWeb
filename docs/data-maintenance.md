@@ -367,3 +367,21 @@ PY
 - 日常更新：现有 `npm run macro:update` 和每周 `macro-snapshot.yml` 自动追加最新日值；某次失败沿用快照原值及原日期。
 - 历史补建／修复：`npm run macro:putcall-history`。任一月份无有效交易日、档案覆盖不足或最新值未发布都会停止，不写半截历史。前端实时刷新若返回较短 `long`，保留原快照长历史。
 - 校验：日期合法、Call>0、Put≥0、Total=Call+Put、官方比率与 Put÷Call 的四舍五入值一致。数据源仍受 Cboe 网站条款约束，公开可取不等于开放许可证。
+
+
+## OFR 对冲基金股票多空比（2026-11-17 新增）
+
+- 页面：同上「杠杆与资金」，键名 `hfEquityLs`。公式为 Qualifying Hedge Funds 的股票多头名义敞口 ÷ 空头名义敞口（Form PF / OFR Hedge Fund Monitor）。
+- **不是**高盛/摩根 Prime 客户科技行业多空比，也不是 Cboe Put/Call；只作背景，不打阶段分。
+- 来源：`https://data.financialresearch.gov/hf/v1/series/multifull`，mnemonic `FPF-ASSETCLASS_EQUITIES_LGNE_SUM` 与 `FPF-ASSETCLASS_EQUITIES_SGNE_SUM`；无 API key。
+- 日常更新：随 `npm run macro:update` / `macro-snapshot.yml` 全量重拉；失败则沿用快照旧值。季频且滞后数月属正常。
+- 校验：日期合法、多空两侧同日对齐、两侧名义敞口 > 0。
+
+
+## 股债息差对照序列（2026-11-17 补充）
+
+- 在沪深300主序列之外，新增沪深300中位数 PE 与上证50两条对照；不纳入科创50价格趋势，因为它不是股债息差。
+- 更新入口仍为 `npm run spread:update`。使用 AkShare `stock_ebs_lg`、`stock_index_pe_lg`、`index_zh_daily_sina`、`bond_zh_us_yield_em`；后两者是 1.20.x 的新接口名。
+- 补充序列只有月度 PE：以最近月末的指数÷PE 得到盈利水平并向后沿用，再按每日指数收盘和10年期国债收益率推算日度息差。不是实际每日 PE，也不保证触轨日精确。
+- 页面按指数/口径切换后，当前位置、通道、指数图、事件表和说明同步更新；月度推算限制显示在当前口径下。主序列仍使用上游直接提供的日度股债利差。
+- 写盘前每条序列至少500行，先写临时文件再替换；失败不写入半截数据。

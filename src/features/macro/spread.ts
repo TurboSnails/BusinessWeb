@@ -3,6 +3,13 @@
 
 /** [日期, 息差（百分点）, 指数收盘, ...其他字段] —— 美股版额外带 Forward PE 与 10 年期收益率 */
 export type SpreadRow = [string, number, number, ...number[]]
+export interface SpreadSeries {
+  id: string
+  name: string
+  label?: string
+  note: string
+  rows: SpreadRow[]
+}
 export interface SpreadSnapshot {
   generatedAt: string
   source: string
@@ -10,6 +17,8 @@ export interface SpreadSnapshot {
   window: number
   k: number
   rows: SpreadRow[]
+  /** 同一指数的其他口径或其他指数；通道算法相同 */
+  extra?: SpreadSeries[]
 }
 
 export interface Band { mid: number; upper: number; lower: number }

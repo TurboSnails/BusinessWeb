@@ -30,6 +30,8 @@ const US: Record<string, Rule> = {
   marginGdp: { maxAge: 80, range: [0, 15] },
   cashDebt: { maxAge: 80, range: [0, 500] },
   putCall: { maxAge: 7, range: [0, 20] },
+  // OFR Form PF 季频，滞后数月；合理区间覆盖 HF 账面常见多空比
+  hfEquityLs: { maxAge: 220, range: [0.5, 10] },
   // 美联储资金流量表季度公布，滞后约三个月
   equityShare: { maxAge: 220, range: [10, 80] },
   buffett: { maxAge: 220, range: [20, 600] },

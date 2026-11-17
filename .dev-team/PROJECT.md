@@ -31,7 +31,13 @@ manager 开工后按实际目标补充业务入口、API 契约位置、验收�
 ## 2026-11-16 朋友更新集成
 用户已授权 dev-team 先复核 docs/reviews/2026-11-16-friend-project-update-evaluation.md，合理则实施并由团队交叉检查。Run计划 friend-integration-20261116，基线 d47cc4fa。重点六项为指数比较/官方ETF关系、网格行情图、技术筛选、跨页联动及质量解释；候选资金流/主升浪/择时须沿研究门禁，不引入优选名单和未核实EPS。本次未授权推送部署。先独立架构与产品复核，再冻结owner拆实现。
 
-已完成实现及原生 Orca Run `run_c2f7b56af8d8` 交叉复核、修复回查和真实浏览器验收。全量264文件/1884测试、脚本346测试、typecheck、生产构建通过，lint 0 error。三页桌面/390px主路径及焦点回验通过；真实日K最初两次HTTP 502，随后上游恢复，完整六页均200，日K绘制、MACD、放大和刷新复验通过，触控手势未专项验证。维护说明见 docs/friend-update-integration.md，报告见 `.dev-team/runs/friend-integration-final-review/reports/`。所有Task completed、worker released；未提交、推送或部署。
+已完成实现及原生 Orca Run `run_c2f7b56af8d8` 交叉复核、修复回查和真实浏览器验收。全量264文件/1884测试、脚本346测试、typecheck、生产构建通过，lint 0 error。三页桌面/390px主路径及焦点回验通过；真实日K最初两次HTTP 502，随后上游恢复，完整六页均200，日K绘制、MACD、放大和刷新复验通过，触控手势未专项验证。维护说明见 docs/friend-update-integration.md，报告见 `.dev-team/runs/friend-integration-final-review/reports/`。所有Task completed、worker released；已提交并推送当前分支，Vercel Production 已发布；GitHub Pages 未跟随 main 更新。
 
 ## 2026-11-17 Cboe Put/Call
-按用户“美股盈亏比”需求，以期权 Put÷Call 成交量比接入「杠杆与资金」，不是账户交易盈亏比。官方历史 CSV + `?dt=` 日页面补建241个连续月份，最新2026-11-16=0.95、历史49%分位；背景指标不打阶段分。采集/补建 `npm run macro:putcall-history`，日常沿用 `macro:update`。桌面/390px及刷新保留长历史已实测；数据口径见 docs/data-maintenance.md 末节。未提交、推送或部署。
+按用户“美股盈亏比”需求，以期权 Put÷Call 成交量比接入「杠杆与资金」，不是账户交易盈亏比。官方历史 CSV + `?dt=` 日页面补建241个连续月份，最新2026-11-16=0.95、历史49%分位；背景指标不打阶段分。采集/补建 `npm run macro:putcall-history`，日常沿用 `macro:update`。桌面/390px及刷新保留长历史已实测；数据口径见 docs/data-maintenance.md 末节。已提交并推送当前分支，Vercel Production 已发布；GitHub Pages 未跟随 main 更新。
+
+## 2026-11-17 OFR 对冲基金股票多空比
+用户确认接入免费代理：OFR Form PF Equity GNE L/S（`hfEquityLs`），与 Put/Call 并列于杠杆与资金；背景不打分。最新 2026-06-30=1.503（54 季，自 2013）。明确标注非高盛科技多空比。日常随 `macro:update`。
+
+## 2026-11-17 股债息差补充
+对照同事项目后仅补充沪深300中位数 PE 和上证50两条序列，不带入科创50价格趋势。序列由月度 PE 与每日价格/国债推算，页面明确非真实每日 PE；切换后当前位置、图表和事件表同步。全量264文件/1888测试、脚本346测试、typecheck、lint与真实浏览器切换/390px通过。维护见 docs/data-maintenance.md。此增量尚未提交、推送或部署。

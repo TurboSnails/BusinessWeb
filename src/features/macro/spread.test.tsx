@@ -69,6 +69,18 @@ describe('股债息差视图', () => {
     expect(screen.getByRole('button', { name: '5 年' }).getAttribute('aria-pressed')).toBe('false')
   })
 
+  it('切换到上证50后同步更新标题、图表、事件表和口径说明', () => {
+    const extra = [{ id: 'sse50', name: '上证50', label: '上证50', note: '月度 PE 推算，非真实每日 PE', rows: rowsOf(spreads.map(v => v + 1), i => 200 + i) }]
+    render(<SpreadView data={{ ...data, extra }} />)
+    fireEvent.click(screen.getByRole('button', { name: '沪深300（市值加权）' }))
+    expect(screen.getByRole('button', { name: '沪深300（市值加权）' }).getAttribute('aria-pressed')).toBe('true')
+    fireEvent.click(screen.getByRole('button', { name: '上证50' }))
+    expect(screen.getByLabelText('当前位置').textContent).toContain('上证50 盈利收益率')
+    expect(screen.getByRole('img', { name: /上证50 指数同期走势/ })).toBeTruthy()
+    expect(screen.getByText(/当前口径：月度 PE 推算/)).toBeTruthy()
+    expect(screen.getByLabelText('历次触及上轨').textContent).toContain('之后上证50 的涨跌')
+  })
+
   it('数据太少时给出提示', () => {
     render(<SpreadView data={{ ...data, window: 750, rows: data.rows.slice(0, 5) }} />)
     expect(screen.getByRole('alert').textContent).toContain('数据不足')

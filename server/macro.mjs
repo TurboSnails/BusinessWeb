@@ -260,7 +260,47 @@ async function collect(builders, previous, warnings) {
   return out
 }
 
-export const US_SOURCE = 'FRED, Federal Reserve Bank of St. Louis；KRE/SPY：Yahoo Finance；Put/Call：Cboe'
+const OFR_HF = 'https://data.financialresearch.gov/hf/v1'
+const OFR_EQUITY_LONG = 'FPF-ASSETCLASS_EQUITIES_LGNE_SUM'
+const OFR_EQUITY_SHORT = 'FPF-ASSETCLASS_EQUITIES_SGNE_SUM'
+
+/** OFR timeseries：[[date, value], ...]；非法日期与非正值丢弃 */
+export function parseOfrTimeseries(rows) {
+  if (!Array.isArray(rows)) return []
+  return rows
+    .filter(r => Array.isArray(r) && r.length >= 2 && isCalendarDate(String(r[0])) && Number.isFinite(Number(r[1])) && Number(r[1]) > 0)
+    .map(([d, v]) => [String(d), Number(v)])
+}
+
+/** 多头名义敞口 ÷ 空头名义敞口 → Qualifying HF 全股票 GNE 多空比 */
+export function computeEquityLongShort(longRows, shortRows) {
+  const short = new Map(parseOfrTimeseries(shortRows))
+  return parseOfrTimeseries(longRows)
+    .filter(([d]) => short.has(d))
+    .map(([d, v]) => [d, round(v / short.get(d), 3)])
+}
+
+export function packHfEquityLs(rows) {
+  if (!rows.length) throw new Error('OFR: 无有效股票多空比')
+  return packLong(rows, {
+    source: 'OFR Hedge Fund Monitor / SEC Form PF',
+    unit: '',
+    note: 'Qualifying Hedge Funds 股票多头名义敞口÷空头名义敞口（GNE）；全股票、非科技行业切分；季频，滞后数月；不是高盛 Prime 客户仓位比',
+  })
+}
+
+async function buildOfrHfEquityLs() {
+  const url = `${OFR_HF}/series/multifull?mnemonics=${OFR_EQUITY_LONG},${OFR_EQUITY_SHORT}`
+  const res = await get(url)
+  if (!res.ok) throw new Error(`OFR: HTTP ${res.status}`)
+  const body = await res.json()
+  const longTs = body?.[OFR_EQUITY_LONG]?.timeseries?.aggregation
+  const shortTs = body?.[OFR_EQUITY_SHORT]?.timeseries?.aggregation
+  if (!longTs || !shortTs) throw new Error('OFR: 缺少股票多空敞口序列')
+  return packHfEquityLs(computeEquityLongShort(longTs, shortTs))
+}
+
+export const US_SOURCE = 'FRED, Federal Reserve Bank of St. Louis；KRE/SPY：Yahoo Finance；Put/Call：Cboe；对冲基金多空比：OFR Form PF'
 export const HK_SOURCE = '雅虎财经（恒生指数）、FRED（港元汇率、联邦基金利率）、东方财富（南向资金）'
 export const CN_SOURCE = '国家统计局、中国人民银行（经东方财富数据中心）'
 
@@ -303,6 +343,7 @@ export async function buildSnapshots(previous = null) {
       return packLong(rows, { source: 'FINRA 保证金统计', unit: '%', note: '客户现金账户与保证金账户的闲置现金余额 ÷ 保证金债务' })
     },
     putCall: async () => buildCboePutCall(previous?.us?.series?.putCall?.long ?? []),
+    hfEquityLs: async () => buildOfrHfEquityLs(),
     equityShare: async () => packLong(await series('BOGZ1FL153064486Q'), { fred: 'BOGZ1FL153064486Q', unit: '%', note: '美联储资金流量表 Z.1：家庭及非营利机构直接+间接持有的股票占金融资产比重' }),
     buffett: async () => {
       const [mcap, gdp] = await Promise.all([series('NCBEILQ027S'), series('GDP')])
