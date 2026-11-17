@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom'
 import { Callout, Card, EmptyState, Page, PageDataFreshness, Segmented, TableWrap } from '../components/ui'
 import { PageTitle } from '../components/ui/PageTabs'
 import MoodChart, { type Point } from '../features/market-mood/MoodChart'
+import KplTabs, { KPL_DISCLAIMER } from '../features/market-mood/KplTabs'
 import { asMarketMood, lastDays, MARKETS, METHOD, previousDay, type Amount, type MarketMood, type MoodDay, type MoodLatest } from '../features/market-mood/model'
 import '../styles/market-mood.css'
 
@@ -302,7 +303,8 @@ export default function MarketMood(): JSX.Element {
   return (
     <Page className="mm-page">
       <PageTitle>开盘啦 · 市场情绪</PageTitle>
-      <p className="mm-disclaimer">功能参照开盘啦 App 的「市场情绪」页，数据来自公开行情、收盘后更新，与开盘啦官方无关。</p>
+      <KplTabs />
+      <p className="mm-disclaimer">{KPL_DISCLAIMER}</p>
       {load.state === 'loading' && <p className="mm-empty">加载中…</p>}
       {load.state === 'error' && <EmptyState title="市场情绪数据暂不可用">{load.message}</EmptyState>}
       {load.state === 'ok' && <MoodBody m={load.data} />}

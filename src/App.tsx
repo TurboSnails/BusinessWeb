@@ -23,6 +23,10 @@ const InvestmentPlan2026 = lazy(() => import('./pages/InvestmentPlan2026'))
 const InvestmentTargetsPage = lazy(() => import('./pages/InvestmentTargetsPage'))
 const LimitUpAnalysis = lazy(() => import('./pages/LimitUpAnalysis'))
 const MarketMood = lazy(() => import('./pages/MarketMood'))
+const KplDaban = lazy(() => import('./pages/kpl/KplDaban'))
+const KplLhb = lazy(() => import('./pages/kpl/KplLhb'))
+const KplPlates = lazy(() => import('./pages/kpl/KplPlates'))
+const KplFunds = lazy(() => import('./pages/kpl/KplFunds'))
 const ThsMood = lazy(() => import('./pages/ThsMood'))
 const DailyAnalysis = lazy(() => import('./pages/DailyAnalysis'))
 const DailyAnalysisLegacy = lazy(() => import('./pages/DailyAnalysisLegacy'))
@@ -155,6 +159,10 @@ export default function App(): JSX.Element {
           <Route path="/investment-targets" element={<InvestmentTargetsPage />} />
           <Route path="/limit-up-analysis" element={<LimitUpAnalysis />} />
           <Route path="/market-mood" element={<MarketMood />} />
+          <Route path="/market-mood/daban" element={<KplDaban />} />
+          <Route path="/market-mood/lhb" element={<KplLhb />} />
+          <Route path="/market-mood/plates" element={<KplPlates />} />
+          <Route path="/market-mood/funds" element={<KplFunds />} />
           <Route path="/ths-mood" element={<ThsMood />} />
           <Route path="/daily-analysis" element={<DailyAnalysis />} />
           <Route path="/daily-analysis/legacy" element={<DailyAnalysisLegacy />} />
