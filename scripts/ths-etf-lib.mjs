@@ -168,6 +168,70 @@ export function parseTencent(text, date) {
   }
   return out
 }
+// ---------------------------------------------------------------------------
+// 深交所份额备用源：腾讯行情的总份额字段（字段 72/73）。
+// GitHub Actions（境外）连不上 *.szse.cn（TLS 握手即被重置），腾讯行情可达。行情里的份额是交易所上一交易日公布值：
+// T 日盘中/收盘后的快照（时间戳日期 = T）里是 T−1 的份额，T+1 开盘前才换成 T 的份额（2026-11-17 晚 159915/159919/159338
+// 与深交所 xlsx 的 11-16 值逐份一致）。字段本身不带日期，所以：
+//   1) 只认「时间戳日期 = 应有的最近交易日」的快照，并避开北京 07:00–09:30（份额字段可能已换、时间戳还没换的窗口）；
+//   2) 份额日期 = 时间戳日期的上一交易日；
+//   3) 与存档交叉校验：该日已有交易所数据时必须基本一致；前一日存档在时必须有足够多的份额变化（否则是还没换日的旧值）。
+// ---------------------------------------------------------------------------
+export const TENCENT_SHARES = 'tencent-qt'
+/** 腾讯行情 → { code: { name, shares, ts } }；份额取字段 72（与 73 不一致或非正整数时丢弃）。 */
+export function parseTencentShares(text) {
+  const out = {}
+  for (const part of String(text).split(';')) {
+    const m = /v_sz(\d{6})="([^"]*)"/.exec(part)
+    if (!m) continue
+    const f = m[2].split('~')
+    const s = num(f[72]); const s2 = num(f[73]); const ts = String(f[30] ?? '')
+    if (s === null || !Number.isInteger(s) || s <= 0 || (s2 !== null && s2 !== s) || !/^\d{14}$/.test(ts)) continue
+    out[m[1]] = { name: String(f[1] ?? '').trim(), shares: s, ts }
+  }
+  return out
+}
+/**
+ * 现在抓腾讯快照，份额对应哪一天：{ tsDate: 快照应有的时间戳日期, date: 份额日期 }；北京 07:00–09:30 返回 null（不用）。
+ */
+export function tencentSharesDate(now = new Date()) {
+  const bj = new Date(now.getTime() + 8 * 3600e3)
+  const today = bj.toISOString().slice(0, 10)
+  const hm = bj.getUTCHours() * 60 + bj.getUTCMinutes()
+  if (hm >= 7 * 60 && hm < 9 * 60 + 30) return null
+  const tsDate = isTradingDay(today) && hm >= 9 * 60 + 30 ? today : prevTradingDay(today)
+  return { tsDate, date: prevTradingDay(tsDate) }
+}
+/** 只保留时间戳日期 = tsDate 的代码（停牌等时间戳旧的，份额也可能是旧的），返回 { code: { name, shares } }。 */
+export function pickTencentShares(parsed, tsDate) {
+  const ymd = tsDate.replace(/-/g, '')
+  const out = {}
+  for (const [code, v] of Object.entries(parsed)) if (v.ts.slice(0, 8) === ymd) out[code] = { name: v.name, shares: v.shares }
+  return out
+}
+/** 存档这一天的深交所份额是否交易所口径（旧存档没有 via，都是交易所数据）；是则不用行情推断值覆盖。 */
+export const isExchangeSzse = (day) => !!day?.src?.szse && (day.via?.szse ?? 'szse') === 'szse'
+/**
+ * 交叉校验腾讯推断日期的份额 got（{ code: { shares } }）：
+ * - day（同日存档）有深交所交易所数据：重叠代码里逐份一致的比例须 ≥ 98%；
+ * - prev（前一交易日存档）有深交所数据：重叠代码里份额有变化的比例须 ≥ 10%（深市 ETF 每天约一半份额有变化；
+ *   变化太少说明快照里还是前一日的值，日期推断错了）。
+ */
+export function checkLaggedShares(got, day, prev) {
+  const cmp = (ref) => {
+    const codes = Object.keys(got).filter(c => Number.isFinite(ref?.shares?.[c]))
+    return { n: codes.length, same: codes.filter(c => ref.shares[c] === got[c].shares).length }
+  }
+  if (isExchangeSzse(day)) {
+    const { n, same } = cmp(day)
+    if (n < 100 || same / n < 0.98) return { ok: false, reason: `与同日深交所存档不一致（${same}/${n} 相同）` }
+  }
+  if (prev?.src?.szse) {
+    const { n, same } = cmp(prev)
+    if (n < 100 || (n - same) / n < 0.1) return { ok: false, reason: `与前一交易日存档几乎相同（${n - same}/${n} 有变化），疑似尚未换日` }
+  }
+  return { ok: true, reason: null }
+}
 export const klineUrl = (code, lmt) => 'https://push2his.eastmoney.com/api/qt/stock/kline/get?' + new URLSearchParams({ secid: `${marketOf(code) === 'sh' ? 1 : 0}.${code}`, klt: '101', fqt: '0', lmt: String(lmt), end: '20500101', fields1: 'f1,f2,f3', fields2: 'f51,f53' })
 /** 返回 { date: close }（不复权收盘价）。 */
 export function parseKline(body, code) {
@@ -268,6 +332,13 @@ export function buildBroad(asOf, days, names, flow) {
   return { list, byIndex, total: { flow1: agg(byIndex, 'flow1'), flow5: agg(byIndex, 'flow5'), flow20: agg(byIndex, 'flow20'), scale: agg(byIndex, 'scale') }, history }
 }
 
+/** 深交所当日不可用时的宽基「仅沪市」合计（只加沪市名单；与 total 不同口径，页面须标明）。 */
+export function sseOnlyTotal(list) {
+  const rows = list.filter(r => marketOf(r.code) === 'sh')
+  const agg = (key) => sumStrict(rows.map(r => r[key]))
+  return { n: rows.length, flow1: agg('flow1'), flow5: agg('flow5'), flow20: agg('flow20'), scale: agg('scale') }
+}
+
 /** 全市场：按类别汇总 + 各类别 当日/5日/20日 前后各 20 只。 */
 export function buildMarket(asOf, days, meta, flow, top = 20) {
   const codes = Object.keys(days[asOf]?.shares ?? {})
@@ -366,6 +437,8 @@ export function shouldReplace(prev, next) {
   if (prev.asOf !== next.asOf) return prev.asOf < next.asOf
   const a = prev.quality, b = next.quality
   if (!a || !b) return true
+  // 已发布的是深交所缺席的降级版（szse=0），本次补齐了深交所：只要沪市条数不变少就替换（降级版的宽基缺失只数只算了沪市，不可比）
+  if (!(a.szse > 0) && b.szse > 0) return !(b.sse < a.sse)
   return !(b.priceMissing > a.priceMissing || b.sse < a.sse || b.szse < a.szse || b.broadMissing > a.broadMissing)
 }
 /** 归档清理：保留 asOf 往前 keep 个交易日，以及所有晚于 asOf 的文件（历史重跑不能删掉更新的存档） */
