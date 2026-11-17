@@ -1,6 +1,6 @@
 // 同花顺 · 行业景气：纯解析与计算（无网络）。缺值一律 null，不补 0；带日期的源必须对上目标交易日。
 // 行业口径：中证行业分类（CICS，2021-12 修订版）二级行业，估值取中证指数官网「行业市盈率」，
-// 财务取东方财富业绩报表按 CICS 二级汇总（整体法），涨跌取中证全指二级行业指数。
+// 财务取东方财富业绩报表按 CICS 二级汇总（整体法），涨跌按成分股总市值汇总。
 import { isTradingDay, prevTradingDay } from './market-mood-lib.mjs'
 import { addDays, num, percentile, validDate, weekly } from './ths-market-lib.mjs'
 
@@ -18,19 +18,6 @@ export const CICS_FROM = '2021-12-17'
 export const PERIOD_COVERAGE = 0.85
 /** 倒推净资产时加权 ROE 绝对值下限（%）：更小的值两位小数舍入误差过大，不计入 ROE。 */
 export const ROE_MIN_ABS = 0.5
-
-// CICS 二级行业 → 中证全指行业指数（只用于近 20/60 日涨跌幅）。能源、公用事业、房地产一级与二级相同，用一级行业指数。
-export const INDUSTRY_INDEX = {
-  1010: ['932077', '全指能源行业'], 1510: ['932111', '化工行业'], 1520: ['932112', '有色金属行业'], 1530: ['932113', '钢铁行业'],
-  1540: ['932114', '非金属材料行业'], 1550: ['932115', '造纸与包装行业'], 2010: ['932116', '航空航天与国防行业'], 2020: ['932117', '建筑装饰行业'],
-  2030: ['932118', '电力设备行业'], 2040: ['932119', '机械制造行业'], 2050: ['932120', '环保行业'], 2060: ['932121', '商业服务行业'],
-  2070: ['932122', '交通运输行业'], 2510: ['932123', '汽车汽配行业'], 2520: ['932124', '耐用消费品行业'], 2530: ['932125', '服装珠宝行业'],
-  2540: ['932126', '消费者服务行业'], 2550: ['932127', '零售行业'], 3010: ['932128', '食品饮料烟草行业'], 3020: ['930910', '中证全指农牧渔'],
-  3030: ['932130', '家庭用品行业'], 3510: ['932131', '医疗行业'], 3520: ['932132', '医药行业'], 4010: ['932133', '银行行业'],
-  4020: ['932134', '其他金融行业'], 4030: ['932135', '资本市场行业'], 4040: ['932136', '保险行业'], 4510: ['H30182', '中证全指计算机'],
-  4520: ['932138', '电子行业'], 4530: ['932139', '半导体行业'], 5010: ['932140', '电信服务行业'], 5020: ['932141', '通信设服行业'],
-  5030: ['932142', '传媒行业'], 5510: ['932086', '全指公用行业'], 6010: ['932076', '全指地产'],
-}
 
 /** 指数贡献度：四个宽基；weight = 权重来源。 */
 export const CONTRIB_INDICES = [
@@ -192,11 +179,20 @@ export function industryFinance(cur, prev, stocks) {
 }
 
 // ---------- 涨跌与排名 ----------
-/** n 个交易日涨跌幅（%）：series 为升序 {date, close}，最后一个必须是 target。 */
-export function periodReturn(series, n) {
-  if (series.length <= n) return null
-  const last = series.at(-1).close, base = series.at(-1 - n).close
-  return last !== null && base !== null && base > 0 ? round((last / base - 1) * 100, 2) : null
+/**
+ * 行业区间涨跌幅（%）：当前 CICS 二级成分在两日都有总市值的，Σ总市值(t) ÷ Σ总市值(基准日) − 1。
+ * 用总市值而不是收盘价，送转除权不会造成假跌；期间增发、分红会带来少量偏差。成分少于 3 只返回 null。
+ */
+export function industryReturns(stocks, today, base) {
+  const acc = new Map()
+  for (const [code, s] of stocks) {
+    const t = today.get(code)?.cap, b = base.get(code)?.cap
+    if (!t || !b) continue
+    const a = acc.get(s.l2Code) ?? { t: 0, b: 0, n: 0 }
+    a.t += t; a.b += b; a.n++
+    acc.set(s.l2Code, a)
+  }
+  return new Map([...acc].map(([k, a]) => [k, a.n >= 3 ? round((a.t / a.b - 1) * 100, 2) : null]))
 }
 /** 行业间百分位排名（0–100，值越大排名越高；并列取平均）。少于 2 个有效值返回空。 */
 export function rankPct(values) {
@@ -219,13 +215,13 @@ export function scoreRows(rows) {
 }
 
 // ---------- 指数贡献度 ----------
-/** 东财 RPT_VALUEANALYSIS_DET（个股估值，带交易日）→ Map(代码 → {close, pct, floatCap})，日期必须是 date。 */
+/** 东财 RPT_VALUEANALYSIS_DET（个股估值，带交易日）→ Map(代码 → {close, pct, floatCap, cap})，日期必须是 date。 */
 export function parseDet(rows, date) {
   const map = new Map()
   for (const r of rows) {
     if (ymd(r?.TRADE_DATE) !== date) throw new Error(`个股日数据混入 ${ymd(r?.TRADE_DATE)}`)
     const code = String(r.SECURITY_CODE ?? '')
-    if (/^\d{6}$/.test(code)) map.set(code, { name: String(r.SECURITY_NAME_ABBR ?? ''), close: pos(num(r.CLOSE_PRICE)), pct: num(r.CHANGE_RATE), floatCap: pos(num(r.NOTLIMITED_MARKETCAP_A)) })
+    if (/^\d{6}$/.test(code)) map.set(code, { name: String(r.SECURITY_NAME_ABBR ?? ''), close: pos(num(r.CLOSE_PRICE)), pct: num(r.CHANGE_RATE), floatCap: pos(num(r.NOTLIMITED_MARKETCAP_A)), cap: pos(num(r.TOTAL_MARKET_CAP)) })
   }
   if (map.size < 4000) throw new Error(`${date} 个股日数据只有 ${map.size} 只`)
   return map

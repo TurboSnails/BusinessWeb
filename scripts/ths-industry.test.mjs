@@ -2,8 +2,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
-  INDUSTRY_INDEX, weekEnds, tradingDaysBack, quarterEnds, periodLabel, lastYear, parseCsiIndustry, historyEntry, valuationPct,
-  parseCsiStocks, parseCpd, industryFinance, periodReturn, rankPct, scoreRows, parseDet, parseCsiWeights, parseCniSample,
+  weekEnds, tradingDaysBack, quarterEnds, periodLabel, lastYear, parseCsiIndustry, historyEntry, valuationPct,
+  parseCsiStocks, parseCpd, industryFinance, industryReturns, rankPct, scoreRows, parseDet, parseCsiWeights, parseCniSample,
   driftWeights, cniPrevWeights, contributions, summarize, crossCheck, parseKline, closePair,
 } from './ths-industry-lib.mjs'
 
@@ -17,7 +17,6 @@ test('交易日与报告期工具', () => {
   assert.deepEqual(quarterEnds('2027-02-01', 2), ['2026-12-31', '2026-09-30'])
   assert.equal(periodLabel('2026-09-30'), '2026年三季报')
   assert.equal(lastYear('2026-09-30'), '2025-09-30')
-  assert.equal(Object.keys(INDUSTRY_INDEX).length, 35)
 })
 
 const l2 = (code, name, pe, extra = {}) => ({ level: '2', tradeDate: '20261117', industryCode: code, industryName: name, pe, consNum: 10, lossNum: 2, children: [], ...extra })
@@ -75,9 +74,12 @@ test('个股行业映射与业绩报表整体法汇总', () => {
 })
 
 test('涨跌幅、排名与景气得分', () => {
-  const s = Array.from({ length: 61 }, (_, i) => ({ date: `d${i}`, close: 100 + i }))
-  assert.equal(periodReturn(s, 60), 60)
-  assert.equal(periodReturn(s.slice(0, 10), 20), null)
+  const stocks = new Map([['1', { l2Code: 'A' }], ['2', { l2Code: 'A' }], ['3', { l2Code: 'A' }], ['4', { l2Code: 'A' }], ['5', { l2Code: 'B' }]])
+  const t = new Map([['1', { cap: 110 }], ['2', { cap: 220 }], ['3', { cap: 330 }], ['4', { cap: null }], ['5', { cap: 9 }]])
+  const b = new Map([['1', { cap: 100 }], ['2', { cap: 200 }], ['3', { cap: 300 }], ['4', { cap: 50 }], ['5', { cap: 10 }]])
+  const ret = industryReturns(stocks, t, b)
+  assert.equal(ret.get('A'), 10) // 缺市值的 4 不计
+  assert.equal(ret.get('B'), null) // 成分少于 3 只
   assert.deepEqual(rankPct([1, 2, 3, null]), [0, 50, 100, null])
   assert.deepEqual(rankPct([1, 1, 3]), [25, 25, 100])
   const rows = scoreRows([

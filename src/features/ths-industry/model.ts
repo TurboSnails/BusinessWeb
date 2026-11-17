@@ -3,7 +3,7 @@ export type IndustryRow = {
   code: string; name: string; l1Code: string; l1Name: string; cons: number | null; loss: number | null
   pe: number | null; pb: number | null; dy: number | null; peP5: number | null; peP10: number | null; pbP5: number | null
   npYoy: number | null; revYoy: number | null; roe: number | null; finCount: number; yoyCount: number; roeCount: number
-  ret20: number | null; ret60: number | null; indexCode: string | null; indexName: string | null
+  ret20: number | null; ret60: number | null
   ranks: { npYoy: number | null; revYoy: number | null; roe: number | null; ret60: number | null }
   score: number | null
 }
@@ -38,7 +38,6 @@ function industryRow(r: unknown): boolean {
   if (!['cons', 'loss'].every(k => r[k] === null || int(r[k])) || !['finCount', 'yoyCount', 'roeCount'].every(k => int(r[k]))) return false
   if (!['pe', 'pb', 'dy', 'npYoy', 'revYoy', 'roe', 'ret20', 'ret60'].every(k => nullable(r[k]))) return false
   if (!['peP5', 'peP10', 'pbP5', 'score'].every(k => pctile(r[k]))) return false
-  if (!(r.indexCode === null || str(r.indexCode)) || !(r.indexName === null || str(r.indexName))) return false
   return obj(r.ranks) && ['npYoy', 'revYoy', 'roe', 'ret60'].every(k => pctile((r.ranks as Record<string, unknown>)[k]))
 }
 function stock(r: unknown): boolean {
@@ -79,8 +78,8 @@ export const METHOD = {
   valuation: '行业口径为中证行业分类（CICS）二级行业。PE 为中证指数官网「行业市盈率」的滚动市盈率（TTM），PB、股息率同出官网，均为当日官网值；官网同时公布每个行业的亏损家数，其行业市盈率是否剔除亏损公司以官网说明为准。',
   percentile: (from: string, samples: number): string => `PE / PB 分位 = 近 5 年窗口内估值 ≤ 当前值的周数占比，历史按每周最后一个交易日采样（本站从 ${from} 起回填，现有 ${samples} 个采样，之后逐日累积）。中证行业分类在 2021 年 12 月修订，新口径估值自 2021-12-17 起，旧版十大行业口径不可比，因此 10 年分位暂不计算，显示「—」。`,
   finance: (label: string, prior: string, roeMin: number, coverage: number): string => `财务取东方财富业绩报表 ${label}（披露家数达到中证行业样本数 ${Math.round(coverage * 100)}% 的最近报告期），按中证官网的个股 CICS 二级行业归类后用整体法汇总：净利润同比 = Σ本期归母净利润 ÷ Σ上年同期（${prior}）归母净利润 − 1，营收同比同理（营业总收入），只计两期都有数据的公司，上年合计 ≤ 0 时不计算；上年同期取当时披露值，未按追溯调整。ROE = Σ归母净利润 ÷ Σ(归母净利润 ÷ 加权ROE)，分母即按各公司加权 ROE 倒推的加权平均归母净资产，|加权ROE| < ${roeMin}% 的公司倒推误差大，不计入；为报告期累计值，未年化。`,
-  returns: '近 20 / 60 日涨跌幅取对应的中证全指二级行业指数收盘（能源、公用事业、房地产用一级行业指数；计算机用中证全指计算机 H30182、农牧渔用中证全指农牧渔 930910），按交易日计数。',
-  contribution: '贡献点数 ≈ 前一交易日权重 × 当日个股涨跌幅 × 前一交易日指数点位。个股涨跌幅、收盘价与流通市值取东方财富个股估值表（带交易日），指数点位取中证指数官网行情（创业板指取东方财富日 K）。',
+  returns: '近 20 / 60 日涨跌幅按当前 CICS 二级成分汇总：Σ总市值(当日) ÷ Σ总市值(20 / 60 个交易日前) − 1，只计两日都有市值的公司，总市值取东方财富个股估值表（带交易日）。用总市值可避开送转除权的假跌，但期间增发、分红会带来少量偏差；成分按当前分类，不回溯历史调整。',
+  contribution: '贡献点数 ≈ 前一交易日权重 × 当日个股涨跌幅 × 前一交易日指数点位。个股涨跌幅、收盘价与流通市值取东方财富个股估值表（带交易日），指数点位取东方财富指数日 K（带日期）。',
   weights: '权重为近似：中证官网只公开每月末的收盘权重文件，本站按成分股价格从文件日期漂移到前一交易日（未处理期间除权和股本变动）；国证官网只公开创业板指前十大权重，其余成分按流通市值分配剩余权重（国证实际按自由流通市值并分级靠档，这里未剔除限售和大股东持股），所以创业板指的误差更大。「估算合计」与指数实际涨跌点数之差即近似误差。',
   skipped: [
     '同花顺「AI 景气度分」与「景气度百分位」：同花顺专有模型，不使用同花顺接口，本页以自定景气得分替代并写明公式。',

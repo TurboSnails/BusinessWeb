@@ -1,15 +1,15 @@
-// 同花顺 · 行业景气：盘后采集中证行业估值、东财业绩报表行业汇总、中证全指行业指数涨跌，以及四个宽基的成分股贡献点数。
+// 同花顺 · 行业景气：盘后采集中证行业估值、东财业绩报表行业汇总与成分市值涨跌，以及四个宽基的成分股贡献点数。
 // 只用带日期的公开源（中证指数官网、国证指数官网、东方财富数据中心与日 K）；任一环节失败整批放弃，保留上一份文件。
 import fs from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { isTradingDay, prevTradingDay } from './market-mood-lib.mjs'
-import { addDays, csiPerfUrl, emUrl, parseCsiPerf } from './ths-market-lib.mjs'
+import { emUrl } from './ths-market-lib.mjs'
 import {
-  CICS_FROM, CONTRIB_INDICES, INDUSTRY_INDEX, PERIOD_COVERAGE, ROE_MIN_ABS, SCORE_ITEMS, SCORE_MIN_ITEMS,
+  CICS_FROM, CONTRIB_INDICES, PERIOD_COVERAGE, ROE_MIN_ABS, SCORE_ITEMS, SCORE_MIN_ITEMS,
   csiIndustryUrl, csiStockUrl, csiContribUrl, csiWeightUrl, cniWeightUrl, klineUrl,
   weekEnds, quarterEnds, periodLabel, lastYear, parseCsiIndustry, historyEntry, valuationPct, parseCsiStocks,
-  parseCpd, industryFinance, periodReturn, scoreRows, parseDet, parseCsiWeights, parseCniSample, driftWeights,
+  parseCpd, industryFinance, industryReturns, tradingDaysBack, scoreRows, parseDet, parseCsiWeights, parseCniSample, driftWeights,
   cniPrevWeights, contributions, summarize, crossCheck, parseKline, closePair,
 } from './ths-industry-lib.mjs'
 
@@ -56,7 +56,7 @@ async function xls(url, headers) {
   if (buf.length < 1000 || buf.readUInt32BE(0) !== 0xd0cf11e0) throw new Error(`不是 xls 文件：${url.slice(0, 90)}`)
   return JSON.parse(execFileSync('python3', ['-I', XLS_PY], { input: buf, maxBuffer: 32 << 20 }).toString('utf8'))
 }
-const det = async (date) => parseDet(await emAll({ reportName: 'RPT_VALUEANALYSIS_DET', columns: 'SECURITY_CODE,SECURITY_NAME_ABBR,TRADE_DATE,CLOSE_PRICE,CHANGE_RATE,NOTLIMITED_MARKETCAP_A', filter: `(TRADE_DATE='${date}')`, sortColumns: 'SECURITY_CODE', sortTypes: '1' }), date)
+const det = async (date) => parseDet(await emAll({ reportName: 'RPT_VALUEANALYSIS_DET', columns: 'SECURITY_CODE,SECURITY_NAME_ABBR,TRADE_DATE,CLOSE_PRICE,CHANGE_RATE,NOTLIMITED_MARKETCAP_A,TOTAL_MARKET_CAP', filter: `(TRADE_DATE='${date}')`, sortColumns: 'SECURITY_CODE', sortTypes: '1' }), date)
 const cpd = async (period) => parseCpd(await emAll({ reportName: 'RPT_LICO_FN_CPD', columns: 'SECURITY_CODE,SECURITY_TYPE_CODE,REPORTDATE,NOTICE_DATE,PARENT_NETPROFIT,TOTAL_OPERATE_INCOME,WEIGHTAVG_ROE', filter: `(REPORTDATE='${period}')`, sortColumns: 'SECURITY_CODE', sortTypes: '1' }), period)
 const cpdCount = async (period) => (await get(emUrl({ reportName: 'RPT_LICO_FN_CPD', columns: 'SECURITY_CODE', filter: `(REPORTDATE='${period}')`, pageSize: '1', pageNumber: '1' })))?.result?.count ?? 0
 
@@ -89,6 +89,9 @@ async function loadHistory(date, todayRows) {
   return hist
 }
 
+const dayCache = new Map()
+const day = async (d) => { if (!dayCache.has(d)) dayCache.set(d, await det(d)); return dayCache.get(d) }
+
 async function industrySection(date, stocks) {
   const rows = parseCsiIndustry(await get(csiIndustryUrl(date)), date)
   const hist = await loadHistory(date, rows)
@@ -97,38 +100,26 @@ async function industrySection(date, stocks) {
   for (const q of quarterEnds(date, 4)) if (await cpdCount(q) >= stocks.size * PERIOD_COVERAGE) { period = q; break }
   if (!period) throw new Error('找不到披露充分的报告期')
   const fin = industryFinance(await cpd(period), await cpd(lastYear(period)), stocks)
-  const start = addDays(date, -140)
-  const out = []
-  for (const r of rows) {
-    const map = INDUSTRY_INDEX[r.code]
-    let ret20 = null, ret60 = null
-    if (map) {
-      const s = parseCsiPerf(await get(csiPerfUrl(map[0], start, date)), date)
-      ret20 = periodReturn(s, 20); ret60 = periodReturn(s, 60)
-    }
-    const f = fin.get(r.code) ?? { npYoy: null, revYoy: null, roe: null, finCount: 0, yoyCount: 0, roeCount: 0 }
-    out.push({
-      ...r, peP5: valuationPct(hist.dates, r.code, date, 5), peP10: null, pbP5: valuationPct(hist.dates, r.code, date, 5, 1),
-      ...f, ret20, ret60, indexCode: map?.[0] ?? null, indexName: map?.[1] ?? null,
-    })
-  }
-  if (out.filter(r => r.ret60 !== null).length < out.length - 2) throw new Error('行业指数涨跌缺失过多')
+  const r20 = industryReturns(stocks, await day(date), await day(tradingDaysBack(date, 20)))
+  const r60 = industryReturns(stocks, await day(date), await day(tradingDaysBack(date, 60)))
+  const out = rows.map(r => ({
+    ...r, peP5: valuationPct(hist.dates, r.code, date, 5), peP10: null, pbP5: valuationPct(hist.dates, r.code, date, 5, 1),
+    ...(fin.get(r.code) ?? { npYoy: null, revYoy: null, roe: null, finCount: 0, yoyCount: 0, roeCount: 0 }),
+    ret20: r20.get(r.code) ?? null, ret60: r60.get(r.code) ?? null,
+  }))
+  if (out.filter(r => r.ret60 !== null).length < out.length - 2) throw new Error('行业涨跌缺失过多')
   const samples = Object.keys(hist.dates).filter(d => d >= CICS_FROM)
   return { hist, data: { period, periodLabel: periodLabel(period), priorPeriod: lastYear(period), historyFrom: samples[0], historySamples: samples.length, rows: scoreRows(out) } }
 }
 
 async function contributionSection(date, stocks) {
   const prev = prevTradingDay(date)
-  const dayCache = new Map()
-  const day = async (d) => { if (!dayCache.has(d)) dayCache.set(d, await det(d)); return dayCache.get(d) }
   const today = await day(date), prevDay = await day(prev)
   const official = await get(csiContribUrl)
   const offMap = official?.data?.updateDate === date.replaceAll('-', '') ? official.data.contributionPointMap ?? {} : {}
   const out = []
   for (const idx of CONTRIB_INDICES) {
-    const series = idx.code.startsWith('399')
-      ? parseKline(await get(klineUrl(`0.${idx.code}`, date), 'json', { referer: 'https://quote.eastmoney.com/' }), date)
-      : parseCsiPerf(await get(csiPerfUrl(idx.code, addDays(date, -14), date)), date)
+    const series = parseKline(await get(klineUrl(`${idx.code.startsWith('399') ? 0 : 1}.${idx.code}`, date), 'json', { referer: 'https://quote.eastmoney.com/' }), date)
     const level = closePair(series, date)
     let weights, weightDate, weightNote
     if (idx.weight === 'csi') {
@@ -165,13 +156,12 @@ async function main() {
     sources: [
       { label: '中证指数官网 · 行业市盈率（中证行业）', url: csiIndustryUrl(date) },
       { label: '中证指数官网 · 个股行业分类与市盈率', url: csiStockUrl(date) },
-      { label: '中证指数官网 · 指数行情（行业指数、宽基）', url: csiPerfUrl('932139', addDays(date, -30), date) },
       { label: '中证指数官网 · 收盘权重文件（沪深300）', url: csiWeightUrl('000300') },
       { label: '中证指数官网 · 指数贡献（核对用）', url: csiContribUrl },
       { label: '国证指数官网 · 创业板指样本与权重', url: cniWeightUrl('399006', date) },
       { label: '东方财富 · 业绩报表', url: emUrl({ reportName: 'RPT_LICO_FN_CPD' }) },
       { label: '东方财富 · 个股估值（收盘价、涨跌幅、流通市值）', url: emUrl({ reportName: 'RPT_VALUEANALYSIS_DET' }) },
-      { label: '东方财富 · 创业板指日 K', url: klineUrl('0.399006', date) },
+      { label: '东方财富 · 宽基指数日 K', url: klineUrl('1.000300', date) },
     ],
   }
   fs.mkdirSync(RAW, { recursive: true })

@@ -2,7 +2,7 @@ import type { ContribIndex, IndustryRow, ThsIndustryData } from './model'
 // 仅供测试的虚构数据，不作为公开行情文件。
 const row = (code: string, name: string, l1Code: string, l1Name: string, score: number | null, npYoy: number | null): IndustryRow => ({
   code, name, l1Code, l1Name, cons: 100, loss: 10, pe: 20.5, pb: 2.1, dy: 1.8, peP5: 40, peP10: null, pbP5: 30,
-  npYoy, revYoy: 5, roe: 7.5, finCount: 100, yoyCount: 98, roeCount: 90, ret20: -1.2, ret60: 3.4, indexCode: '932139', indexName: '半导体行业',
+  npYoy, revYoy: 5, roe: 7.5, finCount: 100, yoyCount: 98, roeCount: 90, ret20: -1.2, ret60: 3.4,
   ranks: { npYoy: 50, revYoy: 50, roe: 50, ret60: 50 }, score,
 })
 const contrib = (code: string, name: string, source: 'csi' | 'cni'): ContribIndex => ({
