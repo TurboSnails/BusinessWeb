@@ -70,6 +70,18 @@ describe('开盘啦（市场情绪）页', () => {
   })
 })
 
+describe('审查回归', () => {
+  it('融资占比与指数缺失时不崩溃；指数成交额历史为空时仍显示本页采集的量能', async () => {
+    const f = moodFixture()
+    f.margin = [{ date: '2026-11-16', balance: 22357, ratio: null, hs300: null }] as never
+    f.amountHistory = []
+    stub(f)
+    renderPage()
+    expect(await screen.findByText(/占流通市值 —，沪深300 —/)).toBeTruthy()
+    expect(screen.getByRole('img', { name: '沪深京成交额走势' })).toBeTruthy()
+  })
+})
+
 describe('数据模型', () => {
   it('校验关键字段，取上一交易日', () => {
     const m = asMarketMood(moodFixture())!
