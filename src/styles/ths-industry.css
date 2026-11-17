@@ -1,0 +1,13 @@
+/* 同花顺 · 行业景气：窄屏只在表格容器内滚动，正负沿用站点红涨绿跌。 */
+.ti-page, .ti-page .mm-card { min-width: 0; max-width: 100%; }
+.ti-page .mm-method { overflow-wrap: anywhere; }
+.ti-page .mm-table th, .ti-page .mm-table td { white-space: nowrap; }
+.ti-formula { padding: 8px 12px; border-left: 3px solid var(--border-subtle); }
+.ti-sub { margin: 18px 0 8px; font-size: 0.98rem; font-weight: 600; color: var(--text-primary); }
+.ti-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 12px 0 8px; }
+.ti-summary dt { color: var(--text-secondary); font-size: 0.82rem; }
+.ti-summary dd { margin: 4px 0 0; font-size: 1.3rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.ti-summary small { display: block; color: var(--text-tertiary); font-size: 0.75rem; }
+.ti-list { margin: 0 0 12px; padding-left: 1.2em; color: var(--text-secondary); font-size: 0.88rem; line-height: 1.7; }
+.ti-summary .mm-up { color: var(--up-ink); }
+.ti-summary .mm-down { color: var(--down-ink); }
