@@ -10,7 +10,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import {
   INST_WINDOWS, LIST_LIMIT, NET_WINDOWS, STOCK_WINDOWS, assertFresh, buildBoardKind, buildPopularity, cutTo, inflowDays, instWindow,
-  lastClosedDay, parseCurrentList, parseFflow, parseHisList, parseQuotes, parseSurgeList, snapshotAllowed, stockRangeRows, stockrankData, tradingDaysBack,
+  keepBetterBoards, lastClosedDay, parseCurrentList, parseFflow, parseHisList, parseQuotes, parseSurgeList, snapshotAllowed, snapshotStillValid, stockRangeRows, stockrankData, tradingDaysBack,
 } from './kpl-rank-lib.mjs'
 
 const OUT = 'public/data/kpl-rank.json'
@@ -57,9 +57,13 @@ async function pool(items, n, fn) {
 }
 const secidOf = (code) => `${/^6/.test(code) ? 1 : 0}.${code}`
 
-const bj = new Date(Date.now() + 8 * 3600_000)
-const today = bj.toISOString().slice(0, 10)
-const minutes = bj.getUTCHours() * 60 + bj.getUTCMinutes()
+const nowBj = () => { const d = new Date(Date.now() + 8 * 3600_000); return { today: d.toISOString().slice(0, 10), minutes: d.getUTCHours() * 60 + d.getUTCMinutes() } }
+const { today, minutes } = nowBj()
+/** 不带日期的快照取完后立刻复核：仍是同一北京日期、仍在盘后时段，否则（跨过午夜等）整段作废，不能贴上 today 的日期 */
+const assertSnapshotWindow = (label) => {
+  const t = nowBj()
+  if (!snapshotStillValid(today, t)) throw new Error(`${label} 取完时已是 ${t.today} ${t.minutes} 分，不在 ${today} 盘后快照时段`)
+}
 const closed = lastClosedDay(today, minutes)
 const snapOk = snapshotAllowed(today, minutes)
 const takenAt = `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`
@@ -86,6 +90,7 @@ if (snapOk) {
       const batch = codes.slice(i, i + 100)
       for (const [k, v] of parseQuotes(await quote(`/api/qt/ulist.np/get?${new URLSearchParams({ secids: batch.map(secidOf).join(','), fields: 'f12,f14,f2,f3,f124', fltt: '2', invt: '2' })}`), today)) quotes.set(k, v)
     }
+    assertSnapshotWindow('人气榜')
     next.popularity = buildPopularity({ date: today, takenAt, top, surge, hist, quotes })
     rawPopularity = { date: today, takenAt, top: top.map((r) => [r.code, r.rank]), surge: surge.map((r) => [r.code, r.rank, r.rise]) }
     changed.push('popularity')
@@ -105,13 +110,15 @@ if (snapOk) {
     for (const w of STOCK_WINDOWS) {
       const g = await sorted(w.field, 1), l = await sorted(w.field, 0)
       assertFresh(g, today, `${w.days} 日涨幅榜`)
+      assertFresh(l, today, `${w.days} 日跌幅榜`)
       windows.push({ days: w.days, gain: stockRangeRows(g, today, w.field, w.days).slice(0, LIST_LIMIT), loss: stockRangeRows(l, today, w.field, w.days).slice(0, LIST_LIMIT) })
       await sleep(200)
     }
     const nets = []
     for (const w of NET_WINDOWS) {
       const i = await sorted(w.field, 1), o = await sorted(w.field, 0)
-      assertFresh(i, today, `${w.days} 日主力净额榜`)
+      assertFresh(i, today, `${w.days} 日主力净流入榜`)
+      assertFresh(o, today, `${w.days} 日主力净流出榜`)
       nets.push({ days: w.days, inflow: stockRangeRows(i, today, w.field, 0).slice(0, LIST_LIMIT), outflow: stockRangeRows(o, today, w.field, 0).slice(0, LIST_LIMIT) })
       await sleep(200)
     }
@@ -124,6 +131,10 @@ if (snapOk) {
     for (const n of nets) {
       for (const side of ['inflow', 'outflow']) n[side] = n[side].map((r, i) => ({ ...r, inflowDays: i < 20 ? inflowDays(series.get(r.code), n.days) : null }))
     }
+    // 两个方向都必须有数据：任何一边为空就整段不写（保留上次）
+    for (const w of windows) if (!w.gain.length || !w.loss.length) throw new Error(`${w.days} 日涨 / 跌幅榜有一边为空`)
+    for (const n of nets) if (!n.inflow.length || !n.outflow.length) throw new Error(`${n.days} 日主力净流入 / 流出榜有一边为空`)
+    assertSnapshotWindow('个股区间排行')
     next.stockRange = { date: today, windows, nets }
     changed.push('stockRange')
   } catch (e) { console.log(`个股区间排行跳过：${e.message}`) }
@@ -165,7 +176,9 @@ if (next.boards?.date !== closed || snapOk) {
       if (r.rows.length < list.length * 0.9) throw new Error(`${k} 板块 ${closed} 日线不全：${r.rows.length}/${list.length}`)
       out[k] = { rows: r.rows, missing: r.missing, ...(k === 'region' ? {} : { leaders: r.leaders }) }
     }
-    if (JSON.stringify(out) !== JSON.stringify(next.boards)) { next.boards = out; changed.push('boards') }
+    const best = keepBetterBoards(next.boards, out)
+    if (best !== out) console.log(`板块区间排行：本次缺日线的板块比已有的 ${closed} 结果多，保留已有结果`)
+    else if (JSON.stringify(out) !== JSON.stringify(next.boards)) { next.boards = out; changed.push('boards') }
   } catch (e) { console.log(`板块区间排行跳过：${e.message}`) }
 }
 

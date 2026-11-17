@@ -60,6 +60,9 @@ describe('开盘啦 · 人气排行页', () => {
     fireEvent.click(screen.getByRole('button', { name: '从高到低' }))
     expect(within(screen.getByRole('region', { name: '地区板块区间排行' })).getAllByRole('row')[1].textContent).toContain('辽宁板块')
     expect(screen.queryByRole('region', { name: '地区每日领涨板块' })).toBeNull()
+    fireEvent.click(within(screen.getByRole('group', { name: '板块类型' })).getByText('概念'))
+    expect(screen.getByText(/这次不统计领涨次数与每日领涨/)).toBeTruthy()
+    expect(screen.queryByRole('region', { name: '概念每日领涨板块' })).toBeNull()
   })
 
   it('机构多日榜：窗口与方向切换，缺失日期有提示', async () => {
@@ -74,6 +77,9 @@ describe('开盘啦 · 人气排行页', () => {
     expect(screen.getByRole('region', { name: '近 3 日机构净卖出排行' }).textContent).toContain('−3.00 亿')
     fireEvent.click(within(screen.getByRole('group', { name: '机构统计天数' })).getByText('20 日'))
     expect(screen.getByText(/缺少 10\/22 的龙虎榜明细/)).toBeTruthy()
+    expect(screen.getByText(/明细不全，不统计/)).toBeTruthy()
+    expect(screen.queryByRole('region', { name: '近 20 日机构净卖出排行' })).toBeNull()
+    expect(screen.queryByText(/近 20 日没有机构/)).toBeNull()
   })
 
   it('某部分缺失时该卡片显示空状态，其余照常', async () => {

@@ -5,12 +5,13 @@
 // - 东财涨停池 / 昨日涨停池（push2ex，带日期）；
 // - 东财 A 股行情快照 clist（不带日期）只用来挑「成交额前 N」候选股和取行业名；用分时当日成交额核对快照确属目标交易日，对不上就放弃本次。
 // 历史：data-raw/kpl-auction/history.json；分时可回取近 5 个交易日，首次运行回补（标 backfilled）。
-// 用法：node scripts/kpl-auction.mjs（交易日 15:10 后）；DATE=YYYY-MM-DD 指定目标交易日（数据全部带日期并逐项核对，可在当晚或次日凌晨补跑）。
+// 用法：node scripts/kpl-auction.mjs（交易日 15:10 后、同一北京日期内）。DATE=YYYY-MM-DD 只能是今天：
+// 候选股要用不带日期的行情快照挑，历史日期或跨过午夜都拿不到那天的快照，所以不补跑（取完快照后还会复核时段）。
 import fs from 'node:fs'
 import { isTradingDay, prevTradingDay } from './market-mood-lib.mjs'
 import {
-  checkSnapshot, dayStats, groupSummary, historyRow, indexRow, latestDay, marketDay, mergeHistory, parseMinutes, parseSnapshotRow,
-  pickCandidates, secidOf, stockRow,
+  checkSnapshot, dayStats, groupSummary, historyRow, indexRow, isRegression, latestDay, marketDay, mergeHistory, mergeSameDay, parseMinutes, parseSnapshotRow,
+  pickCandidates, secidOf, snapshotCovers, stockRow,
 } from './kpl-auction-lib.mjs'
 
 const OUT = 'public/data/kpl-auction.json'
@@ -64,13 +65,18 @@ async function pool(items, fn) {
 }
 
 // ---------- 目标交易日 ----------
-const bj = new Date(Date.now() + 8 * 3600_000)
-const bjToday = bj.toISOString().slice(0, 10)
+const nowBj = () => { const d = new Date(Date.now() + 8 * 3600_000); return { today: d.toISOString().slice(0, 10), minutes: d.getUTCHours() * 60 + d.getUTCMinutes() } }
+const bjToday = nowBj().today
 const envDate = /^\d{4}-\d{2}-\d{2}$/.test(process.env.DATE ?? '') ? process.env.DATE : null
 const date = envDate ?? bjToday
+const inSnapshotWindow = () => { const t = nowBj(); return t.today === date && isTradingDay(t.today) && t.minutes >= 15 * 60 + 10 }
 if (!isTradingDay(date)) { console.log(`${date} 非交易日，跳过`); process.exit(0) }
-if (envDate ? date > bjToday : bj.getUTCHours() * 60 + bj.getUTCMinutes() < 15 * 60 + 10) { console.log(`${date} 未收盘，跳过`); process.exit(0) }
-if (envDate && date === bjToday && bj.getUTCHours() * 60 + bj.getUTCMinutes() < 15 * 60 + 10) { console.log(`${date} 未收盘，跳过`); process.exit(0) }
+if (date !== bjToday) { console.log(`${date} 不是今天（${bjToday}），拿不到该日的行情快照，不补跑`); process.exit(0) }
+if (!inSnapshotWindow()) { console.log(`${date} 未收盘（15:10 后才取），跳过`); process.exit(0) }
+/** 不带日期的快照取完后立刻复核：跨过午夜或已不在盘后时段就放弃，不能贴上 date */
+const assertSnapshotWindow = (label) => { if (!inSnapshotWindow()) { console.log(`${label} 取完时已不在 ${date} 盘后快照时段（可能跨过午夜），放弃本次`); process.exit(0) } }
+let prevPayload = null
+try { prevPayload = JSON.parse(fs.readFileSync(OUT, 'utf8')) } catch { prevPayload = null }
 const prevDate = prevTradingDay(date)
 const started = Date.now()
 
@@ -98,8 +104,10 @@ async function ztPool(ep, sort) {
   if (!d || String(d.qdate) !== date.replaceAll('-', '') || !Array.isArray(d.pool) || d.pool.length !== d.tc) throw new Error(`${ep} 日期或条数不符`)
   return d.pool
 }
-let zt = [], yzt = [], poolsOk = true
-try { zt = await ztPool('getTopicZTPool', 'fbt:asc'); yzt = await ztPool('getYesterdayZTPool', 'zs:desc') } catch (e) { poolsOk = false; console.log(`涨停池获取失败（只用成交额前列）：${e.message}`) }
+// 涨停池是「当日涨停 / 昨日涨停」两组的全集，取不到就整次放弃（保留上次文件），不发布缺组的结果
+let zt = [], yzt = []
+const poolsOk = true
+try { zt = await ztPool('getTopicZTPool', 'fbt:asc'); yzt = await ztPool('getYesterdayZTPool', 'zs:desc') } catch (e) { console.log(`涨停池获取失败，放弃本次：${e.message}`); process.exit(0) }
 
 // ---------- 3. 快照：成交额前 N 候选股 + 行业名 ----------
 async function clist(fs, fields, pages, fid = 'f6') {
@@ -118,10 +126,18 @@ let snapshot
 try {
   snapshot = (await clist('m:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23', 'f12,f13,f14,f6,f100', Math.ceil(TOP_N / 100) + 1)).map(parseSnapshotRow)
 } catch (e) { console.log(`行情快照获取失败：${e.message}`); process.exit(0) }
+assertSnapshotWindow('行情快照')
+if (!snapshotCovers(snapshot, TOP_N)) { console.log(`行情快照有效行不足 ${TOP_N}（${snapshot.length}），成交额前 ${TOP_N} 不完整，放弃本次`); process.exit(0) }
 const cands = pickCandidates({ snapshot, zt, yzt, topN: TOP_N })
 
 // ---------- 4. 候选股分时 ----------
 const mins = await pool(cands, (c) => minutes(secidOf(c.code, c.market)))
+// 失败的再逐只补一次，偶发超时不至于让样本变小
+for (let i = 0; i < cands.length; i++) {
+  if (mins[i]) continue
+  try { mins[i] = await minutes(secidOf(cands[i].code, cands[i].market)) } catch { mins[i] = null }
+  await sleep(200)
+}
 const statsByCode = new Map()
 const rows = []
 const backfill = new Map() // 回补日 → { top: [], yzt: [] }
@@ -142,7 +158,7 @@ cands.forEach((c, i) => {
     }
   }
 })
-if (failed > cands.length * 0.1) { console.log(`候选股分时失败过多（${failed}/${cands.length}），放弃本次`); process.exit(0) }
+if (failed > cands.length * 0.02) { console.log(`候选股分时失败过多（${failed}/${cands.length}），放弃本次`); process.exit(0) }
 const snap = checkSnapshot(snapshot, statsByCode)
 if (!snap.pass) { console.log(`行情快照与 ${date} 分时成交额对不上（${snap.ok}/${snap.n}），快照可能不是该日收盘后的，放弃本次`); process.exit(0) }
 
@@ -153,7 +169,9 @@ try {
   let concepts = []
   try {
     const special = new Set((await clist('m:90+e:4', 'f12', 3, 'f12')).map((r) => String(r.f12)))
-    concepts = (await clist('m:90+t:3+f:!50', 'f12,f14,f6', 1)).filter((r) => !special.has(String(r.f12))).slice(0, CONCEPT_N).map((r) => ({ code: String(r.f12), name: String(r.f14), kind: 'concept' }))
+    const conceptList = await clist('m:90+t:3+f:!50', 'f12,f14,f6', 1) // 按成交额排的快照列表，取完复核时段
+    assertSnapshotWindow('概念板块列表')
+    concepts = conceptList.filter((r) => !special.has(String(r.f12))).slice(0, CONCEPT_N).map((r) => ({ code: String(r.f12), name: String(r.f14), kind: 'concept' }))
   } catch (e) { console.log(`概念板块列表失败：${e.message}`) }
   const list = [...industries, ...concepts]
   const ms = await pool(list, (b) => minutes(`90.${b.code}`))
@@ -180,7 +198,7 @@ for (const d of Object.keys(sh.days).filter((x) => x < date).sort()) {
 }
 history = mergeHistory(history, [...backRows, historyRow(market, topRows, yztRows)])
 
-const payload = {
+const fresh = {
   version: 1, generatedAt: new Date().toISOString(), asOf: date, prevDate,
   note: '盘后统计，不是买卖建议。竞价数据取自东财分时首根（09:30，只含开盘集合竞价撮合）与末根（15:00，只含收盘集合竞价撮合）；拿不到竞价过程中的委托、未成交量和 L2 大单。',
   market: { ...market, sh: undefined, sz: undefined, shAuction: market.sh.auctionAmount, szAuction: market.sz.auctionAmount, shCloseAuction: market.sh.closeAuctionAmount, szCloseAuction: market.sz.closeAuctionAmount },
@@ -192,6 +210,10 @@ const payload = {
     { id: 'clist', label: '东方财富沪深 A 股行情列表（挑候选股、行业名）', url: 'https://quote.eastmoney.com/center/gridlist.html' },
   ],
 }
+if (isRegression(prevPayload, date)) { console.log(`已发布文件日期 ${prevPayload.asOf} 比 ${date} 新，不替换`); process.exit(0) }
+// 同一天重跑：指数 / 板块旧的更全就沿用；个股失败更多则整份不替换
+const payload = mergeSameDay(prevPayload, fresh)
+if (!payload) { console.log(`本次个股分时失败 ${failed} 只，多于已发布的 ${date} 结果，保留已发布文件`); process.exit(0) }
 fs.mkdirSync(RAW, { recursive: true })
 fs.writeFileSync(`${RAW}/history.json`, JSON.stringify(history))
 fs.writeFileSync(OUT, JSON.stringify(payload))

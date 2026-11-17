@@ -2,8 +2,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
-  assertFresh, boardStats, buildBoardKind, buildPopularity, cutTo, inflowDays, instDay, instWindow, isClose, lastClosedDay, leaderCounts, listedDays,
-  num, parseCurrentList, parseFflow, parseHisList, parseQuotes, parseSc, parseSurgeList, rangePct, snapshotAllowed, stockRangeRows, stockrankData, streakOf, tradingDaysBack,
+  assertFresh, boardStats, buildBoardKind, buildPopularity, cutTo, inflowDays, instDay, instWindow, isClose, lastClosedDay, keepBetterBoards, lastBars, leaderCounts, listedDays,
+  num, parseCurrentList, parseFflow, parseHisList, parseQuotes, parseSc, parseSurgeList, rangePct, snapshotAllowed, snapshotStillValid, stockRangeRows, stockrankData, streakOf, tradingDaysBack,
 } from './kpl-rank-lib.mjs'
 
 const D = '2026-11-17' // 周二
@@ -20,6 +20,10 @@ test('快照时段与最近收盘日', () => {
   assert.equal(snapshotAllowed(D, 15 * 60 + 40), true)
   assert.equal(snapshotAllowed(D, 15 * 60), false)
   assert.equal(snapshotAllowed('2026-11-15', 16 * 60), false) // 周日
+  // 跨午夜：23:59 开始、00:01 取完，不能把快照记成前一天
+  assert.equal(snapshotStillValid(D, { today: D, minutes: 23 * 60 + 59 }), true)
+  assert.equal(snapshotStillValid(D, { today: '2026-11-18', minutes: 1 }), false)
+  assert.equal(snapshotStillValid(D, { today: '2026-11-18', minutes: 16 * 60 }), false)
   assert.equal(lastClosedDay('2026-11-18', 3 * 60), D)
   assert.equal(lastClosedDay(D, 16 * 60), D)
   assert.equal(lastClosedDay('2026-11-16', 10 * 60), '2026-11-13') // 周一盘中 → 上周五
@@ -37,6 +41,10 @@ test('人气榜：代码解析、名次连续校验、飙升榜、历史', () =>
   const rows = Array.from({ length: 100 }, (_, i) => ({ sc: `SZ${String(i + 1).padStart(6, '0')}`, rk: i + 1 }))
   assert.equal(parseCurrentList(rows).length, 100)
   assert.throws(() => parseCurrentList(rows.slice(0, 50)), /条数/)
+  assert.throws(() => parseCurrentList(rows.slice(0, 90)), /条数/) // 截断到 1–90 名也不收
+  assert.throws(() => parseCurrentList([...rows, { sc: 'SZ000999', rk: 101 }]), /条数/)
+  assert.throws(() => parseSurgeList([]), /飙升榜为空/)
+  assert.throws(() => parseSurgeList([{ sc: 'bad', rk: 1 }]), /飙升榜为空/)
   assert.throws(() => parseCurrentList(rows.map((r, i) => (i === 5 ? { ...r, rk: 99 } : r))), /不连续|重复/)
   const s = parseSurgeList([{ sc: 'SH600106', rk: 2915, hrc: 563, hrcrk: 2 }, { sc: 'SZ000001', rk: 10, hrc: 900, hrcrk: 1 }])
   assert.equal(s[0].code, '000001')
@@ -108,6 +116,19 @@ test('资金流日线：解析、截到目标日、净流入天数与区间涨�
   assert.equal(st.net1, 30)
 })
 
+test('区间按确切交易日：中间缺一天时为 null，不拿更早的一根顶上', () => {
+  const k = (date, main, close) => ({ date, main, close, pct: 0 })
+  // 缺 11-16：最后 3 根是 11-12、11-13、11-17，按位置会被当成 3 日
+  const gap = [k('2026-11-11', 5, 9), k('2026-11-12', 5, 10), k('2026-11-13', 5, 11), k(D, 5, 12)]
+  assert.equal(lastBars(gap, 3), null)
+  assert.equal(inflowDays(gap, 3), null)
+  assert.equal(rangePct(gap, 2), null)
+  assert.equal(boardStats(gap).net5, null)
+  assert.equal(inflowDays(gap, 1), 1)
+  assert.deepEqual(lastBars([k('2026-11-13', 1, 1), k('2026-11-16', 1, 1), k(D, 1, 1)], 3).map((x) => x.date), ['2026-11-13', '2026-11-16', D])
+  assert.equal(lastBars([], 1), null)
+})
+
 test('领涨次数：同类板块每日涨幅第一计一次，缺日线的板块不参与', () => {
   const k = (rows) => rows.map(([date, pct]) => ({ date, main: 1, close: 100, pct }))
   const boards = [
@@ -119,7 +140,22 @@ test('领涨次数：同类板块每日涨幅第一计一次，缺日线的板�
   assert.deepEqual(counts.get('BK0001'), { lead5: 2, lead10: 2, lead20: 2 })
   const kind = buildBoardKind([...boards, { code: 'BK0003', name: '停', series: k([['2026-11-13', 9]]) }, { code: 'BK0004', name: '无', series: null }], D, tradingDaysBack(D, 3))
   assert.equal(kind.missing, 2)
-  assert.equal(kind.rows.find((r) => r.code === 'BK0002').lead5, 1)
+  // 有板块缺日线：缺的那个可能就是某天第一，领涨次数与每日领涨都不发布
+  assert.equal(kind.leaders, null)
+  assert.equal(kind.rows.find((r) => r.code === 'BK0002').lead5, null)
+  const full = buildBoardKind(boards, D, tradingDaysBack(D, 3))
+  assert.equal(full.missing, 0)
+  assert.equal(full.rows.find((r) => r.code === 'BK0002').lead5, 1)
+  assert.equal(full.leaders.length, 3)
+})
+
+test('板块段：同一天已有结果缺得更少时保留旧的', () => {
+  const b = (date, m) => ({ date, industry: { missing: m }, concept: { missing: 0 }, region: { missing: 0 } })
+  const prev = b(D, 0), worse = b(D, 3)
+  assert.equal(keepBetterBoards(prev, worse), prev)
+  assert.equal(keepBetterBoards(b(D, 3), prev), prev)
+  assert.equal(keepBetterBoards(b('2026-11-16', 0), worse), worse) // 新的一天总是替换
+  assert.equal(keepBetterBoards(null, worse), worse)
 })
 
 const seat = (name, buy, sell, dept = '0') => ({ dept, name, kind: 'x', buy, sell, net: buy === null || sell === null ? null : buy - sell })
@@ -137,9 +173,15 @@ test('机构多日：去重席位、跳过三日口径与类别披露、按交�
   assert.equal(r.length, 1)
   assert.deepEqual([r[0].buy, r[0].sell, r[0].net, r[0].seats], [1e8, 3e7, 7e7, 2])
   const day13 = { date: '2026-11-13', entries: [entry(5, '000001', 1, [seat('机构专用', 0, 2e7)], [seat('机构专用', 0, 2e7)], -5), entry(6, '600009', 1, [seat('机构专用', 1e7, null)], [seat('某营业部', 0, 1, '9')])] }
-  const days = new Map([[D, day17], ['2026-11-13', day13]])
+  const gappy = instWindow(new Map([[D, day17], ['2026-11-13', day13]]), D, 3)
+  // 缺 11-16：不能把 2 天合计当 3 日榜发布
+  assert.deepEqual(gappy.missing, ['2026-11-16'])
+  assert.equal(gappy.complete, false)
+  assert.deepEqual([gappy.totals.net, gappy.totals.stocks, gappy.buy.length, gappy.sell.length], [null, null, 0, 0])
+  const days = new Map([[D, day17], ['2026-11-16', { date: '2026-11-16', entries: [] }], ['2026-11-13', day13]])
   const w = instWindow(days, D, 3)
-  assert.deepEqual(w.missing, ['2026-11-16'])
+  assert.deepEqual(w.missing, [])
+  assert.equal(w.complete, true)
   assert.equal(w.from, '2026-11-13')
   const a = w.buy.find((x) => x.code === '000001')
   assert.deepEqual([a.net, a.times, a.seats, a.last, a.lastPct], [5e7, 2, 3, D, 10])
