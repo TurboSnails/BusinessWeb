@@ -92,3 +92,13 @@ describe('数据模型', () => {
     expect([zoneTone('贪婪风险区'), zoneTone('恐慌机会区'), zoneTone('情绪中立区')]).toEqual(['hot', 'cold', 'mid'])
   })
 })
+
+describe('同花顺页签', () => {
+  it('六个页签，市场情绪为当前页', () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, status: 200, headers: { get: () => 'application/json' }, json: async () => thsFixture() })))
+    renderPage()
+    const tabs = screen.getByRole('tablist', { name: '同花顺页签' })
+    expect(within(tabs).getAllByRole('tab').map(t => t.textContent)).toEqual(['市场情绪', '市场', '可转债', '数据中心', '港股通与AH', 'ETF资金'])
+    expect(within(tabs).getByRole('tab', { name: '市场情绪' }).getAttribute('aria-selected')).toBe('true')
+  })
+})
