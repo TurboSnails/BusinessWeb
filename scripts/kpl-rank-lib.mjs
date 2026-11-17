@@ -41,6 +41,8 @@ export function lastClosedDay(today, minutes) {
 }
 /** 盘后快照（不带日期的行情）只能在交易日 15:10 之后、同一北京日期内取 */
 export const snapshotAllowed = (today, minutes) => isTradingDay(today) && minutes >= 15 * 60 + 10
+/** 快照取完后的复核：now（{ today, minutes }，北京时间）必须仍是开始时的 today 且仍在盘后时段；跨过午夜即作废 */
+export const snapshotStillValid = (today, now) => now?.today === today && snapshotAllowed(now.today, now.minutes)
 
 /** date（含）往前数 n 个交易日，升序 */
 export function tradingDaysBack(date, n) {
@@ -63,21 +65,25 @@ export function stockrankData(body, label) {
   return body.data
 }
 
-/** 当前人气前 100（getAllCurrentList）：校验名次 1..n 连续、代码不重复 */
-export function parseCurrentList(data) {
+export const TOP_SIZE = 100
+
+/** 当前人气前 100（getAllCurrentList）：必须恰好是名次 1..100、代码不重复，缺一名也不收（不能用残缺榜替换完整榜） */
+export function parseCurrentList(data, size = TOP_SIZE) {
   const rows = data.map((r) => ({ ...parseSc(r?.sc), rank: num(r?.rk) })).filter((r) => r.code && Number.isInteger(r.rank))
-  if (rows.length < 90) throw new Error(`人气榜条数异常：${rows.length}`)
+  if (rows.length !== size || data.length !== size) throw new Error(`人气榜条数异常：${rows.length}/${data.length}，应为 ${size}`)
   rows.sort((a, b) => a.rank - b.rank)
   if (rows.some((r, i) => r.rank !== i + 1)) throw new Error('人气榜名次不连续')
   if (new Set(rows.map((r) => r.code)).size !== rows.length) throw new Error('人气榜代码重复')
   return rows
 }
 
-/** 飙升榜（getAllHisRcList）：rk 当前排名，hrc = 上一自然日排名 − 当前排名（已核对），hrcrk 飙升名次 */
+/** 飙升榜（getAllHisRcList）：rk 当前排名，hrc = 上一自然日排名 − 当前排名（已核对），hrcrk 飙升名次。空榜视为没取到 */
 export function parseSurgeList(data) {
-  return data.map((r) => ({ ...parseSc(r?.sc), rank: num(r?.rk), rise: num(r?.hrc), order: num(r?.hrcrk) }))
+  const rows = data.map((r) => ({ ...parseSc(r?.sc), rank: num(r?.rk), rise: num(r?.hrc), order: num(r?.hrcrk) }))
     .filter((r) => r.code && Number.isInteger(r.rank))
     .sort((a, b) => (a.order ?? 1e9) - (b.order ?? 1e9))
+  if (!rows.length) throw new Error('飙升榜为空')
+  return rows
 }
 
 /** 个股人气排名历史（getHisList）→ Map(date → rank)。接口按自然日给出每天的排名 */
@@ -186,21 +192,31 @@ export function cutTo(series, target) {
   return s.length && s.at(-1).date === target ? s : null
 }
 
-/** 最近 n 根里主力净流入（>0）的天数；不足 n 根或有缺失时 null */
+/**
+ * 最后一根往前、按交易日历逐日对齐的 n 根。窗口按确切交易日取（tradingDaysBack），
+ * 中间缺任何一天（漏数据或停牌）都返回 null，不能拿更早的一根顶上。
+ */
+export function lastBars(series, n) {
+  if (!series?.length || n < 1) return null
+  const dates = tradingDaysBack(series.at(-1).date, n)
+  const byDate = new Map(series.map((k) => [k.date, k]))
+  const bars = dates.map((d) => byDate.get(d))
+  return bars.every(Boolean) ? bars : null
+}
+/** 最近 n 个交易日里主力净流入（>0）的天数；缺日或有缺失值时 null */
 export function inflowDays(series, n) {
-  if (!series || series.length < n) return null
-  const xs = series.slice(-n).map((k) => k.main)
-  return xs.some((x) => x === null) ? null : xs.filter((x) => x > 0).length
+  const xs = lastBars(series, n)?.map((k) => k.main)
+  return !xs || xs.some((x) => x === null) ? null : xs.filter((x) => x > 0).length
 }
 const sumLast = (series, n) => {
-  if (!series || series.length < n) return null
-  const xs = series.slice(-n).map((k) => k.main)
-  return xs.some((x) => x === null) ? null : Math.round(xs.reduce((s, x) => s + x, 0))
+  const xs = lastBars(series, n)?.map((k) => k.main)
+  return !xs || xs.some((x) => x === null) ? null : Math.round(xs.reduce((s, x) => s + x, 0))
 }
-/** 区间涨幅：最后一根收盘相对 n 根之前的收盘 */
+/** 区间涨幅：最后一根收盘相对 n 个交易日之前那天的收盘（那天缺失则 null） */
 export function rangePct(series, n) {
-  if (!series || series.length <= n) return null
-  const a = series.at(-1 - n).close, b = series.at(-1).close
+  const bars = lastBars(series, n + 1)
+  if (!bars) return null
+  const a = bars[0].close, b = bars.at(-1).close
   return a > 0 && b !== null ? round((b / a - 1) * 100, 2) : null
 }
 
@@ -244,12 +260,24 @@ export function leaderCounts(boards, dates) {
   return { counts, leaders }
 }
 
-/** 汇总某一类板块：只保留截到 target 的板块，附领涨次数 */
+const NO_LEAD = { lead5: null, lead10: null, lead20: null }
+/**
+ * 汇总某一类板块：只保留截到 target 的板块，附领涨次数。
+ * 只要有一个板块缺日线，它可能正是某天的涨幅第一，领涨次数与每日领涨都不发布（leaders: null，lead* 为 null）。
+ */
 export function buildBoardKind(list, target, dates) {
   const ok = list.map((b) => ({ ...b, series: b.series ? cutTo(b.series, target) : null })).filter((b) => b.series)
-  const { counts, leaders } = leaderCounts(ok, dates)
-  const rows = ok.map((b) => ({ code: b.code, name: b.name, ...boardStats(b.series), ...(counts.get(b.code) ?? { lead5: 0, lead10: 0, lead20: 0 }) }))
-  return { rows, leaders, missing: list.length - ok.length }
+  const missing = list.length - ok.length
+  const { counts, leaders } = missing ? { counts: null, leaders: null } : leaderCounts(ok, dates)
+  const rows = ok.map((b) => ({ code: b.code, name: b.name, ...boardStats(b.series), ...(counts ? counts.get(b.code) ?? { lead5: 0, lead10: 0, lead20: 0 } : NO_LEAD) }))
+  return { rows, leaders, missing }
+}
+
+/** 同一天已有的板块段缺得更少时保留旧的，不用更残缺的结果替换 */
+export function keepBetterBoards(prev, next) {
+  if (!prev || prev.date !== next.date) return next
+  const miss = (b) => ['industry', 'concept', 'region'].reduce((s, k) => s + (b?.[k]?.missing ?? Infinity), 0)
+  return miss(prev) < miss(next) ? prev : next
 }
 
 /* ---------------- 机构多日榜 ---------------- */
@@ -269,10 +297,14 @@ export function instDay(day) {
   return out
 }
 
-/** 最近 n 个交易日（截至 asOf）的机构净买排行；days: Map(date → 龙虎榜原始日数据) */
+/**
+ * 最近 n 个交易日（截至 asOf）的机构净买排行；days: Map(date → 龙虎榜原始日数据)。
+ * 窗口内缺任何一天的明细就标 complete: false，合计与排行都不发布（不能把 2 天的合计当 3 日榜）。
+ */
 export function instWindow(days, asOf, n, limit = 40) {
   const dates = tradingDaysBack(asOf, n)
   const missing = dates.filter((d) => !days.has(d))
+  if (missing.length) return { days: n, from: dates[0], to: asOf, missing, complete: false, totals: { net: null, stocks: null }, buy: [], sell: [] }
   const m = new Map()
   for (const d of dates) {
     const day = days.get(d)
@@ -296,5 +328,5 @@ export function instWindow(days, asOf, n, limit = 40) {
   const buy = rows.filter((r) => r.net !== null && r.net > 0).sort(byNet).slice(0, limit)
   const sell = rows.filter((r) => r.net !== null && r.net < 0).sort((a, b) => a.net - b.net).slice(0, limit)
   const totals = { net: sumKnown(rows.map((r) => r.net)), stocks: rows.length }
-  return { days: n, from: dates[0], to: asOf, missing, totals, buy, sell }
+  return { days: n, from: dates[0], to: asOf, missing, complete: true, totals, buy, sell }
 }

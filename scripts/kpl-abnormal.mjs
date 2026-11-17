@@ -9,10 +9,10 @@
 //       DATE=YYYY-MM-DD node scripts/kpl-abnormal.mjs  只用带日期的来源（日 K、停复牌报表）补出指定交易日，不采集无日期快照
 import fs from 'node:fs'
 import path from 'node:path'
-import { isTradingDay } from './market-mood-lib.mjs'
+import { calendarCovers, isTradingDay } from './market-mood-lib.mjs'
 import {
-  BOARDS, HISTORY_DAYS, actualFromLhbDay, actualFromLhbLatest, boardOfCode, buildAbnormal, buildSuspend, compareLhb, dayRecord, delistName,
-  indexReturns, mergeHistory, parseChanges, parseKline, predictLhb, sinaBar, summarizeRadar, tradingDaysBack,
+  BOARDS, HISTORY_DAYS, actualFromLhbDay, actualFromLhbLatest, boardOfCode, buildAbnormal, buildSuspend, canReplaceOut, compareLhb, dayRecord, delistName,
+  indexReturns, mergeHistory, parseChanges, parseKline, predictLhb, replaceRecord, sinaBar, summarizeRadar, tradingDaysBack,
 } from './kpl-abnormal-lib.mjs'
 
 const OUT = 'public/data/kpl-abnormal.json'
@@ -40,23 +40,26 @@ async function get(url, { kind = 'json', headers = {} } = {}) {
 }
 
 /* ---------- 目标日期与模式 ---------- */
-const bj = new Date(Date.now() + 8 * 3600_000)
-const bjToday = bj.toISOString().slice(0, 10)
-const minutes = bj.getUTCHours() * 60 + bj.getUTCMinutes()
+const bjNow = () => { const bj = new Date(Date.now() + 8 * 3600_000); return { day: bj.toISOString().slice(0, 10), minutes: bj.getUTCHours() * 60 + bj.getUTCMinutes() } }
+const { day: bjToday, minutes } = bjNow()
 const envDate = process.env.DATE ?? ''
 const datedOnly = /^\d{4}-\d{2}-\d{2}$/.test(envDate)
 const date = datedOnly ? envDate : bjToday
+if (!calendarCovers(date)) { console.log(`${date} 所在年份不在休市表内（scripts/market-mood-lib.mjs），无法确定交易日，跳过`); process.exit(0) }
 if (!isTradingDay(date)) { console.log(`${date} 非交易日，跳过`); process.exit(0) }
 if (datedOnly && date > bjToday) { console.log(`${date} 晚于今天，跳过`); process.exit(0) }
 if (!datedOnly && minutes < 15 * 60 + 10) { console.log(`${date} 未收盘（北京 ${Math.floor(minutes / 60)}:${String(minutes % 60).padStart(2, '0')}），跳过`); process.exit(0) }
 // 无日期快照（新浪全市场、盘口异动）只在交易日 15:10 后的当天采集
 const live = !datedOnly
+// 无日期快照取回后再核一次：仍是同一个北京日期的交易日且在 15:10 之后（防止跨过午夜把次日数据记成前一天）
+const stillLive = () => { const n = bjNow(); return n.day === date && n.minutes >= 15 * 60 + 10 }
 
 const klineUrl = (secid, lmt) => `https://push2his.eastmoney.com/api/qt/stock/kline/get?${new URLSearchParams({ secid, fields1: 'f1,f2,f3', fields2: 'f51,f53,f54,f55,f56,f57,f61', klt: '101', fqt: '1', end: date.replaceAll('-', ''), lmt: String(lmt) })}`
 const emHeaders = { referer: 'https://quote.eastmoney.com/' }
 
 /* ---------- 基准指数 ---------- */
 const days = tradingDaysBack(date, HISTORY_DAYS).reverse() // 从远到近，含当日
+if (!calendarCovers(days[0])) { console.log(`${days[0]} 所在年份不在休市表内，偏离值窗口无法确定，跳过`); process.exit(0) }
 const idxByDay = new Map(days.map((d) => [d, {}]))
 for (const [id, b] of Object.entries(BOARDS)) {
   const m = indexReturns(await get(klineUrl(b.index.secid, HISTORY_DAYS + 5), { headers: emHeaders }))
@@ -67,7 +70,9 @@ for (const [id, b] of Object.entries(BOARDS)) {
 /* ---------- 逐日存档 ---------- */
 const readJson = (f) => { try { return JSON.parse(fs.readFileSync(f, 'utf8')) } catch { return null } }
 const saved = new Map()
-for (const d of days.slice(0, -1)) { const r = readJson(path.join(RAW, `${d}.json`)); if (r?.date === d && r.s) saved.set(d, r) }
+for (const d of days) { const r = readJson(path.join(RAW, `${d}.json`)); if (r?.date === d && r.s) saved.set(d, r) }
+const savedToday = saved.get(date) ?? null
+saved.delete(date)
 // 30 日窗口 + 当日：最近 31 个交易日必须齐全，否则用日 K 逐只补齐
 const need = days.slice(-32, -1)
 const sweep = datedOnly || need.some((d) => !saved.has(d))
@@ -101,36 +106,52 @@ async function codeList() {
 }
 
 let bars = []
+let todayMiss = []
 const records = new Map(saved)
 if (sweep) {
   const list = await codeList()
   console.log(`逐只补日 K：${list.length} 只${datedOnly ? '（DATE 模式）' : '（存档不全）'}`)
   const perDay = new Map(days.map((d) => [d, {}]))
-  let cursor = 0, fail = 0
-  await Promise.all(Array.from({ length: 8 }, async () => {
-    while (cursor < list.length) {
-      const it = list[cursor++]
-      let k
-      try { k = parseKline(await get(klineUrl(`${it.code.startsWith('6') ? 1 : 0}.${it.code}`, HISTORY_DAYS + 1), { headers: emHeaders }), HISTORY_DAYS + 1) } catch { fail++; continue }
-      if (!k) { fail++; continue }
-      const name = k.name || it.name
-      if (delistName(name)) continue
-      for (const bar of k.bars) if (perDay.has(bar.date)) perDay.get(bar.date)[it.code] = bar.ret
-      const t = k.bars.at(-1)
-      if (t?.date === date) bars.push({ code: it.code, name, board: boardOfCode(it.code), close: t.close, prev: t.prev, high: t.high, low: t.low, volume: t.volume, amount: t.amount, turnover: t.turnover, ret: t.ret })
-    }
-  }))
-  if (fail > list.length * 0.02) throw new Error(`日 K 失败过多（${fail}/${list.length}），放弃本次`)
+  const failed = new Set()
+  const one = async (it) => {
+    let k
+    try { k = parseKline(await get(klineUrl(`${it.code.startsWith('6') ? 1 : 0}.${it.code}`, HISTORY_DAYS + 1), { headers: emHeaders }), HISTORY_DAYS + 1) } catch { k = null }
+    if (!k) { failed.add(it.code); return }
+    failed.delete(it.code)
+    const name = k.name || it.name
+    if (delistName(name)) return
+    for (const bar of k.bars) if (perDay.has(bar.date)) perDay.get(bar.date)[it.code] = bar.ret
+    const t = k.bars.at(-1)
+    if (t?.date === date) bars.push({ code: it.code, name, board: boardOfCode(it.code), close: t.close, prev: t.prev, high: t.high, low: t.low, volume: t.volume, amount: t.amount, turnover: t.turnover, ret: t.ret })
+  }
+  let cursor = 0
+  await Promise.all(Array.from({ length: 8 }, async () => { while (cursor < list.length) await one(list[cursor++]) }))
+  // 失败的逐只再试一轮
+  for (const it of list.filter((x) => failed.has(x.code))) { await sleep(300); await one(it) }
+  if (failed.size > list.length * 0.005) { console.log(`日 K 失败过多（${failed.size}/${list.length}），不写存档也不发布`); process.exit(0) }
   if (bars.length < 4000) { console.log(`${date} 日 K 当日行情只有 ${bars.length} 只，数据未就绪，跳过`); process.exit(0) }
+  // 获取失败的代码明确记在存档里（miss）：缺数据不是停牌，计算时偏离值为空，不桥接
+  const miss = [...failed].sort()
+  todayMiss = miss
   for (const d of days.slice(0, -1)) {
-    if (!saved.has(d) || datedOnly) records.set(d, { date: d, idx: idxByDay.get(d), s: perDay.get(d), backfilled: true })
+    const rec = { date: d, idx: idxByDay.get(d), s: perDay.get(d), backfilled: true, ...(miss.length ? { miss } : {}) }
+    if (replaceRecord(saved.get(d), rec)) records.set(d, rec) // 已有存档同等或更完整时保留已有的
   }
 } else {
   bars = (await sinaMarket()).map(sinaBar).filter(Boolean).filter((b) => !delistName(b.name))
+  if (!stillLive()) { console.log(`新浪快照取回时已不在 ${date} 收盘后的当天，放弃（无日期快照不能记到别的日期）`); process.exit(0) }
   if (bars.length < 4000) throw new Error(`新浪当日有成交的沪深 A 股只有 ${bars.length} 只`)
 }
-records.set(date, { ...dayRecord(date, idxByDay.get(date), bars), source: sweep ? 'kline' : 'sina' })
-const history = days.filter((d) => records.has(d)).map((d) => ({ ...records.get(d), idx: idxByDay.get(d) }))
+const todayRec = { ...dayRecord(date, idxByDay.get(date), bars), source: sweep ? 'kline' : 'sina', ...(todayMiss.length ? { miss: todayMiss } : {}) }
+records.set(date, todayRec)
+// 同一天已有更完整的存档或输出时不覆盖（例如重跑时日 K 失败比上次多）
+const prev = readJson(OUT)
+if (!replaceRecord(savedToday, todayRec, true) || !canReplaceOut(prev, date, todayMiss.length)) {
+  console.log(`${date} 已有${prev?.date > date ? '更新日期' : '同等或更完整'}的输出（${prev?.date ?? '无'}），本次不覆盖`)
+  process.exit(0)
+}
+// 没有存档的交易日记为 unknown（全部缺数据），不能被跳过而让窗口桥接
+const history = days.map((d) => ({ ...(records.get(d) ?? { date: d, s: {}, unknown: true }), idx: idxByDay.get(d) }))
 
 /* ---------- 实际龙虎榜（只读） ---------- */
 const actualByDate = new Map()
@@ -169,14 +190,21 @@ try {
   // 复牌后的累计涨跌幅（复牌首日起，按存档逐日收益复利）
   for (const r of suspend.resumed) {
     let p = 1, n = 0
-    for (const h of history) if (h.date >= r.resume && r.code in h.s && h.s[r.code] !== null) { p *= 1 + h.s[r.code] / 100; n++ }
-    r.since = n ? Math.round((p - 1) * 10000) / 100 : null
+    let gap = false
+    for (const h of history) {
+      if (h.date < r.resume) continue
+      if (h.unknown || h.miss?.includes(r.code)) { gap = true; break } // 中间缺数据：不桥接
+      if (r.code in h.s && h.s[r.code] !== null) { p *= 1 + h.s[r.code] / 100; n++ }
+    }
+    r.since = n && !gap ? Math.round((p - 1) * 10000) / 100 : null
     r.dev3 = res.devOf.get(r.code) ?? null
   }
-} catch (e) { console.log(`停复牌获取失败：${e.message}`) }
+} catch (e) {
+  // 失败时保留同一天已有的停复牌区块，不让重跑把完整的区块抹掉
+  if (prev?.date === date && prev.suspend) { suspend = prev.suspend; console.log(`停复牌获取失败（保留已有）：${e.message}`) } else console.log(`停复牌获取失败：${e.message}`)
+}
 
 /* ---------- 盘口异动（无日期快照，只在收盘后当天采集） ---------- */
-const prev = readJson(OUT)
 let radar = prev?.radar?.date === date ? prev.radar : null
 if (live) {
   try {
@@ -186,6 +214,7 @@ if (live) {
     // 当日校验：收盘后应有 14:5x 之后的事件，且封涨停板事件里能找到今日收在涨停的股票
     const lastTime = events.reduce((m, e) => (e.time > m ? e.time : m), '')
     if (events.length < 1000 || lastTime < '14:50:00') throw new Error(`盘口异动不像完整的当日数据（${events.length} 条，最后 ${lastTime}）`)
+    if (!stillLive()) throw new Error(`取回时已不在 ${date} 收盘后的当天`)
     radar = { date, ...summarizeRadar(events) }
   } catch (e) { console.log(`盘口异动获取失败（保留已有）：${e.message}`) }
 }
@@ -218,7 +247,7 @@ const out = {
   suspend,
   radar,
   history: mergeHistory(prev?.history ?? [], { date, d3up: summary.d3up, d3down: summary.d3down, severe: summary.severe, nearUp: summary.nearUp, nearDown: summary.nearDown, suspended: summary.suspended, resumed: summary.resumed, lhbPredicted: summary.lhbPredicted, lhbHit: summary.lhbHit, radarTotal: summary.radarTotal, ...(sweep ? { kline: true } : {}) }),
-  archive: { from: history[0]?.date ?? null, to: date, days: history.length, backfilled: history.filter((h) => h.backfilled).length },
+  archive: { from: history.find((h) => !h.unknown)?.date ?? null, to: date, days: history.filter((h) => !h.unknown).length, backfilled: history.filter((h) => h.backfilled).length, missing: todayMiss.length, gapDays: history.filter((h) => h.unknown || h.miss?.length).length },
   sources: [
     { id: 'kline', label: '东方财富日 K（个股前复权收盘价、基准指数）', url: 'https://quote.eastmoney.com/' },
     ...(sweep ? [] : [{ id: 'sina', label: '新浪 A 股全市场行情（当日收盘）', url: 'https://finance.sina.com.cn/' }]),
@@ -228,7 +257,7 @@ const out = {
   ],
 }
 fs.mkdirSync(RAW, { recursive: true })
-for (const [d, r] of records) if (d === date || !saved.has(d) || datedOnly) fs.writeFileSync(path.join(RAW, `${d}.json`), JSON.stringify(r))
+for (const [d, r] of records) if (d === date || r !== saved.get(d)) fs.writeFileSync(path.join(RAW, `${d}.json`), JSON.stringify(r))
 for (const f of fs.readdirSync(RAW).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().slice(0, -KEEP_RAW)) fs.rmSync(path.join(RAW, f), { force: true })
 fs.writeFileSync(OUT, JSON.stringify(out))
 console.log(JSON.stringify({ date, mode: sweep ? 'kline' : 'sina', ...summary, lhb: lhb.stats, backtest: res.backtest }))

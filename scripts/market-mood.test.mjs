@@ -1,7 +1,7 @@
 // 短线情绪页计算：板块归属、股池校验、晋级率、昨日表现、大幅回撤口径、强度分数、归档种子与历史合并
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { prevTradingDay, pickPrevState, saveState, boardCounts, boardOf, buildDay, compositeStrength, lbStrength, lin, mergeHistory, moodStatus, parseMargin, parsePool, parseSinaRow, seedFromArchive, zoneOf } from './market-mood-lib.mjs'
+import { calendarCovers, prevTradingDay, pickPrevState, saveState, boardCounts, boardOf, buildDay, compositeStrength, lbStrength, lin, mergeHistory, moodStatus, parseMargin, parsePool, parseSinaRow, seedFromArchive, zoneOf } from './market-mood-lib.mjs'
 
 const row = (code, pct, { name = '股' + code, high, prev = 10, amount = 1e8 } = {}) => {
   const price = prev * (1 + pct / 100)
@@ -170,4 +170,10 @@ test('当日量能：两指数分钟成交额累加，与上一交易日同一�
   assert.equal(intradayAmount(sh, sz, '2026-11-18'), null)
   const broken = parseTrends({ rc: 0, data: { trends: ['2026-11-17 09:30,1,1,1,1,1,,1'] } })
   assert.equal(broken['2026-11-17'], undefined) // 空成交额不当 0
+})
+
+test('休市表覆盖年份：只覆盖已录入的年份', () => {
+  assert.equal(calendarCovers('2026-11-17'), true)
+  assert.equal(calendarCovers('2027-01-04'), false)
+  assert.equal(calendarCovers('2025-12-31'), false)
 })

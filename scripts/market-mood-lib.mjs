@@ -19,6 +19,8 @@ const HOLIDAYS = [
   ['2026-01-01', '2026-01-03'], ['2026-02-15', '2026-02-23'], ['2026-04-04', '2026-04-06'],
   ['2026-05-01', '2026-05-05'], ['2026-06-19', '2026-06-21'], ['2026-09-25', '2026-09-27'], ['2026-10-01', '2026-10-07'],
 ]
+/** 休市表是否覆盖 date 所在年份：不覆盖时 isTradingDay 只能按周末判断，依赖精确交易日的脚本应拒绝运行 */
+export const calendarCovers = (d) => HOLIDAYS.some(([a]) => a.slice(0, 4) === String(d).slice(0, 4))
 export const isTradingDay = (d) => ![0, 6].includes(new Date(`${d}T00:00:00Z`).getUTCDay()) && !HOLIDAYS.some(([a, b]) => d >= a && d <= b)
 /** date 之前最近的交易日 */
 export function prevTradingDay(date) {
