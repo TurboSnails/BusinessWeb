@@ -119,7 +119,7 @@ describe('开盘啦页签', () => {
     stub(moodFixture())
     renderPage()
     const tabs = await screen.findByRole('tablist', { name: '开盘啦页签' })
-    expect(within(tabs).getAllByRole('tab').map(t => t.textContent)).toEqual(['市场情绪', '打板', '龙虎榜', '板块题材', '资金'])
+    expect(within(tabs).getAllByRole('tab').map(t => t.textContent)).toEqual(['市场情绪', '打板', '龙虎榜', '板块题材', '资金', '异动监管', '复盘', '人气排行', '竞价尾盘', '财报避雷'])
     expect(within(tabs).getByRole('tab', { name: '市场情绪' }).getAttribute('aria-selected')).toBe('true')
   })
 })

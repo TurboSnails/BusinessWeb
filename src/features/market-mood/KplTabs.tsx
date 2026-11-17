@@ -9,6 +9,11 @@ export const KPL_TABS = [
   { id: '/market-mood/lhb', label: '龙虎榜' },
   { id: '/market-mood/plates', label: '板块题材' },
   { id: '/market-mood/funds', label: '资金' },
+  { id: '/market-mood/abnormal', label: '异动监管' },
+  { id: '/market-mood/review', label: '复盘' },
+  { id: '/market-mood/rank', label: '人气排行' },
+  { id: '/market-mood/auction', label: '竞价尾盘' },
+  { id: '/market-mood/disclosure', label: '财报避雷' },
 ] as const
 export type KplTab = (typeof KPL_TABS)[number]['id']
 
