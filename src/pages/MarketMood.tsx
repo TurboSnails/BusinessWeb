@@ -168,7 +168,9 @@ function Volume({ m }: { m: MarketMood }): JSX.Element {
     if (market === 'total') {
       // 沪深两市用指数成交额历史（较长）；当日加上北证，口径为沪深京
       const own = new Map(m.history.filter(d => d.amount).map(d => [d.date, d.amount!.total]))
-      return m.amountHistory.map(d => ({ date: d.date, value: own.get(d.date) ?? d.total, muted: !own.has(d.date) }))
+      const idx = new Map(m.amountHistory.map(d => [d.date, d.total]))
+      // 两个来源的日期取并集：指数成交额历史取数失败时，本页每日采集的量能仍要显示
+      return [...new Set([...idx.keys(), ...own.keys()])].sort().map(date => ({ date, value: own.get(date) ?? idx.get(date) ?? null, muted: !own.has(date) }))
     }
     return m.history.filter(d => d.amount).map(d => ({ date: d.date, value: d.amount![market] }))
   }, [m, market])
@@ -286,7 +288,7 @@ function Margin({ m }: { m: MarketMood }): JSX.Element {
   const pick = { balance: (d: (typeof m.margin)[number]) => d.balance, ratio: (d: (typeof m.margin)[number]) => d.ratio, hs300: (d: (typeof m.margin)[number]) => d.hs300 }[view]
   const fmt = { balance: (v: number) => `${(v / 10000).toFixed(2)}万亿`, ratio: (v: number) => `${v.toFixed(2)}%`, hs300: (v: number) => v.toFixed(0) }[view]
   return (
-    <Card title="融资余额" as="section" className="mm-card" description={`${last.date}：融资余额 ${yi(last.balance)}，占流通市值 ${last.ratio.toFixed(2)}%，沪深300 ${last.hs300.toFixed(0)}`}
+    <Card title="融资余额" as="section" className="mm-card" description={`${last.date}：融资余额 ${yi(last.balance)}，占流通市值 ${last.ratio == null ? '—' : `${num(last.ratio, 2)}%`}，沪深300 ${num(last.hs300)}`}
       actions={<Segmented items={rangeItems.map(r => ({ ...r }))} value={range} onChange={setRange} label="融资余额时间范围" />}>
       <Segmented items={[{ id: 'balance', label: '融资余额' }, { id: 'ratio', label: '占流通市值比' }, { id: 'hs300', label: '对照：沪深300' }]} value={view} onChange={setView} label="融资指标" />
       <MoodChart points={sliceRange(m.margin, range).map(d => ({ date: d.date, value: pick(d) }))} label="融资余额走势" format={fmt} />

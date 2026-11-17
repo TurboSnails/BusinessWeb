@@ -48,8 +48,13 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git commit -m "data(market-mood): 短线情绪 $(TZ=Asia/Shanghai date +%Y-%m-%d)"
-          git pull --rebase origin main
-          git push
+          # 其他工作流可能同时往 main 推送：拉取变基后推送，被拒就重试，最多 5 次（东财股池过了北京午夜就取不到，不能丢）
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && git push && break
+            if [ "$i" = 5 ]; then echo "::error::推送 5 次都失败"; exit 1; fi
+            git rebase --abort 2>/dev/null || true
+            sleep $((i * 10))
+          done
           echo "changed=true" >> "$GITHUB_OUTPUT"
       - name: Deploy GitHub Pages
         if: steps.commit.outputs.changed == 'true'

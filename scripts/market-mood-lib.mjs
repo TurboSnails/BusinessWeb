@@ -14,6 +14,17 @@ const round = (x, n = 2) => (x === null || x === undefined || !Number.isFinite(x
 const mean = (xs) => { const v = xs.filter((x) => Number.isFinite(x)); return v.length ? v.reduce((s, x) => s + x, 0) / v.length : null }
 const rate = (part, total) => (total > 0 ? round((part / total) * 100, 1) : null)
 /** 把 v 从 [lo, hi] 线性映射到 [0, 100] 并截断 */
+// 上交所 2026 年休市安排（同 src/services/limitUp.ts）；之后的年份需要补充，缺失时只按周末判断
+const HOLIDAYS = [
+  ['2026-01-01', '2026-01-03'], ['2026-02-15', '2026-02-23'], ['2026-04-04', '2026-04-06'],
+  ['2026-05-01', '2026-05-05'], ['2026-06-19', '2026-06-21'], ['2026-09-25', '2026-09-27'], ['2026-10-01', '2026-10-07'],
+]
+export const isTradingDay = (d) => ![0, 6].includes(new Date(`${d}T00:00:00Z`).getUTCDay()) && !HOLIDAYS.some(([a, b]) => d >= a && d <= b)
+/** date 之前最近的交易日 */
+export function prevTradingDay(date) {
+  let t = Date.parse(`${date}T00:00:00Z`)
+  for (;;) { t -= 864e5; const d = new Date(t).toISOString().slice(0, 10); if (isTradingDay(d)) return d }
+}
 export const lin = (v, lo, hi) => (v === null || !Number.isFinite(v) ? null : Math.max(0, Math.min(100, ((v - lo) / (hi - lo)) * 100)))
 export const isST = (name) => /ST/i.test(String(name ?? ''))
 /** 新股（上市首日 N、注册制前 5 日 C）：涨跌幅不设限，不计入大幅回撤 */
@@ -51,7 +62,8 @@ export function parsePool(body, date) {
   if (body?.rc !== 0 || !d || qdate !== want || !Array.isArray(d.pool) || d.tc !== d.pool.length) throw new Error(`股池日期或完整性校验失败（${qdate || '无日期'}）`)
   return d.pool.map((r) => {
     if (!/^\d{6}$/.test(r?.c) || typeof r.n !== 'string') throw new Error('股池字段不完整')
-    const num = (x) => (Number.isFinite(Number(x)) ? Number(x) : null)
+    // null / 空串不能当 0：缺失就是缺失
+    const num = (x) => (x === null || x === undefined || String(x).trim() === '' || !Number.isFinite(Number(x)) ? null : Number(x))
     return { code: r.c, name: r.n.trim(), pct: num(r.zdp), boards: num(r.lbc), yBoards: num(r.ylbc), sector: typeof r.hybk === 'string' ? r.hybk : '', firstSeal: num(r.fbt), opens: num(r.zbc) }
   })
 }
@@ -60,8 +72,9 @@ export function parsePool(body, date) {
 export function parseMargin(body) {
   const rows = body?.result?.data
   if (!Array.isArray(rows) || !rows.length) throw new Error('融资余额数据为空')
-  return rows.map((r) => ({ date: String(r.DIM_DATE).slice(0, 10), balance: round(Number(r.RZYE) / 1e8, 0), ratio: round(Number(r.RZYEZB), 3), hs300: round(Number(r.NEW), 2) }))
-    .filter((r) => /^\d{4}-\d{2}-\d{2}$/.test(r.date) && Number.isFinite(r.balance))
+  const n = (x) => (x === null || x === undefined || String(x).trim() === '' || !Number.isFinite(Number(x)) ? null : Number(x))
+  return rows.map((r) => ({ date: String(r.DIM_DATE).slice(0, 10), balance: n(r.RZYE) === null ? null : round(n(r.RZYE) / 1e8, 0), ratio: round(n(r.RZYEZB), 3), hs300: round(n(r.NEW), 2) }))
+    .filter((r) => /^\d{4}-\d{2}-\d{2}$/.test(r.date) && r.balance !== null)
     .sort((a, b) => a.date.localeCompare(b.date))
 }
 
@@ -123,7 +136,8 @@ export function buildDay({ date, zt, zb, dt, yzt, rows, prevState, hsAmountPrev 
   const byCode = new Map(rows.map((r) => [r.code, r]))
   const breadth = computeBreadth({ rows: rows.map((r) => ({ code: r.code, pct: r.pct })), limitUp: zt.filter((r) => byCode.has(r.code)), limitDown: dt.filter((r) => byCode.has(r.code)) })
   const ztCodes = new Set(zt.map((r) => r.code))
-  const statePrev = prevState && prevState.date < date ? prevState : null
+  // 只认上一交易日的清单：中间漏采一天时，前天的炸板/大涨不能当昨天的用
+  const statePrev = prevState && prevState.date === prevTradingDay(date) ? prevState : null
   // 昨日表现
   const yLb = yzt.filter((r) => r.yBoards >= 2)
   const yBrokenPct = (statePrev?.zbCodes ?? []).map((c) => byCode.get(c)?.pct).filter((x) => Number.isFinite(x))
@@ -131,7 +145,7 @@ export function buildDay({ date, zt, zb, dt, yzt, rows, prevState, hsAmountPrev 
     zt: round(mean(yzt.map((r) => r.pct)), 2),
     lb: round(mean(yLb.map((r) => r.pct)), 2),
     broken: statePrev ? round(mean(yBrokenPct), 2) : null,
-    ztRed: rate(yzt.filter((r) => r.pct > 0).length, yzt.length),
+    ztRed: rate(yzt.filter((r) => r.pct > 0).length, yzt.filter((r) => Number.isFinite(r.pct)).length),
   }
   // 晋级率：今日 n 板家数 ÷ 昨日 n−1 板家数
   const yb = boardCounts(yzt, 'yBoards'), tb = boardCounts(zt)
@@ -191,7 +205,8 @@ export function seedFromArchive(snapshots) {
     .sort((a, b) => a.dataDate.localeCompare(b.dataDate))
   const out = []
   ok.forEach((s, i) => {
-    const prev = ok[i - 1]
+    // 只和上一交易日比；归档缺天时该日晋级率留空，不拿更早的一天充数
+    const prev = ok[i - 1]?.dataDate === prevTradingDay(s.dataDate) ? ok[i - 1] : null
     const zt = s.upStocks
     const tb = boardCounts(zt)
     const prevB = prev ? boardCounts(prev.upStocks) : null
