@@ -1,0 +1,113 @@
+/* 短线情绪页（/market-mood）。A 股习惯：红涨绿跌，用 --up / --down；颜色全部取站点变量，深色模式随变量切换。 */
+.mm-page { display: flex; flex-direction: column; gap: 16px; }
+.mm-card { margin: 0; }
+.mm-up { color: var(--up-ink); }
+.mm-down { color: var(--down-ink); }
+.mm-empty { color: var(--text-secondary); margin: 8px 0; }
+.mm-method { color: var(--text-tertiary); font-size: 0.8rem; line-height: 1.6; margin: 10px 0 0; }
+
+/* 顶部总览 */
+.mm-top { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.mm-top__cell { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.mm-top__label { color: var(--text-secondary); font-size: 0.82rem; }
+.mm-top__value { font-size: 1.6rem; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.mm-top__sub { color: var(--text-secondary); font-size: 0.82rem; }
+.mm-top__badge { align-self: flex-start; font-size: 0.78rem; padding: 2px 8px; border-radius: var(--radius-full); border: 1px solid var(--border-primary); color: var(--text-secondary); }
+.mm-top__badge.is-hot { color: var(--up-ink); border-color: var(--up); }
+.mm-top__badge.is-cold { color: var(--down-ink); border-color: var(--down); }
+
+/* 综合强度温度计 */
+.mm-thermo__bar { width: 100%; height: 14px; display: block; }
+.mm-thermo__track { fill: var(--bg-secondary); }
+.mm-thermo__fill.is-hot { fill: var(--up); }
+.mm-thermo__fill.is-mid { fill: var(--text-tertiary); }
+.mm-thermo__fill.is-cold { fill: var(--down); }
+.mm-thermo__mark { stroke: var(--bg-card); stroke-width: 0.6; }
+.mm-thermo__scale { display: flex; justify-content: space-between; color: var(--text-tertiary); font-size: 0.72rem; margin-top: 4px; }
+.mm-thermo__value { margin: 8px 0 0; }
+.mm-thermo__value strong { font-size: 1.8rem; font-variant-numeric: tabular-nums; }
+.mm-thermo__value span { color: var(--text-secondary); margin-left: 6px; }
+.mm-comment { margin: 12px 0 0; line-height: 1.7; }
+
+/* 涨跌统计 */
+.mm-split { width: 100%; height: 10px; display: block; border-radius: var(--radius-sm); overflow: hidden; }
+.mm-split .is-up, .mm-buckets .is-up { fill: var(--up); }
+.mm-split .is-down, .mm-buckets .is-down { fill: var(--down); }
+.mm-split .is-flat, .mm-buckets .is-flat { fill: var(--system-gray); }
+.mm-split__legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 0.85rem; color: var(--text-secondary); margin: 8px 0 12px; }
+.mm-buckets { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(11, minmax(0, 1fr)); gap: 4px; align-items: end; }
+.mm-buckets li { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
+.mm-buckets__col { width: 70%; height: 110px; display: block; }
+.mm-buckets__n { font-size: 0.75rem; font-variant-numeric: tabular-nums; }
+.mm-buckets__label { font-size: 0.68rem; color: var(--text-tertiary); white-space: nowrap; }
+
+/* 涨停表现 */
+.mm-boards { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.mm-boards__cell { background: var(--bg-secondary); border-radius: var(--radius-sm); padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.mm-boards__cell strong { font-size: 1.3rem; color: var(--up-ink); font-variant-numeric: tabular-nums; }
+.mm-boards__name, .mm-boards__rate { font-size: 0.78rem; color: var(--text-secondary); }
+.mm-perf { list-style: none; padding: 0; margin: 12px 0 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.mm-perf li { display: flex; flex-direction: column; gap: 2px; border-left: 2px solid var(--border-light); padding-left: 10px; }
+.mm-perf span, .mm-perf small { font-size: 0.78rem; color: var(--text-secondary); }
+.mm-perf b { font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+
+/* 今昨对比 */
+.mm-vs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.mm-vs__cell { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 12px 16px; display: flex; flex-direction: column; gap: 2px; }
+.mm-vs__cell span, .mm-vs__cell small { color: var(--text-secondary); font-size: 0.8rem; }
+.mm-vs__cell strong { font-size: 1.4rem; font-variant-numeric: tabular-nums; }
+
+/* 走势图 */
+.mm-chart { margin: 10px 0 0; }
+.mm-chart svg { width: 100%; height: auto; display: block; touch-action: pan-y; }
+.mm-chart__grid { stroke: var(--border-subtle); stroke-width: 1; }
+.mm-chart__tick { fill: var(--text-tertiary); font-size: 11px; font-variant-numeric: tabular-nums; }
+.mm-chart__ref { stroke: var(--text-tertiary); stroke-width: 1; stroke-dasharray: 4 4; }
+.mm-chart__ref-label { fill: var(--text-secondary); font-size: 11px; }
+.mm-chart__line { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.mm-chart__line.is-muted { stroke: var(--text-tertiary); stroke-dasharray: 3 3; }
+.mm-chart__bar.is-up { fill: var(--up); }
+.mm-chart__bar.is-down { fill: var(--down); }
+.mm-chart__bar.is-flat { fill: var(--system-gray); }
+.mm-chart__bar.is-muted { opacity: 0.45; }
+.mm-chart__cross { stroke: var(--text-tertiary); stroke-width: 1; }
+.mm-chart__dot { fill: var(--accent); stroke: var(--bg-card); stroke-width: 2; }
+.mm-chart__solo { fill: var(--accent); }
+.mm-chart__solo.is-muted { fill: var(--text-tertiary); }
+.mm-chart__caption { font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px; min-height: 1.2em; }
+
+/* 连板强度附加 */
+.mm-promo { list-style: none; padding: 0; margin: 0 0 8px; display: flex; flex-wrap: wrap; gap: 8px 20px; }
+.mm-promo li { display: flex; gap: 6px; align-items: baseline; font-size: 0.85rem; }
+.mm-promo span { color: var(--text-secondary); }
+.mm-ladder { display: flex; flex-direction: column; gap: 6px; margin: 4px 0 6px; }
+.mm-ladder__row { display: flex; gap: 10px; align-items: baseline; }
+.mm-ladder__boards { flex: none; width: 3.5em; font-weight: 600; color: var(--up-ink); }
+.mm-ladder__stocks { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 0.88rem; }
+
+/* 表格、风向标、权重 */
+.mm-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+.mm-table th, .mm-table td { padding: 6px 8px; border-bottom: 1px solid var(--border-subtle); text-align: left; }
+.mm-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.mm-table td small { color: var(--text-tertiary); margin-left: 6px; }
+.mm-vane { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.mm-vane__item { background: var(--bg-secondary); border-radius: var(--radius-sm); padding: 10px 12px; }
+.mm-vane__head { margin: 0 0 6px; }
+.mm-vane__stocks { margin: 0; display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 0.88rem; }
+.mm-vane__stocks em { font-style: normal; color: var(--up-ink); margin-left: 2px; font-size: 0.78rem; }
+.mm-indices, .mm-weights { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px 16px; }
+.mm-indices { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border-subtle); }
+.mm-indices li, .mm-weights li { display: flex; justify-content: space-between; gap: 8px; font-size: 0.88rem; }
+.mm-indices b, .mm-weights b { font-variant-numeric: tabular-nums; }
+
+@media (max-width: 640px) {
+  .mm-top, .mm-vs { grid-template-columns: 1fr; }
+  .mm-boards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .mm-perf { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mm-vane { grid-template-columns: 1fr; }
+  .mm-buckets__label { font-size: 0.6rem; }
+}
+
+/* 六个市场的切换按钮在手机上换行，不溢出卡片 */
+.mm-card .seg { flex-wrap: wrap; max-width: 100%; }
+.mm-disclaimer { margin: 0; color: var(--text-secondary); font-size: 0.85rem; }

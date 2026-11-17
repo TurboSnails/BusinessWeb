@@ -42,6 +42,7 @@ const EXACT: Record<string, RouteSeo> = {
   '/daily-analysis': { title: '每日分析', description: '自动获取 A 股指数、成交额、涨跌停、连板梯队和股票排行榜，保留交易日快照。' },
   '/daily-analysis/legacy': { title: '每日分析 · 历史旧版', description: '原有手工复盘记录、导入导出与云同步。', noindex: true },
   '/limit-up-analysis': { title: '涨停板分析', description: '涨停板数据与题材轮动复盘。' },
+  '/market-mood': { title: '开盘啦 · 市场情绪', description: '参照开盘啦市场情绪页，收盘后的 A 股短线情绪：综合强度、涨停表现、连板强度、活跃股与市场量能。' },
   '/trading-philosophy': { title: '交易哲学', description: '长期主义的交易原则与纪律。' },
   '/sector-rotation': { title: '板块轮动', description: '行业板块轮动的观察框架与数据。' },
   '/investment-strategy': { title: '投资策略', description: '长期投资的策略框架与执行方法。' },

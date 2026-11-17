@@ -102,6 +102,14 @@ export const INVEST_GROUPS: HubGroup[] = [
     ],
   },
   {
+    id: 'third-party',
+    title: '三方平台',
+    hint: '参照第三方 App 的功能做的页面，数据来自公开行情，与这些平台官方无关。',
+    links: [
+      { path: '/market-mood', label: '开盘啦', short: '照开盘啦做的市场情绪页', desc: '收盘后的短线情绪：综合强度、涨跌分布、涨停与连板晋级、活跃股、大幅回撤、风向标、权重与融资余额' },
+    ],
+  },
+  {
     id: 'related',
     title: '相关',
     links: [
