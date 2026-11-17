@@ -1,189 +1,189 @@
 {
-  "generatedAt": "2026-11-17T16:00:01.384Z",
+  "generatedAt": "2026-10-23T14:55:55.908Z",
   "versions": [
     {
       "tag": "unreleased",
       "date": null,
       "commits": [
         {
-          "hash": "c8326636",
-          "subject": "data(etf-timing): 影子运行快照 2026-11-17",
+          "hash": "154774f",
+          "subject": "feat(life): add Human 3.0 interview and private analysis",
+          "author": "hassan",
+          "date": "2026-10-23"
+        },
+        {
+          "hash": "844e3c1",
+          "subject": "data(dcf): 预填库 2026-10-23",
           "author": "github-actions[bot]",
-          "date": "2026-11-17"
+          "date": "2026-10-23"
         },
         {
-          "hash": "5983151a",
-          "subject": "Merge branch 'feat/etf-timing-resilience'",
-          "author": "hassan",
-          "date": "2026-11-17"
-        },
-        {
-          "hash": "915a6426",
-          "subject": "feat(etf-timing): 影子运行加东财备用源，断更时发提醒邮件",
-          "author": "hassan",
-          "date": "2026-11-17"
-        },
-        {
-          "hash": "33054394",
-          "subject": "fix(etf-timing): 上一份快照不完整时标题写「起」而不是「之后」",
-          "author": "hassan",
-          "date": "2026-11-17"
-        },
-        {
-          "hash": "3bd375c6",
-          "subject": "data(etf-timing): 影子运行快照 2026-11-17",
-          "author": "github-actions[bot]",
-          "date": "2026-11-17"
-        },
-        {
-          "hash": "6881ce63",
-          "subject": "fix(etf-timing): 影子运行日线请求截止到当天，修复总是拿到前一天数据",
-          "author": "hassan",
-          "date": "2026-11-17"
-        },
-        {
-          "hash": "dad06c44",
-          "subject": "data(etf-timing): 影子运行快照 2026-11-17",
-          "author": "github-actions[bot]",
-          "date": "2026-11-17"
-        },
-        {
-          "hash": "f82b7b9c",
-          "subject": "test(ai-token): 测试不再绑定最新一期快照，恢复 Pages 构建",
-          "author": "hassan",
-          "date": "2026-11-17"
-        },
-        {
-          "hash": "78d040f6",
-          "subject": "merge: ETF 择时观察邮件与影子运行加固合入 main",
-          "author": "hassan",
-          "date": "2026-11-17"
-        },
-        {
-          "hash": "70390cff",
-          "subject": "data(etf-timing): 重新发布实验页数据（恢复长历史结果，含 11-16 快照）",
-          "author": "hassan",
-          "date": "2026-11-17"
-        },
-        {
-          "hash": "f1ac7814",
-          "subject": "fix(etf-timing): 按审查补齐漏发、超时、盘中快照与兜底重复运行",
-          "author": "hassan",
-          "date": "2026-11-17"
-        },
-        {
-          "hash": "35414b46",
-          "subject": "fix(etf-timing): 影子运行抗限流；邮件区分名单总数与实际取到只数",
-          "author": "hassan",
-          "date": "2026-11-17"
-        },
-        {
-          "hash": "74242c00",
-          "subject": "fix(etf-timing): 长历史检验取数大面积失败时不覆盖有效结果",
-          "author": "hassan",
-          "date": "2026-11-17"
-        },
-        {
-          "hash": "91fb0553",
-          "subject": "feat(etf-timing): 工作日影子运行与次日早间择时观察邮件",
-          "author": "hassan",
-          "date": "2026-11-17"
-        },
-        {
-          "hash": "c8caac7a",
-          "subject": "research(etf-timing): 长历史指数检验 2026-11-17",
-          "author": "github-actions[bot]",
-          "date": "2026-11-17"
-        },
-        {
-          "hash": "d9fcfbaa",
-          "subject": "data(etf-timing): 影子运行快照 2026-11-17",
-          "author": "github-actions[bot]",
-          "date": "2026-11-17"
-        },
-        {
-          "hash": "5d754014",
-          "subject": "merge: 将监控新功能与宏观日更合入 main",
-          "author": "hassan",
-          "date": "2026-11-17"
-        },
-        {
-          "hash": "140f882e",
-          "subject": "fix(data): 宏观快照改为工作日收盘后日更并刷新最新值",
-          "author": "hassan",
-          "date": "2026-11-17"
-        },
-        {
-          "hash": "ea60a99b",
-          "subject": "feat(monitor): 接入 OFR 对冲基金多空比，并补充股债息差对照",
-          "author": "hassan",
-          "date": "2026-11-17"
-        },
-        {
-          "hash": "e307a429",
-          "subject": "data(spread): 更新股债息差 2026-11-17",
-          "author": "github-actions[bot]",
-          "date": "2026-11-17"
-        },
-        {
-          "hash": "9cf0c846",
-          "subject": "data(cycle): 深交所成交额与融资占比本机刷新 2026-11-17",
-          "author": "szse-local-bot",
-          "date": "2026-11-17"
-        },
-        {
-          "hash": "490ade13",
+          "hash": "0eaa4dc",
           "subject": "data(daily-analysis): archive verified market snapshot",
           "author": "github-actions[bot]",
-          "date": "2026-11-17"
+          "date": "2026-10-23"
         },
         {
-          "hash": "aa23a1dc",
+          "hash": "c01adb2",
+          "subject": "data(refresh): 行情层过期数据刷新 2026-10-23",
+          "author": "hassan",
+          "date": "2026-10-23"
+        },
+        {
+          "hash": "c39919a",
+          "subject": "docs(plan): 2026-10-23 行情层过期数据刷新实施计划",
+          "author": "hassan",
+          "date": "2026-10-23"
+        },
+        {
+          "hash": "c06ebe2",
+          "subject": "docs(spec): 2026-10-23 行情层过期数据刷新设计",
+          "author": "hassan",
+          "date": "2026-10-23"
+        },
+        {
+          "hash": "39c4042",
           "subject": "data(etf): 更新 ETF 与债基技术面",
           "author": "github-actions[bot]",
-          "date": "2026-11-17"
+          "date": "2026-10-23"
         },
         {
-          "hash": "b3936cf2",
+          "hash": "a07c87e",
           "subject": "data(daily-analysis): archive verified market snapshot",
           "author": "github-actions[bot]",
-          "date": "2026-11-17"
+          "date": "2026-10-23"
         },
         {
-          "hash": "eac02988",
-          "subject": "fix(deploy): 放开构建所需技能目录遍历",
-          "author": "hassan",
-          "date": "2026-11-17"
-        },
-        {
-          "hash": "6ebe86a2",
-          "subject": "fix(deploy): 包含任务深挖构建源文件",
-          "author": "hassan",
-          "date": "2026-11-17"
-        },
-        {
-          "hash": "189e4dba",
-          "subject": "feat(monitor): 集成 ETF 复盘与美股 Put/Call 历史观察",
-          "author": "hassan",
-          "date": "2026-11-17"
-        },
-        {
-          "hash": "8b363e9b",
-          "subject": "data(dcf): 预填库 2026-11-17",
+          "hash": "f7e4d74",
+          "subject": "data(cycle): 自动证据与质量复盘 2026-10-23",
           "author": "github-actions[bot]",
-          "date": "2026-11-17"
+          "date": "2026-10-23"
         },
         {
-          "hash": "eb7816c7",
-          "subject": "data(companies): 行情刷新 2026-11-16",
+          "hash": "ea000ae",
+          "subject": "data(dcf): 预填库 2026-10-23",
           "author": "github-actions[bot]",
-          "date": "2026-11-17"
+          "date": "2026-10-23"
         },
         {
-          "hash": "9faa7a9d",
-          "subject": "data(cycle): 自动证据与质量复盘 2026-11-17",
+          "hash": "c51ba34",
+          "subject": "data(cycle): 自动证据与质量复盘 2026-10-22",
           "author": "github-actions[bot]",
-          "date": "2026-11-17"
+          "date": "2026-10-22"
+        },
+        {
+          "hash": "d51d5c1",
+          "subject": "data(etf): 更新 ETF 与债基技术面",
+          "author": "github-actions[bot]",
+          "date": "2026-10-22"
+        },
+        {
+          "hash": "4d5be71",
+          "subject": "data(dcf): 预填库 2026-10-22",
+          "author": "github-actions[bot]",
+          "date": "2026-10-22"
+        },
+        {
+          "hash": "1d93663",
+          "subject": "data(daily-analysis): archive verified market snapshot",
+          "author": "github-actions[bot]",
+          "date": "2026-10-22"
+        },
+        {
+          "hash": "d36fd2d",
+          "subject": "data(etf): 更新 ETF 与债基技术面",
+          "author": "github-actions[bot]",
+          "date": "2026-10-22"
+        },
+        {
+          "hash": "60c871b",
+          "subject": "data(daily-analysis): archive verified market snapshot",
+          "author": "github-actions[bot]",
+          "date": "2026-10-22"
+        },
+        {
+          "hash": "08535d5",
+          "subject": "data(cycle): 自动证据与质量复盘 2026-10-22",
+          "author": "github-actions[bot]",
+          "date": "2026-10-22"
+        },
+        {
+          "hash": "ec0cbc9",
+          "subject": "data(dcf): 预填库 2026-10-22",
+          "author": "github-actions[bot]",
+          "date": "2026-10-22"
+        },
+        {
+          "hash": "7f3c2da",
+          "subject": "fix(macro): reject error pages and restore valid release snapshots",
+          "author": "hassan",
+          "date": "2026-10-22"
+        },
+        {
+          "hash": "e30a1e1",
+          "subject": "feat(valuation): publish comprehensive company valuations and shared skill",
+          "author": "hassan",
+          "date": "2026-10-22"
+        },
+        {
+          "hash": "64ec375",
+          "subject": "data(cycle): 自动证据与质量复盘 2026-10-21",
+          "author": "github-actions[bot]",
+          "date": "2026-10-21"
+        },
+        {
+          "hash": "526f77c",
+          "subject": "data(etf): 更新 ETF 与债基技术面",
+          "author": "github-actions[bot]",
+          "date": "2026-10-21"
+        },
+        {
+          "hash": "8e70e2f",
+          "subject": "feat(invest): add fundamental quant research handbook",
+          "author": "hassan",
+          "date": "2026-10-21"
+        },
+        {
+          "hash": "be32a63",
+          "subject": "feat(limit-up): 板块明细表头可排序，新增复制本板块/复制全部",
+          "author": "hassan",
+          "date": "2026-10-21"
+        },
+        {
+          "hash": "0e728b9",
+          "subject": "data(dcf): 预填库 2026-10-21",
+          "author": "github-actions[bot]",
+          "date": "2026-10-21"
+        },
+        {
+          "hash": "7bb42c6",
+          "subject": "data(daily-analysis): archive verified market snapshot",
+          "author": "github-actions[bot]",
+          "date": "2026-10-21"
+        },
+        {
+          "hash": "4cf8bf2",
+          "subject": "data(daily-analysis): archive verified market snapshot",
+          "author": "github-actions[bot]",
+          "date": "2026-10-21"
+        },
+        {
+          "hash": "d9d8983",
+          "subject": "data(cycle): 自动证据与质量复盘 2026-10-21",
+          "author": "github-actions[bot]",
+          "date": "2026-10-21"
+        },
+        {
+          "hash": "a5e0eea",
+          "subject": "fix(sector-rotation): 板块排行改为每格涨幅+涨停板数+连板率，日期新到旧，按最近热门优先排序",
+          "author": "hassan",
+          "date": "2026-10-21"
+        },
+        {
+          "hash": "7174e5e",
+          "subject": "fix(seo): 补 /industry-etf 的标题与描述，预渲染不再显示「页面不存在」",
+          "author": "hassan",
+          "date": "2026-10-21"
         }
       ]
     }
