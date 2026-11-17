@@ -157,6 +157,8 @@ test('every vercel.json cron-dispatch path names an allowlisted workflow file th
   }
   assert.deepEqual(dispatched.filter(([w]) => w === 'earnings-calendar.yml').map(([, s]) => s), ['0 23 * * *'])
   assert.deepEqual(WORKFLOWS['earnings-calendar.yml'], { skipIfSucceededWithinMinutes: 360 })
+  assert.deepEqual(dispatched.filter(([w]) => w === 'macro-snapshot.yml').map(([, s]) => s), ['0 22 * * 1-5'])
+  assert.deepEqual(WORKFLOWS['macro-snapshot.yml'], { skipIfSucceededWithinMinutes: 360 })
 })
 
 test('earnings calendar dispatch skips when a run succeeded within 6 hours', async () => {

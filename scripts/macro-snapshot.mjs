@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // 生成 public/data/macro-us.json 与 macro-cn.json（取数逻辑见 server/macro.mjs）。
-// 用法：npm run macro:update     每月非农公布后运行一次即可（GitHub Action 每月 8 日自动运行）。
+// 用法：npm run macro:update
+// 自动：工作日 UTC 22:00 由 Vercel Cron 派发 macro-snapshot.yml（GitHub 22:30 兜底）；周六 UTC 06:00 再补一轮。
 // 某个数据源失败时保留上一次的读数并打印警告，不会把已有数据清空。
 import { readFile, writeFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
