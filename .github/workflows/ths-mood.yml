@@ -1,0 +1,63 @@
+name: Update THS mood
+
+# 「同花顺」页（/ths-mood）数据：每个交易日收盘后采集一次，写 public/data/ths-mood.json 与 data-raw/ths-mood/。只用公开行情，不调用同花顺接口。
+# 主触发：「Update daily analysis」跑完后接着跑（它由 Vercel Cron 与 GitHub 排程在北京 15:35 / 17:10 触发），
+# 顺带用到刚更新的每日复盘归档补早期历史；兜底：北京 16:25 自己的排程（与开盘啦页错开 5 分钟）。东财股池只能查当天，跨过北京午夜就取不到，脚本会直接退出。
+on:
+  workflow_run:
+    workflows: ['Update daily analysis']
+    types: [completed]
+  schedule:
+    - cron: '25 8 * * 1-5'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ths-mood.yml'
+      - 'scripts/ths-mood.mjs'
+      - 'scripts/ths-mood-lib.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: ths-mood
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Collect THS mood
+        run: node scripts/ths-mood.mjs
+      - name: Commit if changed
+        id: commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add public/data/ths-mood.json data-raw/ths-mood
+          if git diff --cached --quiet; then echo "changed=false" >> "$GITHUB_OUTPUT"; exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m "data(ths-mood): 同花顺情绪 $(TZ=Asia/Shanghai date +%Y-%m-%d)"
+          # 其他工作流可能同时往 main 推送：被拒就变基重试，最多 5 次（东财股池过了北京午夜就取不到，不能丢）
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && git push && break
+            if [ "$i" = 5 ]; then echo "::error::推送 5 次都失败"; exit 1; fi
+            git rebase --abort 2>/dev/null || true
+            sleep $((i * 10))
+          done
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+      - name: Deploy GitHub Pages
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --ref main
