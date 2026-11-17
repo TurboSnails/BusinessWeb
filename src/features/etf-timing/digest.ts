@@ -14,6 +14,8 @@ export type TimingDigest = {
   prevBull: boolean | null
   /** 上一份快照的数据日期（翻转与新信号都相对它判断） */
   prevAsOf: string | null
+  /** 上一份快照不完整时，那一天的信号也算新信号 */
+  prevComplete: boolean
   flipped: boolean
   buys: SignalLine[]
   sells: SignalLine[]
@@ -59,7 +61,7 @@ export function buildTimingDigest(data: EtfTiming | null, today: string): { dige
   const buys = fresh.filter(l => l.side === 'buy'), sells = fresh.filter(l => l.side === 'sell')
   return {
     digest: {
-      asOf: latest.asOf, key: timingKey(latest.asOf), bull, prevBull, prevAsOf: prev?.asOf ?? null, flipped, buys, sells,
+      asOf: latest.asOf, key: timingKey(latest.asOf), bull, prevBull, prevAsOf: prev?.asOf ?? null, prevComplete: prev?.complete ?? true, flipped, buys, sells,
       holding: latest.summary.hsHolding, n: latest.summary.n, complete: latest.complete, missing: latest.summary.missing,
       empty: !flipped && !buys.length && !sells.length,
     },
@@ -80,7 +82,7 @@ export function composeTimingEmail(d: TimingDigest, site: string): { subject: st
   const timingLine = `${state(d.bull)}（沪深300÷红利 比值${d.bull === null ? '无数据' : d.bull ? '在 20 日线上方' : '在 20 日线下方'}）${d.flipped ? `，与 ${d.prevAsOf} 相比由${state(d.prevBull)}转为${state(d.bull)}` : ''}`
   sections.push({ title: '择时状态', lines: [timingLine, ...(d.bull === false ? ['偏防守时规则不开新仓，已持有的等死叉离场。'] : [])] })
   const list = (xs: SignalLine[]) => [...xs.slice(0, MAX_LIST).map(fmtLine(d.asOf)), ...(xs.length > MAX_LIST ? [`另有 ${xs.length - MAX_LIST} 只，见实验页`] : [])]
-  const since = d.prevAsOf ? `（${d.prevAsOf} 之后）` : ''
+  const since = d.prevAsOf ? `（${d.prevAsOf} ${d.prevComplete ? '之后' : '起'}）` : ''
   if (d.buys.length) sections.push({ title: `新出现的买入信号${since}（规则在信号次日开盘进场）`, lines: list(d.buys) })
   if (d.sells.length) sections.push({ title: `新出现的卖出信号${since}（MACD 死叉）`, lines: list(d.sells) })
   const scope = d.missing ? `冻结名单 ${d.n + d.missing} 只（本次取到 ${d.n} 只）` : `冻结名单 ${d.n} 只`

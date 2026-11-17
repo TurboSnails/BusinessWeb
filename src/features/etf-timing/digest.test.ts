@@ -52,6 +52,8 @@ describe('buildTimingDigest', () => {
     if (!('digest' in gap)) throw new Error('expected digest')
     expect(gap.digest.buys.map(b => [b.code, b.date])).toEqual([['512760', '2026-11-13'], ['159915', '2026-11-12']])
     expect(composeTimingEmail(gap.digest, 'https://x.test').text).toContain('信号日 2026-11-12')
+    expect(composeTimingEmail(gap.digest, 'https://x.test').text).toContain('（2026-11-12 起）')
+    expect(composeTimingEmail(ok.digest, 'https://x.test').text).toContain('（2026-11-12 之后）')
   })
 
   it('上一天运行失败时，跨两天的信号都列出', () => {
