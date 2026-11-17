@@ -8,7 +8,7 @@ import fs from 'node:fs'
 import { isTradingDay, prevTradingDay } from './market-mood-lib.mjs'
 import {
   buildRow, callList, dcRows, discountList, downList, historyDay, issueList, maturityList, mergeHistory, parseClist, parseKline, parseLs,
-  clauseCheck, pickTarget, rightsList, secidOf, summarize, universe, updateRestarts,
+  clauseCheck, pickTarget, rightsList, secidOf, shouldReplace, summarize, universe, updateRestarts,
 } from './ths-cbond-lib.mjs'
 
 const OUT = 'public/data/ths-tab-cbond.json'
@@ -75,6 +75,9 @@ const clauseRows = await dc({ reportName: 'RPT_BOND_CB_CLAUSE', columns: 'ALL', 
 const clauses = new Map(clauseRows.map((r) => [String(r.SECURITY_CODE), r]))
 const uni = universe(list, date)
 if (uni.length < 150) throw new Error(`当日存续转债只有 ${uni.length} 只，数据异常`)
+// 条款表缺失会让转股价、强赎 / 下修 / 回售列表整体变少：覆盖不足时不写文件，保留上一份
+const clauseCovered = uni.filter((r) => clauses.has(String(r.SECURITY_CODE))).length
+if (clauseCovered < uni.length * 0.98) { console.log(`条款表只覆盖 ${clauseCovered}/${uni.length} 只，跳过`); process.exit(0) }
 
 /* ---------- 当日估值：逐日估值表优先，收盘后同一天可退回快照 ---------- */
 let quotes = await lsOf(date)
@@ -108,7 +111,7 @@ const uniqueSec = [...new Set(stockSec.values())]
 const barsBySec = new Map()
 let klineFail = 0
 await pool(uniqueSec, 6, async (sec) => { try { barsBySec.set(sec, await kline(sec)) } catch { klineFail++ } })
-if (klineFail > uniqueSec.length * 0.1) throw new Error(`正股日 K 失败 ${klineFail}/${uniqueSec.length}，放弃本次`)
+if (klineFail > uniqueSec.length * 0.03) throw new Error(`正股日 K 失败 ${klineFail}/${uniqueSec.length}，放弃本次`)
 const bars = new Map([...stockSec].map(([code, sec]) => [code, barsBySec.get(sec) ?? []]))
 const firstBars = new Map()
 await pool(issuesRaw.filter((r) => r.LISTING_DATE && r.LISTING_DATE.slice(0, 10) <= date), 4, async (r) => {
@@ -130,7 +133,8 @@ const restarts = updateRestarts(fs.existsSync(restartPath) ? JSON.parse(fs.readF
 const ctx = { clauses, bars, date, restarts }
 const issues = issueList(list, { date, firstBars, stockBars: bars })
 const call = callList(rows, ctx)
-const iPrev = index[index.findIndex((k) => k.date === date) - 1]
+// 昨收必须是上一交易日那一根；指数日 K 缺了那天就留空，不拿更早的
+const iPrev = index.find((k) => k.date === prev)
 
 /* ---------- 历史：已有记录 + 按逐日估值表回补（约一年） ---------- */
 const storePath = `${RAW}/history.json`
@@ -142,8 +146,8 @@ const lsCache = new Map()
 const lsCached = async (d) => { if (!lsCache.has(d)) lsCache.set(d, await lsOf(d).catch(() => null)); return lsCache.get(d) }
 const backfilled = []
 await pool(need, 4, async (d) => {
-  const i = calendar.indexOf(d)
-  const [cur, before] = [await lsCached(d), i > 0 ? await lsCached(calendar[i - 1]) : null]
+  // 涨跌按交易日历的上一交易日计算；那天的估值表缺失时涨跌留空
+  const [cur, before] = [await lsCached(d), await lsCached(prevTradingDay(d))]
   if (!cur || !cur.size) return
   const u = universe(list, d)
   const rs = u.map((it) => {
@@ -154,6 +158,16 @@ await pool(need, 4, async (d) => {
   backfilled.push(historyDay(d, summarize(rs), { source: 'report', backfilled: true }))
 })
 const todayRec = historyDay(date, summary, { source })
+const quotesCovered = uni.filter((r) => quotes.get(String(r.SECURITY_CODE))?.close != null).length
+const quality = { universe: uni.length, clauses: clauseCovered, quotes: quotesCovered, klineFail, klineTotal: uniqueSec.length }
+const published = (() => { try { return JSON.parse(fs.readFileSync(OUT, 'utf8')) } catch { return null } })()
+if (!shouldReplace(published, { asOf: date, source, quality })) {
+  // 已发布的更好（同日更完整、或是更晚的日期）：公开文件不动；历史日期的重跑仍可补进走势历史，同一天则连历史也不覆盖
+  const add = published.asOf === date ? backfilled : [...backfilled, todayRec]
+  if (add.length) { fs.mkdirSync(RAW, { recursive: true }); fs.writeFileSync(storePath, JSON.stringify({ days: mergeHistory(store.days, add) })) }
+  console.log(`保留已发布的 ${published.asOf}（${published.source}），本次 ${date}（${source}）不替换：${JSON.stringify({ old: published.quality ?? null, now: quality, historyAdded: add.length })}`)
+  process.exit(0)
+}
 const days = mergeHistory(store.days, [...backfilled, todayRec])
 
 const payload = {
@@ -161,6 +175,7 @@ const payload = {
   generatedAt: new Date().toISOString(),
   asOf: date,
   source,
+  quality,
   note: '盘后统计，不是买卖建议。双低、到期税前收益率、强赎 / 下修 / 回售计数、百元股票含权等为本站按公开数据计算，口径见页面说明。',
   index: { close: iBar.close, pct: iBar.pct, prevClose: iPrev?.close ?? null },
   summary,

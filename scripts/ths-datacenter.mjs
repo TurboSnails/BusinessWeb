@@ -6,7 +6,7 @@
 // 用法：node scripts/ths-datacenter.mjs   （AS_OF=YYYY-MM-DD 可指定数据日期，只用于排查）
 import fs from 'node:fs'
 import path from 'node:path'
-import { addDays, buildBuyback, buildCalendar, buildGoodwill, buildHolders, buildLift, buildPledge, buildSubNew, checkComplete, closeOn, GOODWILL_LINES, latestPeriod, mergeHistory, parseKline, PLEDGE_LINES, secidOf, SUBNEW_DAYS, targetDay, WINDOW } from './ths-datacenter-lib.mjs'
+import { addDays, buildBuyback, buildCalendar, buildGoodwill, buildHolders, buildLift, buildPledge, buildSubNew, checkComplete, closeOn, GOODWILL_LINES, latestPeriod, mergeHistory, parseKline, PLEDGE_LINES, secidOf, shouldReplace, SUBNEW_DAYS, targetDay, WINDOW } from './ths-datacenter-lib.mjs'
 
 const OUT = 'public/data/ths-tab-datacenter.json'
 const RAW = 'data-raw/ths-tab-datacenter'
@@ -106,6 +106,13 @@ try {
   const liftBars = await klines(liftItems, 1, () => 40, asOf)
   const missK = [...subBars.values(), ...liftBars.values()].filter((v) => v === null).length
   if (missK > (subItems.length + liftItems.length) * 0.1) throw new Error(`日 K 失败过多（${missK}）`)
+  const quality = { klineMiss: missK, klineTotal: subItems.length + liftItems.length }
+  // 同一天已有更完整的一份（日 K 失败更少）、或已发布更晚的日期时，不覆盖（也不改历史）
+  const published = (() => { try { return JSON.parse(fs.readFileSync(OUT, 'utf8')) } catch { return null } })()
+  if (!shouldReplace(published, { asOf, quality })) {
+    console.log(`保留已发布的 ${published.asOf}（日 K 缺 ${published.quality?.klineMiss ?? '?'}），本次 ${asOf} 日 K 缺 ${missK}，不替换`)
+    process.exit(0)
+  }
 
   const subNew = buildSubNew(ipoSub.rows, subBars, asOf)
   const recent = subNew.rows.filter((r) => r.listDate >= addDays(asOf, -WINDOW + 1))
@@ -123,7 +130,7 @@ try {
   const prevHist = (() => { try { return JSON.parse(fs.readFileSync(HIST, 'utf8')) } catch { return [] } })()
   const history = mergeHistory(prevHist, day)
   out = {
-    version: 1, generatedAt: new Date().toISOString(), asOf,
+    version: 1, generatedAt: new Date().toISOString(), asOf, quality,
     note: '盘后整理的公开披露数据，只列客观数值与阈值说明，不做评级，不构成投资建议。',
     ipo: { calendar: buildCalendar(ipoCal.rows, asOf), recent, subNew },
     lift, holders: hold, pledge, goodwill, buyback: bb, history,

@@ -4,7 +4,7 @@ import assert from 'node:assert/strict'
 import { isTradingDay, prevTradingDay } from './market-mood-lib.mjs'
 import {
   buildRow, callList, callStatus, clauseCheck, countDays, couponsOf, dcRows, discountList, downList, downStatus, issueList, maturityList, median, mergeHistory,
-  numOf, parseClist, parseKline, parseLs, parseProgress, pickTarget, rightsList, secidOf, summarize, universe, updateRestarts, ytm,
+  numOf, parseClist, parseKline, parseLs, parseProgress, pickTarget, rightsList, secidOf, shouldReplace, summarize, universe, updateRestarts, ytm,
 } from './ths-cbond-lib.mjs'
 
 const bars = (closes, end = '2026-11-17') => {
@@ -201,4 +201,43 @@ test('打新债与抢权配债：首日表现须是上市日，含权与最低�
   assert.equal(b.profitPerLot, 317.9)
   assert.equal(b.winRate, 0.00386)
   assert.deepEqual(rightsList(issues, '2026-11-17').map((r) => r.code), ['111027'])
+})
+
+test('缺失值：只有空白的字符串也算缺失，不当 0', () => {
+  assert.equal(numOf(' '), null)
+  assert.equal(numOf('  -  '), null)
+  assert.equal(numOf('\t'), null)
+  assert.equal(numOf(' 1.5 '), 1.5)
+  const m = parseLs([{ DATE: '2026-11-17 00:00:00', ZCODE: '113001', FCLOSE: ' ', SWAPVALUE: '-', PUREBONDVALUE: '', SWAPOR: '  ', PUREBONDOR: null }], '2026-11-17')
+  assert.deepEqual(m.get('113001'), { close: null, convValue: null, bondValue: null, premium: null, bondPremium: null })
+})
+
+test('票息年份必须连续：缺一年不算；现值算不出时不返回区间端点', () => {
+  assert.equal(couponsOf('第1年0.2%,第3年0.8%'), null)
+  assert.equal(couponsOf('第2年0.4%'), null)
+  const base = { price: 100, valueDate: '2021-11-17', expireDate: '2027-11-17', redeem: 110, date: '2026-11-17' }
+  // 稀疏数组（第 5 年空位）直接拒绝，而不是得到 NaN 现值后返回 −90%
+  const sparse = [1, 1, 1, 1]; sparse[5] = 2
+  assert.equal(ytm({ ...base, coupons: sparse }), null)
+  assert.equal(ytm({ ...base, coupons: [1, 1, 1, 1, NaN, 2] }), null)
+  assert.equal(ytm({ ...base, redeem: NaN }), null)
+})
+
+test('发布替换：更晚的已发布文件、同日逐日估值表、同日更完整的结果都不被替换', () => {
+  const q = { clauses: 400, quotes: 398, klineFail: 0 }
+  const rep = { asOf: '2026-11-17', source: 'report', quality: q }
+  assert.equal(shouldReplace(null, rep), true)
+  assert.equal(shouldReplace({ asOf: '2026-11-16', source: 'report', quality: q }, rep), true)
+  // DATE 历史重跑不覆盖更新的公开文件
+  assert.equal(shouldReplace(rep, { ...rep, asOf: '2026-11-16' }), false)
+  // 同日：快照不覆盖逐日估值表；逐日估值表可覆盖快照
+  assert.equal(shouldReplace(rep, { ...rep, source: 'snapshot' }), false)
+  assert.equal(shouldReplace({ ...rep, source: 'snapshot' }, rep), true)
+  // 同日同来源：条款 / 估值覆盖更少、日 K 失败更多的不覆盖
+  assert.equal(shouldReplace(rep, { ...rep, quality: { ...q, klineFail: 3 } }), false)
+  assert.equal(shouldReplace(rep, { ...rep, quality: { ...q, quotes: 390 } }), false)
+  assert.equal(shouldReplace(rep, { ...rep, quality: { ...q, clauses: 395 } }), false)
+  assert.equal(shouldReplace(rep, { ...rep, quality: { ...q } }), true)
+  // 旧文件没有完整度记录时允许替换
+  assert.equal(shouldReplace({ asOf: '2026-11-17', source: 'report' }, rep), true)
 })
