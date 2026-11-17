@@ -34,7 +34,9 @@ async function bars(code) {
   const out = new Map(); const end = new Date().getFullYear()
   for (let y = 2010; y <= end; y += 3) {
     const host = y % 2 ? 'https://proxy.finance.qq.com/ifzqgtimg' : 'https://web.ifzq.gtimg.cn'
-    const url = `${host}/appstock/app/fqkline/get?param=${sym(code)},day,${y}-01-01,${y + 2}-12-31,1000,qfq`
+    // 结束日期不能写到未来：腾讯在结束日晚于今天时只返回到昨天（2026-11-17 实测），所以最多截到北京当天
+    const stop = `${y + 2}-12-31` < bjToday ? `${y + 2}-12-31` : bjToday
+    const url = `${host}/appstock/app/fqkline/get?param=${sym(code)},day,${y}-01-01,${stop},1000,qfq`
     const j = await getJson(url)
     const d = j?.data?.[sym(code)]; for (const r of d?.qfqday || d?.day || []) out.set(r[0], { date: r[0], open: +r[1], close: +r[2], high: +r[3], low: +r[4] })
     await sleep(400)
