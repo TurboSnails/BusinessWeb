@@ -5,13 +5,15 @@
 // 快照仓：data-raw/kpl-review/closes/<日期>.csv；回补进度 data-raw/kpl-review/backfill.json（每次最多回补 BACKFILL_MAX 只股票，默认 1500）。
 // 用法：node scripts/kpl-review.mjs                     收盘后（北京 15:10 之后）的正常运行，用新浪当日快照
 //       DATE=YYYY-MM-DD node scripts/kpl-review.mjs     只用带日期的数据重算某日：快照仓已有该日（日 K 回补）且股池 qdate = 该日
-//       BACKFILL_ONLY=1 BACKFILL_MAX=6000 node ...      只做快照仓回补
+//       BACKFILL_ONLY=1 BACKFILL_MAX=6000 node ...      只做快照仓回补（回补完成后也做缺口修补）
+// 缺口修补：快照仓窗口内漏掉的过去交易日（上证指数日 K 与交易日历都认定开市），用东财前复权日 K 逐股重建，
+//   每次最多 REPAIR_MAX 只（默认 2000，0 = 关闭），进度 data-raw/kpl-review/repair.json，全部完成并通过校验才写出 closes/<日期>.csv。
 import fs from 'node:fs'
 import { calendarCovers, isTradingDay, prevTradingDay } from './market-mood-lib.mjs'
 import { mapDt, mapYzt, mapZb, mapZt, parseSinaFull, poolRaw } from './kpl-daban-lib.mjs'
 import {
-  BACKFILL_DAYS, KEEP_CLOSE_DAYS, NEW_HIGH_DAYS, TAGS, buildDay, canReplaceOut, firstSeenOf, formatCloses, historyOf, mergeKline, mergeStore, newHighHistory, newHighsAt,
-  nextPerf, parseCloses, parseKline, pctAt, seedDays, sinaToRows, snapshotComplete, tagStats, tradingWindow,
+  BACKFILL_DAYS, KEEP_CLOSE_DAYS, NEW_HIGH_DAYS, TAGS, buildDay, canReplaceOut, firstSeenOf, formatCloses, historyOf, mergeKline, mergeStore, missingDays, newHighHistory, newHighsAt,
+  newRepair, nextPerf, parseCloses, parseKline, pctAt, repairEntry, repairFinalize, repairPlan, repairRecord, repairTodo, seedDays, sinaToRows, snapshotComplete, tagStats, tradingWindow,
 } from './kpl-review-lib.mjs'
 
 const OUT = 'public/data/kpl-review.json'
@@ -22,6 +24,8 @@ const SINA = 'https://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.p
 const EM_REF = { referer: 'https://quote.eastmoney.com/' }
 const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36'
 const BACKFILL_MAX = Number(process.env.BACKFILL_MAX ?? 1500)
+const REPAIR_MAX = Number(process.env.REPAIR_MAX ?? 2000)
+const REPAIR_FILE = `${RAW}/repair.json`
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 async function get(url, { kind = 'json', headers = {} } = {}) {
@@ -110,6 +114,78 @@ async function backfill(meta) {
   return bf
 }
 
+/* ---------- 快照仓缺口修补（东财日 K，前复权，带日期；口径见 kpl-review-lib.mjs 末尾） ---------- */
+const writeAtomic = (f, text) => { fs.writeFileSync(`${f}.tmp`, text); fs.renameSync(`${f}.tmp`, f) } // 临时文件名不匹配 <日期>.csv，读者看不到
+const marketOf = new Map()
+async function repairGaps(meta) {
+  if (!(REPAIR_MAX > 0)) return
+  for (const u of meta.list) marketOf.set(u.code, u.market)
+  let budget = REPAIR_MAX
+  for (;;) {
+    const stored = listDays()
+    if (stored.length < 2) return
+    const to = prevTradingDay(date) // 只修过去的交易日；当日快照由新浪写
+    const saved = readJson(REPAIR_FILE, {})
+    const keepLog = (entry = null) => writeAtomic(REPAIR_FILE, JSON.stringify({ version: 1, date: null, log: (saved.log ?? []).concat(entry ? [entry] : []).slice(-20) }))
+    let indexDates
+    try {
+      const j = await get(`https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=1.000001&fields1=f1&fields2=f51&klt=101&fqt=0&beg=${stored[0].replaceAll('-', '')}&end=${to.replaceAll('-', '')}`, { headers: EM_REF })
+      indexDates = (j?.data?.klines ?? []).map((s_) => String(s_).slice(0, 10)).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d))
+    } catch (e) { console.log(`缺口检查：上证指数日 K 取不到（${e.message}），本次不修补`); return }
+    if (!indexDates.length) { console.log('缺口检查：上证指数日 K 为空，本次不修补'); return }
+    const { missing, indexOnly, calendarOnly } = missingDays({ stored, indexDates, from: stored[0], to, isTrading: isTradingDay })
+    if (indexOnly.length) console.log(`缺口检查：指数日 K 有、交易日历没有的日子 ${indexOnly.join(',')}（请核对 market-mood-lib 休市表），不修补`)
+    if (calendarOnly.length) console.log(`缺口检查：交易日历有、指数日 K 没有的日子 ${calendarOnly.join(',')}（请核对休市表），不修补`)
+    let rep = saved.date && missing.includes(saved.date) && saved.plan ? saved : null
+    if (!missing.length) { if (saved.date) keepLog(); console.log(`快照仓无缺口（${stored[0]} ~ ${to}）`); return }
+    if (budget <= 0) { console.log(`快照仓缺 ${missing.length} 个交易日（${missing.join(',')}），本次请求额度已用完，下次继续`); return }
+    const days = loadAll()
+    if (!rep) rep = newRepair(missing[0], repairPlan(days, missing[0]))
+    const gap = rep.date
+    const todo = repairTodo(rep, budget)
+    budget -= todo.length
+    let cursor = 0, fetched = 0
+    await Promise.all(Array.from({ length: 4 }, async () => {
+      while (cursor < todo.length) {
+        const code = todo[cursor++]
+        const next = rep.plan[code]
+        const secid = `${marketOf.get(code) ?? (code.startsWith('6') ? 1 : 0)}.${code}`
+        const end = (next ?? gap).replaceAll('-', '')
+        const url = `https://push2his.eastmoney.com/api/qt/stock/kline/get?${new URLSearchParams({ secid, fields1: 'f1,f2,f3', fields2: 'f51,f52,f53,f54,f55,f60', klt: '101', fqt: '1', beg: gap.replaceAll('-', ''), end })}`
+        try {
+          const bars = parseKline(await get(url, { headers: EM_REF }), next ?? gap)
+          repairRecord(rep, code, repairEntry(bars, gap, next))
+          fetched++
+        } catch (e) { repairRecord(rep, code, e instanceof Error ? e : new Error(String(e))) }
+        await sleep(60)
+      }
+    }))
+    const fin = repairFinalize(days, rep)
+    if (!fin.ready) {
+      writeAtomic(REPAIR_FILE, JSON.stringify({ ...rep, log: saved.log ?? [] }))
+      console.log(`快照仓缺口 ${gap}：本次 ${fetched} 只，进度 ${Object.keys(rep.bars).length} / ${Object.keys(rep.plan).length}，未完成 ${fin.pending}（缺口共 ${missing.length} 天：${missing.join(',')}）`)
+      return
+    }
+    if (!fin.ok) {
+      // 完整性校验不通过：丢弃进度，下次从头再来；不写任何快照
+      keepLog({ date: gap, rejected: fin.reason, at: new Date().toISOString() })
+      console.log(`快照仓缺口 ${gap} 修补结果未通过校验（${fin.reason}），丢弃进度，不写文件`)
+      return
+    }
+    // 先补相邻记录的昨收，再写缺口日（中途失败时缺口日仍缺，下次重做；补上的昨收本身就是正确值）
+    let patched = 0
+    for (const [d, m] of fin.patches) {
+      const cur = loadDay(d)
+      for (const [code, p] of m) { const r = cur.rows.get(code); if (r && r.p === undefined) { r.p = p; patched++ } }
+      const extra = Object.fromEntries(Object.entries(cur.meta).filter(([k]) => !['date', 'source', 'fields'].includes(k)))
+      writeAtomic(`${CLOSES}/${d}.csv`, formatCloses(d, cur.meta.source ?? 'unknown', cur.rows, extra))
+    }
+    writeAtomic(`${CLOSES}/${gap}.csv`, formatCloses(gap, 'em-kline-repair', fin.rows, { repaired: new Date().toISOString().slice(0, 10), skipped: fin.skipped.length }))
+    keepLog({ date: gap, rows: fin.rows.size, patched, skipped: fin.skipped, at: new Date().toISOString() })
+    console.log(`快照仓缺口 ${gap} 已修补：${fin.rows.size} 行，补昨收 ${patched} 条，放弃 ${fin.skipped.length} 只`)
+  }
+}
+
 /* ---------- 主流程 ---------- */
 if (!calendarCovers(date) || !calendarCovers(tradingWindow(date, NEW_HIGH_DAYS)[0])) { console.log(`${date} 或其百日窗口所在年份不在休市表内（scripts/market-mood-lib.mjs），无法确定交易日，跳过`); process.exit(0) }
 if (!isTradingDay(date)) { console.log(`${date} 非交易日，跳过`); process.exit(0) }
@@ -125,6 +201,9 @@ try {
 if (!meta) { console.log('没有代码表，跳过'); process.exit(0) }
 
 const bf = await backfill(meta)
+if (bf?.complete) {
+  try { await repairGaps(meta) } catch (e) { console.log(`快照仓缺口修补失败（不影响本次其余计算）：${e.message}`) }
+}
 if (backfillOnly) process.exit(0)
 
 const poolUrl = (ep, sort) => `https://push2ex.eastmoney.com/${ep}?${new URLSearchParams({ ut: POOL_TOKEN, dpt: 'wz.ztzt', Pageindex: '0', pagesize: '10000', sort, date: date.replaceAll('-', '') })}`
