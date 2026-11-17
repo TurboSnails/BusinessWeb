@@ -23,6 +23,7 @@ const InvestmentPlan2026 = lazy(() => import('./pages/InvestmentPlan2026'))
 const InvestmentTargetsPage = lazy(() => import('./pages/InvestmentTargetsPage'))
 const LimitUpAnalysis = lazy(() => import('./pages/LimitUpAnalysis'))
 const MarketMood = lazy(() => import('./pages/MarketMood'))
+const ThsMood = lazy(() => import('./pages/ThsMood'))
 const DailyAnalysis = lazy(() => import('./pages/DailyAnalysis'))
 const DailyAnalysisLegacy = lazy(() => import('./pages/DailyAnalysisLegacy'))
 const TradingPhilosophy = lazy(() => import('./pages/TradingPhilosophy'))
@@ -154,6 +155,7 @@ export default function App(): JSX.Element {
           <Route path="/investment-targets" element={<InvestmentTargetsPage />} />
           <Route path="/limit-up-analysis" element={<LimitUpAnalysis />} />
           <Route path="/market-mood" element={<MarketMood />} />
+          <Route path="/ths-mood" element={<ThsMood />} />
           <Route path="/daily-analysis" element={<DailyAnalysis />} />
           <Route path="/daily-analysis/legacy" element={<DailyAnalysisLegacy />} />
           <Route path="/trading-philosophy" element={<TradingPhilosophy />} />

@@ -19,6 +19,7 @@ const ICONS: Record<string, LucideIcon> = {
   '/daily-analysis': Calendar,
   '/limit-up-analysis': TrendingUp,
   '/market-mood': Activity,
+  '/ths-mood': Gauge,
   '/industry-landscape': Factory,
   '/future-trends': Rocket,
   '/research-notes': Building2,

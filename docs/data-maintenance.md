@@ -415,3 +415,13 @@ PY
 **生成**：`node scripts/market-mood.mjs`（约 30 秒；北京 15:10 前与周末直接退出，`FORCE=1` 跳过时间检查）。来源：东财涨停 / 炸板 / 跌停 / 昨日涨停股池（**只能查当天**，跨过北京午夜就取不到）、新浪全市场分页行情（不完整整次放弃）、腾讯指数报价、东财融资余额（`RPTA_RZRQ_LSHJ`，`NEW` 字段是沪深300）与指数成交额（上证综指＋深证综指）。输出 `public/data/market-mood.json`、`data-raw/market-mood/days/<日期>.json`（每日完整记录）、`data-raw/market-mood/state.json`（最近 5 天的炸板与大涨代码，供次日「昨日破板今表现」与大幅回撤使用；同日重跑不会覆盖前一天）。首次运行用每日复盘归档补出早期涨停与连板历史（`seeded: true`，页面虚线显示并注明）。单测：`node --test scripts/market-mood.test.mjs`。
 
 **节奏**：`.github/workflows/market-mood.yml`，「Update daily analysis」跑完后接着跑（北京 15:35 / 17:10 各一次），兜底排程北京 16:20；有变化才提交（`data(market-mood): …`）并触发 Pages 部署。
+
+## 同花顺 · 市场情绪 ths-mood.json（2026-11-18 新增）
+
+**做什么**：投资页「三方平台」分组里的「同花顺」入口（`/ths-mood`，`src/pages/ThsMood.tsx`）。功能参照同花顺 App V11.65.03（apktool 解包后静态分析布局与字符串，未安装运行）里与市场情绪、涨停相关的模块：市场概况与涨跌停对比（`component_market_state_layout`、`layout_market_distribution` + `hangqing_amount_layout`）、投资者情绪 / 情绪指数（`ifund_manage_market_module_v2`，字符串 `ifund_manage_market_investor_sentiment*`、`*_emotional_*`）、涨跌分布（`component_feedflow_hs_zdfb_node`）、盘面评分与强弱指数（字符串 `pmzj_panmian_score_l1–l4`，入口「盘面分析 · 大盘情绪」）、短线市场风向标（`dp_bid_yesterday_*`）、涨停封成比（`dp_bid_potential_guide_ztfcb`、`dby_bankuai_title_zrztfcb`）、涨停聚焦（首页宫格「涨停聚焦 · 涨停概念分布」，`home_page_card_layout_limit_up_focus_card`）、涨停分析（`page_zt_analysis`、`item_zt_analysis`、`view_zt_analysis_item`）、近 10 日涨停数（`gnbk_tab_ltg_ten_zt_num`）、每日市场复盘（`dp_review_*`、`layout_market_review`）。与「开盘啦」页、「A股每日复盘」相互独立，不改动它们。
+
+**口径**：同花顺的情绪指数、盘面评分、强弱指数是服务器下发的数值，安装包里没有算法；本站公式写在 `scripts/ths-mood-lib.mjs` 与页面说明里。情绪指数五项平均（上涨占比、涨停占涨跌停比、封板率、昨日涨停溢价、量能比），必须有全市场涨跌才计算，区间名称沿用同花顺（≥70 贪婪风险区、≤30 恐慌机会区）；情绪状态借用同花顺港美股「卖空状态」的 90 个交易日三分位口径；盘面评分为上证指数 5 项均线条件计分，强弱指数为 14 日 RSI；风向标「最热」改为昨日连板最高、封板最早的 10 只（同花顺用自家人气，无公开来源），竞价表现取今日开盘价；封成比用封板资金 ÷ 成交额近似。**没做**：竞价涨停潜力 / 竞价异动 / 大盘竞价走势（盘中竞价数据与 AI 模型）、涨停原因文字、人气热度、股性、龙虎榜机构买入、基金仓位、抄底指数、估值百分位、卖空状态（港美股）、大盘晴雨表、主力资金——均无公开来源或不属 A 股，页面「口径与来源」里逐条列明。**不调用同花顺任何接口**（页面测试会检查脚本里没有 10jqka / thsi / hexin 域名）。
+
+**生成**：`node scripts/ths-mood.mjs`（约 30 秒；北京 15:10 前与周末直接退出，`FORCE=1` 跳过时间检查只用于排查；`DATE=YYYY-MM-DD` 只允许在该日收盘后、下一交易日 9:15 前补跑，且要求东财指数日 K 最后一根正是该日）。来源：东财涨停 / 炸板 / 跌停 / 昨日涨停股池（**只能查当天**）、新浪全市场分页行情（含开盘价，不完整整次放弃）、东财指数日 K（上证综指收盘与成交额、深证综指成交额，失败时沿用上一份）。输出 `public/data/ths-mood.json`、`data-raw/ths-mood/days/<日期>.json`（每日完整记录）、`data-raw/ths-mood/state.json`（最近 5 天涨停股封成比，供次日分组）、`data-raw/ths-mood/zt-codes.json`（最近 15 天涨停代码，供近 10 日涨停数）。首次运行用每日复盘归档补早期历史与涨停代码（`seeded: true`）。单测：`node --test scripts/ths-mood.test.mjs`。
+
+**节奏**：`.github/workflows/ths-mood.yml`，「Update daily analysis」跑完后接着跑，兜底排程北京 16:25；有变化才提交（`data(ths-mood): …`）并触发 Pages 部署。
