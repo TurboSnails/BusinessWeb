@@ -3,7 +3,12 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import AiTokenEconomics from './AiTokenEconomics'
-import { SAVED_SNAPSHOTS } from '../features/ai-token-economics/data'
+import { SAVED_SNAPSHOTS, impliedPriceChange, naiveSpendChange, pickLatest } from '../features/ai-token-economics/data'
+
+// 页面显示最新一期；预期值从同一份快照算，每周新增数据不用改测试
+const latest = pickLatest(SAVED_SNAPSHOTS)
+const pct = (v: number) => `${v >= 0 ? '+' : '−'}${(Math.abs(v) * 100).toFixed(1)}%`
+const addDays = (d: string, n: number) => new Date(Date.parse(`${d}T00:00:00Z`) + n * 864e5).toISOString().slice(0, 10)
 
 afterEach(() => { cleanup(); vi.unstubAllGlobals() })
 const renderPage = () => render(<MemoryRouter><AiTokenEconomics /></MemoryRouter>)
@@ -17,17 +22,18 @@ describe('AI 降价与利润页', () => {
 
   it('显示数据截至日期与已保存的最新一期', () => {
     const { container } = renderPage()
-    expect(container.querySelector('.ate-databar')?.textContent).toContain('数据截至 2026-10-11 当周')
+    expect(container.querySelector('.ate-databar')?.textContent).toContain(`数据截至 ${latest.weekEnding} 当周`)
   })
 
   it('手动刷新：取到更新一期时覆盖显示并标注未保存', async () => {
     const snap = JSON.parse(JSON.stringify(SAVED_SNAPSHOTS[SAVED_SNAPSHOTS.length - 1]))
-    snap.weekEnding = '2026-11-08'; snap.comparedWeekEnding = '2026-10-11'; snap.tokenUsage = 0.3
+    const next = addDays(latest.weekEnding, 7)
+    snap.weekEnding = next; snap.comparedWeekEnding = addDays(next, -28); snap.tokenUsage = 0.3
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => snap })))
     const { container } = renderPage()
     fireEvent.click(screen.getByRole('button', { name: '刷新最新数据' }))
     await waitFor(() => expect(container.querySelector('.ate-status')?.textContent).toContain('更新的一期'))
-    expect(container.querySelector('.ate-databar')?.textContent).toContain('数据截至 2026-11-08 当周')
+    expect(container.querySelector('.ate-databar')?.textContent).toContain(`数据截至 ${next} 当周`)
     expect(container.querySelector('.ate-databar')?.textContent).toContain('未保存')
     expect(container.textContent).toContain('+30.0%')
   })
@@ -41,22 +47,23 @@ describe('AI 降价与利润页', () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false, json: async () => ({ error: 'x' }) })))
     fireEvent.click(screen.getByRole('button', { name: '刷新最新数据' }))
     await waitFor(() => expect(container.querySelector('.ate-status')?.textContent).toContain('暂时取不到'))
-    expect(container.querySelector('.ate-databar')?.textContent).toContain('数据截至 2026-10-11 当周')
+    expect(container.querySelector('.ate-databar')?.textContent).toContain(`数据截至 ${latest.weekEnding} 当周`)
   })
 
   it('展示 Ramp 三个数字及反推的同口径单价', () => {
     const { container } = renderPage()
     const text = container.textContent ?? ''
-    expect(text).toContain('+52.4%')
-    expect(text).toContain('+23.0%')
-    expect(text).toContain('−19.3%')
-    expect(text).toContain('+13.7%')
+    expect(text).toContain(pct(latest.tokenUsage))
+    expect(text).toContain(pct(latest.tokenSpend))
+    expect(text).toContain(pct(impliedPriceChange(latest.tokenSpend, latest.tokenUsage)))
+    expect(text).toContain(pct(naiveSpendChange(latest.tokenUsage, latest.price.combined.change)))
   })
 
   it('图表带文字替代', () => {
     renderPage()
     expect(screen.getAllByRole('img').length).toBeGreaterThanOrEqual(4)
-    expect(screen.getByRole('img', { name: /Ramp 样本：对应周变化.*Token 用量 \+52\.4%/ })).toBeTruthy()
+    const usage = pct(latest.tokenUsage).replace(/[+.]/g, m => `\\${m}`)
+    expect(screen.getByRole('img', { name: new RegExp(`Ramp 样本：对应周变化.*Token 用量 ${usage}`) })).toBeTruthy()
   })
 
   it('敏感性滑块即时重算毛利', () => {

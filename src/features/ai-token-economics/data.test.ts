@@ -5,7 +5,10 @@ import {
 } from './data'
 
 const latest = pickLatest(SAVED_SNAPSHOTS)
-const RAMP_WEEKLY = { tokenUsage: latest.tokenUsage, tokenSpend: latest.tokenSpend, openaiAnthropicBlendedPrice: latest.price.combined.change }
+// 复算数值固定用 2026-10-11 当周（报告原文核对过的一期），每周新增快照不影响这些断言
+const audited = SAVED_SNAPSHOTS.find(s => s.weekEnding === '2026-10-11')!
+const RAMP_WEEKLY = { tokenUsage: audited.tokenUsage, tokenSpend: audited.tokenSpend, openaiAnthropicBlendedPrice: audited.price.combined.change }
+const addDays = (d: string, n: number) => new Date(Date.parse(`${d}T00:00:00Z`) + n * 864e5).toISOString().slice(0, 10)
 
 describe('Ramp 样本复算', () => {
   it('由支出与用量反推平均单价约 −19.3%', () => {
@@ -20,7 +23,7 @@ describe('Ramp 样本复算', () => {
 })
 
 describe('快照选择', () => {
-  const older = { ...latest, weekEnding: '2026-09-13' }, newer = { ...latest, weekEnding: '2026-10-18' }
+  const older = { ...latest, weekEnding: addDays(latest.weekEnding, -28) }, newer = { ...latest, weekEnding: addDays(latest.weekEnding, 7) }
   it('更晚的实时数据优先；更早的忽略；同一周以实时为准', () => {
     expect(pickLatest([latest], newer)).toBe(newer)
     expect(pickLatest([latest], older)).toBe(latest)
