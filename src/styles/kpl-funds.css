@@ -1,0 +1,9 @@
+/* 窄屏只在表格容器内滚动，资金正负沿用站点红涨绿跌。 */
+.kf-page, .kf-page .mm-card { min-width: 0; max-width: 100%; }
+.kf-page .mm-method { overflow-wrap: anywhere; }
+.kf-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin: 0 0 16px; }
+.kf-summary dt { color: var(--text-secondary); font-size: 0.82rem; }
+.kf-summary dd { margin: 4px 0 0; font-size: 1.3rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.kf-table { min-width: 760px; }
+.kf-table th, .kf-table td { white-space: nowrap; }
+.kf-table th small { display: block; font-weight: normal; color: var(--text-tertiary); }
