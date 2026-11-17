@@ -162,7 +162,27 @@ function TodayVsYesterday({ l, prev }: { l: MoodLatest; prev: MoodDay | null }):
 }
 
 /* ---------- 市场量能 ---------- */
+const hhmm = (t: string): string => t
+function IntradayView({ l }: { l: MoodLatest }): JSX.Element {
+  const it = l.intraday
+  if (!it) return <p className="mm-empty">当日分时量能暂缺（只在交易日收盘后采集）。</p>
+  const diff = it.total - it.prevTotal
+  return (
+    <>
+      <p className="mm-intraday__head">
+        <span>{it.date} 沪深实际量能 <b>{yi(it.total)}</b></span>
+        <span>{it.prevDate} 同期 {yi(it.prevTotal)}</span>
+        <span>较上一交易日 <b className={tone(diff)}>{diff >= 0 ? '放量' : '缩量'} {yi(Math.abs(diff))}</b></span>
+      </p>
+      <MoodChart points={it.points.map(p => ({ date: p.t, value: p.cum }))} label={`${it.date} 沪深累计成交额`} format={v => (v >= 10000 ? `${(v / 10000).toFixed(2)}万亿` : `${Math.round(v)}亿`)} tick={hhmm} zeroBase />
+      <MoodChart points={it.points.map(p => ({ date: p.t, value: p.cum - p.prevCum }))} label="较上一交易日同一时刻增减" format={v => `${v > 0 ? '+' : ''}${Math.round(v)}亿`} tick={hhmm} kind="bar" colorBy="sign" />
+      <p className="mm-method">上图：当日从开盘起的累计成交额（上证综指＋深证综指，不含北证）。下图：每个时刻的累计成交额减去上一交易日同一时刻，红色为放量、绿色为缩量。收盘后采集，不做盘中预测。</p>
+    </>
+  )
+}
+
 function Volume({ m }: { m: MarketMood }): JSX.Element {
+  const [view, setView] = useState<'history' | 'today'>('history')
   const [market, setMarket] = useState<keyof Amount>('total')
   const [range, setRange] = useState<Range>('60')
   const points: Point[] = useMemo(() => {
@@ -177,10 +197,17 @@ function Volume({ m }: { m: MarketMood }): JSX.Element {
   }, [m, market])
   const label = MARKETS.find(x => x.key === market)!.label
   return (
-    <Card title="市场量能" as="section" className="mm-card" actions={<Segmented items={rangeItems.map(r => ({ ...r }))} value={range} onChange={setRange} label="时间范围" />}>
-      <Segmented items={MARKETS.map(x => ({ id: x.key, label: x.label }))} value={market} onChange={setMarket} label="市场" />
-      <MoodChart points={sliceRange(points, range)} label={`${label}成交额走势`} format={v => (v >= 10000 ? `${(v / 10000).toFixed(1)}万亿` : `${Math.round(v)}亿`)} kind="bar" />
-      <p className="mm-method">红色为较前一日放量，绿色为缩量。{market === 'total' ? '浅色柱为沪深两市（上证综指＋深证综指成交额），实色柱为本页每日采集的沪深京合计。' : '分板块量能从本页开始采集之日起累计。'}盘后数据，不做盘中预测量能。</p>
+    <Card title="市场量能" as="section" className="mm-card" actions={<Segmented items={[{ id: 'history', label: '历史量能' }, { id: 'today', label: '当日' }]} value={view} onChange={setView} label="量能视图" />}>
+      {view === 'today' ? <IntradayView l={m.latest} /> : (
+        <>
+          <div className="mm-volume__controls">
+            <Segmented items={MARKETS.map(x => ({ id: x.key, label: x.label }))} value={market} onChange={setMarket} label="市场" />
+            <Segmented items={rangeItems.map(r => ({ ...r }))} value={range} onChange={setRange} label="时间范围" />
+          </div>
+          <MoodChart points={sliceRange(points, range)} label={`${label}成交额走势`} format={v => (v >= 10000 ? `${(v / 10000).toFixed(1)}万亿` : `${Math.round(v)}亿`)} kind="bar" />
+          <p className="mm-method">红色为较前一日放量，绿色为缩量。{market === 'total' ? '浅色柱为沪深两市（上证综指＋深证综指成交额），实色柱为本页每日采集的沪深京合计。' : '分板块量能从本页开始采集之日起累计。'}</p>
+        </>
+      )}
     </Card>
   )
 }

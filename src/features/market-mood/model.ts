@@ -36,6 +36,9 @@ export type Vane = { sector: string; count: number; stocks: Array<{ code: string
 export type LadderRow = { boards: number; stocks: Array<{ code: string; name: string; sector: string }> }
 export type Weight = { indices: Array<{ symbol: string; name: string; price: number; pct: number }>; stocks: Array<{ code: string; name: string; pct: number; amount: number }>; avg: number | null }
 
+/** 当日量能：上证综指＋深证综指分钟累计成交额（亿元），与上一交易日同一时刻对比 */
+export type Intraday = { date: string; prevDate: string; total: number; prevTotal: number; points: Array<{ t: string; cum: number; prevCum: number }> }
+
 export type MoodLatest = MoodDay & {
   amount: Amount
   buckets: Buckets
@@ -45,6 +48,7 @@ export type MoodLatest = MoodDay & {
   vane: Vane[]
   ladder: LadderRow[]
   weight: Weight | null
+  intraday: Intraday | null
   moodStatus: string
   zone: string
   comment: string
@@ -82,6 +86,7 @@ export function asMarketMood(body: unknown): MarketMood | null {
       vane: Array.isArray(l.vane) ? (l.vane as Vane[]) : [],
       ladder: Array.isArray(l.ladder) ? (l.ladder as LadderRow[]) : [],
       weight: isObj(l.weight) ? (l.weight as unknown as Weight) : null,
+      intraday: isObj(l.intraday) && Array.isArray(l.intraday.points) && l.intraday.points.length ? (l.intraday as unknown as Intraday) : null,
     },
   }
 }

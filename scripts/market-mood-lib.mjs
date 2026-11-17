@@ -252,3 +252,38 @@ export function mergeHistory(history, days, keep = 250) {
   for (const d of days) { const old = map.get(d.date); if (!old || old.seeded || !d.seeded) map.set(d.date, d) }
   return [...map.values()].sort((a, b) => a.date.localeCompare(b.date)).slice(-keep)
 }
+
+/** 东财指数分时（trends2，ndays=2）→ {日期: [{t:'HH:MM', amount(元)}]}；f57 为每分钟成交额 */
+export function parseTrends(body) {
+  const rows = body?.data?.trends
+  if (body?.rc !== 0 || !Array.isArray(rows) || !rows.length) throw new Error('东财分时数据异常')
+  const out = {}
+  for (const s of rows) {
+    const f = String(s).split(',')
+    const [date, t] = (f[0] ?? '').split(' ')
+    const amount = f[6] === undefined || f[6].trim() === '' ? NaN : Number(f[6])
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{2}:\d{2}$/.test(t ?? '') || !Number.isFinite(amount)) continue
+    ;(out[date] ??= []).push({ t, amount })
+  }
+  return out
+}
+
+/**
+ * 当日量能：上证综指 + 深证综指每分钟成交额累加，与上一交易日同一时刻比较（开盘啦「市场量能 · 当日」）。
+ * 两个指数当天与上一交易日都要齐全（每天 241 个分钟点），否则返回 null，不画半截曲线。
+ */
+export function intradayAmount(sh, sz, date) {
+  const prev = prevTradingDay(date)
+  const ok = (m) => m[date]?.length >= 241 && m[prev]?.length >= 241
+  if (!ok(sh) || !ok(sz)) return null
+  const cum = (day) => {
+    const szMap = new Map(sz[day].map((r) => [r.t, r.amount]))
+    let acc = 0
+    return sh[day].filter((r) => szMap.has(r.t)).map((r) => { acc += r.amount + szMap.get(r.t); return { t: r.t, cum: acc } })
+  }
+  const today = cum(date), before = new Map(cum(prev).map((r) => [r.t, r.cum]))
+  const points = today.filter((r) => before.has(r.t)).map((r) => ({ t: r.t, cum: round(r.cum / 1e8, 0), prevCum: round(before.get(r.t) / 1e8, 0) }))
+  if (points.length < 240) return null
+  const last = points.at(-1)
+  return { date, prevDate: prev, total: last.cum, prevTotal: last.prevCum, points }
+}

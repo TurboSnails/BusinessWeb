@@ -4,7 +4,7 @@ export type Point = { date: string; value: number | null; muted?: boolean }
 
 const W = 720
 const H = 220
-const PAD = { l: 48, r: 12, t: 12, b: 26 }
+const PAD = { l: 62, r: 12, t: 12, b: 26 }
 
 const md = (d: string): string => `${Number(d.slice(5, 7))}/${Number(d.slice(8, 10))}`
 
@@ -12,13 +12,17 @@ const md = (d: string): string => `${Number(d.slice(5, 7))}/${Number(d.slice(8, 
  * 单序列走势图（折线或柱）：悬停十字线显示当日数值；refs 画参考线（如 75 / 25、2% / −1%）。
  * 柱状时按较前一日增减着色（A 股习惯：红增绿减）；muted 的点（补算数据）用虚线 / 浅色。
  */
-export default function MoodChart({ points, label, format, refs = [], kind = 'line', zeroBase = false }: {
+export default function MoodChart({ points, label, format, refs = [], kind = 'line', zeroBase = false, colorBy = 'change', tick = md }: {
   points: Point[]
   label: string
   format: (v: number) => string
   refs?: Array<{ value: number; label: string }>
   kind?: 'line' | 'bar'
   zeroBase?: boolean
+  /** 柱的颜色：change 按较前一点增减（默认），sign 按数值正负 */
+  colorBy?: 'change' | 'sign'
+  /** 横轴标签，默认把 YYYY-MM-DD 显示成 月/日 */
+  tick?: (date: string) => string
 }): JSX.Element {
   const [hover, setHover] = useState<number | null>(null)
   const uid = useId()
@@ -75,13 +79,14 @@ export default function MoodChart({ points, label, format, refs = [], kind = 'li
           </g>
         ))}
         {points.map((p, i) => (i % every === 0 || i === n - 1) && (
-          <text key={p.date} className="mm-chart__tick" x={x(i)} y={H - 8} textAnchor="middle">{md(p.date)}</text>
+          <text key={p.date} className="mm-chart__tick" x={x(i)} y={H - 8} textAnchor="middle">{tick(p.date)}</text>
         ))}
         {kind === 'bar'
           ? points.map((p, i) => {
             if (p.value === null) return null
             const prev = points[i - 1]?.value
-            const cls = prev === null || prev === undefined ? 'is-flat' : p.value >= prev ? 'is-up' : 'is-down'
+            const cls = colorBy === 'sign' ? (p.value > 0 ? 'is-up' : p.value < 0 ? 'is-down' : 'is-flat')
+              : prev === null || prev === undefined ? 'is-flat' : p.value >= prev ? 'is-up' : 'is-down'
             const top = Math.min(y(p.value), y(Math.max(lo, 0)))
             return <rect key={p.date} className={`mm-chart__bar ${cls}${p.muted ? ' is-muted' : ''}`} x={x(i) - barW / 2} y={top} width={barW} height={Math.max(1, Math.abs(y(Math.max(lo, 0)) - y(p.value)))} rx={2} />
           })
@@ -103,7 +108,7 @@ export default function MoodChart({ points, label, format, refs = [], kind = 'li
         )}
       </svg>
       <figcaption className="mm-chart__caption" aria-live="polite">
-        {hp ? <><b>{hp.date}</b> {hp.value === null ? '—' : format(hp.value)}{hp.muted ? '（补算）' : ''}</> : '把鼠标移到图上查看每日数值'}
+        {hp ? <><b>{hp.date}</b> {hp.value === null ? '—' : format(hp.value)}{hp.muted ? '（补算）' : ''}</> : '把鼠标移到图上查看数值'}
       </figcaption>
     </figure>
   )

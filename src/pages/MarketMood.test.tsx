@@ -70,6 +70,29 @@ describe('开盘啦（市场情绪）页', () => {
   })
 })
 
+describe('市场量能 · 当日', () => {
+  it('切到当日：显示当日与上一交易日同期量能、放量额与两张分时图', async () => {
+    stub(moodFixture())
+    renderPage()
+    await screen.findByRole('region', { name: '今日总览' })
+    fireEvent.click(within(screen.getByRole('group', { name: '量能视图' })).getByText('当日'))
+    expect(screen.getByText(/2026-11-16 同期/).textContent).toContain('1.45 万亿')
+    expect(screen.getByText(/^较上一交易日/, { selector: 'span' }).textContent).toContain('放量 400 亿')
+    expect(screen.getByRole('img', { name: '2026-11-17 沪深累计成交额' })).toBeTruthy()
+    expect(screen.getByRole('img', { name: '较上一交易日同一时刻增减' })).toBeTruthy()
+  })
+
+  it('没有当日分时数据时提示，不崩溃', async () => {
+    const f = moodFixture()
+    ;(f.latest as { intraday: unknown }).intraday = null
+    stub(f)
+    renderPage()
+    await screen.findByRole('region', { name: '今日总览' })
+    fireEvent.click(within(screen.getByRole('group', { name: '量能视图' })).getByText('当日'))
+    expect(screen.getByText(/当日分时量能暂缺/)).toBeTruthy()
+  })
+})
+
 describe('审查回归', () => {
   it('融资占比与指数缺失时不崩溃；指数成交额历史为空时仍显示本页采集的量能', async () => {
     const f = moodFixture()
