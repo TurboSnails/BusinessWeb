@@ -1,0 +1,35 @@
+/* 同花顺 · 数据中心页签（/ths-mood/datacenter）：在 market-mood.css 的 mm-* 基础上补充 */
+.dc-top { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.dc-top__cell { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.dc-top__label { color: var(--text-secondary); font-size: 0.82rem; }
+.dc-top__value { font-size: 1.4rem; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.dc-top__sub { color: var(--text-secondary); font-size: 0.78rem; }
+
+.dc-table td, .dc-table th { white-space: nowrap; }
+.dc-table .dc-name small { color: var(--text-tertiary); margin-left: 6px; font-weight: 400; }
+.dc-type, .dc-holder { display: inline-block; max-width: 16em; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom; }
+.dc-tag { display: inline-block; padding: 0 6px; border-radius: var(--radius-full); border: 1px solid var(--border-primary); color: var(--text-secondary); font-size: 0.75rem; line-height: 1.5; white-space: nowrap; }
+.dc-tag.is-up { color: var(--up-ink); border-color: var(--up); }
+.dc-tag.is-down { color: var(--down-ink); border-color: var(--down); }
+.dc-tag.is-wait { color: var(--accent-ink); border-color: var(--accent); }
+.dc-tag.is-listed { color: var(--text-tertiary); }
+.dc-more { appearance: none; margin-top: 10px; background: none; border: 1px solid var(--border-primary); border-radius: var(--radius-sm); padding: 4px 12px; font: inherit; font-size: 0.85rem; color: var(--text-secondary); cursor: pointer; }
+.dc-more:hover { color: var(--text-primary); }
+
+.dc-stats { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 0 0 10px; }
+.dc-stats > div { min-width: 0; }
+.dc-stats dt { color: var(--text-secondary); font-size: 0.8rem; }
+.dc-stats dd { margin: 2px 0 0; font-variant-numeric: tabular-nums; font-weight: 600; }
+.dc-stats dd.dc-stats__sub { font-weight: 400; color: var(--text-tertiary); font-size: 0.78rem; }
+
+.dc-days { list-style: none; padding: 0; margin: 0 0 10px; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px 14px; font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+.dc-days li { display: flex; gap: 8px; align-items: baseline; min-width: 0; }
+.dc-days small { color: var(--text-tertiary); }
+.mm-card .seg + .ui-table-wrap, .mm-card .seg + .mm-empty { margin-top: 10px; }
+
+@media (max-width: 900px) {
+  .dc-top { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .dc-top__value { font-size: 1.2rem; }
+}
