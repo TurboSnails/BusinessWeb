@@ -36,8 +36,10 @@ export type HolderRow = {
   shares: number | null; ratio: number | null; start: string | null; end: string | null
   avgPrice: number | null; amount: number | null; way: string | null
 }
-export type HolderRank = { code: string; name: string; inc: number; dec: number; net: number; netRatio: number; count: number; known: number; holders: number; missing: number }
-export type HolderBlock = { from: string; to: string; count: number; incCount: number; decCount: number; incAmount: number; decAmount: number; missing: number; rows: HolderRow[]; rank: { inc: HolderRank[]; dec: HolderRank[] } }
+export type HolderRank = { code: string; name: string; inc: number; dec: number; net: number; netRatio: number | null; count: number; known: number; holders: number; missing: number }
+export type HolderBlock = { from: string; to: string; count: number; incCount: number; decCount: number
+  /** 该方向有记录但都没有成交均价时为 null（缺失，不是 0） */
+  incAmount: number | null; decAmount: number | null; missing: number; incMissing?: number; decMissing?: number; rows: HolderRow[]; rank: { inc: HolderRank[]; dec: HolderRank[] } }
 
 export type PledgeRow = { code: string; name: string; industry: string | null; ratio: number; deals: number | null; shares: number | null; cap: number | null; y1: number | null }
 export type PledgeBlock = { date: string; total: number; counts: Record<string, number>; rows: PledgeRow[] }
@@ -51,9 +53,11 @@ export type BuybackRow = {
   amount: number | null; shares: number | null; avgPrice: number | null
   progressLow: number | null; progressHigh: number | null
 }
-export type BuybackBlock = { from: string; to: string; count: number; counts: Record<string, number>; newPlans: number; newPlanLow: number; newPlanHigh: number; rows: BuybackRow[] }
+export type BuybackBlock = { from: string; to: string; count: number; counts: Record<string, number>; newPlans: number
+  /** 只加披露了计划金额的预案；一份都没披露时为 null，部分缺失的份数见 *Missing */
+  newPlanLow: number | null; newPlanHigh: number | null; newPlanLowMissing?: number; newPlanHighMissing?: number; rows: BuybackRow[] }
 
-export type DcDay = { date: string; subNew: number; brokeRate: number | null; medianCum: number | null; liftCount: number; liftCap: number | null; holderInc: number; holderDec: number; buybackCount: number; pledge50: number }
+export type DcDay = { date: string; subNew: number; brokeRate: number | null; medianCum: number | null; liftCount: number; liftCap: number | null; holderInc: number | null; holderDec: number | null; buybackCount: number; pledge50: number }
 
 export type ThsDatacenter = {
   version: 1
@@ -84,7 +88,7 @@ const okCal = (r: unknown): boolean => stock(r) && isDate(r.applyDate) && isNull
 const okSub = (r: unknown): boolean => stock(r) && isDate(r.listDate) && nums(r, ['issuePrice', 'issuePe', 'firstPct', 'cumPct', 'sinceFirstPct', 'days']) && (r.broke === null || typeof r.broke === 'boolean')
 const okLift = (r: unknown): boolean => stock(r) && isDate(r.date) && typeof r.type === 'string' && nums(r, ['shares', 'able', 'ratio', 'totalRatio', 'close', 'cap']) && (r.d1 === undefined || isNullNum(r.d1)) && (r.d5 === undefined || isNullNum(r.d5))
 const okHolder = (r: unknown): boolean => stock(r) && (r.dir === '增持' || r.dir === '减持') && isDate(r.notice) && typeof r.holder === 'string' && nums(r, ['shares', 'ratio', 'avgPrice', 'amount'])
-const okRank = (r: unknown): boolean => stock(r) && isNum(r.net) && isNum(r.count)
+const okRank = (r: unknown): boolean => stock(r) && isNum(r.net) && isNum(r.count) && isNullNum(r.netRatio)
 const okPledge = (r: unknown): boolean => stock(r) && isNum(r.ratio) && nums(r, ['deals', 'shares', 'cap', 'y1'])
 const okGoodwill = (r: unknown): boolean => stock(r) && isNum(r.ratio) && nums(r, ['goodwill', 'equity'])
 const okBuyback = (r: unknown): boolean => stock(r) && isDate(r.notice) && typeof r.statusLabel === 'string' && nums(r, ['low', 'high', 'priceCap', 'amount', 'shares', 'avgPrice', 'progressLow', 'progressHigh'])
@@ -98,10 +102,10 @@ export function asThsDatacenter(body: unknown): ThsDatacenter | null {
   const { ipo, lift, holders, pledge, goodwill, buyback } = body
   if (!isObj(ipo) || !allOk(ipo.calendar, okCal) || !allOk(ipo.recent, okSub) || !isObj(ipo.subNew) || !allOk(ipo.subNew.rows, okSub) || !isNum(ipo.subNew.valid) || !isNullNum(ipo.subNew.brokeRate)) return null
   if (!isObj(lift) || !isObj(lift.upcoming) || !isObj(lift.past) || !allOk(lift.upcoming.rows, okLift) || !allOk(lift.past.rows, okLift) || !Array.isArray(lift.upcoming.byDate) || !okStat(lift.past.d1) || !okStat(lift.past.d5) || !isNullNum(lift.upcoming.cap)) return null
-  if (!isObj(holders) || !allOk(holders.rows, okHolder) || !isObj(holders.rank) || !allOk(holders.rank.inc, okRank) || !allOk(holders.rank.dec, okRank) || !isNum(holders.incAmount) || !isNum(holders.decAmount)) return null
+  if (!isObj(holders) || !allOk(holders.rows, okHolder) || !isObj(holders.rank) || !allOk(holders.rank.inc, okRank) || !allOk(holders.rank.dec, okRank) || !isNullNum(holders.incAmount) || !isNullNum(holders.decAmount)) return null
   if (!isObj(pledge) || !isDate(pledge.date) || !allOk(pledge.rows, okPledge) || !okCounts(pledge.counts) || !isNum(pledge.total)) return null
   if (!isObj(goodwill) || !isDate(goodwill.period) || !allOk(goodwill.rows, okGoodwill) || !okCounts(goodwill.counts) || !isNum(goodwill.total)) return null
-  if (!isObj(buyback) || !allOk(buyback.rows, okBuyback) || !okCounts(buyback.counts) || !isNum(buyback.count)) return null
+  if (!isObj(buyback) || !allOk(buyback.rows, okBuyback) || !okCounts(buyback.counts) || !isNum(buyback.count) || !isNullNum(buyback.newPlanLow) || !isNullNum(buyback.newPlanHigh)) return null
   // 数据日期之后的公告不该出现
   const asOf = body.asOf
   if ((holders.rows as HolderRow[]).some(r => r.notice > asOf) || (buyback.rows as BuybackRow[]).some(r => r.notice > asOf) || pledge.date > asOf) return null

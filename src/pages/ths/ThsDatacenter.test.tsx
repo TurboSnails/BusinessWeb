@@ -4,7 +4,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import ThsDatacenter from './ThsDatacenter'
 import { datacenterFixture } from '../../features/ths-datacenter/fixtures'
-import { asThsDatacenter } from '../../features/ths-datacenter/model'
+import { asThsDatacenter, type ThsDatacenter as Data } from '../../features/ths-datacenter/model'
 
 const renderPage = () => render(<MemoryRouter initialEntries={['/ths-mood/datacenter']}><ThsDatacenter /></MemoryRouter>)
 const stub = (body: unknown, ok = true) => vi.stubGlobal('fetch', vi.fn(async () => ({ ok, json: async () => body })))
@@ -87,6 +87,21 @@ describe('同花顺 · 数据中心页', () => {
     stub(body); renderPage()
     expect(await screen.findByText('暂无数据中心数据')).toBeTruthy()
     expect(screen.queryByRole('table')).toBeNull()
+  })
+
+  it('增减持金额全缺、回购计划金额缺失时显示「—」，不当 0', async () => {
+    const f: Data = datacenterFixture() as Data
+    f.holders.incAmount = null
+    f.buyback.newPlanLow = null
+    f.buyback.newPlanHighMissing = 1
+    expect(asThsDatacenter(f)).not.toBeNull()
+    stub(f); renderPage()
+    const top = await screen.findByLabelText('数据中心总览')
+    expect(within(top).getByText('增 —')).toBeTruthy()
+    expect(within(top).getByText(/计划 —–/)).toBeTruthy()
+    expect(within(top).getByText(/1 份未披露金额未计/)).toBeTruthy()
+    // 净额也是缺失
+    expect(within(top).getAllByText('—').length).toBeGreaterThan(0)
   })
 
   it('404、JSON 解析异常和网络错误显示 EmptyState', async () => {

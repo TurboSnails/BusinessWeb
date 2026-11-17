@@ -140,3 +140,69 @@ test('归档种子：用现在的分类回填各板块涨停家数；查不到�
   assert.deepEqual(out[0].concept, { BK10: [null, 2, null], BK11: [null, 2, null] })
   assert.equal(out[0].seeded, true)
 })
+
+/* ---------- 板块分布、分时叠加、概念成分变动 ---------- */
+import {
+  conceptSnapshot, dabanSets, diffSnapshots, distTable, mergeChanges, parseSnapshot, parseTrends, pickBase, serializeSnapshot, trendPct,
+} from './kpl-plates-lib.mjs'
+
+test('板块分布：各池按行业计数；拿不到的池整列为 null，不当 0', () => {
+  const meta = new Map([['000001', { industry: '甲', concepts: ['X'] }], ['000002', { industry: '甲', concepts: [] }], ['000003', { industry: '乙', concepts: ['X'] }]])
+  const boards = [{ code: 'BK1', name: '甲' }, { code: 'BK2', name: '乙' }]
+  const rows = distTable({ zt: ['000001'], zb: ['000002'], dt: ['000003'], natural: ['000001'], touched: null }, meta, (m) => [m.industry], boards)
+  assert.deepEqual(rows, [
+    { code: 'BK1', name: '甲', zt: 1, zb: 1, dt: 0, natural: 1, touched: null },
+    { code: 'BK2', name: '乙', zt: 0, zb: 0, dt: 1, natural: 0, touched: null },
+  ])
+})
+
+test('打板页数据只认同一交易日；板型判断不出的不计入自然涨停', () => {
+  const daban = { asOf: '2026-11-17', zt: [{ code: '000001', natural: true }, { code: '000002', natural: null }], zb: [{ code: '000003' }], dt: [], touched: [{ code: '000004' }] }
+  assert.equal(dabanSets(daban, '2026-11-18'), null)
+  const s = dabanSets(daban, '2026-11-17')
+  assert.deepEqual(s.natural, ['000001'])
+  assert.deepEqual(s.zt, ['000001', '000002'])
+  assert.equal(dabanSets({ ...daban, zt: [{ code: '000001', natural: null }] }, '2026-11-17').natural, null)
+})
+
+const trends = (date, n = 241) => ({ rc: 0, data: { preClose: 100, trends: Array.from({ length: n }, (_, i) => `${date} ${String(9 + Math.floor((30 + i) / 60)).padStart(2, '0')}:${String((30 + i) % 60).padStart(2, '0')},100,${100 + i / 100},1,1,1,1,1`) } })
+test('分时：日期必须是当天；归一化为相对昨收的涨跌幅并按时间轴对齐', () => {
+  assert.throws(() => parseTrends(trends('2026-11-16'), '2026-11-17'), /不是/)
+  assert.throws(() => parseTrends(trends('2026-11-17', 50), '2026-11-17'), /不足/)
+  assert.throws(() => parseTrends({ rc: 100, data: null }, '2026-11-17'))
+  const p = parseTrends(trends('2026-11-17'), '2026-11-17')
+  assert.equal(p.points[0].t, '09:30')
+  assert.deepEqual(trendPct(p, ['09:30', '09:31', '08:00']), [0, 0.01, null])
+})
+
+test('概念快照：概念名对到代码，文本往返一致', () => {
+  const snap = conceptSnapshot([{ f12: '000001', f14: '甲', f103: '光刻机,未知概念' }, { f12: '000002', f14: '乙', f103: '-' }], new Map([['光刻机', 'BK1']]))
+  assert.deepEqual(snap.unmatched, ['未知概念'])
+  const back = parseSnapshot(serializeSnapshot('2026-11-17', snap.stocks))
+  assert.equal(back.date, '2026-11-17')
+  assert.deepEqual(back.stocks.get('000001'), { name: '甲', concepts: ['BK1'] })
+  assert.deepEqual(back.stocks.get('000002').concepts, [])
+  assert.equal(parseSnapshot('坏文件'), null)
+})
+
+test('成分变动：新增 / 剔除；退市不算剔除，当天概念全空的视为缺失；新上线概念单列', () => {
+  const S = (date, o) => ({ date, stocks: new Map(Object.entries(o).map(([c, cs]) => [c, { name: '股' + c, concepts: cs }])) })
+  const base = S('2026-11-16', { '000001': ['BK1'], '000002': ['BK1', 'BK2'], '000003': ['BK1'], '000004': ['BK2', 'BK3'] })
+  const cur = S('2026-11-17', { '000001': ['BK1', 'BK2'], '000002': ['BK2'], '000004': [], '000005': ['BK9'] })
+  const d = diffSnapshots(base, cur, new Map([['BK1', '概念一'], ['BK2', '概念二'], ['BK9', '新概念']]))
+  assert.equal(d.skipped, 1)
+  const one = d.concepts.find((c) => c.code === 'BK1')
+  assert.deepEqual(one.removed.map((x) => x.code), ['000002']) // 000003 不在今天列表里（退市），不算剔除
+  assert.deepEqual(d.concepts.find((c) => c.code === 'BK2').added.map((x) => x.code), ['000001'])
+  assert.deepEqual(d.newConcepts, [{ code: 'BK9', name: '新概念', members: 1 }])
+  assert.deepEqual(d.droppedConcepts.map((x) => x.code), ['BK3'])
+})
+
+test('快照轮换：只认 prevTradingDay；同日重跑沿用原基准', () => {
+  const a = { date: '2026-11-16' }, b = { date: '2026-11-13' }, t = { date: '2026-11-17' }
+  assert.deepEqual(pickBase(a, b, '2026-11-17', '2026-11-16'), { base: a, rotate: a })
+  assert.deepEqual(pickBase(t, a, '2026-11-17', '2026-11-16'), { base: a, rotate: a })
+  assert.equal(pickBase(b, null, '2026-11-17', '2026-11-16').base, null) // 上一交易日没快照，不拿更早的
+  assert.equal(pickBase(null, null, '2026-11-17', '2026-11-16').base, null)
+  assert.deepEqual(Object.keys(mergeChanges({ '2026-11-13': {}, '2026-11-16': {} }, '2026-11-17', {}, 2)), ['2026-11-16', '2026-11-17'])
+})

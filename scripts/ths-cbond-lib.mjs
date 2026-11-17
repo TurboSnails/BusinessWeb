@@ -2,10 +2,12 @@
 // 强赎 / 下修 / 回售计数、全景统计与分布、打新债与抢权配债。全部是盘后统计，不构成买卖建议。
 
 export const round = (x, n = 2) => (x === null || x === undefined || !Number.isFinite(x) ? null : Math.round(x * 10 ** n) / 10 ** n + 0)
-/** 东财的缺失值：null / '' / '-' 都算缺失，不当 0 */
+/** 东财的缺失值：null / '' / '-'（含前后空白）都算缺失，不当 0 */
 export const numOf = (x) => {
-  if (x === null || x === undefined || x === '' || x === '-') return null
-  const v = typeof x === 'number' ? x : Number(x)
+  if (x === null || x === undefined || typeof x === 'boolean') return null
+  const t = typeof x === 'string' ? x.trim() : x
+  if (t === '' || t === '-' || t === '--') return null
+  const v = typeof t === 'number' ? t : Number(t)
   return Number.isFinite(v) ? v : null
 }
 const day = (s) => (typeof s === 'string' && /^\d{4}-\d{2}-\d{2}/.test(s) ? s.slice(0, 10) : null)
@@ -90,7 +92,10 @@ export function couponsOf(text) {
     const k = /^\d+$/.test(m[1]) ? Number(m[1]) : cn + 1
     out[k - 1] = Number(m[2])
   }
-  return out.length && out.every((x) => Number.isFinite(x)) ? out : null
+  // 稀疏数组的空位会被 every 跳过，所以逐个下标检查：第 1 年到第 N 年必须连续、都是有限数
+  if (!out.length) return null
+  for (let i = 0; i < out.length; i++) if (!Number.isFinite(out[i])) return null
+  return out
 }
 
 const addYears = (d, k) => `${Number(d.slice(0, 4)) + k}${d.slice(4)}`
@@ -99,7 +104,7 @@ const addYears = (d, k) => `${Number(d.slice(0, 4)) + k}${d.slice(4)}`
  * 到期赎回价通常已含最后一年利息（东财条款表 IS_CONTAIN_COMPENIR=是）；不含时另加最后一年票息。不计税、不计交易费用。
  */
 export function ytm({ price, coupons, valueDate, expireDate, redeem, date, redeemHasLast = true }) {
-  if (!(price > 0) || !coupons?.length || !valueDate || !expireDate || !(redeem > 0) || expireDate <= date) return null
+  if (!(price > 0) || !coupons?.length || !Array.from(coupons, (c) => Number.isFinite(c) && c >= 0).every(Boolean) || !valueDate || !expireDate || !(redeem > 0) || expireDate <= date) return null
   const flows = []
   for (let k = 1; k <= coupons.length; k++) {
     const pay = k === coupons.length ? expireDate : addYears(valueDate, k)
@@ -110,8 +115,14 @@ export function ytm({ price, coupons, valueDate, expireDate, redeem, date, redee
   if (!flows.length) return null
   const pv = (y) => flows.reduce((s, [t, c]) => s + c / (1 + y) ** t, 0)
   let lo = -0.9, hi = 5
-  if (pv(lo) < price || pv(hi) > price) return null
-  for (let i = 0; i < 100; i++) { const m = (lo + hi) / 2; if (pv(m) > price) lo = m; else hi = m }
+  const [pLo, pHi] = [pv(lo), pv(hi)]
+  // 现值算不出来（NaN）时直接放弃，不能让二分退化成返回区间端点
+  if (!Number.isFinite(pLo) || !Number.isFinite(pHi) || pLo < price || pHi > price) return null
+  for (let i = 0; i < 100; i++) {
+    const m = (lo + hi) / 2, v = pv(m)
+    if (!Number.isFinite(v)) return null
+    if (v > price) lo = m; else hi = m
+  }
   return round(((lo + hi) / 2) * 100, 2)
 }
 
@@ -257,6 +268,22 @@ export function mergeHistory(days, add, keep = 500) {
     map.set(d.date, d)
   }
   return [...map.values()].sort((a, b) => a.date.localeCompare(b.date)).slice(-keep)
+}
+
+/* ---------- 发布前的完整度比较 ---------- */
+const SOURCE_RANK = { report: 2, snapshot: 1 }
+/**
+ * 是否用本次结果替换已发布的文件。prev / next 为 { asOf, source, quality }，quality = { clauses, quotes, klineFail }。
+ * 已发布的更新（asOf 更晚）不替换（DATE 历史重跑）；同一天：逐日估值表优先于快照，同来源时条款 / 估值覆盖更少或日 K 失败更多的不替换。
+ */
+export function shouldReplace(prev, next) {
+  if (!prev?.asOf) return true
+  if (prev.asOf !== next.asOf) return prev.asOf < next.asOf
+  const rp = SOURCE_RANK[prev.source] ?? 0, rn = SOURCE_RANK[next.source] ?? 0
+  if (rp !== rn) return rn > rp
+  const a = prev.quality, b = next.quality
+  if (!a || !b) return true
+  return !(b.clauses < a.clauses || b.quotes < a.quotes || b.klineFail > a.klineFail)
 }
 
 /* ---------- 套利与条款 ---------- */

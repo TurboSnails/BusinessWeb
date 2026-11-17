@@ -238,6 +238,15 @@ export function etfStats(code, asOf, days, flow) {
   }
 }
 
+const exchangeOf = (code) => (marketOf(code) === 'sh' ? 'sse' : 'szse')
+/** date 时这只 ETF 是否还没上市（流入 null 属正常）：两天都没份额且两天该交易所数据都在；或前一日该交易所数据在却没有这只（当日新上市）。 */
+export function notListed(days, code, date) {
+  const d = days[date], p = days[prevTradingDay(date)], ex = exchangeOf(code)
+  const s1 = Number.isFinite(d?.shares?.[code]), s0 = Number.isFinite(p?.shares?.[code])
+  if (s0) return false
+  return !!p?.src?.[ex] && (s1 || !!d?.src?.[ex])
+}
+
 /** 宽基：逐只、按指数汇总、每日合计历史。 */
 export function buildBroad(asOf, days, names, flow) {
   const list = BROAD_ETFS.map(b => ({ ...etfStats(b.code, asOf, days, flow), name: names[b.code] ?? b.code, index: b.index }))
@@ -248,11 +257,13 @@ export function buildBroad(asOf, days, names, flow) {
   })
   const dates = Object.keys(days).filter(d => d <= asOf).sort()
   const history = dates.slice(1).map(date => {
-    const vals = BROAD_ETFS.map(b => flow(b.code, date))
-    // 名单内某只在两天都有份额却缺价格 → 当天合计记 null；尚未上市（两天都没份额）的不计入。
-    const missing = BROAD_ETFS.some((b, i) => vals[i] === null && Number.isFinite(days[date]?.shares?.[b.code]) && Number.isFinite(days[prevTradingDay(date)]?.shares?.[b.code]))
     const hasPrev = !!days[prevTradingDay(date)]
-    return { date, flow: !hasPrev || missing ? null : Math.round(vals.reduce((a, v) => a + (v ?? 0), 0)) }
+    if (!hasPrev) return { date, flow: null, missing: null }
+    const vals = BROAD_ETFS.map(b => flow(b.code, date))
+    // 名单内某只流入为 null 时，只有「确实尚未上市」才不计入：两天都没份额，或当天有份额、前一日该交易所数据在但没有这只（新上市）。
+    // 其余情况（缺份额记录、缺价格）都算缺失：当天合计记 null，并给出缺失只数，不把缺失当 0。
+    const missing = BROAD_ETFS.filter((b, i) => vals[i] === null && !notListed(days, b.code, date)).length
+    return { date, flow: missing ? null : Math.round(vals.reduce((a, v) => a + (v ?? 0), 0)), missing }
   })
   return { list, byIndex, total: { flow1: agg(byIndex, 'flow1'), flow5: agg(byIndex, 'flow5'), flow20: agg(byIndex, 'flow20'), scale: agg(byIndex, 'scale') }, history }
 }
@@ -329,10 +340,36 @@ export function buildRebalance(ann, content, text) {
   const base = { id: String(ann.id), title: ann.title, publishDate: ann.publishDate, effectiveDate, url: csiPageUrl(ann.id), attachmentUrl: ann.attachmentUrl ?? null }
   if (!text) return { ...base, status: 'pending', indexes: [] }
   const indexes = parseAdjustText(text)
-  const ok = indexes.length > 0 && indexes.every(x => x.out.length === x.in.length && (expected[x.index] === undefined || expected[x.index] === x.in.length))
-    && Object.entries(expected).every(([k, n]) => { const x = indexes.find(i => i.index === k); return !x || x.in.length === n })
+  // 公告正文列出的每个指数都必须在附件名单里且数量一致；附件里只解析出一部分时整份标 pending，不当作已解析
+  const ok = indexes.length > 0 && Object.keys(expected).length > 0 && indexes.every(x => x.out.length === x.in.length && (expected[x.index] === undefined || expected[x.index] === x.in.length))
+    && Object.entries(expected).every(([k, n]) => { const x = indexes.find(i => i.index === k); return !!x && x.in.length === n })
   return ok ? { ...base, status: 'parsed', indexes } : { ...base, status: 'pending', indexes: [] }
 }
+
+/**
+ * 交易所当日 ETF 份额是否完整：与参照日（同日已存档或前一交易日）的条数比，最多允许少 tolerance（默认 3%）。
+ * ETF 每天新增 / 退市只有几只，条数明显变少说明数据被截断。没有参照时只用 300 条下限兜底。
+ */
+export function universeOk(count, refCount, tolerance = 0.03) {
+  if (!(count >= 300)) return false
+  return !(refCount > 0) || count >= Math.floor(refCount * (1 - tolerance))
+}
+/** 某交易所在某日存档里的条数（按代码前缀区分沪深） */
+export const exchangeCount = (day, ex) => (day?.src?.[ex] ? Object.keys(day.shares ?? {}).filter(c => exchangeOf(c) === ex).length : null)
+
+/**
+ * 是否用本次结果替换已发布的文件：已发布的 asOf 更晚（DATE 历史重跑）不替换；
+ * 同一天时本次缺价格的只数更多、或份额条数更少就不替换。旧文件没有 quality 时允许替换。
+ */
+export function shouldReplace(prev, next) {
+  if (!prev?.asOf) return true
+  if (prev.asOf !== next.asOf) return prev.asOf < next.asOf
+  const a = prev.quality, b = next.quality
+  if (!a || !b) return true
+  return !(b.priceMissing > a.priceMissing || b.sse < a.sse || b.szse < a.szse || b.broadMissing > a.broadMissing)
+}
+/** 归档清理：保留 asOf 往前 keep 个交易日，以及所有晚于 asOf 的文件（历史重跑不能删掉更新的存档） */
+export const keepArchive = (d, asOf, keepSet) => keepSet.has(d) || (validDate(d) && d > asOf)
 
 /** 目标交易日：交易日北京 15:30 后取当天，否则取上一交易日。 */
 export function targetDate(now = new Date()) {

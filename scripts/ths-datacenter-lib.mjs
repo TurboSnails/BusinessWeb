@@ -132,13 +132,20 @@ export function parseLift(rows) {
     .filter((r) => /^\d{6}$/.test(r.code) && r.date)
 }
 
-/** 解禁日后表现：T = 解禁日当天或之后第一个交易日；基准 = T 前一个交易日收盘（前复权）。d1 = T 收盘涨跌，d5 = T 起第 5 个交易日收盘相对基准 */
+const nextTradingDay = (d) => { let x = addDays(d, 1); while (!isTradingDay(x)) x = addDays(x, 1); return x }
+/**
+ * 解禁日后表现：T = 解禁日当天或之后第一个交易日（按交易日历）；基准 = prevTradingDay(T) 收盘（前复权）。
+ * d1 = T 收盘相对基准，d5 = T 起第 5 个交易日收盘相对基准。日期全部按交易日历精确对应：
+ * 基准日、T 日或第 5 日那根 K 线缺失（停牌、数据缺口）时对应字段为 null，不用相邻的其他日子顶替。
+ */
 export function liftPerf(bars, date) {
+  const tDate = isTradingDay(date) ? date : nextTradingDay(date)
   if (!bars?.length) return { d1: null, d5: null, tDate: null }
-  const i = bars.findIndex((b) => b.date >= date)
-  if (i <= 0) return { d1: null, d5: null, tDate: i === 0 ? bars[0].date : null }
-  const base = bars[i - 1].close
-  return { tDate: bars[i].date, d1: pctOf(bars[i].close, base), d5: bars[i + 4] ? pctOf(bars[i + 4].close, base) : null }
+  const at = new Map(bars.map((b) => [b.date, b.close]))
+  let d5Date = tDate
+  for (let k = 1; k < 5; k++) d5Date = nextTradingDay(d5Date)
+  const base = at.get(prevTradingDay(tDate)) ?? null
+  return { tDate, d1: pctOf(at.get(tDate) ?? null, base), d5: pctOf(at.get(d5Date) ?? null, base) }
 }
 
 /** 解禁市值（元）= 解禁股数 × asOf 收盘价（东财报表里的市值按「最新价」算、不带日期，这里按数据日期重算） */
@@ -188,9 +195,10 @@ export function parseHolders(rows, asOf) {
 export function holderRank(list, top = 20) {
   const m = new Map()
   for (const r of list) {
-    const s = m.get(r.code) ?? { code: r.code, name: r.name, inc: 0, dec: 0, net: 0, netRatio: 0, count: 0, known: 0, holders: new Set() }
+    const s = m.get(r.code) ?? { code: r.code, name: r.name, inc: 0, dec: 0, net: 0, netRatio: null, count: 0, known: 0, holders: new Set() }
     s.count++; s.holders.add(r.holder)
-    if (r.ratio !== null) s.netRatio += r.dir === '减持' ? -r.ratio : r.ratio
+    // 占比全部缺失时保持 null，不显示成 0
+    if (r.ratio !== null) s.netRatio = (s.netRatio ?? 0) + (r.dir === '减持' ? -r.ratio : r.ratio)
     if (r.amount !== null) { s.known++; s.net += r.amount; if (r.amount > 0) s.inc += r.amount; else s.dec += r.amount }
     m.set(r.code, s)
   }
@@ -203,11 +211,17 @@ export function holderRank(list, top = 20) {
 
 export function buildHolders(rows, asOf) {
   const list = parseHolders(rows, asOf)
-  const sum = (dir) => list.filter((r) => r.dir === dir && r.amount !== null).reduce((s, r) => s + r.amount, 0)
+  // 该方向没有记录 → 0（真实的 0）；有记录但一条都没有金额 → null（缺失，不当 0）
+  const sum = (dir) => {
+    const xs = list.filter((r) => r.dir === dir)
+    const known = xs.filter((r) => r.amount !== null)
+    return xs.length && !known.length ? null : known.reduce((s, r) => s + r.amount, 0)
+  }
   return {
     from: addDays(asOf, -WINDOW + 1), to: asOf, count: list.length,
     incCount: list.filter((r) => r.dir === '增持').length, decCount: list.filter((r) => r.dir === '减持').length,
     incAmount: sum('增持'), decAmount: sum('减持'), missing: list.filter((r) => r.amount === null).length,
+    incMissing: list.filter((r) => r.dir === '增持' && r.amount === null).length, decMissing: list.filter((r) => r.dir === '减持' && r.amount === null).length,
     rows: list, rank: holderRank(list),
   }
 }
@@ -267,11 +281,26 @@ export function buildBuyback(rows, asOf) {
   const counts = {}
   for (const r of list) counts[r.statusLabel] = (counts[r.statusLabel] ?? 0) + 1
   const newPlans = list.filter((r) => r.status === '001' && r.planDate && r.planDate >= from)
+  // 计划金额：只加披露了的；一份都没披露 → null；部分缺失用 newPlanLowMissing / newPlanHighMissing 标出份数，不把缺失当 0
+  const planSum = (k) => { const v = newPlans.map((r) => r[k]).filter((x) => x !== null); return newPlans.length && !v.length ? null : v.reduce((s, x) => s + x, 0) }
   return {
     from, to: asOf, count: list.length, counts,
-    newPlans: newPlans.length, newPlanLow: newPlans.reduce((s, r) => s + (r.low ?? 0), 0), newPlanHigh: newPlans.reduce((s, r) => s + (r.high ?? 0), 0),
+    newPlans: newPlans.length, newPlanLow: planSum('low'), newPlanHigh: planSum('high'),
+    newPlanLowMissing: newPlans.filter((r) => r.low === null).length, newPlanHighMissing: newPlans.filter((r) => r.high === null).length,
     rows: list,
   }
+}
+
+/**
+ * 是否用本次结果替换已发布的文件：已发布的数据日期更晚（AS_OF 历史重跑）不替换；
+ * 同一天时本次日 K 失败更多（表现 / 市值会变成 null）就不替换，保留更完整的那份。旧文件没有 quality 时允许替换。
+ */
+export function shouldReplace(prev, next) {
+  if (!prev?.asOf) return true
+  if (prev.asOf !== next.asOf) return prev.asOf < next.asOf
+  const a = prev.quality, b = next.quality
+  if (!a || !b) return true
+  return !(b.klineMiss > a.klineMiss)
 }
 
 /** 历史：每个数据日期一条摘要，同日覆盖 */

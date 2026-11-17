@@ -1,7 +1,7 @@
 // 同花顺数据中心页签计算：缺失值、数据日期、日 K 解析、新股/次新、解禁表现、增减持汇总、质押与商誉、回购进度、历史合并
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { addDays, buildBuyback, buildCalendar, buildGoodwill, buildHolders, buildLift, buildPledge, buildSubNew, checkComplete, closeOn, latestPeriod, liftPerf, mergeHistory, num, parseKline, secidOf, targetDay } from './ths-datacenter-lib.mjs'
+import { addDays, buildBuyback, buildCalendar, buildGoodwill, buildHolders, buildLift, buildPledge, buildSubNew, checkComplete, closeOn, latestPeriod, liftPerf, mergeHistory, num, parseKline, secidOf, shouldReplace, targetDay } from './ths-datacenter-lib.mjs'
 
 const D = '2026-11-17'
 const bars = (pairs) => pairs.map(([date, close]) => ({ date, close }))
@@ -87,7 +87,7 @@ test('解禁日后表现：基准为解禁前一交易日；非交易日解禁�
   assert.deepEqual(liftPerf(k, '2026-11-09'), { tDate: '2026-11-09', d1: 10, d5: 5 })
   assert.deepEqual(liftPerf(k, '2026-11-08'), { tDate: '2026-11-09', d1: 10, d5: 5 }, '周日解禁按周一算')
   assert.deepEqual(liftPerf(k, '2026-11-16'), { tDate: '2026-11-16', d1: -4.76, d5: null })
-  assert.deepEqual(liftPerf(k, '2026-11-01'), { tDate: '2026-11-06', d1: null, d5: null }, '没有前一交易日')
+  assert.deepEqual(liftPerf(k, '2026-11-01'), { tDate: '2026-11-02', d1: null, d5: null }, 'T 日与基准日都没有 K 线')
   assert.deepEqual(liftPerf(null, D), { tDate: null, d1: null, d5: null })
 })
 
@@ -164,4 +164,48 @@ test('回购：近 30 日公告、状态文字、进度相对计划金额上下�
 test('历史：同日覆盖、按日期排序', () => {
   const h = mergeHistory([{ date: '2026-11-16', a: 1 }, { date: '2026-11-17', a: 1 }], { date: '2026-11-17', a: 2 })
   assert.deepEqual(h, [{ date: '2026-11-16', a: 1 }, { date: '2026-11-17', a: 2 }])
+})
+
+test('解禁表现按交易日历精确对应：基准日 / T 日 / 第 5 日缺 K 线时留空，不用相邻日子顶替', () => {
+  // 11-06（基准日）缺失：旧逻辑会拿 11-05 当基准
+  const noBase = bars([['2026-11-05', 8], ['2026-11-09', 11], ['2026-11-10', 12], ['2026-11-11', 9], ['2026-11-12', 10], ['2026-11-13', 10.5]])
+  assert.deepEqual(liftPerf(noBase, '2026-11-09'), { tDate: '2026-11-09', d1: null, d5: null })
+  // T 日 11-09 停牌：旧逻辑会把 11-10 当 T
+  const noT = bars([['2026-11-06', 10], ['2026-11-10', 12], ['2026-11-11', 9], ['2026-11-12', 10], ['2026-11-13', 10.5], ['2026-11-16', 10]])
+  assert.deepEqual(liftPerf(noT, '2026-11-09'), { tDate: '2026-11-09', d1: null, d5: 5 })
+  // 中间 11-11 缺失：第 5 个交易日仍是 11-13，不是顺延到 11-16
+  const gap = bars([['2026-11-06', 10], ['2026-11-09', 11], ['2026-11-10', 12], ['2026-11-12', 10], ['2026-11-13', 10.5], ['2026-11-16', 20]])
+  assert.deepEqual(liftPerf(gap, '2026-11-09'), { tDate: '2026-11-09', d1: 10, d5: 5 })
+  const gap5 = bars([['2026-11-06', 10], ['2026-11-09', 11], ['2026-11-10', 12], ['2026-11-11', 9], ['2026-11-12', 10], ['2026-11-16', 20]])
+  assert.deepEqual(liftPerf(gap5, '2026-11-09'), { tDate: '2026-11-09', d1: 10, d5: null })
+})
+
+test('汇总里缺失不当 0：增减持金额全缺 → null，回购计划金额只加披露的、全缺 → null', () => {
+  const h = buildHolders([
+    { SECURITY_CODE: '000001', SECURITY_NAME_ABBR: 'A', HOLDER_NAME: '甲', DIRECTION: '增持', NOTICE_DATE: D, CHANGE_NUM: 10, TRADE_AVERAGE_PRICE: ' ', AFTER_CHANGE_RATE: '-' },
+  ], D)
+  assert.equal(h.incAmount, null)
+  assert.equal(h.decAmount, 0, '没有减持记录是真实的 0')
+  assert.equal(h.incMissing, 1)
+  assert.equal(h.rank.inc.length, 0)
+  const row = (code, low, high) => ({ DIM_SCODE: code, SECURITYSHORTNAME: code, REPURPROGRESS: '001', UPD: D, DIM_DATE: D, REPURAMOUNTLOWER: low, REPURAMOUNTLIMIT: high })
+  const none = buildBuyback([row('000001', '-', ''), row('000002', null, ' ')], D)
+  assert.equal(none.newPlans, 2)
+  assert.equal(none.newPlanLow, null)
+  assert.equal(none.newPlanHigh, null)
+  const part = buildBuyback([row('000001', 1e8, 2e8), row('000002', '-', 3e8)], D)
+  assert.equal(part.newPlanLow, 1e8)
+  assert.equal(part.newPlanHigh, 5e8)
+  assert.equal(part.newPlanLowMissing, 1)
+  assert.equal(part.newPlanHighMissing, 0)
+})
+
+test('发布替换：更晚的已发布文件不被历史重跑覆盖；同日日 K 失败更多的不覆盖', () => {
+  const cur = { asOf: D, quality: { klineMiss: 0 } }
+  assert.equal(shouldReplace(null, cur), true)
+  assert.equal(shouldReplace({ asOf: '2026-11-16', quality: { klineMiss: 0 } }, { asOf: D, quality: { klineMiss: 5 } }), true)
+  assert.equal(shouldReplace(cur, { asOf: '2026-11-16', quality: { klineMiss: 0 } }), false)
+  assert.equal(shouldReplace(cur, { asOf: D, quality: { klineMiss: 3 } }), false)
+  assert.equal(shouldReplace({ asOf: D, quality: { klineMiss: 3 } }, cur), true)
+  assert.equal(shouldReplace({ asOf: D }, { asOf: D, quality: { klineMiss: 3 } }), true)
 })

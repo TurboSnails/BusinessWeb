@@ -2,13 +2,19 @@
 // 来源（均为公开行情）：东财板块行情 clist（申万二级行业 m:90+s:4、概念板块 m:90+t:3 去掉 e:4 统计类板块）、
 // 东财涨停股池（getTopicZTPool）、东财个股所属行业 / 概念（ulist f100 / f103）、东财板块日 K（push2his）。
 // 历史：data-raw/kpl-plates/days/<日期>.json 每日一份精简记录（各板块涨幅、涨停家数、强度）；首次运行用每日复盘归档补出早期涨停家数。
+// 附加模块（任一失败只影响自己，不影响主数据）：
+//  · 板块涨停 / 炸板 / 跌停 / 自然涨停 / 曾跌停分布：优先用同一交易日的打板页数据（public/data/kpl-daban.json，工作流里先于本脚本运行），
+//    没有就直接取东财炸板 / 跌停股池（自然涨停、曾跌停整列缺失）；
+//  · 板块叠加：当日强度前 20 的行业与概念的分时（push2his trends2，逐分钟带日期，核对是当天）；
+//  · 概念成分变动：东财全 A 股「所属概念」快照（data-raw/kpl-plates/members.tsv 与上一份 members-base.tsv），与上一交易日快照比较。
 // 任何一项核心数据不完整或不是当天收盘后的数据，就放弃本次，不写半截数据。
 // 用法：node scripts/kpl-plates.mjs   （FORCE=1 [DATE=YYYY-MM-DD] 跳过收盘时间检查、只打印摘要；DUMP=<路径> 另存完整输出供排查。FORCE 产出不要提交）
 import fs from 'node:fs'
-import { isTradingDay, parsePool } from './market-mood-lib.mjs'
+import { isTradingDay, parsePool, prevTradingDay } from './market-mood-lib.mjs'
 import {
-  CONCEPT_MIN_ZT, annotateBoards, boardSeries, compactDay, parseBoardRow, parseClistPage, parseKline, parseStockMeta,
-  rangeReturn, secidOf, seedDays, sortByStrength, strongHistory, validateBoards, ztGroups,
+  CONCEPT_MIN_ZT, annotateBoards, boardSeries, compactDay, conceptSnapshot, dabanSets, diffSnapshots, distTable, mergeChanges,
+  parseBoardRow, parseClistPage, parseKline, parseSnapshot, parseStockMeta, parseTrends, pickBase, rangeReturn, secidOf, seedDays,
+  serializeSnapshot, sortByStrength, strongHistory, trendPct, validateBoards, ztGroups,
 } from './kpl-plates-lib.mjs'
 
 const OUT = 'public/data/kpl-plates.json'
@@ -19,6 +25,8 @@ const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (
 const QUOTE_HOSTS = ['https://push2.eastmoney.com', 'https://push2delay.eastmoney.com', 'https://82.push2.eastmoney.com']
 const BOARD_FIELDS = 'f12,f14,f3,f6,f62,f184,f104,f105,f106,f128,f140,f136,f124'
 const TREND_TOP = 12 // 每类取强度前 12 的板块拉日 K，用于近 N 日走势
+const INTRADAY_TOP = 20 // 板块叠加：每类预存强度前 20 的板块当日分时
+const ALL_A = 'm:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23,m:0+t:81+s:2048' // 沪深京 A 股
 const FORCE = process.env.FORCE === '1'
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
@@ -58,10 +66,10 @@ try {
 } catch (e) { console.log(`${date} 没有当日涨停池（休市或尚未更新）：${e.message}`); process.exit(0) }
 
 // 2. 板块列表：分页取全（每页最多 100），再核总数
-async function clist(fs, fields = BOARD_FIELDS) {
+async function clist(fs, fields = BOARD_FIELDS, maxPages = 20) {
   const out = []
   let total = null
-  for (let p = 1; p <= 20; p++) {
+  for (let p = 1; p <= maxPages; p++) {
     const page = parseClistPage(await quote(`/api/qt/clist/get?${new URLSearchParams({ pn: String(p), pz: '100', po: '1', np: '1', fltt: '2', invt: '2', fid: 'f12', fs, fields })}`))
     if (total === null) total = page.total
     else if (page.total !== total) throw new Error(`${fs} 分页期间总数变化`)
@@ -142,7 +150,84 @@ for (const [kind, list] of [['industry', industry], ['concept', concept]]) {
   for (const b of list.filter((x) => x.strength !== null).slice(0, TREND_TOP)) trend.push(await trendOf(b, kind))
 }
 
-// 6. 汇总与输出
+// 6. 板块涨停 / 炸板 / 跌停 / 自然涨停 / 曾跌停分布
+let dist = null
+try {
+  let sets = null, distSource = 'daban'
+  try { sets = dabanSets(JSON.parse(fs.readFileSync('public/data/kpl-daban.json', 'utf8')), date) } catch { sets = null }
+  if (!sets) {
+    // 打板页没有同一交易日的数据：直接取东财炸板 / 跌停股池（带日期），自然涨停、曾跌停拿不到，整列缺失
+    distSource = 'pools'
+    const pool = async (ep, sort) => parsePool(await get(`https://push2ex.eastmoney.com/${ep}?${new URLSearchParams({ ut: POOL_TOKEN, dpt: 'wz.ztzt', Pageindex: '0', pagesize: '10000', sort, date: date.replaceAll('-', '') })}`), date).map((s) => s.code)
+    sets = { zt: zt.map((s) => s.code), zb: await pool('getTopicZBPool', 'fbt:asc'), dt: await pool('getTopicDTPool', 'fund:asc'), natural: null, touched: null }
+  }
+  const extra = [...new Set([sets.zb, sets.dt, sets.touched, sets.zt].flatMap((x) => x ?? []))].filter((c) => !meta.has(c))
+  for (const [k, v] of await stockMeta(extra)) meta.set(k, v)
+  dist = {
+    source: distSource,
+    counts: Object.fromEntries(Object.entries(sets).map(([k, v]) => [k, Array.isArray(v) ? v.length : null])),
+    industry: distTable(sets, meta, industryKey, industry, { limit: 80 }),
+    concept: distTable(sets, meta, conceptKey, concept, { limit: 80 }),
+  }
+} catch (e) { console.log(`板块分布不可用（不影响其他模块）：${e.message}`) }
+
+// 7. 板块叠加：强度前 INTRADAY_TOP 的行业与概念当日分时，归一化为相对昨收的涨跌幅
+let intraday = null
+try {
+  const picks = [['industry', industry], ['concept', concept]].flatMap(([kind, list]) => list.filter((b) => b.strength !== null).slice(0, INTRADAY_TOP).map((b) => ({ ...b, kind })))
+  const got = []
+  for (const b of picks) {
+    try {
+      const parsed = parseTrends(await get(`https://push2his.eastmoney.com/api/qt/stock/trends2/get?${new URLSearchParams({ secid: `90.${b.code}`, fields1: 'f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13', fields2: 'f51,f52,f53,f54,f55,f56,f57,f58', iscr: '0', iscca: '0', ndays: '1' })}`), date)
+      got.push({ b, parsed })
+    } catch (e) { console.log(`${b.name} 分时不可用：${e.message}`) }
+    await sleep(200)
+  }
+  if (got.length) {
+    const times = [...new Set(got.flatMap((g) => g.parsed.points.map((p) => p.t)))].sort()
+    intraday = {
+      date, times,
+      boards: got.map(({ b, parsed }) => ({ code: b.code, name: b.name, kind: b.kind, strength: b.strength, pct: b.pct, pre: parsed.pre, values: trendPct(parsed, times) })),
+    }
+  }
+} catch (e) { console.log(`板块分时不可用（不影响其他模块）：${e.message}`) }
+
+// 8. 概念成分快照与变动（只在正式运行时轮换快照文件）
+let members = null
+const SNAP = `${RAW}/members.tsv`, SNAP_BASE = `${RAW}/members-base.tsv`, CHANGES = `${RAW}/member-changes.json`
+let snapWrites = null
+try {
+  const rows = await clist(ALL_A, 'f12,f14,f103', 80)
+  if (rows.length < 5000) throw new Error(`全 A 股数量异常：${rows.length}`)
+  const snap = conceptSnapshot(rows, new Map(concept.map((b) => [b.name, b.code])))
+  const withConcepts = [...snap.stocks.values()].filter((s) => s.concepts.length).length
+  if (withConcepts < rows.length * 0.8) throw new Error(`有所属概念的股票过少：${withConcepts}/${rows.length}`)
+  const read = (f) => { try { return parseSnapshot(fs.readFileSync(f, 'utf8')) } catch { return null } }
+  const prevDay = prevTradingDay(date)
+  const { base, rotate } = pickBase(read(SNAP), read(SNAP_BASE), date, prevDay)
+  const cur = { date, stocks: snap.stocks }
+  const conceptNames = new Map(concept.map((b) => [b.code, b.name]))
+  let changes = {}
+  try { changes = JSON.parse(fs.readFileSync(CHANGES, 'utf8')) } catch { changes = {} }
+  let diffToday = null
+  if (base) {
+    const d = diffSnapshots(base, cur, conceptNames)
+    diffToday = { base: base.date, ...d }
+    changes = mergeChanges(changes, date, diffToday)
+  } else {
+    // 没有上一交易日的快照（首次采集或上一交易日没跑成）：只存快照，不比较；同时清掉当天可能残留的旧比较结果
+    delete changes[date]
+  }
+  members = {
+    date, base: base?.date ?? null, prevDay, stocks: snap.stocks.size, withConcepts, unmatchedNames: snap.unmatched.length,
+    today: diffToday,
+    recent: Object.entries(changes).filter(([d]) => d !== date).sort(([a], [b]) => b.localeCompare(a)).slice(0, 10)
+      .map(([d, r]) => ({ date: d, base: r.base, concepts: r.concepts.length, added: r.concepts.reduce((s, c) => s + c.addedCount, 0), removed: r.concepts.reduce((s, c) => s + c.removedCount, 0), newConcepts: r.newConcepts.map((c) => c.name), droppedConcepts: r.droppedConcepts.map((c) => c.name) })),
+  }
+  snapWrites = { snap: serializeSnapshot(date, snap.stocks), base: rotate ? serializeSnapshot(rotate.date, rotate.stocks) : null, changes }
+} catch (e) { console.log(`概念成分快照不可用（不影响其他模块）：${e.message}`) }
+
+// 9. 汇总与输出
 const names = new Map([...industry, ...concept].map((b) => [b.code, b.name]))
 const out = {
   version: 1, generatedAt: new Date().toISOString(), asOf: date,
@@ -161,10 +246,12 @@ const out = {
   trend,
   strong: { industry: strongHistory(days, 'industry', names), concept: strongHistory(days, 'concept', names) },
   seededDays: days.filter((d) => d.seeded).map((d) => d.date),
+  dist, intraday, members,
   sources: [
     { id: 'boards', label: '东方财富行业 / 概念板块行情', url: 'https://quote.eastmoney.com/center/boardlist.html' },
     { id: 'pool', label: '东方财富涨停股池', url: 'https://quote.eastmoney.com/ztb/' },
-    { id: 'kline', label: '东方财富板块日 K', url: 'https://quote.eastmoney.com/' },
+    { id: 'kline', label: '东方财富板块日 K / 分时', url: 'https://quote.eastmoney.com/' },
+    { id: 'members', label: '东方财富个股所属概念', url: 'https://quote.eastmoney.com/center/boardlist.html#concept_board' },
   ],
 }
 if (process.env.DUMP) fs.writeFileSync(process.env.DUMP, JSON.stringify(out, null, 1))
@@ -174,6 +261,11 @@ if (FORCE && process.env.WRITE !== "1") {
   fs.mkdirSync(`${RAW}/days`, { recursive: true })
   for (const d of seeded) fs.writeFileSync(`${RAW}/days/${d.date}.json`, JSON.stringify(d))
   fs.writeFileSync(`${RAW}/days/${date}.json`, JSON.stringify(todayRec))
+  if (snapWrites) {
+    if (snapWrites.base) fs.writeFileSync(SNAP_BASE, snapWrites.base)
+    fs.writeFileSync(SNAP, snapWrites.snap)
+    fs.writeFileSync(CHANGES, JSON.stringify(snapWrites.changes))
+  }
   fs.writeFileSync(OUT, JSON.stringify(out))
 }
-console.log(JSON.stringify({ date, zt: zt.length, unmatched: unmatched.length, industry: industry.length, concept: concept.length, top: industry.slice(0, 3).map((b) => `${b.name}:${b.strength}`), topConcept: concept.slice(0, 3).map((b) => `${b.name}:${b.strength}`), groups: out.groups.concept.length, trend: trend.length, days: days.length, seeded: out.seededDays.length }))
+console.log(JSON.stringify({ date, zt: zt.length, unmatched: unmatched.length, industry: industry.length, concept: concept.length, top: industry.slice(0, 3).map((b) => `${b.name}:${b.strength}`), topConcept: concept.slice(0, 3).map((b) => `${b.name}:${b.strength}`), groups: out.groups.concept.length, trend: trend.length, days: days.length, seeded: out.seededDays.length, dist: dist && { source: dist.source, industry: dist.industry.length, concept: dist.concept.length }, intraday: intraday?.boards.length ?? null, members: members && { base: members.base, stocks: members.stocks, changed: members.today?.concepts.length ?? null } }))

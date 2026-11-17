@@ -214,3 +214,157 @@ export function seedDays(snapshots, meta, industryCodes, conceptCodes, existing 
     return { date: s.dataDate, seeded: true, industry, concept }
   }).sort((a, b) => a.date.localeCompare(b.date))
 }
+
+/* ---------- 板块涨停 / 炸板 / 跌停 / 自然涨停 / 曾跌停 分布（开盘啦 PlateAnalysis） ---------- */
+export const DIST_KEYS = ['zt', 'zb', 'dt', 'natural', 'touched']
+
+/**
+ * 按板块统计各股池的家数。sets：{ zt, zb, dt, natural, touched } 各为股票代码数组；拿不到的池为 null（整列缺失，不当 0）。
+ * keyOf(meta) 返回该股归属的板块名；boards 为当日板块列表（名称 → 代码）。只列至少一项不为 0 的板块。
+ */
+export function distTable(sets, meta, keyOf, boards, { limit = 80 } = {}) {
+  const byName = new Map(boards.map((b) => [b.name, b]))
+  const rows = new Map()
+  for (const k of DIST_KEYS) {
+    if (!Array.isArray(sets[k])) continue
+    for (const code of new Set(sets[k])) {
+      const m = meta.get(code)
+      if (!m) continue
+      for (const name of keyOf(m)) {
+        const b = byName.get(name)
+        if (!b) continue
+        const r = rows.get(b.code) ?? { code: b.code, name: b.name, ...Object.fromEntries(DIST_KEYS.map((x) => [x, Array.isArray(sets[x]) ? 0 : null])) }
+        r[k]++
+        rows.set(b.code, r)
+      }
+    }
+  }
+  return [...rows.values()]
+    .sort((a, b) => b.zt - a.zt || b.zb - a.zb || b.dt - a.dt || (b.touched ?? 0) - (a.touched ?? 0) || a.name.localeCompare(b.name))
+    .slice(0, limit)
+}
+
+/** 打板页当日数据（public/data/kpl-daban.json）→ 各股池代码；日期不是当天时返回 null（不拿别的日子凑） */
+export function dabanSets(daban, date) {
+  if (!daban || daban.asOf !== date || !Array.isArray(daban.zt)) return null
+  const codes = (xs) => (Array.isArray(xs) ? xs.filter((r) => /^\d{6}$/.test(r?.code)).map((r) => r.code) : null)
+  // 自然涨停：板型判断不出来（缺开高低价）的股票不计入；一只都判断不出时整列缺失
+  const judged = daban.zt.filter((r) => typeof r.natural === 'boolean')
+  return {
+    zt: codes(daban.zt), zb: codes(daban.zb), dt: codes(daban.dt),
+    natural: judged.length ? judged.filter((r) => r.natural).map((r) => r.code) : null,
+    touched: codes(daban.touched),
+  }
+}
+
+/* ---------- 板块叠加：当日分时（东财 push2his trends2） ---------- */
+
+/**
+ * trends2 → { pre, points: [{ t: 'HH:MM', close }] }。每一分钟都必须是 date 当天的数据，否则报错（盘后到次日开盘前接口给的是上一交易日）。
+ * trends 每项：'YYYY-MM-DD HH:MM,开,收,高,低,量,额,均价'
+ */
+export function parseTrends(body, date) {
+  const d = body?.data
+  if (body?.rc !== 0 || !d || !Array.isArray(d.trends) || !d.trends.length) throw new Error('东财分时结构异常')
+  const pre = num(d.preClose) ?? num(d.prePrice)
+  if (!(pre > 0)) throw new Error('东财分时缺昨收')
+  const points = d.trends.map((s) => {
+    const [ts, , close] = String(s).split(',')
+    const [day, t] = String(ts).split(' ')
+    if (day !== date) throw new Error(`分时日期 ${day} 不是 ${date}`)
+    return { t, close: num(close) }
+  }).filter((p) => /^\d{2}:\d{2}$/.test(p.t ?? ''))
+  if (points.length < 200) throw new Error(`分时点数不足：${points.length}`)
+  return { pre, points }
+}
+
+/** 分时 → 相对昨收的涨跌幅（%），按统一的时间轴对齐；缺的分钟为 null */
+export function trendPct(parsed, times) {
+  const at = new Map(parsed.points.map((p) => [p.t, p.close]))
+  return times.map((t) => { const c = at.get(t); return c === null || c === undefined ? null : round((c / parsed.pre - 1) * 100, 2) })
+}
+
+/* ---------- 概念成分快照与变动 ---------- */
+// 快照：东财全 A 股列表的「所属概念」（f103；实测与 b:BKxxxx 成分列表一致），按概念名对到当日概念板块代码。
+// 文本格式（便于 git 按行比较）：第一行 '#date\tYYYY-MM-DD'，之后每只股票一行 '代码\t名称\tBK0001,BK0002'
+
+/** 全 A 股行（f12 代码、f14 名称、f103 所属概念）→ { stocks: Map(code → { name, concepts: string[] }), unmatched } */
+export function conceptSnapshot(rows, conceptCodeByName) {
+  const stocks = new Map()
+  const unmatched = new Set()
+  for (const r of rows) {
+    if (!/^\d{6}$/.test(r?.f12)) continue
+    const names = typeof r.f103 === 'string' ? r.f103.split(',').map((s) => s.trim()).filter((s) => s && s !== '-') : []
+    const concepts = []
+    for (const n of names) { const c = conceptCodeByName.get(n); if (c) concepts.push(c); else unmatched.add(n) }
+    stocks.set(r.f12, { name: str(r.f14) ?? r.f12, concepts: [...new Set(concepts)].sort() })
+  }
+  return { stocks, unmatched: [...unmatched] }
+}
+
+export function serializeSnapshot(date, stocks) {
+  const lines = [...stocks.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([c, s]) => `${c}\t${s.name.replace(/[\t\n]/g, ' ')}\t${s.concepts.join(',')}`)
+  return `#date\t${date}\n${lines.join('\n')}\n`
+}
+
+export function parseSnapshot(text) {
+  const lines = String(text ?? '').split('\n')
+  const m = /^#date\t(\d{4}-\d{2}-\d{2})$/.exec(lines[0] ?? '')
+  if (!m) return null
+  const stocks = new Map()
+  for (const line of lines.slice(1)) {
+    const [code, name, cs] = line.split('\t')
+    if (!/^\d{6}$/.test(code ?? '')) continue
+    stocks.set(code, { name: name || code, concepts: cs ? cs.split(',').filter(Boolean) : [] })
+  }
+  return { date: m[1], stocks }
+}
+
+/**
+ * 两个快照的成分变动。只比较「两天都在列表里」或「今天新上市」的股票：
+ *  · 昨天在、今天不在列表里的（退市等）不算剔除；
+ *  · 昨天有概念、今天一个都没有的视为当天数据缺失，整只跳过（skipped 计数），不当作全部剔除。
+ * 某概念昨天没有任何成分、今天有 → newConcepts（新上线概念，只给家数）；昨天有、今天全没了 → droppedConcepts。
+ */
+export function diffSnapshots(base, cur, conceptNames, { listLimit = 60 } = {}) {
+  const added = new Map(), removed = new Map()
+  let skipped = 0
+  const push = (map, concept, code, name) => { const a = map.get(concept) ?? []; a.push({ code, name }); map.set(concept, a) }
+  for (const [code, s] of cur.stocks) {
+    const b = base.stocks.get(code)
+    if (b && b.concepts.length && !s.concepts.length) { skipped++; continue }
+    const before = new Set(b?.concepts ?? [])
+    const after = new Set(s.concepts)
+    for (const c of after) if (!before.has(c)) push(added, c, code, s.name)
+    for (const c of before) if (!after.has(c)) push(removed, c, code, s.name)
+  }
+  const count = (snap) => { const m = new Map(); for (const s of snap.stocks.values()) for (const c of s.concepts) m.set(c, (m.get(c) ?? 0) + 1); return m }
+  const baseCount = count(base), curCount = count(cur)
+  const name = (c) => conceptNames.get(c) ?? c
+  const newConcepts = [...curCount.entries()].filter(([c]) => !baseCount.has(c)).map(([c, n]) => ({ code: c, name: name(c), members: n }))
+  const droppedConcepts = [...baseCount.entries()].filter(([c]) => !curCount.has(c)).map(([c, n]) => ({ code: c, name: name(c), members: n }))
+  const special = new Set([...newConcepts, ...droppedConcepts].map((x) => x.code))
+  const concepts = [...new Set([...added.keys(), ...removed.keys()])].filter((c) => !special.has(c)).map((c) => {
+    const a = added.get(c) ?? [], r = removed.get(c) ?? []
+    return {
+      code: c, name: name(c), members: curCount.get(c) ?? 0, addedCount: a.length, removedCount: r.length,
+      added: a.slice(0, listLimit), removed: r.slice(0, listLimit),
+    }
+  }).sort((x, y) => (y.addedCount + y.removedCount) - (x.addedCount + x.removedCount) || x.name.localeCompare(y.name))
+  return { concepts, newConcepts, droppedConcepts, skipped }
+}
+
+/**
+ * 快照轮换：latest 为上次写入的快照、base 为 latest 当时的比较基准。
+ * 今天第二次运行（latest.date === date）时沿用原基准；否则 latest 变成新的基准。基准必须恰好是 prevTradingDay(date)，否则不比较。
+ */
+export function pickBase(latest, base, date, prevDay) {
+  const cand = latest?.date === date ? base : latest
+  return { base: cand?.date === prevDay ? cand : null, rotate: latest && latest.date !== date ? latest : base }
+}
+
+/** 成分变动历史：{ 日期: 变动 } 保留最近 keep 个交易日 */
+export function mergeChanges(store, date, rec, keep = 60) {
+  const all = { ...(store ?? {}), [date]: rec }
+  return Object.fromEntries(Object.entries(all).sort(([a], [b]) => a.localeCompare(b)).slice(-keep))
+}

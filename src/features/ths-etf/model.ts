@@ -10,7 +10,7 @@ export type Stock = { code: string; name: string }
 export type Rebalance = { id: string; title: string; publishDate: string; effectiveDate: string | null; url: string; attachmentUrl: string | null; status: 'parsed' | 'pending'; indexes: Array<{ index: string; out: Stock[]; in: Stock[] }> }
 export type ThsEtfData = {
   version: 1; asOf: string; generatedAt: string; historyStart: string; backfill: { from: string; to: string } | null
-  broad: { list: BroadRow[]; byIndex: IndexAgg[]; total: { flow1: Num; flow5: Num; flow20: Num; scale: Num }; history: Array<{ date: string; flow: Num }> }
+  broad: { list: BroadRow[]; byIndex: IndexAgg[]; total: { flow1: Num; flow5: Num; flow20: Num; scale: Num }; history: Array<{ date: string; flow: Num; missing?: number | null }> }
   market: { n: number; categories: CategoryAgg[] }
   rebalance: Rebalance[]
   sources: Array<{ label: string; url: string }>

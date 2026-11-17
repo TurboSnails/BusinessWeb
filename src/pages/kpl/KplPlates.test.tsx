@@ -1,9 +1,11 @@
 import React from 'react'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import KplPlates from './KplPlates'
-import { platesFixture } from '../../features/kpl-plates/fixtures'
+import { platesExtras, platesFixture } from '../../features/kpl-plates/fixtures'
 import { asKplPlates, sortBoards } from '../../features/kpl-plates/model'
 
 const renderPage = () => render(<MemoryRouter initialEntries={['/market-mood/plates']}><KplPlates /></MemoryRouter>)
@@ -91,5 +93,72 @@ describe('数据模型', () => {
     expect(asKplPlates({ ...platesFixture(), trend: undefined })!.trend).toEqual([])
     const m = asKplPlates(platesFixture())!
     expect(sortBoards(m.industry, 'mainNet').map(b => b.code)).toEqual(['BK0001', 'BK0002', 'BK0003'])
+  })
+})
+
+describe('板块分布、板块叠加、概念成分变动', () => {
+  const full = () => ({ ...platesFixture(), ...platesExtras() })
+
+  it('分布表：涨停 / 炸板 / 跌停 / 自然涨停 / 曾跌停；拿不到的列显示 —', async () => {
+    const f = full()
+    f.dist.source = 'pools'
+    ;(f.dist.industry[0] as Record<string, unknown>).natural = null
+    stub(f)
+    renderPage()
+    const t = await screen.findByRole('region', { name: '行业涨停 / 炸板 / 跌停分布' })
+    const row = within(t).getByText('电子化学品Ⅱ').closest('tr')!
+    expect(row.textContent).toContain('—')
+    expect(screen.getByText(/全市场：涨停 37 · 炸板 20 · 跌停 67/)).toBeTruthy()
+    expect(screen.getByText(/自然涨停、曾跌停拿不到/)).toBeTruthy()
+    fireEvent.click(within(screen.getByRole('group', { name: '分布板块类型' })).getByText('概念'))
+    expect(within(screen.getByRole('region', { name: '概念涨停 / 炸板 / 跌停分布' })).getByText('央国企改革')).toBeTruthy()
+  })
+
+  it('板块叠加：默认选前 2 个行业，最多 3 个，可跨类型混选', async () => {
+    stub(full())
+    renderPage()
+    expect(await screen.findByRole('img', { name: '板块叠加：电子化学品Ⅱ、贵金属' })).toBeTruthy()
+    fireEvent.click(within(screen.getByRole('group', { name: '叠加板块类型' })).getByText('概念'))
+    const chips = screen.getByRole('group', { name: '选择叠加板块' })
+    fireEvent.click(within(chips).getByRole('button', { name: /光刻机/ }))
+    expect(screen.getByRole('img', { name: '板块叠加：电子化学品Ⅱ、贵金属、光刻机' })).toBeTruthy()
+    expect((within(chips).getByRole('button', { name: /央国企改革/ }) as HTMLButtonElement).disabled).toBe(true)
+    fireEvent.click(screen.getByRole('button', { name: '清空选择' }))
+    expect(screen.getByText('请选择板块')).toBeTruthy()
+    expect(screen.getByText(/换成涨跌幅后放在同一坐标轴/)).toBeTruthy()
+  })
+
+  it('概念成分变动：新增 / 剔除可展开；新上线概念；缺失股票说明', async () => {
+    stub(full())
+    renderPage()
+    const head = await screen.findByRole('button', { name: /光刻机\s*\+2\s*−1/ })
+    fireEvent.click(head)
+    expect(screen.getByText(/新进甲、新进乙/)).toBeTruthy()
+    expect(screen.getByText(/剔除丙/)).toBeTruthy()
+    expect(screen.getByText(/新上线概念：新概念（12 只）/)).toBeTruthy()
+    expect(screen.getByText(/另有 2 只股票当天所属概念为空/)).toBeTruthy()
+  })
+
+  it('首日没有上一交易日快照时说明，不比较', async () => {
+    const f = full()
+    f.members = { ...f.members, base: null, today: null, recent: [] } as unknown as typeof f.members
+    stub(f)
+    renderPage()
+    expect(await screen.findByText(/上一交易日（2026-11-16）没有成分快照/)).toBeTruthy()
+  })
+
+  it('旧数据没有附加模块时不显示对应卡片；样式约束', async () => {
+    stub(platesFixture())
+    renderPage()
+    await screen.findByRole('region', { name: '今日概览' })
+    expect(screen.queryByText('板块叠加')).toBeNull()
+    expect(screen.queryByText('概念成分变动')).toBeNull()
+    const m = asKplPlates({ ...full(), intraday: { date: '2026-11-17', times: ['09:30'], boards: [{ code: 'x', name: 'x', kind: 'industry', values: [1, 2] }] } })!
+    expect(m.intraday).toBeNull() // 点数与时间轴对不上的板块丢弃
+    for (const f of ['KplPlates.tsx', '../../features/kpl-plates/OverlayChart.tsx']) {
+      const src = readFileSync(resolve(__dirname, f), 'utf8')
+      expect(src).not.toMatch(/style=\{\{/)
+      expect(src).not.toMatch(/#[0-9a-fA-F]{3,6}\b|rgba?\(/)
+    }
   })
 })

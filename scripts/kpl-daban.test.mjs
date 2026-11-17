@@ -188,3 +188,41 @@ test('当日结果：板型与自然涨停、曾跌停、竞价汇总、历史�
   assert.equal(payload.history.at(-1).date, '2026-11-17')
   assert.equal(payload.history.at(-1).touched, 1)
 })
+
+/* ---------- F10 题材要点与涨停历史导出 ---------- */
+import { attachTopics, buildHistoryExport, f10Code, f10Due, mergeStocks, parseF10, pruneF10 } from './kpl-daban-lib.mjs'
+
+const hx = (n, c, k, t = '内容' + k) => ({ SECURITY_CODE: '002912', MAINPOINT: n, KEY_CLASSIF: c, KEYWORD: k, MAINPOINT_CONTENT: t })
+test('F10 要点：主营业务、公司事项、核心竞争力各取一条，不取经营范围 / 行业背景', () => {
+  const pts = parseF10({ hxtc: [hx(2, '经营范围', '经营范围'), hx(3, '主营业务', '宽带网'), hx(4, '主营业务', '移动网'), hx(9, '行业背景', '网安'), hx(10, '核心竞争力', '技术'), hx(15, '对外扩张', '收购')] }, '002912')
+  assert.deepEqual(pts.map((p) => p.k), ['宽带网', '收购', '技术'])
+  assert.deepEqual(parseF10({ hxtc: [hx(3, '主营业务', '甲'), hx(4, '主营业务', '乙')] }, '002912').map((p) => p.k), ['甲', '乙'])
+  assert.deepEqual(parseF10({ hxtc: [] }, '002912'), [])
+  assert.throws(() => parseF10({ status: -1, message: '股票代码不合法' }, '002912'))
+  assert.throws(() => parseF10({ ssbk: [] }, '002912'))
+  assert.throws(() => parseF10({ hxtc: [hx(3, '主营业务', '甲')] }, '600000'), /对不上/)
+  assert.ok(parseF10({ hxtc: [hx(3, '主营业务', '甲', '字'.repeat(300))] }, '002912')[0].t.endsWith('…'))
+})
+
+test('F10 代码前缀与缓存：30 天内不重抓，90 天以上清理', () => {
+  assert.equal(f10Code('600088'), 'SH600088')
+  assert.equal(f10Code('002912'), 'SZ002912')
+  assert.equal(f10Code('920982'), 'BJ920982')
+  const cache = { '000001': { at: '2026-11-01', points: [] }, '000002': { at: '2026-10-10', points: [] }, '000003': { at: '2026-07-01', points: [] } }
+  assert.deepEqual(f10Due(['000001', '000002', '000004'], cache, '2026-11-18'), ['000002', '000004'])
+  assert.deepEqual(Object.keys(pruneF10(cache, '2026-11-18')), ['000001', '000002'])
+  const rows = attachTopics([{ code: '000001' }, { code: '000009' }], cache)
+  assert.deepEqual(rows[0].topics, { at: '2026-11-01', points: [] })
+  assert.equal(rows[1].topics, null)
+})
+
+test('涨停历史导出：名录取最新名称，行业缺失保留 null；补算日标记', () => {
+  let stocks = mergeStocks({}, [{ code: '000001', name: '旧名' }])
+  stocks = mergeStocks(stocks, [{ code: '000001', name: '新名', sector: '' }, { code: '000002', name: '乙', sector: '银行' }])
+  assert.deepEqual(stocks, { '000001': ['新名', null], '000002': ['乙', '银行'] })
+  const exp = buildHistoryExport({ days: { '2026-11-17': { zt: [['000001', 2]] }, '2026-11-16': { zt: [['000001', 1], ['000003', 1]], seeded: true } } }, stocks)
+  assert.equal(exp.from, '2026-11-16')
+  assert.equal(exp.fullFrom, '2026-11-17')
+  assert.deepEqual(exp.days, [['2026-11-16', 1, [['000001', 1], ['000003', 1]]], ['2026-11-17', 0, [['000001', 2]]]])
+  assert.deepEqual(exp.stocks, { '000001': ['新名', null], '000003': ['000003', null] })
+})

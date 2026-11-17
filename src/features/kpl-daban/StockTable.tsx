@@ -21,15 +21,21 @@ export type Col<T> = {
   cls?: (r: T) => string
 }
 
-/** 个股表：首列（名称代码）吸附，窄屏表格内部横向滚动；点表头排序（再点切换升降序） */
-export default function StockTable<T extends { code: string; name: string }>({ label, rows, cols, initial, empty = '今日暂无' }: {
+/**
+ * 个股表：首列（名称代码）吸附，窄屏表格内部横向滚动；点表头排序（再点切换升降序）。
+ * expand（可选）：返回该行的展开内容；不为 null 时名称旁出现展开按钮，点开在下一行显示。
+ */
+export default function StockTable<T extends { code: string; name: string }>({ label, rows, cols, initial, empty = '今日暂无', expand, expandLabel = '展开' }: {
   label: string
   rows: T[]
   cols: Array<Col<T>>
   initial?: { key: string; dir: 'asc' | 'desc' }
   empty?: string
+  expand?: (r: T) => React.ReactNode | null
+  expandLabel?: string
 }): JSX.Element {
   const [sort, setSort] = useState<{ key: string; dir: 'asc' | 'desc' } | null>(initial ?? null)
+  const [open, setOpen] = useState<Set<string>>(() => new Set())
   const sorted = useMemo(() => {
     const col = sort && cols.find(c => c.key === sort.key)
     if (!col?.sort || !sort) return rows
@@ -62,12 +68,23 @@ export default function StockTable<T extends { code: string; name: string }>({ l
           </tr>
         </thead>
         <tbody>
-          {sorted.map(r => (
-            <tr key={r.code}>
-              <th scope="row" className="kd-name">{r.name}<small>{r.code}</small></th>
-              {cols.map(c => <td key={c.key} className={[c.num ? 'num' : '', c.cls?.(r) ?? ''].join(' ').trim() || undefined}>{c.render(r)}</td>)}
-            </tr>
-          ))}
+          {sorted.map(r => {
+            const extra = expand ? expand(r) : null
+            const isOpen = extra !== null && open.has(r.code)
+            const toggle = (): void => setOpen(s => { const n = new Set(s); if (n.has(r.code)) n.delete(r.code); else n.add(r.code); return n })
+            return (
+              <React.Fragment key={r.code}>
+                <tr>
+                  <th scope="row" className="kd-name">
+                    {r.name}<small>{r.code}</small>
+                    {extra !== null && <button type="button" className="kd-expbtn" aria-expanded={isOpen} aria-label={`${r.name} ${expandLabel}`} onClick={toggle}>{isOpen ? '收起' : expandLabel}</button>}
+                  </th>
+                  {cols.map(c => <td key={c.key} className={[c.num ? 'num' : '', c.cls?.(r) ?? ''].join(' ').trim() || undefined}>{c.render(r)}</td>)}
+                </tr>
+                {isOpen && <tr className="kd-exprow"><td colSpan={cols.length + 1}>{extra}</td></tr>}
+              </React.Fragment>
+            )
+          })}
         </tbody>
       </table>
     </TableWrap>

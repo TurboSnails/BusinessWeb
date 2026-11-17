@@ -7,8 +7,8 @@ import path from 'node:path'
 import { spawnSync } from 'node:child_process'
 import {
   BROAD_ETFS, CSI_LIST_URL, EM_GROUPS, REBALANCE_TITLE, SZSE_REFERER, buildBroad, buildMarket, buildRebalance, classify, csiDetailUrl,
-  emListUrl, klineUrl, makeFlow, parseKline, parseSse, parseSzseRows, parseTencent, readXlsxRows, sseUrl, szseUrl, targetDate,
-  tencentUrl, tradingDaysBack, validDate,
+  emListUrl, exchangeCount, keepArchive, klineUrl, makeFlow, notListed, parseKline, parseSse, parseSzseRows, parseTencent, prevTradingDay, readXlsxRows,
+  shouldReplace, sseUrl, szseUrl, targetDate, tencentUrl, tradingDaysBack, universeOk, validDate,
 } from './ths-etf-lib.mjs'
 
 const OUT = 'public/data/ths-tab-etf.json'
@@ -37,7 +37,9 @@ async function http(url, { headers = {}, as = 'json', retries = 2, timeout = 250
       return JSON.parse(text)
     } catch (e) { last = e; if (i < retries) await sleep(800 * (i + 1)) }
   }
-  throw last
+  // undici 的「fetch failed」不带原因，补上底层错误码与主机名，便于判断是被拒连、超时还是 DNS
+  const cause = last?.cause ? `${last.cause.code ?? ''} ${last.cause.message ?? ''}`.trim() : ''
+  throw new Error(`${new URL(url).host}：${last?.message ?? last}${cause ? `（${cause}）` : ''}`)
 }
 async function pool(items, n, fn) {
   let next = 0
@@ -125,12 +127,25 @@ async function main() {
   await pool(dates.filter(d => recent.has(d) || !days[d]?.src?.sse), 4, async (d) => {
     try { sse[d] = parseSse(await http(sseUrl(d), { headers: { Referer: 'https://www.sse.com.cn/' } }), d) } catch (e) { log(`⚠ 上交所 ${d}：${e.message}`); sse[d] = undefined }
   })
-  if (!sse[asOf]) { log(`上交所 ${asOf} ETF 份额尚未公布，不写文件`); return }
   // 深交所区间 xlsx
-  const buf = await http(szseUrl(dates[0], asOf), { as: 'buffer', headers: { Referer: SZSE_REFERER }, timeout: 90000 })
+  // GitHub Actions（境外 IP）上深交所常拒连：明确记日志、不写文件、以非零退出码让工作流给出警告
+  let buf
+  try { buf = await http(szseUrl(dates[0], asOf), { as: 'buffer', headers: { Referer: SZSE_REFERER }, timeout: 90000, retries: 3 }) } catch (e) {
+    log(`深交所基金规模不可达（${e.message}），不写文件，保留上一份`); process.exitCode = 1; return
+  }
   const szse = parseSzseRows(readXlsxRows(buf))
-  if (!szse[asOf] || Object.keys(szse[asOf]).length < 300) { log(`深交所 ${asOf} ETF 份额尚未公布，不写文件`); return }
   for (const d of Object.keys(szse)) if (!dates.includes(d)) throw new Error(`深交所返回了窗口外/非交易日日期 ${d}`)
+  // 条数完整性：与同日已存档（没有则前一交易日存档）的条数比，明显变少视为截断——目标日截断则整份不写，其余日期只是不用这次的数据
+  for (const [ex, got] of [['sse', sse], ['szse', szse]]) {
+    for (const d of dates) {
+      if (!got[d]) continue
+      const n = Object.keys(got[d]).length
+      const ref = exchangeCount(days[d], ex) ?? exchangeCount(days[prevTradingDay(d)], ex)
+      if (!universeOk(n, ref)) { log(`⚠ ${ex} ${d} 只有 ${n} 条（参照 ${ref ?? '无'}），视为不完整`); delete got[d] }
+    }
+  }
+  if (!sse[asOf]) { log(`上交所 ${asOf} ETF 份额尚未公布或不完整，不写文件`); return }
+  if (!szse[asOf]) { log(`深交所 ${asOf} ETF 份额尚未公布或不完整，不写文件`); return }
 
   const names = {}
   for (const d of dates) {
@@ -177,12 +192,20 @@ async function main() {
   const nameOf = Object.fromEntries(Object.entries(meta).map(([c, m]) => [c, m.name]))
   const broad = buildBroad(asOf, days, nameOf, flow)
   const market = buildMarket(asOf, days, meta, flow)
-  const coreMissing = broad.list.filter(r => r.flow1 === null && r.shares !== null)
+  // 宽基当日流入缺失（含缺份额记录），尚未上市的除外
+  const coreMissing = broad.list.filter(r => r.flow1 === null && !notListed(days, r.code, asOf))
   if (coreMissing.length > 3) throw new Error(`宽基名单当日流入缺失过多：${coreMissing.map(r => r.code).join(',')}`)
+  // 全市场：份额有变化却没有收盘价的只数（这些流入为 null，会让排行缺人）；超过 2%（至少 5 只）不发布
+  const prevDay = days[prevTradingDay(asOf)]
+  const changed = Object.entries(days[asOf].shares).filter(([c, v]) => Number.isFinite(prevDay?.shares?.[c]) && prevDay.shares[c] !== v)
+  const priceMissing = changed.filter(([c]) => !Number.isFinite(days[asOf].close[c])).length
+  if (priceMissing > Math.max(5, changed.length * 0.02)) throw new Error(`当日缺收盘价 ${priceMissing}/${changed.length} 只，排行不完整`)
+  const quality = { sse: Object.keys(sse[asOf]).length, szse: Object.keys(szse[asOf]).length, changed: changed.length, priceMissing, broadMissing: coreMissing.length }
+  const published = readJson(OUT, null)
   if (backfill) writeJson(`${RAW}/backfill.json`, { ranAt: new Date().toISOString(), from: dates[0], to: asOf })
   const bf = readJson(`${RAW}/backfill.json`, null)
   const data = {
-    version: 1, asOf, generatedAt: new Date().toISOString(),
+    version: 1, asOf, generatedAt: new Date().toISOString(), quality,
     historyStart: Object.keys(days).filter(d => d <= asOf).sort()[0] ?? asOf,
     backfill: bf && validDate(bf.from) && validDate(bf.to) ? { from: bf.from, to: bf.to } : null,
     broad, market, rebalance,
@@ -198,8 +221,9 @@ async function main() {
   // 5) 落盘
   for (const d of dates) if (days[d]) writeJson(`${DAYS_DIR}/${d}.json`, { date: d, src: days[d].src, shares: days[d].shares, close: days[d].close })
   const keep = new Set(tradingDaysBack(asOf, KEEP))
-  for (const f of fs.existsSync(DAYS_DIR) ? fs.readdirSync(DAYS_DIR) : []) if (!keep.has(f.replace(/\.json$/, ''))) fs.unlinkSync(path.join(DAYS_DIR, f))
+  for (const f of fs.existsSync(DAYS_DIR) ? fs.readdirSync(DAYS_DIR) : []) if (!keepArchive(f.replace(/\.json$/, ''), asOf, keep)) fs.unlinkSync(path.join(DAYS_DIR, f))
   writeJson(META, meta)
+  if (!shouldReplace(published, { asOf, quality })) { log(`保留已发布的 ${published.asOf}（${JSON.stringify(published.quality ?? null)}），本次 ${asOf}（${JSON.stringify(quality)}）不替换公开文件`); return }
   writeJson(OUT, data)
   log(`写盘完成 ${asOf}：宽基当日 ${broad.total.flow1 === null ? '—' : (broad.total.flow1 / 1e8).toFixed(2)} 亿，全市场 ${market.n} 只`)
 }

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { deflateRawSync } from 'node:zlib'
 import {
   BROAD_ETFS, buildBroad, buildMarket, buildRebalance, classify, makeFlow, parseAdjustText, parseAnnouncementContent, parseKline,
-  parseSse, parseSzseRows, parseTencent, readXlsxRows, targetDate, tradingDaysBack,
+  exchangeCount, keepArchive, notListed, parseSse, parseSzseRows, parseTencent, readXlsxRows, shouldReplace, targetDate, tradingDaysBack, universeOk,
 } from './ths-etf-lib.mjs'
 
 test('分类：东财分组优先，其余按名称', () => {
@@ -132,4 +132,60 @@ test('目标交易日：15:30 前取上一交易日', () => {
   assert.equal(targetDate(new Date('2026-11-17T08:00:00Z')), '2026-11-17')
   assert.equal(targetDate(new Date('2026-11-17T19:00:00Z')), '2026-11-17')
   assert.equal(targetDate(new Date('2026-11-15T08:00:00Z')), '2026-11-13')
+})
+
+test('宽基历史：某只缺份额记录 → 当天合计为 null 并给出缺失只数，不当 0；新上市的不算缺失', () => {
+  const dates = tradingDaysBack('2026-11-17', 3)
+  const src = { sse: true, szse: true }
+  const mk = (i) => { const shares = {}; const close = {}; for (const b of BROAD_ETFS) { shares[b.code] = 1e9 + i * 1e6; close[b.code] = 1 } return { shares, close, src: { ...src } } }
+  const days = Object.fromEntries(dates.map((d, i) => [d, mk(i)]))
+  // 11-17：510300 的份额记录缺失（旧逻辑：两天不都有份额 → 当 0 计入合计）
+  delete days['2026-11-17'].shares['510300']
+  // 11-16：563300 当日新上市（前一日交易所数据在、但没有这只）
+  delete days['2026-11-13'].shares['563300']
+  const flow = makeFlow(days)
+  const b = buildBroad('2026-11-17', days, {}, flow)
+  const h = Object.fromEntries(b.history.map(x => [x.date, x]))
+  assert.deepEqual(h['2026-11-17'], { date: '2026-11-17', flow: null, missing: 1 })
+  assert.equal(h['2026-11-16'].missing, 0)
+  assert.equal(h['2026-11-16'].flow, 1e6 * (BROAD_ETFS.length - 1))
+  assert.equal(b.list.find(r => r.code === '510300').flow1, null)
+  assert.equal(b.byIndex.find(x => x.index === '沪深300').flow1, null)
+  assert.equal(notListed(days, '563300', '2026-11-16'), true)
+  assert.equal(notListed(days, '510300', '2026-11-17'), false)
+  // 前一日该交易所数据整体缺失时，不能当作「未上市」
+  const d2 = { '2026-11-16': { shares: { 510300: 1 }, close: {}, src: { szse: true } }, '2026-11-17': { shares: { 510300: 2 }, close: { 510300: 1 }, src } }
+  assert.equal(notListed(d2, '510300', '2026-11-17'), false)
+})
+
+test('调仓附件：公告列出的指数在附件里缺失 → pending，不标 parsed', () => {
+  const content = CONTENT.replace('中证500指数更换1只样本', '中证500指数更换1只样本，中证1000指数更换2只样本')
+  assert.equal(buildRebalance({ id: 1, title: 't', publishDate: '2026-05-29' }, content, TEXT).status, 'pending')
+  // 正文没解析出任何数量时也无法核对，标 pending
+  assert.equal(buildRebalance({ id: 1, title: 't', publishDate: '2026-05-29' }, '<p>于2026年6月12日收市后生效。</p>', TEXT).status, 'pending')
+})
+
+test('交易所条数完整性：与参照日比较，不再只看 300 条下限', () => {
+  assert.equal(universeOk(920, 925), true)
+  assert.equal(universeOk(600, 925), false, '比前一日少三成 → 截断')
+  assert.equal(universeOk(299, null), false)
+  assert.equal(universeOk(400, null), true)
+  const day = { src: { sse: true, szse: true }, shares: { 510300: 1, 588000: 1, 159915: 1 } }
+  assert.equal(exchangeCount(day, 'sse'), 2)
+  assert.equal(exchangeCount(day, 'szse'), 1)
+  assert.equal(exchangeCount({ src: { sse: true }, shares: {} }, 'szse'), null)
+})
+
+test('历史 DATE 重跑：不删更新的存档、不替换更新的公开文件；同日更差的不替换', () => {
+  const keep = new Set(tradingDaysBack('2026-11-10', 3))
+  assert.equal(keepArchive('2026-11-17', '2026-11-10', keep), true)
+  assert.equal(keepArchive('2026-11-06', '2026-11-10', keep), true)
+  assert.equal(keepArchive('2026-10-01', '2026-11-10', keep), false)
+  const q = { sse: 925, szse: 772, priceMissing: 0, broadMissing: 0 }
+  assert.equal(shouldReplace(null, { asOf: '2026-11-17', quality: q }), true)
+  assert.equal(shouldReplace({ asOf: '2026-11-17', quality: q }, { asOf: '2026-11-10', quality: q }), false)
+  assert.equal(shouldReplace({ asOf: '2026-11-16', quality: q }, { asOf: '2026-11-17', quality: q }), true)
+  assert.equal(shouldReplace({ asOf: '2026-11-17', quality: q }, { asOf: '2026-11-17', quality: { ...q, priceMissing: 4 } }), false)
+  assert.equal(shouldReplace({ asOf: '2026-11-17', quality: q }, { asOf: '2026-11-17', quality: { ...q, szse: 700 } }), false)
+  assert.equal(shouldReplace({ asOf: '2026-11-17', quality: q }, { asOf: '2026-11-17', quality: q }), true)
 })
