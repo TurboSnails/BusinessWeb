@@ -71,6 +71,10 @@ function TopPanel({ d }: { d: Data }): JSX.Element {
   const s = d.ipo.subNew
   const up = d.lift.upcoming
   const h = d.holders
+  // 净额：任一方向金额缺失（有记录但都没均价）时整体为缺失，不把缺失当 0
+  const net = h.incAmount === null || h.decAmount === null ? null : h.incAmount + h.decAmount
+  const bb = d.buyback
+  const planMissing = Math.max(bb.newPlanLowMissing ?? 0, bb.newPlanHighMissing ?? 0)
   return (
     <section className="dc-top" aria-label="数据中心总览">
       <div className="dc-top__cell">
@@ -90,13 +94,13 @@ function TopPanel({ d }: { d: Data }): JSX.Element {
       </div>
       <div className="dc-top__cell">
         <span className="dc-top__label">近 30 日股东增减持（有均价）</span>
-        <strong className={`dc-top__value ${tone(h.incAmount + h.decAmount)}`}>{money(h.incAmount + h.decAmount, true)}</strong>
-        <span className="dc-top__sub"><b className="mm-up">增 {money(h.incAmount)}</b> / <b className="mm-down">减 {money(Math.abs(h.decAmount))}</b></span>
+        <strong className={`dc-top__value ${tone(net)}`}>{money(net, true)}</strong>
+        <span className="dc-top__sub"><b className="mm-up">增 {money(h.incAmount)}</b> / <b className="mm-down">减 {money(h.decAmount === null ? null : Math.abs(h.decAmount))}</b></span>
       </div>
       <div className="dc-top__cell">
         <span className="dc-top__label">近 30 日回购公告</span>
         <strong className="dc-top__value">{d.buyback.count}</strong>
-        <span className="dc-top__sub">新预案 {d.buyback.newPlans} 份 · 计划 {money(d.buyback.newPlanLow)}–{money(d.buyback.newPlanHigh)}</span>
+        <span className="dc-top__sub">新预案 {bb.newPlans} 份 · 计划 {money(bb.newPlanLow)}–{money(bb.newPlanHigh)}{planMissing ? `（${planMissing} 份未披露金额未计）` : ''}</span>
       </div>
     </section>
   )
