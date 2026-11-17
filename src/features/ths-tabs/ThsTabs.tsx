@@ -10,6 +10,8 @@ export const THS_TABS = [
   { id: '/ths-mood/datacenter', label: '数据中心' },
   { id: '/ths-mood/hk', label: '港股通与AH' },
   { id: '/ths-mood/etf', label: 'ETF资金' },
+  { id: '/ths-mood/screener', label: '技术选股' },
+  { id: '/ths-mood/industry', label: '行业景气' },
 ] as const
 export type ThsTab = (typeof THS_TABS)[number]['id']
 

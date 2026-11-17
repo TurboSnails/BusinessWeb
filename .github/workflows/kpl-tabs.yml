@@ -27,7 +27,7 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 55
     steps:
       - uses: actions/checkout@v4
         with:
@@ -38,7 +38,7 @@ jobs:
       - name: Run tab scripts
         shell: bash
         run: |
-          for tab in daban lhb plates funds abnormal review rank auction disclosure; do
+          for tab in daban lhb plates funds abnormal review rank auction disclosure timeline holders irm; do
             f="scripts/kpl-$tab.mjs"
             [ -f "$f" ] || continue
             node "$f" || echo "::warning::$f 运行失败，保留上一份数据"

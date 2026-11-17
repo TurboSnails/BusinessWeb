@@ -32,12 +32,17 @@ const KplReview = lazy(() => import('./pages/kpl/KplReview'))
 const KplRank = lazy(() => import('./pages/kpl/KplRank'))
 const KplAuction = lazy(() => import('./pages/kpl/KplAuction'))
 const KplDisclosure = lazy(() => import('./pages/kpl/KplDisclosure'))
+const KplTimeline = lazy(() => import('./pages/kpl/KplTimeline'))
+const KplHolders = lazy(() => import('./pages/kpl/KplHolders'))
+const KplIrm = lazy(() => import('./pages/kpl/KplIrm'))
 const ThsMood = lazy(() => import('./pages/ThsMood'))
 const ThsMarket = lazy(() => import('./pages/ths/ThsMarket'))
 const ThsCbond = lazy(() => import('./pages/ths/ThsCbond'))
 const ThsDatacenter = lazy(() => import('./pages/ths/ThsDatacenter'))
 const ThsHk = lazy(() => import('./pages/ths/ThsHk'))
 const ThsEtf = lazy(() => import('./pages/ths/ThsEtf'))
+const ThsScreener = lazy(() => import('./pages/ths/ThsScreener'))
+const ThsIndustry = lazy(() => import('./pages/ths/ThsIndustry'))
 const DailyAnalysis = lazy(() => import('./pages/DailyAnalysis'))
 const DailyAnalysisLegacy = lazy(() => import('./pages/DailyAnalysisLegacy'))
 const TradingPhilosophy = lazy(() => import('./pages/TradingPhilosophy'))
@@ -178,12 +183,17 @@ export default function App(): JSX.Element {
           <Route path="/market-mood/rank" element={<KplRank />} />
           <Route path="/market-mood/auction" element={<KplAuction />} />
           <Route path="/market-mood/disclosure" element={<KplDisclosure />} />
+          <Route path="/market-mood/timeline" element={<KplTimeline />} />
+          <Route path="/market-mood/holders" element={<KplHolders />} />
+          <Route path="/market-mood/irm" element={<KplIrm />} />
           <Route path="/ths-mood" element={<ThsMood />} />
           <Route path="/ths-mood/market" element={<ThsMarket />} />
           <Route path="/ths-mood/cbond" element={<ThsCbond />} />
           <Route path="/ths-mood/datacenter" element={<ThsDatacenter />} />
           <Route path="/ths-mood/hk" element={<ThsHk />} />
           <Route path="/ths-mood/etf" element={<ThsEtf />} />
+          <Route path="/ths-mood/screener" element={<ThsScreener />} />
+          <Route path="/ths-mood/industry" element={<ThsIndustry />} />
           <Route path="/daily-analysis" element={<DailyAnalysis />} />
           <Route path="/daily-analysis/legacy" element={<DailyAnalysisLegacy />} />
           <Route path="/trading-philosophy" element={<TradingPhilosophy />} />
