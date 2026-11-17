@@ -1,0 +1,58 @@
+/* 开盘啦 · 互动问答页（/market-mood/irm）。个股表沿用 kpl-daban.css 的 kd-*，卡片与说明沿用 market-mood.css 的 mm-*；
+   这里只放本页独有的样式，颜色全部取站点变量。 */
+.ir-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 12px 0; }
+.ir-stats > div { background: var(--bg-secondary); border-radius: var(--radius-sm); padding: 10px 12px; min-width: 0; }
+.ir-stats dt { font-size: 0.8rem; color: var(--text-secondary); }
+.ir-stats dd { margin: 2px 0 0; font-size: 1.3rem; font-variant-numeric: tabular-nums; }
+.ir-stats dd small { margin-left: 6px; font-size: 0.75rem; color: var(--text-tertiary); }
+
+.ir-sub { font-size: 0.95rem; margin: 16px 0 6px; }
+.ir-bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.ir-bars li { display: grid; grid-template-columns: 5.5em minmax(0, 1fr) 5.5em; gap: 8px; align-items: center; font-size: 0.85rem; }
+.ir-bars__label { color: var(--text-secondary); }
+.ir-bars__bar { width: 100%; height: 10px; }
+.ir-bars__bar rect { fill: var(--accent, var(--text-tertiary)); }
+.ir-bars__n { text-align: right; font-variant-numeric: tabular-nums; }
+.ir-bars__n small { color: var(--text-tertiary); font-size: 0.75rem; }
+.ir-trend { margin-top: 16px; }
+
+.ir-chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.ir-chip {
+  display: inline-flex; gap: 6px; align-items: baseline; cursor: pointer; font: inherit; font-size: 0.85rem;
+  padding: 4px 10px; border-radius: var(--radius-full); border: 1px solid var(--border-primary); background: var(--bg-secondary); color: var(--text-primary);
+}
+.ir-chip b { font-variant-numeric: tabular-nums; }
+.ir-chip small { color: var(--text-tertiary); font-size: 0.72rem; }
+.ir-details { margin-top: 8px; font-size: 0.85rem; }
+.ir-details summary { cursor: pointer; color: var(--text-secondary); }
+.ir-words { margin: 6px 0 0; color: var(--text-secondary); line-height: 1.7; overflow-wrap: anywhere; }
+
+.ir-filters { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin-bottom: 8px; }
+.ir-filters .seg { max-width: 100%; overflow-x: auto; }
+.ir-search { display: inline-flex; gap: 6px; align-items: center; font-size: 0.85rem; color: var(--text-secondary); flex: 1 1 220px; min-width: 0; }
+.ir-search input {
+  flex: 1; min-width: 0; font: inherit; padding: 6px 10px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border-primary); background: var(--bg-primary); color: var(--text-primary);
+}
+
+.ir-qa { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.ir-qa__item { border: 1px solid var(--border-primary); border-radius: var(--radius-sm); padding: 10px 12px; min-width: 0; }
+.ir-qa__head { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; font-size: 0.85rem; }
+.ir-qa__head small { color: var(--text-tertiary); font-size: 0.75rem; }
+.ir-qa__meta { color: var(--text-secondary); font-size: 0.78rem; }
+.ir-qa__q, .ir-qa__a { margin: 6px 0 0; font-size: 0.88rem; line-height: 1.65; overflow-wrap: anywhere; }
+.ir-qa__q { color: var(--text-secondary); }
+.ir-qa__mark {
+  display: inline-block; margin-right: 6px; padding: 0 5px; border-radius: var(--radius-sm); font-size: 0.72rem;
+  background: var(--bg-secondary); color: var(--text-secondary);
+}
+.ir-more { margin-top: 10px; font: inherit; font-size: 0.85rem; padding: 6px 14px; border-radius: var(--radius-full); border: 1px solid var(--border-primary); background: var(--bg-secondary); color: var(--text-primary); cursor: pointer; }
+
+.ir-letters td { vertical-align: top; }
+.ir-letters__title { min-width: 16em; white-space: normal; }
+.ir-rules__words { white-space: normal; min-width: 14em; line-height: 1.6; }
+
+@media (max-width: 640px) {
+  .ir-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .ir-bars li { grid-template-columns: 5em minmax(0, 1fr) 4.5em; }
+}
