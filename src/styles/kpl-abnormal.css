@@ -1,0 +1,18 @@
+/* 开盘啦 · 异动监管（/market-mood/abnormal）。表格与汇总格沿用 kpl-daban.css 的 kd-* */
+.ka-index { color: var(--text-secondary); font-size: 0.85rem; margin: 0 0 10px; overflow-wrap: anywhere; }
+.ka-tags { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+.ka-hit { color: var(--up-ink); }
+.ka-miss { color: var(--text-tertiary); }
+.ka-sub { font-size: 0.95rem; margin: 16px 0 8px; }
+.ka-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.ka-chip { font: inherit; font-size: 0.8rem; padding: 3px 10px; border-radius: var(--radius-full); border: 1px solid var(--border-primary); background: var(--bg-card); color: var(--text-secondary); cursor: pointer; }
+.ka-chip strong { font-variant-numeric: tabular-nums; margin-left: 2px; }
+.ka-chip.is-up strong { color: var(--up-ink); }
+.ka-chip.is-down strong { color: var(--down-ink); }
+.ka-chip[aria-pressed='true'] { border-color: var(--accent); color: var(--text-primary); }
+.ka-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ka-timeline { list-style: none; margin: 0; padding: 0; max-height: 320px; overflow-y: auto; font-size: 0.85rem; columns: 2 260px; column-gap: 24px; }
+.ka-timeline li { padding: 3px 0; break-inside: avoid; overflow-wrap: anywhere; }
+.ka-timeline time { color: var(--text-tertiary); font-variant-numeric: tabular-nums; margin-right: 4px; }
+.ka-links { margin: 8px 0 0; padding-left: 18px; font-size: 0.85rem; }
+.ka-links li { margin: 4px 0; overflow-wrap: anywhere; }
