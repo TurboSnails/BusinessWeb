@@ -4,6 +4,7 @@ import { deflateRawSync } from 'node:zlib'
 import {
   BROAD_ETFS, buildBroad, buildMarket, buildRebalance, classify, makeFlow, parseAdjustText, parseAnnouncementContent, parseKline,
   exchangeCount, keepArchive, notListed, parseSse, parseSzseRows, parseTencent, readXlsxRows, shouldReplace, targetDate, tradingDaysBack, universeOk,
+  checkLaggedShares, isExchangeSzse, parseTencentShares, pickTencentShares, sseOnlyTotal, tencentSharesDate,
 } from './ths-etf-lib.mjs'
 
 test('分类：东财分组优先，其余按名称', () => {
@@ -188,4 +189,59 @@ test('历史 DATE 重跑：不删更新的存档、不替换更新的公开文�
   assert.equal(shouldReplace({ asOf: '2026-11-17', quality: q }, { asOf: '2026-11-17', quality: { ...q, priceMissing: 4 } }), false)
   assert.equal(shouldReplace({ asOf: '2026-11-17', quality: q }, { asOf: '2026-11-17', quality: { ...q, szse: 700 } }), false)
   assert.equal(shouldReplace({ asOf: '2026-11-17', quality: q }, { asOf: '2026-11-17', quality: q }), true)
+})
+
+test('降级：已发布的是深交所缺席版，同日补齐深交所的结果可替换（沪市条数不能变少）', () => {
+  const degraded = { sse: 925, szse: 0, priceMissing: 0, broadMissing: 0 }
+  const full = { sse: 925, szse: 772, priceMissing: 2, broadMissing: 1 }
+  assert.equal(shouldReplace({ asOf: '2026-11-17', quality: degraded }, { asOf: '2026-11-17', quality: full }), true)
+  assert.equal(shouldReplace({ asOf: '2026-11-17', quality: degraded }, { asOf: '2026-11-17', quality: { ...full, sse: 900 } }), false)
+  assert.equal(shouldReplace({ asOf: '2026-11-17', quality: full }, { asOf: '2026-11-17', quality: degraded }), false)
+  assert.equal(shouldReplace({ asOf: '2026-11-16', quality: full }, { asOf: '2026-11-17', quality: degraded }), true)
+})
+
+// 腾讯行情一行：字段 1 名称、30 时间戳、72/73 总份额
+const tq = (code, ts, s72, s73 = s72) => { const f = Array(80).fill(''); f[0] = '51'; f[1] = `名${code}`; f[2] = code; f[3] = '2.3'; f[30] = ts; f[72] = s72; f[73] = s73; return `v_sz${code}="${f.join('~')}";\n` }
+
+test('腾讯份额：取字段 72（与 73 一致、正整数），沪市与异常行丢弃', () => {
+  const text = tq('159915', '20261117161445', '46202454936') + tq('159919', '20261117161457', '13838616676', '1') + tq('159338', '20261117161451', '') + tq('159901', '20261117', '1')
+    + 'v_sh510300="1~x~510300";'
+  assert.deepEqual(parseTencentShares(text), { 159915: { name: '名159915', shares: 46202454936, ts: '20261117161445' } })
+})
+
+test('腾讯份额日期：时间戳日期的上一交易日；北京 07:00–09:30 不用', () => {
+  // 北京 2026-11-17 18:00（周二收盘后）→ 时间戳应为 11-17，份额是 11-16
+  assert.deepEqual(tencentSharesDate(new Date('2026-11-17T10:00:00Z')), { tsDate: '2026-11-17', date: '2026-11-16' })
+  // 北京 11-18 04:30（开盘前、份额字段尚未换日）→ 仍是 11-17 快照、11-16 份额
+  assert.deepEqual(tencentSharesDate(new Date('2026-11-17T20:30:00Z')), { tsDate: '2026-11-17', date: '2026-11-16' })
+  // 北京 11-18 08:00：份额字段可能已换、时间戳还没换 → 不用
+  assert.equal(tencentSharesDate(new Date('2026-11-18T00:00:00Z')), null)
+  // 北京 11-18 10:00 盘中 → 时间戳 11-18，份额 11-17
+  assert.deepEqual(tencentSharesDate(new Date('2026-11-18T02:00:00Z')), { tsDate: '2026-11-18', date: '2026-11-17' })
+  // 周六 → 时间戳是周五，份额是周四
+  assert.deepEqual(tencentSharesDate(new Date('2026-11-21T04:00:00Z')), { tsDate: '2026-11-20', date: '2026-11-19' })
+  const picked = pickTencentShares({ 159915: { name: 'a', shares: 1, ts: '20261117161445' }, 159916: { name: 'b', shares: 2, ts: '20261113150000' } }, '2026-11-17')
+  assert.deepEqual(picked, { 159915: { name: 'a', shares: 1 } }) // 停牌（时间戳旧）的不用
+})
+
+test('腾讯份额交叉校验：与同日交易所存档须一致、与前一日存档须有足够变化；交易所口径不被覆盖', () => {
+  const codes = Array.from({ length: 200 }, (_, i) => String(159000 + i))
+  const got = Object.fromEntries(codes.map((c, i) => [c, { shares: 1000 + i }]))
+  const day = (f, via) => ({ src: { szse: true }, ...(via ? { via: { szse: via } } : {}), shares: Object.fromEntries(codes.map((c, i) => [c, f(i)])) })
+  const prevChanged = day(i => (i % 2 ? 1000 + i : 900 + i))
+  assert.equal(checkLaggedShares(got, undefined, prevChanged).ok, true)
+  assert.equal(checkLaggedShares(got, day(i => 1000 + i), prevChanged).ok, true)
+  assert.match(checkLaggedShares(got, day(i => (i < 20 ? 1 : 1000 + i)), prevChanged).reason, /同日深交所存档不一致/)
+  assert.match(checkLaggedShares(got, undefined, day(i => (i < 5 ? 1 : 1000 + i))).reason, /几乎相同/)
+  // 同日存档是行情推断值时不当作交易所数据比对
+  assert.equal(checkLaggedShares(got, day(() => 1, 'tencent-qt'), prevChanged).ok, true)
+  assert.equal(isExchangeSzse(day(() => 1)), true)
+  assert.equal(isExchangeSzse(day(() => 1, 'szse')), true)
+  assert.equal(isExchangeSzse(day(() => 1, 'tencent-qt')), false)
+  assert.equal(isExchangeSzse({ src: { sse: true }, shares: {} }), false)
+})
+
+test('仅沪市合计：只加沪市名单，严格求和', () => {
+  const list = [{ code: '510300', flow1: 1, flow5: 2, flow20: null, scale: 10 }, { code: '588000', flow1: 3, flow5: 4, flow20: 5, scale: 20 }, { code: '159919', flow1: null, flow5: null, flow20: null, scale: null }]
+  assert.deepEqual(sseOnlyTotal(list), { n: 2, flow1: 4, flow5: 6, flow20: null, scale: 30 })
 })

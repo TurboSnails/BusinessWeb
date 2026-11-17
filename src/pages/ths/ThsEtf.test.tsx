@@ -37,6 +37,22 @@ describe('同花顺 · ETF资金页', () => {
     expect(screen.getByText(/没有给出「预计被动资金净买入」/)).toBeTruthy()
     expect(screen.getByRole('link', { name: '国家队持仓' }).getAttribute('href')).toBe('/invest/national-team')
   })
+  it('深交所缺席：给出说明、仅沪市合计，并标注行情推断日期', async () => {
+    const x = etfFixture()
+    x.broad.total = { flow1: null, flow5: null, flow20: null, scale: null }
+    x.broad.partial = { scope: 'sse', n: 21, flow1: 1.2e9, flow5: null, flow20: 2.7e10, scale: 8.5e11 }
+    x.exchanges = {
+      sse: { status: 'ok', source: 'sse', date: '2026-11-17', n: 925 },
+      szse: { status: 'unavailable', source: null, date: '2026-11-16', n: 0, inferredDates: ['2026-11-16'], reason: '深交所站点不可达' },
+    }
+    stub(x); renderPage()
+    expect(await screen.findByText(/深交所 2026-11-17 的 ETF 份额暂缺/)).toBeTruthy()
+    expect(screen.getByText(/深交所份额最新到 2026-11-16/)).toBeTruthy()
+    expect(screen.getByText('当日（仅沪市）')).toBeTruthy()
+    expect(screen.getAllByText('+12.00 亿').length).toBeGreaterThan(0)
+    expect(screen.getByText(/深交所 2026-11-16 的份额取自腾讯行情/)).toBeTruthy()
+    expect(screen.getByText(/仅沪市（深交所份额暂缺）/)).toBeTruthy()
+  })
   it.each([null, '<!doctype html><html></html>', { version: 1 }])('空文件或 200 HTML 回退显示 EmptyState (%j)', async body => {
     stub(body); renderPage()
     expect(await screen.findByText('暂无 ETF 资金数据')).toBeTruthy()
@@ -68,6 +84,9 @@ describe('ETF资金运行时模型', () => {
       (x: any) => { x.rebalance[0].url = 'javascript:alert(1)' },
       (x: any) => { x.rebalance[0].indexes[0].in[0].code = 'abc' },
       (x: any) => { x.sources = [] },
+      (x: any) => { x.exchanges = { sse: { status: 'ok', source: 'sse', date: '2026-11-17', n: 925 } } },
+      (x: any) => { x.exchanges = { sse: { status: 'ok', source: 'sse', date: '2026-11-17', n: 925 }, szse: { status: 'unavailable', source: null, date: null, n: 0 } } }, // 缺仅沪市合计
+      (x: any) => { x.broad.partial = { scope: 'sse', n: 21, flow1: '1', flow5: null, flow20: null, scale: null } },
     ]) { const x = etfFixture(); mutate(x); expect(asThsEtf(x)).toBeNull() }
   })
 })
