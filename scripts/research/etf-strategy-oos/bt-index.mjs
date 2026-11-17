@@ -81,6 +81,12 @@ for (const [label] of WINDOWS) {
 }
 const errs = results.filter((r) => r.error)
 if (errs.length) lines.push('## 取数失败', '', ...errs.map((e) => `- ${e.code}：${e.error}`), '')
+// 取数大面积失败（如中证官网返回拦截页）时不覆盖上一份有效结果：一半以上指数失败就保留旧文件并以失败退出
+if (ok.length * 2 < results.length) {
+  console.error(`取数失败 ${errs.length}/${results.length}，保留上一份结果，不写入。`)
+  for (const e of errs.slice(0, 5)) console.error(`- ${e.code}：${e.error.slice(0, 120)}`)
+  process.exit(1)
+}
 fs.mkdirSync('data-raw/etf-timing-research', { recursive: true })
 fs.writeFileSync('data-raw/etf-timing-research/long-history.json', JSON.stringify({ generatedAt: new Date().toISOString(), windows: WINDOWS, results, verdict }, null, 1))
 fs.writeFileSync('docs/research/etf-timing-long-history.md', lines.join('\n'))
