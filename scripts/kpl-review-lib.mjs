@@ -115,15 +115,25 @@ export function pctAt(days, i, code) {
 
 /* ---------- 百日新高 ---------- */
 
+/** date 往前（含）的 n 个精确交易日，升序 */
+export function tradingWindow(date, n) {
+  const out = [date]
+  while (out.length < n) out.unshift(prevTradingDay(out[0]))
+  return out
+}
+
 /**
- * 第 i 天的百日新高名单。窗口 = 第 i−99 … i 天（快照仓里的交易日）。
+ * 第 i 天的百日新高名单。窗口 = date 往前 100 个精确交易日（按交易日历，不按快照仓文件数）；
+ * 窗口内任何一天缺快照（漏跑）时返回 null，不拿更早的文件凑数。
  * 复权：从第 i 天往前走，遇到某日昨收 ≠ 更早一条记录的收盘价（除权除息），之前的价格乘以 昨收 ÷ 前收盘。
  * 条件：第 i 天有行情；窗口起点当天或之前已有记录（上市满 100 个交易日）；窗口内有行情的天数 ≥ NEW_HIGH_MIN_ROWS；
  * 当日最高价 > 此前窗口内复权最高价。返回 { codes:Set, eligible } 或 null（天数不够）。
  */
 export function newHighsAt(days, i, firstSeen) {
   const start = i - (NEW_HIGH_DAYS - 1)
-  if (start < 0) return null
+  if (start < 0 || !days[i]) return null
+  const want = tradingWindow(days[i].date, NEW_HIGH_DAYS)
+  if (want.some((d, k) => days[start + k].date !== d)) return null
   const codes = new Set()
   let eligible = 0
   for (const [code, today] of days[i].rows) {
@@ -156,6 +166,7 @@ export function newHighHistory(days, firstSeen = firstSeenOf(days)) {
   let prev = null
   for (let i = NEW_HIGH_DAYS - 1; i < days.length; i++) {
     const r = newHighsAt(days, i, firstSeen)
+    if (!r) { prev = null; continue } // 窗口内缺快照：当天不计数
     const fresh = prev && days[i - 1] && prevTradingDay(days[i].date) === days[i - 1].date ? [...r.codes].filter((c) => !prev.has(c)).length : null
     out.push({ date: days[i].date, count: r.codes.size, fresh, eligible: r.eligible })
     prev = r.codes
@@ -277,13 +288,13 @@ export function intradayCurve({ zt, zb, dt }) {
  * pools: {zt, zb, dt, yzt} 规整行（firstSeal/lastSeal 为 'HH:MM:SS'）；days 快照仓升序（含当日）；
  * prevRec 上一交易日的复盘记录（只认 prevTradingDay）；yZbFallback 上一交易日炸板名单（来自打板页历史，可为 null）；industry Map(code→行业)；names Map。
  */
-export function buildDay({ date, pools, days, prevRec, yZbFallback = null, industry = new Map(), names = new Map() }) {
+export function buildDay({ date, pools, days, prevRec, yZbFallback = null, industry = new Map(), names = new Map(), yUsable = true }) {
   const { zt, zb, dt, yzt } = pools
   const i = days.findIndex((d) => d.date === date)
   if (i < 0) throw new Error(`快照仓缺 ${date}`)
   const today = days[i].rows
   const yDate = prevTradingDay(date)
-  const yi = days[i - 1]?.date === yDate ? i - 1 : -1
+  const yi = yUsable && days[i - 1]?.date === yDate ? i - 1 : -1 // yUsable = false：上一交易日快照不完整（回补未完成），按缺失处理
   const yRows = yi >= 0 ? days[yi].rows : null
   const prevClose = (c) => prevCloseAt(days, i, c)
   const yPct = (c) => (yi >= 0 ? pctAt(days, yi, c) : null)
@@ -410,6 +421,15 @@ export function historyOf(store, highs = []) {
     return { date: d, ...(rec && !rec.seeded ? {} : { seeded: true }), ...Object.fromEntries(HIST_KEYS.map((k) => [k, c[k] ?? null])), newHigh: hi.get(d)?.count ?? null, newHighFresh: hi.get(d)?.fresh ?? null }
   })
 }
+
+/**
+ * 某日快照能否当作全市场完整数据：新浪当日快照（全市场分页校验过）或回补已完成的日 K 快照。
+ * 回补进行中时日 K 快照只含已回补的股票，不能用来出历史标签 / 指标。
+ */
+export const snapshotComplete = (meta, storeComplete) => meta?.source === 'sina' || !!storeComplete
+
+/** 是否覆盖 public 输出：已有文件的 asOf 比本次目标日新时不覆盖（补算历史日不能倒退） */
+export const canReplaceOut = (prev, date) => !(typeof prev?.asOf === 'string' && prev.asOf > date)
 
 /** 快照仓需要回补的交易日列表：end 往前 n 个交易日（升序） */
 export function tradingDaysBack(end, n, isTrading) {

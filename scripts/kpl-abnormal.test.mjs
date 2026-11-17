@@ -1,8 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
-  actualFlags, actualFromLhbDay, atLimit, boardOfCode, buildAbnormal, buildSuspend, compareLhb, firstTrigger, longestDev, nextNeed,
-  parseChanges, parseKline, predictLhb, reasonCat, replay, sinaBar, summarizeRadar, tradingDaysBetween, windowDev,
+  actualFlags, actualFromLhbDay, atLimit, boardOfCode, buildAbnormal, buildSuspend, canReplaceOut, compareLhb, firstTrigger, longestDev, nextNeed,
+  missCount, parseChanges, parseKline, predictLhb, reasonCat, replaceRecord, replay, sinaBar, summarizeRadar, tradingDaysBetween, windowDev,
 } from './kpl-abnormal-lib.mjs'
 
 // 用收盘价构造序列：r、i 都按相邻收盘价之比（与脚本一致）
@@ -187,4 +187,41 @@ test('汇总：已触发、下一交易日可能触发、回测', () => {
   assert.equal(r.backtest.calc, 1)
   assert.equal(r.backtest.hit, 0)
   assert.throws(() => buildAbnormal({ date: '2026-11-18', history, bars, actualByDate, todayActual: null }))
+})
+
+test('缺数据 ≠ 停牌：日 K 获取失败（miss）或整天无存档（unknown）时偏离值为空，不桥接；真停牌才跳过', () => {
+  const dates = ['2026-11-11', '2026-11-12', '2026-11-13', '2026-11-16', '2026-11-17']
+  const idx = { sh: 0, kcb: 0, sz: 0, cyb: 0 }
+  // 600001：11-11 持平，之后每个有数据的交易日 +8%；11-13 那天不在存档里
+  const mk = (extra = {}) => dates.map((d, k) => ({ date: d, idx, s: k === 2 ? {} : { 600001: k === 0 ? 0 : 8 }, ...(k === 2 ? extra : {}) }))
+  const bars = [{ code: '600001', name: '甲', board: 'sh', close: 10, prev: 9.26, ret: 8 }]
+  const run = (history) => buildAbnormal({ date: '2026-11-17', history, bars, actualByDate: new Map(), todayActual: null })
+  // 真停牌（数据完整而不在）：跳过那天，11-12 / 11-16 / 11-17 三天连起来 +25.97% → 触发
+  assert.ok(run(mk()).triggered[0]?.trig.includes('d3up'))
+  // 获取失败：窗口不得跨过 11-13，只剩两天 +16.64%，不触发；3 日偏离值只算到 2 天
+  const missed = run(mk({ miss: ['600001'] }))
+  assert.equal(missed.triggered.length, 0)
+  assert.equal(missed.devOf.get('600001'), 16.64)
+  // 整天没有存档：同样按缺失处理
+  const unknown = mk({ unknown: true })
+  assert.equal(run(unknown).devOf.get('600001'), 16.64)
+})
+
+test('存档 / 输出替换规则：更完整才替换，同天重跑同等完整可覆盖；更新日期的输出不倒退', () => {
+  const full = { date: 'd', s: { a: 1 } }
+  const part = { date: 'd', s: { a: 1 }, miss: ['b', 'c'] }
+  assert.equal(missCount(full), 0)
+  assert.equal(missCount(part), 2)
+  assert.equal(missCount({ date: 'd', s: {}, unknown: true }), Infinity)
+  assert.equal(replaceRecord(undefined, part), true)
+  assert.equal(replaceRecord(full, part), false) // 补数不覆盖更完整的已有存档
+  assert.equal(replaceRecord(part, full), true)
+  assert.equal(replaceRecord(full, { ...full }), false)
+  assert.equal(replaceRecord(full, { ...full }, true), true)
+  assert.equal(canReplaceOut({ date: '2026-11-17' }, '2026-11-16', 0), false)
+  assert.equal(canReplaceOut({ date: '2026-11-16' }, '2026-11-17', 9), true)
+  assert.equal(canReplaceOut({ date: '2026-11-17', archive: { missing: 0 } }, '2026-11-17', 3), false)
+  assert.equal(canReplaceOut({ date: '2026-11-17', archive: { missing: 3 } }, '2026-11-17', 3), true)
+  assert.equal(canReplaceOut({ date: '2026-11-17', archive: {} }, '2026-11-17', 3), true)
+  assert.equal(canReplaceOut(null, '2026-11-17', 3), true)
 })

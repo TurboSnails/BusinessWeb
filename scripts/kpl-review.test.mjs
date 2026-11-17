@@ -2,8 +2,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
-  GRID, buildDay, firstSeenOf, formatCloses, intradayCurve, limitPrice, limitRateOf, mergeKline, mergeStore, newHighHistory, newHighsAt,
-  nextPerf, openDistribution, parseCloses, parseKline, pctAt, prevCloseAt, seedDays, sinaToRows, tagStats, tagStocks,
+  GRID, buildDay, canReplaceOut, firstSeenOf, formatCloses, intradayCurve, limitPrice, limitRateOf, mergeKline, mergeStore, newHighHistory, newHighsAt,
+  nextPerf, openDistribution, parseCloses, parseKline, pctAt, prevCloseAt, seedDays, sinaToRows, snapshotComplete, tagStats, tagStocks, tradingWindow,
 } from './kpl-review-lib.mjs'
 
 const row = (c, { o = c, h = Math.max(o, c), l = Math.min(o, c), p } = {}) => ({ o, h, l, c, ...(p !== undefined ? { p } : {}) })
@@ -57,7 +57,7 @@ test('涨跌幅：昨收取显式值或更早一条收盘；停牌日跳过', ()
   assert.equal(pctAt(days, 0, 'A'), null)
 })
 
-const dates = (n) => Array.from({ length: n }, (_, k) => { const t = Date.UTC(2026, 0, 5) + k * 864e5; return new Date(t).toISOString().slice(0, 10) })
+const dates = (n) => tradingWindow('2026-11-17', n) // 精确交易日（跳过周末与休市）
 test('百日新高：窗口 100 天、需上市满窗口、按除权复权；当日新增', () => {
   const ds = dates(102)
   const days = ds.map((d, k) => {
@@ -82,6 +82,27 @@ test('百日新高：窗口 100 天、需上市满窗口、按除权复权；当
   const h = newHighHistory(days, fs)
   assert.equal(h.length, 3)
   assert.equal(h.at(-1).count, 2)
+})
+
+test('百日新高：窗口按精确交易日；快照仓漏一天时窗口内的日子返回 null，不拿第 101 个交易日凑数', () => {
+  const ds = tradingWindow('2026-11-17', 102)
+  // 漏掉第 50 个交易日的快照：剩 101 个文件，最后一天往前数 100 个文件会跨 101 个交易日
+  const days = ds.filter((_, k) => k !== 50).map((d) => day(d, [['A', row(10, { h: d === '2026-11-17' ? 10.5 : 10.2 })]]))
+  const fs = firstSeenOf(days)
+  assert.equal(newHighsAt(days, days.length - 1, fs), null)
+  assert.deepEqual(newHighHistory(days, fs), [])
+  assert.equal(tradingWindow('2026-11-17', 3).join(), '2026-11-13,2026-11-16,2026-11-17')
+})
+
+test('快照完整性与输出日期守卫：回补中的日 K 快照不算完整；更新日期的输出不被历史日覆盖', () => {
+  assert.equal(snapshotComplete({ source: 'sina' }, false), true)
+  assert.equal(snapshotComplete({ source: 'em-kline-qfq' }, false), false)
+  assert.equal(snapshotComplete({ source: 'em-kline-qfq' }, true), true)
+  assert.equal(snapshotComplete({}, false), false)
+  assert.equal(canReplaceOut({ asOf: '2026-11-17' }, '2026-11-16'), false)
+  assert.equal(canReplaceOut({ asOf: '2026-11-17' }, '2026-11-17'), true)
+  assert.equal(canReplaceOut({ asOf: '2026-11-16' }, '2026-11-17'), true)
+  assert.equal(canReplaceOut(null, '2026-11-17'), true)
 })
 
 test('涨跌停价：按股池涨幅就近取档位；四舍五入到分', () => {
@@ -169,6 +190,9 @@ test('当日记录：打板成功率、昨日涨停盈利率、首板→二板�
   const r2 = buildDay({ date: '2026-11-17', pools, days: [days[1]], prevRec: null })
   assert.equal(r2.dist, null)
   assert.equal(r2.record.counts.openAvg, null)
+  // 上一交易日快照不完整（回补中）：按缺失处理，开盘分布为空
+  const r3 = buildDay({ date: '2026-11-17', pools, days, prevRec: null, yUsable: false })
+  assert.equal(r3.dist, null)
   assert.throws(() => buildDay({ date: '2026-11-18', pools, days, prevRec: null }))
 })
 

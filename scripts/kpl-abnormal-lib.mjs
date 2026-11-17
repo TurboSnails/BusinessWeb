@@ -106,6 +106,31 @@ export function dayRecord(date, idx, bars) {
   return { date, idx, s }
 }
 
+/** 存档里缺数据的只数：unknown（整天没有存档）记为无穷大；miss 为日 K 获取失败的代码（不是停牌） */
+export const missCount = (r) => (!r || !r.s || r.unknown ? Infinity : Array.isArray(r.miss) ? r.miss.length : 0)
+
+/**
+ * 是否用新存档替换已有存档：已有的缺失或日期不符时替换；否则只在新存档缺数据更少时替换。
+ * tie = true 时同等完整也替换（当日重跑），否则保留已有（不让更差或同等的补数覆盖更好的存档）。
+ */
+export function replaceRecord(old, next, tie = false) {
+  if (!old || old.date !== next.date || !old.s) return true
+  const a = missCount(next), b = missCount(old)
+  return tie ? a <= b : a < b
+}
+
+/**
+ * 是否覆盖 public 输出：已有文件日期更新时不覆盖（补算历史日不能倒退）；同一天时只在本次缺失只数不多于已有时覆盖
+ * （已有文件没记录缺失只数视为未知，可以覆盖）。
+ */
+export function canReplaceOut(prev, date, missing) {
+  const d = typeof prev?.date === 'string' ? prev.date : ''
+  if (!d || d < date) return true
+  if (d > date) return false
+  const old = Number.isFinite(prev?.archive?.missing) ? prev.archive.missing : Infinity
+  return missing <= old
+}
+
 /** 最近 n 个交易日（含 date），从近到远 */
 export function tradingDaysBack(date, n) {
   const out = [date]
@@ -426,14 +451,18 @@ export function buildAbnormal({ date, history, bars, actualByDate, todayActual }
   const devOf = new Map() // 每只股票今日的 3 日累计偏离值（复牌列表等处引用）
   const bt = { days: 0, calc: 0, actual: 0, hit: 0, from: null, to: null }
   const btDays = new Set()
+  // 每天缺数据的代码：unknown（整天没有存档）= 全部缺失；miss = 日 K 获取失败。缺数据 ≠ 停牌，记为不计入（r = null），窗口不得跨过
+  const missOf = history.map((day) => (day.unknown ? null : new Set(day.miss ?? [])))
   for (const b of bars) {
     if (!b.board || delistName(b.name) || b.ret === null) continue
     const rule = BOARDS[b.board]
     const seq = []
-    for (const day of history) {
-      if (!(b.code in day.s)) continue // 当日停牌：不占用交易日
-      seq.push({ date: day.date, r: day.s[b.code], i: day.idx?.[b.board] ?? null })
-    }
+    history.forEach((day, k) => {
+      const i = day.idx?.[b.board] ?? null
+      if (!missOf[k] || missOf[k].has(b.code)) { seq.push({ date: day.date, r: null, i }); return } // 缺数据：偏离值为空，不桥接
+      if (!(b.code in day.s)) return // 当日停牌（数据完整而不在）：不占用交易日
+      seq.push({ date: day.date, r: day.s[b.code], i })
+    })
     if (!seq.length || seq.at(-1).date !== date) continue
     const actualOf = (d) => { const m = actualByDate.get(d); return m ? actualFlags(m.get(b.code)) : undefined }
     const rp = replay(seq, b.board, actualOf)
