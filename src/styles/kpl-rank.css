@@ -1,0 +1,17 @@
+/* 开盘啦 · 人气排行页签（/market-mood/rank）：在 market-mood.css 的 mm-* 基础上补充 */
+.kr-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-bottom: 10px; }
+.kr-table td small { color: var(--text-tertiary); margin-left: 6px; font-size: 0.75rem; }
+.kr-table td { white-space: nowrap; }
+.kr-tag { display: inline-block; margin-right: 4px; padding: 0 6px; border-radius: var(--radius-full); border: 1px solid var(--border-primary); color: var(--text-secondary); font-size: 0.72rem; line-height: 1.5; white-space: nowrap; }
+.kr-tag.is-hot { color: var(--up-ink); border-color: var(--up); }
+.kr-more { appearance: none; margin-top: 10px; background: none; border: 1px solid var(--border-primary); border-radius: var(--radius-sm); padding: 4px 12px; font: inherit; font-size: 0.85rem; color: var(--text-secondary); cursor: pointer; }
+.kr-more:hover, .kr-more:focus-visible { color: var(--text-primary); }
+.kr-dir { margin-top: 0; }
+
+.kr-leaders { margin-top: 14px; }
+.kr-leaders__title { margin: 0 0 6px; font-size: 0.85rem; color: var(--text-secondary); }
+.kr-leaders__list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 4px 18px; }
+.kr-leaders__list li { display: grid; grid-template-columns: 3em minmax(0, 1fr) auto; gap: 8px; font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+.kr-leaders__list li span:nth-child(2) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kr-leaders__date { color: var(--text-tertiary); }
+.kr-controls .seg { margin: 0; }
