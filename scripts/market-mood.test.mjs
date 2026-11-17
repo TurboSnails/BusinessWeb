@@ -1,7 +1,7 @@
 // 短线情绪页计算：板块归属、股池校验、晋级率、昨日表现、大幅回撤口径、强度分数、归档种子与历史合并
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { pickPrevState, saveState, boardCounts, boardOf, buildDay, compositeStrength, lbStrength, lin, mergeHistory, moodStatus, parseMargin, parsePool, parseSinaRow, seedFromArchive, zoneOf } from './market-mood-lib.mjs'
+import { prevTradingDay, pickPrevState, saveState, boardCounts, boardOf, buildDay, compositeStrength, lbStrength, lin, mergeHistory, moodStatus, parseMargin, parsePool, parseSinaRow, seedFromArchive, zoneOf } from './market-mood-lib.mjs'
 
 const row = (code, pct, { name = '股' + code, high, prev = 10, amount = 1e8 } = {}) => {
   const price = prev * (1 + pct / 100)
@@ -118,4 +118,40 @@ test('状态文件：同一天重跑仍取前一天的清单，只保留最近�
   for (const d of ['2026-11-18', '2026-11-19', '2026-11-20', '2026-11-23']) store = saveState(store, { date: d, zbCodes: [], bigCodes: [] })
   assert.deepEqual(Object.keys(store.days), ['2026-11-17', '2026-11-18', '2026-11-19', '2026-11-20', '2026-11-23'])
   assert.equal(pickPrevState(null, '2026-11-17'), null)
+})
+
+test('交易日历：跳过周末与长假', () => {
+  assert.equal(prevTradingDay('2026-11-16'), '2026-11-13')
+  assert.equal(prevTradingDay('2026-10-08'), '2026-09-30')
+})
+
+test('审查回归：归档缺一天时不拿更早一天算晋级率', () => {
+  const snap = (dataDate, up) => ({ dataDate, session: 'closed', sources: [{ id: 'limitUp', status: 'ready' }], metrics: {}, upStocks: up })
+  const seeded = seedFromArchive([
+    snap('2026-10-16', [{ code: 'a', name: 'A', boards: 2 }]),
+    snap('2026-10-20', [{ code: 'a', name: 'A', boards: 3 }, { code: 'b', name: 'B', boards: 3 }]), // 10-19 缺
+  ])
+  assert.equal(seeded[1].rates.r23, null)
+  assert.equal(seeded[1].rates.lbPromotion, null)
+})
+
+test('审查回归：漏采一天时不把前天的炸板清单当昨天的', () => {
+  const store = saveState(null, { date: '2026-11-16', zbCodes: ['000060'], bigCodes: [] })
+  const prevState = pickPrevState(store, '2026-11-18') // 11-17 漏采
+  const { day } = buildDay({ date: '2026-11-18', zt: [p('000001')], zb: [], dt: [], yzt: [], rows: [row('000001', 10), row('000060', 5)], prevState })
+  assert.equal(day.perf.broken, null)
+})
+
+test('审查回归：股池缺失的涨幅是缺失，不是 0', () => {
+  const body = { rc: 0, data: { qdate: 20261117, tc: 2, pool: [{ c: '000001', n: '甲', zdp: null }, { c: '000002', n: '乙', zdp: 10 }] } }
+  const yzt = parsePool(body, '2026-11-17')
+  assert.equal(yzt[0].pct, null)
+  const { day } = buildDay({ date: '2026-11-17', zt: [], zb: [], dt: [], yzt, rows: [row('000001', 1), row('000002', 10)], prevState: null })
+  assert.equal(day.perf.zt, 10)
+  assert.equal(day.perf.ztRed, 100)
+})
+
+test('审查回归：融资占比或指数缺失时保留余额、其余记为 null', () => {
+  const m = parseMargin({ result: { data: [{ DIM_DATE: '2026-11-16 00:00:00', RZYE: 2235728126347, RZYEZB: '--', NEW: null }] } })
+  assert.deepEqual(m[0], { date: '2026-11-16', balance: 22357, ratio: null, hs300: null })
 })

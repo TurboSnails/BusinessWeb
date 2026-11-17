@@ -58,7 +58,7 @@ export type MarketMood = {
   latest: MoodLatest
   history: MoodDay[]
   amountHistory: Array<{ date: string; total: number }>
-  margin: Array<{ date: string; balance: number; ratio: number; hs300: number }>
+  margin: Array<{ date: string; balance: number; ratio: number | null; hs300: number | null }>
   sources: Array<{ id: string; label: string; url: string }>
 }
 
