@@ -1,0 +1,4 @@
+/* 开盘啦 · 竞价尾盘页（/market-mood/auction）。沿用 market-mood.css 的 mm-* 与 kpl-daban.css 的 kd-* 类；颜色全部取站点变量。 */
+.ka-buckets { grid-template-columns: repeat(7, minmax(0, 1fr)); margin-top: 12px; }
+.ka-controls { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.ka-controls .seg { max-width: 100%; overflow-x: auto; }
