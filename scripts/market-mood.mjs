@@ -4,7 +4,7 @@
 // 用法：node scripts/market-mood.mjs   （FORCE=1 跳过收盘时间检查，只用于排查）
 import fs from 'node:fs'
 import { BLUE_CHIP_SYMBOLS } from '../server/market-sentiment.mjs'
-import { buildDay, mergeHistory, parseMargin, parsePool, parseSinaRow, pickPrevState, saveState, seedFromArchive } from './market-mood-lib.mjs'
+import { buildDay, intradayAmount, mergeHistory, parseTrends, parseMargin, parsePool, parseSinaRow, pickPrevState, saveState, seedFromArchive } from './market-mood-lib.mjs'
 
 const OUT = 'public/data/market-mood.json'
 const RAW = 'data-raw/market-mood'
@@ -102,6 +102,14 @@ try {
   amountHistory = [...sh.keys()].filter((d) => sz.has(d)).sort().map((d) => ({ date: d, total: Math.round((sh.get(d) + sz.get(d)) / 1e8) }))
 } catch (e) { console.log(`两市成交额历史获取失败：${e.message}`) }
 
+// 当日量能（分时累计，与上一交易日同一时刻比）；失败只少这一张图
+let intraday = null
+try {
+  const trends = async (secid) => parseTrends(await get(`https://push2his.eastmoney.com/api/qt/stock/trends2/get?secid=${secid}&fields1=f1,f2,f3&fields2=f51,f52,f53,f54,f55,f56,f57,f58&iscr=0&ndays=2`, { headers: { referer: 'https://quote.eastmoney.com/' } }))
+  intraday = intradayAmount(await trends('1.000001'), await trends('0.399106'), today)
+  if (!intraday) console.log('当日分时量能不完整，跳过')
+} catch (e) { console.log(`当日分时量能获取失败：${e.message}`) }
+
 // 历史：已有记录 + 每日复盘归档种子
 let history = prev?.history ?? []
 try {
@@ -110,7 +118,8 @@ try {
 } catch (e) { console.log(`读取每日复盘归档失败：${e.message}`) }
 const hsAmountPrev = [...amountHistory].reverse().find((d) => d.date < today)?.total ?? null
 
-const { day, latest, state } = buildDay({ date: today, zt, zb, dt, yzt, rows, prevState, hsAmountPrev, weight: weightData })
+const { day, latest: built, state } = buildDay({ date: today, zt, zb, dt, yzt, rows, prevState, hsAmountPrev, weight: weightData })
+const latest = { ...built, intraday }
 history = mergeHistory(history, [day])
 
 const sources = [

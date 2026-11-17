@@ -155,3 +155,19 @@ test('审查回归：融资占比或指数缺失时保留余额、其余记为 n
   const m = parseMargin({ result: { data: [{ DIM_DATE: '2026-11-16 00:00:00', RZYE: 2235728126347, RZYEZB: '--', NEW: null }] } })
   assert.deepEqual(m[0], { date: '2026-11-16', balance: 22357, ratio: null, hs300: null })
 })
+
+test('当日量能：两指数分钟成交额累加，与上一交易日同一时刻比；缺数据返回 null', async () => {
+  const { parseTrends, intradayAmount } = await import('./market-mood-lib.mjs')
+  const minutes = Array.from({ length: 241 }, (_, i) => { const m = 9 * 60 + 30 + i + (i > 120 ? 89 : 0); return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}` })
+  const body = (perMin) => ({ rc: 0, data: { trends: ['2026-11-16', '2026-11-17'].flatMap((d, k) => minutes.map((t) => `${d} ${t},1,1,1,1,100,${perMin[k]},1`)) } })
+  const sh = parseTrends(body([1e8, 2e8])), sz = parseTrends(body([1e8, 1e8]))
+  assert.equal(sh['2026-11-17'].length, 241)
+  const r = intradayAmount(sh, sz, '2026-11-17')
+  assert.equal(r.prevDate, '2026-11-16')
+  assert.deepEqual(r.points[0], { t: '09:30', cum: 3, prevCum: 2 })
+  assert.equal(r.total, 723)
+  assert.equal(r.prevTotal, 482)
+  assert.equal(intradayAmount(sh, sz, '2026-11-18'), null)
+  const broken = parseTrends({ rc: 0, data: { trends: ['2026-11-17 09:30,1,1,1,1,1,,1'] } })
+  assert.equal(broken['2026-11-17'], undefined) // 空成交额不当 0
+})

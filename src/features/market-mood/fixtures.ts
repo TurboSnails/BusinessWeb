@@ -18,6 +18,7 @@ export const moodFixture = () => ({
     vane: [{ sector: '算力', count: 6, stocks: [{ code: '000003', name: '龙头丙', boards: 4 }, { code: '000004', name: '跟风丁', boards: 1 }] }],
     ladder: [{ boards: 6, stocks: [{ code: '000005', name: '高标戊', sector: '算力' }] }],
     weight: { indices: [{ symbol: 'sh000001', name: '上证指数', price: 3500, pct: 0.5 }], stocks: [{ code: '600519', name: '贵州茅台', pct: -0.3, amount: 50 }], avg: -0.3 },
+    intraday: { date: '2026-11-17', prevDate: '2026-11-16', total: 14900, prevTotal: 14500, points: [{ t: '09:30', cum: 120, prevCum: 130 }, { t: '09:31', cum: 300, prevCum: 280 }, { t: '15:00', cum: 14900, prevCum: 14500 }] },
     moodStatus: '活跃', zone: '中性', comment: '上涨 3000 家、下跌 2000 家；涨停 60 家、跌停 10 家。',
   },
   history: [day('2026-11-13', { seeded: true, amount: null, mood: null }), day('2026-11-16', { zt: 50, dt: 20, sealRate: 70 }), day('2026-11-17', { mood: 2.4 })],
