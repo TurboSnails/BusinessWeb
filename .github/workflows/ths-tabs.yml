@@ -35,6 +35,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      # ETF资金页签解析中证调样公告 PDF（scripts/market-cycle-pdf-text.py 依赖 pypdf）
+      - name: Install PDF text extractor
+        run: python -m pip install -r scripts/requirements-market-cycle.txt
       - name: Run tab scripts
         shell: bash
         run: |
