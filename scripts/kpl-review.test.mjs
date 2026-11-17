@@ -1,9 +1,9 @@
-// 复盘页计算：快照仓读写、日 K 合并、复权百日新高、盘面亮点标签、赚钱效应、开盘分布、盘中曲线、标签次日表现、历史种子
+// 复盘页计算：快照仓读写、日 K 合并、缺口修补、复权百日新高、盘面亮点标签、赚钱效应、开盘分布、盘中曲线、标签次日表现、历史种子
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
-  GRID, buildDay, canReplaceOut, firstSeenOf, formatCloses, intradayCurve, limitPrice, limitRateOf, mergeKline, mergeStore, newHighHistory, newHighsAt,
-  nextPerf, openDistribution, parseCloses, parseKline, pctAt, prevCloseAt, seedDays, sinaToRows, snapshotComplete, tagStats, tagStocks, tradingWindow,
+  GRID, REPAIR_MAX_FAIL, buildDay, canReplaceOut, firstSeenOf, formatCloses, intradayCurve, limitPrice, limitRateOf, mergeKline, mergeStore, newHighHistory, newHighsAt,
+  missingDays, newRepair, nextPerf, openDistribution, parseCloses, repairEntry, repairFinalize, repairPlan, repairRecord, repairTodo, parseKline, pctAt, prevCloseAt, seedDays, sinaToRows, snapshotComplete, tagStats, tagStocks, tradingWindow,
 } from './kpl-review-lib.mjs'
 
 const row = (c, { o = c, h = Math.max(o, c), l = Math.min(o, c), p } = {}) => ({ o, h, l, c, ...(p !== undefined ? { p } : {}) })
@@ -224,4 +224,113 @@ test('历史种子：归档计数 + 打板页名单 + 快照仓；昨日名单�
   const merged = mergeStore({ days: { '2026-11-17': { date: '2026-11-17', counts: { zt: 9 } } } }, s)
   assert.equal(merged.days['2026-11-17'].counts.zt, 9)
   assert.ok(merged.days['2026-11-13'].seeded)
+})
+
+/* ---------- 快照仓缺口修补 ---------- */
+const sdays = (list) => list.map(([date, entries, source = 'sina']) => ({ date, meta: { date, source }, rows: new Map(entries) }))
+
+test('缺口检测：指数日 K 与交易日历都认定开市、快照仓没有的日子；两者不一致的不修补，只列出', () => {
+  const isTrading = (d) => !['2026-11-14', '2026-11-15', '2026-11-12'].includes(d) // 11-12 假装日历写成休市
+  const r = missingDays({
+    stored: ['2026-11-10', '2026-11-13'],
+    indexDates: ['2026-11-09', '2026-11-10', '2026-11-11', '2026-11-12', '2026-11-13', '2026-11-16'],
+    from: '2026-11-10', to: '2026-11-16', isTrading,
+  })
+  assert.deepEqual(r.missing, ['2026-11-11', '2026-11-16'])
+  assert.deepEqual(r.indexOnly, ['2026-11-12'])
+  assert.deepEqual(r.calendarOnly, [])
+  // 日历认定开市而指数没有：不当缺口；指数最后一天之后不报（数据源还没更新）
+  const r2 = missingDays({ stored: ['2026-11-10'], indexDates: ['2026-11-10', '2026-11-12'], from: '2026-11-10', to: '2026-11-17', isTrading: () => true })
+  assert.deepEqual(r2.missing, ['2026-11-12'])
+  assert.deepEqual(r2.calendarOnly, ['2026-11-11'])
+  assert.deepEqual(missingDays({ stored: ['2026-11-10'], indexDates: [], from: '2026-11-10', to: '2026-11-17', isTrading: () => true }).missing, [])
+})
+
+test('修补计划：缺口前后快照日的代码并集；下一条记录日按该股实际出现的日子', () => {
+  const days = sdays([
+    ['2026-11-10', [['000001', row(10)], ['000002', row(5)]]],
+    ['2026-11-12', [['000001', row(10)], ['000003', row(8)]]],
+    ['2026-11-13', [['000001', row(10)], ['000002', row(5)], ['000003', row(8)]]],
+  ])
+  assert.deepEqual(repairPlan(days, '2026-11-11'), { '000001': '2026-11-12', '000002': '2026-11-13', '000003': '2026-11-12' })
+  assert.deepEqual(repairPlan(days, '2026-11-16'), { '000001': null, '000002': null, '000003': null }) // 最后一天之后的缺口
+  const bars = [{ date: '2026-11-11', o: 1, h: 2, l: 0.5, c: 1.5, p: 1.2 }, { date: '2026-11-12', o: 1.5, h: 1.6, l: 1.4, c: 1.6, p: 1.5 }]
+  assert.deepEqual(repairEntry(bars, '2026-11-11', '2026-11-12'), [1, 2, 0.5, 1.5, 1.2, 1.6, 1.5])
+  assert.deepEqual(repairEntry(bars, '2026-11-11', null), [1, 2, 0.5, 1.5, 1.2, null, null])
+  assert.equal(repairEntry(bars, '2026-11-10', '2026-11-12'), 0) // 缺口日停牌
+})
+
+test('修补可断点续做：每次最多 max 只；失败计数跨运行累计，达到上限后放弃；未处理完不生成快照', () => {
+  const days = sdays([['2026-11-10', [['000001', row(10)], ['000002', row(5)], ['000003', row(8)]]]])
+  let rep = newRepair('2026-11-11', repairPlan(days, '2026-11-11'), 't0')
+  assert.deepEqual(repairTodo(rep, 2), ['000001', '000002'])
+  repairRecord(rep, '000001', [10, 11, 9.5, 10.5, 10, null, null])
+  repairRecord(rep, '000002', new Error('timeout'))
+  assert.equal(repairFinalize(days, rep).ready, false)
+  // 进度经 JSON 落盘再读回（模拟下一次运行）
+  rep = JSON.parse(JSON.stringify(rep))
+  assert.deepEqual(repairTodo(rep), ['000002', '000003'])
+  repairRecord(rep, '000003', 0) // 停牌
+  for (let k = 1; k < REPAIR_MAX_FAIL; k++) repairRecord(rep, '000002', new Error('x'))
+  assert.deepEqual(repairTodo(rep), [])
+  const fin = repairFinalize(days, rep)
+  assert.equal(fin.ready, true)
+  assert.deepEqual(fin.skipped, ['000002'])
+  assert.deepEqual([...fin.rows.keys()], ['000001'])
+  assert.equal(fin.ok, false) // 只剩 1 行，不到相邻快照日的 90%：不写
+  assert.match(fin.reason, /只有 1 行/)
+  // 失败后成功：失败计数清掉
+  const r2 = newRepair('2026-11-11', { '000009': null })
+  repairRecord(r2, '000009', new Error('x'))
+  repairRecord(r2, '000009', 0)
+  assert.deepEqual(r2.failed, {})
+})
+
+test('修补口径：缺口日写当前前复权价，昨收在口径变化处写出；下一条记录补上换算到自身口径的昨收，链上涨幅与复权新高不变', () => {
+  // 真实价：A=10，G=11（G 当日最高 11.5），N=12；快照仓 A/N 为旧前复权口径（×0.8），N 原本隐含昨收 = G；当前前复权口径 ×0.5
+  const A = '2026-11-10', G = '2026-11-11', N = '2026-11-12'
+  const days = sdays([
+    [A, [['000001', row(8, { h: 8 })], ['000002', row(20)]], 'em-kline-qfq'],
+    [N, [['000001', row(9.6, { h: 9.6 })], ['000002', row(21, { p: 20.5 })]], 'em-kline-qfq'],
+  ])
+  const rep = newRepair(G, repairPlan(days, G))
+  repairRecord(rep, '000001', repairEntry([{ date: G, o: 5, h: 5.75, l: 5, c: 5.5, p: 5 }, { date: N, o: 5.5, h: 6, l: 5.5, c: 6, p: 5.5 }], G, N))
+  repairRecord(rep, '000002', repairEntry([{ date: G, o: 20, h: 20.6, l: 20, c: 20.5, p: 20 }, { date: N, o: 21, h: 21, l: 21, c: 21, p: 20.5 }], G, N))
+  const fin = repairFinalize(days, rep)
+  assert.equal(fin.ok, true)
+  assert.equal(fin.rows.get('000001').p, 5) // 5 ≠ 快照仓 A 收盘 8：写出
+  assert.equal(fin.rows.get('000002').p, undefined) // 与 A 收盘相同：不写
+  assert.deepEqual([...fin.patches.get(N)], [['000001', 8.8]]) // 5.5 × 9.6 ÷ 6；000002 已有显式昨收不改
+  // 写回后核对链
+  days[1].rows.get('000001').p = 8.8
+  const all = [days[0], { date: G, meta: {}, rows: fin.rows }, days[1]]
+  assert.equal(pctAt(all, 1, '000001'), 10)
+  assert.equal(pctAt(all, 2, '000001'), 9.09)
+  assert.equal(pctAt(all, 2, '000002'), 2.44)
+  // 复权链：N 往前 G 的最高 5.75 × (8.8 / 5.5) = 9.2，A 的 8 × 1.6 × (5 / 8) = 8 → 与旧前复权口径一致
+  const f1 = 8.8 / 5.5, f2 = f1 * (5 / 8)
+  assert.ok(Math.abs(5.75 * f1 - 9.2) < 1e-9 && Math.abs(8 * f2 - 8) < 1e-9)
+})
+
+test('修补：取数之后才出现的下一条新浪记录，没有显式昨收时补成缺口前一条收盘；校验放弃过多时不写', () => {
+  const A = '2026-11-16', G = '2026-11-17', T = '2026-11-18'
+  const before = sdays([[A, [['000001', row(10)], ['000002', row(20)]]]])
+  const rep = newRepair(G, repairPlan(before, G)) // 当时 G 之后还没有快照
+  repairRecord(rep, '000001', [10, 11, 10, 11, 10, null, null])
+  repairRecord(rep, '000002', [20, 20, 19, 19, 20, null, null])
+  const days = [...before, ...sdays([[T, [['000001', row(10.5)], ['000002', row(19.5, { p: 19 })]]]])]
+  const fin = repairFinalize(days, rep)
+  assert.equal(fin.ok, true)
+  assert.deepEqual([...fin.patches.get(T)], [['000001', 10]]) // 新浪写入时真实昨收 ≈ 10（A 收盘）
+  const many = newRepair(G, Object.fromEntries(Array.from({ length: 30 }, (_, k) => [String(k).padStart(6, '0'), null])))
+  for (const c of Object.keys(many.plan)) for (let k = 0; k < REPAIR_MAX_FAIL; k++) repairRecord(many, c, new Error('x'))
+  const f2 = repairFinalize(sdays([[A, []]]), many)
+  assert.equal(f2.ok, false)
+  assert.match(f2.reason, /放弃的股票 30 只/)
+})
+
+test('快照头部附加字段：写出再读回', () => {
+  const text = formatCloses('2026-11-11', 'em-kline-repair', new Map([['000001', row(10)]]), { repaired: '2026-11-18', skipped: 0 })
+  assert.match(text, /^# date=2026-11-11 source=em-kline-repair fields=code,open,high,low,close,prev\? repaired=2026-11-18 skipped=0\n/)
+  assert.deepEqual(parseCloses(text).meta, { date: '2026-11-11', source: 'em-kline-repair', fields: 'code,open,high,low,close,prev?', repaired: '2026-11-18', skipped: '0' })
 })

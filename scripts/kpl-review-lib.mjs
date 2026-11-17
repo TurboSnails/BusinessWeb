@@ -4,6 +4,7 @@
 // 全市场日线快照仓 data-raw/kpl-review/closes/<日期>.csv：每个交易日一个文件，每行「代码,开,高,低,收[,昨收]」。
 // 昨收只在与该股上一条记录的收盘价不同时才写（除权除息日、首条记录），用来还原复权：百日新高按复权后的最高价比较。
 // 首次用东财日 K（前复权）回补约 122 个交易日（可分批多次运行补齐，进度在 backfill.json）；之后每个交易日收盘后用新浪全市场快照滚动追加。
+// 漏跑的交易日由「快照仓缺口自动修补」（见文件末尾）用带日期的前复权日 K 补回，source=em-kline-repair。
 import { prevTradingDay } from './market-mood-lib.mjs'
 
 export const NEW_HIGH_DAYS = 100 // 百日新高：当日最高价高于此前 99 个交易日（复权后）的最高价，即 100 个交易日窗口内最高
@@ -42,9 +43,10 @@ export function parseCloses(text) {
   return { meta, rows }
 }
 
-/** 写一天的快照（按代码排序，便于 diff） */
-export function formatCloses(date, source, rows) {
-  const out = [`# date=${date} source=${source} fields=code,open,high,low,close,prev?`]
+/** 写一天的快照（按代码排序，便于 diff）；extra 为附加的头部字段（如修补日的 repaired / skipped），值不能含空白 */
+export function formatCloses(date, source, rows, extra = {}) {
+  const ext = Object.entries(extra).map(([k, v]) => ` ${k}=${v}`).join('')
+  const out = [`# date=${date} source=${source} fields=code,open,high,low,close,prev?${ext}`]
   for (const code of [...rows.keys()].sort()) {
     const r = rows.get(code)
     out.push([code, r.o, r.h, r.l, r.c, ...(r.p !== undefined ? [r.p] : [])].join(','))
@@ -437,4 +439,123 @@ export function tradingDaysBack(end, n, isTrading) {
   let d = end
   while (out.length < n) { d = prevTradingDay(d); if (!isTrading || isTrading(d)) out.unshift(d) }
   return out
+}
+
+/* ---------- 快照仓缺口自动修补 ---------- */
+// 某个交易日漏跑（新浪快照没采到）时，百日新高要求窗口内 100 个精确交易日都在，会连续约 100 个交易日为 null。
+// 修补：用东财带日期的个股日 K 重建缺失日的快照。每次运行最多请求 REPAIR_MAX 只，进度存 data-raw/kpl-review/repair.json，
+// 全部股票处理完并通过完整性校验后才一次性写出 closes/<缺口日>.csv（先写临时文件再改名），半成品永远不进 closes/，读者看到的只有完整日。
+//
+// 复权：东财日 K 的涨跌额 f60 无论 fqt=0 还是 fqt=1 都相对上一交易日的「实际」收盘（除权日不给除权参考价），
+// 所以不复权日 K 无法表达除权缺口；前复权序列（fqt=1）本身连续，能表达。缺口日 G 写「当前前复权」口径的价格，
+// 每只股票一次请求 beg=G、end=N（N 为该股在快照仓里 G 之后的下一条记录日），同一序列里取：
+//   G 行：开高低收 = 前复权值；昨收 p = 前复权昨收（= 上一交易日前复权收盘），与快照仓上一条记录收盘不同时写出 → 链在 G 处换算口径；
+//   N 行：原来没有显式昨收的，补 p = N 的前复权昨收 × (N 快照收盘 ÷ N 前复权收盘)，即「N 的真实昨收」换算到 N 行自身口径，
+//         与 G 收盘不同才写 → 链在 N 处换回原口径。已有显式昨收的 N 行本来就是 N 自身口径的真实昨收，不改。
+// 东财前复权按分红额做减法、链按比例换算，二者在除权日附近有「分红 × 区间涨幅」量级的微小差异，对百日新高比较可忽略（回补段本来就是同一口径）。
+// 取数之后快照仓又追加了新的下一条记录（例如修补昨天时今天的新浪快照稍后才写入）：新浪行没有显式昨收表示其真实昨收 ≈ 写入时的上一条记录收盘，
+// 补 p = 那条记录（G 之前的记录）的收盘。
+export const REPAIR_MAX_FAIL = 3 // 同一只股票连续失败（跨运行）达到此次数后放弃，计入 skipped
+export const REPAIR_MIN_RATIO = 0.9 // 修补日行数至少为前一快照日行数的 90%
+export const REPAIR_MAX_SKIP = (n) => Math.max(20, Math.ceil(n * 0.005)) // 放弃的股票最多 0.5%（至少容忍 20 只）
+
+/**
+ * 缺口日：上证指数日 K 日期（实际开市）与交易日历都认定为交易日、在 [from, to] 内、快照仓里没有的日子（升序）。
+ * 两者不一致的日子不修补（百日窗口按交易日历取，日历外的文件会打乱窗口），单独列出供日志提示。
+ */
+export function missingDays({ stored, indexDates, from, to, isTrading }) {
+  const have = new Set(stored)
+  const inRange = (d) => d >= from && d <= to
+  const idx = new Set(indexDates.filter(inRange))
+  const missing = [...idx].filter((d) => !have.has(d) && isTrading(d)).sort()
+  const indexOnly = [...idx].filter((d) => !isTrading(d)).sort()
+  const calendarOnly = []
+  if (idx.size) {
+    // 只检查指数日 K 覆盖到的区间，避免数据源还没更新最后一天时误报
+    const last = [...idx].sort().at(-1)
+    for (let t = Date.parse(`${from}T00:00:00Z`); ; t += 864e5) {
+      const d = new Date(t).toISOString().slice(0, 10)
+      if (d > last) break
+      if (isTrading(d) && !idx.has(d)) calendarOnly.push(d)
+    }
+  }
+  return { missing, indexOnly, calendarOnly }
+}
+
+/** 修补计划：缺口日前后两个快照日出现过的全部代码 → { code: 下一条记录日 | null } */
+export function repairPlan(days, gap) {
+  const prev = days.filter((d) => d.date < gap).at(-1)
+  const after = days.filter((d) => d.date > gap)
+  const codes = new Set([...(prev?.rows.keys() ?? []), ...(after[0]?.rows.keys() ?? [])])
+  const plan = {}
+  for (const code of [...codes].sort()) plan[code] = after.find((d) => d.rows.has(code))?.date ?? null
+  return plan
+}
+
+/** 一只股票的前复权日 K（parseKline 结果）→ 进度记录 [o,h,l,c,p, N前复权收, N前复权昨收]；缺口日无成交返回 0 */
+export function repairEntry(bars, gap, next) {
+  const g = bars.find((b) => b.date === gap)
+  if (!g) return 0
+  const n = next ? bars.find((b) => b.date === next) : null
+  return [g.o, g.h, g.l, g.c, g.p ?? null, n?.c ?? null, n?.p ?? null]
+}
+
+/** 新建进度 */
+export const newRepair = (gap, plan, now = new Date().toISOString()) => ({ version: 1, date: gap, startedAt: now, plan, bars: {}, failed: {} })
+
+/** 本次要请求的代码：未完成且失败次数未到上限，最多 max 只 */
+export function repairTodo(rep, max = Infinity) {
+  return Object.keys(rep.plan).filter((c) => !(c in rep.bars) && (rep.failed[c] ?? 0) < REPAIR_MAX_FAIL).slice(0, max)
+}
+
+/** 记一只股票的结果：entry 为 repairEntry 的返回值，或 Error（失败次数 +1） */
+export function repairRecord(rep, code, entry) {
+  if (entry instanceof Error) { rep.failed[code] = (rep.failed[code] ?? 0) + 1; return rep }
+  rep.bars[code] = entry
+  delete rep.failed[code]
+  return rep
+}
+
+/**
+ * 进度齐了才生成缺口日快照与相邻记录的昨收补丁；否则返回 { ready:false }。
+ * days 为当前快照仓（升序，不含缺口日）。返回 { ready, ok, reason?, rows, patches: Map(date → Map(code → p)), skipped }
+ */
+export function repairFinalize(days, rep) {
+  const pending = repairTodo(rep)
+  if (pending.length) return { ready: false, pending: pending.length }
+  const gap = rep.date
+  const codes = Object.keys(rep.plan)
+  const skipped = codes.filter((c) => !(c in rep.bars))
+  const idx = days.findIndex((d) => d.date > gap)
+  const before = idx === -1 ? days : days.slice(0, idx)
+  const after = idx === -1 ? [] : days.slice(idx)
+  const lastBefore = (code) => { for (let j = before.length - 1; j >= 0; j--) { const r = before[j].rows.get(code); if (r) return r } return null }
+  const rows = new Map()
+  const patches = new Map()
+  for (const code of codes) {
+    const e = rep.bars[code]
+    if (!e) continue
+    const [o, h, l, c, p, nC, nP] = e
+    const prev = lastBefore(code)
+    const r = { o, h, l, c }
+    if (p !== null && p > 0 && (!prev || !near(p, prev.c))) r.p = p
+    rows.set(code, r)
+    // 下一条记录的昨收补丁
+    const nDay = after.find((d) => d.rows.has(code))
+    const nRow = nDay?.rows.get(code)
+    if (!nRow || nRow.p !== undefined) continue
+    let np = null
+    if (nDay.date === rep.plan[code] && nC > 0 && nP > 0) np = round((nP * nRow.c) / nC, 3)
+    else if (nDay.meta?.source === 'sina' && prev) np = prev.c
+    if (np !== null && np > 0 && !near(np, c)) {
+      const m = patches.get(nDay.date) ?? new Map()
+      m.set(code, np)
+      patches.set(nDay.date, m)
+    }
+  }
+  const ref = before.at(-1) ?? after[0]
+  const need = Math.ceil((ref?.rows.size ?? 0) * REPAIR_MIN_RATIO)
+  if (rows.size < need) return { ready: true, ok: false, reason: `修补日只有 ${rows.size} 行，相邻快照日 ${ref?.rows.size ?? 0} 行`, rows, patches, skipped }
+  if (skipped.length > REPAIR_MAX_SKIP(codes.length)) return { ready: true, ok: false, reason: `放弃的股票 ${skipped.length} 只，超过上限`, rows, patches, skipped }
+  return { ready: true, ok: true, rows, patches, skipped }
 }
