@@ -5,7 +5,7 @@ import { isTradingDay, prevTradingDay } from './market-mood-lib.mjs'
 import {
   INDICES, STYLE_PAIRS, DANGER, CHANCE, addDays, monthsBack, csiPerfUrl, csiValUrl, emUrl, fundUrl,
   parseCsiPerf, parseCsiValuation, parseBoardPe, valuationRow, liftWeeks, holderMonths, financingMonths,
-  parseFundIssue, fundMonths, parseTreasury, parseShibor, stylePair,
+  parseFundIssue, fundMonths, fundCoverage, parseTreasury, parseShibor, stylePair, emPaginate, mergePbDay,
 } from './ths-market-lib.mjs'
 
 const OUT = 'public/data/ths-tab-market.json'
@@ -21,18 +21,8 @@ async function get(url, type = 'json') {
     } catch (e) { if (i >= 2) throw e; await new Promise(r => setTimeout(r, 1500 * (i + 1))) }
   }
 }
-/** 东财数据中心分页取全；success=false 或数据为空视为异常（count=0 例外）。 */
-async function emAll(params, maxPages = 40) {
-  const out = []
-  for (let page = 1; page <= maxPages; page++) {
-    const body = await get(emUrl({ ...params, pageNumber: String(page), pageSize: params.pageSize ?? '500' }))
-    if (body?.code === 9201 || (body?.success === false && /数据/.test(body?.message ?? ''))) return out // 无数据
-    if (!body?.success || !Array.isArray(body?.result?.data)) throw new Error(`东财 ${params.reportName} 返回异常：${body?.message}`)
-    out.push(...body.result.data)
-    if (page >= body.result.pages) return out
-  }
-  throw new Error(`东财 ${params.reportName} 页数超过上限`)
-}
+/** 东财数据中心分页取全；只有第 1 页无数据才算空表，后续页无数据或行数与 count 不符都抛错（见 emPaginate）。 */
+const emAll = (params, maxPages = 40) => emPaginate(page => get(emUrl({ ...params, pageNumber: String(page), pageSize: params.pageSize ?? '500' })), params.reportName, maxPages)
 
 function targetDate(now = new Date()) {
   const bj = new Date(now.getTime() + 8 * 3600e3)
@@ -59,8 +49,8 @@ async function main() {
 
   // PB 只有中证官网当日快照，历史在本仓库逐日累积（尚不计算分位）。
   const pbFile = `${RAW}/pb-history.json`
-  const pbHistory = fs.existsSync(pbFile) ? JSON.parse(fs.readFileSync(pbFile, 'utf8')) : {}
-  pbHistory[date] = Object.fromEntries(INDICES.filter(i => i.valName && snap[i.valName]).map(i => [i.code, snap[i.valName].pb]))
+  // 只记有限的 PB，同日已有值不被缺失值覆盖
+  const pbHistory = mergePbDay(fs.existsSync(pbFile) ? JSON.parse(fs.readFileSync(pbFile, 'utf8')) : {}, date, snap)
 
   const valuation = INDICES.map(i => {
     const series = i.source === 'csi' ? perf[i.code].map(r => ({ date: r.date, pe: r.pe })) : board[i.code]
@@ -76,13 +66,16 @@ async function main() {
   const ipo = await emAll({ reportName: 'RPTA_APP_IPOAPPLY', columns: 'SECURITY_CODE,LISTING_DATE,TOTAL_RAISE_FUNDS,ISSUE_PRICE,ISSUE_NUM', filter: `(LISTING_DATE>='${from}')`, sortColumns: 'LISTING_DATE', sortTypes: '-1' })
   const seo = await emAll({ reportName: 'RPT_SEO_DETAIL', columns: 'SECURITY_CODE,ISSUE_LISTING_DATE,TOTAL_RAISE_FUNDS', filter: `(ISSUE_LISTING_DATE>='${from}')`, sortColumns: 'ISSUE_LISTING_DATE', sortTypes: '-1' })
   const cb = await emAll({ reportName: 'RPT_BOND_CB_LIST', columns: 'SECURITY_CODE,VALUE_DATE,ACTUAL_ISSUE_SCALE', filter: `(VALUE_DATE>='${from}')`, sortColumns: 'VALUE_DATE', sortTypes: '-1' })
-  const funds = []
-  for (let page = 1; page <= 8; page++) {
+  // 新发基金：翻到覆盖 12 个月为止（最多 20 页）；没能证明覆盖的月份标为不完整（份额 null）
+  const fundPages = []
+  for (let page = 1; page <= 20; page++) {
     const rows = parseFundIssue(await get(fundUrl(page, 500), 'text'))
-    funds.push(...rows)
-    if (rows.length < 500 || rows.every(r => !r.setup || r.setup < addDays(from, -90))) break
+    fundPages.push(rows)
+    if (fundCoverage(fundPages, from, 500) === null) break
   }
-  const supply = { lift: liftWeeks(lift, date), holder: holderMonths(holder, date), financing: financingMonths({ ipo, seo, cb }, date), funds: fundMonths(funds, date) }
+  const coveredFrom = fundCoverage(fundPages, from, 500)
+  if (coveredFrom) console.log(`新发基金翻页未覆盖 12 个月，${coveredFrom.slice(0, 7)} 及以前标为不完整`)
+  const supply = { lift: liftWeeks(lift, date), holder: holderMonths(holder, date), financing: financingMonths({ ipo, seo, cb }, date), funds: fundMonths(fundPages.flat(), date, 12, coveredFrom) }
 
   // 利率
   const treasury = parseTreasury(await emAll({ reportName: 'RPTA_WEB_TREASURYYIELD', columns: 'SOLAR_DATE,EMM00166466,EMM00588704', filter: `(SOLAR_DATE>='${addDays(date, -400)}')`, sortColumns: 'SOLAR_DATE', sortTypes: '1' }), date)

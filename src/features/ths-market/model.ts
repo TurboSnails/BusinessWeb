@@ -8,8 +8,10 @@ export type ValRow = {
 }
 export type LiftWeek = { start: string; end: string; amount: number | null; stocks: number; unpriced: number }
 export type HolderMonth = { month: string; increase: number | null; decrease: number | null; net: number | null; records: number; estimated: number; unpriced: number }
-export type FinancingMonth = { month: string; ipo: number | null; ipoCount: number; seo: number | null; seoCount: number; cb: number | null; cbCount: number }
-export type FundMonth = { month: string; shares: number | null; funds: number; equityShares: number | null }
+/** xxxCount = 有金额的笔数；xxxUnpriced = 金额缺失的笔数（全部缺失时金额为 null） */
+export type FinancingMonth = { month: string; ipo: number | null; ipoCount: number; ipoUnpriced?: number; seo: number | null; seoCount: number; seoUnpriced?: number; cb: number | null; cbCount: number; cbUnpriced?: number }
+/** complete=false：翻页未能证明覆盖该月，份额为 null；unknown = 份额缺失的基金数 */
+export type FundMonth = { month: string; shares: number | null; funds: number; equityShares: number | null; unknown?: number; complete?: boolean }
 export type StylePair = { id: string; label: string; num: string; den: string; rel20: number | null; rel60: number | null; series: Array<[string, number | null]> }
 export type ThsMarketData = {
   version: 1; asOf: string; generatedAt: string; thresholds: { danger: number; chance: number }
@@ -71,8 +73,8 @@ export const METHOD = {
   valuationSource: '七个指数的滚动市盈率与市净率来自中证指数官网（行情接口的 peg 字段即官网「滚动市盈率」，自 2015 年起逐日）；深证成指、创业板指不是中证编制，官网无数据，改用东方财富「市场估值」里深市主板、创业板的板块整体 PE(TTM)（2017 年起），是板块口径而非指数成分口径。市净率官网只给当日快照，没有历史，本站从上线日起逐日累积，攒够前不计算 PB 分位。曲线为每周最后一个交易日的周采样。',
   lift: '限售解禁：东方财富限售解禁表，取数据日之后 30 个自然日的全部解禁批次，按周（周一至周日）汇总。金额为解禁股数 × 最新收盘价的估算，不是实际减持金额；个股明细见「数据中心」页签。',
   holder: '重要股东增减持：东方财富股东增减持表，按公告日所在月份汇总。金额 = 变动股数 × 成交均价；均价缺失时用该记录所列收盘价估算（表中「估算」为条数），连收盘价也没有的记录只计条数不计金额。当月为截至数据日的不完整月份。',
-  financing: '市场融资：IPO 按上市日、增发按新增股份上市日、可转债按起息日归月。IPO 募资缺失时用发行价 × 发行股数；增发包含现金定增与发行股份购买资产，后者不是现金募资；可转债为实际发行规模。',
-  funds: '新发基金：天天基金「新成立基金」列表，按成立日归月，合计募集份额（亿份，近似亿元）。同一基金的 A/C 等份额类别列表中重复显示募集份额，按（基金公司、去掉份额字母的名称、成立日）去重；偏股为股票型、偏股混合与股票指数型合计。',
+  financing: '市场融资：IPO 按上市日、增发按新增股份上市日、可转债按起息日归月。IPO 募资缺失时用发行价 × 发行股数；增发包含现金定增与发行股份购买资产，后者不是现金募资；可转债为实际发行规模。金额缺失的记录不计入金额与家数，某类当月全部缺金额时显示 —。',
+  funds: '新发基金：天天基金「新成立基金」列表，按成立日归月，合计募集份额（亿份，近似亿元）。同一基金的 A/C 等份额类别列表中重复显示募集份额，按（基金公司、去掉份额字母的名称、成立日）去重；偏股为股票型、偏股混合与股票指数型合计。列表按认购截止日倒序翻页，未能证明翻到的月份标「不完整」、份额显示 —。',
   rates: '10 年期与 2 年期国债收益率来自东方财富「中美国债收益率」表（中债口径）；Shibor 为上海银行间同业拆放利率隔夜与 1 周品种。',
   style: '风格对比：分子收盘 ÷ 分母收盘，近一年起点归一为 100，曲线上升表示分子相对更强。20/60 日相对强弱 = 比值较 20/60 个交易日前的变化。指数收盘来自中证指数官网。',
   skipped: [

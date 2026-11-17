@@ -4,7 +4,7 @@ import { test } from 'node:test'
 import {
   boardOf, buildBlock, buildCalendar, buildHolders, buildRiskTrading, buildSurvey, capLimit, checkComplete, compactDay, compareConsensus, contiguous,
   financeFlags, lastTradingDays, nextTradingDays, num, parseBlock, parseConsensus, parseFinance, parseForecasts, parseKline, parseSnapshot, parseSurveys,
-  perfAfter, revLimit, sameContent, stDiff, streaks, faceTest,
+  perfAfter, revLimit, sameContent, stDiff, streaks, faceTest, paginate, publishDecision, boundHolders, exDividendDates, parseAdjKline, secidOf,
 } from './kpl-disclosure-lib.mjs'
 
 test('num：缺失不是 0', () => {
@@ -166,4 +166,84 @@ test('sameContent 忽略 generatedAt', () => {
   assert.equal(sameContent({ generatedAt: 'a', x: 1 }, { generatedAt: 'b', x: 1 }), true)
   assert.equal(sameContent({ x: 1 }, { x: 2 }), false)
   assert.equal(sameContent({ x: 1 }, null), false)
+})
+
+/* ---------------- 代码审查回归 ---------------- */
+const page = (data, count, pages) => ({ success: true, code: 0, result: { data, count, pages } })
+const EMPTY = { success: false, code: 9201, message: '返回数据为空', result: null }
+
+test('paginate：后续页「返回数据为空」不能截断成空表或半张表', async () => {
+  // 第 1 页为空 = 真的没有数据
+  assert.deepEqual(await paginate(async () => EMPTY, 'x'), [])
+  // 第 2 页为空：抛错，不返回 []，也不返回第 1 页
+  await assert.rejects(paginate(async (p) => (p === 1 ? page([1, 2], 4, 2) : EMPTY), 'x'), /第 2 页返回为空/)
+  // 页数到了但行数少于总数：抛错
+  await assert.rejects(paginate(async () => page([1, 2], 3, 1), 'x'), /行数不完整/)
+  assert.deepEqual(await paginate(async (p) => page(p === 1 ? [1, 2] : [3], 3, 2), 'x'), [1, 2, 3])
+  await assert.rejects(paginate(async () => ({ success: false, message: '系统繁忙' }), 'x'), /返回异常/)
+})
+
+test('公告后表现：按确切交易日取价，缺一天为 null 而不是顺延', () => {
+  // 11-16 缺收盘（停牌或存档缺失）：基准 11-13，d1 应为 null；d3 = 11-18 也缺 → null
+  const k = parseKline({ data: { klines: ['2026-11-13,10', '2026-11-17,12', '2026-11-19,13', '2026-11-20,14'] } })
+  const p = perfAfter('2026-11-16', k, '2026-11-20')
+  assert.equal(p.base, '2026-11-13')
+  assert.equal(p.d1, null) // 旧实现会拿 11-17 当第 1 日
+  assert.equal(p.d3, null) // 第 3 日 = 11-18，缺
+  // 基准缺失：全部 null
+  assert.deepEqual(perfAfter('2026-11-17', k, '2026-11-20'), { start: '2026-11-17', base: '2026-11-16', d1: null, d3: null, d5: null })
+})
+
+test('除权除息：识别窗口内除权日；前复权 K 线必须是请求的股票', () => {
+  const ex = exDividendDates([
+    { SECURITY_CODE: '688150', EX_DIVIDEND_DATE: '2026-11-17 00:00:00' },
+    { SECURITY_CODE: '600000', EX_DIVIDEND_DATE: '2026-09-01 00:00:00' },
+    { SECURITY_CODE: '000001', EX_DIVIDEND_DATE: '2026-11-18 00:00:00' },
+  ], '2026-10-01', '2026-11-17')
+  assert.deepEqual([...ex.keys()], ['688150'])
+  assert.equal(secidOf('688150'), '1.688150'); assert.equal(secidOf('300001'), '0.300001'); assert.equal(secidOf('920000'), '0.920000')
+  // 10 送 10：未复权 20 → 10 会算成 −50%；前复权序列则连续
+  const adj = parseAdjKline({ data: { code: '600001', klines: ['2026-11-13,10', '2026-11-16,10.2'] } }, '600001')
+  assert.equal(perfAfter('2026-11-16', adj, '2026-11-16').d1, 2)
+  assert.throws(() => parseAdjKline({ data: null }, '600001'), /前复权/)
+  assert.throws(() => parseAdjKline({ data: { code: '600002', klines: [] } }, '600001'), /前复权/)
+})
+
+test('预约披露日历：asOf 之后才实际披露的仍算当时未披露', () => {
+  const r = (code, d, pub, actual) => ({ SECURITY_CODE: code, SECURITY_NAME_ABBR: code, SECURITY_TYPE_CODE: '058001001', TRADE_MARKET_CODE: '069001001001', APPOINT_PUBLISH_DATE: `${d} 00:00:00`, IS_PUBLISH: pub, ACTUAL_PUBLISH_DATE: actual, REPORT_DATE: '2026-09-30 00:00:00', REPORT_TYPE_NAME: '2026年 三季报' })
+  const c = buildCalendar([r('600001', '2026-11-18', '1', '2026-11-18 00:00:00'), r('600002', '2026-11-18', '1', '2026-11-17 00:00:00')], '2026-11-17', 3)
+  assert.deepEqual(c.days[0].stocks.map((x) => x.code), ['600001'])
+})
+
+test('股东户数：公告日晚于 asOf 的最新一期换成之前一期，没有就不列入', () => {
+  const latest = [
+    { SECURITY_CODE: '600001', END_DATE: '2026-11-10', HOLD_NOTICE_DATE: '2026-11-18', HOLDER_NUM: 1 },
+    { SECURITY_CODE: '600002', END_DATE: '2026-10-31', HOLD_NOTICE_DATE: '2026-11-05', HOLDER_NUM: 2 },
+    { SECURITY_CODE: '600003', END_DATE: '2026-11-10', HOLD_NOTICE_DATE: '2026-11-18', HOLDER_NUM: 3 },
+  ]
+  const older = [
+    { SECURITY_CODE: '600001', END_DATE: '2026-09-30', HOLD_NOTICE_DATE: '2026-10-20', HOLDER_NUM: 10 },
+    { SECURITY_CODE: '600001', END_DATE: '2026-10-31', HOLD_NOTICE_DATE: '2026-11-08', HOLDER_NUM: 11 },
+    { SECURITY_CODE: '600001', END_DATE: '2026-11-10', HOLD_NOTICE_DATE: '2026-11-18', HOLDER_NUM: 12 },
+  ]
+  assert.deepEqual(boundHolders(latest, older, '2026-11-17').map((r) => [r.SECURITY_CODE, r.HOLDER_NUM]), [['600001', 11], ['600002', 2]])
+})
+
+test('机构调研：部分调研缺机构家数时记缺失次数，全部缺失为 null', () => {
+  const ev = [
+    { code: '600001', name: 'a', notice: '2026-11-17', start: null, orgs: 5, ways: '' },
+    { code: '600001', name: 'a', notice: '2026-11-16', start: null, orgs: null, ways: '' },
+    { code: '600002', name: 'b', notice: '2026-11-17', start: null, orgs: null, ways: '' },
+  ]
+  const rank = buildSurvey(ev, '2026-11-17').short.rank
+  assert.deepEqual(rank.map((x) => [x.code, x.orgs, x.orgsMissing]), [['600001', 5, 1], ['600002', null, 1]])
+})
+
+test('发布判断：换日期时某节失败而上一份有该节，放弃发布', () => {
+  const prev = { asOf: '2026-11-16', risk: { x: 1 }, survey: null }
+  assert.equal(publishDecision([], prev, '2026-11-17').ok, true)
+  assert.equal(publishDecision(['risk'], prev, '2026-11-17').ok, false)
+  assert.equal(publishDecision(['survey'], prev, '2026-11-17').ok, true) // 上一份本来就缺
+  assert.equal(publishDecision(['risk'], null, '2026-11-17').ok, true)
+  assert.equal(publishDecision(['risk'], { ...prev, asOf: '2026-11-17', risk: null }, '2026-11-17').ok, true)
 })

@@ -9,9 +9,9 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { isTradingDay, prevTradingDay } from './market-mood-lib.mjs'
 import {
-  addDays, buildBlock, buildCalendar, buildHolders, buildRiskTrading, buildSurvey, checkComplete, compactDay, compareConsensus, financeFlags,
-  lastTradingDays, parseBlock, parseConsensus, parseExpress, parseFinance, parseForecasts, parseReports, parseSnapshot, parseSurveys, perfAfter,
-  periodLabel, sameContent, stDiff,
+  addDays, boundHolders, buildBlock, buildCalendar, buildHolders, buildRiskTrading, buildSurvey, compactDay, compareConsensus, exDividendDates, financeFlags,
+  lastTradingDays, paginate, parseAdjKline, parseBlock, parseConsensus, parseExpress, parseFinance, parseForecasts, parseReports, parseSnapshot, parseSurveys, perfAfter,
+  periodLabel, publishDecision, sameContent, secidOf, stDiff,
 } from './kpl-disclosure-lib.mjs'
 
 const OUT = 'public/data/kpl-disclosure.json'
@@ -41,22 +41,13 @@ async function getJson(url) {
     }
   }
 }
-/** 分页取完整张报表；「返回数据为空」（code 9201）返回空数组 */
+/** 分页取完整张报表；只有第 1 页「返回数据为空」（code 9201）才算空表，后续页为空或行数对不上都抛错（见 paginate） */
 async function report(reportName, filter, { sort = 'SECURITY_CODE', columns = 'ALL', pageSize = 500, maxPages = 200 } = {}) {
-  const rows = []
-  let count = null
-  for (let page = 1; ; page++) {
+  return paginate(async (page) => {
+    if (page > 1) await sleep(200)
     const q = new URLSearchParams({ reportName, columns, pageSize: String(pageSize), pageNumber: String(page), sortColumns: sort, sortTypes: sort.split(',').map(() => '1').join(','), filter, source: 'WEB', client: 'WEB' })
-    const body = await getJson(`${API}?${q}`)
-    if (body?.code === 9201 || (body?.success === false && /为空/.test(body?.message ?? ''))) return []
-    if (!body?.success || !Array.isArray(body?.result?.data)) throw new Error(`${reportName} 返回异常：${body?.message ?? '无结果'}`)
-    count ??= body.result.count
-    rows.push(...body.result.data)
-    if (page >= body.result.pages) break
-    if (page >= maxPages) throw new Error(`${reportName} 页数过多`)
-    await sleep(200)
-  }
-  return checkComplete(rows, count, reportName)
+    return getJson(`${API}?${q}`)
+  }, reportName, maxPages)
 }
 /** 排序后的第一行（没有则 null） */
 async function first(reportName, filter, sort, dir) {
@@ -113,11 +104,14 @@ const prevDay = dayArchive.find((d) => d.date === prevTradingDay(asOf)) ?? null
 const stSet = new Set(latestDay.st)
 const shares = new Map(snap.map((s) => [s.code, s.shares]))
 
-// 某一节失败时：同一天的旧结果可沿用，否则置空（页面显示该节暂缺），不影响其它节
+// 某一节失败时：同一天的旧结果可沿用；换了新日期则记下失败，最后由 publishDecision 决定是否放弃发布（不能用空节覆盖上一份完整文件）
+const failed = []
 const section = async (key, fn) => {
   try { return await fn() } catch (e) {
     console.log(`${key} 失败：${e.message}`)
-    return prevOut?.asOf === asOf ? prevOut?.[key] ?? null : null
+    if (prevOut?.asOf === asOf && prevOut?.[key]) return prevOut[key]
+    failed.push(key)
+    return null
   }
 }
 
@@ -127,7 +121,7 @@ const annualPeriod = `${m >= 5 ? y - 1 : y - 2}-12-31`
 const md = asOf.slice(5)
 const obsPeriod = md > '10-31' ? `${y}-09-30` : md > '08-31' ? `${y}-06-30` : md > '04-30' ? `${y}-03-31` : `${y - 1}-09-30`
 async function financeOf(period) {
-  const base = `(REPORTDATE='${period}')${A_SHARE}`
+  const base = `(REPORTDATE='${period}')(NOTICE_DATE<='${asOf}')${A_SHARE}`
   const cols = 'SECURITY_CODE,SECURITY_NAME_ABBR,SECURITY_TYPE_CODE,TRADE_MARKET_CODE,REPORTDATE,NOTICE_DATE,PARENT_NETPROFIT,DEDUCT_BASIC_EPS,TOTAL_OPERATE_INCOME,BPS'
   const rows = []
   for (const f of ['(PARENT_NETPROFIT<0)(TOTAL_OPERATE_INCOME<300000000)', '(DEDUCT_BASIC_EPS<0)(TOTAL_OPERATE_INCOME<300000000)', '(BPS<0)']) {
@@ -148,7 +142,7 @@ const risk = await section('risk', async () => ({
 /* ---------- 3. 业绩披露 ---------- */
 const disclosure = await section('disclosure', async () => {
   const from = addDays(asOf, -NOTICE_WINDOW)
-  const nf = `(NOTICE_DATE>='${from}')${A_SHARE}`
+  const nf = `(NOTICE_DATE>='${from}')(NOTICE_DATE<='${asOf}')${A_SHARE}`
   const items = [
     ...parseForecasts(await report('RPT_PUBLIC_OP_NEWPREDICT', nf, { sort: 'NOTICE_DATE' })),
     ...parseExpress(await report('RPT_FCI_PERFORMANCEE', nf, { sort: 'NOTICE_DATE' })),
@@ -167,10 +161,18 @@ const disclosure = await section('disclosure', async () => {
     const part = annualCodes.slice(i, i + 80)
     for (const [k, v] of parseConsensus(await report('RPT_WEB_RESPREDICT', `(SECURITY_CODE in (${part.map((c) => `"${c}"`).join(',')}))`))) cons.set(k, v)
   }
-  // 公告后表现：用存档的每日收盘价（未复权）
+  // 公告后表现：用存档的每日收盘价（未复权）；存档窗口内有除权除息日的个股改用东财前复权日 K，避免送转 / 分红造成的假跌幅
   const dates = [...closeArchive.keys()].sort()
+  const ex = exDividendDates(await report('RPT_SHAREBONUS_DET', `(EX_DIVIDEND_DATE>='${dates[0]}')(EX_DIVIDEND_DATE<='${asOf}')`, { sort: 'EX_DIVIDEND_DATE,SECURITY_CODE', columns: 'SECURITY_CODE,EX_DIVIDEND_DATE' }), dates[0], asOf)
+  const adj = new Map()
+  for (const code of new Set(kept.map((x) => x.code).filter((c) => ex.has(c)))) {
+    const q = new URLSearchParams({ secid: secidOf(code), fields1: 'f1,f2,f3', fields2: 'f51,f53', klt: '101', fqt: '1', beg: dates[0].replaceAll('-', ''), end: asOf.replaceAll('-', '') })
+    const body = await getJson(`https://push2his.eastmoney.com/api/qt/stock/kline/get?${q}`).catch((e) => { throw new Error(`${code} 前复权 K 线：${e.message}`) })
+    adj.set(code, parseAdjKline(body, code))
+    await sleep(300)
+  }
   const out = kept.map((x) => {
-    const kline = dates.map((d) => ({ date: d, close: closeArchive.get(d)?.[x.code] ?? null })).filter((k) => k.close !== null)
+    const kline = adj.get(x.code) ?? dates.map((d) => ({ date: d, close: closeArchive.get(d)?.[x.code] ?? null })).filter((k) => k.close !== null)
     const { isProfit: _p, ...rest } = x
     return { ...rest, consensus: compareConsensus(x, cons.get(x.code), shares.get(x.code)), perf: perfAfter(x.notice, kline, asOf) }
   })
@@ -182,7 +184,7 @@ const disclosure = await section('disclosure', async () => {
   const period = String((await first('RPT_PUBLIC_BS_APPOIN', `(REPORT_DATE<='${asOf}')`, 'REPORT_DATE', '-1'))?.REPORT_DATE ?? '').slice(0, 10)
   if (/^\d{4}-\d{2}-\d{2}$/.test(period)) {
     const total = await countOf('RPT_PUBLIC_BS_APPOIN', `(REPORT_DATE='${period}')(SECURITY_TYPE_CODE="058001001")`)
-    const published = await countOf('RPT_PUBLIC_BS_APPOIN', `(REPORT_DATE='${period}')(SECURITY_TYPE_CODE="058001001")(IS_PUBLISH="1")`)
+    const published = await countOf('RPT_PUBLIC_BS_APPOIN', `(REPORT_DATE='${period}')(SECURITY_TYPE_CODE="058001001")(IS_PUBLISH="1")(ACTUAL_PUBLISH_DATE<='${asOf}')`)
     progress = { period, label: periodLabel(period), total, published }
   }
   return {
@@ -195,7 +197,16 @@ const disclosure = await section('disclosure', async () => {
 /* ---------- 4. 股东户数 ---------- */
 const holders = await section('holders', async () => {
   const since = addDays(asOf, -330)
-  const latest = await report('RPT_HOLDERNUMLATEST', '(SECURITY_TYPE_CODE="058001001")', { columns: 'SECURITY_CODE,SECURITY_NAME_ABBR,SECURITY_TYPE_CODE,END_DATE,PRE_END_DATE,HOLDER_NUM,PRE_HOLDER_NUM,HOLDER_NUM_RATIO,HOLD_NOTICE_DATE,AVG_MARKET_CAP,CLOSE_PRICE' })
+  const latestCols = 'SECURITY_CODE,SECURITY_NAME_ABBR,END_DATE,PRE_END_DATE,HOLDER_NUM,PRE_HOLDER_NUM,HOLDER_NUM_RATIO,HOLD_NOTICE_DATE,AVG_MARKET_CAP,CLOSE_PRICE'
+  const latestAll = await report('RPT_HOLDERNUMLATEST', '(SECURITY_TYPE_CODE="058001001")', { columns: `${latestCols},SECURITY_TYPE_CODE` })
+  // 「最新一期」表没有日期上限：公告日晚于 asOf 的个股，改用历次表里公告日不晚于 asOf 的最近一期
+  const late = [...new Set(latestAll.filter((r) => String(r.HOLD_NOTICE_DATE ?? '').slice(0, 10) > asOf).map((r) => String(r.SECURITY_CODE)))]
+  const older = []
+  for (let i = 0; i < late.length; i += 80) {
+    const part = late.slice(i, i + 80)
+    older.push(...await report('RPT_HOLDERNUM_DET', `(SECURITY_CODE in (${part.map((c) => `"${c}"`).join(',')}))(END_DATE>='${addDays(asOf, -200)}')(HOLD_NOTICE_DATE<='${asOf}')`, { columns: latestCols, sort: 'SECURITY_CODE,END_DATE' }))
+  }
+  const latest = boundHolders(latestAll, older, asOf)
   // 历次「户数减少」记录约 2.7 万行（55 页）：存档增量更新，只补公告日在存档最新公告日前 10 天之后的行；存档起点太旧（> 90 天）时整表重取
   const cols = 'SECURITY_CODE,END_DATE,PRE_END_DATE,PRE_HOLDER_NUM,HOLDER_NUM_RATIO,HOLD_NOTICE_DATE'
   const cache = readJson(HOLDERS_CACHE)
@@ -207,7 +218,7 @@ const holders = await section('holders', async () => {
   const rows = [...merged.values()].filter((r) => r[1] >= fetchFrom).sort((a, b) => a[0].localeCompare(b[0]) || a[1].localeCompare(b[1]))
   const through = rows.reduce((m, r) => (r[5] && r[5] <= asOf && r[5] > m ? r[5] : m), cache?.through ?? fetchFrom)
   write(HOLDERS_CACHE, { since: fetchFrom, through, rows })
-  const dec = rows.map((r) => ({ SECURITY_CODE: r[0], END_DATE: r[1], PRE_END_DATE: r[2], PRE_HOLDER_NUM: r[3], HOLDER_NUM_RATIO: r[4] }))
+  const dec = rows.filter((r) => !r[5] || r[5] <= asOf).map((r) => ({ SECURITY_CODE: r[0], END_DATE: r[1], PRE_END_DATE: r[2], PRE_HOLDER_NUM: r[3], HOLDER_NUM_RATIO: r[4] }))
   return { date: asOf, ...buildHolders(latest, dec, asOf, { minEnd: addDays(asOf, -200), since: fetchFrom }) }
 })
 
@@ -243,6 +254,8 @@ const out = {
     { id: 'survey', label: '东方财富数据中心 · 机构调研', url: 'https://data.eastmoney.com/jgdy/' },
   ],
 }
+const decision = publishDecision(failed, prevOut, asOf)
+if (!decision.ok) { console.log(`放弃发布，保留上一份文件：${decision.reason}`); process.exit(1) }
 if (sameContent(out, prevOut)) { console.log(`${asOf} 内容无变化，不写文件`); process.exit(0) }
 write(OUT, out)
 console.log(JSON.stringify({

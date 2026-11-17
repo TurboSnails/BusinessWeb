@@ -95,7 +95,7 @@ function SupplyCard({ data }: { data: ThsMarketData }): JSX.Element {
     <TableWrap label="新发基金月度汇总">
       <table className="mm-table">
         <thead><tr>{['月份', '募集份额', '其中偏股', '基金数'].map(h => <th key={h} scope="col">{h}</th>)}</tr></thead>
-        <tbody>{funds.map(m => <tr key={m.month}><td>{mmd(m.month)}</td><td className="num">{m.shares === null ? '—' : `${fix(m.shares)} 亿份`}</td><td className="num">{m.equityShares === null ? '—' : `${fix(m.equityShares)} 亿份`}</td><td className="num">{m.funds}</td></tr>)}</tbody>
+        <tbody>{funds.map(m => <tr key={m.month}><td>{mmd(m.month)}{m.complete === false ? <small>不完整</small> : null}</td><td className="num">{m.shares === null ? '—' : `${fix(m.shares)} 亿份`}</td><td className="num">{m.equityShares === null ? '—' : `${fix(m.equityShares)} 亿份`}</td><td className="num">{m.funds}</td></tr>)}</tbody>
       </table>
     </TableWrap>
     <p className="mm-method">{METHOD.funds}</p>
