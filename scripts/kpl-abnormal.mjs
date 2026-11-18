@@ -211,8 +211,15 @@ let radar = prev?.radar?.date === date ? prev.radar : null
 if (live) {
   try {
     const types = [4, 8, 16, 32, 64, 128, 8193, 8194, 8201, 8202, 8203, 8204, 8207, 8208, 8209, 8210, 8211, 8212, 8213, 8214, 8215, 8216]
-    const body = await get(`https://push2ex.eastmoney.com/getAllStockChanges?${new URLSearchParams({ type: types.join(','), ut: POOL_TOKEN, pageindex: '0', pagesize: '50000', dpt: 'wzchanges' })}`, { headers: emHeaders })
-    const events = parseChanges(body)
+    // 接口的 type 参数写成逗号列表时只认第一个类型（实测 "4,8,…" 只回 4 类的 125 条），所以逐个类型取，再合并
+    const events = []
+    for (const type of types) {
+      const body = await get(`https://push2ex.eastmoney.com/getAllStockChanges?${new URLSearchParams({ type: String(type), ut: POOL_TOKEN, pageindex: '0', pagesize: '50000', dpt: 'wzchanges' })}`, { headers: emHeaders })
+      const part = parseChanges(body)
+      if (part.some((e) => e.type !== type)) throw new Error(`盘口异动 ${type} 类返回了其他类型`)
+      events.push(...part)
+    }
+    events.sort((a, b) => (a.time < b.time ? -1 : a.time > b.time ? 1 : 0))
     // 当日校验：收盘后应有 14:5x 之后的事件，且封涨停板事件里能找到今日收在涨停的股票
     const lastTime = events.reduce((m, e) => (e.time > m ? e.time : m), '')
     if (events.length < 1000 || lastTime < '14:50:00') throw new Error(`盘口异动不像完整的当日数据（${events.length} 条，最后 ${lastTime}）`)
