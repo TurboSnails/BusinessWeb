@@ -29,7 +29,7 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-describe('A股估值表', () => {
+describe('估值表', () => {
   it('显示数据日、状态和样本，PB 行默认画行业 PB 曲线', async () => {
     renderPage()
     const table = await screen.findByRole('table')
@@ -80,7 +80,7 @@ describe('A股估值表', () => {
 
   it('数据文件缺失时显示 EmptyState', async () => {
     renderPage(null, false)
-    expect(await screen.findByText('暂无A股估值数据')).toBeTruthy()
+    expect(await screen.findByText('暂无估值数据')).toBeTruthy()
     expect(screen.queryByRole('table')).toBeNull()
   })
 
@@ -89,6 +89,20 @@ describe('A股估值表', () => {
     await screen.findByRole('table')
     expect(screen.getByRole('link', { name: /今日星级/ }).getAttribute('href')).toBe('/jixing')
     expect(screen.getByRole('link', { name: /牛熊信号板/ }).getAttribute('href')).toBe('/jixing/signals')
+  })
+
+  it('搜索名称打开详情；无匹配时提示', async () => {
+    renderPage()
+    await screen.findByRole('table')
+    const input = screen.getByLabelText('按名称或代码搜索指数')
+    fireEvent.change(input, { target: { value: '沪深300' } })
+    fireEvent.submit(input.closest('form')!)
+    expect(await screen.findByRole('dialog')).toBeTruthy()
+    expect(screen.getByText(/沪深300 · 000300/)).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: '关闭' }))
+    fireEvent.change(input, { target: { value: '不存在的指数xyz' } })
+    fireEvent.submit(input.closest('form')!)
+    expect(await screen.findByText(/没有匹配/)).toBeTruthy()
   })
 
   it('运行时校验拒绝过期行、非法历史以及重复代码', () => {

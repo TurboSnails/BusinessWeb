@@ -51,7 +51,7 @@ function SummaryLine({ data }: { data: JixingSignalsData }): JSX.Element {
     </ul>
     <ul className="jx-links">
       <li><Link to="/jixing">今日星级</Link></li>
-      <li><Link to="/jixing/table">A股估值表</Link></li>
+      <li><Link to="/jixing/table">估值表</Link></li>
     </ul>
     <SampleFootnote>{METHOD.signals}</SampleFootnote>
     {data.missing.length || data.errors.length ? <SampleFootnote>本次未更新的指标：{[...data.errors, ...data.missing.filter(m => !data.errors.some(e => e.startsWith(m)))].join('；')}。</SampleFootnote> : null}
@@ -79,6 +79,20 @@ export default function JixingSignals(): JSX.Element {
         <SummaryLine data={data} />
         <Group title="定量：估值" description="越便宜越接近熊市底部特征；信号为低估 / 正常 / 高估。" items={data.indicators.filter(i => i.group === 'valuation')} />
         <Group title="情绪：资金与参与度" description="越热越接近牛市特征；信号为偏牛 / 中性 / 偏熊。" items={data.indicators.filter(i => i.group === 'mood')} />
+        <Card as="section" className="mm-card" title="市场消息" description="本站整理，按时间倒序。">
+          {data.news?.length ? (
+            <ol className="jsg-news">
+              {data.news.map(n => (
+                <li key={`${n.date}-${n.url}`}>
+                  <time dateTime={n.date}>{n.date}</time>
+                  <a href={n.url} target="_blank" rel="noreferrer">{n.title}</a>
+                  <span className="jsg-news__src">{n.source}</span>
+                </li>
+              ))}
+            </ol>
+          ) : <p className="mm-empty">暂无整理的市场消息。</p>}
+          <SampleFootnote>{METHOD.news}</SampleFootnote>
+        </Card>
         <Card as="section" className="mm-card" title="口径与未纳入项">
           <ul className="jsg-notes">
             <li>{METHOD.update}</li>

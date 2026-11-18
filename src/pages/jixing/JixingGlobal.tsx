@@ -148,7 +148,7 @@ export default function JixingGlobal(): JSX.Element {
       {loading ? <p role="status">正在读取港股全球估值…</p> : !data ? <EmptyState title="暂无港股全球数据">数据文件缺失、不可用或格式异常时不展示。</EmptyState> : <>
         <ul className="jx-links">
           <li><Link to="/jixing">今日星级</Link></li>
-          <li><Link to="/jixing/table">A股估值表</Link></li>
+          <li><Link to="/jixing/table">估值表</Link></li>
           <li><Link to="/jixing/signals">牛熊信号板</Link></li>
         </ul>
         <SampleFootnote>采集时间：{new Date(data.generatedAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false })}（北京）。各来源更新时间不同（日度、周度、月度都有），每行的数据日期单独列出，不混为一天。</SampleFootnote>

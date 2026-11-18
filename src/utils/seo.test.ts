@@ -22,4 +22,11 @@ describe('blog route SEO', () => {
   it('ETF 清单页有独立标题而不是「页面不存在」', () => {
     expect(resolveSeo('/industry-etf')).toMatchObject({ known: true, title: 'ETF 与债券基金清单' })
   })
+  it('今天几星新增页签有 SEO', () => {
+    expect(resolveSeo('/jixing/table')).toMatchObject({ known: true, title: '今天几星 · 估值表' })
+    expect(resolveSeo('/jixing/threshold')).toMatchObject({ known: true, title: '今天几星 · 阀值表' })
+    expect(resolveSeo('/jixing/map')).toMatchObject({ known: true, title: '今天几星 · 指数地图' })
+    expect(resolveSeo('/jixing/daily')).toMatchObject({ known: true, title: '今天几星 · 指数日报' })
+  })
 })
+

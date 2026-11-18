@@ -1,0 +1,3 @@
+.jth-page .jth-sort { margin: var(--space-2) 0 var(--space-3); }
+.jth-code { display: block; color: var(--text-tertiary); font-size: 0.75rem; font-weight: 400; }
+.jth-page .jt-index { color: var(--accent-ink); text-decoration: underline; text-underline-offset: 0.2em; }

@@ -3,7 +3,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
   windowPct, rollingGdp, totalMcap, buffettSeries, marginSeries, parseIpo, ipoRolling, fundMonthly, mergeFundMonths, fundStart,
-  parseSseAccounts, miniHistory, summarize, valuationSignal, moodSignal, buffettSignal, brokenSignal, RULES,
+  parseSseAccounts, miniHistory, summarize, valuationSignal, moodSignal, buffettSignal, brokenSignal, RULES, trM2Series,
 } from './jixing-signals-lib.mjs'
 
 test('信号规则：分位与绝对阈值', () => {
@@ -12,7 +12,25 @@ test('信号规则：分位与绝对阈值', () => {
   assert.equal(moodSignal(80), '偏牛'); assert.equal(moodSignal(20), '偏熊'); assert.equal(moodSignal(50), '中性')
   assert.equal(buffettSignal(79.9), '低估'); assert.equal(buffettSignal(100), '正常'); assert.equal(buffettSignal(101), '高估')
   assert.equal(brokenSignal(25, 30), '偏熊'); assert.equal(brokenSignal(0, 30), '偏牛'); assert.equal(brokenSignal(10, 30), '中性'); assert.equal(brokenSignal(50, 3), null)
-  for (const k of ['buffett', 'erp', 'pb', 'marginRatio', 'amount', 'ipoCount', 'ipoBroken', 'funds', 'accounts']) assert.ok(RULES[k].length > 10)
+  for (const k of ['buffett', 'erp', 'pb', 'marginRatio', 'amount', 'ipoCount', 'ipoBroken', 'funds', 'accounts', 'trM2']) assert.ok(RULES[k].length > 10)
+})
+
+test('全收益/M2：月末对齐并归一', () => {
+  const tr = [
+    { date: '2024-01-31', close: 100 },
+    { date: '2024-02-29', close: 110 },
+    { date: '2024-03-29', close: 120 },
+  ]
+  const m2 = [
+    { month: '2024-01', m2: 1000 },
+    { month: '2024-02', m2: 1000 },
+    { month: '2024-03', m2: 1200 },
+  ]
+  const s = trM2Series(tr, m2)
+  assert.equal(s.length, 3)
+  assert.equal(s[0].v, 1)
+  assert.ok(Math.abs(s[1].v - 1.1) < 1e-9)
+  assert.ok(Math.abs(s[2].v - 1) < 1e-9) // 120/1200 ÷ (100/1000) = 1
 })
 
 test('窗口分位：窗口起点、样本数与统一定义', () => {

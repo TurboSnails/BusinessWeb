@@ -9,6 +9,7 @@ import {
   asJixingTable, asJixingTableHist, GROUPS, histUrl, METHOD,
   type GroupFilter, type JixingTableData, type JixingTableHist, type ValuationRow, type ValuationStatus,
 } from '../../features/jixing-table/model'
+import { filterByQuery } from '../../features/jixing-tabs/search'
 import MoodChart from '../../features/market-mood/MoodChart'
 import '../../styles/market-mood.css'
 import '../../styles/jixing-table.css'
@@ -124,6 +125,9 @@ function ValuationTable({ data }: { data: JixingTableData }): JSX.Element {
   const [group, setGroup] = useState<GroupFilter>('all')
   const [sort, setSort] = useState<{ key: string; direction: 'ascending' | 'descending' } | null>(null)
   const [detail, setDetail] = useState<ValuationRow | null>(null)
+  const [query, setQuery] = useState('')
+  const [hits, setHits] = useState<ValuationRow[]>([])
+  const [searchHint, setSearchHint] = useState<string | null>(null)
 
   useEffect(() => {
     if (!codeParam) return
@@ -133,6 +137,8 @@ function ValuationTable({ data }: { data: JixingTableData }): JSX.Element {
 
   const openRow = (row: ValuationRow) => {
     setDetail(row)
+    setHits([])
+    setSearchHint(null)
     setParams(prev => {
       const next = new URLSearchParams(prev)
       next.set('code', row.code)
@@ -146,6 +152,16 @@ function ValuationTable({ data }: { data: JixingTableData }): JSX.Element {
       next.delete('code')
       return next
     }, { replace: true })
+  }
+
+  const runSearch = (raw = query) => {
+    const q = raw.trim()
+    if (!q) { setHits([]); setSearchHint(null); return }
+    const found = filterByQuery(data.rows, q)
+    setHits(found)
+    if (!found.length) setSearchHint(`没有匹配「${q}」的指数`)
+    else if (found.length === 1) { openRow(found[0]); setHits([]) }
+    else setSearchHint(`找到 ${found.length} 条，点选打开详情`)
   }
 
   const rows = data.rows.filter(row => group === 'all' || group === row.group)
@@ -168,11 +184,35 @@ function ValuationTable({ data }: { data: JixingTableData }): JSX.Element {
   }
 
   return (
-    <Card title="A股估值表" as="section" className="mm-card jt-card" description={`${data.asOf} 盘后 · 点击指数名称查看历史走势。`}>
+    <Card title="估值表" as="section" className="mm-card jt-card" description={`${data.asOf} 盘后 · 点击指数名称查看历史走势。`}>
       <ul className="jx-links">
         <li><Link to="/jixing">今日星级（中证全指 / 沪深市场 PB）</Link></li>
         <li><Link to="/jixing/signals">牛熊信号板</Link></li>
+        <li><Link to="/jixing/threshold">阀值表</Link></li>
       </ul>
+      <form className="jt-search" role="search" onSubmit={e => { e.preventDefault(); runSearch() }}>
+        <label>
+          <span className="jt-search__label">今日查估值</span>
+          <input
+            type="search"
+            value={query}
+            placeholder="名称 / 代码 / 拼音首字母"
+            aria-label="按名称或代码搜索指数"
+            onChange={e => { setQuery(e.target.value); setSearchHint(null) }}
+          />
+        </label>
+        <button type="submit" className="btn-ghost">搜索</button>
+      </form>
+      {searchHint ? <p className="jt-search__hint" role="status">{searchHint}</p> : null}
+      {hits.length > 1 ? (
+        <ul className="jt-search__hits">
+          {hits.map(r => (
+            <li key={r.code}>
+              <button type="button" className="jt-index" onClick={() => openRow(r)}>{r.name}（{r.code}）</button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
       <Segmented label="指数分组" items={[...GROUPS]} value={group} onChange={setGroup} />
       <div className="jt-summary" aria-label="当前分组估值状态">
         {(Object.keys(VALUATION_STATUS) as ValuationStatus[]).map(key => (
@@ -234,11 +274,11 @@ export default function JixingTable(): JSX.Element {
   }, [])
   return (
     <Page className="mm-page jt-page">
-      <PageTitle>今天几星 · A股估值表</PageTitle>
+      <PageTitle>今天几星 · 估值表</PageTitle>
       <JixingTabs />
       <p className="mm-disclaimer">{JIXING_DISCLAIMER}</p>
       {loading ? <p role="status">正在读取指数估值…</p> : data ? <ValuationTable data={data} /> : (
-        <EmptyState title="暂无A股估值数据">完整估值数据将在交易日盘后更新。</EmptyState>
+        <EmptyState title="暂无估值数据">完整估值数据将在交易日盘后更新。</EmptyState>
       )}
     </Page>
   )
