@@ -8,6 +8,7 @@ import {
 } from '../features/etf-timing/model'
 import { LONG_DOC, OOS_ASOF, OOS_DOC, OOS_ROWS, OOS_SPLITS, OOS_VERDICTS, SCRIPTS } from '../features/etf-timing/oos'
 import '../styles/etf-timing.css'
+import { LabNav } from '../features/etf-signal-plans/LabNav'
 
 const BASE = (import.meta as { env?: Record<string, string | undefined> }).env?.BASE_URL ?? '/'
 type Load = { state: 'loading' } | { state: 'error'; message: string } | { state: 'ok'; data: EtfTiming }
@@ -238,6 +239,7 @@ export default function EtfTimingLab({ now }: { now?: Date } = {}): JSX.Element 
   return (
     <Page className="etf-timing-page">
       <PageTitle>择时实验：择时＋只认金叉（观察中）</PageTitle>
+      <LabNav current="/lab/etf-timing" />
       <header className="et-intro">
         <p className="et-tag">实验 · 观察中</p>
         <h2>择时＋只认金叉</h2>

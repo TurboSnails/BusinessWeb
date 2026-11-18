@@ -73,6 +73,11 @@ const Candidates = lazy(() => import('./pages/Candidates'))
 const Radar = lazy(() => import('./pages/Radar'))
 const Earnings = lazy(() => import('./pages/Earnings'))
 const EtfTimingLab = lazy(() => import('./pages/EtfTimingLab'))
+const EtfFlowLab = lazy(() => import('./pages/EtfFlowLab'))
+const EtfUptrendLab = lazy(() => import('./pages/EtfUptrendLab'))
+const EtfWatchPoolLab = lazy(() => import('./pages/EtfWatchPoolLab'))
+const EtfSignalPlansLab = lazy(() => import('./pages/EtfSignalPlansLab'))
+const EtfResearchListLab = lazy(() => import('./pages/EtfResearchListLab'))
 const WatchBoard = lazy(() => import('./pages/WatchBoard'))
 const FutureTrends = lazy(() => import('./pages/FutureTrends'))
 const SolidStateCompany = lazy(() => import('./pages/SolidStateCompany'))
@@ -87,6 +92,8 @@ const IndustryEtf = lazy(() => import('./pages/IndustryEtf'))
 const Notes = lazy(() => import('./pages/Notes'))
 const NoteDetail = lazy(() => import('./pages/NoteDetail'))
 const NationalTeam = lazy(() => import('./pages/NationalTeam'))
+const BloggerViews = lazy(() => import('./pages/BloggerViews'))
+const BloggerViewDetail = lazy(() => import('./pages/BloggerViewDetail'))
 const AiLabDirection = lazy(() => import('./pages/AiLabDirection'))
 const AiLearningPlan = lazy(() => import('./pages/AiLearningPlan'))
 const PersonalLifeAnalysis = lazy(() => import('./pages/PersonalLifeAnalysis'))
@@ -161,6 +168,8 @@ export default function App(): JSX.Element {
           <Route path="/notes" element={<Notes />} />
           <Route path="/notes/:slug" element={<NoteDetail />} />
           <Route path="/invest/national-team" element={<NationalTeam />} />
+          <Route path="/invest/blogger-views" element={<BloggerViews />} />
+          <Route path="/invest/blogger-views/:slug" element={<BloggerViewDetail />} />
           <Route path="/ai" element={<AiStudio />} />
           <Route path="/ai/fullstack-roadmap" element={<AiLearningPlan />} />
           <Route path="/ai/dev-team" element={<DevTeamGuide />} />
@@ -222,6 +231,13 @@ export default function App(): JSX.Element {
           <Route path="/radar" element={<Radar />} />
           <Route path="/earnings" element={<Earnings />} />
           <Route path="/lab/etf-timing" element={<EtfTimingLab />} />
+          <Route path="/lab/etf-flow" element={<EtfFlowLab />} />
+          <Route path="/lab/etf-uptrend" element={<EtfUptrendLab />} />
+          <Route path="/lab/etf-watch-pool" element={<EtfWatchPoolLab />} />
+          <Route path="/lab/etf-macd-good" element={<EtfResearchListLab kind="macd-good" />} />
+          <Route path="/lab/etf-hs300-timing" element={<EtfResearchListLab kind="hs300-timing" />} />
+          <Route path="/lab/etf-timing-portfolio" element={<Navigate to="/lab/etf-watch-pool" replace />} />
+          <Route path="/lab/etf-signal-plans" element={<EtfSignalPlansLab />} />
           <Route path="/research-notes" element={<ResearchNotes />} />
           <Route path="/research-notes/company/:market/:code/notes" element={<CompanyNotes />} />
           <Route path="/research-notes/:market/:code" element={<CompanyDetail />} />

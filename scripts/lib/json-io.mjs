@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname } from 'node:path'
 
-const VOLATILE = new Set(['generatedAt', 'fetchedAt'])
+const VOLATILE = new Set(['generatedAt', 'fetchedAt', 'updated'])
 const strip = value => JSON.stringify(value, (key, v) => (VOLATILE.has(key) ? undefined : v))
 
 export function readJson(file, fallback) {

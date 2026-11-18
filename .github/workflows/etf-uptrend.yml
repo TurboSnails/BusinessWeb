@@ -1,0 +1,83 @@
+name: Update ETF uptrend
+
+on:
+  schedule:
+    # 来源一般北京时间 21:30 之后才更新当天数据：每天 23:30 采集，次日 07:00 兜底（GitHub 定时常有延迟）。
+    # 每次先探测来源截止日，已有该行情日的完整快照就跳过；快照按来源截止日（行情日）命名，周末不会多出一份。
+    - cron: '30 15 * * *'
+    - cron: '0 23 * * *'
+    # 每周六北京时间 10:00 重建一次「倒推历史」（取全部约 1800 只 ETF 的历史区间，约 12 分钟）
+    - cron: '0 2 * * 6'
+  workflow_dispatch:
+    inputs:
+      force:
+        description: '强制重采（不探测，覆盖更新该行情日快照）'
+        type: boolean
+        default: false
+      reconstruct:
+        description: '同时重建倒推历史（约 12 分钟）'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: etf-uptrend
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test collector
+        run: python -m unittest discover -s scripts -p 'etf_uptrend_test.py'
+      - name: Reconstruct history
+        if: github.event.schedule == '0 2 * * 6' || inputs.reconstruct
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        # 失败不影响每日采集；reconstruct 自己保证取不全时不覆盖旧文件
+        run: python scripts/etf_uptrend.py --data-dir data-raw/etf-uptrend reconstruct || echo "::warning::倒推历史重建失败，保留旧数据"
+      - name: Collect THS ETF uptrend
+        id: fetch
+        shell: bash
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          status=0
+          if [ "${{ inputs.force }}" = "true" ]; then
+            python scripts/etf_uptrend.py --data-dir data-raw/etf-uptrend run --no-page || status=1
+          else
+            python scripts/etf_uptrend.py --data-dir data-raw/etf-uptrend run --scheduled --no-page || status=1
+          fi
+          # 失败也导出：页面要显示失败原因，并继续展示最近一次成功的数据
+          python scripts/etf_uptrend.py --data-dir data-raw/etf-uptrend export --out public/data/etf-uptrend
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+      - name: Commit if changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          paths="public/data/etf-uptrend data-raw/etf-uptrend"
+          if git diff --quiet -- $paths && [ -z "$(git ls-files --others --exclude-standard -- $paths)" ]; then
+            echo "没有变化（来源未更新），不提交"
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add $paths
+          git commit -m "data(etf-uptrend): 更新 ETF 主升浪快照 $(TZ=Asia/Shanghai date +%Y-%m-%d)"
+          for i in 1 2 3; do
+            git push && exit 0
+            git pull --rebase
+          done
+          exit 1
+      - name: Fail if collection failed
+        if: steps.fetch.outputs.status != '0'
+        run: |
+          echo "采集失败（已保留旧数据，页面会显示失败原因），详见上面步骤的日志" >&2
+          exit 1

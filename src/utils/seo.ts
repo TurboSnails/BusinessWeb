@@ -27,6 +27,8 @@ const EXACT: Record<string, RouteSeo> = {
   '/invest/fundamental-quant': { title: '基本面量化｜书籍方法、因子与策略验证', description: '从《投资策略实战分析》出发，整理基本面量化方法、因子口径、策略研究卡及 A 股验证路径，与林奇式公司研究衔接。' },
   '/invest/bond-fund-report': { title: '债基研究报告｜1—3 年持有', description: '2026 年 10 月债券基金研究报告存档，整理中短债、纯债与二级债基的历史数据和风险。原文数据未逐条复核。', noindex: true },
   '/invest/national-team': { title: '国家队持仓｜汇金、证金、社保的 A 股持仓', description: '按报告期追踪中央汇金、证金公司、社保基金等持有的 A 股：机构、行业、个股持仓与季度变化。' },
+  // 对他人公开视频的整理，含未核实的说法，不交给搜索引擎
+  '/invest/blogger-views': { title: '博主观点整理', description: '财经博主公开视频的逐条整理，仅作了解。', noindex: true },
   '/ai': { title: 'AI 工作室｜独立开发与 AI 学习路线', description: '用 AI 做独立开发：学习路线、实验方向与工具笔记。' },
   '/blog': { title: '博客｜投资、AI 与自由生活', description: '关于投资的耐心、AI 的实践，和通往自由生活的每一步。' },
   '/ai/fullstack-roadmap': { title: 'AI 全栈学习路线', description: '从零到独立开发者的 AI 全栈学习计划。' },
@@ -85,7 +87,15 @@ const EXACT: Record<string, RouteSeo> = {
   '/invest/ai-token-economics': { title: 'AI 降价与利润｜Token 用量、价格与毛利', description: 'Ramp 企业样本的 Token 用量、支出与价格变化，OpenAI 与 Anthropic 的收入集中度及单位毛利敏感性。数据整理自 AI 对话，未独立核实。', noindex: true },
   '/invest/comprehensive-valuation': { title: '综合估值｜四维方法与三情景测算', description: '从资产质量、交叉估值、预期差到风险预算，手工测算三情景收益与赔率，导出公司研究卡。', noindex: true },
   '/dcf': { title: 'DCF 估值', noindex: true },
+  '/index-panorama': { title: '指数全景｜宽基与行业估值分位', description: 'A 股、港股、美股宽基与行业主题指数的点位与估值分位，详情附已核实相关 ETF。静态收盘数据包。' },
+  '/index-panorama/': { title: '指数全景｜宽基与行业估值分位', description: 'A 股、港股、美股宽基与行业主题指数的点位与估值分位，详情附已核实相关 ETF。静态收盘数据包。' },
   '/lab/etf-timing': { title: '择时实验｜择时＋只认金叉（观察中）', description: '一条 ETF 择时规则的逐步检验：样本外检验、2011 年起指数长历史检验与每周影子运行记录。观察中、未验证，不是买卖指令。', noindex: true },
+  '/lab/etf-flow': { title: 'ETF 资金流｜全A/宽基申购净流入（实验）', description: '同花顺原口径全市场与宽基 ETF 日度申购净流入叠加上证指数。实验观察，不是买卖指令。', noindex: true },
+  '/lab/etf-uptrend': { title: 'ETF 主升浪｜区间与倒推历史（实验）', description: '同花顺主升浪每日快照：名单、历史上涨区间、AI 上涨原因与倒推历史。来源非自有模型，观察中，不是买卖指令。', noindex: true },
+  '/lab/etf-watch-pool': { title: '行业观察池｜只看信号（实验）', description: '高波动与大行业 ETF 观察名单的历史对照。不并入复盘、不发提醒，不是投资建议。', noindex: true },
+  '/lab/etf-macd-good': { title: '创业板择时优选｜研究名单（实验）', description: 'Y1 + 创业板择时研究筛出的 ETF 名单。观察中，不是买卖指令。', noindex: true },
+  '/lab/etf-hs300-timing': { title: '沪深300择时优选｜研究名单（实验）', description: '只认金叉 + 沪深300择时研究筛出的 ETF 名单。观察中，不是买卖指令。', noindex: true },
+  '/lab/etf-signal-plans': { title: '三方案回测｜创业板/沪深300/纯MACD（实验）', description: '单只 ETF 的三套研究口径波段回测。不并入网格，不是买卖指令。', noindex: true },
   '/earnings': { title: '财报前瞻', description: '公司库未来六周的财报日、一致预期与历史超预期幅度，附站内评级、三情景位置与这次要验证的事项。不预测、不荐股。' },
   '/radar': { title: '机会雷达', description: '按林奇分类分两条线的研究短名单：价值回归（正常盈利 + DCF 买入参考价）与快速增长（增速持续 + PE 压力条件），护城河与财务稳健加减分，每日更新。' },
   '/knowledge': { title: '知识中心', noindex: true },
@@ -94,6 +104,7 @@ const EXACT: Record<string, RouteSeo> = {
 
 const PREFIX: Array<[string, RouteSeo]> = [
   ['/grid-trading/records', { title: '网格交易记录', noindex: true }],
+  ['/invest/blogger-views/', { title: '博主观点整理', noindex: true }],
   ['/first-book/read/', { title: '《正念投资》在线阅读', description: '《正念投资》章节全文在线阅读。' }],
   ['/research-notes/', { title: '公司研究笔记', description: '单家公司的研究笔记、财务与估值要点。' }],
   ['/future-trends/solid-state/', { title: '固态电池｜公司研究', description: '固态电池公司业务敞口、财务质量、估值假设、多空观点与证据。' }],

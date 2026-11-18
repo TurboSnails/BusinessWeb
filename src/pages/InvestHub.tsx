@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
+import SmartLink from '../components/SmartLink'
 import {
   Activity, ArrowRight, BookOpen, Building2, Calculator, Calendar, CalendarCheck, CalendarClock, ChartLine, ChevronDown, Factory, Globe,
-  Gauge, Grid3x3, Landmark, ListChecks, PieChart, Rocket, RotateCw, Sparkles, Thermometer, TrendingUp, type LucideIcon,
+  Gauge, Grid3x3, Landmark, ListChecks, MessagesSquare, PieChart, Rocket, RotateCw, Sparkles, Thermometer, TrendingUp, type LucideIcon,
 } from 'lucide-react'
 import { INVEST_GROUPS, type HubGroup, type HubLink } from '../data/siteMap'
 import { loadLocal } from '../features/candidates/store'
@@ -33,7 +34,9 @@ const ICONS: Record<string, LucideIcon> = {
   '/invest/ai-token-economics': TrendingUp,
   '/invest/fundamental-quant': BookOpen,
   '/dcf': ChartLine,
+  '/index-panorama/': Globe,
   '/grid-trading': Grid3x3,
+  '/invest/blogger-views': MessagesSquare,
 }
 
 const group = (id: string): HubGroup => INVEST_GROUPS.find(g => g.id === id)!
@@ -41,13 +44,13 @@ const group = (id: string): HubGroup => INVEST_GROUPS.find(g => g.id === id)!
 function Card({ l }: { l: HubLink }): JSX.Element {
   const Icon = ICONS[l.path] ?? ArrowRight
   return (
-    <Link to={l.path} className="inv-card">
+    <SmartLink to={l.path} className="inv-card">
       <span className="inv-card__icon" aria-hidden="true"><Icon size={20} /></span>
       <span className="inv-card__text">
         <span className="inv-card__title">{l.label}</span>
         <span className="inv-card__desc">{l.short ?? l.desc}</span>
       </span>
-    </Link>
+    </SmartLink>
   )
 }
 

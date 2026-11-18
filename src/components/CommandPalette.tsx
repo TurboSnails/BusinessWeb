@@ -11,6 +11,7 @@ import {
   type SearchablePage,
 } from '../data/siteMap'
 import { readRecent } from '../features/recent-pages/store'
+import { isAbsoluteUrl, isNotesPath, isStaticToolPath } from '../data/notesLinks'
 import '../styles/command-palette.css'
 
 interface PaletteApi {
@@ -165,6 +166,12 @@ function Palette({ onClose, companyIndex }: { onClose: () => void; companyIndex:
 
   const go = (page: PaletteItem | undefined) => {
     if (!page) return
+    // 静态工具页（指数全景等）必须整页跳转，不能走 SPA navigate
+    if (isStaticToolPath(page.path) || isNotesPath(page.path) || isAbsoluteUrl(page.path)) {
+      onClose()
+      window.location.assign(page.path)
+      return
+    }
     // 路由变化会触发 provider 关闭面板；同一路径时手动关
     navigate(page.path)
     onClose()

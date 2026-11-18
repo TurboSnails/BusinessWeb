@@ -3,7 +3,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it } from 'vitest'
 import SmartLink from './SmartLink'
-import { isAbsoluteUrl, isNotesPath } from '../data/notesLinks'
+import { isAbsoluteUrl, isNotesPath, isStaticToolPath } from '../data/notesLinks'
 
 afterEach(cleanup)
 
@@ -58,5 +58,15 @@ describe('SmartLink', () => {
     expect(isNotesPath('/note/lab/')).toBe(true)
     expect(isNotesPath('/notes-x')).toBe(false)
     expect(isNotesPath('/grid-trading')).toBe(false)
+  })
+
+  it('指数全景走静态 <a>，不被 SPA 拦截', () => {
+    renderLink('/index-panorama/')
+    const link = screen.getByRole('link', { name: '链接' })
+    expect(link.getAttribute('href')).toBe('/index-panorama/')
+    expect(clickIsIntercepted(link)).toBe(false)
+    expect(isStaticToolPath('/index-panorama/')).toBe(true)
+    expect(isStaticToolPath('/index-panorama/#/index/000300.SH')).toBe(true)
+    expect(isStaticToolPath('/index-panoramax')).toBe(false)
   })
 })

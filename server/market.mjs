@@ -45,7 +45,9 @@ export async function handleMarket(req, res) {
     res.setHeader('Allow', 'GET')
     return res.status(405).json({ error: '只支持 GET 请求' })
   }
-  const { kind, symbol, symbols, begin, end, period } = req.query
+  const { kind, symbol, symbols, begin, end, period, adjust } = req.query
+  // 日线复权：默认前复权（网格等既有调用）；三方案回测传 adjust=hfq
+  const candleAdjust = adjust === 'hfq' ? 'hfq' : 'qfq'
   let url
   let yahoo = false
   if (kind === 'quotes' && typeof symbols === 'string' && symbols.length <= 899
@@ -53,7 +55,7 @@ export async function handleMarket(req, res) {
     url = `https://qt.gtimg.cn/q=${symbols}`
   } else if (kind === 'candles' && typeof symbol === 'string' && symbolPattern.test(symbol)
     && validDate(begin) && validDate(end) && begin <= end) {
-    url = `https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?${new URLSearchParams({ param: `${symbol},day,${begin},${end},640,qfq` })}`
+    url = `https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?${new URLSearchParams({ param: `${symbol},day,${begin},${end},640,${candleAdjust}` })}`
   } else if (kind === 'candles' && yahooTickerOf(symbol) && validDate(begin) && validDate(end) && begin <= end) {
     const period1 = Math.floor(Date.parse(begin) / 1000), period2 = Math.floor(Date.parse(end) / 1000) + 86_400
     url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooTickerOf(symbol))}?${new URLSearchParams({ period1: String(period1), period2: String(period2), interval: '1d', events: 'split' })}`

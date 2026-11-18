@@ -26,5 +26,15 @@ export const PLATE_RANKING_PATH = `${STOCK_LAB_BASE}#plate-ranking`
 /** 以 /note/ 开头的路径由静态托管提供，不属于前端路由，必须整页加载 */
 export const isNotesPath = (path: string): boolean => path === '/note' || path.startsWith('/note/')
 
+/** 指数全景：public/index-panorama/ 独立静态页（hash 路由 #/panorama、#/index/<代码>） */
+export const INDEX_PANORAMA_PATH = '/index-panorama/'
+
+/** 本站自带的独立静态工具页（不属于前端路由，必须整页加载） */
+export const isStaticToolPath = (path: string): boolean =>
+  path === INDEX_PANORAMA_PATH
+  || path === '/index-panorama'
+  || path.startsWith(`${INDEX_PANORAMA_PATH}#`)
+  || path.startsWith(`${INDEX_PANORAMA_PATH}index.html`)
+
 /** 完整的 http(s) 地址：不属于前端路由，也必须整页加载 */
 export const isAbsoluteUrl = (path: string): boolean => /^https?:\/\//i.test(path)
