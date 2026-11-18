@@ -5,8 +5,8 @@ import { cleanup, fireEvent, render, screen, within } from '@testing-library/rea
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import KplPlates from './KplPlates'
-import { platesExtras, platesFixture } from '../../features/kpl-plates/fixtures'
-import { asKplPlates, sortBoards } from '../../features/kpl-plates/model'
+import { platesExtras, platesFixture, platesRegionEtf } from '../../features/kpl-plates/fixtures'
+import { asKplPlates, heatItems, heatStep, sizeBucket, sortBoards, squarify } from '../../features/kpl-plates/model'
 
 const renderPage = () => render(<MemoryRouter initialEntries={['/market-mood/plates']}><KplPlates /></MemoryRouter>)
 const stub = (body: unknown, { status = 200, type = 'application/json' } = {}) => vi.stubGlobal('fetch', vi.fn(async () => ({
@@ -155,10 +155,98 @@ describe('板块分布、板块叠加、概念成分变动', () => {
     expect(screen.queryByText('概念成分变动')).toBeNull()
     const m = asKplPlates({ ...full(), intraday: { date: '2026-11-17', times: ['09:30'], boards: [{ code: 'x', name: 'x', kind: 'industry', values: [1, 2] }] } })!
     expect(m.intraday).toBeNull() // 点数与时间轴对不上的板块丢弃
-    for (const f of ['KplPlates.tsx', '../../features/kpl-plates/OverlayChart.tsx']) {
+    for (const f of ['KplPlates.tsx', '../../features/kpl-plates/OverlayChart.tsx', '../../features/kpl-plates/HeatMap.tsx', '../../features/kpl-plates/EtfLinks.tsx']) {
       const src = readFileSync(resolve(__dirname, f), 'utf8')
       expect(src).not.toMatch(/style=\{\{/)
       expect(src).not.toMatch(/#[0-9a-fA-F]{3,6}\b|rgba?\(/)
     }
+  })
+})
+
+describe('板块资金热力图、地域板块、板块关联 ETF', () => {
+  const r4 = () => ({ ...platesFixture(), ...platesRegionEtf() })
+
+  it('热力图：面积按 |主力净额|，颜色按涨跌幅分档；点按显示明细；有图例与表格视图', async () => {
+    stub(platesFixture())
+    renderPage()
+    const grid = await screen.findByRole('group', { name: '行业板块资金热力图（方块网格）' })
+    const tiles = within(grid).getAllByRole('button')
+    // 综合Ⅱ 主力净额缺失，不画；按 |主力净额| 降序
+    expect(tiles.map(t => t.querySelector('b')?.textContent)).toEqual(['电子化学品Ⅱ', '贵金属'])
+    expect(tiles[0].className).toContain('kp-heat--u2')
+    expect(tiles[1].className).toContain('kp-heat--u2')
+    expect(screen.getByText(/另有 1 个板块主力净流入缺失/)).toBeTruthy()
+    const tip = document.querySelector('.kp-heat__tip')!
+    expect(tip.textContent).toBe('悬停或点按方块查看明细')
+    fireEvent.click(tiles[1])
+    expect(tip.textContent).toContain('贵金属')
+    expect(tip.textContent).toContain('−1.20 亿')
+    expect(screen.getByRole('list', { name: '颜色图例：当日涨跌幅' }).textContent).toContain('≥ +3%')
+    const svg = screen.getByRole('group', { name: '行业板块资金热力图（矩形树图）' })
+    expect(svg.querySelectorAll('rect').length).toBe(2)
+    expect(screen.queryAllByRole('table').length).toBe(1)
+    fireEvent.click(screen.getByRole('button', { name: '以表格查看' }))
+    expect(within(screen.getByRole('region', { name: '行业板块资金热力图（表格）' })).getByText('贵金属')).toBeTruthy()
+    expect(screen.getByText(/方块面积 ∝ 当日主力净流入的绝对值/)).toBeTruthy()
+    // 旧数据没有地域：只有行业 / 概念
+    expect(within(screen.getByRole('group', { name: '热力图板块类型' })).queryByText('地域')).toBeNull()
+  })
+
+  it('地域板块：排行与热力图多出「地域」页签', async () => {
+    stub(r4())
+    renderPage()
+    await screen.findByRole('region', { name: '今日概览' })
+    fireEvent.click(within(screen.getByRole('group', { name: '板块类型' })).getByText('地域'))
+    const names = within(screen.getByRole('region', { name: '地域板块排行' })).getAllByRole('row').slice(1).map(r => r.querySelector('.kp-name')?.textContent)
+    expect(names).toEqual(['广东板块', '江苏板块'])
+    expect(screen.getAllByText(/按上市公司注册地划分/).length).toBeGreaterThan(0)
+    fireEvent.click(within(screen.getByRole('group', { name: '热力图板块类型' })).getByText('地域'))
+    expect(within(screen.getByRole('group', { name: '地域板块资金热力图（方块网格）' })).getByRole('button', { name: /江苏板块：涨跌幅 −1.35%，主力净额 −8.89 亿/ })).toBeTruthy()
+  })
+
+  it('板块关联 ETF：列 ETF、跟踪指数与匹配依据；没有对应的显示「暂无对应 ETF」', async () => {
+    stub(r4())
+    renderPage()
+    const b = await screen.findByRole('listitem', { name: '电子化学品Ⅱ 关联 ETF' })
+    expect(b.textContent).toContain('半导体ETF甲')
+    expect(b.textContent).toContain('跟踪 中证全指半导体产品与设备指数')
+    expect(b.textContent).toContain('匹配依据：规则「半导体 / 芯片」')
+    expect(b.textContent).toContain('ETF 12 只')
+    expect(b.textContent).toContain('+1.43%')
+    expect(screen.getByRole('listitem', { name: '贵金属 关联 ETF' }).textContent).toContain('暂无对应 ETF')
+    fireEvent.click(within(screen.getByRole('group', { name: 'ETF 板块类型' })).getByText('概念'))
+    expect(screen.getByRole('listitem', { name: '央国企改革 关联 ETF' }).textContent).toContain('关键词表未收录该板块')
+    expect(screen.getByText(/场内股票型 ETF 1379 只/)).toBeTruthy()
+    expect(document.body.textContent).not.toMatch(/建议买入|建议卖出|推荐买/)
+  })
+
+  it('ETF 模块缺失时显示空状态与原因', async () => {
+    stub({ ...platesFixture(), sectionErrors: { etf: 'ETF 行情不是 2026-11-17 收盘后数据' } })
+    renderPage()
+    expect(await screen.findByText('板块关联 ETF 暂无数据')).toBeTruthy()
+    expect(screen.getByText(/今日 ETF 数据未取到：ETF 行情不是/)).toBeTruthy()
+  })
+
+  it('模型：热力图取数、分档、大小分档、矩形树图面积成比例；ETF 校验', () => {
+    expect(heatStep(null)).toBe('na')
+    expect(heatStep(0)).toBe('n')
+    expect(heatStep(3)).toBe('u3')
+    expect(heatStep(0.5)).toBe('u1')
+    expect(heatStep(-0.5)).toBe('d1')
+    expect(heatStep(-3)).toBe('d3')
+    expect(sizeBucket(10, 10)).toBe('xl')
+    expect(sizeBucket(-2, 10)).toBe('l')
+    expect(sizeBucket(1, 10)).toBe('m')
+    const vals = [6, 6, 4, 3, 2, 2, 1]
+    const rects = squarify(vals, 600, 400)
+    expect(rects.length).toBe(vals.length)
+    rects.forEach((r, i) => expect(r.w * r.h).toBeCloseTo((vals[i] / 24) * 240000, 3))
+    for (const r of rects) { expect(r.x + r.w).toBeLessThanOrEqual(600.0001); expect(r.y + r.h).toBeLessThanOrEqual(400.0001) }
+    expect(squarify([], 10, 10)).toEqual([])
+    const m = asKplPlates({ ...r4(), etf: { ...r4().etf, boards: [{ code: 'x' }] } })!
+    expect(m.etf).toBeNull()
+    expect(asKplPlates(r4())!.region!.length).toBe(2)
+    expect(asKplPlates(platesFixture())!.region).toBeNull()
+    expect(heatItems(asKplPlates(platesFixture())!.industry).skipped).toBe(1)
   })
 })

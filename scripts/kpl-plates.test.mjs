@@ -4,6 +4,8 @@ import assert from 'node:assert/strict'
 import {
   MIN_MEMBERS, annotateBoards, bjTime, boardSeries, boardStrength, compactDay, num, parseBoardRow, parseClistPage, parseKline,
   parseStockMeta, rangeReturn, secidOf, seedDays, sortByStrength, strongHistory, validateBoards, ztGroups,
+  ETF_INDEX_TTL_DAYS, ETF_RULES, catalogIndexMap, etfRuleOf, keepSameDay, keywordsOf, linkBoardEtfs, parseEtfRow, parseFundIndex,
+  pickIndexFetch, ruleAccepts, validateEtfs,
 } from './kpl-plates-lib.mjs'
 
 // 2026-11-17 15:39:57 北京时间
@@ -51,9 +53,9 @@ test('板块数据日期：更新时间必须是当天 15:00 后，否则放弃�
 })
 
 test('个股所属板块：f100 行业、f103 概念逗号分隔，"-" 视为缺失', () => {
-  const m = parseStockMeta({ rc: 0, data: { diff: [{ f12: '000001', f100: '银行Ⅱ', f103: '融资融券, 深股通,-' }, { f12: '000002', f100: '-', f103: '-' }] } })
-  assert.deepEqual(m.get('000001'), { industry: '银行Ⅱ', concepts: ['融资融券', '深股通'] })
-  assert.deepEqual(m.get('000002'), { industry: null, concepts: [] })
+  const m = parseStockMeta({ rc: 0, data: { diff: [{ f12: '000001', f100: '银行Ⅱ', f102: '广东板块', f103: '融资融券, 深股通,-' }, { f12: '000002', f100: '-', f102: '-', f103: '-' }] } })
+  assert.deepEqual(m.get('000001'), { industry: '银行Ⅱ', region: '广东板块', concepts: ['融资融券', '深股通'] })
+  assert.deepEqual(m.get('000002'), { industry: null, region: null, concepts: [] })
   assert.equal(secidOf('600519'), '1.600519')
   assert.equal(secidOf('688981'), '1.688981')
   assert.equal(secidOf('300750'), '0.300750')
@@ -205,4 +207,92 @@ test('快照轮换：只认 prevTradingDay；同日重跑沿用原基准', () =>
   assert.equal(pickBase(b, null, '2026-11-17', '2026-11-16').base, null) // 上一交易日没快照，不拿更早的
   assert.equal(pickBase(null, null, '2026-11-17', '2026-11-16').base, null)
   assert.deepEqual(Object.keys(mergeChanges({ '2026-11-13': {}, '2026-11-16': {} }, '2026-11-17', {}, 2)), ['2026-11-16', '2026-11-17'])
+})
+
+/* ---------- 板块关联 ETF / 地域 ---------- */
+
+test('ETF 行：成交额换算亿元；"-" / null 为缺失；代码不对返回 null', () => {
+  assert.deepEqual(parseEtfRow({ f12: '512480', f14: ' 半导体ETF ', f3: 1.58, f6: 1.234e9, f124: TS }), { code: '512480', name: '半导体ETF', pct: 1.58, amount: 12.34, updatedAt: TS })
+  const r = parseEtfRow({ f12: '512480', f14: '半导体ETF', f3: '-', f6: '-', f124: '-' })
+  assert.equal(r.pct, null)
+  assert.equal(r.amount, null)
+  assert.equal(parseEtfRow({ f12: 'BK0001', f14: 'x' }), null)
+  assert.equal(parseEtfRow({ f12: '512480', f14: '-' }), null)
+})
+
+test('ETF 快照日期：有成交的 ETF 九成以上须是当天 15:00 后更新；未成交的不参与判断', () => {
+  const old = Date.UTC(2026, 10, 16, 7, 0, 0) / 1000
+  const rows = Array.from({ length: 10 }, (_, i) => ({ code: String(510000 + i), amount: 1, updatedAt: TS }))
+  assert.equal(validateEtfs([...rows, { code: '519999', amount: 0, updatedAt: old }], '2026-11-17', { min: 5 }).length, 11)
+  assert.throws(() => validateEtfs(rows, '2026-11-18', { min: 5 }), /不是 2026-11-18 收盘后/)
+  assert.throws(() => validateEtfs([...rows.slice(0, 8), ...rows.slice(8).map((x) => ({ ...x, updatedAt: old }))], '2026-11-17', { min: 5 }), /收盘后/)
+  assert.throws(() => validateEtfs(rows, '2026-11-17'), /数量异常/)
+})
+
+test('基金资料：INDEXCODE / INDEXNAME 为 "--" 时为 null；代码不符报错', () => {
+  assert.deepEqual(parseFundIndex({ ErrCode: 0, Datas: { FCODE: '512480', INDEXCODE: 'H30184', INDEXNAME: '中证全指半导体产品与设备指数' } }, '512480'), { indexCode: 'H30184', indexName: '中证全指半导体产品与设备指数' })
+  assert.deepEqual(parseFundIndex({ ErrCode: 0, Datas: { FCODE: '510010', INDEXCODE: '--', INDEXNAME: '--' } }, '510010'), { indexCode: null, indexName: null })
+  assert.throws(() => parseFundIndex({ ErrCode: 0, Datas: null }, '512480'), /结构异常/)
+  assert.throws(() => parseFundIndex({ ErrCode: 0, Datas: { FCODE: '000001' } }, '512480'), /结构异常/)
+})
+
+test('补查顺序：缓存缺失或过期的，按成交额降序，限量', () => {
+  const etfs = [{ code: 'a', amount: 1 }, { code: 'b', amount: 9 }, { code: 'c', amount: null }, { code: 'd', amount: 5 }]
+  const cache = { d: { fetchedAt: '2026-11-10' }, a: { fetchedAt: '2026-01-01' } }
+  assert.deepEqual(pickIndexFetch(etfs, cache, '2026-11-18', 10), ['b', 'a', 'c'])
+  assert.deepEqual(pickIndexFetch(etfs, cache, '2026-11-18', 1), ['b'])
+  assert.ok(ETF_INDEX_TTL_DAYS >= 30)
+})
+
+test('关键词表：板块名不重复；关键词可读；排除港股 / 海外指数', () => {
+  const seen = new Set()
+  for (const r of ETF_RULES) for (const b of r.boards) { assert.ok(!seen.has(b), `板块重复：${b}`); seen.add(b) }
+  const semi = etfRuleOf('半导体')
+  assert.deepEqual(keywordsOf(semi), ['半导体', '芯片', '集成电路'])
+  assert.ok(ruleAccepts(semi, '中证全指半导体产品与设备指数'))
+  assert.ok(ruleAccepts(semi, '国证半导体芯片指数'))
+  assert.ok(!ruleAccepts(semi, '中证港股通半导体指数'))
+  assert.ok(ruleAccepts(etfRuleOf('证券Ⅱ'), '中证全指证券公司指数'))
+  assert.ok(!ruleAccepts(etfRuleOf('证券Ⅱ'), '中证500指数'))
+  assert.ok(!ruleAccepts(etfRuleOf('医疗服务'), '中证全指医疗器械指数'))
+  assert.ok(ruleAccepts(etfRuleOf('医疗器械'), '中证全指医疗器械指数'))
+  assert.ok(!ruleAccepts(etfRuleOf('汽车零部件'), '中证新能源汽车指数'))
+  assert.deepEqual(keywordsOf(etfRuleOf('医疗服务')), ['医疗'])
+  assert.equal(etfRuleOf('昨日涨停'), null)
+  assert.equal(etfRuleOf('综合Ⅱ'), null)
+})
+
+test('板块 → ETF：按成交额排序取前几只，平均涨幅忽略缺失；没规则 / 没命中显示为空', () => {
+  const etfs = [
+    { code: '512480', name: '半导体ETF', pct: 1.5, amount: 20 },
+    { code: '159995', name: '芯片ETF', pct: null, amount: 30 },
+    { code: '512880', name: '证券ETF', pct: -0.4, amount: 15 },
+    { code: '513000', name: '无指数ETF', pct: 1, amount: 99 },
+  ]
+  const idx = { 512480: '中证全指半导体产品与设备指数', 159995: '国证芯片指数', 512880: '中证全指证券公司指数' }
+  const indexOf = (c) => (idx[c] ? { indexCode: null, indexName: idx[c], basis: c === '512880' ? 'catalog' : 'em' } : null)
+  const [semi, broker, none, bank] = linkBoardEtfs([
+    { code: 'BK1036', name: '半导体', kind: 'industry' }, { code: 'BK0473', name: '证券Ⅱ', kind: 'industry' },
+    { code: 'BK9', name: '昨日涨停', kind: 'concept' }, { code: 'BK0475', name: '银行Ⅱ', kind: 'industry' },
+  ], etfs, indexOf, { top: 5 })
+  assert.deepEqual(semi.etfs.map((e) => e.code), ['159995', '512480'])
+  assert.equal(semi.count, 2)
+  assert.equal(semi.avgPct, 1.5)
+  assert.equal(semi.amount, 50)
+  assert.deepEqual(semi.rule, { id: 'semi', label: '半导体 / 芯片', keywords: ['半导体', '芯片', '集成电路'], scope: 'exact' })
+  assert.equal(broker.etfs[0].basis, 'catalog')
+  assert.equal(none.rule, null)
+  assert.equal(none.count, 0)
+  assert.equal(none.avgPct, null)
+  assert.equal(bank.count, 0)
+  assert.ok(bank.rule)
+})
+
+test('站内核验目录只取 tracks；同日上一份才沿用', () => {
+  const m = catalogIndexMap({ relations: [{ code: '512880', relationship: 'tracks', indexCode: '399975', indexName: '中证全指证券公司指数' }, { code: '510000', relationship: 'related_theme', indexName: 'x' }] })
+  assert.deepEqual([...m.keys()], ['512880'])
+  assert.equal(catalogIndexMap(null).size, 0)
+  assert.deepEqual(keepSameDay({ asOf: '2026-11-18', etf: { a: 1 } }, '2026-11-18', 'etf'), { a: 1 })
+  assert.equal(keepSameDay({ asOf: '2026-11-17', etf: { a: 1 } }, '2026-11-18', 'etf'), null)
+  assert.equal(keepSameDay(null, '2026-11-18', 'etf'), null)
 })

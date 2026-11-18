@@ -43,6 +43,24 @@ export const platesFixture = () => ({
   sources: [{ id: 'boards', label: '东方财富行业 / 概念板块行情', url: 'https://quote.eastmoney.com/center/boardlist.html' }],
 })
 
+/** 地域板块与板块关联 ETF */
+export const platesRegionEtf = () => ({
+  region: [
+    board('BK0153', '广东板块', { strength: 48, pct: -0.66, mainNet: 10.92, amount: 2574.6 }),
+    board('BK0159', '江苏板块', { strength: 41, pct: -1.35, mainNet: -8.89, amount: 1665.8 }),
+  ],
+  etf: {
+    date: '2026-11-17', universe: 1379, indexed: 1200, withoutIndex: 20, pending: 159,
+    boards: [
+      { code: 'BK0001', name: '电子化学品Ⅱ', kind: 'industry', rule: { id: 'semi', label: '半导体 / 芯片', keywords: ['半导体', '芯片', '集成电路'], scope: 'exact' }, count: 12, avgPct: 1.43, amount: 85.6, indexes: ['中证全指半导体产品与设备指数'],
+        etfs: [{ code: '512480', name: '半导体ETF甲', pct: 1.58, amount: 20.1, indexCode: 'H30184', indexName: '中证全指半导体产品与设备指数', basis: 'em' }] },
+      { code: 'BK0002', name: '贵金属', kind: 'industry', rule: { id: 'gold', label: '黄金股', keywords: ['黄金股'], scope: 'exact' }, count: 0, avgPct: null, amount: null, indexes: [], etfs: [] },
+      { code: 'BK1002', name: '央国企改革', kind: 'concept', rule: null, count: 0, avgPct: null, amount: null, indexes: [], etfs: [] },
+    ],
+  },
+  sectionErrors: {},
+})
+
 const T = ['09:30', '09:31', '11:30', '13:01', '15:00']
 /** 附加模块：板块分布、分时叠加、概念成分变动 */
 export const platesExtras = () => ({
