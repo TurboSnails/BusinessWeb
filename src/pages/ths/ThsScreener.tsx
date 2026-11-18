@@ -1,4 +1,5 @@
-// 同花顺 · 技术选股（/ths-mood/screener）：收盘后按固定公式对全市场机械筛选（均线、MACD、RSI、新高新低、K 线形态）+ 市场宽度走势。
+// 同花顺 · 技术选股（/ths-mood/screener）：收盘后按固定公式对全市场机械筛选（均线、MACD、RSI、KDJ、BOLL、新高新低、K 线形态）
+// + 当日量能条件（量比 / 换手 / 振幅快照）+ 市场宽度走势。
 // 数据只读复用开盘啦「复盘」页的全市场日线快照仓，由 scripts/ths-screener.mjs 生成。历史统计，不是买卖信号。
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -7,7 +8,7 @@ import { PageTitle } from '../../components/ui/PageTabs'
 import ThsTabs, { THS_DISCLAIMER } from '../../features/ths-tabs/ThsTabs'
 import MoodChart from '../../features/market-mood/MoodChart'
 import StockTable, { num, pct, tone, type Col } from '../../features/kpl-daban/StockTable'
-import { METHOD, asThsScreener, byIndustry, rowsOf, type BreadthDay, type Preset, type Row, type ThsScreenerData } from '../../features/ths-screener/model'
+import { METHOD, asThsScreener, byIndustry, rowsOf, snapRowsOf, type BreadthDay, type Preset, type Row, type Snapshot, type SnapRow, type ThsScreenerData } from '../../features/ths-screener/model'
 import '../../styles/market-mood.css'
 import '../../styles/kpl-daban.css'
 import '../../styles/ths-screener.css'
@@ -27,13 +28,68 @@ const metricText = (d: BreadthDay | undefined, m: Metric): string => {
   return v === null ? '—' : METRICS.find(x => x.id === m)?.format(v) ?? '—'
 }
 const avg = (xs: Array<number | null>): number | null => { const v = xs.filter((x): x is number => x !== null); return v.length ? v.reduce((s, x) => s + x, 0) / v.length : null }
-const xText = (p: Preset, x: number | null): string => x === null ? '—' : p.xUnit === '%' ? pct(x) : p.xUnit ? `${num(x, 0)} ${p.xUnit}` : num(x, p.id.startsWith('rsi') ? 1 : 3)
+// 展示值是幅度 / 离散度而不是涨跌（均线离散度、布林带宽）：不带正负号、不上红绿色
+const NEUTRAL = new Set(['tangle', 'squeeze'])
+const xText = (p: Preset, x: number | null): string => x === null ? '—' : NEUTRAL.has(p.id) ? `${num(x, 2)}%` : p.xUnit === '%' ? pct(x) : p.xUnit ? `${num(x, 0)} ${p.xUnit}` : num(x, p.id.startsWith('rsi') || p.id.startsWith('kdj') ? 1 : 3)
+const plain = (x: number | null, d = 2, unit = ''): string => x === null ? '—' : `${num(x, d)}${unit}`
+
+function IndustryTable({ label, groups, total }: { label: string; groups: ReturnType<typeof byIndustry>; total: number }): JSX.Element {
+  return <TableWrap label={`${label} 按行业汇总`}>
+    <table className="mm-table ts-industry">
+      <thead><tr><th scope="col">行业</th><th scope="col" className="num">家数</th><th scope="col" className="num">占命中</th><th scope="col">个股</th></tr></thead>
+      <tbody>{groups.map(g => <tr key={g.industry}>
+        <th scope="row">{g.industry}</th><td className="num">{g.count}</td><td className="num">{num((g.count / total) * 100, 1)}%</td>
+        <td className="ts-names">{g.names.slice(0, 6).join('、')}{g.names.length > 6 ? ` 等 ${g.names.length} 只` : ''}</td>
+      </tr>)}</tbody>
+    </table>
+  </TableWrap>
+}
+
+function PresetButtons({ group, presets, sel, onSel }: { group: string; presets: Preset[]; sel: string; onSel: (id: string) => void }): JSX.Element {
+  return <div className="ts-presets" role="group" aria-label={`${group}预设`}>
+    {presets.map(p => <button key={p.id} type="button" className="ts-preset" aria-pressed={p.id === sel} onClick={() => onSel(p.id)}>
+      <span className="ts-preset__label">{p.label}</span>
+      <strong className="ts-preset__count">{p.count}</strong>
+      <span className="ts-preset__sub">{p.history.length > 1 ? `近 ${p.history.length} 日均 ${num(avg(p.history.map(h => h.count)), 0)}` : '首日采集'}</span>
+    </button>)}
+  </div>
+}
+
+function SnapshotCard({ snap, note }: { snap: Snapshot | null; note: string | null }): JSX.Element {
+  const [sel, setSel] = useState(snap?.presets[0]?.id ?? '')
+  const p = snap?.presets.find(x => x.id === sel) ?? snap?.presets[0]
+  const rows = useMemo(() => (p && snap ? snapRowsOf(p, snap.stocks) : []), [p, snap])
+  const groups = useMemo(() => byIndustry(rows), [rows])
+  if (!snap || !p) return <Card title="量能条件（当日快照）" as="section" className="mm-card">
+    <EmptyState title="暂无当日量能数据">{note ?? '当日量能快照缺失。'}</EmptyState>
+    <p className="mm-method">{METHOD.snapshot}</p>
+  </Card>
+  const cols: Array<Col<SnapRow>> = [
+    { key: 'x', label: p.xLabel, num: true, render: r => p.xUnit === '%' ? plain(r.x, 2, '%') : plain(r.x), sort: r => r.x },
+    { key: 'industry', label: '行业', render: r => r.industry || '—', sort: r => r.industry || null },
+    { key: 'close', label: '收盘', num: true, render: r => num(r.close, 2), sort: r => r.close },
+    { key: 'pct', label: '涨跌幅', num: true, render: r => pct(r.pct), sort: r => r.pct, cls: r => tone(r.pct) },
+    { key: 'volRatio', label: '量比', num: true, render: r => plain(r.volRatio), sort: r => r.volRatio },
+    { key: 'turnover', label: '换手率', num: true, render: r => plain(r.turnover, 2, '%'), sort: r => r.turnover },
+    { key: 'amount', label: '成交额', num: true, render: r => plain(r.amount, 2, ' 亿'), sort: r => r.amount },
+    { key: 'amp', label: '振幅', num: true, render: r => plain(r.amp, 2, '%'), sort: r => r.amp },
+  ]
+  return <Card title="量能条件（当日快照）" as="section" className="mm-card" description={`${snap.date} 收盘后快照 · 当日有成交 ${snap.eligible} 只 · 点选查看公式与命中个股`}>
+    <PresetButtons group="量能" presets={snap.presets} sel={p.id} onSel={setSel} />
+    <h3 className="ts-h3">{p.label}：{p.count} 家</h3>
+    <p className="ts-formula"><strong>公式</strong>{p.formula}</p>
+    {p.history.length > 1 && <MoodChart label={`${p.label} 已采集 ${p.history.length} 日命中家数`} kind="bar" points={p.history.map(h => ({ date: h.date, value: h.count }))} format={v => `${Math.round(v)} 家`} />}
+    <StockTable label={`${p.label} 命中个股`} rows={rows} cols={cols} initial={{ key: 'x', dir: 'desc' }} empty="今日没有股票满足这个条件。" />
+    {groups.length > 0 && <IndustryTable label={p.label} groups={groups} total={rows.length} />}
+    <p className="mm-method">{METHOD.snapshot}</p>
+  </Card>
+}
 
 function PresetDetail({ p, data }: { p: Preset; data: ThsScreenerData }): JSX.Element {
   const rows = useMemo(() => rowsOf(p, data.stocks), [p, data.stocks])
   const groups = useMemo(() => byIndustry(rows), [rows])
   const cols: Array<Col<Row>> = [
-    { key: 'x', label: p.xLabel, num: true, render: r => xText(p, r.x), sort: r => r.x, cls: r => (p.xUnit === '%' ? tone(r.x) : '') },
+    { key: 'x', label: p.xLabel, num: true, render: r => xText(p, r.x), sort: r => r.x, cls: r => (p.xUnit === '%' && !NEUTRAL.has(p.id) ? tone(r.x) : '') },
     { key: 'industry', label: '行业', render: r => r.industry || '—', sort: r => r.industry || null },
     { key: 'close', label: '收盘', num: true, render: r => num(r.close, 2), sort: r => r.close },
     { key: 'pct', label: '涨跌幅', num: true, render: r => pct(r.pct), sort: r => r.pct, cls: r => tone(r.pct) },
@@ -49,15 +105,7 @@ function PresetDetail({ p, data }: { p: Preset; data: ThsScreenerData }): JSX.El
     <StockTable label={`${p.label} 命中个股`} rows={rows} cols={cols} initial={{ key: 'x', dir: p.asc ? 'asc' : 'desc' }} empty="今日没有股票满足这个条件。" />
     {groups.length > 0 && <>
       <h3 className="ts-h3">按行业汇总</h3>
-      <TableWrap label={`${p.label} 按行业汇总`}>
-        <table className="mm-table ts-industry">
-          <thead><tr><th scope="col">行业</th><th scope="col" className="num">家数</th><th scope="col" className="num">占命中</th><th scope="col">个股</th></tr></thead>
-          <tbody>{groups.map(g => <tr key={g.industry}>
-            <th scope="row">{g.industry}</th><td className="num">{g.count}</td><td className="num">{num((g.count / rows.length) * 100, 1)}%</td>
-            <td className="ts-names">{g.names.slice(0, 6).join('、')}{g.names.length > 6 ? ` 等 ${g.names.length} 只` : ''}</td>
-          </tr>)}</tbody>
-        </table>
-      </TableWrap>
+      <IndustryTable label={p.label} groups={groups} total={rows.length} />
       <p className="mm-method">行业取东方财富行业分类（代码表当前值）；缺失的归入「未分类」。</p>
     </>}
   </Card>
@@ -93,18 +141,14 @@ export default function ThsScreener(): JSX.Element {
         <Card title="选股预设" as="section" className="mm-card" description="今日命中家数；点选查看公式、近 20 日走势与命中个股。">
           {groups.map(g => <div key={g} className="ts-group">
             <h3 className="ts-h3">{g}</h3>
-            <div className="ts-presets" role="group" aria-label={`${g}预设`}>
-              {data.presets.filter(p => p.group === g).map(p => <button key={p.id} type="button" className="ts-preset" aria-pressed={p.id === preset.id} onClick={() => setSel(p.id)}>
-                <span className="ts-preset__label">{p.label}</span>
-                <strong className="ts-preset__count">{p.count}</strong>
-                <span className="ts-preset__sub">近 20 日均 {num(avg(p.history.map(h => h.count)), 0)}</span>
-              </button>)}
-            </div>
+            <PresetButtons group={g} presets={data.presets.filter(p => p.group === g)} sel={preset.id} onSel={setSel} />
           </div>)}
           <p className="mm-method">{METHOD.eligible}</p>
         </Card>
 
         <PresetDetail key={preset.id} p={preset} data={data} />
+
+        <SnapshotCard snap={data.snapshot} note={data.snapshotNote} />
 
         <Card title="市场宽度（回算）" as="section" className="mm-card" description={`全市场每日走势，共 ${data.breadth.length} 个交易日`}>
           <dl className="ts-summary">

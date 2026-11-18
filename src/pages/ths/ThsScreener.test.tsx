@@ -37,9 +37,37 @@ describe('同花顺 · 技术选股页', () => {
     expect(screen.getByRole('img', { name: '站上 20 日线家数占比' })).toBeTruthy()
     fireEvent.click(within(screen.getByRole('group', { name: '宽度指标' })).getByText('涨跌家数比'))
     expect(screen.getByRole('img', { name: '涨跌家数比（上涨 ÷ 下跌）' })).toBeTruthy()
-    expect(screen.getByText(/快照仓没有成交量/)).toBeTruthy()
+    expect(screen.getByText(/需要历史成交量的条件/)).toBeTruthy()
+    expect(screen.queryByText(/KDJ、BOLL 等其他指标/)).toBeNull()
     expect(screen.getByRole('link', { name: '复盘' }).getAttribute('href')).toBe('/market-mood/review')
     expect(document.body.textContent).not.toMatch(/建议买入|建议卖出|胜率/)
+  })
+  it('当日量能快照：条件切换、量比 / 换手 / 成交额列与口径', async () => {
+    stub(screenerFixture()); renderPage()
+    const card = (await screen.findByText('量能条件（当日快照）')).closest('section') as HTMLElement
+    expect(within(card).getByText('放量上涨：2 家')).toBeTruthy()
+    expect(within(card).getByText('量比 ≥ 2 且涨幅 ≥ 3%。')).toBeTruthy()
+    const table = within(card).getAllByRole('region', { name: '放量上涨 命中个股' })[0]
+    expect(within(table).getAllByRole('rowheader').map(h => h.textContent)).toEqual(['样本甲600001', '样本乙000002'])
+    expect(within(table).getByText('8.50 亿')).toBeTruthy()
+    expect(within(table).getAllByText('—')).toHaveLength(2) // 行业、换手缺失显示 —，不是 0
+    expect(within(card).getByText(/快照本身不带日期/)).toBeTruthy()
+    fireEvent.click(within(within(card).getByRole('group', { name: '量能预设' })).getByRole('button', { name: /高换手/ }))
+    expect(within(card).getByText('高换手 ≥10%：1 家')).toBeTruthy()
+    expect(within(card).getByRole('button', { name: /高换手/ }).textContent).toContain('首日采集')
+  })
+  it('量能快照缺失时只在该区块显示 EmptyState 与原因，其余部分照常', async () => {
+    const x = screenerFixture(); x.snapshot = null; x.snapshotNote = '量能快照采集失败（超时），本区块暂缺。'
+    stub(x); renderPage()
+    expect(await screen.findByText('暂无当日量能数据')).toBeTruthy()
+    expect(screen.getByText(/量能快照采集失败/)).toBeTruthy()
+    expect(screen.getByText('均线多头排列：3 家')).toBeTruthy()
+  })
+  it('旧文件没有量能字段：按缺失处理', async () => {
+    const x: any = screenerFixture(); delete x.snapshot; delete x.snapshotNote
+    expect(asThsScreener(x)?.snapshot).toBeNull()
+    stub(x); renderPage()
+    expect(await screen.findByText('暂无当日量能数据')).toBeTruthy()
   })
   it.each([null, '<!doctype html><html></html>', { version: 1 }])('空文件或 200 HTML 回退显示 EmptyState (%j)', async body => {
     stub(body); renderPage()
@@ -61,6 +89,7 @@ describe('技术选股运行时模型', () => {
     expect(d).not.toBeNull()
     expect(d?.asOf).toBe('2026-11-17')
     expect(d?.presets.every(p => p.history.length === 20)).toBe(true)
+    expect(d?.presets.map(p => p.id)).toEqual(expect.arrayContaining(['bollUp', 'bollDown', 'squeeze', 'kdjGold', 'high120', 'low120', 'dstreak', 'tangle']))
   })
   it('完整数据通过；日期、计数、字符串数字、缺个股、链接协议校验', () => {
     expect(asThsScreener(screenerFixture())).not.toBeNull()
@@ -77,6 +106,13 @@ describe('技术选股运行时模型', () => {
       (x: any) => { x.breadth[0].up = 1.5 },
       (x: any) => { x.stocks['600001'][2] = '10.5' },
       (x: any) => { x.sources = [{ label: 'x', url: 'javascript:alert(1)' }] },
+      (x: any) => { x.snapshot.date = '2026-11-16' },
+      (x: any) => { x.snapshot.presets[0].count = 3 },
+      (x: any) => { delete x.snapshot.stocks['000002'] },
+      (x: any) => { x.snapshot.stocks['600001'][4] = '3.5' },
+      (x: any) => { x.snapshot.stocks['600001'] = x.snapshot.stocks['600001'].slice(0, 6) },
+      (x: any) => { x.snapshot.presets[0].eligible = 9999 },
+      (x: any) => { x.snapshotNote = 1 },
     ]) { const x = screenerFixture(); mutate(x); expect(asThsScreener(x)).toBeNull() }
   })
   it('行业汇总按家数降序', () => {
