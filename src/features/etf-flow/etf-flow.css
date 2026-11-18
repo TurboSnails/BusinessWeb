@@ -29,9 +29,17 @@
 .etf-flow__tip-row { display: flex; justify-content: space-between; gap: 14px; white-space: nowrap; }
 .etf-flow__tip-k { display: inline-flex; align-items: center; gap: 6px; opacity: .85; }
 .etf-flow__note, .etf-flow__foot { font-size: 13px; color: var(--text-secondary, #6b675c); margin: 10px 0 0; }
-.etf-kpi--up .stat__value { color: #c0392b; }
-.etf-kpi--down .stat__value { color: #1e8449; }
+.etf-kpi--up .ui-stat__value,
+.etf-kpi--up.num { color: #c0392b; }
+.etf-kpi--down .ui-stat__value,
+.etf-kpi--down.num { color: #1e8449; }
 .lab-hub-links { display: flex; flex-wrap: wrap; gap: 8px 14px; margin: 0 0 16px; font-size: 13px; }
 .lab-hub-links a { color: var(--accent, #2f6bff); }
+.lab-hub-links--center { align-items: center; }
+.lab-stack { display: grid; gap: 12px; }
+.lab-text-btn {
+  border: 0; padding: 0; background: none; color: var(--accent, #2f6bff);
+  font: inherit; cursor: pointer; text-decoration: underline;
+}
 
 .etf-flow__plot { position: relative; }
