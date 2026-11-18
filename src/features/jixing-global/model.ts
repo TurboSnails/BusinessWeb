@@ -94,7 +94,6 @@ export function asJixingGlobal(x: unknown): JixingGlobalData | null {
 
 export const fix = (v: number | null | undefined, d = 2): string => (v === null || v === undefined || !Number.isFinite(v) ? '—' : v.toFixed(d))
 export const pct = (v: number | null | undefined): string => (v === null || v === undefined ? '—' : `${v.toFixed(1)}%`)
-export const stateClass = (s: ValState | null): string => (s === '低估' ? 'jg-state is-low' : s === '高估' ? 'jg-state is-high' : s === '正常' ? 'jg-state is-mid' : 'jg-state')
 export const basisLabel = (r: ValRow): string => (r.basis === 'dy' ? '股息率（反向）' : 'PE')
 
 /** 图上不画的 PE：亏损（负值）或超过 200 倍（盈利接近零），只影响图，不影响分位计算。 */

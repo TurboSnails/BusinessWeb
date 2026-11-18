@@ -14,14 +14,27 @@
 .js-ruler__band.is-b3 { fill: var(--accent-warm); fill-opacity: 0.55; }
 .js-ruler__band.is-b4 { fill: var(--down); fill-opacity: 0.45; }
 .js-ruler__band.is-b5 { fill: var(--down); }
-.js-ruler__label { fill: var(--text-secondary); font-size: 13px; }
-.js-ruler__tick { fill: var(--text-tertiary); font-size: 12px; }
 .js-ruler__mark { fill: var(--text-primary); }
 .js-ruler__needle { stroke: var(--text-primary); stroke-width: 2; }
+/* 刻度与区间标签在 SVG 外，字号不受 viewBox 缩放影响，窄屏也 ≥12px */
+.js-ruler__ticks, .js-ruler__labels {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 2px;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--text-secondary);
+}
+.js-ruler__ticks { margin-bottom: 2px; color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
+.js-ruler__ticks span { text-align: left; }
+.js-ruler__ticks .is-end { position: relative; }
+.js-ruler__ticks em { position: absolute; right: 0; font-style: normal; }
+.js-ruler__labels span { text-align: center; }
 .js-sub { font-size: 0.95rem; margin: 18px 0 6px; }
 .js-list { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 8px; line-height: 1.7; font-size: 0.88rem; color: var(--text-secondary); }
 @media (max-width: 480px) {
   .js-hero__star strong { font-size: 2.8rem; }
-  .js-ruler__label { font-size: 15px; }
+  .js-ruler__ticks, .js-ruler__labels { font-size: 12px; }
 }
 .js-table th, .js-table td { white-space: nowrap; }

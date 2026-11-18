@@ -9,7 +9,7 @@ import { addDays, CSI, csiValUrl } from './ths-market-lib.mjs'
 import { weekEnds } from './ths-industry-lib.mjs'
 import {
   buildRow, canPublish, histPayload, INDICES, INDUSTRY_PB_FROM, industryPbUrl, marketCloses, mergeHistory,
-  parseCniSnapshot, parseCsiHistory, parseCsiSnapshot, parseIndustryPb, PB_INDUSTRY, slimRow, sourceDate,
+  parseCniSnapshot, parseCsiHistory, parseCsiSnapshot, parseIndustryPb, planIndustryFetch, slimRow, sourceDate,
 } from './jixing-table-lib.mjs'
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
@@ -99,49 +99,47 @@ function saveIndustryStore(store) {
   writeJson(INDUSTRY_STORE, { version: 1, byDate: store.byDate })
 }
 
-/** 补齐行业 PB：历史按周采样，日常补最近缺失交易日；单次请求有上限。 */
-async function ensureIndustryPb(target, { cap = INDUSTRY_CAP, daily = true } = {}) {
+/**
+ * 补齐行业 PB。
+ * daily：只补目标日 + 近 10 交易日（目标优先）；周采样仅 rebuild。
+ * 已查询日期（含空/`{}`、接口回退日）不再重抓；单日失败 catch 跳过（I1）。
+ */
+async function ensureIndustryPb(target, { cap = INDUSTRY_CAP, rebuild = false } = {}) {
   const store = loadIndustryStore()
-  const needed = new Set(weekEnds(INDUSTRY_PB_FROM, target))
-  if (daily && isTradingDay(target)) needed.add(target)
-  // 也补近 10 个交易日，避免只靠周采样漏掉最新几天
-  if (daily) {
-    let d = target
-    for (let i = 0; i < 10; i++) {
-      if (isTradingDay(d)) needed.add(d)
-      d = addDays(d, -1)
-    }
-  }
-  const missing = [...needed].filter(d => {
-    const row = store.byDate[d]
-    if (!row) return true
-    return Object.keys(PB_INDUSTRY).some(code => !row[code] || !Number.isFinite(row[code].pb))
-  }).sort()
+  const extra = rebuild
+    ? weekEnds(INDUSTRY_PB_FROM, target).filter(d => isTradingDay(d))
+    : []
+  const missing = planIndustryFetch(store, target, { recent: 10, extra })
   let fetched = 0
-  for (let i = 0; i < missing.length && fetched < cap; i += 6) {
-    const batch = missing.slice(i, i + 6)
+  let cursor = 0
+  while (cursor < missing.length && fetched < cap) {
+    const batch = missing.slice(cursor, cursor + Math.min(6, cap - fetched))
+    cursor += batch.length
     await Promise.all(batch.map(async date => {
-      const body = await get(industryPbUrl(date))
-      const parsed = parseIndustryPb(body, date)
-      if (!parsed.size) {
-        // 明确无匹配时记空对象，避免同一无效日反复请求
-        if (String(body?.code) === '200' && sourceDate(body?.data?.tradeDate) === date) {
+      try {
+        const body = await get(industryPbUrl(date))
+        const parsed = parseIndustryPb(body, date)
+        if (parsed.size) {
+          const slot = { ...(store.byDate[date] ?? {}) }
+          for (const [code, value] of parsed) {
+            slot[code] = {
+              pb: value.pb, dp: value.dp, industryCode: value.industryCode, industryName: value.industryName,
+            }
+          }
+          store.byDate[date] = slot
+          fetched++
+        } else if (String(body?.code) === '200') {
+          // 同日无匹配或接口回退到别日：记已查询，避免反复打（B1）
           store.byDate[date] = store.byDate[date] ?? {}
+          fetched++
         }
-        return
+      } catch {
+        // 单日失败不中断整表；能否发布交给 canPublish（I1）
       }
-      const slot = store.byDate[date] ?? {}
-      for (const [code, value] of parsed) {
-        slot[code] = {
-          pb: value.pb, dp: value.dp, industryCode: value.industryCode, industryName: value.industryName,
-        }
-      }
-      store.byDate[date] = slot
-      fetched++
     }))
     saveIndustryStore(store)
   }
-  return { store, missing: missing.length, fetched }
+  return { store, missing: missing.length, fetched, planned: missing }
 }
 
 function industryHistoryPoints(store, indexCode, target) {
@@ -163,11 +161,11 @@ function applyIndustryObservation(observations, store, date) {
   for (const index of INDICES.filter(i => i.pbIndustry)) {
     const hit = slot[index.code]
     const current = observations.get(index.code)
-    if (!hit || !current) continue
+    if (!hit || !current || !(hit.pb > 0)) continue
     observations.set(index.code, {
       ...current,
       pb: hit.pb,
-      dp: current.dp ?? hit.dp,
+      dp: null, // 不混填行业股息率（I2）
       industryCode: hit.industryCode,
       industryName: hit.industryName,
     })
@@ -232,19 +230,23 @@ function rebuildFromStore(date, store) {
       throw new Error(`缺少 ${index.code} 在 ${date} 的 PE 历史，无法 --rebuild`)
     }
     const slot = store.byDate[date]?.[index.code]
-    const pb = index.pbIndustry ? slot?.pb ?? null : last[2]
     observations.set(index.code, {
-      date, pe: last[1], pb, dp: slot?.dp ?? null,
-      industryCode: slot?.industryCode, industryName: slot?.industryName,
+      date,
+      pe: last[1],
+      pb: index.pbIndustry ? (slot?.pb ?? null) : last[2],
+      dp: null,
+      industryCode: slot?.industryCode,
+      industryName: slot?.industryName,
     })
     histories.set(index.code, [])
   }
-  // snapshot/cni 行的 pb/dp 已在 raw 末行；若 raw 无 pb，尝试沿用已发布主表
+  // snapshot/cni：raw 末行可能只有 pe/pb；股息率从已发布主表回填（行业行保持 null）
   const published = readJson(OUT, null)
   if (published?.asOf === date) {
     for (const row of published.rows ?? []) {
       const cur = observations.get(row.code)
-      if (!cur) continue
+      const meta = INDICES.find(i => i.code === row.code)
+      if (!cur || meta?.pbIndustry) continue
       if (cur.pb == null && row.pb != null) cur.pb = row.pb
       if (cur.dp == null && row.dp != null) cur.dp = row.dp
     }
@@ -263,18 +265,21 @@ async function main() {
     : cfgDate(new Date(), dateArg)
   if (!date) return console.log('A股估值表：未到北京 15:10 或休市，保留上一份数据')
 
-  const { store, missing, fetched } = await ensureIndustryPb(date, {
-    cap: rebuild ? Number(process.env.INDUSTRY_PB_CAP ?? 700) : INDUSTRY_CAP,
-  })
-  console.log(`行业 PB：待补 ${missing} 日，本轮写入 ${fetched} 日（库存 ${Object.keys(store.byDate).length} 日）`)
-
   if (rebuild) {
+    const { store, missing, fetched } = await ensureIndustryPb(date, {
+      cap: Number(process.env.INDUSTRY_PB_CAP ?? 700), rebuild: true,
+    })
+    console.log(`行业 PB：待补 ${missing} 日，本轮写入 ${fetched} 日（库存 ${Object.keys(store.byDate).length} 日）`)
     rebuildFromStore(date, store)
     return console.log(`A股估值表：已按本地历史重建 ${date}，${INDICES.length} 条指数`)
   }
 
   const prior = readJson(OUT, null)?.asOf ?? null
   if (prior && prior >= date) return console.log(`A股估值表：已发布 ${prior}，跳过 ${date}`)
+
+  // 已发布检查之后再抓行业 PB，避免同日重复请求（B1）
+  const { store, missing, fetched } = await ensureIndustryPb(date, { cap: INDUSTRY_CAP, rebuild: false })
+  console.log(`行业 PB：待补 ${missing} 日，本轮写入 ${fetched} 日（库存 ${Object.keys(store.byDate).length} 日）`)
 
   const snapshot = parseCsiSnapshot(await get(csiValUrl), date)
   const snapshotIndices = INDICES.filter(i => i.snapshot)

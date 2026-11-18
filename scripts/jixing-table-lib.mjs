@@ -1,6 +1,6 @@
 // 今天几星 · A股估值表的公开数据解析与统计。
 import { isTradingDay } from './market-mood-lib.mjs'
-import { num, validDate, weekly } from './ths-market-lib.mjs'
+import { addDays, num, validDate, weekly } from './ths-market-lib.mjs'
 
 export const PB_MIN = 250
 const CSI_SOURCE = 'csi'
@@ -9,19 +9,59 @@ const beijingDay = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Shanghai' 
 
 /**
  * PB 判定行没有指数级逐日 PB，改用中证官网「行业市盈率」classType=2 的行业 PB。
- * codes 按优先级：先新版 CICS，再旧版；命中任一即取。名称用于页面标注。
+ * codes 按优先级：先新版 CICS，再旧版；命中任一即取。接续日见 CICS_SPLICE。
  */
+export const CICS_SPLICE = '2021-12-10'
 export const PB_INDUSTRY = {
-  '399986': { name: '银行', codes: ['4010', '0601'] },
-  '399975': { name: '证券公司', codes: ['403010', '06030102'] },
-  '931775': { name: '房地产', codes: ['6010', '0605'] },
-  '930708': { name: '有色金属', codes: ['1520', '010105'] },
-  '000820': { name: '煤炭', codes: ['101030', '000103'] },
+  '399986': {
+    name: '银行', codes: ['4010', '0601'], since: '2014-01-02',
+    labels: { '4010': '银行', '0601': '银行' },
+  },
+  '399975': {
+    name: '证券公司', codes: ['403010', '06030102'], since: '2016-12-16',
+    labels: { '403010': '证券公司', '06030102': '投资银行业与经纪业' },
+  },
+  '931775': {
+    name: '房地产', codes: ['6010', '0605'], since: '2016-12-16',
+    labels: { '6010': '房地产', '0605': '房地产' },
+  },
+  '930708': {
+    name: '有色金属', codes: ['1520', '010105'], since: '2014-01-02',
+    labels: { '1520': '有色金属', '010105': '有色金属' },
+  },
+  '000820': {
+    name: '煤炭', codes: ['101030', '000103'], since: '2016-12-16',
+    labels: { '101030': '煤炭', '000103': '煤炭' },
+  },
 }
 /** 行业市盈率接口可查的最早交易日（与今日星级板块 PB 同源）。 */
 export const INDUSTRY_PB_FROM = '2014-01-02'
 export const industryPbUrl = (date) =>
   `https://www.csindex.com.cn/csindex-home/dataServer/queryCsiPeIndustryBytradeDate?tradeDate=${date.replaceAll('-', '')}&classType=2`
+
+/** 该日是否已查询过（含空对象 / 部分行业）：有键即视为已查，不再重抓。 */
+export function industryDateQueried(store, date) {
+  return Object.prototype.hasOwnProperty.call(store?.byDate ?? {}, date)
+}
+
+/**
+ * 决定要抓的行业 PB 日期：目标日优先（降序）。
+ * daily：只补目标日 + 近 recent 个交易日中尚未查询的。
+ * extra：rebuild 时并入的周采样缺口等。
+ */
+export function planIndustryFetch(store, target, { recent = 10, extra = [] } = {}) {
+  const needed = new Set()
+  if (validDate(target) && isTradingDay(target) && !industryDateQueried(store, target)) needed.add(target)
+  let d = target
+  for (let i = 0; i < recent; i++) {
+    d = addDays(d, -1)
+    if (isTradingDay(d) && !industryDateQueried(store, d)) needed.add(d)
+  }
+  for (const day of extra) {
+    if (validDate(day) && !industryDateQueried(store, day)) needed.add(day)
+  }
+  return [...needed].sort((a, b) => b.localeCompare(a))
+}
 
 // 中证代码、源端简称核对自 index-perf / indexCsiDsPe，深市四条核对自国证 index/running。
 const csi = (group, code, csiName, { name = csiName, basis = 'pe', snapshot = false } = {}) =>
@@ -237,21 +277,32 @@ export function buildRow(index, date, current, history) {
   const window = history.filter(([day]) => day >= start && day <= date)
   const pePoints = window.filter(([, v]) => v !== null).map(([day, value]) => ({ date: day, value }))
   const pbPoints = window.filter(([, , v]) => v !== null).map(([day, , value]) => ({ date: day, value }))
+  const industry = index.pbIndustry
+  // 行业 PB：分位与曲线统一用周采样，避免日后日度点权重漂移（I5）
+  const pbSample = industry ? weekly(pbPoints) : pbPoints
   const peValues = pePoints.map(p => p.value)
+  const pbValues = pbSample.map(p => p.value)
   const pePct = percentile(peValues, pe)
-  const pbPct = pbPoints.length < PB_MIN ? null : percentile(pbPoints.map(p => p.value), pb)
+  const pbPct = pbSample.length < PB_MIN ? null : percentile(pbValues, pb)
   const summary = points => ({ since: points[0]?.date ?? null, count: points.length })
   const sortedPe = [...peValues].sort((a, b) => a - b)
+  const sortedPb = [...pbValues].sort((a, b) => a - b)
   const peSeries = weekly(pePoints).map(p => [p.date, p.value])
   const pbSeries = weekly(pbPoints).map(p => [p.date, p.value])
-  const industry = index.pbIndustry
+  const refsOf = sorted => [0.3, 0.7].map(p => sorted[Math.ceil(p * sorted.length) - 1] ?? null)
   return {
     code: index.code, name: index.name, group: index.group, basis: index.basis, source: index.source, date,
-    pe, pb, dp, roe: pe !== null && pb !== null ? pb / pe : null, pePct, pbPct,
+    pe, pb,
+    // 行业替代 PB 不混填股息率；ROE 也不用行业 PB÷指数 PE（I2）
+    dp: industry ? null : dp,
+    roe: industry || pe === null || pb === null ? null : pb / pe,
+    pePct, pbPct,
     status: valuationStatus(index.basis, pePct, pbPct),
-    peHistory: summary(pePoints), pbHistory: summary(pbPoints),
+    peHistory: summary(pePoints),
+    pbHistory: summary(pbSample),
     peSeries, pbSeries,
-    peRefs: [0.3, 0.7].map(p => sortedPe[Math.ceil(p * sortedPe.length) - 1] ?? null),
+    peRefs: refsOf(sortedPe),
+    pbRefs: refsOf(sortedPb),
     pbKind: industry ? 'industry' : 'index',
     pbIndustry: industry ? { code: current.industryCode ?? industry.codes[0], name: current.industryName ?? industry.name } : null,
   }
@@ -267,7 +318,7 @@ export function histPayload(row) {
   return {
     code: row.code, asOf: row.date,
     peSeries: row.peSeries, pbSeries: row.pbSeries ?? [],
-    peRefs: row.peRefs,
+    peRefs: row.peRefs, pbRefs: row.pbRefs ?? [null, null],
   }
 }
 

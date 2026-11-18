@@ -38,6 +38,7 @@ export type JixingTableHist = {
   peSeries: [string, number][]
   pbSeries: [string, number][]
   peRefs: [number, number]
+  pbRefs: [number | null, number | null]
 }
 
 export type JixingTableData = {
@@ -50,10 +51,17 @@ export type JixingTableData = {
 
 export const METHOD = {
   status: '估值状态（本站自定）：历史百分位低于 30% 为低估，高于 70% 为高估，30% 至 70%（含端点）为正常。中证银行、证券公司、中证全指房地产、中证有色金属和煤炭指数按行业 PB 百分位判断，其余按 PE 百分位。所用百分位缺失时，状态留空。',
-  percentile: '百分位使用近 10 年内已有的交易日数据（含当日）。短历史显示实际起点和样本数。算法为（低于当前值的样本数 + 0.5 × 等于当前值的样本数）÷ 有效样本数。PE、PB 仅统计正值。PB 从可取得的日度/周采样数据开始积累，满 250 个样本后计算分位。',
-  source: '中证指数官网提供 PE(TTM)，估值总览覆盖的指数同时提供指数 PB 和股息率。PB 判定的五行改用官网「行业市盈率」中证行业分类的行业 PB（并标注行业名称），不是指数本身的 PB。创业板指、深证成指、深证100、深证红利采用国证指数网的数据。缺少同日数据的字段以「—」显示。ROE（估算）= PB ÷ PE(TTM)。',
-  chart: '曲线取每周最后一笔估值，参考线取同一窗口内逐日 PE 的第 30% 和第 70% 分位值（最近秩法）。历史序列按指数懒加载。',
-  pbIndustry: '行业 PB（中证行业分类）：新版 CICS 代码优先，旧版行业分类在修订前接续；与对应主题指数成分不完全相同。',
+  percentile: '百分位使用近 10 年窗口。PE 用逐日样本；行业 PB 统一周采样后再算分位（与曲线一致），脚注写明「行业 PB 周采样，n=…」。算法为（低于当前值的样本数 + 0.5 × 等于当前值的样本数）÷ 有效样本数。仅统计正值，满 250 个样本后计算 PB 分位。',
+  source: '中证指数官网提供 PE(TTM)；估值总览覆盖的指数同时提供指数 PB 和股息率。PB 判定五行只用行业 PB，不填行业股息率，也不用行业 PB÷指数 PE 估算 ROE（这两列对五行显示为 —）。创业板指、深证成指、深证100、深证红利采用国证指数网。其余指数 ROE（估算）= 指数 PB ÷ PE(TTM)。',
+  chart: '曲线取每周最后一笔估值；PE 行参考线取窗口内逐日 PE 的 30%/70% 分位，PB 判定行参考线取行业 PB 周采样的 30%/70% 分位。历史序列按指数懒加载。',
+  pbIndustry: [
+    '行业 PB（中证行业分类 classType=2）：新版 CICS 代码优先，旧版在 2021-12-10 之前接续；与主题指数成分不完全相同。',
+    '银行：4010「银行」← 0601「银行」，自 2014-01-02。',
+    '证券公司：403010「证券公司」← 06030102「投资银行业与经纪业」，自 2016-12-16。',
+    '房地产：6010「房地产」← 0605「房地产」，自 2016-12-16。',
+    '有色金属：1520「有色金属」← 010105「有色金属」，自 2014-01-02。',
+    '煤炭：101030「煤炭」← 000103「煤炭」，自 2016-12-16。',
+  ].join(' '),
 }
 
 const record = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v)
@@ -95,8 +103,13 @@ function isRow(v: unknown, asOf: string): v is ValuationRow {
     (v.dp !== null && (!finite(v.dp) || v.dp < 0)) || (v.roe !== null && !positive(v.roe)) ||
     !isHistory(v.peHistory, asOf) || v.peHistory.count < 1 || !isHistory(v.pbHistory, asOf)) return false
   const pbReady = v.pb !== null && v.pbHistory.count >= 250
-  if ((pbReady ? !pct(v.pbPct) : v.pbPct !== null) ||
-    (v.pb === null ? v.roe !== null : v.roe === null || v.pbHistory.count === 0)) return false
+  if (pbReady ? !pct(v.pbPct) : v.pbPct !== null) return false
+  if (v.pb === null) {
+    if (v.roe !== null) return false
+  } else if (v.pbHistory.count === 0) return false
+  else if (v.pbKind === 'industry') {
+    if (v.roe !== null || v.dp !== null) return false
+  } else if (v.roe === null) return false
 
   const rank = v.basis === 'pb' ? v.pbPct : v.pePct
   const status = !finite(rank) ? null : rank < 0.3 ? 'low' : rank > 0.7 ? 'high' : 'normal'
@@ -129,7 +142,19 @@ export function asJixingTableHist(v: unknown, code: string, asOf: string): Jixin
       point[0] > asOf || !positive(point[1])) return null
     previous = point[0]
   }
-  return { code, asOf, peSeries: v.peSeries as [string, number][], pbSeries: v.pbSeries as [string, number][], peRefs: v.peRefs as [number, number] }
+  const pbRefs: [number | null, number | null] = Array.isArray(v.pbRefs) && v.pbRefs.length === 2
+    ? [
+      v.pbRefs[0] === null || positive(v.pbRefs[0]) ? v.pbRefs[0] as number | null : null,
+      v.pbRefs[1] === null || positive(v.pbRefs[1]) ? v.pbRefs[1] as number | null : null,
+    ]
+    : [null, null]
+  return {
+    code, asOf,
+    peSeries: v.peSeries as [string, number][],
+    pbSeries: v.pbSeries as [string, number][],
+    peRefs: v.peRefs as [number, number],
+    pbRefs,
+  }
 }
 
 export const histUrl = (code: string): string =>

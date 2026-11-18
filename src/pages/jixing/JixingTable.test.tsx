@@ -2,19 +2,26 @@ import React from 'react'
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { tableFixture, tableHistFixture } from '../../features/jixing-table/fixtures'
+import { tableFixture, tableHistBankFixture, tableHistFixture } from '../../features/jixing-table/fixtures'
 import { asJixingTable } from '../../features/jixing-table/model'
 import JixingTable from './JixingTable'
 
-function renderPage(body: unknown = tableFixture, ok = true) {
+function renderPage(body: unknown = tableFixture, ok = true, entry = '/jixing/table', histOk = true) {
   vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo) => {
     const url = String(input)
+    if (url.includes('jixing-table-hist-399986')) {
+      return histOk
+        ? { ok: true, json: async () => tableHistBankFixture }
+        : { ok: true, json: async () => ({ html: true }) }
+    }
     if (url.includes('jixing-table-hist-')) {
-      return { ok: true, json: async () => tableHistFixture }
+      return histOk
+        ? { ok: true, json: async () => tableHistFixture }
+        : { ok: false, json: async () => null }
     }
     return { ok, json: async () => body }
   }))
-  return render(<MemoryRouter initialEntries={['/jixing/table']}><JixingTable /></MemoryRouter>)
+  return render(<MemoryRouter initialEntries={[entry]}><JixingTable /></MemoryRouter>)
 }
 
 afterEach(() => {
@@ -23,17 +30,33 @@ afterEach(() => {
 })
 
 describe('A股估值表', () => {
-  it('显示数据日、状态和样本，点击名称懒加载 PE 曲线及参考线', async () => {
+  it('显示数据日、状态和样本，PB 行默认画行业 PB 曲线', async () => {
     renderPage()
     const table = await screen.findByRole('table')
     expect(within(table).getAllByText('2026-11-17', { selector: 'td', exact: true }).length).toBeGreaterThanOrEqual(2)
     expect(screen.getByText('低估 2 只')).toBeTruthy()
     expect(within(table).getByText('积累中')).toBeTruthy()
     expect(within(table).getByText(/行业·银行/)).toBeTruthy()
+    fireEvent.click(within(table).getByRole('button', { name: '中证银行' }))
+    const dialog = await screen.findByRole('dialog')
+    expect(within(dialog).getByRole('img', { name: '中证银行 行业 PB 历史走势' })).toBeTruthy()
+    expect(within(dialog).getByText('30% 分位')).toBeTruthy()
+    expect(within(dialog).getByText(/行业 PB 周采样，n=250/)).toBeTruthy()
+    fireEvent.click(within(dialog).getByRole('button', { name: 'PE(TTM)' }))
+    expect(await within(dialog).findByRole('img', { name: '中证银行 PE(TTM) 历史走势' })).toBeTruthy()
+  })
+
+  it('hist 懒加载失败时显示空曲线提示', async () => {
+    renderPage(tableFixture, true, '/jixing/table', false)
+    const table = await screen.findByRole('table')
     fireEvent.click(within(table).getByRole('button', { name: '沪深300' }))
-    expect(await screen.findByRole('img', { name: '沪深300 PE(TTM) 历史走势' })).toBeTruthy()
-    expect(screen.getByText('30% 分位')).toBeTruthy()
-    expect(screen.getByText('70% 分位')).toBeTruthy()
+    expect(await screen.findByText('暂无该指数历史曲线。')).toBeTruthy()
+  })
+
+  it('?code=000985 自动打开中证全指详情', async () => {
+    renderPage(tableFixture, true, '/jixing/table?code=000985')
+    expect(await screen.findByRole('dialog')).toBeTruthy()
+    expect(screen.getByText(/中证全指 · 000985/)).toBeTruthy()
   })
 
   it('按当前分组更新表格和计数', async () => {
@@ -50,9 +73,9 @@ describe('A股估值表', () => {
     const table = await screen.findByRole('table')
     const sort = within(table).getByRole('button', { name: 'PE(TTM)' })
     fireEvent.click(sort)
-    expect(within(table).getAllByRole('rowheader').map(cell => cell.textContent)).toEqual(['中证银行', '沪深300', '养老产业'])
-    fireEvent.click(sort)
-    expect(within(table).getAllByRole('rowheader').map(cell => cell.textContent)).toEqual(['养老产业', '沪深300', '中证银行'])
+    expect(within(table).getAllByRole('rowheader').map(cell => cell.textContent)).toEqual([
+      '中证银行', '沪深300', '养老产业', '中证全指',
+    ])
   })
 
   it('数据文件缺失时显示 EmptyState', async () => {
