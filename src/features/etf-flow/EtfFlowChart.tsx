@@ -105,7 +105,7 @@ export function EtfFlowChart({ series, scope }: { series: FlowPoint[]; scope: 'a
         <span className="etf-flow__lg"><i className="etf-flow__lg-line" />上证指数</span>
         <span className="etf-flow__lg">{label}</span>
       </div>
-      <div style={{ position: 'relative' }}>
+      <div className="etf-flow__plot">
         <svg ref={mainRef} className="etf-flow__chart" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${label} ETF 净流入与上证指数`}
           onPointerMove={onMainMove} onPointerLeave={clearHover}>
           <line x1={padL} y1={zeroY} x2={padL + plotW} y2={zeroY} className="etf-flow__grid" />

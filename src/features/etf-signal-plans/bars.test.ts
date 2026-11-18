@@ -17,7 +17,7 @@ describe('fetchPlanBars', () => {
         },
       }))
     })
-    const { bars, source } = await fetchPlanBars('510880', fetchImpl)
+    const { bars, source } = await fetchPlanBars('510880', fetchImpl as unknown as typeof fetch)
     expect(source).toContain('后复权')
     expect(bars).toEqual([
       { date: '2024-05-20', open: 2.961, high: 2.993, low: 2.961, close: 2.988 },

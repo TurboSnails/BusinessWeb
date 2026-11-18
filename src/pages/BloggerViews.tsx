@@ -14,7 +14,7 @@ export default function BloggerViews(): JSX.Element {
         <p>把财经博主的公开视频逐条转成文字，再按主题整理成一页：他讲了什么、给了哪些具体规则、哪些地方前后不一致或无法核实。</p>
       </header>
       <Callout tone="muted">{BLOGGER_VIEWS_NOTICE}</Callout>
-      <div className="hub-grid" style={{ marginTop: 24 }}>
+      <div className="hub-grid hub-grid--spaced">
         {BLOGGER_VIEWS.map(view => (
           <Link key={view.slug} to={`/invest/blogger-views/${view.slug}`} className="hub-card">
             <span className="hub-card__title">{view.name}</span>

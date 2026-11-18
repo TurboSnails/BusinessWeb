@@ -306,7 +306,7 @@ export default function EtfUptrendLab(): JSX.Element {
         </section>
       )}
 
-      <section className="up-card up-recon" aria-labelledby="recon-title" style={{ marginTop: 16 }}>
+      <section className="up-card up-recon up-recon--spaced" aria-labelledby="recon-title">
         <details open={reconOpen} onToggle={e => setReconOpen((e.target as HTMLDetailsElement).open)}>
           <summary>
             <h2 id="recon-title">倒推历史</h2>

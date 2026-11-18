@@ -102,7 +102,7 @@ export default function EtfSignalPlansLab(): JSX.Element {
       <Callout tone="warn" title="观察中 · 不是买卖指令">
         满仓进出、单边 0.1% 成本、前 120 根预热。日线与择时比值一律腾讯后复权（hfq），与研究站红利口径对齐。历史统计不代表未来。
       </Callout>
-      <form className="lab-hub-links" onSubmit={e => { e.preventDefault(); run() }} style={{ alignItems: 'center' }}>
+      <form className="lab-hub-links lab-hub-links--center" onSubmit={e => { e.preventDefault(); run() }}>
         <label>代码 <input value={input} onChange={e => setInput(e.target.value)} maxLength={6} inputMode="numeric" /></label>
         <button type="submit">回测</button>
         {name && <span>{name}</span>}
@@ -112,7 +112,7 @@ export default function EtfSignalPlansLab(): JSX.Element {
       {bundle && (
         <>
           <p className="etf-flow__foot">行情：{bundle.source}</p>
-          <div style={{ display: 'grid', gap: 12 }}>
+          <div className="lab-stack">
             {bundle.plans.map(plan => {
               const full = bundle.full[plan.key]
               const y = bundle.yearly[plan.key]

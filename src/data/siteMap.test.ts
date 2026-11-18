@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { isStaticToolPath } from './notesLinks'
 import { INVEST_GROUPS, NAV_ITEMS, SEARCHABLE_PAGES, WORKBENCH_TOOLS, findInvestEntry, findSearchablePage, isNavActive, searchPages } from './siteMap'
 
 const appSource = readFileSync(resolve(__dirname, '../App.tsx'), 'utf8')
@@ -43,18 +44,22 @@ describe('INVEST_GROUPS', () => {
       '/mainland-investment-targets',
       '/money-freedom', '/monitor', '/pulse', '/research-notes', '/earnings',
       '/sector-rotation', '/trading-philosophy', '/valuation', '/market-mood', '/ths-mood', '/jixing',
+      '/index-panorama/', '/invest/blogger-views',
+      '/lab/etf-flow', '/lab/etf-uptrend', '/lab/etf-watch-pool', '/lab/etf-macd-good', '/lab/etf-hs300-timing', '/lab/etf-signal-plans', '/lab/etf-timing',
     ].sort())
     expect(new Set(all).size).toBe(all.length)
   })
 
   it('每个入口路径都在 App.tsx 路由表里', () => {
     for (const l of allLinks) {
+      // /index-panorama/ 等静态工具页由 public/ 直接提供，不走 React 路由
+      if (isStaticToolPath(l.path)) continue
       expect(appSource, l.path).toContain(l.path.startsWith('/ai/') ? 'path="/ai/:slug"' : `path="${l.path}"`)
     }
   })
 
   it('分组按投资流程：规则 → 观察盘 → 分析筛选 → 候选池 → 工具与参考 → 相关，已舍弃垫底', () => {
-    expect(INVEST_GROUPS.map(g => g.id)).toEqual(['rules', 'watch', 'research', 'candidates', 'tools', 'third-party', 'related', 'archived'])
+    expect(INVEST_GROUPS.map(g => g.id)).toEqual(['rules', 'watch', 'research', 'candidates', 'tools', 'lab-observe', 'third-party', 'related', 'archived'])
     expect(INVEST_GROUPS.slice(0, 5).map(g => g.title)).toEqual(['规则', '观察盘', '分析筛选', '候选池', '工具与参考'])
   })
 
@@ -75,7 +80,7 @@ describe('INVEST_GROUPS', () => {
 
   it('候选池独立一组；工具与参考放三件工具和 ETF 流派地图；AI Skills 在「相关」', () => {
     expect(paths('candidates')).toEqual(['/candidates', '/radar'])
-    expect(paths('tools')).toEqual(['/invest/comprehensive-valuation', '/invest/ai-token-economics', '/invest/fundamental-quant', '/valuation', '/dcf', '/grid-trading', '/money-freedom', '/invest/etf', '/industry-etf', '/notes', '/invest/bond-fund-report'])
+    expect(paths('tools')).toEqual(['/invest/comprehensive-valuation', '/invest/ai-token-economics', '/invest/fundamental-quant', '/valuation', '/dcf', '/index-panorama/', '/grid-trading', '/money-freedom', '/invest/etf', '/industry-etf', '/notes', '/invest/bond-fund-report', '/invest/blogger-views'])
     expect(INVEST_GROUPS.find(g => g.id === 'third-party')!.links.map(l => [l.path, l.label])).toEqual([['/market-mood', '开盘啦'], ['/ths-mood', '同花顺'], ['/jixing', '今天几星']])
     const related = INVEST_GROUPS.find(g => g.id === 'related')!
     expect(related.links.map(l => [l.path, l.label])).toEqual([['/ai/ai-skills', 'AI 投研 Skills']])
@@ -155,6 +160,7 @@ describe('SEARCHABLE_PAGES', () => {
     const paths = SEARCHABLE_PAGES.map(p => p.path)
     expect(new Set(paths).size).toBe(paths.length)
     for (const p of SEARCHABLE_PAGES) {
+      if (isStaticToolPath(p.path)) continue // 静态工具页由 public/ 直接提供
       const routePath = p.path.startsWith('/ai/') && p.path !== '/ai/fullstack-roadmap' ? '/ai/:slug' : p.path
       expect(appSource, p.path).toContain(`path="${routePath}"`)
     }

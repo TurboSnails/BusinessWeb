@@ -120,3 +120,5 @@
     .up-count { margin-left: 0; }
     .up-toolbar input { max-width: none; }
   }
+
+.up-recon--spaced { margin-top: 16px; }

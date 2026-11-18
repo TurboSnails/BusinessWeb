@@ -153,6 +153,9 @@ export default function InvestHub(): JSX.Element {
 
       <CardGroup g={group('tools')} step="4" />
 
+      {/* 实验观察：研究中的独立观察页，未验证，不编号 */}
+      <CardGroup g={group('lab-observe')} />
+
       {/* 三方平台：参照第三方 App 做的页面，不属于 1–4 的流程，不编号 */}
       <CardGroup g={group('third-party')} />
 

@@ -985,3 +985,6 @@
   padding: var(--space-4);
   border-color: color-mix(in srgb, var(--accent) 30%, transparent);
 }
+
+.lab-hub-links--center { align-items: center; }
+.lab-stack { display: grid; gap: 12px; }

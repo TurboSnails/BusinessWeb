@@ -33,3 +33,5 @@
 .etf-kpi--down .stat__value { color: #1e8449; }
 .lab-hub-links { display: flex; flex-wrap: wrap; gap: 8px 14px; margin: 0 0 16px; font-size: 13px; }
 .lab-hub-links a { color: var(--accent, #2f6bff); }
+
+.etf-flow__plot { position: relative; }
