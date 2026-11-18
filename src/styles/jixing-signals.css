@@ -16,3 +16,7 @@
 .jsg-summary span { color: var(--text-secondary); margin-right: 8px; }
 .jsg-summary b { font-variant-numeric: tabular-nums; }
 .jsg-notes { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 6px; line-height: 1.7; font-size: 0.88rem; color: var(--text-secondary); }
+.jsg-news { margin: 0; padding-left: 1.2em; line-height: 1.7; }
+.jsg-news li { margin-bottom: 0.6em; }
+.jsg-news time { display: inline-block; min-width: 6.5em; color: var(--text-secondary); margin-right: 0.5em; font-variant-numeric: tabular-nums; }
+.jsg-news__src { display: block; font-size: 0.8rem; color: var(--text-tertiary); margin-top: 0.15em; }

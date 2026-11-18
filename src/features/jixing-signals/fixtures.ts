@@ -16,6 +16,9 @@ export function signalsFixture(): JixingSignalsData {
     version: 1, asOf: '2026-11-17', generatedAt: '2026-11-17T13:00:00Z', indicators,
     summary: { 低估: 2, 正常: 0, 高估: 0, 偏牛: 1, 中性: 0, 偏熊: 1, none: 1 },
     missing: ['funds'], errors: ['funds：新发基金缺最近完整月'],
+    news: [
+      { date: '2024-09-24', title: '金融支持经济高质量发展发布会', url: 'https://www.gov.cn/lianbo/fabu/202409/content_6976186.htm', source: '中国政府网' },
+    ],
     sources: [{ label: '上海证券交易所 · 投资者月度新增', url: 'https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_TZZ_M_ALL_ACCT_C' }],
   }
 }

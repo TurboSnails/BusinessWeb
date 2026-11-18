@@ -8,6 +8,7 @@ import { MV_FROM, mvUrl, parsePerfSeries, parseMarketVal, treasuryMap, buildStar
 import {
   RULES, IPO_WINDOW, windowPct, rollingGdp, totalMcap, buffettSeries, marginSeries, parseIpo, ipoRolling,
   fundMonthly, mergeFundMonths, fundStart, parseSseAccounts, miniHistory, summarize, valuationSignal, moodSignal, buffettSignal, brokenSignal, addDays, round,
+  trM2Series,
 } from './jixing-signals-lib.mjs'
 
 const OUT = 'public/data/jixing-signals.json'
@@ -15,15 +16,18 @@ const RAW = 'data-raw/jixing-signals'
 const STAR_MV = 'data-raw/jixing-star/market-valuation.json' // 今日星级页签累积的板块 PB（只读）
 const FUND_FILE = `${RAW}/funds-monthly.json`
 const SSE_FILE = `${RAW}/sse-accounts.json`
-const UA = { 'user-agent': 'Mozilla/5.0', referer: 'https://data.eastmoney.com/' }
+const NEWS_FILE = 'scripts/jixing-signals-news.json'
+const UA = { 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/130.0 Safari/537.36', referer: 'https://data.eastmoney.com/' }
+const CSI_UA = { 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/130.0 Safari/537.36', referer: 'https://www.csindex.com.cn/', accept: 'application/json' }
 const SSE_UA = { 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/130.0 Safari/537.36', referer: 'https://www.sse.com.cn/' }
 const sseUrl = (mdate) => `https://query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_TZZ_M_ALL_ACCT_C&isPagination=true&pageHelp.pageSize=20&pageHelp.pageNo=1${mdate ? `&MDATE=${mdate}` : ''}`
 const SSE_FROM_YEAR = 2021 // 该表 2021 年起有月度数据，更早年份返回空
 
 async function get(url, type = 'json', headers = UA) {
+  const hdr = url.includes('csindex.com.cn') ? CSI_UA : headers
   for (let i = 0; ; i++) {
     try {
-      const res = await fetch(url, { headers, signal: AbortSignal.timeout(30000) })
+      const res = await fetch(url, { headers: hdr, signal: AbortSignal.timeout(30000) })
       if (!res.ok) throw new Error(`HTTP ${res.status} ${url.slice(0, 80)}`)
       return type === 'json' ? await res.json() : await res.text()
     } catch (e) { if (i >= 2) throw e; await new Promise(r => setTimeout(r, 1500 * (i + 1))) }
@@ -182,6 +186,53 @@ async function fundsInd(asOf) {
   }
 }
 
+/** 中证全指全收益 H00985 vs M2（BASIC_CURRENCY）。 */
+async function trM2Ind(asOf) {
+  const start = addYears(asOf, -12)
+  const perf = await get(csiPerfUrl('H00985', start, asOf))
+  const trMonthly = (Array.isArray(perf?.data) ? perf.data : []).map(r => {
+    const d = String(r?.tradeDate ?? '').replace(/^(\d{4})(\d{2})(\d{2})$/, '$1-$2-$3')
+    const close = Number(r?.close)
+    return { date: d, close: Number.isFinite(close) && close > 0 ? close : null }
+  }).filter(p => p.close && p.date <= asOf)
+
+  const m2Rows = await emAll({
+    reportName: 'RPT_ECONOMY_CURRENCY_SUPPLY',
+    columns: 'REPORT_DATE,BASIC_CURRENCY',
+    sortColumns: 'REPORT_DATE',
+    sortTypes: '1',
+  })
+  const m2Monthly = m2Rows.map(r => {
+    const month = String(r?.REPORT_DATE ?? '').slice(0, 7)
+    const m2 = Number(r?.BASIC_CURRENCY)
+    return { month, m2: Number.isFinite(m2) && m2 > 0 ? m2 : null }
+  }).filter(r => r.m2 && r.month >= start.slice(0, 7) && r.month <= asOf.slice(0, 7))
+
+  const series = trM2Series(trMonthly, m2Monthly).filter(p => p.date <= `${asOf.slice(0, 7)}-01`)
+  const last = series.at(-1)
+  if (!last) throw new Error('全收益/M2 序列为空')
+  const w = windowPct(series, 10)
+  return ind({
+    id: 'trM2', group: 'valuation', name: '中证全指全收益 / M2', unit: '倍（归一）', digits: 3,
+    value: last.v, date: last.date, month: last.month, pct: w.pct, window: '近 10 年', start: w.start, n: w.n,
+    signal: valuationSignal(w.pct), rule: RULES.trM2, history: miniHistory(series, 10, 3),
+    extra: [
+      { label: '全收益点位（对齐月）', value: String(last.tr) },
+      { label: 'M2 余额（亿元）', value: round(last.m2, 0).toLocaleString('zh-CN') },
+    ],
+    note: '全收益取中证 H00985 月末收盘；M2 取东方财富 RPT_ECONOMY_CURRENCY_SUPPLY 的 BASIC_CURRENCY（与宏观页 M1−M2 同源，为人行公布）。比值按序列首月归一。月度对齐，不日度插值。',
+  })
+}
+
+function loadNews(asOf) {
+  const rows = readJson(NEWS_FILE, [])
+  if (!Array.isArray(rows)) return []
+  return rows
+    .filter(r => r && typeof r.date === 'string' && r.date <= asOf && typeof r.title === 'string' && typeof r.url === 'string' && /^https?:\/\//.test(r.url))
+    .map(r => ({ date: r.date, title: r.title, url: r.url, source: String(r.source ?? '公开来源') }))
+    .sort((a, b) => b.date.localeCompare(a.date) || a.title.localeCompare(b.title, 'zh-CN'))
+}
+
 async function accountsInd(asOf) {
   const cache = readJson(SSE_FILE, { years: {} }).years ?? {}
   const year = Number(asOf.slice(0, 4))
@@ -227,6 +278,7 @@ async function main() {
 
   const buffett = await safe('buffett', () => buffettInd(asOf))
   const val = valuationInds(core.rows, core.idx)
+  const trM2 = await safe('trM2', () => trM2Ind(asOf))
   const margin = await safe('margin', () => marginInd(asOf))
   const amount = await safe('amount', async () => amountInd(asOf))
   const ipo = await safe('ipo', () => ipoInds(asOf, days))
@@ -235,13 +287,16 @@ async function main() {
 
   const indicators = [
     ...(buffett ? [buffett] : keepPrev(['buffett'])), ...val,
+    ...(trM2 ? [trM2] : keepPrev(['trM2'])),
     ...(margin ? [margin] : keepPrev(['margin'])), ...(amount ? [amount] : keepPrev(['amount'])),
     ...(ipo ?? keepPrev(['ipoCount', 'ipoBroken'])), ...(funds ? [funds.ind] : keepPrev(['funds'])), ...(accounts ? [accounts.ind] : keepPrev(['accounts'])),
   ]
-  const order = ['buffett', 'erp', 'pb', 'margin', 'amount', 'ipoCount', 'ipoBroken', 'funds', 'accounts']
+  const order = ['buffett', 'erp', 'pb', 'trM2', 'margin', 'amount', 'ipoCount', 'ipoBroken', 'funds', 'accounts']
   indicators.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id))
   const missing = order.filter(id => !indicators.some(i => i.id === id))
   if (sameDay && sameDay.indicators.length > indicators.length) { console.log(`同日已有更完整的文件（${sameDay.indicators.length} 项），本次 ${indicators.length} 项不覆盖`); return }
+
+  const news = loadNews(asOf)
 
   fs.mkdirSync(RAW, { recursive: true })
   if (funds) fs.writeFileSync(FUND_FILE, JSON.stringify({ updatedAt: asOf, months: funds.months }, null, 1) + '\n')
@@ -249,12 +304,15 @@ async function main() {
   const data = {
     version: 1, asOf, generatedAt: new Date().toISOString(), indicators, summary: summarize(indicators), missing,
     errors: errors.map(e => `${e.id}：${e.message}`),
+    news,
     sources: [
       { label: '中证指数官网 · 中证全指行情（滚动市盈率）', url: csiPerfUrl('000985', addDays(asOf, -30), asOf) },
+      { label: '中证指数官网 · 中证全指全收益（H00985）', url: csiPerfUrl('H00985', addDays(asOf, -30), asOf) },
       { label: '中证指数官网 · 行业市盈率（板块：沪深市场 PB）', url: mvUrl(asOf) },
       { label: '东方财富 · 中美国债收益率', url: emUrl({ reportName: 'RPTA_WEB_TREASURYYIELD', columns: 'SOLAR_DATE,EMM00166466' }) },
       { label: '东方财富 · 市场估值（总市值）', url: emUrl({ reportName: 'RPT_VALUEMARKET', columns: 'TRADE_DATE,TRADE_MARKET_CODE,TOTAL_MARKET_CAP' }) },
       { label: '东方财富 · 国内生产总值（国家统计局）', url: emUrl({ reportName: 'RPT_ECONOMY_GDP', columns: 'REPORT_DATE,DOMESTICL_PRODUCT_BASE' }) },
+      { label: '东方财富 · 货币供应量（M2）', url: emUrl({ reportName: 'RPT_ECONOMY_CURRENCY_SUPPLY', columns: 'REPORT_DATE,BASIC_CURRENCY' }) },
       { label: '东方财富 · 融资融券历史', url: emUrl({ reportName: 'RPTA_RZRQ_LSHJ', columns: 'DIM_DATE,RZYE,RZYEZB' }) },
       { label: '东方财富 · 新股申购与中签', url: emUrl({ reportName: 'RPTA_APP_IPOAPPLY', columns: 'SECURITY_CODE,LISTING_DATE,ISSUE_PRICE,CLOSE_PRICE' }) },
       { label: '天天基金 · 新成立基金', url: fundUrl(1, 50) },

@@ -80,12 +80,12 @@ test('PE 与 PB 的估值状态分别取指定指标，恰好 30% 与 70% 都是
   for (const p of [0.3, 0.7]) assert.equal(valuationStatus('pe', p, null), 'normal')
 })
 
-test('表格按近十年逐日样本计算，样本不足时保留起点和数量但不计算 PB 分位', () => {
+test('表格按近十年逐日样本计算，样本不足时保留起点和数量但不计算 PE/PB 分位', () => {
   const history = [['2016-11-16', 99, 0.1], ['2016-11-17', 10, null], ['2026-11-16', 20, 1], [target, 20, 2]]
   const row = buildRow(bank, target, { date: target, pe: 20, pb: 2, dp: 3 }, history)
   assert.deepEqual(row.peHistory, { since: '2016-11-17', count: 3 })
   assert.deepEqual(row.pbHistory, { since: '2026-11-16', count: 2 })
-  assert.equal(row.pePct, 2 / 3)
+  assert.equal(row.pePct, null)
   assert.equal(row.pbPct, null)
   assert.equal(row.roe, 0.1)
   assert.equal(row.status, null)
@@ -93,11 +93,22 @@ test('表格按近十年逐日样本计算，样本不足时保留起点和数�
   assert.deepEqual(row.peSeries.at(-1), [target, 20])
 })
 
+test('n=1 时 PE 分位与状态均为 null（不给「正常/50%」）', () => {
+  const row = buildRow(bank, target, { date: target, pe: 22.5, pb: 2, dp: null }, [[target, 22.5, 2]])
+  assert.equal(row.peHistory.count, 1)
+  assert.equal(row.pePct, null)
+  assert.equal(row.status, null)
+  assert.deepEqual(row.peRefs, [22.5, 22.5])
+})
+
 test('PB 满 250 个有效交易日才计算并应用分位', () => {
   const days = Array.from({ length: 370 }, (_, i) => new Date(Date.UTC(2024, 0, i + 1)))
     .filter(d => ![0, 6].includes(d.getUTCDay())).slice(0, 249).map(d => [d.toISOString().slice(0, 10), 20, 1])
   const current = { date: target, pe: 20, pb: 2, dp: null }
-  assert.equal(buildRow(bank, target, current, [...days, [target, 20, 2]]).status, 'high')
+  const peReady = [...days, [target, 20, 2]] // 249 + 当日 = 250
+  assert.equal(buildRow(bank, target, current, peReady).peHistory.count, 250)
+  assert.ok(Number.isFinite(buildRow(bank, target, current, peReady).pePct))
+  assert.equal(buildRow(bank, target, current, peReady).status, 'high')
   assert.equal(buildRow(bank, target, current, [...days.slice(1), [target, 20, 2]]).status, null)
 })
 
