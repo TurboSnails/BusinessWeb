@@ -40,7 +40,7 @@ jobs:
         # 每个脚本单独限时（最多 10 分钟），并给提交步骤留出时间：总预算用完就跳过剩下的脚本，已跑完的结果照常提交
         run: |
           budget=$(( JOB_MINUTES * 60 - 300 ))
-          for tab in daban lhb plates funds abnormal review rank auction disclosure timeline holders irm; do
+          for tab in daban lhb plates funds abnormal review rank auction disclosure timeline holders irm stock; do
             f="scripts/kpl-$tab.mjs"
             [ -f "$f" ] || continue
             left=$(( budget - SECONDS ))
@@ -66,7 +66,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          git add public/data/kpl-*.json data-raw/kpl-* 2>/dev/null || true
+          git add -A -- 'public/data/kpl-*.json' 'data-raw/kpl-*' 2>/dev/null || true
           if git diff --cached --quiet; then echo "changed=false" >> "$GITHUB_OUTPUT"; exit 0; fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'

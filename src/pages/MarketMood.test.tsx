@@ -115,11 +115,11 @@ describe('数据模型', () => {
 })
 
 describe('开盘啦页签', () => {
-  it('五个页签，点击切换到子页面', async () => {
+  it('十四个页签，点击切换到子页面', async () => {
     stub(moodFixture())
     renderPage()
     const tabs = await screen.findByRole('tablist', { name: '开盘啦页签' })
-    expect(within(tabs).getAllByRole('tab').map(t => t.textContent)).toEqual(['市场情绪', '打板', '龙虎榜', '板块题材', '资金', '异动监管', '复盘', '人气排行', '竞价尾盘', '财报避雷', '时间线', '持仓两融', '互动问答'])
+    expect(within(tabs).getAllByRole('tab').map(t => t.textContent)).toEqual(['市场情绪', '打板', '龙虎榜', '板块题材', '资金', '异动监管', '复盘', '人气排行', '竞价尾盘', '财报避雷', '时间线', '持仓两融', '互动问答', '个股'])
     expect(within(tabs).getByRole('tab', { name: '市场情绪' }).getAttribute('aria-selected')).toBe('true')
   })
 })

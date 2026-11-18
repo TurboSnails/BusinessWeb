@@ -54,6 +54,7 @@ const EXACT: Record<string, RouteSeo> = {
   '/market-mood/disclosure': { title: '开盘啦 · 财报避雷', description: '参照开盘啦业绩与避雷：业绩披露日历与超预期、ST 与退市风险、股东人数、大宗交易、机构调研。' },
   '/market-mood/timeline': { title: '开盘啦 · 时间线', description: '参照开盘啦大盘直播与市场雷达：盘后还原的当日盘面时间线、板块异动与个股异动。' },
   '/market-mood/holders': { title: '开盘啦 · 持仓两融', description: '参照开盘啦资金与股东：融资融券个股排行、基金季度持仓变化、牛散追踪。' },
+  '/market-mood/stock': { title: '开盘啦 · 个股', description: '盘后个股检索：区间统计、月度收益率、筹码分布模型、PE/PB 历史估值带与分位。' },
   '/market-mood/irm': { title: '开盘啦 · 互动问答', description: '参照开盘啦互动易：深交所互动易与上证 e 互动每日问答、问询函与监管函。' },
   '/ths-mood': { title: '同花顺 · 市场情绪', description: '参照同花顺 App 的市场情绪与涨停模块，收盘后的 A 股情绪指数、盘面评分、短线风向标、涨停封成比与涨停分析。' },
   '/ths-mood/market': { title: '同花顺 · 市场', description: '参照同花顺「市场」分析页：主要指数估值分区、资金供需、货币与债市风向。' },

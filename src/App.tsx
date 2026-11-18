@@ -35,6 +35,7 @@ const KplDisclosure = lazy(() => import('./pages/kpl/KplDisclosure'))
 const KplTimeline = lazy(() => import('./pages/kpl/KplTimeline'))
 const KplHolders = lazy(() => import('./pages/kpl/KplHolders'))
 const KplIrm = lazy(() => import('./pages/kpl/KplIrm'))
+const KplStock = lazy(() => import('./pages/kpl/KplStock'))
 const ThsMood = lazy(() => import('./pages/ThsMood'))
 const ThsMarket = lazy(() => import('./pages/ths/ThsMarket'))
 const ThsCbond = lazy(() => import('./pages/ths/ThsCbond'))
@@ -186,6 +187,7 @@ export default function App(): JSX.Element {
           <Route path="/market-mood/timeline" element={<KplTimeline />} />
           <Route path="/market-mood/holders" element={<KplHolders />} />
           <Route path="/market-mood/irm" element={<KplIrm />} />
+          <Route path="/market-mood/stock" element={<KplStock />} />
           <Route path="/ths-mood" element={<ThsMood />} />
           <Route path="/ths-mood/market" element={<ThsMarket />} />
           <Route path="/ths-mood/cbond" element={<ThsCbond />} />

@@ -5,6 +5,9 @@ import type { BlogEntry } from '../features/blog/catalog'
 const post: BlogEntry = { slug: 'slow-investing', title: '慢投资笔记', summary: '关于长期投资的实践', category: '投资', tags: [], publishedAt: '2026-10-13', file: 'src/content/blog/posts/slow-investing.md', status: 'published' }
 
 describe('blog route SEO', () => {
+  it('个股页有独立 SEO 与有效路由', () => {
+    expect(resolveSeo('/market-mood/stock')).toMatchObject({ known: true, title: '开盘啦 · 个股' })
+  })
   it('recognizes the blog index', () => {
     expect(resolveSeo('/blog').known).toBe(true)
     expect(resolveSeo('/blog').noindex).toBeFalsy()
