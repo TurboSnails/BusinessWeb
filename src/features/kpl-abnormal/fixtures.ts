@@ -44,6 +44,25 @@ export const abnormalFixture = () => ({
     top: { 4: [{ code: '600770', name: '雷达卯', n: 1, first: '09:35:12', last: '09:35:12', amount: null }], 8193: [{ code: '603370', name: '大单辰', n: 1, first: '14:55:41', last: '14:55:41', amount: 2167808 }] },
     timeline: [{ time: '09:35:12', code: '600770', name: '雷达卯', type: 4, price: 5.53 }, { time: '15:00:00', code: '600770', name: '雷达卯', type: 16, price: 5.52 }],
   },
+  regulatory: {
+    from: '2026-10-18', to: '2026-11-17', partial: true,
+    sources: [
+      { id: 'sse', label: '上交所 监管问询 / 监管措施 / 纪律处分', url: 'https://www.sse.com.cn/', ok: true, n: 2 },
+      { id: 'szse', label: '深交所 问询函件 / 监管措施 / 纪律处分', url: 'https://www.szse.cn/', ok: false, n: null, error: 'ECONNRESET' },
+      { id: 'cninfo', label: '巨潮资讯 问询函 / 关注函回复公告', url: 'https://www.cninfo.com.cn/', ok: true, n: 1 },
+    ],
+    counts: {
+      d5: { from: '2026-11-11', inquiry: 1, attention: 0, measure: 1, discipline: 0, replies: 1, companies: 2 },
+      d20: { from: '2026-10-21', inquiry: 2, attention: 0, measure: 1, discipline: 1, replies: 1, companies: 4 },
+    },
+    items: [
+      { ex: 'sz', code: '300197', name: '问询甲', date: '2026-11-14', kind: 'inquiry', type: '问询函回复', title: '问询甲关于重组问询函回复的公告', url: 'https://static.cninfo.com.cn/finalpage/2026-11-14/1.PDF', src: 'cninfo', reply: true, pct: 2.5, dev3: 7.15 },
+      { ex: 'sh', code: '603366', name: '监管乙', date: '2026-11-12', kind: 'measure', type: '监管工作函', title: '关于监管乙股价波动事项的监管工作函', url: null, src: 'sse', pct: -10.04, dev3: -25.84 },
+      { ex: 'sz', code: '000821', name: '处分丙', date: '2026-11-06', kind: 'discipline', type: '通报批评、公开谴责', title: '关于对处分丙及相关当事人给予纪律处分的决定', url: 'https://reportdocs.static.szse.cn/UpFiles/zqjghj/x.pdf', src: 'szse', pct: null, dev3: null },
+      { ex: 'sz', code: '300364', name: '问询丁', date: '2026-11-02', kind: 'inquiry', type: '问询函', title: '问询丁 问询函', url: 'https://reportdocs.static.szse.cn/UpFiles/zqjghj/y.pdf', src: 'szse', replyUrl: 'https://reportdocs.static.szse.cn/UpFiles/zqjghj/z.pdf', pct: -1.2, dev3: 0.5 },
+    ],
+  },
+  regulatoryNote: '深交所 问询函件 / 监管措施 / 纪律处分 本次未取到，列表沿用此前存档中该来源的条目',
   history: [
     { date: '2026-11-16', d3up: 4, d3down: 20, severe: 0, nearUp: 80, nearDown: 120, suspended: 6, radarTotal: null, kline: true },
     { date: '2026-11-17', d3up: 1, d3down: 1, severe: 1, nearUp: 2, nearDown: 1, suspended: 1, radarTotal: 3 },

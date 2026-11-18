@@ -528,3 +528,174 @@ export function mergeHistory(history, day, keep = 250) {
   map.set(day.date, { ...(map.get(day.date) ?? {}), ...day })
   return [...map.values()].sort((a, b) => a.date.localeCompare(b.date)).slice(-keep)
 }
+
+/* ---------------- 监管问询（问询函 / 关注函 / 监管函 / 纪律处分） ---------------- */
+// 来源（2026-11-18 实测，均为官网页面所用的公开 JSON 接口）：
+//   上交所 监管问询  https://query.sse.com.cn/commonSoaQuery.do?sqlId=BS_KCB_GGLL_NEW&channelId=10743,10744,10012
+//                   （官网 /disclosure/credibility/supervision/inquiries/ 页面脚本 search_regulatoryInformation_2021.js 的参数）
+//   上交所 监管措施  同一接口 channelId=10007（监管警示）,10008（通报批评）,10009（公开谴责 / 公开认定）,10010（监管工作函）
+//                   createTime / createTimeEnd（'YYYY-MM-DD HH:mm:ss'）按发布时间过滤；extDWDM='1' 才有全文链接（监管工作函多不公开全文）
+//   深交所 问询函件  https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=main_wxhj（TABKEY tab2 主板 / tab3 创业板，txtStart / txtEnd）
+//   深交所 监管措施  CATALOGID=1800_jgxxgk&TABKEY=tab1&txtDate=<年>；纪律处分 CATALOGID=1759_cxda&TABKEY=tab1&txtStartDate / txtEndDate
+//                   全文：https://reportdocs.static.szse.cn + 字段 HTML 里 encode-open 的路径。www.szse.cn 在境外（GitHub runner）会被 TLS 重置。
+//   巨潮资讯 公告搜索 POST https://www.cninfo.com.cn/new/hisAnnouncement/query（searchkey=问询函 / 关注函，plate=sz;sh，seDate=起~止；
+//                   pageSize 最大 30，填更大时 pageNum 失效，总是返回第一页）。只取公司发布的「问询函 / 关注函」回复类公告，标为「回复公告」，不是函件原文。
+const REG_STR = (v) => (typeof v === 'string' ? v : v === null || v === undefined ? '' : String(v))
+const REG_ENT = { nbsp: ' ', amp: '&', lt: '<', gt: '>', quot: '"', apos: "'" }
+/** 去掉 HTML 标签与实体、压缩空白 */
+export const regText = (s) => REG_STR(s).replace(/<[^>]*>/g, '').replace(/&(\w+);/g, (m, k) => REG_ENT[k] ?? m).replace(/\s+/g, ' ').trim()
+const regYmd = (v) => (/^\d{4}-\d{2}-\d{2}/.test(REG_STR(v)) ? REG_STR(v).slice(0, 10) : null)
+export const addDays = (date, k) => new Date(Date.parse(`${date}T00:00:00Z`) + k * 864e5).toISOString().slice(0, 10)
+export const REG_DAYS = 30 // 列表窗口：最近 30 个自然日
+export const REG_KEEP_DAYS = 45 // data-raw 存档保留 45 个自然日（漏跑几天也能补上）
+export const REG_KINDS = [
+  { id: 'inquiry', label: '问询函' }, { id: 'attention', label: '关注函' }, { id: 'measure', label: '监管函 / 监管措施' }, { id: 'discipline', label: '纪律处分' },
+]
+
+/**
+ * 函件类型 → 分组：discipline 纪律处分（通报批评、公开谴责、公开认定）；attention 关注函；inquiry 问询函（标题写明「监管工作函」的归 measure）；
+ * 其余（监管函、监管工作函、监管警示等）为 measure 监管措施。
+ */
+export function regKind(type, title = '') {
+  const t = REG_STR(type)
+  if (/谴责|批评|处分|公开认定|不适合担任/.test(t)) return 'discipline'
+  if (/关注函/.test(t)) return 'attention'
+  if (/问询/.test(t)) return /工作函/.test(REG_STR(title)) ? 'measure' : 'inquiry'
+  return 'measure'
+}
+/** 只收沪深 A 股代码（北交所、B 股、无代码的拟上市公司不收） */
+const regCode = (...cs) => { for (const c of cs) { const s = REG_STR(c).trim(); if (boardOfCode(s)) return s } return null }
+const exOf = (code) => (/^6/.test(code) ? 'sh' : 'sz')
+
+/** 上交所监管问询 / 监管措施（commonSoaQuery.do 的 result 行） */
+export function parseSseReg(rows) {
+  const out = []
+  for (const r of Array.isArray(rows) ? rows : []) {
+    const date = regYmd(r?.createTime)
+    const code = regCode(r?.stockcode, r?.extSECURITY_CODE)
+    if (!date || !code) continue
+    const ch = REG_STR(r.channelId)
+    let type = regText(r.extWTFL || r.extTYPE) || '函件'
+    if (/^公开认定/.test(type)) type = '公开认定'
+    if (type === '监管关注') type = '监管警示' // 官网页面同样把「监管关注」显示为「监管警示」
+    const title = regText(r.docTitle)
+    const doc = REG_STR(r.docURL)
+    const url = REG_STR(r.extDWDM) === '1' && doc ? (/^https?:/.test(doc) ? doc : `https://${doc.replace(/^\/+/, '')}`) : null
+    const kind = ch === '10008' || ch === '10009' ? 'discipline' : ch === '10007' || ch === '10010' ? 'measure' : regKind(type, title)
+    out.push({ ex: 'sh', code, name: regText(r.extGSJC), date, kind, type, title: title || `${regText(r.extGSJC)} ${type}`, url, src: 'sse' })
+  }
+  return out
+}
+
+const SZ_DOC = 'https://reportdocs.static.szse.cn'
+/** 深交所字段里的 <a encode-open='/UpFiles/...'> → 全文链接 */
+export const szDocLink = (html) => { const m = REG_STR(html).match(/encode-open=['"]([^'"]+)['"]/); return m && m[1].startsWith('/') ? SZ_DOC + m[1] : null }
+
+/** 深交所问询函件（main_wxhj）：fhrq 发函日期、hjlb 函件类别、ck 函件、hfck 公司回复 */
+export function parseSzseInquiry(rows) {
+  const out = []
+  for (const r of Array.isArray(rows) ? rows : []) {
+    const date = regYmd(r?.fhrq), code = regCode(r?.gsdm)
+    if (!date || !code) continue
+    const type = regText(r.hjlb) || '函件'
+    const reply = szDocLink(r.hfck)
+    out.push({ ex: 'sz', code, name: regText(r.gsjc), date, kind: regKind(type), type, title: `${regText(r.gsjc)} ${type}`, url: szDocLink(r.ck), src: 'szse', ...(reply ? { replyUrl: reply } : {}) })
+  }
+  return out
+}
+/** 深交所监管措施（1800_jgxxgk）：没有公司代码的（拟上市公司、个人）不收 */
+export function parseSzseMeasures(rows) {
+  const out = []
+  for (const r of Array.isArray(rows) ? rows : []) {
+    const date = regYmd(r?.gkxx_gdrq), code = regCode(r?.gkxx_gsdm)
+    if (!date || !code) continue
+    const type = regText(r.gkxx_jgcs) || '监管措施'
+    const target = regText(REG_STR(r.gkxx_sjdx).replace(/<br\s*\/?>/gi, '、'))
+    out.push({ ex: 'sz', code, name: regText(r.gkxx_gsjc), date, kind: regKind(type), type, title: `${regText(r.gkxx_gsjc)} ${type}${target ? `（涉及：${target}）` : ''}`, url: szDocLink(r.hjnr), src: 'szse' })
+  }
+  return out
+}
+/** 深交所纪律处分（1759_cxda）：同一份决定按处分类别拆成多行，在 mergeReg 里合并 */
+export function parseSzseDiscipline(rows) {
+  const out = []
+  for (const r of Array.isArray(rows) ? rows : []) {
+    const date = regYmd(r?.fhrq), code = regCode(r?.gsdm)
+    if (!date || !code) continue
+    const type = regText(r.cflb) || '纪律处分'
+    out.push({ ex: 'sz', code, name: regText(r.jc_gsjc), date, kind: 'discipline', type, title: regText(r.hjbt) || `${regText(r.jc_gsjc)} ${type}`, url: szDocLink(r.ck), src: 'szse' })
+  }
+  return out
+}
+
+// 巨潮回复公告的筛选：
+//   - 审核问询（发行 / 重组的注册审核）不是监管问询，排除；
+//   - 「股票交易异常波动问询函」的回函是公司向控股股东发出的自查问询，不是交易所函件，标题未提交易所时排除；
+//   - 中介机构的核查意见、会计师回复（含「函字」文号）只在公司本身当天没发公告时兜底。
+const REVIEW = /审核|申请(文件)?的?问询|注册/
+const SELF_CHECK = /异常波动[^，。]{0,4}问询函/
+const AGENT = /会计师|律师|证券(股份)?有限|证券公司|资产评估|估价|核查意见|专项|财务顾问|保荐|发行人及|评级|函字/
+const replyScore = (title) => (AGENT.test(title) ? 0 : /公告/.test(title) ? 2 : 1)
+/** 巨潮公告搜索结果 → 「问询函 / 关注函」回复公告（每个公司每天一条，优先公司本身的公告） */
+export function parseCninfoReplies(anns) {
+  const best = new Map()
+  for (const a of Array.isArray(anns) ? anns : []) {
+    const title = regText(a?.announcementTitle)
+    const code = regCode(a?.secCode)
+    const t = Number(a?.announcementTime)
+    if (!code || !title || !Number.isFinite(t) || t <= 0) continue
+    if (!/问询函|关注函/.test(title) || !/回复|回函|答复/.test(title) || REVIEW.test(title)) continue
+    if (SELF_CHECK.test(title) && !/交易所/.test(title)) continue
+    const date = new Date(t + 8 * 3600_000).toISOString().slice(0, 10)
+    const adj = REG_STR(a.adjunctUrl).replace(/^\/+/, '')
+    const att = /关注函/.test(title)
+    const score = replyScore(title)
+    const item = { ex: exOf(code), code, name: regText(a.secName), date, kind: att ? 'attention' : 'inquiry', type: att ? '关注函回复' : '问询函回复', title, url: adj ? `https://static.cninfo.com.cn/${adj}` : null, src: 'cninfo', reply: true }
+    const key = `${code}|${date}`
+    const old = best.get(key)
+    if (!old || old.score < score) best.set(key, { ...item, score })
+  }
+  return [...best.values()].map(({ score: _s, ...x }) => x)
+}
+
+const regKey = (x) => [x.ex, x.code, x.date, x.url || x.title].join('|')
+/**
+ * 合并存档与本次结果：同交易所、同公司、同日、同链接（无链接时同标题）视为同一份文件，类别合并（如「公开谴责、通报批评」）；
+ * 只保留 [from, to] 内的沪深 A 股条目；巨潮回复公告若同公司在回复日前 30 天内已有交易所公布的问询 / 关注函，则并入该函件（replyUrl），
+ * 不重复列出。按日期倒序（同日交易所函件在前）。
+ */
+export function mergeReg(oldItems, fresh, from, to) {
+  const m = new Map()
+  for (const x of [...(Array.isArray(oldItems) ? oldItems : []), ...(Array.isArray(fresh) ? fresh : [])]) {
+    if (!x || typeof x.date !== 'string' || x.date < from || x.date > to || !boardOfCode(x.code) || typeof x.type !== 'string') continue
+    const k = regKey(x)
+    const o = m.get(k)
+    if (!o) { m.set(k, { ...x }); continue }
+    const type = [...new Set([...o.type.split('、'), ...x.type.split('、')])].join('、')
+    m.set(k, { ...o, ...x, type, kind: o.kind === 'discipline' || x.kind === 'discipline' ? 'discipline' : x.kind, ...((x.replyUrl ?? o.replyUrl) ? { replyUrl: x.replyUrl ?? o.replyUrl } : {}) })
+  }
+  const all = [...m.values()]
+  const letters = all.filter((x) => !x.reply)
+  const out = [...letters]
+  for (const r of all.filter((x) => x.reply)) {
+    const hit = letters.find((l) => l.code === r.code && (l.kind === 'inquiry' || l.kind === 'attention') && l.date <= r.date && l.date >= addDays(r.date, -REG_DAYS))
+    if (hit) { if (!hit.replyUrl && r.url) hit.replyUrl = r.url; continue }
+    out.push(r)
+  }
+  return out.sort((a, b) => b.date.localeCompare(a.date) || Number(!!a.reply) - Number(!!b.reply) || a.code.localeCompare(b.code))
+}
+
+/** 最近 5 / 20 个交易日（含 date）各类条数；起点为第 5 / 20 个交易日，期间非交易日发布的也计入。replies = 其中巨潮回复公告条数 */
+export function regCounts(items, date) {
+  const one = (n) => {
+    const from = tradingDaysBack(date, n).at(-1)
+    const rows = items.filter((x) => x.date >= from && x.date <= date)
+    return { from, ...Object.fromEntries(REG_KINDS.map((k) => [k.id, rows.filter((x) => x.kind === k.id).length])), replies: rows.filter((x) => x.reply).length, companies: new Set(rows.map((x) => x.code)).size }
+  }
+  return { d5: one(5), d20: one(20) }
+}
+
+/** 给每条记录附上今日涨跌幅 pct（来自当日行情，停牌 / 缺失为 null）与今日 3 日累计偏离值 dev3 */
+export function attachToday(items, pctOf, devOf) {
+  const get = (m, k) => { const v = m?.get?.(k); return typeof v === 'number' && Number.isFinite(v) ? Math.round(v * 100) / 100 : null }
+  return items.map((x) => ({ ...x, pct: get(pctOf, x.code), dev3: get(devOf, x.code) }))
+}

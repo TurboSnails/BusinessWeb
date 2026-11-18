@@ -42,6 +42,23 @@ export type Summary = {
   suspended: number | null; resumed: number | null; lhbPredicted: number; lhbHit: number | null; radarTotal: number | null
 }
 
+export type RegKind = 'inquiry' | 'attention' | 'measure' | 'discipline'
+export type RegItem = {
+  ex: 'sh' | 'sz'; code: string; name: string; date: string; kind: RegKind; type: string; title: string
+  /** 函件 / 决定全文（交易所未公开全文时为 null）；回复公告为巨潮公告 PDF */
+  url: string | null
+  src: 'sse' | 'szse' | 'cninfo'
+  /** true = 巨潮回复公告（不是函件原文） */
+  reply?: boolean
+  replyUrl?: string
+  /** 今日涨跌幅（%，停牌 / 缺失为 null）与今日 3 日累计偏离值 */
+  pct: number | null
+  dev3: number | null
+}
+export type RegCount = { from: string; inquiry: number; attention: number; measure: number; discipline: number; replies: number; companies: number }
+export type RegSource = { id: string; label: string; url: string; ok: boolean; n: number | null; error?: string }
+export type Regulatory = { from: string; to: string; partial: boolean; sources: RegSource[]; counts: { d5: RegCount; d20: RegCount } | null; items: RegItem[] }
+
 export type KplAbnormal = {
   version: 1
   generatedAt: string
@@ -56,6 +73,8 @@ export type KplAbnormal = {
   lhb: { available: boolean; rows: LhbRow[]; missed: LhbMissed[]; stats: LhbStats | null; backtest: Backtest | null }
   suspend: Suspend | null
   radar: Radar | null
+  regulatory: Regulatory | null
+  regulatoryNote: string | null
   history: HistoryDay[]
   archive: { from: string | null; to: string; days: number; backfilled: number } | null
   sources: Array<{ id: string; label: string; url: string }>
@@ -65,6 +84,31 @@ const isObj = (x: unknown): x is Record<string, unknown> => typeof x === 'object
 const isDate = (x: unknown): x is string => typeof x === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(x)
 const rowsOk = (x: unknown): boolean => Array.isArray(x) && x.every(r => isObj(r) && typeof r.code === 'string' && typeof r.name === 'string')
 const list = <T,>(x: unknown, ok = rowsOk): T[] => (ok(x) ? (x as T[]) : [])
+
+const REG_KIND_SET = new Set(['inquiry', 'attention', 'measure', 'discipline'])
+const numOrNull = (x: unknown): number | null => (typeof x === 'number' && Number.isFinite(x) ? x : null)
+const strOrNull = (x: unknown): string | null => (typeof x === 'string' && x !== '' ? x : null)
+const isCount = (x: unknown): x is RegCount => isObj(x) && isDate(x.from) && ['inquiry', 'attention', 'measure', 'discipline', 'replies', 'companies'].every(k => typeof x[k] === 'number')
+/** 监管问询区块：结构不对时整块按缺失（null）；单条缺关键字段的丢弃 */
+export function asRegulatory(x: unknown): Regulatory | null {
+  if (!isObj(x) || !isDate(x.from) || !isDate(x.to) || !Array.isArray(x.items)) return null
+  const items: RegItem[] = []
+  for (const r of x.items) {
+    if (!isObj(r) || typeof r.code !== 'string' || !isDate(r.date) || typeof r.kind !== 'string' || !REG_KIND_SET.has(r.kind)) continue
+    items.push({
+      ex: r.ex === 'sh' ? 'sh' : 'sz', code: r.code, name: typeof r.name === 'string' ? r.name : '', date: r.date, kind: r.kind as RegKind,
+      type: typeof r.type === 'string' ? r.type : '', title: typeof r.title === 'string' ? r.title : '', url: strOrNull(r.url),
+      src: r.src === 'sse' || r.src === 'szse' || r.src === 'cninfo' ? r.src : 'cninfo', reply: r.reply === true,
+      ...(strOrNull(r.replyUrl) ? { replyUrl: r.replyUrl as string } : {}), pct: numOrNull(r.pct), dev3: numOrNull(r.dev3),
+    })
+  }
+  const c = isObj(x.counts) ? x.counts : null
+  return {
+    from: x.from, to: x.to, partial: x.partial === true, items,
+    sources: Array.isArray(x.sources) ? (x.sources.filter(s => isObj(s) && typeof s.id === 'string' && typeof s.label === 'string') as RegSource[]) : [],
+    counts: c && isCount(c.d5) && isCount(c.d20) ? { d5: c.d5, d20: c.d20 } : null,
+  }
+}
 
 /** 结构校验：关键字段缺失时返回 null，页面显示「数据文件格式不对」；次要部分缺失时按空显示 */
 export function asKplAbnormal(body: unknown): KplAbnormal | null {
@@ -88,6 +132,8 @@ export function asKplAbnormal(body: unknown): KplAbnormal | null {
     },
     suspend: sp ? { today: list<SuspendRow>(sp.today), intraday: list<SuspendRow>(sp.intraday), resumed: list<SuspendRow>(sp.resumed) } : null,
     radar: radar ? { ...radar, buckets: Array.isArray(radar.buckets) ? radar.buckets : [], top: isObj(radar.top) ? radar.top : {}, timeline: Array.isArray(radar.timeline) ? radar.timeline : [] } : null,
+    regulatory: asRegulatory(body.regulatory),
+    regulatoryNote: typeof body.regulatoryNote === 'string' ? body.regulatoryNote : null,
     indices: Array.isArray(body.indices) ? (body.indices as KplAbnormal['indices']) : [],
     history: list<HistoryDay>(body.history, x => Array.isArray(x) && x.every(d => isObj(d) && isDate(d.date))),
     archive: isObj(body.archive) ? (body.archive as KplAbnormal['archive']) : null,
@@ -129,5 +175,6 @@ export const METHOD = {
   backtest: '回测：过去有本站龙虎榜数据的交易日，按规则计算的「3 日异常波动」与实际上榜逐只对照（计算本身不使用当天的实际结果，只用实际结果确定之前的重新计算起点）。',
   suspend: '停牌 / 复牌：东财数据中心停复牌信息。当日停牌 = 停牌开始日不晚于今日、且未在今日之前复牌的全天停牌；盘中停牌为当日盘中临时停牌（多为交易异常波动）；复牌 10 日内 = 复牌首日起算第 1～10 个交易日（含今日），复牌后涨跌按本站逐日存档复利计算。',
   radar: '盘中异动雷达（盘后回放）：东财「盘口异动」当日全部事件，按类型计数、按半小时统计分布，并列出事件最多的个股。该接口没有日期参数，只能在交易日收盘后当天采集，补不了历史；事件定义由东财给出（如火箭发射 = 短时快速拉升），本站不改动。',
-  skipped: '未做：问询函 / 监管函（深交所接口默认不按日期排序、上交所需另行解析，后续再接）；重点监控名单（交易所不公开发布）；盘中实时触发提醒（需要盘中行情，本页只做收盘后）；北交所（异常波动规则不同，未纳入）；「3 日日均换手率是前 5 日 30 倍」类异常波动（需要更多换手数据，未建模）。',
+  regulatory: '监管问询：近 30 个自然日沪深交易所公开的问询函 / 关注函、监管函 / 监管工作函 / 监管警示（监管措施）、通报批评 / 公开谴责 / 公开认定（纪律处分），按发布日期倒序。来源为上交所「监管问询」「监管措施」、深交所「问询函件」「监管措施」「纪律处分」的官网公开查询接口；交易所只公开部分函件（上交所监管工作函多数只列标题、不公开全文），所以另用巨潮资讯公告搜索补充公司发布的「问询函 / 关注函回复」公告——这类条目标为「回复公告」，日期是回复公告日，链接是公司公告而不是函件原文；发行 / 重组注册阶段的「审核问询函」、公司向控股股东发出的「股票交易异常波动问询函」回函不算。去重：同一交易所、同一公司、同日、同一全文链接视为一条（同一份处分决定的多个处分类别合并显示）；回复公告所对应的函件若已由交易所公布（回复日前 30 天内），只保留函件并附回复链接。条目逐日存档（data-raw，保留 45 天），某个来源某天取不到时沿用存档。只收有沪深 A 股代码的条目（不含北交所、拟上市公司）；交易所把对中介机构的处分挂在相关公司名下时照列，标题里写明当事人。今日涨跌幅取本页当日行情（新浪收盘快照或东财日 K），停牌或缺失显示 —；3 日偏离值同上方偏离值口径。',
+  skipped: '未做：重点监控名单（交易所不公开发布）；交易所未公开的问询 / 监管函件（只能列出公开部分和公司回复公告）；盘中实时触发提醒（需要盘中行情，本页只做收盘后）；北交所（异常波动规则不同，未纳入）；「3 日日均换手率是前 5 日 30 倍」类异常波动（需要更多换手数据，未建模）。',
 } as const
