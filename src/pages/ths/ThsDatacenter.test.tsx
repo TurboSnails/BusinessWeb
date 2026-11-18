@@ -3,8 +3,8 @@ import { cleanup, fireEvent, render, screen, within } from '@testing-library/rea
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import ThsDatacenter from './ThsDatacenter'
-import { datacenterFixture } from '../../features/ths-datacenter/fixtures'
-import { asThsDatacenter, type ThsDatacenter as Data } from '../../features/ths-datacenter/model'
+import { datacenterFixture, reportsFixture } from '../../features/ths-datacenter/fixtures'
+import { asReports, asThsDatacenter, type ThsDatacenter as Data } from '../../features/ths-datacenter/model'
 
 const renderPage = () => render(<MemoryRouter initialEntries={['/ths-mood/datacenter']}><ThsDatacenter /></MemoryRouter>)
 const stub = (body: unknown, ok = true) => vi.stubGlobal('fetch', vi.fn(async () => ({ ok, json: async () => body })))
@@ -104,6 +104,48 @@ describe('同花顺 · 数据中心页', () => {
     expect(within(top).getAllByText('—').length).toBeGreaterThan(0)
   })
 
+  it('研报评级：统计日列表、目标价空间与停牌、标题链接、待计入提示、上调与首次、覆盖最多、行业计数', async () => {
+    stub(datacenterFixture()); renderPage()
+    await screen.findByLabelText('数据中心总览')
+    const r = card('研报评级')
+    expect(within(r).getByText(/统计日 2026-11-17：个股研报 3 篇、行业研报 2 篇/)).toBeTruthy()
+    expect(within(r).getByText(/今天（2026-11-18）已收录个股研报 14 篇/)).toBeTruthy()
+    const t = within(r).getByRole('region', { name: '统计日个股研报' })
+    expect(within(t).getAllByRole('row')).toHaveLength(4)
+    expect(within(t).getByText('+10.0% ~ +20.0%').className).toContain('mm-up')
+    expect(within(t).getByText('11.00–12.00')).toBeTruthy()
+    expect(within(t).getByText('停牌')).toBeTruthy()
+    expect(within(t).getByText('上调').className).toContain('is-up')
+    expect(within(t).getByRole('link', { name: '标题AP2026111700000001' }).getAttribute('href')).toBe('https://data.eastmoney.com/report/info/AP2026111700000001.html')
+    expect(within(r).getByText(/不转载正文/)).toBeTruthy()
+    expect(within(r).getByText(/不是本站的判断/)).toBeTruthy()
+    fireEvent.click(within(r).getByText('上调与首次'))
+    expect(within(within(r).getByRole('region', { name: '近 7 日评级上调' })).getAllByRole('row')).toHaveLength(2)
+    expect(within(within(r).getByRole('region', { name: '近 7 日首次覆盖' })).getByText('11/13')).toBeTruthy()
+    fireEvent.click(within(r).getByText('覆盖最多'))
+    expect(within(within(r).getByRole('region', { name: '近 30 日被覆盖最多的个股' })).getByText('覆盖甲')).toBeTruthy()
+    fireEvent.click(within(r).getByText('行业研报'))
+    const ind = within(r).getByRole('region', { name: '行业研报按行业计数' })
+    expect(within(ind).getByText('汽车零部件')).toBeTruthy()
+    expect(within(ind).getByText('71')).toBeTruthy()
+    expect(within(r).getByText(/一次性补取/)).toBeTruthy()
+  })
+
+  it('研报评级缺失或格式异常：只这一段显示 EmptyState 和原因，其他板块照常', async () => {
+    const f = datacenterFixture(); f.reports = null; f.reportsError = '研报列表获取失败（HTTP 502）'
+    stub(f); renderPage()
+    await screen.findByLabelText('数据中心总览')
+    const r = card('研报评级')
+    expect(within(r).getByText('暂无研报评级数据')).toBeTruthy()
+    expect(within(r).getByText(/HTTP 502/)).toBeTruthy()
+    cleanup()
+    const g = datacenterFixture() as any; g.reports.rows[0].upLow = '10'
+    stub(g); renderPage()
+    await screen.findByLabelText('数据中心总览')
+    expect(within(card('研报评级')).getByText('研报评级数据格式异常')).toBeTruthy()
+    expect(card('股票回购')).toBeTruthy()
+  })
+
   it('404、JSON 解析异常和网络错误显示 EmptyState', async () => {
     for (const fetcher of [async () => ({ ok: false }), async () => ({ ok: true, json: async () => { throw new SyntaxError('HTML') } }), async () => { throw new Error('offline') }]) {
       vi.stubGlobal('fetch', vi.fn(fetcher)); renderPage()
@@ -138,5 +180,28 @@ describe('数据中心运行时模型', () => {
     ]) { const x = datacenterFixture(); mutate(x); expect(asThsDatacenter(x)).toBeNull() }
     const x = datacenterFixture(); x.sources[0].url = 'javascript:alert(1)'
     expect(asThsDatacenter(x)?.sources).toEqual([])
+  })
+})
+
+describe('研报评级段校验', () => {
+  it('完整通过；字段类型、评级变动、链接域名、日期越界不通过；旧文件没有这一段时为 null', () => {
+    expect(asReports(reportsFixture())).not.toBeNull()
+    for (const mutate of [
+      (x: any) => { x.day = '2026-13-01' },
+      (x: any) => { x.rows[0].change = '调高' },
+      (x: any) => { x.rows[0].aimHigh = '' },
+      (x: any) => { x.rows[0].url = 'https://evil.example/x' },
+      (x: any) => { x.rows[0].date = '2026-11-16' },
+      (x: any) => { x.upgrades[0].date = '2026-11-18' },
+      (x: any) => { x.initiations[0].date = '2026-11-01' },
+      (x: any) => { x.covered[0].count = null },
+      (x: any) => { x.industries[0].n7 = '1' },
+      (x: any) => { x.pending = { date: 'x' } },
+    ]) { const x = reportsFixture(); mutate(x); expect(asReports(x)).toBeNull() }
+    const old = datacenterFixture() as any; delete old.reports; delete old.reportsError
+    const d = asThsDatacenter(old)
+    expect(d).not.toBeNull()
+    expect(d?.reports).toBeNull()
+    expect(d?.reportsError).toBeNull()
   })
 })

@@ -33,3 +33,8 @@
 @media (max-width: 640px) {
   .dc-top__value { font-size: 1.2rem; }
 }
+/* 研报评级 */
+.dc-title { display: inline-block; max-width: 22em; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom; }
+.dc-muted { color: var(--text-tertiary); font-size: 0.8rem; }
+.dc-sub { margin: 14px 0 8px; font-size: 0.92rem; font-weight: 600; }
+.dc-sub:first-child { margin-top: 4px; }
