@@ -55,7 +55,7 @@ jobs:
             timeout --kill-after=10 "$limit" node "$file" || status=$?
 
             if [[ "$status" != 0 && "$status" != 124 && "$status" != 137 ]] && (( budget - SECONDS >= 120 )); then
-              echo "$file 运行失败（退出码 $status），30 秒后重跑一次"
+              echo "$file 运行失败（退出码 ${status}），30 秒后重跑一次"
               sleep 30
               left=$(( budget - SECONDS ))
               if (( left > 0 )); then
@@ -68,7 +68,7 @@ jobs:
             case "$status" in
               0) return 0 ;;
               124|137) echo "::warning::$file 超时（上限 ${limit} 秒），保留上一份数据" ;;
-              *) echo "::warning::$file 运行失败（退出码 $status），保留上一份数据" ;;
+              *) echo "::warning::$file 运行失败（退出码 ${status}），保留上一份数据" ;;
             esac
           }
 
