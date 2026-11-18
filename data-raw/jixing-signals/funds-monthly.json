@@ -1,0 +1,355 @@
+{
+ "updatedAt": "2026-11-17",
+ "months": [
+  {
+   "month": "2013-08",
+   "equity": 0,
+   "equityFunds": 0,
+   "unknown": 0,
+   "funds": 1
+  },
+  {
+   "month": "2018-08",
+   "equity": 0,
+   "equityFunds": 0,
+   "unknown": 0,
+   "funds": 1
+  },
+  {
+   "month": "2022-12",
+   "equity": 0,
+   "equityFunds": 0,
+   "unknown": 0,
+   "funds": 1
+  },
+  {
+   "month": "2023-01",
+   "equity": 154.98,
+   "equityFunds": 21,
+   "unknown": 1,
+   "funds": 46
+  },
+  {
+   "month": "2023-02",
+   "equity": 230.44,
+   "equityFunds": 29,
+   "unknown": 0,
+   "funds": 66
+  },
+  {
+   "month": "2023-03",
+   "equity": 401.76,
+   "equityFunds": 73,
+   "unknown": 5,
+   "funds": 141
+  },
+  {
+   "month": "2023-04",
+   "equity": 228.74,
+   "equityFunds": 38,
+   "unknown": 0,
+   "funds": 88
+  },
+  {
+   "month": "2023-05",
+   "equity": 238.39,
+   "equityFunds": 45,
+   "unknown": 2,
+   "funds": 90
+  },
+  {
+   "month": "2023-06",
+   "equity": 181.88,
+   "equityFunds": 34,
+   "unknown": 2,
+   "funds": 87
+  },
+  {
+   "month": "2023-07",
+   "equity": 168.89,
+   "equityFunds": 32,
+   "unknown": 0,
+   "funds": 69
+  },
+  {
+   "month": "2023-08",
+   "equity": 140.45,
+   "equityFunds": 37,
+   "unknown": 5,
+   "funds": 90
+  },
+  {
+   "month": "2023-09",
+   "equity": 237.89,
+   "equityFunds": 67,
+   "unknown": 4,
+   "funds": 148
+  },
+  {
+   "month": "2023-10",
+   "equity": 110.07,
+   "equityFunds": 28,
+   "unknown": 1,
+   "funds": 66
+  },
+  {
+   "month": "2023-11",
+   "equity": 223.04,
+   "equityFunds": 62,
+   "unknown": 1,
+   "funds": 138
+  },
+  {
+   "month": "2023-12",
+   "equity": 313.43,
+   "equityFunds": 92,
+   "unknown": 1,
+   "funds": 171
+  },
+  {
+   "month": "2024-01",
+   "equity": 93.97,
+   "equityFunds": 53,
+   "unknown": 1,
+   "funds": 101
+  },
+  {
+   "month": "2024-02",
+   "equity": 82.24,
+   "equityFunds": 31,
+   "unknown": 1,
+   "funds": 59
+  },
+  {
+   "month": "2024-03",
+   "equity": 315.97,
+   "equityFunds": 70,
+   "unknown": 0,
+   "funds": 137
+  },
+  {
+   "month": "2024-04",
+   "equity": 185.22,
+   "equityFunds": 66,
+   "unknown": 1,
+   "funds": 119
+  },
+  {
+   "month": "2024-05",
+   "equity": 156.49,
+   "equityFunds": 59,
+   "unknown": 0,
+   "funds": 102
+  },
+  {
+   "month": "2024-06",
+   "equity": 183.22,
+   "equityFunds": 64,
+   "unknown": 0,
+   "funds": 116
+  },
+  {
+   "month": "2024-07",
+   "equity": 80.69,
+   "equityFunds": 45,
+   "unknown": 1,
+   "funds": 88
+  },
+  {
+   "month": "2024-08",
+   "equity": 100.2,
+   "equityFunds": 47,
+   "unknown": 2,
+   "funds": 79
+  },
+  {
+   "month": "2024-09",
+   "equity": 270.16,
+   "equityFunds": 55,
+   "unknown": 2,
+   "funds": 95
+  },
+  {
+   "month": "2024-10",
+   "equity": 170.43,
+   "equityFunds": 40,
+   "unknown": 1,
+   "funds": 64
+  },
+  {
+   "month": "2024-11",
+   "equity": 1078.18,
+   "equityFunds": 70,
+   "unknown": 7,
+   "funds": 110
+  },
+  {
+   "month": "2024-12",
+   "equity": 361.91,
+   "equityFunds": 66,
+   "unknown": 29,
+   "funds": 144
+  },
+  {
+   "month": "2025-01",
+   "equity": 277.68,
+   "equityFunds": 73,
+   "unknown": 0,
+   "funds": 113
+  },
+  {
+   "month": "2025-02",
+   "equity": 315.7,
+   "equityFunds": 40,
+   "unknown": 0,
+   "funds": 57
+  },
+  {
+   "month": "2025-03",
+   "equity": 467.85,
+   "equityFunds": 93,
+   "unknown": 4,
+   "funds": 144
+  },
+  {
+   "month": "2025-04",
+   "equity": 490.64,
+   "equityFunds": 99,
+   "unknown": 3,
+   "funds": 135
+  },
+  {
+   "month": "2025-05",
+   "equity": 292.86,
+   "equityFunds": 73,
+   "unknown": 1,
+   "funds": 100
+  },
+  {
+   "month": "2025-06",
+   "equity": 511.83,
+   "equityFunds": 108,
+   "unknown": 8,
+   "funds": 168
+  },
+  {
+   "month": "2025-07",
+   "equity": 449.22,
+   "equityFunds": 99,
+   "unknown": 1,
+   "funds": 144
+  },
+  {
+   "month": "2025-08",
+   "equity": 597.96,
+   "equityFunds": 107,
+   "unknown": 3,
+   "funds": 146
+  },
+  {
+   "month": "2025-09",
+   "equity": 940.64,
+   "equityFunds": 146,
+   "unknown": 4,
+   "funds": 212
+  },
+  {
+   "month": "2025-10",
+   "equity": 383.65,
+   "equityFunds": 64,
+   "unknown": 0,
+   "funds": 94
+  },
+  {
+   "month": "2025-11",
+   "equity": 539.17,
+   "equityFunds": 98,
+   "unknown": 7,
+   "funds": 151
+  },
+  {
+   "month": "2025-12",
+   "equity": 438.79,
+   "equityFunds": 111,
+   "unknown": 1,
+   "funds": 184
+  },
+  {
+   "month": "2026-01",
+   "equity": 759.53,
+   "equityFunds": 91,
+   "unknown": 3,
+   "funds": 126
+  },
+  {
+   "month": "2026-02",
+   "equity": 454.44,
+   "equityFunds": 69,
+   "unknown": 0,
+   "funds": 109
+  },
+  {
+   "month": "2026-03",
+   "equity": 598.81,
+   "equityFunds": 93,
+   "unknown": 0,
+   "funds": 146
+  },
+  {
+   "month": "2026-04",
+   "equity": 424.17,
+   "equityFunds": 109,
+   "unknown": 3,
+   "funds": 170
+  },
+  {
+   "month": "2026-05",
+   "equity": 622.62,
+   "equityFunds": 98,
+   "unknown": 0,
+   "funds": 133
+  },
+  {
+   "month": "2026-06",
+   "equity": 552.45,
+   "equityFunds": 136,
+   "unknown": 0,
+   "funds": 211
+  },
+  {
+   "month": "2026-07",
+   "equity": 305.43,
+   "equityFunds": 83,
+   "unknown": 1,
+   "funds": 154
+  },
+  {
+   "month": "2026-08",
+   "equity": 239.36,
+   "equityFunds": 101,
+   "unknown": 0,
+   "funds": 153
+  },
+  {
+   "month": "2026-09",
+   "equity": 314.37,
+   "equityFunds": 134,
+   "unknown": 0,
+   "funds": 216
+  },
+  {
+   "month": "2026-10",
+   "equity": 285.81,
+   "equityFunds": 68,
+   "unknown": 0,
+   "funds": 101
+  },
+  {
+   "month": "2026-11",
+   "equity": 197.75,
+   "equityFunds": 54,
+   "unknown": 0,
+   "funds": 97
+  }
+ ]
+}

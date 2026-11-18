@@ -1,0 +1,27 @@
+/* 今天几星 · 今日星级 */
+.js-hero__main { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; }
+.js-hero__star { margin: 0; display: flex; align-items: baseline; gap: 6px; }
+.js-hero__star strong { font-size: 3.4rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.js-hero__star span { color: var(--text-secondary); font-size: 1.1rem; }
+.js-hero__meta { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-width: 0; flex: 1 1 220px; }
+.js-hero__change { margin: 0; color: var(--text-secondary); font-size: 0.9rem; }
+.js-hero__change b { font-variant-numeric: tabular-nums; }
+.js-ruler { margin: 14px 0 0; }
+.js-ruler svg { width: 100%; height: auto; display: block; }
+.js-ruler__band { fill-opacity: 0.85; }
+.js-ruler__band.is-b1 { fill: var(--up); }
+.js-ruler__band.is-b2 { fill: var(--up); fill-opacity: 0.45; }
+.js-ruler__band.is-b3 { fill: var(--accent-warm); fill-opacity: 0.55; }
+.js-ruler__band.is-b4 { fill: var(--down); fill-opacity: 0.45; }
+.js-ruler__band.is-b5 { fill: var(--down); }
+.js-ruler__label { fill: var(--text-secondary); font-size: 13px; }
+.js-ruler__tick { fill: var(--text-tertiary); font-size: 11px; }
+.js-ruler__mark { fill: var(--text-primary); }
+.js-ruler__needle { stroke: var(--text-primary); stroke-width: 2; }
+.js-sub { font-size: 0.95rem; margin: 18px 0 6px; }
+.js-list { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 8px; line-height: 1.7; font-size: 0.88rem; color: var(--text-secondary); }
+@media (max-width: 480px) {
+  .js-hero__star strong { font-size: 2.8rem; }
+  .js-ruler__label { font-size: 15px; }
+}
+.js-table th, .js-table td { white-space: nowrap; }
