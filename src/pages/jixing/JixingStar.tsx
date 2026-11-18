@@ -1,8 +1,10 @@
 // 今天几星 · 今日星级（/jixing）：本站自定的 A 股估值星级（1.0–5.9 星，越高越便宜），公开数据收盘后每天计算一次。
 import React, { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Badge, Card, EmptyState, Page, Segmented, TableWrap } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
 import JixingTabs, { JIXING_DISCLAIMER } from '../../features/jixing-tabs/JixingTabs'
+import { SampleFootnote } from '../../features/jixing-tabs/StatusBadge'
 import MoodChart from '../../features/market-mood/MoodChart'
 import { METHOD, asJixingStar, bandOf, fix, pct, signed, starTone, type JixingStarData, type StarInput } from '../../features/jixing-star/model'
 import '../../styles/market-mood.css'
@@ -13,21 +15,29 @@ const ym = (d: string): string => `${d.slice(2, 4)}/${Number(d.slice(5, 7))}`
 const yy = (d: string): string => d.slice(0, 4)
 const back = (d: string, years: number): string => `${Number(d.slice(0, 4)) - years}${d.slice(4)}`
 
-/** 星级尺：1–6 等分 5 段，标出当前星级。 */
+/** 星级尺：色条在 SVG 内；刻度/标签用 HTML，避免 viewBox 缩放把字压到 12px 以下。 */
 function Ruler({ data }: { data: JixingStarData }): JSX.Element {
   const W = 600, L = 8, R = 8
   const x = (v: number): number => L + ((v - 1) / 5) * (W - L - R)
   const bands = [...data.bands].sort((a, b) => a.min - b.min)
   return <figure className="js-ruler">
-    <svg viewBox={`0 0 ${W} 64`} role="img" aria-label={`星级尺：当前 ${data.star.toFixed(1)} 星，位于「${data.band}」区间`}>
-      {bands.map((b, i) => <g key={b.label}>
-        <rect className={`js-ruler__band is-b${i + 1}`} x={x(b.min)} y={22} width={x(b.min + 1) - x(b.min) - 2} height={14} rx={3} />
-        <text className="js-ruler__label" x={(x(b.min) + x(b.min + 1)) / 2} y={54} textAnchor="middle">{b.label}</text>
-        <text className="js-ruler__tick" x={x(b.min) + 2} y={16}>{b.min}</text>
-      </g>)}
-      <path className="js-ruler__mark" d={`M${x(data.star)},38 l-6,9 h12 z`} />
-      <line className="js-ruler__needle" x1={x(data.star)} x2={x(data.star)} y1={18} y2={40} />
+    <div className="js-ruler__ticks" aria-hidden="true">
+      {bands.map((b, i) => (
+        <span key={`t-${b.min}`} className={i === bands.length - 1 ? 'is-end' : undefined}>
+          {b.min}{i === bands.length - 1 ? <em>6</em> : null}
+        </span>
+      ))}
+    </div>
+    <svg viewBox={`0 0 ${W} 40`} role="img" aria-label={`星级尺：当前 ${data.star.toFixed(1)} 星，位于「${data.band}」区间`}>
+      {bands.map((b, i) => (
+        <rect key={b.label} className={`js-ruler__band is-b${i + 1}`} x={x(b.min)} y={10} width={x(b.min + 1) - x(b.min) - 2} height={14} rx={3} />
+      ))}
+      <path className="js-ruler__mark" d={`M${x(data.star)},26 l-6,9 h12 z`} />
+      <line className="js-ruler__needle" x1={x(data.star)} x2={x(data.star)} y1={6} y2={28} />
     </svg>
+    <div className="js-ruler__labels" aria-hidden="true">
+      {bands.map(b => <span key={b.label}>{b.label}</span>)}
+    </div>
   </figure>
 }
 
@@ -46,23 +56,27 @@ function Hero({ data }: { data: JixingStarData }): JSX.Element {
       </div>
     </div>
     <Ruler data={data} />
-    <p className="mm-method">{METHOD.bands}</p>
+    <SampleFootnote>{METHOD.bands}</SampleFootnote>
   </Card>
 }
 
 function InputsCard({ data }: { data: JixingStarData }): JSX.Element {
   const { pe, pb, erp } = data.inputs
   const win = (i: StarInput): string => (i.start ? `${i.start} 起 ${i.n} 个交易日` : '—')
-  const rows: Array<{ name: string; i: StarInput; value: string; median: string; hint: string }> = [
-    { name: '中证全指 PE(TTM)', i: pe, value: fix(pe.value), median: fix(pe.median), hint: '越低越便宜' },
-    { name: '沪深市场 PB', i: pb, value: fix(pb.value), median: fix(pb.median), hint: '越低越便宜' },
-    { name: '股债性价比', i: erp, value: erp.value === null ? '—' : `${fix(erp.value)} 个百分点`, median: erp.median === null ? '—' : `${fix(erp.median)} 个百分点`, hint: '越高越便宜' },
+  const rows: Array<{ name: React.ReactNode; key: string; i: StarInput; value: string; median: string; hint: string }> = [
+    { key: 'pe', name: <>中证全指 PE(TTM) <Link to="/jixing/table?code=000985">估值表</Link></>, i: pe, value: fix(pe.value), median: fix(pe.median), hint: '越低越便宜' },
+    { key: 'pb', name: <>沪深市场 PB <Link to="/jixing/signals">信号板</Link></>, i: pb, value: fix(pb.value), median: fix(pb.median), hint: '越低越便宜' },
+    { key: 'erp', name: <>股债性价比 <Link to="/jixing/signals">信号板</Link></>, i: erp, value: erp.value === null ? '—' : `${fix(erp.value)} 个百分点`, median: erp.median === null ? '—' : `${fix(erp.median)} 个百分点`, hint: '越高越便宜' },
   ]
   return <Card as="section" className="mm-card" title="三项输入" description={`同一交易日 ${data.asOf} 的数据；分位窗口为滚动近 ${data.params.windowYears} 年（不足时为已有全部历史）。`}>
+    <ul className="jx-links">
+      <li><Link to="/jixing/table?code=000985">A股估值表 · 中证全指</Link></li>
+      <li><Link to="/jixing/signals">牛熊信号板 · 股债性价比 / PB</Link></li>
+    </ul>
     <TableWrap label="星级的三项输入" stickyFirst>
       <table className="mm-table js-table">
         <thead><tr>{['输入', '当前值', `近 ${data.params.windowYears} 年中位数`, '历史分位', '窗口', '分项星'].map(h => <th key={h} scope="col">{h}</th>)}</tr></thead>
-        <tbody>{rows.map(r => <tr key={r.name}>
+        <tbody>{rows.map(r => <tr key={r.key}>
           <th scope="row">{r.name}<small>{r.hint}</small></th>
           <td className="num">{r.value}</td>
           <td className="num">{r.median}</td>
@@ -72,8 +86,8 @@ function InputsCard({ data }: { data: JixingStarData }): JSX.Element {
         </tr>)}</tbody>
       </table>
     </TableWrap>
-    <p className="mm-method">股债性价比 = 盈利收益率 {erp.ey === null ? '—' : `${fix(erp.ey)}%`}（100 ÷ PE）− 10 年期国债收益率 {erp.y10 === null ? '—' : `${fix(erp.y10, 4)}%`}。</p>
-    <p className="mm-method">{METHOD.pct}</p>
+    <SampleFootnote>股债性价比 = 盈利收益率 {erp.ey === null ? '—' : `${fix(erp.ey)}%`}（100 ÷ PE）− 10 年期国债收益率 {erp.y10 === null ? '—' : `${fix(erp.y10, 4)}%`}。</SampleFootnote>
+    <SampleFootnote>{METHOD.pct}</SampleFootnote>
   </Card>
 }
 

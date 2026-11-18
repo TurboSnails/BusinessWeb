@@ -1,18 +1,17 @@
 // 今天几星 · A股估值表（/jixing/table）
 import React, { useEffect, useState } from 'react'
-import { Badge, Card, Dialog, EmptyState, Page, Segmented, TableWrap } from '../../components/ui'
+import { Link, useSearchParams } from 'react-router-dom'
+import { Card, Dialog, EmptyState, Page, Segmented, TableWrap } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
 import JixingTabs, { JIXING_DISCLAIMER } from '../../features/jixing-tabs/JixingTabs'
-import { asJixingTable, GROUPS, METHOD, type GroupFilter, type JixingTableData, type ValuationRow, type ValuationStatus } from '../../features/jixing-table/model'
+import { SampleFootnote, StatusBadge, StatusLegend, VALUATION_STATUS } from '../../features/jixing-tabs/StatusBadge'
+import {
+  asJixingTable, asJixingTableHist, GROUPS, histUrl, METHOD,
+  type GroupFilter, type JixingTableData, type JixingTableHist, type ValuationRow, type ValuationStatus,
+} from '../../features/jixing-table/model'
 import MoodChart from '../../features/market-mood/MoodChart'
 import '../../styles/market-mood.css'
 import '../../styles/jixing-table.css'
-
-const STATUS = {
-  low: { label: '低估', tone: 'down', order: 0 },
-  normal: { label: '正常', tone: 'warm', order: 1 },
-  high: { label: '高估', tone: 'up', order: 2 },
-} as const
 
 const fixed = (v: number | null): string => v === null ? '—' : v.toFixed(2)
 const percent = (v: number | null): string => v === null ? '—' : `${(v * 100).toFixed(1)}%`
@@ -31,42 +30,124 @@ const COLUMNS: Column[] = [
   { key: 'code', label: '代码', value: r => r.code },
   { key: 'pe', label: 'PE(TTM)', value: r => r.pe, numeric: true, render: r => fixed(r.pe) },
   { key: 'pePct', label: 'PE 百分位', value: r => r.pePct, numeric: true, render: r => percent(r.pePct) },
-  { key: 'pb', label: 'PB', value: r => r.pb, numeric: true, render: r => fixed(r.pb) },
+  { key: 'pb', label: 'PB', value: r => r.pb, numeric: true, render: r => (
+    <>
+      {fixed(r.pb)}
+      {r.pbKind === 'industry' && r.pbIndustry ? <small className="jt-pb-tag" title={METHOD.pbIndustry}>行业·{r.pbIndustry.name}</small> : null}
+    </>
+  ) },
   { key: 'pbPct', label: 'PB 百分位', value: r => r.pbPct, numeric: true,
     render: r => r.pbPct === null && r.pbHistory.count > 0 ? <span title="达到 250 个有效样本后计算">积累中</span> : percent(r.pbPct) },
   { key: 'dp', label: '股息率', value: r => r.dp, numeric: true, render: r => r.dp === null ? '—' : `${fixed(r.dp)}%` },
   { key: 'roe', label: 'ROE（估算）', value: r => r.roe, numeric: true, render: r => percent(r.roe) },
-  { key: 'status', label: '估值状态', value: r => r.status === null ? null : STATUS[r.status].order,
-    render: r => r.status ? <Badge tone={STATUS[r.status].tone}>{STATUS[r.status].label}</Badge> : '—' },
+  { key: 'status', label: '估值状态', value: r => r.status === null ? null : VALUATION_STATUS[r.status].order,
+    render: r => <StatusBadge status={r.status} /> },
   { key: 'date', label: '数据日', value: r => r.date },
   { key: 'peHistory', label: 'PE 起点 / 样本数', value: r => r.peHistory.count, render: r => historyLabel(r.peHistory) },
   { key: 'pbHistory', label: 'PB 起点 / 样本数', value: r => r.pbHistory.count, render: r => historyLabel(r.pbHistory) },
 ]
 
 function IndexDetail({ row, close }: { row: ValuationRow; close: () => void }): JSX.Element {
-  const basis = row.basis.toUpperCase()
+  const preferPb = row.basis === 'pb'
+  const [mode, setMode] = useState<'pe' | 'pb'>(preferPb ? 'pb' : 'pe')
+  const [hist, setHist] = useState<JixingTableHist | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
+
+  useEffect(() => {
+    const controller = new AbortController()
+    setLoading(true)
+    setError(false)
+    fetch(histUrl(row.code), { cache: 'no-cache', signal: controller.signal })
+      .then(res => res.ok ? res.json() : null)
+      .then((body: unknown) => {
+        if (controller.signal.aborted) return
+        const parsed = asJixingTableHist(body, row.code, row.date)
+        if (!parsed) { setError(true); setHist(null); setLoading(false); return }
+        setHist(parsed)
+        setLoading(false)
+      })
+      .catch(() => { if (!controller.signal.aborted) { setError(true); setHist(null); setLoading(false) } })
+    return () => controller.abort()
+  }, [row])
+
+  const series = mode === 'pb' ? (hist?.pbSeries ?? []) : (hist?.peSeries ?? [])
+  const refs = mode === 'pb' ? (hist?.pbRefs ?? [null, null]) : (hist?.peRefs ?? [null, null])
+  const label = mode === 'pb'
+    ? `${row.name} 行业 PB 历史走势`
+    : `${row.name} PE(TTM) 历史走势`
   const rank = row.basis === 'pb' ? row.pbPct : row.pePct
+
   return (
     <Dialog open onClose={close} title={`${row.name} · ${row.code}`} size="lg"
       actions={<button type="button" className="btn-ghost" onClick={close}>关闭</button>}>
-      <p className="jt-detail-meta">{row.date} · {row.source === 'csi' ? '中证指数官网' : '国证指数网'}</p>
-      <MoodChart
-        label={`${row.name} PE(TTM) 历史走势`}
-        points={row.peSeries.map(([date, value]) => ({ date, value }))}
-        format={fixed}
-        refs={[{ value: row.peRefs[0], label: '30% 分位' }, { value: row.peRefs[1], label: '70% 分位' }]}
-        tick={date => date.slice(0, 7)}
-      />
-      <p className="mm-method">PE 样本 {historyLabel(row.peHistory)} · PB 样本 {historyLabel(row.pbHistory)}。</p>
-      <p className="mm-method">估值状态按 {basis} 百分位判断（{percent(rank)}）。{METHOD.chart}</p>
+      <p className="jt-detail-meta">{row.date} · {row.source === 'csi' ? '中证指数官网' : '国证指数网'}
+        {row.pbKind === 'industry' && row.pbIndustry ? ` · 行业 PB（${row.pbIndustry.name}，代码 ${row.pbIndustry.code}）` : ''}
+      </p>
+      {preferPb ? (
+        <Segmented
+          label="走势指标"
+          items={[{ id: 'pb', label: '行业 PB' }, { id: 'pe', label: 'PE(TTM)' }]}
+          value={mode}
+          onChange={id => setMode(id as 'pe' | 'pb')}
+        />
+      ) : null}
+      {loading ? <p role="status">正在加载历史走势…</p> : error || !series.length ? (
+        <p className="mm-empty">暂无该指数历史曲线。</p>
+      ) : (
+        <MoodChart
+          label={label}
+          points={series.map(([d, value]) => ({ date: d, value }))}
+          format={fixed}
+          refs={[
+            ...(refs[0] != null ? [{ value: refs[0], label: '30% 分位' }] : []),
+            ...(refs[1] != null ? [{ value: refs[1], label: '70% 分位' }] : []),
+          ]}
+          tick={d => d.slice(0, 7)}
+        />
+      )}
+      <SampleFootnote>
+        数据日 {row.date} · PE 样本 {historyLabel(row.peHistory)}
+        {row.pbKind === 'industry'
+          ? ` · 行业 PB 周采样，n=${row.pbHistory.count}${row.pbHistory.since ? `（自 ${row.pbHistory.since}）` : ''}`
+          : ` · PB 样本 ${historyLabel(row.pbHistory)}`}。
+      </SampleFootnote>
+      <SampleFootnote>估值状态按 {row.basis.toUpperCase()} 百分位判断（{percent(rank)}）。{METHOD.chart}</SampleFootnote>
+      {row.pbKind === 'industry' ? <SampleFootnote>{METHOD.pbIndustry}</SampleFootnote> : null}
     </Dialog>
   )
 }
 
 function ValuationTable({ data }: { data: JixingTableData }): JSX.Element {
+  const [params, setParams] = useSearchParams()
+  const codeParam = params.get('code')
   const [group, setGroup] = useState<GroupFilter>('all')
   const [sort, setSort] = useState<{ key: string; direction: 'ascending' | 'descending' } | null>(null)
   const [detail, setDetail] = useState<ValuationRow | null>(null)
+
+  useEffect(() => {
+    if (!codeParam) return
+    const row = data.rows.find(r => r.code === codeParam)
+    if (row) setDetail(row)
+  }, [codeParam, data.rows])
+
+  const openRow = (row: ValuationRow) => {
+    setDetail(row)
+    setParams(prev => {
+      const next = new URLSearchParams(prev)
+      next.set('code', row.code)
+      return next
+    }, { replace: true })
+  }
+  const closeDetail = () => {
+    setDetail(null)
+    setParams(prev => {
+      const next = new URLSearchParams(prev)
+      next.delete('code')
+      return next
+    }, { replace: true })
+  }
+
   const rows = data.rows.filter(row => group === 'all' || group === row.group)
   const column = COLUMNS.find(c => c.key === sort?.key)
   if (column && sort) {
@@ -87,15 +168,19 @@ function ValuationTable({ data }: { data: JixingTableData }): JSX.Element {
   }
 
   return (
-    <Card title="A股估值表" as="section" className="mm-card jt-card" description={`${data.asOf} 盘后 · 点击指数名称查看 PE 历史走势。`}>
+    <Card title="A股估值表" as="section" className="mm-card jt-card" description={`${data.asOf} 盘后 · 点击指数名称查看历史走势。`}>
+      <ul className="jx-links">
+        <li><Link to="/jixing">今日星级（中证全指 / 沪深市场 PB）</Link></li>
+        <li><Link to="/jixing/signals">牛熊信号板</Link></li>
+      </ul>
       <Segmented label="指数分组" items={[...GROUPS]} value={group} onChange={setGroup} />
       <div className="jt-summary" aria-label="当前分组估值状态">
-        {(Object.keys(STATUS) as ValuationStatus[]).map(key => (
-          <Badge key={key} tone={STATUS[key].tone}>{STATUS[key].label} {counts[key]} 只</Badge>
+        {(Object.keys(VALUATION_STATUS) as ValuationStatus[]).map(key => (
+          <StatusBadge key={key} status={key} count={counts[key]} />
         ))}
-        {unrated > 0 && <Badge tone="muted">暂无分位 {unrated} 只</Badge>}
+        {unrated > 0 && <StatusBadge status={null} empty={`暂无分位 ${unrated} 只`} />}
       </div>
-      <p className="mm-method jt-legend">{METHOD.status}</p>
+      <StatusLegend>{METHOD.status}</StatusLegend>
       {rows.length ? (
         <TableWrap label="A股指数估值，可横向滚动" stickyFirst>
           <table className="ui-table jt-table">
@@ -114,7 +199,7 @@ function ValuationTable({ data }: { data: JixingTableData }): JSX.Element {
             <tbody>{rows.map(row => (
               <tr key={row.code}>
                 <th scope="row">
-                  <button type="button" className="jt-index" aria-haspopup="dialog" onClick={() => setDetail(row)}>{row.name}</button>
+                  <button type="button" className="jt-index" aria-haspopup="dialog" onClick={() => openRow(row)}>{row.name}</button>
                 </th>
                 {COLUMNS.slice(1).map(c => (
                   <td className={c.numeric ? 'num' : undefined} key={c.key}>{c.render ? c.render(row) : c.value(row)}</td>
@@ -124,12 +209,13 @@ function ValuationTable({ data }: { data: JixingTableData }): JSX.Element {
           </table>
         </TableWrap>
       ) : <p className="mm-empty">该分组暂无指数估值。</p>}
-      <p className="mm-method">{METHOD.percentile}</p>
-      <p className="mm-method">{METHOD.source}</p>
+      <SampleFootnote>{METHOD.percentile}</SampleFootnote>
+      <SampleFootnote>{METHOD.source}</SampleFootnote>
+      <SampleFootnote>{METHOD.pbIndustry}</SampleFootnote>
       <ul className="jt-sources mm-method">
         {data.sources.map(source => <li key={source.url}><a href={source.url} target="_blank" rel="noreferrer">{source.label}</a></li>)}
       </ul>
-      {detail && <IndexDetail row={detail} close={() => setDetail(null)} />}
+      {detail && <IndexDetail row={detail} close={closeDetail} />}
     </Card>
   )
 }

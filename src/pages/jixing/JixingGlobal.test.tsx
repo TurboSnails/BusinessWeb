@@ -20,11 +20,11 @@ describe('今天几星 · 港股全球', () => {
     expect(rows).toHaveLength(5) // 表头 + 4 行
     expect(within(rows[1]).getByText('2026-11-18')).toBeTruthy()
     expect(within(rows[2]).getByText('2026-10-30')).toBeTruthy() // 月度行用自己的日期
-    expect(within(rows[1]).getByText('正常').className).toContain('is-mid')
+    expect(within(rows[1]).getByText('正常').className).toContain('ui-badge--warm')
     expect(within(rows[2]).getByText('不判定')).toBeTruthy() // 亏损占比过高
-    expect(within(rows[3]).getByText('高估').className).toContain('is-high')
+    expect(within(rows[3]).getByText('高估').className).toContain('ui-badge--up')
     expect(within(rows[3]).getByText('股息率（反向）')).toBeTruthy()
-    expect(within(rows[4]).getByText('低估').className).toContain('is-low')
+    expect(within(rows[4]).getByText('低估').className).toContain('ui-badge--down')
     expect(within(rows[4]).getByText(/沿用/)).toBeTruthy()
     expect(screen.getByRole('img', { name: /恒生指数 PE（恒生公布） 近 5 年月度/ })).toBeTruthy()
     expect(screen.getByText(/估值分位 < 30% 记「低估」/)).toBeTruthy()

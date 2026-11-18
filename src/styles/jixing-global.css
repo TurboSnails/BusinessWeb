@@ -2,15 +2,7 @@
 .jg-page .seg { margin: 0 0 12px; flex-wrap: wrap; }
 .jg-sub { margin: 16px 0 8px; font-size: 0.95rem; font-weight: 600; color: var(--text-primary); }
 
-.jg-state { display: inline-block; padding: 1px 8px; border: 1px solid var(--border-primary); border-radius: var(--radius-full); color: var(--text-secondary); font-size: 0.8rem; white-space: nowrap; }
-.jg-state.is-low { border-color: var(--system-green); color: var(--text-primary); background: color-mix(in srgb, var(--system-green) 12%, transparent); }
-.jg-state.is-mid { border-color: var(--system-orange); color: var(--text-primary); background: color-mix(in srgb, var(--system-orange) 12%, transparent); }
-.jg-state.is-high { border-color: var(--system-red); color: var(--text-primary); background: color-mix(in srgb, var(--system-red) 12%, transparent); }
-
 .jg-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
-.jg-chips > div { display: flex; align-items: baseline; gap: 6px; padding: 4px 12px; border-radius: var(--radius-md); }
-.jg-chips dt { font-size: 0.82rem; }
-.jg-chips dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
 
 .jg-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 0 0 16px; }
 .jg-summary dt { color: var(--text-secondary); font-size: 0.82rem; }

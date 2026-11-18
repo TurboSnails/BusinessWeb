@@ -1,10 +1,12 @@
 // 今天几星 · 港股全球（/jixing/global）：港股估值表、全球估值表与本站自定的黄金估值，公开数据，各行按自己的数据日期更新。
 import React, { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Card, EmptyState, Page, Segmented, TableWrap } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
 import JixingTabs, { JIXING_DISCLAIMER } from '../../features/jixing-tabs/JixingTabs'
+import { SampleFootnote, StatusBadge, VALUATION_STATUS } from '../../features/jixing-tabs/StatusBadge'
 import MoodChart from '../../features/market-mood/MoodChart'
-import { METHOD, PE_CHART_CAP, asJixingGlobal, basisLabel, chartValue, fix, pct, stateClass, type Gold, type JixingGlobalData, type ValRow, type ValState } from '../../features/jixing-global/model'
+import { METHOD, PE_CHART_CAP, asJixingGlobal, basisLabel, chartValue, fix, pct, type Gold, type JixingGlobalData, type ValRow, type ValState } from '../../features/jixing-global/model'
 import '../../styles/market-mood.css'
 import '../../styles/jixing-global.css'
 
@@ -13,17 +15,17 @@ const ym = (d: string): string => `${d.slice(2, 4)}/${Number(d.slice(5, 7))}`
 type Section = 'hk' | 'global' | 'gold'
 
 function StateBadge({ state, distorted }: { state: ValState | null; distorted?: boolean }): JSX.Element {
-  if (state) return <span className={stateClass(state)}>{state}</span>
-  return <span className="jg-state">{distorted ? '不判定' : '—'}</span>
+  if (state) return <StatusBadge status={state} />
+  return <StatusBadge status={null} empty={distorted ? '不判定' : '—'} />
 }
 
 function Summary({ rows }: { rows: ValRow[] }): JSX.Element {
   const count = (s: ValState | null): number => rows.filter(r => r.state === s && (s !== null || r.pe !== null || r.dy !== null)).length
-  return <dl className="jg-chips">
-    {(['低估', '正常', '高估'] as const).map(s => <div key={s} className={stateClass(s)}><dt>{s}</dt><dd>{count(s)}</dd></div>)}
-    <div className="jg-state"><dt>未判定</dt><dd>{count(null)}</dd></div>
-    <div className="jg-state"><dt>无数据</dt><dd>{rows.filter(r => r.pe === null && r.dy === null).length}</dd></div>
-  </dl>
+  return <div className="jg-chips" aria-label="估值状态计数">
+    {(['低估', '正常', '高估'] as const).map(s => <StatusBadge key={s} status={s} count={count(s)} />)}
+    <StatusBadge status={null} empty={`未判定 ${count(null)} 只`} />
+    <StatusBadge status={null} empty={`无数据 ${rows.filter(r => r.pe === null && r.dy === null).length} 只`} />
+  </div>
 }
 
 /** 一行的补充说明：窗口、依据与特殊情况。 */
@@ -56,7 +58,8 @@ function ValTable({ rows, label, years, onPick, picked }: { rows: ValRow[]; labe
       </tr>)}</tbody>
     </table>
   </TableWrap>
-  <p className="mm-method">点表中指数名查看历史走势；百分位窗口为近 {years} 年。PB 与 PB 百分位：恒生指数公司不公布指数 PB，中证官网行情、multpl 与 History of Market 也没有可用的 PB 历史，本页不列。</p></>
+  <SampleFootnote>点表中指数名查看历史走势；百分位窗口为近 {years} 年。PB 与 PB 百分位：恒生指数公司不公布指数 PB，中证官网行情、multpl 与 History of Market 也没有可用的 PB 历史，本页不列。</SampleFootnote>
+  <SampleFootnote>阈值：{VALUATION_STATUS.low.label} &lt; 30%，{VALUATION_STATUS.high.label} &gt; 70%，其余{VALUATION_STATUS.normal.label}。</SampleFootnote></>
 }
 
 function RowChart({ row }: { row: ValRow }): JSX.Element {
@@ -78,8 +81,8 @@ function RowChart({ row }: { row: ValRow }): JSX.Element {
       refs={refs}
       tick={ym}
     /> : <p className="mm-empty">该行暂无历史数据</p>}
-    {rowNotes(row).map(t => <p key={t} className="mm-method">{t}</p>)}
-    <p className="mm-method">来源：{row.source}。参考线为窗口内估值分位 30% / 70% 对应的{isDy ? '股息率（股息率越高越便宜，所以 30% 线在上方）' : ' PE（按盈利收益率取分位后换回 PE）'}。</p>
+    {rowNotes(row).map(t => <SampleFootnote key={t}>{t}</SampleFootnote>)}
+    <SampleFootnote>来源：{row.source}。参考线为窗口内估值分位 30% / 70% 对应的{isDy ? '股息率（股息率越高越便宜，所以 30% 线在上方）' : ' PE（按盈利收益率取分位后换回 PE）'}。</SampleFootnote>
   </div>
 }
 
@@ -92,7 +95,7 @@ function ValSection({ rows, title, label, years, method, extra }: { rows: ValRow
       <ValTable rows={rows} label={label} years={years} onPick={setPicked} picked={row.key} />
       <RowChart row={row} />
     </> : <EmptyState title="本节暂无数据">来源本次未取到，其他分区不受影响。</EmptyState>}
-    {method.map(t => <p key={t} className="mm-method">{t}</p>)}
+    {method.map(t => <SampleFootnote key={t}>{t}</SampleFootnote>)}
     {extra}
   </Card>
 }
@@ -101,7 +104,7 @@ function GoldSection({ gold, error, years }: { gold: Gold | null; error: string 
   const [view, setView] = useState<'real' | 'nominal' | 'yield'>('real')
   if (!gold) return <Card title="黄金" as="section" className="mm-card">
     <EmptyState title="暂无黄金数据">{error ? `本次未取到：${error}` : '数据缺失，其他分区不受影响。'}</EmptyState>
-    <p className="mm-method">{METHOD.gold(years)}</p>
+    <SampleFootnote>{METHOD.gold(years)}</SampleFootnote>
   </Card>
   const refs = [
     ...(gold.refs.low === null ? [] : [{ value: gold.refs.low, label: `估值分位 30%（${fix(gold.refs.low, 0)}）` }]),
@@ -119,8 +122,8 @@ function GoldSection({ gold, error, years }: { gold: Gold | null; error: string 
     {view === 'real' ? <MoodChart label={`实际金价（${gold.cpiBase?.month ?? ''} 美元）近 ${years} 年月末`} points={gold.history.map(([date, v]) => ({ date, value: v }))} format={v => v.toFixed(0)} refs={refs} tick={ym} />
       : view === 'nominal' ? <MoodChart label={`COMEX 黄金名义价格近 ${years} 年月末`} points={gold.history.map(([date, , v]) => ({ date, value: v }))} format={v => v.toFixed(0)} tick={ym} />
         : <MoodChart label={`10 年期美债实际收益率近 ${years} 年月末`} points={gold.yieldHistory.map(([date, v]) => ({ date, value: v }))} format={v => `${v.toFixed(1)}%`} tipFormat={v => `${v.toFixed(2)}%`} tick={ym} />}
-    <p className="mm-method">窗口：{gold.window.start ?? '—'} 至 {gold.window.end}，{gold.window.n} 个月度样本{gold.window.enough ? '' : '（样本不足，不给分位）'}。{gold.cpiCarried.length ? `以下月份没有 CPI 发布值，沿用此前最近一个月：${gold.cpiCarried.join('、')}。` : ''}</p>
-    <p className="mm-method">{METHOD.gold(years)}</p>
+    <SampleFootnote>窗口：{gold.window.start ?? '—'} 至 {gold.window.end}，{gold.window.n} 个月度样本{gold.window.enough ? '' : '（样本不足，不给分位）'}。{gold.cpiCarried.length ? `以下月份没有 CPI 发布值，沿用此前最近一个月：${gold.cpiCarried.join('、')}。` : ''}</SampleFootnote>
+    <SampleFootnote>{METHOD.gold(years)}</SampleFootnote>
   </Card>
 }
 
@@ -143,7 +146,12 @@ export default function JixingGlobal(): JSX.Element {
       <JixingTabs />
       <p className="mm-disclaimer">{JIXING_DISCLAIMER}</p>
       {loading ? <p role="status">正在读取港股全球估值…</p> : !data ? <EmptyState title="暂无港股全球数据">数据文件缺失、不可用或格式异常时不展示。</EmptyState> : <>
-        <p className="mm-method">采集时间：{new Date(data.generatedAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false })}（北京）。各来源更新时间不同（日度、周度、月度都有），每行的数据日期单独列出，不混为一天。</p>
+        <ul className="jx-links">
+          <li><Link to="/jixing">今日星级</Link></li>
+          <li><Link to="/jixing/table">A股估值表</Link></li>
+          <li><Link to="/jixing/signals">牛熊信号板</Link></li>
+        </ul>
+        <SampleFootnote>采集时间：{new Date(data.generatedAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false })}（北京）。各来源更新时间不同（日度、周度、月度都有），每行的数据日期单独列出，不混为一天。</SampleFootnote>
         <Segmented items={[{ id: 'hk', label: '港股' }, { id: 'global', label: '全球' }, { id: 'gold', label: '黄金' }]} value={section} onChange={setSection} label="港股全球分区" />
         {section === 'hk' ? <ValSection rows={data.hk.rows} title="港股估值表" label="港股指数估值" years={data.windows.hk}
           method={[METHOD.state(data.thresholds), METHOD.pe, METHOD.hk(data.windows.hk), `月报存档最新月份 ${data.hk.roundupLatest}${data.hk.roundupMissing.length ? `；缺失月份 ${data.hk.roundupMissing.join('、')}（月报不在存档或版式无法解析），不插值` : ''}。`]} />

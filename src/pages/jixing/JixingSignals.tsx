@@ -1,8 +1,10 @@
 // 今天几星 · 牛熊信号板（/jixing/signals）：定量估值与市场情绪指标，各给当前值、历史分位与本站自定信号，公开数据收盘后更新。
 import React, { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Badge, Card, EmptyState, Page } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
 import JixingTabs, { JIXING_DISCLAIMER } from '../../features/jixing-tabs/JixingTabs'
+import { SampleFootnote, StatusBadge } from '../../features/jixing-tabs/StatusBadge'
 import MoodChart from '../../features/market-mood/MoodChart'
 import { METHOD, asJixingSignals, fmt, pct, signalTone, type Indicator, type JixingSignalsData } from '../../features/jixing-signals/model'
 import '../../styles/market-mood.css'
@@ -19,13 +21,16 @@ function Row({ i }: { i: Indicator }): JSX.Element {
   return <li className="jsg-item">
     <div className="jsg-item__head">
       <h3 className="jsg-item__name">{i.name}</h3>
-      {i.signal ? <Badge tone={signalTone(i.signal)}>{i.signal}</Badge> : <Badge tone="muted">不判</Badge>}
+      {i.signal === '低估' || i.signal === '正常' || i.signal === '高估'
+        ? <StatusBadge status={i.signal} />
+        : i.signal ? <Badge tone={signalTone(i.signal)}>{i.signal}</Badge> : <Badge tone="muted">不判</Badge>}
     </div>
     <p className="jsg-item__value"><strong>{unitText(i, i.value)}</strong><span>{when}</span></p>
     <p className="jsg-item__pct">{win}{i.start ? `（${i.start} 起，${i.n} 个样本）` : ''}</p>
     {i.extra.length ? <dl className="jsg-item__extra">{i.extra.map(e => <div key={e.label}><dt>{e.label}</dt><dd>{e.value}</dd></div>)}</dl> : null}
-    <p className="mm-method"><b>规则：</b>{i.rule}</p>
-    {i.note ? <p className="mm-method">{i.note}</p> : null}
+    <SampleFootnote><b>规则：</b>{i.rule}</SampleFootnote>
+    {i.note ? <SampleFootnote>{i.note}</SampleFootnote> : null}
+    {(i.id === 'erp' || i.id === 'pb') ? <p className="jx-links"><Link to="/jixing">今日星级中的同口径输入</Link></p> : null}
     <button type="button" className="jsg-item__toggle" aria-expanded={open} onClick={() => setOpen(o => !o)}>{open ? '收起历史' : '查看历史'}</button>
     {open ? <MoodChart label={`${i.name} 历史`} points={i.history.map(([date, value]) => ({ date, value }))} format={v => fmt(v, Math.min(i.digits, 2))} tipFormat={v => unitText(i, v)} tick={ym} /> : null}
   </li>
@@ -44,8 +49,12 @@ function SummaryLine({ data }: { data: JixingSignalsData }): JSX.Element {
       <li><span>估值类</span> 低估 <b>{s.低估}</b> · 正常 <b>{s.正常}</b> · 高估 <b>{s.高估}</b></li>
       <li><span>情绪类</span> 偏牛 <b>{s.偏牛}</b> · 中性 <b>{s.中性}</b> · 偏熊 <b>{s.偏熊}</b>{s.none ? ` · 不判 ${s.none}` : ''}</li>
     </ul>
-    <p className="mm-method">{METHOD.signals}</p>
-    {data.missing.length || data.errors.length ? <p className="mm-method">本次未更新的指标：{[...data.errors, ...data.missing.filter(m => !data.errors.some(e => e.startsWith(m)))].join('；')}。</p> : null}
+    <ul className="jx-links">
+      <li><Link to="/jixing">今日星级</Link></li>
+      <li><Link to="/jixing/table">A股估值表</Link></li>
+    </ul>
+    <SampleFootnote>{METHOD.signals}</SampleFootnote>
+    {data.missing.length || data.errors.length ? <SampleFootnote>本次未更新的指标：{[...data.errors, ...data.missing.filter(m => !data.errors.some(e => e.startsWith(m)))].join('；')}。</SampleFootnote> : null}
   </Card>
 }
 

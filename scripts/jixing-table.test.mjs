@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
-  buildRow, canPublish, marketCloses, mergeHistory, parseCniSnapshot, parseCsiHistory, parseCsiSnapshot,
-  percentile, sourceDate, valuationStatus, windowStart,
+  applyIndustryFetchResult, buildRow, canPublish, decideIndustryFetchResult, histPayload, industryDateQueried,
+  industrySlotHasData, marketCloses, mergeHistory, parseCniSnapshot, parseCsiHistory, parseCsiSnapshot,
+  parseIndustryPb, percentile, pickIndustryMetrics, planIndustryFetch, slimRow, sourceDate, valuationStatus,
+  windowStart,
 } from './jixing-table-lib.mjs'
 
 const target = '2026-11-17'
@@ -109,4 +111,132 @@ test('发布时拒绝错日、缺指数、缺预期字段、同日重跑和历�
   assert.equal(canPublish(null, target, indices, new Map([[broad.code, ready.get(broad.code)]])), false)
   assert.equal(canPublish(null, target, indices, new Map(ready).set(broad.code, { ...ready.get(broad.code), pb: null })), false)
   assert.equal(canPublish(null, target, indices, new Map(ready).set(cni.code, { ...ready.get(cni.code), date: '2026-11-16' })), false)
+})
+
+test('行业市盈率按 codes 优先级取 PB，错日不取；新代码优先旧代码回退', () => {
+  const child = (code, name, pe, children = []) => ({ industryCode: code, industryName: name, pe, children })
+  const body = {
+    code: '200',
+    data: {
+      tradeDate: '20261117',
+      csipeindustryMapList: {
+        3: [child('40', '金融', '0.72', [child('4010', '银行', '0.63')])],
+        4: [child('40', '金融', '4.1', [child('4010', '银行', '5.2')])],
+      },
+    },
+  }
+  const parsed = parseIndustryPb(body, target, { '399986': { name: '银行', codes: ['4010', '0601'] } })
+  assert.deepEqual([...parsed], [['399986', { pb: 0.63, dp: 5.2, industryCode: '4010', industryName: '银行' }]])
+  assert.equal(parseIndustryPb(body, '2026-11-16', { '399986': { name: '银行', codes: ['4010'] } }).size, 0)
+  const oldOnly = {
+    code: '200',
+    data: {
+      tradeDate: '20180105',
+      csipeindustryMapList: {
+        3: [child('0603', '资本市场', '1.3', [child('06030102', '投资银行业与经纪业', '1.29')])],
+        4: [],
+      },
+    },
+  }
+  const legacy = parseIndustryPb(oldOnly, '2018-01-05', { '399975': { name: '证券公司', codes: ['403010', '06030102'] } })
+  assert.deepEqual([...legacy], [['399975', {
+    pb: 1.29, dp: null, industryCode: '06030102', industryName: '投资银行业与经纪业',
+  }]])
+  assert.equal(pickIndustryMetrics(oldOnly.data.csipeindustryMapList['3'], ['403010', '06030102'])?.code, '06030102')
+})
+
+test('行业 PB 行：ROE/股息率不混口径；分位用周采样；hist 含 PB 序列与参考线', () => {
+  // 约 6 年交易日 → 周采样后仍 ≥ 250
+  const history = Array.from({ length: 2200 }, (_, i) => new Date(Date.UTC(2018, 0, i + 1)))
+    .filter(d => ![0, 6].includes(d.getUTCDay()))
+    .slice(0, 1600)
+    .map((d, i) => [d.toISOString().slice(0, 10), 20, 1 + (i % 5) * 0.01])
+  history[history.length - 1] = [target, 20, 0.63]
+  const row = buildRow({ ...bank, pbIndustry: { name: '银行', codes: ['4010'] } }, target, {
+    date: target, pe: 20, pb: 0.63, dp: 5, industryCode: '4010', industryName: '银行',
+  }, history)
+  assert.equal(row.pbKind, 'industry')
+  assert.equal(row.pbIndustry.name, '银行')
+  assert.equal(row.roe, null)
+  assert.equal(row.dp, null)
+  assert.equal(row.status, 'low')
+  assert.ok(row.pbHistory.count >= 250)
+  assert.equal(slimRow(row).peSeries.length, 0)
+  assert.ok(histPayload(row).peSeries.length > 0)
+  assert.ok(histPayload(row).pbSeries.length > 0)
+  assert.ok(histPayload(row).pbRefs[0] > 0)
+})
+
+test('行业 PB 待抓计划：目标日优先；空列表且日期=请求日不算已查，下次仍含 target（B1\'）', () => {
+  const byDate = Object.fromEntries(
+    Array.from({ length: 200 }, (_, i) => {
+      const d = new Date(Date.UTC(2014, 0, 3 + i * 7)).toISOString().slice(0, 10)
+      return [d, { '399986': { pb: 0.7 } }] // 部分行业，但已查询
+    }),
+  )
+  assert.equal(industryDateQueried({ byDate }, Object.keys(byDate)[0]), true)
+  assert.equal(industryDateQueried({ byDate }, target), false)
+  const planned = planIndustryFetch({ byDate }, target, { recent: 10, extra: Object.keys(byDate) })
+  assert.equal(planned[0], target)
+  assert.ok(planned.includes(target))
+  // extra（rebuild 周采样）空槽仍算已查，不进计划；近窗有数据的日期也不进
+  assert.equal(planned.some(d => industrySlotHasData(byDate[d])), false)
+
+  // B1'：空列表且日期等于请求日 → 不锁死；下次计划仍含 target
+  const emptySameDay = { byDate: { ...byDate, [target]: {} } }
+  assert.equal(industryDateQueried(emptySameDay, target, { emptyCounts: false }), false)
+  assert.equal(industrySlotHasData(emptySameDay.byDate[target]), false)
+  const afterEmpty = planIndustryFetch(emptySameDay, target, { recent: 3 })
+  assert.ok(afterEmpty.includes(target), '空槽同日未发布，下次仍应抓 target')
+
+  // 休市回退写成的 {}：extra 路径仍视为已查；近窗 emptyCounts=false 会重抓——这是刻意（近 N 日可补）
+  const holidayEmpty = { byDate: { [target]: {} } }
+  assert.equal(industryDateQueried(holidayEmpty, target, { emptyCounts: true }), true)
+  assert.equal(industryDateQueried(holidayEmpty, target, { emptyCounts: false }), false)
+})
+
+test('早班未发布 → 晚班补到当天：同日空不写，有数据后写入且不再进计划', () => {
+  const store = { version: 1, byDate: {} }
+  const emptyBody = {
+    code: '200',
+    data: {
+      tradeDate: target.replaceAll('-', ''),
+      csipeindustryMapList: { 3: [], 4: [], 5: [], 6: [] },
+    },
+  }
+  const morning = decideIndustryFetchResult(target, emptyBody)
+  assert.equal(morning.action, 'pending')
+  assert.equal(morning.slot, null)
+  applyIndustryFetchResult(store, target, emptyBody)
+  assert.equal(Object.prototype.hasOwnProperty.call(store.byDate, target), false)
+  assert.ok(planIndustryFetch(store, target, { recent: 0 }).includes(target))
+
+  const eveningBody = {
+    code: '200',
+    data: {
+      tradeDate: target.replaceAll('-', ''),
+      csipeindustryMapList: {
+        3: [{ industryCode: '4010', industryName: '银行', pe: '0.63', children: [] }],
+        4: [{ industryCode: '4010', industryName: '银行', pe: '5', children: [] }],
+      },
+    },
+  }
+  const evening = applyIndustryFetchResult(store, target, eveningBody)
+  assert.equal(evening.action, 'wrote')
+  assert.ok(industrySlotHasData(store.byDate[target]))
+  assert.equal(store.byDate[target]['399986']?.pb, 0.63)
+  assert.ok(!planIndustryFetch(store, target, { recent: 0 }).includes(target))
+
+  // 休市回退：tradeDate ≠ 请求日 → 记 {}
+  const holidayReq = '2026-11-15' // 周日附近用任意日，只测决策
+  const holidayBody = {
+    code: '200',
+    data: {
+      tradeDate: '20261114',
+      csipeindustryMapList: { 3: [], 4: [], 5: [], 6: [] },
+    },
+  }
+  const holiday = applyIndustryFetchResult(store, holidayReq, holidayBody)
+  assert.equal(holiday.action, 'holiday')
+  assert.deepEqual(store.byDate[holidayReq], {})
 })
