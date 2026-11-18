@@ -308,3 +308,14 @@ export function boardAmountHistory({ sh, sz, kcb = null, cyb = null, bj = null }
     }
   })
 }
+
+/**
+ * 融资余额全历史：东财 RPTA_RZRQ_LSHJ 分页行 → [日期, 融资余额(亿元), 占流通市值(%), 沪深300]，按日期升序、去重。
+ * 行数与接口 count 不符（漏页/重页）时抛错，不写半截历史；单个字段缺失记 null，不当 0。
+ */
+export function marginHistoryRows(rows, count) {
+  const parsed = parseMargin({ result: { data: rows } })
+  const byDate = new Map(parsed.map((r) => [r.date, r]))
+  if (!Number.isInteger(count) || rows.length !== count || byDate.size !== count) throw new Error(`融资余额历史不完整（${byDate.size}/${rows.length}/${count}）`)
+  return [...byDate.values()].map((r) => [r.date, r.balance, r.ratio, r.hs300])
+}

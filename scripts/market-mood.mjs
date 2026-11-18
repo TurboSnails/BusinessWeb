@@ -4,7 +4,7 @@
 // 用法：node scripts/market-mood.mjs   （FORCE=1 跳过收盘时间检查，只用于排查）
 import fs from 'node:fs'
 import { BLUE_CHIP_SYMBOLS } from '../server/market-sentiment.mjs'
-import { boardAmountHistory, buildDay, intradayAmount, mergeHistory, parseTrends, parseMargin, parsePool, parseSinaRow, pickPrevState, saveState, seedFromArchive } from './market-mood-lib.mjs'
+import { boardAmountHistory, buildDay, marginHistoryRows, intradayAmount, mergeHistory, parseTrends, parseMargin, parsePool, parseSinaRow, pickPrevState, saveState, seedFromArchive } from './market-mood-lib.mjs'
 
 const OUT = 'public/data/market-mood.json'
 const RAW = 'data-raw/market-mood'
@@ -91,6 +91,22 @@ let margin = prev?.margin ?? []
 try {
   margin = parseMargin(await get('https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPTA_RZRQ_LSHJ&columns=DIM_DATE,RZYE,RZYEZB,NEW&pageSize=250&sortColumns=DIM_DATE&sortTypes=-1'))
 } catch (e) { console.log(`融资余额获取失败：${e.message}`) }
+
+// 融资余额全历史（2010-03-31 两融开通起，约 4000 个交易日）单独存文件，页面选 1 年以上范围时才加载
+try {
+  const rows = []
+  let count = null
+  for (let page = 1; page <= 20; page++) {
+    const body = await get(`https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPTA_RZRQ_LSHJ&columns=DIM_DATE,RZYE,RZYEZB,NEW&pageSize=500&pageNumber=${page}&sortColumns=DIM_DATE&sortTypes=1`)
+    if (!body?.success || !Array.isArray(body?.result?.data)) throw new Error(`第 ${page} 页返回异常`)
+    count ??= body.result.count
+    rows.push(...body.result.data)
+    if (page >= body.result.pages) break
+  }
+  const all = marginHistoryRows(rows, count)
+  fs.writeFileSync('public/data/market-mood-margin.json', JSON.stringify({ version: 1, asOf: all.at(-1)[0], since: all[0][0], rows: all }))
+  console.log(`融资余额全历史：${all.length} 天（${all[0][0]} 起）`)
+} catch (e) { console.log(`融资余额全历史获取失败，保留上一份：${e.message}`) }
 let amountHistory = prev?.amountHistory ?? []
 try {
   const kline = async (secid) => {

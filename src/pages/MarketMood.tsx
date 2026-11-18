@@ -323,19 +323,68 @@ function WeightCard({ l }: { l: MoodLatest }): JSX.Element {
 }
 
 /* ---------- 融资余额 ---------- */
+// 1 年以内用主文件里的近 250 天；5 年、10 年、全部（2010-03-31 两融开通起）按需加载全历史文件
+const marginRanges = [
+  { id: '20', label: '20 日' }, { id: '60', label: '60 日' }, { id: '250', label: '1 年' },
+  { id: '1250', label: '5 年' }, { id: '2500', label: '10 年' }, { id: 'all', label: '全部' },
+] as const
+type MarginRange = (typeof marginRanges)[number]['id']
+type MarginRow = MarketMood['margin'][number]
+const needsHistory = (r: MarginRange): boolean => r === '1250' || r === '2500' || r === 'all'
+
+/** 校验全历史文件：[日期, 融资余额, 占比, 沪深300] 数组，日期升序 */
+export function asMarginHistory(body: unknown): MarginRow[] | null {
+  if (typeof body !== 'object' || body === null) return null
+  const rows = (body as { rows?: unknown }).rows
+  if (!Array.isArray(rows) || !rows.length) return null
+  const nOrNull = (x: unknown): x is number | null => x === null || (typeof x === 'number' && Number.isFinite(x))
+  const out: MarginRow[] = []
+  for (const r of rows) {
+    if (!Array.isArray(r) || typeof r[0] !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(r[0]) || typeof r[1] !== 'number' || !nOrNull(r[2]) || !nOrNull(r[3])) return null
+    if (out.length && out[out.length - 1].date >= r[0]) return null
+    out.push({ date: r[0], balance: r[1], ratio: r[2], hs300: r[3] })
+  }
+  return out
+}
+
+function useMarginHistory(enabled: boolean): { rows: MarginRow[] | null; state: 'idle' | 'loading' | 'ok' | 'error' } {
+  const [state, setState] = useState<{ rows: MarginRow[] | null; state: 'idle' | 'loading' | 'ok' | 'error' }>({ rows: null, state: 'idle' })
+  useEffect(() => {
+    if (!enabled || state.state !== 'idle') return
+    setState({ rows: null, state: 'loading' })
+    fetch(`${BASE}data/market-mood-margin.json`, { cache: 'no-cache' })
+      .then(r => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
+      .then((body: unknown) => { const rows = asMarginHistory(body); setState(rows ? { rows, state: 'ok' } : { rows: null, state: 'error' }) })
+      .catch(() => setState({ rows: null, state: 'error' }))
+  }, [enabled, state.state])
+  return state
+}
+
 function Margin({ m }: { m: MarketMood }): JSX.Element {
-  const [range, setRange] = useState<Range>('60')
+  const [range, setRange] = useState<MarginRange>('60')
   const [view, setView] = useState<'balance' | 'ratio' | 'hs300'>('balance')
+  const hist = useMarginHistory(needsHistory(range))
   const last = m.margin.at(-1)
   if (!last) return <Card title="融资余额" as="section" className="mm-card"><p className="mm-empty">暂无融资余额数据</p></Card>
-  const pick = { balance: (d: (typeof m.margin)[number]) => d.balance, ratio: (d: (typeof m.margin)[number]) => d.ratio, hs300: (d: (typeof m.margin)[number]) => d.hs300 }[view]
+  const pick = { balance: (d: MarginRow) => d.balance, ratio: (d: MarginRow) => d.ratio, hs300: (d: MarginRow) => d.hs300 }[view]
   const fmt = { balance: (v: number) => `${(v / 10000).toFixed(2)}万亿`, ratio: (v: number) => `${v.toFixed(2)}%`, hs300: (v: number) => v.toFixed(0) }[view]
+  // 全历史文件可能比主文件晚一天：用主文件补上更新的日子
+  const merged = (): MarginRow[] => {
+    if (!hist.rows) return m.margin
+    const lastHist = hist.rows[hist.rows.length - 1].date
+    return [...hist.rows, ...m.margin.filter(d => d.date > lastHist)]
+  }
+  const source = needsHistory(range) ? merged() : m.margin
+  const rows = range === 'all' ? source : source.slice(-Number(range))
+  const longRange = range !== '20' && range !== '60'
+  const pending = needsHistory(range) && hist.state !== 'ok'
   return (
     <Card title="融资余额" as="section" className="mm-card" description={`${last.date}：融资余额 ${yi(last.balance)}，占流通市值 ${last.ratio == null ? '—' : `${num(last.ratio, 2)}%`}，沪深300 ${num(last.hs300)}`}
-      actions={<Segmented items={rangeItems.map(r => ({ ...r }))} value={range} onChange={setRange} label="融资余额时间范围" />}>
+      actions={<Segmented items={marginRanges.map(r => ({ ...r }))} value={range} onChange={setRange} label="融资余额时间范围" />}>
       <Segmented items={[{ id: 'balance', label: '融资余额' }, { id: 'ratio', label: '占流通市值比' }, { id: 'hs300', label: '对照：沪深300' }]} value={view} onChange={setView} label="融资指标" />
-      <MoodChart points={sliceRange(m.margin, range).map(d => ({ date: d.date, value: pick(d) }))} label="融资余额走势" format={fmt} />
-      <p className="mm-method">融资数据比行情晚一个交易日公布。对照指数单独成图，不与融资余额叠在同一纵轴上。</p>
+      {pending && <p className="mm-empty">{hist.state === 'error' ? '长期历史暂时加载不了，先显示近一年。' : '正在加载长期历史…'}</p>}
+      <MoodChart points={rows.map(d => ({ date: d.date, value: pick(d) }))} label="融资余额走势" format={fmt} tick={longRange ? (d: string) => d.slice(0, 7) : undefined} zeroBase={view === 'balance'} />
+      <p className="mm-method">融资数据比行情晚一个交易日公布；全部历史从 2010-03-31 两融开通起（不到 20 年）。对照指数单独成图，不与融资余额叠在同一纵轴上。</p>
     </Card>
   )
 }

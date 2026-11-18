@@ -196,3 +196,16 @@ test('量能历史分板块：上证主板 = 上证综指 − 科创综指，深
   assert.deepEqual(rows[1], { date: '2026-11-18', total: 13700, sh: null, kcb: null, sz: 3800, cyb: 3400, bj: 105 })
   assert.equal(boardAmountHistory({ sh: m({ a: 1e8 }), sz: m({ a: 1e8 }) })[0].kcb, null)
 })
+
+test('融资余额全历史：升序压缩为数组，行数须与 count 一致，缺值为 null', async () => {
+  const { marginHistoryRows } = await import('./market-mood-lib.mjs')
+  const rows = [
+    { DIM_DATE: '2010-04-01 00:00:00', RZYE: 1.5e8, RZYEZB: '-', NEW: 3300.5 },
+    { DIM_DATE: '2010-03-31 00:00:00', RZYE: 6495609, RZYEZB: 0.000041, NEW: 3345.607 },
+  ]
+  const out = marginHistoryRows(rows, 2)
+  assert.deepEqual(out[0][0], '2010-03-31')
+  assert.deepEqual(out[1], ['2010-04-01', 2, null, 3300.5])
+  assert.throws(() => marginHistoryRows(rows, 3), /不完整/)
+  assert.throws(() => marginHistoryRows([rows[0], rows[0]], 2), /不完整/)
+})

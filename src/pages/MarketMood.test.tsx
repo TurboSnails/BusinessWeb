@@ -2,7 +2,7 @@ import React from 'react'
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import MarketMood from './MarketMood'
+import MarketMood, { asMarginHistory } from './MarketMood'
 import { moodFixture } from '../features/market-mood/fixtures'
 import { asMarketMood, forecastSeries, previousDay } from '../features/market-mood/model'
 
@@ -136,5 +136,29 @@ describe('开盘啦页签', () => {
     const tabs = await screen.findByRole('tablist', { name: '开盘啦页签' })
     expect(within(tabs).getAllByRole('tab').map(t => t.textContent)).toEqual(['市场情绪', '打板', '龙虎榜', '板块题材', '资金', '异动监管', '复盘', '人气排行', '竞价尾盘', '财报避雷', '时间线', '持仓两融', '互动问答', '个股'])
     expect(within(tabs).getByRole('tab', { name: '市场情绪' }).getAttribute('aria-selected')).toBe('true')
+  })
+})
+
+describe('融资余额长期范围', () => {
+  it('范围含 20 日到全部；选 5 年时加载全历史文件，并用主文件补上更新的日子', async () => {
+    const mood = moodFixture()
+    const history = { version: 1, rows: [['2010-03-31', 0, 0, 3345.61], ['2016-01-04', 11000, 2.1, 3470], ['2026-11-13', 22000, 2.5, 3990]] }
+    const fetchMock = vi.fn(async (url: string) => ({ ok: true, status: 200, json: async () => (url.includes('market-mood-margin') ? history : mood) }))
+    vi.stubGlobal('fetch', fetchMock)
+    renderPage()
+    await screen.findByRole('region', { name: '今日总览' })
+    const group = screen.getByRole('group', { name: '融资余额时间范围' })
+    expect(within(group).getAllByRole('button').map(b => b.textContent)).toEqual(['20 日', '60 日', '1 年', '5 年', '10 年', '全部'])
+    expect(fetchMock.mock.calls.some(c => String(c[0]).includes('market-mood-margin'))).toBe(false)
+    fireEvent.click(within(group).getByText('5 年'))
+    await screen.findByText(/2010-03-31 两融开通起/)
+    expect(fetchMock.mock.calls.some(c => String(c[0]).includes('market-mood-margin'))).toBe(true)
+  })
+
+  it('全历史校验：日期须升序、余额须是数字，缺值可为 null', () => {
+    expect(asMarginHistory({ rows: [['2010-03-31', 0, null, 3345], ['2010-04-01', 1, 0.1, null]] })).toHaveLength(2)
+    expect(asMarginHistory({ rows: [['2010-04-01', 1, 0.1, 1], ['2010-03-31', 0, 0, 1]] })).toBeNull()
+    expect(asMarginHistory({ rows: [['2010-03-31', null, 0, 1]] })).toBeNull()
+    expect(asMarginHistory('<html>')).toBeNull()
   })
 })
