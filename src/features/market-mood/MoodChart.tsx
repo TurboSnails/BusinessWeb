@@ -12,10 +12,12 @@ const md = (d: string): string => `${Number(d.slice(5, 7))}/${Number(d.slice(8, 
  * 单序列走势图（折线或柱）：悬停十字线显示当日数值；refs 画参考线（如 75 / 25、2% / −1%）。
  * 柱状时按较前一日增减着色（A 股习惯：红增绿减）；muted 的点（补算数据）用虚线 / 浅色。
  */
-export default function MoodChart({ points, label, format, refs = [], kind = 'line', zeroBase = false, colorBy = 'change', tick = md }: {
+export default function MoodChart({ points, label, format, tipFormat, refs = [], kind = 'line', zeroBase = false, colorBy = 'change', tick = md }: {
   points: Point[]
   label: string
   format: (v: number) => string
+  /** 悬停读数的格式（默认同坐标轴 format） */
+  tipFormat?: (v: number) => string
   refs?: Array<{ value: number; label: string }>
   kind?: 'line' | 'bar'
   zeroBase?: boolean
@@ -79,7 +81,7 @@ export default function MoodChart({ points, label, format, refs = [], kind = 'li
           </g>
         ))}
         {points.map((p, i) => (i % every === 0 || i === n - 1) && (
-          <text key={p.date} className="mm-chart__tick" x={x(i)} y={H - 8} textAnchor="middle">{tick(p.date)}</text>
+          <text key={p.date} className="mm-chart__tick" x={x(i)} y={H - 8} textAnchor={i === n - 1 ? 'end' : i === 0 ? 'start' : 'middle'}>{tick(p.date)}</text>
         ))}
         {kind === 'bar'
           ? points.map((p, i) => {
@@ -93,7 +95,17 @@ export default function MoodChart({ points, label, format, refs = [], kind = 'li
           : (
             <>
               <path className="mm-chart__line is-muted" d={segments(true)} />
-              <path className="mm-chart__line" d={segments(false)} />
+              {colorBy === 'sign' && lo < 0 && hi > 0 ? (
+                // 按正负着色：0 线以上红、以下绿（同一条折线用两个裁剪区各画一次）
+                <>
+                  <defs>
+                    <clipPath id={`${uid}-pos`}><rect x={0} y={0} width={W} height={y(0)} /></clipPath>
+                    <clipPath id={`${uid}-neg`}><rect x={0} y={y(0)} width={W} height={H - y(0)} /></clipPath>
+                  </defs>
+                  <path className="mm-chart__line is-up" d={segments(false)} clipPath={`url(#${uid}-pos)`} />
+                  <path className="mm-chart__line is-down" d={segments(false)} clipPath={`url(#${uid}-neg)`} />
+                </>
+              ) : <path className={`mm-chart__line${colorBy === 'sign' && hi <= 0 && lo < 0 ? ' is-down' : colorBy === 'sign' && lo >= 0 && hi > 0 ? ' is-up' : ''}`} d={segments(false)} />}
               {/* 前后都没有数据的孤立点画成圆点，否则只有一天数据时什么也看不到 */}
               {points.map((p, i) => p.value !== null && (points[i - 1]?.value ?? null) === null && (points[i + 1]?.value ?? null) === null && (
                 <circle key={p.date} className={`mm-chart__solo${p.muted ? ' is-muted' : ''}`} cx={x(i)} cy={y(p.value)} r={3.5} />
@@ -108,7 +120,7 @@ export default function MoodChart({ points, label, format, refs = [], kind = 'li
         )}
       </svg>
       <figcaption className="mm-chart__caption" aria-live="polite">
-        {hp ? <><b>{hp.date}</b> {hp.value === null ? '—' : format(hp.value)}{hp.muted ? '（补算）' : ''}</> : '把鼠标移到图上查看数值'}
+        {hp ? <><b>{hp.date}</b> {hp.value === null ? '—' : (tipFormat ?? format)(hp.value)}{hp.muted ? '（补算）' : ''}</> : '把鼠标移到图上查看数值'}
       </figcaption>
     </figure>
   )

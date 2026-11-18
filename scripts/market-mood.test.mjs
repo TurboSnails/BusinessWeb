@@ -167,7 +167,14 @@ test('当日量能：两指数分钟成交额累加，与上一交易日同一�
   assert.deepEqual(r.points[0], { t: '09:30', cum: 3, prevCum: 2 })
   assert.equal(r.total, 723)
   assert.equal(r.prevTotal, 482)
+  assert.equal(r.scope, '沪深')
   assert.equal(intradayAmount(sh, sz, '2026-11-18'), null)
+  // 加北证50 凑成「沪深京」（开盘啦口径）；北证50 不齐全时退回沪深
+  const bj = parseTrends(body([5e8, 1e8]))
+  const full = intradayAmount(sh, sz, '2026-11-17', bj)
+  assert.equal(full.scope, '沪深京')
+  assert.deepEqual(full.points[0], { t: '09:30', cum: 4, prevCum: 7 })
+  assert.equal(intradayAmount(sh, sz, '2026-11-17', { '2026-11-17': bj['2026-11-17'].slice(0, 100), '2026-11-16': bj['2026-11-16'] }).scope, '沪深')
   const broken = parseTrends({ rc: 0, data: { trends: ['2026-11-17 09:30,1,1,1,1,1,,1'] } })
   assert.equal(broken['2026-11-17'], undefined) // 空成交额不当 0
 })

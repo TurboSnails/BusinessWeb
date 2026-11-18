@@ -271,21 +271,23 @@ export function parseTrends(body) {
 }
 
 /**
- * 当日量能：上证综指 + 深证综指每分钟成交额累加，与上一交易日同一时刻比较（开盘啦「市场量能 · 当日」）。
- * 两个指数当天与上一交易日都要齐全（每天 241 个分钟点），否则返回 null，不画半截曲线。
+ * 当日量能：上证综指 + 深证综指（+ 北证50）每分钟成交额累加，与上一交易日同一时刻比较（开盘啦「市场量能 · 当日」）。
+ * 开盘啦的「沪深京」量能就是这三个指数成交额之和（2026-11-17/18 两天与 App 显示的 14676 亿 / 13801 亿一致）。
+ * 上证、深证当天与上一交易日都要齐全（每天 241 个分钟点），否则返回 null，不画半截曲线；北证50 不齐全时退回沪深口径。
  */
-export function intradayAmount(sh, sz, date) {
+export function intradayAmount(sh, sz, date, bj = null) {
   const prev = prevTradingDay(date)
-  const ok = (m) => m[date]?.length >= 241 && m[prev]?.length >= 241
+  const ok = (m) => m?.[date]?.length >= 241 && m?.[prev]?.length >= 241
   if (!ok(sh) || !ok(sz)) return null
+  const parts = ok(bj) ? [sz, bj] : [sz]
   const cum = (day) => {
-    const szMap = new Map(sz[day].map((r) => [r.t, r.amount]))
+    const maps = parts.map((m) => new Map(m[day].map((r) => [r.t, r.amount])))
     let acc = 0
-    return sh[day].filter((r) => szMap.has(r.t)).map((r) => { acc += r.amount + szMap.get(r.t); return { t: r.t, cum: acc } })
+    return sh[day].filter((r) => maps.every((m) => m.has(r.t))).map((r) => { acc += r.amount + maps.reduce((a, m) => a + m.get(r.t), 0); return { t: r.t, cum: acc } })
   }
   const today = cum(date), before = new Map(cum(prev).map((r) => [r.t, r.cum]))
   const points = today.filter((r) => before.has(r.t)).map((r) => ({ t: r.t, cum: round(r.cum / 1e8, 0), prevCum: round(before.get(r.t) / 1e8, 0) }))
   if (points.length < 240) return null
   const last = points.at(-1)
-  return { date, prevDate: prev, total: last.cum, prevTotal: last.prevCum, points }
+  return { date, prevDate: prev, scope: parts.length === 2 ? '沪深京' : '沪深', total: last.cum, prevTotal: last.prevCum, points }
 }

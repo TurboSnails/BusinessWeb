@@ -7,7 +7,7 @@ import { Callout, Card, EmptyState, Page, PageDataFreshness, Segmented, TableWra
 import { PageTitle } from '../components/ui/PageTabs'
 import MoodChart, { type Point } from '../features/market-mood/MoodChart'
 import KplTabs, { KPL_DISCLAIMER } from '../features/market-mood/KplTabs'
-import { asMarketMood, lastDays, MARKETS, METHOD, previousDay, type Amount, type MarketMood, type MoodDay, type MoodLatest } from '../features/market-mood/model'
+import { asMarketMood, forecastSeries, lastDays, MARKETS, METHOD, previousDay, type Amount, type MarketMood, type MoodDay, type MoodLatest } from '../features/market-mood/model'
 import '../styles/market-mood.css'
 
 const BASE = (import.meta as { env?: Record<string, string | undefined> }).env?.BASE_URL ?? '/'
@@ -166,17 +166,29 @@ const hhmm = (t: string): string => t
 function IntradayView({ l }: { l: MoodLatest }): JSX.Element {
   const it = l.intraday
   if (!it) return <p className="mm-empty">当日分时量能暂缺（只在交易日收盘后采集）。</p>
+  const scope = it.scope ?? '沪深'
+  const series = forecastSeries(it)
+  const final = series.at(-1)
   const diff = it.total - it.prevTotal
+  const fmtYi = (v: number): string => (v >= 10000 ? `${(v / 10000).toFixed(2)}万亿` : `${Math.round(v)}亿`)
+  const signed = (v: number, d = 2): string => `${v > 0 ? '+' : ''}${v.toFixed(d)}`
   return (
     <>
       <p className="mm-intraday__head">
-        <span>{it.date} 沪深实际量能 <b>{yi(it.total)}</b></span>
-        <span>{it.prevDate} 同期 {yi(it.prevTotal)}</span>
-        <span>较上一交易日 <b className={tone(diff)}>{diff >= 0 ? '放量' : '缩量'} {yi(Math.abs(diff))}</b></span>
+        <span>{it.date} {scope} · 实际量能 <b>{yi(it.total)}</b></span>
+        <span>今日 · 预测量能 <b className={tone(diff)}>{yi(final?.forecast ?? it.total)}（{signed(final?.pct ?? 0)}%，{diff >= 0 ? '放量' : '缩量'} {yi(Math.abs(diff))}）</b></span>
+        <span>{it.prevDate} 全天 {yi(it.prevTotal)}</span>
       </p>
-      <MoodChart points={it.points.map(p => ({ date: p.t, value: p.cum }))} label={`${it.date} 沪深累计成交额`} format={v => (v >= 10000 ? `${(v / 10000).toFixed(2)}万亿` : `${Math.round(v)}亿`)} tick={hhmm} zeroBase />
-      <MoodChart points={it.points.map(p => ({ date: p.t, value: p.cum - p.prevCum }))} label="较上一交易日同一时刻增减" format={v => `${v > 0 ? '+' : ''}${Math.round(v)}亿`} tick={hhmm} kind="bar" colorBy="sign" />
-      <p className="mm-method">上图：当日从开盘起的累计成交额（上证综指＋深证综指，不含北证）。下图：每个时刻的累计成交额减去上一交易日同一时刻，红色为放量、绿色为缩量。收盘后采集，不做盘中预测。</p>
+      <MoodChart
+        points={series.map(p => ({ date: p.t, value: p.pct === null ? null : Math.round(p.pct * 100) / 100 }))}
+        label={`${it.date} 预测量能较昨日全天增减`}
+        format={v => `${signed(v, 0)}%`}
+        tipFormat={v => `预测 ${fmtYi(it.prevTotal * (1 + v / 100))}（${signed(v)}%）`}
+        refs={[{ value: 0, label: `昨日总量能 ${fmtYi(it.prevTotal)}` }]}
+        tick={hhmm}
+        colorBy="sign"
+      />
+      <p className="mm-method">预测量能（开盘啦口径）：每个时刻的预测全天成交额 = 今日开盘至该时刻的累计成交额 ÷ 上一交易日同一时刻的累计成交额 × 上一交易日全天成交额。曲线是预测量能较上一交易日全天的增减百分比，0 线为昨日总量能；高于 0 为放量（红），低于 0 为缩量（绿），收盘时预测量能就是实际量能。量能 = 上证综指＋深证综指{scope === '沪深京' ? '＋北证50' : ''}成交额（{scope}）。收盘后采集，非盘中实时。</p>
     </>
   )
 }

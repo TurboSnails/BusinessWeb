@@ -36,8 +36,17 @@ export type Vane = { sector: string; count: number; stocks: Array<{ code: string
 export type LadderRow = { boards: number; stocks: Array<{ code: string; name: string; sector: string }> }
 export type Weight = { indices: Array<{ symbol: string; name: string; price: number; pct: number }>; stocks: Array<{ code: string; name: string; pct: number; amount: number }>; avg: number | null }
 
-/** 当日量能：上证综指＋深证综指分钟累计成交额（亿元），与上一交易日同一时刻对比 */
-export type Intraday = { date: string; prevDate: string; total: number; prevTotal: number; points: Array<{ t: string; cum: number; prevCum: number }> }
+/** 当日量能：上证综指＋深证综指（＋北证50，scope 为「沪深京」）分钟累计成交额（亿元），与上一交易日同一时刻对比 */
+export type Intraday = { date: string; prevDate: string; scope?: '沪深京' | '沪深'; total: number; prevTotal: number; points: Array<{ t: string; cum: number; prevCum: number }> }
+
+/** 预测量能（开盘啦口径）：今日累计 ÷ 昨日同一时刻累计 × 昨日全天量能；返回预测值与相对昨日全天的增减 % */
+export function forecastSeries(it: Intraday): Array<{ t: string; forecast: number | null; pct: number | null }> {
+  return it.points.map(p => {
+    if (!(p.prevCum > 0) || !(it.prevTotal > 0)) return { t: p.t, forecast: null, pct: null }
+    const forecast = p.cum / p.prevCum * it.prevTotal
+    return { t: p.t, forecast, pct: (forecast / it.prevTotal - 1) * 100 }
+  })
+}
 
 export type MoodLatest = MoodDay & {
   amount: Amount

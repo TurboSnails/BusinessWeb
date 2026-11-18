@@ -66,6 +66,8 @@
 .mm-chart__ref-label { fill: var(--text-secondary); font-size: 11px; }
 .mm-chart__line { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
 .mm-chart__line.is-muted { stroke: var(--text-tertiary); stroke-dasharray: 3 3; }
+.mm-chart__line.is-up { stroke: var(--up); }
+.mm-chart__line.is-down { stroke: var(--down); }
 .mm-chart__bar.is-up { fill: var(--up); }
 .mm-chart__bar.is-down { fill: var(--down); }
 .mm-chart__bar.is-flat { fill: var(--system-gray); }

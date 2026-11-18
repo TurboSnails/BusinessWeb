@@ -106,7 +106,9 @@ try {
 let intraday = null
 try {
   const trends = async (secid) => parseTrends(await get(`https://push2his.eastmoney.com/api/qt/stock/trends2/get?secid=${secid}&fields1=f1,f2,f3&fields2=f51,f52,f53,f54,f55,f56,f57,f58&iscr=0&ndays=2`, { headers: { referer: 'https://quote.eastmoney.com/' } }))
-  intraday = intradayAmount(await trends('1.000001'), await trends('0.399106'), today)
+  // 北证50 只为凑齐「沪深京」口径，取不到就退回沪深
+  const bj = await trends('0.899050').catch(() => null)
+  intraday = intradayAmount(await trends('1.000001'), await trends('0.399106'), today, bj)
   if (!intraday) console.log('当日分时量能不完整，跳过')
 } catch (e) { console.log(`当日分时量能获取失败：${e.message}`) }
 

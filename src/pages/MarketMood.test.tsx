@@ -4,7 +4,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import MarketMood from './MarketMood'
 import { moodFixture } from '../features/market-mood/fixtures'
-import { asMarketMood, previousDay } from '../features/market-mood/model'
+import { asMarketMood, forecastSeries, previousDay } from '../features/market-mood/model'
 
 const renderPage = () => render(<MemoryRouter><MarketMood /></MemoryRouter>)
 const stub = (body: unknown, ok = true) => vi.stubGlobal('fetch', vi.fn(async () => ({ ok, status: ok ? 200 : 404, json: async () => body })))
@@ -71,15 +71,26 @@ describe('开盘啦（市场情绪）页', () => {
 })
 
 describe('市场量能 · 当日', () => {
-  it('切到当日：显示当日与上一交易日同期量能、放量额与两张分时图', async () => {
+  it('切到当日：实际量能、预测量能（较昨日全天 %、放量额）与预测量能曲线', async () => {
     stub(moodFixture())
     renderPage()
     await screen.findByRole('region', { name: '今日总览' })
     fireEvent.click(within(screen.getByRole('group', { name: '量能视图' })).getByText('当日'))
-    expect(screen.getByText(/2026-11-16 同期/).textContent).toContain('1.45 万亿')
-    expect(screen.getByText(/^较上一交易日/, { selector: 'span' }).textContent).toContain('放量 400 亿')
-    expect(screen.getByRole('img', { name: '2026-11-17 沪深累计成交额' })).toBeTruthy()
-    expect(screen.getByRole('img', { name: '较上一交易日同一时刻增减' })).toBeTruthy()
+    expect(screen.getByText(/^2026-11-17 沪深 · 实际量能/, { selector: 'span' }).textContent).toContain('1.49 万亿')
+    // 收盘时预测 = 实际：14900 ÷ 14500 − 1 = +2.76%
+    expect(screen.getByText(/预测量能/, { selector: 'span' }).textContent).toMatch(/\+2\.76%.*放量 400 亿/)
+    expect(screen.getByText(/2026-11-16 全天/).textContent).toContain('1.45 万亿')
+    expect(screen.getByRole('img', { name: '2026-11-17 预测量能较昨日全天增减' })).toBeTruthy()
+    expect(screen.queryByRole('img', { name: /累计成交额/ })).toBeNull()
+  })
+
+  it('预测量能：今日累计 ÷ 昨日同时刻累计 × 昨日全天', () => {
+    const it0 = moodFixture().latest.intraday!
+    const s = forecastSeries(it0)
+    expect(s[0].forecast).toBeCloseTo(14500 * 120 / 130, 6)
+    expect(s[0].pct).toBeCloseTo((120 / 130 - 1) * 100, 6)
+    expect(s.at(-1)!.forecast).toBeCloseTo(14900, 6)
+    expect(forecastSeries({ ...it0, points: [{ t: '09:30', cum: 5, prevCum: 0 }] })[0].pct).toBeNull()
   })
 
   it('没有当日分时数据时提示，不崩溃', async () => {
