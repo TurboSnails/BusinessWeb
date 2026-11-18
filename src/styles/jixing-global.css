@@ -1,0 +1,30 @@
+/* 今天几星 · 港股全球。估值状态用中性的 system 色（--up/--down 只表示 A 股涨跌），并始终配文字。 */
+.jg-page .seg { margin: 0 0 12px; flex-wrap: wrap; }
+.jg-sub { margin: 16px 0 8px; font-size: 0.95rem; font-weight: 600; color: var(--text-primary); }
+
+.jg-state { display: inline-block; padding: 1px 8px; border: 1px solid var(--border-primary); border-radius: var(--radius-full); color: var(--text-secondary); font-size: 0.8rem; white-space: nowrap; }
+.jg-state.is-low { border-color: var(--system-green); color: var(--text-primary); background: color-mix(in srgb, var(--system-green) 12%, transparent); }
+.jg-state.is-mid { border-color: var(--system-orange); color: var(--text-primary); background: color-mix(in srgb, var(--system-orange) 12%, transparent); }
+.jg-state.is-high { border-color: var(--system-red); color: var(--text-primary); background: color-mix(in srgb, var(--system-red) 12%, transparent); }
+
+.jg-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+.jg-chips > div { display: flex; align-items: baseline; gap: 6px; padding: 4px 12px; border-radius: var(--radius-md); }
+.jg-chips dt { font-size: 0.82rem; }
+.jg-chips dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.jg-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 0 0 16px; }
+.jg-summary dt { color: var(--text-secondary); font-size: 0.82rem; }
+.jg-summary dd { margin: 4px 0 0; font-size: 1.3rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.jg-summary small { display: block; margin-top: 2px; color: var(--text-tertiary); font-size: 0.75rem; }
+
+.jg-table tbody tr { cursor: pointer; }
+.jg-table tbody tr.is-picked th,
+.jg-table tbody tr.is-picked td { background: var(--bg-secondary); }
+.jg-table th small, .jg-table td small { display: block; margin-left: 0; color: var(--text-tertiary); font-size: 0.75rem; font-weight: 400; }
+.jg-table td { white-space: nowrap; }
+.jg-pick { padding: 0; border: 0; background: none; color: var(--accent); font: inherit; font-weight: 600; text-align: left; cursor: pointer; }
+.jg-pick[aria-pressed='true'] { color: var(--text-primary); text-decoration: underline; text-underline-offset: 3px; }
+
+.jg-detail { margin-top: 8px; }
+.jg-list { margin: 0 0 12px; padding-left: 1.2em; color: var(--text-secondary); font-size: 0.88rem; line-height: 1.7; }
+.jg-table tbody th[scope='row'] { min-width: 7.5em; }
