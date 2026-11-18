@@ -42,7 +42,7 @@ describe('INVEST_GROUPS', () => {
       '/investment-strategy', '/investment-targets', '/limit-up-analysis', '/daily-analysis',
       '/mainland-investment-targets',
       '/money-freedom', '/monitor', '/pulse', '/research-notes', '/earnings',
-      '/sector-rotation', '/trading-philosophy', '/valuation', '/market-mood', '/ths-mood',
+      '/sector-rotation', '/trading-philosophy', '/valuation', '/market-mood', '/ths-mood', '/jixing',
     ].sort())
     expect(new Set(all).size).toBe(all.length)
   })
@@ -76,7 +76,7 @@ describe('INVEST_GROUPS', () => {
   it('候选池独立一组；工具与参考放三件工具和 ETF 流派地图；AI Skills 在「相关」', () => {
     expect(paths('candidates')).toEqual(['/candidates', '/radar'])
     expect(paths('tools')).toEqual(['/invest/comprehensive-valuation', '/invest/ai-token-economics', '/invest/fundamental-quant', '/valuation', '/dcf', '/grid-trading', '/money-freedom', '/invest/etf', '/industry-etf', '/notes', '/invest/bond-fund-report'])
-    expect(INVEST_GROUPS.find(g => g.id === 'third-party')!.links.map(l => [l.path, l.label])).toEqual([['/market-mood', '开盘啦'], ['/ths-mood', '同花顺']])
+    expect(INVEST_GROUPS.find(g => g.id === 'third-party')!.links.map(l => [l.path, l.label])).toEqual([['/market-mood', '开盘啦'], ['/ths-mood', '同花顺'], ['/jixing', '今天几星']])
     const related = INVEST_GROUPS.find(g => g.id === 'related')!
     expect(related.links.map(l => [l.path, l.label])).toEqual([['/ai/ai-skills', 'AI 投研 Skills']])
   })

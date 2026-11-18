@@ -44,6 +44,10 @@ const ThsHk = lazy(() => import('./pages/ths/ThsHk'))
 const ThsEtf = lazy(() => import('./pages/ths/ThsEtf'))
 const ThsScreener = lazy(() => import('./pages/ths/ThsScreener'))
 const ThsIndustry = lazy(() => import('./pages/ths/ThsIndustry'))
+const JixingStar = lazy(() => import('./pages/jixing/JixingStar'))
+const JixingTable = lazy(() => import('./pages/jixing/JixingTable'))
+const JixingGlobal = lazy(() => import('./pages/jixing/JixingGlobal'))
+const JixingSignals = lazy(() => import('./pages/jixing/JixingSignals'))
 const DailyAnalysis = lazy(() => import('./pages/DailyAnalysis'))
 const DailyAnalysisLegacy = lazy(() => import('./pages/DailyAnalysisLegacy'))
 const TradingPhilosophy = lazy(() => import('./pages/TradingPhilosophy'))
@@ -196,6 +200,10 @@ export default function App(): JSX.Element {
           <Route path="/ths-mood/etf" element={<ThsEtf />} />
           <Route path="/ths-mood/screener" element={<ThsScreener />} />
           <Route path="/ths-mood/industry" element={<ThsIndustry />} />
+          <Route path="/jixing" element={<JixingStar />} />
+          <Route path="/jixing/table" element={<JixingTable />} />
+          <Route path="/jixing/global" element={<JixingGlobal />} />
+          <Route path="/jixing/signals" element={<JixingSignals />} />
           <Route path="/daily-analysis" element={<DailyAnalysis />} />
           <Route path="/daily-analysis/legacy" element={<DailyAnalysisLegacy />} />
           <Route path="/trading-philosophy" element={<TradingPhilosophy />} />

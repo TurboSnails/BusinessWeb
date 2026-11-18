@@ -1,0 +1,87 @@
+name: Update Jixing tabs
+
+# 「三方平台 · 今天几星」各页签（今日星级、A股估值表、港股全球、牛熊信号板）：收盘后各跑一次自己的脚本 scripts/jixing-<页签>.mjs，
+# 产出 public/data/jixing-<页签>.json 与 data-raw/jixing-<页签>/。单个脚本失败只记警告，不影响其他页签。
+# 主触发接在「Update daily analysis」之后；中证估值等晚间才发布，兜底北京 18:30、20:30、22:30（脚本幂等，日期未变不写）。
+on:
+  workflow_run:
+    workflows: ['Update daily analysis']
+    types: [completed]
+  schedule:
+    - cron: '30 10 * * 1-5'
+    - cron: '30 12 * * 1-5'
+    - cron: '30 14 * * 1-5'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/jixing-tabs.yml'
+      - 'scripts/jixing-*.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: jixing-tabs
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Run tab scripts
+        shell: bash
+        # 每个脚本单独限时（最多 10 分钟），并给提交步骤留出时间：总预算用完就跳过剩下的脚本，已跑完的结果照常提交
+        run: |
+          budget=$(( JOB_MINUTES * 60 - 300 ))
+          for tab in table global signals star; do
+            f="scripts/jixing-$tab.mjs"
+            [ -f "$f" ] || continue
+            left=$(( budget - SECONDS ))
+            if [ "$left" -lt 60 ]; then echo "::warning::时间预算用完，跳过 $f 及之后的脚本"; break; fi
+            limit=$(( left < 600 ? left : 600 ))
+            timeout --kill-after=10 "$limit" node "$f" || echo "::warning::$f 运行失败或超时（上限 ${limit} 秒），保留上一份数据"
+          done
+        env:
+          JOB_MINUTES: '30' # 与上面的 timeout-minutes 保持一致
+      - name: Restore any half-written JSON
+        shell: bash
+        # 脚本被超时杀掉时可能留下写了一半的文件：解析失败的一律还原成上一版，不提交坏文件
+        run: |
+          for f in public/data/jixing-*.json $(git ls-files -m -o --exclude-standard 'data-raw/' | grep '\.json$' || true); do
+            [ -f "$f" ] || continue
+            if ! node -e "JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8'))" "$f" 2>/dev/null; then
+              echo "::warning::$f 不是合法 JSON，已还原"
+              git checkout -- "$f" 2>/dev/null || rm -f "$f"
+            fi
+          done
+      - name: Commit if changed
+        id: commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add -A -- 'public/data/jixing-*.json' 'data-raw/jixing-*' 2>/dev/null || true
+          if git diff --cached --quiet; then echo "changed=false" >> "$GITHUB_OUTPUT"; exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m "data(jixing): 今天几星页签数据 $(TZ=Asia/Shanghai date +%Y-%m-%d)"
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && git push && break
+            if [ "$i" = 5 ]; then echo "::error::推送 5 次都失败"; exit 1; fi
+            git rebase --abort 2>/dev/null || true
+            sleep $((i * 10))
+          done
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+      - name: Deploy GitHub Pages
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --ref main
