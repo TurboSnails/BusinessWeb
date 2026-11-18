@@ -42,3 +42,23 @@ test('自动更新拒绝中间历史改写，人工导入可明确修订但仍�
   assert.doesNotThrow(() => assertIndexSnapshot(changed, old, '2020-04-01', { allowHistoryRewrite: true }))
   assert.throws(() => assertIndexSnapshot({ generatedAt: '2020-03-31', indexes: { x: { ...threeMonths, fpe: [['2020-04-01', 20]] } } }, old, '2020-03-20', { allowHistoryRewrite: true }), /无效/)
 })
+
+test('当月未收盘 K 线与末尾最新价可被自动更新替换，已收盘月份仍受保护', () => {
+  const mk = (monthly, last) => ({ generatedAt: last, indexes: { x: { latest: { date: last, value: monthly.at(-1)[1] }, monthly, fpe: [] } } })
+  // 雅虎港股月线：11 月 K 线标成 10-31，末尾追加 11-17 最新价；次日两者都变
+  const old = mk([['2026-09-30', 1], ['2026-10-31', 23637.6], ['2026-11-17', 23571.61]], '2026-11-17')
+  const next = mk([['2026-09-30', 1], ['2026-10-31', 23753.84], ['2026-11-18', 23250.76]], '2026-11-18')
+  assert.doesNotThrow(() => assertIndexSnapshot(next, old, '2026-11-18'))
+  // 已收盘的 9 月被改写仍拒绝
+  const bad = mk([['2026-09-30', 2], ['2026-10-31', 23753.84], ['2026-11-18', 23250.76]], '2026-11-18')
+  assert.throws(() => assertIndexSnapshot(bad, old, '2026-11-18'), /改写/)
+  // 末尾日期不能回退
+  assert.throws(() => assertIndexSnapshot(mk([['2026-09-30', 1], ['2026-10-31', 23753.84]], '2026-10-31'), old, '2026-11-18'), /退化/)
+})
+
+test('按周取点的参考 PE 末尾点可滚动替换，更早的点仍受保护', () => {
+  const mk = (points, last) => ({ generatedAt: last, indexes: { x: { latest: { date: last, value: 1 }, monthly: [['2026-10-30', 1], [last, 1]], fpe: [], ref: { source: 's', points } } } })
+  const old = mk([['2026-11-13', 13.07], ['2026-11-16', 13.05]], '2026-11-16')
+  assert.doesNotThrow(() => assertIndexSnapshot(mk([['2026-11-13', 13.07], ['2026-11-17', 13.05]], '2026-11-17'), old, '2026-11-17'))
+  assert.throws(() => assertIndexSnapshot(mk([['2026-11-13', 13.5], ['2026-11-17', 13.05]], '2026-11-17'), old, '2026-11-17'), /改写/)
+})
