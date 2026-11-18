@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
-  buildRow, canPublish, histPayload, industryDateQueried, marketCloses, mergeHistory, parseCniSnapshot, parseCsiHistory,
-  parseCsiSnapshot, parseIndustryPb, percentile, pickIndustryMetrics, planIndustryFetch, slimRow, sourceDate,
-  valuationStatus, windowStart,
+  applyIndustryFetchResult, buildRow, canPublish, decideIndustryFetchResult, histPayload, industryDateQueried,
+  industrySlotHasData, marketCloses, mergeHistory, parseCniSnapshot, parseCsiHistory, parseCsiSnapshot,
+  parseIndustryPb, percentile, pickIndustryMetrics, planIndustryFetch, slimRow, sourceDate, valuationStatus,
+  windowStart,
 } from './jixing-table-lib.mjs'
 
 const target = '2026-11-17'
@@ -166,7 +167,7 @@ test('行业 PB 行：ROE/股息率不混口径；分位用周采样；hist 含 
   assert.ok(histPayload(row).pbRefs[0] > 0)
 })
 
-test('行业 PB 待抓计划：目标日优先，已查询（含空）不再重抓，大量部分日期时仍包含 target', () => {
+test('行业 PB 待抓计划：目标日优先；空列表且日期=请求日不算已查，下次仍含 target（B1\'）', () => {
   const byDate = Object.fromEntries(
     Array.from({ length: 200 }, (_, i) => {
       const d = new Date(Date.UTC(2014, 0, 3 + i * 7)).toISOString().slice(0, 10)
@@ -178,10 +179,64 @@ test('行业 PB 待抓计划：目标日优先，已查询（含空）不再重�
   const planned = planIndustryFetch({ byDate }, target, { recent: 10, extra: Object.keys(byDate) })
   assert.equal(planned[0], target)
   assert.ok(planned.includes(target))
-  assert.equal(planned.some(d => byDate[d]), false)
-  // 空对象也算已查询：target 不再出现；recent 未查日仍可出现
-  const emptyStore = { byDate: { ...byDate, [target]: {} } }
-  const after = planIndustryFetch(emptyStore, target, { recent: 3 })
-  assert.ok(!after.includes(target))
-  assert.equal(industryDateQueried(emptyStore, target), true)
+  // extra（rebuild 周采样）空槽仍算已查，不进计划；近窗有数据的日期也不进
+  assert.equal(planned.some(d => industrySlotHasData(byDate[d])), false)
+
+  // B1'：空列表且日期等于请求日 → 不锁死；下次计划仍含 target
+  const emptySameDay = { byDate: { ...byDate, [target]: {} } }
+  assert.equal(industryDateQueried(emptySameDay, target, { emptyCounts: false }), false)
+  assert.equal(industrySlotHasData(emptySameDay.byDate[target]), false)
+  const afterEmpty = planIndustryFetch(emptySameDay, target, { recent: 3 })
+  assert.ok(afterEmpty.includes(target), '空槽同日未发布，下次仍应抓 target')
+
+  // 休市回退写成的 {}：extra 路径仍视为已查；近窗 emptyCounts=false 会重抓——这是刻意（近 N 日可补）
+  const holidayEmpty = { byDate: { [target]: {} } }
+  assert.equal(industryDateQueried(holidayEmpty, target, { emptyCounts: true }), true)
+  assert.equal(industryDateQueried(holidayEmpty, target, { emptyCounts: false }), false)
+})
+
+test('早班未发布 → 晚班补到当天：同日空不写，有数据后写入且不再进计划', () => {
+  const store = { version: 1, byDate: {} }
+  const emptyBody = {
+    code: '200',
+    data: {
+      tradeDate: target.replaceAll('-', ''),
+      csipeindustryMapList: { 3: [], 4: [], 5: [], 6: [] },
+    },
+  }
+  const morning = decideIndustryFetchResult(target, emptyBody)
+  assert.equal(morning.action, 'pending')
+  assert.equal(morning.slot, null)
+  applyIndustryFetchResult(store, target, emptyBody)
+  assert.equal(Object.prototype.hasOwnProperty.call(store.byDate, target), false)
+  assert.ok(planIndustryFetch(store, target, { recent: 0 }).includes(target))
+
+  const eveningBody = {
+    code: '200',
+    data: {
+      tradeDate: target.replaceAll('-', ''),
+      csipeindustryMapList: {
+        3: [{ industryCode: '4010', industryName: '银行', pe: '0.63', children: [] }],
+        4: [{ industryCode: '4010', industryName: '银行', pe: '5', children: [] }],
+      },
+    },
+  }
+  const evening = applyIndustryFetchResult(store, target, eveningBody)
+  assert.equal(evening.action, 'wrote')
+  assert.ok(industrySlotHasData(store.byDate[target]))
+  assert.equal(store.byDate[target]['399986']?.pb, 0.63)
+  assert.ok(!planIndustryFetch(store, target, { recent: 0 }).includes(target))
+
+  // 休市回退：tradeDate ≠ 请求日 → 记 {}
+  const holidayReq = '2026-11-15' // 周日附近用任意日，只测决策
+  const holidayBody = {
+    code: '200',
+    data: {
+      tradeDate: '20261114',
+      csipeindustryMapList: { 3: [], 4: [], 5: [], 6: [] },
+    },
+  }
+  const holiday = applyIndustryFetchResult(store, holidayReq, holidayBody)
+  assert.equal(holiday.action, 'holiday')
+  assert.deepEqual(store.byDate[holidayReq], {})
 })

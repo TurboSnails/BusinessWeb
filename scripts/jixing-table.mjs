@@ -8,8 +8,9 @@ import { isTradingDay } from './market-mood-lib.mjs'
 import { addDays, CSI, csiValUrl } from './ths-market-lib.mjs'
 import { weekEnds } from './ths-industry-lib.mjs'
 import {
-  buildRow, canPublish, histPayload, INDICES, INDUSTRY_PB_FROM, industryPbUrl, marketCloses, mergeHistory,
-  parseCniSnapshot, parseCsiHistory, parseCsiSnapshot, parseIndustryPb, planIndustryFetch, slimRow, sourceDate,
+  applyIndustryFetchResult, buildRow, canPublish, histPayload, INDICES, INDUSTRY_PB_FROM, industryPbUrl,
+  marketCloses, mergeHistory, parseCniSnapshot, parseCsiHistory, parseCsiSnapshot, planIndustryFetch, slimRow,
+  sourceDate,
 } from './jixing-table-lib.mjs'
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
@@ -102,7 +103,7 @@ function saveIndustryStore(store) {
 /**
  * 补齐行业 PB。
  * daily：只补目标日 + 近 10 交易日（目标优先）；周采样仅 rebuild。
- * 已查询日期（含空/`{}`、接口回退日）不再重抓；单日失败 catch 跳过（I1）。
+ * 休市回退记 `{}`；同日空列表＝未发布不写（B1'）；单日失败 catch 跳过（I1）。
  */
 async function ensureIndustryPb(target, { cap = INDUSTRY_CAP, rebuild = false } = {}) {
   const store = loadIndustryStore()
@@ -118,21 +119,8 @@ async function ensureIndustryPb(target, { cap = INDUSTRY_CAP, rebuild = false } 
     await Promise.all(batch.map(async date => {
       try {
         const body = await get(industryPbUrl(date))
-        const parsed = parseIndustryPb(body, date)
-        if (parsed.size) {
-          const slot = { ...(store.byDate[date] ?? {}) }
-          for (const [code, value] of parsed) {
-            slot[code] = {
-              pb: value.pb, dp: value.dp, industryCode: value.industryCode, industryName: value.industryName,
-            }
-          }
-          store.byDate[date] = slot
-          fetched++
-        } else if (String(body?.code) === '200') {
-          // 同日无匹配或接口回退到别日：记已查询，避免反复打（B1）
-          store.byDate[date] = store.byDate[date] ?? {}
-          fetched++
-        }
+        const result = applyIndustryFetchResult(store, date, body)
+        if (result.action === 'wrote' || result.action === 'holiday') fetched++
       } catch {
         // 单日失败不中断整表；能否发布交给 canPublish（I1）
       }

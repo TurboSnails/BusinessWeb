@@ -39,26 +39,77 @@ export const INDUSTRY_PB_FROM = '2014-01-02'
 export const industryPbUrl = (date) =>
   `https://www.csindex.com.cn/csindex-home/dataServer/queryCsiPeIndustryBytradeDate?tradeDate=${date.replaceAll('-', '')}&classType=2`
 
-/** 该日是否已查询过（含空对象 / 部分行业）：有键即视为已查，不再重抓。 */
-export function industryDateQueried(store, date) {
-  return Object.prototype.hasOwnProperty.call(store?.byDate ?? {}, date)
+/** 库存槽是否已有任一行业 PB（>0）。空 `{}` 不算有数据。 */
+export function industrySlotHasData(slot) {
+  if (!slot || typeof slot !== 'object') return false
+  return Object.values(slot).some(v => v && Number.isFinite(v.pb) && v.pb > 0)
+}
+
+/**
+ * 该日是否已查询、不必再抓。
+ * emptyCounts=true（默认，用于更早的 rebuild 缺口）：有键即算已查（含休市回退写成的 `{}`）。
+ * emptyCounts=false（目标日 + 近 N 日）：空槽不算已查，便于早班未发布后晚班重抓（B1'）。
+ */
+export function industryDateQueried(store, date, { emptyCounts = true } = {}) {
+  if (!Object.prototype.hasOwnProperty.call(store?.byDate ?? {}, date)) return false
+  if (!emptyCounts && !industrySlotHasData(store.byDate[date])) return false
+  return true
+}
+
+/**
+ * 根据一次行业接口响应决定库存动作（纯函数；调用方写入 byDate）。
+ * - wrote：解析出行业，返回 slot 片段（与已有槽合并）
+ * - holiday：code 200 且 tradeDate ≠ 请求日（回退＝休市）→ 记 `{}`
+ * - pending：code 200 且 tradeDate = 请求日但列表空（未发布）→ 不写，下次重抓
+ * - skip：其他
+ */
+export function decideIndustryFetchResult(date, body) {
+  const parsed = parseIndustryPb(body, date)
+  if (parsed.size) {
+    const slot = {}
+    for (const [code, value] of parsed) {
+      slot[code] = {
+        pb: value.pb, dp: value.dp, industryCode: value.industryCode, industryName: value.industryName,
+      }
+    }
+    return { action: 'wrote', slot, parsed: parsed.size }
+  }
+  if (String(body?.code) === '200') {
+    const got = sourceDate(body?.data?.tradeDate)
+    if (got && got !== date) return { action: 'holiday', slot: {}, parsed: 0 }
+    return { action: 'pending', slot: null, parsed: 0 }
+  }
+  return { action: 'skip', slot: null, parsed: 0 }
+}
+
+/** 将 decideIndustryFetchResult 结果落到 store（原地），返回 action。 */
+export function applyIndustryFetchResult(store, date, body) {
+  const result = decideIndustryFetchResult(date, body)
+  if (result.action === 'wrote') {
+    store.byDate[date] = { ...(store.byDate[date] ?? {}), ...result.slot }
+  } else if (result.action === 'holiday') {
+    store.byDate[date] = store.byDate[date] ?? {}
+  }
+  return result
 }
 
 /**
  * 决定要抓的行业 PB 日期：目标日优先（降序）。
- * daily：只补目标日 + 近 recent 个交易日中尚未查询的。
- * extra：rebuild 时并入的周采样缺口等。
+ * daily：只补目标日 + 近 recent 个交易日中尚未查询的（近窗空槽会重抓）。
+ * extra：rebuild 时并入的周采样缺口等（空 `{}` 仍算已查）。
  */
 export function planIndustryFetch(store, target, { recent = 10, extra = [] } = {}) {
   const needed = new Set()
-  if (validDate(target) && isTradingDay(target) && !industryDateQueried(store, target)) needed.add(target)
+  if (validDate(target) && isTradingDay(target) && !industryDateQueried(store, target, { emptyCounts: false })) {
+    needed.add(target)
+  }
   let d = target
   for (let i = 0; i < recent; i++) {
     d = addDays(d, -1)
-    if (isTradingDay(d) && !industryDateQueried(store, d)) needed.add(d)
+    if (isTradingDay(d) && !industryDateQueried(store, d, { emptyCounts: false })) needed.add(d)
   }
   for (const day of extra) {
-    if (validDate(day) && !industryDateQueried(store, day)) needed.add(day)
+    if (validDate(day) && !industryDateQueried(store, day, { emptyCounts: true })) needed.add(day)
   }
   return [...needed].sort((a, b) => b.localeCompare(a))
 }
