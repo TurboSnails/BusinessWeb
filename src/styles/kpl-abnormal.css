@@ -16,3 +16,7 @@
 .ka-timeline time { color: var(--text-tertiary); font-variant-numeric: tabular-nums; margin-right: 4px; }
 .ka-links { margin: 8px 0 0; padding-left: 18px; font-size: 0.85rem; }
 .ka-links li { margin: 4px 0; overflow-wrap: anywhere; }
+.ka-warn { font-size: 0.85rem; color: var(--text-secondary); background: var(--bg-secondary); border-left: 3px solid var(--accent-warm); padding: 6px 10px; margin: 0 0 10px; overflow-wrap: anywhere; }
+.ka-reg .ka-type { display: block; color: var(--text-tertiary); font-size: 0.75rem; margin-top: 2px; white-space: nowrap; }
+.ka-reg .ka-title { min-width: 240px; max-width: 420px; white-space: normal; overflow-wrap: anywhere; font-size: 0.85rem; }
+.ka-reg .ka-title small { display: block; color: var(--text-tertiary); font-size: 0.75rem; margin-top: 2px; }

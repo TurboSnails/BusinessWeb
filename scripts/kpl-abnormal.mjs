@@ -13,10 +13,12 @@ import { calendarCovers, isTradingDay } from './market-mood-lib.mjs'
 import {
   BOARDS, HISTORY_DAYS, actualFromLhbDay, actualFromLhbLatest, boardOfCode, buildAbnormal, buildSuspend, canReplaceOut, compareLhb, dayRecord, delistName,
   indexReturns, mergeHistory, parseChanges, parseKline, predictLhb, replaceRecord, sinaBar, summarizeRadar, tradingDaysBack,
+  REG_DAYS, REG_KEEP_DAYS, addDays, attachToday, mergeReg, parseCninfoReplies, parseSseReg, parseSzseDiscipline, parseSzseInquiry, parseSzseMeasures, regCounts,
 } from './kpl-abnormal-lib.mjs'
 
 const OUT = 'public/data/kpl-abnormal.json'
 const RAW = 'data-raw/kpl-abnormal/days'
+const REG_RAW = 'data-raw/kpl-abnormal/regulatory.json' // 监管问询存档（近 45 个自然日的条目）
 const LHB_RAW = 'data-raw/kpl-lhb/days'
 const LHB_OUT = 'public/data/kpl-lhb.json'
 const KEEP_RAW = HISTORY_DAYS + 5
@@ -219,6 +221,112 @@ if (live) {
   } catch (e) { console.log(`盘口异动获取失败（保留已有）：${e.message}`) }
 }
 
+/* ---------- 监管问询（问询函 / 关注函 / 监管函 / 纪律处分，近 30 个自然日；带日期的公开披露） ---------- */
+// 三个来源并行、各自独立：任何一个失败只把它标为未取到，已存档的条目照常保留（data-raw/kpl-abnormal/regulatory.json，保留 45 天）。
+// 全部失败且没有存档时这一块为 null（regulatoryNote 写原因）；同一天已有输出时保留已有的这一块。
+const regFrom = addDays(date, -REG_DAYS)
+const regOld = readJson(REG_RAW)
+const regHist = Array.isArray(regOld?.items) ? regOld.items : []
+async function regGet(url, init = {}, tries = 2) {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      const r = await fetch(url, { ...init, headers: { 'user-agent': UA, ...(init.headers ?? {}) }, signal: AbortSignal.timeout(10000) })
+      if (!r.ok) throw new Error(`HTTP ${r.status}`)
+      return await r.json()
+    } catch (e) {
+      if (attempt + 1 >= tries) throw e
+      await sleep(1000)
+    }
+  }
+}
+async function regSse() {
+  const out = []
+  for (const channelId of ['10743,10744,10012', '10007,10008,10009,10010']) {
+    const rows = []
+    let total = null
+    for (let p = 1; p <= 5; p++) {
+      const q = new URLSearchParams({ siteId: '28', sqlId: 'BS_KCB_GGLL_NEW', channelId, order: 'createTime|desc,stockcode|asc', isPagination: 'true', 'pageHelp.pageSize': '100', 'pageHelp.pageNo': String(p), createTime: `${regFrom} 00:00:00`, createTimeEnd: `${date} 23:59:59` })
+      const b = await regGet(`https://query.sse.com.cn/commonSoaQuery.do?${q}`, { headers: { referer: 'https://www.sse.com.cn/' } })
+      if (!Array.isArray(b?.result)) throw new Error('上交所返回结构异常')
+      rows.push(...b.result)
+      total = Number(b.pageHelp?.total)
+      if (p >= Number(b.pageHelp?.pageCount ?? 0) || !b.result.length) break
+    }
+    if (Number.isFinite(total) && rows.length < total) throw new Error(`上交所行数不完整（${rows.length}/${total}）`)
+    out.push(...parseSseReg(rows))
+  }
+  return out
+}
+async function regSzse() {
+  // www.szse.cn 在境外常被 TLS 重置：每页只试一次，失败即整体放弃（已有存档保留）
+  const pull = async (qs) => {
+    const rows = []
+    for (let p = 1; p <= 10; p++) {
+      const b = await regGet(`https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&${qs}&PAGENO=${p}`, { headers: { referer: 'https://www.szse.cn/' } }, 1)
+      if (!Array.isArray(b)) throw new Error('深交所返回结构异常')
+      const tab = b.find((t) => Array.isArray(t?.data) && t.data.length) ?? b[0]
+      rows.push(...(tab?.data ?? []))
+      if (p >= Number(tab?.metadata?.pagecount ?? 0)) break
+    }
+    return rows
+  }
+  const out = []
+  out.push(...parseSzseInquiry(await pull(`CATALOGID=main_wxhj&TABKEY=tab2&txtStart=${regFrom}&txtEnd=${date}`)))
+  out.push(...parseSzseInquiry(await pull(`CATALOGID=main_wxhj&TABKEY=tab3&txtStart=${regFrom}&txtEnd=${date}`)))
+  for (const y of new Set([regFrom.slice(0, 4), date.slice(0, 4)])) out.push(...parseSzseMeasures(await pull(`CATALOGID=1800_jgxxgk&TABKEY=tab1&txtDate=${y}`)))
+  out.push(...parseSzseDiscipline(await pull(`CATALOGID=1759_cxda&TABKEY=tab1&txtStartDate=${regFrom}&txtEndDate=${date}`)))
+  return out
+}
+async function regCninfo() {
+  const anns = []
+  for (const key of ['问询函', '关注函']) {
+    let total = null, got = 0
+    for (let p = 1; p <= 15; p++) {
+      // pageSize 最大 30（更大时 pageNum 失效）
+      const body = new URLSearchParams({ pageNum: String(p), pageSize: '30', column: 'szse', tabName: 'fulltext', plate: 'sz;sh', stock: '', searchkey: key, secid: '', category: '', trade: '', seDate: `${regFrom}~${date}`, sortName: '', sortType: '', isHLtitle: 'true' })
+      const b = await regGet('https://www.cninfo.com.cn/new/hisAnnouncement/query', { method: 'POST', body, headers: { 'content-type': 'application/x-www-form-urlencoded; charset=UTF-8', 'x-requested-with': 'XMLHttpRequest', referer: 'https://www.cninfo.com.cn/new/commonUrl/pageOfSearch?url=disclosure/list/search' } })
+      const list = Array.isArray(b?.announcements) ? b.announcements : []
+      total = Number(b?.totalAnnouncement)
+      anns.push(...list)
+      got += list.length
+      if (!b?.hasMore || !list.length) break
+      await sleep(300)
+    }
+    if (Number.isFinite(total) && got < total) throw new Error(`巨潮「${key}」只取到 ${got}/${total} 条`)
+  }
+  return parseCninfoReplies(anns)
+}
+const REG_SOURCES = [
+  { id: 'sse', label: '上交所 监管问询 / 监管措施 / 纪律处分', url: 'https://www.sse.com.cn/disclosure/credibility/supervision/inquiries/', run: regSse },
+  { id: 'szse', label: '深交所 问询函件 / 监管措施 / 纪律处分', url: 'https://www.szse.cn/disclosure/supervision/inquire/index.html', run: regSzse },
+  { id: 'cninfo', label: '巨潮资讯 问询函 / 关注函回复公告', url: 'https://www.cninfo.com.cn/new/commonUrl/pageOfSearch?url=disclosure/list/search', run: regCninfo },
+]
+const regT0 = Date.now()
+const regRes = await Promise.allSettled(REG_SOURCES.map((s) => s.run()))
+const regFresh = []
+const regStatus = REG_SOURCES.map((s, i) => {
+  const r = regRes[i]
+  if (r.status === 'fulfilled') { regFresh.push(...r.value); return { id: s.id, label: s.label, url: s.url, ok: true, n: r.value.filter((x) => x.date >= regFrom && x.date <= date).length } }
+  console.log(`监管问询 ${s.id} 获取失败：${r.reason?.message ?? r.reason}`)
+  return { id: s.id, label: s.label, url: s.url, ok: false, n: null, error: String(r.reason?.message ?? r.reason).slice(0, 120) }
+})
+console.log(`监管问询：${regFresh.length} 条，用时 ${Math.round((Date.now() - regT0) / 1000)} 秒`)
+let regulatory = null
+let regulatoryNote = null
+const regAnyOk = regStatus.some((s) => s.ok)
+if (!regAnyOk && prev?.date === date && prev.regulatory) {
+  regulatory = prev.regulatory
+  regulatoryNote = prev.regulatoryNote ?? null
+  console.log('监管问询全部失败，保留同一天已有的区块')
+} else if (!regAnyOk && !regHist.length) {
+  regulatoryNote = `本次三个来源都没有取到（${regStatus.map((s) => s.error).join('；')}），也没有此前存档`
+} else {
+  const items = mergeReg(regHist, regFresh, regFrom, date)
+  const pctOf = new Map(bars.filter((b) => b.close > 0 && b.prev > 0).map((b) => [b.code, (b.close / b.prev - 1) * 100]))
+  regulatory = { from: regFrom, to: date, partial: !regStatus.every((s) => s.ok), sources: regStatus, counts: regCounts(items, date), items: attachToday(items, pctOf, res.devOf) }
+  if (regulatory.partial) regulatoryNote = `${regStatus.filter((s) => !s.ok).map((s) => s.label).join('、')} 本次未取到，列表沿用此前存档中该来源的条目`
+}
+
 /* ---------- 输出 ---------- */
 const trimNear = (rows, dir) => rows.filter((r) => (dir > 0 ? r.up3 : r.down3)).sort((a, b) => (dir > 0 ? a.up3.need - b.up3.need : b.down3.need - a.down3.need)).slice(0, 80)
 const nearUp = trimNear(res.near, 1), nearDown = trimNear(res.near, -1)
@@ -234,6 +342,7 @@ const summary = {
   lhbPredicted: lhb.rows.length,
   lhbHit: lhb.stats?.hit ?? null,
   radarTotal: radar?.total ?? null,
+  regulatory: regulatory ? regulatory.items.length : null,
 }
 const out = {
   version: 1, generatedAt: new Date().toISOString(), date,
@@ -246,6 +355,8 @@ const out = {
   lhb: { available: lhb.available, rows: lhb.rows, missed: lhb.missed, stats: lhb.stats, backtest: res.backtest },
   suspend,
   radar,
+  regulatory,
+  regulatoryNote,
   history: mergeHistory(prev?.history ?? [], { date, d3up: summary.d3up, d3down: summary.d3down, severe: summary.severe, nearUp: summary.nearUp, nearDown: summary.nearDown, suspended: summary.suspended, resumed: summary.resumed, lhbPredicted: summary.lhbPredicted, lhbHit: summary.lhbHit, radarTotal: summary.radarTotal, ...(sweep ? { kline: true } : {}) }),
   archive: { from: history.find((h) => !h.unknown)?.date ?? null, to: date, days: history.filter((h) => !h.unknown).length, backfilled: history.filter((h) => h.backfilled).length, missing: todayMiss.length, gapDays: history.filter((h) => h.unknown || h.miss?.length).length },
   sources: [
@@ -254,10 +365,17 @@ const out = {
     { id: 'suspend', label: '东方财富数据中心 · 停复牌信息', url: 'https://data.eastmoney.com/tfpxx/' },
     { id: 'changes', label: '东方财富 · 盘口异动', url: 'https://quote.eastmoney.com/changes/' },
     { id: 'lhb', label: '本站龙虎榜（东方财富数据中心每日上榜明细）', url: 'https://data.eastmoney.com/stock/lhb.html' },
+    ...REG_SOURCES.map((s) => ({ id: `reg-${s.id}`, label: s.label, url: s.url })),
   ],
 }
 fs.mkdirSync(RAW, { recursive: true })
 for (const [d, r] of records) if (d === date || r !== saved.get(d)) fs.writeFileSync(path.join(RAW, `${d}.json`), JSON.stringify(r))
 for (const f of fs.readdirSync(RAW).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().slice(0, -KEEP_RAW)) fs.rmSync(path.join(RAW, f), { force: true })
+// 监管问询存档：本次取到的条目并入，保留最近 45 个自然日（以北京今天为准，DATE 补算旧日期时不会删掉更新的条目）
+if (regFresh.length) {
+  const keepFrom = addDays(bjToday, -REG_KEEP_DAYS)
+  const regItems = mergeReg(regHist, regFresh, keepFrom, bjToday).map(({ pct: _p, dev3: _d, ...x }) => x)
+  fs.writeFileSync(REG_RAW, JSON.stringify({ version: 1, updatedAt: new Date().toISOString(), from: keepFrom, to: bjToday, items: regItems }))
+}
 fs.writeFileSync(OUT, JSON.stringify(out))
 console.log(JSON.stringify({ date, mode: sweep ? 'kline' : 'sina', ...summary, lhb: lhb.stats, backtest: res.backtest }))

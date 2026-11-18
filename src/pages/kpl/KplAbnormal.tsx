@@ -1,4 +1,4 @@
-// 开盘啦 · 异动监管（/market-mood/abnormal）：功能对照开盘啦 App 的「偏离值 / 严重异动 / 多次异动（复牌）/ 会不会上龙虎榜 / 市场雷达」。
+// 开盘啦 · 异动监管（/market-mood/abnormal）：功能对照开盘啦 App 的「偏离值 / 严重异动 / 多次异动（复牌）/ 会不会上龙虎榜 / 市场雷达 / 监管问询」。
 // 全部按沪深交易所公开规则机械计算，盘后版。数据：public/data/kpl-abnormal.json（scripts/kpl-abnormal.mjs 收盘后生成）。
 // 不是预测，也不是买卖建议。
 import React, { useEffect, useMemo, useState } from 'react'
@@ -9,7 +9,7 @@ import KplTabs, { KPL_DISCLAIMER } from '../../features/market-mood/KplTabs'
 import MoodChart from '../../features/market-mood/MoodChart'
 import {
   asKplAbnormal, BOARD_LABEL, CAT_LABEL, METHOD, RULE_SOURCES, RULES, TRIG_LABEL,
-  type HistoryDay, type KplAbnormal as Data, type NearRow, type Radar, type SevereRow, type SuspendRow, type TriggeredRow,
+  type HistoryDay, type KplAbnormal as Data, type NearRow, type Radar, type RegItem, type RegKind, type Regulatory, type SevereRow, type SuspendRow, type TriggeredRow,
 } from '../../features/kpl-abnormal/model'
 import StockTable, { money, num, pct, tone, type Col } from '../../features/kpl-daban/StockTable'
 import '../../styles/market-mood.css'
@@ -53,6 +53,7 @@ function Summary({ d }: { d: Data }): JSX.Element {
     ['停牌 / 复牌 10 日内', <>{s.suspended ?? '—'} / {s.resumed ?? '—'}</>, '全天停牌 / 复牌后'],
     ['龙虎榜规则命中', lhb ? `${lhb.hit} / ${lhb.predicted}` : '—', d.lhb.available ? `实际上榜 ${lhb?.actual ?? '—'} 条` : '龙虎榜尚未发布'],
     ['盘口异动', s.radarTotal ?? '—', d.radar ? '当日事件数' : '收盘后当天采集'],
+    ['监管问询', d.regulatory?.counts ? d.regulatory.counts.d5.inquiry + d.regulatory.counts.d5.attention + d.regulatory.counts.d5.measure + d.regulatory.counts.d5.discipline : '—', '近 5 个交易日（条）'],
   ]
   return (
     <section className="kd-summary" aria-label="异动监管总览">
@@ -272,6 +273,102 @@ function RadarCard({ radar }: { radar: Radar | null }): JSX.Element {
   )
 }
 
+/* ---------- 监管问询 ---------- */
+const REG_LABEL: Record<RegKind, string> = { inquiry: '问询函', attention: '关注函', measure: '监管措施', discipline: '纪律处分' }
+const REG_SRC: Record<RegItem['src'], string> = { sse: '上交所', szse: '深交所', cninfo: '巨潮' }
+type RegView = 'all' | 'ask' | 'measure' | 'discipline'
+const REG_VIEW: Record<RegView, (r: RegItem) => boolean> = {
+  all: () => true, ask: r => r.kind === 'inquiry' || r.kind === 'attention', measure: r => r.kind === 'measure', discipline: r => r.kind === 'discipline',
+}
+function RegCounts({ reg }: { reg: Regulatory }): JSX.Element | null {
+  if (!reg.counts) return null
+  const rows = [['近 5 个交易日', reg.counts.d5], ['近 20 个交易日', reg.counts.d20]] as const
+  return (
+    <TableWrap label="监管问询分类计数" stickyFirst>
+      <table className="ui-table kd-table">
+        <thead><tr><th scope="col">区间</th><th scope="col" className="num">问询函</th><th scope="col" className="num">关注函</th><th scope="col" className="num">监管措施</th><th scope="col" className="num">纪律处分</th><th scope="col" className="num">涉及公司</th><th scope="col" className="num">其中回复公告</th></tr></thead>
+        <tbody>
+          {rows.map(([k, c]) => (
+            <tr key={k}>
+              <th scope="row" className="kd-name">{k}<small>{c.from} 起</small></th>
+              <td className="num">{c.inquiry}</td><td className="num">{c.attention}</td><td className="num">{c.measure}</td><td className="num">{c.discipline}</td><td className="num">{c.companies}</td><td className="num">{c.replies}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </TableWrap>
+  )
+}
+/** 近期被问询（问询函 / 关注函，含回复公告）公司的今日表现：按公司去重后的涨跌家数，只是统计 */
+function askedToday(items: RegItem[]): { n: number; up: number; down: number; flat: number; none: number } {
+  const seen = new Map<string, number | null>()
+  for (const r of items) if ((r.kind === 'inquiry' || r.kind === 'attention') && !seen.has(r.code)) seen.set(r.code, r.pct)
+  const v = [...seen.values()]
+  return { n: v.length, up: v.filter(x => x != null && x > 0).length, down: v.filter(x => x != null && x < 0).length, flat: v.filter(x => x === 0).length, none: v.filter(x => x == null).length }
+}
+function RegulatoryCard({ d }: { d: Data }): JSX.Element {
+  const [view, setView] = useState<RegView>('all')
+  const reg = d.regulatory
+  if (!reg) {
+    return (
+      <Card title="监管问询（近 30 日）" as="section" className="mm-card">
+        <EmptyState title="监管问询数据暂缺">{d.regulatoryNote ?? '本次没有取到交易所监管信息，下次收盘后运行时会再试。'}</EmptyState>
+        <p className="mm-method">{METHOD.regulatory}</p>
+      </Card>
+    )
+  }
+  const rows = reg.items.filter(REG_VIEW[view])
+  const asked = askedToday(reg.items)
+  const failed = reg.sources.filter(s => !s.ok)
+  const count = (v: RegView): number => reg.items.filter(REG_VIEW[v]).length
+  return (
+    <Card title="监管问询（近 30 日）" as="section" className="mm-card" description={`${reg.from} 至 ${reg.to} 沪深交易所公开的问询函、关注函、监管函 / 监管措施与纪律处分，按日期倒序；「今日涨幅」为 ${d.date} 收盘行情。`}>
+      <RegCounts reg={reg} />
+      <p className="ka-index">
+        近 30 日被问询（问询函 / 关注函，含回复公告）的公司 {asked.n} 家，今日 <span className="mm-up">上涨 {asked.up}</span> · <span className="mm-down">下跌 {asked.down}</span>{asked.flat ? ` · 平盘 ${asked.flat}` : ''}{asked.none ? ` · 停牌或无行情 ${asked.none}` : ''}。
+      </p>
+      {(reg.partial || failed.length > 0) && (
+        <p className="ka-warn" role="status">
+          本次未取到：{failed.map(s => s.label).join('、') || '部分来源'}。{failed.some(s => s.id === 'szse') ? '深交所网站在境外服务器上经常连接失败，深市条目暂以此前存档和巨潮回复公告为准。' : ''}{d.regulatoryNote ? ` ${d.regulatoryNote}` : ''}
+        </p>
+      )}
+      <Segmented
+        items={[{ id: 'all', label: `全部 ${count('all')}` }, { id: 'ask', label: `问询 / 关注 ${count('ask')}` }, { id: 'measure', label: `监管措施 ${count('measure')}` }, { id: 'discipline', label: `纪律处分 ${count('discipline')}` }]}
+        value={view} onChange={setView} label="监管问询分类"
+      />
+      <div className="kd-list">
+        {rows.length ? (
+          <TableWrap label="监管问询列表" stickyFirst className="kd-wrap">
+            <table className="ui-table kd-table ka-reg">
+              <thead><tr><th scope="col">名称</th><th scope="col">日期</th><th scope="col">类型</th><th scope="col" className="num">今日涨幅</th><th scope="col" className="num">3 日偏离</th><th scope="col">标题 / 文件</th></tr></thead>
+              <tbody>
+                {rows.map((r, i) => (
+                  <tr key={`${r.ex}|${r.code}|${r.date}|${r.url ?? r.title}|${i}`}>
+                    <th scope="row" className="kd-name">{r.name || '—'}<small>{r.code}</small></th>
+                    <td className="num">{r.date}</td>
+                    <td><span className="ka-tags">{tag(REG_LABEL[r.kind], r.kind === 'discipline')}{r.reply ? tag('回复公告') : null}</span><small className="ka-type">{r.type}</small></td>
+                    <td className={`num ${tone(r.pct)}`.trim()}>{pct(r.pct)}</td>
+                    <td className={`num ${tone(r.dev3)}`.trim()}>{pct(r.dev3)}</td>
+                    <td className="ka-title">
+                      {r.url ? <a href={r.url} target="_blank" rel="noreferrer">{r.title}</a> : <>{r.title}<small>（未公开全文）</small></>}
+                      {r.replyUrl && <> · <a href={r.replyUrl} target="_blank" rel="noreferrer">公司回复</a></>}
+                      <small>{REG_SRC[r.src]}{r.reply ? ' · 公司公告，非函件原文' : ''}</small>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </TableWrap>
+        ) : <p className="mm-empty">近 30 日这一类暂无</p>}
+      </div>
+      <p className="mm-method">
+        来源状态：{reg.sources.map((s, i) => <React.Fragment key={s.id}>{i ? '；' : ''}<a href={s.url} target="_blank" rel="noreferrer">{s.label}</a> {s.ok ? `${s.n ?? '—'} 条` : '未取到'}</React.Fragment>)}。
+      </p>
+      <p className="mm-method">{METHOD.regulatory}</p>
+    </Card>
+  )
+}
+
 /* ---------- 规则 ---------- */
 function Rules(): JSX.Element {
   return (
@@ -335,6 +432,7 @@ function Body({ d }: { d: Data }): JSX.Element {
       <Lhb d={d} />
       <Suspend d={d} />
       <RadarCard radar={d.radar} />
+      <RegulatoryCard d={d} />
       <Rules />
       <Trend d={d} />
       <Callout title="口径与来源">
