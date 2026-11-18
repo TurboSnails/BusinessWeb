@@ -3,7 +3,7 @@ name: Update Jixing tabs
 # 「三方平台 · 今天几星」各页签：收盘后各跑一次自己的脚本 scripts/jixing-<页签>.mjs，
 # 产出 public/data/jixing-<页签>.json 与 data-raw/jixing-<页签>/。单个脚本失败只记警告，不影响其他页签。
 # 顺序：table → threshold（读 table）→ global → signals → star → daily（读 table/star/global）。
-# 主触发接在「Update daily analysis」之后；中证估值等晚间才发布，兜底北京 18:30、20:30、22:30（脚本幂等，日期未变不写）。
+# 主触发接在「Update daily analysis」之后；中证估值等晚间才发布，兜底北京 18:30、20:30、22:30、23:30（脚本幂等，日期未变不写）。
 on:
   workflow_run:
     workflows: ['Update daily analysis']
@@ -12,6 +12,7 @@ on:
     - cron: '30 10 * * 1-5'
     - cron: '30 12 * * 1-5'
     - cron: '30 14 * * 1-5'
+    - cron: '30 15 * * 1-5'
   push:
     branches: [main]
     paths:
@@ -46,16 +47,38 @@ jobs:
         run: python -m pip install -r scripts/requirements-market-cycle.txt
       - name: Run tab scripts
         shell: bash
-        # 每个脚本单独限时（最多 10 分钟），并给提交步骤留出时间：总预算用完就跳过剩下的脚本，已跑完的结果照常提交
+        # 每次运行最多 10 分钟，非超时失败且预算充足时重跑一次，预算用完则提交已跑完的结果
         run: |
+          run_tab_script() {
+            local file=$1 left=$2 limit status=0
+            limit=$(( left < 600 ? left : 600 ))
+            timeout --kill-after=10 "$limit" node "$file" || status=$?
+
+            if [[ "$status" != 0 && "$status" != 124 && "$status" != 137 ]] && (( budget - SECONDS >= 120 )); then
+              echo "$file 运行失败（退出码 $status），30 秒后重跑一次"
+              sleep 30
+              left=$(( budget - SECONDS ))
+              if (( left > 0 )); then
+                limit=$(( left < 600 ? left : 600 ))
+                status=0
+                timeout --kill-after=10 "$limit" node "$file" || status=$?
+              fi
+            fi
+
+            case "$status" in
+              0) return 0 ;;
+              124|137) echo "::warning::$file 超时（上限 ${limit} 秒），保留上一份数据" ;;
+              *) echo "::warning::$file 运行失败（退出码 $status），保留上一份数据" ;;
+            esac
+          }
+
           budget=$(( JOB_MINUTES * 60 - 300 ))
           for tab in table threshold global signals star daily; do
             f="scripts/jixing-$tab.mjs"
             [ -f "$f" ] || continue
             left=$(( budget - SECONDS ))
             if [ "$left" -lt 60 ]; then echo "::warning::时间预算用完，跳过 $f 及之后的脚本"; break; fi
-            limit=$(( left < 600 ? left : 600 ))
-            timeout --kill-after=10 "$limit" node "$f" || echo "::warning::$f 运行失败或超时（上限 ${limit} 秒），保留上一份数据"
+            run_tab_script "$f" "$left"
           done
         env:
           JOB_MINUTES: '30' # 与上面的 timeout-minutes 保持一致

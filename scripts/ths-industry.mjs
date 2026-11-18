@@ -36,7 +36,10 @@ async function get(url, type = 'json', headers = {}) {
       return type === 'json' ? await res.json() : await res.text()
     } catch (e) {
       if (i >= 3) throw e
-      await new Promise(r => setTimeout(r, e.status === 403 ? 30000 * (i + 1) : 1500 * (i + 1)))
+      let delay = 1500 * (i + 1)
+      if (e.status === 403) delay = 30000 * (i + 1)
+      else if (e.status === undefined && !(e instanceof SyntaxError)) delay = [5000, 15000, 30000][i]
+      await new Promise(r => setTimeout(r, delay))
     }
   }
 }
