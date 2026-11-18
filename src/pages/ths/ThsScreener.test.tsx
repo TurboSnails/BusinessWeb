@@ -87,7 +87,7 @@ describe('技术选股运行时模型', () => {
   it('提交的真实数据文件通过校验', () => {
     const d = asThsScreener(real)
     expect(d).not.toBeNull()
-    expect(d?.asOf).toBe('2026-11-17')
+    expect(d?.asOf).toMatch(/^\d{4}-\d{2}-\d{2}$/) // 真实数据每天更新，不钉日期
     expect(d?.presets.every(p => p.history.length === 20)).toBe(true)
     expect(d?.presets.map(p => p.id)).toEqual(expect.arrayContaining(['bollUp', 'bollDown', 'squeeze', 'kdjGold', 'high120', 'low120', 'dstreak', 'tangle']))
   })
