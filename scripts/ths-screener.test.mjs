@@ -1,6 +1,9 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { PRESETS, breadthDay, buildScreener, buildSeries, ema, expectedDate, indicators, rsi, screenDay, sma, upStreak } from './ths-screener-lib.mjs'
+import {
+  PRESETS, SNAP_PRESETS, boll, breadthDay, buildScreener, buildSeries, buildSnapshot, downStreak, ema, expectedDate, indicators, isCloseTs, kdj, mergeSnapHistory,
+  parseSnapPage, rsi, screenDay, sma, snapNum, snapUrl, snapshotWindow, upStreak, validateSnapshot,
+} from './ths-screener-lib.mjs'
 import { isTradingDay } from './market-mood-lib.mjs'
 
 // 连续交易日（2026-07 起，跳过周末）
@@ -138,4 +141,107 @@ test('目标交易日：15:10 前取上一交易日，周末取周五', () => {
   assert.equal(expectedDate(new Date('2026-11-17T07:15:00Z'), isTradingDay), '2026-11-17') // 北京 15:15
   assert.equal(expectedDate(new Date('2026-11-17T17:00:00Z'), isTradingDay), '2026-11-17') // 北京 11-18 01:00
   assert.equal(expectedDate(new Date('2026-11-22T04:00:00Z'), isTradingDay), '2026-11-20') // 周日
+})
+
+test('连续下跌、BOLL（样本标准差）、KDJ', () => {
+  assert.deepEqual([...downStreak(Float64Array.from([5, 4, 3, 3, 2]))], [0, 1, 2, 0, 1])
+  const c = Float64Array.from([1, 2, 3, 4])
+  const b = boll(c, 4, 2)
+  assert.ok(Number.isNaN(b.up[2]))
+  const sd = Math.sqrt((1.5 ** 2 + 0.5 ** 2 + 0.5 ** 2 + 1.5 ** 2) / 3) // 除以 N−1
+  assert.ok(Math.abs(b.up[3] - (2.5 + 2 * sd)) < 1e-12 && Math.abs(b.lo[3] - (2.5 - 2 * sd)) < 1e-12)
+  assert.ok(Math.abs(b.bw[3] - (4 * sd / 2.5) * 100) < 1e-9)
+  // KDJ：第 0 天 H=L=C 时 RSV 沿用 50；第 1 天 RSV = (12−10)/(12−10)=100
+  const k = kdj(Float64Array.from([10, 12]), Float64Array.from([10, 10]), Float64Array.from([10, 12]))
+  assert.equal(k.k[0], 50); assert.equal(k.d[0], 50)
+  assert.ok(Math.abs(k.k[1] - (100 + 100) / 3) < 1e-12)
+  assert.ok(Math.abs(k.d[1] - (k.k[1] + 100) / 3) < 1e-12)
+  assert.ok(Math.abs(k.j[1] - (3 * k.k[1] - 2 * k.d[1])) < 1e-12)
+})
+
+test('布林上穿 / 跌破、收口、均线粘合', () => {
+  const wob = Array.from({ length: 20 }, (_, i) => 10 + (i % 2 ? 0.1 : -0.1))
+  assert.equal(hitOf([...wob, 11], 'bollUp').hits.length, 1)
+  assert.equal(hitOf([...wob, 10.05], 'bollUp').hits.length, 0)
+  assert.equal(hitOf([...wob, 9], 'bollDown').hits.length, 1)
+  assert.equal(hitOf(wob, 'bollUp').eligible, 0) // 不足 21 条
+  // 收口：前面大幅波动，最后 10 天几乎不动 → 带宽处于最低 10%
+  const wide = Array.from({ length: 109 }, (_, i) => 10 + (i % 2 ? 1 : -1))
+  const calm = Array.from({ length: 30 }, (_, i) => 10 + (i % 2 ? 0.01 : -0.01))
+  assert.equal(hitOf([...wide, ...calm].slice(-119), 'squeeze').eligible, 1)
+  assert.equal(hitOf([...wide, ...calm].slice(-119), 'squeeze').hits.length, 1)
+  assert.equal(hitOf([...calm, ...wide].slice(-119), 'squeeze').hits.length, 0)
+  assert.equal(hitOf(wide.slice(0, 118), 'squeeze').eligible, 0) // 不足 119 条
+  assert.equal(hitOf(Array(20).fill(10), 'tangle').hits.length, 1)
+  assert.equal(hitOf(Array.from({ length: 20 }, (_, i) => 10 + i), 'tangle').hits.length, 0)
+})
+
+test('KDJ 金叉 / 死叉与预热，120 日新高 / 60、120 日新低，连续下跌', () => {
+  const down = Array.from({ length: 40 }, (_, i) => 20 - i * 0.2)
+  let gold = null
+  const series = [...down]
+  for (let x = series.at(-1); series.length < 60;) { x += 0.3; series.push(x); if (hitOf(series, 'kdjGold').hits.length) { gold = series.length; break } }
+  assert.ok(gold, '下跌后上涨应出现 KDJ 金叉')
+  assert.equal(hitOf(down.slice(0, 29), 'kdjGold').eligible, 0)
+  assert.equal(hitOf([...flat(10, 119), [10, 11, 10, 11]], 'high120').hits.length, 1)
+  assert.equal(hitOf([...flat(10, 118), [10, 11, 10, 11]], 'high120').eligible, 0)
+  assert.equal(hitOf([...flat(10, 59), [10, 10, 9, 9]], 'low60').hits.length, 1)
+  assert.equal(hitOf([...flat(10, 119), [10, 10, 9, 9]], 'low120').hits.length, 1)
+  assert.deepEqual(hitOf([10, 9.9, 9.8, 9.7, 9.6, 9.5], 'dstreak').hits, [['600000', 5]])
+})
+
+// ── 当日量能快照 ──
+const D = '2026-11-18'
+const ts = (date, hm) => Date.parse(`${date}T${hm}:00+08:00`) / 1000
+test('快照字段：- / 空 / null 为缺失，行情时间须为当日 15:00 后', () => {
+  assert.equal(snapNum('-'), null); assert.equal(snapNum(''), null); assert.equal(snapNum(null), null); assert.equal(snapNum('1.5'), 1.5); assert.equal(snapNum(0), 0)
+  assert.ok(isCloseTs(ts(D, '15:00'), D)); assert.ok(isCloseTs(ts(D, '15:34'), D))
+  assert.ok(!isCloseTs(ts(D, '14:59'), D)); assert.ok(!isCloseTs(ts('2026-11-17', '15:34'), D)); assert.ok(!isCloseTs('-', D))
+  const p = parseSnapPage({ rc: 0, data: { total: 2, diff: [{ f12: '600000', f14: ' 浦发 ', f2: 10, f3: 3.2, f6: 1e8, f7: 5, f8: 2, f10: 2.5, f124: ts(D, '15:00') }, { f12: '000001', f14: '停牌', f2: '-', f3: '-', f6: '-', f7: '-', f8: '-', f10: '-' }] } })
+  assert.equal(p.total, 2); assert.equal(p.rows[0].name, '浦发'); assert.equal(p.rows[1].close, null); assert.equal(p.rows[1].volRatio, null)
+  assert.throws(() => parseSnapPage({ rc: 0, data: null })); assert.throws(() => parseSnapPage('<html>'))
+  assert.match(snapUrl(3), /push2delay\.eastmoney\.com.*pn=3&pz=100/)
+})
+
+const snapRows = (n, date = D, over = {}) => Array.from({ length: n }, (_, i) => ({ code: String(600000 + i).padStart(6, '0'), name: `股${i}`, close: 10, pct: 0, amount: 1e7, amp: 2, turnover: 1, volRatio: 1, ts: ts(date, '15:30'), ...over }))
+const storeOf = (rows, c = 10) => new Map(rows.map((r) => [r.code, { c }]))
+test('快照校验：总数、分页完整、行情时间、与快照仓收盘一致', () => {
+  const rows = snapRows(4500)
+  assert.equal(validateSnapshot(rows, 4500, D, storeOf(rows)).ok, true)
+  assert.match(validateSnapshot(rows.slice(0, 3000), 3000, D, storeOf(rows)).reason, /少于/)
+  assert.match(validateSnapshot(rows.slice(0, 4400), 4500, D, storeOf(rows)).reason, /分页不完整/)
+  assert.match(validateSnapshot([...rows.slice(0, 4499), rows[0]], 4500, D, storeOf(rows)).reason, /分页不完整/) // 重页
+  assert.match(validateSnapshot(snapRows(4500, '2026-11-17'), 4500, D, storeOf(rows)).reason, /收盘后行情/)
+  assert.match(validateSnapshot(rows, 4500, D, storeOf(rows, 9.5)).reason, /不是同一天/)
+  const sus = [...snapRows(4400), ...snapRows(100, D, { close: null, amount: null }).map((r, i) => ({ ...r, code: String(700000 + i) }))]
+  const v = validateSnapshot(sus, 4500, D, storeOf(sus))
+  assert.equal(v.ok, true); assert.equal(v.valid.size, 4400) // 停牌股不计入
+})
+
+test('量能条件与区块输出；历史只取真实采集日', () => {
+  const valid = new Map([
+    ['600001', { code: '600001', name: '甲', close: 10, pct: 5, amount: 2.5e8, amp: 12, turnover: 15, volRatio: 3 }],
+    ['600002', { code: '600002', name: '乙', close: 8, pct: -4, amount: 1e8, amp: 6, turnover: 3, volRatio: 2 }],
+    ['600003', { code: '600003', name: '丙', close: 8, pct: 2, amount: 1e8, amp: 3, turnover: 1, volRatio: null }],
+  ])
+  const hist = { days: { '2026-11-16': { volUp: 7 }, '2026-11-18': { volUp: 99 } } }
+  const s = buildSnapshot(valid, D, new Set(['600001', '600003']), new Map([['600001', { industry: '银行' }]]), hist)
+  const by = Object.fromEntries(s.presets.map((p) => [p.id, p]))
+  assert.deepEqual(by.volUp.hits, [['600001', 3]]); assert.equal(by.volUp.eligible, 2) // 量比缺失不参与
+  assert.deepEqual(by.volDown.hits, [['600002', 2]])
+  assert.deepEqual(by.volBreak.hits, [['600001', 3]]) // 600003 新高但量比缺失
+  assert.deepEqual(by.turnover.hits, [['600001', 15]]); assert.deepEqual(by.amp.hits, [['600001', 12]])
+  assert.deepEqual(by.volUp.history, [{ date: '2026-11-16', count: 7 }, { date: D, count: 1 }]) // 当日以本次为准
+  assert.deepEqual(by.turnover.history, [{ date: '2026-11-16', count: null }, { date: D, count: 1 }])
+  assert.deepEqual(s.stocks['600001'], ['甲', '银行', 10, 5, 3, 15, 2.5, 12])
+  assert.equal(s.presets.length, SNAP_PRESETS.length); assert.equal(s.eligible, 3)
+  const m = mergeSnapHistory({ days: Object.fromEntries(Array.from({ length: 70 }, (_, i) => [`2026-0${1 + Math.floor(i / 28)}-${String(1 + (i % 28)).padStart(2, '0')}`, {}])) }, D, { volUp: 1 })
+  assert.equal(Object.keys(m.days).length, 60); assert.equal(Object.keys(m.days).at(-1), D)
+})
+
+test('快照采集时段：只在目标日当天北京时间 15:10 之后', () => {
+  assert.equal(snapshotWindow(new Date('2026-11-18T07:15:00Z'), D, isTradingDay), true)
+  assert.equal(snapshotWindow(new Date('2026-11-18T07:05:00Z'), D, isTradingDay), false)
+  assert.equal(snapshotWindow(new Date('2026-11-18T17:00:00Z'), D, isTradingDay), false) // 北京次日凌晨
+  assert.equal(snapshotWindow(new Date('2026-11-18T07:15:00Z'), '2026-11-17', isTradingDay), false)
 })
