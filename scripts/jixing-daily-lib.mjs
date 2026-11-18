@@ -1,18 +1,20 @@
 // 今天几星 · 指数日报：纯函数（差异、进入/退出、缺前日为 null）。
 
-/**
- * 星级只认 asOf 当日：starDoc.asOf !== asOf → null（不拿别日顶替）。
- * 可选 rawStar 为 data-raw/jixing-star 当日快照 { star, asOf? }。
- */
+/** 星级使用同一数据日。只有旧文档才允许使用原口径的当日 raw 快照。 */
 export function resolveStar(starDoc, asOf, rawStar = null) {
-  if (starDoc && typeof starDoc.star === 'number' && Number.isFinite(starDoc.star) && starDoc.asOf === asOf) {
-    return starDoc.star
+  const valid = source => Number.isFinite(source?.star) && source.star >= 1 && source.star <= 5.9
+  if (starDoc?.neutral != null) {
+    const neutral = starDoc.neutral
+    const star = neutral.asOf === asOf && valid(neutral) ? neutral.star : null
+    return { star, starAsOf: neutral.asOf ?? null, starBasis: 'neutral' }
   }
-  if (rawStar && typeof rawStar.star === 'number' && Number.isFinite(rawStar.star)
-    && (rawStar.asOf === asOf || rawStar.asOf == null || rawStar.asOf === undefined)) {
-    return rawStar.star
+  if (starDoc?.asOf === asOf && valid(starDoc)) {
+    return { star: starDoc.star, starAsOf: asOf, starBasis: 'legacy' }
   }
-  return null
+  if (rawStar?.starBasis !== 'neutral' && valid(rawStar) && (rawStar.asOf == null || rawStar.asOf === asOf)) {
+    return { star: rawStar.star, starAsOf: asOf, starBasis: 'legacy' }
+  }
+  return { star: null, starAsOf: starDoc?.asOf ?? null, starBasis: 'legacy' }
 }
 
 /** 状态集合差异：进入 = 今日有且昨日无；退出 = 昨日有且今日无。 */
@@ -48,6 +50,8 @@ export function changePct(close, prevClose) {
 export function diffDaily(today, prev) {
   if (!today?.asOf) return null
   const missingPrev = !prev || prev.asOf == null
+  const starBasis = today.starBasis ?? 'legacy'
+  const sameStarBasis = !missingPrev && starBasis === (prev.starBasis ?? 'legacy')
   const prevByCode = new Map((prev?.rows ?? []).map(r => [r.code, r]))
   const rows = (today.rows ?? []).map(r => {
     const p = missingPrev ? null : prevByCode.get(r.code) ?? null
@@ -92,8 +96,10 @@ export function diffDaily(today, prev) {
     prevDate: missingPrev ? null : prev.asOf,
     missingPrev,
     star: today.star ?? null,
-    starPrev: missingPrev ? null : (prev.star ?? null),
-    starChange: missingPrev ? null : delta(today.star, prev.star),
+    starBasis,
+    starAsOf: today.starAsOf ?? null,
+    starPrev: sameStarBasis ? (prev.star ?? null) : null,
+    starChange: sameStarBasis ? delta(today.star, prev.star) : null,
     counts: todayCounts,
     countsDelta: missingPrev || !prevCounts ? null : {
       low: todayCounts.low - prevCounts.low,

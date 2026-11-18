@@ -4,8 +4,8 @@ import { isTradingDay, prevTradingDay } from './market-mood-lib.mjs'
 import { addDays, csiPerfUrl, emPaginate, emUrl } from './ths-market-lib.mjs'
 import { industryPbUrl } from './jixing-table-lib.mjs'
 import {
-  MV_FROM, CHECKS, mvUrl, parsePerfSeries, parseMarketVal, treasuryMap, buildStarRows, pickAsOf, buildStarData,
-  applyNeutralIndustry, planNeutralIndustryDates, buildNeutralData,
+  MV_FROM, CHECKS, NEUTRAL_MIN_WEEKS, mvUrl, parsePerfSeries, parseMarketVal, treasuryMap, buildStarRows, pickAsOf, buildStarData,
+  applyNeutralIndustry, planNeutralIndustryDates, buildNeutralData, staleStarMessage,
 } from './jixing-star-lib.mjs'
 
 const OUT = 'public/data/jixing-star.json'
@@ -79,7 +79,9 @@ async function fetchNeutral(mv, candidate, backfill) {
   await Promise.all(Array.from({ length: Math.min(missing.length, backfill ? 12 : 6) }, worker))
   if (fetched) writeDateStore(INDUSTRY_FILE, store)
   const data = buildNeutralData(store, candidate, prevTradingDay)
-  if (pending.length) console.warn(`中证行业未入库 ${pending.length} 日（未发布、日期不符或请求失败）：${pending.sort().slice(-12).join('、')}`)
+  if (pending.length) console.warn(`中证行业响应未采用 ${pending.length} 日（未发布、采集失败或完整度低于库存）：${pending.sort().slice(-12).join('、')}`)
+  const incomplete = planNeutralIndustryDates(store, candidate, [...days].sort())
+  if (incomplete.length) console.warn(`中证行业 ${incomplete.length} 个近期交易日尚未齐备，下次重试：${incomplete.join('、')}`)
   return { data, fetched, planned: missing.length, pending: pending.length }
 }
 
@@ -119,19 +121,32 @@ async function main() {
   fs.mkdirSync(RAW, { recursive: true })
   const mv = readJson(MV_FILE, {})
   const previous = readJson(OUT, {})
+  let legacyFailure = null
   const [industry, legacy] = await Promise.all([
     fetchNeutral(mv, candidate, process.argv.includes('--backfill-industry')),
-    fetchLegacy(mv, candidate).catch(e => { console.warn(`中证全指口径使用最近已发布文件：${e.message}`); return null }),
+    fetchLegacy(mv, candidate).catch(e => {
+      legacyFailure = e.message
+      console.warn(`中证全指口径使用最近已发布文件：${legacyFailure}`)
+      return null
+    }),
   ])
 
   const neutral = industry.data
-  const priorNeutral = previous.neutral
+  const priorNeutral = previous.neutral?.minWeeks === NEUTRAL_MIN_WEEKS ? previous.neutral : null
   const publishedNeutral = !neutral || priorNeutral?.asOf > neutral.asOf ||
     (priorNeutral?.asOf === neutral.asOf && priorNeutral.count > neutral.count) ? priorNeutral : neutral
   const publishedLegacy = legacy && !(previous.asOf > legacy.asOf) ? legacy : previous
+  const stale = [
+    staleStarMessage('中证全指口径', publishedLegacy.asOf, candidate, legacyFailure ?? '目标日三项输入尚未齐备'),
+    staleStarMessage('行业中性口径', publishedNeutral?.asOf, candidate,
+      industry.pending ? `${industry.pending} 个请求日的响应未发布、日期不符或采集不完整` : '目标日无满足样本门槛的行业数据'),
+  ].filter(Boolean)
+  if (stale.length) {
+    stale.forEach(message => console.error(message))
+    process.exitCode = 1
+  }
   if (!publishedLegacy.asOf || !publishedNeutral) {
     console.log(JSON.stringify({ candidate, industryPlanned: industry.planned, industryFetched: industry.fetched, requests, ms: Date.now() - t0 }))
-    if (!publishedLegacy.asOf && !legacy) throw new Error('没有已发布的中证全指口径数据')
     console.log(`${candidate}：尚无可计算的行业中性星级，保留已有文件`)
     return
   }

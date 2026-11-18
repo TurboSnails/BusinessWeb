@@ -22,6 +22,8 @@ export type JixingDailyReport = {
   prevDate: string | null
   missingPrev: boolean
   star: number | null
+  starBasis?: 'neutral' | 'legacy'
+  starAsOf?: string | null
   starPrev: number | null
   starChange: number | null
   counts: { low: number; normal: number; high: number }
@@ -65,6 +67,8 @@ function isRow(v: unknown): v is DailyRow {
 export function asJixingDailyReport(v: unknown): JixingDailyReport | null {
   if (!record(v) || v.version !== 1 || !date(v.asOf) || typeof v.missingPrev !== 'boolean') return null
   if (!(v.prevDate === null || date(v.prevDate))) return null
+  if (v.starBasis !== undefined && v.starBasis !== 'neutral' && v.starBasis !== 'legacy') return null
+  if (v.starAsOf !== undefined && v.starAsOf !== null && !date(v.starAsOf)) return null
   if (!record(v.counts) || !Array.isArray(v.rows)) return null
   if (!v.rows.every(isRow)) return null
   if (!record(v.transitions)) return null

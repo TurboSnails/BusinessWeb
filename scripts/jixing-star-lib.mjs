@@ -1,6 +1,7 @@
 // 今天几星 · 今日星级：纯解析与计算（无网络）。星级为本站自定公式，与银行螺丝钉官方星级无关。
 // 缺值一律 null，不补 0；滚动统计只用当日及以前的数据（不看未来）。
 import { num, validDate } from './ths-market-lib.mjs'
+import { prevTradingDay } from './market-mood-lib.mjs'
 
 /** 星级参数：中心 3.45 星 = 1.0–5.9 的中点，对应「三项输入都等于各自近 10 年中位数」。 */
 export const STAR = { min: 1.0, max: 5.9, center: 3.45, drop: 0.2, windowYears: 10, minYears: 3 }
@@ -210,6 +211,8 @@ export function buildStarData(rows, idx) {
   }
 }
 
+export const NEUTRAL_MIN_WEEKS = 156
+
 // 按 classType=2 的一级节点接续。旧版 06「金融地产」含房地产业，新版 40、60 单列。
 export const NEUTRAL_INDUSTRIES = [
   ['10', '00', '能源'],
@@ -245,18 +248,32 @@ export function parseNeutralIndustry(body, date) {
   return Object.keys(values).length ? values : null
 }
 
+function industryCompleteness(values = {}) {
+  return Object.values(values ?? {}).reduce((score, [pe, pb]) =>
+    score + (pe !== null && pb !== null ? 3 : 1), 0)
+}
+
 export function applyNeutralIndustry(store, date, body) {
   const values = parseNeutralIndustry(body, date)
-  if (!values) return false
+  if (!values || industryCompleteness(values) < industryCompleteness(store[date])) return false
   store[date] = values
   return true
 }
 
 export function planNeutralIndustryDates(store, candidate, priorTradingDates, backfill = false) {
   const previous = priorTradingDates.filter(date => date < candidate)
+  const recent = [candidate, ...previous.slice(-10).reverse()].filter(date =>
+    industryCompleteness(store[date]) < NEUTRAL_INDUSTRIES.length * 3)
   const weekly = backfill ? weeklyRows(previous.map(date => ({ date }))).map(row => row.date) : []
-  const dates = [candidate, ...previous.slice(-10).reverse(), ...weekly, ...(backfill ? CHECKS.map(c => c.date) : [])]
-  return [...new Set(dates)].filter(date => date >= MV_FROM && date <= candidate && !Object.keys(store[date] ?? {}).length)
+  const historical = backfill ? [...weekly, ...CHECKS.map(c => c.date)].filter(date => !industryCompleteness(store[date])) : []
+  return [...new Set([...recent, ...historical])].filter(date => date >= MV_FROM && date <= candidate)
+}
+
+export function staleStarMessage(label, asOf, candidate, reason) {
+  const limit = prevTradingDay(prevTradingDay(candidate))
+  if (!asOf) return `${label}缺少已发布星级（目标日 ${candidate}）：${reason}`
+  if (asOf >= limit) return null
+  return `${label}数据日 ${asOf} 落后目标日 ${candidate} 超过 2 个交易日：${reason}`
 }
 
 export function neutralScore(industries) {
@@ -277,7 +294,7 @@ export function buildNeutralRow(rows, target) {
       const sample = values[code]?.[index]
       return sample != null ? [{ date, sample }] : []
     })
-    return { value, pct: value === null ? null : pctRank(samples.map(s => s.sample), value), start: samples[0]?.date ?? null, n: samples.length }
+    return { value, pct: value === null || samples.length < NEUTRAL_MIN_WEEKS ? null : pctRank(samples.map(s => s.sample), value), start: samples[0]?.date ?? null, n: samples.length }
   }
   const industries = NEUTRAL_INDUSTRIES.map(industry => {
     const [pe, pb] = current.values[industry.code] ?? [null, null]
@@ -289,16 +306,29 @@ export function buildNeutralRow(rows, target) {
   return { date: target, ...neutralScore(industries), industries }
 }
 
+function neutralCheck(rows, date) {
+  const row = buildNeutralRow(rows, date)
+  if (!row) return { date, star: null, window: null }
+  const used = row.industries.filter(r => r.cheapness !== null)
+  const metrics = (used.length ? used : row.industries).flatMap(r => [r.pe, r.pb]).filter(m => m.start)
+  const starts = metrics.map(m => m.start).sort()
+  const weeks = metrics.map(m => m.n)
+  const window = metrics.length ? { start: starts[0], latestStart: starts.at(-1), min: Math.min(...weeks), max: Math.max(...weeks) } : null
+  return { date, star: row.star, window }
+}
+
 export function buildNeutralData(store, candidate, previousTradingDate) {
   const rows = Object.entries(store)
     .filter(([date, values]) => date >= MV_FROM && date <= candidate && Object.keys(values ?? {}).length)
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([date, values]) => ({ date, values }))
-  const eligible = rows.filter(({ values }) => Object.values(values).some(([pe, pb]) => pe !== null && pb !== null))
-  const history = weeklyRows(eligible).map(({ date }) => {
+  // 先筛掉整日不可计算的日期，再按周取点；当周最后一次响应不完整时，仍可展示更早的有效点。
+  const scored = rows.flatMap(({ date }, i) => {
+    if (i + 1 < NEUTRAL_MIN_WEEKS) return []
     const { star, count } = buildNeutralRow(rows, date)
-    return [date, star, count]
+    return star === null ? [] : [{ date, star, count }]
   })
+  const history = weeklyRows(scored).map(({ date, star, count }) => [date, star, count])
   const asOf = history.at(-1)?.[0]
   if (!asOf) return null
   const current = buildNeutralRow(rows, asOf)
@@ -307,7 +337,7 @@ export function buildNeutralData(store, candidate, previousTradingDate) {
   return {
     asOf, star: current.star, raw: current.raw, cheapness: current.cheapness, count: current.count,
     band: bandOf(current.star), prevDate, prevStar, change: prevStar === null ? null : round(current.star - prevStar, 1),
-    industries: current.industries, history,
-    checks: CHECKS.map(({ date }) => ({ date, star: buildNeutralRow(rows, date)?.star ?? null })),
+    minWeeks: NEUTRAL_MIN_WEEKS, industries: current.industries, history,
+    checks: CHECKS.map(({ date }) => neutralCheck(rows, date)),
   }
 }

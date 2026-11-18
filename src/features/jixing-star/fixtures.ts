@@ -34,9 +34,12 @@ export function starFixture(): JixingStarData {
     ],
     neutral: {
       asOf: '2026-11-18', star: 4.6, raw: 4.626, cheapness: 0.74, count: 9, band: '部分低估',
-      prevDate: '2026-11-17', prevStar: 4.5, change: 0.1, industries,
-      history: [['2014-01-03', 3.5, 9], ['2024-02-09', 5.3, 9], ['2026-11-13', 4.4, 9], ['2026-11-18', 4.6, 9]],
-      checks: [{ date: '2024-02-05', star: 5.2 }],
+      prevDate: '2026-11-17', prevStar: 4.5, change: 0.1, minWeeks: 156, industries,
+      history: [['2017-01-13', 3.5, 9], ['2024-02-09', 5.3, 9], ['2026-11-13', 4.4, 9], ['2026-11-18', 4.6, 9]],
+      checks: [
+        { date: '2015-06-12', star: null, window: { start: '2014-01-03', latestStart: '2014-01-03', min: 76, max: 76 } },
+        { date: '2024-02-05', star: 5.2, window: { start: '2014-02-07', latestStart: '2014-02-07', min: 513, max: 513 } },
+      ],
     },
     sources: [{ label: '中证指数官网 · 中证全指行情（滚动市盈率）', url: 'https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000985' }],
   }

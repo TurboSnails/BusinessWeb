@@ -5,11 +5,23 @@ import {
 } from './jixing-daily-lib.mjs'
 
 describe('resolveStar', () => {
-  it('asOf 不一致 → null，不顶替；raw 当日可补', () => {
-    assert.equal(resolveStar({ asOf: '2026-11-18', star: 3.9 }, '2026-11-17'), null)
-    assert.equal(resolveStar({ asOf: '2026-11-17', star: 3.9 }, '2026-11-17'), 3.9)
-    assert.equal(resolveStar({ asOf: '2026-11-18', star: 3.9 }, '2026-11-17', { asOf: '2026-11-17', star: 4.1 }), 4.1)
-    assert.equal(resolveStar(null, '2026-11-17'), null)
+  const day = '2026-11-17'
+  const legacy = { asOf: day, star: 3.9 }
+  const neutral = { asOf: day, star: 4.3 }
+  it('优先使用同一数据日的行业中性星级', () => {
+    assert.deepEqual(resolveStar({ ...legacy, neutral }, day), { star: 4.3, starAsOf: day, starBasis: 'neutral' })
+  })
+  it('行业中性已启用但日期不合或缺值，保留口径并输出空值', () => {
+    const later = '2026-11-18'
+    assert.deepEqual(resolveStar({ ...legacy, neutral: { ...neutral, asOf: later } }, day, legacy),
+      { star: null, starAsOf: later, starBasis: 'neutral' })
+    assert.equal(resolveStar({ ...legacy, neutral: { ...neutral, star: null } }, day).star, null)
+  })
+  it('旧文档只使用当天中证全指星级或当天 raw', () => {
+    assert.deepEqual(resolveStar(legacy, day), { star: 3.9, starAsOf: day, starBasis: 'legacy' })
+    assert.equal(resolveStar({ asOf: '2026-11-18', star: 3.8 }, day, legacy).star, 3.9)
+    assert.equal(resolveStar(null, day).star, null)
+    assert.equal(resolveStar(null, day, { ...neutral, starBasis: 'neutral' }).star, null)
   })
 })
 
@@ -59,6 +71,14 @@ describe('diffDaily', () => {
     assert.deepEqual(d.transitions.enterHigh, [])
     assert.deepEqual(d.transitions.exitHigh, [])
     assert.deepEqual(d.countsDelta, { low: 0, normal: -1, high: 0 })
+  })
+
+  it('口径切换不计算跨口径变化', () => {
+    const d = diffDaily({ ...today, starBasis: 'neutral' }, prev)
+    assert.equal(d.starBasis, 'neutral')
+    assert.equal(d.starPrev, null)
+    assert.equal(d.starChange, null)
+    assert.ok(d.rows[0].changePct > 0)
   })
 
   it('缺前日全部变化为 null', () => {

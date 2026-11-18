@@ -6,7 +6,7 @@ import { PageTitle } from '../../components/ui/PageTabs'
 import JixingTabs, { JIXING_DISCLAIMER } from '../../features/jixing-tabs/JixingTabs'
 import { SampleFootnote } from '../../features/jixing-tabs/StatusBadge'
 import MoodChart from '../../features/market-mood/MoodChart'
-import { METHOD, asJixingStar, bandOf, fix, pct, signed, starTone, type JixingStarData, type NeutralStar, type StarCheck, type StarInput } from '../../features/jixing-star/model'
+import { METHOD, asJixingStar, bandOf, fix, pct, signed, starTone, type JixingStarData, type NeutralCheckWindow, type NeutralStar, type StarCheck, type StarInput } from '../../features/jixing-star/model'
 import '../../styles/market-mood.css'
 import '../../styles/jixing-star.css'
 
@@ -85,7 +85,7 @@ function IndustriesCard({ data }: { data: NeutralStar }): JSX.Element {
         </tr>)}</tbody>
       </table>
     </TableWrap>
-    <SampleFootnote>中证行业分类的通信服务（50）接续旧版电信业务（08）。</SampleFootnote>
+    <SampleFootnote>通信服务（50）接续旧版电信业务（08）。2021-12-10 中证行业分类修订，部分行业成分调整，前后估值不完全可比。</SampleFootnote>
     <SampleFootnote>{METHOD.neutral}</SampleFootnote>
   </Card>
 }
@@ -159,18 +159,31 @@ function checkValue(star: number | null, ref: StarCheck): string {
   return `${star.toFixed(1)} 星（偏差 ${delta}）`
 }
 
+function checkWindow(window: NeutralCheckWindow | null): string {
+  if (!window) return '—'
+  const start = window.start === window.latestStart ? window.start : `${window.start} 至 ${window.latestStart}`
+  const weeks = window.min === window.max ? window.min : `${window.min}–${window.max}`
+  return `${start} 起（${weeks} 周）`
+}
+
 function ChecksCard({ data }: { data: JixingStarData }): JSX.Element {
-  const neutral = new Map(data.neutral?.checks.map(row => [row.date, row.star]))
+  const neutral = new Map(data.neutral?.checks.map(row => [row.date, row]))
   return <Card as="section" className="mm-card" title="与螺丝钉星级对照" description="参考值来自公开文章及用户的小程序观察。偏差为本站星级减去参考星级，单位为星。">
     <TableWrap label="星级对照" stickyFirst>
       <table className="mm-table js-table">
-        <thead><tr>{['日期', '螺丝钉参考星级', '行业中性星级', '中证全指口径星级'].map(h => <th key={h} scope="col">{h}</th>)}</tr></thead>
-        <tbody>{data.checks.map(c => <tr key={c.date}>
-          <th scope="row">{c.date}</th>
-          <td>{c.ref}</td>
-          <td className="num">{checkValue(neutral.get(c.date) ?? null, c)}</td>
-          <td className="num">{checkValue(c.star, c)}</td>
-        </tr>)}</tbody>
+        <thead><tr>{['日期', '螺丝钉参考星级', '行业中性星级', '行业中性样本窗口', '中证全指口径星级'].map(h => <th key={h} scope="col">{h}</th>)}</tr></thead>
+        <tbody>{data.checks.map(c => {
+          const check = neutral.get(c.date)
+          const insufficient = check?.window && check.star === null
+          const missingLabel = check?.window && check.window.min < (data.neutral?.minWeeks ?? 156) ? '样本不足' : '估值数据缺失'
+          return <tr key={c.date}>
+            <th scope="row">{c.date}</th>
+            <td>{c.ref}</td>
+            <td className="num">{insufficient ? missingLabel : checkValue(check?.star ?? null, c)}</td>
+            <td>{checkWindow(check?.window ?? null)}</td>
+            <td className="num">{checkValue(c.star, c)}</td>
+          </tr>
+        })}</tbody>
       </table>
     </TableWrap>
     <SampleFootnote>{METHOD.differ}</SampleFootnote>
@@ -204,7 +217,7 @@ export default function JixingStar(): JSX.Element {
           <h3 className="js-sub">行业中性口径</h3>
           <ul className="js-list">
             <li>{METHOD.neutralScope}</li>
-            <li>{METHOD.neutralScore}</li>
+            <li>{METHOD.neutralScore(data.neutral?.minWeeks ?? 156)}</li>
             <li>{METHOD.neutralErp}</li>
           </ul>
           <h3 className="js-sub">中证全指口径</h3>

@@ -88,8 +88,9 @@ export default function JixingDaily(): JSX.Element {
               <Card title={`摘要 · ${report.asOf}`} as="section" className="mm-card"
                 description={report.missingPrev ? (report.note ?? '缺前一交易日快照') : `较 ${report.prevDate}`}>
                 <ul className="jx-daily-summary">
-                  <li>星级 <b>{fmt(report.star, 1)}</b>
-                    {report.starChange === null ? '（变化 —）' : `（${signed(report.starChange, 1)}）`}</li>
+                  <li>{report.starBasis === 'neutral' ? '行业中性星级' : '中证全指口径星级'} <b>{fmt(report.star, 1)}</b>
+                    {report.starChange === null ? '（变化 —）' : `（${signed(report.starChange, 1)}）`}
+                    {report.star === null && report.starAsOf && report.starAsOf !== report.asOf && `，星级数据日 ${report.starAsOf}`}</li>
                   <li>低估 {report.counts.low} / 正常 {report.counts.normal} / 高估 {report.counts.high}
                     {report.countsDelta ? `（Δ ${signed(report.countsDelta.low, 0)} / ${signed(report.countsDelta.normal, 0)} / ${signed(report.countsDelta.high, 0)}）` : ''}</li>
                   <li>进入低估：{names(report, report.transitions.enterLow) || '无'}</li>
