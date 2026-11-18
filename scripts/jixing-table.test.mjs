@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
-  buildRow, canPublish, marketCloses, mergeHistory, parseCniSnapshot, parseCsiHistory, parseCsiSnapshot,
-  percentile, sourceDate, valuationStatus, windowStart,
+  buildRow, canPublish, histPayload, marketCloses, mergeHistory, parseCniSnapshot, parseCsiHistory, parseCsiSnapshot,
+  parseIndustryPb, percentile, slimRow, sourceDate, valuationStatus, windowStart,
 } from './jixing-table-lib.mjs'
 
 const target = '2026-11-17'
@@ -109,4 +109,38 @@ test('发布时拒绝错日、缺指数、缺预期字段、同日重跑和历�
   assert.equal(canPublish(null, target, indices, new Map([[broad.code, ready.get(broad.code)]])), false)
   assert.equal(canPublish(null, target, indices, new Map(ready).set(broad.code, { ...ready.get(broad.code), pb: null })), false)
   assert.equal(canPublish(null, target, indices, new Map(ready).set(cni.code, { ...ready.get(cni.code), date: '2026-11-16' })), false)
+})
+
+test('行业市盈率按 codes 优先级取 PB，错日不取', () => {
+  const child = (code, name, pe, children = []) => ({ industryCode: code, industryName: name, pe, children })
+  const body = {
+    code: '200',
+    data: {
+      tradeDate: '20261117',
+      csipeindustryMapList: {
+        3: [child('40', '金融', '0.72', [child('4010', '银行', '0.63')])],
+        4: [child('40', '金融', '4.1', [child('4010', '银行', '5.2')])],
+      },
+    },
+  }
+  const parsed = parseIndustryPb(body, target, { '399986': { name: '银行', codes: ['4010', '0601'] } })
+  assert.deepEqual([...parsed], [['399986', { pb: 0.63, dp: 5.2, industryCode: '4010', industryName: '银行' }]])
+  assert.equal(parseIndustryPb(body, '2026-11-16', { '399986': { name: '银行', codes: ['4010'] } }).size, 0)
+})
+
+test('主表瘦身去掉周线，hist 文件保留 PE/PB 序列', () => {
+  const history = Array.from({ length: 400 }, (_, i) => new Date(Date.UTC(2024, 0, i + 1)))
+    .filter(d => ![0, 6].includes(d.getUTCDay()))
+    .slice(0, 260)
+    .map((d, i) => [d.toISOString().slice(0, 10), 20, 1 + (i % 5) * 0.01])
+  history[history.length - 1] = [target, 20, 0.63]
+  const row = buildRow({ ...bank, pbIndustry: { name: '银行', codes: ['4010'] } }, target, {
+    date: target, pe: 20, pb: 0.63, dp: 5, industryCode: '4010', industryName: '银行',
+  }, history)
+  assert.equal(row.pbKind, 'industry')
+  assert.equal(row.pbIndustry.name, '银行')
+  assert.equal(row.status, 'low')
+  assert.equal(slimRow(row).peSeries.length, 0)
+  assert.ok(histPayload(row).peSeries.length > 0)
+  assert.ok(histPayload(row).pbSeries.length > 0)
 })

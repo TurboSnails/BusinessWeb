@@ -2,15 +2,31 @@
 import { isTradingDay } from './market-mood-lib.mjs'
 import { num, validDate, weekly } from './ths-market-lib.mjs'
 
-const PB_MIN = 250
+export const PB_MIN = 250
 const CSI_SOURCE = 'csi'
 const CNI_SOURCE = 'cni'
 const beijingDay = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Shanghai' })
 
+/**
+ * PB 判定行没有指数级逐日 PB，改用中证官网「行业市盈率」classType=2 的行业 PB。
+ * codes 按优先级：先新版 CICS，再旧版；命中任一即取。名称用于页面标注。
+ */
+export const PB_INDUSTRY = {
+  '399986': { name: '银行', codes: ['4010', '0601'] },
+  '399975': { name: '证券公司', codes: ['403010', '06030102'] },
+  '931775': { name: '房地产', codes: ['6010', '0605'] },
+  '930708': { name: '有色金属', codes: ['1520', '010105'] },
+  '000820': { name: '煤炭', codes: ['101030', '000103'] },
+}
+/** 行业市盈率接口可查的最早交易日（与今日星级板块 PB 同源）。 */
+export const INDUSTRY_PB_FROM = '2014-01-02'
+export const industryPbUrl = (date) =>
+  `https://www.csindex.com.cn/csindex-home/dataServer/queryCsiPeIndustryBytradeDate?tradeDate=${date.replaceAll('-', '')}&classType=2`
+
 // 中证代码、源端简称核对自 index-perf / indexCsiDsPe，深市四条核对自国证 index/running。
 const csi = (group, code, csiName, { name = csiName, basis = 'pe', snapshot = false } = {}) =>
-  ({ group, code, name, csiName, basis, snapshot, source: CSI_SOURCE })
-const cni = (group, code, name) => ({ group, code, name, basis: 'pe', source: CNI_SOURCE })
+  ({ group, code, name, csiName, basis, snapshot, source: CSI_SOURCE, pbIndustry: PB_INDUSTRY[code] ?? null })
+const cni = (group, code, name) => ({ group, code, name, basis: 'pe', source: CNI_SOURCE, pbIndustry: null })
 
 export const INDICES = [
   csi('broad', '000016', '上证50', { snapshot: true }),
@@ -163,6 +179,58 @@ export function valuationStatus(basis, pePct, pbPct) {
   return p < 0.3 ? 'low' : p > 0.7 ? 'high' : 'normal'
 }
 
+const ymd = (s) => {
+  if (typeof s !== 'string') return null
+  if (/^\d{8}$/.test(s)) return `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6, 8)}`
+  return validDate(s.slice(0, 10)) ? s.slice(0, 10) : null
+}
+
+/** 在行业树中按 codes 优先级取 PB / 股息率；map 键 3=市净率、4=股息率。 */
+export function pickIndustryMetrics(nodes, codes, metricKey = '3') {
+  const want = new Set(codes.map(String))
+  let hit = null
+  const walk = list => {
+    for (const node of list ?? []) {
+      if (want.has(String(node?.industryCode))) {
+        const value = metricKey === '3' ? positive(node.pe) : num(node.pe)
+        if (value !== null && (metricKey !== '3' || value > 0)) {
+          hit = { code: String(node.industryCode), name: String(node.industryName ?? ''), value }
+          return true
+        }
+      }
+      if (walk(node?.children)) return true
+    }
+    return false
+  }
+  walk(nodes)
+  return hit
+}
+
+/**
+ * 解析 classType=2 行业市盈率。返回 Map(指数代码 → {pb, dp, industryCode, industryName})；
+ * 日期必须等于 target（官网对无效日会回退）。
+ */
+export function parseIndustryPb(body, target, proxies = PB_INDUSTRY) {
+  const out = new Map()
+  const data = body?.data
+  if (String(body?.code) !== '200' || ymd(data?.tradeDate) !== target) return out
+  const pbTree = data?.csipeindustryMapList?.['3']
+  const dpTree = data?.csipeindustryMapList?.['4']
+  if (!Array.isArray(pbTree) || !pbTree.length) return out
+  for (const [indexCode, proxy] of Object.entries(proxies)) {
+    const pb = pickIndustryMetrics(pbTree, proxy.codes, '3')
+    if (!pb) continue
+    const dpHit = pickIndustryMetrics(dpTree, [pb.code, ...proxy.codes], '4')
+    out.set(indexCode, {
+      pb: pb.value,
+      dp: dpHit && Number.isFinite(dpHit.value) && dpHit.value >= 0 ? dpHit.value : null,
+      industryCode: pb.code,
+      industryName: pb.name || proxy.name,
+    })
+  }
+  return out
+}
+
 export function buildRow(index, date, current, history) {
   const { pe, pb, dp } = current
   const start = windowStart(date)
@@ -174,13 +242,32 @@ export function buildRow(index, date, current, history) {
   const pbPct = pbPoints.length < PB_MIN ? null : percentile(pbPoints.map(p => p.value), pb)
   const summary = points => ({ since: points[0]?.date ?? null, count: points.length })
   const sortedPe = [...peValues].sort((a, b) => a - b)
+  const peSeries = weekly(pePoints).map(p => [p.date, p.value])
+  const pbSeries = weekly(pbPoints).map(p => [p.date, p.value])
+  const industry = index.pbIndustry
   return {
     code: index.code, name: index.name, group: index.group, basis: index.basis, source: index.source, date,
     pe, pb, dp, roe: pe !== null && pb !== null ? pb / pe : null, pePct, pbPct,
     status: valuationStatus(index.basis, pePct, pbPct),
     peHistory: summary(pePoints), pbHistory: summary(pbPoints),
-    peSeries: weekly(pePoints).map(p => [p.date, p.value]),
+    peSeries, pbSeries,
     peRefs: [0.3, 0.7].map(p => sortedPe[Math.ceil(p * sortedPe.length) - 1] ?? null),
+    pbKind: industry ? 'industry' : 'index',
+    pbIndustry: industry ? { code: current.industryCode ?? industry.codes[0], name: current.industryName ?? industry.name } : null,
+  }
+}
+
+/** 主表去掉周线序列，留给懒加载 hist 文件。 */
+export function slimRow(row) {
+  const { peSeries: _pe, pbSeries: _pb, ...rest } = row
+  return { ...rest, peSeries: [] }
+}
+
+export function histPayload(row) {
+  return {
+    code: row.code, asOf: row.date,
+    peSeries: row.peSeries, pbSeries: row.pbSeries ?? [],
+    peRefs: row.peRefs,
   }
 }
 
@@ -189,8 +276,9 @@ export function canPublish(publishedDate, target, indices, observations) {
   if (!validDate(target) || !isTradingDay(target) || (publishedDate && publishedDate >= target) || !indices.length) return false
   return indices.every(index => {
     const row = observations.get(index.code)
+    const needsPb = index.snapshot || index.source === CNI_SOURCE || index.basis === 'pb' || !!index.pbIndustry
     return row?.date === target && positive(row.pe) !== null &&
-      (!(index.snapshot || index.source === CNI_SOURCE) || positive(row.pb) !== null) &&
+      (!needsPb || positive(row.pb) !== null) &&
       (!index.snapshot || (Number.isFinite(row.dp) && row.dp >= 0))
   })
 }

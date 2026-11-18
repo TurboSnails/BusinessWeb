@@ -15,7 +15,7 @@
 .js-ruler__band.is-b4 { fill: var(--down); fill-opacity: 0.45; }
 .js-ruler__band.is-b5 { fill: var(--down); }
 .js-ruler__label { fill: var(--text-secondary); font-size: 13px; }
-.js-ruler__tick { fill: var(--text-tertiary); font-size: 11px; }
+.js-ruler__tick { fill: var(--text-tertiary); font-size: 12px; }
 .js-ruler__mark { fill: var(--text-primary); }
 .js-ruler__needle { stroke: var(--text-primary); stroke-width: 2; }
 .js-sub { font-size: 0.95rem; margin: 18px 0 6px; }
