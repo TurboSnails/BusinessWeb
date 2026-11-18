@@ -83,7 +83,8 @@ const section = async (key, fn) => {
 
 let margin
 try {
-  const stocks = parseMargin(await report('RPTA_WEB_RZRQ_GGMX', `(DATE='${asOf}')`, { sort: 'SCODE' }), asOf)
+  // 只取用到的列：ALL 列每页数百 KB，东财常在传输中途断开（terminated）
+  const stocks = parseMargin(await report('RPTA_WEB_RZRQ_GGMX', `(DATE='${asOf}')`, { sort: 'SCODE', columns: 'DATE,SCODE,SECNAME,SPJ,ZDF,RZYE,RZMRE,RZCHE,RZJME,RZJME3D,RZJME5D,RZJME10D,FIN_BALANCE_GR,RZYEZB,SZ' }), asOf)
   const inds = parseMarginIndustries(await report('RPTA_WEB_BKJYMXN', `(TRADE_DATE='${asOf}')(BOARD_TYPE_CODE="005")`, { sort: 'BOARD_CODE' }), asOf)
   margin = buildMargin(stocks, inds, asOf)
 } catch (e) {
