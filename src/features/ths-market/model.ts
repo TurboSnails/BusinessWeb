@@ -66,7 +66,10 @@ const nullStr = (x: unknown): boolean => x === null || typeof x === 'string'
  * 不合格返回 null（只隐藏本节，不影响其余模块）。
  */
 export function asOverseas(x: unknown, asOf: string): Overseas | null {
-  if (!obj(x) || x.asOf !== asOf || !date(x.usSession) || x.usSession >= asOf || !(x.hkDate === null || x.hkDate === asOf)) return null
+  // 外盘联动可以比整页新：中证估值晚间才发布时，脚本只把当天的外盘联动并入旧文件（不能比整页旧）
+  if (!obj(x) || !date(x.asOf) || x.asOf < asOf) return null
+  const d = x.asOf
+  if (!date(x.usSession) || x.usSession >= d || !(x.hkDate === null || x.hkDate === d)) return null
   if (!nullStr(x.hkNote) || !nullStr(x.boardsNote) || !(x.boardsTime === null || (typeof x.boardsTime === 'string' && /^\d{2}:\d{2}$/.test(x.boardsTime))) || !date(x.mapReviewed)) return null
   if (!Array.isArray(x.boardIssues) || !x.boardIssues.every(s => typeof s === 'string')) return null
   const t = x.thresholds

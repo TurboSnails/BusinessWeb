@@ -96,11 +96,29 @@ function targetDate(now = new Date()) {
   return { today, date: isTradingDay(today) && afterClose ? today : prevTradingDay(today) }
 }
 
+/** 中证估值未发布时：只把当天的外盘联动并入已发布文件（整页 asOf 不变；外盘联动自带数据日） */
+async function patchOverseasOnly(date) {
+  let published = null
+  try { published = JSON.parse(fs.readFileSync(OUT, 'utf8')) } catch { return }
+  if (!published?.asOf || published.asOf >= date) return
+  try {
+    const hist = await overseasSection(date, published.overseas?.asOf === date ? published.overseas : null)
+    if (hist.histFile) fs.writeFileSync(hist.histFile, JSON.stringify(hist.history, null, 2) + '\n')
+    fs.writeFileSync(`${OUT}.tmp`, JSON.stringify({ ...published, overseas: hist.section, overseasError: null }) + '\n')
+    fs.renameSync(`${OUT}.tmp`, OUT)
+    console.log(`外盘联动已单独更新到 ${date}，其余模块保持 ${published.asOf}`)
+  } catch (e) { console.log(`外盘联动单独更新失败：${e.message}`) }
+}
+
 async function main() {
   const { today, date } = targetDate()
   const valBody = await get(csiValUrl)
   let snap
-  try { snap = parseCsiValuation(valBody, date) } catch (e) { console.log(`${today}：${e.message}，数据未就绪，跳过`); return }
+  try { snap = parseCsiValuation(valBody, date) } catch (e) {
+    console.log(`${today}：${e.message}，数据未就绪，其余模块跳过`)
+    await patchOverseasOnly(date)
+    return
+  }
 
   const start10 = `${Number(date.slice(0, 4)) - 11}${date.slice(4)}`
   const csiCodes = [...new Set([...INDICES.filter(i => i.source === 'csi').map(i => i.code), ...STYLE_PAIRS.flatMap(p => [p.num.code, p.den.code])])]

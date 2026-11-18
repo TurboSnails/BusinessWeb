@@ -156,6 +156,7 @@ function OverseasBody({ o }: { o: Overseas }): JSX.Element {
   const z = (i: OverseasItem): string => (i.z === null ? '—' : `${fix(Math.abs(i.z), 1)}σ`)
   return <>
     <h3 className="tm-sub">美股隔夜（{o.usSession} 美东收盘）</h3>
+    <p className="mm-method">外盘联动数据日 {o.asOf}（可能比本页其余模块新：中证估值晚间才发布时，本节先行更新）。</p>
     <dl className="tm-summary">{o.indices.map(i => <div key={i.symbol}>
       <dt>{i.name}</dt><dd className={tone(i.pct)}>{signedPct(i.pct)}</dd><small>{i.close === null ? '—' : fix(i.close)}</small>
     </div>)}</dl>

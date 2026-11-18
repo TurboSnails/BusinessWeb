@@ -125,6 +125,8 @@ describe('市场页运行时模型', () => {
   })
   it('外盘联动校验：日期自洽、个股日期对上市场、缺值规则，不合格只置空本节', () => {
     expect(asOverseas(overseasFixture(), '2026-11-17')).not.toBeNull()
+    // 中证估值晚发布时外盘联动先行更新：本节可以比整页新，但不能更旧
+    expect(asOverseas(overseasFixture(), '2026-11-16')?.asOf).toBe('2026-11-17')
     for (const mutate of [
       (o: any) => { o.asOf = '2026-11-16' },
       (o: any) => { o.usSession = '2026-11-17' }, // 美股日必须早于数据日
