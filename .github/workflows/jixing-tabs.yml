@@ -37,6 +37,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      # 港股全球页签解析恒生月报 PDF（pypdf）
+      - name: Install PDF text extractor
+        run: python -m pip install -r scripts/requirements-market-cycle.txt
       - name: Run tab scripts
         shell: bash
         # 每个脚本单独限时（最多 10 分钟），并给提交步骤留出时间：总预算用完就跳过剩下的脚本，已跑完的结果照常提交
