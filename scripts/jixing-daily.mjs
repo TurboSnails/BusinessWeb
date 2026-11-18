@@ -4,11 +4,12 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { isTradingDay, prevTradingDay } from './market-mood-lib.mjs'
 import { csiPerfUrl, num, validDate } from './ths-market-lib.mjs'
-import { buildIndex, diffDaily, snapshotRows } from './jixing-daily-lib.mjs'
+import { buildIndex, diffDaily, resolveStar, snapshotRows } from './jixing-daily-lib.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const TABLE = join(ROOT, 'public/data/jixing-table.json')
 const STAR = join(ROOT, 'public/data/jixing-star.json')
+const STAR_RAW = join(ROOT, 'data-raw/jixing-star')
 const OUT = join(ROOT, 'public/data/jixing-daily.json')
 const RAW = join(ROOT, 'data-raw/jixing-daily')
 const PUBLIC = join(ROOT, 'public/data')
@@ -85,20 +86,6 @@ function prunePublic() {
   for (const f of files.slice(KEEP_PUBLIC)) fs.unlinkSync(join(PUBLIC, f))
 }
 
-function loadPrevSnapshot(asOf) {
-  let d = prevTradingDay(asOf)
-  // 只认「确切前一交易日」文件，不拿更早顶替
-  const raw = readJson(rawFile(d))
-  if (raw?.asOf === d && Array.isArray(raw.rows)) return raw
-  const pub = readJson(dayFile(d))
-  if (pub?.asOf === d && Array.isArray(pub.rows) && pub.missingPrev === false) {
-    // 公开 diff 文件不含原始 close 快照结构；回退 raw
-    return null
-  }
-  // 尝试从同日 raw 缺失时返回 null
-  return null
-}
-
 async function main() {
   const table = readJson(TABLE)
   const star = readJson(STAR)
@@ -123,32 +110,20 @@ async function main() {
   const closesToday = Object.fromEntries(codes.map(c => [c, closesByCode[c]?.[asOf] ?? null]))
   const closesPrev = Object.fromEntries(codes.map(c => [c, closesByCode[c]?.[prevAsOf] ?? null]))
 
+  const rawStar = readJson(join(STAR_RAW, `${asOf}.json`))
+  const starToday = resolveStar(star, asOf, rawStar)
   const todaySnap = {
     asOf,
-    star: typeof star?.star === 'number' && star.asOf === asOf ? star.star : (typeof star?.star === 'number' ? star.star : null),
-    starAsOf: star?.asOf ?? null,
+    star: starToday,
+    starAsOf: starToday === null ? (star?.asOf ?? null) : asOf,
     rows: snapshotRows(table.rows, closesToday),
     complete: codes.every(c => closesToday[c] > 0),
   }
 
-  // 前日快照：优先 raw；否则用本次抓到的前日收盘 + 无法还原估值 → 仅 close 有值时仍写 raw，diff 用 raw
+  // 前日快照：只认确切前一交易日 raw，不拿更早顶替
   let prevSnap = readJson(rawFile(prevAsOf))
-  if (!prevSnap || prevSnap.asOf !== prevAsOf) {
-    // 无前日 raw：变化列全部 null（不顶替）
-    prevSnap = null
-    // 若抓到了前日收盘，可先存一份不完整 raw（无估值），供日后补全；但不用于顶替 diff
-    if (codes.some(c => closesPrev[c] > 0)) {
-      const stub = {
-        asOf: prevAsOf,
-        star: null,
-        rows: snapshotRows(table.rows.map(r => ({ ...r, pe: null, pePct: null, pb: null, pbPct: null, status: null })), closesPrev),
-        complete: false,
-        stub: true,
-      }
-      // 不写 stub 覆盖：避免污染。仅当完全没有 raw 时也不写。
-      void stub
-    }
-  }
+  if (!prevSnap || prevSnap.asOf !== prevAsOf) prevSnap = null
+  void closesPrev // 抓取供日后补全；缺 raw 时不写 stub、不顶替
 
   const diff = diffDaily(todaySnap, prevSnap)
   const payload = {
@@ -171,11 +146,12 @@ async function main() {
     .sort()
     .reverse()
   const latest = payload
-  // 索引里嵌最新一份全文；体积控制：若过大则只放摘要
+  // 索引里嵌最新一份全文；体积控制：若过大则只放摘要（仍带 version:1）
   let indexLatest = latest
   const probe = JSON.stringify({ version: 1, dates: dates.slice(0, KEEP_INDEX), latest })
   if (probe.length > 75_000) {
     indexLatest = {
+      version: 1,
       asOf: latest.asOf,
       prevDate: latest.prevDate,
       missingPrev: latest.missingPrev,
@@ -191,12 +167,11 @@ async function main() {
     }
   }
   const index = buildIndex(dates.slice(0, KEEP_INDEX).map(date => ({ date })), indexLatest, KEEP_INDEX)
-  // buildIndex 已带 latest 参数
   index.latest = indexLatest
   fs.writeFileSync(`${OUT}.tmp`, JSON.stringify(index) + '\n')
   fs.renameSync(`${OUT}.tmp`, OUT)
   const size = fs.statSync(OUT).size
-  console.log(`指数日报：${asOf}（前日 ${prevAsOf}${diff.missingPrev ? ' 缺快照' : ''}），索引 ${size} 字节，日期 ${index.dates.length} 个`)
+  console.log(`指数日报：${asOf}（前日 ${prevAsOf}${diff.missingPrev ? ' 缺快照' : ''}），星级 ${starToday ?? 'null'}，索引 ${size} 字节，日期 ${index.dates.length} 个`)
 }
 
 main().catch(e => {

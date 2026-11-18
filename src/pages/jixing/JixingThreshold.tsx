@@ -6,7 +6,7 @@ import { PageTitle } from '../../components/ui/PageTabs'
 import JixingTabs, { JIXING_DISCLAIMER } from '../../features/jixing-tabs/JixingTabs'
 import { SampleFootnote, StatusBadge, StatusLegend } from '../../features/jixing-tabs/StatusBadge'
 import {
-  GROUPS, METHOD, asJixingThreshold, fmtDist, fmtNum, fmtPct,
+  GROUPS, METHOD, asJixingThreshold, fmtDist, fmtLine, fmtNum, fmtPct,
   type GroupFilter, type JixingThresholdData, type ThresholdRow,
 } from '../../features/jixing-threshold/model'
 import '../../styles/market-mood.css'
@@ -74,11 +74,11 @@ export default function JixingThreshold(): JSX.Element {
                       </th>
                       <td>{r.basisLabel}</td>
                       <td className="num">{fmtNum(r.current)}</td>
-                      <td className="num">{fmtNum(r.lowLine)}</td>
-                      <td className="num">{fmtNum(r.highLine)}</td>
+                      <td className="num">{fmtLine(r.lowLine, r.lowLine === null)}</td>
+                      <td className="num">{fmtLine(r.highLine, r.highLine === null)}</td>
                       <td className="num">{fmtPct(r.pct)}</td>
-                      <td className="num">{fmtDist(r.distLowPct, r.alreadyLow, '已低估')}</td>
-                      <td className="num">{fmtDist(r.distHighPct, r.alreadyHigh, '已高估')}</td>
+                      <td className="num">{r.lowLine === null ? '样本不足' : fmtDist(r.distLowPct, r.alreadyLow, '已低估')}</td>
+                      <td className="num">{r.highLine === null ? '样本不足' : fmtDist(r.distHighPct, r.alreadyHigh, '已高估')}</td>
                       <td><StatusBadge status={r.status} /></td>
                       <td>{r.sampleSince ? `${r.sampleSince} / ${r.sampleCount}` : `— / ${r.sampleCount}`}</td>
                     </tr>
@@ -103,6 +103,9 @@ function sortRows(rows: ThresholdRow[], asc: boolean): ThresholdRow[] {
     return r.distLowPct
   }
   return [...rows].sort((a, b) => {
+    const aThin = a.lowLine === null
+    const bThin = b.lowLine === null
+    if (aThin !== bThin) return aThin ? 1 : -1 // 样本不足始终放最后
     const d = score(a) - score(b)
     return asc ? d : -d
   })

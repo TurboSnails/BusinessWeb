@@ -1,8 +1,17 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 import {
-  buildIndex, changePct, codesByStatus, delta, diffDaily, enterExit, snapshotRows,
+  buildIndex, changePct, codesByStatus, delta, diffDaily, enterExit, resolveStar, snapshotRows,
 } from './jixing-daily-lib.mjs'
+
+describe('resolveStar', () => {
+  it('asOf 不一致 → null，不顶替；raw 当日可补', () => {
+    assert.equal(resolveStar({ asOf: '2026-11-18', star: 3.9 }, '2026-11-17'), null)
+    assert.equal(resolveStar({ asOf: '2026-11-17', star: 3.9 }, '2026-11-17'), 3.9)
+    assert.equal(resolveStar({ asOf: '2026-11-18', star: 3.9 }, '2026-11-17', { asOf: '2026-11-17', star: 4.1 }), 4.1)
+    assert.equal(resolveStar(null, '2026-11-17'), null)
+  })
+})
 
 describe('enterExit / codesByStatus', () => {
   it('进入退出判定', () => {

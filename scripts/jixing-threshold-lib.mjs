@@ -1,12 +1,24 @@
 // 今天几星 · 阀值表：从估值表行推导低估线 / 高估线与距线距离（纯函数，无网络）。
 // 低估线 / 高估线 = 近 10 年窗口内判定指标（PE 或行业 PB）的 30% / 70% 分位对应值（与估值表 peRefs/pbRefs 同源）。
 
+/** 阀值线最少样本：与估值表 PB/PE 门槛一致。 */
+export const SAMPLE_MIN = 250
+
 /** 分位线取值：与 jixing-table-lib buildRow 的 refsOf 一致。 */
 export function quantileLine(sortedAsc, p) {
   if (!Array.isArray(sortedAsc) || !sortedAsc.length || !(p > 0 && p <= 1)) return null
   const idx = Math.ceil(p * sortedAsc.length) - 1
   const v = sortedAsc[Math.max(0, Math.min(sortedAsc.length - 1, idx))]
   return Number.isFinite(v) ? v : null
+}
+
+/** 样本 ≥ SAMPLE_MIN 且 since→asOf 至少满 1 年（365 天）。 */
+export function sampleEnough(count, since, asOf) {
+  if (!(count >= SAMPLE_MIN) || typeof since !== 'string' || typeof asOf !== 'string') return false
+  const t0 = Date.parse(`${since}T00:00:00Z`)
+  const t1 = Date.parse(`${asOf}T00:00:00Z`)
+  if (!Number.isFinite(t0) || !Number.isFinite(t1) || t1 < t0) return false
+  return (t1 - t0) / 864e5 >= 365
 }
 
 /**
@@ -29,7 +41,7 @@ export function distToHigh(current, highLine) {
   return { already: false, pct: highLine / current - 1 }
 }
 
-/** 从估值表单行生成阀值行；refs 缺失则跳过该行（返回 null）。 */
+/** 从估值表单行生成阀值行；current 缺失则跳过（返回 null）。样本不足或退化线 → 线/距线 null。 */
 export function buildThresholdRow(row) {
   if (!row || typeof row !== 'object') return null
   const basis = row.basis === 'pb' ? 'pb' : 'pe'
@@ -37,11 +49,26 @@ export function buildThresholdRow(row) {
   const pct = basis === 'pb' ? row.pbPct : row.pePct
   const refs = basis === 'pb' ? row.pbRefs : row.peRefs
   const history = basis === 'pb' ? row.pbHistory : row.peHistory
-  if (!(current > 0) || !Array.isArray(refs) || refs.length !== 2) return null
-  const [lowLine, highLine] = refs
-  if (!(lowLine > 0) || !(highLine > 0) || lowLine > highLine) return null
-  const low = distToLow(current, lowLine)
-  const high = distToHigh(current, highLine)
+  if (!(current > 0)) return null
+  const sampleCount = history?.count ?? 0
+  const sampleSince = history?.since ?? null
+  const asOf = row.date
+  const enough = sampleEnough(sampleCount, sampleSince, asOf)
+  const lowRaw = Array.isArray(refs) && refs.length === 2 ? refs[0] : null
+  const highRaw = Array.isArray(refs) && refs.length === 2 ? refs[1] : null
+  // 样本不足，或 low===high（单点/退化分布）→ 不给线，也不判「已低估/已高估」
+  const linesOk = enough && lowRaw > 0 && highRaw > 0 && lowRaw < highRaw
+  const lowLine = linesOk ? lowRaw : null
+  const highLine = linesOk ? highRaw : null
+  const low = linesOk ? distToLow(current, lowLine) : { already: false, pct: null }
+  const high = linesOk ? distToHigh(current, highLine) : { already: false, pct: null }
+  // 双保险：即便 linesOk，也不允许两侧同时 already（相等线已在 linesOk 排除）
+  let alreadyLow = low.already
+  let alreadyHigh = high.already
+  if (alreadyLow && alreadyHigh) {
+    alreadyLow = false
+    alreadyHigh = false
+  }
   return {
     code: row.code,
     name: row.name,
@@ -52,13 +79,13 @@ export function buildThresholdRow(row) {
     highLine,
     pct: Number.isFinite(pct) ? pct : null,
     distLowPct: low.pct,
-    alreadyLow: low.already,
+    alreadyLow,
     distHighPct: high.pct,
-    alreadyHigh: high.already,
+    alreadyHigh,
     status: row.status ?? null,
-    sampleCount: history?.count ?? 0,
-    sampleSince: history?.since ?? null,
-    date: row.date,
+    sampleCount,
+    sampleSince,
+    date: asOf,
     basisLabel: basis === 'pb'
       ? (row.pbIndustry ? `行业 PB（${row.pbIndustry.name}）` : 'PB')
       : 'PE(TTM)',
@@ -76,9 +103,9 @@ export function buildThresholdData(table) {
     sourceAsOf: table.asOf,
     rows,
     method: {
-      lines: '低估线 / 高估线取近 10 年窗口内判定指标（PE 或行业 PB）样本升序后的 30% / 70% 分位对应值（ceil 取位，与估值表参考线同源）。分位线随历史滚动窗口每天重算，不是固定常数。',
-      dist: '距低估线 % = 低估线 / 当前 − 1；当前已 ≤ 低估线则记「已低估」。距高估线 % = 高估线 / 当前 − 1；当前已 ≥ 高估线则记「已高估」。',
-      status: '估值状态与估值表一致：百分位 < 30% 低估，> 70% 高估，其余正常。',
+      lines: `低估线 / 高估线取近 10 年窗口内判定指标（PE 或行业 PB）样本升序后的 30% / 70% 分位对应值（ceil 取位，与估值表参考线同源）。样本数 < ${SAMPLE_MIN} 或不满 1 年时线和距线均为空（页面标「样本不足」）。分位线随历史滚动窗口每天重算，不是固定常数。`,
+      dist: '距低估线 % = 低估线 / 当前 − 1；当前已 ≤ 低估线则记「已低估」。距高估线 % = 高估线 / 当前 − 1；当前已 ≥ 高估线则记「已高估」。低估线与高估线相等时不判两侧「已」。',
+      status: '估值状态与估值表一致：百分位 < 30% 低估，> 70% 高估，其余正常；样本不足时状态为空。',
     },
     sources: table.sources ?? [],
   }

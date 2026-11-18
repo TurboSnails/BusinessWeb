@@ -22,16 +22,19 @@ export const RULES = {
   ipoBroken: `近 ${IPO_WINDOW} 个交易日破发率 ≥ 20% 记「偏熊」，≤ 5% 记「偏牛」，其余「中性」；上市数少于 ${IPO_MIN} 家不判。`,
   funds: '最近一个完整月偏股型新发基金募集份额，在有数据的全部月份中分位 ≥ 80% 记「偏牛」，≤ 20% 记「偏熊」，其余「中性」。',
   accounts: '最近一个已公布月份的上交所新增投资者数，在有数据的全部月份中分位 ≥ 80% 记「偏牛」，≤ 20% 记「偏熊」，其余「中性」。',
-  trM2: '中证全指全收益（H00985）月末点位 ÷ 当月已公布的 M2 余额，再按序列首月归一。近 10 年分位 ≤ 20% 记「低估」（股市相对货币偏便宜），≥ 80% 记「高估」，其余「正常」。',
+  trM2: '中证全指全收益（H00985）月末点位 ÷ 当月已公布的 M2 余额，再按固定基准月 2005-01（H00985 基日所在月；若该月尚无数据则取之后首个有值月）归一为 1。近 10 年分位 ≤ 20% 记「低估」（股市相对货币偏便宜），≥ 80% 记「高估」，其余「正常」。',
 }
 
+/** trM2 固定归一基准月（H00985 基日 2005-01-04 所在月），跨日可比。 */
+export const TR_M2_BASE_MONTH = '2005-01'
+
 /**
- * 全收益月末收盘 × M2 月末余额 → 比值序列（首点归一为 1）。
+ * 全收益月末收盘 × M2 月末余额 → 比值序列（固定基准月归一为 1）。
  * trMonthly: [{date:YYYY-MM-DD, close}] 取每月最后一个交易日；
  * m2Monthly: [{month:YYYY-MM, m2}]（亿元）。
  * 对齐规则：每个 M2 月用该月（或之前最近）全收益月末点位。
  */
-export function trM2Series(trMonthly, m2Monthly) {
+export function trM2Series(trMonthly, m2Monthly, baseMonth = TR_M2_BASE_MONTH) {
   const trByMonth = new Map()
   for (const p of trMonthly ?? []) {
     if (!validDate(p.date) || !(p.close > 0)) continue
@@ -52,9 +55,12 @@ export function trM2Series(trMonthly, m2Monthly) {
     rows.push({ date: `${m.month}-01`, month: m.month, tr: tr.close, m2: m.m2, raw: tr.close / m.m2 })
   }
   rows.sort((a, b) => a.date.localeCompare(b.date))
-  const base = rows[0]?.raw
-  if (!base) return []
-  return rows.map(r => ({ date: r.date, v: round(r.raw / base, 4), tr: r.tr, m2: r.m2, month: r.month }))
+  const baseRow = rows.find(r => r.month === baseMonth) ?? rows.find(r => r.month >= baseMonth)
+  if (!baseRow?.raw) return []
+  const base = baseRow.raw
+  return rows
+    .filter(r => r.month >= baseMonth)
+    .map(r => ({ date: r.date, v: round(r.raw / base, 4), tr: r.tr, m2: r.m2, month: r.month }))
 }
 
 /** 分位 → 信号。cheapHigh：分位越高越便宜（股债性价比）。 */

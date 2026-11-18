@@ -3,6 +3,8 @@ import { isTradingDay } from './market-mood-lib.mjs'
 import { addDays, num, validDate, weekly } from './ths-market-lib.mjs'
 
 export const PB_MIN = 250
+/** PE 分位 / 估值状态最少样本（与 PB 门槛一致）。 */
+export const PE_MIN = 250
 const CSI_SOURCE = 'csi'
 const CNI_SOURCE = 'cni'
 const beijingDay = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Shanghai' })
@@ -333,7 +335,7 @@ export function buildRow(index, date, current, history) {
   const pbSample = industry ? weekly(pbPoints) : pbPoints
   const peValues = pePoints.map(p => p.value)
   const pbValues = pbSample.map(p => p.value)
-  const pePct = percentile(peValues, pe)
+  const pePct = pePoints.length < PE_MIN ? null : percentile(peValues, pe)
   const pbPct = pbSample.length < PB_MIN ? null : percentile(pbValues, pb)
   const summary = points => ({ since: points[0]?.date ?? null, count: points.length })
   const sortedPe = [...peValues].sort((a, b) => a - b)

@@ -1,4 +1,5 @@
 // 今天几星 · 阀值表：读 public/data/jixing-table.json，写出 jixing-threshold.json（无额外网络）。
+// 可从估值表完全派生，不写 data-raw/jixing-threshold。
 import fs from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -7,7 +8,6 @@ import { buildThresholdData } from './jixing-threshold-lib.mjs'
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const TABLE = join(ROOT, 'public/data/jixing-table.json')
 const OUT = join(ROOT, 'public/data/jixing-threshold.json')
-const RAW = join(ROOT, 'data-raw/jixing-threshold')
 
 function readJson(path, fallback = null) {
   try { return JSON.parse(fs.readFileSync(path, 'utf8')) } catch { return fallback }
@@ -29,12 +29,11 @@ function main() {
     console.log('阀值表：估值表无法生成阀值行，跳过')
     return
   }
-  fs.mkdirSync(RAW, { recursive: true })
-  fs.writeFileSync(join(RAW, `${data.asOf}.json`), JSON.stringify(data) + '\n')
   fs.writeFileSync(`${OUT}.tmp`, JSON.stringify(data) + '\n')
   fs.renameSync(`${OUT}.tmp`, OUT)
   const size = fs.statSync(OUT).size
-  console.log(`阀值表：已发布 ${data.asOf}，${data.rows.length} 行，${size} 字节`)
+  const thin = data.rows.filter(r => r.lowLine === null).length
+  console.log(`阀值表：已发布 ${data.asOf}，${data.rows.length} 行（样本不足 ${thin}），${size} 字节`)
 }
 
 main()

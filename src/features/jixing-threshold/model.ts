@@ -7,8 +7,8 @@ export type ThresholdRow = {
   basis: 'pe' | 'pb'
   basisLabel: string
   current: number
-  lowLine: number
-  highLine: number
+  lowLine: number | null
+  highLine: number | null
   pct: number | null
   distLowPct: number | null
   alreadyLow: boolean
@@ -34,9 +34,9 @@ export { GROUPS }
 export type { GroupFilter }
 
 export const METHOD = {
-  lines: '低估线 / 高估线 = 近 10 年窗口内判定指标（PE 或行业 PB）样本的 30% / 70% 分位对应值，与估值表参考线同源。分位线随历史滚动每天重算，不是固定常数。',
-  dist: '距低估线 % = 低估线 / 当前 − 1；当前已 ≤ 低估线则显示「已低估」。距高估线 % = 高估线 / 当前 − 1；当前已 ≥ 高估线则显示「已高估」。',
-  status: '估值状态与估值表一致：百分位 < 30% 低估，> 70% 高估，其余正常。本站自定，与官方无关。',
+  lines: '低估线 / 高估线 = 近 10 年窗口内判定指标（PE 或行业 PB）样本的 30% / 70% 分位对应值，与估值表参考线同源。样本数 < 250 或不满 1 年时线和距线留空，页面标「样本不足」。分位线随历史滚动每天重算，不是固定常数。',
+  dist: '距低估线 % = 低估线 / 当前 − 1；当前已 ≤ 低估线则显示「已低估」。距高估线 % = 高估线 / 当前 − 1；当前已 ≥ 高估线则显示「已高估」。低估线与高估线相等时不判两侧「已」。',
+  status: '估值状态与估值表一致：百分位 < 30% 低估，> 70% 高估，其余正常；样本不足时状态为空。本站自定，与官方无关。',
 }
 
 const record = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v)
@@ -48,9 +48,13 @@ function isRow(v: unknown, asOf: string): v is ThresholdRow {
   if (!record(v) || v.date !== asOf || typeof v.code !== 'string' || typeof v.name !== 'string') return false
   if (!GROUPS.some(g => g.id !== 'all' && g.id === v.group)) return false
   if (v.basis !== 'pe' && v.basis !== 'pb') return false
-  if (!positive(v.current) || !positive(v.lowLine) || !positive(v.highLine) || v.lowLine > v.highLine) return false
+  if (!positive(v.current)) return false
+  const linesNull = v.lowLine === null && v.highLine === null
+  const linesOk = positive(v.lowLine) && positive(v.highLine) && (v.lowLine as number) < (v.highLine as number)
+  if (!linesNull && !linesOk) return false
   if (!(v.pct === null || (finite(v.pct) && v.pct >= 0 && v.pct <= 1))) return false
   if (typeof v.alreadyLow !== 'boolean' || typeof v.alreadyHigh !== 'boolean') return false
+  if (v.alreadyLow && v.alreadyHigh) return false
   if (!(v.distLowPct === null || finite(v.distLowPct)) || !(v.distHighPct === null || finite(v.distHighPct))) return false
   if (!(v.status === null || v.status === 'low' || v.status === 'normal' || v.status === 'high')) return false
   if (!Number.isInteger(v.sampleCount) || (v.sampleCount as number) < 0) return false
@@ -71,3 +75,5 @@ export const fmtPct = (v: number | null): string => v === null ? '—' : `${(v *
 export const fmtNum = (v: number | null): string => v === null ? '—' : v.toFixed(2)
 export const fmtDist = (pct: number | null, already: boolean, alreadyLabel: string): string =>
   already ? alreadyLabel : (pct === null ? '—' : `${(pct * 100).toFixed(1)}%`)
+export const fmtLine = (v: number | null, insufficient: boolean): string =>
+  insufficient ? '样本不足' : fmtNum(v)

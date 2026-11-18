@@ -1,5 +1,20 @@
 // 今天几星 · 指数日报：纯函数（差异、进入/退出、缺前日为 null）。
 
+/**
+ * 星级只认 asOf 当日：starDoc.asOf !== asOf → null（不拿别日顶替）。
+ * 可选 rawStar 为 data-raw/jixing-star 当日快照 { star, asOf? }。
+ */
+export function resolveStar(starDoc, asOf, rawStar = null) {
+  if (starDoc && typeof starDoc.star === 'number' && Number.isFinite(starDoc.star) && starDoc.asOf === asOf) {
+    return starDoc.star
+  }
+  if (rawStar && typeof rawStar.star === 'number' && Number.isFinite(rawStar.star)
+    && (rawStar.asOf === asOf || rawStar.asOf == null || rawStar.asOf === undefined)) {
+    return rawStar.star
+  }
+  return null
+}
+
 /** 状态集合差异：进入 = 今日有且昨日无；退出 = 昨日有且今日无。 */
 export function enterExit(todayCodes, prevCodes) {
   const today = new Set(todayCodes ?? [])

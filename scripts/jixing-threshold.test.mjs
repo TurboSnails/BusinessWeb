@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
-import { buildThresholdData, buildThresholdRow, distToHigh, distToLow, quantileLine } from './jixing-threshold-lib.mjs'
+import {
+  buildThresholdData, buildThresholdRow, distToHigh, distToLow, quantileLine, sampleEnough,
+} from './jixing-threshold-lib.mjs'
 
 describe('quantileLine', () => {
   it('取 30%/70% 分位值', () => {
@@ -21,6 +23,15 @@ describe('distToLow / distToHigh', () => {
   it('缺值返回 null pct', () => {
     assert.deepEqual(distToLow(null, 10), { already: false, pct: null })
     assert.deepEqual(distToHigh(10, null), { already: false, pct: null })
+  })
+})
+
+describe('sampleEnough', () => {
+  it('样本 < 250 或不满 1 年 → false', () => {
+    assert.equal(sampleEnough(249, '2016-01-01', '2026-11-17'), false)
+    assert.equal(sampleEnough(250, '2026-06-01', '2026-11-17'), false)
+    assert.equal(sampleEnough(250, '2016-01-01', '2026-11-17'), true)
+    assert.equal(sampleEnough(1, '2026-11-17', '2026-11-17'), false)
   })
 })
 
@@ -53,22 +64,51 @@ describe('buildThresholdRow', () => {
     assert.equal(row.distLowPct, null)
     assert.match(row.basisLabel, /行业 PB/)
   })
+  it('n=1：线与距线为 null，不双判已低估/已高估', () => {
+    const row = buildThresholdRow({
+      code: '399006', name: '创业板指', group: 'broad', basis: 'pe', date: '2026-11-17',
+      pe: 22.5479, pePct: null, status: null,
+      peRefs: [22.5479, 22.5479], pbRefs: [null, null],
+      peHistory: { since: '2026-11-17', count: 1 }, pbHistory: { since: null, count: 0 },
+      pbIndustry: null,
+    })
+    assert.equal(row.lowLine, null)
+    assert.equal(row.highLine, null)
+    assert.equal(row.distLowPct, null)
+    assert.equal(row.distHighPct, null)
+    assert.equal(row.alreadyLow, false)
+    assert.equal(row.alreadyHigh, false)
+    assert.equal(row.status, null)
+  })
+  it('lowLine===highLine 即使样本够也不给线', () => {
+    const row = buildThresholdRow({
+      code: 'X', name: 'X', group: 'broad', basis: 'pe', date: '2026-11-17',
+      pe: 10, pePct: 0.5, status: 'normal',
+      peRefs: [10, 10], pbRefs: [null, null],
+      peHistory: { since: '2016-01-01', count: 250 }, pbHistory: { since: null, count: 0 },
+      pbIndustry: null,
+    })
+    assert.equal(row.lowLine, null)
+    assert.equal(row.alreadyLow, false)
+    assert.equal(row.alreadyHigh, false)
+  })
 })
 
 describe('buildThresholdData', () => {
-  it('组装整表', () => {
+  it('组装整表（样本不足行仍保留，线为 null）', () => {
     const data = buildThresholdData({
       asOf: '2026-11-17',
       sources: [{ label: '中证', url: 'https://www.csindex.com.cn/' }],
       rows: [{
         code: '000300', name: '沪深300', group: 'broad', basis: 'pe', date: '2026-11-17',
-        pe: 13, pePct: 0.4, status: 'normal', peRefs: [11, 15], pbRefs: [null, null],
-        peHistory: { since: '2016-01-01', count: 100 }, pbHistory: { since: null, count: 0 },
+        pe: 13, pePct: null, status: null, peRefs: [13, 13], pbRefs: [null, null],
+        peHistory: { since: '2026-11-17', count: 1 }, pbHistory: { since: null, count: 0 },
         pbIndustry: null,
       }],
     })
     assert.equal(data.version, 1)
     assert.equal(data.rows.length, 1)
+    assert.equal(data.rows[0].lowLine, null)
     assert.equal(data.asOf, '2026-11-17')
   })
 })

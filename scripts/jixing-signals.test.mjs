@@ -15,7 +15,7 @@ test('信号规则：分位与绝对阈值', () => {
   for (const k of ['buffett', 'erp', 'pb', 'marginRatio', 'amount', 'ipoCount', 'ipoBroken', 'funds', 'accounts', 'trM2']) assert.ok(RULES[k].length > 10)
 })
 
-test('全收益/M2：月末对齐并归一', () => {
+test('全收益/M2：月末对齐并按固定基准月归一', () => {
   const tr = [
     { date: '2024-01-31', close: 100 },
     { date: '2024-02-29', close: 110 },
@@ -26,11 +26,29 @@ test('全收益/M2：月末对齐并归一', () => {
     { month: '2024-02', m2: 1000 },
     { month: '2024-03', m2: 1200 },
   ]
-  const s = trM2Series(tr, m2)
+  const s = trM2Series(tr, m2, '2024-01')
   assert.equal(s.length, 3)
   assert.equal(s[0].v, 1)
   assert.ok(Math.abs(s[1].v - 1.1) < 1e-9)
   assert.ok(Math.abs(s[2].v - 1) < 1e-9) // 120/1200 ÷ (100/1000) = 1
+})
+
+test('trM2 固定基准月：窗口滚动后数值仍相对同一 base', () => {
+  const tr = [
+    { date: '2023-12-29', close: 90 },
+    { date: '2024-01-31', close: 100 },
+    { date: '2024-02-29', close: 110 },
+  ]
+  const m2 = [
+    { month: '2023-12', m2: 900 },
+    { month: '2024-01', m2: 1000 },
+    { month: '2024-02', m2: 1000 },
+  ]
+  const full = trM2Series(tr, m2, '2024-01')
+  const rolled = trM2Series(tr.slice(1), m2.slice(1), '2024-01')
+  assert.equal(full.find(r => r.month === '2024-02').v, rolled.find(r => r.month === '2024-02').v)
+  assert.equal(full.find(r => r.month === '2024-01').v, 1)
+  assert.match(RULES.trM2, /2005-01/)
 })
 
 test('窗口分位：窗口起点、样本数与统一定义', () => {
