@@ -184,3 +184,15 @@ test('休市表覆盖年份：只覆盖已录入的年份', () => {
   assert.equal(calendarCovers('2027-01-04'), false)
   assert.equal(calendarCovers('2025-12-31'), false)
 })
+
+test('量能历史分板块：上证主板 = 上证综指 − 科创综指，深证主板 = 深证综指 − 创业板综指，缺数据记 null', async () => {
+  const { boardAmountHistory } = await import('./market-mood-lib.mjs')
+  const m = (o) => new Map(Object.entries(o))
+  const rows = boardAmountHistory({
+    sh: m({ '2026-11-17': 6.5e11, '2026-11-18': 6.5e11 }), sz: m({ '2026-11-17': 7.2e11, '2026-11-18': 7.2e11 }),
+    kcb: m({ '2026-11-17': 2.2e11 }), cyb: m({ '2026-11-17': 3.4e11, '2026-11-18': 3.4e11 }), bj: m({ '2026-11-18': 1.05e10 }),
+  })
+  assert.deepEqual(rows[0], { date: '2026-11-17', total: 13700, sh: 4300, kcb: 2200, sz: 3800, cyb: 3400, bj: null })
+  assert.deepEqual(rows[1], { date: '2026-11-18', total: 13700, sh: null, kcb: null, sz: 3800, cyb: 3400, bj: 105 })
+  assert.equal(boardAmountHistory({ sh: m({ a: 1e8 }), sz: m({ a: 1e8 }) })[0].kcb, null)
+})

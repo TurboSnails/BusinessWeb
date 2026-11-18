@@ -291,3 +291,20 @@ export function intradayAmount(sh, sz, date, bj = null) {
   const last = points.at(-1)
   return { date, prevDate: prev, scope: parts.length === 2 ? '沪深京' : '沪深', total: last.cum, prevTotal: last.prevCum, points }
 }
+
+/**
+ * 量能历史（指数口径，元 → 亿元）：total 为沪深两市（上证综指 + 深证综指），另给分板块：
+ * 上证主板 = 上证综指 − 科创综指，科创板 = 科创综指，深证主板 = 深证综指 − 创业板综指，创业板 = 创业板综指，北证 = 北证50。
+ * 某板块的指数缺这一天就记 null，不当 0。
+ */
+export function boardAmountHistory({ sh, sz, kcb = null, cyb = null, bj = null }) {
+  const yi = (v) => (Number.isFinite(v) ? Math.round(v / 1e8) : null)
+  return [...sh.keys()].filter((d) => sz.has(d)).sort().map((d) => {
+    const k = kcb?.get(d), c = cyb?.get(d), b = bj?.get(d)
+    return {
+      date: d, total: yi(sh.get(d) + sz.get(d)),
+      sh: Number.isFinite(k) ? yi(sh.get(d) - k) : null, kcb: yi(k),
+      sz: Number.isFinite(c) ? yi(sz.get(d) - c) : null, cyb: yi(c), bj: yi(b),
+    }
+  })
+}

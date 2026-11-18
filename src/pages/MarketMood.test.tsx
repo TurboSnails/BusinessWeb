@@ -50,13 +50,17 @@ describe('开盘啦（市场情绪）页', () => {
     expect(screen.getByText(/不再披露北向资金/)).toBeTruthy()
   })
 
-  it('市场量能可切换板块；切到分板块时用每日采集的数据', async () => {
-    stub(moodFixture())
+  it('市场量能可切换板块；分板块用每日采集，之前的日子用指数口径历史补', async () => {
+    const f = moodFixture()
+    f.amountHistory = [{ date: '2026-11-13', total: 14000, cyb: 3300 }, { date: '2026-11-16', total: 14500, cyb: null }, { date: '2026-11-17', total: 14900, cyb: 3500 }]
+    stub(f)
     renderPage()
     await screen.findByRole('region', { name: '今日总览' })
     const group = screen.getByRole('group', { name: '市场' })
     fireEvent.click(within(group).getByText('创业板'))
-    expect(screen.getByText(/分板块量能从本页开始采集之日起累计/)).toBeTruthy()
+    expect(screen.getByText(/创业板 = 创业板综指/)).toBeTruthy()
+    // 11-13 来自指数历史（浅色），11-17 本页采集优先
+    expect(document.querySelectorAll('.mm-chart__bar.is-muted').length).toBeGreaterThan(0)
   })
 
   it('补算历史有说明；数据格式不对时提示', async () => {

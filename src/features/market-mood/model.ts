@@ -70,7 +70,8 @@ export type MarketMood = {
   note: string
   latest: MoodLatest
   history: MoodDay[]
-  amountHistory: Array<{ date: string; total: number }>
+  /** 指数口径量能历史（亿元）：total 沪深两市；分板块字段缺数据为 null，旧文件没有这些字段 */
+  amountHistory: Array<{ date: string; total: number; sh?: number | null; kcb?: number | null; sz?: number | null; cyb?: number | null; bj?: number | null }>
   margin: Array<{ date: string; balance: number; ratio: number | null; hs300: number | null }>
   sources: Array<{ id: string; label: string; url: string }>
 }

@@ -4,7 +4,7 @@
 // 用法：node scripts/market-mood.mjs   （FORCE=1 跳过收盘时间检查，只用于排查）
 import fs from 'node:fs'
 import { BLUE_CHIP_SYMBOLS } from '../server/market-sentiment.mjs'
-import { buildDay, intradayAmount, mergeHistory, parseTrends, parseMargin, parsePool, parseSinaRow, pickPrevState, saveState, seedFromArchive } from './market-mood-lib.mjs'
+import { boardAmountHistory, buildDay, intradayAmount, mergeHistory, parseTrends, parseMargin, parsePool, parseSinaRow, pickPrevState, saveState, seedFromArchive } from './market-mood-lib.mjs'
 
 const OUT = 'public/data/market-mood.json'
 const RAW = 'data-raw/market-mood'
@@ -99,7 +99,10 @@ try {
     return new Map(j.data.klines.map((s) => s.split(',')).map(([d, a]) => [d, Number(a)]))
   }
   const [sh, sz] = [await kline('1.000001'), await kline('0.399106')]
-  amountHistory = [...sh.keys()].filter((d) => sz.has(d)).sort().map((d) => ({ date: d, total: Math.round((sh.get(d) + sz.get(d)) / 1e8) }))
+  // 分板块历史（指数口径）：上证主板 = 上证综指 − 科创综指，深证主板 = 深证综指 − 创业板综指，北证用北证50；取不到的板块留空
+  const opt = async (secid) => { try { return await kline(secid) } catch (e) { console.log(`${secid} 成交额历史获取失败：${e.message}`); return null } }
+  const [kcb, cyb, bj] = [await opt('1.000680'), await opt('0.399102'), await opt('0.899050')]
+  amountHistory = boardAmountHistory({ sh, sz, kcb, cyb, bj })
 } catch (e) { console.log(`两市成交额历史获取失败：${e.message}`) }
 
 // 当日量能（分时累计，与上一交易日同一时刻比）；失败只少这一张图

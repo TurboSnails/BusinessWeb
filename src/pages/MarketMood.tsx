@@ -205,7 +205,10 @@ function Volume({ m }: { m: MarketMood }): JSX.Element {
       // 两个来源的日期取并集：指数成交额历史取数失败时，本页每日采集的量能仍要显示
       return [...new Set([...idx.keys(), ...own.keys()])].sort().map(date => ({ date, value: own.get(date) ?? idx.get(date) ?? null, muted: !own.has(date) }))
     }
-    return m.history.filter(d => d.amount).map(d => ({ date: d.date, value: d.amount![market] }))
+    // 分板块：本页每日采集（实色）优先，之前的日子用指数口径历史补（浅色）
+    const own = new Map(m.history.filter(d => d.amount).map(d => [d.date, d.amount![market]]))
+    const idx = new Map(m.amountHistory.filter(d => typeof d[market] === 'number').map(d => [d.date, d[market] as number]))
+    return [...new Set([...idx.keys(), ...own.keys()])].sort().map(date => ({ date, value: own.get(date) ?? idx.get(date) ?? null, muted: !own.has(date) }))
   }, [m, market])
   const label = MARKETS.find(x => x.key === market)!.label
   return (
@@ -217,7 +220,7 @@ function Volume({ m }: { m: MarketMood }): JSX.Element {
             <Segmented items={rangeItems.map(r => ({ ...r }))} value={range} onChange={setRange} label="时间范围" />
           </div>
           <MoodChart points={sliceRange(points, range)} label={`${label}成交额走势`} format={v => (v >= 10000 ? `${(v / 10000).toFixed(1)}万亿` : `${Math.round(v)}亿`)} kind="bar" />
-          <p className="mm-method">红色为较前一日放量，绿色为缩量。{market === 'total' ? '浅色柱为沪深两市（上证综指＋深证综指成交额），实色柱为本页每日采集的沪深京合计。' : '分板块量能从本页开始采集之日起累计。'}</p>
+          <p className="mm-method">红色为较前一日放量，绿色为缩量。{market === 'total' ? '浅色柱为沪深两市（上证综指＋深证综指成交额），实色柱为本页每日采集的沪深京合计。' : '实色柱为本页每日采集（按股票代码归入板块合计）；浅色柱为指数口径历史：上证主板 = 上证综指 − 科创综指，科创板 = 科创综指，深证主板 = 深证综指 − 创业板综指，创业板 = 创业板综指，北证 = 北证50（只含 50 只成分股，略低于北证全市场）。'}</p>
         </>
       )}
     </Card>
