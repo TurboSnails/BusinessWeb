@@ -5,6 +5,15 @@ export function starFixture(): JixingStarData {
     { min: 5, max: 5.9, label: '估值很低' }, { min: 4, max: 4.9, label: '部分低估' }, { min: 3, max: 3.9, label: '正常偏低' },
     { min: 2, max: 2.9, label: '偏高' }, { min: 1, max: 1.9, label: '很高' },
   ]
+  const industries = [
+    ['10', '00', '能源'], ['15', '01', '原材料'], ['20', '02', '工业'], ['25', '03', '可选消费'],
+    ['30', '04', '主要消费'], ['35', '05', '医药卫生'], ['45', '07', '信息技术'], ['50', '08', '通信服务'], ['55', '09', '公用事业'],
+  ].map(([code, oldCode, name]) => ({
+    code, oldCode, name,
+    pe: { value: 14.83, pct: 24, n: 518, start: '2016-11-18' },
+    pb: { value: 1.11, pct: 28, n: 517, start: '2016-11-25' },
+    cheapness: 0.74,
+  }))
   return {
     version: 1, asOf: '2026-11-17', prevDate: '2026-11-16', generatedAt: '2026-11-17T13:00:00Z',
     star: 4.2, raw: 4.236, band: '部分低估', prevStar: 4.1, change: 0.1,
@@ -20,9 +29,18 @@ export function starFixture(): JixingStarData {
     inputsWeekly: [['2024-02-09', 12.1, 1.3, 5.8], ['2026-11-13', 16.1, 1.6, 4.6]],
     checks: [
       { date: '2015-06-12', ref: '1 星多（≈1.x）', star: 1, band: '很高', pe: 31.64, pb: 3.95, erp: -0.37 },
-      { date: '2024-02-05', ref: '≈5.9（极低）', star: 5.4, band: '估值很低', pe: 11.94, pb: 1.26, erp: 5.94 },
+      { date: '2024-02-05', ref: '≈5.9（极低）', refMin: 5.9, refMax: 5.9, star: 5.4, band: '估值很低', pe: 11.94, pb: 1.26, erp: 5.94 },
       { date: '2012-01-04', ref: '示例', star: null, band: null, pe: null, pb: null, erp: null },
     ],
+    neutral: {
+      asOf: '2026-11-18', star: 4.6, raw: 4.626, cheapness: 0.74, count: 9, band: '部分低估',
+      prevDate: '2026-11-17', prevStar: 4.5, change: 0.1, minWeeks: 156, industries,
+      history: [['2017-01-13', 3.5, 9], ['2024-02-09', 5.3, 9], ['2026-11-13', 4.4, 9], ['2026-11-18', 4.6, 9]],
+      checks: [
+        { date: '2015-06-12', star: null, window: { start: '2014-01-03', latestStart: '2014-01-03', min: 76, max: 76 } },
+        { date: '2024-02-05', star: 5.2, window: { start: '2014-02-07', latestStart: '2014-02-07', min: 513, max: 513 } },
+      ],
+    },
     sources: [{ label: '中证指数官网 · 中证全指行情（滚动市盈率）', url: 'https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000985' }],
   }
 }

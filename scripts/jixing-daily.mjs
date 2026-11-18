@@ -114,8 +114,7 @@ async function main() {
   const starToday = resolveStar(star, asOf, rawStar)
   const todaySnap = {
     asOf,
-    star: starToday,
-    starAsOf: starToday === null ? (star?.asOf ?? null) : asOf,
+    ...starToday,
     rows: snapshotRows(table.rows, closesToday),
     complete: codes.every(c => closesToday[c] > 0),
   }
@@ -156,6 +155,8 @@ async function main() {
       prevDate: latest.prevDate,
       missingPrev: latest.missingPrev,
       star: latest.star,
+      starBasis: latest.starBasis,
+      starAsOf: latest.starAsOf,
       starPrev: latest.starPrev,
       starChange: latest.starChange,
       counts: latest.counts,
@@ -171,7 +172,7 @@ async function main() {
   fs.writeFileSync(`${OUT}.tmp`, JSON.stringify(index) + '\n')
   fs.renameSync(`${OUT}.tmp`, OUT)
   const size = fs.statSync(OUT).size
-  console.log(`指数日报：${asOf}（前日 ${prevAsOf}${diff.missingPrev ? ' 缺快照' : ''}），星级 ${starToday ?? 'null'}，索引 ${size} 字节，日期 ${index.dates.length} 个`)
+  console.log(`指数日报：${asOf}（前日 ${prevAsOf}${diff.missingPrev ? ' 缺快照' : ''}），星级 ${starToday.starBasis} ${starToday.star ?? 'null'}（星级数据日 ${starToday.starAsOf ?? '—'}），索引 ${size} 字节，日期 ${index.dates.length} 个`)
 }
 
 main().catch(e => {

@@ -6,6 +6,8 @@ export const dailyReportFixture: JixingDailyReport = {
   prevDate: '2026-11-14',
   missingPrev: false,
   star: 4.0,
+  starBasis: 'neutral',
+  starAsOf: '2026-11-17',
   starPrev: 3.8,
   starChange: 0.2,
   counts: { low: 2, normal: 1, high: 1 },
