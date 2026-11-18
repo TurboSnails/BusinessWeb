@@ -5,7 +5,7 @@ import { Card, EmptyState, Page, Segmented, TableWrap } from '../../components/u
 import { PageTitle } from '../../components/ui/PageTabs'
 import ThsTabs, { THS_DISCLAIMER } from '../../features/ths-tabs/ThsTabs'
 import MoodChart from '../../features/market-mood/MoodChart'
-import { METHOD, asThsMarket, fix, pct, signedPct, signedYi, tone, yi, zoneClass, type ThsMarketData, type ValRow } from '../../features/ths-market/model'
+import { METHOD, asThsMarket, fix, pct, signedPct, signedYi, tone, yi, zoneClass, type Overseas, type OverseasItem, type ThsMarketData, type ValRow } from '../../features/ths-market/model'
 import '../../styles/market-mood.css'
 import '../../styles/ths-market.css'
 
@@ -134,6 +134,91 @@ function StyleCard({ data }: { data: ThsMarketData }): JSX.Element {
   </Card>
 }
 
+/** 关联板块：名称 + 当日涨跌幅 + 主力净流入，逐行列出。 */
+function BoardCells({ item, withFlow }: { item: OverseasItem; withFlow?: boolean }): JSX.Element {
+  return <ul className="tm-boards">{item.boards.map(b => <li key={b.code}>
+    <span>{b.name}</span> <span className={tone(b.pct)}>{signedPct(b.pct)}</span>
+    {withFlow ? <small className={tone(b.flow)}>主力 {signedYi(b.flow)}</small> : null}
+  </li>)}</ul>
+}
+
+/** 同向标记：外盘涨跌与各关联板块当日涨跌符号相同的个数 / 有效观测数。 */
+function sameDir(item: OverseasItem): string {
+  const obs = item.boards.filter(b => b.pct !== null && b.pct !== 0 && item.pct)
+  if (!obs.length) return '—'
+  return `${obs.filter(b => Math.sign(b.pct as number) === Math.sign(item.pct as number)).length} / ${obs.length}`
+}
+
+function OverseasBody({ o }: { o: Overseas }): JSX.Element {
+  const [market, setMarket] = useState<'US' | 'HK'>('US')
+  const anomalies = o.items.filter(i => i.anomaly).sort((a, b) => Math.abs(b.z ?? 0) - Math.abs(a.z ?? 0) || Math.abs(b.pct ?? 0) - Math.abs(a.pct ?? 0))
+  const list = o.items.filter(i => i.market === market)
+  const z = (i: OverseasItem): string => (i.z === null ? '—' : `${fix(Math.abs(i.z), 1)}σ`)
+  return <>
+    <h3 className="tm-sub">美股隔夜（{o.usSession} 美东收盘）</h3>
+    <dl className="tm-summary">{o.indices.map(i => <div key={i.symbol}>
+      <dt>{i.name}</dt><dd className={tone(i.pct)}>{signedPct(i.pct)}</dd><small>{i.close === null ? '—' : fix(i.close)}</small>
+    </div>)}</dl>
+    {o.hkNote ? <p className="mm-method">{o.hkNote}；港股列暂为空，晚些的采集会补上。</p> : null}
+    {o.boardsNote ? <p className="mm-method">{o.boardsNote}；A 股板块列暂为空。</p> : null}
+
+    <h3 className="tm-sub">外盘异动与 A 股关联板块当日表现</h3>
+    <p className="mm-method">
+      本期外盘异动 {o.summary.anomalies} 只；关联板块有效观测 {o.summary.obs} 个，其中当日同向 {o.summary.same} 个。
+      {o.boardsTime ? ` 板块数据为 ${o.asOf} ${o.boardsTime}（北京）快照。` : ''}
+    </p>
+    {anomalies.length ? <TableWrap label="外盘异动与关联板块">
+      <table className="mm-table">
+        <thead><tr>{['外盘标的', '日期', '涨跌幅', 'σ 倍数', '关联 A 股板块（当日涨跌 / 主力净流入）', '同向'].map(h => <th key={h} scope="col">{h}</th>)}</tr></thead>
+        <tbody>{anomalies.map(i => <tr key={i.symbol}>
+          <th scope="row">{i.name}<small>{i.symbol} · {i.market === 'US' ? '美股' : '港股'}</small></th>
+          <td>{i.date}</td>
+          <td className={`num ${tone(i.pct)}`}>{signedPct(i.pct)}</td>
+          <td className="num">{z(i)}</td>
+          <td><BoardCells item={i} withFlow /></td>
+          <td className="num">{sameDir(i)}</td>
+        </tr>)}</tbody>
+      </table>
+    </TableWrap> : <p className="mm-empty">本期没有达到阈值的外盘异动</p>}
+
+    <h3 className="tm-sub">全部映射</h3>
+    <Segmented items={[{ id: 'US', label: '美股' }, { id: 'HK', label: '港股' }]} value={market} onChange={id => setMarket(id as 'US' | 'HK')} label="外盘市场" />
+    <TableWrap label="外盘标的与关联 A 股板块">
+      <table className="mm-table">
+        <thead><tr>{['外盘标的', '涨跌幅', 'σ 倍数', '关联板块（当日涨跌）', '关联理由'].map(h => <th key={h} scope="col">{h}</th>)}</tr></thead>
+        <tbody>{list.map(i => <tr key={i.symbol}>
+          <th scope="row">{i.name}<small>{i.symbol}{i.anomaly ? ' · 异动' : ''}</small></th>
+          <td className={`num ${tone(i.pct)}`}>{signedPct(i.pct)}</td>
+          <td className="num">{z(i)}</td>
+          <td><BoardCells item={i} /></td>
+          <td className="tm-reason">{i.reason}</td>
+        </tr>)}</tbody>
+      </table>
+    </TableWrap>
+
+    {o.history.days ? <>
+      <h3 className="tm-sub">累计观测（自 {o.history.since} 起 {o.history.days} 个交易日）</h3>
+      {o.history.rows.length ? <TableWrap label="外盘异动累计同向次数">
+        <table className="mm-table">
+          <thead><tr>{['外盘标的', '异动天数', '板块观测', '当日同向'].map(h => <th key={h} scope="col">{h}</th>)}</tr></thead>
+          <tbody>{o.history.rows.map(r => <tr key={r.symbol}><th scope="row">{r.name}<small>{r.symbol}</small></th><td className="num">{r.events}</td><td className="num">{r.obs}</td><td className="num">{r.same}</td></tr>)}</tbody>
+        </table>
+      </TableWrap> : <p className="mm-empty">累计期内没有外盘异动记录</p>}
+      <p className="mm-method">样本从上线日开始逐日累积，天数很少时只是个例，不构成统计规律。</p>
+    </> : null}
+    {o.boardIssues.length ? <p className="mm-method">以下板块名称与映射表不符，已不展示：{o.boardIssues.join('；')}。</p> : null}
+    <p className="mm-method">{METHOD.overseas(o.thresholds)}</p>
+    <p className="mm-method">{METHOD.overseasBoards}</p>
+    <p className="mm-method">{METHOD.overseasMap(o.mapReviewed)} 完整全球指数见 <Link to="/pulse">全球行情</Link>。</p>
+  </>
+}
+
+function OverseasCard({ data }: { data: ThsMarketData }): JSX.Element {
+  return <Card title="外盘联动" as="section" className="mm-card" description="隔夜美股与当日港股的涨跌，对照本站整理的关联 A 股板块当天表现。">
+    {data.overseas ? <OverseasBody o={data.overseas} /> : <EmptyState title="暂无外盘联动数据">{data.overseasError ? `本次未更新：${data.overseasError}` : '本节数据缺失，其余模块不受影响。'}</EmptyState>}
+  </Card>
+}
+
 export default function ThsMarket(): JSX.Element {
   const [data, setData] = useState<ThsMarketData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -157,6 +242,7 @@ export default function ThsMarket(): JSX.Element {
         <SupplyCard data={data} />
         <RatesCard data={data} />
         <StyleCard data={data} />
+        <OverseasCard data={data} />
         <Card title="口径与未纳入项" as="section" className="mm-card">
           <ul className="tm-list">{METHOD.skipped.map(s => <li key={s}>{s}</li>)}</ul>
           <p className="mm-method">站内相关：<Link to="/market-mood">开盘啦 · 市场情绪</Link>（北向、融资余额） · <Link to="/invest/national-team">国家队持仓</Link> · <Link to="/pulse">全球行情</Link> · <Link to="/monitor">宏观温度</Link>。</p>

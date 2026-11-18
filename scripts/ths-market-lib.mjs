@@ -334,3 +334,132 @@ export function stylePair(pair, numRows, denRows, keep = 250) {
   const base = tail[0].ratio
   return { id: pair.id, label: pair.label, num: pair.num.name, den: pair.den.name, rel20: rel(20), rel60: rel(60), series: tail.map(r => [r.date, round(r.ratio / base * 100, 2)]) }
 }
+
+// ---------- 外盘联动 ----------
+/** 外盘异动阈值：|涨跌幅| ≥ 2 倍此前 60 个交易日涨跌幅的样本标准差；样本不足 40 天（σ 缺失）时改用 |涨跌幅| ≥ 3%。 */
+export const OVERSEAS_TH = { pct: 3, sigma: 2, window: 60, minObs: 40 }
+/** 纽交所全天休市日（NYSE 官网 Holidays & Trading Hours）。表外年份直接报错，提醒更新。 */
+export const NYSE_HOLIDAYS = new Set([
+  '2026-01-01', '2026-01-19', '2026-02-16', '2026-04-03', '2026-05-25', '2026-06-19', '2026-07-03', '2026-09-07', '2026-11-26', '2026-12-25',
+  '2027-01-01', '2027-01-18', '2027-02-15', '2027-03-26', '2027-05-31', '2027-06-18', '2027-07-05', '2027-09-06', '2027-11-25', '2027-12-24',
+])
+const NYSE_YEARS = new Set([...NYSE_HOLIDAYS].map(d => d.slice(0, 4)))
+/** 北京日期 bjDate 之前最近一个美股交易日（美东日期）：美股 D 日收盘在北京 D+1 日清晨，所以严格早于 bjDate。 */
+export function usSessionBefore(bjDate) {
+  let d = addDays(bjDate, -1)
+  for (let i = 0; i < 10; i++, d = addDays(d, -1)) {
+    if (!NYSE_YEARS.has(d.slice(0, 4))) throw new Error(`美股休市表未覆盖 ${d.slice(0, 4)} 年`)
+    const wd = new Date(`${d}T00:00:00Z`).getUTCDay()
+    if (wd !== 0 && wd !== 6 && !NYSE_HOLIDAYS.has(d)) return d
+  }
+  throw new Error('找不到上一美股交易日')
+}
+/** 东财 push2his 日 K：f51 日期、f53 收盘、f59 涨跌幅（%）。 */
+export const overseasKlineUrl = (secid, lmt = 70) => `https://push2his.eastmoney.com/api/qt/stock/kline/get?${new URLSearchParams({ secid, fields1: 'f1,f2,f3', fields2: 'f51,f53,f59', klt: '101', fqt: '1', end: '20500101', lmt: String(lmt) })}`
+/** 解析日 K：'-' / 空串 = 缺失（null）；日期必须合法且严格递增，否则丢弃该行。没有 klines 数组返回 null。 */
+export function parseOverseasKline(body) {
+  const k = body?.data?.klines
+  if (!Array.isArray(k)) return null
+  const rows = []
+  for (const line of k) {
+    const [date, close, pct] = String(line).split(',')
+    if (!validDate(date) || (rows.length && rows.at(-1).date >= date)) continue
+    rows.push({ date, close: num(close), pct: num(pct) })
+  }
+  return { name: typeof body.data.name === 'string' ? body.data.name : null, rows }
+}
+const sampleSd = (xs) => { const m = xs.reduce((a, x) => a + x, 0) / xs.length; return Math.sqrt(xs.reduce((a, x) => a + (x - m) ** 2, 0) / (xs.length - 1)) }
+/** 指定日（必须恰好有这一天的 K 线，不拿相邻日顶替）的收盘与涨跌幅；σ = 该日之前最近 window 个涨跌幅的样本标准差。 */
+export function sessionStats(rows, date, th = OVERSEAS_TH) {
+  const i = (rows ?? []).findIndex(r => r.date === date)
+  if (i < 0 || rows[i].pct === null) return null
+  const past = rows.slice(0, i).map(r => r.pct).filter(x => x !== null).slice(-th.window)
+  const sigma = past.length >= th.minObs ? sampleSd(past) : null
+  const pct = rows[i].pct
+  return { date, close: rows[i].close, pct, sigma: round(sigma), z: sigma ? round(pct / sigma) : null }
+}
+export const isAnomaly = (s, th = OVERSEAS_TH) => s !== null && (s.z !== null ? Math.abs(s.z) >= th.sigma : Math.abs(s.pct) >= th.pct)
+/** 东财时间戳（秒）对应的北京日期与时分。 */
+export function bjTime(ts) {
+  if (!Number.isFinite(ts) || ts <= 0) return null
+  const s = new Date(ts * 1000 + 8 * 3600e3).toISOString()
+  return { date: s.slice(0, 10), hm: s.slice(11, 16) }
+}
+const bjClock = (now) => { const bj = new Date(now.getTime() + 8 * 3600e3); return { today: bj.toISOString().slice(0, 10), min: bj.getUTCHours() * 60 + bj.getUTCMinutes() } }
+/** 板块快照（东财 ulist，不带日期）只在交易日北京 15:10 之后、且目标日就是北京今天时可用。 */
+export function boardSnapshotAllowed(now, asOf) {
+  const { today, min } = bjClock(now)
+  return today === asOf && isTradingDay(today) && min >= 15 * 60 + 10
+}
+/** 港股 16:10 收市（含收市竞价），北京 16:15 之后当天 K 线才算收盘价；更早的日期不受限。 */
+export function hkCloseAllowed(now, asOf) {
+  const { today, min } = bjClock(now)
+  return asOf < today || (asOf === today && min >= 16 * 60 + 15)
+}
+/**
+ * 东财 ulist 板块行情：f12 代码、f14 名称、f3 涨跌幅、f62 主力净流入（元 → 亿元）、f124 行情时间（秒）。
+ * 只收行情时间落在北京 today 的行；名称与映射表不符的行丢弃并记入 mismatched。
+ */
+export function parseBoardQuotes(body, today, names) {
+  const diff = body?.data?.diff
+  if (!Array.isArray(diff)) throw new Error('板块行情为空')
+  const map = {}, mismatched = []
+  let time = null
+  for (const r of diff) {
+    const code = r?.f12
+    if (typeof code !== 'string' || !(code in names)) continue
+    if (r.f14 !== names[code]) { mismatched.push(`${code} ${names[code]}≠${r.f14}`); continue }
+    const t = bjTime(Number(r.f124))
+    if (!t || t.date !== today) continue
+    const flow = num(r.f62)
+    map[code] = { pct: num(r.f3), flow: flow === null ? null : round(flow / 1e8) }
+    if (!time || t.hm > time) time = t.hm
+  }
+  return { map, mismatched, time }
+}
+/**
+ * 组装外盘联动：klines = { secid: parseOverseasKline 结果 }，boards = parseBoardQuotes 的 map（不可用时 null）。
+ * 美股取 usSession 那一天、港股取 asOf 那一天（hkOk=false 时港股全为 null）。
+ */
+export function buildOverseas({ map, klines, boards, asOf, usSession, hkOk, th = OVERSEAS_TH }) {
+  const board = (code) => ({ code, name: map.boards[code], pct: boards?.[code]?.pct ?? null, flow: boards?.[code]?.flow ?? null })
+  const stat = (secid, date) => (date && klines[secid] ? sessionStats(klines[secid].rows, date, th) : null)
+  const indices = map.indices.map(i => { const s = stat(i.secid, usSession); return { symbol: i.symbol, name: i.name, close: s?.close ?? null, pct: s?.pct ?? null } })
+  const items = map.stocks.map(s => {
+    const st = stat(s.secid, s.market === 'US' ? usSession : hkOk ? asOf : null)
+    return { symbol: s.symbol, name: s.name, market: s.market, date: st?.date ?? null, close: st?.close ?? null, pct: st?.pct ?? null, sigma: st?.sigma ?? null, z: st?.z ?? null, anomaly: isAnomaly(st, th), reason: s.reason, boards: s.boards.map(board) }
+  })
+  return { indices, items, summary: coMove(items) }
+}
+/** 同向：异动个股的每个关联板块，A 股当日涨跌幅与外盘涨跌幅符号相同（任一为 0 或缺失不计入观测）。 */
+export function coMove(items) {
+  let obs = 0, same = 0
+  for (const it of items) {
+    if (!it.anomaly || !it.pct) continue
+    for (const b of it.boards) {
+      if (!b.pct) continue
+      obs += 1
+      if (Math.sign(b.pct) === Math.sign(it.pct)) same += 1
+    }
+  }
+  return { anomalies: items.filter(i => i.anomaly).length, obs, same }
+}
+/** 逐日累积异动记录（只在板块快照可用时写入当天），同日重跑覆盖。 */
+export function mergeOverseasHistory(history, asOf, items) {
+  const day = items.filter(i => i.anomaly && i.pct).map(i => ({ symbol: i.symbol, pct: i.pct, boards: i.boards.filter(b => b.pct !== null).map(b => [b.code, b.pct]) }))
+  return { ...history, [asOf]: day }
+}
+/** 累计统计：每个代码的异动天数、关联板块观测数与同向数（与 coMove 同口径）；映射表里已删除的代码不展示。 */
+export function overseasHistoryStats(history, map) {
+  const dates = Object.keys(history).filter(validDate).sort()
+  const acc = new Map()
+  for (const d of dates) for (const e of history[d] ?? []) {
+    const x = acc.get(e.symbol) ?? { events: 0, obs: 0, same: 0 }
+    x.events += 1
+    for (const [, p] of e.boards) if (p) { x.obs += 1; if (Math.sign(p) === Math.sign(e.pct)) x.same += 1 }
+    acc.set(e.symbol, x)
+  }
+  const names = new Map(map.stocks.map(s => [s.symbol, s.name]))
+  const rows = [...acc.entries()].filter(([s]) => names.has(s)).map(([symbol, x]) => ({ symbol, name: names.get(symbol), ...x })).sort((a, b) => b.events - a.events || a.symbol.localeCompare(b.symbol))
+  return { since: dates[0] ?? null, days: dates.length, rows }
+}

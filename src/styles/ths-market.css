@@ -11,3 +11,6 @@
 .tm-summary dd { margin: 4px 0 0; font-size: 1.3rem; font-weight: 600; font-variant-numeric: tabular-nums; }
 .tm-summary small { color: var(--text-tertiary); font-size: 0.75rem; }
 .tm-list { margin: 0 0 12px; padding-left: 1.2em; color: var(--text-secondary); font-size: 0.88rem; line-height: 1.7; }
+.tm-boards { margin: 0; padding: 0; list-style: none; line-height: 1.6; }
+.tm-boards small { margin-left: 6px; font-size: 0.78rem; }
+.tm-page .mm-table td.tm-reason { white-space: normal; min-width: 180px; color: var(--text-secondary); font-size: 0.85rem; }

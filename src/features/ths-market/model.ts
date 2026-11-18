@@ -13,12 +13,31 @@ export type FinancingMonth = { month: string; ipo: number | null; ipoCount: numb
 /** complete=false：翻页未能证明覆盖该月，份额为 null；unknown = 份额缺失的基金数 */
 export type FundMonth = { month: string; shares: number | null; funds: number; equityShares: number | null; unknown?: number; complete?: boolean }
 export type StylePair = { id: string; label: string; num: string; den: string; rel20: number | null; rel60: number | null; series: Array<[string, number | null]> }
+export type OverseasBoard = { code: string; name: string; pct: number | null; flow: number | null }
+/** 外盘标的：date = 实际取用的 K 线日期（美股为美东日期）；sigma/z 为近 60 日涨跌幅标准差与倍数 */
+export type OverseasItem = {
+  symbol: string; name: string; market: 'US' | 'HK'; date: string | null; close: number | null; pct: number | null
+  sigma: number | null; z: number | null; anomaly: boolean; reason: string; boards: OverseasBoard[]
+}
+export type OverseasHistoryRow = { symbol: string; name: string; events: number; obs: number; same: number }
+export type Overseas = {
+  asOf: string; usSession: string; hkDate: string | null; hkNote: string | null
+  boardsTime: string | null; boardsNote: string | null; boardIssues: string[]; mapReviewed: string
+  thresholds: { pct: number; sigma: number; window: number; minObs: number }
+  indices: Array<{ symbol: string; name: string; close: number | null; pct: number | null }>
+  items: OverseasItem[]
+  summary: { anomalies: number; obs: number; same: number }
+  history: { since: string | null; days: number; rows: OverseasHistoryRow[] }
+}
 export type ThsMarketData = {
   version: 1; asOf: string; generatedAt: string; thresholds: { danger: number; chance: number }
   valuation: ValRow[]
   supply: { lift: { from: string; to: string; weeks: LiftWeek[]; total: number | null }; holder: HolderMonth[]; financing: FinancingMonth[]; funds: FundMonth[] }
   rates: { treasury: Array<[string, number | null, number | null]>; shibor: Array<[string, number | null, number | null]> }
   style: StylePair[]
+  /** 外盘联动小节；采集失败为 null，原因见 overseasError（旧文件没有这两个字段） */
+  overseas?: Overseas | null
+  overseasError?: string | null
   sources: Array<{ label: string; url: string }>
 }
 
@@ -40,6 +59,36 @@ function valRow(r: unknown, asOf: string): boolean {
   return series(r.history, asOf, 2)
 }
 
+const str = (x: unknown): x is string => typeof x === 'string' && x.length > 0
+const nullStr = (x: unknown): boolean => x === null || typeof x === 'string'
+/**
+ * 外盘联动小节：日期必须自洽（美股交易日早于数据日、港股日期等于数据日），个股 K 线日期必须等于对应市场的取用日。
+ * 不合格返回 null（只隐藏本节，不影响其余模块）。
+ */
+export function asOverseas(x: unknown, asOf: string): Overseas | null {
+  if (!obj(x) || x.asOf !== asOf || !date(x.usSession) || x.usSession >= asOf || !(x.hkDate === null || x.hkDate === asOf)) return null
+  if (!nullStr(x.hkNote) || !nullStr(x.boardsNote) || !(x.boardsTime === null || (typeof x.boardsTime === 'string' && /^\d{2}:\d{2}$/.test(x.boardsTime))) || !date(x.mapReviewed)) return null
+  if (!Array.isArray(x.boardIssues) || !x.boardIssues.every(s => typeof s === 'string')) return null
+  const t = x.thresholds
+  if (!obj(t) || !['pct', 'sigma', 'window', 'minObs'].every(k => num(t[k]) && (t[k] as number) > 0)) return null
+  if (!arr(x.indices) || !x.indices.every(i => obj(i) && str(i.symbol) && str(i.name) && nullable(i.close) && nullable(i.pct))) return null
+  const usS = x.usSession, hk = x.hkDate
+  const board = (b: unknown): boolean => obj(b) && typeof b.code === 'string' && /^BK\d{4}$/.test(b.code) && str(b.name) && nullable(b.pct) && nullable(b.flow)
+  const item = (r: unknown): boolean => {
+    if (!obj(r) || !str(r.symbol) || !str(r.name) || !['US', 'HK'].includes(String(r.market)) || !str(r.reason) || typeof r.anomaly !== 'boolean') return false
+    if (!['close', 'pct', 'sigma', 'z'].every(k => nullable(r[k])) || !arr(r.boards) || !r.boards.every(board)) return false
+    if (r.date === null) return r.pct === null && !r.anomaly
+    return r.date === (r.market === 'US' ? usS : hk) && num(r.pct)
+  }
+  if (!arr(x.items) || !x.items.every(item) || new Set(x.items.map(r => (r as OverseasItem).symbol)).size !== x.items.length) return null
+  const s = x.summary
+  if (!obj(s) || !int(s.anomalies) || !int(s.obs) || !int(s.same) || (s.same as number) > (s.obs as number)) return null
+  const h = x.history
+  if (!obj(h) || !(h.since === null || date(h.since)) || !int(h.days) || !Array.isArray(h.rows)) return null
+  if (!h.rows.every(r => obj(r) && str(r.symbol) && str(r.name) && int(r.events) && int(r.obs) && int(r.same) && (r.same as number) <= (r.obs as number))) return null
+  return x as unknown as Overseas
+}
+
 /** 拒绝半份数据、字符串数字、非有限数和 HTML 回退页。 */
 export function asThsMarket(x: unknown): ThsMarketData | null {
   if (!obj(x) || x.version !== 1 || !date(x.asOf) || typeof x.generatedAt !== 'string' || !Number.isFinite(Date.parse(x.generatedAt))) return null
@@ -54,8 +103,10 @@ export function asThsMarket(x: unknown): ThsMarketData | null {
   if (!months(s.funds, r => nullable(r.shares) && nullable(r.equityShares) && int(r.funds))) return null
   if (!obj(x.rates) || !series(x.rates.treasury, asOf, 3) || !series(x.rates.shibor, asOf, 3)) return null
   if (!arr(x.style) || !x.style.every(p => obj(p) && typeof p.id === 'string' && typeof p.label === 'string' && typeof p.num === 'string' && typeof p.den === 'string' && nullable(p.rel20) && nullable(p.rel60) && series(p.series, asOf, 2))) return null
-  if (!arr(x.sources) || !x.sources.every(r => obj(r) && typeof r.label === 'string' && typeof r.url === 'string' && /^https:\/\/(www\.csindex\.com\.cn|datacenter-web\.eastmoney\.com|fund\.eastmoney\.com)\//.test(r.url))) return null
-  return x as unknown as ThsMarketData
+  if (!arr(x.sources) || !x.sources.every(r => obj(r) && typeof r.label === 'string' && typeof r.url === 'string' && /^https:\/\/(www\.csindex\.com\.cn|datacenter-web\.eastmoney\.com|fund\.eastmoney\.com|push2his\.eastmoney\.com|push2\.eastmoney\.com)\//.test(r.url))) return null
+  const overseas = x.overseas == null ? null : asOverseas(x.overseas, asOf)
+  const overseasError = typeof x.overseasError === 'string' ? x.overseasError : x.overseas != null && !overseas ? '外盘联动数据格式异常，本节不展示' : null
+  return { ...(x as unknown as ThsMarketData), overseas, overseasError }
 }
 
 const sign = (s: string): string => s.replace('-', '−')
@@ -77,11 +128,16 @@ export const METHOD = {
   funds: '新发基金：天天基金「新成立基金」列表，按成立日归月，合计募集份额（亿份，近似亿元）。同一基金的 A/C 等份额类别列表中重复显示募集份额，按（基金公司、去掉份额字母的名称、成立日）去重；偏股为股票型、偏股混合与股票指数型合计。列表按认购截止日倒序翻页，未能证明翻到的月份标「不完整」、份额显示 —。',
   rates: '10 年期与 2 年期国债收益率来自东方财富「中美国债收益率」表（中债口径）；Shibor 为上海银行间同业拆放利率隔夜与 1 周品种。',
   style: '风格对比：分子收盘 ÷ 分母收盘，近一年起点归一为 100，曲线上升表示分子相对更强。20/60 日相对强弱 = 比值较 20/60 个交易日前的变化。指数收盘来自中证指数官网。',
+  overseas: (t: { pct: number; sigma: number; window: number; minObs: number }): string => `外盘联动：美股取北京数据日之前最近一个美股交易日（美东日期）的收盘涨跌幅，港股取数据日当天收盘（北京 16:15 后才采），均来自东方财富日 K，日期必须恰好对上，否则记为缺失。外盘异动为本站自定：|涨跌幅| ≥ ${t.sigma} 倍该标的此前 ${t.window} 个交易日涨跌幅的样本标准差（表中「σ 倍数」= 涨跌幅 ÷ 该标准差）；历史不足 ${t.minObs} 个交易日、算不出标准差时改用 |涨跌幅| ≥ ${t.pct}%。用波动倍数而不是固定百分比，是因为高波动标的单日 5% 也属常见。`,
+  overseasBoards: 'A 股板块当日涨跌幅与主力净流入（东方财富口径，超大单 + 大单净额）取自东方财富板块行情快照，只在交易日北京 15:10 后采集当天数据。「同向」= 板块当日涨跌幅与外盘标的涨跌幅符号相同，任一为 0 或缺失不计入观测；这是同日涨跌方向的事后计数，不代表因果，也不预示后续走势。港股与 A 股同一天交易，二者是同时段表现，不是先后关系。',
+  overseasMap: (reviewed: string): string => `外盘标的 → A 股板块映射为本站整理（${reviewed} 核对东财板块代码与名称），只依据公开的主营业务与产业链关系，同一板块内个股与外盘公司的实际业务关联程度差异很大；A+H 两地上市的公司，其 A 股本身也在关联板块里，同向有机械成分。`,
   skipped: [
     '新增投资者开户数：中国结算月度数据在 2023 年 8 月后停止公布，东方财富对应表也止于 2023-08，暂不展示。',
     'DR007、人民币中间价：发布方为全国银行间同业拆借中心，不在本站使用的公开源范围内，暂以 Shibor 代替货币松紧观察。',
     '央行公开市场操作净投放：只有人民银行网站的文字公告，没有结构化公开数据，需逐条解析，暂缺。',
     '港股（恒指、恒生科技、国企）与美股（道指、纳指、标普）估值：站内宏观温度页已有港股 PE 与美股估值位置，本页不重复。',
-    '北向资金、两融余额、国家队、全球指数：站内已有页面，见下方链接。',
+    '北向资金、两融余额、国家队：站内已有页面，见下方链接；外盘联动只放 5 个美股指数，完整全球指数见「全球行情」。',
+    '外盘联动的盘前 / 盘后与盘中实时价、同花顺 App 自有的「联动」关系库：前者需要实时行情，后者是 App 专有数据，本页只用收盘日 K 和本站整理的映射表。',
+    '外盘异动后 A 股板块的同向统计没有回补上线前的历史：板块主力净流入只有当天快照，本站从 2026-11-18 起逐日累积。',
   ],
 }
