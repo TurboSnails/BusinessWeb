@@ -52,7 +52,7 @@ describe('开盘啦（市场情绪）页', () => {
 
   it('市场量能可切换板块；分板块用每日采集，之前的日子用指数口径历史补', async () => {
     const f = moodFixture()
-    f.amountHistory = [{ date: '2026-11-13', total: 14000, cyb: 3300 }, { date: '2026-11-16', total: 14500, cyb: null }, { date: '2026-11-17', total: 14900, cyb: 3500 }]
+    ;(f as { amountHistory: unknown }).amountHistory = [{ date: '2026-11-13', total: 14000, cyb: 3300 }, { date: '2026-11-16', total: 14500, cyb: null }, { date: '2026-11-17', total: 14900, cyb: 3500 }]
     stub(f)
     renderPage()
     await screen.findByRole('region', { name: '今日总览' })
