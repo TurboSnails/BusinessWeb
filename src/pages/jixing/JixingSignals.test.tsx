@@ -1,0 +1,66 @@
+import React from 'react'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import JixingSignals from './JixingSignals'
+import { signalsFixture } from '../../features/jixing-signals/fixtures'
+import { asJixingSignals } from '../../features/jixing-signals/model'
+
+const renderPage = () => render(<MemoryRouter initialEntries={['/jixing/signals']}><JixingSignals /></MemoryRouter>)
+const stub = (body: unknown, ok = true) => vi.stubGlobal('fetch', vi.fn(async () => ({ ok, json: async () => body })))
+afterEach(() => { cleanup(); vi.unstubAllGlobals() })
+
+describe('今天几星 · 牛熊信号板', () => {
+  it('计数、分组、信号色、规则、迷你图与未纳入项', async () => {
+    stub(signalsFixture()); renderPage()
+    expect(await screen.findByText('信号计数')).toBeTruthy()
+    expect(screen.getByRole('tab', { name: '牛熊信号板' }).getAttribute('aria-selected')).toBe('true')
+    expect(screen.getByText('估值类').parentElement?.textContent).toContain('低估 2 · 正常 0 · 高估 0')
+    expect(screen.getByText(/funds：新发基金缺最近完整月/)).toBeTruthy()
+    const buffett = screen.getByText('巴菲特指标').closest('li')!
+    expect(within(buffett).getByText('68.1%')).toBeTruthy()
+    expect(within(buffett).getByText('低估').className).toContain('ui-badge--down')
+    expect(within(buffett).getByText(/近 10 年分位 56.8%（2017-01-03 起，2396 个样本）/)).toBeTruthy()
+    expect(within(buffett).getByText(/< 80% 记「低估」/)).toBeTruthy()
+    expect(within(buffett).getByText('99.36 万亿元')).toBeTruthy()
+    const amount = screen.getByText('两市成交额').closest('li')!
+    expect(within(amount).getByText('14,577 亿元')).toBeTruthy()
+    expect(within(amount).getByText('偏熊').className).toContain('ui-badge--down')
+    const acc = screen.getByText('新增投资者（上交所，月）').closest('li')!
+    expect(within(acc).getByText('偏牛').className).toContain('ui-badge--up')
+    expect(within(acc).getByText('2026-10（月度）')).toBeTruthy()
+    const broken = screen.getByText('新股破发率（近 60 个交易日）').closest('li')!
+    expect(within(broken).getByText('不判')).toBeTruthy()
+    expect(within(broken).getByText('0.0%')).toBeTruthy()
+    const btn = within(buffett).getByRole('button', { name: '查看历史' })
+    fireEvent.click(btn)
+    expect(btn.getAttribute('aria-expanded')).toBe('true')
+    expect(within(buffett).getByRole('img', { name: '巴菲特指标 历史' })).toBeTruthy()
+    expect(screen.getByText(/老基金规模/)).toBeTruthy()
+    expect(screen.getByText(/限购基金占比/)).toBeTruthy()
+    expect(screen.getByText(/市场消息/)).toBeTruthy()
+    expect(screen.getByText(/与银行螺丝钉官方无关/)).toBeTruthy()
+    expect(document.body.textContent).not.toMatch(/建议买入|建议卖出|定投建议/)
+  })
+
+  it('数据缺失时显示空状态', async () => {
+    stub(null, false); renderPage()
+    expect(await screen.findByText('暂无信号板数据')).toBeTruthy()
+  })
+
+  it('校验器拒绝未知信号、晚于数据日的日期与字符串数字', () => {
+    const ok = signalsFixture()
+    expect(asJixingSignals(ok)).not.toBeNull()
+    expect(asJixingSignals({ ...ok, indicators: [{ ...ok.indicators[0], signal: '买入' }] })).toBeNull()
+    expect(asJixingSignals({ ...ok, indicators: [{ ...ok.indicators[0], date: '2026-11-18' }] })).toBeNull()
+    expect(asJixingSignals({ ...ok, indicators: [{ ...ok.indicators[0], value: '68.1' }] })).toBeNull()
+    expect(asJixingSignals({ ...ok, indicators: [ok.indicators[0], ok.indicators[0]] })).toBeNull()
+    expect(asJixingSignals('<html>')).toBeNull()
+  })
+  it('站内数据文件通过校验（不钉死日期）', () => {
+    const body: unknown = JSON.parse(readFileSync(resolve(__dirname, '../../../public/data/jixing-signals.json'), 'utf8'))
+    expect(asJixingSignals(body)).not.toBeNull()
+  })
+})
