@@ -23,7 +23,7 @@ describe('指数地图', () => {
     expect(await screen.findByLabelText('估值状态图例')).toBeTruthy()
     expect(screen.getByText('沪深300', { selector: 'strong' })).toBeTruthy()
     const quadrant = screen.getByRole('group', { name: /^宽基四象限/ })
-    expect(within(quadrant).getByRole('link', { name: '沪深300 25% 低估' }).getAttribute('href')).toBe('/jixing/table?code=000300')
+    expect(within(quadrant).getByRole('link', { name: '沪深300 PE 25% 低估' }).getAttribute('href')).toBe('/jixing/table?code=000300')
     fireEvent.click(within(screen.getByRole('group', { name: '视图' })).getByRole('button', { name: '表格' }))
     const link = await screen.findByRole('link', { name: '沪深300' })
     expect(link.getAttribute('href')).toBe('/jixing/table?code=000300')

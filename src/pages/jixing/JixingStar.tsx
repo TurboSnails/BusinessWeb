@@ -94,7 +94,7 @@ function InputsCard({ data }: { data: JixingStarData }): JSX.Element {
   const { pe, pb, erp } = data.inputs
   const win = (i: StarInput): string => (i.start ? `${i.start} 起 ${i.n} 个交易日` : '—')
   const rows: Array<{ name: React.ReactNode; key: string; i: StarInput; value: string; median: string; hint: string }> = [
-    { key: 'pe', name: <>中证全指 PE(TTM) <Link to="/jixing/table?code=000985">估值表</Link></>, i: pe, value: fix(pe.value), median: fix(pe.median), hint: '越低越便宜' },
+    { key: 'pe', name: <>中证全指 滚动市盈率 <Link to="/jixing/table?code=000985">估值表</Link></>, i: pe, value: fix(pe.value), median: fix(pe.median), hint: '越低越便宜' },
     { key: 'pb', name: <>沪深市场 PB <Link to="/jixing/signals">信号板</Link></>, i: pb, value: fix(pb.value), median: fix(pb.median), hint: '越低越便宜' },
     { key: 'erp', name: <>股债性价比 <Link to="/jixing/signals">信号板</Link></>, i: erp, value: erp.value === null ? '—' : `${fix(erp.value)} 个百分点`, median: erp.median === null ? '—' : `${fix(erp.median)} 个百分点`, hint: '越高越便宜' },
   ]
@@ -123,7 +123,7 @@ function InputsCard({ data }: { data: JixingStarData }): JSX.Element {
 
 const RANGES = [{ id: '1', label: '近 1 年' }, { id: '3', label: '近 3 年' }, { id: '5', label: '近 5 年' }, { id: 'all', label: '全部' }]
 const BASES = [{ id: 'neutral', label: '行业中性' }, { id: 'legacy', label: '中证全指口径' }]
-const INPUTS = [{ id: '1', label: 'PE(TTM)' }, { id: '2', label: 'PB' }, { id: '3', label: '股债性价比' }]
+const INPUTS = [{ id: '1', label: '滚动市盈率' }, { id: '2', label: 'PB' }, { id: '3', label: '股债性价比' }]
 
 function HistoryCard({ data }: { data: JixingStarData }): JSX.Element {
   const [basis, setBasis] = useState('neutral')

@@ -88,7 +88,7 @@ export function buildThresholdRow(row) {
     date: asOf,
     basisLabel: basis === 'pb'
       ? (row.pbIndustry ? `行业 PB（${row.pbIndustry.name}）` : 'PB')
-      : 'PE(TTM)',
+      : '滚动市盈率',
   }
 }
 

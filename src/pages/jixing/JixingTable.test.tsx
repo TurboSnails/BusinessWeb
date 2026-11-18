@@ -42,8 +42,8 @@ describe('估值表', () => {
     expect(within(dialog).getByRole('img', { name: '中证银行 行业 PB 历史走势' })).toBeTruthy()
     expect(within(dialog).getByText('30% 分位')).toBeTruthy()
     expect(within(dialog).getByText(/行业 PB 周采样，n=250/)).toBeTruthy()
-    fireEvent.click(within(dialog).getByRole('button', { name: 'PE(TTM)' }))
-    expect(await within(dialog).findByRole('img', { name: '中证银行 PE(TTM) 历史走势' })).toBeTruthy()
+    fireEvent.click(within(dialog).getByRole('button', { name: '市盈率' }))
+    expect(await within(dialog).findByRole('img', { name: '中证银行 市盈率 历史走势' })).toBeTruthy()
   })
 
   it('hist 懒加载失败时显示空曲线提示', async () => {
@@ -71,7 +71,7 @@ describe('估值表', () => {
   it('按 PE 排序并可反向排序', async () => {
     renderPage()
     const table = await screen.findByRole('table')
-    const sort = within(table).getByRole('button', { name: 'PE(TTM)' })
+    const sort = within(table).getByRole('button', { name: '市盈率' })
     fireEvent.click(sort)
     expect(within(table).getAllByRole('rowheader').map(cell => cell.textContent)).toEqual([
       '中证银行', '沪深300', '养老产业', '中证全指',

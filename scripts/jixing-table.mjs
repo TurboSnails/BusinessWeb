@@ -8,9 +8,9 @@ import { isTradingDay } from './market-mood-lib.mjs'
 import { addDays, CSI, csiValUrl } from './ths-market-lib.mjs'
 import { weekEnds } from './ths-industry-lib.mjs'
 import {
-  applyIndustryFetchResult, buildRow, canPublish, histPayload, INDICES, INDUSTRY_PB_FROM, industryPbUrl,
-  marketCloses, mergeHistory, parseCniSnapshot, parseCsiHistory, parseCsiSnapshot, planIndustryFetch, slimRow,
-  sourceDate,
+  applyIndustryFetchResult, buildRow, canPublish, danjuanSym, histPayload, INDICES, INDUSTRY_PB_FROM, industryPbUrl,
+  marketCloses, mergeHistory, parseCniSnapshot, parseCsiHistory, parseCsiSnapshot, parseDanjuanDetail,
+  parseDanjuanHistory, planIndustryFetch, slimRow, sourceDate,
 } from './jixing-table-lib.mjs'
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
@@ -26,11 +26,13 @@ const CNI_RUNNING = `${CNI}/index/running?type=0`
 const CNI_QUOTES = 'https://hq.cnindex.com.cn/market/market/getIndexDailyDataWithDataFormat'
 const CSI_HIST = `${CSI}/perf/indexCsiDsPe`
 const INDUSTRY_CAP = Number(process.env.INDUSTRY_PB_CAP ?? 80)
+const DJ = 'https://danjuanfunds.com/djapi/index_eva'
 const SOURCES = [
-  { label: '中证指数官网 · 历史滚动市盈率', url: `${CSI_HIST}?indexCode=000985` },
+  { label: '中证指数官网 · 历史滚动市盈率（peg，非 PE(TTM)）', url: `${CSI_HIST}?indexCode=000985` },
   { label: '中证指数官网 · 每日估值总览', url: csiValUrl },
   { label: '中证指数官网 · 行业市盈率（中证行业分类，PB 判定行）', url: industryPbUrl('2026-11-17') },
-  { label: '国证指数网 · 指数运行', url: CNI_RUNNING },
+  { label: '国证指数网 · 指数运行（交易日门禁）', url: CNI_RUNNING },
+  { label: '蛋卷估值 · 创业板/深成指等 PE·PB（近似 TTM）', url: `${DJ}/detail/SZ399006` },
 ]
 
 function readJson(file, fallback) {
@@ -190,7 +192,9 @@ function publish(date, observations, histories, store, { allowSameDay = false } 
     const rows = INDICES.map(index => {
       const current = observations.get(index.code)
       const peIncoming = [...(histories.get(index.code) ?? []), [date, current.pe, current.pb]]
-      let history = mergeHistory(readJson(historyFile(index.code), []), peIncoming, date)
+      // 国证四条改走蛋卷周频历史：每次全量重写，丢掉旧的 peDynamic 单点脏数据
+      const priorHist = index.source === 'cni' ? [] : readJson(historyFile(index.code), [])
+      let history = mergeHistory(priorHist, peIncoming, date)
       if (index.pbIndustry) {
         const industryPts = industryHistoryPoints(store, index.code, date)
         history = mergeHistory(history, industryPts, date)
@@ -286,13 +290,30 @@ async function main() {
     ...cniIndices.map(i => get(cniQuoteUrl(i.code, i.code === '399001' ? anchorStart : shortStart, date))),
   ])
   const closesByCode = new Map(cniIndices.map((i, k) => [i.code, marketCloses(quoteBodies[k], date)]))
-  const cniSnapshot = parseCniSnapshot(cniOverview, calendar, date, cniIndices, closesByCode)
+  const cniGate = parseCniSnapshot(cniOverview, calendar, date, cniIndices, closesByCode)
   const tradingDays = closesByCode.get('399001')
-  if (!tradingDays.has(date) || !canPublish(prior, date, cniIndices, cniSnapshot)) {
+  if (!tradingDays.has(date) || !canPublish(prior, date, cniIndices, cniGate)) {
     return console.log(`A股估值表：国证估值或收盘行情未完整更新到 ${date}，保留上一份数据`)
   }
 
+  // 国证四条：门禁用 peDynamic，估值改用蛋卷（近似 TTM + 周频历史），否则地图/分位长期空白
   const histories = new Map()
+  const cniSnapshot = new Map()
+  await Promise.all(cniIndices.map(async index => {
+    const [peBody, pbBody, detailBody] = await Promise.all([
+      get(`${DJ}/pe_history/${danjuanSym(index.code)}?day=all`),
+      get(`${DJ}/pb_history/${danjuanSym(index.code)}?day=all`),
+      get(`${DJ}/detail/${danjuanSym(index.code)}`),
+    ])
+    const detail = parseDanjuanDetail(detailBody, date)
+    if (!detail) return
+    cniSnapshot.set(index.code, detail)
+    histories.set(index.code, parseDanjuanHistory(peBody, pbBody, date))
+  }))
+  if (!canPublish(prior, date, cniIndices, cniSnapshot)) {
+    return console.log(`A股估值表：蛋卷估值未完整更新到 ${date}，保留上一份数据`)
+  }
+
   const observations = new Map([...ready, ...cniSnapshot])
   for (let offset = 0; offset < csiIndices.length; offset += 8) {
     await Promise.all(csiIndices.slice(offset, offset + 8).map(async index => {

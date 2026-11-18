@@ -13,7 +13,7 @@ export const thresholdFixture: JixingThresholdData = {
   sources: [{ label: '中证指数官网', url: 'https://www.csindex.com.cn/' }],
   rows: [
     {
-      code: '000300', name: '沪深300', group: 'broad', basis: 'pe', basisLabel: 'PE(TTM)',
+      code: '000300', name: '沪深300', group: 'broad', basis: 'pe', basisLabel: '滚动市盈率',
       current: 13, lowLine: 11, highLine: 15, pct: 0.4,
       distLowPct: 11 / 13 - 1, alreadyLow: false, distHighPct: 15 / 13 - 1, alreadyHigh: false,
       status: 'normal', sampleCount: 2400, sampleSince: '2016-11-17', date: '2026-11-17',
@@ -25,7 +25,7 @@ export const thresholdFixture: JixingThresholdData = {
       status: 'low', sampleCount: 250, sampleSince: '2016-11-17', date: '2026-11-17',
     },
     {
-      code: '399812', name: '养老产业', group: 'pension', basis: 'pe', basisLabel: 'PE(TTM)',
+      code: '399812', name: '养老产业', group: 'pension', basis: 'pe', basisLabel: '滚动市盈率',
       current: 18, lowLine: 12, highLine: 16, pct: 0.8,
       distLowPct: 12 / 18 - 1, alreadyLow: false, distHighPct: null, alreadyHigh: true,
       status: 'high', sampleCount: 1000, sampleSince: '2018-01-01', date: '2026-11-17',

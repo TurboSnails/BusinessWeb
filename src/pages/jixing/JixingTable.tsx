@@ -29,7 +29,7 @@ type Column = {
 const COLUMNS: Column[] = [
   { key: 'name', label: '名称', value: r => r.name },
   { key: 'code', label: '代码', value: r => r.code },
-  { key: 'pe', label: 'PE(TTM)', value: r => r.pe, numeric: true, render: r => fixed(r.pe) },
+  { key: 'pe', label: '市盈率', value: r => r.pe, numeric: true, render: r => fixed(r.pe) },
   { key: 'pePct', label: 'PE 百分位', value: r => r.pePct, numeric: true, render: r => percent(r.pePct) },
   { key: 'pb', label: 'PB', value: r => r.pb, numeric: true, render: r => (
     <>
@@ -76,7 +76,7 @@ function IndexDetail({ row, close }: { row: ValuationRow; close: () => void }): 
   const refs = mode === 'pb' ? (hist?.pbRefs ?? [null, null]) : (hist?.peRefs ?? [null, null])
   const label = mode === 'pb'
     ? `${row.name} 行业 PB 历史走势`
-    : `${row.name} PE(TTM) 历史走势`
+    : `${row.name} 市盈率 历史走势`
   const rank = row.basis === 'pb' ? row.pbPct : row.pePct
 
   return (
@@ -88,7 +88,7 @@ function IndexDetail({ row, close }: { row: ValuationRow; close: () => void }): 
       {preferPb ? (
         <Segmented
           label="走势指标"
-          items={[{ id: 'pb', label: '行业 PB' }, { id: 'pe', label: 'PE(TTM)' }]}
+          items={[{ id: 'pb', label: '行业 PB' }, { id: 'pe', label: '市盈率' }]}
           value={mode}
           onChange={id => setMode(id as 'pe' | 'pb')}
         />

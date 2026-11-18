@@ -254,7 +254,49 @@ export function parseCniSnapshot(body, calendar, target, indices, closesByCode) 
   return snapshot
 }
 
-/** 紧凑历史格式 [交易日, PE(TTM), PB]，新观测只覆盖有值的指标。 */
+/** 蛋卷估值详情：ts → 北京日历日，须与 target 同日。 */
+export function parseDanjuanDetail(body, target) {
+  const data = body?.data
+  if (!data || (body.result_code != null && Number(body.result_code) !== 0)) return null
+  if (!Number.isFinite(data.ts)) return null
+  const date = beijingDay.format(new Date(data.ts))
+  const pe = positive(data.pe)
+  if (date !== target || pe === null) return null
+  return { date, pe, pb: positive(data.pb), dp: null }
+}
+
+/** 蛋卷 pe/pb 周频历史 → [[date, pe, pb]]，只保留 ≤ target 的交易日。 */
+export function parseDanjuanHistory(peBody, pbBody, target) {
+  const byDate = new Map()
+  const peRows = peBody?.data?.index_eva_pe_growths
+  const pbRows = pbBody?.data?.index_eva_pb_growths
+  if (Array.isArray(peRows)) {
+    for (const row of peRows) {
+      if (!Number.isFinite(row?.ts)) continue
+      const date = beijingDay.format(new Date(row.ts))
+      const pe = positive(row.pe)
+      if (!date || date > target || !isTradingDay(date) || pe === null) continue
+      byDate.set(date, [date, pe, null])
+    }
+  }
+  if (Array.isArray(pbRows)) {
+    for (const row of pbRows) {
+      if (!Number.isFinite(row?.ts)) continue
+      const date = beijingDay.format(new Date(row.ts))
+      const pb = positive(row.pb)
+      if (!date || date > target || !isTradingDay(date) || pb === null) continue
+      const prev = byDate.get(date) ?? [date, null, null]
+      byDate.set(date, [date, prev[1], pb])
+    }
+  }
+  return [...byDate.values()].sort((a, b) => a[0].localeCompare(b[0]))
+}
+
+export function danjuanSym(code) {
+  return code.startsWith('399') ? `SZ${code}` : `SH${code}`
+}
+
+/** 紧凑历史格式 [交易日, PE, PB]，新观测只覆盖有值的指标。 */
 export function mergeHistory(existing, incoming, target) {
   const byDate = new Map()
   for (const [date, pe, pb] of [...existing, ...incoming]) {

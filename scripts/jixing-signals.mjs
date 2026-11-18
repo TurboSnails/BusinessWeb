@@ -82,7 +82,7 @@ function valuationInds(rows, idx) {
     ind({
       id: 'erp', group: 'valuation', name: '股债性价比', unit: '百分点', digits: 2, value: r.erp, date: r.date, pct: we.pct, window: '近 10 年', start: we.start, n: we.n,
       signal: valuationSignal(we.pct, true), rule: RULES.erp, history: miniHistory(erp, 10, 2),
-      extra: [{ label: '中证全指 PE(TTM)', value: r.pe.toFixed(2) }, { label: '盈利收益率 1/PE', value: `${(100 / r.pe).toFixed(2)}%` }, { label: '10 年期国债收益率', value: `${r.y10.toFixed(4)}%` }],
+      extra: [{ label: '中证全指 滚动市盈率', value: r.pe.toFixed(2) }, { label: '盈利收益率 1/PE', value: `${(100 / r.pe).toFixed(2)}%` }, { label: '10 年期国债收益率', value: `${r.y10.toFixed(4)}%` }],
       note: '股债性价比 = 中证全指盈利收益率（1 / 滚动 PE）− 10 年期国债收益率（中债，经东方财富），同日数据。与「今日星级」页签同一口径。',
     }),
     ind({

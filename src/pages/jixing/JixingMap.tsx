@@ -17,10 +17,11 @@ import '../../styles/jixing-map.css'
 const BASE = import.meta.env.BASE_URL
 
 function CellLink({ c }: { c: MapCell }): JSX.Element {
+  const metric = c.basis === 'pb' ? 'PB' : 'PE'
   return (
     <Link to={c.href} className={`jx-map-cell ${statusClass(c.status)}`}>
       <strong>{c.name}</strong>
-      <span>{fmtPct(c.pct)} · {c.status ? VALUATION_STATUS[c.status].label : '—'}</span>
+      <span>{metric} {fmtPct(c.pct)} · {c.status ? VALUATION_STATUS[c.status].label : '—'}</span>
     </Link>
   )
 }
@@ -40,7 +41,8 @@ function BroadQuadrant({ cells }: { cells: MapCell[] }): JSX.Element {
         // 汉字按一字宽预留空间，字母和数字较窄。
         const width = Array.from(c.name).reduce((sum, ch) => sum + (/^[a-zA-Z0-9]$/.test(ch) ? 2 : 3.2), 4)
         const tone = c.status ?? 'empty'
-        const label = `${c.name} ${fmtPct(c.pct)} ${c.status ? VALUATION_STATUS[c.status].label : '无分位'}`
+        const metric = c.basis === 'pb' ? 'PB' : 'PE'
+        const label = `${c.name} ${metric} ${fmtPct(c.pct)} ${c.status ? VALUATION_STATUS[c.status].label : '无分位'}`
         return (
           <Link key={c.code} to={c.href} role="link" aria-label={label} className={`jx-map-svg-hit jx-map-svg-hit--${tone}`}>
             <title>{label}</title>

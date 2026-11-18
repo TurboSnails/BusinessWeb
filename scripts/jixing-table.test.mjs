@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
-  applyIndustryFetchResult, buildRow, canPublish, decideIndustryFetchResult, histPayload, industryDateQueried,
+  applyIndustryFetchResult, buildRow, canPublish, danjuanSym, decideIndustryFetchResult, histPayload, industryDateQueried,
   industrySlotHasData, marketCloses, mergeHistory, parseCniSnapshot, parseCsiHistory, parseCsiSnapshot,
-  parseIndustryPb, percentile, pickIndustryMetrics, planIndustryFetch, slimRow, sourceDate, valuationStatus,
-  windowStart,
+  parseDanjuanDetail, parseDanjuanHistory, parseIndustryPb, percentile, pickIndustryMetrics, planIndustryFetch,
+  slimRow, sourceDate, valuationStatus, windowStart,
 } from './jixing-table-lib.mjs'
 
 const target = '2026-11-17'
@@ -250,4 +250,22 @@ test('早班未发布 → 晚班补到当天：同日空不写，有数据后写
   const holiday = applyIndustryFetchResult(store, holidayReq, holidayBody)
   assert.equal(holiday.action, 'holiday')
   assert.deepEqual(store.byDate[holidayReq], {})
+})
+
+test('蛋卷详情须同日且 pe 为正；历史按北京日合并 pe/pb', () => {
+  assert.equal(danjuanSym('399006'), 'SZ399006')
+  assert.equal(danjuanSym('000300'), 'SH000300')
+  const ts = Date.parse(`${target}T00:00:00+08:00`)
+  assert.deepEqual(
+    parseDanjuanDetail({ result_code: 0, data: { ts, pe: 24.03, pb: 2.16 } }, target),
+    { date: target, pe: 24.03, pb: 2.16, dp: null },
+  )
+  assert.equal(parseDanjuanDetail({ result_code: 0, data: { ts, pe: 24.03 } }, '2026-11-16'), null)
+  assert.equal(parseDanjuanDetail({ result_code: 1, data: { ts, pe: 24.03 } }, target), null)
+  const peBody = { data: { index_eva_pe_growths: [{ ts, pe: 24.03 }, { ts: Date.parse('2026-11-16T00:00:00+08:00'), pe: 24.12 }] } }
+  const pbBody = { data: { index_eva_pb_growths: [{ ts, pb: 2.16 }, { ts: Date.parse('2026-11-16T00:00:00+08:00'), pb: 2.2 }] } }
+  assert.deepEqual(parseDanjuanHistory(peBody, pbBody, target), [
+    ['2026-11-16', 24.12, 2.2],
+    [target, 24.03, 2.16],
+  ])
 })

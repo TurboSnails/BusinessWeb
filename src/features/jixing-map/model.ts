@@ -7,6 +7,8 @@ export type MapCell = {
   group: Exclude<GroupFilter, 'all'> | 'hk' | 'overseas'
   pct: number | null
   status: ValuationStatus | null
+  /** pe = 市盈率分位；pb = 行业市净率分位（银行等五行） */
+  basis: 'pe' | 'pb'
   href: string
   position?: { x: number; y: number }
 }
@@ -44,7 +46,7 @@ const BROAD_POSITIONS: Partial<Record<string, { x: number; y: number }>> = {
 
 export const METHOD = {
   layout: '宽基按「规模（大盘↔小盘）× 风格（价值↔成长）」放入四象限（坐标为本站示意，非官方风格分类）；其余指数按分组网格排列。颜色与估值状态文字同时给出。',
-  status: '估值状态与估值表一致：百分位 < 30% 低估，> 70% 高估，其余正常。港股 / 海外行来自港股全球页有状态的指数。',
+  status: '估值状态与估值表一致：百分位 < 30% 低估，> 70% 高估，其余正常。中证指数行为滚动市盈率分位（不是常见 PE(TTM)）；银行等五行格子标 PB，按行业市净率分位。港股 / 海外行来自港股全球页有状态的指数。',
 }
 
 export function statusClass(status: ValuationStatus | null): string {
@@ -54,13 +56,15 @@ export function statusClass(status: ValuationStatus | null): string {
 export function fromTableRow(r: {
   code: string; name: string; group: string; pePct: number | null; pbPct: number | null; basis: string; status: ValuationStatus | null
 }): MapCell {
-  const pct = r.basis === 'pb' ? r.pbPct : r.pePct
+  const basis = r.basis === 'pb' ? 'pb' : 'pe'
+  const pct = basis === 'pb' ? r.pbPct : r.pePct
   return {
     code: r.code,
     name: r.name,
     group: r.group as MapCell['group'],
     pct,
     status: r.status,
+    basis,
     href: `/jixing/table?code=${r.code}`,
     position: BROAD_POSITIONS[r.code],
   }
@@ -75,6 +79,7 @@ export function fromGlobalRow(r: { key: string; name: string; valPct: number | n
     group: section,
     pct: r.valPct === null ? null : r.valPct / 100,
     status,
+    basis: 'pe',
     href: '/jixing/global',
   }
 }
