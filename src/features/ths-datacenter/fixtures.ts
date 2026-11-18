@@ -1,5 +1,5 @@
 // 测试用合成数据（非真实行情）
-import type { BuybackRow, HolderRow, LiftRow, SubNew } from './model'
+import type { BuybackRow, HolderRow, LiftRow, ReportsBlock, StockReport, SubNew } from './model'
 
 const sub = (code: string, name: string, listDate: string, cumPct: number | null, over: Partial<SubNew> = {}): SubNew => ({
   code, name, board: '科创板', listDate, issuePrice: 20, issuePe: 30, firstPct: 150, cumPct, sinceFirstPct: cumPct === null ? null : -10, days: 5, broke: cumPct === null ? null : cumPct < 0, ...over,
@@ -10,6 +10,28 @@ const holder = (code: string, dir: '增持' | '减持', amount: number | null, o
 })
 const bb = (code: string, status: string, statusLabel: string, over: Partial<BuybackRow> = {}): BuybackRow => ({
   code, name: '回购' + code.slice(-1), status, statusLabel, notice: '2026-11-17', planDate: '2026-11-03', start: '2026-11-02', low: 1e8, high: 2e8, priceCap: 50, amount: null, shares: null, avgPrice: null, progressLow: null, progressHigh: null, ...over,
+})
+
+const report = (id: string, code: string, over: Partial<StockReport> = {}): StockReport => ({
+  id, date: '2026-11-17', code, name: '研报' + code.slice(-1), org: '某证券', rating: '增持', sRating: '增持', change: '维持', last: '增持',
+  aimLow: null, aimHigh: null, close: null, upLow: null, upHigh: null, ind: '电池', title: '标题' + id, url: `https://data.eastmoney.com/report/info/${id}.html`, ...over,
+})
+export const reportsFixture = (): ReportsBlock => ({
+  day: '2026-11-17', w7: '2026-11-11', w30: '2026-10-19', missingDays: [],
+  pending: { date: '2026-11-18', stock: 14, industry: 14 },
+  dayStock: 3, dayIndustry: 2, counts: { 上调: 1, 下调: 0, 首次: 1, 维持: 1, 无: 0, 未标注: 0 },
+  stock7: 10, stock30: 40, industry7: 5, industry30: 20, closeDate: '2026-11-17',
+  rows: [
+    report('AP2026111700000001', '300001', { change: '首次', last: null, aimLow: 11, aimHigh: 12, close: 10, upLow: 10, upHigh: 20 }),
+    report('AP2026111700000002', '300002', { change: '上调', last: '中性', aimLow: 20, aimHigh: 20, close: null }),
+    report('AP2026111700000003', '300003'),
+  ],
+  upgrades: [report('AP2026111700000002', '300002', { change: '上调', last: '中性' })],
+  initiations: [report('AP2026111700000001', '300001', { change: '首次', last: null }), report('AP2026111300000004', '300004', { date: '2026-11-13', change: '首次', last: null })],
+  covered: [{ code: '600519', name: '覆盖甲', ind: '白酒Ⅱ', count: 10, orgs: 9, latest: '2026-11-13', first: 0, up: 1 }],
+  industries: [{ name: '汽车零部件', n7: 17, n30: 71 }, { name: '未标注行业', n7: 0, n30: 2 }],
+  daily: [{ date: '2026-11-16', stock: 18, industry: 59 }, { date: '2026-11-17', stock: 3, industry: 2 }],
+  seed: { from: '2026-10-19', to: '2026-11-18' },
 })
 
 export const datacenterFixture = () => ({
@@ -40,6 +62,8 @@ export const datacenterFixture = () => ({
     from: '2026-10-19', to: '2026-11-17', count: 3, counts: { 实施中: 1, 董事会预案: 1, 未标注: 1 }, newPlans: 1, newPlanLow: 1e8, newPlanHigh: 2e8,
     rows: [bb('300001', '004', '实施中', { amount: 5e7, shares: 1e6, avgPrice: 50, progressLow: 50, progressHigh: 25 }), bb('300002', '001', '董事会预案'), bb('300003', '007', '未标注', { low: null, priceCap: null })],
   },
+  reports: reportsFixture() as ReportsBlock | null,
+  reportsError: null as string | null,
   history: [{ date: '2026-11-17', subNew: 2, brokeRate: 50, medianCum: 37.99, liftCount: 2, liftCap: 1e8, holderInc: 1e7, holderDec: -3e7, buybackCount: 3, pledge50: 11 }],
   sources: [{ id: 'ipo', label: '东方财富数据中心 · 新股申购与中签', url: 'https://data.eastmoney.com/xg/xg/default.html' }],
 })

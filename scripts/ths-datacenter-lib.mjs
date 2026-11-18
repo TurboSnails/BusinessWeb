@@ -309,3 +309,165 @@ export function mergeHistory(history, day, keep = 250) {
   m.set(day.date, day)
   return [...m.values()].sort((a, b) => (a.date < b.date ? -1 : 1)).slice(-keep)
 }
+
+/* ---------------- 研报评级 ---------------- */
+// 来源：东方财富研报列表接口 reportapi.eastmoney.com/report/list（data.eastmoney.com/report 页面用的同一个接口）。
+// qType=0 个股研报、qType=1 行业研报；beginTime/endTime 按发布日（publishDate，只有日期，时间恒为 00:00）筛选；
+// pageSize 上限 100（传更大也只回 100）；返回 {hits 总数, TotalPage, data}。实测字段：
+//   infoCode 报告编号（个股研报页 data.eastmoney.com/report/info/{infoCode}.html）、stockCode/stockName、orgSName 机构简称、
+//   emRatingName 东方财富统一后的评级（买入/增持/中性…）、sRatingName 机构原文评级、lastEmRatingName 该机构上次评级、
+//   ratingChange 评级变动代码（东方财富前端 stock.js 的 getRatingChangeStr：0 调高、1 调低、2 首次、3 维持、4 无；空串 = 未标注）、
+//   indvAimPriceT / indvAimPriceL 目标价上限 / 下限（多数为空串）、indvInduName 个股所属行业、industryName 行业研报的行业。
+
+/** 评级变动代码 → 文字（东方财富的「调高/调低」这里写作「上调/下调」）；未标注为 null */
+export const RATING_CHANGE = { 0: '上调', 1: '下调', 2: '首次', 3: '维持', 4: '无' }
+export const ratingChangeOf = (x) => (x === '' || x === null || x === undefined ? null : RATING_CHANGE[String(x)] ?? null)
+export const REPORT_KEEP_DAYS = 90 // 原始日文件保留天数
+export const REPORT_REFRESH_DAYS = 7 // 每次运行重取最近几天（研报会补录到前几天）
+export const REPORT_COMPLETE_MINUTES = 18 * 60 // 北京时间 18:00 前当天的研报列表视为不完整
+const STOCK_COLS = ['id', 'code', 'name', 'org', 'rating', 'sRating', 'change', 'last', 'aimHigh', 'aimLow', 'ind', 'title']
+const INDUSTRY_COLS = ['id', 'ind', 'org', 'rating', 'change', 'title']
+export const reportUrl = (id) => (/^[A-Z]{2}\d{6,}$/.test(id ?? '') ? `https://data.eastmoney.com/report/info/${id}.html` : null)
+
+/** 接口一行 → 紧凑数组（存原始日文件用）；缺报告编号或日期的行返回 null */
+export function compactReport(r, kind) {
+  const date = dateOf(r?.publishDate)
+  const id = str(r?.infoCode)
+  if (!date || !id) return null
+  const change = r.ratingChange === '' || r.ratingChange === null || r.ratingChange === undefined ? null : num(r.ratingChange)
+  const row = kind === 'stock'
+    ? [id, str(r.stockCode), str(r.stockName), str(r.orgSName) || str(r.orgName), str(r.emRatingName) || null, str(r.sRatingName) || null, change, str(r.lastEmRatingName) || null, num(r.indvAimPriceT), num(r.indvAimPriceL), str(r.indvInduName) || null, str(r.title)]
+    : [id, str(r.industryName) || null, str(r.orgSName) || str(r.orgName), str(r.emRatingName) || null, change, str(r.title)]
+  return { date, row }
+}
+const fromRow = (cols, row) => Object.fromEntries(cols.map((c, i) => [c, row[i] ?? null]))
+
+/**
+ * 分页结果校验：拿到的行数 = hits、报告编号不重复、发布日都在查询区间内，否则抛错（整段不用）。
+ * 返回按发布日分组的 Map(date → 紧凑行数组)，区间内每一天都有一项（没有研报的日子是空数组，是真实的 0）。
+ */
+export function groupReports(rows, hits, from, to, kind) {
+  if (!Array.isArray(rows) || !Number.isInteger(hits) || rows.length !== hits) throw new Error(`${kind} 研报行数不完整（${rows?.length ?? 0}/${hits}）`)
+  const ids = new Set()
+  const out = new Map()
+  for (let d = from; d <= to; d = addDays(d, 1)) out.set(d, [])
+  for (const r of rows) {
+    const c = compactReport(r, kind)
+    if (!c) throw new Error(`${kind} 研报缺编号或日期`)
+    if (c.date < from || c.date > to) throw new Error(`${kind} 研报发布日 ${c.date} 不在 ${from}~${to}`)
+    if (ids.has(c.row[0])) throw new Error(`${kind} 研报编号重复 ${c.row[0]}`)
+    ids.add(c.row[0])
+    out.get(c.date).push(c.row)
+  }
+  return out
+}
+
+/** 原始日文件内容（紧凑）：{date, fetchedAt, stock:{cols, rows}, industry:{cols, rows}} */
+export const reportDayFile = (date, stockRows, industryRows, fetchedAt) => ({ date, fetchedAt, stock: { cols: STOCK_COLS, rows: stockRows }, industry: { cols: INDUSTRY_COLS, rows: industryRows } })
+export const okDayFile = (f) => Boolean(f) && dateOf(f.date) === f.date && Array.isArray(f.stock?.rows) && Array.isArray(f.industry?.rows)
+
+/** 本次要取的发布日区间：最近 7 天总是重取；30 日窗口（多留一天，统计日可能是昨天）里缺日文件的，从最早缺的那天起一起取 */
+export function reportFetchRange(have, today) {
+  let from = addDays(today, -(REPORT_REFRESH_DAYS - 1))
+  for (let d = addDays(today, -WINDOW); d < from; d = addDays(d, 1)) if (!have.has(d)) { from = d; break }
+  return { from, to: today }
+}
+
+/**
+ * 统计日 = 最近一个「已完整」的研报发布日：今天北京时间 18:00 前当天列表还在陆续增加，不算；
+ * 往前找第一个有个股研报的自然日（周末也可能有研报）。dayFiles: Map(date → 日文件)。找不到返回 null。
+ */
+export function pickReportDay(dayFiles, today, minutes) {
+  const dates = [...dayFiles.keys()].filter((d) => d <= today).sort().reverse()
+  for (const d of dates) {
+    if (d === today && minutes < REPORT_COMPLETE_MINUTES) continue
+    if (dayFiles.get(d)?.stock?.rows?.length) return d
+  }
+  return null
+}
+
+/** 需要收盘价的个股（有目标价的）：统计日研报 + 近 7 日上调 / 首次 */
+export function aimCodes(section) {
+  const s = new Set()
+  for (const r of [...section.rows, ...section.upgrades, ...section.initiations]) if ((r.aimHigh !== null || r.aimLow !== null) && /^\d{6}$/.test(r.code)) s.add(r.code)
+  return [...s]
+}
+
+/** 目标价相对收盘的空间（%）：目标价 ÷ 收盘 − 1；目标价或收盘缺失为 null */
+export const upside = (aim, close) => (aim === null || close === null || !(aim > 0) || !(close > 0) ? null : round((aim / close - 1) * 100, 1))
+
+/** 填入收盘价与目标价空间。closes: Map(code → closeDate 当天收盘 | null)，只用这一天的收盘（停牌为 null，不用更早的） */
+export function withUpside(section, closes, closeDate) {
+  const fill = (r) => {
+    if (r.aimHigh === null && r.aimLow === null) return r
+    const close = closes.get(r.code) ?? null
+    return { ...r, close, upLow: upside(r.aimLow, close), upHigh: upside(r.aimHigh, close) }
+  }
+  return { ...section, closeDate, rows: section.rows.map(fill), upgrades: section.upgrades.map(fill), initiations: section.initiations.map(fill) }
+}
+
+/**
+ * 研报评级汇总。dayFiles: Map(date → 日文件)；day 为统计日；today 用来标出「今天已收录、尚未计入」的条数。
+ * - rows：统计日全部个股研报（只给标题和链接，不转载正文）
+ * - upgrades / initiations：近 7 日（含统计日）评级上调、首次覆盖
+ * - covered：近 30 日被覆盖最多的个股（研报篇数、不同机构数）
+ * - industries：行业研报按行业计数（近 7 日、近 30 日）
+ * 窗口均为以统计日结尾的自然日；窗口内缺日文件时 missingDays 列出，计数只按已有的天算。
+ */
+export function buildReports(dayFiles, day, today) {
+  const w7 = addDays(day, -(REPORT_REFRESH_DAYS - 1)), w30 = addDays(day, -(WINDOW - 1))
+  const stockOf = (d) => { const f = dayFiles.get(d); return (f?.stock?.rows ?? []).map((row) => ({ date: d, ...fromRow(f.stock.cols ?? STOCK_COLS, row) })) }
+  const indOf = (d) => { const f = dayFiles.get(d); return (f?.industry?.rows ?? []).map((row) => ({ date: d, ...fromRow(f.industry.cols ?? INDUSTRY_COLS, row) })) }
+  const shape = (r) => ({
+    id: r.id, date: r.date, code: r.code, name: r.name, org: r.org, rating: r.rating, sRating: r.sRating, change: ratingChangeOf(r.change), last: r.last,
+    aimLow: num(r.aimLow), aimHigh: num(r.aimHigh), close: null, upLow: null, upHigh: null, ind: r.ind, title: r.title, url: reportUrl(r.id),
+  })
+  const days30 = [], missingDays = []
+  for (let d = w30; d <= day; d = addDays(d, 1)) { if (okDayFile(dayFiles.get(d))) days30.push(d); else missingDays.push(d) }
+  const stock30 = days30.flatMap(stockOf).filter((r) => /^\d{6}$/.test(r.code))
+  const stock7 = stock30.filter((r) => r.date >= w7)
+  const ind30 = days30.flatMap(indOf)
+  const rows = stockOf(day).filter((r) => /^\d{6}$/.test(r.code)).map(shape).sort((a, b) => (a.code === b.code ? a.org.localeCompare(b.org) : a.code.localeCompare(b.code)))
+  const counts = { 上调: 0, 下调: 0, 首次: 0, 维持: 0, 无: 0, 未标注: 0 }
+  for (const r of rows) counts[r.change ?? '未标注']++
+  const byDateDesc = (a, b) => (a.date === b.date ? a.code.localeCompare(b.code) : a.date < b.date ? 1 : -1)
+  const upgrades = stock7.filter((r) => ratingChangeOf(r.change) === '上调').map(shape).sort(byDateDesc)
+  const initiations = stock7.filter((r) => ratingChangeOf(r.change) === '首次').map(shape).sort(byDateDesc)
+  // 近 30 日覆盖最多的个股
+  const cov = new Map()
+  for (const r of stock30) {
+    const c = cov.get(r.code) ?? { code: r.code, name: r.name, ind: r.ind, count: 0, orgs: new Set(), latest: r.date, first: 0, up: 0 }
+    c.count++
+    if (r.org) c.orgs.add(r.org)
+    if (r.date >= c.latest) { c.latest = r.date; c.name = r.name || c.name; c.ind = r.ind ?? c.ind }
+    const ch = ratingChangeOf(r.change)
+    if (ch === '首次') c.first++
+    if (ch === '上调') c.up++
+    cov.set(r.code, c)
+  }
+  const covered = [...cov.values()].map(({ orgs, ...c }) => ({ ...c, orgs: orgs.size }))
+    .sort((a, b) => b.count - a.count || b.orgs - a.orgs || a.code.localeCompare(b.code)).slice(0, 30)
+  // 行业研报按行业（东方财富行业分类，行业研报自带的 industryName）
+  const ind = new Map()
+  for (const r of ind30) {
+    const name = r.ind || '未标注行业'
+    const x = ind.get(name) ?? { name, n7: 0, n30: 0 }
+    x.n30++
+    if (r.date >= w7) x.n7++
+    ind.set(name, x)
+  }
+  const industries = [...ind.values()].sort((a, b) => b.n30 - a.n30 || b.n7 - a.n7 || a.name.localeCompare(b.name))
+  const daily = days30.map((d) => ({ date: d, stock: dayFiles.get(d).stock.rows.length, industry: dayFiles.get(d).industry.rows.length }))
+  const t = dayFiles.get(today)
+  return {
+    day, w7, w30, missingDays,
+    // 今天已收录但不计入统计（18:00 前列表还在增加）
+    pending: today > day && okDayFile(t) ? { date: today, stock: t.stock.rows.length, industry: t.industry.rows.length } : null,
+    dayStock: rows.length, dayIndustry: okDayFile(dayFiles.get(day)) ? dayFiles.get(day).industry.rows.length : 0, counts,
+    stock7: stock7.length, stock30: stock30.length, industry7: ind30.filter((r) => r.date >= w7).length, industry30: ind30.length,
+    closeDate: null, rows, upgrades, initiations, covered, industries, daily,
+  }
+}
+
+/** 超过保留天数的日文件名（YYYY-MM-DD.json） */
+export const staleReportFiles = (names, today, keep = REPORT_KEEP_DAYS) => names.filter((n) => /^\d{4}-\d{2}-\d{2}\.json$/.test(n) && n.slice(0, 10) < addDays(today, -keep))

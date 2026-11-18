@@ -1,12 +1,12 @@
 // 同花顺 · 数据中心（/ths-mood/datacenter）：功能对照同花顺 App 宫格「特色数据」里的列表类入口——打新日历与次新股、限售解禁、
-// 重要股东增减持、股权质押与商誉、股票回购。数据：public/data/ths-tab-datacenter.json（scripts/ths-datacenter.mjs 盘后生成，
+// 重要股东增减持、股权质押与商誉、股票回购、研报评级（东方财富研报中心公开列表）。数据：public/data/ths-tab-datacenter.json（scripts/ths-datacenter.mjs 盘后生成，
 // 来源东方财富数据中心公开报表与日 K）。只列客观数值与阈值说明，不做评级，不是买卖建议。
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Callout, Card, EmptyState, Page, PageDataFreshness, Segmented, TableWrap } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
 import ThsTabs, { THS_DISCLAIMER } from '../../features/ths-tabs/ThsTabs'
-import { asThsDatacenter, fixed, md, METHOD, money, pct, shares, tone, type BuybackRow, type HolderRank, type HolderRow, type IpoCal, type LiftRow, type SubNew, type ThsDatacenter as Data } from '../../features/ths-datacenter/model'
+import { asThsDatacenter, fixed, md, METHOD, money, pct, shares, tone, type BuybackRow, type CoveredStock, type HolderRank, type HolderRow, type IpoCal, type LiftRow, type ReportsBlock, type StockReport, type SubNew, type ThsDatacenter as Data } from '../../features/ths-datacenter/model'
 import '../../styles/market-mood.css'
 import '../../styles/ths-datacenter.css'
 
@@ -338,6 +338,97 @@ function BuybackCard({ d }: { d: Data }): JSX.Element {
   )
 }
 
+/* ---------- 研报评级 ---------- */
+const CHANGE_CLS: Record<string, string> = { 上调: 'is-up', 下调: 'is-down', 首次: 'is-wait' }
+const ChangeTag = ({ c }: { c: StockReport['change'] }): JSX.Element => (c ? <span className={`dc-tag ${CHANGE_CLS[c] ?? ''}`.trim()}>{c}</span> : <span className="dc-muted">未标注</span>)
+const aimText = (r: StockReport): string => (r.aimLow === null && r.aimHigh === null ? '—' : r.aimLow === r.aimHigh || r.aimLow === null || r.aimHigh === null ? fixed(r.aimHigh ?? r.aimLow) : `${fixed(r.aimLow)}–${fixed(r.aimHigh)}`)
+const upText = (r: StockReport): string => (r.upLow === null && r.upHigh === null ? '—' : r.upLow === r.upHigh || r.upLow === null || r.upHigh === null ? pct(r.upHigh ?? r.upLow, true, 1) : `${pct(r.upLow, true, 1)} ~ ${pct(r.upHigh, true, 1)}`)
+function reportCols(withDate: boolean, closeDate: string | null): Array<Col<StockReport>> {
+  return [
+    ...(withDate ? [{ key: 'date', label: '发布日', render: (r: StockReport) => md(r.date) }] : []),
+    { key: 'org', label: '机构', render: r => r.org || '—' },
+    { key: 'rating', label: '评级', render: r => (r.rating === null ? '—' : r.sRating && r.sRating !== r.rating ? `${r.rating}（${r.sRating}）` : r.rating) },
+    { key: 'change', label: '变动', render: r => <ChangeTag c={r.change} /> },
+    { key: 'last', label: '上次评级', render: r => r.last ?? '—' },
+    { key: 'aim', label: '目标价', num: true, render: aimText },
+    { key: 'close', label: closeDate ? `收盘（${md(closeDate)}）` : '收盘', num: true, render: r => (r.aimLow === null && r.aimHigh === null ? '—' : r.close === null ? '停牌' : fixed(r.close)) },
+    { key: 'up', label: '目标价空间', num: true, render: upText, cls: r => tone(r.upHigh ?? r.upLow) },
+    { key: 'title', label: '标题', render: r => (r.url ? <a className="dc-title" href={r.url} target="_blank" rel="noreferrer" title={r.title}>{r.title}</a> : <span className="dc-title" title={r.title}>{r.title}</span>) },
+  ]
+}
+function ReportsCard({ r, error }: { r: ReportsBlock | null; error: string | null }): JSX.Element {
+  const [view, setView] = useState<'day' | 'up' | 'covered' | 'industry'>('day')
+  const [indAll, setIndAll] = useState(false)
+  if (!r) {
+    return (
+      <Card title="研报评级" as="section" className="mm-card">
+        <EmptyState title="暂无研报评级数据">{error ?? '研报列表本次未取到；其他板块不受影响。'}</EmptyState>
+      </Card>
+    )
+  }
+  const c = r.counts
+  const coveredCols: Array<Col<CoveredStock>> = [
+    { key: 'count', label: '研报篇数', num: true, render: x => x.count },
+    { key: 'orgs', label: '机构数', num: true, render: x => x.orgs },
+    { key: 'first', label: '首次', num: true, render: x => x.first },
+    { key: 'up', label: '上调', num: true, render: x => x.up },
+    { key: 'latest', label: '最近一篇', render: x => md(x.latest) },
+    { key: 'ind', label: '行业', render: x => x.ind ?? '—' },
+  ]
+  const inds = indAll ? r.industries : r.industries.slice(0, 20)
+  return (
+    <Card title="研报评级" as="section" className="mm-card"
+      description={`统计日 ${r.day}：个股研报 ${r.dayStock} 篇、行业研报 ${r.dayIndustry} 篇`}
+      actions={<Segmented items={[{ id: 'day', label: '统计日研报' }, { id: 'up', label: '上调与首次' }, { id: 'covered', label: '覆盖最多' }, { id: 'industry', label: '行业研报' }]} value={view} onChange={setView} label="研报视图" />}>
+      <dl className="dc-stats" aria-label="研报统计">
+        <div><dt>统计日个股研报</dt><dd>{r.dayStock} 篇</dd><dd className="dc-stats__sub">首次 {c['首次'] ?? 0} · 上调 {c['上调'] ?? 0} · 下调 {c['下调'] ?? 0} · 维持 {c['维持'] ?? 0}{c['未标注'] ? ` · 未标注 ${c['未标注']}` : ''}</dd></div>
+        <div><dt>近 7 日 / 近 30 日个股研报</dt><dd>{r.stock7} / {r.stock30} 篇</dd><dd className="dc-stats__sub">{r.w7} / {r.w30} 起</dd></div>
+        <div><dt>近 7 日 / 近 30 日行业研报</dt><dd>{r.industry7} / {r.industry30} 篇</dd></div>
+      </dl>
+      {r.pending && <p className="mm-method">今天（{r.pending.date}）已收录个股研报 {r.pending.stock} 篇、行业研报 {r.pending.industry} 篇，北京时间 18:00 前列表还在增加，未计入以上统计。</p>}
+      {r.missingDays.length > 0 && <p className="mm-method">窗口内有 {r.missingDays.length} 天没有取到研报列表（{r.missingDays.slice(0, 5).join('、')}{r.missingDays.length > 5 ? ' 等' : ''}），近 30 日计数只按已取到的天计算。</p>}
+      {view === 'day' && (
+        <>
+          <DcTable label="统计日个股研报" rows={r.rows} rowKey={x => x.id} cols={reportCols(false, r.closeDate)} limit={40} empty="统计日没有个股研报" />
+          <p className="mm-method">{METHOD.reportsDay}</p>
+          <p className="mm-method">{METHOD.reportsAim}</p>
+        </>
+      )}
+      {view === 'up' && (
+        <>
+          <h3 className="dc-sub">评级上调（{r.upgrades.length}）</h3>
+          <DcTable label="近 7 日评级上调" rows={r.upgrades} rowKey={x => x.id} cols={reportCols(true, r.closeDate)} empty="近 7 日没有评级上调的研报" />
+          <h3 className="dc-sub">首次覆盖（{r.initiations.length}）</h3>
+          <DcTable label="近 7 日首次覆盖" rows={r.initiations} rowKey={x => x.id} cols={reportCols(true, r.closeDate)} empty="近 7 日没有首次覆盖的研报" />
+          <p className="mm-method">{METHOD.reportsUpgrade}</p>
+          <p className="mm-method">{METHOD.reportsAim}</p>
+        </>
+      )}
+      {view === 'covered' && (
+        <>
+          <DcTable label="近 30 日被覆盖最多的个股" rows={r.covered} rowKey={x => x.code} cols={coveredCols} empty="近 30 日没有个股研报" />
+          <p className="mm-method">{METHOD.reportsCovered}</p>
+        </>
+      )}
+      {view === 'industry' && (
+        <>
+          {r.industries.length ? (
+            <TableWrap label="行业研报按行业计数">
+              <table className="mm-table dc-table">
+                <thead><tr><th scope="col">行业</th><th scope="col" className="num">近 7 日</th><th scope="col" className="num">近 30 日</th></tr></thead>
+                <tbody>{inds.map(x => <tr key={x.name}><th scope="row">{x.name}</th><td className="num">{x.n7}</td><td className="num">{x.n30}</td></tr>)}</tbody>
+              </table>
+            </TableWrap>
+          ) : <p className="mm-empty">近 30 日没有行业研报</p>}
+          {r.industries.length > 20 && <button type="button" className="dc-more" onClick={() => setIndAll(v => !v)}>{indAll ? '收起' : `显示全部 ${r.industries.length} 个行业`}</button>}
+          <p className="mm-method">{METHOD.reportsIndustry}</p>
+        </>
+      )}
+      {r.seed && <p className="mm-method">原始日数据从首次运行起每天累积；{r.seed.from} 至 {r.seed.to} 是首次运行时按发布日一次性补取的（同一接口，可能已包含事后补录的研报）。</p>}
+    </Card>
+  )
+}
+
 export default function ThsDatacenter(): JSX.Element {
   const { loading, data } = useData()
   return (
@@ -355,13 +446,14 @@ export default function ThsDatacenter(): JSX.Element {
 function Body({ d }: { d: Data }): JSX.Element {
   return (
     <>
-      <PageDataFreshness checkedAt={d.generatedAt} dataDates={[d.asOf]} note={`质押统计日 ${d.pledge.date}；商誉报告期 ${d.goodwill.period}；公告类数据截至数据日期`} />
+      <PageDataFreshness checkedAt={d.generatedAt} dataDates={[d.asOf]} note={`质押统计日 ${d.pledge.date}；商誉报告期 ${d.goodwill.period}；公告类数据截至数据日期${d.reports ? `；研报统计日 ${d.reports.day}` : ''}`} />
       <TopPanel d={d} />
       <IpoCard d={d} />
       <LiftCard d={d} />
       <HoldersCard d={d} />
       <RiskCard d={d} />
       <BuybackCard d={d} />
+      <ReportsCard r={d.reports} error={d.reportsError} />
       <Callout title="口径与来源">
         <p>{d.note} {METHOD.skip}</p>
         <p>相关页面：<Link to="/market-mood/disclosure">开盘啦 · 财报避雷</Link>（业绩披露、ST 与退市风险、股东人数、大宗交易、机构调研）、<Link to="/market-mood/abnormal">开盘啦 · 异动监管</Link>（停复牌）。</p>

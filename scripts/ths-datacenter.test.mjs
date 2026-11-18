@@ -2,6 +2,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { addDays, buildBuyback, buildCalendar, buildGoodwill, buildHolders, buildLift, buildPledge, buildSubNew, checkComplete, closeOn, latestPeriod, liftPerf, mergeHistory, num, parseKline, secidOf, shouldReplace, targetDay } from './ths-datacenter-lib.mjs'
+import { aimCodes, buildReports, compactReport, groupReports, pickReportDay, ratingChangeOf, reportDayFile, reportFetchRange, reportUrl, staleReportFiles, upside, withUpside } from './ths-datacenter-lib.mjs'
 
 const D = '2026-11-17'
 const bars = (pairs) => pairs.map(([date, close]) => ({ date, close }))
@@ -208,4 +209,112 @@ test('发布替换：更晚的已发布文件不被历史重跑覆盖；同日�
   assert.equal(shouldReplace(cur, { asOf: D, quality: { klineMiss: 3 } }), false)
   assert.equal(shouldReplace({ asOf: D, quality: { klineMiss: 3 } }, cur), true)
   assert.equal(shouldReplace({ asOf: D }, { asOf: D, quality: { klineMiss: 3 } }), true)
+})
+
+/* ---------------- 研报评级 ---------------- */
+const rep = (id, date, over = {}) => ({ infoCode: id, publishDate: `${date} 00:00:00.000`, stockCode: '600573', stockName: '惠泉啤酒', orgSName: '东吴证券', emRatingName: '增持', sRatingName: '增持', lastEmRatingName: '', ratingChange: 3, indvAimPriceT: '', indvAimPriceL: '', indvInduName: '非白酒', industryName: '', title: '标题', ...over })
+
+test('研报：评级变动代码（0 上调 1 下调 2 首次 3 维持 4 无），空串为未标注；链接只接受报告编号格式', () => {
+  assert.deepEqual([0, 1, 2, 3, 4, '3'].map(ratingChangeOf), ['上调', '下调', '首次', '维持', '无', '维持'])
+  for (const x of ['', null, undefined, 9]) assert.equal(ratingChangeOf(x), null)
+  assert.equal(reportUrl('AP202611181831818610'), 'https://data.eastmoney.com/report/info/AP202611181831818610.html')
+  assert.equal(reportUrl('../x'), null)
+  assert.equal(reportUrl(null), null)
+})
+
+test('研报：紧凑行——目标价空串为 null（不是 0），缺编号或日期丢弃', () => {
+  const c = compactReport(rep('AP1', '2026-11-17', { indvAimPriceT: '4.61', indvAimPriceL: '-', ratingChange: '' }), 'stock')
+  assert.equal(c.date, '2026-11-17')
+  assert.equal(c.row[6], null, 'ratingChange 空串 → null')
+  assert.equal(c.row[8], 4.61)
+  assert.equal(c.row[9], null)
+  assert.equal(compactReport(rep('', '2026-11-17'), 'stock'), null)
+  assert.equal(compactReport({ infoCode: 'AP1', publishDate: '' }, 'stock'), null)
+  assert.deepEqual(compactReport(rep('AP2', '2026-11-17', { industryName: '房地产开发', ratingChange: 0 }), 'industry').row.slice(0, 2), ['AP2', '房地产开发'])
+})
+
+test('研报：分页校验——行数 ≠ hits、编号重复、发布日越界都抛错；区间内无研报的日子是空数组', () => {
+  const g = groupReports([rep('AP1', '2026-11-16'), rep('AP2', '2026-11-16')], 2, '2026-11-15', '2026-11-16', 'stock')
+  assert.deepEqual([...g.keys()], ['2026-11-15', '2026-11-16'])
+  assert.equal(g.get('2026-11-15').length, 0)
+  assert.equal(g.get('2026-11-16').length, 2)
+  assert.throws(() => groupReports([rep('AP1', '2026-11-16')], 2, '2026-11-15', '2026-11-16', 'stock'), /不完整/)
+  assert.throws(() => groupReports([rep('AP1', '2026-11-16'), rep('AP1', '2026-11-16')], 2, '2026-11-15', '2026-11-16', 'stock'), /重复/)
+  assert.throws(() => groupReports([rep('AP1', '2026-11-18')], 1, '2026-11-15', '2026-11-16', 'stock'), /不在/)
+  assert.throws(() => groupReports([{ infoCode: 'AP1' }], 1, '2026-11-15', '2026-11-16', 'stock'), /缺编号/)
+})
+
+test('研报：取数区间——平时重取最近 7 天，30 日窗口里缺日文件时从最早缺的一天起取', () => {
+  const T = '2026-11-18'
+  const all = new Set(); for (let i = 0; i <= 30; i++) all.add(addDays(T, -i))
+  assert.deepEqual(reportFetchRange(all, T), { from: '2026-11-12', to: T })
+  all.delete('2026-10-25')
+  assert.deepEqual(reportFetchRange(all, T), { from: '2026-10-25', to: T })
+  assert.deepEqual(reportFetchRange(new Set(), T), { from: '2026-10-19', to: T })
+})
+
+const dayMap = (entries) => new Map(entries.map(([d, stock, ind = []]) => [d, reportDayFile(d, stock.map((r) => compactReport(r, 'stock').row), ind.map((r) => compactReport(r, 'industry').row), 'x')]))
+
+test('研报：统计日——今天 18:00 前不完整，取前一个有研报的自然日；18:00 后取今天；没有研报的日子跳过', () => {
+  const m = dayMap([['2026-11-16', [rep('A1', '2026-11-16')]], ['2026-11-17', []], ['2026-11-18', [rep('A2', '2026-11-18')]]])
+  assert.equal(pickReportDay(m, '2026-11-18', 15 * 60 + 40), '2026-11-16', '11-17 没有个股研报，跳过')
+  assert.equal(pickReportDay(m, '2026-11-18', 18 * 60), '2026-11-18')
+  assert.equal(pickReportDay(new Map(), '2026-11-18', 20 * 60), null)
+})
+
+test('研报：统计日列表、变动计数、近 7 日上调/首次、近 30 日覆盖排行、行业计数、缺日与今天待计入', () => {
+  const m = dayMap([
+    ['2026-10-20', [rep('B0', '2026-10-20', { stockCode: '300750', stockName: '宁德时代', orgSName: '甲' })], [rep('I0', '2026-10-20', { industryName: '电池' })]],
+    ['2026-11-12', [rep('B1', '2026-11-12', { stockCode: '300750', stockName: '宁德时代', orgSName: '乙', ratingChange: 0 })], [rep('I1', '2026-11-12', { industryName: '电池' })]],
+    ['2026-11-17', [
+      rep('B2', '2026-11-17', { stockCode: '300750', stockName: '宁德时代', orgSName: '甲', ratingChange: 2, indvAimPriceT: '400', indvAimPriceL: '380' }),
+      rep('B3', '2026-11-17', { ratingChange: '' }),
+      rep('B4', '2026-11-17', { stockCode: '600519', stockName: '贵州茅台', ratingChange: 1 }),
+    ], [rep('I2', '2026-11-17', { industryName: '' }), rep('I3', '2026-11-17', { industryName: '电池' })]],
+    ['2026-11-18', [rep('B5', '2026-11-18')]],
+  ])
+  const s = buildReports(m, '2026-11-17', '2026-11-18')
+  assert.equal(s.w7, '2026-11-11')
+  assert.equal(s.w30, '2026-10-19')
+  assert.equal(s.dayStock, 3)
+  assert.equal(s.dayIndustry, 2)
+  assert.deepEqual(s.counts, { 上调: 0, 下调: 1, 首次: 1, 维持: 0, 无: 0, 未标注: 1 })
+  assert.deepEqual(s.rows.map((r) => r.code), ['300750', '600519', '600573'])
+  assert.equal(s.rows[0].url, null, '测试编号不是报告编号格式时不给链接')
+  assert.deepEqual(s.upgrades.map((r) => [r.date, r.code]), [['2026-11-12', '300750']])
+  assert.deepEqual(s.initiations.map((r) => r.id), ['B2'])
+  assert.deepEqual(s.covered[0], { code: '300750', name: '宁德时代', ind: '非白酒', count: 3, latest: '2026-11-17', first: 1, up: 1, orgs: 2 })
+  assert.deepEqual(s.industries.find((x) => x.name === '电池'), { name: '电池', n7: 2, n30: 3 })
+  assert.ok(s.industries.some((x) => x.name === '未标注行业'))
+  assert.equal(s.stock30, 5)
+  assert.equal(s.stock7, 4)
+  assert.equal(s.industry7, 3)
+  assert.equal(s.missingDays.length, 30 - 3, '没有日文件的天列出来，不当 0')
+  assert.deepEqual(s.pending, { date: '2026-11-18', stock: 1, industry: 0 })
+  assert.equal(s.daily.length, 3)
+  // 18:00 后统计日就是今天，不再有待计入
+  assert.equal(buildReports(m, '2026-11-18', '2026-11-18').pending, null)
+})
+
+test('研报：目标价空间只用当天收盘；停牌（收盘缺失）或无目标价为 null', () => {
+  assert.equal(upside(110, 100), 10)
+  assert.equal(upside(null, 100), null)
+  assert.equal(upside(110, null), null)
+  assert.equal(upside(110, 0), null)
+  const m = dayMap([['2026-11-17', [
+    rep('C1', '2026-11-17', { stockCode: '000001', indvAimPriceT: '12', indvAimPriceL: '11' }),
+    rep('C2', '2026-11-17', { stockCode: '000002', indvAimPriceT: '20', indvAimPriceL: '20' }),
+    rep('C3', '2026-11-17', { stockCode: '000003' }),
+  ]]])
+  const s = buildReports(m, '2026-11-17', '2026-11-17')
+  assert.deepEqual(aimCodes(s), ['000001', '000002'])
+  const f = withUpside(s, new Map([['000001', 10], ['000002', null]]), '2026-11-17')
+  assert.equal(f.closeDate, '2026-11-17')
+  assert.deepEqual([f.rows[0].close, f.rows[0].upLow, f.rows[0].upHigh], [10, 10, 20])
+  assert.deepEqual([f.rows[1].close, f.rows[1].upLow, f.rows[1].upHigh], [null, null, null])
+  assert.deepEqual([f.rows[2].aimHigh, f.rows[2].upHigh], [null, null])
+})
+
+test('研报：超过 90 天的日文件清理', () => {
+  assert.deepEqual(staleReportFiles(['2026-08-19.json', '2026-08-20.json', 'seed.json', '2026-11-18.json'], '2026-11-18'), ['2026-08-19.json'])
 })

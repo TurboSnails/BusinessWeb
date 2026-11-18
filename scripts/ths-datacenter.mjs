@@ -3,15 +3,19 @@
 // 数据日期 asOf：交易日 15:30 后为当天，否则为上一个交易日；上证指数日 K 里还没有 asOf 这根时不写文件、正常退出。
 // 公告类报表只取公告日 ≤ asOf 的记录（晚间发布、日期记为次日的公告下一次运行再计入）。任一报表失败时整份不写，保留上一份。
 // 摘要历史：data-raw/ths-tab-datacenter/history.json（每个数据日期一条，同日覆盖）。可重复运行。
+// 研报评级（东方财富研报列表 reportapi.eastmoney.com/report/list）：原始日文件 data-raw/ths-tab-datacenter/reports/YYYY-MM-DD.json，
+// 每次重取最近 7 天、补齐 30 日窗口里缺的天；这一段失败时只把 reports 记为 null + 原因（同一数据日期已有的保留），不影响其他板块。
 // 用法：node scripts/ths-datacenter.mjs   （AS_OF=YYYY-MM-DD 可指定数据日期，只用于排查）
 import fs from 'node:fs'
 import path from 'node:path'
-import { addDays, buildBuyback, buildCalendar, buildGoodwill, buildHolders, buildLift, buildPledge, buildSubNew, checkComplete, closeOn, GOODWILL_LINES, latestPeriod, mergeHistory, parseKline, PLEDGE_LINES, secidOf, shouldReplace, SUBNEW_DAYS, targetDay, WINDOW } from './ths-datacenter-lib.mjs'
+import { addDays, aimCodes, buildBuyback, buildReports, groupReports, okDayFile, pickReportDay, reportDayFile, reportFetchRange, staleReportFiles, withUpside, buildCalendar, buildGoodwill, buildHolders, buildLift, buildPledge, buildSubNew, checkComplete, closeOn, GOODWILL_LINES, latestPeriod, mergeHistory, parseKline, PLEDGE_LINES, secidOf, shouldReplace, SUBNEW_DAYS, targetDay, WINDOW } from './ths-datacenter-lib.mjs'
 
 const OUT = 'public/data/ths-tab-datacenter.json'
 const RAW = 'data-raw/ths-tab-datacenter'
 const HIST = path.join(RAW, 'history.json')
+const REP_DIR = path.join(RAW, 'reports')
 const API = 'https://datacenter-web.eastmoney.com/api/data/v1/get'
+const REPORT_API = 'https://reportapi.eastmoney.com/report/list'
 const KLINE = 'https://push2his.eastmoney.com/api/qt/stock/kline/get'
 const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36'
 const TOP = 50
@@ -73,6 +77,84 @@ const asOf = process.env.AS_OF || targetDay(today, bj.getUTCHours() * 60 + bj.ge
 const idx = parseKline(await getJson(`${KLINE}?${new URLSearchParams({ secid: '1.000001', fields1: 'f1', fields2: 'f51,f53', klt: '101', fqt: '0', end: asOf.replaceAll('-', ''), lmt: '5' })}`), asOf)
 if (closeOn(idx, asOf) === null) { console.log(`${asOf} 日 K 尚未生成，不写文件`); process.exit(0) }
 
+const readJson = (f) => { try { return JSON.parse(fs.readFileSync(f, 'utf8')) } catch { return null } }
+const published = readJson(OUT)
+
+/* ---------- 研报评级（独立一段：失败不影响其他板块） ---------- */
+/** 研报列表分页取完：pageSize 上限 100；返回 {rows, hits}，行数校验在 groupReports 里做 */
+async function reportList(qType, from, to) {
+  const rows = []
+  let hits = null
+  for (let page = 1; ; page++) {
+    const q = new URLSearchParams({ industryCode: '*', pageSize: '100', industry: '*', rating: '*', ratingChange: '*', beginTime: from, endTime: to, pageNo: String(page), fields: '', qType: String(qType), orgCode: '', code: '*', rcode: '' })
+    const body = await getJson(`${REPORT_API}?${q}`)
+    if (!Array.isArray(body?.data) || !Number.isInteger(body?.hits)) throw new Error(`研报列表返回异常（qType=${qType}）`)
+    hits ??= body.hits
+    rows.push(...body.data)
+    if (page >= (body.TotalPage ?? 0) || !body.data.length) break
+    if (page >= 60) throw new Error('研报列表页数异常')
+    await sleep(200)
+  }
+  return { rows, hits }
+}
+async function buildReportSection() {
+  const t0 = Date.now()
+  const repToday = process.env.AS_OF || today
+  const repMinutes = process.env.AS_OF ? 24 * 60 : bj.getUTCHours() * 60 + bj.getUTCMinutes()
+  fs.mkdirSync(REP_DIR, { recursive: true })
+  const dayFiles = new Map()
+  for (const n of fs.readdirSync(REP_DIR)) {
+    if (!/^\d{4}-\d{2}-\d{2}\.json$/.test(n)) continue
+    const f = readJson(path.join(REP_DIR, n))
+    if (okDayFile(f) && f.date === n.slice(0, 10) && f.date <= repToday) dayFiles.set(f.date, f)
+  }
+  const { from, to } = reportFetchRange(new Set(dayFiles.keys()), repToday)
+  const st = await reportList(0, from, to)
+  const ind = await reportList(1, from, to)
+  const sg = groupReports(st.rows, st.hits, from, to, 'stock')
+  const ig = groupReports(ind.rows, ind.hits, from, to, 'industry')
+  const now = new Date().toISOString()
+  let changed = 0
+  for (const d of sg.keys()) {
+    const next = reportDayFile(d, sg.get(d), ig.get(d), now)
+    const prev = dayFiles.get(d)
+    // 内容没变不改文件（fetchedAt 保留上次），避免每次运行都产生提交
+    if (prev && JSON.stringify(prev.stock) === JSON.stringify(next.stock) && JSON.stringify(prev.industry) === JSON.stringify(next.industry)) continue
+    fs.writeFileSync(path.join(REP_DIR, `${d}.json`), JSON.stringify(next))
+    dayFiles.set(d, next)
+    changed++
+  }
+  if (from < addDays(repToday, -6) && !readJson(path.join(REP_DIR, 'seed.json'))) fs.writeFileSync(path.join(REP_DIR, 'seed.json'), JSON.stringify({ from, to, at: now }))
+  for (const n of staleReportFiles(fs.readdirSync(REP_DIR), repToday)) fs.unlinkSync(path.join(REP_DIR, n))
+  const day = pickReportDay(dayFiles, repToday, repMinutes)
+  if (!day) throw new Error('近 30 日没有个股研报')
+  let section = buildReports(dayFiles, day, repToday)
+  // 目标价空间：只对有目标价的个股取 asOf 日 K 收盘（不复权，与目标价同口径）
+  const codes = aimCodes(section)
+  const bars = await klines(codes.map((code) => ({ code, secid: secidOf('', code) })), 0, () => 5, asOf)
+  section = withUpside(section, new Map(codes.map((c) => [c, closeOn(bars.get(c), asOf)])), asOf)
+  const seed = readJson(path.join(REP_DIR, 'seed.json'))
+  console.log(`研报：取 ${from}~${to}（个股 ${st.hits}、行业 ${ind.hits}），改写 ${changed} 个日文件；统计日 ${day}，目标价收盘 ${codes.length} 只，用时 ${Math.round((Date.now() - t0) / 1000)} 秒`)
+  return { ...section, seed: seed?.from ? { from: seed.from, to: seed.to } : null }
+}
+let reports = null
+let reportsError = null
+try {
+  reports = await buildReportSection()
+} catch (e) {
+  console.log(`研报评级获取失败：${e.message}`)
+  if (published?.reports && published.asOf === asOf) reports = published.reports
+  else reportsError = `研报列表获取失败（${e.message}）`
+}
+/** 其他板块不重写时，只把新的研报评级合进已发布的文件 */
+function patchReports() {
+  if (!published || !reports || JSON.stringify(published.reports) === JSON.stringify(reports)) return
+  fs.writeFileSync(OUT, JSON.stringify({ ...published, reports, reportsError: null, sources: mergeSources(published.sources) }))
+  console.log(`已更新研报评级（统计日 ${reports.day}），其他板块保持不变`)
+}
+const REPORT_SOURCE = { id: 'reports', label: '东方财富 · 研报中心（个股研报、行业研报）', url: 'https://data.eastmoney.com/report/' }
+const mergeSources = (xs) => [...(xs ?? []).filter((x) => x.id !== 'reports'), REPORT_SOURCE]
+
 let out
 try {
   // 2) 新股：申购日历 + 次新股（上市不满一年）
@@ -108,9 +190,9 @@ try {
   if (missK > (subItems.length + liftItems.length) * 0.1) throw new Error(`日 K 失败过多（${missK}）`)
   const quality = { klineMiss: missK, klineTotal: subItems.length + liftItems.length }
   // 同一天已有更完整的一份（日 K 失败更少）、或已发布更晚的日期时，不覆盖（也不改历史）
-  const published = (() => { try { return JSON.parse(fs.readFileSync(OUT, 'utf8')) } catch { return null } })()
   if (!shouldReplace(published, { asOf, quality })) {
     console.log(`保留已发布的 ${published.asOf}（日 K 缺 ${published.quality?.klineMiss ?? '?'}），本次 ${asOf} 日 K 缺 ${missK}，不替换`)
+    patchReports()
     process.exit(0)
   }
 
@@ -133,7 +215,7 @@ try {
     version: 1, generatedAt: new Date().toISOString(), asOf, quality,
     note: '盘后整理的公开披露数据，只列客观数值与阈值说明，不做评级，不构成投资建议。',
     ipo: { calendar: buildCalendar(ipoCal.rows, asOf), recent, subNew },
-    lift, holders: hold, pledge, goodwill, buyback: bb, history,
+    lift, holders: hold, pledge, goodwill, buyback: bb, history, reports, reportsError,
     sources: [
       { id: 'ipo', label: '东方财富数据中心 · 新股申购与中签', url: 'https://data.eastmoney.com/xg/xg/default.html' },
       { id: 'lift', label: '东方财富数据中心 · 限售股解禁', url: 'https://data.eastmoney.com/dxf/default.html' },
@@ -142,16 +224,18 @@ try {
       { id: 'goodwill', label: '东方财富数据中心 · 商誉', url: 'https://data.eastmoney.com/sy/' },
       { id: 'buyback', label: '东方财富数据中心 · 股票回购', url: 'https://data.eastmoney.com/gphg/' },
       { id: 'kline', label: '东方财富日 K（push2his，前/后复权收盘价）', url: 'https://quote.eastmoney.com/' },
+      REPORT_SOURCE,
     ],
   }
   fs.mkdirSync(RAW, { recursive: true })
   fs.writeFileSync(HIST, JSON.stringify(history))
 } catch (e) {
   console.log(`获取失败，保留上一份数据：${e.message}`)
+  patchReports()
   process.exit(0)
 }
 fs.writeFileSync(OUT, JSON.stringify(out))
 console.log(JSON.stringify({
   asOf, calendar: out.ipo.calendar.length, subNew: out.ipo.subNew.count, broke: out.ipo.subNew.brokeRate, liftUp: out.lift.upcoming.count, liftPast: out.lift.past.count,
-  holders: out.holders.count, pledgeDate: out.pledge.date, goodwill: out.goodwill.period, buyback: out.buyback.count, bytes: fs.statSync(OUT).size,
+  holders: out.holders.count, pledgeDate: out.pledge.date, goodwill: out.goodwill.period, buyback: out.buyback.count, reportDay: out.reports?.day ?? null, bytes: fs.statSync(OUT).size,
 }))

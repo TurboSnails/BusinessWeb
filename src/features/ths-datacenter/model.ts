@@ -57,6 +57,33 @@ export type BuybackBlock = { from: string; to: string; count: number; counts: Re
   /** 只加披露了计划金额的预案；一份都没披露时为 null，部分缺失的份数见 *Missing */
   newPlanLow: number | null; newPlanHigh: number | null; newPlanLowMissing?: number; newPlanHighMissing?: number; rows: BuybackRow[] }
 
+export type RatingChange = '上调' | '下调' | '首次' | '维持' | '无'
+export type StockReport = {
+  id: string; date: string; code: string; name: string; org: string
+  /** 东方财富统一后的评级；sRating 为机构原文评级；last 为该机构上次评级 */
+  rating: string | null; sRating: string | null; change: RatingChange | null; last: string | null
+  /** 研报给出的目标价下限 / 上限（接口没有给时为 null，不估算） */
+  aimLow: number | null; aimHigh: number | null
+  /** closeDate 当天收盘（不复权）与目标价相对收盘的空间（%），没有目标价或停牌时为 null */
+  close: number | null; upLow: number | null; upHigh: number | null
+  ind: string | null; title: string; url: string | null
+}
+export type CoveredStock = { code: string; name: string; ind: string | null; count: number; orgs: number; latest: string; first: number; up: number }
+export type IndustryCount = { name: string; n7: number; n30: number }
+export type ReportsBlock = {
+  /** 统计日：最近一个已完整的研报发布日 */
+  day: string; w7: string; w30: string; missingDays: string[]
+  /** 今天已收录、未计入统计的条数（北京时间 18:00 前列表还在增加） */
+  pending: { date: string; stock: number; industry: number } | null
+  dayStock: number; dayIndustry: number; counts: Record<string, number>
+  stock7: number; stock30: number; industry7: number; industry30: number
+  closeDate: string | null
+  rows: StockReport[]; upgrades: StockReport[]; initiations: StockReport[]
+  covered: CoveredStock[]; industries: IndustryCount[]
+  daily: Array<{ date: string; stock: number; industry: number }>
+  seed: { from: string; to: string } | null
+}
+
 export type DcDay = { date: string; subNew: number; brokeRate: number | null; medianCum: number | null; liftCount: number; liftCap: number | null; holderInc: number | null; holderDec: number | null; buybackCount: number; pledge50: number }
 
 export type ThsDatacenter = {
@@ -71,11 +98,15 @@ export type ThsDatacenter = {
   goodwill: GoodwillBlock
   buyback: BuybackBlock
   history: DcDay[]
+  /** 研报评级：这一段单独校验，缺失或格式不对时为 null（其他板块照常显示），原因见 reportsError */
+  reports: ReportsBlock | null
+  reportsError: string | null
   sources: Array<{ id: string; label: string; url: string }>
 }
 
 const isObj = (x: unknown): x is Record<string, unknown> => typeof x === 'object' && x !== null && !Array.isArray(x)
-const isDate = (x: unknown): x is string => typeof x === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(x) && new Date(`${x}T00:00:00Z`).toISOString().slice(0, 10) === x
+// 月份越界（如 2026-13-01）时 Date 无效，toISOString 会抛错，先判 NaN
+const isDate = (x: unknown): x is string => { if (typeof x !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(x)) return false; const t = Date.parse(`${x}T00:00:00Z`); return Number.isFinite(t) && new Date(t).toISOString().slice(0, 10) === x }
 const isNum = (x: unknown): x is number => typeof x === 'number' && Number.isFinite(x)
 const isNullNum = (x: unknown): boolean => x === null || isNum(x)
 const isNullDate = (x: unknown): boolean => x === null || isDate(x)
@@ -96,6 +127,28 @@ const okStat = (s: unknown): boolean => isObj(s) && isNum(s.n) && isNullNum(s.me
 const okCounts = (x: unknown): boolean => isObj(x) && Object.values(x).every(isNum)
 const okSource = (s: unknown): boolean => isObj(s) && typeof s.label === 'string' && typeof s.url === 'string' && /^https:\/\//.test(s.url)
 
+const CHANGES: ReadonlyArray<string | null> = ['上调', '下调', '首次', '维持', '无', null]
+const isStr = (x: unknown): x is string => typeof x === 'string'
+const isNullStr = (x: unknown): boolean => x === null || isStr(x)
+const okReport = (r: unknown): boolean => stock(r) && isStr(r.id) && isDate(r.date) && isStr(r.org) && isStr(r.title) && isNullStr(r.rating) && isNullStr(r.sRating) && isNullStr(r.last) && isNullStr(r.ind)
+  && CHANGES.includes(r.change as string | null) && nums(r, ['aimLow', 'aimHigh', 'close', 'upLow', 'upHigh'])
+  && (r.url === null || (isStr(r.url) && /^https:\/\/data\.eastmoney\.com\/report\//.test(r.url)))
+const okCovered = (r: unknown): boolean => stock(r) && isNum(r.count) && isNum(r.orgs) && isDate(r.latest)
+const okIndustry = (r: unknown): boolean => isObj(r) && isStr(r.name) && isNum(r.n7) && isNum(r.n30)
+/** 研报评级段校验：不通过返回 null，只隐藏这一段 */
+export function asReports(x: unknown): ReportsBlock | null {
+  if (!isObj(x) || !isDate(x.day) || !isDate(x.w7) || !isDate(x.w30) || !Array.isArray(x.missingDays) || !x.missingDays.every(isDate)) return null
+  if (!['dayStock', 'dayIndustry', 'stock7', 'stock30', 'industry7', 'industry30'].every(k => isNum(x[k])) || !okCounts(x.counts) || !isNullDate(x.closeDate)) return null
+  if (!allOk(x.rows, okReport) || !allOk(x.upgrades, okReport) || !allOk(x.initiations, okReport) || !allOk(x.covered, okCovered) || !allOk(x.industries, okIndustry)) return null
+  if (!allOk(x.daily, d => isObj(d) && isDate(d.date) && isNum(d.stock) && isNum(d.industry))) return null
+  if (x.pending !== null && !(isObj(x.pending) && isDate(x.pending.date) && isNum(x.pending.stock) && isNum(x.pending.industry))) return null
+  // 统计日之后的研报不该出现在统计里；统计日列表必须都是统计日
+  const day = x.day
+  if ((x.rows as StockReport[]).some(r => r.date !== day) || [...(x.upgrades as StockReport[]), ...(x.initiations as StockReport[])].some(r => r.date > day || r.date < (x.w7 as string))) return null
+  const seed = isObj(x.seed) && isDate(x.seed.from) && isDate(x.seed.to) ? { from: x.seed.from, to: x.seed.to } : null
+  return { ...(x as unknown as ReportsBlock), seed }
+}
+
 /** 结构校验：任何一块缺失或字段类型不对都返回 null（页面显示 EmptyState），不展示半份数据 */
 export function asThsDatacenter(body: unknown): ThsDatacenter | null {
   if (!isObj(body) || body.version !== 1 || !isDate(body.asOf) || typeof body.generatedAt !== 'string') return null
@@ -111,6 +164,8 @@ export function asThsDatacenter(body: unknown): ThsDatacenter | null {
   if ((holders.rows as HolderRow[]).some(r => r.notice > asOf) || (buyback.rows as BuybackRow[]).some(r => r.notice > asOf) || pledge.date > asOf) return null
   return {
     ...(body as unknown as ThsDatacenter),
+    reports: asReports(body.reports),
+    reportsError: body.reports != null && asReports(body.reports) === null ? '研报评级数据格式异常' : isStr(body.reportsError) ? body.reportsError : null,
     history: Array.isArray(body.history) ? (body.history as DcDay[]).filter(d => isObj(d) && isDate(d.date)) : [],
     sources: Array.isArray(body.sources) ? (body.sources as ThsDatacenter['sources']).filter(okSource) : [],
   }
@@ -144,5 +199,10 @@ export const METHOD = {
   pledge: '中国结算每周公布的股权质押统计（统计日为周五），质押比例 = 质押股数 ÷ 总股本。表中为质押比例最高的 50 只；阈值家数为质押比例 ≥ 50%、≥ 30% 的 A 股数量。只列数值，不做风险评级。',
   goodwill: '取最近一个法定披露截止日已过的报告期（一季报 4/30、半年报 8/31、三季报 10/31）。商誉占净资产 = 期末商誉 ÷ 期末净资产；净资产为负的公司比例没有意义，单列家数、不进排行。阈值家数为比例 ≥ 100%、≥ 50%、≥ 30% 的公司数。只列数值，不做风险评级。',
   buyback: '最新公告日在数据日期前 30 个自然日内的 A 股回购方案。进度 = 已回购金额 ÷ 计划金额下限（括号内为 ÷ 上限）；预案阶段尚未回购的留空。进度状态取东方财富回购页的代码表（董事会预案、股东大会通过、实施中、完成实施、停止实施等），东方财富未标注文字的记为「未标注」。',
-  skip: '同花顺的「潜伏日历」「国家队」「图解财报」「研报」等需要其自有数据或编辑内容，本页不做；业绩预告/快报、ST 与退市风险、股东人数、大宗交易、机构调研见开盘啦「财报避雷」，停复牌见开盘啦「异动监管」。',
+  reportsDay: '统计日 = 最近一个已完整的研报发布日：研报在收盘后仍陆续入库，北京时间 18:00 前当天的列表不完整，先不计入（只显示已收录条数），取前一个有个股研报的自然日（周末也可能有研报）。研报发布日按东方财富研报中心的发布日期（只有日期，没有时刻）。评级为东方财富统一后的评级（括号内为机构原文评级）；评级变动是东方财富按该机构对该股的上一次评级标注的：上调、下调、维持、首次（该机构首次覆盖），空白为未标注。只列标题与原文链接，不转载正文。',
+  reportsAim: '目标价只在研报给出时显示（东方财富接口的目标价上限 / 下限字段，多数研报没有）；空间 = 目标价 ÷ 收盘价 − 1，收盘价为页面注明日期的不复权日 K 收盘，当天停牌的留空，不用更早的价格。这是研报观点的数字整理，不是本站的判断。',
+  reportsCovered: '以统计日结尾的近 30 个自然日内，个股研报篇数最多的 30 只（篇数相同按不同机构数）。「首次」「上调」为其中东方财富标注为首次覆盖、评级上调的篇数。篇数多只说明被关注，不代表评级方向。',
+  reportsIndustry: '行业研报按东方财富标注的行业计数，窗口为以统计日结尾的近 7 / 30 个自然日；没有标注行业的记为「未标注行业」。',
+  reportsUpgrade: '以统计日结尾的近 7 个自然日（每天的上调、首次通常只有几篇，所以放宽到 7 日）内东方财富标注为「上调」「首次」的个股研报。',
+  skip: '同花顺的「潜伏日历」「国家队」「图解财报」等需要其自有数据或编辑内容，本页不做；研报评级用东方财富研报中心的公开列表，同花顺自有的研报库、研报正文和盈利预测一致预期不做；业绩预告/快报、ST 与退市风险、股东人数、大宗交易、机构调研见开盘啦「财报避雷」，停复牌见开盘啦「异动监管」。',
 } as const
