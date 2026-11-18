@@ -8,7 +8,10 @@ on:
     workflows: ['Update daily analysis']
     types: [completed]
   schedule:
+    # 北京 18:30 兜底；中证估值、上交所 ETF 份额等晚间才发布，再在 20:30、22:30 补跑（脚本幂等，日期未变不写）
     - cron: '30 10 * * 1-5'
+    - cron: '30 12 * * 1-5'
+    - cron: '30 14 * * 1-5'
   push:
     branches: [main]
     paths:
