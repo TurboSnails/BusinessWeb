@@ -1,0 +1,23 @@
+.jt-page, .jt-card { min-width: 0; }
+.jt-card .seg { max-width: 100%; flex-wrap: wrap; margin-inline: 0; padding-inline: 0; }
+.jt-summary { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: var(--space-3) 0; }
+.jt-legend { margin: 0 0 var(--space-3); }
+.jt-table { white-space: nowrap; }
+.jt-table th, .jt-table td { padding: 5px 11px; }
+.jt-table .jt-sort, .jt-table .jt-index {
+  min-height: var(--tap);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.jt-table .jt-sort span { color: var(--text-tertiary); }
+.jt-table .jt-index {
+  color: var(--accent-ink);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.jt-detail-meta { margin: 0; color: var(--text-secondary); font-size: 0.88rem; }
+.jt-sources { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); padding: 0; list-style: none; }
