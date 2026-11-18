@@ -1,7 +1,8 @@
 name: Update Jixing tabs
 
-# 「三方平台 · 今天几星」各页签（今日星级、A股估值表、港股全球、牛熊信号板）：收盘后各跑一次自己的脚本 scripts/jixing-<页签>.mjs，
+# 「三方平台 · 今天几星」各页签：收盘后各跑一次自己的脚本 scripts/jixing-<页签>.mjs，
 # 产出 public/data/jixing-<页签>.json 与 data-raw/jixing-<页签>/。单个脚本失败只记警告，不影响其他页签。
+# 顺序：table → threshold（读 table）→ global → signals → star → daily（读 table/star/global）。
 # 主触发接在「Update daily analysis」之后；中证估值等晚间才发布，兜底北京 18:30、20:30、22:30（脚本幂等，日期未变不写）。
 on:
   workflow_run:
@@ -48,7 +49,7 @@ jobs:
         # 每个脚本单独限时（最多 10 分钟），并给提交步骤留出时间：总预算用完就跳过剩下的脚本，已跑完的结果照常提交
         run: |
           budget=$(( JOB_MINUTES * 60 - 300 ))
-          for tab in table global signals star; do
+          for tab in table threshold global signals star daily; do
             f="scripts/jixing-$tab.mjs"
             [ -f "$f" ] || continue
             left=$(( budget - SECONDS ))

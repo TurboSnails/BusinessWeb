@@ -20,7 +20,7 @@ export type ValuationRow = {
   pb: number | null
   dp: number | null
   roe: number | null
-  pePct: number
+  pePct: number | null
   pbPct: number | null
   status: ValuationStatus | null
   peHistory: History
@@ -51,7 +51,7 @@ export type JixingTableData = {
 
 export const METHOD = {
   status: '估值状态（本站自定）：历史百分位低于 30% 为低估，高于 70% 为高估，30% 至 70%（含端点）为正常。中证银行、证券公司、中证全指房地产、中证有色金属和煤炭指数按行业 PB 百分位判断，其余按 PE 百分位。所用百分位缺失时，状态留空。',
-  percentile: '百分位使用近 10 年窗口。PE 用逐日样本；行业 PB 统一周采样后再算分位（与曲线一致），脚注写明「行业 PB 周采样，n=…」。算法为（低于当前值的样本数 + 0.5 × 等于当前值的样本数）÷ 有效样本数。仅统计正值，满 250 个样本后计算 PB 分位。',
+  percentile: '百分位使用近 10 年窗口。PE 用逐日样本；行业 PB 统一周采样后再算分位（与曲线一致），脚注写明「行业 PB 周采样，n=…」。算法为（低于当前值的样本数 + 0.5 × 等于当前值的样本数）÷ 有效样本数。仅统计正值，PE / PB 均满 250 个样本后才计算对应分位与估值状态。',
   source: '中证指数官网提供 PE(TTM)；估值总览覆盖的指数同时提供指数 PB 和股息率。PB 判定五行只用行业 PB，不填行业股息率，也不用行业 PB÷指数 PE 估算 ROE（这两列对五行显示为 —）。创业板指、深证成指、深证100、深证红利采用国证指数网。其余指数 ROE（估算）= 指数 PB ÷ PE(TTM)。',
   chart: '曲线取每周最后一笔估值；PE 行参考线取窗口内逐日 PE 的 30%/70% 分位，PB 判定行参考线取行业 PB 周采样的 30%/70% 分位。历史序列按指数懒加载。',
   pbIndustry: [
@@ -99,9 +99,11 @@ function isRow(v: unknown, asOf: string): v is ValuationRow {
     (v.pbKind === 'industry'
       ? !(record(v.pbIndustry) && typeof v.pbIndustry.code === 'string' && typeof v.pbIndustry.name === 'string')
       : v.pbIndustry !== null)) return false
-  if (!positive(v.pe) || !pct(v.pePct) || (v.pb !== null && !positive(v.pb)) ||
+  if (!positive(v.pe) || (v.pb !== null && !positive(v.pb)) ||
     (v.dp !== null && (!finite(v.dp) || v.dp < 0)) || (v.roe !== null && !positive(v.roe)) ||
     !isHistory(v.peHistory, asOf) || v.peHistory.count < 1 || !isHistory(v.pbHistory, asOf)) return false
+  const peReady = v.peHistory.count >= 250
+  if (peReady ? !pct(v.pePct) : v.pePct !== null) return false
   const pbReady = v.pb !== null && v.pbHistory.count >= 250
   if (pbReady ? !pct(v.pbPct) : v.pbPct !== null) return false
   if (v.pb === null) {

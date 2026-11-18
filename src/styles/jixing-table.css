@@ -1,4 +1,17 @@
 .jt-page, .jt-card { min-width: 0; }
+.jt-search {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: end;
+  margin: var(--space-3) 0;
+}
+.jt-search label { flex: 1 1 12em; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.jt-search__label { font-size: 0.82rem; color: var(--text-secondary); }
+.jt-search input {
+  width: 100%; min-width: 0; box-sizing: border-box;
+  font: inherit; color: var(--text-primary); background: var(--bg-primary);
+  border: 1px solid var(--border-primary); border-radius: var(--radius-sm); padding: 8px 10px;
+}
+.jt-search__hint { margin: 0 0 var(--space-2); color: var(--text-secondary); font-size: 0.88rem; }
+.jt-search__hits { list-style: none; margin: 0 0 var(--space-3); padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .jt-card .seg { max-width: 100%; flex-wrap: wrap; margin-inline: 0; padding-inline: 0; }
 .jt-summary { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: var(--space-3) 0; }
 .jt-legend { margin: 0 0 var(--space-3); }

@@ -2,10 +2,13 @@ import React from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { PageTabs } from '../../components/ui/PageTabs'
 
-// 「三方平台 · 今天几星」的一级页签：对照微信小程序「今天几星」（银行螺丝钉）的几个主要页面，每个页签一个子路由、各自一份数据文件
+// 「三方平台 · 今天几星」的一级页签：对照微信小程序「今天几星」（银行螺丝钉）的几个主要页面
 export const JIXING_TABS = [
   { id: '/jixing', label: '今日星级' },
-  { id: '/jixing/table', label: 'A股估值表' },
+  { id: '/jixing/table', label: '估值表' },
+  { id: '/jixing/threshold', label: '阀值表' },
+  { id: '/jixing/map', label: '指数地图' },
+  { id: '/jixing/daily', label: '指数日报' },
   { id: '/jixing/global', label: '港股全球' },
   { id: '/jixing/signals', label: '牛熊信号板' },
 ] as const
@@ -14,7 +17,9 @@ export type JixingTab = (typeof JIXING_TABS)[number]['id']
 export default function JixingTabs(): JSX.Element {
   const { pathname } = useLocation()
   const navigate = useNavigate()
-  const value = (JIXING_TABS.find(t => t.id !== '/jixing' && pathname.startsWith(t.id))?.id ?? '/jixing') as JixingTab
+  // 较长路径优先匹配（避免 /jixing 抢掉子路由）
+  const value = ([...JIXING_TABS].reverse().find(t => pathname === t.id || pathname.startsWith(`${t.id}/`))?.id
+    ?? '/jixing') as JixingTab
   return <PageTabs label="今天几星页签" items={JIXING_TABS.map(t => ({ ...t }))} value={value} onChange={id => navigate(id)} />
 }
 

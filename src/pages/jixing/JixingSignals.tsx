@@ -42,8 +42,31 @@ function Group({ title, description, items }: { title: string; description: stri
   </Card>
 }
 
+const INDICATOR_NAMES: Partial<Record<string, string>> = {
+  buffett: '巴菲特指标',
+  erp: '股债性价比',
+  pb: '沪深市场 PB 分位',
+  trM2: '中证全指全收益 / M2',
+  margin: '融资余额 / 流通市值',
+  amount: '两市成交额',
+  ipo: '新股上市数与破发率',
+  ipoCount: '新股上市数',
+  ipoBroken: '新股破发率',
+  funds: '新成立偏股型基金',
+  accounts: '新增投资者（上交所）',
+}
+
 function SummaryLine({ data }: { data: JixingSignalsData }): JSX.Element {
   const s = data.summary
+  const errorIds = data.errors.map(error => error.split('：', 1)[0])
+  const missing = data.missing.filter(id => !errorIds.includes(id))
+  const updateNotes = [
+    ...data.errors.map((error, i) => {
+      const id = errorIds[i]
+      return (INDICATOR_NAMES[id] ?? id) + error.slice(id.length)
+    }),
+    ...missing.map(id => INDICATOR_NAMES[id] ?? id),
+  ]
   return <Card as="section" className="mm-card" title="信号计数" description={`数据日 ${data.asOf}（收盘后更新）`}>
     <ul className="jsg-summary">
       <li><span>估值类</span> 低估 <b>{s.低估}</b> · 正常 <b>{s.正常}</b> · 高估 <b>{s.高估}</b></li>
@@ -51,10 +74,10 @@ function SummaryLine({ data }: { data: JixingSignalsData }): JSX.Element {
     </ul>
     <ul className="jx-links">
       <li><Link to="/jixing">今日星级</Link></li>
-      <li><Link to="/jixing/table">A股估值表</Link></li>
+      <li><Link to="/jixing/table">估值表</Link></li>
     </ul>
     <SampleFootnote>{METHOD.signals}</SampleFootnote>
-    {data.missing.length || data.errors.length ? <SampleFootnote>本次未更新的指标：{[...data.errors, ...data.missing.filter(m => !data.errors.some(e => e.startsWith(m)))].join('；')}。</SampleFootnote> : null}
+    {updateNotes.length ? <SampleFootnote>本次未更新的指标：{updateNotes.join('；')}。</SampleFootnote> : null}
   </Card>
 }
 
@@ -79,6 +102,20 @@ export default function JixingSignals(): JSX.Element {
         <SummaryLine data={data} />
         <Group title="定量：估值" description="越便宜越接近熊市底部特征；信号为低估 / 正常 / 高估。" items={data.indicators.filter(i => i.group === 'valuation')} />
         <Group title="情绪：资金与参与度" description="越热越接近牛市特征；信号为偏牛 / 中性 / 偏熊。" items={data.indicators.filter(i => i.group === 'mood')} />
+        <Card as="section" className="mm-card" title="市场消息" description="本站整理，按时间倒序。">
+          {data.news?.length ? (
+            <ol className="jsg-news">
+              {data.news.map(n => (
+                <li key={`${n.date}-${n.url}`}>
+                  <time dateTime={n.date}>{n.date}</time>
+                  <a href={n.url} target="_blank" rel="noreferrer">{n.title}</a>
+                  <span className="jsg-news__src">{n.source}</span>
+                </li>
+              ))}
+            </ol>
+          ) : <p className="mm-empty">暂无整理的市场消息。</p>}
+          <SampleFootnote>{METHOD.news}</SampleFootnote>
+        </Card>
         <Card as="section" className="mm-card" title="口径与未纳入项">
           <ul className="jsg-notes">
             <li>{METHOD.update}</li>

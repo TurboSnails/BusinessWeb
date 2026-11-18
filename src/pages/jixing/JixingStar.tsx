@@ -70,7 +70,7 @@ function InputsCard({ data }: { data: JixingStarData }): JSX.Element {
   ]
   return <Card as="section" className="mm-card" title="三项输入" description={`同一交易日 ${data.asOf} 的数据；分位窗口为滚动近 ${data.params.windowYears} 年（不足时为已有全部历史）。`}>
     <ul className="jx-links">
-      <li><Link to="/jixing/table?code=000985">A股估值表 · 中证全指</Link></li>
+      <li><Link to="/jixing/table?code=000985">估值表 · 中证全指</Link></li>
       <li><Link to="/jixing/signals">牛熊信号板 · 股债性价比 / PB</Link></li>
     </ul>
     <TableWrap label="星级的三项输入" stickyFirst>
