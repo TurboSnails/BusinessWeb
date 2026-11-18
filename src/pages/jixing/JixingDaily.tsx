@@ -16,8 +16,8 @@ const BASE = import.meta.env.BASE_URL
 
 export default function JixingDaily(): JSX.Element {
   const [index, setIndex] = useState<JixingDailyIndex | null>(null)
-  const [report, setReport] = useState<JixingDailyReport | null>(null)
-  const [date, setDate] = useState<string | null>(null)
+  const [fetchedReport, setFetchedReport] = useState<JixingDailyReport | null>()
+  const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -26,31 +26,36 @@ export default function JixingDaily(): JSX.Element {
       .then(r => (r.ok ? r.json() : null))
       .then((body: unknown) => {
         if (c.signal.aborted) return
-        const idx = asJixingDailyIndex(body)
-        setIndex(idx)
-        if (idx) {
-          setDate(idx.latest.asOf)
-          setReport(idx.latest)
-        }
+        setIndex(asJixingDailyIndex(body))
       })
       .catch(() => { if (!c.signal.aborted) setIndex(null) })
       .finally(() => { if (!c.signal.aborted) setLoading(false) })
     return () => c.abort()
   }, [])
 
+  const date = selectedDate ?? index?.latest.asOf
+  const inlineReport = date === index?.latest.asOf && !index?.latest.truncated ? index?.latest : undefined
+  const report = inlineReport ?? fetchedReport
+
+  function selectDate(next: string) {
+    if (date === next) return
+    setSelectedDate(next)
+    setFetchedReport(undefined)
+  }
+
   useEffect(() => {
-    if (!index || !date) return
-    if (date === index.latest.asOf && !index.latest.truncated) {
-      setReport(index.latest)
-      return
-    }
+    if (!date || inlineReport) return
     const c = new AbortController()
     fetch(`${BASE}data/jixing-daily-${date}.json`, { cache: 'no-cache', signal: c.signal })
       .then(r => (r.ok ? r.json() : null))
-      .then((body: unknown) => { if (!c.signal.aborted) setReport(asJixingDailyReport(body)) })
-      .catch(() => { if (!c.signal.aborted) setReport(null) })
+      .then((body: unknown) => {
+        if (c.signal.aborted) return
+        const next = asJixingDailyReport(body)
+        setFetchedReport(next?.asOf === date ? next : null)
+      })
+      .catch(() => { if (!c.signal.aborted) setFetchedReport(null) })
     return () => c.abort()
-  }, [date, index])
+  }, [date, inlineReport])
 
   const dates = index?.dates ?? []
   const pos = date ? dates.indexOf(date) : -1
@@ -68,17 +73,17 @@ export default function JixingDaily(): JSX.Element {
         <>
           <Card title="日期" as="section" className="mm-card">
             <div className="jx-daily-nav">
-              <button type="button" className="btn-ghost" disabled={!older} onClick={() => older && setDate(older)}>上一天</button>
+              <button type="button" className="btn-ghost" disabled={!older} onClick={() => older && selectDate(older)}>上一天</button>
               <label className="jx-daily-pick">
-                <span className="sr-only">选择日期</span>
-                <select value={date ?? ''} onChange={e => setDate(e.target.value)} aria-label="选择日报日期">
+                <span className="visually-hidden">选择日报日期</span>
+                <select value={date ?? ''} onChange={e => selectDate(e.target.value)}>
                   {dates.map(d => <option key={d} value={d}>{d}</option>)}
                 </select>
               </label>
-              <button type="button" className="btn-ghost" disabled={!newer} onClick={() => newer && setDate(newer)}>下一天</button>
+              <button type="button" className="btn-ghost" disabled={!newer} onClick={() => newer && selectDate(newer)}>下一天</button>
             </div>
           </Card>
-          {!report ? <EmptyState title="该日日报加载失败">可换一天再试。</EmptyState> : (
+          {report === undefined ? <p role="status">正在读取 {date} 日报…</p> : !report ? <EmptyState title="该日日报加载失败">可换一天再试。</EmptyState> : (
             <>
               <Card title={`摘要 · ${report.asOf}`} as="section" className="mm-card"
                 description={report.missingPrev ? (report.note ?? '缺前一交易日快照') : `较 ${report.prevDate}`}>

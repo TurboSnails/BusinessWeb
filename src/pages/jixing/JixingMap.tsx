@@ -25,25 +25,27 @@ function CellLink({ c }: { c: MapCell }): JSX.Element {
   )
 }
 
-/** 宽基四象限：用 SVG 坐标，不用内联 style。 */
 function BroadQuadrant({ cells }: { cells: MapCell[] }): JSX.Element {
   return (
-    <svg className="jx-map-quad-svg" viewBox="0 0 100 100" role="img" aria-label="宽基四象限：横轴小盘到大盘，纵轴价值到成长">
-      <line className="jx-map-axis" x1="50" y1="4" x2="50" y2="96" />
-      <line className="jx-map-axis" x1="4" y1="50" x2="96" y2="50" />
-      <text className="jx-map-axis-label" x="6" y="96">小盘</text>
-      <text className="jx-map-axis-label" x="88" y="96">大盘</text>
-      <text className="jx-map-axis-label" x="4" y="10">成长</text>
-      <text className="jx-map-axis-label" x="4" y="54">价值</text>
+    <svg className="jx-map-quad-svg" viewBox="0 0 100 84" role="group" aria-label="宽基四象限：横轴小盘到大盘，纵轴价值到成长">
+      <line className="jx-map-axis" x1="50" y1="4" x2="50" y2="80" />
+      <line className="jx-map-axis" x1="4" y1="42" x2="96" y2="42" />
+      <text className="jx-map-axis-label" x="4" y="80">小盘</text>
+      <text className="jx-map-axis-label" x="90" y="82.5">大盘</text>
+      <text className="jx-map-axis-label" x="4" y="8">成长</text>
+      <text className="jx-map-axis-label" x="4" y="50">价值</text>
       {cells.map(c => {
-        const x = (c.size ?? 0.5) * 92 + 4
-        const y = (1 - (c.style ?? 0.5)) * 88 + 6
+        if (!c.position) return null
+        const { x, y } = c.position
+        // 汉字按一字宽预留空间，字母和数字较窄。
+        const width = Array.from(c.name).reduce((sum, ch) => sum + (/^[a-zA-Z0-9]$/.test(ch) ? 2 : 3.2), 4)
         const tone = c.status ?? 'empty'
+        const label = `${c.name} ${fmtPct(c.pct)} ${c.status ? VALUATION_STATUS[c.status].label : '无分位'}`
         return (
-          <Link key={c.code} to={c.href} className={`jx-map-svg-hit jx-map-svg-hit--${tone}`}>
-            <title>{`${c.name} ${fmtPct(c.pct)} ${c.status ? VALUATION_STATUS[c.status].label : '无分位'}`}</title>
-            <rect x={x - 7} y={y - 5} width="14" height="10" rx="1" />
-            <text x={x} y={y + 1} textAnchor="middle">{c.name.replace(/指数|中证/g, '').slice(0, 4)}</text>
+          <Link key={c.code} to={c.href} role="link" aria-label={label} className={`jx-map-svg-hit jx-map-svg-hit--${tone}`}>
+            <title>{label}</title>
+            <rect x={x - width / 2} y={y - 3.5} width={width} height="7" rx="1" />
+            <text x={x} y={y + 1} textAnchor="middle">{c.name}</text>
           </Link>
         )
       })}
@@ -85,7 +87,7 @@ export default function JixingMap(): JSX.Element {
   }, [])
 
   const filtered = (cells ?? []).filter(c => group === 'all' || c.group === group)
-  const broad = filtered.filter(c => c.group === 'broad' && c.size != null && c.style != null)
+  const broad = filtered.filter(c => c.group === 'broad' && c.position)
   const restGroups = MAP_GROUPS.filter(g => g.id !== 'all' && g.id !== 'broad')
 
   return (

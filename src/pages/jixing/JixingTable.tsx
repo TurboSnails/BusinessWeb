@@ -198,7 +198,7 @@ function ValuationTable({ data }: { data: JixingTableData }): JSX.Element {
             value={query}
             placeholder="名称 / 代码 / 拼音首字母"
             aria-label="按名称或代码搜索指数"
-            onChange={e => { setQuery(e.target.value); setSearchHint(null) }}
+            onChange={e => { setQuery(e.target.value); setHits([]); setSearchHint(null) }}
           />
         </label>
         <button type="submit" className="btn-ghost">搜索</button>

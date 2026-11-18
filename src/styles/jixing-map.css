@@ -7,11 +7,12 @@
 .jx-map-swatch--empty { background: var(--bg-secondary); }
 
 .jx-map-quad-wrap { margin: var(--space-3) 0; border: 1px solid var(--border-light); border-radius: var(--radius-md); background: var(--bg-card); overflow: hidden; }
-.jx-map-quad-svg { display: block; width: 100%; height: auto; aspect-ratio: 1.2 / 1; }
+.jx-map-quad-svg { display: block; width: 100%; height: auto; }
 .jx-map-axis { stroke: var(--border-light); stroke-width: 0.4; }
 .jx-map-axis-label { fill: var(--text-tertiary); font-size: 3px; }
 .jx-map-svg-hit rect { stroke: var(--border-primary); stroke-width: 0.3; }
-.jx-map-svg-hit text { fill: var(--text-primary); font-size: 2.6px; pointer-events: none; }
+.jx-map-svg-hit:focus-visible rect { stroke: var(--text-primary); stroke-width: 0.5; }
+.jx-map-svg-hit text { fill: var(--text-primary); font-size: 3px; pointer-events: none; }
 .jx-map-svg-hit--low rect { fill: color-mix(in srgb, var(--down) 30%, var(--bg-card)); }
 .jx-map-svg-hit--normal rect { fill: color-mix(in srgb, var(--system-orange, var(--text-tertiary)) 22%, var(--bg-card)); }
 .jx-map-svg-hit--high rect { fill: color-mix(in srgb, var(--up) 30%, var(--bg-card)); }
@@ -48,7 +49,7 @@
   font-size: 0.95rem;
 }
 
-@media (max-width: 390px) {
+@media (max-width: 640px) {
   .jx-map-quad-wrap { display: none; }
   .jx-map-grid--compact { display: grid; }
   .jx-map-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }

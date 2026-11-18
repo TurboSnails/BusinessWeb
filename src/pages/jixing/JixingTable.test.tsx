@@ -105,6 +105,21 @@ describe('估值表', () => {
     expect(await screen.findByText(/没有匹配/)).toBeTruthy()
   })
 
+  it('修改查询后立即清空上一轮多条搜索结果', async () => {
+    renderPage()
+    await screen.findByRole('table')
+    const input = screen.getByRole('searchbox')
+    fireEvent.change(input, { target: { value: '中证' } })
+    fireEvent.submit(input.closest('form')!)
+    expect(screen.getByRole('button', { name: '中证全指（000985）' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: '中证银行（399986）' })).toBeTruthy()
+
+    fireEvent.change(input, { target: { value: '沪深' } })
+    expect(screen.queryByRole('button', { name: '中证全指（000985）' })).toBeNull()
+    expect(screen.queryByRole('button', { name: '中证银行（399986）' })).toBeNull()
+    expect(screen.queryByText(/找到 2 条/)).toBeNull()
+  })
+
   it('运行时校验拒绝过期行、非法历史以及重复代码', () => {
     const [first] = tableFixture.rows
     expect(asJixingTable(tableFixture)).toEqual(tableFixture)

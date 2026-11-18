@@ -8,9 +8,7 @@ export type MapCell = {
   pct: number | null
   status: ValuationStatus | null
   href: string
-  /** 宽基象限：0=小盘…1=大盘；0=价值…1=成长 */
-  size?: number
-  style?: number
+  position?: { x: number; y: number }
 }
 
 export const MAP_GROUPS = [
@@ -25,23 +23,23 @@ export const MAP_GROUPS = [
 
 export type MapGroupFilter = typeof MAP_GROUPS[number]['id']
 
-/** 宽基规模×风格（本站自定示意坐标，非官方分类）。 */
-export const BROAD_AXES: Record<string, { size: number; style: number }> = {
-  '000016': { size: 0.95, style: 0.25 },
-  '000010': { size: 0.85, style: 0.35 },
-  '000001': { size: 0.8, style: 0.4 },
-  '000300': { size: 0.75, style: 0.45 },
-  '000906': { size: 0.65, style: 0.5 },
-  '000510': { size: 0.6, style: 0.5 },
-  '000905': { size: 0.45, style: 0.55 },
-  '000852': { size: 0.3, style: 0.6 },
-  '932000': { size: 0.15, style: 0.65 },
-  '399006': { size: 0.35, style: 0.85 },
-  '000688': { size: 0.4, style: 0.9 },
-  '399001': { size: 0.7, style: 0.55 },
-  '399330': { size: 0.75, style: 0.5 },
-  '000009': { size: 0.55, style: 0.55 },
-  '000985': { size: 0.5, style: 0.5 },
+/** 横轴从小盘到大盘，纵轴从成长到价值。示意坐标为指数名称留出间距。 */
+const BROAD_POSITIONS: Partial<Record<string, { x: number; y: number }>> = {
+  '000016': { x: 88, y: 75 },
+  '000010': { x: 88, y: 65 },
+  '000001': { x: 68, y: 65 },
+  '000300': { x: 68, y: 54 },
+  '000906': { x: 86, y: 42 },
+  '000510': { x: 68, y: 42 },
+  '000905': { x: 36, y: 34 },
+  '000852': { x: 27, y: 26 },
+  '932000': { x: 15, y: 18 },
+  '399006': { x: 29, y: 8 },
+  '000688': { x: 47, y: 13 },
+  '399001': { x: 77, y: 31 },
+  '399330': { x: 89, y: 53 },
+  '000009': { x: 58, y: 31 },
+  '000985': { x: 50, y: 42 },
 }
 
 export const METHOD = {
@@ -57,7 +55,6 @@ export function fromTableRow(r: {
   code: string; name: string; group: string; pePct: number | null; pbPct: number | null; basis: string; status: ValuationStatus | null
 }): MapCell {
   const pct = r.basis === 'pb' ? r.pbPct : r.pePct
-  const axes = BROAD_AXES[r.code]
   return {
     code: r.code,
     name: r.name,
@@ -65,7 +62,7 @@ export function fromTableRow(r: {
     pct,
     status: r.status,
     href: `/jixing/table?code=${r.code}`,
-    ...(axes ?? {}),
+    position: BROAD_POSITIONS[r.code],
   }
 }
 

@@ -17,11 +17,14 @@ afterEach(() => { cleanup(); vi.unstubAllGlobals() })
 
 describe('今天几星 · 牛熊信号板', () => {
   it('计数、分组、信号色、规则、迷你图与市场消息', async () => {
-    renderPage()
+    const data = signalsFixture()
+    renderPage({ ...data, missing: [...data.missing, 'trM2'] })
     expect(await screen.findByText('信号计数')).toBeTruthy()
     expect(screen.getByRole('tab', { name: '牛熊信号板' }).getAttribute('aria-selected')).toBe('true')
     expect(screen.getByText('估值类').parentElement?.textContent).toContain('低估 2 · 正常 0 · 高估 0')
-    expect(screen.getByText(/funds：新发基金缺最近完整月/)).toBeTruthy()
+    const updateNote = screen.getByText(/^本次未更新的指标：/).textContent
+    expect(updateNote).toContain('新成立偏股型基金：新发基金缺最近完整月')
+    expect(updateNote).toContain('中证全指全收益 / M2')
     const buffett = screen.getByText('巴菲特指标').closest('li')!
     expect(within(buffett).getByText('68.1%')).toBeTruthy()
     expect(within(buffett).getByText('低估').className).toContain('ui-badge--down')

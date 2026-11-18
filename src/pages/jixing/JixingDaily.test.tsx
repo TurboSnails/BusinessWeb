@@ -27,11 +27,17 @@ describe('指数日报', () => {
     expect(screen.getByRole('link', { name: '沪深300' }).getAttribute('href')).toBe('/jixing/table?code=000300')
   })
 
-  it('日期切换', async () => {
+  it('历史日报加载期间隐藏旧内容，返回最新日后直接显示摘要', async () => {
     renderPage()
     await screen.findByText(/摘要 · 2026-11-17/)
     fireEvent.click(screen.getByRole('button', { name: '上一天' }))
+    expect(screen.getByRole('status').textContent).toBe('正在读取 2026-11-14 日报…')
+    expect(screen.queryByText(/摘要 · 2026-11-17/)).toBeNull()
     expect(await screen.findByText(/摘要 · 2026-11-14/)).toBeTruthy()
+
+    fireEvent.change(screen.getByRole('combobox', { name: '选择日报日期' }), { target: { value: '2026-11-17' } })
+    expect(screen.getByText(/摘要 · 2026-11-17/)).toBeTruthy()
+    expect(screen.queryByRole('status')).toBeNull()
   })
 
   it('空态', async () => {

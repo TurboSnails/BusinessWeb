@@ -42,8 +42,31 @@ function Group({ title, description, items }: { title: string; description: stri
   </Card>
 }
 
+const INDICATOR_NAMES: Partial<Record<string, string>> = {
+  buffett: '巴菲特指标',
+  erp: '股债性价比',
+  pb: '沪深市场 PB 分位',
+  trM2: '中证全指全收益 / M2',
+  margin: '融资余额 / 流通市值',
+  amount: '两市成交额',
+  ipo: '新股上市数与破发率',
+  ipoCount: '新股上市数',
+  ipoBroken: '新股破发率',
+  funds: '新成立偏股型基金',
+  accounts: '新增投资者（上交所）',
+}
+
 function SummaryLine({ data }: { data: JixingSignalsData }): JSX.Element {
   const s = data.summary
+  const errorIds = data.errors.map(error => error.split('：', 1)[0])
+  const missing = data.missing.filter(id => !errorIds.includes(id))
+  const updateNotes = [
+    ...data.errors.map((error, i) => {
+      const id = errorIds[i]
+      return (INDICATOR_NAMES[id] ?? id) + error.slice(id.length)
+    }),
+    ...missing.map(id => INDICATOR_NAMES[id] ?? id),
+  ]
   return <Card as="section" className="mm-card" title="信号计数" description={`数据日 ${data.asOf}（收盘后更新）`}>
     <ul className="jsg-summary">
       <li><span>估值类</span> 低估 <b>{s.低估}</b> · 正常 <b>{s.正常}</b> · 高估 <b>{s.高估}</b></li>
@@ -54,7 +77,7 @@ function SummaryLine({ data }: { data: JixingSignalsData }): JSX.Element {
       <li><Link to="/jixing/table">估值表</Link></li>
     </ul>
     <SampleFootnote>{METHOD.signals}</SampleFootnote>
-    {data.missing.length || data.errors.length ? <SampleFootnote>本次未更新的指标：{[...data.errors, ...data.missing.filter(m => !data.errors.some(e => e.startsWith(m)))].join('；')}。</SampleFootnote> : null}
+    {updateNotes.length ? <SampleFootnote>本次未更新的指标：{updateNotes.join('；')}。</SampleFootnote> : null}
   </Card>
 }
 
