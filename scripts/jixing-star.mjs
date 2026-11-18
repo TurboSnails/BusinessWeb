@@ -1,20 +1,25 @@
-// 今天几星 · 今日星级：盘后计算本站自定的 A 股星级（1.0–5.9 星，越高越便宜）。
-// 输入：中证全指滚动 PE（中证官网行情）、沪深市场 PB（中证官网「行业市盈率」板块口径）、10 年期国债收益率（东财 · 中债口径）。
-// 只用带日期的公开源；数据日 = 三项当日都已发布的最后一个交易日。任何环节失败都不写文件（保留上一份）。
+// 今天几星 · 今日星级。行业中性和中证全指口径各用各自最新已发布的交易日。
 import fs from 'node:fs'
 import { isTradingDay, prevTradingDay } from './market-mood-lib.mjs'
 import { addDays, csiPerfUrl, emPaginate, emUrl } from './ths-market-lib.mjs'
-import { MV_FROM, mvUrl, parsePerfSeries, parseMarketVal, treasuryMap, buildStarRows, pickAsOf, buildStarData } from './jixing-star-lib.mjs'
+import { industryPbUrl } from './jixing-table-lib.mjs'
+import {
+  MV_FROM, CHECKS, mvUrl, parsePerfSeries, parseMarketVal, treasuryMap, buildStarRows, pickAsOf, buildStarData,
+  applyNeutralIndustry, planNeutralIndustryDates, buildNeutralData,
+} from './jixing-star-lib.mjs'
 
 const OUT = 'public/data/jixing-star.json'
 const RAW = 'data-raw/jixing-star'
 const MV_FILE = `${RAW}/market-valuation.json`
-const MV_CAP = 60 // 每次最多补抓的 PB 日数（日常 1–2 天；首次回补已离线完成并入库）
+const INDUSTRY_FILE = `${RAW}/industry-valuation.json`
+const MV_CAP = 60 // 首次回补已经入库，日常只补最近缺口。
 const UA = { 'user-agent': 'Mozilla/5.0', referer: 'https://www.csindex.com.cn/' }
+let requests = 0
 
 async function get(url) {
   for (let i = 0; ; i++) {
     try {
+      requests++
       const res = await fetch(url, { headers: UA, signal: AbortSignal.timeout(30000) })
       if (!res.ok) throw new Error(`HTTP ${res.status} ${url.slice(0, 80)}`)
       return await res.json()
@@ -27,52 +32,135 @@ function targetDate(now = new Date()) {
   const bj = new Date(now.getTime() + 8 * 3600e3)
   const today = bj.toISOString().slice(0, 10)
   const afterClose = bj.getUTCHours() * 60 + bj.getUTCMinutes() >= 15 * 60 + 30
-  return { today, candidate: isTradingDay(today) && afterClose ? today : prevTradingDay(today) }
+  return isTradingDay(today) && afterClose ? today : prevTradingDay(today)
 }
 
-async function main() {
-  const t0 = Date.now()
-  const { today, candidate } = targetDate()
+function readJson(file, fallback) {
+  return fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : fallback
+}
+
+function writeAtomic(file, content) {
+  if (fs.existsSync(file) && fs.readFileSync(file, 'utf8') === content) return
+  const tmp = `${file}.${process.pid}.tmp`
+  fs.writeFileSync(tmp, content)
+  fs.renameSync(tmp, file)
+}
+
+function writeDateStore(file, store) {
+  const sorted = Object.entries(store).sort(([a], [b]) => a.localeCompare(b))
+  writeAtomic(file, `{\n${sorted.map(([d, v]) => `${JSON.stringify(d)}:${JSON.stringify(v)}`).join(',\n')}\n}\n`)
+}
+
+async function fetchNeutral(mv, candidate, backfill) {
+  const store = readJson(INDUSTRY_FILE, {})
+  const days = new Set(Object.keys(mv).filter(d => mv[d]))
+  // 近期交易日由交易日历补足，行业发布无需等待板块 PB。
+  let day = candidate
+  for (let i = 0; i < 10; i++) {
+    day = prevTradingDay(day)
+    days.add(day)
+  }
+  const missing = planNeutralIndustryDates(store, candidate, [...days].sort(), backfill)
+  const pending = []
+  let fetched = 0
+  let cursor = 0
+  const worker = async () => {
+    while (cursor < missing.length) {
+      const date = missing[cursor++]
+      try {
+        if (applyNeutralIndustry(store, date, await get(industryPbUrl(date)))) fetched++
+        else pending.push(date)
+      } catch (e) {
+        pending.push(date)
+        console.warn(`中证行业 ${date} 采集失败：${e.message}`)
+      }
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(missing.length, backfill ? 12 : 6) }, worker))
+  if (fetched) writeDateStore(INDUSTRY_FILE, store)
+  const data = buildNeutralData(store, candidate, prevTradingDay)
+  if (pending.length) console.warn(`中证行业未入库 ${pending.length} 日（未发布、日期不符或请求失败）：${pending.sort().slice(-12).join('、')}`)
+  return { data, fetched, planned: missing.length, pending: pending.length }
+}
+
+async function fetchLegacy(mv, candidate) {
   const perf = parsePerfSeries(await get(csiPerfUrl('000985', '2011-01-01', candidate))).filter(r => r.date <= candidate)
   if (!perf.length) throw new Error('中证全指行情为空')
 
-  // PB：本地累积的逐日板块估值，只补缺的日子（新的优先）；当日未发布的不记，旧日确实无数据的记 null 不再重抓
-  const mv = fs.existsSync(MV_FILE) ? JSON.parse(fs.readFileSync(MV_FILE, 'utf8')) : {}
+  // 板块 PB 只补本地缺口，新的优先；当日未发布的不记。
   const missing = perf.map(r => r.date).filter(d => d >= MV_FROM && !(d in mv)).reverse().slice(0, MV_CAP)
-  let fetched = 0
-  for (const d of missing) {
-    const s = parseMarketVal(await get(mvUrl(d)), d)
-    if (s.status === 'ok') { mv[d] = [s.pb, s.pe, s.dp]; fetched++ } else if (s.status === 'other-day' && d < addDays(candidate, -10)) mv[d] = null
+  for (const date of missing) {
+    const s = parseMarketVal(await get(mvUrl(date)), date)
+    if (s.status === 'ok') mv[date] = [s.pb, s.pe, s.dp]
+    else if (s.status === 'other-day' && date < addDays(candidate, -10)) mv[date] = null
   }
+  writeDateStore(MV_FILE, mv)
   const pb = Object.fromEntries(Object.entries(mv).map(([d, v]) => [d, v ? v[0] : null]))
-
   const y10 = treasuryMap(await emAll({ reportName: 'RPTA_WEB_TREASURYYIELD', columns: 'SOLAR_DATE,EMM00166466', filter: "(SOLAR_DATE>='2011-01-01')", sortColumns: 'SOLAR_DATE', sortTypes: '1' }))
   if (y10.size < 2000) throw new Error(`10 年国债历史过短（${y10.size}）`)
 
   const rows = buildStarRows({ perf, pb, y10 })
   const idx = pickAsOf(rows, candidate)
-  fs.mkdirSync(RAW, { recursive: true })
-  const sorted = Object.fromEntries(Object.entries(mv).sort(([a], [b]) => a.localeCompare(b)))
-  // 一天一行，便于逐日 diff
-  const mvText = `{\n${Object.entries(sorted).map(([d, v]) => `${JSON.stringify(d)}:${JSON.stringify(v)}`).join(',\n')}\n}\n`
-  if (idx < 0) { fs.writeFileSync(MV_FILE, mvText); console.log(`${today}：三项输入没有共同的完整交易日，未更新`); return }
+  if (idx < 0) throw new Error('三项输入没有共同的完整交易日')
   const data = buildStarData(rows, idx)
-  let prev = null
-  try { prev = JSON.parse(fs.readFileSync(OUT, 'utf8')) } catch { /* 无旧文件 */ }
-  fs.writeFileSync(MV_FILE, mvText)
-  if (prev?.asOf && prev.asOf > data.asOf) { console.log(`已有更新的星级文件（${prev.asOf}），本次 ${data.asOf} 不覆盖`); return }
-  if (data.asOf !== candidate) console.log(`${candidate} 的输入尚未全部发布（PE ${perf.at(-1).date} / PB ${Object.keys(sorted).filter(d => sorted[d]).at(-1)} / 国债 ${[...y10.keys()].sort().at(-1)}），数据日取 ${data.asOf}`)
-  const out = {
-    ...data, generatedAt: new Date().toISOString(),
+  return {
+    ...data,
     sources: [
       { label: '中证指数官网 · 中证全指行情（滚动市盈率）', url: csiPerfUrl('000985', addDays(data.asOf, -30), data.asOf) },
       { label: '中证指数官网 · 行业市盈率（板块：沪深市场 PB）', url: mvUrl(data.asOf) },
       { label: '东方财富 · 中美国债收益率（中债 10 年期）', url: emUrl({ reportName: 'RPTA_WEB_TREASURYYIELD', columns: 'SOLAR_DATE,EMM00166466' }) },
     ],
   }
-  fs.writeFileSync(`${OUT}.tmp`, JSON.stringify(out) + '\n')
-  fs.renameSync(`${OUT}.tmp`, OUT)
-  console.log(JSON.stringify({ asOf: data.asOf, star: data.star, band: data.band, change: data.change, history: data.history.length, pbFetched: fetched, ms: Date.now() - t0 }))
+}
+
+async function main() {
+  const t0 = Date.now()
+  const candidate = targetDate()
+  fs.mkdirSync(RAW, { recursive: true })
+  const mv = readJson(MV_FILE, {})
+  const previous = readJson(OUT, {})
+  const [industry, legacy] = await Promise.all([
+    fetchNeutral(mv, candidate, process.argv.includes('--backfill-industry')),
+    fetchLegacy(mv, candidate).catch(e => { console.warn(`中证全指口径使用最近已发布文件：${e.message}`); return null }),
+  ])
+
+  const neutral = industry.data
+  const priorNeutral = previous.neutral
+  const publishedNeutral = !neutral || priorNeutral?.asOf > neutral.asOf ||
+    (priorNeutral?.asOf === neutral.asOf && priorNeutral.count > neutral.count) ? priorNeutral : neutral
+  const publishedLegacy = legacy && !(previous.asOf > legacy.asOf) ? legacy : previous
+  if (!publishedLegacy.asOf || !publishedNeutral) {
+    console.log(JSON.stringify({ candidate, industryPlanned: industry.planned, industryFetched: industry.fetched, requests, ms: Date.now() - t0 }))
+    if (!publishedLegacy.asOf && !legacy) throw new Error('没有已发布的中证全指口径数据')
+    console.log(`${candidate}：尚无可计算的行业中性星级，保留已有文件`)
+    return
+  }
+  if (publishedNeutral.asOf !== candidate || publishedLegacy.asOf !== candidate) {
+    console.log(`${candidate} 尚未齐备：行业中性取 ${publishedNeutral.asOf}，中证全指口径取 ${publishedLegacy.asOf}`)
+  }
+  // 老字段继续提供中证全指口径，包括由日报读取的 asOf/star/history。
+  const { generatedAt, ...legacyData } = publishedLegacy
+  const byDate = new Map(legacyData.checks.map(row => [row.date, row]))
+  const stars = new Map(legacyData.history)
+  const checks = CHECKS.map(c => ({
+    star: stars.get(c.date) ?? null, band: null, pe: null, pb: mv[c.date]?.[0] ?? null, erp: null,
+    ...byDate.get(c.date), ...c,
+  }))
+  const out = {
+    ...legacyData, checks, neutral: publishedNeutral,
+    sources: [
+      ...legacyData.sources.filter(s => !s.url.endsWith('classType=2')),
+      { label: '中证指数官网 · 中证行业分类一级行业（滚动 PE 与 PB）', url: industryPbUrl(publishedNeutral.asOf) },
+    ],
+  }
+  const { generatedAt: previousTime, ...previousData } = previous
+  const unchanged = JSON.stringify(out) === JSON.stringify(previousData)
+  writeAtomic(OUT, JSON.stringify({ ...out, generatedAt: unchanged ? (previousTime ?? generatedAt) : new Date().toISOString() }) + '\n')
+  console.log(JSON.stringify({
+    candidate, asOf: publishedNeutral.asOf, neutralStar: publishedNeutral.star, industries: publishedNeutral.count,
+    history: publishedNeutral.history.length, legacyAsOf: publishedLegacy.asOf, legacyStar: publishedLegacy.star,
+    industryPlanned: industry.planned, industryFetched: industry.fetched, industryPending: industry.pending, requests, ms: Date.now() - t0,
+  }))
 }
 
 main().catch(e => { console.error(`今日星级采集失败，未发布数据：${e.message}`); process.exitCode = 1 })

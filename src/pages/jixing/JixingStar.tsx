@@ -6,7 +6,7 @@ import { PageTitle } from '../../components/ui/PageTabs'
 import JixingTabs, { JIXING_DISCLAIMER } from '../../features/jixing-tabs/JixingTabs'
 import { SampleFootnote } from '../../features/jixing-tabs/StatusBadge'
 import MoodChart from '../../features/market-mood/MoodChart'
-import { METHOD, asJixingStar, bandOf, fix, pct, signed, starTone, type JixingStarData, type StarInput } from '../../features/jixing-star/model'
+import { METHOD, asJixingStar, bandOf, fix, pct, signed, starTone, type JixingStarData, type NeutralStar, type StarCheck, type StarInput } from '../../features/jixing-star/model'
 import '../../styles/market-mood.css'
 import '../../styles/jixing-star.css'
 
@@ -16,7 +16,7 @@ const yy = (d: string): string => d.slice(0, 4)
 const back = (d: string, years: number): string => `${Number(d.slice(0, 4)) - years}${d.slice(4)}`
 
 /** 星级尺：色条在 SVG 内；刻度/标签用 HTML，避免 viewBox 缩放把字压到 12px 以下。 */
-function Ruler({ data }: { data: JixingStarData }): JSX.Element {
+function Ruler({ data }: { data: Pick<JixingStarData, 'bands' | 'star' | 'band'> }): JSX.Element {
   const W = 600, L = 8, R = 8
   const x = (v: number): number => L + ((v - 1) / 5) * (W - L - R)
   const bands = [...data.bands].sort((a, b) => a.min - b.min)
@@ -42,21 +42,51 @@ function Ruler({ data }: { data: JixingStarData }): JSX.Element {
 }
 
 function Hero({ data }: { data: JixingStarData }): JSX.Element {
-  const tone = starTone(data.star)
-  return <Card as="section" className="mm-card js-hero" title="今日星级" description={`数据日 ${data.asOf}（收盘后计算，每天一次，不做盘中更新）`}>
+  const main = data.neutral ?? data
+  const tone = starTone(main.star)
+  return <Card as="section" className="mm-card js-hero" title={data.neutral ? '行业中性星级' : '中证全指口径星级'} description={`数据日 ${main.asOf}（收盘后计算，不做盘中更新）`}>
     <div className="js-hero__main">
-      <p className="js-hero__star"><strong>{data.star.toFixed(1)}</strong><span>星</span></p>
+      <p className="js-hero__star"><strong>{main.star.toFixed(1)}</strong><span>星</span></p>
       <div className="js-hero__meta">
-        <Badge tone={tone}>{data.band}</Badge>
+        <Badge tone={tone}>{main.band}</Badge>
         <p className="js-hero__change">
-          较上一交易日{data.prevDate ? `（${data.prevDate}，${fix(data.prevStar, 1)} 星）` : ''}：
-          <b className={data.change === null || data.change === 0 ? '' : data.change > 0 ? 'mm-down' : 'mm-up'}>{data.change === null ? '—' : `${signed(data.change)} 星`}</b>
+          较上一交易日{main.prevDate && main.prevStar !== null ? `（${main.prevDate}，${fix(main.prevStar, 1)} 星）` : ''}：
+          <b className={main.change === null || main.change === 0 ? '' : main.change > 0 ? 'mm-down' : 'mm-up'}>{main.change === null ? '—' : `${signed(main.change)} 星`}</b>
         </p>
-        <p className="mm-method">星级越高越便宜；变化为正（绿）表示估值较前一日更低。未截断的原始值 {fix(data.raw, 2)}。</p>
+        <p className="mm-method">星级越高越便宜；变化为正（绿）表示估值较前一日更低。未截断的原始值 {fix(main.raw, 4)}。</p>
       </div>
     </div>
-    <Ruler data={data} />
+    <Ruler data={{ bands: data.bands, star: main.star, band: main.band }} />
+    {data.neutral ? <div className="js-hero__comparison">
+      <p><strong>中证全指口径星级 {data.star.toFixed(1)} 星</strong> · {data.asOf}</p>
+      <p>股债性价比 {data.inputs.erp.value === null ? '—' : `${fix(data.inputs.erp.value)} 个百分点`} · {data.asOf}</p>
+      <SampleFootnote>{METHOD.neutralErp}</SampleFootnote>
+    </div> : <SampleFootnote>暂无行业中性数据。</SampleFootnote>}
     <SampleFootnote>{METHOD.bands}</SampleFootnote>
+  </Card>
+}
+
+function IndustriesCard({ data }: { data: NeutralStar }): JSX.Element {
+  const sample = (metric: NeutralStar['industries'][number]['pe']): string =>
+    metric.start ? `${metric.start}（${metric.n} 周）` : '—'
+  return <Card as="section" className="mm-card" title="一级行业估值分位" description={`${data.asOf} · ${data.count}/${data.industries.length} 个行业参与计算`}>
+    <TableWrap label="一级行业估值分位" stickyFirst>
+      <table className="mm-table js-table">
+        <thead><tr>{['行业', 'PE(TTM)', 'PE 分位', 'PB', 'PB 分位', '便宜度', 'PE 样本起点', 'PB 样本起点'].map(h => <th key={h} scope="col">{h}</th>)}</tr></thead>
+        <tbody>{data.industries.map(row => <tr key={row.code}>
+          <th scope="row">{row.name}<small>{row.code}（旧 {row.oldCode}）</small></th>
+          <td className="num">{fix(row.pe.value)}</td>
+          <td className="num">{pct(row.pe.pct)}</td>
+          <td className="num">{fix(row.pb.value)}</td>
+          <td className="num">{pct(row.pb.pct)}</td>
+          <td className="num">{pct(row.cheapness === null ? null : 100 * row.cheapness)}</td>
+          <td>{sample(row.pe)}</td>
+          <td>{sample(row.pb)}</td>
+        </tr>)}</tbody>
+      </table>
+    </TableWrap>
+    <SampleFootnote>中证行业分类的通信服务（50）接续旧版电信业务（08）。</SampleFootnote>
+    <SampleFootnote>{METHOD.neutral}</SampleFootnote>
   </Card>
 }
 
@@ -68,7 +98,7 @@ function InputsCard({ data }: { data: JixingStarData }): JSX.Element {
     { key: 'pb', name: <>沪深市场 PB <Link to="/jixing/signals">信号板</Link></>, i: pb, value: fix(pb.value), median: fix(pb.median), hint: '越低越便宜' },
     { key: 'erp', name: <>股债性价比 <Link to="/jixing/signals">信号板</Link></>, i: erp, value: erp.value === null ? '—' : `${fix(erp.value)} 个百分点`, median: erp.median === null ? '—' : `${fix(erp.median)} 个百分点`, hint: '越高越便宜' },
   ]
-  return <Card as="section" className="mm-card" title="三项输入" description={`同一交易日 ${data.asOf} 的数据；分位窗口为滚动近 ${data.params.windowYears} 年（不足时为已有全部历史）。`}>
+  return <Card as="section" className="mm-card" title="中证全指口径的三项输入" description={`同一交易日 ${data.asOf} 的数据；分位窗口为滚动近 ${data.params.windowYears} 年（不足时为已有全部历史）。`}>
     <ul className="jx-links">
       <li><Link to="/jixing/table?code=000985">估值表 · 中证全指</Link></li>
       <li><Link to="/jixing/signals">牛熊信号板 · 股债性价比 / PB</Link></li>
@@ -92,21 +122,25 @@ function InputsCard({ data }: { data: JixingStarData }): JSX.Element {
 }
 
 const RANGES = [{ id: '1', label: '近 1 年' }, { id: '3', label: '近 3 年' }, { id: '5', label: '近 5 年' }, { id: 'all', label: '全部' }]
+const BASES = [{ id: 'neutral', label: '行业中性' }, { id: 'legacy', label: '中证全指口径' }]
 const INPUTS = [{ id: '1', label: 'PE(TTM)' }, { id: '2', label: 'PB' }, { id: '3', label: '股债性价比' }]
 
 function HistoryCard({ data }: { data: JixingStarData }): JSX.Element {
+  const [basis, setBasis] = useState('neutral')
+  const neutral = basis === 'neutral' ? data.neutral : undefined
   const [range, setRange] = useState('3')
   const [inp, setInp] = useState('1')
   const pts = useMemo(() => {
-    const from = range === 'all' ? '' : back(data.asOf, Number(range))
-    return data.history.filter(p => p[0] > from).map(([date, value]) => ({ date, value }))
-  }, [data, range])
+    const from = range === 'all' ? '' : back(neutral?.asOf ?? data.asOf, Number(range))
+    return (neutral?.history ?? data.history).filter(p => p[0] > from).map(([date, value]) => ({ date, value }))
+  }, [data, neutral, range])
   const inputPts = useMemo(() => data.inputsWeekly.map(p => ({ date: p[0], value: p[Number(inp)] as number | null })), [data, inp])
   const label = RANGES.find(r => r.id === range)?.label ?? ''
-  return <Card as="section" className="mm-card" title="历史星级" description={`自 ${data.since.star ?? '—'} 起逐个交易日；点按或移到图上读取当天星级。`}>
+  return <Card as="section" className="mm-card" title="历史星级" description={`自 ${neutral?.history[0]?.[0] ?? data.since.star ?? '—'} 起${neutral ? '按周采样' : '逐个交易日'}，点按或移动到图上读取星级。`}>
+    {data.neutral && <Segmented items={BASES} value={basis} onChange={setBasis} label="历史星级口径" />}
     <Segmented items={RANGES} value={range} onChange={setRange} label="历史星级区间" />
     <MoodChart
-      label={`历史星级（${label}）`} points={pts} format={v => v.toFixed(1)}
+      label={`${neutral ? '行业中性' : '中证全指口径'}历史星级（${label}）`} points={pts} format={v => v.toFixed(1)}
       tipFormat={v => `${v.toFixed(1)} 星 · ${bandOf(data.bands, v) ?? ''}`}
       refs={[{ value: 5, label: '5 星' }, { value: 3, label: '3 星' }, { value: 2, label: '2 星' }]}
       tick={range === '1' ? ym : range === 'all' ? yy : ym}
@@ -117,22 +151,29 @@ function HistoryCard({ data }: { data: JixingStarData }): JSX.Element {
   </Card>
 }
 
+function checkValue(star: number | null, ref: StarCheck): string {
+  if (star === null) return '—'
+  if (ref.refMax === undefined) return `${star.toFixed(1)} 星`
+  const min = signed(star - ref.refMax)
+  const delta = ref.refMin === null ? `≥ ${min}` : ref.refMin === undefined || ref.refMin === ref.refMax ? min : `${min} 至 ${signed(star - ref.refMin)}`
+  return `${star.toFixed(1)} 星（偏差 ${delta}）`
+}
+
 function ChecksCard({ data }: { data: JixingStarData }): JSX.Element {
-  return <Card as="section" className="mm-card" title="与公开文章里的螺丝钉星级对照" description="右列为公开文章里提到的银行螺丝钉当日星级（近似）；本站数值按本页公式独立计算。">
-    <TableWrap label="星级对照">
+  const neutral = new Map(data.neutral?.checks.map(row => [row.date, row.star]))
+  return <Card as="section" className="mm-card" title="与螺丝钉星级对照" description="参考值来自公开文章及用户的小程序观察。偏差为本站星级减去参考星级，单位为星。">
+    <TableWrap label="星级对照" stickyFirst>
       <table className="mm-table js-table">
-        <thead><tr>{['日期', '本站星级', '本站区间', '公开文章里的螺丝钉星级', '中证全指 PE', '股债性价比'].map(h => <th key={h} scope="col">{h}</th>)}</tr></thead>
+        <thead><tr>{['日期', '螺丝钉参考星级', '行业中性星级', '中证全指口径星级'].map(h => <th key={h} scope="col">{h}</th>)}</tr></thead>
         <tbody>{data.checks.map(c => <tr key={c.date}>
-          <td>{c.date}</td>
-          <td className="num">{c.star === null ? '—' : `${c.star.toFixed(1)} 星`}</td>
-          <td>{c.band ?? '—'}</td>
+          <th scope="row">{c.date}</th>
           <td>{c.ref}</td>
-          <td className="num">{fix(c.pe)}</td>
-          <td className="num">{fix(c.erp)}</td>
+          <td className="num">{checkValue(neutral.get(c.date) ?? null, c)}</td>
+          <td className="num">{checkValue(c.star, c)}</td>
         </tr>)}</tbody>
       </table>
     </TableWrap>
-    <p className="mm-method">{METHOD.differ}</p>
+    <SampleFootnote>{METHOD.differ}</SampleFootnote>
   </Card>
 }
 
@@ -153,12 +194,20 @@ export default function JixingStar(): JSX.Element {
       <PageTitle>今天几星 · 今日星级</PageTitle>
       <JixingTabs />
       <p className="mm-disclaimer">{JIXING_DISCLAIMER}</p>
-      {loading ? <p role="status">正在读取星级数据…</p> : !data ? <EmptyState title="暂无星级数据">收盘后三项输入齐全才更新；数据文件缺失或格式异常时不展示。</EmptyState> : <>
+      {loading ? <p role="status">正在读取星级数据…</p> : !data ? <EmptyState title="暂无星级数据">收盘后更新，待公开数据发布。</EmptyState> : <>
         <Hero data={data} />
+        {data.neutral && <IndustriesCard data={data.neutral} />}
         <InputsCard data={data} />
         <HistoryCard data={data} />
         <ChecksCard data={data} />
         <Card as="section" className="mm-card" title="计算方法">
+          <h3 className="js-sub">行业中性口径</h3>
+          <ul className="js-list">
+            <li>{METHOD.neutralScope}</li>
+            <li>{METHOD.neutralScore}</li>
+            <li>{METHOD.neutralErp}</li>
+          </ul>
+          <h3 className="js-sub">中证全指口径</h3>
           <ul className="js-list">
             <li>{METHOD.formula(data.params)}</li>
             <li>{METHOD.subs(data.params)}</li>
