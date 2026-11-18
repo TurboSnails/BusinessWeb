@@ -58,7 +58,7 @@ export function validateBoards(rows, date, { min, max, label }) {
   return rows
 }
 
-/** 东财 ulist（个股）→ Map(code → { industry, concepts[] })；industry 为申万二级行业名，concepts 为所属概念名 */
+/** 东财 ulist（个股）→ Map(code → { industry, region, concepts[] })；industry 为申万二级行业名，region 为地域板块名（f102），concepts 为所属概念名 */
 export function parseStockMeta(body) {
   const d = body?.data
   if (body?.rc !== 0 || !d || !Array.isArray(d.diff)) throw new Error('东财个股所属板块结构异常')
@@ -66,7 +66,7 @@ export function parseStockMeta(body) {
   for (const r of d.diff) {
     if (!/^\d{6}$/.test(r?.f12)) continue
     const concepts = typeof r.f103 === 'string' ? r.f103.split(',').map((s) => s.trim()).filter((s) => s && s !== '-') : []
-    out.set(r.f12, { industry: str(r.f100), concepts })
+    out.set(r.f12, { industry: str(r.f100), region: str(r.f102), concepts })
   }
   return out
 }
@@ -367,4 +367,167 @@ export function pickBase(latest, base, date, prevDay) {
 export function mergeChanges(store, date, rec, keep = 60) {
   const all = { ...(store ?? {}), [date]: rec }
   return Object.fromEntries(Object.entries(all).sort(([a], [b]) => a.localeCompare(b)).slice(-keep))
+}
+
+/* ---------- 板块关联 ETF（开盘啦 PlateEtfDetail） ---------- */
+// ETF 行情：东财 clist fs=b:MK0021（场内股票型 ETF；MK0022 货币、MK0023 跨境、MK0024 商品与 A 股行业 / 概念板块无关，不取）。
+// 跟踪指数：东财基金基本资料（fundmobapi FundMNNBasicInformation 的 INDEXCODE / INDEXNAME），逐只查询后缓存在
+// data-raw/kpl-plates/etf-index.json；站内人工核验的 ETF 目录（public/data/index-etf-catalog.json）有的以目录为准。
+// 板块 → ETF：用下面人工审核的关键词表，板块名精确命中某条规则后，跟踪指数名称符合该规则的 ETF 记为关联；表里没有的板块不硬配。
+
+export const ETF_INDEX_TTL_DAYS = 60 // 跟踪指数缓存 60 天后重查（基金变更标的指数很少见）
+
+/** ETF 行（clist f12 代码、f14 名称、f3 涨跌幅、f6 成交额、f124 更新时间）→ 规整行，成交额换算成亿元；代码 / 名称不对时返回 null */
+export function parseEtfRow(r) {
+  if (!/^\d{6}$/.test(r?.f12 ?? '') || !str(r.f14)) return null
+  const amt = num(r.f6)
+  return { code: r.f12, name: r.f14.trim(), pct: num(r.f3), amount: amt === null ? null : round(amt / 1e8, 2), updatedAt: num(r.f124) }
+}
+
+/**
+ * ETF 快照校验：只数有成交的（停牌 / 未成交的更新时间停在以前，不参与新鲜度判断），
+ * 至少 90% 有成交的 ETF 更新时间是 date 当天 15:00 之后，否则认为不是当天收盘数据。
+ */
+export function validateEtfs(rows, date, { min = 500 } = {}) {
+  if (rows.length < min) throw new Error(`ETF 数量异常：${rows.length}`)
+  const traded = rows.filter((r) => r.amount !== null && r.amount > 0)
+  const fresh = traded.filter((r) => { const t = bjTime(r.updatedAt); return t && t.date === date && t.minutes >= 15 * 60 }).length
+  if (!traded.length || fresh < traded.length * 0.9) throw new Error(`ETF 行情不是 ${date} 收盘后数据（${fresh}/${traded.length}）`)
+  return rows
+}
+
+/** 东财基金基本资料 → { indexCode, indexName }；不是指数基金（'--' / 空）时两项为 null；结构不对报错 */
+export function parseFundIndex(body, code) {
+  const d = body?.Datas
+  if (!body || body.ErrCode !== 0 || !d || d.FCODE !== code) throw new Error(`${code} 基金资料结构异常`)
+  const clean = (x) => { const s = str(x); return s === null || /^-+$/.test(s) ? null : s }
+  return { indexCode: clean(d.INDEXCODE), indexName: clean(d.INDEXNAME) }
+}
+
+const daysBetween = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 86400_000)
+/** 需要查询跟踪指数的 ETF：缓存里没有或超过 TTL 的，按成交额从大到小，最多 limit 只 */
+export function pickIndexFetch(etfs, cache, today, limit) {
+  return etfs
+    .filter((e) => { const c = cache?.[e.code]; return !c || !/^\d{4}-\d{2}-\d{2}$/.test(c.fetchedAt ?? '') || daysBetween(c.fetchedAt, today) > ETF_INDEX_TTL_DAYS })
+    .sort((a, b) => (b.amount ?? -1) - (a.amount ?? -1))
+    .slice(0, limit)
+    .map((e) => e.code)
+}
+
+/**
+ * 人工审核的板块 → 跟踪指数关键词表。
+ *  · boards：东财板块名（申万二级行业 / 概念，精确匹配，不做模糊）；
+ *  · index：跟踪指数名称须匹配的正则；exclude：命中后再排除的（港股、海外指数一律排除，A 股板块不配境外指数）；
+ *  · scope：'exact' 指数与板块是同一行业 / 题材；'broad' 只能配到更宽的行业指数，页面注明「宽口径」。
+ * 改表时同步改 scripts/kpl-plates.test.mjs 的用例。
+ */
+const OVERSEAS = /港股|恒生|香港|沪港深|沪深港|AH|中概|海外|全球|纳斯达克|标普|美国|日经|德国|法国|沙特|亚太|东南亚|中韩|中日/
+export const ETF_RULES = [
+  { id: 'semi', label: '半导体 / 芯片', boards: ['半导体', '半导体概念', '芯片概念', '中芯概念', '存储芯片', '先进封装', 'AI芯片', '汽车芯片', 'MCU芯片', '光刻机', '光刻胶', '第三代半导体', '第四代半导体', '大基金持股', 'EDA概念', 'IGBT概念', '碳化硅', '氮化镓', '电子化学品Ⅱ'], index: /半导体|芯片|集成电路/, scope: 'exact' },
+  { id: 'broker', label: '证券公司', boards: ['证券Ⅱ', '券商概念', '参股券商'], index: /证券公司|证券龙头|全指证券|证券指数|证券行业|券商/, scope: 'exact' },
+  { id: 'bank', label: '银行', boards: ['银行Ⅱ', '参股银行'], index: /银行/, exclude: /非银/, scope: 'exact' },
+  { id: 'insure', label: '保险', boards: ['保险Ⅱ', '参股保险'], index: /保险/, scope: 'broad' },
+  { id: 'nonbank', label: '非银 / 金融', boards: ['多元金融'], index: /非银|全指金融|金融地产/, scope: 'broad' },
+  { id: 'liquor', label: '酒', boards: ['白酒Ⅱ', '白酒', '酿酒概念', '非白酒', '啤酒概念'], index: /酒/, scope: 'exact' },
+  { id: 'food', label: '食品饮料', boards: ['饮料乳品', '休闲食品', '食品加工', '调味发酵品Ⅱ', '乳业', '调味品概念', '预制菜概念', '食品安全'], index: /食品|饮料/, scope: 'broad' },
+  { id: 'medDevice', label: '医疗器械', boards: ['医疗器械', '医疗器械概念', '体外诊断概念'], index: /医疗器械|医疗设备/, scope: 'exact' },
+  { id: 'medService', label: '医疗', boards: ['医疗服务', 'CRO', '创新医疗服务', '民营医院', '互联网医疗', '智能医疗'], index: /医疗(?!器械|设备)/, scope: 'exact' },
+  { id: 'innovDrug', label: '创新药 / 生物医药', boards: ['创新药', '化学制药', '生物制品', '单抗概念', 'CAR-T细胞疗法', '免疫治疗', '重组蛋白', '生物疫苗', '减肥药', 'AI制药（医疗）'], index: /创新药|生物医药|生物科技|生物药|化学药|制药|疫苗/, scope: 'exact' },
+  { id: 'tcm', label: '中药', boards: ['中药Ⅱ', '中药概念'], index: /中药/, scope: 'exact' },
+  { id: 'pharma', label: '医药', boards: ['医药商业', '医药电商', '特色药', '独家药品'], index: /医药/, scope: 'broad' },
+  { id: 'pv', label: '光伏', boards: ['光伏设备', '光伏概念', 'TOPCon电池', 'HJT电池', 'BC电池', '钙钛矿电池', '硅能源'], index: /光伏|太阳能/, scope: 'exact' },
+  { id: 'battery', label: '电池', boards: ['电池', '锂电池概念', '固态电池', '钠离子电池', '电池技术', '麒麟电池', '刀片电池', '复合集流体', '动力电池回收'], index: /电池|锂电/, scope: 'exact' },
+  { id: 'ev', label: '新能源车', boards: ['新能源车', '换电概念', '充电桩', '高压快充', '汽车热管理'], index: /新能源车|新能源汽车|电动车|电动汽车/, scope: 'exact' },
+  { id: 'auto', label: '汽车', boards: ['乘用车', '汽车零部件', '商用车', '汽车整车', '汽车电子', '智能驾驶', '车联网(车路云)', '小米汽车', '华为汽车', '汽车服务', '汽车一体化压铸'], index: /汽车|智能车|智能驾驶|车联网/, exclude: /新能源/, scope: 'exact' },
+  { id: 'storage', label: '储能', boards: ['储能概念', '钒电池', '熔盐储能', '抽水蓄能', '虚拟电厂', '超级电容'], index: /储能/, scope: 'exact' },
+  { id: 'wind', label: '风电', boards: ['风电设备', '风能'], index: /风电/, scope: 'exact' },
+  { id: 'power', label: '电力 / 电网', boards: ['电力', '绿色电力', '电网设备', '电网概念', '智能电网', '特高压', '柔性直流输电', '核能核电', '超超临界发电'], index: /电力|电网|公用事业|绿电|绿色电力|核电/, scope: 'exact' },
+  { id: 'defense', label: '军工', boards: ['军工电子Ⅱ', '航天装备Ⅱ', '航空装备Ⅱ', '地面兵装Ⅱ', '军工', '军民融合', '航母概念', '大飞机', '航天航空'], index: /军工|国防|航空航天/, scope: 'exact' },
+  { id: 'space', label: '卫星 / 商业航天', boards: ['商业航天', '卫星互联网', '卫星导航', '空间站概念'], index: /卫星|航天/, scope: 'exact' },
+  { id: 'lowAlt', label: '低空经济', boards: ['低空经济', '飞行汽车(eVTOL)', '通用航空', '无人机'], index: /低空|通用航空/, scope: 'exact' },
+  { id: 'software', label: '软件 / 信创', boards: ['软件开发', 'IT服务Ⅱ', '计算机设备', '国产软件', '信创', 'ERP概念', '财税数字化', '华为欧拉', '鸿蒙概念', '华为鲲鹏', '网络安全', '数据安全'], index: /软件|信创|信息技术|信息安全|网络安全|计算机/, scope: 'exact' },
+  { id: 'cloud', label: '云计算 / 大数据', boards: ['云计算', '大数据', '数据中心', '东数西算', '算力概念', '算力租赁', '智算中心（AIDC）', '数据要素', '国资云概念', '边缘计算', '液冷服务器'], index: /云计算|大数据|数据中心|算力|数字经济/, scope: 'exact' },
+  { id: 'ai', label: '人工智能', boards: ['人工智能', 'AI应用', 'AIGC概念', 'ChatGPT概念', 'AI智能体', '多模态AI', 'DeepSeek概念', 'Kimi概念', '智谱AI概念', 'AI语料', 'MLOps概念', '物理AI'], index: /人工智能|AI/, scope: 'exact' },
+  { id: 'robot', label: '机器人', boards: ['机器人概念', '人形机器人', '减速器', '机器人执行器', '机器视觉', '虚拟机器人', '自动化设备'], index: /机器人/, scope: 'exact' },
+  { id: 'telecom', label: '通信', boards: ['通信设备', '通信服务', '5G概念', '6G概念', 'CPO概念', '光通信模块', '铜缆高速连接', 'F5G概念', '光纤概念', '通信技术', '毫米波概念'], index: /通信|电信|5G|光模块/, exclude: /科技传媒通信/, scope: 'exact' },
+  { id: 'consElec', label: '消费电子', boards: ['消费电子', '消费电子概念', '苹果概念', '小米概念', 'AI手机', 'AIPC', 'AI眼镜', '智能穿戴', '无线耳机'], index: /消费电子/, scope: 'exact' },
+  { id: 'electronics', label: '电子', boards: ['元件', '光学光电子', '其他电子Ⅱ', 'PCB', '被动元件概念', 'MLCC', 'LED概念', 'OLED', 'MiniLED', 'MicroLED', '显示技术'], index: /电子(?!商务)/, exclude: /消费电子|电子政务|传媒/, scope: 'broad' },
+  { id: 'game', label: '游戏 / 传媒', boards: ['游戏Ⅱ', '游戏概念', '电子竞技', '短剧互动游戏', '影视院线', '影视概念', '数字媒体', '广告营销', '出版', '电视广播Ⅱ', '文娱消费', '数字阅读'], index: /游戏|动漫|传媒|影视/, exclude: /电子信息|科技传媒通信/, scope: 'exact' },
+  { id: 'coal', label: '煤炭', boards: ['煤炭开采', '焦炭Ⅱ', '煤化工概念'], index: /煤炭/, scope: 'exact' },
+  { id: 'nonferrous', label: '有色金属', boards: ['工业金属', '金属新材料', '金属铜', '金属锌', '金属铅', '金属镍', '金属钴', '小金属', '小金属概念', '能源金属'], index: /有色|稀有金属|工业金属|矿业/, scope: 'exact' },
+  { id: 'rareEarth', label: '稀土', boards: ['稀土永磁'], index: /稀土/, scope: 'exact' },
+  { id: 'gold', label: '黄金股', boards: ['贵金属', '黄金概念'], index: /黄金股|黄金产业|黄金矿业|金矿|贵金属/, scope: 'exact' },
+  { id: 'steel', label: '钢铁', boards: ['普钢', '特钢Ⅱ', '冶钢原料'], index: /钢铁/, scope: 'exact' },
+  { id: 'chem', label: '化工', boards: ['化学原料', '化学制品', '化学纤维', '塑料', '橡胶', '化工原料', '氟化工概念', '磷化工', '有机硅概念', '农化制品', '钛白粉概念'], index: /化工|化学/, exclude: /化学药|化学制药/, scope: 'exact' },
+  { id: 'oil', label: '石油石化', boards: ['油气开采Ⅱ', '油服工程', '炼化及贸易', '油气设服', '油气资源', '页岩气', '天然气', '燃气Ⅱ'], index: /石油|油气|石化|天然气/, scope: 'exact' },
+  { id: 'realEstate', label: '房地产', boards: ['房地产开发', '房地产服务'], index: /地产/, exclude: /金融地产/, scope: 'exact' },
+  { id: 'buildMat', label: '建材', boards: ['水泥', '玻璃玻纤', '装修建材'], index: /建材|建筑材料/, scope: 'exact' },
+  { id: 'infra', label: '基建', boards: ['基础建设', '专业工程', '房屋建设Ⅱ', '工程建设', '装配建筑', '铁路基建', '水利建设'], index: /基建|建筑(?!材料)/, scope: 'exact' },
+  { id: 'machinery', label: '机械 / 高端装备', boards: ['工程机械', '工程机械概念', '专用设备', '通用设备', '工业母机', '高端装备', '轨交设备Ⅱ'], index: /机械|高端装备|装备制造|装备产业|工业母机|机床/, scope: 'exact' },
+  { id: 'appliance', label: '家电', boards: ['白色家电', '黑色家电', '小家电', '厨卫电器', '家电零部件Ⅱ', '其他家电Ⅱ', '智能家居'], index: /家电|家用电器/, scope: 'exact' },
+  { id: 'farm', label: '农牧', boards: ['养殖业', '饲料', '种植业', '渔业', '农产品加工', '动物保健Ⅱ', '猪肉概念', '鸡肉概念', '农业种植', '粮食概念', '转基因'], index: /养殖|畜牧|农业|农牧|粮食/, scope: 'exact' },
+  { id: 'transport', label: '交通运输 / 物流', boards: ['物流', '航运港口', '铁路公路', '航空机场', '快递概念', '冷链物流'], index: /物流|交通运输|运输|航运|港口/, scope: 'exact' },
+  { id: 'tourism', label: '旅游', boards: ['旅游及景区', '酒店餐饮', '旅游零售Ⅱ', '旅游酒店', '旅游概念', '免税概念'], index: /旅游/, scope: 'exact' },
+  { id: 'env', label: '环保', boards: ['环境治理', '环保设备Ⅱ', '节能环保'], index: /环保|环境/, scope: 'exact' },
+  { id: 'cosmetic', label: '美容护理', boards: ['化妆品', '医疗美容', '医美概念', '化妆品概念', '个护用品'], index: /美容|化妆品|个护/, scope: 'exact' },
+  { id: 'hydrogen', label: '氢能', boards: ['氢能源', '燃料电池概念'], index: /氢/, scope: 'exact' },
+  { id: 'fintech', label: '金融科技', boards: ['互联网金融', '跨境支付', '移动支付', '数字货币', '区块链'], index: /金融科技|区块链/, scope: 'exact' },
+  { id: 'iot', label: '物联网', boards: ['物联网', '传感器', '工业互联网'], index: /物联网|工业互联/, scope: 'exact' },
+  { id: 'ship', label: '船舶', boards: ['航海装备Ⅱ', '船舶制造'], index: /船舶/, scope: 'exact' },
+  { id: 'vr', label: '虚拟现实', boards: ['虚拟现实', '元宇宙概念', '增强现实', '混合现实'], index: /虚拟现实|元宇宙/, scope: 'exact' },
+  { id: 'newMaterial', label: '新材料', boards: ['新材料'], index: /新材料/, scope: 'exact' },
+  { id: 'elderly', label: '养老', boards: ['养老概念'], index: /养老/, scope: 'exact' },
+  { id: 'newEnergy', label: '新能源', boards: ['新能源'], index: /新能源(?!车|汽车)/, scope: 'broad' },
+  { id: 'soe', label: '央国企', boards: ['中特估', '央国企改革', '中字头'], index: /央企|国企|国有企业/, scope: 'exact' },
+  { id: 'dividend', label: '红利', boards: ['红利股', '红利破净股'], index: /红利/, scope: 'exact' },
+].map((r) => ({ ...r, exclude: r.exclude ? new RegExp(`${r.exclude.source}|${OVERSEAS.source}`) : OVERSEAS }))
+
+/** 板块名 → 命中的规则；没有为 null（同一板块名只出现在一条规则里，测试里检查） */
+export function etfRuleOf(boardName) {
+  return ETF_RULES.find((r) => r.boards.includes(boardName)) ?? null
+}
+
+/** 规则的关键词（给页面展示匹配依据用）：去掉否定前瞻 (?!…) 后按 | 拆开 */
+export const keywordsOf = (rule) => rule.index.source.replace(/\(\?![^)]*\)/g, '').split('|').filter(Boolean)
+
+/** 规则是否接受某个跟踪指数名称 */
+export const ruleAccepts = (rule, indexName) => !!indexName && rule.index.test(indexName) && !rule.exclude.test(indexName)
+
+/**
+ * 板块 → 关联 ETF。
+ *  · boards：[{ code, name, kind }]；etfs：当日 ETF 行情（parseEtfRow）；indexOf(code) → { indexCode, indexName, basis } | null；
+ *  · 每个板块列出成交额最大的 top 只，另给关联 ETF 总数、平均涨幅（简单平均，涨幅缺失的不计）、成交额合计；
+ *  · 没有规则或规则下没有 ETF 的板块 count 为 0，页面显示「暂无对应 ETF」。
+ */
+export function linkBoardEtfs(boards, etfs, indexOf, { top = 5 } = {}) {
+  const withIndex = etfs.map((e) => ({ ...e, idx: indexOf(e.code) })).filter((e) => e.idx?.indexName)
+  return boards.map((b) => {
+    const rule = etfRuleOf(b.name)
+    const hits = rule ? withIndex.filter((e) => ruleAccepts(rule, e.idx.indexName)).sort((x, y) => (y.amount ?? -1) - (x.amount ?? -1)) : []
+    const pcts = hits.map((e) => e.pct).filter((x) => x !== null)
+    const amts = hits.map((e) => e.amount).filter((x) => x !== null)
+    return {
+      code: b.code, name: b.name, kind: b.kind,
+      rule: rule ? { id: rule.id, label: rule.label, keywords: keywordsOf(rule), scope: rule.scope } : null,
+      count: hits.length,
+      avgPct: pcts.length ? round(mean(pcts), 2) : null,
+      amount: amts.length ? round(amts.reduce((s, x) => s + x, 0), 2) : null,
+      indexes: [...new Set(hits.map((e) => e.idx.indexName))].slice(0, 6),
+      etfs: hits.slice(0, top).map((e) => ({ code: e.code, name: e.name, pct: e.pct, amount: e.amount, indexCode: e.idx.indexCode ?? null, indexName: e.idx.indexName, basis: e.idx.basis })),
+    }
+  })
+}
+
+/** 站内人工核验目录（index-etf-catalog.json）→ Map(code → { indexCode, indexName })，只取 relationship = tracks 的 */
+export function catalogIndexMap(catalog) {
+  const m = new Map()
+  for (const r of Array.isArray(catalog?.relations) ? catalog.relations : []) {
+    if (r?.relationship === 'tracks' && /^\d{6}$/.test(r.code ?? '') && str(r.indexName)) m.set(r.code, { indexCode: str(r.indexCode), indexName: r.indexName.trim() })
+  }
+  return m
+}
+
+/** 上一份输出里同一交易日的附加模块：本次失败时沿用（不同日期一律不沿用） */
+export function keepSameDay(prev, date, key) {
+  return prev && prev.asOf === date && prev[key] ? prev[key] : null
 }

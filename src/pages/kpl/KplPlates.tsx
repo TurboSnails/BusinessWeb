@@ -1,5 +1,5 @@
 // 开盘啦 · 板块题材（/market-mood/plates）：功能对照开盘啦 App「板块」列表（强度、涨幅、主力净额、领涨股）与题材涨停分布。
-// 模块：今日概览、行业 / 概念排行、板块涨停 / 炸板 / 跌停分布、题材涨停分布（连板梯队）、板块叠加（当日分时）、
+// 模块：今日概览、行业 / 概念 / 地域排行、板块资金热力图、板块关联 ETF、板块涨停 / 炸板 / 跌停分布、题材涨停分布（连板梯队）、板块叠加（当日分时）、
 // 板块近 N 日走势、近几日强势板块、概念成分变动。
 // 数据：public/data/kpl-plates.json（scripts/kpl-plates.mjs 收盘后生成）。盘后统计，不是买卖建议。
 import React, { useEffect, useMemo, useState } from 'react'
@@ -8,7 +8,9 @@ import { Callout, Card, EmptyState, Page, PageDataFreshness, Segmented, TableWra
 import { PageTitle } from '../../components/ui/PageTabs'
 import KplTabs, { KPL_DISCLAIMER } from '../../features/market-mood/KplTabs'
 import MoodChart from '../../features/market-mood/MoodChart'
-import { asKplPlates, KINDS, METHOD, OVERLAY_MAX, SORTS, sortBoards, type Board, type ConceptChange, type DistRow, type Kind, type KplPlates, type SortKey, type Trend, type ZtGroup } from '../../features/kpl-plates/model'
+import { asKplPlates, boardsOf, KINDS, METHOD, OVERLAY_MAX, rankKinds, SORTS, sortBoards, type Board, type ConceptChange, type DistRow, type Kind, type KplPlates, type RankKind, type SortKey, type Trend, type ZtGroup } from '../../features/kpl-plates/model'
+import EtfLinks from '../../features/kpl-plates/EtfLinks'
+import HeatMap from '../../features/kpl-plates/HeatMap'
 import OverlayChart from '../../features/kpl-plates/OverlayChart'
 import '../../styles/market-mood.css'
 import '../../styles/kpl-plates.css'
@@ -41,7 +43,7 @@ const num = (x: number | null | undefined, d = 0): string => (x == null || !Numb
 const pct = (x: number | null | undefined, d = 2): string => (x == null || !Number.isFinite(x) ? '—' : `${x > 0 ? '+' : ''}${num(x, d)}%`)
 const tone = (x: number | null | undefined): string => (x == null || x === 0 ? '' : x > 0 ? 'mm-up' : 'mm-down')
 const yi = (x: number | null | undefined): string => (x == null || !Number.isFinite(x) ? '—' : `${x > 0 ? '+' : ''}${num(x, 2)} 亿`)
-const kindLabel = (k: Kind): string => KINDS.find(x => x.id === k)!.label
+const kindLabel = (k: RankKind): string => (k === 'region' ? '地域' : KINDS.find(x => x.id === k)!.label)
 
 /* ---------- 今日概览 ---------- */
 function Overview({ m }: { m: KplPlates }): JSX.Element {
@@ -76,13 +78,13 @@ function Overview({ m }: { m: KplPlates }): JSX.Element {
 /* ---------- 行业 / 概念排行 ---------- */
 const PAGE = 20
 function Ranking({ m }: { m: KplPlates }): JSX.Element {
-  const [kind, setKind] = useState<Kind>('industry')
+  const [kind, setKind] = useState<RankKind>('industry')
   const [sort, setSort] = useState<SortKey>('strength')
   const [all, setAll] = useState(false)
-  const rows = useMemo(() => sortBoards(m[kind], sort), [m, kind, sort])
+  const rows = useMemo(() => sortBoards(boardsOf(m, kind), sort), [m, kind, sort])
   const shown = all ? rows : rows.slice(0, PAGE)
   return (
-    <Card title="板块排行" as="section" className="mm-card" actions={<Segmented items={KINDS.map(k => ({ ...k }))} value={kind} onChange={k => { setKind(k); setAll(false) }} label="板块类型" />}>
+    <Card title="板块排行" as="section" className="mm-card" actions={<Segmented items={rankKinds(m).map(k => ({ ...k }))} value={kind} onChange={k => { setKind(k); setAll(false) }} label="板块类型" />}>
       <Segmented items={SORTS.map(s => ({ ...s }))} value={sort} onChange={s => { setSort(s); setAll(false) }} label="排序指标" />
       <TableWrap label={`${kindLabel(kind)}板块排行`}>
         <table className="mm-table kp-table">
@@ -109,7 +111,32 @@ function Ranking({ m }: { m: KplPlates }): JSX.Element {
         </table>
       </TableWrap>
       {rows.length > PAGE && <button type="button" className="kp-more" onClick={() => setAll(v => !v)}>{all ? '收起' : `显示全部 ${rows.length} 个`}</button>}
-      <p className="mm-method">{METHOD.strength} 缺失的数值显示为「—」并排在最后。</p>
+      <p className="mm-method">{METHOD.strength} 缺失的数值显示为「—」并排在最后。{kind === 'region' ? ` ${METHOD.region}` : ''}</p>
+    </Card>
+  )
+}
+
+/* ---------- 板块资金热力图 ---------- */
+function HeatCard({ m }: { m: KplPlates }): JSX.Element {
+  const [kind, setKind] = useState<RankKind>('industry')
+  return (
+    <Card title="板块资金热力图" as="section" className="mm-card" actions={<Segmented items={rankKinds(m).map(k => ({ ...k }))} value={kind} onChange={setKind} label="热力图板块类型" />}>
+      <HeatMap key={kind} rows={boardsOf(m, kind)} label={`${kindLabel(kind)}板块资金热力图`} />
+      <p className="mm-method">{METHOD.heat}{m.region ? '' : m.sectionErrors.region ? ` 地域板块今日未取到（${m.sectionErrors.region}）。` : ''}</p>
+    </Card>
+  )
+}
+
+/* ---------- 板块关联 ETF ---------- */
+function EtfCard({ m }: { m: KplPlates }): JSX.Element {
+  const [kind, setKind] = useState<Kind>('industry')
+  const e = m.etf
+  const pctOf = (code: string): number | null => [...m.industry, ...m.concept].find(b => b.code === code)?.pct ?? null
+  return (
+    <Card title="板块关联 ETF" as="section" className="mm-card" description={e ? `${e.date} 收盘，场内股票型 ETF ${e.universe} 只，已知跟踪指数 ${e.indexed} 只${e.pending ? `、待查 ${e.pending} 只（之后每个交易日补查）` : ''}。` : undefined}
+      actions={e ? <Segmented items={KINDS.map(k => ({ ...k }))} value={kind} onChange={setKind} label="ETF 板块类型" /> : undefined}>
+      {e ? <EtfLinks key={kind} boards={e.boards.filter(b => b.kind === kind)} pct={pctOf} /> : <EmptyState title="板块关联 ETF 暂无数据">{m.sectionErrors.etf ? `今日 ETF 数据未取到：${m.sectionErrors.etf}` : '旧数据没有这一项，下一个交易日收盘后生成。'}</EmptyState>}
+      <p className="mm-method">{METHOD.etf}</p>
     </Card>
   )
 }
@@ -355,6 +382,8 @@ function PlatesBody({ m }: { m: KplPlates }): JSX.Element {
       <PageDataFreshness checkedAt={m.generatedAt} dataDates={[m.asOf]} note="收盘后更新" />
       <Overview m={m} />
       <Ranking m={m} />
+      <HeatCard m={m} />
+      <EtfCard m={m} />
       <DistCard m={m} />
       <Groups m={m} />
       <OverlayCard m={m} />
@@ -362,10 +391,10 @@ function PlatesBody({ m }: { m: KplPlates }): JSX.Element {
       <StrongCard m={m} />
       <MembersCard m={m} />
       <Card title="暂未提供" as="section" className="mm-card">
-        <p className="mm-empty">开盘啦「题材挖掘」「互动精灵」「股权拍卖」依赖它自有的编辑内容、问答抓取与拍卖数据，没有可靠的公开来源，本页不提供；板块叠加只用收盘后预存的当日分时，盘中实时分时、区间强度等盘中数据不提供。</p>
+        <p className="mm-empty">开盘啦「题材挖掘」「互动精灵」「股权拍卖」依赖它自有的编辑内容、问答抓取与拍卖数据，没有可靠的公开来源，本页不提供；板块叠加只用收盘后预存的当日分时，盘中实时分时、区间强度等盘中数据不提供；板块关联 ETF 不含 ETF 份额变化与关联港股板块（港股 / 跨境 ETF 不与 A 股板块匹配）。</p>
       </Card>
       <Callout title="口径与来源">
-        <p>{m.note} {METHOD.scope}{m.seededDays.length ? ` ${METHOD.seeded}` : ''}</p>
+        <p>{m.note} {METHOD.scope}{m.region ? ` ${METHOD.region}` : ''}{m.seededDays.length ? ` ${METHOD.seeded}` : ''}</p>
         <p>来源：{m.sources.map((s, i) => <React.Fragment key={s.id}>{i ? '、' : ''}<a href={s.url} target="_blank" rel="noreferrer">{s.label}</a></React.Fragment>)}。另见 <Link to="/limit-up-analysis">涨停板块</Link>、<Link to="/market-mood">市场情绪</Link>。</p>
       </Callout>
     </>

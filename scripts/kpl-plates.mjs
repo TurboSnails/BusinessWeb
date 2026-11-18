@@ -6,15 +6,19 @@
 //  · 板块涨停 / 炸板 / 跌停 / 自然涨停 / 曾跌停分布：优先用同一交易日的打板页数据（public/data/kpl-daban.json，工作流里先于本脚本运行），
 //    没有就直接取东财炸板 / 跌停股池（自然涨停、曾跌停整列缺失）；
 //  · 板块叠加：当日强度前 20 的行业与概念的分时（push2his trends2，逐分钟带日期，核对是当天）；
-//  · 概念成分变动：东财全 A 股「所属概念」快照（data-raw/kpl-plates/members.tsv 与上一份 members-base.tsv），与上一交易日快照比较。
+//  · 概念成分变动：东财全 A 股「所属概念」快照（data-raw/kpl-plates/members.tsv 与上一份 members-base.tsv），与上一交易日快照比较；
+//  · 地域板块：东财 clist m:90+t:1（约 31 个省市板块），涨停家数按个股所属地域（ulist f102）统计；
+//  · 板块关联 ETF：东财 ETF 行情 clist b:MK0021 + 跟踪指数（东财基金资料，缓存 data-raw/kpl-plates/etf-index.json，每次最多补查 ETF_INDEX_BATCH 只）
+//    + 人工审核的板块 → 指数关键词表（ETF_RULES）。
+// 附加模块失败时：上一份输出是同一交易日的就沿用上一份的该模块，否则写 null，原因记在 sectionErrors。
 // 任何一项核心数据不完整或不是当天收盘后的数据，就放弃本次，不写半截数据。
 // 用法：node scripts/kpl-plates.mjs   （FORCE=1 [DATE=YYYY-MM-DD] 跳过收盘时间检查、只打印摘要；DUMP=<路径> 另存完整输出供排查。FORCE 产出不要提交）
 import fs from 'node:fs'
 import { isTradingDay, parsePool, prevTradingDay } from './market-mood-lib.mjs'
 import {
-  CONCEPT_MIN_ZT, annotateBoards, boardSeries, compactDay, conceptSnapshot, dabanSets, diffSnapshots, distTable, mergeChanges,
-  parseBoardRow, parseClistPage, parseKline, parseSnapshot, parseStockMeta, parseTrends, pickBase, rangeReturn, secidOf, seedDays,
-  serializeSnapshot, sortByStrength, strongHistory, trendPct, validateBoards, ztGroups,
+  CONCEPT_MIN_ZT, annotateBoards, boardSeries, catalogIndexMap, compactDay, conceptSnapshot, dabanSets, diffSnapshots, distTable, keepSameDay, linkBoardEtfs, mergeChanges,
+  parseBoardRow, parseClistPage, parseEtfRow, parseFundIndex, parseKline, parseSnapshot, parseStockMeta, parseTrends, pickBase, pickIndexFetch, rangeReturn, secidOf, seedDays,
+  serializeSnapshot, sortByStrength, strongHistory, trendPct, validateBoards, validateEtfs, ztGroups,
 } from './kpl-plates-lib.mjs'
 
 const OUT = 'public/data/kpl-plates.json'
@@ -28,6 +32,12 @@ const TREND_TOP = 12 // 每类取强度前 12 的板块拉日 K，用于近 N �
 const INTRADAY_TOP = 20 // 板块叠加：每类预存强度前 20 的板块当日分时
 const ALL_A = 'm:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23,m:0+t:81+s:2048' // 沪深京 A 股
 const FORCE = process.env.FORCE === '1'
+const ETF_INDEX_CACHE = `${RAW}/etf-index.json`
+const ETF_INDEX_BATCH = Number(process.env.ETF_INDEX_BATCH ?? 25) // 每次最多补查多少只 ETF 的跟踪指数（控制请求数）
+const ETF_TOP_BOARDS = 20 // 行业、概念各取强度前 20 的板块（排行表默认显示的数量）配 ETF
+let prevOut = null
+try { prevOut = JSON.parse(fs.readFileSync(OUT, 'utf8')) } catch { prevOut = null }
+const sectionErrors = {}
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 async function get(url, { headers = {} } = {}) {
@@ -93,7 +103,7 @@ async function stockMeta(codes) {
   const meta = new Map()
   for (let i = 0; i < codes.length; i += 50) {
     const batch = codes.slice(i, i + 50)
-    const m = parseStockMeta(await quote(`/api/qt/ulist.np/get?${new URLSearchParams({ secids: batch.map(secidOf).join(','), fields: 'f12,f14,f100,f103', fltt: '2', invt: '2' })}`))
+    const m = parseStockMeta(await quote(`/api/qt/ulist.np/get?${new URLSearchParams({ secids: batch.map(secidOf).join(','), fields: 'f12,f14,f100,f102,f103', fltt: '2', invt: '2' })}`))
     for (const [k, v] of m) meta.set(k, v)
     await sleep(250)
   }
@@ -227,6 +237,66 @@ try {
   snapWrites = { snap: serializeSnapshot(date, snap.stocks), base: rotate ? serializeSnapshot(rotate.date, rotate.stocks) : null, changes }
 } catch (e) { console.log(`概念成分快照不可用（不影响其他模块）：${e.message}`) }
 
+// 8b. 地域板块（m:90+t:1）：行情与行业同口径校验；涨停家数按个股所属地域（f102）统计
+let region = null
+try {
+  const rows = validateBoards((await clist('m:90+t:1')).map(parseBoardRow), date, { min: 25, max: 40, label: '地域' })
+  const covered = zt.filter((s) => meta.get(s.code)?.region).length
+  if (covered < zt.length * 0.95) throw new Error(`涨停股所属地域缺失过多：${covered}/${zt.length}`)
+  region = sortByStrength(annotateBoards(rows, zt, meta, (m) => (m.region ? [m.region] : [])))
+} catch (e) {
+  sectionErrors.region = e.message
+  region = keepSameDay(prevOut, date, 'region')
+  console.log(`地域板块不可用（不影响其他模块）：${e.message}${region ? '；沿用同日上一份' : ''}`)
+}
+
+// 8c. 板块关联 ETF
+let etf = null
+try {
+  const etfs = validateEtfs((await clist('b:MK0021', 'f12,f14,f3,f6,f124', 25)).map(parseEtfRow).filter(Boolean), date)
+  let cache = { version: 1, etfs: {} }
+  try { const c = JSON.parse(fs.readFileSync(ETF_INDEX_CACHE, 'utf8')); if (c && typeof c.etfs === 'object') cache = c } catch { /* 首次运行没有缓存 */ }
+  // 补查跟踪指数：该接口单次约 1–5 秒，5 个并发一批；单次 8 秒超时、不重试，整体超过 40 秒就停，失败 / 没查到的下次再查
+  let fetched = 0, failed = 0
+  const todo = pickIndexFetch(etfs, cache.etfs, today, ETF_INDEX_BATCH)
+  const deadline = Date.now() + 40_000
+  const lookup = async (code) => {
+    try {
+      const res = await fetch(`https://fundmobapi.eastmoney.com/FundMNewApi/FundMNNBasicInformation?${new URLSearchParams({ FCODE: code, deviceid: 'Wap', plat: 'Wap', product: 'EFund', version: '6.5.5' })}`, { headers: { 'user-agent': UA }, signal: AbortSignal.timeout(8000) })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const idx = parseFundIndex(await res.json(), code)
+      cache.etfs[code] = { name: etfs.find((e) => e.code === code)?.name ?? code, ...idx, fetchedAt: today }
+      fetched++
+    } catch (e) { failed++; console.log(`${code} 跟踪指数查询失败：${e.message}`) }
+  }
+  for (let i = 0; i < todo.length && Date.now() < deadline; i += 5) {
+    await Promise.all(todo.slice(i, i + 5).map(lookup))
+    await sleep(150)
+  }
+  let catalog = new Map()
+  try { catalog = catalogIndexMap(JSON.parse(fs.readFileSync('public/data/index-etf-catalog.json', 'utf8'))) } catch { /* 目录缺失时只用东财资料 */ }
+  const indexOf = (code) => {
+    const c = catalog.get(code)
+    if (c) return { ...c, basis: 'catalog' }
+    const e = cache.etfs[code]
+    return e?.indexName ? { indexCode: e.indexCode ?? null, indexName: e.indexName, basis: 'em' } : null
+  }
+  const picks = [['industry', industry], ['concept', concept]].flatMap(([kind, list]) => list.filter((b) => b.strength !== null).slice(0, ETF_TOP_BOARDS).map((b) => ({ code: b.code, name: b.name, kind })))
+  const indexed = etfs.filter((e) => indexOf(e.code)).length
+  etf = {
+    date, universe: etfs.length, indexed, withoutIndex: etfs.filter((e) => cache.etfs[e.code] && !indexOf(e.code)).length,
+    pending: etfs.filter((e) => !cache.etfs[e.code] && !catalog.has(e.code)).length,
+    boards: linkBoardEtfs(picks, etfs, indexOf),
+  }
+  cache.etfs = Object.fromEntries(Object.entries(cache.etfs).sort(([a], [b]) => a.localeCompare(b)))
+  if (!FORCE || process.env.WRITE === '1') { fs.mkdirSync(RAW, { recursive: true }); fs.writeFileSync(ETF_INDEX_CACHE, JSON.stringify(cache).replace(/},"/g, '},\n"')) }
+  console.log(`ETF：${etfs.length} 只，已知跟踪指数 ${indexed}，本次补查 ${fetched}（失败 ${failed}），待查 ${etf.pending}`)
+} catch (e) {
+  sectionErrors.etf = e.message
+  etf = keepSameDay(prevOut, date, 'etf')
+  console.log(`板块关联 ETF 不可用（不影响其他模块）：${e.message}${etf ? '；沿用同日上一份' : ''}`)
+}
+
 // 9. 汇总与输出
 const names = new Map([...industry, ...concept].map((b) => [b.code, b.name]))
 const out = {
@@ -246,12 +316,15 @@ const out = {
   trend,
   strong: { industry: strongHistory(days, 'industry', names), concept: strongHistory(days, 'concept', names) },
   seededDays: days.filter((d) => d.seeded).map((d) => d.date),
-  dist, intraday, members,
+  dist, intraday, members, region, etf,
+  sectionErrors,
   sources: [
     { id: 'boards', label: '东方财富行业 / 概念板块行情', url: 'https://quote.eastmoney.com/center/boardlist.html' },
     { id: 'pool', label: '东方财富涨停股池', url: 'https://quote.eastmoney.com/ztb/' },
     { id: 'kline', label: '东方财富板块日 K / 分时', url: 'https://quote.eastmoney.com/' },
     { id: 'members', label: '东方财富个股所属概念', url: 'https://quote.eastmoney.com/center/boardlist.html#concept_board' },
+    { id: 'region', label: '东方财富地域板块行情', url: 'https://quote.eastmoney.com/center/boardlist.html#region_board' },
+    { id: 'etf', label: '东方财富 ETF 行情与基金资料（跟踪指数）', url: 'https://quote.eastmoney.com/center/gridlist.html#fund_etf' },
   ],
 }
 if (process.env.DUMP) fs.writeFileSync(process.env.DUMP, JSON.stringify(out, null, 1))
@@ -268,4 +341,4 @@ if (FORCE && process.env.WRITE !== "1") {
   }
   fs.writeFileSync(OUT, JSON.stringify(out))
 }
-console.log(JSON.stringify({ date, zt: zt.length, unmatched: unmatched.length, industry: industry.length, concept: concept.length, top: industry.slice(0, 3).map((b) => `${b.name}:${b.strength}`), topConcept: concept.slice(0, 3).map((b) => `${b.name}:${b.strength}`), groups: out.groups.concept.length, trend: trend.length, days: days.length, seeded: out.seededDays.length, dist: dist && { source: dist.source, industry: dist.industry.length, concept: dist.concept.length }, intraday: intraday?.boards.length ?? null, members: members && { base: members.base, stocks: members.stocks, changed: members.today?.concepts.length ?? null } }))
+console.log(JSON.stringify({ date, zt: zt.length, unmatched: unmatched.length, industry: industry.length, concept: concept.length, top: industry.slice(0, 3).map((b) => `${b.name}:${b.strength}`), topConcept: concept.slice(0, 3).map((b) => `${b.name}:${b.strength}`), groups: out.groups.concept.length, trend: trend.length, days: days.length, seeded: out.seededDays.length, dist: dist && { source: dist.source, industry: dist.industry.length, concept: dist.concept.length }, intraday: intraday?.boards.length ?? null, members: members && { base: members.base, stocks: members.stocks, changed: members.today?.concepts.length ?? null }, region: region?.length ?? null, etf: etf && { indexed: etf.indexed, pending: etf.pending, matched: etf.boards.filter((b) => b.count).length, of: etf.boards.length }, sectionErrors }))
