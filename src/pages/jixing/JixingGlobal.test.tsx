@@ -46,6 +46,9 @@ describe('今天几星 · 港股全球', () => {
     const rows = within(screen.getByRole('table')).getAllByRole('row')
     expect(rows).toHaveLength(4)
     expect(screen.getByText(/2026-08-05 之后为 History of Market 自算/)).toBeTruthy()
+    expect(within(rows[1]).getByText('29.6%')).toBeTruthy() // 分位照列
+    expect(within(rows[1]).getByText('不判定')).toBeTruthy()
+    expect(screen.getByText('序列拼接（2026-08-05 前后口径可能不同），只列分位不判定。')).toBeTruthy()
     expect(within(rows[3]).getAllByText('—').length).toBeGreaterThan(3) // 缺值不写 0
     expect(screen.getByText(/日经 225/)).toBeTruthy()
     fireEvent.click(within(rows[2]).getByRole('button', { name: '标普500' }))

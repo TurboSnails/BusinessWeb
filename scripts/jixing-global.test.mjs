@@ -167,6 +167,16 @@ test('History of Market：终端周度 + 自算日度按周拼接，记录拼接
   const row = buildGlobalRow({ key: 'x', name: 'X', freq: '周', peKind: 'Forward PE', source: 's' }, h.points.map(p => ({ date: p.date, pe: p.value, dy: null })))
   assert.equal(row.date, '2026-11-17')
   assert.equal(row.history.at(-1)[1], 17.6)
+  assert.equal(row.window.spliced, false) // 未传拼接日
+  // 传入拼接日：最新值在拼接后、窗口含拼接前 → 照列分位，但不判定
+  const sp = buildGlobalRow({ key: 'x', name: 'X', freq: '周', peKind: 'Forward PE', source: 's' }, h.points.map(p => ({ date: p.date, pe: p.value, dy: null })), { spliceDate: h.spliceDate })
+  assert.ok(sp.pePct !== null)
+  assert.equal(sp.state, null)
+  assert.equal(sp.window.spliced, true)
+  assert.equal(sp.window.spliceDate, last)
+  // 最新值就在拼接日及以前（或窗口全在拼接后）时不触发
+  const pre = valuationStats(h.points.filter(p => p.date <= last).map(p => ({ date: p.date, pe: p.value, dy: null })), { years: 10, freq: '周', basis: 'pe', spliceDate: last })
+  assert.equal(pre.window.spliced, false)
 })
 
 test('黄金：新浪日线、收盘判定、财政部 CSV、BLS 缺月、实际金价分位', () => {

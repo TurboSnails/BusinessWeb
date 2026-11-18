@@ -5,6 +5,8 @@ export type ValWindow = {
   years: number; freq: Freq; start: string | null; end: string; n: number; peN: number; dyN: number; enough: boolean
   /** 窗口内亏损（PE 为负）样本数；distorted = 亏损占比超过 10%，不判定估值状态 */
   loss?: number; distorted?: boolean
+  /** spliced = 最新值来自拼接日之后的序列且窗口含拼接前序列，口径可能不同，不判定估值状态 */
+  spliced?: boolean; spliceDate?: string | null
 }
 export type ValRow = {
   key: string; name: string; basis: 'pe' | 'dy'
@@ -104,7 +106,7 @@ export const METHOD = {
   state: (t: { low: number; high: number }): string => `估值状态为本站自定：估值分位 < ${t.low}% 记「低估」，> ${t.high}% 记「高估」，其余「正常」。宽基与行业指数的估值分位就是 PE 百分位；高股息指数改看股息率（股息率越高越便宜），估值分位 = 100% − 股息率百分位；「依据」列写明每行用的是哪个。百分位 = (窗口内低于当前值的样本数 + 0.5 × 等于当前值的样本数) ÷ 样本数，当前值本身计入样本。样本不足（月度少于 36 个、周度少于 104 个）不给分位与状态。这只是历史位置的描述，与银行螺丝钉的星级和估值表无关，不预示涨跌。`,
   pe: 'PE 百分位按盈利收益率（1/PE）排序计算：全部盈利时与按 PE 排序完全一致；PE 为负的亏损月份视为比任何盈利月份都贵，照常计入、不删除。窗口内亏损样本超过 10% 时，PE 跨越了盈利断层、前后不可比，照常列出百分位，但不判定估值状态。',
   hk: (years: number): string => `港股：PE 与股息率均为恒生指数公司（Hang Seng Indexes）官方公布值（恒生的 PE 采用成分股最近公布的年度盈利，不是 TTM，表中写作「PE（恒生公布）」；恒生不公布指数 PB，PB 列留空）。恒生指数、国企指数、高股息率指数有官方每日指数报表，最新值为日度；恒生科技、港股通高股息率、医疗保健、互联网科技业只在 Monthly Roundup 月报中公布 PE 与股息率，最新值为上月末，按月更新。百分位窗口为近 ${years} 年月末样本（月报月末值；月报缺的月份用日报该月最后一个交易日）加上最新值。中证港股通高股息投资指数来自中证指数官网的滚动市盈率（TTM），官网行情不含股息率历史，因此它按 PE 百分位判定。`,
-  global: (years: number): string => `全球：标普 500、纳斯达克 100 的 Forward PE（未来 12 个月一致预期）来自 History of Market（historyofmarket.com，数据 CC BY 4.0）：周度终端数据，其终端序列止于 2026-08-05，之后接 History of Market 按 ETF 持仓自算的 FY1/FY2 混合预期（该站说明与终端口径相差在 3% 以内），表中注明拼接日，周度采样取每周最后一天。标普 500 的 TTM PE、席勒 PE（CAPE）与股息率来自 multpl.com 月度表（月度值为当月均价对应的比值，最新一行是最近收盘的估算值，标 † 的为盈利尚未完整公布的估算）。百分位窗口均为近 ${years} 年（周度或月度样本）。`,
+  global: (years: number): string => `全球：标普 500、纳斯达克 100 的 Forward PE（未来 12 个月一致预期）来自 History of Market（historyofmarket.com，数据 CC BY 4.0）：周度终端数据，其终端序列止于 2026-08-05，之后接 History of Market 按 ETF 持仓自算的 FY1/FY2 混合预期（该站说明与终端口径相差在 3% 以内），表中注明拼接日，周度采样取每周最后一天。两段序列只在拼接日重合一个点（标普 500：终端 20.12、自算 19.99；纳指 100：22.37、22.41），不足以估计口径差、也不做缩放；因此最新值来自自算序列而窗口含终端序列时，照列 PE 百分位，但估值状态记「不判定」。标普 500 的 TTM PE、席勒 PE（CAPE）与股息率来自 multpl.com 月度表（月度值为当月均价对应的比值，最新一行是最近收盘的估算值，标 † 的为盈利尚未完整公布的估算）。百分位窗口均为近 ${years} 年（周度或月度样本）。`,
   skipped: [
     '道琼斯工业、罗素 2000、标普 500 等权：没有找到可自动抓取、带历史的公开 PE 序列（只有价格），暂不纳入。',
     '费城半导体：本站现有的 Forward PE 历史（History of Market 终端周度）止于 2026-08-05，此后没有同口径更新，暂不纳入。',

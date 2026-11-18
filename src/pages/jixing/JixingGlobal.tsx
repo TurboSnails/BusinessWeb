@@ -31,9 +31,10 @@ function rowNotes(r: ValRow): string[] {
   const out: string[] = []
   const w = r.window
   if (w) out.push(`百分位窗口：近 ${w.years} 年${w.freq}度样本，${w.start ?? '—'} 至 ${w.end}，共 ${w.n} 个${w.enough ? '' : '（样本不足，不给分位）'}；估值状态依据 ${basisLabel(r)} 百分位。`)
+  if (w?.spliced) out.push(`序列拼接（${w.spliceDate} 前后口径可能不同），只列分位不判定。`)
   if (w?.distorted) out.push(`窗口内有 ${w.loss} 个亏损样本（PE 为负），超过 10%，PE 前后不可比，不判定估值状态。`)
   if (r.basis === 'pe' && r.history.some(p => p[1] !== null && (p[1] < 0 || p[1] > PE_CHART_CAP))) out.push(`图中 PE 为负（亏损）或超过 ${PE_CHART_CAP} 倍的月份留空，只影响作图。`)
-  if (r.spliceDate) out.push(`${r.spliceDate} 之后为 History of Market 自算的 Forward PE（终端序列止于该日）。`)
+  if (r.spliceDate) out.push(`${r.spliceDate} 之后为 History of Market 自算的 Forward PE（终端序列止于该日；两段只在该日重合一个点，未做缩放）。`)
   if (r.estimated) out.push('最新值为 multpl 标注的估算值（盈利尚未完整公布）。')
   if (r.carried) out.push('本次未取到该行数据，沿用上一次成功采集的结果（日期见表）。')
   return out
@@ -51,7 +52,7 @@ function ValTable({ rows, label, years, onPick, picked }: { rows: ValRow[]; labe
         <td className="num">{r.dy === null ? '—' : `${fix(r.dy)}%`}</td>
         <td className="num">{pct(r.dyPct)}</td>
         <td>{basisLabel(r)}</td>
-        <td><StateBadge state={r.state} distorted={r.window?.distorted} /></td>
+        <td><StateBadge state={r.state} distorted={!!(r.window?.distorted || r.window?.spliced)} /></td>
       </tr>)}</tbody>
     </table>
   </TableWrap>

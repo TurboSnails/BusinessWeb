@@ -227,7 +227,7 @@ export function quantileValue(values, q) {
  * 一只指数的估值统计。samples：已按频率采样、升序、最后一个是最新值的 [{date, pe, dy}]。
  * years：窗口年数；freq：'月' | '周'。只用窗口内（起点之后）的样本；PE 为 null 的样本不进 PE 分位，股息率同理。
  */
-export function valuationStats(samples, { years, freq, basis }) {
+export function valuationStats(samples, { years, freq, basis, spliceDate = null }) {
   const latest = samples.at(-1)
   if (!latest) return null
   const start = addYears(latest.date, -years)
@@ -241,14 +241,16 @@ export function valuationStats(samples, { years, freq, basis }) {
   // 窗口内亏损（PE 为负）样本占比超过 MAX_LOSS_SHARE 时，PE 分位跨越了盈利断层、不可比：照常给出分位，但不判定估值状态
   const loss = pes.filter(v => v < 0).length
   const distorted = basis === 'pe' && pes.length > 0 && loss / pes.length > MAX_LOSS_SHARE
+  // 序列拼接：最新值来自拼接日之后的序列、窗口里又有拼接日及以前的另一序列，前后口径可能不同——只列分位，不判定
+  const spliced = !!spliceDate && latest.date > spliceDate && win.some(p => p.date <= spliceDate)
   const sv = basis === 'dy' ? dys : pes
   const first = win.find(p => (basis === 'dy' ? p.dy : p.pe) !== null)
   // PE 参考线在盈利收益率 E/P 上取分位再换回 PE（亏损月份不至于把参考线拉成负数）；对应 E/P ≤ 0 时不画
   const epRef = (q) => { const e = quantileValue(pes.map(v => 1 / v), q); return e !== null && e > 0 ? round(1 / e, 2) : null }
   const lo = basis === 'dy' ? quantileValue(dys, 0.7) : epRef(0.7), hi = basis === 'dy' ? quantileValue(dys, 0.3) : epRef(0.3)
   return {
-    pePct, dyPct, valPct, state: distorted ? null : stateOf(valPct),
-    window: { years, freq, start: first?.date ?? null, end: latest.date, n: sv.length, peN: pes.length, dyN: dys.length, enough: sv.length >= min, loss, distorted },
+    pePct, dyPct, valPct, state: distorted || spliced ? null : stateOf(valPct),
+    window: { years, freq, start: first?.date ?? null, end: latest.date, n: sv.length, peN: pes.length, dyN: dys.length, enough: sv.length >= min, loss, distorted, spliced, spliceDate: spliced ? spliceDate : null },
     // 参考线：估值分位 30% / 70% 对应的指标值（高股息按股息率：股息率 70% 分位 = 估值分位 30%）
     refs: { low: lo, high: hi },
   }
@@ -349,7 +351,7 @@ export function parseHomForward(body) {
 /** 全球表行：samples 升序（最后一个是最新值）。 */
 export function buildGlobalRow(def, samples, extra = {}) {
   const latest = samples.at(-1) ?? null
-  const stats = latest ? valuationStats(samples, { years: WINDOWS.global, freq: def.freq, basis: 'pe' }) : null
+  const stats = latest ? valuationStats(samples, { years: WINDOWS.global, freq: def.freq, basis: 'pe', spliceDate: extra.spliceDate ?? null }) : null
   return {
     key: def.key, name: def.name, basis: 'pe', date: latest?.date ?? null, freq: def.freq,
     source: def.source, peKind: def.peKind,
