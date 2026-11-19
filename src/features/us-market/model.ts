@@ -37,6 +37,9 @@ export interface Breadth {
   source: string
   scope: string
   history?: Point[]
+  /** Daily share recomputed from today's membership (survivorship bias noted in backfillScope). */
+  backfill?: Point[]
+  backfillScope?: string
   comparison?: {
     date: string
     above50?: number

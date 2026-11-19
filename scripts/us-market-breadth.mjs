@@ -14,6 +14,9 @@ const ndxEndpoint = new URL('/Index/WeightingData', ndxSource)
 const LOOKBACK = 200
 const COMPARISON_SESSIONS = 5
 const FULL_WINDOW = LOOKBACK + COMPARISON_SESSIONS
+// About one trading year of daily breadth, recomputed from the current membership.
+const BACKFILL = 250
+const PRICE_WINDOW = LOOKBACK + BACKFILL
 const MIN_COVERAGE = 0.95
 const sectors = {
   'Communication Services': 'sector-xlc', 'Consumer Discretionary': 'sector-xly',
@@ -110,6 +113,19 @@ export function computeBreadth(members, barsBySymbol, sessions) {
   return { date: window.at(-1), covered, total: members.length, above50: pct(above50), above200: pct(above200) }
 }
 
+/**
+ * Daily above-200-day share for the latest `count` sessions, using today's
+ * membership throughout. Sessions below the coverage floor are skipped.
+ */
+export function computeBackfill(members, barsBySymbol, sessions, count = BACKFILL) {
+  const points = []
+  for (let end = Math.max(LOOKBACK, sessions.length - count + 1); end <= sessions.length; end++) {
+    const row = computeBreadth(members, barsBySymbol, sessions.slice(0, end))
+    if (row) points.push([row.date, row.above200])
+  }
+  return points
+}
+
 /** SPX and GICS historical membership is unavailable. Compare matched names from the current universe. */
 export function computeMatchedComparison(members, barsBySymbol, sessions) {
   if (sessions.length < FULL_WINDOW) return null
@@ -172,7 +188,7 @@ async function get(url, options) {
 }
 
 async function chart(symbol) {
-  return (await get(`https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=1y&interval=1d`)).json()
+  return (await get(`https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=2y&interval=1d`)).json()
 }
 
 async function ndxMembers(date) {
@@ -190,7 +206,7 @@ function universeId(symbols) {
 
 async function fetchBars(symbols, sessions) {
   const date = sessions.at(-1)
-  const needed = new Set(sessions.slice(-FULL_WINDOW))
+  const needed = new Set(sessions.slice(-PRICE_WINDOW))
   const staged = resolve(cacheDir, date)
   const bars = new Map()
   let failures = 0
@@ -279,7 +295,11 @@ async function main() {
         const comparison = market === 'spx'
           ? computeMatchedComparison(list, bars, sessions)
           : priorMembers && computeBreadth(priorMembers.map(member => member.symbol), bars, sessions.slice(0, -COMPARISON_SESSIONS))
-        const observation = { ...row, source, scope, universe: universeId(symbols) }
+        const backfill = computeBackfill(symbols, bars, sessions)
+        const observation = {
+          ...row, source, scope, universe: universeId(symbols),
+          ...(backfill.length > 1 && { backfill, backfillScope: '按当前成分名单回算每日收盘宽度；期间被剔除的股票不在内，存在幸存者偏差' }),
+        }
         if (comparison) {
           observation.comparison = market === 'spx' ? comparison : {
             ...comparison,

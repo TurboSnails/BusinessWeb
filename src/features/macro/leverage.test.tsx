@@ -31,6 +31,9 @@ describe('杠杆数据整理', () => {
       + '<row r="3"><c r="A3" t="inlineStr"><is><t>1997-01</t></is></c><c r="B3"><v>500</v></c><c r="C3"><v>300</v></c></row>'
       + '<row r="4"><c r="A4" t="inlineStr"><is><t>Year-Month</t></is></c></row>'
     expect(parseFinraMargin(xml)).toEqual([{ date: '1997-01-01', debit: 500, cash: 300, margin: 0 }, { date: '2026-08-01', debit: 1000, cash: 200, margin: 100 }])
+    const shared = '<sst><si><t>Year-Month</t></si><si><t>2026-10</t></si></sst>'
+    const sharedXml = '<row r="1"><c r="A1" t="s"><v>0</v></c></row><row r="2"><c r="A2" s="2" t="s"><v>1</v></c><c r="B2" s="3"><v>1448360</v></c><c r="C2"><v>210290</v></c><c r="D2"><v>212890</v></c></row>'
+    expect(parseFinraMargin(sharedXml, shared)).toEqual([{ date: '2026-10-01', debit: 1448360, cash: 210290, margin: 212890 }])
   })
 
   it('GDP 滚动一年 = 本期累计 + 上年全年 − 上年同期累计', () => {

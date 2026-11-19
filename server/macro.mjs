@@ -77,13 +77,23 @@ export function unzipEntry(buf, name) {
   throw new Error(`xlsx 里没有 ${name}`)
 }
 
+/** xlsx 的共享字符串表；没有这张表的工作簿返回空串 */
+export function sharedStrings(book) {
+  try { return unzipEntry(book, 'xl/sharedStrings.xml') } catch { return '' }
+}
+
 /** FINRA 保证金统计表 → 按月升序的 { date, debit, cash, margin }（单位：百万美元） */
-export function parseFinraMargin(xml) {
+export function parseFinraMargin(xml, sharedXml = '') {
+  // 2026 年起日期列改存为共享字符串（t="s"，<v> 是 sharedStrings 的序号）
+  const shared = [...sharedXml.matchAll(/<si>(.*?)<\/si>/gs)].map(([, si]) => [...si.matchAll(/<t[^>]*>([^<]*)<\/t>/g)].map(m => m[1]).join(''))
   const rows = []
   for (const [, row] of xml.matchAll(/<row [^>]*>(.*?)<\/row>/gs)) {
     // 早年的行缺列，必须按列号而不是顺序取值
     const col = {}
-    for (const [, ref, body] of row.matchAll(/<c r="([A-Z]+)\d+"[^>]*>(.*?)<\/c>/gs)) col[ref] = (body.match(/<t[^>]*>([^<]*)<\/t>/) ?? body.match(/<v>([^<]*)<\/v>/) ?? [])[1]
+    for (const [, ref, attrs, body] of row.matchAll(/<c r="([A-Z]+)\d+"([^>]*)>(.*?)<\/c>/gs)) {
+      const value = (body.match(/<t[^>]*>([^<]*)<\/t>/) ?? body.match(/<v>([^<]*)<\/v>/) ?? [])[1]
+      col[ref] = /\bt="s"/.test(attrs) && value !== undefined ? shared[Number(value)] : value
+    }
     if (!/^\d{4}-\d{2}$/.test(col.A ?? '')) continue
     const debit = Number(col.B), cash = Number(col.C), margin = Number(col.D ?? 0)
     if ([debit, cash, margin].every(Number.isFinite) && debit > 0) rows.push({ date: `${col.A}-01`, debit, cash, margin })
@@ -316,7 +326,8 @@ export async function buildSnapshots(previous = null) {
   const finra = () => (finraData ??= (async () => {
     const res = await get(FINRA_MARGIN, { headers: { 'User-Agent': 'Mozilla/5.0' } })
     if (!res.ok) throw new Error(`FINRA: HTTP ${res.status}`)
-    const rows = parseFinraMargin(unzipEntry(Buffer.from(await res.arrayBuffer()), 'xl/worksheets/sheet1.xml'))
+    const book = Buffer.from(await res.arrayBuffer())
+    const rows = parseFinraMargin(unzipEntry(book, 'xl/worksheets/sheet1.xml'), sharedStrings(book))
     if (!rows.length) throw new Error('FINRA: 无数据')
     return rows
   })())

@@ -1,4 +1,7 @@
 .us-market {
+  /* 偏进攻 uses the site's accent ink; 偏防守 a warning red, independent of price up/down colours. */
+  --lean-offense: var(--accent-ink);
+  --lean-defense: var(--danger, var(--up));
   display: grid;
   gap: 1rem;
   min-width: 0;
@@ -84,3 +87,51 @@
   .us-market__matrix .is-active th:first-child { background: var(--bg-card); }
   .us-market__hero .us-market__stance { padding-block: .7rem; }
 }
+
+/* Plain-language reading of each metric */
+.us-market__verdict { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .5rem; margin: .35rem 0 0; font-size: .76rem; }
+.us-market__chip { display: inline-block; padding: .08rem .45rem; border-radius: 999px; font-size: .74rem; font-weight: 650; white-space: nowrap; background: var(--bg-primary); color: var(--text-secondary); border: 1px solid var(--border-subtle); }
+.us-market__chip[data-lean="offense"] { color: var(--lean-offense); border-color: currentColor; }
+.us-market__chip[data-lean="defense"] { color: var(--lean-defense); border-color: currentColor; }
+.us-market__basis { color: var(--text-secondary); }
+.us-market__comment { margin: .35rem 0 .2rem; font-size: .84rem; line-height: 1.55; color: var(--text-primary); }
+.us-market__range { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .8rem; font-size: .8rem; }
+
+/* History chart */
+.us-chart { margin: .45rem 0 .25rem; }
+.us-chart svg { display: block; width: 100%; height: auto; touch-action: pan-y; }
+.us-chart__area { fill: var(--accent); opacity: .08; }
+.us-chart__line { fill: none; stroke: var(--accent); stroke-width: 1.6; vector-effect: non-scaling-stroke; }
+.us-chart__mean { stroke: var(--text-secondary); stroke-width: 1; stroke-dasharray: 3 3; opacity: .7; vector-effect: non-scaling-stroke; }
+.us-chart__cursor { stroke: var(--text-secondary); stroke-width: 1; opacity: .5; vector-effect: non-scaling-stroke; }
+.us-chart__dot { fill: var(--accent); stroke: var(--bg-card); stroke-width: 1.5; }
+.us-chart__extreme { fill: var(--text-secondary); }
+.us-chart__note, .us-chart__axis { fill: var(--text-secondary); font-size: 8.5px; }
+.us-chart__caption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .2rem .6rem; font-size: .73rem; color: var(--text-secondary); }
+.us-chart__caption strong { color: var(--text-primary); }
+
+/* Plain summary */
+.us-plain { display: grid; gap: 1rem; padding: clamp(1rem, 2.2vw, 1.45rem); border: 1px solid var(--border-subtle); border-radius: var(--radius-md, 12px); background: var(--bg-card); }
+.us-plain__head { display: grid; gap: .35rem; }
+.us-plain__head p { margin: 0; }
+.us-plain__eyebrow { color: var(--text-secondary); font-size: .85rem; }
+.us-plain__overall strong { font-size: clamp(1.5rem, 3.6vw, 2.1rem); line-height: 1.15; }
+.us-plain__overall[data-lean="offense"] strong { color: var(--lean-offense); }
+.us-plain__overall[data-lean="defense"] strong { color: var(--lean-defense); }
+.us-plain__why { line-height: 1.6; }
+.us-plain__advice { padding: .6rem .8rem; border-radius: var(--radius-sm, 6px); background: var(--bg-primary); line-height: 1.6; }
+.us-plain__questions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; padding: 0; margin: 0; list-style: none; }
+.us-plain__question { padding: .75rem .85rem; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm, 6px); border-inline-start: 3px solid var(--border-subtle); }
+.us-plain__question[data-lean="offense"] { border-inline-start-color: var(--lean-offense); }
+.us-plain__question[data-lean="defense"] { border-inline-start-color: var(--lean-defense); }
+.us-plain__question h3 { margin: 0 0 .2rem; font-size: .85rem; font-weight: 600; color: var(--text-secondary); }
+.us-plain__question > strong { display: block; font-size: 1rem; margin-bottom: .45rem; }
+.us-plain__question ul { display: grid; gap: .25rem; padding: 0; margin: 0; list-style: none; font-size: .8rem; }
+.us-plain__question li { display: flex; justify-content: space-between; align-items: center; gap: .5rem; }
+.us-plain__disclaimer { margin: 0; color: var(--text-secondary); font-size: .76rem; }
+@media (max-width: 960px) { .us-plain__questions { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .us-plain__questions { grid-template-columns: minmax(0, 1fr); } }
+.us-market__recent { display: flex; flex-wrap: wrap; gap: .3rem; padding: 0; margin: .4rem 0 .1rem; list-style: none; }
+.us-market__recent li { display: grid; padding: .2rem .45rem; border-radius: var(--radius-sm, 6px); background: var(--bg-primary); font-size: .74rem; border: 0; }
+.us-market__recent time { color: var(--text-secondary); font-size: .68rem; }
+.us-market__recent li:last-child { font-weight: 650; }

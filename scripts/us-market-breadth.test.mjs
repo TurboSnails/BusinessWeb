@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { completedSessions, computeBreadth, computeMatchedComparison, mergeBreadth, parseNdxMembers, parseSpxMembers, parseYahooAdjusted } from './us-market-breadth.mjs'
+import { completedSessions, computeBackfill, computeBreadth, computeMatchedComparison, mergeBreadth, parseNdxMembers, parseSpxMembers, parseYahooAdjusted } from './us-market-breadth.mjs'
 
 const day = i => new Date(Date.UTC(2026, 0, 1 + i)).toISOString().slice(0, 10)
 const sessions = Array.from({ length: 200 }, (_, i) => day(i))
@@ -76,4 +76,13 @@ test('compares exactly five sessions using one matched, verifiably preexisting c
   assert.equal(comparison.basis, 'matched-current-membership')
   quotes.delete('K18')
   assert.equal(computeMatchedComparison(constituents, quotes, dates), null)
+})
+
+test('backfills daily breadth only where a full 200-session window exists', () => {
+  const long = Array.from({ length: 210 }, (_, i) => day(i))
+  const rising = new Map(members.map(symbol => [symbol, long.map((date, i) => [date, 10 + i])]))
+  const points = computeBackfill(members, rising, long, 50)
+  assert.equal(points.length, 11)
+  assert.deepEqual(points[0], [long[199], 100])
+  assert.deepEqual(points.at(-1), [long[209], 100])
 })

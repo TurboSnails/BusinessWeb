@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
   collectUsMarketData, finraDebtGrowth, mergeSeries, parseAllocation, parseCftc, parseCftcHistory, parseFinra, parseFred,
-  isBotChallenge, parseFundLiquidity, parseIciFlows, parseMoneyFunds, parseOfrExposure, parseSentiment, parseVolume,
+  compactHistory, isBotChallenge, parseFinraHistory, parseFundLiquidity, parseIciFlows, parseMoneyFunds, parseOfrExposure, parseSentiment, parseVolume,
 } from './us-market-data.mjs'
 
 const table = (...rows) => '<table>' + rows.map(row => '<tr>' + row.map(cell => `<td>${cell}</td>`).join('') + '</tr>').join('') + '</table>'
@@ -96,6 +96,7 @@ test('production Cboe collector excludes the date in New York even after UTC adv
       if (url.endsWith('/DGS10')) return '2026-11-18,5.07'
       throw new Error('unavailable')
     },
+    readBinary: async () => { throw new Error('unavailable') },
   })
   assert.deepEqual(result.snapshot.series.volume.history, [['2026-11-18', .007]])
   assert.deepEqual(result.snapshot.series.tenYearDaily.history, [['2026-11-18', 5.07]])
@@ -170,9 +171,27 @@ test('a failed live source preserves its dated snapshot while other sources refr
       if (url.endsWith('BAMLH0A0HYM2')) return '2026-11-18,3.47'
       throw new Error('unavailable')
     },
+    readBinary: async () => { throw new Error('unavailable') },
   })
   assert.equal(result.sourcesUpdated, 1)
-  assert.equal(result.warnings.length, 11)
+  assert.equal(result.warnings.length, 12)
   assert.deepEqual(result.snapshot.series.retailCash, { ...retailCash, refreshError: 'unavailable' })
   assert.deepEqual(result.snapshot.series.hyDaily.history, [['2026-11-18', 347]])
+})
+
+test('compacts daily history to weekly closes beyond the latest 400 days', () => {
+  const days = Array.from({ length: 800 }, (_, i) => [new Date(Date.UTC(2024, 0, 1) + i * 86_400_000).toISOString().slice(0, 10), i])
+  const compact = compactHistory(days, '日频')
+  const cutoff = new Date(Date.parse(days.at(-1)[0]) - 400 * 86_400_000).toISOString().slice(0, 10)
+  assert.deepEqual(compact.filter(([day]) => day >= cutoff), days.filter(([day]) => day >= cutoff))
+  const older = compact.filter(([day]) => day < cutoff)
+  assert.ok(older.length >= 56 && older.length <= 58, String(older.length))
+  assert.deepEqual(compact.at(-1), days.at(-1))
+  assert.equal(compactHistory(days, '月频').length, 800)
+})
+
+test('converts the FINRA workbook to month-end readings in the web-table units', () => {
+  const result = parseFinraHistory([{ date: '1997-01-01', debit: 103337, cash: 68856, margin: 0 }, { date: '2026-10-01', debit: 1448360, cash: 210290, margin: 212890 }])
+  assert.deepEqual(result.finraDebt.history, [['1997-01-31', 1033.37], ['2026-10-31', 14483.6]])
+  assert.deepEqual(result.finraCashDebt.history.at(-1), ['2026-10-31', 29.22])
 })

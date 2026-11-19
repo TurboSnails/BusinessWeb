@@ -2,7 +2,7 @@ import { execFile } from 'node:child_process'
 import { readFile, rename, unlink, writeFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
-import { computeEquityLongShort, parseOfrTimeseries } from '../server/macro.mjs'
+import { computeEquityLongShort, parseFinraMargin, parseOfrTimeseries, sharedStrings, unzipEntry } from '../server/macro.mjs'
 import { localParts, MARKETS } from './lib/trading-calendar.mjs'
 import { NYSE_SHORT_SESSIONS } from './lib/us-market-calendar.mjs'
 
@@ -11,6 +11,7 @@ const CBOE = 'https://cdn.cboe.com/resources/us/equities/market-statistics/histo
 const TREND = BASE + '/monthly-trends-in-mutual-fund-investing'
 const FRED = 'https://fred.stlouisfed.org/data/'
 const FINRA = 'https://www.finra.org/rules-guidance/key-topics/margin-accounts/margin-statistics'
+const FINRA_HISTORY = 'https://www.finra.org/sites/default/files/2021-03/margin-statistics.xlsx'
 const CFTC = 'https://www.cftc.gov/dea/futures/financial_lf.htm'
 const CFTC_DATA = 'https://publicreporting.cftc.gov/Commitments-of-Traders/TFF-Futures-Only/gpe5-46if'
 const CFTC_API = 'https://publicreporting.cftc.gov/resource/gpe5-46if.json'
@@ -289,6 +290,40 @@ export function parseFinra(markup) {
   }
 }
 
+/** FINRA's full monthly workbook (since 1997), in the same units and month-end dates as the web table. */
+export function parseFinraHistory(rows) {
+  const monthEndOf = (first) => {
+    const [year, month] = first.split('-').map(Number)
+    return new Date(Date.UTC(year, month, 0)).toISOString().slice(0, 10)
+  }
+  const usable = rows.filter(({ debit, cash, margin }) => debit > 0 && cash >= 0 && margin >= 0)
+  return {
+    finraDebt: record(requireReadings(usable.map(({ date, debit }) => [monthEndOf(date), rounded(debit / 100)]), 'FINRA 历史')),
+    finraCashDebt: record(usable.map(({ date, debit, cash, margin }) => [monthEndOf(date), rounded((cash + margin) / debit * 100)])),
+  }
+}
+
+const DAY = 86_400_000
+/**
+ * Keeps long histories readable and small: daily series stay daily for the
+ * latest ~13 months and keep one close per week before that.
+ */
+export function compactHistory(history, frequency, latest = history.at(-1)?.[0]) {
+  if (!latest) return history
+  const end = Date.parse(latest)
+  const years = { 日频: 25, 周频: 25, 月频: 40, 季频: 40 }[frequency] ?? 40
+  const kept = history.filter(([day]) => end - Date.parse(day) <= years * 366 * DAY)
+  if (frequency !== '日频') return kept
+  const weekly = new Map()
+  for (const point of kept) {
+    if (end - Date.parse(point[0]) <= 400 * DAY) { weekly.set(point[0], point); continue }
+    const at = new Date(point[0] + 'T00:00:00Z')
+    at.setUTCDate(at.getUTCDate() + 4 - (at.getUTCDay() || 7))
+    weekly.set('w' + at.toISOString().slice(0, 10), point)
+  }
+  return sorted([...weekly.values()])
+}
+
 export function finraDebtGrowth(history) {
   const monthly = new Map(history.map(([day, value]) => [day.slice(0, 7), value]))
   return history.flatMap(([day, value]) => {
@@ -382,6 +417,12 @@ async function fetchText(url) {
   return body
 }
 
+async function fetchBinary(url) {
+  const response = await fetch(url, { signal: AbortSignal.timeout(30000), headers: BARE_HEADERS })
+  if (!response.ok) throw new Error('HTTP ' + response.status)
+  return Buffer.from(await response.arrayBuffer())
+}
+
 export const BOT_CHALLENGE = '来源拦截自动访问'
 export const isBotChallenge = (body) => body.length < 20_000 && /_Incapsula_Resource|Incapsula incident ID/i.test(body)
 
@@ -418,7 +459,7 @@ async function fetchCftc(read) {
   }
 }
 
-export async function collectUsMarketData(previous, { read = fetchText, now = new Date() } = {}) {
+export async function collectUsMarketData(previous, { read = fetchText, readBinary = fetchBinary, now = new Date() } = {}) {
   const beforeNyDay = localParts(now, MARKETS.us.tz).date
   const jobs = {
     'AAII 资产配置': [['retailCash', 'retailStocks'], async () => parseAllocation(await read(ALLOCATION))],
@@ -429,6 +470,11 @@ export async function collectUsMarketData(previous, { read = fetchText, now = ne
     'Cboe 成交': [['volume', 'volumeRatio'], async () => fetchVolume(read, beforeNyDay)],
     'CFTC 仓位': [['cftcSpxLev', 'cftcNdxLev', 'cftcSpxAsset', 'cftcNdxAsset'], async () => fetchCftc(read)],
     'FINRA 保证金': [['finraDebt', 'finraCashDebt', 'finraDebtYoy'], async () => parseFinra(await read(FINRA))],
+    // No keys: a failed archive download must not flag the fresher web-table months.
+    'FINRA 历史': [[], async () => {
+      const book = await readBinary(FINRA_HISTORY)
+      return parseFinraHistory(parseFinraMargin(unzipEntry(book, 'xl/worksheets/sheet1.xml'), sharedStrings(book)))
+    }],
     'OFR 股票敞口': [['ofrEquityGross', 'ofrCashEquityLs'], async () => parseOfrExposure(await read(OFR_API + [OFR_GROSS, OFR_CASH_LONG, OFR_CASH_SHORT].join(',')))],
     'FRED 高收益债利差': [['hyDaily'], async () => ({ hyDaily: parseFred(await read(FRED + 'BAMLH0A0HYM2'), 100) })],
     'FRED VIX': [['vixDaily'], async () => ({ vixDaily: parseFred(await read(FRED + 'VIXCLS'), 1) })],
@@ -470,7 +516,7 @@ export async function collectUsMarketData(previous, { read = fetchText, now = ne
       const updated = mergeSeries(current, { ...specs[key], ...values, releasedAt: release, history })
       if (!updated) continue
       delete updated.refreshError
-      updated.history = updated.history.slice(-({ 日频: 126, 周频: 156, 月频: 96 }[updated.frequency] ?? 96))
+      updated.history = compactHistory(updated.history, updated.frequency)
       series[key] = updated
       accepted = true
     }
