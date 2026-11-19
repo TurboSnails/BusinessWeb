@@ -8,6 +8,7 @@ import {
 } from '../features/etf-timing/model'
 import { LONG_DOC, OOS_ASOF, OOS_DOC, OOS_ROWS, OOS_SPLITS, OOS_VERDICTS, SCRIPTS } from '../features/etf-timing/oos'
 import '../styles/etf-timing.css'
+import { PairBars, StatusGrid } from '../features/etf-timing/charts'
 import { LabNav } from '../features/etf-signal-plans/LabNav'
 
 const BASE = (import.meta as { env?: Record<string, string | undefined> }).env?.BASE_URL ?? '/'
@@ -99,6 +100,7 @@ function ShadowSection({ latest, now }: { latest: ShadowLatest; now: Date }): JS
       <p className="et-lead">冻结名单 {latest.summary.n + latest.summary.missing} 只场内基金（以 ETF 为主，名单版本 {latest.universeVersion ?? '—'}，不按表现增删），每周六按周五收盘记录一次。</p>
       {stale > 9 && <Callout tone="warn" title={`影子记录已 ${stale} 天未更新`}>最近一次是 {latest.asOf}；每周六自动运行，可能被行情站限流，下次运行会补上。</Callout>}
       {!latest.complete && <Callout tone="warn" title="本周记录不完整">缺 {latest.summary.missing} 只（行情站限流），不计入事后评估；同一周重跑会覆盖。</Callout>}
+      <StatusGrid items={latest.items} asOf={latest.asOf} isRecent={isRecent} />
       <div className="et-group" role="region" aria-label="近 7 天新信号">
         <h3>近 7 天新信号 <span className="et-count">{recent.length}</span></h3>
         {recent.length ? <EtfList items={recent} asOf={latest.asOf} /> : <p className="et-lead">这一周没有新的进场或离场。</p>}
@@ -183,6 +185,10 @@ function ResearchSection({ r }: { r: Research }): JSX.Element {
       <div className="et-toolbar">
         <div className="et-seg-scroll"><Segmented<string> label="区间" value={win} onChange={setWin} items={labels.map(l => ({ id: l, label: l.replace(/ \d{4}-\d{2}-\d{2}～\d{4}-\d{2}-\d{2}/, '') }))} /></div>
         <label className="et-toggle"><input type="checkbox" checked={showOthers} onChange={e => setShowOthers(e.target.checked)} /> 显示对照策略</label>
+      </div>
+      <div className="et-charts">
+        <PairBars title={crash ? '区间收益' : '年化收益'} hint="择时的条比一直持有长，说明收益更高" pairs={[...pass, ...fail].map(r => ({ label: idxName(r), hold: crash ? r.windows[win]?.hold?.total : r.windows[win]?.hold?.annual, timing: crash ? r.windows[win]?.hs?.total : r.windows[win]?.hs?.annual }))} />
+        <PairBars title="最大回撤" hint="条越短回撤越浅，择时的条比一直持有短才算控住了回撤" pairs={[...pass, ...fail].map(r => ({ label: idxName(r), hold: r.windows[win]?.hold?.dd, timing: r.windows[win]?.hs?.dd }))} />
       </div>
       <TableWrap label="长历史检验结果" stickyFirst>
         <table className="ui-table et-rtable">

@@ -67,3 +67,17 @@ describe('择时实验页', () => {
     expect(await screen.findByText(/影子记录已 17 天未更新/)).toBeTruthy()
   })
 })
+
+describe('择时实验页图表', () => {
+  it('状态总览格与收益/回撤成对条形图', async () => {
+    okFetch()
+    renderPage()
+    const grid = await screen.findByRole('group', { name: '状态总览' })
+    expect(within(grid).getByText(/近 7 天进场 1/)).toBeTruthy()
+    expect(within(grid).getByTitle(/芯片ETF.*近 7 天进场/)).toBeTruthy()
+    const figs = document.querySelectorAll('figure.et-chart')
+    expect(figs.length).toBe(2)
+    expect(figs[1].textContent).toContain('最大回撤')
+    expect(figs[0].querySelectorAll('.et-bar__fill--timing').length).toBeGreaterThan(0)
+  })
+})
