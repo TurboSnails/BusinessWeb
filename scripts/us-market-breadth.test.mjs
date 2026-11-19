@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { completedSessions, computeBackfill, computeBreadth, computeMatchedComparison, mergeBreadth, parseNdxMembers, parseSpxMembers, parseYahooAdjusted } from './us-market-breadth.mjs'
+import { completedSessions, computeBackfill, computeBreadth, computeHighsLows, computeMatchedComparison, mergeBreadth, parseNdxMembers, parseSpxMembers, parseYahooAdjusted } from './us-market-breadth.mjs'
 
 const day = i => new Date(Date.UTC(2026, 0, 1 + i)).toISOString().slice(0, 10)
 const sessions = Array.from({ length: 200 }, (_, i) => day(i))
@@ -85,4 +85,14 @@ test('backfills daily breadth only where a full 200-session window exists', () =
   assert.equal(points.length, 11)
   assert.deepEqual(points[0], [long[199], 100])
   assert.deepEqual(points.at(-1), [long[209], 100])
+})
+
+test('counts closing 52-week highs, lows and one-day advancers over covered members', () => {
+  const year = Array.from({ length: 252 }, (_, i) => day(i))
+  const series = (last, previous = 10) => year.map((date, i) => [date, i === 251 ? last : i === 250 ? previous : 10 + (i % 3)])
+  const prices = new Map([['UP', series(20)], ['DOWN', series(5)], ['FLAT', series(11, 11)]])
+  assert.deepEqual(computeHighsLows(['UP', 'DOWN', 'FLAT'], prices, year), {
+    date: year.at(-1), covered: 3, newHighs: 1, newLows: 1, advancers: 1, decliners: 1, netHighsPct: 0,
+  })
+  assert.equal(computeHighsLows(['UP', 'MISSING'], prices, year), null)
 })

@@ -32,6 +32,9 @@ export default function HistoryChart({ points, label, format }: {
   const shown = hover ?? last
   const hiIndex = values.indexOf(hi)
   const loIndex = values.indexOf(lo)
+  const ticks = [hi, (hi + lo) / 2, lo]
+  // Where the latest reading sits within the shown range, 0 = lowest, 100 = highest.
+  const rank = Math.round((values.filter(v => v < values[last]).length / Math.max(values.length - 1, 1)) * 100)
 
   const onMove = (event: React.PointerEvent<SVGSVGElement>): void => {
     const box = event.currentTarget.getBoundingClientRect()
@@ -43,6 +46,10 @@ export default function HistoryChart({ points, label, format }: {
     <figure className="us-chart">
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${label}：${points[0][0]} ${format(values[0])}，${points[last][0]} ${format(values[last])}，区间均值 ${format(round(mean))}`}
         onPointerMove={onMove} onPointerLeave={() => setHover(null)}>
+        {ticks.map((tick, i) => <g key={i}>
+          <line className="us-chart__grid" x1={LEFT} x2={W - RIGHT} y1={y(tick)} y2={y(tick)} />
+          <text className="us-chart__tick" x={W - RIGHT} y={y(tick) - 2} textAnchor="end">{format(round(tick))}</text>
+        </g>)}
         <path className="us-chart__area" d={area} />
         <line className="us-chart__mean" x1={LEFT} x2={W - RIGHT} y1={y(mean)} y2={y(mean)} />
         <path className="us-chart__line" d={path} />
@@ -55,7 +62,7 @@ export default function HistoryChart({ points, label, format }: {
       </svg>
       <figcaption className="us-chart__caption">
         <span><time dateTime={points[shown][0]}>{points[shown][0]}</time> <strong>{format(values[shown])}</strong></span>
-        <span className="us-chart__legend">区间均值（虚线）{format(round(mean))} · 最高 {format(hi)} · 最低 {format(lo)}</span>
+        <span className="us-chart__legend">均值（虚线）{format(round(mean))} · 最高 {format(hi)}（{points[hiIndex][0].slice(0, 7)}）· 最低 {format(lo)}（{points[loIndex][0].slice(0, 7)}）· 最新值高于区间内 {rank}% 的时间</span>
       </figcaption>
     </figure>
   )

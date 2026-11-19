@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
   collectUsMarketData, finraDebtGrowth, mergeSeries, parseAllocation, parseCftc, parseCftcHistory, parseFinra, parseFred,
-  compactHistory, isBotChallenge, parseFinraHistory, parseFundLiquidity, parseIciFlows, parseMoneyFunds, parseOfrExposure, parseSentiment, parseVolume,
+  compactHistory, corporateSpread, isBotChallenge, parseCboeIndex, parseFearGreed, parseFinraHistory, parseMultpl, parseNaaim, parseFundLiquidity, parseIciFlows, parseMoneyFunds, parseOfrExposure, parseSentiment, parseVolume,
 } from './us-market-data.mjs'
 
 const table = (...rows) => '<table>' + rows.map(row => '<tr>' + row.map(cell => `<td>${cell}</td>`).join('') + '</tr>').join('') + '</table>'
@@ -174,7 +174,7 @@ test('a failed live source preserves its dated snapshot while other sources refr
     readBinary: async () => { throw new Error('unavailable') },
   })
   assert.equal(result.sourcesUpdated, 1)
-  assert.equal(result.warnings.length, 12)
+  assert.equal(result.warnings.length, 19)
   assert.deepEqual(result.snapshot.series.retailCash, { ...retailCash, refreshError: 'unavailable' })
   assert.deepEqual(result.snapshot.series.hyDaily.history, [['2026-11-18', 347]])
 })
@@ -194,4 +194,37 @@ test('converts the FINRA workbook to month-end readings in the web-table units',
   const result = parseFinraHistory([{ date: '1997-01-01', debit: 103337, cash: 68856, margin: 0 }, { date: '2026-10-01', debit: 1448360, cash: 210290, margin: 212890 }])
   assert.deepEqual(result.finraDebt.history, [['1997-01-31', 1033.37], ['2026-10-31', 14483.6]])
   assert.deepEqual(result.finraCashDebt.history.at(-1), ['2026-10-31', 29.22])
+})
+
+test('reads multpl monthly tables including the estimated current month', () => {
+  const html = '<table><tr><th>Date</th><th>Value</th></tr><tr><td>Nov 18, 2026</td><td>\n<abbr title="Estimate">†</abbr>\n38.63\n</td></tr>' +
+    '<tr><td>Oct 1, 2026</td><td>\n&#x2002;\n40.60\n</td></tr><tr><td>Jan 31, 1900</td><td>\n&#x2002;\n3.24%\n</td></tr></table>'
+  assert.deepEqual(parseMultpl(html).history, [['1900-01-31', 3.24], ['2026-10-01', 40.6], ['2026-11-18', 38.63]])
+})
+
+test('reads Cboe index CSVs with or without OHLC columns', () => {
+  assert.deepEqual(parseCboeIndex('DATE,SKEW\n01/02/1990,126.09\n11/18/2026,142.84\n').history, [['1990-01-02', 126.09], ['2026-11-18', 142.84]])
+  assert.deepEqual(parseCboeIndex('DATE,OPEN,HIGH,LOW,CLOSE\n11/18/2026,25,26,24,24.56\n').history, [['2026-11-18', 24.56]])
+})
+
+test('keeps the CNN composite history and today\'s component scores on New York dates', () => {
+  const json = JSON.stringify({
+    fear_and_greed: { score: 18.58, timestamp: '2026-11-19T21:05:02+00:00' },
+    fear_and_greed_historical: { data: [{ x: Date.parse('2026-11-18T21:00:00Z'), y: 24.6 }, { x: 0, y: 150 }] },
+    junk_bond_demand: { score: 38.6, timestamp: Date.parse('2026-11-19T21:00:00Z') },
+  })
+  const result = parseFearGreed(json)
+  assert.deepEqual(result.fearGreed.history, [['2026-11-18', 24.6], ['2026-11-19', 18.58]])
+  assert.deepEqual(result.cnnJunkBond.history, [['2026-11-19', 38.6]])
+  assert.equal(result.cnnMomentum, undefined)
+})
+
+test('subtracts Aaa from Baa only for months both report', () => {
+  const spread = corporateSpread({ history: [['2026-09-01', 5.9], ['2026-10-01', 5.8]] }, { history: [['2026-10-01', 5.33]] })
+  assert.deepEqual(spread.history, [['2026-10-01', 0.47]])
+})
+
+test('reads the NAAIM public table and rejects out-of-range rows', () => {
+  const html = '<table><tr><th>Date</th><th>NAAIM Number</th></tr><tr><td>08/19/2026</td><td>94.49</td></tr><tr><td>08/12/2026</td><td>250</td></tr></table>'
+  assert.deepEqual(parseNaaim(html).history, [['2026-08-19', 94.49]])
 })

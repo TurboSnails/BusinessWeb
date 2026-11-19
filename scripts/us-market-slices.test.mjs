@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { buildUsMarketSlices, parseFundCharacteristics, parseMarketSlice, US_MARKET_SLICES } from './us-market-slices.mjs'
+import { buildUsMarketSlices, compactPrices, parseFundCharacteristics, parseMarketSlice, US_MARKET_SLICES } from './us-market-slices.mjs'
 
 const seconds = iso => Date.parse(iso) / 1000
 const previousOpen = seconds('2026-11-18T14:30:00Z')
@@ -110,4 +110,11 @@ test('keeps calendar dates with raw volume and leaves unchanged snapshots untouc
     ...options, previous: first, now: new Date('2026-11-20T21:15:00Z'),
   })
   assert.equal(second, first)
+})
+
+test('keeps recent daily closes and one close per week before them', () => {
+  const rows = Array.from({ length: 1000 }, (_, i) => [new Date(Date.UTC(2020, 0, 1) + i * 86_400_000).toISOString().slice(0, 10), { close: i }])
+  const compact = compactPrices(rows)
+  assert.deepEqual(compact.slice(-420), rows.slice(-420))
+  assert.ok(compact.length - 420 >= 83 && compact.length - 420 <= 84, String(compact.length))
 })

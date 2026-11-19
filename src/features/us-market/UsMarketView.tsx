@@ -295,18 +295,39 @@ export default function UsMarketView() {
   ]
   const tenYearItem: Item = dailyYield ? { ...p('tenYearDaily', '美国 10 年期国债'), id: 'tenYear' } : m('tenYear', '美国 10 年期国债')
   const marketBreadth = breadthItem(snap.breadth?.breadth?.spx, '标普 500 高于 200 日线的成分股')
+  const highsItem = (row: Breadth | undefined, name: string): Item => {
+    const hl = row?.highsLows
+    if (!row || !hl || !row.netHighs?.length) return { id: 'netHighs', name }
+    return {
+      id: 'netHighs', name,
+      reading: val(name, ' 个百分点', row.source, `${row.scope}；按收盘价计，走势${row.backfillScope ?? '按当前成分名单回算'}`, '每日', row.netHighs,
+        `${hl.date}：创 52 周新高 ${hl.newHighs} 只，新低 ${hl.newLows} 只；当天上涨 ${hl.advancers} 只、下跌 ${hl.decliners} 只（共 ${hl.covered} 只）。`),
+    }
+  }
+  const marketHighs = highsItem(snap.breadth?.breadth?.spx, '标普 500 净新高比例')
+  const fearGreed = p('fearGreed', 'CNN 恐惧与贪婪指数')
+  const cnnParts = [
+    p('cnnMomentum', '指数动量'), p('cnnStrength', '52 周新高 vs 新低'), p('cnnBreadth', '上涨 vs 下跌成交量'), p('cnnPutCall', '看跌／看涨期权'),
+    p('cnnVolatility', '波动率'), p('cnnSafeHaven', '避险需求（股 vs 债）'), p('cnnJunkBond', '垃圾债需求'),
+  ]
+  const cape = p('shillerCape', '席勒市盈率 CAPE（1900 年起）')
+  const trailingPe = p('spxPe', '过去 12 个月市盈率（1900 年起）')
+  const dividendYield = p('spxDividendYield', '标普 500 股息率')
+  const skew = p('skew', 'SKEW 尾部风险指数')
+  const baaAaa = p('baaAaa', '穆迪 Baa − Aaa 公司债利差（1919 年起）')
+  const naaim = p('naaim', 'NAAIM 主动经理仓位')
   const marketStance = evaluateStance(snap, asOf, spx, sets).result.label
   const questions: Question[] = [
-    { title: '股市贵不贵？', items: [p('spxFactSetFpe', '标普预期市盈率'), p('spxCape', '周期调整市盈率 CAPE'), spreadItem, p('spxTrailingFpe', '过去 12 个月市盈率')], offense: '估值不贵', defense: '估值偏贵', neutral: '估值适中' },
-    { title: '大家的情绪如何？', items: [sets.vix, retailBull, retailBear, m('putCall', '期权 Put/Call')], offense: '偏悲观（逆向看是机会）', defense: '偏乐观（要防回调）', neutral: '情绪中性' },
-    { title: '交易量和参与度？', items: [marketBreadth, p('volumeRatio', '全美 20 日量比')], offense: '参与广、量能足', defense: '参与度偏弱', neutral: '量能一般' },
-    { title: '场外子弹多不多？', items: [retailCash, managerCash, liquidAssets, p('finraCashDebt', '券商客户现金／融资'), moneyFunds[0]], offense: '子弹充足', defense: '子弹不足', neutral: '子弹一般' },
-    { title: '杠杆和仓位高不高？', items: [p('finraDebtYoy', '融资余额同比'), m('marginGdp', '融资／GDP'), m('hfEquityLs', 'OFR 对冲基金多空比'), p('cftcSpxLev', '标普期货杠杆基金'), retailStocks], offense: '仓位偏轻、有回补空间', defense: '杠杆偏高、仓位拥挤', neutral: '仓位适中' },
-    { title: '盈利、利率和信用环境？', items: [p('spxForwardEpsChange', '盈利预期变化'), p('spxEarningsNextYear', '明年盈利增速预测'), sets.hy, tenYearItem, m('nfci', '金融条件指数')], offense: '环境友好', defense: '环境偏紧', neutral: '环境中性' },
+    { title: '股市贵不贵？', items: [cape, p('spxFactSetFpe', '标普预期市盈率'), spreadItem, trailingPe, dividendYield], offense: '估值不贵', defense: '估值偏贵', neutral: '估值适中' },
+    { title: '大家的情绪如何？', items: [fearGreed, sets.vix, m('putCall', '期权 Put/Call'), retailBull, retailBear], offense: '偏悲观（逆向看是机会）', defense: '偏乐观（要防回调）', neutral: '情绪中性' },
+    { title: '交易量和参与度？', items: [marketBreadth, marketHighs, p('volumeRatio', '全美 20 日量比')], offense: '参与广、量能足', defense: '参与度偏弱', neutral: '量能一般' },
+    { title: '场外子弹多不多？', items: [retailCash, managerCash, liquidAssets, p('finraCashDebt', '券商客户现金／融资')], offense: '子弹充足', defense: '子弹不足', neutral: '子弹一般' },
+    { title: '杠杆和仓位高不高？', items: [p('finraDebtYoy', '融资余额同比'), m('marginGdp', '融资／GDP'), m('hfEquityLs', 'OFR 对冲基金多空比'), p('cftcSpxLev', '标普期货杠杆基金'), naaim], offense: '仓位偏轻、有回补空间', defense: '杠杆偏高、仓位拥挤', neutral: '高低互见（看下方各项）' },
+    { title: '盈利、利率和信用环境？', items: [p('spxForwardEpsChange', '盈利预期变化'), p('spxEarningsNextYear', '明年盈利增速预测'), sets.hy, baaAaa, tenYearItem, m('nfci', '金融条件指数')], offense: '环境友好', defense: '环境偏紧', neutral: '环境中性' },
   ]
   const trendLean = marketStance === '防守压力上升' ? 'defense' as const : marketStance === '修复证据增强' ? 'offense' as const : 'neutral' as const
   const cash = [retailCash, managerCash, liquidAssets, retailStocks, ...moneyFunds, fundFlows, managerUs]
-  const positions = [hedge[0], broker[0], ...hedge.slice(1), ...broker.slice(1), ...futures]
+  const positions = [hedge[0], broker[0], futures[0], naaim, ...hedge.slice(1), ...broker.slice(1), ...futures.slice(1)]
   const title = group === 'participants' ? '投资者仓位与资金' : slice?.name || '美股市场'
   const relative = compareReturns(slice?.history ?? [], spx?.history ?? [], 20)
   const volumeDate = slice?.volume?.at(-1)?.[0]
@@ -324,7 +345,7 @@ export default function UsMarketView() {
     {group !== 'broad' && slice && <label className="us-market__select">比较标的
       <select value={slice.id} onChange={event => go(group, event.target.value)}>{slices.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select>
     </label>}
-    <PlainSummary questions={questions} trend={marketStance === '证据不足' ? undefined : { label: marketStance, lean: trendLean }} />
+    <PlainSummary asOf={asOf} questions={questions} trend={marketStance === '证据不足' ? undefined : { label: marketStance, lean: trendLean }} />
     <div className="us-market__range">
       <Segmented label="历史区间" items={RANGES.map(({ id, label }) => ({ id, label }))} value={range} onChange={setRange} />
       <span className="us-market__muted">图表与区间均值随所选区间变化</span>
@@ -334,6 +355,7 @@ export default function UsMarketView() {
         <p className="us-market__muted">{group === 'participants' ? '美国市场及相关全球样本' : `${slice?.scope ?? '美国股票市场'} · ${freshnessText}`}</p>
         <h2>{title}</h2>
         {group !== 'participants' && <p className="us-market__return" title={slice?.priceNote}>{signed(periodReturn(slice?.history ?? [], 5), '%')} <span>近 5 日</span>{slice?.id !== 'spx' && <span>近 20 日相对标普 {signed(relative, ' 个百分点')}</span>}</p>}
+        {group !== 'participants' && slice && <HistoryChart points={withinYears(slice.history, years)} label={`${slice.name}价格走势`} format={value => format(Math.round(value * 100) / 100, '')} />}
       </div>
       {group !== 'participants' && <div className="us-market__stance" data-state={stance.result.label}>
         <strong>{stance.result.label}</strong><p>{stance.result.detail}</p>
@@ -342,14 +364,15 @@ export default function UsMarketView() {
           <div><dt>{stance.usesMarketVolume ? '全美量能／所选指数涨跌' : '上涨日量能'}</dt><dd>{stance.volumeConfirmed === undefined ? '待确认' : stance.volumeConfirmed ? '放量上涨' : '未见放量上涨'}</dd></div>
           <div><dt>美国信用利差</dt><dd>{sets.credit === 'worsening' ? '走阔' : sets.credit === 'improving' ? '收窄' : sets.credit === 'steady' ? '持平' : '待确认'}</dd></div>
         </dl>
+        <p className="us-market__stance-help">这是看“最近一周”的趋势判断：上涨的股票是否变多、上涨时有没有放量、垃圾债利差是否收窄。三者都改善才算“修复证据增强”；股票变少且利差走阔则是“防守压力上升”。</p>
       </div>}
     </header>
     <div className="us-market__grid">
       {group !== 'participants' && <>
         <MarketCard title="估值与盈利" items={[
           ...(slice?.id === 'spx' ? [
-            p('spxFactSetFpe', 'FactSet 标普预期市盈率'), p('spxCape', '标普周期调整市盈率 CAPE'), p('spxEarningsNow', '标普最新季度盈利增长'),
-            spreadItem, p('spxTrailingFpe', '标普过去 12 个月市盈率'), p('spxForwardEpsChange', '标普未来 12 个月 EPS 预期变化'),
+            cape, p('spxFactSetFpe', 'FactSet 标普预期市盈率'), spreadItem, trailingPe, dividendYield, p('spxEarningsNow', '标普最新季度盈利增长'),
+            p('spxTrailingFpe', 'FactSet 标普过去 12 个月市盈率'), p('spxForwardEpsChange', '标普未来 12 个月 EPS 预期变化'),
             p('spxEarningsNextQuarter', '标普下季度盈利增速预测'), p('spxEarningsThisYear', '标普本年度盈利增速预测'), p('spxEarningsNextYear', '标普下一年度盈利增速预测'),
           ] : []),
           ...(sectorValuation?.reading ? [sectorValuation] : []),
@@ -357,17 +380,18 @@ export default function UsMarketView() {
         ]} asOf={asOf} years={years} link={{ tab: 'valuation', label: '查看估值位置' }} />
         <MarketCard title="宽度与成交" items={[
           breadthPct,
+          ...(slice ? [highsItem(stance.breadth, '净新高比例（52 周新高 − 新低）')] : []),
           { id: 'breadth50', name: '高于 50 日线的成分股', reading: qualifiedBreadth(stance.breadth) && stance.breadth.above50 !== undefined ? val('成分宽度', '%', stance.breadth.source, stance.breadth.scope, '每日', [[stance.breadth.date, stance.breadth.above50]]) : undefined },
           ...(slice?.id === 'spx' ? [p('volumeRatio', '全美股票 20 日量比'), p('volume', '全美股票日成交量')] : [ownRatio, p('volumeRatio', '全美股票 20 日量比'), p('volume', '全美股票日成交量')]),
         ]} asOf={asOf} years={years} />
-        <MarketCard title="市场情绪" items={[sets.vix, retailBull, retailBear, m('putCall', 'Cboe 期权 Put/Call', 'Cboe 全产品')]} asOf={asOf} years={years} />
+        <MarketCard title="市场情绪" items={[fearGreed, sets.vix, m('putCall', 'Cboe 期权 Put/Call', 'Cboe 全产品'), retailBull, retailBear, skew, ...cnnParts]} asOf={asOf} years={years} />
         <MarketCard title="仓位与杠杆" items={positions} asOf={asOf} years={years} />
         <MarketCard title="现金与流向" items={cash} asOf={asOf} years={years} />
-        <MarketCard title="信用与利率" items={[sets.hy, tenYearItem, m('nfci', '芝加哥联储金融条件指数')]} asOf={asOf} years={years} link={{ tab: 'spread&mkt=us', label: '查看美股股债息差' }} />
+        <MarketCard title="信用与利率" items={[sets.hy, baaAaa, tenYearItem, m('nfci', '芝加哥联储金融条件指数')]} asOf={asOf} years={years} link={{ tab: 'spread&mkt=us', label: '查看美股股债息差' }} />
       </>}
       {group === 'participants' && <>
         <MarketCard title="美国散户" items={[retailCash, retailStocks, retailBull, retailBear]} asOf={asOf} years={years} />
-        <MarketCard title="基金经理与申赎" items={[managerCash, liquidAssets, fundFlows, managerUs]} asOf={asOf} years={years} />
+        <MarketCard title="基金经理与申赎" items={[managerCash, naaim, liquidAssets, fundFlows, managerUs]} asOf={asOf} years={years} />
         <MarketCard title="对冲基金仓位" items={hedge} asOf={asOf} years={years} />
         <MarketCard title="券商融资" items={broker} asOf={asOf} years={years} />
         <MarketCard title="股指期货仓位" items={futures} asOf={asOf} years={years} />

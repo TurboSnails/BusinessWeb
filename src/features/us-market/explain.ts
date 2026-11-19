@@ -52,7 +52,7 @@ const hedgeLs: Guide = {
   lowText: '专业资金很谨慎，空头多；行情好转时空头回补会推动上涨。',
 }
 const leveredFutures: Guide = {
-  what: '杠杆基金（主要是对冲基金）在股指期货上的净多仓占全部持仓的比例，负数代表净空。',
+  what: '杠杆基金（主要是对冲基金）在股指期货上的净多仓占全部持仓的比例，负数代表净空。注意：其中一部分空单是给现货持仓做对冲或套利，不全是看空，极端值才有参考意义。',
   high: 'defense', contrarian: true,
   highText: '杠杆资金大举做多，仓位拥挤，下跌时会被迫平仓放大跌幅。',
   lowText: '杠杆资金大举做空，市场一旦反弹，空头被迫回补会推高指数。',
@@ -62,14 +62,60 @@ const assetFutures: Guide = {
   high: 'defense', contrarian: true,
   highText: '长线机构已经很满仓，继续加仓的空间有限。', lowText: '长线机构仓位偏轻，后续还有加仓空间。',
 }
+// Nominal balances grow with the economy, so their percentile says little about positioning.
 const moneyFund = (subject: string): Guide => ({
-  what: `${subject}，是场外随时可以买股票的现金。`,
-  high: 'offense',
-  highText: '场外现金多，潜在的“子弹”充足。', lowText: '场外现金在减少，资金已经进场或流出。',
+  what: `${subject}，是场外随时可以买股票的现金。规模会随经济长期增长，更适合看近几周的变化方向。`,
+  high: 'neutral',
+  highText: '规模处于高位；看最近几期是增加（资金在观望）还是减少（资金在进场或流出）。', lowText: '规模较小。',
 })
 const fearHigh = (what: string, highText: string, lowText: string, bands?: Guide['bands']): Guide => ({ what, high: 'offense', contrarian: true, bands, highText, lowText })
 
+const fearGreedGuide = (what: string): Guide => ({
+  what, high: 'defense', contrarian: true, bands: [25, 45, 55, 75], preferBands: true,
+  highText: '市场偏贪婪，乐观情绪浓时追高风险更大。', lowText: '市场偏恐惧，历史上极度恐惧时分批买入的长期回报往往不错。',
+})
+
 export const GUIDES: Record<string, Guide> = {
+  shillerCape: {
+    what: '标普 500 价格 ÷ 过去 10 年经通胀调整的平均盈利（席勒市盈率），用来看长期贵不贵；1900 年以来的长期平均约 17 倍。', high: 'defense',
+    highText: '按长期盈利看非常贵，历史上这种位置之后 10 年的平均回报偏低（但不能用来判断短期涨跌）。',
+    lowText: '按长期盈利看便宜，长期回报预期较好。',
+  },
+  spxPe: {
+    what: '标普 500 价格 ÷ 过去 12 个月的实际每股盈利（按会计准则口径），用 1900 年以来的历史比较。', high: 'defense',
+    highText: '按已经赚到的钱算偏贵。', lowText: '按已经赚到的钱算便宜。',
+  },
+  spxDividendYield: {
+    what: '标普 500 过去 12 个月的股息 ÷ 价格。股价越贵，股息率越低。', high: 'offense',
+    highText: '股息率高，说明价格相对便宜。', lowText: '股息率很低，说明价格相对公司分红偏贵。',
+  },
+  fearGreed: fearGreedGuide('CNN 恐惧与贪婪指数：把动量、新高新低、涨跌成交、期权、波动率、避险需求、垃圾债需求 7 项合成 0–100 分。25 以下为极度恐惧，75 以上为极度贪婪。'),
+  cnnMomentum: fearGreedGuide('标普 500 比 125 日均线高出多少，换算成 0–100 分。'),
+  cnnStrength: fearGreedGuide('纽交所创 52 周新高与新低的股票数量对比，换算成 0–100 分。'),
+  cnnBreadth: fearGreedGuide('上涨股票与下跌股票的成交量对比，换算成 0–100 分。'),
+  cnnPutCall: fearGreedGuide('看跌与看涨期权成交量之比，换算成 0–100 分（分越低越多人买下跌保险）。'),
+  cnnVolatility: fearGreedGuide('VIX 相对其 50 日均值的高低，换算成 0–100 分（分越低越恐慌）。'),
+  cnnSafeHaven: fearGreedGuide('近 20 个交易日股票与国债的回报差，换算成 0–100 分（分越低越多人躲进国债）。'),
+  cnnJunkBond: fearGreedGuide('垃圾债与投资级债的收益率差，换算成 0–100 分（分越低越多人回避高风险债）。'),
+  skew: {
+    what: 'Cboe SKEW 指数：从标普 500 深度虚值期权价格推算市场为“暴跌”付的保险费。100 表示没有额外担心，越高说明机构越在防范尾部风险。',
+    high: 'defense', bands: [115, 125, 140, 150], preferBands: true,
+    highText: '机构在为暴跌买较贵的保险。注意：这个指标对短期涨跌的预测力有限，只作为风险提示。', lowText: '市场对暴跌的担心较少。',
+  },
+  baaAaa: {
+    what: '穆迪 Baa 级与 Aaa 级公司债的收益率差，1919 年以来的月度数据，衡量市场对较弱企业违约的担心。数字越大越担心。', high: 'defense',
+    highText: '信用风险溢价高，资金在回避风险，股市通常也承压。', lowText: '信用风险溢价很低，资金愿意承担风险，对股市有利；但过低也说明市场较为自满。',
+  },
+  naaim: {
+    what: '美国主动投资经理协会会员的平均股票仓位：0 为空仓，100 为满仓，超过 100 表示加杠杆。公开数据约滞后 3 个月。',
+    high: 'defense', contrarian: true, bands: [40, 60, 85, 100],
+    highText: '专业经理几乎满仓甚至加杠杆，后续继续加仓的空间小。', lowText: '专业经理仓位很轻，行情好转时有补仓需求。',
+  },
+  netHighs: {
+    what: '成分股中创 52 周新高的比例减去创 52 周新低的比例。正数说明创新高的股票更多，市场内部强势。',
+    high: 'offense', bands: [-10, -2, 2, 10], preferBands: true,
+    highText: '创新高的股票明显多于新低，上涨有广泛基础。', lowText: '创新低的股票多于新高，市场内部在走弱。',
+  },
   spxFactSetFpe: { ...fpe('标普 500 '), preferBands: false },
   spxTrailingFpe: {
     what: '标普 500 股价 ÷ 过去 12 个月的实际每股盈利。', high: 'defense', bands: [14, 17, 21, 25],
@@ -261,7 +307,7 @@ export function assess(reading: Reading | undefined, guide: Guide | undefined): 
   let basis: string | undefined
   let percentile: number | undefined
   if (longEnough) percentile = percentileOf(reading.history.map(([, v]) => v), value)
-  if (guide.bands && (guide.preferBands || !longEnough)) {
+  if (guide.bands && guide.preferBands) {
     level = fromBands(value, guide.bands)
     basis = '按经验区间'
   } else if (longEnough && percentile !== undefined) {
@@ -269,7 +315,10 @@ export function assess(reading: Reading | undefined, guide: Guide | undefined): 
     basis = `近 ${Math.round(years)} 年 ${percentile}% 分位`
   } else if (benchmark) {
     level = fromBenchmark(value, benchmark.value)
-    basis = `${benchmark.label} ${benchmark.value}${reading.unit === '%' ? '%' : ''}`
+    basis = `${benchmark.label} ${benchmark.value}${reading.unit === '%' ? '%' : reading.unit === '倍' ? ' 倍' : ''}`
+  } else if (guide.bands) {
+    level = fromBands(value, guide.bands)
+    basis = '按经验区间'
   }
   const isHigh = level === 'high' || level === 'very-high'
   const isLow = level === 'low' || level === 'very-low'
@@ -287,4 +336,27 @@ export function withinYears(history: Point[], years: number | null): Point[] {
   if (years === null || !history.length) return history
   const end = Date.parse(history.at(-1)![0])
   return history.filter(([date]) => end - Date.parse(date) <= years * 365.25 * DAY)
+}
+
+/**
+ * Readings drawn from the same survey or the same underlying series. The summary
+ * lets each family cast one vote per question so one source cannot outvote others.
+ */
+export const FAMILY: Record<string, string> = {
+  spxFactSetFpe: 'factset', spxTrailingFpe: 'factset', spxEarningsNow: 'factset', spxEarningsNextQuarter: 'factset',
+  spxEarningsThisYear: 'factset', spxEarningsNextYear: 'factset', spxForwardEpsChange: 'factset',
+  shillerCape: 'shiller', spxPe: 'shiller', spxDividendYield: 'shiller', spxCape: 'shiller', spread: 'erp',
+  retailCash: 'aaii', retailStocks: 'aaii', retailBull: 'aaii', retailBear: 'aaii',
+  managerCash: 'bofa', managerUsOverweight: 'bofa', fundLiquidity: 'ici', mmfTotal: 'ici', mmfRetail: 'ici', mmfInstitutional: 'ici', domesticFlows: 'ici',
+  finraDebt: 'finra', finraDebtYoy: 'finra', marginGdp: 'finra', finraCashDebt: 'finra', cashDebt: 'finra',
+  hfEquityLs: 'ofr', ofrCashEquityLs: 'ofr', ofrEquityGross: 'ofr', primeEquityLs: 'goldman', primeTechLs: 'goldman', primeGross: 'goldman', primeNet: 'goldman',
+  cftcSpxLev: 'cftc', cftcNdxLev: 'cftc', cftcSpxAsset: 'cftc', cftcNdxAsset: 'cftc',
+  hy: 'credit', baaAaa: 'credit', tenYear: 'rates', nfci: 'nfci', fearGreed: 'cnn', vix: 'vix', putCall: 'putcall', skew: 'skew',
+  breadth200: 'breadth', netHighs: 'highs', volumeRatio: 'volume', naaim: 'naaim',
+}
+
+/** −2…+2: how far from normal, signed toward offence (+) or defence (−). */
+export function voteOf(verdict: Assessment): number {
+  const size = verdict.level === 'very-high' || verdict.level === 'very-low' ? 2 : verdict.level === 'high' || verdict.level === 'low' ? 1 : 0
+  return verdict.lean === 'offense' ? size : verdict.lean === 'defense' ? -size : 0
 }

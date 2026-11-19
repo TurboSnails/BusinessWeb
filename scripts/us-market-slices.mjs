@@ -7,7 +7,8 @@ const FILE = new URL('../public/data/us-market-slices.json', import.meta.url)
 const INDEX_HISTORY = new URL('../public/data/index-history.json', import.meta.url)
 const NY_DATE = new Intl.DateTimeFormat('sv-SE', { timeZone: 'America/New_York', dateStyle: 'short' })
 const QUOTE_DELAY_SECONDS = 15 * 60
-const MAX_OBSERVATIONS = 260
+// Daily closes for the latest ~20 months (returns, volume ratios), weekly closes before that.
+const DAILY_OBSERVATIONS = 420
 const MAX_FUND_OBSERVATIONS = 1320
 const MIN_OBSERVATIONS = 21
 const STATE_STREET = 'https://www.ssga.com/us/en/institutional/etfs/state-street-'
@@ -83,15 +84,15 @@ export function parseMarketSlice(body, symbol, now) {
     if (date > today || (date === today && !completedToday)) return
     byDate.set(date, { close, volume: quote.volume?.[index] })
   })
-  const rows = [...byDate].sort(([a], [b]) => a.localeCompare(b)).slice(-MAX_OBSERVATIONS)
+  const rows = compactPrices([...byDate].sort(([a], [b]) => a.localeCompare(b)))
   return {
     history: rows.map(([date, { close }]) => [date, Number(close.toFixed(2))]),
-    volume: rows.flatMap(([date, { volume }]) => Number.isFinite(volume) && volume > 0 ? [[date, volume]] : []),
+    volume: rows.slice(-DAILY_OBSERVATIONS).flatMap(([date, { volume }]) => Number.isFinite(volume) && volume > 0 ? [[date, volume]] : []),
   }
 }
 
 async function fetchChart(symbol) {
-  const url = `https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=2y&interval=1d`
+  const url = `https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=10y&interval=1d`
   const response = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' }, signal: AbortSignal.timeout(15000) })
   if (!response.ok) throw new Error(`HTTP ${response.status}`)
   return response.json()
@@ -123,6 +124,18 @@ export function parseFundCharacteristics(html, symbol, now) {
   return { date: new Date(date).toISOString().slice(0, 10), valuation: valuation > 0 ? valuation : undefined, earnings }
 }
 
+/** Keeps the last DAILY_OBSERVATIONS rows daily and one close per ISO week before them. */
+export function compactPrices(rows) {
+  const recent = rows.slice(-DAILY_OBSERVATIONS)
+  const weekly = new Map()
+  for (const row of rows.slice(0, -DAILY_OBSERVATIONS)) {
+    const at = new Date(row[0] + 'T00:00:00Z')
+    at.setUTCDate(at.getUTCDate() + 4 - (at.getUTCDay() || 7))
+    weekly.set(at.toISOString().slice(0, 10), row)
+  }
+  return [...weekly.values(), ...recent]
+}
+
 function latestDate(series) {
   return series?.history?.at(-1)?.[0] ?? ''
 }
@@ -134,7 +147,7 @@ function mergePriceHistory(data, old, hasTradableVolume) {
   const overlap = oldHistory.filter(([date]) => prices.has(date)).slice(-5)
   const comparable = overlap.length > 0 && overlap.every(([date, price]) => Math.abs(prices.get(date) / price - 1) <= .02)
   const history = comparable
-    ? [...new Map([...oldHistory, ...data.history])].sort(([a], [b]) => a.localeCompare(b)).slice(-MAX_OBSERVATIONS)
+    ? compactPrices([...new Map([...oldHistory, ...data.history])].sort(([a], [b]) => a.localeCompare(b)))
     : data.history
   const volumes = new Map([...(comparable ? old?.volume ?? [] : []), ...data.volume])
   const volume = hasTradableVolume ? history.flatMap(([date]) => volumes.has(date) ? [[date, volumes.get(date)]] : []) : []

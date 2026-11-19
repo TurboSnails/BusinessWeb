@@ -6,6 +6,15 @@ const reading = (history: Point[], extra: Partial<Reading> = {}): Reading => ({ 
 const monthly = (values: number[]): Point[] => values.map((v, i) => [new Date(Date.UTC(2000, i, 28)).toISOString().slice(0, 10), v])
 
 describe('assess', () => {
+  it('never lets a nominal balance lean either way however high its percentile', () => {
+    expect(assess(reading(monthly([...Array.from({ length: 40 }, (_, i) => i), 100])), GUIDES.mmfTotal)).toMatchObject({ level: 'very-high', lean: 'neutral' })
+  })
+
+  it('prefers the published 10-year average over rule-of-thumb bands for short valuation series', () => {
+    expect(assess(reading([['2026-11-13', 18.3]], { unit: '倍', benchmark10y: 19.1 }), GUIDES.spxFactSetFpe)).toMatchObject({ level: 'normal', basis: '10 年均值 19.1 倍' })
+    expect(assess(reading([['2026-11-13', 22]], { unit: '倍', benchmark10y: 19.1 }), GUIDES.spxFactSetFpe)).toMatchObject({ level: 'high', lean: 'defense' })
+  })
+
   it('uses the historical percentile when the series spans at least two years', () => {
     const result = assess(reading(monthly([...Array.from({ length: 40 }, (_, i) => i), 100])), GUIDES.marginGdp)
     expect(result).toMatchObject({ level: 'very-high', lean: 'defense', label: '很高' })
@@ -26,6 +35,7 @@ describe('assess', () => {
 
   it('says so when there is nothing to compare with', () => {
     expect(assess(reading([['2026-11-11', 1]]), GUIDES.mmfTotal)).toMatchObject({ level: 'unknown', lean: 'neutral' })
+    expect(assess(reading([['2026-11-11', 1]]), GUIDES.naaim)?.level).toBe('very-low')
     expect(assess(reading([['2026-11-11', 1]]), undefined)).toBeUndefined()
   })
 })

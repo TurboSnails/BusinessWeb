@@ -40,6 +40,10 @@ export interface Breadth {
   /** Daily share recomputed from today's membership (survivorship bias noted in backfillScope). */
   backfill?: Point[]
   backfillScope?: string
+  /** 52-week highs/lows (closing basis) and one-day advancers/decliners on `date`. */
+  highsLows?: { date: string; covered: number; newHighs: number; newLows: number; advancers: number; decliners: number; netHighsPct: number }
+  /** Daily net new highs (% of covered members), recomputed from today's membership. */
+  netHighs?: Point[]
   comparison?: {
     date: string
     above50?: number

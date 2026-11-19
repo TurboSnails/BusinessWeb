@@ -26,6 +26,22 @@ const OFR_API = 'https://data.financialresearch.gov/hf/v1/series/multifull?mnemo
 const OFR_GROSS = 'FPF-ASSETCLASS_EQUITIES_GNE_SUM'
 const OFR_CASH_LONG = 'FPF-ASSETCLASS_LEQYSEC_SUM'
 const OFR_CASH_SHORT = 'FPF-ASSETCLASS_SEQYSEC_SUM'
+const MULTPL = 'https://www.multpl.com/'
+const CBOE_INDEX = 'https://cdn.cboe.com/api/global/us_indices/daily_prices/'
+const CNN_FEAR_GREED = 'https://production.dataviz.cnn.io/index/fearandgreed/graphdata'
+const CNN_PAGE = 'https://www.cnn.com/markets/fear-and-greed'
+const NAAIM = 'https://index.naaim.org/embeddable/table'
+const NAAIM_PAGE = 'https://naaim.org/programs/naaim-exposure-index/'
+// CNN's seven inputs, in the order CNN lists them.
+export const CNN_COMPONENTS = {
+  market_momentum_sp500: ['cnnMomentum', '标普 500 相对 125 日均线（CNN 分项）'],
+  stock_price_strength: ['cnnStrength', '52 周新高 vs 新低（CNN 分项）'],
+  stock_price_breadth: ['cnnBreadth', '上涨 vs 下跌成交量（CNN 分项）'],
+  put_call_options: ['cnnPutCall', '看跌／看涨期权（CNN 分项）'],
+  market_volatility_vix: ['cnnVolatility', 'VIX 相对 50 日均值（CNN 分项）'],
+  safe_haven_demand: ['cnnSafeHaven', '股票 vs 国债 20 日回报（CNN 分项）'],
+  junk_bond_demand: ['cnnJunkBond', '垃圾债 vs 投资级债收益率差（CNN 分项）'],
+}
 const SHORT_SESSIONS = new Set(NYSE_SHORT_SESSIONS)
 // Tape venues N/P/Q/K/Z and the two large off-exchange FINRA trade-reporting facilities.
 const CBOE_CORE_VENUES = ['N', 'P', 'Q', 'K', 'Z', 'DN', 'DQ']
@@ -55,8 +71,16 @@ const specs = {
   finraCashDebt: meta('券商客户自由贷方余额／融资（FINRA）', '%', FINRA, 'FINRA 申报券商客户的现金和保证金账户合计自由贷方余额 ÷ 借方余额', '月频'),
   ofrEquityGross: meta('对冲基金股票总名义敞口（OFR）', '亿美元', OFR, '大型合格对冲基金，涵盖美国和境外股票、股指及其衍生品，多仓与空仓名义敞口绝对值之和', '季频'),
   ofrCashEquityLs: meta('对冲基金股票现货多空比（OFR）', '倍', OFR, '大型合格对冲基金全球股票现货多头证券敞口 ÷ 空头证券敞口，排除衍生品', '季频'),
+  shillerCape: meta('标普 500 周期调整市盈率 CAPE（Shiller，multpl 月表）', '倍', MULTPL + 'shiller-pe', '标普 500 价格 ÷ 过去 10 年经通胀调整的平均盈利；1871 年起月度，最新月为当月估算', '月频'),
+  spxPe: meta('标普 500 过去 12 个月市盈率（multpl 月表）', '倍', MULTPL + 's-p-500-pe-ratio', '标普 500 价格 ÷ 过去 12 个月实际每股盈利（GAAP）；1871 年起月度，最新月为当月估算', '月频'),
+  spxDividendYield: meta('标普 500 股息率（multpl 月表）', '%', MULTPL + 's-p-500-dividend-yield', '过去 12 个月股息 ÷ 价格；1871 年起月度，最新月为当月估算', '月频'),
+  fearGreed: meta('CNN 恐惧与贪婪指数', '分', CNN_PAGE, 'CNN 用 7 个市场指标合成的 0–100 分；0–25 极度恐惧，75–100 极度贪婪', '日频'),
+  ...Object.fromEntries(Object.values(CNN_COMPONENTS).map(([key, name]) => [key, meta(name, '分', CNN_PAGE, 'CNN 对该分项的 0–100 打分（只保存每日观测，逐日积累）', '日频')])),
+  skew: meta('Cboe SKEW 尾部风险指数', '点', CBOE_INDEX + 'SKEW_History.csv', '由标普 500 虚值期权价格推算的尾部风险定价；100 表示正态分布，越高说明市场为暴跌付的保险越贵', '日频'),
+  baaAaa: meta('穆迪 Baa − Aaa 公司债利差（FRED）', '个百分点', FRED + 'BAA', '穆迪 Baa 级与 Aaa 级长期公司债收益率之差，月度，1919 年起；比高收益债利差覆盖更长的历史', '月频'),
+  naaim: meta('NAAIM 主动经理股票敞口指数', '%', NAAIM_PAGE, '美国主动投资经理协会会员的平均股票敞口，−200（加倍做空）到 +200（加倍做多）；公开表约滞后 3 个月', '周频'),
   hyDaily: meta('美国高收益债信用利差（FRED）', 'bp', FRED + 'BAMLH0A0HYM2', 'ICE BofA 美国高收益债期权调整利差', '日频'),
-  vixDaily: meta('VIX（FRED）', '点', FRED + 'VIXCLS', '标普 500 期权隐含波动率指数', '日频'),
+  vixDaily: meta('VIX（Cboe）', '点', CBOE_INDEX + 'VIX_History.csv', '标普 500 期权隐含波动率指数；Cboe 官方日收盘，1990 年起', '日频'),
   tenYearDaily: meta('美国 10 年期国债收益率（FRED）', '%', FRED + 'DGS10', '美联储 H.15，美国 10 年期固定期限国债收益率', '日频'),
 }
 
@@ -290,6 +314,62 @@ export function parseFinra(markup) {
   }
 }
 
+/** multpl monthly tables: "Nov 18, 2026 | 38.63" rows, newest first; the current month is an estimate. */
+export function parseMultpl(markup) {
+  const data = []
+  for (const [, day, cell] of markup.matchAll(/<tr[^>]*>\s*<td>([^<]*)<\/td>\s*<td>([\s\S]*?)<\/td>/g)) {
+    const observed = calendarDate(day)
+    const value = Number(clean(cell).replace(/&#x?[0-9a-f]+;/gi, '').replace(/[†%]/g, '').trim())
+    if (observed && Number.isFinite(value) && value > 0) data.push([observed, rounded(value)])
+  }
+  return record(sorted(requireReadings(data, 'multpl')))
+}
+
+/** Cboe index history CSV: DATE,(OPEN,HIGH,LOW,)CLOSE with US dates. */
+export function parseCboeIndex(csv) {
+  const data = []
+  for (const line of csv.split(/\r?\n/).slice(1)) {
+    const cells = line.split(',')
+    const day = slashDate(cells[0]?.trim())
+    const close = Number(cells.at(-1))
+    if (day && Number.isFinite(close) && close > 0) data.push([day, rounded(close)])
+  }
+  return record(requireReadings(data, 'Cboe 指数'))
+}
+
+/** CNN Fear & Greed: the daily composite history plus today's score for each input. */
+export function parseFearGreed(json) {
+  const raw = JSON.parse(json)
+  const nyDay = (ms) => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date(ms))
+  const history = (raw.fear_and_greed_historical?.data ?? [])
+    .filter(point => Number.isFinite(point?.x) && Number.isFinite(point?.y) && point.y >= 0 && point.y <= 100)
+    .map(point => [nyDay(point.x), rounded(point.y)])
+  const now = raw.fear_and_greed
+  if (Number.isFinite(now?.score) && now.timestamp) history.push([nyDay(Date.parse(now.timestamp)), rounded(now.score)])
+  const result = { fearGreed: record(requireReadings(sorted([...new Map(history)]), 'CNN 恐惧与贪婪')) }
+  for (const [field, [key]] of Object.entries(CNN_COMPONENTS)) {
+    const item = raw[field]
+    if (Number.isFinite(item?.score) && Number.isFinite(item?.timestamp)) result[key] = record([[nyDay(item.timestamp), rounded(item.score)]])
+  }
+  return result
+}
+
+/** Monthly Baa minus Aaa, using only months both FRED tables report. */
+export function corporateSpread(baa, aaa) {
+  const aaaByMonth = new Map(aaa.history.map(([day, value]) => [day.slice(0, 7), value]))
+  const data = baa.history.flatMap(([day, value]) => aaaByMonth.has(day.slice(0, 7)) ? [[day, rounded(value - aaaByMonth.get(day.slice(0, 7)))]] : [])
+  return record(requireReadings(data, 'Baa − Aaa'))
+}
+
+export function parseNaaim(markup) {
+  const data = rows(markup).flatMap(([day, value]) => {
+    const observed = slashDate(day)
+    const exposure = number(value)
+    return observed && exposure >= -200 && exposure <= 200 ? [[observed, exposure]] : []
+  })
+  return record(sorted(requireReadings(data, 'NAAIM')))
+}
+
 /** FINRA's full monthly workbook (since 1997), in the same units and month-end dates as the web table. */
 export function parseFinraHistory(rows) {
   const monthEndOf = (first) => {
@@ -311,7 +391,7 @@ const DAY = 86_400_000
 export function compactHistory(history, frequency, latest = history.at(-1)?.[0]) {
   if (!latest) return history
   const end = Date.parse(latest)
-  const years = { 日频: 25, 周频: 25, 月频: 40, 季频: 40 }[frequency] ?? 40
+  const years = { 日频: 40, 周频: 40, 月频: 160, 季频: 160 }[frequency] ?? 160
   const kept = history.filter(([day]) => end - Date.parse(day) <= years * 366 * DAY)
   if (frequency !== '日频') return kept
   const weekly = new Map()
@@ -394,10 +474,13 @@ async function curlText(url) {
   return stdout
 }
 
+// CNN's data host answers 418 unless the request comes from its own page.
+const hostHeaders = (url) => url.startsWith(CNN_FEAR_GREED) ? { ...BROWSER_HEADERS, Referer: CNN_PAGE, Accept: 'application/json' } : BARE_HEADERS
+
 async function download(url) {
   let response
   try {
-    response = await fetch(url, { signal: AbortSignal.timeout(18000), headers: BARE_HEADERS })
+    response = await fetch(url, { signal: AbortSignal.timeout(18000), headers: hostHeaders(url) })
     if (response.status === 403) response = await fetch(url, { signal: AbortSignal.timeout(18000), headers: BROWSER_HEADERS })
   } catch (error) {
     if (error.name !== 'TypeError') throw error
@@ -450,7 +533,8 @@ async function fetchCftc(read) {
     '$where': "cftc_contract_market_code in ('13874+','20974+')",
     '$select': 'report_date_as_yyyy_mm_dd,cftc_contract_market_code,open_interest_all,asset_mgr_positions_long,asset_mgr_positions_short,lev_money_positions_long,lev_money_positions_short',
     '$order': 'report_date_as_yyyy_mm_dd DESC',
-    '$limit': '320',
+    // Every weekly report since the TFF series began in June 2010, for both contracts.
+    '$limit': '2000',
   })
   try {
     return parseCftcHistory(await read(CFTC_API + '?' + query))
@@ -477,7 +561,17 @@ export async function collectUsMarketData(previous, { read = fetchText, readBina
     }],
     'OFR 股票敞口': [['ofrEquityGross', 'ofrCashEquityLs'], async () => parseOfrExposure(await read(OFR_API + [OFR_GROSS, OFR_CASH_LONG, OFR_CASH_SHORT].join(',')))],
     'FRED 高收益债利差': [['hyDaily'], async () => ({ hyDaily: parseFred(await read(FRED + 'BAMLH0A0HYM2'), 100) })],
-    'FRED VIX': [['vixDaily'], async () => ({ vixDaily: parseFred(await read(FRED + 'VIXCLS'), 1) })],
+    'Cboe VIX': [['vixDaily'], async () => ({ vixDaily: parseCboeIndex(await read(CBOE_INDEX + 'VIX_History.csv')) })],
+    'Cboe SKEW': [['skew'], async () => ({ skew: parseCboeIndex(await read(CBOE_INDEX + 'SKEW_History.csv')) })],
+    'multpl CAPE': [['shillerCape'], async () => ({ shillerCape: parseMultpl(await read(MULTPL + 'shiller-pe/table/by-month')) })],
+    'multpl 市盈率': [['spxPe'], async () => ({ spxPe: parseMultpl(await read(MULTPL + 's-p-500-pe-ratio/table/by-month')) })],
+    'multpl 股息率': [['spxDividendYield'], async () => ({ spxDividendYield: parseMultpl(await read(MULTPL + 's-p-500-dividend-yield/table/by-month')) })],
+    'CNN 恐惧与贪婪': [['fearGreed', ...Object.values(CNN_COMPONENTS).map(([key]) => key)], async () => parseFearGreed(await read(CNN_FEAR_GREED))],
+    'FRED Baa − Aaa': [['baaAaa'], async () => {
+      const [baa, aaa] = await Promise.all([read(FRED + 'BAA'), read(FRED + 'AAA')])
+      return { baaAaa: corporateSpread(parseFred(baa, 1), parseFred(aaa, 1)) }
+    }],
+    'NAAIM 敞口': [['naaim'], async () => ({ naaim: parseNaaim(await read(NAAIM)) })],
     'FRED 10 年期美债': [['tenYearDaily'], async () => ({ tenYearDaily: parseFred(await read(FRED + 'DGS10'), 1) })],
   }
   const entries = Object.entries(jobs)

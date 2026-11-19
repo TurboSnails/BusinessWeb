@@ -1,10 +1,10 @@
 import React from 'react'
-import { assess, GUIDES, type Lean } from './explain'
-import type { Reading } from './model'
+import { assess, FAMILY, GUIDES, voteOf, type Assessment, type Lean } from './explain'
+import { freshness, type Reading } from './model'
 
 export type SummaryItem = { id?: string; name: string; reading?: Reading }
 
-interface Question {
+export interface Question {
   title: string
   items: SummaryItem[]
   offense: string
@@ -12,19 +12,34 @@ interface Question {
   neutral: string
 }
 
-const leanScore = (lean: Lean) => (lean === 'offense' ? 1 : lean === 'defense' ? -1 : 0)
+interface Vote { item: SummaryItem; verdict: Assessment; score: number; stale: boolean; counted: boolean }
 
-function judge(question: Question) {
-  const rows = question.items.flatMap(item => {
+/** Questions need at least this many independent families voting before the overall call is made. */
+const MIN_QUESTIONS = 3
+
+export function judge(question: Question, asOf: string) {
+  const votes: Vote[] = question.items.flatMap(item => {
     const verdict = assess(item.reading, item.id ? GUIDES[item.id] : undefined)
-    return verdict && verdict.level !== 'unknown' ? [{ item, verdict }] : []
+    const last = item.reading?.history.at(-1)
+    if (!verdict || verdict.level === 'unknown' || !last || !item.reading) return []
+    // A reading carried past its normal publication lag still informs, at half weight.
+    const stale = freshness(last[0], item.reading.frequency, asOf) === '沿用上期'
+    return [{ item, verdict, score: voteOf(verdict) * (stale ? 0.5 : 1), stale, counted: false }]
   })
-  const score = rows.reduce((sum, row) => sum + leanScore(row.verdict.lean), 0)
-  const lean: Lean = score > 0 ? 'offense' : score < 0 ? 'defense' : 'neutral'
-  const text = rows.length ? question[lean] : '数据不足'
-  // Lead with the readings that point the same way as the verdict, then the others.
-  const ordered = [...rows].sort((a, b) => Number(b.verdict.lean === lean) - Number(a.verdict.lean === lean))
-  return { lean: rows.length ? lean : 'neutral' as Lean, text, rows: ordered, score }
+  // One vote per family: keep the strongest reading from each source.
+  const best = new Map<string, Vote>()
+  for (const vote of votes) {
+    const family = FAMILY[vote.item.id ?? ''] ?? vote.item.id ?? vote.item.name
+    const current = best.get(family)
+    if (!current || Math.abs(vote.score) > Math.abs(current.score)) best.set(family, vote)
+  }
+  for (const vote of best.values()) vote.counted = true
+  const families = [...best.values()]
+  const score = families.length ? families.reduce((sum, vote) => sum + vote.score, 0) / families.length : 0
+  const lean: Lean = !families.length ? 'neutral' : score >= 0.5 ? 'offense' : score <= -0.5 ? 'defense' : 'neutral'
+  const text = families.length ? question[lean] : '数据不足'
+  const ordered = [...votes].sort((a, b) => Number(b.counted) - Number(a.counted) || Math.abs(b.score) - Math.abs(a.score))
+  return { lean, text, votes: ordered, score, families: families.length, stale: families.filter(vote => vote.stale).length }
 }
 
 const OVERALL: { min: number; label: string; advice: string; lean: Lean }[] = [
@@ -34,12 +49,17 @@ const OVERALL: { min: number; label: string; advice: string; lean: Lean }[] = [
   { min: -2, label: '偏防守', lean: 'defense', advice: '风险证据偏多，以持有为主、少追高；新资金分批、小额进场。' },
   { min: -Infinity, label: '防守为主', lean: 'defense', advice: '多项风险信号同时出现，控制仓位、留足现金，等市场宽度和信用利差好转再加仓。' },
 ]
+const step = (lean: Lean) => (lean === 'offense' ? 1 : lean === 'defense' ? -1 : 0)
 
-export default function PlainSummary({ questions, trend }: { questions: Question[]; trend?: { label: string; lean: Lean } }): JSX.Element {
-  const judged = questions.map(question => ({ question, ...judge(question) }))
-  const total = judged.reduce((sum, row) => sum + leanScore(row.lean), 0) + (trend ? leanScore(trend.lean) : 0)
-  const overall = OVERALL.find(row => total >= row.min)!
-  const reasons = (lean: Lean) => judged.filter(row => row.lean === lean).map(row => row.text)
+export default function PlainSummary({ questions, trend, asOf }: { questions: Question[]; trend?: { label: string; lean: Lean }; asOf: string }): JSX.Element {
+  const judged = questions.map(question => ({ question, ...judge(question, asOf) }))
+  const answered = judged.filter(row => row.families > 0)
+  const evidence = answered.reduce((sum, row) => sum + row.families, 0)
+  const stale = answered.reduce((sum, row) => sum + row.stale, 0)
+  const enough = answered.length >= MIN_QUESTIONS
+  const total = answered.reduce((sum, row) => sum + step(row.lean), 0) + (trend ? step(trend.lean) : 0)
+  const overall = enough ? OVERALL.find(row => total >= row.min)! : { label: '证据不足', lean: 'neutral' as Lean, advice: '能用的数据太少，暂时不要据此调整仓位。' }
+  const reasons = (lean: Lean) => answered.filter(row => row.lean === lean).map(row => row.text)
   const pros = reasons('offense')
   const cons = reasons('defense')
   return (
@@ -53,21 +73,23 @@ export default function PlainSummary({ questions, trend }: { questions: Question
           {trend && <>近期走势：{trend.label}。</>}
         </p>
         <p className="us-plain__advice">{overall.advice}</p>
+        <p className="us-plain__evidence">依据 {answered.length}/{questions.length} 个问题、{evidence} 个独立来源{stale ? `（其中 ${stale} 个已过正常更新周期，按半票计）` : ''}。</p>
       </div>
       <ul className="us-plain__questions">
-        {judged.map(({ question, lean, text, rows }) => (
+        {judged.map(({ question, lean, text, votes }) => (
           <li key={question.title} className="us-plain__question" data-lean={lean}>
             <h3>{question.title}</h3>
             <strong>{text}</strong>
-            <ul>{rows.map(({ item, verdict }) => (
-              <li key={item.name}><span>{item.name}</span><span className="us-market__chip" data-lean={verdict.lean}>{verdict.label}</span></li>
+            <ul>{votes.map(({ item, verdict, counted, stale: old }) => (
+              <li key={item.name} className={counted ? undefined : 'is-folded'}>
+                <span>{item.name}{old ? '（旧）' : ''}</span>
+                <span className="us-market__chip" data-lean={verdict.lean}>{verdict.label}</span>
+              </li>
             ))}</ul>
           </li>
         ))}
       </ul>
-      <p className="us-plain__disclaimer">结论由下方各项指标的历史位置和经验区间自动汇总，每项都可以展开看依据。只用于帮助理解市场状态，不构成投资建议。</p>
+      <p className="us-plain__disclaimer">每个问题里同一来源只计一票（灰色为同源的参考项），过期数据计半票。结论由下方各项指标的历史位置和经验区间自动汇总，每项都可以展开看依据；只用于帮助理解市场状态，不构成投资建议。</p>
     </section>
   )
 }
-
-export type { Question }

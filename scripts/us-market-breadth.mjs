@@ -16,7 +16,8 @@ const COMPARISON_SESSIONS = 5
 const FULL_WINDOW = LOOKBACK + COMPARISON_SESSIONS
 // About one trading year of daily breadth, recomputed from the current membership.
 const BACKFILL = 250
-const PRICE_WINDOW = LOOKBACK + BACKFILL
+const YEAR = 252
+const PRICE_WINDOW = Math.max(LOOKBACK, YEAR) + BACKFILL
 const MIN_COVERAGE = 0.95
 const sectors = {
   'Communication Services': 'sector-xlc', 'Consumer Discretionary': 'sector-xly',
@@ -126,6 +127,40 @@ export function computeBackfill(members, barsBySymbol, sessions, count = BACKFIL
   return points
 }
 
+/**
+ * 52-week new highs/lows (closing basis) and advancers/decliners on one session,
+ * counted over members with a full year of aligned closes.
+ */
+export function computeHighsLows(members, barsBySymbol, sessions) {
+  if (sessions.length < YEAR) return null
+  const window = sessions.slice(-YEAR)
+  let covered = 0, newHighs = 0, newLows = 0, advancers = 0, decliners = 0
+  for (const symbol of members) {
+    const byDate = new Map(barsBySymbol.get(symbol) ?? [])
+    const values = window.map(date => byDate.get(date))
+    if (!values.every(okPrice)) continue
+    covered += 1
+    const close = values.at(-1)
+    const prior = values.slice(0, -1)
+    if (close >= Math.max(...prior)) newHighs += 1
+    if (close <= Math.min(...prior)) newLows += 1
+    if (close > values.at(-2)) advancers += 1
+    else if (close < values.at(-2)) decliners += 1
+  }
+  if (!members.length || covered / members.length < MIN_COVERAGE) return null
+  const pct = n => Math.round(n / covered * 10000) / 100
+  return { date: window.at(-1), covered, newHighs, newLows, advancers, decliners, netHighsPct: pct(newHighs - newLows) }
+}
+
+export function computeNetHighsBackfill(members, barsBySymbol, sessions, count = BACKFILL) {
+  const points = []
+  for (let end = Math.max(YEAR, sessions.length - count + 1); end <= sessions.length; end++) {
+    const row = computeHighsLows(members, barsBySymbol, sessions.slice(0, end))
+    if (row) points.push([row.date, row.netHighsPct])
+  }
+  return points
+}
+
 /** SPX and GICS historical membership is unavailable. Compare matched names from the current universe. */
 export function computeMatchedComparison(members, barsBySymbol, sessions) {
   if (sessions.length < FULL_WINDOW) return null
@@ -188,7 +223,7 @@ async function get(url, options) {
 }
 
 async function chart(symbol) {
-  return (await get(`https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=2y&interval=1d`)).json()
+  return (await get(`https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=3y&interval=1d`)).json()
 }
 
 async function ndxMembers(date) {
@@ -296,8 +331,12 @@ async function main() {
           ? computeMatchedComparison(list, bars, sessions)
           : priorMembers && computeBreadth(priorMembers.map(member => member.symbol), bars, sessions.slice(0, -COMPARISON_SESSIONS))
         const backfill = computeBackfill(symbols, bars, sessions)
+        const highsLows = computeHighsLows(symbols, bars, sessions)
+        const netHighs = computeNetHighsBackfill(symbols, bars, sessions)
         const observation = {
           ...row, source, scope, universe: universeId(symbols),
+          ...(highsLows?.date === row.date && { highsLows }),
+          ...(netHighs.length > 1 && { netHighs }),
           ...(backfill.length > 1 && { backfill, backfillScope: '按当前成分名单回算每日收盘宽度；期间被剔除的股票不在内，存在幸存者偏差' }),
         }
         if (comparison) {
