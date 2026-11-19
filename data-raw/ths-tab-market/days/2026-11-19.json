@@ -1,0 +1,109 @@
+{
+  "capturedAt": "2026-11-19T10:12:49.300Z",
+  "csiValuation": {
+    "code": "200",
+    "msg": "Success",
+    "data": {
+      "tradeDate": "20261119",
+      "indexValuations": [
+        {
+          "tradeDate": "20261119",
+          "indexName": "上证指数",
+          "indexNameEn": "SSE Index",
+          "pe": 15.48,
+          "peg": 14.34,
+          "pb": 1.34,
+          "dp": 2.55,
+          "peLastYear": 16.21,
+          "pegLastYear": 15.49,
+          "pbLastYear": 1.46
+        },
+        {
+          "tradeDate": "20261119",
+          "indexName": "上证180",
+          "indexNameEn": "SSE 180",
+          "pe": 12.4,
+          "peg": 12.06,
+          "pb": 1.12,
+          "dp": 3.32,
+          "peLastYear": 13.03,
+          "pegLastYear": 12.41,
+          "pbLastYear": 1.2
+        },
+        {
+          "tradeDate": "20261119",
+          "indexName": "上证50",
+          "indexNameEn": "SSE 50",
+          "pe": 12.22,
+          "peg": 11.93,
+          "pb": 1.17,
+          "dp": 3.56,
+          "peLastYear": 12.33,
+          "pegLastYear": 11.99,
+          "pbLastYear": 1.21
+        },
+        {
+          "tradeDate": "20261119",
+          "indexName": "沪深300",
+          "indexNameEn": "CSI 300",
+          "pe": 13.77,
+          "peg": 13.09,
+          "pb": 1.28,
+          "dp": 3.04,
+          "peLastYear": 15.19,
+          "pegLastYear": 14.31,
+          "pbLastYear": 1.45
+        },
+        {
+          "tradeDate": "20261119",
+          "indexName": "上证380",
+          "indexNameEn": "SSE 380",
+          "pe": 20.95,
+          "peg": 19.71,
+          "pb": 1.67,
+          "dp": 1.99,
+          "peLastYear": 23.69,
+          "pegLastYear": 23.21,
+          "pbLastYear": 2.03
+        },
+        {
+          "tradeDate": "20261119",
+          "indexName": "红利指数",
+          "indexNameEn": "SSE Dividend",
+          "pe": 9.92,
+          "peg": 9.4,
+          "pb": 0.81,
+          "dp": 4.42,
+          "peLastYear": 8.62,
+          "pegLastYear": 8.72,
+          "pbLastYear": 0.75
+        },
+        {
+          "tradeDate": "20261119",
+          "indexName": "中证红利",
+          "indexNameEn": "CSI Dividend",
+          "pe": 9.48,
+          "peg": 9.24,
+          "pb": 0.79,
+          "dp": 4.48,
+          "peLastYear": 8.62,
+          "pegLastYear": 8.65,
+          "pbLastYear": 0.77
+        },
+        {
+          "tradeDate": "20261119",
+          "indexName": "中证500",
+          "indexNameEn": "CSI 500",
+          "pe": 24.45,
+          "peg": 21.08,
+          "pb": 1.82,
+          "dp": 1.69,
+          "peLastYear": 28.1,
+          "pegLastYear": 26.6,
+          "pbLastYear": 2.21
+        }
+      ]
+    },
+    "success": true
+  }
+}
