@@ -19,6 +19,7 @@ import { candidateKey, validCandidatesPayload, type CandidateItem } from '../src
 import { autoDcfKey, parseAutoSummary, type AutoDcf } from '../src/features/dcf/autoDcfSummary.js'
 import { createWeeklyDigest } from './weekly-digest.js'
 import { createTimingDigest } from './timing-digest.js'
+import { sendTelegram } from './telegram.js'
 
 type Env = Record<string, string | undefined>
 type FetchLike = (url: string, init?: Record<string, unknown>) => Promise<{ ok: boolean; status: number; json(): Promise<unknown> }>
@@ -251,7 +252,11 @@ export function createCandidateAlertsDigest({ fetchImpl = globalThis.fetch as un
     fetchJson: url => fetchJson(fetchImpl, url),
     repository: () => { const db = supabaseConfig(env); return db ? createRepository(db, fetchImpl) : null },
     isLogMissing: error => error instanceof LogUnavailable && error.message === 'missing',
-    send: message => sendGmail(env, createTransport, 'ETF 择时观察', message),
+    send: async message => {
+      await sendGmail(env, createTransport, 'ETF 择时观察', message)
+      // Telegram 为可选附加通道：邮件成功后再发，失败只记 warn，不影响邮件与去重
+      try { await sendTelegram(env, `${message.subject}\n\n${message.text}`, fetchImpl as never) } catch (error) { log.warn(`[timing-digest] Telegram 发送失败：${error instanceof Error ? error.message : 'unknown'}`) }
+    },
   })
 
   return async function candidateAlertsDigest(req: Request, res: Response): Promise<unknown> {

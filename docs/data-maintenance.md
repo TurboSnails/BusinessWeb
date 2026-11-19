@@ -156,6 +156,8 @@ PEP最新Q3、官方事件日历、8项ETF费用／规则及纳指QQQ持仓代�
 
 **环境变量（Vercel Production）**：`CRON_SECRET`（与派发共用）、`SUPABASE_URL`、`SUPABASE_SECRET_KEY`（与候选池云同步共用）、`GMAIL_USER`、`GMAIL_APP_PASSWORD`（Google 账号 → 安全性 → 两步验证 → 应用专用密码）、`ALERT_EMAIL_TO`。缺任一邮件变量时返回 503 并在 Vercel 日志打印缺哪个变量名；邮箱地址和密码不写进日志、响应或仓库。
 
+**可选 Telegram 通道（择时观察邮件同步推送）**：Vercel 环境变量加 `TELEGRAM_BOT_TOKEN`（@BotFather 创建机器人）与 `TELEGRAM_CHAT_ID`（给机器人发一句话后访问 `https://api.telegram.org/bot<token>/getUpdates` 取 `chat.id`）。两者都配才发；只在邮件发送成功后附加推送，推送失败只记 warn，不影响邮件和去重。内容与邮件一致，同样不是买卖指令。
+
 **一次性设置**：
 
 1. Supabase SQL Editor 执行 `supabase/migrations/202611140001_candidate_alert_log.sql`（幂等）。没执行时函数退回「当日保护」：只发最新收盘日触发的价位提醒和刚到期的复查、不发评级变化，日志提示执行迁移。

@@ -20,7 +20,7 @@
 
 ## 明确不做
 
-- **不接**朋友 Cloudflare Worker / Telegram 择时提醒（本站已有择时影子邮件，口径不同）
+- **不接**朋友 Cloudflare Worker（本站用 Vercel Cron）；Telegram 已改为本站择时影子邮件的可选附加通道，口径仍是本站的，见 `docs/data-maintenance.md`
 - **不**把优选/观察名单默认 seed 进 `/etf-review`（仅「预填复盘」需确认）
 - **不**把三方案卡并入 `/grid-trading` 主流程（独立 `/lab/etf-signal-plans`）
 - 不复制朋友私有部署配置
