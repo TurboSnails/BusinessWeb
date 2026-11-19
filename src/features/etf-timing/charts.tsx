@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import type { ShadowItem } from './model'
 
 export type BarPair = { label: string; hold: number | null | undefined; timing: number | null | undefined }
@@ -46,6 +47,9 @@ export function PairBars({ title, hint, pairs }: { title: string; hint: string; 
   )
 }
 
+/** 单只 ETF 的价格—信号图（三方案回测页）。 */
+export const priceChartPath = (i: Pick<ShadowItem, 'code' | 'name'>): string => `/lab/etf-signal-plans?code=${i.code}&name=${encodeURIComponent(i.name)}`
+
 export type TileState = 'buy' | 'sell' | 'hold' | 'flat'
 /** 近 7 天有信号按信号方向着色，其余按是否持有。 */
 export function tileState(i: ShadowItem, recent: boolean): TileState {
@@ -66,7 +70,7 @@ export function StatusGrid({ items, asOf, isRecent }: { items: ShadowItem[]; asO
         {order.map(s => <li key={s}><i className={`et-tile et-tile--${s}`} />{TILE_TEXT[s]} {count(s)}</li>)}
       </ul>
       <ul className="et-grid">
-        {rows.map(({ i, s }) => <li key={i.code} className={`et-tile et-tile--${s}`} title={`${i.name} ${i.code}：${TILE_TEXT[s]}`}>{i.name}</li>)}
+        {rows.map(({ i, s }) => <li key={i.code} className={`et-tile et-tile--${s}`} title={`${i.name} ${i.code}：${TILE_TEXT[s]}，点开看价格图`}><Link to={priceChartPath(i)}>{i.name}</Link></li>)}
       </ul>
     </div>
   )

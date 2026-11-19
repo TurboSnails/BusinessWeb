@@ -127,10 +127,14 @@
 
 .et-grid-wrap { display: grid; gap: 8px; }
 .et-grid__legend { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 14px; color: var(--text-secondary); font-size: 0.8125rem; }
-.et-grid__legend .et-tile { display: inline-block; width: 12px; height: 12px; padding: 0; margin-right: 5px; vertical-align: -1px; }
+.et-grid__legend .et-tile { display: inline-block; width: 12px; height: 12px; margin-right: 5px; vertical-align: -1px; }
 .et-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(8.5em, 1fr)); gap: 6px; }
 .et-tile { padding: 6px 8px; border-radius: 6px; font-size: 0.8125rem; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border: 1px solid var(--border-subtle); }
 .et-tile--buy { background: var(--et-pass); color: #fff; border-color: var(--et-pass); font-weight: 600; }
 .et-tile--sell { background: var(--et-fail-bg); color: var(--et-fail); border-color: var(--et-fail); font-weight: 600; }
 .et-tile--hold { background: var(--et-pass-bg); color: var(--et-pass); border-color: var(--et-pass); }
 .et-tile--flat { background: var(--bg-secondary); color: var(--text-secondary); }
+.et-tile { padding: 0; }
+.et-tile a { display: block; padding: 6px 8px; color: inherit; text-decoration: none; overflow: hidden; text-overflow: ellipsis; }
+.et-tile a:hover, .et-tile a:focus-visible { text-decoration: underline; }
+.et-list__name a { color: inherit; text-decoration: underline dotted; text-underline-offset: 3px; }

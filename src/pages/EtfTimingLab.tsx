@@ -8,7 +8,7 @@ import {
 } from '../features/etf-timing/model'
 import { LONG_DOC, OOS_ASOF, OOS_DOC, OOS_ROWS, OOS_SPLITS, OOS_VERDICTS, SCRIPTS } from '../features/etf-timing/oos'
 import '../styles/etf-timing.css'
-import { PairBars, StatusGrid } from '../features/etf-timing/charts'
+import { PairBars, StatusGrid, priceChartPath } from '../features/etf-timing/charts'
 import { LabNav } from '../features/etf-signal-plans/LabNav'
 
 const BASE = (import.meta as { env?: Record<string, string | undefined> }).env?.BASE_URL ?? '/'
@@ -74,7 +74,7 @@ function EtfList({ items, asOf }: { items: ShadowItem[]; asOf: string }): JSX.El
         const recent = isRecent(i.hs.lastSignal, asOf)
         return (
           <li key={i.code} className="et-list__item">
-            <div className="et-list__name"><span>{i.name}</span><code>{i.code}</code></div>
+            <div className="et-list__name"><Link to={priceChartPath(i)} title="看价格与买卖信号图">{i.name}</Link><code>{i.code}</code></div>
             <div className="et-list__state">
               <span className={`et-chip ${i.hs.holding ? 'is-hold' : 'is-flat'}`}>{i.hs.holding ? '持有' : '空仓'}</span>
               <span className={recent ? 'et-list__sig is-recent' : 'et-list__sig'}>{signalText(i)}</span>

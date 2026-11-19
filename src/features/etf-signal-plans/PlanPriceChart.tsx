@@ -31,16 +31,22 @@ export function PlanPriceChart({ bars, plans, name }: { bars: PlanBar[]; plans: 
         autoSize: true,
         layout: { background: { type: lib.ColorType.Solid, color: color('--bg-card', '#fff') }, textColor: color('--text-secondary', '#665f55'), attributionLogo: true },
         localization: { locale: 'zh-CN', dateFormat: 'yyyy-MM-dd' },
+        rightPriceScale: { scaleMargins: { top: 0.06, bottom: 0.14 } },
         handleScroll: { mouseWheel: false, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: false },
         handleScale: { mouseWheel: false, pinch: true, axisPressedMouseMove: true, axisDoubleClickReset: true },
       })
-      const price = chart.addSeries(lib.LineSeries, { color: color('--text-secondary', '#8a8378'), lineWidth: 1, priceLineVisible: false, lastValueVisible: false })
+      // 价格轴只按收盘价取范围（留 8% 边距），不被持仓线 / 箭头拉到 0
+      const lo = Math.min(...rows.map(r => r.close)), hi = Math.max(...rows.map(r => r.close)), pad = (hi - lo) * 0.08 || hi * 0.05
+      const price = chart.addSeries(lib.LineSeries, {
+        color: color('--text-secondary', '#8a8378'), lineWidth: 1, priceLineVisible: false, lastValueVisible: false,
+        autoscaleInfoProvider: () => ({ priceRange: { minValue: lo - pad, maxValue: hi + pad } }),
+      })
       price.setData(rows.map(r => ({ time: r.date as Time, value: r.close })))
-      const hold = chart.addSeries(lib.LineSeries, { color: color('--accent', '#a4772f'), lineWidth: 4, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false })
+      const hold = chart.addSeries(lib.LineSeries, { color: color('--accent', '#a4772f'), lineWidth: 3, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false, autoscaleInfoProvider: () => null })
       hold.setData(holdLine(rows, segments).map(p => ({ ...p, time: p.time as Time })))
       lib.createSeriesMarkers(price, trades.map(s => ({
         time: s.date as Time, position: s.side === 'buy' ? 'belowBar' as const : 'aboveBar' as const,
-        shape: s.side === 'buy' ? 'arrowUp' as const : 'arrowDown' as const, color: s.side === 'buy' ? rise : fall, text: s.side === 'buy' ? '买' : '卖',
+        shape: s.side === 'buy' ? 'arrowUp' as const : 'arrowDown' as const, color: s.side === 'buy' ? rise : fall,
       })))
       chart.timeScale().fitContent()
     }).catch(() => { if (live) setFailed('图表暂时无法绘制，可刷新重试；下方表格数据不受影响。') })

@@ -79,5 +79,7 @@ describe('择时实验页图表', () => {
     expect(figs.length).toBe(2)
     expect(figs[1].textContent).toContain('最大回撤')
     expect(figs[0].querySelectorAll('.et-bar__fill--timing').length).toBeGreaterThan(0)
+    const link = within(grid).getByRole('link', { name: '芯片ETF' })
+    expect(link.getAttribute('href')).toMatch(/^\/lab\/etf-signal-plans\?code=\d{6}&name=/)
   })
 })
