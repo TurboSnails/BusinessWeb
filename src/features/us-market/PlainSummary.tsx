@@ -1,5 +1,6 @@
-import React from 'react'
-import { assess, FAMILY, GUIDES, voteOf, type Assessment, type Lean } from './explain'
+import React, { useContext } from 'react'
+import { GuideContext } from './cards'
+import { assess, FAMILY, GUIDES, voteOf, type Assessment, type Guide, type Lean } from './explain'
 import { freshness, type Reading } from './model'
 
 export type SummaryItem = { id?: string; name: string; reading?: Reading }
@@ -17,9 +18,9 @@ interface Vote { item: SummaryItem; verdict: Assessment; score: number; stale: b
 /** Questions need at least this many independent families voting before the overall call is made. */
 const MIN_QUESTIONS = 3
 
-export function judge(question: Question, asOf: string) {
+export function judge(question: Question, asOf: string, guides: Record<string, Guide> = GUIDES, family: Record<string, string> = FAMILY) {
   const votes: Vote[] = question.items.flatMap(item => {
-    const verdict = assess(item.reading, item.id ? GUIDES[item.id] : undefined)
+    const verdict = assess(item.reading, item.id ? guides[item.id] : undefined)
     const last = item.reading?.history.at(-1)
     if (!verdict || verdict.level === 'unknown' || !last || !item.reading) return []
     // A reading carried past its normal publication lag still informs, at half weight.
@@ -29,9 +30,9 @@ export function judge(question: Question, asOf: string) {
   // One vote per family: keep the strongest reading from each source.
   const best = new Map<string, Vote>()
   for (const vote of votes) {
-    const family = FAMILY[vote.item.id ?? ''] ?? vote.item.id ?? vote.item.name
-    const current = best.get(family)
-    if (!current || Math.abs(vote.score) > Math.abs(current.score)) best.set(family, vote)
+    const group = family[vote.item.id ?? ''] ?? vote.item.id ?? vote.item.name
+    const current = best.get(group)
+    if (!current || Math.abs(vote.score) > Math.abs(current.score)) best.set(group, vote)
   }
   for (const vote of best.values()) vote.counted = true
   const families = [...best.values()]
@@ -51,8 +52,9 @@ const OVERALL: { min: number; label: string; advice: string; lean: Lean }[] = [
 ]
 const step = (lean: Lean) => (lean === 'offense' ? 1 : lean === 'defense' ? -1 : 0)
 
-export default function PlainSummary({ questions, trend, asOf }: { questions: Question[]; trend?: { label: string; lean: Lean }; asOf: string }): JSX.Element {
-  const judged = questions.map(question => ({ question, ...judge(question, asOf) }))
+export default function PlainSummary({ questions, trend, asOf, market = '美股' }: { questions: Question[]; trend?: { label: string; lean: Lean }; asOf: string; market?: string }): JSX.Element {
+  const { guides, family } = useContext(GuideContext)
+  const judged = questions.map(question => ({ question, ...judge(question, asOf, guides, family) }))
   const answered = judged.filter(row => row.families > 0)
   const evidence = answered.reduce((sum, row) => sum + row.families, 0)
   const stale = answered.reduce((sum, row) => sum + row.stale, 0)
@@ -65,7 +67,7 @@ export default function PlainSummary({ questions, trend, asOf }: { questions: Qu
   return (
     <section className="us-plain" aria-label="一句话看懂">
       <div className="us-plain__head">
-        <p className="us-plain__eyebrow">用大白话看懂现在的美股</p>
+        <p className="us-plain__eyebrow">用大白话看懂现在的{market}</p>
         <p className="us-plain__overall" data-lean={overall.lean}><strong>{overall.label}</strong></p>
         <p className="us-plain__why">
           {cons.length > 0 && <>不利因素：{cons.join('、')}。</>}

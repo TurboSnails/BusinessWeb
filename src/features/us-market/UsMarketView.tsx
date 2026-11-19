@@ -6,10 +6,11 @@ import { INDICATORS, stageFromSnapshot } from '../macro/indicators'
 import { checkQuality } from '../macro/quality'
 import { automaticRows } from '../market-cycle/automation'
 import { evaluate, type Evidence } from '../market-cycle/engine'
-import { breadthChange, compareReturns, decideMarket, freshness, macroReading, nyDate, periodReturn, qualifiedBreadth, recentDirection, relativeVolume, type Breadth, type MarketGroup, type MarketSlice, type Point, type Reading } from './model'
+import { breadthChange, compareReturns, decideMarket, freshness, macroReading, nyDate, periodReturn, qualifiedBreadth, recentDirection, relativeVolume, type Breadth, type MarketGroup, type MarketSlice, type Point } from './model'
 import { FEED_FIELDS, FILES, mergeSnapshots, type Feed, type Snapshots } from './snapshots'
-import { assess, GUIDES, LEAN_LABEL, withinYears } from './explain'
+import { withinYears } from './explain'
 import HistoryChart from './HistoryChart'
+import { format, MarketCard, RANGES, route, signed, val, type Item, type RangeId } from './cards'
 import PlainSummary, { type Question } from './PlainSummary'
 import './us-market.css'
 
@@ -17,76 +18,6 @@ const GROUPS: { id: MarketGroup; label: string }[] = [
   { id: 'broad', label: '大盘' }, { id: 'size', label: '规模' }, { id: 'style', label: '风格' },
   { id: 'sector', label: '行业' }, { id: 'participants', label: '参与者' },
 ]
-type Item = { id?: string; name: string; reading?: Reading }
-const RANGES = [{ id: '1y', label: '近 1 年', years: 1 }, { id: '5y', label: '近 5 年', years: 5 }, { id: '10y', label: '近 10 年', years: 10 }, { id: 'all', label: '全部', years: null }] as const
-type RangeId = typeof RANGES[number]['id']
-
-const format = (value: number, unit: string) => new Intl.NumberFormat('zh-CN', { maximumFractionDigits: unit === 'bp' ? 0 : 3 }).format(value) + unit
-const signed = (value: number | undefined, unit: string) => value === undefined ? '—' : (value > 0 ? '+' : '') + format(Math.round(value * 100) / 100, unit)
-const route = (tab: string) => `/monitor?tab=${tab}`
-const val = (name: string, unit: string, source: string, scope: string, frequency: string, history: Point[], note?: string): Reading => ({
-  name, unit, source, scope, frequency, history, note,
-})
-
-function ReadingRow({ item, asOf, years }: { item: Item; asOf: string; years: number | null }) {
-  const r = item.reading
-  const last = r?.history?.at(-1)
-  const previous = r?.history?.at(-2)
-  const usable = last && Number.isFinite(last[1])
-  if (!r || !last || !usable) return <li className="us-market__row"><span>{item.name}</span><span className="us-market__muted">暂无同口径数据</span></li>
-  const state = freshness(last[0], r.frequency, asOf)
-  const guide = item.id ? GUIDES[item.id] : undefined
-  const verdict = assess(r, guide)
-  const shown = withinYears(r.history, years)
-  const fmt = (value: number) => format(value, r.unit)
-  return (
-    <li className="us-market__metric">
-      <div className="us-market__row">
-        <span>{item.name}</span><strong className={state === '沿用上期' ? 'us-market__muted' : undefined}>{fmt(last[1])}</strong>
-      </div>
-      {verdict && <p className="us-market__verdict">
-        <span className="us-market__chip" data-lean={verdict.lean}>{verdict.label}{verdict.lean !== 'neutral' ? ` · ${LEAN_LABEL[verdict.lean]}` : ''}</span>
-        {verdict.basis && <span className="us-market__basis">{verdict.basis}</span>}
-      </p>}
-      {verdict && <p className="us-market__comment">{verdict.sentence}</p>}
-      {shown.length >= 8 ? <HistoryChart points={shown} label={item.name} format={fmt} />
-        : r.history.length >= 8 ? <p className="us-market__meta">所选区间内数据太少，可切换到更长的历史区间。</p>
-          : <>
-            {r.history.length > 1 && <ol className="us-market__recent" aria-label={`${item.name}最近几期`}>
-              {r.history.slice(-6).map(([date, value]) => <li key={date}><time dateTime={date}>{date.slice(2)}</time><span>{fmt(value)}</span></li>)}
-            </ol>}
-            <p className="us-market__meta">目前只积累了 {r.history.length} 期数据，满 8 期后显示走势图。</p>
-          </>}
-      <div className="us-market__meta"><time dateTime={last[0]}>{last[0]}</time><span>{r.frequency} · {state}{r.refreshError ? ' · 本次未能复核' : ''}</span></div>
-      <details>
-        <summary>这是什么 · 口径与来源</summary>
-        {guide && <p><strong>这是什么：</strong>{guide.what}</p>}
-        <p><strong>口径：</strong>{r.scope}</p>
-        {previous && <p>较上次 {previous[0]} {signed(last[1] - previous[1], r.unit === '%' ? ' 个百分点' : r.unit)}</p>}
-        {(r.benchmark5y !== undefined || r.benchmark10y !== undefined) && <p>
-          {r.benchmark5y !== undefined && <span>5 年均值 {fmt(r.benchmark5y)} </span>}
-          {r.benchmark10y !== undefined && <span>10 年均值 {fmt(r.benchmark10y)}</span>}
-        </p>}
-        {r.releasedAt && <p>发布于 {r.releasedAt.slice(0, 10)}</p>}
-        {r.refreshError && <p>本次更新未取得新数据（{r.refreshError}），显示最近一次核实的观测。</p>}
-        {r.note && <p>{r.note}</p>}
-        {/^https:\/\//.test(r.source) && <a href={r.source} target="_blank" rel="noreferrer">数据来源</a>}
-      </details>
-    </li>
-  )
-}
-
-function MarketCard({ title, items, asOf, years, link }: { title: string; items: Item[]; asOf: string; years: number | null; link?: { tab: string; label: string } }) {
-  return <section className="us-market__card" aria-label={title}>
-    <h3>{title}</h3>
-    <ul>{items.slice(0, 3).map(item => <ReadingRow key={item.name} item={item} asOf={asOf} years={years} />)}</ul>
-    {items.length > 3 && <details className="us-market__more"><summary>其余 {items.length - 3} 项</summary>
-      <ul>{items.slice(3).map(item => <ReadingRow key={item.name} item={item} asOf={asOf} years={years} />)}</ul>
-    </details>}
-    {link && <Link className="us-market__link" to={route(link.tab)}>{link.label}</Link>}
-  </section>
-}
-
 const availableSeries = (s: Snapshots, asOf: string) => {
   const p = (key: string, name: string, note?: string): Item => {
     const data = s.public?.series?.[key]

@@ -1,0 +1,69 @@
+name: Update China market dashboard
+
+# 「宏观温度 → 中国市场」页签数据：每个交易日收盘后采集一次，写 public/data/cn-market-data.json 与 cn-market-slices.json。
+# 主触发：短线情绪工作流跑完后接着跑（复用其当日数据的同一时段）；兜底：北京 17:40 自己的排程。
+# 涨跌停池、中金所日行情等逐日来源每次最多回补最近 15 个交易日，漏跑一两天会自动补上。
+on:
+  workflow_run:
+    workflows: ['Update market mood']
+    types: [completed]
+  schedule:
+    - cron: '40 9 * * 1-5'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/cn-market.yml'
+      - 'scripts/cn-market-*.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: cn-market
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Validate collectors
+        run: node --test scripts/cn-market-*.test.mjs
+      - name: Collect A-share indicators
+        continue-on-error: true
+        timeout-minutes: 6
+        run: node scripts/cn-market-data.mjs
+      - name: Collect A-share index slices
+        continue-on-error: true
+        timeout-minutes: 4
+        run: node scripts/cn-market-slices.mjs
+      - name: Commit if changed
+        id: commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add public/data/cn-market-data.json public/data/cn-market-slices.json
+          if git diff --cached --quiet; then echo "changed=false" >> "$GITHUB_OUTPUT"; exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m "data(cn-market): 中国市场 $(TZ=Asia/Shanghai date +%Y-%m-%d)"
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && git push && break
+            if [ "$i" = 5 ]; then echo "::error::推送 5 次都失败"; exit 1; fi
+            git rebase --abort 2>/dev/null || true
+            sleep $((i * 10))
+          done
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+      - name: Deploy GitHub Pages
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --ref main

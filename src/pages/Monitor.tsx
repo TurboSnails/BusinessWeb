@@ -26,10 +26,12 @@ import { PageDataFreshness } from '../components/ui/PageDataFreshness'
 
 const MarketCycleView = lazy(() => import('../features/market-cycle/MarketCycleView'))
 const UsMarketView = lazy(() => import('../features/us-market/UsMarketView'))
-type TabId = 'overview' | 'us-market' | 'us' | 'cn' | 'hk' | 'market-cycle' | 'cycles' | 'valuation' | 'spread' | 'stages' | 'guide' | 'archive'
+const CnMarketView = lazy(() => import('../features/cn-market/CnMarketView'))
+type TabId = 'overview' | 'us-market' | 'cn-market' | 'us' | 'cn' | 'hk' | 'market-cycle' | 'cycles' | 'valuation' | 'spread' | 'stages' | 'guide' | 'archive'
 const TABS: TabItem<TabId>[] = [
   { id: 'overview', label: '温度总览' },
   { id: 'us-market', label: '美股市场' },
+  { id: 'cn-market', label: '中国市场' },
   { id: 'us', label: '美国宏观' },
   { id: 'cn', label: '中国宏观' },
   { id: 'hk', label: '港股宏观' },
@@ -97,7 +99,7 @@ export default function Monitor(): JSX.Element {
   const [error, setError] = useState('')
   const [refreshing, setRefreshing] = useState(false)
   const [notice, setNotice] = useState('')
-  const loadsMacro = tab !== 'us-market'
+  const loadsMacro = tab !== 'us-market' && tab !== 'cn-market'
 
   /** 拉取实时数据；成功返回新快照（AI 解读会先调用它，保证解读的是最新数据） */
   const refresh = async (): Promise<Snapshots | null> => {
@@ -144,7 +146,7 @@ export default function Monitor(): JSX.Element {
     return next
   }, { replace: true })
 
-  const needsData = tab !== 'archive' && tab !== 'valuation' && tab !== 'market-cycle' && tab !== 'spread' && tab !== 'us-market'
+  const needsData = tab !== 'archive' && tab !== 'valuation' && tab !== 'market-cycle' && tab !== 'spread' && tab !== 'us-market' && tab !== 'cn-market'
   const snap = data?.us
   return (
     <Page>
@@ -153,6 +155,7 @@ export default function Monitor(): JSX.Element {
       {needsData && snap && <PageDataFreshness checkedAt={[data.us, data.cn, data.hk].map(section => section?.checkedAt ?? section?.fetchedAt).filter(Boolean).sort().at(-1)} dataLabel="指标观测日期" dataDates={[...Object.values(snap.series).map(series => series.latest.date), ...Object.values(data?.cn?.series ?? {}).map(series => series.latest.date), ...Object.values(data?.hk?.series ?? {}).map(series => series.latest.date)]} note="各指标观测日期不同；页面显示本次核验日与可用数据日期。" />}
       {tab === 'valuation' && indexes && <PageDataFreshness checkedAt={indexes.checkedAt} dataLabel="指数数据日期" dataDates={Object.values(indexes.indexes).flatMap(index => [index.latest.date, index.agg?.date])} note={`快照生成于 ${indexes.generatedAt}。`} />}
       <div>
+        {tab === 'cn-market' && <Suspense fallback={<p role="status">正在加载中国市场…</p>}><CnMarketView /></Suspense>}
         {tab === 'us-market' && <Suspense fallback={<p role="status">正在加载美股市场…</p>}><UsMarketView /></Suspense>}
         {tab === 'market-cycle' && <Suspense fallback={<p role="status">正在加载牛熊周期面板…</p>}><MarketCycleView /></Suspense>}
         {needsData && !snap && <p role={error ? 'alert' : 'status'} className="macro-muted">{error || '正在加载宏观数据…'}</p>}
