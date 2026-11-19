@@ -1,0 +1,380 @@
+{
+  "breadth": {
+    "spx": {
+      "date": "2026-11-18",
+      "covered": 499,
+      "total": 503,
+      "above50": 56.91,
+      "above200": 58.32,
+      "source": "https://github.com/datasets/s-and-p-500-companies",
+      "scope": "标普 500 公开成分代理名单 · Yahoo 复权收盘",
+      "universe": "b5cb873630d2",
+      "comparison": {
+        "date": "2026-11-11",
+        "covered": 499,
+        "total": 503,
+        "above50": 72.55,
+        "above200": 66.93,
+        "currentAbove50": 56.91,
+        "currentAbove200": 58.32,
+        "basis": "matched-current-membership",
+        "scope": "用当前名单回算，去除后来纳入、纳入日期不明或任一窗口缺价的证券；两日使用同一组样本；历史已剔除成分不在内，行业采用当前归类"
+      },
+      "history": [
+        [
+          "2026-11-18",
+          58.32
+        ]
+      ]
+    },
+    "rsp": {
+      "date": "2026-11-18",
+      "covered": 499,
+      "total": 503,
+      "above50": 56.91,
+      "above200": 58.32,
+      "source": "https://github.com/datasets/s-and-p-500-companies",
+      "scope": "标普 500 等权使用同一成分名单；每只股票一票 · Yahoo 复权收盘",
+      "universe": "b5cb873630d2",
+      "comparison": {
+        "date": "2026-11-11",
+        "covered": 499,
+        "total": 503,
+        "above50": 72.55,
+        "above200": 66.93,
+        "currentAbove50": 56.91,
+        "currentAbove200": 58.32,
+        "basis": "matched-current-membership",
+        "scope": "用当前名单回算，去除后来纳入、纳入日期不明或任一窗口缺价的证券；两日使用同一组样本；历史已剔除成分不在内，行业采用当前归类"
+      },
+      "history": [
+        [
+          "2026-11-18",
+          58.32
+        ]
+      ]
+    },
+    "sector-xlc": {
+      "date": "2026-11-18",
+      "covered": 22,
+      "total": 22,
+      "above50": 59.09,
+      "above200": 31.82,
+      "source": "https://github.com/datasets/s-and-p-500-companies",
+      "scope": "标普 500 成分 · Communication Services（GICS）；Yahoo 复权收盘",
+      "universe": "b2b51c1e531b",
+      "comparison": {
+        "date": "2026-11-11",
+        "covered": 22,
+        "total": 22,
+        "above50": 59.09,
+        "above200": 36.36,
+        "currentAbove50": 59.09,
+        "currentAbove200": 31.82,
+        "basis": "matched-current-membership",
+        "scope": "用当前名单回算，去除后来纳入、纳入日期不明或任一窗口缺价的证券；两日使用同一组样本；历史已剔除成分不在内，行业采用当前归类"
+      },
+      "history": [
+        [
+          "2026-11-18",
+          31.82
+        ]
+      ]
+    },
+    "sector-xly": {
+      "date": "2026-11-18",
+      "covered": 47,
+      "total": 47,
+      "above50": 76.6,
+      "above200": 61.7,
+      "source": "https://github.com/datasets/s-and-p-500-companies",
+      "scope": "标普 500 成分 · Consumer Discretionary（GICS）；Yahoo 复权收盘",
+      "universe": "3ebfb158036d",
+      "comparison": {
+        "date": "2026-11-11",
+        "covered": 47,
+        "total": 47,
+        "above50": 85.11,
+        "above200": 61.7,
+        "currentAbove50": 76.6,
+        "currentAbove200": 61.7,
+        "basis": "matched-current-membership",
+        "scope": "用当前名单回算，去除后来纳入、纳入日期不明或任一窗口缺价的证券；两日使用同一组样本；历史已剔除成分不在内，行业采用当前归类"
+      },
+      "history": [
+        [
+          "2026-11-18",
+          61.7
+        ]
+      ]
+    },
+    "sector-xlp": {
+      "date": "2026-11-18",
+      "covered": 32,
+      "total": 33,
+      "above50": 84.38,
+      "above200": 75,
+      "source": "https://github.com/datasets/s-and-p-500-companies",
+      "scope": "标普 500 成分 · Consumer Staples（GICS）；Yahoo 复权收盘",
+      "universe": "9aa00476df7d",
+      "comparison": {
+        "date": "2026-11-11",
+        "covered": 32,
+        "total": 33,
+        "above50": 87.5,
+        "above200": 75,
+        "currentAbove50": 84.38,
+        "currentAbove200": 75,
+        "basis": "matched-current-membership",
+        "scope": "用当前名单回算，去除后来纳入、纳入日期不明或任一窗口缺价的证券；两日使用同一组样本；历史已剔除成分不在内，行业采用当前归类"
+      },
+      "history": [
+        [
+          "2026-11-18",
+          75
+        ]
+      ]
+    },
+    "sector-xle": {
+      "date": "2026-11-18",
+      "covered": 21,
+      "total": 21,
+      "above50": 4.76,
+      "above200": 47.62,
+      "source": "https://github.com/datasets/s-and-p-500-companies",
+      "scope": "标普 500 成分 · Energy（GICS）；Yahoo 复权收盘",
+      "universe": "65449d19db4a",
+      "comparison": {
+        "date": "2026-11-11",
+        "covered": 21,
+        "total": 21,
+        "above50": 23.81,
+        "above200": 52.38,
+        "currentAbove50": 4.76,
+        "currentAbove200": 47.62,
+        "basis": "matched-current-membership",
+        "scope": "用当前名单回算，去除后来纳入、纳入日期不明或任一窗口缺价的证券；两日使用同一组样本；历史已剔除成分不在内，行业采用当前归类"
+      },
+      "history": [
+        [
+          "2026-11-18",
+          47.62
+        ]
+      ]
+    },
+    "sector-xlf": {
+      "date": "2026-11-18",
+      "covered": 76,
+      "total": 76,
+      "above50": 57.89,
+      "above200": 68.42,
+      "source": "https://github.com/datasets/s-and-p-500-companies",
+      "scope": "标普 500 成分 · Financials（GICS）；Yahoo 复权收盘",
+      "universe": "82bc00f63668",
+      "comparison": {
+        "date": "2026-11-11",
+        "covered": 76,
+        "total": 76,
+        "above50": 81.58,
+        "above200": 82.89,
+        "currentAbove50": 57.89,
+        "currentAbove200": 68.42,
+        "basis": "matched-current-membership",
+        "scope": "用当前名单回算，去除后来纳入、纳入日期不明或任一窗口缺价的证券；两日使用同一组样本；历史已剔除成分不在内，行业采用当前归类"
+      },
+      "history": [
+        [
+          "2026-11-18",
+          68.42
+        ]
+      ]
+    },
+    "sector-xlv": {
+      "date": "2026-11-18",
+      "covered": 60,
+      "total": 60,
+      "above50": 66.67,
+      "above200": 83.33,
+      "source": "https://github.com/datasets/s-and-p-500-companies",
+      "scope": "标普 500 成分 · Health Care（GICS）；Yahoo 复权收盘",
+      "universe": "bd41c00e5072",
+      "comparison": {
+        "date": "2026-11-11",
+        "covered": 60,
+        "total": 60,
+        "above50": 96.67,
+        "above200": 91.67,
+        "currentAbove50": 66.67,
+        "currentAbove200": 83.33,
+        "basis": "matched-current-membership",
+        "scope": "用当前名单回算，去除后来纳入、纳入日期不明或任一窗口缺价的证券；两日使用同一组样本；历史已剔除成分不在内，行业采用当前归类"
+      },
+      "history": [
+        [
+          "2026-11-18",
+          83.33
+        ]
+      ]
+    },
+    "sector-xli": {
+      "date": "2026-11-18",
+      "covered": 81,
+      "total": 83,
+      "above50": 61.73,
+      "above200": 50.62,
+      "source": "https://github.com/datasets/s-and-p-500-companies",
+      "scope": "标普 500 成分 · Industrials（GICS）；Yahoo 复权收盘",
+      "universe": "bf6ca5b412c5",
+      "comparison": {
+        "date": "2026-11-11",
+        "covered": 81,
+        "total": 83,
+        "above50": 70.37,
+        "above200": 59.26,
+        "currentAbove50": 61.73,
+        "currentAbove200": 50.62,
+        "basis": "matched-current-membership",
+        "scope": "用当前名单回算，去除后来纳入、纳入日期不明或任一窗口缺价的证券；两日使用同一组样本；历史已剔除成分不在内，行业采用当前归类"
+      },
+      "history": [
+        [
+          "2026-11-18",
+          50.62
+        ]
+      ]
+    },
+    "sector-xlk": {
+      "date": "2026-11-18",
+      "covered": 75,
+      "total": 76,
+      "above50": 21.33,
+      "above200": 45.33,
+      "source": "https://github.com/datasets/s-and-p-500-companies",
+      "scope": "标普 500 成分 · Information Technology（GICS）；Yahoo 复权收盘",
+      "universe": "c1ee2b36414e",
+      "comparison": {
+        "date": "2026-11-11",
+        "covered": 75,
+        "total": 76,
+        "above50": 36,
+        "above200": 56,
+        "currentAbove50": 21.33,
+        "currentAbove200": 45.33,
+        "basis": "matched-current-membership",
+        "scope": "用当前名单回算，去除后来纳入、纳入日期不明或任一窗口缺价的证券；两日使用同一组样本；历史已剔除成分不在内，行业采用当前归类"
+      },
+      "history": [
+        [
+          "2026-11-18",
+          45.33
+        ]
+      ]
+    },
+    "sector-xlb": {
+      "date": "2026-11-18",
+      "covered": 24,
+      "total": 24,
+      "above50": 50,
+      "above200": 50,
+      "source": "https://github.com/datasets/s-and-p-500-companies",
+      "scope": "标普 500 成分 · Materials（GICS）；Yahoo 复权收盘",
+      "universe": "a34ffa2375d6",
+      "comparison": {
+        "date": "2026-11-11",
+        "covered": 24,
+        "total": 24,
+        "above50": 83.33,
+        "above200": 70.83,
+        "currentAbove50": 50,
+        "currentAbove200": 50,
+        "basis": "matched-current-membership",
+        "scope": "用当前名单回算，去除后来纳入、纳入日期不明或任一窗口缺价的证券；两日使用同一组样本；历史已剔除成分不在内，行业采用当前归类"
+      },
+      "history": [
+        [
+          "2026-11-18",
+          50
+        ]
+      ]
+    },
+    "sector-xlre": {
+      "date": "2026-11-18",
+      "covered": 30,
+      "total": 30,
+      "above50": 60,
+      "above200": 50,
+      "source": "https://github.com/datasets/s-and-p-500-companies",
+      "scope": "标普 500 成分 · Real Estate（GICS）；Yahoo 复权收盘",
+      "universe": "41f5f085bfd9",
+      "comparison": {
+        "date": "2026-11-11",
+        "covered": 30,
+        "total": 30,
+        "above50": 80,
+        "above200": 60,
+        "currentAbove50": 60,
+        "currentAbove200": 50,
+        "basis": "matched-current-membership",
+        "scope": "用当前名单回算，去除后来纳入、纳入日期不明或任一窗口缺价的证券；两日使用同一组样本；历史已剔除成分不在内，行业采用当前归类"
+      },
+      "history": [
+        [
+          "2026-11-18",
+          50
+        ]
+      ]
+    },
+    "sector-xlu": {
+      "date": "2026-11-18",
+      "covered": 31,
+      "total": 31,
+      "above50": 87.1,
+      "above200": 54.84,
+      "source": "https://github.com/datasets/s-and-p-500-companies",
+      "scope": "标普 500 成分 · Utilities（GICS）；Yahoo 复权收盘",
+      "universe": "ede131148d62",
+      "comparison": {
+        "date": "2026-11-11",
+        "covered": 31,
+        "total": 31,
+        "above50": 90.32,
+        "above200": 61.29,
+        "currentAbove50": 87.1,
+        "currentAbove200": 54.84,
+        "basis": "matched-current-membership",
+        "scope": "用当前名单回算，去除后来纳入、纳入日期不明或任一窗口缺价的证券；两日使用同一组样本；历史已剔除成分不在内，行业采用当前归类"
+      },
+      "history": [
+        [
+          "2026-11-18",
+          54.84
+        ]
+      ]
+    },
+    "ndx": {
+      "date": "2026-11-18",
+      "covered": 98,
+      "total": 101,
+      "above50": 43.88,
+      "above200": 46.94,
+      "source": "https://indexes.nasdaqomx.com/index/weighting/ndx",
+      "scope": "纳斯达克当日收盘成分证券名单，按证券计数；Yahoo 复权收盘",
+      "universe": "2d9b2642ffaa",
+      "comparison": {
+        "date": "2026-11-11",
+        "covered": 98,
+        "total": 101,
+        "above50": 55.1,
+        "above200": 55.1,
+        "basis": "dated-membership",
+        "scope": "两日分别使用纳斯达克当日收盘成分证券名单；按证券计数"
+      },
+      "history": [
+        [
+          "2026-11-18",
+          46.94
+        ]
+      ]
+    }
+  }
+}

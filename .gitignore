@@ -21,4 +21,5 @@ __pycache__/
 .cache/market-cycle-breadth/
 .cache/market-cycle-cn-turnover/
 .cache/market-cycle-hsi-turnover/
+.cache/us-market-breadth/
 .cache/dcf-prefill/

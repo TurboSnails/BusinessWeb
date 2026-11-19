@@ -7,6 +7,8 @@ on:
       - '.github/workflows/market-cycle.yml'
       - 'scripts/market-cycle-*.mjs'
       - 'scripts/market-cycle-*.py'
+      - 'scripts/us-market-*.mjs'
+      - 'scripts/lib/us-market-calendar.mjs'
       - 'scripts/requirements-market-cycle.txt'
       - 'src/features/market-cycle/automation.ts'
       - 'src/features/market-cycle/engine.ts'
@@ -55,6 +57,11 @@ jobs:
           restore-keys: |
             market-cycle-evidence-v2-
             market-cycle-breadth-v1-
+      - uses: actions/cache@v4
+        with:
+          path: .cache/us-market-breadth
+          key: us-market-breadth-v1-${{ github.run_id }}
+          restore-keys: us-market-breadth-v1-
       - name: Refresh macro background independently
         continue-on-error: true
         run: node scripts/macro-snapshot.mjs
@@ -63,13 +70,25 @@ jobs:
           MARKET_CYCLE_CACHE_DIR: .cache/market-cycle-breadth
         run: node scripts/market-cycle-update.mjs
       - name: Validate shared rules and pipeline
-        run: node --test scripts/market-cycle-*.test.mjs
+        run: node --test scripts/market-cycle-*.test.mjs scripts/us-market-*.test.mjs
+      - name: Refresh US market public indicators
+        continue-on-error: true
+        timeout-minutes: 2
+        run: node scripts/us-market-data.mjs
+      - name: Refresh US index, style and sector snapshots
+        continue-on-error: true
+        timeout-minutes: 3
+        run: node scripts/us-market-slices.mjs
+      - name: Refresh US constituent breadth
+        continue-on-error: true
+        timeout-minutes: 3
+        run: node scripts/us-market-breadth.mjs
       - name: Publish valid partial updates and quality report
         id: commit
         shell: bash
         run: |
           set -euo pipefail
-          git add public/data/market-cycle*.json public/data/macro-cn.json public/data/macro-us.json public/data/macro-hk.json
+          git add public/data/market-cycle*.json public/data/us-market-*.json public/data/macro-cn.json public/data/macro-us.json public/data/macro-hk.json
           if git diff --cached --quiet; then
             echo 'changed=false' >> "$GITHUB_OUTPUT"
             exit 0
