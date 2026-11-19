@@ -1,15 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Callout, Card, EmptyState, Page, PageToolbar, Stat, StatGrid, TableWrap } from '../components/ui'
-import { fetchPlanBars } from '../features/etf-signal-plans/bars'
+import { loadPlanBundle } from '../features/etf-signal-plans/load-plans'
 import { PlanPriceChart } from '../features/etf-signal-plans/PlanPriceChart'
 import { LabNav } from '../features/etf-signal-plans/LabNav'
 import {
-  backtestPlan, backtestPlanYearly, cybPlan, hsPlan, macdPlan, yearlySummary,
+  backtestPlan, backtestPlanYearly, yearlySummary,
   type PlanBacktest, type PlanBar, type PlanKey, type PlanResult, type PlanYearly,
 } from '../features/etf-signal-plans/plan-trades'
-import { H1_CODES, R2_CODES, styleRatio } from '../features/etf-signal-plans/ratio'
-import { bullLookup } from '../features/etf-signal-plans/kd10-signals'
 import '../features/etf-flow/etf-flow.css'
 
 const pct = (v?: number, signed = false) => {
@@ -47,25 +45,18 @@ export default function EtfSignalPlansLab(): JSX.Element {
     setLoad('loading'); setError('')
     ;(async () => {
       try {
-        const [target, cyb, div, hs300] = await Promise.all([
-          fetchPlanBars(code),
-          fetchPlanBars(R2_CODES.growth),
-          fetchPlanBars(R2_CODES.defensive),
-          fetchPlanBars(H1_CODES.growth),
-        ])
+        const base = await loadPlanBundle(code)
         if (!live) return
-        const r2 = styleRatio(cyb.bars, div.bars)
-        const h1 = styleRatio(hs300.bars, div.bars)
-        const plans = [cybPlan(target.bars, r2), hsPlan(target.bars, h1), macdPlan(target.bars)]
+        const { bars, plans, bullR2, bullH1 } = base
         const yearlyRows = {
-          cyb: backtestPlanYearly('cyb', target.bars, bullLookup(r2)),
-          hs: backtestPlanYearly('hs', target.bars, bullLookup(h1)),
-          macd: backtestPlanYearly('macd', target.bars, () => true),
+          cyb: backtestPlanYearly('cyb', bars, bullR2),
+          hs: backtestPlanYearly('hs', bars, bullH1),
+          macd: backtestPlanYearly('macd', bars, () => true),
         }
         const full = {
-          cyb: backtestPlan('cyb', target.bars, bullLookup(r2)),
-          hs: backtestPlan('hs', target.bars, bullLookup(h1)),
-          macd: backtestPlan('macd', target.bars, () => true),
+          cyb: backtestPlan('cyb', bars, bullR2),
+          hs: backtestPlan('hs', bars, bullH1),
+          macd: backtestPlan('macd', bars, () => true),
         }
         const yearly = {
           cyb: yearlySummary(yearlyRows.cyb),
@@ -76,8 +67,8 @@ export default function EtfSignalPlansLab(): JSX.Element {
           .map(([k, v]) => [k, v?.calmar ?? -Infinity] as const)
           .sort((a, b) => b[1] - a[1])
         setBundle({
-          source: target.source,
-          bars: target.bars,
+          source: base.source,
+          bars,
           plans,
           full,
           yearlyRows,

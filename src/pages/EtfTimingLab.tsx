@@ -8,6 +8,7 @@ import {
 } from '../features/etf-timing/model'
 import { LONG_DOC, OOS_ASOF, OOS_DOC, OOS_ROWS, OOS_SPLITS, OOS_VERDICTS, SCRIPTS } from '../features/etf-timing/oos'
 import '../styles/etf-timing.css'
+import { PlanChartLoader } from '../features/etf-signal-plans/PlanChartLoader'
 import { PairBars, StatusGrid, priceChartPath } from '../features/etf-timing/charts'
 import { LabNav } from '../features/etf-signal-plans/LabNav'
 
@@ -87,6 +88,26 @@ function EtfList({ items, asOf }: { items: ShadowItem[]; asOf: string }): JSX.El
   )
 }
 
+/** 选一只 ETF 在页内看价格—信号图；选中后才拉行情。 */
+function InlinePriceChart({ items }: { items: ShadowItem[] }): JSX.Element {
+  const [code, setCode] = useState('')
+  const picked = items.find(i => i.code === code)
+  const sorted = useMemo(() => [...items].sort((a, b) => a.code.localeCompare(b.code)), [items])
+  return (
+    <div className="et-group" role="region" aria-label="单只价格图">
+      <h3>单只价格图</h3>
+      <label className="et-pick">
+        <span>选一只 ETF</span>
+        <select value={code} onChange={e => setCode(e.target.value)}>
+          <option value="">请选择…</option>
+          {sorted.map(i => <option key={i.code} value={i.code}>{i.name}（{i.code}）</option>)}
+        </select>
+      </label>
+      {picked ? <PlanChartLoader key={picked.code} code={picked.code} name={picked.name} /> : <p className="et-lead">选中后现场拉取腾讯日线，画出价格、规则持仓段和买卖点。</p>}
+    </div>
+  )
+}
+
 function ShadowSection({ latest, now }: { latest: ShadowLatest; now: Date }): JSX.Element {
   const stale = staleDays(latest.asOf, now)
   const byCode = (a: ShadowItem, b: ShadowItem): number => a.code.localeCompare(b.code)
@@ -101,6 +122,7 @@ function ShadowSection({ latest, now }: { latest: ShadowLatest; now: Date }): JS
       {stale > 9 && <Callout tone="warn" title={`影子记录已 ${stale} 天未更新`}>最近一次是 {latest.asOf}；每周六自动运行，可能被行情站限流，下次运行会补上。</Callout>}
       {!latest.complete && <Callout tone="warn" title="本周记录不完整">缺 {latest.summary.missing} 只（行情站限流），不计入事后评估；同一周重跑会覆盖。</Callout>}
       <StatusGrid items={latest.items} asOf={latest.asOf} isRecent={isRecent} />
+      <InlinePriceChart items={latest.items} />
       <div className="et-group" role="region" aria-label="近 7 天新信号">
         <h3>近 7 天新信号 <span className="et-count">{recent.length}</span></h3>
         {recent.length ? <EtfList items={recent} asOf={latest.asOf} /> : <p className="et-lead">这一周没有新的进场或离场。</p>}

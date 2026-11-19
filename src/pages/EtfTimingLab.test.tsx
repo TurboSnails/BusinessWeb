@@ -83,3 +83,16 @@ describe('择时实验页图表', () => {
     expect(link.getAttribute('href')).toMatch(/^\/lab\/etf-signal-plans\?code=\d{6}&name=/)
   })
 })
+
+describe('择时页单只价格图', () => {
+  it('默认不拉行情；选中一只 ETF 后才开始加载', async () => {
+    const fetchMock = vi.fn(async (url: string) => (String(url).includes('etf-timing.json') ? { ok: true, json: async () => fixture() } : { ok: false, status: 500, text: async () => '' }))
+    vi.stubGlobal('fetch', fetchMock)
+    renderPage()
+    const region = await screen.findByRole('region', { name: '单只价格图' })
+    expect(within(region).getByText(/选中后现场拉取腾讯日线/)).toBeTruthy()
+    expect(fetchMock.mock.calls.every(([u]) => String(u).includes('etf-timing.json'))).toBe(true)
+    fireEvent.change(within(region).getByRole('combobox'), { target: { value: fixture().latest.items[0].code } })
+    expect(await within(region).findByText(/正在拉取|暂时拉不到/)).toBeTruthy()
+  })
+})
