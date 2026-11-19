@@ -2,10 +2,11 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Callout, Card, EmptyState, Page, PageToolbar, Stat, StatGrid, TableWrap } from '../components/ui'
 import { fetchPlanBars } from '../features/etf-signal-plans/bars'
+import { PlanPriceChart } from '../features/etf-signal-plans/PlanPriceChart'
 import { LabNav } from '../features/etf-signal-plans/LabNav'
 import {
   backtestPlan, backtestPlanYearly, cybPlan, hsPlan, macdPlan, yearlySummary,
-  type PlanBacktest, type PlanKey, type PlanResult, type PlanYearly,
+  type PlanBacktest, type PlanBar, type PlanKey, type PlanResult, type PlanYearly,
 } from '../features/etf-signal-plans/plan-trades'
 import { H1_CODES, R2_CODES, styleRatio } from '../features/etf-signal-plans/ratio'
 import { bullLookup } from '../features/etf-signal-plans/kd10-signals'
@@ -21,6 +22,7 @@ const tone = (v?: number) => (v == null || !Number.isFinite(v) || v === 0 ? unde
 
 type Bundle = {
   source: string
+  bars: PlanBar[]
   plans: PlanResult[]
   full: Record<PlanKey, PlanBacktest | undefined>
   yearlyRows: Record<PlanKey, PlanYearly>
@@ -75,6 +77,7 @@ export default function EtfSignalPlansLab(): JSX.Element {
           .sort((a, b) => b[1] - a[1])
         setBundle({
           source: target.source,
+          bars: target.bars,
           plans,
           full,
           yearlyRows,
@@ -132,6 +135,9 @@ export default function EtfSignalPlansLab(): JSX.Element {
       {bundle && (
         <>
           <p className="etf-flow__foot">行情：{bundle.source}</p>
+          <Card title="价格与信号" as="section" description="粗线段 = 规则认为适合持有的时段；箭头 = 买卖信号">
+            <PlanPriceChart bars={bundle.bars} plans={bundle.plans} name={name || code} />
+          </Card>
           <div className="lab-stack">
             {bundle.plans.map(plan => {
               const full = bundle.full[plan.key]

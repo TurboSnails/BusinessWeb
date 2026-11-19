@@ -1,0 +1,15 @@
+.plan-chart { --up: #c4503f; --down: #3f9a62; display: grid; gap: .6rem; min-width: 0; }
+.plan-chart__toolbar { display: flex; flex-wrap: wrap; gap: .5rem 1rem; }
+.plan-chart__toolbar [role="group"] { display: flex; flex-wrap: wrap; gap: .4rem; }
+.plan-chart button { min-height: 44px; border: 1px solid var(--border-subtle, #ddd); border-radius: 8px; padding: .4rem .75rem; color: var(--text-primary); background: var(--bg-card, #fff); cursor: pointer; }
+.plan-chart button[aria-pressed="true"] { border-color: var(--accent, #a4772f); font-weight: 700; }
+.plan-chart button:focus-visible { outline: 2px solid var(--accent, #a4772f); outline-offset: 3px; }
+.plan-chart__legend { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .25rem 1rem; color: var(--text-secondary); font-size: .8125rem; }
+.plan-chart__key { display: inline-block; margin-right: .3rem; font-style: normal; vertical-align: middle; }
+.plan-chart__key--price { width: 16px; height: 2px; background: var(--text-secondary); }
+.plan-chart__key--hold { width: 16px; height: 5px; border-radius: 2px; background: var(--accent, #a4772f); }
+.plan-chart__key--buy { color: var(--up); }
+.plan-chart__key--sell { color: var(--down); margin-left: .5rem; }
+.plan-chart__canvas { height: 420px; width: 100%; min-width: 0; }
+.plan-chart__note { margin: 0; color: var(--text-secondary); font-size: .82rem; line-height: 1.7; }
+@media (max-width: 480px) { .plan-chart__canvas { height: 340px; } }
