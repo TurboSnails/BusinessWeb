@@ -25,11 +25,12 @@ export function PlanPriceChart({ bars, plans, name }: { bars: PlanBar[]; plans: 
     import('lightweight-charts').then(lib => {
       if (!live || !host.current) return
       const theme = getComputedStyle(host.current)
-      const color = (token: string, fallback: string): string => theme.getPropertyValue(token).trim() || fallback
-      const rise = color('--up', '#c4503f'), fall = color('--down', '#3f9a62')
+      // Tokens live on :root in index.css; the canvas library needs resolved values.
+      const color = (token: string): string => theme.getPropertyValue(token).trim()
+      const rise = color('--up'), fall = color('--down')
       chart = lib.createChart(host.current, {
         autoSize: true,
-        layout: { background: { type: lib.ColorType.Solid, color: color('--bg-card', '#fff') }, textColor: color('--text-secondary', '#665f55'), attributionLogo: true },
+        layout: { background: { type: lib.ColorType.Solid, color: color('--bg-card') }, textColor: color('--text-secondary'), attributionLogo: true },
         localization: { locale: 'zh-CN', dateFormat: 'yyyy-MM-dd' },
         rightPriceScale: { scaleMargins: { top: 0.06, bottom: 0.14 } },
         handleScroll: { mouseWheel: false, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: false },
@@ -38,11 +39,11 @@ export function PlanPriceChart({ bars, plans, name }: { bars: PlanBar[]; plans: 
       // 价格轴只按收盘价取范围（留 8% 边距），不被持仓线 / 箭头拉到 0
       const lo = Math.min(...rows.map(r => r.close)), hi = Math.max(...rows.map(r => r.close)), pad = (hi - lo) * 0.08 || hi * 0.05
       const price = chart.addSeries(lib.LineSeries, {
-        color: color('--text-secondary', '#8a8378'), lineWidth: 1, priceLineVisible: false, lastValueVisible: false,
+        color: color('--text-secondary'), lineWidth: 1, priceLineVisible: false, lastValueVisible: false,
         autoscaleInfoProvider: () => ({ priceRange: { minValue: lo - pad, maxValue: hi + pad } }),
       })
       price.setData(rows.map(r => ({ time: r.date as Time, value: r.close })))
-      const hold = chart.addSeries(lib.LineSeries, { color: color('--accent', '#a4772f'), lineWidth: 3, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false, autoscaleInfoProvider: () => null })
+      const hold = chart.addSeries(lib.LineSeries, { color: color('--accent'), lineWidth: 3, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false, autoscaleInfoProvider: () => null })
       hold.setData(holdLine(rows, segments).map(p => ({ ...p, time: p.time as Time })))
       lib.createSeriesMarkers(price, trades.map(s => ({
         time: s.date as Time, position: s.side === 'buy' ? 'belowBar' as const : 'aboveBar' as const,

@@ -6,6 +6,8 @@ export type BarPair = { label: string; hold: number | null | undefined; timing: 
 
 const ok = (x: number | null | undefined): x is number => x != null && Number.isFinite(x)
 const fmt = (x: number): string => `${x.toFixed(1).replace('-', '−')}%`
+/** Data-driven bar geometry, in percent of the plot width. */
+const place = (left: number, width?: number): React.CSSProperties => ({ left: `${left}%`, ...(width !== undefined && { width: `${width}%` }) })
 
 /** 「一直持有 vs 择时」成对横条：以 0 为轴，正值向右、负值向左（回撤全为负，自然朝左）。 */
 export function PairBars({ title, hint, pairs }: { title: string; hint: string; pairs: BarPair[] }): JSX.Element {
@@ -19,7 +21,7 @@ export function PairBars({ title, hint, pairs }: { title: string; hint: string; 
     const at = ((v - lo) / span) * 100
     return (
       <div className="et-bar">
-        <span className={`et-bar__fill et-bar__fill--${kind}`} style={{ left: `${Math.min(zero, at)}%`, width: `${Math.max(Math.abs(at - zero), 0.6)}%` }} />
+        <span className={`et-bar__fill et-bar__fill--${kind}`} style={place(Math.min(zero, at), Math.max(Math.abs(at - zero), 0.6))} />
         <span className="et-bar__val" style={at >= zero ? { left: `${Math.min(at, 88)}%` } : { right: `${Math.min(100 - at, 88)}%` }}>{fmt(v)}</span>
       </div>
     )
@@ -36,7 +38,7 @@ export function PairBars({ title, hint, pairs }: { title: string; hint: string; 
           <li key={p.label}>
             <span className="et-chart__label">{p.label}</span>
             <div className="et-chart__plot">
-              <span className="et-chart__zero" style={{ left: `${zero}%` }} aria-hidden="true" />
+              <span className="et-chart__zero" style={place(zero)} aria-hidden="true" />
               {bar(p.hold, 'hold')}
               {bar(p.timing, 'timing')}
             </div>
