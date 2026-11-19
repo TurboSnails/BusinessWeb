@@ -1,6 +1,6 @@
 {
  "asOf": "2026-11-19",
- "generatedAt": "2026-11-19T08:06:00.787Z",
+ "generatedAt": "2026-11-19T17:43:57.245Z",
  "universeVersion": "2026-11-15",
  "timing": {
   "hs300Bull": false,
@@ -14,9 +14,9 @@
  },
  "sources": {
   "benchmarks": {
-   "159915": "em",
-   "510300": "em",
-   "510880": "em"
+   "159915": "tencent",
+   "510300": "tencent",
+   "510880": "tencent"
   },
   "tencent": 30,
   "em": 46
@@ -186,8 +186,8 @@
   {
    "code": "159636",
    "name": "港股通科技30ETF工银",
-   "close": 0.429,
-   "date": "2026-11-18",
+   "close": 0.417,
+   "date": "2026-11-19",
    "src": "tencent",
    "hs": {
     "holding": false,
@@ -209,8 +209,8 @@
   {
    "code": "159667",
    "name": "工业母机ETF国泰",
-   "close": 0.463,
-   "date": "2026-11-18",
+   "close": 0.454,
+   "date": "2026-11-19",
    "src": "tencent",
    "hs": {
     "holding": false,
@@ -393,8 +393,8 @@
   {
    "code": "159851",
    "name": "金融科技ETF华宝",
-   "close": 0.535,
-   "date": "2026-11-18",
+   "close": 0.523,
+   "date": "2026-11-19",
    "src": "tencent",
    "hs": {
     "holding": false,
@@ -554,8 +554,8 @@
   {
    "code": "159901",
    "name": "深证100ETF易方达",
-   "close": 2.736,
-   "date": "2026-11-18",
+   "close": 2.729,
+   "date": "2026-11-19",
    "src": "tencent",
    "hs": {
     "holding": false,
@@ -577,8 +577,8 @@
   {
    "code": "159928",
    "name": "消费ETF汇添富",
-   "close": 0.707,
-   "date": "2026-11-18",
+   "close": 0.709,
+   "date": "2026-11-19",
    "src": "tencent",
    "hs": {
     "holding": false,
@@ -600,8 +600,8 @@
   {
    "code": "159939",
    "name": "信息技术ETF广发",
-   "close": 0.807,
-   "date": "2026-11-18",
+   "close": 0.809,
+   "date": "2026-11-19",
    "src": "tencent",
    "hs": {
     "holding": true,
@@ -623,8 +623,8 @@
   {
    "code": "159967",
    "name": "创业板成长ETF华夏",
-   "close": 0.458,
-   "date": "2026-11-18",
+   "close": 0.456,
+   "date": "2026-11-19",
    "src": "tencent",
    "hs": {
     "holding": false,
@@ -693,7 +693,7 @@
    "code": "512010",
    "name": "医药ETF易方达",
    "close": 0.379,
-   "date": "2026-11-18",
+   "date": "2026-11-19",
    "src": "tencent",
    "hs": {
     "holding": false,
