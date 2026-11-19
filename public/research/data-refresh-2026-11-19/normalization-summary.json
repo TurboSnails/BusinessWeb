@@ -1,13 +1,14 @@
 {
-  "auditDate": "2026-11-04",
-  "normalizedAt": "2026-11-04T18:15:22.692501+00:00",
+  "auditDate": "2026-11-19",
+  "normalizedAt": "2026-11-19T22:30:08.467882+00:00",
   "mcpInfoSuccess": 0,
   "mcpInfoErrors": 0,
-  "quoteSymbols": 1870,
-  "companyRecordsCovered": 1540,
-  "companyRecordsRequested": 1540,
+  "quoteSymbols": 1868,
+  "companyRecordsCovered": 1538,
+  "companyRecordsRequested": 1538,
   "macroUpdatedFields": {
     "us": [
+      "curve",
       "dxy",
       "gold",
       "silver",
@@ -19,7 +20,7 @@
   "futureUpdated": 625,
   "solidListingsUpdated": 68,
   "solidReviewFinancialAbstractsUpdated": 0,
-  "lynchPeUpdated": 1517,
+  "lynchPeUpdated": 1538,
   "unresolvedMcpSymbols": [],
   "rejected": [
     {
