@@ -71,6 +71,12 @@ jobs:
           set -euo pipefail
           python3 scripts/review-hk-valuation-2026-10-20.py | tail -1
           python3 scripts/review-adr-valuation-2026-10-20.py | tail -1
+      - name: Rebuild company valuation overlays
+        if: env.SKIP != '1'
+        # 公司估值覆盖层（company-valuations/*.json）随最新行情与供应商 EPS 重建，否则只在手动全量刷新时更新（VALUATION-01）。
+        # 失败不阻断行情发布：脚本校验不过会还原原文件，由数据新鲜度巡检继续告警。
+        continue-on-error: true
+        run: node scripts/rebuild-company-valuations.mjs --as-of "$D"
       - name: Record signal ledger
         if: env.SKIP != '1'
         # 每周一期：评级、价格、自动 DCF 与雷达信号，供机会雷达页「信号复盘」事后检验
