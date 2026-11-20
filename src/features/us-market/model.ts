@@ -87,16 +87,34 @@ export function compareReturns(history: Point[], benchmark: Point[], days: numbe
 
 export function relativeVolume(history: Point[], sessions?: Point[], shortSessions: string[] = []): number | undefined {
   const shortened = new Set(shortSessions)
-  if (sessions?.length && shortened.has(sessions.at(-1)![0])) return undefined
-  const regular = history.filter(([date]) => !shortened.has(date))
-  if (sessions) {
-    const expected = sessions.filter(([date]) => !shortened.has(date)).slice(-21)
-    if (expected.length !== 21 || regular.slice(-21).some(([date], i) => date !== expected[i][0])) return undefined
+  if (sessions?.length && shortened.has(sessions[sessions.length - 1]?.[0])) return undefined
+
+  function regularWindow(points: Point[]) {
+    const regular = points.filter(point => !shortened.has(point?.[0]))
+    const window = regular.slice(-21)
+    let previousDate = regular.at(-22)?.[0] ?? ''
+    if (window.length !== 21) return undefined
+    for (const point of window) {
+      const date = point?.[0]
+      if (!Array.isArray(point) || typeof date !== 'string' || date <= previousDate) return undefined
+      previousDate = date
+    }
+    return window
   }
-  const latest = regular.at(-1)?.[1]
-  const baseline = regular.slice(-21, -1)
-  if (baseline.length !== 20 || latest === undefined || latest <= 0 || baseline.some(([, value]) => value <= 0)) return undefined
-  return latest / (baseline.reduce((sum, [, value]) => sum + value, 0) / 20)
+
+  const window = regularWindow(history)
+  if (!window || window.some(([, value]) => !Number.isFinite(value) || value <= 0)) return undefined
+  if (sessions) {
+    const expected = regularWindow(sessions)
+    if (!expected || window.some(([date], i) => date !== expected[i][0])) return undefined
+  }
+  const baseline = window.slice(0, -1)
+  const sum = baseline.reduce((total, [, value]) => total + value, 0)
+  // Keep the usual arithmetic for market data and avoid overflow for very large finite volumes.
+  const mean = Number.isFinite(sum) ? sum / 20
+    : baseline.reduce((average, [, value], i) => average + (value - average) / (i + 1), 0)
+  const ratio = window[20][1] / mean
+  return Number.isFinite(ratio) && ratio > 0 ? ratio : undefined
 }
 
 type Direction = 'improving' | 'steady' | 'worsening'

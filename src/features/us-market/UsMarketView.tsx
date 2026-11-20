@@ -50,6 +50,15 @@ const selectBreadth = (s: Snapshots, slice?: MarketSlice): Breadth | undefined =
 const sliceVolume = (s: Snapshots, slice?: MarketSlice): number | undefined =>
   slice && relativeVolume(slice.volume ?? [], slice.history, s.slices?.shortSessions)
 
+function comparisonVolume(s: Snapshots, slice?: MarketSlice) {
+  const publicRatio = s.public?.series?.volumeRatio?.history.at(-1)
+  if (slice?.id === 'spx' && publicRatio && publicRatio[0] === slice.history.at(-1)?.[0]
+    && Number.isFinite(publicRatio[1]) && publicRatio[1] > 0) {
+    return { ratio: publicRatio[1], usesMarketVolume: true }
+  }
+  return { ratio: sliceVolume(s, slice), usesMarketVolume: false }
+}
+
 function MarketMatrix({ slices, active, benchmark, s, choose }: {
   slices: MarketSlice[]; active?: MarketSlice; benchmark: Point[]; s: Snapshots; choose(slice: MarketSlice): void
 }) {
@@ -61,8 +70,7 @@ function MarketMatrix({ slices, active, benchmark, s, choose }: {
       <tbody>{slices.map(slice => {
         const breadth = selectBreadth(s, slice)
         const date = slice.history.at(-1)?.[0]
-        const publicRatio = s.public?.series?.volumeRatio?.history.at(-1)
-        const ratio = slice.id === 'spx' && publicRatio?.[0] === date ? publicRatio?.[1] : sliceVolume(s, slice)
+        const { ratio, usesMarketVolume } = comparisonVolume(s, slice)
         return <tr key={slice.id} className={active?.id === slice.id ? 'is-active' : ''}>
           <th scope="row"><button type="button" aria-pressed={active?.id === slice.id} onClick={() => choose(slice)}>{slice.name}<small>{slice.symbol}</small></button></th>
           <td>{signed(periodReturn(slice.history, 5), '%')}</td>
@@ -70,7 +78,10 @@ function MarketMatrix({ slices, active, benchmark, s, choose }: {
           <td>{signed(compareReturns(slice.history, benchmark, 20), ' 个百分点')}</td>
           <td>{qualifiedBreadth(breadth) && breadth.date === date ? format(breadth.above200, '%') : '—'}</td>
           <td>{slice.valuation ? <span title={`${slice.valuation.date} · ${slice.valuation.scope ?? slice.scope}`}>{format(slice.valuation.value, '倍')}</span> : '—'}</td>
-          <td>{ratio === undefined ? '—' : ratio.toFixed(2) + ' 倍'}</td>
+          <td>{ratio === undefined ? '—' : <>
+            {ratio.toFixed(2)} 倍{' '}
+            {slice.id === 'spx' && <small className="us-market__volume-scope">{usesMarketVolume ? '全美市场' : '标的自身'}</small>}
+          </>}</td>
           <td>{date ?? '—'}</td>
         </tr>
       })}</tbody>
@@ -83,10 +94,7 @@ function evaluateStance(s: Snapshots, asOf: string, slice: MarketSlice | undefin
   const date = slice?.history.at(-1)?.[0]
   const change = Math.abs(Date.parse(breadth?.date ?? '') - Date.parse(date ?? '')) <= 3 * 86_400_000 ? breadthChange(breadth, asOf) : undefined
   const daily = periodReturn(slice?.history ?? [], 1)
-  const publicVolume = s.public?.series?.volumeRatio?.history.at(-1)
-  const ownVolume = sliceVolume(s, slice)
-  const usesMarketVolume = slice?.id === 'spx' && publicVolume?.[0] === date
-  const ratio = usesMarketVolume ? publicVolume?.[1] : ownVolume
+  const { ratio, usesMarketVolume } = comparisonVolume(s, slice)
   const volumeConfirmed = date && freshness(date, '每日', asOf) === '近期观测' && daily !== undefined && ratio !== undefined
     ? daily > 0 && ratio >= 1 : undefined
   return {

@@ -69,7 +69,7 @@ function readings(s: Snap) {
     advance: fromBreadth('cnAdvanceShare', '上涨家数占比', row => row.up !== undefined && row.down !== undefined && row.up + row.down > 0 ? row.up / (row.up + row.down) * 100 : undefined, '全部 A 股当日上涨家数 ÷（上涨 + 下跌家数），2026 年 6 月起逐日积累'),
     above60: fromBreadth('cnAbove60', '高于 60 日线的股票占比', row => row.above60, '全部 A 股中收盘价高于 60 日均线的比例，逐日积累'),
     highLow: fromBreadth('cnHighLow', '20 日新高 − 新低（占比）', row => row.n && row.high20 !== undefined && row.low20 !== undefined ? (row.high20 - row.low20) / row.n * 100 : undefined, '创 20 日新高家数减创 20 日新低家数，占全部 A 股的比例，逐日积累', ' 个百分点'),
-    etfFlow: { id: 'cnEtfFlow', name: '宽基 ETF 近 20 日净申购', reading: etfHistory.length ? val('宽基 ETF 近 20 日净申购', '亿元', 'https://business-web-black.vercel.app/lab/etf-flow', '宽基 ETF 申购净流入的 20 个交易日滚动合计（同花顺口径），2014 年起', '日频', etfHistory) : undefined } as Item,
+    etfFlow: { id: 'cnEtfFlow', name: '宽基 ETF 近 20 日净申购', reading: etfHistory.length ? val('宽基 ETF 近 20 日净申购', '亿元', 'https://business-web-black.vercel.app/lab/etf-flow', '宽基 ETF 申购净流入最近 20 个来源记录日的滚动合计（同花顺口径），2014 年起', '日频', etfHistory) : undefined } as Item,
     national: { id: 'cnNationalTeam', name: '国家队持股市值', reading: nationalHistory.length ? val('国家队持股市值', '亿元', 'https://business-web-black.vercel.app/national-team', '中央汇金、证金、社保等在上市公司前十大股东中的持股市值合计（季度）', '季频', nationalHistory) : undefined } as Item,
   }
 }
@@ -80,13 +80,17 @@ function valuationItem(slice: CnSlice | undefined, id = 'slicePe', name?: string
 }
 
 /** Above or below the 200-session average, from the daily window of 沪深300. */
-function trendOf(slice: CnSlice | undefined): { label: string; lean: Lean } | undefined {
+function trendOf(slice: CnSlice | undefined, asOf: string): { label: string; lean: Lean } | undefined {
   const daily = slice?.volume?.length ? slice.history.slice(-slice.volume.length) : []
   if (daily.length < 200) return undefined
-  const last = daily.at(-1)![1]
+  const [date, last] = daily.at(-1)!
+  const state = freshness(date, '每日', asOf)
+  if (state === '日期待核对') return undefined
   const average = daily.slice(-200).reduce((sum, [, v]) => sum + v, 0) / 200
   const gap = (last / average - 1) * 100
-  return gap >= 0 ? { label: `沪深300 高于 200 日均线 ${gap.toFixed(1)}%`, lean: 'offense' } : { label: `沪深300 低于 200 日均线 ${Math.abs(gap).toFixed(1)}%`, lean: 'defense' }
+  const position = gap >= 0 ? '高于' : '低于'
+  const label = `${date} 收盘${position} 200 日均线 ${Math.abs(gap).toFixed(1)}%${state === '沿用上期' ? '（沿用上期）' : ''}`
+  return { label, lean: gap >= 0 ? 'offense' : 'defense' }
 }
 
 function Matrix({ slices, active, benchmark, choose }: { slices: CnSlice[]; active?: CnSlice; benchmark: Point[]; choose(slice: CnSlice): void }) {
@@ -150,7 +154,7 @@ export default function CnMarketView() {
   const slice = slices.find(s => s.id === params.get('index')?.toLowerCase()) ?? slices[0]
   const r = useMemo(() => readings(snap), [snap])
   const { p } = r
-  const trend = trendOf(csi300)
+  const trend = trendOf(csi300, asOf)
 
   const valuation = [valuationItem(csi300, 'csi300Pe', '沪深300 市盈率'), valuationItem(csiAll, 'csiAllPe', '中证全指市盈率'), r.erp, r.buffett, r.pbAll]
   const mood = [p('cnLimitUp', '涨停家数'), p('cnSealRate', '封板率'), p('cnMaxBoard', '最高连板'), p('cnLimitDown', '跌停家数'), r.advance, p('cnOptionPcr', '股指期权 PCR'), p('cnBrokenBoards', '炸板家数')]

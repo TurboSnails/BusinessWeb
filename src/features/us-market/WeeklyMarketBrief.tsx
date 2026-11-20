@@ -66,26 +66,43 @@ export function alignedMove(history: Point[], window: Window): Move | undefined 
 
 /**
  * Indicator change over the same sessions. Uses the exact window dates when published;
- * otherwise, if the series trails by a few days, its own last SESSIONS observations, flagged as lagged.
+ * otherwise, if the series trails by a few days, the SESSIONS benchmark sessions ending on its
+ * latest observation (aligned on `calendar`, the benchmark's trading dates), flagged as lagged.
+ * Only observations inside the compared range are checked for duplicates or disorder.
  */
-export function signalMove(signal: BriefSignal, window: Window): SignalMove | { why: string } {
+export function signalMove(signal: BriefSignal, window: Window, calendar: string[] = window.dates): SignalMove | { why: string } {
   const reading = signal.item.reading
   const history = (reading?.history ?? []).filter(point => Array.isArray(point) && validDate(point[0]) && typeof point[1] === 'number' && Number.isFinite(point[1]))
   if (!reading || history.length < 2) return { why: '暂无数据' }
   if (!/日/.test(reading.frequency)) return { why: `${reading.frequency}数据，不做 5 日比较` }
-  const map = new Map(history)
+  // Check only the observations used for this comparison, preserving their order.
+  const range = (start: string, end: string) => {
+    const points = history.filter(([date]) => date >= start && date <= end)
+    return points.every((point, i) => i === 0 || point[0] > points[i - 1][0]) ? points : undefined
+  }
   let from: Point | undefined, to: Point | undefined, lagged = false
+  const exact = range(window.start, window.end)
+  if (!exact) return { why: '窗口内日期重复或乱序，无法核对' }
+  const map = new Map(exact)
   if (map.has(window.start) && map.has(window.end)) {
     from = [window.start, map.get(window.start)!]
     to = [window.end, map.get(window.end)!]
   } else {
-    const last = history.at(-1)!
-    const lag = days(last[0], window.end)
-    if (lag < 0 || lag > MAX_LAG_DAYS) return { why: lag < 0 ? '日期待核对' : `最新 ${last[0]}，较行情滞后超过 ${MAX_LAG_DAYS} 天` }
-    const prior = history.at(-(SESSIONS + 1))
-    if (!prior || days(prior[0], last[0]) > 14) return { why: '近 5 个交易日观测不全' }
-    from = prior
-    to = last
+    const latest = history.reduce((max, point) => (point[0] > max ? point[0] : max), history[0][0])
+    const lag = days(latest, window.end)
+    if (lag < 0 || lag > MAX_LAG_DAYS) return { why: lag < 0 ? '日期待核对' : `最新 ${latest}，较行情滞后超过 ${MAX_LAG_DAYS} 天` }
+    // Same end date but no start observation is a gap, not a lag.
+    if (lag === 0) return { why: `缺少 ${window.start} 观测，无法核对 5 个交易日` }
+    const sessions = [...new Set(calendar)].filter(validDate).sort()
+    const end = sessions.indexOf(latest)
+    if (end < SESSIONS) return { why: `最新 ${latest} 无法对齐到前 5 个交易日` }
+    const expected = sessions.slice(end - SESSIONS, end + 1)
+    if (days(expected[0], latest) > 14) return { why: '基准交易日记录不足，无法核对周度窗口' }
+    const points = range(expected[0], latest)
+    // The lagged window must hold exactly those six sessions: no missing day, no non-trading day, no repeat.
+    if (!points || points.length !== expected.length || points.some(([date], i) => date !== expected[i])) return { why: '近 5 个交易日观测不全或日期不符' }
+    from = points[0]
+    to = points.at(-1)!
     lagged = true
   }
   const unit = reading.unit
@@ -123,10 +140,11 @@ export function buildBrief({ benchmark, peers, signals, asOf, market }: { benchm
   }
   moves.sort((a, b) => b.change - a.change)
 
+  const calendar = benchmark.history.filter(point => Array.isArray(point) && validDate(point[0]) && validClose(point[1])).map(([date]) => date)
   const sig: SignalMove[] = []
   const skipped: Brief['skipped'] = []
   for (const signal of signals) {
-    const move = signalMove(signal, window)
+    const move = signalMove(signal, window, calendar)
     if ('why' in move) skipped.push({ label: signal.label, why: move.why })
     else sig.push(move)
   }

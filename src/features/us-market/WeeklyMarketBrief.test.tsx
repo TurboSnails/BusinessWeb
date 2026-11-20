@@ -1,7 +1,7 @@
 import React from 'react'
 import { render, screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import WeeklyMarketBrief, { alignedMove, buildBrief, weekWindow, type BriefSignal, type BriefSlice } from './WeeklyMarketBrief'
+import WeeklyMarketBrief, { alignedMove, buildBrief, signalMove, weekWindow, type BriefSignal, type BriefSlice } from './WeeklyMarketBrief'
 import type { Point } from './model'
 
 const DATES = ['2026-11-11', '2026-11-12', '2026-11-13', '2026-11-16', '2026-11-17', '2026-11-18', '2026-11-19']
@@ -149,5 +149,60 @@ describe('WeeklyMarketBrief', () => {
     expect(screen.getByRole('region', { name: '本周 A 股变化' })).toBeTruthy()
     expect(screen.getByText('暂无数据')).toBeTruthy()
     expect(screen.getByText(/沪深300 行情快照暂不可用/)).toBeTruthy()
+  })
+})
+
+describe('signalMove window integrity', () => {
+  const window = weekWindow(spx.history)!
+  const sig = (history: Point[]): BriefSignal => ({ item: { id: 'x', name: 'X', reading: { name: 'X', unit: '点', source: 'https://example.com/x', scope: '测试口径', frequency: '日频', history } }, label: 'X', polarity: -1, min: 1 })
+  const at = (pairs: [string, number][]): Point[] => pairs
+  const skipped = (result: ReturnType<typeof signalMove>) => ('why' in result ? result.why : undefined)
+  const moved = (result: ReturnType<typeof signalMove>) => ('why' in result ? result.why : [result.lagged, result.from[0], result.to[0], result.change])
+
+  it('does not relabel a series that has the window end but lacks the start as a lagged five-session move', () => {
+    const history = at([['2026-11-05', 15], ['2026-11-06', 16], ['2026-11-13', 19], ['2026-11-16', 20], ['2026-11-17', 22], ['2026-11-18', 25], ['2026-11-19', 26]])
+    expect(skipped(signalMove(sig(history), window, DATES))).toContain('缺少 2026-11-12')
+  })
+
+  it('rejects duplicate or out-of-order dates inside the compared range', () => {
+    const dup = [...series([18, 18, 19, 20, 22, 25, 26]).slice(0, 6), ['2026-11-18', 30], ['2026-11-19', 26]] as Point[]
+    expect(skipped(signalMove(sig(dup), window, DATES))).toContain('重复或乱序')
+    const swapped = series([18, 18, 19, 20, 22, 25, 26])
+    ;[swapped[2], swapped[3]] = [swapped[3], swapped[2]]
+    expect(skipped(signalMove(sig(swapped), window, DATES))).toContain('重复或乱序')
+    const lagShuffled = series([320, 323, 334, 343, 347, 350], DATES.slice(0, 6)).reverse()
+    expect('why' in signalMove(sig(lagShuffled), window, DATES)).toBe(true)
+  })
+
+  it('rejects a one-day-lagged series whose last six rows skip a session or include a non-trading day', () => {
+    // Missing 11-13; the sixth-last row (11-10) is outside the five benchmark sessions ending 11-18.
+    const gap = at([['2026-11-10', 300], ['2026-11-11', 320], ['2026-11-12', 323], ['2026-11-16', 343], ['2026-11-17', 347], ['2026-11-18', 350]])
+    expect(skipped(signalMove(sig(gap), window, DATES))).toContain('观测不全')
+    // Saturday 11-14 mixed in, 11-11 missing: six rows but not six sessions.
+    const weekend = at([['2026-11-12', 323], ['2026-11-13', 334], ['2026-11-14', 336], ['2026-11-16', 343], ['2026-11-17', 347], ['2026-11-18', 350]])
+    expect(skipped(signalMove(sig(weekend), window, DATES))).toContain('观测不全')
+    // Without enough benchmark history the lagged start cannot be aligned.
+    expect('why' in signalMove(sig(series([320, 323, 334, 343, 347, 350], DATES.slice(0, 6))), window)).toBe(true)
+  })
+
+  it('ignores unrelated duplicates and disorder far outside the window', () => {
+    const old = at([['2023-03-01', 1], ['2023-03-01', 2], ['2022-01-03', 3]])
+    expect(moved(signalMove(sig([...old, ...series([18, 18, 19, 20, 22, 25, 26])]), window, DATES))).toEqual([false, '2026-11-12', '2026-11-19', 8])
+    expect(moved(signalMove(sig([...old, ...series([320, 323, 334, 343, 347, 350], DATES.slice(0, 6))]), window, DATES))).toEqual([true, '2026-11-11', '2026-11-18', 30])
+  })
+
+  it('bounds the exact comparison at its end and rejects sparse benchmark history for a lagged week', () => {
+    const later: Point[] = [['2026-11-20', 27], ['2026-11-20', 28]]
+    expect(moved(signalMove(sig([...series([18, 18, 19, 20, 22, 25, 26]), ...later]), window))).toEqual([false, '2026-11-12', '2026-11-19', 8])
+    const sparse = ['2026-08-31', ...DATES.slice(1)]
+    const lagged = sig(series([320, 323, 334, 343, 347, 350], sparse.slice(0, 6)))
+    expect(skipped(signalMove(lagged, window, sparse))).toContain('基准交易日记录不足')
+  })
+
+  it('keeps complete, genuinely lagged windows and exact matches unchanged', () => {
+    expect(moved(signalMove(sig(series([320, 323, 334, 343, 347, 350], DATES.slice(0, 6))), window, DATES))).toEqual([true, '2026-11-11', '2026-11-18', 30])
+    expect(moved(signalMove(sig(series([18, 18, 19, 20, 22, 25, 26])), window))).toEqual([false, '2026-11-12', '2026-11-19', 8])
+    const result = buildBrief({ benchmark: spx, peers: [spx], signals, asOf: '2026-11-20', market: 'us' })
+    expect(result.signals.find(s => s.signal.label === '高收益债利差')?.from[0]).toBe('2026-11-11')
   })
 })

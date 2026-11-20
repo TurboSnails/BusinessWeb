@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { breadthChange, compareReturns, decideMarket, freshness, relativeVolume, type Breadth } from './model'
+import { breadthChange, compareReturns, decideMarket, freshness, relativeVolume, type Breadth, type Point } from './model'
 import { mergeSnapshots, rateComponents } from './snapshots'
 
 describe('美股市场证据', () => {
@@ -28,6 +28,53 @@ describe('美股市场证据', () => {
     const sessions: [string, number][] = [...days, ['2026-10-21', 15], ['2026-10-22', 20]]
     expect(relativeVolume(sessions, sessions, ['2026-10-22'])).toBeUndefined()
     expect(relativeVolume(sessions.filter(([date]) => date !== '2026-10-12'), sessions)).toBeUndefined()
+  })
+
+  describe('20 日量比输入完整性', () => {
+    const days = Array.from({ length: 21 }, (_, i): Point => [
+      `2026-10-${String(i + 1).padStart(2, '0')}`, i === 20 ? 30 : 10,
+    ])
+
+    it.each([null, undefined, NaN, Infinity, -Infinity, '10', 0, -1])('拒绝基准日及当日的无效成交量 %s', value => {
+      for (const index of [5, 20]) {
+        const volume = days.slice()
+        volume[index] = [days[index][0], value as number]
+        expect(relativeVolume(volume, days)).toBeUndefined()
+      }
+    })
+
+    it('成交或交易日历中的整行缺失时暂停计算', () => {
+      const broken = days.slice()
+      broken[10] = JSON.parse('null')
+      expect(relativeVolume(broken, days)).toBeUndefined()
+      expect(relativeVolume(days, broken)).toBeUndefined()
+    })
+
+    it('拒绝窗口内及窗口起点的重复日期，即使两条序列完全对齐', () => {
+      for (const index of [0, 10, 20]) {
+        const duplicate = [...days.slice(0, index + 1), ...days.slice(index)]
+        expect(relativeVolume(duplicate)).toBeUndefined()
+        expect(relativeVolume(duplicate, duplicate)).toBeUndefined()
+        expect(relativeVolume(duplicate, days)).toBeUndefined()
+        expect(relativeVolume(days, duplicate)).toBeUndefined()
+      }
+    })
+
+    it('美股跳过历史半日市，A 股按成交额对应的日历尾段对齐', () => {
+      const prior: Point = ['2026-09-30', 10]
+      const us = [prior, ...days]
+      us[10] = [us[10][0], 500]
+      expect(relativeVolume(us, us, [us[10][0]])).toBe(3)
+      const cn = [prior, ...days]
+      expect(relativeVolume(days, cn.slice(-days.length))).toBe(3)
+    })
+
+    it('有限正数的均量或量比接近数值边界', () => {
+      const large = days.map(([date]): Point => [date, Number.MAX_VALUE])
+      expect(relativeVolume(large)).toBe(1)
+      large.splice(0, 20, ...days.slice(0, 20).map(([date]): Point => [date, 0.5]))
+      expect(relativeVolume(large)).toBeUndefined()
+    })
   })
 
   it('宽度回溯使用同一批成分股并拒绝覆盖不足的回溯', () => {

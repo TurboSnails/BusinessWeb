@@ -43,3 +43,28 @@ it('EPS 预期变化按较季末口径标注，周度简报位于首屏', async 
   expect(screen.getAllByText('未来12个月 EPS 预期较季末变化').length).toBeGreaterThan(0)
   expect(screen.queryByText(/EPS 预期变化$/)).toBeNull()
 })
+
+it.each([
+  { marketRatio: null, ownVolume: true, expected: '1.50 倍 标的自身' },
+  { marketRatio: 1.2, ownVolume: true, expected: '1.20 倍 全美市场' },
+  { marketRatio: null, ownVolume: false, expected: '—' },
+])('比较表按数据覆盖显示量比与口径 $expected', async ({ marketRatio, ownVolume, expected }) => {
+  const dates = Array.from({ length: 30 }, (_, day) => new Date(Date.UTC(2026, 9, day + 1)))
+    .filter(date => date.getUTCDay() > 0 && date.getUTCDay() < 6)
+    .map(date => date.toISOString().slice(0, 10))
+  vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+    if (url.endsWith('us-market-slices.json')) return Response.json({ slices: [{
+      id: 'spx', name: '标普 500', group: 'broad', symbol: '^GSPC', scope: '指数', source: '',
+      history: dates.map(date => [date, 100]), volume: ownVolume ? dates.map(date => [date, date === dates.at(-1) ? 15 : 10]) : [],
+    }] })
+    if (url.endsWith('us-market-data.json')) return Response.json({ series: { volumeRatio: {
+      name: '全美量比', unit: '倍', source: '', scope: '全美', frequency: '日频', history: [[dates.at(-1), marketRatio]],
+    } } })
+    return new Response(null, { status: 503 })
+  }))
+  render(<MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}><UsMarketView /></MemoryRouter>)
+  const matrix = await screen.findByRole('table', { name: '同类市场比较' })
+  const row = within(matrix).getByRole('row', { name: /标普 500/ })
+  const volumeCell = within(row).getAllByRole('cell').at(-2)!
+  expect(within(row).getAllByRole('cell', { name: expected })).toContain(volumeCell)
+})
