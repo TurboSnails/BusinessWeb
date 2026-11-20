@@ -64,9 +64,10 @@ export const CN_GUIDES: Record<string, Guide> = {
     highText: '创新高的股票明显多于新低，市场内部强势。', lowText: '创新低的股票明显多于新高，市场内部在走弱。',
   },
   cnM1M2: {
-    what: 'M1 同比减 M2 同比。M1 主要是企业和居民随时可花的活期存款，剪刀差回升说明“死钱变活钱”，资金更愿意投资和消费。', high: 'offense',
+    comparableSince: '2025-01-01',
+    what: 'M1 同比减 M2 同比，反映狭义与广义货币的增速差。2025 年 1 月启用新 M1 口径。', high: 'offense',
     bands: [-6, -3, 0, 2], preferBands: true,
-    highText: '活钱比例上升，资金活跃度在提高，对股市有利。', lowText: '钱更多躺在定期存款里，资金不活跃，股市缺少增量资金。',
+    highText: '狭义货币增速相对较高。', lowText: '狭义货币增速相对较低。',
   },
   cnEtfFlow: {
     what: '近 20 个交易日宽基 ETF（如沪深300、中证500 ETF）的净申购金额，包括中央汇金等“国家队”的买入。', high: 'offense', bands: [-300, -50, 50, 300], preferBands: true,
@@ -116,7 +117,8 @@ export const CN_GUIDES: Record<string, Guide> = {
     highText: '贷款利率偏高。', lowText: '贷款利率处于低位，融资成本低。',
   },
   cnM1Yoy: {
-    what: 'M1（流通现金 + 企业和居民活期存款）同比增速，被视为经济和股市的领先指标。', high: 'offense',
+    comparableSince: '2025-01-01',
+    what: '狭义货币同比增速。2025 年 1 月启用新口径，纳入个人活期存款和非银行支付机构客户备付金。', high: 'offense',
     highText: '活钱增长快，经济和企业活跃度在提升。', lowText: '活钱增长慢，企业投资意愿弱。',
   },
   cnM2Yoy: { what: 'M2（广义货币）同比增速，反映整体货币供应。', high: 'offense', highText: '货币供应宽松。', lowText: '货币供应偏紧。' },

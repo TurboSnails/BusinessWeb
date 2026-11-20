@@ -26,3 +26,20 @@ it('恢复行业深链，在一个数据源失败时仍显示其他可用数据'
   expect(screen.getByRole('heading', { name: '投资者仓位与资金' })).toBeTruthy()
   expect(screen.getAllByText(/AAII 美国会员调查/).length).toBeGreaterThan(0)
 })
+
+it('EPS 预期变化按较季末口径标注，周度简报位于首屏', async () => {
+  vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+    if (url.endsWith('us-market-slices.json')) return Response.json({ slices: [
+      { id: 'spx', name: '标普 500', group: 'broad', symbol: '^GSPC', scope: '指数', source: '', history: [['2026-11-12', 100], ['2026-11-13', 101], ['2026-11-16', 102], ['2026-11-17', 103], ['2026-11-18', 104], ['2026-11-19', 105]] },
+    ] })
+    if (url.endsWith('us-market-data.json')) return Response.json({ series: { spxForwardEpsChange: {
+      name: 'EPS', unit: '%', source: 'https://advantage.factset.com/', scope: 'FactSet 标普 500', frequency: '每周', history: [['2026-11-13', 1.2]],
+    } } })
+    return new Response(null, { status: 503 })
+  }))
+  render(<MemoryRouter initialEntries={['/monitor?tab=us-market']} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}><UsMarketView /></MemoryRouter>)
+  const brief = await screen.findByRole('region', { name: '本周美股变化' })
+  expect(await within(brief).findByText(/11-12 → 11-19/)).toBeTruthy()
+  expect(screen.getAllByText('未来12个月 EPS 预期较季末变化').length).toBeGreaterThan(0)
+  expect(screen.queryByText(/EPS 预期变化$/)).toBeNull()
+})

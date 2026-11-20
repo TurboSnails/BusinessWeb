@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { breadthChange, compareReturns, decideMarket, freshness, relativeVolume, type Breadth } from './model'
-import { mergeSnapshots } from './snapshots'
+import { mergeSnapshots, rateComponents } from './snapshots'
 
 describe('美股市场证据', () => {
   it('缺少宽度时暂停确认，市场分歧时不把放量上涨当成修复', () => {
@@ -13,6 +13,9 @@ describe('美股市场证据', () => {
   it('相对收益仅使用相同交易日，旧市场数据标为沿用', () => {
     expect(compareReturns([['2026-11-16', 10], ['2026-11-17', 20]], [['2026-11-16', 100], ['2026-11-18', 100]], 1)).toBeUndefined()
     expect(compareReturns([['2026-11-16', 10], ['2026-11-17', 12]], [['2026-11-16', 100], ['2026-11-17', 110]], 1)).toBeCloseTo(10)
+    expect(compareReturns([['2026-11-13', 10], ['2026-11-17', 12]], [
+      ['2026-11-13', 100], ['2026-11-16', 105], ['2026-11-17', 110],
+    ], 1)).toBeUndefined()
     expect(freshness('2026-11-12', '每日', '2026-11-20')).toBe('沿用上期')
     expect(freshness('2026-09-30', '月度', '2026-11-20')).toBe('正常披露滞后')
     expect(freshness('2026-11-21', '每日', '2026-11-20')).toBe('日期待核对')
@@ -41,5 +44,16 @@ describe('美股市场证据', () => {
     const older = { ...common, history: [['2026-09-30', 1.9] as [string, number]] }
     expect(mergeSnapshots({ public: { series: { current: now, untouched: now } } }, { public: { series: { current: older } } }).public?.series)
       .toEqual({ current: now, untouched: now })
+  })
+})
+
+describe('同日美国利率拆解', () => {
+  it('只在两条收益率的观测日相同时计算通胀补偿', () => {
+    const base = { generatedAt: '2026-11-19', latestReal: { date: '2026-11-17', value: 2.89 } }
+    const same = rateComponents({ ...base, latestYield: { date: '2026-11-17', value: 5.1 } })
+    expect(same.breakeven10.history).toEqual([['2026-11-17', 2.21]])
+    const mixed = rateComponents({ ...base, latestYield: { date: '2026-11-18', value: 5.2 } })
+    expect(mixed.breakeven10).toBeUndefined()
+    expect(mixed.tips10.history).toEqual([['2026-11-17', 2.89]])
   })
 })

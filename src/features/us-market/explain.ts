@@ -13,6 +13,8 @@ export interface Guide {
   contrarian?: boolean
   /** Rule-of-thumb cut-offs: very low < a ≤ low < b ≤ normal ≤ c < high ≤ d < very high. */
   bands?: [number, number, number, number]
+  /** First known observation under the current statistical definition. */
+  comparableSince?: string
   /** Use bands even when a long history is available. */
   preferBands?: boolean
   /** A published long-run average to compare with when history is short. */
@@ -294,19 +296,26 @@ export function spanYears(history: Point[]): number {
 
 const flip = (lean: Lean): Lean => lean === 'offense' ? 'defense' : lean === 'defense' ? 'offense' : 'neutral'
 
+export function comparableHistory(reading: Reading, guide?: Guide): Point[] {
+  const since = guide?.comparableSince
+  return since ? reading.history.filter(([date]) => date >= since) : reading.history
+}
+
 /** Turns a reading into a plain-language level, lean and one-line comment. */
 export function assess(reading: Reading | undefined, guide: Guide | undefined): Assessment | undefined {
   const last = reading?.history.at(-1)
   if (!reading || !last || !guide) return undefined
   const value = last[1]
-  const years = spanYears(reading.history)
-  const longEnough = years >= 2 && reading.history.length >= 20
+  const history = comparableHistory(reading, guide)
+  if (!history.length) return undefined
+  const years = spanYears(history)
+  const longEnough = years >= 2 && history.length >= 20
   const benchmark = guide.benchmark ?? (reading.benchmark10y !== undefined ? { value: reading.benchmark10y, label: '10 年均值' }
     : reading.benchmark5y !== undefined ? { value: reading.benchmark5y, label: '5 年均值' } : undefined)
   let level: Level = 'unknown'
   let basis: string | undefined
   let percentile: number | undefined
-  if (longEnough) percentile = percentileOf(reading.history.map(([, v]) => v), value)
+  if (longEnough) percentile = percentileOf(history.map(([, v]) => v), value)
   if (guide.bands && guide.preferBands) {
     level = fromBands(value, guide.bands)
     basis = '按经验区间'

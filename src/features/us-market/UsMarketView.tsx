@@ -7,11 +7,13 @@ import { checkQuality } from '../macro/quality'
 import { automaticRows } from '../market-cycle/automation'
 import { evaluate, type Evidence } from '../market-cycle/engine'
 import { breadthChange, compareReturns, decideMarket, freshness, macroReading, nyDate, periodReturn, qualifiedBreadth, recentDirection, relativeVolume, type Breadth, type MarketGroup, type MarketSlice, type Point } from './model'
-import { FEED_FIELDS, FILES, mergeSnapshots, type Feed, type Snapshots } from './snapshots'
+import { FEED_FIELDS, FILES, mergeSnapshots, rateComponents, type Feed, type Snapshots } from './snapshots'
 import { withinYears } from './explain'
 import HistoryChart from './HistoryChart'
 import { format, MarketCard, RANGES, route, signed, val, type Item, type RangeId } from './cards'
 import PlainSummary, { type Question } from './PlainSummary'
+import RelativePerformance from '../us-market/RelativePerformance'
+import WeeklyMarketBrief, { type BriefSignal } from './WeeklyMarketBrief'
 import './us-market.css'
 
 const GROUPS: { id: MarketGroup; label: string }[] = [
@@ -224,6 +226,8 @@ export default function UsMarketView() {
     p('cftcSpxLev', '标普期货 · 杠杆基金'), p('cftcNdxLev', '纳指期货 · 杠杆基金'),
     p('cftcSpxAsset', '标普期货 · 资产管理机构'), p('cftcNdxAsset', '纳指期货 · 资产管理机构'),
   ]
+  // Display-only rate components; deliberately not added to any PlainSummary question.
+  const rateItems: Item[] = Object.entries(rateComponents(snap.rates)).map(([id, reading]) => ({ id, name: reading.name, reading }))
   const tenYearItem: Item = dailyYield ? { ...p('tenYearDaily', '美国 10 年期国债'), id: 'tenYear' } : m('tenYear', '美国 10 年期国债')
   const marketBreadth = breadthItem(snap.breadth?.breadth?.spx, '标普 500 高于 200 日线的成分股')
   const highsItem = (row: Breadth | undefined, name: string): Item => {
@@ -254,7 +258,13 @@ export default function UsMarketView() {
     { title: '交易量和参与度？', items: [marketBreadth, marketHighs, p('volumeRatio', '全美 20 日量比')], offense: '参与广、量能足', defense: '参与度偏弱', neutral: '量能一般' },
     { title: '场外子弹多不多？', items: [retailCash, managerCash, liquidAssets, p('finraCashDebt', '券商客户现金／融资')], offense: '子弹充足', defense: '子弹不足', neutral: '子弹一般' },
     { title: '杠杆和仓位高不高？', items: [p('finraDebtYoy', '融资余额同比'), m('marginGdp', '融资／GDP'), m('hfEquityLs', 'OFR 对冲基金多空比'), p('cftcSpxLev', '标普期货杠杆基金'), naaim], offense: '仓位偏轻、有回补空间', defense: '杠杆偏高、仓位拥挤', neutral: '高低互见（看下方各项）' },
-    { title: '盈利、利率和信用环境？', items: [p('spxForwardEpsChange', '盈利预期变化'), p('spxEarningsNextYear', '明年盈利增速预测'), sets.hy, baaAaa, tenYearItem, m('nfci', '金融条件指数')], offense: '环境友好', defense: '环境偏紧', neutral: '环境中性' },
+    { title: '盈利、利率和信用环境？', items: [p('spxForwardEpsChange', '未来12个月 EPS 预期较季末变化'), p('spxEarningsNextYear', '明年盈利增速预测'), sets.hy, baaAaa, tenYearItem, m('nfci', '金融条件指数')], offense: '环境友好', defense: '环境偏紧', neutral: '环境中性' },
+  ]
+  const weeklySignals: BriefSignal[] = [
+    { item: marketBreadth, label: '标普 500 高于 200 日线的成分股', polarity: 1, min: 1 },
+    { item: marketHighs, label: '标普 500 净新高比例', polarity: 1, min: 1 },
+    { item: sets.vix, label: 'VIX 波动率', polarity: -1, min: 1 },
+    { item: sets.hy, label: '美国高收益债利差', polarity: -1, min: sets.hy.reading?.unit === 'bp' ? 5 : 0.05 },
   ]
   const trendLean = marketStance === '防守压力上升' ? 'defense' as const : marketStance === '修复证据增强' ? 'offense' as const : 'neutral' as const
   const cash = [retailCash, managerCash, liquidAssets, retailStocks, ...moneyFunds, fundFlows, managerUs]
@@ -272,11 +282,15 @@ export default function UsMarketView() {
       <button type="button" className="tool-btn" disabled={loading} onClick={() => { setLoading(true); setAttempt(n => n + 1) }}><RefreshCw size={15} aria-hidden="true" />刷新快照</button>
     </div>
     <p className="us-market__notice" role="status">{loading ? '正在核对数据快照…' : failed.length ? `部分数据暂时不可用（${failed.length} 个快照），保留可用读数。` : ''}</p>
+    <WeeklyMarketBrief market="us" asOf={asOf} benchmark={spx} peers={all} signals={weeklySignals} loading={loading} />
+    <details className="weekly-brief__full">
+      <summary>市场各维度依据</summary>
+      <PlainSummary asOf={asOf} questions={questions} trend={marketStance === '证据不足' ? undefined : { label: marketStance, lean: trendLean }} />
+    </details>
     {group === 'broad' && slice && <Segmented label="美股指数" items={slices.map(item => ({ id: item.id, label: item.name }))} value={slice.id} onChange={id => go(group, id)} />}
     {group !== 'broad' && slice && <label className="us-market__select">比较标的
       <select value={slice.id} onChange={event => go(group, event.target.value)}>{slices.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select>
     </label>}
-    <PlainSummary asOf={asOf} questions={questions} trend={marketStance === '证据不足' ? undefined : { label: marketStance, lean: trendLean }} />
     <div className="us-market__range">
       <Segmented label="历史区间" items={RANGES.map(({ id, label }) => ({ id, label }))} value={range} onChange={setRange} />
       <span className="us-market__muted">图表与区间均值随所选区间变化</span>
@@ -286,9 +300,10 @@ export default function UsMarketView() {
         <p className="us-market__muted">{group === 'participants' ? '美国市场及相关全球样本' : `${slice?.scope ?? '美国股票市场'} · ${freshnessText}`}</p>
         <h2>{title}</h2>
         {group !== 'participants' && <p className="us-market__return" title={slice?.priceNote}>{signed(periodReturn(slice?.history ?? [], 5), '%')} <span>近 5 日</span>{slice?.id !== 'spx' && <span>近 20 日相对标普 {signed(relative, ' 个百分点')}</span>}</p>}
-        {group !== 'participants' && slice && <HistoryChart points={withinYears(slice.history, years)} label={`${slice.name}价格走势`} format={value => format(Math.round(value * 100) / 100, '')} />}
+        {group !== 'participants' && slice && <HistoryChart points={withinYears(slice.history, years)} label={`${slice.name}价格走势`} format={value => format(Math.round(value * 100) / 100, '')} priceRange={range} />}
       </div>
       {group !== 'participants' && <div className="us-market__stance" data-state={stance.result.label}>
+        <p className="us-market__muted">判断对象：{slice?.name ?? '所选指数'}</p>
         <strong>{stance.result.label}</strong><p>{stance.result.detail}</p>
         <dl>
           <div><dt>成分股宽度</dt><dd title={stance.change?.scope}>{stance.change ? signed(stance.change.delta, ' 个百分点') : '待确认'}</dd></div>
@@ -298,12 +313,13 @@ export default function UsMarketView() {
         <p className="us-market__stance-help">这是看“最近一周”的趋势判断：上涨的股票是否变多、上涨时有没有放量、垃圾债利差是否收窄。三者都改善才算“修复证据增强”；股票变少且利差走阔则是“防守压力上升”。</p>
       </div>}
     </header>
+    <RelativePerformance market="us" slices={all} asOf={asOf} />
     <div className="us-market__grid">
       {group !== 'participants' && <>
         <MarketCard title="估值与盈利" items={[
           ...(slice?.id === 'spx' ? [
             cape, p('spxFactSetFpe', 'FactSet 标普预期市盈率'), spreadItem, trailingPe, dividendYield, p('spxEarningsNow', '标普最新季度盈利增长'),
-            p('spxTrailingFpe', 'FactSet 标普过去 12 个月市盈率'), p('spxForwardEpsChange', '标普未来 12 个月 EPS 预期变化'),
+            p('spxTrailingFpe', 'FactSet 标普过去 12 个月市盈率'), p('spxForwardEpsChange', '未来12个月 EPS 预期较季末变化'),
             p('spxEarningsNextQuarter', '标普下季度盈利增速预测'), p('spxEarningsThisYear', '标普本年度盈利增速预测'), p('spxEarningsNextYear', '标普下一年度盈利增速预测'),
           ] : []),
           ...(sectorValuation?.reading ? [sectorValuation] : []),
@@ -318,7 +334,7 @@ export default function UsMarketView() {
         <MarketCard title="市场情绪" items={[fearGreed, sets.vix, m('putCall', 'Cboe 期权 Put/Call', 'Cboe 全产品'), retailBull, retailBear, skew, ...cnnParts]} asOf={asOf} years={years} />
         <MarketCard title="仓位与杠杆" items={positions} asOf={asOf} years={years} />
         <MarketCard title="现金与流向" items={cash} asOf={asOf} years={years} />
-        <MarketCard title="信用与利率" items={[sets.hy, baaAaa, tenYearItem, m('nfci', '芝加哥联储金融条件指数')]} asOf={asOf} years={years} link={{ tab: 'spread&mkt=us', label: '查看美股股债息差' }} />
+        <MarketCard title="信用与利率" items={[sets.hy, baaAaa, tenYearItem, ...rateItems, m('nfci', '芝加哥联储金融条件指数')]} asOf={asOf} years={years} link={{ tab: 'spread&mkt=us', label: '查看美股股债息差' }} />
       </>}
       {group === 'participants' && <>
         <MarketCard title="美国散户" items={[retailCash, retailStocks, retailBull, retailBear]} asOf={asOf} years={years} />

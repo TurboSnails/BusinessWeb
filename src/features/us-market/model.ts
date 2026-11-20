@@ -75,11 +75,14 @@ export function periodReturn(history: Point[], days: number): number | undefined
 
 export function compareReturns(history: Point[], benchmark: Point[], days: number): number | undefined {
   if (!history.length || history.at(-1)?.[0] !== benchmark.at(-1)?.[0]) return undefined
-  const dates = new Set(history.map(([date]) => date))
-  const bench = benchmark.filter(([date]) => dates.has(date))
-  const common = new Set(bench.map(([date]) => date))
-  const a = periodReturn(history.filter(([date]) => common.has(date)), days), b = periodReturn(bench, days)
-  return a === undefined || b === undefined ? undefined : a - b
+  const start = benchmark.at(-days - 1)
+  const end = benchmark.at(-1)
+  if (!start || !end || start[1] <= 0 || end[1] <= 0) return undefined
+  const assetStart = history.find(([date]) => date === start[0])
+  const assetEnd = history.at(-1)!
+  if (!assetStart || assetStart[1] <= 0 || assetEnd[1] <= 0) return undefined
+  const relative = (assetEnd[1] / assetStart[1] - end[1] / start[1]) * 100
+  return Number.isFinite(relative) ? relative : undefined
 }
 
 export function relativeVolume(history: Point[], sessions?: Point[], shortSessions: string[] = []): number | undefined {

@@ -1,6 +1,6 @@
 import React, { createContext, useContext } from 'react'
 import { Link } from 'react-router-dom'
-import { assess, FAMILY, GUIDES, LEAN_LABEL, withinYears, type Guide } from './explain'
+import { assess, comparableHistory, FAMILY, GUIDES, LEAN_LABEL, withinYears, type Guide } from './explain'
 import HistoryChart from './HistoryChart'
 import { freshness, type Point, type Reading } from './model'
 
@@ -22,13 +22,14 @@ export function ReadingRow({ item, asOf, years }: { item: Item; asOf: string; ye
   const { guides } = useContext(GuideContext)
   const r = item.reading
   const last = r?.history?.at(-1)
-  const previous = r?.history?.at(-2)
   const usable = last && Number.isFinite(last[1])
   if (!r || !last || !usable) return <li className="us-market__row"><span>{item.name}</span><span className="us-market__muted">暂无同口径数据</span></li>
   const state = freshness(last[0], r.frequency, asOf)
   const guide = item.id ? guides[item.id] : undefined
   const verdict = assess(r, guide)
-  const shown = withinYears(r.history, years)
+  const comparable = comparableHistory(r, guide)
+  const previous = comparable.at(-2)
+  const shown = withinYears(comparable, years)
   const fmt = (value: number) => format(value, r.unit)
   return (
     <li className="us-market__metric">
@@ -39,18 +40,20 @@ export function ReadingRow({ item, asOf, years }: { item: Item; asOf: string; ye
         <span className="us-market__chip" data-lean={verdict.lean}>{verdict.label}{verdict.lean !== 'neutral' ? ` · ${LEAN_LABEL[verdict.lean]}` : ''}</span>
         {verdict.basis && <span className="us-market__basis">{verdict.basis}</span>}
       </p>}
+      {guide?.comparableSince && <p className="us-market__meta">图表及历史比较自 {guide.comparableSince.slice(0, 7)} 新统计口径起算</p>}
       {verdict && <p className="us-market__comment">{verdict.sentence}</p>}
       {shown.length >= 8 ? <HistoryChart points={shown} label={item.name} format={fmt} />
-        : r.history.length >= 8 ? <p className="us-market__meta">所选区间内数据太少，可切换到更长的历史区间。</p>
+        : comparable.length >= 8 ? <p className="us-market__meta">所选区间内数据太少，可切换到更长的历史区间。</p>
           : <>
-            {r.history.length > 1 && <ol className="us-market__recent" aria-label={`${item.name}最近几期`}>
-              {r.history.slice(-6).map(([date, value]) => <li key={date}><time dateTime={date}>{date.slice(2)}</time><span>{fmt(value)}</span></li>)}
+            {comparable.length > 1 && <ol className="us-market__recent" aria-label={`${item.name}最近几期`}>
+              {comparable.slice(-6).map(([date, value]) => <li key={date}><time dateTime={date}>{date.slice(2)}</time><span>{fmt(value)}</span></li>)}
             </ol>}
-            <p className="us-market__meta">目前只积累了 {r.history.length} 期数据，满 8 期后显示走势图。</p>
+            <p className="us-market__meta">当前可比数据共 {comparable.length} 期，满 8 期后显示走势图。</p>
           </>}
       <div className="us-market__meta"><time dateTime={last[0]}>{last[0]}</time><span>{r.frequency} · {state}{r.refreshError ? ' · 本次未能复核' : ''}</span></div>
       <details>
         <summary>这是什么 · 口径与来源</summary>
+        <p>本期观测 {last[0]} · 可比历史 {comparable.length} 期{verdict?.basis ? ` · 判定依据 ${verdict.basis}` : ''}</p>
         {guide && <p><strong>这是什么：</strong>{guide.what}</p>}
         <p><strong>口径：</strong>{r.scope}</p>
         {previous && <p>较上次 {previous[0]} {signed(last[1] - previous[1], r.unit === '%' ? ' 个百分点' : r.unit)}</p>}

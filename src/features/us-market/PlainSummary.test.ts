@@ -16,12 +16,22 @@ describe('judge', () => {
     expect(result.votes.filter(vote => vote.counted)).toHaveLength(1)
   })
 
-  it('counts readings past their publication lag at half weight', () => {
+  it('keeps readings outside their publication window for historical reference only', () => {
     const fresh = judge(question([item('managerCash', 3)]), asOf)
     const stale = judge(question([item('managerCash', 3, '2026-06-30')]), asOf)
     expect(fresh.score).toBe(-2)
-    expect(stale.score).toBe(-1)
+    expect(stale.score).toBe(0)
+    expect(stale.families).toBe(0)
+    expect(stale.votes[0].counted).toBe(false)
     expect(stale.stale).toBe(1)
+  })
+
+  it('excludes future observations and not-yet-published readings', () => {
+    const pending = item('managerCash', 3)
+    pending.reading!.releasedAt = '2026-11-21'
+    const result = judge(question([pending, item('retailCash', 10, '2026-12-01')]), asOf)
+    expect(result.families).toBe(0)
+    expect(result.votes.every(vote => !vote.counted)).toBe(true)
   })
 
   it('reports missing data instead of a neutral verdict', () => {

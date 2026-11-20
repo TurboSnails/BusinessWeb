@@ -50,3 +50,10 @@ it('withinYears keeps the trailing window', () => {
   expect(withinYears(history, 1).length).toBe(13)
   expect(withinYears(history, null)).toBe(history)
 })
+
+it('不把 M1 口径调整前的历史纳入新口径分位', () => {
+  const legacy = monthly(Array.from({ length: 48 }, (_, i) => i)).filter(([date]) => date < '2025-01-01')
+  const guide = { ...GUIDES.marginGdp, comparableSince: '2025-01-01' }
+  const result = assess(reading([...legacy, ['2026-10-31', 5]]), guide)
+  expect(result?.percentile).toBeUndefined()
+})
