@@ -141,3 +141,10 @@
 .us-plain__question li.is-folded { opacity: .55; }
 .us-chart__grid { stroke: var(--border-subtle); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .us-chart__tick { fill: var(--text-secondary); font-size: 8px; opacity: .85; }
+
+.us-market__sector-pe { margin: 1rem 0; }
+.us-market__sector-pe h3 { margin: 0 0 .25rem; font-size: 1rem; }
+.us-market__sector-pe h3 small { margin-left: .5rem; font-weight: 400; color: var(--muted, #6b7280); }
+.us-market__sector-pe-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: .5rem 1rem; margin: .5rem 0; }
+.us-market__sector-pe-stats dt { font-size: .8rem; color: var(--muted, #6b7280); }
+.us-market__sector-pe-stats dd { margin: 0; font-weight: 600; }

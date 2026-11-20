@@ -7,10 +7,18 @@ import type { Breadth, MarketSlice, Reading } from './model'
 export const FILES = {
   rates: 'us-equity-bond-spread.json', macro: 'macro-us.json', cycle: 'market-cycle.json', auto: 'market-cycle-auto.json',
   indexes: 'index-history.json', public: 'us-market-data.json', slices: 'us-market-slices.json', breadth: 'us-market-breadth.json',
+  sectorPe: 'us-sector-forward-pe.json',
 }
-export const FEED_FIELDS = { rates: 'latestReal', macro: 'series', cycle: 'markets', auto: 'facts', indexes: 'indexes', public: 'series', slices: 'slices', breadth: 'breadth' } as const
+export const FEED_FIELDS = { rates: 'latestReal', macro: 'series', cycle: 'markets', auto: 'facts', indexes: 'indexes', public: 'series', slices: 'slices', breadth: 'breadth', sectorPe: 'sectors' } as const
 export type Feed = keyof typeof FILES
 type YieldPoint = { date: string; value: number }
+export interface SectorForwardPe {
+  id: string; ticker: string; etf: string; name: string; historyStarts: string
+  manual?: { count: number; from: string; to: string; upstreamLast?: string }
+  latest: { date: string; value: number }
+  stats: { count: number; mean: number; median: number; percentile?: number; high: { date: string; value: number }; low: { date: string; value: number } }
+  history: [string, number][]
+}
 export interface Snapshots {
   rates?: { generatedAt: string; latestReal?: YieldPoint; latestYield?: YieldPoint }
   macro?: MacroSnapshot
@@ -20,6 +28,7 @@ export interface Snapshots {
   public?: { series: Record<string, Reading>; warnings?: string[] }
   slices?: { slices: MarketSlice[]; shortSessions?: string[] }
   breadth?: { breadth: Record<string, Breadth> }
+  sectorPe?: { generatedAt: string; source: string; sourceUrl: string; sectors: Record<string, SectorForwardPe> }
 }
 
 function mergeRecords<T>(previous: Record<string, T> | undefined, incoming: Record<string, T>, date: (item: T) => string | undefined): Record<string, T> {
@@ -49,6 +58,7 @@ export function mergeSnapshots(old: Snapshots, next: Snapshots): Snapshots {
     public: next.public && { ...next.public, series: mergeRecords(old.public?.series, next.public.series, latest) } || old.public,
     slices: next.slices && { ...old.slices, ...next.slices, slices: Object.values(mergeRecords(oldSlices, newSlices, latest)) } || old.slices,
     breadth: next.breadth && { breadth: mergeRecords(old.breadth?.breadth, next.breadth.breadth, row => row?.date) } || old.breadth,
+    sectorPe: fit(old.sectorPe, next.sectorPe),
   }
 }
 

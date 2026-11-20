@@ -13,6 +13,7 @@ import HistoryChart from './HistoryChart'
 import { format, MarketCard, RANGES, route, signed, val, type Item, type RangeId } from './cards'
 import PlainSummary, { type Question } from './PlainSummary'
 import RelativePerformance from '../us-market/RelativePerformance'
+import SectorForwardPe, { OwnForwardPe } from './SectorForwardPe'
 import WeeklyMarketBrief, { type BriefSignal } from './WeeklyMarketBrief'
 import './us-market.css'
 
@@ -313,6 +314,10 @@ export default function UsMarketView() {
         <p className="us-market__stance-help">这是看“最近一周”的趋势判断：上涨的股票是否变多、上涨时有没有放量、垃圾债利差是否收窄。三者都改善才算“修复证据增强”；股票变少且利差走阔则是“防守压力上升”。</p>
       </div>}
     </header>
+    {slice?.group === 'sector' && snap.sectorPe?.sectors[slice.id] && <SectorForwardPe sector={snap.sectorPe.sectors[slice.id]} years={years} asOf={asOf}
+      current={sectorValuation?.reading && { date: sectorValuation.reading.history.at(-1)![0], value: sectorValuation.reading.history.at(-1)![1] }} />}
+    {slice?.group === 'sector' && !snap.sectorPe?.sectors[slice.id] && slice.valuation?.history && <OwnForwardPe name={slice.name} history={slice.valuation.history}
+      source={slice.valuation.source} scope={slice.valuation.scope} years={years} />}
     <RelativePerformance market="us" slices={all} asOf={asOf} />
     <div className="us-market__grid">
       {group !== 'participants' && <>

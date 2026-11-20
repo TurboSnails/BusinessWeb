@@ -35,12 +35,15 @@ jobs:
       - name: US spread (S&P 500)
         continue-on-error: true
         run: node scripts/us-equity-bond-spread-snapshot.mjs
+      - name: US sector forward P/E history
+        continue-on-error: true
+        run: node scripts/us-sector-forward-pe-snapshot.mjs
       - name: Commit updated spreads
         id: commit
         shell: bash
         run: |
           set -euo pipefail
-          git add public/data/equity-bond-spread.json public/data/us-equity-bond-spread.json
+          git add public/data/equity-bond-spread.json public/data/us-equity-bond-spread.json public/data/us-sector-forward-pe.json
           if git diff --cached --quiet; then
             echo 'changed=false' >> "$GITHUB_OUTPUT"
             exit 0
