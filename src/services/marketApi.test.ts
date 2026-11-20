@@ -112,6 +112,17 @@ describe('restricted market APIs', () => {
     const rejected = response(); await handleMarket({ method: 'GET', query: { kind: 'quotes', symbols: 'r_hk00700&x=1' } }, rejected)
     expect(rejected.statusCode).toBe(400)
   })
+  it('允许港股指数字母代码（观察盘恒指/恒科/国企），仍拒绝小写或超长代码', async () => {
+    const f = vi.fn(async (_url: string) => new Response('v_r_hkHSI=""')); vi.stubGlobal('fetch', f)
+    const res = response()
+    await handleMarket({ method: 'GET', query: { kind: 'quotes', symbols: 'r_hkHSI,r_hkHSTECH,r_hkHSCEI' } }, res)
+    expect(res.statusCode).toBe(200)
+    expect(f.mock.calls[0][0]).toBe('https://qt.gtimg.cn/q=r_hkHSI,r_hkHSTECH,r_hkHSCEI')
+    for (const symbols of ['r_hkhsi', 'r_hkABCDEFGHI', 'r_hkHSI1']) {
+      const rejected = response(); await handleMarket({ method: 'GET', query: { kind: 'quotes', symbols } }, rejected)
+      expect(rejected.statusCode).toBe(400)
+    }
+  })
   it('港股日线：只接受 hk + 五位代码，转发腾讯前复权日线并缓存 5 分钟', async () => {
     const data = { code: 0, data: { hk00700: { day: [['2026-10-02', '422.000', '421.200', '425.000', '419.800', '19108045.000', { cqr: '2026-10-02' }]] } } }
     const f = vi.fn(async (_url: string) => new Response(JSON.stringify(data))); vi.stubGlobal('fetch', f)

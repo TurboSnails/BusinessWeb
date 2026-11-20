@@ -8,7 +8,7 @@ import { stageFromSnapshot, type MacroSnapshot } from '../features/macro/indicat
 import type { DailySnapshot } from '../features/daily-analysis/types'
 
 const mocks = vi.hoisted(() => ({ market: vi.fn(), daily: vi.fn() }))
-vi.mock('../services/api', () => ({ fetchMarketDataByType: mocks.market }))
+vi.mock('../services/indexQuotes', () => ({ fetchIndexQuotes: mocks.market }))
 vi.mock('../features/daily-analysis/data', () => ({ loadDailySnapshots: () => [], loadDailyAnalysis: mocks.daily }))
 
 const series = (value: number, date = '2026-10-08') => ({ unit: '', latest: { date, value }, history: [] })
@@ -27,10 +27,11 @@ const snapshot: DailySnapshot = {
 beforeEach(() => {
   localStorage.clear()
   vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => macro }) as unknown as Response))
-  mocks.market.mockImplementation(async (type: string) => ({
-    us: [{ symbol: '^GSPC', name: '标普500', price: 6500, change: 30, changePercent: 0.5 }, { symbol: '^VIX', name: 'VIX恐慌', price: 15, change: -1, changePercent: -6.2 }],
-    cn: [{ symbol: 'sh000001', name: '上证指数', price: 3800, change: -20, changePercent: -0.52 }],
-  } as Record<string, unknown[]>)[type] ?? [])
+  const quotes: Record<string, unknown> = {
+    usINX: { symbol: 'usINX', name: '标普500', price: 6500, changePercent: 0.5, quoteTime: '2026-10-09 16:00' },
+    sh000001: { symbol: 'sh000001', name: '上证指数', price: 3800, changePercent: -0.52, quoteTime: '2026-10-12 15:00' },
+  }
+  mocks.market.mockImplementation(async (items: Array<{ symbol: string }>) => items.flatMap(i => quotes[i.symbol] ? [quotes[i.symbol]] : []))
   mocks.daily.mockResolvedValue({ snapshots: [snapshot], liveError: null })
 })
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.clearAllMocks() })
@@ -49,6 +50,8 @@ describe('观察盘', () => {
     expect(within(markets).getByText('+0.50%').className).toContain('is-green') // 美股绿涨
     expect(within(markets).getByText('-0.52%').className).toContain('is-green') // A股绿跌
     expect(within(markets).getByRole('link', { name: /热力图与走势/ }).getAttribute('href')).toBe('/pulse')
+    expect(within(markets).getByText('行情 10-09 16:00')).toBeTruthy() // 标出行情时间，休市时不误当作当下价格
+    expect(mocks.market.mock.calls.map(c => (c[0] as Array<{ symbol: string }>).map(i => i.symbol))).toContainEqual(['r_hkHSI', 'r_hkHSTECH', 'r_hkHSCEI'])
 
     const ashare = screen.getByRole('region', { name: 'A股情绪' })
     await waitFor(() => expect(within(ashare).getByText('交易日 2026-10-12')).toBeTruthy())

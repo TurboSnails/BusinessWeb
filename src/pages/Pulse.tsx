@@ -105,7 +105,6 @@ export default function Pulse({ view = 'market', notice }: { view?: 'market' | '
 
         if (mounted) {
           console.log('所有分类数据:', results)
-          console.log('筛选条件:', Array.from(filterCategories))
           setCategories(results)
           setSectorCategories([...cnSectors, ...usSectors])  // 合并中国和美股板块
           setTimestamp(new Date().toLocaleString('zh-CN'))
@@ -118,9 +117,11 @@ export default function Pulse({ view = 'market', notice }: { view?: 'market' | '
         }
       }
     }
-    fetchAllData()
+    // 行情分类只在「每日分析 · 历史旧版」标签里显示；全球行情页不渲染它们，不必发请求
+    if (view === 'analysis') fetchAllData()
+    else setLoading(false)
     return () => { mounted = false }
-  }, [])
+  }, [view])
 
   // 保存复盘数据
   const handleSaveReview = () => {
