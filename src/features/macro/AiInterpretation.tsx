@@ -67,11 +67,11 @@ export default function AiInterpretation({ us, cn, onRefresh }: Snapshots & { on
   const stop = useRef<(() => void) | null>(null)
   const asOf = us.fetchedAt?.slice(0, 10) ?? us.generatedAt
 
-  async function connect(): Promise<void> {
+  async function connect(launch = true): Promise<void> {
     setError('')
-    if (hostedPage) setBridge({ kind: 'starting' })
+    if (hostedPage && launch) setBridge({ kind: 'starting' })
     try {
-      const health = await connectValuation()
+      const health = await connectValuation({ launch })
       setBridge(null)
       setOutdated(!health.features?.includes('macro-interpret'))
       setBridgeVersion(health.bridgeVersion ?? null)
@@ -85,7 +85,8 @@ export default function AiInterpretation({ us, cn, onRefresh }: Snapshots & { on
       if (store.get(JOB_KEY)) { setBusy(false); setStatus('本地服务未连接，连接后会接着显示之前的解读进度') }
     }
   }
-  useEffect(() => { void connect(); return () => stop.current?.() }, [])
+  // 打开页面只探测本地服务，不唤起协议（浏览器会拦截无手势唤起）；点「重新连接」才唤起
+  useEffect(() => { void connect(false); return () => stop.current?.() }, [])
   useEffect(() => {
     if (!busy) return
     const timer = setInterval(() => setNow(Date.now()), 1000)

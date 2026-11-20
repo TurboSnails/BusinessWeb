@@ -137,11 +137,11 @@ export default function Valuation() {
     clearRunning();
     saveLast(value);
   }
-  async function connect() {
+  async function connect(launch = true) {
     setError("");
-    if (hostedPage) setBridge({ kind: "starting" });
+    if (hostedPage && launch) setBridge({ kind: "starting" });
     try {
-      const health = await connectValuation();
+      const health = await connectValuation({ launch });
       setBridgeVersion(health.bridgeVersion ?? null);
       setBridge(null);
       const list = await fetchBackends();
@@ -166,7 +166,7 @@ export default function Valuation() {
     }
   }
   useEffect(() => {
-    void connect();
+    void connect(false);
     return () => stop.current?.();
   }, []);
   useEffect(() => {
@@ -349,7 +349,7 @@ export default function Valuation() {
                 </p>
               )}
               <div className="valuation-fallback">
-                <button onClick={connect}>
+                <button onClick={() => void connect()}>
                   <RefreshCw size={14} />
                   重新连接
                 </button>
