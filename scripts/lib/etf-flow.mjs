@@ -1,5 +1,7 @@
 // ETF 资金净流入：同花顺行情 gateway「全市场 ETF 申购净流入」历史序列 + 上证指数日 K。
 // 口径来自公开 H5（sjdp_etf_capital）；本站重写采集与展示，不连朋友服务。
+export { kpiOf } from '../../src/features/etf-flow/model.ts'
+
 const UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 Mobile Safari/604.1'
 const DAY = 86400
 
@@ -33,6 +35,12 @@ export function secToBeijingDate(sec) {
 
 export const toYi = yuan => Number((yuan / 1e8).toFixed(2))
 
+function feedNumber(raw) {
+  if (typeof raw !== 'number' && (typeof raw !== 'string' || !raw.trim())) return null
+  const value = Number(raw)
+  return Number.isFinite(value) ? value : null
+}
+
 export function parseFlowGateway(json) {
   if (json?.status_code !== 0) return []
   const tr = json?.data?.time_range
@@ -40,10 +48,10 @@ export function parseFlowGateway(json) {
   if (!Array.isArray(tr) || !Array.isArray(vals)) return []
   const out = []
   for (let i = 0; i < tr.length; i += 1) {
-    const sec = Number(tr[i])
-    if (!Number.isFinite(sec)) continue
-    const v = vals[i]
-    out.push({ date: secToBeijingDate(sec), yuan: v == null ? null : Number(v) })
+    const sec = feedNumber(tr[i])
+    if (sec === null || sec <= 0 || !Number.isFinite(new Date((sec + 8 * 3600) * 1000).getTime())) continue
+    const v = feedNumber(vals[i])
+    out.push({ date: secToBeijingDate(sec), yuan: v })
   }
   return out
 }
@@ -53,30 +61,21 @@ export function parseSinaKline(rows) {
   for (const r of Array.isArray(rows) ? rows : []) {
     const day = String(r?.day ?? '').slice(0, 10)
     const close = Number(r?.close)
-    if (day && close > 0) m.set(day, close)
+    if (day && Number.isFinite(close) && close > 0) m.set(day, close)
   }
   return m
 }
 
 export function mergeSeries(allRows, broadRows = [], indexMap = new Map()) {
-  const broadByDate = new Map(broadRows.filter(r => r.yuan != null).map(r => [r.date, toYi(r.yuan)]))
-  return allRows
-    .filter(r => r.yuan != null)
-    .map(r => ({
-      date: r.date,
-      flow_all: toYi(r.yuan),
-      flow_broad: broadByDate.has(r.date) ? broadByDate.get(r.date) : null,
-      index: indexMap.get(r.date) ?? null,
-    }))
-}
-
-export function cumulative(values, n) {
-  return values.slice(-n).reduce((s, v) => s + (Number.isFinite(v) ? v : 0), 0)
-}
-
-export function kpiOf(series, key) {
-  const vals = series.map(s => s[key]).filter(v => v != null)
-  return { yesterday: series.at(-1)?.[key] ?? 0, cum60: Number(cumulative(vals, 60).toFixed(2)) }
+  const byDate = rows => new Map(rows.map(r => [r.date, r.yuan == null ? null : toYi(r.yuan)]))
+  const all = byDate(allRows)
+  const broad = byDate(broadRows)
+  return [...new Set([...all.keys(), ...broad.keys()])].sort().map(date => ({
+    date,
+    flow_all: all.get(date) ?? null,
+    flow_broad: broad.get(date) ?? null,
+    index: indexMap.get(date) ?? null,
+  }))
 }
 
 const FLOW_CODE = '48%3A883957'

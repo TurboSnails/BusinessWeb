@@ -2,7 +2,7 @@
 // 用法：node scripts/etf-flow-snapshot.mjs [startDate=2014-01-01]
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { writeJsonIfChanged } from './lib/json-io.mjs'
+import { readJson, writeJsonIfChanged } from './lib/json-io.mjs'
 import {
   fetchFlowHistory, fetchIndexHistory, mergeSeries, kpiOf, FLOW_INDEX_ALL, FLOW_INDEX_BROAD,
 } from './lib/etf-flow.mjs'
@@ -29,7 +29,7 @@ export async function runSnapshot({
     log(`${today} 资金接口不可用（${error.message}），跳过`)
     return { written: false, reason: '资金接口不可用' }
   }
-  if (allRows.length === 0) {
+  if (!allRows.some(row => Number.isFinite(row.yuan))) {
     log(`${today} 资金序列为空，跳过`)
     return { written: false, reason: '资金序列为空' }
   }
@@ -40,7 +40,20 @@ export async function runSnapshot({
   let indexMap = new Map()
   try { indexMap = await indexFn({ fetchImpl }) } catch { indexMap = new Map() }
 
-  const series = mergeSeries(allRows, broadRows, indexMap)
+  const previous = readJson(outFile, null)
+  const archive = new Map((previous?.sample ? [] : previous?.series ?? []).map(row => [row.date, row]))
+  const allDates = new Set(allRows.map(row => row.date))
+  const broadDates = new Set(broadRows.map(row => row.date))
+  for (const row of mergeSeries(allRows, broadRows, indexMap)) {
+    const prior = archive.get(row.date)
+    if (prior) {
+      if (!allDates.has(row.date)) row.flow_all = prior.flow_all
+      if (!broadDates.has(row.date)) row.flow_broad = prior.flow_broad
+      if (!indexMap.has(row.date)) row.index = prior.index
+    }
+    archive.set(row.date, row)
+  }
+  const series = [...archive.values()].sort((a, b) => a.date.localeCompare(b.date))
   const data = {
     updated: new Date().toISOString(),
     note: NOTE,
@@ -49,7 +62,7 @@ export async function runSnapshot({
     kpi: { all: kpiOf(series, 'flow_all'), broad: kpiOf(series, 'flow_broad') },
   }
   const changed = writeJsonIfChanged(outFile, data, { pretty: true })
-  log(`${today} 全A昨日=${series.at(-1)?.flow_all}亿 近60=${data.kpi.all.cum60}亿 series=${series.length} ${changed ? '已写' : '无变化'}`)
+  log(`${today} 全A记录日=${series.at(-1)?.date} 净流入=${series.at(-1)?.flow_all}亿 近60=${data.kpi.all.cum60}亿 series=${series.length} ${changed ? '已写' : '无变化'}`)
   return { written: true }
 }
 
