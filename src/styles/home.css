@@ -163,13 +163,39 @@
 }
 
 .home-tool__desc {
-  display: -webkit-box;
-  overflow: hidden;
   color: var(--text-secondary);
   font-size: 0.8125rem;
   line-height: 1.55;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+}
+
+.home-orient {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+  margin: 0 0 20px;
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+
+.home .home-orient__start {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  padding: 0 4px;
+  color: var(--accent-ink);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.home .home-orient__start:hover {
+  text-decoration: underline;
+}
+
+.home-plan .ip-summary {
+  margin: 0;
 }
 
 .home-personal {
@@ -503,7 +529,7 @@
   }
 
   .home-tool__desc {
-    display: none;
+    display: block;
   }
 
   .home-recent {

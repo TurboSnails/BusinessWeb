@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { markAlertSeen, mergeCandidates, moveCandidate, readCloud, setCandidateAlert, setCandidateNote, snoozeAlert, toggleCandidate, writeCloud } from './store'
+import { loadLocal, markAlertSeen, mergeCandidates, moveCandidate, readCloud, saveLocal, setCandidateAlert, setCandidateNote, snoozeAlert, toggleCandidate, writeCloud } from './store'
 import { validCandidatesPayload } from './validation'
 import type { CandidateAlertRule, CandidateItem } from './validation'
 
@@ -64,6 +64,22 @@ describe('payload validation', () => {
     expect(validCandidatesPayload({ schemaVersion: 1, items: [item('A'), item('A')] })).toBe(false)
     expect(validCandidatesPayload({ schemaVersion: 1, items: [{ ...item('A'), market: 'jp' }] })).toBe(false)
     expect(validCandidatesPayload({ schemaVersion: 1, items: [{ ...item('A'), x: 1 }] })).toBe(false)
+  })
+})
+
+describe('local persistence', () => {
+  it('setItem 抛 QuotaExceededError 时报告失败，旧数据仍可读；恢复后可重试', () => {
+    const previous = [item('OLD')]
+    const next = [...previous, item('NEW')]
+    saveLocal(previous)
+    const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new DOMException('quota', 'QuotaExceededError')
+    })
+    expect(saveLocal(next)).toBe(false)
+    expect(loadLocal()).toEqual(previous)
+    setItem.mockRestore()
+    expect(saveLocal(next)).toBe(true)
+    expect(loadLocal()).toEqual(next)
   })
 })
 

@@ -4,13 +4,16 @@ import type { CloudError } from './store'
 import type { CandidateAlertRule, CandidateItem, CandidateMarket, DecisionRecord } from './validation'
 
 export type SyncState = 'no-token' | 'syncing' | 'synced' | 'error'
+export type CandidateWriteResult = { localSaved: boolean; cloudError: CloudError | null }
+const LOCAL_SAVE_ERROR = '本次修改未保存到本机；当前内容仅保留在本页，刷新可能丢失，请恢复浏览器存储后重试。'
 
-// 本机先写入（立即可见），有 token 时再同步到云端；写入串行化，版本冲突时用云端最新数据覆盖本机并提示。
+// 本机先尝试写入（内存立即可见），有 token 时再同步到云端；写入串行化，版本冲突时用云端最新数据覆盖本机并提示。
 export function useCandidates(enabled: boolean) {
   const [items, setItems] = useState<CandidateItem[]>(loadLocal)
   const [token, setToken] = useState<string | null>(loadToken)
   const [state, setState] = useState<SyncState>(token ? 'syncing' : 'no-token')
   const [message, setMessage] = useState('')
+  const [localError, setLocalError] = useState('')
   const itemsRef = useRef(items)
   const revision = useRef<number | null>(null)
   const queue = useRef<Promise<void>>(Promise.resolve())
@@ -19,9 +22,15 @@ export function useCandidates(enabled: boolean) {
   const fail = useCallback((e: unknown): void => {
     const err = e as CloudError
     if (err?.kind === 'auth') { clearToken(); setToken(null); setState('no-token'); setMessage('Token 无效，请重新输入'); return }
-    setState('error'); setMessage(err?.message ?? '同步失败，数据仅保存在本机')
+    setState('error'); setMessage(err?.message ?? '同步失败')
   }, [])
-  const apply = (next: CandidateItem[]): void => { itemsRef.current = next; setItems(next); saveLocal(next) }
+  const apply = (next: CandidateItem[]): boolean => {
+    itemsRef.current = next
+    setItems(next)
+    const saved = saveLocal(next)
+    setLocalError(saved ? '' : LOCAL_SAVE_ERROR)
+    return saved
+  }
 
   // 拉取云端并与本机合并；首次连接（revision 未知）时把本机独有项补传
   const pull = useCallback((tk: string): Promise<void> => {
@@ -43,11 +52,11 @@ export function useCandidates(enabled: boolean) {
 
   useEffect(() => { if (enabled && token) void pull(token) }, [enabled, token, pull])
 
-  // 返回这次云端写入的结果：null 为成功或仅本机保存，否则为错误（本机已写入；冲突时已换成云端最新数据）
-  const push = (next: CandidateItem[]): Promise<CloudError | null> => {
-    apply(next)
+  // 本机与云端结果分开返回；冲突时仍会换成云端最新数据，调用方不能把这次操作报为成功。
+  const push = (next: CandidateItem[]): Promise<CandidateWriteResult> => {
+    const localSaved = apply(next)
     const tk = token
-    if (!tk) return Promise.resolve(null)
+    if (!tk) return Promise.resolve({ localSaved, cloudError: null })
     let result: CloudError | null = null
     queue.current = queue.current.then(async () => {
       if (revision.current === null) return
@@ -63,32 +72,47 @@ export function useCandidates(enabled: boolean) {
         } else fail(e)
       }
     })
-    return queue.current.then(() => result)
+    return queue.current.then(() => ({ localSaved, cloudError: result }))
+  }
+
+  const toggleWithResult = (market: CandidateMarket, code: string): Promise<CandidateWriteResult> => {
+    const next = toggleCandidate(itemsRef.current, market, code)
+    if (next === itemsRef.current) {
+      setMessage('这家公司已有决策记录，如需移除请到候选池操作')
+      return Promise.resolve({ localSaved: true, cloudError: null })
+    }
+    return push(next)
   }
 
   return {
-    items, state, message,
-    toggle: (market: CandidateMarket, code: string): void => {
-      const next = toggleCandidate(itemsRef.current, market, code)
-      if (next === itemsRef.current) { setMessage('这家公司已有决策记录，如需移除请到候选池操作'); return }
-      void push(next)
-    },
-    remove: (market: CandidateMarket, code: string): void => void push(removeCandidate(itemsRef.current, market, code)),
-    addDecision: (market: CandidateMarket, code: string, record: DecisionRecord): void => void push(addDecision(itemsRef.current, market, code, record)),
-    /** 保存或删除价位提醒。规则不合规、或云端冲突（本机已换成云端最新）时抛错，调用方保留输入；其他云端失败只提示，本机已保存 */
+    items, state, message, localError,
+    toggle: (market: CandidateMarket, code: string): void => { void toggleWithResult(market, code) },
+    toggleWithResult,
+    remove: (market: CandidateMarket, code: string): Promise<CandidateWriteResult> => push(removeCandidate(itemsRef.current, market, code)),
+    addDecision: (market: CandidateMarket, code: string, record: DecisionRecord): Promise<CandidateWriteResult> => push(addDecision(itemsRef.current, market, code, record)),
+    /** 本机或云端任一失败都保留输入并返回错误；云端冲突仍会换成最新数据 */
     setAlert: async (market: CandidateMarket, code: string, alert: CandidateAlertRule | undefined): Promise<{ synced: boolean; message?: string }> => {
       const next = setCandidateAlert(itemsRef.current, market, code, alert)
       if (next === itemsRef.current) throw new Error('提醒设置无效，请检查条件价')
-      const err = await push(next)
-      if (err?.kind === 'conflict') throw new Error('其他设备刚更新了候选池，已刷新为最新，请再保存一次')
-      return err ? { synced: false, message: `已保存在本机，云端同步失败：${err.message}` } : { synced: true }
+      const { localSaved, cloudError } = await push(next)
+      if (cloudError?.kind === 'conflict') throw new Error('其他设备刚更新了候选池，已刷新为最新，请再保存一次')
+      const problems = [
+        !localSaved && LOCAL_SAVE_ERROR,
+        cloudError && `${localSaved ? '已保存在本机；' : ''}云端同步失败：${cloudError.message}`,
+      ].filter(Boolean)
+      return problems.length ? { synced: false, message: problems.join(' ') } : { synced: true }
     },
-    markAlertSeen: (market: CandidateMarket, code: string): void => { void push(markAlertSeen(itemsRef.current, market, code)) },
-    snoozeAlert: (market: CandidateMarket, code: string, until: string): void => { void push(snoozeAlert(itemsRef.current, market, code, until)) },
-    move: (from: number, to: number): void => void push(moveCandidate(itemsRef.current, from, to)),
-    setNote: (market: CandidateMarket, code: string, note: string): void => void push(setCandidateNote(itemsRef.current, market, code, note)),
-    clear: (): void => void push([]),
+    markAlertSeen: (market: CandidateMarket, code: string): Promise<CandidateWriteResult> => push(markAlertSeen(itemsRef.current, market, code)),
+    snoozeAlert: (market: CandidateMarket, code: string, until: string): Promise<CandidateWriteResult> => push(snoozeAlert(itemsRef.current, market, code, until)),
+    move: (from: number, to: number): Promise<CandidateWriteResult> => push(moveCandidate(itemsRef.current, from, to)),
+    setNote: (market: CandidateMarket, code: string, note: string): Promise<CandidateWriteResult> => push(setCandidateNote(itemsRef.current, market, code, note)),
+    clear: (): Promise<CandidateWriteResult> => push([]),
     connect: (value: string): boolean => { if (!saveToken(value)) return false; revision.current = null; setToken(value.trim()); return true },
     retry: (): void => { if (token) void pull(token) },
+    retryLocal: (): boolean => {
+      const saved = saveLocal(itemsRef.current)
+      setLocalError(saved ? '' : LOCAL_SAVE_ERROR)
+      return saved
+    },
   }
 }

@@ -46,7 +46,7 @@ import { useCandidates } from '../features/candidates/useCandidates'
 import ResearchNotice from '../components/research/ResearchNotice'
 import ResearchMethod from '../features/research-method/ResearchMethod'
 import { NDX_CODES, NDX_ASOF } from '../data/ndx100'
-import { Page, PageDataFreshness, Stat, TableWrap } from '../components/ui'
+import { Callout, Page, PageDataFreshness, Stat, TableWrap } from '../components/ui'
 import '../styles/research.css'
 
 type TabId = 'companies' | 'pool' | 'watch' | 'method' | 'notes'
@@ -93,11 +93,11 @@ export default function ResearchNotes(): JSX.Element {
   const inCategory = activeTab === 'companies'
   // 只加载当前市场需要的数据：纳指页签由美股 + ADR + 纳指新增三部分拼成
   const needs = (m: Market): boolean => inCategory && (catMarket === m || (catMarket === 'ndx' && (m === 'us' || m === 'adr')))
-  const { list: usList, loading: usLoading } = useCompanies('us', needs('us'))
-  const { list: cnList, loading: cnLoading } = useCompanies('cn', needs('cn'))
-  const { list: hkList, loading: hkLoading } = useCompanies('hk', needs('hk'))
-  const { list: adrList, loading: adrLoading } = useCompanies('adr', needs('adr'))
-  const { list: ndxNewList, loading: ndxNewLoading } = useCompanies('ndx', needs('ndx'))
+  const { list: usList, loading: usLoading, partial: usPartial, retry: usRetry } = useCompanies('us', needs('us'))
+  const { list: cnList, loading: cnLoading, partial: cnPartial, retry: cnRetry } = useCompanies('cn', needs('cn'))
+  const { list: hkList, loading: hkLoading, partial: hkPartial, retry: hkRetry } = useCompanies('hk', needs('hk'))
+  const { list: adrList, loading: adrLoading, partial: adrPartial, retry: adrRetry } = useCompanies('adr', needs('adr'))
+  const { list: ndxNewList, loading: ndxNewLoading, partial: ndxPartial, retry: ndxRetry } = useCompanies('ndx', needs('ndx'))
   const lynch = useLynch(inCategory)
   const cand = useCandidates(inCategory)
   const tools = useToolSources()
@@ -193,6 +193,15 @@ export default function ResearchNotes(): JSX.Element {
   const ndxLoading = usLoading || adrLoading || ndxNewLoading
   const progList = catMarket === 'cn' ? cnList : catMarket === 'hk' ? hkList : catMarket === 'adr' ? adrList : catMarket === 'ndx' ? ndxList : usList
   const combinedLoading = catMarket === 'cn' ? cnLoading : catMarket === 'hk' ? hkLoading : catMarket === 'adr' ? adrLoading : catMarket === 'ndx' ? ndxLoading : usLoading
+  // 程序化补全 JSON 失败时只剩手工研究页：提示名单不完整，计数不能称完整
+  const progPartial = catMarket === 'cn' ? cnPartial : catMarket === 'hk' ? hkPartial : catMarket === 'adr' ? adrPartial : catMarket === 'ndx' ? (usPartial || adrPartial || ndxPartial) : usPartial
+  const retryProg = (): void => {
+    if (catMarket === 'cn') cnRetry()
+    else if (catMarket === 'hk') hkRetry()
+    else if (catMarket === 'adr') adrRetry()
+    else if (catMarket === 'ndx') { if (usPartial) usRetry(); if (adrPartial) adrRetry(); if (ndxPartial) ndxRetry() }
+    else usRetry()
+  }
   const progSectors = sectorsOf(progList)
   // 板块统一为 GICS / 中证一级后，ADR 地域分组与 A 股主题单列一排筛选，不再混在板块里
   const groupOf = (c: Company): string | undefined => c.region ?? c.theme
@@ -252,7 +261,7 @@ export default function ResearchNotes(): JSX.Element {
   const chip = (on: boolean): string => (on ? 'ui-chip is-active' : 'ui-chip')
   const emptyHint = (n: number): React.ReactNode => (n === 0 ? (
     <div className="rn-empty">
-      没有符合当前筛选条件的公司。
+      没有符合当前筛选条件的公司{progPartial ? '（部分公司数据暂不可用，结果可能不完整）' : ''}。
       <button type="button" onClick={resetFilters} className="tool-btn tool-btn--primary">清除筛选</button>
     </div>
   ) : null)
@@ -397,8 +406,8 @@ export default function ResearchNotes(): JSX.Element {
           </div>
         </details>
         <div className="rn-result-bar">
-          <p className="rn-result-bar__count" aria-label={`共 ${progList.length} 家，当前 ${shownCompanies.length} 家`}>
-            <span className="rn-result-bar__count-full">共 {progList.length} 家，当前 {shownCompanies.length} 家</span>
+          <p className="rn-result-bar__count" aria-label={`${progPartial ? '已加载' : '共'} ${progList.length} 家${progPartial ? '（部分数据暂不可用）' : ''}，当前 ${shownCompanies.length} 家`}>
+            <span className="rn-result-bar__count-full">{progPartial ? '已加载' : '共'} {progList.length} 家{progPartial ? '（部分数据暂不可用）' : ''}，当前 {shownCompanies.length} 家</span>
             <span className="rn-result-bar__count-short" aria-hidden="true">{shownCompanies.length} / {progList.length} 家</span>
           </p>
           <div className="rn-result-bar__actions rn-export-desktop">
@@ -524,6 +533,13 @@ export default function ResearchNotes(): JSX.Element {
             <p>行情已更新到上述日期；评级与一句话结论来自原研究，模型待逐家复核。具体公司行情日期见公司详情。我的候选池可进估值、DCF、网格；财报前瞻列未来六周公司库财报日与这次要验证的事。</p>
           </details>
         </div>
+      )}
+
+      {activeTab === 'companies' && progPartial && !combinedLoading && (
+        <Callout tone="warn" title="部分公司数据暂不可用" className="rn-partial">
+          程序化补全的公司数据这次没有取到，当前只列出已加载的 {progList.length} 家（手工研究页），不是该市场的完整名单，计数和筛选结果都会偏少。
+          {' '}<button type="button" className="tool-btn" onClick={retryProg}>重试</button>
+        </Callout>
       )}
 
       {/* 内容区 */}

@@ -80,6 +80,13 @@ const NUMERIC_FIELDS = [
 ] as const;
 type NumericField = (typeof NUMERIC_FIELDS)[number];
 
+export function dcfPriceRelation(mos: number | null | undefined): string {
+  if (mos == null || !Number.isFinite(mos)) return "暂不可比";
+  if (mos > 0) return "现价低于模型合理价";
+  if (mos < 0) return "现价高于模型合理价";
+  return "现价等于模型合理价";
+}
+
 interface DcfForm {
   company: string;
   code: string;
@@ -491,17 +498,27 @@ export default function Dcf(): JSX.Element {
             }}
             candidate={candMarket && current ? {
               inPool,
-              onAdd: () => {
-                if (!inPool) cand.toggle(candMarket, current.c);
-                cand.setNote(candMarket, current.c, candidateNote());
-                setCandNotice(`已${inPool ? "更新" : "加入"}候选池：${current.n}。可在“候选池”页查看`);
+              onAdd: async () => {
+                setCandNotice("");
+                if (!inPool) {
+                  const added = await cand.toggleWithResult(candMarket, current.c);
+                  if (added.cloudError?.kind === "conflict") return;
+                }
+                const saved = await cand.setNote(candMarket, current.c, candidateNote());
+                if (saved.localSaved && saved.cloudError?.kind !== "conflict") {
+                  setCandNotice(`已${inPool ? "更新" : "加入"}候选池并保存到本机：${current.n}。可在“候选池”页查看`);
+                }
               },
-              onRemove: () => {
+              onRemove: async () => {
+                setCandNotice("");
                 if (cand.items.some((i) => i.market === candMarket && i.code === current.c && i.decisions?.length)) { setCandNotice(`${current.n} 有决策记录，请到“候选池”页移除`); return; }
-                cand.toggle(candMarket, current.c); setCandNotice(`已从候选池移出：${current.n}`);
+                const removed = await cand.toggleWithResult(candMarket, current.c);
+                if (removed.localSaved && removed.cloudError?.kind !== "conflict") setCandNotice(`已从候选池移出并保存到本机：${current.n}`);
               },
             } : null}
           />
+          {cand.localError && <p className="dcf-error dcf-gap-sm" role="alert">{cand.localError} <button type="button" className="dcf-button dcf-button--ghost" onClick={() => { if (cand.retryLocal()) setCandNotice("候选修改已保存到本机，可在“候选池”页查看"); }}>重试本机保存</button></p>}
+          {cand.message && <p className="dcf-error dcf-gap-sm" role="alert">{cand.message}</p>}
           {candNotice && <p className="dcf-muted dcf-gap-sm" role="status">{candNotice}</p>}
         </section>
       )}
@@ -819,19 +836,9 @@ export default function Dcf(): JSX.Element {
                 result.mos == null ? "" : result.mos > 0 ? "dcf-up" : "dcf-down"
               }
             >
-              {formatSignedPct((result.mos ?? 0) * 100)}
+              {result.mos == null ? "—" : formatSignedPct(result.mos * 100)}
             </strong>
-            {result.verdict && (
-              <span
-                className={
-                  result.verdict === "BUY"
-                    ? "dcf-verdict dcf-verdict--buy"
-                    : "dcf-verdict dcf-verdict--sell"
-                }
-              >
-                {result.verdict}
-              </span>
-            )}
+            <span className="dcf-verdict">{dcfPriceRelation(result.mos)}</span>
           </div>
         </div>
         <div className="dcf-metrics dcf-gap">

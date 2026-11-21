@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { namePinyin, toIndex, serialize } from './build-company-index.mjs'
+import { namePinyin, toIndex, toRefs, serialize } from './build-company-index.mjs'
 
 test('namePinyin：首字母与无声调全拼', () => {
   assert.deepEqual(namePinyin('腾讯控股'), { p: 'txkg', q: 'tengxunkonggu' })
@@ -38,4 +38,18 @@ test('toIndex 只给含汉字的名称加 p/q，输出字节稳定', () => {
     { c: 'ANET', n: 'Arista Networks', m: 'us', s: '信息技术' },
   ])
   assert.equal(serialize(items), serialize(toIndex(rows)))
+})
+
+test('toRefs 保留可靠性布尔值，省略未知值', () => {
+  assert.deepEqual(toRefs([
+    { c: 'NVDA', n: '英伟达', m: 'us', v: false },
+    { c: 'AAPL', n: '苹果', m: 'us', v: true },
+    { c: 'OLD', n: '旧记录', m: 'us' },
+    { c: 'OTHER', n: '非布尔值', m: 'us', v: 'false' },
+  ]), {
+    'us:NVDA': { n: '英伟达', v: false },
+    'us:AAPL': { n: '苹果', v: true },
+    'us:OLD': { n: '旧记录' },
+    'us:OTHER': { n: '非布尔值' },
+  })
 })

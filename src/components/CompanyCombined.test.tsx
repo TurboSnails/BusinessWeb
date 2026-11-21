@@ -99,16 +99,16 @@ it('下载全部JSON不受当前搜索限制，并设置下载文件名', async 
 })
 
 describe('综合分类：DCF 列与筛选', () => {
-  it('每行有 DCF 入口；按本机 DCF 记录筛出已算且安全边际达标的公司', () => {
+  it('每行有 DCF 入口；本人记录缺新鲜现价时保留但不参与当前 MOS 筛选', () => {
     const input = { company: '甲公司', code: '001', market: 'cn', currency: 'CNY', moneyUnit: 'yi', shareUnit: 'yi', baseYear: 2025, baseFcf: 10, growth: 10, perpetualGrowth: 2, discountRate: 10, cash: 0, debt: 0, shares: 10, currentPrice: 5, marketCap: null, beta: null, interestExpense: null, pretaxIncome: null, taxPaid: null, riskFreeRate: null, marketReturn: null, ebitda: null } as DcfSheetInput
     const result = calculateSheetDcf(input)
     const rec = makeDcfRecord(input, { result: { ...result, mos: 0.3 }, wacc: calculateWacc(input), multiples: calculateMultiples(input) })
     localStorage.setItem('businessweb.dcf.v1', JSON.stringify([rec]))
     show([a, b, c])
     expect(screen.getByRole('link', { name: '算 DCF 002' }).getAttribute('href')).toContain('/dcf?')
-    expect(screen.getByRole('link', { name: /DCF 001 我的 安全边际 \+30%/ })).toBeTruthy()
+    expect(screen.getByRole('link', { name: /DCF 001 保存时 安全边际 \+30%/ })).toBeTruthy()
     fireEvent.change(screen.getByRole('combobox', { name: 'DCF' }), { target: { value: 'mos20' } })
-    expect(screen.getByRole('link', { name: '甲公司 001' })).toBeTruthy()
+    expect(screen.queryByRole('link', { name: '甲公司 001' })).toBeNull()
     expect(screen.queryByRole('link', { name: '乙公司 002' })).toBeNull()
     fireEvent.change(screen.getByRole('combobox', { name: 'DCF' }), { target: { value: 'none' } })
     expect(screen.queryByRole('link', { name: '甲公司 001' })).toBeNull()

@@ -95,7 +95,10 @@ export default function StartHere(): JSX.Element {
   }
 
   const firstOpenStep = groups.flatMap(g => g.steps).find(s => !state.steps[s.id]?.checked)
-  const startReview = !planDoc && state.review ? reviewStatus(state.review, today) : null
+  // 计划未接管检查日时，自测检查日仍可见（不可静默隐藏）
+  const orphanStartReview = planDoc && !planDoc.review ? state.review : null
+  const startReviewActive = !planDoc && state.review ? reviewStatus(state.review, today) : null
+  const orphanStartStatus = orphanStartReview ? reviewStatus(orphanStartReview, today) : null
   const planReview = planDoc?.review ? reviewStatus(planDoc.review, today) : null
 
   // 一句话下一步
@@ -118,16 +121,18 @@ export default function StartHere(): JSX.Element {
     }
   } else if (planDoc) {
     if (!planDoc.review) {
-      nextLine = <>已有本页计划，但还没设检查日。<Link to="/invest/my-plan">去我的计划设检查日 →</Link></>
+      nextLine = orphanStartReview
+        ? <>自测页曾保存检查日 {orphanStartReview.anchor}，尚未带入我的计划。<Link to="/invest/my-plan">去我的计划带入 →</Link></>
+        : <>已有本页计划，但还没设检查日。<Link to="/invest/my-plan">去我的计划设检查日 →</Link></>
     } else if (planReview?.due) {
       nextLine = <>检查日 {planReview.due} 已到：先核对用途与记录，再看事先约定条件。<Link to="/invest/my-plan">去我的计划检查 →</Link></>
     } else {
       nextLine = <>下次检查日 {planReview!.next}，还有 {planReview!.daysToNext} 天。{BETWEEN_CHECKS} <Link to="/invest/my-plan">去我的计划 →</Link></>
     }
-  } else if (startReview) {
-    nextLine = startReview.due
-      ? <>检查日 {startReview.due} 已到：先更新金额，再看是否达到事先定的调整条件。<a href="#start-review">去检查 →</a></>
-      : <>下次检查日 {startReview.next}，还有 {startReview.daysToNext} 天。{BETWEEN_CHECKS}</>
+  } else if (startReviewActive) {
+    nextLine = startReviewActive.due
+      ? <>检查日 {startReviewActive.due} 已到：先更新金额，再看是否达到事先定的调整条件。<a href="#start-review">去检查 →</a></>
+      : <>下次检查日 {startReviewActive.next}，还有 {startReviewActive.daysToNext} 天。{BETWEEN_CHECKS}</>
   } else {
     nextLine = firstOpenStep
       ? <>勾选路线清单的下一步：{firstOpenStep.title}。<a href="#start-route">去清单 →</a></>
@@ -261,8 +266,19 @@ export default function StartHere(): JSX.Element {
             </p>
           ) : planSnap.mode === 'corrupt' ? (
             <p>本机计划无法识别；不能回退到本页旧检查日。<Link to="/invest/my-plan">去我的计划处理 →</Link></p>
+          ) : orphanStartReview ? (
+            <p>
+              自测页曾保存检查日 {orphanStartReview.anchor}
+              {orphanStartStatus?.due
+                ? `（已到）`
+                : orphanStartStatus
+                  ? `（下次还有 ${orphanStartStatus.daysToNext} 天）`
+                  : ''}
+              ，尚未带入我的计划；本页不再改这份检查日。
+              <Link to="/invest/my-plan">去我的计划带入 →</Link>
+            </p>
           ) : (
-            <p>已有本页计划，但还没设检查日；不能回退到本页旧检查日。<Link to="/invest/my-plan">去设检查日 →</Link></p>
+            <p>已有本页计划，但还没设检查日。<Link to="/invest/my-plan">去设检查日 →</Link></p>
           )
         ) : (
           <ReviewPanel review={state.review} today={today} onChange={r => update(s => {

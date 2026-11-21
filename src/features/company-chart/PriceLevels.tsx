@@ -29,7 +29,7 @@ function scaleMarks(levels: PriceLevelsModel['levels'], anchor: PriceLevelsModel
   })
 }
 
-export function PriceLevelsView({ model, market, scenariosHref }: { model: PriceLevelsModel; market: Market; scenariosHref?: string }): JSX.Element {
+export function PriceLevelsView({ model, market, scenariosHref, scenarioSource }: { model: PriceLevelsModel; market: Market; scenariosHref?: string; scenarioSource?: string }): JSX.Element {
   const { anchor, levels, scale, skipped } = model
   if (model.state === 'empty') {
     return (
@@ -46,7 +46,7 @@ export function PriceLevelsView({ model, market, scenariosHref }: { model: Price
   return (
     <figure className={`cc-levels${stale ? ' is-stale' : ''}`}>
       <figcaption className="cc-levels__caption">
-        研究价位刻度{anchor ? `：价格锚点 ${fmt(anchor.price)}${anchor.date ? `（${anchor.date}）` : ''}` : '：缺价格锚点，不计算距现价'}
+        研究价位刻度{scenarioSource && levels.some(l => !l.key.startsWith('dcf')) && <span className="cc-levels__source">（三情景：{scenarioSource}）</span>}{anchor ? `：价格锚点 ${fmt(anchor.price)}${anchor.date ? `（${anchor.date}）` : ''}` : '：缺价格锚点，不计算距现价'}
         {stale && anchor && <span className="cc-levels__stale">价格锚点 {anchor.days} 天前，百分比按旧价算</span>}
       </figcaption>
       {scale && (
@@ -79,5 +79,5 @@ export function PriceLevelsView({ model, market, scenariosHref }: { model: Price
 }
 
 export default function PriceLevels({ input, scenariosHref }: { input: PriceLevelsInput; scenariosHref?: string }): JSX.Element {
-  return <PriceLevelsView model={buildPriceLevels(input)} market={input.market} scenariosHref={scenariosHref} />
+  return <PriceLevelsView model={buildPriceLevels(input)} market={input.market} scenariosHref={scenariosHref} scenarioSource={input.scenarioSource} />
 }

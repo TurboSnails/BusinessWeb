@@ -1,5 +1,5 @@
 import React from 'react'
-import { cleanup, render, screen, within } from '@testing-library/react'
+import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import Home from './Home'
@@ -7,10 +7,13 @@ import RecentUpdates from '../components/RecentUpdates'
 import { SITE_UPDATES } from '../data/siteUpdates'
 import { WORKBENCH_TOOLS } from '../data/siteMap'
 import { resetAutoDcf } from '../features/dcf/autoDcf'
+import { resetPlanRepositoryForTests } from '../features/investment-plan/repository'
+import { createEmptyPlan, PLAN_KEYS } from '../features/investment-plan/types'
 
 afterEach(() => {
   cleanup()
   localStorage.clear()
+  resetPlanRepositoryForTests()
   vi.unstubAllGlobals()
 })
 
@@ -113,6 +116,51 @@ describe('Home', () => {
     expect(container.textContent).toContain('从 *** 到目标 400 万')
   })
 
+  it('无计划首访：一行定位 + 明显「从这里开始」；不显示私人计划卡', () => {
+    stubFetch(() => new Promise(() => {}))
+    render(<MemoryRouter><Home /></MemoryRouter>)
+    expect(screen.getByText(/用规则做投资的个人研究站/)).toBeTruthy()
+    const start = screen.getByRole('link', { name: /^从这里开始/ })
+    expect(start.getAttribute('href')).toBe('/invest/start')
+    expect(screen.queryByLabelText('我的计划')).toBeNull()
+    expect(screen.queryByText(/万元|预算|应急金/)).toBeNull()
+  })
+
+  it('有计划：显示下次检查日与待办数，不显示个人金额', () => {
+    const doc = createEmptyPlan('2026-11-14T00:00:00.000Z', 'home-plan')
+    doc.wizard = { nextStep: 4, completed: true, skippedSteps: [1, 2, 3, 4] }
+    doc.review = {
+      id: 'r1',
+      anchor: '2026-12-15',
+      intervalMonths: 6,
+      completedDates: [],
+      calendarSequence: 0,
+      mode: 'calendar-check-band-act',
+    }
+    doc.funding.budgets = {
+      core: { currency: 'CNY', amount: '100000.00' },
+      research: { currency: 'CNY', amount: '20000.00' },
+      reserve: { currency: 'CNY', amount: '30000.00' },
+      confirmedAt: '2026-11-14T00:00:00.000Z',
+    }
+    localStorage.setItem(PLAN_KEYS.document, JSON.stringify(doc))
+    stubFetch(() => new Promise(() => {}))
+    render(<MemoryRouter><Home /></MemoryRouter>)
+    expect(screen.getByText(/下次检查日 2026-12-15|检查日 2026-12-15/)).toBeTruthy()
+    expect(screen.getByText(/待办/)).toBeTruthy()
+    expect(document.body.textContent).not.toMatch(/100000|20000|30000|万元/)
+    expect(screen.queryByText(/用规则做投资的个人研究站/)).toBeNull()
+  })
+
+  it('常用工具说明用短文案，不靠省略号截断长句', () => {
+    stubFetch(() => new Promise(() => {}))
+    render(<MemoryRouter><Home /></MemoryRouter>)
+    for (const t of WORKBENCH_TOOLS) {
+      expect(t.desc.length, t.path).toBeLessThanOrEqual(18)
+      expect(t.desc).not.toMatch(/…|\.\.\./)
+    }
+  })
+
 })
 
 describe('RecentUpdates', () => {
@@ -168,5 +216,84 @@ describe('今日待办', () => {
     render(<MemoryRouter><Home /></MemoryRouter>)
     expect(await screen.findByRole('link', { name: /到期复查 1.*自动 DCF 暂无可用数据/ })).toBeTruthy()
     resetAutoDcf()
+  })
+})
+
+
+describe('今日待办：研究锚点可靠性', () => {
+  const TODAY = new Date().toLocaleDateString('en-CA')
+  const ok = (body: unknown) => ({ ok: true, json: async () => body }) as Response
+  const rule = (type: 'research-bear' | 'manual' | 'dcf-buy-below' = 'research-bear') => ({
+    kind: 'price-below' as const, threshold: 80, currency: 'USD' as const,
+    anchor: { type, value: 80, asOf: TODAY }, enabled: true, createdAt: '2026-01-01T00:00:00.000Z',
+  })
+  const candidate = (code: string, anchor?: 'research-bear' | 'manual' | 'dcf-buy-below') => ({
+    market: 'us', code, addedAt: '2026-01-01T00:00:00.000Z', ...(anchor ? { alert: rule(anchor) } : {}),
+  })
+  const autoBody = (codes: string[]) => ({
+    schemaVersion: 1,
+    items: Object.fromEntries(codes.map(code => [`us:${code}`, [0, 100, null, 'm', 75, 'USD', TODAY, 0]])),
+  })
+  const refsOk = (v?: boolean) => ok({ version: 1, items: { 'us:PEP': { n: '百事', ...(typeof v === 'boolean' ? { v } : {}) } } })
+  const stubData = (codes: string[], refs: () => Promise<unknown>) => {
+    resetAutoDcf()
+    const mock = vi.fn(async (input: unknown) => {
+      const url = String(input)
+      if (url.includes('dcf-auto.json')) return ok(autoBody(codes))
+      if (url.includes('company-refs.json')) return refs()
+      return ok({})
+    })
+    vi.stubGlobal('fetch', mock as unknown as typeof fetch)
+    return mock
+  }
+
+  it.each([false, true])('已知 v=%s 时与候选池门禁一致', async reliable => {
+    localStorage.setItem('rn-candidates', JSON.stringify([candidate('PEP', 'research-bear')]))
+    stubData(['PEP'], async () => refsOk(reliable))
+    render(<MemoryRouter><Home /></MemoryRouter>)
+    expect(screen.getByText(/研究条件价依据读取中/)).toBeTruthy()
+    await waitFor(() => expect(screen.queryByText(/研究条件价依据读取中/)).toBeNull())
+    if (reliable) expect(screen.getByRole('link', { name: /触及条件价 1/ })).toBeTruthy()
+    else expect(screen.queryByRole('link', { name: /触及条件价/ })).toBeNull()
+  })
+
+  it('已有记录缺少可选 v 时暂停命中，并提示依据不完整', async () => {
+    localStorage.setItem('rn-candidates', JSON.stringify([candidate('PEP', 'research-bear')]))
+    stubData(['PEP'], async () => refsOk())
+    render(<MemoryRouter><Home /></MemoryRouter>)
+    expect(await screen.findByText(/研究条件价依据不完整，相关命中暂停，请到候选池核对/)).toBeTruthy()
+    expect(screen.queryByRole('link', { name: /触及条件价/ })).toBeNull()
+  })
+
+  it.each(['pending', 'failed'] as const)('公司参考数据 %s 时暂停研究命中并显示覆盖提示，不断言无待办', async mode => {
+    localStorage.setItem('rn-candidates', JSON.stringify([candidate('PEP', 'research-bear')]))
+    stubData(['PEP'], () => mode === 'pending' ? new Promise(() => {}) : Promise.reject(new Error('offline')))
+    render(<MemoryRouter><Home /></MemoryRouter>)
+    if (mode === 'pending') expect(screen.getByText(/研究条件价依据读取中，相关命中暂停，请到候选池核对/)).toBeTruthy()
+    else expect(await screen.findByText(/研究条件价依据读取失败，相关命中暂停，请到候选池核对/)).toBeTruthy()
+    await waitFor(() => expect(screen.queryByText(/自动 DCF 读取中/)).toBeNull())
+    expect(screen.queryByRole('link', { name: /触及条件价/ })).toBeNull()
+    expect(screen.queryByText(/没有到期复查或进入买入区/)).toBeNull()
+  })
+
+  it('研究参考数据加载中，手动/DCF 锚点和到期复查仍照常提示', async () => {
+    localStorage.setItem('rn-candidates', JSON.stringify([
+      candidate('PEP', 'research-bear'), candidate('MN', 'manual'), candidate('DCF', 'dcf-buy-below'),
+      { ...candidate('REV'), decisions: [{ at: '2026-01-01T00:00:00.000Z', action: 'watch', why: 'w', wrong: 'x', nextCheck: '2026-02-01' }] },
+    ]))
+    stubData(['PEP', 'MN', 'DCF'], () => new Promise(() => {}))
+    render(<MemoryRouter><Home /></MemoryRouter>)
+    const link = await screen.findByRole('link', { name: /触及条件价 2/ })
+    expect(link.textContent).toContain('到期复查 1')
+    expect(link.textContent).not.toContain('触及条件价 3')
+    expect(screen.getByText(/研究条件价依据读取中，相关命中暂停/)).toBeTruthy()
+  })
+
+  it('没有研究锚点时不请求 company-refs', async () => {
+    localStorage.setItem('rn-candidates', JSON.stringify([candidate('MN', 'manual')]))
+    const mock = stubData(['MN'], async () => refsOk(true))
+    render(<MemoryRouter><Home /></MemoryRouter>)
+    expect(await screen.findByRole('link', { name: /触及条件价 1/ })).toBeTruthy()
+    expect(mock.mock.calls.some(call => String(call[0]).includes('company-refs.json'))).toBe(false)
   })
 })

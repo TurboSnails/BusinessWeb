@@ -244,6 +244,23 @@ describe('candidate-alerts-digest 判断、去重与发送', () => {
 })
 
 describe('evaluateDigest 与站内规则一致', () => {
+  it.each([
+    { valuationReliable: false, anchor: 'research-bear', hits: false },
+    { valuationReliable: false, anchor: 'research-base', hits: false },
+    { valuationReliable: true, anchor: 'research-bear', hits: true },
+    { valuationReliable: undefined, anchor: 'research-bear', hits: true },
+    { valuationReliable: false, anchor: 'manual', hits: true },
+    { valuationReliable: false, anchor: 'dcf-buy-below', hits: true },
+  ] as const)('可靠性 $valuationReliable / 锚点 $anchor：触及条件价 $hits，保留复查和评级变化', ({ valuationReliable, anchor, hits }) => {
+    const candidate = item('cn', '600519', {
+      alert: rule({ anchor: { type: anchor, value: 1500, asOf: '2026-11-01' } }),
+      decisions: [decision(TODAY, '优先关注')],
+    })
+    const ref = { ...REFS['cn:600519'], ...(valuationReliable === undefined ? {} : { v: valuationReliable }) }
+    const results = evaluateDigest([candidate], TODAY, parseAutoSummary(AUTO)!, { 'cn:600519': ref })
+    expect(results.map(i => i.kind)).toEqual(hits ? ['price-hit', 'review', 'rating'] : ['review', 'rating'])
+  })
+
   it('同一份候选与行情：邮件事项 = 站内「今日待处理」中的触及条件价 / 到期复查 / 评级变化（文案逐字相同）', () => {
     const auto = parseAutoSummary(AUTO)!
     const anchorPrices = new Map(Object.entries(REFS).filter(([, r]) => r.q).map(([key, r]) => {

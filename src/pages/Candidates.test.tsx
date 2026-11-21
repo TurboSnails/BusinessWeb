@@ -1,8 +1,9 @@
 import React from 'react'
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import Candidates from './Candidates'
+import CompanyDetail from './CompanyDetail'
 import { loadBaseCompanies } from '../data/companies'
 
 vi.mock('../features/candidates/links', async importOriginal => {
@@ -105,6 +106,24 @@ describe('候选池页', () => {
     expect(screen.getByRole('tab', { name: /我的候选 · 0/ })).toBeTruthy()
   })
 
+  it('研究筛出加入候选本机失败时在当前页签显示一个 alert，可重试；切换页签不重复', async () => {
+    renderAt('/candidates?tab=research')
+    const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new DOMException('quota', 'QuotaExceededError')
+    })
+    fireEvent.click(screen.getAllByRole('button', { name: /^加入我的池/ })[0])
+    expect(screen.getAllByRole('alert')).toHaveLength(1)
+    expect(screen.getByRole('alert').textContent).toContain('未保存到本机')
+    fireEvent.click(screen.getByRole('tab', { name: /我的候选 · 1/ }))
+    await waitFor(() => expect(screen.getAllByRole('alert')).toHaveLength(1))
+    fireEvent.click(screen.getByRole('tab', { name: '研究筛出' }))
+    expect(screen.getAllByRole('alert')).toHaveLength(1)
+    setItem.mockRestore()
+    fireEvent.click(screen.getByRole('button', { name: '重试本机保存' }))
+    await waitFor(() => expect(JSON.parse(localStorage.getItem('rn-candidates') ?? '[]')).toHaveLength(1))
+    expect(screen.queryByRole('alert')).toBeNull()
+  })
+
   it('带筛选条件的链接可恢复 DCF 视图，空结果可一键返回全部公司', () => {
     renderAt('/candidates?tab=research&view=4&market=海外&dcf=mine&q=__missing__')
     expect(screen.getByRole('button', { name: '我算过的' }).getAttribute('aria-pressed')).toBe('true')
@@ -120,5 +139,33 @@ describe('候选池页', () => {
     expect(screen.getAllByRole('link', { name: /^算 DCF/ }).length).toBeGreaterThan(0)
     fireEvent.click(screen.getByRole('button', { name: '有 DCF 估值' }))
     expect(screen.queryAllByRole('link', { name: /^算 DCF/ })).toHaveLength(0)
+  })
+})
+
+
+describe('公司详情加入候选的本机保存', () => {
+  const renderCompany = () => render(
+    <MemoryRouter initialEntries={['/research-notes/us/AAPL']}>
+      <Routes><Route path="/research-notes/:market/:code" element={<CompanyDetail />} /></Routes>
+    </MemoryRouter>,
+  )
+
+  it('QuotaExceededError 时显示就近错误；恢复后重试并重新挂载仍可读取', async () => {
+    const view = renderCompany()
+    expect(await screen.findByRole('heading', { level: 1, name: '苹果' })).toBeTruthy()
+    const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new DOMException('quota', 'QuotaExceededError')
+    })
+    fireEvent.click(screen.getByRole('button', { name: '＋ 加入候选' }))
+    expect((await screen.findByRole('alert')).textContent).toContain('未保存到本机')
+    expect(screen.queryByRole('button', { name: '✓ 已候选' })).toBeNull()
+    expect(localStorage.getItem('rn-candidates')).toBeNull()
+    setItem.mockRestore()
+    fireEvent.click(screen.getByRole('button', { name: '重试本机保存' }))
+    await waitFor(() => expect(JSON.parse(localStorage.getItem('rn-candidates') ?? '[]')).toHaveLength(1))
+    view.unmount()
+    renderCompany()
+    expect(await screen.findByRole('heading', { level: 1, name: '苹果' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: '✓ 已候选' })).toBeTruthy()
   })
 })

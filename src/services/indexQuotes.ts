@@ -25,11 +25,23 @@ export async function fetchIndexQuotes(items: Array<{ symbol: string; name: stri
   const url = import.meta.env.VITE_MARKET_DIRECT === 'true'
     ? `https://qt.gtimg.cn/q=${symbols}`
     : `${base}/api/grid-market?${new URLSearchParams({ kind: 'quotes', symbols })}`
-  const response = await fetchImpl(url, { cache: 'no-store', signal: signal ?? AbortSignal.timeout(10000) })
-  if (!response.ok) throw new Error(`指数报价请求失败 HTTP ${response.status}`)
-  const quotes = parseTencentQuotes(new TextDecoder('gbk').decode(await response.arrayBuffer()))
-  return items.flatMap(i => {
-    const q = quotes.get(i.symbol)
-    return q ? [{ symbol: i.symbol, name: i.name, ...q }] : []
-  })
+  const cancelReason = () => signal?.reason ?? new DOMException('指数报价请求已取消', 'AbortError')
+  if (signal?.aborted) throw cancelReason()
+
+  const controller = new AbortController()
+  const cancel = () => controller.abort(cancelReason())
+  signal?.addEventListener('abort', cancel, { once: true })
+  const timeout = setTimeout(() => controller.abort(new DOMException('指数报价请求超时', 'TimeoutError')), 10_000)
+  try {
+    const response = await fetchImpl(url, { cache: 'no-store', signal: controller.signal })
+    if (!response.ok) throw new Error(`指数报价请求失败 HTTP ${response.status}`)
+    const quotes = parseTencentQuotes(new TextDecoder('gbk').decode(await response.arrayBuffer()))
+    return items.flatMap(i => {
+      const q = quotes.get(i.symbol)
+      return q ? [{ symbol: i.symbol, name: i.name, ...q }] : []
+    })
+  } finally {
+    clearTimeout(timeout)
+    signal?.removeEventListener('abort', cancel)
+  }
 }

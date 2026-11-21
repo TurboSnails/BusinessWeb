@@ -28,8 +28,9 @@ describe("列表里的 DCF：本人优先、自动补位、按最新价", () => 
     expect(auto.get(autoDcfKey("cn", "600002"))).toMatchObject({ status: "financial", fair: null });
   });
   it("本人记录优先，安全边际按最新价重算而不是保存时的值", () => {
-    const d = dcfOf("cn", "600003", tools)!;
+    const d = dcfOf("cn", "600003", tools, "2026-10-20")!;
     expect(d.source).toBe("mine");
+    expect(d.currentFresh).toBe(true);
     expect(d.mos).toBeCloseTo((12000 - 10000) / 10000, 10);
     expect(dcfOf("cn", "600001", tools)!.source).toBe("auto");
     expect(dcfOf("cn", "999999", tools)).toBeUndefined();

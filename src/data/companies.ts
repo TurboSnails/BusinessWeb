@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { loadCompanyValuations, type CompanyValuation } from '../features/company-valuation/model'
 // 数据来源：Notion「投资计划 / 标普500分类」及「沪深产业分类」下的公司研究页，汇总于 2026-09-29。
 // 仅为个人研究笔记，情景价值与价位均为研究假设，不构成目标价或投资建议。
@@ -51,6 +51,7 @@ export const sectorsOf = (list: Company[]): string[] => Array.from(new Set(list.
 // ───────── 公司数据全部按市场懒加载：手工研究页在 companyCore（独立 chunk），
 // 程序化补全公司（标普500 / 沪深500 成分股等）在 public/data/{market}.json ─────────
 const baseCache: Partial<Record<Market, Promise<Company[]>>> = {}
+// 只存完整结果（补全 JSON 有效）；部分结果不进此缓存
 const genCache: Partial<Record<Market, Promise<Company[]>>> = {}
 const resolved: Partial<Record<Market, Company[]>> = {}
 const coreOf = (market: Market) => import('./companyCore').then(m => m.resolveMarket(market))
@@ -66,32 +67,103 @@ function remember(cache: Partial<Record<Market, Promise<Company[]>>>, market: Ma
 export const loadBaseCompanies = (market: Market): Promise<Company[]> =>
   baseCache[market] ?? remember(baseCache, market, coreOf(market).then(r => r.base))
 
-export const loadCompanies = (market: Market): Promise<Company[]> => {
-  const cached = genCache[market]
-  if (cached) return cached
-  const gen = fetch(`${import.meta.env.BASE_URL}data/${market}.json`)
-    .then(r => (r.ok ? (r.json() as Promise<Company[]>) : []))
-    .catch(() => [] as Company[])
-  return remember(genCache, market, Promise.all([coreOf(market), gen, loadCompanyValuations(market)]).then(([core, g, valuations]) =>
-    (resolved[market] = core.merge(g).map(c => ({ ...c, valuation: valuations.get(c.code) })))))
+/** 程序化补全层的加载状态：complete = 补全 JSON 有效（可能为空数组）；partial = 补全 JSON 失败，只含手工研究页 */
+export interface CompaniesResult {
+  list: Company[]
+  partial: boolean
+  /** partial 时的失败原因（HTTP 状态、非 JSON 等），供提示与排错 */
+  error?: string
 }
 
-export const useCompanies = (market: Market, enabled = true): { list: Company[]; loading: boolean; failed: boolean } => {
-  const [list, setList] = useState<Company[]>(() => resolved[market] ?? [])
+/** 纳指100 新增公司全部为手工研究页，没有 public/data/ndx.json，不请求（否则开发服务器返回应用壳 HTML） */
+const HAS_GENERATED: Record<Market, boolean> = { us: true, cn: true, hk: true, adr: true, ndx: false }
+
+export class CompanyDataError extends Error {}
+
+/** 非 2xx、网络失败、HTML/无效 JSON、非数组都视为失败，不能当成「有效的空数组」 */
+const fetchGenerated = async (market: Market): Promise<Company[]> => {
+  if (!HAS_GENERATED[market]) return []
+  let r: Response
+  try {
+    r = await fetch(`${import.meta.env.BASE_URL}data/${market}.json`)
+  } catch (e) {
+    throw new CompanyDataError(`网络失败：${e instanceof Error ? e.message : String(e)}`)
+  }
+  if (!r || !r.ok) throw new CompanyDataError(`HTTP ${r?.status ?? '未知'}`)
+  let data: unknown
+  try {
+    data = await r.json()
+  } catch {
+    throw new CompanyDataError('返回内容不是有效 JSON')
+  }
+  if (!Array.isArray(data)) throw new CompanyDataError('返回内容不是公司数组')
+  return data as Company[]
+}
+
+// 进行中或已完整的结果；部分结果结算后立即移出，下次调用会重新请求补全 JSON
+const resultCache: Partial<Record<Market, Promise<CompaniesResult>>> = {}
+// 最近一次部分结果：仅用于重新挂载时先显示手工公司，不当作完整数据
+const partialResolved: Partial<Record<Market, Company[]>> = {}
+
+export const loadCompaniesResult = (market: Market): Promise<CompaniesResult> => {
+  const cached = resultCache[market]
+  if (cached) return cached
+  const gen = fetchGenerated(market).then(
+    list => ({ ok: true as const, list }),
+    (e: unknown) => ({ ok: false as const, error: e instanceof Error ? e.message : String(e) }),
+  )
+  const p: Promise<CompaniesResult> = Promise.all([coreOf(market), gen, loadCompanyValuations(market)]).then(([core, g, valuations]) => {
+    const list = core.merge(g.ok ? g.list : []).map(c => ({ ...c, valuation: valuations.get(c.code) }))
+    if (g.ok) {
+      resolved[market] = list
+      delete partialResolved[market]
+      genCache[market] = Promise.resolve(list)
+      return { list, partial: false }
+    }
+    partialResolved[market] = list
+    return { list, partial: true, error: g.error }
+  })
+  resultCache[market] = p
+  p.then(
+    r => { if (r.partial && resultCache[market] === p) delete resultCache[market] },
+    () => { if (resultCache[market] === p) delete resultCache[market] },
+  )
+  return p
+}
+
+/** 数组契约保持不变：补全 JSON 失败时返回手工公司（部分列表），但不缓存为完整结果 */
+export const loadCompanies = (market: Market): Promise<Company[]> => genCache[market] ?? loadCompaniesResult(market).then(r => r.list)
+
+export interface UseCompaniesState {
+  list: Company[]
+  loading: boolean
+  /** 手工研究页分包也加载失败，列表为空 */
+  failed: boolean
+  /** 程序化补全数据暂不可用，list 只含手工研究页 */
+  partial: boolean
+  /** 同页重试（不刷新页面） */
+  retry: () => void
+}
+
+export const useCompanies = (market: Market, enabled = true): UseCompaniesState => {
+  const [list, setList] = useState<Company[]>(() => resolved[market] ?? partialResolved[market] ?? [])
   const [loading, setLoading] = useState(enabled && !resolved[market])
   const [failed, setFailed] = useState(false)
+  const [partial, setPartial] = useState(() => !resolved[market] && !!partialResolved[market])
+  const [attempt, setAttempt] = useState(0)
   useEffect(() => {
     if (!enabled) return
     let alive = true
-    if (resolved[market]) { setList(resolved[market]!); setLoading(false); setFailed(false); return }
+    if (resolved[market]) { setList(resolved[market]!); setLoading(false); setFailed(false); setPartial(false); return }
     setLoading(true)
-    loadCompanies(market).then(
-      l => { if (alive) { setList(l); setLoading(false); setFailed(false) } },
+    loadCompaniesResult(market).then(
+      r => { if (alive) { setList(r.list); setLoading(false); setFailed(false); setPartial(r.partial) } },
       () => { if (alive) { setLoading(false); setFailed(true) } },
     )
     return () => { alive = false }
-  }, [market, enabled])
-  return { list, loading, failed }
+  }, [market, enabled, attempt])
+  const retry = useCallback(() => setAttempt(a => a + 1), [])
+  return { list, loading, failed, partial, retry }
 }
 
 // ───────── 林奇分类 + 护城河证据（脚本按统一规则生成，public/data/lynch.json，键为 market:code）─────────

@@ -5,7 +5,7 @@
 // 拼音：含汉字的名称在构建时用 pinyin-pro（devDependency，不进前端包）算出首字母 p 和全拼 q（无声调无空格），
 // 供 ⌘K 输入 txkg / tengxun 找到腾讯控股；pinyin-pro 按词组处理多音字（重庆 chong、长江 chang、银行 hang）。
 //
-// 同一次合并顺带生成 public/data/company-refs.json：每家公司的名称、研究评级和公司页价格锚点（marketRefresh），
+// 同一次合并顺带生成 public/data/company-refs.json：公司名称、研究评级、公司页价格锚点（marketRefresh）和已知的估值可靠性，
 // 供服务端每日候选池提醒邮件（server/functions/candidate-alerts-digest.js）按站内同一口径判断，不用下载 cn.json 这类大文件。
 import { readFile, writeFile, rm, mkdtemp } from 'node:fs/promises'
 import { join, resolve, dirname } from 'node:path'
@@ -22,11 +22,18 @@ async function collectCompanies() {
   const { build } = await import('esbuild')
   const entry = `
     import { resolveMarket } from './companyCore'
+    import { parseValuationDocument, valuationReliability } from '../features/company-valuation/model'
     export async function collect(markets, readJson) {
       const out = []
       for (const m of markets) {
         const r = await resolveMarket(m)
-        for (const c of r.merge(readJson(m))) out.push({ c: c.code, n: c.name, m: c.market, s: c.sector || '', r: c.rating || '', q: c.marketRefresh })
+        const valuations = parseValuationDocument(await readJson('company-valuations/' + m + '.json'), m)
+        for (const c of r.merge(await readJson(m + '.json') ?? [])) {
+          const valuation = valuations.get(c.code)
+          const refreshed = c.marketRefresh?.tradability === 'unverified' ? undefined : c.marketRefresh
+          const v = valuation ? valuationReliability(valuation, refreshed).ok : undefined
+          out.push({ c: c.code, n: c.name, m: c.market, s: c.sector || '', r: c.rating || '', q: c.marketRefresh, v })
+        }
       }
       return out
     }`
@@ -40,11 +47,10 @@ async function collectCompanies() {
   try {
     await writeFile(file, res.outputFiles[0].text)
     const { collect } = await import(pathToFileURL(file).href)
-    const jsonOf = {}
-    for (const m of MARKETS) {
-      try { jsonOf[m] = JSON.parse(await readFile(join(ROOT, 'public/data', `${m}.json`), 'utf8')) } catch { jsonOf[m] = [] }
+    const readJson = async relativePath => {
+      try { return JSON.parse(await readFile(join(ROOT, 'public/data', relativePath), 'utf8')) } catch { return undefined }
     }
-    return await collect(MARKETS, m => jsonOf[m])
+    return await collect(MARKETS, readJson)
   } finally {
     await rm(dir, { recursive: true, force: true })
   }
@@ -95,7 +101,7 @@ export function toIndex(rows) {
   return items
 }
 
-/** 提醒邮件用的参考数据：键 market:code；q 只保留价位判断要用的 marketRefresh 字段（同 Company.marketRefresh） */
+/** 提醒邮件用的参考数据：键 market:code；q 为价位判断所需行情，v 为已知的估值可靠性 */
 export function toRefs(rows) {
   const items = {}
   for (const r of rows) {
@@ -106,7 +112,7 @@ export function toRefs(rows) {
     const q = r.q && Number.isFinite(r.q.price) && r.q.price > 0 && /^\d{4}-\d{2}-\d{2}$/.test(r.q.priceDate ?? '')
       ? { price: r.q.price, priceDate: r.q.priceDate, ...(r.q.currency ? { currency: r.q.currency } : {}), source: String(r.q.source ?? ''), ...(r.q.tradability ? { tradability: r.q.tradability } : {}) }
       : undefined
-    items[key] = { n: String(r.n || '').trim(), ...(r.r ? { r: String(r.r) } : {}), ...(q ? { q } : {}) }
+    items[key] = { n: String(r.n || '').trim(), ...(r.r ? { r: String(r.r) } : {}), ...(q ? { q } : {}), ...(typeof r.v === 'boolean' ? { v: r.v } : {}) }
   }
   return items
 }

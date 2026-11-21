@@ -17,6 +17,8 @@ export interface PriceLevelsInput {
   market: Market
   anchor: PriceAnchorInput
   scenarios?: { name: string; price: string }[]
+  /** 三情景价的来源（模型 · 日期，如「原研究情景 · 2026-09-30」），写进刻度标题与 K 线图例 */
+  scenarioSource?: string
   dcf?: DcfSummary
 }
 

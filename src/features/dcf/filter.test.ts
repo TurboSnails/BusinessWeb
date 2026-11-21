@@ -13,4 +13,12 @@ describe('DCF 筛选', () => {
     expect(matchDcfFilter('mos20', up)).toBe(true)
     expect(matchDcfFilter('mos0', noMos)).toBe(false); expect(matchDcfFilter('mos0', undefined)).toBe(false)
   })
+  it('本人 DCF 没有新鲜同币种现价时保留记录，但不进入当前 MOS 筛选', () => {
+    const saved = { ...up, source: 'mine' as const, savedAt: '2026-10-01T00:00:00Z', currentFresh: false }
+    expect(matchDcfFilter('done', saved)).toBe(true)
+    expect(matchDcfFilter('mine', saved)).toBe(true)
+    expect(matchDcfFilter('mos20', saved)).toBe(false)
+    expect(matchDcfFilter('mos0', saved)).toBe(false)
+    expect(matchDcfFilter('mos20', { ...saved, currentFresh: true, current: 96 })).toBe(true)
+  })
 })

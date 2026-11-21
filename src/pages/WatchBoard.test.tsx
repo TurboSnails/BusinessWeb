@@ -1,5 +1,5 @@
 import React from 'react'
-import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import WatchBoard from './WatchBoard'
@@ -32,6 +32,7 @@ beforeEach(() => {
   const quotes: Record<string, unknown> = {
     usINX: { symbol: 'usINX', name: '标普500', price: 6500, changePercent: 0.5, quoteTime: '2026-10-09 16:00' },
     sh000001: { symbol: 'sh000001', name: '上证指数', price: 3800, changePercent: -0.52, quoteTime: '2026-10-12 15:00' },
+    r_hkHSI: { symbol: 'r_hkHSI', name: '恒生指数', price: 22000, changePercent: 0.32, quoteTime: '2026-10-12 16:00' },
   }
   mocks.market.mockImplementation(async (items: Array<{ symbol: string }>) => items.flatMap(i => quotes[i.symbol] ? [quotes[i.symbol]] : []))
   mocks.daily.mockResolvedValue({ snapshots: [snapshot], liveError: null })
@@ -51,6 +52,7 @@ describe('观察盘', () => {
     await waitFor(() => expect(within(markets).getByText('标普500')).toBeTruthy())
     expect(within(markets).getByText('+0.50%').className).toContain('is-green') // 美股绿涨
     expect(within(markets).getByText('-0.52%').className).toContain('is-green') // A股绿跌
+    expect(within(markets).getByText('+0.32%').className).toContain('is-red') // 港股红涨
     expect(within(markets).getByRole('link', { name: /热力图与走势/ }).getAttribute('href')).toBe('/pulse')
     expect(within(markets).getByText('行情 10-09 16:00')).toBeTruthy() // 标出行情时间，休市时不误当作当下价格
     expect(mocks.market.mock.calls.map(c => (c[0] as Array<{ symbol: string }>).map(i => i.symbol))).toContainEqual(['r_hkHSI', 'r_hkHSTECH', 'r_hkHSCEI'])
@@ -92,6 +94,58 @@ describe('观察盘', () => {
     expect(within(markets).getByText(/复盘快照 10-12/)).toBeTruthy()
     expect(within(markets).getByText('+1.20%')).toBeTruthy()
     expect(within(markets).getByText(/缓存 09:30/)).toBeTruthy()
+  })
+
+  it('一组行情挂起时，10 秒后显示该组缓存、其他组新行情并恢复刷新', async () => {
+    const { fetchIndexQuotes } = await vi.importActual<typeof import('../services/indexQuotes')>('../services/indexQuotes')
+    const fetchOther = fetch
+    mocks.market.mockImplementation(fetchIndexQuotes)
+    localStorage.setItem('watch-quotes', JSON.stringify({ hk: { at: '09:30', rows: [{ symbol: 'r_hkHSI', name: '恒生指数', price: 22000, changePercent: 1.2 }] } }))
+    vi.stubGlobal('fetch', vi.fn<typeof fetch>((url, options) => {
+      if (!String(url).includes('/api/grid-market')) return fetchOther(url, options)
+      const symbols = new URL(String(url), 'https://example.test').searchParams.get('symbols')!
+      const symbol = symbols.split(',')[0]
+      if (symbol === 'r_hkHSI') return new Promise((_resolve, reject) => {
+        const signal = options!.signal!
+        signal.addEventListener('abort', () => reject(signal.reason), { once: true })
+      })
+      const fields = Array<string>(33).fill('0')
+      fields[3] = '3800'
+      fields[30] = '20261012150000'
+      fields[32] = '-0.52'
+      return Promise.resolve(new Response(new TextEncoder().encode(`v_${symbol}="${fields.join('~')}";`)))
+    }))
+    vi.useFakeTimers()
+    const { unmount } = render(<MemoryRouter><WatchBoard /></MemoryRouter>)
+    try {
+      await act(async () => { await vi.advanceTimersByTimeAsync(9999) })
+      expect(screen.getByRole<HTMLButtonElement>('button', { name: '正在更新…' }).disabled).toBe(true)
+      await act(async () => { await vi.advanceTimersByTimeAsync(1) })
+      const markets = within(screen.getByRole('region', { name: '全球市场' }))
+      expect(markets.getByText('标普500')).toBeTruthy()
+      expect(markets.getByText('上证指数')).toBeTruthy()
+      expect(markets.getByText('缓存 09:30')).toBeTruthy()
+      expect(screen.getByRole<HTMLButtonElement>('button', { name: '刷新' }).disabled).toBe(false)
+    } finally {
+      unmount()
+      vi.useRealTimers()
+    }
+  })
+
+  it('离开页面立即取消报价和复盘，迟到的报价不写入缓存', async () => {
+    let resolveMarket!: (rows: unknown[]) => void
+    const pending = new Promise<unknown[]>(resolve => { resolveMarket = resolve })
+    mocks.market.mockReturnValue(pending)
+    const { unmount } = render(<MemoryRouter><WatchBoard /></MemoryRouter>)
+    const signals = mocks.market.mock.calls.map(call => call[2] as AbortSignal)
+    const dailySignal = mocks.daily.mock.calls[0][0] as AbortSignal
+    expect(signals).toHaveLength(3)
+    expect(signals.every(signal => !signal.aborted)).toBe(true)
+    unmount()
+    expect(signals.every(signal => signal.aborted)).toBe(true)
+    expect(dailySignal.aborted).toBe(true)
+    await act(async () => resolveMarket([{ symbol: 'usINX', name: '标普500', price: 6500, changePercent: 1.2 }]))
+    expect(localStorage.getItem('watch-quotes')).toBeNull()
   })
 })
 

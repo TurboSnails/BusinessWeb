@@ -395,3 +395,31 @@ describe('研究页不构成买卖建议（与书的立场一致）', () => {
     expect(screen.getAllByRole('note').some(n => /^已舍弃.*9\.10/.test(n.textContent ?? ''))).toBe(true)
   })
 })
+
+describe('补全 JSON 失败时列表提示部分数据', () => {
+  it('us.json 503：提示部分数据、计数不称完整；同页重试恢复后提示消失', async () => {
+    vi.resetModules() // 换一份干净的公司库缓存，不影响上面用例
+    const realFetch = globalThis.fetch
+    let fail = true
+    vi.stubGlobal('fetch', async (url: string) => (fail && String(url).endsWith('data/us.json')
+      ? ({ ok: false, status: 503, json: async () => ({}) } as Response)
+      : realFetch(url)))
+    try {
+      const { default: FreshResearchNotes } = await import('./ResearchNotes')
+      render(
+        <MemoryRouter initialEntries={['/research-notes?tab=category&m=us']}>
+          <Routes><Route path="/research-notes" element={<FreshResearchNotes />} /></Routes>
+        </MemoryRouter>,
+      )
+      expect(await screen.findByText('部分公司数据暂不可用', {}, { timeout: 15_000 })).toBeTruthy()
+      expect(screen.getByText(/已加载 \d+ 家（部分数据暂不可用），当前/)).toBeTruthy()
+      expect(screen.queryByText(/^共 \d+ 家，当前/)).toBeNull()
+      fail = false
+      fireEvent.click(screen.getByRole('button', { name: '重试' }))
+      await waitFor(() => expect(screen.queryByText('部分公司数据暂不可用')).toBeNull(), { timeout: 15_000 })
+      expect(screen.getByText(/^共 \d+ 家，当前/)).toBeTruthy()
+    } finally {
+      vi.stubGlobal('fetch', realFetch)
+    }
+  }, 30_000)
+})

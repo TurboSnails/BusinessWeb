@@ -14,9 +14,9 @@ function observationsOf(item: CandidateItem, tools: ToolSources, extra?: Map<str
 }
 
 /** 每家设了价位提醒的候选的判断结果（market:code → 结果），供页面说明「为什么没触发」 */
-export function priceAlertStates(items: CandidateItem[], tools: ToolSources, today: string, extra?: Map<string, PriceObservation[]>): Map<string, PriceAlertEvaluation> {
+export function priceAlertStates(items: CandidateItem[], tools: ToolSources, today: string, extra?: Map<string, PriceObservation[]>, valuationReliability?: ReadonlyMap<string, boolean>): Map<string, PriceAlertEvaluation> {
   const out = new Map<string, PriceAlertEvaluation>()
-  for (const item of items) if (item.alert) out.set(candidateKey(item), evaluatePriceAlert(item.alert, observationsOf(item, tools, extra), today))
+  for (const item of items) if (item.alert) out.set(candidateKey(item), evaluatePriceAlert(item.alert, observationsOf(item, tools, extra), today, valuationReliability?.get(candidateKey(item))))
   return out
 }
 
@@ -24,12 +24,13 @@ export function priceAlertStates(items: CandidateItem[], tools: ToolSources, tod
  * @param ratings 当前研究评级（market:code → 评级）；未加载公司库时不检查评级变化
  * @param prices 额外的收盘价观测（market:code → 观测），如公司页价格锚点；自动 DCF 预填库的现价总会参与
  */
-export function candidateAlerts(items: CandidateItem[], tools: ToolSources, today: string, ratings?: Map<string, string>, prices?: Map<string, PriceObservation[]>): CandidateAlert[] {
+export function candidateAlerts(items: CandidateItem[], tools: ToolSources, today: string, ratings?: Map<string, string>, prices?: Map<string, PriceObservation[]>, valuationReliability?: ReadonlyMap<string, boolean>): CandidateAlert[] {
   return items.flatMap(item => itemAlerts(item, {
     today,
     observations: item.alert ? observationsOf(item, tools, prices) : [],
-    dcf: dcfOf(item.market, item.code, tools),
+    dcf: dcfOf(item.market, item.code, tools, today),
     rating: ratings?.get(candidateKey(item)),
+    valuationReliable: valuationReliability?.get(candidateKey(item)),
   }))
 }
 

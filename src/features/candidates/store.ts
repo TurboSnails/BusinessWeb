@@ -78,8 +78,8 @@ export function loadLocal(): CandidateItem[] {
     return validCandidatesPayload({ schemaVersion: 1, items: parsed }) ? (parsed as CandidateItem[]) : []
   } catch { return [] }
 }
-export function saveLocal(list: CandidateItem[]): void {
-  try { localStorage.setItem(CANDIDATES_KEY, JSON.stringify(list)) } catch { /* 隐私模式下忽略 */ }
+export function saveLocal(list: CandidateItem[]): boolean {
+  try { localStorage.setItem(CANDIDATES_KEY, JSON.stringify(list)); return true } catch { return false }
 }
 
 // 身份：只需校验一次。优先用本页保存的 token，其次沿用「每日复盘」已保存的同一把 token（PULSE_SYNC_TOKEN）

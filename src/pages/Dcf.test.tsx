@@ -1,6 +1,6 @@
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import Dcf from "./Dcf";
+import Dcf, { dcfPriceRelation } from "./Dcf";
 import { loadDcfRecords } from "../features/dcf";
 
 function fill(label: string, value: string) {
@@ -22,13 +22,35 @@ describe("现金流折现估值页", () => {
   beforeEach(() => localStorage.clear());
   afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 
-  it("填入必要项后给出合理价与买卖结论", () => {
+  it("填入必要项后给出合理价与中性的现价关系，不显示 BUY/SELL", () => {
     render(<Dcf />);
     expect(screen.getByText(/请填写起始自由现金流/)).toBeTruthy();
     fillRequired();
     // 100 亿起始 FCF / 10 亿股 → 合理价 144.62，远高于现价 15
     expect(screen.getAllByText("¥144.62").length).toBeGreaterThan(0);
-    expect(screen.getByText("BUY")).toBeTruthy();
+    expect(screen.getByText("现价低于模型合理价")).toBeTruthy();
+    expect(screen.queryByText(/^(BUY|SELL)$/)).toBeNull();
+  });
+
+  it.each([
+    [0.1, "现价低于模型合理价"],
+    [-0.1, "现价高于模型合理价"],
+    [0, "现价等于模型合理价"],
+    [null, "暂不可比"],
+  ])("MOS %s 的明细描述为 %s", (mos, text) => {
+    expect(dcfPriceRelation(mos)).toBe(text);
+  });
+
+  it("旧 SELL 记录仍可载入，但明细只显示价格关系且不改存储 verdict", () => {
+    render(<Dcf />);
+    fillRequired({ 当前股价: "300" });
+    fireEvent.click(screen.getByRole("button", { name: /保存本次分析/ }));
+    expect(loadDcfRecords()[0].result.verdict).toBe("SELL");
+    fill("公司名称", "另一家公司");
+    fireEvent.click(screen.getByRole("button", { name: "载入" }));
+    expect(screen.getByText("现价高于模型合理价")).toBeTruthy();
+    expect(screen.queryByText(/^(BUY|SELL)$/)).toBeNull();
+    expect(loadDcfRecords()[0].result.verdict).toBe("SELL");
   });
 
   it("有结果时显示 5×5 敏感性矩阵，数据不全时不显示", () => {
@@ -136,7 +158,16 @@ describe("现金流折现估值页", () => {
     fill("五年成长率 (%)", "3");
     expect(screen.getByText(/已手动修改（自动值 11）/)).toBeTruthy();
     expect(screen.getByText(/高于近 5 年/)).toBeTruthy();
+    const setItem = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new DOMException("quota", "QuotaExceededError");
+    });
     fireEvent.click(screen.getByRole("button", { name: "加入候选池（记下买入参考价）" }));
+    expect((await screen.findByRole("alert")).textContent).toContain("未保存到本机");
+    expect(screen.queryByText(/已加入候选池/)).toBeNull();
+    expect(localStorage.getItem("rn-candidates")).toBeNull();
+    setItem.mockRestore();
+    fireEvent.click(screen.getByRole("button", { name: "重试本机保存" }));
+    await vi.waitFor(() => expect(JSON.parse(localStorage.getItem("rn-candidates") ?? "[]")).toHaveLength(1));
     const pool = JSON.parse(localStorage.getItem("rn-candidates") ?? "[]");
     expect(pool[0]).toMatchObject({ market: "cn", code: "600519" });
     expect(pool[0].note).toMatch(/^DCF .*买入参考 ¥/);

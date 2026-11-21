@@ -15,7 +15,7 @@ export interface PriceObservation {
   intraday?: boolean
 }
 
-export type SkipReason = 'disabled' | 'snoozed' | 'seen' | 'no-price' | 'stale' | 'currency-mismatch' | 'invalid'
+export type SkipReason = 'disabled' | 'snoozed' | 'seen' | 'no-price' | 'stale' | 'currency-mismatch' | 'invalid' | 'valuation-unreliable'
 export type PriceAlertEvaluation =
   | { status: 'hit'; observation: PriceObservation }
   | { status: 'clear'; observation: PriceObservation }
@@ -29,6 +29,7 @@ export const SKIP_TEXT: Record<SkipReason, string> = {
   stale: '行情未更新，暂停判断',
   'currency-mismatch': '条件价和行情币种不同，不比较',
   invalid: '提醒设置不完整或条件价不合理',
+  'valuation-unreliable': '估值待核，暂停判断',
 }
 
 /** 行情日期超过这么多个交易日（按工作日计，不含节假日表）就不判断 */
@@ -68,10 +69,12 @@ export const reached = (kind: AlertDirection, price: number, threshold: number):
  * 判断一条价位提醒。
  * @param today 判断日 YYYY-MM-DD（站内用本地日期，服务端用对应市场的交易日）
  */
-export function evaluatePriceAlert(alert: CandidateAlertRule, observations: PriceObservation[], today: string): PriceAlertEvaluation {
+export function evaluatePriceAlert(alert: CandidateAlertRule, observations: PriceObservation[], today: string, valuationReliable?: boolean): PriceAlertEvaluation {
   if (!validAlertRule(alert)) return { status: 'skipped', reason: 'invalid' }
   if (!alert.enabled) return { status: 'skipped', reason: 'disabled' }
   if (alert.snoozedUntil && today < alert.snoozedUntil) return { status: 'skipped', reason: 'snoozed' }
+  if ((alert.anchor.type === 'research-bear' || alert.anchor.type === 'research-base') && valuationReliable === false)
+    return { status: 'skipped', reason: 'valuation-unreliable' }
   const observation = pickObservation(observations, alert.currency, today)
   if (!observation) {
     const other = observations.some(o => usable(o, today))
@@ -89,6 +92,7 @@ export interface AnchorOption extends AlertAnchor { currency: AlertCurrency; lab
 /** 研究估值区间（CompanyValuation.value）与自动 DCF 的必要字段，避免本模块依赖页面数据层 */
 export interface AnchorInputs {
   valuation?: { currency: string; asOf: string; value: null | { low: number; base: number; date: string | null; primaryMethod: string } }
+  valuationReliable?: boolean
   autoDcf?: { buyBelow: number | null; currency: string; credibility: string | null; priceDate?: string | null }
 }
 
@@ -96,10 +100,10 @@ const isCurrency = (c: string): c is AlertCurrency => c === 'CNY' || c === 'HKD'
 const ok = (n: number | null | undefined): n is number => typeof n === 'number' && Number.isFinite(n) && n > 0
 
 /** 可选的条件价锚点，按优先级：研究悲观价 > 研究基准价 > 自动 DCF 买入参考价 */
-export function anchorOptions({ valuation, autoDcf }: AnchorInputs): AnchorOption[] {
+export function anchorOptions({ valuation, valuationReliable, autoDcf }: AnchorInputs): AnchorOption[] {
   const out: AnchorOption[] = []
   const v = valuation?.value
-  if (valuation && v && isCurrency(valuation.currency) && validDay(v.date ?? valuation.asOf)) {
+  if (valuation && valuationReliable !== false && v && isCurrency(valuation.currency) && validDay(v.date ?? valuation.asOf)) {
     const asOf = v.date ?? valuation.asOf
     const researchVersion = `valuation:${valuation.asOf}:${v.primaryMethod}`.slice(0, 100)
     const add = (type: AlertAnchorType, value: number): void => { if (ok(value)) out.push({ type, value, asOf, researchVersion, currency: valuation.currency as AlertCurrency, label: ALERT_ANCHOR_LABEL[type] }) }

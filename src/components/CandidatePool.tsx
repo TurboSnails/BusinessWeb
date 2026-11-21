@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Bell } from 'lucide-react'
 import type { Company } from '../data/companies'
+import { valuationReliability } from '../features/company-valuation/model'
 import { researchForCode, researchPath } from '../data/futureTrendsResearch'
 import type { SyncState } from '../features/candidates/useCandidates'
 import { DECISION_ACTIONS, MAX_NOTE } from '../features/candidates/validation'
@@ -24,6 +25,8 @@ interface Props {
   tools?: ToolSources
   state: SyncState
   message: string
+  localError?: string
+  onRetryLocal?: () => boolean | void
   onMove: (from: number, to: number) => void
   onRemove: (item: CandidateItem) => void
   onDecision: (item: CandidateItem, record: DecisionRecord) => void
@@ -99,7 +102,9 @@ function snapshotOf(company: Company | undefined, rating: string, p: ToolProgres
 function alertContext(item: CandidateItem, company: Company | undefined, tools: ToolSources, today: string): { anchors: AnchorOption[]; price?: PriceObservation; currency: 'CNY' | 'HKD' | 'USD' } {
   const currency = VENUE_CURRENCY[venueOf(item.market)]
   const auto = autoDcfOf(item.market, item.code, tools)
-  const anchors = anchorOptions({ valuation: company?.valuation, autoDcf: auto })
+  const refreshed = company?.marketRefresh?.tradability === 'unverified' ? undefined : company?.marketRefresh
+  const reliable = company?.valuation ? valuationReliability(company.valuation, refreshed).ok : undefined
+  const anchors = anchorOptions({ valuation: company?.valuation, valuationReliable: reliable, autoDcf: auto })
   const observations = priceObservations({ venueCurrency: currency, autoDcf: auto, marketRefresh: company?.marketRefresh })
   const wanted = anchors[0]?.currency ?? currency
   return { anchors, currency, price: pickObservation(observations, wanted, today) ?? pickObservation(observations, observations[0]?.currency ?? currency, today) }
@@ -150,7 +155,7 @@ function ReviewSummary({ item, today }: { item: CandidateItem; today: string }):
   )
 }
 
-export default function CandidatePool({ items, companies, tools = NO_TOOLS, state, message, onMove, onRemove, onDecision, onNote, onClear, onConnect, onRetry, onAlert, alertStates }: Props): JSX.Element {
+export default function CandidatePool({ items, companies, tools = NO_TOOLS, state, message, localError = '', onRetryLocal, onMove, onRemove, onDecision, onNote, onClear, onConnect, onRetry, onAlert, alertStates }: Props): JSX.Element {
   const [dragFrom, setDragFrom] = useState<number | null>(null)
   const [over, setOver] = useState<number | null>(null)
   const [token, setToken] = useState('')
@@ -214,12 +219,13 @@ export default function CandidatePool({ items, companies, tools = NO_TOOLS, stat
   }
   const drop = (to: number): void => { if (dragFrom !== null) onMove(dragFrom, to); setDragFrom(null); setOver(null) }
 
-  const status = state === 'synced' ? '☁ 已同步到云端' : state === 'syncing' ? '☁ 同步中…' : state === 'error' ? '⚠ 云端同步失败，数据暂存本机' : '未开启同步：数据仅保存在本机'
+  const status = state === 'synced' ? '☁ 已同步到云端' : state === 'syncing' ? '☁ 同步中…' : state === 'error' ? `⚠ 云端同步失败${localError ? '' : '，数据暂存本机'}` : localError ? '未开启云端同步' : '未开启同步：数据仅保存在本机'
   const syncStatus = (
     <>
-      <span aria-live="polite" className={state === 'error' ? 'rn-pool-status is-error' : 'rn-pool-status'}>{status}</span>
+      <span aria-live="polite" className={state === 'error' || localError ? 'rn-pool-status is-error' : 'rn-pool-status'}>{status}</span>
+      {localError && <span role="alert" className="rn-pool-msg">{localError} {onRetryLocal && <button type="button" className="tool-btn" onClick={onRetryLocal}>重试本机保存</button>}</span>}
       {message && <span className="rn-pool-msg">{message}</span>}
-      {state === 'error' && <button type="button" className="tool-btn" onClick={onRetry}>重试</button>}
+      {state === 'error' && <button type="button" className="tool-btn" onClick={onRetry}>重试云端同步</button>}
     </>
   )
   const syncDetails = (

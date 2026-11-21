@@ -36,7 +36,7 @@ describe('产业格局', () => {
     await screen.findByRole('heading', { name: '上游：基础与工具' })
     fireEvent.click(screen.getByRole('tab', { name: '固态电池' }))
     fireEvent.click(screen.getByRole('tab', { name: '半导体产业链' }))
-    expect(fetcher).toHaveBeenCalledTimes(2)
+    expect(fetcher.mock.calls.filter(([url]) => String(url).includes('industry/'))).toHaveLength(2)
   })
 
   it('页面声明不构成投资建议，数据里没有荐股、目标价和配置建议', async () => {
@@ -127,7 +127,8 @@ describe('产业格局', () => {
     render(<IndustryLandscape />)
     fireEvent.click(screen.getByRole('tab', { name: '主题研究卡' }))
     expect(screen.getByRole('textbox', { name: '主题名称' })).toBeTruthy()
-    expect(fetcher).toHaveBeenCalledTimes(1)
+    // 只数产业数据请求；公司链接（useCompanyLinks）会另外读公司库，次数取决于其缓存时序
+    expect(fetcher.mock.calls.filter(([url]) => String(url).includes('industry/'))).toHaveLength(1)
   })
   it('章节导航切换阅读内容，并记住两个产业各自的阅读位置', async () => {
     render(<IndustryLandscape />)

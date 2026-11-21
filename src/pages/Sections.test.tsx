@@ -76,12 +76,13 @@ describe('InvestHub', () => {
     expect(fold.querySelectorAll('.ui-chip')).toHaveLength(4)
   })
 
-  it('顶部是「规则」：书和投资计划两条横幅', () => {
+  it('顶部是「规则」：书、我的计划与作者示例计划', () => {
     wrap(<InvestHub />)
     const banner = screen.getByRole('link', { name: /《正念投资》/ })
     expect(banner.getAttribute('href')).toBe('/first-book')
     expect(banner.textContent).toMatch(/读书.*定计划.*看盘.*选公司.*用工具/)
-    expect(screen.getByRole('link', { name: /投资计划/ }).getAttribute('href')).toBe('/investment-plan-2026')
+    expect(screen.getByRole('link', { name: /我的计划与持仓/ }).getAttribute('href')).toBe('/invest/my-plan')
+    expect(screen.getByRole('link', { name: /2026 投资计划.*作者示例/ }).getAttribute('href')).toBe('/investment-plan-2026')
   })
 })
 

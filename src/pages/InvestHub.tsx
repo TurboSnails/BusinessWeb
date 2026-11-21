@@ -12,7 +12,8 @@ import { Page } from '../components/ui'
 
 const ICONS: Record<string, LucideIcon> = {
   '/first-book': BookOpen,
-  '/investment-plan-2026': CalendarCheck,
+  '/invest/my-plan': CalendarCheck,
+  '/investment-plan-2026': CalendarClock,
   '/watch': Gauge,
   '/monitor': Thermometer,
   '/pulse': Globe,
@@ -102,18 +103,26 @@ export default function InvestHub(): JSX.Element {
         </nav>
       </header>
 
-      {/* 规则：书与年度计划，所有决策的前提 */}
+      {/* 规则：书、我的计划、作者示例计划 */}
       <section className="inv-rules" aria-labelledby="invest-rules-title">
         <h2 id="invest-rules-title" className="visually-hidden">{rules.title}</h2>
-        {rules.links.map((l, i) => {
+        {rules.links.map(l => {
           const Icon = ICONS[l.path] ?? BookOpen
+          const kicker =
+            l.path === '/first-book'
+              ? '规则 · 读这本书'
+              : l.path === '/invest/my-plan'
+                ? '规则 · 我的计划'
+                : '规则 · 作者示例'
+          const title = l.path === '/first-book' ? '《正念投资》全文与目录' : l.label
+          const hint = l.path === '/first-book' ? rules.hint : l.short
           return (
             <Link key={l.path} to={l.path} className="inv-book">
               <span className="inv-book__icon" aria-hidden="true"><Icon size={24} /></span>
               <span className="inv-book__text">
-                <span className="inv-book__kicker">{i === 0 ? '规则 · 读这本书' : '规则 · 今年怎么投'}</span>
-                <span className="inv-book__title">{i === 0 ? '《正念投资》全文与目录' : l.label}</span>
-                <span className="inv-book__hint">{i === 0 ? rules.hint : l.short}</span>
+                <span className="inv-book__kicker">{kicker}</span>
+                <span className="inv-book__title">{title}</span>
+                <span className="inv-book__hint">{hint}</span>
               </span>
               <ArrowRight size={20} className="inv-book__arrow" aria-hidden="true" />
             </Link>

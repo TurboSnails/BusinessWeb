@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import InvestHub from './InvestHub'
@@ -22,6 +22,36 @@ vi.mock('../features/grid-trading/marketData', () => ({
 vi.mock('../features/grid-trading/repository', () => ({
   saveRecord: mocks.saveRecord,
 }))
+
+const history = {
+  candles: [
+    { date: '2026-09-01', close: 3.5, high: 3.6, low: 3.4 },
+    { date: '2026-09-29', close: 4, high: 4.1, low: 3.9 },
+  ],
+  fetchedOn: '2026-09-30', from: '2026-09-01', source: '腾讯前复权日线',
+}
+
+function deferredHistory() {
+  let resolve!: (value: typeof history) => void
+  let reject!: (reason: Error) => void
+  const promise = new Promise<typeof history>((ok, fail) => { resolve = ok; reject = fail })
+  return { promise, resolve, reject }
+}
+
+function setupBacktest() {
+  mocks.getCandles.mockReset().mockResolvedValue(history)
+  mocks.fetchQuotes.mockReset().mockResolvedValue(new Map())
+  mocks.saveRecord.mockClear()
+  render(<MemoryRouter initialEntries={['/grid-trading?code=510300&name=沪深300ETF']}><GridCalculator /></MemoryRouter>)
+  for (const [label, value] of [
+    ['建仓日期', '2026-09-01'], ['建仓价格', '3.5'], ['建仓金额', '10000'],
+    ['每格金额', '1000'], ['网格步长', '0.15'],
+  ]) fireEvent.change(screen.getByLabelText(label), { target: { value } })
+}
+
+const runBacktest = () => fireEvent.click(screen.getByRole('button', { name: '运行回测' }))
+const saveButton = () => screen.getByRole<HTMLButtonElement>('button', { name: '保存记录' })
+const staleText = '参数已修改，请重新回测'
 
 describe('grid trading calculator entry', () => {
   it('keeps a grid trading entry reachable from the 投资 hub', () => {
@@ -83,6 +113,131 @@ describe('grid trading calculator entry', () => {
     await user.click(screen.getByRole('button', { name: '运行回测' }))
 
     expect(await screen.findByText(/行情请求失败/)).toBeTruthy()
+  })
+
+  it.each(['网格步长', '结束日期'])('改动%s后保留旧回测并禁止保存，重新回测后可保存新参数和结束日', async field => {
+    setupBacktest()
+    runBacktest()
+    await screen.findByText('回测结果')
+    expect(saveButton().disabled).toBe(false)
+    fireEvent.change(screen.getByLabelText(new RegExp(field)), {
+      target: { value: field === '网格步长' ? '0.35' : '2026-09-06' },
+    })
+    expect(screen.getByText(staleText)).toBeTruthy()
+    expect(screen.getByText('回测结果')).toBeTruthy()
+    expect(saveButton().disabled).toBe(true)
+    fireEvent.click(saveButton())
+    expect(mocks.saveRecord).not.toHaveBeenCalled()
+
+    fireEvent.change(screen.getByLabelText('网格步长'), { target: { value: '0.35' } })
+    fireEvent.change(screen.getByLabelText(/结束日期/), { target: { value: '2026-09-06' } })
+    runBacktest()
+    await waitFor(() => expect(saveButton().disabled).toBe(false))
+    expect(screen.queryByText(staleText)).toBeNull()
+    fireEvent.click(saveButton())
+    expect(mocks.saveRecord).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
+      row: expect.objectContaining({ step: 0.35 }),
+      endDate: '2026-09-06',
+      result: expect.objectContaining({ current: 3.5 }),
+    }))
+  })
+
+  it.each(['成功', '失败'])('改参后，旧回测晚到%s不发布结果或提示，也不释放新请求', async outcome => {
+    setupBacktest()
+    const old = deferredHistory()
+    const next = deferredHistory()
+    mocks.getCandles.mockReturnValueOnce(old.promise).mockReturnValueOnce(next.promise)
+    runBacktest()
+    fireEvent.change(screen.getByLabelText('网格步长'), { target: { value: '0.35' } })
+    runBacktest()
+    await act(async () => {
+      if (outcome === '成功') old.resolve(history)
+      else old.reject(new Error('旧回测失败'))
+    })
+    expect(screen.queryByRole('heading', { name: '回测结果' })).toBeNull()
+    expect(screen.queryByText('旧回测失败')).toBeNull()
+    expect(screen.getByRole<HTMLButtonElement>('button', { name: /正在获取行情并回测/ }).disabled).toBe(true)
+    await act(async () => next.resolve(history))
+    expect(saveButton().disabled).toBe(false)
+  })
+
+  it.each(['成功', '失败'])('改参后，旧实时报价晚到%s不发布行情提示', async outcome => {
+    setupBacktest()
+    let resolve!: (quotes: Map<string, { date: string }>) => void
+    let reject!: (reason: Error) => void
+    mocks.fetchQuotes.mockReturnValueOnce(new Promise((ok, fail) => { resolve = ok; reject = fail }))
+    await act(async () => { runBacktest() })
+    expect(mocks.fetchQuotes).toHaveBeenCalledTimes(1)
+    fireEvent.change(screen.getByLabelText('网格步长'), { target: { value: '0.35' } })
+    const next = deferredHistory()
+    mocks.getCandles.mockReturnValueOnce(next.promise)
+    runBacktest()
+    await act(async () => {
+      if (outcome === '成功') resolve(new Map([['510300', { date: '2026-09-30' }]]))
+      else reject(new Error('旧报价失败'))
+    })
+    expect(screen.queryByText(/已合并.*实时报价|旧报价失败/)).toBeNull()
+    expect(screen.getByRole<HTMLButtonElement>('button', { name: /正在获取行情并回测/ }).disabled).toBe(true)
+    await act(async () => next.resolve(history))
+    expect(saveButton().disabled).toBe(false)
+  })
+
+  it('建议取价期间禁止运行回测，填参后旧结果过期并可重跑', async () => {
+    setupBacktest()
+    runBacktest()
+    await screen.findByText('回测结果')
+    const suggestion = deferredHistory()
+    mocks.getCandles.mockReturnValueOnce(suggestion.promise)
+    fireEvent.click(screen.getByRole('button', { name: '填入建议参数' }))
+    const submit = screen.getByRole<HTMLButtonElement>('button', { name: '运行回测' })
+    expect(submit.disabled).toBe(true)
+    fireEvent.submit(submit.form!)
+    expect(mocks.getCandles).toHaveBeenCalledTimes(2)
+    await act(async () => suggestion.resolve(history))
+    expect(screen.getByLabelText<HTMLInputElement>('网格步长').value).toBe('0.105')
+    expect(screen.getByText(staleText)).toBeTruthy()
+    expect(saveButton().disabled).toBe(true)
+    expect(submit.disabled).toBe(false)
+    runBacktest()
+    await waitFor(() => expect(saveButton().disabled).toBe(false))
+  })
+
+  it.each(['成功', '失败'])('手动编辑后，旧建议晚到%s不干扰新回测', async outcome => {
+    setupBacktest()
+    const suggestion = deferredHistory()
+    const backtest = deferredHistory()
+    mocks.getCandles.mockReturnValueOnce(suggestion.promise).mockReturnValueOnce(backtest.promise)
+    fireEvent.click(screen.getByRole('button', { name: '填入建议参数' }))
+    fireEvent.change(screen.getByLabelText('网格步长'), { target: { value: '0.35' } })
+    runBacktest()
+    await act(async () => {
+      if (outcome === '成功') suggestion.resolve(history)
+      else suggestion.reject(new Error('旧建议失败'))
+    })
+    expect(screen.getByLabelText<HTMLInputElement>('网格步长').value).toBe('0.35')
+    expect(screen.queryByText(/已按 .* 填入|旧建议失败/)).toBeNull()
+    expect(screen.getByRole<HTMLButtonElement>('button', { name: /正在获取行情并回测/ }).disabled).toBe(true)
+    await act(async () => backtest.resolve(history))
+    expect(saveButton().disabled).toBe(false)
+  })
+
+  it.each(['成功', '失败'])('手动编辑后，旧建议晚到%s不改表单或提示，也不释放新建议', async outcome => {
+    setupBacktest()
+    const old = deferredHistory()
+    const next = deferredHistory()
+    mocks.getCandles.mockReturnValueOnce(old.promise).mockReturnValueOnce(next.promise)
+    fireEvent.click(screen.getByRole('button', { name: '填入建议参数' }))
+    fireEvent.change(screen.getByLabelText('网格步长'), { target: { value: '0.35' } })
+    fireEvent.click(screen.getByRole('button', { name: '填入建议参数' }))
+    await act(async () => {
+      if (outcome === '成功') old.resolve(history)
+      else old.reject(new Error('旧建议失败'))
+    })
+    expect(screen.getByLabelText<HTMLInputElement>('网格步长').value).toBe('0.35')
+    expect(screen.queryByText(/已按 .* 填入|旧建议失败/)).toBeNull()
+    expect(screen.getByRole<HTMLButtonElement>('button', { name: '正在取价…' }).disabled).toBe(true)
+    await act(async () => next.resolve(history))
+    expect(screen.getByLabelText<HTMLInputElement>('网格步长').value).toBe('0.105')
   })
 
   it('从候选池带过来的 ?code=&name= 预填代码和名称，非法代码忽略', () => {

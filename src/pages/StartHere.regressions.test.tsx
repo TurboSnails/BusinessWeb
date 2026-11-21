@@ -6,15 +6,19 @@ import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import StartHere from './StartHere'
 import { START_KEY } from '../features/invest-start/store'
+import { resetPlanRepositoryForTests } from '../features/investment-plan/repository'
+import { createEmptyPlan, PLAN_KEYS } from '../features/investment-plan/types'
 
 beforeEach(() => {
   vi.stubGlobal('fetch', vi.fn())
+  resetPlanRepositoryForTests()
 })
 
 afterEach(() => {
   cleanup()
   vi.unstubAllGlobals()
   window.localStorage.clear()
+  resetPlanRepositoryForTests()
 })
 
 const renderPage = () => render(<MemoryRouter initialEntries={['/invest/start']}><StartHere /></MemoryRouter>)
@@ -344,5 +348,39 @@ describe('P3 · 小修', () => {
     fireEvent.click(btn)
     expect(note.hidden).toBe(false)
     expect(note.textContent).toContain('可以为 0')
+  })
+})
+
+describe('P1-2 · 已有计划未带入自测检查日时不隐藏', () => {
+  it('计划无检查日且 start 有检查日：仍显示自测日期并引导带入', () => {
+    seed({
+      review: { id: 'abc-1', anchor: '2026-12-15', intervalMonths: 6, completedDates: [], calendarSequence: 0 },
+    })
+    localStorage.setItem(PLAN_KEYS.document, JSON.stringify(createEmptyPlan('2026-11-14T00:00:00.000Z', 'p1')))
+    renderPage()
+    const region = reviewRegion()
+    expect(region.textContent).toContain('2026-12-15')
+    expect(region.textContent).toMatch(/尚未带入|去我的计划带入/)
+    expect(screen.getByRole('region', { name: '你的下一步' }).textContent).toContain('2026-12-15')
+  })
+
+  it('计划已有检查日：不以自测旧日期覆盖，仍只显示计划检查日', () => {
+    seed({
+      review: { id: 'abc-1', anchor: '2026-12-15', intervalMonths: 6, completedDates: [], calendarSequence: 0 },
+    })
+    const doc = createEmptyPlan('2026-11-14T00:00:00.000Z', 'p1')
+    doc.review = {
+      id: 'plan-r',
+      anchor: '2027-03-10',
+      intervalMonths: 3,
+      completedDates: [],
+      calendarSequence: 1,
+      mode: 'calendar-check-band-act',
+    }
+    localStorage.setItem(PLAN_KEYS.document, JSON.stringify(doc))
+    renderPage()
+    const region = reviewRegion()
+    expect(region.textContent).toContain('2027-03-10')
+    expect(region.textContent).not.toContain('2026-12-15')
   })
 })

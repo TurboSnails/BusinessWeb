@@ -46,7 +46,8 @@ export const INVEST_GROUPS: HubGroup[] = [
     hint: '先读书、定计划，再看盘、选公司、用工具。',
     links: [
       { path: '/first-book', label: '我的书', short: '《正念投资》全文与目录', desc: '《正念投资：普通人用规则代替盯盘的投资方法》全文与目录' },
-      { path: '/investment-plan-2026', label: '投资计划', short: '三笔钱、红线与产业趋势', desc: '三笔钱、再平衡、红线与回撤补仓，以及 AI 算力链等产业趋势判断' },
+      { path: '/invest/my-plan', label: '我的计划与持仓', short: '本机预算与检查日', desc: '本机整理应急需求、三笔预算、配置类别、定投备忘与检查日；可从旧记录预览导入；不构成投资建议' },
+      { path: '/investment-plan-2026', label: '2026 投资计划（作者示例）', short: '作者示例配置与红线', desc: '作者示例：三笔钱、再平衡、红线与回撤补仓，以及 AI 算力链等产业趋势判断；与「我的计划与持仓」是另一份独立记录' },
     ],
   },
   {
@@ -195,7 +196,6 @@ export interface WorkbenchTool {
 // 不在导航和投资分组里、但有固定路径的页面
 const EXTRA_PAGES: SearchablePage[] = [
   { path: '/invest/start', label: '从这里开始', group: '投资 · 规则', desc: '新手入门：5 分钟自测该不该投、走哪条路线（先打底 / 省心 / 结合 / 研究），了解定投与检查日；答案只存在本机' },
-  { path: '/invest/my-plan', label: '我的计划与持仓', group: '投资 · 规则', desc: '本机整理应急需求、三笔预算、配置类别、定投备忘与检查日；可从旧记录预览导入；不构成投资建议' },
   { path: '/life/human-3', label: 'Human 3.0 人生规划', group: '自由之路', desc: '心智、身体、精神、事业四象限访谈与90天行动计划' },
   { path: '/daily-analysis/legacy', label: '每日分析 · 历史旧版', group: '投资 · 历史旧版', desc: '原有手工复盘、导入导出与云同步', archived: true },
   { path: '/first-book/slow-is-fast', label: '书的目录', group: '投资 · 规则', desc: '《正念投资》目录与章节' },
@@ -225,17 +225,21 @@ export function findSearchablePage(pathname: string): SearchablePage | null {
   return SEARCHABLE_PAGES.find(p => p.path === pathname) ?? null
 }
 
-const descOf = (path: string): string => findSearchablePage(path)?.desc ?? ''
+/** 工作台卡片用短说明（≤18 字），不靠省略号截断长 desc */
+const shortOf = (path: string, fallback: string): string => {
+  const link = INVEST_GROUPS.flatMap(g => g.links).find(l => l.path === path)
+  return link?.short ?? fallback
+}
 
 export const WORKBENCH_TOOLS: WorkbenchTool[] = [
-  { path: '/candidates', label: '候选池', desc: descOf('/candidates') },
-  { path: '/research-notes', label: '公司研究', desc: descOf('/research-notes') },
-  { path: '/valuation', label: '估值工作台', desc: descOf('/valuation') },
-  { path: '/dcf', label: 'DCF', desc: descOf('/dcf') },
-  { path: '/grid-trading', label: '网格交易', desc: descOf('/grid-trading') },
-  { path: '/watch', label: '观察盘', desc: descOf('/watch') },
-  { path: '/knowledge', label: '知识图谱', desc: '个人知识库与笔记关系图' },
-  { path: '/first-book', label: '我的书', desc: descOf('/first-book') },
+  { path: '/candidates', label: '候选池', desc: shortOf('/candidates', '我的候选与研究筛出') },
+  { path: '/research-notes', label: '公司研究', desc: shortOf('/research-notes', '四个市场的公司库') },
+  { path: '/valuation', label: '估值工作台', desc: shortOf('/valuation', '自动取财报，六法三情景') },
+  { path: '/dcf', label: 'DCF', desc: shortOf('/dcf', '输入股票一键估算') },
+  { path: '/grid-trading', label: '网格交易', desc: shortOf('/grid-trading', 'A 股 / ETF 网格回测') },
+  { path: '/watch', label: '观察盘', desc: shortOf('/watch', '宏观、全球、A股一页看完') },
+  { path: '/knowledge', label: '知识图谱', desc: '知识库与笔记关系' },
+  { path: '/first-book', label: '我的书', desc: shortOf('/first-book', '《正念投资》全文与目录') },
 ]
 
 /** 关键词按空格切开，每个词都要命中；label 开头 > label 包含 > 其他字段；已舍弃永远最后 */

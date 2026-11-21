@@ -70,12 +70,13 @@ function dcfSignal(dcf: DcfSummary | undefined): Signal {
     return { id: 'dcf', label: 'DCF', verdict: why, detail: '可在快速 DCF 或完整 DCF 页自行测算', direction: null }
   }
   const low = dcf.credibility === 'low'
+  const mineComparable = dcf.source !== 'mine' || (dcf.currentFresh === true && dcf.current != null)
   const below = dcf.buyBelow != null && dcf.current != null && dcf.current <= dcf.buyBelow
   return {
     id: 'dcf', label: 'DCF',
     verdict: `安全边际 ${pct(dcf.mos)}`,
-    detail: [`${source}合理价 ${dcf.currency ?? ''} ${dcf.price.toFixed(2)}`.trim(), below && `现价已低于买入参考价 ${dcf.buyBelow?.toFixed(2)}`, low && '模型可信度低，不参与判断', dcf.savedAt && `保存于 ${dcf.savedAt.slice(0, 10)}`].filter(Boolean).join('；'),
-    direction: low ? null : dcf.mos >= SIGNAL_RULES.dcfMos ? 1 : dcf.mos < SIGNAL_RULES.dcfDown ? -1 : 0,
+    detail: [`${source}合理价 ${dcf.currency ?? ''} ${dcf.price.toFixed(2)}`.trim(), !mineComparable && '保存时安全边际；缺少同币种新鲜现价，不参与当前判断', below && `现价已低于买入参考价 ${dcf.buyBelow?.toFixed(2)}`, low && '模型可信度低，不参与判断', dcf.savedAt && `保存于 ${dcf.savedAt.slice(0, 10)}`].filter(Boolean).join('；'),
+    direction: low || !mineComparable ? null : dcf.mos >= SIGNAL_RULES.dcfMos ? 1 : dcf.mos < SIGNAL_RULES.dcfDown ? -1 : 0,
   }
 }
 
@@ -103,7 +104,7 @@ export function companySignals(input: SignalInput): SignalSummary {
   if (d && (d.action === 'buy' || d.action === 'adjust') && bucket === '回避') conflicts.push(`你最近的决策是「${DECISION_ACTIONS[d.action]}」，但最新研究评级为回避：按决策记录复查证伪条件。`)
 
   const notes: string[] = []
-  if (input.priceStale) notes.push(`价格锚点${input.priceDate ? ` ${input.priceDate}` : ''}已过期，情景与 DCF 的比较按旧价计算。`)
+  if (input.priceStale) notes.push(`价格锚点${input.priceDate ? ` ${input.priceDate}` : ''}已过期，情景比较仍按旧价；本人 DCF 不据此产生当前方向。`)
   if (d && d.nextCheck <= input.today) notes.push(`决策记录的检查日 ${d.nextCheck} 已到，请到候选池复查。`)
   if (!positive.length && !negative.length && !conflicts.length) notes.push('可比较的信号不足或都为中性，没有明显方向。')
   else if (!conflicts.length) notes.push(positive.length ? '有方向的信号都偏积极，没有发现分歧；仍需核对数据时点与假设。' : '有方向的信号都偏谨慎，没有发现分歧。')

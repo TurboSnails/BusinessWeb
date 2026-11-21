@@ -15,7 +15,7 @@ function Harness(): JSX.Element {
   return (
     <MemoryRouter>
       {companies.map(x => <button key={x.code} onClick={() => c.toggle(x.market, x.code)}>add-{x.code}</button>)}
-      <CandidatePool items={c.items} companies={companies} state={c.state} message={c.message} onMove={c.move} onDecision={(i, r) => c.addDecision(i.market, i.code, r)} onRemove={i => c.remove(i.market, i.code)} onNote={(i, t) => c.setNote(i.market, i.code, t)} onClear={c.clear} onConnect={c.connect} onRetry={c.retry} />
+      <CandidatePool items={c.items} companies={companies} state={c.state} message={c.message} localError={c.localError} onRetryLocal={c.retryLocal} onMove={c.move} onDecision={(i, r) => c.addDecision(i.market, i.code, r)} onRemove={i => c.remove(i.market, i.code)} onNote={(i, t) => c.setNote(i.market, i.code, t)} onClear={c.clear} onConnect={c.connect} onRetry={c.retry} />
     </MemoryRouter>
   )
 }
@@ -93,6 +93,43 @@ describe('CandidatePool with cloud sync', () => {
     expect(puts).toHaveLength(0)
   })
 
+  it('已连接时本机写入失败与云端成功分别反馈，恢复后可单独重试本机保存', async () => {
+    localStorage.setItem('rn-candidates-token', TOKEN)
+    localStorage.setItem('rn-candidates', JSON.stringify([{ market: 'us', code: 'A', addedAt: '2026-10-02T00:00:00.000Z', note: '旧备注' }]))
+    render(<Harness />)
+    await waitFor(() => expect(screen.getByText(/已同步到云端/)).toBeTruthy())
+    const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new DOMException('quota', 'QuotaExceededError')
+    })
+    const box = screen.getByLabelText('备注 A')
+    fireEvent.change(box, { target: { value: '本机失败的新备注' } })
+    fireEvent.blur(box)
+    await waitFor(() => expect((cloud.items as { note?: string }[])[0].note).toBe('本机失败的新备注'))
+    expect(screen.getByRole('alert').textContent).toContain('未保存到本机')
+    expect(screen.getByText(/已同步到云端/)).toBeTruthy()
+    expect(JSON.parse(localStorage.getItem('rn-candidates') as string)[0].note).toBe('旧备注')
+    setItem.mockRestore()
+    fireEvent.click(screen.getByRole('button', { name: '重试本机保存' }))
+    expect(JSON.parse(localStorage.getItem('rn-candidates') as string)[0].note).toBe('本机失败的新备注')
+    expect(screen.queryByRole('alert')).toBeNull()
+    expect(screen.getByText(/已同步到云端/)).toBeTruthy()
+  })
+
+  it('云端冲突仍刷新为最新并保留既有冲突提示，不把本地操作写成成功', async () => {
+    localStorage.setItem('rn-candidates-token', TOKEN)
+    cloud = { revision: 1, items: [{ market: 'us', code: 'A', addedAt: '2026-10-02T00:00:00.000Z', note: '云端旧备注' }] }
+    render(<Harness />)
+    await waitFor(() => expect(screen.getByLabelText('备注 A')).toBeTruthy())
+    cloud = { revision: 2, items: [{ market: 'us', code: 'A', addedAt: '2026-10-02T00:00:00.000Z', note: '其他设备的新备注' }] }
+    const box = screen.getByLabelText('备注 A')
+    fireEvent.change(box, { target: { value: '本机冲突编辑' } })
+    fireEvent.blur(box)
+    await waitFor(() => expect(screen.getByText(/其他设备已更新候选池/)).toBeTruthy())
+    expect((screen.getByLabelText('备注 A') as HTMLTextAreaElement).value).toBe('其他设备的新备注')
+    expect(JSON.parse(localStorage.getItem('rn-candidates') as string)[0].note).toBe('其他设备的新备注')
+    expect(screen.queryByRole('alert')).toBeNull()
+  })
+
   it('wrong token is rejected and asks again', async () => {
     render(<Harness />)
     fireEvent.change(screen.getByLabelText('同步口令'), { target: { value: 'x'.repeat(32) } })
@@ -116,6 +153,29 @@ describe('同步状态展示', () => {
   })
 })
 
+describe('本机保存失败', () => {
+  it('备注保留在页面但不宣称已持久化，恢复后重试并重新挂载可读取', async () => {
+    localStorage.setItem('rn-candidates', JSON.stringify([{ market: 'us', code: 'A', addedAt: '2026-10-02T00:00:00.000Z', note: '旧备注' }]))
+    const view = render(<Harness />)
+    const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new DOMException('quota', 'QuotaExceededError')
+    })
+    const box = screen.getByLabelText('备注 A')
+    fireEvent.change(box, { target: { value: '待重试的新备注' } })
+    fireEvent.blur(box)
+    expect(screen.getByRole('alert').textContent).toContain('未保存到本机')
+    expect((screen.getByLabelText('备注 A') as HTMLTextAreaElement).value).toBe('待重试的新备注')
+    expect(JSON.parse(localStorage.getItem('rn-candidates') as string)[0].note).toBe('旧备注')
+    expect(screen.queryByText('未开启同步：数据仅保存在本机')).toBeNull()
+    setItem.mockRestore()
+    fireEvent.click(screen.getByRole('button', { name: '重试本机保存' }))
+    expect(JSON.parse(localStorage.getItem('rn-candidates') as string)[0].note).toBe('待重试的新备注')
+    view.unmount()
+    render(<Harness />)
+    expect((screen.getByLabelText('备注 A') as HTMLTextAreaElement).value).toBe('待重试的新备注')
+  })
+})
+
 describe('CandidatePool：按 DCF 筛选', () => {
   it('只显示安全边际达标的公司，筛选时不能调整顺序', () => {
     const mk = (code: string, mos: number | null) => ({ price: 10, mos, currency: 'USD', savedAt: '2026-10-13T00:00:00Z', code })
@@ -124,7 +184,8 @@ describe('CandidatePool：按 DCF 筛选', () => {
       input: { currency: 'USD' }, result: { price: r.price, mos: r.mos }, wacc: {}, multiples: [],
     }))
     const items = ['A', 'B', 'C'].map(code => ({ market: 'us' as const, code, addedAt: '2026-10-01T00:00:00Z' }))
-    render(<MemoryRouter><CandidatePool items={items} companies={companies} tools={{ dcf: dcf as never, valuation: [], grid: [] }} state="no-token" message="" onMove={() => {}} onDecision={() => {}} onRemove={() => {}} onNote={() => {}} onClear={() => {}} onConnect={() => true} onRetry={() => {}} /></MemoryRouter>)
+    const auto = new Map(dcf.map(r => [`us:${r.code}`, { status: 'ok', fair: r.result.price, buyBelow: null, credibility: 'medium', current: r.result.price / (1 + r.result.mos!), currency: 'USD', priceDate: new Date().toLocaleDateString('en-CA') }]))
+    render(<MemoryRouter><CandidatePool items={items} companies={companies} tools={{ dcf: dcf as never, valuation: [], grid: [], auto: auto as never }} state="no-token" message="" onMove={() => {}} onDecision={() => {}} onRemove={() => {}} onNote={() => {}} onClear={() => {}} onConnect={() => true} onRetry={() => {}} /></MemoryRouter>)
     expect(order()).toEqual(['A', 'B', 'C'])
     fireEvent.click(screen.getByRole('button', { name: '安全边际 ≥20%' }))
     expect(order()).toEqual(['A'])
@@ -181,14 +242,14 @@ describe('决策记录', () => {
 })
 
 describe('价位提醒', () => {
-  const valued: Company[] = [{ ...company('A'), valuation: { currency: 'USD', asOf: '2026-11-13', value: { low: 90, base: 120, high: 150, kind: 'undated', date: null, primaryMethod: 'PE' } } as never,
+  const valued: Company[] = [{ ...company('A'), valuation: { currency: 'USD', asOf: '2026-11-13', status: 'reviewed', price: { value: 100, date: '2026-11-13', currency: 'USD' }, methods: [{ name: 'PE', inputs: { epsForward: 10, epsTrailingTwelveMonths: 10 } }], value: { low: 90, base: 120, high: 150, kind: 'undated', date: null, primaryMethod: 'PE' } } as never,
     marketRefresh: { checkedAt: '2026-11-14', priceDate: '2026-11-13', price: 100, currency: 'USD', source: 'snap-us', originalAsOf: '' } }]
-  function AlertHarness(): JSX.Element {
+  function AlertHarness({ records = valued }: { records?: Company[] }): JSX.Element {
     const c = useCandidates(true)
     return (
       <MemoryRouter>
         <button onClick={() => c.toggle('us', 'A')}>add-A</button>
-        <CandidatePool items={c.items} companies={valued} state={c.state} message={c.message} onMove={c.move} onDecision={(i, r) => c.addDecision(i.market, i.code, r)} onRemove={i => c.remove(i.market, i.code)} onNote={(i, t) => c.setNote(i.market, i.code, t)} onClear={c.clear} onConnect={c.connect} onRetry={c.retry}
+        <CandidatePool items={c.items} companies={records} state={c.state} message={c.message} localError={c.localError} onRetryLocal={c.retryLocal} onMove={c.move} onDecision={(i, r) => c.addDecision(i.market, i.code, r)} onRemove={i => c.remove(i.market, i.code)} onNote={(i, t) => c.setNote(i.market, i.code, t)} onClear={c.clear} onConnect={c.connect} onRetry={c.retry}
           onAlert={(i, rule) => c.setAlert(i.market, i.code, rule)} />
       </MemoryRouter>
     )
@@ -202,11 +263,32 @@ describe('价位提醒', () => {
     fireEvent.click(screen.getByRole('button', { name: '设置价位提醒 A' }))
     expect(screen.getByText(/最新收盘价 USD 100/).textContent).toContain('2026-11-13')
     expect((screen.getByLabelText(/条件价（USD）/) as HTMLInputElement).value).toBe('90')
+    const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new DOMException('quota', 'QuotaExceededError')
+    })
+    fireEvent.click(screen.getByRole('button', { name: '保存' }))
+    await waitFor(() => expect(screen.getByRole('dialog').textContent).toContain('未保存到本机'))
+    expect(screen.getByRole('dialog')).toBeTruthy()
+    setItem.mockRestore()
     fireEvent.click(screen.getByRole('button', { name: '保存' }))
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
     const saved = JSON.parse(localStorage.getItem('rn-candidates') ?? '[]')
     expect(saved[0].alert).toMatchObject({ kind: 'price-below', threshold: 90, currency: 'USD', anchor: { type: 'research-bear', value: 90, asOf: '2026-11-13' } })
     expect(screen.getByRole('button', { name: '修改价位提醒 A' }).textContent).toContain('≤ 90')
+  })
+
+  it('综合估值待核时不提供研究锚点，仍可手动填写', () => {
+    const unreliable = [{
+      ...valued[0],
+      marketRefresh: { ...valued[0].marketRefresh!, price: 300 },
+      valuation: { ...valued[0].valuation!, price: { value: 300, date: '2026-11-13', currency: 'USD' } },
+    }] as Company[]
+    render(<AlertHarness records={unreliable} />)
+    fireEvent.click(screen.getByText('add-A'))
+    fireEvent.click(screen.getByRole('button', { name: '设置价位提醒 A' }))
+    expect(screen.queryByText(/研究估值·悲观价/)).toBeNull()
+    expect(screen.queryByText(/研究估值·基准价/)).toBeNull()
+    expect(screen.getByRole('radio', { name: /手动填写/ })).toHaveProperty('checked', true)
   })
 
   it('决策记录完整版里可以勾选「把条件价设为提醒」', async () => {

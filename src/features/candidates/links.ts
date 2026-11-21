@@ -11,6 +11,7 @@ import { loadReports } from '../valuation/storage'
 import type { ValuationReport } from '../valuation/types'
 import type { CandidateMarket } from './validation'
 import { codeKey, venueOf } from './markets'
+import { STALE_TRADING_DAYS, tradingDaysBetween } from './priceAlert'
 
 export { MARKET_LABEL, VENUE_LABEL, venueOf, type Venue } from './markets'
 
@@ -57,17 +58,26 @@ export function autoDcfOf(market: CandidateMarket, code: string, sources: ToolSo
   return sources.auto?.get(autoDcfKey(venue, codeKey(venue, code)))
 }
 
+const validQuoteDay = (date: string | null | undefined, today: string): date is string => {
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return false
+  const time = Date.parse(`${date}T00:00:00Z`)
+  return Number.isFinite(time) && new Date(time).toISOString().slice(0, 10) === date && date <= today
+}
+
 /**
  * 列表里展示与筛选用的 DCF：本人保存的记录优先，否则用预填库的自动估值。
- * 安全边际一律按最新股价重算（本人记录的合理价不变），避免沿用保存当天的旧价。
+ * 本人记录只在同币种、带日期且新鲜的现价下重算 MOS；否则保留保存时 MOS 和日期，但不参与当前方向。
  */
-export function dcfOf(market: CandidateMarket, code: string, sources: ToolSources): DcfSummary | undefined {
+export function dcfOf(market: CandidateMarket, code: string, sources: ToolSources, today = new Date().toLocaleDateString('en-CA')): DcfSummary | undefined {
   const auto = autoDcfOf(market, code, sources)
   const mine = toolProgress(market, code, sources).dcf
   if (mine) {
-    const current = auto && auto.currency === mine.currency ? auto.current : null
-    const mos = mine.price != null && current ? (mine.price - current) / current : mine.mos
-    return { price: mine.price, mos, source: 'mine', savedAt: mine.savedAt, current, buyBelow: null, status: 'ok', currency: mine.currency }
+    const sameCurrency = !!auto && auto.currency === mine.currency && Number.isFinite(auto.current) && auto.current > 0
+    const current = auto && sameCurrency ? auto.current : null
+    const currentDate = auto?.priceDate ?? null
+    const currentFresh = current !== null && validQuoteDay(currentDate, today) && tradingDaysBetween(currentDate, today) <= STALE_TRADING_DAYS
+    const mos = mine.price != null && current !== null && currentFresh ? (mine.price - current) / current : mine.mos
+    return { price: mine.price, mos, source: 'mine', savedAt: mine.savedAt, current, currentFresh, currentDate, buyBelow: null, status: 'ok', currency: mine.currency }
   }
   if (!auto) return undefined
   return {

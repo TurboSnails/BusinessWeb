@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { candidateAlerts, countAlerts, priceAlertStates } from './alerts'
-import type { ToolSources } from './links'
+import { dcfOf, type ToolSources } from './links'
+import { companySignals } from '../signals/companySignals'
 import type { AutoDcf } from '../dcf/autoDcf'
 import type { CandidateAlertRule, CandidateItem, DecisionRecord } from './validation'
 
@@ -38,14 +39,49 @@ describe('candidateAlerts', () => {
     expect(candidateAlerts(items, auto([]), TODAY)).toEqual([])
   })
 
-  it('本人 DCF 超过 180 天提示过期；安全边际 ≥20% 记为进入买入区', () => {
+  it('本人 DCF 超过 180 天仍提示过期，但没有当前价时不再记为进入买入区', () => {
     const tools: ToolSources = {
       dcf: [{ market: 'cn', code: '600519', savedAt: '2026-01-01T00:00:00.000Z', input: { currency: 'CNY' }, result: { price: 130, mos: 0.3 } } as never],
       valuation: [], grid: [],
     }
     const alerts = candidateAlerts([item('600519')], tools, TODAY)
-    expect(alerts.map(a => a.kind)).toEqual(['buy-zone', 'stale-dcf'])
-    expect(countAlerts(alerts)).toEqual({ 'buy-zone': 1, 'stale-dcf': 1 })
+    expect(alerts.map(a => a.kind)).toEqual(['stale-dcf'])
+    expect(countAlerts(alerts)).toEqual({ 'stale-dcf': 1 })
+  })
+
+  describe('本人 DCF 当前价门禁', () => {
+    const mine = (autoSources?: ToolSources['auto']): ToolSources => ({
+      dcf: [{ market: 'cn', code: '600519', savedAt: '2026-10-01T00:00:00.000Z', input: { currency: 'CNY' }, result: { price: 150, mos: 0.8 } } as never],
+      valuation: [], grid: [], ...(autoSources ? { auto: autoSources } : {}),
+    })
+    const quote = (over: Partial<AutoDcf> = {}): ToolSources['auto'] => new Map([['cn:600519', {
+      status: 'ok', fair: 100, buyBelow: 80, credibility: 'medium', current: 100, currency: 'CNY', priceDate: TODAY, ...over,
+    } as AutoDcf]])
+
+    it.each([
+      ['自动摘要未加载', undefined],
+      ['自动摘要加载失败', new Map()],
+      ['公司未覆盖', new Map([['cn:000001', { status: 'ok', fair: 100, buyBelow: 80, credibility: 'medium', current: 100, currency: 'CNY', priceDate: TODAY } as AutoDcf]])],
+      ['币种不同', quote({ currency: 'USD' })],
+      ['报价过期', quote({ priceDate: '2026-10-15' })],
+    ])('%s：保留保存时 MOS，但不给当前买入区或偏积极信号', (_label, autoSources) => {
+      const tools = mine(autoSources)
+      const dcf = dcfOf('cn', '600519', tools, TODAY)
+      expect(dcf).toMatchObject({ mos: 0.8, savedAt: '2026-10-01T00:00:00.000Z', currentFresh: false })
+      expect(candidateAlerts([item('600519')], tools, TODAY)).toEqual([])
+      const signal = companySignals({ rating: '观察', dcf, today: TODAY }).signals.find(s => s.id === 'dcf')!
+      expect(signal.direction).toBeNull()
+      expect(signal.verdict).toContain('80%')
+      expect(signal.detail).toContain('保存于 2026-10-01')
+    })
+
+    it('恢复新鲜同币种现价后按新价重算，并恢复当前信号', () => {
+      const tools = mine(quote())
+      const dcf = dcfOf('cn', '600519', tools, TODAY)
+      expect(dcf).toMatchObject({ mos: 0.5, current: 100, currentFresh: true, currentDate: TODAY })
+      expect(candidateAlerts([item('600519')], tools, TODAY).map(a => a.kind)).toEqual(['buy-zone'])
+      expect(companySignals({ rating: '观察', dcf, today: TODAY }).signals.find(s => s.id === 'dcf')?.direction).toBe(1)
+    })
   })
 
   describe('触及条件价', () => {
@@ -73,6 +109,17 @@ describe('candidateAlerts', () => {
       expect(candidateAlerts(items, priced(95, '2026-10-16'), TODAY, undefined, extra)[0]?.price?.source).toBe('公司页价格锚点')
       expect(priceAlertStates(items, priced(80, '2026-10-01'), TODAY).get('cn:600519')).toMatchObject({ status: 'skipped', reason: 'stale' })
       expect(priceAlertStates(items, auto([['cn:600519', { current: 80, currency: 'USD', priceDate: '2026-10-19' }]]), TODAY).get('cn:600519')).toMatchObject({ reason: 'currency-mismatch' })
+    })
+    it('综合估值待核时保留并暂停已有研究锚点，可靠后恢复，原 schema 不变', () => {
+      const items = [item('600519', { alert: rule() })]
+      const before = JSON.stringify(items)
+      const unreliable = new Map([['cn:600519', false]])
+      expect(candidateAlerts(items, priced(80), TODAY, undefined, undefined, unreliable)).toEqual([])
+      expect(priceAlertStates(items, priced(80), TODAY, undefined, unreliable).get('cn:600519')).toMatchObject({ status: 'skipped', reason: 'valuation-unreliable' })
+      expect(JSON.stringify(items)).toBe(before)
+      const reliable = new Map([['cn:600519', true]])
+      expect(candidateAlerts(items, priced(80), TODAY, undefined, undefined, reliable).map(a => a.kind)).toEqual(['price-hit'])
+      expect(priceAlertStates(items, priced(80), TODAY, undefined, reliable).get('cn:600519')).toMatchObject({ status: 'hit' })
     })
   })
 })

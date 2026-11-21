@@ -6,15 +6,21 @@ import type { PlanRepository, StorageLike } from '../repository'
 import type { Day, Instant } from '../types'
 import { LEGACY_STATUS_LABEL, START_STATUS_LABEL, writeReasonLabel } from '../uiLabels'
 
-const defaultChoices = (now: Instant, id: string, today: Day): MigrationChoices => ({
+const defaultChoices = (
+  now: Instant,
+  id: string,
+  today: Day,
+  preferStart: boolean,
+  preview: Preview | null,
+): MigrationChoices => ({
   ownershipConfirmed: false,
   importLegacyTotalSplit: false,
   importLegacyCap: false,
   importLegacyHoldings: false,
   importLegacyCashflowExpense: false,
   importLegacyCashflowReserve: false,
-  importStartAssessment: false,
-  importStartReview: false,
+  importStartAssessment: preferStart && !!preview && preview.start.status === 'ok' && preview.start.hasAnswers,
+  importStartReview: preferStart && !!preview?.start.reviewOk,
   importStartResearchCap: false,
   selectDerivedRoute: false,
   now,
@@ -30,6 +36,7 @@ export function MigrationPreviewPanel({
   idFactory,
   onDone,
   onCancel,
+  preferStartImport = false,
 }: {
   storage: StorageLike | null
   repository: PlanRepository
@@ -38,11 +45,13 @@ export function MigrationPreviewPanel({
   idFactory: () => string
   onDone: () => void
   onCancel: () => void
+  /** 空状态「用自测结果建立计划」：默认勾选自测答案与检查日 */
+  preferStartImport?: boolean
 }): JSX.Element {
   const [revealed, setRevealed] = useState(false)
   const [cashflow, setCashflow] = useState(false)
   const [preview, setPreview] = useState<Preview | null>(null)
-  const [choices, setChoices] = useState(() => defaultChoices(now, idFactory(), today))
+  const [choices, setChoices] = useState(() => defaultChoices(now, idFactory(), today, preferStartImport, null))
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
@@ -52,21 +61,24 @@ export function MigrationPreviewPanel({
     setCashflow(withCashflow)
     // 仅加现金流时保持已揭示；首次预览才遮蔽
     if (!withCashflow) setRevealed(false)
-    setChoices(c => ({
-      ...c,
-      now,
-      today,
-      id: withCashflow ? c.id : idFactory(),
-      ownershipConfirmed: withCashflow ? c.ownershipConfirmed : false,
-      importLegacyTotalSplit: withCashflow ? c.importLegacyTotalSplit : false,
-      importLegacyHoldings: withCashflow ? c.importLegacyHoldings : false,
-      importLegacyCap: withCashflow ? c.importLegacyCap : false,
-      importLegacyCashflowExpense: false,
-      importLegacyCashflowReserve: false,
-      importStartAssessment: withCashflow ? c.importStartAssessment : false,
-      importStartReview: withCashflow ? c.importStartReview : false,
-      importStartResearchCap: withCashflow ? c.importStartResearchCap : false,
-    }))
+    setChoices(c => {
+      const nextId = withCashflow ? c.id : idFactory()
+      const base = defaultChoices(now, nextId, today, preferStartImport, p)
+      if (!withCashflow) return base
+      return {
+        ...base,
+        id: c.id,
+        ownershipConfirmed: c.ownershipConfirmed,
+        importLegacyTotalSplit: c.importLegacyTotalSplit,
+        importLegacyHoldings: c.importLegacyHoldings,
+        importLegacyCap: c.importLegacyCap,
+        importStartAssessment: c.importStartAssessment,
+        importStartReview: c.importStartReview,
+        importStartResearchCap: c.importStartResearchCap,
+        importLegacyCashflowExpense: false,
+        importLegacyCashflowReserve: false,
+      }
+    })
   }
 
   const confirm = async (): Promise<void> => {
@@ -95,10 +107,15 @@ export function MigrationPreviewPanel({
     onDone()
   }
 
+  const review = preview?.start.review
+  const reviewHint = review
+    ? `检查日 ${review.anchor} · 每 ${review.intervalMonths} 个月${review.completedDates.length ? ` · 已完成 ${review.completedDates.length} 次` : ''}`
+    : null
+
   return (
     <section className="ip-migrate" aria-labelledby="ip-migrate-title">
       <h2 id="ip-migrate-title" className="ip-h2">
-        预览本机已有记录
+        {preferStartImport ? '用自测结果建立计划' : '预览本机已有记录'}
       </h2>
       <p className="ip-muted">
         不会自动保存。旧投资计划页是另一份独立记录；导入后在本页继续维护，旧页修改不会同步到这里。
@@ -119,6 +136,7 @@ export function MigrationPreviewPanel({
             旧计划状态：{LEGACY_STATUS_LABEL[preview.legacy.status] ?? preview.legacy.status}；自测：
             {START_STATUS_LABEL[preview.start.status] ?? preview.start.status}
           </p>
+          {reviewHint && <p className="ip-muted">自测检查日：{reviewHint}</p>}
           {preview.candidates.sameAsDefaultNote.map(n => (
             <p key={n} className="ip-muted">
               {n}
@@ -242,16 +260,19 @@ export function MigrationPreviewPanel({
                       checked={choices.importStartAssessment}
                       onChange={e => setChoices(c => ({ ...c, importStartAssessment: e.target.checked }))}
                     />
-                    <span>导入自测答案版本</span>
+                    <span>导入自测答案</span>
                   </label>
-                  {preview.start.reviewOk && (
+                  {preview.start.reviewOk && review && (
                     <label className="ip-check">
                       <input
                         type="checkbox"
                         checked={choices.importStartReview}
                         onChange={e => setChoices(c => ({ ...c, importStartReview: e.target.checked }))}
                       />
-                      <span>导入检查日（保留原日历 UID）</span>
+                      <span>
+                        导入检查日 {review.anchor}（保留原日历身份与周期
+                        {review.completedDates.length ? `，已完成 ${review.completedDates.length} 次` : ''}）
+                      </span>
                     </label>
                   )}
                   {preview.start.researchCapBps !== null && (

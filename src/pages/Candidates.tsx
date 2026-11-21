@@ -7,6 +7,7 @@ import { DcfCell, DcfFilterChips } from '../components/DcfCell'
 import { DCF_FILTERS, matchDcfFilter, type DcfFilterId } from '../features/dcf/filter'
 import { Page } from '../components/ui'
 import { useCompanies } from '../data/companies'
+import { valuationReliability } from '../features/company-valuation/model'
 import { localDay } from '../components/DecisionDialog'
 import { isReviewDue } from '../features/candidates/store'
 import { candidateAlerts, priceAlertStates } from '../features/candidates/alerts'
@@ -58,13 +59,17 @@ export default function Candidates(): JSX.Element {
   // 价位提醒的另一个价格来源：公司页价格锚点（带行情日期）；自动 DCF 预填库的现价由 alerts.ts 自己读
   const anchorPrices = useMemo(() => new Map<string, PriceObservation[]>(companies.filter(c => c.marketRefresh).map(c => [`${c.market}:${c.code}`,
     priceObservations({ venueCurrency: VENUE_CURRENCY[venueOf(c.market)], marketRefresh: c.marketRefresh })])), [companies])
-  const alerts = useMemo(() => candidateAlerts(cand.items, tools, today, new Map(companies.map(c => [`${c.market}:${c.code}`, c.rating])), anchorPrices), [cand.items, tools, today, companies, anchorPrices])
+  const valuationReliabilityByCode = useMemo(() => new Map(companies.filter(c => c.valuation).map(c => {
+    const refreshed = c.marketRefresh?.tradability === 'unverified' ? undefined : c.marketRefresh
+    return [`${c.market}:${c.code}`, valuationReliability(c.valuation!, refreshed).ok] as const
+  })), [companies])
+  const alerts = useMemo(() => candidateAlerts(cand.items, tools, today, new Map(companies.map(c => [`${c.market}:${c.code}`, c.rating])), anchorPrices, valuationReliabilityByCode), [cand.items, tools, today, companies, anchorPrices, valuationReliabilityByCode])
   // 本周变化里的「本周触及条件价」：与今日待处理同一价格来源（自动 DCF 预填库收盘价 + 公司页价格锚点）
   const weeklyObservations = useMemo(() => new Map<string, PriceObservation[]>(cand.items.filter(i => i.alert).map(i => [`${i.market}:${i.code}`, [
     ...priceObservations({ venueCurrency: VENUE_CURRENCY[venueOf(i.market)], autoDcf: autoDcfOf(i.market, i.code, tools) }), ...(anchorPrices.get(`${i.market}:${i.code}`) ?? []),
   ]])), [cand.items, tools, anchorPrices])
-  const alertStates = useMemo(() => priceAlertStates(cand.items, tools, today, anchorPrices), [cand.items, tools, today, anchorPrices])
-  const pausedAlerts = [...alertStates.values()].filter(r => r.status === 'skipped' && (r.reason === 'stale' || r.reason === 'currency-mismatch' || r.reason === 'no-price')).length
+  const alertStates = useMemo(() => priceAlertStates(cand.items, tools, today, anchorPrices, valuationReliabilityByCode), [cand.items, tools, today, anchorPrices, valuationReliabilityByCode])
+  const pausedAlerts = [...alertStates.values()].filter(r => r.status === 'skipped' && (r.reason === 'stale' || r.reason === 'currency-mismatch' || r.reason === 'no-price' || r.reason === 'valuation-unreliable')).length
   const poolMarkets = new Set(cand.items.map(i => i.market))
   const libraries = [
     ['us', usLoading, usFailed], ['cn', cnLoading, cnFailed], ['hk', hkLoading, hkFailed],
@@ -145,13 +150,14 @@ export default function Candidates(): JSX.Element {
           {cand.items.length > 0 && <EarningsSoonList items={cand.items} cal={earningsCal} today={today} />}
           {cand.items.length > 0 && <CandidateAlerts alerts={alerts} companies={companies} paused={pausedAlerts} coverage={alertCoverage}
             onSeen={a => cand.markAlertSeen(a.market, a.code)} onSnooze={a => cand.snoozeAlert(a.market, a.code, addDays(today, SNOOZE_DAYS))} />}
-          <CandidatePool items={cand.items} companies={companies} tools={tools} state={cand.state} message={cand.message}
+          <CandidatePool items={cand.items} companies={companies} tools={tools} state={cand.state} message={cand.message} localError={cand.localError} onRetryLocal={cand.retryLocal}
             onMove={cand.move} onRemove={i => cand.remove(i.market, i.code)} onDecision={(i, r) => cand.addDecision(i.market, i.code, r)} onNote={(i, t) => cand.setNote(i.market, i.code, t)}
             onClear={cand.clear} onConnect={cand.connect} onRetry={cand.retry}
             onAlert={(i, rule) => cand.setAlert(i.market, i.code, rule)} alertStates={alertStates} />
         </>
       ) : (
         <div className="cand-research">
+          {cand.localError && <p role="alert" className="rn-warn-text">{cand.localError} <button type="button" className="tool-btn" onClick={cand.retryLocal}>重试本机保存</button></p>}
           <FutureTrendsPool action={addAction} filter={dcfFilter} toolbar={<div className="ui-cluster"><DcfFilterChips value={dcfF} onChange={setDcfF} className="ui-cluster" /></div>} />
         </div>
       )}

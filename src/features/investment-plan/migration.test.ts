@@ -2,7 +2,15 @@ import { describe, expect, it } from 'vitest'
 import { LEGACY_CASHFLOW_KEY, LEGACY_KEYS } from '../invest-start/legacyPlan'
 import { START_KEY } from '../invest-start/store'
 import { QUESTIONNAIRE_VERSION, RULES_VERSION } from '../invest-start/types'
-import { buildMigrationPreview, confirmMigration, type MigrationChoices } from './migration'
+import {
+  buildMigrationPreview,
+  buildStartReviewImportPreview,
+  confirmMigration,
+  confirmStartReviewIntoExistingPlan,
+  toPlanReview,
+  type MigrationChoices,
+} from './migration'
+import { createEmptyPlan } from './types'
 import { createPlanRepository, type StorageLike } from './repository'
 import { PLAN_KEYS } from './types'
 
@@ -146,6 +154,199 @@ describe('migration preview', () => {
 })
 
 describe('start:v1 migration', () => {
+  it('toPlanReview 保留日历身份与完成状态', () => {
+    const r = toPlanReview({
+      id: 'abc-1',
+      anchor: '2026-06-15',
+      intervalMonths: 6,
+      completedDates: ['2026-06-15', '2026-12-15'],
+      calendarSequence: 2,
+    })
+    expect(r).toEqual({
+      id: 'abc-1',
+      anchor: '2026-06-15',
+      intervalMonths: 6,
+      completedDates: ['2026-06-15', '2026-12-15'],
+      calendarSequence: 2,
+      mode: 'calendar-check-band-act',
+    })
+  })
+
+  it('确认导入检查日时保留 id / calendarSequence / 完成状态', async () => {
+    const start = {
+      schemaVersion: 1,
+      questionnaireVersion: QUESTIONNAIRE_VERSION,
+      rulesVersion: RULES_VERSION,
+      answers: { q1: 'c', q2: 'b', q3: 'c', q4: 'b', q5: 'b', q6: 'b', q7: 'b', q8: 'b', q9: 'b' },
+      steps: {},
+      assessedAt: NOW,
+      review: {
+        id: 'abc-1',
+        anchor: '2026-06-15',
+        intervalMonths: 6,
+        completedDates: ['2026-06-15', '2026-12-15'],
+        calendarSequence: 2,
+      },
+    }
+    const s = memoryStorage({ [START_KEY]: JSON.stringify(start) })
+    const preview = buildMigrationPreview(s, TODAY)
+    expect(preview.start.reviewOk).toBe(true)
+    expect(preview.start.review?.id).toBe('abc-1')
+    const repo = createPlanRepository({ storage: s, clock: () => NOW, idFactory: () => 'id-1' })
+    const r = await confirmMigration(
+      preview,
+      baseChoices({ importStartAssessment: true, importStartReview: true }),
+      repo,
+      s,
+    )
+    expect(r.ok).toBe(true)
+    if (r.ok) {
+      expect(r.document.review).toEqual({
+        id: 'abc-1',
+        anchor: '2026-06-15',
+        intervalMonths: 6,
+        completedDates: ['2026-06-15', '2026-12-15'],
+        calendarSequence: 2,
+        mode: 'calendar-check-band-act',
+      })
+    }
+    expect(s.data[START_KEY]).toBe(JSON.stringify(start))
+  })
+
+  it('已有计划补带：指纹变化拒绝；成功写 migration.start 与 imports；不覆盖已有 review；start 不变', async () => {
+    const start = {
+      schemaVersion: 1,
+      questionnaireVersion: QUESTIONNAIRE_VERSION,
+      rulesVersion: RULES_VERSION,
+      answers: { q1: 'c', q2: 'b', q3: 'c', q4: 'b', q5: 'b', q6: 'b', q7: 'b', q8: 'b', q9: 'b' },
+      steps: {},
+      assessedAt: NOW,
+      review: {
+        id: 'abc-1',
+        anchor: '2026-06-15',
+        intervalMonths: 6,
+        completedDates: ['2026-06-15', '2026-12-15'],
+        calendarSequence: 2,
+      },
+    }
+    const s = memoryStorage({ [START_KEY]: JSON.stringify(start) })
+    const preview = buildStartReviewImportPreview(s, TODAY)!
+    expect(preview.review.id).toBe('abc-1')
+
+    const doc = createEmptyPlan(NOW, 'exist-1')
+    doc.migration = {
+      confirmedAt: NOW,
+      legacy: { fingerprint: 'leg', imported: true },
+      start: null,
+    }
+    const repo = createPlanRepository({ storage: s, clock: () => NOW, idFactory: () => 'exist-1' })
+    const created = await repo.create(doc)
+    expect(created.ok).toBe(true)
+
+    s.data[START_KEY] = JSON.stringify({
+      ...start,
+      review: { ...start.review, calendarSequence: 9 },
+    })
+    const stale = await confirmStartReviewIntoExistingPlan(preview, {
+      storage: s,
+      repository: repo,
+      expectedLocalRevision: created.ok ? created.document.localRevision : 1,
+      now: NOW,
+      today: TODAY,
+    })
+    expect(stale.ok).toBe(false)
+    if (!stale.ok) expect(stale.reason).toBe('stale')
+    expect(repo.getSnapshot().document?.review).toBeNull()
+
+    s.data[START_KEY] = JSON.stringify(start)
+    const ok = await confirmStartReviewIntoExistingPlan(preview, {
+      storage: s,
+      repository: repo,
+      expectedLocalRevision: repo.getSnapshot().document!.localRevision,
+      now: NOW,
+      today: TODAY,
+    })
+    expect(ok.ok).toBe(true)
+    if (ok.ok) {
+      expect(ok.document.review?.id).toBe('abc-1')
+      expect(ok.document.migration?.legacy).toEqual({ fingerprint: 'leg', imported: true })
+      expect(ok.document.migration?.start?.imported).toBe(true)
+      expect(ok.receiptWritten).toBe(true)
+    }
+    expect(JSON.parse(s.data[PLAN_KEYS.imports]!)).toEqual({
+      schemaVersion: 1,
+      legacyConsumed: true,
+      startConsumed: true,
+    })
+    expect(s.data[START_KEY]).toBe(JSON.stringify(start))
+
+    const again = await confirmStartReviewIntoExistingPlan(preview, {
+      storage: s,
+      repository: repo,
+      expectedLocalRevision: repo.getSnapshot().document!.localRevision,
+      now: NOW,
+      today: TODAY,
+    })
+    expect(again.ok).toBe(false)
+    if (!again.ok) expect(again.reason).toBe('has-review')
+    expect(repo.getSnapshot().document?.review?.id).toBe('abc-1')
+  })
+
+  it('patch 后源再变化：仍 ok 并标 sourceChangedAfterWrite，计划已带入不谎称未写入', async () => {
+    const start = {
+      schemaVersion: 1,
+      questionnaireVersion: QUESTIONNAIRE_VERSION,
+      rulesVersion: RULES_VERSION,
+      answers: { q1: 'c', q2: 'b', q3: 'c', q4: 'b', q5: 'b', q6: 'b', q7: 'b', q8: 'b', q9: 'b' },
+      steps: {},
+      assessedAt: NOW,
+      review: {
+        id: 'abc-1',
+        anchor: '2026-06-15',
+        intervalMonths: 6,
+        completedDates: ['2026-06-15', '2026-12-15'],
+        calendarSequence: 2,
+      },
+    }
+    const base = memoryStorage({ [START_KEY]: JSON.stringify(start) })
+    const mutatedStart = JSON.stringify({
+      ...start,
+      review: { ...start.review, calendarSequence: 7 },
+    })
+    const s: typeof base = {
+      data: base.data,
+      getItem: k => base.getItem(k),
+      setItem: (k, v) => {
+        base.setItem(k, v)
+        // 计划文档写入后立刻改 start，模拟 patch 与事后比对之间的竞态
+        if (k === PLAN_KEYS.document) base.setItem(START_KEY, mutatedStart)
+      },
+      removeItem: k => base.removeItem(k),
+    }
+    const preview = buildStartReviewImportPreview(s, TODAY)!
+    const repo = createPlanRepository({ storage: s, clock: () => NOW, idFactory: () => 'race-1' })
+    const created = await repo.create(createEmptyPlan(NOW, 'race-1'))
+    expect(created.ok).toBe(true)
+    // create 也会写 document 并触发上面的 setItem 钩子；恢复 start 再测 confirm
+    base.setItem(START_KEY, JSON.stringify(start))
+
+    const r = await confirmStartReviewIntoExistingPlan(preview, {
+      storage: s,
+      repository: repo,
+      expectedLocalRevision: repo.getSnapshot().document!.localRevision,
+      now: NOW,
+      today: TODAY,
+    })
+    expect(r.ok).toBe(true)
+    if (r.ok) {
+      expect(r.document.review?.id).toBe('abc-1')
+      expect(r.sourceChangedAfterWrite).toBe(true)
+      expect(r.persisted).toBe(true)
+    }
+    expect(repo.getSnapshot().document?.review?.id).toBe('abc-1')
+    expect(s.data[START_KEY]).toBe(mutatedStart)
+  })
+
   it('v1 题目不重释', () => {
     const start = {
       schemaVersion: 1,

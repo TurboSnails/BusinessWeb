@@ -7,9 +7,11 @@ import { FundingEditor } from '../features/investment-plan/components/FundingEdi
 import { AllocationEditor } from '../features/investment-plan/components/AllocationEditor'
 import { ContributionEditor } from '../features/investment-plan/components/ContributionEditor'
 import { HistoryPanel } from '../features/investment-plan/components/HistoryPanel'
+import { ImportStartReviewPanel } from '../features/investment-plan/components/ImportStartReviewPanel'
 import { MigrationPreviewPanel } from '../features/investment-plan/components/MigrationPreview'
 import { PlanWizard } from '../features/investment-plan/components/PlanWizard'
 import { ReviewFlow } from '../features/investment-plan/components/ReviewFlow'
+import { peekStartReview } from '../features/investment-plan/migration'
 import { createEmptyPlan, PLAN_KEYS } from '../features/investment-plan/types'
 import { getPlanRepository } from '../features/investment-plan/repository'
 import { selectPlanStatus } from '../features/investment-plan/selectors'
@@ -33,9 +35,11 @@ export default function MyPlan(): JSX.Element {
   const location = useLocation()
   const showOwner = location.hash === '#owner-sync'
 
-  const [mode, setMode] = useState<'home' | 'wizard' | 'migrate'>('home')
+  const [mode, setMode] = useState<'home' | 'wizard' | 'migrate' | 'empty-confirm' | 'import-review'>('home')
+  const [preferStartImport, setPreferStartImport] = useState(false)
   const [live, setLive] = useState('')
   const [saveError, setSaveError] = useState('')
+  const [skippedStartReview, setSkippedStartReview] = useState<string | null>(null)
 
   useEffect(() => {
     refresh()
@@ -49,6 +53,8 @@ export default function MyPlan(): JSX.Element {
       return null
     }
   }, [])
+
+  const startReview = peekStartReview(storage)
 
   const ownerSynced = useMemo(() => {
     if (!storage) return false
@@ -84,8 +90,11 @@ export default function MyPlan(): JSX.Element {
     return { ok: false, reason: r.reason }
   }
 
-  const startEmpty = async (): Promise<void> => {
+  /** 仅创建空计划；带入检查日必须走 MigrationPreviewPanel，不得直写 review */
+  const createEmpty = async (): Promise<void> => {
     const id = crypto.randomUUID?.() ?? `plan-${Date.now()}`
+    if (startReview) setSkippedStartReview(startReview.anchor)
+    else setSkippedStartReview(null)
     const r = await create(createEmptyPlan(new Date().toISOString(), id))
     if (r.ok) {
       setMode('wizard')
@@ -97,19 +106,34 @@ export default function MyPlan(): JSX.Element {
     }
   }
 
+  const requestEmpty = (): void => {
+    if (startReview) {
+      setMode('empty-confirm')
+      return
+    }
+    void createEmpty()
+  }
+
+  const openStartMigrate = (): void => {
+    setPreferStartImport(true)
+    setMode('migrate')
+  }
+
+  const openMigrate = (): void => {
+    setPreferStartImport(false)
+    setMode('migrate')
+  }
+
+  const openImportReview = (): void => {
+    setMode('import-review')
+  }
+
   const status = snapshot.document ? selectPlanStatus(snapshot.document, today) : null
   const privacy = ownerSynced ? PRIVACY_OWNER_SYNCED : PRIVACY_LOCAL
+  const canImportOrphanReview = !!snapshot.document && !snapshot.document.review && !!startReview
 
   return (
     <Page className="investment-plan">
-      <nav className="breadcrumb ip-breadcrumb" aria-label="面包屑">
-        <Link to="/">Live</Link>
-        <span aria-hidden="true">›</span>
-        <Link to="/invest">投资</Link>
-        <span aria-hidden="true">›</span>
-        <span className="breadcrumb__current">我的计划与持仓</span>
-      </nav>
-
       <header className="page-head ip-head">
         <h1>我的计划与持仓</h1>
         <p>记录家庭资金用途、三笔预算、配置类别与检查日。规则代替盯盘。</p>
@@ -147,16 +171,51 @@ export default function MyPlan(): JSX.Element {
             还没有本页计划
           </h2>
           <p>旧投资计划页是另一份独立记录；导入后，在本页继续维护，旧页的修改不会同步到这里。</p>
+          {startReview && (
+            <p>
+              自测页已有检查日 {startReview.anchor}（每 {startReview.intervalMonths} 个月
+              {startReview.completedDates.length ? `，已完成 ${startReview.completedDates.length} 次` : ''}
+              ）。建议用自测结果建立计划，默认带入检查日并保留原日历身份。
+            </p>
+          )}
           <div className="ip-actions">
-            <button type="button" className="tool-btn ip-btn" onClick={() => void startEmpty()}>
+            {startReview ? (
+              <button type="button" className="tool-btn ip-btn" onClick={openStartMigrate}>
+                用自测结果建立计划
+              </button>
+            ) : null}
+            <button type="button" className="tool-btn ip-btn" onClick={requestEmpty}>
               新建空计划
             </button>
-            <button type="button" className="tool-btn ip-btn" onClick={() => setMode('migrate')}>
+            <button type="button" className="tool-btn ip-btn" onClick={openMigrate}>
               预览本机已有记录
             </button>
             <Link className="ip-inline" to="/investment-plan-2026">
               查看旧页独立记录
             </Link>
+          </div>
+        </section>
+      )}
+
+      {snapshot.mode === 'empty' && mode === 'empty-confirm' && startReview && (
+        <section className="ip-empty" aria-labelledby="ip-empty-confirm-title">
+          <h2 id="ip-empty-confirm-title" className="ip-h2">
+            新建空计划
+          </h2>
+          <p>
+            自测页已有检查日 {startReview.anchor}。带入检查日须走自测预览确认（保留日历身份与收据），不能直接写入。
+            若不带入，本页计划会没有检查日；自测记录仍保留，之后可再带入。
+          </p>
+          <div className="ip-actions">
+            <button type="button" className="tool-btn ip-btn" onClick={openStartMigrate}>
+              去自测预览并带入检查日
+            </button>
+            <button type="button" className="tool-btn ip-btn" onClick={() => void createEmpty()}>
+              不带入，仅空计划
+            </button>
+            <button type="button" className="tool-btn ip-btn" onClick={() => setMode('home')}>
+              取消
+            </button>
           </div>
         </section>
       )}
@@ -168,9 +227,55 @@ export default function MyPlan(): JSX.Element {
           today={today}
           now={new Date().toISOString()}
           idFactory={() => crypto.randomUUID?.() ?? `plan-${Date.now()}`}
-          onDone={() => setMode('wizard')}
+          preferStartImport={preferStartImport}
+          onDone={() => {
+            setSkippedStartReview(null)
+            setMode('wizard')
+          }}
+          onCancel={() => {
+            setPreferStartImport(false)
+            setMode(snapshot.mode === 'empty' ? 'home' : 'home')
+          }}
+        />
+      )}
+
+      {snapshot.document && mode === 'import-review' && !snapshot.document.review && (
+        <ImportStartReviewPanel
+          storage={storage}
+          repository={repo}
+          doc={snapshot.document}
+          today={today}
+          now={new Date().toISOString()}
+          onDone={result => {
+            setSkippedStartReview(null)
+            refresh()
+            setMode('home')
+            if (result?.warning) {
+              setSaveError(result.warning)
+              setLive(result.warning)
+            } else {
+              setSaveError('')
+              setLive('已带入自测检查日')
+            }
+          }}
           onCancel={() => setMode('home')}
         />
+      )}
+
+      {snapshot.document && skippedStartReview && !snapshot.document.review && mode !== 'import-review' && (
+        <Callout tone="warn" title="检查日未带入">
+          <p>
+            自测页的检查日 {skippedStartReview} 未带入本页计划。
+            {startReview ? '需要时可用「带入自测检查日」打开预览。' : ''}
+          </p>
+          {canImportOrphanReview && (
+            <div className="ip-actions">
+              <button type="button" className="tool-btn ip-btn" onClick={openImportReview}>
+                带入自测检查日
+              </button>
+            </div>
+          )}
+        </Callout>
       )}
 
       {snapshot.document && mode === 'wizard' && !snapshot.document.wizard.completed && (
@@ -185,6 +290,20 @@ export default function MyPlan(): JSX.Element {
 
       {snapshot.document && mode === 'home' && status && (
         <>
+          {canImportOrphanReview && !skippedStartReview && (
+            <Callout tone="info" title="自测检查日尚未带入">
+              <p>
+                自测页曾保存检查日 {startReview!.anchor}（每 {startReview!.intervalMonths} 个月
+                {startReview!.completedDates.length ? `，已完成 ${startReview!.completedDates.length} 次` : ''}
+                ）。本页计划还没有检查日；不会自动覆盖，需先备份并显式确认。
+              </p>
+              <div className="ip-actions">
+                <button type="button" className="tool-btn ip-btn" onClick={openImportReview}>
+                  带入自测检查日
+                </button>
+              </div>
+            </Callout>
+          )}
           <section className="ip-home-first" aria-labelledby="ip-home-title">
             <h2 id="ip-home-title" className="ip-h2">
               本期待办
@@ -248,7 +367,7 @@ export default function MyPlan(): JSX.Element {
         </>
       )}
 
-      {(snapshot.mode === 'ready' || snapshot.mode === 'corrupt' || snapshot.unsaved) && (
+      {(snapshot.mode === 'ready' || snapshot.mode === 'corrupt' || snapshot.unsaved) && mode !== 'import-review' && (
         <BackupControls
           repository={repo}
           storage={storage}

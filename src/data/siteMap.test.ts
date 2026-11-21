@@ -39,7 +39,7 @@ describe('INVEST_GROUPS', () => {
   it('收纳全部旧入口、候选池和 AI 工具，且无重复', () => {
     const all = allLinks.map(l => l.path).sort()
     expect(all).toEqual([
-      '/invest/comprehensive-valuation', '/invest/ai-token-economics', '/invest/fundamental-quant', '/candidates', '/radar', '/watch', '/dcf', '/first-book', '/future-trends', '/grid-trading', '/ai/ai-skills', '/invest/etf', '/industry-etf', '/notes', '/invest/bond-fund-report', '/invest/national-team', '/industry-landscape', '/investment-plan-2026',
+      '/invest/comprehensive-valuation', '/invest/ai-token-economics', '/invest/fundamental-quant', '/candidates', '/radar', '/watch', '/dcf', '/first-book', '/future-trends', '/grid-trading', '/ai/ai-skills', '/invest/etf', '/industry-etf', '/notes', '/invest/bond-fund-report', '/invest/national-team', '/industry-landscape', '/invest/my-plan', '/investment-plan-2026',
       '/investment-strategy', '/investment-targets', '/limit-up-analysis', '/daily-analysis',
       '/mainland-investment-targets',
       '/money-freedom', '/monitor', '/pulse', '/research-notes', '/earnings',
@@ -63,8 +63,11 @@ describe('INVEST_GROUPS', () => {
     expect(INVEST_GROUPS.slice(0, 5).map(g => g.title)).toEqual(['规则', '观察盘', '分析筛选', '候选池', '工具与参考'])
   })
 
-  it('规则组：书和年度计划', () => {
-    expect(paths('rules')).toEqual(['/first-book', '/investment-plan-2026'])
+  it('规则组：书、我的计划、作者示例计划', () => {
+    expect(paths('rules')).toEqual(['/first-book', '/invest/my-plan', '/investment-plan-2026'])
+    const rules = INVEST_GROUPS.find(g => g.id === 'rules')!
+    expect(rules.links.find(l => l.path === '/invest/my-plan')?.label).toBe('我的计划与持仓')
+    expect(rules.links.find(l => l.path === '/investment-plan-2026')?.label).toMatch(/2026 投资计划.*作者示例/)
   })
 
   it('观察盘一页看完：/watch 是唯一主入口，宏观、全球、A股复盘、板块、涨停都是细节页', () => {
@@ -175,13 +178,14 @@ describe('SEARCHABLE_PAGES', () => {
 })
 
 describe('WORKBENCH_TOOLS', () => {
-  it('8 个常用工具，候选池打头，顺序固定，都在注册表里且有说明', () => {
+  it('8 个常用工具，候选池打头，顺序固定，都在注册表里且有短说明', () => {
     expect(WORKBENCH_TOOLS.map(t => t.path)).toEqual([
       '/candidates', '/research-notes', '/valuation', '/dcf', '/grid-trading', '/watch', '/knowledge', '/first-book',
     ])
     for (const t of WORKBENCH_TOOLS) {
       expect(findSearchablePage(t.path), t.path).toBeTruthy()
       expect(t.desc.length, t.path).toBeGreaterThan(0)
+      expect(t.desc.length, `${t.path}: ${t.desc}`).toBeLessThanOrEqual(18)
     }
   })
 })

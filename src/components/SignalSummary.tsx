@@ -1,6 +1,6 @@
 import React from 'react'
 import { Callout, Card, TableWrap } from './ui'
-import type { Direction, SignalSummary as Summary } from '../features/signals/companySignals'
+import type { Direction, Signal, SignalSummary as Summary } from '../features/signals/companySignals'
 import { OWN_STAGE, RESEARCH_STAGE, type OwnStage, type ResearchStage } from '../features/signals/maturity'
 import '../styles/research.css'
 
@@ -12,8 +12,24 @@ const DIRECTION: Record<string, { label: string; className: string }> = {
 }
 const dir = (d: Direction) => DIRECTION[String(d)]
 
-/** 公司页顶部：各信号的结论、依据与方向，方向相反时列出分歧 */
-export default function SignalSummary({ summary, stage, own }: { summary: Summary; stage: ResearchStage; own: OwnStage }): JSX.Element {
+// 追加分歧后，原有「没有发现分歧 / 没有明显方向」的说明不再成立
+const NO_CONFLICT_NOTE = /没有发现分歧|没有明显方向/
+
+/**
+ * 公司页顶部：各信号的结论、依据与方向，方向相反时列出分歧。
+ * sources：每行比较所用的数据来源（如「原研究情景 · 2026-09-30」），写在信号名下；
+ * extraConflicts：页面层发现的其他分歧（如综合估值与原研究情景方向相反），复用同一「信号分歧」提示。
+ */
+export default function SignalSummary({ summary, stage, own, sources, extraConflicts }: {
+  summary: Summary
+  stage: ResearchStage
+  own: OwnStage
+  sources?: Partial<Record<Signal['id'], string>>
+  extraConflicts?: string[]
+}): JSX.Element {
+  const extra = (extraConflicts ?? []).filter(Boolean)
+  const conflicts = [...summary.conflicts, ...extra]
+  const notes = extra.length ? summary.notes.filter(n => !NO_CONFLICT_NOTE.test(n)) : summary.notes
   return (
     <Card title="决策信号汇总" className="rn-card sig-card">
       <p className="sig-maturity">
@@ -27,7 +43,10 @@ export default function SignalSummary({ summary, stage, own }: { summary: Summar
           <tbody>
             {summary.signals.map(s => (
               <tr key={s.id}>
-                <th scope="row">{s.label}</th>
+                <th scope="row">
+                  {s.label}
+                  {sources?.[s.id] && <><br /><small className="sig-source">{sources[s.id]}</small></>}
+                </th>
                 <td><strong>{s.verdict}</strong></td>
                 <td><span className={dir(s.direction).className}>{dir(s.direction).label}</span></td>
                 <td className="sig-detail">{s.detail}</td>
@@ -36,8 +55,8 @@ export default function SignalSummary({ summary, stage, own }: { summary: Summar
           </tbody>
         </table>
       </TableWrap>
-      {summary.conflicts.map(c => <Callout key={c} tone="warn" title="信号分歧" className="sig-callout">{c}</Callout>)}
-      {summary.notes.map(n => <p key={n} className="rn-footnote">{n}</p>)}
+      {conflicts.map(c => <Callout key={c} tone="warn" title="信号分歧" className="sig-callout">{c}</Callout>)}
+      {notes.map(n => <p key={n} className="rn-footnote">{n}</p>)}
       <p className="rn-footnote">方向按固定规则判断：基准情景涨幅 ≥15%、DCF 安全边际 ≥20% 记为偏积极；基准情景低于现价 5% 以上、DCF 安全边际低于 −10% 记为偏谨慎；林奇分类看同类内关注度；数据缺失或可信度低的不参与。汇总只帮助发现分歧，不是买卖建议。</p>
     </Card>
   )

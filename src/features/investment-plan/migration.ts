@@ -9,13 +9,31 @@ import {
 } from '../invest-start/legacyPlan'
 import { evaluate } from '../invest-start/recommend'
 import { loadStart, START_KEY } from '../invest-start/store'
-import { QUESTIONNAIRE_VERSION, RULES_VERSION } from '../invest-start/types'
+import { QUESTIONNAIRE_VERSION, RULES_VERSION, type ReviewSchedule } from '../invest-start/types'
 import { annualWanToMonthlyYuan, fenToYuan, moneyCny, percentToBps, wanToYuan, yuanToFen } from './money'
 import type { PlanRepository, StorageLike } from './repository'
 import { loadImportsReceipt, writeImportsReceipt } from './repository'
-import type { Allocation, Day, Instant, Mark, Money, PlanDocument } from './types'
+import type { Allocation, Day, Instant, Mark, Money, PlanDocument, PlanReview } from './types'
 import { createEmptyPlan, DEFAULT_RELATIVE_BAND_BPS } from './types'
 import { parsePlanDocument } from './validation'
+
+/** 自测检查日 → 本页计划检查日：保留 id / calendarSequence / 周期 / 完成状态 */
+export function toPlanReview(r: ReviewSchedule): PlanReview {
+  return {
+    id: r.id,
+    anchor: r.anchor,
+    intervalMonths: r.intervalMonths,
+    completedDates: [...r.completedDates],
+    calendarSequence: r.calendarSequence,
+    mode: 'calendar-check-band-act',
+  }
+}
+
+/** 读 start:v1 里可用的检查日；坏文档/无检查日返回 null */
+export function peekStartReview(storage: StorageLike | null): ReviewSchedule | null {
+  const loaded = loadStart(storage)
+  return loaded.mode === 'ok' && loaded.state?.review ? loaded.state.review : null
+}
 
 export type MigrationIssue = { path: string; code: string; message: string }
 
@@ -60,6 +78,8 @@ export type MigrationPreview = {
     derivedRoute: string | null
     researchCapBps: number | null
     reviewOk: boolean
+    /** 供 UI 展示；导入时仍从 start:v1 原样拷贝 id/sequence */
+    review: ReviewSchedule | null
     reviewIssue: string | null
     assessedAt: string | null
   }
@@ -271,6 +291,7 @@ export function buildMigrationPreview(
     derivedRoute: null,
     researchCapBps: null,
     reviewOk: false,
+    review: null,
     reviewIssue: null,
     assessedAt: null,
   }
@@ -291,6 +312,7 @@ export function buildMigrationPreview(
     }
     if (st.review) {
       startInfo.reviewOk = true
+      startInfo.review = st.review
     } else if ((st as { review?: unknown }).review !== undefined) {
       startInfo.reviewIssue = 'review-unparsed'
       issues.push({ path: 'start.review', code: 'review-invalid', message: '检查日记录无法迁入' })
@@ -458,15 +480,7 @@ export async function confirmMigration(
     usedStart = true
     const startLoad = loadStart(storage)
     if (startLoad.mode === 'ok' && startLoad.state?.review) {
-      const r = startLoad.state.review
-      doc.review = {
-        id: r.id,
-        anchor: r.anchor,
-        intervalMonths: r.intervalMonths,
-        completedDates: [...r.completedDates],
-        calendarSequence: r.calendarSequence,
-        mode: 'calendar-check-band-act',
-      }
+      doc.review = toPlanReview(startLoad.state.review)
     }
   }
   if (choices.importStartResearchCap && preview.start.researchCapBps !== null) {
@@ -531,4 +545,126 @@ export async function confirmMigration(
   }
 
   return { ok: true, document: created.document, persisted: created.persisted, receiptWritten: true }
+}
+
+/** 已有计划补带自测检查日：非金额预览摘要 */
+export type StartReviewImportPreview = {
+  review: ReviewSchedule
+  fingerprint: string
+}
+
+export function buildStartReviewImportPreview(
+  storage: StorageLike | null,
+  today: Day,
+): StartReviewImportPreview | null {
+  const p = buildMigrationPreview(storage, today)
+  if (!p.start.reviewOk || !p.start.review) return null
+  return { review: p.start.review, fingerprint: p.start.fingerprint }
+}
+
+export type ConfirmStartReviewImportResult =
+  | {
+      ok: true
+      document: PlanDocument
+      persisted: boolean
+      receiptWritten: boolean
+      /** patch 已成功后源又变化：计划已带入，需警告复核，不能谎称未写入 */
+      sourceChangedAfterWrite?: boolean
+    }
+  | {
+      ok: false
+      reason: 'stale' | 'missing' | 'has-review' | 'patch-failed' | 'invalid'
+      detail?: string
+    }
+
+/**
+ * 已有计划显式补带自测检查日：patch 前重读指纹（可变则 stale 且不写）；
+ * patch 成功后再比 start 原文——若已变，返回 ok+sourceChangedAfterWrite（计划已写入，禁止「未写入」假象）。
+ */
+export async function confirmStartReviewIntoExistingPlan(
+  preview: StartReviewImportPreview,
+  options: {
+    storage: StorageLike | null
+    repository: PlanRepository
+    expectedLocalRevision: number
+    now: Instant
+    today: Day
+  },
+): Promise<ConfirmStartReviewImportResult> {
+  const { storage, repository, expectedLocalRevision, now, today } = options
+  const snap = repository.getSnapshot()
+  if (snap.document?.review) return { ok: false, reason: 'has-review' }
+
+  let startBefore: string | null = null
+  try {
+    startBefore = storage?.getItem(START_KEY) ?? null
+  } catch {
+    startBefore = null
+  }
+
+  const again = buildStartReviewImportPreview(storage, today)
+  if (!again) return { ok: false, reason: 'missing' }
+  if (again.fingerprint !== preview.fingerprint) return { ok: false, reason: 'stale' }
+
+  const planReview = toPlanReview(again.review)
+  const reviewShape = parsePlanDocument({
+    ...createEmptyPlan(now, snap.document?.id ?? 'tmp-import'),
+    review: planReview,
+  })
+  if (!reviewShape.ok) return { ok: false, reason: 'invalid', detail: reviewShape.issues[0]?.code }
+
+  const patched = await repository.patch(expectedLocalRevision, latest => {
+    if (latest.review) return latest
+    return {
+      ...latest,
+      review: planReview,
+      migration: {
+        confirmedAt: now,
+        legacy: latest.migration?.legacy ?? null,
+        start: { fingerprint: again.fingerprint, imported: true },
+      },
+    }
+  })
+
+  if (!patched.ok) {
+    return { ok: false, reason: 'patch-failed', detail: patched.reason }
+  }
+  if (!patched.document.review || patched.document.review.id !== planReview.id) {
+    return { ok: false, reason: 'has-review' }
+  }
+
+  let startAfter: string | null = null
+  try {
+    startAfter = storage?.getItem(START_KEY) ?? null
+  } catch {
+    startAfter = null
+  }
+  const sourceChangedAfterWrite = startAfter !== startBefore
+
+  if (!patched.persisted) {
+    return {
+      ok: true,
+      document: patched.document,
+      persisted: false,
+      receiptWritten: false,
+      ...(sourceChangedAfterWrite ? { sourceChangedAfterWrite: true } : {}),
+    }
+  }
+
+  const existing = loadImportsReceipt(storage)
+  const receipt = {
+    schemaVersion: 1 as const,
+    legacyConsumed:
+      (existing !== 'missing' && existing !== 'corrupt' && existing !== 'unavailable' && existing.legacyConsumed) ||
+      !!patched.document.migration?.legacy?.imported,
+    startConsumed: true,
+  }
+  const receiptWritten = writeImportsReceipt(storage, receipt)
+  return {
+    ok: true,
+    document: patched.document,
+    persisted: true,
+    receiptWritten,
+    ...(sourceChangedAfterWrite ? { sourceChangedAfterWrite: true } : {}),
+  }
 }

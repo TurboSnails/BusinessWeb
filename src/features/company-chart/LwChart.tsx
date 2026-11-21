@@ -260,7 +260,7 @@ export default function LwChart({ candleSymbol, market, currency, name, levels, 
               </li>
             ))}
           </ul>
-          {lvl.drawn.length > 0 && <p>虚线 = 三情景价，点线 = DCF 价；价位来自本页研究数据，不是行情预测。{lvl.anchorStale && ' 本页价格锚点已过期，价位线已用走势图最新收盘复核口径。'}</p>}
+          {lvl.drawn.length > 0 && <p className="cc-lw__source">虚线 = 三情景价{levels.scenarioSource && lvl.drawn.some(l => !l.key.startsWith('dcf')) ? `（${levels.scenarioSource}）` : ''}，点线 = DCF 价；价位来自本页研究数据，不是行情预测。{lvl.anchorStale && ' 本页价格锚点已过期，价位线已用走势图最新收盘复核口径。'}</p>}
           {lvl.drawn.length === 0 && lvl.notDrawn.length === 0 && <p>本公司还没有可画的三情景价或 DCF 价位。</p>}
           {lvl.notDrawn.length > 0 && (
             <p className="cc-lw__skipped">未画出：{lvl.notDrawn.map(l => `${l.label} ${fmtPrice(l.value)}（${l.reason}）`).join('；')}</p>

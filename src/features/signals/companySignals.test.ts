@@ -43,7 +43,7 @@ describe('companySignals', () => {
   it('有方向的信号相反时列出分歧，并提示过期价格与到期复查', () => {
     const s = companySignals({
       rating: '优先关注', price: 100, priceStale: true, priceDate: '2026-09-01', scenarios: scen('70', '90'),
-      dcf: { price: 130, mos: 0.3, source: 'mine', currency: 'CNY' }, decision: { action: 'buy', nextCheck: '2026-10-01', count: 2 }, today: '2026-10-20',
+      dcf: { price: 130, mos: 0.3, source: 'mine', currency: 'CNY', current: 100, currentFresh: true }, decision: { action: 'buy', nextCheck: '2026-10-01', count: 2 }, today: '2026-10-20',
     })
     expect(s.conflicts[0]).toContain('研究评级、DCF偏积极，而三情景偏谨慎')
     expect(s.notes.join()).toContain('价格锚点 2026-09-01已过期')

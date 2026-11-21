@@ -50,6 +50,14 @@ describe('evaluatePriceAlert', () => {
     expect(evaluatePriceAlert(rule({ enabled: false }), [obs(90)], TODAY)).toEqual({ status: 'skipped', reason: 'disabled' })
     expect(evaluatePriceAlert(rule({ threshold: 5000 }), [obs(90)], TODAY)).toEqual({ status: 'skipped', reason: 'invalid' })
   })
+  it('研究估值待核时暂停旧规则，恢复可靠后继续；手动和既有 DCF 锚点不受影响', () => {
+    const original = rule()
+    expect(evaluatePriceAlert(original, [obs(90)], TODAY, false)).toEqual({ status: 'skipped', reason: 'valuation-unreliable' })
+    expect(original).toEqual(rule())
+    expect(evaluatePriceAlert(original, [obs(90)], TODAY, true).status).toBe('hit')
+    expect(evaluatePriceAlert(rule({ anchor: { type: 'manual', value: 100, asOf: '2026-11-13' } }), [obs(90)], TODAY, false).status).toBe('hit')
+    expect(evaluatePriceAlert(rule({ anchor: { type: 'dcf-buy-below', value: 100, asOf: '2026-11-13' } }), [obs(90)], TODAY, false).status).toBe('hit')
+  })
 })
 
 describe('辅助函数', () => {
@@ -68,6 +76,11 @@ describe('辅助函数', () => {
     expect(options[2].note).toContain('可信度低')
     expect(anchorOptions({ autoDcf: { buyBelow: 16.7, currency: 'CNY', credibility: 'm', priceDate: null } })).toEqual([])
     expect(anchorOptions({ valuation: { currency: 'EUR', asOf: '2026-11-13', value: { low: 1, base: 2, date: null, primaryMethod: 'PE' } } })).toEqual([])
+    expect(anchorOptions({
+      valuation: { currency: 'CNY', asOf: '2026-11-13', value: { low: 22.5, base: 30, date: null, primaryMethod: 'PE' } },
+      valuationReliable: false,
+      autoDcf: { buyBelow: 16.7, currency: 'CNY', credibility: 'medium', priceDate: '2026-11-13' },
+    }).map(o => o.type)).toEqual(['dcf-buy-below'])
   })
   it('价格来源：预填库现价与价格锚点；未核实可交易性的锚点不用', () => {
     const list = priceObservations({ venueCurrency: 'HKD', autoDcf: { current: 10, currency: 'HKD', priceDate: '2026-11-13' }, marketRefresh: { price: 11, priceDate: '2026-11-12', source: 'snap' } })

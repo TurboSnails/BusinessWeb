@@ -174,6 +174,24 @@ export type HeaderScenarioBundle = {
   currency?: string
   /** 综合估值不可信时的原因（不画刻度、不显示折溢价） */
   unreliableReasons?: ValuationReliabilityReason[]
+  /** 比较来源短标签（模型 · 日期），每处「现价 vs 基准/悲观」紧邻展示；缺日期写「日期缺失」 */
+  sourceLabel: string
+}
+
+export const DATE_MISSING = '日期缺失'
+
+function dateOnlyOf(v?: string | null): string | undefined {
+  return v?.match(/\d{4}-\d{2}-\d{2}/)?.[0]
+}
+
+/** 综合估值来源标签：「综合估值 · 2026-11-20」 */
+export function valuationSourceLabel(asOf?: string | null): string {
+  return `综合估值 · ${dateOnlyOf(asOf) ?? DATE_MISSING}`
+}
+
+/** 原研究情景来源标签：「原研究情景 · 2026-09-30」，缺日期不编日期 */
+export function researchSourceLabel(asOf?: string | null): string {
+  return `原研究情景 · ${dateOnlyOf(asOf) ?? DATE_MISSING}`
 }
 
 function researchTitle(researchAsOf?: string): string {
@@ -235,6 +253,7 @@ export function resolveHeaderScenarioBundle(input: {
         premiumLabel: '',
         currency: ccy,
         unreliableReasons: reliability.reasons,
+        sourceLabel: valuationSourceLabel(valuation.asOf),
       }
     }
     return {
@@ -245,6 +264,7 @@ export function resolveHeaderScenarioBundle(input: {
       baseValue: v.base,
       premiumLabel: formatPremiumVsBase(premiumToBase(px, v.base)),
       currency: ccy,
+      sourceLabel: valuationSourceLabel(valuation.asOf),
     }
   }
 
@@ -259,5 +279,46 @@ export function resolveHeaderScenarioBundle(input: {
     baseValue,
     premiumLabel: formatPremiumVsBase(premiumToBase(price, baseValue)),
     currency,
+    sourceLabel: researchSourceLabel(researchAsOf),
   }
+}
+
+function pointOf(e?: ScenarioEntry): number | undefined {
+  return e?.parsed.kind === 'point' ? e.parsed.value : undefined
+}
+
+/** 相对现价方向：1 = 情景价高于现价，-1 = 低于，0 = 接近（与折溢价文案同一阈值） */
+function sideOf(value: number | undefined, price: number | undefined): { side: 1 | 0 | -1; pct: number } | undefined {
+  if (value === undefined || price === undefined || !(price > 0)) return undefined
+  const pct = (value / price - 1) * 100
+  return { side: Math.abs(pct) < 0.05 ? 0 : pct > 0 ? 1 : -1, pct }
+}
+
+/**
+ * 综合估值（头部）与原研究情景（信号表、K 线、研究价位刻度）相对现价方向相反时的分歧说明。
+ * 只比较基准与悲观/低档；任何一侧不可比（不可信估值、区间、缺价）都不判断。不改两套数值。
+ */
+export function scenarioModelConflict(input: {
+  bundle: HeaderScenarioBundle
+  research: ScenarioTriple
+  researchPrice?: number
+  researchLabel: string
+}): string | undefined {
+  const { bundle, research, researchPrice, researchLabel } = input
+  if (bundle.source !== 'valuation') return undefined
+  const parts: string[] = []
+  const pairs: [keyof ScenarioTriple, string, string][] = [['base', '基准', '基准'], ['bear', '低档', '悲观']]
+  for (const [key, vName, rName] of pairs) {
+    const v = sideOf(pointOf(bundle.triple[key]), bundle.price)
+    const r = sideOf(pointOf(research[key]), researchPrice)
+    if (!v || !r || v.side === 0 || r.side === 0 || v.side === r.side) continue
+    // 百分比口径与各自展示处一致：头部写「现价高/低于基准 x%」（现价÷估值），刻度与信号表写「距现价 ±x%」（情景价÷现价）
+    const vPct = (bundle.price! / pointOf(bundle.triple[key])! - 1) * 100
+    const rPct = r.pct
+    const vText = `${bundle.sourceLabel}：现价${vPct < 0 ? '低于' : '高于'}${vName} ${bundle.triple[key]!.display} ${Math.abs(vPct).toFixed(1)}%`
+    const rText = `${researchLabel}：${rName} ${research[key]!.display} 距现价 ${rPct > 0 ? '+' : '−'}${Math.abs(rPct).toFixed(1)}%（现价${rPct > 0 ? '低于' : '高于'}${rName}）`
+    parts.push(`${vText}；${rText}`)
+  }
+  if (!parts.length) return undefined
+  return `两套情景相对现价方向不同——${parts.join('。')}。两套模型日期与方法不同，数值不合并；先核对假设与数据时点，再决定是否行动。`
 }

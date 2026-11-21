@@ -40,7 +40,7 @@ const TIMEOUT_MS = 8_000
 const MAX_ITEMS = 50
 
 /** 公司参考数据（scripts/build-company-index.mjs → public/data/company-refs.json） */
-export interface CompanyRef { n: string; r?: string; q?: PriceInputs['marketRefresh'] }
+export interface CompanyRef { n: string; r?: string; q?: PriceInputs['marketRefresh']; v?: boolean }
 
 export interface DigestItem {
   kind: DigestKind; market: CandidateItem['market']; code: string; name: string; text: string
@@ -79,7 +79,7 @@ export function evaluateDigest(items: CandidateItem[], today: string, auto: Map<
     const ref = Object.hasOwn(refs, candidateKey(item)) ? refs[candidateKey(item)] : undefined
     // 与站内一致：先自动 DCF 预填库收盘价，再公司页价格锚点；同日以前者为准
     const observations = item.alert ? priceObservations({ venueCurrency: VENUE_CURRENCY[venue], autoDcf: auto.get(autoDcfKey(venue, codeKey(venue, item.code))), marketRefresh: ref?.q }) : []
-    for (const a of itemAlerts(item, { today, observations, rating: ref?.r })) {
+    for (const a of itemAlerts(item, { today, observations, rating: ref?.r, valuationReliable: ref?.v })) {
       if (!(DIGEST_KINDS as readonly string[]).includes(a.kind)) continue
       out.push({
         kind: a.kind as DigestKind, market: a.market, code: a.code, name: ref?.n ?? '', text: a.text, ...fingerprintOf(a, item),

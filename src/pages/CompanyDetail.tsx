@@ -5,6 +5,7 @@ import { useCompanies, useLynch, lynchFor, Market } from '../data/companies'
 import { usePageSeo } from '../components/RouteSeo'
 import ResearchNotice from '../components/research/ResearchNotice'
 import CompanyDetailHeader from '../components/research/CompanyDetailHeader'
+import { pickScenarioTriple, researchSourceLabel, resolveHeaderScenarioBundle, scenarioModelConflict } from '../components/research/scenarioPrices'
 import { collectTocItems, CompanyDetailToc, type TocItem } from '../components/research/CompanyDetailToc'
 import { toneOf } from '../data/notionNotes'
 import { CN_REPORT } from '../data/cnReassessment'
@@ -31,16 +32,28 @@ import { nextCompanyEvent } from '../features/earnings/nextCompanyEvent'
 import '../styles/research.css'
 import '../styles/company-detail.css'
 
+const MARKETS: readonly Market[] = ['us', 'cn', 'hk', 'adr', 'ndx']
+const isMarket = (m: string | undefined): m is Market => !!m && (MARKETS as readonly string[]).includes(m)
+
 const confirmedText = (c: boolean | null): string => (c === true ? '已确认' : c === false ? '预估' : '确认未知')
 
 export default function CompanyDetail(): JSX.Element {
   const { market, code } = useParams()
   const navigate = useNavigate()
   const { hash } = useLocation()
-  const mk = (market === 'cn' ? 'cn' : market === 'hk' ? 'hk' : market === 'adr' ? 'adr' : market === 'ndx' ? 'ndx' : 'us') as Market
-  const { list, loading, failed } = useCompanies(mk)
+  // 未知市场不回退美股；Router 已解码 code，不再 decodeURIComponent（`%25` 会解出 `%` 并抛 URIError）
+  const validMarket = isMarket(market)
+  const mk: Market = validMarket ? market : 'us'
+  const { list, loading, failed, partial, retry } = useCompanies(mk, validMarket)
   const lynchAll = useLynch()
-  const company = list.find(c => c.code === decodeURIComponent(code || ''))
+  const company = validMarket && code ? list.find(c => c.code === code) : undefined
+  // 部分数据下切换公司（同一路由组件不会重新挂载）时自动重试一次，恢复后同一 SPA 可找回
+  const prevCode = useRef(code)
+  useEffect(() => {
+    if (prevCode.current === code) return
+    prevCode.current = code
+    if (validMarket && partial) retry()
+  }, [code, validMarket, partial, retry])
   const cand = useCandidates(true)
   const tools = useToolSources()
   // 财报前瞻：模块级缓存，公司之间切换不重复请求；读不到就不显示徽章
@@ -92,11 +105,22 @@ export default function CompanyDetail(): JSX.Element {
   )
 
   if (!company) {
+    const state = !validMarket ? 'invalid' : loading ? 'loading' : failed ? 'failed' : partial ? 'partial' : 'missing'
+    const title = { invalid: '无效的公司地址', loading: '正在加载…', failed: '公司数据加载失败', partial: '部分公司数据暂不可用', missing: '未找到该公司' }[state]
     return (
-      <Page variant="reading" title={loading || failed ? '公司研究' : '未找到该公司'}>
+      <Page variant="reading" title={state === 'invalid' || state === 'missing' ? title : '公司研究'}>
         {back}
-        <EmptyState title={loading ? '正在加载…' : failed ? '公司数据加载失败' : '未找到该公司'}>
-          {loading ? '正在读取补全公司数据。' : failed ? '网络中断或页面已更新，请刷新后重试。' : '该公司还没有整理进公司库。'}
+        <EmptyState
+          title={title}
+          action={state === 'partial' || state === 'failed'
+            ? <button type="button" className="tool-btn tool-btn--primary" onClick={retry}>重试</button>
+            : undefined}
+        >
+          {state === 'invalid' ? `市场「${market ?? ''}」不在公司库中（可用：标普500 us、沪深 cn、港股 hk、美股非标普 adr、纳指100 ndx）。`
+            : state === 'loading' ? '正在读取补全公司数据。'
+            : state === 'failed' ? '网络中断或页面已更新，可重试；仍失败请刷新页面。'
+            : state === 'partial' ? '程序化补全的公司数据这次没有取到，手工研究页仍可打开。这家公司可能在暂未加载的数据里，不代表公司库中没有它；请稍后重试。'
+            : '该公司还没有整理进公司库。'}
         </EmptyState>
       </Page>
     )
@@ -176,9 +200,29 @@ export default function CompanyDetail(): JSX.Element {
     <span className="rn-pending">待补充{label}（可在 Notion 原页查看）</span>
   )
 
-  const scenarioAsOf = company.asOf?.match(/\d{4}-\d{2}-\d{2}/)?.[0]
-    || company.marketRefresh?.originalAsOf?.slice(0, 10)
-    || undefined
+  // 原研究情景的日期：行情刷新会把 asOf 改写成「行情 …；原研究：…」，原研究日期取 originalAsOf；
+  // 两者都没有日期时保持缺失，不用行情日期冒充
+  const dateOf = (v?: string): string | undefined => v?.match(/\d{4}-\d{2}-\d{2}/)?.[0]
+  const scenarioAsOf = dateOf(company.marketRefresh?.originalAsOf)
+    || (company.asOf?.startsWith('行情 ') ? undefined : dateOf(company.asOf))
+  const researchLabel = researchSourceLabel(scenarioAsOf)
+  const researchScenarios = company.scenarios ?? scenRows?.map(([name, value]) => ({ name, price: value }))
+  // 头部可能用综合估值，信号表 / K 线 / 研究价位刻度用原研究情景：两套方向相反时进「信号分歧」
+  const headerBundle = resolveHeaderScenarioBundle({
+    valuation: company.valuation,
+    marketRefresh: company.marketRefresh,
+    price,
+    currency: quoteCurrency || company.marketRefresh?.currency,
+    scenarios: company.scenarios,
+    scenRows,
+    researchAsOf: scenarioAsOf,
+  })
+  const modelConflict = scenarioModelConflict({
+    bundle: headerBundle,
+    research: pickScenarioTriple(company.scenarios, scenRows, quoteCurrency || company.marketRefresh?.currency),
+    researchPrice: price,
+    researchLabel,
+  })
 
   return scrubMissing(
     <Page variant="reading" className="rn-page cd-page">
@@ -200,9 +244,11 @@ export default function CompanyDetail(): JSX.Element {
         marketRefresh={company.marketRefresh}
         isCandidate={!!candItem}
         onToggleCandidate={() => cand.toggle(company.market, company.code)}
-        candidateLink={lastDecision
-          ? <span className="cd-actions__primary"><Link to="/candidates" className="rn-cand">✓ 已候选 · 决策记录 {candItem?.decisions?.length} 条 · 下次检查 {lastDecision.nextCheck}</Link></span>
-          : undefined}
+        candidateLink={cand.localError
+          ? <span className="cd-actions__primary"><span role="alert" className="rn-warn-text">{cand.localError}</span><button type="button" className="tool-btn" onClick={cand.retryLocal}>重试本机保存</button></span>
+          : lastDecision
+            ? <span className="cd-actions__primary"><Link to="/candidates" className="rn-cand">✓ 已候选 · 决策记录 {candItem?.decisions?.length} 条 · 下次检查 {lastDecision.nextCheck}</Link></span>
+            : undefined}
         valuationHref={`/valuation?market=${mk === 'adr' || mk === 'ndx' ? 'us' : mk}&code=${encodeURIComponent(company.code)}`}
         dcfHref={buildDcfLink({ company: company.name, code: company.code, researchMarket: mk, price: dcfPrice, priceDate: priceAge?.date })}
         notesHref={`/research-notes/company/${mk}/${encodeURIComponent(company.code)}/notes`}
@@ -211,7 +257,7 @@ export default function CompanyDetail(): JSX.Element {
           priceDate: company.marketRefresh?.priceDate || priceAge?.date,
           checkedAt: company.marketRefresh?.checkedAt,
           scenarioAsOf,
-          researchAsOf: company.marketRefresh?.originalAsOf,
+          researchAsOf: scenarioAsOf,
           priceAgeDays: priceAge?.days,
           priceAgeStale: priceAge?.stale,
         }}
@@ -223,12 +269,13 @@ export default function CompanyDetail(): JSX.Element {
           </Link>
         ) : undefined}
       />
+      {cand.message && <p role="alert" className="rn-warn-text">{cand.message}</p>}
 
       <div className="cd-layout">
         <CompanyDetailToc items={tocItems} root={mainRef.current} />
         <div className="cd-main" ref={mainRef}>
           <div id="cd-signals" data-cd-title="决策信号汇总">
-            <SignalSummary summary={signals} stage={researchStage(company)} own={ownStage(!!lastDecision, (() => { const p = toolProgress(company.market, company.code, tools); return !!(p.dcf || p.valuation) })())} />
+            <SignalSummary summary={signals} sources={{ rating: `评级依据：${researchLabel}`, scenario: researchLabel }} extraConflicts={modelConflict ? [modelConflict] : undefined} stage={researchStage(company)} own={ownStage(!!lastDecision, (() => { const p = toolProgress(company.market, company.code, tools); return !!(p.dcf || p.valuation) })())} />
           </div>
           <CompanyChartSection
             market={company.market}
@@ -239,7 +286,8 @@ export default function CompanyDetail(): JSX.Element {
             levels={{
               market: company.market,
               anchor: { price, date: priceAge?.date, days: priceAge?.days, stale: priceAge?.stale, currency: company.marketRefresh?.currency },
-              scenarios: company.scenarios ?? scenRows?.map(([name, value]) => ({ name, price: value })),
+              scenarios: researchScenarios,
+              scenarioSource: researchLabel,
               dcf: dcfSummary,
             }}
           />

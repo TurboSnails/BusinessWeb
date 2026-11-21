@@ -28,7 +28,7 @@ type FormState = {
   budget: string
 }
 
-type Calculated = { row: GridParams; result: GridResult; candles: Candle[]; source: string; fetchedAt: string; endDate: string }
+type Calculated = { form: FormState; row: GridParams; result: GridResult; candles: Candle[]; source: string; fetchedAt: string }
 
 const blankForm: FormState = { code: '', name: '', date: '', endDate: '', initialPrice: '', initialAmount: '', gridAmount: '', step: '', rebound: '0', pullback: '0', floorPrice: '', budget: '' }
 /** 从候选池等页面带过来的 ?code=&name=，只接受 6 位代码 */
@@ -101,67 +101,82 @@ export default function GridCalculator(): JSX.Element {
   const [quoteNotice, setQuoteNotice] = useState('')
   const [busy, setBusy] = useState(false)
   const [saved, setSaved] = useState(false)
-  const symbolRevision = useRef(0)
+  const formRevision = useRef(0)
+  const stale = calculated !== null && calculated.form !== form
+
+  const applyForm = (patch: Partial<FormState>) => {
+    if ((Object.keys(patch) as Array<keyof FormState>).every(key => patch[key] === form[key])) return
+    formRevision.current += 1
+    setForm({ ...form, ...patch })
+    setBusy(false)
+    setSuggesting(false)
+    setError('')
+    setQuoteNotice('')
+    setSuggestNotice('')
+    setSaved(false)
+  }
 
   const update = (key: keyof FormState, value: string) => {
-    if (key === 'code') { symbolRevision.current += 1; setCalculated(null); setQuoteNotice(''); setSuggestNotice('') }
-    setForm(current => ({ ...current, [key]: value, ...(key === 'code' ? { name: '' } : {}) }))
-    setSaved(false)
+    applyForm(key === 'code' ? { code: value, name: '' } : { [key]: value })
   }
 
   // 按建仓日收盘价填入建仓价，并给出步长与金额的起步值；已填写的金额不覆盖
   const suggest = async () => {
+    if (suggesting || busy) return
     const code = form.code.trim()
     if (!/^\d{6}$/.test(code)) { setError('请先填写六位证券代码。'); return }
-    const revision = symbolRevision.current
+    const revision = formRevision.current
     const date = form.date || oneYearBefore(marketToday())
     setError('')
     setSuggestNotice('')
     setSuggesting(true)
     try {
       const history = await getCandles(code, date)
+      if (revision !== formRevision.current) return
       const first = history.candles.find(candle => candle.date >= date)
       if (!first) throw new Error('建仓日之后没有行情数据，请换一个日期。')
       let name = form.name
       if (!name.trim()) {
         try { name = (await fetchQuotes([code])).get(code)?.name ?? '' } catch { /* 名称可选 */ }
       }
-      if (revision !== symbolRevision.current) return
+      if (revision !== formRevision.current) return
       const etf = isEtf(code)
-      setForm(current => ({
-        ...current, name, date: first.date,
+      applyForm({
+        name, date: first.date,
         initialPrice: String(first.close),
         step: suggestStep(first.close, etf),
-        initialAmount: current.initialAmount || '10000',
-        gridAmount: current.gridAmount || '2000',
-      }))
-      setSaved(false)
+        initialAmount: form.initialAmount || '10000',
+        gridAmount: form.gridAmount || '2000',
+      })
       setSuggestNotice(`已按 ${first.date} 收盘价 ${first.close} 填入建仓价，步长取价格的 3%；金额是起步值，请按自己的预算调整。`)
     } catch (suggestError) {
-      if (revision === symbolRevision.current) setError(suggestError instanceof Error ? suggestError.message : '获取行情失败，请稍后再试。')
+      if (revision === formRevision.current) setError(suggestError instanceof Error ? suggestError.message : '获取行情失败，请稍后再试。')
     } finally {
-      setSuggesting(false)
+      if (revision === formRevision.current) setSuggesting(false)
     }
   }
 
   const run = async (event: React.FormEvent) => {
     event.preventDefault()
+    if (busy || suggesting) return
     const validation = validate(form)
     if (validation) { setError(validation); return }
     setError('')
     setQuoteNotice('')
-    const revision = symbolRevision.current
+    const revision = formRevision.current
     setBusy(true)
-    setCalculated(null)
     try {
       const history = await getCandles(form.code.trim(), form.date)
+      if (revision !== formRevision.current) return
       let candles = history.candles
       try {
         const quote = (await fetchQuotes([form.code.trim()])).get(form.code.trim())
+        if (revision !== formRevision.current) return
         candles = mergeQuote(candles, quote)
-        if (quote && revision === symbolRevision.current) setQuoteNotice(`已合并 ${quote.date} 实时报价`)
+        if (quote) setQuoteNotice(`已合并 ${quote.date} 实时报价`)
       } catch (quoteError) {
-        if (revision === symbolRevision.current) setQuoteNotice(quoteError instanceof Error ? `实时行情暂不可用：${quoteError.message}；使用日线数据` : '实时行情暂不可用；使用日线数据')
+        if (revision !== formRevision.current) return
+        setQuoteNotice(quoteError instanceof Error ? `实时行情暂不可用：${quoteError.message}；使用日线数据` : '实时行情暂不可用；使用日线数据')
       }
       if (form.endDate) candles = candles.filter(candle => candle.date <= form.endDate)
       if (!candles.length) throw new Error('所选回测日期范围内没有行情数据。')
@@ -178,22 +193,22 @@ export default function GridCalculator(): JSX.Element {
         ...(form.floorPrice.trim() !== '' ? { floorPrice: Number(form.floorPrice) } : {}),
         ...(form.budget.trim() !== '' ? { budget: Number(form.budget) } : {}),
       }
-      if (revision !== symbolRevision.current) return
       const result = calculateGrid(row, candles)
-      setCalculated({ row, result, candles, source: history.source, fetchedAt: history.fetchedOn, endDate: form.endDate })
+      setCalculated({ form, row, result, candles, source: history.source, fetchedAt: history.fetchedOn })
+      setSaved(false)
     } catch (runError) {
-      if (revision === symbolRevision.current) setError(runError instanceof Error ? runError.message : '回测失败，请检查输入和行情服务。')
+      if (revision === formRevision.current) setError(runError instanceof Error ? runError.message : '回测失败，请检查输入和行情服务。')
     } finally {
-      setBusy(false)
+      if (revision === formRevision.current) setBusy(false)
     }
   }
 
   const save = () => {
-    if (!calculated) return
+    if (!calculated || stale || busy) return
     const record: SavedRecord = {
       id: uid(), savedAt: new Date().toISOString(), schemaVersion: 1,
       dataSource: calculated.source, dataFetchedAt: calculated.fetchedAt,
-      algorithmVersion: 'notes-grid-v1', feeVersion: 'notes-fees-v1', endDate: calculated.endDate,
+      algorithmVersion: 'notes-grid-v1', feeVersion: 'notes-fees-v1', endDate: calculated.form.endDate,
       row: calculated.row, result: calculated.result,
     }
     try {
@@ -239,7 +254,7 @@ export default function GridCalculator(): JSX.Element {
         <label>资金预算<input type="number" min="0" step="100" value={form.budget} onChange={event => update('budget', event.target.value)} placeholder="可选 ¥" /><small>可选：最大资金占用超过预算时给出告警，不改变回测结果</small></label>
         <div className="grid-submit-row">
           <button type="button" className="tool-btn" disabled={suggesting || busy} title="按建仓日收盘价填入建仓价与步长；建仓日留空时取一年前" onClick={() => void suggest()}><Wand2 size={15} aria-hidden="true" />{suggesting ? '正在取价…' : '填入建议参数'}</button>
-          <button type="submit" className="grid-button" disabled={busy}>{busy ? '正在获取行情并回测…' : '运行回测'}</button>
+          <button type="submit" className="grid-button" disabled={busy || suggesting}>{busy ? '正在获取行情并回测…' : '运行回测'}</button>
         </div>
         {suggestNotice && <p className="grid-suggest-note" role="status">{suggestNotice}</p>}
       </form>
@@ -251,7 +266,8 @@ export default function GridCalculator(): JSX.Element {
     <CandleChart key={form.code.trim()} code={form.code.trim()} name={form.name.trim()} endDate={form.endDate} />
 
     {calculated && <section className="grid-card grid-result-card">
-      <div className="grid-section-heading"><div><h2>回测结果</h2><p>{calculated.row.name} · {calculated.row.code} · {calculated.result.range}</p></div><button type="button" className="grid-button" onClick={save}><Save size={16} /> {saved ? '已保存' : '保存记录'}</button></div>
+      <div className="grid-section-heading"><div><h2>回测结果</h2><p>{calculated.row.name} · {calculated.row.code} · {calculated.result.range}</p></div><button type="button" className="grid-button" onClick={save} disabled={stale || busy}><Save size={16} /> {saved ? '已保存' : '保存记录'}</button></div>
+      {stale && <p className="grid-inline-message" role="status">参数已修改，请重新回测</p>}
       <div className="grid-metrics">
         <Metric label="总盈亏" value={money(calculated.result.pnl)} positive={calculated.result.pnl >= 0} />
         <Metric label="已实现盈亏" value={money(calculated.result.realized)} positive={calculated.result.realized >= 0} />

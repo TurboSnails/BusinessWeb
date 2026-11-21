@@ -37,6 +37,7 @@ export const priceHitText = (rule: CandidateAlertRule, o: PriceObservation): str
 export interface AlertDcfInput {
   source?: 'mine' | 'auto'
   current?: number | null
+  currentFresh?: boolean
   buyBelow?: number | null
   credibility?: string | null
   mos: number | null
@@ -51,22 +52,24 @@ export interface ItemAlertContext {
   dcf?: AlertDcfInput
   /** 当前研究评级；不传则不判断评级变化 */
   rating?: string
+  /** 当前综合估值是否可靠；只有明确待核时暂停研究锚点，手动与 DCF 锚点不受影响 */
+  valuationReliable?: boolean
 }
 
 /** 一家候选今天需要动手的事项，顺序：触及条件价 → 到期复查 → 进入买入区 → 评级变化 → DCF 过期 */
-export function itemAlerts(item: CandidateItem, { today, observations, dcf, rating }: ItemAlertContext): CandidateAlert[] {
+export function itemAlerts(item: CandidateItem, { today, observations, dcf, rating, valuationReliable }: ItemAlertContext): CandidateAlert[] {
   const out: CandidateAlert[] = []
   const base = { market: item.market, code: item.code }
   const latest = latestDecision(item)
   if (item.alert) {
     const rule = item.alert
-    const result = evaluatePriceAlert(rule, observations, today)
+    const result = evaluatePriceAlert(rule, observations, today, valuationReliable)
     if (result.status === 'hit') out.push({ ...base, kind: 'price-hit', price: result.observation, rule, text: priceHitText(rule, result.observation) })
   }
   if (latest && isReviewDue(item, today)) out.push({ ...base, kind: 'review', nextCheck: latest.nextCheck, text: `决策记录的检查日 ${latest.nextCheck} 已到：对照证伪条件复查` })
 
   const belowBuy = dcf?.buyBelow != null && dcf.current != null && dcf.current <= dcf.buyBelow && dcf.credibility !== 'low'
-  const mineCheap = dcf?.source === 'mine' && dcf.mos != null && dcf.mos >= ALERT_RULES.dcfMos
+  const mineCheap = dcf?.source === 'mine' && dcf.currentFresh === true && dcf.current != null && dcf.mos != null && dcf.mos >= ALERT_RULES.dcfMos
   if (belowBuy || mineCheap) {
     const why = belowBuy ? `现价 ${dcf?.current} 低于自动 DCF 买入参考价 ${dcf?.buyBelow?.toFixed(2)}` : `本人 DCF 安全边际 ${pct(dcf!.mos!)}`
     out.push({ ...base, kind: 'buy-zone', text: `${why}${latest ? '' : '；还没有决策记录，行动前先写'}` })

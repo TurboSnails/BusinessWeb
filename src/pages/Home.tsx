@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   ArrowRight, BookMarked, Building2, Calculator, ChartLine, Grid3x3, ListChecks, Network, Search, Thermometer,
@@ -8,12 +8,17 @@ import { WORKBENCH_TOOLS, findSearchablePage, type SearchablePage } from '../dat
 import { readRecent } from '../features/recent-pages/store'
 import { summarizeLocalRecords } from '../features/workbench/localRecords'
 import { loadLocal } from '../features/candidates/store'
+import { candidateKey, type CandidateItem } from '../features/candidates/validation'
 import { useToolSources } from '../features/candidates/useToolSources'
 import { ALERT_LABEL, candidateAlerts, countAlerts, type AlertKind } from '../features/candidates/alerts'
 import { localDay } from '../components/DecisionDialog'
 import { useCommandPalette } from '../components/CommandPalette'
 import { RATING_REVIEW_HREF } from '../features/signals/rating-review-anchor'
+import { localToday } from '../features/invest-start/checks'
+import { PlanSummaryCard } from '../features/investment-plan/components/PlanSummaryCard'
+import { usePlan } from '../features/investment-plan/usePlan'
 import '../styles/home.css'
+import '../styles/investment-plan.css'
 import { Page } from '../components/ui'
 import { paletteShortcut } from '../utils/shortcut'
 
@@ -36,22 +41,62 @@ const COLUMNS = [
   { to: '/life', title: '自由之路', desc: '从 *** 到目标 400 万，在路上修身践行，向着远方的自由生活前行。' },
 ]
 
+type RefsState = { status: 'idle' | 'loading' | 'ready' | 'error'; values: Map<string, boolean>; complete: boolean }
+const hasResearchAnchor = (item: CandidateItem): boolean => item.alert?.anchor.type === 'research-bear' || item.alert?.anchor.type === 'research-base'
+
 /** 候选池今天需要动手的事项计数；明细（含评级变化）在候选池页 */
 function TodayStrip(): JSX.Element | null {
   const [items] = useState(() => loadLocal())
   const tools = useToolSources()
+  const researchItems = items.filter(hasResearchAnchor)
+  const [refs, setRefs] = useState<RefsState>(() => ({ status: researchItems.length ? 'loading' : 'idle', values: new Map(), complete: false }))
+  useEffect(() => {
+    const research = items.filter(hasResearchAnchor)
+    if (!research.length) return
+    let active = true
+    setRefs({ status: 'loading', values: new Map(), complete: false })
+    const load = async (): Promise<void> => {
+      try {
+        const response = await fetch(`${import.meta.env.BASE_URL}data/company-refs.json`, { cache: 'no-cache' })
+        if (!response.ok) throw new Error(String(response.status))
+        const body = await response.json() as { version?: unknown; items?: unknown }
+        if (body.version !== 1 || !body.items || typeof body.items !== 'object' || Array.isArray(body.items)) throw new Error('invalid')
+        const records = body.items as Record<string, { v?: unknown }>
+        const values = new Map<string, boolean>()
+        let complete = true
+        for (const item of research) {
+          const key = candidateKey(item)
+          const value = records[key]?.v
+          if (typeof value === 'boolean') values.set(key, value)
+          else { values.set(key, false); complete = false }
+        }
+        if (active) setRefs({ status: 'ready', values, complete })
+      } catch {
+        if (active) setRefs({ status: 'error', values: new Map(), complete: false })
+      }
+    }
+    void load()
+    return () => { active = false }
+  }, [items])
   if (!items.length) return null
-  const counts = countAlerts(candidateAlerts(items, tools, localDay()))
+  const reliability = researchItems.length
+    ? new Map(researchItems.map(item => [candidateKey(item), refs.status === 'ready' ? refs.values.get(candidateKey(item)) ?? false : false]))
+    : undefined
+  const counts = countAlerts(candidateAlerts(items, tools, localDay(), undefined, undefined, reliability))
   const kinds = (Object.keys(counts) as AlertKind[])
-  // 本机到期复查随时可判；「进入买入区」还依赖自动 DCF（与候选池共用一次读取）。没读到前不能断言没有
+  // 本机到期复查随时可判；依赖外部摘要的当前命中在覆盖不足时暂停，并不断言没有待办
   const dcfGap = !tools.auto ? '自动 DCF 读取中，进入买入区稍后核对' : !tools.auto.size ? '自动 DCF 暂无可用数据，进入买入区只按本机 DCF 核对' : ''
+  const researchGap = refs.status === 'loading' ? '研究条件价依据读取中，相关命中暂停，请到候选池核对'
+    : refs.status === 'error' ? '研究条件价依据读取失败，相关命中暂停，请到候选池核对'
+    : researchItems.length && !refs.complete ? '研究条件价依据不完整，相关命中暂停，请到候选池核对' : ''
+  const coverageGap = [dcfGap, researchGap].filter(Boolean).join('；')
   return (
     <section className="home-block" aria-labelledby="home-today-title">
       <h2 id="home-today-title" className="home-block__title">今日待办</h2>
       <Link to="/candidates" className="home-today">
         {kinds.length
-          ? <span className="home-today__items">{kinds.map(k => <span key={k} className="home-today__item">{ALERT_LABEL[k]} <strong>{counts[k]}</strong></span>)}{dcfGap && <span className="home-today__item">{dcfGap}</span>}</span>
-          : <span className="home-today__items">{dcfGap ? `候选池 ${items.length} 家，今天没有到期复查；${dcfGap}` : `候选池 ${items.length} 家，今天没有到期复查或进入买入区的公司`}</span>}
+          ? <span className="home-today__items">{kinds.map(k => <span key={k} className="home-today__item">{ALERT_LABEL[k]} <strong>{counts[k]}</strong></span>)}{coverageGap && <span className="home-today__item">{coverageGap}</span>}</span>
+          : <span className="home-today__items">{coverageGap ? `候选池 ${items.length} 家，今天没有到期复查；${coverageGap}` : `候选池 ${items.length} 家，今天没有到期复查或进入买入区的公司`}</span>}
         <span className="home-today__go">去候选池 <ArrowRight size={14} aria-hidden="true" /></span>
       </Link>
     </section>
@@ -63,6 +108,10 @@ export default function Home(): JSX.Element {
   // 首页不预渲染、不水合，首次渲染直接同步读本机数据，避免闪烁
   const [recent] = useState(() => readRecent().map(findSearchablePage).filter((p): p is SearchablePage => p !== null))
   const [records] = useState(() => summarizeLocalRecords())
+  const { snapshot: planSnap } = usePlan()
+  const today = localToday()
+  const hasPlan =
+    !!planSnap.document || planSnap.mode === 'corrupt' || (planSnap.unsaved && planSnap.mode === 'unavailable')
 
   return (
     <Page className="home">
@@ -74,6 +123,22 @@ export default function Home(): JSX.Element {
           <kbd className="home-jump__kbd">{SHORTCUT.keys}</kbd>
         </button>
       </header>
+
+      {!hasPlan && (
+        <p className="home-orient">
+          用规则做投资的个人研究站。
+          <Link to="/invest/start" className="home-orient__start">
+            从这里开始
+            <ArrowRight size={16} aria-hidden="true" />
+          </Link>
+        </p>
+      )}
+
+      {hasPlan && (
+        <section className="home-block home-plan" aria-label="我的计划">
+          <PlanSummaryCard snapshot={planSnap} today={today} />
+        </section>
+      )}
 
       <TodayStrip />
 

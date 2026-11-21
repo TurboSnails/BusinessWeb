@@ -4,7 +4,9 @@ import type { Company, Market } from '../../data/companies'
 import type { CompanyValuation } from '../../features/company-valuation/model'
 import CandidateButton from '../CandidateButton'
 import {
+  pickScenarioTriple,
   priceLabelAlign,
+  researchSourceLabel,
   resolveHeaderScenarioBundle,
   scenarioExtent,
   type ParsedScenario,
@@ -74,6 +76,7 @@ function ScenarioBar({
   currency,
   source,
   baseValue,
+  sourceLabel,
 }: {
   title: string
   price?: number
@@ -81,6 +84,7 @@ function ScenarioBar({
   currency?: string
   source: string
   baseValue?: number
+  sourceLabel?: string
 }): JSX.Element {
   const railRef = useRef<HTMLDivElement>(null)
 
@@ -107,14 +111,16 @@ function ScenarioBar({
   let priceNote: string | undefined
   let priceLeft: string | undefined
   let priceAlign: PriceLabelAlign = 'center'
+  // 综合估值三档叫「低/基准/高」，原研究叫「悲观/基准/乐观」：说法跟着本卡来源走
+  const isValuation = source.startsWith('valuation')
   if (price !== undefined && minV !== undefined && maxV !== undefined) {
     if (price < minV) {
       priceLeft = 'calc(0% - 12px)'
-      priceNote = '低于悲观价'
+      priceNote = isValuation ? '低于低档价' : '低于悲观价'
       priceAlign = 'start'
     } else if (price > maxV) {
       priceLeft = 'calc(100% + 12px)'
-      priceNote = '高于乐观价'
+      priceNote = isValuation ? '高于高档价' : '高于乐观价'
       priceAlign = 'end'
     } else {
       const pct = pctOf(price)
@@ -154,7 +160,7 @@ function ScenarioBar({
     `现价 ${price !== undefined ? fmtNum(price) : '未取得'}${currency ? ` ${currency}` : ''}`,
     ...marks.map(m => `${m.label} ${m.display}`),
     `现价${positionText}`,
-    `来源 ${source}`,
+    `来源 ${sourceLabel ?? source}`,
   ].join('；')
 
   return (
@@ -223,7 +229,7 @@ function MetaLine({ meta }: { meta?: CompanyDetailMetaDates }): JSX.Element | nu
   const researchAsOf = dateOnly(meta.researchAsOf)
   if (priceDate) parts.push(`行情日期 ${priceDate}`)
   if (checked) parts.push(`核验日期 ${checked}`)
-  if (scenarioAsOf) parts.push(`情景依据日期 ${scenarioAsOf}`)
+  if (scenarioAsOf && scenarioAsOf !== researchAsOf) parts.push(`情景依据日期 ${scenarioAsOf}`)
   if (meta.priceAgeDays !== undefined) {
     const age = meta.priceAgeDays === 0 ? '今天' : `${meta.priceAgeDays} 天前`
     parts.push(`价格锚点距今 ${age}`)
@@ -257,6 +263,13 @@ export default function CompanyDetailHeader(props: CompanyDetailHeaderProps): JS
     scenRows,
     researchAsOf: metaDates?.researchAsOf || metaDates?.scenarioAsOf,
   })
+  const researchLabel = researchSourceLabel(metaDates?.researchAsOf || metaDates?.scenarioAsOf)
+  const researchTriple = pickScenarioTriple(scenarios, scenRows, currency)
+  const researchDrawable = [researchTriple.bear, researchTriple.base, researchTriple.bull].some(e => e && e.parsed.kind !== 'none')
+  // 头部用综合估值、页面下方用原研究情景时，提示两套数并存（不合并、不改数值）
+  const otherModelNote = bundle.source.startsWith('valuation') && researchDrawable
+    ? `下方决策信号汇总、K 线图例与研究价位刻度用${researchLabel}，数值与本卡不同，两套各自保留。`
+    : undefined
 
   return (
     <header className="cd-hero">
@@ -275,6 +288,7 @@ export default function CompanyDetailHeader(props: CompanyDetailHeaderProps): JS
           </strong>
         </div>
         <span className="rn-rating cd-rating" data-tone={ratingTone || 'gray'}>{rating}</span>
+        <span className="cd-price-row__label cd-rating-src">评级依据：{researchLabel}</span>
         {bundle.source !== 'valuation-unreliable' && (
           <span
             className="cd-premium"
@@ -282,7 +296,8 @@ export default function CompanyDetailHeader(props: CompanyDetailHeaderProps): JS
             data-source={bundle.source}
             title="现价相对本卡同一套基准情景价"
           >
-            {bundle.premiumLabel}
+            <span>{bundle.premiumLabel}</span>
+            <span className="cd-price-row__ccy cd-premium__src">（{bundle.sourceLabel}）</span>
           </span>
         )}
       </div>
@@ -320,8 +335,11 @@ export default function CompanyDetailHeader(props: CompanyDetailHeaderProps): JS
           currency={bundle.currency}
           source={bundle.source}
           baseValue={bundle.baseValue}
+          sourceLabel={bundle.sourceLabel}
         />
       )}
+
+      {otherModelNote && <p className="cd-meta-line cd-scenarios__other" data-research-source={researchLabel}>{otherModelNote}</p>}
 
       {earningsBadge && <div className="cd-earnings">{earningsBadge}</div>}
 

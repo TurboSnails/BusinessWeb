@@ -21,6 +21,9 @@ export interface DcfSummary {
   mos: number | null
   source?: 'mine' | 'auto'
   current?: number | null
+  /** 本人 DCF 的当前价是否同币种、带日期且未过既有报价新鲜度门槛 */
+  currentFresh?: boolean
+  currentDate?: string | null
   buyBelow?: number | null
   status?: AutoStatus
   credibility?: Credibility | null
@@ -36,6 +39,7 @@ export function matchDcfFilter(filter: DcfFilterId, dcf: DcfSummary | undefined)
   if (filter === 'done') return true
   if (filter === 'mine') return dcf.source === 'mine'
   if (filter === 'buy') return dcf.buyBelow != null && dcf.current != null && dcf.current <= dcf.buyBelow
+  if (dcf.source === 'mine' && dcf.currentFresh !== true) return false
   if (dcf.mos === null || !Number.isFinite(dcf.mos)) return false
   return dcf.mos >= (filter === 'mos20' ? 0.2 : 0)
 }

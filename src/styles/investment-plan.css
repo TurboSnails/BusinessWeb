@@ -4,7 +4,6 @@
   overflow-wrap: anywhere;
 }
 
-.investment-plan .ip-breadcrumb { margin: 4px 0 8px; }
 .investment-plan .ip-head { margin: 8px 0 16px; }
 .investment-plan .ip-head h1 { font-family: var(--font-serif); }
 .investment-plan .ip-head p { line-height: 1.75; }
