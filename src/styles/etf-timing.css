@@ -140,3 +140,29 @@
 .et-list__name a { color: inherit; text-decoration: underline dotted; text-underline-offset: 3px; }
 .et-pick { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 0.9375rem; }
 .et-pick select { min-height: 44px; min-width: 14em; max-width: 100%; padding: 0 10px; border: 1px solid var(--border-subtle); border-radius: 8px; background: var(--bg-card); color: var(--text-primary); font: inherit; }
+
+
+/* 页面内密集链接、导航与表单控件的点击目标 */
+.etf-timing-page .lab-hub-links a,
+.et-list__name a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+}
+
+.et-tile a { min-height: 32px; padding: 8px; }
+.et-toggle input { width: 18px; height: 18px; margin: 0; }
+.et-verdict-box details summary { display: flex; align-items: center; gap: 8px; min-height: 32px; }
+.et-verdict-box details summary::before { content: '▸'; display: inline-block; color: var(--accent-ink); font-size: 1rem; }
+.et-verdict-box details[open] summary::before { transform: rotate(90deg); }
+.et-verdict-box details summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@media (pointer: coarse) {
+  .etf-timing-page .lab-hub-links a,
+  .et-toc a,
+  .etf-timing-page .seg :is(a, button) {
+    min-height: var(--tap);
+  }
+
+  .et-verdict-box details summary { min-height: var(--tap); }
+}

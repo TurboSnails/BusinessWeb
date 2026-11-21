@@ -41,3 +41,8 @@ manager 开工后按实际目标补充业务入口、API 契约位置、验收�
 
 ## 2026-11-17 股债息差补充
 对照同事项目后仅补充沪深300中位数 PE 和上证50两条序列，不带入科创50价格趋势。序列由月度 PE 与每日价格/国债推算，页面明确非真实每日 PE；切换后当前位置、图表和事件表同步。全量264文件/1888测试、脚本346测试、typecheck、lint与真实浏览器切换/390px通过。维护见 docs/data-maintenance.md。此增量尚未提交、推送或部署。
+
+## 2026-11-21 投资页面 UI 交互优化
+用户要求以专业投资人视角优化 UI 交互与设计，Cursor/Kimi 实现、Claude（manager）审查；Codex 当日额度耗尽未参与。Run `run_68bc452e8c4a`，记录在 `.dev-team/runs/ui-investor-20261121/`。六项：导航三层选中态与横向滚动提示（`src/hooks/useOverflowFade.ts`）、公司研究列表首屏（筛选收进"更多筛选"）、候选池空状态与雷达表格、涨跌色统一（美股页改绿涨红跌、观察盘样式泄漏、K 线收盘价着色）、公司详情头部价格与情景刻度条及目录（`src/components/research/CompanyDetailHeader.tsx`、`CompanyDetailToc.tsx`、`scenarioPrices.ts`，样式 `src/styles/company-detail.css`）、财报前瞻/行业 ETF/ETF 择时的小字与点击目标。全量 321 文件/2,331 测试、typecheck、lint 0 error、生产构建通过；28 个核心路由桌面与 390px 无横向溢出、无控制台错误。分支 `ui/investor-polish-20261121`，截至记录时未提交、未推送、未部署。约定：折溢价不用涨跌色；SVG 图表文字按 viewBox 缩放，不适用"不低于 12px"的计算样式检查；情景价只做严格解析，不取中点。
+### 第二轮（同日）
+用户指示继续，新增六项：宏观温度 13 个页签分组（`PageTabs` 支持 `group` / `shortLabel`，网址参数不变）并把美股市场页的指数与区间控件收进图表区；其余投资页面与开盘啦、同花顺、今天几星子页签的小字（不低于 12px）与点击目标（不低于 32px，触屏 44px）。36 个路由在 1440 与 390 宽下无横向溢出、无偏小控件、无小于 12px 的非图表文字；全量 321 文件/2,337 测试、typecheck、lint 0 error、生产构建通过。量化脚本 `.dev-team/runs/ui-investor-20261121/tools/audit.mjs`。新增约定：单选 / 复选框保持原视觉大小，可点区域由 label 整行承担；`<summary>` 改 `display` 后必须自带展开指示；不用省略号截断日期、公司名、基金名、数值。两轮合计仍未提交、未推送、未部署。

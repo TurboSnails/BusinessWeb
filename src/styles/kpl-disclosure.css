@@ -13,7 +13,7 @@
 .dc-table th[scope='row'] { font-weight: 500; text-align: left; }
 .dc-table small { color: var(--text-tertiary); margin-left: 6px; font-size: 0.75rem; font-weight: 400; }
 .dc-table .dc-wide { white-space: normal; min-width: 12em; max-width: 22em; color: var(--text-secondary); }
-.dc-tag { display: inline-block; margin-left: 6px; padding: 0 6px; border-radius: var(--radius-full); border: 1px solid var(--border-primary); color: var(--text-secondary); font-size: 0.72rem; line-height: 1.5; white-space: nowrap; }
+.dc-tag { display: inline-block; margin-left: 6px; padding: 0 6px; border-radius: var(--radius-full); border: 1px solid var(--border-primary); color: var(--text-secondary); font-size: 0.75rem; line-height: 1.5; white-space: nowrap; }
 .dc-tag.is-up { color: var(--up-ink); border-color: var(--up); }
 .dc-tag.is-down { color: var(--down-ink); border-color: var(--down); }
 .dc-tag.is-warn { color: var(--up-ink); border-color: var(--up); }
@@ -27,8 +27,15 @@
 .dc-chips li { border: 1px solid var(--border-light); border-radius: var(--radius-full); padding: 2px 10px; font-size: 0.82rem; }
 .dc-chips small { color: var(--text-tertiary); margin-left: 4px; }
 .dc-sub { margin: 12px 0 4px; font-size: 0.9rem; }
-.dc-more { appearance: none; margin-top: 10px; background: none; border: 1px solid var(--border-primary); border-radius: var(--radius-sm); padding: 4px 12px; font: inherit; font-size: 0.85rem; color: var(--text-secondary); cursor: pointer; }
+.dc-more {
+  appearance: none; display: inline-flex; align-items: center; min-height: 32px; margin-top: 10px;
+  background: none; border: 1px solid var(--border-primary); border-radius: var(--radius-sm);
+  padding: 4px 12px; font: inherit; font-size: 0.85rem; color: var(--text-secondary); cursor: pointer;
+}
 .dc-more:hover { color: var(--text-primary); }
+@media (pointer: coarse) {
+  .dc-more { min-height: var(--tap); }
+}
 
 @media (max-width: 900px) {
   .dc-top { grid-template-columns: repeat(3, minmax(0, 1fr)); }

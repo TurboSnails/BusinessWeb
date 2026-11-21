@@ -333,14 +333,14 @@
 .industry-etf-table col:nth-child(1) { width: 84px; }
 .industry-etf-table col:nth-child(2) { width: 190px; }
 .industry-etf-table col:nth-child(3) { width: 220px; }
-.industry-etf-table col:nth-child(4) { width: 150px; }
+.industry-etf-table col:nth-child(4) { width: 200px; }
 .industry-etf-table col:nth-child(6) { width: 110px; }
 .industry-etf-table col:nth-child(7) { width: 84px; }
 /* 策略/商品/货币：代码 / 名称 / 类别 / 收盘 / 技术面 / 备注(自适应) / 网格 */
 .other-etf-table { min-width: 1060px; }
 .other-etf-table col:nth-child(3) { width: 150px; }
 .other-etf-table col:nth-child(4) { width: 110px; }
-.other-etf-table col:nth-child(5) { width: 150px; }
+.other-etf-table col:nth-child(5) { width: 200px; }
 .other-etf-table col:nth-child(6) { width: auto; }
 .other-etf-table col:nth-child(7) { width: 84px; }
 /* 债基：代码 / 名称 / 净值 / 近20日 / 技术面 / 参考 */
@@ -348,15 +348,54 @@
 .bond-fund-table col:nth-child(2) { width: 260px; }
 .bond-fund-table col:nth-child(3) { width: 140px; }
 .bond-fund-table col:nth-child(4) { width: 100px; }
-.bond-fund-table col:nth-child(5) { width: 150px; }
+.bond-fund-table col:nth-child(5) { width: 200px; }
 .bond-fund-table col:nth-child(6) { width: auto; }
 .industry-etf-table .etf-num-cell { white-space: nowrap; font-variant-numeric: tabular-nums; }
 .industry-etf-table .etf-num-cell small { display: block; color: var(--text-secondary); font-size: .78rem; }
 .industry-etf-table .etf-tech-cell { vertical-align: top; }
 .industry-etf-table td { vertical-align: top; }
+.industry-etf-table .etf-tech { min-width: 0; }
+.industry-etf-table .etf-tech__chip { white-space: nowrap; }
+
+@media (min-width: 1280px) {
+  .industry-etf-table { min-width: 0; }
+  .industry-etf-table th,
+  .industry-etf-table td { padding-right: 10px; padding-left: 10px; }
+  .broad-etf-table col:nth-child(1),
+  .industry-sector-table col:nth-child(1) { width: 72px; }
+  .broad-etf-table col:nth-child(2),
+  .industry-sector-table col:nth-child(2) { width: 148px; }
+  .broad-etf-table col:nth-child(3),
+  .industry-sector-table col:nth-child(3) { width: 140px; }
+  .industry-etf-table .etf-name-cell { overflow: visible; text-overflow: clip; white-space: normal; overflow-wrap: anywhere; }
+  .broad-etf-table col:nth-child(4),
+  .industry-sector-table col:nth-child(4) { width: 150px; }
+  .broad-etf-table col:nth-child(6),
+  .broad-etf-table col:nth-child(7),
+  .industry-sector-table col:nth-child(6),
+  .industry-sector-table col:nth-child(7) { width: 72px; }
+  .broad-etf-table :is(.etf-ref-cell, .etf-grid-cell, .etf-tech-cell),
+  .industry-sector-table :is(.etf-ref-cell, .etf-grid-cell, .etf-tech-cell) { padding-right: 4px; padding-left: 4px; }
+  .broad-etf-table .etf-ref-link,
+  .industry-sector-table .etf-ref-link { font-size: 0.75rem; }
+  .broad-etf-table .etf-remark-cell,
+  .industry-sector-table .etf-remark-cell { font-size: 0.8rem; }
+  .industry-etf-table .etf-tech__chip { gap: 3px; padding-right: 6px; padding-left: 6px; }
+  .other-etf-table col:nth-child(7),
+  .bond-fund-table col:nth-child(6) { width: 90px; }
+}
 
 .etf-other-note { margin: 8px 0 0; font-size: .82rem; color: var(--text-secondary); line-height: 1.6; }
 
 .etf-method ul { margin: 8px 0 0; padding-left: 1.2em; font-size: .88rem; line-height: 1.8; color: var(--text-secondary); }
 .etf-method strong { color: var(--text-primary); }
 @media (max-width: 720px) { .industry-table-wrapper { box-shadow: inset -12px 0 10px -12px rgba(0,0,0,.25); } .industry-table-wrapper::before { content: '← 左右滑动查看全部列'; display: block; padding: 6px 14px 0; font-size: .75rem; color: var(--text-tertiary); } }
+
+
+/* 清单链接的点击目标；不改变笔记正文排版 */
+.industry-etf-nav__pill { min-height: 32px; }
+.industry-etf-table .etf-ref-link { display: inline-flex; align-items: center; min-height: 32px; }
+
+@media (pointer: coarse) {
+  .industry-etf-nav__pill { min-height: var(--tap); }
+}

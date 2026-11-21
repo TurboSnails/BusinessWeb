@@ -23,7 +23,7 @@
 .mm-thermo__fill.is-mid { fill: var(--text-tertiary); }
 .mm-thermo__fill.is-cold { fill: var(--down); }
 .mm-thermo__mark { stroke: var(--bg-card); stroke-width: 0.6; }
-.mm-thermo__scale { display: flex; justify-content: space-between; color: var(--text-tertiary); font-size: 0.72rem; margin-top: 4px; }
+.mm-thermo__scale { display: flex; justify-content: space-between; color: var(--text-tertiary); font-size: 0.75rem; margin-top: 4px; }
 .mm-thermo__value { margin: 8px 0 0; }
 .mm-thermo__value strong { font-size: 1.8rem; font-variant-numeric: tabular-nums; }
 .mm-thermo__value span { color: var(--text-secondary); margin-left: 6px; }
@@ -39,7 +39,7 @@
 .mm-buckets li { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
 .mm-buckets__col { width: 70%; height: 110px; display: block; }
 .mm-buckets__n { font-size: 0.75rem; font-variant-numeric: tabular-nums; }
-.mm-buckets__label { font-size: 0.68rem; color: var(--text-tertiary); white-space: nowrap; }
+.mm-buckets__label { font-size: 0.75rem; color: var(--text-tertiary); white-space: nowrap; }
 
 /* 涨停表现 */
 .mm-boards { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
@@ -91,7 +91,8 @@
 .mm-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
 .mm-table th, .mm-table td { padding: 6px 8px; border-bottom: 1px solid var(--border-subtle); text-align: left; }
 .mm-table .num { text-align: right; font-variant-numeric: tabular-nums; }
-.mm-table td small { color: var(--text-tertiary); margin-left: 6px; }
+.mm-table small { color: var(--text-tertiary); margin-left: 6px; font-size: 0.75rem; }
+.mm-table a { display: inline-flex; align-items: center; min-height: 32px; padding: 4px 0; }
 .mm-vane { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .mm-vane__item { background: var(--bg-secondary); border-radius: var(--radius-sm); padding: 10px 12px; }
 .mm-vane__head { margin: 0 0 6px; }
@@ -107,7 +108,16 @@
   .mm-boards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .mm-perf { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .mm-vane { grid-template-columns: 1fr; }
-  .mm-buckets__label { font-size: 0.6rem; }
+  .mm-buckets__label { font-size: 0.75rem; }
+}
+
+/* 页内 small 默认不低于 12px；触屏下筛选分段与展开按钮拉到 --tap */
+.mm-page small { font-size: 0.75rem; }
+.mm-page .seg button,
+.mm-page .ths-more { min-height: 32px; }
+@media (pointer: coarse) {
+  .mm-page .seg button,
+  .mm-page .ths-more { min-height: var(--tap); }
 }
 
 /* 六个市场的切换按钮在手机上换行，不溢出卡片 */

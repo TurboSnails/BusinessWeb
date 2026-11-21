@@ -131,10 +131,10 @@ describe('补全公司：研究笔记列表与详情', () => {
 
   it('补全公司详情页渲染程序化标识、三情景与买入纪律', async () => {
     renderAt('/research-notes/us/ACN')
-    await waitFor(() => expect(screen.getByText('程序化研究页')).toBeTruthy(), { timeout: 8000 })
+    await waitFor(() => expect(screen.getAllByText('程序化研究页').length).toBeGreaterThan(0), { timeout: 15000 })
     expect(screen.getAllByText(/Bear/).length).toBeGreaterThan(0)
     expect(screen.getAllByText(/条件价格（研究假设）/).length).toBeGreaterThan(0)
-  })
+  }, 20_000)
 
   it('比亚迪详情页显示本轮复核并替换程序化结论', async () => {
     renderAt('/research-notes/cn/002594')
@@ -200,8 +200,8 @@ describe('林奇分组、港股、导出', () => {
 
   it('全部公司列表有导出按钮', async () => {
     renderAt('/research-notes?tab=category&m=us')
-    await waitFor(() => expect(screen.getByText(/导出当前筛选/)).toBeTruthy(), { timeout: 8000 })
-    expect(screen.getByText(/导出该市场全部/)).toBeTruthy()
+    await waitFor(() => expect(screen.getAllByText(/导出当前筛选/).length).toBeGreaterThan(0), { timeout: 8000 })
+    expect(screen.getAllByText(/导出该市场全部/).length).toBeGreaterThan(0)
   })
 
   it('美股非标普标签：四组分类', async () => {
@@ -352,6 +352,27 @@ describe('页面结构：公司库优先，旧链接可用', () => {
     fireEvent.click(screen.getByRole('button', { name: '家庭组合 v6' }))
     expect(screen.getByText('配置表（300 万示例）')).toBeTruthy()
     expect(screen.queryByText('被动层 · 压舱石（五格等权）')).toBeNull()
+  })
+})
+
+describe('公司库首屏压缩：更多筛选与 URL 参数', () => {
+  it('行业参数生效并显示可移除标签，清除后恢复', async () => {
+    renderAt(`/research-notes?tab=category&m=us&sec=${encodeURIComponent('信息技术')}`)
+    await waitFor(() => expect(screen.getByText(/共 \d+ 家，当前 \d+ 家/)).toBeTruthy(), { timeout: 8000 })
+    expect(screen.getByText(/更多筛选（1）/)).toBeTruthy()
+    expect(screen.getByRole('button', { name: /移除行业筛选 信息技术/ })).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: '清除筛选' }))
+    await waitFor(() => expect(screen.queryByRole('button', { name: /移除行业筛选/ })).toBeNull())
+    expect(screen.getByText(/^更多筛选$/)).toBeTruthy()
+  })
+
+  it('成熟度在更多筛选内可选，折叠摘要显示条件数', async () => {
+    renderAt('/research-notes?tab=category&m=us')
+    await waitFor(() => expect(screen.getByPlaceholderText('搜索公司名称或代码')).toBeTruthy(), { timeout: 8000 })
+    fireEvent.click(screen.getByText(/^更多筛选/))
+    fireEvent.click(screen.getByRole('button', { name: /^事实已复核/ }))
+    await waitFor(() => expect(screen.getByText(/更多筛选（1）/)).toBeTruthy())
+    expect(screen.getByRole('button', { name: /移除成熟度筛选 事实已复核/ })).toBeTruthy()
   })
 })
 

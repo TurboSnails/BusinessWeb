@@ -448,3 +448,12 @@
 .dcf-peers th { font-weight: 400; color: var(--text-secondary); font-size: 0.78rem; }
 .dcf-peers tr.is-self td { font-weight: 650; background: var(--accent-soft); }
 .dcf-peers .dcf-link { margin-left: 0; }
+
+.dcf-field small,
+.dcf-metric small,
+.dcf-table th { font-size: 0.75rem; }
+.dcf-search__list button { min-height: 32px; }
+.dcf-slider { min-height: 32px; }
+@media (pointer: coarse) {
+  .dcf-page .dcf-button { min-height: var(--tap); }
+}

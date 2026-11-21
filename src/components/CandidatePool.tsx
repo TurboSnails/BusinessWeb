@@ -15,6 +15,7 @@ import { matchDcfFilter, type DcfFilterId } from '../features/dcf/filter'
 import { DcfFilterChips } from './DcfCell'
 import { Badge, Card, TableWrap } from './ui'
 import '../styles/research.css'
+import '../styles/candidates.css'
 
 interface Props {
   items: CandidateItem[]
@@ -147,16 +148,44 @@ export default function CandidatePool({ items, companies, tools = NO_TOOLS, stat
   }
   const drop = (to: number): void => { if (dragFrom !== null) onMove(dragFrom, to); setDragFrom(null); setOver(null) }
 
-  const status = state === 'synced' ? '☁ 已同步到云端' : state === 'syncing' ? '☁ 同步中…' : state === 'error' ? '⚠ 云端同步失败，数据暂存本机' : '未验证身份：数据仅保存在本机'
+  const status = state === 'synced' ? '☁ 已同步到云端' : state === 'syncing' ? '☁ 同步中…' : state === 'error' ? '⚠ 云端同步失败，数据暂存本机' : '未开启同步：数据仅保存在本机'
+  const syncStatus = (
+    <>
+      <span aria-live="polite" className={state === 'error' ? 'rn-pool-status is-error' : 'rn-pool-status'}>{status}</span>
+      {message && <span className="rn-pool-msg">{message}</span>}
+      {state === 'error' && <button type="button" className="tool-btn" onClick={onRetry}>重试</button>}
+    </>
+  )
+  const syncDetails = (
+    <details className="cand-sync">
+      <summary>跨设备同步</summary>
+      <div className="cand-sync__body">
+        <p>不填则只保存在本机；在另一台设备填入同一口令即可同步。</p>
+        {state === 'no-token' && (
+          <form onSubmit={e => { e.preventDefault(); setTokenError(!onConnect(token)); setToken('') }} className="ui-cluster rn-pool-form">
+            <label htmlFor="candidate-sync-passphrase">同步口令</label>
+            <input id="candidate-sync-passphrase" type="password" autoComplete="new-password" value={token} onChange={e => setToken(e.target.value)}
+              className="rn-input" />
+            <button type="submit" className="tool-btn tool-btn--primary">验证并同步</button>
+            {tokenError && <span className="rn-error-text">同步口令至少 32 位</span>}
+          </form>
+        )}
+      </div>
+    </details>
+  )
+  if (!items.length) return (
+    <section className="cand-sync-only" aria-label="候选池同步">
+      <div className="ui-cluster rn-filters">{syncStatus}</div>
+      {syncDetails}
+    </section>
+  )
   return (
     <Card as="section" label="我的候选池" title={`我的候选池 · ${items.length} 家`} className="rn-card">
       <div className="ui-cluster rn-filters">
-        <span aria-live="polite" className={state === 'error' ? 'rn-pool-status is-error' : 'rn-pool-status'}>{status}</span>
-        {message && <span className="rn-pool-msg">{message}</span>}
-        {state === 'error' && <button type="button" className="tool-btn" onClick={onRetry}>重试</button>}
+        {syncStatus}
         <DcfFilterChips value={dcfF} onChange={setDcfF} className="ui-cluster" />
         <span className="rn-spacer" />
-        <button type="button" className="tool-btn" disabled={!items.length} onClick={exportJson}>⬇ 导出 JSON</button>
+        <button type="button" className="tool-btn" onClick={exportJson}>⬇ 导出 JSON</button>
         {confirmClear ? (
           <span className="cand-confirm" role="group" aria-label="确认清空">
             <span>清空全部 {items.length} 家{recordCount ? `（含 ${recordCount} 条决策记录）` : ''}？会同步到云端。</span>
@@ -164,23 +193,11 @@ export default function CandidatePool({ items, companies, tools = NO_TOOLS, stat
             <button type="button" className="tool-btn" onClick={() => setConfirmClear(false)}>取消</button>
           </span>
         ) : (
-          <button type="button" className="tool-btn" disabled={!items.length} onClick={() => setConfirmClear(true)}>清空</button>
+          <button type="button" className="tool-btn" onClick={() => setConfirmClear(true)}>清空</button>
         )}
       </div>
-      {state === 'no-token' && (
-        <form onSubmit={e => { e.preventDefault(); setTokenError(!onConnect(token)); setToken('') }} className="ui-cluster rn-pool-form">
-          <input type="password" aria-label="同步 Token" autoComplete="new-password" value={token} onChange={e => setToken(e.target.value)} placeholder="输入同步 Token（同每日复盘的 PULSE_SYNC_TOKEN），仅需一次"
-            className="rn-input" />
-          <button type="submit" className="tool-btn tool-btn--primary">验证并同步</button>
-          {tokenError && <span className="rn-error-text">Token 至少 32 位</span>}
-        </form>
-      )}
-      {!items.length ? (
-        <div className="cand-empty">
-          <p>候选池还是空的。</p>
-          <p>在 <Link to="/research-notes" className="rn-link">公司研究</Link> 的公司库里点「加入候选」，或在「研究筛出」里点「加入我的池」。</p>
-        </div>
-      ) : (
+      {syncDetails}
+      {items.length > 0 && (
         <TableWrap label="候选池列表">
           <table className="ui-table rn-table--top cand-table">
             <thead><tr>{['#', '公司', '决策记录', '我的备注', '研究结论', '估值', '排序'].map(h => <th key={h} scope="col">{h}</th>)}</tr></thead>
@@ -250,7 +267,7 @@ export default function CandidatePool({ items, companies, tools = NO_TOOLS, stat
         return <CandidateAlertDialog key={alerting ?? ''} open onClose={() => setAlerting(null)} name={`${d.name || item.code} ${item.code}`} rule={item.alert}
           anchors={ctx.anchors} price={ctx.price} currency={ctx.currency} cloud={state === 'synced' || state === 'syncing'} today={today} onSave={rule => onAlert(item, rule)} />
       })()}
-      <p className="cand-foot">拖动 ⠿ 序号或用 ↑ ↓ / 置顶调整优先级；备注 Enter 或点别处保存，Shift+Enter 换行，Esc 放弃。仅为个人研究清单，不构成投资建议。</p>
+      {items.length > 0 && <p className="cand-foot">拖动 ⠿ 序号或用 ↑ ↓ / 置顶调整优先级；备注 Enter 或点别处保存，Shift+Enter 换行，Esc 放弃。仅为个人研究清单，不构成投资建议。</p>}
     </Card>
   )
 }

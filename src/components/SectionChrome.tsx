@@ -1,17 +1,24 @@
 import React, { useEffect, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { findInvestEntry } from '../data/siteMap'
+import { scrollChildIntoViewX, useOverflowFade } from '../hooks/useOverflowFade'
 import SmartLink from './SmartLink'
 
 export default function SectionChrome(): JSX.Element | null {
   const { pathname } = useLocation()
   const entry = findInvestEntry(pathname)
   const currentRef = useRef<HTMLAnchorElement | null>(null)
+  const { ref: overflowRef, sync: syncOverflow } = useOverflowFade<HTMLElement>()
 
-  // 手机上切换条横向滚动，让当前项自动进入可视区
+  // 只滚横向容器，避免 scrollIntoView 带动整页纵向跳动
   useEffect(() => {
-    currentRef.current?.scrollIntoView?.({ inline: 'center', block: 'nearest' })
-  }, [pathname])
+    const child = currentRef.current
+    const container = child?.parentElement
+    if (child && container) scrollChildIntoViewX(container, child)
+    syncOverflow()
+    const id = requestAnimationFrame(syncOverflow)
+    return () => cancelAnimationFrame(id)
+  }, [pathname, syncOverflow])
 
   if (!entry) return null
   const { group, link } = entry
@@ -27,7 +34,7 @@ export default function SectionChrome(): JSX.Element | null {
       </nav>
       {link.archived && <p className="section-archived" role="note">{link.archived}</p>}
       {group.links.length > 1 && (
-        <nav className="section-tabs" aria-label="同组页面">
+        <nav className="section-tabs" aria-label="同组页面" ref={overflowRef}>
           {group.links.map(l => {
             const active = l.path === link.path || link.path.startsWith(l.path + '/')
             return (

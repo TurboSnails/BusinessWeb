@@ -261,6 +261,25 @@
   display: none;
 }
 
+/* 横向溢出渐隐：mask 不挡点击与焦点 */
+.section-tabs[data-overflow-start][data-overflow-end],
+.page-tabs__inner[data-overflow-start][data-overflow-end] {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 28px, #000 calc(100% - 28px), transparent);
+  mask-image: linear-gradient(to right, transparent, #000 28px, #000 calc(100% - 28px), transparent);
+}
+
+.section-tabs[data-overflow-start]:not([data-overflow-end]),
+.page-tabs__inner[data-overflow-start]:not([data-overflow-end]) {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 28px);
+  mask-image: linear-gradient(to right, transparent, #000 28px);
+}
+
+.section-tabs[data-overflow-end]:not([data-overflow-start]),
+.page-tabs__inner[data-overflow-end]:not([data-overflow-start]) {
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+}
+
 .section-tabs__link {
   flex: 0 0 auto;
   display: inline-flex;
@@ -273,6 +292,11 @@
   color: var(--text-secondary);
   text-decoration: none;
   font-size: 0.95rem;
+}
+
+.section-tabs__link:hover {
+  color: var(--text-primary);
+  border-color: var(--accent);
 }
 
 .section-tabs__link.is-active {
@@ -903,6 +927,45 @@ a.chapter-nav__item:hover {
   gap: 4px;
   overflow-x: auto;
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.page-tabs__inner::-webkit-scrollbar {
+  display: none;
+}
+
+/* 带分组：收紧间距，1440 下一行放得下；组名不可聚焦 */
+.page-tabs__inner--grouped {
+  gap: 2px;
+  align-items: center;
+}
+
+.page-tabs__inner--grouped .page-tab {
+  padding: 0 8px;
+  font-size: 0.86rem;
+}
+
+.page-tabs__group {
+  flex: 0 0 auto;
+  margin-inline: 4px 2px;
+  padding: 2px 0;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  opacity: 0.8;
+  pointer-events: none;
+  user-select: none;
+}
+
+.page-tabs__sep {
+  flex: 0 0 auto;
+  align-self: stretch;
+  width: 1px;
+  margin: 10px 6px;
+  background: var(--border-subtle);
+  pointer-events: none;
 }
 
 .page-tab {
@@ -954,10 +1017,21 @@ a.chapter-nav__item:hover {
   cursor: pointer;
 }
 
+.seg__btn:hover:not(:disabled):not(.is-active) {
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+
 .seg__btn.is-active {
   border-color: var(--accent);
-  background: var(--accent);
-  color: #fff;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+
+.seg__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .page-toolbar {

@@ -14,8 +14,23 @@
 .jg-table tbody tr.is-picked td { background: var(--bg-secondary); }
 .jg-table th small, .jg-table td small { display: block; margin-left: 0; color: var(--text-tertiary); font-size: 0.75rem; font-weight: 400; }
 .jg-table td { white-space: nowrap; }
-.jg-pick { padding: 0; border: 0; background: none; color: var(--accent); font: inherit; font-weight: 600; text-align: left; cursor: pointer; }
+.jg-pick {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
 .jg-pick[aria-pressed='true'] { color: var(--text-primary); text-decoration: underline; text-underline-offset: 3px; }
+@media (pointer: coarse) {
+  .jg-pick { min-height: var(--tap); }
+}
 
 .jg-detail { margin-top: 8px; }
 .jg-list { margin: 0 0 12px; padding-left: 1.2em; color: var(--text-secondary); font-size: 0.88rem; line-height: 1.7; }

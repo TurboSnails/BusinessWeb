@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Page } from '../components/ui'
+import { Page, TableWrap } from '../components/ui'
 import { PageTitle } from '../components/ui/PageTabs'
 import CandidateButton from '../components/CandidateButton'
 import SignalReview from '../components/SignalReview'
@@ -56,10 +56,10 @@ function Checks({ r }: { r: RadarRow }): JSX.Element {
 
 function Dates({ r }: { r: RadarRow }): JSX.Element {
   return (
-    <small className="radar-dates">
+    <span className="radar-dates">
       价格 {r.dates.price ?? '—'}
       {r.lane === 'growth' ? ` · PE ${r.dates.pe ?? '—'} · 增速：${r.dates.growth}` : ` · 财年 ${r.dates.fy}`}
-    </small>
+    </span>
   )
 }
 
@@ -85,23 +85,28 @@ function ExcludedList({ list }: { list: Exclusion[] }): JSX.Element {
 
 function LaneTable({ lane, rows, inPool, toggle }: { lane: Lane; rows: RadarRow[]; inPool: (r: RadarRow) => boolean; toggle: (r: RadarRow) => void }): JSX.Element {
   return (
-    <div className="radar-table-wrap">
-      <table className="radar-table">
+    <TableWrap label={`${LANE[lane].title}公司列表`} className="radar-table-wrap">
+      <table className={`radar-table radar-table--${lane}`}>
+        <colgroup>
+          <col className="radar-col-index" /><col className="radar-col-company" />
+          <col className="radar-col-metric" /><col className="radar-col-metric" /><col className="radar-col-metric-wide" /><col className="radar-col-metric" /><col className="radar-col-metric-small" />
+          <col /><col className="radar-col-score" /><col className="radar-col-action" />
+        </colgroup>
         <thead>
           {lane === 'value' ? (
-            <tr><th scope="col">#</th><th scope="col">公司</th><th scope="col">现价</th><th scope="col">合理价</th><th scope="col">买入参考</th><th scope="col">距合理价</th><th scope="col">可信度</th><th scope="col">检查（悬停看依据）</th><th scope="col">得分</th><th scope="col">候选</th></tr>
+            <tr><th scope="col">#</th><th scope="col" className="radar-company">公司</th><th scope="col">现价</th><th scope="col">合理价</th><th scope="col">买入参考</th><th scope="col">距合理价</th><th scope="col">可信度</th><th scope="col">检查（悬停看依据）</th><th scope="col">得分</th><th scope="col">候选</th></tr>
           ) : (
-            <tr><th scope="col">#</th><th scope="col">公司</th><th scope="col">PE</th><th scope="col">有效增速</th><th scope="col">营收增速</th><th scope="col">PE 上限</th><th scope="col">余量</th><th scope="col">检查（悬停看依据）</th><th scope="col">得分</th><th scope="col">候选</th></tr>
+            <tr><th scope="col">#</th><th scope="col" className="radar-company">公司</th><th scope="col">PE</th><th scope="col">有效增速</th><th scope="col">营收增速</th><th scope="col">PE 上限</th><th scope="col">余量</th><th scope="col">检查（悬停看依据）</th><th scope="col">得分</th><th scope="col">候选</th></tr>
           )}
         </thead>
         <tbody>
           {rows.map((r, i) => (
             <tr key={r.key}>
               <td>{i + 1}</td>
-              <td>
-                <Link to={companyHref(r.venue, r.item.c)}>{r.item.n}</Link>
-                <small>{r.item.c} · {MARKET_NAME[r.item.m]} · {r.lynch.t}{r.item.ind ? ` · ${r.item.ind}` : ''}</small>
-                <Dates r={r} />
+              <td className="radar-company">
+                <Link className="radar-company-name" to={companyHref(r.venue, r.item.c)}>{r.item.n}</Link>
+                <small className="radar-company-code">{r.item.c} · {MARKET_NAME[r.item.m]}</small>
+                <small className="radar-company-meta">{r.lynch.t}{r.item.ind ? ` · ${r.item.ind}` : ''} · <Dates r={r} /></small>
               </td>
               {lane === 'value' && r.dcf ? (
                 <>
@@ -116,12 +121,12 @@ function LaneTable({ lane, rows, inPool, toggle }: { lane: Lane; rows: RadarRow[
               )}
               <td><Checks r={r} /></td>
               <td className="radar-score">{r.score}</td>
-              <td><CandidateButton on={inPool(r)} onClick={() => toggle(r)} /></td>
+              <td className="radar-action"><CandidateButton on={inPool(r)} onClick={() => toggle(r)} /></td>
             </tr>
           ))}
         </tbody>
       </table>
-    </div>
+    </TableWrap>
   )
 }
 
@@ -192,16 +197,20 @@ export default function Radar(): JSX.Element {
     <Page className="radar-page">
       <PageTitle>机会雷达</PageTitle>
       <section className="radar-intro">
-        <h2>先分类，再按类型找机会</h2>
-        <p>
-          按《正念投资》的选股方法：先给公司分类（<Link to={book(RADAR_BOOK.overview)}>第19章</Link>），不同类型用不同的买入检查。
-          雷达只跑两条主线：<strong>价值回归</strong>（<Link to={book(RADAR_BOOK.value)}>第20章</Link>）与<strong>快速增长</strong>（<Link to={book(RADAR_BOOK.growth)}>第21章</Link>）；
-          巴菲特的<Link to={book(RADAR_BOOK.moat)}>护城河</Link>与<Link to={book(RADAR_BOOK.margin)}>安全边际</Link>只作加减分。周期型、困境反转型、资产型不进主线，放在页尾说明。
-        </p>
-        <p className="radar-muted">
-          范围是沪深300、恒指、恒生科技、纳指100及研究公司。每条检查都写明依据，缺数据就排除并写明原因，不补数。这是研究线索，不是买入建议；能力圈因人而异，书和本站都没有统一的行业清单，雷达不评，请自己判断看不看得懂。
-          {lib && lib !== 'error' && ` 预填库更新于 ${lib.generatedAt.slice(0, 10)}；分类与增速来自林奇分类数据（public/data/lynch.json）。`}
-        </p>
+        <p className="radar-summary">先分类，再按公司类型找价值回归与快速增长的线索。这是研究线索，不是买入建议。</p>
+        <details className="radar-method">
+          <summary>方法与范围</summary>
+          <h2>先分类，再按类型找机会</h2>
+          <p>
+            按《正念投资》的选股方法：先给公司分类（<Link to={book(RADAR_BOOK.overview)}>第19章</Link>），不同类型用不同的买入检查。
+            雷达只跑两条主线：<strong>价值回归</strong>（<Link to={book(RADAR_BOOK.value)}>第20章</Link>）与<strong>快速增长</strong>（<Link to={book(RADAR_BOOK.growth)}>第21章</Link>）；
+            巴菲特的<Link to={book(RADAR_BOOK.moat)}>护城河</Link>与<Link to={book(RADAR_BOOK.margin)}>安全边际</Link>只作加减分。周期型、困境反转型、资产型不进主线，放在页尾说明。
+          </p>
+          <p className="radar-muted">
+            范围是沪深300、恒指、恒生科技、纳指100及研究公司。每条检查都写明依据，缺数据就排除并写明原因，不补数。这是研究线索，不是买入建议；能力圈因人而异，书和本站都没有统一的行业清单，雷达不评，请自己判断看不看得懂。
+            {lib && lib !== 'error' && ` 预填库更新于 ${lib.generatedAt.slice(0, 10)}；分类与增速来自林奇分类数据。`}
+          </p>
+        </details>
         {latest && (
           <p className="radar-cycle">
             市场环境（牛熊周期周报 {latest.weekEnding}）：A股 {latest.markets.csi300?.legacyState ?? '—'} · 恒指 {latest.markets.hsi?.legacyState ?? '—'} · 恒生科技 {latest.markets.hstech?.legacyState ?? '—'}。

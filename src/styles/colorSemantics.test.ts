@@ -39,6 +39,27 @@ describe('涨跌色语义：--up/--down 只表示 A 股红涨绿跌', () => {
   })
 })
 
+describe('美股页与观察盘涨跌色锁', () => {
+  it('us-market 美股涨跌用 system-green/red，不用 A 股 --up/--down 令牌', () => {
+    const brief = read('features/us-market/weekly-brief.css')
+    const market = read('features/us-market/us-market.css')
+    expect(brief).toMatch(/\[data-market=["']us["']\][^{]*\.weekly-brief__big\[data-sign=["']up["']\][^{]*\{[^}]*--system-green/)
+    expect(brief).toMatch(/\[data-market=["']us["']\][^{]*\.weekly-brief__big\[data-sign=["']down["']\][^{]*\{[^}]*--system-red/)
+    expect(brief).not.toMatch(/\[data-market=["']us["']\][^}]*--(?:up|down)(?:-ink)?/)
+    expect(market).toMatch(/--us-chg-up:\s*var\(--system-green\)/)
+    expect(market).toMatch(/--us-chg-down:\s*var\(--system-red\)/)
+    expect(market).not.toMatch(/--lean-defense:[^;]*var\(--up\)/)
+  })
+
+  it('watch.css 不再有会命中宏观卡片的裸 .is-green / .is-red 颜色规则', () => {
+    const css = read('styles/watch.css')
+    expect(css).not.toMatch(/\.watch-page\s+\.is-green\s*\{/)
+    expect(css).not.toMatch(/\.watch-page\s+\.is-red\s*\{/)
+    expect(css).toMatch(/\.watch-q__chg\.is-green/)
+    expect(css).toMatch(/\.watch-q__chg\.is-red/)
+  })
+})
+
 describe('样式小问题', () => {
   it('valuation.css 没有 var(--x, var(--x)) 这种自己引用自己的回退', () => {
     const css = read('components/valuation/valuation.css')

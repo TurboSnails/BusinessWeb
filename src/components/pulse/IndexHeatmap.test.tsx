@@ -1,7 +1,7 @@
 import React from 'react'
 import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import IndexHeatmap, { fetchIndexQuotes, INDEX_CONFIG } from './IndexHeatmap'
+import IndexHeatmap, { fetchIndexQuotes, heatmapTextLayout, INDEX_CONFIG } from './IndexHeatmap'
 
 const row = (ticker: string, code: string, close: number, change: number, cap: number, sector: string) => ({ s: ticker, d: [code, close, change, cap, sector] })
 const scanner = (rows: unknown[]) => vi.fn(async (...args: unknown[]) => {
@@ -71,6 +71,29 @@ describe('指数热力图数据', () => {
     expect(screen.getByText(/恒生指数 · 3 只/)).toBeTruthy()
     expect(screen.getByText('金融')).toBeTruthy()
     expect(screen.getByText('技术服务')).toBeTruthy()
+  })
+
+  it('文字布局：中等块显示完整短名称，长名称放不下就隐藏', () => {
+    expect(heatmapTextLayout('腾讯', '+2.09%', { w: 48, h: 40 })).toEqual({ fontSize: 12, showLabel: true, showPct: false })
+    expect(heatmapTextLayout('百度集团-SW', '+2.09%', { w: 48, h: 40 }).showLabel).toBe(false)
+    expect(heatmapTextLayout('腾讯控股', '+2.09%', { w: 100, h: 40 })).toEqual({ fontSize: 12, showLabel: true, showPct: true })
+  })
+
+  it('文字布局：第二行高度不足时只显示名称，字号限制在 12 到 16px', () => {
+    expect(heatmapTextLayout('腾讯', '+2.09%', { w: 100, h: 24 })).toEqual({ fontSize: 12, showLabel: true, showPct: false })
+    expect(heatmapTextLayout('腾讯', '+2.09%', { w: 30, h: 18 })).toEqual({ fontSize: 12, showLabel: false, showPct: false })
+    expect(heatmapTextLayout('A', '1%', { w: 200, h: 200 }).fontSize).toBe(16)
+  })
+
+  it('小块不渲染低于 12px 的文字，但保留股票名称提示', async () => {
+    vi.stubGlobal('fetch', scanner([
+      row('HKEX:700', '700', 421.2, -2.27, 1e13, 'Technology Services'),
+      row('HKEX:5', '5', 149.5, 3.38, 1e11, 'Technology Services'),
+    ]))
+    render(<IndexHeatmap market="hsi" tick={0} active />)
+    await waitFor(() => expect(screen.getByTitle('汇丰控股（00005）')).toBeTruthy())
+    expect(screen.queryByText('汇丰控股')).toBeNull()
+    expect(screen.getByText('腾讯控股')).toBeTruthy()
   })
 
   it('接口失败时显示错误和重试按钮', async () => {

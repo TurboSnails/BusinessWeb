@@ -38,6 +38,7 @@
   .js-ruler__ticks, .js-ruler__labels { font-size: 12px; }
 }
 .js-table th, .js-table td { white-space: nowrap; }
+.js-table small { font-size: 0.75rem; color: var(--text-tertiary); margin-left: 6px; }
 .js-hero__comparison { display: grid; gap: 4px; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border-subtle); }
 .js-hero__comparison p { margin: 0; }
 .js-hero__comparison p + p { font-size: 0.9rem; }

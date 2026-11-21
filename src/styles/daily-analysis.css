@@ -122,3 +122,21 @@
 .sentiment-chips { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
 .sentiment-chips li { display: inline-flex; gap: 6px; align-items: baseline; padding: 3px 10px; border-radius: 999px; background: var(--accent-soft); font-size: .8rem; font-variant-numeric: tabular-nums; }
 .sentiment-chips small { color: var(--text-secondary); }
+
+.daily-stock-chip small,
+.daily-table td small,
+.daily-sources td small,
+.daily-spark figcaption small,
+.daily-spark__readout small,
+.daily-trend th[scope="row"] small,
+.daily-trend td small { font-size: .75rem; }
+.daily-trend__rank-toggle { min-height: 32px; }
+.daily-trend__date { display: inline-flex; align-items: center; min-height: 32px; }
+.daily-table a,
+.daily-sources a { display: inline-flex; align-items: center; min-height: 32px; }
+@media (pointer: coarse) {
+  .daily-analysis .tool-btn,
+  .daily-trend__toolbar button,
+  .daily-trend__rank-toggle,
+  .daily-trend__date { min-height: var(--tap); }
+}

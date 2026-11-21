@@ -25,3 +25,9 @@
 .china-chart button:focus-visible, .china-chart select:focus-visible, .china-chart input:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 @media (max-width: 960px) { .china-market-charts { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 480px) { .china-chart__periods button { padding-inline: 10px; } .china-chart__unit { margin-left: 0; } .china-chart__readout { font-size: .75rem; } }
+.china-chart__readout small,
+.china-chart__foot { font-size: .75rem; }
+@media (pointer: coarse) {
+  .china-chart__periods button,
+  .china-chart__range select { min-height: var(--tap); }
+}

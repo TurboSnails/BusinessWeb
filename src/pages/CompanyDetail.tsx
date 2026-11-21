@@ -1,13 +1,14 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, ExternalLink, CheckCircle2, AlertTriangle, ArrowRight, CalendarClock } from 'lucide-react'
 import { useCompanies, useLynch, lynchFor, Market } from '../data/companies'
 import { usePageSeo } from '../components/RouteSeo'
 import ResearchNotice from '../components/research/ResearchNotice'
-import { toneOf, Tone } from '../data/notionNotes'
+import CompanyDetailHeader from '../components/research/CompanyDetailHeader'
+import { collectTocItems, CompanyDetailToc, type TocItem } from '../components/research/CompanyDetailToc'
+import { toneOf } from '../data/notionNotes'
 import { CN_REPORT } from '../data/cnReassessment'
 import { SP500_REPORT } from '../data/sp500Reassessment'
-import CandidateButton from '../components/CandidateButton'
 import { useCandidates } from '../features/candidates/useCandidates'
 import { latestDecision } from '../features/candidates/store'
 import { useToolSources } from '../features/candidates/useToolSources'
@@ -23,21 +24,12 @@ import { CompanyValuationDetail } from '../features/company-valuation/CompanyVal
 import { displayMissing } from '../utils/format'
 import { scrubMissing } from '../utils/scrubMissing'
 import { Badge, Card, EmptyState, Page, Stat, StatGrid, TableWrap } from '../components/ui'
-import { PageDataFreshness } from '../components/ui/PageDataFreshness'
 import CompanyChartSection from '../features/company-chart/CompanyChartSection'
 import { useEarningsCalendar } from '../features/earnings/loadCalendar'
 import { TIME_LABEL } from '../features/earnings/model'
 import { nextCompanyEvent } from '../features/earnings/nextCompanyEvent'
 import '../styles/research.css'
-
-// 评级语气的文字色：只用色板 token
-const TONE_INK: Record<Tone, string> = {
-  green: 'var(--down-ink)',
-  blue: 'var(--accent-ink)',
-  orange: 'var(--warm-ink)',
-  red: 'var(--up-ink)',
-  gray: 'var(--text-secondary)',
-}
+import '../styles/company-detail.css'
 
 const confirmedText = (c: boolean | null): string => (c === true ? '已确认' : c === false ? '预估' : '确认未知')
 
@@ -61,6 +53,11 @@ export default function CompanyDetail(): JSX.Element {
   useEffect(() => {
     if (hash === '#company-valuation' && company) document.getElementById('company-valuation')?.scrollIntoView?.()
   }, [hash, company])
+  const mainRef = useRef<HTMLDivElement>(null)
+  const [tocItems, setTocItems] = useState<TocItem[]>([])
+  useLayoutEffect(() => {
+    setTocItems(collectTocItems(mainRef.current))
+  }, [company?.code, company?.market, loading])
 
   const row = (text: string, accent: string, key: number, warn = false): JSX.Element => (
     <div key={key} className="rn-check">
@@ -179,244 +176,262 @@ export default function CompanyDetail(): JSX.Element {
     <span className="rn-pending">待补充{label}（可在 Notion 原页查看）</span>
   )
 
+  const scenarioAsOf = company.asOf?.match(/\d{4}-\d{2}-\d{2}/)?.[0]
+    || company.marketRefresh?.originalAsOf?.slice(0, 10)
+    || undefined
+
   return scrubMissing(
-    <Page variant="reading" className="rn-page">
-      {/* 页面头部 */}
-      <div className="page-hero">
-        <div className="rn-hero-links">
-          {back}
-          <Link to={`/valuation?market=${mk === 'adr' || mk === 'ndx' ? 'us' : mk}&code=${encodeURIComponent(company.code)}`}>建立估值模型 →</Link>
-          <Link to={buildDcfLink({ company: company.name, code: company.code, researchMarket: mk, price: dcfPrice, priceDate: priceAge?.date })}>进入 DCF 估值 →</Link>
-          <Link to={`/research-notes/company/${mk}/${encodeURIComponent(company.code)}/notes`}>研究笔记 →</Link>
-        </div>
-        <h1 className="rn-hero-title">{company.name}</h1>
-        <p className="rn-hero-meta">
-          {company.market === 'us' ? '标普500' : company.market === 'hk' ? '港股' : company.market === 'adr' ? '美股非标普' : company.market === 'ndx' ? '纳指100' : '沪深'} · {company.code} · {company.sector}{company.region ? ` · ${company.region}` : ''}{company.theme ? ` · ${company.theme}` : ''} · {company.batch}
-        </p>
-        {company.marketRefresh && <PageDataFreshness checkedAt={company.marketRefresh.checkedAt} dataLabel="行情日期" dataDates={[company.marketRefresh.priceDate]} researchAsOf={company.marketRefresh.originalAsOf} />}
-        <div className="ui-cluster">
-          <span className="rn-rating" style={{ color: TONE_INK[tone] }}>{company.rating}</span>
-          {earningsNext && (
-            <Link to="/earnings" className="rn-earnings-badge" title={`日期来源：${earningsCal?.sources[earningsNext.dateSource]?.label ?? earningsNext.dateSource}`}>
-              <CalendarClock size={14} aria-hidden="true" />
-              {earningsNext.dateSource === 'hkex' ? '业绩董事会会议' : '财报日程'} {earningsNext.date}{earningsNext.time !== 'unknown' ? ` ${TIME_LABEL[earningsNext.time]}` : ''}（{confirmedText(earningsNext.confirmed)}）
-              {earningsNext.asOf && ` · ${earningsNext.carried ? '沿用' : '数据截至'} ${earningsNext.asOf.slice(0, 10)}`}
-            </Link>
-          )}
-          {/* 有决策记录的公司只在候选池里移除，这里直接链接到记录 */}
-          {lastDecision
-            ? <Link to="/candidates" className="rn-cand">✓ 已候选 · 决策记录 {candItem?.decisions?.length} 条 · 下次检查 {lastDecision.nextCheck}</Link>
-            : <CandidateButton on={!!candItem} onClick={() => cand.toggle(company.market, company.code)} />}
-        </div>
-        {priceAge && (
-          <p role="status" className={priceAge.stale ? 'rn-price-age is-stale' : 'rn-price-age'}>
-            价格锚点 {priceAge.date}（{priceAge.days === 0 ? '今天' : `${priceAge.days} 天前`}）
-            {priceAge.stale && '：盈亏比与买入价按这个价格算，重新取价后再用'}
-          </p>
-        )}
-      </div>
+    <Page variant="reading" className="rn-page cd-page">
+      <CompanyDetailHeader
+        market={company.market}
+        name={company.name}
+        code={company.code}
+        sector={company.sector}
+        batch={company.batch}
+        region={company.region}
+        theme={company.theme}
+        rating={company.rating}
+        ratingTone={tone}
+        price={price}
+        currency={quoteCurrency || company.marketRefresh?.currency}
+        scenarios={company.scenarios}
+        scenRows={scenRows}
+        valuation={company.valuation}
+        marketRefresh={company.marketRefresh}
+        isCandidate={!!candItem}
+        onToggleCandidate={() => cand.toggle(company.market, company.code)}
+        candidateLink={lastDecision
+          ? <span className="cd-actions__primary"><Link to="/candidates" className="rn-cand">✓ 已候选 · 决策记录 {candItem?.decisions?.length} 条 · 下次检查 {lastDecision.nextCheck}</Link></span>
+          : undefined}
+        valuationHref={`/valuation?market=${mk === 'adr' || mk === 'ndx' ? 'us' : mk}&code=${encodeURIComponent(company.code)}`}
+        dcfHref={buildDcfLink({ company: company.name, code: company.code, researchMarket: mk, price: dcfPrice, priceDate: priceAge?.date })}
+        notesHref={`/research-notes/company/${mk}/${encodeURIComponent(company.code)}/notes`}
+        back={back}
+        metaDates={{
+          priceDate: company.marketRefresh?.priceDate || priceAge?.date,
+          checkedAt: company.marketRefresh?.checkedAt,
+          scenarioAsOf,
+          researchAsOf: company.marketRefresh?.originalAsOf,
+          priceAgeDays: priceAge?.days,
+          priceAgeStale: priceAge?.stale,
+        }}
+        earningsBadge={earningsNext ? (
+          <Link to="/earnings" className="rn-earnings-badge" title={`日期来源：${earningsCal?.sources[earningsNext.dateSource]?.label ?? earningsNext.dateSource}`}>
+            <CalendarClock size={14} aria-hidden="true" />
+            {earningsNext.dateSource === 'hkex' ? '业绩董事会会议' : '财报日程'} {earningsNext.date}{earningsNext.time !== 'unknown' ? ` ${TIME_LABEL[earningsNext.time]}` : ''}（{confirmedText(earningsNext.confirmed)}）
+            {earningsNext.asOf && ` · ${earningsNext.carried ? '沿用' : '数据截至'} ${earningsNext.asOf.slice(0, 10)}`}
+          </Link>
+        ) : undefined}
+      />
 
-      <div>
-        <SignalSummary summary={signals} stage={researchStage(company)} own={ownStage(!!lastDecision, (() => { const p = toolProgress(company.market, company.code, tools); return !!(p.dcf || p.valuation) })())} />
-        <CompanyChartSection
-          market={company.market}
-          code={company.code}
-          name={company.name}
-          priceDate={company.marketRefresh?.priceDate}
-          scenariosHref="#company-scenarios"
-          levels={{
-            market: company.market,
-            anchor: { price, date: priceAge?.date, days: priceAge?.days, stale: priceAge?.stale, currency: company.marketRefresh?.currency },
-            scenarios: company.scenarios ?? scenRows?.map(([name, value]) => ({ name, price: value })),
-            dcf: dcfSummary,
-          }}
-        />
-        <ResearchNotice />
-        <CompanyValuationDetail company={company} />
-        <QuickDcf market={company.market} code={company.code} name={company.name} price={dcfPrice} priceDate={priceAge?.date} />
-        {(company.market === 'us' || company.market === 'cn' || company.market === 'hk' || company.market === 'adr') && (company.researchReport || company.metrics.some(([key]) => key === '圆桌复核日期')) && (
-          <Card title={company.researchReport ? '公司研究 · 本轮事实复核与估值初稿' : '腾讯自选股投研专家团 · 本轮公告复核'}>
-            <p className="rn-text">{(company.market === 'hk' || company.market === 'adr') && company.researchReport ? '已逐家核读公司业绩原件并补充新行情，报告列明来源、旧结论修正及待补证据。部分公司有数值敏感性草案；两种独立估值、现金与股本桥接仍待补，旧评级和价位不作为当前结论。' : company.researchReport ? '已按公司核对财报与现金流，完整报告列明来源、旧结论调整及待补证据。估值假设尚未认证；林奇分类仍为此前的程序化筛选结果。' : '本轮已补充公司公告；证据分为公告原件、公告转载及待核实；旧情景价值的认证状态以本轮结论为准。“上轮”指标保留历史口径，林奇分类仍为此前的程序化筛选结果。'}</p>
-            <a href={`${import.meta.env.BASE_URL}${company.researchReport ?? (company.market === 'cn' ? CN_REPORT : SP500_REPORT)}`} target="_blank" rel="noreferrer" className="rn-link">查看本轮完整报告与一手来源</a>
-          </Card>
-        )}
-        {(() => {
-          const ly = lynchFor(lynchAll, company)
-          if (!ly || ((company.market === 'hk' || company.market === 'adr') && company.researchReport)) return null
-          const cls = ly.r === '高' ? 'rn-card--good' : ly.r === '中' ? 'rn-card--lead' : undefined
-          return (
-            <Card className={cls} title={<>林奇分类：{ly.t}（同类关注度 {ly.r}）{ly.m ? ` · ${ly.m.l}` : ''}</>}>
-              <p className="rn-text">{displayMissing([...ly.w, ly.v].filter(Boolean).join('；'))}</p>
-              <p className="rn-footnote rn-footnote--top">
-                {ly.pe ? `PE ${ly.pe}×` : 'PE 不适用'}{ly.g !== null && ly.g !== undefined ? ` · 利润近一年 ${ly.g > 0 ? '+' : ''}${ly.g}%` : ''}{ly.c !== null && ly.c !== undefined ? `（两年年化 ${ly.c > 0 ? '+' : ''}${ly.c}%）` : ''}{ly.peg ? ` · PEG ${ly.peg}` : ''}{ly.ph ? ` · 周期位置：${ly.ph}` : ''}{ly.dy !== null && ly.dy !== undefined ? ` · 股息率 ${ly.dy}%` : ''}
-              </p>
-              {ly.f.map(x => <p key={x} className="rn-warn-text">⚠ {x}</p>)}
-              {ly.m && (
-                <>
-                  <TableWrap label="护城河财务证据" className="rn-gap">
-                    <table className="ui-table rn-table rn-moat">
-                      <tbody>
-                        {ly.m.i.map(([name, ok, note]) => (
-                          <tr key={name}>
-                            <td>{name}</td>
-                            <td>{ok === null ? '—' : ok ? '✓' : '✗'}</td>
-                            <td>{note}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </TableWrap>
-                  <p className="rn-footnote">护城河只看财务证据（{ly.m.s}/{ly.m.n} 项通过）：它检验品牌、网络效应、转换成本等通常留下的痕迹，不能证明护城河本身；无 FCF/股息（A 股、美股）。规则见「研究笔记 → 分类数据 → 林奇分组」。</p>
-                </>
-              )}
-            </Card>
-          )
-        })()}
-        {company.auto && (
-          <Card className="rn-card--warn" title={company.reviewed ? '程序化研究页（已人工复核）' : '程序化研究页'}>
-            <p className="rn-text">{company.metrics.some(([key]) => key === '圆桌复核日期') ? '本页源自程序化补全；本轮圆桌已另行核实公告并更正结论，旧模型已暂停认证。旧数值存档不等于逐项一手财务验证，分部占比、正常化估值与完整现金流仍需补齐。' : <>本页的财务数值、估值、三情景与买入区由脚本按统一规则计算（规则见「研究笔记 → 研究标准」），业务描述与行业判断为简述；{company.reviewed ? '已用最新半年报/指引人工复核评级与关键风险（见指标表「人工复核」行），但情景数值仍是脚本结果；' : ''}不含公司特有催化与风险，一手公告、分部占比、一致预期、自由现金流均未取到。结论用于筛选与排序，深度判断需回到公司公告。</>}</p>
-          </Card>
-        )}
-        <Card title="公司简介与业务分布">
-          {company.profile ? <p className="rn-text">{displayMissing(company.profile)}</p> : <p className="rn-text">{pending('公司简介')}</p>}
-          {company.segments
-            ? <DataTable label="业务分布" heads={['业务 / 分部', '占比', '说明']} rows={company.segments.map(r => [r.name, <span className="rn-nowrap">{r.share || '—'}</span>, r.note || ''])} />
-            : pending('业务分布')}
-        </Card>
-
-        <Card title="优势与缺点">
-          {company.pros || company.cons ? (
-            <>
-              <p className="rn-eyebrow">优势</p>
-              {(company.pros || []).map((t, i) => row(t, 'var(--down)', i))}
-              <p className="rn-eyebrow rn-gap">缺点</p>
-              {(company.cons || []).map((t, i) => row(t, 'var(--up)', i, true))}
-            </>
-          ) : pending('优缺点')}
-        </Card>
-
-        <Card title="行业趋势">
-          {company.industry ? company.industry.map((t, i) => row(t, 'var(--accent)', i)) : pending('行业趋势')}
-          {company.industry && <p className="rn-footnote">行业趋势含研究者判断，需随最新数据更新。</p>}
-        </Card>
-
-        <Card className="rn-card--lead">
-          <p className="rn-lead">{displayMissing(company.headline)}</p>
-          {(company.certainty || company.duration || company.ratioNote) && (
-            <div className="rn-facts">
-              {company.certainty && <div><strong className="rn-strong">确定性：</strong>{company.certainty}</div>}
-              {company.duration && <div><strong className="rn-strong">增长可持续期限：</strong>{company.duration}</div>}
-              {company.ratioNote && <div><strong className="rn-strong">盈亏比：</strong>{displayMissing(company.ratioNote)}</div>}
-            </div>
-          )}
-          <div className="rn-badges" aria-label={`最终返回标准完整度 ${done}/${completeness.length}`}>
-            <span className="rn-inline-label">最终返回标准完整度 {done}/{completeness.length}</span>
-            {completeness.map(([n, ok]) => (
-              <span key={n} className={ok ? 'rn-pill is-done' : 'rn-pill'}>{ok ? '✓' : '○'} {n}</span>
-            ))}
+      <div className="cd-layout">
+        <CompanyDetailToc items={tocItems} root={mainRef.current} />
+        <div className="cd-main" ref={mainRef}>
+          <div id="cd-signals" data-cd-title="决策信号汇总">
+            <SignalSummary summary={signals} stage={researchStage(company)} own={ownStage(!!lastDecision, (() => { const p = toolProgress(company.market, company.code, tools); return !!(p.dcf || p.valuation) })())} />
           </div>
-        </Card>
-
-        {company.metrics.length > 0 && (
-          <>
-            <p className="rn-eyebrow">关键指标</p>
-            <StatGrid className="rn-stat-grid rn-stat-grid--metrics rn-card">
-              {company.metrics.map(([label, value]) => <Stat key={label} label={label} value={displayMissing(value)} />)}
-            </StatGrid>
-          </>
-        )}
-
-        <Card title="增长与护城河 / 核心逻辑">
-          {company.thesis.length > 0 ? company.thesis.map((t, i) => row(t, 'var(--down)', i)) : pending('')}
-          {company.growth && (
-            <>
-              <p className="rn-eyebrow rn-gap">增长来源与持续性</p>
-              {company.growth.map((t, i) => row(t, 'var(--accent)', i))}
-            </>
+          <CompanyChartSection
+            market={company.market}
+            code={company.code}
+            name={company.name}
+            priceDate={company.marketRefresh?.priceDate}
+            scenariosHref="#company-scenarios"
+            levels={{
+              market: company.market,
+              anchor: { price, date: priceAge?.date, days: priceAge?.days, stale: priceAge?.stale, currency: company.marketRefresh?.currency },
+              scenarios: company.scenarios ?? scenRows?.map(([name, value]) => ({ name, price: value })),
+              dcf: dcfSummary,
+            }}
+          />
+          <ResearchNotice />
+          <CompanyValuationDetail company={company} />
+          <div id="cd-quick-dcf" data-cd-title="快速 DCF（简版）">
+            <QuickDcf market={company.market} code={company.code} name={company.name} price={dcfPrice} priceDate={priceAge?.date} />
+          </div>
+          {(company.market === 'us' || company.market === 'cn' || company.market === 'hk' || company.market === 'adr') && (company.researchReport || company.metrics.some(([key]) => key === '圆桌复核日期')) && (
+            <Card id="cd-research-report" title={company.researchReport ? '公司研究 · 本轮事实复核与估值初稿' : '腾讯自选股投研专家团 · 本轮公告复核'}>
+              <p className="rn-text">{(company.market === 'hk' || company.market === 'adr') && company.researchReport ? '已逐家核读公司业绩原件并补充新行情，报告列明来源、旧结论修正及待补证据。部分公司有数值敏感性草案；两种独立估值、现金与股本桥接仍待补，旧评级和价位不作为当前结论。' : company.researchReport ? '已按公司核对财报与现金流，完整报告列明来源、旧结论调整及待补证据。估值假设尚未认证；林奇分类仍为此前的程序化筛选结果。' : '本轮已补充公司公告；证据分为公告原件、公告转载及待核实；旧情景价值的认证状态以本轮结论为准。“上轮”指标保留历史口径，林奇分类仍为此前的程序化筛选结果。'}</p>
+              <a href={`${import.meta.env.BASE_URL}${company.researchReport ?? (company.market === 'cn' ? CN_REPORT : SP500_REPORT)}`} target="_blank" rel="noreferrer" className="rn-link">查看本轮完整报告与一手来源</a>
+            </Card>
           )}
-          {company.moat && (
-            <>
-              <p className="rn-eyebrow rn-gap">护城河</p>
-              {company.moat.map((t, i) => row(t, 'var(--system-teal)', i))}
-            </>
+          {(() => {
+            const ly = lynchFor(lynchAll, company)
+            if (!ly || ((company.market === 'hk' || company.market === 'adr') && company.researchReport)) return null
+            const cls = ly.r === '高' ? 'rn-card--good' : ly.r === '中' ? 'rn-card--lead' : undefined
+            return (
+              <Card id="cd-lynch" className={cls} title={<>林奇分类：{ly.t}（同类关注度 {ly.r}）{ly.m ? ` · ${ly.m.l}` : ''}</>}>
+                <p className="rn-text">{displayMissing([...ly.w, ly.v].filter(Boolean).join('；'))}</p>
+                <p className="rn-footnote rn-footnote--top">
+                  {ly.pe ? `PE ${ly.pe}×` : 'PE 不适用'}{ly.g !== null && ly.g !== undefined ? ` · 利润近一年 ${ly.g > 0 ? '+' : ''}${ly.g}%` : ''}{ly.c !== null && ly.c !== undefined ? `（两年年化 ${ly.c > 0 ? '+' : ''}${ly.c}%）` : ''}{ly.peg ? ` · PEG ${ly.peg}` : ''}{ly.ph ? ` · 周期位置：${ly.ph}` : ''}{ly.dy !== null && ly.dy !== undefined ? ` · 股息率 ${ly.dy}%` : ''}
+                </p>
+                {ly.f.map(x => <p key={x} className="rn-warn-text">⚠ {x}</p>)}
+                {ly.m && (
+                  <>
+                    <TableWrap label="护城河财务证据" className="rn-gap">
+                      <table className="ui-table rn-table rn-moat">
+                        <tbody>
+                          {ly.m.i.map(([name, ok, note]) => (
+                            <tr key={name}>
+                              <td>{name}</td>
+                              <td>{ok === null ? '—' : ok ? '✓' : '✗'}</td>
+                              <td>{note}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </TableWrap>
+                    <p className="rn-footnote">护城河只看财务证据（{ly.m.s}/{ly.m.n} 项通过）：它检验品牌、网络效应、转换成本等通常留下的痕迹，不能证明护城河本身；无 FCF/股息（A 股、美股）。规则见「研究笔记 → 分类数据 → 林奇分组」。</p>
+                  </>
+                )}
+              </Card>
+            )
+          })()}
+          {company.auto && (
+            <Card id="cd-auto" className="rn-card--warn" title={company.reviewed ? '程序化研究页（已人工复核）' : '程序化研究页'}>
+              <p className="rn-text">{company.metrics.some(([key]) => key === '圆桌复核日期') ? '本页源自程序化补全；本轮圆桌已另行核实公告并更正结论，旧模型已暂停认证。旧数值存档不等于逐项一手财务验证，分部占比、正常化估值与完整现金流仍需补齐。' : <>本页的财务数值、估值、三情景与买入区由脚本按统一规则计算（规则见「研究笔记 → 研究标准」），业务描述与行业判断为简述；{company.reviewed ? '已用最新半年报/指引人工复核评级与关键风险（见指标表「人工复核」行），但情景数值仍是脚本结果；' : ''}不含公司特有催化与风险，一手公告、分部占比、一致预期、自由现金流均未取到。结论用于筛选与排序，深度判断需回到公司公告。</>}</p>
+            </Card>
           )}
-        </Card>
-
-        <Card title="三情景估值" id="company-scenarios">
-          {company.scenarios ? (
-            <DataTable label="三情景估值" heads={['情景（概率）', '盈利与倍数假设', '隐含价', '相对现价', '触发 / 证伪']}
-              rows={company.scenarios.map(r => [
-                <span className="rn-nowrap">{r.name}{r.prob ? `（${r.prob}）` : ''}</span>,
-                <span className="rn-cell-wide">{r.assumption}{r.multiple ? `；倍数 ${r.multiple}` : ''}</span>,
-                <strong className="rn-strong rn-nowrap">{r.price}</strong>,
-                <span className="rn-nowrap">{r.change}</span>,
-                <span className="rn-small-metrics">{r.trigger}</span>,
-              ])} />
-          ) : scenRows ? (
-            <DataTable label="三情景估值" heads={['情景', '隐含价', '相对价格锚点', '触发 / 证伪方向']} rows={scenRows} />
-          ) : (
-            scenText ? <p className="rn-text">{displayMissing(scenText)}</p> : pending('三情景估值表')
-          )}
-          <p className="rn-footnote">情景价 = 正常化 EPS × 合理倍数，为研究假设，不是目标价；概率与期望收益如有，也不是历史回测胜率。</p>
-        </Card>
-
-        <Card title="结论与买入纪律">
-          <DataTable label="买入纪律" rows={discipline.map(([label, text]) => [<span className="rn-nowrap">{label}</span>, text || pending('')])} />
-          <p className="rn-footnote">价位均为条件化研究区间，不是交易指令；未列出的项按“最终返回标准”尚待补充。</p>
-        </Card>
-
-        <Card title="风险与证伪">
-          {company.risk.length > 0 ? company.risk.map((t, i) => row(t, 'var(--accent-warm)', i, true)) : pending('')}
-        </Card>
-
-        <Card title="多空交锋">
-          {company.bullBear ? (
-            <>
-              <div className="rn-bullbear">
-                <Badge tone="down">多头最强论点</Badge>
-                <p>{displayMissing(company.bullBear.bull)}</p>
-              </div>
-              <div className="rn-bullbear">
-                <Badge tone="up">空头最强论点</Badge>
-                <p>{displayMissing(company.bullBear.bear)}</p>
-              </div>
-              <div className="rn-bullbear">
-                <Badge tone="accent">裁决</Badge>
-                <p>{displayMissing(company.bullBear.verdict)}</p>
-              </div>
-              <p className="rn-footnote">整理自研究页内容，不是独立的多空对抗检验。</p>
-            </>
-          ) : pending('（本页未做多空对抗检验）')}
-        </Card>
-
-        <Card title="后续验证 / 操作参考">
-          {(company.next.length > 0 || company.calendar) ? [...company.next, ...(company.calendar || [])].map((t, i) => (
-            <div key={i} className="rn-check">
-              <ArrowRight size={16} color="var(--accent)" aria-hidden="true" />
-              <span>{displayMissing(t)}</span>
-            </div>
-          )) : pending('')}
-        </Card>
-
-        {(company.pitfalls || company.aiNote) && (
-          <Card title="口径与陷阱">
-            {(company.pitfalls || []).map((t, i) => row(t, 'var(--accent-warm)', i, true))}
-            {company.aiNote && row(`AI 的位置：${company.aiNote}`, 'var(--accent)', 99)}
+          <Card id="cd-profile" title="公司简介与业务分布">
+            {company.profile ? <p className="rn-text">{displayMissing(company.profile)}</p> : <p className="rn-text">{pending('公司简介')}</p>}
+            {company.segments
+              ? <DataTable label="业务分布" heads={['业务 / 分部', '占比', '说明']} rows={company.segments.map(r => [r.name, <span className="rn-nowrap">{r.share || '—'}</span>, r.note || ''])} />
+              : pending('业务分布')}
           </Card>
-        )}
 
-        <Card title="数据口径">
-          <p className="rn-text">{displayMissing(company.asOf)}</p>
-          {company.url && (
-            <a href={company.url} target="_blank" rel="noreferrer" className="rn-back">
-              <ExternalLink size={14} aria-hidden="true" /> 在 Notion 查看完整研究页
-            </a>
+          <Card id="cd-proscons" title="优势与缺点">
+            {company.pros || company.cons ? (
+              <>
+                <p className="rn-eyebrow">优势</p>
+                {(company.pros || []).map((t, i) => row(t, 'var(--down)', i))}
+                <p className="rn-eyebrow rn-gap">缺点</p>
+                {(company.cons || []).map((t, i) => row(t, 'var(--up)', i, true))}
+              </>
+            ) : pending('优缺点')}
+          </Card>
+
+          <Card id="cd-industry" title="行业趋势">
+            {company.industry ? company.industry.map((t, i) => row(t, 'var(--accent)', i)) : pending('行业趋势')}
+            {company.industry && <p className="rn-footnote">行业趋势含研究者判断，需随最新数据更新。</p>}
+          </Card>
+
+          <Card id="cd-headline" className="rn-card--lead" title="一句话结论" label="一句话结论">
+            <p className="rn-lead">{displayMissing(company.headline)}</p>
+            {(company.certainty || company.duration || company.ratioNote) && (
+              <div className="rn-facts">
+                {company.certainty && <div><strong className="rn-strong">确定性：</strong>{company.certainty}</div>}
+                {company.duration && <div><strong className="rn-strong">增长可持续期限：</strong>{company.duration}</div>}
+                {company.ratioNote && <div><strong className="rn-strong">盈亏比：</strong>{displayMissing(company.ratioNote)}</div>}
+              </div>
+            )}
+            <div className="rn-badges" aria-label={`最终返回标准完整度 ${done}/${completeness.length}`}>
+              <span className="rn-inline-label">最终返回标准完整度 {done}/{completeness.length}</span>
+              {completeness.map(([n, ok]) => (
+                <span key={n} className={ok ? 'rn-pill is-done' : 'rn-pill'}>{ok ? '✓' : '○'} {n}</span>
+              ))}
+            </div>
+          </Card>
+
+          {company.metrics.length > 0 && (
+            <section id="cd-metrics" className="rn-card" aria-label="关键指标" data-cd-title="关键指标">
+              <p className="rn-eyebrow">关键指标</p>
+              <StatGrid className="rn-stat-grid rn-stat-grid--metrics">
+                {company.metrics.map(([label, value]) => <Stat key={label} label={label} value={displayMissing(value)} />)}
+              </StatGrid>
+            </section>
           )}
-        </Card>
 
-        <p className="rn-disclaimer">
-          内容整理自 Notion 个人研究笔记，仅为研究记录，不构成投资建议。情景价值与价位为研究假设，非目标价。
-        </p>
+          <Card id="cd-thesis" title="增长与护城河 / 核心逻辑">
+            {company.thesis.length > 0 ? company.thesis.map((t, i) => row(t, 'var(--down)', i)) : pending('')}
+            {company.growth && (
+              <>
+                <p className="rn-eyebrow rn-gap">增长来源与持续性</p>
+                {company.growth.map((t, i) => row(t, 'var(--accent)', i))}
+              </>
+            )}
+            {company.moat && (
+              <>
+                <p className="rn-eyebrow rn-gap">护城河</p>
+                {company.moat.map((t, i) => row(t, 'var(--system-teal)', i))}
+              </>
+            )}
+          </Card>
+
+          <Card title="三情景估值" id="company-scenarios">
+            {company.scenarios ? (
+              <DataTable label="三情景估值" heads={['情景（概率）', '盈利与倍数假设', '隐含价', '相对现价', '触发 / 证伪']}
+                rows={company.scenarios.map(r => [
+                  <span className="rn-nowrap">{r.name}{r.prob ? `（${r.prob}）` : ''}</span>,
+                  <span className="rn-cell-wide">{r.assumption}{r.multiple ? `；倍数 ${r.multiple}` : ''}</span>,
+                  <strong className="rn-strong rn-nowrap">{r.price}</strong>,
+                  <span className="rn-nowrap">{r.change}</span>,
+                  <span className="rn-small-metrics">{r.trigger}</span>,
+                ])} />
+            ) : scenRows ? (
+              <DataTable label="三情景估值" heads={['情景', '隐含价', '相对价格锚点', '触发 / 证伪方向']} rows={scenRows} />
+            ) : (
+              scenText ? <p className="rn-text">{displayMissing(scenText)}</p> : pending('三情景估值表')
+            )}
+            <p className="rn-footnote">情景价 = 正常化 EPS × 合理倍数，为研究假设，不是目标价；概率与期望收益如有，也不是历史回测胜率。</p>
+          </Card>
+
+          <Card id="cd-discipline" title="结论与买入纪律">
+            <DataTable label="买入纪律" rows={discipline.map(([label, text]) => [<span className="rn-nowrap">{label}</span>, text || pending('')])} />
+            <p className="rn-footnote">价位均为条件化研究区间，不是交易指令；未列出的项按“最终返回标准”尚待补充。</p>
+          </Card>
+
+          <Card id="cd-risk" title="风险与证伪">
+            {company.risk.length > 0 ? company.risk.map((t, i) => row(t, 'var(--accent-warm)', i, true)) : pending('')}
+          </Card>
+
+          <Card id="cd-bullbear" title="多空交锋">
+            {company.bullBear ? (
+              <>
+                <div className="rn-bullbear">
+                  <Badge tone="down">多头最强论点</Badge>
+                  <p>{displayMissing(company.bullBear.bull)}</p>
+                </div>
+                <div className="rn-bullbear">
+                  <Badge tone="up">空头最强论点</Badge>
+                  <p>{displayMissing(company.bullBear.bear)}</p>
+                </div>
+                <div className="rn-bullbear">
+                  <Badge tone="accent">裁决</Badge>
+                  <p>{displayMissing(company.bullBear.verdict)}</p>
+                </div>
+                <p className="rn-footnote">整理自研究页内容，不是独立的多空对抗检验。</p>
+              </>
+            ) : pending('（本页未做多空对抗检验）')}
+          </Card>
+
+          <Card id="cd-next" title="后续验证 / 操作参考">
+            {(company.next.length > 0 || company.calendar) ? [...company.next, ...(company.calendar || [])].map((t, i) => (
+              <div key={i} className="rn-check">
+                <ArrowRight size={16} color="var(--accent)" aria-hidden="true" />
+                <span>{displayMissing(t)}</span>
+              </div>
+            )) : pending('')}
+          </Card>
+
+          {(company.pitfalls || company.aiNote) && (
+            <Card id="cd-pitfalls" title="口径与陷阱">
+              {(company.pitfalls || []).map((t, i) => row(t, 'var(--accent-warm)', i, true))}
+              {company.aiNote && row(`AI 的位置：${company.aiNote}`, 'var(--accent)', 99)}
+            </Card>
+          )}
+
+          <Card id="cd-asof" title="数据口径">
+            <p className="rn-text">{displayMissing(company.asOf)}</p>
+            {company.url && (
+              <a href={company.url} target="_blank" rel="noreferrer" className="rn-back">
+                <ExternalLink size={14} aria-hidden="true" /> 在 Notion 查看完整研究页
+              </a>
+            )}
+          </Card>
+
+          <p className="rn-disclaimer">
+            内容整理自 Notion 个人研究笔记，仅为研究记录，不构成投资建议。情景价值与价位为研究假设，非目标价。
+          </p>
+        </div>
       </div>
     </Page>
   ) as JSX.Element

@@ -227,7 +227,7 @@ export default function WeeklyMarketBrief({ market, asOf, benchmark, peers, sign
   const state: BriefState | 'loading' = loading && brief.state === 'missing' ? 'loading' : brief.state
   const headingId = `weekly-brief-${market}`
   const lagged = brief.signals.filter(move => move.lagged)
-  return <section className="weekly-brief" aria-labelledby={headingId} data-state={state}>
+  return <section className="weekly-brief" aria-labelledby={headingId} data-state={state} data-market={market}>
     <header className="weekly-brief__head">
       <h2 id={headingId}>{title}</h2>
       <span className="weekly-brief__state" data-state={state}>{state === 'loading' ? '正在核对' : STATE_LABEL[state]}</span>

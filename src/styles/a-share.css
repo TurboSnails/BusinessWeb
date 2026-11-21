@@ -113,7 +113,7 @@
 }
 
 .limitup-more {
-  min-height: 30px;
+  min-height: 32px;
   padding: 0 10px;
   font-size: 0.75rem;
 }
@@ -159,7 +159,15 @@
 
 .sector-filter .ui-input {
   width: auto;
-  min-height: 36px;
+  min-height: 32px;
+}
+
+@media (pointer: coarse) {
+  .sector-filter .ui-input,
+  .sector-pick,
+  .sector-stock {
+    min-height: var(--tap);
+  }
 }
 
 .sector-storage {
@@ -224,6 +232,7 @@
   align-items: center;
   gap: 4px;
   width: 100%;
+  min-height: 32px;
   margin-bottom: var(--space-2);
   padding: var(--space-2);
   border: 1px solid transparent;
@@ -257,7 +266,7 @@
   padding: 1px 5px;
   border-radius: 10px;
   color: #fff;
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   font-weight: 700;
   line-height: 1.3;
 }
@@ -425,21 +434,28 @@
 }
 
 /* 涨停梯队图 */
-.limitup-ladder__head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; }
+.limitup-ladder__head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; }
 .limitup-ladder__head small { font-weight: 400; font-size: .8rem; color: var(--text-secondary); margin-left: 6px; }
-.limitup-ladder__tiers { display: flex; flex-direction: column; gap: 10px; }
-.limitup-tier { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 12px; align-items: start; padding: 10px 0; border-top: 1px solid var(--border-subtle); }
+.limitup-ladder__tiers { display: flex; flex-direction: column; gap: 6px; }
+.limitup-tier { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 10px; align-items: start; padding: 6px 0; border-top: 1px solid var(--border-subtle); }
 .limitup-tier:first-child { border-top: none; }
-.limitup-tier__label { display: flex; flex-direction: column; align-items: center; padding: 8px 0; border-radius: 12px; background: var(--accent-soft); color: var(--up, #b42318); font-size: .85rem; }
+.limitup-tier__label { display: flex; flex-direction: column; align-items: center; padding: 6px 0; border-radius: 12px; background: var(--accent-soft); color: var(--up, #b42318); font-size: .85rem; }
 .limitup-tier__label strong { font-size: 1.5rem; line-height: 1.1; }
-.limitup-tier__label span { margin-top: 2px; font-size: .72rem; color: var(--text-secondary); }
-.limitup-tier__stocks { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
-.limitup-tier__stock { display: flex; flex-direction: column; gap: 3px; padding: 8px 10px; border: 1px solid var(--border-subtle); border-radius: 10px; min-width: 0; }
+.limitup-tier__label span { margin-top: 2px; font-size: 0.75rem; color: var(--text-secondary); }
+.limitup-tier__stocks { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 6px; }
+.limitup-tier__stock { display: flex; flex-direction: column; gap: 2px; padding: 6px 10px; border: 1px solid var(--border-subtle); border-radius: 10px; min-width: 0; }
 .limitup-tier__name { font-weight: 600; color: var(--text-primary); }
 .limitup-tier__meta { font-size: .75rem; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
 .limitup-tier__tags { display: flex; flex-wrap: wrap; gap: 4px; }
-.limitup-tier__tag { border: none; background: var(--accent-soft); color: var(--text-secondary); font-size: .72rem; padding: 1px 7px; border-radius: 999px; cursor: pointer; }
+.limitup-tier__tag {
+  display: inline-flex; align-items: center; min-height: 32px;
+  border: none; background: var(--accent-soft); color: var(--text-secondary);
+  font-size: 0.75rem; padding: 2px 10px; border-radius: 999px; cursor: pointer;
+}
 .limitup-tier__tag:hover { color: var(--accent-ink); }
+@media (pointer: coarse) {
+  .limitup-tier__tag, .limitup-more { min-height: var(--tap); }
+}
 @media (max-width: 640px) { .limitup-tier { grid-template-columns: 56px minmax(0, 1fr); } .limitup-tier__stocks { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); } }
 
 /* 板块排行矩阵 */

@@ -37,7 +37,7 @@ function HistoryPlot({ rows, metric, title, period, previousClose }: { rows: His
   return <>
     <div className="china-chart__readout" aria-live="polite" aria-atomic="true">
       <span>{period === 'day' ? row.date : `${periodKey(row.date, period)}${period === 'week' ? ' 当周' : ''}`}<small> 截至 {row.date}{ongoing ? ' · 进行中' : ''}</small></span>
-      {bars ? <strong>{number(valueOf(row))} {unit}</strong> : <span className="china-chart__ohlc">开 {number(row.open)}　高 {number(row.high)}　低 {number(row.low)}　收 <b className={row.close >= row.open ? 'china-chart__up' : 'china-chart__down'}>{number(row.close)}</b>　<span title="本期收盘价相对上一期收盘价的变化；缺少上一期数据时显示 —" className={change === null || change === 0 ? undefined : change > 0 ? 'china-chart__up' : 'china-chart__down'}>涨跌幅 {changeText(change)}</span></span>}
+      {bars ? <strong>{number(valueOf(row))} {unit}</strong> : <span className="china-chart__ohlc">开 {number(row.open)}　高 {number(row.high)}　低 {number(row.low)}　收 <b className={change === null || change === 0 ? undefined : change > 0 ? 'china-chart__up' : 'china-chart__down'}>{number(row.close)}</b>　<span title="本期收盘价相对上一期收盘价的变化；缺少上一期数据时显示 —" className={change === null || change === 0 ? undefined : change > 0 ? 'china-chart__up' : 'china-chart__down'}>涨跌幅 {changeText(change)}</span></span>}
     </div>
     <svg className="china-chart__plot" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${title}${bars ? `柱状图，单位${unit}` : 'K线图，单位点；红涨绿跌'}`}
       onPointerMove={e => {

@@ -2,7 +2,7 @@
 .weekly-brief[data-state="stale"] { border-color: var(--accent-warm, #C9794F); }
 .weekly-brief__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: .35rem .75rem; }
 .weekly-brief__head h2 { margin: 0; font-size: clamp(1.15rem, 2.6vw, 1.4rem); }
-.weekly-brief__state { padding: .1rem .5rem; border-radius: 999px; font-size: .78rem; background: var(--accent-soft); color: var(--accent-ink); }
+.weekly-brief__state { padding: .15rem .5rem; border-radius: 999px; font-size: .75rem; background: var(--accent-soft); color: var(--accent-ink); }
 .weekly-brief__state[data-state="partial"], .weekly-brief__state[data-state="loading"] { background: var(--bg-primary); color: var(--text-secondary); }
 .weekly-brief__state[data-state="stale"], .weekly-brief__state[data-state="missing"] { background: var(--accent-warm-soft); color: var(--warm-ink); }
 .weekly-brief__dates { flex-basis: 100%; margin: 0; color: var(--text-secondary); font-size: .85rem; }
@@ -12,13 +12,16 @@
 .weekly-brief__obs li { line-height: 1.65; overflow-wrap: anywhere; }
 .weekly-brief__obs li[data-lead] { font-size: 1.02rem; }
 .weekly-brief__big { display: inline-block; margin-right: .5rem; font-size: clamp(1.4rem, 3.4vw, 1.9rem); font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; vertical-align: -.1em; }
-.weekly-brief__big[data-sign="up"] { color: var(--up-ink); }
-.weekly-brief__big[data-sign="down"] { color: var(--down-ink); }
+/* 美股绿涨红跌；A 股红涨绿跌（同组件两套口径） */
+.weekly-brief[data-market="us"] .weekly-brief__big[data-sign="up"] { color: var(--system-green); }
+.weekly-brief[data-market="us"] .weekly-brief__big[data-sign="down"] { color: var(--system-red); }
+.weekly-brief[data-market="cn"] .weekly-brief__big[data-sign="up"] { color: var(--up-ink); }
+.weekly-brief[data-market="cn"] .weekly-brief__big[data-sign="down"] { color: var(--down-ink); }
 .weekly-brief__counter { display: grid; gap: .45rem; padding-top: .75rem; border-top: 1px solid var(--border-subtle); }
 .weekly-brief__counter h3 { margin: 0; font-size: .95rem; }
 .weekly-brief__counter ul, .weekly-brief__gaps ul { display: grid; gap: .35rem; margin: 0; padding: 0; list-style: none; }
 .weekly-brief__evidence details { padding: .45rem .65rem; border-radius: var(--radius-sm, 6px); background: var(--bg-primary); }
-.weekly-brief__evidence summary { cursor: pointer; line-height: 1.55; overflow-wrap: anywhere; }
+.weekly-brief__evidence summary { cursor: pointer; line-height: 1.55; overflow-wrap: anywhere; min-height: 32px; padding-block: .25rem; }
 .weekly-brief__evidence dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: .3rem 1rem; margin: .5rem 0 .35rem; font-size: .85rem; }
 .weekly-brief__evidence dl div { min-width: 0; }
 .weekly-brief__evidence dt { color: var(--text-secondary); }
@@ -26,10 +29,10 @@
 .weekly-brief__evidence a { display: inline-flex; align-items: center; gap: .25rem; font-size: .85rem; color: var(--accent-ink); }
 .weekly-brief__tag { margin-left: .4rem; padding: 0 .4rem; border-radius: 999px; font-size: .75rem; background: var(--accent-warm-soft); color: var(--warm-ink); }
 .weekly-brief__gaps { font-size: .85rem; color: var(--text-secondary); }
-.weekly-brief__gaps summary { cursor: pointer; }
+.weekly-brief__gaps summary { cursor: pointer; min-height: 32px; padding-block: .35rem; }
 .weekly-brief__gaps ul { margin-top: .4rem; }
 .weekly-brief__full { border: 1px solid var(--border-subtle); border-radius: var(--radius-md, 12px); background: var(--bg-card); }
-.weekly-brief__full > summary { padding: .75rem 1rem; cursor: pointer; font-weight: 600; }
+.weekly-brief__full > summary { padding: .75rem 1rem; cursor: pointer; font-weight: 600; min-height: 32px; box-sizing: border-box; }
 .weekly-brief__full > .us-plain { border: 0; border-top: 1px solid var(--border-subtle); border-radius: 0 0 var(--radius-md, 12px) var(--radius-md, 12px); }
 .weekly-brief summary:focus-visible, .weekly-brief__full > summary:focus-visible, .weekly-brief a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 @media (max-width: 640px) {

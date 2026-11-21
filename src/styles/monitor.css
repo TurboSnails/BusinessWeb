@@ -1,0 +1,72 @@
+/* /monitor 页签展示层：点击目标与字号（不改 macro/index-catalog 判定逻辑） */
+
+.macro-long__tab {
+  min-height: 32px;
+  box-sizing: border-box;
+  font-size: 0.75rem;
+}
+
+.macro-fresh {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  min-height: 1.5rem;
+  box-sizing: border-box;
+}
+
+.macro-val__name {
+  min-height: 32px;
+  padding: 0.25rem 0;
+  box-sizing: border-box;
+}
+
+.macro-cycle__bands summary {
+  min-height: 32px;
+  padding-block: 0.35rem;
+  box-sizing: border-box;
+}
+
+.macro-card__head a,
+.macro-val__detail a,
+.macro-muted a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding-block: 0.15rem;
+  box-sizing: border-box;
+}
+
+/* 估值页 IndexExplorer 勾选框：控件本身高度计入 audit */
+.index-controls input[type="checkbox"],
+.index-option input[type="checkbox"] {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  margin: 0;
+  flex-shrink: 0;
+  accent-color: var(--accent);
+}
+
+.index-controls input:not([type="checkbox"]),
+.index-controls select {
+  min-height: 32px;
+}
+
+@media (pointer: coarse) {
+  .macro-long__tab {
+    min-height: var(--tap, 44px);
+  }
+
+  .index-controls input[type="checkbox"],
+  .index-option input[type="checkbox"],
+  .index-controls input:not([type="checkbox"]),
+  .index-controls select {
+    min-height: var(--tap, 44px);
+    min-width: var(--tap, 44px);
+  }
+
+  .index-controls input:not([type="checkbox"]),
+  .index-controls select {
+    min-width: 0;
+  }
+}

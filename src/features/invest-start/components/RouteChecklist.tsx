@@ -34,7 +34,9 @@ export function RouteChecklist({ groups, steps, onToggle }: {
                 const id = `is-step-${g.id}-${s.id}`
                 return (
                   <li key={s.id} className={checked ? 'is-step is-step--done' : 'is-step'}>
-                    <input id={id} type="checkbox" checked={checked} onChange={e => onToggle(s.id, e.target.checked)} />
+                    <label className="is-step__check">
+                      <input id={id} type="checkbox" checked={checked} onChange={e => onToggle(s.id, e.target.checked)} />
+                    </label>
                     <div className="is-step__body">
                       <label htmlFor={id} className="is-step__title">{s.title}{checked && <span className="visually-hidden">（已完成）</span>}</label>
                       {s.detail && <p className="is-step__detail">{s.detail}</p>}

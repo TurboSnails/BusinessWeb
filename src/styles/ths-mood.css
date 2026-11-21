@@ -23,13 +23,13 @@
 .ths-emo__value.is-cold { color: var(--down-ink); }
 .ths-emo__state { color: var(--text-secondary); font-size: 0.88rem; }
 .ths-emo__state b { color: var(--text-primary); margin-left: 4px; }
-.ths-emo__state small { margin-left: 4px; color: var(--text-tertiary); }
+.ths-emo__state small { margin-left: 4px; color: var(--text-tertiary); font-size: 0.75rem; }
 .ths-zones { width: 100%; height: 16px; display: block; }
 .ths-zones__cold { fill: var(--down); opacity: 0.55; }
 .ths-zones__mid { fill: var(--system-gray); opacity: 0.45; }
 .ths-zones__hot { fill: var(--up); opacity: 0.55; }
 .ths-zones__needle { fill: var(--text-primary); }
-.ths-zones__scale { display: flex; justify-content: space-between; color: var(--text-tertiary); font-size: 0.72rem; margin-top: 4px; }
+.ths-zones__scale { display: flex; justify-content: space-between; color: var(--text-tertiary); font-size: 0.75rem; margin-top: 4px; }
 .ths-emo__sign { margin: 10px 0; line-height: 1.7; }
 .ths-parts { list-style: none; padding: 0; margin: 0 0 4px; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 6px 18px; }
 .ths-parts li { display: grid; grid-template-columns: 7em 1fr 2.2em; align-items: center; gap: 8px; font-size: 0.84rem; }
@@ -53,7 +53,7 @@
 
 /* 表格标题、展开按钮 */
 .ths-caption { text-align: left; font-size: 0.85rem; color: var(--text-secondary); padding: 8px 0 4px; caption-side: top; }
-.ths-more { margin-top: 8px; background: none; border: 1px solid var(--border-primary); border-radius: var(--radius-sm); color: var(--text-secondary); padding: 4px 12px; cursor: pointer; font: inherit; font-size: 0.85rem; }
+.ths-more { margin-top: 8px; background: none; border: 1px solid var(--border-primary); border-radius: var(--radius-sm); color: var(--text-secondary); padding: 4px 12px; min-height: 32px; cursor: pointer; font: inherit; font-size: 0.85rem; }
 .ths-more:hover { color: var(--text-primary); }
 
 /* 涨停聚焦 */
@@ -63,12 +63,12 @@
 .ths-sectors__bar { fill: var(--up); }
 .ths-sectors__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ths-sectors b { text-align: right; font-variant-numeric: tabular-nums; color: var(--up-ink); }
-.ths-sectors small { color: var(--text-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ths-sectors small { color: var(--text-tertiary); font-size: 0.75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* 近 10 日涨停数 */
 .ths-ten { margin: 0; padding-left: 1.6em; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px 20px; font-size: 0.88rem; }
 .ths-ten li { display: list-item; }
-.ths-ten span small { color: var(--text-tertiary); margin-left: 6px; }
+.ths-ten span small { color: var(--text-tertiary); margin-left: 6px; font-size: 0.75rem; }
 .ths-ten b { margin-left: 8px; color: var(--up-ink); font-variant-numeric: tabular-nums; }
 .ths-ten em { font-style: normal; margin-left: 8px; font-size: 0.75rem; color: var(--up-ink); border: 1px solid var(--up); border-radius: var(--radius-full); padding: 0 6px; }
 

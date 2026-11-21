@@ -35,12 +35,26 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.unstubAllGlobals() })
 
 describe('候选池页', () => {
-  it('空池：显示概况、使用流程和去哪里加公司', () => {
+  it('空池：先显示两个加入入口和使用流程，隐藏个人统计与候选工具', () => {
     renderAt()
     expect(screen.getByRole('heading', { level: 1, name: '候选池' })).toBeTruthy()
     expect(screen.getByRole('tab', { name: /我的候选 · 0/ }).getAttribute('aria-selected')).toBe('true')
     expect(screen.getByRole('list', { name: '使用流程' })).toBeTruthy()
     expect(screen.getByText('候选池还是空的。')).toBeTruthy()
+    expect(screen.getByRole('link', { name: '去公司研究挑公司' }).getAttribute('href')).toBe('/research-notes')
+    expect(screen.getByRole('button', { name: /^看研究筛出的公司（\d+ 家）$/ })).toBeTruthy()
+    expect(screen.queryByText('已做估值')).toBeNull()
+    expect(screen.queryByRole('button', { name: 'DCF：全部' })).toBeNull()
+    expect(screen.queryByRole('button', { name: /导出 JSON/ })).toBeNull()
+    expect(screen.queryByRole('button', { name: '清空' })).toBeNull()
+    expect(screen.getByText('跨设备同步').closest('details')?.hasAttribute('open')).toBe(false)
+    expect(screen.queryByRole('heading', { name: '我的候选池 · 0 家' })).toBeNull()
+    expect(screen.getByText('未开启同步：数据仅保存在本机')).toBeTruthy()
+    expect(document.body.textContent).not.toContain('未验证身份')
+    expect(document.body.textContent).not.toContain('PULSE_SYNC_TOKEN')
+    expect(document.body.textContent).not.toContain('Token')
+    fireEvent.click(screen.getByRole('button', { name: /^看研究筛出的公司/ }))
+    expect(screen.getByRole('heading', { name: /^研究筛出/ })).toBeTruthy()
   })
 
   it('每家公司带好参数进入估值、DCF；只有 A 股显示网格；已做的 DCF 回显在估值进度里', () => {

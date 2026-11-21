@@ -154,4 +154,15 @@ describe('观察盘：风险信号与期权情绪', () => {
     expect(await within(macroBlock).findByText('VIX 期限')).toBeTruthy()
     expect(within(macroBlock).getByText('正常')).toBeTruthy()
   })
+
+  it('宏观卡片带 is-green 时摘要与不做标签不跟涨跌绿/红 class', async () => {
+    render(<MemoryRouter><WatchBoard /></MemoryRouter>)
+    const macroBlock = await screen.findByRole('region', { name: '宏观阶段' })
+    await waitFor(() => expect(macroBlock.className).toMatch(/is-green|is-yellow|is-red/))
+    const summary = within(macroBlock).getByText(/信号大多正常|有几项信号|多项信号|风险资产/)
+    expect(summary.className).toBe('watch-stage__summary')
+    const dont = within(macroBlock).getByText('不做')
+    expect(dont.closest('.watch-stage__rule')?.className).toContain('is-dont')
+    expect(dont.className).not.toMatch(/is-red|is-green/)
+  })
 })

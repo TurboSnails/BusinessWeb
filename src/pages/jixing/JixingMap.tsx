@@ -18,10 +18,12 @@ const BASE = import.meta.env.BASE_URL
 
 function CellLink({ c }: { c: MapCell }): JSX.Element {
   const metric = c.basis === 'pb' ? 'PB' : 'PE'
+  const detail = `${metric} ${fmtPct(c.pct)} · ${c.status ? VALUATION_STATUS[c.status].label : '—'}`
+  const label = `${c.name} ${detail}`
   return (
-    <Link to={c.href} className={`jx-map-cell ${statusClass(c.status)}`}>
+    <Link to={c.href} className={`jx-map-cell ${statusClass(c.status)}`} title={label} aria-label={label}>
       <strong>{c.name}</strong>
-      <span>{metric} {fmtPct(c.pct)} · {c.status ? VALUATION_STATUS[c.status].label : '—'}</span>
+      <span>{detail}</span>
     </Link>
   )
 }

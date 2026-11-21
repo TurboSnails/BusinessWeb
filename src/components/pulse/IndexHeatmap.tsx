@@ -143,6 +143,13 @@ function blockColor(change: number | null, greenUp = false): string {
 // 背景够深时用白字，否则用深色字
 const labelColor = (change: number | null): string => (Math.abs(change || 0) >= COLOR_CAP * 0.45 ? '#ffffff' : '#1f2937')
 
+export function heatmapTextLayout(name: string, pctText: string, rect: Pick<Rect, 'w' | 'h'>): { fontSize: number; showLabel: boolean; showPct: boolean } {
+  const fontSize = Math.max(12, Math.min(16, Math.min(rect.w, rect.h) / 4.2))
+  const showLabel = rect.w >= name.length * fontSize + 8 && rect.h >= fontSize * 1.6
+  const showPct = rect.w >= pctText.length * fontSize * 0.65 + 8 && rect.h >= fontSize * (showLabel ? 2.5 : 1.6)
+  return { fontSize, showLabel, showPct }
+}
+
 // ============ 指数配置 ============
 // 港股指数（恒指、恒科）用 TradingView 的指数成分实时查询，指数调整后自动更新；
 // 中证500 没有可用的实时成分，使用中证指数公司的成分股快照。中文名查不到时显示代码。
@@ -315,7 +322,7 @@ export default function IndexHeatmap({ market, tick, active }: Props): JSX.Eleme
               <div style={{
                 position: 'absolute', left: block.rect.x + 2, top: block.rect.y + 2, width: Math.max(0, block.rect.w - 4), height: block.header,
                 display: 'flex', alignItems: 'center', gap: '6px', padding: '0 4px', boxSizing: 'border-box', overflow: 'hidden', whiteSpace: 'nowrap',
-                fontSize: '11px', fontWeight: 700, color: '#f9fafb', pointerEvents: 'none',
+                fontSize: '12px', fontWeight: 700, color: '#f9fafb', pointerEvents: 'none',
               }}>
                 <span>{block.name}</span>
                 <span style={{ fontWeight: 500, color: block.change > 0 ? upLight : block.change < 0 ? downLight : '#d1d5db' }}>
@@ -326,13 +333,12 @@ export default function IndexHeatmap({ market, tick, active }: Props): JSX.Eleme
             {block.stocks.map(({ stock, rect }) => {
               const pct = stock.change
               const textColor = labelColor(pct)
-              const minSide = Math.min(rect.w, rect.h)
-              const showLabel = rect.w > 40 && rect.h > 22
-              const showPct = rect.w > 40 && rect.h > 36
-              const fontSize = Math.max(10, Math.min(16, minSide / 4.2))
+              const pctText = pct !== null ? `${pct > 0 ? '+' : ''}${pct.toFixed(2)}%` : '--'
+              const { fontSize, showLabel, showPct } = heatmapTextLayout(stock.name, pctText, rect)
               return (
                 <div
                   key={stock.ticker}
+                  title={`${stock.name}（${stock.code}）`}
                   onMouseMove={(e) => {
                     const box = containerRef.current?.getBoundingClientRect()
                     if (box) setHover({ stock, px: e.clientX - box.left, py: e.clientY - box.top })
@@ -346,13 +352,13 @@ export default function IndexHeatmap({ market, tick, active }: Props): JSX.Eleme
                   }}
                 >
                   {showLabel && (
-                    <span style={{ fontSize: `${fontSize}px`, fontWeight: 600, color: textColor, whiteSpace: 'nowrap', lineHeight: 1.2, maxWidth: '100%', overflow: 'hidden', textOverflow: 'clip' }}>
+                    <span style={{ fontSize: `${fontSize}px`, fontWeight: 600, color: textColor, whiteSpace: 'nowrap', lineHeight: 1.2 }}>
                       {stock.name}
                     </span>
                   )}
                   {showPct && (
-                    <span style={{ fontSize: `${Math.max(9, fontSize - 2)}px`, color: textColor, lineHeight: 1.3 }}>
-                      {pct !== null ? `${pct > 0 ? '+' : ''}${pct.toFixed(2)}%` : '--'}
+                    <span style={{ fontSize: `${fontSize}px`, color: textColor, lineHeight: 1.3 }}>
+                      {pctText}
                     </span>
                   )}
                 </div>

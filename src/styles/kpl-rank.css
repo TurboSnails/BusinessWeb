@@ -2,10 +2,17 @@
 .kr-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-bottom: 10px; }
 .kr-table td small { color: var(--text-tertiary); margin-left: 6px; font-size: 0.75rem; }
 .kr-table td { white-space: nowrap; }
-.kr-tag { display: inline-block; margin-right: 4px; padding: 0 6px; border-radius: var(--radius-full); border: 1px solid var(--border-primary); color: var(--text-secondary); font-size: 0.72rem; line-height: 1.5; white-space: nowrap; }
+.kr-tag { display: inline-block; margin-right: 4px; padding: 0 6px; border-radius: var(--radius-full); border: 1px solid var(--border-primary); color: var(--text-secondary); font-size: 0.75rem; line-height: 1.5; white-space: nowrap; }
 .kr-tag.is-hot { color: var(--up-ink); border-color: var(--up); }
-.kr-more { appearance: none; margin-top: 10px; background: none; border: 1px solid var(--border-primary); border-radius: var(--radius-sm); padding: 4px 12px; font: inherit; font-size: 0.85rem; color: var(--text-secondary); cursor: pointer; }
+.kr-more {
+  appearance: none; display: inline-flex; align-items: center; min-height: 32px; margin-top: 10px;
+  background: none; border: 1px solid var(--border-primary); border-radius: var(--radius-sm);
+  padding: 4px 12px; font: inherit; font-size: 0.85rem; color: var(--text-secondary); cursor: pointer;
+}
 .kr-more:hover, .kr-more:focus-visible { color: var(--text-primary); }
+@media (pointer: coarse) {
+  .kr-more { min-height: var(--tap); }
+}
 .kr-dir { margin-top: 0; }
 
 .kr-leaders { margin-top: 14px; }
