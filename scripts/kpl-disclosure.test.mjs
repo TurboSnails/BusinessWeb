@@ -4,7 +4,7 @@ import { test } from 'node:test'
 import {
   boardOf, buildBlock, buildCalendar, buildHolders, buildRiskTrading, buildSurvey, capLimit, checkComplete, compactDay, compareConsensus, contiguous,
   financeFlags, lastTradingDays, nextTradingDays, num, parseBlock, parseConsensus, parseFinance, parseForecasts, parseKline, parseSnapshot, parseSurveys,
-  perfAfter, revLimit, sameContent, stDiff, streaks, faceTest, paginate, publishDecision, boundHolders, exDividendDates, parseAdjKline, secidOf,
+  perfAfter, revLimit, sameContent, dedupeDisclosures, stDiff, streaks, faceTest, paginate, publishDecision, boundHolders, exDividendDates, parseAdjKline, secidOf,
 } from './kpl-disclosure-lib.mjs'
 
 test('num：缺失不是 0', () => {
@@ -246,4 +246,11 @@ test('发布判断：换日期时某节失败而上一份有该节，放弃发�
   assert.equal(publishDecision(['survey'], prev, '2026-11-17').ok, true) // 上一份本来就缺
   assert.equal(publishDecision(['risk'], null, '2026-11-17').ok, true)
   assert.equal(publishDecision(['risk'], { ...prev, asOf: '2026-11-17', risk: null }, '2026-11-17').ok, true)
+})
+
+test('dedupeDisclosures：同一公告跨页重复只留一条，不同类型或报告期保留', () => {
+  const a = { kind: 'report', code: '600975', period: '2026-09-30', notice: '2026-10-31', profit: -1 }
+  const out = dedupeDisclosures([a, { ...a }, { ...a, kind: 'forecast' }, { ...a, period: '2026-12-31' }])
+  assert.equal(out.length, 3)
+  assert.equal(out[0], a)
 })

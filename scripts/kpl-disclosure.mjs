@@ -9,7 +9,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { isTradingDay, prevTradingDay } from './market-mood-lib.mjs'
 import {
-  addDays, boundHolders, buildBlock, buildCalendar, buildHolders, buildRiskTrading, buildSurvey, compactDay, compareConsensus, exDividendDates, financeFlags,
+  addDays, boundHolders, dedupeDisclosures, buildBlock, buildCalendar, buildHolders, buildRiskTrading, buildSurvey, compactDay, compareConsensus, exDividendDates, financeFlags,
   lastTradingDays, paginate, parseAdjKline, parseBlock, parseConsensus, parseExpress, parseFinance, parseForecasts, parseReports, parseSnapshot, parseSurveys, perfAfter,
   periodLabel, publishDecision, sameContent, secidOf, stDiff,
 } from './kpl-disclosure-lib.mjs'
@@ -143,11 +143,12 @@ const risk = await section('risk', async () => ({
 const disclosure = await section('disclosure', async () => {
   const from = addDays(asOf, -NOTICE_WINDOW)
   const nf = `(NOTICE_DATE>='${from}')(NOTICE_DATE<='${asOf}')${A_SHARE}`
-  const items = [
-    ...parseForecasts(await report('RPT_PUBLIC_OP_NEWPREDICT', nf, { sort: 'NOTICE_DATE' })),
-    ...parseExpress(await report('RPT_FCI_PERFORMANCEE', nf, { sort: 'NOTICE_DATE' })),
-    ...parseReports(await report('RPT_LICO_FN_CPD', nf, { sort: 'NOTICE_DATE' })),
-  ].filter((x) => x.period && x.notice)
+  // 分页排序加上证券代码作为第二键：只按公告日排序时同日记录顺序不稳定，跨页会重复或遗漏
+  const items = dedupeDisclosures([
+    ...parseForecasts(await report('RPT_PUBLIC_OP_NEWPREDICT', nf, { sort: 'NOTICE_DATE,SECURITY_CODE' })),
+    ...parseExpress(await report('RPT_FCI_PERFORMANCEE', nf, { sort: 'NOTICE_DATE,SECURITY_CODE' })),
+    ...parseReports(await report('RPT_LICO_FN_CPD', nf, { sort: 'NOTICE_DATE,SECURITY_CODE' })),
+  ].filter((x) => x.period && x.notice))
   // 定期报告表也收录补登的旧报告期（例如 2025 年三季报晚到），只保留报告期在公告日前一年内的
   const fresh = items.filter((x) => x.period >= addDays(x.notice, -400))
   fresh.sort((a, b) => b.notice.localeCompare(a.notice) || Math.abs(b.yoy ?? 0) - Math.abs(a.yoy ?? 0))

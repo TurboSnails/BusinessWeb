@@ -157,14 +157,15 @@ const mergeSources = (xs) => [...(xs ?? []).filter((x) => x.id !== 'reports'), R
 
 let out
 try {
+  // 分页排序都带唯一性更高的第二键：只按日期排序时同日记录顺序不稳定，跨页会重复或遗漏（回购曾重复 1 条）
   // 2) 新股：申购日历 + 次新股（上市不满一年）
-  const ipoCal = await report('RPTA_APP_IPOAPPLY', { filter: `(APPLY_DATE>='${addDays(asOf, -WINDOW)}')`, sort: 'APPLY_DATE' })
-  const ipoSub = await report('RPTA_APP_IPOAPPLY', { filter: `(LISTING_DATE>'${addDays(asOf, -SUBNEW_DAYS)}')(LISTING_DATE<='${asOf}')`, sort: 'LISTING_DATE' })
+  const ipoCal = await report('RPTA_APP_IPOAPPLY', { filter: `(APPLY_DATE>='${addDays(asOf, -WINDOW)}')`, sort: 'APPLY_DATE,SECURITY_CODE' })
+  const ipoSub = await report('RPTA_APP_IPOAPPLY', { filter: `(LISTING_DATE>'${addDays(asOf, -SUBNEW_DAYS)}')(LISTING_DATE<='${asOf}')`, sort: 'LISTING_DATE,SECURITY_CODE' })
   // 3) 解禁：未来 30 日、近 30 日
-  const liftUp = await report('RPT_LIFT_STAGE', { filter: `(FREE_DATE>'${asOf}')(FREE_DATE<='${addDays(asOf, WINDOW)}')`, sort: 'FREE_DATE', dir: '1' })
-  const liftPast = await report('RPT_LIFT_STAGE', { filter: `(FREE_DATE>='${addDays(asOf, -WINDOW + 1)}')(FREE_DATE<='${asOf}')`, sort: 'FREE_DATE' })
+  const liftUp = await report('RPT_LIFT_STAGE', { filter: `(FREE_DATE>'${asOf}')(FREE_DATE<='${addDays(asOf, WINDOW)}')`, sort: 'FREE_DATE,SECURITY_CODE', dir: '1' })
+  const liftPast = await report('RPT_LIFT_STAGE', { filter: `(FREE_DATE>='${addDays(asOf, -WINDOW + 1)}')(FREE_DATE<='${asOf}')`, sort: 'FREE_DATE,SECURITY_CODE' })
   // 4) 增减持（公告日近 30 日）
-  const holders = await report('RPT_SHARE_HOLDER_INCREASE', { filter: `(NOTICE_DATE>='${addDays(asOf, -WINDOW + 1)}')(NOTICE_DATE<='${asOf}')`, sort: 'NOTICE_DATE' })
+  const holders = await report('RPT_SHARE_HOLDER_INCREASE', { filter: `(NOTICE_DATE>='${addDays(asOf, -WINDOW + 1)}')(NOTICE_DATE<='${asOf}')`, sort: 'NOTICE_DATE,SECURITY_CODE' })
   // 5) 质押：最新一期统计日（≤ asOf）
   const pd = (await report('RPT_CSDC_LIST', { filter: `(TRADE_DATE<='${asOf}')`, sort: 'TRADE_DATE', pageSize: 1, all: false })).rows[0]?.TRADE_DATE?.slice(0, 10)
   if (!pd || pd < addDays(asOf, -14)) throw new Error(`质押统计日期过旧（${pd}）`)
@@ -179,7 +180,7 @@ try {
   for (const line of GOODWILL_LINES) gwCounts[line] = await countOf('RPT_GOODWILL_STOCKDETAILS', `(REPORT_DATE='${period}')(SUMSHEQUITY>0)(SUMSHEQUITY_RATIO>=${line / 100})`, 'SUMSHEQUITY_RATIO')
   const gwNeg = await countOf('RPT_GOODWILL_STOCKDETAILS', `(REPORT_DATE='${period}')(SUMSHEQUITY<=0)`, 'SUMSHEQUITY_RATIO')
   // 7) 回购（最新公告日近 30 日）
-  const buyback = await report('RPTA_WEB_GETHGLIST_NEW', { filter: `(UPD>='${addDays(asOf, -WINDOW + 1)}')(UPD<='${asOf}')`, sort: 'UPD' })
+  const buyback = await report('RPTA_WEB_GETHGLIST_NEW', { filter: `(UPD>='${addDays(asOf, -WINDOW + 1)}')(UPD<='${asOf}')`, sort: 'UPD,REPURCODE' })
 
   // 日 K：次新股用后复权（首日收盘为原始价）；解禁用前复权（最新一根即原始收盘）
   const subItems = uniq(ipoSub.rows.filter((r) => /^\d{6}$/.test(r.SECURITY_CODE)).map((r) => ({ code: r.SECURITY_CODE, secid: secidOf(r.SECUCODE, r.SECURITY_CODE), lmt: 260 })))
