@@ -32,10 +32,12 @@ async function request<T>(
   if (!response.ok) throw new Error(value.error || "本地服务请求失败");
   return value as T;
 }
-export async function connectValuation() {
-  // 线上页面：先走连接状态机（必要时唤起本地服务），再取 token
+export async function connectValuation(opts: { launch?: boolean } = {}) {
+  // 线上页面：先走连接状态机（必要时唤起本地服务），再取 token。
+  // launch:false 只探测不唤起：页面打开时自动连接用它——浏览器不允许无用户手势唤起自定义协议，
+  // 自动唤起只会被拦截并白等 8 秒；读者点「重新连接」时再唤起。
   if (hostedPage) {
-    const state = await ensureBridge();
+    const state = await ensureBridge({ launch: opts.launch });
     if (state.kind !== "connected")
       throw Object.assign(new Error("本地服务未连接"), { bridgeState: state });
   }

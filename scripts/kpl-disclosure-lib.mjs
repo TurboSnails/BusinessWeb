@@ -240,6 +240,20 @@ export function parseExpress(rows) {
     yoy: round(num(r.JLRTBZCL)), yoyLow: null, yoyHigh: null, revenue: num(r.TOTAL_OPERATE_INCOME), revenueYoy: round(num(r.YSTZ)), eps: num(r.BASIC_EPS), isProfit: true,
   }))
 }
+/**
+ * 同一公告（类型 + 代码 + 报告期 + 公告日）只留第一条。东财分页按非唯一列排序时，同日公告上千条的财报季
+ * 会跨页重复（2026-10-31 三季报 42 条各出现两次），重复会让计数与列表翻倍。
+ */
+export function dedupeDisclosures(items) {
+  const seen = new Set()
+  return items.filter((x) => {
+    const key = `${x.kind}|${x.code}|${x.period}|${x.notice}`
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+
 export function parseReports(rows) {
   return rows.filter(isAShareType).map((r) => ({
     code: String(r.SECURITY_CODE), name: str(r.SECURITY_NAME_ABBR), kind: 'report', period: day(r.REPORTDATE), notice: day(r.NOTICE_DATE),

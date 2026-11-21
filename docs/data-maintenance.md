@@ -23,6 +23,12 @@
 
 现有量化规则：公司价格超过 **7 个自然日**才触发提示，见 [priceAnchor.ts](../src/features/dcf/priceAnchor.ts)；宏观使用 [quality.ts](../src/features/macro/quality.ts) 的逐指标阈值。提示未超期也不等于价格实时可用。月度指标日期通常代表统计月份，季度指标代表报告期间；阈值越界只表示需要查新，不证明源已经发布下一期。交易日判断以市场日历和接口实际行情日期为准，不按自然日机械补档。
 
+## 2026-11-21 估值覆盖层改为每日重建
+
+- **起因**：`company-refresh.yml` 每日只刷新行情，`public/data/company-valuations/*.json` 只在手动全量刷新时重建，1,538 条记录的价格日停在 2026-11-13，数据新鲜度巡检连续告警（台账 VALUATION-01）。
+- **改动**：新增 `node scripts/rebuild-company-valuations.mjs --as-of YYYY-MM-DD`，在工作流「Rebuild company valuation overlays」步骤每日运行。研究范围用 `export-company-valuation-universe.mjs` 现导出，与 11-13 全量刷新同口径；`comprehensive-valuation-2026-10-22/universe-*.json` 冻结范围的研究倍数已落后于站内公司数据（例如 BNY 冻结范围为 16.0× PE 三情景，站内为单一基准 18.0×），**不要**用它重建。5 个市场全部生成并通过 `verify-company-valuations.mjs` 才替换正式文件，否则还原；该步骤 `continue-on-error`，不阻断行情发布。
+- **本次结果**（asOf 2026-11-19）：研究倍数 0 处变化；数值变化来自供应商前瞻 EPS 更新（如中瓷电子 2.00→3.48、泰森食品 3.84→4.75）。驰宏锌锗供应商前瞻 EPS 缺失，按规则由 conditional 转为 insufficient。
+
 ## 2026-11-13 全量刷新与重新分类
 
 执行日期：2026-11-13（Asia/Yerevan）。证据目录 `public/research/data-refresh-2026-11-13/`（手动全量，无 AUTO.txt）。

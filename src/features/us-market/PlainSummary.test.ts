@@ -39,3 +39,27 @@ describe('judge', () => {
     expect(result).toMatchObject({ families: 0, text: '数据不足', lean: 'neutral' })
   })
 })
+
+it('derives observation dates only from counted and finite readings', () => {
+  const result = judge(question([
+    item('managerCash', 3, '2026-10-31'),
+    item('retailCash', 10, '2026-11-10'),
+    item('retailBull', 30, '2026-11-18', '周频'),
+    item('naaim', NaN),
+    { name: '未采集' },
+  ]), asOf)
+  expect(result.periods).toEqual(['2026 年 10 月', '2026 年 11 月'])
+  expect(result.counted).toHaveLength(2)
+  expect(result.excluded.map(row => [row.item.name, row.reason])).toEqual([
+    ['retailBull', '同组已有指标计入'], ['naaim', '暂无有效读数'], ['未采集', '暂无有效读数'],
+  ])
+})
+
+it('leaves the date range empty when all readings are stale, pending or future-dated', () => {
+  const pending = item('managerCash', 3)
+  pending.reading!.releasedAt = '2026-11-21'
+  const result = judge(question([pending, item('retailCash', 10, '2026-12-01'), item('retailBull', 30, '2026-01-31')]), asOf)
+  expect(result.counted).toHaveLength(0)
+  expect(result.periods).toEqual([])
+  expect(result.excluded.map(row => row.reason)).toEqual(['尚未披露', '日期待核对', '已超过更新周期'])
+})

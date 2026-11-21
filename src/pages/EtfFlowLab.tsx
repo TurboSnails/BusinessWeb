@@ -2,18 +2,24 @@ import React, { useEffect, useState } from 'react'
 import { Callout, EmptyState, Page, PageToolbar, Stat, StatGrid } from '../components/ui'
 import { PageTabs } from '../components/ui/PageTabs'
 import { EtfFlowChart } from '../features/etf-flow/EtfFlowChart'
-import { asEtfFlow, EMPTY_FLOW, fmtYi, type EtfFlowData } from '../features/etf-flow/model'
+import { asEtfFlow, fmtYi, type EtfFlowData } from '../features/etf-flow/model'
 import { LabNav } from '../features/etf-signal-plans/LabNav'
 import '../features/etf-flow/etf-flow.css'
 
 type Scope = 'all' | 'broad'
 const BASE = import.meta.env.BASE_URL
 
-export function EtfFlowView({ data }: { data: EtfFlowData }): JSX.Element {
+function tone(value: number | null) {
+  if (value == null || value === 0) return 'etf-kpi'
+  return value > 0 ? 'etf-kpi etf-kpi--up' : 'etf-kpi etf-kpi--down'
+}
+
+export function EtfFlowView({ data, failed = false }: { data: EtfFlowData | null; failed?: boolean }): JSX.Element {
   const [scope, setScope] = useState<Scope>('all')
-  const k = data.kpi?.[scope] ?? { yesterday: 0, cum60: 0 }
-  const empty = !data.series?.length
-  const broadReady = (data.series ?? []).some(s => s.flow_broad != null)
+  const k = data?.kpi[scope]
+  const lastDate = data?.series.at(-1)?.date
+  const startDate = data?.series.slice(-60)[0]?.date
+  const generated = data?.updated ? new Date(data.updated) : undefined
 
   return (
     <Page title="ETF 资金净流入（实验）">
@@ -26,19 +32,23 @@ export function EtfFlowView({ data }: { data: EtfFlowData }): JSX.Element {
         value={scope}
         onChange={setScope}
       />
-      {empty ? (
+      {failed ? (
+        <EmptyState title="资金流快照读取失败">请刷新页面重试。</EmptyState>
+      ) : !data ? (
+        <p role="status">正在读取资金流快照…</p>
+      ) : !k || !lastDate ? (
         <EmptyState title="暂无数据">运行 <code>npm run etf-flow:update</code> 生成快照后再打开。</EmptyState>
-      ) : scope === 'broad' && !broadReady ? (
-        <EmptyState title="宽基口径暂无数据">先看全 A；宽基序列下次快照会补。</EmptyState>
       ) : (
         <>
+          {data.sample && <Callout tone="warn" title="示例数据">本页展示样本快照。</Callout>}
           <StatGrid>
-            <Stat className={`etf-kpi etf-kpi--${k.yesterday >= 0 ? 'up' : 'down'}`} label="昨日净流入（亿元）" value={fmtYi(k.yesterday)} />
-            <Stat className={`etf-kpi etf-kpi--${k.cum60 >= 0 ? 'up' : 'down'}`} label="近 60 日累计（亿元）" value={fmtYi(k.cum60)} />
+            <Stat className={tone(k.yesterday)} label="最新记录日净流入（亿元）" value={fmtYi(k.yesterday)} sub={lastDate} />
+            <Stat className={tone(k.cum60)} label="近 60 个记录日累计（亿元）" value={fmtYi(k.cum60)}
+              sub={`${startDate} 至 ${lastDate} · 有效 ${k.covered}/60 日`} />
           </StatGrid>
           <EtfFlowChart series={data.series} scope={scope} />
           {data.note && <p className="etf-flow__note">{data.note}</p>}
-          {data.updated && <p className="etf-flow__foot">更新于 {data.updated.replace('T', ' ').replace(/\..*$/, '')}</p>}
+          {generated && Number.isFinite(generated.getTime()) && <p className="etf-flow__foot">快照生成于 {generated.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false })}（北京时间）</p>}
         </>
       )}
     </Page>
@@ -47,13 +57,18 @@ export function EtfFlowView({ data }: { data: EtfFlowData }): JSX.Element {
 
 export default function EtfFlowLab(): JSX.Element {
   const [data, setData] = useState<EtfFlowData | null>(null)
+  const [failed, setFailed] = useState(false)
   useEffect(() => {
     let live = true
     fetch(`${BASE}data/etf-flow.json`, { cache: 'no-store' })
       .then(r => { if (!r.ok) throw new Error(String(r.status)); return r.json() })
-      .then(body => { if (live) setData(asEtfFlow(body) ?? EMPTY_FLOW) })
-      .catch(() => { if (live) setData(EMPTY_FLOW) })
+      .then(body => {
+        const snapshot = asEtfFlow(body)
+        if (!snapshot) throw new Error('快照格式异常')
+        if (live) setData(snapshot)
+      })
+      .catch(() => { if (live) setFailed(true) })
     return () => { live = false }
   }, [])
-  return <EtfFlowView data={data ?? EMPTY_FLOW} />
+  return <EtfFlowView data={data} failed={failed} />
 }

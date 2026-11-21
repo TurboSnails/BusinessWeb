@@ -1,4 +1,5 @@
 .etf-flow__wrap { position: relative; margin: 8px 0 4px; }
+.etf-flow__ranges { margin-bottom: 10px; }
 .etf-flow__chart { width: 100%; height: auto; display: block; touch-action: none; }
 .etf-flow__ov { width: 100%; height: auto; display: block; margin-top: 2px; touch-action: none; cursor: grab; }
 .etf-flow__ax { fill: var(--text-secondary, #6b675c); font-size: 11px; }
@@ -6,6 +7,7 @@
 .etf-flow__bar.is-in { fill: #c0392b; }
 .etf-flow__bar.is-out { fill: #1e8449; }
 .etf-flow__idx { stroke: var(--text-secondary, #8893a7); stroke-width: 1.5; }
+.etf-flow__idx-point { fill: var(--text-secondary, #8893a7); }
 .etf-flow__cross { stroke: var(--text-secondary, #8893a7); stroke-width: 1; stroke-dasharray: 3 3; pointer-events: none; }
 .etf-flow__ov-mask { fill: var(--surface, #f4f6fa); opacity: .6; }
 .etf-flow__ov-sel { fill: var(--accent, #2f6bff); fill-opacity: .1; stroke: var(--accent, #2f6bff); stroke-opacity: .35; }

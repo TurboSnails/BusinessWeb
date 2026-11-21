@@ -321,6 +321,22 @@ test('FRED HKD uses its weekly-release lag; a missed Monday release still alarms
   })
 })
 
+test('HK official PE: the frozen archive seed is extended by live official months in the auto snapshot', async () => {
+  const later = new Date('2026-11-21T08:00:00Z')
+  const files = healthyFiles()
+  files['public/data/market-cycle-hk-pe-history.json'] = { rows: [{ date: '2026-09-30' }] }
+  await withRepo(files, async root => {
+    const item = (await runFreshnessCheck({ root, now: later, gh: null })).items.find(i => i.id === 'cycle.hkPeHistory')
+    assert.deepEqual([item.status, item.observed], ['stale', '2026-09-30'], 'without a live month the seed alone is judged')
+  })
+  files['public/data/market-cycle-auto.json'].facts.push({ market: 'hstech', metricId: 'pe_official_5y_percentile', frequency: 'monthly', kind: 'observed', observationDate: '2026-10-30' })
+  await withRepo(files, async root => {
+    const item = (await runFreshnessCheck({ root, now: later, gh: null })).items.find(i => i.id === 'cycle.hkPeHistory')
+    assert.deepEqual([item.status, item.observed], ['ok', '2026-10-30'])
+    assert.match(item.detail, /归档种子止于 2026-09-30/)
+  })
+})
+
 test('earnings calendar: each source fetchedAt within 3 days; a failed source keeps its old date and goes stale', async () => {
   const files = healthyFiles()
   files['public/data/earnings-calendar.json'].sources.hkex = { ok: false, fetchedAt: '2026-11-10T12:00:00Z', error: 'HTTP 503' }
@@ -344,14 +360,23 @@ test('earnings calendar: each source fetchedAt within 3 days; a failed source ke
 
 test('method reviews: rating review lagging the ledger warns; a stale backtest alarms', async () => {
   const files = healthyFiles()
-  files['public/data/rating-review.json'] = { schemaVersion: 1, asOf: '2026-11-06' }
   files['public/data/market-cycle-backtest.json'] = { schemaVersion: 1, asOf: '2026-10-23' }
+  // Saturday 2026-11-14 before the review weekend has passed: the 11-13 period is not yet due, 11-06 is.
+  files['public/data/rating-review.json'] = { schemaVersion: 1, asOf: '2026-11-06' }
   await withRepo(files, async root => {
-    const result = await runFreshnessCheck({ root, now: NOW, gh: noGh })
+    assert.equal((await runFreshnessCheck({ root, now: NOW, gh: noGh })).items.find(i => i.id === 'review.rating').status, 'ok')
+    const afterWeekend = (await runFreshnessCheck({ root, now: new Date('2026-11-15T23:30:00Z'), gh: noGh })).items.find(i => i.id === 'review.rating')
+    assert.equal(afterWeekend.status, 'warn', 'once the Sunday backstop has passed, the Friday period is due')
+    assert.match(afterWeekend.detail, /落后于上个复盘周末前的台账一期 2026-11-13/)
+  })
+  files['public/data/rating-review.json'] = { schemaVersion: 1, asOf: '2026-11-13' }
+  files['public/data/signal-ledger-2026.json'].snapshots['2026-11-19'] = {}
+  await withRepo(files, async root => {
+    // 2026-11-21 incident: a Thursday mid-week ledger period ahead of the Saturday review is the normal state.
+    const result = await runFreshnessCheck({ root, now: new Date('2026-11-20T21:48:00Z'), gh: noGh })
     const byId = id => result.items.find(i => i.id === id)
     assert.equal(byId('review.signalLedger').status, 'ok')
-    assert.equal(byId('review.rating').status, 'warn')
-    assert.match(byId('review.rating').detail, /落后于台账/)
+    assert.equal(byId('review.rating').status, 'ok')
     assert.equal(byId('review.cycleBacktest').status, 'stale')
     assert.ok(result.alarmIds.includes('review.cycleBacktest'))
   })

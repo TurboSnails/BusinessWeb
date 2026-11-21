@@ -50,6 +50,7 @@
 .us-market__matrix thead { color: var(--text-secondary); }
 .us-market__matrix th:first-child { text-align: left; }
 .us-market__matrix button { background: none; border: 0; color: inherit; font: inherit; text-align: left; cursor: pointer; padding: .25rem; }
+.us-market__volume-scope { display: block; color: var(--text-secondary); }
 .us-market__matrix button small { margin-left: .45rem; color: var(--text-secondary); }
 .us-market__matrix .is-active { background: var(--bg-card); }
 .us-market__matrix .is-active button { text-decoration: underline; text-underline-offset: .2em; }
@@ -138,6 +139,12 @@
 .us-market__stance-help { margin: .7rem 0 0; font-size: .76rem; line-height: 1.55; color: var(--text-secondary); }
 .us-market__hero .us-chart { margin-top: .8rem; }
 .us-plain__evidence { color: var(--text-secondary); font-size: .8rem; }
-.us-plain__question li.is-folded { opacity: .55; }
+.us-plain__coverage, .us-plain__observed, .us-plain__excluded { color: var(--text-secondary); font-size: .76rem; }
+.us-plain__coverage { margin: 0 0 .55rem; }
+.us-plain__observed { display: block; font-variant-numeric: tabular-nums; }
+.us-plain__excluded { margin-top: .5rem; }
+.us-plain__excluded summary { cursor: pointer; }
+.us-plain__excluded ul { margin-top: .35rem; }
+.us-plain__excluded li > span:last-child { text-align: end; }
 .us-chart__grid { stroke: var(--border-subtle); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .us-chart__tick { fill: var(--text-secondary); font-size: 8px; opacity: .85; }

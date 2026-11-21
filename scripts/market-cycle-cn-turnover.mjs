@@ -87,8 +87,14 @@ export async function collectCnTurnover(ctx,opts={}) {
     // Circuit breaker: SZSE resets/403s every non-mainland datacenter IP (GitHub runners included). After 4 network-level
     // failures with no success from an exchange, stop asking it this round instead of spending the whole request budget.
     const net={sse:{ok:0,fail:0},szse:{ok:0,fail:0}},blocked=ex=>net[ex].ok===0&&net[ex].fail>=4
+    // A single TLS/connection reset is transient on residential networks (szse.cn resets the odd cold connection); one
+    // delayed retry inside the budget keeps one flaky day from voiding the whole all-or-nothing week. Timeouts/403 (the
+    // datacenter block) are not retried, so CI cost is unchanged.
+    const retryDelayMs=Math.max(0,Number(opts.retryDelayMs??1500)),transient=e=>/ECONNRESET|socket disconnected|socket hang up/i.test(e instanceof Error?e.message:String(e))
+    const fetchJob=async j=>{const o={headers:{Referer:j.exchange==='sse'?'https://www.sse.com.cn/':'https://www.szse.cn/'}}
+      try{return await ctx.get(j.url,o)}catch(e){if(!transient(e)||requests>=maxRequests||Date.now()>=deadline||ctx.signal?.aborted)throw e;await new Promise(r=>setTimeout(r,retryDelayMs));requests++;return ctx.get(j.url,o)}}
     const worker=async()=>{while(next<jobs.length&&requests<maxRequests&&Date.now()<deadline&&!ctx.signal?.aborted){const j=jobs[next++];if(blocked(j.exchange))continue;requests++;try{
-      const body=await ctx.get(j.url,{headers:{Referer:j.exchange==='sse'?'https://www.sse.com.cn/':'https://www.szse.cn/'}})
+      const body=await fetchJob(j)
       net[j.exchange].ok++
       const parsed=j.parse(body,j.date);await atomic(j.file,{url:j.url,fetchedAt:ctx.now,body});parts.set(`${j.exchange}:${j.date}`,parsed.amountYi)
     }catch(e){const msg=e instanceof Error?e.message:String(e);if(/fetch failed|HTTP 403|超时|timeout|abort/i.test(msg))net[j.exchange].fail++;failures.push(`${j.exchange} ${j.date}: ${msg}`)}}}

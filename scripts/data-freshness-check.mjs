@@ -286,8 +286,19 @@ function checkMarketCycle(root, now) {
   out.push(...guarded('cycle', 'public/data/market-cycle-hk-pe-history.json', () => {
     const file = 'public/data/market-cycle-hk-pe-history.json'
     const rows = readJson(root, file).rows ?? []
+    // The archive is a frozen, audited 60-month seed (no collector rewrites it). New official months (XLSX / Monthly
+    // Roundup) accumulate as monthly facts in market-cycle-auto.json and are merged with the seed by
+    // officialMonthlyPePercentile, so the series' newest month is the later of the seed and those live facts.
+    let live = []
+    try {
+      live = (readJson(root, 'public/data/market-cycle-auto.json').facts ?? [])
+        .filter(f => ['hsi', 'hstech'].includes(f.market) && f.metricId === 'pe_official_5y_percentile' && f.kind === 'observed')
+        .map(f => f.observationDate)
+    } catch { /* auto snapshot has its own check */ }
+    const archived = maxDate(rows.map(r => r.date)), observed = maxDate([archived, ...live])
+    const judged = judgeDate({ observed, ...THRESHOLDS.monthly, now })
     return [item({ id: 'cycle.hkPeHistory', group: '市场周期', label: '恒生官方月末 PE', file, market: 'hk' },
-      judgeDate({ observed: maxDate(rows.map(r => r.date)), ...THRESHOLDS.monthly, now }))]
+      observed !== archived ? { ...judged, detail: [judged.detail, `归档种子止于 ${archived}，其后月份取 market-cycle-auto.json 官方月末 PE 分位`].filter(Boolean).join('；') } : judged)]
   }))
   out.push(...guarded('cycle', 'public/data/market-cycle-report.json', () => {
     const file = 'public/data/market-cycle-report.json'
@@ -423,11 +434,12 @@ function checkDcfPrefill(root, now) {
  * 三者都按周度 10 个自然日判断；复盘落后于台账时提示（每周工作流没跑或失败）。
  */
 function checkMethodReviews(root, now) {
-  let ledgerLatest = null
+  let ledgerLatest = null, ledgerDates = []
   const out = guarded('review', 'public/data/signal-ledger-*.json', () => {
     const files = readdirSync(join(root, 'public/data')).filter(f => /^signal-ledger-\d{4}\.json$/.test(f)).sort()
     if (!files.length) throw new Error('没有 signal-ledger-YYYY.json')
-    ledgerLatest = maxDate(files.flatMap(f => Object.keys(readJson(root, `public/data/${f}`).snapshots ?? {})))
+    ledgerDates = files.flatMap(f => Object.keys(readJson(root, `public/data/${f}`).snapshots ?? {}))
+    ledgerLatest = maxDate(ledgerDates)
     return [item({ id: 'review.signalLedger', group: '方法复盘', label: '信号台账最新一期', file: `public/data/${files.at(-1)}` },
       judgeDate({ observed: ledgerLatest, ...THRESHOLDS.weekly, now }))]
   })
@@ -435,9 +447,14 @@ function checkMethodReviews(root, now) {
     const file = 'public/data/rating-review.json'
     const body = readJson(root, file)
     const judged = judgeDate({ observed: body.asOf ?? null, ...THRESHOLDS.weekly, now })
-    const behind = judged.status === 'ok' && ledgerLatest && body.asOf < ledgerLatest
+    // rating-review.yml runs Sat 09:30 UTC with a Sunday backstop, and the ledger's current-week period keeps moving
+    // (company-refresh rewrites it each weekday). Only ledger periods before the last review weekend that has fully
+    // passed (Sunday 23:00 UTC) are due; a mid-week snapshot newer than the review is the normal state.
+    const lastSunday = addDays(now.toISOString().slice(0, 10), -now.getUTCDay() - (now.getUTCDay() === 0 && now.getUTCHours() < 23 ? 7 : 0))
+    const due = maxDate(ledgerDates.filter(d => d < lastSunday))
+    const behind = judged.status === 'ok' && due && body.asOf < due
     return [item({ id: 'review.rating', group: '方法复盘', label: '评级复盘 asOf', file }, behind ? { ...judged, status: 'warn' } : judged,
-      { detail: behind ? `复盘 ${body.asOf} 落后于台账最新一期 ${ledgerLatest}（每周复盘工作流未跑？）` : undefined })]
+      { detail: behind ? `复盘 ${body.asOf} 落后于上个复盘周末前的台账一期 ${due}（每周复盘工作流未跑？）` : undefined })]
   }))
   out.push(...guarded('review', 'public/data/market-cycle-backtest.json', () => {
     const file = 'public/data/market-cycle-backtest.json'

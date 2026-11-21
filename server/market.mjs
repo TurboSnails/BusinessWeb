@@ -1,7 +1,8 @@
 // 个股日线：沪深 sh/sz 六位、港股 hk 五位（腾讯前复权日线）；美股 us + 代码（Yahoo chart 日线，拆股调整）
 const symbolPattern = /^(?:(sh|sz)\d{6}|hk\d{5})$/
 const usCandlePattern = /^us([A-Z][A-Z.-]{0,9})$/
-const quoteSymbolPattern = /^(?:(sh|sz)\d{6}|r_hk\d{5}|us[A-Z0-9.]{1,10})$/
+// r_hk 后接五位个股代码，或 HSI / HSTECH / HSCEI 等港股指数代码
+const quoteSymbolPattern = /^(?:(sh|sz)\d{6}|r_hk(?:\d{5}|[A-Z]{2,8})|us[A-Z0-9.]{1,10})$/
 /** 美股代码 → Yahoo 代码（BRK.B → BRK-B）；不合规返回 null。代码本身限定 ^[A-Z.-]{1,10}$ 且首字母 */
 export function yahooTickerOf(symbol) {
   const m = typeof symbol === 'string' ? usCandlePattern.exec(symbol) : null

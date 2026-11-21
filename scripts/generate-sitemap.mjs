@@ -6,8 +6,9 @@ import { blogPaths } from './lib/blog-routes.mjs'
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const ORIGIN = (process.env.VITE_SITE_URL || 'https://business-web-black.vercel.app').replace(/\/+$/, '')
 
+// 已舍弃的存档页（/investment-targets 未完成的占位、/mainland-investment-targets 过期荐股清单）不收录，seo.ts 同时标 noindex
 const STATIC = ['/', '/invest', '/invest/start', '/invest/etf', '/invest/fundamental-quant', '/industry-etf', '/notes', '/invest/national-team', '/ai', '/ai/fullstack-roadmap', '/ai/dev-team', '/blog', '/life', '/about', '/pulse',
-  '/investment-plan-2026', '/investment-targets', '/mainland-investment-targets', '/limit-up-analysis', '/trading-philosophy',
+  '/investment-plan-2026', '/limit-up-analysis', '/trading-philosophy',
   '/sector-rotation', '/daily-analysis', '/investment-strategy', '/first-book', '/first-book/slow-is-fast', '/future-trends', '/industry-landscape', '/research-notes', '/earnings', '/radar', '/grid-trading']
 
 // 《正念投资》章节：只收 done/draft，status 为 note 的是审稿与修订记录，不对外收录。

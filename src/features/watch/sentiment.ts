@@ -30,14 +30,15 @@ export function moodOf(m: DailySnapshot['metrics']): { mood: Mood; reason: strin
   return { mood: '数据不足', reason: '缺少涨跌家数与涨跌停数据' }
 }
 
-/** 全球市场看板要展示的品种：按名称从行情接口结果里挑。商品、汇率、美债已在宏观读数里，不重复 */
-export const MARKET_GROUPS: Array<{ id: 'us' | 'cn' | 'hk'; title: string; names: string[]; redUp: boolean }> = [
-  { id: 'us', title: '美股', names: ['标普500', '纳斯达克', '道琼斯'], redUp: false },
-  { id: 'cn', title: 'A股', names: ['上证指数', '沪深300', '深证成指', '创业板指'], redUp: true },
-  { id: 'hk', title: '港股', names: ['恒生指数', '恒生科技', '恒生国企'], redUp: true },
+/** 全球市场看板要展示的指数（腾讯行情代码，经同源 /api/grid-market 取）。商品、汇率、美债已在宏观读数里，不重复 */
+export const MARKET_GROUPS: Array<{ id: 'us' | 'cn' | 'hk'; title: string; items: Array<{ symbol: string; name: string }>; redUp: boolean }> = [
+  { id: 'us', title: '美股', items: [{ symbol: 'usINX', name: '标普500' }, { symbol: 'usNDX', name: '纳斯达克100' }, { symbol: 'usDJI', name: '道琼斯' }], redUp: false },
+  { id: 'cn', title: 'A股', items: [{ symbol: 'sh000001', name: '上证指数' }, { symbol: 'sh000300', name: '沪深300' }, { symbol: 'sz399001', name: '深证成指' }, { symbol: 'sz399006', name: '创业板指' }], redUp: true },
+  { id: 'hk', title: '港股', items: [{ symbol: 'r_hkHSI', name: '恒生指数' }, { symbol: 'r_hkHSTECH', name: '恒生科技' }, { symbol: 'r_hkHSCEI', name: '恒生国企' }], redUp: true },
 ]
 
-export interface QuoteRow { symbol: string; name: string; price: number; changePercent: number }
+/** quoteTime：行情时间（交易所当地时间，YYYY-MM-DD HH:mm），休市时为最后交易时刻 */
+export interface QuoteRow { symbol: string; name: string; price: number; changePercent: number; quoteTime?: string }
 export interface QuoteCache { at: string; rows: QuoteRow[] }
 const CACHE_KEY = 'watch-quotes'
 

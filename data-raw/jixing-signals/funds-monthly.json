@@ -1,5 +1,5 @@
 {
- "updatedAt": "2026-11-19",
+ "updatedAt": "2026-11-20",
  "months": [
   {
    "month": "2013-08",
@@ -346,10 +346,10 @@
   },
   {
    "month": "2026-11",
-   "equity": 206.77,
-   "equityFunds": 58,
+   "equity": 215.31,
+   "equityFunds": 62,
    "unknown": 0,
-   "funds": 103
+   "funds": 111
   }
  ]
 }

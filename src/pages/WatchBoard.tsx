@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { ArrowRight, RefreshCw } from 'lucide-react'
 import { Page, PageToolbar } from '../components/ui'
 import { PageTitle } from '../components/ui/PageTabs'
-import { fetchMarketDataByType } from '../services/api'
+import { fetchIndexQuotes } from '../services/indexQuotes'
 import { signalValues, stageFromSnapshot, type MacroSnapshot } from '../features/macro/indicators'
 import { SIGNALS, signalTone } from '../features/macro/stages'
 import { useMacroSnapshot } from '../features/macro/useMacroSnapshot'
@@ -104,6 +104,9 @@ function OptionSentiment({ tick }: { tick: number }): JSX.Element | null {
   )
 }
 
+/** 组内最新的行情时间（MM-DD HH:mm）：休市或周末打开时，读者能看出这是哪一刻的价格 */
+const latestQuoteTime = (rows: QuoteRow[]): string => rows.map(r => r.quoteTime ?? '').sort().at(-1)?.slice(5) ?? ''
+
 type GroupState = { rows: QuoteRow[]; source: 'live' | 'cache' | 'daily'; at?: string }
 
 function MarketsBlock({ groups, loading }: { groups: Record<string, GroupState>; loading: boolean }): JSX.Element {
@@ -116,7 +119,7 @@ function MarketsBlock({ groups, loading }: { groups: Record<string, GroupState>;
           const rows = state?.rows ?? []
           return (
             <div key={g.id} className="watch-group">
-              <h3>{g.title}{state && state.source !== 'live' && <small>{state.source === 'daily' ? '复盘快照' : '缓存'}{state.at ? ` ${state.at}` : ''}</small>}</h3>
+              <h3>{g.title}{state && state.source !== 'live' && <small>{state.source === 'daily' ? '复盘快照' : '缓存'}{state.at ? ` ${state.at}` : ''}</small>}{state?.source === 'live' && latestQuoteTime(rows) && <small>行情 {latestQuoteTime(rows)}</small>}</h3>
               {rows.length ? (
                 <ul>
                   {rows.map(q => (
@@ -194,8 +197,8 @@ export default function WatchBoard(): JSX.Element {
 
   const load = useCallback((signal: AbortSignal) => {
     setQuotesLoading(true); setDailyLoading(true)
-    Promise.all(MARKET_GROUPS.map(g => fetchMarketDataByType(g.id)
-      .then(list => [g.id, g.names.flatMap(n => { const q = list.find(x => x.name === n); return q ? [{ symbol: q.symbol, name: q.name, price: q.price, changePercent: q.changePercent }] : [] })] as const)
+    Promise.all(MARKET_GROUPS.map(g => fetchIndexQuotes(g.items, fetch, signal)
+      .then(rows => [g.id, rows] as const)
       .catch(() => [g.id, [] as QuoteRow[]] as const)))
       .then(entries => {
         if (signal.aborted) return

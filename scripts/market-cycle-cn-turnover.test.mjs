@@ -54,9 +54,19 @@ test('collector refuses conflicting calendars and enforces the network cap on pa
 test('a blocked exchange trips the circuit breaker instead of spending the whole request budget',async()=>{
  const f=await fixture();const original=f.ctx.get;let szse=0
  f.ctx.get=async url=>{if(url.includes('szse.cn')){szse++;throw new TypeError('fetch failed(ECONNRESET)')}return original(url)}
- assert.deepEqual(await collectCnTurnover(f.ctx,{cacheDir:f.dir}),[])
- assert.ok(szse>=4&&szse<=5,`szse calls=${szse}`)
- assert.match(f.issues[0],/szse连续4次网络失败已熔断/)
+ assert.deepEqual(await collectCnTurnover(f.ctx,{cacheDir:f.dir,retryDelayMs:0}),[])
+ assert.ok(szse>=8&&szse<=10,`szse calls=${szse} (each job: one call + one reset retry)`)
+ assert.match(f.issues[0],/szse连续[45]次网络失败已熔断/)
+})
+
+test('a one-off connection reset is retried once so a single flaky day does not void the week',async()=>{
+ const f=await fixture();const original=f.ctx.get;let resets=0
+ f.ctx.get=async url=>{if(url.includes('szse.cn')&&url.includes('2025-10-20')&&resets++===0)throw new TypeError('fetch failed(ECONNRESET: Client network socket disconnected before secure TLS connection was established)');return original(url)}
+ const r=await collectCnTurnover(f.ctx,{cacheDir:f.dir,retryDelayMs:0})
+ assert.equal(resets,2);assert.ok(r[0],f.issues.join(';'));assert.equal(r[0].value,2)
+ const timeouts=await fixture();const o2=timeouts.ctx.get;let tries=0
+ timeouts.ctx.get=async url=>{if(url.includes('szse.cn')&&url.includes('2025-10-20')){tries++;throw new TypeError('fetch failed(ETIMEDOUT)')}return o2(url)}
+ assert.deepEqual(await collectCnTurnover(timeouts.ctx,{cacheDir:timeouts.dir,retryDelayMs:0}),[]);assert.equal(tries,1,'timeouts (datacenter block) are not retried')
 })
 
 test('腾讯日历不可用时的雅虎兜底：身份校验、北京时间取日、去掉无收盘价与未来日', async () => {
