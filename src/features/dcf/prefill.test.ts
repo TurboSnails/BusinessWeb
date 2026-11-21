@@ -11,7 +11,7 @@ describe("DCF 预填链接", () => {
   });
 
   it("生成的链接能被原样解析回来", () => {
-    const link = buildDcfLink({ company: "腾讯控股", code: "0700", researchMarket: "hk", price: 512.5 });
+    const link = buildDcfLink({ company: "腾讯控股", code: "0700", researchMarket: "hk", price: 512.5, priceDate: "2026-11-03" });
     expect(link.startsWith("/dcf?")).toBe(true);
     expect(parseDcfPrefill(link.slice(link.indexOf("?")))).toEqual({
       company: "腾讯控股",
@@ -19,6 +19,7 @@ describe("DCF 预填链接", () => {
       market: "hk",
       currency: "HKD",
       currentPrice: 512.5,
+      priceDate: "2026-11-03",
     });
   });
 
@@ -34,5 +35,8 @@ describe("DCF 预填链接", () => {
     expect(p.market).toBe("cn");
     expect(p.currency).toBe("CNY");
     expect(p.currentPrice).toBeNull();
+    expect(parseDcfPrefill("?code=A&price=12&priceDate=2026-02-30")?.priceDate).toBeUndefined();
+    expect(parseDcfPrefill("?code=A&priceDate=2026-11-03")?.priceDate).toBeUndefined();
+    expect(parseDcfPrefill("?code=A&price=12")?.currentPrice).toBe(12);
   });
 });

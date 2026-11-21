@@ -281,7 +281,7 @@ describe('D · 文案不像批准、推荐或下单指令', () => {
     expect(within(route).getByRole('link', { name: '宽基 ETF 清单（站长观察记录，不是推荐）' }).getAttribute('href')).toBe('/industry-etf#broad-etf')
     expect(route.textContent).not.toContain('宽基与债基清单')
     expect(route.textContent).toContain('也没有列债基')
-    expect(within(route).getByRole('link', { name: /候选池（「研究筛出」「可买卖」是站长的研究状态，不是建议）/ })).toBeTruthy()
+    expect(within(route).getByRole('link', { name: /候选池（「研究筛出」按历史情景假设分组）/ })).toBeTruthy()
     expect(within(route).getByRole('link', { name: /默认的均衡档和金额是作者示例，不是给你的比例/ })).toBeTruthy()
     expect(route.textContent).toContain('评级和结论卡是观察状态与研究记录，不是买卖指令')
   })

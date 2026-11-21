@@ -118,3 +118,20 @@ test('keeps recent daily closes and one close per week before them', () => {
   assert.deepEqual(compact.slice(-420), rows.slice(-420))
   assert.ok(compact.length - 420 >= 83 && compact.length - 420 <= 84, String(compact.length))
 })
+
+test('纳斯达克综合指数独立读取 NASDAQCOM 收盘，不借用纳指 100 的估值与成交量', async () => {
+  const composite = US_MARKET_SLICES.find(slice => slice.id === 'ixic')
+  const dates = Array.from({ length: 21 }, (_, n) => '2026-10-' + String(n + 1).padStart(2, '0'))
+  const snapshot = await buildUsMarketSlices({ slices: [composite], now: new Date('2026-11-21T16:00:00Z'),
+    fetchHtml: async url => {
+      assert.equal(url, 'https://fred.stlouisfed.org/data/NASDAQCOM')
+      return dates.map(day => day + ',12500.57').join('\n') + '\n2026-11-23,100'
+    },
+    indexHistory: { indexes: { ndx: { agg: { fwd: 32, date: '2026-11-20' } } } },
+  })
+  assert.deepEqual(snapshot.warnings, [])
+  assert.equal(snapshot.slices[0].symbol, '^IXIC')
+  assert.deepEqual(snapshot.slices[0].history.at(-1), [dates.at(-1), 12500.57])
+  assert.equal(snapshot.slices[0].valuation, undefined)
+  assert.equal(snapshot.slices[0].volume, undefined)
+})

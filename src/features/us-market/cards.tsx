@@ -11,7 +11,10 @@ export type Item = { id?: string; name: string; reading?: Reading }
 export const RANGES = [{ id: '1y', label: '近 1 年', years: 1 }, { id: '5y', label: '近 5 年', years: 5 }, { id: '10y', label: '近 10 年', years: 10 }, { id: 'all', label: '全部', years: null }] as const
 export type RangeId = typeof RANGES[number]['id']
 
-export const format = (value: number, unit: string) => new Intl.NumberFormat('zh-CN', { maximumFractionDigits: unit === 'bp' ? 0 : 3 }).format(value) + unit
+export const format = (value: number, unit: string) => {
+  const number = new Intl.NumberFormat('zh-CN', { maximumFractionDigits: unit === 'bp' ? 0 : 3 }).format(value)
+  return unit === 'bp' || unit === '十亿美元' ? number + ' ' + unit : number + unit
+}
 export const signed = (value: number | undefined, unit: string) => value === undefined ? '—' : (value > 0 ? '+' : '') + format(Math.round(value * 100) / 100, unit)
 export const route = (tab: string) => `/monitor?tab=${tab}`
 export const val = (name: string, unit: string, source: string, scope: string, frequency: string, history: Point[], note?: string): Reading => ({

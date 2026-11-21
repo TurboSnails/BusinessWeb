@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { CheckCircle2, AlertTriangle, OctagonAlert, Minus, ChevronRight, X } from 'lucide-react'
 import { SIGNALS, STAGES, signalTone, type Stage, type Tone } from './stages'
-import { ASSET_INDICATORS, INDICATORS, MODULES, ageInDays, percentileOf, signalValues, stageFromSnapshot, thresholdText, toneOf, type Indicator, type MacroSnapshot, type ModuleId, type SeriesData } from './indicators'
+import { ASSET_INDICATORS, INDICATORS, MODULES, ageInDays, percentileOf, stageFromSnapshot, thresholdText, toneOf, type Indicator, type MacroSnapshot, type ModuleId, type SeriesData } from './indicators'
 import { CN_INDICATORS, CN_MODULES, type CnKey } from './china'
 import { HK_INDICATORS, HK_MODULES, type HkKey } from './hk'
 import Sparkline from './Sparkline'
@@ -69,7 +69,13 @@ export function QualityLine({ report }: { report: QualityReport }): JSX.Element 
   )
 }
 
-function StageHero({ stage, score, entered }: { stage: Stage; score: number; entered: number }): JSX.Element {
+function StageHero({ stage, score, entered }: { stage: Stage | null; score: number; entered: number }): JSX.Element {
+  if (!stage) return (
+    <section className="macro-hero" aria-label="当前阶段">
+      <h2 className="macro-hero__name">信号待补全</h2>
+      <p className="macro-hero__summary">已取得 {entered}/{SIGNALS.length} 项风险信号，补全后再判定阶段。</p>
+    </section>
+  )
   return (
     <section className={`macro-hero macro-hero--${stage.tone}`} aria-label="当前阶段">
       <div className="macro-hero__head">
@@ -278,14 +284,14 @@ export const HkView = ({ snap }: { snap: MacroSnapshot<HkKey> }): JSX.Element =>
 export const ChinaView = ({ snap }: { snap: MacroSnapshot<CnKey> }): JSX.Element => <CountryView snap={snap} modules={CN_MODULES} indicators={CN_INDICATORS} label="中国" quality={checkQuality({ generatedAt: snap.generatedAt, source: '', series: {} } as unknown as MacroSnapshot, snap).cn} />
 
 export function StagesView({ snap }: { snap: MacroSnapshot }): JSX.Element {
-  const { stage } = stageFromSnapshot(snap)
-  const values = signalValues(snap)
+  const { stage, entered, values } = stageFromSnapshot(snap)
   const value = (id: string): number | undefined => values[id]
   return (
     <div className="macro-stack">
       <section className="macro-card" aria-label="阶段信号">
         <h3>阶段信号（与投资计划同一套规则）</h3>
         <p className="macro-muted">每项绿灯 0 分、黄灯 1 分、红灯 2 分。合计 ≥2 分为预警，≥5 分为防御，≥8 分为危机。</p>
+        {!stage && <p>信号待补全，已取得 {entered}/{SIGNALS.length} 项。</p>}
         <div className="macro-table-wrap">
           <table className="macro-table">
             <thead><tr><th>信号</th><th>当前</th><th>黄灯</th><th>红灯</th><th>状态</th><th>来源</th></tr></thead>
@@ -295,7 +301,7 @@ export function StagesView({ snap }: { snap: MacroSnapshot }): JSX.Element {
                 return (
                   <tr key={s.id}>
                     <td>{s.name}<div className="macro-muted">{s.hint}</div></td>
-                    <td className="macro-num">{v === undefined ? '暂缺' : `${v}${s.unit === 'pp' || s.unit === '' ? '' : ` ${s.unit}`}`}</td>
+                    <td className="macro-num">{v === undefined ? '暂缺' : `${v}${s.unit === 'pp' ? ' 个百分点' : s.unit ? ` ${s.unit}` : ''}`}</td>
                     <td className="macro-num">{s.yellow}</td><td className="macro-num">{s.red}</td>
                     <td>{v === undefined ? <ToneBadge tone="gray" label="未接入" /> : <ToneBadge tone={signalTone(s, v)} />}</td>
                     <td>{s.source}</td>

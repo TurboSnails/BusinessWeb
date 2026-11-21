@@ -1,5 +1,7 @@
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
+import { globSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import { marketMiddleware } from './server/market.mjs'
 import { macroMiddleware } from './server/macro.mjs'
 import { rampMiddleware } from './server/ramp-ai-index.mjs'
@@ -19,6 +21,10 @@ export default defineConfig({
     { name: 'private-knowledge-api', configureServer(server) { server.middlewares.use((req, res, next) => knowledgeProxyGuard(req, res, next, process.env.KNOWLEDGE_TOKEN)) } }],
   base: process.env.VITE_BASE_PATH || '/',
   define: {
+    __RESEARCH_QUOTE_FILES__: JSON.stringify(globSync(
+      'research/data-refresh-*/{tencent-quotes,yahoo-quote-batch}.json',
+      { cwd: fileURLToPath(new URL('./public/', import.meta.url)) },
+    ).map(file => '/' + file.replaceAll('\\', '/'))),
     __BUILD_TIME__: JSON.stringify(new Date().toLocaleString('zh-CN', { 
       timeZone: 'Asia/Shanghai',
       year: 'numeric',

@@ -1,10 +1,10 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { ListChecks, Microscope } from 'lucide-react'
 import CandidatePool from '../components/CandidatePool'
 import { PageTabs, PageTitle } from '../components/ui/PageTabs'
 import { DcfCell, DcfFilterChips } from '../components/DcfCell'
-import { matchDcfFilter, type DcfFilterId } from '../features/dcf/filter'
+import { DCF_FILTERS, matchDcfFilter, type DcfFilterId } from '../features/dcf/filter'
 import { Page } from '../components/ui'
 import { useCompanies } from '../data/companies'
 import { localDay } from '../components/DecisionDialog'
@@ -43,7 +43,14 @@ export default function Candidates(): JSX.Element {
   // 从估值、DCF、网格页回来时重新读取本机记录，进度立即更新
   const tools = useToolSources()
 
-  const [dcfF, setDcfF] = useState<DcfFilterId>('all')
+  const dcfF = DCF_FILTERS.find(f => f.id === params.get('dcf'))?.id ?? 'all'
+  const setDcfF = (value: DcfFilterId): void => {
+    const next = new URLSearchParams(params)
+    if (value === 'all') next.delete('dcf')
+    else next.set('dcf', value)
+    next.delete('page')
+    setParams(next)
+  }
   const valued = cand.items.filter(i => { const p = toolProgress(i.market, i.code, tools); return p.dcf || p.valuation }).length
   const today = localDay()
   const due = cand.items.filter(i => isReviewDue(i, today)).length
@@ -95,7 +102,7 @@ export default function Candidates(): JSX.Element {
         <div><dt>已做估值</dt><dd>{valued}<small> / {cand.items.length}</small></dd></div>
         <div><dt>有决策记录</dt><dd>{recorded}<small> / {cand.items.length}</small></dd></div>
         <div className={due ? 'is-due' : undefined}><dt>到期待复查</dt><dd>{due}<small> 家</small></dd></div>
-        <div><dt>研究筛出 · 可买卖</dt><dd>{buyable}<small> 家</small></dd></div>
+        <div><dt>满足情景门槛</dt><dd>{buyable}<small> 家</small></dd></div>
       </dl>
 
       <PageTabs label="候选池视图" value={tab} onChange={setTab} items={[

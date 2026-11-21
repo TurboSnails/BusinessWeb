@@ -94,8 +94,12 @@ export default function InvestHub(): JSX.Element {
     <Page className="hub-page invest-hub">
       <header className="page-head">
         <h1>投资</h1>
-        <p>不盯盘、不预测的普通人投资方法：用规则代替盯盘。</p>
-        <p><Link to="/invest/start">第一次来？从这里开始 →</Link></p>
+        <p>从公司研究出发，核对估值假设，记录下次复查的条件。</p>
+        <nav className="hub-jump-nav" aria-label="常用投资任务">
+          <Link to="/research-notes">查一家公司</Link>
+          <Link to="/candidates">复查我的候选{mine > 0 ? `（本机 ${mine} 家）` : ''}</Link>
+          <Link to="/invest/start">第一次来？从这里开始 →</Link>
+        </nav>
       </header>
 
       {/* 规则：书与年度计划，所有决策的前提 */}
@@ -140,7 +144,7 @@ export default function InvestHub(): JSX.Element {
           </Link>
           <Link to="/candidates?tab=research" className="inv-pool__side">
             <span className="inv-pool__title">研究筛出</span>
-            <span className="inv-card__desc">可买卖 · 好公司价格太贵 · 全部观察</span>
+            <span className="inv-card__desc">按情景盈亏比和假设期望收益筛选</span>
           </Link>
           {radar && (
             <Link to={radar.path} className="inv-pool__side">

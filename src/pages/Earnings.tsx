@@ -9,6 +9,7 @@ import {
   MEGA_CAP, shortDay, SLOT_LABEL, staleDays, venueKey, VENUE_NAME, weekDays, weekdayLabel,
   type CnNotice, type EarningsCalendar, type EarningsItem, type Filters, type Slot, type VenueFilter,
 } from '../features/earnings/model'
+import { hasReported } from '../features/earnings/nextCompanyEvent'
 import '../styles/earnings.css'
 
 const BASE = (import.meta as { env?: Record<string, string | undefined> }).env?.BASE_URL ?? '/'
@@ -124,13 +125,13 @@ function WeekView({ data, days, filters, pool, title }: { data: EarningsCalendar
   )
 }
 
-function ReportedView({ data, today, filters, pool }: { data: EarningsCalendar; today: string; filters: Filters; pool: Set<string> }): JSX.Element {
-  const rows = data.items.filter(i => i.date <= today && i.date >= addDays(today, -14) && matches(i, filters, pool)).sort((a, b) => b.date.localeCompare(a.date) || a.code.localeCompare(b.code))
-  if (!rows.length) return <div className="ec-empty" role="note"><p>近两周公司库里没有已公布的财报，或都被筛选条件排除了。</p></div>
+function ReportedView({ data, reported, filters, pool }: { data: EarningsCalendar; reported: EarningsItem[]; filters: Filters; pool: Set<string> }): JSX.Element {
+  const rows = reported.filter(i => matches(i, filters, pool)).sort((a, b) => b.date.localeCompare(a.date) || a.code.localeCompare(b.code))
+  if (!rows.length) return <div className="ec-empty" role="note"><p>当前筛选下，近两周暂无已核实披露的财报。</p></div>
   return (
     <section aria-labelledby="ec-reported-title">
       <h2 id="ec-reported-title" className="ec-h2">近两周已公布</h2>
-      <p className="ec-muted">实际 EPS 与公布前一致预期对比；颜色按市场习惯：美股绿色为超预期，A 股 / 港股红色为超预期。A 股季报没有一致预期，只列同比。结果尚未入库的显示“缺失”。</p>
+      <p className="ec-muted">按实际披露记录或当期业绩确认公布，再对照 EPS 预期及营收同比。美股用绿色、A 股及港股用红色表示超预期。</p>
       <div className="ec-reported">
         {rows.map(i => <ReportedRow key={`${i.market}:${i.code}:${i.date}`} item={i} inPool={pool.has(venueKey(i.market, i.code))} data={data} />)}
       </div>
@@ -240,11 +241,15 @@ export default function Earnings({ now }: { now?: Date } = {}): JSX.Element {
 
   const data = load.state === 'ok' ? load.data : null
   const viewDays = view === 'week1' ? week1 : week0
+  const reported = useMemo(() => {
+    const start = addDays(today, -14)
+    return data?.items.filter(i => i.date <= today && i.date >= start && hasReported(i)) ?? []
+  }, [data, today])
   const counts = useMemo(() => {
-    const base = data ? (view === 'cn' ? data.cnNotices : view === 'reported' ? data.items.filter(i => i.date <= today && i.date >= addDays(today, -14)) : data.items.filter(i => viewDays.includes(i.date))) : []
+    const base = data ? (view === 'cn' ? data.cnNotices : view === 'reported' ? reported : data.items.filter(i => viewDays.includes(i.date))) : []
     const of = (v: VenueFilter): number => base.filter(i => matches(i, { ...filters, venue: v }, pool)).length
     return { all: of('all'), us: of('us'), hk: of('hk'), cn: of('cn') }
-  }, [data, view, viewDays, filters, pool, today])
+  }, [data, view, viewDays, filters, pool, reported])
 
   const label = (offset: number, days: string[]): string => `${weekend ? (offset ? '再下周' : '下周') : offset ? '下周' : '本周'} ${shortDay(days[0])}–${shortDay(days[4])}`
   const failed = data ? Object.values(data.sources).filter(s => s.ok === false) : []
@@ -287,7 +292,7 @@ export default function Earnings({ now }: { now?: Date } = {}): JSX.Element {
           <FilterBar filters={filters} setFilters={setFilters} counts={counts} />
 
           {(view === 'week0' || view === 'week1') && <WeekView data={data} days={viewDays} filters={filters} pool={pool} title={label(view === 'week1' ? 1 : 0, viewDays).split(' ')[0]} />}
-          {view === 'reported' && <ReportedView data={data} today={today} filters={filters} pool={pool} />}
+          {view === 'reported' && <ReportedView data={data} reported={reported} filters={filters} pool={pool} />}
           {view === 'cn' && <CnNoticesView data={data} filters={filters} pool={pool} />}
 
           <SourceList data={data} />

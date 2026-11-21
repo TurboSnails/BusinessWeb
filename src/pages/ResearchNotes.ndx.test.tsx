@@ -8,6 +8,8 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import ResearchNotes from './ResearchNotes'
 import CompanyDetail from './CompanyDetail'
+import * as earnings from '../features/earnings/loadCalendar'
+import { calendar, item } from '../features/earnings/fixtures'
 import { loadBaseCompanies, loadCompanies, type Company } from '../data/companies'
 
 let ndxCompanies: Company[] = []
@@ -100,6 +102,25 @@ describe('纳指100：单独分类', () => {
     cleanup()
     const us = await loadCompanies('us')
     expect(us.some(c => NEW_CODES.includes(c.code))).toBe(false)
+  })
+
+  it('公司页展示交易所当地仍待披露的日程和日期口径，两个 DCF 入口保留同一价格日期', async () => {
+    const upcoming = item({ code: 'ALNY', date: '2099-11-30', confirmed: false, carried: true })
+    const past = item({ code: 'ALNY', date: '2020-01-02' })
+    const spy = vi.spyOn(earnings, 'useEarningsCalendar').mockReturnValue({
+      cal: calendar({ today: '2020-01-01', items: [past, upcoming] }), loading: false,
+    })
+    try {
+      renderAt('/research-notes/ndx/ALNY')
+      const event = await screen.findByRole('link', { name: /财报日程 2099-11-30/ })
+      expect(event.textContent).toContain('预估')
+      expect(event.textContent).toContain('沿用 2026-11-14')
+      expect(event.getAttribute('href')).toBe('/earnings')
+      const top = screen.getByRole('link', { name: /进入 DCF 估值/ }).getAttribute('href')!
+      const quick = screen.getByRole('link', { name: /去完整 DCF/ }).getAttribute('href')
+      expect(quick).toBe(top)
+      expect(new URL(top, 'https://example.org').searchParams.get('priceDate')).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+    } finally { spy.mockRestore() }
   })
 
   it('新增公司详情页可打开，标注纳指100，且显示三情景与免责边界', async () => {

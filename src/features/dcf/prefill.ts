@@ -1,3 +1,4 @@
+import { isDay } from "../invest-start/validation.ts";
 import type { Currency, Market } from "./types.ts";
 
 /** 公司研究页与 DCF 页之间的链接参数：只带公司身份与当前价，估值假设仍需自己对照财报填写 */
@@ -7,6 +8,7 @@ export interface DcfPrefill {
   market: Market;
   currency: Currency;
   currentPrice: number | null;
+  priceDate?: string;
 }
 
 type ResearchMarket = "us" | "cn" | "hk" | "adr" | "ndx";
@@ -22,6 +24,7 @@ export function buildDcfLink(args: {
   code: string;
   researchMarket: ResearchMarket;
   price?: number | null;
+  priceDate?: string;
 }): string {
   const { market, currency } = dcfMarketOf(args.researchMarket);
   const qs = new URLSearchParams({
@@ -32,6 +35,7 @@ export function buildDcfLink(args: {
   });
   if (args.price != null && Number.isFinite(args.price) && args.price > 0) {
     qs.set("price", String(args.price));
+    if (isDay(args.priceDate)) qs.set("priceDate", args.priceDate);
   }
   return `/dcf?${qs.toString()}`;
 }
@@ -48,12 +52,14 @@ export function parseDcfPrefill(search: string): DcfPrefill | null {
   const m = qs.get("market") as Market | null;
   const c = qs.get("currency") as Currency | null;
   const price = Number(qs.get("price"));
+  const priceDate = qs.get("priceDate");
   return {
     company,
     code,
     market: m && MARKETS.includes(m) ? m : "cn",
     currency: c && CURRENCIES.includes(c) ? c : "CNY",
     currentPrice: Number.isFinite(price) && price > 0 ? price : null,
+    ...(Number.isFinite(price) && price > 0 && isDay(priceDate) ? { priceDate } : {}),
   };
 }
 

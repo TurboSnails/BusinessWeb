@@ -433,3 +433,16 @@ PY
 **生成**：`node scripts/ths-mood.mjs`（约 30 秒；北京 15:10 前与周末直接退出，`FORCE=1` 跳过时间检查只用于排查；`DATE=YYYY-MM-DD` 只允许在该日收盘后、下一交易日 9:15 前补跑，且要求东财指数日 K 最后一根正是该日）。来源：东财涨停 / 炸板 / 跌停 / 昨日涨停股池（**只能查当天**）、新浪全市场分页行情（含开盘价，不完整整次放弃）、东财指数日 K（上证综指收盘与成交额、深证综指成交额，失败时沿用上一份）。输出 `public/data/ths-mood.json`、`data-raw/ths-mood/days/<日期>.json`（每日完整记录）、`data-raw/ths-mood/state.json`（最近 5 天涨停股封成比，供次日分组）、`data-raw/ths-mood/zt-codes.json`（最近 15 天涨停代码，供近 10 日涨停数）。首次运行用每日复盘归档补早期历史与涨停代码（`seeded: true`）。单测：`node --test scripts/ths-mood.test.mjs`。
 
 **节奏**：`.github/workflows/ths-mood.yml`，「Update daily analysis」跑完后接着跑，兜底排程北京 16:25；有变化才提交（`data(ths-mood): …`）并触发 Pages 部署。
+
+## 美股市场的流动性与纳斯达克综合指数
+
+美股流动性在 `/monitor?tab=us-market&view=liquidity`。仓库的 market-cycle 工作流运行 `node scripts/us-market-data.mjs` 更新各序列，单个来源取数失败时保留其已有观察及日期。
+
+| 指标 | 观察口径 |
+| --- | --- |
+| WALCL、WRESBAL、WTREGEN | FRED 的原始单位为百万美元，页面统一换算为十亿美元。联储总资产为周三余额，准备金与 TGA 为截至周三的周均余额。准备金变化使用恰好相隔 28 天的观察。 |
+| RRPONTSYD | 纽约联储隔夜逆回购成交金额，FRED 已使用十亿美元。 |
+| SOFR、IORB | 日频百分比，仅用同日读数计算利差，乘 100 得 bp。IORB 按纽约日历日生效，忽略未来值，并保留历史日历日。这样较早的 SOFR 周末前最后交易日仍能找到同日政策利率。 |
+| SPY、SPSM 买卖价差 | State Street 的 Fund Market Price 区块披露 30 日中位数，使用该区块日期。百分比乘 100 得 bp，发行人的两位小数百分比允许舍入为零。这两只 ETF 分别代表大盘和小盘 ETF 的交易成本样本。 |
+
+纳斯达克综合指数在 `/monitor?tab=us-market&index=ixic`，收盘数据来自 Nasdaq 在 FRED 发布的 NASDAQCOM。既有纳斯达克 100 继续使用 ndx。两者分别计算区间价格表现；缺少综合指数对应的成分宽度、估值或成交量时显示缺数。日常运行 `node scripts/us-market-slices.mjs` 更新，与其余指数共用近期日线、较早周线的存储规则。

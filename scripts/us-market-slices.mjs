@@ -3,6 +3,8 @@ import { fileURLToPath } from 'node:url'
 import { isDeepStrictEqual } from 'node:util'
 import { NYSE_SHORT_SESSIONS, NYSE_SHORT_SESSIONS_SOURCE } from './lib/us-market-calendar.mjs'
 
+import { parseFred } from './us-market-data.mjs'
+
 const FILE = new URL('../public/data/us-market-slices.json', import.meta.url)
 const INDEX_HISTORY = new URL('../public/data/index-history.json', import.meta.url)
 const NY_DATE = new Intl.DateTimeFormat('sv-SE', { timeZone: 'America/New_York', dateStyle: 'short' })
@@ -36,6 +38,7 @@ const groupScope = {
 export const US_MARKET_SLICES = [
   ['spx', '标普 500', 'broad', '^GSPC'],
   ['rsp', '标普 500 等权', 'broad', '^SPXEW'],
+  ['ixic', '纳斯达克综合指数', 'broad', '^IXIC'],
   ['ndx', '纳斯达克 100', 'broad', '^NDX'],
   ['mid', '标普中盘 400', 'size', '^MID'],
   ['small', '标普小盘 600', 'size', '^SP600'],
@@ -55,8 +58,9 @@ export const US_MARKET_SLICES = [
 ].map(([id, name, group, symbol]) => ({
   id: group === 'sector' ? `sector-${id}` : id,
   name, group, symbol,
-  scope: groupScope[group],
-  source: `https://finance.yahoo.com/quote/${encodeURIComponent(symbol)}/history/`,
+  scope: id === 'ixic' ? '纳斯达克上市的合资格股票 · 综合价格指数'
+    : id === 'ndx' ? '纳斯达克上市的大型非金融公司 · 纳斯达克 100 价格指数' : groupScope[group],
+  source: id === 'ixic' ? 'https://fred.stlouisfed.org/series/NASDAQCOM' : `https://finance.yahoo.com/quote/${encodeURIComponent(symbol)}/history/`,
   priceNote: '按美东交易日收盘价比较价格表现，现金分红另计。',
 }))
 
@@ -207,7 +211,16 @@ export async function buildUsMarketSlices({
     }) : Promise.resolve({})
     let price = { history: old?.history ?? [], ...(old?.volume?.length ? { volume: old.volume } : {}) }
     try {
-      const data = parseMarketSlice(await fetchJson(definition.symbol), definition.symbol, now)
+      let data
+      if (definition.id === 'ixic') {
+        const table = await fetchHtml('https://fred.stlouisfed.org/data/NASDAQCOM')
+        const today = NY_DATE.format(now)
+        const points = parseFred(table, 1).history.filter(([day, close]) => day <= today && close > 0)
+        const history = [...new Map(points)].sort(([a], [b]) => a.localeCompare(b))
+        data = { history: compactPrices(history), volume: [] }
+      } else {
+        data = parseMarketSlice(await fetchJson(definition.symbol), definition.symbol, now)
+      }
       if (data.history.length < MIN_OBSERVATIONS) throw new Error('日线覆盖不足')
       if (latestDate(data) < latestDate(old)) throw new Error('返回行情观察日早于现有快照')
       price = mergePriceHistory(data, old, !definition.symbol.startsWith('^'))

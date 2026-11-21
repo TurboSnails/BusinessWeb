@@ -1,5 +1,5 @@
 import { SIGNALS, signalTone } from './stages'
-import { INDICATORS, MODULES, signalValues, stageFromSnapshot, thresholdText, toneOf, type Indicator, type MacroSnapshot } from './indicators'
+import { INDICATORS, MODULES, stageFromSnapshot, thresholdText, toneOf, type Indicator, type MacroSnapshot } from './indicators'
 import { CN_INDICATORS, CN_MODULES, type CnKey } from './china'
 import { QUALITY_LABEL, checkQuality, type QualityReport, type QualityResult } from './quality'
 
@@ -28,17 +28,16 @@ function rows<K extends string>(snap: MacroSnapshot<K>, indicators: Indicator<K>
 
 /** 交给本地模型的输入：页面已用规则算好的全部结果，模型只解释、不重算 */
 export function buildDigest(us: MacroSnapshot, cn: MacroSnapshot<CnKey> | null, quality: QualityReport = checkQuality(us, cn)) {
-  const { stage, score, entered } = stageFromSnapshot(us)
-  const values = signalValues(us)
+  const { stage, score, entered, values } = stageFromSnapshot(us)
   return {
     asOf: us.fetchedAt?.slice(0, 10) ?? us.generatedAt,
     stage: {
-      name: stage.name,
-      score,
-      rule: `每项绿 0、黄 1、红 2；≥2 预警，≥5 防御，≥8 危机；已接入 ${entered}/${SIGNALS.length} 项`,
+      name: stage?.name ?? '信号待补全',
+      score: stage ? score : null,
+      rule: `每项绿 0、黄 1、红 2；≥2 预警，≥5 防御，≥8 危机；已取得 ${entered}/${SIGNALS.length} 项，六项齐全后判定阶段`,
       signals: SIGNALS.map(s => ({ 信号: s.name, 读数: values[s.id] ?? null, 黄灯: s.yellow, 红灯: s.red, 状态: values[s.id] === undefined ? '缺' : TONE[signalTone(s, values[s.id])] })),
-      thisStageDoes: stage.does,
-      thisStageDoesNot: stage.doesNot,
+      thisStageDoes: stage?.does ?? [],
+      thisStageDoesNot: stage?.doesNot ?? [],
     },
     dataQuality: {
       说明: '数据状态由固定规则判定：过期=超过该指标正常更新周期；异常=超出合理范围，读数已剔除；缺失=没拉到',

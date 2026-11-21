@@ -80,7 +80,7 @@ const EXACT: Record<string, RouteSeo> = {
   '/first-book/slow-is-fast': { title: '正念投资｜在线阅读', description: '从家庭资金安排到公司研究，用规则管理投资。选择适合自己的阅读路线，学习配置、估值、风险与复盘。' },
   '/future-trends': { title: '主题研究', description: 'AI、机器人、固态电池等主题的产业链、核心公司与逐家研究。' },
   '/watch': { title: '观察盘', description: '宏观阶段、全球主要指数与 A 股情绪，一页看完。', noindex: true },
-  '/candidates': { title: '候选池', description: '我的候选公司与研究筛出的可买卖、价格太贵公司，一键进入估值、DCF 与网格。', noindex: true },
+  '/candidates': { title: '候选池', description: '我的候选公司与按历史情景门槛筛选的研究公司，一键进入估值、DCF 与网格。', noindex: true },
   '/industry-landscape': { title: '产业格局', description: '重点产业链与竞争格局梳理。' },
   '/research-notes': { title: '研究笔记｜公司与行业研究', description: '沪深 A 股、港股、美股的公司研究笔记与审计报告。' },
   '/etf-review': { title: 'ETF 复盘', description: '自选 ETF 每日复盘笔记：溢价、情绪、结论与计划动作。', noindex: true },

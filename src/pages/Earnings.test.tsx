@@ -3,7 +3,7 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-li
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import Earnings from './Earnings'
-import { calendar } from '../features/earnings/fixtures'
+import { calendar, item } from '../features/earnings/fixtures'
 import { CANDIDATES_KEY } from '../features/candidates/store'
 
 // 2026-11-16（周一）北京时间上午：本周 = 11/16–11/20
@@ -74,10 +74,14 @@ describe('财报前瞻页', () => {
   })
 
   it('近两周已公布：实际 vs 预期与超预期标记（美股绿色类），A 股只列同比', async () => {
-    vi.stubGlobal('fetch', okFetch(calendar()))
+    const cal = calendar()
+    cal.items.push(item({ name: '待确认公司', code: 'TBD', date: '2026-11-13', confirmed: false }))
+    vi.stubGlobal('fetch', okFetch(cal))
     renderPage()
     await screen.findByRole('article', { name: '英伟达 财报' })
     fireEvent.click(screen.getByRole('button', { name: '近两周已公布' }))
+    expect(screen.queryByRole('article', { name: '待确认公司 已公布' })).toBeNull()
+    expect(screen.getByRole('button', { name: '全部 2' })).toBeTruthy()
     const csco = screen.getByRole('article', { name: '思科 已公布' })
     expect(csco.textContent).toContain('EPS $1.40')
     expect(csco.querySelector('.ec-surprise')?.className).toBe('ec-surprise is-beat is-us')

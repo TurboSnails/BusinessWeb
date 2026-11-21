@@ -14,10 +14,12 @@ import { format, MarketCard, RANGES, route, signed, val, type Item, type RangeId
 import PlainSummary, { type Question } from './PlainSummary'
 import RelativePerformance from '../us-market/RelativePerformance'
 import WeeklyMarketBrief, { type BriefSignal } from './WeeklyMarketBrief'
+import UsLiquidity from './UsLiquidity'
 import './us-market.css'
 
-const GROUPS: { id: MarketGroup; label: string }[] = [
-  { id: 'broad', label: '大盘' }, { id: 'size', label: '规模' }, { id: 'style', label: '风格' },
+type View = MarketGroup | 'liquidity'
+const GROUPS: { id: View; label: string }[] = [
+  { id: 'broad', label: '大盘' }, { id: 'liquidity', label: '流动性' }, { id: 'size', label: '规模' }, { id: 'style', label: '风格' },
   { id: 'sector', label: '行业' }, { id: 'participants', label: '参与者' },
 ]
 const availableSeries = (s: Snapshots, asOf: string) => {
@@ -112,7 +114,7 @@ function CycleReference({ s, id, asOf }: { s: Snapshots; id: string | undefined;
   const expl = (r: Evidence) => r.available ? r.detail : r.pendingReason ?? r.detail
   return <details className="us-market__reference">
     <summary>宏观阶段与牛熊周期参考</summary>
-    <p>美国宏观阶段 <strong>{stage && stage.entered > 0 ? stage.stage.name : '暂无读数'}</strong>{stale && stale.length > 0 ? ' · 部分阶段输入缺失或过期' : ''} · <Link to={route('us')}>美国宏观</Link></p>
+    <p>美国宏观阶段 <strong>{stage ? stage.stage?.name ?? '信号待补全' : '暂无读数'}</strong>{stale && stale.length > 0 ? ' · 部分阶段输入缺失或过期' : ''} · <Link to={route('us')}>美国宏观</Link></p>
     {result && <><p>牛熊周期自动读数 <strong>{result.summary.state}</strong> · 有效证据 {result.summary.valid}/6 · <Link to={route(`market-cycle&market=${market}`)}>牛熊周期与回测</Link></p>
       <ul>{result.rows.map(r => <li key={r.id}><strong>{r.name}</strong> {expl(r)}</li>)}</ul></>}
     <p>用于观察风险与修复。20 周线回测应同时看回报和回撤。</p>
@@ -149,7 +151,7 @@ export default function UsMarketView() {
   const spx = all.find(s => s.id === 'spx')
   const slices = all.filter(s => s.group === group || (group === 'size' && s.id === 'spx'))
   const slice = slices.find(s => s.id === params.get('index')) ?? slices[0]
-  const go = (view: MarketGroup, index?: string) => setParams(prev => {
+  const go = (view: View, index?: string) => setParams(prev => {
     const next = new URLSearchParams(prev)
     if (view === 'broad') next.delete('view')
     else next.set('view', view)
@@ -166,6 +168,20 @@ export default function UsMarketView() {
     return next
   }, { replace: true })
   const asOf = nyDate()
+  const rangeSelector = <div className="us-market__range">
+      <Segmented label="历史区间" items={RANGES.map(({ id, label }) => ({ id, label }))} value={range} onChange={setRange} />
+      <span className="us-market__muted">图表与区间均值随所选区间变化</span>
+    </div>
+  const controls = <>
+    <div className="us-market__top">
+      <Segmented label="美股细分" items={GROUPS} value={group} onChange={next => go(next)} />
+      <button type="button" className="tool-btn" disabled={loading} onClick={() => { setLoading(true); setAttempt(n => n + 1) }}><RefreshCw size={15} aria-hidden="true" />刷新快照</button>
+    </div>
+    <p className="us-market__notice" role="status">{loading ? '正在核对数据快照…' : failed.length ? `部分数据暂时不可用（${failed.length} 个快照），保留可用读数。` : ''}</p>
+  </>
+  if (group === 'liquidity') return <section className="us-market" aria-label="美股市场仪表盘">
+    {controls}{rangeSelector}<UsLiquidity series={snap.public?.series} asOf={asOf} years={years} />
+  </section>
   const sets = availableSeries(snap, asOf)
   const { p, m } = sets
   const factSet = snap.public?.series?.spxFactSetFpe
@@ -285,11 +301,7 @@ export default function UsMarketView() {
   const freshnessText = marketDate ? `收盘 ${marketDate} · ${freshness(marketDate, '每日', asOf)}` : '收盘日期待确认'
   const matrix = <MarketMatrix slices={slices} active={slice} benchmark={spx?.history ?? []} s={snap} choose={item => go(group, item.id)} />
   return <section className="us-market" aria-label="美股市场仪表盘">
-    <div className="us-market__top">
-      <Segmented label="美股细分" items={GROUPS} value={group} onChange={next => go(next)} />
-      <button type="button" className="tool-btn" disabled={loading} onClick={() => { setLoading(true); setAttempt(n => n + 1) }}><RefreshCw size={15} aria-hidden="true" />刷新快照</button>
-    </div>
-    <p className="us-market__notice" role="status">{loading ? '正在核对数据快照…' : failed.length ? `部分数据暂时不可用（${failed.length} 个快照），保留可用读数。` : ''}</p>
+    {controls}
     <WeeklyMarketBrief market="us" asOf={asOf} benchmark={spx} peers={all} signals={weeklySignals} loading={loading} />
     <details className="weekly-brief__full">
       <summary>市场各维度依据</summary>
@@ -299,14 +311,15 @@ export default function UsMarketView() {
     {group !== 'broad' && slice && <label className="us-market__select">比较标的
       <select value={slice.id} onChange={event => go(group, event.target.value)}>{slices.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select>
     </label>}
-    <div className="us-market__range">
-      <Segmented label="历史区间" items={RANGES.map(({ id, label }) => ({ id, label }))} value={range} onChange={setRange} />
-      <span className="us-market__muted">图表与区间均值随所选区间变化</span>
-    </div>
+    {rangeSelector}
     <header className="us-market__hero">
       <div>
         <p className="us-market__muted">{group === 'participants' ? '美国市场及相关全球样本' : `${slice?.scope ?? '美国股票市场'} · ${freshnessText}`}</p>
         <h2>{title}</h2>
+        {group === 'broad' && slice && slice.history.length > 0 && <p className="us-market__return">
+          {format(slice.history.at(-1)![1], ' 点')} <span>指数收盘</span>
+          {slice.source?.startsWith('https://') && <a className="us-market__link" href={slice.source} target="_blank" rel="noreferrer">行情来源</a>}
+        </p>}
         {group !== 'participants' && <p className="us-market__return" title={slice?.priceNote}>{signed(periodReturn(slice?.history ?? [], 5), '%')} <span>近 5 日</span>{slice?.id !== 'spx' && <span>近 20 日相对标普 {signed(relative, ' 个百分点')}</span>}</p>}
         {group !== 'participants' && slice && <HistoryChart points={withinYears(slice.history, years)} label={`${slice.name}价格走势`} format={value => format(Math.round(value * 100) / 100, '')} priceRange={range} />}
       </div>

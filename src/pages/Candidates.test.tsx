@@ -91,6 +91,14 @@ describe('候选池页', () => {
     expect(screen.getByRole('tab', { name: /我的候选 · 0/ })).toBeTruthy()
   })
 
+  it('带筛选条件的链接可恢复 DCF 视图，空结果可一键返回全部公司', () => {
+    renderAt('/candidates?tab=research&view=4&market=海外&dcf=mine&q=__missing__')
+    expect(screen.getByRole('button', { name: '我算过的' }).getAttribute('aria-pressed')).toBe('true')
+    fireEvent.click(screen.getByRole('button', { name: '查看全部观察公司' }))
+    expect(screen.getByRole('button', { name: 'DCF：全部' }).getAttribute('aria-pressed')).toBe('true')
+    expect(screen.getByRole('table').querySelectorAll('tbody tr')).toHaveLength(20)
+  })
+
   it('研究筛出：每行有 DCF 入口，可按 DCF 筛选', () => {
     renderAt('/candidates?tab=research&view=4')
     expect(screen.getAllByRole('link', { name: /^算 DCF/ }).length).toBeGreaterThan(0)

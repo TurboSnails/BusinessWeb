@@ -327,7 +327,7 @@ export interface StepGroup { id: string; title: string; note?: string; steps: St
 /** 链到现有页面时如实说明：那些页面的数字与状态是站长的观察记录或作者示例，不是推荐 */
 const LINK_ETF: StepLink = { to: '/industry-etf#broad-etf', label: '宽基 ETF 清单（站长观察记录，不是推荐）' }
 const LINK_PLAN_TEMPLATES: StepLink = { to: '/investment-plan-2026?tab=allocation', label: '投资计划页的三档模板（默认的均衡档和金额是作者示例，不是给你的比例）' }
-const LINK_CANDIDATES_NOTE = '「研究筛出」「可买卖」是站长的研究状态，不是建议'
+const LINK_CANDIDATES_NOTE = '「研究筛出」按历史情景假设分组'
 
 const STEP_FOUR_STEPS: Step = {
   id: 'read-four-steps',

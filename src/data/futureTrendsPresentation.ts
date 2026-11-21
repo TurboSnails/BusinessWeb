@@ -21,19 +21,19 @@ export function dateLabel(value: string): string {
   const m = value.match(/(\d{4})[-/](\d{2})[-/](\d{2})(?:[ T](\d{2}):(\d{2}))?/)
   if (!m) return '报价待补充'
   const date = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +(m[4] ?? 0), +(m[5] ?? 0)))
-  return new Intl.DateTimeFormat('zh-CN', { timeZone: 'UTC', month: 'numeric', day: 'numeric', ...(m[4] ? { hour: '2-digit', minute: '2-digit', hour12: false } as const : {}) }).format(date)
+  return new Intl.DateTimeFormat('zh-CN', { timeZone: 'UTC', year: 'numeric', month: 'numeric', day: 'numeric', ...(m[4] ? { hour: '2-digit', minute: '2-digit', hour12: false } as const : {}) }).format(date)
 }
 export function winLabel(r: ResearchSummary): string {
   const m = r.winRate.match(/假设胜率 (\d+%)/)
   return m && r.expected !== null ? `假设胜率 ${m[1]} · 期望 ${percentLabel(r.expected)}` : '胜率待校准'
 }
-/** 候选池分桶：价格可行（盈亏比≥0.75 且假设期望收益≥20%）=可买卖；已分析但不满足=好公司价格太贵；其余未建模=观察。 */
+/** 候选池分桶：入围且达到情景门槛、其余入围公司及观察公司。 */
 export type PoolBucket = 'buy' | 'rich' | 'watch'
 export function poolBucket(r: ResearchSummary): PoolBucket {
   if (!entries.has(r.key)) return 'watch'
   return r.ratio !== null && r.ratio >= 0.75 && (r.expected ?? 0) >= 0.2 ? 'buy' : 'rich'
 }
-/** 价格可行但存在硬伤的公司：可买卖不等于无风险。 */
+/** 入围公司跟踪事项。 */
 export const CAUTION: Record<string, string> = {
   '中国:002906': '转让价与现价口径冲突',
   '中国:300124': '经营现金流下降',

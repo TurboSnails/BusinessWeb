@@ -17,7 +17,7 @@ import { dcfOf, toolProgress } from '../features/candidates/links'
 import SignalSummary from '../components/SignalSummary'
 import { localDay } from '../components/DecisionDialog'
 import { priceAnchorAge } from '../features/dcf/priceAnchor'
-import { buildDcfLink } from '../features/dcf'
+import { buildDcfLink, dcfMarketOf } from '../features/dcf'
 import QuickDcf from '../components/QuickDcf'
 import { CompanyValuationDetail } from '../features/company-valuation/CompanyValuation'
 import { displayMissing } from '../utils/format'
@@ -26,7 +26,8 @@ import { Badge, Card, EmptyState, Page, Stat, StatGrid, TableWrap } from '../com
 import { PageDataFreshness } from '../components/ui/PageDataFreshness'
 import CompanyChartSection from '../features/company-chart/CompanyChartSection'
 import { useEarningsCalendar } from '../features/earnings/loadCalendar'
-import { TIME_LABEL, venueKey, type EarningsCalendar, type EarningsItem } from '../features/earnings/model'
+import { TIME_LABEL } from '../features/earnings/model'
+import { nextCompanyEvent } from '../features/earnings/nextCompanyEvent'
 import '../styles/research.css'
 
 // 评级语气的文字色：只用色板 token
@@ -38,13 +39,6 @@ const TONE_INK: Record<Tone, string> = {
   gray: 'var(--text-secondary)',
 }
 
-/** 这家公司下一次财报：日历里 date >= 日历当天的最早一条（同交易地 + 统一代码匹配，us / ndx / adr 视为同一家） */
-function nextEarnings(cal: EarningsCalendar | null, market: string, code: string): EarningsItem | null {
-  if (!cal) return null
-  const key = venueKey(market as EarningsItem['market'], code)
-  const today = cal.today || cal.generatedAt.slice(0, 10)
-  return cal.items.filter(i => i.date >= today && venueKey(i.market, i.code) === key).sort((a, b) => a.date.localeCompare(b.date))[0] ?? null
-}
 const confirmedText = (c: boolean | null): string => (c === true ? '已确认' : c === false ? '预估' : '确认未知')
 
 export default function CompanyDetail(): JSX.Element {
@@ -112,7 +106,7 @@ export default function CompanyDetail(): JSX.Element {
   }
 
   const tone = toneOf(company.rating)
-  const earningsNext = nextEarnings(earningsCal, company.market, company.code)
+  const earningsNext = nextCompanyEvent(earningsCal, company.market, company.code)
 
   // ── 按“最终返回标准”整理：三情景表、买入纪律、完整度 ──
   const nums = (t: string): number[] => (t.match(/[\d,]+(?:\.\d+)?/g) || []).map(x => Number(x.replace(/,/g, ''))).filter(n => !Number.isNaN(n))
@@ -120,8 +114,10 @@ export default function CompanyDetail(): JSX.Element {
   const activeMetrics = company.metrics.filter(([label]) => !label.startsWith('上轮'))
   const metric = (re: RegExp): string | undefined => activeMetrics.find(([l]) => re.test(l))?.[1]
   const priceText = metric(/价格锚点|收盘价|现价|9\/18 收盘/)
-  const price = company.marketRefresh?.tradability === 'unverified' ? undefined : priceText ? nums(priceText)[0] : undefined
-  const priceAge = priceAnchorAge(priceText)
+  const price = company.marketRefresh?.tradability === 'unverified' ? undefined : company.marketRefresh?.price ?? (priceText ? nums(priceText)[0] : undefined)
+  const priceAge = priceAnchorAge(company.marketRefresh?.priceDate || priceText)
+  const quoteCurrency = company.marketRefresh?.currency
+  const dcfPrice = quoteCurrency && quoteCurrency !== dcfMarketOf(mk).currency ? undefined : price
   const scenText = metric(/Bear \/ Base \/ Bull/)
   const scenNums = scenText && !/市值/.test(scenText) ? nums(scenText) : []
   const scenRows: [string, string, string, string][] | null = scenNums.length === 3
@@ -190,7 +186,7 @@ export default function CompanyDetail(): JSX.Element {
         <div className="rn-hero-links">
           {back}
           <Link to={`/valuation?market=${mk === 'adr' || mk === 'ndx' ? 'us' : mk}&code=${encodeURIComponent(company.code)}`}>建立估值模型 →</Link>
-          <Link to={buildDcfLink({ company: company.name, code: company.code, researchMarket: mk, price })}>用当前价格测算 DCF →</Link>
+          <Link to={buildDcfLink({ company: company.name, code: company.code, researchMarket: mk, price: dcfPrice, priceDate: priceAge?.date })}>进入 DCF 估值 →</Link>
           <Link to={`/research-notes/company/${mk}/${encodeURIComponent(company.code)}/notes`}>研究笔记 →</Link>
         </div>
         <h1 className="rn-hero-title">{company.name}</h1>
@@ -203,7 +199,8 @@ export default function CompanyDetail(): JSX.Element {
           {earningsNext && (
             <Link to="/earnings" className="rn-earnings-badge" title={`日期来源：${earningsCal?.sources[earningsNext.dateSource]?.label ?? earningsNext.dateSource}`}>
               <CalendarClock size={14} aria-hidden="true" />
-              下次财报 {earningsNext.date}{earningsNext.time !== 'unknown' ? ` ${TIME_LABEL[earningsNext.time]}` : ''}（{confirmedText(earningsNext.confirmed)}）
+              {earningsNext.dateSource === 'hkex' ? '业绩董事会会议' : '财报日程'} {earningsNext.date}{earningsNext.time !== 'unknown' ? ` ${TIME_LABEL[earningsNext.time]}` : ''}（{confirmedText(earningsNext.confirmed)}）
+              {earningsNext.asOf && ` · ${earningsNext.carried ? '沿用' : '数据截至'} ${earningsNext.asOf.slice(0, 10)}`}
             </Link>
           )}
           {/* 有决策记录的公司只在候选池里移除，这里直接链接到记录 */}
@@ -236,7 +233,7 @@ export default function CompanyDetail(): JSX.Element {
         />
         <ResearchNotice />
         <CompanyValuationDetail company={company} />
-        <QuickDcf market={company.market} code={company.code} name={company.name} price={price} />
+        <QuickDcf market={company.market} code={company.code} name={company.name} price={dcfPrice} priceDate={priceAge?.date} />
         {(company.market === 'us' || company.market === 'cn' || company.market === 'hk' || company.market === 'adr') && (company.researchReport || company.metrics.some(([key]) => key === '圆桌复核日期')) && (
           <Card title={company.researchReport ? '公司研究 · 本轮事实复核与估值初稿' : '腾讯自选股投研专家团 · 本轮公告复核'}>
             <p className="rn-text">{(company.market === 'hk' || company.market === 'adr') && company.researchReport ? '已逐家核读公司业绩原件并补充新行情，报告列明来源、旧结论修正及待补证据。部分公司有数值敏感性草案；两种独立估值、现金与股本桥接仍待补，旧评级和价位不作为当前结论。' : company.researchReport ? '已按公司核对财报与现金流，完整报告列明来源、旧结论调整及待补证据。估值假设尚未认证；林奇分类仍为此前的程序化筛选结果。' : '本轮已补充公司公告；证据分为公告原件、公告转载及待核实；旧情景价值的认证状态以本轮结论为准。“上轮”指标保留历史口径，林奇分类仍为此前的程序化筛选结果。'}</p>

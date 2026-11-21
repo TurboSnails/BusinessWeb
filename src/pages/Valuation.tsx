@@ -4,7 +4,7 @@ import { bridgeOutdated } from "../services/localBridge";
 import { backendLabel, loginHintForError } from "../components/valuation/backends";
 import type { BridgeState } from "../services/localBridge";
 import { Page } from '../components/ui'
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { PageTitle } from "../components/ui/PageTabs";
 import { Link, useSearchParams } from "react-router-dom";
 import { dcfLinkFromValuationQuery } from "../features/dcf/prefill";
@@ -74,16 +74,28 @@ function remember(key: string, value: string) {
   }
 }
 export default function Valuation() {
-  // 回到页面时：先恢复上一次的结果，正在运行的任务连接服务后再接上
-  const [restored] = useState(() => ({ last: loadLast(), running: loadRunning() }));
-  const [params] = useSearchParams(),
-    [query, setQuery] = useState(
-      params.get("code")
-        ? (params.get("market") ? params.get("market") + ":" : "") +
-            params.get("code")
-        : restored.running?.security?.code ||
-            restored.last?.snapshot.security.code ||
-            "",
+  const [params] = useSearchParams();
+  const code = params.get("code")?.trim() || "";
+  const market = code ? params.get("market")?.trim().toLowerCase() || "" : "";
+  return <ValuationWorkspace key={JSON.stringify([market, code])} market={market} code={code} />;
+}
+
+function ValuationWorkspace({ market, code }: { market: string; code: string }) {
+  const [restored] = useState(() => {
+    const matches = (security?: SecurityIdentity) => !code ||
+      (security?.code?.toUpperCase() === code.toUpperCase() && (!market || security.market === market));
+    const job = loadRunning();
+    const running = job && matches(job.security) ? job : null;
+    const previous = loadLast();
+    return {
+      running,
+      otherJob: job && !running ? job : null,
+      last: !running && previous && matches(previous.snapshot.security) ? previous : null,
+    };
+  });
+  const [query, setQuery] = useState(
+      code ? (market ? market + ":" + code : code)
+        : restored.running?.security?.code || restored.last?.snapshot.security.code || "",
     ),
     [connected, setConnected] = useState(false),
     [bridge, setBridge] = useState<BridgeState | null>(null),
@@ -126,7 +138,7 @@ export default function Valuation() {
     const timer = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(timer);
   }, [busy]);
-  function finishWith(value: ValuationReport) {
+  const finishWith = useCallback((value: ValuationReport) => {
     setReport(value);
     setOriginal(value);
     setSnapshot(value.snapshot);
@@ -136,8 +148,8 @@ export default function Valuation() {
     setStage("completed");
     clearRunning();
     saveLast(value);
-  }
-  async function connect(launch = true) {
+  }, []);
+  const connect = useCallback(async (launch = true) => {
     setError("");
     if (hostedPage && launch) setBridge({ kind: "starting" });
     try {
@@ -158,17 +170,17 @@ export default function Valuation() {
       const state = (e as { bridgeState?: BridgeState }).bridgeState;
       setBridge(state ?? null);
       if (!state) setError("无法连接本地估值服务");
-      if (loadRunning()) {
+      if (restored.running && loadRunning()?.id === restored.running.id) {
         // 服务连上后再接着恢复任务（见下方 connected 的 effect）
         setBusy(false);
         setStatus("本地估值服务未连接，连接后会接着显示之前的任务进度");
       }
     }
-  }
+  }, [restored.running]);
   useEffect(() => {
     void connect(false);
     return () => stop.current?.();
-  }, []);
+  }, [connect]);
   useEffect(() => {
     if (!connected) return;
     let active = true;
@@ -208,7 +220,7 @@ export default function Valuation() {
       setSearching(false);
     }
   }
-  function attach(id: string) {
+  const attach = useCallback((id: string) => {
     stop.current?.();
     // 服务会从头重放事件，先清空，避免重复
     setActivity(null);
@@ -250,15 +262,17 @@ export default function Valuation() {
       },
       () => setStatus("连接中断，正在自动重连…"),
     );
-  }
+  }, [finishWith]);
   useEffect(() => {
     if (!connected) return;
-    const running = loadRunning();
-    if (!running) return;
+    const running = restored.running;
+    if (!running || loadRunning()?.id !== running.id) return;
+    let active = true;
     const id = running.id;
     if (running.backend) setBackend(running.backend);
     getValuation(id)
       .then((value) => {
+        if (!active) return;
         setJob(id);
         if (value.report) finishWith(value.report);
         else if (!["cancelled", "failed"].includes(value.state)) {
@@ -273,14 +287,16 @@ export default function Valuation() {
         }
       })
       .catch(() => {
+        if (!active) return;
         setBusy(false);
         setStatus("");
         setError("没能接上之前的任务（本地估值服务可能已重启），请重新开始");
         clearRunning();
       });
-  }, [connected]);
+    return () => { active = false; };
+  }, [connected, restored.running, finishWith, attach]);
   async function start(reuse = false) {
-    if (!security) return;
+    if (!security || restored.otherJob) return;
     setError("");
     setStartedBackend(backend);
     setBusy(true);
@@ -365,14 +381,22 @@ export default function Valuation() {
           {connected && (bridgeOutdated(bridgeVersion) || noCliDetected(backends)) && (
             <NoCliHint outdated={bridgeOutdated(bridgeVersion)} bridgeVersion={bridgeVersion} />
           )}
+          {restored.otherJob && (
+            <p className="valuation-warning">
+              {restored.otherJob.security ? `${restored.otherJob.security.name}（${restored.otherJob.security.code}）` : "上一次估值"}有待恢复的任务。
+              <Link to="/valuation">查看上一次任务</Link>，结束后可开始新的估值。
+            </p>
+          )}
           <div className="valuation-form-grid">
             <label className="valuation-company-input">
               公司名称或代码
               <input
                 aria-label="公司名称或代码"
                 value={query}
+                disabled={busy || searching}
                 onChange={(e) => {
                   setQuery(e.target.value);
+                  setCandidates([]);
                   setSecurity(null);
                   setSnapshot(null);
                   setReport(null);
@@ -380,7 +404,7 @@ export default function Valuation() {
                 }}
                 placeholder="腾讯 / 600519 / AAPL"
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && connected) void find();
+                  if (e.key === "Enter" && connected && !busy && !searching && query.trim()) void find();
                 }}
               />
             </label>
@@ -486,6 +510,7 @@ export default function Valuation() {
               disabled={
                 !connected ||
                 !security ||
+                !!restored.otherJob ||
                 busy ||
                 (model === "manual" && !manual.trim())
               }
@@ -495,7 +520,7 @@ export default function Valuation() {
               开始估值
             </button>
             {snapshot && security && (
-              <button disabled={busy || !connected} onClick={() => start(true)}>
+              <button disabled={busy || !connected || !!restored.otherJob} onClick={() => start(true)}>
                 使用同一财报，换模型重跑
               </button>
             )}

@@ -158,3 +158,43 @@ it("估值完成后离开再回来，仍显示刚才的结果", async () => {
   vi.unstubAllGlobals();
   sessionStorage.clear();
 });
+
+it("公司链接按市场和代码恢复报告，离线 DCF 沿用目标证券", async () => {
+  sessionStorage.clear();
+  sessionStorage.setItem("valuation-last", JSON.stringify(fixture));
+  vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("离线")));
+  try {
+    render(<MemoryRouter initialEntries={["/valuation?market=hk&code=AAPL"]}><Valuation /></MemoryRouter>);
+    await screen.findByText("无法连接本地估值服务");
+    expect(screen.queryByText(/已选择 AAPL/)).toBeNull();
+    expect(screen.queryByRole("heading", { name: "模型结果对比" })).toBeNull();
+    expect(screen.getByRole("link", { name: /改用 DCF 计算器/ }).getAttribute("href")).toContain("market=hk");
+    expect(sessionStorage.getItem("valuation-last")).toBe(JSON.stringify(fixture));
+  } finally {
+    sessionStorage.clear();
+    vi.unstubAllGlobals();
+  }
+});
+
+it("打开另一家公司时保留原任务，主动返回后才接上原任务", async () => {
+  sessionStorage.clear();
+  const job = JSON.stringify({ id: "previous-job", security: fixture.snapshot.security });
+  sessionStorage.setItem("valuation-job", job);
+  const api = service({ state: "analyzing" });
+  vi.stubGlobal("fetch", api);
+  vi.stubGlobal("EventSource", FakeEventSource);
+  try {
+    render(<MemoryRouter initialEntries={["/valuation?market=hk&code=00700"]}><Valuation /></MemoryRouter>);
+    await screen.findByText("本地服务已连接");
+    expect((screen.getByLabelText("公司名称或代码") as HTMLInputElement).value).toBe("hk:00700");
+    expect(screen.queryByText(/已选择 AAPL/)).toBeNull();
+    expect(api.mock.calls.some(([url]) => url.includes("/jobs/previous-job"))).toBe(false);
+    expect(sessionStorage.getItem("valuation-job")).toBe(job);
+    fireEvent.click(screen.getByRole("link", { name: "查看上一次任务" }));
+    await waitFor(() => expect(FakeEventSource.last?.url).toContain("/jobs/previous-job/events"));
+    expect(screen.getByText(/已选择 AAPL/)).toBeTruthy();
+  } finally {
+    sessionStorage.clear();
+    vi.unstubAllGlobals();
+  }
+});

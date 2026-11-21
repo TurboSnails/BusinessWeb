@@ -1,10 +1,11 @@
 // 构建后为每个收录页生成独立的 index.html：写入该页的 title / description / canonical / Open Graph，
 // 并在 #root 里放一份正文（React 挂载时会替换掉），让不执行 JS 的爬虫也能读到内容。
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs'
 import { resolve, dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'esbuild'
 import { marked } from 'marked'
+import { researchSources } from '../src/features/future-trends/researchSources.ts'
 import { blogPaths, blogBaseUrl, blogHref } from './lib/blog-routes.mjs'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
@@ -88,9 +89,17 @@ function describe(path) {
   if (trend) {
     const d = JSON.parse(readFileSync(resolve(ROOT, 'public/research/future-trends-2026-10-09/companies', `${trend.id}.json`), 'utf8'))
     const list = (title, values) => `<h2>${esc(title)}</h2><ul>${values.map(v => `<li>${esc(v)}</li>`).join('')}</ul>`
+    const { research, latest, history } = researchSources(d.sources, url => existsSync(join(DIST, url)), BASE_URL)
+    const sourceList = records => `<ul>${records.map(s => `<li>${s.href ? `<a href="${esc(s.href)}">${esc(s.label)}</a>` : esc(s.label) + (s.date ? '（站内文件未保留）' : '')} — ${esc(s.status)}</li>`).join('')}</ul>`
+    const sourceHtml = [
+      research.length ? '<h3>研究依据与原始披露</h3>' + sourceList(research) : '',
+      latest || history.length ? '<h3>行情核验记录</h3>' : '',
+      latest ? sourceList([latest]) : '',
+      history.length ? `<details><summary>历史行情记录（${history.length}）</summary>${sourceList(history)}</details>` : '',
+    ].join('')
     return {
       title: `${d.name}（${d.code}）｜主题研究`, description: d.headline.slice(0, 160),
-      body: `<p>${esc(d.rating)}；${esc(d.depth)}；${esc(d.valuationStatus)}</p><p>${esc(d.headline)}</p><p>${esc(d.profile)}</p>${list('业务与盈利驱动', d.segments.concat(d.drivers))}${list('护城河', d.moatAnalysis)}${list('隐忧与证伪', [d.concern, ...d.falsification])}<h2>三情景草稿</h2>${d.scenarios.map(s => `<p>${esc(s.name)}：${esc(s.assumption)}；价格 ${esc(s.price ?? '[MISSING]')} ${esc(d.currency)}</p>`).join('')}<p>条件盈亏比 ${esc(d.ratio ?? '不适用／缺失')}；实际胜率 ${esc(d.winRate)}</p><p>${esc(d.probabilityNote)}</p><p>${esc(d.secondMethod)}</p>${list('未完成证据', d.missing)}<h2>来源与范围</h2><ul>${d.sources.filter(s => s.url).map(s => `<li><a href="${esc(s.url)}">${esc(s.title)}</a>：${esc(s.status)}</li>`).join('')}</ul>`,
+      body: `<p>${esc(d.rating)}；${esc(d.depth)}；${esc(d.valuationStatus)}</p><p>${esc(d.headline)}</p><p>${esc(d.profile)}</p>${list('业务与盈利驱动', d.segments.concat(d.drivers))}${list('护城河', d.moatAnalysis)}${list('隐忧与证伪', [d.concern, ...d.falsification])}<h2>三情景草稿</h2>${d.scenarios.map(s => `<p>${esc(s.name)}：${esc(s.assumption)}；价格 ${esc(s.price ?? '[MISSING]')} ${esc(d.currency)}</p>`).join('')}<p>研究日期 ${esc(d.asOf)} · 报价 ${esc(d.priceDate)}</p><p>按该报价计算的情景盈亏比 ${esc(d.ratio ?? '不适用／缺失')} · ${esc(d.winRate)}</p><p>${esc(d.probabilityNote)}</p><p>${esc(d.secondMethod)}</p>${list('未完成证据', d.missing)}<h2>来源与范围</h2>${sourceHtml}`,
     }
   }
   if (c) {

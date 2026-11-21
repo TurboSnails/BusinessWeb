@@ -222,7 +222,7 @@ const asOptions = <T extends string>(labels: Record<T, string>) =>
   (Object.keys(labels) as T[]).map((id) => ({ id, label: labels[id] }));
 
 /** 从公司研究页带来的公司、市场、币种与当前价；其余假设仍由自己对照财报填写 */
-function initialForm(): { form: DcfForm; fromResearch: string } {
+function initialForm(): { form: DcfForm; fromResearch: string; priceDate?: string } {
   const form = emptyForm();
   const pre = typeof window === "undefined" ? null : parseDcfPrefill(window.location.search);
   if (!pre) return { form, fromResearch: "" };
@@ -231,7 +231,7 @@ function initialForm(): { form: DcfForm; fromResearch: string } {
   form.market = pre.market;
   form.currency = pre.currency;
   if (pre.currentPrice != null) form.values.currentPrice = String(pre.currentPrice);
-  return { form, fromResearch: pre.company || pre.code };
+  return { form, fromResearch: pre.company || pre.code, priceDate: pre.priceDate };
 }
 
 export default function Dcf(): JSX.Element {
@@ -239,11 +239,6 @@ export default function Dcf(): JSX.Element {
   const [form, setForm] = useState<DcfForm>(initial.form);
   const [records, setRecords] = useState<DcfRecord[]>(() => loadDcfRecords());
   const [notice, setNotice] = useState("");
-  const [prefillNote] = useState(() =>
-    initial.fromResearch
-      ? `已从公司研究页带入 ${initial.fromResearch} 的名称、市场、币种${initial.form.values.currentPrice ? "与当前价" : ""}；起始自由现金流、股本、现金与负债请对照最新财报填写。`
-      : "",
-  );
   const [error, setError] = useState("");
   const [library, setLibrary] = useState<PrefillLibrary | null | "error">(null);
   const [query, setQuery] = useState("");
@@ -390,9 +385,9 @@ export default function Dcf(): JSX.Element {
         </a>
       </div>
 
-      {prefillNote && !auto && (
+      {initial.fromResearch && !auto && form.code === initial.form.code && form.company === initial.form.company && form.market === initial.form.market && form.currency === initial.form.currency && (
         <p className="dcf-banner" role="status">
-          {prefillNote}
+          已从公司研究页带入 {initial.fromResearch}。{initial.form.values.currentPrice && form.values.currentPrice === initial.form.values.currentPrice && <>研究价格 {form.values.currentPrice} {form.currency}（{initial.priceDate ?? '日期待核'}）。</>}请按最新财报核对自由现金流、股本、现金和负债。
         </p>
       )}
 
@@ -440,6 +435,9 @@ export default function Dcf(): JSX.Element {
             <p>
               <strong>{auto.meta.company}</strong> · {auto.statusText}
             </p>
+            {current && current.m === input.market && current.ccy === input.currency && form.values.currentPrice === auto.values.currentPrice && input.currentPrice != null && (
+              <p>本次估算采用预填库{current.pxLive ? '盘中价' : '收盘价'} {formatPrice(input.currentPrice, input.currency)}（{current.pxDate ?? '日期待核'}）。</p>
+            )}
             {auto.alternatives.map((alt) => (
               <p key={alt.field + alt.value} className="dcf-auto-alt">
                 {alt.reason}

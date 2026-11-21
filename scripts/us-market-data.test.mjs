@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
-  collectUsMarketData, finraDebtGrowth, mergeSeries, parseAllocation, parseCftc, parseCftcHistory, parseFinra, parseFred,
+  collectUsMarketData, finraDebtGrowth, mergeSeries, parseAllocation, parseCftc, parseCftcHistory, parseFinra, parseEtfSpread, parseFred,
   compactHistory, corporateSpread, isBotChallenge, parseCboeIndex, parseFearGreed, parseFinraHistory, parseMultpl, parseNaaim, parseFundLiquidity, parseIciFlows, parseMoneyFunds, parseOfrExposure, parseSentiment, parseVolume,
 } from './us-market-data.mjs'
 
@@ -174,7 +174,7 @@ test('a failed live source preserves its dated snapshot while other sources refr
     readBinary: async () => { throw new Error('unavailable') },
   })
   assert.equal(result.sourcesUpdated, 1)
-  assert.equal(result.warnings.length, 19)
+  assert.equal(result.warnings.length, 27)
   assert.deepEqual(result.snapshot.series.retailCash, { ...retailCash, refreshError: 'unavailable' })
   assert.deepEqual(result.snapshot.series.hyDaily.history, [['2026-11-18', 347]])
 })
@@ -227,4 +227,29 @@ test('subtracts Aaa from Baa only for months both report', () => {
 test('reads the NAAIM public table and rejects out-of-range rows', () => {
   const html = '<table><tr><th>Date</th><th>NAAIM Number</th></tr><tr><td>08/19/2026</td><td>94.49</td></tr><tr><td>08/12/2026</td><td>250</td></tr></table>'
   assert.deepEqual(parseNaaim(html).history, [['2026-08-19', 94.49]])
+})
+
+test('流动性保留十亿美元三位精度并排除纽约生效日之后的利率', async () => {
+  const result = await collectUsMarketData({}, {
+    now: new Date('2026-11-21T01:00:00Z'),
+    read: async url => {
+      if (url.endsWith('WRESBAL')) return '2026-11-18,2979656'
+      if (url.endsWith('RRPONTSYD')) return '2026-11-20,0.401'
+      if (url.endsWith('IORB')) return '2024-09-06,5.40\n2024-09-08,5.40\n2026-11-20,3.90\n2026-11-21,3.95'
+      throw Error('offline')
+    },
+    readBinary: async () => { throw Error('offline') },
+  })
+  assert.deepEqual(result.snapshot.series.bankReserves.history, [['2026-11-18', 2979.656]])
+  assert.deepEqual(result.snapshot.series.overnightRrp.history, [['2026-11-20', 0.401]])
+  assert.deepEqual(result.snapshot.series.iorb.history, [['2024-09-06', 5.40], ['2024-09-08', 5.40], ['2026-11-20', 3.90]])
+})
+
+
+test('ETF 价差采用市场价格区块日期及展示百分比，保留发行人舍入后的零', () => {
+  const source = value => '<title>SPY: fund</title><h2>Other data as of Nov 20 2026</h2><section><h2>Fund Market Price <span>as of Nov 19 2026</span></h2><table><tr><td>30-Day Median Bid/Ask Spread</td><td>' + value + '</td></tr></table></section>'
+  assert.deepEqual(parseEtfSpread(source('0.02%'), 'SPY').history, [['2026-11-19', 2]])
+  assert.deepEqual(parseEtfSpread(source('0.00%'), 'SPY').history, [['2026-11-19', 0]])
+  assert.throws(() => parseEtfSpread(source('—'), 'SPY'))
+  assert.throws(() => parseEtfSpread(source('0.01%'), 'SPSM'))
 })

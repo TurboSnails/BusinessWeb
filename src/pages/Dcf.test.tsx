@@ -43,7 +43,7 @@ describe("现金流折现估值页", () => {
   });
 
   it("从公司研究页带参数打开时预填名称、市场、币种和当前价", () => {
-    window.history.pushState({}, "", "/dcf?company=%E8%85%BE%E8%AE%AF%E6%8E%A7%E8%82%A1&code=0700&market=hk&currency=HKD&price=512.5");
+    window.history.pushState({}, "", "/dcf?company=%E8%85%BE%E8%AE%AF%E6%8E%A7%E8%82%A1&code=0700&market=hk&currency=HKD&price=512.5&priceDate=2026-11-03");
     try {
       render(<Dcf />);
       expect((screen.getByLabelText("公司名称") as HTMLInputElement).value).toBe("腾讯控股");
@@ -51,7 +51,9 @@ describe("现金流折现估值页", () => {
       expect((screen.getByLabelText("当前股价") as HTMLInputElement).value).toBe("512.5");
       expect((screen.getByLabelText("市场") as HTMLSelectElement).value).toBe("hk");
       expect((screen.getByLabelText("币种") as HTMLSelectElement).value).toBe("HKD");
-      expect(screen.getByText(/已从公司研究页带入 腾讯控股/)).toBeTruthy();
+      expect(screen.getByText(/研究价格 512.5 HKD（2026-11-03）/)).toBeTruthy();
+      fill("当前股价", "600");
+      expect(screen.queryByText(/2026-11-03/)).toBeNull();
     } finally {
       window.history.pushState({}, "", "/");
     }
@@ -124,6 +126,7 @@ describe("现金流折现估值页", () => {
     expect((screen.getByLabelText("有息负债") as HTMLInputElement).value).toBe("2.3");
     expect(screen.getByText(/近3年平均（2023–2025年报/)).toBeTruthy();
     expect(screen.getByRole("heading", { name: "估值结论 · 贵州茅台" })).toBeTruthy();
+    expect(screen.getByText(/本次估算采用预填库收盘价.*2026-10-19/)).toBeTruthy();
     expect(screen.getByText("买入参考价", { selector: "small" })).toBeTruthy();
     expect(screen.getByText(/^可信度/, { selector: ".dcf-cred" })).toBeTruthy();
     // 一键估算后完整参数默认收起，关键假设用滑块调整

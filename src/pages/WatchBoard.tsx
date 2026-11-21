@@ -4,7 +4,7 @@ import { ArrowRight, RefreshCw } from 'lucide-react'
 import { Page, PageToolbar } from '../components/ui'
 import { PageTitle } from '../components/ui/PageTabs'
 import { fetchIndexQuotes } from '../services/indexQuotes'
-import { signalValues, stageFromSnapshot, type MacroSnapshot } from '../features/macro/indicators'
+import { stageFromSnapshot, type MacroSnapshot } from '../features/macro/indicators'
 import { SIGNALS, signalTone } from '../features/macro/stages'
 import { useMacroSnapshot } from '../features/macro/useMacroSnapshot'
 import { loadDailyAnalysis, loadDailySnapshots } from '../features/daily-analysis/data'
@@ -17,8 +17,8 @@ const KEY_READINGS: Array<{ key: 'vix' | 'tenYear' | 'hy' | 'dxy' | 'gold' | 'wt
   { key: 'tenYear', name: '10 年美债', digits: 2, unit: '%' },
   { key: 'hy', name: '高收益债利差', digits: 0, unit: 'bp' },
   { key: 'dxy', name: '美元指数', digits: 1, unit: '' },
-  { key: 'gold', name: '黄金', digits: 0, unit: '' },
-  { key: 'wti', name: 'WTI 原油', digits: 1, unit: '' },
+  { key: 'gold', name: '黄金期货', digits: 0, unit: '美元/盎司' },
+  { key: 'wti', name: 'WTI 原油期货', digits: 1, unit: '美元/桶' },
 ]
 
 const fmt = (n: number, digits = 2): string => n.toLocaleString('zh-CN', { minimumFractionDigits: digits, maximumFractionDigits: digits })
@@ -36,35 +36,39 @@ function BlockHead({ title, note, to, link }: { title: string; note?: string; to
 
 function MacroBlock({ snap, error, tick }: { snap: MacroSnapshot | null; error: boolean; tick: number }): JSX.Element {
   if (!snap) return <section className="watch-block" aria-label="宏观阶段"><BlockHead title="宏观阶段" to="/monitor" link="宏观温度" /><p className="watch-muted" role={error ? 'alert' : 'status'}>{error ? '宏观数据加载失败。' : '正在加载宏观数据…'}</p></section>
-  const { stage, score, entered } = stageFromSnapshot(snap)
+  const { values, stage, score, entered } = stageFromSnapshot(snap)
   return (
-    <section className={`watch-block watch-macro is-${stage.tone}`} aria-label="宏观阶段">
+    <section className={`watch-block watch-macro is-${stage?.tone ?? 'gray'}`} aria-label="宏观阶段">
       <BlockHead title="宏观阶段" note={`美国六项风险信号 · 快照 ${snap.generatedAt}`} to="/monitor" link="宏观温度" />
       <div className="watch-stage">
-        <strong className="watch-stage__name">{stage.name}</strong>
-        <span className="watch-stage__score">{score} 分 · {entered}/{SIGNALS.length} 项</span>
+        <strong className="watch-stage__name">{stage?.name ?? '信号待补全'}</strong>
+        <span className="watch-stage__score">{stage && `${score} 分 · `}已取得 {entered}/{SIGNALS.length} 项</span>
       </div>
-      <p className="watch-stage__summary">{stage.summary}</p>
-      <p className="watch-stage__rule"><span>做</span>{stage.does[0]}</p>
-      <p className="watch-stage__rule is-dont"><span>不做</span>{stage.doesNot[0]}</p>
+      {stage ? (
+        <>
+          <p className="watch-stage__summary">{stage.summary}</p>
+          <p className="watch-stage__rule"><span>做</span>{stage.does[0]}</p>
+          <p className="watch-stage__rule is-dont"><span>不做</span>{stage.doesNot[0]}</p>
+        </>
+      ) : <p className="watch-stage__summary">尚缺 {SIGNALS.length - entered} 项读数，补全后再判定阶段。</p>}
       <ul className="watch-signals" aria-label="六项风险信号">
         {SIGNALS.map(sig => {
-          const v = signalValues(snap)[sig.id]
+          const v = values[sig.id]
           const tone = v === undefined ? 'gray' : signalTone(sig, v)
-          const date = snap.series[sig.id as keyof typeof snap.series]?.latest.date
+          const date = snap.series[sig.id as keyof typeof snap.series]?.latest?.date
           return (
             <li key={sig.id} className={`tone-${tone}`}>
               <span className="watch-signals__name">{sig.name}</span>
-              <b>{v === undefined ? '暂缺' : `${fmt(v, v < 10 ? 2 : 0)}${sig.unit && sig.unit !== 'pp' ? ` ${sig.unit}` : ''}`}</b>
-              <small>{tone === 'gray' ? '未接入' : tone === 'green' ? '正常' : tone === 'yellow' ? '预警' : '危险'}{date ? ` · ${date.slice(5)}` : ''}</small>
+              <b>{tone === 'gray' ? '暂缺' : `${v.toLocaleString('zh-CN')}${sig.unit ? ` ${sig.unit === 'pp' ? '个百分点' : sig.unit}` : ''}`}</b>
+              <small>{tone === 'gray' ? '缺少读数' : tone === 'green' ? '正常' : tone === 'yellow' ? '预警' : '危险'}{date ? ` · ${date}` : ''}</small>
             </li>
           )
         })}
       </ul>
       <dl className="watch-readings">
-        {KEY_READINGS.filter(r => snap.series[r.key]).map(r => {
+        {KEY_READINGS.filter(r => Number.isFinite(snap.series[r.key]?.latest?.value)).map(r => {
           const d = snap.series[r.key]
-          return <div key={r.key}><dt>{r.name}</dt><dd>{fmt(d.latest.value, r.digits)}{r.unit && <small>{r.unit}</small>}</dd><dd className="watch-date">{d.latest.date.slice(5)}</dd></div>
+          return <div key={r.key}><dt>{r.name}</dt><dd>{fmt(d.latest.value, r.digits)}{r.unit && <small>{r.unit}</small>}</dd><dd className="watch-date">{d.latest.date}</dd></div>
         })}
       </dl>
       <OptionSentiment tick={tick} />

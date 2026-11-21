@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import WatchBoard from './WatchBoard'
 import { metricsWithBreadth, moodOf } from '../features/watch/sentiment'
 import { stageFromSnapshot, type MacroSnapshot } from '../features/macro/indicators'
+import { resetMacroSnapshotCache } from '../features/macro/useMacroSnapshot'
 import type { DailySnapshot } from '../features/daily-analysis/types'
 
 const mocks = vi.hoisted(() => ({ market: vi.fn(), daily: vi.fn() }))
@@ -25,6 +26,7 @@ const snapshot: DailySnapshot = {
 }
 
 beforeEach(() => {
+  resetMacroSnapshotCache()
   localStorage.clear()
   vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => macro }) as unknown as Response))
   const quotes: Record<string, unknown> = {
@@ -40,7 +42,7 @@ describe('观察盘', () => {
   it('一页显示宏观阶段、全球市场、A股情绪三块，各自链接到细节页', async () => {
     render(<MemoryRouter><WatchBoard /></MemoryRouter>)
     const macroBlock = await screen.findByRole('region', { name: '宏观阶段' })
-    const expected = stageFromSnapshot(macro as unknown as MacroSnapshot).stage.name
+    const expected = stageFromSnapshot(macro as unknown as MacroSnapshot).stage!.name
     await waitFor(() => expect(within(macroBlock).getByText(expected)).toBeTruthy())
     expect(within(macroBlock).getByText('10 年美债')).toBeTruthy()
     expect(within(macroBlock).getByRole('link', { name: /宏观温度/ }).getAttribute('href')).toBe('/monitor')
@@ -123,6 +125,26 @@ describe('metricsWithBreadth', () => {
 })
 
 describe('观察盘：风险信号与期权情绪', () => {
+  it.each([
+    { readings: {}, count: 0 },
+    { readings: { sahm: series(0), claims: series(24.9), vix: series(19.99), hy: series(395), dd: series(9.98) }, count: 5 },
+  ])('快照只有 $count 项有效信号时展示覆盖情况，保留已有读数', async ({ readings, count }) => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ ...macro, series: readings }) }) as unknown as Response))
+    render(<MemoryRouter><WatchBoard /></MemoryRouter>)
+    const block = within(screen.getByRole('region', { name: '宏观阶段' }))
+    expect(await block.findByText('信号待补全')).toBeTruthy()
+    expect(block.getByText(`已取得 ${count}/6 项`)).toBeTruthy()
+    expect(block.queryByText('常态')).toBeNull()
+    expect(block.queryByText('做')).toBeNull()
+    expect(block.getAllByText('暂缺')).toHaveLength(6 - count)
+    if (count) {
+      expect(block.getByText('0 个百分点')).toBeTruthy()
+      expect(block.getByText('24.9 万人/周')).toBeTruthy()
+      expect(block.getByText('19.99')).toBeTruthy()
+      expect(block.getAllByText('正常 · 2026-10-08')).toHaveLength(count)
+    }
+  })
+
   it('宏观块显示六项信号灯，并带上期权情绪摘要', async () => {
     vi.stubGlobal('fetch', vi.fn(async (u: string) => ({ ok: true, json: async () => (String(u).includes('/api/sentiment') ? { equityPC: 0.58, spxPC: 1.15, pcDate: '2026-10-09', vix: 15.6, vix3m: 18.1, gexBn: 7.7, goldSilver: 67.7 } : macro) }) as unknown as Response))
     render(<MemoryRouter><WatchBoard /></MemoryRouter>)

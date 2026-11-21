@@ -68,3 +68,36 @@ it.each([
   const volumeCell = within(row).getAllByRole('cell').at(-2)!
   expect(within(row).getAllByRole('cell', { name: expected })).toContain(volumeCell)
 })
+
+it('流动性深链按四周比较准备金，利差仅按同日配对，切回大盘后能选综合指数', async () => {
+  const rate = (history: [string, number][], unit = '%') => ({ name: '读数', frequency: '日频', scope: '', source: '', history, unit })
+  vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+    if (url.endsWith('us-market-data.json')) return Response.json({ series: {
+      bankReserves: rate([['2026-10-21', 2962.607], ['2026-11-18', 2979.656]], '十亿美元'),
+      sofr: rate([['2026-11-19', 3.91]]), iorb: rate([['2026-11-19', 3.90], ['2026-11-20', 3.8]]),
+    } })
+    if (url.endsWith('us-market-slices.json')) return Response.json({ slices: ['spx', 'ixic', 'ndx'].map((id, n) => ({
+      id, symbol: ['^GSPC', '^IXIC', '^NDX'][n], name: ['标普 500', '纳斯达克综合指数', '纳斯达克 100'][n], group: 'broad',
+      scope: '指数', source: '', history: [['2026-11-19', 20000 + n]],
+    })) })
+    return new Response(null, { status: 503 })
+  }))
+  render(<MemoryRouter initialEntries={['/monitor?tab=us-market&view=liquidity']}><UsMarketView /></MemoryRouter>)
+  expect(await screen.findByText('+17.05 十亿美元')).toBeTruthy()
+  expect(screen.getByRole('heading', { name: '隔夜融资相对准备金利率' }).nextElementSibling?.textContent).toBe('1 bp')
+  fireEvent.click(screen.getByRole('button', { name: '大盘' }))
+  fireEvent.click(screen.getByRole('button', { name: '纳斯达克综合指数' }))
+  expect(screen.getByRole('heading', { name: '纳斯达克综合指数' })).toBeTruthy()
+  expect(screen.getByText('20,001 点')).toBeTruthy()
+})
+
+it('不同日期的隔夜利率不拼接，缺少四周前准备金时不估算变化', async () => {
+  const row = (day: string, value: number) => ({ name: '利率', frequency: '日频', scope: '', source: '', unit: '%', history: [[day, value]] })
+  vi.stubGlobal('fetch', async (url: string) => url.endsWith('us-market-data.json')
+    ? Response.json({ series: { sofr: row('2026-11-19', 3.91), iorb: row('2026-11-20', 3.9) } })
+    : new Response(null, { status: 503 }))
+  render(<MemoryRouter initialEntries={['/monitor?tab=us-market&view=liquidity']}><UsMarketView /></MemoryRouter>)
+  expect(await screen.findByText('3.91%')).toBeTruthy()
+  expect(screen.getByText('等待同日利率')).toBeTruthy()
+  expect(screen.getByText('等待相隔四周的观测')).toBeTruthy()
+})

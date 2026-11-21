@@ -81,7 +81,7 @@ describe('核心 8', () => {
 })
 
 describe('候选池分桶', () => {
-  it('可买卖都满足盈亏比≥0.75 且期望≥20%，其余已分析公司归入价格太贵', async () => {
+  it('入围且满足盈亏比≥0.75 和期望≥20% 的公司通过情景门槛', async () => {
     const { poolBucket } = await import('./futureTrendsPresentation')
     const { RESEARCH_INDEX } = await import('./futureTrendsResearch')
     const buy = RESEARCH_INDEX.filter(r => poolBucket(r) === 'buy')

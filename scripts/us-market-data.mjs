@@ -50,7 +50,26 @@ const run = promisify(execFile)
 
 const MONTHS = 'January February March April May June July August September October November December'.split(' ')
 const meta = (name, unit, source, scope, frequency) => ({ name, unit, source, scope, frequency })
+const equitySpreadFunds = [
+  ['spyQuotedSpread', 'SPY', 'state-street-spdr-sp-500-etf-trust-spy'],
+  ['spsmQuotedSpread', 'SPSM', 'state-street-spdr-portfolio-sp-600-small-cap-etf-spsm'],
+]
+const fundUrl = slug => 'https://www.ssga.com/us/en/institutional/etfs/' + slug
+const liquidity = [
+  ['fedAssets', 'WALCL', '美联储总资产', '十亿美元', '周频', '联储合并资产负债表，周三期末余额。', 0.001],
+  ['bankReserves', 'WRESBAL', '银行准备金余额', '十亿美元', '周频', '存款机构在联储的准备金，截至周三的一周日均余额。', 0.001],
+  ['treasuryCash', 'WTREGEN', '财政部一般账户（TGA）', '十亿美元', '周频', '美国财政部在联储的一般账户，截至周三的一周日均余额。其他条件相同时，财政部支出会向银行体系释放准备金。', 0.001],
+  ['overnightRrp', 'RRPONTSYD', '隔夜逆回购（ON RRP）', '十亿美元', '日频', '纽约联储以国债作抵押的隔夜逆回购操作金额，反映合资格对手方存放在这项工具中的资金。', 1],
+  ['sofr', 'SOFR', '担保隔夜融资利率（SOFR）', '%', '日频', '以美国国债为抵押的隔夜美元融资交易利率，按交易日记录。', 1],
+  ['iorb', 'IORB', '准备金余额利率（IORB）', '%', '日频', '联储支付给合资格机构的准备金利率，按政策生效的日历日记录。', 1],
+]
 const specs = {
+  ...Object.fromEntries(equitySpreadFunds.map(([key, symbol, slug]) => [
+    key, meta(symbol + ' 30 日中位买卖价差', 'bp', fundUrl(slug),
+      '过去 30 个日历日，交易时段每 10 秒取全美最优报价，以买卖价差除以中间价后取中位数。发行人披露至 0.01%，折合 1 bp。', '日频'),
+  ])),
+  ...Object.fromEntries(liquidity.map(([key, id, name, unit, frequency, scope]) =>
+    [key, meta(name, unit, 'https://fred.stlouisfed.org/series/' + id, scope, frequency)])),
   retailCash: meta('散户现金仓位（AAII）', '%', ALLOCATION, '美国 AAII 个人投资者会员调查；2026 年 10 月报告给出的历史均值为 22.0%', '月频'),
   retailStocks: meta('散户股票及股票基金仓位（AAII）', '%', ALLOCATION, '美国 AAII 个人投资者会员调查', '月频'),
   retailBull: meta('散户看多（AAII）', '%', SENTIMENT, '美国 AAII 会员对未来六个月的看法', '周频'),
@@ -422,16 +441,28 @@ export function parseOfrExposure(json) {
   return { ofrEquityGross: record(gross), ofrCashEquityLs: record(cash) }
 }
 
-export function parseFred(markup, scale) {
+export function parseEtfSpread(html, symbol) {
+  const title = clean(html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] ?? '')
+  const heading = [...html.matchAll(/<h[2-4]\b[^>]*>([\s\S]*?)<\/h[2-4]>/gi)]
+    .find(match => /^Fund Market Price\b/i.test(clean(match[1])))
+  const section = heading ? html.slice(heading.index).split(/<\/section>/i, 1)[0] : ''
+  const day = calendarDate(clean(section).match(/as of ([A-Za-z]+ \d{1,2},? \d{4})/i)?.[1] ?? '')
+  const row = rows(section).find(cells => /30.Day Median Bid\/Ask Spread/i.test(cells[0]))
+  const quote = row?.at(-1)?.match(/^(\d+(?:\.\d+)?)%$/)
+  if (!title.startsWith(symbol + ':') || !day || !quote) throw new Error(symbol + ' 价差或观察日未核实')
+  return record([[day, rounded(Number(quote[1]) * 100)]])
+}
+
+export function parseFred(markup, scale, digits = 2) {
   const data = []
   for (const row of rows(markup)) {
     if (/^\d{4}-\d{2}-\d{2}$/.test(row[0]) && Number.isFinite(number(row[1]))) {
-      data.push([row[0], rounded(number(row[1]) * scale)])
+      data.push([row[0], rounded(number(row[1]) * scale, digits)])
     }
   }
   // FRED compresses its older table into #date|value blocks. CSV uses the same two columns.
   for (const [, day, value] of markup.matchAll(/(?:^|#|\n)(\d{4}-\d{2}-\d{2})[,|]\s*(\d+(?:\.\d+)?)(?=\s|$)/g)) {
-    data.push([day, rounded(Number(value) * scale)])
+    data.push([day, rounded(Number(value) * scale, digits)])
   }
   return record(requireReadings(data, 'FRED'))
 }
@@ -574,6 +605,15 @@ export async function collectUsMarketData(previous, { read = fetchText, readBina
     'NAAIM 敞口': [['naaim'], async () => ({ naaim: parseNaaim(await read(NAAIM)) })],
     'FRED 10 年期美债': [['tenYearDaily'], async () => ({ tenYearDaily: parseFred(await read(FRED + 'DGS10'), 1) })],
   }
+  for (const [key, id, , , , , scale] of liquidity) {
+    jobs['FRED ' + id] = [[key], async () => {
+      const history = parseFred(await read(FRED + id), scale, 3).history.filter(([day]) => day <= beforeNyDay)
+      return { [key]: record(requireReadings(history, id)) }
+    }]
+  }
+  for (const [key, symbol, slug] of equitySpreadFunds) {
+    jobs[symbol + ' 买卖价差'] = [[key], async () => ({ [key]: parseEtfSpread(await read(fundUrl(slug)), symbol) })]
+  }
   const entries = Object.entries(jobs)
   const settled = await Promise.allSettled(entries.map(([, [, load]]) => load()))
   const series = { ...previous?.series }
@@ -610,7 +650,9 @@ export async function collectUsMarketData(previous, { read = fetchText, readBina
       const updated = mergeSeries(current, { ...specs[key], ...values, releasedAt: release, history })
       if (!updated) continue
       delete updated.refreshError
-      updated.history = compactHistory(updated.history, updated.frequency)
+      // IORB applies on calendar days. Keep the Friday (or holiday-week Thursday)
+      // observation so historical SOFR weekly closes can join on the exact date.
+      if (key !== 'iorb') updated.history = compactHistory(updated.history, updated.frequency)
       series[key] = updated
       accepted = true
     }

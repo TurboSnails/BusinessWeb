@@ -55,16 +55,18 @@ describe('主题研究（原未来趋势）', () => {
     }
   })
 
-  it('研究筛出可筛选市场与推荐优先级，默认展示可买卖', () => {
+  it('研究筛出按市场联动统计，默认展示满足情景门槛的公司', () => {
     render(<MemoryRouter initialEntries={['/candidates?tab=research']}><FutureTrendsPool /></MemoryRouter>)
     expect(screen.getByRole('heading', { name: /^研究筛出/ })).toBeTruthy()
     expect(screen.getByText(/实际胜率未经校准/)).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: '海外' }))
     expect(screen.getByRole('button', { name: '海外' }).getAttribute('aria-pressed')).toBe('true')
-    fireEvent.click(screen.getByRole('button', { name: /^可买卖/ }))
+    fireEvent.click(screen.getByRole('button', { name: /^满足情景门槛/ }))
     expect(screen.getByRole('table').querySelectorAll('tbody tr').length).toBeGreaterThan(0)
-    expect(screen.getByRole('table').querySelectorAll('tbody tr').length).toBeLessThan(20)
-    fireEvent.click(screen.getByRole('button', { name: /^好公司/ }))
+    const count = screen.getByRole('table').querySelectorAll('tbody tr').length
+    expect(count).toBeLessThan(20)
+    expect(screen.getByRole('button', { name: /^满足情景门槛/ }).textContent).toBe(`满足情景门槛${count}`)
+    fireEvent.click(screen.getByRole('button', { name: /^其余入围公司/ }))
     expect(screen.getByRole('table').querySelectorAll('tbody tr').length).toBeGreaterThan(0)
   })
 

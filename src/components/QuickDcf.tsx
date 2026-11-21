@@ -20,7 +20,7 @@ const FIELDS: Array<{ id: Field; label: string; hint: string }> = [
 ]
 
 /** 个股页内嵌的简版 DCF：七个输入，结果可存入本机 DCF 记录（候选池、综合筛选里的 DCF 列随之更新）。WACC 与倍数留给完整 DCF 页。 */
-export default function QuickDcf({ market, code, name, price }: { market: CandidateMarket; code: string; name: string; price?: number }): JSX.Element {
+export default function QuickDcf({ market, code, name, price, priceDate }: { market: CandidateMarket; code: string; name: string; price?: number; priceDate?: string }): JSX.Element {
   const { market: dm, currency } = dcfMarketOf(market)
   const base: DcfSheetInput = {
     company: name, code, market: dm, currency, moneyUnit: 'yi', shareUnit: 'yi', baseYear: new Date().getFullYear() - 1,
@@ -56,14 +56,14 @@ export default function QuickDcf({ market, code, name, price }: { market: Candid
       {anyFilled && (result.status === 'calculated' ? (
         <p role="status" className="rn-text">
           合理价 <strong>{formatPrice(result.price, currency)}</strong>
-          {price != null && <> · 现价 {formatPrice(price, currency)} · 安全边际 <strong className={result.mos !== null && result.mos >= 0 ? 'rn-dcf is-good' : 'rn-dcf is-bad'}>{formatSignedPct(result.mos)}</strong></>}
+          {price != null && <> · 研究价格 {formatPrice(price, currency)}（{priceDate ?? '日期待核'}） · 安全边际 <strong className={result.mos !== null && result.mos >= 0 ? 'rn-dcf is-good' : 'rn-dcf is-bad'}>{formatSignedPct(result.mos)}</strong></>}
           {result.terminalShare != null && result.terminalShare > 0.75 && <> · 终值占 EV {(result.terminalShare * 100).toFixed(0)}%，结果对永续假设很敏感</>}
         </p>
       ) : <p role="status" className="rn-text">{result.reason}</p>)}
       {result.warnings.map(w => <p key={w} className="rn-small">⚠ {w}</p>)}
       <div className="ui-cluster">
         <button type="button" className="tool-btn tool-btn--primary" disabled={result.status !== 'calculated'} onClick={save}>保存到 DCF 记录</button>
-        <Link className="tool-btn" to={buildDcfLink({ company: name, code, researchMarket: market, price })}>去完整 DCF →</Link>
+        <Link className="tool-btn" to={buildDcfLink({ company: name, code, researchMarket: market, price, priceDate })}>去完整 DCF →</Link>
         {notice && <span className="rn-pool-msg">{notice}</span>}
       </div>
     </Card>

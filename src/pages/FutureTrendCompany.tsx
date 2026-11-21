@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { usePageSeo } from '../components/RouteSeo'
-import { CompanyResearch, RESEARCH_BY_ID, researchPercent } from '../data/futureTrendsResearch'
+import { CompanyResearch, RESEARCH_BY_ID, researchPercent, type ResearchSource } from '../data/futureTrendsResearch'
 
 import { presentation, priorityNames, displayText, priceLabel } from '../data/futureTrendsPresentation'
 import '../styles/future-trends.css'
 import { Page } from '../components/ui'
+import { researchSources, type SourceRecord } from '../features/future-trends/researchSources'
 
 const titles = ['研究信息', '公司与赚钱机制', '业务分布与驱动', '优势与缺点', '行业与周期', '综合结论卡', '关键指标及日期', '增长与护城河', '三情景、盈亏比与胜率', '价格与研究纪律', '风险与量化证伪', '多视角与多空交锋', '口径陷阱与缺失证据', '验证日历', '研究说明与来源']
 function List({ items }: { items: string[] }): JSX.Element { return <ul>{items.map((x, i) => <li key={i}>{displayText(x)}</li>)}</ul> }
@@ -15,6 +16,24 @@ function ResearchSection({ index, children }: { index: number; children: React.R
   return <section id={`section-${index}`} className="ft-section">{supplementary
     ? <details><summary>{titles[index]}</summary>{children}</details>
     : <><h2>{titles[index]}</h2>{children}</>}</section>
+}
+
+declare const __RESEARCH_QUOTE_FILES__: string[]
+const quoteFiles = new Set(__RESEARCH_QUOTE_FILES__)
+function SourceItem({ source }: { source: SourceRecord }): JSX.Element {
+  return <li>{source.href ? <a href={source.href} target="_blank" rel="noopener noreferrer">{source.label}</a> : source.label}
+    {source.date && !source.href && '（站内文件未保留）'} — {source.status}</li>
+}
+
+function ResearchSources({ sources }: { sources: ResearchSource[] }): JSX.Element {
+  const { research, latest, history } = researchSources(sources, url => quoteFiles.has(url), import.meta.env.BASE_URL)
+  return <>
+    {research.length > 0 && <><h3>研究依据与原始披露</h3><ul>{research.map((s, i) => <SourceItem key={i} source={s} />)}</ul></>}
+    {(latest || history.length > 0) && <><h3>行情核验记录</h3>
+      {latest && <ul><SourceItem source={latest} /></ul>}
+      {history.length > 0 && <details><summary>历史行情记录（{history.length}）</summary><ul>{history.map((s, i) => <SourceItem key={i} source={s} />)}</ul></details>}
+    </>}
+  </>
 }
 
 export default function FutureTrendCompany(): JSX.Element {
@@ -45,10 +64,10 @@ export default function FutureTrendCompany(): JSX.Element {
     <nav aria-label="返回研究列表" className="ui-cluster ft-reader-nav"><Link to={back}>← 返回列表</Link><Link to="/future-trends?tab=core">核心研究</Link><Link to="/future-trends?tab=ai">产业目录</Link></nav>
     <header className="ft-reader-hero"><h1>{summary.name} <small>{summary.code} · {p.industry}</small></h1>
       <span className={`ft-badge ft-badge--${p.priority}`}>{priorityNames[p.priority]}</span>
-      <p>{displayText(p.reason)}</p><p className="ft-wait"><strong>下一步：</strong>{p.watch}</p>
-      <div className="ft-reader-stats"><div><small>报价 · {summary.priceDate}</small><strong>{money(summary.price)}</strong></div><div><small>2:1 情景条件价</small><strong>{money(summary.threshold)}</strong></div><div><small>情景盈亏比</small><strong>{summary.ratio === null ? '暂不适用' : `${summary.ratio.toFixed(2)} : 1`}</strong></div></div>
+      <p><strong>原研究理由</strong>　{displayText(p.reason)}</p><p className="ft-wait"><strong>原研究跟踪条件</strong>　{displayText(p.watch)}</p>
+      <div className="ft-reader-stats"><div><small>报价 · {displayText(summary.priceDate)}</small><strong>{money(summary.price)}</strong></div><div><small>2:1 情景条件价</small><strong>{money(summary.threshold)}</strong></div><div><small>按该报价计算的情景盈亏比</small><strong>{summary.ratio === null ? '暂不适用' : `${summary.ratio.toFixed(2)} : 1`}</strong></div></div>
       <details className="ft-method"><summary>研究结论与完成程度</summary><p>{displayText(summary.headline)}</p><p>{summary.rating} · 证据确定性：{summary.certainty}</p><p>{summary.valuationStatus}</p></details>
-      <p className="ft-method">更新 {summary.asOf} · {summary.depth}。估值情景仍为待复核草稿，条件价不是买入价，实际胜率尚未校准。</p>
+      <p className="ft-method">研究日期 {summary.asOf} · {summary.depth}。情景价格与概率沿用原研究假设。报价变化会改变盈亏比，实际胜率尚未校准。</p>
       <nav aria-label="报告目录">{[[1,'业务'],[7,'护城河'],[6,'财务'],[8,'估值与胜率'],[10,'风险'],[13,'验证日历'],[14,'来源']].map(([i,t]) => <a key={i} href={`#section-${i}`}>{t}</a>)}</nav>
     </header>
     {error && <p role="alert">{error} <button className="ft-export" type="button" onClick={() => setAttempt(x => x+1)}>重新加载</button></p>}{!d && !error && <p role="status">正在加载公司分析…</p>}
@@ -64,14 +83,14 @@ export default function FutureTrendCompany(): JSX.Element {
       {i === 8 && <><p><strong>{displayText(d.modelNote)}</strong></p><div className="ui-table-wrap"><table className="ui-table ft-reader-table"><thead><tr>{['情景', '盈利与倍数假设', '隐含价格', '相对现价', '主观概率'].map(x => <th key={x}>{x}</th>)}</tr></thead><tbody>{d.scenarios.map(s => <tr key={s.name}><th>{s.name}</th><td>{displayText(s.assumption)}</td><td>{money(s.price)}</td><td>{d.price && s.price ? percent(s.price / d.price - 1) : '待核实'}</td><td>{s.probability === null ? '—' : `${Math.round(s.probability * 100)}%`}</td></tr>)}</tbody></table></div>
         <p>条件盈亏比 R = (Base − P) / (P − Bear)：<strong>{d.ratio === null ? '不适用／缺失' : `${d.ratio.toFixed(4)} : 1`}</strong>。{d.price !== null && d.scenarios[1].price !== null && d.price >= d.scenarios[1].price ? '价格锚点已达到或超过基准价，上行不足，不能报正赔率。' : d.price !== null && d.scenarios[0].price !== null && d.price <= d.scenarios[0].price ? '价格锚点已低于悲观价，分母不成立，须重新检查下行情景。' : '仅在 Bear < P < Base 时有效。'}</p>
         <p>基准上行 {percent(d.up)} · 悲观下行 {percent(d.down === null ? null : -d.down)} · 2:1 条件门槛价 {money(d.threshold)}。</p>
-        <p><strong>实际胜率：{displayText(d.winRate)}</strong></p><p>二点模型保本所需胜率：{percent(d.breakEven)}；期望收益：{d.expected === null ? '待核实' : percent(d.expected)}。</p><p>{displayText(d.probabilityNote)}</p>
+        <p><strong>{displayText(d.winRate)}</strong></p><p>二点模型保本所需胜率：{percent(d.breakEven)}；期望收益：{d.expected === null ? '待核实' : percent(d.expected)}。</p><p>{displayText(d.probabilityNote)}</p>
         <h3>独立估值核对</h3><p>{displayText(d.secondMethod)}</p><h3>敏感性</h3><List items={d.sensitivity} /><p>保留未四舍五入值计算；显示小数不代表估值具有同等预测精度。情景价格不含分红、税费与交易成本。</p></>}
       {i === 9 && <List items={d.discipline} />}
       {i === 10 && <><p>{displayText(d.concern)}</p><List items={d.falsification} /></>}
       {i === 11 && <><p>单模型多视角复核；没有独立专家或子代理参与，不以投票代替证据。</p>{d.debate.map(v => <div key={v.perspective}><h3>{v.perspective} · {v.stance}</h3><p>支持：{displayText(v.evidence)}</p><p>反证：{displayText(v.counter)}</p></div>)}<p><strong>综合裁决：</strong>{displayText(d.verdict)}</p></>}
       {i === 12 && <><h3>口径陷阱</h3><List items={d.pitfalls} /><h3>尚待补充的证据</h3><List items={d.missing} /></>}
       {i === 13 && <List items={d.calendar} />}
-      {i === 14 && <><p>条件化研究，不是收益保证或个人交易指令。来源仅支持其明确披露的事实；判断、预测和情景价格由分析者承担。未核实项不作为确定事实。</p><ul>{d.sources.filter(s => s.url).map((s, j) => <li key={j}><a href={s.url.startsWith('/') ? import.meta.env.BASE_URL + s.url.slice(1) : s.url} target="_blank" rel="noopener noreferrer">{s.title}</a> — {s.status}</li>)}</ul><a href={`${import.meta.env.BASE_URL}research/future-trends-2026-10-09/companies/${id}.json`} download>下载完整公司研究 JSON</a></>}
+      {i === 14 && <><p>条件化研究，不是收益保证或个人交易指令。来源仅支持其明确披露的事实；判断、预测和情景价格由分析者承担。未核实项不作为确定事实。</p><ResearchSources sources={d.sources} /><a href={`${import.meta.env.BASE_URL}research/future-trends-2026-10-09/companies/${id}.json`} download>下载完整公司研究 JSON</a></>}
     </ResearchSection>)}
   </Page>
 }

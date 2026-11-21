@@ -9,6 +9,8 @@ import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import Monitor, { mergeSnapshot } from '../../pages/Monitor'
 import { INDICATORS, toneOf } from './indicators'
 import { computeStage } from './stages'
+import { OverviewView, StagesView } from './MacroViews'
+import { buildDigest } from './digest'
 import type { MacroSnapshot } from './indicators'
 import { CN_INDICATORS, type CnKey } from './china'
 
@@ -67,6 +69,22 @@ describe('宏观温度页面', () => {
     expect(within(hero).getByRole('heading', { level: 2 }).textContent).toMatch(/常态|预警|防御|危机/)
     expect(screen.getByText(/美国数据更新于/)).toBeTruthy()
     expect(screen.getByText(/不做空、不加杠杆/)).toBeTruthy()
+  })
+
+  it('缺项时总览、阶段说明与模型输入一致保留有效信号，暂缓判断', () => {
+    const partial = { ...snapshot, series: { ...snapshot.series } }
+    Reflect.deleteProperty(partial.series, 'vix')
+    const overview = render(<MemoryRouter><OverviewView snap={partial} cn={null} /></MemoryRouter>)
+    const hero = within(screen.getByRole('region', { name: '当前阶段' }))
+    expect(hero.getByText('信号待补全')).toBeTruthy()
+    expect(hero.getByText(/5\/6 项风险信号/)).toBeTruthy()
+    expect(hero.queryByText('这个阶段做什么')).toBeNull()
+    overview.unmount()
+    render(<MemoryRouter><StagesView snap={partial} /></MemoryRouter>)
+    expect(screen.getByText(/信号待补全，已取得 5\/6 项/)).toBeTruthy()
+    expect(screen.queryByText('当前', { selector: 'span' })).toBeNull()
+    expect(buildDigest(partial, null).stage).toMatchObject({ name: '信号待补全', score: null, thisStageDoes: [], thisStageDoesNot: [] })
+    expect(buildDigest(snapshot, null).stage.thisStageDoes.length).toBeGreaterThan(0)
   })
 
   it('美国、中国宏观每项指标都有走势图和数据日期', async () => {
