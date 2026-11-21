@@ -266,7 +266,7 @@ function Issues({ d }: { d: Data }): JSX.Element {
 export default function ThsCbond(): JSX.Element {
   const load = useCbond()
   return (
-    <Page className="mm-page">
+    <Page className="mm-page cb-page">
       <PageTitle>同花顺 · 可转债</PageTitle>
       <ThsTabs />
       <p className="mm-disclaimer">{THS_DISCLAIMER}</p>

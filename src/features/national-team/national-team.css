@@ -20,7 +20,7 @@
 .nt-delta--flat { color: var(--text-secondary); }
 
 /* 标签 */
-.nt-tag { display: inline-block; margin: 0 4px 2px 0; padding: 1px 8px; border-radius: var(--radius-full); background: var(--accent-soft); color: var(--accent-ink); font-size: 0.74rem; white-space: nowrap; }
+.nt-tag { display: inline-block; margin: 0 4px 2px 0; padding: 1px 8px; border-radius: var(--radius-full); background: var(--accent-soft); color: var(--accent-ink); font-size: 0.75rem; white-space: nowrap; }
 .nt-tag--ext { background: var(--bg-secondary); color: var(--text-secondary); }
 .nt-tag--new { margin-left: 6px; background: var(--accent-warm-soft); color: var(--warm-ink); }
 
@@ -38,7 +38,7 @@
 .nt-rank li { border-bottom: 1px solid var(--border-subtle); }
 .nt-rank button { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1.6fr) 72px; gap: 10px; align-items: center; width: 100%; min-height: 44px; padding: 6px 4px; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
 .nt-rank button:hover { background: var(--bg-secondary); }
-.nt-rank small { color: var(--text-secondary); margin-left: 4px; }
+.nt-rank small { color: var(--text-secondary); margin-left: 4px; font-size: 0.75rem; }
 .nt-rank__a, .nt-rank__b { font-size: 0.86rem; font-variant-numeric: tabular-nums; }
 .nt-rank__b { text-align: right; }
 .nt-rank__ind { font-size: 0.82rem; }
@@ -46,13 +46,14 @@
 /* 可点文字 */
 .nt-linkish { padding: 0; border: 0; background: transparent; color: var(--accent-ink); font: inherit; text-align: left; text-decoration: underline; text-decoration-color: var(--border-subtle); text-underline-offset: 3px; cursor: pointer; }
 .nt-linkish:hover { text-decoration-color: currentColor; }
-.nt-linkish small { margin-left: 4px; color: var(--text-secondary); }
+.nt-linkish small { margin-left: 4px; color: var(--text-secondary); font-size: 0.75rem; }
+.nt-page small { font-size: 0.75rem; }
 .nt-page button:focus-visible, .nt-page select:focus-visible, .nt-page input:focus-visible, .nt-page summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* 筛选 */
 .nt-filters { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 16px; }
 .nt-filters label { display: flex; flex-direction: column; gap: 4px; font-size: 0.8rem; color: var(--text-secondary); }
-.nt-filters input[type='search'], .nt-filters select { min-height: 40px; padding: 6px 10px; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); background: var(--bg-card); color: var(--text-primary); font: inherit; font-size: 0.92rem; }
+.nt-filters input[type='search'], .nt-filters select { min-height: 32px; padding: 6px 10px; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); background: var(--bg-card); color: var(--text-primary); font: inherit; font-size: 0.92rem; }
 .nt-filters input[type='search'] { width: 180px; }
 .nt-check { flex-direction: row !important; align-items: center; min-height: 40px; gap: 6px !important; color: var(--text-primary) !important; font-size: 0.9rem !important; }
 .nt-filters__count { margin-left: auto; align-self: center; }
@@ -106,7 +107,7 @@
 .nt-chips { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; }
 .nt-chips button { min-height: 32px; padding: 2px 12px; border: 1px solid var(--border-subtle); border-radius: var(--radius-full); background: var(--bg-card); color: var(--text-primary); font: inherit; font-size: 0.84rem; cursor: pointer; }
 .nt-chips button[aria-pressed='true'] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-ink); }
-.nt-data summary { cursor: pointer; color: var(--accent-ink); font-size: 0.9rem; margin-bottom: 10px; }
+.nt-data summary { cursor: pointer; color: var(--accent-ink); font-size: 0.9rem; margin-bottom: 10px; min-height: 32px; padding: 6px 0; }
 
 /* 说明页 */
 .nt-guide section p, .nt-guide section li { max-width: 46em; font-size: 0.95rem; line-height: 1.9; }
@@ -122,6 +123,16 @@
   .nt-filters__count { margin-left: 0; }
 }
 
-/* 可点的板块名：触控目标不小于 32px（触屏 40px） */
+/* 可点的板块名与筛选：桌面 ≥32px，触屏 ≥44px */
 button.nt-bars__name { min-height: 32px; }
-@media (pointer: coarse) { button.nt-bars__name { min-height: 40px; } }
+@media (pointer: coarse) {
+  button.nt-bars__name,
+  .nt-filters input[type='search'],
+  .nt-filters select,
+  .nt-chips button,
+  .nt-legend button,
+  .nt-data summary,
+  .nt-more {
+    min-height: var(--tap);
+  }
+}

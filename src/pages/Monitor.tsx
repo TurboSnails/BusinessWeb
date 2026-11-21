@@ -23,6 +23,7 @@ import type { CnKey } from '../features/macro/china'
 import type { HkKey } from '../features/macro/hk'
 import { Page } from '../components/ui'
 import { PageDataFreshness } from '../components/ui/PageDataFreshness'
+import '../styles/monitor.css'
 
 const MarketCycleView = lazy(() => import('../features/market-cycle/MarketCycleView'))
 const UsMarketView = lazy(() => import('../features/us-market/UsMarketView'))
@@ -30,18 +31,18 @@ const CnMarketView = lazy(() => import('../features/cn-market/CnMarketView'))
 type TabId = 'overview' | 'us-market' | 'cn-market' | 'us' | 'cn' | 'hk' | 'market-cycle' | 'cycles' | 'valuation' | 'spread' | 'stages' | 'guide' | 'archive'
 const TABS: TabItem<TabId>[] = [
   { id: 'overview', label: '温度总览' },
-  { id: 'us-market', label: '美股市场' },
-  { id: 'cn-market', label: '中国市场' },
-  { id: 'us', label: '美国宏观' },
-  { id: 'cn', label: '中国宏观' },
-  { id: 'hk', label: '港股宏观' },
-  { id: 'market-cycle', label: '牛熊周期' },
-  { id: 'cycles', label: '周期位置' },
-  { id: 'valuation', label: '估值位置' },
-  { id: 'spread', label: '股债息差' },
-  { id: 'stages', label: '阶段与动作' },
-  { id: 'guide', label: '指标说明' },
-  { id: 'archive', label: '旧版存档' },
+  { id: 'us-market', label: '美股市场', group: '市场', shortLabel: '美股' },
+  { id: 'cn-market', label: '中国市场', group: '市场', shortLabel: '中国' },
+  { id: 'us', label: '美国宏观', group: '宏观', shortLabel: '美国' },
+  { id: 'cn', label: '中国宏观', group: '宏观', shortLabel: '中国' },
+  { id: 'hk', label: '港股宏观', group: '宏观', shortLabel: '港股' },
+  { id: 'market-cycle', label: '牛熊周期', group: '周期与估值' },
+  { id: 'cycles', label: '周期位置', group: '周期与估值' },
+  { id: 'valuation', label: '估值位置', group: '周期与估值' },
+  { id: 'spread', label: '股债息差', group: '周期与估值' },
+  { id: 'stages', label: '阶段与动作', group: '方法' },
+  { id: 'guide', label: '指标说明', group: '方法' },
+  { id: 'archive', label: '旧版存档', group: '方法' },
 ]
 
 // 旧版内容以期权情绪、做空与个股仓位为主，和书中方法不一致；保留原样，仅供查阅

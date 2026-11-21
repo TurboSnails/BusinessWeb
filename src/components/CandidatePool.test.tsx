@@ -42,11 +42,11 @@ describe('CandidatePool with cloud sync', () => {
 
   it('works locally before auth, then verifies once, uploads local items, reorders and syncs', async () => {
     render(<Harness />)
-    expect(screen.getByText(/未验证身份/)).toBeTruthy()
+    expect(screen.getByText(/未开启同步/)).toBeTruthy()
     fireEvent.click(screen.getByText('add-A')); fireEvent.click(screen.getByText('add-B')); fireEvent.click(screen.getByText('add-C'))
     expect(order()).toEqual(['A', 'B', 'C'])
 
-    fireEvent.change(screen.getByLabelText('同步 Token'), { target: { value: TOKEN } })
+    fireEvent.change(screen.getByLabelText('同步口令'), { target: { value: TOKEN } })
     fireEvent.click(screen.getByText('验证并同步'))
     await waitFor(() => expect(screen.getByText(/已同步到云端/)).toBeTruthy())
     expect(cloud.items).toHaveLength(3) // 本机项首次连接时补传
@@ -95,10 +95,24 @@ describe('CandidatePool with cloud sync', () => {
 
   it('wrong token is rejected and asks again', async () => {
     render(<Harness />)
-    fireEvent.change(screen.getByLabelText('同步 Token'), { target: { value: 'x'.repeat(32) } })
+    fireEvent.change(screen.getByLabelText('同步口令'), { target: { value: 'x'.repeat(32) } })
     await act(async () => { fireEvent.click(screen.getByText('验证并同步')) })
     await waitFor(() => expect(screen.getByText(/Token 无效/)).toBeTruthy())
     expect(localStorage.getItem('rn-candidates-token')).toBeNull()
+  })
+})
+
+describe('同步状态展示', () => {
+  it.each([
+    ['no-token', '未开启同步：数据仅保存在本机'],
+    ['syncing', '☁ 同步中…'],
+    ['synced', '☁ 已同步到云端'],
+    ['error', '⚠ 云端同步失败，数据暂存本机'],
+  ] as const)('空池且同步区收起时仍显示 %s 状态', (state, text) => {
+    render(<MemoryRouter><CandidatePool items={[]} companies={companies} state={state} message="" onMove={() => {}} onDecision={() => {}} onRemove={() => {}} onNote={() => {}} onClear={() => {}} onConnect={() => true} onRetry={() => {}} /></MemoryRouter>)
+    expect(screen.getByText(text)).toBeTruthy()
+    expect(screen.getByText('跨设备同步').closest('details')?.hasAttribute('open')).toBe(false)
+    expect(screen.queryByRole('heading', { name: '我的候选池 · 0 家' })).toBeNull()
   })
 })
 

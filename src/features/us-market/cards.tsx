@@ -16,6 +16,15 @@ export const format = (value: number, unit: string) => {
   return unit === 'bp' || unit === '十亿美元' ? number + ' ' + unit : number + unit
 }
 export const signed = (value: number | undefined, unit: string) => value === undefined ? '—' : (value > 0 ? '+' : '') + format(Math.round(value * 100) / 100, unit)
+
+/** 美股涨跌着色（绿涨红跌）；0 / 缺失不着色 */
+export const chgClass = (value: number | undefined): string | undefined =>
+  value === undefined || value === 0 ? undefined : value > 0 ? 'us-chg--up' : 'us-chg--down'
+
+export function SignedChg({ value, unit }: { value: number | undefined; unit: string }): JSX.Element {
+  const cls = chgClass(value)
+  return cls ? <span className={cls}>{signed(value, unit)}</span> : <>{signed(value, unit)}</>
+}
 export const route = (tab: string) => `/monitor?tab=${tab}`
 export const val = (name: string, unit: string, source: string, scope: string, frequency: string, history: Point[], note?: string): Reading => ({
   name, unit, source, scope, frequency, history, note,

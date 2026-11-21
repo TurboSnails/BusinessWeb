@@ -11,3 +11,13 @@
 .ti-list { margin: 0 0 12px; padding-left: 1.2em; color: var(--text-secondary); font-size: 0.88rem; line-height: 1.7; }
 .ti-summary .mm-up { color: var(--up-ink); }
 .ti-summary .mm-down { color: var(--down-ink); }
+
+.ti-page .kd-sortbtn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 4px 2px;
+}
+@media (pointer: coarse) {
+  .ti-page .kd-sortbtn { min-height: var(--tap); }
+}

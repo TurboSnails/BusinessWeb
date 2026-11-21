@@ -65,7 +65,7 @@ describe('RelativePerformance', () => {
     const region = screen.getByRole('region', { name: /等权与市值加权/ })
     const row = within(region).getByRole('row', { name: /标普 500 等权 对 标普 500/ })
     expect(within(row).getAllByText('+20.00 个百分点')).toHaveLength(2)
-    expect(within(row).getAllByText('+20.00% 对 0.00%')).toHaveLength(2)
+    expect(within(row).getAllByText((_, el) => el?.tagName === 'SMALL' && el.textContent === '+20.00% 对 0.00%')).toHaveLength(2)
     expect(within(row).getAllByText(dates[24]).length).toBeGreaterThan(0)
     expect(within(row).getAllByRole('link', { name: '标普 500' })[0].getAttribute('href')).toContain('GSPC')
     expect(within(region).getAllByRole('table')[0].textContent).not.toMatch(/纳斯达克/)

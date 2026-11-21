@@ -29,6 +29,20 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.unstubAllGlobals() })
 
 describe('机会雷达页', () => {
+  it('方法说明默认折叠且保留原文，不暴露数据文件路径', async () => {
+    render(<MemoryRouter><Radar /></MemoryRouter>)
+    expect(await screen.findByRole('link', { name: '稳价' })).toBeTruthy()
+    const method = screen.getByText('方法与范围').closest('details')!
+    expect(method.hasAttribute('open')).toBe(false)
+    expect(method.textContent).toContain('按《正念投资》的选股方法')
+    expect(method.textContent).toContain('范围是沪深300、恒指、恒生科技、纳指100及研究公司')
+    expect(method.textContent).toContain('分类与增速来自林奇分类数据')
+    expect(screen.getByText(/这是研究线索，不是买入建议。/)).toBeTruthy()
+    expect(document.body.textContent).not.toContain('public/data')
+    fireEvent.click(screen.getByText('方法与范围'))
+    expect(method.hasAttribute('open')).toBe(true)
+  })
+
   it('两条主线分开显示，周期型只在「不在主线」里出现', async () => {
     render(<MemoryRouter><Radar /></MemoryRouter>)
     expect(await screen.findByRole('link', { name: '稳价' })).toBeTruthy()

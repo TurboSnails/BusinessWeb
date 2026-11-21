@@ -277,7 +277,7 @@
   transition: border-color 0.15s ease, color 0.15s ease;
 }
 
-.ui-chip:hover {
+.ui-chip:hover:not(:disabled):not(.is-active):not([aria-pressed='true']) {
   border-color: var(--accent);
   color: var(--text-primary);
 }
@@ -285,8 +285,20 @@
 .ui-chip.is-active,
 .ui-chip[aria-pressed='true'] {
   border-color: var(--accent);
-  background: var(--accent);
-  color: #fff;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+
+.ui-chip.is-active .ui-chip__count,
+.ui-chip[aria-pressed='true'] .ui-chip__count {
+  opacity: 0.85;
+  color: var(--accent-ink);
+}
+
+.ui-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .ui-chip__count {

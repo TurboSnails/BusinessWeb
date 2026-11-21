@@ -1,9 +1,14 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
+import { scrollChildIntoViewX, useOverflowFade } from '../../hooks/useOverflowFade'
 
 export interface TabItem<T extends string> {
   id: T
   label: string
   icon?: React.ReactNode
+  /** 可选分组名：同组页签前显示小号分组标签，组与组之间细分隔 */
+  group?: string
+  /** 组内短名；完整名称放 aria-label / title。未传则显示 label */
+  shortLabel?: string
 }
 
 /** 页面级一级页签：吸顶、下划线样式，全站子页面共用 */
@@ -13,6 +18,19 @@ export function PageTabs<T extends string>({ items, value, onChange, label }: {
   onChange(id: NoInfer<T>): void
   label: string
 }): JSX.Element {
+  const activeRef = useRef<HTMLButtonElement | null>(null)
+  const { ref: overflowRef, sync: syncOverflow } = useOverflowFade<HTMLDivElement>()
+  const grouped = items.some(item => item.group)
+
+  useEffect(() => {
+    const child = activeRef.current
+    const container = child?.parentElement
+    if (child && container) scrollChildIntoViewX(container, child)
+    syncOverflow()
+    const id = requestAnimationFrame(syncOverflow)
+    return () => cancelAnimationFrame(id)
+  }, [value, syncOverflow])
+
   // 方向键、Home、End 在页签间移动并选中，只有当前页签在 Tab 顺序里（WAI-ARIA tabs 模式）
   const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>): void => {
     const keys = ['ArrowLeft', 'ArrowRight', 'Home', 'End']
@@ -23,21 +41,58 @@ export function PageTabs<T extends string>({ items, value, onChange, label }: {
       : (cur + (e.key === 'ArrowRight' ? 1 : -1) + items.length) % items.length
     onChange(items[next].id)
     const buttons = e.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]')
-    buttons[next]?.focus()
+    buttons[next]?.focus({ preventScroll: true })
   }
+
+  const nodes: React.ReactNode[] = []
+  let prevGroup: string | undefined
+  for (const item of items) {
+    if (item.group && item.group !== prevGroup) {
+      if (prevGroup !== undefined || nodes.length > 0) {
+        nodes.push(<span key={`sep-${item.group}`} role="presentation" className="page-tabs__sep" aria-hidden="true" />)
+      }
+      nodes.push(
+        <span key={`group-${item.group}`} role="presentation" className="page-tabs__group">
+          {item.group}
+        </span>,
+      )
+      prevGroup = item.group
+    } else if (!item.group) {
+      prevGroup = undefined
+    }
+
+    const active = item.id === value
+    const text = item.shortLabel ?? item.label
+    const fullName = item.shortLabel && item.shortLabel !== item.label ? item.label : undefined
+    nodes.push(
+      <button
+        key={item.id}
+        type="button"
+        role="tab"
+        aria-selected={active}
+        aria-label={fullName}
+        title={fullName}
+        tabIndex={active ? 0 : -1}
+        ref={active ? activeRef : undefined}
+        className={active ? 'page-tab is-active' : 'page-tab'}
+        onClick={() => onChange(item.id)}
+      >
+        {item.icon}
+        {text}
+      </button>,
+    )
+  }
+
   return (
     <div className="page-tabs">
-      <div className="page-tabs__inner" role="tablist" aria-label={label} onKeyDown={onKeyDown}>
-        {items.map(item => {
-          const active = item.id === value
-          return (
-            <button key={item.id} type="button" role="tab" aria-selected={active} tabIndex={active ? 0 : -1}
-              className={active ? 'page-tab is-active' : 'page-tab'} onClick={() => onChange(item.id)}>
-              {item.icon}
-              {item.label}
-            </button>
-          )
-        })}
+      <div
+        className={grouped ? 'page-tabs__inner page-tabs__inner--grouped' : 'page-tabs__inner'}
+        role="tablist"
+        aria-label={label}
+        onKeyDown={onKeyDown}
+        ref={overflowRef}
+      >
+        {nodes}
       </div>
     </div>
   )

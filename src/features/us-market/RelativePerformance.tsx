@@ -142,6 +142,7 @@ export function weekdaysBetween(from: string, to: string): number {
 
 const num = (value: number, digits = 2) => new Intl.NumberFormat('zh-CN', { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(value)
 const signedText = (value: number, unit: string) => `${value > 0 ? '+' : value < 0 ? '−' : ''}${num(Math.abs(value))}${unit}`
+const chgTone = (value: number): 'up' | 'down' | 'flat' => value > 0 ? 'up' : value < 0 ? 'down' : 'flat'
 
 function Cell({ h }: { h: HorizonResult }) {
   const label = `近 ${h.sessions} 个交易日`
@@ -150,8 +151,8 @@ function Cell({ h }: { h: HorizonResult }) {
   if (h.status === 'gap') return <td className="rel-perf__na" data-label={label}>— <small>起点 {h.date} 缺少收盘值，未补值</small></td>
   return (
     <td data-label={label}>
-      <strong>{signedText(h.relative, ' 个百分点')}</strong>
-      <small>{signedText(h.asset.ret, '%')} 对 {signedText(h.benchmark.ret, '%')}</small>
+      <strong data-chg={chgTone(h.relative)}>{signedText(h.relative, ' 个百分点')}</strong>
+      <small><span data-chg={chgTone(h.asset.ret)}>{signedText(h.asset.ret, '%')}</span> 对 <span data-chg={chgTone(h.benchmark.ret)}>{signedText(h.benchmark.ret, '%')}</span></small>
     </td>
   )
 }
@@ -174,7 +175,7 @@ function Verify({ asset, benchmark, result }: { asset: RelativeSlice; benchmark:
             <td>{sourceLink(s)}</td>
             <td><time dateTime={l.start[0]}>{l.start[0]}</time> {num(l.start[1])}</td>
             <td><time dateTime={l.end[0]}>{l.end[0]}</time> {num(l.end[1])}</td>
-            <td>{signedText(l.ret, '%')}</td>
+            <td data-chg={chgTone(l.ret)}>{signedText(l.ret, '%')}</td>
           </tr>
         )))}</tbody>
       </table>
@@ -326,7 +327,7 @@ export default function RelativePerformance({ market, slices, asOf }: RelativePe
   const headingId = `rel-perf-${market}`
 
   return (
-    <section className="rel-perf" aria-labelledby={headingId}>
+    <section className="rel-perf" aria-labelledby={headingId} data-market={market}>
       <header>
         <h2 id={headingId}>相对表现 · {config.title}</h2>
         <p>{config.note}按两者都有收盘值的同一起止日期计算，单位为百分点；缺失日期不补值，价格指数不含分红。</p>

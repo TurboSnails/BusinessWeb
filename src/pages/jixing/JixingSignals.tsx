@@ -94,7 +94,7 @@ export default function JixingSignals(): JSX.Element {
     return () => controller.abort()
   }, [])
   return (
-    <Page className="mm-page">
+    <Page className="mm-page jsg-page">
       <PageTitle>今天几星 · 牛熊信号板</PageTitle>
       <JixingTabs />
       <p className="mm-disclaimer">{JIXING_DISCLAIMER}</p>

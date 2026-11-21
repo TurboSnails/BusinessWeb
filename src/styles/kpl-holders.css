@@ -17,13 +17,23 @@
 .hd-table th, .hd-table td { padding: 7px 10px; white-space: nowrap; }
 .hd-table th[scope='row'] { font-weight: 500; text-align: left; }
 .hd-table small { color: var(--text-tertiary); margin-left: 6px; font-size: 0.75rem; font-weight: 400; }
-.hd-tag { display: inline-block; padding: 0 6px; border-radius: var(--radius-full); border: 1px solid var(--border-primary); color: var(--text-secondary); font-size: 0.72rem; line-height: 1.5; white-space: nowrap; }
+.hd-tag { display: inline-block; padding: 0 6px; border-radius: var(--radius-full); border: 1px solid var(--border-primary); color: var(--text-secondary); font-size: 0.75rem; line-height: 1.5; white-space: nowrap; }
 .hd-tag.is-up { color: var(--up-ink); border-color: var(--up); }
 .hd-tag.is-down { color: var(--down-ink); border-color: var(--down); }
-.hd-name { appearance: none; background: none; border: 0; padding: 0; font: inherit; font-weight: 500; color: var(--accent-ink); cursor: pointer; text-align: left; }
+.hd-name {
+  appearance: none; display: inline-flex; align-items: center; min-height: 32px;
+  background: none; border: 0; padding: 4px 0; font: inherit; font-weight: 500; color: var(--accent-ink); cursor: pointer; text-align: left;
+}
 .hd-name[aria-pressed='true'] { text-decoration: underline; }
-.hd-more { appearance: none; margin-top: 10px; margin-left: 8px; background: none; border: 1px solid var(--border-primary); border-radius: var(--radius-sm); padding: 2px 10px; font: inherit; font-size: 0.82rem; font-weight: 400; color: var(--text-secondary); cursor: pointer; }
+.hd-more {
+  appearance: none; display: inline-flex; align-items: center; min-height: 32px; margin-top: 10px; margin-left: 8px;
+  background: none; border: 1px solid var(--border-primary); border-radius: var(--radius-sm);
+  padding: 4px 12px; font: inherit; font-size: 0.82rem; font-weight: 400; color: var(--text-secondary); cursor: pointer;
+}
 .hd-more:hover { color: var(--text-primary); }
+@media (pointer: coarse) {
+  .hd-name, .hd-more { min-height: var(--tap); }
+}
 
 @media (max-width: 900px) {
   .hd-two { grid-template-columns: minmax(0, 1fr); }

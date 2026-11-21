@@ -89,7 +89,13 @@
   cursor: pointer;
   line-height: 1.5;
 }
-.invest-start .is-option input { flex: none; width: 20px; height: 20px; margin: 0; accent-color: var(--accent); }
+.invest-start .is-option input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--accent);
+}
 .invest-start .is-option--on { border-color: var(--accent); background: var(--accent-soft); }
 .invest-start .is-option:focus-within { outline: 2px solid var(--accent); outline-offset: 1px; }
 .invest-start .is-option--inline { display: inline-flex; margin: 4px 8px 4px 0; }
@@ -170,9 +176,30 @@
   border-radius: var(--radius-sm);
   background: var(--bg-card);
 }
-.invest-start .is-step > input { flex: none; width: 22px; height: 22px; margin: 11px 0 0; accent-color: var(--accent); }
+.invest-start .is-step__check {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  min-height: 32px;
+  margin: 6px 0 0;
+  cursor: pointer;
+}
+.invest-start .is-step__check input {
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  accent-color: var(--accent);
+}
 .invest-start .is-step__body { min-width: 0; flex: 1; }
-.invest-start .is-step__title { display: flex; align-items: center; min-height: 44px; font-weight: 600; line-height: 1.6; cursor: pointer; }
+.invest-start .is-step__title { display: flex; align-items: center; min-height: 32px; font-weight: 600; line-height: 1.6; cursor: pointer; }
+@media (pointer: coarse) {
+  .invest-start .is-step__check,
+  .invest-start .is-step__title {
+    min-height: var(--tap);
+  }
+}
 .invest-start .is-step--done .is-step__title { color: var(--text-secondary); text-decoration: line-through; text-decoration-color: var(--text-tertiary); }
 .invest-start .is-step__detail { margin: 0; color: var(--text-secondary); font-size: 0.9rem; }
 .invest-start .is-step__links { margin: 2px 0 0; font-size: 0.88rem; }

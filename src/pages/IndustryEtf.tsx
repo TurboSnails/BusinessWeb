@@ -158,7 +158,7 @@ export default function IndustryEtf(): JSX.Element {
                 <span className="industry-group-count">{group.items.length} 只 ETF</span>
               </div>
             <div className="industry-table-wrapper" role="region" aria-label={`${group.name} ETF 表格`} tabIndex={0}>
-              <table className="report-table industry-etf-table">
+              <table className="report-table industry-etf-table industry-sector-table">
                 <colgroup>
                   <col /><col /><col /><col /><col /><col /><col />
                 </colgroup>

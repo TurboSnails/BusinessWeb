@@ -1,12 +1,27 @@
 .cycle-board { display: grid; gap: 24px; padding: 16px 0; min-width: 0; }
 .cycle-board > *, .cycle-intro > *, .cycle-toolbar > * { min-width: 0; }
 .cycle-board .seg { margin: 0; max-width: 100%; width: auto; box-sizing: border-box; flex-wrap: wrap; }
+.cycle-board .seg__btn,
+.cycle-board .tool-btn,
+.cycle-actions .tool-btn,
+.cycle-file {
+  min-height: 32px;
+  box-sizing: border-box;
+}
+@media (pointer: coarse) {
+  .cycle-board .seg__btn,
+  .cycle-board .tool-btn,
+  .cycle-actions .tool-btn,
+  .cycle-file {
+    min-height: var(--tap, 44px);
+  }
+}
 .cycle-board h2, .cycle-board h3, .cycle-board h4 { margin: 0; }
 .cycle-board p { line-height: 1.8; }
 .cycle-intro, .cycle-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 .cycle-intro h2 { font-size: clamp(1.25rem, 3vw, 1.75rem); }
 .cycle-intro p { color: var(--text-secondary); margin-bottom: 0; }
-.cycle-version { color: var(--text-secondary); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 5px 10px; font-size: .8rem; }
+.cycle-version { color: var(--text-secondary); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 6px 10px; font-size: .75rem; min-height: 32px; display: inline-flex; align-items: center; box-sizing: border-box; }
 .cycle-summary { padding: 24px; border-left: 4px solid var(--accent); background: var(--bg-secondary); border-radius: var(--radius-md); display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 .cycle-summary h3 { font-size: clamp(1.6rem, 4vw, 2.2rem); }
 .cycle-summary p { margin: 8px 0; }
@@ -20,16 +35,23 @@
 .cycle-row > * { min-width: 0; }
 .cycle-row p { margin: 0; font-size: .9rem; overflow-wrap: anywhere; }
 .cycle-method { margin-top: 8px; color: var(--text-secondary); }
-.cycle-method summary { font-size: .8rem; }
-.cycle-method p { font-size: .8rem; }
+.cycle-method summary { font-size: .75rem; min-height: 32px; padding-block: .35rem; }
+.cycle-method p { font-size: .75rem; }
 .cycle-row__title { display: grid; gap: 10px; justify-items: start; }
 .cycle-row__meta { display: grid; gap: 10px; font-size: .8rem; color: var(--text-secondary); overflow-wrap: anywhere; }
-.cycle-signal { padding: 3px 9px; border-radius: var(--radius-md); font-size: .78rem; background: var(--bg-secondary); color: var(--text-secondary); }
+.cycle-row__meta a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: .2rem 0;
+  box-sizing: border-box;
+}
+.cycle-signal { padding: 4px 9px; border-radius: var(--radius-md); font-size: .75rem; background: var(--bg-secondary); color: var(--text-secondary); }
 .cycle-signal--positive { background: color-mix(in srgb, var(--system-green) 12%, transparent); color: var(--down-ink); }
 .cycle-signal--risk { background: color-mix(in srgb, var(--system-red) 12%, transparent); color: var(--up-ink); }
 .cycle-signal--bottom { background: var(--accent-soft); color: var(--text-primary); }
 .cycle-section { border-top: 1px solid var(--border-subtle); padding-top: 22px; min-width: 0; }
-.cycle-board summary { cursor: pointer; font-weight: 600; padding: 8px 0; line-height: 1.6; }
+.cycle-board summary { cursor: pointer; font-weight: 600; padding: 8px 0; line-height: 1.6; min-height: 32px; box-sizing: border-box; }
 .cycle-editors { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 16px 0; }
 .cycle-board fieldset { min-width: 0; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 16px; }
 .cycle-board legend { padding: 0 6px; font-weight: 600; }
@@ -41,9 +63,25 @@
 .cycle-budget { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin: 12px 0; }
 .cycle-note { margin: 18px 0; }
 .cycle-checks { display: grid; gap: 12px; margin: 16px 0; }
-.cycle-checks label { display: flex; align-items: center; gap: 10px; }
-.cycle-checks input { width: 18px; height: 18px; flex-shrink: 0; accent-color: var(--accent); }
+.cycle-checks label { display: flex; align-items: center; gap: 10px; min-height: 32px; }
+.cycle-checks input {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  flex-shrink: 0;
+  accent-color: var(--accent);
+  margin: 0;
+}
 .cycle-chart { margin: 16px 0 0; }
+.cycle-chart__slider { display: grid; gap: 8px; }
+.cycle-chart__slider input[type="range"] {
+  width: 100%;
+  min-height: 32px;
+  height: 32px;
+  margin: 0;
+  accent-color: var(--accent);
+}
 .cycle-chart svg { display: block; width: 100%; height: auto; }
 .cycle-chart path { fill: none; stroke-linejoin: round; }
 .cycle-chart__price { stroke: var(--accent); stroke-width: 2.5; }
@@ -68,7 +106,7 @@
 .cycle-notice details { margin-top: 4px; }
 .cycle-row__headline { font-weight: 600; font-variant-numeric: tabular-nums; }
 .cycle-row__more { margin-top: 6px; }
-.cycle-row__more summary { font-weight: 400; color: var(--text-secondary); font-size: .85rem; padding: 4px 0; }
+.cycle-row__more summary { font-weight: 400; color: var(--text-secondary); font-size: .85rem; padding: 8px 0; min-height: 32px; }
 .cycle-row__rule { color: var(--text-secondary); margin-bottom: 6px; }
 @media (max-width: 900px) { .cycle-summary { grid-template-columns: 1fr; } }
 
@@ -76,9 +114,19 @@
 .cycle-overview { margin-top: 12px; display: grid; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; }
 .cycle-overview > div { display: grid; grid-template-columns: minmax(84px, 1.1fr) minmax(96px, 1.3fr) repeat(6, minmax(0, 1fr)); align-items: center; gap: 8px; padding: 10px 14px; border-top: 1px solid var(--border-subtle); font-size: .85rem; }
 .cycle-overview > div:first-child { border-top: 0; }
-.cycle-overview__head { color: var(--text-secondary); font-size: .78rem !important; background: var(--bg-secondary); }
+.cycle-overview__head { color: var(--text-secondary); font-size: .75rem !important; background: var(--bg-secondary); }
 .cycle-overview > div.is-current { background: var(--accent-soft); }
-.cycle-overview__market { all: unset; cursor: pointer; font-weight: 600; text-decoration: underline; text-decoration-color: var(--border-subtle); text-underline-offset: 3px; }
+.cycle-overview__market {
+  all: unset;
+  cursor: pointer;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--border-subtle);
+  text-underline-offset: 3px;
+  min-height: 32px;
+  padding: .25rem 0;
+  box-sizing: border-box;
+}
 .cycle-overview__market:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .cycle-overview__state { font-weight: 600; }
 .cycle-dot { display: inline-flex; align-items: center; gap: 6px; min-width: 0; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -93,28 +141,37 @@
 /* summary additions */
 .cycle-chips { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
 .cycle-chips li { display: inline-flex; gap: 8px; align-items: baseline; padding: 6px 12px; border: 1px solid var(--border-subtle); border-radius: 999px; background: var(--bg-card); font-weight: 600; font-size: .88rem; }
-.cycle-chips span { font-weight: 400; color: var(--text-secondary); font-size: .78rem; }
+.cycle-chips span { font-weight: 400; color: var(--text-secondary); font-size: .75rem; }
 .cycle-changes { grid-column: 1 / -1; }
 .cycle-changes p { margin: 0; font-size: .9rem; }
 .cycle-alert { color: var(--up-ink); font-weight: 600; }
 /* review & archive */
 .cycle-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-.cycle-file { position: relative; cursor: pointer; display: inline-flex !important; }
-.cycle-file input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+.cycle-file { position: relative; cursor: pointer; display: inline-flex !important; align-items: center; min-height: 32px; }
+.cycle-file input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  min-height: 32px;
+  margin: 0;
+}
 .cycle-file:focus-within { outline: 2px solid var(--accent); outline-offset: 3px; }
 .cycle-issues { font-size: .85rem; padding-left: 1.2em; display: grid; gap: 4px; overflow-wrap: anywhere; }
 .cycle-section h4 { margin: 16px 0 8px; font-size: .95rem; }
 .cycle-table-wrap { overflow-x: auto; }
 .cycle-facts { width: 100%; border-collapse: collapse; font-size: .85rem; font-variant-numeric: tabular-nums; }
 .cycle-facts th, .cycle-facts td { text-align: left; padding: 8px 10px 8px 0; border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
-.cycle-facts th { color: var(--text-secondary); font-weight: 400; font-size: .78rem; }
+.cycle-facts th { color: var(--text-secondary); font-weight: 400; font-size: .75rem; }
 @media (max-width: 720px) {
   .cycle-overview > div { grid-template-columns: repeat(6, minmax(0, 1fr)); row-gap: 6px; }
   .cycle-overview > div > :nth-child(1) { grid-column: 1 / 3; }
   .cycle-overview > div > :nth-child(2) { grid-column: 3 / -1; }
   .cycle-overview__head > :nth-child(-n+2) { display: none; }
   .cycle-overview__head > :nth-child(3) { grid-column: 1; }
-  .cycle-dot { flex-direction: column; gap: 2px; font-size: .7rem; white-space: normal; text-align: center; }
+  .cycle-dot { flex-direction: column; gap: 2px; font-size: .75rem; white-space: normal; text-align: center; }
 }
 
 /* threshold gauges on evidence cards */
@@ -160,8 +217,8 @@
 .cycle-bt-table th, .cycle-bt-table td { padding: 6px 8px; border-bottom: 1px solid var(--border-subtle); text-align: right; white-space: nowrap; }
 .cycle-bt-table th[scope='row'], .cycle-bt-table td:nth-child(2) { text-align: left; }
 .cycle-bt-table thead th { color: var(--text-secondary); font-weight: 500; text-align: center; }
-.cycle-bt-table small { display: block; color: var(--text-secondary); font-size: .72rem; }
+.cycle-bt-table small { display: block; color: var(--text-secondary); font-size: .75rem; }
 .cycle-bt-table tr.is-current { background: color-mix(in srgb, var(--accent) 7%, transparent); }
 .cycle-bt-more { margin-top: 12px; font-size: .85rem; }
-.cycle-bt-more summary { cursor: pointer; }
+.cycle-bt-more summary { cursor: pointer; min-height: 32px; padding-block: .35rem; }
 .cycle-bt-more ul { padding-left: 1.2em; line-height: 1.6; }

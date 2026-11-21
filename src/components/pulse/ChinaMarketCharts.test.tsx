@@ -18,10 +18,15 @@ it('在四个图中独立切换周期，并以月数据聚合真实年线和成�
   const hs = screen.getByRole('region', { name: '沪深300' })
   await within(hs).findByRole('img', { name: /K线图/ })
   expect(within(hs).getByText('涨跌幅 +36.36%')).toBeTruthy()
+  // 收盘价跟随涨跌幅：末期收 15 相对上期 11 上涨 → 绿/涨色
+  expect(within(hs).getByText('15.00').className).toContain('china-chart__up')
   fireEvent.change(within(hs).getByRole('slider'), { target: { value: '1' } })
   expect(within(hs).getByText('涨跌幅 -8.33%')).toBeTruthy()
+  expect(within(hs).getByText('11.00').className).toContain('china-chart__down')
   fireEvent.change(within(hs).getByRole('slider'), { target: { value: '0' } })
   expect(within(hs).getByText('涨跌幅 —')).toBeTruthy()
+  // 缺上一期时收盘价（12.00）不着色
+  expect(within(hs).getByText('12.00').className).not.toMatch(/china-chart__(up|down)/)
   fireEvent.click(within(hs).getByRole('button', { name: '年线' }))
   await waitFor(() => expect(within(hs).getByText(/开 12.00/)).toBeTruthy())
   expect(within(hs).getByText('涨跌幅 +25.00%')).toBeTruthy()

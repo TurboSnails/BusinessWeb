@@ -523,8 +523,23 @@
   }
 }
 
+.pulse-card__rsi,
+.pulse-sector-card__rsi,
+.pulse-row-actions .tool-btn,
+.news-card__desc,
+.news-tag,
+.news-card__actions .tool-btn,
+.ihm__legend-label,
+.ihm__fetched,
+.ihm__time,
+.ihm__foot { font-size: 0.75rem; }
+.heatmap-card__fs,
+.pulse-row-actions .tool-btn,
+.news-card__actions .tool-btn { min-height: 32px; }
 @media (pointer: coarse) {
-  .heatmap-card__fs {
-    min-height: 40px;
-  }
+  .heatmap-card__fs,
+  .heatmap-section .tool-btn,
+  .heatmap-section .ui-chip,
+  .pulse-row-actions .tool-btn,
+  .news-card__actions .tool-btn { min-height: var(--tap); }
 }

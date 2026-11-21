@@ -9,7 +9,10 @@ import {
   Crosshair,
   CheckCircle2,
   AlertTriangle,
-  CalendarClock
+  CalendarClock,
+  SlidersHorizontal,
+  Info,
+  ChevronDown,
 } from 'lucide-react'
 import {
   NOTION_SYNC_DATE,
@@ -38,7 +41,7 @@ import { useToolSources } from '../features/candidates/useToolSources'
 import { dcfOf } from '../features/candidates/links'
 import { matchDcfFilter, type DcfFilterId } from '../features/dcf/filter'
 import { CompanyValuationCell, CompanyValuationFilterChips } from '../features/company-valuation/CompanyValuation'
-import { matchValuationFilter, type ValuationFilter } from '../features/company-valuation/model'
+import { matchValuationFilter, VALUATION_FILTERS, type ValuationFilter } from '../features/company-valuation/model'
 import { useCandidates } from '../features/candidates/useCandidates'
 import ResearchNotice from '../components/research/ResearchNotice'
 import ResearchMethod from '../features/research-method/ResearchMethod'
@@ -112,7 +115,7 @@ export default function ResearchNotes(): JSX.Element {
   const [limit, setLimit] = useState(60)
   // 切换市场时清空筛选，避免上一个市场的评级/类型筛选让新市场的列表为空
   useEffect(() => { setRatingF('全部'); setStageF('全部'); setQ(''); setLTier('全部'); setLMoat('全部'); setLType('全部'); setValuationF('all') }, [catMarket])
-  const resetFilters = (): void => { setRatingF('全部'); setStageF('全部'); setQ(''); setLTier('全部'); setLMoat('全部'); setLType('全部'); updateParams({ sec: null, grp: null }) }
+  const resetFilters = (): void => { setRatingF('全部'); setStageF('全部'); setQ(''); setLTier('全部'); setLMoat('全部'); setLType('全部'); setValuationF('all'); updateParams({ sec: null, grp: null }) }
   useEffect(() => { setLimit(60) }, [catMarket, progSector, progGroup, q, ratingF, lTier, lMoat, lType, view, dcfF, valuationF])
   const updateParams = (patch: Record<string, string | null>): void =>
     setParams(prev => {
@@ -250,9 +253,12 @@ export default function ResearchNotes(): JSX.Element {
   const emptyHint = (n: number): React.ReactNode => (n === 0 ? (
     <div className="rn-empty">
       没有符合当前筛选条件的公司。
-      <button type="button" onClick={resetFilters} className="tool-btn tool-btn--primary">重置筛选</button>
+      <button type="button" onClick={resetFilters} className="tool-btn tool-btn--primary">清除筛选</button>
     </div>
   ) : null)
+
+  const moreFilterCount = (progSector !== '全部' ? 1 : 0) + (progGroup !== '全部' ? 1 : 0) + (valuationF !== 'all' ? 1 : 0) + (stageF !== '全部' ? 1 : 0)
+  const valuationLabel = VALUATION_FILTERS.find(f => f.id === valuationF)?.label ?? valuationF
 
   const renderLynch = (): JSX.Element => (
     <>
@@ -307,48 +313,117 @@ export default function ResearchNotes(): JSX.Element {
 
   const renderProgress = (): JSX.Element => (
     <>
-      <p className="rn-hint">偏低 / 偏高按现价相对基准价的折溢价显示；区间内用淡色，区间外加强颜色。情景区间是模型敏感性，不认证为今日内在价值；未来情景单列，待核原因与完整推导可点击查看。原研究评级保留。</p>
-      <div className="ui-cluster ui-cluster--scroll rn-filters" role="group" aria-label="板块">
-        {['全部', ...progSectors].map(sec => (
-          <button type="button" key={sec} onClick={() => updateParams({ sec: sec === '全部' ? null : sec })} className={chip(progSector === sec)} aria-pressed={progSector === sec}>
-            {sec} <span className="ui-chip__count">{sec === '全部' ? progList.length : progList.filter(c => c.sector === sec).length}</span>
-          </button>
-        ))}
-      </div>
-      {progGroups.length > 0 && (
-        <div className="ui-cluster ui-cluster--scroll rn-filters" role="group" aria-label={groupLabel}>
-          <span className="rn-inline-label">{groupLabel}</span>
-          {['全部', ...progGroups].map(g => (
-            <button type="button" key={g} onClick={() => updateParams({ grp: g === '全部' ? null : g })} className={chip(progGroup === g)} aria-pressed={progGroup === g}>
-              {g} <span className="ui-chip__count">{g === '全部' ? progList.length : progList.filter(c => groupOf(c) === g).length}</span>
-            </button>
-          ))}
-        </div>
-      )}
-      <div className="ui-cluster rn-filters">
+      <div className="ui-cluster ui-cluster--scroll rn-filters rn-filters--primary" role="group" aria-label="搜索与评级">
         <input value={q} onChange={e => setQ(e.target.value)} placeholder="搜索公司名称或代码" aria-label="搜索公司名称或代码" className="rn-search" />
         {['全部', '优先关注', '条件关注', '观察', '回避', ...(catMarket === 'adr' ? ['未估值'] : [])].map(r => (
           <button type="button" key={r} onClick={() => setRatingF(r)} className={chip(ratingF === r)} aria-pressed={ratingF === r}>
             {r} <span className="ui-chip__count">{r === '全部' ? secList.length : secList.filter(c => ratingOf(c) === r).length}</span>
           </button>
         ))}
-        <CompanyValuationFilterChips value={valuationF} onChange={setValuationF} />
       </div>
-      <div className="ui-cluster rn-filters" role="group" aria-label="研究成熟度">
-        <span className="rn-inline-label">成熟度</span>
-        {(['全部', 'verified', 'draft', 'screen'] as const).map(id => (
-          <button type="button" key={id} onClick={() => setStageF(id)} className={chip(stageF === id)} aria-pressed={stageF === id} title={id === '全部' ? undefined : RESEARCH_STAGE[id].desc}>
-            {id === '全部' ? '全部' : RESEARCH_STAGE[id].label} <span className="ui-chip__count">{id === '全部' ? secList.length : secList.filter(c => researchStage(c) === id).length}</span>
-          </button>
-        ))}
+
+      {moreFilterCount > 0 && (
+        <div className="rn-active-tags" aria-label="已生效筛选">
+          <ul className="rn-active-tags__list">
+            {progSector !== '全部' && (
+              <li>
+                <button type="button" className="rn-active-tag" onClick={() => updateParams({ sec: null })} aria-label={`移除行业筛选 ${progSector}`}>
+                  行业：{progSector} <span aria-hidden="true">×</span>
+                </button>
+              </li>
+            )}
+            {progGroup !== '全部' && (
+              <li>
+                <button type="button" className="rn-active-tag" onClick={() => updateParams({ grp: null })} aria-label={`移除${groupLabel}筛选 ${progGroup}`}>
+                  {groupLabel}：{progGroup} <span aria-hidden="true">×</span>
+                </button>
+              </li>
+            )}
+            {valuationF !== 'all' && (
+              <li>
+                <button type="button" className="rn-active-tag" onClick={() => setValuationF('all')} aria-label={`移除估值筛选 ${valuationLabel}`}>
+                  {valuationLabel} <span aria-hidden="true">×</span>
+                </button>
+              </li>
+            )}
+            {stageF !== '全部' && (
+              <li>
+                <button type="button" className="rn-active-tag" onClick={() => setStageF('全部')} aria-label={`移除成熟度筛选 ${RESEARCH_STAGE[stageF].label}`}>
+                  成熟度：{RESEARCH_STAGE[stageF].label} <span aria-hidden="true">×</span>
+                </button>
+              </li>
+            )}
+          </ul>
+          <button type="button" className="rn-clear-filters" onClick={resetFilters}>清除筛选</button>
+        </div>
+      )}
+
+      <div className="rn-toolbar">
+        <details className={`rn-more-filters${moreFilterCount > 0 ? ' has-active' : ''}`}>
+          <summary className={`tool-btn rn-more-filters__sum${moreFilterCount > 0 ? ' is-active' : ''}`}>
+            <SlidersHorizontal size={16} aria-hidden="true" />
+            <span>更多筛选{moreFilterCount > 0 ? `（${moreFilterCount}）` : ''}</span>
+            <ChevronDown size={16} className="rn-chev" aria-hidden="true" />
+          </summary>
+          <div className="rn-more-filters__body">
+            <div className="ui-cluster ui-cluster--scroll rn-filters" role="group" aria-label="板块">
+              {['全部', ...progSectors].map(sec => (
+                <button type="button" key={sec} onClick={() => updateParams({ sec: sec === '全部' ? null : sec })} className={chip(progSector === sec)} aria-pressed={progSector === sec}>
+                  {sec} <span className="ui-chip__count">{sec === '全部' ? progList.length : progList.filter(c => c.sector === sec).length}</span>
+                </button>
+              ))}
+            </div>
+            {progGroups.length > 0 && (
+              <div className="ui-cluster ui-cluster--scroll rn-filters" role="group" aria-label={groupLabel}>
+                <span className="rn-inline-label">{groupLabel}</span>
+                {['全部', ...progGroups].map(g => (
+                  <button type="button" key={g} onClick={() => updateParams({ grp: g === '全部' ? null : g })} className={chip(progGroup === g)} aria-pressed={progGroup === g}>
+                    {g} <span className="ui-chip__count">{g === '全部' ? progList.length : progList.filter(c => groupOf(c) === g).length}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            <div className="ui-cluster rn-filters">
+              <CompanyValuationFilterChips value={valuationF} onChange={setValuationF} />
+            </div>
+            <div className="ui-cluster rn-filters" role="group" aria-label="研究成熟度">
+              <span className="rn-inline-label">成熟度</span>
+              {(['全部', 'verified', 'draft', 'screen'] as const).map(id => (
+                <button type="button" key={id} onClick={() => setStageF(id)} className={chip(stageF === id)} aria-pressed={stageF === id} title={id === '全部' ? undefined : RESEARCH_STAGE[id].desc}>
+                  {id === '全部' ? '全部' : RESEARCH_STAGE[id].label} <span className="ui-chip__count">{id === '全部' ? secList.length : secList.filter(c => researchStage(c) === id).length}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </details>
+        <div className="rn-result-bar">
+          <p className="rn-result-bar__count" aria-label={`共 ${progList.length} 家，当前 ${shownCompanies.length} 家`}>
+            <span className="rn-result-bar__count-full">共 {progList.length} 家，当前 {shownCompanies.length} 家</span>
+            <span className="rn-result-bar__count-short" aria-hidden="true">{shownCompanies.length} / {progList.length} 家</span>
+          </p>
+          <div className="rn-result-bar__actions rn-export-desktop">
+            {[[`导出当前筛选（${shownCompanies.length}）`, shownCompanies, `${catMarket}-${progSector}-${ratingF}`], [`导出该市场全部（${progList.length}）`, progList, `${catMarket}-全部`]].map(([label, list, name]) => (
+              <button type="button" key={label as string} onClick={() => exportJson(list as typeof progList, name as string)} className="tool-btn rn-export-btn">
+                ⬇ {label as string} JSON
+              </button>
+            ))}
+          </div>
+          <details className="rn-export-fold">
+            <summary className="tool-btn rn-export-fold__sum">
+              导出
+              <ChevronDown size={16} className="rn-chev" aria-hidden="true" />
+            </summary>
+            <div className="rn-export-fold__menu" role="group" aria-label="导出选项">
+              {[[`导出当前筛选（${shownCompanies.length}）`, shownCompanies, `${catMarket}-${progSector}-${ratingF}`], [`导出该市场全部（${progList.length}）`, progList, `${catMarket}-全部`]].map(([label, list, name]) => (
+                <button type="button" key={`m-${label as string}`} onClick={() => exportJson(list as typeof progList, name as string)} className="tool-btn rn-export-btn">
+                  ⬇ {label as string} JSON
+                </button>
+              ))}
+            </div>
+          </details>
+        </div>
       </div>
-      <div className="ui-cluster rn-filters">
-        {[[`导出当前筛选（${shownCompanies.length}）`, shownCompanies, `${catMarket}-${progSector}-${ratingF}`], [`导出该市场全部（${progList.length}）`, progList, `${catMarket}-全部`]].map(([label, list, name]) => (
-          <button type="button" key={label as string} onClick={() => exportJson(list as typeof progList, name as string)} className="tool-btn">
-            ⬇ {label as string} JSON
-          </button>
-        ))}
-      </div>
+
       <div className="ui-card rn-card">
         <Table
           heads={['公司', '评级', '一句话结论', '估值', '候选']}
@@ -366,6 +441,10 @@ export default function ResearchNotes(): JSX.Element {
             <button type="button" onClick={() => setLimit(l => l + 100)} className="tool-btn">显示更多（已显示 {limit} / {shownCompanies.length}）</button>
           </div>
         )}
+        <details className="rn-legend">
+          <summary className="rn-legend__sum">口径</summary>
+          <p className="rn-hint">偏低 / 偏高按现价相对基准价的折溢价显示；区间内用淡色，区间外加强颜色。情景区间是模型敏感性，不认证为今日内在价值；未来情景单列，待核原因与完整推导可点击查看。原研究评级保留。</p>
+        </details>
         <p className="rn-footnote">
           点击公司名称进入该公司的分析页。成熟度：初筛＝程序化补全或没有可用情景价；情景草案＝有情景价但未逐家核读最新公告；事实已复核＝已核读公司原件，估值仍是未认证草案。能否据此决策，取决于你自己的估值与决策记录。{(usLoading || cnLoading || hkLoading || adrLoading || ndxNewLoading) ? ' 正在加载补全公司…' : ''}
         </p>
@@ -423,18 +502,28 @@ export default function ResearchNotes(): JSX.Element {
       <PageTitle>公司研究</PageTitle>
       <PageTabs<TabId> label="公司研究栏目" value={activeTab} onChange={setActiveTab}
         items={tabs.map(t => ({ id: t.id, label: t.label, icon: <t.icon size={14} /> }))} />
-      {activeTab === 'companies' && !combinedLoading && <PageDataFreshness
-        checkedAt={progList.map(c => c.marketRefresh?.checkedAt).filter(Boolean).sort().at(-1)}
-        dataLabel="行情日期"
-        dataDates={progList.map(c => c.marketRefresh?.priceDate)}
-        researchAsOf={catMarket === 'ndx' ? NDX_ASOF : undefined}
-        note="行情已更新到上述日期；评级与一句话结论来自原研究，模型待逐家复核。具体公司行情日期见公司详情。"
-      />}
       {activeTab === 'companies' && (
-        <>
-          <p className="rn-pool-jump"><Link to="/candidates" className="rn-link"><Star size={14} aria-hidden="true" /> 我的候选池 · {cand.items.length} 家：估值、DCF、网格都从这里进 →</Link></p>
-          <p className="rn-pool-jump"><Link to="/earnings" className="rn-link"><CalendarClock size={14} aria-hidden="true" /> 财报前瞻：未来六周公司库财报日与这次要验证的事 →</Link></p>
-        </>
+        <div className="rn-info-bar">
+          {!combinedLoading && <PageDataFreshness
+            checkedAt={progList.map(c => c.marketRefresh?.checkedAt).filter(Boolean).sort().at(-1)}
+            dataLabel="行情日期"
+            dataDates={progList.map(c => c.marketRefresh?.priceDate)}
+            researchAsOf={catMarket === 'ndx' ? NDX_ASOF : undefined}
+          />}
+          <div className="rn-info-bar__links">
+            <Link to="/candidates" className="rn-link"><Star size={14} aria-hidden="true" /> 我的候选池 · {cand.items.length} 家</Link>
+            <Link to="/earnings" className="rn-link"><CalendarClock size={14} aria-hidden="true" /> 财报前瞻</Link>
+          </div>
+          <details className="rn-info-bar__note">
+            <summary className="rn-info-bar__note-sum">
+              <Info size={15} aria-hidden="true" />
+              <span>数据说明</span>
+              <span className="rn-fold-hint">展开说明</span>
+              <ChevronDown size={14} className="rn-chev" aria-hidden="true" />
+            </summary>
+            <p>行情已更新到上述日期；评级与一句话结论来自原研究，模型待逐家复核。具体公司行情日期见公司详情。我的候选池可进估值、DCF、网格；财报前瞻列未来六周公司库财报日与这次要验证的事。</p>
+          </details>
+        </div>
       )}
 
       {/* 内容区 */}
@@ -592,12 +681,22 @@ export default function ResearchNotes(): JSX.Element {
         {/* ── 公司库 ── */}
         {activeTab === 'companies' && (
           <div>
-            <ResearchNotice />
-            {marketSwitch(catMarket, setCatMarket)}
+            <details className="rn-notice-fold">
+              <summary className="rn-notice-fold__sum">
+                <Info size={16} aria-hidden="true" />
+                <span className="rn-notice-fold__text">个人研究笔记，不是买卖建议</span>
+                <span className="rn-fold-hint">展开说明</span>
+                <ChevronDown size={16} className="rn-chev" aria-hidden="true" />
+              </summary>
+              <ResearchNotice />
+            </details>
+            <div className="rn-switch-row">
+              {marketSwitch(catMarket, setCatMarket)}
+              {viewSwitch()}
+            </div>
 
             {catMarket === 'us' && (
               <div>
-                {viewSwitch()}
                 {view === 'list' && renderProgress()}
                 {view === 'lynch' && renderLynch()}
                 {view === 'combined' && <CompanyCombined key={catMarket} companies={progList} lynch={lynch} ratingOf={ratingOf} loading={combinedLoading} isCandidate={isCand} onToggleCandidate={toggleCand} />}
@@ -654,7 +753,6 @@ export default function ResearchNotes(): JSX.Element {
 
             {catMarket === 'cn' && (
               <div>
-                {viewSwitch()}
                 {view === 'list' && renderProgress()}
                 {view === 'lynch' && renderLynch()}
                 {view === 'combined' && <CompanyCombined key={catMarket} companies={progList} lynch={lynch} ratingOf={ratingOf} loading={combinedLoading} isCandidate={isCand} onToggleCandidate={toggleCand} />}
@@ -716,7 +814,6 @@ export default function ResearchNotes(): JSX.Element {
 
             {catMarket === 'hk' && (
               <div>
-                {viewSwitch()}
                 {view === 'list' && renderProgress()}
                 {view === 'lynch' && renderLynch()}
                 {view === 'combined' && <CompanyCombined key={catMarket} companies={progList} lynch={lynch} ratingOf={ratingOf} loading={combinedLoading} isCandidate={isCand} onToggleCandidate={toggleCand} />}
@@ -730,7 +827,6 @@ export default function ResearchNotes(): JSX.Element {
             )}
             {catMarket === 'adr' && (
               <div>
-                {viewSwitch()}
                 {view === 'list' && renderProgress()}
                 {view === 'lynch' && renderLynch()}
                 {view === 'combined' && <CompanyCombined key={catMarket} companies={progList} lynch={lynch} ratingOf={ratingOf} loading={combinedLoading} isCandidate={isCand} onToggleCandidate={toggleCand} />}
@@ -745,7 +841,6 @@ export default function ResearchNotes(): JSX.Element {
             )}
             {catMarket === 'ndx' && (
               <div>
-                {viewSwitch()}
                 {view === 'list' && renderProgress()}
                 {view === 'lynch' && renderLynch()}
                 {view === 'combined' && <CompanyCombined key={catMarket} companies={progList} lynch={lynch} ratingOf={ratingOf} loading={combinedLoading} isCandidate={isCand} onToggleCandidate={toggleCand} />}

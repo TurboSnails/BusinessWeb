@@ -20,3 +20,14 @@
 .ts-summary dt { color: var(--text-secondary); font-size: 0.8rem; }
 .ts-summary dd { margin: 4px 0 0; font-size: 1.2rem; font-weight: 600; font-variant-numeric: tabular-nums; }
 .ts-callout { border-left: 3px solid var(--border-subtle); padding-left: 12px; }
+
+.ts-page .kd-sortbtn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 4px 2px;
+}
+@media (pointer: coarse) {
+  .ts-page .kd-sortbtn { min-height: var(--tap); }
+  .ts-page .ts-preset { min-height: var(--tap); }
+}

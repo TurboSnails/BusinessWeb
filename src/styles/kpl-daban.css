@@ -11,22 +11,32 @@
 .kd-table th, .kd-table td { padding: 7px 10px; white-space: nowrap; }
 .kd-table .kd-name { font-weight: 500; text-align: left; }
 .kd-table small { color: var(--text-tertiary); margin-left: 6px; font-size: 0.75rem; font-weight: 400; }
-.kd-sortbtn { background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; white-space: nowrap; }
+.kd-sortbtn {
+  display: inline-flex; align-items: center; min-height: 32px;
+  background: none; border: 0; padding: 4px 2px; font: inherit; color: inherit; cursor: pointer; white-space: nowrap;
+}
 .kd-sortbtn:hover { color: var(--text-primary); }
 .kd-sortbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--radius-sm); }
-.kd-tag { display: inline-block; font-size: 0.72rem; line-height: 1.5; padding: 0 6px; border-radius: var(--radius-full); border: 1px solid var(--border-primary); color: var(--text-secondary); }
+.kd-tag { display: inline-block; font-size: 0.75rem; line-height: 1.5; padding: 0 6px; border-radius: var(--radius-full); border: 1px solid var(--border-primary); color: var(--text-secondary); }
 .kd-tag.is-strong { color: var(--up-ink); border-color: var(--up); }
 
 /* 展开行：题材要点 */
-.kd-expbtn { margin-left: 8px; background: none; border: 1px solid var(--border-primary); color: var(--text-secondary); border-radius: var(--radius-full); padding: 0 7px; font-size: 0.72rem; line-height: 1.5; cursor: pointer; }
+.kd-expbtn {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 32px;
+  margin-left: 8px; background: none; border: 1px solid var(--border-primary); color: var(--text-secondary);
+  border-radius: var(--radius-full); padding: 0 10px; font-size: 0.75rem; line-height: 1.5; cursor: pointer;
+}
 .kd-expbtn:hover { color: var(--text-primary); }
 .kd-expbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (pointer: coarse) {
+  .kd-sortbtn, .kd-expbtn { min-height: var(--tap); }
+}
 .kd-table .kd-exprow td { white-space: normal; background: var(--bg-secondary); text-align: left; }
 .kd-topics { max-width: 72ch; }
 .kd-topics ul { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .kd-topics li { line-height: 1.5; overflow-wrap: anywhere; }
 .kd-topics li span { display: block; color: var(--text-secondary); }
-.kd-topics__src { margin: 0; color: var(--text-tertiary); font-size: 0.78rem; }
+.kd-topics__src { margin: 0; color: var(--text-tertiary); font-size: 0.75rem; }
 
 /* 涨停历史检索 */
 .kd-search { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }

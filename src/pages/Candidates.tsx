@@ -97,13 +97,15 @@ export default function Candidates(): JSX.Element {
       <PageTitle>候选池</PageTitle>
       <p className="cand-lead">分析筛选之后的落脚点：研究筛出的公司和你自己挑的公司都在这里。逐家估值、写下等待的条件，价格到了再按计划执行。筛选顺序见<Link to="/investment-plan-2026?tab=screening">投资计划 · 选股流程</Link>。</p>
 
-      <dl className="cand-stats" aria-label="候选池概况">
-        <div><dt>我的候选</dt><dd>{cand.items.length}<small> 家</small></dd></div>
-        <div><dt>已做估值</dt><dd>{valued}<small> / {cand.items.length}</small></dd></div>
-        <div><dt>有决策记录</dt><dd>{recorded}<small> / {cand.items.length}</small></dd></div>
-        <div className={due ? 'is-due' : undefined}><dt>到期待复查</dt><dd>{due}<small> 家</small></dd></div>
-        <div><dt>满足情景门槛</dt><dd>{buyable}<small> 家</small></dd></div>
-      </dl>
+      {cand.items.length > 0 ? (
+        <dl className="cand-stats" aria-label="候选池概况">
+          <div><dt>我的候选</dt><dd>{cand.items.length}<small> 家</small></dd></div>
+          <div><dt>已做估值</dt><dd>{valued}<small> / {cand.items.length}</small></dd></div>
+          <div><dt>有决策记录</dt><dd>{recorded}<small> / {cand.items.length}</small></dd></div>
+          <div className={due ? 'is-due' : undefined}><dt>到期待复查</dt><dd>{due}<small> 家</small></dd></div>
+          <div><dt>满足情景门槛</dt><dd>{buyable}<small> 家</small></dd></div>
+        </dl>
+      ) : <p className="cand-buyable">满足情景门槛 {buyable} 家</p>}
 
       <PageTabs label="候选池视图" value={tab} onChange={setTab} items={[
         { id: 'mine', label: `我的候选 · ${cand.items.length}`, icon: <ListChecks size={14} /> },
@@ -112,13 +114,22 @@ export default function Candidates(): JSX.Element {
 
       {tab === 'mine' ? (
         <>
+          {cand.items.length === 0 && (
+            <section className="cand-empty" aria-label="空候选池">
+              <p>候选池还是空的。</p>
+              <div className="cand-empty__actions">
+                <Link to="/research-notes" className="tool-btn tool-btn--primary">去公司研究挑公司</Link>
+                <button type="button" className="tool-btn" onClick={() => setTab('research')}>看研究筛出的公司（{RESEARCH_INDEX.length} 家）</button>
+              </div>
+            </section>
+          )}
           <ol className="cand-flow" aria-label="使用流程">
             <li><strong>挑公司</strong>在<Link to="/research-notes">公司研究</Link>点「加入候选」，或在「研究筛出」里加入</li>
             <li><strong>写记录</strong>点「写决策记录」：为什么买、什么情况说明错了、下次检查日；到期会标出「待复查」</li>
             <li><strong>算价格</strong>点「估值」「DCF」，代码和市场自动带入；结果回到这里显示</li>
             <li><strong>管节奏</strong>A 股和 ETF 可以直接进「网格」回测</li>
           </ol>
-          <WeeklyChanges items={cand.items} companies={companies} observations={weeklyObservations} />
+          {cand.items.length > 0 && <WeeklyChanges items={cand.items} companies={companies} observations={weeklyObservations} />}
           {cand.items.length > 0 && <EarningsSoonList items={cand.items} cal={earningsCal} today={today} />}
           {cand.items.length > 0 && <CandidateAlerts alerts={alerts} companies={companies} paused={pausedAlerts}
             onSeen={a => cand.markAlertSeen(a.market, a.code)} onSnooze={a => cand.snoozeAlert(a.market, a.code, addDays(today, SNOOZE_DAYS))} />}

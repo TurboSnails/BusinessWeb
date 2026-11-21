@@ -22,11 +22,24 @@
 
 .rv-groups { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .rv-group { background: var(--bg-secondary); border-radius: var(--radius-sm); padding: 8px 12px; min-width: 0; }
-.rv-group summary { cursor: pointer; display: flex; gap: 8px; align-items: baseline; }
+.rv-group summary {
+  cursor: pointer; display: flex; gap: 8px; align-items: center; min-height: 32px; list-style: none;
+}
+.rv-group summary::-webkit-details-marker { display: none; }
+.rv-group summary::before {
+  content: '▸'; flex: none; color: var(--text-tertiary); transition: transform 0.15s ease;
+}
+.rv-group[open] summary::before { transform: rotate(90deg); }
 .rv-group summary span { color: var(--text-secondary); font-size: 0.85rem; }
 .rv-chips { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.85rem; }
 .rv-chips li { display: inline-flex; gap: 4px; align-items: baseline; }
-.rv-chips small { color: var(--text-tertiary); font-size: 0.72rem; }
+.rv-chips small { color: var(--text-tertiary); font-size: 0.75rem; }
+@media (pointer: coarse) {
+  .rv-group summary { min-height: var(--tap); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rv-group summary::before { transition: none; }
+}
 
 @media (max-width: 960px) {
   .rv-overview { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -34,5 +47,5 @@
 @media (max-width: 640px) {
   .rv-overview, .rv-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
   .rv-groups { grid-template-columns: minmax(0, 1fr); }
-  .rv-buckets .mm-buckets__label { font-size: 0.56rem; white-space: normal; text-align: center; }
+  .rv-buckets .mm-buckets__label { font-size: 0.75rem; white-space: normal; text-align: center; }
 }

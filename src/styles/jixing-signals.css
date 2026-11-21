@@ -10,8 +10,32 @@
 .jsg-item__extra div { display: flex; justify-content: space-between; gap: 12px; }
 .jsg-item__extra dt { color: var(--text-secondary); }
 .jsg-item__extra dd { margin: 0; font-variant-numeric: tabular-nums; text-align: right; }
-.jsg-item__toggle { align-self: flex-start; margin-top: 8px; background: none; border: 1px solid var(--border-primary); border-radius: var(--radius-full); color: var(--text-secondary); font-size: 0.8rem; padding: 4px 12px; cursor: pointer; }
+.jsg-item__toggle {
+  align-self: flex-start;
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  background: none;
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  padding: 6px 12px;
+  cursor: pointer;
+}
 .jsg-item__toggle:hover { color: var(--text-primary); }
+.jsg-page .jx-links a,
+.jsg-item .jx-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+}
+@media (pointer: coarse) {
+  .jsg-item__toggle { min-height: var(--tap); }
+  .jsg-page .jx-links a,
+  .jsg-item .jx-links a { min-height: var(--tap); }
+}
 .jsg-summary { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 0.95rem; }
 .jsg-summary span { color: var(--text-secondary); margin-right: 8px; }
 .jsg-summary b { font-variant-numeric: tabular-nums; }

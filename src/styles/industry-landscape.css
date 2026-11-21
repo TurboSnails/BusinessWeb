@@ -155,7 +155,7 @@
   font-weight: 600;
 }
 .industry-directory small {
-  font-size: 11px;
+  font-size: 12px;
   font-variant-numeric: tabular-nums;
   font-weight: 400;
 }
@@ -258,7 +258,7 @@
   font-weight: 600;
 }
 .industry-node-toggle small {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-secondary);
   margin-left: auto;
   flex-shrink: 0;

@@ -10,7 +10,7 @@ import { breadthChange, compareReturns, decideMarket, freshness, macroReading, n
 import { FEED_FIELDS, FILES, mergeSnapshots, rateComponents, type Feed, type Snapshots } from './snapshots'
 import { withinYears } from './explain'
 import HistoryChart from './HistoryChart'
-import { format, MarketCard, RANGES, route, signed, val, type Item, type RangeId } from './cards'
+import { format, MarketCard, RANGES, route, SignedChg, signed, val, type Item, type RangeId } from './cards'
 import PlainSummary, { type Question } from './PlainSummary'
 import RelativePerformance from '../us-market/RelativePerformance'
 import WeeklyMarketBrief, { type BriefSignal } from './WeeklyMarketBrief'
@@ -75,9 +75,9 @@ function MarketMatrix({ slices, active, benchmark, s, choose }: {
         const { ratio, usesMarketVolume } = comparisonVolume(s, slice)
         return <tr key={slice.id} className={active?.id === slice.id ? 'is-active' : ''}>
           <th scope="row"><button type="button" aria-pressed={active?.id === slice.id} onClick={() => choose(slice)}>{slice.name}<small>{slice.symbol}</small></button></th>
-          <td>{signed(periodReturn(slice.history, 5), '%')}</td>
-          <td>{signed(periodReturn(slice.history, 20), '%')}</td>
-          <td>{signed(compareReturns(slice.history, benchmark, 20), ' 个百分点')}</td>
+          <td><SignedChg value={periodReturn(slice.history, 5)} unit="%" /></td>
+          <td><SignedChg value={periodReturn(slice.history, 20)} unit="%" /></td>
+          <td><SignedChg value={compareReturns(slice.history, benchmark, 20)} unit=" 个百分点" /></td>
           <td>{qualifiedBreadth(breadth) && breadth.date === date ? format(breadth.above200, '%') : '—'}</td>
           <td>{slice.valuation ? <span title={`${slice.valuation.date} · ${slice.valuation.scope ?? slice.scope}`}>{format(slice.valuation.value, '倍')}</span> : '—'}</td>
           <td>{ratio === undefined ? '—' : <>
@@ -168,19 +168,34 @@ export default function UsMarketView() {
     return next
   }, { replace: true })
   const asOf = nyDate()
-  const rangeSelector = <div className="us-market__range">
+  const rangeSelector = <div className="us-market__range" title="图表与区间均值随所选区间变化">
       <Segmented label="历史区间" items={RANGES.map(({ id, label }) => ({ id, label }))} value={range} onChange={setRange} />
-      <span className="us-market__muted">图表与区间均值随所选区间变化</span>
+      <span className="visually-hidden">图表与区间均值随所选区间变化</span>
     </div>
+  const indexSelector = group === 'broad' && slice
+    ? <Segmented label="美股指数" items={slices.map(item => ({ id: item.id, label: item.name }))} value={slice.id} onChange={id => go(group, id)} />
+    : group !== 'liquidity' && group !== 'participants' && slice
+      ? <label className="us-market__select">比较标的
+        <select value={slice.id} onChange={event => go(group, event.target.value)}>{slices.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select>
+      </label>
+      : null
+  /** 指数靠左、区间靠右；流动性/参与者无指数选择时区间仍控制卡片均值 */
+  const chartBar = <div className="us-market__chart-bar">
+    {indexSelector}
+    {rangeSelector}
+  </div>
   const controls = <>
     <div className="us-market__top">
       <Segmented label="美股细分" items={GROUPS} value={group} onChange={next => go(next)} />
-      <button type="button" className="tool-btn" disabled={loading} onClick={() => { setLoading(true); setAttempt(n => n + 1) }}><RefreshCw size={15} aria-hidden="true" />刷新快照</button>
+      <div className="us-market__top-end">
+        <p className="us-market__legend">美股绿涨红跌</p>
+        <button type="button" className="tool-btn" disabled={loading} onClick={() => { setLoading(true); setAttempt(n => n + 1) }}><RefreshCw size={15} aria-hidden="true" />刷新快照</button>
+      </div>
     </div>
     <p className="us-market__notice" role="status">{loading ? '正在核对数据快照…' : failed.length ? `部分数据暂时不可用（${failed.length} 个快照），保留可用读数。` : ''}</p>
   </>
   if (group === 'liquidity') return <section className="us-market" aria-label="美股市场仪表盘">
-    {controls}{rangeSelector}<UsLiquidity series={snap.public?.series} asOf={asOf} years={years} />
+    {controls}{chartBar}<UsLiquidity series={snap.public?.series} asOf={asOf} years={years} />
   </section>
   const sets = availableSeries(snap, asOf)
   const { p, m } = sets
@@ -307,12 +322,8 @@ export default function UsMarketView() {
       <summary>市场各维度依据</summary>
       <PlainSummary asOf={asOf} questions={questions} trend={marketStance === '证据不足' ? undefined : { label: marketStance, lean: trendLean }} />
     </details>
-    {group === 'broad' && slice && <Segmented label="美股指数" items={slices.map(item => ({ id: item.id, label: item.name }))} value={slice.id} onChange={id => go(group, id)} />}
-    {group !== 'broad' && slice && <label className="us-market__select">比较标的
-      <select value={slice.id} onChange={event => go(group, event.target.value)}>{slices.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select>
-    </label>}
-    {rangeSelector}
     <header className="us-market__hero">
+      {chartBar}
       <div>
         <p className="us-market__muted">{group === 'participants' ? '美国市场及相关全球样本' : `${slice?.scope ?? '美国股票市场'} · ${freshnessText}`}</p>
         <h2>{title}</h2>
@@ -320,7 +331,7 @@ export default function UsMarketView() {
           {format(slice.history.at(-1)![1], ' 点')} <span>指数收盘</span>
           {slice.source?.startsWith('https://') && <a className="us-market__link" href={slice.source} target="_blank" rel="noreferrer">行情来源</a>}
         </p>}
-        {group !== 'participants' && <p className="us-market__return" title={slice?.priceNote}>{signed(periodReturn(slice?.history ?? [], 5), '%')} <span>近 5 日</span>{slice?.id !== 'spx' && <span>近 20 日相对标普 {signed(relative, ' 个百分点')}</span>}</p>}
+        {group !== 'participants' && <p className="us-market__return" title={slice?.priceNote}><SignedChg value={periodReturn(slice?.history ?? [], 5)} unit="%" /> <span>近 5 日</span>{slice?.id !== 'spx' && <span>近 20 日相对标普 <SignedChg value={relative} unit=" 个百分点" /></span>}</p>}
         {group !== 'participants' && slice && <HistoryChart points={withinYears(slice.history, years)} label={`${slice.name}价格走势`} format={value => format(Math.round(value * 100) / 100, '')} priceRange={range} />}
       </div>
       {group !== 'participants' && <div className="us-market__stance" data-state={stance.result.label}>
