@@ -24,7 +24,7 @@
 
 | 用途 | 来源 | 处理 |
 |---|---|---|
-| 五只股票与 QQQ、QQEW 日线 | Yahoo Finance chart API（`query1.finance.yahoo.com/v8/finance/chart/<代码>?period1=…&period2=…&interval=1d&events=div,split`） | 使用 `adjclose`（已按拆股和分红调整，等同分红再投资）。原始 JSON 落盘到 `data-raw/stock5-rebalance/`，`SOURCES.md` 记录 URL、下载时间、sha256、每个代码的首末日期与行数、拆股事件（AVGO 2024-07-15 一拆十）。 |
+| 五只股票与 QQQ、QQEW 日线 | （v2 已改为 Nasdaq.com，见变更记录）Yahoo Finance chart API（`query1.finance.yahoo.com/v8/finance/chart/<代码>?period1=…&period2=…&interval=1d&events=div,split`） | 使用 `adjclose`（已按拆股和分红调整，等同分红再投资）。原始 JSON 落盘到 `data-raw/stock5-rebalance/`，`SOURCES.md` 记录 URL、下载时间、sha256、每个代码的首末日期与行数、拆股事件（AVGO 2024-07-15 一拆十）。 |
 
 - **评估区间**：2021-08-25（RKLB 借壳合并后首个交易日；此前 Yahoo 的 RKLB 价格是空壳公司 VACQ）至下载时可得的最后一个共同交易日（写入报告）。
 - 只用七个代码都有数据的交易日；任何代码缺值的日子整天剔除并在报告中列出。
@@ -92,3 +92,11 @@
 ## 变更记录
 
 - v1（2026-11-21）：初版。
+- v2（2026-11-21，在看到任何回测结果之前修订）：**更换数据源**，其余规则不变。
+  - 原因：Yahoo Finance chart API 自 2026-11-21 约 14:00Z 起对本机持续返回 HTTP 429，14:18Z 至 15:03Z 间每 15 分钟重试共 4 次均失败。腾讯美股日线接口未做拆股调整（AVGO 2024-07-15 价格由 1700.67 跳到 171.42），不能直接使用；Stooq 要求浏览器人机验证，不予绕过。
+  - 新数据源：Nasdaq.com 行情接口。价格取 `api.nasdaq.com/api/quote/<代码>/historical?assetclass=stocks|etf&fromdate=2021-07-01&todate=2026-11-21&limit=9999` 的收盘价（已按拆股调整，未按分红调整）；分红取 `api.nasdaq.com/api/quote/<代码>/dividends?assetclass=…` 的现金分红记录。原始 JSON 存 `data-raw/stock5-rebalance/<代码>.nasdaq.historical.json` 与 `<代码>.nasdaq.dividends.json`，下载于 2026-11-21T15:13Z。
+  - 总回报：日收益 `r_t = (P_t + D_t) / P_{t-1} − 1`，`D_t` 为除息日为 t 的每股现金分红。AVGO 在 2024-07-15 一拆十之前的分红按拆股前股数记录（如 2021 年的 3.60 美元），统一除以 10 与拆股调整后的价格对齐。SOFI、RKLB 区间内无分红。
+  - QQEW：分红接口两次返回"Error while calling vendor"，**只用价格收益**，报告中标注。QQEW 只出现在增量比较"T5 vs QQEW"，不影响主判定。
+  - 交叉核对：七个代码 1,355 个交易日的收盘价与腾讯不复权收盘价逐日比对（AVGO 拆股前按腾讯价格除以 10），日期集合完全一致，全部差异在 0.2% 以内，无例外。腾讯原始数据存 `data-raw/stock5-rebalance/crosscheck/`。RKLB 在 2021-09-09、2025-01-21、2026-05-08 的单日涨幅超过 30%，两个来源一致，按真实行情处理；区间内无超过 ±50% 的单日变动。
+  - 评估区间末日：2026-11-20（数据中最后一个共同交易日）。
+
