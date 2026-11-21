@@ -2,7 +2,7 @@ import { expect, it } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { CompanyValuationCell, CompanyValuationDetail } from './CompanyValuation'
-import { exampleValuation } from './testFixture'
+import { exampleValuation, fixtureNvidia, fixtureQihoo360 } from './testFixture'
 import type { Company } from '../../data/companies'
 const company: Company = { market: 'us', code: 'TEST', name: '测试公司', sector: '软件', batch: '测试', rating: '观察', headline: '旧研究结论', metrics: [], thesis: [], risk: [], next: [], asOf: '2026-10-21' }
 
@@ -116,4 +116,30 @@ it('详情脚注准确说明分母区别、情景含义及待核事项', () => {
   expect(footnote.textContent).toContain('基准价')
   expect(footnote.textContent).toContain('现价')
   expect(footnote.textContent).toMatch(/弱色.*强色/)
+})
+
+it('不可信估值：单元格显示估值待核与原因 short，详情顶部有提示框', () => {
+  const c = { ...company, market: 'cn' as const, code: '601360', name: '三六零', valuation: fixtureQihoo360() }
+  render(<MemoryRouter><CompanyValuationCell company={c} /><CompanyValuationDetail company={c} /></MemoryRouter>)
+  const link = screen.getByRole('link', { name: /估值 601360 估值待核/ })
+  expect(link.classList.contains('is-waiting')).toBe(true)
+  expect(link.textContent).toContain('估值待核')
+  expect(link.textContent).toContain('（待核）')
+  expect(link.textContent).toContain('市盈率法不适用')
+  expect(link.textContent).not.toMatch(/情景偏低|情景偏高|低估|高估/)
+  expect(link.getAttribute('title')).toContain('按前瞻盈利计市盈率 741 倍')
+  expect(link.getAttribute('title')).toContain('前瞻盈利不到过去 12 个月的 1/3')
+  expect(link.getAttribute('title')).toContain('现价是基准的 23.2 倍')
+  expect(link.textContent).toContain('盈利预测跨度过大')
+  expect(link.textContent).toContain('现价与基准相差过大')
+  expect(screen.getByText('该估值区间不宜作为偏低 / 偏高依据')).toBeTruthy()
+  expect(screen.getByText(/按前瞻盈利计市盈率/)).toBeTruthy()
+})
+
+it('英伟达不可信：不显示情景偏低百分比', () => {
+  const c = { ...company, code: 'NVDA', name: '英伟达', valuation: fixtureNvidia() }
+  render(<MemoryRouter><CompanyValuationCell company={c} /></MemoryRouter>)
+  const link = screen.getByRole('link', { name: /估值 NVDA 估值待核/ })
+  expect(link.textContent).toContain('现价与基准相差过大')
+  expect(link.textContent).not.toMatch(/情景偏低/)
 })

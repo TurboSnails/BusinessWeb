@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import type { Company } from '../../data/companies'
 import { Card, TableWrap } from '../../components/ui'
 import { scrubMissing } from '../../utils/scrubMissing'
-import { compareValuation, STATUS_LABEL, VALUATION_FILTERS, type ValuationFilter } from './model'
+import { compareValuation, STATUS_LABEL, VALUATION_FILTERS, valuationReliability, type ValuationFilter } from './model'
 import { getValuationPresentation } from './presentation'
 import './company-valuation.css'
 const fmt = (v: number) => v.toLocaleString('zh-CN', { maximumFractionDigits: 2 })
@@ -11,7 +11,34 @@ export function CompanyValuationCell({ company }: { company: Company }) {
   const r = company.valuation
   const to = `/research-notes/${company.market}/${encodeURIComponent(company.code)}#company-valuation`
   if (!r) return <Link to={to} className="rn-valuation" aria-label={`估值 ${company.code} 等待数据`}>等待估值数据</Link>
+  const quote = company.marketRefresh?.tradability === 'unverified' ? undefined : company.marketRefresh
   const p = getValuationPresentation(r, company.marketRefresh)
+  const reliability = valuationReliability(r, quote)
+  if (!reliability.ok && r.value) {
+    const reasonShort = reliability.reasons.map(x => x.short).join('；')
+    const reasonText = reliability.reasons.map(x => x.text).join('；')
+    const fullTitle = [
+      reasonText,
+      `${r.value.primaryMethod}；基准 ${fmt(r.value.base)} ${r.currency}；区间 ${fmt(r.value.low)}–${fmt(r.value.high)} ${r.currency}`,
+      p.timingLabel,
+      STATUS_LABEL[r.status],
+      '情景参考不认证为今日内在价值。点击查看推导。',
+    ].filter(Boolean).join('；')
+    return (
+      <Link
+        to={to}
+        className="rn-valuation is-waiting is-muted"
+        aria-label={`估值 ${company.code} 估值待核`}
+        title={fullTitle}
+      >
+        <span className="rn-valuation__headline">
+          <strong className="rn-valuation__judgment">估值待核</strong>
+        </span>
+        <small>基准 {fmt(r.value.base)}（待核）· 现价 {p.current === null ? '—' : fmt(p.current)} {r.currency}</small>
+        <small><span className="rn-valuation__evidence">{reasonShort}</span> · 报价 {p.priceDate ?? '日期待核'}</small>
+      </Link>
+    )
+  }
   const fullLabel = p.positionLabel ? `${p.headline} · ${p.positionLabel}` : p.headline
   const fullTitle = [
     r.value ? `${r.value.primaryMethod}；基准 ${fmt(r.value.base)} ${r.currency}；区间 ${fmt(r.value.low)}–${fmt(r.value.high)} ${r.currency}` : '暂无数值估值',
@@ -54,11 +81,19 @@ function sourceHref(url: string) {
 }
 export function CompanyValuationDetail({ company }: { company: Company }) {
   const r = company.valuation
-  const c = r ? compareValuation(r, company.marketRefresh?.tradability === 'unverified' ? undefined : company.marketRefresh) : null
+  const quote = company.marketRefresh?.tradability === 'unverified' ? undefined : company.marketRefresh
+  const c = r ? compareValuation(r, quote) : null
+  const reliability = r ? valuationReliability(r, quote) : null
   return scrubMissing(<section id="company-valuation" className="company-valuation-detail" aria-label="综合估值分析">
     <Card title={`综合估值 · ${r ? STATUS_LABEL[r.status] : '等待数据'}`}>
       {!r ? <p>尚未加载该公司的综合估值记录；不以旧 DCF 或旧情景价格冒充本轮估值。</p> : <>
         <p className="rn-text">估值日期 {r.asOf} · {r.currency} · {r.review.mode === 'programmatic' ? '批量条件分析，未经逐项独立核验' : r.review.note}。研究评级仍沿用原研究；下列估值与价格关系不自动改变评级。</p>
+        {reliability && !reliability.ok && (
+          <div className="company-valuation-reliability-warn" role="status">
+            <strong>该估值区间不宜作为偏低 / 偏高依据</strong>
+            <ul>{reliability.reasons.map(reason => <li key={reason.code}>{reason.text}</li>)}</ul>
+          </div>
+        )}
         {r.value && c ? <div className="company-valuation-summary">
           <p><strong>{r.value.primaryMethod} · {c.label}：{fmt(r.value.low)}–{fmt(r.value.high)} {r.currency}</strong><br />基准 {fmt(r.value.base)}；价值时点 {r.value.date ?? '未定义，不能计算年化'}</p>
           <p>对比现价 {c.current === null ? '缺失' : fmt(c.current)} {r.currency}（{c.priceDate ?? '缺价格日期'}）<br />低 / 基准 / 高相对现价：{pct(c.lowGap)} / {pct(c.baseGap)} / {pct(c.highGap)}</p>

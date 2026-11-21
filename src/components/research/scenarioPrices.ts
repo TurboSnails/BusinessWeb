@@ -1,7 +1,13 @@
 /** 情景价严格解析：不编中点、不吞无关数字。 */
 
 import type { Company } from '../../data/companies'
-import { compareValuation, STATUS_LABEL, type CompanyValuation } from '../../features/company-valuation/model'
+import {
+  compareValuation,
+  STATUS_LABEL,
+  valuationReliability,
+  type CompanyValuation,
+  type ValuationReliabilityReason,
+} from '../../features/company-valuation/model'
 
 export type ParsedScenario =
   | { kind: 'point'; value: number; display: string }
@@ -152,7 +158,7 @@ function pointEntry(label: string, value: number, currency?: string): ScenarioEn
   return { label, display, parsed: { kind: 'point', value, display } }
 }
 
-export type HeaderScenarioSource = 'valuation' | 'research' | 'none'
+export type HeaderScenarioSource = 'valuation' | 'valuation-unreliable' | 'research' | 'none'
 
 /** 头部折溢价与刻度条的同一套数（禁止混用综合估值与原研究）。 */
 export type HeaderScenarioBundle = {
@@ -166,6 +172,8 @@ export type HeaderScenarioBundle = {
   baseValue: number | undefined
   premiumLabel: string
   currency?: string
+  /** 综合估值不可信时的原因（不画刻度、不显示折溢价） */
+  unreliableReasons?: ValuationReliabilityReason[]
 }
 
 function researchTitle(researchAsOf?: string): string {
@@ -215,6 +223,20 @@ export function resolveHeaderScenarioBundle(input: {
       bull: pointEntry('高', v.high, ccy),
     }
     const px = c.current !== null ? c.current : price
+    const reliability = valuationReliability(valuation, refreshed)
+    if (!reliability.ok) {
+      // 不可信时仍用综合估值三档，不退回原研究情景（避免两套数混用）。
+      return {
+        source: 'valuation-unreliable',
+        title: '情景价位 · 综合估值待核',
+        triple,
+        price: px,
+        baseValue: undefined,
+        premiumLabel: '',
+        currency: ccy,
+        unreliableReasons: reliability.reasons,
+      }
+    }
     return {
       source: 'valuation',
       title: valuationTitle(valuation),

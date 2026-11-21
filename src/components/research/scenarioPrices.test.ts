@@ -112,7 +112,13 @@ describe('resolveHeaderScenarioBundle', () => {
     status: 'conditional',
     price: { value: 342.56, date: '2026-11-20', currency: 'USD', source: 's1' },
     value: { low: 280, base: 348.9, high: 420, kind: 'undated', date: null, primaryMethod: 'PE' },
-    methods: [],
+    methods: [
+      {
+        name: 'PE', applicable: true, reason: 'x', formula: '',
+        inputs: { epsForward: 10.57273, epsTrailingTwelveMonths: 8.98 },
+        values: [280, 348.9, 420], sourceIds: [],
+      },
+    ],
     quality: 'q',
     pricing: 'p',
     expectations: 'e',
@@ -157,5 +163,32 @@ describe('resolveHeaderScenarioBundle', () => {
     expect(b.triple.base?.parsed).toMatchObject({ kind: 'point', value: 317 })
     expect(b.premiumLabel).toBe(formatPremiumVsBase(premiumToBase(342.56, 317)))
     expect(b.title).toContain('原研究情景')
+  })
+
+  it('unreliable valuation: no premium, no research fallback, keeps valuation triple', () => {
+    const unreliable = {
+      ...valuation,
+      price: { value: 125.53, date: '2026-11-20', currency: 'USD', source: 's1' },
+      value: { low: 332.11, base: 464.95, high: 531.37, kind: 'undated', date: null, primaryMethod: 'PE' },
+      methods: [
+        {
+          name: 'PE', applicable: true, reason: 'x', formula: '',
+          inputs: { epsForward: 16.60528, epsTrailingTwelveMonths: 9.31 },
+          values: [332.11, 464.95, 531.37], sourceIds: [],
+        },
+      ],
+    } as unknown as CompanyValuation
+    const b = resolveHeaderScenarioBundle({
+      valuation: unreliable,
+      price: 125.53,
+      currency: 'USD',
+      scenarios: research,
+    })
+    expect(b.source).toBe('valuation-unreliable')
+    expect(b.title).toBe('情景价位 · 综合估值待核')
+    expect(b.premiumLabel).toBe('')
+    expect(b.baseValue).toBeUndefined()
+    expect(b.triple.base?.parsed).toMatchObject({ kind: 'point', value: 464.95 })
+    expect(b.unreliableReasons?.some(r => r.code === 'gap')).toBe(true)
   })
 })

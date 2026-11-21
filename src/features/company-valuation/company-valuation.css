@@ -16,6 +16,17 @@
 .rn-valuation__qualifier { font-size: .7rem; color: var(--text-secondary); }
 .rn-valuation__evidence { font-size: .73rem; color: color-mix(in srgb, var(--text-secondary) 85%, var(--text-primary)); line-height: 1.4; overflow-wrap: anywhere; }
 .company-valuation-detail { scroll-margin-top: 100px; }
+.company-valuation-reliability-warn {
+  margin: 0 0 var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid color-mix(in srgb, var(--warm-ink) 28%, var(--border-subtle));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--warm-ink) 8%, transparent);
+  color: var(--text-primary);
+}
+.company-valuation-reliability-warn strong { display: block; margin-bottom: var(--space-2); color: var(--warm-ink); }
+.company-valuation-reliability-warn ul { margin: 0; padding-left: 1.2em; }
+.company-valuation-reliability-warn li { line-height: 1.7; }
 .company-valuation-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding-block: 12px; border-block: 1px solid var(--border-subtle); }
 .company-valuation-table { min-width: 720px; }
 .company-valuation-table td { overflow-wrap: anywhere; }

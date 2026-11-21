@@ -33,7 +33,13 @@ const valuation = {
   status: 'conditional',
   price: { value: 342.56, date: '2026-11-20', currency: 'USD', source: 's1' },
   value: { low: 280, base: 348.9, high: 420, kind: 'undated', date: null, primaryMethod: 'PE' },
-  methods: [],
+  methods: [
+    {
+      name: 'PE', applicable: true, reason: 'x', formula: '',
+      inputs: { epsForward: 10.57273, epsTrailingTwelveMonths: 8.98 },
+      values: [280, 348.9, 420], sourceIds: [],
+    },
+  ],
   quality: 'q',
   pricing: 'p',
   expectations: 'e',
@@ -214,5 +220,47 @@ describe('CompanyDetailHeader', () => {
     expect(screen.getAllByText('未取得').length).toBeGreaterThanOrEqual(3)
     expect(screen.getByText(/无可绘制数值/)).toBeTruthy()
     expect(screen.queryByRole('img')?.querySelector('.cd-scenarios__rail')).toBeNull()
+  })
+
+  it('综合估值不可信：无折溢价文字、无刻度条，卡片写综合估值待核', () => {
+    const unreliable = {
+      ...valuation,
+      code: 'NVDA',
+      name: '英伟达',
+      price: { value: 125.53, date: '2026-11-20', currency: 'USD', source: 's1' },
+      value: { low: 332.11, base: 464.95, high: 531.37, kind: 'undated', date: null, primaryMethod: 'PE' },
+      methods: [
+        {
+          name: 'PE', applicable: true, reason: 'x', formula: '',
+          inputs: { epsForward: 16.60528, epsTrailingTwelveMonths: 9.31 },
+          values: [332.11, 464.95, 531.37], sourceIds: [],
+        },
+      ],
+    } as unknown as CompanyValuation
+    render(
+      <MemoryRouter>
+        <CompanyDetailHeader
+          {...base}
+          name="英伟达"
+          code="NVDA"
+          price={125.53}
+          currency="USD"
+          valuation={unreliable}
+          scenarios={[
+            { name: '悲观', price: '$50' },
+            { name: '基准', price: '$80' },
+            { name: '乐观', price: '$120' },
+          ]}
+        />
+      </MemoryRouter>,
+    )
+    expect(screen.getByText(/情景价位 · 综合估值待核/)).toBeTruthy()
+    expect(screen.queryByText(/现价高于基准情景价|现价低于基准情景价|现价接近基准情景价/)).toBeNull()
+    expect(screen.queryByRole('img')).toBeNull()
+    expect(document.querySelector('.cd-scenarios__rail')).toBeNull()
+    expect(screen.getByText(/现价与基准相差过大/)).toBeTruthy()
+    expect(screen.getByRole('link', { name: '查看推导' }).getAttribute('href')).toBe('#company-valuation')
+    expect(screen.queryByText('$80')).toBeNull()
+    expect(screen.getByText(/\$464\.95/)).toBeTruthy()
   })
 })

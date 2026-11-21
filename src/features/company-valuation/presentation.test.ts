@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { exampleValuation } from './testFixture'
+import { exampleValuation, fixtureNvidia, fixtureQihoo360 } from './testFixture'
 import { getValuationPresentation } from './presentation'
 
 const undated = (low = 90, base = 100, high = 120) => {
@@ -35,9 +35,14 @@ describe('getValuationPresentation', () => {
     expect(fair.headline).toBe('接近基准')
     expect(fair.tone).toBe('fair')
   })
-  it('异常大的偏高改为现价N×基准，不出现Infinity/NaN', () => {
+  it('现价与基准相差过大时改为估值待核，不出现Infinity/NaN与倍数文案', () => {
     const p = getValuationPresentation(undated(1, 1, 2), quote(60))
-    expect(p.headline).toBe('情景偏高 现价 60.0×基准')
+    expect(p.headline).toBe('估值待核')
+    expect(p.tone).toBe('waiting')
+    expect(p.emphasis).toBe('muted')
+    expect(p.positionLabel).toBeNull()
+    expect(p.evidenceNote).toBe('现价与基准相差过大')
+    expect(p.headline).not.toMatch(/×基准/)
     for (const r of [undated(0, 0, 0), undated(1e-9, 1e-9, 1e-9)]) {
       const q = getValuationPresentation(r, quote(100))
       expect(q.headline).not.toMatch(/Infinity|NaN/)
@@ -111,26 +116,30 @@ describe('getValuationPresentation', () => {
     r.missing = ['原研究已撤回稳态PB模型（本轮不认证赔率，不恢复原模型）：PB 主锚不得复用撤回数值', '一手财报与公司公告未在本批次逐家重读', 'SOTP/NAV 行业锚未计值：分部价值、少数股东、母公司现金与控股折价桥接未闭合，输入待核']
     expect(getValuationPresentation(r).evidenceNote).toBe('原模型已撤回')
   })
-  it('真实记录回归：cn:601360(26.2×)/603000(9.9×)显示倍数并提示盈利与倍数待核，不宣告错误', () => {
-    const period = 'PE 为期限未定义敏感性：前瞻 EPS 未绑定财年，不认证今日内在价值'
-    for (const [low, base, high, price, text] of [[0.22, 0.32, 0.44, 8.38, '现价 26.2×基准'], [1.3, 1.69, 2.08, 16.77, '现价 9.9×基准']] as const) {
-      const r = undated(low, base, high)
-      r.methods[0] = { ...r.methods[0], inputs: { epsTrailingTwelveMonths: 0.11, epsForward: 0.01, researchMultiples: { low: 22, base: 32, high: 44 } } }
-      r.missing = ['一手财报与公司公告未在本批次逐家重读', period]
-      const p = getValuationPresentation(r, quote(price))
-      expect(p.headline).toBe(`情景偏高 ${text}`)
-      expect(p.evidenceNote).toBe('盈利与倍数待核')
-      expect(p.evidenceNote).not.toMatch(/错误|已认证/)
-    }
+  it('真实记录回归：三六零 / 英伟达不可信显示估值待核，不宣告错误', () => {
+    const qihoo = getValuationPresentation(fixtureQihoo360())
+    expect(qihoo.headline).toBe('估值待核')
+    expect(qihoo.tone).toBe('waiting')
+    expect(qihoo.positionLabel).toBeNull()
+    expect(qihoo.evidenceNote).toBe('市盈率法不适用')
+    expect(qihoo.basisLabel).toContain('基准')
+    expect(JSON.stringify(qihoo)).not.toMatch(/错误|已认证/)
+
+    const nvda = getValuationPresentation(fixtureNvidia())
+    expect(nvda.headline).toBe('估值待核')
+    expect(nvda.evidenceNote).toBe('现价与基准相差过大')
+    expect(nvda.headline).not.toMatch(/情景偏低|情景偏高/)
   })
-  it('极端偏高且无EPS/倍数输入=基准输入待核；有币种缺项时币种优先；非极端回落预测年度', () => {
-    const r = undated(1, 1, 2)
-    r.methods[0] = { ...r.methods[0], inputs: { bvps: 1 } }
-    r.missing = ['前瞻预测财年未绑定']
-    expect(getValuationPresentation(r, quote(5)).evidenceNote).toBe('基准输入待核')
+  it('可信记录仍可用缺项短标签；不可信时证据注记取可靠性 short', () => {
+    const r = undated()
     r.missing = ['报价币种USD/财报币种CNY转换桥接待核', '前瞻预测财年未绑定']
-    expect(getValuationPresentation(r, quote(5)).evidenceNote).toBe('币种/股份换算待核')
+    expect(getValuationPresentation(r, quote(95)).evidenceNote).toBe('币种/股份换算待核')
     r.missing = ['前瞻预测财年未绑定']
-    expect(getValuationPresentation(r, quote(1.5)).evidenceNote).toBe('预测年度待绑定')
+    expect(getValuationPresentation(r, quote(95)).evidenceNote).toBe('预测年度待绑定')
+    const gap = undated(1, 1, 2)
+    gap.methods[0] = { ...gap.methods[0], inputs: { epsForward: 5, epsTrailingTwelveMonths: 5, bvps: 1 } }
+    gap.missing = ['报价币种USD/财报币种CNY转换桥接待核']
+    expect(getValuationPresentation(gap, quote(5)).headline).toBe('估值待核')
+    expect(getValuationPresentation(gap, quote(5)).evidenceNote).toBe('现价与基准相差过大')
   })
 })

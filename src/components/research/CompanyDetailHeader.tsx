@@ -275,26 +275,53 @@ export default function CompanyDetailHeader(props: CompanyDetailHeaderProps): JS
           </strong>
         </div>
         <span className="rn-rating cd-rating" data-tone={ratingTone || 'gray'}>{rating}</span>
-        <span
-          className="cd-premium"
-          data-base={bundle.baseValue !== undefined ? String(bundle.baseValue) : undefined}
-          data-source={bundle.source}
-          title="现价相对本卡同一套基准情景价"
-        >
-          {bundle.premiumLabel}
-        </span>
+        {bundle.source !== 'valuation-unreliable' && (
+          <span
+            className="cd-premium"
+            data-base={bundle.baseValue !== undefined ? String(bundle.baseValue) : undefined}
+            data-source={bundle.source}
+            title="现价相对本卡同一套基准情景价"
+          >
+            {bundle.premiumLabel}
+          </span>
+        )}
       </div>
 
       <MetaLine meta={metaDates} />
 
-      <ScenarioBar
-        title={bundle.title}
-        price={bundle.price}
-        triple={bundle.triple}
-        currency={bundle.currency}
-        source={bundle.source}
-        baseValue={bundle.baseValue}
-      />
+      {bundle.source === 'valuation-unreliable' ? (
+        <div
+          className="cd-scenarios cd-scenarios--unreliable"
+          data-source="valuation-unreliable"
+          role="status"
+        >
+          <p className="cd-scenarios__title">
+            {bundle.title}
+            <span className="cd-scenarios__disc"> · 模型假设，不是目标价</span>
+          </p>
+          <p className="cd-scenarios__unreliable-body">
+            {(bundle.unreliableReasons ?? []).map(r => r.short).join('；')
+              || '估值输入待核'}
+            {' · '}
+            低 {displayOf(bundle.triple.bear?.parsed)}
+            {' / '}
+            基准 {displayOf(bundle.triple.base?.parsed)}
+            {' / '}
+            高 {displayOf(bundle.triple.bull?.parsed)}
+            {' · '}
+            <a className="rn-link" href="#company-valuation">查看推导</a>
+          </p>
+        </div>
+      ) : (
+        <ScenarioBar
+          title={bundle.title}
+          price={bundle.price}
+          triple={bundle.triple}
+          currency={bundle.currency}
+          source={bundle.source}
+          baseValue={bundle.baseValue}
+        />
+      )}
 
       {earningsBadge && <div className="cd-earnings">{earningsBadge}</div>}
 
