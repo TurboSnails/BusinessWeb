@@ -44,6 +44,11 @@
   margin-top: var(--space-7);
 }
 
+/* 页内直达（如评级复盘）：跟在页标题眉标后，与下方卡片留出间距 */
+.rn-quick-nav {
+  margin: 0 0 var(--space-4);
+}
+
 .rn-hint,
 .rn-text {
   margin: 0 0 var(--space-3);

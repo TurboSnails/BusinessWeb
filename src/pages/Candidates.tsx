@@ -32,11 +32,11 @@ export default function Candidates(): JSX.Element {
   const setTab = (next: TabId): void => setParams(next === 'mine' ? {} : { tab: 'research' }, { replace: true })
 
   const cand = useCandidates(true)
-  const { list: us } = useCompanies('us')
-  const { list: cn } = useCompanies('cn')
-  const { list: hk } = useCompanies('hk')
-  const { list: adr } = useCompanies('adr')
-  const { list: ndx } = useCompanies('ndx')
+  const { list: us, loading: usLoading, failed: usFailed } = useCompanies('us')
+  const { list: cn, loading: cnLoading, failed: cnFailed } = useCompanies('cn')
+  const { list: hk, loading: hkLoading, failed: hkFailed } = useCompanies('hk')
+  const { list: adr, loading: adrLoading, failed: adrFailed } = useCompanies('adr')
+  const { list: ndx, loading: ndxLoading, failed: ndxFailed } = useCompanies('ndx')
   const companies = useMemo(() => [...us, ...ndx, ...adr, ...hk, ...cn], [us, ndx, adr, hk, cn])
   const usLists = useMemo(() => ({ us: new Set(us.map(c => c.code)), ndx: new Set(ndx.map(c => c.code)), adr: new Set(adr.map(c => c.code)) }), [us, ndx, adr])
 
@@ -65,6 +65,18 @@ export default function Candidates(): JSX.Element {
   ]])), [cand.items, tools, anchorPrices])
   const alertStates = useMemo(() => priceAlertStates(cand.items, tools, today, anchorPrices), [cand.items, tools, today, anchorPrices])
   const pausedAlerts = [...alertStates.values()].filter(r => r.status === 'skipped' && (r.reason === 'stale' || r.reason === 'currency-mismatch' || r.reason === 'no-price')).length
+  const poolMarkets = new Set(cand.items.map(i => i.market))
+  const libraries = [
+    ['us', usLoading, usFailed], ['cn', cnLoading, cnFailed], ['hk', hkLoading, hkFailed],
+    ['adr', adrLoading, adrFailed], ['ndx', ndxLoading, ndxFailed],
+  ] as const
+  const pendingLibraries = libraries.filter(([m, loading]) => poolMarkets.has(m) && loading).map(([m]) => MARKET_LABEL[m])
+  const failedLibraries = libraries.filter(([m, , failed]) => poolMarkets.has(m) && failed).map(([m]) => MARKET_LABEL[m])
+  const alertCoverage = [
+    pendingLibraries.length && `正在读取${pendingLibraries.join('、')}公司资料。`,
+    failedLibraries.length && `${failedLibraries.join('、')}公司资料未能读取。`,
+    !tools.auto ? '正在读取自动 DCF。' : !tools.auto.size && '暂无可用的自动 DCF 数据。',
+  ].filter(Boolean).join('')
   // 财报临近：与「本周变化」的下周财报共用一次 earnings-calendar.json 请求（模块级缓存）
   const { cal: earningsCal } = useEarningsCalendar(tab === 'mine' && cand.items.length > 0)
   const buyable = useMemo(() => RESEARCH_INDEX.filter(r => poolBucket(r) === 'buy').length, [])
@@ -131,7 +143,7 @@ export default function Candidates(): JSX.Element {
           </ol>
           {cand.items.length > 0 && <WeeklyChanges items={cand.items} companies={companies} observations={weeklyObservations} />}
           {cand.items.length > 0 && <EarningsSoonList items={cand.items} cal={earningsCal} today={today} />}
-          {cand.items.length > 0 && <CandidateAlerts alerts={alerts} companies={companies} paused={pausedAlerts}
+          {cand.items.length > 0 && <CandidateAlerts alerts={alerts} companies={companies} paused={pausedAlerts} coverage={alertCoverage}
             onSeen={a => cand.markAlertSeen(a.market, a.code)} onSnooze={a => cand.snoozeAlert(a.market, a.code, addDays(today, SNOOZE_DAYS))} />}
           <CandidatePool items={cand.items} companies={companies} tools={tools} state={cand.state} message={cand.message}
             onMove={cand.move} onRemove={i => cand.remove(i.market, i.code)} onDecision={(i, r) => cand.addDecision(i.market, i.code, r)} onNote={(i, t) => cand.setNote(i.market, i.code, t)}

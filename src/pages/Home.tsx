@@ -12,6 +12,7 @@ import { useToolSources } from '../features/candidates/useToolSources'
 import { ALERT_LABEL, candidateAlerts, countAlerts, type AlertKind } from '../features/candidates/alerts'
 import { localDay } from '../components/DecisionDialog'
 import { useCommandPalette } from '../components/CommandPalette'
+import { RATING_REVIEW_HREF } from '../features/signals/rating-review-anchor'
 import '../styles/home.css'
 import { Page } from '../components/ui'
 import { paletteShortcut } from '../utils/shortcut'
@@ -42,13 +43,15 @@ function TodayStrip(): JSX.Element | null {
   if (!items.length) return null
   const counts = countAlerts(candidateAlerts(items, tools, localDay()))
   const kinds = (Object.keys(counts) as AlertKind[])
+  // 本机到期复查随时可判；「进入买入区」还依赖自动 DCF（与候选池共用一次读取）。没读到前不能断言没有
+  const dcfGap = !tools.auto ? '自动 DCF 读取中，进入买入区稍后核对' : !tools.auto.size ? '自动 DCF 暂无可用数据，进入买入区只按本机 DCF 核对' : ''
   return (
     <section className="home-block" aria-labelledby="home-today-title">
       <h2 id="home-today-title" className="home-block__title">今日待办</h2>
       <Link to="/candidates" className="home-today">
         {kinds.length
-          ? <span className="home-today__items">{kinds.map(k => <span key={k} className="home-today__item">{ALERT_LABEL[k]} <strong>{counts[k]}</strong></span>)}</span>
-          : <span className="home-today__items">候选池 {items.length} 家，今天没有到期复查或进入买入区的公司</span>}
+          ? <span className="home-today__items">{kinds.map(k => <span key={k} className="home-today__item">{ALERT_LABEL[k]} <strong>{counts[k]}</strong></span>)}{dcfGap && <span className="home-today__item">{dcfGap}</span>}</span>
+          : <span className="home-today__items">{dcfGap ? `候选池 ${items.length} 家，今天没有到期复查；${dcfGap}` : `候选池 ${items.length} 家，今天没有到期复查或进入买入区的公司`}</span>}
         <span className="home-today__go">去候选池 <ArrowRight size={14} aria-hidden="true" /></span>
       </Link>
     </section>
@@ -73,6 +76,12 @@ export default function Home(): JSX.Element {
       </header>
 
       <TodayStrip />
+
+      <nav className="home-block" aria-label="最新评级复盘">
+        <Link to={RATING_REVIEW_HREF} className="home-review-link">
+          看最新评级复盘<ArrowRight size={14} aria-hidden="true" />
+        </Link>
+      </nav>
 
       <section className="home-block" aria-labelledby="home-tools-title">
         <h2 id="home-tools-title" className="home-block__title">常用工具</h2>

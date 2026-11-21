@@ -34,7 +34,7 @@ describe('牛熊周期复盘', () => {
       expect(card('指数成分宽度').getByText('尚无有效观测日期')).toBeTruthy()
     } finally { vi.useRealTimers() }
   })
-  it('三市场一览可切换市场，周报给出维度变化，采集提示显示为中文', async () => {
+  it('五个指数一览可切换市场，周报给出维度变化，采集提示显示为中文', async () => {
     const row = (id: string, name: string, signal: string) => ({ id, name, signal, available: signal !== 'missing', detail: 'x' })
     const rows = (tech: string) => [row('valuation', '估值与赔率', 'neutral'), row('funding', '资金与杠杆', 'neutral'), row('breadth', '指数成分宽度', 'neutral'), row('macro', '国内流动性', 'neutral'), row('technical', '周 / 月技术', tech), row('overseas', '海外环境', 'neutral')]
     const shadow = { version: 'cycle-shadow-v2', valuationZone: '中间区域', trendState: '防守', riskGate: '防守复核', dataQuality: '可作观察', confirmations: 0, weakWeeks: 0 }
@@ -51,7 +51,7 @@ describe('牛熊周期复盘', () => {
     expect(await screen.findByText(/周报2026-10-09→2026-10-16：技术 中性→偏空 \/ 风险/)).toBeTruthy()
     expect(screen.getByText(/自动数据更新于 10\/19 22:42/)).toBeTruthy()
     expect(screen.getByText('A股融资占比：网络请求失败')).toBeTruthy()
-    expect(within(screen.getByRole('table', { name: '五市场六维读数' })).getAllByRole('row')).toHaveLength(6)
+    expect(within(screen.getByRole('table', { name: '五个指数六维读数' })).getAllByRole('row')).toHaveLength(6)
     fireEvent.click(screen.getByRole('button', { name: '查看港股 · 恒生科技' }))
     expect(screen.getByLabelText(/该指数PE历史分位/)).toBeTruthy()
   })
@@ -108,6 +108,54 @@ describe('牛熊周期复盘', () => {
     expect(screen.getByLabelText(/该指数PE历史分位/)).toBeTruthy()
     expect(screen.queryByLabelText(/融资买入占成交额/)).toBeNull()
     expect(screen.getByRole('button', { name: '重新读取数据' })).toBeTruthy()
+  })
+  it('全部读取失败：不显示默认风险约束与票数，写明全部失败', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
+    renderView()
+    expect(await screen.findByText(/全部数据读取失败，6个数据文件未能加载/)).toBeTruthy()
+    const chips = screen.getByRole('list', { name: '分层读数' })
+    expect(within(chips).getByText('暂无有效证据')).toBeTruthy()
+    expect(within(chips).queryByText(/暂停提高风险|防守复核|按本人预算复核/)).toBeNull()
+    expect(screen.getAllByText('—')).toHaveLength(3)
+    expect(screen.getByText('自动周报未读取，暂无周度对比。')).toBeTruthy()
+  })
+  it('首次读取只显示读取中；重新读取失败时保留上次数据并写明沿用', async () => {
+    const row = (id: string, name: string) => ({ id, name, signal: 'neutral', available: true, detail: 'x' })
+    const rows = [row('valuation', '估值与赔率'), row('funding', '资金与杠杆'), row('breadth', '指数成分宽度'), row('macro', '国内流动性'), row('technical', '周 / 月技术'), row('overseas', '海外环境')]
+    const shadow = { version: 'cycle-shadow-v2', valuationZone: '中间区域', trendState: '震荡观察', riskGate: '按本人预算复核', dataQuality: '可作观察', confirmations: 0, weakWeeks: 0 }
+    const record = (weekEnding: string) => ({ weekEnding, decisionAt: `${weekEnding}T12:00:00.000Z`, ruleVersion: 'cycle-shadow-v2', inputHash: 'a'.repeat(64), markets: { csi300: { legacyState: 'x', shadow, rows }, hsi: { legacyState: 'x', shadow, rows }, hstech: { legacyState: 'x', shadow, rows } } })
+    const report = { schemaVersion: 1, generatedAt: '2026-10-18T12:00:00.000Z', issues: [], records: [record('2026-10-16'), record('2026-10-09')] }
+    let online = true
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+      if (online && url.endsWith('market-cycle-report.json')) return { ok: true, json: async () => report }
+      throw new Error('offline')
+    }))
+    renderView()
+    expect(screen.getByText('正在读取五个指数的周期数据…').getAttribute('role')).toBe('status')
+    expect(screen.queryByRole('table', { name: '五个指数六维读数' })).toBeNull()
+    // 两期都有六个可比较维度且没有变化：写「无变化」并给出可比较维度数
+    expect(await screen.findByText(/周报2026-10-09→2026-10-16，6个可比较维度无变化/)).toBeTruthy()
+    online = false
+    fireEvent.click(screen.getByRole('button', { name: '重新读取数据' }))
+    expect(screen.getByText('正在重新读取周期数据，完成后更新读数。').getAttribute('role')).toBe('status')
+    expect(screen.getByRole('table', { name: '五个指数六维读数' })).toBeTruthy()
+    expect(await screen.findByText(/全部数据读取失败.*沿用上次读取的数据及日期：market-cycle-report\.json/)).toBeTruthy()
+    expect(screen.getByText(/6个可比较维度无变化/)).toBeTruthy()
+  })
+  it('两期周报没有共同可用维度：写缺少可比较维度，不写无变化', async () => {
+    const row = (id: string, name: string, available: boolean) => ({ id, name, signal: available ? 'neutral' : 'missing', available, detail: 'x' })
+    const ids: [string, string][] = [['valuation', '估值与赔率'], ['funding', '资金与杠杆'], ['breadth', '指数成分宽度'], ['macro', '国内流动性'], ['technical', '周 / 月技术'], ['overseas', '海外环境']]
+    const shadow = { version: 'cycle-shadow-v2', valuationZone: '等待估值数据', trendState: '等待趋势数据', riskGate: '暂停提高风险', dataQuality: '证据不足', confirmations: 0, weakWeeks: 0 }
+    const record = (weekEnding: string, firstHalf: boolean) => ({ weekEnding, decisionAt: `${weekEnding}T12:00:00.000Z`, ruleVersion: 'cycle-shadow-v2', inputHash: 'a'.repeat(64),
+      markets: Object.fromEntries(['csi300', 'hsi', 'hstech'].map(m => [m, { legacyState: 'x', shadow, rows: ids.map(([id, name], i) => row(id, name, firstHalf ? i < 3 : i >= 3)) }])) })
+    const report = { schemaVersion: 1, generatedAt: '2026-10-18T12:00:00.000Z', issues: [], records: [record('2026-10-16', true), record('2026-10-09', false)] }
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+      if (url.endsWith('market-cycle-report.json')) return { ok: true, json: async () => report }
+      throw new Error('offline')
+    }))
+    renderView()
+    expect(await screen.findByText(/两期周报缺少可比较的维度/)).toBeTruthy()
+    expect(screen.queryByText(/无变化|无维度变化/)).toBeNull()
   })
   it('补录持久化、跨市场隔离，复盘需全部检查完成才能保存', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))

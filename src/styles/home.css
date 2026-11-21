@@ -604,3 +604,17 @@
   font-size: 0.85rem;
   white-space: nowrap;
 }
+
+/* 看最新评级复盘：轻量静态链接入口，候选池为空也在 */
+.home .home-review-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--accent-ink);
+  font-size: 0.9rem;
+  text-underline-offset: 4px;
+}
+
+.home .home-review-link:hover {
+  text-decoration: underline;
+}

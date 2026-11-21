@@ -23,6 +23,7 @@ describe('评级复盘', () => {
   it('醒目提示样本期短；样本不足与待积累不给数值；可切换市场', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => data })))
     render(<RatingReview />)
+    expect(document.getElementById('rating-review')).toBeTruthy()
     expect(await screen.findByText('+1.21%')).toBeTruthy()
     expect(screen.getByRole('note').textContent).toMatch(/样本期很短，不是业绩.*2026-10-23/)
     expect(screen.getAllByText('样本不足').length).toBeGreaterThan(0)

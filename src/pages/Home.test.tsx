@@ -6,6 +6,7 @@ import Home from './Home'
 import RecentUpdates from '../components/RecentUpdates'
 import { SITE_UPDATES } from '../data/siteUpdates'
 import { WORKBENCH_TOOLS } from '../data/siteMap'
+import { resetAutoDcf } from '../features/dcf/autoDcf'
 
 afterEach(() => {
   cleanup()
@@ -86,6 +87,25 @@ describe('Home', () => {
     }
   })
 
+  it('空候选也显示「看最新评级复盘」静态入口，直达研究方法页复盘小节锚点', () => {
+    stubFetch(() => new Promise(() => {}))
+    render(<MemoryRouter><Home /></MemoryRouter>)
+    expect(screen.queryByText('今日待办')).toBeNull()
+    const link = screen.getByRole('link', { name: /看最新评级复盘/ })
+    expect(link.getAttribute('href')).toBe('/research-notes?tab=method#rating-review')
+  })
+
+  it('有候选时今日待办与评级复盘入口同时显示，原栏目目录保留', () => {
+    localStorage.setItem('rn-candidates', JSON.stringify([{ market: 'us', code: 'PEP', addedAt: '2026-01-01T00:00:00.000Z' }]))
+    stubFetch(() => Promise.reject(new Error('offline')))
+    render(<MemoryRouter><Home /></MemoryRouter>)
+    expect(screen.getByText('今日待办')).toBeTruthy()
+    expect(screen.getByRole('link', { name: /看最新评级复盘/ })).toBeTruthy()
+    for (const h of ['/invest', '/ai', '/life']) {
+      expect(screen.getAllByRole('link').some(a => a.getAttribute('href') === h), h).toBe(true)
+    }
+  })
+
   it('首页不出现起始金额 300，栏目卡片用 *** 与目标 400 万', () => {
     stubFetch(() => new Promise(() => {}))
     const { container } = render(<MemoryRouter><Home /></MemoryRouter>)
@@ -124,5 +144,29 @@ describe('今日待办', () => {
     render(<MemoryRouter><Home /></MemoryRouter>)
     const link = await screen.findByRole('link', { name: /到期复查 1/ })
     expect(link.getAttribute('href')).toBe('/candidates')
+  })
+
+  it('无本机到期事项时：自动 DCF 读取中不断言“没有进入买入区”', () => {
+    resetAutoDcf()
+    localStorage.setItem('rn-candidates', JSON.stringify([{ market: 'us', code: 'PEP', addedAt: '2026-01-01T00:00:00.000Z' }]))
+    stubFetch(() => new Promise(() => {}))
+    render(<MemoryRouter><Home /></MemoryRouter>)
+    expect(screen.getByText('候选池 1 家，今天没有到期复查；自动 DCF 读取中，进入买入区稍后核对')).toBeTruthy()
+    expect(screen.queryByText(/没有到期复查或进入买入区/)).toBeNull()
+    resetAutoDcf()
+  })
+
+  it('自动 DCF 读不到：写明买入区只按本机 DCF 核对；本机到期提醒照常计数', async () => {
+    resetAutoDcf()
+    localStorage.setItem('rn-candidates', JSON.stringify([{ market: 'us', code: 'PEP', addedAt: '2026-01-01T00:00:00.000Z' }]))
+    stubFetch(() => Promise.reject(new Error('offline')))
+    const first = render(<MemoryRouter><Home /></MemoryRouter>)
+    expect(await screen.findByText('候选池 1 家，今天没有到期复查；自动 DCF 暂无可用数据，进入买入区只按本机 DCF 核对')).toBeTruthy()
+    first.unmount()
+    resetAutoDcf()
+    localStorage.setItem('rn-candidates', JSON.stringify([{ market: 'us', code: 'PEP', addedAt: '2026-01-01T00:00:00.000Z', decisions: [{ at: '2026-01-01T00:00:00.000Z', action: 'watch', why: 'w', wrong: 'x', nextCheck: '2026-02-01' }] }]))
+    render(<MemoryRouter><Home /></MemoryRouter>)
+    expect(await screen.findByRole('link', { name: /到期复查 1.*自动 DCF 暂无可用数据/ })).toBeTruthy()
+    resetAutoDcf()
   })
 })

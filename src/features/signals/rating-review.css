@@ -1,4 +1,6 @@
 /* 研究方法页「评级复盘」 */
+/* 锚点直达（首页「看最新评级复盘」与研究方法页目录共用）：顶栏 sticky，留出顶部偏移 */
+#rating-review { scroll-margin-top: 80px; }
 .rr-caveat { margin: 0 0 var(--space-3); padding: 10px 12px; border-left: 3px solid var(--warm-ink, var(--system-orange)); background: color-mix(in srgb, var(--system-orange) 8%, transparent); color: var(--text-primary); font-size: .9rem; line-height: 1.6; }
 .rr-caveat strong { margin-right: 6px; }
 .rr-card .seg { margin: 4px 0 10px; }

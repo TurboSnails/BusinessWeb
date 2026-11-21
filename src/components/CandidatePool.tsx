@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Bell } from 'lucide-react'
 import type { Company } from '../data/companies'
@@ -38,6 +38,22 @@ interface Props {
 }
 
 const NO_TOOLS: ToolSources = { dcf: [], valuation: [], grid: [] }
+
+/** 手机断点：与 candidates.css 里的 640px 保持一致。窄屏只渲染摘要列表，宽屏只渲染表格，两者不同时出现在 DOM 里 */
+export const NARROW_QUERY = '(max-width: 640px)'
+function useNarrow(): boolean {
+  const query = (): boolean => typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia(NARROW_QUERY).matches
+  const [narrow, setNarrow] = useState(query)
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return
+    const mql = window.matchMedia(NARROW_QUERY)
+    const onChange = (): void => setNarrow(mql.matches)
+    onChange()
+    mql.addEventListener?.('change', onChange)
+    return () => mql.removeEventListener?.('change', onChange)
+  }, [])
+  return narrow
+}
 
 function NoteEditor({ code, value, onSave }: { code: string; value: string; onSave: (text: string) => void }): JSX.Element {
   const [draft, setDraft] = useState(value)
@@ -117,6 +133,23 @@ function DecisionCell({ item, today, onOpen }: { item: CandidateItem; today: str
   )
 }
 
+/** 手机摘要里的「下次复查 + 原因」：没有决策记录时提示先写一条 */
+function ReviewSummary({ item, today }: { item: CandidateItem; today: string }): JSX.Element {
+  const latest = latestDecision(item)
+  if (!latest) return <p className="cand-m-review cand-m-review--empty">还没有决策记录：写下为什么买、什么情况说明错了、下次检查日。</p>
+  const due = isReviewDue(item, today)
+  return (
+    <div className="cand-m-review">
+      <p className="cand-m-review__line">
+        <Badge tone="accent">{DECISION_ACTIONS[latest.action]}</Badge>
+        {due && <Badge tone="warm">待复查</Badge>}
+        <span className={due ? 'is-due' : undefined}>下次复查 {latest.nextCheck}</span>
+      </p>
+      <p className="cand-m-review__why"><span>原因</span>{latest.why}</p>
+    </div>
+  )
+}
+
 export default function CandidatePool({ items, companies, tools = NO_TOOLS, state, message, onMove, onRemove, onDecision, onNote, onClear, onConnect, onRetry, onAlert, alertStates }: Props): JSX.Element {
   const [dragFrom, setDragFrom] = useState<number | null>(null)
   const [over, setOver] = useState<number | null>(null)
@@ -127,6 +160,8 @@ export default function CandidatePool({ items, companies, tools = NO_TOOLS, stat
   const [editing, setEditing] = useState<string | null>(null)
   const [alerting, setAlerting] = useState<string | null>(null)
   const [confirmRemove, setConfirmRemove] = useState<string | null>(null)
+  const [expanded, setExpanded] = useState<ReadonlySet<string>>(() => new Set())
+  const narrow = useNarrow()
   const today = localDay()
   const recordCount = items.reduce((n, i) => n + (i.decisions?.length ?? 0), 0)
   const byKey = new Map(companies.map(c => [`${c.market}:${c.code}`, c]))
@@ -145,6 +180,37 @@ export default function CandidatePool({ items, companies, tools = NO_TOOLS, stat
     const url = URL.createObjectURL(new Blob([JSON.stringify(rows, null, 2)], { type: 'application/json' }))
     const a = document.createElement('a'); a.href = url; a.download = `候选池-${new Date().toISOString().slice(0, 10)}.json`
     document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000)
+  }
+  const toggleExpanded = (key: string): void => setExpanded(prev => { const next = new Set(prev); if (next.has(key)) next.delete(key); else next.add(key); return next })
+  /** 排序与移除：表格与手机摘要共用同一组按钮和确认流程 */
+  const rowActions = (i: CandidateItem, n: number): JSX.Element => (
+    <div className="rn-row-actions">
+      <button type="button" className="tool-btn" aria-label={`上移 ${i.code}`} disabled={dcfF !== 'all' || n === 0} onClick={() => onMove(n, n - 1)}>↑</button>
+      <button type="button" className="tool-btn" aria-label={`下移 ${i.code}`} disabled={dcfF !== 'all' || n === items.length - 1} onClick={() => onMove(n, n + 1)}>↓</button>
+      <button type="button" className="tool-btn" aria-label={`置顶 ${i.code}`} disabled={dcfF !== 'all' || n === 0} onClick={() => onMove(n, 0)}>置顶</button>
+      {confirmRemove === `${i.market}:${i.code}` ? (
+        <span className="cand-confirm" role="group" aria-label={`确认移除 ${i.code}`}>
+          <span>含 {i.decisions?.length} 条决策记录，一并删除？</span>
+          <button type="button" className="tool-btn tool-btn--danger" onClick={() => { setConfirmRemove(null); onRemove(i) }}>确认移除</button>
+          <button type="button" className="tool-btn" onClick={() => setConfirmRemove(null)}>取消</button>
+        </span>
+      ) : (
+        <button type="button" className="tool-btn" aria-label={`移除 ${i.code}`} onClick={() => (i.decisions?.length ? setConfirmRemove(`${i.market}:${i.code}`) : onRemove(i))}>移除</button>
+      )}
+    </div>
+  )
+  const progressCell = (i: CandidateItem, name: string): JSX.Element => {
+    const grid = gridLink(i.market, i.code, name)
+    return (
+      <>
+        <Progress p={toolProgress(i.market, i.code, tools)} />
+        <div className="cand-tools">
+          <Link className="tool-btn" to={valuationLink(i.market, i.code)} aria-label={`估值工作台 ${i.code}`}>估值</Link>
+          <Link className="tool-btn" to={dcfLink(i.market, i.code, name)} aria-label={`DCF ${i.code}`}>DCF</Link>
+          {grid && <Link className="tool-btn" to={grid} aria-label={`网格 ${i.code}`}>网格</Link>}
+        </div>
+      </>
+    )
   }
   const drop = (to: number): void => { if (dragFrom !== null) onMove(dragFrom, to); setDragFrom(null); setOver(null) }
 
@@ -180,7 +246,7 @@ export default function CandidatePool({ items, companies, tools = NO_TOOLS, stat
     </section>
   )
   return (
-    <Card as="section" label="我的候选池" title={`我的候选池 · ${items.length} 家`} className="rn-card">
+    <Card as="section" label="我的候选池" title={`我的候选池 · ${items.length} 家`} className="rn-card cand-pool">
       <div className="ui-cluster rn-filters">
         {syncStatus}
         <DcfFilterChips value={dcfF} onChange={setDcfF} className="ui-cluster" />
@@ -197,14 +263,79 @@ export default function CandidatePool({ items, companies, tools = NO_TOOLS, stat
         )}
       </div>
       {syncDetails}
-      {items.length > 0 && (
+      {narrow ? (
+        <ol className="cand-m-list" aria-label="候选池列表">{items.map((i, n) => {
+          if (!matchDcfFilter(dcfF, dcfOf(i.market, i.code, tools))) return null
+          const key = `${i.market}:${i.code}`
+          const d = describe(i)
+          const open = expanded.has(key)
+          const panelId = `cand-m-more-${i.market}-${i.code.replace(/[^\w-]/g, '_')}`
+          const latest = latestDecision(i)
+          const due = isReviewDue(i, today)
+          return (
+            <li key={key} className={due ? 'cand-m-item is-due' : 'cand-m-item'}>
+              <div className="cand-m-head">
+                <span className="cand-m-rank" aria-hidden="true">{n + 1}</span>
+                <div className="cand-m-company">
+                  {d.href ? <Link to={d.href} className="rn-link">{d.name || i.code} {i.code}</Link> : <span>{i.code}</span>}
+                  <small>{MARKET_LABEL[i.market]} · {d.rating}</small>
+                </div>
+              </div>
+              <ReviewSummary item={i} today={today} />
+              <div className="cand-m-actions">
+                <button type="button" className={due || !latest ? 'tool-btn tool-btn--primary' : 'tool-btn'} onClick={() => setEditing(key)}
+                  aria-label={latest ? `${due ? '写复查' : '更新决策记录'} ${i.code}` : `写决策记录 ${i.code}`}>
+                  {latest ? (due ? '写复查' : '更新记录') : '写决策记录'}
+                </button>
+                <button type="button" className="tool-btn cand-m-toggle" aria-expanded={open} aria-controls={panelId} onClick={() => toggleExpanded(key)}
+                  aria-label={`${open ? '收起' : '展开'} ${i.code} 详情`}>
+                  {open ? '收起' : '展开'}
+                </button>
+              </div>
+              {open && (
+                <div id={panelId} className="cand-m-more">
+                  <section aria-label={`我的备注 ${i.code}`}>
+                    <h4>我的备注</h4>
+                    <NoteEditor key={`${i.note ?? ''}`} code={i.code} value={i.note ?? ''} onSave={text => onNote(i, text)} />
+                  </section>
+                  {latest && (
+                    <section aria-label={`决策记录 ${i.code}`}>
+                      <h4>决策记录</h4>
+                      <p className="cand-m-meta">什么情况说明我错了：{latest.wrong}</p>
+                      <button type="button" className="tool-btn" onClick={() => setEditing(key)} aria-label={`查看与更新决策记录 ${i.code}`}>查看全部 · {i.decisions?.length}</button>
+                    </section>
+                  )}
+                  {onAlert && (
+                    <section aria-label={`价位提醒 ${i.code}`}>
+                      <h4>价位提醒</h4>
+                      <AlertCell item={i} state={alertStates?.get(key)} onOpen={() => setAlerting(key)} />
+                    </section>
+                  )}
+                  <section aria-label={`研究结论 ${i.code}`} className="cand-verdict">
+                    <h4>研究结论</h4>
+                    <strong>{d.rating}</strong><span>{d.headline}</span>
+                    <small><Link to={`/research-notes/company/${i.market}/${encodeURIComponent(i.code)}/notes`} className="rn-link">研究笔记</Link></small>
+                  </section>
+                  <section aria-label={`估值 ${i.code}`}>
+                    <h4>估值</h4>
+                    {progressCell(i, d.name)}
+                  </section>
+                  <section aria-label={`排序 ${i.code}`}>
+                    <h4>排序</h4>
+                    {rowActions(i, n)}
+                  </section>
+                </div>
+              )}
+            </li>
+          )
+        })}</ol>
+      ) : (
         <TableWrap label="候选池列表">
           <table className="ui-table rn-table--top cand-table">
             <thead><tr>{['#', '公司', '决策记录', '我的备注', '研究结论', '估值', '排序'].map(h => <th key={h} scope="col">{h}</th>)}</tr></thead>
             <tbody>{items.map((i, n) => {
               if (!matchDcfFilter(dcfF, dcfOf(i.market, i.code, tools))) return null
               const d = describe(i)
-              const grid = gridLink(i.market, i.code, d.name)
               return (
                 <tr key={`${i.market}:${i.code}`} onDragOver={e => { e.preventDefault(); setOver(n) }} onDrop={() => drop(n)}
                   className={dragFrom === n ? 'rn-row-dragging' : over === n && dragFrom !== null ? 'rn-row-over' : undefined}>
@@ -219,29 +350,9 @@ export default function CandidatePool({ items, companies, tools = NO_TOOLS, stat
                   </td>
                   <td className="rn-wide"><NoteEditor key={`${i.note ?? ''}`} code={i.code} value={i.note ?? ''} onSave={text => onNote(i, text)} /></td>
                   <td className="cand-verdict"><strong>{d.rating}</strong><span>{d.headline}</span></td>
-                  <td className="cand-progress-cell">
-                    <Progress p={toolProgress(i.market, i.code, tools)} />
-                    <div className="cand-tools">
-                      <Link className="tool-btn" to={valuationLink(i.market, i.code)} aria-label={`估值工作台 ${i.code}`}>估值</Link>
-                      <Link className="tool-btn" to={dcfLink(i.market, i.code, d.name)} aria-label={`DCF ${i.code}`}>DCF</Link>
-                      {grid && <Link className="tool-btn" to={grid} aria-label={`网格 ${i.code}`}>网格</Link>}
-                    </div>
-                  </td>
+                  <td className="cand-progress-cell">{progressCell(i, d.name)}</td>
                   <td>
-                    <div className="rn-row-actions">
-                      <button type="button" className="tool-btn" aria-label={`上移 ${i.code}`} disabled={dcfF !== 'all' || n === 0} onClick={() => onMove(n, n - 1)}>↑</button>
-                      <button type="button" className="tool-btn" aria-label={`下移 ${i.code}`} disabled={dcfF !== 'all' || n === items.length - 1} onClick={() => onMove(n, n + 1)}>↓</button>
-                      <button type="button" className="tool-btn" aria-label={`置顶 ${i.code}`} disabled={dcfF !== 'all' || n === 0} onClick={() => onMove(n, 0)}>置顶</button>
-                      {confirmRemove === `${i.market}:${i.code}` ? (
-                        <span className="cand-confirm" role="group" aria-label={`确认移除 ${i.code}`}>
-                          <span>含 {i.decisions?.length} 条决策记录，一并删除？</span>
-                          <button type="button" className="tool-btn tool-btn--danger" onClick={() => { setConfirmRemove(null); onRemove(i) }}>确认移除</button>
-                          <button type="button" className="tool-btn" onClick={() => setConfirmRemove(null)}>取消</button>
-                        </span>
-                      ) : (
-                        <button type="button" className="tool-btn" aria-label={`移除 ${i.code}`} onClick={() => (i.decisions?.length ? setConfirmRemove(`${i.market}:${i.code}`) : onRemove(i))}>移除</button>
-                      )}
-                    </div>
+                    {rowActions(i, n)}
                   </td>
                 </tr>
               )
@@ -267,7 +378,9 @@ export default function CandidatePool({ items, companies, tools = NO_TOOLS, stat
         return <CandidateAlertDialog key={alerting ?? ''} open onClose={() => setAlerting(null)} name={`${d.name || item.code} ${item.code}`} rule={item.alert}
           anchors={ctx.anchors} price={ctx.price} currency={ctx.currency} cloud={state === 'synced' || state === 'syncing'} today={today} onSave={rule => onAlert(item, rule)} />
       })()}
-      {items.length > 0 && <p className="cand-foot">拖动 ⠿ 序号或用 ↑ ↓ / 置顶调整优先级；备注 Enter 或点别处保存，Shift+Enter 换行，Esc 放弃。仅为个人研究清单，不构成投资建议。</p>}
+      {narrow
+        ? <p className="cand-foot">点「展开」看备注、研究结论、估值与排序；备注 Enter 或点别处保存，Esc 放弃。仅为个人研究清单，不构成投资建议。</p>
+        : <p className="cand-foot">拖动 ⠿ 序号或用 ↑ ↓ / 置顶调整优先级；备注 Enter 或点别处保存，Shift+Enter 换行，Esc 放弃。仅为个人研究清单，不构成投资建议。</p>}
     </Card>
   )
 }

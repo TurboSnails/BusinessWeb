@@ -223,3 +223,84 @@ describe('价位提醒', () => {
     expect(JSON.parse(localStorage.getItem('rn-candidates') ?? '[]')[0].decisions).toHaveLength(1)
   })
 })
+
+describe('手机摘要（≤640px）', () => {
+  const stubNarrow = (matches: boolean): void => {
+    vi.stubGlobal('matchMedia', vi.fn((query: string) => ({ matches, media: query, addEventListener: () => {}, removeEventListener: () => {}, onchange: null, addListener: () => {}, removeListener: () => {}, dispatchEvent: () => false })))
+  }
+  const seed = (): void => localStorage.setItem('rn-candidates', JSON.stringify([
+    { market: 'us', code: 'A', addedAt: '2026-10-01T00:00:00.000Z', note: '等回调' },
+    { market: 'us', code: 'B', addedAt: '2026-10-02T00:00:00.000Z', decisions: [{ at: '2026-01-01T00:00:00.000Z', action: 'watch', why: '续约稳定', wrong: '毛利下滑', nextCheck: '2026-02-01' }] },
+  ]))
+  const cards = (): string[] => screen.queryAllByRole('listitem').map(li => /公司(\w)/.exec(li.textContent ?? '')?.[1] ?? '')
+  beforeEach(() => { localStorage.clear(); vi.stubGlobal('fetch', vi.fn(async () => new Response('{}', { status: 503 }))) })
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('窄屏不渲染表格，摘要显示公司、下次复查与原因，详情默认收起', () => {
+    stubNarrow(true); seed()
+    render(<Harness />)
+    expect(screen.queryByRole('table')).toBeNull()
+    expect(cards()).toEqual(['A', 'B'])
+    expect(screen.getByRole('link', { name: '公司B B' })).toBeTruthy()
+    expect(screen.getByText('下次复查 2026-02-01')).toBeTruthy()
+    expect(screen.getByText('续约稳定')).toBeTruthy()
+    expect(screen.getByText('待复查')).toBeTruthy()
+    expect(screen.getByText(/还没有决策记录/)).toBeTruthy()
+    expect(screen.queryByLabelText('备注 A')).toBeNull()
+    expect(screen.queryByLabelText('上移 B')).toBeNull()
+  })
+
+  it('展开后可编辑备注、排序与移除，收起按钮带 aria-expanded', () => {
+    stubNarrow(true); seed()
+    render(<Harness />)
+    const toggle = screen.getByRole('button', { name: '展开 A 详情' })
+    expect(toggle.getAttribute('aria-expanded')).toBe('false')
+    fireEvent.click(toggle)
+    expect(screen.getByRole('button', { name: '收起 A 详情' }).getAttribute('aria-expanded')).toBe('true')
+    expect(document.getElementById(toggle.getAttribute('aria-controls') ?? '')).toBeTruthy()
+    const box = screen.getByLabelText('备注 A') as HTMLTextAreaElement
+    expect(box.value).toBe('等回调')
+    fireEvent.change(box, { target: { value: '等回调到 150' } }); fireEvent.blur(box)
+    expect(JSON.parse(localStorage.getItem('rn-candidates') as string)[0].note).toBe('等回调到 150')
+    fireEvent.click(screen.getByRole('button', { name: '下移 A' }))
+    expect(cards()).toEqual(['B', 'A'])
+    fireEvent.click(screen.getByRole('button', { name: '移除 A' }))
+    expect(cards()).toEqual(['B'])
+  })
+
+  it('到期时「写复查」打开同一个决策弹窗，保存后持久化为新版本并更新摘要', () => {
+    stubNarrow(true); seed()
+    render(<Harness />)
+    fireEvent.click(screen.getByRole('button', { name: '写复查 B' }))
+    const dialog = screen.getByRole('dialog')
+    fireEvent.change(screen.getByLabelText(/我为什么买/), { target: { value: '复查后：回款改善' } })
+    fireEvent.change(screen.getByLabelText(/下次检查日/), { target: { value: '2099-05-31' } })
+    fireEvent.click(screen.getByRole('button', { name: '保存为新版本' }))
+    expect(dialog.isConnected).toBe(false)
+    const saved = JSON.parse(localStorage.getItem('rn-candidates') as string)
+    expect(saved[1].decisions.map((r: { nextCheck: string }) => r.nextCheck)).toEqual(['2026-02-01', '2099-05-31'])
+    expect(screen.getByText('下次复查 2099-05-31')).toBeTruthy()
+    expect(screen.getByText('复查后：回款改善')).toBeTruthy()
+    expect(screen.queryByText('待复查')).toBeNull()
+    expect(screen.getByRole('button', { name: '更新决策记录 B' })).toBeTruthy()
+  })
+
+  it('没有记录时「写决策记录」可直接新建', () => {
+    stubNarrow(true); seed()
+    render(<Harness />)
+    fireEvent.click(screen.getByRole('button', { name: '写决策记录 A' }))
+    fireEvent.change(screen.getByLabelText(/我为什么买/), { target: { value: '理由' } })
+    fireEvent.change(screen.getByLabelText(/什么情况说明我错了/), { target: { value: '条件' } })
+    fireEvent.change(screen.getByLabelText(/下次检查日/), { target: { value: '2099-01-31' } })
+    fireEvent.click(screen.getByRole('button', { name: '保存' }))
+    expect(JSON.parse(localStorage.getItem('rn-candidates') as string)[0].decisions).toHaveLength(1)
+    expect(screen.getByText('下次复查 2099-01-31')).toBeTruthy()
+  })
+
+  it('宽屏仍是表格', () => {
+    stubNarrow(false); seed()
+    render(<Harness />)
+    expect(screen.getByRole('table')).toBeTruthy()
+    expect(screen.queryByRole('button', { name: '展开 A 详情' })).toBeNull()
+  })
+})

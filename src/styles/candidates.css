@@ -742,3 +742,170 @@
   margin: 4px 0 0;
   line-height: 1.6;
 }
+
+/* 手机候选池（≤640px）：摘要卡片 + 展开详情，代替宽表格，390px 不出现横向滚动 */
+.cand-m-list {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cand-m-item {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  overflow-wrap: anywhere;
+}
+
+.cand-m-item.is-due {
+  border-color: var(--warm-ink);
+}
+
+.cand-m-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+}
+
+.cand-m-rank {
+  flex: none;
+  min-width: 1.5rem;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.6;
+}
+
+.cand-m-company {
+  min-width: 0;
+  flex: 1 1 auto;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.cand-m-company small {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+
+.cand-m-review {
+  margin: 8px 0 0;
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+
+.cand-m-review p {
+  margin: 0;
+}
+
+.cand-m-review--empty {
+  color: var(--text-secondary);
+}
+
+.cand-m-review__line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.cand-m-review__line .is-due {
+  color: var(--warm-ink);
+  font-weight: 600;
+}
+
+.cand-m-review__why {
+  display: -webkit-box;
+  margin-top: 4px !important;
+  overflow: hidden;
+  color: var(--text-secondary);
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.cand-m-review__why > span {
+  margin-right: 6px;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.cand-m-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.cand-m-actions .tool-btn {
+  flex: 1 1 8rem;
+  min-height: 40px;
+  justify-content: center;
+}
+
+.cand-m-more {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.cand-m-more section {
+  min-width: 0;
+}
+
+.cand-m-more h4 {
+  margin: 0 0 4px;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.cand-m-more .rn-note {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.cand-m-more .cand-verdict small {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.75rem;
+}
+
+.cand-m-meta {
+  margin: 0 0 6px;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+.cand-m-more .rn-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  white-space: normal;
+}
+
+.cand-m-more .cand-confirm {
+  flex-basis: 100%;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .cand-pool .rn-filters {
+    min-width: 0;
+  }
+
+  .cand-pool .rn-filters .rn-spacer {
+    display: none;
+  }
+}

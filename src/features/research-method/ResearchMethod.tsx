@@ -1,8 +1,9 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useEffect } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { CheckCircle2, AlertTriangle } from 'lucide-react'
 import { TableWrap } from '../../components/ui'
 import RatingReview from '../signals/RatingReview'
+import { RATING_REVIEW_ANCHOR } from '../signals/rating-review-anchor'
 import { researchStandard } from '../../data/notionNotes'
 import { investmentMethod as M, BOOK, bookHref, type BookKey, type Lane } from '../../data/investmentMethod'
 
@@ -66,9 +67,22 @@ function LaneCard({ lane }: { lane: Lane }): JSX.Element {
 
 export default function ResearchMethod(): JSX.Element {
   const [value, growth] = M.lanes
+  const { hash } = useLocation()
+  // 只拦截约定的评级复盘锚点：冷启动/刷新或站外带锚点进来时，等父级 ResearchNotes 挂载时的
+  // scrollTo(0) 之后再定位；其余 hash（含无法 decode 的非法锚点如 #%）不处理，保持浏览器原生行为
+  useEffect(() => {
+    if (hash !== `#${RATING_REVIEW_ANCHOR}`) return
+    const el = document.getElementById(RATING_REVIEW_ANCHOR)
+    if (!el) return
+    const t = window.setTimeout(() => el.scrollIntoView?.({ block: 'start' }), 0)
+    return () => window.clearTimeout(t)
+  }, [hash])
   return (
     <div>
       <p className="rn-eyebrow">{M.eyebrow}</p>
+      <nav className="ui-link-chips rn-quick-nav" aria-label="页内直达">
+        <a href={`#${RATING_REVIEW_ANCHOR}`}>直达评级复盘</a>
+      </nav>
 
       {/* 1. 总纲 */}
       <section className="ui-card rn-card rn-card--lead" aria-label="总纲">
@@ -89,6 +103,7 @@ export default function ResearchMethod(): JSX.Element {
           <a href="#m-aside">选读</a>
           <a href="#m-common">通用纪律</a>
           <a href="#m-verify">方法验证</a>
+          <a href={`#${RATING_REVIEW_ANCHOR}`}>评级复盘</a>
         </nav>
       </section>
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Segmented } from '../../components/ui/PageTabs'
 import { TableWrap } from '../../components/ui'
+import { RATING_REVIEW_ANCHOR } from './rating-review-anchor'
 import './rating-review.css'
 
 // 研究方法页「评级复盘」：读 scripts/rating-review.mjs 每周生成的 public/data/rating-review.json，只展示、不计算。
@@ -69,7 +70,7 @@ export default function RatingReview(): JSX.Element {
     return () => { alive = false }
   }, [])
   return (
-    <div className="ui-card rn-card rr-card">
+    <div id={RATING_REVIEW_ANCHOR} className="ui-card rn-card rr-card">
       <h3 className="rn-card-title">评级复盘：评级之后的价格表现</h3>
       <p className="rr-caveat" role="note">
         <strong>样本期很短，不是业绩。</strong>

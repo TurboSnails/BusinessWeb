@@ -4,8 +4,9 @@ import { CalendarClock } from 'lucide-react'
 import type { Company } from '../data/companies'
 import type { PriceObservation } from '../features/candidates/priceAlert'
 import type { CandidateItem } from '../features/candidates/validation'
-import { useWeeklyData } from '../features/weekly/useWeeklyData'
-import { beijingDay, buildWeeklySummary, companyIndexFrom, completedWeek, contextSections, weeklyCount, weeklyPriceHits, type WeeklySection } from '../features/weekly/weeklySummary'
+import { comparisonGaps } from '../features/weekly/comparisonGaps'
+import { useWeeklyData, WEEKLY_SOURCES } from '../features/weekly/useWeeklyData'
+import { beijingDay, buildWeeklySummary, companyIndexFrom, completedWeek, weeklyCount, weeklyPriceHits, type WeeklySection } from '../features/weekly/weeklySummary'
 import '../styles/candidates.css'
 
 /**
@@ -24,22 +25,38 @@ export default function WeeklyChanges({ items, companies, observations, now }: {
   const week = useMemo(() => completedWeek(new Date(`${today}T04:00:00Z`)), [today])
   const data = useWeeklyData(week)
   const index = useMemo(() => companyIndexFrom(companies), [companies])
-  const summary = useMemo(() => buildWeeklySummary({
+  const summary = buildWeeklySummary({
     week, candidates: items, priceHits: weeklyPriceHits(items, observations, week), ledger: data.ledger, cycle: data.cycle, macro: data.macro, earnings: data.earnings, companies: index,
-  }), [week, items, observations, data, index])
+  })
   const count = weeklyCount(summary)
   const range = `${week.start.slice(5)} 至 ${week.end.slice(5)}`
+
+  // 首次读取：只显示读取中；重新读取：保留上次结果，完成后再更新
+  const initialLoad = data.loading && !data.refreshing
+  const allFailed = WEEKLY_SOURCES.every(name => data.failed.includes(name))
+  const partFailed = data.failed.length > 0 && !allFailed
+  const gaps = comparisonGaps({ week, candidates: items, ledger: data.ledger, cycle: data.cycle, macro: data.macro })
+  // 缺来源、来源失败或两期无法比较时，「没有列出变化」不等于「确实无变化」
+  const unverified = data.failed.length > 0 || !data.ledger || !data.cycle || !data.macro || summary.notes.length > 0 || gaps.length > 0
+  const gap = allFailed ? '比较来源全部读取失败' : partFailed ? '部分来源读取失败' : unverified ? '部分数据无法比较' : ''
+  const label = initialLoad ? '读取中'
+    : summary.empty ? (unverified ? `无法确认（${gap}）` : '无')
+      : `${count} 项${gap ? `（${gap}）` : ''}`
+  const emptyText = !unverified ? summary.emptyText
+    : allFailed && !data.retained.length ? '比较来源全部读取失败，无法确认本周是否有变化。'
+      : '部分数据缺失或两期无法比较，无法确认本周是否有变化；已比较的部分没有列出变化。'
+  const fresh = data.failed.filter(name => !data.retained.includes(name))
 
   return (
     <details className="cand-weekly">
       <summary>
-        <CalendarClock size={14} aria-hidden="true" /> 本周变化 · {data.loading ? '读取中' : summary.empty ? '无' : `${count} 项`}
+        <CalendarClock size={14} aria-hidden="true" /> 本周变化 · {label}{data.refreshing ? ' · 重新读取中' : ''}
         <small>上周 {range}（{week.id}）与再前一周相比</small>
       </summary>
-      {data.loading ? <p className="cand-weekly-note" role="status">正在读取信号台账、牛熊周期周报和宏观快照…</p>
-        : <>
-          {summary.empty && <p className="cand-weekly-empty">{summary.emptyText}</p>}
-          {(summary.empty ? contextSections(summary) : summary.sections).map((sec: WeeklySection) => (
+      {data.loading && <p className="cand-weekly-note" role="status">{initialLoad ? '正在读取信号台账、牛熊周期周报和宏观快照…' : '正在重新读取周度数据，下面暂为上次读取的结果。'}</p>}
+      {!initialLoad && <>
+        {summary.empty && <p className="cand-weekly-empty">{emptyText}</p>}
+        {summary.sections.map((sec: WeeklySection) => (
           <section key={sec.id} aria-label={sec.title}>
             <h3>{sec.title} · {sec.lines.length}{sec.context ? ' 家' : ''}</h3>
             {sec.summary && <p className="cand-weekly-note">{sec.summary}</p>}
@@ -52,9 +69,13 @@ export default function WeeklyChanges({ items, companies, observations, now }: {
               ))}
             </ul>
           </section>
-          ))}
-        </>}
-      {[...summary.notes, ...(data.failed.length ? [`${data.failed.join('、')}未能读取，相关部分未比较。`] : [])].map(n => <p key={n} className="cand-weekly-note">{n}</p>)}
+        ))}
+        {fresh.length > 0 && <p className="cand-weekly-note">{fresh.join('、')}未能读取，相关部分未比较。</p>}
+        {data.retained.length > 0 && <p className="cand-weekly-note">{data.retained.join('、')}本次重新读取失败，沿用上次读取的数据（日期见各条来源）。</p>}
+        {[...summary.notes, ...gaps].map(n => <p key={n} className="cand-weekly-note">{n}</p>)}
+        {data.earningsFailed && <p className="cand-weekly-note">{data.earnings ? '财报前瞻本次重新读取失败，下周财报沿用上次读取的结果。' : '财报前瞻未能读取，下周财报未列出。'}</p>}
+        {data.failed.length > 0 && <button type="button" className="tool-btn" disabled={data.loading} onClick={data.retry}>重新读取周度数据</button>}
+      </>}
       <p className="cand-foot">只列可复核的事实（评级档位、触及条件价、决策记录与复查日、牛熊周期周状态、宏观阶段；下周财报只作背景，不计入项数），不做预测；是复核提醒，不是买卖指令。每周一早上另发一封同内容的邮件（有变化时）。</p>
     </details>
   )
