@@ -18,7 +18,11 @@ function Cell({ title, result, baseline }: { title: string; result: RunResult; b
 }
 
 export function ComparisonGrid({ comparison }: { comparison: CompareSet }): JSX.Element {
-  const benchmarks = (['QQQ', 'QQEW'] as const).map(symbol => ({ symbol, result: comparison.benchmarks[symbol] }))
+  const benchmarks = (['QQQ', 'QQQE'] as const).map(symbol => ({
+    symbol,
+    label: symbol === 'QQQE' ? 'QQQE（纳指 100 等权）' : symbol,
+    result: comparison.benchmarks[symbol],
+  }))
   return (
     <section className="pr-section pr-comparison" aria-labelledby="pr-comparison-title">
       <div className="pr-section__head">
@@ -34,9 +38,9 @@ export function ComparisonGrid({ comparison }: { comparison: CompareSet }): JSX.
       </div>
       <div className="pr-benchmarks" aria-label="纳指 100 基准">
         <h3>纳指 100 · 买入持有</h3>
-        {benchmarks.map(({ symbol, result }) => (
+        {benchmarks.map(({ symbol, label, result }) => (
           <div className="pr-benchmark" key={symbol}>
-            <strong>{symbol}</strong>
+            <strong>{label}</strong>
             {result ? <><span>{money(result.finalAmount)}</span><span className={returnClass(result.cagr)}>年化 {percent(result.cagr)}</span><span>回撤 {percent(result.maxDrawdown.value)}</span></> : <span>暂无数据</span>}
           </div>
         ))}

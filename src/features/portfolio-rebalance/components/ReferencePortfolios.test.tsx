@@ -30,19 +30,36 @@ function fixtureIndex(extra?: Partial<PriceIndex['items'][number]>[]): PriceInde
 }
 
 describe('ReferencePortfolios', () => {
-  it('渲染 4 张参考组合卡', () => {
-    render(<ReferencePortfolios index={fixtureIndex()} applied={null} onLoad={vi.fn()} />)
+  it('渲染 4 张去推荐化参考组合卡', () => {
+    const { container } = render(<ReferencePortfolios index={fixtureIndex()} applied={null} onLoad={vi.fn()} />)
     expect(screen.getByText('研究参考组合')).toBeTruthy()
-    expect(screen.getByText(/事后挑选的参考组合/)).toBeTruthy()
-    expect(screen.getByText('首选')).toBeTruthy()
+    expect(screen.getByText('事后挑选的历史测试组合，用来对照，不是推荐或买卖建议。')).toBeTruthy()
+    expect(screen.getByText('各项较均衡')).toBeTruthy()
     expect(screen.getByText('Meta 换苹果')).toBeTruthy()
-    expect(screen.getByText('省心')).toBeTruthy()
+    expect(screen.getByText('更分散')).toBeTruthy()
     expect(screen.getByText('六只分散')).toBeTruthy()
-    expect(screen.getByText('回撤最小')).toBeTruthy()
+    expect(screen.getByText('回撤最浅')).toBeTruthy()
     expect(screen.getByText('拼多多替换 SoFi')).toBeTruthy()
     expect(screen.getByText('对照')).toBeTruthy()
     expect(screen.getByText('现组合')).toBeTruthy()
+    expect(screen.getAllByText(/研究时（截至 2026-11-20）每年调一次年化/)).toHaveLength(4)
+    expect(screen.getByText(/拼多多有中概股政策与退市风险/)).toBeTruthy()
+    expect(container.textContent).not.toMatch(/首选|省心|回撤最小|没有明显短板/)
     expect(screen.getAllByRole('button', { name: '载入并计算' })).toHaveLength(4)
+  })
+
+  it('研究观察默认收起，展开后显示 6 条限定样本的观察', () => {
+    const { container } = render(<ReferencePortfolios index={fixtureIndex()} applied={null} onLoad={vi.fn()} />)
+    const research = container.querySelector('.pr-research') as HTMLDetailsElement
+    expect(research.open).toBe(false)
+    expect(screen.getByText('本页研究观察（特定历史样本，不是通用结论）')).toBeTruthy()
+    fireEvent.click(research.querySelector('summary')!)
+    expect(research.open).toBe(true)
+    expect(research.querySelectorAll('ol > li')).toHaveLength(6)
+    expect(screen.getByText(/13,432 个组合样本内 100% 年化更高，中位差 \+4.5 个百分点/)).toBeTruthy()
+    expect(screen.getByText(/14,558 个组合为 97.1%，中位差 \+3.1 个百分点/)).toBeTruthy()
+    expect(screen.getByText(/7,290 个组合为 59.1%，中位差 \+0.5 个百分点/)).toBeTruthy()
+    expect(screen.getByText(/6,188 个大师股五只等权组合/)).toBeTruthy()
   })
 
   it('点击后 onLoad 收到正确 symbols/weights/rule', () => {

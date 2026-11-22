@@ -103,7 +103,7 @@ export type RunResult = {
 export type CompareSet = {
   custom: { hold: RunResult; active: RunResult }
   equal: { hold: RunResult; active: RunResult }
-  benchmarks: Record<'QQQ' | 'QQEW', RunResult | null>
+  benchmarks: Record<'QQQ' | 'QQQE', RunResult | null>
   leaveOneOut: { dropped: string; hold: RunResult; active: RunResult }[]
 }
 

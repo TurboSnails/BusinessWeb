@@ -269,9 +269,8 @@
 }
 
 .pr-weights > label > span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
 }
 
 .pr-number {
@@ -1273,6 +1272,133 @@
 @media (pointer: coarse) {
   .pr-config-summary .btn-ghost,
   .pr-ref-card__action .btn-ghost {
+    min-height: 44px;
+  }
+}
+
+
+.pr-conclusions {
+  padding: 22px 24px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--bg-card);
+}
+
+.pr-conclusions h2 {
+  margin: 0 0 12px;
+  font-size: 1.25rem;
+}
+
+.pr-conclusions__body {
+  display: grid;
+  gap: 10px;
+}
+
+.pr-conclusions__body p {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+
+.pr-conclusions__body p:last-child {
+  padding-top: 10px;
+  border-top: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+}
+
+.pr-research {
+  margin-top: 16px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.pr-research > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  gap: 16px;
+  padding-top: 8px;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-weight: 650;
+  line-height: 1.6;
+}
+
+.pr-research__toggle {
+  flex: 0 0 auto;
+  color: var(--accent-ink);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.pr-research__toggle::after {
+  content: '展开';
+}
+
+.pr-research[open] .pr-research__toggle::after {
+  content: '收起';
+}
+
+.pr-research__body {
+  padding: 4px 0 8px;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.8;
+}
+
+.pr-research__body p {
+  margin: 8px 0;
+}
+
+.pr-research__body ol {
+  display: grid;
+  gap: 9px;
+  margin: 10px 0;
+  padding-left: 24px;
+}
+
+.pr-research__body li {
+  padding-left: 3px;
+}
+
+.pr-table--leave {
+  min-width: 1000px;
+}
+
+.pr-change {
+  color: var(--text-primary);
+}
+
+.pr-loo__rule-note {
+  display: block;
+  max-width: 34ch;
+  margin-top: 6px;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.55;
+  white-space: normal;
+}
+
+@media (max-width: 680px) {
+  .pr-conclusions {
+    padding: 16px;
+  }
+
+  .pr-research > summary {
+    align-items: flex-start;
+  }
+}
+
+@media (pointer: coarse) {
+  .pr-refs > summary,
+  .pr-research > summary {
     min-height: 44px;
   }
 }

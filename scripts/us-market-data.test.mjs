@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
-  collectUsMarketData, finraDebtGrowth, mergeSeries, parseAllocation, parseCftc, parseCftcHistory, parseFinra, parseEtfSpread, parseFred,
-  compactHistory, corporateSpread, isBotChallenge, parseCboeIndex, parseFearGreed, parseFinraHistory, parseMultpl, parseNaaim, parseFundLiquidity, parseIciFlows, parseMoneyFunds, parseOfrExposure, parseSentiment, parseVolume,
+  collectUsMarketData, copperGoldRatio, finraDebtGrowth, mergeSeries, parseAllocation, parseCftc, parseCftcHistory, parseFinra, parseEtfSpread, parseFred,
+  compactHistory, corporateSpread, isBotChallenge, parseCboeIndex, parseFearGreed, parseFinraHistory, parseMultpl, parseNaaim, parseFundLiquidity, parseIciFlows, parseMoneyFunds, parseOfrExposure, parseSentiment, parseVolume, parseYahooFuturesClose,
 } from './us-market-data.mjs'
 
 const table = (...rows) => '<table>' + rows.map(row => '<tr>' + row.map(cell => `<td>${cell}</td>`).join('') + '</tr>').join('') + '</table>'
@@ -174,7 +174,7 @@ test('a failed live source preserves its dated snapshot while other sources refr
     readBinary: async () => { throw new Error('unavailable') },
   })
   assert.equal(result.sourcesUpdated, 1)
-  assert.equal(result.warnings.length, 27)
+  assert.equal(result.warnings.length, 29)
   assert.deepEqual(result.snapshot.series.retailCash, { ...retailCash, refreshError: 'unavailable' })
   assert.deepEqual(result.snapshot.series.hyDaily.history, [['2026-11-18', 347]])
 })
@@ -252,4 +252,93 @@ test('ETF 价差采用市场价格区块日期及展示百分比，保留发行�
   assert.deepEqual(parseEtfSpread(source('0.00%'), 'SPY').history, [['2026-11-19', 0]])
   assert.throws(() => parseEtfSpread(source('—'), 'SPY'))
   assert.throws(() => parseEtfSpread(source('0.01%'), 'SPSM'))
+})
+
+const futuresChart = (symbol, bars, { open, end, marketTime } = {}) => ({
+  chart: {
+    result: [{
+      meta: {
+        symbol,
+        exchangeTimezoneName: 'America/New_York',
+        regularMarketTime: marketTime ?? end,
+        currentTradingPeriod: { regular: { start: open, end } },
+      },
+      timestamp: bars.map(([stamp]) => stamp),
+      indicators: { quote: [{ close: bars.map(([, close]) => close) }] },
+    }],
+  },
+})
+
+test('Yahoo 期货解析丢弃缺值、盘中未收盘的最后一根，并按纽约日对齐', () => {
+  const open = Date.parse('2026-11-20T13:00:00Z') / 1000
+  const end = Date.parse('2026-11-20T22:00:00Z') / 1000
+  const prior = Date.parse('2026-11-19T18:00:00Z') / 1000
+  const today = Date.parse('2026-11-20T18:00:00Z') / 1000
+  const body = futuresChart('HG=F', [[prior, 4.12], [today, null], [today, 4.25]], { open, end, marketTime: end })
+  body.chart.result[0].indicators.quote[0].close = [4.12, null, 4.25]
+  assert.deepEqual(
+    parseYahooFuturesClose(body, 'HG=F', new Date('2026-11-20T20:00:00Z')).history,
+    [['2026-11-19', 4.12]],
+  )
+  assert.deepEqual(
+    parseYahooFuturesClose(body, 'HG=F', new Date('2026-11-20T22:15:00Z')).history,
+    [['2026-11-19', 4.12], ['2026-11-20', 4.25]],
+  )
+  assert.throws(() => parseYahooFuturesClose(body, 'GC=F', new Date('2026-11-20T22:15:00Z')), /格式不符/)
+})
+
+test('Yahoo 期货会话 meta 不完整时丢弃当天这根', () => {
+  const prior = Date.parse('2026-11-19T18:00:00Z') / 1000
+  const today = Date.parse('2026-11-20T18:00:00Z') / 1000
+  const body = {
+    chart: {
+      result: [{
+        meta: { symbol: 'GC=F', regularMarketTime: today },
+        timestamp: [prior, today],
+        indicators: { quote: [{ close: [2650.4, 2661.2] }] },
+      }],
+    },
+  }
+  assert.deepEqual(
+    parseYahooFuturesClose(body, 'GC=F', new Date('2026-11-20T23:00:00Z'), 2).history,
+    [['2026-11-19', 2650.4]],
+  )
+})
+
+test('铜金比只保留同日有效收盘并对齐', () => {
+  assert.deepEqual(
+    copperGoldRatio(
+      [['2026-11-18', 4.2], ['2026-11-19', 4.1], ['2026-11-20', 4.0]],
+      [['2026-11-18', 2600], ['2026-11-20', 2500]],
+    ),
+    [['2026-11-18', 0.001615], ['2026-11-20', 0.0016]],
+  )
+})
+
+test('铜金源失败时保留旧序列，另一源仍可更新并重算比值', async () => {
+  const previous = {
+    series: {
+      copperDaily: { name: '铜', history: [['2026-11-18', 4.0]] },
+      goldDaily: { name: '金', history: [['2026-11-18', 2500]] },
+      copperGold: { name: '铜金比', history: [['2026-11-18', 0.0016]] },
+    },
+  }
+  const open = Date.parse('2026-11-19T13:00:00Z') / 1000
+  const end = Date.parse('2026-11-19T22:00:00Z') / 1000
+  const stamp = Date.parse('2026-11-19T18:00:00Z') / 1000
+  const result = await collectUsMarketData(previous, {
+    now: new Date('2026-11-19T22:30:00Z'),
+    read: async url => {
+      if (url.includes('HG%3DF') || url.includes('HG=F')) {
+        return JSON.stringify(futuresChart('HG=F', [[stamp, 4.2]], { open, end, marketTime: end }))
+      }
+      if (url.includes('GC%3DF') || url.includes('GC=F')) throw new Error('HTTP 429')
+      throw new Error('unavailable')
+    },
+    readBinary: async () => { throw new Error('unavailable') },
+  })
+  assert.deepEqual(result.snapshot.series.copperDaily.history.at(-1), ['2026-11-19', 4.2])
+  assert.deepEqual(result.snapshot.series.goldDaily, { ...previous.series.goldDaily, refreshError: 'HTTP 429' })
+  assert.deepEqual(result.snapshot.series.copperGold.history, [['2026-11-18', 0.0016]])
+  assert.equal(result.snapshot.series.copperGold.refreshError, 'HTTP 429')
 })

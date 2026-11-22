@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  compareSet,
   equalWeightInput,
   leaveOneOutInputs,
   riseToBound,
@@ -173,5 +174,25 @@ describe('portfolio-rebalance engine anchors', () => {
     })
     expect(r.final.toFixed(4)).toBe('3.7908')
     expect(r.tradeCount).toBe(5)
+  })
+
+  it('compareSet 使用 QQQE 作为纳指 100 等权基准，QQEW 不进入对比集', () => {
+    const series = { dates: ['2024-01-02', '2025-01-02'], adjClose: [100, 110] }
+    const comparison = compareSet({
+      AVGO: series,
+      META: series,
+      QQQ: series,
+      QQQE: series,
+      QQEW: series,
+    }, {
+      symbols: ['AVGO', 'META'],
+      weights: [0.5, 0.5],
+      rule: { kind: 'buyHold' },
+      cost: 0.001,
+      initial: 1,
+    })
+    expect(Object.keys(comparison.benchmarks)).toEqual(['QQQ', 'QQQE'])
+    expect(comparison.benchmarks.QQQE?.final).toBeCloseTo(1.1)
+    expect(comparison.benchmarks.QQQ?.final).toBeCloseTo(1.1)
   })
 })

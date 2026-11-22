@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { completedSessions, computeBackfill, computeBreadth, computeHighsLows, computeMatchedComparison, mergeBreadth, parseNdxMembers, parseSpxMembers, parseYahooAdjusted } from './us-market-breadth.mjs'
+import { completedSessions, computeAdvDec, computeBackfill, computeBreadth, computeHighsLows, computeMatchedComparison, mergeBreadth, parseNdxMembers, parseSpxMembers, parseYahooAdjusted } from './us-market-breadth.mjs'
 
 const day = i => new Date(Date.UTC(2026, 0, 1 + i)).toISOString().slice(0, 10)
 const sessions = Array.from({ length: 200 }, (_, i) => day(i))
@@ -29,15 +29,44 @@ test('uses adjusted closes and validates provider identity', () => {
   assert.throws(() => parseYahooAdjusted({ chart: { result: [{ ...body.chart.result[0], indicators: {} }] } }, 'AAPL'), /adjusted/)
 })
 
-test('drops a current US session until provider-reported close with a settlement buffer', () => {
-  const time = iso => Date.parse(iso) / 1000
-  const body = { chart: { result: [{
-    meta: { symbol: '^GSPC', exchangeTimezoneName: 'America/New_York', currentTradingPeriod: { regular: { start: time('2026-11-27T14:30:00Z'), end: time('2026-11-27T18:00:00Z') } } },
-    timestamp: ['2026-11-25T14:30:00Z', '2026-11-27T14:30:00Z'].map(time),
-    indicators: { quote: [{ close: [100, 101] }] },
+const quoteTime = iso => Date.parse(iso) / 1000
+function currentChart(symbol, priorOpen, start, end, lastTrade = end) {
+  return { chart: { result: [{
+    meta: {
+      symbol, exchangeTimezoneName: 'America/New_York', regularMarketTime: quoteTime(lastTrade),
+      currentTradingPeriod: { regular: { start: quoteTime(start), end: quoteTime(end) } },
+    },
+    timestamp: [priorOpen, start].map(quoteTime),
+    indicators: { quote: [{ close: [100, 101] }], adjclose: [{ adjclose: [99, 100] }] },
   }] } }
-  assert.deepEqual(completedSessions(body, '^GSPC', new Date('2026-11-27T18:10:00Z')), ['2026-11-25'])
-  assert.deepEqual(completedSessions(body, '^GSPC', new Date('2026-11-27T18:15:00Z')), ['2026-11-25', '2026-11-27'])
+}
+
+test('excludes intraday breadth in winter and summer until the confirmed close and settlement buffer', () => {
+  for (const [previous, today, open, close] of [
+    ['2026-01-05', '2026-01-06', '14:30', '21'],
+    ['2026-07-06', '2026-07-07', '13:30', '20'],
+  ]) {
+    const body = currentChart('^GSPC', `${previous}T${open}:00Z`, `${today}T${open}:00Z`, `${today}T${close}:00:00Z`)
+    assert.deepEqual(completedSessions(body, '^GSPC', new Date(`${today}T19:59:59Z`)), [previous])
+    assert.deepEqual(completedSessions(body, '^GSPC', new Date(`${today}T${close}:14:59Z`)), [previous])
+    assert.deepEqual(completedSessions(body, '^GSPC', new Date(`${today}T${close}:15:00Z`)), [previous, today])
+    assert.deepEqual(parseYahooAdjusted(body, '^GSPC', new Date(`${today}T19:59:59Z`)), [[previous, 99]])
+  }
+})
+
+test('waits until 16:00 New York time on an early close and excludes stale post-close prices', () => {
+  const priorOpen = '2026-11-25T14:30:00Z'
+  const open = '2026-11-27T14:30:00Z'
+  const close = '2026-11-27T18:00:00Z'
+  const fresh = currentChart('AAPL', priorOpen, open, close)
+  const stale = currentChart('AAPL', priorOpen, open, close, '2026-11-27T17:59:00Z')
+  const beforeFour = new Date('2026-11-27T20:59:59Z')
+  const afterFour = new Date('2026-11-27T21:00:00Z')
+  assert.deepEqual(completedSessions(fresh, 'AAPL', beforeFour), ['2026-11-25'])
+  assert.deepEqual(completedSessions(fresh, 'AAPL', afterFour), ['2026-11-25', '2026-11-27'])
+  assert.deepEqual(completedSessions(stale, 'AAPL', afterFour), ['2026-11-25'])
+  assert.deepEqual(parseYahooAdjusted(stale, 'AAPL', afterFour), [['2026-11-25', 99]])
+  assert.deepEqual(parseYahooAdjusted(fresh, 'AAPL', afterFour), [['2026-11-25', 99], ['2026-11-27', 100]])
 })
 
 test('requires a complete Nasdaq provider response and retains dual share classes', () => {
@@ -95,4 +124,37 @@ test('counts closing 52-week highs, lows and one-day advancers over covered memb
     date: year.at(-1), covered: 3, newHighs: 1, newLows: 1, advancers: 1, decliners: 1, netHighsPct: 0,
   })
   assert.equal(computeHighsLows(['UP', 'MISSING'], prices, year), null)
+})
+
+test('counts daily advances, declines, unchanged and coverage using both adjacent closes', () => {
+  const dates = ['2026-01-02', '2026-01-05', '2026-01-06']
+  const series = (...prices) => dates.map((date, i) => [date, prices[i]])
+  const prices = new Map([
+    ['UP', series(10, 12, 8)],
+    ['DOWN', series(12, 10, 11)],
+    ['FLAT', series(10, 10, 10)],
+    ['MISSING_TODAY', series(9, null, 10)],
+    ['MISSING_PREVIOUS', series(undefined, 8, 9)],
+    ['INVALID', series(0, 4, Infinity)],
+  ])
+  assert.deepEqual(computeAdvDec([...prices.keys()], prices, dates), [
+    ['2026-01-05', 1, 1, 1, 3],
+    ['2026-01-06', 2, 1, 1, 4],
+  ])
+  assert.deepEqual(computeAdvDec(['MISSING_TODAY'], prices, dates), [])
+})
+
+test('backfills 250 daily points and matches latest highs/lows advances and declines despite older gaps', () => {
+  const dates = Array.from({ length: 502 }, (_, i) => day(i))
+  const prices = new Map(members.map((symbol, i) => [
+    symbol,
+    dates.flatMap((date, j) => i === 19 && j === 299 ? [] : [[date, j === 501 && i >= 10 ? 11 : 10]]),
+  ]))
+  const points = computeAdvDec(members, prices, dates)
+  const highsLows = computeHighsLows(members, prices, dates)
+  assert.equal(points.length, 250)
+  assert.equal(points[0][0], dates[252])
+  assert.deepEqual(points.at(-1), [dates.at(-1), 10, 0, 10, 20])
+  assert.deepEqual(points.at(-1).slice(0, 3), [highsLows.date, highsLows.advancers, highsLows.decliners])
+  assert.equal(highsLows.covered, 19)
 })

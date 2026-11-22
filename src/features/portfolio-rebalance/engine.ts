@@ -459,8 +459,8 @@ export function compareSet(book: PriceBook, input: RunInput): CompareSet {
     hold: runBacktest(book, { ...eqIn, rule: { kind: 'buyHold' }, switch: undefined }),
     active: runBacktest(book, eqIn),
   }
-  const benchmarks: CompareSet['benchmarks'] = { QQQ: null, QQEW: null }
-  for (const b of ['QQQ', 'QQEW'] as const) {
+  const benchmarks: CompareSet['benchmarks'] = { QQQ: null, QQQE: null }
+  for (const b of ['QQQ', 'QQQE'] as const) {
     if (!book[b]) continue
     try {
       benchmarks[b] = runBacktest(book, {

@@ -10,7 +10,7 @@ export function MetricsTable({ comparison }: { comparison: CompareSet }): JSX.El
     { key: 'equal-hold', label: '等权 · 不动', result: comparison.equal.hold },
     { key: 'equal-active', label: '等权 · 动态平衡', result: comparison.equal.active },
     { key: 'QQQ', label: 'QQQ · 不动', result: comparison.benchmarks.QQQ },
-    { key: 'QQEW', label: 'QQEW · 不动', result: comparison.benchmarks.QQEW },
+    { key: 'QQQE', label: 'QQQE（纳指 100 等权） · 不动', result: comparison.benchmarks.QQQE },
   ]
   return (
     <section className="pr-section" aria-labelledby="pr-metrics-title">

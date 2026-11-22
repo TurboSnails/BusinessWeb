@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { createDefaultInput, decode, encode } from './urlState'
 import type { RunInput } from './types'
 
-const known = ['AVGO', 'META', 'CB', 'SOFI', 'RKLB', 'QQQ', 'QQEW', 'BRK-B', 'AAPL']
+const known = ['AVGO', 'META', 'CB', 'SOFI', 'RKLB', 'QQQ', 'QQQE', 'QQEW', 'BRK-B', 'AAPL']
 
 describe('组合回测网址参数', () => {
   it('往返一致', () => {

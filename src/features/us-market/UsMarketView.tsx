@@ -15,6 +15,8 @@ import PlainSummary, { type Question } from './PlainSummary'
 import RelativePerformance from '../us-market/RelativePerformance'
 import WeeklyMarketBrief, { type BriefSignal } from './WeeklyMarketBrief'
 import UsLiquidity from './UsLiquidity'
+import AdvanceDecline from './AdvanceDecline'
+import CopperCard from './CopperCard'
 import './us-market.css'
 
 type View = MarketGroup | 'liquidity'
@@ -346,6 +348,16 @@ export default function UsMarketView() {
       </div>}
     </header>
     <RelativePerformance market="us" slices={all} asOf={asOf} />
+    {group !== 'participants' && (
+      <AdvanceDecline
+        asOf={asOf}
+        breadth={{ spx: snap.breadth?.breadth?.spx, ndx: snap.breadth?.breadth?.ndx }}
+        indexes={{
+          spx: snap.slices?.slices?.find(s => s.id === 'spx')?.history ?? spx?.history,
+          ndx: snap.slices?.slices?.find(s => s.id === 'ndx')?.history,
+        }}
+      />
+    )}
     <div className="us-market__grid">
       {group !== 'participants' && <>
         <MarketCard title="估值与盈利" items={[
@@ -377,6 +389,7 @@ export default function UsMarketView() {
         <MarketCard title="货币基金资产" items={moneyFunds} asOf={asOf} years={years} />
       </>}
     </div>
+    {group !== 'participants' && <CopperCard series={snap.public?.series} asOf={asOf} />}
     {matrix}
     <CycleReference s={snap} id={slice?.id} asOf={asOf} />
     <details className="us-market__reference"><summary><CircleHelp size={16} aria-hidden="true" />如何读图</summary>
