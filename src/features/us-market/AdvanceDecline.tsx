@@ -4,6 +4,7 @@ import {
   ADV_DEC_FOOTNOTE,
   ADV_DEC_HISTORY_PENDING,
   MCCLELLAN_WARMUP_DAYS,
+  SAMPLE_INSUFFICIENT,
   buildAdvDecMetrics,
   type AdvDecMetrics,
   type AdvDecUniverse,
@@ -22,6 +23,7 @@ const TOP = 8
 const BOTTOM = 16
 const LEFT = 4
 const RIGHT = 4
+const TABLE_ROWS = 20
 
 function fmtShare(share: number | undefined): string {
   return share === undefined ? '—' : `${(share * 100).toFixed(1)}%`
@@ -46,6 +48,36 @@ function yScale(vals: number[], v: number, height: number): number {
   const hi = Math.max(...vals)
   const pad = (hi - lo) * 0.08 || Math.abs(hi) * 0.05 || 1
   return TOP + (1 - (v - (lo - pad)) / ((hi + pad) - (lo - pad))) * (height - TOP - BOTTOM)
+}
+
+function RecentTable({ metrics }: { metrics: AdvDecMetrics }): JSX.Element {
+  const rows = metrics.dailyNet.slice(-TABLE_ROWS).reverse()
+  const cumByDate = new Map(metrics.cumulative)
+  return (
+    <details className="us-market__data-table">
+      <summary>查看最近 {Math.min(TABLE_ROWS, metrics.dailyNet.length)} 个交易日数据</summary>
+      <div className="us-market__data-table-wrap" tabIndex={0}>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">日期</th>
+              <th scope="col">净上涨</th>
+              <th scope="col">累计净上涨</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(([date, net]) => (
+              <tr key={date}>
+                <td><time dateTime={date}>{date}</time></td>
+                <td className={net >= 0 ? 'us-chg--up' : 'us-chg--down'}>{fmtInt(net)}</td>
+                <td>{fmtInt(cumByDate.get(date))}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </details>
+  )
 }
 
 function AdvDecChart({ metrics, indexPoints, indexLabel }: {
@@ -146,6 +178,7 @@ function AdvDecChart({ metrics, indexPoints, indexLabel }: {
           <span>当日净上涨 <strong className={bars[shown]![1] >= 0 ? 'us-chg--up' : 'us-chg--down'}>{fmtInt(bars[shown]![1])}</strong> 家</span>
         </figcaption>
       </figure>
+      <RecentTable metrics={metrics} />
     </div>
   )
 }
@@ -198,9 +231,18 @@ export default function AdvanceDecline({ breadth, indexes, asOf }: AdvanceDeclin
           <div className="us-advdec__stats">
             <div>
               <h4>10 日平均上涨占比</h4>
-              {metrics.historyReady
-                ? <p><strong>{fmtShare(metrics.avg10Share)}</strong><span className="us-market__muted"> · 近一年 {fmtPctile(metrics.avg10Percentile)}</span></p>
-                : <p className="us-market__muted">{ADV_DEC_HISTORY_PENDING}</p>}
+              {!metrics.historyReady ? (
+                <p className="us-market__muted">{ADV_DEC_HISTORY_PENDING}</p>
+              ) : metrics.avg10Share === undefined ? (
+                <p className="us-market__muted" role="status">{SAMPLE_INSUFFICIENT}</p>
+              ) : (
+                <p>
+                  <strong>{fmtShare(metrics.avg10Share)}</strong>
+                  {metrics.avg10SampleReady
+                    ? <span className="us-market__muted"> · 近一年 {fmtPctile(metrics.avg10Percentile)}</span>
+                    : <span className="us-market__muted" role="status"> · {SAMPLE_INSUFFICIENT}</span>}
+                </p>
+              )}
             </div>
             <div>
               <h4>McClellan 振荡（比例调整）</h4>
@@ -213,7 +255,7 @@ export default function AdvanceDecline({ breadth, indexes, asOf }: AdvanceDeclin
           </div>
 
           {metrics.historyReady
-            ? <AdvDecChart metrics={metrics} indexPoints={indexPoints} indexLabel={indexLabel} />
+            ? <AdvDecChart key={universe} metrics={metrics} indexPoints={indexPoints} indexLabel={indexLabel} />
             : <p className="us-advdec__pending" role="status">{ADV_DEC_HISTORY_PENDING}</p>}
 
           {metrics.readings.length > 0 && (

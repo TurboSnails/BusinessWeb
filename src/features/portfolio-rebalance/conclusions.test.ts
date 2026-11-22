@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { buildConclusions } from './conclusions'
-import { createConclusionFixture } from './fixtures'
+import { createConclusionFixture, loadPublicPriceBook } from './fixtures'
+import { compareSet } from './engine'
+import type { RunInput } from './types'
 
 const ENDING = '以上是所选历史区间的事后回测描述；选股与规则存在事后挑选和幸存者偏差，不代表未来，也不构成买卖建议。'
 
@@ -29,11 +31,63 @@ describe('自动结论纯函数', () => {
     expect(lines.join('')).not.toMatch(/历史敏感性|稳定组成员的历史/)
   })
 
+  it('不动叠加大跌切换时描述仅切换与不动的实际差值', () => {
+    const fixture = createConclusionFixture()
+    const input: RunInput = {
+      symbols: ['AAPL', 'MSFT', 'CB'],
+      weights: [0.4, 0.35, 0.25],
+      rule: { kind: 'buyHold' },
+      switch: { stable: 'CB', entry: 0.2, gap: 0.05, step: 0.25, recover: 0.05 },
+      start: '2021-01-01',
+      end: '2026-11-20',
+      cost: 0.001,
+      initial: 1,
+    }
+    const comparison = compareSet(loadPublicPriceBook(['AAPL', 'MSFT', 'CB', 'QQQ']), input)
+    const index = {
+      ...fixture.index,
+      items: [
+        { ...fixture.index.items[0], symbol: 'AAPL', name: '苹果' },
+        { ...fixture.index.items[1], symbol: 'MSFT', name: '微软' },
+        fixture.index.items[2],
+      ],
+    }
+    expect(comparison.custom.active.tradeCount).toBe(7)
+    expect(comparison.custom.active.final.toFixed(4)).toBe('2.9183')
+    expect(comparison.custom.hold.final.toFixed(4)).toBe('2.5821')
+    const lines = buildConclusions({ comparison, input, index })
+    expect(lines[0]).toContain('按当前『不再平衡，只做大跌切换』')
+    expect(lines[0]).toContain('期末金额比不动高 13.0%')
+    expect(lines.join('')).not.toContain('两种结果相同')
+    expect(lines.join('')).not.toMatch(/历史敏感性|稳定组成员的历史/)
+  })
+
   it('切换开启且年化差很小时仍保留切换影响提示', () => {
     const fixture = createConclusionFixture()
     fixture.input.switch = { stable: 'CB', entry: 0.2, gap: 0.05, step: 0.25, recover: 0.05 }
     fixture.comparison.custom.active.cagr = 0.102
     expect(buildConclusions(fixture)[0]).toContain('这些差额包含大跌切换的影响')
+  })
+
+  it('10.5% 对 10.0% 恰好达到 0.5 个百分点门槛', () => {
+    const fixture = createConclusionFixture()
+    fixture.comparison.custom.active.cagr = 0.105
+    fixture.comparison.custom.hold.cagr = 0.1
+    const lines = buildConclusions(fixture)
+    expect(lines[0]).toContain('高 0.5 个百分点')
+    expect(lines[0]).not.toContain('年化差不足 0.5 个百分点')
+  })
+
+  it.each([
+    { start: '2023-01-03', end: '2024-01-03', underThree: true },
+    { start: '2021-01-04', end: '2024-01-04', underThree: false },
+  ])('日历周年边界 $start 到 $end', ({ start, end, underThree }) => {
+    const fixture = createConclusionFixture()
+    fixture.comparison.custom.active.start = start
+    fixture.comparison.custom.active.end = end
+    const lines = buildConclusions(fixture)
+    expect(lines[0]).not.toContain('区间不足一年')
+    expect(lines.includes('区间不足三年，以下仅描述本次结果，不用于归纳一般规律。')).toBe(underThree)
   })
 
   it('不足一年只概括累计收益和回撤', () => {
@@ -134,6 +188,14 @@ describe('自动结论纯函数', () => {
     const fixture = createConclusionFixture()
     fixture.comparison.leaveOneOut = []
     expect(buildConclusions(fixture)[1]).toBe('该项数据不足，暂不自动概括；请查看已计算的原始指标。')
+  })
+
+  it('剔除行窗口与原组合不同则不生成自动归因', () => {
+    const fixture = createConclusionFixture()
+    fixture.comparison.leaveOneOut[0].active.start = '2021-01-04'
+    const lines = buildConclusions(fixture)
+    expect(lines[1]).toBe('该项数据不足，暂不自动概括；请查看已计算的原始指标。')
+    expect(lines.join('')).not.toMatch(/历史敏感性|稳定组成员的历史/)
   })
 
   it('剔除结果含非有限数时不生成规则 2、3', () => {

@@ -1,15 +1,16 @@
 import React from 'react'
 import { TableWrap } from '../../../components/ui'
 import type { CompareSet, RunInput } from '../types'
+import { hasCompletedYears } from '../conclusions'
 import { money, number, percent, returnClass } from './format'
 
-function signedPoints(value: number): string {
-  if (!Number.isFinite(value)) return '—'
+function signedPoints(value: number | null): string {
+  if (value === null || !Number.isFinite(value)) return '—'
   return `${value > 0 ? '+' : ''}${number(value * 100, 1)} 个点`
 }
 
-function drawdownPoints(value: number): string {
-  if (!Number.isFinite(value)) return '—'
+function drawdownPoints(value: number | null): string {
+  if (value === null || !Number.isFinite(value)) return '—'
   if (value > 0) return `加深 ${number(value * 100, 1)} 点`
   if (value < 0) return `变浅 ${number(Math.abs(value) * 100, 1)} 点`
   return '0.0 点 · 持平'
@@ -21,8 +22,7 @@ export function LeaveOneOut({ comparison, names, input }: {
   input: RunInput
 }): JSX.Element {
   const base = comparison.custom.active
-  const years = (Date.parse(base.end) - Date.parse(base.start)) / (365.25 * 86400000)
-  const shortPeriod = years < 1
+  const shortPeriod = !hasCompletedYears(base, 1)
   const differenceLabel = shortPeriod ? '去掉后累计收益变化（百分点）' : '去掉后年化变化（百分点）'
   return (
     <section className="pr-section" aria-labelledby="pr-leave-title">
@@ -37,10 +37,13 @@ export function LeaveOneOut({ comparison, names, input }: {
         <table className="ui-table pr-table pr-table--leave">
           <thead><tr><th scope="col">剔除代码（原目标权重）</th><th scope="col" className="num">不动期末金额</th><th scope="col" className="num">动态期末金额</th><th scope="col" className="num">{shortPeriod ? '动态累计收益' : '动态年化'}</th><th scope="col" className="num">{differenceLabel}</th><th scope="col" className="num">动态最大回撤</th><th scope="col" className="num">去掉后回撤变化（百分点）</th></tr></thead>
           <tbody>{comparison.leaveOneOut.map(row => {
-            const difference = shortPeriod
+            const comparable = row.active.start === base.start && row.active.end === base.end
+            const difference = !comparable ? null : shortPeriod
               ? row.active.final - base.final
               : row.active.cagr - base.cagr
-            const mddDifference = Math.abs(row.active.maxDrawdown.value) - Math.abs(base.maxDrawdown.value)
+            const mddDifference = comparable
+              ? Math.abs(row.active.maxDrawdown.value) - Math.abs(base.maxDrawdown.value)
+              : null
             const originalPosition = input.symbols.indexOf(row.dropped)
             const switchChanged = input.switch?.stable === row.dropped
             const displayedReturn = shortPeriod ? row.active.final - 1 : row.active.cagr
@@ -48,6 +51,7 @@ export function LeaveOneOut({ comparison, names, input }: {
               <th scope="row">
                 <span className="pr-symbol">{names[row.dropped] ?? row.dropped}</span>
                 <code>{row.dropped} · {percent(input.weights[originalPosition])}</code>
+                {!comparable && <span className="pr-loo__rule-note">实际区间 {row.active.start} — {row.active.end}，与原组合不同，不计算差值。</span>}
                 {switchChanged && <span className="pr-loo__rule-note">去掉它后无法执行大跌切换，这一行同时包含规则变化。</span>}
               </th>
               <td className="num">{money(row.hold.finalAmount)}</td>

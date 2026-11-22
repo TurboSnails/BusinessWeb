@@ -269,40 +269,71 @@ const futuresChart = (symbol, bars, { open, end, marketTime } = {}) => ({
   },
 })
 
-test('Yahoo 期货解析丢弃缺值、盘中未收盘的最后一根，并按纽约日对齐', () => {
-  const open = Date.parse('2026-11-20T13:00:00Z') / 1000
-  const end = Date.parse('2026-11-20T22:00:00Z') / 1000
-  const prior = Date.parse('2026-11-19T18:00:00Z') / 1000
-  const today = Date.parse('2026-11-20T18:00:00Z') / 1000
-  const body = futuresChart('HG=F', [[prior, 4.12], [today, null], [today, 4.25]], { open, end, marketTime: end })
-  body.chart.result[0].indicators.quote[0].close = [4.12, null, 4.25]
-  assert.deepEqual(
-    parseYahooFuturesClose(body, 'HG=F', new Date('2026-11-20T20:00:00Z')).history,
-    [['2026-11-19', 4.12]],
-  )
-  assert.deepEqual(
-    parseYahooFuturesClose(body, 'HG=F', new Date('2026-11-20T22:15:00Z')).history,
-    [['2026-11-19', 4.12], ['2026-11-20', 4.25]],
-  )
-  assert.throws(() => parseYahooFuturesClose(body, 'GC=F', new Date('2026-11-20T22:15:00Z')), /格式不符/)
+const unixSeconds = iso => Date.parse(iso) / 1000
+
+test('Yahoo 期货以纽约交易日对齐午夜和前晚 18:00 的时间戳', () => {
+  for (const stamp of ['2026-11-20T00:00:00-05:00', '2026-11-19T18:00:00-05:00']) {
+    const body = futuresChart('HG=F', [[unixSeconds(stamp), 4.25]])
+    assert.deepEqual(
+      parseYahooFuturesClose(body, 'HG=F', new Date('2026-11-20T18:00:00-05:00')).history,
+      [['2026-11-20', 4.25]],
+    )
+    assert.throws(() => parseYahooFuturesClose(body, 'GC=F'), /格式不符/)
+  }
 })
 
-test('Yahoo 期货会话 meta 不完整时丢弃当天这根', () => {
-  const prior = Date.parse('2026-11-19T18:00:00Z') / 1000
-  const today = Date.parse('2026-11-20T18:00:00Z') / 1000
-  const body = {
-    chart: {
-      result: [{
-        meta: { symbol: 'GC=F', regularMarketTime: today },
-        timestamp: [prior, today],
-        indicators: { quote: [{ close: [2650.4, 2661.2] }] },
-      }],
+test('Yahoo 期货以纽约 17:30 为界过滤末根，兼容夏令时且不依赖会话元数据', () => {
+  const prior = unixSeconds('2026-07-15T00:00:00-04:00')
+  const current = unixSeconds('2026-07-15T18:00:00-04:00')
+  const future = unixSeconds('2026-07-16T18:00:00-04:00')
+  const body = futuresChart('GC=F', [[prior, 2650.4], [current, 2661.234], [future, 2670]], {
+    open: current, end: unixSeconds('2026-07-16T17:00:00-04:00'), marketTime: current,
+  })
+  const read = time => parseYahooFuturesClose(body, 'GC=F', new Date(`2026-07-16T${time}-04:00`), 2).history
+  assert.deepEqual(read('02:00:00'), [['2026-07-15', 2650.4]])
+  assert.deepEqual(read('17:29:59'), [['2026-07-15', 2650.4]])
+  assert.deepEqual(read('17:30:00'), [['2026-07-15', 2650.4], ['2026-07-16', 2661.23]])
+  assert.deepEqual(read('18:00:00'), [['2026-07-15', 2650.4], ['2026-07-16', 2661.23]])
+})
+
+test('Yahoo 期货同日多根取时间戳最大的有效收盘', () => {
+  const body = futuresChart('HG=F', [
+    [unixSeconds('2026-11-20T00:00:00-05:00'), 4.25],
+    [unixSeconds('2026-11-19T18:00:00-05:00'), 4.12],
+    [unixSeconds('2026-11-20T01:00:00-05:00'), null],
+  ])
+  assert.deepEqual(
+    parseYahooFuturesClose(body, 'HG=F', new Date('2026-11-20T18:00:00-05:00')).history,
+    [['2026-11-20', 4.25]],
+  )
+})
+
+test('期货与铜金比刷新替换覆盖区间，清除错标或未到收盘时间的旧记录', async () => {
+  const previous = {
+    series: {
+      copperDaily: { history: [['2026-11-13', 3.9], ['2026-11-17', 4], ['2026-11-19', 4.3], ['2026-11-20', 4.9]] },
+      goldDaily: { history: [['2026-11-13', 2400], ['2026-11-17', 2500], ['2026-11-19', 2690], ['2026-11-20', 2800]] },
+      copperGold: { history: [['2026-11-13', 0.001625], ['2026-11-17', 0.0016], ['2026-11-19', 0.001599], ['2026-11-20', 0.00175]] },
     },
   }
-  assert.deepEqual(
-    parseYahooFuturesClose(body, 'GC=F', new Date('2026-11-20T23:00:00Z'), 2).history,
-    [['2026-11-19', 2650.4]],
-  )
+  const stamp = unixSeconds('2026-11-17T18:00:00-05:00')
+  const pending = unixSeconds('2026-11-19T18:00:00-05:00')
+  const feed = (symbol, price) => JSON.stringify(futuresChart(symbol, [[stamp, price], [pending, price]]))
+  const { snapshot: { series } } = await collectUsMarketData(previous, {
+    now: new Date('2026-11-20T02:00:00-05:00'),
+    read: async url => {
+      if (url.includes('HG%3DF')) return feed('HG=F', 4.2)
+      if (url.includes('GC%3DF')) return feed('GC=F', 2600)
+      throw new Error('unavailable')
+    },
+    readBinary: async () => { throw new Error('unavailable') },
+  })
+  assert.deepEqual(series.copperDaily.history, [['2026-11-13', 3.9], ['2026-11-18', 4.2]])
+  assert.deepEqual(series.goldDaily.history, [['2026-11-13', 2400], ['2026-11-18', 2600]])
+  assert.deepEqual(series.copperGold.history, [['2026-11-13', 0.001625], ['2026-11-18', 0.001615]])
+  for (const key of ['copperDaily', 'goldDaily', 'copperGold']) {
+    assert.match(series[key].scope, /Yahoo 连续合约收盘价，不是 CME 官方结算价/)
+  }
 })
 
 test('铜金比只保留同日有效收盘并对齐', () => {

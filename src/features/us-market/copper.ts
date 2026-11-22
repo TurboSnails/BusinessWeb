@@ -1,5 +1,6 @@
 import { percentileOf } from './explain'
 import type { Point, Reading } from './model'
+import { nyseSessionsOnOrBefore } from './tradingCalendar'
 
 const DAY = 86_400_000
 
@@ -8,7 +9,9 @@ export const COPPER_PENDING = '数据将在下次更新后显示'
 export const COPPER_NOTE =
   '铜用于建筑、电网、制造，价格常随全球（尤其中国）工业需求起落，所以被称为“铜博士”。铜金比上升通常对应增长预期改善、长期利率上行，下降对应避险。但它不是可靠的领先指标：供给中断、关税和中国需求都会让铜价偏离美国经济；2024 年以来铜金比与美债收益率的同步性明显变弱；2025 年起 COMEX 铜价受美国关税预期影响，相对伦敦价格出现过大幅溢价。这里只作背景参考，不参与本页判断。'
 
-/** Weekday sessions on/before asOf (holidays ignored). Newest last. */
+export const REFRESH_FAILED_PREFIX = '最近一次更新失败，显示的是上次读数'
+
+/** @deprecated Prefer nyseSessionsOnOrBefore from tradingCalendar. */
 export function weekdaySessionsOnOrBefore(asOf: string, count: number): string[] {
   const out: string[] = []
   const cursor = new Date(`${asOf}T12:00:00Z`)
@@ -21,12 +24,12 @@ export function weekdaySessionsOnOrBefore(asOf: string, count: number): string[]
 }
 
 /**
- * Stale when the observation lags the latest weekday on/before asOf by more than
- * two trading days (lag ≥ 3).
+ * Stale when the observation lags the latest completed NYSE session on/before asOf
+ * by more than two trading days (lag ≥ 3). Holidays + 16:40 ET aware.
  */
-export function isCopperStale(dataDate: string, asOf: string): boolean {
+export function isCopperStale(dataDate: string, asOf: string, now: Date = new Date()): boolean {
   if (!dataDate || !asOf || dataDate > asOf) return false
-  const sessions = weekdaySessionsOnOrBefore(asOf, 8)
+  const sessions = nyseSessionsOnOrBefore(asOf, 8, now)
   if (sessions.length < 3) return false
   const cutoff = sessions.at(-3)!
   return dataDate < cutoff
@@ -92,47 +95,95 @@ export function alignSeries(
   return { dates, left: leftVals, right: rightVals }
 }
 
+export interface CopperMetric {
+  date: string
+  value: number
+  stale: boolean
+  refreshFailed: boolean
+  yearChange?: number
+  percentile10y?: number
+}
+
 export interface CopperSnapshot {
-  copper?: { date: string; value: number; yearChange?: number; percentile10y?: number }
-  ratio?: { date: string; value: number; percentile10y?: number }
+  copper?: CopperMetric
+  gold?: CopperMetric
+  ratio?: CopperMetric
+  /** @deprecated Prefer per-metric dates; kept as newest available date among items. */
   asOfDate?: string
+  /** True when every present metric is stale (legacy aggregate). */
   stale: boolean
   chart: { dates: string[]; ratio: number[]; yield: number[] }
   copperHistory: Point[]
+  /** Ready when at least one of copper / gold / ratio is available. */
   ready: boolean
+}
+
+function metricFrom(
+  history: readonly Point[],
+  asOf: string,
+  reading: Reading | undefined,
+  now: Date,
+  extras?: { yearChange?: number; percentile10y?: number },
+): CopperMetric | undefined {
+  const last = history.at(-1)
+  if (!last || !Number.isFinite(last[1])) return undefined
+  return {
+    date: last[0],
+    value: last[1],
+    stale: isCopperStale(last[0], asOf, now),
+    refreshFailed: Boolean(reading?.refreshError),
+    ...extras,
+  }
+}
+
+export function refreshFailedCopy(date: string): string {
+  return `${REFRESH_FAILED_PREFIX}（截至 ${date}）`
 }
 
 export function buildCopperSnapshot(
   series: Record<string, Reading | undefined> | undefined,
   asOf: string,
+  now: Date = new Date(),
 ): CopperSnapshot {
-  const copper = series?.copperDaily?.history ?? []
-  const ratio = series?.copperGold?.history ?? []
+  const copperHist = series?.copperDaily?.history ?? []
+  const goldHist = series?.goldDaily?.history ?? []
+  const ratioHist = series?.copperGold?.history ?? []
   const tenYear = series?.tenYearDaily?.history ?? []
-  const lastCopper = copper.at(-1)
-  const lastRatio = ratio.at(-1)
-  const asOfDate = lastCopper?.[0] ?? lastRatio?.[0]
-  const chart = alignSeries(ratio, tenYear, 5)
+
+  const copper = metricFrom(copperHist, asOf, series?.copperDaily, now, {
+    yearChange: yearChange(copperHist),
+    percentile10y: (() => {
+      const last = copperHist.at(-1)
+      return last ? historyPercentile(trailingYears(copperHist, 10), last[1]) : undefined
+    })(),
+  })
+  const gold = metricFrom(goldHist, asOf, series?.goldDaily, now, {
+    yearChange: yearChange(goldHist),
+    percentile10y: (() => {
+      const last = goldHist.at(-1)
+      return last ? historyPercentile(trailingYears(goldHist, 10), last[1]) : undefined
+    })(),
+  })
+  const ratio = metricFrom(ratioHist, asOf, series?.copperGold, now, {
+    percentile10y: (() => {
+      const last = ratioHist.at(-1)
+      return last ? historyPercentile(trailingYears(ratioHist, 10), last[1]) : undefined
+    })(),
+  })
+
+  const dates = [copper?.date, gold?.date, ratio?.date].filter((d): d is string => Boolean(d))
+  const asOfDate = dates.sort().at(-1)
+  const present = [copper, gold, ratio].filter(Boolean) as CopperMetric[]
+  const chart = alignSeries(ratioHist, tenYear, 5)
+
   return {
-    copper: lastCopper && Number.isFinite(lastCopper[1])
-      ? {
-        date: lastCopper[0],
-        value: lastCopper[1],
-        yearChange: yearChange(copper),
-        percentile10y: historyPercentile(trailingYears(copper, 10), lastCopper[1]),
-      }
-      : undefined,
-    ratio: lastRatio && Number.isFinite(lastRatio[1])
-      ? {
-        date: lastRatio[0],
-        value: lastRatio[1],
-        percentile10y: historyPercentile(trailingYears(ratio, 10), lastRatio[1]),
-      }
-      : undefined,
+    copper,
+    gold,
+    ratio,
     asOfDate,
-    stale: asOfDate ? isCopperStale(asOfDate, asOf) : false,
+    stale: present.length > 0 && present.every(m => m.stale),
     chart: { dates: chart.dates, ratio: chart.left, yield: chart.right },
-    copperHistory: trailingYears(copper, 5),
-    ready: Boolean(lastCopper && lastRatio),
+    copperHistory: trailingYears(copperHist, 5),
+    ready: present.length > 0,
   }
 }

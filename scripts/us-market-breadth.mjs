@@ -140,8 +140,9 @@ export function computeBackfill(members, barsBySymbol, sessions, count = BACKFIL
   return points
 }
 
-/** Each point uses only members priced on both adjacent trading sessions. */
+/** Each point needs at least 95% of members priced on both adjacent sessions. */
 export function computeAdvDec(members, barsBySymbol, sessions, count = BACKFILL) {
+  if (!members.length) return []
   const prices = members.map(symbol => new Map(barsBySymbol.get(symbol) ?? []))
   const points = []
   for (let i = Math.max(1, sessions.length - count); i < sessions.length; i++) {
@@ -157,7 +158,7 @@ export function computeAdvDec(members, barsBySymbol, sessions, count = BACKFILL)
       else unchanged += 1
     }
     const covered = advancers + decliners + unchanged
-    if (covered) points.push([date, advancers, decliners, unchanged, covered])
+    if (covered / members.length >= MIN_COVERAGE) points.push([date, advancers, decliners, unchanged, covered])
   }
   return points
 }

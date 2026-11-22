@@ -30,6 +30,10 @@ describe('LeaveOneOut', () => {
     const fixture = createConclusionFixture()
     fixture.comparison.custom.active.start = '2026-01-01'
     fixture.comparison.custom.active.end = '2026-06-01'
+    for (const row of fixture.comparison.leaveOneOut) {
+      row.active.start = '2026-01-01'
+      row.active.end = '2026-06-01'
+    }
     render(<LeaveOneOut comparison={fixture.comparison} input={fixture.input} names={names()} />)
     expect(screen.getByRole('columnheader', { name: '去掉后累计收益变化（百分点）' })).toBeTruthy()
     expect(screen.getByText('−20.0 个点')).toBeTruthy()
@@ -43,6 +47,26 @@ describe('LeaveOneOut', () => {
     const stableRow = screen.getByText('安达保险').closest('tr')
     expect(stableRow?.textContent).toContain('去掉它后无法执行大跌切换，这一行同时包含规则变化。')
     expect(screen.getByText(/不能用于判断稳定资产的独立作用/)).toBeTruthy()
+  })
+
+  it('恰好一个日历周年仍使用年化差', () => {
+    const fixture = createConclusionFixture()
+    fixture.comparison.custom.active.start = '2023-01-03'
+    fixture.comparison.custom.active.end = '2024-01-03'
+    render(<LeaveOneOut comparison={fixture.comparison} input={fixture.input} names={names()} />)
+    expect(screen.getByRole('columnheader', { name: '去掉后年化变化（百分点）' })).toBeTruthy()
+    expect(screen.queryByRole('columnheader', { name: '去掉后累计收益变化（百分点）' })).toBeNull()
+  })
+
+  it('剔除行窗口不同时显示实际区间并停用差值', () => {
+    const fixture = createConclusionFixture()
+    fixture.comparison.leaveOneOut[0].active.start = '2021-01-04'
+    render(<LeaveOneOut comparison={fixture.comparison} input={fixture.input} names={names()} />)
+    const row = screen.getByText('博通').closest('tr')!
+    expect(row.textContent).toContain('实际区间 2021-01-04 — 2026-01-01，与原组合不同，不计算差值。')
+    const cells = row.querySelectorAll('td')
+    expect(cells[3].textContent).toBe('—')
+    expect(cells[5].textContent).toBe('—')
   })
 
   it('两只股票时追加单资产提示', () => {

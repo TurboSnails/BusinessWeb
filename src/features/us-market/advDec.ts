@@ -1,5 +1,6 @@
 import type { Breadth, Point } from './model'
 import { percentileOf } from './explain'
+import { nyseSessionsOnOrBefore } from './tradingCalendar'
 
 /** [date, advancers, decliners, unchanged, covered] */
 export type AdvDecRow = [string, number, number, number, number]
@@ -25,6 +26,8 @@ export interface AdvDecMetrics {
   avg10Share: number | undefined
   /** Percentile of avg10Share within the one-year series of 10-day means (0–100). */
   avg10Percentile: number | undefined
+  /** True when ≥ AVG10_SAMPLE_MIN continuous 10-day means exist for percentile / 普涨普跌. */
+  avg10SampleReady: boolean
   /** Latest McClellan oscillator; undefined during warmup or missing data. */
   mcclellan: number | undefined
   mcclellanPercentile: number | undefined
@@ -44,6 +47,14 @@ const MCCLELLAN_FAST = 19
 const MCCLELLAN_SLOW = 39
 const AVG_WINDOW = 10
 const DIVERGENCE_LOOKBACK = 20
+/** Minimum valid continuous 10-day means before percentile / 短期普涨普跌. */
+export const AVG10_SAMPLE_MIN = 120
+/** Days with covered/total below this are treated as missing for 10-day means. */
+export const COVERAGE_MIN = 0.95
+
+export const BOTH_AT_HIGHS_READING = '指数与涨跌线同步创新高，上涨参与度较广。'
+export const NARROWING_READING = '指数近 20 日创新高，但涨跌线没有同步创新高，参与度在变窄。'
+export const SAMPLE_INSUFFICIENT = '历史样本不足，暂不判读'
 
 /** RANA = (adv − dec) ÷ (adv + dec) × 1000. */
 export function rana(advancers: number, decliners: number): number | undefined {
@@ -90,6 +101,33 @@ export function rollingMean(values: readonly number[], window: number): Array<nu
   })
 }
 
+/**
+ * 10-day means that only use windows where every NYSE session in the window has data.
+ * Does not stitch across missing days.
+ */
+export function continuousRollingMeans(
+  points: readonly { date: string; share: number }[],
+  window: number = AVG_WINDOW,
+  now: Date = new Date(),
+): Array<{ date: string; value: number }> {
+  if (window < 1 || points.length < window) return []
+  const byDate = new Map(points.map(p => [p.date, p.share]))
+  const out: Array<{ date: string; value: number }> = []
+  for (const { date } of points) {
+    const sessions = nyseSessionsOnOrBefore(date, window, now)
+    if (sessions.length < window || sessions.at(-1) !== date) continue
+    let sum = 0
+    let ok = true
+    for (const d of sessions) {
+      const s = byDate.get(d)
+      if (s === undefined) { ok = false; break }
+      sum += s
+    }
+    if (ok) out.push({ date, value: sum / window })
+  }
+  return out
+}
+
 export function cumulativeNet(rows: readonly AdvDecRow[]): Point[] {
   let sum = 0
   return rows.map(([date, adv, dec]) => {
@@ -102,22 +140,49 @@ export function dailyNetPoints(rows: readonly AdvDecRow[]): Point[] {
   return rows.map(([date, adv, dec]) => [date, adv - dec])
 }
 
-/** Index and AD line both at series highs (same direction). */
+/** Pair AD line with index on shared dates; undefined if latest AD date lacks index. */
+export function commonSeries(
+  adLine: readonly Point[],
+  index: readonly Point[] | undefined,
+): { ad: Point[]; index: Point[] } | undefined {
+  if (!adLine.length || !index?.length) return undefined
+  const map = new Map(index.filter(([, v]) => Number.isFinite(v) && v > 0))
+  const ad: Point[] = []
+  const ix: Point[] = []
+  for (const [date, value] of adLine) {
+    const iv = map.get(date)
+    if (iv === undefined) continue
+    ad.push([date, value])
+    ix.push([date, iv])
+  }
+  if (!ad.length) return undefined
+  // Latest breadth day must have a matching index print — otherwise disable signals.
+  if (ad.at(-1)![0] !== adLine.at(-1)![0]) return undefined
+  return { ad, index: ix }
+}
+
+/** Index and AD line both at series highs (same direction), on common dates. */
 export function bothAtHighs(adLine: readonly Point[], index: readonly Point[]): boolean {
-  if (adLine.length < 2 || index.length < 2) return false
-  const adLast = adLine.at(-1)![1]
-  const ixLast = index.at(-1)![1]
-  const adHi = Math.max(...adLine.map(([, v]) => v))
-  const ixHi = Math.max(...index.map(([, v]) => v))
+  const paired = commonSeries(adLine, index)
+  if (!paired || paired.ad.length < 2) return false
+  const adLast = paired.ad.at(-1)![1]
+  const ixLast = paired.index.at(-1)![1]
+  const adHi = Math.max(...paired.ad.map(([, v]) => v))
+  const ixHi = Math.max(...paired.index.map(([, v]) => v))
   return adLast >= adHi && ixLast >= ixHi
 }
 
-/** Index at a 20-session high while AD line is not. */
-export function narrowingDivergence(adLine: readonly Point[], index: readonly Point[], lookback = DIVERGENCE_LOOKBACK): boolean {
-  if (adLine.length < 2 || index.length < 2) return false
-  const n = Math.min(lookback, index.length, adLine.length)
-  const ixWindow = index.slice(-n)
-  const adWindow = adLine.slice(-n)
+/** Index at a 20-session high while AD line is not (common dates, same anchor). */
+export function narrowingDivergence(
+  adLine: readonly Point[],
+  index: readonly Point[],
+  lookback = DIVERGENCE_LOOKBACK,
+): boolean {
+  const paired = commonSeries(adLine, index)
+  if (!paired || paired.ad.length < lookback) return false
+  const n = lookback
+  const ixWindow = paired.index.slice(-n)
+  const adWindow = paired.ad.slice(-n)
   const ixLast = ixWindow.at(-1)![1]
   const adLast = adWindow.at(-1)![1]
   const ixHi = Math.max(...ixWindow.map(([, v]) => v))
@@ -130,22 +195,23 @@ export function interpretBreadth(opts: {
   index: readonly Point[] | undefined
   avg10Share: number | undefined
   avg10Percentile: number | undefined
+  avg10SampleReady: boolean
   historyReady: boolean
 }): string[] {
   const out: string[] = []
   if (!opts.historyReady) return out
   if (opts.index?.length) {
-    if (bothAtHighs(opts.adLine, opts.index)) out.push('参与度广，上涨有多数股票跟随。')
-    else if (narrowingDivergence(opts.adLine, opts.index)) out.push('指数靠少数股票拉动，参与度在变窄。')
+    if (bothAtHighs(opts.adLine, opts.index)) out.push(BOTH_AT_HIGHS_READING)
+    else if (narrowingDivergence(opts.adLine, opts.index)) out.push(NARROWING_READING)
   }
-  if (opts.avg10Percentile !== undefined) {
+  if (opts.avg10SampleReady && opts.avg10Percentile !== undefined) {
     if (opts.avg10Percentile >= 90) out.push('短期普涨，热度偏高。')
     else if (opts.avg10Percentile <= 10) out.push('短期普跌，情绪偏冷。')
   }
   return out
 }
 
-/** Weekday sessions on/before asOf (America/New_York calendar date). Holidays ignored. */
+/** @deprecated Prefer nyseSessionsOnOrBefore — kept for callers/tests that only need weekdays. */
 export function weekdaySessionsOnOrBefore(asOf: string, count: number): string[] {
   const out: string[] = []
   const cursor = new Date(`${asOf}T12:00:00Z`)
@@ -158,22 +224,14 @@ export function weekdaySessionsOnOrBefore(asOf: string, count: number): string[]
 }
 
 /**
- * Stale when data lags the latest session on/before asOf by more than one trading day.
- * Uses weekdays (holidays ignored). Optional `calendar` may only tighten the prior-session
- * cutoff when it already reaches the latest weekday on/before asOf.
+ * Stale when data lags the latest completed NYSE session on/before asOf by more
+ * than one trading day. Uses NYSE holidays + 16:40 ET cutoff.
  */
-export function isStale(dataDate: string, asOf: string, calendar?: readonly string[]): boolean {
+export function isStale(dataDate: string, asOf: string, now: Date = new Date()): boolean {
   if (!dataDate || !asOf || dataDate > asOf) return false
-  const weekdays = weekdaySessionsOnOrBefore(asOf, 10).reverse()
-  if (!weekdays.length) return false
-  const latestWeekday = weekdays.at(-1)!
-  const cal = calendar?.length
-    ? [...calendar].filter(d => d <= asOf).sort((a, b) => a.localeCompare(b))
-    : []
-  // Prefer calendar only when it already knows the latest weekday (complete through asOf).
-  const sessions = cal.at(-1) === latestWeekday ? cal : weekdays
+  const sessions = nyseSessionsOnOrBefore(asOf, 8, now)
+  if (!sessions.length) return false
   const prior = sessions.length >= 2 ? sessions.at(-2)! : sessions.at(-1)!
-  // Fresh if data is latest or the immediately prior session.
   return dataDate < prior
 }
 
@@ -196,6 +254,11 @@ function alignIndex(index: readonly Point[] | undefined, dates: readonly string[
     if (v !== undefined) aligned.push([d, v])
   }
   return aligned.length ? aligned : undefined
+}
+
+function rowCoverageOk(covered: number, total: number | undefined): boolean {
+  if (total === undefined || !(total > 0)) return true
+  return covered / total >= COVERAGE_MIN
 }
 
 function todayFromHighsLows(row: Breadth): TodayReading | undefined {
@@ -229,6 +292,7 @@ export function buildAdvDecMetrics(
   breadth: Breadth | undefined,
   indexHistory: readonly Point[] | undefined,
   asOf: string,
+  now: Date = new Date(),
 ): AdvDecMetrics | undefined {
   if (!breadth) return undefined
   const rows = parseAdvDec(breadth.advDec)
@@ -238,16 +302,16 @@ export function buildAdvDecMetrics(
     : todayFromHighsLows(breadth)
   if (!today) return undefined
 
-  // Only rows with defined advance share participate in the 10-day mean series.
+  // Coverage gate: covered/total < 0.95 counts as a missing day for 10-day means.
   const definedShares = rows.flatMap(row => {
+    if (!rowCoverageOk(row[4], breadth.total)) return []
     const s = advanceShare(row[1], row[2])
     return s === undefined ? [] : [{ date: row[0], share: s }]
   })
-  const shareSeries = definedShares.map(r => r.share)
-  const means = rollingMean(shareSeries, AVG_WINDOW)
-  const definedMeans = means.flatMap((m, i) => m === undefined ? [] : [{ date: definedShares[i]!.date, value: m }])
+  const definedMeans = continuousRollingMeans(definedShares, AVG_WINDOW, now)
   const avg10Share = definedMeans.at(-1)?.value
-  const avg10Percentile = avg10Share === undefined || definedMeans.length < 2
+  const avg10SampleReady = definedMeans.length >= AVG10_SAMPLE_MIN
+  const avg10Percentile = !avg10SampleReady || avg10Share === undefined
     ? undefined
     : percentileOf(definedMeans.map(m => m.value), avg10Share)
 
@@ -273,22 +337,23 @@ export function buildAdvDecMetrics(
   const dailyNet = historyReady ? dailyNetPoints(rows) : []
   const dates = rows.map(([d]) => d)
   const index = alignIndex(indexHistory, dates)
-  // For divergence, rebase index to the AD cumulative date span (aligned already).
+  const paired = commonSeries(cumulative, index)
   const readings = interpretBreadth({
     adLine: cumulative,
-    index,
+    index: paired?.index,
     avg10Share,
     avg10Percentile,
+    avg10SampleReady,
     historyReady,
   })
 
-  const calendar = indexHistory?.map(([d]) => d)
-  const stale = isStale(today.date, asOf, calendar)
+  const stale = isStale(today.date, asOf, now)
 
   return {
     today,
     avg10Share,
     avg10Percentile,
+    avg10SampleReady,
     mcclellan,
     mcclellanPercentile,
     mcclellanWarmup,

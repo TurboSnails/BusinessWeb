@@ -18,6 +18,16 @@ export function loadAdjustedPriceBook(): PriceBook {
   return book
 }
 
+export function loadPublicPriceBook(symbols: string[]): PriceBook {
+  return Object.fromEntries(symbols.map(symbol => {
+    const raw = JSON.parse(readFileSync(resolve(`public/data/portfolio-prices/${symbol}.json`), 'utf8')) as {
+      dates: string[]
+      adjClose: number[]
+    }
+    return [symbol, { dates: raw.dates, adjClose: raw.adjClose }]
+  }))
+}
+
 type RunResultFixture = Partial<Omit<RunResult, 'maxDrawdown'>> & { mdd?: number }
 
 export function createRunResultFixture(options: RunResultFixture = {}): RunResult {

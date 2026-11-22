@@ -1,5 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { completedSessions, computeAdvDec, computeBackfill, computeBreadth, computeHighsLows, computeMatchedComparison, mergeBreadth, parseNdxMembers, parseSpxMembers, parseYahooAdjusted } from './us-market-breadth.mjs'
 
 const day = i => new Date(Date.UTC(2026, 0, 1 + i)).toISOString().slice(0, 10)
@@ -137,11 +138,13 @@ test('counts daily advances, declines, unchanged and coverage using both adjacen
     ['MISSING_PREVIOUS', series(undefined, 8, 9)],
     ['INVALID', series(0, 4, Infinity)],
   ])
-  assert.deepEqual(computeAdvDec([...prices.keys()], prices, dates), [
+  assert.deepEqual(computeAdvDec(['UP', 'DOWN', 'FLAT'], prices, dates), [
     ['2026-01-05', 1, 1, 1, 3],
-    ['2026-01-06', 2, 1, 1, 4],
+    ['2026-01-06', 1, 1, 1, 3],
   ])
   assert.deepEqual(computeAdvDec(['MISSING_TODAY'], prices, dates), [])
+  assert.deepEqual(computeAdvDec(['MISSING_PREVIOUS'], prices, dates), [['2026-01-06', 1, 0, 0, 1]])
+  assert.deepEqual(computeAdvDec(['INVALID'], prices, dates), [])
 })
 
 test('backfills 250 daily points and matches latest highs/lows advances and declines despite older gaps', () => {
@@ -157,4 +160,26 @@ test('backfills 250 daily points and matches latest highs/lows advances and decl
   assert.deepEqual(points.at(-1), [dates.at(-1), 10, 0, 10, 20])
   assert.deepEqual(points.at(-1).slice(0, 3), [highsLows.date, highsLows.advancers, highsLows.decliners])
   assert.equal(highsLows.covered, 19)
+})
+
+test('daily backfill skips 90% coverage and retains dates with exactly 95% coverage', () => {
+  const dates = ['2026-01-02', '2026-01-05', '2026-01-06', '2026-01-07']
+  const prices = new Map(members.map((symbol, i) => [
+    symbol,
+    dates.slice(i === 18 ? 1 : i === 19 ? 2 : 0).map(date => [date, 10]),
+  ]))
+  assert.deepEqual(computeAdvDec(members, prices, dates), [
+    ['2026-01-06', 0, 0, 19, 19],
+    ['2026-01-07', 0, 0, 20, 20],
+  ])
+})
+
+test('breadth publishes in its own concurrency group', () => {
+  const workflow = readFileSync(new URL('../.github/workflows/us-market-breadth.yml', import.meta.url), 'utf8')
+  assert.match(workflow, /^concurrency:\s*\n +group: us-market-breadth\s*\n +cancel-in-progress: false$/m)
+})
+
+test('breadth deploys Pages after a changed publish or a manual dispatch', () => {
+  const workflow = readFileSync(new URL('../.github/workflows/us-market-breadth.yml', import.meta.url), 'utf8')
+  assert.match(workflow, /- name: Deploy GitHub Pages\s*\n +if: steps\.commit\.outputs\.changed == 'true' \|\| github\.event_name == 'workflow_dispatch'/)
 })

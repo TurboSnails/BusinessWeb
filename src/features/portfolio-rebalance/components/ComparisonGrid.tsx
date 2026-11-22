@@ -18,6 +18,7 @@ function Cell({ title, result, baseline }: { title: string; result: RunResult; b
 }
 
 export function ComparisonGrid({ comparison }: { comparison: CompareSet }): JSX.Element {
+  const base = comparison.custom.active
   const benchmarks = (['QQQ', 'QQQE'] as const).map(symbol => ({
     symbol,
     label: symbol === 'QQQE' ? 'QQQE（纳指 100 等权）' : symbol,
@@ -27,7 +28,7 @@ export function ComparisonGrid({ comparison }: { comparison: CompareSet }): JSX.
     <section className="pr-section pr-comparison" aria-labelledby="pr-comparison-title">
       <div className="pr-section__head">
         <h2 id="pr-comparison-title">四格对比</h2>
-        <p>同一区间、同一成本口径；金额为期末美元价值。</p>
+        <p>组合与等权使用同一区间、同一成本口径；基准按组合区间取价，数据不足时另标实际区间。</p>
       </div>
       <div className="pr-comparison__labels" aria-hidden="true"><span>自定义权重</span><span>等权</span></div>
       <div className="pr-comparison__grid">
@@ -38,12 +39,21 @@ export function ComparisonGrid({ comparison }: { comparison: CompareSet }): JSX.
       </div>
       <div className="pr-benchmarks" aria-label="纳指 100 基准">
         <h3>纳指 100 · 买入持有</h3>
-        {benchmarks.map(({ symbol, label, result }) => (
-          <div className="pr-benchmark" key={symbol}>
+        {benchmarks.map(({ symbol, label, result }) => {
+          const differentWindow = result !== null && (result.start !== base.start || result.end !== base.end)
+          return <div className="pr-benchmark" key={symbol}>
             <strong>{label}</strong>
-            {result ? <><span>{money(result.finalAmount)}</span><span className={returnClass(result.cagr)}>年化 {percent(result.cagr)}</span><span>回撤 {percent(result.maxDrawdown.value)}</span></> : <span>暂无数据</span>}
+            {result ? <>
+              <span>{money(result.finalAmount)}</span>
+              <span className={returnClass(result.cagr)}>年化 {percent(result.cagr)}</span>
+              <span>回撤 {percent(result.maxDrawdown.value)}</span>
+              <span className="pr-benchmark__period">{result.start} — {result.end}</span>
+              {differentWindow && <span className="pr-benchmark__note">{result.start > base.start
+                ? `基准 ${result.start} 起才有数据，与组合区间不同；期末金额不与组合直接比较。`
+                : '基准实际区间与组合不同；期末金额不与组合直接比较。'}</span>}
+            </> : <span>暂无数据</span>}
           </div>
-        ))}
+        })}
       </div>
     </section>
   )

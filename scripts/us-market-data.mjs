@@ -102,16 +102,17 @@ const specs = {
   vixDaily: meta('VIX（Cboe）', '点', CBOE_INDEX + 'VIX_History.csv', '标普 500 期权隐含波动率指数；Cboe 官方日收盘，1990 年起', '日频'),
   tenYearDaily: meta('美国 10 年期国债收益率（FRED）', '%', FRED + 'DGS10', '美联储 H.15，美国 10 年期固定期限国债收益率', '日频'),
   copperDaily: meta('COMEX 铜期货连续合约收盘（Yahoo）', '美元/磅', 'https://finance.yahoo.com/quote/HG=F/',
-    'Yahoo HG=F 日收盘；连续合约换月会有小跳空。2025 年起美国对铜加征关税的预期使 COMEX 相对伦敦（LME）出现过明显溢价（2025-07 最高超过每吨 2,500 美元，7 月 30 日宣布精炼铜豁免后单日跌约 22%），COMEX 铜价不完全代表全球需求。', '日频'),
+    'Yahoo 连续合约收盘价，不是 CME 官方结算价。换月会有小跳空。2025 年起美国对铜加征关税的预期使 COMEX 相对伦敦（LME）出现过明显溢价（2025-07 最高超过每吨 2,500 美元，7 月 30 日宣布精炼铜豁免后单日跌约 22%），COMEX 铜价不完全代表全球需求。', '日频'),
   goldDaily: meta('COMEX 黄金期货连续合约收盘（Yahoo）', '美元/盎司', 'https://finance.yahoo.com/quote/GC=F/',
-    'Yahoo GC=F 日收盘；连续合约换月会有小跳空。', '日频'),
+    'Yahoo 连续合约收盘价，不是 CME 官方结算价。换月会有小跳空。', '日频'),
   copperGold: meta('铜金比（COMEX 铜 ÷ 金）', '倍', 'https://finance.yahoo.com/quote/HG=F/',
-    '同日 COMEX 铜期货收盘（美元/磅）÷ 黄金期货收盘（美元/盎司）；仅保留两者都有收盘的日期。连续合约换月与 2025 年起 COMEX 铜关税溢价会使比值偏离全球需求含义。', '日频'),
+    '同日 COMEX 铜期货收盘（美元/磅）÷ 黄金期货收盘（美元/盎司）。采用 Yahoo 连续合约收盘价，不是 CME 官方结算价。仅保留两者都有收盘的日期。连续合约换月与 2025 年起 COMEX 铜关税溢价会使比值偏离全球需求含义。', '日频'),
 }
 const YAHOO_CHART = 'https://query1.finance.yahoo.com/v8/finance/chart/'
 const yahooChartUrl = symbol => YAHOO_CHART + encodeURIComponent(symbol) + '?range=10y&interval=1d'
 const NY_DAY = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' })
 const nyDay = value => NY_DAY.format(value instanceof Date ? value : new Date(value * 1000))
+const NY_TIME = new Intl.DateTimeFormat('en-GB', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
 
 function clean(markup) {
   return markup.replace(/<[^>]*>/g, ' ').replace(/&(?:nbsp|#160);/gi, ' ')
@@ -477,11 +478,7 @@ export function parseFred(markup, scale, digits = 2) {
   return record(requireReadings(data, 'FRED'))
 }
 
-/**
- * Yahoo futures continuous daily closes. Drops the latest bar when today's COMEX
- * session has not finished (meta.currentTradingPeriod.regular); if session meta is
- * incomplete, today's bar is discarded.
- */
+/** Align prior-evening and midnight labels to the same New York trading day. */
 export function parseYahooFuturesClose(body, symbol, now = new Date(), digits = 4) {
   const result = body?.chart?.result?.[0]
   const meta = result?.meta
@@ -490,24 +487,27 @@ export function parseYahooFuturesClose(body, symbol, now = new Date(), digits = 
     throw new Error(symbol + ' Yahoo 期货日线格式不符')
   }
   const today = nyDay(now)
-  const session = meta.currentTradingPeriod?.regular
-  const nowSeconds = Math.floor(now.getTime() / 1000)
-  const sessionOk = Number.isFinite(session?.start) && Number.isFinite(session?.end)
-    && nyDay(session.start) === today && nyDay(session.end) === today && session.end > session.start
-  // Prefer Yahoo's reported session end; without a trustworthy close signal, drop today.
-  const completedToday = sessionOk
-    && nowSeconds >= session.end
-    && Number.isFinite(meta.regularMarketTime) && meta.regularMarketTime >= session.end
+  const completedToday = NY_TIME.format(now) >= '17:30'
   const byDay = new Map()
+  let start = today
+  let end = ''
   for (let i = 0; i < result.timestamp.length; i++) {
     const stamp = result.timestamp[i]
     const close = closes[i]
-    if (!Number.isFinite(stamp) || !Number.isFinite(close) || !(close > 0)) continue
-    const day = nyDay(stamp)
-    if (day > today || (day === today && !completedToday)) continue
-    byDay.set(day, rounded(close, digits))
+    if (!Number.isFinite(stamp)) continue
+    const day = nyDay(stamp + 7 * 60 * 60)
+    if (day > today) continue
+    // Include the old calendar label at the start and any rejected in-range
+    // readings so they cannot survive from a prior snapshot.
+    const calendarDay = nyDay(stamp)
+    if (calendarDay < start) start = calendarDay
+    if (day > end) end = day
+    if (day === today && !completedToday) continue
+    if (!Number.isFinite(close) || close <= 0 || byDay.get(day)?.stamp >= stamp) continue
+    byDay.set(day, { stamp, close })
   }
-  return record(requireReadings([...byDay], symbol))
+  const history = sorted([...byDay].map(([day, { close }]) => [day, rounded(close, digits)]))
+  return { history: requireReadings(history, symbol), coverage: [start, end] }
 }
 
 /** Same-day copper ÷ gold; skips dates missing either close. */
@@ -528,9 +528,13 @@ function sorted(history) {
   return history.sort(([a], [b]) => a.localeCompare(b))
 }
 
-export function mergeSeries(previous, incoming) {
+export function mergeSeries(previous, incoming, coverage) {
   if (!incoming.history.length) return previous
-  const oldHistory = previous?.history ?? []
+  let oldHistory = previous?.history ?? []
+  if (coverage) {
+    const [start, end] = coverage
+    oldHistory = oldHistory.filter(([day]) => day < start || day > end)
+  }
   const latest = sorted([...incoming.history]).at(-1)[0]
   const older = oldHistory.at(-1)?.[0] > latest
   const winner = older ? previous : incoming
@@ -676,6 +680,7 @@ export async function collectUsMarketData(previous, { read = fetchText, readBina
   const entries = Object.entries(jobs)
   const settled = await Promise.allSettled(entries.map(([, [, load]]) => load()))
   const series = { ...previous?.series }
+  const futuresCoverage = {}
   const warnings = []
   let sourcesUpdated = 0
   const today = now.toISOString().slice(0, 10)
@@ -693,7 +698,7 @@ export async function collectUsMarketData(previous, { read = fetchText, readBina
       continue
     }
     let accepted = false
-    for (const [key, values] of Object.entries(result.value)) {
+    for (const [key, { coverage, ...values }] of Object.entries(result.value)) {
       const previousSeries = series[key]
       const history = values.history.filter(([day]) => day <= today)
       if (!history.length) continue
@@ -706,13 +711,14 @@ export async function collectUsMarketData(previous, { read = fetchText, readBina
       const newest = sorted([...history]).at(-1)[0]
       const priorDay = current?.history.at(-1)?.[0]
       const release = values.releasedAt || (priorDay === newest ? current?.releasedAt : undefined)
-      const updated = mergeSeries(current, { ...specs[key], ...values, releasedAt: release, history })
+      const updated = mergeSeries(current, { ...specs[key], ...values, releasedAt: release, history }, coverage)
       if (!updated) continue
       delete updated.refreshError
       // IORB applies on calendar days. Keep the Friday (or holiday-week Thursday)
       // observation so historical SOFR weekly closes can join on the exact date.
       if (key !== 'iorb') updated.history = compactHistory(updated.history, updated.frequency)
       series[key] = updated
+      if (coverage) futuresCoverage[key] = coverage
       accepted = true
     }
     if (accepted) sourcesUpdated++
@@ -729,9 +735,16 @@ export async function collectUsMarketData(previous, { read = fetchText, readBina
     try {
       const ratio = copperGoldRatio(copperHistory, goldHistory)
       const refreshError = series.copperDaily?.refreshError || series.goldDaily?.refreshError
+      // Only replace ratio dates covered by both successful downloads.
+      const copperCoverage = futuresCoverage.copperDaily
+      const goldCoverage = futuresCoverage.goldDaily
+      const coverage = copperCoverage && goldCoverage && [
+        copperCoverage[0] > goldCoverage[0] ? copperCoverage[0] : goldCoverage[0],
+        copperCoverage[1] < goldCoverage[1] ? copperCoverage[1] : goldCoverage[1],
+      ]
       series.copperGold = mergeSeries(series.copperGold, {
         ...specs.copperGold, history: ratio, ...(refreshError && { refreshError }),
-      })
+      }, coverage)
       if (series.copperGold) {
         series.copperGold.history = compactHistory(series.copperGold.history, series.copperGold.frequency)
         if (!refreshError) delete series.copperGold.refreshError

@@ -1,8 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import {
+  AVG10_SAMPLE_MIN,
+  BOTH_AT_HIGHS_READING,
+  NARROWING_READING,
+  SAMPLE_INSUFFICIENT,
   advanceShare,
   bothAtHighs,
   buildAdvDecMetrics,
+  commonSeries,
+  continuousRollingMeans,
   cumulativeNet,
   ema,
   isStale,
@@ -80,8 +86,8 @@ describe('rollingMean / cumulativeNet / percentile', () => {
   })
 })
 
-describe('divergence', () => {
-  it('detects joint highs and narrowing (index 20d high without AD high)', () => {
+describe('divergence on common sessions', () => {
+  it('detects joint highs and narrowing on aligned series', () => {
     const dates = d(25)
     const adUp: Point[] = dates.map((date, i) => [date, i])
     const ixUp: Point[] = dates.map((date, i) => [date, 100 + i])
@@ -92,33 +98,129 @@ describe('divergence', () => {
     expect(narrowingDivergence(adFlat, ixNewHigh)).toBe(true)
     expect(bothAtHighs(adFlat, ixNewHigh)).toBe(false)
   })
+
+  it('review sample: 11-17 both at highs; 11-18 breadth-only drop does not fake narrowing', () => {
+    // Index prints through 11-17; breadth continues to 11-18 with a pullback.
+    const dates = [
+      '2026-10-20', '2026-10-21', '2026-10-22', '2026-10-23', '2026-10-26',
+      '2026-10-27', '2026-10-28', '2026-10-29', '2026-10-30', '2026-11-02',
+      '2026-11-03', '2026-11-04', '2026-11-05', '2026-11-06', '2026-11-09',
+      '2026-11-10', '2026-11-11', '2026-11-12', '2026-11-13', '2026-11-16',
+      '2026-11-17', '2026-11-18',
+    ]
+    const adLine: Point[] = dates.map((date, i) => {
+      // Rising to a high on 11-17, then retreats on 11-18.
+      const v = i <= 20 ? i : 19
+      return [date, v]
+    })
+    const index: Point[] = dates.slice(0, 21).map((date, i) => [date, 1000 + i])
+
+    expect(commonSeries(adLine, index)).toBeUndefined() // latest breadth day lacks index
+    expect(bothAtHighs(adLine, index)).toBe(false)
+    expect(narrowingDivergence(adLine, index)).toBe(false)
+
+    // Through 11-17 alone both are at highs.
+    const through17 = adLine.slice(0, 21)
+    expect(bothAtHighs(through17, index)).toBe(true)
+    expect(narrowingDivergence(through17, index)).toBe(false)
+
+    const rows = dates.map((date, i) => {
+      const adv = i <= 20 ? 300 + i : 280
+      const dec = 200
+      return [date, adv, dec, 5, 505] as [string, number, number, number, number]
+    })
+    const breadth: Breadth = {
+      date: '2026-11-18', covered: 505, total: 505, above200: 60,
+      source: 'test', scope: '标普 500', advDec: rows,
+    }
+    const m = buildAdvDecMetrics(breadth, index, '2026-11-18')
+    expect(m?.readings.some(r => r.includes('参与度在变窄'))).toBe(false)
+    expect(m?.readings).not.toContain(NARROWING_READING)
+    // Signal disabled because latest breadth day has no index print.
+    expect(m?.readings).not.toContain(BOTH_AT_HIGHS_READING)
+  })
+
+  it('disables 20-day narrowing when common sessions < 20', () => {
+    const dates = d(15)
+    const ad: Point[] = dates.map((date, i) => [date, i < 5 ? i : 5 - (i - 5)])
+    const ix: Point[] = dates.map((date, i) => [date, 100 + i])
+    expect(narrowingDivergence(ad, ix)).toBe(false)
+  })
 })
 
-describe('isStale / weekdaySessions', () => {
-  it('flags data older than the prior session vs asOf', () => {
-    // Friday 2026-11-20 asOf; latest = Fri, prior = Thu 11-19. Data on Wed 11-18 is stale.
-    expect(isStale('2026-11-20', '2026-11-20')).toBe(false)
-    expect(isStale('2026-11-19', '2026-11-20')).toBe(false)
-    expect(isStale('2026-11-18', '2026-11-20')).toBe(true)
-    const cal = ['2026-11-17', '2026-11-18', '2026-11-19', '2026-11-20']
-    expect(isStale('2026-11-18', '2026-11-20', cal)).toBe(true)
-    expect(isStale('2026-11-19', '2026-11-20', cal)).toBe(false)
+describe('isStale / weekdaySessions / Thanksgiving', () => {
+  it('flags data older than the prior NYSE session vs asOf', () => {
+    const now = new Date('2026-11-20T22:00:00Z')
+    expect(isStale('2026-11-20', '2026-11-20', now)).toBe(false)
+    expect(isStale('2026-11-19', '2026-11-20', now)).toBe(false)
+    expect(isStale('2026-11-18', '2026-11-20', now)).toBe(true)
     expect(weekdaySessionsOnOrBefore('2026-11-22', 3)).toEqual(['2026-11-20', '2026-11-19', '2026-11-18'])
+  })
+
+  it('Thanksgiving week: Wed data is not stale vs Fri when Thu is holiday', () => {
+    const now = new Date('2026-11-27T22:00:00Z') // after 16:40 ET
+    // Prior completed session before Fri 27 is Wed 25.
+    expect(isStale('2026-11-25', '2026-11-27', now)).toBe(false)
+    expect(isStale('2026-11-24', '2026-11-27', now)).toBe(true)
+  })
+})
+
+describe('continuous means / sample gate', () => {
+  it('does not stitch 10-day means across a coverage gap', () => {
+    const dates = d(14)
+    const points = dates.map((date, i) => ({ date, share: 0.5 + i * 0.01 }))
+    // Drop one interior day → windows that include the gap fail.
+    const gapped = points.filter(p => p.date !== dates[5])
+    const means = continuousRollingMeans(gapped, 10)
+    // Gap at index 5 with only 14 points → no full 10-session window after the hole.
+    expect(means).toEqual([])
+  })
+
+  it('requires 120 continuous 10-day means before percentile / 短期普涨', () => {
+    const dates = d(30)
+    const rows = dates.map((date) => [date, 400, 100, 5, 505] as [string, number, number, number, number])
+    const index: Point[] = dates.map((date, i) => [date, 1000 + i])
+    const breadth: Breadth = {
+      date: dates.at(-1)!, covered: 505, total: 505, above200: 60,
+      source: 'test', scope: '标普 500', advDec: rows,
+    }
+    const m = buildAdvDecMetrics(breadth, index, dates.at(-1)!)
+    expect(m?.avg10Share).toBeTypeOf('number')
+    expect(m?.avg10SampleReady).toBe(false)
+    expect(m?.avg10Percentile).toBeUndefined()
+    expect(m?.readings.some(r => r.includes('短期普涨') || r.includes('短期普跌'))).toBe(false)
+    expect(AVG10_SAMPLE_MIN).toBe(120)
+    expect(SAMPLE_INSUFFICIENT).toContain('历史样本不足')
+  })
+
+  it('treats covered/total < 0.95 as a missing day for 10-day means', () => {
+    const dates = d(15)
+    const rows = dates.map((date, i) => {
+      const covered = i === 7 ? 400 : 500 // day 7 below 95% of 500
+      return [date, 300, 200, 0, covered] as [string, number, number, number, number]
+    })
+    const breadth: Breadth = {
+      date: dates.at(-1)!, covered: 500, total: 500, above200: 50,
+      source: 'test', scope: '标普 500', advDec: rows,
+    }
+    const m = buildAdvDecMetrics(breadth, undefined, dates.at(-1)!)
+    // Gap at day 7 blocks means that would include it; late windows after the gap may exist.
+    expect(m?.avg10SampleReady).toBe(false)
   })
 })
 
 describe('buildAdvDecMetrics', () => {
-  it('computes full history path with McClellan percentile and readings', () => {
+  it('computes full history path with McClellan and joint-high reading', () => {
     const dates = d(80)
+    // Rising nets so AD line and index both finish at series highs.
     const rows = dates.map((date, i) => {
-      // Later sessions lean more advances → both AD and index trend up.
-      const adv = 200 + i
-      const dec = 300 - Math.min(i, 250)
-      return [date, adv, Math.max(dec, 1), 5, adv + Math.max(dec, 1) + 5] as [string, number, number, number, number]
+      const adv = 300 + i
+      const dec = 200
+      return [date, adv, dec, 5, 505] as [string, number, number, number, number]
     })
     const index: Point[] = dates.map((date, i) => [date, 1000 + i * 2])
     const breadth: Breadth = {
-      date: dates.at(-1)!, covered: 500, total: 503, above200: 50,
+      date: dates.at(-1)!, covered: 505, total: 505, above200: 50,
       source: 'test', scope: '标普 500', advDec: rows,
     }
     const m = buildAdvDecMetrics(breadth, index, dates.at(-1)!)
@@ -126,10 +228,11 @@ describe('buildAdvDecMetrics', () => {
     expect(m?.today.advancers).toBe(rows.at(-1)![1])
     expect(m?.today.net).toBe(rows.at(-1)![1] - rows.at(-1)![2])
     expect(m?.avg10Share).toBeTypeOf('number')
+    expect(m?.avg10SampleReady).toBe(false) // 80 days → < 120 means
     expect(m?.mcclellanWarmup).toBe(false)
     expect(m?.mcclellan).toBeTypeOf('number')
     expect(m?.cumulative).toHaveLength(80)
-    expect(m?.readings.some(r => r.includes('参与度广') || r.includes('参与度在变窄') || r.includes('热度') || r.includes('情绪'))).toBe(true)
+    expect(m?.readings).toContain(BOTH_AT_HIGHS_READING)
   })
 
   it('falls back to highsLows when advDec is missing', () => {

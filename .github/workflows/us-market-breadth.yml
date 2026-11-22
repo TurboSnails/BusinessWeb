@@ -11,7 +11,7 @@ permissions:
   actions: write
 
 concurrency:
-  group: market-data-publish
+  group: us-market-breadth
   cancel-in-progress: false
 
 jobs:
@@ -50,12 +50,12 @@ jobs:
               exit 0
             fi
             git fetch origin main
-            # Both breadth writers share the publish group. Fail on an unexpected same-file edit.
+            # Retry concurrent publishes. Fail on overlapping edits to the snapshot.
             git rebase origin/main
           done
           exit 1
       - name: Deploy GitHub Pages
-        if: steps.commit.outputs.changed == 'true'
+        if: steps.commit.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh workflow run pages.yml --ref main

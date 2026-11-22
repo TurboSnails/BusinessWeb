@@ -449,12 +449,14 @@ export function leaveOneOutInputs(
 }
 
 export function compareSet(book: PriceBook, input: RunInput): CompareSet {
-  const holdInput: RunInput = { ...input, rule: { kind: 'buyHold' }, switch: undefined }
+  const active = runBacktest(book, input)
+  const window = { start: active.start, end: active.end }
+  const holdInput: RunInput = { ...input, ...window, rule: { kind: 'buyHold' }, switch: undefined }
   const custom = {
     hold: runBacktest(book, holdInput),
-    active: runBacktest(book, input),
+    active,
   }
-  const eqIn = equalWeightInput(input)
+  const eqIn = { ...equalWeightInput(input), ...window }
   const equal = {
     hold: runBacktest(book, { ...eqIn, rule: { kind: 'buyHold' }, switch: undefined }),
     active: runBacktest(book, eqIn),
@@ -467,8 +469,7 @@ export function compareSet(book: PriceBook, input: RunInput): CompareSet {
         symbols: [b],
         weights: [1],
         rule: { kind: 'buyHold' },
-        start: input.start,
-        end: input.end,
+        ...window,
         cost: input.cost,
         initial: input.initial,
       })
@@ -478,8 +479,8 @@ export function compareSet(book: PriceBook, input: RunInput): CompareSet {
   }
   const leaveOneOut = leaveOneOutInputs(input).map(({ dropped, input: lo }) => ({
     dropped,
-    hold: runBacktest(book, { ...lo, rule: { kind: 'buyHold' }, switch: undefined }),
-    active: runBacktest(book, lo),
+    hold: runBacktest(book, { ...lo, ...window, rule: { kind: 'buyHold' }, switch: undefined }),
+    active: runBacktest(book, { ...lo, ...window }),
   }))
   return { custom, equal, benchmarks, leaveOneOut }
 }
