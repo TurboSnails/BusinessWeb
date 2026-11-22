@@ -1890,6 +1890,8 @@
 .mm-dim__card-panel { margin-top: 8px; }
 
 .mm-now__evidence-link {
+  /* 块级：否则列表圆点会对齐到按钮最后一行的基线，掉到条目左下角 */
+  display: block;
   appearance: none;
   border: 0;
   background: none;
