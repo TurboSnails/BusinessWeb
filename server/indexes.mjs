@@ -47,9 +47,11 @@ const MEMBERS = { ndx: NDX_MEMBERS, sox: SOX_MEMBERS, spx: SPX_MEMBERS, csi300: 
 
 /** 要跟踪的指数；group 决定表格分组，顺序即显示顺序 */
 export const INDEXES = [
-  { key: 'ndx', symbol: '^NDX', name: '纳斯达克 100', group: '美股', note: '科技与成长权重最高；本站 NDX 公司库的对应指数' },
+  { key: 'ndx', symbol: '^NDX', name: '纳斯达克 100', group: '美股', note: '科技与成长权重最高；本站 NDX 公司库的对应指数',
+    links: [{ label: 'Finviz 估值热力图', url: 'https://finviz.com/map?t=sec_ndx&st=fpe' }] },
   { key: 'sox', symbol: '^SOX', name: '费城半导体 SOX', group: '美股', note: '半导体周期的温度计，波动是纳指的两倍以上' },
-  { key: 'spx', symbol: '^GSPC', name: '标普 500', group: '美股', note: `美股大盘基准；Forward PE 由成分代理名单汇总（asOf ${SPX_ASOF}；${SPX_SOURCE}）` },
+  { key: 'spx', symbol: '^GSPC', name: '标普 500', group: '美股', note: `美股大盘基准；Forward PE 由成分代理名单汇总（asOf ${SPX_ASOF}；${SPX_SOURCE}）`,
+    links: [{ label: 'Finviz 估值热力图', url: 'https://finviz.com/map?st=fpe' }] },
   { key: 'rsp', symbol: '^SPXEW', name: '标普 500 等权重 SPW', group: '美股', note: '500 家各占相同权重（彭博代码 SPW），不被大科技股拉着走；没有可用的 Forward PE 历史，只看价格位置',
     links: [{ label: '彭博 SPW 行情（含 Forward PE 图）', url: 'https://www.bloomberg.com/quote/SPW:IND' }, { label: 'Yahoo ^SPXEW', url: 'https://finance.yahoo.com/quote/%5ESPXEW' }] },
   { key: 'rut', symbol: '^RUT', name: '罗素 2000', group: '美股', note: '小盘股，对利率和信用更敏感；没有可用的 Forward PE 历史，只看价格位置' },

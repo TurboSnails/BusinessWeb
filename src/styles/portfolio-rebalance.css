@@ -1,4 +1,6 @@
 .portfolio-rebalance-page {
+  /* 净值图三条线：动态平衡用主色实线；不动用蓝灰虚线，与主色绿明显区分；QQQ 用暖色 */
+  --pr-line-hold: #4C6A9C;
   min-width: 0;
   padding-bottom: 64px;
 }
@@ -685,7 +687,7 @@
 }
 
 .pr-chart__swatch--custom-hold {
-  background: var(--text-secondary);
+  background: repeating-linear-gradient(90deg, var(--pr-line-hold) 0 5px, transparent 5px 8px);
 }
 
 .pr-chart__swatch--QQQ {
@@ -712,14 +714,15 @@
 
 .pr-chart__line {
   stroke: var(--accent);
-  stroke-width: 2.2;
+  stroke-width: 2.6;
   stroke-linejoin: round;
   stroke-linecap: round;
 }
 
 .pr-chart__line--custom-hold {
-  stroke: var(--text-secondary);
+  stroke: var(--pr-line-hold);
   stroke-width: 1.8;
+  stroke-dasharray: 6 4;
 }
 
 .pr-chart__line--QQQ {

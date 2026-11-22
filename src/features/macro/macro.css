@@ -162,6 +162,50 @@
 
 /* 卡片标题行里的链接：触控目标不小于 32px */
 .macro-card__head a { display: inline-flex; align-items: center; min-height: 32px; }
+
+/* Finviz 远期市盈率热力图外链：桌面 2×2，窄屏单列；整行可点 */
+.macro-finviz-grid {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.macro-finviz-link {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  min-height: 44px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  color: inherit;
+  text-decoration: none;
+  line-height: 1.45;
+}
+.macro-finviz-link:hover { border-color: var(--accent); color: var(--accent); }
+.macro-finviz-link__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+.macro-finviz-link__use {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+.macro-finviz-link:hover .macro-finviz-link__use { color: inherit; }
+@media (min-width: 960px) {
+  .macro-finviz-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 430px) {
+  .macro-finviz-grid { grid-template-columns: 1fr; }
+}
 /* 股债息差通道 */
 .macro-spread__unit { font-size: 0.95rem; font-weight: 400; color: var(--text-secondary); }
 .macro-spread__stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px 16px; margin: 14px 0 0; }
