@@ -27,12 +27,12 @@ const P = [
 for (const p of P) { const t = Object.values(p.s).reduce((a, b) => a + b, 0); p.symbols = Object.keys(p.s); p.weights = Object.values(p.s).map(v => v / t) }
 const RULES = { hold: { kind: 'buyHold' }, rel40: { kind: 'relative', pct: 0.4 }, year: { kind: 'calendar', every: 'year' } }
 const sw = st => ({ stable: st, entry: 0.2, gap: 0.05, step: 0.25, recover: 0.05, cap: 0.5 })
-function go(p, rule, { start, end, symbols = p.symbols, weights = p.weights, withSwitch = false } = {}) {
+function go(p, rule, { start, end = '2026-11-20', symbols = p.symbols, weights = p.weights, withSwitch = false } = {}) {
   const r = runBacktest(book, { symbols, weights, rule: RULES[rule], ...(withSwitch && p.stable && symbols.includes(p.stable) ? { switch: sw(p.stable) } : {}), start, end, cost: 0.001, initial: 1e6, signal: 'QQQ' })
   return { final: r.final, cagr: r.cagr, mdd: r.maxDrawdown.value, vol: r.vol, cer: r.cer, trades: r.tradeCount, start: r.start, end: r.end, finalWeights: r.finalWeights }
 }
 const variants = p => [['hold', 'hold', false], ['rel40', 'rel40', false], ['year', 'year', false], ...(p.stable ? [['switch', 'rel40', true]] : [])]
-const qqq = (start, end) => { const s = book.QQQ; const i0 = s.dates.findIndex(d => d >= start), i1 = end ? s.dates.lastIndexOf(end) : s.dates.length - 1; let pk = 0, mdd = 0; for (let k = i0; k <= i1; k++) { pk = Math.max(pk, s.adjClose[k]); mdd = Math.min(mdd, s.adjClose[k] / pk - 1) } const f = s.adjClose[i1] / s.adjClose[i0], y = (Date.parse(s.dates[i1]) - Date.parse(s.dates[i0])) / 864e5 / 365.25; return { final: f, cagr: f ** (1 / y) - 1, mdd } }
+const qqq = (start, end = '2026-11-20') => { const s = book.QQQ; const i0 = s.dates.findIndex(d => d >= start), i1 = end ? s.dates.lastIndexOf(end) : s.dates.length - 1; let pk = 0, mdd = 0; for (let k = i0; k <= i1; k++) { pk = Math.max(pk, s.adjClose[k]); mdd = Math.min(mdd, s.adjClose[k] / pk - 1) } const f = s.adjClose[i1] / s.adjClose[i0], y = (Date.parse(s.dates[i1]) - Date.parse(s.dates[i0])) / 864e5 / 365.25; return { final: f, cagr: f ** (1 / y) - 1, mdd } }
 const median = xs => { const s = [...xs].sort((a, b) => a - b), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2 }
 const W = '2021-08-25', MID_END = '2023-12-29', MID_START = '2024-01-02'
 const starts = []; for (let y = 2021, m = 9; y < 2024 || (y === 2024 && m <= 11); m++) { if (m > 12) { m = 1; y++ } starts.push(`${y}-${String(m).padStart(2, '0')}-01`) }

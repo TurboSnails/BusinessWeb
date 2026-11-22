@@ -26,7 +26,7 @@ if (quick) for (const s of ['AAPL', 'MA', 'V', 'MCO', 'ROP', 'CSGP', 'WAT', 'SYK
 const group = Object.fromEntries(index.items.map(i => [i.symbol, i.group]))
 const MASTERS = ['AAPL', 'MA', 'V', 'MCO', 'ROP', 'CSGP', 'WAT', 'SYK', 'BAC', 'GOOGL', 'AXP', 'KO', 'BRK-B', 'CVX', 'QSR', 'KKR', 'PDD']
 const isMaster = s => MASTERS.includes(s)
-const COMMON = { cost: 0.001, initial: 1_000_000 }
+const COMMON = { cost: 0.001, initial: 1_000_000, end: '2026-11-20' } // 固定研究截止日，价格刷新不改变结果
 const REL40 = { kind: 'relative', pct: 0.4 }
 const YEAR = { kind: 'calendar', every: 'year' }
 const sw = stable => ({ stable, entry: 0.2, gap: 0.05, step: 0.25, recover: 0.05, cap: 0.5 })
