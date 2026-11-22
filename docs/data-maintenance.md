@@ -243,8 +243,6 @@ curl -s -H "Authorization: Bearer $CRON_SECRET" "https://business-web-black.verc
 | 港交所披露易董事会会议通告（`hkex`） | 港股官方董事会会议日期；与 Yahoo 冲突时**优先用港交所** |
 | 东方财富（`cnAppoint` 预约披露、`cnForecast` 业绩预告、`cnExpress` 业绩快报、`cnReport` 业绩报表、`cnConsensus` 机构盈利预测） | A 股预约披露日与变更、业绩预告 / 快报 / 报表；盈利预测只有年度口径，**没有 A 股季度一致预期** |
 
-**不使用 Nasdaq**：其条款禁止自动抓取与再分发。
-
 **失败与空表**：每个源独立；某源失败时保留上次文件里该源的条目和**原来的日期**（条目标 `carried`，`sources[id].ok = false`、`fetchedAt` 保持上次成功时间，连续失败会在新鲜度检查里变成过期）。A 股非披露季（如 11–12 月）预约披露表为空属正常，不是故障。
 
 ## 一次更新如何验收与留痕

@@ -12,7 +12,6 @@
 //   cnExpress    东方财富 RPT_FCI_PERFORMANCEE：业绩快报。
 //   cnReport     东方财富 RPT_LICO_FN_CPD：已披露定期报告的每股收益、营收与同比。
 //   cnConsensus  东方财富 RPT_WEB_RESPREDICT：机构盈利预测（只有年度 EPS；季报没有一致预期，页面写明）。
-// 不使用 Nasdaq 财报日历：nasdaq.com 使用条款禁止以自动或人工方式抓取并再分发其内容，api.nasdaq.com 的 robots.txt 全站 Disallow。
 //
 // 用法：node scripts/earnings-calendar.mjs [--today YYYY-MM-DD] [--yf-json 已有的 yfinance 输出] [--skip-yahoo]
 //   EARNINGS_YF_CMD 可覆盖 yfinance 采集命令（默认 uv run --python 3.12 --with yfinance==1.8.0 python scripts/earnings-calendar-yf.py）。
