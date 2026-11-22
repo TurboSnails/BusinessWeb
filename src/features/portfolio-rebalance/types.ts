@@ -121,6 +121,8 @@ export type PriceIndex = {
     status: 'ok' | 'stale'
     statusNote?: string
     dividendStatus: 'ok' | 'missing' | 'none'
+    /** 腾讯交叉核对结果；unavailable 表示腾讯无响应，仅有 Yahoo 数据 */
+    crossCheck?: 'ok' | 'unavailable'
   }>
 }
 

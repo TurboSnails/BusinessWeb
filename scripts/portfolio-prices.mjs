@@ -26,6 +26,11 @@ export function crossCheck(yahooRows, tencentRows, { asOf = null } = {}) {
   for (const date of tq.keys()) if (!yf.has(date)) mismatches++
   return { ok: mismatches === 0, mismatches, reason: mismatches ? `交叉核对：最近两年 ${mismatches} 个日期缺失或收盘差异超过 0.5%` : null }
 }
+const crossCheckRows = (yahooRows, tencentRows, asOf) => crossCheck(yahooRows, tencentRows, { asOf })
+function yahooRowsInRecentWindow(rows, asOf) {
+  const cutoff = `${Number(asOf.slice(0, 4)) - 2}${asOf.slice(4)}`
+  return new Set(rows.filter(r => DAY.test(r[0]) && r[0] >= cutoff && r[0] <= asOf).map(r => r[0])).size
+}
 
 export function buildSeries(rows, { validFrom } = {}) {
   const byDate = new Map()
@@ -58,7 +63,7 @@ export function dividendState(previous, dividends) {
 export function mergeIndex(previous = { schemaVersion: 1, items: [] }, results = []) {
   const old = new Map((previous.items ?? []).map(x => [x.symbol, x]))
   for (const result of results) {
-    const base = { symbol: result.symbol, name: result.name, group: result.group, first: result.first ?? old.get(result.symbol)?.first ?? '', last: result.last ?? old.get(result.symbol)?.last ?? '', asOf: result.asOf ?? old.get(result.symbol)?.asOf ?? '', status: result.status, ...(result.statusNote ? { statusNote: result.statusNote } : {}), dividendStatus: result.dividendStatus ?? old.get(result.symbol)?.dividendStatus ?? 'none' }
+    const base = { symbol: result.symbol, name: result.name, group: result.group, first: result.first ?? old.get(result.symbol)?.first ?? '', last: result.last ?? old.get(result.symbol)?.last ?? '', asOf: result.asOf ?? old.get(result.symbol)?.asOf ?? '', status: result.status, ...(result.statusNote ? { statusNote: result.statusNote } : {}), ...(result.crossCheck ? { crossCheck: result.crossCheck } : {}), dividendStatus: result.dividendStatus ?? old.get(result.symbol)?.dividendStatus ?? 'none' }
     old.set(result.symbol, base)
   }
   return { schemaVersion: 1, generatedAt: new Date().toISOString(), items: [...old.values()] }
@@ -76,14 +81,15 @@ function runCommand(command, input) {
   })
 }
 
-export async function tencentRows(symbol, start, end, { fetchImpl = fetch, sleep = ms => new Promise(r => setTimeout(r, ms)), retryDelayMs = 3000, now = () => Date.now() } = {}) {
+export async function tencentRows(symbol, start, end, options = {}) {
+  const { fetchImpl = fetch, sleep = ms => new Promise(r => setTimeout(r, ms)), retryDelayMs = 3000, now = () => Date.now(), warn = console.warn } = options
   const rows = []
   let from = start
   while (from <= end) {
     const nextYear = `${Number(from.slice(0, 4)) + 1}${from.slice(4)}`
     const to = nextYear < end ? nextYear : end
     const url = new URL('https://web.ifzq.gtimg.cn/appstock/app/fqkline/get')
-    url.searchParams.set('param', `${symbol},day,${from},${to},2000`)
+    url.searchParams.set('param', `${symbol},day,${from},${to},2000,`)
     let daily
     let lastError
     for (let attempt = 0; attempt < 3; attempt++) {
@@ -93,14 +99,27 @@ export async function tencentRows(symbol, start, end, { fetchImpl = fetch, sleep
         if (gap > 0) await sleep(gap)
         lastTencentRequestAt.set(fetchImpl, now())
         const response = await fetchImpl(url, { headers: { 'user-agent': 'Mozilla/5.0' }, signal: AbortSignal.timeout(20_000) })
-        if (!response.ok) throw new Error(`腾讯行情 HTTP ${response.status}`)
-        const body = await response.json()
+        const text = await response.text()
+        if (!response.ok) {
+          warn(`腾讯行情请求失败：HTTP ${response.status}，响应：${text.slice(0, 200)}`)
+          throw new Error(`腾讯行情 HTTP ${response.status}`)
+        }
+        let body
+        try { body = JSON.parse(text) }
+        catch (e) {
+          warn(`腾讯行情响应非 JSON：HTTP ${response.status}，响应：${text.slice(0, 200)}`)
+          throw e
+        }
         const entry = body.data?.[symbol]
         daily = entry?.day ?? entry?.qfqday ?? []
-        if (!daily.length) throw new Error(`腾讯行情没有 ${symbol} 日线`)
+        if (!daily.length) {
+          warn(`腾讯行情数据为空：HTTP ${response.status}，响应：${text.slice(0, 200)}`)
+          throw new Error(`腾讯行情没有 ${symbol} 日线`)
+        }
         break
       } catch (e) {
         lastError = e
+        if (!(e instanceof SyntaxError) && !String(e?.message ?? e).startsWith('腾讯行情 HTTP ')) warn(`腾讯行情读取失败：${errorText(e)}`)
         if (attempt < 2) await sleep(retryDelayMs)
       }
     }
@@ -125,16 +144,21 @@ export async function fetchTencentWithFallback(configured, start, end, options =
   for (const candidate of candidates) {
     try {
       const rows = await tencentRows(candidate, start, end, options)
+      if (!rows.length) throw new Error(`腾讯行情 ${candidate} 没有可用日线`)
       if (candidate !== configured) (options.log ?? console.log)(`腾讯代码回退：${configured} → ${candidate}`)
       return { symbol: candidate, rows }
     } catch (e) { lastError = e }
   }
-  throw new Error(`${configured} 及后缀回退均无数据：${errorText(lastError)}`)
+  const message = `${configured} 及后缀回退均无数据：${errorText(lastError)}`
+  ;(options.warn ?? console.warn)(message)
+  return { symbol: null, rows: [], unavailable: true, error: message }
 }
 
 async function readJson(path, fallback) { try { return JSON.parse(await readFile(path, 'utf8')) } catch (e) { if (e.code === 'ENOENT') return fallback; throw e } }
 
-export async function main(args = process.argv.slice(2)) {
+export async function main(args = process.argv.slice(2), options = {}) {
+  const { fetchImpl = fetch, sleep, warn, log } = options
+  const fixtureWithoutTencent = Boolean(process.env.PORTFOLIO_YF_CMD) && !Object.hasOwn(options, 'fetchImpl')
   const outArg = args.indexOf('--out')
   const outDir = resolve(outArg >= 0 ? args[outArg + 1] : DEFAULT_OUT)
   let universe = await readJson(UNIVERSE_FILE, [])
@@ -153,16 +177,30 @@ export async function main(args = process.argv.slice(2)) {
     const yf = raw[item.symbol]
     const previous = await readJson(join(outDir, `${item.symbol}.json`), null)
     let reason = yf?.error || (!yf ? 'Yahoo 未返回此代码' : null), tq = [], series = { dates: [], close: [], adjClose: [] }, quality = { status: 'ok' }
+    let crossCheckStatus = 'ok'
+    let crossCheckDescription = null
     if (!reason) {
       try {
         const clean = buildSeries(yf.rows, { validFrom: item.validFrom })
         if (clean.dates.length < 2) throw new Error('有效日线不足')
         const from = clean.dates.at(-1) < '2024-01-01' ? '2024-01-01' : `${Number(clean.dates.at(-1).slice(0, 4)) - 2}${clean.dates.at(-1).slice(4)}`
         // A supplied collector command is reserved for offline fixtures and integration checks.
-        if (process.env.PORTFOLIO_YF_CMD) tq = clean.dates.map((date, i) => [date, clean.close[i]])
-        else tq = (await fetchTencentWithFallback(item.tencent, from, clean.dates.at(-1))).rows
-        const check = crossCheck(yf.rows, tq, { asOf: clean.dates.at(-1) })
-        if (!check.ok) reason = check.reason
+        let crossCheck
+        if (fixtureWithoutTencent) {
+          tq = clean.dates.map((date, i) => [date, clean.close[i]])
+          crossCheck = crossCheckRows(yf.rows, tq, clean.dates.at(-1))
+        } else {
+          const tencent = await fetchTencentWithFallback(item.tencent, from, clean.dates.at(-1), { fetchImpl, sleep, warn, log })
+          if (tencent.unavailable) {
+            crossCheckStatus = 'unavailable'
+            crossCheckDescription = '交叉核对暂不可用（腾讯无响应），仅 Yahoo'
+          } else {
+            tq = tencent.rows
+            crossCheck = crossCheckRows(yf.rows, tq, clean.dates.at(-1))
+            if (!crossCheck.ok) reason = crossCheck.reason
+            else crossCheckDescription = `腾讯不复权日线，最近 2 年 ${yahooRowsInRecentWindow(yf.rows, clean.dates.at(-1))} 日一致`
+          }
+        }
         series = clean
         quality = assessSeries(series, item.symbol === 'HOOD' ? knownEvents.HOOD : [])
         if (quality.status !== 'ok') reason = quality.statusNote
@@ -175,11 +213,11 @@ export async function main(args = process.argv.slice(2)) {
     }
     const asOf = series.dates.at(-1)
     const dividendStatus = dividendState(previous, yf.dividends)
-    const body = { schemaVersion: 1, symbol: item.symbol, name: item.name, type: item.type, currency: 'USD', asOf, fetchedAt: new Date().toISOString(), source: { prices: 'Yahoo Finance（yfinance 1.8.0），复权收盘价含拆股与分红', crossCheck: `腾讯不复权日线，最近两年 0 处差异` }, status: 'ok', dividendStatus, splits: yf.splits ?? [], dividends: yf.dividends ?? [], dates: series.dates, adjClose: series.adjClose, close: series.close }
+    const body = { schemaVersion: 1, symbol: item.symbol, name: item.name, type: item.type, currency: 'USD', asOf, fetchedAt: new Date().toISOString(), source: { prices: 'Yahoo Finance（yfinance 1.8.0），复权收盘价含拆股与分红', crossCheck: crossCheckDescription ?? `腾讯不复权日线，最近 2 年 ${yahooRowsInRecentWindow(yf.rows, asOf)} 日一致` }, status: 'ok', dividendStatus, splits: yf.splits ?? [], dividends: yf.dividends ?? [], dates: series.dates, adjClose: series.adjClose, close: series.close }
     const bytes = JSON.stringify(body).length
     if (bytes > 150_000) delete body.close
     await writeFile(join(outDir, `${item.symbol}.json`), `${JSON.stringify(body)}\n`)
-    results.push({ ...item, first: asOf && series.dates[0], last: asOf, asOf, status: 'ok', dividendStatus })
+    results.push({ ...item, first: asOf && series.dates[0], last: asOf, asOf, status: 'ok', dividendStatus, crossCheck: crossCheckStatus })
   }
   await writeFile(join(outDir, 'index.json'), `${JSON.stringify(mergeIndex(priorIndex, results), null, 2)}\n`)
   if (failures) process.exitCode = 1

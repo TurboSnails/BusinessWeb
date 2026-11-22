@@ -44,10 +44,10 @@ test('Tencent 的非 JSON 响应重试两次后成功', async () => {
   let clock = 0
   const fetchImpl = async () => {
     calls++
-    if (calls < 3) return { ok: true, json: async () => { throw new SyntaxError('not JSON') } }
-    return { ok: true, json: async () => ({ data: { 'usAVGO.OQ': { day: [['2026-01-02', '1', '100', '101', '99', '5']] } } }) }
+    if (calls < 3) return { ok: true, status: 200, text: async () => '<html>not JSON</html>' }
+    return { ok: true, status: 200, text: async () => JSON.stringify({ data: { 'usAVGO.OQ': { day: [['2026-01-02', '1', '100', '101', '99', '5']] } } }) }
   }
-  const rows = await tencentRows('usAVGO.OQ', '2026-01-01', '2026-01-03', { fetchImpl, sleep: async ms => { sleeps.push(ms); clock += ms }, now: () => clock })
+  const rows = await tencentRows('usAVGO.OQ', '2026-01-01', '2026-01-03', { fetchImpl, sleep: async ms => { sleeps.push(ms); clock += ms }, now: () => clock, warn: () => {} })
   assert.deepEqual(rows, [['2026-01-02', 100]])
   assert.equal(calls, 3)
   assert.deepEqual(sleeps, [3000, 3000])
@@ -60,13 +60,70 @@ test('Tencent 代码配置失败时按 .OQ、.N、.AM 回退并记录成功后�
     const code = new URL(url).searchParams.get('param').split(',')[0]
     requested.push(code)
     if (code !== 'usPLTR.OQ') throw new Error('no data')
-    return { ok: true, json: async () => ({ data: { [code]: { day: [['2026-01-02', '1', '100', '101', '99', '5']] } } }) }
+    return { ok: true, status: 200, text: async () => JSON.stringify({ data: { [code]: { day: [['2026-01-02', '1', '100', '101', '99', '5']] } } }) }
   }
   let clock = 0
-  const { symbol } = await fetchTencentWithFallback('usPLTR.N', '2026-01-01', '2026-01-03', { fetchImpl, sleep: async ms => { clock += ms }, now: () => clock, log: line => logs.push(line) })
+  const { symbol } = await fetchTencentWithFallback('usPLTR.N', '2026-01-01', '2026-01-03', { fetchImpl, sleep: async ms => { clock += ms }, now: () => clock, log: line => logs.push(line), warn: () => {} })
   assert.equal(symbol, 'usPLTR.OQ')
   assert.deepEqual(requested, ['usPLTR.N', 'usPLTR.N', 'usPLTR.N', 'usPLTR.OQ'])
   assert.match(logs[0], /usPLTR.N → usPLTR.OQ/)
+})
+
+test('腾讯不可用时仍写入 Yahoo 数据并标记 crossCheck unavailable', async () => {
+  const out = await mkdtemp(join(tmpdir(), 'portfolio-prices-no-tencent-'))
+  const oldCommand = process.env.PORTFOLIO_YF_CMD
+  process.env.PORTFOLIO_YF_CMD = 'node scripts/fixtures/fake-yf.mjs'
+  try {
+    const fetchImpl = async () => ({ ok: true, status: 200, text: async () => JSON.stringify({ data: {} }) })
+    await (await import('./portfolio-prices.mjs')).main(['--out', out], { fetchImpl, sleep: async () => {}, warn: () => {} })
+    const index = JSON.parse(await readFile(join(out, 'index.json'), 'utf8'))
+    assert.deepEqual(index.items.map(i => i.crossCheck), ['unavailable', 'unavailable', 'unavailable'])
+    assert.ok(index.items.every(i => i.status === 'ok'))
+    const body = JSON.parse(await readFile(join(out, 'AVGO.json'), 'utf8'))
+    assert.equal(body.source.crossCheck, '交叉核对暂不可用（腾讯无响应），仅 Yahoo')
+  } finally {
+    if (oldCommand === undefined) delete process.env.PORTFOLIO_YF_CMD
+    else process.env.PORTFOLIO_YF_CMD = oldCommand
+    await rm(out, { recursive: true, force: true })
+  }
+})
+
+test('腾讯数据不一致时不写入并将 index 标 stale', async () => {
+  const out = await mkdtemp(join(tmpdir(), 'portfolio-prices-mismatch-'))
+  const oldCommand = process.env.PORTFOLIO_YF_CMD
+  const oldExitCode = process.exitCode
+  process.env.PORTFOLIO_YF_CMD = 'node scripts/fixtures/fake-yf.mjs'
+  try {
+    const indexItems = ['AVGO', 'META', 'MSFT'].map(symbol => ({ symbol, name: symbol, group: 'growth', first: '2020-01-01', last: '2025-01-01', asOf: '2025-01-01', status: 'ok', dividendStatus: 'none' }))
+    await import('node:fs/promises').then(({ writeFile }) => writeFile(join(out, 'index.json'), JSON.stringify({ schemaVersion: 1, items: indexItems })))
+    await import('node:fs/promises').then(({ writeFile }) => writeFile(join(out, 'AVGO.json'), '{"symbol":"AVGO","sentinel":"keep"}'))
+    const fetchImpl = async url => {
+      const [symbol] = new URL(url).searchParams.get('param').split(',')
+      const closes = symbol === 'usAVGO.OQ' ? [101, 101, 102] : [100, 101, 102]
+      return { ok: true, status: 200, text: async () => JSON.stringify({ data: { [symbol]: { day: [['2024-01-02', '1', String(closes[0])], ['2024-01-03', '1', String(closes[1])], ['2024-01-04', '1', String(closes[2])]] } } }) }
+    }
+    await (await import('./portfolio-prices.mjs')).main(['--out', out], { fetchImpl, sleep: async () => {}, warn: () => {} })
+    const index = JSON.parse(await readFile(join(out, 'index.json'), 'utf8'))
+    assert.equal(index.items.find(i => i.symbol === 'AVGO').status, 'stale')
+    assert.match(index.items.find(i => i.symbol === 'AVGO').statusNote, /交叉核对/)
+    assert.equal(await readFile(join(out, 'AVGO.json'), 'utf8'), '{"symbol":"AVGO","sentinel":"keep"}')
+    assert.equal(index.items.find(i => i.symbol === 'META').crossCheck, 'ok')
+  } finally {
+    if (oldCommand === undefined) delete process.env.PORTFOLIO_YF_CMD
+    else process.env.PORTFOLIO_YF_CMD = oldCommand
+    process.exitCode = oldExitCode
+    await rm(out, { recursive: true, force: true })
+  }
+})
+
+test('腾讯参数包含末尾逗号且不复权参数位留空', async () => {
+  let param
+  const fetchImpl = async url => {
+    param = new URL(url).searchParams.get('param')
+    return { ok: true, status: 200, text: async () => JSON.stringify({ data: { 'usQQQ.OQ': { day: [['2026-01-02', '1', '100']] } } }) }
+  }
+  await tencentRows('usQQQ.OQ', '2026-01-01', '2026-01-03', { fetchImpl, sleep: async () => {}, warn: () => {} })
+  assert.equal(param, 'usQQQ.OQ,day,2026-01-01,2026-01-03,2000,')
 })
 
 test('假采集命令只写入三个代码文件和 index.json', async () => {
