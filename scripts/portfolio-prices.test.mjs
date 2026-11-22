@@ -201,3 +201,10 @@ test('假采集命令只写入三个代码文件和 index.json', async () => {
     }
   } finally { await rm(out, { recursive: true, force: true }) }
 })
+
+test('knownEvents 登记 PDD 2022-03-16 单日 +56% 后不标记 stale', async () => {
+  const { knownEvents: events, assessSeries: assess } = await import('./portfolio-prices.mjs')
+  const series = { dates: ['2022-03-15', '2022-03-16'], adjClose: [27.31, 42.62] }
+  assert.equal(assess(series, events.PDD).status, 'ok')
+  assert.equal(assess(series, []).status, 'stale')
+})

@@ -10,7 +10,11 @@ const UNIVERSE_FILE = join(ROOT, 'scripts/portfolio-prices/universe.json')
 const DEFAULT_OUT = join(ROOT, 'public/data/portfolio-prices')
 const DAY = /^\d{4}-\d{2}-\d{2}$/
 const lastTencentRequestAt = new WeakMap()
-export const knownEvents = { HOOD: [{ date: '2021-08-04', min: 0.45, max: 0.55, note: 'HOOD 首个交易周的单日约 +50% 波动' }] }
+export const knownEvents = {
+  HOOD: [{ date: '2021-08-04', min: 0.45, max: 0.55, note: 'HOOD 首个交易周的单日约 +50% 波动' }],
+  // 腾讯不复权日线同日 27.31 → 42.62（+56.1%），中概股集体暴涨日
+  PDD: [{ date: '2022-03-16', min: 0.5, max: 0.6, note: 'PDD 2022-03-16 单日约 +56%' }],
+}
 const round6 = n => Number(Number(n).toPrecision(6))
 const errorText = e => String(e?.message ?? e).slice(0, 180)
 
@@ -220,7 +224,7 @@ export async function main(args = process.argv.slice(2), options = {}) {
           }
         }
         series = clean
-        quality = assessSeries(series, item.symbol === 'HOOD' ? knownEvents.HOOD : [])
+        quality = assessSeries(series, knownEvents[item.symbol] ?? [])
         if (quality.status !== 'ok') reason = quality.statusNote
       } catch (e) { reason = errorText(e) }
     }
