@@ -1,41 +1,79 @@
 import React from 'react'
+import { Badge } from '../../components/ui'
+import { sourceHref, sourceLabel } from './chips'
+import {
+  extraUnitNote,
+  formatDirection,
+  formatHistoryPosition,
+  formatLastMove,
+  formatReadingDate,
+  formatReadingParts,
+} from './OverviewFormat'
 import type { Reading } from './types'
-
-const DIRECTION_LABELS = { up: '上升', down: '下降', flat: '持平' } as const
-
-function formatValue(value: number): string {
-  const abs = Math.abs(value)
-  return new Intl.NumberFormat('zh-CN', {
-    maximumFractionDigits: abs > 0 && abs < 1 ? 4 : 2,
-  }).format(value)
-}
 
 export default function ReadingCell({ reading, loading = false }: {
   reading: Reading | null | undefined
   loading?: boolean
 }): JSX.Element {
-  if (loading) return <span className="mm-reading mm-reading--muted" role="status">读数加载中</span>
-  if (!reading) return <span className="mm-reading mm-reading--empty">本站暂无</span>
+  if (loading) return <div className="mm-reading mm-reading--muted" role="status">读数加载中</div>
+  if (!reading) return <div className="mm-reading mm-reading--empty">本站暂无</div>
 
-  const years = reading.percentileYears ?? 10
+  const history = formatHistoryPosition(reading)
+  const direction = formatDirection(reading)
+  const date = formatReadingDate(reading.date, reading.frequency)
+  const href = sourceHref(reading.source)
+  const label = sourceLabel(reading.source)
+  const unitNote = extraUnitNote(reading)
+  const lastMove = formatLastMove(reading)
+  const { digits, unitSuffix } = formatReadingParts(reading)
 
   return (
-    <span className="mm-reading">
+    <div className="mm-reading">
       <span className="mm-reading__label">{reading.label}</span>
-      <span className="mm-reading__value">
-        {formatValue(reading.value)}<span className="mm-reading__unit">{reading.unit}</span>
+      <span className="mm-reading__line">
+        <span className="mm-reading__value">
+          {digits}
+          {unitSuffix ? <span className="mm-reading__unit">{unitSuffix === '%' ? '%' : ` ${unitSuffix}`}</span> : null}
+        </span>
+        <span className="mm-reading__sep" aria-hidden="true">·</span>
+        <time className="mm-reading__date" dateTime={reading.date}>{date}</time>
+        {history.map(part => (
+          <React.Fragment key={part}>
+            <span className="mm-reading__sep" aria-hidden="true">·</span>
+            <span className="mm-reading__hist">{part}</span>
+          </React.Fragment>
+        ))}
+        {direction && (
+          <>
+            <span className="mm-reading__sep" aria-hidden="true">·</span>
+            <span className="mm-reading__dir">{direction}</span>
+          </>
+        )}
       </span>
-      <time className="mm-reading__date" dateTime={reading.date}>{reading.date}</time>
-      {reading.percentile !== undefined && (
-        <span>近 {formatValue(years)} 年分位 {formatValue(reading.percentile)}%</span>
+      {(reading.stale || reading.refreshFailed) && (
+        <span className="mm-reading__flags">
+          {reading.stale && <Badge tone="warm" className="mm-chip mm-chip--stale">已过期</Badge>}
+          {reading.refreshFailed && (
+            <Badge tone="warm" className="mm-chip mm-chip--refresh">上次更新失败</Badge>
+          )}
+        </span>
       )}
-      {reading.direction && <span>近一月{DIRECTION_LABELS[reading.direction]}</span>}
-      {reading.stale && <span className="mm-reading__stale">数据可能过期</span>}
-      {reading.refreshFailed && (
-        <span className="mm-reading__refresh">最近一次更新失败，显示上次读数</span>
-      )}
-      {reading.note && <span className="mm-reading__note">{reading.note}</span>}
-      <span className="mm-reading__source">来源：{reading.source}</span>
-    </span>
+      <details className="mm-reading__details">
+        <summary>口径与来源</summary>
+        <div className="mm-reading__details-body">
+          {reading.note && <span className="mm-reading__note">{reading.note}</span>}
+          {unitNote && <span className="mm-reading__note">{unitNote}</span>}
+          {lastMove && <span className="mm-reading__note">{lastMove}</span>}
+          <span className="mm-reading__source">
+            来源：
+            {href ? (
+              <a href={href} target="_blank" rel="noopener noreferrer">{label}</a>
+            ) : (
+              label
+            )}
+          </span>
+        </div>
+      </details>
+    </div>
   )
 }

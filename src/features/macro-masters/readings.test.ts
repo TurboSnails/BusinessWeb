@@ -8,6 +8,7 @@ import {
   continuousDailySegment,
   directionOf,
   loadReadings,
+  policyRateMoves,
   sanitizePoints,
   weeklyLastObservations,
 } from './readings'
@@ -61,6 +62,12 @@ function fixtureFiles(overrides: Record<string, unknown> = {}): Record<string, u
           frequency: '月频',
           scope: '最新月为当月估算',
         }),
+        iorb: series([
+          ['2026-09-10', 4.15], ['2026-09-11', 4.15], ['2026-09-12', 4.15],
+          ['2026-09-13', 3.65], ['2026-09-14', 3.65], ['2026-09-15', 3.65], ['2026-09-16', 3.65],
+          ['2026-09-17', 3.9], ['2026-09-18', 3.9], ['2026-09-19', 3.9],
+          ['2026-11-20', 3.9],
+        ], { unit: '%', frequency: '日频', name: '准备金余额利率' }),
       },
     },
     'us-market-breadth.json': {
@@ -79,7 +86,15 @@ function fixtureFiles(overrides: Record<string, unknown> = {}): Record<string, u
       },
     },
     'us-market-slices.json': {
-      slices: [{ id: 'spx', history: dailySpx() }],
+      slices: [
+        { id: 'spx', history: dailySpx() },
+        { id: 'rsp', history: dailySpxScaled(1.01) },
+        { id: 'small', history: dailySpxScaled(0.98) },
+        { id: 'growth', history: dailySpxScaled(1.02) },
+        { id: 'value', history: dailySpxScaled(0.99) },
+        { id: 'sector-xly', history: dailySpxScaled(1.03) },
+        { id: 'sector-xlp', history: dailySpxScaled(0.97) },
+      ],
     },
     'macro-us.json': {
       generatedAt: '2026-11-20',
@@ -91,6 +106,11 @@ function fixtureFiles(overrides: Record<string, unknown> = {}): Record<string, u
         hy: { unit: 'bp', latest: { date: '2026-11-19', value: 352 }, history: [['2026-10-20', 340], ['2026-11-19', 352]] },
         tenYear: { unit: '%', latest: { date: '2026-11-19', value: 5.04 }, history: [['2026-10-20', 4.9], ['2026-11-19', 5.04]] },
         vix: { unit: '', latest: { date: '2026-11-19', value: 28 }, history: [['2026-10-20', 18], ['2026-11-19', 28]] },
+        unrate: { unit: '%', latest: { date: '2026-10-01', value: 4.1 }, history: [['2026-09-01', 4.0], ['2026-10-01', 4.1]] },
+        sahm: { unit: 'pp', latest: { date: '2026-10-01', value: 0.1 }, history: [['2026-09-01', 0.05], ['2026-10-01', 0.1]] },
+        debtService: { unit: '%', latest: { date: '2026-04-01', value: 11.1 }, history: [['2026-01-01', 11.0], ['2026-04-01', 11.1]], note: '家庭债务偿付额占可支配收入比例' },
+        buffett: { unit: '%', latest: { date: '2026-04-01', value: 255 }, history: [['2026-01-01', 250], ['2026-04-01', 255]], long: longQuarterly('buffett', 1947, 40), note: '非金融企业股票市值 ÷ 名义 GDP' },
+        putCall: { unit: '', latest: { date: '2026-11-20', value: 1.13 }, history: [['2026-10-31', 1.0], ['2026-11-20', 1.13]], long: decadeMonthly('pc', 0.8, 1.2), note: 'Cboe 全产品期权成交量 Put÷Call；最新值为每日读数' },
       },
     },
     'us-equity-bond-spread.json': {
@@ -146,6 +166,35 @@ function dailySpx(opts?: { mixWeekly?: boolean }): [string, number][] {
   return [...weekly, ...daily]
 }
 
+function dailySpxScaled(factor: number): [string, number][] {
+  return dailySpx().map(([d, v]) => [d, Math.round(v * factor * 100) / 100])
+}
+
+/** 季频长历史（约从 startYear 起每年 4 点）。 */
+function longQuarterly(seed: string, startYear: number, value: number): [string, number][] {
+  const out: [string, number][] = []
+  for (let y = startYear; y <= 2025; y += 1) {
+    for (const m of [1, 4, 7, 10]) {
+      out.push([`${y}-${String(m).padStart(2, '0')}-01`, value + (y - startYear) * 0.1 + (seed.length % 3) * 0.01])
+    }
+  }
+  return out
+}
+
+/** 月频长历史（满足 ≥30 年）。 */
+function longMonthly(seed: string, startYear: number, start = 1, end = 2): [string, number][] {
+  const out: [string, number][] = []
+  const months = (2026 - startYear) * 12
+  for (let y = startYear; y <= 2025; y += 1) {
+    for (let m = 1; m <= 12; m += 1) {
+      const t = (y - startYear) * 12 + m
+      const v = start + ((end - start) * t) / months + (seed.length % 3) * 0.01
+      out.push([`${y}-${String(m).padStart(2, '0')}-01`, Math.round(v * 100) / 100])
+    }
+  }
+  return out
+}
+
 const DAY = 86_400_000
 
 function mockFetch(files: Record<string, unknown>) {
@@ -162,13 +211,22 @@ afterEach(() => {
 })
 
 describe('READING_LABELS / themes', () => {
-  it('覆盖全部 ReadingKey，含 realYield10', () => {
+  it('覆盖全部 ReadingKey，主题分组与定案一致', () => {
     const keys = Object.keys(READING_LABELS) as ReadingKey[]
-    expect(keys.length).toBe(26)
+    expect(keys.length).toBe(37)
     expect(READING_LABELS.realYield10).toBe('10 年期 TIPS 实际收益率')
+    expect(READING_LABELS.buffett).toBe('非金融企业股票市值 ÷ GDP')
+    expect(READING_LABELS.policyRate).toBe('准备金余额利率')
     const themed = new Set(READING_THEMES.flatMap(t => t.keys))
     expect(themed.size).toBe(keys.length)
-    expect(READING_THEMES.find(t => t.id === 'rates')?.keys).toContain('realYield10')
+    expect(READING_THEMES.map(t => t.id)).toEqual([
+      'policy', 'liquidity', 'credit', 'trend', 'breadth', 'fundamentals', 'valuation', 'sentiment', 'commodities',
+    ])
+    expect(READING_THEMES.find(t => t.id === 'policy')?.keys).toEqual([
+      'policyRate', 'realRate', 'realYield10', 'tenYear', 'curve10y2y',
+    ])
+    expect(READING_THEMES.find(t => t.id === 'liquidity')?.keys).toContain('nfci')
+    expect(READING_THEMES.find(t => t.id === 'trend')?.keys).toEqual(['spxVs200dma', 'spxDrawdown'])
   })
 })
 
@@ -325,6 +383,29 @@ describe('loadReadings', () => {
     expect(readings.managerCash?.value).toBe(3.6)
     expect(readings.copper).toBeNull()
     expect(readings.copperGold).toBeNull()
+    expect(readings.policyRate).toMatchObject({
+      value: 3.9,
+      unit: '%',
+      frequency: 'daily',
+      lastMove: { date: '2026-09-17', from: 3.65, to: 3.9 },
+      moveRun: { direction: 'up', count: 1, total: 0.25, startLevel: 3.65, since: '2026-09-17' },
+    })
+    expect(readings.policyRate?.note).toMatch(/准备金余额利率通常比联邦基金目标区间上限低 0\.1/)
+    expect(readings.policyRate?.percentile).toBeUndefined()
+    expect(readings.spxDrawdown).toMatchObject({ unit: '%', frequency: 'daily' })
+    expect(readings.spxDrawdown!.value).toBeLessThanOrEqual(0)
+    expect(readings.spxDrawdown?.note).toMatch(/近 52 周最高收盘/)
+    expect(readings.equalWeightRel?.frequency).toBe('daily')
+    expect(Number.isFinite(readings.equalWeightRel?.value)).toBe(true)
+    expect(readings.unrate).toMatchObject({ value: 4.1, frequency: 'monthly' })
+    expect(readings.sahm).toMatchObject({ value: 0.1, frequency: 'monthly' })
+    expect(readings.debtService).toMatchObject({ value: 11.1, frequency: 'quarterly' })
+    expect(readings.buffett).toMatchObject({ value: 255, frequency: 'quarterly', label: '非金融企业股票市值 ÷ GDP' })
+    expect(readings.putCall).toMatchObject({ value: 1.13, frequency: 'monthly' })
+    expect(readings.putCall?.note).toMatch(/Put÷Call/)
+    expect(readings.vix?.prior).toEqual({ date: '2026-10-20', value: 18 })
+    expect(readings.vix?.frequency).toBe('daily')
+    expect(readings.baaAaa?.frequency).toBe('weekly')
   })
 
   it('混频切片下 200 日线窗口不足 250 时不分位', async () => {
@@ -685,8 +766,8 @@ describe('loadReadings', () => {
     expect(failedSources ?? []).not.toContain('美股宽度')
   })
 
-  // 读取仓库实时数据：数据每天更新，只断言结构与核心读数存在，不写死数量与日期
-  it('仓库 public/data 快照：全部来源可读、核心读数非空', async () => {
+  // 读取仓库实时数据：只断言结构与关系，不写死数量、日期、lastMove、failedSources
+  it('仓库 public/data 快照：结构与关系', async () => {
     const root = resolve(process.cwd(), 'public/data')
     const files: Record<string, unknown> = {
       'us-market-data.json': JSON.parse(readFileSync(resolve(root, 'us-market-data.json'), 'utf8')),
@@ -695,14 +776,23 @@ describe('loadReadings', () => {
       'macro-us.json': JSON.parse(readFileSync(resolve(root, 'macro-us.json'), 'utf8')),
       'us-equity-bond-spread.json': JSON.parse(readFileSync(resolve(root, 'us-equity-bond-spread.json'), 'utf8')),
     }
-    const { readings, asOf, failedSources } = await loadReadings(mockFetch(files))
-    expect(countNonNull(readings)).toBeGreaterThanOrEqual(22)
+    const { readings, asOf } = await loadReadings(mockFetch(files))
+    expect(countNonNull(readings)).toBeGreaterThan(0)
     expect(asOf).toMatch(/^\d{4}-\d{2}-\d{2}$/)
-    expect(asOf >= '2026-11-20').toBe(true)
-    for (const key of ['fedAssets', 'netLiquidity', 'tenYear', 'hySpread', 'vix', 'spxAbove200', 'cape'] as const) {
-      expect(readings[key], key).toBeTruthy()
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date())
+    expect(asOf <= today).toBe(true)
+    // 政策利率含周末日历日，不得把快照拖到仅它有的日期
+    if (readings.policyRate?.date && readings.policyRate.date !== asOf) {
+      expect(asOf < readings.policyRate.date || asOf === readings.policyRate.date).toBe(true)
     }
-    expect(failedSources).toBeUndefined()
+    for (const r of Object.values(readings)) {
+      if (!r) continue
+      expect(r.frequency, r.key).toBeTruthy()
+      if (r.longPercentile !== undefined) {
+        expect(r.longPercentile).toBeGreaterThanOrEqual(0)
+        expect(r.longPercentile).toBeLessThanOrEqual(100)
+      }
+    }
   })
 
   it('第三轮·展示字段损坏：单位为对象时回落为字符串，不让页面渲染失败', async () => {
@@ -767,3 +857,443 @@ describe('loadReadings', () => {
     expect(failedSources ?? []).not.toContain('美股股债息差')
   })
 })
+
+describe('原生频率分位门槛', () => {
+  it('日频：周采样后刚好够 / 不够', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
+    const enough = decadeWeekly('vix', 10, 40)
+    const sparse: [string, number][] = [
+      ['2018-01-03', 12],
+      ['2020-01-03', 20],
+      ['2022-01-03', 25],
+      ['2024-01-03', 18],
+      ['2026-11-18', 30],
+    ]
+    const okFiles = fixtureFiles({
+      'us-market-data.json': {
+        series: {
+          ...((fixtureFiles()['us-market-data.json'] as { series: Record<string, unknown> }).series),
+          vixDaily: series([...enough, ['2026-11-20', 35]], { unit: '点', frequency: '日频' }),
+        },
+      },
+    })
+    const badFiles = fixtureFiles({
+      'us-market-data.json': {
+        series: {
+          ...((fixtureFiles()['us-market-data.json'] as { series: Record<string, unknown> }).series),
+          vixDaily: series(sparse, { unit: '点', frequency: '日频' }),
+        },
+      },
+      'macro-us.json': {
+        generatedAt: '2026-11-20',
+        source: 'test',
+        series: {
+          ...((fixtureFiles()['macro-us.json'] as { series: Record<string, unknown> }).series),
+          vix: { unit: '', latest: { date: '2026-11-10', value: 19 }, history: [['2026-11-10', 19]] },
+        },
+      },
+    })
+    expect((await loadReadings(mockFetch(okFiles))).readings.vix?.percentile).toBeTypeOf('number')
+    expect((await loadReadings(mockFetch(badFiles))).readings.vix?.percentile).toBeUndefined()
+  })
+
+  it('周频：原始观测刚好够 / 不够', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
+    const enough = decadeWeekly('baa', 0.5, 1.5)
+    const short: [string, number][] = []
+    for (let y = 2023; y <= 2026; y += 1) {
+      for (let m = 1; m <= 12; m += 1) {
+        if (y === 2026 && m > 10) break
+        short.push([`${y}-${String(m).padStart(2, '0')}-01`, m / 10])
+      }
+    }
+    const ok = await loadReadings(mockFetch(fixtureFiles({
+      'us-market-data.json': {
+        series: {
+          ...((fixtureFiles()['us-market-data.json'] as { series: Record<string, unknown> }).series),
+          baaAaa: series([...enough, ['2026-10-01', 0.47]], { unit: '个百分点', frequency: '周频' }),
+        },
+      },
+    })))
+    const bad = await loadReadings(mockFetch(fixtureFiles({
+      'us-market-data.json': {
+        series: {
+          ...((fixtureFiles()['us-market-data.json'] as { series: Record<string, unknown> }).series),
+          baaAaa: series(short, { unit: '个百分点', frequency: '周频' }),
+        },
+      },
+    })))
+    expect(ok.readings.baaAaa?.percentile).toBeTypeOf('number')
+    expect(ok.readings.baaAaa?.frequency).toBe('weekly')
+    expect(bad.readings.baaAaa?.percentile).toBeUndefined()
+  })
+
+  it('月频：≥60 点且覆盖 ≥60% 月数才给分位；稀疏不够', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
+    const enough = decadeMonthly('debt', 5, 25)
+    const sparse: [string, number][] = []
+    for (let y = 2016; y <= 2026; y += 1) {
+      sparse.push([`${y}-01-01`, y - 2010])
+      if (y === 2026) sparse.push(['2026-10-01', 22])
+    }
+    const ok = await loadReadings(mockFetch(fixtureFiles({
+      'us-market-data.json': {
+        series: {
+          ...((fixtureFiles()['us-market-data.json'] as { series: Record<string, unknown> }).series),
+          finraDebtYoy: series([...enough, ['2026-10-31', 22]], { unit: '%', frequency: '月频' }),
+        },
+      },
+    })))
+    const bad = await loadReadings(mockFetch(fixtureFiles({
+      'us-market-data.json': {
+        series: {
+          ...((fixtureFiles()['us-market-data.json'] as { series: Record<string, unknown> }).series),
+          finraDebtYoy: series(sparse, { unit: '%', frequency: '月频' }),
+        },
+      },
+    })))
+    expect(ok.readings.marginDebtYoy?.percentile).toBeTypeOf('number')
+    expect(ok.readings.marginDebtYoy?.frequency).toBe('monthly')
+    expect(bad.readings.marginDebtYoy?.percentile).toBeUndefined()
+  })
+
+  it('季频：≥20 点 / 5 年 / 60% 季覆盖；不够则不分位', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
+    const enough: [string, number][] = []
+    for (let y = 2016; y <= 2026; y += 1) {
+      for (const m of [1, 4, 7, 10]) {
+        if (y === 2026 && m > 4) break
+        enough.push([`${y}-${String(m).padStart(2, '0')}-01`, 10 + (y - 2016) * 0.1])
+      }
+    }
+    const sparse: [string, number][] = [
+      ['2020-01-01', 10], ['2021-01-01', 10.5], ['2022-01-01', 11], ['2023-01-01', 11.2],
+      ['2024-01-01', 11.4], ['2025-01-01', 11.5], ['2026-04-01', 11.1],
+    ]
+    const ok = await loadReadings(mockFetch(fixtureFiles({
+      'macro-us.json': {
+        generatedAt: '2026-11-20',
+        source: 'test',
+        series: {
+          ...((fixtureFiles()['macro-us.json'] as { series: Record<string, unknown> }).series),
+          debtService: {
+            unit: '%',
+            latest: { date: '2026-04-01', value: 11.1 },
+            history: enough,
+            note: '家庭债务偿付额占可支配收入比例',
+          },
+        },
+      },
+    })))
+    const bad = await loadReadings(mockFetch(fixtureFiles({
+      'macro-us.json': {
+        generatedAt: '2026-11-20',
+        source: 'test',
+        series: {
+          ...((fixtureFiles()['macro-us.json'] as { series: Record<string, unknown> }).series),
+          debtService: {
+            unit: '%',
+            latest: { date: '2026-04-01', value: 11.1 },
+            history: sparse,
+          },
+        },
+      },
+    })))
+    expect(ok.readings.debtService?.percentile).toBeTypeOf('number')
+    expect(ok.readings.debtService?.frequency).toBe('quarterly')
+    expect(bad.readings.debtService?.percentile).toBeUndefined()
+  })
+})
+
+describe('长历史分位 / prior / 过期边界', () => {
+  it('全样本跨度 ≥30 年才给 longPercentile，并写起始年', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
+    const longCape: [string, number][] = [...longMonthly('cape', 1900, 10, 40), ['2026-11-01', 36.4]]
+    const shortCape = decadeMonthly('cape', 20, 36)
+    const ok = await loadReadings(mockFetch(fixtureFiles({
+      'us-market-data.json': {
+        series: {
+          ...((fixtureFiles()['us-market-data.json'] as { series: Record<string, unknown> }).series),
+          shillerCape: series(longCape, { unit: '倍', frequency: '月频', scope: '最新月为当月估算' }),
+        },
+      },
+    })))
+    const bad = await loadReadings(mockFetch(fixtureFiles({
+      'us-market-data.json': {
+        series: {
+          ...((fixtureFiles()['us-market-data.json'] as { series: Record<string, unknown> }).series),
+          shillerCape: series([...shortCape, ['2026-11-01', 36.4]], { unit: '倍', frequency: '月频' }),
+        },
+      },
+    })))
+    expect(ok.readings.cape?.longPercentile).toBeTypeOf('number')
+    expect(ok.readings.cape?.longPercentileSince).toBe(1900)
+    expect(bad.readings.cape?.longPercentile).toBeUndefined()
+  })
+
+  it('prior 写入方向比较点；季频用上一观测（≤130 天）', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
+    const { readings } = await loadReadings(mockFetch(fixtureFiles()))
+    expect(readings.fearGreed?.prior).toEqual({ date: '2026-10-20', value: 40 })
+    expect(readings.fearGreed?.direction).toBe('down')
+    expect(readings.debtService?.prior).toEqual({ date: '2026-01-01', value: 11.0 })
+    expect(readings.debtService?.direction).toBe('up')
+  })
+
+  it('月频超过 95 天、季频超过 270 天才标过期', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
+    const monthlyOk = await loadReadings(mockFetch(fixtureFiles({
+      'us-market-data.json': {
+        series: {
+          ...((fixtureFiles()['us-market-data.json'] as { series: Record<string, unknown> }).series),
+          managerCash: series([['2026-08-18', 3.6]], { unit: '%', frequency: '月频' }),
+        },
+      },
+    })))
+    const monthlyStale = await loadReadings(mockFetch(fixtureFiles({
+      'us-market-data.json': {
+        series: {
+          ...((fixtureFiles()['us-market-data.json'] as { series: Record<string, unknown> }).series),
+          managerCash: series([['2026-08-17', 3.6]], { unit: '%', frequency: '月频' }),
+        },
+      },
+    })))
+    // 2026-08-18 → 11-21 = 95 天，边界不标过期；08-17 = 96 天过期
+    expect(monthlyOk.readings.managerCash?.stale).toBeUndefined()
+    expect(monthlyStale.readings.managerCash?.stale).toBe(true)
+
+    const qOk = await loadReadings(mockFetch(fixtureFiles({
+      'macro-us.json': {
+        generatedAt: '2026-11-20',
+        source: 'test',
+        series: {
+          ...((fixtureFiles()['macro-us.json'] as { series: Record<string, unknown> }).series),
+          debtService: {
+            unit: '%',
+            latest: { date: '2026-02-24', value: 11.1 },
+            history: [['2025-11-01', 11.0], ['2026-02-24', 11.1]],
+          },
+        },
+      },
+    })))
+    const qStale = await loadReadings(mockFetch(fixtureFiles({
+      'macro-us.json': {
+        generatedAt: '2026-11-20',
+        source: 'test',
+        series: {
+          ...((fixtureFiles()['macro-us.json'] as { series: Record<string, unknown> }).series),
+          debtService: {
+            unit: '%',
+            latest: { date: '2026-02-23', value: 11.1 },
+            history: [['2025-11-01', 11.0], ['2026-02-23', 11.1]],
+          },
+        },
+      },
+    })))
+    // 02-24 → 11-21 = 270 天；02-23 = 271 天
+    expect(qOk.readings.debtService?.stale).toBeUndefined()
+    expect(qStale.readings.debtService?.stale).toBe(true)
+  })
+})
+
+describe('policyRate / 回撤 / 相对表现', () => {
+  const hold = (date: string, value: number, n = 3): [string, number][] => {
+    const out: [string, number][] = []
+    const start = Date.parse(`${date}T12:00:00Z`)
+    for (let i = 0; i < n; i += 1) {
+      out.push([new Date(start + i * DAY).toISOString().slice(0, 10), value])
+    }
+    return out
+  }
+
+  it('policyRateMoves：连续加息、先降后升、从未变化、单日抖动、末尾未确认', () => {
+    const hike = policyRateMoves([
+      ...hold('2024-01-01', 5.15, 5),
+      ...hold('2024-09-18', 5.4, 3),
+      ...hold('2024-11-07', 5.65, 3),
+    ])
+    expect(hike.lastMove).toEqual({ date: '2024-11-07', from: 5.4, to: 5.65 })
+    expect(hike.moveRun).toEqual({
+      direction: 'up', count: 2, total: 0.5, startLevel: 5.15, since: '2024-09-18',
+    })
+    expect(hike.pendingUnconfirmed).toBeUndefined()
+
+    const cutThenUp = policyRateMoves([
+      ...hold('2025-01-01', 4.4, 3),
+      ...hold('2025-09-17', 4.15, 3),
+      ...hold('2026-09-17', 4.4, 3),
+    ])
+    expect(cutThenUp.lastMove).toEqual({ date: '2026-09-17', from: 4.15, to: 4.4 })
+    expect(cutThenUp.moveRun).toEqual({
+      direction: 'up', count: 1, total: 0.25, startLevel: 4.15, since: '2026-09-17',
+    })
+
+    expect(policyRateMoves([
+      ...hold('2026-01-01', 3.9, 5),
+    ])).toEqual({})
+
+    // 一天向上抖动后回到原值 → 不算调息
+    const spikeUp = policyRateMoves([
+      ...hold('2026-11-01', 3.9, 5),
+      ['2026-11-06', 4.9],
+      ...hold('2026-11-07', 3.9, 5),
+    ])
+    expect(spikeUp.lastMove).toBeUndefined()
+    expect(spikeUp.pendingUnconfirmed).toBeUndefined()
+
+    // 一天向下抖动后回到原值 → 不算调息
+    const spikeDown = policyRateMoves([
+      ...hold('2026-11-01', 3.9, 5),
+      ['2026-11-06', 2.9],
+      ...hold('2026-11-07', 3.9, 5),
+    ])
+    expect(spikeDown.lastMove).toBeUndefined()
+
+    // 末尾单点错值：已有确认调息保留，末尾不计入并标 pending
+    const trailing = policyRateMoves([
+      ...hold('2026-09-10', 3.65, 3),
+      ...hold('2026-09-17', 3.9, 10),
+      ['2026-11-21', 4.9],
+    ])
+    expect(trailing.lastMove).toEqual({ date: '2026-09-17', from: 3.65, to: 3.9 })
+    expect(trailing.moveRun).toMatchObject({ direction: 'up', count: 1, total: 0.25, startLevel: 3.65 })
+    expect(trailing.pendingUnconfirmed).toBe(true)
+  })
+
+  it('末尾未确认调息：value 仍为最新，note 提示连续三天', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
+    const files = fixtureFiles({
+      'us-market-data.json': {
+        series: {
+          ...((fixtureFiles()['us-market-data.json'] as { series: Record<string, unknown> }).series),
+          iorb: series([
+            ...hold('2026-09-10', 3.65, 3),
+            ...hold('2026-09-17', 3.9, 5),
+            ['2026-11-20', 4.9],
+          ], { unit: '%', frequency: '日频' }),
+        },
+      },
+    })
+    const { readings } = await loadReadings(mockFetch(files))
+    expect(readings.policyRate?.value).toBe(4.9)
+    expect(readings.policyRate?.lastMove).toEqual({ date: '2026-09-17', from: 3.65, to: 3.9 })
+    expect(readings.policyRate?.note).toMatch(/连续三天保持才计入/)
+  })
+
+  it('asOf 排除 policyRate：周末政策利率不拖快照日期', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-22T20:00:00Z'))
+    const files = fixtureFiles({
+      'us-market-data.json': {
+        series: {
+          ...((fixtureFiles()['us-market-data.json'] as { series: Record<string, unknown> }).series),
+          iorb: series([
+            ...hold('2026-09-17', 3.9, 3),
+            ['2026-11-20', 3.9],
+            ['2026-11-21', 3.9],
+            ['2026-11-22', 3.9],
+          ], { unit: '%', frequency: '日频' }),
+          vixDaily: series([['2026-11-20', 30]], { unit: '点', frequency: '日频' }),
+        },
+      },
+    })
+    const { readings, asOf } = await loadReadings(mockFetch(files))
+    expect(readings.policyRate?.date).toBe('2026-11-22')
+    expect(asOf).not.toBe('2026-11-22')
+    expect(asOf <= '2026-11-20').toBe(true)
+  })
+
+  it('周频过期门槛 14 天：第 14 天不过期，第 15 天过期', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
+    const ok = await loadReadings(mockFetch(fixtureFiles({
+      'macro-us.json': {
+        generatedAt: '2026-11-20',
+        source: 'test',
+        series: {
+          ...((fixtureFiles()['macro-us.json'] as { series: Record<string, unknown> }).series),
+          nfci: { unit: '', latest: { date: '2026-11-07', value: -0.4 }, history: [['2026-11-07', -0.4]] },
+        },
+      },
+    })))
+    const stale = await loadReadings(mockFetch(fixtureFiles({
+      'macro-us.json': {
+        generatedAt: '2026-11-20',
+        source: 'test',
+        series: {
+          ...((fixtureFiles()['macro-us.json'] as { series: Record<string, unknown> }).series),
+          nfci: { unit: '', latest: { date: '2026-11-06', value: -0.4 }, history: [['2026-11-06', -0.4]] },
+        },
+      },
+    })))
+    // 11-07 → 11-21 = 14 天；11-06 = 15 天
+    expect(ok.readings.nfci?.stale).toBeUndefined()
+    expect(stale.readings.nfci?.stale).toBe(true)
+  })
+
+  it('回撤：不足 252 交易日 null；够则 ≤0 且 note 含高点', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
+    const short = dailySpx().slice(-100)
+    const bad = await loadReadings(mockFetch(fixtureFiles({
+      'us-market-slices.json': { slices: [{ id: 'spx', history: short }] },
+    })))
+    expect(bad.readings.spxDrawdown).toBeNull()
+
+    const ok = await loadReadings(mockFetch(fixtureFiles()))
+    expect(ok.readings.spxDrawdown).not.toBeNull()
+    expect(ok.readings.spxDrawdown!.value).toBeLessThanOrEqual(0)
+    expect(ok.readings.spxDrawdown?.percentile).toBeUndefined()
+    expect(ok.readings.spxDrawdown?.note).toMatch(/\d{4}-\d{2}-\d{2}/)
+    expect(ok.readings.spxDrawdown?.prior).toBeTruthy()
+  })
+
+  it('四个相对表现：共同交易日不足 64 返回 null', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
+    const shortA = dailySpx().slice(-40)
+    const shortB = dailySpxScaled(1.01).slice(-40)
+    const { readings } = await loadReadings(mockFetch(fixtureFiles({
+      'us-market-slices.json': {
+        slices: [
+          { id: 'spx', history: shortB },
+          { id: 'rsp', history: shortA },
+          { id: 'small', history: shortA },
+          { id: 'growth', history: shortA },
+          { id: 'value', history: shortB },
+          { id: 'sector-xly', history: shortA },
+          { id: 'sector-xlp', history: shortB },
+        ],
+      },
+    })))
+    expect(readings.equalWeightRel).toBeNull()
+    expect(readings.cyclicalDefensive).toBeNull()
+    expect(readings.smallCapRel).toBeNull()
+    expect(readings.growthValueRel).toBeNull()
+    // spx 也短，200dma / drawdown 同样 null
+    expect(readings.spxVs200dma).toBeNull()
+  })
+
+  it('五个宏观新键按频率产出', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
+    const { readings } = await loadReadings(mockFetch(fixtureFiles()))
+    expect(readings.unrate).toMatchObject({ key: 'unrate', value: 4.1, frequency: 'monthly' })
+    expect(readings.sahm).toMatchObject({ key: 'sahm', value: 0.1, frequency: 'monthly' })
+    expect(readings.debtService).toMatchObject({ key: 'debtService', frequency: 'quarterly' })
+    expect(readings.buffett?.label).toBe('非金融企业股票市值 ÷ GDP')
+    expect(readings.buffett?.longPercentile).toBeTypeOf('number')
+    expect(readings.buffett?.longPercentileSince).toBe(1947)
+    expect(readings.putCall?.frequency).toBe('monthly')
+    expect(readings.putCall?.note).toMatch(/最新值为每日读数/)
+  })
+})
+

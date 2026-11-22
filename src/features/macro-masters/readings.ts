@@ -48,6 +48,17 @@ export const READING_LABELS: Record<ReadingKey, string> = {
   managerCash: '基金经理现金比例',
   copperGold: '铜金比',
   copper: 'COMEX 铜价',
+  policyRate: '准备金余额利率',
+  spxDrawdown: '标普 500 距近 52 周高点回撤',
+  equalWeightRel: '等权相对市值加权（近 3 个月）',
+  cyclicalDefensive: '可选消费相对必需消费（近 3 个月）',
+  smallCapRel: '小盘相对标普 500（近 3 个月）',
+  growthValueRel: '成长相对价值（近 3 个月）',
+  unrate: '失业率',
+  sahm: '萨姆规则实时值',
+  debtService: '家庭偿债比',
+  buffett: '非金融企业股票市值 ÷ GDP',
+  putCall: '期权 Put ÷ Call',
 }
 
 const BASE = (import.meta as { env?: Record<string, string | undefined> }).env?.BASE_URL ?? '/'
@@ -62,8 +73,10 @@ const FILES = {
   rates: 'us-equity-bond-spread.json',
 } as const
 
-type Freq = 'daily' | 'weekly' | 'monthly'
+type Freq = 'daily' | 'weekly' | 'monthly' | 'quarterly'
 type Fetcher = typeof fetch
+const MONTH_MS = (365.25 / 12) * DAY
+const QUARTER_MS = (365.25 / 4) * DAY
 
 type PublicFile = { series?: Record<string, UsReading>; generatedAt?: string }
 type BreadthFile = { breadth?: Record<string, Breadth>; generatedAt?: string }
@@ -106,7 +119,8 @@ async function loadSource<T>(file: string, label: string, fetcher: Fetcher): Pro
 
 function detectFreq(raw?: string): Freq {
   if (!raw) return 'daily'
-  if (/月|month|季|quarter/i.test(raw)) return 'monthly'
+  if (/季|quarter/i.test(raw)) return 'quarterly'
+  if (/月|month/i.test(raw)) return 'monthly'
   if (/周|week/i.test(raw)) return 'weekly'
   return 'daily'
 }
@@ -122,8 +136,9 @@ function isStale(date: string, freq: Freq, asOf: string, now = new Date()): bool
     if (sessions.length < 4) return calendarAge(date, asOf) > 5
     return date < sessions.at(-4)!
   }
-  if (freq === 'weekly') return calendarAge(date, asOf) > 10
-  return calendarAge(date, asOf) > 45
+  if (freq === 'weekly') return calendarAge(date, asOf) > 14
+  if (freq === 'monthly') return calendarAge(date, asOf) > 95
+  return calendarAge(date, asOf) > 270
 }
 
 /** YYYY-MM-DD 且日历合法（拒 `2026-10-xx`、`2026-02-30`）。 */
@@ -185,19 +200,59 @@ export function weeklyLastObservations(history: readonly Point[]): Point[] {
   return [...byWeek.values()].sort((a, b) => a[0].localeCompare(b[0]))
 }
 
-function decadePercentile(history: readonly Point[], value: number): { percentile: number; percentileYears: number } | undefined {
-  const weekly = weeklyLastObservations(history)
-  const window = withinYears(weekly, 10)
-  // 周采样后至少 52 点，且覆盖所跨周数的 60% 以上
-  if (window.length < 52) return undefined
+/** 按原生频率取分位用的观测：日频周采样，其余用原始点。 */
+function nativeSample(history: readonly Point[], freq: Freq): Point[] {
+  return freq === 'daily' ? weeklyLastObservations(history) : [...history]
+}
+
+function decadePercentile(
+  history: readonly Point[],
+  value: number,
+  freq: Freq,
+): { percentile: number; percentileYears: number } | undefined {
+  const sampled = nativeSample(history, freq)
+  const window = withinYears(sampled, 10)
   const years = spanYears(window)
   if (years < 5) return undefined
   const spanMs = Date.parse(window.at(-1)![0]) - Date.parse(window[0][0])
-  const spannedWeeks = spanMs / (7 * DAY)
-  if (!(spannedWeeks > 0) || window.length / spannedWeeks < 0.6) return undefined
+  if (!(spanMs > 0)) return undefined
+
+  if (freq === 'monthly') {
+    if (window.length < 60) return undefined
+    const spannedMonths = spanMs / MONTH_MS
+    if (!(spannedMonths > 0) || window.length / spannedMonths < 0.6) return undefined
+  } else if (freq === 'quarterly') {
+    if (window.length < 20) return undefined
+    const spannedQuarters = spanMs / QUARTER_MS
+    if (!(spannedQuarters > 0) || window.length / spannedQuarters < 0.6) return undefined
+  } else {
+    // 日频（周采样后）与周频：至少 52 点，覆盖所跨周数的 60%
+    if (window.length < 52) return undefined
+    const spannedWeeks = spanMs / (7 * DAY)
+    if (!(spannedWeeks > 0) || window.length / spannedWeeks < 0.6) return undefined
+  }
+
   return {
     percentile: percentileOf(window.map(([, v]) => v), value),
     percentileYears: Math.round(Math.min(years, 10) * 10) / 10,
+  }
+}
+
+/** 全样本分位；跨度不足 30 年不给。 */
+function longHistoryPercentile(
+  history: readonly Point[],
+  value: number,
+  freq: Freq,
+): { longPercentile: number; longPercentileSince: number } | undefined {
+  const sampled = nativeSample(history, freq)
+  if (sampled.length < 2) return undefined
+  const years = spanYears(sampled)
+  if (years < 30) return undefined
+  const since = Number.parseInt(sampled[0][0].slice(0, 4), 10)
+  if (!Number.isFinite(since)) return undefined
+  return {
+    longPercentile: percentileOf(sampled.map(([, v]) => v), value),
+    longPercentileSince: since,
   }
 }
 
@@ -222,6 +277,24 @@ function monthAgoPoint(history: readonly Point[], asOfDate: string): Point | und
   return best
 }
 
+/** 季频：取上一观测定方向，距当前观测不超过 130 天。 */
+function priorQuarterPoint(history: readonly Point[], asOfDate: string): Point | undefined {
+  if (history.length < 2) return undefined
+  const last = history.at(-1)!
+  if (last[0] !== asOfDate) return undefined
+  const prev = history.at(-2)!
+  if (!Number.isFinite(prev[1])) return undefined
+  const age = (Date.parse(asOfDate) - Date.parse(prev[0])) / DAY
+  if (!(age > 0) || age > 130) return undefined
+  return prev
+}
+
+function priorForDirection(history: readonly Point[], asOfDate: string, freq: Freq): Point | undefined {
+  return freq === 'quarterly'
+    ? priorQuarterPoint(history, asOfDate)
+    : monthAgoPoint(history, asOfDate)
+}
+
 /** 相对变化：|Δ| / |一月前| < 0.5% 视为持平；一月前为 0 时用绝对差。 */
 export function directionOf(curr: number, prev: number): 'up' | 'down' | 'flat' {
   if (!Number.isFinite(curr) || !Number.isFinite(prev)) return 'flat'
@@ -240,8 +313,8 @@ function preferNewer(a: Reading | null, b: Reading | null): Reading | null {
   return a.date >= b.date ? a : b
 }
 
-function directionNote(priorDate: string): string {
-  return `近一月方向相对 ${priorDate}`
+function directionNote(priorDate: string, freq: Freq): string {
+  return freq === 'quarterly' ? `相对上一观测 ${priorDate}` : `近一月方向相对 ${priorDate}`
 }
 
 function mergeNote(...parts: Array<string | undefined>): string | undefined {
@@ -269,26 +342,33 @@ function fromHistory(
   if (!points.length) return null
   const last = points.at(-1)!
   if (!Number.isFinite(last[1])) return null
-  const prior = monthAgoPoint(points, last[0])
+  const prior = priorForDirection(points, last[0], opts.freq)
   const reading: Reading = {
     key,
     label: opts.label ?? READING_LABELS[key],
     value: last[1],
     unit: opts.unit,
     date: last[0],
+    frequency: opts.freq,
     source: opts.source,
   }
   if (opts.allowPercentile !== false) {
-    const pct = decadePercentile(points, last[1])
+    const pct = decadePercentile(points, last[1], opts.freq)
     if (pct) {
       reading.percentile = pct.percentile
       reading.percentileYears = pct.percentileYears
+    }
+    const long = longHistoryPercentile(points, last[1], opts.freq)
+    if (long) {
+      reading.longPercentile = long.longPercentile
+      reading.longPercentileSince = long.longPercentileSince
     }
   }
   const notes = [opts.note]
   if (prior) {
     reading.direction = directionOf(last[1], prior[1])
-    notes.push(directionNote(prior[0]))
+    reading.prior = { date: prior[0], value: prior[1] }
+    notes.push(directionNote(prior[0], opts.freq))
   }
   const note = mergeNote(...notes)
   if (note) reading.note = note
@@ -469,6 +549,195 @@ function spxVs200dma(history: readonly Point[], asOf: string, now?: Date): Readi
     now,
     allowPercentile,
   })
+}
+
+const POLICY_HOLD = 3
+const POLICY_PENDING_NOTE = '最近一次变动要连续三天保持才计入'
+
+/** 政策利率：新水平连续 ≥3 个观测才算调息；短偏离当噪声；末尾未确认不计入。 */
+export function policyRateMoves(history: readonly Point[]): {
+  lastMove?: { date: string; from: number; to: number }
+  moveRun?: { direction: 'up' | 'down'; count: number; total: number; startLevel: number; since: string }
+  pendingUnconfirmed?: boolean
+} {
+  const runs: Array<{ value: number; startDate: string; count: number }> = []
+  for (const [date, value] of history) {
+    if (!Number.isFinite(value)) continue
+    const last = runs.at(-1)
+    if (last && last.value === value) last.count += 1
+    else runs.push({ value, startDate: date, count: 1 })
+  }
+  if (!runs.length) return {}
+
+  const confirmed: Array<{ value: number; since: string }> = []
+  let pendingUnconfirmed = false
+  for (let i = 0; i < runs.length; i += 1) {
+    const run = runs[i]
+    if (run.count >= POLICY_HOLD) {
+      const prev = confirmed.at(-1)
+      if (!prev || prev.value !== run.value) confirmed.push({ value: run.value, since: run.startDate })
+      continue
+    }
+    // 短平台：末尾且相对已确认水平是新值 → 待确认；中间短偏离当作噪声跳过
+    if (i === runs.length - 1) {
+      const prev = confirmed.at(-1)
+      if (prev && prev.value !== run.value) pendingUnconfirmed = true
+    }
+  }
+
+  if (confirmed.length < 2) {
+    return pendingUnconfirmed ? { pendingUnconfirmed } : {}
+  }
+
+  const changes: Array<{ date: string; from: number; to: number; delta: number }> = []
+  for (let i = 1; i < confirmed.length; i += 1) {
+    const from = confirmed[i - 1].value
+    const to = confirmed[i].value
+    changes.push({
+      date: confirmed[i].since,
+      from,
+      to,
+      delta: to - from,
+    })
+  }
+  const last = changes.at(-1)!
+  const direction: 'up' | 'down' = last.delta > 0 ? 'up' : 'down'
+  let count = 0
+  let total = 0
+  let startLevel = last.from
+  let since = last.date
+  for (let i = changes.length - 1; i >= 0; i -= 1) {
+    const change = changes[i]
+    const dir: 'up' | 'down' | null = change.delta > 0 ? 'up' : change.delta < 0 ? 'down' : null
+    if (dir !== direction) break
+    count += 1
+    total += change.delta
+    startLevel = change.from
+    since = change.date
+  }
+  return {
+    lastMove: { date: last.date, from: last.from, to: last.to },
+    moveRun: {
+      direction,
+      count,
+      total: Math.round(total * 1e6) / 1e6,
+      startLevel,
+      since,
+    },
+    ...(pendingUnconfirmed ? { pendingUnconfirmed } : {}),
+  }
+}
+
+function policyRateReading(
+  series: UsReading | undefined,
+  asOf: string,
+  now?: Date,
+): Reading | null {
+  const { points, malformed } = asPointList(series?.history)
+  if (malformed || !points.length) return null
+  const clean = sanitizePoints(points, asOf)
+  const moves = policyRateMoves(clean)
+  const baseNote = '准备金余额利率通常比联邦基金目标区间上限低 0.1 个百分点'
+  const reading = fromHistory('policyRate', clean, {
+    unit: series?.unit || '%',
+    source: series?.source || series?.name || READING_LABELS.policyRate,
+    freq: 'daily',
+    asOf,
+    now,
+    note: moves.pendingUnconfirmed ? mergeNote(baseNote, POLICY_PENDING_NOTE) : baseNote,
+    refreshFailed: Boolean(series?.refreshError),
+    allowPercentile: false,
+  })
+  if (!reading) return null
+  if (moves.lastMove) reading.lastMove = moves.lastMove
+  if (moves.moveRun) reading.moveRun = moves.moveRun
+  return reading
+}
+
+/** 标普 500 距近 252 个交易日最高收盘的回撤（%）。 */
+function spxDrawdownReading(history: readonly Point[] | undefined, asOf: string, now?: Date): Reading | null {
+  if (!history?.length) return null
+  const daily = continuousDailySegment(sanitizePoints(history, asOf))
+  if (daily.length < 252) return null
+  const series: Point[] = []
+  let lastHigh = daily[251][1]
+  let lastHighDate = daily[251][0]
+  for (let i = 251; i < daily.length; i += 1) {
+    let peak = -Infinity
+    let peakDate = daily[i - 251][0]
+    for (let j = i - 251; j <= i; j += 1) {
+      if (daily[j][1] >= peak) {
+        peak = daily[j][1]
+        peakDate = daily[j][0]
+      }
+    }
+    if (!(peak > 0)) continue
+    const dd = (daily[i][1] / peak - 1) * 100
+    series.push([daily[i][0], Math.round(dd * 100) / 100])
+    lastHigh = peak
+    lastHighDate = peakDate
+  }
+  if (!series.length) return null
+  return fromHistory('spxDrawdown', series, {
+    unit: '%',
+    source: '标普 500 日收盘距近 52 周最高收盘',
+    freq: 'daily',
+    asOf,
+    now,
+    allowPercentile: false,
+    note: `近 52 周最高收盘 ${Math.round(lastHigh * 100) / 100}（${lastHighDate}）`,
+  })
+}
+
+const REL_LOOKBACK = 63
+
+function relativePerformanceReading(
+  key: ReadingKey,
+  aHistory: readonly Point[] | undefined,
+  bHistory: readonly Point[] | undefined,
+  asOf: string,
+  note: string,
+  now?: Date,
+): Reading | null {
+  if (!aHistory?.length || !bHistory?.length) return null
+  const aSeg = continuousDailySegment(sanitizePoints(aHistory, asOf))
+  const bSeg = continuousDailySegment(sanitizePoints(bHistory, asOf))
+  if (!aSeg.length || !bSeg.length) return null
+  const bMap = new Map(bSeg)
+  const aligned: Array<{ date: string; a: number; b: number }> = []
+  for (const [date, a] of aSeg) {
+    const b = bMap.get(date)
+    if (b === undefined || !Number.isFinite(a) || !Number.isFinite(b)) continue
+    if (!(a > 0) || !(b > 0)) continue
+    aligned.push({ date, a, b })
+  }
+  if (aligned.length < REL_LOOKBACK + 1) return null
+  const series: Point[] = []
+  for (let i = REL_LOOKBACK; i < aligned.length; i += 1) {
+    const cur = aligned[i]
+    const prev = aligned[i - REL_LOOKBACK]
+    const rel = (cur.a / prev.a) / (cur.b / prev.b) - 1
+    series.push([cur.date, Math.round(rel * 10_000) / 100])
+  }
+  if (!series.length) return null
+  return fromHistory(key, series, {
+    unit: '%',
+    source: '美股切片日收盘相对表现',
+    freq: 'daily',
+    asOf,
+    now,
+    allowPercentile: false,
+    note,
+  })
+}
+
+function slicePoints(
+  slices: SlicesFile | undefined,
+  id: string,
+): { points: Point[]; malformed: boolean } {
+  const entry = slices?.slices?.find(slice => slice?.id === id)
+  if (!entry) return { points: [], malformed: false }
+  return asPointList(entry.history)
 }
 
 function retailBullBear(
@@ -825,6 +1094,51 @@ function buildReadings(input: {
   })
 
   out.spxVs200dma = run(SOURCE_SLICES, () => (spxSlice?.length ? spxVs200dma(spxSlice, asOf, now) : null))
+  out.spxDrawdown = run(SOURCE_SLICES, () => (spxSlice?.length ? spxDrawdownReading(spxSlice, asOf, now) : null))
+
+  const markSlice = (id: string) => {
+    const { malformed } = slicePoints(slices, id)
+    if (malformed) noteFailure(SOURCE_SLICES)
+  }
+  for (const id of ['rsp', 'sector-xly', 'sector-xlp', 'small', 'growth', 'value'] as const) markSlice(id)
+
+  out.equalWeightRel = run(SOURCE_SLICES, () => relativePerformanceReading(
+    'equalWeightRel',
+    slicePoints(slices, 'rsp').points,
+    slicePoints(slices, 'spx').points,
+    asOf,
+    '正值表示等权跑赢，上涨在扩散；负值表示少数大市值股票在领涨',
+    now,
+  ))
+  out.cyclicalDefensive = run(SOURCE_SLICES, () => relativePerformanceReading(
+    'cyclicalDefensive',
+    slicePoints(slices, 'sector-xly').points,
+    slicePoints(slices, 'sector-xlp').points,
+    asOf,
+    '正值表示可选消费跑赢必需消费，资金偏顺周期；负值表示防御板块相对更强',
+    now,
+  ))
+  out.smallCapRel = run(SOURCE_SLICES, () => relativePerformanceReading(
+    'smallCapRel',
+    slicePoints(slices, 'small').points,
+    slicePoints(slices, 'spx').points,
+    asOf,
+    '正值表示小盘跑赢大盘；负值表示大盘相对更强',
+    now,
+  ))
+  out.growthValueRel = run(SOURCE_SLICES, () => relativePerformanceReading(
+    'growthValueRel',
+    slicePoints(slices, 'growth').points,
+    slicePoints(slices, 'value').points,
+    asOf,
+    '正值表示成长跑赢价值；负值表示价值相对更强',
+    now,
+  ))
+
+  out.policyRate = run(SOURCE_PUBLIC, () => {
+    markUsHistory(s.iorb)
+    return policyRateReading(s.iorb, asOf, now)
+  })
 
   out.epsRevision = run(SOURCE_PUBLIC, () => fromUsSeries('epsRevision', s.spxForwardEpsChange, asOf, now, {
     note: epsRevisionNote(s.spxForwardEpsChange),
@@ -878,6 +1192,17 @@ function buildReadings(input: {
     })
   })
 
+  markMacroHistory(m?.unrate)
+  markMacroHistory(m?.sahm)
+  markMacroHistory(m?.debtService)
+  markMacroHistory(m?.buffett)
+  markMacroHistory(m?.putCall)
+  out.unrate = run(SOURCE_MACRO, () => fromMacro('unrate', m?.unrate, asOf, 'monthly', now))
+  out.sahm = run(SOURCE_MACRO, () => fromMacro('sahm', m?.sahm, asOf, 'monthly', now))
+  out.debtService = run(SOURCE_MACRO, () => fromMacro('debtService', m?.debtService, asOf, 'quarterly', now))
+  out.buffett = run(SOURCE_MACRO, () => fromMacro('buffett', m?.buffett, asOf, 'quarterly', now))
+  out.putCall = run(SOURCE_MACRO, () => fromMacro('putCall', m?.putCall, asOf, 'monthly', now))
+
   // 展示字段统一清洗：文本字段必须是字符串，数值必须有限，日期必须合法；否则该读数作废或字段回落默认值
   for (const key of Object.keys(out) as ReadingKey[]) {
     const r = out[key]
@@ -890,6 +1215,34 @@ function buildReadings(input: {
     if (r.note !== undefined && typeof r.note !== 'string') delete r.note
     if (r.percentile !== undefined && !Number.isFinite(r.percentile)) { delete r.percentile; delete r.percentileYears }
     if (r.percentileYears !== undefined && !Number.isFinite(r.percentileYears)) delete r.percentileYears
+    if (r.longPercentile !== undefined && !Number.isFinite(r.longPercentile)) {
+      delete r.longPercentile
+      delete r.longPercentileSince
+    }
+    if (r.longPercentileSince !== undefined && !Number.isFinite(r.longPercentileSince)) delete r.longPercentileSince
+    if (r.frequency !== 'daily' && r.frequency !== 'weekly' && r.frequency !== 'monthly' && r.frequency !== 'quarterly') {
+      delete r.frequency
+    }
+    if (r.prior) {
+      if (!isValidIsoDate(r.prior.date) || !Number.isFinite(r.prior.value)) delete r.prior
+    }
+    if (r.lastMove) {
+      if (!isValidIsoDate(r.lastMove.date) || !Number.isFinite(r.lastMove.from) || !Number.isFinite(r.lastMove.to)) {
+        delete r.lastMove
+      }
+    }
+    if (r.moveRun) {
+      const okDir = r.moveRun.direction === 'up' || r.moveRun.direction === 'down'
+      if (
+        !okDir
+        || !Number.isFinite(r.moveRun.count)
+        || !Number.isFinite(r.moveRun.total)
+        || !Number.isFinite(r.moveRun.startLevel)
+        || !isValidIsoDate(r.moveRun.since)
+      ) {
+        delete r.moveRun
+      }
+    }
   }
   return { readings: out, structuralFailures }
 }
@@ -945,8 +1298,12 @@ export async function loadReadings(fetcher: typeof fetch = fetch): Promise<Readi
     )
   }
 
-  const dates = Object.values(readings)
-    .flatMap(r => (r?.date && r.date <= today ? [r.date] : []))
+  // 政策利率按日历日（含周末），不参与快照 asOf，避免把大师页拖到非交易日
+  const dates = (Object.entries(readings) as Array<[ReadingKey, Reading | null | undefined]>)
+    .flatMap(([key, r]) => {
+      if (key === 'policyRate') return []
+      return r?.date && r.date <= today ? [r.date] : []
+    })
     .sort()
   const snapshotAsOf = dates.at(-1)
   if (!snapshotAsOf) {
@@ -974,11 +1331,13 @@ export function useReadings(): ReadingsState {
 
 /** 测试与总览主题表共用的指标主题分组 */
 export const READING_THEMES: { id: string; name: string; keys: ReadingKey[] }[] = [
-  { id: 'liquidity', name: '流动性', keys: ['fedAssets', 'netLiquidity', 'bankReserves'] },
-  { id: 'rates', name: '利率', keys: ['realRate', 'realYield10', 'tenYear', 'curve10y2y', 'nfci'] },
+  { id: 'policy', name: '利率与政策', keys: ['policyRate', 'realRate', 'realYield10', 'tenYear', 'curve10y2y'] },
+  { id: 'liquidity', name: '流动性', keys: ['fedAssets', 'netLiquidity', 'bankReserves', 'nfci'] },
   { id: 'credit', name: '信用', keys: ['hySpread', 'baaAaa'] },
-  { id: 'breadth', name: '宽度与趋势', keys: ['spxAbove200', 'netNewHighs', 'advDecLine', 'mcclellan', 'spxVs200dma'] },
-  { id: 'valuation', name: '盈利与估值', keys: ['epsRevision', 'forwardPe', 'cape'] },
-  { id: 'sentiment', name: '情绪与仓位', keys: ['vix', 'fearGreed', 'retailBullBear', 'naaim', 'marginDebtYoy', 'managerCash'] },
-  { id: 'commodities', name: '商品', keys: ['copperGold', 'copper'] },
+  { id: 'trend', name: '趋势', keys: ['spxVs200dma', 'spxDrawdown'] },
+  { id: 'breadth', name: '宽度与轮动', keys: ['spxAbove200', 'netNewHighs', 'advDecLine', 'mcclellan', 'equalWeightRel', 'smallCapRel', 'cyclicalDefensive', 'growthValueRel'] },
+  { id: 'fundamentals', name: '盈利与就业', keys: ['epsRevision', 'unrate', 'sahm', 'debtService'] },
+  { id: 'valuation', name: '估值', keys: ['forwardPe', 'cape', 'buffett'] },
+  { id: 'sentiment', name: '情绪与仓位', keys: ['vix', 'fearGreed', 'putCall', 'retailBullBear', 'naaim', 'marginDebtYoy', 'managerCash'] },
+  { id: 'commodities', name: '商品', keys: ['copper', 'copperGold'] },
 ]

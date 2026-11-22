@@ -1,8 +1,36 @@
 import { describe, expect, it } from 'vitest'
-import { resolveSeo } from './seo'
+import { MACRO_MASTER_NAMES, resolveSeo } from './seo'
 import type { BlogEntry } from '../features/blog/catalog'
+import { MASTERS } from '../features/macro-masters/masters'
 
 const post: BlogEntry = { slug: 'slow-investing', title: '慢投资笔记', summary: '关于长期投资的实践', category: '投资', tags: [], publishedAt: '2026-10-13', file: 'src/content/blog/posts/slow-investing.md', status: 'published' }
+
+describe('宏观大师页 SEO', () => {
+  it('总览与大师详情页有独立标题', () => {
+    expect(resolveSeo('/invest/macro-masters')).toMatchObject({
+      known: true,
+      title: '宏观大师怎么看周期｜当前位置与九位的方法',
+    })
+    expect(resolveSeo('/invest/macro-masters/druckenmiller')).toMatchObject({
+      known: true,
+      title: '斯坦利·德鲁肯米勒怎么看周期｜宏观大师',
+    })
+  })
+
+  it('SEO 中文名表与九位大师的 slug、名字逐一相同', () => {
+    expect(Object.entries(MACRO_MASTER_NAMES).sort(([a], [b]) => a.localeCompare(b))).toEqual(
+      MASTERS.map(master => [master.slug, master.name]).sort(([a], [b]) => a.localeCompare(b)),
+    )
+  })
+
+  it('未知大师 slug 仍走页面不存在', () => {
+    expect(resolveSeo('/invest/macro-masters/unknown')).toMatchObject({
+      known: false,
+      title: '页面不存在',
+      noindex: true,
+    })
+  })
+})
 
 describe('blog route SEO', () => {
   it('个股页有独立 SEO 与有效路由', () => {

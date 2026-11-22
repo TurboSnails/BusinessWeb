@@ -1,15 +1,36 @@
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import { Page, TableWrap } from '../components/ui'
 import { MASTER_ARTICLES, renderMasterArticleMarkdown } from '../features/macro-masters/articles'
+import { DetailTake, DetailTrack } from '../features/macro-masters/DetailTake'
 import { masterBySlug } from '../features/macro-masters/masters'
 import ReadingCell from '../features/macro-masters/ReadingCell'
 import { useReadings, type ReadingsState } from '../features/macro-masters/readings'
 import type { Master, MasterIndicator, ReadingKey } from '../features/macro-masters/types'
 import '../styles/macro-masters.css'
+import '../styles/macro-masters-take.css'
 
 const EVIDENCE_LABELS = { quote: '原话', paraphrase: '转述', unverified: '未证实' } as const
+
+type IndicatorFilter = 'all' | 'exact' | 'proxy' | 'empty'
+
+const FILTER_LABELS: Record<IndicatorFilter, string> = {
+  all: '全部',
+  exact: '有同口径读数',
+  proxy: '只有近似',
+  empty: '本站暂无',
+}
+
+function indicatorFilter(indicator: MasterIndicator): Exclude<IndicatorFilter, 'all'> {
+  if (indicator.readings?.length) return 'exact'
+  if (indicator.proxyReadings?.length) return 'proxy'
+  return 'empty'
+}
+
+function indicatorId(master: Master, index: number): string {
+  return `mm-indicator-${master.slug}-${index}`
+}
 
 const DRUCKENMILLER_COMPARISON: Array<{
   name: string
@@ -76,11 +97,11 @@ function ReadingsForIndicator({ indicator, state }: { indicator: MasterIndicator
   if (!hasExact && !hasProxy) return <ReadingCell reading={null} loading={state.state === 'loading'} />
   return (
     <div className="mm-detail__reading-groups">
-      <div className="mm-detail__reading-group">
-        <span className="mm-detail__reading-group-title">同口径读数</span>
-        {hasExact ? <ReadingList keys={indicator.readings!} state={state} /> : <ReadingCell reading={null} loading={state.state === 'loading'} />}
-        {hasExact && <span className="mm-detail__measurement-note">这是本站测量，不是他的当前信号。</span>}
-      </div>
+      {hasExact && (
+        <div className="mm-detail__reading-group">
+          <ReadingList keys={indicator.readings!} state={state} />
+        </div>
+      )}
       {hasProxy && (
         <div className="mm-detail__reading-group mm-detail__reading-group--proxy">
           <span className="mm-detail__reading-group-title">本站近似（口径不同）</span>
@@ -160,9 +181,41 @@ function ResearchArticle({ slug, markdown }: { slug: Master['slug']; markdown: s
 
 function KnownMacroMasterDetail({ master }: { master: Master }): JSX.Element {
   const readingsState = useReadings()
+  const [filter, setFilter] = useState<IndicatorFilter>('all')
+  const [highlighted, setHighlighted] = useState<{ id: string; token: number } | null>(null)
   const failedSources = readingsState.state === 'ok' && 'failedSources' in readingsState && Array.isArray(readingsState.failedSources)
     ? readingsState.failedSources
     : []
+  const { counts, readingTargets } = useMemo(() => {
+    const counts: Record<IndicatorFilter, number> = { all: master.indicators.length, exact: 0, proxy: 0, empty: 0 }
+    const readingTargets: Partial<Record<ReadingKey, string>> = {}
+    master.indicators.forEach((indicator, index) => {
+      counts[indicatorFilter(indicator)] += 1
+      const id = indicatorId(master, index)
+      for (const key of [...indicator.readings ?? [], ...indicator.proxyReadings ?? []]) {
+        if (!readingTargets[key]) readingTargets[key] = id
+      }
+    })
+    return { counts, readingTargets }
+  }, [master])
+  const visibleIndicators = master.indicators
+    .map((indicator, index) => ({ indicator, index }))
+    .filter(({ indicator }) => filter === 'all' || indicatorFilter(indicator) === filter)
+
+  useEffect(() => {
+    if (!highlighted) return
+    const target = document.getElementById(highlighted.id)
+    if (!target) return
+    window.history.replaceState(null, '', `#${highlighted.id}`)
+    target.scrollIntoView?.({ block: 'start' })
+    const timer = window.setTimeout(() => setHighlighted(null), 1200)
+    return () => window.clearTimeout(timer)
+  }, [highlighted])
+
+  function goToIndicator(id: string): void {
+    setFilter('all')
+    setHighlighted({ id, token: Date.now() })
+  }
 
   return (
     <Page className="mm-detail">
@@ -178,6 +231,18 @@ function KnownMacroMasterDetail({ master }: { master: Master }): JSX.Element {
         </ul>
       </header>
 
+      <nav className="mm-toc" aria-label="页内目录">
+        <ol className="mm-toc__list">
+          <li><a href="#mm-now">现在怎么看</a></li>
+          <li><a href="#mm-core-ideas">核心思路</a></li>
+          <li><a href="#mm-master-readings">他看的指标</a></li>
+          <li><a href="#mm-limits">靠不靠谱与局限</a></li>
+          <li><a href="#mm-research-title">完整研究文档</a></li>
+        </ol>
+      </nav>
+
+      <DetailTake master={master} state={readingsState} readingTargets={readingTargets} onReadingTarget={goToIndicator} />
+
       <section className="mm-detail__section" aria-labelledby="mm-core-ideas">
         <h2 id="mm-core-ideas">核心思路</h2>
         <ol className="mm-detail__ideas">
@@ -189,38 +254,61 @@ function KnownMacroMasterDetail({ master }: { master: Master }): JSX.Element {
         <div className="mm-detail__section-heading">
           <div>
             <h2 id="mm-master-readings">他看的指标 · 本站当前读数</h2>
-            <p className="mm-detail__intro">同口径读数与“本站近似（口径不同）”分组展示；所有读数都是本站测量，不等同于大师本人的实时判断或当前信号。</p>
+            <p className="mm-detail__intro">同口径读数与“本站近似（口径不同）”分组展示。这是本站测量，不是他的当前信号；不等同于大师本人的实时判断。</p>
           </div>
-          {readingsState.state === 'ok' && readingsState.asOf && <span className="mm-detail__as-of">数据快照：{readingsState.asOf}</span>}
+          <div className="mm-detail__reading-tools">
+            {readingsState.state === 'ok' && readingsState.asOf && <span className="mm-detail__as-of">数据快照：{readingsState.asOf}</span>}
+            <div className="mm-detail__filters" role="group" aria-label="按读数类型筛选">
+              {(Object.keys(FILTER_LABELS) as IndicatorFilter[]).map(value => (
+                <button
+                  type="button"
+                  key={value}
+                  className={filter === value ? 'mm-detail__filter mm-detail__filter--active' : 'mm-detail__filter'}
+                  aria-pressed={filter === value}
+                  onClick={() => { setFilter(value); setHighlighted(null) }}
+                >
+                  {FILTER_LABELS[value]} {counts[value]}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
         {readingsState.state === 'error' && <p className="mm-detail__error" role="alert">读数暂时无法加载，下方以“本站暂无”显示；研究内容仍可阅读。{readingsState.message && `（${readingsState.message}）`}</p>}
         {readingsState.state === 'ok' && failedSources.length > 0 && <p className="mm-detail__error" role="alert">部分数据来源暂时不可用，其余来源的读数仍保留显示。</p>}
-        <TableWrap label={`${master.name}关注的指标与本站读数`} className="mm-detail__table-wrap">
-          <table className="ui-table mm-detail__table">
-            <thead><tr><th scope="col">指标</th><th scope="col">他怎么读</th><th scope="col">本站当前读数</th><th scope="col">证据等级</th></tr></thead>
-            <tbody>
-              {master.indicators.map(indicator => (
-                <tr key={indicator.name}>
-                  <th scope="row">{indicator.name}</th>
-                  <td>{indicator.howToRead}</td>
-                  <td>
-                    <ReadingsForIndicator indicator={indicator} state={readingsState} />
-                    {indicator.external && <span className="mm-detail__external">{indicator.external}</span>}
-                  </td>
-                  <td><span className={`mm-detail__evidence mm-detail__evidence--${indicator.evidence}`}>{EVIDENCE_LABELS[indicator.evidence]}</span></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </TableWrap>
+        {visibleIndicators.length > 0 ? (
+          <TableWrap label={`${master.name}关注的指标与本站读数`} className="mm-detail__table-wrap">
+            <table className="ui-table mm-detail__table mm-detail__table--indicators">
+              <thead><tr><th scope="col">指标</th><th scope="col">他怎么读</th><th scope="col">本站当前读数</th></tr></thead>
+              <tbody>
+                {visibleIndicators.map(({ indicator, index }) => {
+                  const id = indicatorId(master, index)
+                  return (
+                    <tr
+                      id={id}
+                      key={indicator.name}
+                      className={highlighted?.id === id ? 'mm-detail__indicator mm-detail__indicator--highlighted' : 'mm-detail__indicator'}
+                    >
+                      <th scope="row">
+                        <span className="mm-detail__indicator-name">{indicator.name}</span>
+                        <span className={`mm-detail__evidence mm-detail__evidence--${indicator.evidence}`}>{EVIDENCE_LABELS[indicator.evidence]}</span>
+                      </th>
+                      <td>{indicator.howToRead}</td>
+                      <td>
+                        <ReadingsForIndicator indicator={indicator} state={readingsState} />
+                        {indicator.external && <span className="mm-detail__external">{indicator.external}</span>}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </TableWrap>
+        ) : <p className="mm-detail__filter-empty">这个分类没有指标。</p>}
       </section>
 
       {master.slug === 'druckenmiller' && <DruckenmillerComparison state={readingsState} />}
 
-      <section className="mm-detail__section mm-detail__limits" aria-labelledby="mm-limits">
-        <h2 id="mm-limits">局限</h2>
-        <p>{master.limits}</p>
-      </section>
+      <DetailTrack master={master} />
 
       <ResearchArticle slug={master.slug} markdown={MASTER_ARTICLES[master.slug]} />
 

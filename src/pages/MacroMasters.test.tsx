@@ -1,9 +1,12 @@
 import React from 'react'
-import { cleanup, render, screen, within } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { buildCycleView } from '../features/macro-masters/cycleView'
+import { HORIZON_LABELS, MODE_HINTS, MODE_LABELS, TEMPERATURE_LABELS } from '../features/macro-masters/chips'
 import { MASTERS } from '../features/macro-masters/masters'
-import { READING_THEMES } from '../features/macro-masters/readings'
+import { READING_LABELS } from '../features/macro-masters/readings'
+import type { Reading, ReadingKey } from '../features/macro-masters/types'
 import MacroMasters, { MACRO_MASTERS_FOOTER, MACRO_MASTERS_LEAD } from './MacroMasters'
 
 vi.mock('../features/macro-masters/readings', async () => {
@@ -23,85 +26,262 @@ afterEach(() => {
   vi.clearAllMocks()
 })
 
-function renderPage() {
+function reading(key: ReadingKey, value: number, extras: Partial<Reading> = {}): Reading {
+  return {
+    key,
+    label: key,
+    value,
+    unit: '%',
+    date: '2026-11-20',
+    source: 'https://fred.stlouisfed.org/series/TEST',
+    ...extras,
+  }
+}
+
+const fixtureReadings: Partial<Record<ReadingKey, Reading | null>> = {
+  spxVs200dma: reading('spxVs200dma', -5.96),
+  spxDrawdown: reading('spxDrawdown', -11.62),
+  spxAbove200: reading('spxAbove200', 48.7),
+  netNewHighs: reading('netNewHighs', -5.21),
+  hySpread: reading('hySpread', 352, {
+    unit: 'bp',
+    prior: { value: 340, date: '2026-10-20' },
+    direction: 'up',
+    percentile: 49,
+    percentileYears: 10,
+  }),
+  baaAaa: reading('baaAaa', 80, { unit: 'bp' }),
+  policyRate: reading('policyRate', 3.9, {
+    unit: '%',
+    lastMove: { date: '2026-09-17', from: 3.65, to: 3.9 },
+    moveRun: { direction: 'up', count: 1, total: 0.25, startLevel: 3.65, since: '2026-09-17' },
+  }),
+  realYield10: reading('realYield10', 1.8),
+  tenYear: reading('tenYear', 4.2),
+  nfci: reading('nfci', -0.478, { unit: '点', frequency: 'weekly', date: '2026-11-13' }),
+  netLiquidity: reading('netLiquidity', 5824.5, {
+    unit: '十亿美元',
+    frequency: 'weekly',
+    date: '2026-11-18',
+    direction: 'flat',
+  }),
+  epsRevision: reading('epsRevision', 3.3),
+  sahm: reading('sahm', 0, { unit: '个百分点', frequency: 'monthly', date: '2026-10-01' }),
+  unrate: reading('unrate', 4.1, { frequency: 'monthly', date: '2026-10-01' }),
+  cape: reading('cape', 36.44, {
+    unit: '倍',
+    frequency: 'monthly',
+    date: '2026-11-01',
+    longPercentile: 95.7,
+    longPercentileSince: 1900,
+    percentile: 88,
+    percentileYears: 10,
+  }),
+  forwardPe: reading('forwardPe', 22),
+  buffett: reading('buffett', 180),
+  fearGreed: reading('fearGreed', 9.67, { unit: '点' }),
+  vix: reading('vix', 35.89, { unit: '点' }),
+  putCall: reading('putCall', 1.1),
+  retailBullBear: reading('retailBullBear', -20),
+  fedAssets: reading('fedAssets', 6741, {
+    unit: '十亿美元',
+    direction: 'up',
+    percentile: 70,
+  }),
+  debtService: reading('debtService', 11, {
+    frequency: 'quarterly',
+    date: '2026-06-30',
+    direction: 'up',
+    percentile: 60,
+    percentileYears: 10,
+  }),
+  copper: reading('copper', 4.5, { unit: '美元/磅', direction: 'down' }),
+  copperGold: reading('copperGold', 0.12),
+  managerCash: reading('managerCash', 4.2, { stale: true, date: '2025-01-01' }),
+  mcclellan: reading('mcclellan', 0.1, { unit: '点' }),
+}
+
+function renderPage(path = '/invest/macro-masters') {
   return render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={[path]}>
       <MacroMasters />
     </MemoryRouter>,
   )
 }
 
+function mockOk(extra: Partial<typeof fixtureReadings> = {}, failedSources: string[] = []) {
+  mockedUse.mockReturnValue({
+    state: 'ok',
+    asOf: '2026-11-20',
+    readings: { ...fixtureReadings, ...extra },
+    failedSources,
+  })
+}
+
 describe('MacroMasters 总览页', () => {
-  it('渲染 9 张大师卡与导语、页脚', () => {
+  it('加载中：合并大师节、指标表加载态；不出当前位置结论', () => {
     mockedUse.mockReturnValue({ state: 'loading' })
     renderPage()
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('宏观大师怎么看周期')
     expect(screen.getByText(MACRO_MASTERS_LEAD)).toBeTruthy()
     expect(screen.getByText(MACRO_MASTERS_FOOTER)).toBeTruthy()
-    const cards = screen.getByLabelText('九位宏观大师')
-    expect(within(cards).getAllByRole('link')).toHaveLength(9)
+    expect(screen.queryByRole('heading', { name: '现在的位置' })).toBeNull()
+    expect(screen.queryByRole('heading', { name: '分维度的证据' })).toBeNull()
+    const mastersSection = screen.getByRole('heading', { name: '九位大师：现在怎么看，靠不靠谱' }).closest('section')!
+    expect(screen.queryByRole('heading', { name: '这九位靠不靠谱' })).toBeNull()
     for (const master of MASTERS) {
-      expect(within(cards).getByRole('link', { name: new RegExp(master.name) }).getAttribute('href'))
-        .toBe(`/invest/macro-masters/${master.slug}`)
-      expect(cards.textContent).toContain(master.oneLiner)
-      expect(cards.textContent).toContain(master.kind === 'quant' ? '偏定量' : '偏定性')
+      expect(within(mastersSection).getByText(master.name)).toBeTruthy()
+      expect(within(mastersSection).getByText(new RegExp(`适合回答：${master.track.bestFor}`))).toBeTruthy()
     }
+    expect(screen.getAllByText(/加载中/).length).toBeGreaterThan(0)
   })
 
-  it('对照表覆盖各主题，读数加载中显示加载中；主题按 tbody/rowgroup 分组', () => {
-    mockedUse.mockReturnValue({ state: 'loading' })
-    const { container } = renderPage()
-    expect(screen.getByRole('heading', { name: '指标对照' })).toBeTruthy()
-    expect(screen.getByRole('region', { name: '指标对照表' })).toBeTruthy()
-    const table = screen.getByRole('table')
-    expect(table.querySelectorAll('tbody')).toHaveLength(READING_THEMES.length)
-    for (const theme of READING_THEMES) {
-      expect(within(table).getAllByText(theme.name).length).toBeGreaterThan(0)
-    }
-    expect(container.querySelectorAll('th[scope="rowgroup"]')).toHaveLength(READING_THEMES.length)
-    expect(screen.getAllByText(/加载中/).length).toBeGreaterThan(5)
-  })
-
-  it('读数失败时显示错误且不提示其余来源保留；成功时展示数值；部分来源失败也提示', () => {
+  it('全部失败：错误提示、不出结论，大师节仍可展开靠不靠谱', () => {
     mockedUse.mockReturnValue({ state: 'error', message: '网络中断' })
     renderPage()
-    expect(screen.getByRole('alert').textContent).toContain('网络中断')
-    expect(screen.queryByText(/其余来源的读数仍保留显示/)).toBeNull()
-
-    cleanup()
-    mockedUse.mockReturnValue({
-      state: 'ok',
-      asOf: '2026-11-20',
-      readings: {
-        fedAssets: {
-          key: 'fedAssets',
-          label: '美联储总资产',
-          value: 6741,
-          unit: '十亿美元',
-          date: '2026-11-18',
-          percentile: 70,
-          direction: 'up',
-          source: 'test',
-        },
-        copper: null,
-      },
-      failedSources: ['美股切片'],
-    })
-    renderPage()
-    expect(screen.getByText(/6,?741/)).toBeTruthy()
-    expect(screen.getAllByText('本站暂无').length).toBeGreaterThan(0)
-    expect(screen.getByRole('alert').textContent).toContain('部分数据来源暂时不可用')
+    expect(screen.getByRole('alert').textContent).toBe(
+      '读数加载失败（网络中断）。本站暂不出当前位置结论，下方仍可看各位的方法与可靠性。',
+    )
+    expect(screen.queryByRole('heading', { name: '现在的位置' })).toBeNull()
+    const mastersSection = screen.getByRole('heading', { name: '九位大师：现在怎么看，靠不靠谱' }).closest('section')!
+    const row = within(mastersSection).getByText(MASTERS[0].name).closest('li')!
+    fireEvent.click(within(row).getByRole('button'))
+    expect(within(row).getByText(MASTERS[0].track.testability)).toBeTruthy()
+    expect(within(row).getAllByRole('link', { name: /看他的完整方法/ })[0].getAttribute('href'))
+      .toBe(`/invest/macro-masters/${MASTERS[0].slug}`)
   })
 
-  it('390px 宽时表格在 TableWrap 滚动容器内且第一列可固定', () => {
-    mockedUse.mockReturnValue({ state: 'loading' })
-    const { container } = renderPage()
-    const scroll = container.querySelector('.mm-overview__table-wrap') as HTMLElement
-    const sticky = container.querySelector('.mm-overview__table tbody th[scope="row"]') as HTMLElement
-    expect(scroll).toBeTruthy()
-    expect(scroll.getAttribute('tabindex')).toBe('0')
-    expect(scroll.className).toMatch(/ui-table-wrap/)
-    expect(sticky).toBeTruthy()
-    expect(container.querySelector('.mm-overview')).toBeTruthy()
+  it('成功：档位、维度展开、合并大师节、指标筛选与历史位置', () => {
+    mockOk()
+    const expected = buildCycleView(fixtureReadings)
+    renderPage()
+
+    expect(screen.getByRole('heading', { name: '现在的位置' })).toBeTruthy()
+    expect(screen.getByText(expected.posture.label)).toBeTruthy()
+    expect(screen.getByText(expected.phase.name)).toBeTruthy()
+    expect(screen.getByText(expected.posture.meaning)).toBeTruthy()
+    expect(screen.getByText(expected.phase.summary)).toBeTruthy()
+    expect(screen.getByText('置信度低')).toBeTruthy()
+    expect(screen.getByText(/数据快照 2026-11-20/)).toBeTruthy()
+    expect(screen.getByRole('navigation', { name: '页内导航' })).toBeTruthy()
+
+    const dimRoot = screen.getByRole('heading', { name: '分维度的证据' }).closest('section')!
+    const dimTable = within(dimRoot).getByRole('region', { name: '分维度证据表' })
+    for (const dim of expected.dimensions) {
+      expect(within(dimTable).getByText(dim.name)).toBeTruthy()
+      expect(within(dimTable).getByText(dim.summary)).toBeTruthy()
+    }
+    for (const horizon of ['short', 'medium', 'long', 'contrarian'] as const) {
+      expect(within(dimTable).getByText(HORIZON_LABELS[horizon])).toBeTruthy()
+    }
+    expect(dimTable.querySelectorAll('tbody')).toHaveLength(4)
+
+    const trendRow = within(dimTable).getByText('趋势').closest('tr')!
+    fireEvent.click(trendRow)
+    expect(trendRow.getAttribute('aria-expanded')).toBe('true')
+    const trendPanel = document.getElementById('mm-dim-panel-trend')!
+    expect(trendPanel.textContent).toContain('判定口径')
+    expect(within(trendPanel).getAllByRole('button', { name: '在指标表里看' }).length).toBeGreaterThan(0)
+    fireEvent.keyDown(trendRow, { key: 'Enter' })
+    expect(trendRow.getAttribute('aria-expanded')).toBe('false')
+    fireEvent.click(trendRow)
+    fireEvent.click(within(dimRoot).getByRole('button', { name: '全部收起' }))
+    expect(trendRow.getAttribute('aria-expanded')).toBe('false')
+
+    const mastersSection = screen.getByRole('heading', { name: '九位大师：现在怎么看，靠不靠谱' }).closest('section')!
+    expect(within(mastersSection).getByText(/不打分、不排名/)).toBeTruthy()
+    expect(within(mastersSection).getAllByText(MODE_LABELS.rule).length).toBeGreaterThan(0)
+    expect(within(mastersSection).getByText(MODE_HINTS.checklist)).toBeTruthy()
+    expect(within(mastersSection).getAllByText(/线索：/).length).toBe(3)
+    const marksMaster = MASTERS.find(m => m.slug === 'marks')!
+    const marksRow = within(mastersSection).getByText(marksMaster.name).closest('li')!
+    fireEvent.click(within(marksRow).getByRole('button'))
+    expect(within(marksRow).getAllByText(TEMPERATURE_LABELS.caution).length).toBeGreaterThan(0)
+    expect(within(marksRow).getByText(marksMaster.track.bestFor)).toBeTruthy()
+    // 部分展开时按钮仍是「全部展开」
+    fireEvent.click(within(mastersSection).getByRole('button', { name: '全部展开' }))
+    expect(within(mastersSection).getAllByText('对照明细').length).toBe(9)
+    fireEvent.click(within(mastersSection).getByRole('button', { name: '全部收起' }))
+
+    const table = screen.getByRole('region', { name: '指标对照表' })
+    expect(within(table).getByText(/第 95\.7 百分位/)).toBeTruthy()
+    expect(within(table).getByRole('img', { name: /1900 年以来第 95\.7 百分位/ })).toBeTruthy()
+    expect(within(table).getByText(/近 10 年第 88/)).toBeTruthy()
+    const mcclellanRow = within(table).getByText('McClellan 振荡（比例调整）').closest('tr')!
+    expect(within(mcclellanRow).getByText('历史不足')).toBeTruthy()
+    expect(within(table).getByText('已过期')).toBeTruthy()
+
+    const copperRow = within(table).getByText('COMEX 铜价').closest('tr')!
+    expect(within(copperRow).getByText(/同口径 1/)).toBeTruthy()
+    fireEvent.click(copperRow)
+    const copperPanel = document.getElementById('mm-compare-panel-copper')!
+    expect(within(copperPanel).getByRole('link', { name: /德鲁肯米勒/ })).toBeTruthy()
+
+    const debtRow = within(table).getByText('家庭偿债比').closest('tr')!
+    expect(within(debtRow).getByText(/↑ 较上季上升/)).toBeTruthy()
+
+    const policyRow = within(table).getByText('准备金余额利率').closest('tr')!
+    fireEvent.click(policyRow)
+    expect(document.getElementById('mm-compare-panel-policyRate')!.textContent)
+      .toMatch(/最近一次调整：2026-09-17，由 3\.65% 上调到 3\.9%/)
+
+    fireEvent.click(screen.getByRole('button', { name: /用于判定/ }))
+    expect(within(table).queryByText(READING_LABELS.copper)).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: /全部\s*\d+/ }))
+
+    fireEvent.change(screen.getByLabelText('谁在看'), { target: { value: 'druckenmiller' } })
+    expect(within(screen.getByRole('region', { name: '指标对照表' })).getByText('COMEX 铜价')).toBeTruthy()
+    expect(within(screen.getByRole('region', { name: '指标对照表' })).queryByText('席勒 CAPE')).toBeNull()
+
+    fireEvent.change(screen.getByLabelText('谁在看'), { target: { value: 'templeton' } })
+    fireEvent.click(screen.getByRole('button', { name: /商品\s*\d+/ }))
+    expect(screen.getByText(/没有符合当前筛选的读数/)).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: '清除筛选' }))
+    expect(within(screen.getByRole('region', { name: '指标对照表' })).getByText('席勒 CAPE')).toBeTruthy()
+  })
+
+  it('网址参数 theme/who 可恢复筛选；跳转后目标行展开', () => {
+    mockOk()
+    renderPage('/invest/macro-masters?theme=commodities&who=druckenmiller')
+    const table = screen.getByRole('region', { name: '指标对照表' })
+    expect(within(table).getByText('COMEX 铜价')).toBeTruthy()
+    expect(within(table).queryByText('席勒 CAPE')).toBeNull()
+    expect(screen.getByRole('button', { name: /商品\s*\d+/ }).getAttribute('aria-pressed')).toBe('true')
+
+    fireEvent.click(screen.getByRole('button', { name: /全部\s*\d+/ }))
+    fireEvent.change(screen.getByLabelText('谁在看'), { target: { value: 'all' } })
+    const supportBtn = screen.getAllByRole('button').find(el => el.className.includes('mm-now__evidence-link') && el.textContent?.includes('趋势：'))
+    expect(supportBtn).toBeTruthy()
+    fireEvent.click(supportBtn!)
+    expect(document.getElementById('mm-dim-row-trend')?.getAttribute('aria-expanded')).toBe('true')
+  })
+
+  it('网址里认不出的 theme / who 按「全部」处理，不显示空结果', () => {
+    mockOk()
+    renderPage('/invest/macro-masters?theme=no-such-theme&who=nobody')
+    const table = screen.getByRole('region', { name: '指标对照表' })
+    expect(within(table).getByText('COMEX 铜价')).toBeTruthy()
+    expect(within(table).getByText('席勒 CAPE')).toBeTruthy()
+    expect(screen.getByRole('button', { name: /全部\s*\d+/ }).getAttribute('aria-pressed')).toBe('true')
+    expect((screen.getByLabelText('谁在看') as HTMLSelectElement).value).toBe('all')
+    expect(screen.queryByRole('button', { name: '清除筛选' })).toBeNull()
+  })
+
+  it('部分来源失败时在「现在的位置」下与指标表都提示', () => {
+    mockOk({ copper: null }, ['美股切片'])
+    renderPage()
+    const tips = screen.getAllByText(/部分数据来源暂时不可用（美股切片）/)
+    expect(tips.length).toBeGreaterThanOrEqual(2)
+    expect(document.body.textContent).toMatch(/6\.74\s*万亿美元/)
+  })
+
+  it('这是怎么判的展开为三栏面板', () => {
+    mockOk()
+    renderPage()
+    fireEvent.click(screen.getByText('这是怎么判的'))
+    const method = screen.getByText('这是怎么判的').closest('details')!
+    expect(within(method).getByText('攻守档怎么定')).toBeTruthy()
+    expect(within(method).getByText('阶段怎么分')).toBeTruthy()
+    expect(within(method).getByText('回测说明了什么')).toBeTruthy()
   })
 })

@@ -1,15 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { MASTER_ARTICLES, renderMasterArticleMarkdown } from './articles'
 import { MASTERS, masterBySlug } from './masters'
-import type { ReadingKey } from './types'
+import { READING_LABELS } from './readings'
 
 const ORDER = ['druckenmiller', 'dalio', 'marks', 'tudor-jones', 'zweig', 'grantham', 'soros', 'templeton', 'kostolany'] as const
-const READING_KEYS: readonly ReadingKey[] = [
-  'fedAssets', 'netLiquidity', 'bankReserves', 'realRate', 'realYield10', 'tenYear', 'curve10y2y', 'nfci',
-  'hySpread', 'baaAaa', 'spxAbove200', 'netNewHighs', 'advDecLine', 'mcclellan', 'spxVs200dma',
-  'epsRevision', 'forwardPe', 'cape', 'vix', 'fearGreed', 'retailBullBear', 'naaim', 'marginDebtYoy',
-  'managerCash', 'copperGold', 'copper',
-]
 
 function indicator(slug: string, name: string) {
   const value = masterBySlug(slug)?.indicators.find(item => item.name === name)
@@ -40,7 +34,25 @@ describe('MASTERS', () => {
     }
   })
 
-  it('读数键全部合法，近似读数说明口径差别且不与同口径读数重叠', () => {
+  it('每位大师都有四个非空的靠不靠谱字段', () => {
+    for (const master of MASTERS) {
+      expect(master.track.testability.trim()).not.toBe('')
+      expect(master.track.bestFor.trim()).not.toBe('')
+      expect(master.track.notFor.trim()).not.toBe('')
+      expect(master.track.misses.trim()).not.toBe('')
+    }
+  })
+
+  it('可靠性措辞使用可核对的时间与事实，不加入九位之间的排名', () => {
+    const granthamMisses = masterBySlug('grantham')!.track.misses
+    expect(granthamMisses).toContain('1998 年到 2001 年')
+    expect(granthamMisses).toContain('从 310 亿美元缩到 200 亿美元')
+    expect(granthamMisses).not.toContain('1998–2000')
+    expect(masterBySlug('zweig')!.track.testability).toBe('规则写得细：优惠利率规则和 4% 模型都可以直接回测，但宽度推力的样本极少。')
+    expect(masterBySlug('zweig')!.track.testability).not.toContain('九位中')
+  })
+
+  it('读数键全部有标签，近似读数说明口径差别且不与同口径读数重叠', () => {
     for (const master of MASTERS) {
       const indicatorNames = new Set<string>()
       for (const item of master.indicators) {
@@ -49,7 +61,7 @@ describe('MASTERS', () => {
         expect(indicatorNames.has(item.name)).toBe(false)
         indicatorNames.add(item.name)
         expect(['quote', 'paraphrase', 'unverified']).toContain(item.evidence)
-        for (const key of [...(item.readings ?? []), ...(item.proxyReadings ?? [])]) expect(READING_KEYS).toContain(key)
+        for (const key of [...(item.readings ?? []), ...(item.proxyReadings ?? [])]) expect(READING_LABELS).toHaveProperty(key)
         if (item.proxyReadings?.length) expect(item.proxyNote?.trim()).not.toBe('')
         for (const key of item.readings ?? []) expect(item.proxyReadings ?? []).not.toContain(key)
         if (!item.readings?.length && !item.proxyReadings?.length) expect(item.external?.trim()).not.toBe('')
