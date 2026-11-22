@@ -101,7 +101,18 @@ const specs = {
   hyDaily: meta('美国高收益债信用利差（FRED）', 'bp', FRED + 'BAMLH0A0HYM2', 'ICE BofA 美国高收益债期权调整利差', '日频'),
   vixDaily: meta('VIX（Cboe）', '点', CBOE_INDEX + 'VIX_History.csv', '标普 500 期权隐含波动率指数；Cboe 官方日收盘，1990 年起', '日频'),
   tenYearDaily: meta('美国 10 年期国债收益率（FRED）', '%', FRED + 'DGS10', '美联储 H.15，美国 10 年期固定期限国债收益率', '日频'),
+  copperDaily: meta('COMEX 铜期货连续合约收盘（Yahoo）', '美元/磅', 'https://finance.yahoo.com/quote/HG=F/',
+    'Yahoo 连续合约收盘价，不是 CME 官方结算价。换月会有小跳空。2025 年起美国对铜加征关税的预期使 COMEX 相对伦敦（LME）出现过明显溢价（2025-07 最高超过每吨 2,500 美元，7 月 30 日宣布精炼铜豁免后单日跌约 22%），COMEX 铜价不完全代表全球需求。', '日频'),
+  goldDaily: meta('COMEX 黄金期货连续合约收盘（Yahoo）', '美元/盎司', 'https://finance.yahoo.com/quote/GC=F/',
+    'Yahoo 连续合约收盘价，不是 CME 官方结算价。换月会有小跳空。', '日频'),
+  copperGold: meta('铜金比（COMEX 铜 ÷ 金）', '倍', 'https://finance.yahoo.com/quote/HG=F/',
+    '同日 COMEX 铜期货收盘（美元/磅）÷ 黄金期货收盘（美元/盎司）。采用 Yahoo 连续合约收盘价，不是 CME 官方结算价。仅保留两者都有收盘的日期。连续合约换月与 2025 年起 COMEX 铜关税溢价会使比值偏离全球需求含义。', '日频'),
 }
+const YAHOO_CHART = 'https://query1.finance.yahoo.com/v8/finance/chart/'
+const yahooChartUrl = symbol => YAHOO_CHART + encodeURIComponent(symbol) + '?range=10y&interval=1d'
+const NY_DAY = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' })
+const nyDay = value => NY_DAY.format(value instanceof Date ? value : new Date(value * 1000))
+const NY_TIME = new Intl.DateTimeFormat('en-GB', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
 
 function clean(markup) {
   return markup.replace(/<[^>]*>/g, ' ').replace(/&(?:nbsp|#160);/gi, ' ')
@@ -467,6 +478,48 @@ export function parseFred(markup, scale, digits = 2) {
   return record(requireReadings(data, 'FRED'))
 }
 
+/** Align prior-evening, midnight and session-end labels to the same New York trading day. */
+export function parseYahooFuturesClose(body, symbol, now = new Date(), digits = 4) {
+  const result = body?.chart?.result?.[0]
+  const meta = result?.meta
+  const closes = result?.indicators?.quote?.[0]?.close
+  if (meta?.symbol !== symbol || !Array.isArray(result?.timestamp) || !Array.isArray(closes)) {
+    throw new Error(symbol + ' Yahoo 期货日线格式不符')
+  }
+  const today = nyDay(now)
+  const completedToday = NY_TIME.format(now) >= '17:30'
+  const byDay = new Map()
+  let start = today
+  let end = ''
+  for (let i = 0; i < result.timestamp.length; i++) {
+    const stamp = result.timestamp[i]
+    const close = closes[i]
+    if (!Number.isFinite(stamp)) continue
+    const day = nyDay(stamp + 6 * 60 * 60)
+    if (day > today) continue
+    // Include the old calendar label at the start and any rejected in-range
+    // readings so they cannot survive from a prior snapshot.
+    const calendarDay = nyDay(stamp)
+    if (calendarDay < start) start = calendarDay
+    if (day > end) end = day
+    if (day === today && !completedToday) continue
+    if (!Number.isFinite(close) || close <= 0 || byDay.get(day)?.stamp >= stamp) continue
+    byDay.set(day, { stamp, close })
+  }
+  const history = sorted([...byDay].map(([day, { close }]) => [day, rounded(close, digits)]))
+  return { history: requireReadings(history, symbol), coverage: [start, end] }
+}
+
+/** Same-day copper ÷ gold; skips dates missing either close. */
+export function copperGoldRatio(copperHistory, goldHistory) {
+  const goldByDay = new Map(goldHistory)
+  return requireReadings(copperHistory.flatMap(([day, copper]) => {
+    const gold = goldByDay.get(day)
+    return Number.isFinite(copper) && copper > 0 && Number.isFinite(gold) && gold > 0
+      ? [[day, rounded(copper / gold, 6)]] : []
+  }), '铜金比')
+}
+
 function rounded(value, digits = 2) {
   return Number(value.toFixed(digits))
 }
@@ -475,9 +528,13 @@ function sorted(history) {
   return history.sort(([a], [b]) => a.localeCompare(b))
 }
 
-export function mergeSeries(previous, incoming) {
+export function mergeSeries(previous, incoming, coverage) {
   if (!incoming.history.length) return previous
-  const oldHistory = previous?.history ?? []
+  let oldHistory = previous?.history ?? []
+  if (coverage) {
+    const [start, end] = coverage
+    oldHistory = oldHistory.filter(([day]) => day < start || day > end)
+  }
   const latest = sorted([...incoming.history]).at(-1)[0]
   const older = oldHistory.at(-1)?.[0] > latest
   const winner = older ? previous : incoming
@@ -604,6 +661,12 @@ export async function collectUsMarketData(previous, { read = fetchText, readBina
     }],
     'NAAIM 敞口': [['naaim'], async () => ({ naaim: parseNaaim(await read(NAAIM)) })],
     'FRED 10 年期美债': [['tenYearDaily'], async () => ({ tenYearDaily: parseFred(await read(FRED + 'DGS10'), 1) })],
+    'Yahoo COMEX 铜': [['copperDaily'], async () => ({
+      copperDaily: parseYahooFuturesClose(JSON.parse(await read(yahooChartUrl('HG=F'))), 'HG=F', now, 4),
+    })],
+    'Yahoo COMEX 金': [['goldDaily'], async () => ({
+      goldDaily: parseYahooFuturesClose(JSON.parse(await read(yahooChartUrl('GC=F'))), 'GC=F', now, 2),
+    })],
   }
   for (const [key, id, , , , , scale] of liquidity) {
     jobs['FRED ' + id] = [[key], async () => {
@@ -617,6 +680,7 @@ export async function collectUsMarketData(previous, { read = fetchText, readBina
   const entries = Object.entries(jobs)
   const settled = await Promise.allSettled(entries.map(([, [, load]]) => load()))
   const series = { ...previous?.series }
+  const sourceErrors = new Map()
   const warnings = []
   let sourcesUpdated = 0
   const today = now.toISOString().slice(0, 10)
@@ -630,11 +694,14 @@ export async function collectUsMarketData(previous, { read = fetchText, readBina
     if (result.status === 'rejected') {
       const issue = refreshError(result.reason)
       warnings.push(name + '：' + issue)
-      for (const key of keys) if (series[key]) series[key] = { ...series[key], refreshError: issue }
+      for (const key of keys) {
+        sourceErrors.set(key, issue)
+        if (series[key]) series[key] = { ...series[key], refreshError: issue }
+      }
       continue
     }
     let accepted = false
-    for (const [key, values] of Object.entries(result.value)) {
+    for (const [key, { coverage, ...values }] of Object.entries(result.value)) {
       const previousSeries = series[key]
       const history = values.history.filter(([day]) => day <= today)
       if (!history.length) continue
@@ -647,7 +714,7 @@ export async function collectUsMarketData(previous, { read = fetchText, readBina
       const newest = sorted([...history]).at(-1)[0]
       const priorDay = current?.history.at(-1)?.[0]
       const release = values.releasedAt || (priorDay === newest ? current?.releasedAt : undefined)
-      const updated = mergeSeries(current, { ...specs[key], ...values, releasedAt: release, history })
+      const updated = mergeSeries(current, { ...specs[key], ...values, releasedAt: release, history }, coverage)
       if (!updated) continue
       delete updated.refreshError
       // IORB applies on calendar days. Keep the Friday (or holiday-week Thursday)
@@ -657,13 +724,36 @@ export async function collectUsMarketData(previous, { read = fetchText, readBina
       accepted = true
     }
     if (accepted) sourcesUpdated++
-    else warnings.push(name + '：没有适用的已发生观测值')
+    else {
+      const issue = '没有适用的已发生观测值'
+      warnings.push(name + '：' + issue)
+      for (const key of keys) sourceErrors.set(key, issue)
+    }
   }
   const marginDebt = series.finraDebt?.history ?? []
   const marginGrowth = finraDebtGrowth(marginDebt)
   if (marginGrowth.length) series.finraDebtYoy = mergeSeries(series.finraDebtYoy, {
     ...specs.finraDebtYoy, history: marginGrowth, ...(series.finraDebt.refreshError && { refreshError: series.finraDebt.refreshError }),
   })
+  let ratioError = sourceErrors.get('copperDaily') || sourceErrors.get('goldDaily')
+  if (!ratioError) {
+    const copperHistory = series.copperDaily?.history ?? []
+    const goldHistory = series.goldDaily?.history ?? []
+    try {
+      const history = copperGoldRatio(copperHistory, goldHistory)
+      series.copperGold = { ...specs.copperGold, history }
+      const latestRatioDay = history.at(-1)[0]
+      if (latestRatioDay < copperHistory.at(-1)[0] || latestRatioDay < goldHistory.at(-1)[0]) {
+        ratioError = '铜、金最新日期不一致，比值停在 ' + latestRatioDay
+      }
+    } catch {
+      ratioError = '铜、金最新日期不一致，暂用上次比值'
+    }
+    if (ratioError) warnings.push(ratioError)
+  }
+  if (ratioError && series.copperGold) {
+    series.copperGold = { ...series.copperGold, refreshError: ratioError }
+  }
   return { snapshot: { series }, warnings, sourcesUpdated }
 }
 

@@ -27,6 +27,7 @@
     { "symbol": "AXP", "name": "美国运通", "group": "stable", "first": "2010-01-04", "last": "2026-11-20", "asOf": "2026-11-20", "status": "ok", "dividendStatus": "ok" },
     { "symbol": "INTC", "name": "英特尔", "group": "stable", "first": "2010-01-04", "last": "2026-11-20", "asOf": "2026-11-20", "status": "ok", "dividendStatus": "missing" },
     { "symbol": "QQQ", "name": "纳指 100 ETF", "group": "benchmark", "first": "2010-01-04", "last": "2026-11-20", "asOf": "2026-11-20", "status": "ok", "dividendStatus": "ok" },
-    { "symbol": "QQEW", "name": "纳指 100 等权 ETF", "group": "benchmark", "first": "2010-01-04", "last": "2026-11-20", "asOf": "2026-11-20", "status": "ok", "dividendStatus": "ok" }
+    { "symbol": "QQQE", "name": "纳指 100 等权 ETF", "group": "benchmark", "first": "2012-03-21", "last": "2026-11-20", "asOf": "2026-11-20", "status": "ok", "dividendStatus": "ok" },
+    { "symbol": "QQEW", "name": "纳指 100 精选等权 ETF", "group": "benchmark", "first": "2010-01-04", "last": "2026-11-20", "asOf": "2026-11-20", "status": "ok", "dividendStatus": "ok" }
   ]
 }

@@ -16,7 +16,7 @@ const mockedBook = vi.mocked(loadPriceBook)
 const dates = ['2021-08-25', '2021-08-26', '2021-12-31', '2022-01-03']
 
 function fixtureBook(): PriceBook {
-  return Object.fromEntries(['AVGO', 'AAPL', 'META', 'V', 'CB', 'SOFI', 'RKLB', 'PDD', 'QQQ', 'QQEW'].map((symbol, index) => [symbol, {
+  return Object.fromEntries(['AVGO', 'AAPL', 'META', 'V', 'CB', 'SOFI', 'RKLB', 'PDD', 'QQQ', 'QQQE', 'QQEW'].map((symbol, index) => [symbol, {
     dates,
     adjClose: symbol === 'QQQ' ? [100, 100, 70, 100] : [100, 101 + index, 102 + index, 103 + index],
   }]))
@@ -39,13 +39,17 @@ beforeEach(() => {
 afterEach(() => cleanup())
 
 describe('组合再平衡回测页', () => {
-  it('默认打开显示四格对比，含不动、动态平衡、等权与 QQQ', async () => {
+  it('默认打开先显示自动结论，再显示含 QQQ 与 QQQE 的四格对比', async () => {
     render(<PortfolioRebalanceLab />)
     expect(await screen.findByRole('heading', { name: '四格对比' })).toBeTruthy()
     expect(screen.getAllByText('不动').length).toBe(2)
     expect(screen.getAllByText('动态平衡').length).toBe(2)
     expect(screen.getByText('等权')).toBeTruthy()
     expect(screen.getAllByText('QQQ').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('QQQE（纳指 100 等权）').length).toBeGreaterThan(0)
+    const conclusions = screen.getByRole('heading', { name: '这次回测说明了什么' })
+    const comparison = screen.getByRole('heading', { name: '四格对比' })
+    expect(conclusions.compareDocumentPosition(comparison) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(screen.getByRole('heading', { name: '核心指标' })).toBeTruthy()
     expect(screen.getByRole('heading', { name: '当前离线距离' })).toBeTruthy()
   })
@@ -118,10 +122,11 @@ describe('组合再平衡回测页', () => {
     expect(screen.getAllByRole('region', { name: '逐轮大跌' }).length).toBeGreaterThan(0)
   })
 
-  it('页面不出现最佳或推荐字样', async () => {
+  it('页面不出现推荐式标签，只保留不是推荐的边界说明', async () => {
     render(<PortfolioRebalanceLab />)
     await screen.findByRole('heading', { name: '四格对比' })
-    expect(document.body.textContent).not.toMatch(/最佳|推荐/)
+    expect(document.body.textContent).not.toMatch(/最佳|首选|省心|回撤最小|没有明显短板/)
+    expect(screen.getByText('事后挑选的历史测试组合，用来对照，不是推荐或买卖建议。')).toBeTruthy()
   })
 
   it('研究参考组合载入后网址含 calendar:year 与正确 s 参数', async () => {

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-22T08:46:44.773Z",
+  "generatedAt": "2026-11-22T10:20:28.343Z",
   "items": [
     {
       "symbol": "AVGO",
@@ -262,18 +262,18 @@
       "last": "2026-11-20",
       "asOf": "2026-11-20",
       "status": "ok",
-      "crossCheck": "unavailable",
+      "crossCheck": "ok",
       "dividendStatus": "ok"
     },
     {
       "symbol": "QQEW",
-      "name": "First Trust 纳指 100 等权 ETF",
+      "name": "First Trust 纳指 100 精选等权 ETF",
       "group": "benchmark",
       "first": "2010-01-04",
       "last": "2026-11-20",
       "asOf": "2026-11-20",
       "status": "ok",
-      "crossCheck": "unavailable",
+      "crossCheck": "ok",
       "dividendStatus": "ok"
     },
     {
@@ -497,7 +497,7 @@
       "last": "2026-11-20",
       "asOf": "2026-11-20",
       "status": "ok",
-      "crossCheck": "unavailable",
+      "crossCheck": "ok",
       "dividendStatus": "ok",
       "holders": [
         {
@@ -515,7 +515,7 @@
       "last": "2026-11-20",
       "asOf": "2026-11-20",
       "status": "ok",
-      "crossCheck": "unavailable",
+      "crossCheck": "ok",
       "dividendStatus": "ok",
       "holders": [
         {
@@ -542,6 +542,17 @@
           "asOf": "2026-09-30"
         }
       ]
+    },
+    {
+      "symbol": "QQQE",
+      "name": "Direxion 纳指 100 等权 ETF",
+      "group": "benchmark",
+      "first": "2012-03-21",
+      "last": "2026-11-20",
+      "asOf": "2026-11-20",
+      "status": "ok",
+      "crossCheck": "ok",
+      "dividendStatus": "ok"
     }
   ]
 }

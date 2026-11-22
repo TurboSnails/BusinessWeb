@@ -448,27 +448,42 @@ export function leaveOneOutInputs(
   })
 }
 
+export function sameTradingDays(result: RunResult, baseline: RunResult): boolean {
+  return result.start === baseline.start && result.end === baseline.end
+    && result.dates.length === baseline.dates.length
+    && result.dates.every((date, index) => date === baseline.dates[index])
+}
+
 export function compareSet(book: PriceBook, input: RunInput): CompareSet {
-  const holdInput: RunInput = { ...input, rule: { kind: 'buyHold' }, switch: undefined }
+  const active = runBacktest(book, input)
+  const window = { start: active.start, end: active.end }
+  const holdInput: RunInput = { ...input, ...window, rule: { kind: 'buyHold' }, switch: undefined }
   const custom = {
     hold: runBacktest(book, holdInput),
-    active: runBacktest(book, input),
+    active,
   }
-  const eqIn = equalWeightInput(input)
-  const equal = {
-    hold: runBacktest(book, { ...eqIn, rule: { kind: 'buyHold' }, switch: undefined }),
-    active: runBacktest(book, eqIn),
+  const eqIn = { ...equalWeightInput(input), ...window }
+  const eqHoldInput: RunInput = { ...eqIn, rule: { kind: 'buyHold' }, switch: undefined }
+  let equalHold = runBacktest(book, eqHoldInput)
+  if (!sameTradingDays(equalHold, active)) {
+    // An inactive switch no longer contributes the signal calendar. Restrict
+    // one constituent to the baseline sessions for the equal-weight pair.
+    const anchor = input.symbols[0]
+    const source = book[anchor]
+    const priceByDate = new Map(source.dates.map((date, index) => [date, source.adjClose[index]]))
+    const anchorSeries = { dates: active.dates, adjClose: active.dates.map(date => priceByDate.get(date)!) }
+    equalHold = runBacktest({ ...book, [anchor]: anchorSeries }, eqHoldInput)
   }
-  const benchmarks: CompareSet['benchmarks'] = { QQQ: null, QQEW: null }
-  for (const b of ['QQQ', 'QQEW'] as const) {
+  const equal = { hold: equalHold, active: runBacktest(book, eqIn) }
+  const benchmarks: CompareSet['benchmarks'] = { QQQ: null, QQQE: null }
+  for (const b of ['QQQ', 'QQQE'] as const) {
     if (!book[b]) continue
     try {
       benchmarks[b] = runBacktest(book, {
         symbols: [b],
         weights: [1],
         rule: { kind: 'buyHold' },
-        start: input.start,
-        end: input.end,
+        ...window,
         cost: input.cost,
         initial: input.initial,
       })
@@ -478,8 +493,8 @@ export function compareSet(book: PriceBook, input: RunInput): CompareSet {
   }
   const leaveOneOut = leaveOneOutInputs(input).map(({ dropped, input: lo }) => ({
     dropped,
-    hold: runBacktest(book, { ...lo, rule: { kind: 'buyHold' }, switch: undefined }),
-    active: runBacktest(book, lo),
+    hold: runBacktest(book, { ...lo, ...window, rule: { kind: 'buyHold' }, switch: undefined }),
+    active: runBacktest(book, { ...lo, ...window }),
   }))
   return { custom, equal, benchmarks, leaveOneOut }
 }

@@ -44,6 +44,12 @@ export interface Breadth {
   highsLows?: { date: string; covered: number; newHighs: number; newLows: number; advancers: number; decliners: number; netHighsPct: number }
   /** Daily net new highs (% of covered members), recomputed from today's membership. */
   netHighs?: Point[]
+  /**
+   * Daily advancers/decliners among members (closing basis, vs prior close), recomputed from
+   * today's membership: [date, advancers, decliners, unchanged, covered], ascending by date,
+   * about one trading year. Survivorship bias as in backfillScope.
+   */
+  advDec?: Array<[string, number, number, number, number]>
   comparison?: {
     date: string
     above50?: number

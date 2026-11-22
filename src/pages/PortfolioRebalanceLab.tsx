@@ -27,7 +27,7 @@ type PriceLoad =
 type Computation = { comparison: CompareSet; baseline?: RunResult } | { error: string } | null
 
 function requiredSymbols(input: RunInput, index: PriceIndex | null): string[] {
-  const benchmarks = ['QQQ', 'QQEW'].filter(symbol => !index || index.items.some(item => item.symbol === symbol))
+  const benchmarks = ['QQQ', 'QQQE'].filter(symbol => !index || index.items.some(item => item.symbol === symbol))
   const signal = input.switch ? [input.signal ?? 'QQQ'] : []
   return [...new Set([...input.symbols, ...benchmarks, ...signal])]
 }

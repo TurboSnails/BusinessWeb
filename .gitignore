@@ -38,3 +38,4 @@ data-raw/portfolio-explore/work/**/*_rows.json
 data-raw/portfolio-explore/work/**/trade-log.csv
 data-raw/portfolio-explore/work/**/*.log
 data-raw/portfolio-explore/work/longrun-stress/*_*.json
+data-raw/masters-rebalance/drivers.json

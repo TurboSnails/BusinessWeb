@@ -26,6 +26,7 @@ const sectors = {
   Materials: 'sector-xlb', 'Real Estate': 'sector-xlre', Utilities: 'sector-xlu',
 }
 const dateFormat = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' })
+const hourFormat = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: '2-digit', hourCycle: 'h23' })
 const tradingDate = seconds => dateFormat.format(new Date(seconds * 1000))
 const okDate = value => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value
 const okPrice = value => Number.isFinite(value) && value > 0
@@ -67,13 +68,26 @@ function chartRow(body, symbol) {
   return row
 }
 
-export function parseYahooAdjusted(body, symbol) {
+function hasCompletedClose(meta, today, now) {
+  const period = meta.currentTradingPeriod?.regular
+  return Number.isFinite(period?.start) && Number.isFinite(period.end)
+    && tradingDate(period.start) === today && tradingDate(period.end) === today && period.end > period.start
+    && Number(hourFormat.format(now)) >= 16
+    && now.getTime() >= (period.end + 15 * 60) * 1000
+    && Number.isFinite(meta.regularMarketTime) && meta.regularMarketTime >= period.end
+}
+
+export function parseYahooAdjusted(body, symbol, now = new Date()) {
   const row = chartRow(body, symbol)
   const prices = row.indicators?.adjclose?.[0]?.adjclose
   if (!Array.isArray(prices) || prices.length !== row.timestamp.length) throw new Error('Missing adjusted closing-price history')
+  const today = tradingDate(now.getTime() / 1000)
+  const closedToday = hasCompletedClose(row.meta, today, now)
   const pricesByDate = new Map()
   row.timestamp.forEach((timestamp, i) => {
-    if (Number.isFinite(timestamp) && okPrice(prices[i])) pricesByDate.set(tradingDate(timestamp), prices[i])
+    if (!Number.isFinite(timestamp) || !okPrice(prices[i])) return
+    const date = tradingDate(timestamp)
+    if (date < today || (date === today && closedToday)) pricesByDate.set(date, prices[i])
   })
   return [...pricesByDate].sort(([a], [b]) => a.localeCompare(b))
 }
@@ -81,9 +95,8 @@ export function parseYahooAdjusted(body, symbol) {
 export function completedSessions(body, symbol, now = new Date()) {
   const row = chartRow(body, symbol)
   const today = tradingDate(now.getTime() / 1000)
-  const period = row.meta.currentTradingPeriod?.regular
   const close = row.indicators?.quote?.[0]?.close
-  const closedToday = Number.isFinite(period?.start) && Number.isFinite(period.end) && tradingDate(period.start) === today && now.getTime() >= (period.end + 15 * 60) * 1000
+  const closedToday = hasCompletedClose(row.meta, today, now)
   return [...new Set(row.timestamp.flatMap((timestamp, i) => {
     if (!Number.isFinite(timestamp) || !okPrice(close?.[i])) return []
     const date = tradingDate(timestamp)
@@ -127,14 +140,34 @@ export function computeBackfill(members, barsBySymbol, sessions, count = BACKFIL
   return points
 }
 
-/**
- * 52-week new highs/lows (closing basis) and advancers/decliners on one session,
- * counted over members with a full year of aligned closes.
- */
-export function computeHighsLows(members, barsBySymbol, sessions) {
+/** Each point needs at least 95% of members priced on both adjacent sessions. */
+export function computeAdvDec(members, barsBySymbol, sessions, count = BACKFILL) {
+  if (!members.length) return []
+  const prices = members.map(symbol => new Map(barsBySymbol.get(symbol) ?? []))
+  const points = []
+  for (let i = Math.max(1, sessions.length - count); i < sessions.length; i++) {
+    const date = sessions[i]
+    const previousDate = sessions[i - 1]
+    let advancers = 0, decliners = 0, unchanged = 0
+    for (const byDate of prices) {
+      const close = byDate.get(date)
+      const previous = byDate.get(previousDate)
+      if (!okPrice(close) || !okPrice(previous)) continue
+      if (close > previous) advancers += 1
+      else if (close < previous) decliners += 1
+      else unchanged += 1
+    }
+    const covered = advancers + decliners + unchanged
+    if (covered / members.length >= MIN_COVERAGE) points.push([date, advancers, decliners, unchanged, covered])
+  }
+  return points
+}
+
+/** 52-week closing highs/lows use members with a full year of aligned closes. */
+function computeNetHighs(members, barsBySymbol, sessions) {
   if (sessions.length < YEAR) return null
   const window = sessions.slice(-YEAR)
-  let covered = 0, newHighs = 0, newLows = 0, advancers = 0, decliners = 0
+  let covered = 0, newHighs = 0, newLows = 0
   for (const symbol of members) {
     const byDate = new Map(barsBySymbol.get(symbol) ?? [])
     const values = window.map(date => byDate.get(date))
@@ -144,18 +177,22 @@ export function computeHighsLows(members, barsBySymbol, sessions) {
     const prior = values.slice(0, -1)
     if (close >= Math.max(...prior)) newHighs += 1
     if (close <= Math.min(...prior)) newLows += 1
-    if (close > values.at(-2)) advancers += 1
-    else if (close < values.at(-2)) decliners += 1
   }
   if (!members.length || covered / members.length < MIN_COVERAGE) return null
   const pct = n => Math.round(n / covered * 10000) / 100
-  return { date: window.at(-1), covered, newHighs, newLows, advancers, decliners, netHighsPct: pct(newHighs - newLows) }
+  return { date: window.at(-1), covered, newHighs, newLows, netHighsPct: pct(newHighs - newLows) }
+}
+
+export function computeHighsLows(members, barsBySymbol, sessions, daily = computeAdvDec(members, barsBySymbol, sessions, 1).at(-1)) {
+  const row = computeNetHighs(members, barsBySymbol, sessions)
+  // The 52-week denominator still applies to new highs/lows and their net percentage.
+  return row && { ...row, advancers: daily[1], decliners: daily[2] }
 }
 
 export function computeNetHighsBackfill(members, barsBySymbol, sessions, count = BACKFILL) {
   const points = []
   for (let end = Math.max(YEAR, sessions.length - count + 1); end <= sessions.length; end++) {
-    const row = computeHighsLows(members, barsBySymbol, sessions.slice(0, end))
+    const row = computeNetHighs(members, barsBySymbol, sessions.slice(0, end))
     if (row) points.push([row.date, row.netHighsPct])
   }
   return points
@@ -239,7 +276,7 @@ function universeId(symbols) {
   return createHash('sha256').update([...symbols].sort().join(',')).digest('hex').slice(0, 12)
 }
 
-async function fetchBars(symbols, sessions) {
+async function fetchBars(symbols, sessions, now) {
   const date = sessions.at(-1)
   const needed = new Set(sessions.slice(-PRICE_WINDOW))
   const staged = resolve(cacheDir, date)
@@ -256,7 +293,7 @@ async function fetchBars(symbols, sessions) {
           bars.set(symbol, cached)
           continue
         }
-        const adjusted = parseYahooAdjusted(await chart(symbol), symbol).filter(([d]) => needed.has(d))
+        const adjusted = parseYahooAdjusted(await chart(symbol), symbol, now).filter(([d]) => needed.has(d))
         bars.set(symbol, adjusted)
         if (adjusted.length === needed.size) await writeJson(path, adjusted)
       } catch {
@@ -269,6 +306,7 @@ async function fetchBars(symbols, sessions) {
 }
 
 async function main() {
+  const now = new Date()
   const prior = (await readJson(output))?.breadth ?? {}
   const [spxChart, ndxChart, constituents] = await Promise.allSettled([
     chart('^GSPC'), chart('^NDX'), get(spxCsv).then(response => response.text()),
@@ -277,7 +315,7 @@ async function main() {
   const markets = {}
   if (constituents.status === 'fulfilled' && spxChart.status === 'fulfilled') {
     try {
-      const sessions = completedSessions(spxChart.value, '^GSPC')
+      const sessions = completedSessions(spxChart.value, '^GSPC', now)
       const members = parseSpxMembers(constituents.value).filter(m => !m.added || m.added <= sessions.at(-1))
       if (members.length < 490 || members.length > 510 || sessions.length < LOOKBACK || new Set(members.map(m => m.sector)).size !== 11) {
         throw new Error('S&P 500 membership or calendar failed validation')
@@ -287,7 +325,7 @@ async function main() {
   } else issues.push('S&P 500 calendar or membership unavailable')
   if (ndxChart.status === 'fulfilled') {
     try {
-      const sessions = completedSessions(ndxChart.value, '^NDX')
+      const sessions = completedSessions(ndxChart.value, '^NDX', now)
       if (sessions.length < LOOKBACK) throw new Error('Nasdaq-100 calendar failed validation')
       markets.ndx = { sessions, members: await ndxMembers(sessions.at(-1)) }
     } catch (error) { issues.push(error.message) }
@@ -302,6 +340,7 @@ async function main() {
       : { ndx: members }
     const alreadyPublished = Object.entries(universes).every(([id, list]) =>
       prior[id]?.date === sessions.at(-1) && prior[id]?.comparison?.date === sessions.at(-1 - COMPARISON_SESSIONS) &&
+      (id.startsWith('sector-') || prior[id]?.advDec?.at(-1)?.[0] === sessions.at(-1)) &&
       prior[id]?.universe === universeId(list.map(member => member.symbol)) &&
       prior[id]?.source === (market === 'spx' ? spxSource : ndxSource))
     if (alreadyPublished && !process.argv.includes('--force')) continue
@@ -317,7 +356,7 @@ async function main() {
   for (const group of groups.values()) {
     const sessions = group[0][1].sessions
     const unique = [...new Set(group.flatMap(([, config]) => [...config.members, ...(config.priorMembers ?? [])].map(member => member.symbol)))]
-    const { bars, failures, attempted } = await fetchBars(unique, sessions)
+    const { bars, failures, attempted } = await fetchBars(unique, sessions, now)
     if (failures) issues.push(`Yahoo adjusted chart requests failed for ${failures} of ${attempted} attempted securities`)
     for (const [market, { members, priorMembers }] of group) {
       function publish(id, list, source, scope) {
@@ -331,13 +370,16 @@ async function main() {
           ? computeMatchedComparison(list, bars, sessions)
           : priorMembers && computeBreadth(priorMembers.map(member => member.symbol), bars, sessions.slice(0, -COMPARISON_SESSIONS))
         const backfill = computeBackfill(symbols, bars, sessions)
-        const highsLows = computeHighsLows(symbols, bars, sessions)
+        const advDec = computeAdvDec(symbols, bars, sessions, id === market ? BACKFILL : 1)
+        const highsLows = computeHighsLows(symbols, bars, sessions, advDec.at(-1))
         const netHighs = computeNetHighsBackfill(symbols, bars, sessions)
         const observation = {
           ...row, source, scope, universe: universeId(symbols),
           ...(highsLows?.date === row.date && { highsLows }),
           ...(netHighs.length > 1 && { netHighs }),
-          ...(backfill.length > 1 && { backfill, backfillScope: '按当前成分名单回算每日收盘宽度；期间被剔除的股票不在内，存在幸存者偏差' }),
+          ...(id === market && advDec.length > 0 && { advDec }),
+          ...(backfill.length > 1 && { backfill }),
+          ...((backfill.length > 1 || (id === market && advDec.length > 0)) && { backfillScope: '按当前成分名单回算每日收盘宽度；期间被剔除的股票不在内，存在幸存者偏差' }),
         }
         if (comparison) {
           observation.comparison = market === 'spx' ? comparison : {

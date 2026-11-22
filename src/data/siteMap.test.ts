@@ -42,7 +42,7 @@ describe('INVEST_GROUPS', () => {
       '/invest/comprehensive-valuation', '/invest/ai-token-economics', '/invest/fundamental-quant', '/candidates', '/radar', '/watch', '/dcf', '/first-book', '/future-trends', '/grid-trading', '/ai/ai-skills', '/invest/etf', '/industry-etf', '/notes', '/invest/bond-fund-report', '/invest/national-team', '/industry-landscape', '/invest/my-plan', '/investment-plan-2026',
       '/investment-strategy', '/investment-targets', '/limit-up-analysis', '/daily-analysis',
       '/mainland-investment-targets',
-      '/money-freedom', '/monitor', '/pulse', '/research-notes', '/earnings',
+      '/money-freedom', '/monitor', '/invest/macro-masters', '/pulse', '/research-notes', '/earnings',
       '/sector-rotation', '/trading-philosophy', '/valuation', '/market-mood', '/ths-mood', '/jixing',
       '/index-panorama/', '/invest/blogger-views',
       '/lab/etf-flow', '/lab/etf-uptrend', '/lab/etf-watch-pool', '/lab/portfolio-rebalance', '/lab/etf-macd-good', '/lab/etf-hs300-timing', '/lab/etf-signal-plans', '/lab/etf-timing',
@@ -83,7 +83,7 @@ describe('INVEST_GROUPS', () => {
 
   it('候选池独立一组；工具与参考放三件工具和 ETF 流派地图；AI Skills 在「相关」', () => {
     expect(paths('candidates')).toEqual(['/candidates', '/radar'])
-    expect(paths('tools')).toEqual(['/invest/comprehensive-valuation', '/invest/ai-token-economics', '/invest/fundamental-quant', '/valuation', '/dcf', '/index-panorama/', '/grid-trading', '/money-freedom', '/invest/etf', '/industry-etf', '/notes', '/invest/bond-fund-report', '/invest/blogger-views'])
+    expect(paths('tools')).toEqual(['/invest/comprehensive-valuation', '/invest/macro-masters', '/invest/ai-token-economics', '/invest/fundamental-quant', '/valuation', '/dcf', '/index-panorama/', '/grid-trading', '/money-freedom', '/invest/etf', '/industry-etf', '/notes', '/invest/bond-fund-report', '/invest/blogger-views'])
     expect(INVEST_GROUPS.find(g => g.id === 'third-party')!.links.map(l => [l.path, l.label])).toEqual([['/market-mood', '开盘啦'], ['/ths-mood', '同花顺'], ['/jixing', '今天几星']])
     const related = INVEST_GROUPS.find(g => g.id === 'related')!
     expect(related.links.map(l => [l.path, l.label])).toEqual([['/ai/ai-skills', 'AI 投研 Skills']])

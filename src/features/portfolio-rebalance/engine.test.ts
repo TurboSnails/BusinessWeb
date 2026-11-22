@@ -1,14 +1,16 @@
 import { describe, expect, it } from 'vitest'
 import {
+  compareSet,
   equalWeightInput,
   leaveOneOutInputs,
   riseToBound,
   runBacktest,
 } from './engine'
-import { loadAdjustedPriceBook } from './fixtures'
+import { loadAdjustedPriceBook, loadPublicPriceBook } from './fixtures'
 import type { RunInput } from './types'
 
 const book = loadAdjustedPriceBook()
+const windowBook = loadPublicPriceBook(['AAPL', 'MSFT', 'CB', 'RKLB', 'QQQ', 'QQQE'])
 
 const W1: RunInput = {
   symbols: ['AVGO', 'META', 'CB', 'SOFI', 'RKLB'],
@@ -173,5 +175,77 @@ describe('portfolio-rebalance engine anchors', () => {
     })
     expect(r.final.toFixed(4)).toBe('3.7908')
     expect(r.tradeCount).toBe(5)
+  })
+
+  it('逐一剔除与等权反事实沿用原组合实际起止日', () => {
+    const comparison = compareSet(windowBook, {
+      symbols: ['AAPL', 'MSFT', 'RKLB'],
+      weights: [0.4, 0.35, 0.25],
+      rule: { kind: 'relative', pct: 0.4 },
+      start: '2010-01-01',
+      end: '2026-11-20',
+      cost: 0.001,
+      initial: 1,
+    })
+    expect(comparison.custom.active.start).toBe('2021-08-25')
+    const dropped = comparison.leaveOneOut.find(row => row.dropped === 'RKLB')!
+    expect(dropped.active.start).toBe('2021-08-25')
+    expect(dropped.active.end).toBe(comparison.custom.active.end)
+    expect(dropped.hold.start).toBe('2021-08-25')
+    expect(comparison.equal.active.start).toBe('2021-08-25')
+    expect(comparison.equal.hold.start).toBe('2021-08-25')
+  })
+
+  it('等权动态与等权不动共用原组合剔除信号缺日后的交易日', () => {
+    const dates = ['2024-01-31', '2024-02-01', '2024-02-02', '2025-02-03']
+    const series = { dates, adjClose: [100, 100, 100, 100] }
+    const comparison = compareSet({
+      AAPL: series, MSFT: series, CB: series,
+      QQQ: { dates: dates.filter((_, i) => i !== 1), adjClose: [100, 100, 100] },
+    }, {
+      symbols: ['AAPL', 'MSFT', 'CB'], weights: [0.4, 0.35, 0.25],
+      rule: { kind: 'relative', pct: 0.4 },
+      switch: { stable: 'CB', entry: 0.2, gap: 0.05, step: 0.25, recover: 0.05 },
+      cost: 0.001, initial: 1,
+    })
+    expect(comparison.equal.active.dates).toEqual(comparison.custom.active.dates)
+    expect(comparison.equal.hold.dates).toEqual(comparison.custom.active.dates)
+  })
+
+  it('基准沿用组合实际窗口，QQQE 数据较晚时保留实际起点', () => {
+    const comparison = compareSet(windowBook, {
+      symbols: ['AAPL', 'MSFT', 'CB'],
+      weights: [0.4, 0.35, 0.25],
+      rule: { kind: 'relative', pct: 0.4 },
+      start: '2010-01-01',
+      end: '2026-11-20',
+      cost: 0.001,
+      initial: 1,
+    })
+    expect(comparison.custom.active.start).toBe('2010-01-04')
+    expect(comparison.benchmarks.QQQ?.start).toBe('2010-01-04')
+    expect(comparison.benchmarks.QQQ?.end).toBe(comparison.custom.active.end)
+    expect(comparison.benchmarks.QQQE?.start).toBe('2012-03-21')
+    expect(comparison.benchmarks.QQQE?.end).toBe(comparison.custom.active.end)
+  })
+
+  it('compareSet 使用 QQQE 作为纳指 100 等权基准，QQEW 不进入对比集', () => {
+    const series = { dates: ['2024-01-02', '2025-01-02'], adjClose: [100, 110] }
+    const comparison = compareSet({
+      AVGO: series,
+      META: series,
+      QQQ: series,
+      QQQE: series,
+      QQEW: series,
+    }, {
+      symbols: ['AVGO', 'META'],
+      weights: [0.5, 0.5],
+      rule: { kind: 'buyHold' },
+      cost: 0.001,
+      initial: 1,
+    })
+    expect(Object.keys(comparison.benchmarks)).toEqual(['QQQ', 'QQQE'])
+    expect(comparison.benchmarks.QQQE?.final).toBeCloseTo(1.1)
+    expect(comparison.benchmarks.QQQ?.final).toBeCloseTo(1.1)
   })
 })
