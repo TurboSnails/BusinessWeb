@@ -64,6 +64,6 @@ manager 开工后按实际目标补充业务入口、API 契约位置、验收�
 - 页面：大跌切换可选信号指数（QQQ / SPY），结果页新增"信号指数当前位置"（`RunResult.signalState`，含最后一个交易日已触发未成交的 `pendingAction`）。信号用 ETF 复权价，与指数点位的跌幅略有差异（2022 年那轮 SPY 触发 2 步，`^GSPC` 为 3 步）。
 - 研究：`docs/research/portfolio-rebalance-explore-2026-11-21/spx-signal.md`，程序 `data-raw/portfolio-explore/work/spx-signal/run.py`，锚点 `longrun/anchor_spx.py`。1986 年以来 54 个行业组合，标普 −10% 到 −30% 起点相对普通再平衡的年化中位差 +0.38 到 +0.67 个百分点，最大回撤加深 2.9 到 6.5 个百分点（50% 上限后 0.3 到 2.1）；−20% 在 40 年里只触发 5 次。Kimi 的独立程序与 manager 的复算逐项一致。
 - 标普收盘用 Yahoo `^GSPC`，2019 年以来与腾讯 `us.INX` 逐日核对；本机当天连不上 FRED。
-- SPY 已加入 `universe.json` 基准组，首份数据要在推送后手动触发 `portfolio-prices` 工作流生成；在此之前表单只列出纳指 100。
-- 全量 349 文件 / 2,696 测试、884 脚本测试、typecheck、lint 0 error、build 通过；桌面与 390 宽浏览器验收用离线夹具数据完成。截至记录时已在分支上提交，未推送、未部署。
+- SPY 已加入 `universe.json` 基准组；某只信号 ETF 缺数据时表单只列出有数据的那只。
+- 全量 349 文件 / 2,696 测试、884 脚本测试、typecheck、lint 0 error、build 通过；桌面与 390 宽浏览器验收用离线夹具数据完成。用户确认后已推送 main（`96bba87f`），手动触发 `portfolio-prices` 生成 SPY 数据（腾讯核对 502 日一致），Vercel 与 Pages 线上在桌面和 390 宽均已验收。注意：`portfolio-prices` 的数据提交不会自动触发 Pages，新增代码后要手动 `gh workflow run pages.yml --ref main`；Vercel 会自动跟进。
 
