@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import { Page } from '../components/ui'
 import { buildCycleView } from '../features/macro-masters/cycleView'
 import OverviewCompare from '../features/macro-masters/OverviewCompare'
@@ -31,6 +32,7 @@ export default function MacroMasters(): JSX.Element {
       <header className="page-head mm-overview__head">
         <h1>宏观大师怎么看周期</h1>
         <p>{MACRO_MASTERS_LEAD}</p>
+        <p><Link to="/invest/macro-posture">查看宏观攻守与备选指标</Link></p>
       </header>
 
       <OverviewJumpProvider>

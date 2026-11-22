@@ -16,6 +16,7 @@ const ICONS: Record<string, LucideIcon> = {
   '/investment-plan-2026': CalendarClock,
   '/watch': Gauge,
   '/monitor': Thermometer,
+  '/invest/macro-posture': Activity,
   '/pulse': Globe,
   '/sector-rotation': RotateCw,
   '/daily-analysis': Calendar,
@@ -130,7 +131,7 @@ export default function InvestHub(): JSX.Element {
         })}
       </section>
 
-      <CardGroup g={group('watch')} step="1" foldTitle="细节页：宏观温度、全球行情、A股复盘、板块与涨停" />
+      <CardGroup g={group('watch')} step="1" foldTitle="宏观与市场细节页" />
       <p className="inv-related"><Link to="/monitor?tab=market-cycle">牛熊周期</Link><span>按周 / 月复核沪深300、恒生指数、恒生科技、标普500、纳指100的六维证据、趋势与策略风险预算</span></p>
       <CardGroup g={group('research')} step="2" />
 

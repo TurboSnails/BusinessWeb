@@ -42,7 +42,7 @@ describe('INVEST_GROUPS', () => {
       '/invest/comprehensive-valuation', '/invest/ai-token-economics', '/invest/fundamental-quant', '/candidates', '/radar', '/watch', '/dcf', '/first-book', '/future-trends', '/grid-trading', '/ai/ai-skills', '/invest/etf', '/industry-etf', '/notes', '/invest/bond-fund-report', '/invest/national-team', '/industry-landscape', '/invest/my-plan', '/investment-plan-2026',
       '/investment-strategy', '/investment-targets', '/limit-up-analysis', '/daily-analysis',
       '/mainland-investment-targets',
-      '/money-freedom', '/monitor', '/invest/macro-masters', '/pulse', '/research-notes', '/earnings',
+      '/money-freedom', '/monitor', '/invest/macro-posture', '/invest/macro-masters', '/pulse', '/research-notes', '/earnings',
       '/sector-rotation', '/trading-philosophy', '/valuation', '/market-mood', '/ths-mood', '/jixing',
       '/index-panorama/', '/invest/blogger-views',
       '/lab/etf-flow', '/lab/etf-uptrend', '/lab/etf-watch-pool', '/lab/portfolio-rebalance', '/lab/etf-macd-good', '/lab/etf-hs300-timing', '/lab/etf-signal-plans', '/lab/etf-timing',
@@ -71,7 +71,7 @@ describe('INVEST_GROUPS', () => {
   })
 
   it('观察盘一页看完：/watch 是唯一主入口，宏观、全球、A股复盘、板块、涨停都是细节页', () => {
-    expect(paths('watch')).toEqual(['/watch', '/monitor', '/pulse', '/daily-analysis', '/sector-rotation', '/limit-up-analysis'])
+    expect(paths('watch')).toEqual(['/watch', '/monitor', '/invest/macro-posture', '/pulse', '/daily-analysis', '/sector-rotation', '/limit-up-analysis'])
     const watch = INVEST_GROUPS.find(g => g.id === 'watch')!
     expect(watch.links.filter(l => !l.minor).map(l => l.path)).toEqual(['/watch'])
   })

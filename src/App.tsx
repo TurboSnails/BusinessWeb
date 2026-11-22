@@ -78,6 +78,7 @@ const Earnings = lazy(() => import('./pages/Earnings'))
 const EtfTimingLab = lazy(() => import('./pages/EtfTimingLab'))
 const PortfolioRebalanceLab = lazy(() => import('./pages/PortfolioRebalanceLab'))
 const MacroMasters = lazy(() => import('./pages/MacroMasters'))
+const MacroPosture = lazy(() => import('./pages/MacroPosture'))
 const MacroMasterDetail = lazy(() => import('./pages/MacroMasterDetail'))
 const EtfFlowLab = lazy(() => import('./pages/EtfFlowLab'))
 const EtfUptrendLab = lazy(() => import('./pages/EtfUptrendLab'))
@@ -161,6 +162,7 @@ export default function App(): JSX.Element {
           <Route path="/valuation" element={<Valuation />} />
           <Route path="/invest/comprehensive-valuation" element={<ComprehensiveValuation />} />
           <Route path="/invest/macro-masters" element={<MacroMasters />} />
+          <Route path="/invest/macro-posture" element={<MacroPosture />} />
           <Route path="/invest/macro-masters/:slug" element={<MacroMasterDetail />} />
           <Route path="/invest/ai-token-economics" element={<AiTokenEconomics />} />
           <Route path="/invest/fundamental-quant" element={<FundamentalQuant />} />

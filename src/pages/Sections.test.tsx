@@ -30,13 +30,13 @@ describe('InvestHub', () => {
     expect(within(tools).getAllByRole('link').map(a => a.getAttribute('href'))).toEqual(['/invest/comprehensive-valuation', '/invest/macro-masters', '/invest/ai-token-economics', '/invest/fundamental-quant', '/valuation', '/dcf', '/index-panorama/', '/grid-trading', '/money-freedom', '/invest/etf', '/industry-etf', '/notes', '/invest/bond-fund-report', '/invest/blogger-views'])
   })
 
-  it('观察盘只有一张整行主卡片，五个细节页收进默认折叠区', () => {
+  it('观察盘保留一张整行主卡片，宏观攻守等细节页收进默认折叠区', () => {
     wrap(<InvestHub />)
     const watch = screen.getByRole('region', { name: '观察盘' })
     const fold = watch.querySelector('details')!
     expect(fold.open).toBe(false)
     expect(fold.querySelector('summary')?.textContent).toMatch(/细节页/)
-    expect(within(fold).getAllByRole('link').map(a => a.getAttribute('href'))).toEqual(['/monitor', '/pulse', '/daily-analysis', '/sector-rotation', '/limit-up-analysis'])
+    expect(within(fold).getAllByRole('link').map(a => a.getAttribute('href'))).toEqual(['/monitor', '/invest/macro-posture', '/pulse', '/daily-analysis', '/sector-rotation', '/limit-up-analysis'])
     const main = within(watch).getAllByRole('link').filter(a => !fold.contains(a))
     expect(main.map(a => a.getAttribute('href'))).toEqual(['/watch'])
     expect(main[0].closest('ul')?.className).toContain('inv-cards--single')

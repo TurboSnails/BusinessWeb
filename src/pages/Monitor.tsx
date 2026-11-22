@@ -1,6 +1,6 @@
 import React, { lazy, Suspense, useEffect, useState } from 'react'
 import { RefreshCw } from 'lucide-react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { OverviewTab } from '../components/monitor/OverviewTab'
 import { IndicatorsTab } from '../components/monitor/IndicatorsTab'
 import { TemperatureTab } from '../components/monitor/TemperatureTab'
@@ -152,6 +152,7 @@ export default function Monitor(): JSX.Element {
   return (
     <Page>
       <PageTitle>宏观温度</PageTitle>
+      <p><Link to="/invest/macro-posture">查看宏观攻守</Link></p>
       <PageTabs label="宏观温度栏目" items={TABS} value={tab} onChange={id => go({ tab: id === 'overview' ? null : id, old: null })} />
       {needsData && snap && <PageDataFreshness checkedAt={[data.us, data.cn, data.hk].map(section => section?.checkedAt ?? section?.fetchedAt).filter(Boolean).sort().at(-1)} dataLabel="指标观测日期" dataDates={[...Object.values(snap.series).map(series => series.latest.date), ...Object.values(data?.cn?.series ?? {}).map(series => series.latest.date), ...Object.values(data?.hk?.series ?? {}).map(series => series.latest.date)]} note="各指标观测日期不同；页面显示本次核验日与可用数据日期。" />}
       {tab === 'valuation' && indexes && <PageDataFreshness checkedAt={indexes.checkedAt} dataLabel="指数数据日期" dataDates={Object.values(indexes.indexes).flatMap(index => [index.latest.date, index.agg?.date])} note={`快照生成于 ${indexes.generatedAt}。`} />}
