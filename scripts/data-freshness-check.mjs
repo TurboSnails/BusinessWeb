@@ -43,6 +43,7 @@ export const THRESHOLDS = {
   cycleReport: { unit: 'days', max: 8 },
   fpe: { unit: 'days', max: 62 },
   earningsSource: { unit: 'days', max: 3 },
+  portfolioPrices: { unit: 'days', max: 5 },
   disclosureSlackDays: 14,
   staleShare: 0.1,
 }
@@ -482,6 +483,16 @@ function checkEarningsCalendar(root, now) {
   })
 }
 
+/** 组合价格数据：索引的真实最新行情日期，5 个自然日内算新鲜。 */
+function checkPortfolioPrices(root, now) {
+  const file = 'public/data/portfolio-prices/index.json'
+  return guarded('portfolioPrices', file, () => {
+    const body = readJson(root, file)
+    return [item({ id: 'portfolioPrices.index', group: '组合回测', label: '组合价格最新行情', file },
+      judgeDate({ observed: body.items?.map(x => x.asOf).filter(Boolean).sort().at(-1) ?? null, ...THRESHOLDS.portfolioPrices, now }))]
+  })
+}
+
 export async function runDataChecks(root, now) {
   return [
     ...checkCompanyQuotes(root, now),
@@ -498,6 +509,7 @@ export async function runDataChecks(root, now) {
     ...checkDcfPrefill(root, now),
     ...checkMethodReviews(root, now),
     ...checkEarningsCalendar(root, now),
+    ...checkPortfolioPrices(root, now),
   ]
 }
 

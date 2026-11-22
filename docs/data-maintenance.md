@@ -444,3 +444,9 @@ PY
 | SPY、SPSM 买卖价差 | State Street 的 Fund Market Price 区块披露 30 日中位数，使用该区块日期。百分比乘 100 得 bp，发行人的两位小数百分比允许舍入为零。这两只 ETF 分别代表大盘和小盘 ETF 的交易成本样本。 |
 
 纳斯达克综合指数在 `/monitor?tab=us-market&index=ixic`，收盘数据来自 Nasdaq 在 FRED 发布的 NASDAQCOM。既有纳斯达克 100 继续使用 ndx。两者分别计算区间价格表现；缺少综合指数对应的成分宽度、估值或成交量时显示缺数。日常运行 `node scripts/us-market-slices.mjs` 更新，与其余指数共用近期日线、较早周线的存储规则。
+
+## 组合再平衡回测价格 portfolio-prices
+
+- 数据文件位于 `public/data/portfolio-prices/`，按代码保存日线，并由 `index.json` 提供可用代码、日期范围和状态。价格历史来自 Yahoo Finance（yfinance 1.8.0）；回测使用含分红与拆股的复权收盘价，腾讯不复权收盘价只用于最近两年的交叉核对。
+- 每个美股交易日 UTC 22:45 定时运行，也可在 GitHub Actions 手动触发。Yahoo 收集失败、腾讯核对日期或收盘价差超过 0.5%、或出现未列入已知事件的单日复权波动超过 ±50% 时，该代码保留上次文件，在索引中标为过期并写明原因；其他代码继续更新。分红历史存在但本次 Yahoo 未返回分红时，标记为缺失并由页面提示。
+- 新增代码时编辑 `scripts/portfolio-prices/universe.json`，提供股票代码、类型、分组和腾讯行情代码；IPO 或借壳历史从有效日期开始时填写 `validFrom`。确认腾讯代码与市场后，手动触发工作流生成首份数据。

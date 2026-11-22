@@ -72,6 +72,7 @@ function healthyFiles(day = '2026-11-13') {
       cnAppoint: { ok: true, fetchedAt: '2026-11-14T12:22:01Z', error: null },
       cnConsensus: { ok: null, fetchedAt: null, error: '本次未运行' },
     }, items: [] },
+    'public/data/portfolio-prices/index.json': { schemaVersion: 1, generatedAt: '2026-11-14T12:22:01Z', items: [{ symbol: 'AVGO', asOf: '2026-11-13' }] },
     'public/data/dcf-prefill.json': { riskFree: { cn: { date: '2026-11-11', label: '中国10年期国债' } }, issues: [], items: [{ m: 'cn', c: '000001', pxDate: day }] },
     '.github/workflows/demo.yml': "name: Demo job\non:\n  schedule:\n    - cron: '40 10 * * 1-5'\n",
     '.github/workflows/data-freshness.yml': "name: Monitor\non:\n  schedule:\n    - cron: '20 23 * * *'\n",
@@ -271,6 +272,7 @@ test('healthy fixture: no alarm; known source stops are acknowledged, not alarme
     const known = result.items.filter(i => i.status === 'known').map(i => i.id).sort()
     assert.deepEqual(known, ['cycle.fact.hsi.pe_history_5y_percentile', 'cycle.fact.spx.fwd_pe', 'nationalTeam.etfHolders', 'spread.us.forwardPe'])
     assert.equal(result.items.find(i => i.id === 'cycle.fact.all.hkd').status, 'ok')
+    assert.equal(result.items.find(i => i.id === 'portfolioPrices.index').status, 'ok')
     assert.equal(result.workflows[0].delay.last, 443)
     const md = renderMarkdown(result)
     assert.match(md, /结论：正常/)
