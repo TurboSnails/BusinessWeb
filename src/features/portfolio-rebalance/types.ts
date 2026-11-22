@@ -123,7 +123,20 @@ export type PriceIndex = {
     dividendStatus: 'ok' | 'missing' | 'none'
     /** 腾讯交叉核对结果；unavailable 表示腾讯无响应，仅有 Yahoo 数据 */
     crossCheck?: 'ok' | 'unavailable'
+    /** 知名投资人长期持有记录（来自 13F）；没有则省略 */
+    holders?: Holder[]
   }>
+}
+
+/**
+ * 长期持有口径：最新 13F 中该股票占组合 ≥5%，且 5 年前同季度的 13F 已持有（按 CUSIP 发行人前 6 位比对）。
+ * weight 为最新 13F 中占申报市值的比例（0–1，期权行除外），asOf 为该 13F 的报告期末日。
+ */
+export type Holder = {
+  /** 显示名，如 "伯克希尔（巴菲特）" */
+  who: string
+  weight: number
+  asOf: string
 }
 
 /** public/data/portfolio-prices/<SYMBOL>.json */

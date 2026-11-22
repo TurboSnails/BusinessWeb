@@ -15,6 +15,19 @@ function isDate(value: unknown): value is string {
   return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)
 }
 
+function isHolders(value: unknown): boolean {
+  if (value === undefined) return true
+  if (!Array.isArray(value)) return false
+  return value.every(holder => holder && typeof holder === 'object'
+    && typeof (holder as { who?: unknown }).who === 'string'
+    && (holder as { who: string }).who.trim() !== ''
+    && typeof (holder as { weight?: unknown }).weight === 'number'
+    && Number.isFinite((holder as { weight: number }).weight)
+    && (holder as { weight: number }).weight >= 0
+    && (holder as { weight: number }).weight <= 1
+    && isDate((holder as { asOf?: unknown }).asOf))
+}
+
 function isPriceIndex(value: unknown): value is PriceIndex {
   if (!value || typeof value !== 'object') return false
   const index = value as PriceIndex
@@ -22,7 +35,8 @@ function isPriceIndex(value: unknown): value is PriceIndex {
     && index.items.every(item => item && typeof item.symbol === 'string' && typeof item.name === 'string'
       && ['growth', 'highVol', 'stable', 'benchmark'].includes(item.group)
       && isDate(item.first) && isDate(item.last) && isDate(item.asOf)
-      && ['ok', 'stale'].includes(item.status) && ['ok', 'missing', 'none'].includes(item.dividendStatus))
+      && ['ok', 'stale'].includes(item.status) && ['ok', 'missing', 'none'].includes(item.dividendStatus)
+      && isHolders(item.holders))
 }
 
 export async function loadPriceIndex(fetcher: Fetcher = fetch): Promise<PriceIndex> {

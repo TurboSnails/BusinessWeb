@@ -1,5 +1,5 @@
 import React from 'react'
-import type { PriceIndex, Rule, RunInput, SwitchRule } from '../types'
+import type { Holder, PriceIndex, Rule, RunInput, SwitchRule } from '../types'
 import { number, percent } from './format'
 
 const GROUPS = [
@@ -8,6 +8,41 @@ const GROUPS = [
   { id: 'stable', label: '稳定' },
   { id: 'benchmark', label: '基准' },
 ] as const
+
+/** 大师长期持仓分组展示顺序 */
+const MASTER_ORDER = [
+  '巴菲特（伯克希尔）',
+  '段永平（H&H）',
+  '李录（喜马拉雅资本）',
+  '阿克曼（潘兴广场）',
+  '阿克雷（Akre Capital）',
+  '特里·史密斯（Fundsmith）',
+] as const
+
+type MasterHolding = { symbol: string; name: string; weight: number; asOf: string }
+
+function holdersAria(holders: Holder[]): string {
+  return `大师长期持仓：${holders.map(holder => `${holder.who} ${percent(holder.weight, 1)}，截至 ${holder.asOf}`).join('；')}`
+}
+
+function groupMasterHoldings(index: PriceIndex): { who: string; holdings: MasterHolding[] }[] {
+  const byWho = new Map<string, MasterHolding[]>()
+  for (const item of index.items) {
+    for (const holder of item.holders ?? []) {
+      const list = byWho.get(holder.who) ?? []
+      list.push({ symbol: item.symbol, name: item.name, weight: holder.weight, asOf: holder.asOf })
+      byWho.set(holder.who, list)
+    }
+  }
+  const known = new Set<string>(MASTER_ORDER)
+  const ordered: { who: string; holdings: MasterHolding[] }[] = MASTER_ORDER
+    .filter(who => byWho.has(who))
+    .map(who => ({ who, holdings: byWho.get(who)!.sort((x, y) => y.weight - x.weight) }))
+  for (const [who, holdings] of byWho) {
+    if (!known.has(who)) ordered.push({ who, holdings })
+  }
+  return ordered
+}
 
 export function validatePortfolioInput(input: RunInput): string[] {
   const errors: string[] = []
@@ -46,6 +81,7 @@ export function PortfolioForm({ index, value, onChange, onSubmit, defaultStart }
   const total = value.weights.reduce((sum, weight) => sum + weight, 0)
   const itemBySymbol = new Map(index.items.map(item => [item.symbol, item]))
   const selectedStable = index.items.filter(item => item.group === 'stable' && value.symbols.includes(item.symbol))
+  const masterGroups = groupMasterHoldings(index)
   const setRuleKind = (kind: string): void => {
     const rule: Rule = kind === 'absolute' ? { kind, points: 0.1 }
       : kind === 'calendar' ? { kind, every: 'month' }
@@ -62,13 +98,24 @@ export function PortfolioForm({ index, value, onChange, onSubmit, defaultStart }
       <fieldset className="pr-fieldset"><legend>选择代码 <span>已选 {value.symbols.length} / 10</span></legend>
         <div className="pr-universe">{GROUPS.map(group => <div className="pr-universe__group" key={group.id}><h3>{group.label}</h3><div>{index.items.filter(item => item.group === group.id).map(item => {
           const checked = value.symbols.includes(item.symbol)
+          const holders = item.holders
           return <label className={`pr-check ${checked ? 'is-checked' : ''}`} key={item.symbol}><input type="checkbox" checked={checked} disabled={!checked && value.symbols.length >= 10} onChange={() => {
             if (checked) {
               const indexToRemove = value.symbols.indexOf(item.symbol)
               onChange({ ...value, symbols: value.symbols.filter(symbol => symbol !== item.symbol), weights: value.weights.filter((_, index) => index !== indexToRemove) })
             } else onChange({ ...value, symbols: [...value.symbols, item.symbol], weights: [...value.weights, 0] })
-          }} /><span>{item.name}<code>{item.symbol}</code></span></label>
+          }} /><span>{item.name}<code>{item.symbol}</code>{holders && holders.length > 0 && <span className="pr-master-badge" role="img" aria-label={holdersAria(holders)} title={holdersAria(holders)}>大师</span>}</span></label>
         })}</div></div>)}</div>
+        {masterGroups.length > 0 && <details className="pr-masters">
+          <summary>大师长期持仓（13F）</summary>
+          <div className="pr-masters__body">
+            {masterGroups.map(group => <section className="pr-masters__group" key={group.who}>
+              <h4>{group.who}</h4>
+              <ul>{group.holdings.map(holding => <li key={`${group.who}-${holding.symbol}`}>{holding.name}<code>{holding.symbol}</code> · {percent(holding.weight, 1)} · {holding.asOf}</li>)}</ul>
+            </section>)}
+            <p className="pr-masters__note">长期持有：最新一期 13F 中占组合 5% 以上，且五年前同季度的 13F 已持有。13F 只披露美国上市股票多头，存在约 45 天延迟，不代表投资人当前仍持有或推荐。</p>
+          </div>
+        </details>}
       </fieldset>
 
       <fieldset className="pr-fieldset"><legend>目标权重 <span className={Math.abs(total - 1) > 1e-8 ? 'pr-form__error' : ''}>合计 {percent(total, 2)}{Math.abs(total - 1) > 1e-8 && ' · 合计须为 100%'}</span></legend>

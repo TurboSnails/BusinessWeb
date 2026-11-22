@@ -14,10 +14,20 @@ export const knownEvents = { HOOD: [{ date: '2021-08-04', min: 0.45, max: 0.55, 
 const round6 = n => Number(Number(n).toPrecision(6))
 const errorText = e => String(e?.message ?? e).slice(0, 180)
 
-export function crossCheck(yahooRows, tencentRows, { asOf = null } = {}) {
+/** 腾讯不复权收盘价 ÷ 所有 date > d 的拆股比率之积，对齐 Yahoo Close（已按拆股调整）。 */
+export function adjustTencentClose(close, date, splits = []) {
+  let factor = 1
+  for (const split of splits) {
+    if (!Array.isArray(split) || !DAY.test(split[0]) || !(Number(split[1]) > 0)) continue
+    if (split[0] > date) factor *= Number(split[1])
+  }
+  return close / factor
+}
+
+export function crossCheck(yahooRows, tencentRows, { asOf = null, splits = [] } = {}) {
   const cutoff = asOf ? `${Number(asOf.slice(0, 4)) - 2}${asOf.slice(4)}` : null
   const yf = new Map(yahooRows.filter(r => DAY.test(r[0]) && Number.isFinite(Number(r[1])) && (!cutoff || r[0] >= cutoff)).map(r => [r[0], Number(r[1])]))
-  const tq = new Map(tencentRows.filter(r => DAY.test(r[0]) && Number.isFinite(Number(r[1])) && (!cutoff || r[0] >= cutoff)).map(r => [r[0], Number(r[1])]))
+  const tq = new Map(tencentRows.filter(r => DAY.test(r[0]) && Number.isFinite(Number(r[1])) && (!cutoff || r[0] >= cutoff)).map(r => [r[0], adjustTencentClose(Number(r[1]), r[0], splits)]))
   if (!yf.size || !tq.size) return { ok: false, mismatches: 1, reason: '交叉核对：最近两年没有可比较的日线' }
   let mismatches = 0
   for (const [date, close] of yf) {
@@ -26,7 +36,7 @@ export function crossCheck(yahooRows, tencentRows, { asOf = null } = {}) {
   for (const date of tq.keys()) if (!yf.has(date)) mismatches++
   return { ok: mismatches === 0, mismatches, reason: mismatches ? `交叉核对：最近两年 ${mismatches} 个日期缺失或收盘差异超过 0.5%` : null }
 }
-const crossCheckRows = (yahooRows, tencentRows, asOf) => crossCheck(yahooRows, tencentRows, { asOf })
+const crossCheckRows = (yahooRows, tencentRows, asOf, splits) => crossCheck(yahooRows, tencentRows, { asOf, splits })
 function yahooRowsInRecentWindow(rows, asOf) {
   const cutoff = `${Number(asOf.slice(0, 4)) - 2}${asOf.slice(4)}`
   return new Set(rows.filter(r => DAY.test(r[0]) && r[0] >= cutoff && r[0] <= asOf).map(r => r[0])).size
@@ -63,7 +73,14 @@ export function dividendState(previous, dividends) {
 export function mergeIndex(previous = { schemaVersion: 1, items: [] }, results = []) {
   const old = new Map((previous.items ?? []).map(x => [x.symbol, x]))
   for (const result of results) {
-    const base = { symbol: result.symbol, name: result.name, group: result.group, first: result.first ?? old.get(result.symbol)?.first ?? '', last: result.last ?? old.get(result.symbol)?.last ?? '', asOf: result.asOf ?? old.get(result.symbol)?.asOf ?? '', status: result.status, ...(result.statusNote ? { statusNote: result.statusNote } : {}), ...(result.crossCheck ? { crossCheck: result.crossCheck } : {}), dividendStatus: result.dividendStatus ?? old.get(result.symbol)?.dividendStatus ?? 'none' }
+    const prior = old.get(result.symbol)
+    const first = result.first ?? prior?.first ?? ''
+    // 新代码首次失败且无旧条目：不写入 index，避免 first:'' 让页面整份判非法
+    if (result.status === 'stale' && !prior && !first) {
+      console.warn(`跳过写入 index：${result.symbol} 首次采集失败（${result.statusNote ?? '无原因'}）`)
+      continue
+    }
+    const base = { symbol: result.symbol, name: result.name, group: result.group, first, last: result.last ?? prior?.last ?? '', asOf: result.asOf ?? prior?.asOf ?? '', status: result.status, ...(result.statusNote ? { statusNote: result.statusNote } : {}), ...(result.crossCheck ? { crossCheck: result.crossCheck } : {}), dividendStatus: result.dividendStatus ?? prior?.dividendStatus ?? 'none', ...(result.holders ? { holders: result.holders } : {}) }
     old.set(result.symbol, base)
   }
   return { schemaVersion: 1, generatedAt: new Date().toISOString(), items: [...old.values()] }
@@ -134,7 +151,8 @@ export async function tencentRows(symbol, start, end, options = {}) {
 
 /** Configured Tencent symbol first, followed by the three known US suffixes. */
 export async function fetchTencentWithFallback(configured, start, end, options = {}) {
-  const match = /^(us[A-Z0-9]+)\.(?:OQ|N|AM)$/.exec(configured)
+  // us + 字母数字与点，最后一段为交易所后缀；回退只替换后缀（如 usBRK.B.N → usBRK.B.OQ）
+  const match = /^(us[A-Z0-9.]+)\.(OQ|N|AM)$/.exec(configured)
   const candidates = [configured]
   if (match) for (const suffix of ['OQ', 'N', 'AM']) {
     const candidate = `${match[1]}.${suffix}`
@@ -188,7 +206,7 @@ export async function main(args = process.argv.slice(2), options = {}) {
         let crossCheck
         if (fixtureWithoutTencent) {
           tq = clean.dates.map((date, i) => [date, clean.close[i]])
-          crossCheck = crossCheckRows(yf.rows, tq, clean.dates.at(-1))
+          crossCheck = crossCheckRows(yf.rows, tq, clean.dates.at(-1), yf.splits)
         } else {
           const tencent = await fetchTencentWithFallback(item.tencent, from, clean.dates.at(-1), { fetchImpl, sleep, warn, log })
           if (tencent.unavailable) {
@@ -196,7 +214,7 @@ export async function main(args = process.argv.slice(2), options = {}) {
             crossCheckDescription = '交叉核对暂不可用（腾讯无响应），仅 Yahoo'
           } else {
             tq = tencent.rows
-            crossCheck = crossCheckRows(yf.rows, tq, clean.dates.at(-1))
+            crossCheck = crossCheckRows(yf.rows, tq, clean.dates.at(-1), yf.splits)
             if (!crossCheck.ok) reason = crossCheck.reason
             else crossCheckDescription = `腾讯不复权日线，最近 2 年 ${yahooRowsInRecentWindow(yf.rows, clean.dates.at(-1))} 日一致`
           }
