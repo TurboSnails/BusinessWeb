@@ -23,3 +23,18 @@ __pycache__/
 .cache/market-cycle-hsi-turnover/
 .cache/us-market-breadth/
 .cache/dcf-prefill/
+
+# 再平衡研究的原始下载数据只留在本机；提交时只记录来源、下载时间与校验值（见各目录 SOURCES.md）
+data-raw/stock5-rebalance/*.json
+!data-raw/stock5-rebalance/results.json
+data-raw/stock5-rebalance/crosscheck/
+data-raw/stock5-rebalance/.manager-download.txt
+data-raw/portfolio-explore/tencent/
+data-raw/portfolio-explore/longrun/*.zip
+data-raw/portfolio-explore/longrun/*.csv
+data-raw/portfolio-explore/longrun/*.txt
+data-raw/portfolio-explore/longrun/NASDAQ*.json
+data-raw/portfolio-explore/work/**/*_rows.json
+data-raw/portfolio-explore/work/**/trade-log.csv
+data-raw/portfolio-explore/work/**/*.log
+data-raw/portfolio-explore/work/longrun-stress/*_*.json

@@ -1,0 +1,52 @@
+[
+  {
+    "anchor": "A1",
+    "rule": "BH",
+    "actual_final": 3.101963794843409,
+    "rounded_final": 3.102,
+    "expected_final": 3.102,
+    "actual_trades": 0,
+    "expected_trades": 0,
+    "passed": true
+  },
+  {
+    "anchor": "A2",
+    "rule": "R40",
+    "actual_final": 3.6137756625367605,
+    "rounded_final": 3.6138,
+    "expected_final": 3.6138,
+    "actual_trades": 17,
+    "expected_trades": 17,
+    "passed": true
+  },
+  {
+    "anchor": "A3",
+    "rule": "BH",
+    "actual_final": 29.7227043721988,
+    "rounded_final": 29.7227,
+    "expected_final": 29.7227,
+    "actual_trades": 0,
+    "expected_trades": 0,
+    "passed": true
+  },
+  {
+    "anchor": "A4",
+    "rule": "R40",
+    "actual_final": 18.15998416186885,
+    "rounded_final": 18.16,
+    "expected_final": 18.16,
+    "actual_trades": 16,
+    "expected_trades": 16,
+    "passed": true
+  },
+  {
+    "anchor": "A5",
+    "rule": "QQQ BH",
+    "actual_final": 1.6233991462113093,
+    "rounded_final": 1.6234,
+    "expected_final": 1.6234,
+    "actual_trades": 0,
+    "expected_trades": 0,
+    "passed": true
+  }
+]

@@ -1,0 +1,1236 @@
+{
+  "prereg": "stock5-rebalance-backtest-prereg-2026-11-21",
+  "version": "v2",
+  "dataSource": "nasdaq",
+  "evalStart": "2021-08-25",
+  "evalEnd": "2026-11-20",
+  "nDays": 1316,
+  "rawMeta": {
+    "AVGO": {
+      "historicalSha256": "0470980b4d807803de41d2b68d18df8549ff6da3f9c7b6c34c2e328f369b5a94",
+      "dividendsSha256": "7ef22f85b53322e8fff75352090ef439a6aea43a6a76455f437bffaeefcf3a05",
+      "firstDate": "2021-07-01",
+      "lastDate": "2026-11-20",
+      "rows": 1355,
+      "dividendCount": 54,
+      "dividendsMissing": false
+    },
+    "MSFT": {
+      "historicalSha256": "1c1e5b8248c945598baae6d7693c0a42611bf1a1e39a025a3860c0951fafdb88",
+      "dividendsSha256": "68261c740e12461eb342b2e81d7c8e7ce2b1752b520f64c8e12811664dbf43a1",
+      "firstDate": "2021-07-01",
+      "lastDate": "2026-11-20",
+      "rows": 1355,
+      "dividendCount": 55,
+      "dividendsMissing": false
+    },
+    "META": {
+      "historicalSha256": "0ab068b5393da7ecb45fa84d8e4b585b84fe28e773d64c3d09bcfe6baa38de1a",
+      "dividendsSha256": "3f9403612f7e26ffddf1c95191f2b454c0b8257cbffd102d593518f60d26497d",
+      "firstDate": "2021-07-01",
+      "lastDate": "2026-11-20",
+      "rows": 1355,
+      "dividendCount": 11,
+      "dividendsMissing": false
+    },
+    "SOFI": {
+      "historicalSha256": "e85780058d4e65dc038403d62b2fb83fdd4d5d1a8c17ed5be099a913fc6bd975",
+      "dividendsSha256": "2d0b7335d6da7bc87266849e6d466501ce824419b2d9cbfcd23fae2f36c06ea3",
+      "firstDate": "2021-07-01",
+      "lastDate": "2026-11-20",
+      "rows": 1355,
+      "dividendCount": 0,
+      "dividendsMissing": false
+    },
+    "RKLB": {
+      "historicalSha256": "846a762357468df817ae7fd32814afeac039204e104df8b6003c9107bddd4040",
+      "dividendsSha256": "2d0b7335d6da7bc87266849e6d466501ce824419b2d9cbfcd23fae2f36c06ea3",
+      "firstDate": "2021-07-01",
+      "lastDate": "2026-11-20",
+      "rows": 1355,
+      "dividendCount": 0,
+      "dividendsMissing": false
+    },
+    "QQQ": {
+      "historicalSha256": "8daacd4cbdb306a3ea5947eb4231d822850a489475e614924d46193e8ec13b6d",
+      "dividendsSha256": "6ed68a3e308ada901b0fe41e99cea5835cf68e23895b0fc4b527b0b3d190b68c",
+      "firstDate": "2021-07-01",
+      "lastDate": "2026-11-20",
+      "rows": 1355,
+      "dividendCount": 58,
+      "dividendsMissing": false
+    },
+    "QQEW": {
+      "historicalSha256": "185c50f83bafb5d2cfcec7146f35cad5f641118f480b02c096259f8362257b9e",
+      "dividendsSha256": "a6d7e1533a5ecf640a7a8eac9789e7d43db61b7a9c6f1d07d133459e8cede41f",
+      "firstDate": "2021-07-01",
+      "lastDate": "2026-11-20",
+      "rows": 1355,
+      "dividendCount": 0,
+      "dividendsMissing": true
+    }
+  },
+  "divMeta": {
+    "AVGO": {
+      "count": 54,
+      "missing": false
+    },
+    "MSFT": {
+      "count": 55,
+      "missing": false
+    },
+    "META": {
+      "count": 11,
+      "missing": false
+    },
+    "SOFI": {
+      "count": 0,
+      "missing": false
+    },
+    "RKLB": {
+      "count": 0,
+      "missing": false
+    },
+    "QQQ": {
+      "count": 58,
+      "missing": false
+    },
+    "QQEW": {
+      "count": 0,
+      "missing": true
+    }
+  },
+  "dropped": [],
+  "largeMoves": [],
+  "qqewDividendsMissing": true,
+  "avgoSplit": {
+    "date": "2024-07-15",
+    "factor": 10
+  },
+  "metrics": {
+    "BH": {
+      "n": 1316,
+      "start": "2021-08-25",
+      "end": "2026-11-20",
+      "finalEquity": 3.067305,
+      "cagr": 0.239392,
+      "vol": 0.402485,
+      "sharpe": 0.73383,
+      "maxDrawdown": -0.563464,
+      "ddStart": "2021-11-04",
+      "ddEnd": "2022-10-14",
+      "calmar": 0.424858,
+      "triggerCount": 0,
+      "turnoverAnn": 0,
+      "cumCost": 0,
+      "finalWeights": [
+        0.451837,
+        0.109221,
+        0.100198,
+        0.054798,
+        0.283946
+      ],
+      "maxWeight": 0.451837,
+      "stocks": [
+        "AVGO",
+        "MSFT",
+        "META",
+        "SOFI",
+        "RKLB"
+      ],
+      "cer": 0.052549
+    },
+    "T5": {
+      "n": 1316,
+      "start": "2021-08-25",
+      "end": "2026-11-20",
+      "finalEquity": 3.612387,
+      "cagr": 0.278827,
+      "vol": 0.379073,
+      "sharpe": 0.837888,
+      "maxDrawdown": -0.573543,
+      "ddStart": "2021-11-04",
+      "ddEnd": "2022-10-14",
+      "calmar": 0.486148,
+      "triggerCount": 35,
+      "turnoverAnn": 0.436163,
+      "cumCost": 0.002278,
+      "finalWeights": [
+        0.23052,
+        0.203483,
+        0.204428,
+        0.171226,
+        0.190343
+      ],
+      "maxWeight": 0.23052,
+      "stocks": [
+        "AVGO",
+        "MSFT",
+        "META",
+        "SOFI",
+        "RKLB"
+      ],
+      "cer": 0.10224
+    },
+    "M": {
+      "n": 1316,
+      "start": "2021-08-25",
+      "end": "2026-11-20",
+      "finalEquity": 3.670979,
+      "cagr": 0.282773,
+      "vol": 0.383351,
+      "sharpe": 0.840764,
+      "maxDrawdown": -0.565777,
+      "ddStart": "2021-11-17",
+      "ddEnd": "2022-10-14",
+      "calmar": 0.499796,
+      "triggerCount": 63,
+      "turnoverAnn": 0.543742,
+      "cumCost": 0.00284,
+      "finalWeights": [
+        0.212269,
+        0.215104,
+        0.2077,
+        0.168928,
+        0.195999
+      ],
+      "maxWeight": 0.215104,
+      "stocks": [
+        "AVGO",
+        "MSFT",
+        "META",
+        "SOFI",
+        "RKLB"
+      ],
+      "cer": 0.102038
+    },
+    "QQQ": {
+      "n": 1316,
+      "start": "2021-08-25",
+      "end": "2026-11-20",
+      "finalEquity": 1.674312,
+      "cagr": 0.103729,
+      "vol": 0.231887,
+      "sharpe": 0.541497,
+      "maxDrawdown": -0.351225,
+      "ddStart": "2021-12-27",
+      "ddEnd": "2022-11-03",
+      "calmar": 0.295333,
+      "triggerCount": 0,
+      "turnoverAnn": 0,
+      "cumCost": 0,
+      "finalWeights": [
+        1
+      ],
+      "maxWeight": 1,
+      "stocks": [
+        "QQQ"
+      ],
+      "cer": 0.04497
+    },
+    "QQEW": {
+      "n": 1316,
+      "start": "2021-08-25",
+      "end": "2026-11-20",
+      "finalEquity": 1.135752,
+      "cagr": 0.024675,
+      "vol": 0.214571,
+      "sharpe": 0.220763,
+      "maxDrawdown": -0.324787,
+      "ddStart": "2021-11-16",
+      "ddEnd": "2022-10-14",
+      "calmar": 0.075973,
+      "triggerCount": 0,
+      "turnoverAnn": 0,
+      "cumCost": 0,
+      "finalWeights": [
+        1
+      ],
+      "maxWeight": 1,
+      "stocks": [
+        "QQEW"
+      ],
+      "cer": -0.021639
+    }
+  },
+  "main": {
+    "T5": {
+      "deltaCer": 0.049690917895370966,
+      "p": 0.1989,
+      "pHolm": 0.3908,
+      "ci95": [
+        -0.05932052940002325,
+        0.16584999587149868
+      ],
+      "checks": {
+        "a": false,
+        "b": false,
+        "c": false,
+        "d": true,
+        "e": true,
+        "values": {
+          "holmP": 0.3908,
+          "subA": -0.005713546042770398,
+          "subB": 0.09470475118818189,
+          "drop60": -0.0028363842638500225,
+          "dCerHigh": 0.04882223392335431,
+          "looPos": 4,
+          "deltaCer": 0.049690917895370966
+        },
+        "verdict": "未证实"
+      }
+    },
+    "M": {
+      "deltaCer": 0.04948916014920569,
+      "p": 0.1954,
+      "pHolm": 0.3908,
+      "ci95": [
+        -0.060385858795317715,
+        0.16484369677952987
+      ],
+      "checks": {
+        "a": false,
+        "b": false,
+        "c": true,
+        "d": true,
+        "e": true,
+        "values": {
+          "holmP": 0.3908,
+          "subA": -0.00858762962317218,
+          "subB": 0.09667676422077343,
+          "drop60": 0.0013194791123574134,
+          "dCerHigh": 0.04839187240725649,
+          "looPos": 4,
+          "deltaCer": 0.04948916014920569
+        },
+        "verdict": "未证实"
+      }
+    }
+  },
+  "incremental": {
+    "T5_vs_M": {
+      "deltaCer": 0.0002017577461652792,
+      "p": 0.4866,
+      "ci95": [
+        -0.018035987825968824,
+        0.017997541882882846
+      ]
+    },
+    "T5_vs_QQEW": {
+      "deltaCer": 0.12387892202309089,
+      "p": 0.1666,
+      "ci95": [
+        -0.11982737854225413,
+        0.36873152629129846
+      ]
+    },
+    "T5_vs_QQQ": {
+      "deltaCer": 0.05726984738958321,
+      "p": 0.3172,
+      "ci95": [
+        -0.16105520559259903,
+        0.2798607555002287
+      ]
+    }
+  },
+  "decomp": {
+    "bhFinal": 3.0673045825711283,
+    "t5GrossFinal": 3.620625186487897,
+    "t5NetFinal": 3.612387441588094,
+    "diffGross": 0.5533206039167688,
+    "costDrag": 0.008237744899803001,
+    "diffNet": 0.5450828590169658,
+    "t5CumCost": 0.0022777424043359615
+  },
+  "robust": {
+    "sameDay": {
+      "BH": {
+        "n": 1316,
+        "start": "2021-08-25",
+        "end": "2026-11-20",
+        "finalEquity": 3.067305,
+        "cagr": 0.239392,
+        "vol": 0.402485,
+        "sharpe": 0.73383,
+        "maxDrawdown": -0.563464,
+        "ddStart": "2021-11-04",
+        "ddEnd": "2022-10-14",
+        "calmar": 0.424858,
+        "triggerCount": 0,
+        "turnoverAnn": 0,
+        "cumCost": 0,
+        "finalWeights": [
+          0.451837,
+          0.109221,
+          0.100198,
+          0.054798,
+          0.283946
+        ],
+        "maxWeight": 0.451837,
+        "stocks": [
+          "AVGO",
+          "MSFT",
+          "META",
+          "SOFI",
+          "RKLB"
+        ],
+        "cer": 0.052549
+      },
+      "T5": {
+        "n": 1316,
+        "start": "2021-08-25",
+        "end": "2026-11-20",
+        "finalEquity": 3.577132,
+        "cagr": 0.276427,
+        "vol": 0.378511,
+        "sharpe": 0.833581,
+        "maxDrawdown": -0.561117,
+        "ddStart": "2021-11-04",
+        "ddEnd": "2022-11-03",
+        "calmar": 0.492637,
+        "triggerCount": 33,
+        "turnoverAnn": 0.42033,
+        "cumCost": 0.002195,
+        "finalWeights": [
+          0.211265,
+          0.227656,
+          0.19581,
+          0.19819,
+          0.16708
+        ],
+        "maxWeight": 0.227656,
+        "stocks": [
+          "AVGO",
+          "MSFT",
+          "META",
+          "SOFI",
+          "RKLB"
+        ],
+        "cer": 0.100777
+      },
+      "M": {
+        "n": 1316,
+        "start": "2021-08-25",
+        "end": "2026-11-20",
+        "finalEquity": 3.835579,
+        "cagr": 0.293592,
+        "vol": 0.381972,
+        "sharpe": 0.864405,
+        "maxDrawdown": -0.563012,
+        "ddStart": "2021-11-04",
+        "ddEnd": "2022-10-14",
+        "calmar": 0.521468,
+        "triggerCount": 63,
+        "turnoverAnn": 0.560527,
+        "cumCost": 0.002927,
+        "finalWeights": [
+          0.214598,
+          0.213826,
+          0.209634,
+          0.171171,
+          0.190771
+        ],
+        "maxWeight": 0.214598,
+        "stocks": [
+          "AVGO",
+          "MSFT",
+          "META",
+          "SOFI",
+          "RKLB"
+        ],
+        "cer": 0.111491
+      },
+      "deltaCerT5": 0.04822805110695081,
+      "deltaCerM": 0.05894180190115746
+    },
+    "costHigh": {
+      "T5": {
+        "deltaCer": 0.04882223392335431,
+        "n": 1316,
+        "start": "2021-08-25",
+        "end": "2026-11-20",
+        "finalEquity": 3.595966,
+        "cagr": 0.277711,
+        "vol": 0.379067,
+        "sharpe": 0.835592,
+        "maxDrawdown": -0.57376,
+        "ddStart": "2021-11-04",
+        "ddEnd": "2022-10-14",
+        "calmar": 0.48402,
+        "triggerCount": 35,
+        "turnoverAnn": 0.436163,
+        "cumCost": 0.006833,
+        "finalWeights": [
+          0.23052,
+          0.203483,
+          0.204428,
+          0.171226,
+          0.190343
+        ],
+        "maxWeight": 0.23052,
+        "stocks": [
+          "AVGO",
+          "MSFT",
+          "META",
+          "SOFI",
+          "RKLB"
+        ],
+        "cer": 0.101371
+      },
+      "M": {
+        "deltaCer": 0.04839187240725649,
+        "n": 1316,
+        "start": "2021-08-25",
+        "end": "2026-11-20",
+        "finalEquity": 3.650188,
+        "cagr": 0.281378,
+        "vol": 0.383363,
+        "sharpe": 0.837911,
+        "maxDrawdown": -0.566196,
+        "ddStart": "2021-11-17",
+        "ddEnd": "2022-10-14",
+        "calmar": 0.496963,
+        "triggerCount": 63,
+        "turnoverAnn": 0.543742,
+        "cumCost": 0.008519,
+        "finalWeights": [
+          0.212269,
+          0.215104,
+          0.2077,
+          0.168928,
+          0.195999
+        ],
+        "maxWeight": 0.215104,
+        "stocks": [
+          "AVGO",
+          "MSFT",
+          "META",
+          "SOFI",
+          "RKLB"
+        ],
+        "cer": 0.100941
+      },
+      "BH": {
+        "n": 1316,
+        "start": "2021-08-25",
+        "end": "2026-11-20",
+        "finalEquity": 3.067305,
+        "cagr": 0.239392,
+        "vol": 0.402485,
+        "sharpe": 0.73383,
+        "maxDrawdown": -0.563464,
+        "ddStart": "2021-11-04",
+        "ddEnd": "2022-10-14",
+        "calmar": 0.424858,
+        "triggerCount": 0,
+        "turnoverAnn": 0,
+        "cumCost": 0,
+        "finalWeights": [
+          0.451837,
+          0.109221,
+          0.100198,
+          0.054798,
+          0.283946
+        ],
+        "maxWeight": 0.451837,
+        "stocks": [
+          "AVGO",
+          "MSFT",
+          "META",
+          "SOFI",
+          "RKLB"
+        ],
+        "cer": 0.052549
+      }
+    },
+    "T10": {
+      "metrics": {
+        "n": 1316,
+        "start": "2021-08-25",
+        "end": "2026-11-20",
+        "finalEquity": 3.88526,
+        "cagr": 0.296784,
+        "vol": 0.3833,
+        "sharpe": 0.869164,
+        "maxDrawdown": -0.574055,
+        "ddStart": "2021-11-04",
+        "ddEnd": "2022-11-03",
+        "calmar": 0.516996,
+        "triggerCount": 11,
+        "turnoverAnn": 0.27886,
+        "cumCost": 0.001456,
+        "finalWeights": [
+          0.210772,
+          0.214561,
+          0.181496,
+          0.197176,
+          0.195995
+        ],
+        "maxWeight": 0.214561,
+        "stocks": [
+          "AVGO",
+          "MSFT",
+          "META",
+          "SOFI",
+          "RKLB"
+        ],
+        "cer": 0.11294
+      },
+      "deltaCer": 0.0603906750750817
+    },
+    "Q": {
+      "metrics": {
+        "n": 1316,
+        "start": "2021-08-25",
+        "end": "2026-11-20",
+        "finalEquity": 3.354975,
+        "cagr": 0.260851,
+        "vol": 0.386844,
+        "sharpe": 0.792116,
+        "maxDrawdown": -0.57419,
+        "ddStart": "2021-11-04",
+        "ddEnd": "2022-10-14",
+        "calmar": 0.454294,
+        "triggerCount": 21,
+        "turnoverAnn": 0.293969,
+        "cumCost": 0.001535,
+        "finalWeights": [
+          0.219396,
+          0.234472,
+          0.191345,
+          0.195134,
+          0.159653
+        ],
+        "maxWeight": 0.234472,
+        "stocks": [
+          "AVGO",
+          "MSFT",
+          "META",
+          "SOFI",
+          "RKLB"
+        ],
+        "cer": 0.082124
+      },
+      "deltaCer": 0.029574633452173406
+    },
+    "lateStart": {
+      "BH": {
+        "n": 1189,
+        "start": "2022-02-25",
+        "end": "2026-11-20",
+        "finalEquity": 3.196057,
+        "cagr": 0.279232,
+        "vol": 0.401422,
+        "sharpe": 0.813524,
+        "maxDrawdown": -0.462081,
+        "ddStart": "2026-05-29",
+        "ddEnd": "2026-11-20",
+        "calmar": 0.604292,
+        "triggerCount": 0,
+        "turnoverAnn": 0,
+        "cumCost": 0,
+        "finalWeights": [
+          0.351671,
+          0.106065,
+          0.168305,
+          0.073192,
+          0.300767
+        ],
+        "maxWeight": 0.351671,
+        "stocks": [
+          "AVGO",
+          "MSFT",
+          "META",
+          "SOFI",
+          "RKLB"
+        ],
+        "cer": 0.08506
+      },
+      "T5": {
+        "n": 1189,
+        "start": "2022-02-25",
+        "end": "2026-11-20",
+        "finalEquity": 4.018861,
+        "cagr": 0.342874,
+        "vol": 0.378225,
+        "sharpe": 0.968093,
+        "maxDrawdown": -0.404567,
+        "ddStart": "2022-02-28",
+        "ddEnd": "2022-11-03",
+        "calmar": 0.847508,
+        "triggerCount": 32,
+        "turnoverAnn": 0.442927,
+        "cumCost": 0.00209,
+        "finalWeights": [
+          0.23052,
+          0.203483,
+          0.204428,
+          0.171226,
+          0.190343
+        ],
+        "maxWeight": 0.23052,
+        "stocks": [
+          "AVGO",
+          "MSFT",
+          "META",
+          "SOFI",
+          "RKLB"
+        ],
+        "cer": 0.151756
+      },
+      "M": {
+        "n": 1189,
+        "start": "2022-02-25",
+        "end": "2026-11-20",
+        "finalEquity": 4.031707,
+        "cagr": 0.343783,
+        "vol": 0.381044,
+        "sharpe": 0.965519,
+        "maxDrawdown": -0.406395,
+        "ddStart": "2022-02-28",
+        "ddEnd": "2022-10-14",
+        "calmar": 0.845932,
+        "triggerCount": 57,
+        "turnoverAnn": 0.529861,
+        "cumCost": 0.0025,
+        "finalWeights": [
+          0.212269,
+          0.215104,
+          0.2077,
+          0.168928,
+          0.195999
+        ],
+        "maxWeight": 0.215104,
+        "stocks": [
+          "AVGO",
+          "MSFT",
+          "META",
+          "SOFI",
+          "RKLB"
+        ],
+        "cer": 0.150297
+      },
+      "deltaCerT5": 0.06669632029491697,
+      "deltaCerM": 0.06523663505194303
+    }
+  },
+  "leaveOneOut": {
+    "AVGO": {
+      "stocks": [
+        "MSFT",
+        "META",
+        "SOFI",
+        "RKLB"
+      ],
+      "thresholdAbs": 0.0625,
+      "BH": {
+        "n": 1316,
+        "start": "2021-08-25",
+        "end": "2026-11-20",
+        "finalEquity": 2.101727,
+        "cagr": 0.152842,
+        "vol": 0.459713,
+        "sharpe": 0.537507,
+        "maxDrawdown": -0.659673,
+        "ddStart": "2021-11-04",
+        "ddEnd": "2022-12-28",
+        "calmar": 0.231694,
+        "triggerCount": 0,
+        "turnoverAnn": 0,
+        "cumCost": 0,
+        "finalWeights": [
+          0.19925,
+          0.182788,
+          0.099966,
+          0.517996
+        ],
+        "maxWeight": 0.517996,
+        "stocks": [
+          "MSFT",
+          "META",
+          "SOFI",
+          "RKLB"
+        ],
+        "cer": -0.069665
+      },
+      "T5": {
+        "n": 1316,
+        "start": "2021-08-25",
+        "end": "2026-11-20",
+        "finalEquity": 2.979727,
+        "cagr": 0.232536,
+        "vol": 0.408227,
+        "sharpe": 0.715301,
+        "maxDrawdown": -0.641041,
+        "ddStart": "2021-11-04",
+        "ddEnd": "2022-12-28",
+        "calmar": 0.362748,
+        "triggerCount": 29,
+        "turnoverAnn": 0.457464,
+        "cumCost": 0.002389,
+        "finalWeights": [
+          0.264442,
+          0.265671,
+          0.222522,
+          0.247365
+        ],
+        "maxWeight": 0.265671,
+        "stocks": [
+          "MSFT",
+          "META",
+          "SOFI",
+          "RKLB"
+        ],
+        "cer": 0.042221
+      },
+      "M": {
+        "n": 1316,
+        "start": "2021-08-25",
+        "end": "2026-11-20",
+        "finalEquity": 2.869312,
+        "cagr": 0.223657,
+        "vol": 0.414029,
+        "sharpe": 0.693587,
+        "maxDrawdown": -0.640051,
+        "ddStart": "2021-11-04",
+        "ddEnd": "2022-12-28",
+        "calmar": 0.349436,
+        "triggerCount": 63,
+        "turnoverAnn": 0.573462,
+        "cumCost": 0.002995,
+        "finalWeights": [
+          0.273068,
+          0.263669,
+          0.214448,
+          0.248815
+        ],
+        "maxWeight": 0.273068,
+        "stocks": [
+          "MSFT",
+          "META",
+          "SOFI",
+          "RKLB"
+        ],
+        "cer": 0.03023
+      },
+      "deltaCerT5": 0.11188604156272845,
+      "deltaCerM": 0.09989498346480903
+    },
+    "MSFT": {
+      "stocks": [
+        "AVGO",
+        "META",
+        "SOFI",
+        "RKLB"
+      ],
+      "thresholdAbs": 0.0625,
+      "BH": {
+        "n": 1316,
+        "start": "2021-08-25",
+        "end": "2026-11-20",
+        "finalEquity": 3.415362,
+        "cagr": 0.265166,
+        "vol": 0.44441,
+        "sharpe": 0.750516,
+        "maxDrawdown": -0.617421,
+        "ddStart": "2021-11-04",
+        "ddEnd": "2022-10-14",
+        "calmar": 0.429474,
+        "triggerCount": 0,
+        "turnoverAnn": 0,
+        "cumCost": 0,
+        "finalWeights": [
+          0.507239,
+          0.112483,
+          0.061516,
+          0.318762
+        ],
+        "maxWeight": 0.507239,
+        "stocks": [
+          "AVGO",
+          "META",
+          "SOFI",
+          "RKLB"
+        ],
+        "cer": 0.037512
+      },
+      "T5": {
+        "n": 1316,
+        "start": "2021-08-25",
+        "end": "2026-11-20",
+        "finalEquity": 4.216335,
+        "cagr": 0.317251,
+        "vol": 0.437781,
+        "sharpe": 0.8475,
+        "maxDrawdown": -0.628617,
+        "ddStart": "2021-11-04",
+        "ddEnd": "2022-10-14",
+        "calmar": 0.50468,
+        "triggerCount": 28,
+        "turnoverAnn": 0.441258,
+        "cumCost": 0.002304,
+        "finalWeights": [
+          0.279437,
+          0.248047,
+          0.208218,
+          0.264297
+        ],
+        "maxWeight": 0.279437,
+        "stocks": [
+          "AVGO",
+          "META",
+          "SOFI",
+          "RKLB"
+        ],
+        "cer": 0.083759
+      },
+      "M": {
+        "n": 1316,
+        "start": "2021-08-25",
+        "end": "2026-11-20",
+        "finalEquity": 4.141,
+        "cagr": 0.312711,
+        "vol": 0.438466,
+        "sharpe": 0.839027,
+        "maxDrawdown": -0.61459,
+        "ddStart": "2021-11-04",
+        "ddEnd": "2022-10-14",
+        "calmar": 0.508812,
+        "triggerCount": 63,
+        "turnoverAnn": 0.572458,
+        "cumCost": 0.00299,
+        "finalWeights": [
+          0.270442,
+          0.264622,
+          0.215223,
+          0.249713
+        ],
+        "maxWeight": 0.270442,
+        "stocks": [
+          "AVGO",
+          "META",
+          "SOFI",
+          "RKLB"
+        ],
+        "cer": 0.079725
+      },
+      "deltaCerT5": 0.04624746736320477,
+      "deltaCerM": 0.042213267837225316
+    },
+    "META": {
+      "stocks": [
+        "AVGO",
+        "MSFT",
+        "SOFI",
+        "RKLB"
+      ],
+      "thresholdAbs": 0.0625,
+      "BH": {
+        "n": 1316,
+        "start": "2021-08-25",
+        "end": "2026-11-20",
+        "finalEquity": 3.44996,
+        "cagr": 0.26761,
+        "vol": 0.426609,
+        "sharpe": 0.768178,
+        "maxDrawdown": -0.553364,
+        "ddStart": "2021-11-04",
+        "ddEnd": "2022-10-14",
+        "calmar": 0.483606,
+        "triggerCount": 0,
+        "turnoverAnn": 0,
+        "cumCost": 0,
+        "finalWeights": [
+          0.502152,
+          0.121384,
+          0.0609,
+          0.315565
+        ],
+        "maxWeight": 0.502152,
+        "stocks": [
+          "AVGO",
+          "MSFT",
+          "SOFI",
+          "RKLB"
+        ],
+        "cer": 0.054927
+      },
+      "T5": {
+        "n": 1316,
+        "start": "2021-08-25",
+        "end": "2026-11-20",
+        "finalEquity": 4.058219,
+        "cagr": 0.307645,
+        "vol": 0.410422,
+        "sharpe": 0.857864,
+        "maxDrawdown": -0.561855,
+        "ddStart": "2021-11-04",
+        "ddEnd": "2022-10-14",
+        "calmar": 0.547552,
+        "triggerCount": 25,
+        "turnoverAnn": 0.393922,
+        "cumCost": 0.002057,
+        "finalWeights": [
+          0.258215,
+          0.300092,
+          0.218873,
+          0.222821
+        ],
+        "maxWeight": 0.300092,
+        "stocks": [
+          "AVGO",
+          "MSFT",
+          "SOFI",
+          "RKLB"
+        ],
+        "cer": 0.099609
+      },
+      "M": {
+        "n": 1316,
+        "start": "2021-08-25",
+        "end": "2026-11-20",
+        "finalEquity": 4.036069,
+        "cagr": 0.306275,
+        "vol": 0.415768,
+        "sharpe": 0.849604,
+        "maxDrawdown": -0.558578,
+        "ddStart": "2021-11-04",
+        "ddEnd": "2022-10-14",
+        "calmar": 0.548312,
+        "triggerCount": 63,
+        "turnoverAnn": 0.543876,
+        "cumCost": 0.00284,
+        "finalWeights": [
+          0.267915,
+          0.271493,
+          0.213212,
+          0.24738
+        ],
+        "maxWeight": 0.271493,
+        "stocks": [
+          "AVGO",
+          "MSFT",
+          "SOFI",
+          "RKLB"
+        ],
+        "cer": 0.094141
+      },
+      "deltaCerT5": 0.0446823120591471,
+      "deltaCerM": 0.039213947871729056
+    },
+    "SOFI": {
+      "stocks": [
+        "AVGO",
+        "MSFT",
+        "META",
+        "RKLB"
+      ],
+      "thresholdAbs": 0.0625,
+      "BH": {
+        "n": 1316,
+        "start": "2021-08-25",
+        "end": "2026-11-20",
+        "finalEquity": 3.62403,
+        "cagr": 0.279615,
+        "vol": 0.401365,
+        "sharpe": 0.814175,
+        "maxDrawdown": -0.524933,
+        "ddStart": "2021-09-09",
+        "ddEnd": "2022-11-03",
+        "calmar": 0.532668,
+        "triggerCount": 0,
+        "turnoverAnn": 0,
+        "cumCost": 0,
+        "finalWeights": [
+          0.478032,
+          0.115553,
+          0.106007,
+          0.300408
+        ],
+        "maxWeight": 0.478032,
+        "stocks": [
+          "AVGO",
+          "MSFT",
+          "META",
+          "RKLB"
+        ],
+        "cer": 0.085324
+      },
+      "T5": {
+        "n": 1316,
+        "start": "2021-08-25",
+        "end": "2026-11-20",
+        "finalEquity": 4.58601,
+        "cagr": 0.338621,
+        "vol": 0.364616,
+        "sharpe": 0.98159,
+        "maxDrawdown": -0.518726,
+        "ddStart": "2021-09-09",
+        "ddEnd": "2022-11-03",
+        "calmar": 0.652795,
+        "triggerCount": 26,
+        "turnoverAnn": 0.374848,
+        "cumCost": 0.001958,
+        "finalWeights": [
+          0.243856,
+          0.281646,
+          0.280854,
+          0.193644
+        ],
+        "maxWeight": 0.281646,
+        "stocks": [
+          "AVGO",
+          "MSFT",
+          "META",
+          "RKLB"
+        ],
+        "cer": 0.158638
+      },
+      "M": {
+        "n": 1316,
+        "start": "2021-08-25",
+        "end": "2026-11-20",
+        "finalEquity": 4.605755,
+        "cagr": 0.339723,
+        "vol": 0.369727,
+        "sharpe": 0.9753,
+        "maxDrawdown": -0.533105,
+        "ddStart": "2021-09-09",
+        "ddEnd": "2022-11-03",
+        "calmar": 0.637254,
+        "triggerCount": 63,
+        "turnoverAnn": 0.514243,
+        "cumCost": 0.002685,
+        "finalWeights": [
+          0.255416,
+          0.258827,
+          0.249919,
+          0.235838
+        ],
+        "maxWeight": 0.258827,
+        "stocks": [
+          "AVGO",
+          "MSFT",
+          "META",
+          "RKLB"
+        ],
+        "cer": 0.155703
+      },
+      "deltaCerT5": 0.07331372459259447,
+      "deltaCerM": 0.07037933660811604
+    },
+    "RKLB": {
+      "stocks": [
+        "AVGO",
+        "MSFT",
+        "META",
+        "SOFI"
+      ],
+      "thresholdAbs": 0.0625,
+      "BH": {
+        "n": 1316,
+        "start": "2021-08-25",
+        "end": "2026-11-20",
+        "finalEquity": 2.745444,
+        "cagr": 0.21336,
+        "vol": 0.356134,
+        "sharpe": 0.720945,
+        "maxDrawdown": -0.524742,
+        "ddStart": "2021-11-15",
+        "ddEnd": "2022-11-03",
+        "calmar": 0.4066,
+        "triggerCount": 0,
+        "turnoverAnn": 0,
+        "cumCost": 0,
+        "finalWeights": [
+          0.63101,
+          0.152532,
+          0.13993,
+          0.076527
+        ],
+        "maxWeight": 0.63101,
+        "stocks": [
+          "AVGO",
+          "MSFT",
+          "META",
+          "SOFI"
+        ],
+        "cer": 0.06665
+      },
+      "T5": {
+        "n": 1316,
+        "start": "2021-08-25",
+        "end": "2026-11-20",
+        "finalEquity": 2.606415,
+        "cagr": 0.201346,
+        "vol": 0.345397,
+        "sharpe": 0.703472,
+        "maxDrawdown": -0.550731,
+        "ddStart": "2021-11-15",
+        "ddEnd": "2022-11-03",
+        "calmar": 0.365597,
+        "triggerCount": 18,
+        "turnoverAnn": 0.258998,
+        "cumCost": 0.001353,
+        "finalWeights": [
+          0.260875,
+          0.260916,
+          0.227964,
+          0.250245
+        ],
+        "maxWeight": 0.260916,
+        "stocks": [
+          "AVGO",
+          "MSFT",
+          "META",
+          "SOFI"
+        ],
+        "cer": 0.064165
+      },
+      "M": {
+        "n": 1316,
+        "start": "2021-08-25",
+        "end": "2026-11-20",
+        "finalEquity": 2.591074,
+        "cagr": 0.199988,
+        "vol": 0.34353,
+        "sharpe": 0.702153,
+        "maxDrawdown": -0.550389,
+        "ddStart": "2021-11-15",
+        "ddEnd": "2022-11-03",
+        "calmar": 0.363358,
+        "triggerCount": 63,
+        "turnoverAnn": 0.425053,
+        "cumCost": 0.00222,
+        "finalWeights": [
+          0.264016,
+          0.267542,
+          0.258334,
+          0.210109
+        ],
+        "maxWeight": 0.267542,
+        "stocks": [
+          "AVGO",
+          "MSFT",
+          "META",
+          "SOFI"
+        ],
+        "cer": 0.064326
+      },
+      "deltaCerT5": -0.002485562158618823,
+      "deltaCerM": -0.002324552659373716
+    }
+  },
+  "manualCheck": {
+    "firstDecisionDate": "2021-09-07",
+    "firstExecDate": "2021-09-08",
+    "bhEquityOnDecision": 1.1031051156517475,
+    "t5EquityOnDecision": 1.1031051156517475,
+    "equal": true
+  },
+  "firstT5": {
+    "decision": "2021-09-07",
+    "exec": "2021-09-08",
+    "triggerCount": 35
+  }
+}
