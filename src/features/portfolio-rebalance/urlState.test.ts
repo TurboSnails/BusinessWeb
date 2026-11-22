@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { createDefaultInput, decode, encode } from './urlState'
 import type { RunInput } from './types'
 
-const known = ['AVGO', 'META', 'CB', 'SOFI', 'RKLB', 'QQQ', 'QQEW']
+const known = ['AVGO', 'META', 'CB', 'SOFI', 'RKLB', 'QQQ', 'QQEW', 'BRK-B', 'AAPL']
 
 describe('组合回测网址参数', () => {
   it('往返一致', () => {
@@ -34,5 +34,12 @@ describe('组合回测网址参数', () => {
     for (const query of ['s=AVGO:50,META:40', 's=AVGO:50,AVGO:50', 's=AVGO:100', 'sw=QQQ:20:5:25:5']) {
       expect(decode(new URLSearchParams(query), known).invalid).toBe(true)
     }
+  })
+
+  it('带连字符代码 BRK-B 可解析', () => {
+    const decoded = decode(new URLSearchParams('s=BRK-B:50,AAPL:50'), known)
+    expect(decoded.invalid).toBe(false)
+    expect(decoded.input.symbols).toEqual(['BRK-B', 'AAPL'])
+    expect(decoded.input.weights).toEqual([0.5, 0.5])
   })
 })

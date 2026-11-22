@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-22T07:58:38.505Z",
+  "generatedAt": "2026-11-22T08:46:44.773Z",
   "items": [
     {
       "symbol": "AVGO",
@@ -66,7 +66,14 @@
       "asOf": "2026-11-20",
       "status": "ok",
       "crossCheck": "ok",
-      "dividendStatus": "ok"
+      "dividendStatus": "ok",
+      "holders": [
+        {
+          "who": "李录（喜马拉雅资本）",
+          "weight": 0.452,
+          "asOf": "2026-09-30"
+        }
+      ]
     },
     {
       "symbol": "RKLB",
@@ -154,7 +161,14 @@
       "asOf": "2026-11-20",
       "status": "ok",
       "crossCheck": "ok",
-      "dividendStatus": "ok"
+      "dividendStatus": "ok",
+      "holders": [
+        {
+          "who": "巴菲特（伯克希尔）",
+          "weight": 0.113,
+          "asOf": "2026-09-30"
+        }
+      ]
     },
     {
       "symbol": "PG",
@@ -220,12 +234,19 @@
       "asOf": "2026-11-20",
       "status": "ok",
       "crossCheck": "ok",
-      "dividendStatus": "ok"
+      "dividendStatus": "ok",
+      "holders": [
+        {
+          "who": "巴菲特（伯克希尔）",
+          "weight": 0.152,
+          "asOf": "2026-09-30"
+        }
+      ]
     },
     {
       "symbol": "INTC",
       "name": "英特尔",
-      "group": "stable",
+      "group": "highVol",
       "first": "2010-01-04",
       "last": "2026-11-20",
       "asOf": "2026-11-20",
@@ -241,7 +262,7 @@
       "last": "2026-11-20",
       "asOf": "2026-11-20",
       "status": "ok",
-      "crossCheck": "ok",
+      "crossCheck": "unavailable",
       "dividendStatus": "ok"
     },
     {
@@ -252,8 +273,275 @@
       "last": "2026-11-20",
       "asOf": "2026-11-20",
       "status": "ok",
-      "crossCheck": "ok",
+      "crossCheck": "unavailable",
       "dividendStatus": "ok"
+    },
+    {
+      "symbol": "AAPL",
+      "name": "苹果",
+      "group": "growth",
+      "first": "2010-01-04",
+      "last": "2026-11-20",
+      "asOf": "2026-11-20",
+      "status": "ok",
+      "crossCheck": "ok",
+      "dividendStatus": "ok",
+      "holders": [
+        {
+          "who": "段永平（H&H）",
+          "weight": 0.411,
+          "asOf": "2026-09-30"
+        },
+        {
+          "who": "巴菲特（伯克希尔）",
+          "weight": 0.25,
+          "asOf": "2026-09-30"
+        }
+      ]
+    },
+    {
+      "symbol": "MA",
+      "name": "万事达",
+      "group": "growth",
+      "first": "2010-01-04",
+      "last": "2026-11-20",
+      "asOf": "2026-11-20",
+      "status": "ok",
+      "crossCheck": "ok",
+      "dividendStatus": "ok",
+      "holders": [
+        {
+          "who": "阿克雷（Akre Capital）",
+          "weight": 0.22,
+          "asOf": "2026-09-30"
+        }
+      ]
+    },
+    {
+      "symbol": "V",
+      "name": "Visa",
+      "group": "growth",
+      "first": "2010-01-04",
+      "last": "2026-11-20",
+      "asOf": "2026-11-20",
+      "status": "ok",
+      "crossCheck": "ok",
+      "dividendStatus": "ok",
+      "holders": [
+        {
+          "who": "阿克雷（Akre Capital）",
+          "weight": 0.076,
+          "asOf": "2026-09-30"
+        },
+        {
+          "who": "特里·史密斯（Fundsmith）",
+          "weight": 0.063,
+          "asOf": "2026-09-30"
+        }
+      ]
+    },
+    {
+      "symbol": "MCO",
+      "name": "穆迪",
+      "group": "growth",
+      "first": "2010-01-04",
+      "last": "2026-11-20",
+      "asOf": "2026-11-20",
+      "status": "ok",
+      "crossCheck": "ok",
+      "dividendStatus": "ok",
+      "holders": [
+        {
+          "who": "阿克雷（Akre Capital）",
+          "weight": 0.105,
+          "asOf": "2026-09-30"
+        }
+      ]
+    },
+    {
+      "symbol": "ROP",
+      "name": "罗珀科技",
+      "group": "growth",
+      "first": "2010-01-04",
+      "last": "2026-11-20",
+      "asOf": "2026-11-20",
+      "status": "ok",
+      "crossCheck": "ok",
+      "dividendStatus": "ok",
+      "holders": [
+        {
+          "who": "阿克雷（Akre Capital）",
+          "weight": 0.08,
+          "asOf": "2026-09-30"
+        }
+      ]
+    },
+    {
+      "symbol": "CSGP",
+      "name": "CoStar",
+      "group": "growth",
+      "first": "2010-01-04",
+      "last": "2026-11-20",
+      "asOf": "2026-11-20",
+      "status": "ok",
+      "crossCheck": "ok",
+      "dividendStatus": "none",
+      "holders": [
+        {
+          "who": "阿克雷（Akre Capital）",
+          "weight": 0.067,
+          "asOf": "2026-09-30"
+        }
+      ]
+    },
+    {
+      "symbol": "WAT",
+      "name": "沃特世",
+      "group": "growth",
+      "first": "2010-01-04",
+      "last": "2026-11-20",
+      "asOf": "2026-11-20",
+      "status": "ok",
+      "crossCheck": "ok",
+      "dividendStatus": "none",
+      "holders": [
+        {
+          "who": "特里·史密斯（Fundsmith）",
+          "weight": 0.077,
+          "asOf": "2026-09-30"
+        }
+      ]
+    },
+    {
+      "symbol": "SYK",
+      "name": "史赛克",
+      "group": "growth",
+      "first": "2010-01-04",
+      "last": "2026-11-20",
+      "asOf": "2026-11-20",
+      "status": "ok",
+      "crossCheck": "ok",
+      "dividendStatus": "ok",
+      "holders": [
+        {
+          "who": "特里·史密斯（Fundsmith）",
+          "weight": 0.057,
+          "asOf": "2026-09-30"
+        }
+      ]
+    },
+    {
+      "symbol": "BAC",
+      "name": "美国银行",
+      "group": "growth",
+      "first": "2010-01-04",
+      "last": "2026-11-20",
+      "asOf": "2026-11-20",
+      "status": "ok",
+      "crossCheck": "ok",
+      "dividendStatus": "ok",
+      "holders": [
+        {
+          "who": "巴菲特（伯克希尔）",
+          "weight": 0.082,
+          "asOf": "2026-09-30"
+        }
+      ]
+    },
+    {
+      "symbol": "KKR",
+      "name": "KKR",
+      "group": "highVol",
+      "first": "2010-07-15",
+      "last": "2026-11-20",
+      "asOf": "2026-11-20",
+      "status": "ok",
+      "crossCheck": "ok",
+      "dividendStatus": "ok",
+      "holders": [
+        {
+          "who": "阿克雷（Akre Capital）",
+          "weight": 0.089,
+          "asOf": "2026-09-30"
+        }
+      ]
+    },
+    {
+      "symbol": "BRK-B",
+      "name": "伯克希尔 B",
+      "group": "stable",
+      "first": "2010-01-04",
+      "last": "2026-11-20",
+      "asOf": "2026-11-20",
+      "status": "ok",
+      "crossCheck": "ok",
+      "dividendStatus": "none",
+      "holders": [
+        {
+          "who": "段永平（H&H）",
+          "weight": 0.242,
+          "asOf": "2026-09-30"
+        },
+        {
+          "who": "李录（喜马拉雅资本）",
+          "weight": 0.146,
+          "asOf": "2026-09-30"
+        }
+      ]
+    },
+    {
+      "symbol": "CVX",
+      "name": "雪佛龙",
+      "group": "stable",
+      "first": "2010-01-04",
+      "last": "2026-11-20",
+      "asOf": "2026-11-20",
+      "status": "ok",
+      "crossCheck": "unavailable",
+      "dividendStatus": "ok",
+      "holders": [
+        {
+          "who": "巴菲特（伯克希尔）",
+          "weight": 0.057,
+          "asOf": "2026-09-30"
+        }
+      ]
+    },
+    {
+      "symbol": "QSR",
+      "name": "餐饮品牌国际",
+      "group": "stable",
+      "first": "2014-12-11",
+      "last": "2026-11-20",
+      "asOf": "2026-11-20",
+      "status": "ok",
+      "crossCheck": "unavailable",
+      "dividendStatus": "ok",
+      "holders": [
+        {
+          "who": "阿克曼（潘兴广场）",
+          "weight": 0.122,
+          "asOf": "2026-03-31"
+        }
+      ]
+    },
+    {
+      "symbol": "PDD",
+      "name": "拼多多",
+      "group": "highVol",
+      "first": "2018-07-26",
+      "last": "2026-11-20",
+      "asOf": "2026-11-20",
+      "status": "ok",
+      "crossCheck": "ok",
+      "dividendStatus": "none",
+      "holders": [
+        {
+          "who": "李录（喜马拉雅资本）",
+          "weight": 0.242,
+          "asOf": "2026-09-30"
+        }
+      ]
     }
   ]
 }

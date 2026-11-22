@@ -1,0 +1,3151 @@
+{
+ "generatedAt": "2026-11-22T08:47:05.741Z",
+ "dataAsOf": "2026-11-20",
+ "groupCheck": [
+  {
+   "symbol": "AVGO",
+   "group": "growth",
+   "master": false,
+   "vol": 0.448,
+   "beta": 1.38,
+   "corr": 0.71,
+   "first": "2010-01-04"
+  },
+  {
+   "symbol": "META",
+   "group": "growth",
+   "master": false,
+   "vol": 0.449,
+   "beta": 1.25,
+   "corr": 0.65,
+   "first": "2012-05-18"
+  },
+  {
+   "symbol": "MSFT",
+   "group": "growth",
+   "master": false,
+   "vol": 0.281,
+   "beta": 0.86,
+   "corr": 0.71,
+   "first": "2010-01-04"
+  },
+  {
+   "symbol": "NVDA",
+   "group": "growth",
+   "master": false,
+   "vol": 0.519,
+   "beta": 1.75,
+   "corr": 0.78,
+   "first": "2010-01-04"
+  },
+  {
+   "symbol": "AMZN",
+   "group": "growth",
+   "master": false,
+   "vol": 0.363,
+   "beta": 1.14,
+   "corr": 0.73,
+   "first": "2010-01-04"
+  },
+  {
+   "symbol": "GOOGL",
+   "group": "growth",
+   "master": true,
+   "vol": 0.323,
+   "beta": 0.97,
+   "corr": 0.69,
+   "first": "2010-01-04"
+  },
+  {
+   "symbol": "RKLB",
+   "group": "highVol",
+   "master": false,
+   "vol": 0.818,
+   "beta": 1.69,
+   "corr": 0.48,
+   "first": "2021-08-25"
+  },
+  {
+   "symbol": "SOFI",
+   "group": "highVol",
+   "master": false,
+   "vol": 0.657,
+   "beta": 1.6,
+   "corr": 0.57,
+   "first": "2021-06-01"
+  },
+  {
+   "symbol": "PLTR",
+   "group": "highVol",
+   "master": false,
+   "vol": 0.663,
+   "beta": 1.66,
+   "corr": 0.58,
+   "first": "2020-09-30"
+  },
+  {
+   "symbol": "TSLA",
+   "group": "highVol",
+   "master": false,
+   "vol": 0.592,
+   "beta": 1.63,
+   "corr": 0.64,
+   "first": "2010-06-29"
+  },
+  {
+   "symbol": "COIN",
+   "group": "highVol",
+   "master": false,
+   "vol": 0.857,
+   "beta": 2.09,
+   "corr": 0.57,
+   "first": "2021-04-14"
+  },
+  {
+   "symbol": "HOOD",
+   "group": "highVol",
+   "master": false,
+   "vol": 0.681,
+   "beta": 1.69,
+   "corr": 0.57,
+   "first": "2021-07-29"
+  },
+  {
+   "symbol": "CB",
+   "group": "stable",
+   "master": false,
+   "vol": 0.203,
+   "beta": 0.12,
+   "corr": 0.13,
+   "first": "2010-01-04"
+  },
+  {
+   "symbol": "KO",
+   "group": "stable",
+   "master": true,
+   "vol": 0.167,
+   "beta": 0.08,
+   "corr": 0.11,
+   "first": "2010-01-04"
+  },
+  {
+   "symbol": "PG",
+   "group": "stable",
+   "master": false,
+   "vol": 0.183,
+   "beta": 0.09,
+   "corr": 0.12,
+   "first": "2010-01-04"
+  },
+  {
+   "symbol": "JNJ",
+   "group": "stable",
+   "master": false,
+   "vol": 0.179,
+   "beta": 0.01,
+   "corr": 0.02,
+   "first": "2010-01-04"
+  },
+  {
+   "symbol": "WMT",
+   "group": "stable",
+   "master": false,
+   "vol": 0.224,
+   "beta": 0.21,
+   "corr": 0.21,
+   "first": "2010-01-04"
+  },
+  {
+   "symbol": "COST",
+   "group": "stable",
+   "master": false,
+   "vol": 0.228,
+   "beta": 0.44,
+   "corr": 0.45,
+   "first": "2010-01-04"
+  },
+  {
+   "symbol": "GLD",
+   "group": "stable",
+   "master": false,
+   "vol": 0.191,
+   "beta": 0.14,
+   "corr": 0.17,
+   "first": "2010-01-04"
+  },
+  {
+   "symbol": "AXP",
+   "group": "stable",
+   "master": true,
+   "vol": 0.292,
+   "beta": 0.71,
+   "corr": 0.56,
+   "first": "2010-01-04"
+  },
+  {
+   "symbol": "INTC",
+   "group": "stable",
+   "master": false,
+   "vol": 0.567,
+   "beta": 1.35,
+   "corr": 0.55,
+   "first": "2010-01-04"
+  },
+  {
+   "symbol": "AAPL",
+   "group": "growth",
+   "master": true,
+   "vol": 0.278,
+   "beta": 0.82,
+   "corr": 0.69,
+   "first": "2010-01-04"
+  },
+  {
+   "symbol": "MA",
+   "group": "growth",
+   "master": true,
+   "vol": 0.239,
+   "beta": 0.52,
+   "corr": 0.51,
+   "first": "2010-01-04"
+  },
+  {
+   "symbol": "V",
+   "group": "growth",
+   "master": true,
+   "vol": 0.229,
+   "beta": 0.47,
+   "corr": 0.48,
+   "first": "2010-01-04"
+  },
+  {
+   "symbol": "MCO",
+   "group": "growth",
+   "master": true,
+   "vol": 0.268,
+   "beta": 0.65,
+   "corr": 0.56,
+   "first": "2010-01-04"
+  },
+  {
+   "symbol": "ROP",
+   "group": "growth",
+   "master": true,
+   "vol": 0.23,
+   "beta": 0.37,
+   "corr": 0.37,
+   "first": "2010-01-04"
+  },
+  {
+   "symbol": "CSGP",
+   "group": "growth",
+   "master": true,
+   "vol": 0.371,
+   "beta": 0.57,
+   "corr": 0.35,
+   "first": "2010-01-04"
+  },
+  {
+   "symbol": "WAT",
+   "group": "growth",
+   "master": true,
+   "vol": 0.336,
+   "beta": 0.61,
+   "corr": 0.42,
+   "first": "2010-01-04"
+  },
+  {
+   "symbol": "SYK",
+   "group": "growth",
+   "master": true,
+   "vol": 0.261,
+   "beta": 0.45,
+   "corr": 0.4,
+   "first": "2010-01-04"
+  },
+  {
+   "symbol": "BAC",
+   "group": "growth",
+   "master": true,
+   "vol": 0.265,
+   "beta": 0.55,
+   "corr": 0.48,
+   "first": "2010-01-04"
+  },
+  {
+   "symbol": "KKR",
+   "group": "highVol",
+   "master": true,
+   "vol": 0.394,
+   "beta": 1.1,
+   "corr": 0.65,
+   "first": "2010-07-15"
+  },
+  {
+   "symbol": "BRK-B",
+   "group": "stable",
+   "master": true,
+   "vol": 0.171,
+   "beta": 0.3,
+   "corr": 0.41,
+   "first": "2010-01-04"
+  },
+  {
+   "symbol": "CVX",
+   "group": "stable",
+   "master": true,
+   "vol": 0.251,
+   "beta": 0.18,
+   "corr": 0.17,
+   "first": "2010-01-04"
+  },
+  {
+   "symbol": "QSR",
+   "group": "stable",
+   "master": true,
+   "vol": 0.229,
+   "beta": 0.31,
+   "corr": 0.32,
+   "first": "2014-12-11"
+  },
+  {
+   "symbol": "PDD",
+   "group": "highVol",
+   "master": true,
+   "vol": 0.652,
+   "beta": 0.92,
+   "corr": 0.33,
+   "first": "2018-07-26"
+  }
+ ],
+ "A": {
+  "qqq": {
+   "final": 1.6745,
+   "cagr": 0.1034,
+   "mdd": -0.3512,
+   "start": "2021-08-25",
+   "end": "2026-11-20"
+  },
+  "base": {
+   "symbols": [
+    "AVGO",
+    "META",
+    "CB",
+    "SOFI",
+    "RKLB"
+   ],
+   "weights": [
+    0.25,
+    0.25,
+    0.25,
+    0.125,
+    0.125
+   ],
+   "hold": {
+    "final": 3.3,
+    "cagr": 0.256,
+    "mdd": -0.4295,
+    "trades": 0,
+    "start": "2021-08-25",
+    "end": "2026-11-20"
+   },
+   "rebalance": {
+    "final": 3.6733,
+    "cagr": 0.282,
+    "mdd": -0.4432,
+    "trades": 17,
+    "start": "2021-08-25",
+    "end": "2026-11-20"
+   },
+   "switch": {
+    "final": 3.8443,
+    "cagr": 0.2932,
+    "mdd": -0.4662,
+    "trades": 19,
+    "start": "2021-08-25",
+    "end": "2026-11-20"
+   }
+  },
+  "stableSwap": [
+   {
+    "symbols": [
+     "AVGO",
+     "META",
+     "BRK-B",
+     "SOFI",
+     "RKLB"
+    ],
+    "weights": [
+     0.25,
+     0.25,
+     0.25,
+     0.125,
+     0.125
+    ],
+    "hold": {
+     "final": 3.262,
+     "cagr": 0.2533,
+     "mdd": -0.4447,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "rebalance": {
+     "final": 3.653,
+     "cagr": 0.2806,
+     "mdd": -0.4464,
+     "trades": 17,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "switch": {
+     "final": 3.9003,
+     "cagr": 0.2968,
+     "mdd": -0.4608,
+     "trades": 19,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "symbols": [
+     "AVGO",
+     "META",
+     "QSR",
+     "SOFI",
+     "RKLB"
+    ],
+    "weights": [
+     0.25,
+     0.25,
+     0.25,
+     0.125,
+     0.125
+    ],
+    "hold": {
+     "final": 3.1077,
+     "cagr": 0.2417,
+     "mdd": -0.4556,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "rebalance": {
+     "final": 3.3028,
+     "cagr": 0.2562,
+     "mdd": -0.4479,
+     "trades": 16,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "switch": {
+     "final": 3.2491,
+     "cagr": 0.2523,
+     "mdd": -0.4918,
+     "trades": 18,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "symbols": [
+     "AVGO",
+     "META",
+     "CVX",
+     "SOFI",
+     "RKLB"
+    ],
+    "weights": [
+     0.25,
+     0.25,
+     0.25,
+     0.125,
+     0.125
+    ],
+    "hold": {
+     "final": 3.4176,
+     "cagr": 0.2645,
+     "mdd": -0.3672,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "rebalance": {
+     "final": 4.4234,
+     "cagr": 0.3283,
+     "mdd": -0.3764,
+     "trades": 17,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "switch": {
+     "final": 4.2002,
+     "cagr": 0.3152,
+     "mdd": -0.4242,
+     "trades": 18,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "symbols": [
+     "AVGO",
+     "META",
+     "KO",
+     "SOFI",
+     "RKLB"
+    ],
+    "weights": [
+     0.25,
+     0.25,
+     0.25,
+     0.125,
+     0.125
+    ],
+    "hold": {
+     "final": 3.2704,
+     "cagr": 0.2539,
+     "mdd": -0.4302,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "rebalance": {
+     "final": 3.7963,
+     "cagr": 0.2901,
+     "mdd": -0.4552,
+     "trades": 15,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "switch": {
+     "final": 3.9546,
+     "cagr": 0.3002,
+     "mdd": -0.4566,
+     "trades": 18,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "symbols": [
+     "AVGO",
+     "META",
+     "AXP",
+     "SOFI",
+     "RKLB"
+    ],
+    "weights": [
+     0.25,
+     0.25,
+     0.25,
+     0.125,
+     0.125
+    ],
+    "hold": {
+     "final": 3.2499,
+     "cagr": 0.2524,
+     "mdd": -0.4777,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "rebalance": {
+     "final": 3.5277,
+     "cagr": 0.2721,
+     "mdd": -0.4989,
+     "trades": 15,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "switch": {
+     "final": 3.5542,
+     "cagr": 0.274,
+     "mdd": -0.4995,
+     "trades": 17,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   }
+  ],
+  "growthSwap": [
+   {
+    "out": "AVGO",
+    "in": "AAPL",
+    "symbols": [
+     "AAPL",
+     "META",
+     "CB",
+     "SOFI",
+     "RKLB"
+    ],
+    "weights": [
+     0.25,
+     0.25,
+     0.25,
+     0.125,
+     0.125
+    ],
+    "hold": {
+     "final": 2.1599,
+     "cagr": 0.1584,
+     "mdd": -0.4165,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "rebalance": {
+     "final": 3.0149,
+     "cagr": 0.2345,
+     "mdd": -0.4248,
+     "trades": 19,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "switch": {
+     "final": 2.9694,
+     "cagr": 0.231,
+     "mdd": -0.4553,
+     "trades": 19,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "out": "AVGO",
+    "in": "GOOGL",
+    "symbols": [
+     "GOOGL",
+     "META",
+     "CB",
+     "SOFI",
+     "RKLB"
+    ],
+    "weights": [
+     0.25,
+     0.25,
+     0.25,
+     0.125,
+     0.125
+    ],
+    "hold": {
+     "final": 2.0389,
+     "cagr": 0.1457,
+     "mdd": -0.472,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "rebalance": {
+     "final": 2.8562,
+     "cagr": 0.2219,
+     "mdd": -0.487,
+     "trades": 19,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "switch": {
+     "final": 2.6945,
+     "cagr": 0.2083,
+     "mdd": -0.5154,
+     "trades": 20,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "out": "AVGO",
+    "in": "MA",
+    "symbols": [
+     "MA",
+     "META",
+     "CB",
+     "SOFI",
+     "RKLB"
+    ],
+    "weights": [
+     0.25,
+     0.25,
+     0.25,
+     0.125,
+     0.125
+    ],
+    "hold": {
+     "final": 2.0169,
+     "cagr": 0.1433,
+     "mdd": -0.4413,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "rebalance": {
+     "final": 2.7716,
+     "cagr": 0.2149,
+     "mdd": -0.4358,
+     "trades": 19,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "switch": {
+     "final": 2.6216,
+     "cagr": 0.202,
+     "mdd": -0.4617,
+     "trades": 20,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "out": "AVGO",
+    "in": "V",
+    "symbols": [
+     "V",
+     "META",
+     "CB",
+     "SOFI",
+     "RKLB"
+    ],
+    "weights": [
+     0.25,
+     0.25,
+     0.25,
+     0.125,
+     0.125
+    ],
+    "hold": {
+     "final": 2.0171,
+     "cagr": 0.1434,
+     "mdd": -0.4481,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "rebalance": {
+     "final": 2.7805,
+     "cagr": 0.2156,
+     "mdd": -0.4288,
+     "trades": 20,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "switch": {
+     "final": 2.6383,
+     "cagr": 0.2035,
+     "mdd": -0.4526,
+     "trades": 19,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "out": "AVGO",
+    "in": "MCO",
+    "symbols": [
+     "MCO",
+     "META",
+     "CB",
+     "SOFI",
+     "RKLB"
+    ],
+    "weights": [
+     0.25,
+     0.25,
+     0.25,
+     0.125,
+     0.125
+    ],
+    "hold": {
+     "final": 1.8919,
+     "cagr": 0.1295,
+     "mdd": -0.4799,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "rebalance": {
+     "final": 2.5118,
+     "cagr": 0.1923,
+     "mdd": -0.4801,
+     "trades": 18,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "switch": {
+     "final": 2.4649,
+     "cagr": 0.188,
+     "mdd": -0.5144,
+     "trades": 18,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "out": "AVGO",
+    "in": "ROP",
+    "symbols": [
+     "ROP",
+     "META",
+     "CB",
+     "SOFI",
+     "RKLB"
+    ],
+    "weights": [
+     0.25,
+     0.25,
+     0.25,
+     0.125,
+     0.125
+    ],
+    "hold": {
+     "final": 1.8157,
+     "cagr": 0.1206,
+     "mdd": -0.4516,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "rebalance": {
+     "final": 2.4273,
+     "cagr": 0.1845,
+     "mdd": -0.4431,
+     "trades": 19,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "switch": {
+     "final": 2.4391,
+     "cagr": 0.1856,
+     "mdd": -0.4743,
+     "trades": 20,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "out": "AVGO",
+    "in": "CSGP",
+    "symbols": [
+     "CSGP",
+     "META",
+     "CB",
+     "SOFI",
+     "RKLB"
+    ],
+    "weights": [
+     0.25,
+     0.25,
+     0.25,
+     0.125,
+     0.125
+    ],
+    "hold": {
+     "final": 1.6557,
+     "cagr": 0.1011,
+     "mdd": -0.454,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "rebalance": {
+     "final": 1.888,
+     "cagr": 0.129,
+     "mdd": -0.4386,
+     "trades": 17,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "switch": {
+     "final": 1.9068,
+     "cagr": 0.1311,
+     "mdd": -0.4356,
+     "trades": 18,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "out": "AVGO",
+    "in": "WAT",
+    "symbols": [
+     "WAT",
+     "META",
+     "CB",
+     "SOFI",
+     "RKLB"
+    ],
+    "weights": [
+     0.25,
+     0.25,
+     0.25,
+     0.125,
+     0.125
+    ],
+    "hold": {
+     "final": 1.8381,
+     "cagr": 0.1232,
+     "mdd": -0.4792,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "rebalance": {
+     "final": 2.5708,
+     "cagr": 0.1976,
+     "mdd": -0.4599,
+     "trades": 18,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "switch": {
+     "final": 2.4034,
+     "cagr": 0.1823,
+     "mdd": -0.4938,
+     "trades": 19,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "out": "AVGO",
+    "in": "SYK",
+    "symbols": [
+     "SYK",
+     "META",
+     "CB",
+     "SOFI",
+     "RKLB"
+    ],
+    "weights": [
+     0.25,
+     0.25,
+     0.25,
+     0.125,
+     0.125
+    ],
+    "hold": {
+     "final": 1.8692,
+     "cagr": 0.1269,
+     "mdd": -0.4586,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "rebalance": {
+     "final": 2.4243,
+     "cagr": 0.1842,
+     "mdd": -0.4401,
+     "trades": 16,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "switch": {
+     "final": 2.4797,
+     "cagr": 0.1893,
+     "mdd": -0.4744,
+     "trades": 18,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "out": "AVGO",
+    "in": "BAC",
+    "symbols": [
+     "BAC",
+     "META",
+     "CB",
+     "SOFI",
+     "RKLB"
+    ],
+    "weights": [
+     0.25,
+     0.25,
+     0.25,
+     0.125,
+     0.125
+    ],
+    "hold": {
+     "final": 1.8846,
+     "cagr": 0.1286,
+     "mdd": -0.4678,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "rebalance": {
+     "final": 2.7144,
+     "cagr": 0.21,
+     "mdd": -0.4648,
+     "trades": 17,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "switch": {
+     "final": 2.5031,
+     "cagr": 0.1915,
+     "mdd": -0.4779,
+     "trades": 16,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "out": "META",
+    "in": "AAPL",
+    "symbols": [
+     "AVGO",
+     "AAPL",
+     "CB",
+     "SOFI",
+     "RKLB"
+    ],
+    "weights": [
+     0.25,
+     0.25,
+     0.25,
+     0.125,
+     0.125
+    ],
+    "hold": {
+     "final": 3.508,
+     "cagr": 0.2708,
+     "mdd": -0.3556,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "rebalance": {
+     "final": 4.3124,
+     "cagr": 0.3219,
+     "mdd": -0.3201,
+     "trades": 19,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "switch": {
+     "final": 4.2302,
+     "cagr": 0.317,
+     "mdd": -0.3536,
+     "trades": 18,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "out": "META",
+    "in": "GOOGL",
+    "symbols": [
+     "AVGO",
+     "GOOGL",
+     "CB",
+     "SOFI",
+     "RKLB"
+    ],
+    "weights": [
+     0.25,
+     0.25,
+     0.25,
+     0.125,
+     0.125
+    ],
+    "hold": {
+     "final": 3.387,
+     "cagr": 0.2623,
+     "mdd": -0.3882,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "rebalance": {
+     "final": 3.8311,
+     "cagr": 0.2923,
+     "mdd": -0.365,
+     "trades": 16,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "switch": {
+     "final": 4.0247,
+     "cagr": 0.3046,
+     "mdd": -0.3974,
+     "trades": 17,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "out": "META",
+    "in": "MA",
+    "symbols": [
+     "AVGO",
+     "MA",
+     "CB",
+     "SOFI",
+     "RKLB"
+    ],
+    "weights": [
+     0.25,
+     0.25,
+     0.25,
+     0.125,
+     0.125
+    ],
+    "hold": {
+     "final": 3.3651,
+     "cagr": 0.2607,
+     "mdd": -0.3564,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "rebalance": {
+     "final": 4.027,
+     "cagr": 0.3047,
+     "mdd": -0.3372,
+     "trades": 18,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "switch": {
+     "final": 3.9399,
+     "cagr": 0.2993,
+     "mdd": -0.3646,
+     "trades": 19,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "out": "META",
+    "in": "V",
+    "symbols": [
+     "AVGO",
+     "V",
+     "CB",
+     "SOFI",
+     "RKLB"
+    ],
+    "weights": [
+     0.25,
+     0.25,
+     0.25,
+     0.125,
+     0.125
+    ],
+    "hold": {
+     "final": 3.3652,
+     "cagr": 0.2607,
+     "mdd": -0.3575,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "rebalance": {
+     "final": 4.0183,
+     "cagr": 0.3042,
+     "mdd": -0.3239,
+     "trades": 18,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "switch": {
+     "final": 4.0194,
+     "cagr": 0.3042,
+     "mdd": -0.3525,
+     "trades": 19,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "out": "META",
+    "in": "MCO",
+    "symbols": [
+     "AVGO",
+     "MCO",
+     "CB",
+     "SOFI",
+     "RKLB"
+    ],
+    "weights": [
+     0.25,
+     0.25,
+     0.25,
+     0.125,
+     0.125
+    ],
+    "hold": {
+     "final": 3.24,
+     "cagr": 0.2516,
+     "mdd": -0.385,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "rebalance": {
+     "final": 3.4402,
+     "cagr": 0.266,
+     "mdd": -0.3939,
+     "trades": 14,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "switch": {
+     "final": 3.6125,
+     "cagr": 0.2779,
+     "mdd": -0.4103,
+     "trades": 18,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "out": "META",
+    "in": "ROP",
+    "symbols": [
+     "AVGO",
+     "ROP",
+     "CB",
+     "SOFI",
+     "RKLB"
+    ],
+    "weights": [
+     0.25,
+     0.25,
+     0.25,
+     0.125,
+     0.125
+    ],
+    "hold": {
+     "final": 3.1639,
+     "cagr": 0.246,
+     "mdd": -0.3745,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "rebalance": {
+     "final": 3.6253,
+     "cagr": 0.2788,
+     "mdd": -0.3364,
+     "trades": 18,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "switch": {
+     "final": 3.4728,
+     "cagr": 0.2683,
+     "mdd": -0.3734,
+     "trades": 16,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "out": "META",
+    "in": "CSGP",
+    "symbols": [
+     "AVGO",
+     "CSGP",
+     "CB",
+     "SOFI",
+     "RKLB"
+    ],
+    "weights": [
+     0.25,
+     0.25,
+     0.25,
+     0.125,
+     0.125
+    ],
+    "hold": {
+     "final": 3.0038,
+     "cagr": 0.2337,
+     "mdd": -0.3988,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "rebalance": {
+     "final": 2.6402,
+     "cagr": 0.2037,
+     "mdd": -0.3415,
+     "trades": 15,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "switch": {
+     "final": 2.7436,
+     "cagr": 0.2125,
+     "mdd": -0.3583,
+     "trades": 19,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "out": "META",
+    "in": "WAT",
+    "symbols": [
+     "AVGO",
+     "WAT",
+     "CB",
+     "SOFI",
+     "RKLB"
+    ],
+    "weights": [
+     0.25,
+     0.25,
+     0.25,
+     0.125,
+     0.125
+    ],
+    "hold": {
+     "final": 3.1863,
+     "cagr": 0.2476,
+     "mdd": -0.3794,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "rebalance": {
+     "final": 3.5936,
+     "cagr": 0.2766,
+     "mdd": -0.3304,
+     "trades": 20,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "switch": {
+     "final": 3.5421,
+     "cagr": 0.2731,
+     "mdd": -0.3737,
+     "trades": 17,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "out": "META",
+    "in": "SYK",
+    "symbols": [
+     "AVGO",
+     "SYK",
+     "CB",
+     "SOFI",
+     "RKLB"
+    ],
+    "weights": [
+     0.25,
+     0.25,
+     0.25,
+     0.125,
+     0.125
+    ],
+    "hold": {
+     "final": 3.2174,
+     "cagr": 0.25,
+     "mdd": -0.3773,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "rebalance": {
+     "final": 3.5536,
+     "cagr": 0.2739,
+     "mdd": -0.3575,
+     "trades": 16,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "switch": {
+     "final": 3.5878,
+     "cagr": 0.2762,
+     "mdd": -0.371,
+     "trades": 19,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "out": "META",
+    "in": "BAC",
+    "symbols": [
+     "AVGO",
+     "BAC",
+     "CB",
+     "SOFI",
+     "RKLB"
+    ],
+    "weights": [
+     0.25,
+     0.25,
+     0.25,
+     0.125,
+     0.125
+    ],
+    "hold": {
+     "final": 3.2327,
+     "cagr": 0.2511,
+     "mdd": -0.3814,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "rebalance": {
+     "final": 3.6006,
+     "cagr": 0.2771,
+     "mdd": -0.3692,
+     "trades": 19,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "switch": {
+     "final": 3.6513,
+     "cagr": 0.2805,
+     "mdd": -0.394,
+     "trades": 18,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   }
+  ]
+ },
+ "B": {
+  "groups": {
+   "growth": [
+    "AVGO",
+    "META",
+    "MSFT",
+    "NVDA",
+    "AMZN",
+    "GOOGL",
+    "AAPL",
+    "MA",
+    "V",
+    "MCO",
+    "ROP",
+    "CSGP",
+    "WAT",
+    "SYK",
+    "BAC"
+   ],
+   "highVol": [
+    "RKLB",
+    "SOFI",
+    "PLTR",
+    "TSLA",
+    "COIN",
+    "HOOD",
+    "KKR",
+    "PDD"
+   ],
+   "stable": [
+    "CB",
+    "KO",
+    "PG",
+    "JNJ",
+    "WMT",
+    "COST",
+    "GLD",
+    "AXP",
+    "INTC",
+    "BRK-B",
+    "CVX",
+    "QSR"
+   ]
+  },
+  "weights": [
+   0.25,
+   0.25,
+   0.125,
+   0.125,
+   0.25
+  ],
+  "all": {
+   "n": 35280,
+   "rebWinShare": 0.903,
+   "medCagrHold": 0.1294,
+   "medCagrReb": 0.164,
+   "medRebMinusHold": 0.0341,
+   "medMddHold": -0.3771,
+   "medMddReb": -0.3718,
+   "medSwitchMinusReb": 0.0038,
+   "medSwitchMddMinusReb": -0.0112,
+   "switchWinShare": 0.612
+  },
+  "byMasterCount": {
+   "0": {
+    "n": 1050,
+    "rebWinShare": 0.933,
+    "medCagrHold": 0.2215,
+    "medCagrReb": 0.2457,
+    "medRebMinusHold": 0.0373,
+    "medMddHold": -0.4635,
+    "medMddReb": -0.4766,
+    "medSwitchMinusReb": -0.0018,
+    "medSwitchMddMinusReb": -0.0233,
+    "switchWinShare": 0.451
+   },
+   "1": {
+    "n": 6840,
+    "rebWinShare": 0.893,
+    "medCagrHold": 0.1748,
+    "medCagrReb": 0.205,
+    "medRebMinusHold": 0.0371,
+    "medMddHold": -0.4233,
+    "medMddReb": -0.4306,
+    "medSwitchMinusReb": 0.0002,
+    "medSwitchMddMinusReb": -0.0186,
+    "switchWinShare": 0.506
+   },
+   "2": {
+    "n": 13345,
+    "rebWinShare": 0.898,
+    "medCagrHold": 0.1364,
+    "medCagrReb": 0.1714,
+    "medRebMinusHold": 0.0358,
+    "medMddHold": -0.385,
+    "medMddReb": -0.3836,
+    "medSwitchMinusReb": 0.0025,
+    "medSwitchMddMinusReb": -0.0134,
+    "switchWinShare": 0.575
+   },
+   "3": {
+    "n": 10555,
+    "rebWinShare": 0.907,
+    "medCagrHold": 0.1109,
+    "medCagrReb": 0.1439,
+    "medRebMinusHold": 0.0328,
+    "medMddHold": -0.3513,
+    "medMddReb": -0.3395,
+    "medSwitchMinusReb": 0.0064,
+    "medSwitchMddMinusReb": -0.0067,
+    "switchWinShare": 0.675
+   },
+   "4": {
+    "n": 3265,
+    "rebWinShare": 0.924,
+    "medCagrHold": 0.0922,
+    "medCagrReb": 0.1222,
+    "medRebMinusHold": 0.0295,
+    "medMddHold": -0.3177,
+    "medMddReb": -0.3019,
+    "medSwitchMinusReb": 0.0106,
+    "medSwitchMddMinusReb": 0,
+    "switchWinShare": 0.807
+   },
+   "5": {
+    "n": 225,
+    "rebWinShare": 0.956,
+    "medCagrHold": 0.0807,
+    "medCagrReb": 0.1057,
+    "medRebMinusHold": 0.025,
+    "medMddHold": -0.2693,
+    "medMddReb": -0.2442,
+    "medSwitchMinusReb": 0.0141,
+    "medSwitchMddMinusReb": 0.0014,
+    "switchWinShare": 0.911
+   }
+  },
+  "byStable": {
+   "CB": {
+    "n": 2940,
+    "rebWinShare": 0.914,
+    "medCagrHold": 0.1347,
+    "medCagrReb": 0.1696,
+    "medRebMinusHold": 0.0338,
+    "medMddHold": -0.3561,
+    "medMddReb": -0.3529,
+    "medSwitchMinusReb": 0.0058,
+    "medSwitchMddMinusReb": -0.0152,
+    "switchWinShare": 0.649
+   },
+   "KO": {
+    "n": 2940,
+    "rebWinShare": 0.919,
+    "medCagrHold": 0.1314,
+    "medCagrReb": 0.167,
+    "medRebMinusHold": 0.0355,
+    "medMddHold": -0.3542,
+    "medMddReb": -0.3484,
+    "medSwitchMinusReb": 0.0044,
+    "medSwitchMddMinusReb": -0.015,
+    "switchWinShare": 0.629
+   },
+   "PG": {
+    "n": 2940,
+    "rebWinShare": 0.865,
+    "medCagrHold": 0.1121,
+    "medCagrReb": 0.1432,
+    "medRebMinusHold": 0.0309,
+    "medMddHold": -0.3827,
+    "medMddReb": -0.3739,
+    "medSwitchMinusReb": 0.0051,
+    "medSwitchMddMinusReb": -0.0093,
+    "switchWinShare": 0.662
+   },
+   "JNJ": {
+    "n": 2940,
+    "rebWinShare": 0.916,
+    "medCagrHold": 0.1247,
+    "medCagrReb": 0.1604,
+    "medRebMinusHold": 0.0367,
+    "medMddHold": -0.3631,
+    "medMddReb": -0.3537,
+    "medSwitchMinusReb": 0.0071,
+    "medSwitchMddMinusReb": -0.0174,
+    "switchWinShare": 0.722
+   },
+   "WMT": {
+    "n": 2940,
+    "rebWinShare": 0.894,
+    "medCagrHold": 0.1512,
+    "medCagrReb": 0.1815,
+    "medRebMinusHold": 0.0287,
+    "medMddHold": -0.3837,
+    "medMddReb": -0.3816,
+    "medSwitchMinusReb": 0.0017,
+    "medSwitchMddMinusReb": -0.0091,
+    "switchWinShare": 0.555
+   },
+   "COST": {
+    "n": 2940,
+    "rebWinShare": 0.883,
+    "medCagrHold": 0.1469,
+    "medCagrReb": 0.1757,
+    "medRebMinusHold": 0.0285,
+    "medMddHold": -0.3742,
+    "medMddReb": -0.3806,
+    "medSwitchMinusReb": 0.0038,
+    "medSwitchMddMinusReb": -0.0116,
+    "switchWinShare": 0.629
+   },
+   "GLD": {
+    "n": 2940,
+    "rebWinShare": 0.907,
+    "medCagrHold": 0.1288,
+    "medCagrReb": 0.1633,
+    "medRebMinusHold": 0.0342,
+    "medMddHold": -0.3836,
+    "medMddReb": -0.3693,
+    "medSwitchMinusReb": 0.0039,
+    "medSwitchMddMinusReb": -0.0156,
+    "switchWinShare": 0.607
+   },
+   "AXP": {
+    "n": 2940,
+    "rebWinShare": 0.877,
+    "medCagrHold": 0.129,
+    "medCagrReb": 0.1582,
+    "medRebMinusHold": 0.0292,
+    "medMddHold": -0.4021,
+    "medMddReb": -0.398,
+    "medSwitchMinusReb": 0.0012,
+    "medSwitchMddMinusReb": -0.007,
+    "switchWinShare": 0.532
+   },
+   "INTC": {
+    "n": 2940,
+    "rebWinShare": 0.978,
+    "medCagrHold": 0.102,
+    "medCagrReb": 0.1613,
+    "medRebMinusHold": 0.0606,
+    "medMddHold": -0.4695,
+    "medMddReb": -0.4523,
+    "medSwitchMinusReb": 0.0105,
+    "medSwitchMddMinusReb": 0.0121,
+    "switchWinShare": 0.802
+   },
+   "BRK-B": {
+    "n": 2940,
+    "rebWinShare": 0.893,
+    "medCagrHold": 0.1305,
+    "medCagrReb": 0.1616,
+    "medRebMinusHold": 0.0317,
+    "medMddHold": -0.3712,
+    "medMddReb": -0.3661,
+    "medSwitchMinusReb": 0.0049,
+    "medSwitchMddMinusReb": -0.0097,
+    "switchWinShare": 0.645
+   },
+   "CVX": {
+    "n": 2940,
+    "rebWinShare": 0.932,
+    "medCagrHold": 0.1476,
+    "medCagrReb": 0.1872,
+    "medRebMinusHold": 0.0382,
+    "medMddHold": -0.296,
+    "medMddReb": -0.2978,
+    "medSwitchMinusReb": 0.0045,
+    "medSwitchMddMinusReb": -0.0238,
+    "switchWinShare": 0.617
+   },
+   "QSR": {
+    "n": 2940,
+    "rebWinShare": 0.864,
+    "medCagrHold": 0.1123,
+    "medCagrReb": 0.1427,
+    "medRebMinusHold": 0.0318,
+    "medMddHold": -0.3913,
+    "medMddReb": -0.3851,
+    "medSwitchMinusReb": -0.006,
+    "medSwitchMddMinusReb": -0.0139,
+    "switchWinShare": 0.291
+   }
+  },
+  "sample": [
+   {
+    "syms": [
+     "AVGO",
+     "META",
+     "RKLB",
+     "SOFI",
+     "CB"
+    ],
+    "masters": 0,
+    "h": {
+     "final": 3.3,
+     "cagr": 0.256,
+     "mdd": -0.4295,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 3.6733,
+     "cagr": 0.282,
+     "mdd": -0.4432,
+     "trades": 17,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "s": {
+     "final": 3.8443,
+     "cagr": 0.2932,
+     "mdd": -0.4662,
+     "trades": 19,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "AVGO",
+     "AAPL",
+     "SOFI",
+     "PLTR",
+     "CB"
+    ],
+    "masters": 1,
+    "h": {
+     "final": 3.7003,
+     "cagr": 0.2838,
+     "mdd": -0.301,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 3.983,
+     "cagr": 0.302,
+     "mdd": -0.3328,
+     "trades": 12,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "s": {
+     "final": 4.1659,
+     "cagr": 0.3132,
+     "mdd": -0.3336,
+     "trades": 13,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "AVGO",
+     "CSGP",
+     "PLTR",
+     "COIN",
+     "CB"
+    ],
+    "masters": 1,
+    "h": {
+     "final": 3.1407,
+     "cagr": 0.2442,
+     "mdd": -0.3278,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 2.6446,
+     "cagr": 0.204,
+     "mdd": -0.363,
+     "trades": 17,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "s": {
+     "final": 2.4654,
+     "cagr": 0.188,
+     "mdd": -0.3826,
+     "trades": 14,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "META",
+     "NVDA",
+     "TSLA",
+     "PDD",
+     "CB"
+    ],
+    "masters": 1,
+    "h": {
+     "final": 2.6267,
+     "cagr": 0.2025,
+     "mdd": -0.4444,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 3.1582,
+     "cagr": 0.2455,
+     "mdd": -0.4323,
+     "trades": 14,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "s": {
+     "final": 3.218,
+     "cagr": 0.25,
+     "mdd": -0.3863,
+     "trades": 13,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "META",
+     "MCO",
+     "RKLB",
+     "SOFI",
+     "CB"
+    ],
+    "masters": 1,
+    "h": {
+     "final": 1.8919,
+     "cagr": 0.1295,
+     "mdd": -0.4799,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 2.5118,
+     "cagr": 0.1923,
+     "mdd": -0.4801,
+     "trades": 18,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "s": {
+     "final": 2.4649,
+     "cagr": 0.188,
+     "mdd": -0.5144,
+     "trades": 18,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "META",
+     "BAC",
+     "SOFI",
+     "PLTR",
+     "CB"
+    ],
+    "masters": 1,
+    "h": {
+     "final": 2.0768,
+     "cagr": 0.1497,
+     "mdd": -0.4524,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 2.5577,
+     "cagr": 0.1964,
+     "mdd": -0.4516,
+     "trades": 12,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "s": {
+     "final": 2.363,
+     "cagr": 0.1784,
+     "mdd": -0.4795,
+     "trades": 12,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "MSFT",
+     "MA",
+     "PLTR",
+     "COIN",
+     "CB"
+    ],
+    "masters": 1,
+    "h": {
+     "final": 2.1882,
+     "cagr": 0.1613,
+     "mdd": -0.3496,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 2.4509,
+     "cagr": 0.1867,
+     "mdd": -0.3602,
+     "trades": 15,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "s": {
+     "final": 2.3677,
+     "cagr": 0.1789,
+     "mdd": -0.3865,
+     "trades": 13,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "MSFT",
+     "WAT",
+     "TSLA",
+     "PDD",
+     "CB"
+    ],
+    "masters": 2,
+    "h": {
+     "final": 1.5124,
+     "cagr": 0.0822,
+     "mdd": -0.2717,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 1.6863,
+     "cagr": 0.1049,
+     "mdd": -0.2487,
+     "trades": 8,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "s": {
+     "final": 1.9823,
+     "cagr": 0.1396,
+     "mdd": -0.2201,
+     "trades": 13,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "NVDA",
+     "MA",
+     "RKLB",
+     "SOFI",
+     "CB"
+    ],
+    "masters": 1,
+    "h": {
+     "final": 3.0519,
+     "cagr": 0.2374,
+     "mdd": -0.4517,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 3.9212,
+     "cagr": 0.2981,
+     "mdd": -0.4391,
+     "trades": 18,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "s": {
+     "final": 3.8304,
+     "cagr": 0.2923,
+     "mdd": -0.4559,
+     "trades": 18,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "NVDA",
+     "WAT",
+     "SOFI",
+     "PLTR",
+     "CB"
+    ],
+    "masters": 1,
+    "h": {
+     "final": 3.0654,
+     "cagr": 0.2385,
+     "mdd": -0.4548,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 3.4888,
+     "cagr": 0.2694,
+     "mdd": -0.452,
+     "trades": 15,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "s": {
+     "final": 3.5291,
+     "cagr": 0.2722,
+     "mdd": -0.4582,
+     "trades": 14,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "AMZN",
+     "MA",
+     "PLTR",
+     "COIN",
+     "CB"
+    ],
+    "masters": 1,
+    "h": {
+     "final": 2.1436,
+     "cagr": 0.1567,
+     "mdd": -0.3628,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 2.2122,
+     "cagr": 0.1637,
+     "mdd": -0.4252,
+     "trades": 13,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "s": {
+     "final": 2.3941,
+     "cagr": 0.1814,
+     "mdd": -0.4482,
+     "trades": 15,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "AMZN",
+     "WAT",
+     "TSLA",
+     "PDD",
+     "CB"
+    ],
+    "masters": 2,
+    "h": {
+     "final": 1.4678,
+     "cagr": 0.076,
+     "mdd": -0.2842,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 1.7744,
+     "cagr": 0.1157,
+     "mdd": -0.2578,
+     "trades": 12,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "s": {
+     "final": 1.9565,
+     "cagr": 0.1367,
+     "mdd": -0.2363,
+     "trades": 13,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "GOOGL",
+     "MCO",
+     "RKLB",
+     "SOFI",
+     "CB"
+    ],
+    "masters": 2,
+    "h": {
+     "final": 1.9789,
+     "cagr": 0.1392,
+     "mdd": -0.4224,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 2.4388,
+     "cagr": 0.1856,
+     "mdd": -0.3979,
+     "trades": 16,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "s": {
+     "final": 2.5617,
+     "cagr": 0.1967,
+     "mdd": -0.4403,
+     "trades": 18,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "GOOGL",
+     "BAC",
+     "SOFI",
+     "PLTR",
+     "CB"
+    ],
+    "masters": 2,
+    "h": {
+     "final": 2.1638,
+     "cagr": 0.1588,
+     "mdd": -0.3975,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 2.4128,
+     "cagr": 0.1831,
+     "mdd": -0.4147,
+     "trades": 12,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "s": {
+     "final": 2.5383,
+     "cagr": 0.1946,
+     "mdd": -0.4315,
+     "trades": 12,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "AAPL",
+     "CSGP",
+     "PLTR",
+     "COIN",
+     "CB"
+    ],
+    "masters": 2,
+    "h": {
+     "final": 2.0006,
+     "cagr": 0.1416,
+     "mdd": -0.3508,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 1.9981,
+     "cagr": 0.1413,
+     "mdd": -0.3823,
+     "trades": 15,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "s": {
+     "final": 1.9224,
+     "cagr": 0.1329,
+     "mdd": -0.401,
+     "trades": 15,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "MA",
+     "MCO",
+     "TSLA",
+     "PDD",
+     "CB"
+    ],
+    "masters": 3,
+    "h": {
+     "final": 1.5968,
+     "cagr": 0.0935,
+     "mdd": -0.2715,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 1.8624,
+     "cagr": 0.1261,
+     "mdd": -0.2548,
+     "trades": 11,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "s": {
+     "final": 2.0651,
+     "cagr": 0.1485,
+     "mdd": -0.2248,
+     "trades": 13,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "V",
+     "MCO",
+     "RKLB",
+     "SOFI",
+     "CB"
+    ],
+    "masters": 2,
+    "h": {
+     "final": 1.9571,
+     "cagr": 0.1368,
+     "mdd": -0.384,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 2.3618,
+     "cagr": 0.1783,
+     "mdd": -0.3823,
+     "trades": 15,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "s": {
+     "final": 2.4563,
+     "cagr": 0.1872,
+     "mdd": -0.3968,
+     "trades": 18,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "V",
+     "BAC",
+     "SOFI",
+     "PLTR",
+     "CB"
+    ],
+    "masters": 2,
+    "h": {
+     "final": 2.142,
+     "cagr": 0.1566,
+     "mdd": -0.3632,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 2.439,
+     "cagr": 0.1856,
+     "mdd": -0.3695,
+     "trades": 14,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "s": {
+     "final": 2.5049,
+     "cagr": 0.1916,
+     "mdd": -0.3657,
+     "trades": 13,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "MCO",
+     "BAC",
+     "PLTR",
+     "COIN",
+     "CB"
+    ],
+    "masters": 2,
+    "h": {
+     "final": 1.9614,
+     "cagr": 0.1373,
+     "mdd": -0.3997,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 2.08,
+     "cagr": 0.1501,
+     "mdd": -0.4102,
+     "trades": 14,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "s": {
+     "final": 2.1491,
+     "cagr": 0.1573,
+     "mdd": -0.4359,
+     "trades": 15,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "CSGP",
+     "WAT",
+     "TSLA",
+     "PDD",
+     "CB"
+    ],
+    "masters": 3,
+    "h": {
+     "final": 1.1818,
+     "cagr": 0.0324,
+     "mdd": -0.2591,
+     "trades": 0,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 1.3002,
+     "cagr": 0.0514,
+     "mdd": -0.2743,
+     "trades": 13,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    },
+    "s": {
+     "final": 1.4489,
+     "cagr": 0.0734,
+     "mdd": -0.2743,
+     "trades": 14,
+     "start": "2021-08-25",
+     "end": "2026-11-20"
+    }
+   }
+  ]
+ },
+ "C1": {
+  "n": 6188,
+  "start": "2018-07-26",
+  "end": "2026-11-20",
+  "cagr": {
+   "hold": {
+    "p10": 0.0986,
+    "p50": 0.1287,
+    "p90": 0.1693
+   },
+   "rebalance": {
+    "p10": 0.1067,
+    "p50": 0.1435,
+    "p90": 0.1851
+   },
+   "yearly": {
+    "p10": 0.1069,
+    "p50": 0.1483,
+    "p90": 0.1985
+   }
+  },
+  "mdd": {
+   "hold": {
+    "p10": -0.4655,
+    "p50": -0.3985,
+    "p90": -0.3543
+   },
+   "rebalance": {
+    "p10": -0.4187,
+    "p50": -0.3713,
+    "p90": -0.3192
+   },
+   "yearly": {
+    "p10": -0.4231,
+    "p50": -0.376,
+    "p90": -0.3252
+   }
+  },
+  "rebWinShare": 0.801,
+  "yearlyWinShare": 0.838,
+  "medRebMinusHold": 0.0088,
+  "medRebMddMinusHold": 0.0009,
+  "beatQqqShareHold": 0.141,
+  "beatQqqShareReb": 0.258,
+  "qqq": {
+   "final": 3.5596,
+   "cagr": 0.1649,
+   "mdd": -0.3512,
+   "start": "2018-07-26",
+   "end": "2026-11-20"
+  },
+  "sample": [
+   {
+    "syms": [
+     "AAPL",
+     "MA",
+     "V",
+     "MCO",
+     "ROP"
+    ],
+    "h": {
+     "final": 3.5912,
+     "cagr": 0.1661,
+     "mdd": -0.3693,
+     "trades": 0,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 3.3336,
+     "cagr": 0.1557,
+     "mdd": -0.3693,
+     "trades": 2,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "y": {
+     "final": 3.3334,
+     "cagr": 0.1557,
+     "mdd": -0.3704,
+     "trades": 8,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "AAPL",
+     "MA",
+     "WAT",
+     "GOOGL",
+     "BRK-B"
+    ],
+    "h": {
+     "final": 3.9864,
+     "cagr": 0.1808,
+     "mdd": -0.3211,
+     "trades": 0,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 4.1089,
+     "cagr": 0.1851,
+     "mdd": -0.3211,
+     "trades": 4,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "y": {
+     "final": 4.0777,
+     "cagr": 0.184,
+     "mdd": -0.317,
+     "trades": 8,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "AAPL",
+     "V",
+     "CSGP",
+     "BAC",
+     "GOOGL"
+    ],
+    "h": {
+     "final": 3.4389,
+     "cagr": 0.16,
+     "mdd": -0.3421,
+     "trades": 0,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 3.1882,
+     "cagr": 0.1495,
+     "mdd": -0.3421,
+     "trades": 5,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "y": {
+     "final": 3.1583,
+     "cagr": 0.1482,
+     "mdd": -0.3454,
+     "trades": 8,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "AAPL",
+     "MCO",
+     "CSGP",
+     "KO",
+     "QSR"
+    ],
+    "h": {
+     "final": 3.0217,
+     "cagr": 0.1421,
+     "mdd": -0.3662,
+     "trades": 0,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 2.6424,
+     "cagr": 0.1239,
+     "mdd": -0.3584,
+     "trades": 5,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "y": {
+     "final": 2.7025,
+     "cagr": 0.1269,
+     "mdd": -0.3748,
+     "trades": 8,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "AAPL",
+     "ROP",
+     "SYK",
+     "CVX",
+     "KKR"
+    ],
+    "h": {
+     "final": 3.3993,
+     "cagr": 0.1584,
+     "mdd": -0.3992,
+     "trades": 0,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 3.6011,
+     "cagr": 0.1665,
+     "mdd": -0.4085,
+     "trades": 7,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "y": {
+     "final": 3.5651,
+     "cagr": 0.1651,
+     "mdd": -0.4087,
+     "trades": 8,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "AAPL",
+     "WAT",
+     "BAC",
+     "BRK-B",
+     "QSR"
+    ],
+    "h": {
+     "final": 3.1949,
+     "cagr": 0.1498,
+     "mdd": -0.368,
+     "trades": 0,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 2.8774,
+     "cagr": 0.1354,
+     "mdd": -0.3748,
+     "trades": 3,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "y": {
+     "final": 2.991,
+     "cagr": 0.1407,
+     "mdd": -0.3755,
+     "trades": 8,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "MA",
+     "V",
+     "MCO",
+     "SYK",
+     "GOOGL"
+    ],
+    "h": {
+     "final": 3.0015,
+     "cagr": 0.1412,
+     "mdd": -0.3911,
+     "trades": 0,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 3.1139,
+     "cagr": 0.1463,
+     "mdd": -0.3911,
+     "trades": 2,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "y": {
+     "final": 3.1377,
+     "cagr": 0.1473,
+     "mdd": -0.3882,
+     "trades": 8,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "MA",
+     "V",
+     "AXP",
+     "KKR",
+     "PDD"
+    ],
+    "h": {
+     "final": 3.2167,
+     "cagr": 0.1508,
+     "mdd": -0.447,
+     "trades": 0,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 4.3005,
+     "cagr": 0.1916,
+     "mdd": -0.3611,
+     "trades": 10,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "y": {
+     "final": 5.039,
+     "cagr": 0.2145,
+     "mdd": -0.3727,
+     "trades": 8,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "MA",
+     "ROP",
+     "CSGP",
+     "WAT",
+     "GOOGL"
+    ],
+    "h": {
+     "final": 2.3653,
+     "cagr": 0.109,
+     "mdd": -0.3262,
+     "trades": 0,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 2.4911,
+     "cagr": 0.1159,
+     "mdd": -0.3262,
+     "trades": 5,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "y": {
+     "final": 2.3677,
+     "cagr": 0.1092,
+     "mdd": -0.3239,
+     "trades": 8,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "MA",
+     "CSGP",
+     "BAC",
+     "AXP",
+     "QSR"
+    ],
+    "h": {
+     "final": 2.0998,
+     "cagr": 0.0933,
+     "mdd": -0.4229,
+     "trades": 0,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 2.2061,
+     "cagr": 0.0998,
+     "mdd": -0.4276,
+     "trades": 5,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "y": {
+     "final": 2.1166,
+     "cagr": 0.0943,
+     "mdd": -0.4303,
+     "trades": 8,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "MA",
+     "BAC",
+     "AXP",
+     "CVX",
+     "KKR"
+    ],
+    "h": {
+     "final": 2.844,
+     "cagr": 0.1339,
+     "mdd": -0.4641,
+     "trades": 0,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 3.1463,
+     "cagr": 0.1477,
+     "mdd": -0.4661,
+     "trades": 4,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "y": {
+     "final": 3.3315,
+     "cagr": 0.1556,
+     "mdd": -0.4673,
+     "trades": 8,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "V",
+     "MCO",
+     "BAC",
+     "AXP",
+     "PDD"
+    ],
+    "h": {
+     "final": 2.7936,
+     "cagr": 0.1314,
+     "mdd": -0.4609,
+     "trades": 0,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 3.569,
+     "cagr": 0.1652,
+     "mdd": -0.3647,
+     "trades": 9,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "y": {
+     "final": 4.2145,
+     "cagr": 0.1887,
+     "mdd": -0.3763,
+     "trades": 8,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "V",
+     "CSGP",
+     "WAT",
+     "GOOGL",
+     "AXP"
+    ],
+    "h": {
+     "final": 2.6695,
+     "cagr": 0.1253,
+     "mdd": -0.3444,
+     "trades": 0,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 2.8178,
+     "cagr": 0.1326,
+     "mdd": -0.3444,
+     "trades": 5,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "y": {
+     "final": 2.7267,
+     "cagr": 0.1281,
+     "mdd": -0.3438,
+     "trades": 8,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "V",
+     "SYK",
+     "GOOGL",
+     "BRK-B",
+     "KKR"
+    ],
+    "h": {
+     "final": 3.1073,
+     "cagr": 0.146,
+     "mdd": -0.374,
+     "trades": 0,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 3.4228,
+     "cagr": 0.1594,
+     "mdd": -0.374,
+     "trades": 4,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "y": {
+     "final": 3.4614,
+     "cagr": 0.1609,
+     "mdd": -0.3733,
+     "trades": 8,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "MCO",
+     "ROP",
+     "BAC",
+     "GOOGL",
+     "QSR"
+    ],
+    "h": {
+     "final": 2.3679,
+     "cagr": 0.1092,
+     "mdd": -0.408,
+     "trades": 0,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 2.4391,
+     "cagr": 0.1131,
+     "mdd": -0.3993,
+     "trades": 4,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "y": {
+     "final": 2.4506,
+     "cagr": 0.1137,
+     "mdd": -0.4078,
+     "trades": 8,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "MCO",
+     "WAT",
+     "GOOGL",
+     "AXP",
+     "KO"
+    ],
+    "h": {
+     "final": 3.0143,
+     "cagr": 0.1418,
+     "mdd": -0.3765,
+     "trades": 0,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 3.2408,
+     "cagr": 0.1518,
+     "mdd": -0.3765,
+     "trades": 3,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "y": {
+     "final": 3.304,
+     "cagr": 0.1545,
+     "mdd": -0.3726,
+     "trades": 8,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "ROP",
+     "CSGP",
+     "WAT",
+     "QSR",
+     "PDD"
+    ],
+    "h": {
+     "final": 1.8307,
+     "cagr": 0.0754,
+     "mdd": -0.5333,
+     "trades": 0,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 2.3932,
+     "cagr": 0.1106,
+     "mdd": -0.3432,
+     "trades": 12,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "y": {
+     "final": 2.4352,
+     "cagr": 0.1129,
+     "mdd": -0.3251,
+     "trades": 8,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "ROP",
+     "SYK",
+     "KO",
+     "BRK-B",
+     "PDD"
+    ],
+    "h": {
+     "final": 2.4574,
+     "cagr": 0.1141,
+     "mdd": -0.4521,
+     "trades": 0,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 3.0994,
+     "cagr": 0.1456,
+     "mdd": -0.3029,
+     "trades": 10,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "y": {
+     "final": 3.5069,
+     "cagr": 0.1628,
+     "mdd": -0.3123,
+     "trades": 8,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "CSGP",
+     "SYK",
+     "GOOGL",
+     "QSR",
+     "KKR"
+    ],
+    "h": {
+     "final": 2.3723,
+     "cagr": 0.1094,
+     "mdd": -0.3901,
+     "trades": 0,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 2.3142,
+     "cagr": 0.1061,
+     "mdd": -0.3949,
+     "trades": 5,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "y": {
+     "final": 2.4701,
+     "cagr": 0.1148,
+     "mdd": -0.3957,
+     "trades": 8,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    }
+   },
+   {
+    "syms": [
+     "WAT",
+     "GOOGL",
+     "AXP",
+     "BRK-B",
+     "CVX"
+    ],
+    "h": {
+     "final": 2.994,
+     "cagr": 0.1409,
+     "mdd": -0.3791,
+     "trades": 0,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "r": {
+     "final": 3.2959,
+     "cagr": 0.1541,
+     "mdd": -0.3791,
+     "trades": 4,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    },
+    "y": {
+     "final": 3.3328,
+     "cagr": 0.1557,
+     "mdd": -0.379,
+     "trades": 8,
+     "start": "2018-07-26",
+     "end": "2026-11-20"
+    }
+   }
+  ]
+ },
+ "C2": {
+  "symbols": [
+   "AAPL",
+   "GOOGL",
+   "QSR",
+   "MA",
+   "WAT",
+   "BRK-B"
+  ],
+  "weights": [
+   0.16666666666666666,
+   0.16666666666666666,
+   0.16666666666666666,
+   0.16666666666666666,
+   0.16666666666666666,
+   0.16666666666666666
+  ],
+  "hold": {
+   "final": 3.5755,
+   "cagr": 0.1655,
+   "mdd": -0.3458,
+   "trades": 0,
+   "start": "2018-07-26",
+   "end": "2026-11-20"
+  },
+  "rebalance": {
+   "final": 3.5765,
+   "cagr": 0.1655,
+   "mdd": -0.3313,
+   "trades": 5,
+   "start": "2018-07-26",
+   "end": "2026-11-20"
+  },
+  "switch": {
+   "final": 3.6592,
+   "cagr": 0.1687,
+   "mdd": -0.3479,
+   "trades": 12,
+   "start": "2018-07-26",
+   "end": "2026-11-20"
+  },
+  "yearly": {
+   "final": 3.5506,
+   "cagr": 0.1645,
+   "mdd": -0.3473,
+   "trades": 8,
+   "start": "2018-07-26",
+   "end": "2026-11-20"
+  },
+  "qqq": {
+   "final": 3.5596,
+   "cagr": 0.1649,
+   "mdd": -0.3512,
+   "start": "2018-07-26",
+   "end": "2026-11-20"
+  }
+ }
+}
