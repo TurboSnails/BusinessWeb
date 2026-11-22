@@ -7,7 +7,8 @@ export type ReadingKey =
   | 'fedAssets'          // 美联储总资产
   | 'netLiquidity'       // 美联储总资产 − 财政部一般账户（TGA）− 隔夜逆回购（市场常用近似，不是某位大师的公式）
   | 'bankReserves'       // 银行准备金
-  | 'realRate'           // 实际利率（政策利率 − 核心 PCE 同比，或 10 年期 TIPS 实际收益率，以本站已有为准）
+  | 'realRate'           // 实际政策利率（联邦基金利率 − 核心 PCE 同比，月频）
+  | 'realYield10'        // 10 年期 TIPS 实际收益率（FRED DFII10，日频）
   | 'tenYear'            // 10 年期美债收益率
   | 'curve10y2y'         // 10 年 − 2 年期限利差
   | 'nfci'               // 芝加哥联储金融条件指数
@@ -43,12 +44,18 @@ export type Reading = {
   unit: string
   /** 观测日期 YYYY-MM-DD */
   date: string
-  /** 近 10 年分位 0–100；历史不足时省略 */
+  /** 分位 0–100（按每周一个观测统一采样后计算）；历史不足 5 年时省略 */
   percentile?: number
+  /** 分位实际覆盖的年数（如 10、6.5）；页面据此写"近 N 年分位" */
+  percentileYears?: number
   /** 与约一个月前相比的方向 */
   direction?: 'up' | 'down' | 'flat'
   /** 落后最近应有日期过多 */
   stale?: boolean
+  /** 最近一次采集失败，显示的是上次可用读数 */
+  refreshFailed?: boolean
+  /** 口径或时间基准说明，如"相对 9 月 30 日的预期修正""公开数据约滞后三个月" */
+  note?: string
   source: string
 }
 
@@ -58,8 +65,12 @@ export type MasterIndicator = {
   name: string
   /** 他怎么读（只写有来源支撑的读法，1–2 句） */
   howToRead: string
-  /** 对应本站读数；没有对应就省略，页面显示"本站暂无"并可给出外部数据源 */
+  /** 与他所说指标**同口径**的本站读数；没有就省略，页面显示"本站暂无"并可给出外部数据源 */
   readings?: ReadingKey[]
+  /** 口径不同、只能作参考的本站近似读数（页面单独标"本站近似，口径不同"） */
+  proxyReadings?: ReadingKey[]
+  /** 近似与原指标的差别，一句话（有 proxyReadings 时必填） */
+  proxyNote?: string
   /** 本站暂无时的外部数据源说明（如 FRED 序列名），可省略 */
   external?: string
   /** 证据等级：原话 / 转述 / 未证实（与研究文档标注一致） */
