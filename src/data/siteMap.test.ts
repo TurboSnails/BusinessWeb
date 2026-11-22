@@ -45,7 +45,7 @@ describe('INVEST_GROUPS', () => {
       '/money-freedom', '/monitor', '/pulse', '/research-notes', '/earnings',
       '/sector-rotation', '/trading-philosophy', '/valuation', '/market-mood', '/ths-mood', '/jixing',
       '/index-panorama/', '/invest/blogger-views',
-      '/lab/etf-flow', '/lab/etf-uptrend', '/lab/etf-watch-pool', '/lab/etf-macd-good', '/lab/etf-hs300-timing', '/lab/etf-signal-plans', '/lab/etf-timing',
+      '/lab/etf-flow', '/lab/etf-uptrend', '/lab/etf-watch-pool', '/lab/portfolio-rebalance', '/lab/etf-macd-good', '/lab/etf-hs300-timing', '/lab/etf-signal-plans', '/lab/etf-timing',
     ].sort())
     expect(new Set(all).size).toBe(all.length)
   })

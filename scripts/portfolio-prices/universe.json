@@ -11,7 +11,7 @@
   {"symbol":"TSLA","name":"特斯拉","type":"stock","group":"highVol","tencent":"usTSLA.OQ"},
   {"symbol":"COIN","name":"Coinbase","type":"stock","group":"highVol","tencent":"usCOIN.OQ"},
   {"symbol":"HOOD","name":"Robinhood","type":"stock","group":"highVol","tencent":"usHOOD.OQ"},
-  {"symbol":"CB","name":"Chubb","type":"stock","group":"stable","tencent":"usCB.N"},
+  {"symbol":"CB","name":"安达保险","type":"stock","group":"stable","tencent":"usCB.N"},
   {"symbol":"KO","name":"可口可乐","type":"stock","group":"stable","tencent":"usKO.N"},
   {"symbol":"PG","name":"宝洁","type":"stock","group":"stable","tencent":"usPG.N"},
   {"symbol":"JNJ","name":"强生","type":"stock","group":"stable","tencent":"usJNJ.N"},

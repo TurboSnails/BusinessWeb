@@ -10,6 +10,13 @@ export interface SiteUpdate {
 // 使用中文描述结果和使用方式，不从 Git 提交、构建或日常数据刷新自动生成。
 export const SITE_UPDATES: readonly SiteUpdate[] = [
   {
+    id: 'portfolio-rebalance-lab',
+    date: '2026-11-22',
+    title: '组合再平衡回测上线',
+    description: '在实验观察里选几只美股、设目标权重和再平衡规则，一次看清不动、动态平衡、等权与纳指 100 的期末金额、回撤和逐年收益；可开启“大跌时分步卖出稳定股、买入跌得最多的股票”，默认累计最多卖出一半。还能看每只股票离下一次调仓还差多少、去掉任意一只会怎样。价格每个交易日自动更新。历史回测，不是买卖指令。',
+    href: '/lab/portfolio-rebalance',
+  },
+  {
     id: 'kf-deeper',
     date: '2026-10-28',
     title: 'kf-deeper 更深 Skill 上线',

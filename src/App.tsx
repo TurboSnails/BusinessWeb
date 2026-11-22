@@ -76,6 +76,7 @@ const Candidates = lazy(() => import('./pages/Candidates'))
 const Radar = lazy(() => import('./pages/Radar'))
 const Earnings = lazy(() => import('./pages/Earnings'))
 const EtfTimingLab = lazy(() => import('./pages/EtfTimingLab'))
+const PortfolioRebalanceLab = lazy(() => import('./pages/PortfolioRebalanceLab'))
 const EtfFlowLab = lazy(() => import('./pages/EtfFlowLab'))
 const EtfUptrendLab = lazy(() => import('./pages/EtfUptrendLab'))
 const EtfWatchPoolLab = lazy(() => import('./pages/EtfWatchPoolLab'))
@@ -237,6 +238,7 @@ export default function App(): JSX.Element {
           <Route path="/radar" element={<Radar />} />
           <Route path="/earnings" element={<Earnings />} />
           <Route path="/lab/etf-timing" element={<EtfTimingLab />} />
+          <Route path="/lab/portfolio-rebalance" element={<PortfolioRebalanceLab />} />
           <Route path="/lab/etf-flow" element={<EtfFlowLab />} />
           <Route path="/lab/etf-uptrend" element={<EtfUptrendLab />} />
           <Route path="/lab/etf-watch-pool" element={<EtfWatchPoolLab />} />

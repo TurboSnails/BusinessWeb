@@ -116,6 +116,7 @@ export const INVEST_GROUPS: HubGroup[] = [
       { path: '/lab/etf-hs300-timing', label: '沪深300择时优选', short: '只认金叉+沪深300择时名单', desc: '研究筛出的沪深300择时优选 ETF；独立入口，不默认写入复盘' },
       { path: '/lab/etf-signal-plans', label: '三方案回测', short: '创业板/沪深300/纯MACD', desc: '对单只 ETF 跑三套研究口径波段方案的全历史与逐年回测；不并入网格主流程' },
       { path: '/lab/etf-timing', label: '择时实验', short: '择时＋只认金叉影子记录', desc: '一条 ETF 择时规则的样本外与影子运行观察；未验证，不是买卖指令' },
+      { path: '/lab/portfolio-rebalance', label: '组合再平衡回测', short: '目标权重、偏离再平衡与大跌切换', desc: '选几只美股设目标权重，对比不动、动态平衡、等权与纳指 100；支持大跌时分步切换稳定股；历史回测，不是买卖指令' },
     ],
   },
   {
