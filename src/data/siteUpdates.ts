@@ -10,6 +10,13 @@ export interface SiteUpdate {
 // 使用中文描述结果和使用方式，不从 Git 提交、构建或日常数据刷新自动生成。
 export const SITE_UPDATES: readonly SiteUpdate[] = [
   {
+    id: 'portfolio-rebalance-spx-signal',
+    date: '2026-11-22',
+    title: '组合回测的大跌切换可用标普 500 做信号',
+    description: '组合再平衡回测的大跌切换新增信号指数选项：纳指 100 或标普 500。结果页新增「信号指数当前位置」，显示距本轮高点的回撤、是否已触发、离下一档还差多少。研究观察补充了 1986 年以来以标普 500 回撤为起点的长期测试：年化中位差约 +0.4 到 +0.7 个百分点，最大回撤同时加深，独立的大跌只有几轮，不能认定存在稳定加成。',
+    href: '/lab/portfolio-rebalance',
+  },
+  {
     id: 'macro-masters',
     date: '2026-11-22',
     title: '宏观大师：九位投资人怎么看周期',

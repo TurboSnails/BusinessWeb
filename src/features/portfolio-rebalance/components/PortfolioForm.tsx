@@ -1,6 +1,8 @@
 import React from 'react'
 import type { Holder, PriceIndex, Rule, RunInput, SwitchRule } from '../types'
-import { number, percent } from './format'
+import { number, percent, signalOptionLabel } from './format'
+
+const SIGNAL_SYMBOLS = ['QQQ', 'SPY'] as const
 
 const GROUPS = [
   { id: 'growth', label: '成长' },
@@ -81,6 +83,7 @@ export function PortfolioForm({ index, value, onChange, onSubmit, defaultStart }
   const total = value.weights.reduce((sum, weight) => sum + weight, 0)
   const itemBySymbol = new Map(index.items.map(item => [item.symbol, item]))
   const selectedStable = index.items.filter(item => item.group === 'stable' && value.symbols.includes(item.symbol))
+  const signalOptions = SIGNAL_SYMBOLS.filter(symbol => index.items.some(item => item.symbol === symbol))
   const masterGroups = groupMasterHoldings(index)
   const setRuleKind = (kind: string): void => {
     const rule: Rule = kind === 'absolute' ? { kind, points: 0.1 }
@@ -90,6 +93,14 @@ export function PortfolioForm({ index, value, onChange, onSubmit, defaultStart }
   }
   const setSwitch = (patch: Partial<SwitchRule>): void => {
     if (value.switch) onChange({ ...value, switch: { ...value.switch, ...patch } })
+  }
+  const setSignal = (symbol: string): void => {
+    if (symbol === 'QQQ') {
+      const { signal: _omit, ...rest } = value
+      onChange(rest)
+      return
+    }
+    onChange({ ...value, signal: symbol })
   }
   return (
     <form className="pr-form" onSubmit={event => { event.preventDefault(); if (errors.length === 0) onSubmit() }} noValidate>
@@ -147,8 +158,9 @@ export function PortfolioForm({ index, value, onChange, onSubmit, defaultStart }
       </div>
 
       <fieldset className="pr-fieldset pr-switch"><legend>大跌切换 <span>可叠加在上述规则上</span></legend>
-        <label className="pr-switch__master"><input type="checkbox" checked={!!value.switch} onChange={event => onChange({ ...value, switch: event.target.checked ? defaultSwitch(value.symbols, index) : undefined })} /><span><strong>QQQ 大跌时，分步卖出稳定资产并买入低配资产</strong><small>大跌状态暂停普通再平衡；恢复后调回目标权重。</small></span></label>
+        <label className="pr-switch__master"><input type="checkbox" checked={!!value.switch} onChange={event => onChange({ ...value, switch: event.target.checked ? defaultSwitch(value.symbols, index) : undefined })} /><span><strong>信号指数大跌时，分步卖出稳定资产并买入低配资产</strong><small>大跌状态暂停普通再平衡；恢复后调回目标权重。</small></span></label>
         {value.switch && <div className="pr-switch__settings">
+          <label className="pr-field pr-field--signal"><span id="pr-signal-label">信号指数</span><select aria-labelledby="pr-signal-label" value={value.signal ?? 'QQQ'} onChange={event => setSignal(event.target.value)}>{signalOptions.map(symbol => <option value={symbol} key={symbol}>{signalOptionLabel(symbol)}</option>)}</select><small>用 ETF 复权收盘价（含分红）计算回撤，与指数点位的跌幅略有差异。</small></label>
           <label className="pr-field"><span>稳定资产</span><select value={value.switch.stable} onChange={event => setSwitch({ stable: event.target.value })}>{selectedStable.length === 0 && <option value="">组合里没有稳定分组资产</option>}{selectedStable.map(item => <option value={item.symbol} key={item.symbol}>{item.name}（{item.symbol}）</option>)}</select></label>
           <label className="pr-field"><span>进入回撤</span><div className="pr-number"><input type="number" min="1" step="1" value={number(value.switch.entry * 100, 2)} onChange={event => setSwitch({ entry: Number(event.target.value) / 100 })} /><span>%</span></div></label>
           <label className="pr-field"><span>每档间距</span><div className="pr-number"><input type="number" min="0.1" step="1" value={number(value.switch.gap * 100, 2)} onChange={event => setSwitch({ gap: Number(event.target.value) / 100 })} /><span>个百分点</span></div></label>

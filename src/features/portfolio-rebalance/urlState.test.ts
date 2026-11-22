@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { createDefaultInput, decode, encode } from './urlState'
 import type { RunInput } from './types'
 
-const known = ['AVGO', 'META', 'CB', 'SOFI', 'RKLB', 'QQQ', 'QQQE', 'QQEW', 'BRK-B', 'AAPL']
+const known = ['AVGO', 'META', 'CB', 'SOFI', 'RKLB', 'QQQ', 'QQQE', 'QQEW', 'BRK-B', 'AAPL', 'SPY']
 
 describe('组合回测网址参数', () => {
   it('往返一致', () => {
@@ -19,6 +19,19 @@ describe('组合回测网址参数', () => {
       end: '2026-11-20',
     }
     expect(decode(encode(input), known)).toEqual({ input, invalid: false })
+  })
+
+  it('往返 signal=SPY；默认 QQQ 省略 signal 参数', () => {
+    const withSpy: RunInput = {
+      ...createDefaultInput(),
+      switch: { stable: 'CB', entry: 0.15, gap: 0.05, step: 0.25, recover: 0.05 },
+      signal: 'SPY',
+    }
+    const encoded = encode(withSpy)
+    expect(encoded.get('signal')).toBe('SPY')
+    expect(decode(encoded, known)).toEqual({ input: withSpy, invalid: false })
+    const withQqq: RunInput = { ...withSpy, signal: undefined }
+    expect(encode(withQqq).has('signal')).toBe(false)
   })
 
   it('未知代码或非数字回退默认并标 invalid', () => {

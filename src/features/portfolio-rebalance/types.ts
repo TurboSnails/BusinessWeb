@@ -15,7 +15,7 @@ export type Rule =
   /** 期末最后一个交易日收盘决定，次日成交 */
   | { kind: 'calendar'; every: 'month' | 'quarter' | 'year' }
 
-/** 大跌切换：以信号指数（默认 QQQ）相对本轮最高收盘的回撤为信号 */
+/** 大跌切换：以信号指数（默认 QQQ，可选 SPY）相对本轮最高收盘的回撤为信号 */
 export type SwitchRule = {
   /** 稳定资产代码，必须在组合内 */
   stable: string
@@ -98,6 +98,33 @@ export type RunResult = {
   /** buyHold 与 calendar 规则为空数组 */
   distance: Distance[]
   episodes: Episode[]
+  /** 启用大跌切换时给出；未启用则省略 */
+  signalState?: SignalState
+}
+
+/** 大跌切换的信号指数在回测最后一个交易日的状态 */
+export type SignalState = {
+  symbol: string
+  /** 回测最后一个交易日 */
+  asOf: string
+  /** 信号指数当日复权收盘价 */
+  close: number
+  /** 本轮观察期最高收盘及其日期（大跌状态中固定为进入前的高点；恢复成交日重置） */
+  peak: number
+  peakDate: string
+  /** close / peak − 1，≤ 0 */
+  drawdown: number
+  inStress: boolean
+  /** 本轮已成交的步数；不在大跌状态为 0。末日触发未成交的一步见 pendingAction */
+  steps: number
+  /** 本轮累计已卖出 ÷ 进入日稳定资产市值；不在大跌状态为 0 */
+  soldFraction: number
+  /** 下一步触发对应的回撤（负数，如 −0.20）；已到上限或稳定资产已卖完时为 null；pendingAction 为 step 时指该步之后的下一档 */
+  nextStepDrawdown: number | null
+  /** 恢复条件对应的回撤（如 −0.05；回到新高为 0）；不在大跌状态也给出 */
+  recoverDrawdown: number
+  /** 最后一个交易日收盘已触发、按规则应在下一交易日成交、但回测到此结束而未成交的动作；没有则为 null */
+  pendingAction: 'step' | 'recover' | 'timeout' | null
 }
 
 export type CompareSet = {

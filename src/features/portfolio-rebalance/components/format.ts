@@ -25,3 +25,18 @@ export function signedPercent(value: number, digits = 1): string {
 export function returnClass(value: number): string {
   return value > 0 ? 'pr-positive' : value < 0 ? 'pr-negative' : ''
 }
+
+const SIGNAL_LABELS: Record<string, string> = {
+  QQQ: '纳指 100',
+  SPY: '标普 500',
+}
+
+/** 信号指数短名，如「纳指 100」「标普 500」；未知代码回退为 symbol 本身 */
+export function signalLabel(symbol: string): string {
+  return SIGNAL_LABELS[symbol] ?? symbol
+}
+
+/** 下拉选项文案，如「纳指 100（QQQ）」 */
+export function signalOptionLabel(symbol: string): string {
+  return `${signalLabel(symbol)}（${symbol}）`
+}

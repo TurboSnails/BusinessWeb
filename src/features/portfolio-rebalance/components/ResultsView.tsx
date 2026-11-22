@@ -27,11 +27,11 @@ export function ResultsView({ comparison, baseline, index, input }: {
       <AutoConclusions comparison={comparison} index={index} input={input} />
       <ComparisonGrid comparison={comparison} />
       <DataNotices index={index} input={input} />
-      <SwitchEpisodes result={result} baseline={baseline} />
+      <SwitchEpisodes result={result} baseline={baseline} input={input} />
       <MetricsTable comparison={comparison} />
       <EquityChart comparison={comparison} />
       <YearlyReturns comparison={comparison} />
-      <CurrentStatus result={result} names={names} />
+      <CurrentStatus result={result} names={names} input={input} />
       <LeaveOneOut comparison={comparison} names={names} input={input} />
       <TradeLog result={result} />
     </div>

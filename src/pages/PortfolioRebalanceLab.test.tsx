@@ -115,7 +115,7 @@ describe('组合再平衡回测页', () => {
   it('开启大跌切换后出现逐轮大跌表', async () => {
     render(<PortfolioRebalanceLab />)
     await expandForm()
-    const toggle = await screen.findByRole('checkbox', { name: /QQQ 大跌时/ })
+    const toggle = await screen.findByRole('checkbox', { name: /信号指数大跌时/ })
     fireEvent.click(toggle)
     fireEvent.click(screen.getByRole('button', { name: '计算回测' }))
     expect(await screen.findByRole('heading', { name: '逐轮大跌' })).toBeTruthy()

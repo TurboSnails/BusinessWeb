@@ -1,5 +1,6 @@
 import React from 'react'
 import type { RunInput } from '../types'
+import { signalLabel } from './format'
 
 const trimPercent = (value: number, digits = 4): string => `${Number((value * 100).toFixed(digits))}%`
 
@@ -10,11 +11,16 @@ function ruleText(input: RunInput): string {
   return '不动'
 }
 
+function switchText(input: RunInput): string {
+  if (!input.switch) return '大跌切换：关'
+  return `大跌切换：开（${signalLabel(input.signal ?? 'QQQ')}）`
+}
+
 export function ConfigSummary({ input, onEdit }: { input: RunInput; onEdit: () => void }): JSX.Element {
   const weights = input.symbols.map((symbol, index) => `${symbol} ${trimPercent(input.weights[index])}`).join(' · ')
   return (
     <section className="pr-config-summary" aria-label="当前组合与规则">
-      <p><strong>当前方案</strong><span>{weights} ｜ {ruleText(input)} ｜ 大跌切换：{input.switch ? '开' : '关'} ｜ {input.start ?? '共同最早日'} 起 · 成本 {(input.cost * 100).toFixed(2)}%</span></p>
+      <p><strong>当前方案</strong><span>{weights} ｜ {ruleText(input)} ｜ {switchText(input)} ｜ {input.start ?? '共同最早日'} 起 · 成本 {(input.cost * 100).toFixed(2)}%</span></p>
       <button type="button" className="btn-ghost" onClick={onEdit}>修改组合与规则</button>
     </section>
   )

@@ -1,7 +1,7 @@
 import React from 'react'
 import { TableWrap } from '../../../components/ui'
-import type { Episode, RunResult } from '../types'
-import { returnClass, signedPercent } from './format'
+import type { Episode, RunInput, RunResult } from '../types'
+import { returnClass, signalLabel, signedPercent } from './format'
 
 function episodeDifference(result: RunResult, baseline: RunResult | undefined, episode: Episode): number | null {
   if (!baseline) return null
@@ -16,11 +16,12 @@ function episodeDifference(result: RunResult, baseline: RunResult | undefined, e
   return activeReturn - baseReturn
 }
 
-export function SwitchEpisodes({ result, baseline }: { result: RunResult; baseline?: RunResult }): JSX.Element | null {
+export function SwitchEpisodes({ result, baseline, input }: { result: RunResult; baseline?: RunResult; input?: RunInput }): JSX.Element | null {
   if (result.episodes.length === 0) return null
+  const signal = signalLabel(result.signalState?.symbol ?? input?.signal ?? 'QQQ')
   return (
     <section className="pr-section" aria-labelledby="pr-episodes-title">
-      <div className="pr-section__head"><h2 id="pr-episodes-title">逐轮大跌</h2><p>进入与恢复日期为信号日，实际成交在下一交易日；收益差为同段普通动态平衡的对照。</p></div>
+      <div className="pr-section__head"><h2 id="pr-episodes-title">逐轮大跌</h2><p>信号指数为{signal}；进入与恢复日期为信号日，实际成交在下一交易日；收益差为同段普通动态平衡的对照。</p></div>
       <TableWrap label="逐轮大跌" stickyFirst>
         <table className="ui-table pr-table">
           <thead><tr><th scope="col">进入日</th><th scope="col" className="num">切换步数</th><th scope="col">恢复日</th><th scope="col">退出方式</th><th scope="col" className="num">该轮收益差</th></tr></thead>

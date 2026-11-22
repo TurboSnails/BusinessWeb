@@ -6,6 +6,7 @@ import type {
   Rule,
   RunInput,
   RunResult,
+  SignalState,
   Trade,
   TradeReason,
 } from './types'
@@ -92,7 +93,7 @@ function commonDates(
 }
 
 type Pending =
-  | { day: number; kind: 'band' | 'calendar' | 'restore' | 'timeout'; peakAt?: number }
+  | { day: number; kind: 'band' | 'calendar' | 'restore' | 'timeout'; peakAt?: number; peakDateAt?: string }
   | { day: number; kind: 'step'; stableIdx: number }
 
 function timeoutDays(months: number): number {
@@ -210,6 +211,7 @@ export function runBacktest(book: PriceBook, input: RunInput): RunResult {
   const stableIdx = sw ? symbols.indexOf(sw.stable) : -1
   let inStress = false
   let peak = signalPx ? signalPx.get(dates[0])! : 0
+  let peakDate = dates[0]
   let nextLevel = 0
   let stableBase = 0
   let sold = 0
@@ -217,6 +219,8 @@ export function runBacktest(book: PriceBook, input: RunInput): RunResult {
   let entryDayIdx = -1
   let ep: Episode | null = null
   const episodes: Episode[] = []
+  /** 末日收盘触发但无法排定次日成交时的快照（不影响交易） */
+  let endPendingAction: 'step' | 'recover' | 'timeout' | null = null
 
   const bands = bandsFor(input.rule, targets)
   const costRate = input.cost
@@ -298,8 +302,13 @@ export function runBacktest(book: PriceBook, input: RunInput): RunResult {
           ep = null
         }
         inStress = false
-        if (pending.peakAt != null) peak = pending.peakAt
-        else if (signalPx) peak = signalPx.get(d)!
+        if (pending.peakAt != null) {
+          peak = pending.peakAt
+          if (pending.peakDateAt) peakDate = pending.peakDateAt
+        } else if (signalPx) {
+          peak = signalPx.get(d)!
+          peakDate = d
+        }
         nextLevel = 0
         steps = 0
         sold = 0
@@ -319,7 +328,10 @@ export function runBacktest(book: PriceBook, input: RunInput): RunResult {
     if (sw && signalPx) {
       const q = signalPx.get(d)!
       if (!inStress) {
-        peak = Math.max(peak, q)
+        if (q > peak) {
+          peak = q
+          peakDate = d
+        }
         const dd = q / peak - 1
         if (dd <= -sw.entry) {
           inStress = true
@@ -329,7 +341,11 @@ export function runBacktest(book: PriceBook, input: RunInput): RunResult {
           steps = 0
           entryDayIdx = i
           ep = { enter: d, steps: 0, recover: null, exit: null }
-          if (i + 1 < dates.length) pending = { day: i + 1, kind: 'step', stableIdx }
+          if (i + 1 < dates.length) {
+            pending = { day: i + 1, kind: 'step', stableIdx }
+          } else if (w[stableIdx] > 1e-15) {
+            endPendingAction = 'step'
+          }
         } else if (!pending && i + 1 < dates.length) {
           if (input.rule.kind === 'calendar') {
             if (periodKey(d, input.rule.every) !== periodKey(dates[i + 1], input.rule.every)) {
@@ -353,18 +369,22 @@ export function runBacktest(book: PriceBook, input: RunInput): RunResult {
             ep.recover = d
             ep.exit = 'recover'
           }
-          if (i + 1 < dates.length) pending = { day: i + 1, kind: 'restore', peakAt: q }
+          if (i + 1 < dates.length) pending = { day: i + 1, kind: 'restore', peakAt: q, peakDateAt: d }
+          else endPendingAction = 'recover'
         } else if (timedOut) {
           if (ep) {
             ep.recover = d
             ep.exit = 'timeout'
           }
-          if (i + 1 < dates.length) pending = { day: i + 1, kind: 'timeout', peakAt: q }
+          if (i + 1 < dates.length) pending = { day: i + 1, kind: 'timeout', peakAt: q, peakDateAt: d }
+          else endPendingAction = 'timeout'
         } else if (dd <= nextLevel - sw.gap) {
           nextLevel -= sw.gap
           const canStep = sw.cap == null || sold < stableBase * sw.cap - 1e-12
           if (canStep && i + 1 < dates.length) {
             pending = { day: i + 1, kind: 'step', stableIdx }
+          } else if (canStep && w[stableIdx] > 1e-15) {
+            endPendingAction = 'step'
           }
         }
       }
@@ -395,6 +415,53 @@ export function runBacktest(book: PriceBook, input: RunInput): RunResult {
   const finalWeights: Record<string, number> = {}
   for (let j = 0; j < k; j++) finalWeights[symbols[j]] = w[j]
 
+  let signalState: SignalState | undefined
+  if (sw && signalPx) {
+    const close = signalPx.get(end)!
+    const drawdown = close / peak - 1
+    const pendingAction = endPendingAction
+    const atCap = sw.cap != null && sold >= stableBase * sw.cap - 1e-12
+    const soldOut = w[stableIdx] <= 1e-15
+    const stepWouldExhaust = (): boolean => {
+      let amtDollars = stableBase * sw.step
+      if (sw.cap != null) {
+        const room = stableBase * sw.cap - sold
+        if (room <= 1e-12) return true
+        amtDollars = Math.min(amtDollars, room)
+      }
+      const amt = Math.min(w[stableIdx], amtDollars / eq)
+      if (amt <= 1e-15) return true
+      const soldAfter = sold + amt * eq
+      const atCapAfter = sw.cap != null && soldAfter >= stableBase * sw.cap - 1e-12
+      const soldOutAfter = w[stableIdx] - amt <= 1e-15
+      return atCapAfter || soldOutAfter
+    }
+    let nextStepDrawdown: number | null
+    if (!inStress) {
+      nextStepDrawdown = -sw.entry
+    } else if (atCap || soldOut) {
+      nextStepDrawdown = null
+    } else if (pendingAction === 'step' && stepWouldExhaust()) {
+      nextStepDrawdown = null
+    } else {
+      nextStepDrawdown = nextLevel - sw.gap
+    }
+    signalState = {
+      symbol: signalSym,
+      asOf: end,
+      close,
+      peak,
+      peakDate,
+      drawdown,
+      inStress,
+      steps: inStress ? steps : 0,
+      soldFraction: inStress && stableBase > 0 ? sold / stableBase : 0,
+      nextStepDrawdown,
+      recoverDrawdown: sw.recover === 'newHigh' ? 0 : -sw.recover,
+      pendingAction,
+    }
+  }
+
   return {
     start,
     end,
@@ -415,6 +482,7 @@ export function runBacktest(book: PriceBook, input: RunInput): RunResult {
     yearly: yearlyReturns(dates, eqs),
     distance: computeDistance(symbols, w, targets, input.rule),
     episodes,
+    ...(signalState ? { signalState } : {}),
   }
 }
 

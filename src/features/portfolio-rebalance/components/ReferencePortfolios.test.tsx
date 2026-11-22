@@ -48,17 +48,18 @@ describe('ReferencePortfolios', () => {
     expect(screen.getAllByRole('button', { name: '载入并计算' })).toHaveLength(4)
   })
 
-  it('研究观察默认收起，展开后显示 6 条限定样本的观察', () => {
+  it('研究观察默认收起，展开后显示 7 条限定样本的观察', () => {
     const { container } = render(<ReferencePortfolios index={fixtureIndex()} applied={null} onLoad={vi.fn()} />)
     const research = container.querySelector('.pr-research') as HTMLDetailsElement
     expect(research.open).toBe(false)
     expect(screen.getByText('本页研究观察（特定历史样本，不是通用结论）')).toBeTruthy()
     fireEvent.click(research.querySelector('summary')!)
     expect(research.open).toBe(true)
-    expect(research.querySelectorAll('ol > li')).toHaveLength(6)
+    expect(research.querySelectorAll('ol > li')).toHaveLength(7)
     expect(screen.getByText(/13,432 个组合样本内 100% 年化更高，中位差 \+4.5 个百分点/)).toBeTruthy()
     expect(screen.getByText(/14,558 个组合为 97.1%，中位差 \+3.1 个百分点/)).toBeTruthy()
     expect(screen.getByText(/7,290 个组合为 59.1%，中位差 \+0.5 个百分点/)).toBeTruthy()
+    expect(screen.getByText(/大跌切换的信号可选纳指 100 或标普 500/)).toBeTruthy()
     expect(screen.getByText(/6,188 个大师股五只等权组合/)).toBeTruthy()
   })
 

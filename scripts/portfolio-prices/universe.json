@@ -35,6 +35,7 @@
   {"symbol":"CVX","name":"雪佛龙","type":"stock","group":"stable","tencent":"usCVX.N","holders":[{"who":"巴菲特（伯克希尔）","weight":0.057,"asOf":"2026-09-30"}]},
   {"symbol":"QSR","name":"餐饮品牌国际","type":"stock","group":"stable","tencent":"usQSR.N","holders":[{"who":"阿克曼（潘兴广场）","weight":0.122,"asOf":"2026-03-31"}]},
   {"symbol":"QQQ","name":"Invesco 纳指 100 ETF","type":"etf","group":"benchmark","tencent":"usQQQ.OQ"},
+  {"symbol":"SPY","name":"SPDR 标普 500 ETF","type":"etf","group":"benchmark","tencent":"usSPY.AM"},
   {"symbol":"QQEW","name":"First Trust 纳指 100 精选等权 ETF","type":"etf","group":"benchmark","tencent":"usQQEW.OQ"},
   {"symbol":"QQQE","name":"Direxion 纳指 100 等权 ETF","type":"etf","group":"benchmark","tencent":"usQQQE.OQ"}
 ]

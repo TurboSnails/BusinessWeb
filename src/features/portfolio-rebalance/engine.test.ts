@@ -249,3 +249,169 @@ describe('portfolio-rebalance engine anchors', () => {
     expect(comparison.benchmarks.QQQ?.final).toBeCloseTo(1.1)
   })
 })
+
+describe('signalState', () => {
+  const dates = [
+    '2020-01-02', '2020-01-03', '2020-01-06', '2020-01-07', '2020-01-08', '2020-01-09', '2020-01-10',
+  ]
+  const flat = (n: number) => Array.from({ length: n }, () => 100)
+  const baseInput: RunInput = {
+    symbols: ['GROW', 'CB'],
+    weights: [0.5, 0.5],
+    rule: { kind: 'buyHold' },
+    switch: { stable: 'CB', entry: 0.2, gap: 0.05, step: 0.25, recover: 0.05 },
+    cost: 0,
+    initial: 1,
+  }
+  const bookOf = (signalPrices: number[], signalSym = 'QQQ') => ({
+    GROW: { dates, adjClose: flat(dates.length) },
+    CB: { dates, adjClose: flat(dates.length) },
+    [signalSym]: { dates, adjClose: signalPrices },
+  })
+
+  it('未启用切换时无 signalState', () => {
+    const r = runBacktest(bookOf([100, 100, 100, 100, 100, 100, 100]), {
+      ...baseInput,
+      switch: undefined,
+    })
+    expect(r.signalState).toBeUndefined()
+  })
+
+  it('未触发：inStress=false，下一步为进入阈值', () => {
+    const r = runBacktest(bookOf([100, 100, 95, 95, 95, 95, 95]), baseInput)
+    expect(r.signalState).toMatchObject({
+      symbol: 'QQQ',
+      asOf: '2020-01-10',
+      peak: 100,
+      peakDate: '2020-01-02',
+      inStress: false,
+      steps: 0,
+      soldFraction: 0,
+      nextStepDrawdown: -0.2,
+      recoverDrawdown: -0.05,
+      pendingAction: null,
+    })
+    expect(r.signalState!.drawdown).toBeCloseTo(-0.05)
+  })
+
+  it('大跌状态中：步数、累计卖出、下一步回撤', () => {
+    // 100→79 进入并排定第一步；次日成交；之后维持约 −21%
+    const r = runBacktest(bookOf([100, 100, 79, 79, 79, 79, 79]), baseInput)
+    expect(r.signalState!.inStress).toBe(true)
+    expect(r.signalState!.steps).toBe(1)
+    expect(r.signalState!.soldFraction).toBeCloseTo(0.25)
+    expect(r.signalState!.nextStepDrawdown).toBeCloseTo(-0.25)
+    expect(r.signalState!.peak).toBe(100)
+    expect(r.signalState!.peakDate).toBe('2020-01-02')
+    expect(r.signalState!.drawdown).toBeCloseTo(-0.21)
+    expect(r.signalState!.pendingAction).toBeNull()
+  })
+
+  it('到上限后 nextStepDrawdown 为 null', () => {
+    const r = runBacktest(bookOf([100, 100, 79, 79, 74, 74, 69]), {
+      ...baseInput,
+      switch: { stable: 'CB', entry: 0.2, gap: 0.05, step: 0.25, recover: 0.05, cap: 0.5 },
+    })
+    expect(r.signalState!.inStress).toBe(true)
+    expect(r.signalState!.steps).toBe(2)
+    expect(r.signalState!.soldFraction).toBeCloseTo(0.5)
+    expect(r.signalState!.nextStepDrawdown).toBeNull()
+  })
+
+  it('恢复方式为回到新高时 recoverDrawdown 为 0', () => {
+    const r = runBacktest(bookOf([100, 100, 79, 79, 79, 79, 79]), {
+      ...baseInput,
+      switch: { stable: 'CB', entry: 0.2, gap: 0.05, step: 0.25, recover: 'newHigh' },
+    })
+    expect(r.signalState!.recoverDrawdown).toBe(0)
+    expect(r.signalState!.inStress).toBe(true)
+  })
+
+  it('恢复后高点重置', () => {
+    // 进入→成交→回到高点恢复信号→次日调回；末日新高
+    const r = runBacktest(bookOf([100, 100, 79, 79, 100, 100, 110]), {
+      ...baseInput,
+      switch: { stable: 'CB', entry: 0.2, gap: 0.05, step: 0.25, recover: 'newHigh' },
+    })
+    expect(r.signalState!.inStress).toBe(false)
+    expect(r.signalState!.peak).toBe(110)
+    expect(r.signalState!.peakDate).toBe('2020-01-10')
+    expect(r.signalState!.drawdown).toBeCloseTo(0)
+    expect(r.signalState!.steps).toBe(0)
+    expect(r.signalState!.soldFraction).toBe(0)
+    expect(r.signalState!.recoverDrawdown).toBe(0)
+  })
+
+  it('信号指数为 SPY 时填充对应 symbol，compareSet 沿用同一信号', () => {
+    const book = bookOf([100, 100, 79, 79, 79, 79, 79], 'SPY')
+    book.QQQ = { dates, adjClose: flat(dates.length) }
+    book.QQQE = { dates, adjClose: flat(dates.length) }
+    const input: RunInput = { ...baseInput, signal: 'SPY', rule: { kind: 'relative', pct: 0.4 } }
+    const r = runBacktest(book, input)
+    expect(r.signalState!.symbol).toBe('SPY')
+    expect(r.signalState!.inStress).toBe(true)
+    const comparison = compareSet(book, input)
+    expect(comparison.custom.active.signalState?.symbol).toBe('SPY')
+    expect(comparison.equal.active.signalState?.symbol).toBe('SPY')
+  })
+
+  it('最后一天首次进入：pendingAction=step，steps=0', () => {
+    const short = ['2020-01-02', '2020-01-03', '2020-01-06']
+    const book = {
+      GROW: { dates: short, adjClose: [100, 100, 100] },
+      CB: { dates: short, adjClose: [100, 100, 100] },
+      QQQ: { dates: short, adjClose: [100, 100, 79] },
+    }
+    const r = runBacktest(book, { ...baseInput, end: '2020-01-06' })
+    expect(r.signalState).toMatchObject({
+      inStress: true,
+      steps: 0,
+      pendingAction: 'step',
+      soldFraction: 0,
+      nextStepDrawdown: -0.25,
+    })
+    expect(r.tradeCount).toBe(0)
+  })
+
+  it('最后一天再下一档：pendingAction=step，已成交步数不变', () => {
+    // 进入→成交一步→末日再穿一档（未成交）
+    const short = ['2020-01-02', '2020-01-03', '2020-01-06', '2020-01-07', '2020-01-08']
+    const book = {
+      GROW: { dates: short, adjClose: [100, 100, 100, 100, 100] },
+      CB: { dates: short, adjClose: [100, 100, 100, 100, 100] },
+      QQQ: { dates: short, adjClose: [100, 100, 79, 79, 74] },
+    }
+    const r = runBacktest(book, { ...baseInput, end: '2020-01-08' })
+    expect(r.signalState!.inStress).toBe(true)
+    expect(r.signalState!.steps).toBe(1)
+    expect(r.signalState!.pendingAction).toBe('step')
+    expect(r.signalState!.soldFraction).toBeCloseTo(0.25)
+    expect(r.signalState!.nextStepDrawdown).toBeCloseTo(-0.3)
+  })
+
+  it('最后一天满足恢复：pendingAction=recover', () => {
+    const short = ['2020-01-02', '2020-01-03', '2020-01-06', '2020-01-07', '2020-01-08']
+    const book = {
+      GROW: { dates: short, adjClose: [100, 100, 100, 100, 100] },
+      CB: { dates: short, adjClose: [100, 100, 100, 100, 100] },
+      QQQ: { dates: short, adjClose: [100, 100, 79, 79, 96] },
+    }
+    const r = runBacktest(book, { ...baseInput, end: '2020-01-08' })
+    expect(r.signalState!.inStress).toBe(true)
+    expect(r.signalState!.steps).toBe(1)
+    expect(r.signalState!.pendingAction).toBe('recover')
+    expect(r.signalState!.drawdown).toBeCloseTo(-0.04)
+  })
+
+  it('最后一天触发但已到上限：pendingAction 为 null', () => {
+    const r = runBacktest(bookOf([100, 100, 79, 79, 74, 74, 69]), {
+      ...baseInput,
+      switch: { stable: 'CB', entry: 0.2, gap: 0.05, step: 0.25, recover: 0.05, cap: 0.5 },
+    })
+    expect(r.signalState!.inStress).toBe(true)
+    expect(r.signalState!.steps).toBe(2)
+    expect(r.signalState!.soldFraction).toBeCloseTo(0.5)
+    expect(r.signalState!.pendingAction).toBeNull()
+    expect(r.signalState!.nextStepDrawdown).toBeNull()
+  })
+})
