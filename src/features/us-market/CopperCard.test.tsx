@@ -66,6 +66,9 @@ describe('CopperCard', () => {
     expect(details.open).toBe(true)
     expect(within(details).getByText('铜金比')).toBeTruthy()
 
+    expect(within(details).getByRole('columnheader', { name: '10 年期美债收益率' })).toBeTruthy()
+    expect(within(details).getByRole('row', { name: /2026-11-18 0\.0016 4\.05%/ })).toBeTruthy()
+
     fireEvent.click(screen.getByRole('button', { name: '铜价' }))
     expect(within(region).getByRole('img', { name: /近 5 年铜价/ })).toBeTruthy()
   })

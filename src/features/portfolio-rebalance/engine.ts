@@ -448,6 +448,12 @@ export function leaveOneOutInputs(
   })
 }
 
+export function sameTradingDays(result: RunResult, baseline: RunResult): boolean {
+  return result.start === baseline.start && result.end === baseline.end
+    && result.dates.length === baseline.dates.length
+    && result.dates.every((date, index) => date === baseline.dates[index])
+}
+
 export function compareSet(book: PriceBook, input: RunInput): CompareSet {
   const active = runBacktest(book, input)
   const window = { start: active.start, end: active.end }
@@ -457,10 +463,18 @@ export function compareSet(book: PriceBook, input: RunInput): CompareSet {
     active,
   }
   const eqIn = { ...equalWeightInput(input), ...window }
-  const equal = {
-    hold: runBacktest(book, { ...eqIn, rule: { kind: 'buyHold' }, switch: undefined }),
-    active: runBacktest(book, eqIn),
+  const eqHoldInput: RunInput = { ...eqIn, rule: { kind: 'buyHold' }, switch: undefined }
+  let equalHold = runBacktest(book, eqHoldInput)
+  if (!sameTradingDays(equalHold, active)) {
+    // An inactive switch no longer contributes the signal calendar. Restrict
+    // one constituent to the baseline sessions for the equal-weight pair.
+    const anchor = input.symbols[0]
+    const source = book[anchor]
+    const priceByDate = new Map(source.dates.map((date, index) => [date, source.adjClose[index]]))
+    const anchorSeries = { dates: active.dates, adjClose: active.dates.map(date => priceByDate.get(date)!) }
+    equalHold = runBacktest({ ...book, [anchor]: anchorSeries }, eqHoldInput)
   }
+  const equal = { hold: equalHold, active: runBacktest(book, eqIn) }
   const benchmarks: CompareSet['benchmarks'] = { QQQ: null, QQQE: null }
   for (const b of ['QQQ', 'QQQE'] as const) {
     if (!book[b]) continue

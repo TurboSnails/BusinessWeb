@@ -21,6 +21,7 @@ import {
   MCCLELLAN_WARMUP_DAYS,
 } from './advDec'
 import type { Breadth, Point } from './model'
+import { nyseSessionsOnOrBefore } from './tradingCalendar'
 import { percentileOf } from './explain'
 
 const d = (n: number, from = '2025-01-02') => {
@@ -166,6 +167,51 @@ describe('isStale / weekdaySessions / Thanksgiving', () => {
 })
 
 describe('continuous means / sample gate', () => {
+  const now = new Date('2026-11-20T23:00Z')
+  const latest = '2026-11-20'
+  const dates = nyseSessionsOnOrBefore(latest, 160, now)
+  const rows = dates.map((date, i): NonNullable<Breadth['advDec']>[number] =>
+    [date, i < 150 ? 20 : 40, i < 150 ? 80 : 60, 0, 100])
+  const metrics = (advDec: Breadth['advDec']) => buildAdvDecMetrics({
+    date: latest, total: 100, covered: 100, above200: 50,
+    source: 'test', scope: '标普 500', advDec,
+  }, undefined, latest, now)!
+
+  it('suppresses old 10-day means and percentiles after a missing November 19', () => {
+    const result = metrics([...rows.slice(0, -1), [latest, 0, 100, 0, 100]]
+      .filter(([date]) => date !== '2026-11-19') as Breadth['advDec'])
+    expect(result.today.advanceShare).toBe(0)
+    expect(result.avg10Share).toBeUndefined()
+    expect(result.avg10Percentile).toBeUndefined()
+    expect(result.readings).toEqual([])
+  })
+
+  it('excludes 1/100 coverage from RANA, EMA, cumulative net and the current mean', () => {
+    const prior = rows.slice(0, -1)
+    const result = metrics([...prior, [latest, 1, 0, 0, 1]])
+    expect(result.ranaSeries).toEqual(metrics(prior).ranaSeries)
+    expect(result.mcclellanSeries).toEqual(metrics(prior).mcclellanSeries)
+    expect(result.cumulative).toEqual(metrics(prior).cumulative)
+    expect(result.dailyNet).toEqual(metrics(prior).dailyNet)
+    expect(result.ranaSeries.at(-1)?.[0]).toBe('2026-11-19')
+    expect(result.avg10Share).toBeUndefined()
+    expect(result.avg10Percentile).toBeUndefined()
+  })
+
+  it.each([
+    [20, 40, '相对过去一年偏强。'],
+    [80, 60, '相对过去一年偏弱。'],
+    [20, 55, '短期普涨，热度偏高。'],
+    [80, 45, '短期普跌，情绪偏冷。'],
+  ])('reads breadth from %i to %i by both percentile and absolute share', (early, late, reading) => {
+    const result = metrics(dates.map((date, i) => {
+      const adv = i < 150 ? early : late
+      return [date, adv, 100 - adv, 0, 100]
+    }))
+    expect(result.avg10Share).toBeCloseTo(late / 100)
+    expect(result.readings).toEqual([reading])
+  })
+
   it('does not stitch 10-day means across a coverage gap', () => {
     const dates = d(14)
     const points = dates.map((date, i) => ({ date, share: 0.5 + i * 0.01 }))

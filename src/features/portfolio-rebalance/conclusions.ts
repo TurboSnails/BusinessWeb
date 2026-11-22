@@ -1,4 +1,5 @@
 import { number, percent } from './components/format'
+import { sameTradingDays } from './engine'
 import type { CompareSet, PriceIndex, RunInput, RunResult } from './types'
 
 const MATERIAL_DIFFERENCE = 0.005
@@ -26,10 +27,6 @@ function periodDays(result: RunResult): number {
 
 function meetsMaterialThreshold(difference: number): boolean {
   return Math.abs(difference) + COMPARISON_TOLERANCE >= MATERIAL_DIFFERENCE
-}
-
-function sameWindow(result: RunResult, baseline: RunResult): boolean {
-  return result.start === baseline.start && result.end === baseline.end
 }
 
 function drawdownDifference(result: RunResult, baseline: RunResult): number {
@@ -175,7 +172,7 @@ export function buildConclusions({ comparison, input, index }: ConclusionInput):
   } else if (input.symbols.length >= 3 && !input.switch) {
     const rows = comparison.leaveOneOut
     if (rows.length !== input.symbols.length
-      || rows.some(row => !sameWindow(row.active, active)
+      || rows.some(row => !sameTradingDays(row.active, active)
         || !Number.isFinite(row.active.cagr)
         || !Number.isFinite(row.active.maxDrawdown.value))) {
       lines.push(INSUFFICIENT)

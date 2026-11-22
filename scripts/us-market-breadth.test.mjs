@@ -8,6 +8,17 @@ const sessions = Array.from({ length: 200 }, (_, i) => day(i))
 const members = Array.from({ length: 20 }, (_, i) => `M${i}`)
 const bars = (last = 20) => sessions.map((date, i) => [date, i === 199 ? last : 10])
 
+test('宽度快照仅由宽度工作流刷新，并安排纽约次日 03:15 补跑', () => {
+  const cycle = readFileSync(new URL('../.github/workflows/market-cycle.yml', import.meta.url), 'utf8')
+  const breadth = readFileSync(new URL('../.github/workflows/us-market-breadth.yml', import.meta.url), 'utf8')
+  assert.doesNotMatch(cycle, /scripts\/us-market-breadth\.mjs|\.cache\/us-market-breadth/)
+  assert.match(cycle, /node --test scripts\/market-cycle-\*\.test\.mjs scripts\/us-market-\*\.test\.mjs/)
+  assert.match(breadth, /cron: '40 16 \* \* 1-5'\n\s+timezone: America\/New_York/)
+  assert.match(breadth, /cron: '15 3 \* \* 2-6'\n\s+timezone: America\/New_York/)
+  assert.match(breadth, /node scripts\/us-market-breadth\.mjs/)
+  assert.match(breadth, /git add public\/data\/us-market-breadth\.json/)
+})
+
 test('same-session coverage rejects missing days and keeps an explicit denominator', () => {
   const quotes = new Map(members.map((symbol, i) => [symbol, i === 19 ? bars().slice(0, -1) : bars(i < 10 ? 20 : 5)]))
   const breadth = computeBreadth(members, quotes, sessions)

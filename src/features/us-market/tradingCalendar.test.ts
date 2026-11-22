@@ -50,17 +50,32 @@ describe('Thanksgiving week freshness sessions', () => {
     expect(sessions.includes('2026-11-26')).toBe(false)
   })
 
-  it('before 16:40 ET does not treat today as an expected session', () => {
-    // Friday 2026-11-27 15:00 ET = 20:00 UTC (EST)
-    const before = new Date('2026-11-27T20:00:00Z')
-    expect(isPastNyseDataCutoff(before)).toBe(false)
-    expect(effectiveAsOfForData('2026-11-27', before)).toBe('2026-11-26')
-    const sessions = nyseSessionsOnOrBefore('2026-11-27', 3, before)
-    expect(sessions.at(-1)).toBe('2026-11-25') // Thu holiday → Wed
+  it.each(['2025-07-03', '2025-11-28', '2025-12-24', '2026-11-27',
+    '2026-12-24', '2027-11-26'])('expects short-session %s data from 13:40 ET', day => {
+    const offset = day.includes('-07-') ? '-04:00' : '-05:00'
+    expect(nyseSessionsOnOrBefore(day, 1, new Date(`${day}T13:39:59${offset}`))).not.toEqual([day])
+    expect(nyseSessionsOnOrBefore(day, 1, new Date(`${day}T13:40:00${offset}`))).toEqual([day])
+  })
 
-    const after = new Date('2026-11-27T21:45:00Z') // 16:45 ET
+  it('does not shorten the session before observed July or Christmas closures', () => {
+    for (const day of ['2026-07-02', '2027-07-02', '2027-12-23']) {
+      expect(nyseSessionsOnOrBefore(day, 1, new Date(`${day}T15:00:00-04:00`))).not.toEqual([day])
+    }
+    expect(isNyseSession('2026-07-03')).toBe(false)
+    expect(isNyseSession('2027-12-24')).toBe(false)
+  })
+
+  it('before 16:40 ET does not treat today as an expected session', () => {
+    // Regular Friday 2026-11-20 15:00 ET = 20:00 UTC (EST)
+    const before = new Date('2026-11-20T20:00:00Z')
+    expect(isPastNyseDataCutoff(before)).toBe(false)
+    expect(effectiveAsOfForData('2026-11-20', before)).toBe('2026-11-19')
+    const sessions = nyseSessionsOnOrBefore('2026-11-20', 3, before)
+    expect(sessions.at(-1)).toBe('2026-11-19')
+
+    const after = new Date('2026-11-20T21:45:00Z') // 16:45 ET
     expect(isPastNyseDataCutoff(after)).toBe(true)
-    expect(effectiveAsOfForData('2026-11-27', after)).toBe('2026-11-27')
-    expect(nyseSessionsOnOrBefore('2026-11-27', 1, after).at(-1)).toBe('2026-11-27')
+    expect(effectiveAsOfForData('2026-11-20', after)).toBe('2026-11-20')
+    expect(nyseSessionsOnOrBefore('2026-11-20', 1, after).at(-1)).toBe('2026-11-20')
   })
 })

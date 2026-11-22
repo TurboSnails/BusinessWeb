@@ -57,10 +57,12 @@ function MetricFreshness({ metric }: { metric: CopperMetric }): JSX.Element {
   )
 }
 
-function RecentRatioTable({ dates, ratio }: { dates: string[]; ratio: number[] }): JSX.Element | null {
+function RecentRatioTable({ dates, ratio, yieldPts }: { dates: string[]; ratio: number[]; yieldPts: number[] }): JSX.Element | null {
   if (dates.length === 0) return null
   const start = Math.max(0, dates.length - TABLE_ROWS)
-  const rows = dates.slice(start).map((date, i) => ({ date, value: ratio[start + i]! })).reverse()
+  const rows = dates.slice(start).map((date, i) => ({
+    date, value: ratio[start + i]!, yieldValue: yieldPts[start + i]!,
+  })).reverse()
   return (
     <details className="us-market__data-table">
       <summary>查看最近 {rows.length} 个交易日数据</summary>
@@ -70,6 +72,7 @@ function RecentRatioTable({ dates, ratio }: { dates: string[]; ratio: number[] }
             <tr>
               <th scope="col">日期</th>
               <th scope="col">铜金比</th>
+              <th scope="col">10 年期美债收益率</th>
             </tr>
           </thead>
           <tbody>
@@ -77,6 +80,7 @@ function RecentRatioTable({ dates, ratio }: { dates: string[]; ratio: number[] }
               <tr key={row.date}>
                 <td><time dateTime={row.date}>{row.date}</time></td>
                 <td>{fmtRatio(row.value)}</td>
+                <td>{fmtYield(row.yieldValue)}</td>
               </tr>
             ))}
           </tbody>
@@ -172,7 +176,7 @@ function DualChart({ dates, ratio, yieldPts }: {
           </span>
         </figcaption>
       </figure>
-      <RecentRatioTable dates={dates} ratio={ratio} />
+      <RecentRatioTable dates={dates} ratio={ratio} yieldPts={yieldPts} />
     </>
   )
 }

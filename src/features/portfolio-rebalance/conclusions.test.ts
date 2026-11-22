@@ -198,6 +198,20 @@ describe('自动结论纯函数', () => {
     expect(lines.join('')).not.toMatch(/历史敏感性|稳定组成员的历史/)
   })
 
+  it('剔除行起止相同但内部多一天时停用自动归因', () => {
+    const fixture = createConclusionFixture()
+    const dates = ['2024-01-31', '2024-02-01', '2024-02-02', '2025-02-03']
+    const base = fixture.comparison.custom.active
+    Object.assign(base, { start: dates[0], end: dates[3], dates: dates.filter((_, i) => i !== 1) })
+    for (const row of fixture.comparison.leaveOneOut) {
+      Object.assign(row.active, { start: base.start, end: base.end, dates: base.dates })
+    }
+    fixture.comparison.leaveOneOut[0].active.dates = dates
+    const lines = buildConclusions(fixture)
+    expect(lines).toContain('该项数据不足，暂不自动概括；请查看已计算的原始指标。')
+    expect(lines.join('')).not.toMatch(/历史敏感性|稳定组成员的历史/)
+  })
+
   it('剔除结果含非有限数时不生成规则 2、3', () => {
     const fixture = createConclusionFixture()
     fixture.comparison.leaveOneOut[0].active.maxDrawdown.value = Number.POSITIVE_INFINITY

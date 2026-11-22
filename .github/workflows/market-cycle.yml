@@ -57,11 +57,6 @@ jobs:
           restore-keys: |
             market-cycle-evidence-v2-
             market-cycle-breadth-v1-
-      - uses: actions/cache@v4
-        with:
-          path: .cache/us-market-breadth
-          key: us-market-breadth-v1-${{ github.run_id }}
-          restore-keys: us-market-breadth-v1-
       - name: Refresh macro background independently
         continue-on-error: true
         run: node scripts/macro-snapshot.mjs
@@ -79,10 +74,6 @@ jobs:
         continue-on-error: true
         timeout-minutes: 3
         run: node scripts/us-market-slices.mjs
-      - name: Refresh US constituent breadth
-        continue-on-error: true
-        timeout-minutes: 3
-        run: node scripts/us-market-breadth.mjs
       - name: Publish valid partial updates and quality report
         id: commit
         shell: bash

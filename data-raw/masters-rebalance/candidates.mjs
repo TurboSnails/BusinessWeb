@@ -9,7 +9,11 @@ const bundle = await build({ entryPoints: [join(ROOT, 'src/features/portfolio-re
 const { runBacktest } = await import(`data:text/javascript;base64,${Buffer.from(bundle.outputFiles[0].text).toString('base64')}`)
 const index = JSON.parse(await readFile(join(DATA, 'index.json'), 'utf8'))
 const book = {}
-for (const i of index.items) { const b = JSON.parse(await readFile(join(DATA, `${i.symbol}.json`), 'utf8')); book[i.symbol] = { dates: b.dates, adjClose: b.adjClose } }
+for (const { symbol } of index.items) {
+  const { dates, adjClose } = JSON.parse(await readFile(join(DATA, `${symbol}.json`), 'utf8'))
+  const valid = dates.flatMap((day, i) => Number.isFinite(adjClose[i]) && adjClose[i] > 0 ? [[day, adjClose[i]]] : [])
+  book[symbol] = { dates: valid.map(([day]) => day), adjClose: valid.map(([, price]) => price) }
+}
 
 const P = [
   { id: 'P0', name: '现组合', s: { AVGO: 25, META: 25, CB: 25, SOFI: 12.5, RKLB: 12.5 }, stable: 'CB' },
@@ -27,16 +31,43 @@ const P = [
 for (const p of P) { const t = Object.values(p.s).reduce((a, b) => a + b, 0); p.symbols = Object.keys(p.s); p.weights = Object.values(p.s).map(v => v / t) }
 const RULES = { hold: { kind: 'buyHold' }, rel40: { kind: 'relative', pct: 0.4 }, year: { kind: 'calendar', every: 'year' } }
 const sw = st => ({ stable: st, entry: 0.2, gap: 0.05, step: 0.25, recover: 0.05, cap: 0.5 })
-function go(p, rule, { start, end = '2026-11-20', symbols = p.symbols, weights = p.weights, withSwitch = false } = {}) {
-  const r = runBacktest(book, { symbols, weights, rule: RULES[rule], ...(withSwitch && p.stable && symbols.includes(p.stable) ? { switch: sw(p.stable) } : {}), start, end, cost: 0.001, initial: 1e6, signal: 'QQQ' })
+const RESEARCH_END = '2026-11-20'
+
+function requireCoverage(symbol, end) {
+  const series = book[symbol]
+  const last = series?.dates.at(-1)
+  if (!last || last < end) throw new Error(`${symbol} 数据仅到 ${last ?? '无有效交易日'}，未覆盖研究截止日 ${end}`)
+  return series
+}
+
+function go(p, rule, { start, end = RESEARCH_END, symbols = p.symbols, weights = p.weights, withSwitch = false } = {}) {
+  const switchRule = withSwitch && p.stable && symbols.includes(p.stable) ? sw(p.stable) : undefined
+  for (const symbol of symbols) requireCoverage(symbol, end)
+  if (switchRule) requireCoverage('QQQ', end)
+  const r = runBacktest(book, { symbols, weights, rule: RULES[rule], switch: switchRule, start, end, cost: 0.001, initial: 1e6, signal: 'QQQ' })
   return { final: r.final, cagr: r.cagr, mdd: r.maxDrawdown.value, vol: r.vol, cer: r.cer, trades: r.tradeCount, start: r.start, end: r.end, finalWeights: r.finalWeights }
 }
 const variants = p => [['hold', 'hold', false], ['rel40', 'rel40', false], ['year', 'year', false], ...(p.stable ? [['switch', 'rel40', true]] : [])]
-const qqq = (start, end = '2026-11-20') => { const s = book.QQQ; const i0 = s.dates.findIndex(d => d >= start), i1 = end ? s.dates.lastIndexOf(end) : s.dates.length - 1; let pk = 0, mdd = 0; for (let k = i0; k <= i1; k++) { pk = Math.max(pk, s.adjClose[k]); mdd = Math.min(mdd, s.adjClose[k] / pk - 1) } const f = s.adjClose[i1] / s.adjClose[i0], y = (Date.parse(s.dates[i1]) - Date.parse(s.dates[i0])) / 864e5 / 365.25; return { final: f, cagr: f ** (1 / y) - 1, mdd } }
+function qqq(start, end = RESEARCH_END) {
+  const { dates, adjClose } = requireCoverage('QQQ', end)
+  const first = dates.findIndex(day => day >= start)
+  const last = dates.findLastIndex(day => day <= end)
+  if (first < 0 || last <= first) throw new Error(`QQQ 在 ${start} 至 ${end} 的有效交易日不足`)
+  let peak = 0
+  let mdd = 0
+  for (let i = first; i <= last; i++) {
+    peak = Math.max(peak, adjClose[i])
+    mdd = Math.min(mdd, adjClose[i] / peak - 1)
+  }
+  const final = adjClose[last] / adjClose[first]
+  const years = (Date.parse(dates[last]) - Date.parse(dates[first])) / 864e5 / 365.25
+  return { final, cagr: final ** (1 / years) - 1, mdd, end: dates[last] }
+}
 const median = xs => { const s = [...xs].sort((a, b) => a - b), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2 }
 const W = '2021-08-25', MID_END = '2023-12-29', MID_START = '2024-01-02'
 const starts = []; for (let y = 2021, m = 9; y < 2024 || (y === 2024 && m <= 11); m++) { if (m > 12) { m = 1; y++ } starts.push(`${y}-${String(m).padStart(2, '0')}-01`) }
-const out = { dataAsOf: book.QQQ.dates.at(-1), qqq: { full: qqq(W), h1: qqq(W, MID_END), h2: qqq(MID_START) }, rollingStarts: starts.length, portfolios: [] }
+const full = qqq(W)
+const out = { dataAsOf: full.end, qqq: { full, h1: qqq(W, MID_END), h2: qqq(MID_START) }, rollingStarts: starts.length, portfolios: [] }
 for (const p of P) {
   const row = { id: p.id, name: p.name, symbols: p.symbols, weights: p.weights, stable: p.stable, full: {}, h1: {}, h2: {}, rolling: {}, long: null, leaveOut: null }
   for (const [k, rule, s] of variants(p)) {

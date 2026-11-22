@@ -4,6 +4,9 @@ on:
   schedule:
     - cron: '40 16 * * 1-5'
       timezone: America/New_York
+    # Retry the prior trading day's snapshot the following morning.
+    - cron: '15 3 * * 2-6'
+      timezone: America/New_York
   workflow_dispatch:
 
 permissions:

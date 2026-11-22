@@ -478,7 +478,7 @@ export function parseFred(markup, scale, digits = 2) {
   return record(requireReadings(data, 'FRED'))
 }
 
-/** Align prior-evening and midnight labels to the same New York trading day. */
+/** Align prior-evening, midnight and session-end labels to the same New York trading day. */
 export function parseYahooFuturesClose(body, symbol, now = new Date(), digits = 4) {
   const result = body?.chart?.result?.[0]
   const meta = result?.meta
@@ -495,7 +495,7 @@ export function parseYahooFuturesClose(body, symbol, now = new Date(), digits = 
     const stamp = result.timestamp[i]
     const close = closes[i]
     if (!Number.isFinite(stamp)) continue
-    const day = nyDay(stamp + 7 * 60 * 60)
+    const day = nyDay(stamp + 6 * 60 * 60)
     if (day > today) continue
     // Include the old calendar label at the start and any rejected in-range
     // readings so they cannot survive from a prior snapshot.
@@ -680,7 +680,7 @@ export async function collectUsMarketData(previous, { read = fetchText, readBina
   const entries = Object.entries(jobs)
   const settled = await Promise.allSettled(entries.map(([, [, load]]) => load()))
   const series = { ...previous?.series }
-  const futuresCoverage = {}
+  const sourceErrors = new Map()
   const warnings = []
   let sourcesUpdated = 0
   const today = now.toISOString().slice(0, 10)
@@ -694,7 +694,10 @@ export async function collectUsMarketData(previous, { read = fetchText, readBina
     if (result.status === 'rejected') {
       const issue = refreshError(result.reason)
       warnings.push(name + '：' + issue)
-      for (const key of keys) if (series[key]) series[key] = { ...series[key], refreshError: issue }
+      for (const key of keys) {
+        sourceErrors.set(key, issue)
+        if (series[key]) series[key] = { ...series[key], refreshError: issue }
+      }
       continue
     }
     let accepted = false
@@ -718,40 +721,33 @@ export async function collectUsMarketData(previous, { read = fetchText, readBina
       // observation so historical SOFR weekly closes can join on the exact date.
       if (key !== 'iorb') updated.history = compactHistory(updated.history, updated.frequency)
       series[key] = updated
-      if (coverage) futuresCoverage[key] = coverage
       accepted = true
     }
     if (accepted) sourcesUpdated++
-    else warnings.push(name + '：没有适用的已发生观测值')
+    else {
+      const issue = '没有适用的已发生观测值'
+      warnings.push(name + '：' + issue)
+      for (const key of keys) sourceErrors.set(key, issue)
+    }
   }
   const marginDebt = series.finraDebt?.history ?? []
   const marginGrowth = finraDebtGrowth(marginDebt)
   if (marginGrowth.length) series.finraDebtYoy = mergeSeries(series.finraDebtYoy, {
     ...specs.finraDebtYoy, history: marginGrowth, ...(series.finraDebt.refreshError && { refreshError: series.finraDebt.refreshError }),
   })
-  const copperHistory = series.copperDaily?.history ?? []
-  const goldHistory = series.goldDaily?.history ?? []
-  if (copperHistory.length && goldHistory.length) {
+  let ratioError = sourceErrors.get('copperDaily') || sourceErrors.get('goldDaily')
+  if (!ratioError) {
+    const copperHistory = series.copperDaily?.history ?? []
+    const goldHistory = series.goldDaily?.history ?? []
     try {
-      const ratio = copperGoldRatio(copperHistory, goldHistory)
-      const refreshError = series.copperDaily?.refreshError || series.goldDaily?.refreshError
-      // Only replace ratio dates covered by both successful downloads.
-      const copperCoverage = futuresCoverage.copperDaily
-      const goldCoverage = futuresCoverage.goldDaily
-      const coverage = copperCoverage && goldCoverage && [
-        copperCoverage[0] > goldCoverage[0] ? copperCoverage[0] : goldCoverage[0],
-        copperCoverage[1] < goldCoverage[1] ? copperCoverage[1] : goldCoverage[1],
-      ]
-      series.copperGold = mergeSeries(series.copperGold, {
-        ...specs.copperGold, history: ratio, ...(refreshError && { refreshError }),
-      }, coverage)
-      if (series.copperGold) {
-        series.copperGold.history = compactHistory(series.copperGold.history, series.copperGold.frequency)
-        if (!refreshError) delete series.copperGold.refreshError
-      }
+      series.copperGold = { ...specs.copperGold, history: copperGoldRatio(copperHistory, goldHistory) }
     } catch {
-      // Keep prior copperGold when the aligned ratio cannot be formed.
+      ratioError = '铜、金最新日期不一致，暂用上次比值'
+      warnings.push(ratioError)
     }
+  }
+  if (ratioError && series.copperGold) {
+    series.copperGold = { ...series.copperGold, refreshError: ratioError }
   }
   return { snapshot: { series }, warnings, sourcesUpdated }
 }

@@ -29,10 +29,14 @@ export function nyTimeParts(now: Date): { hour: number; minute: number } {
   return { hour, minute }
 }
 
-export function isPastNyseDataCutoff(now: Date = new Date()): boolean {
+type DataCutoff = { hour: number; minute: number }
+
+const NYSE_SHORT_DATA_CUTOFF = { hour: 13, minute: 40 }
+
+export function isPastNyseDataCutoff(now: Date = new Date(), cutoff?: DataCutoff): boolean {
+  const expected = cutoff ?? (isNyseEarlyClose(formatNyDate(now)) ? NYSE_SHORT_DATA_CUTOFF : NYSE_DATA_CUTOFF)
   const { hour, minute } = nyTimeParts(now)
-  return hour > NYSE_DATA_CUTOFF.hour
-    || (hour === NYSE_DATA_CUTOFF.hour && minute >= NYSE_DATA_CUTOFF.minute)
+  return hour * 60 + minute >= expected.hour * 60 + expected.minute
 }
 
 function shiftIsoDate(iso: string, deltaDays: number): string {
@@ -123,30 +127,35 @@ export function isNyseSession(isoDate: string): boolean {
   return !isNyseHoliday(isoDate)
 }
 
-/**
- * As-of date for expecting a completed NYSE session: if `asOf` is today's NY
- * calendar date and local NY time is before 16:40, treat the prior calendar day
- * as the latest day that may already have data.
- */
-export function effectiveAsOfForData(asOf: string, now: Date = new Date()): string {
+/** NYSE closes early the day after Thanksgiving and on July 3 or Dec 24 when open. */
+function isNyseEarlyClose(day: string): boolean {
+  if (!isNyseSession(day)) return false
+  const year = Number(day.slice(0, 4))
+  return day.endsWith('-07-03') || day.endsWith('-12-24')
+    || day === shiftIsoDate(nthWeekdayOfMonth(year, 11, 4, 4), 1)
+}
+
+/** Use the prior calendar day when today's session data is not due yet. */
+export function effectiveAsOfForData(asOf: string, now: Date = new Date(), cutoff?: DataCutoff): string {
   if (!asOf) return asOf
   const todayNy = formatNyDate(now)
-  if (asOf === todayNy && !isPastNyseDataCutoff(now)) return shiftIsoDate(asOf, -1)
+  if (asOf === todayNy && !isPastNyseDataCutoff(now, cutoff)) return shiftIsoDate(asOf, -1)
   return asOf
 }
 
 /**
- * NYSE sessions on/before asOf (after applying the 16:40 cutoff). Newest last.
+ * NYSE sessions on/before asOf (after applying the data cutoff). Newest last.
  * Covers at least 2025–2027 via the holiday generators.
  */
 export function nyseSessionsOnOrBefore(
   asOf: string,
   count: number,
   now: Date = new Date(),
+  cutoff?: DataCutoff,
 ): string[] {
   const out: string[] = []
   if (!(count > 0) || !asOf) return out
-  let cursor = effectiveAsOfForData(asOf, now)
+  let cursor = effectiveAsOfForData(asOf, now, cutoff)
   // Walk back far enough for holidays + weekends.
   let guard = 0
   while (out.length < count && guard < count * 4 + 40) {
@@ -157,7 +166,7 @@ export function nyseSessionsOnOrBefore(
   return out.reverse()
 }
 
-/** Latest completed NYSE session on/before asOf (16:40-aware). */
+/** Latest completed NYSE session on/before asOf. */
 export function latestCompletedNyseSession(asOf: string, now: Date = new Date()): string | undefined {
   return nyseSessionsOnOrBefore(asOf, 1, now).at(-1)
 }

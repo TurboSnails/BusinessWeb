@@ -10,6 +10,27 @@ export interface SiteUpdate {
 // 使用中文描述结果和使用方式，不从 Git 提交、构建或日常数据刷新自动生成。
 export const SITE_UPDATES: readonly SiteUpdate[] = [
   {
+    id: 'macro-masters',
+    date: '2026-11-22',
+    title: '宏观大师：九位投资人怎么看周期',
+    description: '新增宏观大师板块：德鲁肯米勒、达利欧、霍华德·马克斯、都铎·琼斯、茨威格、格兰瑟姆、索罗斯、邓普顿、科斯托拉尼各一页，整理他们判断周期的思路与指标，原话注明出处，并核实了“德鲁肯米勒五大支柱全部反转”这类流传说法。总览页把各人关注的指标与本站当前读数并列，不合成总分，不构成买卖建议。',
+    href: '/invest/macro-masters',
+  },
+  {
+    id: 'us-market-breadth-copper',
+    date: '2026-11-22',
+    title: '美股市场加入涨跌家数与铜金比',
+    description: '宏观温度的美股市场页新增市场宽度：标普 500 与纳指 100 成分股每日上涨、下跌家数，10 日上涨占比、McClellan 振荡与累计涨跌线，每个交易日收盘后约 40 分钟更新；另加铜价与铜金比作背景参考，并说明关税对纽约铜价的扭曲。估值位置页加入 Finviz 远期市盈率热力图入口。',
+    href: '/monitor?tab=us-market',
+  },
+  {
+    id: 'portfolio-rebalance-conclusions',
+    date: '2026-11-22',
+    title: '组合回测给出自动结论',
+    description: '组合再平衡回测按当前组合自动说明结果：收益与回撤对比、对单只股票的敏感性、稳定股的取舍，并在样本过短、未调仓等情况下不下结论；逐一剔除表改为中性配色并加入回撤变化；纳指 100 等权对照改用仍跟踪全部成分的 QQQE。',
+    href: '/lab/portfolio-rebalance',
+  },
+  {
     id: 'portfolio-rebalance-presets',
     date: '2026-11-22',
     title: '组合回测加入研究参考组合',

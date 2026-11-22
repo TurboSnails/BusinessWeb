@@ -196,6 +196,22 @@ describe('portfolio-rebalance engine anchors', () => {
     expect(comparison.equal.hold.start).toBe('2021-08-25')
   })
 
+  it('等权动态与等权不动共用原组合剔除信号缺日后的交易日', () => {
+    const dates = ['2024-01-31', '2024-02-01', '2024-02-02', '2025-02-03']
+    const series = { dates, adjClose: [100, 100, 100, 100] }
+    const comparison = compareSet({
+      AAPL: series, MSFT: series, CB: series,
+      QQQ: { dates: dates.filter((_, i) => i !== 1), adjClose: [100, 100, 100] },
+    }, {
+      symbols: ['AAPL', 'MSFT', 'CB'], weights: [0.4, 0.35, 0.25],
+      rule: { kind: 'relative', pct: 0.4 },
+      switch: { stable: 'CB', entry: 0.2, gap: 0.05, step: 0.25, recover: 0.05 },
+      cost: 0.001, initial: 1,
+    })
+    expect(comparison.equal.active.dates).toEqual(comparison.custom.active.dates)
+    expect(comparison.equal.hold.dates).toEqual(comparison.custom.active.dates)
+  })
+
   it('基准沿用组合实际窗口，QQQE 数据较晚时保留实际起点', () => {
     const comparison = compareSet(windowBook, {
       symbols: ['AAPL', 'MSFT', 'CB'],

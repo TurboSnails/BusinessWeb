@@ -49,12 +49,13 @@ const AVG_WINDOW = 10
 const DIVERGENCE_LOOKBACK = 20
 /** Minimum valid continuous 10-day means before percentile / 短期普涨普跌. */
 export const AVG10_SAMPLE_MIN = 120
-/** Days with covered/total below this are treated as missing for 10-day means. */
+/** Days with covered/total below this are treated as missing in breadth history. */
 export const COVERAGE_MIN = 0.95
 
 export const BOTH_AT_HIGHS_READING = '指数与涨跌线同步创新高，上涨参与度较广。'
 export const NARROWING_READING = '指数近 20 日创新高，但涨跌线没有同步创新高，参与度在变窄。'
 export const SAMPLE_INSUFFICIENT = '历史样本不足，暂不判读'
+export const AVG10_INCOMPLETE = '最近 10 个交易日数据不完整，暂不判读'
 
 /** RANA = (adv − dec) ÷ (adv + dec) × 1000. */
 export function rana(advancers: number, decliners: number): number | undefined {
@@ -204,9 +205,12 @@ export function interpretBreadth(opts: {
     if (bothAtHighs(opts.adLine, opts.index)) out.push(BOTH_AT_HIGHS_READING)
     else if (narrowingDivergence(opts.adLine, opts.index)) out.push(NARROWING_READING)
   }
-  if (opts.avg10SampleReady && opts.avg10Percentile !== undefined) {
-    if (opts.avg10Percentile >= 90) out.push('短期普涨，热度偏高。')
-    else if (opts.avg10Percentile <= 10) out.push('短期普跌，情绪偏冷。')
+  if (opts.avg10SampleReady && opts.avg10Percentile !== undefined && opts.avg10Share !== undefined) {
+    if (opts.avg10Percentile >= 90) {
+      out.push(opts.avg10Share >= 0.55 - Number.EPSILON ? '短期普涨，热度偏高。' : '相对过去一年偏强。')
+    } else if (opts.avg10Percentile <= 10) {
+      out.push(opts.avg10Share <= 0.45 + Number.EPSILON ? '短期普跌，情绪偏冷。' : '相对过去一年偏弱。')
+    }
   }
   return out
 }
@@ -225,7 +229,7 @@ export function weekdaySessionsOnOrBefore(asOf: string, count: number): string[]
 
 /**
  * Stale when data lags the latest completed NYSE session on/before asOf by more
- * than one trading day. Uses NYSE holidays + 16:40 ET cutoff.
+ * than one trading day. Uses NYSE holidays and the session-specific ET cutoff.
  */
 export function isStale(dataDate: string, asOf: string, now: Date = new Date()): boolean {
   if (!dataDate || !asOf || dataDate > asOf) return false
@@ -295,22 +299,27 @@ export function buildAdvDecMetrics(
   now: Date = new Date(),
 ): AdvDecMetrics | undefined {
   if (!breadth) return undefined
-  const rows = parseAdvDec(breadth.advDec)
+  const observations = parseAdvDec(breadth.advDec)
+  const latestRowDate = observations.at(-1)?.[0] ?? ''
+  const latestObservation = breadth.date && breadth.date > latestRowDate ? breadth.date : latestRowDate
+  const rows = observations.filter(row => rowCoverageOk(row[4], breadth.total))
   const historyReady = rows.length > 0
   const today = historyReady
     ? todayFromRow(rows.at(-1)!, breadth.total)
     : todayFromHighsLows(breadth)
   if (!today) return undefined
 
-  // Coverage gate: covered/total < 0.95 counts as a missing day for 10-day means.
   const definedShares = rows.flatMap(row => {
-    if (!rowCoverageOk(row[4], breadth.total)) return []
     const s = advanceShare(row[1], row[2])
     return s === undefined ? [] : [{ date: row[0], share: s }]
   })
+  const yearAgo = new Date(`${latestObservation}T00:00:00Z`)
+  yearAgo.setUTCFullYear(yearAgo.getUTCFullYear() - 1)
   const definedMeans = continuousRollingMeans(definedShares, AVG_WINDOW, now)
-  const avg10Share = definedMeans.at(-1)?.value
-  const avg10SampleReady = definedMeans.length >= AVG10_SAMPLE_MIN
+    .filter(mean => Date.parse(mean.date) >= yearAgo.getTime())
+  const latestMean = definedMeans.at(-1)
+  const avg10Share = latestMean?.date === latestObservation ? latestMean.value : undefined
+  const avg10SampleReady = avg10Share !== undefined && definedMeans.length >= AVG10_SAMPLE_MIN
   const avg10Percentile = !avg10SampleReady || avg10Share === undefined
     ? undefined
     : percentileOf(definedMeans.map(m => m.value), avg10Share)

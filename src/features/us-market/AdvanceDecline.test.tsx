@@ -41,7 +41,7 @@ describe('AdvanceDecline', () => {
     const ndx = makeAdvDec(60, -40)
     ndx.scope = '纳指 100'
     const ndxLast = ndx.advDec!.at(-1)!
-    ndx.advDec![ndx.advDec!.length - 1] = [ndxLast[0], 88, 300, 5, 393]
+    ndx.advDec![ndx.advDec!.length - 1] = [ndxLast[0], 88, 395, 5, 488]
 
     render(<AdvanceDecline
       asOf={spx.date}
@@ -55,7 +55,7 @@ describe('AdvanceDecline', () => {
 
     fireEvent.click(screen.getByRole('button', { name: '纳指 100' }))
     expect(within(region).getByText('88 家')).toBeTruthy()
-    expect(within(region).getByText('300 家')).toBeTruthy()
+    expect(within(region).getByText('395 家')).toBeTruthy()
   })
 
   it('falls back to highsLows and shows history pending copy', () => {
@@ -129,6 +129,21 @@ describe('AdvanceDecline', () => {
     // Remounted via key={universe}: caption defaults to latest ndx point (hover cleared).
     expect(screen.getByText(new RegExp(`数据截至 ${ndx.date}`))).toBeTruthy()
     expect(screen.getByRole('img', { name: /累计涨跌线与纳指/ })).toBeTruthy()
+  })
+
+  it('shows the incomplete ten-session message after a gap before the latest observation', () => {
+    const breadth = makeAdvDec(20)
+    breadth.advDec = breadth.advDec!.filter((_, i, rows) => i !== rows.length - 2)
+    render(<AdvanceDecline asOf={breadth.date} breadth={{ spx: breadth }} indexes={{}} />)
+    expect(screen.getByText('最近 10 个交易日数据不完整，暂不判读')).toBeTruthy()
+  })
+
+  it('shows the incomplete ten-session message with only low-coverage observations', () => {
+    const breadth = makeAdvDec(20)
+    breadth.advDec = [[breadth.date, 1, 0, 0, 1]]
+    render(<AdvanceDecline asOf={breadth.date} breadth={{ spx: breadth }} indexes={{}} />)
+    expect(screen.getByText('最近 10 个交易日数据不完整，暂不判读')).toBeTruthy()
+    expect(screen.queryByRole('img')).toBeNull()
   })
 
   it('returns null when no breadth payload exists', () => {

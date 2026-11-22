@@ -21,15 +21,20 @@ describe('weekdaySessionsOnOrBefore / isCopperStale', () => {
     expect(weekdaySessionsOnOrBefore('2026-11-20', 4)).toEqual([
       '2026-11-17', '2026-11-18', '2026-11-19', '2026-11-20',
     ])
-    const now = new Date('2026-11-20T22:00:00Z')
+    const now = new Date('2026-11-20T22:30:00Z')
     expect(isCopperStale('2026-11-20', '2026-11-20', now)).toBe(false)
     expect(isCopperStale('2026-11-19', '2026-11-20', now)).toBe(false)
     expect(isCopperStale('2026-11-18', '2026-11-20', now)).toBe(false)
     expect(isCopperStale('2026-11-17', '2026-11-20', now)).toBe(true)
   })
 
+  it('counts today for COMEX freshness from 17:30 ET', () => {
+    expect(isCopperStale('2026-11-17', '2026-11-20', new Date('2026-11-20T21:45Z'))).toBe(false)
+    expect(isCopperStale('2026-11-17', '2026-11-20', new Date('2026-11-20T22:30Z'))).toBe(true)
+  })
+
   it('Thanksgiving week uses NYSE sessions for copper lag', () => {
-    const now = new Date('2026-11-27T22:00:00Z')
+    const now = new Date('2026-11-27T22:30:00Z')
     // Sessions …20,23,24,25,27 — lag0=27, lag1=25, lag2=24; cutoff at(-3)=24 → <24 stale
     expect(isCopperStale('2026-11-25', '2026-11-27', now)).toBe(false)
     expect(isCopperStale('2026-11-24', '2026-11-27', now)).toBe(false)
@@ -106,7 +111,7 @@ describe('buildCopperSnapshot', () => {
   })
 
   it('keeps independent dates: copper 11-20 fresh, ratio 11-13 with refresh error', () => {
-    const now = new Date('2026-11-20T22:00:00Z')
+    const now = new Date('2026-11-20T22:30:00Z')
     const copper: Point[] = [
       ['2026-11-18', 4.1],
       ['2026-11-19', 4.15],

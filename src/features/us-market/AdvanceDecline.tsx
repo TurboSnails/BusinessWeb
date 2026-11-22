@@ -3,6 +3,7 @@ import { Segmented } from '../../components/ui/PageTabs'
 import {
   ADV_DEC_FOOTNOTE,
   ADV_DEC_HISTORY_PENDING,
+  AVG10_INCOMPLETE,
   MCCLELLAN_WARMUP_DAYS,
   SAMPLE_INSUFFICIENT,
   buildAdvDecMetrics,
@@ -191,7 +192,9 @@ export interface AdvanceDeclineProps {
 
 export default function AdvanceDecline({ breadth, indexes, asOf }: AdvanceDeclineProps): JSX.Element | null {
   const [universe, setUniverse] = useState<AdvDecUniverse>('spx')
-  const anyBreadth = UNIVERSES.some(u => buildAdvDecMetrics(breadth[u.id], indexes[u.id], asOf))
+  const anyBreadth = UNIVERSES.some(({ id }) =>
+    breadth[id]?.advDec?.length || buildAdvDecMetrics(breadth[id], indexes[id], asOf))
+  const hasObservations = Boolean(breadth[universe]?.advDec?.length)
   const metrics = buildAdvDecMetrics(breadth[universe], indexes[universe], asOf)
   if (!anyBreadth) return null
 
@@ -211,7 +214,7 @@ export default function AdvanceDecline({ breadth, indexes, asOf }: AdvanceDeclin
       </header>
 
       {!metrics ? (
-        <p className="us-advdec__pending" role="status">该指数暂无涨跌家数读数。</p>
+        <p className="us-advdec__pending" role="status">{hasObservations ? AVG10_INCOMPLETE : '该指数暂无涨跌家数读数。'}</p>
       ) : (
         <>
           <p className="us-advdec__asof" role="status">
@@ -231,10 +234,10 @@ export default function AdvanceDecline({ breadth, indexes, asOf }: AdvanceDeclin
           <div className="us-advdec__stats">
             <div>
               <h4>10 日平均上涨占比</h4>
-              {!metrics.historyReady ? (
+              {!metrics.historyReady && !hasObservations ? (
                 <p className="us-market__muted">{ADV_DEC_HISTORY_PENDING}</p>
               ) : metrics.avg10Share === undefined ? (
-                <p className="us-market__muted" role="status">{SAMPLE_INSUFFICIENT}</p>
+                <p className="us-market__muted" role="status">{AVG10_INCOMPLETE}</p>
               ) : (
                 <p>
                   <strong>{fmtShare(metrics.avg10Share)}</strong>

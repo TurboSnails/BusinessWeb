@@ -2,6 +2,7 @@ import React from 'react'
 import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
 import { LeaveOneOut } from './LeaveOneOut'
+import { compareSet } from '../engine'
 import { createConclusionFixture } from '../fixtures'
 
 afterEach(() => cleanup())
@@ -63,10 +64,26 @@ describe('LeaveOneOut', () => {
     fixture.comparison.leaveOneOut[0].active.start = '2021-01-04'
     render(<LeaveOneOut comparison={fixture.comparison} input={fixture.input} names={names()} />)
     const row = screen.getByText('博通').closest('tr')!
-    expect(row.textContent).toContain('实际区间 2021-01-04 — 2026-01-01，与原组合不同，不计算差值。')
+    expect(row.textContent).toContain('实际区间 2021-01-04 — 2026-01-01。')
+    expect(row.textContent).toContain('该行交易日与原组合不同，不作比较')
     const cells = row.querySelectorAll('td')
     expect(cells[3].textContent).toBe('—')
     expect(cells[5].textContent).toBe('—')
+  })
+
+  it('剔除行起止相同但内部多一天时停用两列差值', () => {
+    const dates = ['2024-01-31', '2024-02-01', '2024-02-02', '2025-02-03']
+    const { input } = createConclusionFixture()
+    input.symbols = ['AAPL', 'MSFT', 'RKLB']
+    const comparison = compareSet({
+      AAPL: { dates, adjClose: [100, 300, 150, 100] },
+      MSFT: { dates, adjClose: [100, 100, 100, 100] },
+      RKLB: { dates: dates.filter((_, i) => i !== 1), adjClose: [100, 100, 100] },
+    }, input)
+    render(<LeaveOneOut comparison={comparison} input={input} names={{}} />)
+    const row = screen.getByText('RKLB', { exact: true }).closest('tr')!
+    expect(row.textContent).toContain('该行交易日与原组合不同，不作比较')
+    expect([...row.querySelectorAll('.pr-change')].map(cell => cell.textContent)).toEqual(['—', '—'])
   })
 
   it('两只股票时追加单资产提示', () => {

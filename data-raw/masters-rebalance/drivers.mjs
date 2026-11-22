@@ -7,30 +7,33 @@ import { fileURLToPath } from 'node:url'
 const HERE = dirname(fileURLToPath(import.meta.url)), ROOT = resolve(HERE, '../..'), DATA = join(ROOT, 'public/data/portfolio-prices')
 const bundle = await build({ entryPoints: [join(ROOT, 'src/features/portfolio-rebalance/engine.ts')], bundle: true, format: 'esm', write: false, platform: 'node' })
 const { runBacktest } = await import(`data:text/javascript;base64,${Buffer.from(bundle.outputFiles[0].text).toString('base64')}`)
-const index = JSON.parse(await readFile(join(DATA, 'index.json'), 'utf8'))
-const book = {}
-for (const i of index.items) { const b = JSON.parse(await readFile(join(DATA, `${i.symbol}.json`), 'utf8')); book[i.symbol] = { dates: b.dates, adjClose: b.adjClose } }
 const START = '2021-08-25'
-// 固定研究窗口与成分，价格刷新或清单新增代码都不改变研究统计
 const END = '2026-11-20'
-const UNIVERSE = new Set(['AVGO','META','MSFT','NVDA','AMZN','GOOGL','AAPL','MA','V','MCO','ROP','CSGP','WAT','SYK','BAC','RKLB','SOFI','PLTR','TSLA','COIN','HOOD','KKR','PDD','CB','KO','PG','JNJ','WMT','COST','GLD','AXP','INTC','BRK-B','CVX','QSR'])
-const dates = book.RKLB.dates.filter(d => d >= START && index.items.filter(i => i.group !== 'benchmark').every(i => true))
-const research = index.items.filter(i => UNIVERSE.has(i.symbol))
-const common = dates.filter(d => d <= END && research.every(i => book[i.symbol].dates.includes(d)))
-const pxMap = Object.fromEntries(index.items.map(i => [i.symbol, new Map(book[i.symbol].dates.map((d, k) => [d, book[i.symbol].adjClose[k]]))]))
+// 固定研究时的成分、分组和顺序，INTC 归入稳定组。
+const G = ['AVGO','META','MSFT','NVDA','AMZN','GOOGL','AAPL','MA','V','MCO','ROP','CSGP','WAT','SYK','BAC']
+const H = ['RKLB','SOFI','PLTR','TSLA','COIN','HOOD','KKR','PDD']
+const S = ['CB','KO','PG','JNJ','WMT','COST','GLD','AXP','BRK-B','CVX','QSR','INTC']
+const research = [...G, ...H, ...S]
+const book = {}
+for (const symbol of research) {
+  const { dates, adjClose } = JSON.parse(await readFile(join(DATA, `${symbol}.json`), 'utf8'))
+  book[symbol] = { dates, adjClose }
+}
+const pxMap = Object.fromEntries(research.map(symbol => [
+  symbol, new Map(book[symbol].dates.map((day, i) => [day, book[symbol].adjClose[i]])),
+]))
+const common = book.RKLB.dates.filter(day => day >= START && day <= END
+  && research.every(symbol => pxMap[symbol].has(day)))
 const rets = {}, stat = {}
 const years = (Date.parse(common.at(-1)) - Date.parse(common[0])) / 864e5 / 365.25
-for (const i of research) {
-  const m = pxMap[i.symbol]; const r = []
+for (const symbol of research) {
+  const m = pxMap[symbol]; const r = []
   for (let k = 1; k < common.length; k++) r.push(m.get(common[k]) / m.get(common[k - 1]) - 1)
-  rets[i.symbol] = r
+  rets[symbol] = r
   const mean = r.reduce((a, b) => a + b, 0) / r.length, v = r.reduce((a, b) => a + (b - mean) ** 2, 0) / r.length
-  stat[i.symbol] = { cagr: (m.get(common.at(-1)) / m.get(common[0])) ** (1 / years) - 1, vol: Math.sqrt(v * 252), mean, sd: Math.sqrt(v) }
+  stat[symbol] = { cagr: (m.get(common.at(-1)) / m.get(common[0])) ** (1 / years) - 1, vol: Math.sqrt(v * 252), mean, sd: Math.sqrt(v) }
 }
 const corr = (a, b) => { const ra = rets[a], rb = rets[b], sa = stat[a], sb = stat[b]; let c = 0; for (let k = 0; k < ra.length; k++) c += (ra[k] - sa.mean) * (rb[k] - sb.mean); return c / ra.length / sa.sd / sb.sd }
-const G = research.filter(i => i.group === 'growth').map(i => i.symbol)
-const H = research.filter(i => i.group === 'highVol' && i.symbol !== 'INTC').map(i => i.symbol)
-const S = research.filter(i => i.group === 'stable').map(i => i.symbol).concat(['INTC'])
 const pairs = a => { const o = []; for (let x = 0; x < a.length; x++) for (let y = x + 1; y < a.length; y++) o.push([a[x], a[y]]); return o }
 const W = [0.25, 0.25, 0.125, 0.125, 0.25]
 const rows = []

@@ -2,6 +2,7 @@ import React from 'react'
 import { TableWrap } from '../../../components/ui'
 import type { CompareSet, RunInput } from '../types'
 import { hasCompletedYears } from '../conclusions'
+import { sameTradingDays } from '../engine'
 import { money, number, percent, returnClass } from './format'
 
 function signedPoints(value: number | null): string {
@@ -37,7 +38,7 @@ export function LeaveOneOut({ comparison, names, input }: {
         <table className="ui-table pr-table pr-table--leave">
           <thead><tr><th scope="col">剔除代码（原目标权重）</th><th scope="col" className="num">不动期末金额</th><th scope="col" className="num">动态期末金额</th><th scope="col" className="num">{shortPeriod ? '动态累计收益' : '动态年化'}</th><th scope="col" className="num">{differenceLabel}</th><th scope="col" className="num">动态最大回撤</th><th scope="col" className="num">去掉后回撤变化（百分点）</th></tr></thead>
           <tbody>{comparison.leaveOneOut.map(row => {
-            const comparable = row.active.start === base.start && row.active.end === base.end
+            const comparable = sameTradingDays(row.active, base)
             const difference = !comparable ? null : shortPeriod
               ? row.active.final - base.final
               : row.active.cagr - base.cagr
@@ -51,7 +52,10 @@ export function LeaveOneOut({ comparison, names, input }: {
               <th scope="row">
                 <span className="pr-symbol">{names[row.dropped] ?? row.dropped}</span>
                 <code>{row.dropped} · {percent(input.weights[originalPosition])}</code>
-                {!comparable && <span className="pr-loo__rule-note">实际区间 {row.active.start} — {row.active.end}，与原组合不同，不计算差值。</span>}
+                {!comparable && <span className="pr-loo__rule-note">该行交易日与原组合不同，不作比较</span>}
+                {(row.active.start !== base.start || row.active.end !== base.end) && (
+                  <span className="pr-loo__rule-note">实际区间 {row.active.start} — {row.active.end}。</span>
+                )}
                 {switchChanged && <span className="pr-loo__rule-note">去掉它后无法执行大跌切换，这一行同时包含规则变化。</span>}
               </th>
               <td className="num">{money(row.hold.finalAmount)}</td>

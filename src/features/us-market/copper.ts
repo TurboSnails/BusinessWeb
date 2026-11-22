@@ -3,6 +3,7 @@ import type { Point, Reading } from './model'
 import { nyseSessionsOnOrBefore } from './tradingCalendar'
 
 const DAY = 86_400_000
+const COMEX_DATA_CUTOFF = { hour: 17, minute: 30 }
 
 export const COPPER_PENDING = '数据将在下次更新后显示'
 
@@ -25,11 +26,11 @@ export function weekdaySessionsOnOrBefore(asOf: string, count: number): string[]
 
 /**
  * Stale when the observation lags the latest completed NYSE session on/before asOf
- * by more than two trading days (lag ≥ 3). Holidays + 16:40 ET aware.
+ * by more than two trading days (lag ≥ 3), using the COMEX collector’s 17:30 ET cutoff.
  */
 export function isCopperStale(dataDate: string, asOf: string, now: Date = new Date()): boolean {
   if (!dataDate || !asOf || dataDate > asOf) return false
-  const sessions = nyseSessionsOnOrBefore(asOf, 8, now)
+  const sessions = nyseSessionsOnOrBefore(asOf, 8, now, COMEX_DATA_CUTOFF)
   if (sessions.length < 3) return false
   const cutoff = sessions.at(-3)!
   return dataDate < cutoff
