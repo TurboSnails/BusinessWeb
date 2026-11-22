@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/market-cycle.yml'
+      - 'scripts/macro-masters-fred*.mjs'
       - 'scripts/market-cycle-*.mjs'
       - 'scripts/market-cycle-*.py'
       - 'scripts/us-market-*.mjs'
@@ -65,7 +66,10 @@ jobs:
           MARKET_CYCLE_CACHE_DIR: .cache/market-cycle-breadth
         run: node scripts/market-cycle-update.mjs
       - name: Validate shared rules and pipeline
-        run: node --test scripts/market-cycle-*.test.mjs scripts/us-market-*.test.mjs
+        run: node --test scripts/market-cycle-*.test.mjs scripts/us-market-*.test.mjs scripts/macro-masters-fred.test.mjs
+      - name: Refresh macro masters FRED indicators
+        continue-on-error: true
+        run: node scripts/macro-masters-fred.mjs
       - name: Refresh US market public indicators
         continue-on-error: true
         timeout-minutes: 2
@@ -79,7 +83,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          git add public/data/market-cycle*.json public/data/us-market-*.json public/data/macro-cn.json public/data/macro-us.json public/data/macro-hk.json
+          git add public/data/market-cycle*.json public/data/us-market-*.json public/data/macro-cn.json public/data/macro-us.json public/data/macro-hk.json public/data/macro-masters-fred.json
           if git diff --cached --quiet; then
             echo 'changed=false' >> "$GITHUB_OUTPUT"
             exit 0

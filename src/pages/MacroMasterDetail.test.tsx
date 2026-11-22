@@ -127,7 +127,7 @@ describe('MacroMasterDetail', () => {
     expect(within(exactRow).queryByText('本站近似（口径不同）')).toBeNull()
     expect(within(exactRow).getByText('10 年期美债收益率')).toBeTruthy()
 
-    const proxyRow = within(table).getByRole('rowheader', { name: /政策利率与名义增速/ }).closest('tr')!
+    const proxyRow = within(table).getByRole('rowheader', { name: /市场宽度与涨跌家数线/ }).closest('tr')!
     expect(within(proxyRow).getByText('本站近似（口径不同）')).toBeTruthy()
     expect(within(proxyRow).getAllByText('本站暂无')).toHaveLength(1)
 
@@ -295,5 +295,37 @@ describe('MacroMasterDetail', () => {
     expect(screen.getAllByText('本站暂无').length).toBeGreaterThan(5)
     expect(screen.queryByText(/数据快照/)).toBeNull()
     expect(screen.queryByRole('alert')).toBeNull()
+  })
+})
+
+
+describe('方法说明指标', () => {
+  it('使用共享覆盖计数，方法说明显示独立文案且可单独筛选', () => {
+    state({ state: 'ok', readings: {}, asOf: '' })
+    renderAt('kostolany')
+    const group = screen.getByRole('group', { name: '按读数类型筛选' })
+    expect(within(group).getByRole('button', { name: '全部 9' })).toBeTruthy()
+    expect(within(group).getByRole('button', { name: '有同口径读数 0' })).toBeTruthy()
+    expect(within(group).getByRole('button', { name: '只有近似 7' })).toBeTruthy()
+    expect(within(group).getByRole('button', { name: '本站暂无 0' })).toBeTruthy()
+    expect(within(group).getByRole('button', { name: '方法说明 2' })).toBeTruthy()
+
+    for (const name of ['本人比喻：主人是经济', '培训机构解读：长期还看企业盈利']) {
+      const row = screen.getByRole('rowheader', { name: new RegExp(name) }).closest('tr')!
+      expect(within(row).getByText('方法说明，不对应数据')).toBeTruthy()
+      expect(within(row).queryByText('本站暂无')).toBeNull()
+    }
+
+    fireEvent.click(within(group).getByRole('button', { name: '方法说明 2' }))
+    const table = screen.getByRole('region', { name: '安德烈·科斯托拉尼关注的指标与本站读数' })
+    expect(within(table).getAllByRole('row').slice(1)).toHaveLength(2)
+    expect(within(table).getAllByText('方法说明，不对应数据')).toHaveLength(2)
+  })
+
+  it('没有方法说明的大师不显示该筛选', () => {
+    state({ state: 'ok', readings: {}, asOf: '' })
+    renderAt('dalio')
+    const group = screen.getByRole('group', { name: '按读数类型筛选' })
+    expect(within(group).queryByRole('button', { name: /^方法说明/ })).toBeNull()
   })
 })

@@ -4,7 +4,7 @@ import { ArrowLeft } from 'lucide-react'
 import { Page, TableWrap } from '../components/ui'
 import { MASTER_ARTICLES, renderMasterArticleMarkdown } from '../features/macro-masters/articles'
 import { DetailTake, DetailTrack } from '../features/macro-masters/DetailTake'
-import { masterBySlug } from '../features/macro-masters/masters'
+import { indicatorCoverage, masterBySlug } from '../features/macro-masters/masters'
 import ReadingCell from '../features/macro-masters/ReadingCell'
 import { useReadings, type ReadingsState } from '../features/macro-masters/readings'
 import type { Master, MasterIndicator, ReadingKey } from '../features/macro-masters/types'
@@ -13,16 +13,18 @@ import '../styles/macro-masters-take.css'
 
 const EVIDENCE_LABELS = { quote: '原话', paraphrase: '转述', unverified: '未证实' } as const
 
-type IndicatorFilter = 'all' | 'exact' | 'proxy' | 'empty'
+type IndicatorFilter = 'all' | 'exact' | 'proxy' | 'empty' | 'method'
 
 const FILTER_LABELS: Record<IndicatorFilter, string> = {
   all: '全部',
   exact: '有同口径读数',
   proxy: '只有近似',
   empty: '本站暂无',
+  method: '方法说明',
 }
 
 function indicatorFilter(indicator: MasterIndicator): Exclude<IndicatorFilter, 'all'> {
+  if (indicator.kind === 'method') return 'method'
   if (indicator.readings?.length) return 'exact'
   if (indicator.proxyReadings?.length) return 'proxy'
   return 'empty'
@@ -45,13 +47,13 @@ const DRUCKENMILLER_COMPARISON: Array<{
     name: '政策利率对名义增速',
     january: '联邦基金利率 3.5%，名义增速 6%，他据此判断货币政策极度宽松。',
     november: '美联储没有继续降息，反而加息；他强调政策方向已经改变。',
-    external: 'FRED：DFF 与 A191RP1Q027SBEA；本站实际利率不是同一口径。',
+    readings: ['fedFunds', 'nominalGdpYoy'],
   },
   {
     name: '点阵图',
     january: '点阵图预示年内继续降息。',
     november: '原先的降息路径没有兑现，政策转为加息。',
-    external: 'FRED：FEDTARMD（SEP 中位数，季度）。',
+    readings: ['dotMedian'],
   },
   {
     name: '铜与大宗商品',
@@ -92,6 +94,7 @@ function ReadingList({ keys, state }: { keys: ReadingKey[]; state: ReadingsState
 }
 
 function ReadingsForIndicator({ indicator, state }: { indicator: MasterIndicator; state: ReadingsState }): JSX.Element {
+  if (indicator.kind === 'method') return <span className="mm-detail__method-note">方法说明，不对应数据</span>
   const hasExact = Boolean(indicator.readings?.length)
   const hasProxy = Boolean(indicator.proxyReadings?.length)
   if (!hasExact && !hasProxy) return <ReadingCell reading={null} loading={state.state === 'loading'} />
@@ -187,10 +190,10 @@ function KnownMacroMasterDetail({ master }: { master: Master }): JSX.Element {
     ? readingsState.failedSources
     : []
   const { counts, readingTargets } = useMemo(() => {
-    const counts: Record<IndicatorFilter, number> = { all: master.indicators.length, exact: 0, proxy: 0, empty: 0 }
+    const coverage = indicatorCoverage(master)
+    const counts: Record<IndicatorFilter, number> = { all: master.indicators.length, ...coverage }
     const readingTargets: Partial<Record<ReadingKey, string>> = {}
     master.indicators.forEach((indicator, index) => {
-      counts[indicatorFilter(indicator)] += 1
       const id = indicatorId(master, index)
       for (const key of [...indicator.readings ?? [], ...indicator.proxyReadings ?? []]) {
         if (!readingTargets[key]) readingTargets[key] = id
@@ -259,7 +262,9 @@ function KnownMacroMasterDetail({ master }: { master: Master }): JSX.Element {
           <div className="mm-detail__reading-tools">
             {readingsState.state === 'ok' && readingsState.asOf && <span className="mm-detail__as-of">数据快照：{readingsState.asOf}</span>}
             <div className="mm-detail__filters" role="group" aria-label="按读数类型筛选">
-              {(Object.keys(FILTER_LABELS) as IndicatorFilter[]).map(value => (
+              {(Object.keys(FILTER_LABELS) as IndicatorFilter[])
+                .filter(value => value !== 'method' || counts[value] > 0)
+                .map(value => (
                 <button
                   type="button"
                   key={value}

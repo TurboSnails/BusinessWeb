@@ -47,6 +47,27 @@ export type ReadingKey =
   | 'debtService'        // 家庭偿债比（FRED TDSP）
   | 'buffett'            // 非金融企业股票市值 ÷ 名义 GDP
   | 'putCall'            // Cboe 全产品期权成交量 Put ÷ Call
+  // 2026-11-22 第二批：已有序列接入 + FRED 补充
+  | 'tga'                // 财政部一般账户（TGA）
+  | 'mmfAssets'          // 货币基金总资产（亿美元；展示可换算万亿）
+  | 'cftcLevSpx'         // 杠杆基金标普期货净仓（占未平仓量 %）
+  | 'hfGrossExposure'    // 对冲基金股票总名义敞口（OFR Form PF）
+  | 'volumeRatio'        // 美股全市场 20 日量比
+  | 'corePce'            // 核心 PCE 同比
+  | 'claims'             // 初请失业金（4 周均值）
+  | 'fedFunds'           // 联邦基金有效利率
+  | 'nominalGdpYoy'      // 名义 GDP 同比
+  | 'dotMedian'          // 点阵图：明年末利率中位数（history 日期=预测目标年）
+  | 'privateCreditGdp'   // 私人非金融部门信贷 ÷ GDP（BIS）
+  | 'govDebtGdp'         // 联邦政府债务 ÷ GDP
+  | 'hyYield'            // 高收益债有效收益率
+  | 'cccSpread'          // CCC 及以下高收益债利差（bp）
+  | 'm2Yoy'              // M2 同比
+  | 'inflationExp'       // 10 年盈亏平衡通胀率
+  | 'primeRate'          // 优惠利率
+  | 'discountRate'       // 贴现窗口一级信贷利率
+  | 'consumerCreditYoy'  // 非循环消费信贷同比
+  | 'profitGdp'          // 企业税后利润 ÷ GDP
 
 /** 一个读数的统一形状 */
 export type Reading = {
@@ -85,6 +106,8 @@ export type Reading = {
 
 /** 大师关注的一个指标，以及他怎么读 */
 export type MasterIndicator = {
+  /** 不是可量化指标，而是方法、比喻或二手解读；不计入覆盖率，也不显示"本站暂无" */
+  kind?: 'method'
   /** 显示名，如"美联储政策与流动性" */
   name: string
   /** 他怎么读（只写有来源支撑的读法，1–2 句） */

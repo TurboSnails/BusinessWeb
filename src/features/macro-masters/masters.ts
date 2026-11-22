@@ -19,17 +19,15 @@ export const MASTERS: Master[] = [
       {
         name: '政策利率与名义增速',
         howToRead: '2026 年 1 月，他以联邦基金利率 3.5% 对比名义增速 6%，判断货币政策极松；从降息转向加息则是收紧信号。',
-        proxyReadings: ['policyRate'],
-        proxyNote: '准备金余额利率只对应政策利率的水平和已经发生的调整，不含名义增速，也不是点阵图预示的政策路径。',
-        external: 'FRED：DFF（联邦基金利率）与 A191RP1Q027SBEA（名义 GDP 增速）；不要用本站实际利率替代这一口径。',
+        readings: ['fedFunds', 'nominalGdpYoy'],
         evidence: 'paraphrase',
       },
       {
         name: '点阵图与政策路径',
         howToRead: '不只看利率水平，还看点阵图预示的政策方向；2026 年 1 月他看到的是继续降息，后来实际转为加息。',
+        readings: ['dotMedian'],
         proxyReadings: ['policyRate'],
-        proxyNote: '准备金余额利率只对应政策利率的水平和已经发生的调整，不含名义增速，也不是点阵图预示的政策路径。',
-        external: 'FRED：FEDTARMD（SEP 联邦基金利率中位数，季度）。',
+        proxyNote: '准备金余额利率只反映已经发生的政策利率调整，不是点阵图预示的未来路径。',
         evidence: 'paraphrase',
       },
       {
@@ -41,9 +39,9 @@ export const MASTERS: Master[] = [
       {
         name: '财政部现金账户（TGA）对冲缩表',
         howToRead: '他在 2022 年 9 月说，财政部减少现金账户余额几乎完全对冲了缩表，因此不能只看美联储资产负债表。',
+        readings: ['tga'],
         proxyReadings: ['netLiquidity'],
-        proxyNote: '本站净流动性用“美联储总资产 − TGA − 隔夜逆回购”近似流动性，是市场常用公式，不是他提出的公式，也不能替代 TGA 本身。',
-        external: 'TGA 本身可看 FRED：WTREGEN。',
+        proxyNote: '本站净流动性用“美联储总资产 − TGA − 隔夜逆回购”近似流动性，是市场常用公式，不是他提出的公式。',
         evidence: 'quote',
       },
       {
@@ -114,25 +112,20 @@ export const MASTERS: Master[] = [
       {
         name: '债务与收入、偿债负担',
         howToRead: '典型泡沫中总债务与收入之比快速上升，三年内上升 20–25 个百分点的 GDP 比单看水平更危险；偿债比又比债务比更有用。',
-        proxyReadings: ['debtService'],
-        proxyNote: '这是家庭部门偿债比，不是他说的全社会债务与偿债负担，也不包含债务与收入之比。',
-        external: 'BIS 私人非金融部门信贷与偿债比；FRED：QUSPAM770A、GFDEGDQ188S、TDSP。',
+        readings: ['privateCreditGdp', 'govDebtGdp', 'debtService'],
+        external: '全社会私人部门偿债比仍缺：BIS DSR；本站 debtService 是家庭部门偿债比（TDSP）。',
         evidence: 'quote',
       },
       {
         name: '政策利率离零的距离',
         howToRead: '利率接近零时，降息工具失效并进入长期债务周期的去杠杆阶段，只能更多依赖量化宽松。',
-        proxyReadings: ['policyRate'],
-        proxyNote: '准备金余额利率只近似政策利率离零的距离和已经发生的调整，不是他未公开的萧条指标。',
-        external: 'FRED：DFF（联邦基金利率）。',
+        readings: ['fedFunds'],
         evidence: 'quote',
       },
       {
         name: '名义增长与名义利率',
         howToRead: '名义收入增长高于名义利率，债务负担才会下降；刺激还需足以抵消通缩，又不能多到让通胀加速。',
-        proxyReadings: ['tenYear'],
-        proxyNote: '10 年期美债只对应名义利率一侧，不包含名义收入增长，不能直接判断两者谁更高。',
-        external: '名义 GDP 增速可用 FRED：A191RP1Q027SBEA。',
+        readings: ['nominalGdpYoy', 'tenYear'],
         evidence: 'quote',
       },
       {
@@ -223,13 +216,14 @@ export const MASTERS: Master[] = [
       {
         name: '高收益债收益率',
         howToRead: '在 2022 年语境下，他认为高收益债收益率 4–5% 时不值得投，约 8% 时已可能提供接近股票的回报。',
-        external: 'FRED：BAMLH0A0HYM2EY（高收益债有效收益率）。',
+        readings: ['hyYield'],
         evidence: 'quote',
       },
       {
         name: '不良债候选数量',
         howToRead: '2022 年，利差超过 1,000 个基点的贷款和债券从几十个增加到几百个，说明不良机会增加。',
-        external: '可用 FRED：BAMLH0A3HYC（CCC 及以下 OAS）作有限参考，不等于不良债数量。',
+        proxyReadings: ['cccSpread'],
+        proxyNote: 'CCC 及以下利差只反映低评级债定价，不等于利差超过 1000 bp 的不良债数量。',
         evidence: 'quote',
       },
       {
@@ -248,9 +242,9 @@ export const MASTERS: Master[] = [
       {
         name: '利率环境',
         howToRead: '低利率位于体温清单的过热一侧，高利率位于过冷一侧；他在 2022 年判断未来几年基准利率更可能平均为 2–4%，而非 0–2%。',
-        proxyReadings: ['tenYear', 'realRate', 'policyRate'],
-        proxyNote: '10 年期美债、实际政策利率与准备金余额利率都是利率环境的不同近似；准备金余额利率只对应政策利率水平及已经发生的调整，不包含他对未来基准利率的预测。',
-        external: '基准利率可另看 FRED：DFF。',
+        readings: ['fedFunds'],
+        proxyReadings: ['tenYear', 'realRate'],
+        proxyNote: '10 年期美债与实际政策利率是利率环境的不同侧面；他对未来基准利率区间的判断本身不是本站读数。',
         evidence: 'quote',
       },
       {
@@ -264,9 +258,8 @@ export const MASTERS: Master[] = [
       {
         name: '强制卖盘与资金涌向现金',
         howToRead: '恐慌性卖出和货币基金规模激增说明温度过低；卖得越多，剩下可卖的越少。',
-        proxyReadings: ['vix', 'putCall'],
-        proxyNote: 'VIX 与 Put/Call 只是恐慌、波动和期权交易线索，不等于强制卖盘规模或货币基金流入。',
-        external: '货币基金规模和基金资金流可补充观察。',
+        proxyReadings: ['vix', 'putCall', 'mmfAssets'],
+        proxyNote: 'VIX 与 Put/Call 是恐慌与期权交易线索；货币基金规模是存量、受利率影响，不等于恐慌流入本身或强制卖盘规模。',
         evidence: 'quote',
       },
       {
@@ -315,9 +308,7 @@ export const MASTERS: Master[] = [
       {
         name: '美联储政策利率方向',
         howToRead: '衰退中短端利率通常先停止上升并转向下降，股市随后才见底。',
-        proxyReadings: ['policyRate'],
-        proxyNote: '准备金余额利率随美联储每次决议调整，通常比联邦基金目标区间上限低 0.1 个百分点，只对应政策利率水平和已经发生的调整。',
-        external: 'FRED：DFF（联邦基金利率）及其方向。',
+        readings: ['fedFunds'],
         evidence: 'quote',
       },
       {
@@ -329,29 +320,28 @@ export const MASTERS: Master[] = [
       {
         name: '货币扩张',
         howToRead: '货币总量前所未有地扩张会提高通胀风险，也会提高黄金、比特币等对冲资产的重要性；他没有给出 M2 增速阈值。',
+        readings: ['m2Yoy'],
         proxyReadings: ['fedAssets', 'bankReserves', 'netLiquidity'],
-        proxyNote: '这些读数分别衡量央行资产、银行准备金和本站净流动性近似，均不是他原话所指的货币总量或 M2 增速。',
-        external: '货币供应可另看 FRED：M2SL。',
+        proxyNote: '央行资产、银行准备金和本站净流动性近似都不是 M2 增速本身，只能作货币扩张的侧面背景。',
         evidence: 'quote',
       },
       {
         name: '通胀水平',
         howToRead: '他把平均通胀 3% 当作购买力受损的警戒线；研究同时指出他关于购买力 13 年减半的算术有误。',
-        external: '核心与整体通胀，以及通胀预期；他没有给出本站读数可直接对应的序列。',
+        readings: ['corePce', 'inflationExp'],
         evidence: 'quote',
       },
       {
         name: '政府债务与 GDP',
         howToRead: '财政越弱，他越认为政府可能依靠通胀化解债务，因此更偏好黄金和比特币。',
-        external: 'FRED：GFDEGDQ188S（联邦政府债务占 GDP）。',
+        readings: ['govDebtGdp'],
         evidence: 'quote',
       },
       {
         name: '衰退信号与经验跌幅',
         howToRead: '他提到股市通常在衰退前下跌约 12%、多数衰退持续约 300 天，但没有说明这些经验数字的数据来源。',
-        proxyReadings: ['curve10y2y', 'sahm', 'unrate', 'spxDrawdown'],
-        proxyNote: '收益率曲线、失业率和萨姆规则只是衰退背景线索，标普 500 距近 52 周高点的回撤只描述已经发生的跌幅，都不能测量衰退前的股市跌幅或衰退持续时间。',
-        external: '失业、初请和萨姆规则可补充观察。',
+        proxyReadings: ['curve10y2y', 'sahm', 'unrate', 'spxDrawdown', 'claims'],
+        proxyNote: '收益率曲线、失业率、萨姆规则与初请只是衰退背景线索，标普 500 距近 52 周高点的回撤只描述已经发生的跌幅，都不能测量衰退前的股市跌幅或衰退持续时间。',
         evidence: 'quote',
       },
     ],
@@ -381,21 +371,21 @@ export const MASTERS: Master[] = [
       {
         name: '优惠利率指标',
         howToRead: '前一轮高点低于 8% 时，首次降息即买入；高于 8% 时，要等第二次降息或累计降 1 个百分点。卖出规则相反：前一轮低点高于 8% 时首次加息即卖出，低于 8% 时要等第二次加息或累计加 1 个百分点。',
-        proxyReadings: ['policyRate'],
-        proxyNote: '优惠利率如今等于联邦基金目标区间上限加 3 个百分点，升降息的次数和幅度与政策利率一致，本站据准备金余额利率推算。',
-        external: 'FRED：DPRIME；如今它只是联邦基金目标区间上限加 3 个百分点的机械翻版。',
+        readings: ['primeRate'],
+        external: '如今优惠利率是联邦基金目标区间上限加 3 个百分点的机械翻版。',
         evidence: 'paraphrase',
       },
       {
         name: '贴现率与存款准备金率',
         howToRead: '连续加息累计负分，首次转向宽松的信号很强；存款准备金率自 2020 年降为零后，这个子指标已经失效。',
-        external: 'FRED：DPCREDIT（一级信贷利率）；存款准备金率已不适用。',
+        readings: ['discountRate'],
+        external: '存款准备金率自 2020 年 3 月起降为零，这一半已不适用。',
         evidence: 'paraphrase',
       },
       {
         name: '消费分期信贷增速',
         howToRead: '货币模型用它衡量信贷需求，但研究未能证实常见的 9% 阈值。',
-        external: 'FRED：NONREVSL（非循环信贷）或 TOTALSL 同比。',
+        readings: ['consumerCreditYoy'],
         evidence: 'unverified',
       },
       {
@@ -479,7 +469,8 @@ export const MASTERS: Master[] = [
       {
         name: '利润率均值回归',
         howToRead: '利润率高于历史均值时应下调预期回报；他认为利润率下滑会成为压低市盈率的重要力量。',
-        external: 'FRED：CP（税后企业利润）与 GDP 的比值。',
+        proxyReadings: ['profitGdp'],
+        proxyNote: '税后企业利润占 GDP 是利润率的宏观口径，不是标普 500 利润率。',
         evidence: 'quote',
       },
       {
@@ -511,6 +502,7 @@ export const MASTERS: Master[] = [
         evidence: 'quote',
       },
       {
+        kind: 'method',
         name: 'GMO 7 年预测：二手方法说明',
         howToRead: '《经济学人》把其方法核心描述为假设估值在 7 年内回归均值；研究没有核对 GMO 方法论原文，因此这不是格兰瑟姆本人的方法原话。',
         external: 'The Economist，2017-09-11 对 GMO 长期预测方法与历史误差的评估。',
@@ -571,7 +563,9 @@ export const MASTERS: Master[] = [
       {
         name: '仓位拥挤',
         howToRead: '太多参与者站在同一边时，仓位无法在不造成价格断层的情况下平掉，反转因此更剧烈。',
-        external: '需要期货持仓和基金总、净敞口等集中度数据；NAAIM 平均敞口与融资余额同比都不能推出仓位集中度，本站不作对应。',
+        proxyReadings: ['cftcLevSpx', 'hfGrossExposure'],
+        proxyNote: '期货净仓与对冲基金总敞口反映仓位水平，不是集中度，也不含个股与主题层面的拥挤。',
+        external: '个股与主题拥挤、净敞口集中度仍缺。',
         evidence: 'quote',
       },
       {
@@ -650,9 +644,8 @@ export const MASTERS: Master[] = [
       {
         name: '恐慌与资金躲进现金',
         howToRead: '几乎所有人同时悲观时市场崩跌，持有者紧握现金、不愿买入，是逆向观察的背景。',
-        proxyReadings: ['netNewHighs', 'putCall'],
-        proxyNote: '净新高与 Put/Call 只是市场恐慌和期权交易的间接线索，不能测量货币基金流入或持有者紧握现金的程度。',
-        external: '货币基金规模与基金资金流可补充观察。',
+        proxyReadings: ['netNewHighs', 'putCall', 'mmfAssets'],
+        proxyNote: '净新高与 Put/Call 是恐慌与期权交易线索；货币基金规模是存量、受利率影响，不等于恐慌流入或持有者紧握现金的程度。',
         evidence: 'quote',
       },
     ],
@@ -704,7 +697,8 @@ export const MASTERS: Master[] = [
       {
         name: '成交量与鸡蛋模型阶段',
         howToRead: '上涨修正阶段量和参与度低，跟随阶段价量齐升，上涨过度阶段成交量和参与者大增；这些特征只能帮助定位，不能确定买卖时点。',
-        external: '成交量和换手率；现代机构、高频交易与 ETF 已改变成交量的含义。',
+        proxyReadings: ['volumeRatio'],
+        proxyNote: '全市场量比只反映近期成交活跃度，现代机构、高频与 ETF 改变了成交量含义，不能据此判定鸡蛋模型阶段。',
         evidence: 'paraphrase',
       },
       {
@@ -715,12 +709,14 @@ export const MASTERS: Master[] = [
         evidence: 'paraphrase',
       },
       {
+        kind: 'method',
         name: '本人比喻：主人是经济',
         howToRead: '媒体转述的“狗和主人”比喻中，主人是经济发展，狗是股市；狗时而领先、时而落后，但长期仍跟随经济。',
         external: '可对照实际 GDP、就业与长期指数表现；企业盈利不是这句比喻里对“主人”的直接定义。',
         evidence: 'paraphrase',
       },
       {
+        kind: 'method',
         name: '培训机构解读：长期还看企业盈利',
         howToRead: '一家交易培训机构把他的框架归纳为短期看持股分布、中期看货币与心理、长期看经济发展和企业盈利；这是二手解读，不是上述比喻的逐字内容。',
         external: '来源为研究文档 [K3] 所列培训机构介绍，不应与本人原话合并。',
@@ -751,6 +747,26 @@ export const MASTERS: Master[] = [
     },
   },
 ]
+
+export type IndicatorCoverage = {
+  exact: number
+  proxy: number
+  empty: number
+  method: number
+  measurable: number
+}
+
+export function indicatorCoverage(master: Master): IndicatorCoverage {
+  const coverage: IndicatorCoverage = { exact: 0, proxy: 0, empty: 0, method: 0, measurable: 0 }
+  for (const indicator of master.indicators) {
+    if (indicator.kind === 'method') coverage.method += 1
+    else if (indicator.readings?.length) coverage.exact += 1
+    else if (indicator.proxyReadings?.length) coverage.proxy += 1
+    else coverage.empty += 1
+  }
+  coverage.measurable = coverage.exact + coverage.proxy + coverage.empty
+  return coverage
+}
 
 export function masterBySlug(slug: string | undefined): Master | undefined {
   return MASTERS.find(master => master.slug === slug)

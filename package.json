@@ -29,6 +29,7 @@
     "test:scripts": "node --test scripts/*.test.mjs server/functions/*.test.mjs",
     "knowledge:cloud": "node scripts/knowledge-cloud.mjs",
     "macro:update": "node scripts/macro-snapshot.mjs",
+    "masters:fred": "node scripts/macro-masters-fred.mjs",
     "macro:putcall-history": "node scripts/cboe-put-call-history.mjs",
     "ai-token:update": "node scripts/ai-token-economics.mjs",
     "market-cycle:update": "node scripts/market-cycle-update.mjs",

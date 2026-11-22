@@ -581,8 +581,9 @@ function buildMasters(readings: Readings, get: Usable): MasterTake[] {
 
   const policy = get('policyRate')
   const primeItem: TakeItem = {
-    label: '优惠利率规则', basis: 'own', keys: ['policyRate'],
-    ...(policy ? primeRate(policy) : { lean: 'unknown', text: missingText(readings.policyRate) }),
+    // keys 含 primeRate 以便跳到同口径指标行；判定仍用 policyRate 的调息序列（不改阈值）
+    label: '优惠利率规则', basis: 'own', keys: ['primeRate', 'policyRate'],
+    ...(policy ? primeRate(policy) : { lean: 'unknown', text: missingText(readings.policyRate ?? readings.primeRate) }),
   }
 
   const takes: Record<MasterTake['slug'], MasterTake> = {
@@ -593,7 +594,7 @@ function buildMasters(readings: Readings, get: Usable): MasterTake[] {
           (_, lean) => lean === 'caution' ? '按他的规则应当离场或不持有' : '他的离场规则没有触发'),
         item('金融条件', 'site', ['nfci'], ({ value }) => value > 0 ? 'caution' : 'neutral',
           (_, lean) => lean === 'caution' ? '本站口径下金融条件偏紧' : '本站口径下保持中性'),
-        item('政策利率方向', 'own', ['policyRate'], (reading) => policyMoveLean(reading, 'caution', 'neutral'),
+        item('政策利率方向', 'own', ['policyRate', 'fedFunds'], (reading) => policyMoveLean(reading, 'caution', 'neutral'),
           (reading) => policyMoveNote(reading) ? '' : '他说衰退期间短端利率往往先转降，股市随后才见底', '。'),
         item('10 年期实际收益率', 'own', ['realYield10'], () => 'neutral'),
       ],

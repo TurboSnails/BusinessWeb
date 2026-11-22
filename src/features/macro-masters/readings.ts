@@ -59,6 +59,26 @@ export const READING_LABELS: Record<ReadingKey, string> = {
   debtService: '家庭偿债比',
   buffett: '非金融企业股票市值 ÷ GDP',
   putCall: '期权 Put ÷ Call',
+  tga: '财政部一般账户（TGA）',
+  mmfAssets: '货币基金总资产',
+  cftcLevSpx: '杠杆基金标普期货净仓',
+  hfGrossExposure: '对冲基金股票总名义敞口',
+  volumeRatio: '美股全市场 20 日量比',
+  corePce: '核心 PCE 同比',
+  claims: '初请失业金（4 周均值）',
+  fedFunds: '联邦基金有效利率',
+  nominalGdpYoy: '名义 GDP 同比',
+  dotMedian: '点阵图：明年末利率中位数',
+  privateCreditGdp: '私人非金融部门信贷 ÷ GDP',
+  govDebtGdp: '联邦政府债务 ÷ GDP',
+  hyYield: '高收益债有效收益率',
+  cccSpread: 'CCC 及以下高收益债利差',
+  m2Yoy: 'M2 同比',
+  inflationExp: '10 年盈亏平衡通胀率',
+  primeRate: '优惠利率',
+  discountRate: '贴现窗口一级信贷利率',
+  consumerCreditYoy: '非循环消费信贷同比',
+  profitGdp: '企业税后利润 ÷ GDP',
 }
 
 const BASE = (import.meta as { env?: Record<string, string | undefined> }).env?.BASE_URL ?? '/'
@@ -71,6 +91,7 @@ const FILES = {
   slices: 'us-market-slices.json',
   macro: 'macro-us.json',
   rates: 'us-equity-bond-spread.json',
+  fred: 'macro-masters-fred.json',
 } as const
 
 type Freq = 'daily' | 'weekly' | 'monthly' | 'quarterly'
@@ -87,6 +108,23 @@ type RatesFile = {
   latestYield?: { date: string; value: number }
   real?: [string, number][]
   rows?: Array<[string, number, number, number, number]>
+}
+
+type FredSeries = {
+  fred?: string
+  name?: string
+  unit?: string
+  frequency?: string
+  note?: string
+  updated?: string
+  history?: unknown
+  refreshError?: string
+}
+
+type FredFile = {
+  generatedAt?: string
+  source?: string
+  series?: Record<string, FredSeries>
 }
 
 type SourceLoad<T> = { ok: true; data: T } | { ok: false; label: string }
@@ -805,7 +843,95 @@ const SOURCE_BREADTH = '美股宽度'
 const SOURCE_SLICES = '美股切片'
 const SOURCE_MACRO = '美国宏观'
 const SOURCE_RATES = '美股股债息差'
-const ALL_SOURCE_LABELS = [SOURCE_PUBLIC, SOURCE_BREADTH, SOURCE_SLICES, SOURCE_MACRO, SOURCE_RATES] as const
+const SOURCE_FRED = 'FRED 补充序列'
+const ALL_SOURCE_LABELS = [
+  SOURCE_PUBLIC, SOURCE_BREADTH, SOURCE_SLICES, SOURCE_MACRO, SOURCE_RATES, SOURCE_FRED,
+] as const
+
+function fredSourceUrl(fred: string | undefined, fallback: string): string {
+  if (!fred || /[−\-/÷]/.test(fred) || /\s/.test(fred)) return fallback
+  return `https://fred.stlouisfed.org/series/${fred}`
+}
+
+function detectFredFreq(raw?: string): Freq {
+  if (!raw) return 'daily'
+  if (/quarter/i.test(raw)) return 'quarterly'
+  if (/month/i.test(raw)) return 'monthly'
+  if (/week/i.test(raw)) return 'weekly'
+  if (/day/i.test(raw)) return 'daily'
+  return detectFreq(raw)
+}
+
+function fromFredSeries(
+  key: ReadingKey,
+  series: FredSeries | undefined,
+  asOf: string,
+  freq: Freq,
+  now?: Date,
+  extras?: { note?: string; unit?: string; allowPercentile?: boolean },
+): Reading | null {
+  if (!series) return null
+  const { points, malformed } = asPointList(series.history)
+  if (malformed || !points.length) return null
+  return fromHistory(key, points, {
+    unit: extras?.unit ?? series.unit ?? '',
+    source: fredSourceUrl(series.fred, series.name || READING_LABELS[key]),
+    freq,
+    asOf,
+    now,
+    note: extras?.note ?? series.note,
+    refreshFailed: Boolean(series.refreshError),
+    allowPercentile: extras?.allowPercentile,
+  })
+}
+
+/** 点阵图：history 日期是预测目标年，不是观测日；取下一日历年的中位数。 */
+export function dotMedianReading(
+  series: FredSeries | undefined,
+  asOf: string,
+  now?: Date,
+): Reading | null {
+  if (!series?.updated || !isValidIsoDate(series.updated)) return null
+  const { points, malformed } = asPointList(series.history)
+  if (malformed || !points.length) return null
+  const map = new Map<string, number>()
+  for (const [date, value] of points) {
+    if (typeof date !== 'string' || !isValidIsoDate(date) || !Number.isFinite(value)) continue
+    map.set(date, value)
+  }
+  const path = [...map.entries()].sort((a, b) => a[0].localeCompare(b[0])) as Point[]
+  if (!path.length) return null
+  const targetYear = Number.parseInt(series.updated.slice(0, 4), 10) + 1
+  if (!Number.isFinite(targetYear)) return null
+  const chosen = path.find(([date]) => Number.parseInt(date.slice(0, 4), 10) >= targetYear) ?? null
+  if (!chosen || !Number.isFinite(chosen[1])) return null
+  const pathNote = path
+    .map(([date, value]) => `${date.slice(0, 4)} 年末 ${value}%`)
+    .join('、')
+  const release = series.updated
+  const releaseLabel = `${Number(release.slice(5, 7))} 月 ${Number(release.slice(8, 10))} 日`
+  const reading: Reading = {
+    key: 'dotMedian',
+    label: READING_LABELS.dotMedian,
+    value: chosen[1],
+    unit: series.unit || '%',
+    date: series.updated,
+    frequency: 'quarterly',
+    source: fredSourceUrl(series.fred, series.name || READING_LABELS.dotMedian),
+    // 数据文件里的 series.note 是给开发者看的口径说明（日期是目标年份），不展示给读者
+    note: `SEP 中位数：${pathNote}（${releaseLabel}发布）`,
+  }
+  if (series.refreshError) reading.refreshFailed = true
+  if (isStale(series.updated, 'quarterly', asOf, now)) reading.stale = true
+  return reading
+}
+
+function ofrLagNote(date: string, asOf: string): string {
+  const days = calendarAge(date, asOf)
+  if (!(days > 0) || !Number.isFinite(days)) return 'OFR Form PF'
+  const quarters = Math.max(1, Math.round(days / 91))
+  return `OFR Form PF，约滞后${quarters === 2 ? '两个' : quarters === 1 ? '一个' : `${quarters} 个`}季度`
+}
 
 function failSource<T>(label: string): SourceLoad<T> {
   return { ok: false, label }
@@ -890,6 +1016,23 @@ function coerceRates(result: SourceLoad<RatesFile>): SourceLoad<RatesFile> {
   }
 }
 
+function coerceFred(result: SourceLoad<FredFile>): SourceLoad<FredFile> {
+  if (!result.ok) return result
+  if (!isPlainObject(result.data)) return failSource(SOURCE_FRED)
+  if (result.data.series != null && !isPlainObject(result.data.series)) return failSource(SOURCE_FRED)
+  if (!result.data.series) return result
+  const cleaned: Record<string, FredSeries> = {}
+  for (const [key, entry] of Object.entries(result.data.series)) {
+    if (entry == null) continue
+    if (!isPlainObject(entry)) continue
+    cleaned[key] = {
+      ...(entry as FredSeries),
+      history: cleanOrKeepPoints((entry as FredSeries).history),
+    }
+  }
+  return { ok: true, data: { ...result.data, series: cleaned } }
+}
+
 const COPPER_GOLD_SOURCE =
   'https://finance.yahoo.com/quote/HG=F/ · https://finance.yahoo.com/quote/GC=F/'
 
@@ -911,12 +1054,14 @@ function buildReadings(input: {
   slices?: SlicesFile
   macro?: MacroSnapshot
   rates?: RatesFile
+  fred?: FredFile
   asOf: string
   now?: Date
 }): { readings: Partial<Record<ReadingKey, Reading | null>>; structuralFailures: string[] } {
-  const { public: pub, breadth, slices, macro, rates, asOf, now } = input
+  const { public: pub, breadth, slices, macro, rates, fred, asOf, now } = input
   const s = pub?.series ?? {}
   const m = macro?.series
+  const f = fred?.series ?? {}
   const out: Partial<Record<ReadingKey, Reading | null>> = {}
   const structuralFailures: string[] = []
   const noteFailure = (label: string) => {
@@ -1197,11 +1342,68 @@ function buildReadings(input: {
   markMacroHistory(m?.debtService)
   markMacroHistory(m?.buffett)
   markMacroHistory(m?.putCall)
+  markMacroHistory(m?.corePce)
+  markMacroHistory(m?.claims)
   out.unrate = run(SOURCE_MACRO, () => fromMacro('unrate', m?.unrate, asOf, 'monthly', now))
   out.sahm = run(SOURCE_MACRO, () => fromMacro('sahm', m?.sahm, asOf, 'monthly', now))
   out.debtService = run(SOURCE_MACRO, () => fromMacro('debtService', m?.debtService, asOf, 'quarterly', now))
   out.buffett = run(SOURCE_MACRO, () => fromMacro('buffett', m?.buffett, asOf, 'quarterly', now))
   out.putCall = run(SOURCE_MACRO, () => fromMacro('putCall', m?.putCall, asOf, 'monthly', now))
+  out.corePce = run(SOURCE_MACRO, () => fromMacro('corePce', m?.corePce, asOf, 'monthly', now))
+  out.claims = run(SOURCE_MACRO, () => fromMacro('claims', m?.claims, asOf, 'weekly', now, { unit: '万人' }))
+
+  out.tga = run(SOURCE_PUBLIC, () => fromUsSeries('tga', s.treasuryCash, asOf, now, {
+    unit: '十亿美元',
+    source: s.treasuryCash?.source || 'https://fred.stlouisfed.org/series/WTREGEN',
+  }))
+  out.mmfAssets = run(SOURCE_PUBLIC, () => fromUsSeries('mmfAssets', s.mmfTotal, asOf, now, {
+    unit: '亿美元',
+    note: 'ICI 美国货币基金总资产，每周公布',
+  }))
+  out.cftcLevSpx = run(SOURCE_PUBLIC, () => fromUsSeries('cftcLevSpx', s.cftcSpxLev, asOf, now, {
+    unit: '%',
+  }))
+  out.hfGrossExposure = run(SOURCE_PUBLIC, () => {
+    const base = fromUsSeries('hfGrossExposure', s.ofrEquityGross, asOf, now, { unit: '亿美元' })
+    if (!base) return null
+    return {
+      ...base,
+      note: mergeNote(ofrLagNote(base.date, asOf), base.note),
+    }
+  })
+  out.volumeRatio = run(SOURCE_PUBLIC, () => fromUsSeries('volumeRatio', s.volumeRatio, asOf, now, {
+    unit: '倍',
+  }))
+
+  const markFredHistory = (series: FredSeries | undefined) => {
+    if (series && asPointList(series.history).malformed) noteFailure(SOURCE_FRED)
+  }
+  for (const key of Object.keys(f)) markFredHistory(f[key])
+
+  const fredFreq = (series: FredSeries | undefined, fallback: Freq): Freq =>
+    series?.frequency ? detectFredFreq(series.frequency) : fallback
+
+  out.fedFunds = run(SOURCE_FRED, () => fromFredSeries('fedFunds', f.fedFunds, asOf, fredFreq(f.fedFunds, 'monthly'), now))
+  out.nominalGdpYoy = run(SOURCE_FRED, () => fromFredSeries('nominalGdpYoy', f.nominalGdpYoy, asOf, fredFreq(f.nominalGdpYoy, 'quarterly'), now))
+  out.dotMedian = run(SOURCE_FRED, () => dotMedianReading(f.dotMedian, asOf, now))
+  // BIS 季度数据通常滞后约两个季度公布，季频默认的 270 天过期线会误报；放宽到 400 天
+  out.privateCreditGdp = run(SOURCE_FRED, () => {
+    const base = fromFredSeries('privateCreditGdp', f.privateCreditGdp, asOf, fredFreq(f.privateCreditGdp, 'quarterly'), now, {
+      note: 'BIS 数据，通常滞后约两个季度公布',
+    })
+    if (!base) return null
+    const { stale: _stale, ...rest } = base
+    return calendarAge(base.date, asOf) > 400 ? { ...rest, stale: true } : rest
+  })
+  out.govDebtGdp = run(SOURCE_FRED, () => fromFredSeries('govDebtGdp', f.govDebtGdp, asOf, fredFreq(f.govDebtGdp, 'quarterly'), now))
+  out.hyYield = run(SOURCE_FRED, () => fromFredSeries('hyYield', f.hyYield, asOf, fredFreq(f.hyYield, 'daily'), now))
+  out.cccSpread = run(SOURCE_FRED, () => fromFredSeries('cccSpread', f.cccSpread, asOf, fredFreq(f.cccSpread, 'daily'), now, { unit: 'bp' }))
+  out.m2Yoy = run(SOURCE_FRED, () => fromFredSeries('m2Yoy', f.m2Yoy, asOf, fredFreq(f.m2Yoy, 'monthly'), now))
+  out.inflationExp = run(SOURCE_FRED, () => fromFredSeries('inflationExp', f.inflationExp, asOf, fredFreq(f.inflationExp, 'daily'), now))
+  out.primeRate = run(SOURCE_FRED, () => fromFredSeries('primeRate', f.primeRate, asOf, fredFreq(f.primeRate, 'monthly'), now))
+  out.discountRate = run(SOURCE_FRED, () => fromFredSeries('discountRate', f.discountRate, asOf, fredFreq(f.discountRate, 'daily'), now))
+  out.consumerCreditYoy = run(SOURCE_FRED, () => fromFredSeries('consumerCreditYoy', f.consumerCreditYoy, asOf, fredFreq(f.consumerCreditYoy, 'monthly'), now))
+  out.profitGdp = run(SOURCE_FRED, () => fromFredSeries('profitGdp', f.profitGdp, asOf, fredFreq(f.profitGdp, 'quarterly'), now))
 
   // 展示字段统一清洗：文本字段必须是字符串，数值必须有限，日期必须合法；否则该读数作废或字段回落默认值
   for (const key of Object.keys(out) as ReadingKey[]) {
@@ -1253,12 +1455,13 @@ function countNonNullReadings(readings: Partial<Record<ReadingKey, Reading | nul
 
 /** 读取本站已有数据文件，计算各指标最新读数。 */
 export async function loadReadings(fetcher: typeof fetch = fetch): Promise<ReadingsResult> {
-  const [rawPub, rawBreadth, rawSlices, rawMacro, rawRates] = await Promise.all([
+  const [rawPub, rawBreadth, rawSlices, rawMacro, rawRates, rawFred] = await Promise.all([
     loadSource<PublicFile>(FILES.public, SOURCE_PUBLIC, fetcher),
     loadSource<BreadthFile>(FILES.breadth, SOURCE_BREADTH, fetcher),
     loadSource<SlicesFile>(FILES.slices, SOURCE_SLICES, fetcher),
     loadSource<MacroSnapshot>(FILES.macro, SOURCE_MACRO, fetcher),
     loadSource<RatesFile>(FILES.rates, SOURCE_RATES, fetcher),
+    loadSource<FredFile>(FILES.fred, SOURCE_FRED, fetcher),
   ])
 
   const pub = coercePublic(rawPub)
@@ -1266,8 +1469,9 @@ export async function loadReadings(fetcher: typeof fetch = fetch): Promise<Readi
   const slices = coerceSlices(rawSlices)
   const macro = coerceMacro(rawMacro)
   const rates = coerceRates(rawRates)
+  const fred = coerceFred(rawFred)
 
-  const failedSources = [pub, breadth, slices, macro, rates]
+  const failedSources = [pub, breadth, slices, macro, rates, fred]
     .flatMap(result => (result.ok ? [] : [result.label]))
 
   if (failedSources.length === ALL_SOURCE_LABELS.length) {
@@ -1282,6 +1486,7 @@ export async function loadReadings(fetcher: typeof fetch = fetch): Promise<Readi
     slices: slices.ok ? slices.data : undefined,
     macro: macro.ok ? macro.data : undefined,
     rates: rates.ok ? rates.data : undefined,
+    fred: fred.ok ? fred.data : undefined,
     asOf: today,
   })
   for (const label of built.structuralFailures) {
@@ -1298,10 +1503,10 @@ export async function loadReadings(fetcher: typeof fetch = fetch): Promise<Readi
     )
   }
 
-  // 政策利率按日历日（含周末），不参与快照 asOf，避免把大师页拖到非交易日
+  // 政策利率按日历日（含周末），不参与快照 asOf，避免把大师页拖到非交易日；点阵图 date=发布日亦排除
   const dates = (Object.entries(readings) as Array<[ReadingKey, Reading | null | undefined]>)
     .flatMap(([key, r]) => {
-      if (key === 'policyRate') return []
+      if (key === 'policyRate' || key === 'dotMedian') return []
       return r?.date && r.date <= today ? [r.date] : []
     })
     .sort()
@@ -1331,13 +1536,14 @@ export function useReadings(): ReadingsState {
 
 /** 测试与总览主题表共用的指标主题分组 */
 export const READING_THEMES: { id: string; name: string; keys: ReadingKey[] }[] = [
-  { id: 'policy', name: '利率与政策', keys: ['policyRate', 'realRate', 'realYield10', 'tenYear', 'curve10y2y'] },
-  { id: 'liquidity', name: '流动性', keys: ['fedAssets', 'netLiquidity', 'bankReserves', 'nfci'] },
-  { id: 'credit', name: '信用', keys: ['hySpread', 'baaAaa'] },
+  { id: 'policy', name: '利率与政策', keys: ['policyRate', 'realRate', 'realYield10', 'tenYear', 'curve10y2y', 'fedFunds', 'dotMedian', 'primeRate', 'discountRate'] },
+  { id: 'liquidity', name: '流动性', keys: ['fedAssets', 'netLiquidity', 'bankReserves', 'nfci', 'tga', 'm2Yoy'] },
+  { id: 'credit', name: '信用', keys: ['hySpread', 'baaAaa', 'hyYield', 'cccSpread'] },
   { id: 'trend', name: '趋势', keys: ['spxVs200dma', 'spxDrawdown'] },
   { id: 'breadth', name: '宽度与轮动', keys: ['spxAbove200', 'netNewHighs', 'advDecLine', 'mcclellan', 'equalWeightRel', 'smallCapRel', 'cyclicalDefensive', 'growthValueRel'] },
   { id: 'fundamentals', name: '盈利与就业', keys: ['epsRevision', 'unrate', 'sahm', 'debtService'] },
+  { id: 'macro', name: '增长、通胀与债务', keys: ['nominalGdpYoy', 'corePce', 'inflationExp', 'claims', 'consumerCreditYoy', 'privateCreditGdp', 'govDebtGdp', 'profitGdp'] },
   { id: 'valuation', name: '估值', keys: ['forwardPe', 'cape', 'buffett'] },
-  { id: 'sentiment', name: '情绪与仓位', keys: ['vix', 'fearGreed', 'putCall', 'retailBullBear', 'naaim', 'marginDebtYoy', 'managerCash'] },
+  { id: 'sentiment', name: '情绪与仓位', keys: ['vix', 'fearGreed', 'putCall', 'retailBullBear', 'naaim', 'marginDebtYoy', 'managerCash', 'mmfAssets', 'cftcLevSpx', 'hfGrossExposure', 'volumeRatio'] },
   { id: 'commodities', name: '商品', keys: ['copper', 'copperGold'] },
 ]

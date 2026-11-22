@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { MASTER_ARTICLES, renderMasterArticleMarkdown } from './articles'
-import { MASTERS, masterBySlug } from './masters'
-import { READING_LABELS } from './readings'
+import { MASTERS, indicatorCoverage, masterBySlug } from './masters'
+import { READING_LABELS, READING_THEMES } from './readings'
+import type { ReadingKey } from './types'
 
 const ORDER = ['druckenmiller', 'dalio', 'marks', 'tudor-jones', 'zweig', 'grantham', 'soros', 'templeton', 'kostolany'] as const
 
@@ -71,22 +72,43 @@ describe('MASTERS', () => {
 
   it('保留审查要求的口径、证据等级和历史规则', () => {
     expect(indicator('druckenmiller', '美联储资产负债表（2021 年买债回顾）').readings).toEqual(['fedAssets'])
+    expect(indicator('druckenmiller', '财政部现金账户（TGA）对冲缩表').readings).toEqual(['tga'])
     expect(indicator('druckenmiller', '财政部现金账户（TGA）对冲缩表').proxyReadings).toEqual(['netLiquidity'])
     expect(indicator('tudor-jones', '10 年期实际收益率与历史均值').readings).toEqual(['realYield10'])
     expect(indicator('tudor-jones', '金融条件指数').proxyReadings).toEqual(['nfci'])
     expect(indicator('zweig', '优惠利率指标').howToRead).toContain('前一轮高点低于 8% 时，首次降息即买入')
+    expect(indicator('zweig', '优惠利率指标').readings).toEqual(['primeRate'])
     expect(indicator('zweig', '兹威格宽度推力').evidence).toBe('unverified')
     expect(indicator('zweig', '兹威格宽度推力').proxyReadings).toEqual(['advDecLine'])
     expect(indicator('grantham', 'Fortune 转述：CAPE 等历史估值极值').evidence).toBe('paraphrase')
     expect(indicator('grantham', 'GMO 7 年预测：二手方法说明').evidence).toBe('paraphrase')
-    expect(indicator('soros', '仓位拥挤').readings).toBeUndefined()
-    expect(indicator('soros', '仓位拥挤').proxyReadings).toBeUndefined()
+    expect(indicator('soros', '仓位拥挤').proxyReadings).toEqual(['cftcLevSpx', 'hfGrossExposure'])
     expect(masterBySlug('grantham')?.ideas[0]).toContain('在他统计的发达国家股市样本内')
     expect(indicator('kostolany', '本人比喻：主人是经济').howToRead).toContain('主人是经济发展')
     expect(indicator('kostolany', '本站配套：企业盈利预期').evidence).toBe('unverified')
     expect(indicator('dalio', '现金的实际回报').readings).toBeUndefined()
     expect(indicator('dalio', '现金的实际回报').proxyReadings).toEqual(['realRate'])
     expect(indicator('dalio', '现金的实际回报').proxyNote).toMatch(/间接关联/)
+  })
+
+  it('每个新 ReadingKey 至少被一位大师引用，且都出现在某个 READING_THEMES', () => {
+    const NEW_KEYS: ReadingKey[] = [
+      'tga', 'mmfAssets', 'cftcLevSpx', 'hfGrossExposure', 'volumeRatio',
+      'corePce', 'claims', 'fedFunds', 'nominalGdpYoy', 'dotMedian',
+      'privateCreditGdp', 'govDebtGdp', 'hyYield', 'cccSpread', 'm2Yoy',
+      'inflationExp', 'primeRate', 'discountRate', 'consumerCreditYoy', 'profitGdp',
+    ]
+    const used = new Set<ReadingKey>()
+    for (const master of MASTERS) {
+      for (const item of master.indicators) {
+        for (const key of [...(item.readings ?? []), ...(item.proxyReadings ?? [])]) used.add(key)
+      }
+    }
+    const themed = new Set(READING_THEMES.flatMap(t => t.keys))
+    for (const key of NEW_KEYS) {
+      expect(used.has(key), `${key} 未被任何大师引用`).toBe(true)
+      expect(themed.has(key), `${key} 未进入 READING_THEMES`).toBe(true)
+    }
   })
 
   it('九位大师都有对应的研究正文', () => {
@@ -116,5 +138,26 @@ describe('研究文档链接', () => {
     expect(html).toContain('href="#section"')
     expect(html).not.toContain('javascript:')
     expect(html).not.toContain('href="/BusinessWeb/')
+  })
+})
+
+
+describe('indicatorCoverage', () => {
+  it('区分同口径、近似、暂无和方法说明，方法说明不计入可量化指标', () => {
+    const expected = {
+      druckenmiller: { exact: 7, proxy: 2, empty: 1, method: 0, measurable: 10 },
+      dalio: { exact: 8, proxy: 1, empty: 1, method: 0, measurable: 10 },
+      marks: { exact: 5, proxy: 3, empty: 1, method: 0, measurable: 9 },
+      'tudor-jones': { exact: 6, proxy: 2, empty: 0, method: 0, measurable: 8 },
+      zweig: { exact: 3, proxy: 4, empty: 1, method: 0, measurable: 8 },
+      grantham: { exact: 1, proxy: 4, empty: 3, method: 1, measurable: 8 },
+      soros: { exact: 1, proxy: 5, empty: 1, method: 0, measurable: 7 },
+      templeton: { exact: 1, proxy: 3, empty: 2, method: 0, measurable: 6 },
+      kostolany: { exact: 0, proxy: 7, empty: 0, method: 2, measurable: 7 },
+    }
+
+    for (const master of MASTERS) {
+      expect(indicatorCoverage(master)).toEqual(expected[master.slug])
+    }
   })
 })

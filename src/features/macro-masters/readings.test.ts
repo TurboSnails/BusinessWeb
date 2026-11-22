@@ -7,6 +7,7 @@ import {
   computeNetLiquidity,
   continuousDailySegment,
   directionOf,
+  dotMedianReading,
   loadReadings,
   policyRateMoves,
   sanitizePoints,
@@ -68,6 +69,14 @@ function fixtureFiles(overrides: Record<string, unknown> = {}): Record<string, u
           ['2026-09-17', 3.9], ['2026-09-18', 3.9], ['2026-09-19', 3.9],
           ['2026-11-20', 3.9],
         ], { unit: '%', frequency: '日频', name: '准备金余额利率' }),
+        mmfTotal: series([['2026-10-21', 78000], ['2026-11-18', 79764]], { unit: '亿美元', frequency: '周频', name: '货币基金总资产' }),
+        cftcSpxLev: series([['2016-01-05', -5], ...decadeWeekly('cftc', -20, 10), ['2026-11-17', -10.58]], {
+          unit: '%', frequency: '周频', name: '杠杆基金标普净仓',
+        }),
+        ofrEquityGross: series([['2025-12-31', 98000], ['2026-03-31', 100000], ['2026-06-30', 103150]], {
+          unit: '亿美元', frequency: '季频', name: '对冲基金股票总名义敞口',
+        }),
+        volumeRatio: series([['2026-10-20', 1.1], ['2026-11-20', 1.34]], { unit: '倍', frequency: '日频' }),
       },
     },
     'us-market-breadth.json': {
@@ -111,6 +120,8 @@ function fixtureFiles(overrides: Record<string, unknown> = {}): Record<string, u
         debtService: { unit: '%', latest: { date: '2026-04-01', value: 11.1 }, history: [['2026-01-01', 11.0], ['2026-04-01', 11.1]], note: '家庭债务偿付额占可支配收入比例' },
         buffett: { unit: '%', latest: { date: '2026-04-01', value: 255 }, history: [['2026-01-01', 250], ['2026-04-01', 255]], long: longQuarterly('buffett', 1947, 40), note: '非金融企业股票市值 ÷ 名义 GDP' },
         putCall: { unit: '', latest: { date: '2026-11-20', value: 1.13 }, history: [['2026-10-31', 1.0], ['2026-11-20', 1.13]], long: decadeMonthly('pc', 0.8, 1.2), note: 'Cboe 全产品期权成交量 Put÷Call；最新值为每日读数' },
+        corePce: { unit: '%', latest: { date: '2026-09-01', value: 3.12 }, history: [['2026-08-01', 3.2], ['2026-09-01', 3.12]], fred: 'PCEPILFE', note: '由价格指数计算同比' },
+        claims: { unit: '万人', latest: { date: '2026-11-14', value: 19.8 }, history: [['2026-10-17', 20.1], ['2026-11-14', 19.8]], fred: 'IC4WSA' },
       },
     },
     'us-equity-bond-spread.json': {
@@ -118,6 +129,29 @@ function fixtureFiles(overrides: Record<string, unknown> = {}): Record<string, u
       latestReal: { date: '2026-11-18', value: 2.88 },
       real: [['2026-08-05', 2.41], ['2026-11-18', 2.88]],
       rows: [],
+    },
+    'macro-masters-fred.json': {
+      generatedAt: '2026-11-20',
+      source: 'FRED, Federal Reserve Bank of St. Louis',
+      series: {
+        fedFunds: { fred: 'FEDFUNDS', name: '联邦基金有效利率', unit: '%', frequency: 'monthly', history: [['2026-09-01', 4.22], ['2026-10-01', 4.09]] },
+        nominalGdpYoy: { fred: 'A191RP1Q027SBEA', name: '名义 GDP 同比', unit: '%', frequency: 'quarterly', history: [['2026-01-01', 5.2], ['2026-04-01', 5.6]] },
+        dotMedian: {
+          fred: 'FEDTARMD', name: 'SEP 联邦基金利率中位数', unit: '%', frequency: 'quarterly',
+          updated: '2026-09-17',
+          history: [['2026-01-01', 4.1], ['2027-01-01', 3.9], ['2028-01-01', 3.4]],
+        },
+        privateCreditGdp: { fred: 'QUSPAM770A', name: '私人信贷/GDP', unit: '%', frequency: 'quarterly', history: longQuarterly('pcg', 1980, 140) },
+        govDebtGdp: { fred: 'GFDEGDQ188S', name: '联邦债务/GDP', unit: '%', frequency: 'quarterly', history: longQuarterly('gdg', 1970, 60) },
+        hyYield: { fred: 'BAMLH0A0HYM2EY', name: '高收益债有效收益率', unit: '%', frequency: 'daily', history: [['2026-10-20', 7.8], ['2026-11-19', 8.35]] },
+        cccSpread: { fred: 'BAMLH0A3HYC', name: 'CCC OAS', unit: 'bp', frequency: 'daily', history: [['2026-10-20', 900], ['2026-11-19', 980]] },
+        m2Yoy: { fred: 'M2SL', name: 'M2 同比', unit: '%', frequency: 'monthly', history: [['2026-09-01', 4.5], ['2026-10-01', 4.8]] },
+        inflationExp: { fred: 'T10YIE', name: '10 年盈亏平衡通胀', unit: '%', frequency: 'daily', history: [['2026-10-20', 2.3], ['2026-11-19', 2.35]] },
+        primeRate: { fred: 'DPRIME', name: '优惠利率', unit: '%', frequency: 'monthly', history: [['2026-09-01', 7.25], ['2026-10-01', 7.0]] },
+        discountRate: { fred: 'DPCREDIT', name: '一级信贷利率', unit: '%', frequency: 'daily', history: [['2026-10-20', 4.25], ['2026-11-19', 4.0]] },
+        consumerCreditYoy: { fred: 'NONREVSL', name: '非循环信贷同比', unit: '%', frequency: 'monthly', history: [['2026-09-01', 3.1], ['2026-10-01', 3.4]] },
+        profitGdp: { fred: 'CP/GDP', name: '税后利润/GDP', unit: '%', frequency: 'quarterly', history: longQuarterly('pg', 1950, 8) },
+      },
     },
     ...overrides,
   }
@@ -213,19 +247,22 @@ afterEach(() => {
 describe('READING_LABELS / themes', () => {
   it('覆盖全部 ReadingKey，主题分组与定案一致', () => {
     const keys = Object.keys(READING_LABELS) as ReadingKey[]
-    expect(keys.length).toBe(37)
+    expect(keys.length).toBe(57)
     expect(READING_LABELS.realYield10).toBe('10 年期 TIPS 实际收益率')
     expect(READING_LABELS.buffett).toBe('非金融企业股票市值 ÷ GDP')
     expect(READING_LABELS.policyRate).toBe('准备金余额利率')
+    expect(READING_LABELS.dotMedian).toBe('点阵图：明年末利率中位数')
+    expect(READING_LABELS.tga).toBe('财政部一般账户（TGA）')
     const themed = new Set(READING_THEMES.flatMap(t => t.keys))
     expect(themed.size).toBe(keys.length)
     expect(READING_THEMES.map(t => t.id)).toEqual([
-      'policy', 'liquidity', 'credit', 'trend', 'breadth', 'fundamentals', 'valuation', 'sentiment', 'commodities',
+      'policy', 'liquidity', 'credit', 'trend', 'breadth', 'fundamentals', 'macro', 'valuation', 'sentiment', 'commodities',
     ])
     expect(READING_THEMES.find(t => t.id === 'policy')?.keys).toEqual([
-      'policyRate', 'realRate', 'realYield10', 'tenYear', 'curve10y2y',
+      'policyRate', 'realRate', 'realYield10', 'tenYear', 'curve10y2y', 'fedFunds', 'dotMedian', 'primeRate', 'discountRate',
     ])
-    expect(READING_THEMES.find(t => t.id === 'liquidity')?.keys).toContain('nfci')
+    expect(READING_THEMES.find(t => t.id === 'liquidity')?.keys).toContain('tga')
+    expect(READING_THEMES.find(t => t.id === 'macro')?.keys).toContain('nominalGdpYoy')
     expect(READING_THEMES.find(t => t.id === 'trend')?.keys).toEqual(['spxVs200dma', 'spxDrawdown'])
   })
 })
@@ -567,6 +604,7 @@ describe('loadReadings', () => {
       'us-market-slices.json': { slices: [] },
       'macro-us.json': { generatedAt: '2026-11-20', source: 't', series: {} },
       'us-equity-bond-spread.json': { real: [] },
+      'macro-masters-fred.json': { generatedAt: '2026-11-20', series: {} },
     })
     await expect(loadReadings(mockFetch(empty))).rejects.toThrow(/加载失败|读数计算失败/)
   })
@@ -1297,3 +1335,131 @@ describe('policyRate / 回撤 / 相对表现', () => {
   })
 })
 
+describe('第二批 20 个新读数', () => {
+  it('us-market / macro 接入：TGA、货币基金、CFTC、OFR、量比、核心 PCE、初请', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
+    const { readings } = await loadReadings(mockFetch(fixtureFiles()))
+    expect(readings.tga).toMatchObject({ value: 920, unit: '十亿美元', frequency: 'weekly', date: '2026-11-18' })
+    expect(readings.mmfAssets).toMatchObject({ value: 79764, unit: '亿美元', frequency: 'weekly' })
+    expect(readings.mmfAssets?.note).toMatch(/ICI 美国货币基金总资产/)
+    expect(readings.cftcLevSpx).toMatchObject({ value: -10.58, unit: '%', frequency: 'weekly' })
+    expect(readings.cftcLevSpx?.percentile).toBeTypeOf('number')
+    expect(readings.hfGrossExposure).toMatchObject({ value: 103150, unit: '亿美元', frequency: 'quarterly' })
+    expect(readings.hfGrossExposure?.note).toMatch(/OFR Form PF/)
+    expect(readings.volumeRatio).toMatchObject({ value: 1.34, unit: '倍', frequency: 'daily' })
+    expect(readings.volumeRatio?.percentile).toBeUndefined()
+    expect(readings.corePce).toMatchObject({ value: 3.12, frequency: 'monthly' })
+    expect(readings.corePce?.source).toMatch(/PCEPILFE/)
+    expect(readings.claims).toMatchObject({ value: 19.8, unit: '万人', frequency: 'weekly' })
+  })
+
+  it('FRED 补充序列正常产出；阶梯利率有方向；长历史给 longPercentile', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
+    const { readings } = await loadReadings(mockFetch(fixtureFiles()))
+    expect(readings.fedFunds).toMatchObject({ value: 4.09, frequency: 'monthly', unit: '%' })
+    expect(readings.fedFunds?.source).toMatch(/FEDFUNDS/)
+    expect(readings.fedFunds?.direction).toBeTruthy()
+    expect(readings.nominalGdpYoy).toMatchObject({ value: 5.6, frequency: 'quarterly' })
+    expect(readings.hyYield).toMatchObject({ value: 8.35, frequency: 'daily' })
+    expect(readings.cccSpread).toMatchObject({ value: 980, unit: 'bp', frequency: 'daily' })
+    expect(readings.m2Yoy).toMatchObject({ value: 4.8, frequency: 'monthly' })
+    expect(readings.inflationExp).toMatchObject({ value: 2.35, frequency: 'daily' })
+    expect(readings.primeRate).toMatchObject({ value: 7.0, frequency: 'monthly' })
+    expect(readings.discountRate).toMatchObject({ value: 4.0, frequency: 'daily' })
+    expect(readings.consumerCreditYoy).toMatchObject({ value: 3.4, frequency: 'monthly' })
+    expect(readings.privateCreditGdp?.longPercentile).toBeTypeOf('number')
+    expect(readings.govDebtGdp?.longPercentile).toBeTypeOf('number')
+    expect(readings.profitGdp?.longPercentile).toBeTypeOf('number')
+    expect(readings.profitGdp?.source).not.toMatch(/fred\.stlouisfed\.org\/series\/CP\/GDP/)
+  })
+
+  it('dotMedian：取 updated 年份+1 的中位数；无方向/分位；无 updated 为 null', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
+    const { readings } = await loadReadings(mockFetch(fixtureFiles()))
+    expect(readings.dotMedian).toMatchObject({
+      value: 3.9,
+      date: '2026-09-17',
+      frequency: 'quarterly',
+    })
+    expect(readings.dotMedian?.percentile).toBeUndefined()
+    expect(readings.dotMedian?.direction).toBeUndefined()
+    expect(readings.dotMedian?.note).toMatch(/SEP 中位数/)
+    expect(readings.dotMedian?.note).toMatch(/2027 年末 3\.9%/)
+    expect(readings.dotMedian?.note).toMatch(/9 月 17 日发布/)
+
+    expect(dotMedianReading({
+      history: [['2027-01-01', 3.9]],
+      unit: '%',
+    }, '2026-11-20')).toBeNull()
+
+    const skip = await loadReadings(mockFetch(fixtureFiles({
+      'macro-masters-fred.json': {
+        generatedAt: '2026-11-20',
+        series: {
+          dotMedian: {
+            fred: 'FEDTARMD',
+            unit: '%',
+            frequency: 'quarterly',
+            history: [['2027-01-01', 3.9]],
+          },
+        },
+      },
+    })))
+    expect(skip.readings.dotMedian).toBeNull()
+    expect(skip.readings.fedFunds).toBeNull()
+  })
+
+  it('缺源为 null；FRED 文件失败不影响其他读数并进入 failedSources；过期标 stale', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
+
+    const files = fixtureFiles()
+    delete (files as Record<string, unknown>)['macro-masters-fred.json']
+    const { readings, failedSources } = await loadReadings(mockFetch(files))
+    expect(failedSources).toContain('FRED 补充序列')
+    expect(readings.fedFunds).toBeNull()
+    expect(readings.dotMedian).toBeNull()
+    expect(readings.tga?.value).toBe(920)
+    expect(readings.fedAssets?.value).toBe(6740)
+    expect(readings.corePce?.value).toBe(3.12)
+
+    const staleFiles = fixtureFiles({
+      'macro-masters-fred.json': {
+        generatedAt: '2026-11-20',
+        series: {
+          fedFunds: {
+            fred: 'FEDFUNDS', unit: '%', frequency: 'monthly',
+            history: [['2026-05-01', 4.33]],
+          },
+        },
+      },
+      'us-market-data.json': {
+        series: {
+          ...((fixtureFiles()['us-market-data.json'] as { series: Record<string, unknown> }).series),
+          treasuryCash: series([['2026-09-01', 800]], { unit: '十亿美元', frequency: '周频' }),
+          volumeRatio: series([['2026-10-01', 1.2]], { unit: '倍', frequency: '日频' }),
+        },
+      },
+    })
+    const stale = await loadReadings(mockFetch(staleFiles))
+    expect(stale.readings.fedFunds?.stale).toBe(true)
+    expect(stale.readings.tga?.stale).toBe(true)
+    expect(stale.readings.volumeRatio?.stale).toBe(true)
+  })
+})
+
+
+describe('manager 复核修补', () => {
+  it('点阵图 note 只给读者看路径与发布日，不带数据文件的开发说明', () => {
+    const r = dotMedianReading({
+      fred: 'FEDTARMD', name: 'SEP', unit: '%', frequency: 'quarterly', updated: '2026-09-16',
+      note: 'SEP 联邦基金利率中位数；history 的日期是预测目标年份',
+      history: [['2026-01-01', 4.1], ['2027-01-01', 3.9]],
+    }, '2026-11-20')
+    expect(r?.value).toBe(3.9)
+    expect(r?.note).toBe('SEP 中位数：2026 年末 4.1%、2027 年末 3.9%（9 月 16 日发布）')
+  })
+})

@@ -285,3 +285,38 @@ describe('MacroMasters 总览页', () => {
     expect(within(method).getByText('回测说明了什么')).toBeTruthy()
   })
 })
+
+
+describe('指标对照的大师覆盖与缺口', () => {
+  it('未选大师时保持原样；选择后显示覆盖摘要、详情链接与外部来源', () => {
+    mockOk()
+    renderPage()
+    const compare = screen.getByRole('heading', { name: '指标对照' }).closest('section')!
+    expect(within(compare).queryByText(/项可量化指标/)).toBeNull()
+    expect(within(compare).queryByRole('region', { name: '本站暂无的指标' })).toBeNull()
+
+    fireEvent.change(screen.getByLabelText('谁在看'), { target: { value: 'druckenmiller' } })
+    expect(within(compare).getByText(/德鲁肯米勒关注 10 项可量化指标：同口径 7 · 本站近似 2 · 本站暂无 1/)).toBeTruthy()
+    expect(within(compare).getByRole('link', { name: '查看他的全部指标 →' }).getAttribute('href'))
+      .toBe('/invest/macro-masters/druckenmiller#mm-master-readings')
+    const gaps = within(compare).getByRole('region', { name: '本站暂无的指标' })
+    expect(within(gaps).getByText('AI 资本开支')).toBeTruthy()
+    expect(within(gaps).getByText('SEC EDGAR：超大型科技公司的资本开支披露。')).toBeTruthy()
+  })
+
+  it('方法说明不进入缺口列表，主题无读数时摘要与缺口仍保留', () => {
+    mockOk()
+    renderPage('/invest/macro-masters?who=grantham')
+    const compare = screen.getByRole('heading', { name: '指标对照' }).closest('section')!
+    expect(within(compare).getByText(/格兰瑟姆关注 8 项可量化指标：同口径 1 · 本站近似 4 · 本站暂无 3/)).toBeTruthy()
+    const gaps = within(compare).getByRole('region', { name: '本站暂无的指标' })
+    expect(within(gaps).queryByText('GMO 7 年预测：二手方法说明')).toBeNull()
+    expect(within(gaps).queryByText(/The Economist/)).toBeNull()
+    expect(within(gaps).getByText('GMO 7 年预测：图表读数')).toBeTruthy()
+
+    fireEvent.click(screen.getByRole('button', { name: /商品\s*\d+/ }))
+    expect(screen.getByText(/没有符合当前筛选的读数/)).toBeTruthy()
+    expect(within(compare).getByText(/格兰瑟姆关注 8 项可量化指标/)).toBeTruthy()
+    expect(within(compare).getByRole('region', { name: '本站暂无的指标' })).toBeTruthy()
+  })
+})

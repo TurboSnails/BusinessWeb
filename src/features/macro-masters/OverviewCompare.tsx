@@ -26,7 +26,7 @@ import {
 } from './OverviewExpand'
 import OverviewHistoryBar from './OverviewHistoryBar'
 import { useOverviewJump } from './OverviewJump'
-import { MASTERS } from './masters'
+import { MASTERS, indicatorCoverage } from './masters'
 import { READING_LABELS, READING_THEMES } from './readings'
 import type { CycleView, DimensionView, Master, Reading, ReadingKey } from './types'
 
@@ -199,6 +199,11 @@ export default function OverviewCompare({
   const whoSlug = (MASTERS.find(m => m.slug === whoParam)?.slug
     ?? MASTERS.find(m => shortName(m.name) === whoParam)?.slug
     ?? '') as Master['slug'] | ''
+  const selectedMaster = whoSlug ? MASTERS.find(master => master.slug === whoSlug) : undefined
+  const selectedCoverage = selectedMaster ? indicatorCoverage(selectedMaster) : null
+  const missingIndicators = selectedMaster?.indicators.filter(indicator => (
+    indicator.kind !== 'method' && !indicator.readings?.length && !indicator.proxyReadings?.length
+  )) ?? []
 
   const themeCounts = useMemo(() => {
     const counts: Record<string, number> = { all: 0, judgment: 0 }
@@ -321,6 +326,15 @@ export default function OverviewCompare({
           </select>
         </label>
       </div>
+
+      {selectedMaster && selectedCoverage && (
+        <div className="mm-compare__coverage">
+          <p>{`${shortName(selectedMaster.name)}关注 ${selectedCoverage.measurable} 项可量化指标：同口径 ${selectedCoverage.exact} · 本站近似 ${selectedCoverage.proxy} · 本站暂无 ${selectedCoverage.empty}`}</p>
+          <Link to={`/invest/macro-masters/${selectedMaster.slug}#mm-master-readings`}>
+            查看他的全部指标 →
+          </Link>
+        </div>
+      )}
 
       {empty && (
         <div className="mm-compare__empty" role="status">
@@ -466,6 +480,20 @@ export default function OverviewCompare({
             ))}
           </ul>
         </>
+      )}
+
+      {selectedMaster && selectedCoverage && selectedCoverage.empty > 0 && (
+        <section className="mm-compare__gaps" aria-labelledby="mm-compare-gaps-title">
+          <h3 id="mm-compare-gaps-title">本站暂无的指标</h3>
+          <ul className="mm-compare__gap-list">
+            {missingIndicators.map(indicator => (
+              <li key={indicator.name}>
+                <span className="mm-compare__gap-name">{indicator.name}</span>
+                <p>{indicator.external || '研究未找到可靠的免费数据'}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
     </section>
   )

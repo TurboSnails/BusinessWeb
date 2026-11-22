@@ -10,6 +10,10 @@ export function number(value: number, unit = ''): string {
     value /= 1000
     unit = '万亿美元'
   }
+  if (unit === '亿美元' && Math.abs(value) >= 10_000) {
+    value /= 10_000
+    unit = '万亿美元'
+  }
   if (unit === 'pp') unit = '个百分点'
   if (unit === 'bp') unit = '个基点'
   const format = Math.abs(value) < 1 ? FRACTION : NUMBER
@@ -61,6 +65,8 @@ export function formattedReadingParts(
     : unit === 'pp' ? '个百分点'
     : unit === '十亿美元' && Math.abs(value) >= 1000 ? '万亿美元'
     : unit === '十亿美元' ? '十亿美元'
+    : unit === '亿美元' && Math.abs(value) >= 10_000 ? '万亿美元'
+    : unit === '亿美元' ? '亿美元'
     : unit
   const suffix = ` ${mapped}`
   if (full.endsWith(suffix)) {
