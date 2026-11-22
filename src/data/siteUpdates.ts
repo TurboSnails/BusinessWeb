@@ -10,6 +10,13 @@ export interface SiteUpdate {
 // 使用中文描述结果和使用方式，不从 Git 提交、构建或日常数据刷新自动生成。
 export const SITE_UPDATES: readonly SiteUpdate[] = [
   {
+    id: 'portfolio-rebalance-presets',
+    date: '2026-11-22',
+    title: '组合回测加入研究参考组合',
+    description: '组合再平衡回测页新增 4 个参考组合：首选（Meta 换苹果）、省心（六只分散）、回撤最小（拼多多替换 SoFi）和原方案对照，一键载入并按每年调一次计算。依据 11 个候选组合在 39 个起点、前后两段和去掉博通后的稳健性比较；是事后挑选的参考，不是买卖建议。',
+    href: '/lab/portfolio-rebalance',
+  },
+  {
     id: 'portfolio-rebalance-masters',
     date: '2026-11-22',
     title: '组合回测加入大师长期持仓股',

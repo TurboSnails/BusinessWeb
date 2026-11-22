@@ -5,6 +5,11 @@ import { compareSet, runBacktest } from '../features/portfolio-rebalance/engine'
 import { PortfolioForm } from '../features/portfolio-rebalance/components/PortfolioForm'
 import { ConfigSummary } from '../features/portfolio-rebalance/components/ConfigSummary'
 import { ResultsView } from '../features/portfolio-rebalance/components/ResultsView'
+import {
+  REFERENCE_RULE,
+  ReferencePortfolios,
+  type ReferencePreset,
+} from '../features/portfolio-rebalance/components/ReferencePortfolios'
 import { createDefaultInput, decode, encode } from '../features/portfolio-rebalance/urlState'
 import type { CompareSet, PriceBook, PriceIndex, RunInput, RunResult } from '../features/portfolio-rebalance/types'
 import '../styles/portfolio-rebalance.css'
@@ -91,15 +96,36 @@ export default function PortfolioRebalanceLab(): JSX.Element {
     window.history.replaceState(null, '', `${window.location.pathname}?${query}${window.location.hash}`)
   }, [draft, index])
 
-  const submit = (): void => {
-    setApplied({ ...draft, start: draft.start ?? draftCommonStart })
-    setFormOpen(false)
+  const scrollToResults = (): void => {
     const scroll = (): void => {
       const results = document.getElementById('pr-results')
       if (results && typeof results.scrollIntoView === 'function') results.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
     if (typeof window.requestAnimationFrame === 'function') window.requestAnimationFrame(scroll)
     else scroll()
+  }
+
+  const submit = (): void => {
+    setApplied({ ...draft, start: draft.start ?? draftCommonStart })
+    setFormOpen(false)
+    scrollToResults()
+  }
+
+  const loadReference = (preset: ReferencePreset): void => {
+    if (!index) return
+    const start = commonStart(index, preset.symbols)
+    const next: RunInput = {
+      ...draft,
+      symbols: [...preset.symbols],
+      weights: [...preset.weights],
+      rule: REFERENCE_RULE,
+      switch: undefined,
+      start,
+    }
+    setDraft(next)
+    setApplied(next)
+    setFormOpen(false)
+    scrollToResults()
   }
 
   return (
@@ -112,6 +138,7 @@ export default function PortfolioRebalanceLab(): JSX.Element {
       {invalidLink && <Callout tone="warn" title="链接中的部分设置无效，已恢复默认">请核对代码、权重、规则与日期后重新计算。</Callout>}
       {load.state === 'loading' && <p className="pr-loading" role="status">正在加载可选代码与数据状态…</p>}
       {load.state === 'error' && <Callout tone="danger" title="价格数据暂时无法加载"><p>{load.message}。请检查网络后重试。</p><button type="button" className="btn-ghost" onClick={() => { setLoad({ state: 'loading' }); setRetry(value => value + 1) }}>重试</button></Callout>}
+      {index && <ReferencePortfolios index={index} applied={applied} onLoad={loadReference} />}
       {index && (formOpen
         ? <section className="pr-workbench" aria-label="组合回测设置"><PortfolioForm index={index} value={draft} onChange={setDraft} onSubmit={submit} defaultStart={draftCommonStart} /></section>
         : <ConfigSummary input={draft} onEdit={() => setFormOpen(true)} />)}
