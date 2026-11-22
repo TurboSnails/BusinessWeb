@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   READING_LABELS,
@@ -460,7 +462,7 @@ describe('loadReadings', () => {
     expect(readings.vix?.stale).toBe(true)
   })
 
-  it('单文件失败只置空依赖读数并列出 failedSources；全失败才抛错', async () => {
+  it('单文件失败只置空依赖读数并列出 failedSources；全失败或无读数才抛错', async () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
     await expect(loadReadings(mockFetch({}))).rejects.toThrow(/加载失败/)
@@ -485,14 +487,7 @@ describe('loadReadings', () => {
       'macro-us.json': { generatedAt: '2026-11-20', source: 't', series: {} },
       'us-equity-bond-spread.json': { real: [] },
     })
-    const { readings: emptyReadings } = await loadReadings(mockFetch(empty))
-    for (const key of Object.keys(READING_LABELS) as ReadingKey[]) {
-      expect(emptyReadings[key] === null || emptyReadings[key] === undefined || typeof emptyReadings[key] === 'object').toBe(true)
-    }
-    expect(emptyReadings.copper).toBeNull()
-    expect(emptyReadings.fedAssets).toBeNull()
-    expect(emptyReadings.spxVs200dma).toBeNull()
-    expect(emptyReadings.realYield10).toBeNull()
+    await expect(loadReadings(mockFetch(empty))).rejects.toThrow(/加载失败|读数计算失败/)
   })
 
   it('覆盖不足 5 年不分位；5–10 年周密采样给分位并写 percentileYears', async () => {
@@ -594,5 +589,116 @@ describe('loadReadings', () => {
     expect(readings.realRate).toBeNull()
     expect(readings.curve10y2y?.value).toBe(0.29)
     expect(failedSources).toContain('美国宏观')
+  })
+
+  function countNonNull(readings: Awaited<ReturnType<typeof loadReadings>>['readings']): number {
+    return Object.values(readings).filter(r => r != null).length
+  }
+
+  it('隔离·宽度文件非 spx 条目为 null：健康读数保留，不拖垮整页', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
+    const base = fixtureFiles()
+    const breadth = structuredClone(base['us-market-breadth.json']) as {
+      breadth: Record<string, unknown>
+    }
+    breadth.breadth.ndx = null
+    const healthy = await loadReadings(mockFetch(fixtureFiles()))
+    const { readings, asOf, failedSources } = await loadReadings(mockFetch(fixtureFiles({
+      'us-market-breadth.json': breadth,
+    })))
+    expect(countNonNull(readings)).toBe(countNonNull(healthy.readings))
+    expect(readings.spxAbove200?.value).toBe(48.6)
+    expect(readings.fedAssets?.value).toBe(6740)
+    expect(asOf).toBe(healthy.asOf)
+    expect(failedSources ?? []).not.toContain('美股宽度')
+  })
+
+  it('隔离·切片数组末尾追加 null：健康读数保留，失败来源准确', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
+    const base = fixtureFiles()
+    const slices = structuredClone(base['us-market-slices.json']) as { slices: unknown[] }
+    slices.slices.push(null)
+    const healthy = await loadReadings(mockFetch(fixtureFiles()))
+    const { readings, asOf, failedSources } = await loadReadings(mockFetch(fixtureFiles({
+      'us-market-slices.json': slices,
+    })))
+    expect(countNonNull(readings)).toBe(countNonNull(healthy.readings))
+    expect(readings.spxVs200dma).not.toBeNull()
+    expect(readings.fedAssets?.value).toBe(6740)
+    expect(asOf).toBe(healthy.asOf)
+    expect(failedSources ?? []).not.toContain('美股切片')
+  })
+
+  it('隔离·股债息差 real 为对象：整源失败，其余读数与 asOf 保留', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
+    const healthy = await loadReadings(mockFetch(fixtureFiles()))
+    const { readings, asOf, failedSources } = await loadReadings(mockFetch(fixtureFiles({
+      'us-equity-bond-spread.json': {
+        generatedAt: '2026-11-20',
+        latestReal: { date: '2026-11-18', value: 2.88 },
+        real: { not: 'an-array' },
+        rows: [],
+      },
+    })))
+    expect(readings.realYield10).toBeNull()
+    expect(failedSources).toEqual(['美股股债息差'])
+    expect(readings.fedAssets?.value).toBe(6740)
+    expect(readings.spxAbove200?.value).toBe(48.6)
+    expect(countNonNull(readings)).toBe(countNonNull(healthy.readings) - 1)
+    expect(asOf).toBe(healthy.asOf)
+  })
+
+  it('隔离·股债息差 real 追加 null：丢弃脏条目，读数与 asOf 不变', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
+    const base = fixtureFiles()
+    const rates = structuredClone(base['us-equity-bond-spread.json']) as { real: unknown[] }
+    rates.real.push(null)
+    const healthy = await loadReadings(mockFetch(fixtureFiles()))
+    const { readings, asOf, failedSources } = await loadReadings(mockFetch(fixtureFiles({
+      'us-equity-bond-spread.json': rates,
+    })))
+    expect(readings.realYield10?.value).toBe(2.88)
+    expect(countNonNull(readings)).toBe(countNonNull(healthy.readings))
+    expect(asOf).toBe(healthy.asOf)
+    expect(failedSources ?? []).not.toContain('美股股债息差')
+  })
+
+  it('隔离·spx.history 追加 null：丢弃脏条目，宽度读数保留', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
+    const base = fixtureFiles()
+    const breadth = structuredClone(base['us-market-breadth.json']) as {
+      breadth: { spx: { history: unknown[] } }
+    }
+    breadth.breadth.spx.history.push(null)
+    const healthy = await loadReadings(mockFetch(fixtureFiles()))
+    const { readings, asOf, failedSources } = await loadReadings(mockFetch(fixtureFiles({
+      'us-market-breadth.json': breadth,
+    })))
+    expect(readings.spxAbove200?.value).toBe(48.6)
+    expect(countNonNull(readings)).toBe(countNonNull(healthy.readings))
+    expect(asOf).toBe(healthy.asOf)
+    expect(failedSources ?? []).not.toContain('美股宽度')
+  })
+
+  it('仓库 public/data 快照：22 项非空、asOf 2026-11-20', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-22T17:00:00Z'))
+    const root = resolve(process.cwd(), 'public/data')
+    const files: Record<string, unknown> = {
+      'us-market-data.json': JSON.parse(readFileSync(resolve(root, 'us-market-data.json'), 'utf8')),
+      'us-market-breadth.json': JSON.parse(readFileSync(resolve(root, 'us-market-breadth.json'), 'utf8')),
+      'us-market-slices.json': JSON.parse(readFileSync(resolve(root, 'us-market-slices.json'), 'utf8')),
+      'macro-us.json': JSON.parse(readFileSync(resolve(root, 'macro-us.json'), 'utf8')),
+      'us-equity-bond-spread.json': JSON.parse(readFileSync(resolve(root, 'us-equity-bond-spread.json'), 'utf8')),
+    }
+    const { readings, asOf, failedSources } = await loadReadings(mockFetch(files))
+    expect(countNonNull(readings)).toBe(22)
+    expect(asOf).toBe('2026-11-20')
+    expect(failedSources).toBeUndefined()
   })
 })

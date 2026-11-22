@@ -109,11 +109,12 @@ describe('MacroMasterDetail', () => {
     expect(screen.queryByRole('alert')).toBeNull()
   })
 
-  it('读数失败时显示错误提示和本站暂无，不隐藏研究正文', () => {
+  it('读数失败时显示错误提示和本站暂无，不隐藏研究正文，不提示其余来源保留', () => {
     state({ state: 'error', message: '测试加载失败' })
     renderAt('dalio')
     expect(screen.getByRole('alert').textContent).toContain('读数暂时无法加载')
     expect(screen.getByRole('alert').textContent).toContain('测试加载失败')
+    expect(screen.queryByText(/其余来源的读数仍保留显示/)).toBeNull()
     expect(screen.getAllByText('本站暂无').length).toBeGreaterThan(5)
     expect(screen.getByRole('heading', { name: '完整研究文档' })).toBeTruthy()
   })

@@ -194,7 +194,7 @@ function KnownMacroMasterDetail({ master }: { master: Master }): JSX.Element {
           {readingsState.state === 'ok' && readingsState.asOf && <span className="mm-detail__as-of">数据快照：{readingsState.asOf}</span>}
         </div>
         {readingsState.state === 'error' && <p className="mm-detail__error" role="alert">读数暂时无法加载，下方以“本站暂无”显示；研究内容仍可阅读。{readingsState.message && `（${readingsState.message}）`}</p>}
-        {failedSources.length > 0 && <p className="mm-detail__error" role="alert">部分数据来源暂时不可用，其余来源的读数仍保留显示。</p>}
+        {readingsState.state === 'ok' && failedSources.length > 0 && <p className="mm-detail__error" role="alert">部分数据来源暂时不可用，其余来源的读数仍保留显示。</p>}
         <TableWrap label={`${master.name}关注的指标与本站读数`} className="mm-detail__table-wrap">
           <table className="ui-table mm-detail__table">
             <thead><tr><th scope="col">指标</th><th scope="col">他怎么读</th><th scope="col">本站当前读数</th><th scope="col">证据等级</th></tr></thead>

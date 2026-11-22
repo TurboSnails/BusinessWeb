@@ -62,10 +62,11 @@ describe('MacroMasters 总览页', () => {
     expect(screen.getAllByText(/加载中/).length).toBeGreaterThan(5)
   })
 
-  it('读数失败时显示错误，成功时展示数值；部分来源失败也提示', () => {
+  it('读数失败时显示错误且不提示其余来源保留；成功时展示数值；部分来源失败也提示', () => {
     mockedUse.mockReturnValue({ state: 'error', message: '网络中断' })
     renderPage()
     expect(screen.getByRole('alert').textContent).toContain('网络中断')
+    expect(screen.queryByText(/其余来源的读数仍保留显示/)).toBeNull()
 
     cleanup()
     mockedUse.mockReturnValue({

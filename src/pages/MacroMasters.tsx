@@ -56,7 +56,7 @@ export default function MacroMasters(): JSX.Element {
         {readings.state === 'error' && (
           <p className="mm-overview__error" role="alert">读数加载失败：{readings.message}</p>
         )}
-        {failedSources.length > 0 && (
+        {readings.state === 'ok' && failedSources.length > 0 && (
           <p className="mm-overview__error" role="alert">部分数据来源暂时不可用，其余来源的读数仍保留显示。</p>
         )}
         <TableWrap label="指标对照表" stickyFirst className="mm-overview__table-wrap">

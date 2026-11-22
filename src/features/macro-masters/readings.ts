@@ -140,11 +140,28 @@ function shiftIsoDate(iso: string, deltaDays: number): string {
   return d.toISOString().slice(0, 10)
 }
 
-/** 观测数组：null / 非数组视为结构异常。 */
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
+}
+
+/** 从未知数组逐条清洗 Point；null / 非二元组 / 无效值丢弃。 */
+function filterPointEntries(history: readonly unknown[]): Point[] {
+  const points: Point[] = []
+  for (const item of history) {
+    if (!Array.isArray(item) || item.length < 2) continue
+    const date = item[0]
+    const value = item[1]
+    if (typeof date !== 'string' || !Number.isFinite(value as number)) continue
+    points.push([date, value as number])
+  }
+  return points
+}
+
+/** 观测数组：null / 非数组视为结构异常；数组内脏条目逐条丢弃，不交给解构循环。 */
 function asPointList(history: unknown): { points: Point[]; malformed: boolean } {
   if (history === undefined) return { points: [], malformed: false }
   if (history === null || !Array.isArray(history)) return { points: [], malformed: true }
-  return { points: history as Point[], malformed: false }
+  return { points: filterPointEntries(history), malformed: false }
 }
 
 /** 过滤无效日期、未来日、去重、剔除非有限值并按日期升序。 */
@@ -498,9 +515,10 @@ function capeEstimateNote(date: string, asOf: string, scope?: string): string | 
 
 function realYieldHistory(rates: RatesFile | undefined, asOf: string): Point[] {
   if (!rates) return []
+  if (rates.real != null && !Array.isArray(rates.real)) return []
   const map = new Map<string, number>()
-  for (const [d, v] of rates.real ?? []) {
-    if (typeof d === 'string' && isValidIsoDate(d) && Number.isFinite(v) && d <= asOf) map.set(d, v)
+  for (const [d, v] of filterPointEntries(rates.real ?? [])) {
+    if (isValidIsoDate(d) && d <= asOf) map.set(d, v)
   }
   if (
     rates.latestReal
@@ -511,6 +529,95 @@ function realYieldHistory(rates: RatesFile | undefined, asOf: string): Point[] {
     map.set(rates.latestReal.date, rates.latestReal.value)
   }
   return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0])) as Point[]
+}
+
+const SOURCE_PUBLIC = '美股市场读数'
+const SOURCE_BREADTH = '美股宽度'
+const SOURCE_SLICES = '美股切片'
+const SOURCE_MACRO = '美国宏观'
+const SOURCE_RATES = '美股股债息差'
+const ALL_SOURCE_LABELS = [SOURCE_PUBLIC, SOURCE_BREADTH, SOURCE_SLICES, SOURCE_MACRO, SOURCE_RATES] as const
+
+function failSource<T>(label: string): SourceLoad<T> {
+  return { ok: false, label }
+}
+
+/** 读入后校验容器；非整对象/数组的整源判失败，并清洗脏条目。 */
+function coercePublic(result: SourceLoad<PublicFile>): SourceLoad<PublicFile> {
+  if (!result.ok) return result
+  if (!isPlainObject(result.data)) return failSource(SOURCE_PUBLIC)
+  if (result.data.series != null && !isPlainObject(result.data.series)) return failSource(SOURCE_PUBLIC)
+  return result
+}
+
+/** 数组则清洗条目；null/非数组原样保留，供 asPointList 标 malformed。 */
+function cleanOrKeepPoints(value: unknown): Point[] | undefined | null | unknown {
+  if (value === undefined) return undefined
+  if (value === null || !Array.isArray(value)) return value
+  return filterPointEntries(value)
+}
+
+function coerceBreadth(result: SourceLoad<BreadthFile>): SourceLoad<BreadthFile> {
+  if (!result.ok) return result
+  if (!isPlainObject(result.data)) return failSource(SOURCE_BREADTH)
+  if (result.data.breadth != null && !isPlainObject(result.data.breadth)) return failSource(SOURCE_BREADTH)
+  if (!result.data.breadth) return result
+  const cleaned: Record<string, Breadth> = {}
+  for (const [key, entry] of Object.entries(result.data.breadth)) {
+    // 非 spx/ndx 等条目为 null 只跳过，不拖垮整源
+    if (entry == null) continue
+    if (!isPlainObject(entry)) continue
+    const row = entry as Breadth
+    cleaned[key] = {
+      ...row,
+      history: cleanOrKeepPoints(row.history) as Breadth['history'],
+      backfill: cleanOrKeepPoints(row.backfill) as Breadth['backfill'],
+      netHighs: cleanOrKeepPoints(row.netHighs) as Breadth['netHighs'],
+      advDec: Array.isArray(row.advDec)
+        ? row.advDec.filter((item): item is NonNullable<Breadth['advDec']>[number] => Array.isArray(item))
+        : row.advDec,
+    }
+  }
+  return { ok: true, data: { ...result.data, breadth: cleaned } }
+}
+
+function coerceSlices(result: SourceLoad<SlicesFile>): SourceLoad<SlicesFile> {
+  if (!result.ok) return result
+  if (!isPlainObject(result.data)) return failSource(SOURCE_SLICES)
+  if (result.data.slices != null && !Array.isArray(result.data.slices)) return failSource(SOURCE_SLICES)
+  if (!result.data.slices) return result
+  const cleaned: Array<{ id: string; history: Point[] }> = []
+  for (const slice of result.data.slices) {
+    if (slice == null || !isPlainObject(slice)) continue
+    if (typeof slice.id !== 'string') continue
+    cleaned.push({
+      id: slice.id,
+      history: cleanOrKeepPoints(slice.history) as Point[],
+    })
+  }
+  return { ok: true, data: { ...result.data, slices: cleaned } }
+}
+
+function coerceMacro(result: SourceLoad<MacroSnapshot>): SourceLoad<MacroSnapshot> {
+  if (!result.ok) return result
+  if (!isPlainObject(result.data)) return failSource(SOURCE_MACRO)
+  if (result.data.series != null && !isPlainObject(result.data.series)) return failSource(SOURCE_MACRO)
+  return result
+}
+
+function coerceRates(result: SourceLoad<RatesFile>): SourceLoad<RatesFile> {
+  if (!result.ok) return result
+  if (!isPlainObject(result.data)) return failSource(SOURCE_RATES)
+  if (result.data.real != null && !Array.isArray(result.data.real)) return failSource(SOURCE_RATES)
+  if (result.data.rows != null && !Array.isArray(result.data.rows)) return failSource(SOURCE_RATES)
+  if (!Array.isArray(result.data.real)) return result
+  return {
+    ok: true,
+    data: {
+      ...result.data,
+      real: filterPointEntries(result.data.real) as RatesFile['real'],
+    },
+  }
 }
 
 const COPPER_GOLD_SOURCE =
@@ -545,86 +652,97 @@ function buildReadings(input: {
   const noteFailure = (label: string) => {
     if (!structuralFailures.includes(label)) structuralFailures.push(label)
   }
+  /** 逐指标隔离：抛错只置该读数为 null，并记录依赖来源。 */
+  const run = (sources: string | string[], compute: () => Reading | null): Reading | null => {
+    try {
+      return compute()
+    } catch {
+      for (const label of Array.isArray(sources) ? sources : [sources]) noteFailure(label)
+      return null
+    }
+  }
 
-  const markUsHistory = (series: UsReading | undefined, label = '美股市场读数') => {
+  const markUsHistory = (series: UsReading | undefined, label = SOURCE_PUBLIC) => {
     if (series && asPointList(series.history).malformed) noteFailure(label)
   }
   const markMacroHistory = (series: SeriesData | undefined) => {
     if (!series) return
     if (asPointList(series.history).malformed || asPointList(series.long).malformed) {
-      noteFailure('美国宏观')
+      noteFailure(SOURCE_MACRO)
     }
   }
 
   for (const key of Object.keys(s) as Array<keyof typeof s>) markUsHistory(s[key])
   if (m) for (const key of Object.keys(m) as Array<keyof typeof m>) markMacroHistory(m[key])
-  if (slices?.slices?.some(slice => asPointList(slice.history).malformed)) noteFailure('美股切片')
+  if (slices?.slices?.some(slice => slice && asPointList(slice.history).malformed)) noteFailure(SOURCE_SLICES)
   if (breadth?.breadth) {
     for (const b of Object.values(breadth.breadth)) {
+      if (!b || typeof b !== 'object') continue
       if (asPointList(b.history).malformed || asPointList(b.backfill).malformed || asPointList(b.netHighs).malformed) {
-        noteFailure('美股宽度')
+        noteFailure(SOURCE_BREADTH)
       }
     }
   }
-  if (rates && rates.real != null && !Array.isArray(rates.real)) noteFailure('美股股债息差')
 
-  out.fedAssets = fromUsSeries('fedAssets', s.fedAssets, asOf, now)
-  out.bankReserves = fromUsSeries('bankReserves', s.bankReserves, asOf, now)
-  const fedHist = asPointList(s.fedAssets?.history)
-  const tgaHist = asPointList(s.treasuryCash?.history)
-  const rrpHist = asPointList(s.overnightRrp?.history)
-  if (fedHist.malformed || tgaHist.malformed || rrpHist.malformed) noteFailure('美股市场读数')
-  out.netLiquidity = computeNetLiquidity(
-    fedHist.points,
-    tgaHist.points,
-    rrpHist.points,
-    asOf,
-    now,
-    {
-      refreshFailed: Boolean(
-        s.fedAssets?.refreshError || s.treasuryCash?.refreshError || s.overnightRrp?.refreshError,
-      ),
-      stale: inputSeriesStale(s.fedAssets, detectFreq(s.fedAssets?.frequency), asOf, now)
-        || inputSeriesStale(s.treasuryCash, detectFreq(s.treasuryCash?.frequency), asOf, now)
-        || inputSeriesStale(s.overnightRrp, detectFreq(s.overnightRrp?.frequency), asOf, now)
-        || undefined,
-    },
-  )
-
-  markMacroHistory(m?.realRate)
-  out.realRate = fromMacro('realRate', m?.realRate, asOf, 'monthly', now, {
-    source: '联邦基金利率（https://fred.stlouisfed.org/series/FEDFUNDS）− 核心 PCE 同比（https://fred.stlouisfed.org/series/PCEPILFE）',
-    note: '实际政策利率 = 联邦基金利率 − 核心 PCE 同比',
+  out.fedAssets = run(SOURCE_PUBLIC, () => fromUsSeries('fedAssets', s.fedAssets, asOf, now))
+  out.bankReserves = run(SOURCE_PUBLIC, () => fromUsSeries('bankReserves', s.bankReserves, asOf, now))
+  out.netLiquidity = run(SOURCE_PUBLIC, () => {
+    const fedHist = asPointList(s.fedAssets?.history)
+    const tgaHist = asPointList(s.treasuryCash?.history)
+    const rrpHist = asPointList(s.overnightRrp?.history)
+    if (fedHist.malformed || tgaHist.malformed || rrpHist.malformed) noteFailure(SOURCE_PUBLIC)
+    return computeNetLiquidity(
+      fedHist.points,
+      tgaHist.points,
+      rrpHist.points,
+      asOf,
+      now,
+      {
+        refreshFailed: Boolean(
+          s.fedAssets?.refreshError || s.treasuryCash?.refreshError || s.overnightRrp?.refreshError,
+        ),
+        stale: inputSeriesStale(s.fedAssets, detectFreq(s.fedAssets?.frequency), asOf, now)
+          || inputSeriesStale(s.treasuryCash, detectFreq(s.treasuryCash?.frequency), asOf, now)
+          || inputSeriesStale(s.overnightRrp, detectFreq(s.overnightRrp?.frequency), asOf, now)
+          || undefined,
+      },
+    )
   })
 
-  out.realYield10 = fromHistory('realYield10', realYieldHistory(rates, asOf), {
+  markMacroHistory(m?.realRate)
+  out.realRate = run(SOURCE_MACRO, () => fromMacro('realRate', m?.realRate, asOf, 'monthly', now, {
+    source: '联邦基金利率（https://fred.stlouisfed.org/series/FEDFUNDS）− 核心 PCE 同比（https://fred.stlouisfed.org/series/PCEPILFE）',
+    note: '实际政策利率 = 联邦基金利率 − 核心 PCE 同比',
+  }))
+
+  out.realYield10 = run(SOURCE_RATES, () => fromHistory('realYield10', realYieldHistory(rates, asOf), {
     unit: '%',
     source: 'https://fred.stlouisfed.org/series/DFII10',
     freq: 'daily',
     asOf,
     now,
-  })
+  }))
 
   out.tenYear = preferNewer(
-    fromUsSeries('tenYear', s.tenYearDaily, asOf, now),
-    fromMacro('tenYear', m?.tenYear, asOf, 'daily', now),
+    run(SOURCE_PUBLIC, () => fromUsSeries('tenYear', s.tenYearDaily, asOf, now)),
+    run(SOURCE_MACRO, () => fromMacro('tenYear', m?.tenYear, asOf, 'daily', now)),
   )
-  out.curve10y2y = fromMacro('curve10y2y', m?.curve, asOf, 'daily', now)
-  out.nfci = fromMacro('nfci', m?.nfci, asOf, 'weekly', now)
+  out.curve10y2y = run(SOURCE_MACRO, () => fromMacro('curve10y2y', m?.curve, asOf, 'daily', now))
+  out.nfci = run(SOURCE_MACRO, () => fromMacro('nfci', m?.nfci, asOf, 'weekly', now))
 
   out.hySpread = preferNewer(
-    fromUsSeries('hySpread', s.hyDaily, asOf, now),
-    fromMacro('hySpread', m?.hy, asOf, 'daily', now),
+    run(SOURCE_PUBLIC, () => fromUsSeries('hySpread', s.hyDaily, asOf, now)),
+    run(SOURCE_MACRO, () => fromMacro('hySpread', m?.hy, asOf, 'daily', now)),
   )
-  out.baaAaa = fromUsSeries('baaAaa', s.baaAaa, asOf, now)
+  out.baaAaa = run(SOURCE_PUBLIC, () => fromUsSeries('baaAaa', s.baaAaa, asOf, now))
 
   const spxBreadth = breadth?.breadth?.spx
-  out.spxAbove200 = (() => {
+  out.spxAbove200 = run(SOURCE_BREADTH, () => {
     if (!spxBreadth) return null
     const map = new Map<string, number>()
     const backfill = asPointList(spxBreadth.backfill)
     const hist = asPointList(spxBreadth.history)
-    if (backfill.malformed || hist.malformed) noteFailure('美股宽度')
+    if (backfill.malformed || hist.malformed) noteFailure(SOURCE_BREADTH)
     for (const [d, v] of [...backfill.points, ...hist.points]) {
       if (typeof d === 'string' && isValidIsoDate(d) && Number.isFinite(v) && d <= asOf) map.set(d, v)
     }
@@ -639,42 +757,43 @@ function buildReadings(input: {
       asOf,
       now,
     })
-  })()
+  })
 
-  const netHighsList = asPointList(spxBreadth?.netHighs)
-  if (spxBreadth && netHighsList.malformed) noteFailure('美股宽度')
-  out.netNewHighs = preferNewer(
-    netHighsList.points.length
-      ? fromHistory('netNewHighs', netHighsList.points, {
-        unit: '%',
-        source: spxBreadth?.source || '标普 500 净新高',
-        freq: 'daily',
-        asOf,
-        now,
-      })
-      : null,
-    spxBreadth?.highsLows && isValidIsoDate(spxBreadth.highsLows.date)
-      ? fromHistory('netNewHighs', [[spxBreadth.highsLows.date, spxBreadth.highsLows.netHighsPct]], {
-        unit: '%',
-        source: spxBreadth.source || '标普 500 净新高',
-        freq: 'daily',
-        asOf,
-        now,
-      })
-      : null,
-  )
+  out.netNewHighs = run(SOURCE_BREADTH, () => {
+    const netHighsList = asPointList(spxBreadth?.netHighs)
+    if (spxBreadth && netHighsList.malformed) noteFailure(SOURCE_BREADTH)
+    return preferNewer(
+      netHighsList.points.length
+        ? fromHistory('netNewHighs', netHighsList.points, {
+          unit: '%',
+          source: spxBreadth?.source || '标普 500 净新高',
+          freq: 'daily',
+          asOf,
+          now,
+        })
+        : null,
+      spxBreadth?.highsLows && isValidIsoDate(spxBreadth.highsLows.date)
+        ? fromHistory('netNewHighs', [[spxBreadth.highsLows.date, spxBreadth.highsLows.netHighsPct]], {
+          unit: '%',
+          source: spxBreadth.source || '标普 500 净新高',
+          freq: 'daily',
+          asOf,
+          now,
+        })
+        : null,
+    )
+  })
 
-  const spxSliceEntry = slices?.slices?.find(slice => slice.id === 'spx')
+  const spxSliceEntry = slices?.slices?.find(slice => slice?.id === 'spx')
   const spxSliceList = asPointList(spxSliceEntry?.history)
-  if (spxSliceEntry && spxSliceList.malformed) noteFailure('美股切片')
+  if (spxSliceEntry && spxSliceList.malformed) noteFailure(SOURCE_SLICES)
   const spxSlice = spxSliceList.malformed ? undefined : spxSliceList.points
-  const advRows = parseAdvDec(spxBreadth?.advDec)
-  if (!advRows.length) {
-    out.advDecLine = null
-    out.mcclellan = null
-  } else {
+
+  out.advDecLine = run([SOURCE_BREADTH, SOURCE_SLICES], () => {
+    const advRows = parseAdvDec(spxBreadth?.advDec)
+    if (!advRows.length) return null
     const metrics = buildAdvDecMetrics(spxBreadth, spxSlice, asOf, now)
-    out.advDecLine = metrics?.cumulative.length
+    return metrics?.cumulative.length
       ? fromHistory('advDecLine', metrics.cumulative, {
         unit: '',
         source: '标普 500 成分股累计涨跌线',
@@ -683,9 +802,14 @@ function buildReadings(input: {
         now,
       })
       : null
+  })
+  out.mcclellan = run([SOURCE_BREADTH, SOURCE_SLICES], () => {
+    const advRows = parseAdvDec(spxBreadth?.advDec)
+    if (!advRows.length) return null
+    const metrics = buildAdvDecMetrics(spxBreadth, spxSlice, asOf, now)
     const oscHistory = (metrics?.mcclellanSeries ?? [])
       .filter((row): row is [string, number] => row[1] !== null && Number.isFinite(row[1]))
-    out.mcclellan = oscHistory.length
+    return oscHistory.length
       ? fromHistory('mcclellan', oscHistory, {
         unit: '',
         source: '比例调整 McClellan 振荡',
@@ -694,15 +818,15 @@ function buildReadings(input: {
         now,
       })
       : null
-  }
-
-  out.spxVs200dma = spxSlice?.length ? spxVs200dma(spxSlice, asOf, now) : null
-
-  out.epsRevision = fromUsSeries('epsRevision', s.spxForwardEpsChange, asOf, now, {
-    note: epsRevisionNote(s.spxForwardEpsChange),
   })
-  out.forwardPe = fromUsSeries('forwardPe', s.spxFactSetFpe, asOf, now)
-  out.cape = (() => {
+
+  out.spxVs200dma = run(SOURCE_SLICES, () => (spxSlice?.length ? spxVs200dma(spxSlice, asOf, now) : null))
+
+  out.epsRevision = run(SOURCE_PUBLIC, () => fromUsSeries('epsRevision', s.spxForwardEpsChange, asOf, now, {
+    note: epsRevisionNote(s.spxForwardEpsChange),
+  }))
+  out.forwardPe = run(SOURCE_PUBLIC, () => fromUsSeries('forwardPe', s.spxFactSetFpe, asOf, now))
+  out.cape = run(SOURCE_PUBLIC, () => {
     const capeHist = asPointList(s.shillerCape?.history)
     const primary = fromUsSeries('cape', s.shillerCape, asOf, now, {
       note: capeHist.points.length
@@ -715,27 +839,27 @@ function buildReadings(input: {
     })
     const fallback = fromUsSeries('cape', s.spxCape, asOf, now)
     return preferNewer(primary, fallback)
-  })()
+  })
 
   out.vix = preferNewer(
-    fromUsSeries('vix', s.vixDaily, asOf, now),
-    fromMacro('vix', m?.vix, asOf, 'daily', now, { unit: '点' }),
+    run(SOURCE_PUBLIC, () => fromUsSeries('vix', s.vixDaily, asOf, now)),
+    run(SOURCE_MACRO, () => fromMacro('vix', m?.vix, asOf, 'daily', now, { unit: '点' })),
   )
-  out.fearGreed = fromUsSeries('fearGreed', s.fearGreed, asOf, now)
-  out.retailBullBear = retailBullBear(s.retailBull, s.retailBear, asOf, now)
-  out.naaim = fromUsSeries('naaim', s.naaim, asOf, now, {
+  out.fearGreed = run(SOURCE_PUBLIC, () => fromUsSeries('fearGreed', s.fearGreed, asOf, now))
+  out.retailBullBear = run(SOURCE_PUBLIC, () => retailBullBear(s.retailBull, s.retailBear, asOf, now))
+  out.naaim = run(SOURCE_PUBLIC, () => fromUsSeries('naaim', s.naaim, asOf, now, {
     note: '公开数据约滞后三个月',
-  })
-  out.marginDebtYoy = fromUsSeries('marginDebtYoy', s.finraDebtYoy, asOf, now)
-  out.managerCash = fromUsSeries('managerCash', s.managerCash, asOf, now)
+  }))
+  out.marginDebtYoy = run(SOURCE_PUBLIC, () => fromUsSeries('marginDebtYoy', s.finraDebtYoy, asOf, now))
+  out.managerCash = run(SOURCE_PUBLIC, () => fromUsSeries('managerCash', s.managerCash, asOf, now))
 
-  out.copperGold = fromUsSeries('copperGold', s.copperGold, asOf, now, {
+  out.copperGold = run(SOURCE_PUBLIC, () => fromUsSeries('copperGold', s.copperGold, asOf, now, {
     unit: '铜（美元/磅）÷ 金（美元/盎司）',
     source: COPPER_GOLD_SOURCE,
-  })
-  out.copper = (() => {
+  }))
+  out.copper = run(SOURCE_PUBLIC, () => {
     const copperList = asPointList(s.copperDaily?.history)
-    if (s.copperDaily && copperList.malformed) noteFailure('美股市场读数')
+    if (s.copperDaily && copperList.malformed) noteFailure(SOURCE_PUBLIC)
     const hist = sanitizePoints(copperList.points, asOf)
     if (!hist.length) return null
     const last = hist.at(-1)!
@@ -748,59 +872,73 @@ function buildReadings(input: {
       refreshFailed: Boolean(s.copperDaily?.refreshError),
       stale: isCopperStale(last[0], asOf, now),
     })
-  })()
+  })
 
   return { readings: out, structuralFailures }
 }
 
+function countNonNullReadings(readings: Partial<Record<ReadingKey, Reading | null>>): number {
+  return Object.values(readings).filter(r => r != null).length
+}
+
 /** 读取本站已有数据文件，计算各指标最新读数。 */
 export async function loadReadings(fetcher: typeof fetch = fetch): Promise<ReadingsResult> {
-  const [pub, breadth, slices, macro, rates] = await Promise.all([
-    loadSource<PublicFile>(FILES.public, '美股市场读数', fetcher),
-    loadSource<BreadthFile>(FILES.breadth, '美股宽度', fetcher),
-    loadSource<SlicesFile>(FILES.slices, '美股切片', fetcher),
-    loadSource<MacroSnapshot>(FILES.macro, '美国宏观', fetcher),
-    loadSource<RatesFile>(FILES.rates, '美股股债息差', fetcher),
+  const [rawPub, rawBreadth, rawSlices, rawMacro, rawRates] = await Promise.all([
+    loadSource<PublicFile>(FILES.public, SOURCE_PUBLIC, fetcher),
+    loadSource<BreadthFile>(FILES.breadth, SOURCE_BREADTH, fetcher),
+    loadSource<SlicesFile>(FILES.slices, SOURCE_SLICES, fetcher),
+    loadSource<MacroSnapshot>(FILES.macro, SOURCE_MACRO, fetcher),
+    loadSource<RatesFile>(FILES.rates, SOURCE_RATES, fetcher),
   ])
+
+  const pub = coercePublic(rawPub)
+  const breadth = coerceBreadth(rawBreadth)
+  const slices = coerceSlices(rawSlices)
+  const macro = coerceMacro(rawMacro)
+  const rates = coerceRates(rawRates)
 
   const failedSources = [pub, breadth, slices, macro, rates]
     .flatMap(result => (result.ok ? [] : [result.label]))
 
-  if (failedSources.length === 5) {
+  if (failedSources.length === ALL_SOURCE_LABELS.length) {
     throw new Error(`${failedSources.join('、')}加载失败`)
   }
 
-  const asOf = nyDate()
-  let readings: Partial<Record<ReadingKey, Reading | null>> = {}
-  let structuralFailures: string[] = []
-  try {
-    const built = buildReadings({
-      public: pub.ok ? pub.data : undefined,
-      breadth: breadth.ok ? breadth.data : undefined,
-      slices: slices.ok ? slices.data : undefined,
-      macro: macro.ok ? macro.data : undefined,
-      rates: rates.ok ? rates.data : undefined,
-      asOf,
-    })
-    readings = built.readings
-    structuralFailures = built.structuralFailures
-  } catch {
-    // 单源结构异常不应拖垮整页；已在 helpers 内尽量隔离，此处兜底
-    for (const label of ['美股市场读数', '美股宽度', '美股切片', '美国宏观', '美股股债息差'] as const) {
-      const loaded = [pub, breadth, slices, macro, rates]
-      const idx = ['美股市场读数', '美股宽度', '美股切片', '美国宏观', '美股股债息差'].indexOf(label)
-      if (loaded[idx]?.ok && !structuralFailures.includes(label)) structuralFailures.push(label)
-    }
-  }
-  for (const label of structuralFailures) {
+  // today 仅作过滤未来观测的上限；快照 asOf 取自成功读数
+  const today = nyDate()
+  const built = buildReadings({
+    public: pub.ok ? pub.data : undefined,
+    breadth: breadth.ok ? breadth.data : undefined,
+    slices: slices.ok ? slices.data : undefined,
+    macro: macro.ok ? macro.data : undefined,
+    rates: rates.ok ? rates.data : undefined,
+    asOf: today,
+  })
+  for (const label of built.structuralFailures) {
     if (!failedSources.includes(label)) failedSources.push(label)
   }
+
+  const readings = built.readings
+  const nonNull = countNonNullReadings(readings)
+  if (nonNull === 0 || failedSources.length === ALL_SOURCE_LABELS.length) {
+    throw new Error(
+      failedSources.length
+        ? `${failedSources.join('、')}加载失败`
+        : '读数计算失败',
+    )
+  }
+
   const dates = Object.values(readings)
-    .flatMap(r => (r?.date && r.date <= asOf ? [r.date] : []))
+    .flatMap(r => (r?.date && r.date <= today ? [r.date] : []))
     .sort()
+  const snapshotAsOf = dates.at(-1)
+  if (!snapshotAsOf) {
+    throw new Error('读数计算失败')
+  }
+
   return {
     readings,
-    asOf: dates.at(-1) ?? asOf,
+    asOf: snapshotAsOf,
     ...(failedSources.length ? { failedSources } : {}),
   }
 }
