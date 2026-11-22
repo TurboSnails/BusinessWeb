@@ -6,7 +6,7 @@ import { isCopperStale } from '../us-market/copper'
 import { percentileOf, spanYears, withinYears } from '../us-market/explain'
 import type { Breadth, Point, Reading as UsReading } from '../us-market/model'
 import { nyDate } from '../us-market/model'
-import { nyseSessionsOnOrBefore } from '../us-market/tradingCalendar'
+import { isNyseSession, nyseSessionsOnOrBefore } from '../us-market/tradingCalendar'
 import type { MacroSnapshot, SeriesData } from '../macro/indicators'
 import type { Reading, ReadingKey } from './types'
 
@@ -126,14 +126,35 @@ function isStale(date: string, freq: Freq, asOf: string, now = new Date()): bool
   return calendarAge(date, asOf) > 45
 }
 
-/** 过滤未来日、去重、剔除非有限值并按日期升序。 */
-export function sanitizePoints(history: readonly Point[] | undefined, asOf: string): Point[] {
+/** YYYY-MM-DD 且日历合法（拒 `2026-10-xx`、`2026-02-30`）。 */
+export function isValidIsoDate(date: string): boolean {
+  if (typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return false
+  const ms = Date.parse(`${date}T12:00:00Z`)
+  if (!Number.isFinite(ms)) return false
+  return new Date(ms).toISOString().slice(0, 10) === date
+}
+
+function shiftIsoDate(iso: string, deltaDays: number): string {
+  const d = new Date(`${iso}T12:00:00Z`)
+  d.setUTCDate(d.getUTCDate() + deltaDays)
+  return d.toISOString().slice(0, 10)
+}
+
+/** 观测数组：null / 非数组视为结构异常。 */
+function asPointList(history: unknown): { points: Point[]; malformed: boolean } {
+  if (history === undefined) return { points: [], malformed: false }
+  if (history === null || !Array.isArray(history)) return { points: [], malformed: true }
+  return { points: history as Point[], malformed: false }
+}
+
+/** 过滤无效日期、未来日、去重、剔除非有限值并按日期升序。 */
+export function sanitizePoints(history: readonly Point[] | undefined | null, asOf: string): Point[] {
   if (!history?.length) return []
   const map = new Map<string, number>()
   for (const point of history) {
     const date = point?.[0]
     const value = point?.[1]
-    if (typeof date !== 'string' || !date || date > asOf) continue
+    if (typeof date !== 'string' || !isValidIsoDate(date) || date > asOf) continue
     if (!Number.isFinite(value)) continue
     map.set(date, value)
   }
@@ -150,9 +171,13 @@ export function weeklyLastObservations(history: readonly Point[]): Point[] {
 function decadePercentile(history: readonly Point[], value: number): { percentile: number; percentileYears: number } | undefined {
   const weekly = weeklyLastObservations(history)
   const window = withinYears(weekly, 10)
-  if (window.length < 2) return undefined
+  // 周采样后至少 52 点，且覆盖所跨周数的 60% 以上
+  if (window.length < 52) return undefined
   const years = spanYears(window)
   if (years < 5) return undefined
+  const spanMs = Date.parse(window.at(-1)![0]) - Date.parse(window[0][0])
+  const spannedWeeks = spanMs / (7 * DAY)
+  if (!(spannedWeeks > 0) || window.length / spannedWeeks < 0.6) return undefined
   return {
     percentile: percentileOf(window.map(([, v]) => v), value),
     percentileYears: Math.round(Math.min(years, 10) * 10) / 10,
@@ -261,18 +286,19 @@ function fromUsSeries(
   series: UsReading | undefined,
   asOf: string,
   now?: Date,
-  extras?: { label?: string; unit?: string; note?: string; stale?: boolean },
+  extras?: { label?: string; unit?: string; source?: string; note?: string; stale?: boolean },
 ): Reading | null {
-  if (!series?.history?.length) return null
-  return fromHistory(key, series.history, {
-    unit: extras?.unit ?? series.unit ?? '',
-    source: series.source || series.name || READING_LABELS[key],
-    freq: detectFreq(series.frequency),
+  const { points, malformed } = asPointList(series?.history)
+  if (malformed || !points.length) return null
+  return fromHistory(key, points, {
+    unit: extras?.unit ?? series?.unit ?? '',
+    source: extras?.source ?? (series?.source || series?.name || READING_LABELS[key]),
+    freq: detectFreq(series?.frequency),
     asOf,
     now,
     label: extras?.label,
     note: extras?.note,
-    refreshFailed: Boolean(series.refreshError),
+    refreshFailed: Boolean(series?.refreshError),
     stale: extras?.stale,
   })
 }
@@ -283,12 +309,16 @@ function fromMacro(
   asOf: string,
   freq: Freq,
   now?: Date,
-  extras?: { source?: string; note?: string },
+  extras?: { source?: string; note?: string; unit?: string },
 ): Reading | null {
   if (!series?.latest || !Number.isFinite(series.latest.value)) return null
+  if (!isValidIsoDate(series.latest.date)) return null
+  const hist = asPointList(series.history)
+  const long = asPointList(series.long)
+  if (hist.malformed || long.malformed) return null
   const history: Point[] = [
-    ...(series.long ?? []),
-    ...series.history,
+    ...long.points,
+    ...hist.points,
     [series.latest.date, series.latest.value],
   ]
   const source = extras?.source
@@ -296,7 +326,7 @@ function fromMacro(
       ? `https://fred.stlouisfed.org/series/${series.fred}`
       : series.source || READING_LABELS[key])
   return fromHistory(key, history, {
-    unit: series.unit || '',
+    unit: extras?.unit ?? (series.unit || ''),
     source,
     freq,
     asOf,
@@ -318,9 +348,16 @@ function isUtcWednesday(date: string): boolean {
   return new Date(`${date}T12:00:00Z`).getUTCDay() === 3
 }
 
+const RRP_LOOKBACK_DAYS = 7
+
+function mmDd(iso: string): string {
+  return iso.slice(5)
+}
+
 /**
  * 美联储总资产 − TGA − 隔夜逆回购（市场常用近似）。
- * 按周三对齐：总资产为周三余额、TGA 为截至周三的周均值、逆回购取同一周三或之前最近日。
+ * 按周三对齐：总资产为周三余额、TGA 为截至周三的周均值、
+ * 逆回购取同一周三或之前最近日，且不得超过 7 天；超出则该周不算。
  */
 export function computeNetLiquidity(
   fedAssets: readonly Point[],
@@ -328,12 +365,14 @@ export function computeNetLiquidity(
   rrp: readonly Point[],
   asOf: string,
   now?: Date,
+  flags?: { refreshFailed?: boolean; stale?: boolean },
 ): Reading | null {
   const assetsH = sanitizePoints(fedAssets, asOf)
   const tgaH = sanitizePoints(tga, asOf)
   const rrpH = sanitizePoints(rrp, asOf)
   if (!assetsH.length || !tgaH.length || !rrpH.length) return null
   const history: Point[] = []
+  let lastRrpDate: string | undefined
   for (const [date] of assetsH) {
     if (!isUtcWednesday(date)) continue
     const assets = pointOnOrBefore(assetsH, date)
@@ -341,28 +380,42 @@ export function computeNetLiquidity(
     const overnight = pointOnOrBefore(rrpH, date)
     if (!assets || !cash || !overnight) continue
     if (assets[0] !== date || cash[0] !== date) continue
+    const rrpAge = (Date.parse(date) - Date.parse(overnight[0])) / DAY
+    if (!(rrpAge >= 0) || rrpAge > RRP_LOOKBACK_DAYS) continue
     const value = assets[1] - cash[1] - overnight[1]
     if (!Number.isFinite(value)) continue
     history.push([date, Math.round(value * 1000) / 1000])
+    lastRrpDate = overnight[0]
   }
-  if (!history.length) return null
+  if (!history.length || !lastRrpDate) return null
   return fromHistory('netLiquidity', history, {
     unit: '十亿美元',
     source: '市场常用近似：美联储总资产 − TGA − 隔夜逆回购',
     freq: 'weekly',
     asOf,
     now,
-    note: '周三对齐：美联储总资产为周三余额，TGA 为截至周三的周均值，逆回购取同一周三或之前最近日',
+    note: `周三对齐：美联储总资产为周三余额，TGA 为截至周三的周均值，逆回购取同一周三或之前最近日（逆回购取 ${mmDd(lastRrpDate)}）`,
+    refreshFailed: flags?.refreshFailed,
+    stale: flags?.stale,
   })
 }
 
-/** 自序列末向前截取连续日线段（相邻间隔超过 5 个日历日则断开）。 */
+/** 相邻两点之间若漏掉任一 NYSE 交易日，则视为日线段断开。 */
+function hasMissingNyseSession(prev: string, curr: string): boolean {
+  let cursor = shiftIsoDate(prev, 1)
+  while (cursor < curr) {
+    if (isNyseSession(cursor)) return true
+    cursor = shiftIsoDate(cursor, 1)
+  }
+  return false
+}
+
+/** 自序列末向前截取连续日线段（漏一个 NYSE 交易日即断开）。 */
 export function continuousDailySegment(history: readonly Point[]): Point[] {
   if (!history.length) return []
   let start = 0
   for (let i = history.length - 1; i > 0; i -= 1) {
-    const gap = (Date.parse(history[i][0]) - Date.parse(history[i - 1][0])) / DAY
-    if (gap > 5) {
+    if (hasMissingNyseSession(history[i - 1][0], history[i][0])) {
       start = i
       break
     }
@@ -407,9 +460,11 @@ function retailBullBear(
   asOf: string,
   now?: Date,
 ): Reading | null {
-  if (!bull?.history?.length || !bear?.history?.length) return null
-  const bullH = sanitizePoints(bull.history, asOf)
-  const bearMap = new Map(sanitizePoints(bear.history, asOf))
+  const bullList = asPointList(bull?.history)
+  const bearList = asPointList(bear?.history)
+  if (bullList.malformed || bearList.malformed || !bullList.points.length || !bearList.points.length) return null
+  const bullH = sanitizePoints(bullList.points, asOf)
+  const bearMap = new Map(sanitizePoints(bearList.points, asOf))
   const history: Point[] = []
   for (const [date, value] of bullH) {
     const b = bearMap.get(date)
@@ -418,11 +473,11 @@ function retailBullBear(
   }
   return fromHistory('retailBullBear', history, {
     unit: '个百分点',
-    source: bull.source || 'AAII 散户情绪',
-    freq: detectFreq(bull.frequency),
+    source: bull?.source || 'AAII 散户情绪',
+    freq: detectFreq(bull?.frequency),
     asOf,
     now,
-    refreshFailed: Boolean(bull.refreshError || bear.refreshError),
+    refreshFailed: Boolean(bull?.refreshError || bear?.refreshError),
   })
 }
 
@@ -445,12 +500,32 @@ function realYieldHistory(rates: RatesFile | undefined, asOf: string): Point[] {
   if (!rates) return []
   const map = new Map<string, number>()
   for (const [d, v] of rates.real ?? []) {
-    if (typeof d === 'string' && Number.isFinite(v) && d <= asOf) map.set(d, v)
+    if (typeof d === 'string' && isValidIsoDate(d) && Number.isFinite(v) && d <= asOf) map.set(d, v)
   }
-  if (rates.latestReal && rates.latestReal.date <= asOf && Number.isFinite(rates.latestReal.value)) {
+  if (
+    rates.latestReal
+    && isValidIsoDate(rates.latestReal.date)
+    && rates.latestReal.date <= asOf
+    && Number.isFinite(rates.latestReal.value)
+  ) {
     map.set(rates.latestReal.date, rates.latestReal.value)
   }
   return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0])) as Point[]
+}
+
+const COPPER_GOLD_SOURCE =
+  'https://finance.yahoo.com/quote/HG=F/ · https://finance.yahoo.com/quote/GC=F/'
+
+function inputSeriesStale(
+  series: UsReading | undefined,
+  freq: Freq,
+  asOf: string,
+  now?: Date,
+): boolean {
+  const points = sanitizePoints(series?.history, asOf)
+  const last = points.at(-1)
+  if (!last) return false
+  return isStale(last[0], freq, asOf, now)
 }
 
 function buildReadings(input: {
@@ -461,22 +536,62 @@ function buildReadings(input: {
   rates?: RatesFile
   asOf: string
   now?: Date
-}): Partial<Record<ReadingKey, Reading | null>> {
+}): { readings: Partial<Record<ReadingKey, Reading | null>>; structuralFailures: string[] } {
   const { public: pub, breadth, slices, macro, rates, asOf, now } = input
   const s = pub?.series ?? {}
   const m = macro?.series
   const out: Partial<Record<ReadingKey, Reading | null>> = {}
+  const structuralFailures: string[] = []
+  const noteFailure = (label: string) => {
+    if (!structuralFailures.includes(label)) structuralFailures.push(label)
+  }
+
+  const markUsHistory = (series: UsReading | undefined, label = '美股市场读数') => {
+    if (series && asPointList(series.history).malformed) noteFailure(label)
+  }
+  const markMacroHistory = (series: SeriesData | undefined) => {
+    if (!series) return
+    if (asPointList(series.history).malformed || asPointList(series.long).malformed) {
+      noteFailure('美国宏观')
+    }
+  }
+
+  for (const key of Object.keys(s) as Array<keyof typeof s>) markUsHistory(s[key])
+  if (m) for (const key of Object.keys(m) as Array<keyof typeof m>) markMacroHistory(m[key])
+  if (slices?.slices?.some(slice => asPointList(slice.history).malformed)) noteFailure('美股切片')
+  if (breadth?.breadth) {
+    for (const b of Object.values(breadth.breadth)) {
+      if (asPointList(b.history).malformed || asPointList(b.backfill).malformed || asPointList(b.netHighs).malformed) {
+        noteFailure('美股宽度')
+      }
+    }
+  }
+  if (rates && rates.real != null && !Array.isArray(rates.real)) noteFailure('美股股债息差')
 
   out.fedAssets = fromUsSeries('fedAssets', s.fedAssets, asOf, now)
   out.bankReserves = fromUsSeries('bankReserves', s.bankReserves, asOf, now)
+  const fedHist = asPointList(s.fedAssets?.history)
+  const tgaHist = asPointList(s.treasuryCash?.history)
+  const rrpHist = asPointList(s.overnightRrp?.history)
+  if (fedHist.malformed || tgaHist.malformed || rrpHist.malformed) noteFailure('美股市场读数')
   out.netLiquidity = computeNetLiquidity(
-    s.fedAssets?.history ?? [],
-    s.treasuryCash?.history ?? [],
-    s.overnightRrp?.history ?? [],
+    fedHist.points,
+    tgaHist.points,
+    rrpHist.points,
     asOf,
     now,
+    {
+      refreshFailed: Boolean(
+        s.fedAssets?.refreshError || s.treasuryCash?.refreshError || s.overnightRrp?.refreshError,
+      ),
+      stale: inputSeriesStale(s.fedAssets, detectFreq(s.fedAssets?.frequency), asOf, now)
+        || inputSeriesStale(s.treasuryCash, detectFreq(s.treasuryCash?.frequency), asOf, now)
+        || inputSeriesStale(s.overnightRrp, detectFreq(s.overnightRrp?.frequency), asOf, now)
+        || undefined,
+    },
   )
 
+  markMacroHistory(m?.realRate)
   out.realRate = fromMacro('realRate', m?.realRate, asOf, 'monthly', now, {
     source: '联邦基金利率（https://fred.stlouisfed.org/series/FEDFUNDS）− 核心 PCE 同比（https://fred.stlouisfed.org/series/PCEPILFE）',
     note: '实际政策利率 = 联邦基金利率 − 核心 PCE 同比',
@@ -507,8 +622,14 @@ function buildReadings(input: {
   out.spxAbove200 = (() => {
     if (!spxBreadth) return null
     const map = new Map<string, number>()
-    for (const [d, v] of [...(spxBreadth.backfill ?? []), ...(spxBreadth.history ?? []), [spxBreadth.date, spxBreadth.above200] as Point]) {
-      if (typeof d === 'string' && Number.isFinite(v) && d <= asOf) map.set(d, v)
+    const backfill = asPointList(spxBreadth.backfill)
+    const hist = asPointList(spxBreadth.history)
+    if (backfill.malformed || hist.malformed) noteFailure('美股宽度')
+    for (const [d, v] of [...backfill.points, ...hist.points]) {
+      if (typeof d === 'string' && isValidIsoDate(d) && Number.isFinite(v) && d <= asOf) map.set(d, v)
+    }
+    if (isValidIsoDate(spxBreadth.date) && Number.isFinite(spxBreadth.above200) && spxBreadth.date <= asOf) {
+      map.set(spxBreadth.date, spxBreadth.above200)
     }
     const history = [...map.entries()].sort((a, b) => a[0].localeCompare(b[0])) as Point[]
     return fromHistory('spxAbove200', history, {
@@ -520,17 +641,19 @@ function buildReadings(input: {
     })
   })()
 
+  const netHighsList = asPointList(spxBreadth?.netHighs)
+  if (spxBreadth && netHighsList.malformed) noteFailure('美股宽度')
   out.netNewHighs = preferNewer(
-    spxBreadth?.netHighs?.length
-      ? fromHistory('netNewHighs', spxBreadth.netHighs, {
+    netHighsList.points.length
+      ? fromHistory('netNewHighs', netHighsList.points, {
         unit: '%',
-        source: spxBreadth.source || '标普 500 净新高',
+        source: spxBreadth?.source || '标普 500 净新高',
         freq: 'daily',
         asOf,
         now,
       })
       : null,
-    spxBreadth?.highsLows
+    spxBreadth?.highsLows && isValidIsoDate(spxBreadth.highsLows.date)
       ? fromHistory('netNewHighs', [[spxBreadth.highsLows.date, spxBreadth.highsLows.netHighsPct]], {
         unit: '%',
         source: spxBreadth.source || '标普 500 净新高',
@@ -541,7 +664,10 @@ function buildReadings(input: {
       : null,
   )
 
-  const spxSlice = slices?.slices?.find(slice => slice.id === 'spx')?.history
+  const spxSliceEntry = slices?.slices?.find(slice => slice.id === 'spx')
+  const spxSliceList = asPointList(spxSliceEntry?.history)
+  if (spxSliceEntry && spxSliceList.malformed) noteFailure('美股切片')
+  const spxSlice = spxSliceList.malformed ? undefined : spxSliceList.points
   const advRows = parseAdvDec(spxBreadth?.advDec)
   if (!advRows.length) {
     out.advDecLine = null
@@ -570,19 +696,20 @@ function buildReadings(input: {
       : null
   }
 
-  out.spxVs200dma = spxSlice ? spxVs200dma(spxSlice, asOf, now) : null
+  out.spxVs200dma = spxSlice?.length ? spxVs200dma(spxSlice, asOf, now) : null
 
   out.epsRevision = fromUsSeries('epsRevision', s.spxForwardEpsChange, asOf, now, {
     note: epsRevisionNote(s.spxForwardEpsChange),
   })
   out.forwardPe = fromUsSeries('forwardPe', s.spxFactSetFpe, asOf, now)
   out.cape = (() => {
+    const capeHist = asPointList(s.shillerCape?.history)
     const primary = fromUsSeries('cape', s.shillerCape, asOf, now, {
-      note: s.shillerCape?.history?.length
+      note: capeHist.points.length
         ? capeEstimateNote(
-          sanitizePoints(s.shillerCape.history, asOf).at(-1)?.[0] ?? '',
+          sanitizePoints(capeHist.points, asOf).at(-1)?.[0] ?? '',
           asOf,
-          s.shillerCape.scope,
+          s.shillerCape?.scope,
         )
         : undefined,
     })
@@ -592,7 +719,7 @@ function buildReadings(input: {
 
   out.vix = preferNewer(
     fromUsSeries('vix', s.vixDaily, asOf, now),
-    fromMacro('vix', m?.vix, asOf, 'daily', now),
+    fromMacro('vix', m?.vix, asOf, 'daily', now, { unit: '点' }),
   )
   out.fearGreed = fromUsSeries('fearGreed', s.fearGreed, asOf, now)
   out.retailBullBear = retailBullBear(s.retailBull, s.retailBear, asOf, now)
@@ -604,9 +731,12 @@ function buildReadings(input: {
 
   out.copperGold = fromUsSeries('copperGold', s.copperGold, asOf, now, {
     unit: '铜（美元/磅）÷ 金（美元/盎司）',
+    source: COPPER_GOLD_SOURCE,
   })
   out.copper = (() => {
-    const hist = sanitizePoints(s.copperDaily?.history, asOf)
+    const copperList = asPointList(s.copperDaily?.history)
+    if (s.copperDaily && copperList.malformed) noteFailure('美股市场读数')
+    const hist = sanitizePoints(copperList.points, asOf)
     if (!hist.length) return null
     const last = hist.at(-1)!
     return fromHistory('copper', hist, {
@@ -620,7 +750,7 @@ function buildReadings(input: {
     })
   })()
 
-  return out
+  return { readings: out, structuralFailures }
 }
 
 /** 读取本站已有数据文件，计算各指标最新读数。 */
@@ -641,14 +771,30 @@ export async function loadReadings(fetcher: typeof fetch = fetch): Promise<Readi
   }
 
   const asOf = nyDate()
-  const readings = buildReadings({
-    public: pub.ok ? pub.data : undefined,
-    breadth: breadth.ok ? breadth.data : undefined,
-    slices: slices.ok ? slices.data : undefined,
-    macro: macro.ok ? macro.data : undefined,
-    rates: rates.ok ? rates.data : undefined,
-    asOf,
-  })
+  let readings: Partial<Record<ReadingKey, Reading | null>> = {}
+  let structuralFailures: string[] = []
+  try {
+    const built = buildReadings({
+      public: pub.ok ? pub.data : undefined,
+      breadth: breadth.ok ? breadth.data : undefined,
+      slices: slices.ok ? slices.data : undefined,
+      macro: macro.ok ? macro.data : undefined,
+      rates: rates.ok ? rates.data : undefined,
+      asOf,
+    })
+    readings = built.readings
+    structuralFailures = built.structuralFailures
+  } catch {
+    // 单源结构异常不应拖垮整页；已在 helpers 内尽量隔离，此处兜底
+    for (const label of ['美股市场读数', '美股宽度', '美股切片', '美国宏观', '美股股债息差'] as const) {
+      const loaded = [pub, breadth, slices, macro, rates]
+      const idx = ['美股市场读数', '美股宽度', '美股切片', '美国宏观', '美股股债息差'].indexOf(label)
+      if (loaded[idx]?.ok && !structuralFailures.includes(label)) structuralFailures.push(label)
+    }
+  }
+  for (const label of structuralFailures) {
+    if (!failedSources.includes(label)) failedSources.push(label)
+  }
   const dates = Object.values(readings)
     .flatMap(r => (r?.date && r.date <= asOf ? [r.date] : []))
     .sort()

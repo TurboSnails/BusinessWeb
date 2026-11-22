@@ -72,6 +72,9 @@ describe('MASTERS', () => {
     expect(masterBySlug('grantham')?.ideas[0]).toContain('在他统计的发达国家股市样本内')
     expect(indicator('kostolany', '本人比喻：主人是经济').howToRead).toContain('主人是经济发展')
     expect(indicator('kostolany', '本站配套：企业盈利预期').evidence).toBe('unverified')
+    expect(indicator('dalio', '现金的实际回报').readings).toBeUndefined()
+    expect(indicator('dalio', '现金的实际回报').proxyReadings).toEqual(['realRate'])
+    expect(indicator('dalio', '现金的实际回报').proxyNote).toMatch(/间接关联/)
   })
 
   it('九位大师都有对应的研究正文', () => {

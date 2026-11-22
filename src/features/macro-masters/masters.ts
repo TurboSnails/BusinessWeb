@@ -168,7 +168,8 @@ export const MASTERS: Master[] = [
       {
         name: '现金的实际回报',
         howToRead: '他在 2020 年说“现金是垃圾”，背景是印钞和实际回报；研究没有找到他给出的实际利率阈值。',
-        readings: ['realRate'],
+        proxyReadings: ['realRate'],
+        proxyNote: '研究文档只支持间接关联：他谈的是现金的实际回报，本站是联邦基金利率减核心 PCE 同比。',
         evidence: 'quote',
       },
     ],

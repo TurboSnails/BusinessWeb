@@ -21,6 +21,9 @@ export default function MacroMasters(): JSX.Element {
   const readings = useReadings()
   const loading = readings.state === 'loading'
   const map = readings.state === 'ok' ? readings.readings : {}
+  const failedSources = readings.state === 'ok' && Array.isArray(readings.failedSources)
+    ? readings.failedSources
+    : []
 
   return (
     <Page className="mm-overview">
@@ -52,6 +55,9 @@ export default function MacroMasters(): JSX.Element {
         <p className="mm-overview__compare-lead">按主题列出本站当前读数，以及哪几位大师的框架里会看它。</p>
         {readings.state === 'error' && (
           <p className="mm-overview__error" role="alert">读数加载失败：{readings.message}</p>
+        )}
+        {failedSources.length > 0 && (
+          <p className="mm-overview__error" role="alert">部分数据来源暂时不可用，其余来源的读数仍保留显示。</p>
         )}
         <TableWrap label="指标对照表" stickyFirst className="mm-overview__table-wrap">
           <table className="ui-table mm-overview__table">

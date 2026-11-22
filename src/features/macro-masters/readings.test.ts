@@ -39,7 +39,7 @@ function fixtureFiles(overrides: Record<string, unknown> = {}): Record<string, u
         bankReserves: series([['2026-11-11', 2900], ['2026-11-18', 2950]], { unit: '十亿美元', frequency: '周频' }),
         tenYearDaily: series([['2026-10-20', 4.9], ['2026-11-19', 5.0]], { unit: '%', frequency: '日频' }),
         hyDaily: series([['2026-10-20', 340], ['2026-11-19', 352]], { unit: 'bp', frequency: '日频' }),
-        baaAaa: series([['2016-01-01', 1.2], ...decadeMonthly('baa'), ['2026-10-01', 0.47]], { unit: '个百分点', frequency: '月频' }),
+        baaAaa: series([['2016-01-01', 1.2], ...decadeWeekly('baa'), ['2026-10-01', 0.47]], { unit: '个百分点', frequency: '周频' }),
         fearGreed: series([['2026-10-20', 40], ['2026-11-20', 10]], { unit: '分', frequency: '日频' }),
         vixDaily: series([['2026-10-20', 18], ['2026-11-20', 30]], { unit: '点', frequency: '日频' }),
         retailBull: series([['2026-10-21', 35], ['2026-11-18', 33]], { unit: '%', frequency: '周频' }),
@@ -114,6 +114,19 @@ function decadeMonthly(seed: string, start = 1, end = 2): [string, number][] {
   return out
 }
 
+/** 近十年周采样（满足 ≥52 点且覆盖率 ≥60% 的分位门槛）。 */
+function decadeWeekly(seed: string, start = 1, end = 2): [string, number][] {
+  const out: [string, number][] = []
+  const begin = Date.parse('2016-01-01T12:00:00Z')
+  const stop = Date.parse('2026-10-01T12:00:00Z')
+  for (let t = begin, i = 0; t <= stop; t += 7 * DAY, i += 1) {
+    const iso = new Date(t).toISOString().slice(0, 10)
+    const v = start + ((end - start) * i) / 560 + (seed.length % 3) * 0.01
+    out.push([iso, Math.round(v * 100) / 100])
+  }
+  return out
+}
+
 function dailySpx(opts?: { mixWeekly?: boolean }): [string, number][] {
   const out: [string, number][] = []
   const start = Date.parse('2016-01-04')
@@ -158,13 +171,15 @@ describe('READING_LABELS / themes', () => {
 })
 
 describe('sanitize / weekly / direction helpers', () => {
-  it('过滤未来日、去重并排序', () => {
+  it('过滤未来日、无效日期、去重并排序', () => {
     expect(sanitizePoints([
       ['2026-11-20', 1],
       ['2026-12-01', 9],
       ['2026-11-20', 2],
       ['2026-11-18', Number.NaN],
       ['2026-11-19', 3],
+      ['2026-10-xx', 3.5],
+      ['2026-02-30', 1],
     ], '2026-11-22')).toEqual([
       ['2026-11-19', 3],
       ['2026-11-20', 2],
@@ -193,7 +208,7 @@ describe('sanitize / weekly / direction helpers', () => {
 })
 
 describe('computeNetLiquidity', () => {
-  it('按周三对齐，逆回购取同日或之前最近值，并写明近似口径', () => {
+  it('按周三对齐，逆回购取同日或之前最近值，并写明实际逆回购日', () => {
     const fed = [['2026-11-11', 1000], ['2026-11-18', 1100]] as [string, number][]
     const tga = [['2026-11-11', 200], ['2026-11-18', 250]] as [string, number][]
     const rrp = [['2026-11-10', 50], ['2026-11-18', 40]] as [string, number][]
@@ -206,6 +221,7 @@ describe('computeNetLiquidity', () => {
     })
     expect(reading?.source).toContain('市场常用近似')
     expect(reading?.note).toMatch(/周三对齐/)
+    expect(reading?.note).toMatch(/逆回购取 11-18/)
   })
 
   it('非周三资产日跳过；三者对不齐时返回 null', () => {
@@ -215,17 +231,48 @@ describe('computeNetLiquidity', () => {
     expect(computeNetLiquidity(fed, tga, rrp, '2026-11-20')?.date).toBe('2026-11-18')
     expect(computeNetLiquidity([['2026-11-18', 1]], [], [['2026-11-18', 1]], '2026-11-20')).toBeNull()
   })
+
+  it('逆回购超过 7 天不回填：WALCL/TGA 到 11-18、RRP 停在 10-21 时最新周不能标 11-18', () => {
+    const fed = [
+      ['2026-10-14', 6700], ['2026-10-21', 6710], ['2026-10-28', 6720],
+      ['2026-11-04', 6730], ['2026-11-11', 6735], ['2026-11-18', 6741.452],
+    ] as [string, number][]
+    const tga = [
+      ['2026-10-14', 900], ['2026-10-21', 910], ['2026-10-28', 920],
+      ['2026-11-04', 930], ['2026-11-11', 940], ['2026-11-18', 916.613],
+    ] as [string, number][]
+    const rrp = [['2026-10-21', 70]] as [string, number][]
+    const reading = computeNetLiquidity(fed, tga, rrp, '2026-11-22', new Date('2026-11-22T20:00:00Z'))
+    expect(reading).not.toBeNull()
+    expect(reading!.date).not.toBe('2026-11-18')
+    // 10-28 相对 RRP 10-21 刚好 7 天，仍可算；11-04 起超限
+    expect(reading!.date).toBe('2026-10-28')
+    expect(reading!.value).toBe(6720 - 920 - 70)
+    expect(reading!.note).toMatch(/逆回购取 10-21/)
+    expect(reading!.stale).toBe(true)
+  })
+
+  it('输入带 refreshError 时净流动性标 refreshFailed', () => {
+    const fed = [['2026-11-18', 1100]] as [string, number][]
+    const tga = [['2026-11-18', 250]] as [string, number][]
+    const rrp = [['2026-11-18', 40]] as [string, number][]
+    const reading = computeNetLiquidity(fed, tga, rrp, '2026-11-20', undefined, { refreshFailed: true })
+    expect(reading?.refreshFailed).toBe(true)
+  })
 })
 
 describe('continuousDailySegment / spxVs200dma', () => {
-  it('只保留末段连续日线', () => {
+  it('只保留末段连续日线；漏一个交易日即断开', () => {
     const mixed = dailySpx({ mixWeekly: true })
     const segment = continuousDailySegment(mixed)
-    expect(segment.length).toBeGreaterThanOrEqual(220)
+    expect(segment.length).toBeGreaterThanOrEqual(200)
     expect(segment.length).toBeLessThan(mixed.length)
-    for (let i = 1; i < segment.length; i += 1) {
-      expect((Date.parse(segment[i][0]) - Date.parse(segment[i - 1][0])) / DAY).toBeLessThanOrEqual(5)
-    }
+
+    // 2026-11-16(一)…11-18(三) 连续，抽掉 11-17 后末段从 11-18 起
+    const withGap: [string, number][] = [
+      ['2026-11-12', 1], ['2026-11-13', 2], ['2026-11-16', 3], ['2026-11-18', 4],
+    ]
+    expect(continuousDailySegment(withGap)).toEqual([['2026-11-18', 4]])
   })
 })
 
@@ -289,7 +336,7 @@ describe('loadReadings', () => {
     expect(readings.spxVs200dma?.percentile).toBeUndefined()
   })
 
-  it('同口径多来源取日期更新者；净新高亦然', async () => {
+  it('同口径多来源取日期更新者；净新高亦然；VIX 备用来源单位为点', async () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
     const files = fixtureFiles({
@@ -320,11 +367,12 @@ describe('loadReadings', () => {
     expect(readings.tenYear?.value).toBe(5.04)
     expect(readings.tenYear?.date).toBe('2026-11-19')
     expect(readings.vix?.value).toBe(28)
+    expect(readings.vix?.unit).toBe('点')
     expect(readings.netNewHighs?.value).toBe(-5.2)
     expect(readings.netNewHighs?.date).toBe('2026-11-20')
   })
 
-  it('过滤未来观测；refreshError 标记 refreshFailed；铜金比单位与铜时效', async () => {
+  it('过滤未来观测；refreshError 标记 refreshFailed；铜金比单位/双来源与铜时效', async () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
     const files = fixtureFiles({
@@ -338,7 +386,7 @@ describe('loadReadings', () => {
           copperGold: series([
             ['2026-10-23', 0.0018],
             ['2026-11-19', 0.002],
-          ], { unit: '倍', frequency: '日频', refreshError: 'HTTP 429' }),
+          ], { unit: '倍', frequency: '日频', refreshError: 'HTTP 429', source: 'https://finance.yahoo.com/quote/HG=F/' }),
         },
       },
     })
@@ -348,6 +396,8 @@ describe('loadReadings', () => {
     expect(readings.copper?.value).toBe(4.1)
     expect(readings.copperGold?.refreshFailed).toBe(true)
     expect(readings.copperGold?.unit).toContain('铜（美元/磅）')
+    expect(readings.copperGold?.source).toMatch(/HG=F/)
+    expect(readings.copperGold?.source).toMatch(/GC=F/)
     expect(readings.copperGold?.direction).toBe('up')
   })
 
@@ -445,7 +495,7 @@ describe('loadReadings', () => {
     expect(emptyReadings.realYield10).toBeNull()
   })
 
-  it('覆盖不足 5 年不分位；5–10 年给分位并写 percentileYears', async () => {
+  it('覆盖不足 5 年不分位；5–10 年周密采样给分位并写 percentileYears', async () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
     const shortHist: [string, number][] = []
@@ -456,11 +506,10 @@ describe('loadReadings', () => {
       }
     }
     const midHist: [string, number][] = []
-    for (let y = 2019; y <= 2026; y += 1) {
-      for (let m = 1; m <= 12; m += 1) {
-        if (y === 2026 && m > 10) break
-        midHist.push([`${y}-${String(m).padStart(2, '0')}-01`, y + m / 100])
-      }
+    const midBegin = Date.parse('2019-01-04T12:00:00Z')
+    const midEnd = Date.parse('2026-10-01T12:00:00Z')
+    for (let t = midBegin, i = 0; t <= midEnd; t += 7 * DAY, i += 1) {
+      midHist.push([new Date(t).toISOString().slice(0, 10), 2019 + i / 100])
     }
     const shortFiles = fixtureFiles({
       'us-market-data.json': {
@@ -474,7 +523,7 @@ describe('loadReadings', () => {
       'us-market-data.json': {
         series: {
           ...((fixtureFiles()['us-market-data.json'] as { series: Record<string, unknown> }).series),
-          baaAaa: series(midHist, { unit: '个百分点', frequency: '月频' }),
+          baaAaa: series(midHist, { unit: '个百分点', frequency: '周频' }),
         },
       },
     })
@@ -484,5 +533,66 @@ describe('loadReadings', () => {
     expect(mid.readings.baaAaa?.percentile).toBeTypeOf('number')
     expect(mid.readings.baaAaa?.percentileYears).toBeGreaterThanOrEqual(5)
     expect(mid.readings.baaAaa?.percentileYears).toBeLessThan(10)
+  })
+
+  it('两点跨 6.9 年不给分位（样本与覆盖率不足）', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
+    const files = fixtureFiles({
+      'us-market-data.json': {
+        series: {
+          ...((fixtureFiles()['us-market-data.json'] as { series: Record<string, unknown> }).series),
+          baaAaa: series([
+            ['2020-01-03', 2],
+            ['2026-11-18', 8],
+          ], { unit: '个百分点', frequency: '周频' }),
+        },
+      },
+    })
+    const { readings } = await loadReadings(mockFetch(files))
+    expect(readings.baaAaa?.value).toBe(8)
+    expect(readings.baaAaa?.percentile).toBeUndefined()
+  })
+
+  it('无效日期与 history:null 只隔离相关读数，不拖垮整页', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
+    const base = fixtureFiles()
+    const pub = base['us-market-data.json'] as { series: Record<string, unknown> }
+    const files = fixtureFiles({
+      'us-market-data.json': {
+        series: {
+          ...pub.series,
+          managerCash: series([
+            ['2026-10-xx', 3.5],
+            ['2026-11-12', 3.6],
+          ], { unit: '%', frequency: '月频' }),
+        },
+      },
+      'macro-us.json': {
+        generatedAt: '2026-11-20',
+        source: 'test',
+        series: {
+          realRate: {
+            unit: 'pp',
+            latest: { date: '2026-09-01', value: 0.63 },
+            history: null,
+            note: '联邦基金利率减核心 PCE 同比',
+            fred: 'FEDFUNDS − PCEPILFE',
+          },
+          curve: { unit: 'pp', latest: { date: '2026-11-20', value: 0.29 }, history: [['2026-10-20', 0.2], ['2026-11-20', 0.29]] },
+          nfci: { unit: '', latest: { date: '2026-11-13', value: -0.48 }, history: [['2026-10-16', -0.4], ['2026-11-13', -0.48]] },
+          hy: { unit: 'bp', latest: { date: '2026-11-19', value: 352 }, history: [['2026-10-20', 340], ['2026-11-19', 352]] },
+          tenYear: { unit: '%', latest: { date: '2026-11-19', value: 5.04 }, history: [['2026-10-20', 4.9], ['2026-11-19', 5.04]] },
+          vix: { unit: '', latest: { date: '2026-11-19', value: 28 }, history: [['2026-10-20', 18], ['2026-11-19', 28]] },
+        },
+      },
+    })
+    const { readings, failedSources } = await loadReadings(mockFetch(files))
+    expect(readings.managerCash?.value).toBe(3.6)
+    expect(readings.fedAssets?.value).toBe(6740)
+    expect(readings.realRate).toBeNull()
+    expect(readings.curve10y2y?.value).toBe(0.29)
+    expect(failedSources).toContain('美国宏观')
   })
 })

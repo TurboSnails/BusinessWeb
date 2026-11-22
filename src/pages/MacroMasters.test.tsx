@@ -62,7 +62,7 @@ describe('MacroMasters 总览页', () => {
     expect(screen.getAllByText(/加载中/).length).toBeGreaterThan(5)
   })
 
-  it('读数失败时显示错误，成功时展示数值', () => {
+  it('读数失败时显示错误，成功时展示数值；部分来源失败也提示', () => {
     mockedUse.mockReturnValue({ state: 'error', message: '网络中断' })
     renderPage()
     expect(screen.getByRole('alert').textContent).toContain('网络中断')
@@ -84,10 +84,12 @@ describe('MacroMasters 总览页', () => {
         },
         copper: null,
       },
+      failedSources: ['美股切片'],
     })
     renderPage()
     expect(screen.getByText(/6,?741/)).toBeTruthy()
     expect(screen.getAllByText('本站暂无').length).toBeGreaterThan(0)
+    expect(screen.getByRole('alert').textContent).toContain('部分数据来源暂时不可用')
   })
 
   it('390px 宽时表格在 TableWrap 滚动容器内且第一列可固定', () => {
