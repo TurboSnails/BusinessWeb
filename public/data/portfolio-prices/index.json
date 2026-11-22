@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-22T10:20:28.343Z",
+  "generatedAt": "2026-11-22T14:20:24.240Z",
   "items": [
     {
       "symbol": "AVGO",
@@ -548,6 +548,17 @@
       "name": "Direxion 纳指 100 等权 ETF",
       "group": "benchmark",
       "first": "2012-03-21",
+      "last": "2026-11-20",
+      "asOf": "2026-11-20",
+      "status": "ok",
+      "crossCheck": "ok",
+      "dividendStatus": "ok"
+    },
+    {
+      "symbol": "SPY",
+      "name": "SPDR 标普 500 ETF",
+      "group": "benchmark",
+      "first": "2010-01-04",
       "last": "2026-11-20",
       "asOf": "2026-11-20",
       "status": "ok",
