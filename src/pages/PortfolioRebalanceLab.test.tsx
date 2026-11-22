@@ -16,7 +16,7 @@ const mockedBook = vi.mocked(loadPriceBook)
 const dates = ['2021-08-25', '2021-08-26', '2021-12-31', '2022-01-03']
 
 function fixtureBook(): PriceBook {
-  return Object.fromEntries(['AVGO', 'META', 'CB', 'SOFI', 'RKLB', 'QQQ', 'QQEW'].map((symbol, index) => [symbol, {
+  return Object.fromEntries(['AVGO', 'AAPL', 'META', 'V', 'CB', 'SOFI', 'RKLB', 'PDD', 'QQQ', 'QQEW'].map((symbol, index) => [symbol, {
     dates,
     adjClose: symbol === 'QQQ' ? [100, 100, 70, 100] : [100, 101 + index, 102 + index, 103 + index],
   }]))
@@ -122,6 +122,21 @@ describe('组合再平衡回测页', () => {
     render(<PortfolioRebalanceLab />)
     await screen.findByRole('heading', { name: '四格对比' })
     expect(document.body.textContent).not.toMatch(/最佳|推荐/)
+  })
+
+  it('研究参考组合载入后网址含 calendar:year 与正确 s 参数', async () => {
+    render(<PortfolioRebalanceLab />)
+    expect(await screen.findByText('研究参考组合')).toBeTruthy()
+    const preferred = screen.getByText('Meta 换苹果').closest('article')
+    fireEvent.click(preferred!.querySelector('button')!)
+    await waitFor(() => {
+      const params = new URLSearchParams(window.location.search)
+      expect(params.get('rule')).toBe('calendar:year')
+      expect(params.get('s')).toBe('AVGO:25,AAPL:25,CB:25,SOFI:12.5,RKLB:12.5')
+      expect(params.has('sw')).toBe(false)
+    })
+    expect(preferred!.querySelector('button')!.textContent).toBe('已载入')
+    expect(preferred!.querySelector('button')).toHaveProperty('disabled', true)
   })
 
   it('数据加载失败显示错误与重试按钮', async () => {
