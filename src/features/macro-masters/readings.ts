@@ -609,13 +609,14 @@ function coerceRates(result: SourceLoad<RatesFile>): SourceLoad<RatesFile> {
   if (!result.ok) return result
   if (!isPlainObject(result.data)) return failSource(SOURCE_RATES)
   if (result.data.real != null && !Array.isArray(result.data.real)) return failSource(SOURCE_RATES)
-  if (result.data.rows != null && !Array.isArray(result.data.rows)) return failSource(SOURCE_RATES)
-  if (!Array.isArray(result.data.real)) return result
+  // 本页只用 real / latestReal；rows 结构异常时丢弃 rows，不拖垮整源
+  const data = Array.isArray(result.data.rows) || result.data.rows == null ? result.data : { ...result.data, rows: undefined }
+  if (!Array.isArray(data.real)) return { ok: true, data }
   return {
     ok: true,
     data: {
-      ...result.data,
-      real: filterPointEntries(result.data.real) as RatesFile['real'],
+      ...data,
+      real: filterPointEntries(data.real as unknown[]) as RatesFile['real'],
     },
   }
 }
@@ -737,6 +738,9 @@ function buildReadings(input: {
   out.baaAaa = run(SOURCE_PUBLIC, () => fromUsSeries('baaAaa', s.baaAaa, asOf, now))
 
   const spxBreadth = breadth?.breadth?.spx
+  // 宽度入口校验：容器存在但缺 spx，或 spx.advDec 不是数组，只记宽度来源
+  if (breadth?.breadth && !breadth.breadth.spx) noteFailure(SOURCE_BREADTH)
+  if (spxBreadth && spxBreadth.advDec != null && !Array.isArray(spxBreadth.advDec)) noteFailure(SOURCE_BREADTH)
   out.spxAbove200 = run(SOURCE_BREADTH, () => {
     if (!spxBreadth) return null
     const map = new Map<string, number>()
@@ -789,7 +793,7 @@ function buildReadings(input: {
   if (spxSliceEntry && spxSliceList.malformed) noteFailure(SOURCE_SLICES)
   const spxSlice = spxSliceList.malformed ? undefined : spxSliceList.points
 
-  out.advDecLine = run([SOURCE_BREADTH, SOURCE_SLICES], () => {
+  out.advDecLine = run(SOURCE_BREADTH, () => {
     const advRows = parseAdvDec(spxBreadth?.advDec)
     if (!advRows.length) return null
     const metrics = buildAdvDecMetrics(spxBreadth, spxSlice, asOf, now)
@@ -803,7 +807,7 @@ function buildReadings(input: {
       })
       : null
   })
-  out.mcclellan = run([SOURCE_BREADTH, SOURCE_SLICES], () => {
+  out.mcclellan = run(SOURCE_BREADTH, () => {
     const advRows = parseAdvDec(spxBreadth?.advDec)
     if (!advRows.length) return null
     const metrics = buildAdvDecMetrics(spxBreadth, spxSlice, asOf, now)
@@ -874,6 +878,19 @@ function buildReadings(input: {
     })
   })
 
+  // 展示字段统一清洗：文本字段必须是字符串，数值必须有限，日期必须合法；否则该读数作废或字段回落默认值
+  for (const key of Object.keys(out) as ReadingKey[]) {
+    const r = out[key]
+    if (!r) continue
+    if (!Number.isFinite(r.value) || !isValidIsoDate(r.date)) { out[key] = null; continue }
+    const text = (v: unknown, fallback: string): string => (typeof v === 'string' ? v : fallback)
+    r.label = text(r.label, READING_LABELS[key])
+    r.unit = text(r.unit, '')
+    r.source = text(r.source, READING_LABELS[key])
+    if (r.note !== undefined && typeof r.note !== 'string') delete r.note
+    if (r.percentile !== undefined && !Number.isFinite(r.percentile)) { delete r.percentile; delete r.percentileYears }
+    if (r.percentileYears !== undefined && !Number.isFinite(r.percentileYears)) delete r.percentileYears
+  }
   return { readings: out, structuralFailures }
 }
 
@@ -920,7 +937,7 @@ export async function loadReadings(fetcher: typeof fetch = fetch): Promise<Readi
 
   const readings = built.readings
   const nonNull = countNonNullReadings(readings)
-  if (nonNull === 0 || failedSources.length === ALL_SOURCE_LABELS.length) {
+  if (nonNull === 0) {
     throw new Error(
       failedSources.length
         ? `${failedSources.join('、')}加载失败`

@@ -701,4 +701,66 @@ describe('loadReadings', () => {
     expect(asOf).toBe('2026-11-20')
     expect(failedSources).toBeUndefined()
   })
+
+  it('第三轮·展示字段损坏：单位为对象时回落为字符串，不让页面渲染失败', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
+    const base = fixtureFiles()
+    const pub = structuredClone(base['us-market-data.json']) as { series: { fedAssets: { unit: unknown } } }
+    pub.series.fedAssets.unit = { label: '十亿美元' }
+    const { readings } = await loadReadings(mockFetch(fixtureFiles({ 'us-market-data.json': pub })))
+    expect(readings.fedAssets).toBeTruthy()
+    expect(typeof readings.fedAssets!.unit).toBe('string')
+    for (const r of Object.values(readings)) {
+      if (!r) continue
+      expect(typeof r.label).toBe('string')
+      expect(typeof r.unit).toBe('string')
+      expect(typeof r.source).toBe('string')
+    }
+  })
+
+  it('第三轮·只剩一个来源且局部损坏：保留其余有效读数，不进入全局错误', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
+    const base = fixtureFiles()
+    const pub = structuredClone(base['us-market-data.json']) as { series: Record<string, { history: unknown }> }
+    if (pub.series.managerCash) pub.series.managerCash.history = null
+    const { readings, failedSources } = await loadReadings(mockFetch({ 'us-market-data.json': pub }))
+    expect(countNonNull(readings)).toBeGreaterThan(0)
+    expect(readings.fedAssets).toBeTruthy()
+    expect(failedSources).toEqual(expect.arrayContaining(['美股宽度', '美股切片']))
+  })
+
+  it('第三轮·宽度 spx.advDec 不是数组：只记宽度来源，不误报切片', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
+    const base = fixtureFiles()
+    const breadth = structuredClone(base['us-market-breadth.json']) as { breadth: { spx: Record<string, unknown> } }
+    breadth.breadth.spx.advDec = { length: 1 }
+    const { failedSources } = await loadReadings(mockFetch(fixtureFiles({ 'us-market-breadth.json': breadth })))
+    expect(failedSources).toContain('美股宽度')
+    expect(failedSources ?? []).not.toContain('美股切片')
+  })
+
+  it('第三轮·宽度缺 spx：列出宽度来源失败', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
+    const base = fixtureFiles()
+    const breadth = structuredClone(base['us-market-breadth.json']) as { breadth: Record<string, unknown> }
+    breadth.breadth.spx = null
+    const { readings, failedSources } = await loadReadings(mockFetch(fixtureFiles({ 'us-market-breadth.json': breadth })))
+    expect(readings.spxAbove200 ?? null).toBeNull()
+    expect(failedSources).toContain('美股宽度')
+  })
+
+  it('第三轮·股债息差 rows 损坏：TIPS 读数保留，不判整源失败', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-21T20:00:00Z'))
+    const base = fixtureFiles()
+    const rates = structuredClone(base['us-equity-bond-spread.json']) as Record<string, unknown>
+    rates.rows = {}
+    const { readings, failedSources } = await loadReadings(mockFetch(fixtureFiles({ 'us-equity-bond-spread.json': rates })))
+    expect(readings.realYield10?.value).toBe(2.88)
+    expect(failedSources ?? []).not.toContain('美股股债息差')
+  })
 })
