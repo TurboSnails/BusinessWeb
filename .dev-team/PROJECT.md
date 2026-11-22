@@ -51,3 +51,10 @@ manager 开工后按实际目标补充业务入口、API 契约位置、验收�
 用户要求持续实施到上线。Run portfolio-lab：Codex 数据管道、Cursor 引擎、Kimi 页面，Claude 审查与集成。页面 `/lab/portfolio-rebalance`，引擎 `src/features/portfolio-rebalance/engine.ts`（共享类型 `types.ts`），数据 `public/data/portfolio-prices/`，采集 `scripts/portfolio-prices.mjs` + `scripts/portfolio-prices-yf.py`，工作流 `.github/workflows/portfolio-prices.yml`（UTC 22:45 工作日）。数据源 Yahoo（yfinance，只在 Actions 上取；本机对 Yahoo 限流）+ 腾讯不复权日线交叉核对（不可用时不阻塞写入）。腾讯 fqkline 参数须为 `code,day,start,end,2000,`（末尾逗号）；本机大量请求后腾讯会返回 501 验证页。研究依据见 `docs/research/portfolio-rebalance-explore-2026-11-21/`。全量 331 文件 / 2,502 测试、863 脚本测试、typecheck、lint 0 error、build 通过；Vercel 与 Pages 线上已验收。Pages 现为全部 lab 页面生成静态入口。
 ### 大师长期持仓（2026-11-22）
 可选股票 23 → 37：从 SEC 13F 原始信息表筛选（最新一期 ≥5% 且五年前同季度已持有，CUSIP 前 6 位比对），程序 `data-raw/masters-13f/masters_13f.py`。holders 字段写在 universe.json，经 mergeIndex 进 index.json，页面显示「大师」徽标与 13F 明细；每季 13F 披露后人工更新。采集脚本新增：拆股感知交叉核对、带点腾讯代码回退（usBRK.B.N）、新代码首次失败不写入 index、knownEvents 按代码查表（PDD 2022-03-16）。英特尔改入高波动组。重算见 `docs/research/masters-holdings-rebalance-2026-11-22/`（网站引擎 + 独立 Python 复算 202/202 一致）。Run masters-universe：Cursor 实现，Claude 审查。
+
+## 2026-11-22 宏观大师、美股宽度与铜金比、回测页结论
+- 宏观大师 `/invest/macro-masters`（九人各一页，`src/features/macro-masters/`，研究 `docs/research/macro-masters/<slug>/`）。内容只取自研究文档；同口径读数与"本站近似"分开（`readings` / `proxyReadings`）。读数按指标与来源隔离，分位按周采样且至少 52 个点、覆盖 60%。
+- 美股宽度：`advDec` 由 `.github/workflows/us-market-breadth.yml` 独占（纽约 16:40 + 次日 03:15 补跑，独立并发组，每次成功都派发 Pages）；market-cycle 不再跑宽度脚本。
+- 铜金比：`scripts/us-market-data.mjs` 用 Yahoo HG=F/GC=F，日期标签 = 纽约时区(时间戳+6h)，17:30 ET 前不写当日；上线后核对近一年 252 个交易日、无周末日期。
+- 回测页：自动结论（`conclusions.ts`）与研究观察；反事实与基准用原组合实际交易日；纳指 100 等权基准为 QQQE（QQEW 自 2025-12-22 改为精选 50 只）。
+- 流程：Cursor/Kimi/Codex 实现，Claude 自审 + Codex 独立审查四轮后发布。教训：读取 `public/data` 实时数据的测试不要写死读数数量或日期，否则数据采集后会让 Pages 部署失败。
