@@ -2,12 +2,11 @@ import React, { useMemo } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import { Page, TableWrap } from '../components/ui'
-import { renderBlogMarkdown } from '../features/blog/markdown'
-import { MASTER_ARTICLES } from '../features/macro-masters/articles'
+import { MASTER_ARTICLES, renderMasterArticleMarkdown } from '../features/macro-masters/articles'
 import { masterBySlug } from '../features/macro-masters/masters'
 import ReadingCell from '../features/macro-masters/ReadingCell'
 import { useReadings, type ReadingsState } from '../features/macro-masters/readings'
-import type { MasterIndicator, ReadingKey } from '../features/macro-masters/types'
+import type { Master, MasterIndicator, ReadingKey } from '../features/macro-masters/types'
 import '../styles/macro-masters.css'
 
 const EVIDENCE_LABELS = { quote: '原话', paraphrase: '转述', unverified: '未证实' } as const
@@ -17,6 +16,8 @@ const DRUCKENMILLER_COMPARISON: Array<{
   january: string
   november: string
   readings?: ReadingKey[]
+  proxyReadings?: ReadingKey[]
+  proxyNote?: string
   external?: string
 }> = [
   {
@@ -41,8 +42,8 @@ const DRUCKENMILLER_COMPARISON: Array<{
     name: '涨跌家数线',
     january: '涨跌家数线等市场宽度指标创新高。',
     november: '涨跌线在 8 月 14 日见顶，早于 10 月的大盘指数顶部。',
-    readings: ['advDecLine'],
-    external: '原话没有指定市场口径；本站为标普 500 当前成分股回算。',
+    proxyReadings: ['advDecLine'],
+    proxyNote: '原话没有指定市场口径；本站为标普 500 当前成分股回算，不是同一条全市场涨跌线。',
   },
   {
     name: '信用利差',
@@ -58,14 +59,35 @@ const DRUCKENMILLER_COMPARISON: Array<{
   },
 ]
 
-function ReadingsForIndicator({ indicator, state }: { indicator: MasterIndicator; state: ReadingsState }): JSX.Element {
+function ReadingList({ keys, state }: { keys: ReadingKey[]; state: ReadingsState }): JSX.Element {
   const loading = state.state === 'loading'
-  if (!indicator.readings?.length) return <ReadingCell reading={null} loading={loading} />
   return (
     <div className="mm-detail__reading-list">
-      {indicator.readings.map(key => (
+      {keys.map(key => (
         <ReadingCell key={key} reading={state.state === 'ok' ? state.readings[key] : undefined} loading={loading} />
       ))}
+    </div>
+  )
+}
+
+function ReadingsForIndicator({ indicator, state }: { indicator: MasterIndicator; state: ReadingsState }): JSX.Element {
+  const hasExact = Boolean(indicator.readings?.length)
+  const hasProxy = Boolean(indicator.proxyReadings?.length)
+  if (!hasExact && !hasProxy) return <ReadingCell reading={null} loading={state.state === 'loading'} />
+  return (
+    <div className="mm-detail__reading-groups">
+      <div className="mm-detail__reading-group">
+        <span className="mm-detail__reading-group-title">同口径读数</span>
+        {hasExact ? <ReadingList keys={indicator.readings!} state={state} /> : <ReadingCell reading={null} loading={state.state === 'loading'} />}
+        {hasExact && <span className="mm-detail__measurement-note">这是本站测量，不是他的当前信号。</span>}
+      </div>
+      {hasProxy && (
+        <div className="mm-detail__reading-group mm-detail__reading-group--proxy">
+          <span className="mm-detail__reading-group-title">本站近似（口径不同）</span>
+          <ReadingList keys={indicator.proxyReadings!} state={state} />
+          {indicator.proxyNote && <p className="mm-detail__proxy-note">{indicator.proxyNote}</p>}
+        </div>
+      )}
     </div>
   )
 }
@@ -73,9 +95,9 @@ function ReadingsForIndicator({ indicator, state }: { indicator: MasterIndicator
 function DruckenmillerComparison({ state }: { state: ReadingsState }): JSX.Element {
   return (
     <section className="mm-detail__section" aria-labelledby="mm-druckenmiller-comparison">
-      <h2 id="mm-druckenmiller-comparison">他 2026 年 1 月看多的理由 vs 现在</h2>
-      <p className="mm-detail__intro">这里的“现在”指研究文档记录的 2026 年 11 月观点，不代表他的实时立场。流传的五条清单混合了不同场合的说法，本节只按第五节核对的六项市场信号对照。</p>
-      <TableWrap label="德鲁肯米勒 2026 年 1 月看多理由与 11 月观点对照" className="mm-detail__table-wrap">
+      <h2 id="mm-druckenmiller-comparison">他 2026 年 1 月与 2026 年 11 月的说法对照</h2>
+      <p className="mm-detail__intro">来源：研究文档第五节所列 2026-11-17 TomorrowX 峰会英文记录稿 [S12]（疑似转译，日期标注前后不一致）、Bloomberg 报道 [S13]，以及 2026-02-27 发布的 1 月访谈基准 [S10][S11]。这里只对照两处历史说法，不代表他的实时立场。</p>
+      <TableWrap label="德鲁肯米勒 2026 年 1 月与 2026 年 11 月说法对照" className="mm-detail__table-wrap">
         <table className="ui-table mm-detail__table mm-detail__table--comparison">
           <thead><tr><th scope="col">观察项</th><th scope="col">2026 年 1 月</th><th scope="col">2026 年 11 月</th><th scope="col">本站对应读数</th></tr></thead>
           <tbody>
@@ -85,7 +107,8 @@ function DruckenmillerComparison({ state }: { state: ReadingsState }): JSX.Eleme
                 <td>{item.january}</td>
                 <td>{item.november}</td>
                 <td>
-                  <ReadingsForIndicator indicator={{ name: item.name, howToRead: '', readings: item.readings, evidence: 'paraphrase' }} state={state} />
+                  <span className="mm-detail__reading-disclaimer">本站当前读数（不是他的判断）</span>
+                  <ReadingsForIndicator indicator={{ name: item.name, howToRead: '', readings: item.readings, proxyReadings: item.proxyReadings, proxyNote: item.proxyNote, evidence: 'paraphrase' }} state={state} />
                   {item.external && <span className="mm-detail__external">{item.external}</span>}
                 </td>
               </tr>
@@ -110,16 +133,15 @@ function splitMaintenanceArticle(markdown: string): { before: string; maintenanc
   }
 }
 
-function ResearchArticle({ markdown }: { markdown: string }): JSX.Element {
+function ResearchArticle({ slug, markdown }: { slug: Master['slug']; markdown: string }): JSX.Element {
   const rendered = useMemo(() => {
     const parts = splitMaintenanceArticle(markdown)
-    const baseUrl = import.meta.env.BASE_URL || '/'
     return {
-      before: renderBlogMarkdown(parts.before, baseUrl).html,
-      maintenance: parts.maintenance ? renderBlogMarkdown(parts.maintenance, baseUrl).html : '',
-      after: parts.after ? renderBlogMarkdown(parts.after, baseUrl).html : '',
+      before: renderMasterArticleMarkdown(slug, parts.before).html,
+      maintenance: parts.maintenance ? renderMasterArticleMarkdown(slug, parts.maintenance).html : '',
+      after: parts.after ? renderMasterArticleMarkdown(slug, parts.after).html : '',
     }
-  }, [markdown])
+  }, [markdown, slug])
 
   return (
     <section className="mm-detail__section mm-detail__research" aria-labelledby="mm-research-title">
@@ -136,24 +158,11 @@ function ResearchArticle({ markdown }: { markdown: string }): JSX.Element {
   )
 }
 
-export default function MacroMasterDetail(): JSX.Element {
-  const { slug } = useParams()
-  const master = masterBySlug(slug)
+function KnownMacroMasterDetail({ master }: { master: Master }): JSX.Element {
   const readingsState = useReadings()
-
-  if (!master) {
-    return (
-      <Page className="mm-detail">
-        <header className="page-head">
-          <h1>这一页不存在</h1>
-          <p>链接可能写错了，或者这位大师的研究页还没有收录。</p>
-        </header>
-        <div className="hero__actions ui-cluster">
-          <Link to="/invest/macro-masters" className="btn-primary">返回宏观大师总览</Link>
-        </div>
-      </Page>
-    )
-  }
+  const failedSources = readingsState.state === 'ok' && 'failedSources' in readingsState && Array.isArray(readingsState.failedSources)
+    ? readingsState.failedSources
+    : []
 
   return (
     <Page className="mm-detail">
@@ -180,11 +189,12 @@ export default function MacroMasterDetail(): JSX.Element {
         <div className="mm-detail__section-heading">
           <div>
             <h2 id="mm-master-readings">他看的指标 · 本站当前读数</h2>
-            <p className="mm-detail__intro">读数只是研究框架与本站数据的对应，不等同于大师本人的实时判断。</p>
+            <p className="mm-detail__intro">同口径读数与“本站近似（口径不同）”分组展示；所有读数都是本站测量，不等同于大师本人的实时判断或当前信号。</p>
           </div>
           {readingsState.state === 'ok' && readingsState.asOf && <span className="mm-detail__as-of">数据快照：{readingsState.asOf}</span>}
         </div>
         {readingsState.state === 'error' && <p className="mm-detail__error" role="alert">读数暂时无法加载，下方以“本站暂无”显示；研究内容仍可阅读。{readingsState.message && `（${readingsState.message}）`}</p>}
+        {failedSources.length > 0 && <p className="mm-detail__error" role="alert">部分数据来源暂时不可用，其余来源的读数仍保留显示。</p>}
         <TableWrap label={`${master.name}关注的指标与本站读数`} className="mm-detail__table-wrap">
           <table className="ui-table mm-detail__table">
             <thead><tr><th scope="col">指标</th><th scope="col">他怎么读</th><th scope="col">本站当前读数</th><th scope="col">证据等级</th></tr></thead>
@@ -212,9 +222,30 @@ export default function MacroMasterDetail(): JSX.Element {
         <p>{master.limits}</p>
       </section>
 
-      <ResearchArticle markdown={MASTER_ARTICLES[master.slug]} />
+      <ResearchArticle slug={master.slug} markdown={MASTER_ARTICLES[master.slug]} />
 
       <footer className="mm-detail__footer">整理自公开访谈、演讲与书信，原话注明出处；各人观点会变，读数只是本站数据的映射，不代表他们本人的判断，也不构成买卖建议。</footer>
     </Page>
   )
+}
+
+export default function MacroMasterDetail(): JSX.Element {
+  const { slug } = useParams()
+  const master = masterBySlug(slug)
+
+  if (!master) {
+    return (
+      <Page className="mm-detail">
+        <header className="page-head">
+          <h1>这一页不存在</h1>
+          <p>链接可能写错了，或者这位大师的研究页还没有收录。</p>
+        </header>
+        <div className="hero__actions ui-cluster">
+          <Link to="/invest/macro-masters" className="btn-primary">返回宏观大师总览</Link>
+        </div>
+      </Page>
+    )
+  }
+
+  return <KnownMacroMasterDetail master={master} />
 }

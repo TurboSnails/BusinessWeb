@@ -740,11 +740,16 @@ export async function collectUsMarketData(previous, { read = fetchText, readBina
     const copperHistory = series.copperDaily?.history ?? []
     const goldHistory = series.goldDaily?.history ?? []
     try {
-      series.copperGold = { ...specs.copperGold, history: copperGoldRatio(copperHistory, goldHistory) }
+      const history = copperGoldRatio(copperHistory, goldHistory)
+      series.copperGold = { ...specs.copperGold, history }
+      const latestRatioDay = history.at(-1)[0]
+      if (latestRatioDay < copperHistory.at(-1)[0] || latestRatioDay < goldHistory.at(-1)[0]) {
+        ratioError = '铜、金最新日期不一致，比值停在 ' + latestRatioDay
+      }
     } catch {
       ratioError = '铜、金最新日期不一致，暂用上次比值'
-      warnings.push(ratioError)
     }
+    if (ratioError) warnings.push(ratioError)
   }
   if (ratioError && series.copperGold) {
     series.copperGold = { ...series.copperGold, refreshError: ratioError }

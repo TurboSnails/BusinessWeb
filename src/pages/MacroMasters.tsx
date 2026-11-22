@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Page } from '../components/ui'
+import { Page, TableWrap } from '../components/ui'
 import { MASTERS } from '../features/macro-masters/masters'
 import ReadingCell from '../features/macro-masters/ReadingCell'
 import { READING_LABELS, READING_THEMES, useReadings } from '../features/macro-masters/readings'
@@ -53,8 +53,8 @@ export default function MacroMasters(): JSX.Element {
         {readings.state === 'error' && (
           <p className="mm-overview__error" role="alert">读数加载失败：{readings.message}</p>
         )}
-        <div className="mm-overview__table-scroll">
-          <table className="mm-overview__table">
+        <TableWrap label="指标对照表" stickyFirst className="mm-overview__table-wrap">
+          <table className="ui-table mm-overview__table">
             <thead>
               <tr>
                 <th scope="col">主题 / 指标</th>
@@ -62,36 +62,34 @@ export default function MacroMasters(): JSX.Element {
                 <th scope="col">关注的大师</th>
               </tr>
             </thead>
-            <tbody>
-              {READING_THEMES.map(theme => (
-                <React.Fragment key={theme.id}>
-                  <tr className="mm-overview__theme">
-                    <th scope="col" colSpan={3}>{theme.name}</th>
-                  </tr>
-                  {theme.keys.map(key => {
-                    const watchers = mastersFor(key)
-                    return (
-                      <tr key={key}>
-                        <th scope="row">{READING_LABELS[key]}</th>
-                        <td>
-                          <ReadingCell
-                            reading={readings.state === 'ok' ? map[key] : undefined}
-                            loading={loading}
-                          />
-                        </td>
-                        <td>
-                          {watchers.length
-                            ? watchers.map(m => m.name).join('、')
-                            : '本表未直接映射'}
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </React.Fragment>
-              ))}
-            </tbody>
+            {READING_THEMES.map(theme => (
+              <tbody key={theme.id}>
+                <tr className="mm-overview__theme">
+                  <th scope="rowgroup" colSpan={3}>{theme.name}</th>
+                </tr>
+                {theme.keys.map(key => {
+                  const watchers = mastersFor(key)
+                  return (
+                    <tr key={key}>
+                      <th scope="row">{READING_LABELS[key]}</th>
+                      <td>
+                        <ReadingCell
+                          reading={readings.state === 'ok' ? map[key] : undefined}
+                          loading={loading}
+                        />
+                      </td>
+                      <td>
+                        {watchers.length
+                          ? watchers.map(m => m.name).join('、')
+                          : '本表未直接映射'}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            ))}
           </table>
-        </div>
+        </TableWrap>
       </section>
 
       <footer className="mm-overview__footer" role="note">

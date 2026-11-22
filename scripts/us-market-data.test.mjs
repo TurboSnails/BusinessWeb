@@ -363,6 +363,34 @@ test('两源均成功但无共同日期时保留旧铜金比并记录原因', as
   assert.ok(warnings.includes(series.copperGold.refreshError))
 })
 
+test('铜金比停在较早的共同日期时提示，最新日期重新对齐后清除提示', async () => {
+  const previous = { series: {
+    copperDaily: { history: [['2026-11-17', 4], ['2026-11-18', 4.6]] },
+    goldDaily: { history: [['2026-11-17', 2000], ['2026-11-18', 2300]] },
+    copperGold: { history: [['2026-11-17', 0.002], ['2026-11-18', 0.002]] },
+  } }
+  const stamps = [16, 17, 18].map(day => unixSeconds(`2026-11-${day}T23:00Z`))
+  const feed = (symbol, closes) => JSON.stringify(futuresChart(symbol, stamps.map((stamp, i) => [stamp, closes[i]])))
+  const collect = (prior, copperCloses) => collectUsMarketData(prior, {
+    now: new Date('2026-11-20T22:45Z'),
+    read: async url => {
+      if (url.includes('HG%3DF')) return feed('HG=F', copperCloses)
+      if (url.includes('GC%3DF')) return feed('GC=F', [2000, 2300, 2400])
+      throw new Error('stub')
+    },
+    readBinary: async () => { throw new Error('stub') },
+  })
+  const { snapshot, warnings } = await collect(previous, [4, null, null])
+  assert.deepEqual(snapshot.series.copperGold.history, [['2026-11-17', 0.002]])
+  assert.equal(snapshot.series.copperGold.refreshError, '铜、金最新日期不一致，比值停在 2026-11-17')
+  assert.ok(warnings.includes(snapshot.series.copperGold.refreshError))
+
+  const recovered = await collect(snapshot, [4, null, 4.8])
+  assert.deepEqual(recovered.snapshot.series.copperGold.history, [['2026-11-17', 0.002], ['2026-11-19', 0.002]])
+  assert.equal(recovered.snapshot.series.copperGold.refreshError, undefined)
+  assert.ok(!recovered.warnings.includes(snapshot.series.copperGold.refreshError))
+})
+
 test('铜金比只保留同日有效收盘并对齐', () => {
   assert.deepEqual(
     copperGoldRatio(

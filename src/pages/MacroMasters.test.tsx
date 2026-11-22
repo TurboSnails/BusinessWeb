@@ -48,14 +48,17 @@ describe('MacroMasters 总览页', () => {
     }
   })
 
-  it('对照表覆盖各主题，读数加载中显示加载中', () => {
+  it('对照表覆盖各主题，读数加载中显示加载中；主题按 tbody/rowgroup 分组', () => {
     mockedUse.mockReturnValue({ state: 'loading' })
-    renderPage()
+    const { container } = renderPage()
     expect(screen.getByRole('heading', { name: '指标对照' })).toBeTruthy()
+    expect(screen.getByRole('region', { name: '指标对照表' })).toBeTruthy()
     const table = screen.getByRole('table')
+    expect(table.querySelectorAll('tbody')).toHaveLength(READING_THEMES.length)
     for (const theme of READING_THEMES) {
       expect(within(table).getAllByText(theme.name).length).toBeGreaterThan(0)
     }
+    expect(container.querySelectorAll('th[scope="rowgroup"]')).toHaveLength(READING_THEMES.length)
     expect(screen.getAllByText(/加载中/).length).toBeGreaterThan(5)
   })
 
@@ -87,15 +90,15 @@ describe('MacroMasters 总览页', () => {
     expect(screen.getAllByText('本站暂无').length).toBeGreaterThan(0)
   })
 
-  it('390px 宽时表格在自身滚动容器内且第一列可固定', () => {
+  it('390px 宽时表格在 TableWrap 滚动容器内且第一列可固定', () => {
     mockedUse.mockReturnValue({ state: 'loading' })
     const { container } = renderPage()
-    const scroll = container.querySelector('.mm-overview__table-scroll') as HTMLElement
+    const scroll = container.querySelector('.mm-overview__table-wrap') as HTMLElement
     const sticky = container.querySelector('.mm-overview__table tbody th[scope="row"]') as HTMLElement
     expect(scroll).toBeTruthy()
-    expect(getComputedStyle(scroll).overflowX === 'auto' || scroll.className.includes('table-scroll')).toBe(true)
+    expect(scroll.getAttribute('tabindex')).toBe('0')
+    expect(scroll.className).toMatch(/ui-table-wrap/)
     expect(sticky).toBeTruthy()
-    // jsdom 不计算 sticky，断言类与结构即可；量化检查写入报告
     expect(container.querySelector('.mm-overview')).toBeTruthy()
   })
 })

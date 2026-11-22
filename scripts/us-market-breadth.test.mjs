@@ -190,7 +190,10 @@ test('breadth publishes in its own concurrency group', () => {
   assert.match(workflow, /^concurrency:\s*\n +group: us-market-breadth\s*\n +cancel-in-progress: false$/m)
 })
 
-test('breadth deploys Pages after a changed publish or a manual dispatch', () => {
+test('breadth dispatches Pages after a successful main run even without a new commit', () => {
   const workflow = readFileSync(new URL('../.github/workflows/us-market-breadth.yml', import.meta.url), 'utf8')
-  assert.match(workflow, /- name: Deploy GitHub Pages\s*\n +if: steps\.commit\.outputs\.changed == 'true' \|\| github\.event_name == 'workflow_dispatch'/)
+  assert.match(workflow, /^ {2}update:\n {4}if: github\.ref == 'refs\/heads\/main'$/m)
+  const deployStep = workflow.match(/^ {6}- name: Deploy GitHub Pages\n(?: {8,}[^\n]+\n?)*/m)?.[0] ?? ''
+  assert.match(deployStep, /^ {8}run: gh workflow run pages\.yml --ref main$/m)
+  assert.doesNotMatch(deployStep, /^ {8}if:/m)
 })
