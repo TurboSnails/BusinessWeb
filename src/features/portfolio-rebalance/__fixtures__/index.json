@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-21T22:50:00Z",
+  "items": [
+    { "symbol": "AVGO", "name": "博通", "group": "growth", "first": "2010-01-04", "last": "2026-11-20", "asOf": "2026-11-20", "status": "ok", "dividendStatus": "ok" },
+    { "symbol": "META", "name": "Meta", "group": "growth", "first": "2012-05-18", "last": "2026-11-20", "asOf": "2026-11-20", "status": "ok", "dividendStatus": "ok" },
+    { "symbol": "MSFT", "name": "微软", "group": "growth", "first": "2010-01-04", "last": "2026-11-20", "asOf": "2026-11-20", "status": "ok", "dividendStatus": "ok" },
+    { "symbol": "NVDA", "name": "英伟达", "group": "growth", "first": "2010-01-04", "last": "2026-11-20", "asOf": "2026-11-20", "status": "ok", "dividendStatus": "ok" },
+    { "symbol": "AMZN", "name": "亚马逊", "group": "growth", "first": "2010-01-04", "last": "2026-11-20", "asOf": "2026-11-20", "status": "ok", "dividendStatus": "none" },
+    { "symbol": "GOOGL", "name": "谷歌", "group": "growth", "first": "2010-01-04", "last": "2026-11-20", "asOf": "2026-11-20", "status": "ok", "dividendStatus": "ok" },
+    { "symbol": "RKLB", "name": "Rocket Lab", "group": "highVol", "first": "2021-08-25", "last": "2026-11-20", "asOf": "2026-11-20", "status": "ok", "dividendStatus": "none" },
+    { "symbol": "SOFI", "name": "SoFi", "group": "highVol", "first": "2021-06-01", "last": "2026-11-20", "asOf": "2026-11-20", "status": "ok", "dividendStatus": "none" },
+    { "symbol": "PLTR", "name": "Palantir", "group": "highVol", "first": "2020-09-30", "last": "2026-11-20", "asOf": "2026-11-20", "status": "ok", "dividendStatus": "none" },
+    { "symbol": "TSLA", "name": "特斯拉", "group": "highVol", "first": "2010-06-29", "last": "2026-11-20", "asOf": "2026-11-20", "status": "ok", "dividendStatus": "none" },
+    { "symbol": "COIN", "name": "Coinbase", "group": "highVol", "first": "2021-04-14", "last": "2026-11-20", "asOf": "2026-11-20", "status": "ok", "dividendStatus": "none" },
+    { "symbol": "HOOD", "name": "Robinhood", "group": "highVol", "first": "2021-07-29", "last": "2026-11-20", "asOf": "2026-11-20", "status": "ok", "dividendStatus": "none" },
+    { "symbol": "CB", "name": "安达保险", "group": "stable", "first": "2010-01-04", "last": "2026-11-20", "asOf": "2026-11-20", "status": "ok", "dividendStatus": "ok" },
+    { "symbol": "KO", "name": "可口可乐", "group": "stable", "first": "2010-01-04", "last": "2026-11-20", "asOf": "2026-11-20", "status": "ok", "dividendStatus": "ok" },
+    { "symbol": "PG", "name": "宝洁", "group": "stable", "first": "2010-01-04", "last": "2026-11-20", "asOf": "2026-11-20", "status": "ok", "dividendStatus": "ok" },
+    { "symbol": "JNJ", "name": "强生", "group": "stable", "first": "2010-01-04", "last": "2026-11-20", "asOf": "2026-11-20", "status": "ok", "dividendStatus": "ok" },
+    { "symbol": "WMT", "name": "沃尔玛", "group": "stable", "first": "2010-01-04", "last": "2026-11-20", "asOf": "2026-11-20", "status": "ok", "dividendStatus": "ok" },
+    { "symbol": "COST", "name": "开市客", "group": "stable", "first": "2010-01-04", "last": "2026-11-20", "asOf": "2026-11-20", "status": "ok", "dividendStatus": "ok" },
+    { "symbol": "GLD", "name": "SPDR 黄金 ETF", "group": "stable", "first": "2010-01-04", "last": "2026-11-20", "asOf": "2026-11-20", "status": "ok", "dividendStatus": "none" },
+    { "symbol": "AXP", "name": "美国运通", "group": "stable", "first": "2010-01-04", "last": "2026-11-20", "asOf": "2026-11-20", "status": "ok", "dividendStatus": "ok" },
+    { "symbol": "INTC", "name": "英特尔", "group": "stable", "first": "2010-01-04", "last": "2026-11-20", "asOf": "2026-11-20", "status": "ok", "dividendStatus": "missing" },
+    { "symbol": "QQQ", "name": "纳指 100 ETF", "group": "benchmark", "first": "2010-01-04", "last": "2026-11-20", "asOf": "2026-11-20", "status": "ok", "dividendStatus": "ok" },
+    { "symbol": "QQEW", "name": "纳指 100 等权 ETF", "group": "benchmark", "first": "2010-01-04", "last": "2026-11-20", "asOf": "2026-11-20", "status": "ok", "dividendStatus": "ok" }
+  ]
+}
