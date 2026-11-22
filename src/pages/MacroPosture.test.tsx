@@ -206,6 +206,23 @@ describe('MacroPosture', () => {
     expect(screen.getByRole('button', { name: 'A股' }).getAttribute('aria-pressed')).toBe('true')
   })
 
+  it('shows a US review with separate evidence, then removes it for local-market views', () => {
+    renderPage()
+    mockedBuild.mockImplementation(market => ({ ...viewFor(market), review: market === 'us' ? {
+      guidance: '暂缓新增战术风险。', risk: '信用观察', counterpoint: '盈利预期仍在上修。',
+      counterEvidence: [{ key: 'forwardPe', label: '前瞻市盈率', metric: metric(17.1, { unit: '倍', changes: {} }) }],
+      market: { label: '波动升高', tone: 'caution', detail: '市场观察。', evidence: [] },
+      reassess: [{ label: '转向积极', detail: '等信用和广度确认。' }],
+    } : undefined }))
+    fireEvent.click(screen.getByRole('button', { name: '美国' }))
+    const review = screen.getByRole('region', { name: '未来 4–12 周怎么观察' })
+    expect(within(review).getByText('17.1 倍')).toBeTruthy()
+    expect(within(review).getByRole('heading', { name: '市场压力' })).toBeTruthy()
+    expect(within(review).getByText('转向积极')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'A股' }))
+    expect(screen.queryByRole('region', { name: '未来 4–12 周怎么观察' })).toBeNull()
+  })
+
   it('shows loading and error states without calling the view builder, but keeps candidates', () => {
     renderPage('/invest/macro-posture', { status: 'loading' })
     expect(screen.getByRole('status').textContent).toContain('加载中')

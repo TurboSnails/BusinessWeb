@@ -1,6 +1,7 @@
 // 宏观攻守数据适配器：读取站内已有的宏观 JSON，产出 types.ts 约定的 MacroData
 import { useEffect, useState } from 'react'
-import { computeNetLiquidity, sanitizePoints } from '../macro-masters/readings'
+import { computeNetLiquidity, isValidIsoDate, sanitizePoints } from '../macro-masters/readings'
+import { qualifiedBreadth, type Breadth } from '../us-market/model'
 import type { DataState, MacroData, Market, MarketData, Metric, Window } from './types'
 
 type Tuple = [string, number]
@@ -18,6 +19,7 @@ export const FILES = {
   hk: 'macro-hk.json',
   market: 'us-market-data.json',
   fred: 'macro-masters-fred.json',
+  breadth: 'us-market-breadth.json',
 } as const
 type FileId = keyof typeof FILES
 
@@ -43,23 +45,23 @@ type RawSeries = {
   long?: unknown
   refreshError?: unknown
 }
-type RawFile = { series?: Record<string, RawSeries | undefined> }
+type RawFile = { series?: Record<string, RawSeries | undefined>; breadth?: { spx?: Breadth } }
 
 /** refs：该读数实际用到的序列（file:key），只有它们的 refreshError 才计入 failedSources。 */
 type Candidate = { points: Tuple[]; unit: string; source?: string; refs: string[] }
 
 // ---------- 读取 ----------
 
-async function readJson(file: string, fetcher: Fetcher): Promise<RawFile> {
+async function readJson(id: FileId, fetcher: Fetcher): Promise<RawFile> {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS)
   try {
-    const response = await fetcher(`${ROOT}/${file}`, { cache: 'no-cache', signal: controller.signal })
+    const response = await fetcher(`${ROOT}/${FILES[id]}`, { cache: 'no-cache', signal: controller.signal })
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
     const body: unknown = await response.json()
     if (!body || typeof body !== 'object' || Array.isArray(body)) throw new Error('结构异常')
-    const series = (body as RawFile).series
-    if (!series || typeof series !== 'object' || Array.isArray(series)) throw new Error('缺少 series')
+    const block = id === 'breadth' ? (body as RawFile).breadth : (body as RawFile).series
+    if (!block || typeof block !== 'object' || Array.isArray(block)) throw new Error('缺少数据分组')
     return body as RawFile
   } finally {
     clearTimeout(timer)
@@ -257,6 +259,13 @@ const W = WEEK_WINDOWS
 const M3: readonly Window[] = ['threeMonths']
 const Q1: readonly Window[] = ['lastQuarter']
 
+function spxBreadth(loaded: Loaded, asOf: string): Candidate | undefined {
+  const row = loaded.breadth?.breadth?.spx
+  if (!qualifiedBreadth(row) || ![row.above200, row.covered, row.total].every(Number.isFinite)
+    || typeof row.date !== 'string' || !isValidIsoDate(row.date) || row.date > asOf) return undefined
+  return { points: [[row.date, row.above200]], unit: '%', source: row.source, refs: [] }
+}
+
 function usSpecs(l: Loaded, asOf: string): Spec[] {
   return [
     { key: 'gdp', freq: 'quarterly', windows: Q1, get: () => plain(l, 'us', 'gdp', asOf) },
@@ -289,6 +298,10 @@ function usSpecs(l: Loaded, asOf: string): Spec[] {
     { key: 'fedAssets', freq: 'weekly', windows: W, get: () => plain(l, 'market', 'fedAssets', asOf) },
     { key: 'tga', freq: 'weekly', windows: W, get: () => plain(l, 'market', 'treasuryCash', asOf) },
     { key: 'rrp', freq: 'daily', windows: W, get: () => plain(l, 'market', 'overnightRrp', asOf) },
+    { key: 'vix', freq: 'daily', staleDays: 5, windows: [], get: () => fresher(plain(l, 'market', 'vixDaily', asOf), plain(l, 'us', 'vix', asOf)) },
+    { key: 'breadth200', freq: 'daily', staleDays: 5, windows: [], get: () => spxBreadth(l, asOf) },
+    { key: 'forwardPe', freq: 'weekly', windows: [], get: () => plain(l, 'market', 'spxFactSetFpe', asOf) },
+    { key: 'epsRevision', freq: 'weekly', windows: [], get: () => plain(l, 'market', 'spxForwardEpsChange', asOf) },
   ]
 }
 
@@ -313,7 +326,7 @@ function hkSpecs(l: Loaded, asOf: string): Spec[] {
 }
 
 const MARKET_FILES: Record<Market, FileId[]> = {
-  us: ['us', 'market', 'fred'],
+  us: ['us', 'market', 'fred', 'breadth'],
   cn: ['cn'],
   hk: ['hk', 'cn'],
 }
@@ -344,13 +357,13 @@ function todayIso(): string {
 }
 
 /**
- * 并行读取五个数据文件；单个文件失败时其余照常产出，并记入相关市场的 failedSources；
+ * 并行读取数据文件；单个文件失败时其余照常产出，并记入相关市场的 failedSources；
  * 全部失败或没有任何读数时抛错。asOf 为观测日期上限（之后的观测视为未来值丢弃）。
  */
 export async function loadMacroPostureData(fetcher: Fetcher = fetch, asOf?: string): Promise<MacroData> {
   const limit = asOf ?? todayIso()
   const ids = Object.keys(FILES) as FileId[]
-  const results = await Promise.allSettled(ids.map(id => readJson(FILES[id], fetcher)))
+  const results = await Promise.allSettled(ids.map(id => readJson(id, fetcher)))
   const loaded: Loaded = {}
   const failed = new Set<FileId>()
   results.forEach((r, i) => {

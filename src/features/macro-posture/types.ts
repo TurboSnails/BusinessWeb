@@ -22,6 +22,14 @@ export type Tone = 'positive' | 'neutral' | 'caution' | 'negative' | 'unknown'
 export type Signal = { label: string; tone: Tone; detail: string }
 export type Evidence = { key: string; label: string; metric?: Metric }
 export type SubIndex = Signal & { id: string; title: string; score: number | null; evidence: Evidence[] }
+export type PostureReview = {
+  guidance: string
+  risk: string
+  counterpoint: string
+  counterEvidence: Evidence[]
+  market: Signal & { evidence: Evidence[] }
+  reassess: { label: string; detail: string }[]
+}
 export type MacroView = {
   market: Market
   asOf: string | null
@@ -29,6 +37,7 @@ export type MacroView = {
   economy: Signal
   posture: Signal
   indices: SubIndex[]
+  review?: PostureReview
 }
 export type Candidate = {
   name: string

@@ -35,6 +35,24 @@ describe('macro posture', () => {
     const view = buildMacroView('us', data)
     expect(view.indices.find(i => i.id === 'credit')?.label).toBe('信用观察')
     expect(view.posture.label).toBe('信用观察')
+    expect(view.review?.risk).toContain('241 个基点')
+  })
+
+  it('shows market pressure separately and surfaces dated earnings evidence against reducing risk', () => {
+    const base = buildMacroView('us', us)
+    const view = buildMacroView('us', { ...us, metrics: {
+      ...us.metrics, vix: metric(35.89), breadth200: metric(48.7), forwardPe: metric(17.1), epsRevision: metric(4.4),
+    } })
+    expect(view.posture).toEqual(base.posture)
+    expect(view.review?.market.label).toBe('波动升高 · 广度偏弱')
+    expect(view.review?.counterEvidence.map(row => row.metric?.value)).toEqual([4.4, 17.1])
+    expect(view.review?.reassess.map(row => row.label)).toEqual(['转向积极', '加深防守', '反弹待确认'])
+  })
+
+  it('keeps stale market measurements visible without using them to infer pressure', () => {
+    const view = buildMacroView('us', { ...us, metrics: { ...us.metrics, vix: { ...metric(35.89), stale: true } } })
+    expect(view.review?.market.tone).toBe('unknown')
+    expect(view.review?.market.evidence[0].metric?.stale).toBe(true)
   })
 
   it('applies a distinct inflation cap even when growth and credit are favorable', () => {

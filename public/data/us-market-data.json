@@ -28807,7 +28807,7 @@
       "unit": "倍",
       "scope": "标普 500 FactSet 预期盈利，5 年历史均值 19.8 倍，10 年历史均值 19.1 倍",
       "frequency": "周频",
-      "source": "https://insight.factset.com/hubfs/Website/Resources%20Section/Research%20Desk/Earnings%20Insight/EarningsInsight_111326.pdf",
+      "source": "https://advantage.factset.com/hubfs/Website/Resources%20Section/Research%20Desk/Earnings%20Insight/EarningsInsight_112026.pdf",
       "history": [
         [
           "2026-09-30",
@@ -28816,9 +28816,13 @@
         [
           "2026-11-13",
           18.3
+        ],
+        [
+          "2026-11-20",
+          17.1
         ]
       ],
-      "releasedAt": "2026-11-13",
+      "releasedAt": "2026-11-20",
       "benchmark5y": 19.8,
       "benchmark10y": 19.1
     },
@@ -30533,16 +30537,20 @@
     "spxForwardEpsChange": {
       "name": "标普 500 预期 EPS 较三季度末变化",
       "unit": "%",
-      "source": "https://insight.factset.com/hubfs/Website/Resources%20Section/Research%20Desk/Earnings%20Insight/EarningsInsight_111326.pdf",
-      "scope": "标普 500；FactSet 2026 年 11 月 13 日周报，未来 12 个月 EPS 估计较 2026 年 9 月 30 日变化",
+      "source": "https://advantage.factset.com/hubfs/Website/Resources%20Section/Research%20Desk/Earnings%20Insight/EarningsInsight_112026.pdf",
+      "scope": "标普 500；FactSet 2026 年 11 月 20 日周报，未来 12 个月 EPS 估计较 2026 年 9 月 30 日变化",
       "frequency": "周频",
       "history": [
         [
           "2026-11-13",
           3.3
+        ],
+        [
+          "2026-11-20",
+          4.4
         ]
       ],
-      "releasedAt": "2026-11-13"
+      "releasedAt": "2026-11-20"
     },
     "spxTrailingFpe": {
       "name": "标普 500 过去 12 个月市盈率（FactSet）",

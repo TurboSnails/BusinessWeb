@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { bucketBefore, loadMacroPostureData, weeklyBefore } from './data'
+import { bucketBefore, FILES, loadMacroPostureData, weeklyBefore } from './data'
 
 type H = [string, number][]
 const ok = (body: unknown) => ({ ok: true, status: 200, json: async () => body }) as Response
@@ -46,7 +46,13 @@ function files(over: Record<string, unknown> = {}): Record<string, unknown> {
         treasuryCash: pub(weds.map(([d]) => [d, 900]), '十亿美元', '周频'),
         overnightRrp: pub(weds.map(([d]) => [d, 1]), '十亿美元'),
         bankReserves: pub(weds.map(([d], i) => [d, 2900 + 2 * i]), '十亿美元', '周频'),
+        vixDaily: pub([['2026-11-20', 35.89]], '点'),
+        spxFactSetFpe: pub([['2026-11-20', 17.1]], '倍', '周频'),
+        spxForwardEpsChange: pub([['2026-11-20', 4.4]], '%', '周频'),
       },
+    },
+    'us-market-breadth.json': {
+      breadth: { spx: { date: '2026-11-20', above200: 48.7, covered: 499, total: 503, source: 'https://example.test/breadth' } },
     },
     'macro-masters-fred.json': {
       series: {
@@ -106,13 +112,13 @@ describe('窗口工具', () => {
 })
 
 describe('loadMacroPostureData', () => {
-  it('并行读取五个文件，键齐全', async () => {
+  it('读取宏观快照、市场压力和盈利估值证据', async () => {
     const { fetcher, calls } = fetcherFor(files())
     const data = await loadMacroPostureData(fetcher, ASOF)
-    expect(calls).toHaveLength(5)
+    expect(calls).toHaveLength(6)
     expect(Object.keys(data.us.metrics).sort()).toEqual([
-      'baaAaa', 'bankReserves', 'cccSpread', 'claims', 'corePce', 'fedAssets', 'fedFunds', 'gdp', 'hy',
-      'inflationExp', 'netLiquidity', 'nfci', 'rrp', 'sahm', 'tenYear', 'tga', 'unrate',
+      'baaAaa', 'bankReserves', 'breadth200', 'cccSpread', 'claims', 'corePce', 'epsRevision', 'fedAssets', 'fedFunds',
+      'forwardPe', 'gdp', 'hy', 'inflationExp', 'netLiquidity', 'nfci', 'rrp', 'sahm', 'tenYear', 'tga', 'unrate', 'vix',
     ])
     expect(Object.keys(data.cn.metrics).sort()).toEqual(['cpi', 'gdp', 'ip', 'lpr', 'm1m2', 'nmpmi', 'pmi', 'ppi'])
     expect(Object.keys(data.hk.metrics).sort()).toEqual(['cnNmpmi', 'cnPmi', 'fed', 'hkd', 'south'])
@@ -120,6 +126,15 @@ describe('loadMacroPostureData', () => {
     expect(data.us.metrics.tga).toMatchObject({ date: '2026-11-18', value: 900 })
     expect(data.us.failedSources).toEqual([])
     expect(data.us.asOf).toBe('2026-11-20')
+    expect(data.us.metrics.breadth200).toMatchObject({ value: 48.7, stale: false })
+    expect(data.us.metrics.epsRevision).toMatchObject({ value: 4.4, date: '2026-11-20' })
+  })
+
+  it('拒绝无效或覆盖不足的宽度，保留其他观察读数', async () => {
+    const input = files({ 'us-market-breadth.json': { breadth: { spx: { date: '2026-11-20', above200: 48.7, covered: 460, total: 503 } } } })
+    const data = await loadMacroPostureData(fetcherFor(input).fetcher, ASOF)
+    expect(data.us.metrics.breadth200).toBeUndefined()
+    expect(data.us.metrics.vix?.value).toBe(35.89)
   })
 
   it('HY 择新鲜来源：macro-us 更新时用它；单位保持 bp', async () => {
@@ -202,7 +217,7 @@ describe('loadMacroPostureData', () => {
     const market = f['us-market-data.json'] as { series: Record<string, Record<string, unknown>> }
     const us = f['macro-us.json'] as { series: Record<string, Record<string, unknown>> }
     market.series.hyDaily.refreshError = 'x' // 落选（macro-us 更新）
-    market.series.vixDaily = { unit: '点', history: [['2026-11-20', 30]], refreshError: 'x' } // 页面不用
+    market.series.copperGold = { unit: '比值', history: [['2026-11-20', 0.1]], refreshError: 'x' } // 页面不用
     us.series.tenYear.refreshError = 'x' // 落选（同日优先日频）
     market.series.treasuryCash.refreshError = 'x' // 净流动性与 tga 的输入
     const data = await loadMacroPostureData(fetcherFor(f).fetcher, ASOF)
@@ -233,12 +248,14 @@ describe('loadMacroPostureData', () => {
   })
 
   it('真实站内数据可解析，主要读数都在', async () => {
-    const names = ['macro-us.json', 'macro-cn.json', 'macro-hk.json', 'us-market-data.json', 'macro-masters-fred.json']
+    const names = Object.values(FILES)
     const real = Object.fromEntries(names.map(n => [n, JSON.parse(readFileSync(resolve(process.cwd(), 'public/data', n), 'utf8'))]))
     const data = await loadMacroPostureData(fetcherFor(real).fetcher, ASOF)
     for (const market of ['us', 'cn', 'hk'] as const) {
       expect(data[market].failedSources).toEqual([])
-      for (const [key, m] of Object.entries(data[market].metrics)) expect(m, `${market}.${key}`).toBeDefined()
+      for (const [key, m] of Object.entries(data[market].metrics)) {
+        if (key !== 'breadth200') expect(m, `${market}.${key}`).toBeDefined()
+      }
     }
     expect(data.us.metrics.hy?.changes.fourWeeks).toBeDefined()
     expect(data.us.metrics.netLiquidity?.changes.twelveWeeks).toBeDefined()

@@ -9,6 +9,7 @@ import type {
   Market,
   Metric,
   MacroView,
+  PostureReview,
   SubIndex,
   Tone,
   Window,
@@ -77,6 +78,7 @@ function sourceLink(source: string): { href: string; label: string } | null {
     const host = new URL(href).hostname.replace(/^www\./, '')
     if (/fred\.stlouisfed\.org/i.test(host)) return { href, label: 'FRED' }
     if (/cboe\.com/i.test(host)) return { href, label: 'Cboe' }
+    if (host === 'factset.com' || host.endsWith('.factset.com')) return { href, label: 'FactSet' }
     return { href, label: host }
   } catch {
     return null
@@ -220,6 +222,41 @@ function CandidatesPanel({ market, items }: { market: Market; items: readonly Ca
   )
 }
 
+function ReviewPanel({ review }: { review: PostureReview }): JSX.Element {
+  return (
+    <section className="mp-review" aria-labelledby="mp-review-title">
+      <header className="mp-review__head">
+        <h2 id="mp-review-title">未来 4–12 周怎么观察</h2>
+        <p>{review.guidance}</p>
+        <p><strong>主要风险</strong> {review.risk}</p>
+      </header>
+      <div className="mp-review__grid">
+        <section className="mp-review__panel" aria-labelledby="mp-counter-title">
+          <h3 id="mp-counter-title">反向证据</h3>
+          <p>{review.counterpoint}</p>
+          <MetricBlock evidence={review.counterEvidence} />
+        </section>
+        <section className="mp-review__panel" aria-labelledby="mp-market-title">
+          <h3 id="mp-market-title">市场压力</h3>
+          <p className={`mp-index__status ${toneClass(review.market.tone)}`}>{review.market.label}</p>
+          <p>{review.market.detail}</p>
+          <MetricBlock evidence={review.market.evidence} />
+          <p><Link to="/monitor?tab=us-market">查看美股市场详情</Link></p>
+        </section>
+      </div>
+      <h3>什么情况会改判</h3>
+      <dl className="mp-review__conditions">
+        {review.reassess.map(item => (
+          <div key={item.label}>
+            <dt>{item.label}</dt>
+            <dd>{item.detail}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  )
+}
+
 function ReadyView({ view }: { view: MacroView }): JSX.Element {
   return (
     <>
@@ -236,6 +273,8 @@ function ReadyView({ view }: { view: MacroView }): JSX.Element {
         <SignalCard eyebrow="经济周期" signal={view.economy} />
         <SignalCard eyebrow="股票攻守" signal={view.posture} />
       </section>
+
+      {view.review && <ReviewPanel review={view.review} />}
 
       <section className="mp-indices" aria-labelledby="mp-indices-title">
         <h2 id="mp-indices-title" className="mp-indices__title">四个子指数</h2>

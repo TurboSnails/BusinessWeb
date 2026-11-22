@@ -6,14 +6,14 @@ export const CANDIDATES: Record<Market, readonly Candidate[]> = {
       name: '标普 500 盈利修正',
       category: '盈利修正',
       coverage: '历史待补',
-      description: 'spxForwardEpsChange 仅 1 点；补连续且当时可得的 FactSet 一致预期后，检验 1/3 个月修正能否取消假进攻，单点不出动量分。',
+      description: '目前仅有少量 FactSet 周报读数。补齐当时可得的一致预期后，检验 1 个月及 3 个月的修正能否减少进攻误报。',
       source: 'public/data/us-market-data.json',
     },
     {
       name: 'CAPE / Forward PE',
       category: '估值',
       coverage: '历史待补',
-      description: 'shillerCape 有 1526 点，spxFactSetFpe 仅 2 点；二者同属 V 家族，补同源历史后只检验风险预算调节，不预测短线拐点。',
+      description: 'CAPE 已有长历史，前瞻市盈率的周报样本较短。补同源历史后，检验估值对风险预算的调节作用。',
       source: 'public/data/us-market-data.json',
     },
     {

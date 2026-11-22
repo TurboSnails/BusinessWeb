@@ -137,6 +137,55 @@
   color: var(--text-secondary);
 }
 
+.mp-review {
+  margin: 0 0 28px;
+  padding: clamp(14px, 2.2vw, 22px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+}
+
+.mp-review h2,
+.mp-review h3 {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+}
+
+.mp-review__head p,
+.mp-review__panel > p:not(.mp-index__status) {
+  margin: 0 0 10px;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  font-size: 0.9rem;
+}
+
+.mp-review__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 285px), 1fr));
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.mp-review__panel {
+  min-width: 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.mp-review__panel > p:last-child { margin-top: 12px; }
+
+.mp-review__conditions {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.mp-review__conditions dt { color: var(--text-primary); font-weight: 600; }
+.mp-review__conditions dd { margin: 0; }
+
 /* 4 子指数 */
 .mp-indices {
   margin: 0 0 32px;

@@ -1,4 +1,5 @@
 import { QUADRANTS } from '../macro/cycle'
+import { buildPostureReview } from './review'
 import type { Market, MarketData, Metric, MacroView, Signal, SubIndex, Window } from './types'
 
 type Metrics = MarketData['metrics']
@@ -162,5 +163,9 @@ export function buildMacroView(market: Market, data: MarketData): MacroView {
   const f = liquidity(data.metrics)
   const rates = change(current(data.metrics, 'tenYear'), 'twelveWeeks') !== undefined
     || change(current(data.metrics, 'inflationExp'), 'twelveWeeks') !== undefined
-  return { ...base, economy: economy(g.score, i.score), posture: posture(g, i, c, f, rates), indices: [g, i, c, f] }
+  const decision = posture(g, i, c, f, rates)
+  return {
+    ...base, economy: economy(g.score, i.score), posture: decision, indices: [g, i, c, f],
+    review: buildPostureReview(data.metrics, decision, g, i, c),
+  }
 }
