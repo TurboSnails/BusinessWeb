@@ -1,0 +1,259 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-22T07:48:55.368Z",
+  "items": [
+    {
+      "symbol": "AVGO",
+      "name": "博通",
+      "group": "growth",
+      "first": "",
+      "last": "",
+      "asOf": "",
+      "status": "stale",
+      "statusNote": "usAVGO.OQ 及后缀回退均无数据：腾讯行情 usAVGO.AM 重试 2 次仍失败：腾讯行情没有 usAVGO.AM 日线",
+      "dividendStatus": "none"
+    },
+    {
+      "symbol": "META",
+      "name": "Meta",
+      "group": "growth",
+      "first": "",
+      "last": "",
+      "asOf": "",
+      "status": "stale",
+      "statusNote": "usMETA.OQ 及后缀回退均无数据：腾讯行情 usMETA.AM 重试 2 次仍失败：腾讯行情没有 usMETA.AM 日线",
+      "dividendStatus": "none"
+    },
+    {
+      "symbol": "MSFT",
+      "name": "微软",
+      "group": "growth",
+      "first": "",
+      "last": "",
+      "asOf": "",
+      "status": "stale",
+      "statusNote": "usMSFT.OQ 及后缀回退均无数据：腾讯行情 usMSFT.AM 重试 2 次仍失败：腾讯行情没有 usMSFT.AM 日线",
+      "dividendStatus": "none"
+    },
+    {
+      "symbol": "NVDA",
+      "name": "英伟达",
+      "group": "growth",
+      "first": "",
+      "last": "",
+      "asOf": "",
+      "status": "stale",
+      "statusNote": "usNVDA.OQ 及后缀回退均无数据：腾讯行情 usNVDA.AM 重试 2 次仍失败：腾讯行情没有 usNVDA.AM 日线",
+      "dividendStatus": "none"
+    },
+    {
+      "symbol": "AMZN",
+      "name": "亚马逊",
+      "group": "growth",
+      "first": "",
+      "last": "",
+      "asOf": "",
+      "status": "stale",
+      "statusNote": "usAMZN.OQ 及后缀回退均无数据：腾讯行情 usAMZN.AM 重试 2 次仍失败：腾讯行情没有 usAMZN.AM 日线",
+      "dividendStatus": "none"
+    },
+    {
+      "symbol": "GOOGL",
+      "name": "谷歌 A",
+      "group": "growth",
+      "first": "",
+      "last": "",
+      "asOf": "",
+      "status": "stale",
+      "statusNote": "usGOOGL.OQ 及后缀回退均无数据：腾讯行情 usGOOGL.AM 重试 2 次仍失败：腾讯行情没有 usGOOGL.AM 日线",
+      "dividendStatus": "none"
+    },
+    {
+      "symbol": "RKLB",
+      "name": "Rocket Lab",
+      "group": "highVol",
+      "first": "",
+      "last": "",
+      "asOf": "",
+      "status": "stale",
+      "statusNote": "usRKLB.OQ 及后缀回退均无数据：腾讯行情 usRKLB.AM 重试 2 次仍失败：腾讯行情没有 usRKLB.AM 日线",
+      "dividendStatus": "none"
+    },
+    {
+      "symbol": "SOFI",
+      "name": "SoFi",
+      "group": "highVol",
+      "first": "",
+      "last": "",
+      "asOf": "",
+      "status": "stale",
+      "statusNote": "usSOFI.OQ 及后缀回退均无数据：腾讯行情 usSOFI.AM 重试 2 次仍失败：腾讯行情没有 usSOFI.AM 日线",
+      "dividendStatus": "none"
+    },
+    {
+      "symbol": "PLTR",
+      "name": "Palantir",
+      "group": "highVol",
+      "first": "",
+      "last": "",
+      "asOf": "",
+      "status": "stale",
+      "statusNote": "usPLTR.OQ 及后缀回退均无数据：腾讯行情 usPLTR.AM 重试 2 次仍失败：腾讯行情没有 usPLTR.AM 日线",
+      "dividendStatus": "none"
+    },
+    {
+      "symbol": "TSLA",
+      "name": "特斯拉",
+      "group": "highVol",
+      "first": "",
+      "last": "",
+      "asOf": "",
+      "status": "stale",
+      "statusNote": "usTSLA.OQ 及后缀回退均无数据：腾讯行情 usTSLA.AM 重试 2 次仍失败：腾讯行情没有 usTSLA.AM 日线",
+      "dividendStatus": "none"
+    },
+    {
+      "symbol": "COIN",
+      "name": "Coinbase",
+      "group": "highVol",
+      "first": "",
+      "last": "",
+      "asOf": "",
+      "status": "stale",
+      "statusNote": "usCOIN.OQ 及后缀回退均无数据：腾讯行情 usCOIN.AM 重试 2 次仍失败：腾讯行情没有 usCOIN.AM 日线",
+      "dividendStatus": "none"
+    },
+    {
+      "symbol": "HOOD",
+      "name": "Robinhood",
+      "group": "highVol",
+      "first": "",
+      "last": "",
+      "asOf": "",
+      "status": "stale",
+      "statusNote": "usHOOD.OQ 及后缀回退均无数据：腾讯行情 usHOOD.AM 重试 2 次仍失败：腾讯行情没有 usHOOD.AM 日线",
+      "dividendStatus": "none"
+    },
+    {
+      "symbol": "CB",
+      "name": "Chubb",
+      "group": "stable",
+      "first": "",
+      "last": "",
+      "asOf": "",
+      "status": "stale",
+      "statusNote": "usCB.N 及后缀回退均无数据：腾讯行情 usCB.AM 重试 2 次仍失败：腾讯行情没有 usCB.AM 日线",
+      "dividendStatus": "none"
+    },
+    {
+      "symbol": "KO",
+      "name": "可口可乐",
+      "group": "stable",
+      "first": "",
+      "last": "",
+      "asOf": "",
+      "status": "stale",
+      "statusNote": "usKO.N 及后缀回退均无数据：腾讯行情 usKO.AM 重试 2 次仍失败：腾讯行情没有 usKO.AM 日线",
+      "dividendStatus": "none"
+    },
+    {
+      "symbol": "PG",
+      "name": "宝洁",
+      "group": "stable",
+      "first": "",
+      "last": "",
+      "asOf": "",
+      "status": "stale",
+      "statusNote": "usPG.N 及后缀回退均无数据：腾讯行情 usPG.AM 重试 2 次仍失败：腾讯行情没有 usPG.AM 日线",
+      "dividendStatus": "none"
+    },
+    {
+      "symbol": "JNJ",
+      "name": "强生",
+      "group": "stable",
+      "first": "",
+      "last": "",
+      "asOf": "",
+      "status": "stale",
+      "statusNote": "usJNJ.N 及后缀回退均无数据：腾讯行情 usJNJ.AM 重试 2 次仍失败：腾讯行情没有 usJNJ.AM 日线",
+      "dividendStatus": "none"
+    },
+    {
+      "symbol": "WMT",
+      "name": "沃尔玛",
+      "group": "stable",
+      "first": "",
+      "last": "",
+      "asOf": "",
+      "status": "stale",
+      "statusNote": "usWMT.OQ 及后缀回退均无数据：腾讯行情 usWMT.AM 重试 2 次仍失败：腾讯行情没有 usWMT.AM 日线",
+      "dividendStatus": "none"
+    },
+    {
+      "symbol": "COST",
+      "name": "好市多",
+      "group": "stable",
+      "first": "",
+      "last": "",
+      "asOf": "",
+      "status": "stale",
+      "statusNote": "usCOST.OQ 及后缀回退均无数据：腾讯行情 usCOST.AM 重试 2 次仍失败：腾讯行情没有 usCOST.AM 日线",
+      "dividendStatus": "none"
+    },
+    {
+      "symbol": "GLD",
+      "name": "SPDR 黄金 ETF",
+      "group": "stable",
+      "first": "",
+      "last": "",
+      "asOf": "",
+      "status": "stale",
+      "statusNote": "usGLD.AM 及后缀回退均无数据：腾讯行情 usGLD.N 重试 2 次仍失败：腾讯行情没有 usGLD.N 日线",
+      "dividendStatus": "none"
+    },
+    {
+      "symbol": "AXP",
+      "name": "美国运通",
+      "group": "stable",
+      "first": "",
+      "last": "",
+      "asOf": "",
+      "status": "stale",
+      "statusNote": "usAXP.N 及后缀回退均无数据：腾讯行情 usAXP.AM 重试 2 次仍失败：腾讯行情没有 usAXP.AM 日线",
+      "dividendStatus": "none"
+    },
+    {
+      "symbol": "INTC",
+      "name": "英特尔",
+      "group": "stable",
+      "first": "",
+      "last": "",
+      "asOf": "",
+      "status": "stale",
+      "statusNote": "usINTC.OQ 及后缀回退均无数据：腾讯行情 usINTC.AM 重试 2 次仍失败：腾讯行情没有 usINTC.AM 日线",
+      "dividendStatus": "none"
+    },
+    {
+      "symbol": "QQQ",
+      "name": "Invesco 纳指 100 ETF",
+      "group": "benchmark",
+      "first": "",
+      "last": "",
+      "asOf": "",
+      "status": "stale",
+      "statusNote": "usQQQ.OQ 及后缀回退均无数据：腾讯行情 usQQQ.AM 重试 2 次仍失败：腾讯行情没有 usQQQ.AM 日线",
+      "dividendStatus": "none"
+    },
+    {
+      "symbol": "QQEW",
+      "name": "First Trust 纳指 100 等权 ETF",
+      "group": "benchmark",
+      "first": "",
+      "last": "",
+      "asOf": "",
+      "status": "stale",
+      "statusNote": "usQQEW.OQ 及后缀回退均无数据：腾讯行情 usQQEW.AM 重试 2 次仍失败：腾讯行情没有 usQQEW.AM 日线",
+      "dividendStatus": "none"
+    }
+  ]
+}
