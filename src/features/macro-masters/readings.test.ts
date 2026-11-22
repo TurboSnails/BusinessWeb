@@ -685,9 +685,8 @@ describe('loadReadings', () => {
     expect(failedSources ?? []).not.toContain('美股宽度')
   })
 
-  it('仓库 public/data 快照：22 项非空、asOf 2026-11-20', async () => {
-    vi.useFakeTimers()
-    vi.setSystemTime(new Date('2026-11-22T17:00:00Z'))
+  // 读取仓库实时数据：数据每天更新，只断言结构与核心读数存在，不写死数量与日期
+  it('仓库 public/data 快照：全部来源可读、核心读数非空', async () => {
     const root = resolve(process.cwd(), 'public/data')
     const files: Record<string, unknown> = {
       'us-market-data.json': JSON.parse(readFileSync(resolve(root, 'us-market-data.json'), 'utf8')),
@@ -697,8 +696,12 @@ describe('loadReadings', () => {
       'us-equity-bond-spread.json': JSON.parse(readFileSync(resolve(root, 'us-equity-bond-spread.json'), 'utf8')),
     }
     const { readings, asOf, failedSources } = await loadReadings(mockFetch(files))
-    expect(countNonNull(readings)).toBe(22)
-    expect(asOf).toBe('2026-11-20')
+    expect(countNonNull(readings)).toBeGreaterThanOrEqual(22)
+    expect(asOf).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+    expect(asOf >= '2026-11-20').toBe(true)
+    for (const key of ['fedAssets', 'netLiquidity', 'tenYear', 'hySpread', 'vix', 'spxAbove200', 'cape'] as const) {
+      expect(readings[key], key).toBeTruthy()
+    }
     expect(failedSources).toBeUndefined()
   })
 
