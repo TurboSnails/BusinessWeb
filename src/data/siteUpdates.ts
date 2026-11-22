@@ -10,6 +10,13 @@ export interface SiteUpdate {
 // 使用中文描述结果和使用方式，不从 Git 提交、构建或日常数据刷新自动生成。
 export const SITE_UPDATES: readonly SiteUpdate[] = [
   {
+    id: 'portfolio-rebalance-masters',
+    date: '2026-11-22',
+    title: '组合回测加入大师长期持仓股',
+    description: '组合再平衡回测的可选股票从 23 只增加到 37 只，新增苹果、伯克希尔 B、万事达、Visa、穆迪、拼多多等 14 只，均来自巴菲特、段永平、李录、阿克曼、阿克雷、特里·史密斯 13F 中占比 5% 以上、五年前就已持有的股票。卡片上标「大师」，可展开看各人持仓占比。13F 有约 45 天延迟，不代表当前仍持有或推荐。',
+    href: '/lab/portfolio-rebalance',
+  },
+  {
     id: 'portfolio-rebalance-lab',
     date: '2026-11-22',
     title: '组合再平衡回测上线',

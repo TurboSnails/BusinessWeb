@@ -246,7 +246,7 @@
     {
       "symbol": "INTC",
       "name": "英特尔",
-      "group": "stable",
+      "group": "highVol",
       "first": "2010-01-04",
       "last": "2026-11-20",
       "asOf": "2026-11-20",
