@@ -4,7 +4,9 @@
 // 用市值加权的调和平均汇总成指数 PE，每次更新写入当月一个点，历史从第一次运行起逐月积累。
 // 没有成分股名单的指数，Forward PE 仍可手动录入（npm run index:fpe）。
 import { CSI300_MEMBERS, CSI500_MEMBERS, CHINEXT_MEMBERS } from './indexMembersCn.mjs'
-import { SPX_MEMBERS, SPX_ASOF, SPX_SOURCE } from './sp500Members.mjs'
+import { SPX_MEMBERS, SPX_ASOF, SPX_SOURCE, SPX_SECTORS } from './sp500Members.mjs'
+import { MAP_SYMBOLS, buildMaps } from './usMaps.mjs'
+import { CSI300_INFO } from './heatmapCnHk.mjs'
 const TIMEOUT_MS = 12000
 const UA = { 'User-Agent': 'Mozilla/5.0' }
 
@@ -41,6 +43,22 @@ export async function fetchHistoryOfMarket(key) {
   const points = (pick(await res.json()) ?? []).filter(p => p.date >= from && p.value > 0 && p.value <= cap).map(p => [p.date, p.value])
   if (points.length < 100) throw new Error(`History of Market ${key}: 数据不足`)
   return points
+}
+
+/** 美股成分股 GICS 一级行业：标普 500 取公开成分表；纳指 100 里不在标普 500 的公司手工补齐（按其 GICS 分类） */
+const EXTRA_SECTORS = {
+  ALAB: 'Information Technology', ALNY: 'Health Care', ARM: 'Information Technology', ASML: 'Information Technology',
+  CCEP: 'Consumer Staples', CRWV: 'Information Technology', FER: 'Industrials', MELI: 'Consumer Discretionary',
+  MSTR: 'Information Technology', NBIS: 'Information Technology', PDD: 'Consumer Discretionary', RKLB: 'Industrials',
+  SHOP: 'Information Technology', SPCX: 'Industrials', TRI: 'Industrials', TSM: 'Information Technology',
+}
+export const US_SECTORS = { ...SPX_SECTORS, ...EXTRA_SECTORS }
+const US_KEYS = new Set(['ndx', 'sox', 'spx'])
+/** 成分股的行业（热力图分组）；沪深 300 另换成中文名（雅虎只给英文名） */
+export function memberExtra(key, code) {
+  if (US_KEYS.has(key)) return US_SECTORS[code] ? { sector: US_SECTORS[code] } : {}
+  const cn = key === 'csi300' ? CSI300_INFO[code.split('.')[0]] : undefined
+  return cn ? { name: cn[0], sector: cn[1] } : {}
 }
 
 const MEMBERS = { ndx: NDX_MEMBERS, sox: SOX_MEMBERS, spx: SPX_MEMBERS, csi300: CSI300_MEMBERS, csi500: CSI500_MEMBERS, chinext: CHINEXT_MEMBERS }
@@ -156,7 +174,7 @@ export async function fetchQuotes(symbols) {
   await Promise.all(batches.map(async batch => {
     const res = await fetch(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${batch.join(',')}&crumb=${encodeURIComponent(crumb)}`, { headers: { ...UA, cookie }, signal: AbortSignal.timeout(TIMEOUT_MS) })
     if (!res.ok) throw new Error(`quote: HTTP ${res.status}`)
-    for (const q of (await res.json()).quoteResponse.result) out.set(q.symbol, { code: q.symbol, name: q.shortName ?? q.symbol, mcap: q.marketCap ?? 0, fwd: q.forwardPE ?? null, ttm: q.trailingPE ?? null })
+    for (const q of (await res.json()).quoteResponse.result) out.set(q.symbol, { code: q.symbol, name: q.shortName ?? q.symbol, mcap: q.marketCap ?? 0, fwd: q.forwardPE ?? null, ttm: q.trailingPE ?? null, ...(q.netAssets ? { netAssets: q.netAssets } : {}) })
   }))
   return out
 }
@@ -187,13 +205,23 @@ export async function buildIndexSnapshot(previous = null) {
       const fwd = weightedPe(members, 'fwd'), ttm = weightedPe(members, 'ttm')
       if (!fwd) { warnings.push(`${out[key].name}：成分股没有拿到 Forward PE`); continue }
       const date = new Date().toISOString().slice(0, 10)
-      out[key].members = members.map(m => ({ ...m, mcap: round(m.mcap / 1e9, 1), fwd: m.fwd && round(m.fwd, 1), ttm: m.ttm && round(m.ttm, 1) }))
+      out[key].members = members.map(m => ({ ...m, mcap: round(m.mcap / 1e9, 1), fwd: m.fwd && round(m.fwd, 1), ttm: m.ttm && round(m.ttm, 1), ...memberExtra(key, m.code) }))
       out[key].agg = { date, fwd: round(fwd.pe, 1), fwdCovered: round(fwd.covered, 3), fwdCount: fwd.count, ttm: ttm && round(ttm.pe, 1), medianFwd: round(medianOf(members, 'fwd'), 1), total: MEMBERS[key].length, got: members.length }
       setFpe({ indexes: out }, key, round(fwd.pe, 1), date)
     }
   } catch (e) {
     warnings.push(`成分股 PE：${e instanceof Error ? e.message : '拉取失败'}，沿用旧数据`)
     for (const key of Object.keys(MEMBERS)) if (out[key]) { out[key].members = previous?.indexes?.[key]?.members; out[key].agg = previous?.indexes?.[key]?.agg }
+  }
+  // 估值热力图的「全球（在美上市外国公司）」与「ETF」两张图：精选名单，失败沿用旧数据
+  let maps = previous?.maps
+  try {
+    const q = await fetchQuotes(MAP_SYMBOLS)
+    const built = buildMaps(q, new Date().toISOString().slice(0, 10))
+    if (built.adr.members.length < 20 || built.etf.members.length < 20) throw new Error('取到的数量过少')
+    maps = built
+  } catch (e) {
+    warnings.push(`热力图（全球 / ETF）：${e instanceof Error ? e.message : '拉取失败'}${maps ? '，沿用旧数据' : ''}`)
   }
   for (const key of Object.keys(HOM)) {
     if (!out[key]) continue
@@ -219,7 +247,7 @@ export async function buildIndexSnapshot(previous = null) {
   }
   // 保持 INDEXES 的顺序
   const ordered = Object.fromEntries(INDEXES.filter(ix => out[ix.key]).map(ix => [ix.key, out[ix.key]]))
-  return { snapshot: { generatedAt: new Date().toISOString().slice(0, 10), source: '雅虎财经（指数月收盘、成分股 PE 与市值）；无成分股名单的指数 Forward PE 为手动录入', indexes: ordered }, warnings }
+  return { snapshot: { generatedAt: new Date().toISOString().slice(0, 10), source: '雅虎财经（指数月收盘、成分股 PE 与市值）；无成分股名单的指数 Forward PE 为手动录入', indexes: ordered, ...(maps ? { maps } : {}) }, warnings }
 }
 
 /** 录入或覆盖某月的 Forward PE（同一个月只保留一个点） */

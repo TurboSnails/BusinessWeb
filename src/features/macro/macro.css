@@ -163,49 +163,41 @@
 /* 卡片标题行里的链接：触控目标不小于 32px */
 .macro-card__head a { display: inline-flex; align-items: center; min-height: 32px; }
 
-/* Finviz 远期市盈率热力图外链：桌面 2×2，窄屏单列；整行可点 */
-.macro-finviz-grid {
-  list-style: none;
-  margin: 12px 0 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-}
-.macro-finviz-link {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 4px;
-  min-height: 44px;
-  padding: 12px 14px;
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  background: var(--bg-secondary);
-  color: inherit;
-  text-decoration: none;
-  line-height: 1.45;
-}
-.macro-finviz-link:hover { border-color: var(--accent); color: var(--accent); }
-.macro-finviz-link__title {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.95rem;
-  font-weight: 600;
-}
-.macro-finviz-link__use {
-  font-size: 0.82rem;
-  color: var(--text-secondary);
-  font-weight: 400;
-}
-.macro-finviz-link:hover .macro-finviz-link__use { color: inherit; }
-@media (min-width: 960px) {
-  .macro-finviz-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-}
-@media (max-width: 430px) {
-  .macro-finviz-grid { grid-template-columns: 1fr; }
-}
+/* 美股个股估值热力图：绿便宜红贵（美股习惯，用中性 system-green/red，不借 A 股 --up/--down） */
+.uvh { --uvh-g3: color-mix(in srgb, var(--system-green) 70%, var(--bg-card)); --uvh-g2: color-mix(in srgb, var(--system-green) 45%, var(--bg-card)); --uvh-g1: color-mix(in srgb, var(--system-green) 22%, var(--bg-card));
+  --uvh-r3: color-mix(in srgb, var(--system-red) 70%, var(--bg-card)); --uvh-r2: color-mix(in srgb, var(--system-red) 45%, var(--bg-card)); --uvh-r1: color-mix(in srgb, var(--system-red) 22%, var(--bg-card));
+  --uvh-n: var(--bg-secondary); --uvh-na: color-mix(in srgb, var(--text-tertiary) 35%, var(--bg-card)); }
+.uvh__bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin-top: 12px; }
+.uvh__tabs { display: inline-flex; gap: 4px; padding: 3px; border-radius: var(--radius-md); background: var(--bg-secondary); }
+.uvh__tab { min-height: 32px; padding: 4px 14px; border: 0; border-radius: calc(var(--radius-md) - 2px); background: transparent; color: var(--text-secondary); font: inherit; font-weight: 600; cursor: pointer; }
+.uvh__tab.is-on { background: var(--bg-card); color: var(--text-primary); box-shadow: 0 1px 2px color-mix(in srgb, var(--text-primary) 12%, transparent); }
+.uvh__chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+.uvh__chip { min-height: 32px; padding: 4px 10px; border: 1px solid var(--border-subtle); border-radius: 999px; background: transparent; color: inherit; font: inherit; font-size: 0.82rem; cursor: pointer; }
+.uvh__chip:hover { border-color: var(--accent); }
+.uvh__chip.is-on { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.uvh__chip-pe { color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.uvh__svg { display: block; width: 100%; height: auto; border-radius: var(--radius-md); background: var(--bg-card); }
+.uvh__rect { stroke: var(--bg-card); stroke-width: 1; }
+.uvh__cell { cursor: pointer; outline: none; }
+.uvh__cell.is-on .uvh__rect, .uvh__cell:focus-visible .uvh__rect { stroke: var(--text-primary); stroke-width: 2; }
+.uvh__sector { fill: none; stroke: var(--bg-card); stroke-width: 3; pointer-events: none; }
+.uvh__head { cursor: zoom-in; outline: none; }
+.uvh__head-bg { fill: color-mix(in srgb, var(--text-primary) 72%, var(--bg-card)); }
+.uvh__head:hover .uvh__head-bg, .uvh__head:focus-visible .uvh__head-bg { fill: var(--accent); }
+.uvh__head-text { fill: var(--bg-card); font-size: 12px; font-weight: 600; pointer-events: none; }
+.uvh__label { fill: var(--text-primary); pointer-events: none; font-variant-numeric: tabular-nums; }
+.uvh__code { font-weight: 700; }
+rect.uvh--g3 { fill: var(--uvh-g3); } rect.uvh--g2 { fill: var(--uvh-g2); } rect.uvh--g1 { fill: var(--uvh-g1); }
+rect.uvh--r3 { fill: var(--uvh-r3); } rect.uvh--r2 { fill: var(--uvh-r2); } rect.uvh--r1 { fill: var(--uvh-r1); }
+rect.uvh--n { fill: var(--uvh-n); } rect.uvh--na { fill: var(--uvh-na); }
+.uvh__sw.uvh--g3 { background: var(--uvh-g3); } .uvh__sw.uvh--g2 { background: var(--uvh-g2); } .uvh__sw.uvh--g1 { background: var(--uvh-g1); }
+.uvh__sw.uvh--r3 { background: var(--uvh-r3); } .uvh__sw.uvh--r2 { background: var(--uvh-r2); } .uvh__sw.uvh--r1 { background: var(--uvh-r1); }
+.uvh__sw.uvh--n { background: var(--uvh-n); } .uvh__sw.uvh--na { background: var(--uvh-na); }
+.uvh__tip { min-height: 1.5em; margin: 8px 0 4px; font-size: 0.88rem; font-variant-numeric: tabular-nums; }
+.uvh__legend { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 0 0 8px; padding: 0; list-style: none; font-size: 0.78rem; color: var(--text-secondary); }
+.uvh__legend li { display: inline-flex; align-items: center; gap: 4px; }
+.uvh__sw { display: inline-block; width: 14px; height: 10px; border-radius: 2px; border: 1px solid var(--border-subtle); }
+.uvh a { display: inline-flex; align-items: center; gap: 2px; }
 /* 股债息差通道 */
 .macro-spread__unit { font-size: 0.95rem; font-weight: 400; color: var(--text-secondary); }
 .macro-spread__stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px 16px; margin: 14px 0 0; }

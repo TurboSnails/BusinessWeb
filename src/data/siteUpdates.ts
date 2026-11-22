@@ -10,6 +10,13 @@ export interface SiteUpdate {
 // 使用中文描述结果和使用方式，不从 Git 提交、构建或日常数据刷新自动生成。
 export const SITE_UPDATES: readonly SiteUpdate[] = [
   {
+    id: 'us-valuation-heatmap',
+    date: '2026-11-22',
+    title: '估值位置页内嵌估值热力图（美股、A 股、港股）',
+    description: '不用再跳到 Finviz：估值位置页直接画出 6 张估值热力图——标普 500、纳指 100、全球（在美上市的大型外国公司，按国家分组）、ETF（按资产类别分组）、沪深 300 与恒生指数。面积代表市值（ETF 为基金规模），颜色代表估值高低（绿便宜、红贵、灰为亏损或无盈利）；个股用 Forward PE，ETF 用持仓滚动 PE，A 股和港股方块直接写中文名。按钮上标出各分组 PE，点分组放大、点方块看明细，手机上改为竖版布局。数据随估值快照与“刷新最新数据”更新。',
+    href: '/monitor?tab=valuation',
+  },
+  {
     id: 'portfolio-rebalance-spx-signal',
     date: '2026-11-22',
     title: '组合回测的大跌切换可用标普 500 做信号',

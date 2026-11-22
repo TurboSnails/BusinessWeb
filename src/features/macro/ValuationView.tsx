@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronRight, RefreshCw } from 'lucide-react'
 import FpeChart from './FpeChart'
-import FinvizMaps from './FinvizMaps'
+import UsValuationHeatmap from './UsValuationHeatmap'
 import LongHistoryChart from './LongHistoryChart'
 import { ToneBadge } from './MacroViews'
 import { estimateFpe, mergeLive, pctTone, statsOf, type IndexData, type IndexSnapshot, type Member } from './valuation'
@@ -125,13 +125,13 @@ export function ValuationView({ data: initial, onData }: { data: IndexSnapshot; 
         <h3>怎么读这一页</h3>
         <p>一张表看各大指数<b>现在站在历史的什么位置</b>：离最高点多远、价格在近十年里的分位、Forward PE 在自己历史里的分位。分位高说明相对自己的过去偏贵，<b>不是卖出信号</b>——高估值可以持续很久，它只用来调整长期回报预期和仓位预算。点指数名展开长历史图。</p>
       </section>
-      <FinvizMaps />
       <div className="page-toolbar">
         <span className="page-toolbar__note" role="status">{notice || `快照更新于 ${data.generatedAt}，可刷新获取实时价格与成分股 PE`}</span>
         <button type="button" className="tool-btn tool-btn--primary" onClick={() => void refresh()} disabled={busy}>
           <RefreshCw size={15} className={busy ? 'animate-spin' : ''} aria-hidden="true" />{busy ? '正在拉取…' : '刷新最新数据'}
         </button>
       </div>
+      <UsValuationHeatmap data={data} />
       <IndexExplorer indexes={data.indexes} />
       <h2 className="macro-h2">价格位置</h2>
       {GROUPS.map(g => {

@@ -171,6 +171,8 @@ async function main() {
 export const SPX_ASOF = ${JSON.stringify(TODAY)}
 export const SPX_SOURCE = ${JSON.stringify(membersDoc.source)}
 export const SPX_MEMBERS = [${symbolsLiteral}]
+/** GICS 一级行业（同一公开成分表的 GICS Sector 列），给估值热力图分组 */
+export const SPX_SECTORS = ${JSON.stringify(Object.fromEntries(rows.filter(r => r.sector).map(r => [r.symbol, r.sector]).sort((a, b) => a[0].localeCompare(b[0]))))}
 `)
 
   let quotes = {}

@@ -2,7 +2,7 @@ import { percentileOf } from './indicators'
 import { hasHistory, monthlySeries, validDate } from '../index-catalog/catalog'
 import type { Tone } from './stages'
 
-export interface Member { code: string; name: string; /** 市值，十亿美元 */ mcap: number; fwd: number | null; ttm: number | null }
+export interface Member { code: string; name: string; /** 市值，十亿美元 */ mcap: number; fwd: number | null; ttm: number | null; /** GICS 一级行业（仅美股指数） */ sector?: string }
 export interface IndexAgg { date: string; fwd: number; fwdCovered: number; fwdCount: number; ttm: number | null; medianFwd: number | null; total: number; got: number }
 
 export interface IndexData {
@@ -26,7 +26,9 @@ export interface IndexData {
   ref?: { source: string; points: [string, number][]; /** true：参考的是口径不同的近似指数，不做估算 */ proxy?: boolean; /** 手动导入，更新时不被覆盖 */ manual?: boolean; /** 'trailing'：滚动 PE，缺省为 Forward PE */ kind?: 'trailing' }
   agg?: IndexAgg
 }
-export interface IndexSnapshot { generatedAt: string; checkedAt?: string; source: string; indexes: Record<string, IndexData> }
+/** 估值热力图的非指数图（全球在美上市外国公司、ETF）：sector 存分组名（国家 / 资产类别），ETF 的 mcap 为基金规模 */
+export interface HeatMapData { date: string; source: string; total: number; /** 市值币种，缺省美元 */ currency?: 'HKD'; members: Member[] }
+export interface IndexSnapshot { generatedAt: string; checkedAt?: string; source: string; indexes: Record<string, IndexData>; maps?: { hsi?: HeatMapData; adr?: HeatMapData; etf?: HeatMapData } }
 
 export interface IndexStats {
   /** 距历史最高月收盘的回撤（%，≤0） */
@@ -116,5 +118,5 @@ export function mergeLive(old: IndexSnapshot, fresh: IndexSnapshot): IndexSnapsh
     const month = new Set(f.fpe.map(p => p[0].slice(0, 7)))
     indexes[k] = { ...f, fpe: [...(o?.fpe ?? []).filter(p => !month.has(p[0].slice(0, 7))), ...f.fpe].sort((a, b) => a[0].localeCompare(b[0])), ref: f.ref ?? o?.ref, members: f.members ?? o?.members, daily: f.daily ?? o?.daily, agg: f.agg ?? o?.agg }
   }
-  return { ...fresh, indexes }
+  return { ...fresh, indexes, maps: fresh.maps ?? old.maps }
 }
