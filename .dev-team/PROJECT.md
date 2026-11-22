@@ -58,3 +58,12 @@ manager 开工后按实际目标补充业务入口、API 契约位置、验收�
 - 铜金比：`scripts/us-market-data.mjs` 用 Yahoo HG=F/GC=F，日期标签 = 纽约时区(时间戳+6h)，17:30 ET 前不写当日；上线后核对近一年 252 个交易日、无周末日期。
 - 回测页：自动结论（`conclusions.ts`）与研究观察；反事实与基准用原组合实际交易日；纳指 100 等权基准为 QQQE（QQEW 自 2025-12-22 改为精选 50 只）。
 - 流程：Cursor/Kimi/Codex 实现，Claude 自审 + Codex 独立审查四轮后发布。教训：读取 `public/data` 实时数据的测试不要写死读数数量或日期，否则数据采集后会让 Pages 部署失败。
+
+## 2026-11-22 大跌切换的标普 500 信号
+用户问"标普 500 跌多少时多卖稳定股、多买低位股"有没有回测。原研究只用纳指 100 做信号，本轮补上标普版。Run spx-signal（`run_baa79a55bef0`）：Cursor 做页面，Kimi 做独立复算与报告，Claude 审查、集成。在独立 worktree `spx-signal`（分支 `TurboSnails/spx-signal`）里完成，因为主检出当时有别的会话在改宏观页面。
+- 页面：大跌切换可选信号指数（QQQ / SPY），结果页新增"信号指数当前位置"（`RunResult.signalState`，含最后一个交易日已触发未成交的 `pendingAction`）。信号用 ETF 复权价，与指数点位的跌幅略有差异（2022 年那轮 SPY 触发 2 步，`^GSPC` 为 3 步）。
+- 研究：`docs/research/portfolio-rebalance-explore-2026-11-21/spx-signal.md`，程序 `data-raw/portfolio-explore/work/spx-signal/run.py`，锚点 `longrun/anchor_spx.py`。1986 年以来 54 个行业组合，标普 −10% 到 −30% 起点相对普通再平衡的年化中位差 +0.38 到 +0.67 个百分点，最大回撤加深 2.9 到 6.5 个百分点（50% 上限后 0.3 到 2.1）；−20% 在 40 年里只触发 5 次。Kimi 的独立程序与 manager 的复算逐项一致。
+- 标普收盘用 Yahoo `^GSPC`，2019 年以来与腾讯 `us.INX` 逐日核对；本机当天连不上 FRED。
+- SPY 已加入 `universe.json` 基准组，首份数据要在推送后手动触发 `portfolio-prices` 工作流生成；在此之前表单只列出纳指 100。
+- 全量 349 文件 / 2,696 测试、884 脚本测试、typecheck、lint 0 error、build 通过；桌面与 390 宽浏览器验收用离线夹具数据完成。截至记录时已在分支上提交，未推送、未部署。
+
