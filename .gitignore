@@ -34,6 +34,7 @@ data-raw/portfolio-explore/longrun/*.zip
 data-raw/portfolio-explore/longrun/*.csv
 data-raw/portfolio-explore/longrun/*.txt
 data-raw/portfolio-explore/longrun/NASDAQ*.json
+data-raw/portfolio-explore/longrun/GSPC*.json
 data-raw/portfolio-explore/work/**/*_rows.json
 data-raw/portfolio-explore/work/**/trade-log.csv
 data-raw/portfolio-explore/work/**/*.log

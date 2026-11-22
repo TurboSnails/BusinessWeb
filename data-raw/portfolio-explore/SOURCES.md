@@ -24,6 +24,18 @@
 | `longrun/NASDAQCOM.json` | `8ec7a8c993506f4e878530ee9232d533b2ad035c0f48278752356e0dcf99f13d` |
 | `longrun/NASDAQCOM.txt` | `54264ddf6e4f6517a4b8cfe78f99e71f9b64ce2684a6fc32d9d9c9da26149ad8` |
 
+## 标普 500 信号（2026-11-22）
+
+- 来源：Yahoo chart 接口 `https://query1.finance.yahoo.com/v8/finance/chart/%5EGSPC?period1=473385600&period2=1795305600&interval=1d`，manager 于 2026-11-22 下载，1985-01-02 至 2026-11-20，价格指数。
+- 处理：UTC 时间戳减 5 小时后取纽约日期，保留非空收盘，解析为与 `NASDAQ100.json` 相同的 `{"history": [["YYYY-MM-DD", 收盘], ...]}` 格式；共 10,554 行，无空收盘。原始与派生文件均只留本机。
+- 交叉核对：执行者 2026-11-22 对 FRED `https://fred.stlouisfed.org/data/SP500` 的一次请求未返回可解析的日度观测。manager 同日改用腾讯指数日线 `https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=us.INX,day,2019-01-01,2026-11-21,2000,`（响应 sha256 `594ed0d92f76d10f63c638fda5674e9fba14c4c29f1b3dd5045ae9d48d96c03f`，只留本机）逐日核对：2019-01-02 至 2026-11-20 共 1,984 个交易日，日期完全重合，收盘相对偏差超过 0.01% 的有 2 天，最大为 2021-08-11 的 0.119%。2019 年以前只人工核对了 1987-10-19 为 224.84、2009-03-09 为 676.53、2020-03-23 为 2237.40，三项均一致。
+- 复现锚点程序：`longrun/anchor_spx.py`（manager 独立实现，已提交）；执行者的独立程序在 `work/spx-signal/run.py`。
+
+| 文件 | sha256 |
+|---|---|
+| `longrun/GSPC-yahoo-chart.json` | `9ea2369531ae88aff4600cb83a75cc8509ef6b5a40e4175d92f98b0d994d299c` |
+| `longrun/GSPC.json` | `9dd16bec4c740fc2b2882be41ac969f38a9b4843b1576fc83bfe789f0536741b` |
+
 ## 目录
 
 - `anchor.py`：短窗口与 2016 年以来的复现锚点（manager 独立实现）。
