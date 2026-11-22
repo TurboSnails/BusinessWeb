@@ -2121,7 +2121,7 @@
 .mm-overview__compact-unit {
   color: var(--text-secondary);
   font-weight: 400;
-  font-size: 0.85em;
+  font-size: 12px; /* 不低于 12px */
 }
 .mm-overview__key-block {
   display: flex;
