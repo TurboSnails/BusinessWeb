@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-22T08:40:49.657Z",
+  "generatedAt": "2026-11-22T08:46:44.773Z",
   "items": [
     {
       "symbol": "AVGO",
@@ -262,7 +262,7 @@
       "last": "2026-11-20",
       "asOf": "2026-11-20",
       "status": "ok",
-      "crossCheck": "ok",
+      "crossCheck": "unavailable",
       "dividendStatus": "ok"
     },
     {
@@ -273,7 +273,7 @@
       "last": "2026-11-20",
       "asOf": "2026-11-20",
       "status": "ok",
-      "crossCheck": "ok",
+      "crossCheck": "unavailable",
       "dividendStatus": "ok"
     },
     {
@@ -497,7 +497,7 @@
       "last": "2026-11-20",
       "asOf": "2026-11-20",
       "status": "ok",
-      "crossCheck": "ok",
+      "crossCheck": "unavailable",
       "dividendStatus": "ok",
       "holders": [
         {
@@ -515,13 +515,31 @@
       "last": "2026-11-20",
       "asOf": "2026-11-20",
       "status": "ok",
-      "crossCheck": "ok",
+      "crossCheck": "unavailable",
       "dividendStatus": "ok",
       "holders": [
         {
           "who": "阿克曼（潘兴广场）",
           "weight": 0.122,
           "asOf": "2026-03-31"
+        }
+      ]
+    },
+    {
+      "symbol": "PDD",
+      "name": "拼多多",
+      "group": "highVol",
+      "first": "2018-07-26",
+      "last": "2026-11-20",
+      "asOf": "2026-11-20",
+      "status": "ok",
+      "crossCheck": "ok",
+      "dividendStatus": "none",
+      "holders": [
+        {
+          "who": "李录（喜马拉雅资本）",
+          "weight": 0.242,
+          "asOf": "2026-09-30"
         }
       ]
     }
