@@ -1,0 +1,40 @@
+== 巴菲特（伯克希尔） 2026-09-30（对照 2021-09-30）
+   25.0%  APPLE INC                          长期持有
+   15.2%  AMERICAN EXPRESS CO                长期持有
+   12.0%  ALPHABET INC                       五年前未持有
+   11.3%  COCA COLA CO                       长期持有
+    8.2%  BANK OF AMER CORP                  长期持有
+    5.7%  CHEVRON CORPORATION                长期持有
+== 段永平（H&H） 2026-09-30（对照 2021-09-30）
+   41.1%  APPLE INC                          长期持有
+   24.2%  BERKSHIRE HATHAWAY INC DEL         长期持有
+   12.7%  PDD HOLDINGS INC                   五年前未持有
+    8.4%  TESLA INC                          五年前未持有
+== 李录（喜马拉雅资本） 2026-09-30（对照 2021-09-30）
+   45.2%  ALPHABET INC                       长期持有
+   24.2%  PDD HOLDINGS INC                   长期持有
+   14.6%  BERKSHIRE HATHAWAY INC DEL         长期持有
+    9.1%  EAST WEST BANCORP INC              五年前未持有
+== 阿克曼（潘兴广场） 2026-03-31（对照 2021-03-31）
+   17.6%  BROOKFIELD CORP                    五年前未持有
+   17.4%  AMAZON COM INC                     五年前未持有
+   15.7%  UBER TECHNOLOGIES INC              五年前未持有
+   15.3%  MICROSOFT CORP                     五年前未持有
+   12.2%  RESTAURANT BRANDS INTL INC         长期持有
+   11.1%  META PLATFORMS INC                 五年前未持有
+    8.7%  HOWARD HUGHES HOLDINGS INC         五年前未持有
+== 阿克雷（Akre Capital） 2026-09-30（对照 2021-09-30）
+   22.0%  MASTERCARD INCORPORATED            长期持有
+   10.5%  MOODYS CORP                        长期持有
+    8.9%  KKR & CO L P DEL                   长期持有
+    8.7%  BROOKFIELD CORP                    五年前未持有
+    8.0%  ROPER TECHNOLOGIES INC             长期持有
+    7.6%  VISA INC                           长期持有
+    6.7%  COSTAR GROUP INC                   长期持有
+    5.1%  FAIR ISAAC CORP                    五年前未持有
+== 特里·史密斯（Fundsmith） 2026-09-30（对照 2021-09-30）
+    7.7%  WATERS CORP                        长期持有
+    6.3%  VISA INC                           长期持有
+    6.2%  MASTERCARD INCORPORATED            五年前未持有
+    6.0%  VEEVA SYS INC                      五年前未持有
+    5.7%  STRYKER CORPORATION                长期持有
