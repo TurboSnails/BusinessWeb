@@ -63,7 +63,7 @@ export default function OverviewNow({ view }: { view: CycleView }): JSX.Element 
       <h2 id="mm-now-title" className="mm-now__heading">现在的位置</h2>
 
       <div className="mm-now__headline">
-        <p className="mm-now__posture">{posture.label}</p>
+        <p className="mm-now__posture">大师规则映射：{posture.label}</p>
         <div className="mm-now__tags">
           <Badge tone="neutral" className="mm-chip">{confidenceLabel(posture.confidence)}</Badge>
           <Badge tone="neutral" className="mm-chip">{phase.name}</Badge>

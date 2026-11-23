@@ -57,7 +57,7 @@ export const INVEST_GROUPS: HubGroup[] = [
     links: [
       { path: '/watch', label: '观察盘', short: '宏观、全球、A股一页看完', desc: '宏观阶段与关键读数、全球主要指数与商品汇率、A 股涨跌停与资金流向，一页看完' },
       { path: '/monitor', label: '宏观温度', short: '中美港宏观、牛熊与估值', desc: '中美港经济温度、牛熊周期六维证据、周月趋势、复盘记录与估值位置', minor: true },
-      { path: '/invest/macro-posture', label: '宏观攻守', short: '经济周期、信用与资金环境', desc: '用增长、通胀、信用和流动性分别观察经济周期与股票攻守', minor: true },
+      { path: '/invest/macro-posture', label: '宏观攻守', short: '现在该进攻还是防守', desc: '融合九位宏观投资人方法的美股综合攻守指标：五档仓位、置信度、距离改判，拿不准的指标分级放外圈；规则公开，附 1973 年以来回测', minor: true },
       { path: '/pulse', label: '全球行情', short: '指数热力图与 A 股走势', desc: '全球指数热力图、A 股指数 K 线与成交', minor: true },
       { path: '/daily-analysis', label: 'A股每日复盘', short: '涨跌停、连板与资金', desc: '自动获取 A 股行情、涨跌停与连板复盘', minor: true },
       { path: '/sector-rotation', label: '板块轮动', short: '板块强弱与轮动', desc: '行业板块的相对强弱与轮动阶段', minor: true },
@@ -91,7 +91,7 @@ export const INVEST_GROUPS: HubGroup[] = [
     hint: '估值看价格贵不贵，网格管买卖节奏，ETF 地图查选品。从候选池进入会自动带上公司。',
     links: [
       { path: '/invest/comprehensive-valuation', label: '综合估值', short: '四维方法、情景测算与研究卡', desc: '资产质量、交叉估值、预期差与风险预算；三情景收益及赔率测算，导出研究卡' },
-      { path: '/invest/macro-masters', label: '宏观大师', short: '偏攻还是偏守，九位怎么看', desc: '先给本站按公开数据归纳的当前位置：短线偏攻还是偏守、处在什么阶段、什么情况会改判；再对照德鲁肯米勒、达利欧、马克斯、都铎·琼斯、茨威格、格兰瑟姆、索罗斯、邓普顿、科斯托拉尼各自的方法、指标与可靠性。本站口径，未经回测证实，不构成买卖建议' },
+      { path: '/invest/macro-masters', label: '宏观大师', short: '偏攻还是偏守，九位怎么看', desc: '先给本站按公开数据归纳的当前位置：短线偏攻还是偏守、处在什么阶段、什么情况会改判；再对照德鲁肯米勒、达利欧、马克斯、都铎·琼斯、茨威格、格兰瑟姆、索罗斯、邓普顿、科斯托拉尼各自的方法、指标与可靠性。大师读数是本站映射，未经回测证实；综合攻守结论见宏观攻守页，不构成买卖建议' },
       { path: '/invest/ai-token-economics', label: 'AI 降价与利润', short: 'Token 用量、降价与毛利', desc: 'Ramp 企业样本的 Token 用量、支出与价格变化，OpenAI / Anthropic 收入集中度、单位毛利敏感性与跟踪清单；数据整理自 AI 对话，待独立核实' },
       { path: '/invest/fundamental-quant', label: '基本面量化', short: '书籍方法、因子与策略验证', desc: '以《投资策略实战分析》为起点的基本面量化方法库：因子口径、策略草案、林奇分类衔接与 A 股验证路径' },
       { path: '/valuation', label: '估值工作台', short: '自动取财报，六法三情景', desc: '连接本机估值服务，自动采集财报，六方法三情景估值与报告导出' },

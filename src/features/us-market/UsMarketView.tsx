@@ -12,6 +12,7 @@ import { withinYears } from './explain'
 import HistoryChart from './HistoryChart'
 import { format, MarketCard, RANGES, route, SignedChg, signed, val, type Item, type RangeId } from './cards'
 import PlainSummary, { type Question } from './PlainSummary'
+import SummaryCard from '../macro-posture/composite/SummaryCard'
 import RelativePerformance from '../us-market/RelativePerformance'
 import WeeklyMarketBrief, { type BriefSignal } from './WeeklyMarketBrief'
 import UsLiquidity from './UsLiquidity'
@@ -187,6 +188,7 @@ export default function UsMarketView() {
     {rangeSelector}
   </div>
   const controls = <>
+    <SummaryCard />
     <div className="us-market__top">
       <Segmented label="美股细分" items={GROUPS} value={group} onChange={next => go(next)} />
       <div className="us-market__top-end">

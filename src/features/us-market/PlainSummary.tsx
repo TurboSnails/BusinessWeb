@@ -77,7 +77,7 @@ export default function PlainSummary({ questions, trend, asOf, market = '美股'
   return (
     <section className="us-plain" aria-label="一句话看懂">
       <div className="us-plain__head">
-        <h3>{market}各维度判断</h3>
+        <h3>{market === '美股' ? '市场层面怎么看（短线参考）' : `${market}各维度判断`}</h3>
         {trend && <p className="us-plain__why">{market === 'A股' ? '沪深300 中期趋势' : '美股近期交易环境'} · {trend.label}</p>}
         <p className="us-plain__evidence">核对日 <time dateTime={asOf}>{asOf}</time> · {answered.length}/{questions.length} 个问题有可用证据</p>
       </div>
@@ -107,7 +107,7 @@ export default function PlainSummary({ questions, trend, asOf, market = '美股'
           </li>
         ))}
       </ul>
-      <p className="us-plain__disclaimer">每个问题按来源分组计票，每组最多计入一项。下方指标卡可查看历史位置和判定依据。</p>
+      <p className="us-plain__disclaimer">{market === '美股' ? '综合攻守结论以上方卡片为准。' : ''}每个问题按来源分组计票，每组最多计入一项。下方指标卡可查看历史位置和判定依据。</p>
     </section>
   )
 }

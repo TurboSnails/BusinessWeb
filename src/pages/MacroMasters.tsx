@@ -8,6 +8,7 @@ import { OverviewJumpProvider } from '../features/macro-masters/OverviewJump'
 import OverviewMasters from '../features/macro-masters/OverviewMasters'
 import OverviewNav from '../features/macro-masters/OverviewNav'
 import OverviewNow from '../features/macro-masters/OverviewNow'
+import SummaryCard from '../features/macro-posture/composite/SummaryCard'
 import { useReadings } from '../features/macro-masters/readings'
 import '../styles/macro-masters.css'
 
@@ -15,7 +16,7 @@ export const MACRO_MASTERS_FOOTER =
   '整理自公开访谈、演讲与书信，原话注明出处；各人观点会变，读数只是本站数据的映射，不代表他们本人的判断，也不构成买卖建议。'
 
 export const MACRO_MASTERS_LEAD =
-  '先看本站按公开数据归纳的当前位置，再对照九位宏观投资人各自的方法。不打总分；攻守判断是本站口径，未经回测证实，不构成买卖建议。'
+  '上方是本站综合攻守结论（规则公开、1973 年以来回测）；下方的当前位置、短线攻守与九位宏观投资人的读数是按各自方法做的映射，未经回测证实，不构成买卖建议。'
 
 export default function MacroMasters(): JSX.Element {
   const readings = useReadings()
@@ -32,8 +33,10 @@ export default function MacroMasters(): JSX.Element {
       <header className="page-head mm-overview__head">
         <h1>宏观大师怎么看周期</h1>
         <p>{MACRO_MASTERS_LEAD}</p>
-        <p><Link to="/invest/macro-posture">查看宏观攻守与备选指标</Link></p>
+        <p><Link to="/invest/macro-posture">查看本站综合攻守结论与回测</Link></p>
       </header>
+
+      <SummaryCard />
 
       <OverviewJumpProvider>
         <OverviewNav />

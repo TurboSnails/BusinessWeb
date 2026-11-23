@@ -22,6 +22,7 @@ import type { MacroSnapshot } from '../features/macro/indicators'
 import type { CnKey } from '../features/macro/china'
 import type { HkKey } from '../features/macro/hk'
 import { Page } from '../components/ui'
+import SummaryCard from '../features/macro-posture/composite/SummaryCard'
 import { PageDataFreshness } from '../components/ui/PageDataFreshness'
 import '../styles/monitor.css'
 
@@ -170,6 +171,7 @@ export default function Monitor(): JSX.Element {
           </div>
         )}
         {snap && tab === 'overview' && <OverviewView snap={snap} cn={data.cn} hk={data.hk} onRefresh={refresh} />}
+        {tab === 'us' && <SummaryCard />}
         {snap && tab === 'us' && <UsView snap={snap} />}
         {snap && tab === 'cn' && (data.cn ? <ChinaView snap={data.cn} /> : <p role="alert" className="macro-muted">中国数据加载失败，请刷新重试。</p>)}
         {snap && tab === 'hk' && (data.hk ? <HkView snap={data.hk} /> : <p role="alert" className="macro-muted">港股数据加载失败，请刷新重试。</p>)}

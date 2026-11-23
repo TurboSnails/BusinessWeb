@@ -9,6 +9,10 @@ import { READING_LABELS } from '../features/macro-masters/readings'
 import type { Reading, ReadingKey } from '../features/macro-masters/types'
 import MacroMasters, { MACRO_MASTERS_FOOTER, MACRO_MASTERS_LEAD } from './MacroMasters'
 
+vi.mock('../features/macro-posture/composite/SummaryCard', () => ({
+  default: () => <section aria-label="本站宏观攻守结论"><h2>本站宏观攻守结论</h2></section>,
+}))
+
 vi.mock('../features/macro-masters/readings', async () => {
   const actual = await vi.importActual<typeof import('../features/macro-masters/readings')>('../features/macro-masters/readings')
   return {
@@ -156,8 +160,12 @@ describe('MacroMasters 总览页', () => {
     const expected = buildCycleView(fixtureReadings)
     renderPage()
 
-    expect(screen.getByRole('heading', { name: '现在的位置' })).toBeTruthy()
-    expect(screen.getByText(expected.posture.label)).toBeTruthy()
+    const now = screen.getByRole('heading', { name: '现在的位置' })
+    const summary = screen.getByRole('heading', { name: '本站宏观攻守结论' })
+    expect(summary.compareDocumentPosition(now) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(screen.getByRole('link', { name: '查看本站综合攻守结论与回测' }).getAttribute('href')).toBe('/invest/macro-posture')
+    expect(screen.getByText(`大师规则映射：${expected.posture.label}`)).toBeTruthy()
+    expect(screen.queryByText('短线攻守：按大师规则映射，非本站综合结论。')).toBeNull()
     expect(screen.getByText(expected.phase.name)).toBeTruthy()
     expect(screen.getByText(expected.posture.meaning)).toBeTruthy()
     expect(screen.getByText(expected.phase.summary)).toBeTruthy()
