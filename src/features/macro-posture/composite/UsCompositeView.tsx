@@ -3,6 +3,7 @@ import AnchorNav from './AnchorNav'
 import BacktestPanel from './BacktestPanel'
 import CandidatesPanel from './CandidatesPanel'
 import ConclusionCard from './ConclusionCard'
+import MarketPanel from './MarketPanel'
 import MastersOutlook from './MastersOutlook'
 import MethodNotes from './MethodNotes'
 import OuterRing from './OuterRing'
@@ -29,6 +30,7 @@ export default function UsCompositeView({ state }: { state: CompositeState }): J
       <AnchorNav />
       <ConclusionCard data={data} />
       <PillarsSection pillars={data.current.pillars} />
+      <MarketPanel />
       <TacticalBreakers current={data.current} />
       <OuterRing items={data.outer} />
       <MastersOutlook siteTier={data.current.final.tier} />

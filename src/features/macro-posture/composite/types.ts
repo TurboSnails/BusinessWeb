@@ -223,3 +223,62 @@ export type CandidatesFile = {
   combinedRound2?: { ids: string[]; withCandidate: { full: CandidateMetrics; early: CandidateMetrics; late: CandidateMetrics }; pass: boolean; detail: string }
 }
 
+// ---- 市场综合（public/data/macro-posture-market.json，由 scripts/macro-posture-market.mjs 生成，设计第 13 节） ----
+export type MarketMetrics = { cagr: number; vol: number; maxDd: number; sharpe: number; avgEquity: number; switchesPerYear: number; recessionsCaught?: number; falseAlarmMonths?: number }
+export type MarketComponent = {
+  id: 'breadth' | 'narrow' | 'volume' | 'erp' | 'cape' | 'forwardPe'
+  label: string
+  display: string            // 当前读数大白话
+  observedOn: string | null
+  score: ComponentScore | null
+  rule: string
+  inBacktest: boolean        // forwardPe 为 false
+  note?: string              // 如「无免费历史，只展示」
+}
+export type MarketConfig = {
+  id: string                 // 如 'B:breadth-a,volume-b,erp-a'
+  construction: 'A' | 'B' | 'C' | 'D'
+  label: string              // 中文说明
+  train: MarketMetrics
+  test: MarketMetrics
+  full: MarketMetrics
+}
+export type MarketFile = {
+  generatedAt: string
+  preregistered: string
+  stage1: {
+    trainRange: string; testRange: string
+    configs: MarketConfig[]             // 全部组合，按训练期夏普降序
+    chosenId: string
+    benchmarks: { id: 'buyhold' | 'trend' | 'static70'; label: string; train: MarketMetrics; test: MarketMetrics; full: MarketMetrics }[]
+    current: { score: number | null; tier: TierId | null; components: MarketComponent[]; headline: string }
+    timeline: { d: string; score: number | null; tier: TierId | null }[]   // 选中组合的月度档位
+  }
+  stage2: {
+    baselineLabel: string               // 如「v2.2（实时数据口径）」
+    trainRange: string; testRange: string
+    weights: { w: number; train: MarketMetrics; test: MarketMetrics; full: MarketMetrics }[]
+    baseline: { train: MarketMetrics; test: MarketMetrics; full: MarketMetrics }
+    chosenW: number
+    checks: { id: string; label: string; pass: boolean; detail: string }[]
+    verdict: 'adopt' | 'reference'      // adopt = 并入核心 v2.3；reference = 只作独立参考
+    reason: string
+  }
+  disclosures: string[]
+}
+
+// ---- 每日档位（public/data/macro-posture-daily.json，由 scripts/macro-posture.mjs 生成，设计第 14 节） ----
+/** 档位编码：0 进攻 1 偏进攻 2 中性 3 偏防守 4 防守，-1 证据不足（与 tiers 顺序一致） */
+export type TierCode = 0 | 1 | 2 | 3 | 4 | -1
+export type DailyFile = {
+  generatedAt: string
+  ruleVersion: string
+  start: string                       // YYYY-MM-DD
+  end: string                         // 最新交易日
+  /** 每个交易日一行：[日期, 标普收盘, 周期档位, 最终档位, 是否为月末正式定档(1)/月中预估(0), 衰退(1/0)] */
+  rows: [string, number, TierCode, TierCode, 0 | 1, 0 | 1][]
+  /** 档位发生变化的日期与原因摘要（最多最近 200 条），供悬浮/列表显示 */
+  changes: { d: string; from: TierCode; to: TierCode; layer: 'regime' | 'final'; reason: string }[]
+  disclosures: string[]
+}
+

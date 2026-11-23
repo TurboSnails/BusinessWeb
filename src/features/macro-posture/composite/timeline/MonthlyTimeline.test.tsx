@@ -1,7 +1,7 @@
 import React from 'react'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import TimelineChart from '../TimelineChart'
+import TimelineView from './TimelineView'
 import { CHART_LEFT, CHART_RIGHT } from './chartMath'
 import { makeTimeline, mockSvgGeometry } from './testUtils'
 
@@ -30,14 +30,14 @@ afterEach(() => {
 })
 
 function setup(timeline = makeTimeline()) {
-  render(<TimelineChart timeline={timeline} />)
+  render(<TimelineView mode="month" points={timeline} />)
   const chart = screen.getByTestId('mp-timeline-chart') as unknown as SVGSVGElement
   const months = () => Number(chart.getAttribute('data-visible-months'))
   const caption = () => document.querySelector('.mp-timeline__caption time')?.textContent
   return { chart, months, caption }
 }
 
-describe('TimelineChart 区间与键盘', () => {
+describe('月度时间线（每日数据不可用时的退回视图）区间与键盘', () => {
   it('默认显示全部，并在最后一个月标出「最新」', () => {
     const { chart, months, caption } = setup()
     expect(months()).toBe(646)
@@ -132,7 +132,7 @@ describe('TimelineChart 区间与键盘', () => {
   })
 })
 
-describe('TimelineChart 指针换算', () => {
+describe('月度时间线 指针换算', () => {
   const width = 640
   const plotWidth = width - CHART_LEFT - CHART_RIGHT
 

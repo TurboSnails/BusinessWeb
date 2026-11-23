@@ -9,7 +9,7 @@ import {
   applyTactical, baseTier, buildCurrent, classify, COMPONENTS, evaluate, evaluateV21, evaluateWithoutNfci, pillarScore, scoreComponent,
 } from './lib/macro-posture/model.mjs'
 import {
-  alignVariants, backtestMonthEnds, DISCLOSURES, drawdown, falseAlarms, horizon, HOURS_LATE_SHARPE_IMPROVEMENT, monthlyReturns,
+  alignVariants, backtestMonthEnds, buildBacktest, DISCLOSURES, drawdown, falseAlarms, horizon, HOURS_LATE_SHARPE_IMPROVEMENT, monthlyReturns,
   performance, recessionCapture, transactionCosts, updateLive,
 } from './lib/macro-posture/backtest.mjs'
 import { addDays, FRED_SPX, makePanel, makeSeries, monthEnd, panelAt, valueAt } from './lib/macro-posture/panel.mjs'
@@ -17,6 +17,9 @@ import { remainingSessions } from './lib/macro-posture/calendar.mjs'
 import { buildOuter } from './lib/macro-posture/outer.mjs'
 import { formatDate, formatReading } from './lib/macro-posture/format.mjs'
 import { loadVintages, panelWithVintages, selectVintage } from './lib/macro-posture/vintages.mjs'
+import {
+  buildDaily, dailyTactical, extendDailyCache, loadDailyCloses, mergeDailyCloses, priorNine, serializeDailyCache, tierCode,
+} from './lib/macro-posture/daily.mjs'
 import { FRED_IDS, mergeSpxCloses, parseMonthlyTable, refreshMacroPosture, validateComposite } from './macro-posture.mjs'
 
 const near = (actual, expected) => assert.ok(Math.abs(actual - expected) < 1e-10, `${actual} ≠ ${expected}`)
@@ -904,4 +907,194 @@ test('validateComposite accepts a full output and rejects missing root and neste
   } finally {
     await rm(directory, { recursive: true, force: true })
   }
+})
+
+// ---- 每日档位（设计第 14 节） ----
+
+function dailyFixture({ from = '1995-01', through = '2000-12', spike, closeFor = () => 100 } = {}) {
+  const months = []
+  for (let date = monthEnd(from); date <= monthEnd(through); date = monthEnd(date, 1)) months.push(date.slice(0, 8) + '01')
+  const monthly = value => months.map(day => [day, value])
+  const weeks = weekday => {
+    const out = []
+    const start = new Date(Date.UTC(Number(from.slice(0, 4)), Number(from.slice(5)) - 1, 1))
+    while (start.getUTCDay() !== weekday) start.setUTCDate(start.getUTCDate() + 1)
+    for (let day = start.toISOString().slice(0, 10); day <= monthEnd(through); day = addDays(day, 7)) out.push(day)
+    return out
+  }
+  const closes = []
+  for (let day = months[0]; day <= monthEnd(through); day = addDays(day, 1)) {
+    const dow = new Date(day + 'T00:00:00Z').getUTCDay()
+    if (dow !== 0 && dow !== 6) closes.push([day, closeFor(day)])
+  }
+  const averages = new Map()
+  for (const [day, value] of closes) {
+    const entry = averages.get(day.slice(0, 7)) ?? { sum: 0, count: 0 }
+    averages.set(day.slice(0, 7), { sum: entry.sum + value, count: entry.count + 1 })
+  }
+  const observations = {
+    SAHMREALTIME: monthly(0.1), PAYEMS: monthly(100), INDPRO: monthly(100), AWHMAN: monthly(40), PCEPILFE: monthly(100),
+    BAA: monthly(5), AAA: monthly(4), FEDFUNDS: monthly(2), GS10: monthly(4), TB3MS: monthly(2), USREC: monthly(0),
+    IC4WSA: weeks(6).map(day => [day, day === spike ? 200 : 100]),
+    NFCI: weeks(5).map(day => [day, -0.5]), NFCICREDIT: weeks(5).map(day => [day, 0]),
+    price: months.map(day => [day, averages.get(day.slice(0, 7)).sum / averages.get(day.slice(0, 7)).count]),
+    yield: monthly(2), SP500: closes,
+  }
+  return { observations, closes, panel: makePanel(observations) }
+}
+
+test('daily tiers see a weekly release on its available date, not the day before', () => {
+  // 1999-06-05（周六）的初请四周均值按观测日后 5 天，即 6 月 10 日（周四）才可得。
+  const { panel, closes } = dailyFixture({ spike: '1999-06-05' })
+  const { file } = buildDaily({ closes, panel, start: '1999-01-04', generatedAt: 'x', ruleVersion: 'v' })
+  const row = day => file.rows.find(r => r[0] === day)
+  assert.equal(row('1999-06-09')[2], 1)
+  assert.equal(row('1999-06-10')[2], 2)
+  assert.equal(row('1999-06-16')[2], 2)
+  assert.equal(row('1999-06-17')[2], 1)
+  const change = file.changes.find(c => c.d === '1999-06-10' && c.layer === 'regime')
+  assert.deepEqual([change.from, change.to], [1, 2])
+  assert.match(change.reason, /^初请失业救济较一年低点升幅 100\.0%，增长与就业转弱/)
+  const final = file.changes.find(c => c.d === '1999-06-10' && c.layer === 'final')
+  assert.match(final.reason, /^周期档位转为中性：初请/)
+  assert.ok(file.changes.some(c => c.d === '1999-06-17' && c.layer === 'regime' && /增长与就业转强/.test(c.reason)))
+})
+
+test('daily tactical compares the month-to-date average with the prior nine complete monthly averages', () => {
+  assert.deepEqual(dailyTactical(90, 100), { below: true, sma10: 99 })
+  assert.deepEqual(dailyTactical(100, 100), { below: false, sma10: 100 })
+  assert.deepEqual(dailyTactical(90, null), { below: null, sma10: null })
+  // 3 月前两个交易日收 90、之后收 120：均价 90、90、100 → 前两天预估跌破，第三天回到均线。
+  const closeFor = day => day.startsWith('1999-03') ? (day <= '1999-03-02' ? 90 : 120) : 100
+  const { panel, closes } = dailyFixture({ closeFor })
+  near(priorNine(panel, '1999-03-15'), 100)
+  assert.equal(priorNine(panel, '1995-06-15'), null)
+  const { file } = buildDaily({ closes, panel, start: '1999-01-04', generatedAt: 'x', ruleVersion: 'v' })
+  const row = day => file.rows.find(r => r[0] === day)
+  assert.deepEqual([row('1999-02-26')[3], row('1999-03-01')[3], row('1999-03-02')[3], row('1999-03-03')[3]], [1, 2, 2, 1])
+  assert.ok(file.rows.every(r => r[2] === 1))
+  const [down, up] = file.changes.filter(c => c.layer === 'final' && c.d.startsWith('1999-03'))
+  assert.deepEqual([down.d, down.reason], ['1999-03-01', '月内均价跌破 10 个月均线预估，战术下调一档'])
+  assert.deepEqual([up.d, up.reason], ['1999-03-03', '月内均价回到 10 个月均线预估上方，战术下调取消'])
+  assert.equal(row('1999-02-26')[4], 1)
+  assert.equal(row('1999-03-01')[4], 0)
+})
+
+test('month-end daily tiers match the monthly backtest and the last row matches the current reading', () => {
+  // 价格先涨后跌再涨，月末交易日按月均价表与 10 个月均线比较，与月度回测逐月一致。
+  const closeFor = day => {
+    const t = (Date.parse(day) - Date.parse('1995-01-01')) / 86_400_000
+    return 100 + 20 * Math.sin(t / 180) + (t % 7)
+  }
+  const { panel, closes, observations } = dailyFixture({ closeFor, through: '2000-06' })
+  const asOf = '2000-06-21'
+  const { backtest, historical } = buildBacktest(panel, asOf)
+  const currentPanel = makePanel(observations, { mode: 'current' })
+  const recent = closes.filter(([day]) => day <= asOf)
+  const currentFrame = panelAt(currentPanel, asOf, asOf)
+  const current = buildCurrent(asOf, currentFrame, historical, [])
+  const { file, stats } = buildDaily({
+    closes: recent, panel, currentFrame, timeline: backtest.timeline, start: '1996-01-02', generatedAt: 'x', ruleVersion: 'v',
+  })
+  const finals = new Set(backtest.timeline.map(row => row.final))
+  assert.ok(finals.size >= 2, 'fixture should exercise the tactical adjustment')
+  const monthEnds = file.rows.filter(r => r[4] === 1)
+  assert.equal(stats.officialCount, backtest.timeline.filter(row => row.d >= '1996-01' && row.d < '2000-06').length)
+  assert.equal(stats.mismatches.length, 0)
+  assert.ok(stats.officialCount >= 24, String(stats.officialCount))
+  for (const [day, , regime, final] of monthEnds) {
+    const monthly = backtest.timeline.find(row => row.d === day.slice(0, 7))
+    if (!monthly) continue
+    assert.deepEqual([regime, final], [tierCode(monthly.regime), tierCode(monthly.final)], day)
+  }
+  const last = file.rows.at(-1)
+  assert.equal(last[0], '2000-06-21')
+  assert.deepEqual([last[2], last[3]], [tierCode(current.regime.tier), tierCode(current.final.tier)])
+  assert.match(file.disclosures.join(''), /月末核对：\d+ 个月末交易日中，0 个月/)
+})
+
+test('daily changes keep only the latest 200 and month-end mismatches are explained', () => {
+  const closeFor = day => 100 + (Number(day.slice(8)) % 2 ? 15 : -15) * (day.slice(5, 7) % 2 ? 1 : -1)
+  const { panel, closes } = dailyFixture({ closeFor })
+  const { file, stats } = buildDaily({ closes, panel, start: '1996-01-02', generatedAt: 'x', ruleVersion: 'v', maxChanges: 5 })
+  assert.ok(stats.changes > 5)
+  assert.equal(file.changes.length, 5)
+  assert.ok(file.changes.every((c, i) => i === 0 || c.d >= file.changes[i - 1].d))
+  assert.ok(file.changes.every(c => c.from !== c.to && ['regime', 'final'].includes(c.layer) && c.reason.length > 4))
+  // 月度回测给出不同的档位时，统计为不一致并给出原因。
+  const timeline = [{ d: '1999-03', regime: 'lean-offense', final: 'defense', spx: 100, rec: 0 }]
+  const checked = buildDaily({ closes, panel, timeline, start: '1999-03-01', generatedAt: 'x', ruleVersion: 'v' })
+  assert.equal(checked.stats.officialCount, 1)
+  assert.equal(checked.stats.mismatches.length, 1)
+  assert.equal(checked.stats.mismatches[0].d, '1999-03')
+  assert.match(checked.file.disclosures.join(''), /1 个月的最终档位与月度回测不同.*1999 年 3 月/)
+})
+
+test('daily price cache only appends new closes, never creates itself, and recent closes win overlaps', async () => {
+  assert.deepEqual(mergeDailyCloses([['2020-01-02', 1], ['2020-01-03', 2]], [['2020-01-03', 3], ['bad', 4], ['2020-01-06', 0]]),
+    [['2020-01-02', 1], ['2020-01-03', 3]])
+  assert.deepEqual(extendDailyCache([['2020-01-02', 1]], [['2020-01-01', 9], ['2020-01-02', 5], ['2020-01-03', 2.345]]),
+    { rows: [['2020-01-02', 1], ['2020-01-03', 2.35]], added: 1 })
+  const directory = await mkdtemp(join(tmpdir(), 'macro-posture-daily-'))
+  try {
+    const missing = await loadDailyCloses([['2020-01-03', 3]], { directory })
+    assert.deepEqual(missing, { closes: [['2020-01-03', 3]], cached: false, added: 0 })
+    await assert.rejects(readFile(join(directory, 'spx-daily.json')), { code: 'ENOENT' })
+    await writeFile(join(directory, 'spx-daily.json'), serializeDailyCache({ source: 's', fetchedAt: '2020-01-02', rows: [['2020-01-02', 1]] }))
+    const loaded = await loadDailyCloses([['2020-01-02', 1.5], ['2020-01-03', 3]], { directory, today: '2020-01-04' })
+    assert.equal(loaded.added, 1)
+    assert.deepEqual(loaded.closes, [['2020-01-02', 1.5], ['2020-01-03', 3]])
+    const disk = JSON.parse(await readFile(join(directory, 'spx-daily.json'), 'utf8'))
+    assert.deepEqual(disk, { source: 's', fetchedAt: '2020-01-02', updatedAt: '2020-01-04', rows: [['2020-01-02', 1], ['2020-01-03', 3]] })
+    const unsettled = await loadDailyCloses([['2020-01-06', 4], ['2020-01-07', 5]], { directory, appendBefore: '2020-01-07' })
+    assert.equal(unsettled.added, 1)
+    assert.deepEqual(unsettled.closes.slice(-2), [['2020-01-06', 4], ['2020-01-07', 5]])
+    assert.deepEqual(JSON.parse(await readFile(join(directory, 'spx-daily.json'), 'utf8')).rows.at(-1), ['2020-01-06', 4])
+  } finally {
+    await rm(directory, { recursive: true, force: true })
+  }
+})
+
+test('refresh writes the daily file with the current reading last, and a daily failure keeps the main output', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'macro-posture-test-'))
+  const warnings = []
+  try {
+    await seedVintageFixtures(directory, '1975-01-16')
+    const options = { directory, now: new Date('1975-01-16T12:00:00Z'), fetcher: fixtureFetcher(), warn: message => warnings.push(message) }
+    const file = await refreshMacroPosture(options)
+    const daily = JSON.parse(await readFile(join(directory, 'macro-posture-daily.json'), 'utf8'))
+    assert.deepEqual(Object.keys(daily), ['generatedAt', 'ruleVersion', 'start', 'end', 'rows', 'changes', 'disclosures'])
+    assert.equal(daily.ruleVersion, file.ruleVersion)
+    assert.equal(daily.generatedAt, file.generatedAt)
+    const last = daily.rows.at(-1)
+    assert.deepEqual([last[2], last[3]], [tierCode(file.current.regime.tier), tierCode(file.current.final.tier)])
+    assert.ok(daily.rows.every(row => row.length === 6 && [0, 1].includes(row[4]) && [0, 1].includes(row[5])))
+    await mkdir(join(directory, 'macro-posture-daily'))
+    await writeFile(join(directory, 'macro-posture-daily', 'spx-daily.json'), '{broken')
+    await rm(join(directory, 'macro-posture.json'))
+    const again = await refreshMacroPosture(options)
+    assert.equal(again.current.headline, file.current.headline)
+    assert.ok(JSON.parse(await readFile(join(directory, 'macro-posture.json'), 'utf8')).current)
+    assert.ok(warnings.some(message => message.startsWith('每日档位生成失败')))
+  } finally {
+    await rm(directory, { recursive: true, force: true })
+  }
+})
+
+test('published daily file stays compact and well-formed', async () => {
+  let body
+  try {
+    body = await readFile(new URL('../public/data/macro-posture-daily.json', import.meta.url), 'utf8')
+  } catch (error) {
+    if (error.code === 'ENOENT') return
+    throw error
+  }
+  assert.ok(Buffer.byteLength(body) < 700 * 1024, `${Buffer.byteLength(body)} bytes`)
+  const daily = JSON.parse(body)
+  assert.equal(daily.start, '1973-01-02')
+  assert.ok(daily.rows.length > 13_000)
+  assert.ok(daily.changes.length <= 200)
+  assert.ok(daily.rows.every(([day, close, regime, final]) => /^\d{4}-\d{2}-\d{2}$/.test(day) &&
+    Number(close.toFixed(2)) === close && regime >= -1 && regime <= 4 && final >= -1 && final <= 4))
+  assert.ok(daily.rows.every((row, i) => i === 0 || row[0] > daily.rows[i - 1][0]))
 })

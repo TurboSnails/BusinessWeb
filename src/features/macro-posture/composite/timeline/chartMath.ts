@@ -11,21 +11,21 @@ export function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value))
 }
 
-export function normalizeRange(range: VisibleRange, total: number): VisibleRange {
+export function normalizeRange(range: VisibleRange, total: number, minRangeSpan = MIN_RANGE_SPAN): VisibleRange {
   if (total <= 1) return { start: 0, end: Math.max(0, total - 1) }
-  const minSpan = Math.min(MIN_RANGE_SPAN, total - 1)
+  const minSpan = Math.min(minRangeSpan, total - 1)
   const span = clamp(Math.round(range.end - range.start), minSpan, total - 1)
   const start = clamp(Math.round(range.start), 0, total - 1 - span)
   return { start, end: start + span }
 }
 
-export function recentRange(total: number, months: number): VisibleRange {
-  return normalizeRange({ start: total - months, end: total - 1 }, total)
+export function recentRange(total: number, months: number, minRangeSpan = MIN_RANGE_SPAN): VisibleRange {
+  return normalizeRange({ start: total - months, end: total - 1 }, total, minRangeSpan)
 }
 
-export function panRange(range: VisibleRange, total: number, deltaMonths: number): VisibleRange {
+export function panRange(range: VisibleRange, total: number, deltaMonths: number, minRangeSpan = MIN_RANGE_SPAN): VisibleRange {
   const span = range.end - range.start
-  return normalizeRange({ start: range.start + deltaMonths, end: range.start + deltaMonths + span }, total)
+  return normalizeRange({ start: range.start + deltaMonths, end: range.start + deltaMonths + span }, total, minRangeSpan)
 }
 
 export function zoomRange(
@@ -33,14 +33,15 @@ export function zoomRange(
   total: number,
   anchorRatio: number,
   factor: number,
+  minRangeSpan = MIN_RANGE_SPAN,
 ): VisibleRange {
-  const current = normalizeRange(range, total)
+  const current = normalizeRange(range, total, minRangeSpan)
   const span = current.end - current.start
-  const minSpan = Math.min(MIN_RANGE_SPAN, total - 1)
+  const minSpan = Math.min(minRangeSpan, total - 1)
   const nextSpan = clamp(Math.round(span * factor), minSpan, total - 1)
   const ratio = clamp(anchorRatio, 0, 1)
   const anchor = current.start + ratio * span
-  return normalizeRange({ start: anchor - ratio * nextSpan, end: anchor + (1 - ratio) * nextSpan }, total)
+  return normalizeRange({ start: anchor - ratio * nextSpan, end: anchor + (1 - ratio) * nextSpan }, total, minRangeSpan)
 }
 
 export function clientXToSvgX(svg: SVGSVGElement, clientX: number): number {
@@ -135,9 +136,9 @@ export function logTicks(min: number, max: number, maxTicks = 4): number[] {
   return thin(linear, maxTicks)
 }
 
-export type XTick = { index: number; label: string; mode: 'decade' | 'year' | 'quarter' }
+export type XTick = { index: number; label: string; mode: 'decade' | 'year' | 'quarter' | 'month' | 'day' }
 
-const TICK_STEPS: Record<XTick['mode'], number[]> = {
+const TICK_STEPS: Record<'decade' | 'year' | 'quarter', number[]> = {
   decade: [120, 240, 480],
   year: [12, 24, 60, 120],
   quarter: [3, 6, 12, 24],
@@ -150,7 +151,7 @@ const TICK_STEPS: Record<XTick['mode'], number[]> = {
 export function xTicks(pts: TimelinePoint[], range: VisibleRange, plotWidth: number): XTick[] {
   if (pts.length < 2 || range.end <= range.start) return []
   const span = range.end - range.start + 1
-  const mode: XTick['mode'] = span > 240 ? 'decade' : span > 72 ? 'year' : 'quarter'
+  const mode: 'decade' | 'year' | 'quarter' = span > 240 ? 'decade' : span > 72 ? 'year' : 'quarter'
   const pxPerMonth = plotWidth / (range.end - range.start)
   const labelOf = (index: number, step: number): string => (
     step < 12 || mode === 'quarter' ? pts[index].d : pts[index].d.slice(0, 4)

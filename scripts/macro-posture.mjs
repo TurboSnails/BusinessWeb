@@ -12,6 +12,7 @@ import {
 import { loadVintages } from './lib/macro-posture/vintages.mjs'
 import { buildOuter, LOCAL_SOURCES } from './lib/macro-posture/outer.mjs'
 import { validateComposite } from './lib/macro-posture/validate.mjs'
+import { buildDaily, DAILY_CACHE, loadDailyCloses, writeDaily } from './lib/macro-posture/daily.mjs'
 
 export { validateComposite }
 
@@ -148,6 +149,8 @@ export async function refreshMacroPosture({
 export async function refreshMacroPostureWithStats({
   fetcher = fetch, now = new Date(), directory = DATA, output = resolve(directory, 'macro-posture.json'), warn = console.warn,
   vintageDirectory = directory === DATA ? undefined : resolve(directory, 'macro-posture-vintages'),
+  dailyOutput = resolve(directory, 'macro-posture-daily.json'),
+  dailyDirectory = directory === DATA ? DAILY_CACHE : resolve(directory, 'macro-posture-daily'),
 } = {}) {
   const generatedAt = now.toISOString()
   const today = generatedAt.slice(0, 10)
@@ -172,7 +175,8 @@ export async function refreshMacroPostureWithStats({
   const asOf = [...FRED_IDS.filter(id => id !== 'USREC'), 'price']
     .map(id => valueAt(currentPanel[id], today)?.availableOn)
     .concat(outer.map(item => item.observedOn)).filter(Boolean).sort().at(-1) ?? today
-  const current = buildCurrent(asOf, panelAt(currentPanel, today, marketDate, spx.source), historical, outer)
+  const currentFrame = panelAt(currentPanel, today, marketDate, spx.source)
+  const current = buildCurrent(asOf, currentFrame, historical, outer)
   const file = {
     ruleVersion: RULE_VERSION, generatedAt, tiers: TIER_DEFS,
     current, outer, backtest: { ...backtest, live: updateLive(previous?.live?.rows ?? [], today, current.final, returns) }, failedSources,
@@ -188,13 +192,32 @@ export async function refreshMacroPostureWithStats({
   } finally {
     await unlink(temporary).catch(() => {})
   }
-  return { file: serialized, realtimeStats, vintageRequests: requests }
+  // 每日档位单独成文件；失败只告警，不影响上面已写好的主数据。
+  const daily = await refreshDaily({
+    recent: spx.rows, panel, currentFrame, timeline: backtest.timeline, generatedAt, today, marketDate,
+    output: dailyOutput, directory: dailyDirectory,
+  }).catch(error => {
+    warn(`每日档位生成失败：${error.message}`)
+    return undefined
+  })
+  return { file: serialized, realtimeStats, vintageRequests: requests, daily }
+}
+
+async function refreshDaily({ recent, panel, currentFrame, timeline, generatedAt, today, marketDate, output, directory }) {
+  const { closes, cached } = await loadDailyCloses(recent, { directory, today, appendBefore: marketDate })
+  const { file, stats } = buildDaily({ closes, panel, currentFrame, timeline, generatedAt, ruleVersion: RULE_VERSION })
+  const bytes = await writeDaily(output, file)
+  return { ...stats, bytes, cached, start: file.start, end: file.end, recentChanges: file.changes.slice(-10) }
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  refreshMacroPostureWithStats().then(({ file, vintageRequests }) => {
+  refreshMacroPostureWithStats().then(({ file, vintageRequests, daily }) => {
     console.log(`宏观攻守综合指标 ${file.ruleVersion}：${file.current.headline} 回测 ${file.backtest.start} 至 ${file.backtest.end}，共 ${file.backtest.months} 个月。`)
     if (vintageRequests !== undefined) console.log(`ALFRED 版本数据请求：${vintageRequests} 次。`)
+    if (daily) {
+      console.log(`每日档位：${daily.start} 至 ${daily.end}，${daily.rows} 行，${(daily.bytes / 1024).toFixed(0)} KB，耗时 ${daily.ms} 毫秒；` +
+        `月末与月度回测不一致 ${daily.mismatches.length}/${daily.officialCount} 个月。`)
+    }
     if (file.failedSources.length) console.warn('部分数据缺失：' + file.failedSources.join('、'))
   }).catch(error => {
     console.error(error.message)
