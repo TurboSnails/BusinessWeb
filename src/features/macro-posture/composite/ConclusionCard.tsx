@@ -1,7 +1,7 @@
 import React, { useId, useState } from 'react'
 import { Badge } from '../../../components/ui'
 import {
-  CONFIDENCE_LABEL,
+  confidenceBadgeText,
   DRIVER_LABEL,
   TIER_ORDER_DEFENSE_LEFT,
   formatNum2,
@@ -123,6 +123,10 @@ function SnapshotPanels({ data }: { data: CompositeFile }): JSX.Element {
   const rScore = current.regime.score
   const warnings = current.warnings
   const mtd = current.tactical?.mtd
+  const tacticalDistance = current.distance?.tactical
+  const pillarScores = current.pillars
+    .map(p => `${p.title} ${formatNum2(p.score, { signed: true })}`)
+    .join(' · ')
 
   return (
     <div className="mp-snapshot" data-testid="mp-snapshot">
@@ -137,22 +141,62 @@ function SnapshotPanels({ data }: { data: CompositeFile }): JSX.Element {
             </>
           ) : null}
         </p>
+        {pillarScores ? (
+          <p className="mp-snapshot__pillars" data-testid="mp-snap-pillar-scores">{pillarScores}</p>
+        ) : null}
       </article>
       <article className="mp-snapshot__panel" aria-labelledby="mp-snap-tactical">
         <h3 id="mp-snap-tactical">短线压力</h3>
+        {tacticalDistance ? (
+          <p className="mp-snapshot__main" data-testid="mp-snap-tactical-distance">{tacticalDistance}</p>
+        ) : null}
         {warnings ? (
           <p className="mp-snapshot__main" data-testid="mp-snap-warnings">
             预警亮灯 {warnings.on}/{warnings.total}
             {warnings.names?.length ? `：${warnings.names.join('、')}` : ''}
           </p>
         ) : null}
-        {mtd?.display ? (
+        {mtd?.display && !tacticalDistance ? (
           <p className="mp-snapshot__mtd" data-testid="mp-snap-mtd">{mtd.display}</p>
         ) : null}
-        {!warnings && !mtd?.display ? (
+        {!tacticalDistance && !warnings && !mtd?.display ? (
           <p className="mp-snapshot__main mp-muted">暂无短线压力读数</p>
         ) : null}
       </article>
+    </div>
+  )
+}
+
+function DataDates({
+  dates,
+  asOf,
+  generatedAt,
+}: {
+  dates: CompositeFile['current']['dates'] | undefined
+  asOf: string
+  generatedAt?: string
+}): JSX.Element {
+  const rows = Array.isArray(dates) ? dates : []
+  return (
+    <div className="mp-conclusion__meta" data-testid="mp-data-dates">
+      {rows.length > 0 ? (
+        <ul className="mp-conclusion__dates">
+          {rows.map(row => (
+            <li key={`${row.label}-${row.date}`}>
+              {row.label}
+              {' '}
+              {row.date}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>数据截至 {asOf}</p>
+      )}
+      {generatedAt ? (
+        <p className="mp-conclusion__generated">
+          生成于 {generatedAt.replace('T', ' ').replace(/\.\d+Z$/, ' UTC')}
+        </p>
+      ) : null}
     </div>
   )
 }
@@ -188,10 +232,7 @@ export default function ConclusionCard({ data }: { data: CompositeFile }): JSX.E
         <EquityCapInput equityShare={current.final.equityShare} />
         <div className="mp-conclusion__badges" data-testid="mp-confidence">
           <Badge tone={confidenceTone(current.confidence.level)}>
-            置信度{CONFIDENCE_LABEL[current.confidence.level]}
-            {' · '}
-            {current.confidence.agree}/{current.confidence.total}
-            {' 根支柱同向'}
+            {confidenceBadgeText(current.confidence)}
           </Badge>
           <Badge tone="muted">驱动：{driverLabel}</Badge>
         </div>
@@ -216,10 +257,7 @@ export default function ConclusionCard({ data }: { data: CompositeFile }): JSX.E
         {current.reasons.map(reason => <li key={reason}>{reason}</li>)}
       </ul>
 
-      <p className="mp-conclusion__meta">
-        数据截至 {current.asOf}
-        {generatedAt ? ` · 生成于 ${generatedAt.replace('T', ' ').replace(/\.\d+Z$/, ' UTC')}` : ''}
-      </p>
+      <DataDates dates={current.dates} asOf={current.asOf} generatedAt={generatedAt} />
 
       <aside className="mp-distance" aria-labelledby="mp-distance-title">
         <h3 id="mp-distance-title">距离改判</h3>

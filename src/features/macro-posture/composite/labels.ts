@@ -78,6 +78,40 @@ export function formatNum2(value: number | null | undefined, opts?: { signed?: b
   return value.toFixed(2)
 }
 
+/** 置信度徽标：优先用支柱方向 counts；缺字段时只写档位 */
+export function confidenceBadgeText(confidence: {
+  level: ConfidenceLevel
+  agree: number
+  total: number
+  counts?: { positive: number; neutral: number; negative: number } | null
+}): string {
+  const level = `置信度${CONFIDENCE_LABEL[confidence.level]}`
+  const counts = confidence.counts
+  if (!counts) return level
+  return `${level} · 支柱 ${counts.positive} 正 · ${counts.neutral} 中性 · ${counts.negative} 负`
+}
+
+/** 综合分 = 各支柱贡献之和：+0.18 + 0.10 + 0.00 + 0.00 = +0.28 */
+export function formatContributionSum(values: readonly (number | null | undefined)[]): string | null {
+  const nums = values.filter((v): v is number => v != null && Number.isFinite(v))
+  if (nums.length === 0) return null
+  const parts = nums.map((v, i) => {
+    const body = Math.abs(v).toFixed(2)
+    if (i === 0) {
+      if (v === 0) return '+0.00'
+      return `${v > 0 ? '+' : '−'}${body}`
+    }
+    return v < 0 ? `− ${body}` : `+ ${body}`
+  })
+  const total = nums.reduce((sum, v) => sum + v, 0)
+  return `${parts.join(' ')} = ${formatNum2(total, { signed: true })}`
+}
+
+export function formatPricePoint(value: number | null | undefined): string {
+  if (value == null || !Number.isFinite(value)) return '—'
+  return value.toLocaleString('zh-CN', { maximumFractionDigits: 1 })
+}
+
 /** failedSources：ASCII id 用 outer 映射成中文名，映射不到则丢弃；已是中文名的原样保留 */
 export function resolveFailedSourceLabels(
   failed: readonly string[],

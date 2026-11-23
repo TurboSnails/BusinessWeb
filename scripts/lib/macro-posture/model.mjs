@@ -168,7 +168,8 @@ function crossings(def, reading, score, historical) {
       const text = `${name}${phrasing} ${format(cutoff, unit, precision)}${suffix}，${def.label}由 ${scoreText(score)} 分${next === 0 ? '回到' : '变为'} ${scoreText(next)} 分。`
       const existing = candidates.get(side)
       if (!existing || normalizedGap < existing.normalizedGap || (normalizedGap === existing.normalizedGap && gap < existing.gap)) {
-        candidates.set(side, { key, gap, normalizedGap, precision, threshold: { threshold: cutoff, score: next, text } })
+        candidates.set(side, { key, gap, normalizedGap, precision, near: scale != null && clean(Math.abs(cutoff - value)) < clean(scale / 10),
+          threshold: { threshold: cutoff, score: next, text } })
       }
     }
   }
@@ -205,8 +206,11 @@ const REPAIR_RULE = '如果档位已到偏防守或防守（包括经济与信�
 
 export function classify(pillars, scores, below, creditDelta) {
   const known = PILLARS.filter(p => pillars[p.id] != null)
-  const R = pillars.growth == null || pillars.credit == null ? null
-    : clean(known.reduce((sum, p) => sum + p.weight * pillars[p.id], 0) / known.reduce((sum, p) => sum + p.weight, 0))
+  const complete = pillars.growth != null && pillars.credit != null
+  const knownWeight = known.reduce((sum, p) => sum + p.weight, 0)
+  const contributions = complete
+    ? Object.fromEntries(known.map(({ id, weight }) => [id, weight / knownWeight * pillars[id]])) : {}
+  const R = complete ? clean(Object.values(contributions).reduce((sum, n) => sum + n, 0)) : null
   const baseline = baseTier(R)
   const states = { ...pillars, sahm: scores.sahm }
   const breakers = BREAKERS.map(({ id, label, cap, when }) => {
@@ -236,7 +240,7 @@ export function classify(pillars, scores, below, creditDelta) {
   }
   return {
     regime: { score: R, tier: regime }, final: { tier: final, equityShare: TIERS[tierIndex(final)]?.equityShare ?? null },
-    breakers, repair,
+    breakers, repair, contributions,
     driver: final == null ? 'insufficient' : repaired ? 'repair' : tactical !== regime ? 'tactical' : regime !== baseline ? 'breaker' : 'macro',
   }
 }
@@ -249,20 +253,19 @@ export function evaluate(frame) {
 
 function tacticalDistance(regime, mtd) {
   if (!mtd) return undefined
-  const trend = mtd.display.replace(/。$/, '')
-  if (!mtd.below) {
-    const gap = clean((mtd.average / mtd.sma10 - 1) * 100)
-    return `${trend}${gap > 0 ? `（高出 ${format(gap, '%')}）` : ''}，暂不触发战术下调。`
-  }
-  const tier = TIERS[tierIndex(applyTactical(regime, true))]
-  const impact = tier?.id === regime ? '档位已在防守，维持原档'
-    : tier ? `战术修正将把档位下调一档至${tier.label}` : '将满足战术下调条件'
-  return `${trend}，若月底仍低于均线，${impact}。`
+  const month = Number(mtd.month.slice(5))
+  const trigger = `10 个月均线包含本月，所以只要 ${month} 月均价低于前 9 个完整月的均价 ${format(mtd.prior9, '指数')}就会触发战术修正。`
+  const observed = `${month} 月已有 ${mtd.days} 个交易日收盘，均价 ${format(mtd.average, '指数')}`
+  const impact = regime === 'defense' ? '月底满足战术条件，防守档维持原档'
+    : regime == null ? '月底满足战术下调条件' : '月底即下调一档'
+  const outlook = mtd.threshold == null ? '。本月交易日已结束。'
+    : `；剩余 ${mtd.remaining} 个交易日均价低于 ${format(mtd.threshold, '指数')}，${impact}。`
+  return `${trigger}${observed}${outlook}最新收盘 ${format(mtd.lastClose.value, '指数')}（${formatDate(mtd.lastClose.date)}）。`
 }
 
 function distance({ regime }, nearest, frame) {
   const tactical = tacticalDistance(regime.tier, frame.tactical.mtd)
-  const details = { nearest, ...(tactical ? { tactical: tactical + (frame.tacticalOutlook ?? '') } : {}) }
+  const details = { nearest, ...(tactical ? { tactical } : {}) }
   const index = tierIndex(baseTier(regime.score))
   if (index === -1) return details
   const boundaries = [TIERS[0].min, TIERS[1].min, TIERS[3].max, TIERS[4].max]
@@ -281,6 +284,11 @@ const CONFIDENCE = [['low', '低'], ['medium', '中'], ['high', '高']]
 
 function confidenceFor(pillars, finalTier, warnings) {
   const known = pillars.filter(p => p.score != null)
+  const counts = {
+    positive: known.filter(p => p.score >= 0.25).length,
+    neutral: known.filter(p => Math.abs(p.score) < 0.25).length,
+    negative: known.filter(p => p.score <= -0.25).length,
+  }
   const index = tierIndex(finalTier)
   const agree = index === -1 ? 0 : known.filter(p => index < 2 ? p.score > 0 : index > 2 ? p.score < 0 : Math.abs(p.score) < 0.5).length
   const contrary = index >= 0 && index <= 2 ? warnings.names : []
@@ -299,7 +307,7 @@ function confidenceFor(pillars, finalTier, warnings) {
   }
   if (!notes.length) notes.push(`${known.length} 根有读数的支柱中，${agree} 根与最终档位同向。`)
   const [level] = CONFIDENCE[stale.length || index === -1 ? 0 : adjusted]
-  return { level, agree, total: known.length, notes }
+  return { level, agree, total: known.length, counts, notes }
 }
 
 const reasonDetails = {
@@ -343,24 +351,27 @@ function leadingReasons(pillars, frame, readingPrecisions) {
 }
 
 export function buildCurrent(asOf, frame, historical, outer) {
-  const { scores, pillars: pillarScores, ...classified } = evaluate(frame)
+  const { scores, pillars: pillarScores, contributions, ...classified } = evaluate(frame)
   const nearest = []
   const readingPrecisions = new Map()
   const recent = historical.slice(-60)
+  const reference = historical.slice(-120)
   const pillars = PILLARS.map(({ id, title, weight, masters, summary }) => {
     const score = pillarScores[id]
     return {
-      id, title, weight, score,
+      id, title, weight, score, contribution: contributions[id] ?? null,
       tone: score == null ? 'unknown' : score <= -1 ? 'negative' : score < 0 ? 'caution' : score > 0 ? 'positive' : 'neutral',
       summary: score == null ? '有效读数不足，暂时无法判断。' : summary[Math.sign(score) + 1] + '。',
       history: recent.map(row => [row.d, row.pillars[id]]),
       components: COMPONENTS.filter(def => def.pillar === id).map(def => {
         const reading = frame.components[def.id]
         const score = scores[def.id]
-        const edges = score == null ? new Map() : crossings(def, reading, score, historical)
+        const edges = score == null ? new Map() : crossings(def, reading, score, reference)
         const closest = [...edges.values()].sort((a, b) => a.normalizedGap - b.normalizedGap)[0]
+        const nearThreshold = closest?.near === true
         if (Number.isFinite(closest?.normalizedGap)) {
-          nearest.push({ componentId: def.id, text: closest.threshold.text, gap: closest.normalizedGap })
+          const text = nearThreshold ? closest.threshold.text.replace(/。$/, '（临界，修订或四舍五入就可能翻档）。') : closest.threshold.text
+          nearest.push({ componentId: def.id, text, gap: closest.normalizedGap })
         }
         const precisionFor = key => Math.max(0, ...[...edges.values()].filter(edge => edge.key === key).map(edge => edge.precision ?? 0)) || undefined
         const valuePrecision = precisionFor('value')
@@ -375,6 +386,7 @@ export function buildCurrent(asOf, frame, historical, outer) {
             ['IC4WSA', 'NFCICREDIT', 'NFCI'].includes(def.fred) ? 'weekly' : 'monthly'), ...context].join('，')}）`,
           observedOn: reading?.observedOn ?? null, availableOn: reading?.availableOn ?? null,
           stale: reading?.stale ?? false, score, rule: ruleText(def),
+          ...(nearThreshold ? { nearThreshold } : {}),
           ...Object.fromEntries([...edges].map(([side, edge]) => [side, edge.threshold])),
           source: `https://fred.stlouisfed.org/series/${def.fred}`,
           history: recent.flatMap(row => Number.isFinite(row.components[def.id]?.value) ? [[row.d, row.components[def.id].value]] : []),
@@ -396,8 +408,14 @@ export function buildCurrent(asOf, frame, historical, outer) {
     : watched.some(item => item.status === 'clear') ? '短线已取得的预警读数均未亮灯' : '短线预警读数暂缺'
   const confidence = confidenceFor(pillars, finalTier, warnings)
   const closest = nearest.sort((a, b) => a.gap - b.gap).slice(0, 3).map(({ componentId, text }) => ({ componentId, text }))
+  const { monthly, weekly, credit, spx } = frame.observations ?? {}
+  const latestOuter = outer.map(item => item.observedOn).filter(Boolean).sort().at(-1)
+  const dates = [
+    ['宏观月度', monthly, 'monthly'], ['宏观周度', weekly, 'weekly'], ['企业债利差', credit, 'monthly'],
+    ['标普收盘', spx, 'daily'], ['外圈市场数据', latestOuter, 'daily'],
+  ].map(([label, day, frequency]) => ({ label, date: day ? formatDate(day, frequency) : '暂无读数' }))
   return {
-    asOf, ...classified, tactical: frame.tactical,
+    asOf, ...classified, tactical: frame.tactical, dates,
     headline: `${posture}，${shortRisk}，置信度${{ high: '高', medium: '中', low: '低' }[confidence.level]}。`,
     reasons: leadingReasons(pillars, frame, readingPrecisions), confidence, warnings, distance: distance(classified, closest, frame), pillars,
   }

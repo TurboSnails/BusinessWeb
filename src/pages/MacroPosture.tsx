@@ -10,14 +10,14 @@ import type { Market } from '../features/macro-posture/types'
 import '../styles/macro-posture.css'
 
 export const MACRO_POSTURE_LEAD =
-  '本站融合九位宏观投资人方法的综合指标。规则先验设定并公开回测，描述风险状态与仓位档位，不构成买卖建议。'
+  '参考九位宏观投资人的公开方法提炼的可回测综合指标。规则先验设定并公开回测，描述风险状态与仓位档位，不构成买卖建议。'
 
 /** A股 / 港股仍用观察版导语 */
 export const MACRO_POSTURE_LEAD_LEGACY =
   '按公开宏观读数归纳当前经济周期与股票攻守位置。四个子指数是本站口径，仅作观察、未经回测，不构成买卖建议。'
 
 export const MACRO_POSTURE_FOOTER =
-  '综合指标规则公开、可回测；A 股与港股仍为观察版。读数来自公开数据源。不构成买卖建议。'
+  '参考九位宏观投资人的公开方法，提炼成可回测的规则；九位中只有一位给过可机械执行的规则，其余为本站按其方法选取的指标。综合指标规则公开、可回测；A 股与港股仍为观察版。读数来自公开数据源。不构成买卖建议。'
 
 const MARKETS: Array<{ id: Market; label: string }> = [
   { id: 'us', label: '美国' },

@@ -35,7 +35,18 @@ function fixture(): CompositeFile {
       driver: 'macro',
       headline: '增长放缓且信用偏弱，仓位宜低于中性。',
       reasons: ['增长与信用偏弱。'],
-      confidence: { level: 'medium', agree: 3, total: 4, notes: [] },
+      confidence: {
+        level: 'medium',
+        agree: 3,
+        total: 4,
+        notes: [],
+        counts: { positive: 1, neutral: 2, negative: 1 },
+      },
+      dates: [
+        { label: '宏观月度', date: '2026 年 10 月' },
+        { label: '周度', date: '11 月 14 日当周' },
+        { label: '标普收盘', date: '11 月 20 日' },
+      ],
       breakers: [],
       distance: { nearest: [] },
       repair: { active: false, rule: '趋势回到均线上方且信用不再恶化时上调一档。', display: '未触发' },
@@ -59,6 +70,8 @@ function fixture(): CompositeFile {
       recessions: [],
       falseAlarms: [],
       singles: [],
+      costs: { turnoverPerYear: 1.2, rows: [{ cost: 0.001, cagr: 0.09, drag: -0.002 }] },
+      live: { since: '2026-11-23', ruleVersion: 'v2.1', rows: [] },
       timeline: [],
     },
     failedSources: [],
@@ -104,11 +117,26 @@ describe('SummaryCard', () => {
     expect(within(tiers).getByText('当前').closest('li')?.getAttribute('aria-current')).toBe('step')
     expect(within(tiers).getByText('当前').closest('li')?.textContent).toContain('偏防守')
     expect(screen.getByText('偏防守', { selector: '.macro-summary__tier-name' })).toBeTruthy()
-    expect(screen.getByText(/置信度中/).textContent).toContain('3/4 根支柱同向')
+    expect(screen.getByText(/置信度中/).textContent).toContain('支柱 1 正 · 2 中性 · 1 负')
     expect(screen.getByText('短线预警 0/8 项亮灯').classList.contains('is-active')).toBe(false)
     expect(screen.getByText('增长放缓且信用偏弱，仓位宜低于中性。')).toBeTruthy()
-    expect(screen.getByText('2026-10-31').getAttribute('datetime')).toBe('2026-10-31')
+    const dates = screen.getByTestId('macro-summary-dates')
+    expect(dates.textContent).toContain('标普收盘')
+    expect(dates.textContent).toContain('宏观月度')
+    expect(dates.textContent).not.toContain('周度')
     expect(screen.getByRole('link', { name: '查看依据与回测' }).getAttribute('href')).toBe('/invest/macro-posture')
+  })
+
+  it('counts / dates 缺失时仍可读，回退数据截至', async () => {
+    const data = fixture()
+    data.current.confidence = { level: 'low', agree: 2, total: 4, notes: [] } as unknown as typeof data.current.confidence
+    data.current.dates = undefined as unknown as typeof data.current.dates
+    const fetcher = vi.fn<typeof fetch>(async () => Response.json(data))
+    renderCard(fetcher)
+
+    expect(await screen.findByText('置信度低')).toBeTruthy()
+    expect(screen.getByTestId('macro-summary-dates').textContent).toContain('数据截至')
+    expect(screen.getByTestId('macro-summary-dates').textContent).toContain('2026-10-31')
   })
 
   it('显示短线预警和最多两行的战术距离说明', async () => {
@@ -153,7 +181,13 @@ describe('SummaryCard', () => {
     data.current.final = { tier: null, equityShare: null }
     data.current.driver = 'insufficient'
     data.current.headline = '核心支柱缺数过多，暂不形成综合结论。'
-    data.current.confidence = { level: 'low', agree: 0, total: 2, notes: ['缺数过多'] }
+    data.current.confidence = {
+      level: 'low',
+      agree: 0,
+      total: 2,
+      notes: ['缺数过多'],
+      counts: { positive: 0, neutral: 0, negative: 0 },
+    }
     const fetcher = vi.fn<typeof fetch>(async () => Response.json(data))
     renderCard(fetcher)
 

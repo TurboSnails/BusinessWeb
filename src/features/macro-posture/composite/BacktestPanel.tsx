@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import { TableWrap } from '../../../components/ui'
-import { formatNum1, formatNum2, formatPct1, singleSpreadLabel, TIER_ORDER_DEFENSE_LEFT } from './labels'
+import { formatNum1, formatNum2, formatPct1, formatSharePct, singleSpreadLabel, TIER_ORDER_DEFENSE_LEFT } from './labels'
 import TimelineChart from './TimelineChart'
 import type { Backtest, CompositeFile, TierId, Variant } from './types'
 
@@ -33,12 +33,31 @@ function variantReadout(variants: Variant[]): string | null {
   return `完整模型相对全程持有：年化差 ${cagrTxt}，最大回撤差 ${ddTxt}，夏普差 ${sharpeSigned}。`
 }
 
+function defenseNote(tiers: Backtest['tiers']): string | null {
+  const defense = tiers.defense
+  const leanOffense = tiers['lean-offense']
+  if (!defense || !leanOffense) return null
+  const med = formatPct1(defense.fwd12Median, { signed: true })
+  const neg = formatPct1(defense.neg12)
+  const ddDef = formatPct1(defense.maxDd12)
+  const ddOff = formatPct1(leanOffense.maxDd12)
+  return `为什么防守档之后的平均回报不低：防守档随后 12 个月中位数 ${med}、为负比例 ${neg}、平均最大回撤 ${ddDef}；偏进攻档平均最大回撤 ${ddOff}。本指标的价值主要在压低大回撤，而不是抬高平均回报。`
+}
+
+function formatReturnCell(value: number | null | undefined): string {
+  if (value == null || !Number.isFinite(value)) return '待实现'
+  return formatPct1(value, { signed: true })
+}
+
 export default function BacktestPanel({ data }: { data: CompositeFile }): JSX.Element {
   const bt: Backtest = data.backtest
   const tierDefs = new Map(data.tiers.map(t => [t.id, t]))
   const variants = useMemo(() => orderVariants(bt.variants), [bt.variants])
   const readout = useMemo(() => variantReadout(bt.variants), [bt.variants])
   const singles = bt.singles ?? []
+  const costs = bt.costs
+  const live = bt.live
+  const defenseExplain = useMemo(() => defenseNote(bt.tiers), [bt.tiers])
 
   return (
     <section className="mp-backtest" id="mp-backtest" aria-labelledby="mp-backtest-title">
@@ -87,6 +106,35 @@ export default function BacktestPanel({ data }: { data: CompositeFile }): JSX.El
       </TableWrap>
       {readout ? (
         <p className="mp-backtest__readout" data-testid="mp-variants-readout">{readout}</p>
+      ) : null}
+
+      {costs?.rows?.length ? (
+        <div className="mp-backtest__costs" data-testid="mp-backtest-costs">
+          <h3>交易成本敏感度</h3>
+          <p className="mp-section-lead">
+            按完整模型年换手约 {formatNum1(costs.turnoverPerYear)} 次估算单边成本对年化的拖累。
+          </p>
+          <TableWrap label="交易成本敏感度">
+            <table className="mp-table">
+              <thead>
+                <tr>
+                  <th scope="col">单边成本</th>
+                  <th scope="col">年化</th>
+                  <th scope="col">年拖累</th>
+                </tr>
+              </thead>
+              <tbody>
+                {costs.rows.map(row => (
+                  <tr key={row.cost}>
+                    <th scope="row">{formatPct1(row.cost)}</th>
+                    <td>{formatPct1(row.cagr)}</td>
+                    <td>{formatPct1(row.drag, { signed: true })}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </TableWrap>
+        </div>
       ) : null}
 
       {singles.length > 0 && (
@@ -160,6 +208,48 @@ export default function BacktestPanel({ data }: { data: CompositeFile }): JSX.El
           </tbody>
         </table>
       </TableWrap>
+      {defenseExplain ? (
+        <p className="mp-backtest__defense-note" data-testid="mp-defense-note">{defenseExplain}</p>
+      ) : null}
+
+      {live ? (
+        <div className="mp-backtest__live" data-testid="mp-backtest-live">
+          <h3>前推记录（规则冻结于 2026-11-23）</h3>
+          <p className="mp-section-lead">
+            这部分是真正的样本外记录，会逐月累积。规则自 {live.since} 起按 {live.ruleVersion} 冻结。
+          </p>
+          <TableWrap label="前推记录">
+            <table className="mp-table">
+              <thead>
+                <tr>
+                  <th scope="col">月份</th>
+                  <th scope="col">档位</th>
+                  <th scope="col">仓位</th>
+                  <th scope="col">之后标普回报</th>
+                  <th scope="col">之后组合回报</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(live.rows ?? []).length === 0 ? (
+                  <tr>
+                    <td colSpan={5}>尚无前推行，待次月起累积。</td>
+                  </tr>
+                ) : (
+                  live.rows.map(row => (
+                    <tr key={row.d}>
+                      <th scope="row">{row.d}</th>
+                      <td>{row.final ? (tierDefs.get(row.final)?.label ?? TIER_LABEL[row.final]) : '—'}</td>
+                      <td>{formatSharePct(row.equityShare) ?? '—'}</td>
+                      <td>{formatReturnCell(row.spxReturn)}</td>
+                      <td>{formatReturnCell(row.portfolioReturn)}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </TableWrap>
+        </div>
+      ) : null}
 
       <h3>衰退捕捉</h3>
       <TableWrap label="衰退捕捉">

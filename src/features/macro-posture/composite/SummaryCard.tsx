@@ -1,11 +1,9 @@
 import React, { useId } from 'react'
 import { Link } from 'react-router-dom'
 import { tierDef, useCompositePosture } from './load'
-import { formatPct1 } from './labels'
+import { confidenceBadgeText, formatPct1 } from './labels'
 import type { CompositeFile, TierId } from './types'
 import './summary-card.css'
-
-const CONFIDENCE_LABEL = { high: '高', medium: '中', low: '低' } as const
 
 function TierStrip({ data, current }: { data: CompositeFile; current: TierId | null }): JSX.Element {
   const currentLabel = tierDef(data, current)?.label ?? '证据不足'
@@ -45,6 +43,17 @@ function BacktestSummary({ data }: { data: CompositeFile }): JSX.Element | null 
   )
 }
 
+function pickSummaryDates(
+  dates: CompositeFile['current']['dates'] | undefined,
+  asOf: string,
+): { label: string; date: string }[] {
+  if (!Array.isArray(dates) || dates.length === 0) {
+    return [{ label: '数据截至', date: asOf }]
+  }
+  const picked = dates.filter(row => /标普/.test(row.label) || /宏观月度/.test(row.label))
+  return picked.length > 0 ? picked : dates.slice(0, 2)
+}
+
 export default function SummaryCard({ fetcher }: { fetcher?: typeof fetch }): JSX.Element {
   const state = useCompositePosture(fetcher)
   const titleId = useId()
@@ -78,6 +87,7 @@ export default function SummaryCard({ fetcher }: { fetcher?: typeof fetch }): JS
         const hasPosition = Boolean(tier) && share != null && Number.isFinite(share)
         const warnings = current.warnings
         const tacticalDistance = current.distance?.tactical
+        const dateRows = pickSummaryDates(current.dates, current.asOf)
         return (
           <div className="macro-summary__ready">
             <TierStrip data={data} current={current.final.tier} />
@@ -92,8 +102,7 @@ export default function SummaryCard({ fetcher }: { fetcher?: typeof fetch }): JS
               </div>
               <div className="macro-summary__reading">
                 <p className="macro-summary__confidence">
-                  置信度{CONFIDENCE_LABEL[current.confidence.level]}
-                  <span> · {current.confidence.agree}/{current.confidence.total} 根支柱同向</span>
+                  {confidenceBadgeText(current.confidence)}
                 </p>
                 {warnings && (
                   <p className={`macro-summary__warnings${warnings.on > 0 ? ' is-active' : ''}`}>
@@ -106,7 +115,15 @@ export default function SummaryCard({ fetcher }: { fetcher?: typeof fetch }): JS
                 <p className="macro-summary__headline">{current.headline}</p>
               </div>
             </div>
-            <p className="macro-summary__date">数据截至 <time dateTime={current.asOf}>{current.asOf}</time></p>
+            <ul className="macro-summary__date" data-testid="macro-summary-dates">
+              {dateRows.map(row => (
+                <li key={`${row.label}-${row.date}`}>
+                  {row.label}
+                  {' '}
+                  <time dateTime={current.asOf}>{row.date}</time>
+                </li>
+              ))}
+            </ul>
             <BacktestSummary data={data} />
           </div>
         )

@@ -7,13 +7,13 @@ import {
   applyTactical, baseTier, buildCurrent, classify, COMPONENTS, evaluate, pillarScore, scoreComponent,
 } from './lib/macro-posture/model.mjs'
 import {
-  alignVariants, drawdown, falseAlarms, horizon, monthlyReturns, performance, recessionCapture,
+  alignVariants, drawdown, falseAlarms, horizon, monthlyReturns, performance, recessionCapture, transactionCosts, updateLive,
 } from './lib/macro-posture/backtest.mjs'
-import { addDays, makePanel, makeSeries, monthEnd, panelAt, valueAt } from './lib/macro-posture/panel.mjs'
+import { addDays, FRED_SPX, makePanel, makeSeries, monthEnd, panelAt, valueAt } from './lib/macro-posture/panel.mjs'
 import { remainingSessions } from './lib/macro-posture/calendar.mjs'
 import { buildOuter } from './lib/macro-posture/outer.mjs'
 import { formatDate, formatReading } from './lib/macro-posture/format.mjs'
-import { FRED_IDS, parseMonthlyTable, refreshMacroPosture, validateComposite } from './macro-posture.mjs'
+import { FRED_IDS, mergeSpxCloses, parseMonthlyTable, refreshMacroPosture, validateComposite } from './macro-posture.mjs'
 
 const near = (actual, expected) => assert.ok(Math.abs(actual - expected) < 1e-10, `${actual} ≠ ${expected}`)
 const components = Object.fromEntries(COMPONENTS.map(def => [def.id, def]))
@@ -175,16 +175,17 @@ test('month-to-date trend uses observed trading closes and the nine prior comple
   const panel = makePanel({ price, SP500 })
   const frame = panelAt(panel, '2025-11-05')
   assert.deepEqual(frame.tactical.mtd, {
-    month: '2025-11', days: 3, average: 90, sma10: 99, below: true,
+    month: '2025-11', days: 3, remaining: 16, average: 90, prior9: 100, sma10: 99, threshold: 101.875, below: true,
+    lastClose: { date: '2025-11-05', value: 100 }, source: FRED_SPX,
     display: '11 月至今 3 个交易日均价 90 点，低于预估 10 个月均线 99 点。',
   })
   assert.equal(frame.tactical.below, false)
   assert.equal(panelAt(panel, '2025-11-30').tactical.mtd, undefined)
   assert.equal(panelAt(makePanel({ price }), '2025-11-05').tactical.mtd, undefined)
   assert.equal(panelAt(makePanel({ price: price.filter(([d]) => d !== '2025-05-31'), SP500 }), '2025-11-05').tactical.mtd, undefined)
-  assert.match(buildCurrent('2025-11-05', frame, [], []).distance.tactical, /若月底仍低于均线/)
+  assert.match(buildCurrent('2025-11-05', frame, [], []).distance.tactical, /前 9 个完整月的均价 100 点/)
   const next = panelAt(panel, '2025-11-06')
-  assert.match(buildCurrent('2025-11-06', next, [], []).distance.tactical, /高出 .*%），暂不触发战术下调/)
+  assert.equal(next.tactical.mtd.below, false)
 })
 
 test('tactical distance counts NYSE sessions and solves for the remaining closes', () => {
@@ -195,13 +196,33 @@ test('tactical distance counts NYSE sessions and solves for the remaining closes
   const panel = makePanel({ price, SP500: [['2026-11-19', 120], ['2026-11-20', 90]] })
   const frame = panelAt(panel, '2026-11-23')
   const result = buildCurrent('2026-11-23', frame, [], [])
-  assert.match(result.distance.tactical, /剩余约 5 个交易日，剩余交易日均价低于 98 点/)
-  assert.match(result.distance.tactical, /最新收盘 90 点，低于预估均线 10.4%/)
+  assert.equal(frame.tactical.mtd.threshold, (100 * 7 - 120 - 90) / 5)
+  assert.match(result.distance.tactical, /剩余 5 个交易日均价低于 98 点/)
+  assert.match(result.distance.tactical, /最新收盘 90 点（11 月 20 日）/)
   assert.deepEqual(result.final, evaluate(frame).final)
   const last = panelAt(makePanel({ price: price.map(([d, n]) => [monthEnd(d, 1), n]), SP500: [['2026-12-30', 90]] }), '2026-12-30')
-  assert.match(last.tacticalOutlook, /剩余约 1 个交易日/)
+  assert.equal(last.tactical.mtd.remaining, 1)
+  assert.equal(last.tactical.mtd.threshold, 110)
   const finished = panelAt(makePanel({ price: price.map(([d, n]) => [monthEnd(d, -12), n]), SP500: [['2025-11-28', 90]] }), '2025-11-29')
-  assert.match(finished.tacticalOutlook, /本月交易日已结束/)
+  assert.equal(finished.tactical.mtd.remaining, 0)
+  assert.equal(finished.tactical.mtd.threshold, null)
+  assert.match(buildCurrent('2025-11-29', finished, [], []).distance.tactical, /本月交易日已结束/)
+})
+
+test('local S&P closes extend FRED, win overlaps, and warn only above a half-percent difference', () => {
+  const warnings = []
+  const close = [['2026-11-17', 100], ['2026-11-18', 101], ['2026-11-19', 100]]
+  const snapshots = { slices: [{ id: 'spx', symbol: '^GSPC', history: [
+    ['2026-11-17', 100.5], ['2026-11-19', 98], ['2026-11-20', 95], ['2026-11-24', 99],
+  ] }] }
+  const log = line => warnings.push(line)
+  const merged = mergeSpxCloses(close, snapshots, '2026-11-23', log)
+  assert.deepEqual(merged.rows, [['2026-11-17', 100.5], ['2026-11-18', 101], ['2026-11-19', 98], ['2026-11-20', 95]])
+  assert.match(merged.source, /Yahoo Finance.*FRED/)
+  assert.equal(warnings.length, 1)
+  assert.match(warnings[0], /2026-11-19.*2\.00%/)
+  assert.equal(mergeSpxCloses([], snapshots, '2026-11-23', log).rows.length, 3)
+  assert.equal(mergeSpxCloses(close, null, '2026-11-23', log).source, FRED_SPX)
 })
 
 test('display formats percentage scale, percentile, points, basis points, index and dates', () => {
@@ -256,6 +277,10 @@ test('risk warnings lower confidence without altering tiers; stale overrides agr
   ])
   assert.equal(clean.confidence.level, 'high')
   assert.equal(clean.confidence.agree, 3)
+  assert.deepEqual(clean.confidence.counts, { positive: 3, neutral: 0, negative: 0 })
+  assert.ok(Math.abs(clean.pillars.reduce((sum, p) => sum + (p.contribution ?? 0), 0) - clean.regime.score) < 1e-9)
+  near(clean.pillars[0].contribution, 0.35 / 0.8)
+  assert.equal(clean.pillars[2].contribution, null)
   assert.equal(warned.confidence.level, 'medium')
   assert.match(warned.confidence.notes.join(''), /置信度由高降为中/)
   assert.deepEqual(warned.final, clean.final)
@@ -273,6 +298,7 @@ test('risk warnings lower confidence without altering tiers; stale overrides agr
   frame.components.corePce.value = 3
   const downgraded = buildCurrent('2025-04-01', frame, [], warnings).confidence
   assert.equal(downgraded.agree, 2)
+  assert.deepEqual(downgraded.counts, { positive: 2, neutral: 1, negative: 0 })
   assert.equal(downgraded.level, 'low')
   assert.match(downgraded.notes.join(''), /3 项短线预警亮灯.*置信度由中降为低/)
   frame.components.baaLevel.value = 50
@@ -301,9 +327,56 @@ test('threshold distances use adjacent cutoffs or derived historical deviations 
   assert.deepEqual(buildCurrent('2025-04-01', frame, historical.slice(-60), []).distance.nearest.map(item => item.componentId),
     ['payrolls', 'baaLevel', 'sahm'])
   const payroll = current.pillars[0].components.find(item => item.id === 'payrolls')
+  const fed = current.pillars.find(item => item.id === 'liquidity').components.find(item => item.id === 'fedPath')
+  assert.equal(payroll.nearThreshold, true)
+  assert.equal(fed.nearThreshold, true)
+  assert.match(current.distance.nearest[0].text, /临界，修订或四舍五入就可能翻档/)
+  assert.equal(current.pillars[0].components[0].nearThreshold, undefined)
   assert.match(payroll.display, /0\.0495%/)
   assert.match(payroll.better.text, /升至 0\.0500%/)
   assert.equal(current.pillars[0].history.length, 60)
+})
+
+test('cost sensitivity subtracts the change in the aligned portfolio weight from each month', () => {
+  const full = [
+    { portfolio: 0.1, equity: 0.3, cash: 0.01 },
+    { portfolio: -0.04, equity: 0.7, cash: 0.01 },
+    { portfolio: 0.02, equity: 0.5, cash: 0.01 },
+  ]
+  const { cagr } = performance(full)
+  const costs = transactionCosts(full, cagr)
+  near(costs.turnoverPerYear, (0.4 + 0.2) / (3 / 12))
+  for (const row of costs.rows) {
+    const expected = (1.1 * (0.96 - 0.4 * row.cost) * (1.02 - 0.2 * row.cost)) ** 4 - 1
+    near(row.cagr, expected)
+    near(row.drag, cagr - expected)
+  }
+})
+
+test('live retains frozen signals, replaces the current month, and backfills only realized t+2 returns', () => {
+  const first = updateLive([], '2026-11-23', { tier: 'offense', equityShare: 1 }, new Map())
+  assert.deepEqual(first, {
+    since: '2026-11-23', ruleVersion: 'v2.1',
+    rows: [{ d: '2026-11', final: 'offense', equityShare: 1, spxReturn: null, portfolioReturn: null }],
+  })
+  const latest = updateLive(first.rows, '2026-11-27', { tier: 'defense', equityShare: 0.3 }, new Map())
+  assert.equal(latest.rows.length, 1)
+  assert.equal(latest.rows[0].final, 'defense')
+  assert.equal(first.rows[0].final, 'offense')
+  const throughDecember = new Map([['2026-12', { spx: 0.9, cash: 0.001 }]])
+  const january = updateLive(latest.rows, '2027-01-15', { tier: 'neutral', equityShare: 0.7 }, throughDecember)
+  assert.deepEqual(january.rows[0], latest.rows[0])
+  const spxOnly = new Map([['2027-01', { spx: 0.11, cash: null }]])
+  const february = updateLive(january.rows, '2027-02-01', { tier: 'offense', equityShare: 1 }, spxOnly)
+  assert.equal(february.rows[0].spxReturn, 0.11)
+  assert.equal(february.rows[0].portfolioReturn, null)
+  const returns = new Map([['2027-01', { spx: 0.12, cash: 0.003 }]])
+  const updated = updateLive(february.rows, '2027-02-02', { tier: 'offense', equityShare: 1 }, returns)
+  assert.equal(updated.rows[0].spxReturn, 0.11)
+  near(updated.rows[0].portfolioReturn, 0.11 * 0.3 + 0.003 * 0.7)
+  assert.equal(updated.rows[0].equityShare, 0.3)
+  assert.equal(updated.rows[1].spxReturn, null)
+  assert.deepEqual(updated.rows.map(row => row.d), ['2026-11', '2027-01', '2027-02'])
 })
 
 test('t+2 aligns signal with the correct returns and crediting cash', () => {
@@ -440,8 +513,8 @@ test('two failed fetch attempts fail the job and preserve the previous output', 
   }
 })
 
-function fixtureFetcher(failures = []) {
-  const dates = Array.from({ length: 192 }, (_, i) => monthEnd('1959-01', i))
+function fixtureFetcher(failures = [], months = 192) {
+  const dates = Array.from({ length: months }, (_, i) => monthEnd('1959-01', i))
   const table = dates.map(day => {
     const date = new Date(day).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
     return `<tr><td>${date}</td><td>100.00</td></tr>`
@@ -453,6 +526,41 @@ function fixtureFetcher(failures = []) {
     return new Response(id ? [`observation_date,${id}`, ...dates.map(day => `${day},${levels[id] ?? 100}`)].join('\n') : table)
   }
 }
+
+test('refresh merges the local S&P slice and retains the prior live rows across output writes', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'macro-posture-test-'))
+  const output = join(directory, 'macro-posture.json')
+  const fetcher = fixtureFetcher([], 817)
+  try {
+    await writeFile(join(directory, 'us-market-slices.json'), JSON.stringify({
+      slices: [{ id: 'spx', symbol: '^GSPC', history: [['2026-11-20', 90]] }],
+    }))
+    const november = await refreshMacroPosture({ directory, now: new Date('2026-11-23T12:00:00Z'), fetcher })
+    assert.deepEqual(november.current.tactical.mtd.lastClose, { date: '2026-11-20', value: 90 })
+    assert.match(november.current.tactical.mtd.source, /Yahoo Finance.*FRED/)
+    assert.deepEqual(november.current.dates, [
+      { label: '宏观月度', date: '2026 年 10 月' },
+      { label: '宏观周度', date: '10 月 31 日当周' },
+      { label: '企业债利差', date: '2026 年 10 月' },
+      { label: '标普收盘', date: '11 月 20 日' },
+      { label: '外圈市场数据', date: '11 月 20 日' },
+    ])
+    assert.deepEqual(november.backtest.live.rows.map(row => row.d), ['2026-11'])
+    const february = await refreshMacroPosture({ directory, now: new Date('2027-02-01T12:00:00Z'), fetcher })
+    const disk = JSON.parse(await readFile(output, 'utf8'))
+    assert.deepEqual(disk.backtest.live, february.backtest.live)
+    const [settled, current] = disk.backtest.live.rows
+    assert.equal(settled.final, november.current.final.tier)
+    assert.equal(settled.equityShare, november.current.final.equityShare)
+    near(settled.spxReturn, 100 / 1200)
+    near(settled.portfolioReturn, 100 / 1200 * settled.equityShare + 2 / 1200 * (1 - settled.equityShare))
+    assert.equal(current.d, '2027-02')
+    assert.equal(current.spxReturn, null)
+    assert.ok(Math.abs(disk.current.pillars.reduce((sum, p) => sum + (p.contribution ?? 0), 0) - disk.current.regime.score) < 1e-9)
+  } finally {
+    await rm(directory, { recursive: true, force: true })
+  }
+})
 
 test('failed USREC reuses only matching valid monthly marks and can refresh without earlier marks', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'macro-posture-test-'))

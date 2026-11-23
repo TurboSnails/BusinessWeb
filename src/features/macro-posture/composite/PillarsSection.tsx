@@ -1,11 +1,12 @@
 import React, { useId, useState } from 'react'
 import { Badge } from '../../../components/ui'
-import { formatNum1, scoreBadge, toneClass } from './labels'
+import { formatContributionSum, formatNum2, scoreBadge, toneClass } from './labels'
 import type { ComponentState, Pillar } from './types'
 
 const SCORE_MIN = -2
 const SCORE_MAX = 1
 const SCORE_SPAN = SCORE_MAX - SCORE_MIN
+const NEAR_THRESHOLD_TIP = '读数离阈值很近，数据修订或四舍五入就可能翻档'
 
 function scoreToPct(score: number): number {
   return ((score - SCORE_MIN) / SCORE_SPAN) * 100
@@ -24,7 +25,7 @@ function ScoreBar({ score }: { score: number | null }): JSX.Element {
     <div
       className="mp-scorebar"
       role="img"
-      aria-label={score == null ? '支柱分暂无' : `支柱分 ${formatNum1(score, { signed: true })}，刻度负二到正一`}
+      aria-label={score == null ? '支柱分暂无' : `支柱分 ${formatNum2(score, { signed: true })}，刻度负二到正一`}
     >
       <div className="mp-scorebar__frame">
         <svg className="mp-scorebar__svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true">
@@ -108,14 +109,14 @@ function PillarSparkline({ history }: { history: Pillar['history'] }): JSX.Eleme
       <p id={liveId} className="mp-spark__live" aria-live="polite">
         {shown[0]}
         {' · '}
-        {formatNum1(shown[1], { signed: true })}
+        {formatNum2(shown[1], { signed: true })}
       </p>
       <p className="mp-spark__stats" data-testid="mp-spark-stats">
-        近 5 年最高 {formatNum1(hiVal, { signed: true })}
+        近 5 年最高 {formatNum2(hiVal, { signed: true })}
         {' · 最低 '}
-        {formatNum1(loVal, { signed: true })}
+        {formatNum2(loVal, { signed: true })}
         {' · 当前 '}
-        {formatNum1(last[1], { signed: true })}
+        {formatNum2(last[1], { signed: true })}
       </p>
     </div>
   )
@@ -144,8 +145,16 @@ function ComponentRow({ item }: { item: ComponentState }): JSX.Element {
         <Badge tone={item.score == null ? 'muted' : item.score > 0 ? 'down' : item.score < 0 ? 'warm' : 'neutral'}>
           {scoreBadge(item.score)}
         </Badge>
+        {item.nearThreshold ? (
+          <Badge tone="warm">
+            <span title={NEAR_THRESHOLD_TIP} data-testid="mp-near-threshold">临界</span>
+          </Badge>
+        ) : null}
         {item.stale ? <Badge tone="warm">已过期</Badge> : null}
       </div>
+      {item.nearThreshold ? (
+        <p className="mp-component__near" data-testid="mp-near-threshold-note">{NEAR_THRESHOLD_TIP}</p>
+      ) : null}
       <p className="mp-component__rule">{item.rule}</p>
       <p className="mp-component__meta">
         {item.masters.length ? `对应：${item.masters.join('、')}` : null}
@@ -162,6 +171,7 @@ function ComponentRow({ item }: { item: ComponentState }): JSX.Element {
 
 function PillarCard({ pillar }: { pillar: Pillar }): JSX.Element {
   const weightPct = `${(pillar.weight * 100).toFixed(0)}%`
+  const contribution = pillar.contribution
   return (
     <article className="mp-pillar" aria-labelledby={`mp-pillar-${pillar.id}`}>
       <div className="mp-pillar__head">
@@ -169,8 +179,13 @@ function PillarCard({ pillar }: { pillar: Pillar }): JSX.Element {
         <span className="mp-pillar__weight">权重 {weightPct}</span>
       </div>
       <p className={`mp-pillar__score ${toneClass(pillar.tone)}`}>
-        {pillar.score == null ? '暂无分数' : formatNum1(pillar.score, { signed: true })}
+        {pillar.score == null ? '暂无分数' : formatNum2(pillar.score, { signed: true })}
       </p>
+      {contribution != null && Number.isFinite(contribution) ? (
+        <p className="mp-pillar__contribution" data-testid="mp-pillar-contribution">
+          对综合分贡献 {formatNum2(contribution, { signed: true })}
+        </p>
+      ) : null}
       <ScoreBar score={pillar.score} />
       <p className="mp-pillar__summary">{pillar.summary}</p>
       <PillarSparkline history={pillar.history} />
@@ -185,9 +200,16 @@ function PillarCard({ pillar }: { pillar: Pillar }): JSX.Element {
 }
 
 export default function PillarsSection({ pillars }: { pillars: Pillar[] }): JSX.Element {
+  const sumLine = formatContributionSum(pillars.map(p => p.contribution))
   return (
     <section className="mp-pillars" id="mp-pillars" aria-labelledby="mp-pillars-title">
       <h2 id="mp-pillars-title">四根支柱</h2>
+      {sumLine ? (
+        <p className="mp-pillars__sum" data-testid="mp-contribution-sum">
+          综合分 = 各支柱贡献之和：
+          {sumLine}
+        </p>
+      ) : null}
       <div className="mp-pillars__grid">
         {pillars.map(pillar => <PillarCard key={pillar.id} pillar={pillar} />)}
       </div>

@@ -1,4 +1,5 @@
 import { COMPONENTS, PILLARS, RULE_VERSION, TIERS } from './model.mjs'
+import { LIVE_RULE_VERSION, LIVE_SINCE, TRADE_COSTS } from './backtest.mjs'
 
 const nonempty = v => typeof v === 'string' && v.length > 0
 const number = Number.isFinite
@@ -38,10 +39,10 @@ const componentState = shape({
   id: component, pillar, label: nonempty, masters: texts, value: nullableNumber, unit: nonempty,
   display: nonempty, observedOn: nullable(isoDate), availableOn: nullable(isoDate), stale: boolean,
   score: nullable(score), rule: nonempty, worse: optional(threshold), better: optional(threshold),
-  source: nonempty, history: list(pair(isoDate, number)),
+  source: nonempty, history: list(pair(isoDate, number)), nearThreshold: optional(boolean),
 })
 const pillarState = shape({
-  id: pillar, title: nonempty, weight: ratio, score: nullableNumber,
+  id: pillar, title: nonempty, weight: ratio, score: nullableNumber, contribution: nullableNumber,
   tone: oneOf('positive', 'neutral', 'caution', 'negative', 'unknown'),
   summary: nonempty, components: list(componentState), history: list(pair(isoDate, nullableNumber)),
 })
@@ -54,12 +55,20 @@ const current = shape({
   regime: shape({ score: nullableNumber, tier: nullable(tier) }),
   tactical: shape({
     below: nullable(boolean), price: nullableNumber, sma10: nullableNumber, display: nonempty,
-    mtd: optional(shape({ month: isoMonth, days: n => Number.isInteger(n) && n > 0, average: number, sma10: number, below: boolean, display: nonempty })),
+    mtd: optional(shape({
+      month: isoMonth, days: n => Number.isInteger(n) && n > 0, remaining: int, average: number,
+      prior9: number, sma10: number, threshold: nullableNumber, below: boolean,
+      lastClose: shape({ date: isoDate, value: number }), source: nonempty, display: nonempty,
+    })),
   }),
   repair: shape({ active: boolean, rule: nonempty, display: nonempty }),
   final: shape({ tier: nullable(tier), equityShare: nullable(ratio) }),
   driver: oneOf('macro', 'breaker', 'tactical', 'repair', 'insufficient'), headline: nonempty, reasons: texts,
-  confidence: shape({ level: oneOf('high', 'medium', 'low'), agree: int, total: int, notes: texts }),
+  confidence: shape({
+    level: oneOf('high', 'medium', 'low'), agree: int, total: int, notes: texts,
+    counts: shape({ positive: int, neutral: int, negative: int }),
+  }),
+  dates: list(shape({ label: nonempty, date: nonempty })),
   breakers: list(breaker),
   distance: shape({ up: optional(move), down: optional(move), nearest: list(shape({ componentId: component, text: nonempty })), tactical: optional(nonempty) }),
   warnings: shape({ on: int, total: int, names: texts }),
@@ -90,6 +99,14 @@ const backtest = shape({
   })),
   falseAlarms: list(shape({ start: isoMonth, end: isoMonth, months: int, spxFwd12: nullableNumber, maxDd12: nullableNumber })),
   singles: list(shape({ componentId: component, label: nonempty, negMonths: int, spread12: nullableNumber, negHit12: nullable(ratio) })),
+  costs: shape({
+    turnoverPerYear: n => number(n) && n >= 0,
+    rows: list(shape({ cost: oneOf(...TRADE_COSTS), cagr: number, drag: number })),
+  }),
+  live: shape({
+    since: oneOf(LIVE_SINCE), ruleVersion: oneOf(LIVE_RULE_VERSION),
+    rows: list(shape({ d: isoMonth, final: nullable(tier), equityShare: nullable(ratio), spxReturn: nullableNumber, portfolioReturn: nullableNumber })),
+  }),
   timeline: list(shape({ d: isoMonth, regime: nullable(tier), final: nullable(tier), spx: n => n > 0 && number(n), rec: oneOf(0, 1) })),
 })
 const composite = shape({
@@ -103,6 +120,20 @@ export function validateComposite(file) {
   check(ids => ids.length === variantIds.length && ids.every((id, i) => id === variantIds[i]),
     file.backtest.variants.map(v => v.id), 'root.backtest.variants')
   check(ids => sameKeys(ids, PILLARS.map(p => p.id)), file.current.pillars.map(p => p.id), 'root.current.pillars')
+  const { score: regimeScore } = file.current.regime
+  const contributions = file.current.pillars.map(p => p.contribution)
+  check(values => regimeScore == null ? values.every(v => v == null)
+    : Math.abs(values.reduce((sum, v) => sum + (v ?? 0), 0) - regimeScore) < 1e-9,
+  contributions, 'root.current.pillars.contribution')
+  check(dates => dates.length === 5, file.current.dates, 'root.current.dates')
+  check(counts => Object.values(counts).reduce((sum, n) => sum + n, 0) === file.current.confidence.total,
+    file.current.confidence.counts, 'root.current.confidence.counts')
+  const mtd = file.current.tactical.mtd
+  if (mtd) check(value => (value.threshold == null) === (value.remaining === 0), mtd, 'root.current.tactical.mtd.threshold')
+  check(rows => rows.length === TRADE_COSTS.length && rows.every((row, i) => row.cost === TRADE_COSTS[i]),
+    file.backtest.costs.rows, 'root.backtest.costs.rows')
+  check(rows => rows.every((row, i) => row.d >= LIVE_SINCE.slice(0, 7) && (i === 0 || rows[i - 1].d < row.d)),
+    file.backtest.live.rows, 'root.backtest.live.rows')
   for (const p of file.current.pillars) {
     const expected = COMPONENTS.filter(c => c.pillar === p.id).map(c => c.id)
     check(ids => sameKeys(ids, expected), p.components.map(c => c.id), `root.current.pillars.${p.id}.components`)

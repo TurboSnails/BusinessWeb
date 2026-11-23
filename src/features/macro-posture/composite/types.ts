@@ -36,6 +36,8 @@ export type ComponentState = {
   better?: Threshold       // 下一个更好档的阈值
   source: string           // FRED 等来源链接
   history: SeriesPoint[]   // 该派生值最近 60 个月末
+  /** 读数离最近阈值很近（不到相邻阈值间距的 10%），对修订和四舍五入敏感 */
+  nearThreshold?: boolean
 }
 
 export type Pillar = {
@@ -47,6 +49,8 @@ export type Pillar = {
   summary: string          // 一句大白话
   components: ComponentState[]
   history: [string, number | null][]   // 最近 60 个月末支柱分
+  /** 对综合分的贡献 = 归一化权重 × 支柱分；四根贡献之和 = 综合分 */
+  contribution: number | null
 }
 
 export type Breaker = {
@@ -68,7 +72,19 @@ export type Current = {
     sma10: number | null
     display: string
     /** 当月尚未结束时，用标普日线算的「月内至今」均价与预估 10 个月均线；仅提示，不改变档位 */
-    mtd?: { month: string; days: number; average: number; sma10: number; below: boolean; display: string }
+    mtd?: {
+      month: string
+      days: number             // 本月已过交易日
+      remaining: number        // 本月剩余交易日（按美股交易日历）
+      average: number          // 本月至今收盘均价
+      prior9: number           // 前 9 个完整月的月均价平均值：本月均价低于它，10 个月均线条件即触发
+      sma10: number            // 按本月至今均价估算的 10 个月均线
+      threshold: number | null // 剩余交易日均价低于此值，月底即触发
+      below: boolean
+      lastClose: { date: string; value: number }
+      source: string           // 日线来源说明，如「标普 500 日收盘（Yahoo Finance，FRED 校验）」
+      display: string
+    }
   }
   /** v2.1 修复确认：趋势回到均线上方且信用不再恶化时，把偏防守/防守上调一档 */
   repair: { active: boolean; rule: string; display: string }
@@ -76,7 +92,13 @@ export type Current = {
   driver: 'macro' | 'breaker' | 'tactical' | 'repair' | 'insufficient'
   headline: string         // 一句话结论
   reasons: string[]        // 2–4 条主要原因
-  confidence: { level: 'high' | 'medium' | 'low'; agree: number; total: number; notes: string[] }
+  confidence: {
+    level: 'high' | 'medium' | 'low'; agree: number; total: number; notes: string[]
+    /** 支柱方向计数：分 > 0 / = 0 附近（|分| < 0.25）/ < 0 */
+    counts: { positive: number; neutral: number; negative: number }
+  }
+  /** 各类数据各自的最新日期，如 宏观月度 2026 年 9 月、周度 11 月 14 日当周、标普收盘 11 月 20 日 */
+  dates: { label: string; date: string }[]
   breakers: Breaker[]
   distance: {
     up?: Move
@@ -144,6 +166,10 @@ export type Backtest = {
   recessions: { start: string; end: string; firstDefensive: string | null; leadMonths: number | null; note?: string }[]
   falseAlarms: { start: string; end: string; months: number; spxFwd12: number | null; maxDd12: number | null }[]
   singles: { componentId: string; label: string; negMonths: number; spread12: number | null; negHit12: number | null }[]
+  /** 交易成本敏感度（完整模型）：单边成本 × 每月仓位变化 */
+  costs: { turnoverPerYear: number; rows: { cost: number; cagr: number; drag: number }[] }
+  /** 规则冻结后的前推记录：每次刷新若进入新月份就追加一行，之后补上实现收益 */
+  live: { since: string; ruleVersion: string; rows: { d: string; final: TierId | null; equityShare: number | null; spxReturn: number | null; portfolioReturn: number | null }[] }
   /** 每月一行：d=YYYY-MM，regime/final 档位，spx=月均价，rec=NBER 衰退 */
   timeline: { d: string; regime: TierId | null; final: TierId | null; spx: number; rec: 0 | 1 }[]
 }

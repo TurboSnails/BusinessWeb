@@ -1,13 +1,18 @@
 import { applyTactical, average, COMPONENTS, evaluate, TIERS } from './model.mjs'
 import { monthEnd, panelAt, valueAt } from './panel.mjs'
+import { formatReading } from './format.mjs'
 
 export const START = '1973-01'
 export const EXECUTION_LAG = 2
+export const LIVE_SINCE = '2026-11-23'
+export const LIVE_RULE_VERSION = 'v2.1'
+export const TRADE_COSTS = [0.001, 0.003, 0.005]
 const pctToMonthly = rate => rate / 1200
 const defensive = tier => tier === 'lean-defense' || tier === 'defense'
 const month = date => date.slice(0, 7)
 const equity = tier => TIERS.find(t => t.id === tier)?.equityShare ?? null
 const keyAfter = (date, offset) => month(monthEnd(date, offset))
+const portfolioReturn = ({ spx, cash }, weight) => spx * weight + cash * (1 - weight)
 const VARIANTS = [
   ['full', '完整模型', row => equity(row.final)],
   ['v20', 'v2.0（无修复确认）', row => equity(applyTactical(row.regime, row.below))],
@@ -83,6 +88,39 @@ export function alignVariants(timeline, returns) {
     if (row?.cash == null || weights.includes(null)) return []
     return [{ d, ...row, weights }]
   })
+}
+
+export function transactionCosts(full, cagr) {
+  const turnover = full.map((row, i) => i === 0 ? 0 : Math.abs(row.equity - full[i - 1].equity))
+  const years = full.length / 12
+  return {
+    turnoverPerYear: turnover.reduce((sum, change) => sum + change, 0) / years,
+    rows: TRADE_COSTS.map(cost => {
+      const afterCosts = compound(full.map((row, i) => row.portfolio - cost * turnover[i])) ** (1 / years) - 1
+      return { cost, cagr: afterCosts, drag: cagr - afterCosts }
+    }),
+  }
+}
+
+export function updateLive(previousRows, today, final, returns) {
+  const signals = new Map(previousRows.map(row => [row.d, row]))
+  if (today >= LIVE_SINCE) {
+    const d = month(today)
+    signals.set(d, { d, final: final.tier, equityShare: final.equityShare, spxReturn: null, portfolioReturn: null })
+  }
+  const rows = [...signals.values()].sort((a, b) => a.d.localeCompare(b.d)).map(row => {
+    const realized = returns.get(keyAfter(row.d, EXECUTION_LAG))
+    if (!realized) return row
+    const spxReturn = row.spxReturn ?? realized.spx
+    return {
+      ...row,
+      spxReturn,
+      portfolioReturn: row.portfolioReturn ??
+        (realized.cash != null && row.equityShare != null
+          ? portfolioReturn({ spx: spxReturn, cash: realized.cash }, row.equityShare) : null),
+    }
+  })
+  return { since: LIVE_SINCE, ruleVersion: LIVE_RULE_VERSION, rows }
 }
 
 export function horizon(returns, date, count) {
@@ -184,7 +222,7 @@ export const DISCLOSURES = [
   '以下回测用这段历史检验固定的分档和仓位规则，结果属于样本内表现。',
   '修复确认规则是看到 v2.0 回测后加入的，只比较了三种写法，取改动最小者。两段子样本（1973–1999、2000–2026）都改善，仍属样本内。',
   '按固定发布滞后模拟当时可得的数据。除萨姆规则外，宏观读数采用最新修订值，可能与当时发布值不同。',
-  '股票月回报用标普月均价涨跌加股息率除以十二近似，现金用三个月国债利率除以十二。未计税费和交易成本。',
+  '股票月回报用标普月均价涨跌加股息率除以十二近似，现金用三个月国债利率除以十二。主回测未计税费和交易成本。',
   '月末档位用于隔一个月后的月收益。分档、单项和误报的远期收益也从该月开始计算，历史不足的区间不计入收益统计。',
   '分档月数按信号月份统计。策略对比使用六种策略都能计算的收益月份。误报需整段结束后至少再观察十二个月，并排除与衰退重叠的段落。',
   '衰退捕捉只计连续至少两个月处于偏防守或防守的段落。提前月数最多计 12 个月。',
@@ -192,13 +230,27 @@ export const DISCLOSURES = [
 ]
 export const MISSING_RECESSION_MARKS = '美国衰退标记暂缺，暂不统计衰退捕捉及误报。'
 
+const percent = ratio => formatReading(ratio * 100, '%', 2)
+function explainCosts({ turnoverPerYear, rows }) {
+  const scenarios = rows.map(row => `单边成本 ${percent(row.cost)} 时年化收益 ${percent(row.cagr)}、年化收益少 ${formatReading(row.drag * 100, '百分点', 2)}`)
+  return `完整模型年换手 ${percent(turnoverPerYear)}，在同一回测区间内，${scenarios.join('，')}。`
+}
+
+function explainDefensiveTier(tiers) {
+  const { fwd12, fwd12Median, neg12, maxDd12 } = tiers.defense
+  if ([fwd12, fwd12Median, neg12, maxDd12].some(n => n == null)) return []
+  const highestRisk = Object.values(tiers).every(tier =>
+    (tier.neg12 == null || tier.neg12 <= neg12) && (tier.maxDd12 == null || tier.maxDd12 >= maxDd12))
+  return [`防守档后 12 个月标普平均回报为 ${percent(fwd12)}，中位数为 ${percent(fwd12Median)}，为负的比例达 ${percent(neg12)}，平均最大回撤为 ${percent(maxDd12)}${highestRisk ? '，后两项的风险在各档中最高' : ''}。这一档同时覆盖真正的大跌和底部反弹，同步类宏观指标在底部附近仍可能报警。指标主要用来压低组合的大回撤，各档平均回报可能交错。`]
+}
+
 export function buildBacktest(panel, asOf, previousRecessionMarks = new Map()) {
   const lastComplete = monthEnd(asOf, -1)
   const returns = monthlyReturns(panel, lastComplete)
   const rows = []
   for (let d = START; monthEnd(d) <= lastComplete; d = keyAfter(d, 1)) {
     const date = monthEnd(d)
-    const frame = panelAt(panel, date)
+    const frame = panelAt(panel, date, null)
     const result = evaluate(frame)
     if (!rows.length && Object.values(result.pillars).some(score => score == null)) continue
     if (frame.tactical.price == null || month(valueAt(panel.price, date)?.observedOn ?? '') !== d) {
@@ -218,21 +270,28 @@ export function buildBacktest(panel, asOf, previousRecessionMarks = new Map()) {
   if (aligned.some((row, i) => i > 0 && keyAfter(aligned[i - 1].d, 1) !== row.d)) {
     throw new Error('共同回测区间内存在收益或信号缺月')
   }
-  const variants = VARIANTS.map(([id, label], i) => ({
-    id, label, ...performance(aligned.map(({ weights, spx, cash }) => ({
-      portfolio: spx * weights[i] + cash * (1 - weights[i]), equity: weights[i], cash,
-    }))),
+  const portfolio = i => aligned.map(row => ({
+    portfolio: portfolioReturn(row, row.weights[i]), equity: row.weights[i], cash: row.cash,
   }))
+  const full = portfolio(0)
+  const variants = VARIANTS.map(([id, label], i) => ({
+    id, label, ...performance(i === 0 ? full : portfolio(i)),
+  }))
+  const costs = transactionCosts(full, variants[0].cagr)
   const forward = new Map(rows.map(({ d }) => [d, Object.fromEntries([3, 6, 12].map(n => [n, horizon(returns, d, n)]))]))
+  const tiers = tierStats(rows, forward)
   const timeline = rows.map(({ d, regime, final, spx, rec }) => ({ d, regime, final, spx, rec }))
   const runs = recessionRuns(timeline)
   const hasRecessionMarks = panel.USREC?.length || timeline.some(({ d }) => previousRecessionMarks.has(d))
   return {
-    historical: rows.slice(-120).map(row => ({ ...row, d: monthEnd(row.d) })),
+    historical: rows.slice(-120).map(row => ({ ...row, d: monthEnd(row.d) })), returns,
     backtest: {
       start: rows[0].d, end: rows.at(-1).d, months: rows.length,
-      disclosures: hasRecessionMarks ? DISCLOSURES : [...DISCLOSURES, MISSING_RECESSION_MARKS],
-      tiers: tierStats(rows, forward), variants, recessions: recessionCapture(timeline, runs),
+      disclosures: [
+        ...DISCLOSURES, explainCosts(costs), ...explainDefensiveTier(tiers),
+        ...(hasRecessionMarks ? [] : [MISSING_RECESSION_MARKS]),
+      ],
+      tiers, variants, costs, recessions: recessionCapture(timeline, runs),
       falseAlarms: hasRecessionMarks ? falseAlarms(timeline, runs, returns) : [],
       singles: singleTests(rows, forward), timeline,
     },

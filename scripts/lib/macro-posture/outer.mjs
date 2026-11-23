@@ -1,4 +1,4 @@
-import { addDays, ageDays, clean, percentile, valueAt } from './panel.mjs'
+import { addDays, ageDays, clean, FRED_SPX_URL, percentile, valueAt } from './panel.mjs'
 import { formatDate, formatReading } from './format.mjs'
 
 const LOCAL_SOURCE_NAMES = {
@@ -88,7 +88,7 @@ function historicalReading(rows, unit, meanings, render = value => formatReading
   }
 }
 
-export function buildOuter(local, panel, asOf) {
+export function buildOuter(local, panel, asOf, spxUrl = FRED_SPX_URL) {
   const market = local['us-market-data']?.series ?? {}
   const masters = local['macro-masters-fred']?.series ?? {}
   const breadth = local['us-market-breadth']?.breadth?.spx
@@ -129,17 +129,18 @@ export function buildOuter(local, panel, asOf) {
       const point = get(market.vixDaily).at(-1)
       return warning(point, '点', point?.[1] >= 30, '期权市场反映的波动预期达到 30 点。', '期权市场反映的波动预期低于 30 点。')
     }, '与核心重复'),
-    b('标普日线与 200 日均线', 'spx200', '市场趋势', [JONES], '这个预警与月均线表达的趋势风险有重叠。', fred('SP500'), () => {
+    b('标普日线与 200 日均线', 'spx200', '市场趋势', [JONES], '这个预警与月均线表达的趋势风险有重叠。', spxUrl, () => {
       const point = valueAt(panel.SP500, asOf)
       if (!point) return null
       const window = panel.SP500.filter(p => p.observedOn <= point.observedOn).slice(-200)
       if (window.length !== 200) return incompleteWarning(point.observedOn)
       const sma = window.reduce((sum, p) => sum + p.value, 0) / 200
       const below = point.value < sma
+      const gap = (point.value / sma - 1) * 100
       return {
         observedOn: point.observedOn, value: `${formatReading(point.value, '指数')}，200 日线 ${formatReading(sma, '指数')}`,
         status: below ? 'warn' : 'clear',
-        signal: `${formatDate(point.observedOn)}收盘价${below ? '低于' : '不低于'} 200 日均线。`,
+        signal: `${formatDate(point.observedOn)}收盘价${gap === 0 ? '与 200 日均线持平' : `${below ? '低于' : '高于'} 200 日均线 ${formatReading(Math.abs(gap), '%', 2)}`}。`,
       }
     }, '与核心重复'),
     b('美元净流动性', 'netLiquidity', '流动性', [DRUCK, DALIO], '联储资产扣除财政部存款和隔夜逆回购只是流动性的近似。', fred('WALCL'), () =>

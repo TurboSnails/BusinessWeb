@@ -1,6 +1,9 @@
 import { formatDate, formatReading } from './format.mjs'
 import { remainingSessions } from './calendar.mjs'
 
+export const FRED_SPX = '标普 500 日收盘（FRED）'
+export const FRED_SPX_URL = 'https://fred.stlouisfed.org/series/SP500'
+
 const DAY = 86_400_000
 const iso = date => date.toISOString().slice(0, 10)
 const millis = date => Date.parse(date + 'T00:00:00Z')
@@ -16,7 +19,8 @@ export const RELEASE_MONTHS = Object.freeze({
   SAHMREALTIME: 1, PAYEMS: 1, INDPRO: 1, PCEPILFE: 2,
   BAA: 0, AAA: 0, FEDFUNDS: 0, GS10: 0, TB3MS: 0, price: 0, yield: 0,
 })
-const WEEKLY = new Set(['IC4WSA', 'NFCI', 'NFCICREDIT'])
+const WEEKLY_IDS = ['IC4WSA', 'NFCI', 'NFCICREDIT']
+const WEEKLY = new Set(WEEKLY_IDS)
 
 export function makeSeries(id, rows) {
   return [...new Map(rows.filter(([, value]) => Number.isFinite(value))
@@ -56,31 +60,23 @@ function monthlyWindow(series, point, count, asOf) {
 const mean = values => values.reduce((sum, value) => sum + value, 0) / values.length
 const percentChange = (now, prior, power = 1) => prior > 0 ? ((now / prior) ** power - 1) * 100 : null
 
-function tacticalEstimate(panel, date) {
-  if (date === monthEnd(date)) return undefined
+function tacticalEstimate(panel, date, source) {
   const month = date.slice(0, 7)
   const days = (panel.SP500 ?? []).filter(point => point.observedOn.startsWith(month) && point.availableOn <= date)
   const previous = Array.from({ length: 9 }, (_, i) => monthAt(panel.price, monthEnd(date, -i - 1), date))
   if (!days.length || !previous.every(Boolean)) return undefined
   const average = mean(days.map(point => point.value))
-  const priorAverage = mean(previous.map(point => point.value))
-  const sma10 = mean([average, ...previous.map(point => point.value)])
-  const below = average < sma10
+  const prior9 = mean(previous.map(point => point.value))
+  const sma10 = (average + 9 * prior9) / 10
+  const below = average < prior9
   const last = days.at(-1)
   const remaining = remainingSessions(last.observedOn, monthEnd(date))
   // The completed monthly average crosses the ten-month line when it crosses the prior nine-month average.
-  const cutoff = remaining ? priorAverage + (priorAverage - average) * days.length / remaining : null
-  const gap = clean((last.value / sma10 - 1) * 100)
-  const outlook = remaining
-    ? `按 ${formatDate(last.observedOn)}收盘推算，本月剩余约 ${remaining} 个交易日，剩余交易日均价低于 ${formatReading(cutoff, '指数')}时，月底即触发下调。`
-    : '按最新收盘日推算，本月交易日已结束。'
-  const close = `最新收盘 ${formatReading(last.value, '指数')}，${gap === 0 ? '与预估均线持平' : `${gap < 0 ? '低于' : '高于'}预估均线 ${formatReading(Math.abs(gap), '%')}`}。`
+  const threshold = remaining ? (prior9 * (days.length + remaining) - average * days.length) / remaining : null
   return {
-    mtd: {
-      month, days: days.length, average, sma10, below,
-      display: `${Number(month.slice(5))} 月至今 ${days.length} 个交易日均价 ${formatReading(average, '指数')}，${below ? '低于' : '不低于'}预估 10 个月均线 ${formatReading(sma10, '指数')}。`,
-    },
-    outlook: outlook + close,
+    month, days: days.length, remaining, average, prior9, sma10, threshold, below,
+    lastClose: { date: last.observedOn, value: last.value }, source,
+    display: `${Number(month.slice(5))} 月至今 ${days.length} 个交易日均价 ${formatReading(average, '指数')}，${below ? '低于' : '不低于'}预估 10 个月均线 ${formatReading(sma10, '指数')}。`,
   }
 }
 
@@ -122,7 +118,7 @@ function reading(point, value, extras = {}, date, id, other = []) {
   }
 }
 
-export function panelAt(panel, date, estimateDate = date) {
+export function panelAt(panel, date, estimateDate = date, spxSource = FRED_SPX) {
   const latest = id => valueAt(panel[id], date)
   const prior = (id, point, n) => point && monthAt(panel[id], monthEnd(point.observedOn, -n), date)
   const simple = (id, point, value = point?.value, extras, other) => reading(point, value, extras, date, id, other)
@@ -160,10 +156,17 @@ export function panelAt(panel, date, estimateDate = date) {
   const price = latest('price')
   const trend = monthlyWindow(panel.price, price, 10, date)
   const sma10 = trend.length && trend.every(Boolean) ? mean(trend.map(p => p.value)) : null
-  const estimate = tacticalEstimate(panel, estimateDate)
+  const estimate = estimateDate && price?.observedOn.slice(0, 7) !== estimateDate.slice(0, 7)
+    ? tacticalEstimate(panel, estimateDate, spxSource) : undefined
+  const lastObserved = ids => ids.map(id => latest(id)?.observedOn).filter(Boolean).sort().at(-1)
 
   return {
-    tacticalOutlook: estimate?.outlook,
+    observations: {
+      monthly: lastObserved(['SAHMREALTIME', 'PAYEMS', 'INDPRO', 'PCEPILFE', 'FEDFUNDS', 'GS10', 'TB3MS']),
+      weekly: lastObserved(WEEKLY_IDS),
+      credit: baa?.observedOn,
+      spx: estimateDate && valueAt(panel.SP500, estimateDate)?.observedOn,
+    },
     components: {
       sahm: simple('SAHMREALTIME', latest('SAHMREALTIME')),
       claims: simple('IC4WSA', claims, claimWeeks.length === 52 ? percentChange(claims.value, Math.min(...claimWeeks.map(p => p.value))) : null),
@@ -184,7 +187,7 @@ export function panelAt(panel, date, estimateDate = date) {
       below: sma10 == null ? null : price.value < sma10,
       display: sma10 == null ? '月均价或十个月均线暂缺'
         : `${formatDate(price.observedOn, 'monthly')}标普月均价 ${formatReading(price.value, '指数')}，${price.value < sma10 ? '低于' : '不低于'}十个月均线 ${formatReading(sma10, '指数')}。`,
-      ...(estimate ? { mtd: estimate.mtd } : {}),
+      ...(estimate ? { mtd: estimate } : {}),
     },
   }
 }

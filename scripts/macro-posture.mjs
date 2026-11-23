@@ -4,9 +4,9 @@ import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseMultpl } from './us-market-data.mjs'
 import { localParts, MARKETS } from './lib/trading-calendar.mjs'
-import { makePanel, monthEnd, panelAt, valueAt } from './lib/macro-posture/panel.mjs'
+import { FRED_SPX, FRED_SPX_URL, makePanel, monthEnd, panelAt, valueAt } from './lib/macro-posture/panel.mjs'
 import { buildCurrent, RULE_VERSION, TIER_DEFS } from './lib/macro-posture/model.mjs'
-import { buildBacktest, MISSING_RECESSION_MARKS } from './lib/macro-posture/backtest.mjs'
+import { buildBacktest, MISSING_RECESSION_MARKS, updateLive } from './lib/macro-posture/backtest.mjs'
 import { buildOuter, LOCAL_SOURCES } from './lib/macro-posture/outer.mjs'
 import { validateComposite } from './lib/macro-posture/validate.mjs'
 
@@ -25,6 +25,8 @@ const MULTPL_SERIES = {
   yield: 's-p-500-dividend-yield/table/by-month',
 }
 const TIMEOUT_MS = 20_000
+const MARKET_SLICES = 'us-market-slices'
+const YAHOO_SPX_URL = 'https://finance.yahoo.com/quote/%5EGSPC/history/'
 
 export function parseMonthlyTable(html, completeThrough) {
   // The shared parser handles dates and estimate markers, but expects ungrouped numbers.
@@ -72,47 +74,88 @@ export async function collectCore(asOf, fetcher) {
 }
 
 async function readLocal(directory) {
-  const reads = await Promise.allSettled(LOCAL_SOURCES.map(async name => {
+  const sources = [...LOCAL_SOURCES, MARKET_SLICES]
+  const reads = await Promise.allSettled(sources.map(async name => {
     const body = JSON.parse(await readFile(resolve(directory, name + '.json'), 'utf8'))
     if (!body || typeof body !== 'object' || Array.isArray(body)) throw new Error('本地数据结构异常')
     return body
   }))
-  return Object.fromEntries(LOCAL_SOURCES.map((name, i) => [name, reads[i].status === 'fulfilled' ? reads[i].value : null]))
+  return Object.fromEntries(sources.map((name, i) => [name, reads[i].status === 'fulfilled' ? reads[i].value : null]))
 }
 
-async function readRecessionMarks(output) {
-  try {
-    const backtest = JSON.parse(await readFile(output, 'utf8'))?.backtest
-    const rows = backtest?.timeline
-    if (!Array.isArray(rows) || backtest.disclosures?.includes(MISSING_RECESSION_MARKS)) return new Map()
-    return new Map(rows.flatMap(row =>
-      /^\d{4}-(0[1-9]|1[0-2])$/.test(row?.d) && [0, 1].includes(row?.rec) ? [[row.d, row.rec]] : []))
-  } catch {
-    return new Map()
+export function mergeSpxCloses(fred, market, through, warn) {
+  const spx = Array.isArray(market?.slices) ? market.slices.find(slice => slice?.id === 'spx' && slice.symbol === '^GSPC') : undefined
+  const local = Array.isArray(spx?.history) ? spx.history : []
+  const merged = new Map(fred.filter(([date, value]) => date <= through && value > 0))
+  const hasFred = merged.size > 0
+  let hasLocal = false
+  for (const row of local) {
+    if (!Array.isArray(row)) continue
+    const [date, value] = row
+    if (typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date) || date > through ||
+      !Number.isFinite(Date.parse(date)) || new Date(date).toISOString().slice(0, 10) !== date ||
+      !Number.isFinite(value) || value <= 0) continue
+    const baseline = merged.get(date)
+    if (baseline != null && Math.abs(value - baseline) > baseline * 0.005) {
+      const gap = (Math.abs(value / baseline - 1) * 100).toFixed(2)
+      warn(`标普收盘 ${date}：站内 Yahoo Finance ${value}、FRED ${baseline}，相差 ${gap}%，采用站内收盘价。`)
+    }
+    merged.set(date, value)
+    hasLocal = true
+  }
+  return {
+    rows: [...merged].sort(([a], [b]) => a.localeCompare(b)),
+    source: !hasLocal ? FRED_SPX : hasFred
+      ? '标普 500 日收盘（站内 Yahoo Finance 行情优先，FRED 补充与交叉核对）'
+      : '标普 500 日收盘（站内 Yahoo Finance 行情）',
+    url: hasLocal ? YAHOO_SPX_URL : FRED_SPX_URL,
   }
 }
 
-const json = file => JSON.stringify(file, (_key, item) => typeof item === 'number' && Number.isFinite(item)
+async function readPreviousBacktest(output) {
+  try {
+    return JSON.parse(await readFile(output, 'utf8'))?.backtest
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error
+    return undefined
+  }
+}
+
+function previousRecessions(backtest) {
+  const rows = backtest?.timeline
+  if (!Array.isArray(rows) || backtest.disclosures?.includes(MISSING_RECESSION_MARKS)) return new Map()
+  return new Map(rows.flatMap(row =>
+    /^\d{4}-(0[1-9]|1[0-2])$/.test(row?.d) && [0, 1].includes(row?.rec) ? [[row.d, row.rec]] : []))
+}
+
+const exactFields = new Set([
+  'score', 'contribution', 'value', 'average', 'prior9', 'sma10', 'threshold',
+  'cagr', 'drag', 'turnoverPerYear', 'spxReturn', 'portfolioReturn',
+])
+const json = file => JSON.stringify(file, (key, item) => typeof item === 'number' && Number.isFinite(item) && !exactFields.has(key)
   ? Number(item.toFixed(4)) : item) + '\n'
 
 export async function refreshMacroPosture({
-  fetcher = fetch, now = new Date(), directory = DATA, output = resolve(directory, 'macro-posture.json'),
+  fetcher = fetch, now = new Date(), directory = DATA, output = resolve(directory, 'macro-posture.json'), warn = console.warn,
 } = {}) {
   const generatedAt = now.toISOString()
   const today = generatedAt.slice(0, 10)
+  const marketDate = localParts(now, MARKETS.us.tz).date
   const [raw, local] = await Promise.all([collectCore(today, fetcher), readLocal(directory)])
-  const panel = makePanel(raw)
-  const previousRecessionMarks = raw.USREC.length ? undefined : await readRecessionMarks(output)
-  const { backtest, historical } = buildBacktest(panel, today, previousRecessionMarks)
-  const { outer, failedSources } = buildOuter(local, panel, today)
+  const spx = mergeSpxCloses(raw.SP500, local[MARKET_SLICES], marketDate, warn)
+  const panel = makePanel({ ...raw, SP500: spx.rows })
+  const previous = await readPreviousBacktest(output)
+  const previousRecessionMarks = raw.USREC.length ? undefined : previousRecessions(previous)
+  const { backtest, historical, returns } = buildBacktest(panel, today, previousRecessionMarks)
+  const { outer, failedSources } = buildOuter(local, panel, today, spx.url)
   for (const [id, name] of Object.entries(OPTIONAL_FRED)) if (!raw[id].length) failedSources.push(name)
   const asOf = [...FRED_IDS.filter(id => id !== 'USREC'), 'price']
     .map(id => valueAt(panel[id], today)?.availableOn)
     .concat(outer.map(item => item.observedOn)).filter(Boolean).sort().at(-1) ?? today
+  const current = buildCurrent(asOf, panelAt(panel, today, marketDate, spx.source), historical, outer)
   const file = {
     ruleVersion: RULE_VERSION, generatedAt, tiers: TIER_DEFS,
-    current: buildCurrent(asOf, panelAt(panel, today, localParts(now, MARKETS.us.tz).date), historical, outer),
-    outer, backtest, failedSources,
+    current, outer, backtest: { ...backtest, live: updateLive(previous?.live?.rows ?? [], today, current.final, returns) }, failedSources,
   }
   validateComposite(file)
   const body = json(file)

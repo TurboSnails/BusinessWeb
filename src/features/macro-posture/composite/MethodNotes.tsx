@@ -80,7 +80,7 @@ export default function MethodNotes({ data }: { data: CompositeFile }): JSX.Elem
 
       <div className="mp-method__disclaimer" role="note">
         <p>
-          本站融合九位宏观投资人公开方法，做成可回测的综合风险状态指标。规则先验设定并公开回测结果，描述的是仓位档位与证据，不构成买卖建议，也不保证未来表现。
+          参考九位宏观投资人的公开方法，提炼成可回测的规则；九位中只有一位给过可机械执行的规则，其余为本站按其方法选取的指标。规则先验设定并公开回测结果，描述的是仓位档位与证据，不构成买卖建议，也不保证未来表现。
         </p>
         {failedLabels.length > 0 && (
           <p data-testid="mp-failed-sources">部分源本次失效：{failedLabels.join('、')}。</p>

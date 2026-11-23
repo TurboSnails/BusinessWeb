@@ -198,13 +198,16 @@ describe('MacroPosture 综合指标视图', () => {
     expect(screen.getByTestId('mp-tier-name').textContent).toBe('偏进攻')
     expect(screen.getByTestId('mp-share').textContent).toContain('85%')
     expect(screen.getByTestId('mp-confidence').textContent).toMatch(/置信度高/)
-    expect(screen.getByTestId('mp-confidence').textContent).toContain('3/4 根支柱同向')
+    expect(screen.getByTestId('mp-confidence').textContent).toContain('支柱 2 正 · 2 中性 · 0 负')
+    expect(screen.getByTestId('mp-confidence').textContent).not.toContain('同向')
     expect(screen.getByTestId('mp-confidence-notes').textContent).toContain('四根支柱里三根')
     expect(screen.getByTestId('mp-snap-regime').textContent).toContain('+0.32')
     expect(screen.getByTestId('mp-distance-up').textContent).toContain('升一档')
     expect(screen.getByTestId('mp-distance-down').textContent).toContain('降一档')
     expect(within(screen.getByTestId('mp-distance-nearest')).getAllByRole('listitem')).toHaveLength(3)
     expect(screen.getByText(MACRO_POSTURE_FOOTER)).toBeTruthy()
+    expect(MACRO_POSTURE_LEAD).toContain('参考九位宏观投资人的公开方法')
+    expect(MACRO_POSTURE_FOOTER).toContain('九位中只有一位')
   })
 
   it('final 为 null 时显示证据不足并列出缺项', () => {
@@ -333,7 +336,7 @@ describe('MacroPosture 综合指标视图', () => {
     expect(screen.getByTestId('mp-variants-readout').textContent).toMatch(/完整模型相对全程持有/)
   })
 
-  it('mtd / repair / warnings 缺失时不报错且跳过对应块', () => {
+  it('mtd / repair / warnings / dates / counts / costs / live 缺失时不报错且跳过对应块', () => {
     expect(() => {
       renderPage('/invest/macro-posture', { status: 'ready', data: legacyFieldsFixture() })
     }).not.toThrow()
@@ -342,18 +345,61 @@ describe('MacroPosture 综合指标视图', () => {
     expect(screen.queryByTestId('mp-snap-mtd')).toBeNull()
     expect(screen.queryByTestId('mp-distance-tactical')).toBeNull()
     expect(screen.queryByTestId('mp-method-repair')).toBeNull()
+    expect(screen.queryByTestId('mp-backtest-costs')).toBeNull()
+    expect(screen.queryByTestId('mp-backtest-live')).toBeNull()
+    expect(screen.queryByTestId('mp-contribution-sum')).toBeNull()
+    expect(screen.getByTestId('mp-confidence').textContent).toMatch(/^置信度高/)
+    expect(screen.getByTestId('mp-data-dates').textContent).toContain('数据截至')
     expect(screen.getByTestId('mp-snapshot').textContent).toContain('宏观底子')
   })
 
   it('结论卡宏观底子与距离改判战术行、方法修复确认', () => {
     renderPage()
     expect(screen.getByTestId('mp-snap-regime').textContent).toMatch(/偏进攻/)
-    expect(screen.getByTestId('mp-snap-mtd').textContent).toContain('11 月至今')
+    expect(screen.getByTestId('mp-snap-pillar-scores').textContent).toMatch(/\+0\.50/)
+    expect(screen.getByTestId('mp-snap-tactical-distance').textContent).toContain('十个月均线')
+    expect(screen.queryByTestId('mp-snap-mtd')).toBeNull()
     expect(screen.getByTestId('mp-distance-tactical').textContent).toContain('十个月均线')
     expect(screen.getByTestId('mp-method-repair').textContent).toContain('修复确认')
     expect(screen.getByTestId('mp-method-repair').textContent).toContain(
       '可以把经济与信用同时转弱触发的防守上调为偏防守',
     )
+  })
+
+  it('贡献之和、dates、临界徽标、mtd 公式、costs 与 live 表', () => {
+    renderPage()
+    expect(screen.getByTestId('mp-contribution-sum').textContent).toContain(
+      '综合分 = 各支柱贡献之和：+0.15 + 0.03 + 0.10 + 0.04 = +0.32',
+    )
+    expect(screen.getAllByTestId('mp-pillar-contribution')[0].textContent).toContain('对综合分贡献 +0.15')
+    expect(screen.getByTestId('mp-data-dates').textContent).toContain('宏观月度')
+    expect(screen.getByTestId('mp-data-dates').textContent).toContain('标普收盘')
+    expect(screen.getByTestId('mp-near-threshold').textContent).toBe('临界')
+    expect(screen.getByTestId('mp-near-threshold-note').textContent).toContain('读数离阈值很近')
+    expect(screen.getByTestId('mp-mtd-formula').textContent).toContain('前 9 个月均价')
+    expect(screen.getByTestId('mp-mtd-formula').textContent).toContain('日线来源')
+    const costs = screen.getByTestId('mp-backtest-costs')
+    expect(costs.textContent).toContain('交易成本敏感度')
+    expect(costs.textContent).toContain('年换手')
+    expect(screen.getByTestId('mp-defense-note').textContent).toContain('为什么防守档之后的平均回报不低')
+    const live = screen.getByTestId('mp-backtest-live')
+    expect(live.textContent).toContain('前推记录')
+    expect(live.textContent).toContain('样本外记录')
+    expect(live.textContent).toContain('待实现')
+    expect(live.textContent).toContain('+1.2%')
+  })
+
+  it('live.rows 为空时仍渲染前推小节', () => {
+    renderPage('/invest/macro-posture', {
+      status: 'ready',
+      data: compositeFixture({
+        backtest: {
+          ...compositeFixture().backtest,
+          live: { since: '2026-11-23', ruleVersion: 'v2.1', rows: [] },
+        },
+      }),
+    })
+    expect(screen.getByTestId('mp-backtest-live').textContent).toContain('尚无前推行')
   })
 
   it('时间线 NBER 说明、衰退 note、迷你走势高低当前', () => {

@@ -58,6 +58,7 @@ function pillar(partial: Partial<Pillar> & Pick<Pillar, 'id' | 'title'>): Pillar
     score: 0.2,
     tone: 'positive',
     summary: '支柱概况正常。',
+    contribution: 0.05,
     components: [
       component({ id: `${partial.id}-a`, pillar: partial.id, label: `${partial.title}组件甲`, score: 1, display: '偏强' }),
       component({ id: `${partial.id}-b`, pillar: partial.id, label: `${partial.title}组件乙`, score: 0, display: '中性' }),
@@ -162,8 +163,13 @@ function variants(): Variant[] {
 }
 
 function backtest(): Backtest {
-  const tierIds: TierId[] = ['offense', 'lean-offense', 'neutral', 'lean-defense', 'defense']
-  const tiers = Object.fromEntries(tierIds.map(id => [id, emptyTierStats()])) as Record<TierId, TierStats>
+  const tiers: Record<TierId, TierStats> = {
+    offense: { ...emptyTierStats(), months: 180, share: 0.28, fwd12Median: 0.11, neg12: 0.12, maxDd12: -0.06 },
+    'lean-offense': { ...emptyTierStats(), months: 160, share: 0.25, fwd12Median: 0.09, neg12: 0.15, maxDd12: -0.07 },
+    neutral: emptyTierStats(),
+    'lean-defense': { ...emptyTierStats(), months: 80, share: 0.12, fwd12Median: 0.06, neg12: 0.28, maxDd12: -0.1 },
+    defense: { ...emptyTierStats(), months: 60, share: 0.09, fwd12Median: 0.07, neg12: 0.22, maxDd12: -0.05 },
+  }
   return {
     start: '1973-01',
     end: '2026-10',
@@ -195,6 +201,22 @@ function backtest(): Backtest {
       { componentId: 'claims', label: '初请失业救济', negMonths: 30, spread12: 0.02, negHit12: 0.35 },
       { componentId: 'nfci', label: '金融条件', negMonths: 25, spread12: 0.005, negHit12: 0.4 },
     ],
+    costs: {
+      turnoverPerYear: 1.4,
+      rows: [
+        { cost: 0, cagr: 0.092, drag: 0 },
+        { cost: 0.001, cagr: 0.089, drag: -0.003 },
+        { cost: 0.002, cagr: 0.086, drag: -0.006 },
+      ],
+    },
+    live: {
+      since: '2026-11-23',
+      ruleVersion: 'v2.1',
+      rows: [
+        { d: '2026-11', final: 'lean-offense', equityShare: 0.85, spxReturn: null, portfolioReturn: null },
+        { d: '2026-10', final: 'lean-offense', equityShare: 0.85, spxReturn: 0.012, portfolioReturn: 0.01 },
+      ],
+    },
     timeline: [
       { d: '2024-01', regime: 'neutral', final: 'neutral', spx: 4800, rec: 0 },
       { d: '2024-02', regime: 'lean-offense', final: 'lean-offense', spx: 5000, rec: 0 },
@@ -222,9 +244,14 @@ function readyCurrent(overrides: Partial<Current> = {}): Current {
       mtd: {
         month: '2026-11',
         days: 14,
+        remaining: 6,
         average: 5750,
+        prior9: 5400,
         sma10: 5450,
+        threshold: 5050,
         below: false,
+        lastClose: { date: '2026-11-20', value: 5780 },
+        source: '标普 500 日收盘（Yahoo Finance，FRED 校验）',
         display: '11 月至今 14 个交易日均价约 5750，仍高于预估十个月均线',
       },
     },
@@ -241,7 +268,18 @@ function readyCurrent(overrides: Partial<Current> = {}): Current {
       '货币与流动性支柱偏松。',
       '暂无熔断触发。',
     ],
-    confidence: { level: 'high', agree: 3, total: 4, notes: ['四根支柱里三根与最终档位同向'] },
+    confidence: {
+      level: 'high',
+      agree: 3,
+      total: 4,
+      notes: ['四根支柱里三根与最终档位同向'],
+      counts: { positive: 2, neutral: 2, negative: 0 },
+    },
+    dates: [
+      { label: '宏观月度', date: '2026 年 10 月' },
+      { label: '周度', date: '11 月 14 日当周' },
+      { label: '标普收盘', date: '11 月 20 日' },
+    ],
     breakers: [
       { id: 'recessionCredit', label: '衰退式信用', active: false, effect: '最多防守', rule: '增长与信用同时很差时强制防守' },
       { id: 'creditStress', label: '信用压力', active: false, effect: '最多偏防守', rule: '信用支柱极差时上限偏防守' },
@@ -264,10 +302,28 @@ function readyCurrent(overrides: Partial<Current> = {}): Current {
       names: ['高收益债利差'],
     },
     pillars: [
-      pillar({ id: 'growth', title: '增长与就业', weight: 0.3, score: 0.5, summary: '就业与产出仍偏稳。' }),
-      pillar({ id: 'credit', title: '信用', weight: 0.25, score: 0.1, summary: '利差尚可，压力有限。' }),
-      pillar({ id: 'liquidity', title: '货币与流动性', weight: 0.25, score: 0.4, summary: '政策与金融条件偏松。' }),
-      pillar({ id: 'inflation', title: '通胀', weight: 0.2, score: -0.2, tone: 'caution', summary: '核心通胀仍略偏高。' }),
+      pillar({
+        id: 'growth',
+        title: '增长与就业',
+        weight: 0.3,
+        score: 0.5,
+        contribution: 0.15,
+        summary: '就业与产出仍偏稳。',
+        components: [
+          component({
+            id: 'sahm',
+            pillar: 'growth',
+            label: '萨姆规则',
+            score: 1,
+            display: '0.20 个百分点',
+            nearThreshold: true,
+          }),
+          component({ id: 'claims', pillar: 'growth', label: '初请失业救济', score: 0, display: '中性' }),
+        ],
+      }),
+      pillar({ id: 'credit', title: '信用', weight: 0.25, score: 0.1, contribution: 0.03, summary: '利差尚可，压力有限。' }),
+      pillar({ id: 'liquidity', title: '货币与流动性', weight: 0.25, score: 0.4, contribution: 0.10, summary: '政策与金融条件偏松。' }),
+      pillar({ id: 'inflation', title: '通胀', weight: 0.2, score: -0.2, contribution: 0.04, tone: 'caution', summary: '核心通胀仍略偏高。' }),
     ],
     ...overrides,
   }
@@ -301,6 +357,7 @@ export function insufficientFixture(): CompositeFile {
         agree: 0,
         total: 2,
         notes: ['增长与就业缺可用组件', '信用缺可用组件'],
+        counts: { positive: 1, neutral: 1, negative: 0 },
       },
       distance: { nearest: [] },
       warnings: { on: 0, total: 3, names: [] },
@@ -309,6 +366,7 @@ export function insufficientFixture(): CompositeFile {
           id: 'growth',
           title: '增长与就业',
           score: null,
+          contribution: null,
           tone: 'unknown',
           summary: '可用组件不足一半。',
           components: [
@@ -319,31 +377,46 @@ export function insufficientFixture(): CompositeFile {
           id: 'credit',
           title: '信用',
           score: null,
+          contribution: null,
           tone: 'unknown',
           summary: '可用组件不足一半。',
         }),
-        pillar({ id: 'liquidity', title: '货币与流动性', score: 0.2, summary: '流动性尚可。' }),
-        pillar({ id: 'inflation', title: '通胀', score: 0, summary: '通胀中性。' }),
+        pillar({ id: 'liquidity', title: '货币与流动性', score: 0.2, contribution: 0.05, summary: '流动性尚可。' }),
+        pillar({ id: 'inflation', title: '通胀', score: 0, contribution: 0, summary: '通胀中性。' }),
       ],
     }),
   })
 }
 
-/** 缺 mtd / repair / warnings 等新字段：页面对可选字段容错 */
+/** 缺 mtd / repair / warnings / dates / counts / costs / live 等新字段：页面对可选字段容错 */
 export function legacyFieldsFixture(): CompositeFile {
   const base = compositeFixture()
   const tactical = { ...base.current.tactical }
   delete tactical.mtd
   const distance = { ...base.current.distance }
   delete distance.tactical
+  const { counts: _counts, ...confidenceRest } = base.current.confidence
+  const { dates: _dates, ...currentRest } = base.current
+  const { costs: _costs, live: _live, ...backtestRest } = base.backtest
   return {
     ...base,
     current: {
-      ...base.current,
+      ...currentRest,
+      confidence: confidenceRest as Current['confidence'],
       tactical,
       distance,
       repair: undefined as unknown as Current['repair'],
       warnings: undefined as unknown as Current['warnings'],
-    },
+      dates: undefined as unknown as Current['dates'],
+      pillars: base.current.pillars.map(p => ({
+        ...p,
+        contribution: undefined as unknown as number | null,
+        components: p.components.map(c => {
+          const { nearThreshold: _near, ...rest } = c
+          return rest
+        }),
+      })),
+    } as Current,
+    backtest: backtestRest as CompositeFile['backtest'],
   }
 }

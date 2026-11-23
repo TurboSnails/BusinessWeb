@@ -57,7 +57,7 @@ export const INVEST_GROUPS: HubGroup[] = [
     links: [
       { path: '/watch', label: '观察盘', short: '宏观、全球、A股一页看完', desc: '宏观阶段与关键读数、全球主要指数与商品汇率、A 股涨跌停与资金流向，一页看完' },
       { path: '/monitor', label: '宏观温度', short: '中美港宏观、牛熊与估值', desc: '中美港经济温度、牛熊周期六维证据、周月趋势、复盘记录与估值位置', minor: true },
-      { path: '/invest/macro-posture', label: '宏观攻守', short: '现在该进攻还是防守', desc: '融合九位宏观投资人方法的美股综合攻守指标：五档仓位、置信度、距离改判，拿不准的指标分级放外圈；规则公开，附 1973 年以来回测', minor: true },
+      { path: '/invest/macro-posture', label: '宏观攻守', short: '现在该进攻还是防守', desc: '参考九位宏观投资人公开方法提炼的美股综合攻守指标：五档仓位、置信度、距离改判，拿不准的指标分级放外圈；规则公开，附 1973 年以来回测', minor: true },
       { path: '/pulse', label: '全球行情', short: '指数热力图与 A 股走势', desc: '全球指数热力图、A 股指数 K 线与成交', minor: true },
       { path: '/daily-analysis', label: 'A股每日复盘', short: '涨跌停、连板与资金', desc: '自动获取 A 股行情、涨跌停与连板复盘', minor: true },
       { path: '/sector-rotation', label: '板块轮动', short: '板块强弱与轮动', desc: '行业板块的相对强弱与轮动阶段', minor: true },
