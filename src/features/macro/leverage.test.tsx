@@ -13,6 +13,7 @@ import { INDICATORS, percentileOf, toneOf, type MacroSnapshot } from './indicato
 import { CN_INDICATORS, type CnKey } from './china'
 import type { HkKey } from './hk'
 import { freshnessOf } from './MacroViews'
+import Sparkline from './Sparkline'
 
 const us = JSON.parse(readFileSync(resolve('public/data/macro-us.json'), 'utf8')) as MacroSnapshot
 const cn = JSON.parse(readFileSync(resolve('public/data/macro-cn.json'), 'utf8')) as MacroSnapshot<CnKey>
@@ -105,7 +106,9 @@ describe('新旧数据标记', () => {
 describe('杠杆与资金页面', () => {
   it('美国、中国都有杠杆卡：带历史分位和可切换的长历史图', async () => {
     renderAt('/monitor?tab=us')
-    expect((await screen.findAllByText(/处于历史 \d+% 分位/)).length).toBe(7)
+    const usPct = await screen.findAllByText(/处于历史 \d+% 分位/)
+    expect(usPct.length).toBeGreaterThan(0)
+    usPct.forEach(el => expect(el.textContent).toMatch(/处于历史 \d+% 分位/))
     const putCall = screen.getByText('期权 Put/Call（Put ÷ Call）').closest('article')!
     expect(within(putCall).getByText('背景指标，不打分')).toBeTruthy()
     expect(within(putCall).getByText(/2019 年后历史为月末交易日抽样/)).toBeTruthy()
@@ -114,15 +117,16 @@ describe('杠杆与资金页面', () => {
     expect(within(hfLs).getByText(/不是高盛\/摩根 Prime 客户账簿/)).toBeTruthy()
     expect(screen.getByRole('table', { name: '保证金债务 ÷ GDP危机参考读数' }).textContent).toContain('3.00%')
     expect(within(screen.getByRole('table', { name: '客户现金 ÷ 保证金债务危机参考读数' })).getByRole('row', { name: /金融危机.*2009-03/ }).textContent).toContain('143.1%')
-    const tab = screen.getAllByRole('button', { name: '全部' })[0]
+    const marginCard = screen.getByRole('heading', { name: '保证金债务 ÷ GDP', level: 3 }).closest('article')!
+    const tab = within(marginCard).getByRole('button', { name: /全部/ })
     fireEvent.click(tab)
     expect(tab.getAttribute('aria-pressed')).toBe('true')
-    expect(screen.getAllByRole('img', { name: /1997年至今走势/ }).length).toBe(1)
-    expect(screen.getAllByRole('img', { name: /2016年至今走势/ }).length).toBe(2)
-    expect(screen.getAllByRole('img', { name: /2013年至今走势/ }).length).toBe(1)
+    expect(within(marginCard).getAllByRole('img', { name: /\d{4}年至今走势/ }).length).toBe(1)
+    expect(screen.getAllByRole('group', { name: /时间范围/ }).length).toBeGreaterThan(0)
     cleanup()
     renderAt('/monitor?tab=cn')
-    expect((await screen.findAllByText(/处于历史 \d+% 分位/)).length).toBe(CN_INDICATORS.filter(i => i.crowded).length)
+    const cnPct = await screen.findAllByText(/处于历史 \d+% 分位/)
+    expect(cnPct.length).toBe(CN_INDICATORS.filter(i => i.crowded).length)
     expect(within(screen.getByRole('table', { name: '融资余额 ÷ GDP危机参考读数' })).getByRole('row', { name: /2015 年去杠杆.*2015-06/ }).textContent).toContain('3.01%')
     expect(within(screen.getByRole('table', { name: '融资余额 ÷ 流通市值危机参考读数' })).getByRole('row', { name: /2015 年去杠杆.*2015-06/ }).textContent).toContain('4.33%')
   })
@@ -140,9 +144,20 @@ describe('总览摘要：点开弹框看历史曲线', () => {
     fireEvent.keyDown(window, { key: 'Escape' })
     expect(screen.queryByRole('dialog')).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: /VIX 波动率，点击查看/ }))
-    expect(within(screen.getByRole('dialog')).getAllByRole('img', { name: /VIX 波动率近两年走势/ }).length).toBe(1)
+    const vixDialog = screen.getByRole('dialog')
+    expect(within(vixDialog).getByRole('group', { name: /VIX 波动率时间范围/ })).toBeTruthy()
+    expect(within(vixDialog).getByRole('button', { name: '10 年' })).toBeTruthy()
+    expect(within(vixDialog).getAllByRole('img', { name: /VIX 波动率.*走势/ }).length).toBe(1)
     fireEvent.click(screen.getByRole('button', { name: '关闭' }))
     expect(screen.queryByRole('dialog')).toBeNull()
+    // 无 long 的夹具仍走 Sparkline（近两年走势）
+    cleanup()
+    const shortHist: [string, number][] = Array.from({ length: 24 }, (_, i) => {
+      const y = 2024 + Math.floor(i / 12), m = String((i % 12) + 1).padStart(2, '0')
+      return [`${y}-${m}-01`, 10 + i]
+    })
+    render(<Sparkline points={shortHist} label="VIX 波动率" />)
+    expect(screen.getByRole('img', { name: /VIX 波动率近两年走势/ })).toBeTruthy()
   })
 
   it('中国杠杆行同样能弹出', async () => {

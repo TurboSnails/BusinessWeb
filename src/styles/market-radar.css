@@ -1,4 +1,5 @@
 /* 我的市场雷达 · mr-*；市场综合沿用 mp-market-* */
+@import './mp-timeline.css';
 
 .mr-page {
   --mr-tier-defense: #b42318;
@@ -290,18 +291,53 @@ html.dark .mr-page {
 .mr-pct__heat--hot, .mr-pct__heat--warm { color: var(--warm-ink, #b45309); }
 .mr-pct__heat--cold, .mr-pct__heat--cool { color: var(--down-ink, #0f766e); }
 
-.mr-spark { margin: 8px 0 0; max-width: 240px; }
+.mr-spark { margin: 8px 0 0; max-width: 260px; }
+.mr-spark__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  cursor: crosshair;
+  touch-action: pan-y;
+  border-radius: 4px;
+}
+.mr-spark__svg:focus-visible {
+  outline: 2px solid var(--accent, var(--text-primary));
+  outline-offset: 3px;
+}
 .mr-spark__line {
   fill: none;
   stroke: var(--accent, var(--text-primary));
   stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+.mr-spark__cursor {
+  stroke: var(--text-secondary);
+  stroke-width: 1;
+  stroke-dasharray: 2 2;
+  vector-effect: non-scaling-stroke;
 }
 .mr-spark__dot { fill: var(--accent, var(--text-primary)); }
+.mr-spark__dot--latest {
+  stroke: var(--bg-card, var(--bg-primary));
+  stroke-width: 1.5;
+}
+.mr-spark__dot--active {
+  fill: var(--bg-card, var(--bg-primary));
+  stroke: var(--text-primary);
+  stroke-width: 1.5;
+}
 .mr-spark__cap {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2px 10px;
   margin: 4px 0 0;
   font-size: 0.75rem;
   color: var(--text-tertiary, var(--text-secondary));
 }
+.mr-spark__readout { color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.mr-spark__readout strong { color: var(--text-primary); font-weight: 600; }
 
 /* 回测 */
 .mr-backtest { margin: 0 0 28px; }
@@ -376,46 +412,9 @@ html.dark .mr-page {
 }
 
 .mr-dual { margin: 12px 0 16px; }
-.mr-dual__row {
-  display: grid;
-  grid-template-columns: 3rem minmax(0, 1fr);
-  gap: 8px;
-  align-items: center;
-  margin: 0 0 6px;
-}
-.mr-dual__label { font-size: 0.82rem; color: var(--text-secondary); }
-.mr-dual__band {
-  display: flex;
-  width: 100%;
-  height: 16px;
-  overflow: hidden;
-  border-radius: 4px;
-  border: 1px solid var(--border-subtle);
-}
-.mr-dual__seg { flex: 1 1 0; min-width: 0; }
-.mr-dual__seg--offense { background: var(--mr-tier-offense); }
-.mr-dual__seg--lean-offense { background: var(--mr-tier-lean-offense); }
-.mr-dual__seg--neutral { background: var(--mr-tier-neutral); }
-.mr-dual__seg--lean-defense { background: var(--mr-tier-lean-defense); }
-.mr-dual__seg--defense { background: var(--mr-tier-defense); }
-.mr-dual__seg--none { background: color-mix(in srgb, var(--text-secondary) 25%, transparent); }
-.mr-dual__legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 14px;
-  margin: 8px 0 0;
-  padding: 0;
-  list-style: none;
-  font-size: 0.78rem;
-  color: var(--text-secondary);
-}
-.mr-dual__legend li { display: inline-flex; align-items: center; gap: 6px; }
-.mr-dual__swatch { width: 10px; height: 10px; border-radius: 2px; }
-.mr-dual__swatch--offense { background: var(--mr-tier-offense); }
-.mr-dual__swatch--lean-offense { background: var(--mr-tier-lean-offense); }
-.mr-dual__swatch--neutral { background: var(--mr-tier-neutral); }
-.mr-dual__swatch--lean-defense { background: var(--mr-tier-lean-defense); }
-.mr-dual__swatch--defense { background: var(--mr-tier-defense); }
+/* 月度档位对照：沿用宏观攻守的交互时间线（mp-timeline*） */
+.mr-dual .mr-subhead { margin-bottom: 8px; }
+.mr-dual .mp-timeline { margin-bottom: 0; }
 
 .mr-disclosures {
   margin: 0;

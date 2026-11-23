@@ -137,22 +137,83 @@ function presetRange(preset: Preset, points: readonly ChartPoint[], mode: Timeli
   return recentMonthsRange(points, preset.months)
 }
 
-function changeText(change: DailyChange): string {
-  const layer = change.layer === 'final' ? '最终档位' : '周期档位'
+/**
+ * 图上文案。上带画 point.final，下带画 point.regime；不传时沿用宏观攻守的默认文案。
+ * recession 为 null 时不画衰退图例与「衰退前后」选择（数据里没有衰退信息时用）。
+ */
+export type TimelineLabels = {
+  /** SVG 标题（读屏） */
+  title: string
+  /** 上带名称（色带左侧标注、说明文字） */
+  top: string
+  /** 下带名称 */
+  bottom: string
+  /** 图例里的色带说明 */
+  legendNote: string
+  /** 提示卡与读数里上带的名称 */
+  tooltipTop: string
+  /** 提示卡与读数里下带的名称 */
+  tooltipBottom: string
+  /** 衰退阴影图例；null = 没有衰退数据，不画图例与衰退选择 */
+  recession: string | null
+}
+
+/** 提示卡与读数里追加的一行（放在档位之后、衰退期之前）。 */
+export type TimelineDetailRow = {
+  label: string
+  value: string
+  /** 写进图下方读数的短句；不传则读数里不出现 */
+  caption?: string
+}
+
+function defaultLabels(mode: TimelineMode): TimelineLabels {
+  const isDay = mode === 'day'
+  return {
+    title: isDay ? '标普每日收盘对数走势、每日最终档位与周期档位' : '标普月均价对数走势、最终档位与周期档位',
+    top: '最终档位',
+    bottom: '周期档位',
+    legendNote: isDay
+      ? '上带「最终档位」含战术修正与修复确认；下带「周期档位」只看经济周期。每天按当天已发布的数据定档，月中为预估、月末为正式定档；色带上方的小三角是档位变化日'
+      : '上带「最终档位」含战术修正与修复确认；下带「周期档位」只看经济周期',
+    tooltipTop: '最终档位',
+    tooltipBottom: '周期档位',
+    recession: '灰色阴影为美国官方认定的衰退期（NBER）',
+  }
+}
+
+function changeText(change: DailyChange, labels: TimelineLabels): string {
+  const layer = change.layer === 'final' ? labels.tooltipTop : labels.tooltipBottom
   return `${layer}：${changeTierLabel(change.from)} → ${changeTierLabel(change.to)}。${change.reason}`
 }
+
+const NO_DETAILS = (): TimelineDetailRow[] => []
 
 type Props = {
   mode: TimelineMode
   points: ChartPoint[]
   /** 每日模式：档位变化日 → 变化原因 */
   changes?: DailyChange[]
+  /** 自定义文案；未传的键沿用默认 */
+  labels?: Partial<TimelineLabels>
+  /** 默认区间按钮名称（如「近 10 年」）；不传时每日「近 3 年」、月度「全部」 */
+  defaultPreset?: string
+  /** 提示卡与读数里追加的行 */
+  details?: (point: ChartPoint) => TimelineDetailRow[]
 }
 
-export default function TimelineView({ mode, points: rawPoints, changes = NO_CHANGES }: Props): JSX.Element | null {
+export default function TimelineView({
+  mode,
+  points: rawPoints,
+  changes = NO_CHANGES,
+  labels: labelOverrides,
+  defaultPreset,
+  details = NO_DETAILS,
+}: Props): JSX.Element | null {
   const isDay = mode === 'day'
   const minSpan = isDay ? DAILY_MIN_SPAN : MIN_RANGE_SPAN
   const presets = isDay ? DAY_PRESETS : MONTH_PRESETS
+  const labels: TimelineLabels = { ...defaultLabels(mode), ...labelOverrides }
+  const defaultPresetLabel = defaultPreset ?? DEFAULT_PRESET[mode]
   const labelId = useId()
   const descriptionId = useId()
   const clipId = useId()
@@ -177,9 +238,9 @@ export default function TimelineView({ mode, points: rawPoints, changes = NO_CHA
   const total = pts.length
   const prices = useMemo(() => Float64Array.from(pts, point => point.spx), [pts])
   const defaultRange = useMemo(() => {
-    const preset = presets.find(item => item.label === DEFAULT_PRESET[mode]) ?? presets[0]
+    const preset = presets.find(item => item.label === defaultPresetLabel) ?? presets[0]
     return presetRange(preset, pts, mode)
-  }, [presets, pts, mode])
+  }, [presets, pts, mode, defaultPresetLabel])
   const [size, setSize] = useState(() => ({
     width: 640,
     height: typeof window !== 'undefined' && window.innerWidth <= 560 ? 300 : 380,
@@ -732,6 +793,8 @@ export default function TimelineView({ mode, points: rawPoints, changes = NO_CHA
   const unit = isDay ? '个交易日' : '个月'
   const shownChanges = isDay ? changeMap.get(shown.d) ?? [] : []
   const officialText = (point: ChartPoint): string => (point.official ? '月末正式定档' : '月中预估')
+  const captionDetails = details(shown).map(row => (row.caption ? ` · ${row.caption}` : '')).join('')
+  const recessionCaption = labels.recession === null ? '' : shown.rec ? ' · 衰退期' : ' · 非衰退期'
 
   return (
     <figure className="mp-timeline" data-granularity={mode}>
@@ -752,6 +815,7 @@ export default function TimelineView({ mode, points: rawPoints, changes = NO_CHA
             )
           })}
         </div>
+        {labels.recession !== null ? (
         <label className="mp-timeline__recession-select">
           <span className="visually-hidden">查看一次衰退的前后区间</span>
           <select
@@ -766,6 +830,7 @@ export default function TimelineView({ mode, points: rawPoints, changes = NO_CHA
             {windows.map(window => <option key={window.key} value={window.key}>{window.label}</option>)}
           </select>
         </label>
+        ) : null}
         <span className="mp-timeline__range-readout">
           {pts[rangeStart].d} — {pts[rangeEnd].d} · {visibleCount} {unit}
         </span>
@@ -782,15 +847,13 @@ export default function TimelineView({ mode, points: rawPoints, changes = NO_CHA
             {TIER_LABEL[id]}
           </li>
         ))}
-        <li className="mp-timeline__legend-note">
-          {isDay
-            ? '上带「最终档位」含战术修正与修复确认；下带「周期档位」只看经济周期。每天按当天已发布的数据定档，月中为预估、月末为正式定档；色带上方的小三角是档位变化日'
-            : '上带「最终档位」含战术修正与修复确认；下带「周期档位」只看经济周期'}
-        </li>
-        <li>
-          <span className="mp-timeline__swatch mp-timeline__swatch--rec" aria-hidden="true" />
-          灰色阴影为美国官方认定的衰退期（NBER）
-        </li>
+        <li className="mp-timeline__legend-note">{labels.legendNote}</li>
+        {labels.recession !== null ? (
+          <li>
+            <span className="mp-timeline__swatch mp-timeline__swatch--rec" aria-hidden="true" />
+            {labels.recession}
+          </li>
+        ) : null}
       </ul>
       <div className="mp-timeline__chart" ref={chartRef}>
         <svg
@@ -819,7 +882,7 @@ export default function TimelineView({ mode, points: rawPoints, changes = NO_CHA
           onDoubleClick={reset}
           onKeyDown={onMainKeyDown}
         >
-          <title id={labelId}>{isDay ? '标普每日收盘对数走势、每日最终档位与周期档位' : '标普月均价对数走势、最终档位与周期档位'}</title>
+          <title id={labelId}>{labels.title}</title>
           <desc id={descriptionId}>
             当前显示 {pts[rangeStart].d} 至 {pts[rangeEnd].d}，共 {visibleCount} {unit}。使用方向键移动光标，加减键缩放，数字零复位。
           </desc>
@@ -852,8 +915,8 @@ export default function TimelineView({ mode, points: rawPoints, changes = NO_CHA
             </g>
           ))}
           <path className="mp-timeline__line" d={path} fill="none" clipPath={`url(#${clipId})`} />
-          <text className="mp-timeline__band-label" x={7} y={finalBandY + 16}>最终档位</text>
-          <text className="mp-timeline__band-label" x={7} y={regimeBandY + 16}>周期档位</text>
+          <text className="mp-timeline__band-label" x={7} y={finalBandY + 16}>{labels.top}</text>
+          <text className="mp-timeline__band-label" x={7} y={regimeBandY + 16}>{labels.bottom}</text>
           <line className="mp-timeline__cursor" x1={x(safeIndex)} x2={x(safeIndex)} y1={TOP} y2={height - BOTTOM} />
           <circle className="mp-timeline__dot" cx={x(safeIndex)} cy={yPrice(shown.spx)} r={4} />
           {ticks.map(tick => (
@@ -896,6 +959,7 @@ export default function TimelineView({ mode, points: rawPoints, changes = NO_CHA
         {tooltip && pts[tooltip.index] && (() => {
           const point = pts[tooltip.index]
           const pointChanges = isDay ? changeMap.get(point.d) ?? [] : []
+          const pointDetails = details(point)
           return (
             <div
               className={`mp-timeline__tooltip${pointChanges.length ? ' mp-timeline__tooltip--wide' : ''}`}
@@ -908,22 +972,27 @@ export default function TimelineView({ mode, points: rawPoints, changes = NO_CHA
                 <div><dt>{isDay ? '收盘' : '月均价'}</dt><dd>{formatPrice(point.spx, mode)}</dd></div>
                 {isDay ? (
                   <>
-                    <div><dt>周期档位</dt><dd>{tierLabel(point.regime)}</dd></div>
-                    <div><dt>最终档位</dt><dd>{tierLabel(point.final)}</dd></div>
+                    <div><dt>{labels.tooltipBottom}</dt><dd>{tierLabel(point.regime)}</dd></div>
+                    <div><dt>{labels.tooltipTop}</dt><dd>{tierLabel(point.final)}</dd></div>
                     <div><dt>定档</dt><dd>{officialText(point)}</dd></div>
                   </>
                 ) : (
                   <>
-                    <div><dt>最终档位</dt><dd>{tierLabel(point.final)}</dd></div>
-                    <div><dt>周期档位</dt><dd>{tierLabel(point.regime)}</dd></div>
+                    <div><dt>{labels.tooltipTop}</dt><dd>{tierLabel(point.final)}</dd></div>
+                    <div><dt>{labels.tooltipBottom}</dt><dd>{tierLabel(point.regime)}</dd></div>
                   </>
                 )}
-                <div><dt>衰退期</dt><dd>{point.rec ? '是' : '否'}</dd></div>
+                {pointDetails.map(row => (
+                  <div key={row.label}><dt>{row.label}</dt><dd>{row.value}</dd></div>
+                ))}
+                {labels.recession !== null ? (
+                  <div><dt>衰退期</dt><dd>{point.rec ? '是' : '否'}</dd></div>
+                ) : null}
               </dl>
               {pointChanges.length ? (
                 <div className="mp-timeline__tooltip-change" data-testid="mp-timeline-tooltip-change">
                   <span>当天档位变化</span>
-                  {pointChanges.map(change => <p key={`${change.layer}-${change.d}`}>{changeText(change)}</p>)}
+                  {pointChanges.map(change => <p key={`${change.layer}-${change.d}`}>{changeText(change, labels)}</p>)}
                 </div>
               ) : null}
             </div>
@@ -993,24 +1062,26 @@ export default function TimelineView({ mode, points: rawPoints, changes = NO_CHA
             <time dateTime={shown.d}>{shown.d}</time>
             {' · 收盘 '}
             <strong>{formatPrice(shown.spx, mode)}</strong>
-            {' · 最终档位 '}
+            {` · ${labels.tooltipTop} `}
             <strong>{tierLabel(shown.final)}</strong>
             {`（${officialText(shown)}）`}
-            {' · 周期档位 '}
+            {` · ${labels.tooltipBottom} `}
             <strong>{tierLabel(shown.regime)}</strong>
-            {shown.rec ? ' · 衰退期' : ' · 非衰退期'}
-            {shownChanges.length ? ` · 当天档位变化：${shownChanges.map(changeText).join('；')}` : ''}
+            {captionDetails || null}
+            {recessionCaption}
+            {shownChanges.length ? ` · 当天档位变化：${shownChanges.map(change => changeText(change, labels)).join('；')}` : ''}
           </span>
         ) : (
           <span>
             <time dateTime={shown.d}>{shown.d}</time>
             {' · 月均价 '}
             <strong>{formatPrice(shown.spx, mode)}</strong>
-            {' · 最终档位 '}
+            {` · ${labels.tooltipTop} `}
             <strong>{tierLabel(shown.final)}</strong>
-            {' · 周期档位 '}
+            {` · ${labels.tooltipBottom} `}
             <strong>{tierLabel(shown.regime)}</strong>
-            {shown.rec ? ' · 衰退期' : ' · 非衰退期'}
+            {captionDetails || null}
+            {recessionCaption}
           </span>
         )}
       </figcaption>

@@ -101,9 +101,13 @@
 .macro-long__bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 4px; }
 .macro-long__tab { min-height: 28px; padding: 0 10px; border: 1px solid var(--border-subtle); border-radius: var(--radius-full); background: transparent; color: var(--text-secondary); font: inherit; font-size: 0.78rem; cursor: pointer; }
 .macro-long__tab.is-on { border-color: var(--accent); background: var(--accent-soft); color: var(--text-primary); }
+.macro-long__tab:disabled { opacity: 0.4; cursor: not-allowed; }
 .macro-long__pct { margin-left: auto; color: var(--text-secondary); font-size: 0.78rem; font-variant-numeric: tabular-nums; }
 .macro-long__mark { fill: var(--text-secondary); stroke: var(--bg-card); stroke-width: 1.5; }
 .macro-long__label { fill: var(--text-secondary); font-size: 10px; font-variant-numeric: tabular-nums; }
+.macro-long__axis { fill: var(--text-tertiary); font-size: 9px; font-variant-numeric: tabular-nums; }
+.macro-long svg:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+.macro-long svg:focus:not(:focus-visible) { outline: none; }
 .macro-fresh { display: inline-flex; align-items: center; gap: 4px; padding: 1px 7px; border-radius: var(--radius-full); font-size: 0.72rem; white-space: nowrap; }
 .macro-fresh--live { background: color-mix(in srgb, var(--system-green) 14%, transparent); color: var(--down-ink); }
 .macro-fresh--old { background: color-mix(in srgb, var(--system-yellow) 22%, transparent); color: var(--warm-ink); }
