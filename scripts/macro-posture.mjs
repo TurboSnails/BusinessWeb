@@ -154,10 +154,12 @@ export async function refreshMacroPostureWithStats({
   const marketDate = localParts(now, MARKETS.us.tz).date
   const [raw, local] = await Promise.all([collectCore(today, fetcher), readLocal(directory)])
   const spx = mergeSpxCloses(raw.SP500, local[MARKET_SLICES], marketDate, warn)
-  const panel = makePanel({ ...raw, SP500: spx.rows })
+  const observations = { ...raw, SP500: spx.rows }
+  const panel = makePanel(observations)
+  const currentPanel = makePanel(observations, { mode: 'current' })
   const previous = await readPreviousBacktest(output)
   const previousRecessionMarks = raw.USREC.length ? undefined : previousRecessions(previous)
-  const { outer, failedSources } = buildOuter(local, panel, today, spx.url)
+  const { outer, failedSources } = buildOuter(local, currentPanel, today, spx.url)
   const { vintages, requests } = await loadVintages(backtestMonthEnds(today), { fetcher, directory: vintageDirectory, now, includeHours: true })
     .catch(error => {
       warn(error.message)
@@ -168,9 +170,9 @@ export async function refreshMacroPostureWithStats({
   if (!vintages) retainVintageResults(backtest, previous)
   for (const [id, name] of Object.entries(OPTIONAL_FRED)) if (!raw[id].length) failedSources.push(name)
   const asOf = [...FRED_IDS.filter(id => id !== 'USREC'), 'price']
-    .map(id => valueAt(panel[id], today)?.availableOn)
+    .map(id => valueAt(currentPanel[id], today)?.availableOn)
     .concat(outer.map(item => item.observedOn)).filter(Boolean).sort().at(-1) ?? today
-  const current = buildCurrent(asOf, panelAt(panel, today, marketDate, spx.source), historical, outer)
+  const current = buildCurrent(asOf, panelAt(currentPanel, today, marketDate, spx.source), historical, outer)
   const file = {
     ruleVersion: RULE_VERSION, generatedAt, tiers: TIER_DEFS,
     current, outer, backtest: { ...backtest, live: updateLive(previous?.live?.rows ?? [], today, current.final, returns) }, failedSources,

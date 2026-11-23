@@ -177,12 +177,18 @@ function CandidateCard({ candidate }: { candidate: CandidateResult }): JSX.Eleme
   )
 }
 
-function CombinedResult({ data }: { data: CandidatesFile }): JSX.Element | null {
-  const combined = data.combined
+type Combined = NonNullable<CandidatesFile['combined']>
+
+const ROUNDS = [
+  { id: 1, title: '第一轮：增长、盈利、信用与估值', note: '对照基准为 v2.1（实时数据口径）。', base: 'v2.1', next: 'v2.2' },
+  { id: 2, title: '第二轮：加息、长端利率与通胀动能', note: '对照基准为 v2.2（实时数据口径），并加了最小改善门槛。', base: 'v2.2', next: 'v2.3' },
+] as const
+
+function CombinedResult({ data, combined, testId }: { data: CandidatesFile; combined?: Combined; testId: string }): JSX.Element | null {
   if (!combined) return null
   const names = combined.ids.map(id => data.candidates.find(candidate => candidate.id === id)?.name ?? '未命名候选')
   return (
-    <div className="mp-candidate-research__combined" data-testid="mp-candidates-combined">
+    <div className="mp-candidate-research__combined" data-testid={testId}>
       <div className="mp-candidate-research__head">
         <h3>采用项合测</h3>
         <Badge tone={combined.pass ? 'down' : 'up'}>{combined.pass ? '通过' : '未通过'}</Badge>
@@ -221,11 +227,6 @@ export default function CandidatesPanel(): JSX.Element {
       ) : null}
       {state.status === 'ready' ? (
         <>
-          {!state.data.candidates.some(candidate => candidate.verdict === 'adopt') ? (
-            <p className="mp-candidate-research__outcome" data-testid="mp-candidates-none-adopted">
-              本轮没有指标通过预注册标准，核心规则保持 v2.1；观察项只展示当前读数，不参与档位与置信度。
-            </p>
-          ) : null}
           <div className="mp-candidate-research__prereg">
             <p>{visibleText(state.data.preregistered)}</p>
             <p><strong>对照基准：</strong>{visibleText(state.data.baselineLabel)}</p>
@@ -235,10 +236,35 @@ export default function CandidatesPanel(): JSX.Element {
               <p data-testid="mp-candidates-watch-note"><strong>观察不代表有效，只表示没被否决。</strong></p>
             ) : null}
           </div>
-          <div className="mp-candidate-research__list">
-            {state.data.candidates.map(candidate => <CandidateCard key={candidate.id} candidate={candidate} />)}
-          </div>
-          <CombinedResult data={state.data} />
+          {ROUNDS.map(round => {
+            const items = state.data.candidates.filter(candidate => (candidate.round ?? 1) === round.id)
+            if (!items.length) return null
+            const adopted = items.filter(candidate => candidate.verdict === 'adopt')
+            const suffix = round.id === 1 ? '' : `-${round.id}`
+            return (
+              <div className="mp-candidate-research__round" key={round.id} data-testid={`mp-candidates-round-${round.id}`}>
+                <h3 className="mp-candidate-research__round-title">{round.title}</h3>
+                <p className="mp-candidate-research__round-note">{round.note}</p>
+                {adopted.length ? (
+                  <p className="mp-candidate-research__outcome" data-testid={`mp-candidates-adopted${suffix}`}>
+                    本轮采用：{adopted.map(candidate => candidate.name).join('、')}，已并入核心规则 {round.next}。
+                  </p>
+                ) : (
+                  <p className="mp-candidate-research__outcome" data-testid={`mp-candidates-none-adopted${suffix}`}>
+                    本轮没有指标通过预注册标准，核心规则保持 {round.base}；观察项只展示当前读数，不参与档位与置信度。
+                  </p>
+                )}
+                <div className="mp-candidate-research__list">
+                  {items.map(candidate => <CandidateCard key={candidate.id} candidate={candidate} />)}
+                </div>
+                <CombinedResult
+                  data={state.data}
+                  combined={round.id === 1 ? state.data.combined : state.data.combinedRound2}
+                  testId={`mp-candidates-combined${suffix}`}
+                />
+              </div>
+            )
+          })}
         </>
       ) : null}
     </section>

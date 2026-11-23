@@ -195,6 +195,8 @@ export type CompositeState =
 export type CandidateMetrics = { cagr: number; vol: number; maxDd: number; sharpe: number; avgEquity: number; recessionsCaught: number; falseAlarmMonths: number }
 export type CandidateResult = {
   id: string
+  /** 检验轮次：1 = 2026-11-23 首轮（基准 v2.1），2 = 第二轮（基准 v2.2，含最小改善门槛） */
+  round?: 1 | 2
   name: string
   pillar: PillarId | 'cap'
   masters: string[]
@@ -204,7 +206,7 @@ export type CandidateResult = {
   split: string             // 子样本切分，如「1976–1999 / 2000–2026」
   baseline: { full: CandidateMetrics; early: CandidateMetrics; late: CandidateMetrics }
   withCandidate: { full: CandidateMetrics; early: CandidateMetrics; late: CandidateMetrics }
-  checks: { id: 'sharpeBoth' | 'drawdown' | 'cagr' | 'recessions' | 'history'; label: string; pass: boolean; detail: string }[]
+  checks: { id: 'sharpeBoth' | 'drawdown' | 'cagr' | 'recessions' | 'history' | 'minImprovement'; label: string; pass: boolean; detail: string }[]
   verdict: 'adopt' | 'watch' | 'reject'
   reason: string            // 大白话结论
   /** 当前读数与「若计入」时的打分；只展示，不参与档位与置信度 */
@@ -217,5 +219,7 @@ export type CandidatesFile = {
   criteria: string[]
   candidates: CandidateResult[]
   combined?: { ids: string[]; withCandidate: { full: CandidateMetrics; early: CandidateMetrics; late: CandidateMetrics }; pass: boolean; detail: string }
+  /** 第二轮采用项合测（基准 v2.2）；combined 为第一轮 */
+  combinedRound2?: { ids: string[]; withCandidate: { full: CandidateMetrics; early: CandidateMetrics; late: CandidateMetrics }; pass: boolean; detail: string }
 }
 

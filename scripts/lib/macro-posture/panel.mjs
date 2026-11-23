@@ -22,12 +22,18 @@ export const RELEASE_MONTHS = Object.freeze({
 const WEEKLY_IDS = ['IC4WSA', 'NFCI', 'NFCICREDIT']
 const WEEKLY = new Set(WEEKLY_IDS)
 
-export function makeSeries(id, rows) {
+function availableOn(id, day, mode) {
+  // An observation in the current FRED response has already been published.
+  if (mode === 'current') return day
+  if (WEEKLY.has(id)) return addDays(day, 5)
+  return Object.hasOwn(RELEASE_MONTHS, id) ? monthEnd(day, RELEASE_MONTHS[id]) : day
+}
+
+export function makeSeries(id, rows, { mode = 'historical' } = {}) {
   return [...new Map(rows.filter(([, value]) => Number.isFinite(value))
     .map(([day, value]) => [day, {
       observedOn: day,
-      availableOn: WEEKLY.has(id) ? addDays(day, 5)
-        : Object.hasOwn(RELEASE_MONTHS, id) ? monthEnd(day, RELEASE_MONTHS[id]) : day,
+      availableOn: availableOn(id, day, mode),
       value,
     }])).values()].sort((a, b) => a.observedOn.localeCompare(b.observedOn))
 }
@@ -100,8 +106,8 @@ function joinedSpread(left, right) {
   })
 }
 
-export function makePanel(rows) {
-  const panel = Object.fromEntries(Object.entries(rows).map(([id, readings]) => [id, makeSeries(id, readings)]))
+export function makePanel(rows, options) {
+  const panel = Object.fromEntries(Object.entries(rows).map(([id, readings]) => [id, makeSeries(id, readings, options)]))
   return { ...panel, baa: joinedSpread(panel.BAA, panel.AAA), curve: joinedSpread(panel.GS10, panel.TB3MS) }
 }
 
@@ -126,7 +132,7 @@ export function panelAt(panel, date, estimateDate = date, spxSource = FRED_SPX) 
   const weekly = id => {
     const point = latest(id)
     const target = point && addDays(point.observedOn, -91)
-    const old = target && valueAt(panel[id], addDays(target, 5))
+    const old = target && valueAt(panel[id], addDays(target, ageDays(point.availableOn, point.observedOn)))
     return simple(id, point, point?.value, { delta: old?.observedOn === target ? change(point, old) : null })
   }
   const claims = latest('IC4WSA')

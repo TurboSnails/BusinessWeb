@@ -13,21 +13,21 @@ const month = date => date.slice(0, 7)
 const keyAfter = (date, offset) => month(monthEnd(date, offset))
 const equity = tier => TIERS.find(t => t.id === tier)?.equityShare ?? null
 const portfolioReturn = ({ spx, cash }, weight) => spx * weight + cash * (1 - weight)
+
 /**
- * 在完整面板上跑一条时间线；activeIds 为空 = baseline v2.1
- * extras = candidate series map
+ * 在完整面板上跑一条时间线；activeIds 为空 = 对应基准
+ * baseline: 'v2.1' | 'v2.2'
  * vintages 非空时：打分用 panelWithVintages（实时口径）；样本起点仍按修订值面板判定
- * （与引擎 buildVintageBacktest 一致——PCEPILFE/IC4WSA 早期 vintage 可为 null）
  */
-export function buildTimeline(panel, extras, asOf, activeIds = [], vintages = null) {
+export function buildTimeline(panel, extras, asOf, activeIds = [], vintages = null, { baseline = 'v2.1' } = {}) {
   const lastComplete = monthEnd(asOf, -1)
   const rows = []
   for (let d = START; monthEnd(d) <= lastComplete; d = keyAfter(d, 1)) {
     const date = monthEnd(d)
     const gateFrame = panelAt(panel, date, null)
     if (!rows.length) {
-      const gateReadings = readCandidates(extras, date, panel.FEDFUNDS)
-      const gate = evaluateWithCandidates(gateFrame, gateReadings, activeIds)
+      const gateReadings = readCandidates(extras, date, panel.FEDFUNDS, panel)
+      const gate = evaluateWithCandidates(gateFrame, gateReadings, activeIds, { baseline })
       if (Object.values(gate.pillars).some(score => score == null)) continue
     }
     if (gateFrame.tactical.price == null || month(valueAt(panel.price, date)?.observedOn ?? '') !== d) {
@@ -36,8 +36,8 @@ export function buildTimeline(panel, extras, asOf, activeIds = [], vintages = nu
     }
     const monthPanel = vintages ? panelWithVintages(panel, vintages, date) : panel
     const frame = panelAt(monthPanel, date, null)
-    const readings = readCandidates(extras, date, panel.FEDFUNDS)
-    const result = evaluateWithCandidates(frame, readings, activeIds)
+    const readings = readCandidates(extras, date, panel.FEDFUNDS, monthPanel)
+    const result = evaluateWithCandidates(frame, readings, activeIds, { baseline })
     const rec = valueAt(panel.USREC, date)
     rows.push({
       d,
@@ -58,7 +58,6 @@ function metricsFromRows(rows, returns, range) {
   if (!sliced.length) return emptyMetrics()
 
   const signals = sliced.map(row => ({ d: row.d, final: row.final, below: row.below, regime: row.regime }))
-  // alignVariants 期望 weights 选择器；这里直接用 final 档位
   const aligned = signals.flatMap(signal => {
     const d = keyAfter(signal.d, EXECUTION_LAG)
     const row = returns.get(d)
@@ -89,20 +88,20 @@ function metricsFromRows(rows, returns, range) {
 
 /**
  * 计算 baseline / withCandidate 的 full/early/late 指标。
- * compareStart：候选可用起点（用于子样本切分与 historyYears）
- * vintages：传入则按实时口径构造每月面板
+ * baseline: 'v2.1' | 'v2.2'
  */
-export function measureCandidate(panel, extras, asOf, candidate, activeIds, vintages = null) {
+export function measureCandidate(panel, extras, asOf, candidate, activeIds, vintages = null, {
+  baseline = 'v2.1',
+} = {}) {
   const lastComplete = monthEnd(asOf, -1)
   const sampleEnd = month(lastComplete)
   const returns = monthlyReturns(panel, lastComplete)
 
-  const baselineRows = buildTimeline(panel, extras, asOf, [], vintages)
-  const withRows = buildTimeline(panel, extras, asOf, activeIds, vintages)
+  const baselineRows = buildTimeline(panel, extras, asOf, [], vintages, { baseline })
+  const withRows = buildTimeline(panel, extras, asOf, activeIds, vintages, { baseline })
 
   const sampleStart = baselineRows[0]?.d ?? START
   const splits = splitRanges(candidate.historyStart, sampleStart, sampleEnd)
-  // 起点之前的月份不计入该候选的子样本比较：用候选可用起点裁剪
   const compareStart = [candidate.historyStart, sampleStart].sort().at(-1)
   const baseScoped = baselineRows.filter(r => r.d >= compareStart)
   const withScoped = withRows.filter(r => r.d >= compareStart)
@@ -123,12 +122,14 @@ export function measureCandidate(panel, extras, asOf, candidate, activeIds, vint
   }
 }
 
-export function measureCombined(panel, extras, asOf, adoptIds, historyStart, vintages = null) {
+export function measureCombined(panel, extras, asOf, adoptIds, historyStart, vintages = null, {
+  baseline = 'v2.1',
+} = {}) {
   const lastComplete = monthEnd(asOf, -1)
   const sampleEnd = month(lastComplete)
   const returns = monthlyReturns(panel, lastComplete)
-  const baselineRows = buildTimeline(panel, extras, asOf, [], vintages)
-  const withRows = buildTimeline(panel, extras, asOf, adoptIds, vintages)
+  const baselineRows = buildTimeline(panel, extras, asOf, [], vintages, { baseline })
+  const withRows = buildTimeline(panel, extras, asOf, adoptIds, vintages, { baseline })
   const sampleStart = baselineRows[0]?.d ?? START
   const compareStart = [historyStart, sampleStart].sort().at(-1)
   const splits = splitRanges(historyStart, sampleStart, sampleEnd)

@@ -5,8 +5,9 @@ import { join } from 'node:path'
 import test from 'node:test'
 import {
   availableOnFor, buildTimeline, formatCandidateCurrent, historyYears, judge, judgeCombined,
-  makeCandidateSeries, nextQuarterFirstMonthEnd, pointAt, scoreEps, scoreHours, scorePermits,
-  scoreRateExp, scoreSloos, splitRanges, valuationCapActive,
+  makeCandidateSeries, nextQuarterFirstMonthEnd, percentChange, pointAt,
+  scoreBreakevenShock, scoreEps, scoreHikeStart, scoreHours, scoreLongRateShock,
+  scorePceMomentum, scorePermits, scoreRateExp, scoreSloos, splitRanges, valuationCapActive,
 } from './lib/macro-posture-research/index.mjs'
 import { parseMultplMonthly } from './lib/macro-posture-research/fetch.mjs'
 import { readCandidates } from './lib/macro-posture-research/series.mjs'
@@ -55,10 +56,44 @@ test('候选阈值边界：rateExp / permits / hours / eps / sloos / valuationCa
   assert.equal(valuationCapActive(90, 0.4999), false)
 })
 
-test('发布滞后：DGS2 当日；PERMIT/AWHMAN m+1 月末；EPS m+3；DRTSCILM 次季首月末', () => {
+test('第二轮阈值边界：hikeStart / longRateShock / pceMomentum / breakevenShock', () => {
+  assert.equal(scoreHikeStart(0.25), -1)
+  assert.equal(scoreHikeStart(0.2499), 0)
+  assert.equal(scoreHikeStart(1), -1)
+  assert.equal(scoreHikeStart(null), null)
+
+  assert.equal(scoreLongRateShock(1.50), -2)
+  assert.equal(scoreLongRateShock(1.4999), -1)
+  assert.equal(scoreLongRateShock(1.00), -1)
+  assert.equal(scoreLongRateShock(0.9999), 0)
+  assert.equal(scoreLongRateShock(-0.5), 0)
+  assert.equal(scoreLongRateShock(null), null)
+
+  assert.equal(scorePceMomentum(3.0, 2.5), -1) // a3 >= 3 且 a3 >= y+0.5
+  assert.equal(scorePceMomentum(3.0, 2.5001), 0) // a3 < y+0.5
+  assert.equal(scorePceMomentum(2.999, 2.0), 0)
+  assert.equal(scorePceMomentum(2.0, 3.0), 1)
+  assert.equal(scorePceMomentum(1.999, 5), 1)
+  assert.equal(scorePceMomentum(2.5, 2.0), 0)
+  assert.equal(scorePceMomentum(null, 2), null)
+
+  assert.equal(scoreBreakevenShock(0.50), -1)
+  assert.equal(scoreBreakevenShock(0.4999), 0)
+  assert.equal(scoreBreakevenShock(null), null)
+
+  // a3 = (P_t/P_{t-3})^4 − 1；同比 = P_t/P_{t-12} − 1
+  assert.ok(Math.abs(percentChange(103, 100, 4) - (((103 / 100) ** 4 - 1) * 100)) < 1e-9)
+  assert.ok(Math.abs(percentChange(110, 100, 1) - 10) < 1e-9)
+})
+
+test('发布滞后：DGS2/T10YIE 当日；FEDFUNDS/GS10 当月末；PERMIT/AWHMAN m+1；PCEPILFE m+2；EPS m+3；DRTSCILM 次季首月末', () => {
   assert.equal(availableOnFor('DGS2', '2020-03-15'), '2020-03-15')
+  assert.equal(availableOnFor('T10YIE', '2020-03-15'), '2020-03-15')
+  assert.equal(availableOnFor('FEDFUNDS', '2020-01-01'), '2020-01-31')
+  assert.equal(availableOnFor('GS10', '2020-02-01'), '2020-02-29')
   assert.equal(availableOnFor('PERMIT', '2020-01-31'), '2020-02-29')
   assert.equal(availableOnFor('AWHMAN', '2020-01-01'), '2020-02-29')
+  assert.equal(availableOnFor('PCEPILFE', '2020-01-01'), '2020-03-31')
   assert.equal(availableOnFor('EPS', '2020-01-31'), '2020-04-30')
   assert.equal(nextQuarterFirstMonthEnd('2020-01-01'), '2020-04-30')
   assert.equal(nextQuarterFirstMonthEnd('2020-03-31'), '2020-04-30')
@@ -74,6 +109,14 @@ test('发布滞后：DGS2 当日；PERMIT/AWHMAN m+1 月末；EPS m+3；DRTSCILM
   const sloos = makeCandidateSeries('DRTSCILM', [['2020-01-01', 25]])
   assert.equal(pointAt(sloos, '2020-04-29'), null)
   assert.equal(pointAt(sloos, '2020-04-30')?.value, 25)
+
+  const pce = makeCandidateSeries('PCEPILFE', [['2020-01-01', 100]])
+  assert.equal(pointAt(pce, '2020-03-30'), null)
+  assert.equal(pointAt(pce, '2020-03-31')?.value, 100)
+
+  const ie = makeCandidateSeries('T10YIE', [['2020-03-15', 1.5]])
+  assert.equal(pointAt(ie, '2020-03-14'), null)
+  assert.equal(pointAt(ie, '2020-03-15')?.value, 1.5)
 })
 
 test('multpl 千分位逗号先清掉再解析', () => {
@@ -168,6 +211,47 @@ test('采用判定：adopt / watch / reject 覆盖', () => {
   const ok = judgeCombined(good, better)
   assert.equal(ok.pass, true)
   assert.equal(judgeCombined(good, worseRec).pass, false)
+})
+
+test('第二轮最小改善门槛：两段夏普各 ≥ +0.01，或任一段回撤改善 ≥ 2pp 且另一段不恶化', () => {
+  const good = pack(m(0.10, 0.70, -0.20, 5, 10), m(0.09, 0.65, -0.22, 3, 4), m(0.11, 0.75, -0.18, 2, 6))
+
+  // 两段夏普 +0.02 / +0.03 → 过门槛 → adopt
+  const better = pack(m(0.100, 0.72, -0.19, 5, 11), m(0.091, 0.67, -0.21, 3, 4), m(0.111, 0.78, -0.17, 2, 6))
+  const adopt = judge(good, better, 40, { requireMinImprovement: true })
+  assert.equal(adopt.verdict, 'adopt')
+  assert.equal(adopt.checks.find(c => c.id === 'minImprovement').pass, true)
+
+  // 11.3 过但夏普改善不足 0.01、回撤也不足 → reject
+  const tiny = pack(m(0.100, 0.702, -0.19, 5, 11), m(0.091, 0.653, -0.21, 3, 4), m(0.111, 0.754, -0.17, 2, 6))
+  const rejectTiny = judge(good, tiny, 40, { requireMinImprovement: true })
+  assert.equal(rejectTiny.verdict, 'reject')
+  assert.equal(rejectTiny.checks.find(c => c.id === 'minImprovement').pass, false)
+  assert.match(rejectTiny.reason, /最小改善门槛/)
+
+  // 夏普改善不足，但前段回撤改善 ≥2pp 且后段不恶化 → 过门槛
+  const ddRescue = pack(
+    m(0.100, 0.705, -0.18, 5, 11),
+    m(0.091, 0.655, -0.19, 3, 4), // 前段夏普 +0.005；回撤 −0.22→−0.19 = +3pp
+    m(0.111, 0.755, -0.18, 2, 6), // 后段夏普 +0.005；回撤持平
+  )
+  const adoptDd = judge(good, ddRescue, 40, { requireMinImprovement: true })
+  assert.equal(adoptDd.verdict, 'adopt')
+  assert.equal(adoptDd.checks.find(c => c.id === 'minImprovement').pass, true)
+
+  // 前段回撤改善够，但后段恶化 → 不过门槛
+  const ddOtherWorse = pack(
+    m(0.100, 0.705, -0.18, 5, 11),
+    m(0.091, 0.655, -0.19, 3, 4),
+    m(0.111, 0.755, -0.19, 2, 6), // 后段回撤恶化
+  )
+  const rejectDd = judge(good, ddOtherWorse, 40, { requireMinImprovement: true })
+  assert.equal(rejectDd.verdict, 'reject')
+  assert.equal(rejectDd.checks.find(c => c.id === 'minImprovement').pass, false)
+
+  // 第一轮不加 minImprovement 检查项
+  const round1 = judge(good, better, 40)
+  assert.equal(round1.checks.find(c => c.id === 'minImprovement'), undefined)
 })
 
 test('score 为 null 时不进支柱均值；valuationCap 压最终档', () => {
@@ -269,6 +353,28 @@ test('当前读数 display / score / observedOn（含 valuationCap）', () => {
   const formatted = formatCandidateCurrent('valuationCap', at.valuationCap)
   assert.match(formatted.display, /^CAPE 第 \d+ 百分位，2 年期美债半年变化/)
   assert.equal(formatted.score, -1)
+
+  const hike = formatCandidateCurrent('hikeStart', {
+    value: 0.30, score: -1, observedOn: '2026-10-01',
+  })
+  assert.equal(hike.display, '联邦基金利率半年变化 0.30 个百分点（2026 年 10 月）')
+  assert.equal(hike.score, -1)
+
+  const longRate = formatCandidateCurrent('longRateShock', {
+    value: 1.07, score: -1, observedOn: '2026-10-01',
+  })
+  // formatReading：|x|≥1 时保留 1 位小数
+  assert.equal(longRate.display, '10 年期美债一年变化 1.1 个百分点（2026 年 10 月）')
+
+  const pce = formatCandidateCurrent('pceMomentum', {
+    value: 3.2, yoy: 2.5, score: -1, observedOn: '2026-09-01',
+  })
+  assert.equal(pce.display, '3 个月年化 3.2%，同比 2.5%（2026 年 9 月）')
+
+  const ie = formatCandidateCurrent('breakevenShock', {
+    value: 0.55, score: -1, observedOn: '2026-11-20',
+  })
+  assert.equal(ie.display, '10 年盈亏平衡通胀半年变化 0.55 个百分点（11 月 20 日）')
 })
 
 test('permits 六月均同比与 hours/eps 派生读数', () => {

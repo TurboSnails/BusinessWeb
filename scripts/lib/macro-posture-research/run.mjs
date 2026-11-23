@@ -7,18 +7,21 @@ import { makePanel, monthEnd } from '../macro-posture/panel.mjs'
 import { loadVintages } from '../macro-posture/vintages.mjs'
 import {
   CANDIDATES, CRITERIA, PREREGISTERED, REVISION_BIAS_IDS, REVISION_BIAS_NOTE,
+  ROUND2_CANDIDATES, ROUND2_CRITERIA_EXTRA,
 } from './defs.mjs'
 import { fetchCandidateExtras } from './fetch.mjs'
 import { measureCandidate, measureCombined } from './metrics.mjs'
 import { renderResearchMarkdown } from './report.mjs'
-import { formatCandidateCurrent, readCandidates } from './series.mjs'
+import { formatCandidateCurrent, readCandidatesCurrent } from './series.mjs'
 import { judge, judgeCombined } from './verdict.mjs'
 
 const ROOT = fileURLToPath(new URL('../../..', import.meta.url))
 const DATA = resolve(ROOT, 'public/data')
 const VINTAGE_DIR = resolve(ROOT, 'data-raw/macro-posture-vintages')
-const BASELINE_LABEL = 'v2.1（实时数据口径）'
+const BASELINE_LABEL = '第一轮 v2.1（实时数据口径）；第二轮 v2.2（实时数据口径）'
 const REVISED_LABEL = 'v2.1（修订值口径）'
+const ROUND1_BASELINE = 'v2.1'
+const ROUND2_BASELINE = 'v2.2'
 
 const exactFields = new Set([
   'cagr', 'vol', 'maxDd', 'sharpe', 'avgEquity', 'recessionsCaught', 'falseAlarmMonths', 'historyYears',
@@ -35,6 +38,7 @@ function packCandidate(def, measured, judged, current) {
   const bias = REVISION_BIAS_IDS.has(def.id) ? REVISION_BIAS_NOTE : ''
   return {
     id: def.id,
+    round: def.round,
     name: def.name,
     pillar: def.pillar,
     masters: def.masters,
@@ -51,13 +55,18 @@ function packCandidate(def, measured, judged, current) {
   }
 }
 
-function evaluateSet(panel, extras, today, vintages) {
-  const readings = readCandidates(extras, today, panel.FEDFUNDS)
+function evaluateRound(defs, panel, extras, today, vintages, {
+  baseline,
+  requireMinImprovement = false,
+  currentReadings,
+}) {
   const candidates = []
-  for (const def of CANDIDATES) {
-    const measured = measureCandidate(panel, extras, today, def, [def.id], vintages)
-    const judged = judge(measured.baseline, measured.withCandidate, measured.historyYears)
-    const current = formatCandidateCurrent(def.id, readings[def.id])
+  for (const def of defs) {
+    const measured = measureCandidate(panel, extras, today, def, [def.id], vintages, { baseline })
+    const judged = judge(measured.baseline, measured.withCandidate, measured.historyYears, {
+      requireMinImprovement,
+    })
+    const current = formatCandidateCurrent(def.id, currentReadings[def.id])
     candidates.push(packCandidate(def, measured, judged, current))
   }
 
@@ -65,9 +74,9 @@ function evaluateSet(panel, extras, today, vintages) {
   let combined
   if (adoptIds.length) {
     const earliest = adoptIds
-      .map(id => CANDIDATES.find(c => c.id === id).historyStart)
+      .map(id => defs.find(c => c.id === id).historyStart)
       .sort()[0]
-    const measured = measureCombined(panel, extras, today, adoptIds, earliest, vintages)
+    const measured = measureCombined(panel, extras, today, adoptIds, earliest, vintages, { baseline })
     const judged = judgeCombined(measured.baseline, measured.withCandidate)
     combined = {
       ids: adoptIds,
@@ -113,20 +122,34 @@ export async function runResearch({
     fetcher: offlineVintageFetcher,
   })
 
-  // 修订值对照（只进研究记录，不进 JSON）
+  const currentReadings = readCandidatesCurrent(extras, panel, panel.FEDFUNDS)
+
+  // 修订值对照（只进研究记录第一轮，不进 JSON）
   const revised = includeRevisedComparison
-    ? evaluateSet(panel, extras, today, null)
+    ? evaluateRound(CANDIDATES, panel, extras, today, null, {
+      baseline: ROUND1_BASELINE,
+      currentReadings,
+    })
     : null
 
-  const realtime = evaluateSet(panel, extras, today, vintages)
+  const round1 = evaluateRound(CANDIDATES, panel, extras, today, vintages, {
+    baseline: ROUND1_BASELINE,
+    currentReadings,
+  })
+  const round2 = evaluateRound(ROUND2_CANDIDATES, panel, extras, today, vintages, {
+    baseline: ROUND2_BASELINE,
+    requireMinImprovement: true,
+    currentReadings,
+  })
 
   const file = {
     generatedAt,
     baselineLabel: BASELINE_LABEL,
     preregistered: PREREGISTERED,
-    criteria: CRITERIA,
-    candidates: realtime.candidates,
-    ...(realtime.combined ? { combined: realtime.combined } : {}),
+    criteria: [...CRITERIA, ...ROUND2_CRITERIA_EXTRA],
+    candidates: [...round1.candidates, ...round2.candidates],
+    ...(round1.combined ? { combined: round1.combined } : {}),
+    ...(round2.combined ? { combinedRound2: round2.combined } : {}),
   }
 
   const mdFile = {

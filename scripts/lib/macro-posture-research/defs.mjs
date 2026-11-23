@@ -11,22 +11,31 @@ export const CRITERIA = [
   '观察不代表有效，只表示没被否决',
 ]
 
+/** 第二轮追加（11.3.1）；只约束第二轮候选 */
+export const ROUND2_CRITERIA_EXTRA = [
+  '【第二轮】两段夏普各提高 ≥ 0.01，或任一段最大回撤改善 ≥ 2 个百分点且另一段不恶化',
+]
+
 export const SPLIT_EARLY_END = '1999-12'
 export const SPLIT_LATE_START = '2000-01'
 export const HISTORY_YEARS_MIN = 25
 export const DRAWDOWN_TOLERANCE = 0.01
 export const CAGR_TOLERANCE = 0.003
 export const FALSE_ALARM_TOLERANCE = 1.2
+export const MIN_SHARPE_IMPROVEMENT = 0.01
+export const MIN_DD_IMPROVEMENT = 0.02
 
 /** 候选自身为修订值、基准为当时版本时，比较略偏向候选（适用于建筑许可、周工时、盈利） */
 export const REVISION_BIAS_NOTE = '候选自身序列为修订值，基准为当时版本，比较略偏向候选。'
 export const REVISION_BIAS_IDS = new Set(['permits', 'hours', 'eps'])
 
 /** @typedef {'rateExp'|'permits'|'hours'|'eps'|'sloos'|'valuationCap'} CandidateId */
+/** @typedef {'hikeStart'|'longRateShock'|'pceMomentum'|'breakevenShock'} Round2CandidateId */
 
 export const CANDIDATES = [
   {
     id: 'rateExp',
+    round: 1,
     name: '加息预期（两年期减联邦基金）',
     pillar: 'liquidity',
     kind: 'component',
@@ -38,6 +47,7 @@ export const CANDIDATES = [
   },
   {
     id: 'permits',
+    round: 1,
     name: '建筑许可',
     pillar: 'growth',
     kind: 'component',
@@ -49,6 +59,7 @@ export const CANDIDATES = [
   },
   {
     id: 'hours',
+    round: 1,
     name: '制造业周工时',
     pillar: 'growth',
     kind: 'component',
@@ -60,6 +71,7 @@ export const CANDIDATES = [
   },
   {
     id: 'eps',
+    round: 1,
     name: '标普盈利同比',
     pillar: 'growth',
     kind: 'component',
@@ -72,6 +84,7 @@ export const CANDIDATES = [
   },
   {
     id: 'sloos',
+    round: 1,
     name: '银行收紧企业贷款标准',
     pillar: 'credit',
     kind: 'component',
@@ -83,6 +96,7 @@ export const CANDIDATES = [
   },
   {
     id: 'valuationCap',
+    round: 1,
     name: '估值上限（CAPE × 加息）',
     pillar: 'cap',
     kind: 'cap',
@@ -95,4 +109,61 @@ export const CANDIDATES = [
   },
 ]
 
-export const CANDIDATE_BY_ID = Object.fromEntries(CANDIDATES.map(c => [c.id, c]))
+/** 第二轮预注册（设计 12.2；看结果前写下） */
+export const ROUND2_CANDIDATES = [
+  {
+    id: 'hikeStart',
+    round: 2,
+    name: '加息启动（联邦基金半年变化）',
+    pillar: 'liquidity',
+    kind: 'component',
+    masters: ['德鲁肯米勒', '都铎·琼斯', '达利欧'],
+    data: '联邦基金利率半年变化，当月月末可得',
+    rule: '半年变化 ≥ +0.25 → −1；否则 0',
+    historyStart: '1954-07',
+    fred: ['FEDFUNDS'],
+    panelSeries: 'FEDFUNDS',
+  },
+  {
+    id: 'longRateShock',
+    round: 2,
+    name: '长端利率冲击',
+    pillar: 'liquidity',
+    kind: 'component',
+    masters: ['德鲁肯米勒', '都铎·琼斯', '达利欧'],
+    data: '10 年期美债收益率一年变化，当月月末可得',
+    rule: '一年变化 ≥ +1.50 → −2；≥ +1.00 → −1；否则 0（利率下行常伴随衰退，不给正分）',
+    historyStart: '1953-04',
+    fred: ['GS10'],
+    panelSeries: 'GS10',
+  },
+  {
+    id: 'pceMomentum',
+    round: 2,
+    name: '核心通胀动量',
+    pillar: 'inflation',
+    kind: 'component',
+    masters: ['达利欧', '都铎·琼斯'],
+    data: '核心 PCE 3 个月年化与同比；观测月 +2 月末可得；实时口径用当时版本',
+    rule: 'a3 ≥ 3.0 且 a3 ≥ y + 0.5 → −1；a3 ≤ 2.0 → +1；否则 0',
+    historyStart: '1959-01',
+    fred: ['PCEPILFE'],
+    panelSeries: 'PCEPILFE',
+  },
+  {
+    id: 'breakevenShock',
+    round: 2,
+    name: '盈亏平衡通胀冲击',
+    pillar: 'inflation',
+    kind: 'component',
+    masters: ['达利欧', '都铎·琼斯'],
+    data: '10 年盈亏平衡通胀率半年变化，2003 年起；当日可得；历史不足 25 年，最多观察',
+    rule: '半年变化 ≥ +0.50 → −1；否则 0',
+    historyStart: '2003-01',
+    fred: ['T10YIE'],
+  },
+]
+
+export const CANDIDATE_BY_ID = Object.fromEntries(
+  [...CANDIDATES, ...ROUND2_CANDIDATES].map(c => [c.id, c]),
+)

@@ -1,33 +1,47 @@
 import {
-  PILLARS, TIERS, V21_COMPONENTS, classify, pillarScore, scoreComponent,
+  COMPONENTS, PILLARS, TIERS, V21_COMPONENTS, classify, pillarScore, scoreComponent,
 } from '../macro-posture/model.mjs'
 
 const tierIndex = id => TIERS.findIndex(t => t.id === id)
 const CAP_TIER = 'lean-offense'
 
+const COMPONENT_PILLAR = {
+  rateExp: 'liquidity',
+  permits: 'growth',
+  hours: 'growth',
+  eps: 'growth',
+  sloos: 'credit',
+  hikeStart: 'liquidity',
+  longRateShock: 'liquidity',
+  pceMomentum: 'inflation',
+  breakevenShock: 'inflation',
+}
+
 /**
- * 在 v2.1 evaluate 之上叠加候选：
+ * 在基准 evaluate 之上叠加候选：
+ * - baseline 'v2.1'：不含 hours；'v2.2'：引擎当前组件集（含 hours）
  * - component：score≠null 时追加进对应支柱均值（权重不变）
  * - valuationCap：最终档位上限为偏进攻
  * activeIds: 本次启用的候选 id 列表
  */
-export function evaluateWithCandidates(frame, readings, activeIds = []) {
+export function evaluateWithCandidates(frame, readings, activeIds = [], { baseline = 'v2.1' } = {}) {
   const active = new Set(activeIds)
-  const scores = Object.fromEntries(V21_COMPONENTS.map(def => [def.id, scoreComponent(def, frame.components[def.id])]))
+  const definitions = baseline === 'v2.2' ? COMPONENTS : V21_COMPONENTS
+  const scores = Object.fromEntries(definitions.map(def => [def.id, scoreComponent(def, frame.components[def.id])]))
 
   const extrasByPillar = { growth: [], credit: [], liquidity: [], inflation: [] }
-  for (const id of ['rateExp', 'permits', 'hours', 'eps', 'sloos']) {
+  for (const [id, pillar] of Object.entries(COMPONENT_PILLAR)) {
     if (!active.has(id)) continue
+    // v2.2 核心已含 hours，勿重复计入
+    if (baseline === 'v2.2' && id === 'hours') continue
     const score = readings[id]?.score
     if (score == null) continue
     scores[id] = score
-    const pillar = id === 'rateExp' ? 'liquidity'
-      : id === 'sloos' ? 'credit' : 'growth'
     extrasByPillar[pillar].push(score)
   }
 
   const pillars = Object.fromEntries(PILLARS.map(({ id }) => {
-    const base = V21_COMPONENTS.filter(def => def.pillar === id).map(def => scores[def.id])
+    const base = definitions.filter(def => def.pillar === id).map(def => scores[def.id])
     return [id, pillarScore([...base, ...extrasByPillar[id]])]
   }))
 

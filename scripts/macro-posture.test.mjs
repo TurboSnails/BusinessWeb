@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { createHash } from 'node:crypto'
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -320,7 +321,7 @@ test('display formats percentage scale, percentile, points, basis points, index 
   assert.equal(formatDate('2026-11-20'), '11 月 20 日')
 })
 
-test('monthly and weekly release dates govern both current reads and derived windows', () => {
+test('backtest release dates govern historical reads and derived windows', () => {
   const panel = makePanel({
     PCEPILFE: [['2024-05-01', 100], ['2024-11-01', 110], ['2025-05-01', 200]],
     SAHMREALTIME: [['2025-06-01', 0.3], ['2025-07-01', 0.6]],
@@ -340,6 +341,20 @@ test('monthly and weekly release dates govern both current reads and derived win
   assert.equal(panelAt(panel, '2025-08-07').components.claims.value, 0)
   assert.equal(panelAt(panel, '2025-08-30').tactical.sma10, 104.5)
   assert.equal(panelAt(panel, '2025-08-31').tactical.sma10, 134.5)
+})
+
+test('both panel modes expire readings by observation period at the same boundaries', () => {
+  const input = {
+    SAHMREALTIME: [['2026-06-01', 0.1]],
+    PCEPILFE: [['2026-06-01', 100]],
+    IC4WSA: [['2026-06-27', 100]],
+  }
+  for (const panel of [makePanel(input), makePanel(input, { mode: 'current' })]) {
+    for (const [id, expiry] of [['sahm', '2026-09-13'], ['corePce', '2026-10-13'], ['claims', '2026-07-18']]) {
+      assert.equal(panelAt(panel, expiry).components[id].stale, false)
+      assert.equal(panelAt(panel, addDays(expiry, 1)).components[id].stale, true)
+    }
+  }
 })
 
 test('risk warnings lower confidence without altering tiers; stale overrides agreement', () => {
@@ -763,36 +778,77 @@ test('failed ALFRED keeps the previous realtime comparisons while refreshing the
   }
 })
 
-test('refresh merges the local S&P slice and retains the prior live rows across output writes', async () => {
+test('refresh uses published observations now and preserves historical and live signals', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'macro-posture-test-'))
   const output = join(directory, 'macro-posture.json')
   const fetcher = fixtureFetcher([], 817)
+  const latest = {
+    SAHMREALTIME: ['2026-10-01', 0.6], PAYEMS: ['2026-10-01', 102],
+    INDPRO: ['2026-10-01', 102], AWHMAN: ['2026-10-01', 99], PCEPILFE: ['2026-09-01', 102],
+    NFCI: ['2026-11-21', -0.6],
+  }
+  const novemberFetcher = async url => {
+    const id = new URL(url).searchParams.get('id')
+    const response = await fetcher(url)
+    if (!Object.hasOwn(latest, id)) return response
+    const [day, value] = latest[id]
+    const [header, ...rows] = (await response.text()).split('\n')
+    return new Response([header, ...rows.filter(row => row.slice(0, 10) < day), `${day},${value}`].join('\n'))
+  }
   try {
     await seedVintageFixtures(directory, '2027-02-01')
+    await writeFile(output, JSON.stringify({
+      backtest: { live: { rows: [{
+        d: '2026-11', final: 'offense', equityShare: 1, spxReturn: null, portfolioReturn: null,
+      }] } },
+    }))
     await writeFile(join(directory, 'us-market-slices.json'), JSON.stringify({
       slices: [{ id: 'spx', symbol: '^GSPC', history: [['2026-11-20', 90]] }],
     }))
-    const november = await refreshMacroPosture({ directory, now: new Date('2026-11-23T12:00:00Z'), fetcher })
+    const november = await refreshMacroPosture({
+      directory, now: new Date('2026-11-23T12:00:00Z'), fetcher: novemberFetcher,
+    })
+    const { live, ...historical } = november.backtest
+    // Exact output of this fixture with the pre-r7 engine, including both realtime comparisons.
+    assert.equal(createHash('sha256').update(JSON.stringify(historical)).digest('hex'),
+      '5aa43eab00d499d12ba80319d1638b35b6a8ab1fd13022fb6a22895d00344a60')
+    const current = Object.fromEntries(november.current.pillars.flatMap(pillar =>
+      pillar.components.map(component => [component.id, component])))
+    for (const id of ['sahm', 'payrolls', 'indpro', 'hours', 'corePce', 'nfci']) {
+      const day = id === 'corePce' ? '2026-09-01' : id === 'nfci' ? '2026-11-21' : '2026-10-01'
+      assert.equal(current[id].observedOn, day, id)
+      assert.equal(current[id].availableOn, day, id)
+      assert.equal(current[id].stale, false, id)
+    }
+    assert.match(current.payrolls.display, /2026 年 10 月/)
+    assert.match(current.corePce.display, /2026 年 9 月/)
+    assert.equal(current.sahm.score, -2)
+    assert.equal(current.hours.score, -1)
+    assert.equal(november.current.asOf, '2026-11-21')
     assert.deepEqual(november.current.tactical.mtd.lastClose, { date: '2026-11-20', value: 90 })
     assert.match(november.current.tactical.mtd.source, /Yahoo Finance.*FRED/)
     assert.deepEqual(november.current.dates, [
       { label: '宏观月度', date: '2026 年 10 月' },
-      { label: '宏观周度', date: '10 月 31 日当周' },
+      { label: '宏观周度', date: '11 月 21 日当周' },
       { label: '企业债利差', date: '2026 年 10 月' },
       { label: '标普收盘', date: '11 月 20 日' },
       { label: '外圈市场数据', date: '11 月 20 日' },
     ])
-    assert.deepEqual(november.backtest.live.rows.map(row => row.d), ['2026-11'])
+    assert.deepEqual(live.rows, [{
+      d: '2026-11', final: november.current.final.tier, equityShare: november.current.final.equityShare,
+      spxReturn: null, portfolioReturn: null,
+    }])
+    assert.notEqual(live.rows[0].final, 'offense')
     const february = await refreshMacroPosture({ directory, now: new Date('2027-02-01T12:00:00Z'), fetcher })
     const disk = JSON.parse(await readFile(output, 'utf8'))
     assert.deepEqual(disk.backtest.live, february.backtest.live)
-    const [settled, current] = disk.backtest.live.rows
+    const [settled, februaryRow] = disk.backtest.live.rows
     assert.equal(settled.final, november.current.final.tier)
     assert.equal(settled.equityShare, november.current.final.equityShare)
     near(settled.spxReturn, 100 / 1200)
     near(settled.portfolioReturn, 100 / 1200 * settled.equityShare + 2 / 1200 * (1 - settled.equityShare))
-    assert.equal(current.d, '2027-02')
-    assert.equal(current.spxReturn, null)
+    assert.equal(februaryRow.d, '2027-02')
+    assert.equal(februaryRow.spxReturn, null)
     assert.ok(Math.abs(disk.current.pillars.reduce((sum, p) => sum + (p.contribution ?? 0), 0) - disk.current.regime.score) < 1e-9)
   } finally {
     await rm(directory, { recursive: true, force: true })

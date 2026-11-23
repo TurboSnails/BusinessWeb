@@ -514,6 +514,16 @@ describe('MacroPosture r4 风险预算与候选检验', () => {
     expect(firstDelta?.getAttribute('title')).toBe('基准 10.0%；加入后 10.1%')
   })
 
+  it('候选按轮次分组，第二轮无采用时提示核心规则保持 v2.2', () => {
+    const data = candidatesFixture()
+    const round2 = { ...data.candidates[2], id: 'r2', name: '长端利率冲击', round: 2 as const, verdict: 'reject' as const }
+    renderPage(undefined, undefined, undefined, { status: 'ready', data: { ...data, candidates: [...data.candidates, round2] } })
+    expect(screen.getByTestId('mp-candidates-round-1').textContent).toContain('第一轮')
+    expect(screen.getByTestId('mp-candidates-adopted').textContent).toContain('已并入核心规则 v2.2')
+    expect(screen.getByTestId('mp-candidates-round-2').textContent).toContain('长端利率冲击')
+    expect(screen.getByTestId('mp-candidates-none-adopted-2').textContent).toContain('核心规则保持 v2.2')
+  })
+
   it('候选当前读数只展示；没有采用项时提示核心规则不变', () => {
     renderPage()
     expect(screen.getByTestId('mp-candidate-current-watched').textContent).toContain('若计入：−1 分')

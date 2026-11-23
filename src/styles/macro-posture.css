@@ -874,7 +874,80 @@
 
 /* 回测 */
 .mp-timeline {
+  --mp-tier-defense: #b42318;
+  --mp-tier-lean-defense: #d97706;
+  --mp-tier-neutral: #7c7f68;
+  --mp-tier-lean-offense: #2f8f83;
+  --mp-tier-offense: #176b87;
   margin: 0 0 18px;
+}
+
+/* 站点目前只有浅色主题；若将来启用深色主题，下面这组提亮后的档位色在深色卡片上仍可分辨。 */
+:root[data-theme="dark"] .mp-timeline {
+  --mp-tier-defense: #f07a68;
+  --mp-tier-lean-defense: #f2a64a;
+  --mp-tier-neutral: #a9ac93;
+  --mp-tier-lean-offense: #4fc2b2;
+  --mp-tier-offense: #62b0dc;
+}
+
+.mp-timeline__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  margin: 0 0 8px;
+}
+
+.mp-timeline__presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mp-timeline__presets button,
+.mp-timeline__recession-select select {
+  min-height: 40px;
+  padding: 7px 11px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm, 6px);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.mp-timeline__presets button:hover,
+.mp-timeline__presets button[aria-pressed='true'] {
+  border-color: var(--accent, var(--text-primary));
+  background: var(--accent-soft, var(--bg-card));
+}
+
+.mp-timeline__presets button[aria-pressed='true'] {
+  color: var(--accent-ink, var(--text-primary));
+  font-weight: 650;
+}
+
+.mp-timeline__presets button:focus-visible,
+.mp-timeline__recession-select select:focus-visible {
+  outline: 2px solid var(--accent, var(--text-primary));
+  outline-offset: 2px;
+}
+
+.mp-timeline__range-readout {
+  margin-left: auto;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.mp-timeline__help {
+  margin: 0 0 10px;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  line-height: 1.5;
 }
 
 .mp-timeline__legend {
@@ -896,72 +969,209 @@
 
 .mp-timeline__swatch {
   display: inline-block;
-  width: 12px;
-  height: 12px;
+  width: 13px;
+  height: 13px;
   border-radius: 2px;
   border: 1px solid var(--border-subtle);
 }
 
-.mp-timeline__swatch--offense { background: color-mix(in srgb, var(--down-ink, #0f766e) 55%, transparent); }
-.mp-timeline__swatch--lean-offense { background: color-mix(in srgb, var(--down-ink, #0f766e) 35%, transparent); }
-.mp-timeline__swatch--neutral { background: color-mix(in srgb, var(--text-secondary) 30%, transparent); }
-.mp-timeline__swatch--lean-defense { background: color-mix(in srgb, var(--warm-ink, #b45309) 35%, transparent); }
-.mp-timeline__swatch--defense { background: color-mix(in srgb, var(--warm-ink, #b45309) 55%, transparent); }
-.mp-timeline__swatch--rec { background: color-mix(in srgb, var(--text-secondary) 28%, transparent); }
+.mp-timeline__swatch--offense { background: var(--mp-tier-offense); }
+.mp-timeline__swatch--lean-offense { background: var(--mp-tier-lean-offense); }
+.mp-timeline__swatch--neutral { background: var(--mp-tier-neutral); }
+.mp-timeline__swatch--lean-defense { background: var(--mp-tier-lean-defense); }
+.mp-timeline__swatch--defense { background: var(--mp-tier-defense); }
+.mp-timeline__swatch--rec { background: color-mix(in srgb, var(--text-secondary) 32%, transparent); }
 
-.mp-timeline__svg {
-  display: block;
+.mp-timeline__chart,
+.mp-timeline__overview-wrap {
+  position: relative;
   width: 100%;
-  height: auto;
-  max-height: 280px;
+  box-sizing: border-box;
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
+}
+
+/* 边框画在外层容器上：SVG 内容宽度 = 容器内宽 = viewBox 宽，1 个单位 = 1 个像素，文字不缩放。 */
+.mp-timeline__svg,
+.mp-timeline__overview {
+  display: block;
+  width: 100%;
+  height: auto;
   touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.mp-timeline__svg:focus-visible {
+  outline: 2px solid var(--accent, var(--text-primary));
+  outline-offset: 2px;
+}
+
+.mp-timeline__overview-hit {
+  fill: transparent;
+  cursor: pointer;
+}
+
+.mp-timeline__overview .mp-timeline__band,
+.mp-timeline__overview-line,
+.mp-timeline__overview .mp-timeline__axis {
+  pointer-events: none;
+}
+
+.mp-timeline__legend-note {
+  flex-basis: 100%;
+  color: var(--text-secondary);
+}
+
+.mp-timeline__svg {
+  cursor: crosshair;
+}
+
+.mp-timeline__svg.is-dragging {
+  cursor: grabbing;
+}
+
+.mp-timeline__overview-wrap {
+  margin-top: 8px;
 }
 
 .mp-timeline__grid {
   stroke: var(--border-subtle);
   stroke-width: 1;
   stroke-dasharray: 2 4;
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
 .mp-timeline__line {
   stroke: var(--text-primary);
-  stroke-width: 1.6;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.mp-timeline__overview-line {
+  stroke: var(--text-secondary);
+  stroke-width: 1.2;
 }
 
 .mp-timeline__recession {
-  fill: color-mix(in srgb, var(--text-secondary) 14%, transparent);
+  fill: color-mix(in srgb, var(--text-secondary) 18%, transparent);
 }
 
-.mp-timeline__band { fill: color-mix(in srgb, var(--text-secondary) 18%, transparent); }
-.mp-timeline__band--offense { fill: color-mix(in srgb, var(--down-ink, #0f766e) 35%, transparent); }
-.mp-timeline__band--lean-offense { fill: color-mix(in srgb, var(--down-ink, #0f766e) 22%, transparent); }
-.mp-timeline__band--neutral { fill: color-mix(in srgb, var(--text-secondary) 18%, transparent); }
-.mp-timeline__band--lean-defense { fill: color-mix(in srgb, var(--warm-ink, #b45309) 22%, transparent); }
-.mp-timeline__band--defense { fill: color-mix(in srgb, var(--warm-ink, #b45309) 35%, transparent); }
+.mp-timeline__band { fill: color-mix(in srgb, var(--text-secondary) 32%, transparent); }
+.mp-timeline__band--offense { fill: color-mix(in srgb, var(--mp-tier-offense) 88%, transparent); }
+.mp-timeline__band--lean-offense { fill: color-mix(in srgb, var(--mp-tier-lean-offense) 84%, transparent); }
+.mp-timeline__band--neutral { fill: color-mix(in srgb, var(--mp-tier-neutral) 80%, transparent); }
+.mp-timeline__band--lean-defense { fill: color-mix(in srgb, var(--mp-tier-lean-defense) 84%, transparent); }
+.mp-timeline__band--defense { fill: color-mix(in srgb, var(--mp-tier-defense) 88%, transparent); }
+
+.mp-timeline__band-label {
+  fill: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 650;
+}
 
 .mp-timeline__cursor {
   stroke: var(--accent, var(--text-primary));
-  stroke-width: 1;
+  stroke-width: 1.25;
   stroke-dasharray: 3 3;
+  pointer-events: none;
 }
 
 .mp-timeline__dot {
   fill: var(--accent, var(--text-primary));
+  stroke: var(--bg-card);
+  stroke-width: 1.5;
+  pointer-events: none;
 }
 
 .mp-timeline__axis {
   fill: var(--text-tertiary, var(--text-secondary));
-  font-size: 10px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.mp-timeline__latest {
+  pointer-events: none;
+}
+
+.mp-timeline__latest-leader {
+  stroke: var(--accent, var(--text-primary));
+  stroke-width: 1;
+  opacity: 0.6;
+}
+
+.mp-timeline__latest rect {
+  fill: var(--accent, var(--text-primary));
+}
+
+.mp-timeline__latest text {
+  fill: var(--accent-contrast, #fff);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.mp-timeline__tooltip {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  top: 0;
+  width: 210px;
+  box-sizing: border-box;
+  padding: 11px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  box-shadow: 0 8px 28px color-mix(in srgb, var(--text-primary) 16%, transparent);
+  color: var(--text-primary);
+  pointer-events: none;
+}
+
+.mp-timeline__tooltip > strong {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.mp-timeline__tooltip dl {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+  font-size: 0.8rem;
+}
+
+.mp-timeline__tooltip dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.mp-timeline__tooltip dt { color: var(--text-secondary); }
+.mp-timeline__tooltip dd { margin: 0; font-weight: 600; }
+
+.mp-timeline__selection {
+  fill: color-mix(in srgb, var(--accent, var(--text-primary)) 10%, transparent);
+  stroke: var(--accent, var(--text-primary));
+  stroke-width: 1;
+  cursor: grab;
+}
+
+.mp-timeline__selection:active { cursor: grabbing; }
+
+.mp-timeline__selection-handle {
+  fill: color-mix(in srgb, var(--accent, var(--text-primary)) 38%, transparent);
+  stroke: var(--accent, var(--text-primary));
+  stroke-width: 1;
+  cursor: ew-resize;
 }
 
 .mp-timeline__caption {
   margin: 8px 0;
   font-size: 0.9rem;
   color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
 }
 
 .mp-timeline__select {
@@ -971,12 +1181,39 @@
 
 .mp-timeline__select select {
   max-width: 100%;
+  min-height: 40px;
   padding: 6px 10px;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm, 6px);
   background: var(--bg-primary);
   color: var(--text-primary);
   font-size: 0.9rem;
+}
+
+@media (max-width: 560px) {
+  .mp-timeline__controls {
+    align-items: stretch;
+  }
+
+  .mp-timeline__presets {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .mp-timeline__presets button,
+  .mp-timeline__recession-select select {
+    min-height: 44px;
+    padding-inline: 7px;
+  }
+
+  .mp-timeline__range-readout {
+    margin-left: 0;
+  }
+
+  .mp-timeline__help {
+    max-width: 32rem;
+  }
 }
 
 .mp-table {
@@ -1690,4 +1927,19 @@
   html:has(.mp-page) {
     scroll-behavior: auto;
   }
+}
+
+.mp-candidate-research__round {
+  margin-top: 24px;
+}
+
+.mp-candidate-research__round-title {
+  margin: 0 0 4px;
+  font-size: 1.05rem;
+}
+
+.mp-candidate-research__round-note {
+  margin: 0 0 10px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
 }

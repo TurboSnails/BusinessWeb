@@ -90,15 +90,16 @@ export async function fetchCandidateExtras(fetcher = fetch, {
   now = new Date(),
 } = {}) {
   const opts = { noCache, now }
-  const [DGS2, PERMIT, AWHMAN, DRTSCILM, EPS] = await Promise.all([
+  const [DGS2, PERMIT, AWHMAN, DRTSCILM, EPS, T10YIE] = await Promise.all([
     fetchFredSeries('DGS2', fetcher, opts),
     fetchFredSeries('PERMIT', fetcher, opts),
     fetchFredSeries('AWHMAN', fetcher, opts),
     fetchFredSeries('DRTSCILM', fetcher, opts),
     fetchEps(fetcher, completeThrough, opts),
+    fetchFredSeries('T10YIE', fetcher, opts),
   ])
   return {
-    DGS2, PERMIT, AWHMAN, DRTSCILM, EPS,
+    DGS2, PERMIT, AWHMAN, DRTSCILM, EPS, T10YIE,
     CAPE: loadCapeFromLocal(usMarketData),
   }
 }
