@@ -27,7 +27,7 @@ describe('About 页面：站点介绍', () => {
     expect(screen.getByRole('heading', { level: 1, name: '关于「Live」' })).toBeTruthy()
     expect(document.body.textContent).not.toMatch(/Hassan 投资工作台/)
     expect(screen.getByRole('heading', { name: '最近更新' })).toBeTruthy()
-    expect(screen.getByRole('link', { name: '宏观大师：九位投资人怎么看周期' }).getAttribute('href')).toBe('/invest/macro-masters')
+    expect(screen.getByRole('link', { name: '新入口：六位顶级投资人怎么看周期' }).getAttribute('href')).toBe('/invest/top-masters')
   })
 
   it('介绍里列出三个栏目，并链接到对应页面', () => {

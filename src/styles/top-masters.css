@@ -1,0 +1,374 @@
+/* 六位顶级投资人精选页（tm-*）。亮暗主题走站内 CSS 变量。 */
+
+.tm-page {
+  max-width: min(1100px, 100%);
+  min-width: 0;
+}
+
+.tm-head {
+  margin-bottom: var(--space-5, 28px);
+}
+
+.tm-head h1 {
+  margin: 0 0 var(--space-3, 16px);
+  font: 600 clamp(1.7rem, 3vw, 2.3rem) / 1.35 var(--font-serif, Georgia, serif);
+}
+
+.tm-head p {
+  margin: 0 0 12px;
+  max-width: 48rem;
+  font-size: 1.05rem;
+  line-height: 1.85;
+  color: var(--text-secondary);
+}
+
+.tm-removed {
+  margin: 0 0 14px;
+  max-width: 48rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: var(--bg-secondary, var(--bg-card));
+}
+
+.tm-removed summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.tm-removed ul {
+  margin: 10px 0 4px;
+  padding-left: 1.2rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.tm-removed li + li {
+  margin-top: 6px;
+}
+
+/* —— 吸顶导航 —— */
+.tm-toc {
+  position: sticky;
+  top: 56px;
+  z-index: 40;
+  margin: 0 0 20px;
+  padding: 6px 0;
+  background: color-mix(in srgb, var(--bg-primary) 92%, transparent);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.tm-toc__scroll {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.tm-toc__scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.tm-toc__link {
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  min-height: 36px;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.88rem;
+  white-space: nowrap;
+}
+
+.tm-toc__link.is-active,
+.tm-toc__link:hover {
+  color: var(--text-primary);
+  background: var(--bg-secondary, var(--bg-card));
+}
+
+.tm-page section[id] {
+  scroll-margin-top: 110px;
+}
+
+/* —— 现在怎么看 —— */
+.tm-now {
+  margin: 0 0 28px;
+  padding-top: 8px;
+}
+
+.tm-now h2 {
+  margin: 0 0 14px;
+  font-size: 1.35rem;
+}
+
+.tm-status,
+.tm-empty {
+  margin: 12px 0;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.tm-error {
+  margin: 12px 0;
+  color: var(--danger, #b42318);
+  font-size: 0.95rem;
+}
+
+.tm-muted {
+  color: var(--text-tertiary, var(--text-secondary));
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.tm-glance {
+  list-style: none;
+  margin: 18px 0 12px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tm-glance__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 12px 20px;
+  padding: 14px 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.tm-glance__meta {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.tm-rank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: var(--bg-secondary, var(--bg-card));
+  border: 1px solid var(--border-subtle);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  flex: 0 0 auto;
+}
+
+.tm-rank--lg {
+  width: 36px;
+  height: 36px;
+  font-size: 1rem;
+}
+
+.tm-glance__name {
+  font-weight: 650;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.tm-glance__name:hover {
+  color: var(--accent-ink, var(--accent));
+}
+
+.tm-glance__role {
+  margin: 4px 0 0;
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.tm-glance__take {
+  min-width: 0;
+}
+
+.tm-glance__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.tm-glance__posture,
+.tm-glance__counts,
+.tm-glance__headline {
+  margin: 0 0 4px;
+  line-height: 1.55;
+  font-size: 0.95rem;
+}
+
+.tm-glance__headline {
+  color: var(--text-secondary);
+}
+
+.tm-consensus {
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--bg-secondary, var(--bg-card));
+  border: 1px solid var(--border-subtle);
+  font-weight: 600;
+  line-height: 1.55;
+}
+
+/* —— 每位一节 —— */
+.tm-master {
+  margin: 0 0 36px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.tm-master__head {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.tm-master__head h2 {
+  margin: 0 0 4px;
+  font-size: 1.4rem;
+}
+
+.tm-master__role {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.tm-master__block {
+  margin: 0 0 18px;
+}
+
+.tm-master__block h3 {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+}
+
+.tm-master__block p,
+.tm-master__block li {
+  line-height: 1.7;
+}
+
+.tm-master__block ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.tm-master__cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 24px;
+}
+
+.tm-sources,
+.tm-resources {
+  margin: 8px 0 0;
+  padding-left: 1.2rem;
+}
+
+.tm-indicators {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tm-indicators__item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.tm-indicators__meta p {
+  margin: 4px 0 0;
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+}
+
+.tm-indicators__readings {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.tm-indicators__proxy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tm-take-items {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tm-take-items__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin: 0 0 4px;
+}
+
+.tm-master__detail-link {
+  margin: 8px 0 0;
+}
+
+/* —— 页尾 —— */
+.tm-footer {
+  margin: 28px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  line-height: 1.75;
+}
+
+.tm-footer h2 {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.tm-footer__roles ul {
+  margin: 0 0 14px;
+  padding-left: 1.2rem;
+}
+
+.tm-footer__disclaimer {
+  margin-top: 10px;
+  max-width: 52rem;
+}
+
+@media (max-width: 720px) {
+  .tm-toc {
+    top: 48px;
+  }
+
+  .tm-page section[id] {
+    scroll-margin-top: 100px;
+  }
+
+  .tm-glance__row,
+  .tm-indicators__item,
+  .tm-master__cols {
+    grid-template-columns: 1fr;
+  }
+}

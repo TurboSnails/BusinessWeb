@@ -92,6 +92,7 @@ export const INVEST_GROUPS: HubGroup[] = [
     links: [
       { path: '/invest/comprehensive-valuation', label: '综合估值', short: '四维方法、情景测算与研究卡', desc: '资产质量、交叉估值、预期差与风险预算；三情景收益及赔率测算，导出研究卡' },
       { path: '/invest/macro-masters', label: '宏观大师', short: '偏攻还是偏守，九位怎么看', desc: '先给本站按公开数据归纳的当前位置：短线偏攻还是偏守、处在什么阶段、什么情况会改判；再对照德鲁肯米勒、达利欧、马克斯、都铎·琼斯、茨威格、格兰瑟姆、索罗斯、邓普顿、科斯托拉尼各自的方法、指标与可靠性。大师读数是本站映射，未经回测证实；综合攻守结论见宏观攻守页，不构成买卖建议' },
+      { path: '/invest/top-masters', label: '顶级投资人', short: '六位顶级投资人怎么看周期', desc: '从九位宏观投资人中按可核对的长期业绩选出德鲁肯米勒、索罗斯、邓普顿、都铎·琼斯、达利欧、马克斯六位：各自的业绩与来源、怎么看周期、按其方法现在怎么看，以及普通股票投资者能学什么、不要模仿什么。读数为本站映射，不构成买卖建议' },
       { path: '/invest/ai-token-economics', label: 'AI 降价与利润', short: 'Token 用量、降价与毛利', desc: 'Ramp 企业样本的 Token 用量、支出与价格变化，OpenAI / Anthropic 收入集中度、单位毛利敏感性与跟踪清单；数据整理自 AI 对话，待独立核实' },
       { path: '/invest/fundamental-quant', label: '基本面量化', short: '书籍方法、因子与策略验证', desc: '以《投资策略实战分析》为起点的基本面量化方法库：因子口径、策略草案、林奇分类衔接与 A 股验证路径' },
       { path: '/valuation', label: '估值工作台', short: '自动取财报，六法三情景', desc: '连接本机估值服务，自动采集财报，六方法三情景估值与报告导出' },
