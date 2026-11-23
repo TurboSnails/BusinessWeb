@@ -1,6 +1,7 @@
 import React from 'react'
 import AnchorNav from './AnchorNav'
 import BacktestPanel from './BacktestPanel'
+import CandidatesPanel from './CandidatesPanel'
 import ConclusionCard from './ConclusionCard'
 import MastersOutlook from './MastersOutlook'
 import MethodNotes from './MethodNotes'
@@ -32,6 +33,7 @@ export default function UsCompositeView({ state }: { state: CompositeState }): J
       <OuterRing items={data.outer} />
       <MastersOutlook siteTier={data.current.final.tier} />
       <BacktestPanel data={data} />
+      <CandidatesPanel />
       <MethodNotes data={data} />
     </div>
   )

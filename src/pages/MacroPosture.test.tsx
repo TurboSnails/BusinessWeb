@@ -4,7 +4,9 @@ import { MemoryRouter, useLocation } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { Candidate, DataState, MacroData, MacroView, Market, MarketData, Metric } from '../features/macro-posture/types'
 import type { CompositeState } from '../features/macro-posture/composite/types'
+import type { CandidatesState } from '../features/macro-posture/composite/candidates'
 import { compositeFixture, insufficientFixture, legacyFieldsFixture } from '../features/macro-posture/composite/fixture'
+import { candidatesFixture } from '../features/macro-posture/composite/candidates.fixture'
 import MacroPosture, {
   MACRO_POSTURE_FOOTER,
   MACRO_POSTURE_LEAD,
@@ -25,6 +27,10 @@ vi.mock('../features/macro-posture/composite/load', () => ({
   tierDef: vi.fn(),
   resetCompositeCache: vi.fn(),
   COMPOSITE_URL: '/data/macro-posture.json',
+}))
+
+vi.mock('../features/macro-posture/composite/candidates', () => ({
+  useCandidates: vi.fn(),
 }))
 
 vi.mock('../features/macro-masters/readings', () => ({
@@ -68,10 +74,12 @@ vi.mock('../features/macro-posture/candidates', () => ({
 import { useMacroPostureData } from '../features/macro-posture/data'
 import { buildMacroView } from '../features/macro-posture/model'
 import { useCompositePosture } from '../features/macro-posture/composite/load'
+import { useCandidates } from '../features/macro-posture/composite/candidates'
 
 const mockedLegacy = vi.mocked(useMacroPostureData)
 const mockedBuild = vi.mocked(buildMacroView)
 const mockedComposite = vi.mocked(useCompositePosture)
+const mockedCandidates = vi.mocked(useCandidates)
 
 afterEach(() => {
   cleanup()
@@ -167,9 +175,11 @@ function renderPage(
   path = '/invest/macro-posture',
   composite: CompositeState = { status: 'ready', data: compositeFixture() },
   legacy: DataState = { status: 'ready', data: fixtureData },
+  candidates: CandidatesState = { status: 'ready', data: candidatesFixture() },
 ) {
   mockedComposite.mockReturnValue(composite)
   mockedLegacy.mockReturnValue(legacy)
+  mockedCandidates.mockReturnValue(candidates)
   mockedBuild.mockImplementation((market: Market) => viewFor(market, market === 'cn' ? '偏防守' : '进攻候选'))
   return render(
     <MemoryRouter initialEntries={[path]}>
@@ -320,7 +330,7 @@ describe('MacroPosture 综合指标视图', () => {
     expect(screen.getByTestId('mp-snap-warnings').textContent).toContain('高收益债利差')
   })
 
-  it('singles 表与 v20 行渲染', () => {
+  it('singles 表与 8 个变体按 JSON 顺序渲染，解读使用最保守口径', () => {
     renderPage()
     const singles = screen.getByTestId('mp-backtest-singles')
     expect(within(singles).getByText('萨姆规则')).toBeTruthy()
@@ -330,10 +340,14 @@ describe('MacroPosture 综合指标视图', () => {
     const variants = screen.getByTestId('mp-backtest-variants')
     const rows = within(variants).getAllByRole('row')
     const ids = rows.slice(1).map(r => r.getAttribute('data-variant'))
-    expect(ids[0]).toBe('full')
-    expect(ids[1]).toBe('v20')
-    expect(within(variants).getByText('0.55')).toBeTruthy()
-    expect(screen.getByTestId('mp-variants-readout').textContent).toMatch(/完整模型相对全程持有/)
+    expect(ids).toEqual(['full', 'realtime', 'noNfci', 'v20', 'macro', 'trend', 'static70', 'buyhold'])
+    expect(variants.querySelector('tr.is-highlight')?.getAttribute('data-variant')).toBe('noNfci')
+    expect(screen.getByTestId('mp-variant-notes').textContent).toContain('完整模型＝修订后数据。')
+    expect(screen.getByTestId('mp-variant-notes').textContent).toContain('实时数据＝当时已发布版本（缺当时版本的早年月份沿用修订值）。')
+    expect(screen.getByTestId('mp-variant-notes').textContent).toContain('去掉金融条件指数＝再排除 2011 年前回推的金融条件指数（最保守口径）。')
+    expect(screen.getByTestId('mp-variant-notes').textContent).not.toContain('偏乐观')
+    expect(screen.getByTestId('mp-variants-readout').textContent).toBe('按最保守口径，年化 8.6%、最大回撤 −27.0%，仍约为持有标普回撤的 6.0 成。')
+    expect(screen.getByTestId('mp-backtest-summary').textContent).toContain('最保守口径（实时数据且去掉金融条件指数）：年化 8.6%、最大回撤 −27.0%')
   })
 
   it('mtd / repair / warnings / dates / counts / costs / live 缺失时不报错且跳过对应块', () => {
@@ -427,5 +441,104 @@ describe('MacroPosture 综合指标视图', () => {
     expect(line.textContent).toContain('高收益债快照')
     expect(line.textContent).not.toContain('hy-oas')
     expect(line.textContent).not.toContain('us-market-breadth')
+  })
+})
+
+
+describe('MacroPosture r4 风险预算与候选检验', () => {
+  it('当前档位显示风险预算动作，方法表列出每档组合结构', () => {
+    renderPage()
+    const actions = screen.getByTestId('mp-tier-actions')
+    expect(actions.textContent).toContain('这一档怎么配')
+    expect(actions.textContent).toContain('维持常规股票配置。')
+    expect(actions.textContent).toContain('控制单一行业的仓位集中度。')
+    const methodTable = screen.getByRole('region', { name: '档位阈值与仓位' })
+    expect(within(methodTable).getByRole('columnheader', { name: '组合结构' })).toBeTruthy()
+    expect(methodTable.textContent).toContain('组合以现金和短期债券为主。')
+  })
+
+  it('当前档位 actions 缺失时不显示动作块', () => {
+    const data = compositeFixture()
+    data.tiers = data.tiers.map(tier => ({ ...tier, actions: undefined }))
+    renderPage('/invest/macro-posture', { status: 'ready', data })
+    expect(screen.queryByTestId('mp-tier-actions')).toBeNull()
+    expect(screen.getByRole('region', { name: '档位阈值与仓位' }).textContent).toContain('—')
+  })
+
+  it('候选版块展示预注册、三种徽标、展开对照和合测结果', () => {
+    renderPage()
+    expect(screen.getByRole('link', { name: '候选' }).getAttribute('href')).toBe('#mp-candidates')
+    const section = screen.getByRole('region', { name: '候选指标检验' })
+    expect(section.textContent).toContain('2026-11-23 预注册')
+    expect(section.textContent).toContain('v2.1（实时数据口径）')
+    expect(screen.getByTestId('mp-candidate-verdict-adopted').textContent).toBe('采用')
+    expect(screen.getByTestId('mp-candidate-verdict-watched').textContent).toBe('观察')
+    expect(screen.getByTestId('mp-candidate-verdict-rejected').textContent).toBe('不采用')
+    expect(screen.getByTestId('mp-candidates-watch-note').textContent).toBe('观察不代表有效，只表示没被否决。')
+
+    const adopted = screen.getByTestId('mp-candidate-adopted')
+    expect(adopted.textContent).toContain('增长与就业')
+    expect(adopted.textContent).toContain('德鲁肯米勒、达利欧')
+    expect(adopted.textContent).toContain('约 53.8 年')
+    expect(adopted.textContent).toContain('先验规则')
+    fireEvent.click(within(adopted).getByText('展开对照表与逐项检验'))
+    const table = screen.getByTestId('mp-candidate-table-adopted')
+    expect(within(table).getAllByRole('row')).toHaveLength(16)
+    expect(table.textContent).toContain('全样本')
+    expect(table.textContent).toContain('前段')
+    expect(table.textContent).toContain('后段')
+    expect(table.textContent).toContain('+0.1 个百分点')
+    expect(table.textContent).toContain('+0.03')
+    expect(table.querySelector('td.is-positive')).toBeTruthy()
+    expect(screen.getByTestId('mp-candidate-check-adopted-sharpeBoth').textContent).toContain('通过')
+
+    const rejected = screen.getByTestId('mp-candidate-rejected')
+    fireEvent.click(within(rejected).getByText('展开对照表与逐项检验'))
+    expect(screen.getByTestId('mp-candidate-check-rejected-sharpeBoth').textContent).toContain('未通过')
+    expect(screen.getByTestId('mp-candidates-combined').textContent).toContain('制造业周工时')
+    expect(screen.getByTestId('mp-candidates-combined').textContent).toContain('全部采用项合测满足前四项标准。')
+  })
+
+  it('候选窄屏表只列指标、时段、差值，基准与加入后保留在 title', () => {
+    renderPage()
+    const adopted = screen.getByTestId('mp-candidate-adopted')
+    fireEvent.click(within(adopted).getByText('展开对照表与逐项检验'))
+    const desktop = screen.getByTestId('mp-candidate-table-adopted')
+    expect(within(desktop).getAllByRole('columnheader').map(cell => cell.textContent)).toEqual(['时段', '指标', '基准', '加入后', '差值'])
+
+    const mobile = screen.getByTestId('mp-candidate-table-mobile-adopted')
+    expect(within(mobile).getAllByRole('columnheader').map(cell => cell.textContent)).toEqual(['指标', '时段', '差值'])
+    expect(within(mobile).getAllByRole('row')).toHaveLength(16)
+    const firstDelta = mobile.querySelector('tbody td:last-child')
+    expect(firstDelta?.textContent).toBe('+0.1 个百分点')
+    expect(firstDelta?.getAttribute('title')).toBe('基准 10.0%；加入后 10.1%')
+  })
+
+  it('候选当前读数只展示；没有采用项时提示核心规则不变', () => {
+    renderPage()
+    expect(screen.getByTestId('mp-candidate-current-watched').textContent).toContain('若计入：−1 分')
+    expect(screen.getByTestId('mp-candidate-watched').textContent).toContain('−0.024')
+    expect(screen.getByTestId('mp-candidate-watched').textContent).not.toContain('-0.024')
+    expect(screen.queryByTestId('mp-candidate-current-adopted')).toBeNull()
+    expect(screen.queryByTestId('mp-candidates-none-adopted')).toBeNull()
+    const data = candidatesFixture()
+    cleanup()
+    renderPage(undefined, undefined, undefined, { status: 'ready', data: { ...data, combined: undefined, candidates: data.candidates.map(c => ({ ...c, verdict: c.verdict === 'adopt' ? 'watch' : c.verdict })) } })
+    expect(screen.getByTestId('mp-candidates-none-adopted').textContent).toContain('核心规则保持 v2.1')
+    cleanup()
+    renderPage(undefined, undefined, undefined, { status: 'ready', data: { ...data, candidates: data.candidates.map(c => ({ ...c, verdict: c.verdict === 'watch' ? 'reject' : c.verdict })) } })
+    expect(screen.queryByTestId('mp-candidates-watch-note')).toBeNull()
+  })
+
+  it('候选数据加载失败只显示局部提示，不影响综合结论', () => {
+    renderPage(
+      '/invest/macro-posture',
+      { status: 'ready', data: compositeFixture() },
+      { status: 'ready', data: fixtureData },
+      { status: 'error', message: 'HTTP 500' },
+    )
+    expect(screen.getByTestId('mp-candidates-error').textContent).toBe('候选指标检验暂时无法读取，不影响本页其他结论。')
+    expect(screen.getByTestId('mp-tier-name').textContent).toBe('偏进攻')
+    expect(screen.getByTestId('mp-backtest-variants')).toBeTruthy()
   })
 })

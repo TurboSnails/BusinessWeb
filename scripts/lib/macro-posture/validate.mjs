@@ -1,5 +1,5 @@
 import { COMPONENTS, PILLARS, RULE_VERSION, TIERS } from './model.mjs'
-import { LIVE_RULE_VERSION, LIVE_SINCE, TRADE_COSTS } from './backtest.mjs'
+import { BASE_VARIANT_IDS, LIVE_RULE_VERSION, LIVE_SINCE, TRADE_COSTS, VARIANT_IDS, VINTAGE_SOURCE } from './backtest.mjs'
 
 const nonempty = v => typeof v === 'string' && v.length > 0
 const number = Number.isFinite
@@ -34,7 +34,8 @@ const texts = list(nonempty)
 const threshold = shape({ threshold: number, score, text: nonempty })
 const move = shape({ tier, scoreGap: n => number(n) && n >= 0, text: nonempty })
 
-const tierDef = shape({ id: tier, label: nonempty, equityShare: ratio, range: nonempty, meaning: nonempty })
+const actions = (value, path) => texts(value, path) && value.length >= 2 && value.length <= 4
+const tierDef = shape({ id: tier, label: nonempty, equityShare: ratio, range: nonempty, meaning: nonempty, actions: optional(actions) })
 const componentState = shape({
   id: component, pillar, label: nonempty, masters: texts, value: nullableNumber, unit: nonempty,
   display: nonempty, observedOn: nullable(isoDate), availableOn: nullable(isoDate), stale: boolean,
@@ -81,7 +82,6 @@ const outerItem = shape({
   uncertainty: shape({ kind: oneOf('历史太短', '授权受限', '修订偏差', '择时力弱', '与核心重复', '尚未接入'), text: nonempty }),
   promote: nonempty, masters: texts, source: optional(nonempty),
 })
-const variantIds = ['full', 'v20', 'macro', 'trend', 'static70', 'buyhold']
 const tierStat = shape({
   months: int, share: ratio, fwd3: nullableNumber, fwd6: nullableNumber, fwd12: nullableNumber,
   fwd12Median: nullableNumber, neg12: nullable(ratio), maxDd12: nullableNumber,
@@ -90,7 +90,7 @@ const backtest = shape({
   start: isoMonth, end: isoMonth, months: int, disclosures: texts,
   tiers: shape(Object.fromEntries(tierIds.map(id => [id, tierStat]))),
   variants: list(shape({
-    id: oneOf(...variantIds), label: nonempty, cagr: number, vol: number, maxDd: number,
+    id: oneOf(...VARIANT_IDS), label: nonempty, cagr: number, vol: number, maxDd: number,
     sharpe: number, calmar: number, avgEquity: ratio, switchesPerYear: number,
   })),
   recessions: list(shape({
@@ -117,7 +117,8 @@ export function validateComposite(file) {
   check(composite, file, 'root')
   const sameKeys = (actual, expected) => actual.length === expected.length && expected.every(id => actual.includes(id))
   check(ids => sameKeys(ids, tierIds), file.tiers.map(t => t.id), 'root.tiers')
-  check(ids => ids.length === variantIds.length && ids.every((id, i) => id === variantIds[i]),
+  const expectedVariants = file.failedSources.includes(VINTAGE_SOURCE) ? [VARIANT_IDS, BASE_VARIANT_IDS] : [VARIANT_IDS]
+  check(ids => expectedVariants.some(expected => ids.length === expected.length && ids.every((id, i) => id === expected[i])),
     file.backtest.variants.map(v => v.id), 'root.backtest.variants')
   check(ids => sameKeys(ids, PILLARS.map(p => p.id)), file.current.pillars.map(p => p.id), 'root.current.pillars')
   const { score: regimeScore } = file.current.regime

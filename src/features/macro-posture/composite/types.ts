@@ -15,12 +15,14 @@ export type TierDef = {
   equityShare: number      // 0.3 – 1，占用户自设股票上限的比例
   range: string            // 「R ≥ 0.50」这类说明
   meaning: string          // 一句大白话
+  /** 风险预算：该档的组合结构倾向（2–4 条），不是个股建议 */
+  actions?: string[]
 }
 
 export type Threshold = { threshold: number; score: ComponentScore; text: string }
 
 export type ComponentState = {
-  id: string               // sahm / claims / payrolls / indpro / baaLevel / baaChange / nfciCredit / fedPath / curve / nfci / realRate / corePce
+  id: string               // sahm / claims / payrolls / indpro / hours（v2.2）/ baaLevel / baaChange / nfciCredit / fedPath / curve / nfci / realRate / corePce
   pillar: PillarId
   label: string
   masters: string[]        // 对应大师中文名
@@ -143,7 +145,7 @@ export type TierStats = {
 }
 
 export type Variant = {
-  id: 'full' | 'v20' | 'macro' | 'trend' | 'static70' | 'buyhold'
+  id: 'full' | 'realtime' | 'noNfci' | 'v21' | 'v20' | 'macro' | 'trend' | 'static70' | 'buyhold'
   label: string
   cagr: number
   vol: number
@@ -188,3 +190,32 @@ export type CompositeState =
   | { status: 'loading' }
   | { status: 'error'; message: string }
   | { status: 'ready'; data: CompositeFile }
+
+// ---- 候选指标检验（public/data/macro-posture-candidates.json，由 scripts/macro-posture-research.mjs 生成） ----
+export type CandidateMetrics = { cagr: number; vol: number; maxDd: number; sharpe: number; avgEquity: number; recessionsCaught: number; falseAlarmMonths: number }
+export type CandidateResult = {
+  id: string
+  name: string
+  pillar: PillarId | 'cap'
+  masters: string[]
+  data: string              // 数据来源与可用起点，如「2 年期美债减联邦基金利率，1976 年起」
+  rule: string              // 预注册的先验规则全文
+  historyYears: number
+  split: string             // 子样本切分，如「1976–1999 / 2000–2026」
+  baseline: { full: CandidateMetrics; early: CandidateMetrics; late: CandidateMetrics }
+  withCandidate: { full: CandidateMetrics; early: CandidateMetrics; late: CandidateMetrics }
+  checks: { id: 'sharpeBoth' | 'drawdown' | 'cagr' | 'recessions' | 'history'; label: string; pass: boolean; detail: string }[]
+  verdict: 'adopt' | 'watch' | 'reject'
+  reason: string            // 大白话结论
+  /** 当前读数与「若计入」时的打分；只展示，不参与档位与置信度 */
+  current?: { display: string; score: ComponentScore | null; observedOn: string | null }
+}
+export type CandidatesFile = {
+  generatedAt: string
+  baselineLabel: string     // 如「v2.1（实时数据口径）」
+  preregistered: string     // 预注册日期与采用标准摘要
+  criteria: string[]
+  candidates: CandidateResult[]
+  combined?: { ids: string[]; withCandidate: { full: CandidateMetrics; early: CandidateMetrics; late: CandidateMetrics }; pass: boolean; detail: string }
+}
+

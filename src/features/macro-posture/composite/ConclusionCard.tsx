@@ -230,6 +230,15 @@ export default function ConclusionCard({ data }: { data: CompositeFile }): JSX.E
           <p className="mp-conclusion__share mp-conclusion__share--muted">暂不给出仓位建议</p>
         )}
         <EquityCapInput equityShare={current.final.equityShare} />
+        {tierMeta?.actions?.length ? (
+          <div className="mp-tier-actions" data-testid="mp-tier-actions">
+            <h3>这一档怎么配</h3>
+            <ul>
+              {tierMeta.actions.map(action => <li key={action}>{action}</li>)}
+            </ul>
+            <p>只是组合结构倾向，不是个股建议。</p>
+          </div>
+        ) : null}
         <div className="mp-conclusion__badges" data-testid="mp-confidence">
           <Badge tone={confidenceTone(current.confidence.level)}>
             {confidenceBadgeText(current.confidence)}

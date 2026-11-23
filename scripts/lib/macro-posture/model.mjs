@@ -1,7 +1,7 @@
 import { clean } from './panel.mjs'
 import { formatDate, formatReading as format, readingPrecision } from './format.mjs'
 
-export const RULE_VERSION = 'v2.1'
+export const RULE_VERSION = 'v2.2'
 export const TIERS = [
   { id: 'offense', label: '进攻', equityShare: 1, min: 0.50, meaning: '多数宏观信号支持承担股票风险。' },
   { id: 'lean-offense', label: '偏进攻', equityShare: 0.85, min: 0.15, meaning: '宏观信号整体有利，可以保留较高的股票敞口。' },
@@ -10,8 +10,17 @@ export const TIERS = [
   { id: 'defense', label: '防守', equityShare: 0.3, max: -0.75, meaning: '风险信号集中出现，股票仓位维持最低档。' },
 ]
 
+const TIER_ACTIONS = {
+  offense: ['股票仓位可用足自设风险额度。', '在分散配置的前提下，可保留成长股和小盘股。'],
+  'lean-offense': ['维持常规股票配置。', '控制单一行业的仓位集中度。'],
+  neutral: ['股票配置偏向盈利质量高、现金流稳定的公司。', '降低组合杠杆。'],
+  'lean-defense': ['降低高估值、主要依赖远期盈利的成长股比重。', '减少小盘股和高杠杆公司的敞口。', '提高现金和短期债券比重。'],
+  defense: ['股票部分集中于质量高、资产负债表稳健的公司。', '组合以现金和短期债券为主。'],
+}
+
 export const TIER_DEFS = TIERS.map(({ min, max, ...tier }) => ({
   ...tier,
+  actions: TIER_ACTIONS[tier.id],
   range: tier.id === 'offense' ? `R ≥ ${min.toFixed(2)}`
     : tier.id === 'lean-offense' ? `${min.toFixed(2)} ≤ R < ${TIERS[0].min.toFixed(2)}`
       : tier.id === 'neutral' ? `${TIERS[3].max.toFixed(2)} < R < ${TIERS[1].min.toFixed(2)}`
@@ -41,6 +50,8 @@ export const COMPONENTS = [
   { id: 'claims', pillar: 'growth', label: '初请失业救济', unit: '%', fred: 'IC4WSA', name: '较一年低点的升幅', rules: simple(['≥', 30], ['≥', 15], ['≤', 5]) },
   { id: 'payrolls', pillar: 'growth', label: '非农就业', unit: '%', fred: 'PAYEMS', name: '近三个月平均月增幅', rules: simple(['<', 0], ['<', 0.05], ['>', 0.12]) },
   { id: 'indpro', pillar: 'growth', label: '工业生产', unit: '%', fred: 'INDPRO', name: '半年年化增速', rules: simple(null, ['<', -2], ['>', 2]) },
+  { id: 'hours', pillar: 'growth', label: '制造业周工时', unit: '小时', fred: 'AWHMAN', name: '半年变化',
+    masters: ['德鲁肯米勒', '达利欧'], rules: simple(null, ['≤', -0.5], ['≥', 0.3]) },
   { id: 'baaLevel', pillar: 'credit', label: '企业债利差位置', unit: '百分位', fred: 'BAA', name: '十年内的利差百分位', rules: simple(['≥', 90], ['≥', 75], ['≤', 35]) },
   { id: 'baaChange', pillar: 'credit', label: '企业债利差变化', unit: '百分点', fred: 'BAA', name: '半年内的利差变化', rules: simple(['≥', 0.40], ['≥', 0.20], ['≤', -0.15]) },
   { id: 'nfciCredit', pillar: 'credit', label: '信贷条件', unit: '点', fred: 'NFCICREDIT', name: '信用分项水平', fields: { delta: ['十三周变化', '点'] }, rules: [
@@ -97,7 +108,8 @@ export function scoreComponent(def, reading) {
 const field = (def, key) => key === 'value' ? [def.name, def.unit] : def.fields[key]
 const distanceNames = {
   sahm: '失业率较低点的升幅', claims: '初请人数较一年低点的升幅', payrolls: '非农近三个月月均增幅',
-  indpro: '工业生产半年年化增速', baaLevel: '企业债利差的十年历史位置', baaChange: '企业债利差半年变化',
+  indpro: '工业生产半年年化增速', hours: '制造业周工时半年变化',
+  baaLevel: '企业债利差的十年历史位置', baaChange: '企业债利差半年变化',
   nfciCredit: '信用条件水平', fedPath: '联储利率一年变化', curve: '长短利率差',
   nfci: '整体金融条件水平', realRate: '实际政策利率', corePce: '核心通胀半年年化增速',
 }
@@ -245,10 +257,26 @@ export function classify(pillars, scores, below, creditDelta) {
   }
 }
 
+function evaluateComponents(frame, definitions, creditDelta) {
+  const scores = Object.fromEntries(definitions.map(def => [def.id, scoreComponent(def, frame.components[def.id])]))
+  const pillars = Object.fromEntries(PILLARS.map(({ id }) => [id, pillarScore(definitions.filter(def => def.pillar === id).map(def => scores[def.id]))]))
+  return { ...classify(pillars, scores, frame.tactical.below, creditDelta), scores, pillars }
+}
+
 export function evaluate(frame) {
-  const scores = Object.fromEntries(COMPONENTS.map(def => [def.id, scoreComponent(def, frame.components[def.id])]))
-  const pillars = Object.fromEntries(PILLARS.map(({ id }) => [id, pillarScore(COMPONENTS.filter(def => def.pillar === id).map(def => scores[def.id]))]))
-  return { ...classify(pillars, scores, frame.tactical.below, frame.components.nfciCredit?.delta), scores, pillars }
+  return evaluateComponents(frame, COMPONENTS, frame.components.nfciCredit?.delta)
+}
+
+const WITHOUT_NFCI = COMPONENTS.filter(({ id }) => id !== 'nfci' && id !== 'nfciCredit')
+export const V21_COMPONENTS = COMPONENTS.filter(({ id }) => id !== 'hours')
+
+export function evaluateV21(frame) {
+  return evaluateComponents(frame, V21_COMPONENTS, frame.components.nfciCredit?.delta)
+}
+
+export function evaluateWithoutNfci(frame) {
+  // With the NFCI condition omitted, the trend and corporate spread still govern repair.
+  return evaluateComponents(frame, WITHOUT_NFCI, 0)
 }
 
 function tacticalDistance(regime, mtd) {
@@ -315,6 +343,7 @@ const reasonDetails = {
   claims: ['裁员压力较低', '新增失业申领已有回升', '裁员压力上升'],
   payrolls: ['就业增长有支撑', '就业增长平缓', '就业降温'],
   indpro: ['生产有支撑', '生产增速处在中间区间', '生产走弱'],
+  hours: ['工时回升支持增长', '工时变化处在中间区间', '工时缩短提示增长走弱'],
   baaLevel: ['信用风险溢价偏低', '信用风险溢价居中', '信用风险溢价偏高'],
   baaChange: ['信用利差在收窄', '利差变化较温和', '借钱的风险溢价在上升'],
   nfciCredit: ['信贷环境宽松', '信贷松紧信号居中', '信贷条件偏紧或在收紧'],
@@ -342,7 +371,7 @@ function leadingReasons(pillars, frame, readingPrecisions) {
       : ['nfciCredit', 'nfci'].includes(id) && Number.isFinite(reading.delta) ? `（十三周变化 ${format(reading.delta, '点')}）`
         : id === 'corePce' && Number.isFinite(reading.yoy) ? `（同比 ${format(reading.yoy, '%')}）` : ''
     const name = id === 'baaLevel' ? '企业债利差处于十年来' : distanceNames[id] + ' '
-    const sign = id === 'indpro' && value > 0 ? '+' : ''
+    const sign = ['indpro', 'hours'].includes(id) && value > 0 ? '+' : ''
     return `${name}${sign}${format(value, unit, readingPrecisions.get(id))}${context}，${reasonDetails[id][1 - Math.sign(score)]}。`
   })
   if (reasons.length === 0) reasons.push(frame.tactical.display ?? '已完结月份的趋势读数暂缺。')
@@ -381,8 +410,8 @@ export function buildCurrent(asOf, frame, historical, outer) {
           `${field(def, key)[0]} ${format(reading[key], field(def, key)[1], precisionFor(key))}`,
         ] : [])
         return {
-          id: def.id, pillar: id, label: def.label, masters, value, unit: def.unit,
-          display: value == null ? '暂无足够读数' : `${def.name} ${format(value, def.unit, valuePrecision)}（${[formatDate(reading.observedOn,
+          id: def.id, pillar: id, label: def.label, masters: def.masters ?? masters, value, unit: def.unit,
+          display: value == null ? '暂无足够读数' : `${def.name} ${def.id === 'hours' && value > 0 ? '+' : ''}${format(value, def.unit, valuePrecision)}（${[formatDate(reading.observedOn,
             ['IC4WSA', 'NFCICREDIT', 'NFCI'].includes(def.fred) ? 'weekly' : 'monthly'), ...context].join('，')}）`,
           observedOn: reading?.observedOn ?? null, availableOn: reading?.availableOn ?? null,
           stale: reading?.stale ?? false, score, rule: ruleText(def),

@@ -163,16 +163,17 @@ describe('SummaryCard', () => {
     expect(screen.queryByText(/短线预警/)).toBeNull()
   })
 
-  it('底部展示完整模型与同期持有标普的回测年化及最大回撤', async () => {
+  it('底部展示最保守口径与同期持有标普的回测年化及最大回撤', async () => {
     const data = fixture()
     data.backtest.variants = [
       { id: 'full', label: '完整模型', cagr: 0.092, vol: 0.121, maxDd: -0.28, sharpe: 0.55, calmar: 0.33, avgEquity: 0.72, switchesPerYear: 1.4 },
+      { id: 'noNfci', label: '实时数据且去掉 NFCI', cagr: 0.081, vol: 0.13, maxDd: -0.31, sharpe: 0.48, calmar: 0.26, avgEquity: 0.74, switchesPerYear: 1.5 },
       { id: 'buyhold', label: '始终满仓', cagr: 0.095, vol: 0.15, maxDd: -0.45, sharpe: 0.4, calmar: 0.21, avgEquity: 1, switchesPerYear: 0 },
     ]
     const fetcher = vi.fn<typeof fetch>(async () => Response.json(data))
     renderCard(fetcher)
 
-    expect(await screen.findByText('回测 1973 年以来：年化 9.2% / 最大回撤 −28.0%，同期持有标普 9.5% / −45.0%')).toBeTruthy()
+    expect(await screen.findByText('回测 1973 年以来（最保守口径）：年化 8.1% / 最大回撤 −31.0%，同期持有标普 9.5% / −45.0%')).toBeTruthy()
   })
 
   it('最终档位为 null 时显示证据不足，不输出无效仓位', async () => {

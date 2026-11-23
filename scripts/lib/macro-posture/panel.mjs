@@ -16,7 +16,7 @@ export const monthEnd = (date, offset = 0) => {
 }
 
 export const RELEASE_MONTHS = Object.freeze({
-  SAHMREALTIME: 1, PAYEMS: 1, INDPRO: 1, PCEPILFE: 2,
+  SAHMREALTIME: 1, PAYEMS: 1, INDPRO: 1, AWHMAN: 1, PCEPILFE: 2,
   BAA: 0, AAA: 0, FEDFUNDS: 0, GS10: 0, TB3MS: 0, price: 0, yield: 0,
 })
 const WEEKLY_IDS = ['IC4WSA', 'NFCI', 'NFCICREDIT']
@@ -139,6 +139,7 @@ export function panelAt(panel, date, estimateDate = date, spxSource = FRED_SPX) 
   const jobChange = jobsMonths.length && jobsMonths.every(Boolean) ? percentChange(jobs.value, jobsMonths[3].value) : null
   const industry = latest('INDPRO')
   const industryPrior = prior('INDPRO', industry, 6)
+  const hours = latest('AWHMAN')
   const baa = latest('baa')
   const baaMonths = monthlyWindow(panel.baa, baa, 120, date)
   const funds = latest('FEDFUNDS')
@@ -162,7 +163,7 @@ export function panelAt(panel, date, estimateDate = date, spxSource = FRED_SPX) 
 
   return {
     observations: {
-      monthly: lastObserved(['SAHMREALTIME', 'PAYEMS', 'INDPRO', 'PCEPILFE', 'FEDFUNDS', 'GS10', 'TB3MS']),
+      monthly: lastObserved(['SAHMREALTIME', 'PAYEMS', 'INDPRO', 'AWHMAN', 'PCEPILFE', 'FEDFUNDS', 'GS10', 'TB3MS']),
       weekly: lastObserved(WEEKLY_IDS),
       credit: baa?.observedOn,
       spx: estimateDate && valueAt(panel.SP500, estimateDate)?.observedOn,
@@ -172,6 +173,7 @@ export function panelAt(panel, date, estimateDate = date, spxSource = FRED_SPX) 
       claims: simple('IC4WSA', claims, claimWeeks.length === 52 ? percentChange(claims.value, Math.min(...claimWeeks.map(p => p.value))) : null),
       payrolls: simple('PAYEMS', jobs, jobChange == null ? null : jobChange / 3),
       indpro: simple('INDPRO', industry, industryPrior ? percentChange(industry.value, industryPrior.value, 2) : null),
+      hours: simple('AWHMAN', hours, change(hours, prior('AWHMAN', hours, 6))),
       baaLevel: simple('baa', baa, baaMonths.length === 120 && baaMonths.every(Boolean) ? percentile(baa.value, baaMonths.map(p => p.value)) : null),
       baaChange: simple('baa', baa, change(baa, prior('baa', baa, 6))),
       nfciCredit: weekly('NFCICREDIT'),

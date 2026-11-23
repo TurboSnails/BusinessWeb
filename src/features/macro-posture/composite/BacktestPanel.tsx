@@ -12,25 +12,16 @@ const TIER_LABEL: Record<TierId, string> = {
   defense: '防守',
 }
 
-const VARIANT_ORDER: Variant['id'][] = ['full', 'v20', 'macro', 'trend', 'static70', 'buyhold']
-
-function orderVariants(rows: Variant[]): Variant[] {
-  const rank = new Map(VARIANT_ORDER.map((id, i) => [id, i]))
-  return [...rows].sort((a, b) => (rank.get(a.id) ?? 99) - (rank.get(b.id) ?? 99))
+function conservativeVariant(variants: Variant[]): Variant | undefined {
+  return variants.find(variant => variant.id === 'noNfci')
 }
 
 function variantReadout(variants: Variant[]): string | null {
-  const full = variants.find(v => v.id === 'full')
+  const conservative = conservativeVariant(variants)
   const hold = variants.find(v => v.id === 'buyhold')
-  if (!full || !hold) return null
-  const cagrGap = full.cagr - hold.cagr
-  const ddGap = full.maxDd - hold.maxDd
-  const sharpeGap = full.sharpe - hold.sharpe
-  const cagrTxt = formatPct1(cagrGap, { signed: true })
-  const ddTxt = formatPct1(ddGap, { signed: true })
-  const sharpeTxt = formatNum2(sharpeGap)
-  const sharpeSigned = sharpeGap > 0 ? `+${sharpeTxt}` : sharpeTxt
-  return `完整模型相对全程持有：年化差 ${cagrTxt}，最大回撤差 ${ddTxt}，夏普差 ${sharpeSigned}。`
+  if (!conservative || !hold || hold.maxDd === 0) return null
+  const drawdownShare = Math.abs(conservative.maxDd / hold.maxDd) * 10
+  return `按最保守口径，年化 ${formatPct1(conservative.cagr)}、最大回撤 ${formatPct1(conservative.maxDd)}，仍约为持有标普回撤的 ${drawdownShare.toFixed(1)} 成。`
 }
 
 function defenseNote(tiers: Backtest['tiers']): string | null {
@@ -52,7 +43,9 @@ function formatReturnCell(value: number | null | undefined): string {
 export default function BacktestPanel({ data }: { data: CompositeFile }): JSX.Element {
   const bt: Backtest = data.backtest
   const tierDefs = new Map(data.tiers.map(t => [t.id, t]))
-  const variants = useMemo(() => orderVariants(bt.variants), [bt.variants])
+  const variants = bt.variants
+  const conservative = conservativeVariant(variants)
+  const buyhold = variants.find(variant => variant.id === 'buyhold')
   const readout = useMemo(() => variantReadout(bt.variants), [bt.variants])
   const singles = bt.singles ?? []
   const costs = bt.costs
@@ -62,8 +55,11 @@ export default function BacktestPanel({ data }: { data: CompositeFile }): JSX.El
   return (
     <section className="mp-backtest" id="mp-backtest" aria-labelledby="mp-backtest-title">
       <h2 id="mp-backtest-title">回测</h2>
-      <p className="mp-section-lead">
-        {bt.start} 至 {bt.end}，共 {bt.months} 个月。下方是完整模型相对几种简化规则的对照。
+      <p className="mp-section-lead" data-testid="mp-backtest-summary">
+        {bt.start} 至 {bt.end}，共 {bt.months} 个月。
+        {conservative && buyhold ? (
+          <>最保守口径（实时数据且去掉金融条件指数）：年化 {formatPct1(conservative.cagr)}、最大回撤 {formatPct1(conservative.maxDd)}；同期持有标普 {formatPct1(buyhold.cagr)}、{formatPct1(buyhold.maxDd)}。</>
+        ) : '下方是完整模型相对几种简化规则的对照。'}
       </p>
 
       <h3>时间线</h3>
@@ -88,7 +84,7 @@ export default function BacktestPanel({ data }: { data: CompositeFile }): JSX.El
             {variants.map(row => (
               <tr
                 key={row.id}
-                className={row.id === 'full' ? 'is-highlight' : undefined}
+                className={row.id === 'noNfci' ? 'is-highlight' : undefined}
                 data-variant={row.id}
               >
                 <th scope="row">{row.label}</th>
@@ -104,6 +100,11 @@ export default function BacktestPanel({ data }: { data: CompositeFile }): JSX.El
           </tbody>
         </table>
       </TableWrap>
+      <ul className="mp-backtest__variant-notes" data-testid="mp-variant-notes">
+        <li><strong>完整模型</strong>＝修订后数据。</li>
+        <li><strong>实时数据</strong>＝当时已发布版本（缺当时版本的早年月份沿用修订值）。</li>
+        <li><strong>去掉金融条件指数</strong>＝再排除 2011 年前回推的金融条件指数（最保守口径）。</li>
+      </ul>
       {readout ? (
         <p className="mp-backtest__readout" data-testid="mp-variants-readout">{readout}</p>
       ) : null}

@@ -1,18 +1,21 @@
 import assert from 'node:assert/strict'
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { performance as clock } from 'node:perf_hooks'
 import test from 'node:test'
 import {
-  applyTactical, baseTier, buildCurrent, classify, COMPONENTS, evaluate, pillarScore, scoreComponent,
+  applyTactical, baseTier, buildCurrent, classify, COMPONENTS, evaluate, evaluateV21, evaluateWithoutNfci, pillarScore, scoreComponent,
 } from './lib/macro-posture/model.mjs'
 import {
-  alignVariants, drawdown, falseAlarms, horizon, monthlyReturns, performance, recessionCapture, transactionCosts, updateLive,
+  alignVariants, backtestMonthEnds, DISCLOSURES, drawdown, falseAlarms, horizon, HOURS_LATE_SHARPE_IMPROVEMENT, monthlyReturns,
+  performance, recessionCapture, transactionCosts, updateLive,
 } from './lib/macro-posture/backtest.mjs'
 import { addDays, FRED_SPX, makePanel, makeSeries, monthEnd, panelAt, valueAt } from './lib/macro-posture/panel.mjs'
 import { remainingSessions } from './lib/macro-posture/calendar.mjs'
 import { buildOuter } from './lib/macro-posture/outer.mjs'
 import { formatDate, formatReading } from './lib/macro-posture/format.mjs'
+import { loadVintages, panelWithVintages, selectVintage } from './lib/macro-posture/vintages.mjs'
 import { FRED_IDS, mergeSpxCloses, parseMonthlyTable, refreshMacroPosture, validateComposite } from './macro-posture.mjs'
 
 const near = (actual, expected) => assert.ok(Math.abs(actual - expected) < 1e-10, `${actual} ≠ ${expected}`)
@@ -24,6 +27,7 @@ const boundaries = {
   claims: [[5, 1], [5.0001, 0], [14.9999, 0], [15, -1], [29.9999, -1], [30, -2]],
   payrolls: [[-0.0001, -2], [0, -1], [0.0499, -1], [0.05, 0], [0.12, 0], [0.1201, 1]],
   indpro: [[-2.0001, -1], [-2, 0], [2, 0], [2.0001, 1]],
+  hours: [[-0.5001, -1], [-0.5, -1], [-0.4999, 0], [0.2999, 0], [0.3, 1], [0.3001, 1]],
   baaLevel: [[35, 1], [35.0001, 0], [74.9999, 0], [75, -1], [89.9999, -1], [90, -2]],
   baaChange: [[-0.15, 1], [-0.1499, 0], [0.1999, 0], [0.20, -1], [0.3999, -1], [0.40, -2]],
   nfciCredit: [
@@ -146,10 +150,11 @@ test('repair lifts exactly one defensive tier after breakers and tactical adjust
   assert.equal(classify({ ...weak, growth: 0 }, scores, false, -0.05).repair.active, false)
 })
 
-test('full and v20 carry identical macro and trend rules and diverge only when repair fires', () => {
+test('v21 and v20 diverge only when repair fires', () => {
   const components = {
     sahm: { value: 0.6 },
     payrolls: { value: 0.14 },
+    hours: { value: 0 },
     baaLevel: { value: 50 },
     baaChange: { value: 0 },
     nfciCredit: { value: 0, delta: 0 },
@@ -159,13 +164,91 @@ test('full and v20 carry identical macro and trend rules and diverge only when r
     { components: { ...components, nfciCredit: { value: 0, delta: 0.01 } }, tactical: { below: false } },
     { components, tactical: { below: true } },
   ].map((frame, i) => {
-    const result = evaluate(frame)
-    return { d: `2025-0${i + 1}`, final: result.final.tier, regime: result.regime.tier, below: frame.tactical.below }
+    const v21 = evaluateV21(frame)
+    const full = evaluate(frame)
+    return {
+      d: `2025-0${i + 1}`, final: full.final.tier, regime: full.regime.tier,
+      v21Final: v21.final.tier, v21Regime: v21.regime.tier, below: frame.tactical.below,
+    }
   })
   const returns = new Map(['2025-03', '2025-04', '2025-05'].map(d => [d, { spx: 0.01, cash: 0.002 }]))
-  assert.deepEqual(alignVariants(signals, returns).map(row => row.weights.slice(0, 2)), [
+  assert.deepEqual(alignVariants(signals, returns).map(row => row.weights.slice(1, 3)), [
     [0.7, 0.5], [0.5, 0.5], [0.3, 0.3],
   ])
+})
+
+test('v21 and full differ only by the manufacturing hours component', () => {
+  const frame = {
+    components: {
+      sahm: { value: 0.6 }, claims: { value: 7 }, payrolls: { value: 0.14 }, indpro: { value: 1 },
+      baaLevel: { value: 50 }, baaChange: { value: 0 }, nfciCredit: { value: 0, delta: 0 },
+      hours: { value: 0.3 },
+    },
+    tactical: { below: false },
+  }
+  const v21 = evaluateV21(frame)
+  const full = evaluate(frame)
+  const { hours, ...rest } = full.scores
+  assert.equal(hours, 1)
+  assert.deepEqual(rest, v21.scores)
+  assert.equal(v21.pillars.growth, -0.25)
+  assert.equal(full.pillars.growth, 0)
+  assert.deepEqual({ ...full.pillars, growth: v21.pillars.growth }, v21.pillars)
+  assert.deepEqual(evaluateV21({ ...frame, components: { ...frame.components, hours: { value: -0.5 } } }), v21)
+})
+
+test('manufacturing hours respect the next month end in revised and ALFRED data', () => {
+  const march = '2025-03-01'
+  const september = '2025-09-01'
+  const october = '2025-10-01'
+  const asOf = '2025-10-31'
+  const rows = [['2025-02-01', 40], [march, 40.1], [september, 40.5], [october, 41]]
+  const panel = makePanel({ AWHMAN: rows })
+  assert.equal(panelAt(panel, '2025-10-30').components.hours.value, null)
+  assert.deepEqual(panelAt(panel, asOf).components.hours, {
+    observedOn: september, availableOn: asOf, value: 0.4, stale: false,
+  })
+  const reading = buildCurrent(asOf, panelAt(panel, asOf), [], []).pillars[0].components.find(({ id }) => id === 'hours')
+  assert.equal(reading.display, '半年变化 +0.4 小时（2025 年 9 月）')
+  const vintages = Object.fromEntries(['PAYEMS', 'INDPRO', 'PCEPILFE', 'IC4WSA'].map(id => [id, { [asOf]: null }]))
+  const realtime = panelWithVintages(panel, {
+    ...vintages, AWHMAN: { [asOf]: { vintage: '2025-10-15', rows: [[march, 40.1], [september, 39.6], [october, 999]] } },
+  }, asOf)
+  assert.deepEqual(panelAt(realtime, asOf).components.hours, {
+    observedOn: september, availableOn: asOf, value: -0.5, stale: false,
+  })
+  const fallback = panelWithVintages(panel, { ...vintages, AWHMAN: { [asOf]: { fallback: 'revised' } } }, asOf)
+  assert.deepEqual(panelAt(fallback, asOf).components.hours, panelAt(panel, asOf).components.hours)
+})
+
+test('manufacturing hours disclosure matches the preregistered late-sample result', async () => {
+  const report = JSON.parse(await readFile(new URL('../public/data/macro-posture-candidates.json', import.meta.url), 'utf8'))
+  const hours = report.candidates.find(({ id }) => id === 'hours')
+  assert.equal(hours.verdict, 'adopt')
+  assert.deepEqual(components.hours.masters, hours.masters)
+  const delta = hours.withCandidate.late.sharpe - hours.baseline.late.sharpe
+  assert.equal(HOURS_LATE_SHARPE_IMPROVEMENT, Number(delta.toFixed(3)))
+  assert.ok(DISCLOSURES.some(line => line.includes(`夏普改善约 ${HOURS_LATE_SHARPE_IMPROVEMENT}`)))
+})
+
+test('noNfci excludes only both NFCI components and keeps repair on trend and corporate spreads', () => {
+  const frame = {
+    components: {
+      sahm: { value: 0.6 }, payrolls: { value: 0.14 }, hours: { value: 0 },
+      baaLevel: { value: 50 }, baaChange: { value: 0 },
+      nfci: { value: 0.8, delta: 0.1 }, nfciCredit: { value: 0.1, delta: 0.1 },
+      fedPath: { value: -0.1, delta6: -0.5 },
+    },
+    tactical: { below: false },
+  }
+  const full = evaluate(frame)
+  const noNfci = evaluateWithoutNfci(frame)
+  assert.deepEqual(Object.keys(full.scores).filter(id => !Object.hasOwn(noNfci.scores, id)), ['nfciCredit', 'nfci'])
+  for (const [id, reading] of Object.entries(noNfci.scores)) assert.equal(reading, full.scores[id])
+  assert.equal(noNfci.pillars.credit, full.pillars.credit)
+  assert.equal(full.repair.active, false)
+  assert.equal(noNfci.repair.active, true)
+  assert.equal(evaluateWithoutNfci({ ...frame, tactical: { below: true } }).repair.active, false)
 })
 
 test('month-to-date trend uses observed trading closes and the nine prior complete months', () => {
@@ -264,6 +347,7 @@ test('risk warnings lower confidence without altering tiers; stale overrides agr
     components: {
       sahm: { value: 0.19, observedOn: '2025-01-01' },
       claims: { value: 4, observedOn: '2025-01-04' },
+      hours: { value: 0.4, observedOn: '2025-01-01' },
       baaLevel: { value: 34, observedOn: '2025-01-01' },
       baaChange: { value: -0.2, observedOn: '2025-01-01' },
       corePce: { value: 2.4, yoy: 2.6, observedOn: '2025-01-01' },
@@ -356,7 +440,7 @@ test('cost sensitivity subtracts the change in the aligned portfolio weight from
 test('live retains frozen signals, replaces the current month, and backfills only realized t+2 returns', () => {
   const first = updateLive([], '2026-11-23', { tier: 'offense', equityShare: 1 }, new Map())
   assert.deepEqual(first, {
-    since: '2026-11-23', ruleVersion: 'v2.1',
+    since: '2026-11-23', ruleVersion: 'v2.2',
     rows: [{ d: '2026-11', final: 'offense', equityShare: 1, spxReturn: null, portfolioReturn: null }],
   })
   const latest = updateLive(first.rows, '2026-11-27', { tier: 'defense', equityShare: 0.3 }, new Map())
@@ -388,11 +472,11 @@ test('t+2 aligns signal with the correct returns and crediting cash', () => {
   const returns = monthlyReturns(panel, '2025-03-31')
   assert.equal(returns.has('2025-04'), false)
   const [first] = alignVariants([
-    { d: '2025-01', final: 'defense', regime: 'lean-defense', below: true },
-    { d: '2025-02', final: 'offense', regime: 'offense', below: false },
+    { d: '2025-01', final: 'defense', regime: 'lean-defense', v21Final: 'defense', v21Regime: 'lean-defense', below: true },
+    { d: '2025-02', final: 'offense', regime: 'offense', v21Final: 'offense', v21Regime: 'offense', below: false },
   ], returns)
   assert.equal(first.d, '2025-03')
-  assert.deepEqual(first.weights, [0.3, 0.3, 0.5, 0.5, 0.7, 1])
+  assert.deepEqual(first.weights, [0.3, 0.3, 0.3, 0.5, 0.5, 0.7, 1])
   near(first.spx, 0.102)
   near(first.cash, 0.003)
   near(first.spx * first.weights[0] + first.cash * (1 - first.weights[0]), 0.0327)
@@ -527,11 +611,164 @@ function fixtureFetcher(failures = [], months = 192) {
   }
 }
 
+async function seedVintageFixtures(directory, asOf) {
+  const vintageDirectory = join(directory, 'macro-posture-vintages')
+  const ends = backtestMonthEnds(asOf)
+  await mkdir(vintageDirectory)
+  await Promise.all(['PAYEMS', 'INDPRO', 'PCEPILFE', 'IC4WSA', 'AWHMAN'].map(id => {
+    const cache = Object.fromEntries(ends.map(date => [date, id === 'IC4WSA' ? null : [
+      date, Array.from({ length: 15 }, (_, i) => [monthEnd(date, i - 15).slice(0, 7) + '-01', 100]),
+    ]]))
+    return writeFile(join(vintageDirectory, id + '.json'), JSON.stringify(cache))
+  }))
+}
+
+test('ALFRED chooses the latest month-end vintage and rechecks a recently filled latest month once', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'macro-posture-vintages-test-'))
+  const jan = '2025-01-31'
+  const feb = '2025-02-28'
+  const vintage = '2025-02-28'
+  const calendar = ['2025-01-20', '2025-02-05', vintage, '2025-03-01']
+  assert.equal(selectVintage(calendar, jan), '2025-01-20')
+  assert.equal(selectVintage(calendar, feb), vintage)
+  assert.equal(selectVintage(calendar, '2024-12-31'), null)
+  try {
+    await Promise.all(['PAYEMS', 'INDPRO', 'PCEPILFE', 'IC4WSA'].map(id => writeFile(
+      join(directory, id + '.json'), JSON.stringify(id === 'PAYEMS'
+        ? { [jan]: ['2025-01-20', [['2024-12-01', 90]]] } : { [jan]: null, [feb]: null }),
+    )))
+    const calls = []
+    const early = new Date('2025-03-01T05:00:00Z')
+    const retry = new Date('2025-03-02T05:00:00Z')
+    function load(now, releaseDates, value) {
+      return loadVintages([jan, feb], { directory, now, fetcher: async url => {
+        const query = new URL(url).searchParams
+        calls.push({ query, time: clock.now() })
+        if (query.has('seid')) {
+          const options = releaseDates.map(date => `<option value="${date}">${date}</option>`).join('')
+          return new Response(`<select id="form_selected_vintage_dates">${options}</select>`)
+        }
+        const day = query.get('vintage_date').replaceAll('-', '')
+        return new Response(`observation_date,PAYEMS_${day}\n2025-01-01,100\n2025-02-01,${value}\n2025-03-01,999\n`)
+      } })
+    }
+    const { vintages, requests } = await load(early, calendar.slice(0, 2), 98)
+    assert.equal(requests, 2)
+    assert.equal(calls[0].query.get('seid'), 'PAYEMS')
+    assert.equal(calls[1].query.get('vintage_date'), '2025-02-05')
+    assert.ok(calls[1].time - calls[0].time >= 999)
+    const panel = makePanel({ PAYEMS: [['2025-02-01', 900]] })
+    assert.equal(valueAt(panelWithVintages(panel, vintages, jan).PAYEMS, jan).value, 90)
+    assert.equal(valueAt(panelWithVintages(panel, vintages, feb).PAYEMS, feb).value, 98)
+    assert.equal(vintages.PAYEMS[feb].fetchedAt, early.toISOString())
+    const refreshed = await load(retry, calendar, 101)
+    assert.equal(refreshed.requests, 2)
+    assert.equal(calls[3].query.get('vintage_date'), vintage)
+    assert.equal(valueAt(panelWithVintages(panel, refreshed.vintages, feb).PAYEMS, jan), null)
+    assert.deepEqual(refreshed.vintages.PAYEMS[feb], {
+      vintage, rows: [['2025-01-01', 100], ['2025-02-01', 101]], fetchedAt: retry.toISOString(), rechecked: true,
+    })
+    const offline = await loadVintages([jan, feb], {
+      directory, now: new Date('2025-03-03T05:00:00Z'), fetcher: () => assert.fail('cache hit requested ALFRED'),
+    })
+    assert.deepEqual(offline, { vintages: refreshed.vintages, requests: 0 })
+  } finally {
+    await rm(directory, { recursive: true, force: true })
+  }
+})
+
+test('ALFRED marks missing early archives and uses revised points only once released', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'macro-posture-vintages-test-'))
+  const day = '1999-12-31'
+  const now = new Date('2000-01-10T12:00:00Z')
+  try {
+    await Promise.all(['PAYEMS', 'INDPRO', 'PCEPILFE'].map(id =>
+      writeFile(join(directory, id + '.json'), JSON.stringify({ [day]: null }))))
+    const { vintages, requests } = await loadVintages([day], {
+      directory, now, fetcher: async url => {
+        assert.equal(new URL(url).searchParams.get('seid'), 'IC4WSA')
+        return new Response('<select id="form_selected_vintage_dates"><option value="2009-05-28"></option></select>')
+      },
+    })
+    assert.equal(requests, 1)
+    assert.deepEqual(JSON.parse(await readFile(join(directory, 'PCEPILFE.json'), 'utf8'))[day], { fallback: 'revised' })
+    assert.deepEqual(JSON.parse(await readFile(join(directory, 'IC4WSA.json'), 'utf8'))[day], {
+      fallback: 'revised', fetchedAt: now.toISOString(),
+    })
+    const panel = makePanel({
+      PCEPILFE: Array.from({ length: 30 }, (_, i) => [monthEnd('1998-01', i), 100 + i]),
+      IC4WSA: Array.from({ length: 75 }, (_, i) => [addDays('1998-11-07', i * 7), 200 + i]),
+      FEDFUNDS: [[day, 4]],
+    })
+    const snapshot = panelWithVintages(panel, vintages, day)
+    assert.equal(snapshot.PCEPILFE.length, 15)
+    assert.equal(snapshot.IC4WSA.length, 53)
+    assert.equal(snapshot.PCEPILFE.at(-1).observedOn, '1999-10-31')
+    assert.equal(snapshot.IC4WSA.at(-1).observedOn, '1999-12-25')
+    const { corePce, realRate, claims } = panelAt(panel, day).components
+    assert.ok([corePce, realRate, claims].every(reading => reading.value != null))
+    const revised = panelAt(snapshot, day).components
+    assert.deepEqual([revised.corePce, revised.realRate, revised.claims], [corePce, realRate, claims])
+  } finally {
+    await rm(directory, { recursive: true, force: true })
+  }
+})
+
+test('failed ALFRED keeps the previous realtime comparisons while refreshing the current reading and other backtests', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'macro-posture-test-'))
+  const output = join(directory, 'macro-posture.json')
+  const fetchCore = fixtureFetcher([], 193)
+  const warn = () => {}
+  try {
+    await seedVintageFixtures(directory, '1975-01-16')
+    const previous = await refreshMacroPosture({ directory, now: new Date('1975-01-16T12:00:00Z'), fetcher: fetchCore, warn })
+    assert.ok(!previous.failedSources.includes('历史版本数据'))
+    let attempts = 0
+    const fetcher = async url => {
+      const { hostname, pathname, searchParams } = new URL(url)
+      if (hostname === 'alfred.stlouisfed.org') {
+        attempts += 1
+        return new Response('', { status: 503 })
+      }
+      if (searchParams.get('id') === 'SAHMREALTIME') {
+        return new Response('observation_date,SAHMREALTIME\n1975-01-01,0.6\n')
+      }
+      if (pathname.includes('dividend-yield')) {
+        const response = await fetchCore(url)
+        return new Response((await response.text()).replaceAll('100.00', '80.00'))
+      }
+      return fetchCore(url)
+    }
+    const refreshed = await refreshMacroPosture({ directory, now: new Date('1975-02-16T12:00:00Z'), fetcher, warn })
+    assert.equal(attempts, 2)
+    assert.ok(refreshed.failedSources.includes('历史版本数据'))
+    assert.equal(refreshed.generatedAt, '1975-02-16T12:00:00.000Z')
+    assert.notDeepEqual(refreshed.current, previous.current)
+    assert.equal(refreshed.backtest.end, '1975-01')
+    assert.notEqual(refreshed.backtest.variants[0].cagr, previous.backtest.variants[0].cagr)
+    assert.deepEqual(refreshed.backtest.variants.slice(1, 3), previous.backtest.variants.slice(1, 3))
+    assert.ok(refreshed.backtest.disclosures.some(line => line.includes('沿用上次成功计算')))
+    const disclosures = file => file.backtest.disclosures.filter(line => line.startsWith('实时数据'))
+    assert.deepEqual(disclosures(refreshed), disclosures(previous))
+    assert.deepEqual(JSON.parse(await readFile(output, 'utf8')), refreshed)
+
+    await rm(output)
+    const first = await refreshMacroPosture({ directory, now: new Date('1975-02-16T12:00:00Z'), fetcher, warn })
+    assert.ok(first.failedSources.includes('历史版本数据'))
+    assert.equal(first.backtest.variants.length, 7)
+    assert.deepEqual(first.current, refreshed.current)
+    assert.equal(first.backtest.end, refreshed.backtest.end)
+  } finally {
+    await rm(directory, { recursive: true, force: true })
+  }
+})
+
 test('refresh merges the local S&P slice and retains the prior live rows across output writes', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'macro-posture-test-'))
   const output = join(directory, 'macro-posture.json')
   const fetcher = fixtureFetcher([], 817)
   try {
+    await seedVintageFixtures(directory, '2027-02-01')
     await writeFile(join(directory, 'us-market-slices.json'), JSON.stringify({
       slices: [{ id: 'spx', symbol: '^GSPC', history: [['2026-11-20', 90]] }],
     }))
@@ -567,6 +804,7 @@ test('failed USREC reuses only matching valid monthly marks and can refresh with
   const output = join(directory, 'macro-posture.json')
   const options = { directory, now: new Date('1975-01-16T00:00:00Z'), fetcher: fixtureFetcher(['USREC']) }
   try {
+    await seedVintageFixtures(directory, '1975-01-16')
     for (let attempt = 0; attempt < 2; attempt += 1) {
       const first = await refreshMacroPosture(options)
       assert.deepEqual(first.backtest.recessions, [])
@@ -591,6 +829,7 @@ test('failed USREC reuses only matching valid monthly marks and can refresh with
 test('validateComposite accepts a full output and rejects missing root and nested fields', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'macro-posture-test-'))
   try {
+    await seedVintageFixtures(directory, '1975-01-16')
     const valid = await refreshMacroPosture({
       directory, now: new Date('1975-01-16T00:00:00Z'), fetcher: fixtureFetcher(['SP500']),
     })
@@ -600,7 +839,8 @@ test('validateComposite accepts a full output and rejects missing root and neste
     delete broken.current.pillars[0].components[0].rule
     assert.throws(() => validateComposite(broken), /root\.current\.pillars\[0\]\.components\[0\]\.rule/)
     assert.equal(valid.backtest.timeline.length, valid.backtest.months)
-    assert.deepEqual(valid.backtest.variants.map(v => v.id), ['full', 'v20', 'macro', 'trend', 'static70', 'buyhold'])
+    assert.deepEqual(valid.backtest.variants.map(v => v.id), ['full', 'realtime', 'noNfci', 'v21', 'v20', 'macro', 'trend', 'static70', 'buyhold'])
+    assert.ok(valid.tiers.every(tier => tier.actions.length >= 2 && tier.actions.length <= 4))
     assert.equal(valid.outer.find(item => item.id === 'hyOas').status, 'na')
     assert.equal(valid.current.tactical.mtd, undefined)
     assert.ok(valid.failedSources.includes('标普日线与 200 日均线'))

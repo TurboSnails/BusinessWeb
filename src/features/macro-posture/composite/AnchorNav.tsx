@@ -6,6 +6,7 @@ export const COMPOSITE_NAV = [
   { id: 'mp-outer', label: '外圈' },
   { id: 'mp-masters', label: '大师' },
   { id: 'mp-backtest', label: '回测' },
+  { id: 'mp-candidates', label: '候选' },
   { id: 'mp-method', label: '方法' },
 ] as const
 

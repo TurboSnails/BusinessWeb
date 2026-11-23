@@ -12,11 +12,11 @@ import type {
 } from './types'
 
 const TIERS: TierDef[] = [
-  { id: 'offense', label: '进攻', equityShare: 1, range: 'R ≥ 0.50', meaning: '宏观证据偏积极，股票仓位可靠近你的上限。' },
-  { id: 'lean-offense', label: '偏进攻', equityShare: 0.85, range: '0.15 ≤ R < 0.50', meaning: '证据略偏积极，仓位可略高于中性。' },
-  { id: 'neutral', label: '中性', equityShare: 0.7, range: '−0.25 < R < 0.15', meaning: '证据互相抵消，按你的中性仓位即可。' },
-  { id: 'lean-defense', label: '偏防守', equityShare: 0.5, range: '−0.75 < R ≤ −0.25', meaning: '证据偏谨慎，仓位宜低于中性。' },
-  { id: 'defense', label: '防守', equityShare: 0.3, range: 'R ≤ −0.75', meaning: '宏观证据偏弱，仓位宜靠近防守端。' },
+  { id: 'offense', label: '进攻', equityShare: 1, range: 'R ≥ 0.50', meaning: '宏观证据偏积极，股票仓位可靠近你的上限。', actions: ['股票仓位可用足自设风险额度。', '分散保留成长股和小盘股。'] },
+  { id: 'lean-offense', label: '偏进攻', equityShare: 0.85, range: '0.15 ≤ R < 0.50', meaning: '证据略偏积极，仓位可略高于中性。', actions: ['维持常规股票配置。', '控制单一行业的仓位集中度。'] },
+  { id: 'neutral', label: '中性', equityShare: 0.7, range: '−0.25 < R < 0.15', meaning: '证据互相抵消，按你的中性仓位即可。', actions: ['偏向盈利质量高、现金流稳定的公司。', '降低组合杠杆。'] },
+  { id: 'lean-defense', label: '偏防守', equityShare: 0.5, range: '−0.75 < R ≤ −0.25', meaning: '证据偏谨慎，仓位宜低于中性。', actions: ['降低高估值成长股、小盘股和高杠杆公司的敞口。', '提高现金和短期债券比重。'] },
+  { id: 'defense', label: '防守', equityShare: 0.3, range: 'R ≤ −0.75', meaning: '宏观证据偏弱，仓位宜靠近防守端。', actions: ['股票部分集中于高质量、资产负债表稳健的公司。', '组合以现金和短期债券为主。'] },
 ]
 
 function emptyTierStats(): TierStats {
@@ -154,6 +154,8 @@ const OUTER: OuterItem[] = [
 function variants(): Variant[] {
   return [
     { id: 'full', label: '完整模型', cagr: 0.092, vol: 0.121, maxDd: -0.28, sharpe: 0.55, calmar: 0.33, avgEquity: 0.72, switchesPerYear: 1.4 },
+    { id: 'realtime', label: '实时数据', cagr: 0.089, vol: 0.124, maxDd: -0.3, sharpe: 0.52, calmar: 0.3, avgEquity: 0.73, switchesPerYear: 1.5 },
+    { id: 'noNfci', label: '实时数据且去掉 NFCI', cagr: 0.086, vol: 0.128, maxDd: -0.27, sharpe: 0.49, calmar: 0.32, avgEquity: 0.75, switchesPerYear: 1.4 },
     { id: 'v20', label: 'v2.0 无修复', cagr: 0.09, vol: 0.122, maxDd: -0.29, sharpe: 0.53, calmar: 0.31, avgEquity: 0.71, switchesPerYear: 1.5 },
     { id: 'macro', label: '仅宏观', cagr: 0.088, vol: 0.125, maxDd: -0.31, sharpe: 0.5, calmar: 0.28, avgEquity: 0.74, switchesPerYear: 1.1 },
     { id: 'trend', label: '仅趋势', cagr: 0.081, vol: 0.13, maxDd: -0.35, sharpe: 0.42, calmar: 0.23, avgEquity: 0.78, switchesPerYear: 0.8 },

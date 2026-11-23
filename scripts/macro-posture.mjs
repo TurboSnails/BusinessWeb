@@ -6,7 +6,10 @@ import { parseMultpl } from './us-market-data.mjs'
 import { localParts, MARKETS } from './lib/trading-calendar.mjs'
 import { FRED_SPX, FRED_SPX_URL, makePanel, monthEnd, panelAt, valueAt } from './lib/macro-posture/panel.mjs'
 import { buildCurrent, RULE_VERSION, TIER_DEFS } from './lib/macro-posture/model.mjs'
-import { buildBacktest, MISSING_RECESSION_MARKS, updateLive } from './lib/macro-posture/backtest.mjs'
+import {
+  backtestMonthEnds, buildVintageBacktest, MISSING_RECESSION_MARKS, retainVintageResults, updateLive, VINTAGE_SOURCE,
+} from './lib/macro-posture/backtest.mjs'
+import { loadVintages } from './lib/macro-posture/vintages.mjs'
 import { buildOuter, LOCAL_SOURCES } from './lib/macro-posture/outer.mjs'
 import { validateComposite } from './lib/macro-posture/validate.mjs'
 
@@ -16,7 +19,7 @@ const DATA = fileURLToPath(new URL('../public/data', import.meta.url))
 const FRED = 'https://fred.stlouisfed.org/graph/fredgraph.csv?id='
 const MULTPL = 'https://www.multpl.com/'
 export const FRED_IDS = [
-  'SAHMREALTIME', 'IC4WSA', 'PAYEMS', 'INDPRO', 'PCEPILFE', 'BAA', 'AAA',
+  'SAHMREALTIME', 'IC4WSA', 'PAYEMS', 'INDPRO', 'AWHMAN', 'PCEPILFE', 'BAA', 'AAA',
   'NFCI', 'NFCICREDIT', 'FEDFUNDS', 'GS10', 'TB3MS', 'USREC', 'SP500',
 ]
 const OPTIONAL_FRED = { USREC: '美国衰退标记', SP500: '标普指数日收盘价' }
@@ -138,6 +141,14 @@ const json = file => JSON.stringify(file, (key, item) => typeof item === 'number
 export async function refreshMacroPosture({
   fetcher = fetch, now = new Date(), directory = DATA, output = resolve(directory, 'macro-posture.json'), warn = console.warn,
 } = {}) {
+  const { file } = await refreshMacroPostureWithStats({ fetcher, now, directory, output, warn })
+  return file
+}
+
+export async function refreshMacroPostureWithStats({
+  fetcher = fetch, now = new Date(), directory = DATA, output = resolve(directory, 'macro-posture.json'), warn = console.warn,
+  vintageDirectory = directory === DATA ? undefined : resolve(directory, 'macro-posture-vintages'),
+} = {}) {
   const generatedAt = now.toISOString()
   const today = generatedAt.slice(0, 10)
   const marketDate = localParts(now, MARKETS.us.tz).date
@@ -146,8 +157,15 @@ export async function refreshMacroPosture({
   const panel = makePanel({ ...raw, SP500: spx.rows })
   const previous = await readPreviousBacktest(output)
   const previousRecessionMarks = raw.USREC.length ? undefined : previousRecessions(previous)
-  const { backtest, historical, returns } = buildBacktest(panel, today, previousRecessionMarks)
   const { outer, failedSources } = buildOuter(local, panel, today, spx.url)
+  const { vintages, requests } = await loadVintages(backtestMonthEnds(today), { fetcher, directory: vintageDirectory, now, includeHours: true })
+    .catch(error => {
+      warn(error.message)
+      failedSources.push(VINTAGE_SOURCE)
+      return {}
+    })
+  const { backtest, historical, returns, realtimeStats } = buildVintageBacktest(panel, today, vintages, previousRecessionMarks)
+  if (!vintages) retainVintageResults(backtest, previous)
   for (const [id, name] of Object.entries(OPTIONAL_FRED)) if (!raw[id].length) failedSources.push(name)
   const asOf = [...FRED_IDS.filter(id => id !== 'USREC'), 'price']
     .map(id => valueAt(panel[id], today)?.availableOn)
@@ -168,12 +186,13 @@ export async function refreshMacroPosture({
   } finally {
     await unlink(temporary).catch(() => {})
   }
-  return serialized
+  return { file: serialized, realtimeStats, vintageRequests: requests }
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  refreshMacroPosture().then(file => {
+  refreshMacroPostureWithStats().then(({ file, vintageRequests }) => {
     console.log(`宏观攻守综合指标 ${file.ruleVersion}：${file.current.headline} 回测 ${file.backtest.start} 至 ${file.backtest.end}，共 ${file.backtest.months} 个月。`)
+    if (vintageRequests !== undefined) console.log(`ALFRED 版本数据请求：${vintageRequests} 次。`)
     if (file.failedSources.length) console.warn('部分数据缺失：' + file.failedSources.join('、'))
   }).catch(error => {
     console.error(error.message)

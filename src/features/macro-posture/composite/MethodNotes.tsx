@@ -36,6 +36,7 @@ export default function MethodNotes({ data }: { data: CompositeFile }): JSX.Elem
               <th scope="col">区间</th>
               <th scope="col">占自设上限</th>
               <th scope="col">含义</th>
+              <th scope="col">组合结构</th>
             </tr>
           </thead>
           <tbody>
@@ -48,6 +49,11 @@ export default function MethodNotes({ data }: { data: CompositeFile }): JSX.Elem
                   <td>{tier.range}</td>
                   <td>{formatSharePct(tier.equityShare)}</td>
                   <td>{tier.meaning}</td>
+                  <td className="mp-method__tier-actions">
+                    {tier.actions?.length ? (
+                      <ul>{tier.actions.map(action => <li key={action}>{action}</li>)}</ul>
+                    ) : '—'}
+                  </td>
                 </tr>
               )
             })}

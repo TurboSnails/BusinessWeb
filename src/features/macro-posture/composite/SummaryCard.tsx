@@ -32,13 +32,13 @@ function DetailsLink(): JSX.Element {
 
 function BacktestSummary({ data }: { data: CompositeFile }): JSX.Element | null {
   const variants = data.backtest.variants ?? []
-  const full = variants.find(variant => variant.id === 'full')
+  const conservative = variants.find(variant => variant.id === 'noNfci')
   const buyhold = variants.find(variant => variant.id === 'buyhold')
-  if (!full || !buyhold) return null
+  if (!conservative || !buyhold) return null
 
   return (
     <p className="macro-summary__backtest">
-      回测 {data.backtest.start.slice(0, 4)} 年以来：年化 {formatPct1(full.cagr)} / 最大回撤 {formatPct1(full.maxDd)}，同期持有标普 {formatPct1(buyhold.cagr)} / {formatPct1(buyhold.maxDd)}
+      回测 {data.backtest.start.slice(0, 4)} 年以来（最保守口径）：年化 {formatPct1(conservative.cagr)} / 最大回撤 {formatPct1(conservative.maxDd)}，同期持有标普 {formatPct1(buyhold.cagr)} / {formatPct1(buyhold.maxDd)}
     </p>
   )
 }
