@@ -4,7 +4,7 @@ import type {
   MarketFile,
   MarketMetrics,
   TierId,
-} from './types'
+} from '../../macro-posture/composite/types'
 
 function metrics(overrides: Partial<MarketMetrics> = {}): MarketMetrics {
   return {

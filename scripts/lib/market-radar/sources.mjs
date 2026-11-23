@@ -1,0 +1,234 @@
+import { join } from 'node:path'
+import { setTimeout as delay } from 'node:timers/promises'
+import { parseCboeIndex } from '../../us-market-data.mjs'
+import { readJson, writeJsonIfChanged } from '../json-io.mjs'
+import { marketSeries, month } from '../macro-posture-market/data.mjs'
+import { readMarket } from '../macro-posture-market/components.mjs'
+import { parseFred, parseMultplMonthly } from '../macro-posture-research/fetch.mjs'
+import { addDays, ageDays, clean, monthEnd } from '../macro-posture/panel.mjs'
+
+const FRED_SERIES = 'https://fred.stlouisfed.org/series/'
+const FRED_CSV = 'https://fred.stlouisfed.org/graph/fredgraph.csv?id='
+const CBOE = 'https://cdn.cboe.com/api/global/us_indices/daily_prices/'
+const EPS = 'https://www.multpl.com/s-p-500-earnings/table/by-month'
+export const CASH_SERIES = ['CDCABSHNO', 'TSDABSHNO', 'MMFSABSHNO', 'TFAABSHNO']
+
+function normalize(rows = [], through) {
+  return [...new Map(rows.filter(([d, v]) => /^\d{4}-\d{2}-\d{2}$/.test(d) &&
+    Number.isFinite(v) && d <= through))].sort(([a], [b]) => a.localeCompare(b))
+}
+
+export async function refreshRadarSources({ cache, fetcher, today, localVix, shillerEps, warn }) {
+  const sources = {}
+  let lastRequest = -Infinity
+  async function refresh(id, url, parse) {
+    const path = join(cache, id + '.json')
+    const previous = readJson(path, [])
+    try {
+      const wait = 1000 - (performance.now() - lastRequest)
+      if (wait > 0) await delay(Math.ceil(wait))
+      lastRequest = performance.now()
+      const response = await fetcher(url, { signal: AbortSignal.timeout(20_000) })
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      const fresh = normalize(parse(await response.text()), today)
+      if (!fresh.length || (previous.length && (fresh[0][0] > previous[0][0] || fresh.at(-1)[0] < previous.at(-1)[0]))) {
+        throw new Error('来源历史覆盖不足')
+      }
+      writeJsonIfChanged(path, fresh)
+      return fresh
+    } catch (error) {
+      if (!previous.length) throw new Error(`${id} 下载失败且没有缓存：${error.message}`, { cause: error })
+      warn(`${id} 沿用至 ${previous.at(-1)[0]} 的缓存：${error.message}`)
+      return normalize(previous, today)
+    }
+  }
+  for (const id of CASH_SERIES) {
+    sources[id] = await refresh(id, FRED_CSV + id, csv => parseFred(csv, id))
+  }
+  const cboe = id => refresh(id, CBOE + id + '_History.csv', csv => parseCboeIndex(csv).history)
+  sources.vix3m = await cboe('VIX3M')
+  const localDays = new Set(localVix.map(([d]) => d))
+  // Fetch the matching daily closes when the station snapshot has compacted its old daily observations.
+  const complete = sources.vix3m.every(([d]) => localDays.has(d))
+  sources.vix = complete ? localVix : await cboe('VIX')
+  const realEps = await refresh('eps', EPS, html => parseMultplMonthly(html, monthEnd(today, -1)))
+  if (realEps.at(-1)[0] > shillerEps.at(-1)[0]) {
+    const cpiId = 'CPIAUCNS'
+    const cpi = new Map((await refresh(cpiId, FRED_CSV + cpiId, csv => parseFred(csv, cpiId)))
+      .map(([d, value]) => [month(d), value]))
+    // Multpl reports EPS in constant dollars. Multiplying by the matching CPI
+    // gives a level proportional to nominal EPS, which cancels in the YoY ratio.
+    const nominal = marketSeries(realEps.flatMap(([d, value]) =>
+      cpi.has(month(d)) ? [[d, value * cpi.get(month(d))]] : []), 3)
+    sources.supplementalEpsYoy = changeByMonth(nominal, 12, true)
+      .filter(point => point.observedOn > shillerEps.at(-1)[0])
+  }
+  return sources
+}
+
+export function parseShillerEps(csv) {
+  const [header, ...lines] = csv.trim().split(/\r?\n/)
+  if (header !== 'date,P,D,E,CPI,GS10') throw new Error('席勒盈利数据表头不匹配')
+  const rows = lines.flatMap(line => {
+    const [d, , , raw] = line.split(',')
+    return /^\d{4}-\d{2}$/.test(d) && raw?.trim() && Number.isFinite(Number(raw))
+      ? [[monthEnd(d), Number(raw)]] : []
+  })
+  if (rows[0]?.[0] !== '1871-01-31') throw new Error('席勒盈利历史缺少 1871 年初观测')
+  return rows
+}
+
+function pointAt(rows, date) {
+  return rows.findLast(([d]) => d <= date)
+}
+
+function near(rows, date) {
+  const point = pointAt(rows, date)
+  return point && ageDays(date, point[0]) <= 7 ? point : null
+}
+
+function netLiquidity(rows) {
+  const tga = new Map(rows('treasuryCash'))
+  const rrp = rows('overnightRrp')
+  const levels = rows('fedAssets').flatMap(([d, value]) => {
+    const overnight = near(rrp, d)
+    return overnight && tga.has(d) ? [[d, value - tga.get(d) - overnight[1]]] : []
+  })
+  const byDate = new Map(levels)
+  return levels.flatMap(([d, value]) => {
+    const prior = byDate.get(addDays(d, -91))
+    return prior > 0 ? [[d, clean((value / prior - 1) * 100)]] : []
+  })
+}
+
+function quarterly(rows) {
+  return rows.map(([d, value]) => {
+    const observedOn = monthEnd(d, 2)
+    return { observedOn, value, availableOn: monthEnd(observedOn, 3) }
+  })
+}
+
+function balanceSheetCash(fetched) {
+  const [checking, savings, funds, assets] = CASH_SERIES.map(id => new Map(fetched[id]))
+  const rows = [...assets].flatMap(([d, value]) =>
+    value > 0 && [checking, savings, funds].every(series => series.has(d))
+      ? [[d, clean(100 * (checking.get(d) + savings.get(d) + funds.get(d)) / value)]] : [])
+  return quarterly(rows)
+}
+
+function changeByMonth(series, monthsBack, relative = false) {
+  const byMonth = new Map(series.map(point => [month(point.observedOn), point]))
+  return series.flatMap(point => {
+    const prior = byMonth.get(month(monthEnd(point.observedOn, -monthsBack)))
+    if (!prior || (relative && prior.value <= 0)) return []
+    return [{
+      ...point,
+      value: clean(relative ? (point.value / prior.value - 1) * 100 : point.value - prior.value),
+      availableOn: point.availableOn < prior.availableOn ? prior.availableOn : point.availableOn,
+    }]
+  })
+}
+
+function completeMonthly(rows, lastComplete) {
+  const completed = rows.filter(([d]) => monthEnd(d) <= lastComplete)
+  return [...new Map(completed.map(row => [month(row[0]), row])).values()]
+}
+
+function marketReadings(data, panel, lastComplete) {
+  const output = { erp: [], volume: [] }
+  const start = [panel.GS10[0], data.volume[0]].filter(Boolean)
+    .map(point => monthEnd(point.observedOn)).sort()[0]
+  for (let date = start; date <= lastComplete; date = monthEnd(date, 1)) {
+    // readMarket supplies the joint PE/rate spread and its exact-month price and volume windows.
+    const reading = readMarket({ pe: data.pe, volume: data.volume }, panel, date)
+    for (const id of ['erp', 'volume']) {
+      if (reading[id] && reading[id].observedOn !== output[id].at(-1)?.observedOn) {
+        output[id].push({ ...reading[id], availableOn: date })
+      }
+    }
+  }
+  return output
+}
+
+function includeLatest(series, reading, availableOn) {
+  if (!reading) return series
+  return [
+    ...series.filter(row => month(row.observedOn) < month(reading.observedOn)),
+    { ...reading, availableOn },
+  ]
+}
+
+function publishedRows(entry, today) {
+  const rows = normalize(entry?.history, today)
+  return entry?.releasedAt?.slice(0, 10) > today ? rows.slice(0, -1) : rows
+}
+
+export function buildRadarSeries({ local, macroUs, breadth, marketCache, fetched, shillerEps, panel, currentPanel, today, lastComplete }) {
+  const rows = id => publishedRows(local[id], today)
+  const simple = id => marketSeries(rows(id), 0, true)
+  const pe = rows('spxPe').filter(([d, value]) => d >= '1900-01' && value > 0)
+  const cape = rows('shillerCape').filter(([d, value]) => d >= '1900-01' && value > 0)
+  const industries = normalize(marketCache.breadth, today)
+  const historical = {
+    baaChange: changeByMonth(panel.baa, 6),
+    pe: marketSeries(completeMonthly(pe, lastComplete), 3),
+    cape: marketSeries(completeMonthly(cape, lastComplete), 0),
+    equityShare: quarterly(normalize(macroUs.equityShare?.long ?? macroUs.equityShare?.history, today)),
+    cashShare: balanceSheetCash(fetched),
+    finraDebtYoy: marketSeries(rows('finraDebtYoy'), 1),
+    breadth: marketSeries(industries, 2),
+    epsYoy: [
+      ...changeByMonth(marketSeries(shillerEps, 3), 12, true),
+      ...(fetched.supplementalEpsYoy ?? []),
+    ],
+  }
+  const volumeData = marketSeries(normalize(marketCache.volume, lastComplete), 0)
+  Object.assign(historical, marketReadings({ pe: historical.pe, volume: volumeData }, panel, lastComplete))
+
+  const currentPe = includeLatest(marketSeries(completeMonthly(pe, lastComplete), 0, true),
+    marketSeries(pe.slice(-1), 0, true)[0], today)
+  const currentCape = includeLatest(historical.cape, marketSeries(cape.slice(-1), 0, true)[0], today)
+  const currentErp = readMarket({ pe: currentPe }, currentPanel, today).erp
+  const hy = rows('hyDaily')
+  const vix = new Map(fetched.vix)
+  const vixTerm = fetched.vix3m.flatMap(([d, vix3m]) => vix.has(d) ? [{
+    observedOn: d, availableOn: d, value: clean(vix.get(d) / vix3m), vix: vix.get(d), vix3m,
+  }] : [])
+  const breadth200 = normalize([
+    ...(breadth?.backfill ?? []), ...(breadth?.history ?? []), [breadth?.date, breadth?.above200],
+  ], today)
+  const current = {
+    ...historical,
+    netLiquidity: marketSeries(netLiquidity(rows), 0, true),
+    hy: marketSeries(hy, 0, true).map(point => {
+      const prior = near(hy, addDays(point.observedOn, -28))
+      return { ...point, change: prior ? clean(point.value - prior[1]) : null }
+    }),
+    baaChange: changeByMonth(currentPanel.baa, 6),
+    pe: currentPe,
+    cape: currentCape,
+    erp: includeLatest(historical.erp, currentErp, today),
+    forwardPe: simple('spxFactSetFpe'),
+    finraDebtYoy: simple('finraDebtYoy'),
+    managerCash: simple('managerCash'),
+    managerUsOverweight: simple('managerUsOverweight'),
+    naaim: simple('naaim'),
+    breadth: marketSeries(industries, 0, true),
+    vixTerm,
+    breadth200: marketSeries(breadth200, 0, true),
+    volumeRatio: simple('volumeRatio'),
+    forwardEps: simple('spxForwardEpsChange'),
+  }
+  const sources = Object.fromEntries(Object.entries(local).map(([id, entry]) => [id, entry.source]))
+  Object.assign(sources, {
+    netLiquidity: FRED_SERIES + 'WALCL', hy: sources.hyDaily,
+    baaChange: FRED_SERIES + 'BAA', erp: FRED_SERIES + 'GS10',
+    pe: sources.spxPe, cape: sources.shillerCape, forwardPe: sources.spxFactSetFpe,
+    equityShare: FRED_SERIES + macroUs.equityShare?.fred, cashShare: FRED_SERIES + CASH_SERIES[3],
+    breadth: 'https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html',
+    volume: 'https://finance.yahoo.com/quote/%5EGSPC/history/',
+    vixTerm: CBOE + 'VIX3M_History.csv', breadth200: breadth?.source,
+    epsYoy: 'https://shillerdata.com/', forwardEps: sources.spxForwardEpsChange,
+  })
+  return { current, historical, sources }
+}

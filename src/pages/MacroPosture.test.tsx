@@ -5,10 +5,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { Candidate, DataState, MacroData, MacroView, Market, MarketData, Metric } from '../features/macro-posture/types'
 import type { CompositeState } from '../features/macro-posture/composite/types'
 import type { CandidatesState } from '../features/macro-posture/composite/candidates'
-import type { MarketState } from '../features/macro-posture/composite/market'
 import { compositeFixture, insufficientFixture, legacyFieldsFixture } from '../features/macro-posture/composite/fixture'
 import { candidatesFixture } from '../features/macro-posture/composite/candidates.fixture'
-import { marketFixture, marketReferenceFixture } from '../features/macro-posture/composite/market.fixture'
 import MacroPosture, {
   MACRO_POSTURE_FOOTER,
   MACRO_POSTURE_LEAD,
@@ -33,10 +31,6 @@ vi.mock('../features/macro-posture/composite/load', () => ({
 
 vi.mock('../features/macro-posture/composite/candidates', () => ({
   useCandidates: vi.fn(),
-}))
-
-vi.mock('../features/macro-posture/composite/market', () => ({
-  useMarket: vi.fn(),
 }))
 
 vi.mock('../features/macro-masters/readings', () => ({
@@ -81,13 +75,11 @@ import { useMacroPostureData } from '../features/macro-posture/data'
 import { buildMacroView } from '../features/macro-posture/model'
 import { useCompositePosture } from '../features/macro-posture/composite/load'
 import { useCandidates } from '../features/macro-posture/composite/candidates'
-import { useMarket } from '../features/macro-posture/composite/market'
 
 const mockedLegacy = vi.mocked(useMacroPostureData)
 const mockedBuild = vi.mocked(buildMacroView)
 const mockedComposite = vi.mocked(useCompositePosture)
 const mockedCandidates = vi.mocked(useCandidates)
-const mockedMarket = vi.mocked(useMarket)
 
 afterEach(() => {
   cleanup()
@@ -184,12 +176,10 @@ function renderPage(
   composite: CompositeState = { status: 'ready', data: compositeFixture() },
   legacy: DataState = { status: 'ready', data: fixtureData },
   candidates: CandidatesState = { status: 'ready', data: candidatesFixture() },
-  market: MarketState = { status: 'ready', data: marketFixture() },
 ) {
   mockedComposite.mockReturnValue(composite)
   mockedLegacy.mockReturnValue(legacy)
   mockedCandidates.mockReturnValue(candidates)
-  mockedMarket.mockReturnValue(market)
   mockedBuild.mockImplementation((m: Market) => viewFor(m, m === 'cn' ? '偏防守' : '进攻候选'))
   return render(
     <MemoryRouter initialEntries={[path]}>
@@ -562,53 +552,14 @@ describe('MacroPosture r4 风险预算与候选检验', () => {
     expect(screen.getByTestId('mp-backtest-variants')).toBeTruthy()
   })
 
-  it('市场综合版块：adopt 说明、前瞻 PE、选中行、checks、验证期 sticky 列', () => {
+  it('市场综合迁出后显示雷达链接卡，锚点不再含市场', () => {
     renderPage()
-    expect(screen.getByRole('link', { name: '市场' }).getAttribute('href')).toBe('#mp-market')
-    const section = screen.getByRole('region', { name: '市场综合' })
-    expect(section.compareDocumentPosition(screen.getByRole('region', { name: '四根支柱' })) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy()
-    expect(section.compareDocumentPosition(screen.getByRole('region', { name: '战术修正与熔断' })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-
-    expect(screen.getByTestId('mp-market-tier').textContent).toBe('偏进攻')
-    expect(screen.getByTestId('mp-market-relation').textContent).toContain('已作为第五根支柱并入总结论（权重 15%）')
-    expect(screen.getByTestId('mp-market-forward-pe-note').textContent).toContain('只展示，无历史可回测')
-    expect(screen.getByTestId('mp-market-comp-narrow').textContent).toContain('−1')
-    expect(screen.getByTestId('mp-market-comp-narrow').textContent).not.toMatch(/(?<![\d.])-(?=\d)/)
-
-    fireEvent.click(screen.getByTestId('mp-market-all-summary'))
-    expect(screen.getByTestId('mp-market-chosen-row').classList.contains('is-highlight')).toBe(true)
-
-    expect(screen.getByTestId('mp-market-check-testSharpeDd').textContent).toContain('通过')
-    expect(screen.getByTestId('mp-market-stage2-verdict').textContent).toBe('并入核心')
-    expect(screen.getByTestId('mp-market-stage1-table').querySelectorAll('.mp-market__col--test').length).toBeGreaterThan(3)
-    expect(screen.getByTestId('mp-market-stage1-table').closest('.mp-market__scroll--sticky-test')).toBeTruthy()
-    expect(screen.getByTestId('mp-market-timeline')).toBeTruthy()
-    expect(screen.getByTestId('mp-market-disclosures').textContent).toContain('验证期结果未参与挑选')
-  })
-
-  it('市场综合 reference 时写独立参考说明，checks 可显示未通过', () => {
-    renderPage(
-      '/invest/macro-posture',
-      { status: 'ready', data: compositeFixture() },
-      { status: 'ready', data: fixtureData },
-      { status: 'ready', data: candidatesFixture() },
-      { status: 'ready', data: marketReferenceFixture() },
-    )
-    expect(screen.getByTestId('mp-market-relation').textContent).toBe('独立参考，不改变总结论')
-    expect(screen.getByTestId('mp-market-stage2-verdict').textContent).toBe('独立参考')
-    expect(screen.getByTestId('mp-market-check-testSharpeDd').textContent).toContain('未通过')
-  })
-
-  it('市场综合加载失败只局部提示，不影响页面结论', () => {
-    renderPage(
-      '/invest/macro-posture',
-      { status: 'ready', data: compositeFixture() },
-      { status: 'ready', data: fixtureData },
-      { status: 'ready', data: candidatesFixture() },
-      { status: 'error', message: 'HTTP 404' },
-    )
-    expect(screen.getByTestId('mp-market-error').textContent).toBe('市场综合暂时无法读取，不影响本页其他结论。')
-    expect(screen.getByTestId('mp-tier-name').textContent).toBe('偏进攻')
+    expect(screen.queryByRole('link', { name: '市场' })).toBeNull()
     expect(screen.queryByTestId('mp-market-tier')).toBeNull()
+    const card = screen.getByTestId('mp-market-radar-card')
+    expect(card.textContent).toContain('股市内部与仓位指标见我的市场雷达')
+    expect(within(card).getByRole('link', { name: '打开我的市场雷达' }).getAttribute('href')).toBe('/invest/market-radar')
+    expect(card.compareDocumentPosition(screen.getByRole('region', { name: '四根支柱' })) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy()
+    expect(card.compareDocumentPosition(screen.getByRole('region', { name: '战术修正与熔断' })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 })

@@ -47,7 +47,7 @@ describe('SectionChrome', () => {
   it('观察盘的细节页切换条里第一个是「观察盘」，可以随时回到一页总览', () => {
     renderAt('/limit-up-analysis')
     const links = within(screen.getByRole('navigation', { name: '同组页面' })).getAllByRole('link')
-    expect(links.map(a => a.getAttribute('href'))).toEqual(['/watch', '/monitor', '/invest/macro-posture', '/pulse', '/daily-analysis', '/sector-rotation', '/limit-up-analysis'])
+    expect(links.map(a => a.getAttribute('href'))).toEqual(['/watch', '/monitor', '/invest/macro-posture', '/invest/market-radar', '/pulse', '/daily-analysis', '/sector-rotation', '/limit-up-analysis'])
   })
 
   it('每日分析旧版有独立面包屑，并仍归属每日分析入口', () => {

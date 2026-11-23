@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { MarketFile } from './types'
+import type { MarketFile } from '../../macro-posture/composite/types'
 
 export type MarketState =
   | { status: 'loading' }

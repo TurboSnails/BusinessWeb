@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react'
 export const COMPOSITE_NAV = [
   { id: 'mp-conclusion', label: '结论' },
   { id: 'mp-pillars', label: '支柱' },
-  { id: 'mp-market', label: '市场' },
   { id: 'mp-outer', label: '外圈' },
   { id: 'mp-masters', label: '大师' },
   { id: 'mp-backtest', label: '回测' },

@@ -1,6 +1,6 @@
 import React from 'react'
 import { Badge, TableWrap } from '../../../components/ui'
-import { formatNum2, formatPct1, scoreBadge } from './labels'
+import { formatNum2, formatPct1, scoreBadge } from '../../macro-posture/composite/labels'
 import { useMarket } from './market'
 import type {
   MarketComponent,
@@ -8,7 +8,7 @@ import type {
   MarketFile,
   MarketMetrics,
   TierId,
-} from './types'
+} from '../../macro-posture/composite/types'
 
 const TIER_LABEL: Record<TierId, string> = {
   offense: '进攻',
@@ -317,7 +317,7 @@ export default function MarketPanel(): JSX.Element {
   const state = useMarket()
   return (
     <section className="mp-market" id="mp-market" aria-labelledby="mp-market-title">
-      <h2 id="mp-market-title">市场综合</h2>
+      <h2 id="mp-market-title">市场综合<span className="mr-market__subtitle">（股市内部与估值的两阶段回测）</span></h2>
       {state.status === 'loading' ? <p className="mp-status" role="status">市场综合加载中…</p> : null}
       {state.status === 'error' ? (
         <p className="mp-muted" role="status" data-testid="mp-market-error">
