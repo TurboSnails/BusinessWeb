@@ -1,7 +1,7 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
 import { Page } from '../components/ui'
 import StrategyView from '../features/combined-strategy/StrategyView'
+import TrioNav from '../features/combined-strategy/TrioNav'
 import { useCombinedStrategy } from '../features/combined-strategy/load'
 import '../styles/combined-strategy.css'
 import '../styles/market-radar.css'
@@ -22,11 +22,7 @@ export default function CombinedStrategy(): JSX.Element {
         <p className="cs-head__lead" data-testid="cs-head-lead">
           {COMBINED_STRATEGY_LEAD}
         </p>
-        <ul className="cs-head__links">
-          <li><Link to="/invest/macro-posture">宏观攻守</Link></li>
-          <li><Link to="/invest/market-radar">市场雷达</Link></li>
-          <li><a href="#cs-now">现在怎么做</a></li>
-        </ul>
+        <TrioNav />
       </header>
 
       <StrategyView state={state} />

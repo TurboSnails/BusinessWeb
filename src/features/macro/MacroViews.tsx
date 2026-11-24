@@ -70,19 +70,28 @@ export function QualityLine({ report }: { report: QualityReport }): JSX.Element 
 }
 
 function StageHero({ stage, score, entered }: { stage: Stage | null; score: number; entered: number }): JSX.Element {
+  const scope = (
+    <p className="macro-muted">
+      管主动额度和备用金，不改配置目标权重。美股总仓位看上面的结论（
+      <Link to="/invest/strategy">综合策略</Link>
+      ）。
+    </p>
+  )
   if (!stage) return (
-    <section className="macro-hero" aria-label="当前阶段">
+    <section className="macro-hero" aria-label="风险预算阶段">
       <h2 className="macro-hero__name">信号待补全</h2>
       <p className="macro-hero__summary">已取得 {entered}/{SIGNALS.length} 项风险信号，补全后再判定阶段。</p>
+      {scope}
     </section>
   )
   return (
-    <section className={`macro-hero macro-hero--${stage.tone}`} aria-label="当前阶段">
+    <section className={`macro-hero macro-hero--${stage.tone}`} aria-label="风险预算阶段">
       <div className="macro-hero__head">
-        <span className="macro-eyebrow">当前阶段</span>
+        <span className="macro-eyebrow">风险预算阶段</span>
         <ToneBadge tone={stage.tone} label={`${score} 分 · ${entered}/${SIGNALS.length} 项信号`} />
       </div>
       <h2 className="macro-hero__name">{stage.name}</h2>
+      {scope}
       <p className="macro-hero__summary">{stage.summary}</p>
       <div className="macro-two">
         <div>
@@ -290,6 +299,7 @@ export function StagesView({ snap }: { snap: MacroSnapshot }): JSX.Element {
     <div className="macro-stack">
       <section className="macro-card" aria-label="阶段信号">
         <h3>阶段信号（与投资计划同一套规则）</h3>
+        <p className="macro-muted">这套阶段管主动额度和备用金，不改配置目标权重。</p>
         <p className="macro-muted">每项绿灯 0 分、黄灯 1 分、红灯 2 分。合计 ≥2 分为预警，≥5 分为防御，≥8 分为危机。</p>
         {!stage && <p>信号待补全，已取得 {entered}/{SIGNALS.length} 项。</p>}
         <div className="macro-table-wrap">

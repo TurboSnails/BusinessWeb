@@ -61,6 +61,7 @@
 .watch-stage { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-3); }
 .watch-stage__name { font-family: var(--font-serif); font-size: 1.6rem; }
 .watch-stage__score { color: var(--text-secondary); font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+.watch-stage__scope { margin: 0 0 8px; font-size: 0.82rem; line-height: 1.5; color: var(--text-secondary); }
 .watch-stage__summary { margin: 4px 0 var(--space-3); font-size: 0.9rem; line-height: 1.7; }
 
 .watch-stage__rule {

@@ -1,6 +1,8 @@
 import React from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Page, Segmented } from '../components/ui'
+import TrioNav from '../features/combined-strategy/TrioNav'
+import VerdictBar from '../features/combined-strategy/VerdictBar'
 import LegacyMarketView from '../features/macro-posture/composite/LegacyMarketView'
 import UsCompositeView from '../features/macro-posture/composite/UsCompositeView'
 import { useCompositePosture } from '../features/macro-posture/composite/load'
@@ -57,17 +59,22 @@ export default function MacroPosture(): JSX.Element {
         <p className="mp-head__lead" data-testid="mp-head-lead">
           {market === 'us' ? MACRO_POSTURE_LEAD : MACRO_POSTURE_LEAD_LEGACY}
         </p>
-        <ul className="mp-head__links">
-          <li><Link to="/monitor">宏观温度</Link></li>
-          <li><Link to="/invest/macro-masters">宏观大师</Link></li>
+        <TrioNav />
+        <p className="mp-head__secondary">
+          数据与方法：
+          <Link to="/monitor">宏观温度</Link>
+          {' · '}
+          <Link to="/invest/macro-masters">宏观大师</Link>
           {market !== 'us' ? (
-            <li><a href="#macro-posture-candidates">回测备选</a></li>
-          ) : (
-            <li><a href="#mp-backtest">公开回测</a></li>
-          )}
-          <li><Link to="/invest/strategy" data-testid="mp-strategy-link">把宏观和股市冷热合起来看，见综合策略</Link></li>
-        </ul>
+            <>
+              {' · '}
+              <a href="#macro-posture-candidates">回测备选</a>
+            </>
+          ) : null}
+        </p>
       </header>
+
+      {market === 'us' ? <VerdictBar /> : null}
 
       <div className="mp-toolbar">
         <Segmented

@@ -177,7 +177,7 @@ describe('顶部参照价格', () => {
     expect(within(dialog).getAllByRole('img', { name: /走势/ }).length).toBe(1)
     fireEvent.click(screen.getByRole('button', { name: '关闭' }))
     expect(screen.queryByRole('dialog')).toBeNull()
-    expect(screen.getByText(/当前阶段/)).toBeTruthy()
+    expect(screen.getByText(/风险预算阶段/)).toBeTruthy()
   })
 })
 

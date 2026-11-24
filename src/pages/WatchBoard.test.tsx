@@ -40,9 +40,9 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.clearAllMocks() })
 
 describe('观察盘', () => {
-  it('一页显示宏观阶段、全球市场、A股情绪三块，各自链接到细节页', async () => {
+  it('一页显示风险预算阶段、全球市场、A股情绪三块，各自链接到细节页', async () => {
     render(<MemoryRouter><WatchBoard /></MemoryRouter>)
-    const macroBlock = await screen.findByRole('region', { name: '宏观阶段' })
+    const macroBlock = await screen.findByRole('region', { name: '风险预算阶段' })
     const expected = stageFromSnapshot(macro as unknown as MacroSnapshot).stage!.name
     await waitFor(() => expect(within(macroBlock).getByText(expected)).toBeTruthy())
     expect(within(macroBlock).getByText('10 年美债')).toBeTruthy()
@@ -185,7 +185,7 @@ describe('观察盘：风险信号与期权情绪', () => {
   ])('快照只有 $count 项有效信号时展示覆盖情况，保留已有读数', async ({ readings, count }) => {
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ ...macro, series: readings }) }) as unknown as Response))
     render(<MemoryRouter><WatchBoard /></MemoryRouter>)
-    const block = within(screen.getByRole('region', { name: '宏观阶段' }))
+    const block = within(screen.getByRole('region', { name: '风险预算阶段' }))
     expect(await block.findByText('信号待补全')).toBeTruthy()
     expect(block.getByText(`已取得 ${count}/6 项`)).toBeTruthy()
     expect(block.queryByText('常态')).toBeNull()
@@ -202,7 +202,7 @@ describe('观察盘：风险信号与期权情绪', () => {
   it('宏观块显示六项信号灯，并带上期权情绪摘要', async () => {
     vi.stubGlobal('fetch', vi.fn(async (u: string) => ({ ok: true, json: async () => (String(u).includes('/api/sentiment') ? { equityPC: 0.58, spxPC: 1.15, pcDate: '2026-10-09', vix: 15.6, vix3m: 18.1, gexBn: 7.7, goldSilver: 67.7 } : macro) }) as unknown as Response))
     render(<MemoryRouter><WatchBoard /></MemoryRouter>)
-    const macroBlock = await screen.findByRole('region', { name: '宏观阶段' })
+    const macroBlock = await screen.findByRole('region', { name: '风险预算阶段' })
     const list = await within(macroBlock).findByRole('list', { name: '六项风险信号' })
     expect(within(list).getAllByRole('listitem')).toHaveLength(6)
     expect(await within(macroBlock).findByText('VIX 期限')).toBeTruthy()
@@ -211,7 +211,7 @@ describe('观察盘：风险信号与期权情绪', () => {
 
   it('宏观卡片带 is-green 时摘要与不做标签不跟涨跌绿/红 class', async () => {
     render(<MemoryRouter><WatchBoard /></MemoryRouter>)
-    const macroBlock = await screen.findByRole('region', { name: '宏观阶段' })
+    const macroBlock = await screen.findByRole('region', { name: '风险预算阶段' })
     await waitFor(() => expect(macroBlock.className).toMatch(/is-green|is-yellow|is-red/))
     const summary = within(macroBlock).getByText(/信号大多正常|有几项信号|多项信号|风险资产/)
     expect(summary.className).toBe('watch-stage__summary')

@@ -82,14 +82,14 @@ export function ReadingRow({ item, asOf, years }: { item: Item; asOf: string; ye
   )
 }
 
-export function MarketCard({ title, items, asOf, years, link }: { title: string; items: Item[]; asOf: string; years: number | null; link?: { tab: string; label: string } }) {
+export function MarketCard({ title, items, asOf, years, link }: { title: string; items: Item[]; asOf: string; years: number | null; link?: { to: string; label: string } }) {
   return <section className="us-market__card" aria-label={title}>
     <h3>{title}</h3>
     <ul>{items.slice(0, 3).map(item => <ReadingRow key={item.name} item={item} asOf={asOf} years={years} />)}</ul>
     {items.length > 3 && <details className="us-market__more"><summary>其余 {items.length - 3} 项</summary>
       <ul>{items.slice(3).map(item => <ReadingRow key={item.name} item={item} asOf={asOf} years={years} />)}</ul>
     </details>}
-    {link && <Link className="us-market__link" to={route(link.tab)}>{link.label}</Link>}
+    {link && <Link className="us-market__link" to={link.to}>{link.label}</Link>}
   </section>
 }
 

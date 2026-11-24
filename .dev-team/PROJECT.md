@@ -86,3 +86,13 @@ manager 开工后按实际目标补充业务入口、API 契约位置、验收�
 
 ## 2026-11-24 综合策略页
 用户要求：市场综合不该放雷达页；另开一页融合宏观攻守与雷达并给出仓位策略；雷达页只做股市自身分析与回测。设计 `docs/superpowers/specs/2026-11-24-combined-strategy-design.md`，契约 `src/features/combined-strategy/types.ts`。新页 `/invest/strategy`（`src/pages/CombinedStrategy.tsx`、`src/features/combined-strategy/`），数据 `public/data/combined-strategy.json` 由 `scripts/market-radar.mjs` 同次运行生成（`scripts/lib/combined-strategy/`）。预注册六种融合规则（研究文档第三轮）无一过线：仓位只按宏观攻守，雷达热度（估值与拥挤度维度均分，≤ −0.5 偏热）用于九格状态矩阵与每格做法。雷达页回测只剩四行、单带时间线（`TimelineView` 新增可选 `singleBand`）；市场综合面板与大师对照移到新页。Run strategy-page-1124（`run_cccdcd837df6`）：两个 Cursor 并行，Claude 独立复算八行融合结果与九格统计并验收。教训：新增导航入口后要跑全量测试，`src/data/siteMap.test.ts`、`src/components/SectionChrome.test.tsx` 按顺序断言入口，worker 的局部测试范围没覆盖到。
+
+## 2026-11-24 全站只有一个仓位出口；指数估值新页
+用户问宏观温度的「美国」「估值位置」页签和宏观攻守、市场雷达、综合策略之间怎么优化，要求确定的方案。线上核对到同一天五个说法（预警 / 趋势防守 / 85% / 70% / 85% 不用调）；独立评审 agent 逐条核实后定案，记在 `docs/superpowers/specs/2026-11-24-combined-strategy-design.md` 第 10 节。Run verdict-ia-1124（`run_00276622c9b9`）：三个 Cursor 任务（雷达口径；结论条、范围标注与导航；指数估值页与页签精简），前两项并行、第三项在后；Claude 审查、集成。
+- **原则**：只有综合策略给美股仓位数字。`VerdictBar`（读 `combined-strategy.json` 的 `current.instruction`）放在观察盘、宏观攻守（美国）、市场雷达、宏观温度顶部；宏观温度的美国宏观、美股市场页签不再放 `SummaryCard`（宏观大师、顶级投资人页仍在用）。
+- **范围**：`stages.ts` 的阶段展示名改为「风险预算阶段」（只管主动额度和备用金，规则与投资计划共用、未动）；牛熊周期的标普、纳指标「观察版」；「上限」＝计划里的股票目标权重（用户定）。
+- **雷达**：`market-radar.json` 的 `current` 加 `heat`、`heatScore`，`headline` 不含仓位百分比；结论面板首行是冷热。
+- **导航**：观察盘组顺序为观察盘、综合策略、宏观攻守、市场雷达、宏观温度…；三页互链 `TrioNav`。`scripts/prepare-pages.mjs` 补了 `invest/strategy`。
+- **指数估值** `/invest/index-valuation`（`src/pages/IndexValuation.tsx`）：估值位置、股债息差搬出宏观温度，视图组件仍在 `src/features/macro/`；`/monitor?tab=valuation|spread` 用 `Navigate` 跳转；宏观温度「方法」三页签并成 `?tab=method&m=`，旧参数仍可用，共 9 个页签。
+- **没做**：指标行互链、攻守与雷达合页、搬美股市场与牛熊周期页签、统一两套均线规则（理由见设计第 10 节）。
+- **教训**：纵向 flex 容器里的 `flex: 1 1 12rem` 会把基准变成高度，窄屏出现大片空白；执行器自查的「无横向溢出」不等于排版正常，窄屏截图要自己看。用户要求先在本地看（`npx vite --host --port 5199`）再发布，发布前不提交。`npm run build` 会改 `public/changelog.json`，不随功能提交。

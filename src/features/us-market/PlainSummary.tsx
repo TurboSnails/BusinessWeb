@@ -107,7 +107,7 @@ export default function PlainSummary({ questions, trend, asOf, market = '美股'
           </li>
         ))}
       </ul>
-      <p className="us-plain__disclaimer">{market === '美股' ? '综合攻守结论以上方卡片为准。' : ''}每个问题按来源分组计票，每组最多计入一项。下方指标卡可查看历史位置和判定依据。</p>
+      <p className="us-plain__disclaimer">{market === '美股' ? '美股总仓位以综合策略为准。' : ''}每个问题按来源分组计票，每组最多计入一项。下方指标卡可查看历史位置和判定依据。</p>
     </section>
   )
 }

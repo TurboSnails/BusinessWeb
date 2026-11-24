@@ -4,6 +4,7 @@ import { ArrowRight, RefreshCw } from 'lucide-react'
 import { Page, PageToolbar } from '../components/ui'
 import { PageTitle } from '../components/ui/PageTabs'
 import { fetchIndexQuotes } from '../services/indexQuotes'
+import VerdictBar from '../features/combined-strategy/VerdictBar'
 import { stageFromSnapshot, type MacroSnapshot } from '../features/macro/indicators'
 import { SIGNALS, signalTone } from '../features/macro/stages'
 import { useMacroSnapshot } from '../features/macro/useMacroSnapshot'
@@ -35,11 +36,12 @@ function BlockHead({ title, note, to, link }: { title: string; note?: string; to
 }
 
 function MacroBlock({ snap, error, tick }: { snap: MacroSnapshot | null; error: boolean; tick: number }): JSX.Element {
-  if (!snap) return <section className="watch-block" aria-label="宏观阶段"><BlockHead title="宏观阶段" to="/monitor" link="宏观温度" /><p className="watch-muted" role={error ? 'alert' : 'status'}>{error ? '宏观数据加载失败。' : '正在加载宏观数据…'}</p></section>
+  if (!snap) return <section className="watch-block" aria-label="风险预算阶段"><BlockHead title="风险预算阶段" to="/monitor" link="宏观温度" /><p className="watch-muted" role={error ? 'alert' : 'status'}>{error ? '宏观数据加载失败。' : '正在加载宏观数据…'}</p></section>
   const { values, stage, score, entered } = stageFromSnapshot(snap)
   return (
-    <section className={`watch-block watch-macro is-${stage?.tone ?? 'gray'}`} aria-label="宏观阶段">
-      <BlockHead title="宏观阶段" note={`美国六项风险信号 · 快照 ${snap.generatedAt}`} to="/monitor" link="宏观温度" />
+    <section className={`watch-block watch-macro is-${stage?.tone ?? 'gray'}`} aria-label="风险预算阶段">
+      <BlockHead title="风险预算阶段" note={`美国六项风险信号 · 快照 ${snap.generatedAt}`} to="/monitor" link="宏观温度" />
+      <p className="watch-stage__scope">管主动额度和备用金，不改配置目标权重。美股总仓位看上面的结论。</p>
       <div className="watch-stage">
         <strong className="watch-stage__name">{stage?.name ?? '信号待补全'}</strong>
         <span className="watch-stage__score">{stage && `${score} 分 · `}已取得 {entered}/{SIGNALS.length} 项</span>
@@ -239,11 +241,12 @@ export default function WatchBoard(): JSX.Element {
   return (
     <Page className="watch-page">
       <PageTitle>观察盘</PageTitle>
-      <PageToolbar note={`一页看完宏观、全球和 A 股。看环境，不据此下单：只有宏观阶段变化才调整计划。${updatedAt ? ` 行情更新于 ${updatedAt}` : ''}`}>
+      <PageToolbar note={`一页看完宏观、全球和 A 股。看环境，不据此下单。美股仓位看综合策略，主动额度看风险预算阶段。${updatedAt ? ` 行情更新于 ${updatedAt}` : ''}`}>
         <button type="button" className="tool-btn tool-btn--primary" disabled={busy} onClick={() => setTick(n => n + 1)}>
           <RefreshCw size={15} aria-hidden="true" className={busy ? 'animate-spin' : undefined} />{busy ? '正在更新…' : '刷新'}
         </button>
       </PageToolbar>
+      <VerdictBar hideStage />
       <div className="watch-grid">
         <MacroBlock snap={macro} error={macroError} tick={tick} />
         <MarketsBlock groups={groups} loading={quotesLoading} />

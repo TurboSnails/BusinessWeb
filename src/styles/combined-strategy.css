@@ -38,22 +38,17 @@ html.dark .cs-page {
   line-height: 1.75;
   color: var(--text-secondary);
 }
-.cs-head__links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 16px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: 0.92rem;
+.cs-now__scope {
+  margin: -4px 0 14px;
+  max-width: 48rem;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
 }
-.cs-head__links a {
+.cs-now__scope a {
   color: var(--accent-ink, var(--text-primary));
   text-decoration: underline;
   text-underline-offset: 3px;
-  min-height: 32px;
-  display: inline-flex;
-  align-items: center;
 }
 
 .cs-status, .cs-error, .cs-muted, .cs-lead {

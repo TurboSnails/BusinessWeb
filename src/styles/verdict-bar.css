@@ -1,0 +1,106 @@
+/* 全站共用结论条：轻量提示，低于页面主结论 */
+
+.verdict-bar {
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-subtle, #e5e2d9);
+  border-radius: var(--radius-sm, 6px);
+  background: color-mix(in srgb, var(--bg-secondary, #f7f5ef) 85%, transparent);
+  min-width: 0;
+}
+
+.verdict-bar__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin: 0 0 6px;
+  min-width: 0;
+}
+
+.verdict-bar__row:last-of-type {
+  margin-bottom: 4px;
+}
+
+.verdict-bar__label {
+  flex: 0 0 auto;
+  font-size: 0.75rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  color: var(--text-tertiary, var(--text-secondary));
+  white-space: nowrap;
+}
+
+.verdict-bar__body {
+  flex: 1 1 12rem;
+  min-width: 0;
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.verdict-bar__link {
+  flex: 0 0 auto;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--accent-ink, var(--text-primary));
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.verdict-bar__link:hover,
+.verdict-bar__link:focus-visible {
+  color: var(--text-primary);
+}
+
+.verdict-bar__note {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--text-tertiary, var(--text-secondary));
+}
+
+.verdict-bar--loading,
+.verdict-bar--error {
+  min-height: 4.8rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.verdict-bar__status,
+.verdict-bar__error {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.verdict-bar__error a {
+  color: var(--accent-ink, var(--text-primary));
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 420px) {
+  .verdict-bar__row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    margin-bottom: 8px;
+  }
+
+  /* 纵向排列时 flex-basis 会变成高度，这里取消 */
+  .verdict-bar__body {
+    flex: 0 1 auto;
+  }
+
+  .verdict-bar__link {
+    min-height: 44px;
+  }
+}

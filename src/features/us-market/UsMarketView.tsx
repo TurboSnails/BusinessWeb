@@ -12,7 +12,6 @@ import { withinYears } from './explain'
 import HistoryChart from './HistoryChart'
 import { format, MarketCard, RANGES, route, SignedChg, signed, val, type Item, type RangeId } from './cards'
 import PlainSummary, { type Question } from './PlainSummary'
-import SummaryCard from '../macro-posture/composite/SummaryCard'
 import RelativePerformance from '../us-market/RelativePerformance'
 import WeeklyMarketBrief, { type BriefSignal } from './WeeklyMarketBrief'
 import UsLiquidity from './UsLiquidity'
@@ -117,7 +116,7 @@ function CycleReference({ s, id, asOf }: { s: Snapshots; id: string | undefined;
   const expl = (r: Evidence) => r.available ? r.detail : r.pendingReason ?? r.detail
   return <details className="us-market__reference">
     <summary>宏观阶段与牛熊周期参考</summary>
-    <p>美国宏观阶段 <strong>{stage ? stage.stage?.name ?? '信号待补全' : '暂无读数'}</strong>{stale && stale.length > 0 ? ' · 部分阶段输入缺失或过期' : ''} · <Link to={route('us')}>美国宏观</Link></p>
+    <p>风险预算阶段 <strong>{stage ? stage.stage?.name ?? '信号待补全' : '暂无读数'}</strong>{stale && stale.length > 0 ? ' · 部分阶段输入缺失或过期' : ''} · <Link to={route('us')}>美国宏观</Link></p>
     {result && <><p>牛熊周期自动读数 <strong>{result.summary.state}</strong> · 有效证据 {result.summary.valid}/6 · <Link to={route(`market-cycle&market=${market}`)}>牛熊周期与回测</Link></p>
       <ul>{result.rows.map(r => <li key={r.id}><strong>{r.name}</strong> {expl(r)}</li>)}</ul></>}
     <p>用于观察风险与修复。20 周线回测应同时看回报和回撤。</p>
@@ -188,7 +187,6 @@ export default function UsMarketView() {
     {rangeSelector}
   </div>
   const controls = <>
-    <SummaryCard />
     <div className="us-market__top">
       <Segmented label="美股细分" items={GROUPS} value={group} onChange={next => go(next)} />
       <div className="us-market__top-end">
@@ -370,7 +368,7 @@ export default function UsMarketView() {
           ] : []),
           ...(sectorValuation?.reading ? [sectorValuation] : []),
           ...fundValuations,
-        ]} asOf={asOf} years={years} link={{ tab: 'valuation', label: '查看估值位置' }} />
+        ]} asOf={asOf} years={years} link={{ to: '/invest/index-valuation', label: '查看估值位置' }} />
         <MarketCard title="宽度与成交" items={[
           breadthPct,
           ...(slice ? [highsItem(stance.breadth, '净新高比例（52 周新高 − 新低）')] : []),
@@ -380,7 +378,7 @@ export default function UsMarketView() {
         <MarketCard title="市场情绪" items={[fearGreed, sets.vix, m('putCall', 'Cboe 期权 Put/Call', 'Cboe 全产品'), retailBull, retailBear, skew, ...cnnParts]} asOf={asOf} years={years} />
         <MarketCard title="仓位与杠杆" items={positions} asOf={asOf} years={years} />
         <MarketCard title="现金与流向" items={cash} asOf={asOf} years={years} />
-        <MarketCard title="信用与利率" items={[sets.hy, baaAaa, tenYearItem, ...rateItems, m('nfci', '芝加哥联储金融条件指数')]} asOf={asOf} years={years} link={{ tab: 'spread&mkt=us', label: '查看美股股债息差' }} />
+        <MarketCard title="信用与利率" items={[sets.hy, baaAaa, tenYearItem, ...rateItems, m('nfci', '芝加哥联储金融条件指数')]} asOf={asOf} years={years} link={{ to: '/invest/index-valuation?tab=spread&mkt=us', label: '查看美股股债息差' }} />
       </>}
       {group === 'participants' && <>
         <MarketCard title="美国散户" items={[retailCash, retailStocks, retailBull, retailBear]} asOf={asOf} years={years} />

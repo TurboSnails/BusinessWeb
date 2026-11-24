@@ -19,6 +19,12 @@ vi.mock('../features/macro-posture/composite/load', () => ({
   COMPOSITE_URL: '/data/macro-posture.json',
 }))
 
+vi.mock('../features/combined-strategy/load', () => ({
+  useCombinedStrategy: vi.fn(() => ({ status: 'ready', data: { current: { instruction: '股票仓位保持在你上限的 85%，本月不用调。' } } })),
+  resetCombinedStrategyCache: vi.fn(),
+  COMBINED_STRATEGY_URL: '/data/combined-strategy.json',
+}))
+
 import { useMarketRadar } from '../features/market-radar/load'
 
 const mockedRadar = vi.mocked(useMarketRadar)
@@ -38,33 +44,37 @@ function renderPage(radar: RadarState = { status: 'ready', data: radarFixture() 
 }
 
 describe('MarketRadar 页面', () => {
-  it('页头声明独立于大师方案，并链到宏观攻守与综合策略', () => {
+  it('页头声明独立于大师方案，并用 TrioNav 链到宏观攻守与综合策略', () => {
     renderPage()
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('市场雷达')
     expect(screen.getByTestId('mr-head-lead').textContent).toBe(MARKET_RADAR_LEAD)
-    expect(screen.getByRole('link', { name: '宏观攻守（大师方案）' }).getAttribute('href')).toBe('/invest/macro-posture')
-    const head = document.querySelector<HTMLElement>('.mr-head__links')!
-    expect(within(head).getByRole('link', { name: '综合策略' }).getAttribute('href')).toBe('/invest/strategy')
+    const trio = screen.getByRole('navigation', { name: '策略相关页面' })
+    expect(within(trio).getByRole('link', { name: '宏观依据 · 宏观攻守' }).getAttribute('href')).toBe('/invest/macro-posture')
+    expect(within(trio).getByRole('link', { name: '结论 · 综合策略' }).getAttribute('href')).toBe('/invest/strategy')
+    expect(within(trio).getByRole('link', { name: '股市依据 · 市场雷达' }).getAttribute('aria-current')).toBe('page')
     expect(document.body.textContent).toContain(MARKET_RADAR_FOOTER)
   })
 
   it('加载中 / 失败状态', () => {
     renderPage({ status: 'loading' })
-    expect(screen.getByRole('status').textContent).toContain('加载中')
+    expect(screen.getAllByRole('status').some(el => el.textContent?.includes('加载中'))).toBe(true)
     cleanup()
     renderPage({ status: 'error', message: 'HTTP 404' })
     expect(screen.getByTestId('mr-error').textContent).toContain('市场雷达加载失败')
   })
 
-  it('结论：档位条、综合分、五维度、链到综合策略', () => {
+  it('结论：首行冷热、策略链、次要档位与五维度', () => {
     renderPage()
+    expect(screen.getByTestId('mr-heat').textContent).toBe('股市偏热')
+    expect(screen.getByTestId('mr-headline').textContent).toContain('股市偏热')
+    expect(screen.getByTestId('mr-headline').textContent).toContain('偏防守')
+    expect(screen.queryByTestId('mr-masters-compare')).toBeNull()
+    expect(screen.getByTestId('mr-strategy-link').textContent).toContain('冷热不改变仓位。仓位多少、这个阶段怎么做，见')
+    expect(within(screen.getByTestId('mr-strategy-link')).getByRole('link', { name: '综合策略' }).getAttribute('href')).toBe('/invest/strategy')
+    expect(screen.getByTestId('mr-tier-note').textContent).toContain('不是操作仓位')
     expect(screen.getByTestId('mr-tier-name').textContent).toBe('偏防守')
     expect(screen.getByTestId('mr-score').textContent).toContain('−0.20')
     expect(screen.getByTestId('mr-score').textContent).not.toMatch(/(?<![\d.])-(?=\d)/)
-    expect(screen.getByTestId('mr-headline').textContent).toContain('偏防守')
-    expect(screen.queryByTestId('mr-masters-compare')).toBeNull()
-    expect(screen.getByTestId('mr-strategy-link').textContent).toContain('仓位怎么定')
-    expect(within(screen.getByTestId('mr-strategy-link')).getByRole('link', { name: '综合策略' }).getAttribute('href')).toBe('/invest/strategy')
     expect(screen.getByTestId('mr-dim-valuation').textContent).toContain('估值')
     expect(screen.getByTestId('mr-dim-score-crowding').textContent).toContain('−0.67')
     const strip = screen.getByTestId('mr-tier-strip')

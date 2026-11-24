@@ -40,6 +40,9 @@ export type RadarFile = {
   current: {
     score: number | null
     tier: TierId | null
+    /** 估值与拥挤度等权平均：≤ −0.5 偏热，≥ +0.5 偏冷；与综合策略同源。 */
+    heatScore: number | null
+    heat: 'hot' | 'mid' | 'cold' | null
     headline: string
     dimensions: { id: RadarDimensionId; title: string; score: number | null; summary: string }[]
   }

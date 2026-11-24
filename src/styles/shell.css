@@ -330,6 +330,24 @@
   color: var(--text-secondary);
 }
 
+.page-related {
+  margin-top: 10px;
+  font-size: 0.9rem;
+}
+
+.page-related a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.page-related a:hover {
+  text-decoration: underline;
+}
+
+.page-related__note {
+  color: var(--text-tertiary);
+}
+
 .hub-group {
   margin-bottom: 28px;
 }

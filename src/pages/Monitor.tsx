@@ -1,6 +1,6 @@
 import React, { lazy, Suspense, useEffect, useState } from 'react'
 import { RefreshCw } from 'lucide-react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Navigate, useSearchParams } from 'react-router-dom'
 import { OverviewTab } from '../components/monitor/OverviewTab'
 import { IndicatorsTab } from '../components/monitor/IndicatorsTab'
 import { TemperatureTab } from '../components/monitor/TemperatureTab'
@@ -11,39 +11,40 @@ import { USMonitorTab } from '../components/monitor/USMonitorTab'
 import { ChinaStockTab } from '../components/monitor/ChinaStockTab'
 import { PageTabs, PageTitle, Segmented, type TabItem } from '../components/ui/PageTabs'
 import { CyclesView } from '../features/macro/CycleViews'
-import { ValuationView } from '../features/macro/ValuationView'
-import type { IndexSnapshot } from '../features/macro/valuation'
-import { SpreadView } from '../features/macro/SpreadView'
-import type { SpreadSnapshot } from '../features/macro/spread'
-import { UsSpreadView } from '../features/macro/UsSpreadView'
-import type { UsSpreadSnapshot } from '../features/macro/usSpread'
 import { ChinaView, GuideView, HkView, OverviewView, StagesView, UsView } from '../features/macro/MacroViews'
 import type { MacroSnapshot } from '../features/macro/indicators'
 import type { CnKey } from '../features/macro/china'
 import type { HkKey } from '../features/macro/hk'
 import { Page } from '../components/ui'
-import SummaryCard from '../features/macro-posture/composite/SummaryCard'
+import VerdictBar from '../features/combined-strategy/VerdictBar'
+import { stageFromSnapshot } from '../features/macro/indicators'
 import { PageDataFreshness } from '../components/ui/PageDataFreshness'
 import '../styles/monitor.css'
 
 const MarketCycleView = lazy(() => import('../features/market-cycle/MarketCycleView'))
 const UsMarketView = lazy(() => import('../features/us-market/UsMarketView'))
 const CnMarketView = lazy(() => import('../features/cn-market/CnMarketView'))
-type TabId = 'overview' | 'us-market' | 'cn-market' | 'us' | 'cn' | 'hk' | 'market-cycle' | 'cycles' | 'valuation' | 'spread' | 'stages' | 'guide' | 'archive'
+
+type TabId = 'overview' | 'us-market' | 'cn-market' | 'us' | 'cn' | 'hk' | 'market-cycle' | 'cycles' | 'method'
+type MethodId = 'stages' | 'guide' | 'archive'
+const LEGACY_METHOD = new Set<string>(['stages', 'guide', 'archive'])
+
 const TABS: TabItem<TabId>[] = [
   { id: 'overview', label: '温度总览' },
   { id: 'us-market', label: '美股市场', group: '市场', shortLabel: '美股' },
-  { id: 'cn-market', label: '中国市场', group: '市场', shortLabel: '中国' },
+  { id: 'cn-market', label: '中国市场', group: '市场', shortLabel: '中国市场' },
   { id: 'us', label: '美国宏观', group: '宏观', shortLabel: '美国' },
-  { id: 'cn', label: '中国宏观', group: '宏观', shortLabel: '中国' },
+  { id: 'cn', label: '中国宏观', group: '宏观', shortLabel: '中国宏观' },
   { id: 'hk', label: '港股宏观', group: '宏观', shortLabel: '港股' },
-  { id: 'market-cycle', label: '牛熊周期', group: '周期与估值' },
-  { id: 'cycles', label: '周期位置', group: '周期与估值' },
-  { id: 'valuation', label: '估值位置', group: '周期与估值' },
-  { id: 'spread', label: '股债息差', group: '周期与估值' },
-  { id: 'stages', label: '阶段与动作', group: '方法' },
-  { id: 'guide', label: '指标说明', group: '方法' },
-  { id: 'archive', label: '旧版存档', group: '方法' },
+  { id: 'market-cycle', label: '牛熊周期', group: '周期' },
+  { id: 'cycles', label: '周期位置', group: '周期' },
+  { id: 'method', label: '方法' },
+]
+
+const METHOD_ITEMS: TabItem<MethodId>[] = [
+  { id: 'stages', label: '阶段与动作' },
+  { id: 'guide', label: '指标说明' },
+  { id: 'archive', label: '旧版存档' },
 ]
 
 // 旧版内容以期权情绪、做空与个股仓位为主，和书中方法不一致；保留原样，仅供查阅
@@ -78,30 +79,27 @@ export function mergeSnapshot<T extends MacroSnapshot<string>>(old: T | null, fr
 }
 const timeText = (iso: string) => new Date(iso).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
 
-let indexCache: IndexSnapshot | null = null
-let spreadCache: SpreadSnapshot | null = null
-let usSpreadCache: UsSpreadSnapshot | null = null
-type SpreadMarket = 'cn' | 'us'
-const SPREAD_MARKETS: TabItem<SpreadMarket>[] = [{ id: 'cn', label: 'A 股 · 沪深300' }, { id: 'us', label: '美股 · 标普500' }]
-
 export default function Monitor(): JSX.Element {
   const [params, setParams] = useSearchParams()
-  const [indexes, setIndexes] = useState<IndexSnapshot | null>(indexCache)
-  const [indexError, setIndexError] = useState(false)
-  const [spread, setSpread] = useState<SpreadSnapshot | null>(spreadCache)
-  const [spreadError, setSpreadError] = useState(false)
-  const [usSpread, setUsSpread] = useState<UsSpreadSnapshot | null>(usSpreadCache)
-  const [usSpreadError, setUsSpreadError] = useState(false)
-  const spreadMarket: SpreadMarket = params.get('mkt') === 'us' ? 'us' : 'cn'
   const tabParam = params.get('tab')
-  const tab: TabId = TABS.some(t => t.id === tabParam) ? (tabParam as TabId) : 'overview'
+  const redirectToValuation = tabParam === 'valuation'
+  const redirectToSpread = tabParam === 'spread'
+  const legacyMethod = !redirectToValuation && !redirectToSpread && LEGACY_METHOD.has(tabParam ?? '')
+    ? (tabParam as MethodId)
+    : null
+  const tab: TabId = legacyMethod
+    ? 'method'
+    : TABS.some(t => t.id === tabParam) ? (tabParam as TabId) : 'overview'
+  const methodParam = params.get('m')
+  const method: MethodId = legacyMethod
+    ?? (METHOD_ITEMS.some(m => m.id === methodParam) ? (methodParam as MethodId) : 'stages')
   const archiveParam = params.get('old')
   const archive: ArchiveId = ARCHIVE.some(a => a.id === archiveParam) ? (archiveParam as ArchiveId) : 'execution'
   const [data, setData] = useState<Snapshots | null>(snapshotCache)
   const [error, setError] = useState('')
   const [refreshing, setRefreshing] = useState(false)
   const [notice, setNotice] = useState('')
-  const loadsMacro = tab !== 'us-market' && tab !== 'cn-market'
+  const loadsMacro = !redirectToValuation && !redirectToSpread && tab !== 'us-market' && tab !== 'cn-market'
 
   /** 拉取实时数据；成功返回新快照（AI 解读会先调用它，保证解读的是最新数据） */
   const refresh = async (): Promise<Snapshots | null> => {
@@ -130,33 +128,38 @@ export default function Monitor(): JSX.Element {
       .catch(() => setError('宏观数据加载失败，请刷新重试。'))
   }, [loadsMacro])
 
-  useEffect(() => {
-    if (params.get('tab') !== 'valuation') return
-    // 每次进页签都向服务器校验一次：数据文件会随更新变化，不能沿用浏览器或模块里的旧副本
-    load('index-history.json', { cache: 'no-cache' }).then((d: IndexSnapshot) => { indexCache = d; setIndexes(d) }).catch(() => setIndexError(true))
-  }, [params])
-
-  useEffect(() => {
-    if (params.get('tab') !== 'spread') return
-    if (params.get('mkt') === 'us') load('us-equity-bond-spread.json', { cache: 'no-cache' }).then((d: UsSpreadSnapshot) => { usSpreadCache = d; setUsSpread(d) }).catch(() => setUsSpreadError(true))
-    else load('equity-bond-spread.json', { cache: 'no-cache' }).then((d: SpreadSnapshot) => { spreadCache = d; setSpread(d) }).catch(() => setSpreadError(true))
-  }, [params])
-
   const go = (patch: Record<string, string | null>): void => setParams(prev => {
     const next = new URLSearchParams(prev)
     Object.entries(patch).forEach(([k, v]) => (v === null ? next.delete(k) : next.set(k, v)))
     return next
   }, { replace: true })
 
-  const needsData = tab !== 'archive' && tab !== 'valuation' && tab !== 'market-cycle' && tab !== 'spread' && tab !== 'us-market' && tab !== 'cn-market'
+  if (redirectToValuation) {
+    return <Navigate to="/invest/index-valuation" replace />
+  }
+  if (redirectToSpread) {
+    const next = new URLSearchParams()
+    next.set('tab', 'spread')
+    const mkt = params.get('mkt')
+    if (mkt) next.set('mkt', mkt)
+    return <Navigate to={`/invest/index-valuation?${next}`} replace />
+  }
+
+  const needsData = tab !== 'method' && tab !== 'market-cycle' && tab !== 'us-market' && tab !== 'cn-market'
+    || (tab === 'method' && method !== 'archive')
   const snap = data?.us
+  const stage = snap ? stageFromSnapshot(snap).stage : undefined
   return (
     <Page>
       <PageTitle>宏观温度</PageTitle>
-      <p><Link to="/invest/macro-posture">查看宏观攻守</Link></p>
-      <PageTabs label="宏观温度栏目" items={TABS} value={tab} onChange={id => go({ tab: id === 'overview' ? null : id, old: null })} />
+      <VerdictBar stage={stage} />
+      <PageTabs
+        label="宏观温度栏目"
+        items={TABS}
+        value={tab}
+        onChange={id => go({ tab: id === 'overview' ? null : id, old: null, m: null })}
+      />
       {needsData && snap && <PageDataFreshness checkedAt={[data.us, data.cn, data.hk].map(section => section?.checkedAt ?? section?.fetchedAt).filter(Boolean).sort().at(-1)} dataLabel="指标观测日期" dataDates={[...Object.values(snap.series).map(series => series.latest.date), ...Object.values(data?.cn?.series ?? {}).map(series => series.latest.date), ...Object.values(data?.hk?.series ?? {}).map(series => series.latest.date)]} note="各指标观测日期不同；页面显示本次核验日与可用数据日期。" />}
-      {tab === 'valuation' && indexes && <PageDataFreshness checkedAt={indexes.checkedAt} dataLabel="指数数据日期" dataDates={Object.values(indexes.indexes).flatMap(index => [index.latest.date, index.agg?.date])} note={`快照生成于 ${indexes.generatedAt}。`} />}
       <div>
         {tab === 'cn-market' && <Suspense fallback={<p role="status">正在加载中国市场…</p>}><CnMarketView /></Suspense>}
         {tab === 'us-market' && <Suspense fallback={<p role="status">正在加载美股市场…</p>}><UsMarketView /></Suspense>}
@@ -171,30 +174,35 @@ export default function Monitor(): JSX.Element {
           </div>
         )}
         {snap && tab === 'overview' && <OverviewView snap={snap} cn={data.cn} hk={data.hk} onRefresh={refresh} />}
-        {tab === 'us' && <SummaryCard />}
         {snap && tab === 'us' && <UsView snap={snap} />}
         {snap && tab === 'cn' && (data.cn ? <ChinaView snap={data.cn} /> : <p role="alert" className="macro-muted">中国数据加载失败，请刷新重试。</p>)}
         {snap && tab === 'hk' && (data.hk ? <HkView snap={data.hk} /> : <p role="alert" className="macro-muted">港股数据加载失败，请刷新重试。</p>)}
         {snap && tab === 'cycles' && <CyclesView us={snap} cn={data.cn} />}
-        {tab === 'valuation' && (indexes ? <ValuationView data={indexes} onData={d => { indexCache = d }} /> : <p role={indexError ? 'alert' : 'status'} className="macro-muted">{indexError ? '指数数据加载失败，请刷新重试。' : '正在加载指数数据…'}</p>)}
-        {tab === 'spread' && (
+        {tab === 'method' && (
           <>
-            <div className="macro-spread__market"><Segmented label="股债息差市场" items={SPREAD_MARKETS} value={spreadMarket} onChange={id => go({ mkt: id === 'cn' ? null : id })} /></div>
-            {spreadMarket === 'cn' && (spread ? <SpreadView data={spread} /> : <p role={spreadError ? 'alert' : 'status'} className="macro-muted">{spreadError ? '股债息差数据加载失败，请刷新重试。' : '正在加载股债息差数据…'}</p>)}
-            {spreadMarket === 'us' && (usSpread ? <UsSpreadView data={usSpread} /> : <p role={usSpreadError ? 'alert' : 'status'} className="macro-muted">{usSpreadError ? '美股股债息差数据加载失败，请刷新重试。' : '正在加载美股股债息差数据…'}</p>)}
-          </>
-        )}
-        {snap && tab === 'stages' && <StagesView snap={snap} />}
-        {snap && tab === 'guide' && <GuideView snap={snap} cn={data.cn} hk={data.hk} />}
-        {tab === 'archive' && (
-          <>
-            <p className="macro-archive-note" role="note">
-              已停用：旧版以期权情绪（Put/Call、Gamma）、做空工具和具体个股仓位为主，数据停在 2025 年底，和书中「不预测、不做空、不加杠杆」的方法不一致。保留原样，仅供回看，不再更新。
-            </p>
-            <Segmented label="旧版栏目" items={ARCHIVE} value={archive} onChange={id => go({ old: id })} />
-            <div className="ui-card">
-              {ARCHIVE.find(a => a.id === archive)!.el()}
-            </div>
+            <Segmented
+              label="方法子栏目"
+              items={METHOD_ITEMS}
+              value={method}
+              onChange={id => go({
+                tab: 'method',
+                m: id === 'stages' ? null : id,
+                old: id === 'archive' ? archive : null,
+              })}
+            />
+            {snap && method === 'stages' && <StagesView snap={snap} />}
+            {snap && method === 'guide' && <GuideView snap={snap} cn={data.cn} hk={data.hk} />}
+            {method === 'archive' && (
+              <>
+                <p className="macro-archive-note" role="note">
+                  已停用：旧版以期权情绪（Put/Call、Gamma）、做空工具和具体个股仓位为主，数据停在 2025 年底，和书中「不预测、不做空、不加杠杆」的方法不一致。保留原样，仅供回看，不再更新。
+                </p>
+                <Segmented label="旧版栏目" items={ARCHIVE} value={archive} onChange={id => go({ old: id })} />
+                <div className="ui-card">
+                  {ARCHIVE.find(a => a.id === archive)!.el()}
+                </div>
+              </>
+            )}
           </>
         )}
       </div>

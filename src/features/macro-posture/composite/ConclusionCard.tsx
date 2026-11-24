@@ -1,4 +1,5 @@
 import React, { useId, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Badge } from '../../../components/ui'
 import {
   confidenceBadgeText,
@@ -111,6 +112,7 @@ export function EquityCapInput({ equityShare }: { equityShare: number | null }):
         />
         <span aria-hidden="true">%</span>
       </span>
+      <p className="mp-equity-cap__def">「上限」就是你计划里的股票目标权重。</p>
       <p id={`${id}-hint`} className="mp-equity-cap__hint" data-testid="mp-equity-cap-implied">
         {implied == null ? '暂不换算仓位' : `现在约 ${implied}%`}
       </p>
@@ -224,9 +226,16 @@ export default function ConclusionCard({ data }: { data: CompositeFile }): JSX.E
           <p className="mp-conclusion__tier-name" data-testid="mp-tier-name">{tierMeta?.label ?? '—'}</p>
         )}
         {share ? (
-          <p className="mp-conclusion__share" data-testid="mp-share">
-            股票仓位约为你自设上限的 {share}
-          </p>
+          <>
+            <p className="mp-conclusion__share" data-testid="mp-share">
+              股票仓位约为你自设上限的 {share}
+            </p>
+            <p className="mp-conclusion__estimate-note" data-testid="mp-estimate-note">
+              这是按今天数据的预估，正式定档在月末，以
+              <Link to="/invest/strategy">综合策略</Link>
+              为准
+            </p>
+          </>
         ) : (
           <p className="mp-conclusion__share mp-conclusion__share--muted">暂不给出仓位建议</p>
         )}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { Segmented } from '../../components/ui/PageTabs'
 import { DIMENSION_RULES, evaluate, MANUAL_NAMES, MARKETS, manualFields, RULE_VERSION, safeUrl, SIGNAL_LABEL, STATE_RULES, type CycleSnapshot, type Evidence, type Gauge, type MacroContext, type ManualDimension, type Market, type Observation, type TechnicalPoint } from './engine'
 import { EMPTY_BUDGET, loadState, macroSchema, parseBackup, persistState, snapshotSchema, automaticSchema, breadthSchema, reportSchema, type AutomaticReport, type Budget, type LocalState, type ReviewLog } from './storage'
@@ -212,12 +212,16 @@ export default function MarketCycleView(): JSX.Element {
           {r.rows.map(row => <span role="cell" key={row.id} className={`cycle-dot cycle-dot--${signalOf(row)}`} title={`${row.name}：${evidenceLabel(row)}`}><span className="cycle-dot__mark" aria-hidden="true" />{SIGNAL_LABEL[signalOf(row)]}</span>)}
         </div> })}
       </div>
+      <p className="macro-muted">美股两行（标普500、纳指100）为观察版；美股仓位以 <Link to="/invest/strategy">综合策略</Link> 为准，这里的状态只用来复核。</p>
     </section>
 
     <div className="cycle-summary">
       <div>
         <p className="macro-muted">{marketLabel} · {latestEvidence ? `证据最新至 ${latestEvidence}` : '尚无有效证据日期'}</p>
         <h3>{result.summary.state}</h3>
+        {(market === 'spx' || market === 'ndx') && (
+          <p className="macro-muted">观察版。美股仓位以 <Link to="/invest/strategy">综合策略</Link> 为准，这里的状态只用来复核。</p>
+        )}
         <p className="cycle-summary__lead">{STATE_RULES.find(r => r.state === result.summary.state)?.lead}</p>
         <p className="macro-muted">{result.summary.note}</p>
         {overLimit && <p className="cycle-alert">当前策略仓位已超过你自定的上限，请复核。</p>}

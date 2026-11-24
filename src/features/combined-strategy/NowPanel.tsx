@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import { EquityCapInput } from '../macro-posture/composite/ConclusionCard'
 import { visibleText } from './labels'
 import type { CombinedStrategyFile } from './types'
@@ -12,6 +13,11 @@ export default function NowPanel({ data }: { data: CombinedStrategyFile }): JSX.
 
       <p className="cs-now__instruction" data-testid="cs-instruction">
         {visibleText(current.instruction)}
+      </p>
+      <p className="cs-now__scope" data-testid="cs-now-scope">
+        这是美股总仓位。主动额度和备用金另按
+        <Link to="/monitor?tab=method">风险预算阶段</Link>
+        执行。
       </p>
 
       <EquityCapInput equityShare={current.equityShare} />

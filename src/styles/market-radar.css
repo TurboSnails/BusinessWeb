@@ -38,21 +38,6 @@ html.dark .mr-page {
   line-height: 1.75;
   color: var(--text-secondary);
 }
-.mr-head__links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 16px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: 0.92rem;
-}
-.mr-head__links a {
-  color: var(--accent-ink, var(--text-primary));
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
 .mr-status, .mr-error, .mr-muted {
   margin: 0 0 16px;
   max-width: 48rem;

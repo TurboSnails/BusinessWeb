@@ -285,7 +285,9 @@ export function radarFixture(overrides: Partial<RadarFile> = {}): RadarFile {
     current: {
       score: -0.2,
       tier: 'lean-defense',
-      headline: '估值与拥挤度偏热，流动性与交易结构中性，综合偏防守。',
+      heatScore: -0.5,
+      heat: 'hot',
+      headline: '股市偏热：估值与拥挤度两个维度平均 −0.50。五维综合分 −0.20，雷达自身的回测档位为偏防守。',
       dimensions: DIMENSIONS,
     },
     indicators: INDICATORS,

@@ -36,6 +36,7 @@ const EXACT: Record<string, RouteSeo> = {
   '/invest/top-masters': { title: '六位顶级投资人怎么看周期｜业绩、方法与当前读数', description: '德鲁肯米勒、索罗斯、邓普顿、都铎·琼斯、达利欧、马克斯六位：公开业绩与来源、周期框架、按其方法的当前判断，以及股票投资者能学什么；不构成买卖建议。' },
   '/invest/macro-masters': { title: '宏观大师怎么看周期｜当前位置与九位的方法', description: '汇总当前周期阶段与短线偏攻或偏守的证据，并对照九位宏观投资人的思路、指标与可靠性；均为本站口径，不构成买卖建议。' },
   '/invest/macro-posture': { title: '宏观攻守｜现在该进攻还是防守', description: '参考九位宏观投资人公开方法提炼的美股综合攻守指标：五档仓位与置信度、距离改判、外圈分级指标，以及 1973 年以来的公开回测。' },
+  '/invest/index-valuation': { title: '指数估值｜历史分位与股债息差', description: '美股、A 股、港股主要指数的价格与市盈率历史分位、估值热力图，以及沪深300与标普500的股债息差。分位高说明相对过去偏贵，不是卖出信号。' },
   '/ai/ai-skills': { title: 'AI Skills 工具库｜AI实验室', description: '可下载的 AI Skills：Orca 开发团队、投资分析、视频创作与小说写作，含安装方法和提示词示例。' },
   '/industry-etf': { title: 'ETF 与债券基金清单', description: '宽基、策略、商品、货币 ETF、场外债基与 7 个行业组 59 只行业 ETF，附日周月均线、MACD、RSI 技术面与研究备注。' },
   '/invest/start': { title: '从这里开始｜普通人投资入门自测', description: '5 分钟自测：先确认该不该投，再看适合先打底、省心、结合还是研究路线；定下检查日。答案只存在你的浏览器，不构成投资建议、不承诺收益。' },

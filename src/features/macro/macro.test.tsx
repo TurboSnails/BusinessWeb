@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import React from 'react'
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import Monitor, { mergeSnapshot } from '../../pages/Monitor'
 import { INDICATORS, toneOf } from './indicators'
@@ -63,9 +63,9 @@ describe('宏观指标规则', () => {
 })
 
 describe('宏观温度页面', () => {
-  it('默认显示温度总览：当前阶段、数据日期与使用原则', async () => {
+  it('默认显示温度总览：风险预算阶段、数据日期与使用原则', async () => {
     renderAt()
-    const hero = await screen.findByRole('region', { name: '当前阶段' })
+    const hero = await screen.findByRole('region', { name: '风险预算阶段' })
     expect(within(hero).getByRole('heading', { level: 2 }).textContent).toMatch(/常态|预警|防御|危机/)
     expect(screen.getByText(/美国数据更新于/)).toBeTruthy()
     expect(screen.getByText(/不做空、不加杠杆/)).toBeTruthy()
@@ -75,7 +75,7 @@ describe('宏观温度页面', () => {
     const partial = { ...snapshot, series: { ...snapshot.series } }
     Reflect.deleteProperty(partial.series, 'vix')
     const overview = render(<MemoryRouter><OverviewView snap={partial} cn={null} /></MemoryRouter>)
-    const hero = within(screen.getByRole('region', { name: '当前阶段' }))
+    const hero = within(screen.getByRole('region', { name: '风险预算阶段' }))
     expect(hero.getByText('信号待补全')).toBeTruthy()
     expect(hero.getByText(/5\/6 项风险信号/)).toBeTruthy()
     expect(hero.queryByText('这个阶段做什么')).toBeNull()
@@ -109,10 +109,55 @@ describe('宏观温度页面', () => {
     expect(screen.getByText(/1 项没拉到，沿用快照/)).toBeTruthy()
   })
 
-  it('旧版内容收进存档并标注停用', () => {
+  it('旧版内容收进方法页签的存档并标注停用', () => {
     renderAt('/monitor')
-    fireEvent.click(screen.getByRole('tab', { name: '旧版存档' }))
+    fireEvent.click(screen.getByRole('tab', { name: '方法' }))
+    fireEvent.click(screen.getByRole('button', { name: '旧版存档' }))
     expect(screen.getByRole('note').textContent).toMatch(/已停用/)
     expect(screen.getByRole('group', { name: '旧版栏目' })).toBeTruthy()
+  })
+
+  it('旧地址 valuation / spread 跳到指数估值页', () => {
+    function Loc(): JSX.Element {
+      const loc = useLocation()
+      return <p data-testid="dest">{loc.pathname}{loc.search}</p>
+    }
+    render(
+      <MemoryRouter initialEntries={['/monitor?tab=valuation']}>
+        <Routes>
+          <Route path="/monitor" element={<Monitor />} />
+          <Route path="/invest/index-valuation" element={<Loc />} />
+        </Routes>
+      </MemoryRouter>,
+    )
+    expect(screen.getByTestId('dest').textContent).toBe('/invest/index-valuation')
+    cleanup()
+    render(
+      <MemoryRouter initialEntries={['/monitor?tab=spread&mkt=us']}>
+        <Routes>
+          <Route path="/monitor" element={<Monitor />} />
+          <Route path="/invest/index-valuation" element={<Loc />} />
+        </Routes>
+      </MemoryRouter>,
+    )
+    expect(screen.getByTestId('dest').textContent).toBe('/invest/index-valuation?tab=spread&mkt=us')
+  })
+
+  it('旧方法地址 stages / guide / archive 落到方法子项', async () => {
+    renderAt('/monitor?tab=stages')
+    expect(screen.getByRole('tab', { name: '方法' }).getAttribute('aria-selected')).toBe('true')
+    expect(screen.getByRole('button', { name: '阶段与动作' }).getAttribute('aria-pressed')).toBe('true')
+    expect(await screen.findByRole('group', { name: '方法子栏目' })).toBeTruthy()
+    expect(await screen.findByRole('region', { name: '阶段信号' })).toBeTruthy()
+    cleanup()
+    renderAt('/monitor?tab=guide')
+    expect(screen.getByRole('tab', { name: '方法' }).getAttribute('aria-selected')).toBe('true')
+    expect(screen.getByRole('button', { name: '指标说明' }).getAttribute('aria-pressed')).toBe('true')
+    expect(await screen.findByText('为什么只看这些')).toBeTruthy()
+    cleanup()
+    renderAt('/monitor?tab=archive')
+    expect(screen.getByRole('tab', { name: '方法' }).getAttribute('aria-selected')).toBe('true')
+    expect(screen.getByRole('button', { name: '旧版存档' }).getAttribute('aria-pressed')).toBe('true')
+    expect(screen.getByRole('note').textContent).toMatch(/已停用/)
   })
 })

@@ -4,8 +4,9 @@ import {
   alignRadar, blendEquity, buildBacktestVerdict, DISCLOSURES,
   resolveMastersTiers, STRATEGY_ROWS,
 } from './lib/market-radar/backtest.mjs'
+import { heatFromRadarCurrent } from './lib/combined-strategy/current.mjs'
 import {
-  aggregateScores, buildIndicators, dimensionScoresAt, rankAt, scoreAt, scoreIndicator,
+  aggregateScores, buildCurrent, buildIndicators, dimensionScoresAt, rankAt, scoreAt, scoreIndicator,
 } from './lib/market-radar/indicators.mjs'
 import { buildRadarSeries, parseShillerEps, priceAdjustedPe } from './lib/market-radar/sources.mjs'
 import { marketSeries } from './lib/macro-posture-market/data.mjs'
@@ -176,6 +177,42 @@ test('先算维度均值，再等权合成；零分计入、空维度略过；sc
   const valuation = dims.find(row => row.id === 'valuation')?.score
   assert.equal(valuation, scoreAt({ pe }, '1972-12-31'))
   assert.equal(scoreAt({ pe }, '1972-12-31'), -1)
+})
+
+test('buildCurrent：热度与综合策略同源，headline 说冷热不说仓位上限', () => {
+  const make = (dimension, score, inScore = true) => ({ dimension, score, inScore })
+  const hot = buildCurrent([
+    make('valuation', -0.5), make('crowding', -0.6666666666666666), make('liquidity', 0),
+  ])
+  const fromCs = heatFromRadarCurrent(hot)
+  assert.equal(hot.heatScore, fromCs.heatScore)
+  assert.equal(hot.heat, fromCs.heat)
+  assert.equal(hot.heat, 'hot')
+  assert.match(hot.headline, /^股市偏热：估值与拥挤度两个维度平均 −0\.58。/)
+  assert.match(hot.headline, /五维综合分/)
+  assert.match(hot.headline, /雷达自身的回测档位为/)
+  assert.equal(hot.headline.includes('仓位上限'), false)
+  assert.equal(hot.headline.includes('%'), false)
+
+  const mid = buildCurrent([make('valuation', 0), make('crowding', 0)])
+  assert.equal(mid.heat, 'mid')
+  assert.match(mid.headline, /^股市居中：/)
+
+  const cold = buildCurrent([make('valuation', 1), make('crowding', 0.5)])
+  assert.equal(cold.heat, 'cold')
+  assert.match(cold.headline, /^股市偏冷：/)
+
+  const pending = buildCurrent([make('liquidity', -1), make('trading', 0)])
+  assert.equal(pending.heat, null)
+  assert.equal(pending.heatScore, null)
+  assert.match(pending.headline, /^估值与拥挤度读数暂缺，冷热待定。/)
+  assert.match(pending.headline, /雷达自身的回测档位为/)
+  assert.equal(pending.headline.includes('仓位上限'), false)
+
+  const empty = buildCurrent([])
+  assert.equal(empty.heat, null)
+  assert.equal(empty.tier, null)
+  assert.equal(empty.headline, '计分读数暂缺，雷达档位待定。')
 })
 
 test('月末信号只用于 t+2 收益，平均股票仓位无需再次分档', () => {

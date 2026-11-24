@@ -1,6 +1,7 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
 import { Page } from '../components/ui'
+import TrioNav from '../features/combined-strategy/TrioNav'
+import VerdictBar from '../features/combined-strategy/VerdictBar'
 import { useMarketRadar } from '../features/market-radar/load'
 import RadarView from '../features/market-radar/RadarView'
 import '../styles/market-radar.css'
@@ -21,13 +22,10 @@ export default function MarketRadar(): JSX.Element {
         <p className="mr-head__lead" data-testid="mr-head-lead">
           {MARKET_RADAR_LEAD}
         </p>
-        <ul className="mr-head__links">
-          <li><Link to="/invest/macro-posture">宏观攻守（大师方案）</Link></li>
-          <li><Link to="/invest/strategy">综合策略</Link></li>
-          <li><a href="#mr-backtest">公开回测</a></li>
-        </ul>
+        <TrioNav />
       </header>
 
+      <VerdictBar />
       <RadarView state={radar} />
 
       <footer className="mr-footer" role="note">

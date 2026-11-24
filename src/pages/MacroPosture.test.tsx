@@ -29,6 +29,12 @@ vi.mock('../features/macro-posture/composite/load', () => ({
   COMPOSITE_URL: '/data/macro-posture.json',
 }))
 
+vi.mock('../features/combined-strategy/load', () => ({
+  useCombinedStrategy: vi.fn(() => ({ status: 'ready', data: { current: { instruction: '股票仓位保持在你上限的 85%，本月不用调。' } } })),
+  resetCombinedStrategyCache: vi.fn(),
+  COMBINED_STRATEGY_URL: '/data/combined-strategy.json',
+}))
+
 vi.mock('../features/macro-posture/composite/candidates', () => ({
   useCandidates: vi.fn(),
 }))
@@ -192,8 +198,18 @@ function renderPage(
 describe('MacroPosture 综合指标视图', () => {
   it('加载中显示状态文案', () => {
     renderPage('/invest/macro-posture', { status: 'loading' })
-    expect(screen.getByRole('status').textContent).toContain('加载中')
+    expect(screen.getAllByRole('status').some(el => el.textContent?.includes('加载中'))).toBe(true)
     expect(screen.queryByTestId('mp-tier-name')).toBeNull()
+  })
+
+  it('页头 TrioNav 与次要数据链接', () => {
+    renderPage()
+    const trio = screen.getByRole('navigation', { name: '策略相关页面' })
+    expect(within(trio).getByRole('link', { name: '宏观依据 · 宏观攻守' }).getAttribute('aria-current')).toBe('page')
+    expect(within(trio).getByRole('link', { name: '结论 · 综合策略' }).getAttribute('href')).toBe('/invest/strategy')
+    expect(screen.getByRole('link', { name: '宏观温度' }).getAttribute('href')).toBe('/monitor')
+    expect(screen.getByRole('link', { name: '宏观大师' }).getAttribute('href')).toBe('/invest/macro-masters')
+    expect(screen.getByTestId('verdict-bar')).toBeTruthy()
   })
 
   it('加载失败显示错误', () => {

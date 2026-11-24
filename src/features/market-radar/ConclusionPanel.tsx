@@ -10,11 +10,18 @@ import {
 } from './labels'
 import type { RadarFile } from './types'
 import type { TierId } from '../macro-posture/composite/types'
+import './conclusion-panel.css'
 
 const TIER_DEFS: { id: TierId; label: string }[] = TIER_ORDER_DEFENSE_LEFT.map(id => ({
   id,
   label: tierLabel(id),
 }))
+
+const MARKET_HEAT_LABEL = {
+  hot: '股市偏热',
+  mid: '股市居中',
+  cold: '股市偏冷',
+} as const
 
 function TierStrip({ current }: { current: TierId | null }): JSX.Element {
   return (
@@ -39,33 +46,43 @@ function TierStrip({ current }: { current: TierId | null }): JSX.Element {
 export default function ConclusionPanel({ data }: { data: RadarFile }): JSX.Element {
   const { current } = data
   const radarTier = current.tier
+  const heat = current.heat
   const dims = DIMENSION_ORDER.map(id => current.dimensions.find(d => d.id === id)).filter(Boolean)
 
   return (
     <section className="mr-conclusion" id="mr-conclusion" aria-labelledby="mr-conclusion-title">
       <h2 id="mr-conclusion-title">结论</h2>
 
-      <TierStrip current={radarTier} />
-
       <div className="mr-conclusion__grid">
         <div className="mr-conclusion__main" data-testid="mr-conclusion-main">
           <p
-            className={`mr-conclusion__tier${radarTier ? ` mr-conclusion__tier--${radarTier}` : ''}`}
+            className={`mr-conclusion__heat${heat ? ` mr-conclusion__heat--${heat}` : ''}`}
+            data-testid="mr-heat"
+          >
+            {heat ? MARKET_HEAT_LABEL[heat] : '冷热待定'}
+          </p>
+          <p className="mr-conclusion__headline" data-testid="mr-headline">
+            {visibleText(current.headline)}
+          </p>
+          <p className="mr-conclusion__strategy-link" data-testid="mr-strategy-link">
+            冷热不改变仓位。仓位多少、这个阶段怎么做，见
+            {' '}
+            <Link to="/invest/strategy">综合策略</Link>
+            。
+          </p>
+
+          <p className="mr-conclusion__tier-note" data-testid="mr-tier-note">
+            这是雷达自身的回测档位，用来和别的规则比较，不是操作仓位。
+          </p>
+          <TierStrip current={radarTier} />
+          <p
+            className={`mr-conclusion__tier mr-conclusion__tier--secondary${radarTier ? ` mr-conclusion__tier--${radarTier}` : ''}`}
             data-testid="mr-tier-name"
           >
             {tierLabel(radarTier)}
           </p>
           <p className="mr-conclusion__score" data-testid="mr-score">
             综合分 {current.score == null ? '—' : visibleText(formatNum2(current.score, { signed: true }))}
-          </p>
-          <p className="mr-conclusion__headline" data-testid="mr-headline">
-            {visibleText(current.headline)}
-          </p>
-          <p className="mr-conclusion__strategy-link" data-testid="mr-strategy-link">
-            仓位怎么定、和宏观攻守怎么配合，见
-            {' '}
-            <Link to="/invest/strategy">综合策略</Link>
-            。
           </p>
         </div>
       </div>

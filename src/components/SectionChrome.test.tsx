@@ -25,7 +25,7 @@ describe('SectionChrome', () => {
     renderAt('/valuation')
     const tabs = screen.getByRole('navigation', { name: '同组页面' })
     const links = within(tabs).getAllByRole('link')
-    expect(links.map(a => a.textContent)).toEqual(['综合估值', '宏观大师', '顶级投资人', 'AI 降价与利润', '基本面量化', '估值工作台', 'DCF 计算器', '指数全景', '网格交易', '财富自由计算器', 'ETF 流派地图', 'ETF 清单', '研究笔记', '债基研究报告', '博主观点整理'])
+    expect(links.map(a => a.textContent)).toEqual(['综合估值', '宏观大师', '顶级投资人', 'AI 降价与利润', '基本面量化', '估值工作台', 'DCF 计算器', '指数估值', '指数全景', '网格交易', '财富自由计算器', 'ETF 流派地图', 'ETF 清单', '研究笔记', '债基研究报告', '博主观点整理'])
     expect(links[5].getAttribute('aria-current')).toBe('page')
     expect(links[0].getAttribute('aria-current')).toBeNull()
   })
@@ -47,7 +47,7 @@ describe('SectionChrome', () => {
   it('观察盘的细节页切换条里第一个是「观察盘」，可以随时回到一页总览', () => {
     renderAt('/limit-up-analysis')
     const links = within(screen.getByRole('navigation', { name: '同组页面' })).getAllByRole('link')
-    expect(links.map(a => a.getAttribute('href'))).toEqual(['/watch', '/monitor', '/invest/macro-posture', '/invest/market-radar', '/invest/strategy', '/pulse', '/daily-analysis', '/sector-rotation', '/limit-up-analysis'])
+    expect(links.map(a => a.getAttribute('href'))).toEqual(['/watch', '/invest/strategy', '/invest/macro-posture', '/invest/market-radar', '/monitor', '/pulse', '/daily-analysis', '/sector-rotation', '/limit-up-analysis'])
   })
 
   it('每日分析旧版有独立面包屑，并仍归属每日分析入口', () => {

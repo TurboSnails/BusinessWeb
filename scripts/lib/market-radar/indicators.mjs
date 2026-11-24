@@ -1,3 +1,4 @@
+import { classifyHeat, heatScoreFromScores, HEAT_LABEL } from '../combined-strategy/heat.mjs'
 import { scoreMarket } from '../macro-posture-market/components.mjs'
 import { formatDate, formatReading } from '../macro-posture/format.mjs'
 import { average, baseTier, TIERS } from '../macro-posture/model.mjs'
@@ -372,10 +373,16 @@ export function aggregateScores(indicators) {
 export function buildCurrent(indicators) {
   const current = aggregateScores(indicators)
   const tier = TIERS.find(row => row.id === current.tier)
-  return {
-    ...current,
-    headline: tier
-      ? `雷达为${tier.label}档，五维综合分 ${formatReading(current.score, '', 2)}，对应股票仓位上限的 ${formatReading(tier.equityShare * 100, '%', 0)}。`
-      : '计分读数暂缺，雷达档位待定。',
+  const byId = Object.fromEntries(current.dimensions.map(row => [row.id, row.score]))
+  const heatScore = heatScoreFromScores(byId.valuation, byId.crowding)
+  const heat = classifyHeat(heatScore)
+  let headline = '计分读数暂缺，雷达档位待定。'
+  if (heat != null) {
+    headline = `股市${HEAT_LABEL[heat]}：估值与拥挤度两个维度平均 ${formatReading(heatScore, '', 2)}。` +
+      `五维综合分 ${formatReading(current.score, '', 2)}，雷达自身的回测档位为${tier.label}。`
+  } else if (tier) {
+    headline = `估值与拥挤度读数暂缺，冷热待定。五维综合分 ${formatReading(current.score, '', 2)}，` +
+      `雷达自身的回测档位为${tier.label}。`
   }
+  return { ...current, heatScore, heat, headline }
 }

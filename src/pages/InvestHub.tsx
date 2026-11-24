@@ -36,6 +36,7 @@ const ICONS: Record<string, LucideIcon> = {
   '/invest/ai-token-economics': TrendingUp,
   '/invest/fundamental-quant': BookOpen,
   '/dcf': ChartLine,
+  '/invest/index-valuation': ChartLine,
   '/index-panorama/': Globe,
   '/grid-trading': Grid3x3,
   '/invest/blogger-views': MessagesSquare,
