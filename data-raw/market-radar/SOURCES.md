@@ -17,6 +17,7 @@
 | 美元净流动性 13 周变化 | FRED [WALCL](https://fred.stlouisfed.org/series/WALCL) − [WTREGEN](https://fred.stlouisfed.org/series/WTREGEN) − [RRPONTSYD](https://fred.stlouisfed.org/series/RRPONTSYD) | 联储总资产扣除 TGA 和隔夜逆回购，13 周变化 | 2003-06（WALCL 2002-12 才开始，**物理上限**） | 自动：`market-cycle.yml` → `us-market-data.mjs` |
 | 高收益债利差 | FRED [BAMLH0A0HYM2](https://fred.stlouisfed.org/series/BAMLH0A0HYM2) | ICE BofA 美国高收益债 OAS，日频 | 2023-11-24（FRED 受 ICE 授权限制只给近 3 年，站内逐日累积） | 自动：`us-market-data.mjs` |
 | 企业债利差半年变化 | FRED [BAA](https://fred.stlouisfed.org/series/BAA)、[AAA](https://fred.stlouisfed.org/series/AAA) | Baa − Aaa 的 6 个月变化 | 1919 | 自动：`macro-snapshot.yml` → `market-radar.mjs` |
+| 金银比 | Yahoo [GC=F](https://finance.yahoo.com/quote/GC=F/)、[SI=F](https://finance.yahoo.com/quote/SI=F/) 全历史日线 | COMEX 金 ÷ 银连续合约收盘（不是官方结算价，换月有小跳空），附 20 个交易日变化；事后新增，只展示 | 2000-08 | 自动（缓存 `gold.json`、`silver.json`） |
 
 ### 估值
 
@@ -34,10 +35,11 @@
 | 家庭股票占金融资产比例 | FRED [BOGZ1FL153064486Q](https://fred.stlouisfed.org/series/BOGZ1FL153064486Q)（美联储 Z.1） | 季度，季末后约 10 周发布 | 1945 | 自动 |
 | 家庭现金占金融资产比例 | FRED [CDCABSHNO](https://fred.stlouisfed.org/series/CDCABSHNO)、[TSDABSHNO](https://fred.stlouisfed.org/series/TSDABSHNO)、[MMFSABSHNO](https://fred.stlouisfed.org/series/MMFSABSHNO) ÷ [TFAABSHNO](https://fred.stlouisfed.org/series/TFAABSHNO) | 支票、储蓄存款与货币基金 ÷ 金融资产 | 1945 | 自动（缓存在本目录） |
 | 融资余额同比 | [FINRA Margin Statistics](https://www.finra.org/rules-guidance/key-topics/margin-accounts/margin-statistics)；全历史 [xlsx](https://www.finra.org/sites/default/files/2021-03/margin-statistics.xlsx) | 客户保证金借方余额同比 | 1998 | 自动 |
-| 基金经理现金比例、美股净超配 | 美银全球基金经理调查（BofA FMS），每月第二个周二前后发布；原始报告需授权，用媒体转述（目前是 [MNI/macenews](https://macenews.com/bofa-global-research-fund-manager-survey-fading-inflation-jitters-prompt-shift-out-of-cash-into-fixed-income/)，也可查 Reuters、Investing.com） | 全球基金经理，不限美股组合 | 只有零星读数 | **手动**：每月写进 `managerCash`、`managerUsOverweight` |
+| 基金经理现金比例、美股净超配、科技股净超配 | 美银全球基金经理调查（BofA FMS），每月第二个周二前后发布；原始报告需授权，用媒体转述（目前是 [MNI/macenews](https://macenews.com/bofa-global-research-fund-manager-survey-fading-inflation-jitters-prompt-shift-out-of-cash-into-fixed-income/)，也可查 Reuters、Investing.com） | 全球基金经理，不限美股组合 | 只有零星读数 | **手动**：每月写进 `managerCash`、`managerUsOverweight`、`managerTechOverweight`（科技股 2026-11 起，读数转述自 [Fortune](https://fortune.com/2026/11/17/ai-bubble-popping-bofa-fund-manager-survey-largest-cut-since-2006/)） |
 | NAAIM 主动经理敞口 | [NAAIM Exposure Index](https://naaim.org/programs/naaim-exposure-index/)；公开表 `index.naaim.org/embeddable/table` | 周度平均敞口 | 2006-07 | 自动抓公开表，但 **2026-08-01 起改订阅制**，公开表停在 2026-08-19；早年历史见下文回补 |
 | AAII 散户多空差（美银调查的平替） | [AAII 情绪调查](https://www.aaii.com/sentimentsurvey)；全历史 [sentiment.xls](https://www.aaii.com/files/surveys/sentiment.xls) | 看多 − 看空，按调查截止日（周三） | 1987-07 | 自动抓最新一周；早年历史见下文回补 |
 | CFTC 资管机构标普期货净多（NAAIM 的平替） | CFTC 交易者持仓报告 TFF：[API](https://publicreporting.cftc.gov/resource/gpe5-46if.json)（合约代码 `13874+`） | 资管机构净多 ÷ 未平仓合约 | 2010-06 | 自动 |
+| CFTC 资管机构纳指期货净多（科技股超配的自动口径） | 同上 TFF（合约代码 `20974+`），站内序列 `cftcNdxAsset` | 资管机构净多 ÷ 未平仓合约 | 2010-06 | 自动 |
 
 ### 交易结构
 

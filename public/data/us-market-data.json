@@ -53722,6 +53722,20 @@
       ],
       "releasedAt": "2026-11-17"
     },
+    "managerTechOverweight": {
+      "name": "全球基金经理对科技股净超配（BofA 调查转述）",
+      "unit": "%",
+      "source": "https://fortune.com/2026/11/17/ai-bubble-popping-bofa-fund-manager-survey-largest-cut-since-2006/",
+      "scope": "BofA 全球基金经理调查中，超配科技股与低配科技股的受访者比例之差；10 月为 37%",
+      "frequency": "月频",
+      "history": [
+        [
+          "2026-11-12",
+          12
+        ]
+      ],
+      "releasedAt": "2026-11-17"
+    },
     "xlyFactSetFpe": {
       "name": "可选消费前瞻市盈率（FactSet）",
       "unit": "倍",

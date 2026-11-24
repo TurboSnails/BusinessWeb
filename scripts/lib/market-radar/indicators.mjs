@@ -46,6 +46,13 @@ const DEFINITIONS = {
     rule: '扩大至少 0.20 个百分点扣 1 分，收窄至少 0.15 个百分点加 1 分，其余 0 分。',
     score: p => band(p.value, -0.15, 0.20, 1),
   },
+  goldSilver: {
+    inverse: true,
+    dimension: 'liquidity', label: '金银比',
+    display: p => `COMEX 黄金 ÷ 白银 ${formatReading(p.value, '', 1)}（金 ${formatReading(p.gold, '', 0)}、银 ${formatReading(p.silver, '', 2)} 美元/盎司）` +
+      (p.change == null ? '' : `，较 20 个交易日前 ${signed(p.change, n => formatReading(n, '', 1))}`) + '。',
+    rule: 'Yahoo COMEX 连续合约收盘自 2000 年 8 月起，是事后新增的指标，只展示，不计分。比值走高说明资金偏向避险属性更强的黄金、白银代表的工业与投机需求转弱，常见于避险和增长担忧阶段；回落常伴随风险偏好回升。',
+  },
   erp: {
     inverse: true,
     dimension: 'valuation', label: '股债利差', frequency: 'monthly',
@@ -103,6 +110,11 @@ const DEFINITIONS = {
     display: p => `美银调查中，基金经理美股净超配为 ${percent(p.value)}。`,
     rule: survey,
   },
+  managerTechOverweight: {
+    dimension: 'crowding', label: '基金经理科技股净超配',
+    display: p => `美银调查中，基金经理科技股净超配为 ${percent(p.value)}。`,
+    rule: survey + '数值越高说明机构在科技股上越拥挤；美银回看历史，科技股较好的买点多出现在转为净低配之后。',
+  },
   naaim: {
     dimension: 'crowding', label: 'NAAIM 主动经理敞口', frequency: 'weekly',
     display: p => `受访主动投资经理平均美股敞口为 ${percent(p.value)}` +
@@ -118,6 +130,11 @@ const DEFINITIONS = {
     dimension: 'crowding', label: 'CFTC 资管机构标普期货净多', frequency: 'weekly',
     display: p => `资产管理机构在标普 500 期货上的净多头占未平仓合约的 ${percent(p.value)}。`,
     rule: 'NAAIM 的同维度平替，取自 CFTC 交易者持仓报告（TFF），自 2010 年 6 月起，不足 25 年，只展示。',
+  },
+  cftcNdxAsset: {
+    dimension: 'crowding', label: 'CFTC 资管机构纳指期货净多', frequency: 'weekly',
+    display: p => `资产管理机构在纳指 100 期货上的净多头占未平仓合约的 ${percent(p.value)}。`,
+    rule: '科技股机构仓位的自动跟踪口径，取自 CFTC 交易者持仓报告（TFF），自 2010 年 6 月起，事后新增，只展示。',
   },
   breadth: {
     dimension: 'trading', label: '行业宽度（10 个月均线）', frequency: 'monthly',

@@ -213,3 +213,15 @@ test('SqueezeMetrics GEX is read in hundred-million dollars and counts negative 
   assert.deepEqual(gammaExposure(rows).map(row => row.negativeDays), [1, 2, 2])
   assert.throws(() => parseSqueezeGex('date,gex\n'), /表头/)
 })
+
+test('gold-silver ratio pairs same-day closes and carries the 20-session change', async () => {
+  const { goldSilverRatio } = await import('./lib/market-radar/sources.mjs')
+  const days = Array.from({ length: 22 }, (_, i) => `2026-10-${String(i + 1).padStart(2, '0')}`)
+  const gold = days.map((d, i) => [d, 4000 + i * 10])
+  const silver = days.filter(d => d !== '2026-10-05').map(d => [d, 50])
+  const rows = goldSilverRatio(gold, silver)
+  assert.equal(rows.length, 21)
+  assert.equal(rows.some(row => row.observedOn === '2026-10-05'), false)
+  assert.equal(rows[19].change, null)
+  assert.deepEqual([rows[20].observedOn, rows[20].value, rows[20].change], ['2026-10-22', 84.2, 4.2])
+})

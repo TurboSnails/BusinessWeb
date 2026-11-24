@@ -1,7 +1,7 @@
 import { join } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 import { unzipEntry } from '../../ths-etf-lib.mjs'
-import { parseCboeIndex } from '../../us-market-data.mjs'
+import { parseCboeIndex, parseYahooFuturesClose } from '../../us-market-data.mjs'
 import { readJson, writeJsonIfChanged } from '../json-io.mjs'
 import { marketSeries, month, parseFrenchMonthly } from '../macro-posture-market/data.mjs'
 import { readMarket } from '../macro-posture-market/components.mjs'
@@ -12,6 +12,7 @@ const FRED_SERIES = 'https://fred.stlouisfed.org/series/'
 const FRED_CSV = 'https://fred.stlouisfed.org/graph/fredgraph.csv?id='
 const CBOE = 'https://cdn.cboe.com/api/global/us_indices/daily_prices/'
 const EPS = 'https://www.multpl.com/s-p-500-earnings/table/by-month'
+const YAHOO_CHART = 'https://query1.finance.yahoo.com/v8/finance/chart/'
 export const SQUEEZE_DIX = 'https://squeezemetrics.com/monitor/static/DIX.csv'
 export const FRENCH_INDUSTRIES = 'https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/49_Industry_Portfolios_CSV.zip'
 export const CASH_SERIES = ['CDCABSHNO', 'TSDABSHNO', 'MMFSABSHNO', 'TFAABSHNO']
@@ -24,14 +25,14 @@ function normalize(rows = [], through) {
 export async function refreshRadarSources({ cache, fetcher, today, localVix, shillerEps, warn }) {
   const sources = {}
   let lastRequest = -Infinity
-  async function refresh(id, url, parse) {
+  async function refresh(id, url, parse, headers) {
     const path = join(cache, id + '.json')
     const previous = readJson(path, [])
     try {
       const wait = 1000 - (performance.now() - lastRequest)
       if (wait > 0) await delay(Math.ceil(wait))
       lastRequest = performance.now()
-      const response = await fetcher(url, { signal: AbortSignal.timeout(20_000) })
+      const response = await fetcher(url, { signal: AbortSignal.timeout(20_000), ...(headers ? { headers } : {}) })
       if (!response.ok) throw new Error(`HTTP ${response.status}`)
       const fresh = normalize(parse(await response.text()), today)
       if (!fresh.length || (previous.length && (fresh[0][0] > previous[0][0] || fresh.at(-1)[0] < previous.at(-1)[0]))) {
@@ -61,6 +62,12 @@ export async function refreshRadarSources({ cache, fetcher, today, localVix, shi
   // SqueezeMetrics 估算的做市商 Gamma 敞口（GEX），只展示；首次下载失败且没有缓存时跳过。
   sources.gex = await refresh('gex', SQUEEZE_DIX, parseSqueezeGex)
     .catch(error => { warn(`gex 暂缺：${error.message}`); return [] })
+  // 金银比只展示：Yahoo COMEX 金、银连续合约全历史（2000 年 8 月起）；首次下载失败且没有缓存时跳过。
+  for (const [id, symbol, digits] of [['gold', 'GC=F', 2], ['silver', 'SI=F', 3]]) {
+    const url = YAHOO_CHART + encodeURIComponent(symbol) + '?period1=0&period2=9999999999&interval=1d'
+    sources[id] = await refresh(id, url, body => parseYahooFuturesClose(JSON.parse(body), symbol, new Date(), digits).history,
+      { 'User-Agent': 'Mozilla/5.0' }).catch(error => { warn(`${id} 暂缺：${error.message}`); return [] })
+  }
   // 隐含相关性只展示；首次下载失败且没有缓存时跳过，不影响雷达其余部分。
   for (const id of ['COR1M', 'COR3M']) {
     sources[id] = await cboe(id).catch(error => { warn(`${id} 暂缺：${error.message}`); return [] })
@@ -326,6 +333,19 @@ export function impliedCorrelation(cor1m = [], cor3m = []) {
   }))
 }
 
+/** 同日 COMEX 黄金 ÷ 白银收盘，附较 20 个交易日前的变化。 */
+export function goldSilverRatio(gold = [], silver = []) {
+  const silverByDay = new Map(silver)
+  const ratios = gold.flatMap(([d, price]) => {
+    const other = silverByDay.get(d)
+    return price > 0 && other > 0 ? [[d, clean(price / other), price, other]] : []
+  })
+  return ratios.map(([d, value, gold, silver], index) => ({
+    observedOn: d, availableOn: d, value, gold, silver,
+    change: index >= 20 ? clean(value - ratios[index - 20][1]) : null,
+  }))
+}
+
 /** AAII 看多减看空，只用两边同一调查周都有的读数。 */
 export function aaiiSpread(bull, bear) {
   const bears = new Map(bear)
@@ -383,11 +403,14 @@ export function buildRadarSeries({ local, macroUs, breadth, universes = {}, inde
     finraDebtYoy: simple('finraDebtYoy'),
     managerCash: simple('managerCash'),
     managerUsOverweight: simple('managerUsOverweight'),
+    managerTechOverweight: simple('managerTechOverweight'),
     naaim: simple('naaim'),
     aaiiSpread: aaiiSpread(rows('retailBull'), rows('retailBear')),
     cftcAsset: simple('cftcSpxAsset'),
+    cftcNdxAsset: simple('cftcNdxAsset'),
     breadth: marketSeries(industries, 0, true),
     vixTerm,
+    goldSilver: goldSilverRatio(normalize(fetched.gold, today), normalize(fetched.silver, today)),
     impliedCorr: impliedCorrelation(fetched.COR1M, fetched.COR3M),
     gex: gammaExposure(normalize(fetched.gex, today)),
     breadth200: marketSeries(breadth200, 0, true),
@@ -403,7 +426,7 @@ export function buildRadarSeries({ local, macroUs, breadth, universes = {}, inde
   }
   const sources = Object.fromEntries(Object.entries(local).map(([id, entry]) => [id, entry.source]))
   Object.assign(sources, {
-    netLiquidity: FRED_SERIES + 'WALCL', hy: sources.hyDaily,
+    netLiquidity: FRED_SERIES + 'WALCL', hy: sources.hyDaily, goldSilver: 'https://finance.yahoo.com/quote/SI=F/',
     baaChange: FRED_SERIES + 'BAA', erp: FRED_SERIES + 'GS10',
     pe: sources.spxPe, cape: sources.shillerCape, forwardPe: sources.spxFactSetFpe,
     equityShare: FRED_SERIES + macroUs.equityShare?.fred, cashShare: FRED_SERIES + CASH_SERIES[3],
