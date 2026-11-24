@@ -10,3 +10,23 @@ export const NYSE_SHORT_SESSIONS = Object.freeze([
   '2027-11-26',
   '2028-07-03', '2028-11-24',
 ])
+
+// Earlier 1 p.m. closes (day after Thanksgiving, July 3 and December 24 on
+// regular weekdays), used only when rebuilding older Cboe volume history.
+// https://www.nyse.com/publicdocs/nyse/markets/nyse/NYSE_Holidays_and_Early_Closings_Calendar.pdf
+export const NYSE_HISTORICAL_SHORT_SESSIONS = Object.freeze([
+  '2010-11-26',
+  '2011-11-25',
+  '2012-07-03', '2012-11-23', '2012-12-24',
+  '2013-07-03', '2013-11-29', '2013-12-24',
+  '2014-07-03', '2014-11-28', '2014-12-24',
+  '2015-11-27', '2015-12-24',
+  '2016-11-25',
+  '2017-07-03', '2017-11-24',
+  '2018-07-03', '2018-11-23', '2018-12-24',
+  '2019-07-03', '2019-11-29', '2019-12-24',
+  '2020-11-27', '2020-12-24',
+  '2021-11-26',
+  '2022-11-25',
+  '2023-07-03', '2023-11-24',
+])

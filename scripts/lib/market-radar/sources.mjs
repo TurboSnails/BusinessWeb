@@ -46,7 +46,11 @@ export async function refreshRadarSources({ cache, fetcher, today, localVix, shi
     sources[id] = await refresh(id, FRED_CSV + id, csv => parseFred(csv, id))
   }
   const cboe = id => refresh(id, CBOE + id + '_History.csv', csv => parseCboeIndex(csv).history)
-  sources.vix3m = await cboe('VIX3M')
+  const cboeVix3m = await cboe('VIX3M')
+  // VIX3M（原 VXV）在 Cboe 文件里从 2009 年 9 月开始；FRED 的 VXVCLS 是同一指数，从 2007 年 12 月开始，用来接上更早的一段。
+  const fredVix3m = await refresh('VXVCLS', FRED_CSV + 'VXVCLS', csv => parseFred(csv, 'VXVCLS'))
+    .catch(error => { warn(`VXVCLS 未能补齐 2009 年前的三个月 VIX：${error.message}`); return [] })
+  sources.vix3m = [...fredVix3m.filter(([d]) => d < cboeVix3m[0][0]), ...cboeVix3m]
   const localDays = new Set(localVix.map(([d]) => d))
   // Fetch the matching daily closes when the station snapshot has compacted its old daily observations.
   const complete = sources.vix3m.every(([d]) => localDays.has(d))
@@ -163,7 +167,32 @@ function publishedRows(entry, today) {
   return entry?.releasedAt?.slice(0, 10) > today ? rows.slice(0, -1) : rows
 }
 
-export function buildRadarSeries({ local, macroUs, breadth, marketCache, fetched, shillerEps, panel, currentPanel, today, lastComplete }) {
+/**
+ * 隐含前瞻每股盈利 = 标普收盘 ÷ FactSet 前瞻市盈率。FactSet 周报引用发布日前一个交易日的收盘，
+ * 市盈率只保留一位小数，单点误差约 ±0.3%。返回近 3 个月（91 天，前后容差 21 天）的变化。
+ */
+export function forwardEpsChange(fpeRows, closes) {
+  const eps = fpeRows.flatMap(([d, pe]) => {
+    const close = closes.findLast(([day]) => day < d)
+    return pe > 0 && close && ageDays(d, close[0]) <= 5 ? [[d, close[1] / pe]] : []
+  })
+  return eps.flatMap(([d, value]) => {
+    const target = addDays(d, -91)
+    const prior = eps.filter(([day]) => Math.abs(ageDays(day, target)) <= 21)
+      .sort((a, b) => Math.abs(ageDays(a[0], target)) - Math.abs(ageDays(b[0], target)))[0]
+    return prior ? [{ observedOn: d, availableOn: d, value: clean((value / prior[1] - 1) * 100), priorOn: prior[0] }] : []
+  })
+}
+
+/** AAII 看多减看空，只用两边同一调查周都有的读数。 */
+export function aaiiSpread(bull, bear) {
+  const bears = new Map(bear)
+  return bull.flatMap(([d, value]) => bears.has(d) ? [{
+    observedOn: d, availableOn: d, value: clean(value - bears.get(d)), bull: value, bear: bears.get(d),
+  }] : [])
+}
+
+export function buildRadarSeries({ local, macroUs, breadth, marketCache, fetched, shillerEps, panel, currentPanel, today, lastComplete, spxDaily = [] }) {
   const rows = id => publishedRows(local[id], today)
   const simple = id => marketSeries(rows(id), 0, true)
   const pe = rows('spxPe').filter(([d, value]) => d >= '1900-01' && value > 0)
@@ -213,11 +242,13 @@ export function buildRadarSeries({ local, macroUs, breadth, marketCache, fetched
     managerCash: simple('managerCash'),
     managerUsOverweight: simple('managerUsOverweight'),
     naaim: simple('naaim'),
+    aaiiSpread: aaiiSpread(rows('retailBull'), rows('retailBear')),
+    cftcAsset: simple('cftcSpxAsset'),
     breadth: marketSeries(industries, 0, true),
     vixTerm,
     breadth200: marketSeries(breadth200, 0, true),
     volumeRatio: simple('volumeRatio'),
-    forwardEps: simple('spxForwardEpsChange'),
+    forwardEps: forwardEpsChange(rows('spxFactSetFpe'), spxDaily.filter(([d]) => d <= today)),
   }
   const sources = Object.fromEntries(Object.entries(local).map(([id, entry]) => [id, entry.source]))
   Object.assign(sources, {
@@ -227,6 +258,7 @@ export function buildRadarSeries({ local, macroUs, breadth, marketCache, fetched
     equityShare: FRED_SERIES + macroUs.equityShare?.fred, cashShare: FRED_SERIES + CASH_SERIES[3],
     breadth: 'https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html',
     volume: 'https://finance.yahoo.com/quote/%5EGSPC/history/',
+    aaiiSpread: sources.retailBull, cftcAsset: sources.cftcSpxAsset,
     vixTerm: CBOE + 'VIX3M_History.csv', breadth200: breadth?.source,
     epsYoy: 'https://shillerdata.com/', forwardEps: sources.spxForwardEpsChange,
   })

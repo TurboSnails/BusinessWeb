@@ -4,10 +4,10 @@ import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 import { computeEquityLongShort, parseFinraMargin, parseOfrTimeseries, sharedStrings, unzipEntry } from '../server/macro.mjs'
 import { localParts, MARKETS } from './lib/trading-calendar.mjs'
-import { NYSE_SHORT_SESSIONS } from './lib/us-market-calendar.mjs'
+import { NYSE_HISTORICAL_SHORT_SESSIONS, NYSE_SHORT_SESSIONS } from './lib/us-market-calendar.mjs'
 
 const BASE = 'https://www.ici.org'
-const CBOE = 'https://cdn.cboe.com/resources/us/equities/market-statistics/historical-market-volume/market_history_'
+export const CBOE = 'https://cdn.cboe.com/resources/us/equities/market-statistics/historical-market-volume/market_history_'
 const TREND = BASE + '/monthly-trends-in-mutual-fund-investing'
 const FRED = 'https://fred.stlouisfed.org/data/'
 const FINRA = 'https://www.finra.org/rules-guidance/key-topics/margin-accounts/margin-statistics'
@@ -42,9 +42,9 @@ export const CNN_COMPONENTS = {
   safe_haven_demand: ['cnnSafeHaven', '股票 vs 国债 20 日回报（CNN 分项）'],
   junk_bond_demand: ['cnnJunkBond', '垃圾债 vs 投资级债收益率差（CNN 分项）'],
 }
-const SHORT_SESSIONS = new Set(NYSE_SHORT_SESSIONS)
+const SHORT_SESSIONS = new Set([...NYSE_HISTORICAL_SHORT_SESSIONS, ...NYSE_SHORT_SESSIONS])
 // Tape venues N/P/Q/K/Z and the two large off-exchange FINRA trade-reporting facilities.
-const CBOE_CORE_VENUES = ['N', 'P', 'Q', 'K', 'Z', 'DN', 'DQ']
+export const CBOE_CORE_VENUES = ['N', 'P', 'Q', 'K', 'Z', 'DN', 'DQ']
 const OUTPUT = fileURLToPath(new URL('../public/data/us-market-data.json', import.meta.url))
 const run = promisify(execFile)
 

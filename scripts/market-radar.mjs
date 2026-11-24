@@ -53,6 +53,7 @@ export async function runRadar({ now = new Date(), fetcher = fetch, warn = conso
   const currentPanel = makePanel(core, { mode: 'current' })
   const { current, historical, sources } = buildRadarSeries({
     local, macroUs, breadth, marketCache, fetched, shillerEps, panel, currentPanel, today, lastComplete,
+    spxDaily: dailyRows.map(([d, close]) => [d, close]),
   })
   const indicators = buildIndicators(current, sources, today)
   const radar = buildCurrent(indicators)

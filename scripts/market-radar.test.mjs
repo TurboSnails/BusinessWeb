@@ -148,3 +148,22 @@ test('冷热按风险偏好定向：现金比例极低为偏热，长历史才�
   assert.equal(row.heat, 'hot')
 })
 
+
+test('forward EPS change divides the prior session close by FactSet forward P/E and compares about three months back', async () => {
+  const { forwardEpsChange } = await import('./lib/market-radar/sources.mjs')
+  const closes = [['2026-07-30', 2000], ['2026-10-29', 2200]]
+  const rows = forwardEpsChange([['2026-07-31', 20], ['2026-10-30', 20], ['2026-11-30', 20]], closes)
+  assert.equal(rows.length, 1)
+  assert.equal(rows[0].observedOn, '2026-10-30')
+  assert.equal(rows[0].priorOn, '2026-07-31')
+  assert.equal(rows[0].value, 10)
+})
+
+test('AAII spread keeps only survey weeks present on both sides', async () => {
+  const { aaiiSpread } = await import('./lib/market-radar/sources.mjs')
+  const rows = aaiiSpread([['2026-11-11', 30.8], ['2026-11-18', 33.3]], [['2026-11-18', 42.2]])
+  assert.equal(rows.length, 1)
+  assert.equal(rows[0].observedOn, '2026-11-18')
+  assert.equal(rows[0].value, -8.9)
+  assert.deepEqual([rows[0].bull, rows[0].bear], [33.3, 42.2])
+})

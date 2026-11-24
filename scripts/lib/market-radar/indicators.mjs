@@ -21,7 +21,7 @@ const bottom = '第 20 百分位'
 const top = '第 80 百分位'
 const highExpensive = `达到${top}扣 1 分，不高于${bottom}加 1 分，其余 0 分。`
 const highSupportive = `不高于${bottom}扣 1 分，达到${top}加 1 分，其余 0 分。`
-const factset = 'FactSet 仅有少量已发布周报读数，缺少可公开复核的长期同口径历史。'
+const factset = 'FactSet Earnings Insight 公开周报存档自 2016 年 12 月起（早年按月末取一期，个别月份缺档），不足 25 年，只展示。'
 const survey = '美银调查只有零星已发布读数，完整历史受授权限制。'
 
 const DEFINITIONS = {
@@ -37,7 +37,7 @@ const DEFINITIONS = {
     display: p => `高收益债利差 ${bp(p.value)}` +
       (p.change == null ? '，四周变化暂缺。' : `，近 4 周变化 ${signed(p.change, bp)}。`) +
       (p.value >= 500 || p.change >= 50 ? '已达信用压力阈值。' : ''),
-    rule: '公开同口径历史较短，只展示。利差达到 500 个基点，或 4 周内扩大至少 50 个基点，为信用压力信号。',
+    rule: 'FRED 受 ICE 授权限制只公开最近 3 年，站内从 2023 年 11 月起逐日累积，只展示。利差达到 500 个基点，或 4 周内扩大至少 50 个基点，为信用压力信号。',
   },
   baaChange: {
     inverse: true,
@@ -107,7 +107,17 @@ const DEFINITIONS = {
     dimension: 'crowding', label: 'NAAIM 主动经理敞口', frequency: 'weekly',
     display: p => `受访主动投资经理平均美股敞口为 ${percent(p.value)}` +
       (p.value >= 90 ? '，敞口偏高。' : p.value <= 30 ? '，敞口偏低。' : '。'),
-    rule: '站内同口径历史自 2024 年起，只展示。敞口达到 90 为偏高，不高于 30 为偏低。',
+    rule: 'NAAIM 官方全历史自 2006 年 7 月起，不足 25 年，只展示。NAAIM 自 2026 年 8 月 1 日起改为订阅制，公开表停在 8 月 19 日，订阅前读数不再更新。敞口达到 90 为偏高，不高于 30 为偏低。',
+  },
+  aaiiSpread: {
+    dimension: 'crowding', label: 'AAII 散户多空差', frequency: 'weekly',
+    display: p => `AAII 调查中看多 ${percent(p.bull)}、看空 ${percent(p.bear)}，多空差 ${signed(p.value, pp)}。`,
+    rule: '美银基金经理调查的同维度平替。AAII 官方情绪表自 1987 年 7 月起；因是事后新增，不进入事先固定的计分与回测，只展示。',
+  },
+  cftcAsset: {
+    dimension: 'crowding', label: 'CFTC 资管机构标普期货净多', frequency: 'weekly',
+    display: p => `资产管理机构在标普 500 期货上的净多头占未平仓合约的 ${percent(p.value)}。`,
+    rule: 'NAAIM 的同维度平替，取自 CFTC 交易者持仓报告（TFF），自 2010 年 6 月起，不足 25 年，只展示。',
   },
   breadth: {
     dimension: 'trading', label: '行业宽度', frequency: 'monthly',
@@ -136,7 +146,7 @@ const DEFINITIONS = {
   volumeRatio: {
     dimension: 'trading', label: '美股 20 日量比',
     display: p => `全美股票当日成交量为前 20 个完整交易日均量的 ${times(p.value)}。`,
-    rule: '站内历史较短，只展示。涵盖全美交易所及场外申报成交。',
+    rule: 'Cboe 同口径历史自 2010 年起（核心交易场所齐全后），不足 25 年，只展示。涵盖全美交易所及场外申报成交，半日市不计。',
   },
   epsYoy: {
     staleDays: 160,
@@ -147,8 +157,8 @@ const DEFINITIONS = {
   },
   forwardEps: {
     dimension: 'earnings', label: '前瞻每股盈利修正',
-    display: p => `未来 12 个月每股盈利预期变化 ${signed(p.value, percent)}。`,
-    rule: factset,
+    display: p => `未来 12 个月预期每股盈利（标普收盘 ÷ FactSet 前瞻市盈率推算）较 ${formatDate(p.priorOn, 'daily')}变化 ${signed(p.value, percent)}。`,
+    rule: factset.replace('只展示。', '只展示。按约 3 个月前的同口径读数计算；前瞻市盈率只有一位小数，变化值误差约 ±0.5 个百分点。'),
   },
 }
 
