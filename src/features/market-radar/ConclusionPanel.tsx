@@ -3,46 +3,18 @@ import { Link } from 'react-router-dom'
 import {
   DIMENSION_ORDER,
   DIMENSION_TITLE,
-  TIER_ORDER_DEFENSE_LEFT,
   formatNum2,
-  tierLabel,
   visibleText,
 } from './labels'
 import RadarShape from './RadarShape'
 import type { RadarDimensionId, RadarFile } from './types'
-import type { TierId } from '../macro-posture/composite/types'
 import './conclusion-panel.css'
-
-const TIER_DEFS: { id: TierId; label: string }[] = TIER_ORDER_DEFENSE_LEFT.map(id => ({
-  id,
-  label: tierLabel(id),
-}))
 
 const MARKET_HEAT_LABEL = {
   hot: '股市偏热',
   mid: '股市居中',
   cold: '股市偏冷',
 } as const
-
-function TierStrip({ current }: { current: TierId | null }): JSX.Element {
-  return (
-    <ol className="mr-tier-strip" aria-label="风险档位，防守在左、进攻在右" data-testid="mr-tier-strip">
-      {TIER_DEFS.map(tier => {
-        const active = tier.id === current
-        return (
-          <li
-            key={tier.id}
-            className={`mr-tier-strip__seg mr-tier-strip__seg--${tier.id}${active ? ' is-active' : ''}`}
-            aria-current={active ? 'true' : undefined}
-          >
-            <span className="mr-tier-strip__label">{tier.label}</span>
-            {active ? <span className="visually-hidden">（当前）</span> : null}
-          </li>
-        )
-      })}
-    </ol>
-  )
-}
 
 function formatGeneratedAt(iso: string): string {
   const d = new Date(iso)
@@ -54,22 +26,32 @@ function formatGeneratedAt(iso: string): string {
   return `${month} 月 ${day} 日 ${hh}:${mm}`
 }
 
-function ScoreSpark({ values }: { values: number[] }): JSX.Element | null {
-  if (values.length < 2) return null
+/** 月末口径的冷热分：优先用 timeline.heatScore，旧数据由估值、拥挤度两维平均 */
+export function heatScoreOf(row: RadarFile['backtest']['timeline'][number]): number | null {
+  if (row.heatScore != null && Number.isFinite(row.heatScore)) return row.heatScore
+  const parts = [row.dims?.[1], row.dims?.[2]].filter((v): v is number => v != null && Number.isFinite(v))
+  return parts.length ? parts.reduce((sum, v) => sum + v, 0) / parts.length : null
+}
+
+/** 冷热分走势：固定 −1～+1 纵轴，画 0 线与 ±0.5 阈值线；往上是偏冷 */
+function HeatSpark({ values }: { values: (number | null)[] }): JSX.Element | null {
+  if (values.filter(v => v != null).length < 2) return null
   const W = 120
   const H = 28
-  const lo = Math.min(...values)
-  const hi = Math.max(...values)
-  const span = hi - lo || 1
-  const d = values
-    .map((v, i) => {
-      const x = (i / (values.length - 1)) * W
-      const y = H - ((v - lo) / span) * (H - 4) - 2
-      return `${i ? 'L' : 'M'}${x.toFixed(1)},${y.toFixed(1)}`
-    })
-    .join('')
+  const yAt = (v: number) => H - ((v + 1) / 2) * (H - 4) - 2
+  let d = ''
+  let pen = false
+  values.forEach((v, i) => {
+    if (v == null || !Number.isFinite(v)) { pen = false; return }
+    const x = (i / Math.max(1, values.length - 1)) * W
+    d += `${pen ? 'L' : 'M'}${x.toFixed(1)},${yAt(v).toFixed(1)}`
+    pen = true
+  })
   return (
-    <svg className="mr-conclusion__score-spark" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="综合分近 10 年走势" data-testid="mr-score-spark">
+    <svg className="mr-conclusion__score-spark" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="冷热分近 10 年走势" data-testid="mr-heat-spark">
+      <line className="mr-dims__spark-zero" x1={0} x2={W} y1={yAt(0)} y2={yAt(0)} />
+      <line className="mr-conclusion__spark-band" x1={0} x2={W} y1={yAt(0.5)} y2={yAt(0.5)} data-testid="mr-heat-spark-cold" />
+      <line className="mr-conclusion__spark-band" x1={0} x2={W} y1={yAt(-0.5)} y2={yAt(-0.5)} data-testid="mr-heat-spark-hot" />
       <path d={d} className="mr-conclusion__score-spark-line" />
     </svg>
   )
@@ -119,7 +101,6 @@ export default function ConclusionPanel({
   onFilterDimension,
 }: { data: RadarFile } & ConclusionActions): JSX.Element {
   const { current, backtest } = data
-  const radarTier = current.tier
   const heat = current.heat
   const dims = DIMENSION_ORDER.map(id => current.dimensions.find(d => d.id === id)).filter(Boolean)
   const counts = current.counts
@@ -131,12 +112,9 @@ export default function ConclusionPanel({
   ].filter(Boolean)
 
   const lastMonth = backtest.timeline.at(-1) ?? null
-  const scoreSeries = useMemo(() => {
-    const scores = backtest.timeline
-      .map(row => row.score)
-      .filter((v): v is number => v != null && Number.isFinite(v))
-    return scores.slice(-120)
-  }, [backtest.timeline])
+  const lastHeat = lastMonth ? heatScoreOf(lastMonth) : null
+  // 先取最近 120 个月再画，缺值断开，保证横轴就是近 10 年
+  const heatSeries = useMemo(() => backtest.timeline.slice(-120).map(heatScoreOf), [backtest.timeline])
 
   const dimSeries = useMemo(() => {
     const map = new Map<RadarDimensionId, (number | null)[]>()
@@ -147,35 +125,19 @@ export default function ConclusionPanel({
     return map
   }, [backtest.timeline])
 
-  const tierBlock = (
-    <div className="mr-conclusion__tier-block" data-testid="mr-tier-block">
-      <p className="mr-conclusion__tier-note" data-testid="mr-tier-note">
-        这是雷达自身的回测档位，用来和别的规则比较，不是操作仓位。
-      </p>
-      <TierStrip current={radarTier} />
-      <div className="mr-conclusion__tier-row">
-        <p
-          className={`mr-conclusion__tier mr-conclusion__tier--secondary${radarTier ? ` mr-conclusion__tier--${radarTier}` : ''}`}
-          data-testid="mr-tier-name"
-        >
-          {tierLabel(radarTier)}
-        </p>
-        <p className="mr-conclusion__score" data-testid="mr-score">
-          综合分 {current.score == null ? '—' : visibleText(formatNum2(current.score, { signed: true }))}
-        </p>
-      </div>
-      {lastMonth ? (
-        <p className="mr-conclusion__last-month" data-testid="mr-last-month">
-          上月末回测口径：{tierLabel(lastMonth.radar)}（{lastMonth.d}）
-          {lastMonth.score != null ? ` · 综合分 ${visibleText(formatNum2(lastMonth.score, { signed: true }))}` : ''}
-        </p>
-      ) : null}
+  const heatTrend = heatSeries.filter(v => v != null).length >= 2 ? (
+    <div className="mr-conclusion__trend-block" data-testid="mr-heat-trend">
       <div className="mr-conclusion__score-trend">
-        <span className="mr-conclusion__score-trend-label">综合分近 10 年走势</span>
-        <ScoreSpark values={scoreSeries} />
+        <span className="mr-conclusion__score-trend-label">冷热分近 10 年走势（往上偏冷，虚线为 ±0.50）</span>
+        <HeatSpark values={heatSeries} />
       </div>
+      <p className="mr-conclusion__last-month" data-testid="mr-last-month">
+        月末口径，≤ −0.50 为偏热、≥ +0.50 为偏冷
+        {lastMonth && lastHeat != null ? `；${lastMonth.d} 月末 ${visibleText(formatNum2(lastHeat, { signed: true }))}` : ''}
+        。上面的读数用最新数据，可能与月末不同。
+      </p>
     </div>
-  )
+  ) : null
 
   return (
     <section className="mr-conclusion" id="mr-conclusion" aria-labelledby="mr-conclusion-title">
@@ -214,7 +176,7 @@ export default function ConclusionPanel({
               </ul>
             ) : null}
           </div>
-          {tierBlock}
+          {heatTrend}
         </div>
         <div className="mr-conclusion__shape" data-testid="mr-conclusion-shape">
           <RadarShape dimensions={current.dimensions} />

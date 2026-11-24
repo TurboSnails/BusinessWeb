@@ -30,7 +30,10 @@ const pctToMonthly = rate => rate / 1200
 const round4 = n => Number(n.toFixed(4))
 const round3 = n => Number(n.toFixed(3))
 const HEATS = ['hot', 'mid', 'cold']
-const emptyForward = () => ({ months: 0, fwd12: null, neg12: null, maxDd12: null })
+const emptyForward = () => ({ months: 0, episodes: 0, independent: 0, fwd12: null, neg12: null, maxDd12: null })
+const FORWARD_MONTHS = 12
+const NW_LAG = 12
+const ERA_SPLIT = '2000-01'
 
 export function mulberry32(seed) {
   let a = seed >>> 0
@@ -70,7 +73,7 @@ export function heatScoreFromDimensions(dimensions) {
 export { classifyHeat }
 
 const STRATEGIES = [
-  ['radar', '市场雷达', row => tierEquity(row.radar)],
+  ['radar', '按综合分持仓', row => tierEquity(row.radar)],
   ['trend', '10 个月均线', row => row.below == null ? null : row.below ? 0.5 : 1],
   ['buyhold', '全程持有标普', () => 1],
   ['static70', '恒定七成股票', () => 0.7],
@@ -139,7 +142,7 @@ export function buildBacktestVerdict(rows, sharpeGaps) {
       clauses.push(`${word}${gap.label}的 ${sharpeText(peer.sharpe)}`)
     }
   }
-  return `雷达全样本夏普 ${sharpeText(radar.sharpe)}；${clauses.join('；')}；最大回撤 ${ddText(radar.maxDd)}，十个月均线为 ${ddText(trend.maxDd)}。雷达只从股市自身看冷热，仓位怎么定见综合策略页。`
+  return `按综合分持仓全样本夏普 ${sharpeText(radar.sharpe)}；${clauses.join('；')}；最大回撤 ${ddText(radar.maxDd)}，十个月均线为 ${ddText(trend.maxDd)}。雷达只从股市自身看冷热，仓位怎么定见综合策略页。`
 }
 
 /**
@@ -221,13 +224,39 @@ export function buildEquityCurves(signals, returns) {
   return curves
 }
 
+/** 连续月份算一段；samples 已按月份升序。 */
+export function countEpisodes(samples) {
+  let episodes = 0
+  for (let i = 0; i < samples.length; i += 1) {
+    if (i === 0 || samples[i].d !== monthAfter(samples[i - 1].d, 1)) episodes += 1
+  }
+  return episodes
+}
+
+/** 12 个月窗口互相重叠：独立样本 ≈ 月数 ÷ 12（四舍五入），不超过段数，至少 1。 */
+export function independentSamples(months, episodes) {
+  if (!months) return 0
+  return Math.max(1, Math.min(episodes, Math.round(months / FORWARD_MONTHS)))
+}
+
 function summarizeForward(samples) {
   if (!samples.length) return emptyForward()
+  const episodes = countEpisodes(samples)
   return {
     months: samples.length,
+    episodes,
+    independent: independentSamples(samples.length, episodes),
     fwd12: average(samples.map(row => row.fwd12)),
     neg12: average(samples.map(row => Number(row.fwd12 < 0))),
     maxDd12: average(samples.map(row => row.maxDd12)),
+  }
+}
+
+function eraStats(samples) {
+  return {
+    all: summarizeForward(samples),
+    before2000: summarizeForward(samples.filter(row => row.d < ERA_SPLIT)),
+    since2000: summarizeForward(samples.filter(row => row.d >= ERA_SPLIT)),
   }
 }
 
@@ -241,18 +270,59 @@ export function buildForwardGroupStats(signals, returns) {
     if (signal.radar && tierBuckets[signal.radar]) tierBuckets[signal.radar].push(sample)
     if (signal.heat && heatBuckets[signal.heat]) heatBuckets[signal.heat].push(sample)
   }
-  const pack = (buckets, keyName, keys) => keys.map(key => {
-    const samples = buckets[key]
-    return {
-      [keyName]: key,
-      all: summarizeForward(samples),
-      since2000: summarizeForward(samples.filter(row => row.d >= '2000-01')),
-    }
-  })
+  const pack = (buckets, keyName, keys) => keys.map(key => ({ [keyName]: key, ...eraStats(buckets[key]) }))
   return {
     tierStats: pack(tierBuckets, 'tier', TIERS.map(tier => tier.id)),
     heatStats: pack(heatBuckets, 'heat', HEATS),
   }
+}
+
+/**
+ * 皮尔逊相关与 OLS 斜率的 Newey-West t（Bartlett 核）。样本少于 lag + 3 时 t 为 null。
+ */
+export function correlationWithNeweyWest(xs, ys, lag = NW_LAG) {
+  const n = xs.length
+  if (n < 3) return { months: n, r: null, t: null }
+  const mx = average(xs)
+  const my = average(ys)
+  const xc = xs.map(v => v - mx)
+  const yc = ys.map(v => v - my)
+  const sxx = xc.reduce((sum, v) => sum + v * v, 0)
+  const syy = yc.reduce((sum, v) => sum + v * v, 0)
+  const sxy = xc.reduce((sum, v, i) => sum + v * yc[i], 0)
+  if (!sxx || !syy) return { months: n, r: null, t: null }
+  const r = sxy / Math.sqrt(sxx * syy)
+  if (n < lag + 3) return { months: n, r: round3(r), t: null }
+  const beta = sxy / sxx
+  const u = xc.map((v, i) => v * (yc[i] - beta * v))
+  let s = u.reduce((sum, v) => sum + v * v, 0)
+  for (let l = 1; l <= lag; l += 1) {
+    let c = 0
+    for (let i = l; i < n; i += 1) c += u[i] * u[i - l]
+    s += 2 * (1 - l / (lag + 1)) * c
+  }
+  const se = Math.sqrt(s) / sxx
+  return { months: n, r: round3(r), t: se > 0 ? round3(beta / se) : null }
+}
+
+/** 综合分与冷热分对之后 12 个月回报（与 forward12 同源）的相关性：全样本与两段。 */
+export function buildPredictive(signals, returns) {
+  const samples = []
+  for (const signal of signals) {
+    const fwd = forward12(returns, signal.d)
+    if (fwd) samples.push({ d: signal.d, score: signal.score, heat: signal.heatScore, y: fwd.fwd12 })
+  }
+  const corr = (key, rows) => {
+    // 缺值月份被去掉后，前后月份会被 Newey-West 当成相邻；现有回测每月都有综合分与冷热分，不受影响
+    const valid = rows.filter(row => Number.isFinite(row[key]))
+    return correlationWithNeweyWest(valid.map(row => row[key]), valid.map(row => row.y))
+  }
+  const eras = key => ({
+    all: corr(key, samples),
+    before2000: corr(key, samples.filter(row => row.d < ERA_SPLIT)),
+    since2000: corr(key, samples.filter(row => row.d >= ERA_SPLIT)),
+  })
+  return { score: eras('score'), heat: eras('heat') }
 }
 
 export function buildSharpeGaps(aligned) {
@@ -330,7 +400,7 @@ export function buildDisclosures({ monthEndRows, household, revisionNotes = [] }
   const extras = []
   if (buyhold && radar && trend && static70) {
     extras.push(
-      `月均价口径会压低波动。同区间按月末收盘口径，全程持有夏普 ${sharpeText(buyhold.sharpe)}、雷达 ${sharpeText(radar.sharpe)}、十个月均线 ${sharpeText(trend.sharpe)}、恒定七成 ${sharpeText(static70.sharpe)}。`,
+      `月均价口径会压低波动。同区间按月末收盘口径，全程持有夏普 ${sharpeText(buyhold.sharpe)}、按综合分持仓 ${sharpeText(radar.sharpe)}、十个月均线 ${sharpeText(trend.sharpe)}、恒定七成 ${sharpeText(static70.sharpe)}。`,
     )
   }
   if (household?.corr != null && household.sameShare != null) {
@@ -377,6 +447,7 @@ export function buildRadarBacktest({
   })
   const sharpeGaps = buildSharpeGaps(aligned)
   const { tierStats, heatStats } = buildForwardGroupStats(monthSignals, returns)
+  const predictive = buildPredictive(monthSignals, returns)
   const household = householdScoreStats(historical ?? {}, monthSignals)
   return {
     start, end,
@@ -384,13 +455,16 @@ export function buildRadarBacktest({
     rows,
     verdict: buildBacktestVerdict(rows, sharpeGaps),
     disclosures: buildDisclosures({ monthEndRows, household, revisionNotes }),
-    timeline: monthSignals.map(({ d, radar, spx, score = null, dims = DIMENSIONS.map(() => null) }) => ({
-      d, radar, spx, score, dims,
+    timeline: monthSignals.map(({
+      d, radar, spx, score = null, heatScore = null, dims = DIMENSIONS.map(() => null),
+    }) => ({
+      d, radar, spx, score, heatScore: Number.isFinite(heatScore) ? round4(heatScore) : null, dims,
     })),
     curves: buildEquityCurves(monthSignals, returns),
     monthEndRows,
     sharpeGaps,
     tierStats,
     heatStats,
+    predictive,
   }
 }

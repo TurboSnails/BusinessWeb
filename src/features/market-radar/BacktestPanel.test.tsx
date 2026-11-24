@@ -181,7 +181,7 @@ describe('回测结论与时段表', () => {
   it('有 verdict 时渲染结论段；默认验证期；雷达行高亮', () => {
     mockedComposite.mockReturnValue({ status: 'loading' })
     render(<BacktestPanel data={backtestRadarFixture()} />)
-    expect(screen.getByTestId('mr-backtest-verdict').textContent).toContain('雷达全样本夏普')
+    expect(screen.getByTestId('mr-backtest-verdict').textContent).toContain('按综合分持仓全样本夏普')
     expect(screen.getByRole('button', { name: /验证期/ }).getAttribute('aria-pressed')).toBe('true')
     expect(screen.getByRole('button', { name: /验证期/ }).textContent).toMatch(/2000/)
     expect(screen.getByRole('button', { name: /训练期/ }).textContent).toMatch(/1995|1973/)
@@ -230,6 +230,38 @@ describe('回测结论与时段表', () => {
     expect(gaps.querySelectorAll('p')).toHaveLength(2)
   })
 
+  it('冷热表在折叠区之前；综合分整套回测收在默认收起的折叠区，摘要由数据生成', () => {
+    mockedComposite.mockReturnValue({ status: 'loading' })
+    render(<BacktestPanel data={backtestRadarFixture()} />)
+    expect(screen.getByRole('heading', { level: 2, name: '历史检验' })).toBeTruthy()
+    const fold = screen.getByTestId('mr-composite-fold') as HTMLDetailsElement
+    expect(fold).toBeInstanceOf(HTMLDetailsElement)
+    expect(fold.open).toBe(false)
+    expect(fold.querySelector('summary')?.textContent).toContain('把五个维度平均成一个分数行不行')
+    const lead = screen.getByTestId('mr-composite-fold-lead').textContent ?? ''
+    expect(lead).toMatch(/^没有证据显示可行。/)
+    expect(lead).toContain('相关系数 0.01（t 0.11）')
+    expect(lead).toContain('1973–1999 年相关系数 −0.17（t −1.74），不显著')
+    expect(lead).toContain('十个月均线的夏普差 0.13')
+    expect(lead).toContain('高于十个月均线')
+    for (const id of ['mr-backtest-table', 'mr-bt-robust', 'mr-sharpe-gaps', 'mr-forward-tier']) {
+      expect(fold.contains(screen.getByTestId(id))).toBe(true)
+    }
+    const heat = screen.getByTestId('mr-forward-stats')
+    expect(fold.contains(heat)).toBe(false)
+    expect(heat.compareDocumentPosition(fold) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it('旧数据没有 predictive：摘要只给夏普差，不白屏', () => {
+    mockedComposite.mockReturnValue({ status: 'loading' })
+    const base = backtestRadarFixture()
+    const { predictive: _omit, ...rest } = base.backtest
+    render(<BacktestPanel data={{ ...base, backtest: { ...rest } }} />)
+    const lead = screen.getByTestId('mr-composite-fold-lead').textContent ?? ''
+    expect(lead).not.toContain('没有证据')
+    expect(lead).toContain('十个月均线的夏普差')
+  })
+
   it('披露默认收起，标题含条数', () => {
     mockedComposite.mockReturnValue({ status: 'loading' })
     render(<BacktestPanel data={backtestRadarFixture()} />)
@@ -240,18 +272,18 @@ describe('回测结论与时段表', () => {
   })
 })
 
-describe('雷达月度档位时间线（单带）', () => {
+describe('综合分月度档位时间线（单带，在折叠区内）', () => {
   it('默认近 10 年，只画雷达一条带', () => {
     const { chart } = renderPanel(macroTimeline())
     expect(chart.getAttribute('data-visible-months')).toBe('120')
     expect(chart.getAttribute('data-visible-start')).toBe('2016-11')
     const timeline = screen.getByTestId('mr-radar-timeline')
     expect(within(timeline).getByRole('button', { name: '近 10 年' }).getAttribute('aria-pressed')).toBe('true')
-    expect([...chart.querySelectorAll('.mp-timeline__band-label')].map(node => node.textContent)).toEqual(['雷达档位'])
+    expect([...chart.querySelectorAll('.mp-timeline__band-label')].map(node => node.textContent)).toEqual(['综合分档位'])
     expect(chart.querySelectorAll('[data-band="regime"]').length).toBe(0)
-    expect(document.querySelector('.mp-timeline__legend-note')?.textContent).toContain('雷达档位')
+    expect(document.querySelector('.mp-timeline__legend-note')?.textContent).toContain('只作历史检验')
     expect(screen.getByText('灰色阴影为美国官方认定的衰退期（NBER）')).toBeTruthy()
-    expect(screen.getByRole('heading', { level: 3, name: '雷达月度档位' })).toBeTruthy()
+    expect(screen.getByRole('heading', { level: 3, name: '综合分月度档位' })).toBeTruthy()
   })
 
   it('切到全部后悬停 2008-10：月均价、雷达、衰退期；无下带', () => {
@@ -263,7 +295,7 @@ describe('雷达月度档位时间线（单带）', () => {
     expect(tip.querySelector('strong')?.textContent).toBe('2008-10')
     expect(tipRows(tip)).toEqual({
       月均价: (Math.round(100 * Math.pow(1.006, 429) * 100) / 100).toLocaleString('zh-CN'),
-      雷达档位: '防守',
+      综合分档位: '防守',
       衰退期: '是',
     })
   })
@@ -275,7 +307,7 @@ describe('雷达月度档位时间线（单带）', () => {
     fireEvent.click(within(screen.getByTestId('mr-radar-timeline')).getByRole('button', { name: '全部' }))
     expect(chart.querySelectorAll('.mp-timeline__recession').length).toBe(0)
     const tip = hoverIndex(chart, 429, { start: 0, end: MONTHS - 1 })
-    expect(Object.keys(tipRows(tip))).toEqual(['月均价', '雷达档位'])
+    expect(Object.keys(tipRows(tip))).toEqual(['月均价', '综合分档位'])
   })
 
   it('宏观攻守加载中同样降级', () => {

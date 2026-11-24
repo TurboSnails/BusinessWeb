@@ -687,7 +687,7 @@ export function radarFixture(overrides: Partial<RadarFile> = {}): RadarFile {
       tier: 'lean-defense',
       heatScore: -0.5,
       heat: 'hot',
-      headline: '股市偏热：估值与拥挤度两个维度平均 −0.50。五维综合分 −0.20，雷达自身的回测档位为偏防守。',
+      headline: '股市偏热：估值与持股拥挤度两个维度平均 −0.50。',
       dimensions: DIMENSIONS,
       counts: recount(indicators),
       caveats: ['家庭两项配置合并算一票时，拥挤度分与热度分恰在偏热边界附近。'],
@@ -701,7 +701,7 @@ export function radarFixture(overrides: Partial<RadarFile> = {}): RadarFile {
       rows: [
         {
           id: 'radar',
-          label: '市场雷达',
+          label: '按综合分持仓',
           train: metrics({ cagr: 0.105, maxDd: -0.24, sharpe: 0.62 }),
           test: metrics({ cagr: 0.078, maxDd: -0.3, sharpe: 0.48 }),
           full: metrics({ cagr: 0.092, maxDd: -0.3, sharpe: 0.55 }),
@@ -728,7 +728,7 @@ export function radarFixture(overrides: Partial<RadarFile> = {}): RadarFile {
           full: metrics({ cagr: 0.075, maxDd: -0.36, sharpe: 0.45, avgEquity: 0.7 }),
         },
       ],
-      verdict: '雷达全样本夏普 0.55，与恒定七成股票的差异在抽样误差内；最大回撤 −30.0%。雷达只从股市自身看冷热，仓位怎么定见综合策略页。',
+      verdict: '按综合分持仓全样本夏普 0.55，与恒定七成股票的差异在抽样误差内；最大回撤 −30.0%。雷达只从股市自身看冷热，仓位怎么定见综合策略页。',
       disclosures: [
         '规则先验设定，验证期结果未参与挑选。',
         '雷达与宏观攻守完全独立，互不影响对方结论。',
@@ -738,7 +738,7 @@ export function radarFixture(overrides: Partial<RadarFile> = {}): RadarFile {
       timeline: timeline(),
       curves: curves(),
       monthEndRows: [
-        { id: 'radar', label: '市场雷达', full: metrics({ sharpe: 0.52, maxDd: -0.32 }), test: metrics({ sharpe: 0.45, maxDd: -0.32 }) },
+        { id: 'radar', label: '按综合分持仓', full: metrics({ sharpe: 0.52, maxDd: -0.32 }), test: metrics({ sharpe: 0.45, maxDd: -0.32 }) },
         { id: 'trend', label: '10 个月均线', full: metrics({ sharpe: 0.46, maxDd: -0.3 }), test: metrics({ sharpe: 0.38, maxDd: -0.3 }) },
         { id: 'buyhold', label: '全程持有标普', full: metrics({ sharpe: 0.4, maxDd: -0.55 }), test: metrics({ sharpe: 0.33, maxDd: -0.55 }) },
         { id: 'static70', label: '恒定七成股票', full: metrics({ sharpe: 0.43, maxDd: -0.38, avgEquity: 0.7 }), test: metrics({ sharpe: 0.36, maxDd: -0.38, avgEquity: 0.7 }) },

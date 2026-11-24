@@ -83,8 +83,8 @@ describe('EquityCurves 交互', () => {
     render(<EquityCurves curves={curves} />)
     const chart = screen.getByTestId('mr-eq-chart')
     expect(chart.querySelectorAll('[data-series]')).toHaveLength(4)
-    fireEvent.click(screen.getByRole('button', { name: '市场雷达' }))
-    expect(screen.getByRole('button', { name: '市场雷达' }).getAttribute('aria-pressed')).toBe('false')
+    fireEvent.click(screen.getByRole('button', { name: '按综合分持仓' }))
+    expect(screen.getByRole('button', { name: '按综合分持仓' }).getAttribute('aria-pressed')).toBe('false')
     expect(chart.querySelectorAll('[data-series]')).toHaveLength(3)
     expect(chart.querySelector('[data-series="radar"]')).toBeNull()
   })
@@ -117,7 +117,7 @@ describe('EquityCurves 交互', () => {
     fireEvent.keyDown(chart, { key: 'ArrowLeft' })
     const tip = screen.getByTestId('mr-eq-tip')
     expect(tip.textContent).toMatch(/\d{4}-\d{2}/)
-    expect(tip.textContent).toContain('市场雷达')
+    expect(tip.textContent).toContain('按综合分持仓')
   })
 
   it('横轴有多个年份刻度', () => {

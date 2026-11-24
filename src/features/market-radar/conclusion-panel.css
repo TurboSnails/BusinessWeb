@@ -31,29 +31,9 @@
   color: var(--text-secondary);
 }
 
-.mr-conclusion__tier-note {
-  margin: 0 0 8px;
-  font-size: 0.84rem;
-  color: var(--text-secondary);
-}
-
-.mr-conclusion__tier-block {
+.mr-conclusion__trend-block {
   margin: 0;
   padding: 4px 16px 14px;
-}
-
-.mr-conclusion__tier-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 16px;
-  align-items: baseline;
-}
-
-/* 页面样式里 .mr-conclusion__tier 是大字，这里提高优先级把它降为次要信息 */
-.mr-conclusion__tier.mr-conclusion__tier--secondary {
-  margin: 10px 0 2px;
-  font-size: 1rem;
-  font-weight: 600;
 }
 
 .mr-conclusion__last-month {
@@ -81,4 +61,10 @@
   fill: none;
   stroke: var(--text-primary);
   stroke-width: 1.5;
+}
+
+.mr-conclusion__spark-band {
+  stroke: var(--border-subtle);
+  stroke-width: 1;
+  stroke-dasharray: 2 2;
 }

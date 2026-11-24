@@ -8,6 +8,10 @@ import {
   buildDisclosures,
   buildEquityCurves,
   buildForwardGroupStats,
+  buildPredictive,
+  correlationWithNeweyWest,
+  countEpisodes,
+  independentSamples,
   buildRadarBacktest,
   buildSharpeGaps,
   monthEndReturns,
@@ -110,7 +114,7 @@ test('verdict：区间含 0 合并措辞；不单独提全程持有；高于/低
   assert.match(within, /与恒定七成股票（0\.49，全程持有标普按构造与它相同）、十个月均线（0\.54）的差异都在抽样误差内/)
   assert.equal(within.includes('与全程持有标普的差异'), false)
   assert.equal(/高于|低于/.test(within), false)
-  assert.match(within, /雷达全样本夏普 0\.52/)
+  assert.match(within, /按综合分持仓全样本夏普 0\.52/)
   assert.match(within, /最大回撤 −31\.2%/)
   assert.match(within, /雷达只从股市自身看冷热，仓位怎么定见综合策略页。$/)
 
@@ -159,12 +163,17 @@ test('没有样本的档位与冷热：months 为 0，其余 null', () => {
   assert.equal(tierStats.length, 5)
   assert.equal(heatStats.length, 3)
   const emptyTier = tierStats.find(row => row.tier === 'defense')
-  assert.deepEqual(emptyTier.all, { months: 0, fwd12: null, neg12: null, maxDd12: null })
-  assert.deepEqual(emptyTier.since2000, { months: 0, fwd12: null, neg12: null, maxDd12: null })
+  assert.deepEqual(emptyTier.all, { months: 0, episodes: 0, independent: 0, fwd12: null, neg12: null, maxDd12: null })
+  assert.deepEqual(emptyTier.since2000, { months: 0, episodes: 0, independent: 0, fwd12: null, neg12: null, maxDd12: null })
+  assert.deepEqual(emptyTier.before2000, { months: 0, episodes: 0, independent: 0, fwd12: null, neg12: null, maxDd12: null })
   const emptyHeat = heatStats.find(row => row.heat === 'cold')
-  assert.deepEqual(emptyHeat.all, { months: 0, fwd12: null, neg12: null, maxDd12: null })
+  assert.deepEqual(emptyHeat.all, { months: 0, episodes: 0, independent: 0, fwd12: null, neg12: null, maxDd12: null })
   const offense = tierStats.find(row => row.tier === 'offense')
   assert.equal(offense.all.months, 2)
+  assert.equal(offense.all.episodes, 1)
+  assert.equal(offense.all.independent, 1)
+  assert.equal(offense.since2000.months, 2)
+  assert.equal(offense.before2000.months, 0)
   assert.ok(Number.isFinite(offense.all.fwd12))
   const expected = forward12(returns, '2010-01')
   assert.ok(expected)
@@ -247,6 +256,11 @@ test('buildRadarBacktest 输出 curves / tierStats / heatStats / monthEndRows / 
   assert.equal(out.monthEndRows.length, 4)
   assert.ok(out.monthEndRows.every(row => row.full && row.test && !row.train))
   assert.equal(out.sharpeGaps.length, 3)
+  assert.equal(out.rows.find(row => row.id === 'radar').label, '按综合分持仓')
+  assert.match(out.verdict, /^按综合分持仓全样本夏普/)
+  assert.deepEqual(Object.keys(out.predictive).sort(), ['heat', 'score'])
+  assert.deepEqual(Object.keys(out.predictive.score).sort(), ['all', 'before2000', 'since2000'])
+  assert.equal(out.timeline[0].heatScore, signals[0].heatScore)
   assert.deepEqual(out.timeline[0].dims, signals[0].dims)
   assert.equal(out.timeline[0].score, signals[0].score)
   assert.match(out.verdict, /抽样误差内|高于|低于/)
@@ -254,4 +268,41 @@ test('buildRadarBacktest 输出 curves / tierStats / heatStats / monthEndRows / 
   assert.ok(out.disclosures.some(line => /月末收盘口径/.test(line)))
   assert.ok(out.disclosures.some(line => /新增 18 项只展示指标/.test(line)))
   assert.equal(out.disclosures.some(line => /A1、A2、B5 修正记录/.test(line)), false)
+})
+
+test('段数与独立样本：连续月份算一段；独立样本 = 月数 ÷ 12 取整，不超过段数，至少 1', () => {
+  const rows = ['2001-01', '2001-02', '2001-03', '2001-06', '2001-07', '2002-01'].map(d => ({ d }))
+  assert.equal(countEpisodes(rows), 3)
+  assert.equal(independentSamples(0, 0), 0)
+  assert.equal(independentSamples(5, 2), 1)
+  assert.equal(independentSamples(74, 21), 6)
+  assert.equal(independentSamples(120, 4), 4)
+})
+
+test('correlationWithNeweyWest：完全线性时 r = 1；无波动时为 null；样本不足不给 t', () => {
+  const xs = Array.from({ length: 40 }, (_, i) => i)
+  const noisy = xs.map((x, i) => 2 * x + (i % 2 ? 0.5 : -0.5))
+  const out = correlationWithNeweyWest(xs, noisy)
+  assert.equal(out.months, 40)
+  assert.ok(out.r > 0.99)
+  assert.ok(out.t > 2)
+  assert.deepEqual(correlationWithNeweyWest([1, 1, 1, 1], [1, 2, 3, 4]), { months: 4, r: null, t: null })
+  const short = correlationWithNeweyWest([1, 2, 3, 4, 5], [2, 1, 4, 3, 6])
+  assert.ok(Number.isFinite(short.r))
+  assert.equal(short.t, null)
+})
+
+test('buildPredictive：按 2000-01 切两段，回报与 forward12 同源，可复现', () => {
+  const returns = new Map()
+  for (let i = 0; i < 80; i += 1) returns.set(monthAfter('1996-01', i), { spx: ((i * 7) % 5 - 2) / 100, cash: 0 })
+  const signals = Array.from({ length: 60 }, (_, i) => ({
+    d: monthAfter('1996-01', i), score: ((i * 3) % 7) / 7 - 0.5, heatScore: ((i * 5) % 3) / 2 - 0.5,
+  }))
+  const a = buildPredictive(signals, returns)
+  const b = buildPredictive(signals, returns)
+  assert.deepEqual(a, b)
+  const eligible = signals.filter(row => forward12(returns, row.d))
+  assert.equal(a.score.all.months, eligible.length)
+  assert.equal(a.score.before2000.months, eligible.filter(row => row.d < '2000-01').length)
+  assert.equal(a.score.since2000.months, eligible.filter(row => row.d >= '2000-01').length)
 })

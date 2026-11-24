@@ -18,9 +18,12 @@ function metrics(overrides: Partial<RadarMetrics> = {}): RadarMetrics {
   }
 }
 
-function forwardStats(months: number, fwd12: number | null = 0.08): RadarForwardStats {
-  if (months === 0) return { months: 0, fwd12: null, neg12: null, maxDd12: null }
-  return { months, fwd12, neg12: 0.25, maxDd12: -0.12 }
+function forwardStats(months: number, fwd12: number | null = 0.08, episodes = Math.ceil(months / 6)): RadarForwardStats {
+  if (months === 0) return { months: 0, episodes: 0, independent: 0, fwd12: null, neg12: null, maxDd12: null }
+  return {
+    months, episodes, independent: Math.max(1, Math.min(episodes, Math.round(months / 12))),
+    fwd12, neg12: 0.25, maxDd12: -0.12,
+  }
 }
 
 function monthAt(index: number, startYear = 1995): string {
@@ -47,7 +50,7 @@ function strategyRows(): RadarFile['backtest']['rows'] {
   return [
     {
       id: 'radar',
-      label: '市场雷达',
+      label: '按综合分持仓',
       train: metrics({ cagr: 0.105, vol: 0.14, maxDd: -0.24, sharpe: 0.62, avgEquity: 0.72, switchesPerYear: 1.8 }),
       test: metrics({ cagr: 0.078, vol: 0.16, maxDd: -0.3, sharpe: 0.48, avgEquity: 0.68, switchesPerYear: 2.1 }),
       full: metrics({ cagr: 0.092, vol: 0.15, maxDd: -0.3, sharpe: 0.55, avgEquity: 0.7, switchesPerYear: 1.9 }),
@@ -78,7 +81,7 @@ function strategyRows(): RadarFile['backtest']['rows'] {
 
 function monthEndRows(): RadarFile['backtest']['monthEndRows'] {
   return [
-    { id: 'radar', label: '市场雷达', full: metrics({ sharpe: 0.52, maxDd: -0.32 }), test: metrics({ sharpe: 0.45, maxDd: -0.32 }) },
+    { id: 'radar', label: '按综合分持仓', full: metrics({ sharpe: 0.52, maxDd: -0.32 }), test: metrics({ sharpe: 0.45, maxDd: -0.32 }) },
     { id: 'trend', label: '10 个月均线', full: metrics({ sharpe: 0.46, maxDd: -0.3 }), test: metrics({ sharpe: 0.38, maxDd: -0.3 }) },
     { id: 'buyhold', label: '全程持有标普', full: metrics({ sharpe: 0.4, maxDd: -0.55 }), test: metrics({ sharpe: 0.33, maxDd: -0.55 }) },
     { id: 'static70', label: '恒定七成股票', full: metrics({ sharpe: 0.43, maxDd: -0.38, avgEquity: 0.7 }), test: metrics({ sharpe: 0.36, maxDd: -0.38, avgEquity: 0.7 }) },
@@ -99,6 +102,7 @@ export function backtestTierStats(): RadarFile['backtest']['tierStats'] {
   return (['defense', 'lean-defense', 'neutral', 'lean-offense', 'offense'] as TierId[]).map(tier => ({
     tier,
     all: forwardStats(tier === 'offense' ? 80 : 120),
+    before2000: forwardStats(tier === 'offense' ? 80 : tier === 'lean-offense' ? 100 : 60),
     // offense 在 2000 年以来无样本
     since2000: forwardStats(tier === 'offense' ? 0 : tier === 'lean-offense' ? 20 : 60),
   }))
@@ -106,10 +110,27 @@ export function backtestTierStats(): RadarFile['backtest']['tierStats'] {
 
 export function backtestHeatStats(): RadarFile['backtest']['heatStats'] {
   return [
-    { heat: 'cold', all: forwardStats(180), since2000: forwardStats(90) },
-    { heat: 'mid', all: forwardStats(220), since2000: forwardStats(110) },
-    { heat: 'hot', all: forwardStats(160), since2000: forwardStats(25) },
+    // 与线上数据同形：偏热 2000 年前高于居中、之后低于居中；偏冷 2000 年以后没有出现过
+    { heat: 'cold', all: forwardStats(99, 0.163, 2), before2000: forwardStats(99, 0.163, 2), since2000: forwardStats(0) },
+    { heat: 'mid', all: forwardStats(330, 0.126, 21), before2000: forwardStats(144, 0.122, 6), since2000: forwardStats(186, 0.129, 15) },
+    { heat: 'hot', all: forwardStats(204, 0.107, 20), before2000: forwardStats(81, 0.191, 4), since2000: forwardStats(123, 0.052, 16) },
   ]
+}
+
+/** 与线上数据同形的相关性：综合分各段都不显著；冷热分只在 2000 年以后显著 */
+export function backtestPredictive(): NonNullable<RadarFile['backtest']['predictive']> {
+  return {
+    score: {
+      all: { months: 633, r: 0.012, t: 0.109 },
+      before2000: { months: 324, r: -0.168, t: -1.744 },
+      since2000: { months: 309, r: 0.088, t: 0.615 },
+    },
+    heat: {
+      all: { months: 633, r: 0.148, t: 1.361 },
+      before2000: { months: 324, r: -0.039, t: -0.298 },
+      since2000: { months: 309, r: 0.329, t: 3.258 },
+    },
+  }
 }
 
 function shortTimeline(): RadarFile['backtest']['timeline'] {
@@ -118,6 +139,7 @@ function shortTimeline(): RadarFile['backtest']['timeline'] {
     radar: (['offense', 'lean-offense', 'neutral', 'lean-defense', 'defense'] as TierId[])[i % 5],
     spx: 4800 + i * 20,
     score: -0.2 + Math.sin(i / 4) * 0.15,
+    heatScore: -0.4 - i * 0.02,
     dims: [0, -0.5, -0.67, 0, 1],
   }))
 }
@@ -129,7 +151,7 @@ export function backtestData(overrides: Partial<RadarFile['backtest']> = {}): Ra
     trainRange: '1995-01–1999-12',
     testRange: '2000-01–2026-10',
     rows: strategyRows(),
-    verdict: '雷达全样本夏普 0.55，与恒定七成股票的差异在抽样误差内；最大回撤 −30.0%。雷达只从股市自身看冷热，仓位怎么定见综合策略页。',
+    verdict: '按综合分持仓全样本夏普 0.55，与恒定七成股票的差异在抽样误差内；最大回撤 −30.0%。雷达只从股市自身看冷热，仓位怎么定见综合策略页。',
     disclosures: [
       '规则先验设定，验证期结果未参与挑选。',
       '雷达与宏观攻守完全独立，互不影响对方结论。',
@@ -142,6 +164,7 @@ export function backtestData(overrides: Partial<RadarFile['backtest']> = {}): Ra
     sharpeGaps: backtestSharpeGaps(),
     tierStats: backtestTierStats(),
     heatStats: backtestHeatStats(),
+    predictive: backtestPredictive(),
     ...overrides,
   }
 }

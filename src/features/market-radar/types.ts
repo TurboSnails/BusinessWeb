@@ -104,6 +104,10 @@ export type RadarStrategyId = 'radar' | 'trend' | 'buyhold' | 'static70'
 /** 某一类月份之后 12 个月的标普表现（信号月之后第 2 至第 13 个月） */
 export type RadarForwardStats = {
   months: number
+  /** 连续月份段数；旧数据没有 */
+  episodes?: number
+  /** 独立样本 ≈ min(段数, 月数 ÷ 12)；旧数据没有 */
+  independent?: number
   /** 之后 12 个月标普总回报的平均值；没有样本时为 null */
   fwd12: number | null
   /** 之后 12 个月为负的比例 */
@@ -111,6 +115,12 @@ export type RadarForwardStats = {
   /** 之后 12 个月内最大回撤的平均值 */
   maxDd12: number | null
 }
+
+/** 相关系数与 Newey-West t（滞后 12）；样本不足时为 null */
+export type RadarCorrelation = { months: number; r: number | null; t: number | null }
+export type RadarPredictive = { all: RadarCorrelation; before2000: RadarCorrelation; since2000: RadarCorrelation }
+/** 综合分与冷热分各一组 */
+export type RadarPredictiveSet = { score: RadarPredictive; heat: RadarPredictive }
 
 export type RadarDimensionScore = {
   id: RadarDimensionId
@@ -150,17 +160,19 @@ export type RadarFile = {
     rows: { id: RadarStrategyId; label: string; train: RadarMetrics; test: RadarMetrics; full: RadarMetrics }[]
     verdict?: string
     disclosures: string[]
-    /** 月度：雷达档位、标普月末收盘、综合分与五个维度分（顺序同 current.dimensions） */
-    timeline: { d: string; radar: TierId | null; spx: number; score: number | null; dims: (number | null)[] }[]
+    /** 月度：雷达档位、标普月末收盘、综合分、冷热分（月末口径）与五个维度分（顺序同 current.dimensions） */
+    timeline: { d: string; radar: TierId | null; spx: number; score: number | null; heatScore?: number | null; dims: (number | null)[] }[]
     /** 月度净值，回测首月之前 = 1；顺序同 rows */
     curves: { d: string; radar: number; trend: number; buyhold: number; static70: number }[]
     /** 同一套信号改用月末收盘价计算收益的结果（稳健性对照） */
     monthEndRows: { id: RadarStrategyId; label: string; full: RadarMetrics; test: RadarMetrics }[]
     /** 雷达全样本夏普与对照策略之差的抽样区间（按 12 个月分块自助抽样，固定随机种子） */
     sharpeGaps: { versus: RadarStrategyId; label: string; diff: number; low: number; high: number }[]
-    /** 按雷达档位分组：全样本与 2000 年以来 */
-    tierStats: { tier: TierId; all: RadarForwardStats; since2000: RadarForwardStats }[]
+    /** 按雷达档位分组：全样本、1973–1999（旧数据没有）与 2000 年以来 */
+    tierStats: { tier: TierId; all: RadarForwardStats; before2000?: RadarForwardStats; since2000: RadarForwardStats }[]
     /** 按冷热（估值与拥挤度）分组 */
-    heatStats: { heat: 'hot' | 'mid' | 'cold'; all: RadarForwardStats; since2000: RadarForwardStats }[]
+    heatStats: { heat: 'hot' | 'mid' | 'cold'; all: RadarForwardStats; before2000?: RadarForwardStats; since2000: RadarForwardStats }[]
+    /** 综合分与冷热分对之后 12 个月回报的相关系数与重叠修正 t 值；旧数据没有 */
+    predictive?: RadarPredictiveSet
   }
 }

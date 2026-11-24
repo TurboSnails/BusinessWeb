@@ -208,7 +208,7 @@ test('先算维度均值，再等权合成；零分计入、空维度略过；sc
   assert.equal(scoreAt({ pe }, '1972-12-31'), -1)
 })
 
-test('buildCurrent：热度与综合策略同源，headline 说冷热不说仓位上限', () => {
+test('buildCurrent：热度与综合策略同源，headline 只说冷热，不提综合分、档位与仓位', () => {
   const make = (dimension, score, inScore = true) => ({ dimension, score, inScore })
   const hot = buildCurrent([
     make('valuation', -0.5), make('crowding', -0.6666666666666666), make('liquidity', 0),
@@ -217,9 +217,8 @@ test('buildCurrent：热度与综合策略同源，headline 说冷热不说仓�
   assert.equal(hot.heatScore, fromCs.heatScore)
   assert.equal(hot.heat, fromCs.heat)
   assert.equal(hot.heat, 'hot')
-  assert.match(hot.headline, /^股市偏热：估值与拥挤度两个维度平均 −0\.58。/)
-  assert.match(hot.headline, /五维综合分/)
-  assert.match(hot.headline, /雷达自身的回测档位为/)
+  assert.equal(hot.headline, '股市偏热：估值与持股拥挤度两个维度平均 −0.58。')
+  assert.equal(/综合分|档位/.test(hot.headline), false)
   assert.equal(hot.headline.includes('仓位上限'), false)
   assert.equal(hot.headline.includes('%'), false)
 
@@ -234,14 +233,13 @@ test('buildCurrent：热度与综合策略同源，headline 说冷热不说仓�
   const pending = buildCurrent([make('liquidity', -1), make('trading', 0)])
   assert.equal(pending.heat, null)
   assert.equal(pending.heatScore, null)
-  assert.match(pending.headline, /^估值与拥挤度读数暂缺，冷热待定。/)
-  assert.match(pending.headline, /雷达自身的回测档位为/)
+  assert.equal(pending.headline, '估值与持股拥挤度读数暂缺，冷热待定。')
   assert.equal(pending.headline.includes('仓位上限'), false)
 
   const empty = buildCurrent([])
   assert.equal(empty.heat, null)
   assert.equal(empty.tier, null)
-  assert.equal(empty.headline, '计分读数暂缺，雷达档位待定。')
+  assert.equal(empty.headline, '估值与持股拥挤度读数暂缺，冷热待定。')
 })
 
 test('月末信号只用于 t+2 收益，平均股票仓位无需再次分档', () => {

@@ -25,17 +25,10 @@ describe('ConclusionPanel', () => {
     expect(screen.getByTestId('mr-strategy-link').textContent).toContain('冷热不改变仓位')
     expect(within(screen.getByTestId('mr-strategy-link')).getByRole('link', { name: '综合策略' }).getAttribute('href'))
       .toBe('/invest/strategy')
-    expect(screen.getByTestId('mr-tier-note').textContent).toContain('不是操作仓位')
-    expect(screen.getByTestId('mr-tier-name').textContent).toBe('偏防守')
-    expect(screen.getByTestId('mr-score').textContent).toContain('−0.20')
     expect(screen.getByTestId('mr-radar-shape')).toBeTruthy()
     expect(screen.getByTestId('mr-freshness').textContent).toMatch(/\d+ 项指标/)
     expect(screen.getByTestId('mr-generated').textContent).toContain('数据生成于')
     expect(screen.getByTestId('mr-caveats').textContent).toContain('家庭两项')
-    const strip = screen.getByTestId('mr-tier-strip')
-    expect(within(strip).getAllByRole('listitem').map(li => li.textContent)).toEqual([
-      '防守', '偏防守（当前）', '中性', '偏进攻', '进攻',
-    ])
     expect(screen.getByTestId('mr-dim-valuation').textContent).toContain('估值')
     expect(screen.getByTestId('mr-dim-drivers-valuation').textContent).toContain('过去 12 个月市盈率')
   })
@@ -47,7 +40,7 @@ describe('ConclusionPanel', () => {
         ...base.current,
         heatScore: null,
         heat: null,
-        headline: '估值与拥挤度读数暂缺，冷热待定。五维综合分 −0.20，雷达自身的回测档位为偏防守。',
+        headline: '估值与持股拥挤度读数暂缺，冷热待定。',
       },
     })
     expect(screen.getByTestId('mr-heat').textContent).toBe('冷热待定')
@@ -60,13 +53,35 @@ describe('ConclusionPanel', () => {
     expect(main.textContent).not.toMatch(/\d+%/)
   })
 
-  it('回测档位块与口径提示同在左卡栈内', () => {
+  it('主视图不出现综合分、五档色带与攻守字样', () => {
+    renderPanel()
+    const section = document.getElementById('mr-conclusion') as HTMLElement
+    expect(screen.queryByTestId('mr-tier-strip')).toBeNull()
+    expect(screen.queryByTestId('mr-score')).toBeNull()
+    expect(section.textContent).not.toMatch(/综合分|进攻|防守|档位/)
+  })
+
+  it('冷热分走势在左卡栈内、雷达图之前；注明月末口径与上月末读数', () => {
     renderPanel()
     const main = screen.getByTestId('mr-conclusion-main')
-    const tier = screen.getByTestId('mr-tier-block')
-    expect(main.parentElement).toBe(tier.parentElement)
+    const trend = screen.getByTestId('mr-heat-trend')
+    expect(main.parentElement).toBe(trend.parentElement)
     expect(main.parentElement?.className).toContain('mr-conclusion__stack')
-    expect(tier.compareDocumentPosition(screen.getByTestId('mr-conclusion-shape'))
+    expect(trend.compareDocumentPosition(screen.getByTestId('mr-conclusion-shape'))
       & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(screen.getByTestId('mr-heat-spark').getAttribute('aria-label')).toBe('冷热分近 10 年走势')
+    expect(screen.getByTestId('mr-heat-spark-hot')).toBeTruthy()
+    expect(screen.getByTestId('mr-heat-spark-cold')).toBeTruthy()
+    const note = screen.getByTestId('mr-last-month').textContent ?? ''
+    expect(note).toContain('月末口径')
+    expect(note).toContain('≤ −0.50 为偏热')
+    expect(note).toMatch(/\d{4}-\d{2} 月末 [+−]?\d\.\d{2}/)
+  })
+
+  it('timeline 没有 heatScore（旧数据）时由估值、拥挤度两维平均', () => {
+    const base = radarFixture()
+    const timeline = base.backtest.timeline.map(({ heatScore: _omit, ...row }) => ({ ...row, dims: [0, -0.5, -1, 0, 1] }))
+    renderPanel({ backtest: { ...base.backtest, timeline } })
+    expect(screen.getByTestId('mr-last-month').textContent).toContain('月末 −0.75')
   })
 })

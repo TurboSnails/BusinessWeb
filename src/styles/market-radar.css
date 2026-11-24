@@ -143,35 +143,6 @@ html.dark .mr-overview__bar-seg--cool {
 
 /* 结论 */
 .mr-conclusion { margin: 0 0 28px; }
-.mr-tier-strip {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 4px;
-  margin: 0 0 16px;
-  padding: 0;
-  list-style: none;
-}
-.mr-tier-strip__seg {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 2.4rem;
-  padding: 6px 4px;
-  border-radius: var(--radius-sm, 6px);
-  border: 1px solid transparent;
-  text-align: center;
-}
-.mr-tier-strip__seg.is-active {
-  border-color: var(--text-primary);
-  box-shadow: inset 0 0 0 1px var(--text-primary);
-  font-weight: 700;
-}
-.mr-tier-strip__label { font-size: 0.82rem; color: var(--text-primary); }
-.mr-tier-strip__seg--defense { background: color-mix(in srgb, var(--mr-tier-defense) 16%, var(--bg-primary)); }
-.mr-tier-strip__seg--lean-defense { background: color-mix(in srgb, var(--mr-tier-lean-defense) 14%, var(--bg-primary)); }
-.mr-tier-strip__seg--neutral { background: color-mix(in srgb, var(--mr-tier-neutral) 12%, var(--bg-primary)); }
-.mr-tier-strip__seg--lean-offense { background: color-mix(in srgb, var(--mr-tier-lean-offense) 14%, var(--bg-primary)); }
-.mr-tier-strip__seg--offense { background: color-mix(in srgb, var(--mr-tier-offense) 16%, var(--bg-primary)); }
 
 .mr-conclusion__grid {
   display: grid;
@@ -180,7 +151,7 @@ html.dark .mr-overview__bar-seg--cool {
   margin: 0 0 18px;
   align-items: stretch;
 }
-/* 桌面：左卡 = 口径 + 回测档位，右卡 = 雷达图 */
+/* 桌面：左卡 = 冷热结论 + 冷热分走势，右卡 = 雷达图 */
 .mr-conclusion__stack {
   display: flex;
   flex-direction: column;
@@ -202,21 +173,6 @@ html.dark .mr-overview__bar-seg--cool {
   border-radius: var(--radius-md);
   background: var(--bg-card);
   min-width: 0;
-}
-.mr-conclusion__tier {
-  margin: 0 0 4px;
-  font-size: clamp(1.5rem, 2.6vw, 2rem);
-  font-weight: 700;
-  line-height: 1.2;
-}
-.mr-conclusion__tier--offense { color: var(--mr-tier-offense); }
-.mr-conclusion__tier--lean-offense { color: var(--mr-tier-lean-offense); }
-.mr-conclusion__tier--neutral { color: var(--mr-tier-neutral); }
-.mr-conclusion__tier--lean-defense { color: var(--mr-tier-lean-defense); }
-.mr-conclusion__tier--defense { color: var(--mr-tier-defense); }
-.mr-conclusion__score {
-  margin: 0 0 8px;
-  font-variant-numeric: tabular-nums;
 }
 .mr-conclusion__headline {
   margin: 0;
@@ -1107,7 +1063,7 @@ html.dark .mr-overview__bar-seg--cool {
     background: var(--bg-card);
   }
   .mr-conclusion__shape { grid-area: shape; }
-  .mr-conclusion__tier-block {
+  .mr-conclusion__trend-block {
     grid-area: tier;
     margin: 0 0 12px;
     padding: 0;
@@ -1125,12 +1081,8 @@ html.dark .mr-overview__bar-seg--cool {
   .mr-conclusion__freshness,
   .mr-conclusion__generated { margin-top: 6px; font-size: 0.82rem; }
   .mr-conclusion__caveats { margin-top: 6px; font-size: 0.78rem; }
-  .mr-conclusion__tier-block { margin-bottom: 8px; }
-  .mr-conclusion__tier-note { margin-bottom: 4px; font-size: 0.78rem; }
-  .mr-conclusion__score-trend { display: none; }
+  .mr-conclusion__trend-block { margin-bottom: 8px; }
   .mr-conclusion__last-month { font-size: 0.8rem; margin-top: 4px; }
-  .mr-tier-strip { margin-bottom: 6px; min-height: 0; }
-  .mr-tier-strip__seg { min-height: 1.85rem; padding: 3px 2px; }
   .mr-radar-shape__svg {
     max-height: 180px;
     width: auto;
@@ -1285,8 +1237,6 @@ html.dark .mr-overview__bar-seg--cool {
 
 @media (max-width: 420px) {
   .mr-dims { grid-template-columns: 1fr; }
-  .mr-tier-strip { gap: 2px; }
-  .mr-tier-strip__label { font-size: 0.72rem; }
   .mr-bt__scroll--sticky-test .mr-bt__col--name { min-width: 5.6rem; max-width: 6.2rem; }
   .mr-bt__scroll--sticky-test .mr-bt__col--test:nth-child(2) { left: 5.6rem; }
   .mr-bt__scroll--sticky-test .mr-bt__col--test:nth-child(3) { left: calc(5.6rem + 3.6rem); }

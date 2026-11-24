@@ -75,34 +75,29 @@ describe('MarketRadar 页面', () => {
     expect(screen.getByTestId('mr-error').textContent).toBe(STALE_DATA_MESSAGE)
   })
 
-  it('结论：首行冷热、策略链、次要档位与五维度', () => {
+  it('结论：首行冷热、策略链与五维度；不出现综合分与档位', () => {
     renderPage()
     expect(screen.getByTestId('mr-heat').textContent).toBe('股市偏热')
     expect(screen.getByTestId('mr-headline').textContent).toContain('股市偏热')
-    expect(screen.getByTestId('mr-headline').textContent).toContain('偏防守')
+    expect(screen.getByTestId('mr-headline').textContent).not.toMatch(/综合分|档位|防守|进攻/)
     expect(screen.queryByTestId('mr-masters-compare')).toBeNull()
     expect(screen.getByTestId('mr-strategy-link').textContent).toContain('冷热不改变仓位。仓位多少、这个阶段怎么做，见')
     expect(within(screen.getByTestId('mr-strategy-link')).getByRole('link', { name: '综合策略' }).getAttribute('href')).toBe('/invest/strategy')
-    expect(screen.getByTestId('mr-tier-note').textContent).toContain('不是操作仓位')
-    expect(screen.getByTestId('mr-tier-name').textContent).toBe('偏防守')
-    expect(screen.getByTestId('mr-score').textContent).toContain('−0.20')
-    expect(screen.getByTestId('mr-score').textContent).not.toMatch(/(?<![\d.])-(?=\d)/)
+    expect(screen.queryByTestId('mr-tier-strip')).toBeNull()
+    expect(screen.queryByTestId('mr-score')).toBeNull()
+    expect(screen.getByTestId('mr-heat-trend')).toBeTruthy()
     expect(screen.getByTestId('mr-dim-valuation').textContent).toContain('估值')
     expect(screen.getByTestId('mr-dim-score-crowding').textContent).toContain('−0.67')
     expect(screen.getByTestId('mr-radar-shape')).toBeTruthy()
-    const strip = screen.getByTestId('mr-tier-strip')
-    expect(within(strip).getAllByRole('listitem').map(li => li.textContent)).toEqual([
-      '防守', '偏防守（当前）', '中性', '偏进攻', '进攻',
-    ])
   })
 
-  it('吸顶锚点含结论 / 总览 / 指标 / 回测，无市场综合', () => {
+  it('吸顶锚点含结论 / 总览 / 指标 / 历史检验，无市场综合', () => {
     renderPage()
     const nav = screen.getByRole('navigation', { name: '页内导航' })
     expect(within(nav).getByRole('link', { name: '结论' }).getAttribute('href')).toBe('#mr-conclusion')
     expect(within(nav).getByRole('link', { name: '总览' }).getAttribute('href')).toBe('#mr-overview')
     expect(within(nav).getByRole('link', { name: '指标' }).getAttribute('href')).toBe('#mr-indicators')
-    expect(within(nav).getByRole('link', { name: '回测' }).getAttribute('href')).toBe('#mr-backtest')
+    expect(within(nav).getByRole('link', { name: '历史检验' }).getAttribute('href')).toBe('#mr-backtest')
     expect(within(nav).queryByRole('link', { name: '市场综合' })).toBeNull()
     expect(document.getElementById('mp-market')).toBeNull()
   })
@@ -201,17 +196,18 @@ describe('MarketRadar 页面', () => {
     expect(screen.getByTestId('mr-hist-pe')).toBeTruthy()
   })
 
-  it('回测表四行、单色带与披露', () => {
+  it('综合分回测表四行、单色带都在折叠区内；披露', () => {
     renderPage()
     const table = screen.getByTestId('mr-backtest-table')
     expect(table.closest('.mr-bt__scroll')).toBeTruthy()
-    expect(table.textContent).toContain('市场雷达')
+    expect(table.textContent).toContain('按综合分持仓')
+    expect(screen.getByTestId('mr-composite-fold').contains(table)).toBe(true)
     expect(table.textContent).toContain('恒定七成股票')
     expect(table.textContent).not.toContain('大师方案')
     expect(table.querySelectorAll('tbody tr')).toHaveLength(4)
     expect(screen.getByTestId('mr-backtest-verdict').textContent).toContain('仓位怎么定见综合策略页')
     expect(screen.getByTestId('mr-radar-timeline')).toBeTruthy()
-    expect(screen.getByRole('heading', { level: 3, name: '雷达月度档位' })).toBeTruthy()
+    expect(screen.getByRole('heading', { level: 3, name: '综合分月度档位' })).toBeTruthy()
     const disclosures = screen.getByTestId('mr-disclosures')
     expect(disclosures.textContent).toContain('方法与披露')
     // 披露默认收起，展开后可见正文

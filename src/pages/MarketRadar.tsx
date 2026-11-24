@@ -7,10 +7,10 @@ import RadarView from '../features/market-radar/RadarView'
 import '../styles/market-radar.css'
 
 export const MARKET_RADAR_LEAD =
-  '这是我自建的指标体系：流动性、估值、仓位与拥挤度、交易结构、盈利五个维度给出透明综合分。与大师方案（宏观攻守）完全独立，不影响其结论，也不进入其打分、置信度与前推记录。'
+  '这是我自建的指标体系：从流动性、估值、仓位与拥挤度、交易结构、盈利五个维度看股市冷热，每项给出读数与历史位置。与大师方案（宏观攻守）完全独立，不影响其结论，也不进入其打分、置信度与前推记录。'
 
 export const MARKET_RADAR_FOOTER =
-  '规则先验设定并公开回测；验证期只作报告、不参与挑选。读数来自公开数据源。描述风险状态与仓位档位，不构成买卖建议。'
+  '规则先验设定并公开历史检验；验证期只作报告、不参与挑选。读数来自公开数据源。只描述股市冷热与各维度现状，不改变仓位，不构成买卖建议。'
 
 export default function MarketRadar(): JSX.Element {
   const radar = useMarketRadar()

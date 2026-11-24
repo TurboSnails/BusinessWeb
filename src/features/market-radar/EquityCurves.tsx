@@ -9,7 +9,7 @@ export type CurveMode = 'equity' | 'drawdown'
 type CurveRow = RadarFile['backtest']['curves'][number]
 
 const SERIES: { id: RadarStrategyId; label: string; dash: string | undefined }[] = [
-  { id: 'radar', label: '市场雷达', dash: undefined },
+  { id: 'radar', label: '按综合分持仓', dash: undefined },
   { id: 'trend', label: '10 个月均线', dash: '7 4' },
   { id: 'buyhold', label: '全程持有标普', dash: '2 3' },
   { id: 'static70', label: '恒定七成股票', dash: '9 3 2 3' },

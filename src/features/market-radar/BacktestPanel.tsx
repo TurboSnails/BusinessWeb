@@ -7,7 +7,8 @@ import TimelineView, {
 } from '../macro-posture/composite/timeline/TimelineView'
 import type { ChartPoint } from '../macro-posture/composite/timeline/dailyMath'
 import EquityCurves from './EquityCurves'
-import ForwardStats from './ForwardStats'
+import HeatForwardStats, { TierForwardStats } from './ForwardStats'
+import { compositeFoldSummary } from './historyText'
 import {
   formatNum2,
   formatPct1,
@@ -69,10 +70,10 @@ export function sharpeGapSentence(
   const high = visibleText(formatNum2(gap.high, { signed: true }))
   const containsZero = gap.low <= 0 && gap.high >= 0
   if (containsZero) {
-    return `雷达与${name}的夏普差 ${diff}，95% 抽样区间 ${low} 至 ${high}，包含 0，差异在抽样误差内。`
+    return `按综合分持仓与${name}的夏普差 ${diff}，95% 抽样区间 ${low} 至 ${high}，包含 0，差异在抽样误差内。`
   }
   const side = gap.low > 0 ? '高于' : '低于'
-  return `雷达与${name}的夏普差 ${diff}，95% 抽样区间 ${low} 至 ${high}，不含 0，${side}对照。`
+  return `按综合分持仓与${name}的夏普差 ${diff}，95% 抽样区间 ${low} 至 ${high}，不含 0，${side}对照。`
 }
 
 function gapKey(gap: RadarFile['backtest']['sharpeGaps'][number]): string {
@@ -99,12 +100,12 @@ export function formatSharpeGapSentences(
 }
 
 const RADAR_LABELS: Partial<TimelineLabels> = {
-  title: '标普月均价对数走势与雷达月度档位',
-  top: '雷达档位',
-  bottom: '雷达档位',
-  tooltipTop: '雷达档位',
-  tooltipBottom: '雷达档位',
-  legendNote: '色带「雷达档位」是市场雷达按当时可得数据的月度定档',
+  title: '标普月均价对数走势与综合分月度档位',
+  top: '综合分档位',
+  bottom: '综合分档位',
+  tooltipTop: '综合分档位',
+  tooltipBottom: '综合分档位',
+  legendNote: '色带是五维综合分按当时可得数据的月度分档，名称沿用宏观攻守的刻度，只作历史检验',
 }
 
 function FadeTable({
@@ -141,7 +142,7 @@ function RadarTimeline({ rows }: { rows: RadarFile['backtest']['timeline'] }): J
   if (points.length < 2) return null
   return (
     <div className="mr-dual" data-testid="mr-radar-timeline">
-      <h3 className="mr-subhead">雷达月度档位</h3>
+      <h3 className="mr-subhead">综合分月度档位</h3>
       <TimelineView
         mode="month"
         points={points}
@@ -182,93 +183,112 @@ export default function BacktestPanel({ data }: { data: RadarFile }): JSX.Elemen
     [bt.sharpeGaps],
   )
 
+  const foldSummary = useMemo(
+    () => compositeFoldSummary(bt.predictive, bt.sharpeGaps),
+    [bt.predictive, bt.sharpeGaps],
+  )
+
   return (
     <section className="mr-backtest" id="mr-backtest" aria-labelledby="mr-backtest-title">
-      <h2 id="mr-backtest-title">回测对照</h2>
-      <p className="mr-muted" data-testid="mr-backtest-range">
-        {bt.start} 至 {bt.end}。训练期 {bt.trainRange} 定规则；验证期 {bt.testRange} 只原样报告，未参与挑选。
+      <h2 id="mr-backtest-title">历史检验</h2>
+      <p className="mr-muted" data-testid="mr-backtest-intro">
+        冷热与五个维度的分数只描述现状，不改变仓位。下面看历史上各种读数之后标普怎么走，以及把五个维度合成一个分数为什么不可用。
       </p>
-      {bt.verdict ? (
-        <p className="mr-verdict" data-testid="mr-backtest-verdict">{visibleText(bt.verdict)}</p>
-      ) : null}
 
-      <div className="mr-bt__period">
-        <Segmented
-          items={periods}
-          value={period}
-          onChange={setPeriod}
-          label="回测时段"
-        />
-      </div>
+      <HeatForwardStats heatStats={bt.heatStats} predictive={bt.predictive} />
 
-      <FadeTable label="雷达回测对照">
-        <table className="mr-table mr-bt__table mr-bt__table--period" data-testid="mr-backtest-table">
-          <thead>
-            <tr>
-              <th scope="col" className="mr-bt__col--name">方案</th>
-              <th scope="col">年化</th>
-              <th scope="col">波动</th>
-              <th scope="col">最大回撤</th>
-              <th scope="col">夏普</th>
-              <th scope="col">平均仓位</th>
-              <th scope="col">年均调仓次数</th>
-            </tr>
-          </thead>
-          <tbody>
-            {bt.rows.map(row => (
-              <tr key={row.id} className={row.id === 'radar' ? 'is-highlight' : undefined} data-row={row.id}>
-                <th scope="row" className="mr-bt__col--name">{row.label}</th>
-                <MetricCells m={row[period]} />
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </FadeTable>
+      <details className="mr-bt__fold" data-testid="mr-composite-fold">
+        <summary className="mr-bt__fold-summary">
+          <span className="mr-bt__fold-title">把五个维度平均成一个分数行不行</span>
+          <span className="mr-bt__fold-lead" data-testid="mr-composite-fold-lead">{visibleText(foldSummary)}</span>
+        </summary>
+        <div className="mr-bt__fold-body">
+          <p className="mr-muted" data-testid="mr-backtest-range">
+            综合分是五个维度分的等权平均，按宏观攻守的刻度分五档，按档持 30%～100% 股票。回测 {bt.start} 至 {bt.end}；训练期 {bt.trainRange} 定规则，验证期 {bt.testRange} 只原样报告。快指标（流动性、交易结构、盈利）多跟随过去的涨跌，估值与拥挤度方向常相反。
+          </p>
+          {bt.verdict ? (
+            <p className="mr-verdict" data-testid="mr-backtest-verdict">{visibleText(bt.verdict)}</p>
+          ) : null}
 
-      <h3 className="mr-subhead">稳健性对照</h3>
-      <p className="mr-muted" data-testid="mr-bt-robust-note">
-        同一套信号，换一种算收益的办法：用月末收盘价代替月均价。月均价会把波动算小，所以右边的夏普更低。
-      </p>
-      <FadeTable label="稳健性对照">
-        <table className="mr-table mr-bt__table mr-bt__table--robust" data-testid="mr-bt-robust">
-          <thead>
-            <tr>
-              <th scope="col" className="mr-bt__col--name">方案</th>
-              <th scope="col">月均价夏普</th>
-              <th scope="col">月均价最大回撤</th>
-              <th scope="col">月末收盘夏普</th>
-              <th scope="col">月末收盘最大回撤</th>
-            </tr>
-          </thead>
-          <tbody>
-            {bt.rows.map(row => {
-              const me = monthEndById.get(row.id)
-              return (
-                <tr key={row.id} className={row.id === 'radar' ? 'is-highlight' : undefined}>
-                  <th scope="row" className="mr-bt__col--name">{row.label}</th>
-                  <td className="num">{visibleText(formatNum2(row.full.sharpe))}</td>
-                  <td className="num">{formatPct1(row.full.maxDd)}</td>
-                  <td className="num">{visibleText(formatNum2(me?.full.sharpe))}</td>
-                  <td className="num">{formatPct1(me?.full.maxDd)}</td>
+          <div className="mr-bt__period">
+            <Segmented
+              items={periods}
+              value={period}
+              onChange={setPeriod}
+              label="回测时段"
+            />
+          </div>
+
+          <FadeTable label="按综合分持仓的回测对照">
+            <table className="mr-table mr-bt__table mr-bt__table--period" data-testid="mr-backtest-table">
+              <thead>
+                <tr>
+                  <th scope="col" className="mr-bt__col--name">方案</th>
+                  <th scope="col">年化</th>
+                  <th scope="col">波动</th>
+                  <th scope="col">最大回撤</th>
+                  <th scope="col">夏普</th>
+                  <th scope="col">平均仓位</th>
+                  <th scope="col">年均调仓次数</th>
                 </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </FadeTable>
-      {gapSentences.length > 0 ? (
-        <div className="mr-bt__gaps" data-testid="mr-sharpe-gaps">
-          {gapSentences.map(sentence => (
-            <p key={sentence}>{sentence}</p>
-          ))}
+              </thead>
+              <tbody>
+                {bt.rows.map(row => (
+                  <tr key={row.id} className={row.id === 'radar' ? 'is-highlight' : undefined} data-row={row.id}>
+                    <th scope="row" className="mr-bt__col--name">{row.label}</th>
+                    <MetricCells m={row[period]} />
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </FadeTable>
+
+          <h3 className="mr-subhead">稳健性对照</h3>
+          <p className="mr-muted" data-testid="mr-bt-robust-note">
+            同一套信号，换一种算收益的办法：用月末收盘价代替月均价。月均价会把波动算小，所以右边的夏普更低。
+          </p>
+          <FadeTable label="稳健性对照">
+            <table className="mr-table mr-bt__table mr-bt__table--robust" data-testid="mr-bt-robust">
+              <thead>
+                <tr>
+                  <th scope="col" className="mr-bt__col--name">方案</th>
+                  <th scope="col">月均价夏普</th>
+                  <th scope="col">月均价最大回撤</th>
+                  <th scope="col">月末收盘夏普</th>
+                  <th scope="col">月末收盘最大回撤</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bt.rows.map(row => {
+                  const me = monthEndById.get(row.id)
+                  return (
+                    <tr key={row.id} className={row.id === 'radar' ? 'is-highlight' : undefined}>
+                      <th scope="row" className="mr-bt__col--name">{row.label}</th>
+                      <td className="num">{visibleText(formatNum2(row.full.sharpe))}</td>
+                      <td className="num">{formatPct1(row.full.maxDd)}</td>
+                      <td className="num">{visibleText(formatNum2(me?.full.sharpe))}</td>
+                      <td className="num">{formatPct1(me?.full.maxDd)}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </FadeTable>
+          {gapSentences.length > 0 ? (
+            <div className="mr-bt__gaps" data-testid="mr-sharpe-gaps">
+              {gapSentences.map(sentence => (
+                <p key={sentence}>{sentence}</p>
+              ))}
+            </div>
+          ) : null}
+
+          <EquityCurves curves={bt.curves} />
+
+          <TierForwardStats tierStats={bt.tierStats} />
+
+          <RadarTimeline rows={bt.timeline} />
         </div>
-      ) : null}
-
-      <EquityCurves curves={bt.curves} />
-
-      <ForwardStats tierStats={bt.tierStats} heatStats={bt.heatStats} />
-
-      <RadarTimeline rows={bt.timeline} />
+      </details>
 
       <details className="mr-bt__disclose" data-testid="mr-disclosures">
         <summary>方法与披露（{bt.disclosures.length} 条）</summary>

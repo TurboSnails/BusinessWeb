@@ -317,3 +317,72 @@
     min-width: 5rem;
   }
 }
+
+/* ---- 独立样本 ---- */
+
+.mr-fwd__indep {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* ---- 综合分折叠区（默认收起） ---- */
+
+.mr-bt__fold {
+  margin: 20px 0 8px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+}
+
+.mr-bt__fold > summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 8px;
+  row-gap: 4px;
+  padding: 12px 14px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.mr-bt__fold > summary::-webkit-details-marker {
+  display: none;
+}
+
+.mr-bt__fold > summary::before {
+  content: '▸';
+  grid-row: 1 / span 2;
+  color: var(--text-tertiary, var(--text-secondary));
+}
+
+.mr-bt__fold[open] > summary::before {
+  content: '▾';
+}
+
+.mr-bt__fold > summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.mr-bt__fold-title {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.mr-bt__fold-lead {
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.mr-bt__fold-body {
+  padding: 0 14px 14px;
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  .mr-bt__fold > summary { padding: 10px 12px; }
+  .mr-bt__fold-body { padding: 0 12px 12px; }
+}
