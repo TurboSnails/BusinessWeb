@@ -120,7 +120,7 @@ const DEFINITIONS = {
     rule: 'NAAIM 的同维度平替，取自 CFTC 交易者持仓报告（TFF），自 2010 年 6 月起，不足 25 年，只展示。',
   },
   breadth: {
-    dimension: 'trading', label: '行业宽度', frequency: 'monthly',
+    dimension: 'trading', label: '行业宽度（10 个月均线）', frequency: 'monthly',
     display: p => `${percent(p.value)} 的可用行业站上各自的 10 个月均线。`,
     rule: '宽度不高于 40% 扣 1 分，达到 60% 加 1 分，其余 0 分。',
     score: p => scoreMarket('breadth', 'b', { breadth: p }),
@@ -147,6 +147,41 @@ const DEFINITIONS = {
     dimension: 'trading', label: '美股 20 日量比',
     display: p => `全美股票当日成交量为前 20 个完整交易日均量的 ${times(p.value)}。`,
     rule: 'Cboe 同口径历史自 2010 年起（核心交易场所齐全后），不足 25 年，只展示。涵盖全美交易所及场外申报成交，半日市不计。',
+  },
+  industryMomentum: {
+    dimension: 'trading', label: '行业 12 个月正收益占比', frequency: 'monthly',
+    display: p => `${percent(p.value)} 的可用行业近 12 个月累计收益为正。`,
+    rule: '同一份 Ken French 49 行业数据的另一种宽度口径，自 1927 年起。事后新增，不进入事先固定的计分与回测，只展示。',
+  },
+  industryHighs: {
+    dimension: 'trading', label: '行业处于 12 个月新高占比', frequency: 'monthly',
+    display: p => `${percent(p.value)} 的可用行业月末点位处于近 12 个月新高。`,
+    rule: '同一份 Ken French 49 行业数据，自 1927 年起。事后新增，不进入事先固定的计分与回测，只展示。',
+  },
+  sectorBreadth: {
+    dimension: 'trading', label: '板块宽度（过半站上 200 日线的板块数）',
+    display: p => `11 个 GICS 板块中，有 ${p.value} 个板块过半成分股站上 200 日均线。`,
+    rule: '按当前成分名单回算，历史约一年且存在幸存者偏差，只展示。',
+  },
+  netHighs: {
+    dimension: 'trading', label: '成分股 52 周新高减新低',
+    display: p => `创 52 周新高的标普成分股减去创新低的，占可用成分股的 ${signed(p.value, percent)}。`,
+    rule: '按当前成分名单回算，历史约一年且存在幸存者偏差，只展示。',
+  },
+  advDec: {
+    dimension: 'trading', label: '10 日涨跌比',
+    display: p => `近 10 个交易日标普成分股上涨 ${p.up} 家次、下跌 ${p.down} 家次，涨跌比 ${times(p.value)}。`,
+    rule: '按当前成分名单统计，历史约一年，只展示。',
+  },
+  above50: {
+    dimension: 'trading', label: '成分股站上 50 日线比例',
+    display: p => `${percent(p.value)} 的可用标普成分股站上自己的 50 日均线。`,
+    rule: '站内只保存最新读数，没有历史，只展示。',
+  },
+  equalWeight: {
+    dimension: 'trading', label: '等权相对市值加权（12 个月）', frequency: 'monthly',
+    display: p => `标普 500 等权指数近 12 个月相对市值加权标普 500 ${p.value >= 0 ? '跑赢' : '跑输'} ${percent(Math.abs(p.value))}。`,
+    rule: '两者均为价格指数，自 2007 年起，不足 25 年，只展示。为正说明涨幅更分散，为负说明集中在大市值股票。',
   },
   epsYoy: {
     staleDays: 160,

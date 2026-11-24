@@ -1,8 +1,9 @@
 import { join } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
+import { unzipEntry } from '../../ths-etf-lib.mjs'
 import { parseCboeIndex } from '../../us-market-data.mjs'
 import { readJson, writeJsonIfChanged } from '../json-io.mjs'
-import { marketSeries, month } from '../macro-posture-market/data.mjs'
+import { marketSeries, month, parseFrenchMonthly } from '../macro-posture-market/data.mjs'
 import { readMarket } from '../macro-posture-market/components.mjs'
 import { parseFred, parseMultplMonthly } from '../macro-posture-research/fetch.mjs'
 import { addDays, ageDays, clean, monthEnd } from '../macro-posture/panel.mjs'
@@ -11,6 +12,7 @@ const FRED_SERIES = 'https://fred.stlouisfed.org/series/'
 const FRED_CSV = 'https://fred.stlouisfed.org/graph/fredgraph.csv?id='
 const CBOE = 'https://cdn.cboe.com/api/global/us_indices/daily_prices/'
 const EPS = 'https://www.multpl.com/s-p-500-earnings/table/by-month'
+export const FRENCH_INDUSTRIES = 'https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/49_Industry_Portfolios_CSV.zip'
 export const CASH_SERIES = ['CDCABSHNO', 'TSDABSHNO', 'MMFSABSHNO', 'TFAABSHNO']
 
 function normalize(rows = [], through) {
@@ -55,6 +57,7 @@ export async function refreshRadarSources({ cache, fetcher, today, localVix, shi
   // Fetch the matching daily closes when the station snapshot has compacted its old daily observations.
   const complete = sources.vix3m.every(([d]) => localDays.has(d))
   sources.vix = complete ? localVix : await cboe('VIX')
+  sources.industryTrend = await refreshIndustryTrend({ cache, fetcher, warn })
   const realEps = await refresh('eps', EPS, html => parseMultplMonthly(html, monthEnd(today, -1)))
   if (realEps.at(-1)[0] > shillerEps.at(-1)[0]) {
     const cpiId = 'CPIAUCNS'
@@ -68,6 +71,108 @@ export async function refreshRadarSources({ cache, fetcher, today, localVix, shi
       .filter(point => point.observedOn > shillerEps.at(-1)[0])
   }
   return sources
+}
+
+/**
+ * Ken French 49 个行业（市值加权月收益）：逐月给出 12 个月累计收益为正的行业占比，
+ * 以及月末点位不低于近 12 个月任一月末点位（处于 12 个月新高）的行业占比。
+ * 行业出现缺值时重新累积，需要连续 13 个月末点位。
+ */
+export function buildIndustryTrend(rows) {
+  const windows = rows[0]?.[1].map(() => []) ?? []
+  const output = []
+  let previous
+  for (const [d, returns] of rows) {
+    if (previous && monthEnd(previous, 1) !== d) windows.forEach(window => { window.length = 0 })
+    previous = d
+    let known = 0
+    let positive = 0
+    let highs = 0
+    returns.forEach((ret, index) => {
+      const window = windows[index]
+      if (ret == null) {
+        window.length = 0
+        return
+      }
+      const level = (window.at(-1) ?? 1) * (1 + ret / 100)
+      window.push(level)
+      if (window.length > 13) window.shift()
+      if (window.length === 13) {
+        known += 1
+        if (level > window[0]) positive += 1
+        if (level >= Math.max(...window.slice(1))) highs += 1
+      }
+    })
+    if (known) output.push([d, clean(positive / known * 100), clean(highs / known * 100)])
+  }
+  return output
+}
+
+async function refreshIndustryTrend({ cache, fetcher, warn }) {
+  const path = join(cache, 'industry-trend.json')
+  const previous = readJson(path, [])
+  try {
+    const response = await fetcher(FRENCH_INDUSTRIES, { signal: AbortSignal.timeout(30_000) })
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    const csv = unzipEntry(Buffer.from(await response.arrayBuffer()), '49_Industry_Portfolios.csv')
+    const rows = buildIndustryTrend(parseFrenchMonthly(csv))
+    if (!rows.length || rows.at(-1)[0] < (previous.at(-1)?.[0] ?? '')) throw new Error('行业覆盖不足')
+    writeJsonIfChanged(path, rows)
+    return rows
+  } catch (error) {
+    if (!previous.length) throw new Error(`industry-trend 下载失败且没有缓存：${error.message}`, { cause: error })
+    warn(`industry-trend 沿用至 ${previous.at(-1)[0]} 的缓存：${error.message}`)
+    return previous
+  }
+}
+
+/** 11 个 GICS 板块中，过半成分股站上 200 日线的板块数；只取 11 个板块都有读数的交易日。 */
+export function sectorBreadth(universes) {
+  const sectors = Object.entries(universes ?? {}).filter(([id]) => id.startsWith('sector-'))
+  const byDay = new Map()
+  for (const [, sector] of sectors) {
+    const rows = [...(sector.backfill ?? []), ...(sector.history ?? []), [sector.date, sector.above200]]
+    for (const [d, value] of new Map(rows)) {
+      if (!Number.isFinite(value)) continue
+      if (!byDay.has(d)) byDay.set(d, [])
+      byDay.get(d).push(value)
+    }
+  }
+  return [...byDay].filter(([, values]) => sectors.length && values.length === sectors.length)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([d, values]) => ({ observedOn: d, availableOn: d, value: values.filter(value => value > 50).length, total: values.length }))
+}
+
+/** 近 10 个交易日上涨家数合计 ÷ 下跌家数合计。advDec 行为 [日期, 上涨, 下跌, 平盘, 合计]。 */
+export function advanceDecline(rows = [], days = 10) {
+  return rows.flatMap((row, index) => {
+    if (index < days - 1) return []
+    const window = rows.slice(index - days + 1, index + 1)
+    const up = window.reduce((sum, [, adv]) => sum + adv, 0)
+    const down = window.reduce((sum, [, , dec]) => sum + dec, 0)
+    return down > 0 ? [{ observedOn: row[0], availableOn: row[0], value: clean(up / down), up, down }] : []
+  })
+}
+
+/**
+ * 标普 500 等权指数（^SPXEW）近 12 个月相对市值加权标普 500 的超额表现（均为价格指数）。index-history 的月线以
+ * 「YYYY-MM-01」标记该月最后一个收盘，末尾另有最新收盘日。
+ */
+export function equalWeightSpread(rsp = [], spx = []) {
+  const monthly = rows => {
+    const byMonth = new Map()
+    for (const [d, value] of rows) if (value > 0) byMonth.set(month(d), [d, value])
+    return byMonth
+  }
+  const equal = monthly(rsp)
+  const cap = monthly(spx)
+  return [...equal].sort(([a], [b]) => a.localeCompare(b)).flatMap(([key, [d, value]]) => {
+    const prior = month(monthEnd(key + '-01', -12))
+    if (!cap.has(key) || !equal.has(prior) || !cap.has(prior)) return []
+    const observedOn = d.endsWith('-01') ? monthEnd(d) : d
+    const excess = (value / equal.get(prior)[1]) / (cap.get(key)[1] / cap.get(prior)[1]) - 1
+    return [{ observedOn, availableOn: observedOn, value: clean(excess * 100) }]
+  })
 }
 
 export function parseShillerEps(csv) {
@@ -192,7 +297,7 @@ export function aaiiSpread(bull, bear) {
   }] : [])
 }
 
-export function buildRadarSeries({ local, macroUs, breadth, marketCache, fetched, shillerEps, panel, currentPanel, today, lastComplete, spxDaily = [] }) {
+export function buildRadarSeries({ local, macroUs, breadth, universes = {}, indexes = {}, marketCache, fetched, shillerEps, panel, currentPanel, today, lastComplete, spxDaily = [] }) {
   const rows = id => publishedRows(local[id], today)
   const simple = id => marketSeries(rows(id), 0, true)
   const pe = rows('spxPe').filter(([d, value]) => d >= '1900-01' && value > 0)
@@ -248,6 +353,13 @@ export function buildRadarSeries({ local, macroUs, breadth, marketCache, fetched
     vixTerm,
     breadth200: marketSeries(breadth200, 0, true),
     volumeRatio: simple('volumeRatio'),
+    industryMomentum: marketSeries((fetched.industryTrend ?? []).map(([d, value]) => [d, value]), 0, true),
+    industryHighs: marketSeries((fetched.industryTrend ?? []).map(([d, , value]) => [d, value]), 0, true),
+    sectorBreadth: sectorBreadth(universes).filter(row => row.observedOn <= today),
+    netHighs: marketSeries(normalize(breadth?.netHighs, today), 0, true),
+    advDec: advanceDecline((breadth?.advDec ?? []).filter(([d]) => d <= today)),
+    above50: marketSeries(normalize([[breadth?.date, breadth?.above50]], today), 0, true),
+    equalWeight: equalWeightSpread(indexes.rsp?.monthly, indexes.spx?.monthly).filter(row => row.observedOn <= today),
     forwardEps: forwardEpsChange(rows('spxFactSetFpe'), spxDaily.filter(([d]) => d <= today)),
   }
   const sources = Object.fromEntries(Object.entries(local).map(([id, entry]) => [id, entry.source]))
@@ -259,6 +371,9 @@ export function buildRadarSeries({ local, macroUs, breadth, marketCache, fetched
     breadth: 'https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html',
     volume: 'https://finance.yahoo.com/quote/%5EGSPC/history/',
     aaiiSpread: sources.retailBull, cftcAsset: sources.cftcSpxAsset,
+    industryMomentum: FRENCH_INDUSTRIES, industryHighs: FRENCH_INDUSTRIES,
+    sectorBreadth: breadth?.source, netHighs: breadth?.source, advDec: breadth?.source, above50: breadth?.source,
+    equalWeight: 'https://finance.yahoo.com/quote/%5ESPXEW/history/',
     vixTerm: CBOE + 'VIX3M_History.csv', breadth200: breadth?.source,
     epsYoy: 'https://shillerdata.com/', forwardEps: sources.spxForwardEpsChange,
   })

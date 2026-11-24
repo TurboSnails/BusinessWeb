@@ -34,7 +34,9 @@ export async function runRadar({ now = new Date(), fetcher = fetch, warn = conso
   const readData = name => readJson(resolve(DATA, name + '.json'), null)
   const local = readData('us-market-data').series
   const macroUs = readData('macro-us').series
-  const breadth = readData('us-market-breadth').breadth.spx
+  const universes = readData('us-market-breadth').breadth
+  const breadth = universes.spx
+  const indexes = readData('index-history').indexes
   const dailyRows = readData('macro-posture-daily').rows
   const masters = readData('macro-posture')
   const shillerEps = parseShillerEps(readFileSync(resolve(ROOT, 'data-raw/sp500-backtest/shiller.csv'), 'utf8'))
@@ -52,7 +54,7 @@ export async function runRadar({ now = new Date(), fetcher = fetch, warn = conso
   const panel = makePanel(core)
   const currentPanel = makePanel(core, { mode: 'current' })
   const { current, historical, sources } = buildRadarSeries({
-    local, macroUs, breadth, marketCache, fetched, shillerEps, panel, currentPanel, today, lastComplete,
+    local, macroUs, breadth, universes, indexes, marketCache, fetched, shillerEps, panel, currentPanel, today, lastComplete,
     spxDaily: dailyRows.map(([d, close]) => [d, close]),
   })
   const indicators = buildIndicators(current, sources, today)

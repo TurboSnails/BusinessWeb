@@ -167,3 +167,32 @@ test('AAII spread keeps only survey weeks present on both sides', async () => {
   assert.equal(rows[0].value, -8.9)
   assert.deepEqual([rows[0].bull, rows[0].bear], [33.3, 42.2])
 })
+
+test('industry trend counts positive 12-month returns and 12-month highs, resetting after a gap', async () => {
+  const { buildIndustryTrend } = await import('./lib/market-radar/sources.mjs')
+  const months = Array.from({ length: 14 }, (_, i) => new Date(Date.UTC(2020, i + 1, 0)).toISOString().slice(0, 10))
+  // 行业 A 每月 +1%（持续创新高），行业 B 前 12 个月 +1%、之后 −20%（12 个月收益转负）
+  const rows = months.map((d, i) => [d, [1, i < 12 ? 1 : -20]])
+  const trend = buildIndustryTrend(rows)
+  assert.deepEqual(trend.map(([d]) => d), months.slice(12))
+  assert.deepEqual(trend[0].slice(1), [50, 50])
+  assert.deepEqual(trend[1].slice(1), [50, 50])
+  const gap = buildIndustryTrend([...rows.slice(0, 13), [months[13], [null, 1]]])
+  assert.deepEqual(gap.at(-1).slice(1), [0, 0])
+})
+
+test('sector breadth needs every sector on the day; advance-decline sums ten sessions', async () => {
+  const { advanceDecline, equalWeightSpread, sectorBreadth } = await import('./lib/market-radar/sources.mjs')
+  const rows = sectorBreadth({
+    spx: { date: '2026-11-20', above200: 48 },
+    'sector-a': { backfill: [['2026-11-19', 60]], history: [], date: '2026-11-20', above200: 40 },
+    'sector-b': { backfill: [], history: [], date: '2026-11-20', above200: 70 },
+  })
+  assert.deepEqual(rows, [{ observedOn: '2026-11-20', availableOn: '2026-11-20', value: 1, total: 2 }])
+  const days = Array.from({ length: 11 }, (_, i) => [`2026-11-${String(i + 1).padStart(2, '0')}`, 3, 1, 0, 4])
+  const ad = advanceDecline(days)
+  assert.equal(ad.length, 2)
+  assert.deepEqual([ad[0].up, ad[0].down, ad[0].value], [30, 10, 3])
+  const spread = equalWeightSpread([['2025-11-01', 100], ['2026-11-01', 110], ['2026-11-23', 121]], [['2025-11-01', 100], ['2026-11-01', 100], ['2026-11-23', 110]])
+  assert.deepEqual(spread.map(row => [row.observedOn, row.value]), [['2026-11-23', 10]])
+})
