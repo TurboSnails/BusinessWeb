@@ -479,3 +479,30 @@ html.dark .cs-page {
   .cs-research__summary { align-items: flex-start; }
 }
 
+
+/* 策略说明书入口：标题区下方的醒目卡片 */
+.cs-spec-entry {
+  display: grid;
+  gap: 4px;
+  margin: 16px 0 4px;
+  padding: 14px 16px;
+  max-width: 48rem;
+  border: 1px solid color-mix(in srgb, var(--accent, #3b6d11) 35%, var(--border-subtle, #e5e5e0));
+  border-left: 4px solid var(--accent, #3b6d11);
+  border-radius: var(--radius-md, 10px);
+  background: color-mix(in srgb, var(--accent, #3b6d11) 6%, var(--bg-card, #fff));
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.cs-spec-entry:hover,
+.cs-spec-entry:focus-visible {
+  border-color: var(--accent, #3b6d11);
+  background: color-mix(in srgb, var(--accent, #3b6d11) 10%, var(--bg-card, #fff));
+}
+.cs-spec-entry:focus-visible { outline: 2px solid var(--accent, #3b6d11); outline-offset: 2px; }
+.cs-spec-entry__kicker { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.02em; color: var(--accent-ink, var(--accent, #3b6d11)); }
+.cs-spec-entry__title { font-size: 1.05rem; font-weight: 600; line-height: 1.4; }
+.cs-spec-entry__desc { font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary); }
+.cs-spec-entry__cta { margin-top: 2px; font-size: 0.9rem; font-weight: 600; color: var(--accent-ink, var(--accent, #3b6d11)); }
+.cs-footer a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }

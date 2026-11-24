@@ -77,6 +77,15 @@ describe('CombinedStrategy 页面', () => {
     expect(document.body.textContent).toContain(COMBINED_STRATEGY_FOOTER)
   })
 
+  it('页头有醒目的策略说明书入口，页脚的版本号也链过去', () => {
+    renderPage()
+    const entry = screen.getByTestId('cs-spec-entry')
+    expect(entry.getAttribute('href')).toBe('/invest/strategy/spec')
+    expect(entry.textContent).toMatch(/策略说明书 · v\d+\.\d+\.\d+/)
+    expect(entry.textContent).toContain('查看完整说明')
+    expect(screen.getByTestId('cs-footer-spec').getAttribute('href')).toBe('/invest/strategy/spec')
+  })
+
   it('加载中 / 失败状态', () => {
     renderPage({ status: 'loading' })
     expect(screen.getByRole('status').textContent).toContain('加载中')
