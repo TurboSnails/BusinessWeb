@@ -44,7 +44,7 @@ describe('ResearchPanel', () => {
 
     expect(screen.getByText('试过的六种融合办法')).toBeTruthy()
     expect(screen.getByTestId('cs-fusion-table')).toBeTruthy()
-    expect(screen.getByText('宏观与雷达的月度档位对照')).toBeTruthy()
+    expect(screen.getByText('宏观档位与股市冷热的月度对照')).toBeTruthy()
     expect(screen.getByText('更早的一次尝试：把股市指标并入宏观攻守')).toBeTruthy()
     expect(screen.getByTestId('cs-research-market-intro').textContent).toContain('不是操作信号')
     expect(screen.getByTestId('mp-market-research-tag').textContent).toContain('研究读数')

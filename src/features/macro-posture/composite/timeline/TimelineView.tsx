@@ -190,6 +190,18 @@ function changeText(change: DailyChange, labels: TimelineLabels): string {
 
 const NO_DETAILS = (): TimelineDetailRow[] => []
 
+/**
+ * 自定义下带：不传时下带画 point.regime（五档）。传入时下带按 value 取值着色，
+ * 提示卡、读数与图例都改用这里的名称；上带与宏观攻守页的双带图不受影响。
+ */
+export type TimelineBottomBand = {
+  value: (point: ChartPoint) => string | null
+  label: (value: string | null) => string
+  /** 取值 → 色带与色块的 class 后缀，如 heat-hot → mp-timeline__band--heat-hot */
+  classSuffix: (value: string) => string
+  legend: { value: string; label: string }[]
+}
+
 type Props = {
   mode: TimelineMode
   points: ChartPoint[]
@@ -203,6 +215,8 @@ type Props = {
   details?: (point: ChartPoint) => TimelineDetailRow[]
   /** 只画上带（final）；隐藏下带、其图例文案依赖与读数行。默认 false，宏观攻守与综合策略双带图不变 */
   singleBand?: boolean
+  /** 自定义下带（如冷热）；不传时下带画五档 point.regime */
+  bottomBand?: TimelineBottomBand
 }
 
 export default function TimelineView({
@@ -213,6 +227,7 @@ export default function TimelineView({
   defaultPreset,
   details = NO_DETAILS,
   singleBand = false,
+  bottomBand,
 }: Props): JSX.Element | null {
   const isDay = mode === 'day'
   const minSpan = isDay ? DAILY_MIN_SPAN : MIN_RANGE_SPAN
@@ -294,7 +309,18 @@ export default function TimelineView({
     return marks.sort((a, b) => a.index - b.index)
   }, [changes, pts])
   const finalSegments = useMemo(() => mergeRuns(pts, point => point.final), [pts])
-  const regimeSegments = useMemo(() => mergeRuns(pts, point => point.regime), [pts])
+  const regimeSegments = useMemo<Segment<string | null>[]>(
+    () => mergeRuns<string | null>(pts, point => (bottomBand ? bottomBand.value(point) : point.regime)),
+    [pts, bottomBand],
+  )
+  const bottomClass = useCallback((value: string | null) => {
+    if (!value) return 'mp-timeline__band'
+    return `mp-timeline__band mp-timeline__band--${bottomBand ? bottomBand.classSuffix(value) : value}`
+  }, [bottomBand])
+  const bottomLabel = useCallback(
+    (point: ChartPoint) => (bottomBand ? bottomBand.label(bottomBand.value(point)) : tierLabel(point.regime)),
+    [bottomBand],
+  )
   const recessionSegments = useMemo(
     () => mergeRuns(pts, point => point.rec).filter(segment => segment.value === 1),
     [pts],
@@ -473,7 +499,7 @@ export default function TimelineView({
         return (
           <rect
             key={`regime-${segment.start}`}
-            className={`mp-timeline__band${segment.value ? ` mp-timeline__band--${segment.value}` : ''}`}
+            className={bottomClass(segment.value)}
             data-band="regime"
             x={rect.x}
             y={regimeBandY}
@@ -483,7 +509,7 @@ export default function TimelineView({
         )
       }) : null}
     </>
-  ), [recessionSegments, visibleFinal, visibleRegime, rangeStart, rangeEnd, segmentRect, height, finalBandY, regimeBandY, singleBand])
+  ), [recessionSegments, visibleFinal, visibleRegime, rangeStart, rangeEnd, segmentRect, height, finalBandY, regimeBandY, singleBand, bottomClass])
 
   // 档位变化日：色带上方的小三角，同一像素只画一个；每层最近一次变化加重显示。
   const changeTicks = useMemo(() => {
@@ -534,13 +560,16 @@ export default function TimelineView({
     const d = indices.map((pointIndex, offset) => (
       `${offset ? 'L' : 'M'}${overviewX(pointIndex).toFixed(2)},${overviewY(prices[pointIndex]).toFixed(2)}`
     )).join('')
-    const band = (segment: Segment<TierId | null>, y: number, layer: string) => {
+    const band = (segment: Segment<string | null>, y: number, layer: string) => {
       const x0 = overviewX(segment.start) - overviewStep / 2
       const x1 = overviewX(segment.end) + overviewStep / 2
+      const className = layer === 'regime'
+        ? bottomClass(segment.value)
+        : `mp-timeline__band${segment.value ? ` mp-timeline__band--${segment.value}` : ''}`
       return (
         <rect
           key={`overview-${layer}-${segment.start}`}
-          className={`mp-timeline__band${segment.value ? ` mp-timeline__band--${segment.value}` : ''}`}
+          className={className}
           x={x0}
           y={y}
           width={Math.max(0.5, x1 - x0 + 0.2)}
@@ -557,7 +586,7 @@ export default function TimelineView({
         </g>
       </>
     )
-  }, [total, prices, plotWidth, overviewX, overviewY, overviewStep, finalSegments, regimeSegments, overviewClipId, singleBand])
+  }, [total, prices, plotWidth, overviewX, overviewY, overviewStep, finalSegments, regimeSegments, overviewClipId, singleBand, bottomClass])
 
   const updateHover = useCallback((clientX: number, clientY: number, svg: SVGSVGElement): void => {
     const nextIndex = indexFromClientX(svg, clientX, rangeRef.current, width)
@@ -854,6 +883,12 @@ export default function TimelineView({
             {TIER_LABEL[id]}
           </li>
         ))}
+        {bottomBand && !singleBand ? bottomBand.legend.map(item => (
+          <li key={`bottom-${item.value}`} data-testid={`mp-timeline-legend-${item.value}`}>
+            <span className={`mp-timeline__swatch mp-timeline__swatch--${bottomBand.classSuffix(item.value)}`} aria-hidden="true" />
+            {item.label}
+          </li>
+        )) : null}
         <li className="mp-timeline__legend-note">{labels.legendNote}</li>
         {labels.recession !== null ? (
           <li>
@@ -982,7 +1017,7 @@ export default function TimelineView({
                 {isDay ? (
                   <>
                     {!singleBand ? (
-                      <div><dt>{labels.tooltipBottom}</dt><dd>{tierLabel(point.regime)}</dd></div>
+                      <div><dt>{labels.tooltipBottom}</dt><dd>{bottomLabel(point)}</dd></div>
                     ) : null}
                     <div><dt>{labels.tooltipTop}</dt><dd>{tierLabel(point.final)}</dd></div>
                     <div><dt>定档</dt><dd>{officialText(point)}</dd></div>
@@ -991,7 +1026,7 @@ export default function TimelineView({
                   <>
                     <div><dt>{labels.tooltipTop}</dt><dd>{tierLabel(point.final)}</dd></div>
                     {!singleBand ? (
-                      <div><dt>{labels.tooltipBottom}</dt><dd>{tierLabel(point.regime)}</dd></div>
+                      <div><dt>{labels.tooltipBottom}</dt><dd>{bottomLabel(point)}</dd></div>
                     ) : null}
                   </>
                 )}
@@ -1081,7 +1116,7 @@ export default function TimelineView({
             {!singleBand ? (
               <>
                 {` · ${labels.tooltipBottom} `}
-                <strong>{tierLabel(shown.regime)}</strong>
+                <strong>{bottomLabel(shown)}</strong>
               </>
             ) : null}
             {captionDetails || null}
@@ -1098,7 +1133,7 @@ export default function TimelineView({
             {!singleBand ? (
               <>
                 {` · ${labels.tooltipBottom} `}
-                <strong>{tierLabel(shown.regime)}</strong>
+                <strong>{bottomLabel(shown)}</strong>
               </>
             ) : null}
             {captionDetails || null}

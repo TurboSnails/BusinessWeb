@@ -70,7 +70,7 @@ export default function ResearchPanel({ data }: { data: CombinedStrategyFile }):
             <h3 className="cs-subhead">试过的六种融合办法</h3>
             <FusionPanel data={data} embedded />
 
-            <h3 className="cs-subhead">宏观与雷达的月度档位对照</h3>
+            <h3 className="cs-subhead">宏观档位与股市冷热的月度对照</h3>
             <TimelinePanel data={data} embedded />
 
             <h3 className="cs-subhead">更早的一次尝试：把股市指标并入宏观攻守</h3>

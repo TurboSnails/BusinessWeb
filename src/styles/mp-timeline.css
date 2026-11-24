@@ -107,6 +107,9 @@
 .mp-timeline__swatch--neutral { background: var(--mp-tier-neutral); }
 .mp-timeline__swatch--lean-defense { background: var(--mp-tier-lean-defense); }
 .mp-timeline__swatch--defense { background: var(--mp-tier-defense); }
+.mp-timeline__swatch--heat-hot { background: color-mix(in srgb, var(--warm-ink, #b45309) 70%, transparent); }
+.mp-timeline__swatch--heat-mid { background: color-mix(in srgb, var(--text-secondary) 28%, transparent); }
+.mp-timeline__swatch--heat-cold { background: color-mix(in srgb, var(--down-ink, #0f766e) 70%, transparent); }
 .mp-timeline__swatch--rec { background: color-mix(in srgb, var(--text-secondary) 32%, transparent); }
 
 .mp-timeline__chart,
@@ -190,6 +193,10 @@
 .mp-timeline__band--neutral { fill: color-mix(in srgb, var(--mp-tier-neutral) 80%, transparent); }
 .mp-timeline__band--lean-defense { fill: color-mix(in srgb, var(--mp-tier-lean-defense) 84%, transparent); }
 .mp-timeline__band--defense { fill: color-mix(in srgb, var(--mp-tier-defense) 88%, transparent); }
+/* 冷热下带（综合策略）：与市场雷达「股市偏热 / 偏冷」同色，居中用中性灰 */
+.mp-timeline__band--heat-hot { fill: color-mix(in srgb, var(--warm-ink, #b45309) 70%, transparent); }
+.mp-timeline__band--heat-mid { fill: color-mix(in srgb, var(--text-secondary) 28%, transparent); }
+.mp-timeline__band--heat-cold { fill: color-mix(in srgb, var(--down-ink, #0f766e) 70%, transparent); }
 
 .mp-timeline__band-label {
   fill: var(--text-secondary);
