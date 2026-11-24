@@ -7,7 +7,7 @@
 import { readFile, writeFile, rename } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { buildIndexSnapshot, setFpe, setRef } from '../server/indexes.mjs'
-import { assertIndexSnapshot } from './lib/index-snapshot-validation.mjs'
+import { assertIndexSnapshot, keepRegressedMonthly } from './lib/index-snapshot-validation.mjs'
 
 const FILE = fileURLToPath(new URL('../public/data/index-history.json', import.meta.url))
 const read = async () => { try { return JSON.parse(await readFile(FILE, 'utf8')) } catch { return null } }
@@ -49,6 +49,7 @@ async function main() {
   }
   const { snapshot, warnings } = await buildIndexSnapshot(previous)
   if (!Object.keys(snapshot.indexes).length) throw new Error('所有数据源都失败，未写入')
+  warnings.push(...keepRegressedMonthly(snapshot, previous))
   await save(snapshot, previous)
   for (const w of warnings) console.warn(`⚠ ${w}`)
   for (const [k, v] of Object.entries(snapshot.indexes)) console.log(`${k.padEnd(7)} ${String(v.latest.value).padStart(10)} ${v.latest.date}  月线 ${v.monthly.length} 点  PE ${v.fpe.length} 点`)
