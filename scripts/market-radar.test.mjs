@@ -205,3 +205,11 @@ test('implied correlation carries the five-session change and the same-day three
   assert.deepEqual([rows[5].value, rows[5].change, rows[5].cor3m], [36.05, 24.25, 29.71])
   assert.equal(rows[0].cor3m, null)
 })
+
+test('SqueezeMetrics GEX is read in hundred-million dollars and counts negative sessions in the last five', async () => {
+  const { gammaExposure, parseSqueezeGex } = await import('./lib/market-radar/sources.mjs')
+  const rows = parseSqueezeGex('date,price,dix,gex\n2026-11-19,7175.83,0.43,-900000756.18\n2026-11-20,6910.39,0.39,-2159921683.79\n2026-11-23,7237.17,0.39,1619839458.29\n')
+  assert.deepEqual(rows, [['2026-11-19', -9.0000075618], ['2026-11-20', -21.5992168379], ['2026-11-23', 16.1983945829]])
+  assert.deepEqual(gammaExposure(rows).map(row => row.negativeDays), [1, 2, 2])
+  assert.throws(() => parseSqueezeGex('date,gex\n'), /表头/)
+})

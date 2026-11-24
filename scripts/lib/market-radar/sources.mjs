@@ -12,6 +12,7 @@ const FRED_SERIES = 'https://fred.stlouisfed.org/series/'
 const FRED_CSV = 'https://fred.stlouisfed.org/graph/fredgraph.csv?id='
 const CBOE = 'https://cdn.cboe.com/api/global/us_indices/daily_prices/'
 const EPS = 'https://www.multpl.com/s-p-500-earnings/table/by-month'
+export const SQUEEZE_DIX = 'https://squeezemetrics.com/monitor/static/DIX.csv'
 export const FRENCH_INDUSTRIES = 'https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/49_Industry_Portfolios_CSV.zip'
 export const CASH_SERIES = ['CDCABSHNO', 'TSDABSHNO', 'MMFSABSHNO', 'TFAABSHNO']
 
@@ -57,6 +58,9 @@ export async function refreshRadarSources({ cache, fetcher, today, localVix, shi
   // Fetch the matching daily closes when the station snapshot has compacted its old daily observations.
   const complete = sources.vix3m.every(([d]) => localDays.has(d))
   sources.vix = complete ? localVix : await cboe('VIX')
+  // SqueezeMetrics 估算的做市商 Gamma 敞口（GEX），只展示；首次下载失败且没有缓存时跳过。
+  sources.gex = await refresh('gex', SQUEEZE_DIX, parseSqueezeGex)
+    .catch(error => { warn(`gex 暂缺：${error.message}`); return [] })
   // 隐含相关性只展示；首次下载失败且没有缓存时跳过，不影响雷达其余部分。
   for (const id of ['COR1M', 'COR3M']) {
     sources[id] = await cboe(id).catch(error => { warn(`${id} 暂缺：${error.message}`); return [] })
@@ -293,6 +297,25 @@ export function forwardEpsChange(fpeRows, closes) {
   })
 }
 
+/** SqueezeMetrics DIX.csv（date,price,dix,gex）→ [日期, GEX 亿美元]。 */
+export function parseSqueezeGex(csv) {
+  const [header, ...lines] = csv.trim().split(/\r?\n/)
+  if (header.trim() !== 'date,price,dix,gex') throw new Error('SqueezeMetrics 表头不匹配')
+  return lines.flatMap(line => {
+    const [d, , , raw] = line.split(',')
+    const value = Number(raw)
+    return /^\d{4}-\d{2}-\d{2}$/.test(d) && raw?.trim() && Number.isFinite(value) ? [[d, clean(value / 1e8)]] : []
+  })
+}
+
+/** GEX 读数附近 5 个交易日里为负的天数。 */
+export function gammaExposure(rows = []) {
+  return rows.map(([d, value], index) => ({
+    observedOn: d, availableOn: d, value,
+    negativeDays: rows.slice(Math.max(0, index - 4), index + 1).filter(([, v]) => v < 0).length,
+  }))
+}
+
 /** Cboe 一个月隐含相关性，附较 5 个交易日前的变化和同日三个月隐含相关性。 */
 export function impliedCorrelation(cor1m = [], cor3m = []) {
   const longer = new Map(cor3m)
@@ -366,6 +389,7 @@ export function buildRadarSeries({ local, macroUs, breadth, universes = {}, inde
     breadth: marketSeries(industries, 0, true),
     vixTerm,
     impliedCorr: impliedCorrelation(fetched.COR1M, fetched.COR3M),
+    gex: gammaExposure(normalize(fetched.gex, today)),
     breadth200: marketSeries(breadth200, 0, true),
     volumeRatio: simple('volumeRatio'),
     industryMomentum: marketSeries((fetched.industryTrend ?? []).map(([d, value]) => [d, value]), 0, true),
@@ -389,7 +413,7 @@ export function buildRadarSeries({ local, macroUs, breadth, universes = {}, inde
     industryMomentum: FRENCH_INDUSTRIES, industryHighs: FRENCH_INDUSTRIES,
     sectorBreadth: breadth?.source, netHighs: breadth?.source, advDec: breadth?.source, above50: breadth?.source,
     equalWeight: 'https://finance.yahoo.com/quote/%5ESPXEW/history/',
-    vixTerm: CBOE + 'VIX3M_History.csv', impliedCorr: CBOE + 'COR1M_History.csv', breadth200: breadth?.source,
+    vixTerm: CBOE + 'VIX3M_History.csv', impliedCorr: CBOE + 'COR1M_History.csv', gex: 'https://squeezemetrics.com/monitor/dix', breadth200: breadth?.source,
     epsYoy: 'https://shillerdata.com/', forwardEps: sources.spxForwardEpsChange,
   })
   return { current, historical, sources }
