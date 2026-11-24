@@ -141,16 +141,31 @@ async function valuationTable(fetcher, path, today) {
   return rows
 }
 
+/**
+ * Multpl 不可用时，改用 us-market-data 里同源缓存的 Multpl 月表。缓存在当月累积了多个每日读数，
+ * 整理成 Multpl 原表的形状：每月 1 日一行，加最后一个读数。
+ */
+export function localMultplTable(rows = [], today) {
+  const usable = rows.filter(([d, value]) => d <= today && value > 0)
+  return usable.filter(([d], i) => d.endsWith('-01') || i === usable.length - 1)
+}
+
 export async function loadMarketData(fetcher, directory, now, local) {
   const today = now.toISOString().slice(0, 10)
   const through = monthEnd(today, -1)
   const localCape = local.series?.shillerCape?.history?.filter(([d, value]) => d <= today && value > 0)
+  const fallback = (id, label) => error => {
+    const rows = localMultplTable(local.series?.[id]?.history, today)
+    if (!rows[0]?.[0]?.startsWith(CAPE_START)) throw error
+    console.warn(`${label}改用站内缓存（至 ${rows.at(-1)[0]}）：${error.message}`)
+    return rows
+  }
   const [breadth, volume, pe, cape] = await Promise.all([
     refreshBreadth(fetcher, join(directory, 'industry-breadth.json')),
     refreshVolume(fetcher, join(directory, 'spx-monthly-volume.json'), now, through),
-    valuationTable(fetcher, 's-p-500-pe-ratio', today),
+    valuationTable(fetcher, 's-p-500-pe-ratio', today).catch(fallback('spxPe', 'Multpl 市盈率')),
     localCape?.[0]?.[0]?.startsWith(CAPE_START) && month(localCape.at(-1)[0]) >= month(through)
-      ? localCape : valuationTable(fetcher, 'shiller-pe', today),
+      ? localCape : valuationTable(fetcher, 'shiller-pe', today).catch(fallback('shillerCape', 'Multpl CAPE')),
   ])
   const capeWindow = cape.filter(([d]) => month(d) >= CAPE_START)
   const peWindow = pe.filter(([d]) => month(d) >= CAPE_START)

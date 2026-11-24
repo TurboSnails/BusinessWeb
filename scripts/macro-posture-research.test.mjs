@@ -523,3 +523,16 @@ test('实时面板接入：小缓存夹具离线加载，buildTimeline 用当时
     await rm(directory, { recursive: true, force: true })
   }
 })
+
+test('fetchEps falls back to the market radar copy of the Multpl earnings table when Multpl is unreachable', async () => {
+  const { mkdtempSync, writeFileSync } = await import('node:fs')
+  const { join: joinPath } = await import('node:path')
+  const { tmpdir: tempRoot } = await import('node:os')
+  const { fetchEps } = await import('./lib/macro-posture-research/fetch.mjs')
+  const file = joinPath(mkdtempSync(joinPath(tempRoot(), 'eps-')), 'eps.json')
+  writeFileSync(file, JSON.stringify([['2026-05-31', 290], ['2026-06-30', 298.03], ['2026-11-30', 310]]))
+  const refuse = async () => { throw new TypeError('fetch failed') }
+  const series = await fetchEps(refuse, '2026-10-31', { noCache: true, cacheFile: file })
+  assert.deepEqual(series.map(point => [point.observedOn, point.value]), [['2026-05-31', 290], ['2026-06-30', 298.03]])
+  await assert.rejects(fetchEps(refuse, '2026-10-31', { noCache: true, cacheFile: joinPath(tempRoot(), 'missing-eps.json') }), /fetch failed/)
+})

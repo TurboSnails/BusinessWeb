@@ -133,3 +133,9 @@ test('采用判定覆盖各条、第 13.4 节边界和缺失衰退标记', () =>
     assert.equal(judgeWeights(base, changed).verdict, 'reference')
   }
 })
+
+test('localMultplTable reshapes cached Multpl readings into one row per month plus the latest reading', async () => {
+  const { localMultplTable } = await import('./lib/macro-posture-market/data.mjs')
+  const rows = [['2026-10-01', 26.16], ['2026-11-01', 25.73], ['2026-11-18', 24.96], ['2026-11-19', 24.46], ['2026-11-20', 23.55], ['2026-11-30', 1]]
+  assert.deepEqual(localMultplTable(rows, '2026-11-24'), [['2026-10-01', 26.16], ['2026-11-01', 25.73], ['2026-11-20', 23.55]])
+})

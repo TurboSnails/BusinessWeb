@@ -1,7 +1,9 @@
 import { createHash } from 'node:crypto'
+import { readFileSync } from 'node:fs'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { parseMultpl } from '../../us-market-data.mjs'
 import { monthEnd } from '../macro-posture/panel.mjs'
 import { makeCandidateSeries } from './series.mjs'
@@ -68,12 +70,24 @@ export async function fetchFredSeries(id, fetcher = fetch, { noCache = false, no
   return makeCandidateSeries(id, parseFred(csv, id))
 }
 
-export async function fetchEps(fetcher = fetch, completeThrough, { noCache = false, now = new Date() } = {}) {
-  const html = await cached('multpl:eps', () => fetchText(fetcher, MULTPL + 's-p-500-earnings/table/by-month'), {
-    noCache,
-    now,
-  })
-  return makeCandidateSeries('EPS', parseMultplMonthly(html, completeThrough))
+// 市场雷达每次运行都会把同一张 Multpl 盈利月表（同样按 parseMultplMonthly 解析）缓存到这里。
+const RADAR_EPS_CACHE = fileURLToPath(new URL('../../../data-raw/market-radar/eps.json', import.meta.url))
+
+export async function fetchEps(fetcher = fetch, completeThrough, { noCache = false, now = new Date(), cacheFile = RADAR_EPS_CACHE } = {}) {
+  try {
+    const html = await cached('multpl:eps', () => fetchText(fetcher, MULTPL + 's-p-500-earnings/table/by-month'), {
+      noCache,
+      now,
+    })
+    return makeCandidateSeries('EPS', parseMultplMonthly(html, completeThrough))
+  } catch (error) {
+    let rows = []
+    try { rows = JSON.parse(readFileSync(cacheFile, 'utf8')) } catch { /* 没有缓存时抛出原错误 */ }
+    rows = rows.filter(([date, value]) => (!completeThrough || monthEnd(date) <= completeThrough) && value > 0)
+    if (!rows.length) throw error
+    console.warn(`Multpl 盈利改用市场雷达缓存（至 ${rows.at(-1)[0]}）：${error.message}`)
+    return makeCandidateSeries('EPS', rows)
+  }
 }
 
 export function loadCapeFromLocal(usMarketData) {
