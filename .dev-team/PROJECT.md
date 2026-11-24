@@ -77,3 +77,6 @@ manager 开工后按实际目标补充业务入口、API 契约位置、验收�
 - **已知数据限制**：高收益债利差免费数据只有近三年，没有分位；NAAIM 公开数据滞后约三个月（标过期、不参与判定）；前瞻市盈率、AAII、基金经理现金样本太少不给分位；10 年期实际收益率的周度历史在 2026-08-05 之后有缺口（股债息差快照里前瞻市盈率来源停在 8 月初，实际收益率序列跟着被截断）；茨威格的优惠利率规则是用政策利率变动推算的，宽度推力与 4% 模型缺原口径数据；格兰瑟姆的「偏离长期趋势 2 个标准差」还没有算。
 - **流程**：Run mm-stance（讨论）、mm-impl（Codex 引擎、Cursor 读数、Kimi 内容）、mm-ui（Cursor 总览、Kimi 大师页）、mm-review（Codex 额度用尽后由 Claude 替补审查）。多个会话共用工作区，期间另有会话在改 `src/features/macro/` 的估值热力图，互不触碰。
 - **发布**：用户确认后于 2026-11-22 推送 main（`a008acef`），Vercel 生产与 GitHub Pages 均已部署；线上总览页与都铎·琼斯页实测内容、标题正确，控制台无报错。发布时本地 main 上有另一个会话未推送的估值热力图提交，故在临时 worktree 里把本次提交单独挑到 origin/main 上推送，没有替它发布；随后在共享工作区 `git pull --rebase` 并跳过已在远端的重复提交。上线后发现首屏证据条目的列表圆点错位（条目改成可点按钮后未复看首屏），已补一处样式修复。
+
+## 2026-11-24 市场雷达体检与修正
+用户问宏观攻守时间线与雷达月度档位对照是否不同、要不要优化。结论：两套不同策略，规则都不改。修两处：回测市盈率改为当月月均价 ÷ 三个月前可得盈利折算（`priceAdjustedPe`，`scripts/lib/market-radar/sources.mjs`）；雷达页大师方案直接取 `macro-posture.json` 的 `backtest.timeline`（`mastersTimeline`），当时版本口径另列 `mastersRealtime` 行。回测区新增脚本生成的 `backtest.verdict`。预注册五类打分改法均未采用，记录与复现脚本 `docs/research/market-radar-v2-2026-11-24.md`。Run radar-fix-1124（`run_4812fcdf1e01`）：Cursor 实现，Claude 独立复算与审查。提交 210c7bfe 已推送。后续可选项：宏观攻守页时间线改用当时版本口径，需要按日的 ALFRED 版本缓存（现只有月末快照）。
