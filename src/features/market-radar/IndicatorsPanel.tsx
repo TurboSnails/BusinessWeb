@@ -87,7 +87,7 @@ function IndicatorRow({ item }: { item: RadarIndicator }): JSX.Element {
           </p>
         )}
         {item.note ? <p className="mr-ind__note">{visibleText(item.note)}</p> : null}
-        <MiniSparkline history={item.history} label={item.label} display={item.display} />
+        <MiniSparkline history={item.history} label={item.label} display={item.display} overlays={item.overlays} />
       </div>
     </details>
   )

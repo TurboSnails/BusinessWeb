@@ -5,6 +5,14 @@ import type { TierId } from '../macro-posture/composite/types'
 export type RadarDimensionId = 'liquidity' | 'valuation' | 'crowding' | 'trading' | 'earnings'
 export type RadarHeat = 'hot' | 'warm' | 'neutral' | 'cool' | 'cold' | 'na'   // 偏热 → 偏冷（对股票的含义见 signal）
 
+/** 图表叠加序列（如金银比上的金、银价格），日期与主序列 history 对齐 */
+export type RadarOverlay = {
+  id: string
+  label: string
+  unit: string
+  history: [string, number][]
+}
+
 export type RadarIndicator = {
   id: string
   dimension: RadarDimensionId
@@ -21,6 +29,7 @@ export type RadarIndicator = {
   source: string
   note?: string
   history: [string, number][]   // 默认最近 120 个观测；交易结构与金银比带全历史（长日频序列按周或按月抽样）
+  overlays?: RadarOverlay[]     // 放大图里叠加显示的辅助序列（右侧对数坐标），迷你图只画主序列
 }
 
 export type RadarMetrics = { cagr: number; vol: number; maxDd: number; sharpe: number; avgEquity: number; switchesPerYear: number }

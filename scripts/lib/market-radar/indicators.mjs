@@ -48,6 +48,11 @@ const DEFINITIONS = {
   },
   goldSilver: {
     inverse: true, fullHistory: true,
+    // 图表叠加的金、银价格（与金银比同一日期），金银比为主线
+    overlays: [
+      { id: 'gold', key: 'gold', label: '黄金', unit: '美元/盎司' },
+      { id: 'silver', key: 'silver', label: '白银', unit: '美元/盎司' },
+    ],
     dimension: 'liquidity', label: '金银比',
     display: p => `COMEX 黄金 ÷ 白银 ${formatReading(p.value, '', 1)}（金 ${formatReading(p.gold, '', 0)}、银 ${formatReading(p.silver, '', 2)} 美元/盎司）` +
       (p.change == null ? '' : `，较 20 个交易日前 ${signed(p.change, n => formatReading(n, '', 1))}`) + '。',
@@ -274,10 +279,15 @@ function heatFor(raw, inverse) {
  * 更长时按月取，并始终保留最新观测。其余指标沿用最近 120 个观测。
  */
 export function chartHistory(known, def) {
-  const rows = known.map(row => [row.observedOn, row.value])
+  return chartRows(known, def).map(row => [row.observedOn, row.value])
+}
+
+/** 同 chartHistory 的抽样规则，但保留原始观测对象（叠加序列从中取字段）。 */
+export function chartRows(known, def) {
+  const rows = known
   if (def.dimension !== 'trading' && !def.fullHistory) return rows.slice(-120)
   if (rows.length < 2) return rows
-  const years = ageDays(rows.at(-1)[0], rows[0][0]) / 365.2425
+  const years = ageDays(rows.at(-1).observedOn, rows[0].observedOn) / 365.2425
   if (years <= 3 || rows.length / years <= 13) return rows
   const bucket = years > 30 ? d => d.slice(0, 7) : d => {
     const date = new Date(d + 'T00:00:00Z')
@@ -285,7 +295,7 @@ export function chartHistory(known, def) {
     return date.toISOString().slice(0, 10)
   }
   const last = new Map()
-  for (const row of rows) last.set(bucket(row[0]), row)
+  for (const row of rows) last.set(bucket(row.observedOn), row)
   return [...last.values()]
 }
 
@@ -311,6 +321,12 @@ export function buildIndicators(series, sources, date) {
       historyYears: first ? clean(ageDays(point.observedOn, first) / 365.2425) : null,
       inScore: Boolean(def.score), source: sources[id] ?? '站内市场快照',
       history: chartHistory(known, def),
+      ...(def.overlays && {
+        overlays: def.overlays.map(({ id: overlayId, key, label, unit }) => ({
+          id: overlayId, label, unit,
+          history: chartRows(known, def).flatMap(row => Number.isFinite(row[key]) ? [[row.observedOn, row[key]]] : []),
+        })),
+      }),
       ...(notes.length ? { note: notes.join('；') } : {}),
     }
   })

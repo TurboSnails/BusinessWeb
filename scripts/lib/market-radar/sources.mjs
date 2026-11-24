@@ -470,7 +470,7 @@ const round2 = n => Math.round(n * 100) / 100
 export const WORLD_BANK_CMO = 'https://www.worldbank.org/en/research/commodity-markets'
 
 /**
- * 世界银行 Pink Sheet 月表（Monthly Prices）→ [月末日期, 金 ÷ 银]。sheetXml 为工作表 XML，shared 为共享字符串；
+ * 世界银行 Pink Sheet 月表（Monthly Prices）→ [月末日期, 金 ÷ 银, 金月均价, 银月均价]（美元/盎司）。sheetXml 为工作表 XML，shared 为共享字符串；
  * 按表头里的 Gold、Silver 两列取值，行标签形如 1960M01。
  */
 export function parseWorldBankGoldSilver(sheetXml, shared) {
@@ -490,7 +490,7 @@ export function parseWorldBankGoldSilver(sheetXml, shared) {
     }
     const label = /^(\d{4})M(\d{2})$/.exec(cells.A ?? '')
     const [gold, silver] = columns.map(col => Number(cells[col]))
-    if (label && gold > 0 && silver > 0) rows.push([monthEnd(`${label[1]}-${label[2]}`), round2(gold / silver)])
+    if (label && gold > 0 && silver > 0) rows.push([monthEnd(`${label[1]}-${label[2]}`), round2(gold / silver), gold, silver])
   }
   if (!columns) throw new Error('世界银行月表缺少 Gold、Silver 列')
   return rows
@@ -499,6 +499,7 @@ export function parseWorldBankGoldSilver(sheetXml, shared) {
 /**
  * 金银比：2000 年 9 月以前用世界银行月均价之比（early），之后用 Yahoo 日线按月汇总（月均金 ÷ 月均银，只取完整月份），
  * 最后接上最新一个交易日的读数，并附较 20 个交易日前的变化。月度部分作为百分位的历史样本。
+ * 每行同时带金、银价格（月均价或当日收盘，美元/盎司），供图表叠加显示；early 的旧格式（只有比值）没有价格。
  */
 export function goldSilverRatio(gold = [], silver = [], early = [], today = gold.at(-1)?.[0] ?? '') {
   const silverByDay = new Map(silver)
@@ -512,13 +513,13 @@ export function goldSilverRatio(gold = [], silver = [], early = [], today = gold
   const byMonth = new Map()
   for (const [d, g, s] of daily) {
     if (month(d) < firstFull || month(d) >= month(today)) continue
-    const sums = byMonth.get(month(d)) ?? [0, 0]
-    byMonth.set(month(d), [sums[0] + g, sums[1] + s])
+    const sums = byMonth.get(month(d)) ?? [0, 0, 0]
+    byMonth.set(month(d), [sums[0] + g, sums[1] + s, sums[2] + 1])
   }
   const monthly = [
     ...early.filter(([d]) => month(d) < firstFull),
-    ...[...byMonth].map(([key, [g, s]]) => [monthEnd(key + '-01'), round2(g / s)]),
-  ].map(([d, value]) => ({ observedOn: d, availableOn: d, value }))
+    ...[...byMonth].map(([key, [g, s, n]]) => [monthEnd(key + '-01'), round2(g / s), round2(g / n), Math.round(s / n * 1000) / 1000]),
+  ].map(([d, value, gold, silver]) => ({ observedOn: d, availableOn: d, value, ...(gold > 0 && silver > 0 && { gold, silver }) }))
   const ratio = row => row[1] / row[2]
   const last = daily.at(-1)
   const prior = daily.at(-21)

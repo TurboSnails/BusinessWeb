@@ -230,6 +230,9 @@ test('gold-silver ratio: World Bank months before the daily data, full Yahoo mon
   const september = days.slice(2, 23).map((d, i) => [d, 272 + i]).filter(([d]) => d !== '2000-09-05')
   const avg = september.reduce((sum, [, g]) => sum + g, 0) / september.length
   assert.deepEqual([rows[2].observedOn, rows[2].value], ['2000-09-30', Math.round(avg / 5 * 100) / 100])
+  // 每行带金、银价格：月均价（金按配对日平均，银恒为 5），旧格式 early 没有价格
+  assert.deepEqual([rows[2].gold, rows[2].silver], [Math.round(avg * 100) / 100, 5])
+  assert.equal(rows[0].gold, undefined)
   assert.equal(rows.length, 4)
   const last = rows[3]
   assert.deepEqual([last.observedOn, last.gold, last.silver, last.value], ['2000-10-03', 294, 5, 58.8])
@@ -244,7 +247,7 @@ test('World Bank Pink Sheet parser reads the Gold and Silver columns by header',
     '<row r="6"><c r="C6" t="s"><v>0</v></c></row>' +
     '<row r="7"><c r="A7" t="s"><v>2</v></c><c r="B7"><v>715</v></c><c r="C7"><v>35</v></c><c r="D7"><v>0.9</v></c></row>' +
     '<row r="8"><c r="A8"><v>note</v></c><c r="C8"><v>1</v></c><c r="D8"><v>1</v></c></row>'
-  assert.deepEqual(parseWorldBankGoldSilver(xml, shared), [['1960-01-31', 38.89]])
+  assert.deepEqual(parseWorldBankGoldSilver(xml, shared), [['1960-01-31', 38.89, 35, 0.9]])
 })
 
 test('industry daily breadth: 200-day line share, 252-day highs minus lows, 10-day up/down ratio', async () => {

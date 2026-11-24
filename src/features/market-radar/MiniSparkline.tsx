@@ -1,5 +1,7 @@
 import React, { useId, useMemo, useState } from 'react'
 import { clientXToSvgX } from '../macro-posture/composite/timeline/chartMath'
+import ZoomChartDialog from './ZoomChart'
+import type { RadarOverlay } from './types'
 
 const W = 220
 const H = 48
@@ -44,20 +46,24 @@ export function sparkIndexAt(svgX: number, count: number): number {
   return Math.min(count - 1, Math.max(0, Math.round(ratio * (count - 1))))
 }
 
-/** 迷你折线：指标最近观测；指针悬停、轻触或 ← → 查看各点日期与数值 */
+/** 迷你折线：指标历史；指针悬停、轻触或 ← → 查看各点日期与数值，双击或点「放大」打开可缩放的大图 */
 export default function MiniSparkline({
   history,
   label,
   display,
+  overlays,
 }: {
   history: [string, number][]
   label: string
   /** 指标读数句子，用来推断数值单位 */
   display?: string
+  /** 只在放大图里叠加的辅助序列 */
+  overlays?: RadarOverlay[]
 }): JSX.Element | null {
   const titleId = useId()
   const hintId = useId()
   const [active, setActive] = useState<number | null>(null)
+  const [zoomed, setZoomed] = useState(false)
   const count = history.length
   const latestValue = count ? history[count - 1][1] : Number.NaN
   const format = useMemo(() => sparkFormatter(display, latestValue), [display, latestValue])
@@ -112,7 +118,11 @@ export default function MiniSparkline({
           // 触屏抬手后保留读数，鼠标移出才收起
           if (event.pointerType === 'mouse') setActive(null)
         }}
-        onKeyDown={onKeyDown}
+        onKeyDown={event => {
+          if (event.key === 'Enter') { event.preventDefault(); setZoomed(true); return }
+          onKeyDown(event)
+        }}
+        onDoubleClick={() => setZoomed(true)}
         onBlur={() => setActive(null)}
       >
         <title id={titleId}>
@@ -153,9 +163,11 @@ export default function MiniSparkline({
         </span>
         <span className="mr-spark__range">
           {first[0].slice(0, 7)} → {last[0].slice(0, 7)}
+          <button type="button" className="mr-spark__zoom" onClick={() => setZoomed(true)} aria-label={`放大查看${label}`}>放大</button>
         </span>
-        <span className="visually-hidden" id={hintId}>悬停、轻触或用左右方向键查看各点的日期与数值</span>
+        <span className="visually-hidden" id={hintId}>悬停、轻触或用左右方向键查看各点的日期与数值；双击或按回车打开大图</span>
       </figcaption>
+      <ZoomChartDialog open={zoomed} onClose={() => setZoomed(false)} history={history} label={label} format={format} overlays={overlays} />
     </figure>
   )
 }
