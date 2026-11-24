@@ -1,7 +1,7 @@
 import React from 'react'
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import UsValuationHeatmap from './UsValuationHeatmap'
+import UsValuationHeatmap, { FINVIZ_MAP_LINKS } from './UsValuationHeatmap'
 import { ValuationView } from './ValuationView'
 import { groupBySector, layoutHeat, peStep, weightedFwd } from './usValuationHeat'
 import type { IndexData, IndexSnapshot, Member } from './valuation'
@@ -99,10 +99,23 @@ describe('UsValuationHeatmap', () => {
     const svg = screen.getByRole('group', { name: /ETF 滚动 PE 热力图/ })
     expect(within(svg).getByRole('button', { name: /SPY .*滚动 PE 22\.0x，规模/ }).querySelector('rect')!.getAttribute('class')).toContain('uvh--n')
     expect(within(svg).getByRole('button', { name: /TLT .*无 PE/ }).querySelector('rect')!.getAttribute('class')).toContain('uvh--na')
-    expect(screen.getByRole('link', { name: /Finviz 原图/ }).getAttribute('href')).toBe('https://finviz.com/map?t=etf&st=fpe')
   })
 
-  it('沪深 300、恒生指数：方块写中文名，市值按亿元 / 港元写，不给 Finviz 链接', () => {
+  it('图下列出 4 张 Finviz 原图外链，带用途说明、新窗口打开', () => {
+    render(<UsValuationHeatmap data={{ indexes: { spx: ix() } }} />)
+    const links = screen.getAllByRole('link').filter(a => (a.getAttribute('href') ?? '').includes('finviz.com/map'))
+    expect(links).toHaveLength(4)
+    for (const [i, item] of FINVIZ_MAP_LINKS.entries()) {
+      expect(links[i].getAttribute('href')).toBe(item.href)
+      expect(links[i].getAttribute('target')).toBe('_blank')
+      expect(links[i].getAttribute('rel') ?? '').toMatch(/noopener/)
+      expect(links[i].getAttribute('rel') ?? '').toMatch(/noreferrer/)
+      expect(links[i].textContent).toContain(item.title)
+      expect(links[i].textContent).toContain(item.use)
+    }
+  })
+
+  it('沪深 300、恒生指数：方块写中文名，市值按亿元 / 港元写', () => {
     const csi = ix({ name: '沪深 300', members: [{ ...mem('601398.SS', 3350, 8.7, '金融'), name: '工商银行' }, { ...mem('600519.SS', 1866, 19.3, '食品饮料'), name: '贵州茅台' }] })
     const maps = { ...MAPS, hsi: { date: '2026-11-22', source: 't', total: 1, currency: 'HKD' as const, members: [{ ...mem('00700', 3097.6, 10.1, '通信与互联网'), name: '腾讯控股' }] } }
     render(<UsValuationHeatmap data={{ indexes: { spx: ix(), csi300: csi }, maps }} />)
@@ -110,7 +123,6 @@ describe('UsValuationHeatmap', () => {
     const svg = screen.getByRole('group', { name: /沪深 300 Forward PE 热力图/ })
     fireEvent.click(within(svg).getByRole('button', { name: /^贵州茅台 600519：Forward PE 19\.3x，市值 1\.87 万亿元$/ }))
     expect(svg.textContent).toContain('工商银行')
-    expect(screen.queryByRole('link', { name: /Finviz/ })).toBeNull()
     fireEvent.click(screen.getByRole('tab', { name: '恒生指数' }))
     expect(within(screen.getByRole('group', { name: /恒生指数 Forward PE 热力图/ })).getByRole('button', { name: /腾讯控股 00700：Forward PE 10\.1x，市值 3\.10 万亿港元/ })).toBeTruthy()
   })
@@ -127,10 +139,10 @@ describe('UsValuationHeatmap', () => {
 })
 
 describe('ValuationView · 估值热力图', () => {
-  it('估值页直接内嵌热力图，Finviz 只作为可选外链', () => {
+  it('估值页直接内嵌热力图，图下附 Finviz 原图外链', () => {
     const data: IndexSnapshot = { generatedAt: '2026-11-20', source: 'test', indexes: { spx: ix() } }
     render(<ValuationView data={data} />)
     expect(screen.getByRole('heading', { name: '估值热力图' })).toBeTruthy()
-    expect(screen.getAllByRole('link').filter(a => (a.getAttribute('href') ?? '').includes('finviz.com/map'))).toHaveLength(1)
+    expect(screen.getAllByRole('link').filter(a => (a.getAttribute('href') ?? '').includes('finviz.com/map'))).toHaveLength(4)
   })
 })

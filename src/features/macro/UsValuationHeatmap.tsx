@@ -8,12 +8,20 @@ import { PE_STEPS, groupBySector, layoutHeat, medianPe, peStep, weightedFwd, typ
 import type { IndexSnapshot, Member } from './valuation'
 
 const MAPS = [
-  { key: 'spx', label: '标普 500', finviz: 'https://finviz.com/map?st=fpe' },
-  { key: 'ndx', label: '纳指 100', finviz: 'https://finviz.com/map?t=sec_ndx&st=fpe' },
-  { key: 'adr', label: '全球（在美上市）', finviz: 'https://finviz.com/map?t=geo&st=fpe' },
-  { key: 'etf', label: 'ETF', finviz: 'https://finviz.com/map?t=etf&st=fpe' },
-  { key: 'csi300', label: '沪深 300', finviz: '' },
-  { key: 'hsi', label: '恒生指数', finviz: '' },
+  { key: 'spx', label: '标普 500' },
+  { key: 'ndx', label: '纳指 100' },
+  { key: 'adr', label: '全球（在美上市）' },
+  { key: 'etf', label: 'ETF' },
+  { key: 'csi300', label: '沪深 300' },
+  { key: 'hsi', label: '恒生指数' },
+] as const
+
+/** Finviz 原图外链（无法嵌入，新窗口打开）；站内图之外想看细分行业层级或实时行情时用 */
+export const FINVIZ_MAP_LINKS = [
+  { title: '标普 500', href: 'https://finviz.com/map?st=fpe', use: '按行业和细分行业分组，看美国大盘股的估值分布' },
+  { title: '纳指 100', href: 'https://finviz.com/map?t=sec_ndx&st=fpe', use: '只看纳指 100 成分股，科技与成长股估值' },
+  { title: '全球（在美上市的外国公司）', href: 'https://finviz.com/map?t=geo&st=fpe', use: '按国家分组，对比中概股、欧洲、日本等在美上市公司的估值' },
+  { title: 'ETF', href: 'https://finviz.com/map?t=etf&st=fpe', use: '按资产类别分组，看主要 ETF 的整体估值' },
 ] as const
 
 type Currency = 'USD' | 'CNY' | 'HKD'
@@ -22,7 +30,6 @@ type Currency = 'USD' | 'CNY' | 'HKD'
 interface MapView {
   key: string
   label: string
-  finviz: string
   members: Member[]
   field: PeField
   /** Forward PE / 滚动 PE */
@@ -204,8 +211,21 @@ export default function UsValuationHeatmap({ data }: { data: Pick<IndexSnapshot,
       <p className="macro-muted">
         {v.note}数据为本页估值快照（雅虎财经，{v.date || '—'}），点上方「刷新最新数据」会一起更新。
         颜色按固定档位、全部图通用（这里绿 = 便宜、红 = 贵，与 A 股行情的红涨绿跌无关），不随分组调整——银行、能源天然 PE 低，软件、半导体天然 PE 高，跨组比较请看按钮上的分组 PE（市值加权调和平均）。
-        {v.finviz && <>想看更细的层级，可去 <a href={v.finviz} target="_blank" rel="noopener noreferrer">Finviz 原图<ExternalLink size={12} aria-hidden="true" /></a>。</>}
       </p>
+      <h4 className="uvh__links-title">Finviz 原图（外部网站，新窗口打开）</h4>
+      <ul className="macro-finviz-grid">
+        {FINVIZ_MAP_LINKS.map(item => (
+          <li key={item.href}>
+            <a className="macro-finviz-link" href={item.href} target="_blank" rel="noopener noreferrer">
+              <span className="macro-finviz-link__title">
+                {item.title}
+                <ExternalLink size={14} aria-hidden="true" />
+              </span>
+              <span className="macro-finviz-link__use">{item.use}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
     </section>
   )
 }
