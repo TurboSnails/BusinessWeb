@@ -52,8 +52,8 @@ describe('compareSpecs / parseCompare', () => {
 })
 
 describe('StrategySpecView', () => {
-  it('默认显示现行版本：版本号、组成部件、目录与全部章节', () => {
-    renderAt('/invest/strategy/spec')
+  it('默认显示现行版本：版本号、组成部件、目录与全部章节；只有一个版本时提示以后可对比', () => {
+    renderAt('/invest/strategy/spec', [base])
     expect(screen.getByTestId('ss-cover').textContent).toContain(`v${base.version}`)
     expect(screen.getByTestId('ss-meta').textContent).toContain('宏观攻守 v2.2')
     expect(screen.getByTestId('ss-toc').querySelectorAll('li')).toHaveLength(base.sections.length)
@@ -66,7 +66,7 @@ describe('StrategySpecView', () => {
   it('有两个版本时可以对比：显示差异章节与改动说明，相同章节默认收起', () => {
     renderAt('/invest/strategy/spec', specs)
     fireEvent.click(screen.getByTestId('ss-compare-start'))
-    expect(screen.getByTestId('ss-compare-summary').textContent).toBe(`v1.0.0 → v1.1.0：${base.sections.length + 1} 章里有 3 章不同。`)
+    expect(screen.getByTestId('ss-compare-summary').textContent).toBe(`v${base.version} → v1.1.0：${base.sections.length + 1} 章里有 3 章不同。`)
     const changed = document.querySelector('.ss-diff[data-status="changed"]') as HTMLDetailsElement
     expect(changed.open).toBe(true)
     expect(changed.textContent).toContain('分两笔调仓。')
@@ -76,11 +76,21 @@ describe('StrategySpecView', () => {
   })
 
   it('网址指定已归档版本时显示归档提示；指定不存在的版本时退回现行版本并提示', () => {
-    renderAt('/invest/strategy/spec?v=1.0.0', specs)
+    renderAt(`/invest/strategy/spec?v=${base.version}`, specs)
     expect(screen.getByTestId('ss-archived').textContent).toContain('现行版本是')
     cleanup()
     renderAt('/invest/strategy/spec?v=3.0.0', specs)
     expect(screen.getByTestId('ss-missing').textContent).toContain('v1.1.0')
     expect(screen.getByTestId('ss-cover').textContent).toContain('v1.1.0')
+  })
+
+  it('真实版本：现行 v1.0.1，可与已归档的 v1.0.0 逐章对比', () => {
+    renderAt('/invest/strategy/spec')
+    expect(screen.getByTestId('ss-cover').textContent).toContain('v1.0.1')
+    fireEvent.click(screen.getByTestId('ss-compare-start'))
+    expect(screen.getByTestId('ss-compare-summary').textContent).toMatch(/^v1\.0\.0 → v1\.0\.1：\d+ 章里有 \d+ 章不同。$/)
+    const changed = [...document.querySelectorAll('.ss-diff[data-status="changed"]')].map(node => node.querySelector('.ss-diff__title')?.textContent)
+    expect(changed).toEqual(expect.arrayContaining(['五、熔断：极端情况下封顶', '十一、执行', '十二、短线预警与置信度（不改变仓位）']))
+    expect(document.querySelectorAll('.ss-diff[data-status="added"], .ss-diff[data-status="removed"]')).toHaveLength(0)
   })
 })

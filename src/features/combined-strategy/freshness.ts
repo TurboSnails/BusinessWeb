@@ -1,9 +1,9 @@
 /**
- * 月末定档是否已更新。上月底的定档最晚在本月第一个交易日早上（北京时间）出来；
- * 留两天余量：本月 3 日起，若正式定档还停在更早的月份，视为过期。
+ * 月末定档是否已更新。正式定档在 UTC 日期进入本月后的第一次运行中生成：本月 1 日是周日时，
+ * 要到北京时间 3 日约 6:00 才出来。所以留三天余量：北京时间本月 4 日起，若正式定档还停在更早的月份，视为过期。
  * 与 scripts/check-strategy-freshness.mjs 规则相同。
  */
-export const GRACE_DAYS = 2
+export const GRACE_DAYS = 3
 
 function previousMonth(ym: string): string {
   const [y, m] = ym.split('-').map(Number)

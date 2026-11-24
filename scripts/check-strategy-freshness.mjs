@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 // 月初检查：上月底的正式定档是否已生成。规则与 src/features/combined-strategy/freshness.ts 相同：
-// 本月 3 日（北京时间）起，若综合策略的正式定档还停在更早的月份，退出码 1，让工作流失败并发通知。
+// 本月 4 日（北京时间）起，若综合策略的正式定档还停在更早的月份，退出码 1，让工作流失败并发通知。
+// 留三天余量：本月 1 日是周日时，正式定档要到北京时间 3 日约 6:00 才生成。
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-export const GRACE_DAYS = 2
+export const GRACE_DAYS = 3
 
 export function previousMonth(ym) {
   const [y, m] = ym.split('-').map(Number)

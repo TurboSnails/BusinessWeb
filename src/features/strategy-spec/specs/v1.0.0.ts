@@ -1,14 +1,14 @@
 import type { StrategySpec } from '../types'
 
 /**
- * 综合策略说明书 v1.0.0：2026-11-25 按线上规则整理成文。
+ * 综合策略说明书 v1.0.0（已归档，原样保留）：2026-11-25 首次成文。同日核查发现 15 处表述问题，更正见 v1.0.1。
  * 规则出处：scripts/lib/macro-posture/model.mjs（v2.2）、scripts/lib/market-radar/indicators.mjs（radar-v1）、
  * scripts/lib/combined-strategy/（fusion-v1）。数字取自 2026-10 月底的数据文件。
  */
 export const SPEC_V1_0_0: StrategySpec = {
   version: '1.0.0',
   date: '2026-11-25',
-  status: 'current',
+  status: 'archived',
   title: '综合策略说明书',
   summary: '美股仓位只按宏观攻守的五档定；市场雷达的冷热只决定这个阶段具体怎么做，不改变仓位。',
   components: [

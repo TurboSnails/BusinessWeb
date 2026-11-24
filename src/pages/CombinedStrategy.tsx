@@ -21,7 +21,7 @@ function SpecEntry(): JSX.Element {
       <span className="cs-spec-entry__kicker">策略说明书 · v{spec.version}</span>
       <span className="cs-spec-entry__title">完整规则：怎么打分、怎么定档、怎么执行</span>
       <span className="cs-spec-entry__desc">
-        {spec.summary} 成文于 {spec.date}，每版带版本号，可逐章对比。
+        {`${spec.summary}成文于 ${spec.date}，每版带版本号，可逐章对比。`}
       </span>
       <span className="cs-spec-entry__cta" aria-hidden="true">查看完整说明 →</span>
     </Link>

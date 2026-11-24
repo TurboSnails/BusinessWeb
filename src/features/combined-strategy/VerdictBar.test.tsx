@@ -23,10 +23,10 @@ function okFetcher(data = combinedStrategyFixture()) {
 }
 
 describe('officialFreshness', () => {
-  it('本月 3 日起，正式定档还停在更早月份才算过期；1、2 日不算', () => {
+  it('本月 4 日起，正式定档还停在更早月份才算过期；1–3 日不算（1 日是周日时 3 日早上才生成）', () => {
     expect(officialFreshness('2026-10', '2026-11-25')).toEqual({ stale: false, expected: '2026-10' })
-    expect(officialFreshness('2026-10', '2026-12-02')).toEqual({ stale: false, expected: '2026-11' })
-    expect(officialFreshness('2026-10', '2026-12-03')).toEqual({ stale: true, expected: '2026-11' })
+    expect(officialFreshness('2026-10', '2026-12-03')).toEqual({ stale: false, expected: '2026-11' })
+    expect(officialFreshness('2026-10', '2026-12-04')).toEqual({ stale: true, expected: '2026-11' })
     expect(officialFreshness('2026-12', '2027-01-05')).toEqual({ stale: false, expected: '2026-12' })
     expect(officialFreshness('2026-11', '2027-01-05').stale).toBe(true)
     expect(officialFreshness(null, '2026-11-25').stale).toBe(true)

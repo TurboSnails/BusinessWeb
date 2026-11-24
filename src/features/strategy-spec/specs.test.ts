@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 // 规则代码：说明书里的数字必须和它一致
 import { BREAKERS, COMPONENTS, PILLARS, RULE_VERSION, TIERS } from '../../../scripts/lib/macro-posture/model.mjs'
+// 九格名称与做法：数据文件里的 matrix 由 scripts/lib/combined-strategy/matrix.mjs 的 CELL_NAMES / CELL_ACTIONS 生成
+import combined from '../../../public/data/combined-strategy.json'
 import { STRATEGY_SPECS, currentSpec, findSpec } from './index'
 import type { SpecSection } from './types'
 
@@ -70,5 +72,18 @@ describe('现行说明书与规则代码一致', () => {
     expect(rows.map(row => row[2])).toEqual(
       BREAKERS.map(b => TIERS.find(t => t.id === b.cap)?.label),
     )
+  })
+
+  it('九格的名称与做法文字和数据文件逐字相同', () => {
+    const side: Record<string, string> = { 进攻侧: 'offense', 中性: 'neutral', 防守侧: 'defense' }
+    const heat: Record<string, string> = { 偏冷: 'cold', 居中: 'mid', 偏热: 'hot' }
+    const cells = combined.matrix as { macroSide: string; heat: string; name: string; action: string }[]
+    const rows = tableRows(section('matrix'))
+    expect(rows).toHaveLength(cells.length)
+    for (const row of rows) {
+      const cell = cells.find(c => c.macroSide === side[row[0]] && c.heat === heat[row[1]])
+      expect(cell?.name).toBe(row[2])
+      expect(cell?.action).toBe(row[3])
+    }
   })
 })
