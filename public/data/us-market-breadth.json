@@ -1,28 +1,24 @@
 {
   "breadth": {
     "spx": {
-      "date": "2026-11-20",
+      "date": "2026-11-23",
       "covered": 499,
       "total": 503,
-      "above50": 43.09,
-      "above200": 48.7,
+      "above50": 52.91,
+      "above200": 55.71,
       "source": "https://github.com/datasets/s-and-p-500-companies",
       "scope": "标普 500 公开成分代理名单 · Yahoo 复权收盘",
       "universe": "b5cb873630d2",
       "highsLows": {
-        "date": "2026-11-20",
+        "date": "2026-11-23",
         "covered": 499,
-        "newHighs": 0,
-        "newLows": 26,
-        "netHighsPct": -5.21,
-        "advancers": 123,
-        "decliners": 376
+        "newHighs": 4,
+        "newLows": 2,
+        "netHighsPct": 0.4,
+        "advancers": 418,
+        "decliners": 83
       },
       "netHighs": [
-        [
-          "2025-11-24",
-          4.42
-        ],
         [
           "2025-11-25",
           9.44
@@ -1018,16 +1014,13 @@
         [
           "2026-11-20",
           -5.21
+        ],
+        [
+          "2026-11-23",
+          0.4
         ]
       ],
       "advDec": [
-        [
-          "2025-11-24",
-          268,
-          230,
-          2,
-          500
-        ],
         [
           "2025-11-25",
           422,
@@ -2766,17 +2759,20 @@
         ],
         [
           "2026-11-20",
-          123,
-          376,
+          124,
+          375,
           3,
+          502
+        ],
+        [
+          "2026-11-23",
+          418,
+          83,
+          1,
           502
         ]
       ],
       "backfill": [
-        [
-          "2025-11-24",
-          58.03
-        ],
         [
           "2025-11-25",
           62.25
@@ -3772,17 +3768,21 @@
         [
           "2026-11-20",
           48.7
+        ],
+        [
+          "2026-11-23",
+          55.71
         ]
       ],
       "backfillScope": "按当前成分名单回算每日收盘宽度；期间被剔除的股票不在内，存在幸存者偏差",
       "comparison": {
-        "date": "2026-11-13",
+        "date": "2026-11-16",
         "covered": 499,
         "total": 503,
-        "above50": 71.94,
-        "above200": 67.13,
-        "currentAbove50": 43.09,
-        "currentAbove200": 48.7,
+        "above50": 65.33,
+        "above200": 62.12,
+        "currentAbove50": 52.91,
+        "currentAbove200": 55.71,
         "basis": "matched-current-membership",
         "scope": "用当前名单回算，去除后来纳入、纳入日期不明或任一窗口缺价的证券；两日使用同一组样本；历史已剔除成分不在内，行业采用当前归类"
       },
@@ -3798,32 +3798,32 @@
         [
           "2026-11-20",
           48.7
+        ],
+        [
+          "2026-11-23",
+          55.71
         ]
       ]
     },
     "rsp": {
-      "date": "2026-11-20",
+      "date": "2026-11-23",
       "covered": 499,
       "total": 503,
-      "above50": 43.09,
-      "above200": 48.7,
+      "above50": 52.91,
+      "above200": 55.71,
       "source": "https://github.com/datasets/s-and-p-500-companies",
       "scope": "标普 500 等权使用同一成分名单；每只股票一票 · Yahoo 复权收盘",
       "universe": "b5cb873630d2",
       "highsLows": {
-        "date": "2026-11-20",
+        "date": "2026-11-23",
         "covered": 499,
-        "newHighs": 0,
-        "newLows": 26,
-        "netHighsPct": -5.21,
-        "advancers": 123,
-        "decliners": 376
+        "newHighs": 4,
+        "newLows": 2,
+        "netHighsPct": 0.4,
+        "advancers": 418,
+        "decliners": 83
       },
       "netHighs": [
-        [
-          "2025-11-24",
-          4.42
-        ],
         [
           "2025-11-25",
           9.44
@@ -4819,16 +4819,13 @@
         [
           "2026-11-20",
           -5.21
+        ],
+        [
+          "2026-11-23",
+          0.4
         ]
       ],
       "advDec": [
-        [
-          "2025-11-24",
-          268,
-          230,
-          2,
-          500
-        ],
         [
           "2025-11-25",
           422,
@@ -6567,17 +6564,20 @@
         ],
         [
           "2026-11-20",
-          123,
-          376,
+          124,
+          375,
           3,
+          502
+        ],
+        [
+          "2026-11-23",
+          418,
+          83,
+          1,
           502
         ]
       ],
       "backfill": [
-        [
-          "2025-11-24",
-          58.03
-        ],
         [
           "2025-11-25",
           62.25
@@ -7573,17 +7573,21 @@
         [
           "2026-11-20",
           48.7
+        ],
+        [
+          "2026-11-23",
+          55.71
         ]
       ],
       "backfillScope": "按当前成分名单回算每日收盘宽度；期间被剔除的股票不在内，存在幸存者偏差",
       "comparison": {
-        "date": "2026-11-13",
+        "date": "2026-11-16",
         "covered": 499,
         "total": 503,
-        "above50": 71.94,
-        "above200": 67.13,
-        "currentAbove50": 43.09,
-        "currentAbove200": 48.7,
+        "above50": 65.33,
+        "above200": 62.12,
+        "currentAbove50": 52.91,
+        "currentAbove200": 55.71,
         "basis": "matched-current-membership",
         "scope": "用当前名单回算，去除后来纳入、纳入日期不明或任一窗口缺价的证券；两日使用同一组样本；历史已剔除成分不在内，行业采用当前归类"
       },
@@ -7599,32 +7603,32 @@
         [
           "2026-11-20",
           48.7
+        ],
+        [
+          "2026-11-23",
+          55.71
         ]
       ]
     },
     "sector-xlc": {
-      "date": "2026-11-20",
+      "date": "2026-11-23",
       "covered": 22,
       "total": 22,
-      "above50": 40.91,
+      "above50": 45.45,
       "above200": 27.27,
       "source": "https://github.com/datasets/s-and-p-500-companies",
       "scope": "标普 500 成分 · Communication Services（GICS）；Yahoo 复权收盘",
       "universe": "b2b51c1e531b",
       "highsLows": {
-        "date": "2026-11-20",
+        "date": "2026-11-23",
         "covered": 22,
         "newHighs": 0,
-        "newLows": 5,
-        "netHighsPct": -22.73,
-        "advancers": 5,
-        "decliners": 17
+        "newLows": 0,
+        "netHighsPct": 0,
+        "advancers": 17,
+        "decliners": 5
       },
       "netHighs": [
-        [
-          "2025-11-24",
-          4.55
-        ],
         [
           "2025-11-25",
           9.09
@@ -8620,13 +8624,13 @@
         [
           "2026-11-20",
           -22.73
+        ],
+        [
+          "2026-11-23",
+          0
         ]
       ],
       "backfill": [
-        [
-          "2025-11-24",
-          45.45
-        ],
         [
           "2025-11-25",
           45.45
@@ -9622,16 +9626,20 @@
         [
           "2026-11-20",
           27.27
+        ],
+        [
+          "2026-11-23",
+          27.27
         ]
       ],
       "backfillScope": "按当前成分名单回算每日收盘宽度；期间被剔除的股票不在内，存在幸存者偏差",
       "comparison": {
-        "date": "2026-11-13",
+        "date": "2026-11-16",
         "covered": 22,
         "total": 22,
         "above50": 59.09,
-        "above200": 50,
-        "currentAbove50": 40.91,
+        "above200": 36.36,
+        "currentAbove50": 45.45,
         "currentAbove200": 27.27,
         "basis": "matched-current-membership",
         "scope": "用当前名单回算，去除后来纳入、纳入日期不明或任一窗口缺价的证券；两日使用同一组样本；历史已剔除成分不在内，行业采用当前归类"
@@ -9648,32 +9656,32 @@
         [
           "2026-11-20",
           27.27
+        ],
+        [
+          "2026-11-23",
+          27.27
         ]
       ]
     },
     "sector-xly": {
-      "date": "2026-11-20",
+      "date": "2026-11-23",
       "covered": 47,
       "total": 47,
-      "above50": 61.7,
-      "above200": 46.81,
+      "above50": 72.34,
+      "above200": 57.45,
       "source": "https://github.com/datasets/s-and-p-500-companies",
       "scope": "标普 500 成分 · Consumer Discretionary（GICS）；Yahoo 复权收盘",
       "universe": "3ebfb158036d",
       "highsLows": {
-        "date": "2026-11-20",
+        "date": "2026-11-23",
         "covered": 47,
         "newHighs": 0,
-        "newLows": 4,
-        "netHighsPct": -8.51,
-        "advancers": 9,
-        "decliners": 38
+        "newLows": 0,
+        "netHighsPct": 0,
+        "advancers": 44,
+        "decliners": 3
       },
       "netHighs": [
-        [
-          "2025-11-24",
-          4.26
-        ],
         [
           "2025-11-25",
           17.02
@@ -10669,13 +10677,13 @@
         [
           "2026-11-20",
           -8.51
+        ],
+        [
+          "2026-11-23",
+          0
         ]
       ],
       "backfill": [
-        [
-          "2025-11-24",
-          57.45
-        ],
         [
           "2025-11-25",
           65.96
@@ -11671,17 +11679,21 @@
         [
           "2026-11-20",
           46.81
+        ],
+        [
+          "2026-11-23",
+          57.45
         ]
       ],
       "backfillScope": "按当前成分名单回算每日收盘宽度；期间被剔除的股票不在内，存在幸存者偏差",
       "comparison": {
-        "date": "2026-11-13",
+        "date": "2026-11-16",
         "covered": 47,
         "total": 47,
-        "above50": 82.98,
-        "above200": 59.57,
-        "currentAbove50": 61.7,
-        "currentAbove200": 46.81,
+        "above50": 78.72,
+        "above200": 57.45,
+        "currentAbove50": 72.34,
+        "currentAbove200": 57.45,
         "basis": "matched-current-membership",
         "scope": "用当前名单回算，去除后来纳入、纳入日期不明或任一窗口缺价的证券；两日使用同一组样本；历史已剔除成分不在内，行业采用当前归类"
       },
@@ -11697,32 +11709,32 @@
         [
           "2026-11-20",
           46.81
+        ],
+        [
+          "2026-11-23",
+          57.45
         ]
       ]
     },
     "sector-xlp": {
-      "date": "2026-11-20",
+      "date": "2026-11-23",
       "covered": 32,
       "total": 33,
-      "above50": 81.25,
-      "above200": 78.13,
+      "above50": 87.5,
+      "above200": 71.88,
       "source": "https://github.com/datasets/s-and-p-500-companies",
       "scope": "标普 500 成分 · Consumer Staples（GICS）；Yahoo 复权收盘",
       "universe": "9aa00476df7d",
       "highsLows": {
-        "date": "2026-11-20",
+        "date": "2026-11-23",
         "covered": 32,
         "newHighs": 0,
         "newLows": 0,
         "netHighsPct": 0,
-        "advancers": 23,
-        "decliners": 10
+        "advancers": 13,
+        "decliners": 20
       },
       "netHighs": [
-        [
-          "2025-11-24",
-          0
-        ],
         [
           "2025-11-25",
           3.13
@@ -12718,13 +12730,13 @@
         [
           "2026-11-20",
           0
+        ],
+        [
+          "2026-11-23",
+          0
         ]
       ],
       "backfill": [
-        [
-          "2025-11-24",
-          37.5
-        ],
         [
           "2025-11-25",
           40.63
@@ -13720,17 +13732,21 @@
         [
           "2026-11-20",
           78.13
+        ],
+        [
+          "2026-11-23",
+          71.88
         ]
       ],
       "backfillScope": "按当前成分名单回算每日收盘宽度；期间被剔除的股票不在内，存在幸存者偏差",
       "comparison": {
-        "date": "2026-11-13",
+        "date": "2026-11-16",
         "covered": 32,
         "total": 33,
         "above50": 87.5,
-        "above200": 75,
-        "currentAbove50": 81.25,
-        "currentAbove200": 78.13,
+        "above200": 78.13,
+        "currentAbove50": 87.5,
+        "currentAbove200": 71.88,
         "basis": "matched-current-membership",
         "scope": "用当前名单回算，去除后来纳入、纳入日期不明或任一窗口缺价的证券；两日使用同一组样本；历史已剔除成分不在内，行业采用当前归类"
       },
@@ -13746,11 +13762,15 @@
         [
           "2026-11-20",
           78.13
+        ],
+        [
+          "2026-11-23",
+          71.88
         ]
       ]
     },
     "sector-xle": {
-      "date": "2026-11-20",
+      "date": "2026-11-23",
       "covered": 21,
       "total": 21,
       "above50": 0,
@@ -13759,7 +13779,7 @@
       "scope": "标普 500 成分 · Energy（GICS）；Yahoo 复权收盘",
       "universe": "65449d19db4a",
       "highsLows": {
-        "date": "2026-11-20",
+        "date": "2026-11-23",
         "covered": 21,
         "newHighs": 0,
         "newLows": 2,
@@ -13769,10 +13789,6 @@
       },
       "netHighs": [
         [
-          "2025-11-24",
-          0
-        ],
-        [
           "2025-11-25",
           0
         ],
@@ -14766,15 +14782,15 @@
         ],
         [
           "2026-11-20",
+          -9.52
+        ],
+        [
+          "2026-11-23",
           -9.52
         ]
       ],
       "backfill": [
         [
-          "2025-11-24",
-          76.19
-        ],
-        [
           "2025-11-25",
           71.43
         ],
@@ -15769,15 +15785,19 @@
         [
           "2026-11-20",
           42.86
+        ],
+        [
+          "2026-11-23",
+          42.86
         ]
       ],
       "backfillScope": "按当前成分名单回算每日收盘宽度；期间被剔除的股票不在内，存在幸存者偏差",
       "comparison": {
-        "date": "2026-11-13",
+        "date": "2026-11-16",
         "covered": 21,
         "total": 21,
-        "above50": 47.62,
-        "above200": 66.67,
+        "above50": 23.81,
+        "above200": 52.38,
         "currentAbove50": 0,
         "currentAbove200": 42.86,
         "basis": "matched-current-membership",
@@ -15795,32 +15815,32 @@
         [
           "2026-11-20",
           42.86
+        ],
+        [
+          "2026-11-23",
+          42.86
         ]
       ]
     },
     "sector-xlf": {
-      "date": "2026-11-20",
+      "date": "2026-11-23",
       "covered": 76,
       "total": 76,
-      "above50": 44.74,
-      "above200": 53.95,
+      "above50": 51.32,
+      "above200": 64.47,
       "source": "https://github.com/datasets/s-and-p-500-companies",
       "scope": "标普 500 成分 · Financials（GICS）；Yahoo 复权收盘",
       "universe": "82bc00f63668",
       "highsLows": {
-        "date": "2026-11-20",
+        "date": "2026-11-23",
         "covered": 76,
         "newHighs": 0,
-        "newLows": 4,
-        "netHighsPct": -5.26,
-        "advancers": 20,
-        "decliners": 56
+        "newLows": 0,
+        "netHighsPct": 0,
+        "advancers": 64,
+        "decliners": 12
       },
       "netHighs": [
-        [
-          "2025-11-24",
-          3.95
-        ],
         [
           "2025-11-25",
           6.58
@@ -16816,13 +16836,13 @@
         [
           "2026-11-20",
           -5.26
+        ],
+        [
+          "2026-11-23",
+          0
         ]
       ],
       "backfill": [
-        [
-          "2025-11-24",
-          59.21
-        ],
         [
           "2025-11-25",
           65.79
@@ -17818,17 +17838,21 @@
         [
           "2026-11-20",
           53.95
+        ],
+        [
+          "2026-11-23",
+          64.47
         ]
       ],
       "backfillScope": "按当前成分名单回算每日收盘宽度；期间被剔除的股票不在内，存在幸存者偏差",
       "comparison": {
-        "date": "2026-11-13",
+        "date": "2026-11-16",
         "covered": 76,
         "total": 76,
-        "above50": 80.26,
-        "above200": 80.26,
-        "currentAbove50": 44.74,
-        "currentAbove200": 53.95,
+        "above50": 73.68,
+        "above200": 73.68,
+        "currentAbove50": 51.32,
+        "currentAbove200": 64.47,
         "basis": "matched-current-membership",
         "scope": "用当前名单回算，去除后来纳入、纳入日期不明或任一窗口缺价的证券；两日使用同一组样本；历史已剔除成分不在内，行业采用当前归类"
       },
@@ -17844,32 +17868,32 @@
         [
           "2026-11-20",
           53.95
+        ],
+        [
+          "2026-11-23",
+          64.47
         ]
       ]
     },
     "sector-xlv": {
-      "date": "2026-11-20",
+      "date": "2026-11-23",
       "covered": 60,
       "total": 60,
-      "above50": 50,
-      "above200": 80,
+      "above50": 63.33,
+      "above200": 81.67,
       "source": "https://github.com/datasets/s-and-p-500-companies",
       "scope": "标普 500 成分 · Health Care（GICS）；Yahoo 复权收盘",
       "universe": "bd41c00e5072",
       "highsLows": {
-        "date": "2026-11-20",
+        "date": "2026-11-23",
         "covered": 60,
-        "newHighs": 0,
+        "newHighs": 4,
         "newLows": 0,
-        "netHighsPct": 0,
-        "advancers": 17,
-        "decliners": 42
+        "netHighsPct": 6.67,
+        "advancers": 48,
+        "decliners": 11
       },
       "netHighs": [
-        [
-          "2025-11-24",
-          23.33
-        ],
         [
           "2025-11-25",
           30
@@ -18865,13 +18889,13 @@
         [
           "2026-11-20",
           0
+        ],
+        [
+          "2026-11-23",
+          6.67
         ]
       ],
       "backfill": [
-        [
-          "2025-11-24",
-          66.67
-        ],
         [
           "2025-11-25",
           71.67
@@ -19867,17 +19891,21 @@
         [
           "2026-11-20",
           80
+        ],
+        [
+          "2026-11-23",
+          81.67
         ]
       ],
       "backfillScope": "按当前成分名单回算每日收盘宽度；期间被剔除的股票不在内，存在幸存者偏差",
       "comparison": {
-        "date": "2026-11-13",
+        "date": "2026-11-16",
         "covered": 60,
         "total": 60,
-        "above50": 93.33,
+        "above50": 85,
         "above200": 88.33,
-        "currentAbove50": 50,
-        "currentAbove200": 80,
+        "currentAbove50": 63.33,
+        "currentAbove200": 81.67,
         "basis": "matched-current-membership",
         "scope": "用当前名单回算，去除后来纳入、纳入日期不明或任一窗口缺价的证券；两日使用同一组样本；历史已剔除成分不在内，行业采用当前归类"
       },
@@ -19893,32 +19921,32 @@
         [
           "2026-11-20",
           80
+        ],
+        [
+          "2026-11-23",
+          81.67
         ]
       ]
     },
     "sector-xli": {
-      "date": "2026-11-20",
+      "date": "2026-11-23",
       "covered": 81,
       "total": 83,
-      "above50": 35.8,
-      "above200": 39.51,
+      "above50": 55.56,
+      "above200": 49.38,
       "source": "https://github.com/datasets/s-and-p-500-companies",
       "scope": "标普 500 成分 · Industrials（GICS）；Yahoo 复权收盘",
       "universe": "bf6ca5b412c5",
       "highsLows": {
-        "date": "2026-11-20",
+        "date": "2026-11-23",
         "covered": 81,
         "newHighs": 0,
-        "newLows": 6,
-        "netHighsPct": -7.41,
-        "advancers": 10,
-        "decliners": 73
+        "newLows": 0,
+        "netHighsPct": 0,
+        "advancers": 80,
+        "decliners": 3
       },
       "netHighs": [
-        [
-          "2025-11-24",
-          1.23
-        ],
         [
           "2025-11-25",
           6.17
@@ -20914,13 +20942,13 @@
         [
           "2026-11-20",
           -7.41
+        ],
+        [
+          "2026-11-23",
+          0
         ]
       ],
       "backfill": [
-        [
-          "2025-11-24",
-          60.49
-        ],
         [
           "2025-11-25",
           67.9
@@ -21916,17 +21944,21 @@
         [
           "2026-11-20",
           39.51
+        ],
+        [
+          "2026-11-23",
+          49.38
         ]
       ],
       "backfillScope": "按当前成分名单回算每日收盘宽度；期间被剔除的股票不在内，存在幸存者偏差",
       "comparison": {
-        "date": "2026-11-13",
+        "date": "2026-11-16",
         "covered": 81,
         "total": 83,
-        "above50": 70.37,
-        "above200": 56.79,
-        "currentAbove50": 35.8,
-        "currentAbove200": 39.51,
+        "above50": 64.2,
+        "above200": 54.32,
+        "currentAbove50": 55.56,
+        "currentAbove200": 49.38,
         "basis": "matched-current-membership",
         "scope": "用当前名单回算，去除后来纳入、纳入日期不明或任一窗口缺价的证券；两日使用同一组样本；历史已剔除成分不在内，行业采用当前归类"
       },
@@ -21942,32 +21974,32 @@
         [
           "2026-11-20",
           39.51
+        ],
+        [
+          "2026-11-23",
+          49.38
         ]
       ]
     },
     "sector-xlk": {
-      "date": "2026-11-20",
+      "date": "2026-11-23",
       "covered": 75,
       "total": 76,
-      "above50": 13.33,
-      "above200": 30.67,
+      "above50": 20,
+      "above200": 44,
       "source": "https://github.com/datasets/s-and-p-500-companies",
       "scope": "标普 500 成分 · Information Technology（GICS）；Yahoo 复权收盘",
       "universe": "c1ee2b36414e",
       "highsLows": {
-        "date": "2026-11-20",
+        "date": "2026-11-23",
         "covered": 75,
         "newHighs": 0,
-        "newLows": 3,
-        "netHighsPct": -4,
-        "advancers": 10,
-        "decliners": 65
+        "newLows": 0,
+        "netHighsPct": 0,
+        "advancers": 73,
+        "decliners": 2
       },
       "netHighs": [
-        [
-          "2025-11-24",
-          0
-        ],
         [
           "2025-11-25",
           4.05
@@ -22963,13 +22995,13 @@
         [
           "2026-11-20",
           -4
+        ],
+        [
+          "2026-11-23",
+          0
         ]
       ],
       "backfill": [
-        [
-          "2025-11-24",
-          56.76
-        ],
         [
           "2025-11-25",
           59.46
@@ -23965,17 +23997,21 @@
         [
           "2026-11-20",
           30.67
+        ],
+        [
+          "2026-11-23",
+          44
         ]
       ],
       "backfillScope": "按当前成分名单回算每日收盘宽度；期间被剔除的股票不在内，存在幸存者偏差",
       "comparison": {
-        "date": "2026-11-13",
+        "date": "2026-11-16",
         "covered": 75,
         "total": 76,
-        "above50": 36,
-        "above200": 54.67,
-        "currentAbove50": 13.33,
-        "currentAbove200": 30.67,
+        "above50": 28,
+        "above200": 46.67,
+        "currentAbove50": 20,
+        "currentAbove200": 44,
         "basis": "matched-current-membership",
         "scope": "用当前名单回算，去除后来纳入、纳入日期不明或任一窗口缺价的证券；两日使用同一组样本；历史已剔除成分不在内，行业采用当前归类"
       },
@@ -23991,32 +24027,32 @@
         [
           "2026-11-20",
           30.67
+        ],
+        [
+          "2026-11-23",
+          44
         ]
       ]
     },
     "sector-xlb": {
-      "date": "2026-11-20",
+      "date": "2026-11-23",
       "covered": 24,
       "total": 24,
-      "above50": 37.5,
-      "above200": 45.83,
+      "above50": 41.67,
+      "above200": 50,
       "source": "https://github.com/datasets/s-and-p-500-companies",
       "scope": "标普 500 成分 · Materials（GICS）；Yahoo 复权收盘",
       "universe": "a34ffa2375d6",
       "highsLows": {
-        "date": "2026-11-20",
+        "date": "2026-11-23",
         "covered": 24,
         "newHighs": 0,
-        "newLows": 1,
-        "netHighsPct": -4.17,
-        "advancers": 1,
-        "decliners": 22
+        "newLows": 0,
+        "netHighsPct": 0,
+        "advancers": 21,
+        "decliners": 3
       },
       "netHighs": [
-        [
-          "2025-11-24",
-          -4.17
-        ],
         [
           "2025-11-25",
           8.33
@@ -25012,13 +25048,13 @@
         [
           "2026-11-20",
           -4.17
+        ],
+        [
+          "2026-11-23",
+          0
         ]
       ],
       "backfill": [
-        [
-          "2025-11-24",
-          37.5
-        ],
         [
           "2025-11-25",
           41.67
@@ -26014,17 +26050,21 @@
         [
           "2026-11-20",
           45.83
+        ],
+        [
+          "2026-11-23",
+          50
         ]
       ],
       "backfillScope": "按当前成分名单回算每日收盘宽度；期间被剔除的股票不在内，存在幸存者偏差",
       "comparison": {
-        "date": "2026-11-13",
+        "date": "2026-11-16",
         "covered": 24,
         "total": 24,
-        "above50": 66.67,
-        "above200": 70.83,
-        "currentAbove50": 37.5,
-        "currentAbove200": 45.83,
+        "above50": 50,
+        "above200": 50,
+        "currentAbove50": 41.67,
+        "currentAbove200": 50,
         "basis": "matched-current-membership",
         "scope": "用当前名单回算，去除后来纳入、纳入日期不明或任一窗口缺价的证券；两日使用同一组样本；历史已剔除成分不在内，行业采用当前归类"
       },
@@ -26040,32 +26080,32 @@
         [
           "2026-11-20",
           45.83
+        ],
+        [
+          "2026-11-23",
+          50
         ]
       ]
     },
     "sector-xlre": {
-      "date": "2026-11-20",
+      "date": "2026-11-23",
       "covered": 30,
       "total": 30,
-      "above50": 46.67,
-      "above200": 36.67,
+      "above50": 60,
+      "above200": 43.33,
       "source": "https://github.com/datasets/s-and-p-500-companies",
       "scope": "标普 500 成分 · Real Estate（GICS）；Yahoo 复权收盘",
       "universe": "41f5f085bfd9",
       "highsLows": {
-        "date": "2026-11-20",
+        "date": "2026-11-23",
         "covered": 30,
         "newHighs": 0,
         "newLows": 0,
         "netHighsPct": 0,
-        "advancers": 13,
-        "decliners": 17
+        "advancers": 26,
+        "decliners": 4
       },
       "netHighs": [
-        [
-          "2025-11-24",
-          3.33
-        ],
         [
           "2025-11-25",
           6.67
@@ -27061,13 +27101,13 @@
         [
           "2026-11-20",
           0
+        ],
+        [
+          "2026-11-23",
+          0
         ]
       ],
       "backfill": [
-        [
-          "2025-11-24",
-          36.67
-        ],
         [
           "2025-11-25",
           36.67
@@ -28063,17 +28103,21 @@
         [
           "2026-11-20",
           36.67
+        ],
+        [
+          "2026-11-23",
+          43.33
         ]
       ],
       "backfillScope": "按当前成分名单回算每日收盘宽度；期间被剔除的股票不在内，存在幸存者偏差",
       "comparison": {
-        "date": "2026-11-13",
+        "date": "2026-11-16",
         "covered": 30,
         "total": 30,
-        "above50": 80,
-        "above200": 60,
-        "currentAbove50": 46.67,
-        "currentAbove200": 36.67,
+        "above50": 76.67,
+        "above200": 56.67,
+        "currentAbove50": 60,
+        "currentAbove200": 43.33,
         "basis": "matched-current-membership",
         "scope": "用当前名单回算，去除后来纳入、纳入日期不明或任一窗口缺价的证券；两日使用同一组样本；历史已剔除成分不在内，行业采用当前归类"
       },
@@ -28089,32 +28133,32 @@
         [
           "2026-11-20",
           36.67
+        ],
+        [
+          "2026-11-23",
+          43.33
         ]
       ]
     },
     "sector-xlu": {
-      "date": "2026-11-20",
+      "date": "2026-11-23",
       "covered": 31,
       "total": 31,
-      "above50": 80.65,
-      "above200": 48.39,
+      "above50": 87.1,
+      "above200": 54.84,
       "source": "https://github.com/datasets/s-and-p-500-companies",
       "scope": "标普 500 成分 · Utilities（GICS）；Yahoo 复权收盘",
       "universe": "ede131148d62",
       "highsLows": {
-        "date": "2026-11-20",
+        "date": "2026-11-23",
         "covered": 31,
         "newHighs": 0,
-        "newLows": 1,
-        "netHighsPct": -3.23,
-        "advancers": 10,
-        "decliners": 20
+        "newLows": 0,
+        "netHighsPct": 0,
+        "advancers": 27,
+        "decliners": 4
       },
       "netHighs": [
-        [
-          "2025-11-24",
-          3.23
-        ],
         [
           "2025-11-25",
           3.23
@@ -29110,13 +29154,13 @@
         [
           "2026-11-20",
           -3.23
+        ],
+        [
+          "2026-11-23",
+          0
         ]
       ],
       "backfill": [
-        [
-          "2025-11-24",
-          90.32
-        ],
         [
           "2025-11-25",
           90.32
@@ -30112,17 +30156,21 @@
         [
           "2026-11-20",
           48.39
+        ],
+        [
+          "2026-11-23",
+          54.84
         ]
       ],
       "backfillScope": "按当前成分名单回算每日收盘宽度；期间被剔除的股票不在内，存在幸存者偏差",
       "comparison": {
-        "date": "2026-11-13",
+        "date": "2026-11-16",
         "covered": 31,
         "total": 31,
         "above50": 90.32,
         "above200": 70.97,
-        "currentAbove50": 80.65,
-        "currentAbove200": 48.39,
+        "currentAbove50": 87.1,
+        "currentAbove200": 54.84,
         "basis": "matched-current-membership",
         "scope": "用当前名单回算，去除后来纳入、纳入日期不明或任一窗口缺价的证券；两日使用同一组样本；历史已剔除成分不在内，行业采用当前归类"
       },
@@ -30138,32 +30186,32 @@
         [
           "2026-11-20",
           48.39
+        ],
+        [
+          "2026-11-23",
+          54.84
         ]
       ]
     },
     "ndx": {
-      "date": "2026-11-20",
+      "date": "2026-11-23",
       "covered": 98,
       "total": 101,
-      "above50": 32.65,
-      "above200": 36.73,
+      "above50": 42.86,
+      "above200": 44.9,
       "source": "https://indexes.nasdaqomx.com/index/weighting/ndx",
       "scope": "纳斯达克当日收盘成分证券名单，按证券计数；Yahoo 复权收盘",
       "universe": "2d9b2642ffaa",
       "highsLows": {
-        "date": "2026-11-20",
+        "date": "2026-11-23",
         "covered": 98,
         "newHighs": 0,
-        "newLows": 10,
-        "netHighsPct": -10.2,
-        "advancers": 18,
-        "decliners": 82
+        "newLows": 0,
+        "netHighsPct": 0,
+        "advancers": 90,
+        "decliners": 10
       },
       "netHighs": [
-        [
-          "2025-11-24",
-          3.09
-        ],
         [
           "2025-11-25",
           10.31
@@ -31159,16 +31207,13 @@
         [
           "2026-11-20",
           -10.2
+        ],
+        [
+          "2026-11-23",
+          0
         ]
       ],
       "advDec": [
-        [
-          "2025-11-24",
-          69,
-          30,
-          0,
-          99
-        ],
         [
           "2025-11-25",
           74,
@@ -32907,17 +32952,20 @@
         ],
         [
           "2026-11-20",
-          18,
-          82,
+          19,
+          81,
+          0,
+          100
+        ],
+        [
+          "2026-11-23",
+          90,
+          10,
           0,
           100
         ]
       ],
       "backfill": [
-        [
-          "2025-11-24",
-          57.73
-        ],
         [
           "2025-11-25",
           58.76
@@ -33913,15 +33961,19 @@
         [
           "2026-11-20",
           36.73
+        ],
+        [
+          "2026-11-23",
+          44.9
         ]
       ],
       "backfillScope": "按当前成分名单回算每日收盘宽度；期间被剔除的股票不在内，存在幸存者偏差",
       "comparison": {
-        "date": "2026-11-13",
+        "date": "2026-11-16",
         "covered": 99,
         "total": 101,
-        "above50": 54.55,
-        "above200": 55.56,
+        "above50": 49.49,
+        "above200": 50.51,
         "basis": "dated-membership",
         "scope": "两日分别使用纳斯达克当日收盘成分证券名单；按证券计数"
       },
@@ -33937,6 +33989,10 @@
         [
           "2026-11-20",
           36.73
+        ],
+        [
+          "2026-11-23",
+          44.9
         ]
       ]
     }
