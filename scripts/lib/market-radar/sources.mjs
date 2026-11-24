@@ -426,6 +426,28 @@ function completeMonthly(rows, lastComplete) {
   return [...new Map(completed.map(row => [month(row[0]), row])).values()]
 }
 
+/**
+ * 按当时可得盈利折算市盈率：观测月 m 的市盈率 v 在 t = m+3 才可得，
+ * 用当月月均价 P(t) 与盈利月月均价 P(m) 折算为 value = v × P(t) ÷ P(m)。
+ * 缺任一月价格则跳过（不插值）。
+ */
+export function priceAdjustedPe(peRows = [], priceSeries = []) {
+  const priceByMonth = new Map(priceSeries.filter(point => point?.value > 0).map(point => [month(point.observedOn), point.value]))
+  return peRows.flatMap(([observedOn, value]) => {
+    if (!(value > 0)) return []
+    const t = month(monthEnd(observedOn, 3))
+    const earningsPrice = priceByMonth.get(month(observedOn))
+    const price = priceByMonth.get(t)
+    if (!earningsPrice || !price) return []
+    return [{
+      value: clean(value * price / earningsPrice),
+      observedOn: `${t}-01`,
+      availableOn: monthEnd(`${t}-01`),
+      earningsOn: observedOn,
+    }]
+  }).sort((a, b) => a.observedOn.localeCompare(b.observedOn))
+}
+
 function marketReadings(data, panel, lastComplete) {
   const output = { erp: [], volume: [] }
   const start = [panel.GS10[0], data.volume[0]].filter(Boolean)
@@ -580,7 +602,7 @@ export function buildRadarSeries({ local, macroUs, breadth, universes = {}, inde
   const industries = normalize(marketCache.breadth, today)
   const historical = {
     baaChange: changeByMonth(panel.baa, 6),
-    pe: marketSeries(completeMonthly(pe, lastComplete), 3),
+    pe: priceAdjustedPe(completeMonthly(pe, lastComplete), panel.price),
     cape: marketSeries(completeMonthly(cape, lastComplete), 0),
     equityShare: quarterly(normalize(macroUs.equityShare?.long ?? macroUs.equityShare?.history, today)),
     cashShare: balanceSheetCash(fetched),

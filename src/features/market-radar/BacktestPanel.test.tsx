@@ -141,6 +141,24 @@ describe('buildRadarTimeline / agreementRows', () => {
   })
 })
 
+describe('回测结论与策略表', () => {
+  it('有 verdict 时渲染结论段，表格 7 行', () => {
+    mockedComposite.mockReturnValue({ status: 'loading' })
+    render(<BacktestPanel data={radarFixture()} />)
+    expect(screen.getByTestId('mr-backtest-verdict').textContent).toContain('雷达全样本夏普')
+    expect(screen.getByTestId('mr-backtest-table').querySelectorAll('tbody tr')).toHaveLength(7)
+    expect(screen.getByTestId('mr-backtest-table').textContent).toContain('当时版本数据')
+  })
+
+  it('无 verdict 时不渲染结论段', () => {
+    mockedComposite.mockReturnValue({ status: 'loading' })
+    const base = radarFixture()
+    const { verdict: _omit, ...rest } = base.backtest
+    render(<BacktestPanel data={{ ...base, backtest: { ...rest } }} />)
+    expect(screen.queryByTestId('mr-backtest-verdict')).toBeNull()
+  })
+})
+
 describe('雷达月度档位时间线', () => {
   it('默认近 10 年，带名与图例为雷达 / 大师方案', () => {
     const { chart } = renderPanel(macroTimeline())
@@ -148,7 +166,7 @@ describe('雷达月度档位时间线', () => {
     expect(chart.getAttribute('data-visible-start')).toBe('2016-11')
     expect(screen.getByRole('button', { name: '近 10 年' }).getAttribute('aria-pressed')).toBe('true')
     expect([...chart.querySelectorAll('.mp-timeline__band-label')].map(node => node.textContent)).toEqual(['雷达档位', '大师档位'])
-    expect(document.querySelector('.mp-timeline__legend-note')?.textContent).toContain('下带「大师方案档位」')
+    expect(document.querySelector('.mp-timeline__legend-note')?.textContent).toContain('与宏观攻守页的月度时间线是同一份数据')
     expect(screen.getByText('灰色阴影为美国官方认定的衰退期（NBER）')).toBeTruthy()
     expect(chart.querySelectorAll('.mp-timeline__recession').length).toBe(0)
   })

@@ -70,7 +70,7 @@ const RADAR_LABELS: Partial<TimelineLabels> = {
   bottom: '大师档位',
   tooltipTop: '雷达档位',
   tooltipBottom: '大师方案档位',
-  legendNote: '上带「雷达档位」是我的市场雷达按当时可得数据的月度定档；下带「大师方案档位」是宏观攻守的月度定档。两条带颜色相同的月份，两者结论一致',
+  legendNote: '上带「雷达档位」是我的市场雷达按当时可得数据的月度定档；下带「大师方案档位」与宏观攻守页的月度时间线是同一份数据。两条带颜色相同的月份，两者结论一致',
 }
 
 function RadarTimeline({ rows }: { rows: RadarFile['backtest']['timeline'] }): JSX.Element | null {
@@ -99,6 +99,9 @@ export default function BacktestPanel({ data }: { data: RadarFile }): JSX.Elemen
       <p className="mr-muted" data-testid="mr-backtest-range">
         {bt.start} 至 {bt.end}。训练期 {bt.trainRange} 定规则；验证期 {bt.testRange} 只原样报告，未参与挑选。
       </p>
+      {bt.verdict ? (
+        <p className="mr-verdict" data-testid="mr-backtest-verdict">{visibleText(bt.verdict)}</p>
+      ) : null}
 
       <TableWrap label="雷达回测对照" className="mr-bt__scroll mr-bt__scroll--sticky-test">
         <table className="mr-table mr-bt__table" data-testid="mr-backtest-table">

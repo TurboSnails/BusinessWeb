@@ -1,10 +1,14 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { alignRadar, blendEquity } from './lib/market-radar/backtest.mjs'
+import {
+  alignRadar, blendEquity, buildBacktestVerdict, DISCLOSURES,
+  resolveMastersTiers, STRATEGY_ROWS,
+} from './lib/market-radar/backtest.mjs'
 import { aggregateScores, buildIndicators, rankAt, scoreAt, scoreIndicator } from './lib/market-radar/indicators.mjs'
-import { buildRadarSeries, parseShillerEps } from './lib/market-radar/sources.mjs'
+import { buildRadarSeries, parseShillerEps, priceAdjustedPe } from './lib/market-radar/sources.mjs'
 import { marketSeries } from './lib/macro-posture-market/data.mjs'
 import { makePanel } from './lib/macro-posture/panel.mjs'
+import { tierEquity } from './lib/macro-posture-market/backtest.mjs'
 
 test('雷达计分阈值含边界，保留中间区间的零分', () => {
   const byValue = {
@@ -17,7 +21,9 @@ test('雷达计分阈值含边界，保留中间区间的零分', () => {
     for (const [value, expected] of cases) assert.equal(scoreIndicator(id, { value }, null), expected, id)
     assert.equal(scoreIndicator(id, null, null), null, id)
   }
-  for (const [id, lowScore] of [['erp', -1], ['pe', 1], ['cape', 1], ['equityShare', 1], ['cashShare', -1]]) {
+  // CAPE 按用户决定（2026-11-24）只展示，不计分
+  assert.equal(scoreIndicator('cape', { value: 25 }, 95), null)
+  for (const [id, lowScore] of [['erp', -1], ['pe', 1], ['equityShare', 1], ['cashShare', -1]]) {
     const point = { value: 25 }
     assert.equal(scoreIndicator(id, point, 20), lowScore, id)
     assert.equal(scoreIndicator(id, point, 20.01), 0, id)
@@ -50,7 +56,7 @@ test('扩张百分位按可得日截断并对并列取中位排名', () => {
   assert.deepEqual(currentPe.history.map(([d]) => d), pe.slice(0, 4).map(row => row.observedOn))
 })
 
-test('当前 PE 使用已发布读数，历史 PE、家庭配置和盈利遵守各自滞后', () => {
+test('当前 PE 使用已发布读数，历史 PE 按价格折算，家庭配置和盈利遵守各自滞后', () => {
   const shillerEps = parseShillerEps([
     'date,P,D,E,CPI,GS10', '1871-01,4.44,0.26,0.4,12.46,5.32', '1872-01,4.80,0.30,0.45,12.46,5.32',
     '2025-07,1,1,100,1,1', '2026-07,1,1,110,1,1', '2026-08,1,1,,1,1',
@@ -61,7 +67,10 @@ test('当前 PE 使用已发布读数，历史 PE、家庭配置和盈利遵守�
       ['2026-01-01', 100], ['2026-04-01', 100], ['2026-07-01', 100],
     ], vix: [], vix3m: [],
   }
-  const core = { GS10: [['2026-10-01', 4]], price: [] }
+  const core = {
+    GS10: [['2026-10-01', 4]],
+    price: [['2026-07-01', 100], ['2026-08-01', 105], ['2026-10-01', 110]],
+  }
   const { current, historical } = buildRadarSeries({
     local: { spxPe: { history: [['2026-07-01', 10], ['2026-08-01', 15], ['2026-10-01', 20], ['2026-11-20', 25]] } },
     macroUs: { equityShare: { long: cashRows } }, marketCache: { breadth: [], volume: [] }, fetched, shillerEps,
@@ -69,12 +78,84 @@ test('当前 PE 使用已发布读数，历史 PE、家庭配置和盈利遵守�
   })
   assert.equal(rankAt(current.pe, '2026-11-23').point.value, 25)
   assert.equal(rankAt(current.erp, '2026-11-23').point.value, 0)
-  assert.equal(rankAt(historical.pe, '2026-10-31').point.value, 10)
+  // 7 月市盈率 10 × P(10 月)/P(7 月) = 10 × 110/100 = 11，observedOn 落在 10 月
+  assert.equal(rankAt(historical.pe, '2026-10-31').point.value, 11)
+  assert.equal(rankAt(historical.pe, '2026-10-31').point.observedOn, '2026-10-01')
   assert.equal(rankAt(historical.cashShare, '2026-11-23').point.value, 27)
   assert.equal(rankAt(historical.cashShare, '2026-12-31').point.value, 30)
   assert.equal(rankAt(historical.equityShare, '2026-11-23').point.observedOn, '2026-06-30')
   assert.equal(rankAt(historical.epsYoy, '2026-10-30').point.observedOn, '1872-01-31')
   assert.equal(rankAt(historical.epsYoy, '2026-10-31').point.value, 10)
+})
+
+test('priceAdjustedPe：正常折算、缺价格跳过、availableOn 为 t 月末', () => {
+  const peRows = [['2020-01-01', 20], ['2020-02-01', 25], ['2020-03-01', 30]]
+  const price = makePanel({
+    price: [['2020-01-01', 100], ['2020-02-01', 100], ['2020-04-01', 110], ['2020-05-01', 120]],
+  }).price
+  const rows = priceAdjustedPe(peRows, price)
+  assert.equal(rows.length, 2)
+  assert.deepEqual(rows[0], {
+    value: 22, observedOn: '2020-04-01', availableOn: '2020-04-30', earningsOn: '2020-01-01',
+  })
+  assert.deepEqual(rows[1], {
+    value: 30, observedOn: '2020-05-01', availableOn: '2020-05-31', earningsOn: '2020-02-01',
+  })
+  // 3 月缺 P(m) 与 P(t=6 月) → 跳过
+  assert.equal(rows.some(row => row.earningsOn === '2020-03-01'), false)
+  assert.deepEqual(priceAdjustedPe(peRows, []), [])
+})
+
+test('buildBacktestVerdict：高于 / 接近 / 低于，雷达优于大师时无末句', () => {
+  const metrics = (sharpe, maxDd = -0.2) => ({
+    cagr: 0.1, vol: 0.15, maxDd, sharpe, avgEquity: 0.7, switchesPerYear: 1,
+  })
+  const rowsOf = (radar, static70, trend, masters) => [
+    { id: 'radar', full: metrics(radar, -0.312) },
+    { id: 'static70', full: metrics(static70) },
+    { id: 'trend', full: metrics(trend) },
+    { id: 'masters', full: metrics(masters, -0.2) },
+  ]
+  const higher = buildBacktestVerdict(rowsOf(0.59, 0.55, 0.64, 0.7))
+  assert.match(higher, /高于恒定七成股票的 0\.55/)
+  assert.match(higher, /低于十个月均线的 0\.64 和大师方案的 0\.70/)
+  assert.match(higher, /最大回撤 −31\.2%，大师方案为 −20\.0%。/)
+  assert.match(higher, /仓位仍以宏观攻守为准。$/)
+
+  const near = buildBacktestVerdict(rowsOf(0.56, 0.55, 0.555, 0.57))
+  assert.match(near, /接近恒定七成股票的 0\.55、十个月均线的 0\.56 和大师方案的 0\.57/)
+  assert.match(near, /仓位仍以宏观攻守为准。$/)
+
+  const lower = buildBacktestVerdict(rowsOf(0.4, 0.55, 0.64, 0.7))
+  assert.match(lower, /低于恒定七成股票的 0\.55、十个月均线的 0\.64 和大师方案的 0\.70/)
+  assert.match(lower, /仓位仍以宏观攻守为准。$/)
+
+  const beatsMasters = buildBacktestVerdict(rowsOf(0.8, 0.55, 0.64, 0.7))
+  assert.match(beatsMasters, /高于恒定七成股票的 0\.55、十个月均线的 0\.64 和大师方案的 0\.70/)
+  assert.equal(beatsMasters.includes('仓位仍以宏观攻守为准'), false)
+})
+
+test('mastersTimeline 有月采用、缺月回退；策略顺序含 mastersRealtime；blend 用同口径 masters', () => {
+  const map = new Map([['2020-01', 'defense']])
+  assert.deepEqual(resolveMastersTiers('2020-01', map, 'offense', 'lean-defense'), {
+    masters: 'defense', mastersRealtime: 'lean-defense',
+  })
+  assert.deepEqual(resolveMastersTiers('2020-02', map, 'offense', 'lean-offense'), {
+    masters: 'offense', mastersRealtime: 'lean-offense',
+  })
+  assert.deepEqual(STRATEGY_ROWS.map(row => row.id), [
+    'radar', 'masters', 'mastersRealtime', 'blend', 'trend', 'buyhold', 'static70',
+  ])
+  assert.match(STRATEGY_ROWS[1].label, /与宏观攻守页同口径/)
+  assert.match(STRATEGY_ROWS[2].label, /当时版本数据/)
+  // blend 用 masters（同口径），不用 mastersRealtime
+  const signal = { radar: 'offense', masters: 'defense', mastersRealtime: 'lean-offense' }
+  assert.equal(blendEquity(signal.radar, signal.masters), (tierEquity('offense') + tierEquity('defense')) / 2)
+  assert.notEqual(blendEquity(signal.radar, signal.masters), blendEquity(signal.radar, signal.mastersRealtime))
+  assert.match(DISCLOSURES[4], /当月标普月均价/)
+  assert.match(DISCLOSURES[5], /折算后的市盈率/)
+  assert.match(DISCLOSURES[8], /两条大师方案/)
+  assert.match(DISCLOSURES.at(-1), /2026 年 11 月 24 日修正/)
 })
 
 test('先算维度均值，再等权合成；零分计入、空维度略过', () => {

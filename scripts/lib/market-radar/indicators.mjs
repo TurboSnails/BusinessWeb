@@ -76,8 +76,7 @@ const DEFINITIONS = {
   cape: {
     dimension: 'valuation', label: '周期调整市盈率（CAPE）', frequency: 'monthly',
     display: p => `按长期实际盈利平滑后，标普 500 市盈率为 ${times(p.value)}。`,
-    rule: highExpensive,
-    score: (_, rank) => scoreMarket('cape', 'b', { cape: { value: rank } }),
+    rule: '按用户决定（2026-11-24）不纳入雷达打分与回测，只展示。CAPE 用 10 年平均实际盈利，盈利结构变化大时会长期偏高；估值维度由过去 12 个月市盈率与股债利差计分。',
   },
   forwardPe: {
     dimension: 'valuation', label: '前瞻市盈率',
@@ -337,7 +336,7 @@ export function scoreAt(series, date) {
   const indicators = Object.entries(DEFINITIONS).flatMap(([id, def]) => {
     if (!def.score) return []
     const rows = series[id] ?? []
-    const reading = ['erp', 'pe', 'cape', 'equityShare', 'cashShare'].includes(id) ? rankAt(rows, date) : null
+    const reading = ['erp', 'pe', 'equityShare', 'cashShare'].includes(id) ? rankAt(rows, date) : null
     const point = reading?.point ?? valueAt(rows, date)
     return [{ dimension: def.dimension, inScore: true, score: scoreIndicator(id, point, reading?.percentile ?? null) }]
   })

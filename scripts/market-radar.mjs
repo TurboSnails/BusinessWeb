@@ -63,7 +63,10 @@ export async function runRadar({ now = new Date(), fetcher = fetch, warn = conso
   const radar = buildCurrent(indicators)
   const file = {
     generatedAt, ruleVersion: 'radar-v1', current: radar, indicators,
-    backtest: buildRadarBacktest({ historical, panel, vintages, dailyRows, today }),
+    backtest: buildRadarBacktest({
+      historical, panel, vintages, dailyRows, today,
+      mastersTimeline: masters.backtest?.timeline ?? [],
+    }),
     comparison: compare(radar.tier, masters.current.final.tier),
   }
   writeJsonIfChanged(OUTPUT, file)
