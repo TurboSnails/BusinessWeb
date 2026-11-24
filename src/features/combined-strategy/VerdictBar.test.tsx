@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { STAGES } from '../macro/stages'
 import { combinedStrategyFixture } from './fixture'
 import { resetCombinedStrategyCache } from './load'
+import { beijingToday, officialFreshness } from './freshness'
 import VerdictBar from './VerdictBar'
 
 afterEach(() => {
@@ -21,7 +22,36 @@ function okFetcher(data = combinedStrategyFixture()) {
   return vi.fn(async () => new Response(JSON.stringify(data), { status: 200 })) as unknown as typeof fetch
 }
 
+describe('officialFreshness', () => {
+  it('本月 3 日起，正式定档还停在更早月份才算过期；1、2 日不算', () => {
+    expect(officialFreshness('2026-10', '2026-11-25')).toEqual({ stale: false, expected: '2026-10' })
+    expect(officialFreshness('2026-10', '2026-12-02')).toEqual({ stale: false, expected: '2026-11' })
+    expect(officialFreshness('2026-10', '2026-12-03')).toEqual({ stale: true, expected: '2026-11' })
+    expect(officialFreshness('2026-12', '2027-01-05')).toEqual({ stale: false, expected: '2026-12' })
+    expect(officialFreshness('2026-11', '2027-01-05').stale).toBe(true)
+    expect(officialFreshness(null, '2026-11-25').stale).toBe(true)
+  })
+
+  it('beijingToday 按东八区换日', () => {
+    expect(beijingToday(new Date('2026-11-30T16:30:00Z'))).toBe('2026-12-01')
+    expect(beijingToday(new Date('2026-11-30T15:30:00Z'))).toBe('2026-11-30')
+  })
+})
+
 describe('VerdictBar', () => {
+  it('定档过期时在结论下方提示，不按它调仓', async () => {
+    wrap(<VerdictBar fetcher={okFetcher()} today="2026-12-05" />)
+    const stale = await screen.findByTestId('verdict-bar-stale')
+    expect(stale.textContent).toContain('还停在2026 年 10 月底')
+    expect(stale.textContent).toContain('2026 年 11 月底的定档还没生成')
+  })
+
+  it('定档及时时不提示', async () => {
+    wrap(<VerdictBar fetcher={okFetcher()} today="2026-11-25" />)
+    await screen.findByTestId('verdict-bar-equity')
+    expect(screen.queryByTestId('verdict-bar-stale')).toBeNull()
+  })
+
   it('加载中显示占位', () => {
     const fetcher = vi.fn(() => new Promise<Response>(() => {})) as unknown as typeof fetch
     wrap(<VerdictBar fetcher={fetcher} />)

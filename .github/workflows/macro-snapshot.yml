@@ -55,3 +55,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh workflow run pages.yml --ref main
+      # 月初检查上月底定档是否生成；上面各脚本失败只打警告，这一步失败会让任务标红并发通知
+      - name: Check month-end tier freshness
+        run: node scripts/check-strategy-freshness.mjs

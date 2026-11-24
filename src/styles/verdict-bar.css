@@ -104,3 +104,13 @@
     min-height: 44px;
   }
 }
+
+.verdict-bar__stale {
+  margin: 6px 0 0;
+  padding: 6px 10px;
+  border-left: 3px solid var(--accent-warm, #b45309);
+  background: var(--accent-warm-soft, rgba(180, 83, 9, 0.08));
+  color: var(--warm-ink, #b45309);
+  font-size: 0.86rem;
+  line-height: 1.55;
+}

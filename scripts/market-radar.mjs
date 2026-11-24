@@ -17,11 +17,33 @@ const CACHE = resolve(ROOT, 'data-raw/market-radar')
 const MARKET_CACHE = resolve(ROOT, 'data-raw/macro-posture-market')
 const VINTAGE_CACHE = resolve(ROOT, 'data-raw/macro-posture-vintages')
 const OUTPUT = resolve(DATA, 'market-radar.json')
+const LIVE_LOG = resolve(CACHE, 'live-log.json')
 const COMBINED_OUTPUT = resolve(DATA, 'combined-strategy.json')
 
 const REVISION_A2 = '2026 年 11 月 24 日，看过原结果后的数据修正：美元净流动性在 2013-09-23 隔夜逆回购工具启用前缺读数按 0 计，历史真实回到 2003 年。'
 const REVISION_B5 = '2026 年 11 月 24 日，看过原结果后的数据修正：日频与周频序列的百分位改为先按周取每周最后一个观测再算，避免早年日频与中段周频样本疏密不均。'
 const REVISION_NEW18 = '2026 年 11 月 24 日新增 18 项只展示指标（金融条件、实际利率、美元、趋势与波动等），一律不计分。'
+
+/**
+ * 逐月样本外记录：每个月末信号只记一次，之后不改写（回测会随数据修订重算，这里保留当时读到的值）。
+ * 从 2026-10（开始记录时最近一个完整月）起记；recordedAt 是写入时间。
+ */
+export const LIVE_LOG_START = '2026-10'
+
+export function appendLiveLog(log, timeline, recordedAt) {
+  const last = timeline.at(-1)
+  if (!last || last.d < LIVE_LOG_START) return log
+  if (log.some(row => row.d === last.d)) return log
+  return [...log, {
+    d: last.d,
+    recordedAt,
+    heatScore: last.heatScore ?? null,
+    score: last.score ?? null,
+    tier: last.radar ?? null,
+    dims: last.dims ?? [],
+    spx: last.spx ?? null,
+  }]
+}
 
 function summarize(file) {
   const { indicators, current, backtest } = file
@@ -88,6 +110,9 @@ export async function runRadar({
   }
   if (write) {
     writeJsonIfChanged(OUTPUT, file)
+    const log = readJson(LIVE_LOG, [])
+    const nextLog = appendLiveLog(log, backtest.timeline, generatedAt)
+    if (nextLog !== log) writeJsonIfChanged(LIVE_LOG, nextLog)
     try {
       const buyholdFull = backtest.rows.find(row => row.id === 'buyhold')?.full
       const combined = buildCombinedStrategy({

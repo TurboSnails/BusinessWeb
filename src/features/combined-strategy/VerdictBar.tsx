@@ -2,6 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import type { Stage } from '../macro/stages'
 import { visibleText } from './labels'
+import { beijingToday, monthText, officialFreshness } from './freshness'
 import { useCombinedStrategy } from './load'
 import '../../styles/verdict-bar.css'
 
@@ -12,9 +13,11 @@ export interface VerdictBarProps {
   hideStage?: boolean
   /** 测试注入 */
   fetcher?: typeof fetch
+  /** 测试注入：北京时间的今天 YYYY-MM-DD */
+  today?: string
 }
 
-export default function VerdictBar({ stage, hideStage = false, fetcher }: VerdictBarProps): JSX.Element {
+export default function VerdictBar({ stage, hideStage = false, fetcher, today }: VerdictBarProps): JSX.Element {
   const state = useCombinedStrategy(fetcher)
 
   if (state.status === 'loading') {
@@ -38,6 +41,8 @@ export default function VerdictBar({ stage, hideStage = false, fetcher }: Verdic
   }
 
   const instruction = visibleText(state.data.current.instruction)
+  const officialMonth = state.data.current.official?.month ?? null
+  const freshness = officialFreshness(officialMonth, today ?? beijingToday())
   const stageLine = stage
     ? `风险预算阶段：${stage.name}。${stage.does[0]}`
     : '按风险预算阶段执行，不随仓位档位变。'
@@ -49,6 +54,12 @@ export default function VerdictBar({ stage, hideStage = false, fetcher }: Verdic
         <p className="verdict-bar__body" data-testid="verdict-bar-equity">{instruction}</p>
         <Link className="verdict-bar__link" to="/invest/strategy">综合策略</Link>
       </div>
+      {freshness.stale ? (
+        <p className="verdict-bar__stale" role="status" data-testid="verdict-bar-stale">
+          定档未更新：上面的结论还停在{officialMonth ? `${monthText(officialMonth)}底` : '更早'}，
+          {monthText(freshness.expected)}底的定档还没生成（自动任务可能没跑成功），先别按它调仓。
+        </p>
+      ) : null}
       {!hideStage ? (
         <div className="verdict-bar__row">
           <span className="verdict-bar__label">主动额度与备用金</span>
