@@ -137,11 +137,34 @@ describe('叠加序列（金银比上的金、银价格）', () => {
     mockSvgGeometry(svg, { left: 0, top: 0, width: 720, height: 320 }, { width: 720, height: 320 })
     expect(screen.getByTestId('mr-zoom-overlay-gold').getAttribute('d')).toMatch(/^M/)
     expect(screen.getByTestId('mr-zoom-overlay-silver').getAttribute('d')).toMatch(/^M/)
+    // 默认各自缩放：每条线在可见区间内撑满绘图区高度（顶 14、底 290，留约 6% 边距），没有共用刻度，右端标注最新值
+    const yRange = (id: string) => {
+      const ys = [...(screen.getByTestId(`mr-zoom-overlay-${id}`).getAttribute('d') ?? '').matchAll(/[ML][\d.]+,([\d.]+)/g)].map(m => Number(m[1]))
+      return [Math.min(...ys), Math.max(...ys)]
+    }
+    for (const id of ['gold', 'silver']) {
+      const [top, bottom] = yRange(id)
+      expect(top).toBeLessThan(40)
+      expect(bottom).toBeGreaterThan(264)
+    }
+    expect(svg.querySelectorAll('.mr-zoom__rtick')).toHaveLength(0)
+    expect(screen.getByTestId('mr-zoom-end-gold').textContent).toBe('3,300')
+    expect(screen.getByTestId('mr-zoom-end-silver').textContent).toBe('45.0')
+    expect(screen.getByTestId('mr-zoom-legend').textContent).toContain('各自缩放（对数）')
+    // 放大到后半段仍撑满高度，不会被压平
+    fireEvent.click(screen.getByRole('button', { name: '放大' }))
+    fireEvent.click(screen.getByRole('button', { name: '放大' }))
+    const [zoomTop, zoomBottom] = yRange('gold')
+    expect(zoomBottom - zoomTop).toBeGreaterThan(220)
+    fireEvent.click(screen.getByRole('button', { name: '全部' }))
+    // 切换到同一对数轴：出现右轴刻度，刻度为整齐的 1、2、5 × 10^n，不带多余小数；右端标签收起
+    fireEvent.click(screen.getByRole('button', { name: '各自缩放' }))
+    expect(screen.getByRole('button', { name: '同一对数轴' }).getAttribute('aria-pressed')).toBe('true')
     expect(screen.getByTestId('mr-zoom-legend').textContent).toContain('右轴：美元/盎司，对数')
-    // 右轴刻度为整齐的 1、2、5 × 10^n，不带多余小数
     const rightTicks = [...svg.querySelectorAll('.mr-zoom__rtick text')].map(t => t.textContent)
     expect(rightTicks.length).toBeGreaterThan(1)
     expect(rightTicks.every(t => /^[\d,]+$/.test(t ?? ''))).toBe(true)
+    expect(screen.queryByTestId('mr-zoom-end-gold')).toBeNull()
     // 有右轴时绘图区宽 720 − 56 − 56 = 608；下标 50 位于 56 + 304 = 360
     fireEvent.pointerMove(svg, { clientX: 360, pointerType: 'mouse' })
     const pointer = screen.getByTestId('mr-zoom-pointer')

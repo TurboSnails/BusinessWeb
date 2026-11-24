@@ -123,6 +123,8 @@ export default function ZoomChartDialog({
   const right = overlays.length ? RIGHT_AXIS : RIGHT_PLAIN
   const plotW = W - LEFT - right
   const [hidden, setHidden] = useState<Set<string>>(() => new Set())
+  // 默认每条叠加线按自己的可见区间缩放（对数），避免价位悬殊时高价序列被压平；可切回同一对数轴
+  const [sharedAxis, setSharedAxis] = useState(false)
   const overlayValues = useMemo(() => overlays.map(overlay => {
     const byDate = new Map(overlay.history)
     return history.map(([date]) => byDate.get(date) ?? null)
@@ -174,22 +176,39 @@ export default function ZoomChartDialog({
   const shown = shownIndex === null ? null : history[shownIndex]
   const isFull = range.start === full.start && range.end === full.end
 
-  // 右侧对数坐标：所有显示中的叠加序列在可见区间内共用一个范围
-  const shownOverlays = overlays.map((overlay, index) => ({ overlay, index, values: overlayValues[index] }))
-    .filter(({ overlay }) => !hidden.has(overlay.id))
-  const overlayVisible = shownOverlays.flatMap(({ values }) => values.slice(range.start, range.end + 1))
+  // 叠加序列的纵向位置：各自缩放时每条线用自己在可见区间内的对数范围；同一对数轴时共用一个范围
+  const visibleOf = (values: (number | null)[]) => values.slice(range.start, range.end + 1)
     .filter((v): v is number => v != null && v > 0)
-  const logLo = overlayVisible.length ? Math.min(...overlayVisible) / 1.08 : 1
-  const logHi = overlayVisible.length ? Math.max(...overlayVisible) * 1.08 : 10
-  const ly = (v: number) => TOP + (1 - (Math.log(v) - Math.log(logLo)) / (Math.log(logHi) - Math.log(logLo) || 1)) * PLOT_H
-  const rightTicks = overlayVisible.length ? logTicks(logLo, logHi) : []
-  const overlayPath = (values: (number | null)[]) => {
+  const logScale = (visible: number[]) => {
+    const lo = visible.length ? Math.min(...visible) / 1.06 : 1
+    const hi = visible.length ? Math.max(...visible) * 1.06 : 10
+    return { lo, hi, at: (v: number) => TOP + (1 - (Math.log(v) - Math.log(lo)) / (Math.log(hi) - Math.log(lo) || 1)) * PLOT_H }
+  }
+  const visibleOverlays = overlays.map((overlay, index) => ({ overlay, index, values: overlayValues[index] }))
+    .filter(({ overlay }) => !hidden.has(overlay.id))
+  const shared = logScale(visibleOverlays.flatMap(({ values }) => visibleOf(values)))
+  const shownOverlays = visibleOverlays.map(item => ({ ...item, ly: sharedAxis ? shared.at : logScale(visibleOf(item.values)).at }))
+  const rightTicks = sharedAxis && visibleOverlays.length ? logTicks(shared.lo, shared.hi) : []
+  const ly = shared.at
+  // 各自缩放时右侧标注每条线在可见区间最后一个点的数值，按纵向位置错开，至少相隔 13 个单位
+  const endLabels = sharedAxis ? [] : shownOverlays.flatMap(({ overlay, index, values, ly: at }) => {
+    for (let i = range.end; i >= range.start; i--) {
+      const v = values[i]
+      if (v != null && v > 0) return [{ id: overlay.id, cls: overlayClass(overlay.id, index), text: formatPrice(v), y: at(v) }]
+    }
+    return []
+  }).sort((a, b) => a.y - b.y).reduce<{ id: string; cls: string; text: string; y: number }[]>((placed, label) => {
+    const prev = placed.at(-1)
+    placed.push(prev && label.y - prev.y < 13 ? { ...label, y: prev.y + 13 } : label)
+    return placed
+  }, [])
+  const overlayPath = (values: (number | null)[], at: (v: number) => number) => {
     let path = ''
     let pen = false
     for (let i = range.start; i <= range.end; i++) {
       const v = values[i]
       if (v == null || !(v > 0)) { pen = false; continue }
-      path += `${pen ? 'L' : 'M'}${x(i).toFixed(1)},${ly(v).toFixed(1)}`
+      path += `${pen ? 'L' : 'M'}${x(i).toFixed(1)},${at(v).toFixed(1)}`
       pen = true
     }
     return path
@@ -287,7 +306,18 @@ export default function ZoomChartDialog({
                 <i aria-hidden="true" />{overlay.label}
               </button>
             ))}
-            <span className="mr-zoom__unit">{rightAxisNote(overlays)}</span>
+            <button
+              type="button"
+              className="mr-zoom__btn mr-zoom__btn--text mr-zoom__scale"
+              aria-pressed={sharedAxis}
+              onClick={() => setSharedAxis(value => !value)}
+              title="切换叠加线的纵轴：各自缩放或同一对数轴"
+            >
+              {sharedAxis ? '同一对数轴' : '各自缩放'}
+            </button>
+            <span className="mr-zoom__unit">
+              {sharedAxis ? rightAxisNote(overlays) : '右侧各线按可见区间各自缩放（对数），右端标注最新值'}
+            </span>
           </span>
         )}
         <span className="mr-zoom__span" data-testid="mr-zoom-span">
@@ -333,18 +363,23 @@ export default function ZoomChartDialog({
           </g>
         ))}
         <line className="mr-zoom__axis" x1={LEFT} x2={LEFT + plotW} y1={TOP + PLOT_H} y2={TOP + PLOT_H} />
-        {shownOverlays.map(({ overlay, index, values }) => (
-          <path key={overlay.id} className={`mr-zoom__ovline ${overlayClass(overlay.id, index)}`} d={overlayPath(values)} clipPath="url(#mr-zoom-clip)" data-testid={`mr-zoom-overlay-${overlay.id}`} />
+        {shownOverlays.map(({ overlay, index, values, ly: at }) => (
+          <path key={overlay.id} className={`mr-zoom__ovline ${overlayClass(overlay.id, index)}`} d={overlayPath(values, at)} clipPath="url(#mr-zoom-clip)" data-testid={`mr-zoom-overlay-${overlay.id}`} />
+        ))}
+        {endLabels.map(label => (
+          <text key={label.id} className={`mr-zoom__endlabel ${label.cls}`} x={LEFT + plotW + 5} y={label.y} dy="0.32em" data-testid={`mr-zoom-end-${label.id}`}>
+            {label.text}
+          </text>
         ))}
         <path className="mr-zoom__line" d={d} clipPath="url(#mr-zoom-clip)" />
         {shown && shownIndex !== null && (
           <g className="mr-zoom__pointer" data-testid="mr-zoom-pointer">
             <line x1={tipX} x2={tipX} y1={TOP} y2={TOP + PLOT_H} />
             <line x1={LEFT} x2={LEFT + plotW} y1={y(shown[1])} y2={y(shown[1])} />
-            {shownOverlays.map(({ overlay, index, values }) => {
+            {shownOverlays.map(({ overlay, index, values, ly: at }) => {
               const v = shownIndex === null ? null : values[shownIndex]
               return v != null && v > 0
-                ? <circle key={overlay.id} className={`mr-zoom__ovdot ${overlayClass(overlay.id, index)}`} cx={tipX} cy={ly(v)} r={3} />
+                ? <circle key={overlay.id} className={`mr-zoom__ovdot ${overlayClass(overlay.id, index)}`} cx={tipX} cy={at(v)} r={3} />
                 : null
             })}
             <circle cx={tipX} cy={y(shown[1])} r={4} />
