@@ -309,17 +309,10 @@ export function radarFixture(overrides: Partial<RadarFile> = {}): RadarFile {
         },
         {
           id: 'masters',
-          label: '大师方案 v2.2（与宏观攻守页同口径）',
+          label: '大师方案 v2.2（宏观攻守页）',
           train: metrics({ cagr: 0.11, maxDd: -0.22, sharpe: 0.68 }),
           test: metrics({ cagr: 0.082, maxDd: -0.27, sharpe: 0.52 }),
           full: metrics({ cagr: 0.096, maxDd: -0.27, sharpe: 0.6 }),
-        },
-        {
-          id: 'mastersRealtime',
-          label: '大师方案 v2.2（当时版本数据）',
-          train: metrics({ cagr: 0.111, maxDd: -0.22, sharpe: 0.69 }),
-          test: metrics({ cagr: 0.083, maxDd: -0.26, sharpe: 0.53 }),
-          full: metrics({ cagr: 0.097, maxDd: -0.26, sharpe: 0.61 }),
         },
         {
           id: 'blend',

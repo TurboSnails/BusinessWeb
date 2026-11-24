@@ -14,8 +14,7 @@ const month = date => date.slice(0, 7)
 const equity = tier => TIERS.find(t => t.id === tier)?.equityShare ?? null
 const keyAfter = (date, offset) => month(monthEnd(date, offset))
 const portfolioReturn = ({ spx, cash }, weight) => spx * weight + cash * (1 - weight)
-const VARIANTS = [
-  ['full', '完整模型', row => equity(row.final)],
+const BASE_VARIANTS = [
   ['v21', 'v2.1（无制造业周工时）', row => equity(row.v21Final)],
   ['v20', 'v2.0（无修复确认）', row => equity(applyTactical(row.v21Regime, row.below))],
   ['macro', '仅宏观与熔断', row => equity(row.regime)],
@@ -23,12 +22,17 @@ const VARIANTS = [
   ['static70', '恒定七成股票', () => 0.7],
   ['buyhold', '全程持有标普', () => 1],
 ]
-const VINTAGE_VARIANTS = [
-  ['realtime', `${RULE_VERSION} · 实时数据`, row => equity(row.realtime)],
-  ['noNfci', `${RULE_VERSION} · 实时数据且去掉金融条件指数`, row => equity(row.noNfci)],
+const REVISED_VARIANTS = [
+  ['full', '完整模型', row => equity(row.final)],
+  ...BASE_VARIANTS,
 ]
-const REALTIME_VARIANTS = [VARIANTS[0], ...VINTAGE_VARIANTS, ...VARIANTS.slice(1)]
-export const BASE_VARIANT_IDS = VARIANTS.map(([id]) => id)
+const REALTIME_VARIANTS = [
+  ['full', '完整模型（实时数据）', row => equity(row.final)],
+  ['revised', `${RULE_VERSION} · 修订后数据`, row => equity(row.revised)],
+  ['noNfci', `${RULE_VERSION} · 实时数据且去掉金融条件指数`, row => equity(row.noNfci)],
+  ...BASE_VARIANTS,
+]
+export const BASE_VARIANT_IDS = REVISED_VARIANTS.map(([id]) => id)
 export const VARIANT_IDS = REALTIME_VARIANTS.map(([id]) => id)
 export const VINTAGE_SOURCE = '历史版本数据'
 
@@ -91,7 +95,7 @@ export function monthlyReturns(panel, lastComplete) {
 }
 
 export function alignVariants(timeline, returns) {
-  return alignStrategies(timeline, returns, VARIANTS)
+  return alignStrategies(timeline, returns, REVISED_VARIANTS)
 }
 
 function alignStrategies(timeline, returns, variants) {
@@ -237,7 +241,7 @@ export const DISCLOSURES = [
   '以下回测用这段历史检验固定的分档和仓位规则，结果属于样本内表现。',
   '修复确认规则是看到 v2.0 回测后加入的，只比较了三种写法，取改动最小者。两段子样本（1973–1999、2000–2026）都改善，仍属样本内。',
   `v2.2 在 2026 年 11 月 23 日按预注册检验加入制造业周工时；它在后段样本的夏普改善约 ${HOURS_LATE_SHARPE_IMPROVEMENT}，属于小幅改善。`,
-  '完整模型及基于它的分档、单项与衰退统计按固定发布滞后取数。萨姆规则沿用实时序列，其余宏观序列使用当前可得历史值，其中部分数值经过修订。',
+  '完整模型及基于它的分档、单项、衰退与误报统计用实时数据口径——非农就业、工业生产、核心个人消费支出价格、初请失业救济和制造业周工时取每个月末已发布的最新版本，其余序列不修订或沿用当前可得值；萨姆规则本身是实时序列。',
   '股票月回报用标普月均价涨跌加股息率除以十二近似，现金用三个月国债利率除以十二。主回测未计税费和交易成本。',
   '月末档位用于隔一个月后的月收益。分档、单项和误报的远期收益也从该月开始计算，历史不足的区间不计入收益统计。',
   '分档月数按信号月份统计。策略对比使用所有策略都能计算的收益月份。误报需整段结束后至少再观察十二个月，并排除与衰退重叠的段落。',
@@ -245,26 +249,22 @@ export const DISCLOSURES = [
   '波动率采用月收益的样本标准差年化。夏普比率用每月超出现金收益的均值和波动率年化。卡玛比率用年化收益除以最大回撤的绝对值。',
 ]
 export const MISSING_RECESSION_MARKS = '美国衰退标记暂缺，暂不统计衰退捕捉及误报。'
+export const MISSING_VINTAGES_DISCLOSURE = '历史版本数据暂缺，本次时间线与统计按修订后数据计算。'
+export const REALTIME_SINCE_DISCLOSURE = '2026 年 11 月 24 日起，时间线与各项统计由修订后数据改为实时数据口径，规则未变；修订后数据的结果保留在对照表里。'
 const REALTIME_DISCLOSURES = [
-  '实时数据对照使用圣路易斯联储历史档案，按每个月末已发布的最新版本计算非农就业、工业生产、核心个人消费支出价格、初请失业救济和制造业周工时。制造业周工时仍按观测月的次月月末取数。核心个人消费支出价格在 2000 年 8 月前、初请失业救济在 2009 年 5 月前没有当时版本，沿用修订值并按固定发布滞后取数。制造业周工时如遇无当时版本的月份，也按同样方式处理。其余数据沿用完整模型口径。',
-  '实时数据对照沿用当前可得的芝加哥联储金融条件指数与信用分项。两项在 2011 年 5 月首次发布前的数值来自事后回推。去掉两项指数的对照也移除了修复确认对信用分项的要求。',
+  '完整模型使用圣路易斯联储历史档案，按每个月末已发布的最新版本计算非农就业、工业生产、核心个人消费支出价格、初请失业救济和制造业周工时。制造业周工时仍按观测月的次月月末取数。核心个人消费支出价格在 2000 年 8 月前、初请失业救济在 2009 年 5 月前没有当时版本，沿用修订值并按固定发布滞后取数。制造业周工时如遇无当时版本的月份，也按同样方式处理。',
+  '完整模型沿用当前可得的芝加哥联储金融条件指数与信用分项。两项在 2011 年 5 月首次发布前的数值来自事后回推。去掉两项指数的对照也移除了修复确认对信用分项的要求。',
 ]
 
 const percent = ratio => formatReading(ratio * 100, '%', 2)
-const REALTIME_COMPARISON_PREFIX = '实时数据口径与修订值口径的最大回撤分别为'
 
-export function retainVintageResults(backtest, previous) {
-  const previousVariants = Array.isArray(previous?.variants) ? previous.variants : []
-  const saved = VINTAGE_VARIANTS.map(([id, label]) => previousVariants.find(variant => variant?.id === id && variant.label === label))
-  if (saved.some(row => !row)) {
-    backtest.disclosures.push('历史版本数据暂缺，实时数据对照暂不展示。')
-    return
-  }
-  const previousDisclosures = Array.isArray(previous.disclosures) ? previous.disclosures : []
-  const disclosures = previousDisclosures.filter(line => typeof line === 'string' &&
-    (line.startsWith('实时数据对照') || line.startsWith(REALTIME_COMPARISON_PREFIX)))
-  backtest.variants.splice(1, 0, ...saved)
-  backtest.disclosures.push('历史版本数据暂未更新，两个实时数据对照沿用上次成功计算的结果与口径说明。', ...disclosures)
+/** 把未完整抓取的月末写成披露句；月份多于 3 个时列前 3 个加「等」。 */
+export function incompleteVintagesDisclosure(incomplete) {
+  const days = [...new Set((incomplete ?? []).flatMap(entry => entry.days ?? []))].sort()
+  if (!days.length) return null
+  const labels = days.slice(0, 3).map(day => `${day.slice(0, 4)} 年 ${Number(day.slice(5, 7))} 月`)
+  const listed = labels.join('、') + (days.length > 3 ? '等' : '')
+  return `历史版本数据本次未能更新，${listed}共 ${days.length} 个月末沿用修订值。`
 }
 
 function explainCosts({ turnoverPerYear, rows }) {
@@ -299,32 +299,40 @@ function buildStrategies(panel, asOf, previousRecessionMarks, vintages) {
   const lastComplete = monthEnd(asOf, -1)
   const returns = monthlyReturns(panel, lastComplete)
   const rows = []
-  const realtimeRows = []
-  const variantsToAlign = vintages ? REALTIME_VARIANTS : VARIANTS
+  const variantsToAlign = vintages ? REALTIME_VARIANTS : REVISED_VARIANTS
   for (const date of backtestMonthEnds(asOf)) {
     const d = month(date)
-    const frame = panelAt(panel, date, null)
-    const result = evaluate(frame)
-    if (!rows.length && Object.values(result.pillars).some(score => score == null)) continue
-    if (frame.tactical.price == null || month(valueAt(panel.price, date)?.observedOn ?? '') !== d) {
+    const revisedFrame = panelAt(panel, date, null)
+    const revisedResult = evaluate(revisedFrame)
+    // 起点仍按修订值帧判定，避免换实时帧后改变回测区间。
+    if (!rows.length && Object.values(revisedResult.pillars).some(score => score == null)) continue
+    if (revisedFrame.tactical.price == null || month(valueAt(panel.price, date)?.observedOn ?? '') !== d) {
       if (rows.length) throw new Error(`标普月均价历史缺少 ${d}`)
       continue
     }
     const rec = valueAt(panel.USREC, date)
-    const v21 = evaluateV21(frame)
-    const row = {
-      d, regime: result.regime.tier, final: result.final.tier, spx: frame.tactical.price,
-      v21Regime: v21.regime.tier, v21Final: v21.final.tier,
-      rec: panel.USREC?.length ? Number(month(rec?.observedOn ?? '') === d && rec.value === 1)
-        : previousRecessionMarks.get(d) ?? 0,
-      below: frame.tactical.below, scores: result.scores, pillars: result.pillars, components: frame.components,
-    }
+    const recession = panel.USREC?.length ? Number(month(rec?.observedOn ?? '') === d && rec.value === 1)
+      : previousRecessionMarks.get(d) ?? 0
+    let row
     if (vintages) {
       const realtimeFrame = panelAt(panelWithVintages(panel, vintages, date), date, null)
-      const realtime = evaluate(realtimeFrame)
-      row.realtime = realtime.final.tier
-      row.noNfci = evaluateWithoutNfci(realtimeFrame).final.tier
-      realtimeRows.push({ d, rec: row.rec, final: realtime.final.tier })
+      const result = evaluate(realtimeFrame)
+      const v21 = evaluateV21(realtimeFrame)
+      row = {
+        d, regime: result.regime.tier, final: result.final.tier, spx: realtimeFrame.tactical.price,
+        v21Regime: v21.regime.tier, v21Final: v21.final.tier, revised: revisedResult.final.tier,
+        noNfci: evaluateWithoutNfci(realtimeFrame).final.tier, rec: recession,
+        below: realtimeFrame.tactical.below, scores: result.scores, pillars: result.pillars,
+        components: realtimeFrame.components,
+      }
+    } else {
+      const v21 = evaluateV21(revisedFrame)
+      row = {
+        d, regime: revisedResult.regime.tier, final: revisedResult.final.tier, spx: revisedFrame.tactical.price,
+        v21Regime: v21.regime.tier, v21Final: v21.final.tier, rec: recession,
+        below: revisedFrame.tactical.below, scores: revisedResult.scores, pillars: revisedResult.pillars,
+        components: revisedFrame.components,
+      }
     }
     rows.push(row)
   }
@@ -340,10 +348,15 @@ function buildStrategies(panel, asOf, previousRecessionMarks, vintages) {
   const variants = variantsToAlign.map(([id, label], i) => ({
     id, label, ...performance(i === 0 ? full : portfolio(i)),
   }))
-  const realtimeDisclosures = vintages ? [
+  const vintageDisclosures = vintages ? [
     ...REALTIME_DISCLOSURES,
-    `${REALTIME_COMPARISON_PREFIX} ${percent(variants[1].maxDd)} 和 ${percent(variants[0].maxDd)}。去掉金融条件指数及信用分项后的最大回撤为 ${percent(variants[2].maxDd)}。`,
-  ] : []
+    `修订后数据口径与实时数据口径的最大回撤分别为 ${percent(variants[1].maxDd)} 和 ${percent(variants[0].maxDd)}。去掉金融条件指数及信用分项后的最大回撤为 ${percent(variants[2].maxDd)}。`,
+    REALTIME_SINCE_DISCLOSURE,
+  ] : [MISSING_VINTAGES_DISCLOSURE]
+  // 无 vintages 时第 4 条（实时口径）与降级披露并存会矛盾，改用修订值表述替换第 4 条。
+  const baseDisclosures = vintages ? DISCLOSURES : DISCLOSURES.map((line, i) => i === 3
+    ? '完整模型及基于它的分档、单项与衰退统计按固定发布滞后取数。萨姆规则沿用实时序列，其余宏观序列使用当前可得历史值，其中部分数值经过修订。'
+    : line)
   const costs = transactionCosts(full, variants[0].cagr)
   const forward = new Map(rows.map(({ d }) => [d, Object.fromEntries([3, 6, 12].map(n => [n, horizon(returns, d, n)]))]))
   const tiers = tierStats(rows, forward)
@@ -355,15 +368,12 @@ function buildStrategies(panel, asOf, previousRecessionMarks, vintages) {
     backtest: {
       start: rows[0].d, end: rows.at(-1).d, months: rows.length,
       disclosures: [
-        ...DISCLOSURES, ...realtimeDisclosures, explainCosts(costs), ...explainDefensiveTier(tiers),
+        ...baseDisclosures, ...vintageDisclosures, explainCosts(costs), ...explainDefensiveTier(tiers),
         ...(hasRecessionMarks ? [] : [MISSING_RECESSION_MARKS]),
       ],
       tiers, variants, costs, recessions: recessionCapture(timeline, runs),
       falseAlarms: hasRecessionMarks ? falseAlarms(timeline, runs, returns) : [],
       singles: singleTests(rows, forward), timeline,
     },
-    ...(vintages ? {
-      realtimeStats: { tiers: tierStats(realtimeRows, forward), recessions: recessionCapture(realtimeRows, runs) },
-    } : {}),
   }
 }

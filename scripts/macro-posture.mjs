@@ -8,9 +8,10 @@ import { localParts, MARKETS } from './lib/trading-calendar.mjs'
 import { FRED_SPX, FRED_SPX_URL, makePanel, monthEnd, panelAt, valueAt } from './lib/macro-posture/panel.mjs'
 import { buildCurrent, RULE_VERSION, TIER_DEFS } from './lib/macro-posture/model.mjs'
 import {
-  backtestMonthEnds, buildVintageBacktest, MISSING_RECESSION_MARKS, retainVintageResults, updateLive, VINTAGE_SOURCE,
+  backtestMonthEnds, buildVintageBacktest, incompleteVintagesDisclosure, MISSING_RECESSION_MARKS, updateLive,
+  VINTAGE_SOURCE,
 } from './lib/macro-posture/backtest.mjs'
-import { loadVintages } from './lib/macro-posture/vintages.mjs'
+import { HISTORY_CACHE, loadVintageHistory, loadVintages } from './lib/macro-posture/vintages.mjs'
 import { buildOuter, LOCAL_SOURCES } from './lib/macro-posture/outer.mjs'
 import { validateComposite } from './lib/macro-posture/validate.mjs'
 import { buildDaily, DAILY_CACHE, loadDailyCloses, writeDaily } from './lib/macro-posture/daily.mjs'
@@ -172,10 +173,8 @@ const exactFields = new Set([
 const json = file => JSON.stringify(file, (key, item) => typeof item === 'number' && Number.isFinite(item) && !exactFields.has(key)
   ? Number(item.toFixed(4)) : item) + '\n'
 
-export async function refreshMacroPosture({
-  fetcher = fetch, now = new Date(), directory = DATA, output = resolve(directory, 'macro-posture.json'), warn = console.warn,
-} = {}) {
-  const { file } = await refreshMacroPostureWithStats({ fetcher, now, directory, output, warn })
+export async function refreshMacroPosture(options = {}) {
+  const { file } = await refreshMacroPostureWithStats(options)
   return file
 }
 
@@ -184,6 +183,8 @@ export async function refreshMacroPostureWithStats({
   vintageDirectory = directory === DATA ? undefined : resolve(directory, 'macro-posture-vintages'),
   dailyOutput = resolve(directory, 'macro-posture-daily.json'),
   dailyDirectory = directory === DATA ? DAILY_CACHE : resolve(directory, 'macro-posture-daily'),
+  historyDirectory = directory === DATA ? HISTORY_CACHE : resolve(directory, 'macro-posture-vintage-history'),
+  loadHistory = true,
 } = {}) {
   const generatedAt = now.toISOString()
   const today = generatedAt.slice(0, 10)
@@ -196,14 +197,25 @@ export async function refreshMacroPostureWithStats({
   const previous = await readPreviousBacktest(output)
   const previousRecessionMarks = raw.USREC.length ? undefined : previousRecessions(previous)
   const { outer, failedSources } = buildOuter(local, currentPanel, today, spx.url)
-  const { vintages, requests } = await loadVintages(backtestMonthEnds(today), { fetcher, directory: vintageDirectory, now, includeHours: true })
-    .catch(error => {
-      warn(error.message)
-      failedSources.push(VINTAGE_SOURCE)
-      return {}
-    })
-  const { backtest, historical, returns, realtimeStats } = buildVintageBacktest(panel, today, vintages, previousRecessionMarks)
-  if (!vintages) retainVintageResults(backtest, previous)
+  const loaded = await loadVintages(backtestMonthEnds(today), {
+    fetcher, directory: vintageDirectory, now, includeHours: true,
+  }).catch(error => {
+    warn(error.message)
+    failedSources.push(VINTAGE_SOURCE)
+    return { vintages: undefined, requests: 0, incomplete: [] }
+  })
+  const { requests, incomplete = [] } = loaded
+  // 返回值里至少有一条真实版本快照才走实时主路径；否则整表退回修订值口径。
+  const vintages = loaded.vintages && Object.values(loaded.vintages).some(cache =>
+    Object.values(cache).some(entry => entry && entry.fallback !== 'revised' &&
+      (Array.isArray(entry) || entry.rows)))
+    ? loaded.vintages : undefined
+  if ((!vintages || incomplete.length) && !failedSources.includes(VINTAGE_SOURCE)) {
+    failedSources.push(VINTAGE_SOURCE)
+  }
+  const { backtest, historical, returns } = buildVintageBacktest(panel, today, vintages, previousRecessionMarks)
+  const incompleteLine = vintages ? incompleteVintagesDisclosure(incomplete) : null
+  if (incompleteLine) backtest.disclosures.push(incompleteLine)
   for (const [id, name] of Object.entries(OPTIONAL_FRED)) if (!raw[id].length) failedSources.push(name)
   const asOf = [...FRED_IDS.filter(id => id !== 'USREC'), 'price']
     .map(id => valueAt(currentPanel[id], today)?.availableOn)
@@ -225,28 +237,43 @@ export async function refreshMacroPostureWithStats({
   } finally {
     await unlink(temporary).catch(() => {})
   }
+  const historyLoaded = vintages && loadHistory && historyDirectory
+    ? await loadVintageHistory({ directory: historyDirectory, seed: vintages, fetcher, now }).catch(error => {
+      warn(`历史版本库更新失败：${error.message}`)
+      return undefined
+    })
+    : undefined
+  if (historyLoaded?.incomplete?.length) warn(`历史版本库未完整更新：${historyLoaded.incomplete.map(row => row.id).join('、')}`)
   // 每日档位单独成文件；失败只告警，不影响上面已写好的主数据。
   const daily = await refreshDaily({
-    recent: spx.rows, panel, currentFrame, timeline: backtest.timeline, generatedAt, today, marketDate,
-    output: dailyOutput, directory: dailyDirectory,
+    recent: spx.rows, panel, currentFrame, timeline: backtest.timeline, history: historyLoaded?.history,
+    generatedAt, today, marketDate, output: dailyOutput, directory: dailyDirectory,
   }).catch(error => {
     warn(`每日档位生成失败：${error.message}`)
     return undefined
   })
-  return { file: serialized, realtimeStats, vintageRequests: requests, daily }
+  return {
+    file: serialized, vintageRequests: requests, historyRequests: historyLoaded?.requests,
+    daily,
+  }
 }
 
-async function refreshDaily({ recent, panel, currentFrame, timeline, generatedAt, today, marketDate, output, directory }) {
+async function refreshDaily({
+  recent, panel, currentFrame, timeline, history, generatedAt, today, marketDate, output, directory,
+}) {
   const { closes, cached } = await loadDailyCloses(recent, { directory, today, appendBefore: marketDate })
-  const { file, stats } = buildDaily({ closes, panel, currentFrame, timeline, generatedAt, ruleVersion: RULE_VERSION })
+  const { file, stats } = buildDaily({
+    closes, panel, currentFrame, timeline, history, generatedAt, ruleVersion: RULE_VERSION,
+  })
   const bytes = await writeDaily(output, file)
   return { ...stats, bytes, cached, start: file.start, end: file.end, recentChanges: file.changes.slice(-10) }
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  refreshMacroPostureWithStats().then(({ file, vintageRequests, daily }) => {
+  refreshMacroPostureWithStats().then(({ file, vintageRequests, historyRequests, daily }) => {
     console.log(`宏观攻守综合指标 ${file.ruleVersion}：${file.current.headline} 回测 ${file.backtest.start} 至 ${file.backtest.end}，共 ${file.backtest.months} 个月。`)
-    if (vintageRequests !== undefined) console.log(`ALFRED 版本数据请求：${vintageRequests} 次。`)
+    if (vintageRequests !== undefined) console.log(`ALFRED 月末版本请求：${vintageRequests} 次。`)
+    if (historyRequests !== undefined) console.log(`ALFRED 发布日版本库请求：${historyRequests} 次。`)
     if (daily) {
       console.log(`每日档位：${daily.start} 至 ${daily.end}，${daily.rows} 行，${(daily.bytes / 1024).toFixed(0)} KB，耗时 ${daily.ms} 毫秒；` +
         `月末与月度回测不一致 ${daily.mismatches.length}/${daily.officialCount} 个月。`)

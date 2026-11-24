@@ -6,6 +6,7 @@ import { BREAKERS, COMPONENTS, evaluate, PILLARS, TIERS } from './model.mjs'
 import { monthEnd, panelAt, valueAt } from './panel.mjs'
 import { remainingSessions } from './calendar.mjs'
 import { formatDate, formatReading } from './format.mjs'
+import { panelAtVintage, vintageKey } from './vintages.mjs'
 
 // 设计第 14 节：每个交易日按当日已可得数据定档，月末最后一个交易日为正式定档。
 export const DAILY_START = '1973-01-02'
@@ -183,9 +184,11 @@ const fullDate = d => `${d.slice(0, 4)} 年 ${formatDate(d)}`
  * - closes：[日期, 收盘] 升序日线（1950 起缓存 + 最近 FRED / 站内收盘）
  * - panel：回测同一套发布滞后的面板；currentFrame：当前读数口径的帧（最后一个交易日使用）
  * - timeline：月度回测时间线，用于月末一致性核对
+ * - history：按发布日的版本库；有则每天用当日已发布最新版本，无则沿用修订值并披露
  */
 export function buildDaily({
-  closes, panel, currentFrame, timeline = [], start = DAILY_START, generatedAt, ruleVersion, maxChanges = DAILY_MAX_CHANGES,
+  closes, panel, currentFrame, timeline = [], history, start = DAILY_START, generatedAt, ruleVersion,
+  maxChanges = DAILY_MAX_CHANGES,
 }) {
   const clock = Date.now()
   const all = validRows(closes)
@@ -199,6 +202,19 @@ export function buildDaily({
   let officialCount = 0
   let previous = null
   let mtd = { key: null, sum: 0, count: 0, prior9: null }
+  const panelCache = new Map()
+  function framePanel(asOf) {
+    if (!history) return panel
+    const key = vintageKey(history, asOf)
+    // 任一序列仍走修订值回退时，可用窗口随 asOf 变，不能跨日复用。
+    const cacheKey = key.includes('revised') ? `${key}@${asOf}` : key
+    let cached = panelCache.get(cacheKey)
+    if (!cached) {
+      cached = panelAtVintage(panel, history, asOf)
+      panelCache.set(cacheKey, cached)
+    }
+    return cached
+  }
   // 月内均价需要从月初累计，即使月初早于 start。
   let cursor = firstIndex
   while (cursor > 0 && month(all[cursor - 1][0]) === month(all[firstIndex][0])) cursor -= 1
@@ -212,8 +228,9 @@ export function buildDaily({
     const official = isOfficial(all, i)
     const last = i === all.length - 1 && currentFrame
     const { below } = dailyTactical(mtd.sum / mtd.count, mtd.prior9)
-    // 月度序列按自然月末可得；月末逢周末或假日时，当月最后一个交易日按月末数据正式定档。
-    const frame = last ? currentFrame : panelAt(panel, official ? monthEnd(date) : date, null)
+    // 月末正式定档日按月末日期取版本，其余取当天；与月度实时口径对齐。
+    const asOf = official ? monthEnd(date) : date
+    const frame = last ? currentFrame : panelAt(framePanel(asOf), asOf, null)
     const tactical = last ? frame.tactical.below : below
     const result = evaluate({ components: frame.components, tactical: { below: tactical } })
     const state = snapshot(result, frame, tactical)
@@ -229,7 +246,7 @@ export function buildDaily({
       if (reference) {
         officialCount += 1
         if (tierCode(reference.final) !== state.final) {
-          const monthlyFrame = panelAt(panel, monthEnd(date), null)
+          const monthlyFrame = panelAt(framePanel(monthEnd(date)), monthEnd(date), null)
           const cause = monthlyFrame.tactical.below !== below
             ? '价格源差异：日收盘均价与月均价表相对 10 个月均线的位置不同'
             : tierCode(reference.regime) !== state.regime ? '宏观读数差异' : '修复确认条件差异'
@@ -243,8 +260,11 @@ export function buildDaily({
   }
   const end = rows.at(-1)[0]
   const share = officialCount ? mismatches.length / officialCount : 0
+  const dataDisclosure = history
+    ? '每个交易日只用当天已可得的数据定档：可修订的五个序列（非农就业、工业生产、核心个人消费支出价格、初请失业救济、制造业周工时）按当天已发布的最新版本取数，首个版本之前沿用修订值并按固定发布滞后取数；其余序列发布滞后与月度回测相同。月度数据按自然月末可得，月末逢周末或假日时，该月最后一个交易日即按月末数据正式定档。'
+    : '每个交易日只用当天已可得的数据定档，发布滞后与月度回测相同：就业、生产和周工时按次月月末可得，核心个人消费支出价格按再下个月月末可得，周度数据按观测日后 5 天可得。历史版本库暂缺，本次按修订后数据计算。月度数据按自然月末可得，月末逢周末或假日时，该月最后一个交易日即按月末数据正式定档。'
   const disclosures = [
-    `每个交易日只用当天已可得的数据定档，发布滞后与月度回测相同：就业、生产和周工时按次月月末可得，核心个人消费支出价格按再下个月月末可得，周度数据按观测日后 5 天可得。月度数据按自然月末可得，月末逢周末或假日时，该月最后一个交易日即按月末数据正式定档。`,
+    dataDisclosure,
     '战术修正按日计算：本月至今的收盘均价与「前 9 个完整月的月均价加本月至今均价」的 10 个月均价比较。月中为预估，月末最后一个交易日为正式定档。修复确认与熔断按日用同样规则。前 9 个月用与月度回测相同的月均价表。',
     `最后一个交易日（${fullDate(end)}）改用当前读数口径：已发布的数据即可用，不再套用回测的保守发布滞后，战术修正沿用最近一个完整月的判定，与页面当前结论一致。`,
     officialCount

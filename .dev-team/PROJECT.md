@@ -80,3 +80,6 @@ manager 开工后按实际目标补充业务入口、API 契约位置、验收�
 
 ## 2026-11-24 市场雷达体检与修正
 用户问宏观攻守时间线与雷达月度档位对照是否不同、要不要优化。结论：两套不同策略，规则都不改。修两处：回测市盈率改为当月月均价 ÷ 三个月前可得盈利折算（`priceAdjustedPe`，`scripts/lib/market-radar/sources.mjs`）；雷达页大师方案直接取 `macro-posture.json` 的 `backtest.timeline`（`mastersTimeline`），当时版本口径另列 `mastersRealtime` 行。回测区新增脚本生成的 `backtest.verdict`。预注册五类打分改法均未采用，记录与复现脚本 `docs/research/market-radar-v2-2026-11-24.md`。Run radar-fix-1124（`run_4812fcdf1e01`）：Cursor 实现，Claude 独立复算与审查。提交 210c7bfe 已推送。后续可选项：宏观攻守页时间线改用当时版本口径，需要按日的 ALFRED 版本缓存（现只有月末快照）。
+
+## 2026-11-24 宏观攻守时间线统一为实时数据口径
+规格第 15 节。月度主结果（timeline / tiers / recessions / falseAlarms / singles / costs）改用 ALFRED 月末已发布版本，变体表 `full`＝实时数据、新增 `revised` 对照、取消 `realtime` 行；每日时间线按版本发布日取数，版本库 `data-raw/macro-posture-vintage-history/`（`loadVintageHistory` / `panelAtVintage`），月末缓存与 `panelWithVintages` 接口不变。`loadVintages` 抓取失败只让缺的月末退回修订值并写 `incomplete`。雷达回测表去掉 `mastersRealtime` 行。Run posture-realtime-1124（`run_cf2c3d56cc38`）：两个 Cursor 并行（引擎、页面与雷达），Claude 独立核对：新 full＝旧 realtime、revised＝旧 full、时间线与独立算出的实时档位 646 个月 0 处不同、每日月末核对 0/646。同日另：断开了重复的 Vercel 项目 businessweb-free-cloud-foundation 的 Git 自动部署（它占掉每日部署额度的大半，导致主站 business-web 被限额）。

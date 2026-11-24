@@ -47,7 +47,7 @@ export type RadarFile = {
   backtest: {
     start: string; end: string
     trainRange: string; testRange: string
-    rows: { id: 'radar' | 'masters' | 'mastersRealtime' | 'blend' | 'trend' | 'buyhold' | 'static70'; label: string; train: RadarMetrics; test: RadarMetrics; full: RadarMetrics }[]
+    rows: { id: 'radar' | 'masters' | 'blend' | 'trend' | 'buyhold' | 'static70'; label: string; train: RadarMetrics; test: RadarMetrics; full: RadarMetrics }[]
     verdict?: string
     disclosures: string[]
     timeline: { d: string; radar: TierId | null; masters: TierId | null; spx: number }[]   // 月度

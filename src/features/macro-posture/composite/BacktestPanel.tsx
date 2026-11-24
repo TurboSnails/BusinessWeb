@@ -101,8 +101,8 @@ export default function BacktestPanel({ data }: { data: CompositeFile }): JSX.El
         </table>
       </TableWrap>
       <ul className="mp-backtest__variant-notes" data-testid="mp-variant-notes">
-        <li><strong>完整模型</strong>＝修订后数据。</li>
-        <li><strong>实时数据</strong>＝当时已发布版本（缺当时版本的早年月份沿用修订值）。</li>
+        <li><strong>完整模型</strong>＝实时数据：就业、生产、通胀等会被修订的数据，取每个月末当时已发布的版本（缺当时版本的早年月份沿用修订值）。</li>
+        <li><strong>修订后数据</strong>＝用今天能查到的最终数值重算，只作对照。</li>
         <li><strong>去掉金融条件指数</strong>＝再排除 2011 年前回推的金融条件指数（最保守口径）。</li>
       </ul>
       {readout ? (

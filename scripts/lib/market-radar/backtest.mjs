@@ -16,7 +16,7 @@ export const DISCLOSURES = [
   '股债利差用上述折算后的市盈率和当月 10 年期美债月均收益率。当前的市盈率、周期调整市盈率、融资余额与行业宽度使用最新已发布值。',
   '每股盈利同比采用席勒的名义盈利历史。若更新期超出席勒快照，用 Multpl 实际购买力口径盈利和未季调消费价格指数补算名义同比，仍按观察月后第 3 个月末可得。',
   '美元净流动性、高收益债利差、NAAIM、VIX 期限结构、隐含相关性与做市商 Gamma 敞口、FactSet 前瞻市盈率与盈利修正、日频成分股宽度的可得历史不足 25 年，美银调查（现金、美股与科技股超配）只有零星读数，因此均只展示，不进入回测。金银比、AAII 多空差、CFTC 资管机构标普与纳指期货净多、20 日量比（1950 年起回补）以及行业（含 49 行业日频宽度）、板块、个股层面的补充宽度指标是事后新增的，同样只展示。只展示指标用来源最新可得观测，逐项标示日期。',
-  '表里有两条大师方案：与宏观攻守页同口径的一条直接取宏观攻守页的月度时间线（修订后数据，按固定发布滞后取数），月度档位对照的下带和平均仓位都用它；当时版本数据那条按月末可得的 ALFRED 历史版本重算。非农就业、工业生产、核心个人消费支出价格、初请失业救济及制造业周工时缺少当时版本时沿用修订值并按发布滞后取数。金融条件指数在 2011 年 5 月之前为事后回推。',
+  '大师方案直接取宏观攻守页的月度时间线；该时间线用实时数据口径——非农就业、工业生产、核心个人消费支出价格、初请失业救济及制造业周工时取每个月末已发布的最新版本，缺少当时版本的月份沿用修订值并按发布滞后取数；金融条件指数在 2011 年 5 月之前为事后回推。月度档位对照的下带和平均仓位都用它。',
   '平均仓位每月取雷达和大师股票仓位的算术平均。十个月均线对照在标普月均价低于均线时持五成股票，其余时间持有股票仓位上限。',
   '2026 年 11 月 24 日修正了回测里市盈率的取数时点（原先连价格一起滞后三个月），属于看过原结果后的数据修正；同日按事先写下的规则检验了五类改法（分档刻度、滚动百分位窗口、盈利低谷时估值不计分、家庭两项配置合并、估值与拥挤度扣分需价格跌破均线确认），均未达到事先定下的采用门槛，规则保持不变。随后第二轮把后来新增的五项长历史指标（行业站上 200 日线比例、行业 12 个月正收益占比、行业 52 周新高减新低、AAII 多空差、金银比）并入计分，并检验了「快慢分层」结构（流动性、交易结构、盈利定档，估值与拥挤度只设上限或加减一档），三个候选在验证期同样没有达到门槛，这五项继续只展示。详见 docs/research/market-radar-v2-2026-11-24.md。',
 ]
@@ -28,8 +28,7 @@ export function blendEquity(radar, masters) {
 
 const STRATEGIES = [
   ['radar', '我的市场雷达', row => tierEquity(row.radar)],
-  ['masters', '大师方案 v2.2（与宏观攻守页同口径）', row => tierEquity(row.masters)],
-  ['mastersRealtime', '大师方案 v2.2（当时版本数据）', row => tierEquity(row.mastersRealtime)],
+  ['masters', '大师方案 v2.2（宏观攻守页）', row => tierEquity(row.masters)],
   ['blend', '雷达与大师平均仓位', row => blendEquity(row.radar, row.masters)],
   ['trend', '10 个月均线', row => row.below == null ? null : row.below ? 0.5 : 1],
   ['buyhold', '全程持有标普', () => 1],
@@ -38,12 +37,9 @@ const STRATEGIES = [
 
 export const STRATEGY_ROWS = STRATEGIES.map(([id, label]) => ({ id, label }))
 
-/** mastersTimeline 有同月 final 则采用；否则退回修订值档位。 */
-export function resolveMastersTiers(d, mastersByMonth, revisedTier, realtimeTier) {
-  return {
-    masters: mastersByMonth.has(d) ? mastersByMonth.get(d) : revisedTier,
-    mastersRealtime: realtimeTier,
-  }
+/** mastersTimeline 有同月 final 则采用；否则退回实时帧档位。 */
+export function resolveMastersTiers(d, mastersByMonth, realtimeTier) {
+  return mastersByMonth.has(d) ? mastersByMonth.get(d) : realtimeTier
 }
 
 export function alignRadar(signals, returns, equity) {
@@ -110,16 +106,14 @@ export function buildRadarBacktest({ historical, panel, vintages, dailyRows, tod
     if (month(price?.observedOn ?? '') !== d) throw new Error(`标普月均价缺少 ${d}`)
     if (!Number.isFinite(closes.get(d))) throw new Error(`标普月末收盘缺少 ${d}`)
     const realtimeFrame = panelAt(panelWithVintages(panel, vintages, date), date, null)
-    const revisedFrame = panelAt(panel, date, null)
-    const { masters, mastersRealtime } = resolveMastersTiers(
-      d, mastersByMonth, evaluate(revisedFrame).final.tier, evaluate(realtimeFrame).final.tier,
+    const masters = resolveMastersTiers(
+      d, mastersByMonth, evaluate(realtimeFrame).final.tier,
     )
     return {
       d,
       radar: baseTier(scoreAt(historical, date)),
       masters,
-      mastersRealtime,
-      below: revisedFrame.tactical.below,
+      below: realtimeFrame.tactical.below,
       spx: closes.get(d),
     }
   })

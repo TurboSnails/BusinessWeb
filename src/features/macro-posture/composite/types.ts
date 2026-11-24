@@ -145,7 +145,7 @@ export type TierStats = {
 }
 
 export type Variant = {
-  id: 'full' | 'realtime' | 'noNfci' | 'v21' | 'v20' | 'macro' | 'trend' | 'static70' | 'buyhold'
+  id: 'full' | 'revised' | 'noNfci' | 'v21' | 'v20' | 'macro' | 'trend' | 'static70' | 'buyhold'
   label: string
   cagr: number
   vol: number

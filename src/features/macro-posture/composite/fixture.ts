@@ -153,9 +153,10 @@ const OUTER: OuterItem[] = [
 
 function variants(): Variant[] {
   return [
-    { id: 'full', label: '完整模型', cagr: 0.092, vol: 0.121, maxDd: -0.28, sharpe: 0.55, calmar: 0.33, avgEquity: 0.72, switchesPerYear: 1.4 },
-    { id: 'realtime', label: '实时数据', cagr: 0.089, vol: 0.124, maxDd: -0.3, sharpe: 0.52, calmar: 0.3, avgEquity: 0.73, switchesPerYear: 1.5 },
-    { id: 'noNfci', label: '实时数据且去掉 NFCI', cagr: 0.086, vol: 0.128, maxDd: -0.27, sharpe: 0.49, calmar: 0.32, avgEquity: 0.75, switchesPerYear: 1.4 },
+    { id: 'full', label: '完整模型（实时数据）', cagr: 0.092, vol: 0.121, maxDd: -0.28, sharpe: 0.55, calmar: 0.33, avgEquity: 0.72, switchesPerYear: 1.4 },
+    { id: 'revised', label: 'v2.2 · 修订后数据', cagr: 0.089, vol: 0.124, maxDd: -0.3, sharpe: 0.52, calmar: 0.3, avgEquity: 0.73, switchesPerYear: 1.5 },
+    { id: 'noNfci', label: 'v2.2 · 实时数据且去掉金融条件指数', cagr: 0.086, vol: 0.128, maxDd: -0.27, sharpe: 0.49, calmar: 0.32, avgEquity: 0.75, switchesPerYear: 1.4 },
+    { id: 'v21', label: 'v2.1', cagr: 0.091, vol: 0.122, maxDd: -0.29, sharpe: 0.54, calmar: 0.31, avgEquity: 0.71, switchesPerYear: 1.5 },
     { id: 'v20', label: 'v2.0 无修复', cagr: 0.09, vol: 0.122, maxDd: -0.29, sharpe: 0.53, calmar: 0.31, avgEquity: 0.71, switchesPerYear: 1.5 },
     { id: 'macro', label: '仅宏观', cagr: 0.088, vol: 0.125, maxDd: -0.31, sharpe: 0.5, calmar: 0.28, avgEquity: 0.74, switchesPerYear: 1.1 },
     { id: 'trend', label: '仅趋势', cagr: 0.081, vol: 0.13, maxDd: -0.35, sharpe: 0.42, calmar: 0.23, avgEquity: 0.78, switchesPerYear: 0.8 },
@@ -179,7 +180,7 @@ function backtest(): Backtest {
     disclosures: [
       '样本内回测，不代表未来表现。',
       '阈值先验设定，未针对历史调参。',
-      '除萨姆规则外为修订后数据。',
+      '除萨姆规则外为实时数据口径（当时已发布的版本）。',
       '标普收益用月均价近似，未计税费与交易成本。',
     ],
     tiers,

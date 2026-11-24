@@ -237,7 +237,7 @@ describe('MacroPosture 综合指标视图', () => {
   it('回测变体表与披露渲染', () => {
     renderPage()
     const table = screen.getByTestId('mp-backtest-variants')
-    expect(within(table).getByText('完整模型')).toBeTruthy()
+    expect(within(table).getByText('完整模型（实时数据）')).toBeTruthy()
     expect(within(table).getByText('9.2%')).toBeTruthy()
     expect(table.querySelector('tr.is-highlight')).toBeTruthy()
     expect(screen.getByTestId('mp-disclosures').textContent).toContain('样本内回测')
@@ -330,7 +330,7 @@ describe('MacroPosture 综合指标视图', () => {
     expect(screen.getByTestId('mp-snap-warnings').textContent).toContain('高收益债利差')
   })
 
-  it('singles 表与 8 个变体按 JSON 顺序渲染，解读使用最保守口径', () => {
+  it('singles 表与 9 个变体按 JSON 顺序渲染，解读使用最保守口径', () => {
     renderPage()
     const singles = screen.getByTestId('mp-backtest-singles')
     expect(within(singles).getByText('萨姆规则')).toBeTruthy()
@@ -340,14 +340,33 @@ describe('MacroPosture 综合指标视图', () => {
     const variants = screen.getByTestId('mp-backtest-variants')
     const rows = within(variants).getAllByRole('row')
     const ids = rows.slice(1).map(r => r.getAttribute('data-variant'))
-    expect(ids).toEqual(['full', 'realtime', 'noNfci', 'v20', 'macro', 'trend', 'static70', 'buyhold'])
+    expect(ids).toEqual(['full', 'revised', 'noNfci', 'v21', 'v20', 'macro', 'trend', 'static70', 'buyhold'])
     expect(variants.querySelector('tr.is-highlight')?.getAttribute('data-variant')).toBe('noNfci')
-    expect(screen.getByTestId('mp-variant-notes').textContent).toContain('完整模型＝修订后数据。')
-    expect(screen.getByTestId('mp-variant-notes').textContent).toContain('实时数据＝当时已发布版本（缺当时版本的早年月份沿用修订值）。')
+    expect(variants.querySelector('[data-variant="revised"]')?.classList.contains('is-highlight')).toBe(false)
+    expect(screen.getByTestId('mp-variant-notes').textContent).toContain('完整模型＝实时数据：就业、生产、通胀等会被修订的数据，取每个月末当时已发布的版本（缺当时版本的早年月份沿用修订值）。')
+    expect(screen.getByTestId('mp-variant-notes').textContent).toContain('修订后数据＝用今天能查到的最终数值重算，只作对照。')
     expect(screen.getByTestId('mp-variant-notes').textContent).toContain('去掉金融条件指数＝再排除 2011 年前回推的金融条件指数（最保守口径）。')
     expect(screen.getByTestId('mp-variant-notes').textContent).not.toContain('偏乐观')
     expect(screen.getByTestId('mp-variants-readout').textContent).toBe('按最保守口径，年化 8.6%、最大回撤 −27.0%，仍约为持有标普回撤的 6.0 成。')
     expect(screen.getByTestId('mp-backtest-summary').textContent).toContain('最保守口径（实时数据且去掉金融条件指数）：年化 8.6%、最大回撤 −27.0%')
+  })
+
+  it('变体表没有 revised 行时仍正常渲染', () => {
+    const base = compositeFixture()
+    const withoutRevised = {
+      ...base,
+      backtest: {
+        ...base.backtest,
+        variants: base.backtest.variants.filter(v => v.id !== 'revised'),
+      },
+    }
+    renderPage('/invest/macro-posture', { status: 'ready', data: withoutRevised })
+    const variants = screen.getByTestId('mp-backtest-variants')
+    const ids = within(variants).getAllByRole('row').slice(1).map(r => r.getAttribute('data-variant'))
+    expect(ids).toEqual(['full', 'noNfci', 'v21', 'v20', 'macro', 'trend', 'static70', 'buyhold'])
+    expect(variants.querySelector('[data-variant="revised"]')).toBeNull()
+    expect(variants.querySelector('tr.is-highlight')?.getAttribute('data-variant')).toBe('noNfci')
+    expect(screen.getByTestId('mp-variant-notes')).toBeTruthy()
   })
 
   it('mtd / repair / warnings / dates / counts / costs / live 缺失时不报错且跳过对应块', () => {

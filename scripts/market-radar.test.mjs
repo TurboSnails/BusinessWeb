@@ -135,26 +135,21 @@ test('buildBacktestVerdict：高于 / 接近 / 低于，雷达优于大师时无
   assert.equal(beatsMasters.includes('仓位仍以宏观攻守为准'), false)
 })
 
-test('mastersTimeline 有月采用、缺月回退；策略顺序含 mastersRealtime；blend 用同口径 masters', () => {
+test('mastersTimeline 有月采用、缺月回退实时帧；策略 6 行；blend 用 masters', () => {
   const map = new Map([['2020-01', 'defense']])
-  assert.deepEqual(resolveMastersTiers('2020-01', map, 'offense', 'lean-defense'), {
-    masters: 'defense', mastersRealtime: 'lean-defense',
-  })
-  assert.deepEqual(resolveMastersTiers('2020-02', map, 'offense', 'lean-offense'), {
-    masters: 'offense', mastersRealtime: 'lean-offense',
-  })
+  assert.equal(resolveMastersTiers('2020-01', map, 'lean-defense'), 'defense')
+  assert.equal(resolveMastersTiers('2020-02', map, 'lean-offense'), 'lean-offense')
   assert.deepEqual(STRATEGY_ROWS.map(row => row.id), [
-    'radar', 'masters', 'mastersRealtime', 'blend', 'trend', 'buyhold', 'static70',
+    'radar', 'masters', 'blend', 'trend', 'buyhold', 'static70',
   ])
-  assert.match(STRATEGY_ROWS[1].label, /与宏观攻守页同口径/)
-  assert.match(STRATEGY_ROWS[2].label, /当时版本数据/)
-  // blend 用 masters（同口径），不用 mastersRealtime
-  const signal = { radar: 'offense', masters: 'defense', mastersRealtime: 'lean-offense' }
+  assert.match(STRATEGY_ROWS[1].label, /宏观攻守页/)
+  assert.equal(STRATEGY_ROWS.some(row => row.id === 'mastersRealtime'), false)
+  const signal = { radar: 'offense', masters: 'defense' }
   assert.equal(blendEquity(signal.radar, signal.masters), (tierEquity('offense') + tierEquity('defense')) / 2)
-  assert.notEqual(blendEquity(signal.radar, signal.masters), blendEquity(signal.radar, signal.mastersRealtime))
   assert.match(DISCLOSURES[4], /当月标普月均价/)
   assert.match(DISCLOSURES[5], /折算后的市盈率/)
-  assert.match(DISCLOSURES[8], /两条大师方案/)
+  assert.match(DISCLOSURES[8], /大师方案直接取宏观攻守页的月度时间线/)
+  assert.match(DISCLOSURES[8], /实时数据口径/)
   assert.match(DISCLOSURES.at(-1), /2026 年 11 月 24 日修正/)
 })
 

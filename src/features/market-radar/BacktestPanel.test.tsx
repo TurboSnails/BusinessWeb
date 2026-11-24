@@ -142,12 +142,13 @@ describe('buildRadarTimeline / agreementRows', () => {
 })
 
 describe('回测结论与策略表', () => {
-  it('有 verdict 时渲染结论段，表格 7 行', () => {
+  it('有 verdict 时渲染结论段，表格 6 行', () => {
     mockedComposite.mockReturnValue({ status: 'loading' })
     render(<BacktestPanel data={radarFixture()} />)
     expect(screen.getByTestId('mr-backtest-verdict').textContent).toContain('雷达全样本夏普')
-    expect(screen.getByTestId('mr-backtest-table').querySelectorAll('tbody tr')).toHaveLength(7)
-    expect(screen.getByTestId('mr-backtest-table').textContent).toContain('当时版本数据')
+    expect(screen.getByTestId('mr-backtest-table').querySelectorAll('tbody tr')).toHaveLength(6)
+    expect(screen.getByTestId('mr-backtest-table').textContent).toContain('大师方案 v2.2（宏观攻守页）')
+    expect(screen.getByTestId('mr-backtest-table').textContent).not.toContain('当时版本数据')
   })
 
   it('无 verdict 时不渲染结论段', () => {
