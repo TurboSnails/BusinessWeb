@@ -53,3 +53,10 @@
 - 2026 年各读数与来源原始值的逐项核对（审计没有联网；新接的四个来源由执行者当天实际拉取）。
 - 本机抓不到 Multpl 盈利与席勒快照之外的最新价格、收益率（`fetch failed`，沿用缓存）；GitHub Actions 上的首次运行结果要推送后才能看到。
 - 触屏手势、深色主题、Safari。
+
+## 发布（2026-11-24，用户确认后）
+
+- 提交 `bb30b471` 推送到 main。
+- Vercel：提交状态 success；用 Chrome 打开 `https://business-web-black.vercel.app/invest/market-radar`，1440 与 390 两种宽度均返回 200，页面显示「55 项指标：50 项最新 · 1 项停更 · 4 项零星」、总览区存在、默认 26 行、回测结论句为新措辞，无横向溢出、无控制台报错。
+- GitHub Pages：构建 45443084416 成功；`https://turbosnails.github.io/BusinessWeb/invest/market-radar` 在两种宽度下同样返回 200，内容与 Vercel 一致，无横向溢出、无控制台报错。
+- 回滚：`git revert bb30b471` 后重跑 `node scripts/market-radar.mjs` 并推送。

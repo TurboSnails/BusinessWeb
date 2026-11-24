@@ -1,6 +1,6 @@
 // 「市场雷达」数据契约（manager 维护）。public/data/market-radar.json 由 scripts/market-radar.mjs 生成。
 // 用户自建的指标体系，与大师方案（宏观攻守）完全独立：不进入宏观攻守的打分、置信度与前推记录。
-// 设计：docs/superpowers/specs/2026-11-23-market-radar-design.md；2026-11-24 升级见 openspec/changes/upgrade-market-radar/。
+// 设计：docs/superpowers/specs/2026-11-23-market-radar-design.md；2026-11-24 升级见 openspec/changes/archive/2026-11-24-upgrade-market-radar/。
 import type { TierId } from '../macro-posture/composite/types'
 
 export type RadarDimensionId = 'liquidity' | 'valuation' | 'crowding' | 'trading' | 'earnings'

@@ -98,7 +98,7 @@ manager 开工后按实际目标补充业务入口、API 契约位置、验收�
 - **教训**：纵向 flex 容器里的 `flex: 1 1 12rem` 会把基准变成高度，窄屏出现大片空白；执行器自查的「无横向溢出」不等于排版正常，窄屏截图要自己看。用户要求先在本地看（`npx vite --host --port 5199`）再发布，发布前不提交。`npm run build` 会改 `public/changelog.json`，不随功能提交。
 
 ## 2026-11-24 市场雷达升级（口径修正、补全数据、改版交互）
-用户要求「严谨分析，完善数据，优化交互，参考专业商业平台」，并指定按 `.agents/skills/fullstack-workflow` 走。规范在 `openspec/changes/upgrade-market-radar/`（本仓库首次建 `openspec/`，标准模式；提案、设计、规范、任务、验证报告齐全），契约 `src/features/market-radar/types.ts`。Run radar-upgrade-1124（`run_fdc301a740a9`）：四个 Cursor 任务（指标数据、回测数据、页面主体、回测区）并行，Claude 做审计、对标、审查、独立复算与验收；Codex 首轮即报额度用完（11-28 恢复）。
+用户要求「严谨分析，完善数据，优化交互，参考专业商业平台」，并指定按 `.agents/skills/fullstack-workflow` 走。规范在 `openspec/changes/archive/2026-11-24-upgrade-market-radar/`（本仓库首次建 `openspec/`，标准模式；提案、设计、规范、任务、验证报告齐全），契约 `src/features/market-radar/types.ts`。Run radar-upgrade-1124（`run_fdc301a740a9`）：四个 Cursor 任务（指标数据、回测数据、页面主体、回测区）并行，Claude 做审计、对标、审查、独立复算与验收；Codex 首轮即报额度用完（11-28 恢复）。
 - **口径**：radar-v1 计分规则未动。回测里每股盈利与市盈率改为季末阶梯序列（席勒表非季末月是插值，等于提前用了下季盈利）：646 个月里 35 个月档位变化，夏普 0.586 → 0.591。净流动性在隔夜逆回购工具启用（2013-09-23）前按 0 计。日频、周频百分位按周取样。成交量类、GEX、等权相对市值、SKEW、杠杆基金净仓不给冷热；过期、停更、零星读数不给冷热（过期阈值按频率）。
 - **数据**：37 → 55 项指标，新增 18 项全部只展示；14 项用站内已有序列，新接 OFR 金融压力指数、FRED DFII10 / DTWEXBGS、Cboe VVIX（缓存在 `data-raw/market-radar/`，工作流不用改）。每项指标带数值、短读数、频率、状态、方向、变化、规则线、小组、是否核心与全部历史；`market-radar.json` 约 1.15 MB。`node scripts/market-radar.mjs --dry-run` 只算不写。
 - **回测**：新增月度综合分与维度分、四条净值、按档位与按冷热的之后 12 个月表现、月末收盘口径对照、夏普差的自助抽样区间（固定种子）；结论句按区间措辞（现为「差异都在抽样误差内」）。月均价口径会把波动算小（全程持有夏普 0.55 对月末收盘 0.48），宏观攻守页与综合策略页同样受影响，本次未改。

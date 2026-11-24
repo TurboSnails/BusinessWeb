@@ -42,4 +42,4 @@
 - 同日稍后宏观攻守页的时间线改为实时数据口径（宏观攻守规格第 15 节），雷达回测表里的大师方案随之只保留一行。
 - 同日用户要求雷达页只做股市自身的分析与回测：市场综合、与大师方案的对照（回测行、平均仓位、双带对照图）移到新的综合策略页（`docs/superpowers/specs/2026-11-24-combined-strategy-design.md`），上文第 6、31–33 行里「与大师方案并排对照」「市场综合迁到这里」由此作废。
 - 记录与复现脚本：`docs/research/market-radar-v2-2026-11-24.md`。
-- 同日升级（口径修正、新增 18 项只展示指标、页面改版、回测新增净值与分组表现）另见 `openspec/changes/upgrade-market-radar/`；上文指标表只列 radar-v1 的原始指标，完整清单以 `scripts/lib/market-radar/indicators.mjs` 为准。
+- 同日升级（口径修正、新增 18 项只展示指标、页面改版、回测新增净值与分组表现）另见 `openspec/changes/archive/2026-11-24-upgrade-market-radar/`；上文指标表只列 radar-v1 的原始指标，完整清单以 `scripts/lib/market-radar/indicators.mjs` 为准。
