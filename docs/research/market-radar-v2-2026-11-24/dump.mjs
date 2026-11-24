@@ -35,7 +35,7 @@ const [core, fetched] = await Promise.all([
 ])
 const panel = makePanel(core)
 const currentPanel = makePanel(core, { mode: 'current' })
-const { historical } = buildRadarSeries({ local, macroUs, breadth: universes.spx, universes, indexes, marketCache, fetched, shillerEps, shillerPrice, panel, currentPanel, today, lastComplete, spxDaily: dailyRows.map(([d, c]) => [d, c]) })
+const { historical, current } = buildRadarSeries({ local, macroUs, breadth: universes.spx, universes, indexes, marketCache, fetched, shillerEps, shillerPrice, panel, currentPanel, today, lastComplete, spxDaily: dailyRows.map(([d, c]) => [d, c]) })
 const IDS = ['baaChange', 'erp', 'pe', 'cape', 'equityShare', 'cashShare', 'finraDebtYoy', 'breadth', 'volume', 'epsYoy']
 const RANKED = ['erp', 'pe', 'cape', 'equityShare', 'cashShare']
 const returns = monthlyReturns(panel, lastComplete)
@@ -58,6 +58,8 @@ const months = backtestMonthEnds(today).map(date => {
 const first = Object.fromEntries(Object.keys(historical).map(id => [id, [historical[id]?.[0]?.observedOn, historical[id]?.at(-1)?.observedOn, historical[id]?.length]]))
 const pack = rows => (rows ?? []).map(p => [p.observedOn, p.availableOn, p.value])
 const raw = { pe: pack(historical.pe), erp: pack(historical.erp), equityShare: pack(historical.equityShare), cashShare: pack(historical.cashShare), price: pack(panel.price), GS10: pack(panel.GS10) }
-writeFileSync(new URL('./dump.json', import.meta.url), JSON.stringify({ today, months, first, raw }))
+const obs = rows => (rows ?? []).map(p => [p.observedOn, p.value])
+const extra = Object.fromEntries(['industry200', 'industryNetHighs', 'industryMomentum', 'industryHighs', 'aaiiSpread', 'goldSilver'].map(id => [id, obs(current[id])]))
+writeFileSync(new URL('./dump.json', import.meta.url), JSON.stringify({ today, months, first, raw, extra }))
 console.log(months.length, JSON.stringify(first, null, 0))
 console.log(JSON.stringify(months.at(-1)))
