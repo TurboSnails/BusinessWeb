@@ -46,6 +46,7 @@
 | 行业宽度 | [Ken French 49 行业月表](https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/49_Industry_Portfolios_CSV.zip) | 站上 10 个月均线的行业占比 | 1927 | 自动（缓存 `data-raw/macro-posture-market/industry-breadth.json`） |
 | 量价（3 月 / 12 月均量） | [Yahoo ^GSPC](https://query1.finance.yahoo.com/v8/finance/chart/%5EGSPC) | 月均成交量与 10 个月均线 | 1950 | 自动 |
 | VIX 期限结构 | Cboe [VIX](https://cdn.cboe.com/api/global/us_indices/daily_prices/VIX_History.csv)、[VIX3M](https://cdn.cboe.com/api/global/us_indices/daily_prices/VIX3M_History.csv)；2009-09 以前用 FRED [VXVCLS](https://fred.stlouisfed.org/series/VXVCLS)（同一指数） | VIX ÷ VIX3M | 2007-12 | 自动（缓存在本目录） |
+| 隐含相关性（1 个月） | Cboe [COR1M](https://cdn.cboe.com/api/global/us_indices/daily_prices/COR1M_History.csv)，对照 [COR3M](https://cdn.cboe.com/api/global/us_indices/daily_prices/COR3M_History.csv)（CDN 会 307 跳转到 cdn-api.cboe.com） | 期权隐含的标普成分股平均相关性，附 5 个交易日变化 | 2006-01 | 自动（缓存在本目录） |
 | 成分股站上 200 日线比例 | [datasets/s-and-p-500-companies](https://github.com/datasets/s-and-p-500-companies) 成分名单 + Yahoo 复权收盘 | 按当前成分名单回算，有幸存者偏差 | 2025-11 | 自动：`us-market-breadth.yml` |
 | 美股 20 日量比 | [Cboe 全市场成交](https://www.cboe.com/markets/us/equities/market-statistics/historical-market-volume)（年度文件 `market_history_YYYY.csv`） | 当日成交股数 ÷ 前 20 个完整交易日均量，核心交易场所齐全、剔除半日市 | 2010-08 | 自动；早年历史见下文回补 |
 

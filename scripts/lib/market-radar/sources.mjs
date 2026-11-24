@@ -57,6 +57,10 @@ export async function refreshRadarSources({ cache, fetcher, today, localVix, shi
   // Fetch the matching daily closes when the station snapshot has compacted its old daily observations.
   const complete = sources.vix3m.every(([d]) => localDays.has(d))
   sources.vix = complete ? localVix : await cboe('VIX')
+  // 隐含相关性只展示；首次下载失败且没有缓存时跳过，不影响雷达其余部分。
+  for (const id of ['COR1M', 'COR3M']) {
+    sources[id] = await cboe(id).catch(error => { warn(`${id} 暂缺：${error.message}`); return [] })
+  }
   sources.industryTrend = await refreshIndustryTrend({ cache, fetcher, warn })
   const realEps = await refresh('eps', EPS, html => parseMultplMonthly(html, monthEnd(today, -1)))
   if (realEps.at(-1)[0] > shillerEps.at(-1)[0]) {
@@ -289,6 +293,16 @@ export function forwardEpsChange(fpeRows, closes) {
   })
 }
 
+/** Cboe 一个月隐含相关性，附较 5 个交易日前的变化和同日三个月隐含相关性。 */
+export function impliedCorrelation(cor1m = [], cor3m = []) {
+  const longer = new Map(cor3m)
+  return cor1m.map(([d, value], index) => ({
+    observedOn: d, availableOn: d, value,
+    change: index >= 5 ? clean(value - cor1m[index - 5][1]) : null,
+    cor3m: longer.get(d) ?? null,
+  }))
+}
+
 /** AAII 看多减看空，只用两边同一调查周都有的读数。 */
 export function aaiiSpread(bull, bear) {
   const bears = new Map(bear)
@@ -351,6 +365,7 @@ export function buildRadarSeries({ local, macroUs, breadth, universes = {}, inde
     cftcAsset: simple('cftcSpxAsset'),
     breadth: marketSeries(industries, 0, true),
     vixTerm,
+    impliedCorr: impliedCorrelation(fetched.COR1M, fetched.COR3M),
     breadth200: marketSeries(breadth200, 0, true),
     volumeRatio: simple('volumeRatio'),
     industryMomentum: marketSeries((fetched.industryTrend ?? []).map(([d, value]) => [d, value]), 0, true),
@@ -374,7 +389,7 @@ export function buildRadarSeries({ local, macroUs, breadth, universes = {}, inde
     industryMomentum: FRENCH_INDUSTRIES, industryHighs: FRENCH_INDUSTRIES,
     sectorBreadth: breadth?.source, netHighs: breadth?.source, advDec: breadth?.source, above50: breadth?.source,
     equalWeight: 'https://finance.yahoo.com/quote/%5ESPXEW/history/',
-    vixTerm: CBOE + 'VIX3M_History.csv', breadth200: breadth?.source,
+    vixTerm: CBOE + 'VIX3M_History.csv', impliedCorr: CBOE + 'COR1M_History.csv', breadth200: breadth?.source,
     epsYoy: 'https://shillerdata.com/', forwardEps: sources.spxForwardEpsChange,
   })
   return { current, historical, sources }
