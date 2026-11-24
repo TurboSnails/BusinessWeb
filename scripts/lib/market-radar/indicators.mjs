@@ -332,15 +332,28 @@ export function buildIndicators(series, sources, date) {
   })
 }
 
+/** 与 scoreAt 同一套计分：维度分 + 综合分。 */
+export function scoresAt(series, date) {
+  return aggregateScores(scoredIndicatorsAt(series, date))
+}
+
+/** 与 scoreAt 同一套计分：返回各维度分（id / title / score / summary）。 */
+export function dimensionScoresAt(series, date) {
+  return scoresAt(series, date).dimensions
+}
+
 export function scoreAt(series, date) {
-  const indicators = Object.entries(DEFINITIONS).flatMap(([id, def]) => {
+  return scoresAt(series, date).score
+}
+
+function scoredIndicatorsAt(series, date) {
+  return Object.entries(DEFINITIONS).flatMap(([id, def]) => {
     if (!def.score) return []
     const rows = series[id] ?? []
     const reading = ['erp', 'pe', 'equityShare', 'cashShare'].includes(id) ? rankAt(rows, date) : null
     const point = reading?.point ?? valueAt(rows, date)
     return [{ dimension: def.dimension, inScore: true, score: scoreIndicator(id, point, reading?.percentile ?? null) }]
   })
-  return aggregateScores(indicators).score
 }
 
 export function aggregateScores(indicators) {

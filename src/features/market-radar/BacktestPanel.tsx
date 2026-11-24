@@ -2,12 +2,10 @@ import React, { useMemo } from 'react'
 import { TableWrap } from '../../components/ui'
 import { useCompositePosture } from '../macro-posture/composite/load'
 import TimelineView, {
-  type TimelineDetailRow,
   type TimelineLabels,
 } from '../macro-posture/composite/timeline/TimelineView'
 import type { ChartPoint } from '../macro-posture/composite/timeline/dailyMath'
 import {
-  TIER_ORDER_DEFENSE_LEFT,
   formatNum2,
   formatPct1,
   visibleText,
@@ -30,7 +28,7 @@ function MetricCells({ m, period }: { m: RadarMetrics; period: 'train' | 'test' 
 type RecessionRow = { d: string; rec: 0 | 1 }
 
 /**
- * 雷达月度档位 → 时间线的点：上带 final = 雷达，下带 regime = 大师方案。
+ * 雷达月度档位 → 时间线的点：上带 final = 雷达；下带 regime 置空（单带图不画）。
  * 衰退阴影按月份从宏观攻守时间线合并；拿不到（或一个月份都对不上）时不画衰退。
  */
 export function buildRadarTimeline(
@@ -43,34 +41,18 @@ export function buildRadarTimeline(
   const points = rows.map(row => {
     const rec = recByMonth.get(row.d)
     if (rec !== undefined) matched += 1
-    return { d: row.d, spx: row.spx, final: row.radar, regime: row.masters, rec: rec === 1 ? 1 : 0 } satisfies ChartPoint
+    return { d: row.d, spx: row.spx, final: row.radar, regime: null, rec: rec === 1 ? 1 : 0 } satisfies ChartPoint
   })
   return { points, hasRecession: matched > 0 }
 }
 
-/** 两条带是否一致；不一致时再给一行：雷达比大师偏防守还是偏进攻几档。 */
-export function agreementRows(point: Pick<ChartPoint, 'final' | 'regime'>): TimelineDetailRow[] {
-  const radar = point.final
-  const masters = point.regime
-  if (!radar || !masters) {
-    return [{ label: '是否一致', value: '无法比较', caption: '雷达与大师方案无法比较（有一方证据不足）' }]
-  }
-  if (radar === masters) return [{ label: '是否一致', value: '一致', caption: '雷达与大师方案一致' }]
-  const gap = TIER_ORDER_DEFENSE_LEFT.indexOf(radar) - TIER_ORDER_DEFENSE_LEFT.indexOf(masters)
-  const diff = `雷达${gap < 0 ? '偏防守' : '偏进攻'} ${Math.abs(gap)} 档`
-  return [
-    { label: '是否一致', value: '不一致', caption: `雷达与大师方案不一致（${diff}）` },
-    { label: '差几档', value: diff },
-  ]
-}
-
 const RADAR_LABELS: Partial<TimelineLabels> = {
-  title: '标普月均价对数走势、雷达月度档位与大师方案月度档位',
+  title: '标普月均价对数走势与雷达月度档位',
   top: '雷达档位',
-  bottom: '大师档位',
+  bottom: '雷达档位',
   tooltipTop: '雷达档位',
-  tooltipBottom: '大师方案档位',
-  legendNote: '上带「雷达档位」是我的市场雷达按当时可得数据的月度定档；下带「大师方案档位」与宏观攻守页的月度时间线是同一份数据。两条带颜色相同的月份，两者结论一致',
+  tooltipBottom: '雷达档位',
+  legendNote: '色带「雷达档位」是我的市场雷达按当时可得数据的月度定档',
 }
 
 function RadarTimeline({ rows }: { rows: RadarFile['backtest']['timeline'] }): JSX.Element | null {
@@ -83,9 +65,15 @@ function RadarTimeline({ rows }: { rows: RadarFile['backtest']['timeline'] }): J
   )
   if (points.length < 2) return null
   return (
-    <div className="mr-dual" data-testid="mr-dual-timeline">
-      <h3 className="mr-subhead">月度档位对照</h3>
-      <TimelineView mode="month" points={points} labels={labels} defaultPreset="近 10 年" details={agreementRows} />
+    <div className="mr-dual" data-testid="mr-radar-timeline">
+      <h3 className="mr-subhead">雷达月度档位</h3>
+      <TimelineView
+        mode="month"
+        points={points}
+        labels={labels}
+        defaultPreset="近 10 年"
+        singleBand
+      />
     </div>
   )
 }

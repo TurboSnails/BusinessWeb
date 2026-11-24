@@ -4,7 +4,9 @@ import {
   alignRadar, blendEquity, buildBacktestVerdict, DISCLOSURES,
   resolveMastersTiers, STRATEGY_ROWS,
 } from './lib/market-radar/backtest.mjs'
-import { aggregateScores, buildIndicators, rankAt, scoreAt, scoreIndicator } from './lib/market-radar/indicators.mjs'
+import {
+  aggregateScores, buildIndicators, dimensionScoresAt, rankAt, scoreAt, scoreIndicator,
+} from './lib/market-radar/indicators.mjs'
 import { buildRadarSeries, parseShillerEps, priceAdjustedPe } from './lib/market-radar/sources.mjs'
 import { marketSeries } from './lib/macro-posture-market/data.mjs'
 import { makePanel } from './lib/macro-posture/panel.mjs'
@@ -106,54 +108,50 @@ test('priceAdjustedPe：正常折算、缺价格跳过、availableOn 为 t 月�
   assert.deepEqual(priceAdjustedPe(peRows, []), [])
 })
 
-test('buildBacktestVerdict：高于 / 接近 / 低于，雷达优于大师时无末句', () => {
+test('buildBacktestVerdict：高于 / 接近 / 低于，末句指向综合策略页', () => {
   const metrics = (sharpe, maxDd = -0.2) => ({
     cagr: 0.1, vol: 0.15, maxDd, sharpe, avgEquity: 0.7, switchesPerYear: 1,
   })
-  const rowsOf = (radar, static70, trend, masters) => [
+  const rowsOf = (radar, static70, trend) => [
     { id: 'radar', full: metrics(radar, -0.312) },
     { id: 'static70', full: metrics(static70) },
-    { id: 'trend', full: metrics(trend) },
-    { id: 'masters', full: metrics(masters, -0.2) },
+    { id: 'trend', full: metrics(trend, -0.286) },
+    { id: 'buyhold', full: metrics(0.5) },
   ]
-  const higher = buildBacktestVerdict(rowsOf(0.59, 0.55, 0.64, 0.7))
+  const higher = buildBacktestVerdict(rowsOf(0.59, 0.55, 0.64))
   assert.match(higher, /高于恒定七成股票的 0\.55/)
-  assert.match(higher, /低于十个月均线的 0\.64 和大师方案的 0\.70/)
-  assert.match(higher, /最大回撤 −31\.2%，大师方案为 −20\.0%。/)
-  assert.match(higher, /仓位仍以宏观攻守为准。$/)
+  assert.match(higher, /低于十个月均线的 0\.64/)
+  assert.match(higher, /最大回撤 −31\.2%，十个月均线为 −28\.6%。/)
+  assert.match(higher, /雷达只从股市自身看冷热，仓位怎么定见综合策略页。$/)
 
-  const near = buildBacktestVerdict(rowsOf(0.56, 0.55, 0.555, 0.57))
-  assert.match(near, /接近恒定七成股票的 0\.55、十个月均线的 0\.56 和大师方案的 0\.57/)
-  assert.match(near, /仓位仍以宏观攻守为准。$/)
+  const near = buildBacktestVerdict(rowsOf(0.56, 0.55, 0.555))
+  assert.match(near, /接近恒定七成股票的 0\.55 和十个月均线的 0\.56/)
+  assert.match(near, /见综合策略页。$/)
 
-  const lower = buildBacktestVerdict(rowsOf(0.4, 0.55, 0.64, 0.7))
-  assert.match(lower, /低于恒定七成股票的 0\.55、十个月均线的 0\.64 和大师方案的 0\.70/)
-  assert.match(lower, /仓位仍以宏观攻守为准。$/)
-
-  const beatsMasters = buildBacktestVerdict(rowsOf(0.8, 0.55, 0.64, 0.7))
-  assert.match(beatsMasters, /高于恒定七成股票的 0\.55、十个月均线的 0\.64 和大师方案的 0\.70/)
-  assert.equal(beatsMasters.includes('仓位仍以宏观攻守为准'), false)
+  const lower = buildBacktestVerdict(rowsOf(0.4, 0.55, 0.64))
+  assert.match(lower, /低于恒定七成股票的 0\.55 和十个月均线的 0\.64/)
 })
 
-test('mastersTimeline 有月采用、缺月回退实时帧；策略 6 行；blend 用 masters', () => {
+test('mastersTimeline 有月采用、缺月回退实时帧；策略 4 行；blend 仍可用', () => {
   const map = new Map([['2020-01', 'defense']])
   assert.equal(resolveMastersTiers('2020-01', map, 'lean-defense'), 'defense')
   assert.equal(resolveMastersTiers('2020-02', map, 'lean-offense'), 'lean-offense')
   assert.deepEqual(STRATEGY_ROWS.map(row => row.id), [
-    'radar', 'masters', 'blend', 'trend', 'buyhold', 'static70',
+    'radar', 'trend', 'buyhold', 'static70',
   ])
-  assert.match(STRATEGY_ROWS[1].label, /宏观攻守页/)
-  assert.equal(STRATEGY_ROWS.some(row => row.id === 'mastersRealtime'), false)
+  assert.equal(STRATEGY_ROWS.some(row => row.id === 'masters'), false)
+  assert.equal(STRATEGY_ROWS.some(row => row.id === 'blend'), false)
   const signal = { radar: 'offense', masters: 'defense' }
   assert.equal(blendEquity(signal.radar, signal.masters), (tierEquity('offense') + tierEquity('defense')) / 2)
   assert.match(DISCLOSURES[4], /当月标普月均价/)
   assert.match(DISCLOSURES[5], /折算后的市盈率/)
-  assert.match(DISCLOSURES[8], /大师方案直接取宏观攻守页的月度时间线/)
-  assert.match(DISCLOSURES[8], /实时数据口径/)
+  assert.match(DISCLOSURES[8], /十个月均线对照/)
+  assert.equal(DISCLOSURES.some(text => text.includes('平均仓位每月取雷达')), false)
+  assert.equal(DISCLOSURES.some(text => text.includes('大师方案直接取宏观攻守页')), false)
   assert.match(DISCLOSURES.at(-1), /2026 年 11 月 24 日修正/)
 })
 
-test('先算维度均值，再等权合成；零分计入、空维度略过', () => {
+test('先算维度均值，再等权合成；零分计入、空维度略过；scoreAt 与 dimensionScoresAt 一致', () => {
   const make = (dimension, score, inScore = true) => ({ dimension, score, inScore })
   const current = aggregateScores([
     make('liquidity', -1), make('liquidity', 1, false), make('valuation', 1),
@@ -169,6 +167,15 @@ test('先算维度均值，再等权合成；零分计入、空维度略过', ()
   ]) {
     assert.equal(aggregateScores([make('earnings', earnings), make('trading', trading)]).tier, expected)
   }
+
+  const pe = marketSeries([
+    ['1972-06-30', 10], ['1972-07-31', 10], ['1972-08-31', 15], ['1972-09-30', 20],
+    ['1972-10-31', 12], ['1972-11-30', 12], ['1972-12-31', 12], ['1973-01-31', 12],
+  ], 3)
+  const dims = dimensionScoresAt({ pe }, '1972-12-31')
+  const valuation = dims.find(row => row.id === 'valuation')?.score
+  assert.equal(valuation, scoreAt({ pe }, '1972-12-31'))
+  assert.equal(scoreAt({ pe }, '1972-12-31'), -1)
 })
 
 test('月末信号只用于 t+2 收益，平均股票仓位无需再次分档', () => {

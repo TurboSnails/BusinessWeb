@@ -42,6 +42,8 @@ import {
 const TOP = 18
 const BOTTOM = 32
 const BAND_AREA = 78
+/** 只画上带时留给色带的高度（一条带 + 边距） */
+const BAND_AREA_SINGLE = 46
 const BAND_HEIGHT = 24
 const OVERVIEW_HEIGHT = 96
 
@@ -199,6 +201,8 @@ type Props = {
   defaultPreset?: string
   /** 提示卡与读数里追加的行 */
   details?: (point: ChartPoint) => TimelineDetailRow[]
+  /** 只画上带（final）；隐藏下带、其图例文案依赖与读数行。默认 false，宏观攻守与综合策略双带图不变 */
+  singleBand?: boolean
 }
 
 export default function TimelineView({
@@ -208,6 +212,7 @@ export default function TimelineView({
   labels: labelOverrides,
   defaultPreset,
   details = NO_DETAILS,
+  singleBand = false,
 }: Props): JSX.Element | null {
   const isDay = mode === 'day'
   const minSpan = isDay ? DAILY_MIN_SPAN : MIN_RANGE_SPAN
@@ -258,7 +263,8 @@ export default function TimelineView({
   const width = size.width
   const height = size.height
   const plotWidth = Math.max(1, width - CHART_LEFT - CHART_RIGHT)
-  const plotBottom = height - BOTTOM - BAND_AREA
+  const bandArea = singleBand ? BAND_AREA_SINGLE : BAND_AREA
+  const plotBottom = height - BOTTOM - bandArea
   const finalBandY = plotBottom + 8
   const regimeBandY = finalBandY + 32
   const rangeStart = safeRange.start
@@ -462,7 +468,7 @@ export default function TimelineView({
           />
         )
       })}
-      {visibleRegime.map(segment => {
+      {!singleBand ? visibleRegime.map(segment => {
         const rect = segmentRect(segment)
         return (
           <rect
@@ -475,9 +481,9 @@ export default function TimelineView({
             height={BAND_HEIGHT}
           />
         )
-      })}
+      }) : null}
     </>
-  ), [recessionSegments, visibleFinal, visibleRegime, rangeStart, rangeEnd, segmentRect, height, finalBandY, regimeBandY])
+  ), [recessionSegments, visibleFinal, visibleRegime, rangeStart, rangeEnd, segmentRect, height, finalBandY, regimeBandY, singleBand])
 
   // 档位变化日：色带上方的小三角，同一像素只画一个；每层最近一次变化加重显示。
   const changeTicks = useMemo(() => {
@@ -487,6 +493,7 @@ export default function TimelineView({
     const lastX = new Map<DailyChange['layer'], number>()
     const out: { key: string; x: number; y: number; layer: DailyChange['layer']; latest: boolean }[] = []
     for (const mark of changeMarks) {
+      if (singleBand && mark.layer !== 'final') continue
       if (mark.index < rangeStart || mark.index > rangeEnd) continue
       const markX = x(mark.index)
       const latest = lastByLayer.get(mark.layer) === mark.index
@@ -502,7 +509,7 @@ export default function TimelineView({
       })
     }
     return out
-  }, [isDay, changeMarks, rangeStart, rangeEnd, x, finalBandY, regimeBandY])
+  }, [isDay, changeMarks, rangeStart, rangeEnd, x, finalBandY, regimeBandY, singleBand])
 
   const overviewDomain = useMemo(() => {
     if (!total) return { min: 1, max: 2 }
@@ -545,12 +552,12 @@ export default function TimelineView({
       <>
         <path className="mp-timeline__overview-line" d={d} fill="none" clipPath={`url(#${overviewClipId})`} />
         <g clipPath={`url(#${overviewClipId})`}>
-          {finalSegments.map(segment => band(segment, 50, 'final'))}
-          {regimeSegments.map(segment => band(segment, 68, 'regime'))}
+          {finalSegments.map(segment => band(segment, singleBand ? 58 : 50, 'final'))}
+          {!singleBand ? regimeSegments.map(segment => band(segment, 68, 'regime')) : null}
         </g>
       </>
     )
-  }, [total, prices, plotWidth, overviewX, overviewY, overviewStep, finalSegments, regimeSegments, overviewClipId])
+  }, [total, prices, plotWidth, overviewX, overviewY, overviewStep, finalSegments, regimeSegments, overviewClipId, singleBand])
 
   const updateHover = useCallback((clientX: number, clientY: number, svg: SVGSVGElement): void => {
     const nextIndex = indexFromClientX(svg, clientX, rangeRef.current, width)
@@ -916,7 +923,9 @@ export default function TimelineView({
           ))}
           <path className="mp-timeline__line" d={path} fill="none" clipPath={`url(#${clipId})`} />
           <text className="mp-timeline__band-label" x={7} y={finalBandY + 16}>{labels.top}</text>
-          <text className="mp-timeline__band-label" x={7} y={regimeBandY + 16}>{labels.bottom}</text>
+          {!singleBand ? (
+            <text className="mp-timeline__band-label" x={7} y={regimeBandY + 16}>{labels.bottom}</text>
+          ) : null}
           <line className="mp-timeline__cursor" x1={x(safeIndex)} x2={x(safeIndex)} y1={TOP} y2={height - BOTTOM} />
           <circle className="mp-timeline__dot" cx={x(safeIndex)} cy={yPrice(shown.spx)} r={4} />
           {ticks.map(tick => (
@@ -972,14 +981,18 @@ export default function TimelineView({
                 <div><dt>{isDay ? '收盘' : '月均价'}</dt><dd>{formatPrice(point.spx, mode)}</dd></div>
                 {isDay ? (
                   <>
-                    <div><dt>{labels.tooltipBottom}</dt><dd>{tierLabel(point.regime)}</dd></div>
+                    {!singleBand ? (
+                      <div><dt>{labels.tooltipBottom}</dt><dd>{tierLabel(point.regime)}</dd></div>
+                    ) : null}
                     <div><dt>{labels.tooltipTop}</dt><dd>{tierLabel(point.final)}</dd></div>
                     <div><dt>定档</dt><dd>{officialText(point)}</dd></div>
                   </>
                 ) : (
                   <>
                     <div><dt>{labels.tooltipTop}</dt><dd>{tierLabel(point.final)}</dd></div>
-                    <div><dt>{labels.tooltipBottom}</dt><dd>{tierLabel(point.regime)}</dd></div>
+                    {!singleBand ? (
+                      <div><dt>{labels.tooltipBottom}</dt><dd>{tierLabel(point.regime)}</dd></div>
+                    ) : null}
                   </>
                 )}
                 {pointDetails.map(row => (
@@ -1065,8 +1078,12 @@ export default function TimelineView({
             {` · ${labels.tooltipTop} `}
             <strong>{tierLabel(shown.final)}</strong>
             {`（${officialText(shown)}）`}
-            {` · ${labels.tooltipBottom} `}
-            <strong>{tierLabel(shown.regime)}</strong>
+            {!singleBand ? (
+              <>
+                {` · ${labels.tooltipBottom} `}
+                <strong>{tierLabel(shown.regime)}</strong>
+              </>
+            ) : null}
             {captionDetails || null}
             {recessionCaption}
             {shownChanges.length ? ` · 当天档位变化：${shownChanges.map(change => changeText(change, labels)).join('；')}` : ''}
@@ -1078,8 +1095,12 @@ export default function TimelineView({
             <strong>{formatPrice(shown.spx, mode)}</strong>
             {` · ${labels.tooltipTop} `}
             <strong>{tierLabel(shown.final)}</strong>
-            {` · ${labels.tooltipBottom} `}
-            <strong>{tierLabel(shown.regime)}</strong>
+            {!singleBand ? (
+              <>
+                {` · ${labels.tooltipBottom} `}
+                <strong>{tierLabel(shown.regime)}</strong>
+              </>
+            ) : null}
             {captionDetails || null}
             {recessionCaption}
           </span>

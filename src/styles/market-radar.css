@@ -215,6 +215,16 @@ html.dark .mr-page {
   color: var(--text-secondary);
 }
 .mr-conclusion__masters-link { margin: 0; font-size: 0.9rem; }
+.mr-conclusion__strategy-link {
+  margin: 12px 0 0;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+.mr-conclusion__strategy-link a {
+  color: var(--accent-ink, var(--text-primary));
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 
 .mr-dims {
   display: grid;

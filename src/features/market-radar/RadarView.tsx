@@ -3,17 +3,9 @@ import AnchorNav from './AnchorNav'
 import BacktestPanel from './BacktestPanel'
 import ConclusionPanel from './ConclusionPanel'
 import IndicatorsPanel from './IndicatorsPanel'
-import MarketPanel from './market/MarketPanel'
 import type { RadarState } from './load'
-import type { TierId } from '../macro-posture/composite/types'
 
-export default function RadarView({
-  state,
-  mastersTier,
-}: {
-  state: RadarState
-  mastersTier: TierId | null
-}): JSX.Element {
+export default function RadarView({ state }: { state: RadarState }): JSX.Element {
   if (state.status === 'loading') {
     return <p className="mr-status" role="status">市场雷达加载中…</p>
   }
@@ -30,10 +22,9 @@ export default function RadarView({
   return (
     <div className="mr-body">
       <AnchorNav />
-      <ConclusionPanel data={data} mastersTier={mastersTier} />
+      <ConclusionPanel data={data} />
       <IndicatorsPanel data={data} />
       <BacktestPanel data={data} />
-      <MarketPanel />
     </div>
   )
 }

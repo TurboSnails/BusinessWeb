@@ -178,4 +178,22 @@ describe('月度时间线 指针换算', () => {
     expect(chart.getAttribute('data-visible-end')).toBe('2024-05')
     expect(Number(chart.getAttribute('data-visible-months'))).toBe(60)
   })
+
+  it('singleBand：只画上带，提示卡与读数无下带行', () => {
+    const timeline = makeTimeline()
+    render(<TimelineView mode="month" points={timeline} singleBand />)
+    const chart = screen.getByTestId('mp-timeline-chart') as unknown as SVGSVGElement
+    expect([...chart.querySelectorAll('.mp-timeline__band-label')].map(n => n.textContent)).toEqual(['最终档位'])
+    expect(chart.querySelectorAll('[data-band="regime"]').length).toBe(0)
+    expect(screen.queryByText('周期档位')).toBeNull()
+    mockSvgGeometry(chart, { left: 0, top: 0, width, height: 380 }, { width, height: 380 })
+    const clientX = CHART_LEFT + plotWidth / 2
+    fireEvent.pointerMove(chart, { clientX, clientY: 200, pointerType: 'mouse', pointerId: 1 })
+    flushFrames()
+    const tip = screen.getByTestId('mp-timeline-tooltip')
+    expect(tip.textContent).toContain('最终档位')
+    expect(tip.textContent).not.toContain('周期档位')
+    expect(document.querySelector('.mp-timeline__caption')?.textContent).toContain('最终档位')
+    expect(document.querySelector('.mp-timeline__caption')?.textContent).not.toContain('周期档位')
+  })
 })

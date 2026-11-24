@@ -19,7 +19,6 @@ function isRadar(body: unknown): body is RadarFile {
     && Boolean(file.current && typeof file.current === 'object')
     && Array.isArray(file.indicators)
     && Boolean(file.backtest && typeof file.backtest === 'object')
-    && Boolean(file.comparison && typeof file.comparison === 'object')
 }
 
 export async function loadRadar(fetcher: typeof fetch = fetch): Promise<RadarFile> {

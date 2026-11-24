@@ -313,11 +313,12 @@ function MarketReady({ data }: { data: MarketFile }): JSX.Element {
   )
 }
 
-export default function MarketPanel(): JSX.Element {
+export default function MarketPanel({ intro }: { intro?: string } = {}): JSX.Element {
   const state = useMarket()
   return (
     <section className="mp-market" id="mp-market" aria-labelledby="mp-market-title">
       <h2 id="mp-market-title">市场综合<span className="mr-market__subtitle">（股市内部与估值的两阶段回测）</span></h2>
+      {intro ? <p className="cs-market-note" data-testid="cs-market-note">{intro}</p> : null}
       {state.status === 'loading' ? <p className="mp-status" role="status">市场综合加载中…</p> : null}
       {state.status === 'error' ? (
         <p className="mp-muted" role="status" data-testid="mp-market-error">

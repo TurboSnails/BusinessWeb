@@ -65,6 +65,7 @@ export default function MacroPosture(): JSX.Element {
           ) : (
             <li><a href="#mp-backtest">公开回测</a></li>
           )}
+          <li><Link to="/invest/strategy" data-testid="mp-strategy-link">把宏观和股市冷热合起来看，见综合策略</Link></li>
         </ul>
       </header>
 

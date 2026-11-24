@@ -4,7 +4,6 @@ export const RADAR_NAV = [
   { id: 'mr-conclusion', label: '结论' },
   { id: 'mr-indicators', label: '指标' },
   { id: 'mr-backtest', label: '回测' },
-  { id: 'mp-market', label: '市场综合' },
 ] as const
 
 export default function AnchorNav(): JSX.Element {

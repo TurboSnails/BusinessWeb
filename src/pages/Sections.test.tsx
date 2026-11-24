@@ -36,7 +36,7 @@ describe('InvestHub', () => {
     const fold = watch.querySelector('details')!
     expect(fold.open).toBe(false)
     expect(fold.querySelector('summary')?.textContent).toMatch(/细节页/)
-    expect(within(fold).getAllByRole('link').map(a => a.getAttribute('href'))).toEqual(['/monitor', '/invest/macro-posture', '/invest/market-radar', '/pulse', '/daily-analysis', '/sector-rotation', '/limit-up-analysis'])
+    expect(within(fold).getAllByRole('link').map(a => a.getAttribute('href'))).toEqual(['/monitor', '/invest/macro-posture', '/invest/market-radar', '/invest/strategy', '/pulse', '/daily-analysis', '/sector-rotation', '/limit-up-analysis'])
     const main = within(watch).getAllByRole('link').filter(a => !fold.contains(a))
     expect(main.map(a => a.getAttribute('href'))).toEqual(['/watch'])
     expect(main[0].closest('ul')?.className).toContain('inv-cards--single')

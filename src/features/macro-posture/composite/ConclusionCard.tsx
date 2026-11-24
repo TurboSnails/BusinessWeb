@@ -71,7 +71,8 @@ function TierStrip({
   )
 }
 
-function EquityCapInput({ equityShare }: { equityShare: number | null }): JSX.Element {
+/** 股票上限输入；与综合策略页共用同一本地存储键。 */
+export function EquityCapInput({ equityShare }: { equityShare: number | null }): JSX.Element {
   const id = useId()
   const [cap, setCap] = useState(readEquityCap)
   const [draft, setDraft] = useState(() => String(readEquityCap()))

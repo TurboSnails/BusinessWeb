@@ -5,9 +5,10 @@ import { fileURLToPath } from 'node:url'
 import { collectCore } from './macro-posture.mjs'
 import { readJson, writeJsonIfChanged } from './lib/json-io.mjs'
 import { makePanel, monthEnd } from './lib/macro-posture/panel.mjs'
-import { RULE_VERSION, TIERS } from './lib/macro-posture/model.mjs'
+import { RULE_VERSION } from './lib/macro-posture/model.mjs'
+import { buildCombinedStrategy } from './lib/combined-strategy/build.mjs'
 import { buildCurrent, buildIndicators } from './lib/market-radar/indicators.mjs'
-import { buildRadarBacktest } from './lib/market-radar/backtest.mjs'
+import { buildMonthlySignals, buildRadarBacktest } from './lib/market-radar/backtest.mjs'
 import { buildRadarSeries, parseShillerEps, parseShillerPrice, refreshRadarSources } from './lib/market-radar/sources.mjs'
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
@@ -16,16 +17,7 @@ const CACHE = resolve(ROOT, 'data-raw/market-radar')
 const MARKET_CACHE = resolve(ROOT, 'data-raw/macro-posture-market')
 const VINTAGE_CACHE = resolve(ROOT, 'data-raw/macro-posture-vintages')
 const OUTPUT = resolve(DATA, 'market-radar.json')
-
-function compare(radarTier, mastersTier) {
-  const label = id => TIERS.find(row => row.id === id)?.label
-  const radar = label(radarTier)
-  const masters = label(mastersTier)
-  const text = radar && masters
-    ? `市场雷达为${radar}档，大师方案为${masters}档，两边档位${radarTier === mastersTier ? '一致' : '不同'}。`
-    : `市场雷达为${radar ? radar + '档' : '待定'}，大师方案为${masters ? masters + '档' : '待定'}，现有读数不足以比较档位。`
-  return { radarTier, mastersTier, text }
-}
+const COMBINED_OUTPUT = resolve(DATA, 'combined-strategy.json')
 
 export async function runRadar({ now = new Date(), fetcher = fetch, warn = console.warn } = {}) {
   const generatedAt = now.toISOString()
@@ -61,22 +53,36 @@ export async function runRadar({ now = new Date(), fetcher = fetch, warn = conso
   })
   const indicators = buildIndicators(current, sources, today)
   const radar = buildCurrent(indicators)
+  const mastersTimeline = masters.backtest?.timeline ?? []
+  const signals = buildMonthlySignals({
+    historical, panel, vintages, dailyRows, today, mastersTimeline,
+  })
   const file = {
     generatedAt, ruleVersion: 'radar-v1', current: radar, indicators,
     backtest: buildRadarBacktest({
-      historical, panel, vintages, dailyRows, today,
-      mastersTimeline: masters.backtest?.timeline ?? [],
+      historical, panel, vintages, dailyRows, today, mastersTimeline, signals,
     }),
-    comparison: compare(radar.tier, masters.current.final.tier),
   }
   writeJsonIfChanged(OUTPUT, file)
+  try {
+    const combined = buildCombinedStrategy({
+      signals, panel, today, posture: masters, radar, generatedAt,
+    })
+    writeJsonIfChanged(COMBINED_OUTPUT, combined)
+    file.combined = combined
+  } catch (error) {
+    warn(`综合策略数据写入失败（雷达主文件已保存）：${error.message}`)
+  }
   return file
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   runRadar().then(file => {
-    console.log(file.comparison.text)
+    console.log(file.backtest.verdict)
     console.log(`已生成 ${file.indicators.length} 项指标和 ${file.backtest.rows.length} 条策略，收益区间 ${file.backtest.start} 至 ${file.backtest.end}。`)
+    if (file.combined) {
+      console.log(`综合策略：${file.combined.fusion.verdict}`)
+    }
   }).catch(error => {
     console.error(error)
     process.exitCode = 1

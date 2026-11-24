@@ -271,15 +271,10 @@ function timeline(): RadarFile['backtest']['timeline'] {
     'lean-defense', 'neutral', 'lean-offense', 'offense', 'lean-offense',
     'neutral', 'lean-offense',
   ]
-  const masters: Array<TierId | null> = [
-    'lean-offense', 'offense', 'lean-offense', 'neutral', 'lean-defense',
-    'defense', 'lean-defense', 'neutral', 'lean-offense', 'offense',
-    'lean-offense', 'neutral',
-  ]
   return radar.map((tier, i) => {
     const month = String((i % 12) + 1).padStart(2, '0')
     const year = 2025 + Math.floor(i / 12)
-    return { d: `${year}-${month}`, radar: tier, masters: masters[i], spx: 4800 + i * 20 }
+    return { d: `${year}-${month}`, radar: tier, spx: 4800 + i * 20 }
   })
 }
 
@@ -308,20 +303,6 @@ export function radarFixture(overrides: Partial<RadarFile> = {}): RadarFile {
           full: metrics({ cagr: 0.092, maxDd: -0.3, sharpe: 0.55 }),
         },
         {
-          id: 'masters',
-          label: '大师方案 v2.2（宏观攻守页）',
-          train: metrics({ cagr: 0.11, maxDd: -0.22, sharpe: 0.68 }),
-          test: metrics({ cagr: 0.082, maxDd: -0.27, sharpe: 0.52 }),
-          full: metrics({ cagr: 0.096, maxDd: -0.27, sharpe: 0.6 }),
-        },
-        {
-          id: 'blend',
-          label: '雷达与大师平均仓位',
-          train: metrics({ cagr: 0.108, maxDd: -0.23, sharpe: 0.65 }),
-          test: metrics({ cagr: 0.08, maxDd: -0.28, sharpe: 0.5 }),
-          full: metrics({ cagr: 0.094, maxDd: -0.28, sharpe: 0.57 }),
-        },
-        {
           id: 'trend',
           label: '10 个月均线',
           train: metrics({ cagr: 0.095, maxDd: -0.25, sharpe: 0.58 }),
@@ -343,19 +324,14 @@ export function radarFixture(overrides: Partial<RadarFile> = {}): RadarFile {
           full: metrics({ cagr: 0.075, maxDd: -0.36, sharpe: 0.45, avgEquity: 0.7 }),
         },
       ],
-      verdict: '雷达全样本夏普 0.55，高于恒定七成股票的 0.45，低于十个月均线的 0.48 和大师方案的 0.60；最大回撤 −30.0%，大师方案为 −27.0%。雷达更适合用来看市场贵不贵、挤不挤，仓位仍以宏观攻守为准。',
+      verdict: '雷达全样本夏普 0.55，高于恒定七成股票的 0.45，低于十个月均线的 0.48；最大回撤 −30.0%。雷达只从股市自身看冷热，仓位怎么定见综合策略页。',
       disclosures: [
         '规则先验设定，验证期结果未参与挑选。',
-        '雷达与大师方案完全独立，互不影响对方结论。',
+        '雷达与宏观攻守完全独立，互不影响对方结论。',
         '标普收益用月均价近似，未计税费与交易成本。',
         '样本内回测不代表未来表现。',
       ],
       timeline: timeline(),
-    },
-    comparison: {
-      mastersTier: 'lean-offense',
-      radarTier: 'lean-defense',
-      text: '雷达偏防守，大师方案偏进攻：估值与拥挤度拉低了雷达档位。',
     },
   }
   return {
@@ -369,7 +345,6 @@ export function radarFixture(overrides: Partial<RadarFile> = {}): RadarFile {
       disclosures: overrides.backtest?.disclosures ?? base.backtest.disclosures,
       timeline: overrides.backtest?.timeline ?? base.backtest.timeline,
     },
-    comparison: { ...base.comparison, ...(overrides.comparison ?? {}) },
     indicators: overrides.indicators ?? base.indicators,
   }
 }

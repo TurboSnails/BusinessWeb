@@ -36,16 +36,9 @@ function TierStrip({ current }: { current: TierId | null }): JSX.Element {
   )
 }
 
-export default function ConclusionPanel({
-  data,
-  mastersTier,
-}: {
-  data: RadarFile
-  mastersTier: TierId | null
-}): JSX.Element {
-  const { current, comparison } = data
+export default function ConclusionPanel({ data }: { data: RadarFile }): JSX.Element {
+  const { current } = data
   const radarTier = current.tier
-  const compareTier = mastersTier ?? comparison.mastersTier
   const dims = DIMENSION_ORDER.map(id => current.dimensions.find(d => d.id === id)).filter(Boolean)
 
   return (
@@ -68,23 +61,13 @@ export default function ConclusionPanel({
           <p className="mr-conclusion__headline" data-testid="mr-headline">
             {visibleText(current.headline)}
           </p>
+          <p className="mr-conclusion__strategy-link" data-testid="mr-strategy-link">
+            仓位怎么定、和宏观攻守怎么配合，见
+            {' '}
+            <Link to="/invest/strategy">综合策略</Link>
+            。
+          </p>
         </div>
-
-        <aside className="mr-conclusion__masters" data-testid="mr-masters-compare">
-          <p className="mr-conclusion__masters-label">大师方案（宏观攻守）</p>
-          <p
-            className={`mr-conclusion__masters-tier${compareTier ? ` mr-conclusion__tier--${compareTier}` : ''}`}
-            data-testid="mr-masters-tier"
-          >
-            {tierLabel(compareTier)}
-          </p>
-          <p className="mr-conclusion__masters-text" data-testid="mr-comparison-text">
-            {visibleText(comparison.text)}
-          </p>
-          <p className="mr-conclusion__masters-link">
-            <Link to="/invest/macro-posture">查看宏观攻守全文</Link>
-          </p>
-        </aside>
       </div>
 
       <ul className="mr-dims" data-testid="mr-dimensions">

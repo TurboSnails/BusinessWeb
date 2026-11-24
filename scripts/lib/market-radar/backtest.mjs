@@ -5,7 +5,8 @@ import { formatReading } from '../macro-posture/format.mjs'
 import { average, baseTier, evaluate } from '../macro-posture/model.mjs'
 import { monthEnd, panelAt, valueAt } from '../macro-posture/panel.mjs'
 import { panelWithVintages } from '../macro-posture/vintages.mjs'
-import { scoreAt } from './indicators.mjs'
+import { classifyHeat, heatScoreFromScores } from '../combined-strategy/heat.mjs'
+import { scoresAt } from './indicators.mjs'
 
 export const DISCLOSURES = [
   '雷达的指标、阈值及权重在看结果前固定。1973 年起生成月末信号，按收益实现月切分，1999 年 12 月及以前为样本内，2000 年 1 月起为样本外。两段仅用于报告，未用于调参。',
@@ -16,8 +17,7 @@ export const DISCLOSURES = [
   '股债利差用上述折算后的市盈率和当月 10 年期美债月均收益率。当前的市盈率、周期调整市盈率、融资余额与行业宽度使用最新已发布值。',
   '每股盈利同比采用席勒的名义盈利历史。若更新期超出席勒快照，用 Multpl 实际购买力口径盈利和未季调消费价格指数补算名义同比，仍按观察月后第 3 个月末可得。',
   '美元净流动性、高收益债利差、NAAIM、VIX 期限结构、隐含相关性与做市商 Gamma 敞口、FactSet 前瞻市盈率与盈利修正、日频成分股宽度的可得历史不足 25 年，美银调查（现金、美股与科技股超配）只有零星读数，因此均只展示，不进入回测。金银比、AAII 多空差、CFTC 资管机构标普与纳指期货净多、20 日量比（1950 年起回补）以及行业（含 49 行业日频宽度）、板块、个股层面的补充宽度指标是事后新增的，同样只展示。只展示指标用来源最新可得观测，逐项标示日期。',
-  '大师方案直接取宏观攻守页的月度时间线；该时间线用实时数据口径——非农就业、工业生产、核心个人消费支出价格、初请失业救济及制造业周工时取每个月末已发布的最新版本，缺少当时版本的月份沿用修订值并按发布滞后取数；金融条件指数在 2011 年 5 月之前为事后回推。月度档位对照的下带和平均仓位都用它。',
-  '平均仓位每月取雷达和大师股票仓位的算术平均。十个月均线对照在标普月均价低于均线时持五成股票，其余时间持有股票仓位上限。',
+  '十个月均线对照在标普月均价低于均线时持五成股票，其余时间持有股票仓位上限。',
   '2026 年 11 月 24 日修正了回测里市盈率的取数时点（原先连价格一起滞后三个月），属于看过原结果后的数据修正；同日按事先写下的规则检验了五类改法（分档刻度、滚动百分位窗口、盈利低谷时估值不计分、家庭两项配置合并、估值与拥挤度扣分需价格跌破均线确认），均未达到事先定下的采用门槛，规则保持不变。随后第二轮把后来新增的五项长历史指标（行业站上 200 日线比例、行业 12 个月正收益占比、行业 52 周新高减新低、AAII 多空差、金银比）并入计分，并检验了「快慢分层」结构（流动性、交易结构、盈利定档，估值与拥挤度只设上限或加减一档），三个候选在验证期同样没有达到门槛，这五项继续只展示。详见 docs/research/market-radar-v2-2026-11-24.md。',
 ]
 
@@ -26,10 +26,15 @@ export function blendEquity(radar, masters) {
   return weights.includes(null) ? null : average(weights)
 }
 
+export function heatScoreFromDimensions(dimensions) {
+  const byId = Object.fromEntries(dimensions.map(row => [row.id, row.score]))
+  return heatScoreFromScores(byId.valuation, byId.crowding)
+}
+
+export { classifyHeat }
+
 const STRATEGIES = [
   ['radar', '我的市场雷达', row => tierEquity(row.radar)],
-  ['masters', '大师方案 v2.2（宏观攻守页）', row => tierEquity(row.masters)],
-  ['blend', '雷达与大师平均仓位', row => blendEquity(row.radar, row.masters)],
   ['trend', '10 个月均线', row => row.below == null ? null : row.below ? 0.5 : 1],
   ['buyhold', '全程持有标普', () => 1],
   ['static70', '恒定七成股票', () => 0.7],
@@ -62,19 +67,17 @@ function compareSharpe(radar, other) {
   return diff > 0 ? '高于' : '低于'
 }
 
-/** 根据全样本夏普与回撤生成一句话结论；雷达夏普低于大师时才附末句。 */
+/** 根据全样本夏普与回撤生成一句话结论；只和恒定七成、十个月均线比。 */
 export function buildBacktestVerdict(rows) {
   const get = id => rows.find(row => row.id === id)?.full
   const radar = get('radar')
   const static70 = get('static70')
   const trend = get('trend')
-  const masters = get('masters')
-  if (!radar || !static70 || !trend || !masters) throw new Error('verdict 缺少对照策略')
+  if (!radar || !static70 || !trend) throw new Error('verdict 缺少对照策略')
 
   const peers = [
     { label: '恒定七成股票', sharpe: static70.sharpe, rel: compareSharpe(radar.sharpe, static70.sharpe) },
     { label: '十个月均线', sharpe: trend.sharpe, rel: compareSharpe(radar.sharpe, trend.sharpe) },
-    { label: '大师方案', sharpe: masters.sharpe, rel: compareSharpe(radar.sharpe, masters.sharpe) },
   ]
   const clauses = []
   for (let i = 0; i < peers.length;) {
@@ -88,19 +91,18 @@ export function buildBacktestVerdict(rows) {
       ? `${rel}${group[0]}`
       : `${rel}${group.slice(0, -1).join('、')} 和${group.at(-1)}`)
   }
-  let text = `雷达全样本夏普 ${sharpeText(radar.sharpe)}，${clauses.join('，')}；最大回撤 ${ddText(radar.maxDd)}，大师方案为 ${ddText(masters.maxDd)}。`
-  if (radar.sharpe < masters.sharpe) {
-    text += '雷达更适合用来看市场贵不贵、挤不挤，仓位仍以宏观攻守为准。'
-  }
-  return text
+  return `雷达全样本夏普 ${sharpeText(radar.sharpe)}，${clauses.join('，')}；最大回撤 ${ddText(radar.maxDd)}，十个月均线为 ${ddText(trend.maxDd)}。雷达只从股市自身看冷热，仓位怎么定见综合策略页。`
 }
 
-export function buildRadarBacktest({ historical, panel, vintages, dailyRows, today, mastersTimeline = [] }) {
+/**
+ * 每个回测月末一条信号。雷达回测与融合检验共用，避免算两遍。
+ * @returns {{ d, radar, masters, below, spx, heatScore, heat }[]}
+ */
+export function buildMonthlySignals({ historical, panel, vintages, dailyRows, today, mastersTimeline = [] }) {
   const lastComplete = monthEnd(today, -1)
-  const returns = monthlyReturns(panel, lastComplete)
   const closes = new Map(dailyRows.filter(([d]) => d <= lastComplete).map(([d, price]) => [month(d), price]))
   const mastersByMonth = new Map((mastersTimeline ?? []).map(row => [row.d, row.final]))
-  const signals = backtestMonthEnds(today).map(date => {
+  return backtestMonthEnds(today).map(date => {
     const d = month(date)
     const price = valueAt(panel.price, date)
     if (month(price?.observedOn ?? '') !== d) throw new Error(`标普月均价缺少 ${d}`)
@@ -109,18 +111,30 @@ export function buildRadarBacktest({ historical, panel, vintages, dailyRows, tod
     const masters = resolveMastersTiers(
       d, mastersByMonth, evaluate(realtimeFrame).final.tier,
     )
+    const scored = scoresAt(historical, date)
+    const heatScore = heatScoreFromDimensions(scored.dimensions)
     return {
       d,
-      radar: baseTier(scoreAt(historical, date)),
+      radar: baseTier(scored.score),
       masters,
       below: realtimeFrame.tactical.below,
       spx: closes.get(d),
+      heatScore,
+      heat: classifyHeat(heatScore),
     }
   })
-  const start = monthAfter(signals[0].d, EXECUTION_LAG)
+}
+
+export function buildRadarBacktest({ historical, panel, vintages, dailyRows, today, mastersTimeline = [], signals }) {
+  const lastComplete = monthEnd(today, -1)
+  const returns = monthlyReturns(panel, lastComplete)
+  const monthSignals = signals ?? buildMonthlySignals({
+    historical, panel, vintages, dailyRows, today, mastersTimeline,
+  })
+  const start = monthAfter(monthSignals[0].d, EXECUTION_LAG)
   const end = month(lastComplete)
   const rows = STRATEGIES.map(([id, label, equity]) => {
-    const full = alignRadar(signals, returns, equity)
+    const full = alignRadar(monthSignals, returns, equity)
     const byMonth = new Set(full.map(row => row.d))
     for (let d = start; d <= end; d = monthAfter(d, 1)) {
       if (!byMonth.has(d)) throw new Error(`${label}缺少 ${d} 的对齐收益或信号`)
@@ -133,6 +147,6 @@ export function buildRadarBacktest({ historical, panel, vintages, dailyRows, tod
     start, end,
     trainRange: `${start} 至 ${monthAfter(TEST_START, -1)}`, testRange: `${TEST_START} 至 ${end}`,
     rows, verdict: buildBacktestVerdict(rows), disclosures: DISCLOSURES,
-    timeline: signals.map(({ d, radar, masters, spx }) => ({ d, radar, masters, spx })),
+    timeline: monthSignals.map(({ d, radar, spx }) => ({ d, radar, spx })),
   }
 }

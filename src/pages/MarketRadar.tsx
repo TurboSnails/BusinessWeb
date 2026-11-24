@@ -1,7 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { Page } from '../components/ui'
-import { useCompositePosture } from '../features/macro-posture/composite/load'
 import { useMarketRadar } from '../features/market-radar/load'
 import RadarView from '../features/market-radar/RadarView'
 import '../styles/market-radar.css'
@@ -14,8 +13,6 @@ export const MARKET_RADAR_FOOTER =
 
 export default function MarketRadar(): JSX.Element {
   const radar = useMarketRadar()
-  const composite = useCompositePosture()
-  const mastersTier = composite.status === 'ready' ? composite.data.current.final.tier : null
 
   return (
     <Page className="mr-page">
@@ -26,12 +23,12 @@ export default function MarketRadar(): JSX.Element {
         </p>
         <ul className="mr-head__links">
           <li><Link to="/invest/macro-posture">宏观攻守（大师方案）</Link></li>
+          <li><Link to="/invest/strategy">综合策略</Link></li>
           <li><a href="#mr-backtest">公开回测</a></li>
-          <li><a href="#mp-market">市场综合</a></li>
         </ul>
       </header>
 
-      <RadarView state={radar} mastersTier={mastersTier} />
+      <RadarView state={radar} />
 
       <footer className="mr-footer" role="note">
         <p>

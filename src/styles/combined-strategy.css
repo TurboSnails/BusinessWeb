@@ -1,0 +1,349 @@
+/* 综合策略 · cs-*；时间线与市场综合复用 market-radar / mp-timeline */
+@import './mp-timeline.css';
+
+.cs-page {
+  --cs-tier-defense: #b42318;
+  --cs-tier-lean-defense: #d97706;
+  --cs-tier-neutral: #7c7f68;
+  --cs-tier-lean-offense: #2f8f83;
+  --cs-tier-offense: #176b87;
+  --mp-tier-defense: var(--cs-tier-defense);
+  --mp-tier-lean-defense: var(--cs-tier-lean-defense);
+  --mp-tier-neutral: var(--cs-tier-neutral);
+  --mp-tier-lean-offense: var(--cs-tier-lean-offense);
+  --mp-tier-offense: var(--cs-tier-offense);
+  max-width: min(1100px, 100%);
+  min-width: 0;
+}
+
+[data-theme='dark'] .cs-page,
+html.dark .cs-page {
+  --cs-tier-defense: #f07a68;
+  --cs-tier-lean-defense: #f2a64a;
+  --cs-tier-neutral: #a9ac93;
+  --cs-tier-lean-offense: #4fc2b2;
+  --cs-tier-offense: #62b0dc;
+}
+
+.cs-head { margin-bottom: var(--space-4, 20px); }
+.cs-head h1 {
+  margin: 0 0 var(--space-2, 10px);
+  font: 600 clamp(1.65rem, 2.8vw, 2.2rem) / 1.3 var(--font-serif, Georgia, serif);
+  color: var(--text-primary);
+}
+.cs-head__lead {
+  margin: 0 0 12px;
+  max-width: 48rem;
+  font-size: 1.02rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+}
+.cs-head__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.92rem;
+}
+.cs-head__links a {
+  color: var(--accent-ink, var(--text-primary));
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.cs-status, .cs-error, .cs-muted, .cs-lead {
+  margin: 0 0 16px;
+  max-width: 48rem;
+  line-height: 1.65;
+  font-size: 0.95rem;
+}
+.cs-status { color: var(--text-secondary); }
+.cs-error { color: var(--danger, #b42318); }
+.cs-muted { color: var(--text-tertiary, var(--text-secondary)); font-size: 0.88rem; }
+.cs-lead { color: var(--text-secondary); }
+.cs-verdict {
+  margin: 0 0 12px;
+  max-width: 48rem;
+  padding: 0.55rem 0.75rem 0.55rem 0.85rem;
+  border-left: 3px solid var(--accent, var(--accent-ink, #3b6d11));
+  color: var(--text-primary);
+  font-size: 0.98rem;
+  font-weight: 500;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.cs-subhead { margin: 18px 0 8px; font-size: 1.05rem; }
+
+.cs-toc {
+  position: sticky;
+  top: 56px;
+  z-index: 5;
+  margin: 0 0 20px;
+  background: color-mix(in srgb, var(--bg-page, #fff) 92%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border-subtle, #e5e5e0);
+}
+.cs-toc__scroll {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding: 8px 0;
+  -webkit-overflow-scrolling: touch;
+}
+.cs-toc__link {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.88rem;
+  white-space: nowrap;
+}
+.cs-toc__link.is-active,
+.cs-toc__link[aria-current='location'] {
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--accent, #3b6d11) 12%, transparent);
+  font-weight: 600;
+}
+
+.cs-tier--offense { color: var(--cs-tier-offense); }
+.cs-tier--lean-offense { color: var(--cs-tier-lean-offense); }
+.cs-tier--neutral { color: var(--cs-tier-neutral); }
+.cs-tier--lean-defense { color: var(--cs-tier-lean-defense); }
+.cs-tier--defense { color: var(--cs-tier-defense); }
+
+.cs-now { margin: 0 0 28px; min-width: 0; }
+.cs-now__headline {
+  margin: 0 0 16px;
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.55;
+  max-width: 42rem;
+}
+.cs-now__strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0 0 16px;
+}
+.cs-now__chip {
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--border-subtle, #e5e5e0);
+  border-radius: 8px;
+  background: var(--bg-card, transparent);
+}
+.cs-now__chip-label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.78rem;
+  color: var(--text-tertiary, var(--text-secondary));
+}
+.cs-now__chip-value {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 650;
+  line-height: 1.35;
+}
+.cs-now__chip-meta {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.88rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+}
+.cs-now__cell {
+  margin: 16px 0;
+  padding: 14px 16px;
+  border-left: 3px solid var(--accent, #3b6d11);
+  background: color-mix(in srgb, var(--accent, #3b6d11) 5%, transparent);
+}
+.cs-now__cell-title { margin: 0 0 8px; font-size: 1rem; }
+.cs-now__action { margin: 0 0 8px; line-height: 1.65; font-size: 0.95rem; }
+.cs-now__evidence { margin: 0; line-height: 1.65; font-size: 0.9rem; color: var(--text-secondary); }
+.cs-now__dates {
+  margin: 12px 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+.cs-now__dates li { margin: 0 0 4px; }
+.cs-now__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.92rem;
+}
+.cs-now__links a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--accent-ink, var(--text-primary));
+}
+
+.cs-thin-badge {
+  display: inline-block;
+  margin: 0 0 8px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--warn, #d97706) 18%, transparent);
+  color: var(--warn, #92400e);
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+.cs-thin-badge--inline { margin: 0 0 0 6px; vertical-align: middle; }
+
+.cs-rules, .cs-matrix, .cs-fusion, .cs-timeline { margin: 0 0 28px; min-width: 0; }
+.cs-rules__scroll, .cs-matrix__scroll, .cs-fusion__scroll { margin: 10px 0 14px; }
+.cs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.cs-table th, .cs-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-subtle, #e5e5e0);
+  text-align: left;
+  vertical-align: top;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+.cs-table .num { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.cs-table tr.is-highlight,
+.cs-table td.is-current {
+  background: color-mix(in srgb, var(--accent, #3b6d11) 8%, transparent);
+}
+/* 样本少的格子只加标记，不把数字调淡：最差的一格恰好样本少，不能看不清。 */
+.cs-rules__actions { margin: 0; padding-left: 1.1em; }
+.cs-rules__actions li { margin: 0 0 4px; }
+.cs-rules__cadence {
+  margin: 0 0 12px;
+  padding-left: 1.2em;
+  max-width: 48rem;
+  line-height: 1.7;
+  font-size: 0.92rem;
+}
+.cs-rules__cost {
+  margin: 0;
+  max-width: 48rem;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.cs-matrix__hint {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-tertiary, var(--text-secondary));
+}
+.cs-matrix__stats {
+  display: grid;
+  gap: 2px;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+.cs-matrix__action {
+  margin-top: 4px;
+  color: var(--text-secondary);
+}
+.cs-matrix__table { min-width: 640px; width: 100%; table-layout: fixed; }
+.cs-matrix__table th:first-child, .cs-matrix__table td:first-child { width: 7.5rem; }
+
+.cs-fusion__table { min-width: 960px; }
+.cs-fusion__col--name { min-width: 9rem; max-width: 14rem; }
+.cs-fusion__label { display: block; font-weight: 650; }
+.cs-fusion__rule {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+.cs-badge {
+  display: inline-block;
+  margin: 4px 4px 0 0;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--accent, #3b6d11) 14%, transparent);
+  font-size: 0.72rem;
+  font-weight: 650;
+}
+.cs-badge--adopt {
+  background: color-mix(in srgb, var(--down-ink, #0f766e) 18%, transparent);
+  color: var(--down-ink, #0f766e);
+}
+.cs-disclosures {
+  margin: 0;
+  padding-left: 1.2em;
+  max-width: 48rem;
+  font-size: 0.88rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.cs-market-wrap { margin: 0 0 28px; min-width: 0; }
+.cs-market-note {
+  margin: 0 0 12px;
+  max-width: 48rem;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.cs-footer {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-subtle, #e5e5e0);
+  font-size: 0.85rem;
+  line-height: 1.65;
+  color: var(--text-tertiary, var(--text-secondary));
+}
+.cs-footer p { margin: 0 0 8px; max-width: 48rem; }
+
+/* 复用宏观攻守的股票上限输入样式 */
+.cs-page .mp-equity-cap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 0 0 16px;
+}
+.cs-page .mp-equity-cap__label { font-size: 0.9rem; }
+.cs-page .mp-equity-cap__field {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.cs-page .mp-equity-cap__field input {
+  width: 4.5rem;
+  min-height: 44px;
+  padding: 6px 8px;
+  font-size: 1rem;
+  border: 1px solid var(--border-subtle, #ccc);
+  border-radius: 6px;
+}
+.cs-page .mp-equity-cap__hint {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 720px) {
+  .cs-now__strip { grid-template-columns: 1fr; }
+  .cs-fusion__table { font-size: 0.8rem; }
+}
+
