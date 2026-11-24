@@ -64,14 +64,7 @@
   "chg5": -1.01,
   "score": 0,
   "level": "弱",
-  "rsi": 33,
-  "checks": [
-   false,
-   false,
-   false,
-   false,
-   false
-  ]
+  "rsi": 33
  },
  "vane": {
   "stocks": [
