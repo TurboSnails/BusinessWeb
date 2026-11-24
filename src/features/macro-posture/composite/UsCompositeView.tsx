@@ -14,9 +14,9 @@ import type { CompositeState } from './types'
 function MarketRadarCard(): JSX.Element {
   return (
     <aside className="mp-market-radar-card" data-testid="mp-market-radar-card" aria-label="股市内部与仓位指标">
-      <p>股市内部与仓位指标见我的市场雷达。</p>
+      <p>股市内部与仓位指标见市场雷达。</p>
       <p>
-        <Link to="/invest/market-radar">打开我的市场雷达</Link>
+        <Link to="/invest/market-radar">打开市场雷达</Link>
       </p>
     </aside>
   )

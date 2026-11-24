@@ -40,7 +40,7 @@ function renderPage(radar: RadarState = { status: 'ready', data: radarFixture() 
 describe('MarketRadar 页面', () => {
   it('页头声明独立于大师方案，并链到宏观攻守与综合策略', () => {
     renderPage()
-    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('我的市场雷达')
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('市场雷达')
     expect(screen.getByTestId('mr-head-lead').textContent).toBe(MARKET_RADAR_LEAD)
     expect(screen.getByRole('link', { name: '宏观攻守（大师方案）' }).getAttribute('href')).toBe('/invest/macro-posture')
     const head = document.querySelector<HTMLElement>('.mr-head__links')!
@@ -102,7 +102,7 @@ describe('MarketRadar 页面', () => {
     const table = screen.getByTestId('mr-backtest-table')
     expect(table.querySelectorAll('.mr-bt__col--test').length).toBeGreaterThan(4)
     expect(table.closest('.mr-bt__scroll--sticky-test')).toBeTruthy()
-    expect(table.textContent).toContain('我的市场雷达')
+    expect(table.textContent).toContain('市场雷达')
     expect(table.textContent).toContain('恒定七成股票')
     expect(table.textContent).not.toContain('大师方案')
     expect(table.querySelectorAll('tbody tr')).toHaveLength(4)

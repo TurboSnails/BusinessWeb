@@ -297,7 +297,7 @@ export function radarFixture(overrides: Partial<RadarFile> = {}): RadarFile {
       rows: [
         {
           id: 'radar',
-          label: '我的市场雷达',
+          label: '市场雷达',
           train: metrics({ cagr: 0.105, maxDd: -0.24, sharpe: 0.62 }),
           test: metrics({ cagr: 0.078, maxDd: -0.3, sharpe: 0.48 }),
           full: metrics({ cagr: 0.092, maxDd: -0.3, sharpe: 0.55 }),

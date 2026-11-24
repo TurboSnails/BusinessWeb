@@ -34,7 +34,7 @@ export function heatScoreFromDimensions(dimensions) {
 export { classifyHeat }
 
 const STRATEGIES = [
-  ['radar', '我的市场雷达', row => tierEquity(row.radar)],
+  ['radar', '市场雷达', row => tierEquity(row.radar)],
   ['trend', '10 个月均线', row => row.below == null ? null : row.below ? 0.5 : 1],
   ['buyhold', '全程持有标普', () => 1],
   ['static70', '恒定七成股票', () => 0.7],

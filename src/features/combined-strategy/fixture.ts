@@ -92,7 +92,7 @@ const FUSION_ROWS: FusionRow[] = [
     { cagr: 0.085, maxDd: -0.2, sharpe: 0.62, avgEquity: 0.7 },
     { cagr: 0.1018, maxDd: -0.2, sharpe: 0.715, avgEquity: 0.72 },
     null),
-  fusionRow('radar', '我的市场雷达', '只用雷达综合档位定仓位。',
+  fusionRow('radar', '市场雷达', '只用雷达综合档位定仓位。',
     { cagr: 0.105, maxDd: -0.24, sharpe: 0.62, avgEquity: 0.68 },
     { cagr: 0.078, maxDd: -0.3, sharpe: 0.48, avgEquity: 0.65 },
     { cagr: 0.092, maxDd: -0.3, sharpe: 0.55, avgEquity: 0.66 },

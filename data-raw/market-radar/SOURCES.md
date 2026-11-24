@@ -1,4 +1,4 @@
-# 「我的市场雷达」数据来源
+# 「市场雷达」数据来源
 
 整理日期：2026-11-24。雷达由 `scripts/market-radar.mjs` 生成，输出 `public/data/market-radar.json`；
 大部分底层序列来自 `public/data/us-market-data.json`（`scripts/us-market-data.mjs`）和本目录的缓存。

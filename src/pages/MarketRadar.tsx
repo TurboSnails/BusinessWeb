@@ -17,7 +17,7 @@ export default function MarketRadar(): JSX.Element {
   return (
     <Page className="mr-page">
       <header className="page-head mr-head">
-        <h1>我的市场雷达</h1>
+        <h1>市场雷达</h1>
         <p className="mr-head__lead" data-testid="mr-head-lead">
           {MARKET_RADAR_LEAD}
         </p>

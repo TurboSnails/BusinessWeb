@@ -41,7 +41,7 @@ export function fusionEquity(id, row) {
 
 export const FUSION_META = [
   { id: 'macro', label: '宏观攻守 v2.2', rule: '只按宏观攻守的最终档位定仓位。' },
-  { id: 'radar', label: '我的市场雷达', rule: '只按雷达综合档位定仓位。' },
+  { id: 'radar', label: '市场雷达', rule: '只按雷达综合档位定仓位。' },
   { id: 'm1', label: 'M1 平均仓位', rule: '雷达仓位与宏观仓位取平均。' },
   { id: 'm2', label: 'M2 热度上限', rule: '偏热时档位最高到偏进攻。' },
   { id: 'm3', label: 'M3 偏热且破位再降一档', rule: '偏热且标普月均价低于十个月均线时，再下调一档。' },

@@ -52,7 +52,7 @@ const RADAR_LABELS: Partial<TimelineLabels> = {
   bottom: '雷达档位',
   tooltipTop: '雷达档位',
   tooltipBottom: '雷达档位',
-  legendNote: '色带「雷达档位」是我的市场雷达按当时可得数据的月度定档',
+  legendNote: '色带「雷达档位」是市场雷达按当时可得数据的月度定档',
 }
 
 function RadarTimeline({ rows }: { rows: RadarFile['backtest']['timeline'] }): JSX.Element | null {

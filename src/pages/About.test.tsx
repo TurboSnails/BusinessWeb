@@ -27,7 +27,7 @@ describe('About 页面：站点介绍', () => {
     expect(screen.getByRole('heading', { level: 1, name: '关于「Live」' })).toBeTruthy()
     expect(document.body.textContent).not.toMatch(/Hassan 投资工作台/)
     expect(screen.getByRole('heading', { name: '最近更新' })).toBeTruthy()
-    expect(screen.getByRole('link', { name: '新入口：我的市场雷达（自建指标，与大师方案分开）' }).getAttribute('href')).toBe('/invest/market-radar')
+    expect(screen.getByRole('link', { name: '新入口：市场雷达（自建指标，与大师方案分开）' }).getAttribute('href')).toBe('/invest/market-radar')
   })
 
   it('介绍里列出三个栏目，并链接到对应页面', () => {

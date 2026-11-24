@@ -24,7 +24,7 @@ export default function CombinedStrategy(): JSX.Element {
         </p>
         <ul className="cs-head__links">
           <li><Link to="/invest/macro-posture">宏观攻守</Link></li>
-          <li><Link to="/invest/market-radar">我的市场雷达</Link></li>
+          <li><Link to="/invest/market-radar">市场雷达</Link></li>
           <li><a href="#cs-now">现在怎么做</a></li>
         </ul>
       </header>

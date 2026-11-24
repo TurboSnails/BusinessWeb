@@ -31,7 +31,7 @@ export const MACRO_MASTER_NAMES: Record<string, string> = {
 const EXACT: Record<string, RouteSeo> = {
   '/': { title: 'Live｜投资 · AI · 独立开发 · 自由生活', description: DEFAULT_DESCRIPTION },
   '/invest': { title: '投资｜A 股与美股研究、方法与工具', description: '沪深 A 股与美股标普 500 的研究笔记、投资方法、ETF 指南与网格交易工具。' },
-  '/invest/market-radar': { title: '我的市场雷达｜流动性、估值、拥挤度与交易结构', description: '自建的五维指标体系：流动性、估值、仓位与拥挤度、交易结构、盈利，各项读数与历史百分位，雷达综合档位及其公开回测；不构成买卖建议。' },
+  '/invest/market-radar': { title: '市场雷达｜流动性、估值、拥挤度与交易结构', description: '自建的五维指标体系：流动性、估值、仓位与拥挤度、交易结构、盈利，各项读数与历史百分位，雷达综合档位及其公开回测；不构成买卖建议。' },
   '/invest/strategy': { title: '综合策略｜宏观攻守 + 市场雷达，仓位怎么定', description: '把宏观攻守和市场雷达合在一起看：仓位按宏观档位定，雷达冷热决定这一格怎么做；含九格历史表现与融合检验。不构成买卖建议。' },
   '/invest/top-masters': { title: '六位顶级投资人怎么看周期｜业绩、方法与当前读数', description: '德鲁肯米勒、索罗斯、邓普顿、都铎·琼斯、达利欧、马克斯六位：公开业绩与来源、周期框架、按其方法的当前判断，以及股票投资者能学什么；不构成买卖建议。' },
   '/invest/macro-masters': { title: '宏观大师怎么看周期｜当前位置与九位的方法', description: '汇总当前周期阶段与短线偏攻或偏守的证据，并对照九位宏观投资人的思路、指标与可靠性；均为本站口径，不构成买卖建议。' },
