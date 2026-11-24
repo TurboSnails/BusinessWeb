@@ -1380,3 +1380,16 @@ a.chapter-nav__item:hover {
 }
 
 .hub-grid--spaced { margin-top: 24px; }
+
+/* 本机估值服务的安装提示：命令行与路径很长，窄屏要能折行，不能把页面撑宽 */
+.bridge-setup,
+.bridge-help {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.bridge-setup pre,
+.bridge-help pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
