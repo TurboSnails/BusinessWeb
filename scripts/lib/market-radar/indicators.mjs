@@ -138,6 +138,21 @@ const DEFINITIONS = {
       (p.value >= 1.05 ? '短期波动预期显著高于三个月预期。' : ''),
     rule: '历史不足 25 年，只展示。比值达到 1.05 倍表示近端波动预期显著高于三个月预期。',
   },
+  impliedCorr: {
+    inverse: true,
+    dimension: 'trading', label: '隐含相关性（1 个月）',
+    display: p => `标普 500 一个月隐含相关性 ${formatReading(p.value, '', 2)}` +
+      (p.change == null ? '' : `，较 5 个交易日前 ${signed(p.change, n => formatReading(n, '', 2))}`) +
+      (p.cor3m == null ? '' : `；三个月隐含相关性 ${formatReading(p.cor3m, '', 2)}`) + '。',
+    rule: 'Cboe 隐含相关性指数自 2006 年起，不足 25 年，只展示。数值越高，期权市场越预期成分股同涨同跌；短期急升常见于离散度交易（卖指数期权、买个股期权）平仓、指数波动被放大的阶段。',
+  },
+  gex: {
+    dimension: 'trading', label: '做市商 Gamma 敞口（GEX）',
+    display: p => `SqueezeMetrics 估算的做市商 Gamma 敞口 ${signed(p.value, n => formatReading(n, '', 1))} 亿美元，` +
+      (p.value < 0 ? '为负，做市商对冲顺势而行，容易放大涨跌' : '为正，做市商对冲逆势而行，倾向于平抑波动') +
+      `；近 5 个交易日有 ${p.negativeDays} 天为负。`,
+    rule: 'SqueezeMetrics 按期权未平仓量和做市商持仓方向的假设估算，不是官方数据，不同机构口径差异较大，宜看正负与相对高低。自 2011 年 5 月起，不足 25 年，只展示。',
+  },
   breadth200: {
     dimension: 'trading', label: '成分股站上 200 日线比例',
     display: p => `${percent(p.value)} 的可用标普成分股站上自己的 200 日均线。`,

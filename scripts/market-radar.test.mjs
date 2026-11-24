@@ -196,3 +196,20 @@ test('sector breadth needs every sector on the day; advance-decline sums ten ses
   const spread = equalWeightSpread([['2025-11-01', 100], ['2026-11-01', 110], ['2026-11-23', 121]], [['2025-11-01', 100], ['2026-11-01', 100], ['2026-11-23', 110]])
   assert.deepEqual(spread.map(row => [row.observedOn, row.value]), [['2026-11-23', 10]])
 })
+
+test('implied correlation carries the five-session change and the same-day three-month reading', async () => {
+  const { impliedCorrelation } = await import('./lib/market-radar/sources.mjs')
+  const days = ['11-13', '11-16', '11-17', '11-18', '11-19', '11-20'].map(d => '2026-' + d)
+  const rows = impliedCorrelation(days.map((d, i) => [d, [11.8, 16.42, 20.13, 23.24, 30.22, 36.05][i]]), [['2026-11-20', 29.71]])
+  assert.equal(rows[4].change, null)
+  assert.deepEqual([rows[5].value, rows[5].change, rows[5].cor3m], [36.05, 24.25, 29.71])
+  assert.equal(rows[0].cor3m, null)
+})
+
+test('SqueezeMetrics GEX is read in hundred-million dollars and counts negative sessions in the last five', async () => {
+  const { gammaExposure, parseSqueezeGex } = await import('./lib/market-radar/sources.mjs')
+  const rows = parseSqueezeGex('date,price,dix,gex\n2026-11-19,7175.83,0.43,-900000756.18\n2026-11-20,6910.39,0.39,-2159921683.79\n2026-11-23,7237.17,0.39,1619839458.29\n')
+  assert.deepEqual(rows, [['2026-11-19', -9.0000075618], ['2026-11-20', -21.5992168379], ['2026-11-23', 16.1983945829]])
+  assert.deepEqual(gammaExposure(rows).map(row => row.negativeDays), [1, 2, 2])
+  assert.throws(() => parseSqueezeGex('date,gex\n'), /表头/)
+})
