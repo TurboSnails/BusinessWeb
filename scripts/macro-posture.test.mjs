@@ -1098,3 +1098,12 @@ test('published daily file stays compact and well-formed', async () => {
     Number(close.toFixed(2)) === close && regime >= -1 && regime <= 4 && final >= -1 && final <= 4))
   assert.ok(daily.rows.every((row, i) => i === 0 || row[0] > daily.rows[i - 1][0]))
 })
+
+test('shillerMonthly rebuilds the Multpl price and yield tables up to the last complete month', async () => {
+  const { shillerMonthly } = await import('./macro-posture.mjs')
+  const csv = 'date,P,D,E,CPI,GS10\n2026-09,7669.414285714285,81.9,,330,4.1\n2026-10,7700,,,331,4.2\n2026-11,7300,,,,\n'
+  const { price, yield: yields } = shillerMonthly(csv, '2026-10-31')
+  assert.deepEqual(price, [['2026-09-01', 7669.41], ['2026-10-01', 7700]])
+  // 10 月股息为空，沿用 9 月的 81.9：81.9 / 7700 = 1.06%
+  assert.deepEqual(yields, [['2026-09-30', 1.07], ['2026-10-31', 1.06]])
+})

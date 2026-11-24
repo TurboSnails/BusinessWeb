@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import { readFileSync } from 'node:fs'
 import { readFile, writeFile, rename, unlink } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -29,6 +30,7 @@ const MULTPL_SERIES = {
   yield: 's-p-500-dividend-yield/table/by-month',
 }
 const TIMEOUT_MS = 20_000
+const SHILLER_CSV = fileURLToPath(new URL('../data-raw/sp500-backtest/shiller.csv', import.meta.url))
 const MARKET_SLICES = 'us-market-slices'
 const YAHOO_SPX_URL = 'https://finance.yahoo.com/quote/%5EGSPC/history/'
 
@@ -36,6 +38,32 @@ export function parseMonthlyTable(html, completeThrough) {
   // The shared parser handles dates and estimate markers, but expects ungrouped numbers.
   const ungrouped = html.replace(/(\d),(?=\d{3}\b)/g, '$1')
   return parseMultpl(ungrouped).history.filter(([date]) => monthEnd(date) <= completeThrough)
+}
+
+/**
+ * Multpl 的标普月均价和股息率月表取自席勒数据。Multpl 不可用时，用仓库里的席勒快照按相同口径重建：
+ * 月均价记在当月 1 日，股息率（年化股息 ÷ 月均价）记在当月月末，均保留两位小数，只到已完成的月份。
+ * 与 Multpl 历史逐月比对：月均价 99.5% 的月份相差不到 0.1%，股息率相差不到 0.03 个百分点。
+ * 席勒的股息比价格晚几个月公布；缺股息的近月沿用最近一个已知股息（最多 6 个月），与 Multpl 近月标“估计”一致。
+ */
+export function shillerMonthly(csv, completeThrough) {
+  const [header, ...lines] = csv.trim().split(/\r?\n/)
+  if (!header.startsWith('date,P,D,')) throw new Error('席勒数据表头不匹配')
+  const price = []
+  const yields = []
+  let known = null
+  for (const line of lines) {
+    const [month, rawPrice, rawDividend] = line.split(',')
+    const p = Number(rawPrice)
+    if (!/^\d{4}-\d{2}$/.test(month) || !(p > 0) || monthEnd(month) > completeThrough) continue
+    price.push([month + '-01', Number(p.toFixed(2))])
+    const dividend = Number(rawDividend)
+    if (rawDividend?.trim() && dividend > 0) known = { month, dividend }
+    if (known && monthEnd(known.month, 6) >= monthEnd(month)) {
+      yields.push([monthEnd(month), Number((known.dividend / p * 100).toFixed(2))])
+    }
+  }
+  return { price, yield: yields }
 }
 
 function parseFred(csv, id) {
@@ -70,7 +98,12 @@ export async function collectCore(asOf, fetcher) {
   const results = await Promise.allSettled([
     ...FRED_IDS.map(id => Object.hasOwn(OPTIONAL_FRED, id) ? fred(id).catch(() => [id, []]) : fred(id)),
     ...Object.entries(MULTPL_SERIES).map(([id, path]) =>
-      collectOne(fetcher, id, MULTPL + path, html => parseMonthlyTable(html, completeThrough))),
+      collectOne(fetcher, id, MULTPL + path, html => parseMonthlyTable(html, completeThrough)).catch(error => {
+        const rows = shillerMonthly(readFileSync(SHILLER_CSV, 'utf8'), completeThrough)[id]
+        if (!rows.length) throw error
+        console.warn(`${error.message}；改用席勒快照（至 ${rows.at(-1)[0].slice(0, 7)}）`)
+        return [id, rows]
+      })),
   ])
   const errors = results.filter(r => r.status === 'rejected').map(r => r.reason.message)
   if (errors.length) throw new Error(errors.join('\n'))
