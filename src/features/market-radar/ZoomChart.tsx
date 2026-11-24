@@ -64,8 +64,20 @@ export function logTicks(lo: number, hi: number): number[] {
 }
 
 /** 叠加序列配色：按 id 取约定色，其余按顺序取备用色 */
-const OVERLAY_CLASS: Record<string, string> = { gold: 'mr-zoom__ov--gold', silver: 'mr-zoom__ov--silver' }
+const OVERLAY_CLASS: Record<string, string> = { gold: 'mr-zoom__ov--gold', silver: 'mr-zoom__ov--silver', spx: 'mr-zoom__ov--spx' }
 const overlayClass = (id: string, index: number) => OVERLAY_CLASS[id] ?? `mr-zoom__ov--${index % 2 ? 'b' : 'a'}`
+
+/** 右轴说明：单位相同的序列合并写，例如「黄金、白银为美元/盎司，标普 500 为点」 */
+export function rightAxisNote(overlays: { label: string; unit: string }[]): string {
+  const units = [...new Set(overlays.map(o => o.unit))]
+  if (units.length <= 1) return `右轴：${units[0] ?? ''}，对数`
+  const parts = units.map(unit => {
+    const names = overlays.filter(o => o.unit === unit).map(o => o.label).join('、')
+    // 西文或数字结尾与中文之间留空格，如「标普 500 为点」
+    return `${names}${/[A-Za-z0-9]$/.test(names) ? ' ' : ''}为${unit}`
+  })
+  return `右轴对数：${parts.join('，')}`
+}
 
 /** 叠加序列读数：千位分隔，按量级保留小数 */
 export function formatPrice(value: number): string {
@@ -182,7 +194,6 @@ export default function ZoomChartDialog({
     }
     return path
   }
-  const overlayUnit = overlays[0]?.unit
   const toggle = (id: string) => setHidden(current => {
     const next = new Set(current)
     if (next.has(id)) next.delete(id)
@@ -276,7 +287,7 @@ export default function ZoomChartDialog({
                 <i aria-hidden="true" />{overlay.label}
               </button>
             ))}
-            <span className="mr-zoom__unit">右轴：{overlayUnit}，对数</span>
+            <span className="mr-zoom__unit">{rightAxisNote(overlays)}</span>
           </span>
         )}
         <span className="mr-zoom__span" data-testid="mr-zoom-span">

@@ -3,7 +3,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
 import { mockSvgGeometry } from '../macro-posture/composite/timeline/testUtils'
 import MiniSparkline from './MiniSparkline'
-import { dateTicks, formatPrice, logTicks, niceTicks, tickLabel, unitOf } from './ZoomChart'
+import { dateTicks, formatPrice, logTicks, niceTicks, rightAxisNote, tickLabel, unitOf } from './ZoomChart'
 
 afterEach(cleanup)
 
@@ -125,6 +125,9 @@ describe('叠加序列（金银比上的金、银价格）', () => {
     expect(formatPrice(3651.4)).toBe('3,651')
     expect(formatPrice(43.147)).toBe('43.1')
     expect(formatPrice(0.9)).toBe('0.90')
+    expect(rightAxisNote([{ label: '黄金', unit: '美元/盎司' }, { label: '白银', unit: '美元/盎司' }])).toBe('右轴：美元/盎司，对数')
+    expect(rightAxisNote([{ label: '黄金', unit: '美元/盎司' }, { label: '白银', unit: '美元/盎司' }, { label: '标普 500', unit: '点' }]))
+      .toBe('右轴对数：黄金、白银为美元/盎司，标普 500 为点')
   })
 
   it('放大图画出金、银两条叠加线，图例可隐藏，指针读数列出三个数', () => {

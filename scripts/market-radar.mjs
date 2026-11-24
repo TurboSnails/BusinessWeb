@@ -8,7 +8,7 @@ import { makePanel, monthEnd } from './lib/macro-posture/panel.mjs'
 import { RULE_VERSION, TIERS } from './lib/macro-posture/model.mjs'
 import { buildCurrent, buildIndicators } from './lib/market-radar/indicators.mjs'
 import { buildRadarBacktest } from './lib/market-radar/backtest.mjs'
-import { buildRadarSeries, parseShillerEps, refreshRadarSources } from './lib/market-radar/sources.mjs'
+import { buildRadarSeries, parseShillerEps, parseShillerPrice, refreshRadarSources } from './lib/market-radar/sources.mjs'
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const DATA = resolve(ROOT, 'public/data')
@@ -39,7 +39,9 @@ export async function runRadar({ now = new Date(), fetcher = fetch, warn = conso
   const indexes = readData('index-history').indexes
   const dailyRows = readData('macro-posture-daily').rows
   const masters = readData('macro-posture')
-  const shillerEps = parseShillerEps(readFileSync(resolve(ROOT, 'data-raw/sp500-backtest/shiller.csv'), 'utf8'))
+  const shillerCsv = readFileSync(resolve(ROOT, 'data-raw/sp500-backtest/shiller.csv'), 'utf8')
+  const shillerEps = parseShillerEps(shillerCsv)
+  const shillerPrice = parseShillerPrice(shillerCsv)
   if (masters?.ruleVersion !== RULE_VERSION) throw new Error('大师方案快照与计算规则版本不一致')
   const vintages = Object.fromEntries(['PAYEMS', 'INDPRO', 'PCEPILFE', 'IC4WSA', 'AWHMAN']
     .map(id => [id, readJson(resolve(VINTAGE_CACHE, id + '.json'), {})]))
@@ -54,7 +56,7 @@ export async function runRadar({ now = new Date(), fetcher = fetch, warn = conso
   const panel = makePanel(core)
   const currentPanel = makePanel(core, { mode: 'current' })
   const { current, historical, sources } = buildRadarSeries({
-    local, macroUs, breadth, universes, indexes, marketCache, fetched, shillerEps, panel, currentPanel, today, lastComplete,
+    local, macroUs, breadth, universes, indexes, marketCache, fetched, shillerEps, shillerPrice, panel, currentPanel, today, lastComplete,
     spxDaily: dailyRows.map(([d, close]) => [d, close]),
   })
   const indicators = buildIndicators(current, sources, today)

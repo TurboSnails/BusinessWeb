@@ -302,3 +302,20 @@ test('chart history keeps full monthly series and thins long daily series to wee
   // 1950-01-01 起 14600 天，止于 1989 年 12 月，正好 480 个月
   assert.equal(long.length, 40 * 12)
 })
+
+test('S&P 500 on the gold-silver rows: Shiller monthly averages, daily averages after the snapshot, latest close last', async () => {
+  const { attachSpx, parseShillerPrice } = await import('./lib/market-radar/sources.mjs')
+  const shiller = parseShillerPrice('date,P,D,E,CPI,GS10\n2026-08,7500.123,,,,\n2026-09,7669.41,,,,')
+  assert.deepEqual(shiller, [['2026-08-31', 7500.12], ['2026-09-30', 7669.41]])
+  const rows = [
+    { observedOn: '2026-08-31', value: 80 },
+    { observedOn: '2026-09-30', value: 81 },
+    { observedOn: '2026-10-31', value: 82 },
+    { observedOn: '2026-11-23', value: 84.6, change: 10 },
+  ]
+  const daily = [['2026-09-30', 7700], ['2026-10-01', 7600], ['2026-10-31', 7800], ['2026-11-20', 7300], ['2026-11-23', 7237.17]]
+  const out = attachSpx(rows, shiller, daily)
+  assert.deepEqual(out.map(row => row.spx), [7500.12, 7669.41, 7700, 7237.17])
+  // 没有任何价格来源的月份不加字段
+  assert.equal(attachSpx([{ observedOn: '1950-01-31', value: 30 }], shiller, daily)[0].spx, undefined)
+})

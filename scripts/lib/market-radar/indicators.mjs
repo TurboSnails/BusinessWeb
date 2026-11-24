@@ -52,6 +52,7 @@ const DEFINITIONS = {
     overlays: [
       { id: 'gold', key: 'gold', label: '黄金', unit: '美元/盎司' },
       { id: 'silver', key: 'silver', label: '白银', unit: '美元/盎司' },
+      { id: 'spx', key: 'spx', label: '标普 500', unit: '点' },
     ],
     dimension: 'liquidity', label: '金银比',
     display: p => `COMEX 黄金 ÷ 白银 ${formatReading(p.value, '', 1)}（金 ${formatReading(p.gold, '', 0)}、银 ${formatReading(p.silver, '', 2)} 美元/盎司）` +

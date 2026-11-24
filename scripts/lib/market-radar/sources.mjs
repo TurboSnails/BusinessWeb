@@ -323,6 +323,41 @@ export function equalWeightSpread(rsp = [], spx = []) {
   })
 }
 
+/** 席勒数据的标普 500 月均价（P 列，月内日收盘均值）→ [月末日期, 点位]。 */
+export function parseShillerPrice(csv) {
+  const [header, ...lines] = csv.trim().split(/\r?\n/)
+  if (header !== 'date,P,D,E,CPI,GS10') throw new Error('席勒数据表头不匹配')
+  return lines.flatMap(line => {
+    const [d, raw] = line.split(',')
+    const value = Number(raw)
+    return /^\d{4}-\d{2}$/.test(d) && raw?.trim() && value > 0 ? [[monthEnd(d), Math.round(value * 100) / 100]] : []
+  })
+}
+
+/**
+ * 给金银比各行补上同期标普 500 点位：月度行用席勒月均价，席勒快照之后的月份用日收盘的月均值（只取完整月份），
+ * 最新一行（日度）用当日或之前最近一个交易日的收盘。与金、银的月均价口径一致。
+ */
+export function attachSpx(rows, monthly = [], daily = []) {
+  const byMonth = new Map(monthly.map(([d, value]) => [month(d), value]))
+  const sums = new Map()
+  for (const [d, close] of daily) {
+    if (byMonth.has(month(d)) || !(close > 0)) continue
+    const [sum, n] = sums.get(month(d)) ?? [0, 0]
+    sums.set(month(d), [sum + close, n + 1])
+  }
+  const lastDaily = daily.at(-1)?.[0] ?? ''
+  for (const [key, [sum, n]] of sums) {
+    // 当月还没结束的不算月均
+    if (key < month(lastDaily)) byMonth.set(key, Math.round(sum / n * 100) / 100)
+  }
+  return rows.map((row, index) => {
+    const isLatest = index === rows.length - 1 && row.change !== undefined
+    const spx = isLatest ? daily.findLast(([d]) => d <= row.observedOn)?.[1] : byMonth.get(month(row.observedOn))
+    return spx > 0 ? { ...row, spx } : row
+  })
+}
+
 export function parseShillerEps(csv) {
   const [header, ...lines] = csv.trim().split(/\r?\n/)
   if (header !== 'date,P,D,E,CPI,GS10') throw new Error('席勒盈利数据表头不匹配')
@@ -537,7 +572,7 @@ export function aaiiSpread(bull, bear) {
   }] : [])
 }
 
-export function buildRadarSeries({ local, macroUs, breadth, universes = {}, indexes = {}, marketCache, fetched, shillerEps, panel, currentPanel, today, lastComplete, spxDaily = [] }) {
+export function buildRadarSeries({ local, macroUs, breadth, universes = {}, indexes = {}, marketCache, fetched, shillerEps, shillerPrice = [], panel, currentPanel, today, lastComplete, spxDaily = [] }) {
   const rows = id => publishedRows(local[id], today)
   const simple = id => marketSeries(rows(id), 0, true)
   const pe = rows('spxPe').filter(([d, value]) => d >= '1900-01' && value > 0)
@@ -593,7 +628,8 @@ export function buildRadarSeries({ local, macroUs, breadth, universes = {}, inde
     cftcNdxAsset: simple('cftcNdxAsset'),
     breadth: marketSeries(industries, 0, true),
     vixTerm,
-    goldSilver: goldSilverRatio(normalize(fetched.gold, today), normalize(fetched.silver, today), fetched.goldSilverEarly, today),
+    goldSilver: attachSpx(goldSilverRatio(normalize(fetched.gold, today), normalize(fetched.silver, today), fetched.goldSilverEarly, today),
+      shillerPrice, spxDaily.filter(([d]) => d <= today)),
     impliedCorr: impliedCorrelation(fetched.COR1M, fetched.COR3M),
     gex: gammaExposure(normalize(fetched.gex, today)),
     breadth200: marketSeries(breadth200, 0, true),
