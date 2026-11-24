@@ -20,7 +20,7 @@ export type RadarIndicator = {
   inScore: boolean              // 是否计入雷达综合分（历史 ≥ 25 年且可按当时可得回测）
   source: string
   note?: string
-  history: [string, number][]   // 最近 120 个观测
+  history: [string, number][]   // 默认最近 120 个观测；交易结构与金银比带全历史（长日频序列按周或按月抽样）
 }
 
 export type RadarMetrics = { cagr: number; vol: number; maxDd: number; sharpe: number; avgEquity: number; switchesPerYear: number }

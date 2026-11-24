@@ -14,6 +14,7 @@ const CBOE = 'https://cdn.cboe.com/api/global/us_indices/daily_prices/'
 const EPS = 'https://www.multpl.com/s-p-500-earnings/table/by-month'
 const YAHOO_CHART = 'https://query1.finance.yahoo.com/v8/finance/chart/'
 export const SQUEEZE_DIX = 'https://squeezemetrics.com/monitor/static/DIX.csv'
+export const FRENCH_INDUSTRIES_DAILY = 'https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/49_Industry_Portfolios_daily_CSV.zip'
 export const FRENCH_INDUSTRIES = 'https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/49_Industry_Portfolios_CSV.zip'
 export const CASH_SERIES = ['CDCABSHNO', 'TSDABSHNO', 'MMFSABSHNO', 'TFAABSHNO']
 
@@ -68,11 +69,19 @@ export async function refreshRadarSources({ cache, fetcher, today, localVix, shi
     sources[id] = await refresh(id, url, body => parseYahooFuturesClose(JSON.parse(body), symbol, new Date(), digits).history,
       { 'User-Agent': 'Mozilla/5.0' }).catch(error => { warn(`${id} 暂缺：${error.message}`); return [] })
   }
+  // 2000 年以前的月度金银比来自世界银行 Pink Sheet，一次性回补（scripts/gold-silver-history.mjs），不再变动。
+  sources.goldSilverEarly = readJson(join(cache, 'gold-silver-worldbank.json'), [])
+  if (!sources.goldSilverEarly.length) warn('gold-silver-worldbank.json 缺失，金银比只有 2000 年起的历史')
   // 隐含相关性只展示；首次下载失败且没有缓存时跳过，不影响雷达其余部分。
   for (const id of ['COR1M', 'COR3M']) {
     sources[id] = await cboe(id).catch(error => { warn(`${id} 暂缺：${error.message}`); return [] })
   }
   sources.industryTrend = await refreshIndustryTrend({ cache, fetcher, warn })
+  // 49 行业日频宽度只展示；首次下载失败且没有缓存时跳过。
+  sources.industryDaily = await refreshIndustryDaily({ cache, fetcher, warn })
+    .catch(error => { warn(`industry-daily-breadth 暂缺：${error.message}`); return [] })
+  // 2010 年 8 月以前的 20 日量比来自 Yahoo ^GSPC 日成交量，一次性回补（scripts/spx-volume-ratio-history.mjs）。
+  sources.volumeRatioEarly = readJson(join(cache, 'spx-volume-ratio-early.json'), [])
   const realEps = await refresh('eps', EPS, html => parseMultplMonthly(html, monthEnd(today, -1)))
   if (realEps.at(-1)[0] > shillerEps.at(-1)[0]) {
     const cpiId = 'CPIAUCNS'
@@ -139,6 +148,130 @@ async function refreshIndustryTrend({ cache, fetcher, warn }) {
     warn(`industry-trend 沿用至 ${previous.at(-1)[0]} 的缓存：${error.message}`)
     return previous
   }
+}
+
+/** Ken French 49 行业日表（市值加权）→ [日期, 49 个日收益或 null]。 */
+export function parseFrenchDaily(csv) {
+  const lines = csv?.split(/\r?\n/) ?? []
+  const start = lines.findIndex(line => line.trim() === 'Average Value Weighted Returns -- Daily')
+  const width = lines[start + 1]?.split(',').length
+  if (start < 0 || width !== 50) throw new Error('Ken French 市值加权日表表头异常')
+  const rows = []
+  for (const line of lines.slice(start + 2)) {
+    const [ymd, ...cells] = line.split(',')
+    if (!/^\d{8}$/.test(ymd.trim())) break
+    if (cells.length !== width - 1) throw new Error('Ken French 日表行业列数异常')
+    rows.push([ymd.trim().replace(/^(\d{4})(\d{2})(\d{2})$/, '$1-$2-$3'), cells.map(raw => {
+      const value = Number(raw)
+      return raw.trim() && Number.isFinite(value) && value > -99 ? value : null
+    })])
+  }
+  if (!rows.length) throw new Error('Ken French 市值加权日表无观测')
+  return rows
+}
+
+/**
+ * 49 个行业的日收益累积成指数后逐日统计：站上 200 日均线的行业占比、252 日新高减新低占可比行业的比例、
+ * 近 10 个交易日上涨行业次数 ÷ 下跌行业次数。行业缺值时重新累积；可比行业不足 10 个的日子记 null。
+ * 返回 [日期, 200 日线占比, 新高减新低, 10 日涨跌比]。
+ */
+export function buildIndustryDailyBreadth(rows, { ma = 200, year = 252, days = 10 } = {}) {
+  const levels = rows[0]?.[1].map(() => []) ?? []
+  const updown = []
+  const output = []
+  const round = (n, digits) => n == null ? null : Math.round(n * 10 ** digits) / 10 ** digits
+  for (const [d, returns] of rows) {
+    let maKnown = 0, above = 0, yearKnown = 0, highs = 0, lows = 0, up = 0, down = 0
+    returns.forEach((ret, index) => {
+      const window = levels[index]
+      if (ret == null) {
+        window.length = 0
+        return
+      }
+      if (ret > 0) up += 1
+      else if (ret < 0) down += 1
+      const level = (window.at(-1) ?? 100) * (1 + ret / 100)
+      window.push(level)
+      if (window.length > year) window.shift()
+      if (window.length >= ma) {
+        let sum = 0
+        for (let i = window.length - ma; i < window.length; i++) sum += window[i]
+        maKnown += 1
+        if (level > sum / ma) above += 1
+      }
+      if (window.length === year) {
+        let max = -Infinity, min = Infinity
+        for (let i = 0; i < year - 1; i++) {
+          if (window[i] > max) max = window[i]
+          if (window[i] < min) min = window[i]
+        }
+        yearKnown += 1
+        if (level >= max) highs += 1
+        if (level <= min) lows += 1
+      }
+    })
+    updown.push([up, down])
+    if (updown.length > days) updown.shift()
+    const ups = updown.reduce((sum, [u]) => sum + u, 0)
+    const downs = updown.reduce((sum, [, n]) => sum + n, 0)
+    const row = [
+      d,
+      maKnown >= 10 ? round(above / maKnown * 100, 1) : null,
+      yearKnown >= 10 ? round((highs - lows) / yearKnown * 100, 1) : null,
+      updown.length === days && downs > 0 ? round(ups / downs, 2) : null,
+    ]
+    if (row.slice(1).some(value => value != null)) output.push(row)
+  }
+  return output
+}
+
+async function refreshIndustryDaily({ cache, fetcher, warn }) {
+  const path = join(cache, 'industry-daily-breadth.json')
+  const previous = readJson(path, [])
+  try {
+    const response = await fetcher(FRENCH_INDUSTRIES_DAILY, { signal: AbortSignal.timeout(60_000) })
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    const csv = unzipEntry(Buffer.from(await response.arrayBuffer()), '49_Industry_Portfolios_Daily.csv')
+    const rows = buildIndustryDailyBreadth(parseFrenchDaily(csv))
+    if (!rows.length || rows.at(-1)[0] < (previous.at(-1)?.[0] ?? '')) throw new Error('行业日表覆盖不足')
+    writeJsonIfChanged(path, rows)
+    return rows
+  } catch (error) {
+    if (!previous.length) throw error
+    warn(`industry-daily-breadth 沿用至 ${previous.at(-1)[0]} 的缓存：${error.message}`)
+    return previous
+  }
+}
+
+/** 纽交所半日市与周六场次的近似判定（2010 年以前没有逐日日历）：周六、12 月 24 日、7 月 3 日、感恩节次日。 */
+export function likelyShortSession(d) {
+  const date = new Date(d + 'T00:00:00Z')
+  const [, m, day] = d.split('-').map(Number)
+  if (date.getUTCDay() === 6) return true
+  if ((m === 12 && day === 24) || (m === 7 && day === 3)) return true
+  // 感恩节为 11 月第四个周四，次日为周五且日期在 23–29 日之间
+  return m === 11 && date.getUTCDay() === 5 && day >= 23 && day <= 29
+}
+
+/**
+ * 日成交量 → 20 日量比：当日成交 ÷ 前 20 个完整交易日均量，半日市与周六场次不计入分子分母。
+ * Yahoo 早年日线偶有孤立错值（如 1951-06-01 为前后几日的 8 倍、2008-08-05 只有四分之一），
+ * 与前后各 2 个交易日中位数之比超过 4 倍或低于 0.3 倍的单日剔除；真实放量（如 1987 年 10 月）在 3 倍以内。
+ */
+export function volumeRatioFromDaily(rows) {
+  const sessions = rows.filter(([d, volume]) => volume > 0 && !likelyShortSession(d))
+  const full = sessions.filter(([, volume], index) => {
+    const around = [...sessions.slice(Math.max(0, index - 2), index), ...sessions.slice(index + 1, index + 3)]
+      .map(([, v]) => v).sort((a, b) => a - b)
+    if (around.length < 4) return true
+    const median = (around[1] + around[2]) / 2
+    return volume / median <= 4 && volume / median >= 0.3
+  })
+  return full.flatMap(([d, volume], index) => {
+    if (index < 20) return []
+    const average = full.slice(index - 20, index).reduce((sum, [, v]) => sum + v, 0) / 20
+    return [[d, Math.round(volume / average * 100) / 100]]
+  })
 }
 
 /** 11 个 GICS 板块中，过半成分股站上 200 日线的板块数；只取 11 个板块都有读数的交易日。 */
@@ -333,17 +466,66 @@ export function impliedCorrelation(cor1m = [], cor3m = []) {
   }))
 }
 
-/** 同日 COMEX 黄金 ÷ 白银收盘，附较 20 个交易日前的变化。 */
-export function goldSilverRatio(gold = [], silver = []) {
+const round2 = n => Math.round(n * 100) / 100
+export const WORLD_BANK_CMO = 'https://www.worldbank.org/en/research/commodity-markets'
+
+/**
+ * 世界银行 Pink Sheet 月表（Monthly Prices）→ [月末日期, 金 ÷ 银]。sheetXml 为工作表 XML，shared 为共享字符串；
+ * 按表头里的 Gold、Silver 两列取值，行标签形如 1960M01。
+ */
+export function parseWorldBankGoldSilver(sheetXml, shared) {
+  const cellsOf = row => Object.fromEntries([...row.matchAll(/<c r="([A-Z]+)\d+"([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g)]
+    .map(([, col, attrs, body = '']) => {
+      const raw = /<v>([^<]*)<\/v>/.exec(body)?.[1]
+      return [col, /t="s"/.test(attrs) ? shared[Number(raw)] : raw]
+    }))
+  let columns
+  const rows = []
+  for (const [, row] of sheetXml.matchAll(/<row\b[^>]*>([\s\S]*?)<\/row>/g)) {
+    const cells = cellsOf(row)
+    if (!columns) {
+      const find = name => Object.keys(cells).find(col => cells[col]?.trim() === name)
+      if (find('Gold') && find('Silver')) columns = [find('Gold'), find('Silver')]
+      continue
+    }
+    const label = /^(\d{4})M(\d{2})$/.exec(cells.A ?? '')
+    const [gold, silver] = columns.map(col => Number(cells[col]))
+    if (label && gold > 0 && silver > 0) rows.push([monthEnd(`${label[1]}-${label[2]}`), round2(gold / silver)])
+  }
+  if (!columns) throw new Error('世界银行月表缺少 Gold、Silver 列')
+  return rows
+}
+
+/**
+ * 金银比：2000 年 9 月以前用世界银行月均价之比（early），之后用 Yahoo 日线按月汇总（月均金 ÷ 月均银，只取完整月份），
+ * 最后接上最新一个交易日的读数，并附较 20 个交易日前的变化。月度部分作为百分位的历史样本。
+ */
+export function goldSilverRatio(gold = [], silver = [], early = [], today = gold.at(-1)?.[0] ?? '') {
   const silverByDay = new Map(silver)
-  const ratios = gold.flatMap(([d, price]) => {
+  const daily = gold.flatMap(([d, price]) => {
     const other = silverByDay.get(d)
-    return price > 0 && other > 0 ? [[d, clean(price / other), price, other]] : []
+    return price > 0 && other > 0 ? [[d, price, other]] : []
   })
-  return ratios.map(([d, value, gold, silver], index) => ({
-    observedOn: d, availableOn: d, value, gold, silver,
-    change: index >= 20 ? clean(value - ratios[index - 20][1]) : null,
-  }))
+  if (!daily.length) return []
+  // 日线首月通常不完整（Yahoo 从 2000-08-30 开始），从下一个月起按月汇总，首月及以前用 early。
+  const firstFull = month(monthEnd(daily[0][0], 1))
+  const byMonth = new Map()
+  for (const [d, g, s] of daily) {
+    if (month(d) < firstFull || month(d) >= month(today)) continue
+    const sums = byMonth.get(month(d)) ?? [0, 0]
+    byMonth.set(month(d), [sums[0] + g, sums[1] + s])
+  }
+  const monthly = [
+    ...early.filter(([d]) => month(d) < firstFull),
+    ...[...byMonth].map(([key, [g, s]]) => [monthEnd(key + '-01'), round2(g / s)]),
+  ].map(([d, value]) => ({ observedOn: d, availableOn: d, value }))
+  const ratio = row => row[1] / row[2]
+  const last = daily.at(-1)
+  const prior = daily.at(-21)
+  return [...monthly, {
+    observedOn: last[0], availableOn: last[0], value: round2(ratio(last)), gold: last[1], silver: last[2],
+    change: daily.length > 20 ? round2(ratio(last) - ratio(prior)) : null,
+  }]
 }
 
 /** AAII 看多减看空，只用两边同一调查周都有的读数。 */
@@ -410,11 +592,18 @@ export function buildRadarSeries({ local, macroUs, breadth, universes = {}, inde
     cftcNdxAsset: simple('cftcNdxAsset'),
     breadth: marketSeries(industries, 0, true),
     vixTerm,
-    goldSilver: goldSilverRatio(normalize(fetched.gold, today), normalize(fetched.silver, today)),
+    goldSilver: goldSilverRatio(normalize(fetched.gold, today), normalize(fetched.silver, today), fetched.goldSilverEarly, today),
     impliedCorr: impliedCorrelation(fetched.COR1M, fetched.COR3M),
     gex: gammaExposure(normalize(fetched.gex, today)),
     breadth200: marketSeries(breadth200, 0, true),
-    volumeRatio: simple('volumeRatio'),
+    volumeRatio: (() => {
+      const recent = simple('volumeRatio')
+      const start = recent[0]?.observedOn ?? '9999'
+      return [...marketSeries((fetched.volumeRatioEarly ?? []).filter(([d]) => d < start), 0, true), ...recent]
+    })(),
+    industry200: marketSeries((fetched.industryDaily ?? []).flatMap(([d, value]) => value == null ? [] : [[d, value]]), 0, true),
+    industryNetHighs: marketSeries((fetched.industryDaily ?? []).flatMap(([d, , value]) => value == null ? [] : [[d, value]]), 0, true),
+    industryAdvDec: marketSeries((fetched.industryDaily ?? []).flatMap(([d, , , value]) => value == null ? [] : [[d, value]]), 0, true),
     industryMomentum: marketSeries((fetched.industryTrend ?? []).map(([d, value]) => [d, value]), 0, true),
     industryHighs: marketSeries((fetched.industryTrend ?? []).map(([d, , value]) => [d, value]), 0, true),
     sectorBreadth: sectorBreadth(universes).filter(row => row.observedOn <= today),
@@ -434,6 +623,7 @@ export function buildRadarSeries({ local, macroUs, breadth, universes = {}, inde
     volume: 'https://finance.yahoo.com/quote/%5EGSPC/history/',
     aaiiSpread: sources.retailBull, cftcAsset: sources.cftcSpxAsset,
     industryMomentum: FRENCH_INDUSTRIES, industryHighs: FRENCH_INDUSTRIES,
+    industry200: FRENCH_INDUSTRIES_DAILY, industryNetHighs: FRENCH_INDUSTRIES_DAILY, industryAdvDec: FRENCH_INDUSTRIES_DAILY,
     sectorBreadth: breadth?.source, netHighs: breadth?.source, advDec: breadth?.source, above50: breadth?.source,
     equalWeight: 'https://finance.yahoo.com/quote/%5ESPXEW/history/',
     vixTerm: CBOE + 'VIX3M_History.csv', impliedCorr: CBOE + 'COR1M_History.csv', gex: 'https://squeezemetrics.com/monitor/dix', breadth200: breadth?.source,

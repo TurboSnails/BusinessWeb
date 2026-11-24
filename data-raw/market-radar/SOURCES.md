@@ -17,7 +17,7 @@
 | 美元净流动性 13 周变化 | FRED [WALCL](https://fred.stlouisfed.org/series/WALCL) − [WTREGEN](https://fred.stlouisfed.org/series/WTREGEN) − [RRPONTSYD](https://fred.stlouisfed.org/series/RRPONTSYD) | 联储总资产扣除 TGA 和隔夜逆回购，13 周变化 | 2003-06（WALCL 2002-12 才开始，**物理上限**） | 自动：`market-cycle.yml` → `us-market-data.mjs` |
 | 高收益债利差 | FRED [BAMLH0A0HYM2](https://fred.stlouisfed.org/series/BAMLH0A0HYM2) | ICE BofA 美国高收益债 OAS，日频 | 2023-11-24（FRED 受 ICE 授权限制只给近 3 年，站内逐日累积） | 自动：`us-market-data.mjs` |
 | 企业债利差半年变化 | FRED [BAA](https://fred.stlouisfed.org/series/BAA)、[AAA](https://fred.stlouisfed.org/series/AAA) | Baa − Aaa 的 6 个月变化 | 1919 | 自动：`macro-snapshot.yml` → `market-radar.mjs` |
-| 金银比 | Yahoo [GC=F](https://finance.yahoo.com/quote/GC=F/)、[SI=F](https://finance.yahoo.com/quote/SI=F/) 全历史日线 | COMEX 金 ÷ 银连续合约收盘（不是官方结算价，换月有小跳空），附 20 个交易日变化；事后新增，只展示 | 2000-08 | 自动（缓存 `gold.json`、`silver.json`） |
+| 金银比 | 1960-01 至 2000-08：[世界银行 Pink Sheet 月表](https://www.worldbank.org/en/research/commodity-markets)（CC BY 4.0）金、银月均价；之后：Yahoo [GC=F](https://finance.yahoo.com/quote/GC=F/)、[SI=F](https://finance.yahoo.com/quote/SI=F/) 日线 | 金 ÷ 银；历史按月（Yahoo 段取完整月份的月均金 ÷ 月均银），最新读数为最近交易日并附 20 个交易日变化。Yahoo 为连续合约收盘，不是官方结算价；世界银行银价只有一位小数。事后新增，只展示 | 1960-01（月度） | 自动（日线缓存 `gold.json`、`silver.json`）；1960–2000 段见下文回补 |
 
 ### 估值
 
@@ -51,7 +51,8 @@
 | 隐含相关性（1 个月） | Cboe [COR1M](https://cdn.cboe.com/api/global/us_indices/daily_prices/COR1M_History.csv)，对照 [COR3M](https://cdn.cboe.com/api/global/us_indices/daily_prices/COR3M_History.csv)（CDN 会 307 跳转到 cdn-api.cboe.com） | 期权隐含的标普成分股平均相关性，附 5 个交易日变化 | 2006-01 | 自动（缓存在本目录） |
 | 做市商 Gamma 敞口（GEX） | [SqueezeMetrics](https://squeezemetrics.com/monitor/dix) 公开的 [DIX.csv](https://squeezemetrics.com/monitor/static/DIX.csv)（列为 date,price,dix,gex） | 估算值，按期权未平仓量和做市商持仓方向假设推算，单位换算为亿美元；附近 5 个交易日为负的天数。转载条款不明，按注明出处、研究展示处理 | 2011-05 | 自动（缓存在本目录） |
 | 成分股站上 200 日线比例 | [datasets/s-and-p-500-companies](https://github.com/datasets/s-and-p-500-companies) 成分名单 + Yahoo 复权收盘 | 按当前成分名单回算，有幸存者偏差 | 2025-11 | 自动：`us-market-breadth.yml` |
-| 美股 20 日量比 | [Cboe 全市场成交](https://www.cboe.com/markets/us/equities/market-statistics/historical-market-volume)（年度文件 `market_history_YYYY.csv`） | 当日成交股数 ÷ 前 20 个完整交易日均量，核心交易场所齐全、剔除半日市 | 2010-08 | 自动；早年历史见下文回补 |
+| 行业站上 200 日线比例、行业 52 周新高减新低、行业 10 日涨跌比（49 行业） | [Ken French 49 行业日表](https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/49_Industry_Portfolios_daily_CSV.zip)（市值加权，CRSP 按当时成分，无幸存者偏差） | 日收益累积成指数后逐日统计；是三项成分股宽度的长历史对照。French 约滞后 1–2 个月更新 | 1926-07 | 自动（缓存 `industry-daily-breadth.json`） |
+| 美股 20 日量比 | 2010-08 起：[Cboe 全市场成交](https://www.cboe.com/markets/us/equities/market-statistics/historical-market-volume)（年度文件 `market_history_YYYY.csv`）；此前：Yahoo [^GSPC](https://finance.yahoo.com/quote/%5EGSPC/history/) 日成交量 | 当日成交股数 ÷ 前 20 个完整交易日均量。Cboe 段核心交易场所齐全、剔除半日市；^GSPC 段按周六、12 月 24 日、7 月 3 日、感恩节次日近似剔除半日市，并剔除与前后各 2 日中位数之比超过 4 倍或低于 0.3 倍的孤立错值（1951-06-01、2008-08-05 等） | 1950-01 | 自动；早年历史见下文回补 |
 
 ### 盈利
 
@@ -80,6 +81,8 @@ node scripts/market-radar.mjs                                 # 重新生成雷�
 | `naaim` | NAAIM 改订阅前最后一版免费全历史 [USE_Data-since-Inception_2026-07-29.xlsx](https://naaim.org/wp-content/uploads/2026/07/USE_Data-since-Inception_2026-07-29.xlsx)；与站内重叠的 128 周逐一一致 | 无（脚本直接下载） |
 | `spxFactSetFpe` | FactSet 官网存档 2016-12 起；官网返回 429 或缺档时改读 [互联网档案馆](https://web.archive.org/) 的同一 PDF。2014–2016 年只找到 2016-12 一期，2022-08 缺档 | `factset-forward-pe.json` |
 | `retailBull` / `retailBear` | AAII 官方 `sentiment.xls`，发布日换成之前最近的周三、保留一位小数；与站内重叠的 4 周一致 | `aaii-sentiment.json` |
+| 金银比 1960–2000 月度 | 世界银行 Pink Sheet 月表 `CMO-Historical-Data-Monthly.xlsx`（链接随每期发布变化，脚本从商品市场页找当期文件）；`node scripts/gold-silver-history.mjs` | `gold-silver-worldbank.json` |
+| `volumeRatio` 2010 年以前 | Yahoo ^GSPC 1950 年起日成交量；`node scripts/spx-volume-ratio-history.mjs`（只保留站内 Cboe 序列首个观测之前的部分） | `spx-volume-ratio-early.json` |
 
 ## 三、访问上的坑
 
@@ -95,7 +98,8 @@ node scripts/market-radar.mjs                                 # 重新生成雷�
 |---|---|
 | 高收益债利差更早的历史 | 1996 年起的全历史只在 FRED 2023 年限流前的备份里；FRED 页面写明数据版权归 ICE、未经许可禁止转载，而本仓库公开，**决定不导入**（2026-11-24）。站内继续逐日累积 |
 | 美元净流动性更早的历史 | WALCL 2002-12 才开始发布，ON RRP 2013 年才推出 |
-| 成分股 200 日线比例长历史 | TradingView（S5TH）、Barchart（$S5TH）、StockCharts（$SPXA200R）都没有免费数据接口，抓取违反服务条款；自建需要按日的历史成分名单 |
+| 成分股 200 日线比例、新高新低、涨跌比长历史 | TradingView（S5TH）、Barchart（$S5TH）、StockCharts（$SPXA200R）都没有免费数据接口，抓取违反服务条款；自建需要按日的历史成分名单 |
 | 美银调查完整历史 | 只在 Bloomberg、Refinitiv 等终端提供 |
 | NAAIM 2026-08-19 之后的读数 | 需要订阅 |
+| 金银比 1960 年以前的月度历史 | NBER 宏观历史库只有 1833–1933 年伦敦银价的年度数据，没有找到免费的月度金银价；1971 年以前金价又是固定价，意义有限 |
 | 前瞻市盈率 2016 年以前的历史 | FactSet 官网和互联网档案馆都没有留存 |

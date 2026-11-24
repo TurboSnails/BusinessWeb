@@ -214,14 +214,88 @@ test('SqueezeMetrics GEX is read in hundred-million dollars and counts negative 
   assert.throws(() => parseSqueezeGex('date,gex\n'), /表头/)
 })
 
-test('gold-silver ratio pairs same-day closes and carries the 20-session change', async () => {
+test('gold-silver ratio: World Bank months before the daily data, full Yahoo months after, then the latest day', async () => {
   const { goldSilverRatio } = await import('./lib/market-radar/sources.mjs')
-  const days = Array.from({ length: 22 }, (_, i) => `2026-10-${String(i + 1).padStart(2, '0')}`)
-  const gold = days.map((d, i) => [d, 4000 + i * 10])
-  const silver = days.filter(d => d !== '2026-10-05').map(d => [d, 50])
-  const rows = goldSilverRatio(gold, silver)
-  assert.equal(rows.length, 21)
-  assert.equal(rows.some(row => row.observedOn === '2026-10-05'), false)
-  assert.equal(rows[19].change, null)
-  assert.deepEqual([rows[20].observedOn, rows[20].value, rows[20].change], ['2026-10-22', 84.2, 4.2])
+  const days = [
+    ...['08-30', '08-31'].map(d => '2000-' + d),
+    ...Array.from({ length: 21 }, (_, i) => `2000-09-${String(i + 1).padStart(2, '0')}`),
+    '2000-10-02', '2000-10-03',
+  ]
+  const gold = days.map((d, i) => [d, 270 + i])
+  const silver = days.filter(d => d !== '2000-09-05').map(d => [d, 5])
+  const early = [['2000-07-31', 55], ['2000-08-31', 56], ['2000-09-30', 99]]
+  const rows = goldSilverRatio(gold, silver, early, '2000-10-03')
+  assert.deepEqual(rows.slice(0, 2).map(row => [row.observedOn, row.value]), [['2000-07-31', 55], ['2000-08-31', 56]])
+  // 九月：20 个配对交易日（9 月 5 日缺银价），月均金 ÷ 月均银
+  const september = days.slice(2, 23).map((d, i) => [d, 272 + i]).filter(([d]) => d !== '2000-09-05')
+  const avg = september.reduce((sum, [, g]) => sum + g, 0) / september.length
+  assert.deepEqual([rows[2].observedOn, rows[2].value], ['2000-09-30', Math.round(avg / 5 * 100) / 100])
+  assert.equal(rows.length, 4)
+  const last = rows[3]
+  assert.deepEqual([last.observedOn, last.gold, last.silver, last.value], ['2000-10-03', 294, 5, 58.8])
+  // 20 个配对交易日前（跳过缺银价的 9 月 5 日）金价为 273
+  assert.equal(last.change, Math.round((294 / 5 - 273 / 5) * 100) / 100)
+})
+
+test('World Bank Pink Sheet parser reads the Gold and Silver columns by header', async () => {
+  const { parseWorldBankGoldSilver } = await import('./lib/market-radar/sources.mjs')
+  const shared = ['Gold', 'Silver', '1960M01', 'Copper']
+  const xml = '<row r="5"><c r="B5" t="s"><v>3</v></c><c r="C5" t="s"><v>0</v></c><c r="D5" t="s"><v>1</v></c></row>' +
+    '<row r="6"><c r="C6" t="s"><v>0</v></c></row>' +
+    '<row r="7"><c r="A7" t="s"><v>2</v></c><c r="B7"><v>715</v></c><c r="C7"><v>35</v></c><c r="D7"><v>0.9</v></c></row>' +
+    '<row r="8"><c r="A8"><v>note</v></c><c r="C8"><v>1</v></c><c r="D8"><v>1</v></c></row>'
+  assert.deepEqual(parseWorldBankGoldSilver(xml, shared), [['1960-01-31', 38.89]])
+})
+
+test('industry daily breadth: 200-day line share, 252-day highs minus lows, 10-day up/down ratio', async () => {
+  const { buildIndustryDailyBreadth, parseFrenchDaily } = await import('./lib/market-radar/sources.mjs')
+  const header = ',' + Array.from({ length: 49 }, (_, i) => 'I' + i).join(',')
+  const line = (d, values) => d + ',' + values.map(v => v.toFixed(2).padStart(7)).join(',')
+  const csv = ['x', '  Average Value Weighted Returns -- Daily', header,
+    line('19260701', Array(49).fill(0.5)), line('19260702', [-99.99, ...Array(48).fill(-1)]), '', 'tail'].join('\n')
+  const parsed = parseFrenchDaily(csv)
+  assert.deepEqual(parsed.map(([d]) => d), ['1926-07-01', '1926-07-02'])
+  assert.equal(parsed[1][1][0], null)
+  // 12 个行业：6 个一路上涨、6 个一路下跌，窗口缩小便于验证
+  const days = Array.from({ length: 6 }, (_, i) => [`2000-01-0${i + 1}`, [...Array(6).fill(1), ...Array(6).fill(-1)]])
+  const rows = buildIndustryDailyBreadth(days, { ma: 3, year: 4, days: 2 })
+  // 第 1 天三项都没有读数，不输出；第 2 天起有涨跌比，第 3 天起有均线读数，第 4 天起有新高新低（6 高 6 低，净 0）
+  assert.equal(rows[0][0], '2000-01-02')
+  assert.deepEqual(rows.slice(0, 3).map(row => row.slice(1).map(v => v != null)), [[false, false, true], [true, false, true], [true, true, true]])
+  assert.deepEqual(rows.at(-1), ['2000-01-06', 50, 0, 1])
+})
+
+test('volume ratio backfill skips short sessions and isolated bad prints', async () => {
+  const { volumeRatioFromDaily, likelyShortSession } = await import('./lib/market-radar/sources.mjs')
+  assert.equal(likelyShortSession('1996-11-29'), true)
+  assert.equal(likelyShortSession('1950-01-07'), true)
+  assert.equal(likelyShortSession('1996-11-22'), false)
+  const days = []
+  for (let d = new Date('1990-01-01T00:00:00Z'); days.length < 30; d.setUTCDate(d.getUTCDate() + 1)) {
+    if (d.getUTCDay() % 6) days.push(d.toISOString().slice(0, 10))
+  }
+  const rows = volumeRatioFromDaily(days.map((d, i) => [d, i === 25 ? 900 : i === 27 ? 250 : 100]))
+  assert.equal(rows.some(([d]) => d === days[25]), false)
+  assert.deepEqual(rows.find(([d]) => d === days[27]), [days[27], 2.5])
+  assert.equal(rows[0][0], days[20])
+})
+
+test('chart history keeps full monthly series and thins long daily series to weeks or months', async () => {
+  const { chartHistory } = await import('./lib/market-radar/indicators.mjs')
+  const daily = (start, count) => Array.from({ length: count }, (_, i) => {
+    const d = new Date(start + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + i)
+    return { observedOn: d.toISOString().slice(0, 10), value: i }
+  })
+  const monthly = Array.from({ length: 300 }, (_, i) => ({ observedOn: `${1990 + Math.floor(i / 12)}-${String(i % 12 + 1).padStart(2, '0')}-28`, value: i }))
+  assert.equal(chartHistory(monthly, { dimension: 'trading' }).length, 300)
+  assert.equal(chartHistory(monthly, { dimension: 'valuation' }).length, 120)
+  // 不超过 3 年的日频序列原样保留
+  assert.equal(chartHistory(daily('2024-01-01', 700), { dimension: 'trading' }).length, 700)
+  // 2015-01-05（周一）起 5 年整 1820 天 = 260 周，每周保留最后一天
+  const weekly = chartHistory(daily('2015-01-05', 1820), { dimension: 'trading' })
+  assert.equal(weekly.length, 260)
+  assert.deepEqual(weekly.at(-1), ['2019-12-29', 1819])
+  const long = chartHistory(daily('1950-01-01', 365 * 40), { dimension: 'trading' })
+  // 1950-01-01 起 14600 天，止于 1989 年 12 月，正好 480 个月
+  assert.equal(long.length, 40 * 12)
 })

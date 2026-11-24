@@ -47,11 +47,11 @@ const DEFINITIONS = {
     score: p => band(p.value, -0.15, 0.20, 1),
   },
   goldSilver: {
-    inverse: true,
+    inverse: true, fullHistory: true,
     dimension: 'liquidity', label: '金银比',
     display: p => `COMEX 黄金 ÷ 白银 ${formatReading(p.value, '', 1)}（金 ${formatReading(p.gold, '', 0)}、银 ${formatReading(p.silver, '', 2)} 美元/盎司）` +
       (p.change == null ? '' : `，较 20 个交易日前 ${signed(p.change, n => formatReading(n, '', 1))}`) + '。',
-    rule: 'Yahoo COMEX 连续合约收盘自 2000 年 8 月起，是事后新增的指标，只展示，不计分。比值走高说明资金偏向避险属性更强的黄金、白银代表的工业与投机需求转弱，常见于避险和增长担忧阶段；回落常伴随风险偏好回升。',
+    rule: '1960 年 1 月至 2000 年 8 月用世界银行 Pink Sheet 金、银月均价之比（银价只有一位小数，1960 年代单月误差可达约 5%）；之后用 Yahoo COMEX 连续合约日线的月均价之比，最新读数为最近一个交易日。百分位以月度为样本。1971 年以前金价由布雷顿森林体系固定在每盎司 35 美元，比值只反映银价。事后新增，只展示，不计分。比值走高说明资金偏向避险属性更强的黄金、白银代表的工业与投机需求转弱，常见于避险和增长担忧阶段；回落常伴随风险偏好回升。',
   },
   erp: {
     inverse: true,
@@ -173,12 +173,17 @@ const DEFINITIONS = {
   breadth200: {
     dimension: 'trading', label: '成分股站上 200 日线比例',
     display: p => `${percent(p.value)} 的可用标普成分股站上自己的 200 日均线。`,
-    rule: '站内历史约一年，按当前成分名单回算的部分存在幸存者偏差，只展示。',
+    rule: '站内历史约一年，按当前成分名单回算的部分存在幸存者偏差，只展示。长历史见下一项「行业站上 200 日线比例」。',
+  },
+  industry200: {
+    dimension: 'trading', label: '行业站上 200 日线比例（49 行业）', staleDays: 120,
+    display: p => `${percent(p.value)} 的可用行业站上各自的 200 日均线。`,
+    rule: 'Ken French 49 个市值加权行业（CRSP，按当时的行业成分，没有幸存者偏差）日收益自 1926 年 7 月起累积成指数，统计站上各自 200 日均线的行业占比，是成分股 200 日线比例的长历史对照。French 数据约滞后 1–2 个月更新。事后新增，只展示。',
   },
   volumeRatio: {
     dimension: 'trading', label: '美股 20 日量比',
     display: p => `全美股票当日成交量为前 20 个完整交易日均量的 ${times(p.value)}。`,
-    rule: 'Cboe 同口径历史自 2010 年起（核心交易场所齐全后），不足 25 年，只展示。涵盖全美交易所及场外申报成交，半日市不计。',
+    rule: '2010 年 8 月起为 Cboe 全美股票成交（核心交易场所齐全后，涵盖全美交易所及场外申报成交）；此前回补为 Yahoo 标普 500 指数日成交量（1950 年起），量比不受成交量口径影响，但早年按周六、12 月 24 日、7 月 3 日和感恩节次日近似剔除半日市。事后回补，只展示。',
   },
   industryMomentum: {
     dimension: 'trading', label: '行业 12 个月正收益占比', frequency: 'monthly',
@@ -198,12 +203,22 @@ const DEFINITIONS = {
   netHighs: {
     dimension: 'trading', label: '成分股 52 周新高减新低',
     display: p => `创 52 周新高的标普成分股减去创新低的，占可用成分股的 ${signed(p.value, percent)}。`,
-    rule: '按当前成分名单回算，历史约一年且存在幸存者偏差，只展示。',
+    rule: '按当前成分名单回算，历史约一年且存在幸存者偏差，只展示。长历史见下一项「行业 52 周新高减新低」。',
+  },
+  industryNetHighs: {
+    dimension: 'trading', label: '行业 52 周新高减新低（49 行业）', staleDays: 120,
+    display: p => `处于 252 个交易日新高的行业减去处于新低的，占可比行业的 ${signed(p.value, percent)}。`,
+    rule: 'Ken French 49 个市值加权行业（CRSP，按当时的行业成分，没有幸存者偏差）日收益自 1926 年 7 月起累积成指数，按收盘指数计 252 个交易日新高与新低，是成分股新高减新低的长历史对照。French 数据约滞后 1–2 个月更新。事后新增，只展示。',
   },
   advDec: {
     dimension: 'trading', label: '10 日涨跌比',
     display: p => `近 10 个交易日标普成分股上涨 ${p.up} 家次、下跌 ${p.down} 家次，涨跌比 ${times(p.value)}。`,
     rule: '按当前成分名单统计，历史约一年，只展示。',
+  },
+  industryAdvDec: {
+    dimension: 'trading', label: '行业 10 日涨跌比（49 行业）', staleDays: 120,
+    display: p => `近 10 个交易日上涨行业次数是下跌行业次数的 ${times(p.value)}。`,
+    rule: 'Ken French 49 个市值加权行业（CRSP，按当时的行业成分，没有幸存者偏差）日收益自 1926 年 7 月起累积成指数，按日统计上涨与下跌的行业数，取近 10 个交易日合计之比，是成分股涨跌比的长历史对照。French 数据约滞后 1–2 个月更新。事后新增，只展示。',
   },
   above50: {
     dimension: 'trading', label: '成分股站上 50 日线比例',
@@ -254,6 +269,26 @@ function heatFor(raw, inverse) {
   return 'neutral'
 }
 
+/**
+ * 迷你图用的历史：交易结构与金银比带全部历史——月度及更稀的序列、以及跨度不超过 3 年的序列原样保留；日频序列跨度不超过 30 年时按周取最后一个观测，
+ * 更长时按月取，并始终保留最新观测。其余指标沿用最近 120 个观测。
+ */
+export function chartHistory(known, def) {
+  const rows = known.map(row => [row.observedOn, row.value])
+  if (def.dimension !== 'trading' && !def.fullHistory) return rows.slice(-120)
+  if (rows.length < 2) return rows
+  const years = ageDays(rows.at(-1)[0], rows[0][0]) / 365.2425
+  if (years <= 3 || rows.length / years <= 13) return rows
+  const bucket = years > 30 ? d => d.slice(0, 7) : d => {
+    const date = new Date(d + 'T00:00:00Z')
+    date.setUTCDate(date.getUTCDate() - ((date.getUTCDay() + 6) % 7))
+    return date.toISOString().slice(0, 10)
+  }
+  const last = new Map()
+  for (const row of rows) last.set(bucket(row[0]), row)
+  return [...last.values()]
+}
+
 export function buildIndicators(series, sources, date) {
   return Object.entries(DEFINITIONS).map(([id, def]) => {
     const reading = rankAt(series[id] ?? [], date)
@@ -275,7 +310,7 @@ export function buildIndicators(series, sources, date) {
       heat: heatFor(rank, def.inverse), score: scoreIndicator(id, point, rawRank), rule: def.rule,
       historyYears: first ? clean(ageDays(point.observedOn, first) / 365.2425) : null,
       inScore: Boolean(def.score), source: sources[id] ?? '站内市场快照',
-      history: known.slice(-120).map(row => [row.observedOn, row.value]),
+      history: chartHistory(known, def),
       ...(notes.length ? { note: notes.join('；') } : {}),
     }
   })
