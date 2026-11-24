@@ -7,7 +7,7 @@ import '../styles/combined-strategy.css'
 import '../styles/market-radar.css'
 
 export const COMBINED_STRATEGY_LEAD =
-  '把宏观攻守和市场雷达合在一起看：仓位按宏观档位定，雷达的冷热决定这一格具体怎么做。附九格状态的历史表现、融合规则的检验结果和月度档位对照。'
+  '这一页回答四个问题：现在怎么做、处在什么位置、为什么这么做、什么情况下要动。仓位按宏观攻守的档位定，市场雷达的冷热决定这个阶段具体怎么做。'
 
 export const COMBINED_STRATEGY_FOOTER =
   '规则先验设定并公开回测；验证期只作报告、不参与挑选。读数来自公开数据源。描述风险状态与仓位档位，不构成买卖建议。'

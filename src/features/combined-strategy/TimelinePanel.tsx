@@ -68,7 +68,13 @@ const STRATEGY_LABELS: Partial<TimelineLabels> = {
   legendNote: '上带「宏观档位（仓位）」决定仓位；下带「雷达档位」只说明市场冷热。两条带颜色相同的月份，两者档位一致',
 }
 
-export default function TimelinePanel({ data }: { data: CombinedStrategyFile }): JSX.Element | null {
+export default function TimelinePanel({
+  data,
+  embedded = false,
+}: {
+  data: CombinedStrategyFile
+  embedded?: boolean
+}): JSX.Element | null {
   const composite = useCompositePosture()
   const recessions = composite.status === 'ready' ? composite.data.backtest?.timeline : null
   const { points, heats, hasRecession } = useMemo(
@@ -86,9 +92,10 @@ export default function TimelinePanel({ data }: { data: CombinedStrategyFile }):
 
   if (points.length < 2) return null
 
+  const Tag = embedded ? 'div' : 'section'
   return (
-    <section className="cs-timeline" id="cs-timeline" aria-labelledby="cs-timeline-title">
-      <h2 id="cs-timeline-title">月度档位对照</h2>
+    <Tag className="cs-timeline" id="cs-timeline" {...(embedded ? {} : { 'aria-labelledby': 'cs-timeline-title' })}>
+      {embedded ? null : <h2 id="cs-timeline-title">月度档位对照</h2>}
       <div data-testid="cs-dual-timeline">
         <TimelineView
           mode="month"
@@ -98,6 +105,6 @@ export default function TimelinePanel({ data }: { data: CombinedStrategyFile }):
           details={details}
         />
       </div>
-    </section>
+    </Tag>
   )
 }

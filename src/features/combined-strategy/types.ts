@@ -28,6 +28,10 @@ export type MatrixCell = {
   heat: Heat
   all: CellStats             // 1973 年起
   since2000: CellStats       // 信号月在 2000-01 及以后
+  /** 这一格的名字，如「扩张后段」 */
+  name: string
+  /** 一句话说明这一格是什么情况，如「经济和信用还好，但市场已经偏贵、偏挤。」 */
+  meaning: string
   /** 这一格的做法（不含数字），如「按档位持有，不因为贵提前减仓。…」 */
   action: string
   /** 由统计生成的一句话，如「这一格历史上有 122 个月，之后 12 个月标普平均 13.5%，…」 */
@@ -66,7 +70,17 @@ export type CombinedStrategyFile = {
     cell: MatrixCell | null
     /** 数据日期说明，如 [{ label: '宏观攻守', date: '2026 年 11 月 23 日' }, …] */
     dates: { label: string; date: string }[]
+    /** 一句话指令，如「股票仓位保持在你上限的 85%，本月不用调。」 */
+    instruction: string
+    /** 这个月要做的事，三条：仓位、做法、下次定档 */
+    steps: { title: string; text: string }[]
+    /** 最近一次月末正式定档的月份与档位，及再上一个月的档位（用于判断要不要调仓） */
+    official: { month: string; tier: TierId | null; previousTier: TierId | null } | null
+    /** 下次正式定档日（本月最后一个交易日，ISO 日期）；算不出时为 null */
+    nextReview: string | null
   }
+  /** 为什么这么做：每条一个道理加一句由数据生成的证据 */
+  rationale: { title: string; theory: string; evidence: string }[]
   /** 九格，顺序：进攻侧 → 中性 → 防守侧；每组内 偏冷 → 居中 → 偏热 */
   matrix: MatrixCell[]
   fusion: {

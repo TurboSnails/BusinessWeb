@@ -14,11 +14,18 @@ function MetricCells({ m }: { m: StrategyMetrics }): JSX.Element {
   )
 }
 
-export default function FusionPanel({ data }: { data: CombinedStrategyFile }): JSX.Element {
+export default function FusionPanel({
+  data,
+  embedded = false,
+}: {
+  data: CombinedStrategyFile
+  embedded?: boolean
+}): JSX.Element {
   const { fusion } = data
+  const Tag = embedded ? 'div' : 'section'
   return (
-    <section className="cs-fusion" id="cs-fusion" aria-labelledby="cs-fusion-title">
-      <h2 id="cs-fusion-title">融合检验</h2>
+    <Tag className="cs-fusion" id="cs-fusion" {...(embedded ? {} : { 'aria-labelledby': 'cs-fusion-title' })}>
+      {embedded ? null : <h2 id="cs-fusion-title">融合检验</h2>}
       <p className="cs-verdict" data-testid="cs-fusion-verdict">{visibleText(fusion.verdict)}</p>
       <p className="cs-muted" data-testid="cs-fusion-range">
         {fusion.start} 至 {fusion.end}。训练期 {fusion.trainRange}；验证期 {fusion.testRange}。
@@ -78,6 +85,6 @@ export default function FusionPanel({ data }: { data: CombinedStrategyFile }): J
       <ul className="cs-disclosures" data-testid="cs-fusion-disclosures">
         {fusion.disclosures.map(item => <li key={item}>{visibleText(item)}</li>)}
       </ul>
-    </section>
+    </Tag>
   )
 }

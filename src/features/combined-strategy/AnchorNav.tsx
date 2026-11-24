@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react'
 
 export const STRATEGY_NAV = [
   { id: 'cs-now', label: '现在怎么做' },
+  { id: 'cs-position', label: '现在的位置' },
+  { id: 'cs-why', label: '为什么' },
+  { id: 'cs-triggers', label: '什么时候动' },
   { id: 'cs-rules', label: '仓位规则' },
-  { id: 'cs-matrix', label: '状态矩阵' },
-  { id: 'cs-fusion', label: '融合检验' },
-  { id: 'cs-timeline', label: '档位对照' },
-  { id: 'mp-market', label: '市场综合' },
+  { id: 'cs-matrix', label: '九种状态' },
+  { id: 'cs-research', label: '研究记录' },
 ] as const
 
 export default function AnchorNav(): JSX.Element {

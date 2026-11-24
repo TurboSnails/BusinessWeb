@@ -24,10 +24,20 @@ function CellBody({
   if (!cell) return <span className="cs-muted">—</span>
   const stats = mode === 'all' ? cell.all : cell.since2000
   if (stats.months === 0) {
-    return <span className="cs-muted">{mode === 'all' ? '没有出现过' : '—'}</span>
+    return (
+      <div className="cs-matrix__stats">
+        {mode === 'all' && cell?.name ? (
+          <strong className="cs-matrix__name" data-testid="cs-matrix-name">{cell.name}</strong>
+        ) : null}
+        <span className="cs-muted">{mode === 'all' ? '没有出现过' : '—'}</span>
+      </div>
+    )
   }
   return (
     <div className="cs-matrix__stats">
+      {mode === 'all' && cell?.name ? (
+        <strong className="cs-matrix__name" data-testid="cs-matrix-name">{cell.name}</strong>
+      ) : null}
       <span>{stats.months} 个月</span>
       <span>之后 12 个月均值 {formatPct1(stats.fwd12)}</span>
       <span>为负 {formatPct1(stats.neg12)}</span>
@@ -119,7 +129,7 @@ export default function MatrixPanel({ data }: { data: CombinedStrategyFile }): J
 
   return (
     <section className="cs-matrix" id="cs-matrix" aria-labelledby="cs-matrix-title">
-      <h2 id="cs-matrix-title">状态矩阵</h2>
+      <h2 id="cs-matrix-title">九种状态的历史表现</h2>
       <p className="cs-lead" data-testid="cs-matrix-lead">
         把每个月按宏观档位和雷达热度分成九格，看之后 12 个月标普的表现。这是历史统计，不是交易规则；仓位仍按宏观档位。
       </p>

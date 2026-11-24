@@ -57,16 +57,18 @@ export async function runRadar({ now = new Date(), fetcher = fetch, warn = conso
   const signals = buildMonthlySignals({
     historical, panel, vintages, dailyRows, today, mastersTimeline,
   })
+  const backtest = buildRadarBacktest({
+    historical, panel, vintages, dailyRows, today, mastersTimeline, signals,
+  })
   const file = {
     generatedAt, ruleVersion: 'radar-v1', current: radar, indicators,
-    backtest: buildRadarBacktest({
-      historical, panel, vintages, dailyRows, today, mastersTimeline, signals,
-    }),
+    backtest,
   }
   writeJsonIfChanged(OUTPUT, file)
   try {
+    const buyholdFull = backtest.rows.find(row => row.id === 'buyhold')?.full
     const combined = buildCombinedStrategy({
-      signals, panel, today, posture: masters, radar, generatedAt,
+      signals, panel, today, posture: masters, radar, generatedAt, buyholdFull,
     })
     writeJsonIfChanged(COMBINED_OUTPUT, combined)
     file.combined = combined

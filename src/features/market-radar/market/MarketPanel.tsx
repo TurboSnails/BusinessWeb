@@ -240,7 +240,7 @@ function MiniTimeline({ rows }: { rows: MarketFile['stage1']['timeline'] }): JSX
   )
 }
 
-function MarketReady({ data }: { data: MarketFile }): JSX.Element {
+function MarketReady({ data, researchMode }: { data: MarketFile; researchMode?: boolean }): JSX.Element {
   const { stage1, stage2 } = data
   const chosen = stage1.configs.find(c => c.id === stage1.chosenId) ?? stage1.configs[0]
   const tier = stage1.current.tier
@@ -251,9 +251,17 @@ function MarketReady({ data }: { data: MarketFile }): JSX.Element {
     <>
       <p className="mp-market__prereg">{visibleText(data.preregistered)}</p>
 
-      <div className="mp-market__verdict" data-testid="mp-market-verdict">
+      <div
+        className={`mp-market__verdict${researchMode ? ' mp-market__verdict--research' : ''}`}
+        data-testid="mp-market-verdict"
+      >
+        {researchMode ? (
+          <p className="mp-market__research-tag" data-testid="mp-market-research-tag">
+            研究读数，不是操作信号
+          </p>
+        ) : null}
         <p
-          className={`mp-market__tier${tier ? ` mp-market__tier--${tier}` : ''}`}
+          className={`mp-market__tier${tier ? ` mp-market__tier--${tier}` : ''}${researchMode ? ' mp-market__tier--muted' : ''}`}
           data-testid="mp-market-tier"
         >
           {tierName}
@@ -313,7 +321,13 @@ function MarketReady({ data }: { data: MarketFile }): JSX.Element {
   )
 }
 
-export default function MarketPanel({ intro }: { intro?: string } = {}): JSX.Element {
+export default function MarketPanel({
+  intro,
+  researchMode = false,
+}: {
+  intro?: string
+  researchMode?: boolean
+} = {}): JSX.Element {
   const state = useMarket()
   return (
     <section className="mp-market" id="mp-market" aria-labelledby="mp-market-title">
@@ -325,7 +339,7 @@ export default function MarketPanel({ intro }: { intro?: string } = {}): JSX.Ele
           市场综合暂时无法读取，不影响本页其他结论。
         </p>
       ) : null}
-      {state.status === 'ready' ? <MarketReady data={state.data} /> : null}
+      {state.status === 'ready' ? <MarketReady data={state.data} researchMode={researchMode} /> : null}
     </section>
   )
 }

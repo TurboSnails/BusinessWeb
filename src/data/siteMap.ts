@@ -59,7 +59,7 @@ export const INVEST_GROUPS: HubGroup[] = [
       { path: '/monitor', label: '宏观温度', short: '中美港宏观、牛熊与估值', desc: '中美港经济温度、牛熊周期六维证据、周月趋势、复盘记录与估值位置', minor: true },
       { path: '/invest/macro-posture', label: '宏观攻守', short: '现在该进攻还是防守', desc: '参考九位宏观投资人公开方法提炼的美股综合攻守指标：五档仓位、置信度、距离改判，拿不准的指标分级放外圈；规则公开，附 1973 年以来回测', minor: true },
       { path: '/invest/market-radar', label: '市场雷达', short: '自建：估值、拥挤度与宽度', desc: '自建的指标体系，只从股市自身看冷热：流动性、估值、仓位与拥挤度、交易结构、盈利五个维度，每项给出读数、历史百分位与冷热；雷达综合档位及其回测', minor: true },
-      { path: '/invest/strategy', label: '综合策略', short: '宏观 + 股市：仓位怎么定', desc: '把宏观攻守和市场雷达合在一起看：仓位按宏观档位定，雷达的冷热决定这一格具体怎么做；附九格状态的历史表现、融合规则的检验结果和月度档位对照', minor: true },
+      { path: '/invest/strategy', label: '综合策略', short: '宏观 + 股市：仓位怎么定', desc: '把宏观攻守和市场雷达合在一起看，直接回答现在怎么做、处在什么位置、为什么、什么情况下要动；仓位按宏观档位定，雷达的冷热决定这个阶段具体怎么做；附九种状态的历史表现与研究记录', minor: true },
       { path: '/pulse', label: '全球行情', short: '指数热力图与 A 股走势', desc: '全球指数热力图、A 股指数 K 线与成交', minor: true },
       { path: '/daily-analysis', label: 'A股每日复盘', short: '涨跌停、连板与资金', desc: '自动获取 A 股行情、涨跌停与连板复盘', minor: true },
       { path: '/sector-rotation', label: '板块轮动', short: '板块强弱与轮动', desc: '行业板块的相对强弱与轮动阶段', minor: true },

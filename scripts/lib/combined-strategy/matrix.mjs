@@ -16,6 +16,32 @@ export const MATRIX_ORDER = [
   ['defense', 'cold'], ['defense', 'mid'], ['defense', 'hot'],
 ]
 
+/** 设计文档第 9 节九格名字，原样使用。 */
+export const CELL_NAMES = {
+  'offense|cold': '复苏初期',
+  'offense|mid': '扩张期',
+  'offense|hot': '扩张后段',
+  'neutral|cold': '低位观望',
+  'neutral|mid': '平稳期',
+  'neutral|hot': '高位转平',
+  'defense|cold': '衰退底部区',
+  'defense|mid': '下行期',
+  'defense|hot': '高位下行',
+}
+
+/** 设计文档第 9 节九格含义，原样使用。 */
+export const CELL_MEANINGS = {
+  'offense|cold': '经济和信用转好，市场还便宜、没什么人挤。',
+  'offense|mid': '经济和信用向好，市场估值和持仓都在正常范围。',
+  'offense|hot': '经济和信用还好，但市场已经偏贵、偏挤。',
+  'neutral|cold': '宏观信号好坏参半，市场便宜。',
+  'neutral|mid': '宏观信号好坏参半，市场不贵也不便宜。',
+  'neutral|hot': '宏观信号开始转平，市场仍然偏贵、偏挤。',
+  'defense|cold': '经济或信用很差，但市场已经便宜。历史上之后回报最好。',
+  'defense|mid': '经济或信用转差，市场估值正常。',
+  'defense|hot': '经济或信用转差，市场却还贵。历史上之后回报最差。',
+}
+
 /** 设计文档第 4 节做法文字，原样使用。 */
 export const CELL_ACTIONS = {
   'offense|cold': '按档位持有。这一格历史上极少出现。',
@@ -78,7 +104,8 @@ export function buildMatrix(signals, returns) {
   }
 
   return MATRIX_ORDER.map(([side, heat]) => {
-    const samples = buckets[`${side}|${heat}`]
+    const key = `${side}|${heat}`
+    const samples = buckets[key]
     const all = summarize(samples)
     const since2000 = summarize(samples.filter(row => row.d >= '2000-01'))
     const thin = all.months < 30
@@ -87,7 +114,9 @@ export function buildMatrix(signals, returns) {
       heat,
       all,
       since2000,
-      action: CELL_ACTIONS[`${side}|${heat}`],
+      name: CELL_NAMES[key],
+      meaning: CELL_MEANINGS[key],
+      action: CELL_ACTIONS[key],
       evidence: buildEvidence(all, since2000),
       thin,
     }

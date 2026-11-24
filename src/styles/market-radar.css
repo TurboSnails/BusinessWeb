@@ -485,6 +485,23 @@ html.dark .mr-page {
 .mp-market__tier--neutral { color: var(--mp-tier-neutral); }
 .mp-market__tier--lean-defense { color: var(--mp-tier-lean-defense); }
 .mp-market__tier--defense { color: var(--mp-tier-defense); }
+.mp-market__tier--muted,
+.mp-market__verdict--research .mp-market__tier {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.mp-market__research-tag {
+  display: inline-block;
+  margin: 0 0 8px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--text-secondary) 12%, transparent);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 650;
+  line-height: 1.4;
+}
 .mp-market__score { margin: 0 0 8px; font-size: 1rem; font-variant-numeric: tabular-nums; }
 .mp-market__headline { margin: 0 0 8px; font-size: 0.95rem; line-height: 1.65; }
 .mp-market__relation { margin: 0; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary); }

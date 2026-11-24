@@ -25,6 +25,18 @@ function stats(months: number, fwd12: number | null, neg12: number | null, maxDd
   return { months, fwd12, neg12, maxDd12 }
 }
 
+const CELL_META: Record<string, { name: string; meaning: string }> = {
+  'offense|cold': { name: '复苏初期', meaning: '经济和信用转好，市场还便宜、没什么人挤。' },
+  'offense|mid': { name: '扩张期', meaning: '经济和信用向好，市场估值和持仓都在正常范围。' },
+  'offense|hot': { name: '扩张后段', meaning: '经济和信用还好，但市场已经偏贵、偏挤。' },
+  'neutral|cold': { name: '低位观望', meaning: '宏观信号好坏参半，市场便宜。' },
+  'neutral|mid': { name: '平稳期', meaning: '宏观信号好坏参半，市场不贵也不便宜。' },
+  'neutral|hot': { name: '高位转平', meaning: '宏观信号开始转平，市场仍然偏贵、偏挤。' },
+  'defense|cold': { name: '衰退底部区', meaning: '经济或信用很差，但市场已经便宜。历史上之后回报最好。' },
+  'defense|mid': { name: '下行期', meaning: '经济或信用转差，市场估值正常。' },
+  'defense|hot': { name: '高位下行', meaning: '经济或信用转差，市场却还贵。历史上之后回报最差。' },
+}
+
 function cell(
   macroSide: MacroSide,
   heat: Heat,
@@ -33,6 +45,7 @@ function cell(
   action: string,
 ): MatrixCell {
   const thin = all.months > 0 && all.months < 30
+  const meta = CELL_META[`${macroSide}|${heat}`]
   const parts = [
     all.months === 0
       ? '这一格历史上没有出现过。'
@@ -47,6 +60,8 @@ function cell(
     heat,
     all,
     since2000,
+    name: meta.name,
+    meaning: meta.meaning,
     action,
     evidence: parts.join(''),
     thin,
@@ -136,6 +151,29 @@ function timeline(): CombinedStrategyFile['timeline'] {
 
 const CURRENT_CELL = MATRIX.find(c => c.macroSide === 'offense' && c.heat === 'hot')!
 
+const RATIONALE: CombinedStrategyFile['rationale'] = [
+  {
+    title: '仓位跟着宏观周期走',
+    theory: '股市的大跌多数发生在经济衰退、信用收紧的时候，这些会先后反映在就业、信用利差、货币条件和通胀上。',
+    evidence: '1973 年以来按宏观档位调仓，最大回撤 −20.0%，全程持有标普是 −48.9%；年化收益 10.2% 对 11.1%。',
+  },
+  {
+    title: '贵不是减仓的理由',
+    theory: '估值和拥挤度影响的是未来多年的回报，决定不了明年的涨跌；贵的市场可以继续贵很久。',
+    evidence: '宏观在进攻侧而市场偏热的 122 个月，之后 12 个月标普平均仍涨 13.5%。按冷热调仓位的六种规则，训练期夏普相对不调的变化在 −0.015 到 −0.001 之间，没有一种更好。',
+  },
+  {
+    title: '贵加上宏观转差才危险',
+    theory: '所以市场偏热时的对策是不加码、不上杠杆、不提高集中度，把减仓留给宏观档位下降的时候，并且那时严格执行。',
+    evidence: '宏观在防守侧而市场偏热的 23 个月，之后 12 个月标普平均 −3.5%，57% 的时候为负；2000 年以后 17 个月，平均 −10.2%。',
+  },
+  {
+    title: '按月操作，不追日线',
+    theory: '规则是按月末定档、隔一个月生效检验出来的，月中的波动不在检验范围内。',
+    evidence: '回测里信号在月末生成、隔一个月才生效；平均每年换档 3.9 次。',
+  },
+]
+
 export function combinedStrategyFixture(overrides: Partial<CombinedStrategyFile> = {}): CombinedStrategyFile {
   const base: CombinedStrategyFile = {
     generatedAt: '2026-11-24T12:00:00.000Z',
@@ -153,7 +191,16 @@ export function combinedStrategyFixture(overrides: Partial<CombinedStrategyFile>
         { label: '宏观攻守', date: '2026 年 11 月 23 日' },
         { label: '市场雷达', date: '2026 年 10 月 31 日' },
       ],
+      instruction: '股票仓位保持在你上限的 85%，本月不用调。',
+      steps: [
+        { title: '仓位', text: '10 月底定档为偏进攻，对应上限的 85%，和上月相同，不用调仓。' },
+        { title: '做法', text: CURRENT_CELL.action },
+        { title: '下次定档', text: '11 月 30 日收盘后（本月最后一个交易日）。档位如有变化，在下个月内调整到位；没变就不用动。' },
+      ],
+      official: { month: '2026-10', tier: 'lean-offense', previousTier: 'lean-offense' },
+      nextReview: '2026-11-30',
     },
+    rationale: RATIONALE,
     matrix: MATRIX,
     fusion: {
       start: '1973-01',
@@ -175,6 +222,7 @@ export function combinedStrategyFixture(overrides: Partial<CombinedStrategyFile>
     ...base,
     ...overrides,
     current: { ...base.current, ...(overrides.current ?? {}) },
+    rationale: overrides.rationale ?? base.rationale,
     fusion: {
       ...base.fusion,
       ...(overrides.fusion ?? {}),
@@ -186,7 +234,7 @@ export function combinedStrategyFixture(overrides: Partial<CombinedStrategyFile>
   }
 }
 
-/** 当前格缺失：只显示 headline */
+/** 当前格缺失：只显示 headline / instruction */
 export function combinedStrategyNoCellFixture(): CombinedStrategyFile {
   return combinedStrategyFixture({
     current: {
@@ -197,7 +245,15 @@ export function combinedStrategyNoCellFixture(): CombinedStrategyFile {
       heatScore: null,
       heat: null,
       headline: '宏观或雷达一侧缺数，暂不定位格子。',
+      instruction: '宏观攻守读数暂缺，暂不给出仓位。',
+      steps: [
+        { title: '仓位', text: '月末正式定档暂缺，先按当前读数执行。' },
+        { title: '做法', text: '雷达读数暂缺，先只按仓位执行。' },
+        { title: '下次定档', text: '每月最后一个交易日收盘后。档位如有变化，在下个月内调整到位；没变就不用动。' },
+      ],
       cell: null,
+      official: null,
+      nextReview: null,
       dates: [{ label: '宏观攻守', date: '2026 年 11 月 23 日' }],
     },
   })

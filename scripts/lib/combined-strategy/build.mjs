@@ -4,9 +4,10 @@ import { monthEnd } from '../macro-posture/panel.mjs'
 import { buildCurrent } from './current.mjs'
 import { buildFusion } from './fusion.mjs'
 import { buildMatrix } from './matrix.mjs'
+import { buildRationale } from './rationale.mjs'
 
 export function buildCombinedStrategy({
-  signals, panel, today, posture, radar, generatedAt,
+  signals, panel, today, posture, radar, generatedAt, buyholdFull,
 }) {
   const lastComplete = monthEnd(today, -1)
   const returns = monthlyReturns(panel, lastComplete)
@@ -17,10 +18,16 @@ export function buildCombinedStrategy({
   const timeline = signals.map(({ d, masters, radar: radarTier, heat, spx }) => ({
     d, macro: masters, radar: radarTier, heat, spx,
   }))
+  const rationale = buildRationale({
+    matrix,
+    fusion,
+    buyholdFull: buyholdFull ?? { cagr: 0, maxDd: 0 },
+  })
   return {
     generatedAt,
     ruleVersion: 'fusion-v1',
     current,
+    rationale,
     matrix,
     fusion,
     timeline,
