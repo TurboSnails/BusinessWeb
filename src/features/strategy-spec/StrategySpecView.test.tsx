@@ -84,13 +84,20 @@ describe('StrategySpecView', () => {
     expect(screen.getByTestId('ss-cover').textContent).toContain('v1.1.0')
   })
 
-  it('真实版本：现行 v1.0.1，可与已归档的 v1.0.0 逐章对比', () => {
-    renderAt('/invest/strategy/spec')
-    expect(screen.getByTestId('ss-cover').textContent).toContain('v1.0.1')
-    fireEvent.click(screen.getByTestId('ss-compare-start'))
+  it('真实版本：v1.0.1 可与已归档的 v1.0.0 逐章对比', () => {
+    renderAt('/invest/strategy/spec?compare=1.0.0..1.0.1')
     expect(screen.getByTestId('ss-compare-summary').textContent).toMatch(/^v1\.0\.0 → v1\.0\.1：\d+ 章里有 \d+ 章不同。$/)
     const changed = [...document.querySelectorAll('.ss-diff[data-status="changed"]')].map(node => node.querySelector('.ss-diff__title')?.textContent)
     expect(changed).toEqual(expect.arrayContaining(['五、熔断：极端情况下封顶', '十一、执行', '十二、短线预警与置信度（不改变仓位）']))
     expect(document.querySelectorAll('.ss-diff[data-status="added"], .ss-diff[data-status="removed"]')).toHaveLength(0)
+  })
+
+  it('真实版本：现行 v1.0.2，「对比最近两个版本」只显示加了检验的章节有变化', () => {
+    renderAt('/invest/strategy/spec')
+    expect(screen.getByTestId('ss-cover').textContent).toContain('v1.0.2')
+    fireEvent.click(screen.getByTestId('ss-compare-start'))
+    expect(screen.getByTestId('ss-compare-summary').textContent).toMatch(/^v1\.0\.1 → v1\.0\.2：/)
+    const changed = [...document.querySelectorAll('.ss-diff[data-status="changed"]')].map(node => node.querySelector('.ss-diff__title')?.textContent)
+    expect(changed).toEqual(['一、概要', '十三、回测证据', '十五、已知局限'])
   })
 })
