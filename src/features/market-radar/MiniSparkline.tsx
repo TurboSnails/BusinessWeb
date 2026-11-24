@@ -46,12 +46,13 @@ export function sparkIndexAt(svgX: number, count: number): number {
   return Math.min(count - 1, Math.max(0, Math.round(ratio * (count - 1))))
 }
 
-/** 迷你折线：指标历史；指针悬停、轻触或 ← → 查看各点日期与数值，双击或点「放大」打开可缩放的大图 */
+/** 迷你折线：指标历史；指针悬停、轻触或 ← → 查看各点日期与数值，双击或点「放大」打开可缩放的大图。simple = 行内只画线与末点 */
 export default function MiniSparkline({
   history,
   label,
   display,
   overlays,
+  simple = false,
 }: {
   history: [string, number][]
   label: string
@@ -59,6 +60,8 @@ export default function MiniSparkline({
   display?: string
   /** 只在放大图里叠加的辅助序列 */
   overlays?: RadarOverlay[]
+  /** 行内迷你图：去掉交互，只画线与末点 */
+  simple?: boolean
 }): JSX.Element | null {
   const titleId = useId()
   const hintId = useId()
@@ -81,6 +84,20 @@ export default function MiniSparkline({
   const first = history[0]
   const shownIndex = active === null ? null : Math.min(active, lastIndex)
   const shown = shownIndex === null ? null : history[shownIndex]
+
+  if (simple) {
+    return (
+      <figure className="mr-spark mr-spark--simple" data-testid="mr-sparkline">
+        <svg className="mr-spark__svg" viewBox={`0 0 ${W} ${H}`} role="img" aria-labelledby={titleId}>
+          <title id={titleId}>
+            {label}：{first[0]} 至 {last[0]}，最新 {format(last[1])}
+          </title>
+          <path className="mr-spark__line" d={d} />
+          <circle className="mr-spark__dot mr-spark__dot--latest" cx={x(lastIndex)} cy={y(last[1])} r={3} />
+        </svg>
+      </figure>
+    )
+  }
 
   const pick = (event: React.PointerEvent<SVGSVGElement>): void => {
     setActive(sparkIndexAt(clientXToSvgX(event.currentTarget, event.clientX), count))

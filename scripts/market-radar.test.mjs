@@ -6,9 +6,14 @@ import {
 } from './lib/market-radar/backtest.mjs'
 import { heatFromRadarCurrent } from './lib/combined-strategy/current.mjs'
 import {
-  aggregateScores, buildCurrent, buildIndicators, dimensionScoresAt, rankAt, scoreAt, scoreIndicator,
+  aggregateScores, buildCurrent, buildIndicators, buildChanges, dimensionScoresAt,
+  percentileSample, rankAt, scoreAt, scoreIndicator, weeklyLastSample,
 } from './lib/market-radar/indicators.mjs'
-import { buildRadarSeries, parseShillerEps, priceAdjustedPe } from './lib/market-radar/sources.mjs'
+import {
+  buildRadarSeries, changeOverDays, fillVolumeRatioGaps, isQuarterEndMonth, parseOfrFsi,
+  parseShillerEps, priceAdjustedPe, quarterEndEarnings,
+} from './lib/market-radar/sources.mjs'
+import { REVISION_A1 } from './lib/market-radar/indicators.mjs'
 import { marketSeries } from './lib/macro-posture-market/data.mjs'
 import { makePanel } from './lib/macro-posture/panel.mjs'
 import { tierEquity } from './lib/macro-posture-market/backtest.mjs'
@@ -59,10 +64,10 @@ test('扩张百分位按可得日截断并对并列取中位排名', () => {
   assert.deepEqual(currentPe.history.map(([d]) => d), pe.slice(0, 4).map(row => row.observedOn))
 })
 
-test('当前 PE 使用已发布读数，历史 PE 按价格折算，家庭配置和盈利遵守各自滞后', () => {
+test('当前 PE 使用已发布读数，历史 PE 按季末阶梯折算，家庭配置和盈利遵守各自滞后', () => {
   const shillerEps = parseShillerEps([
     'date,P,D,E,CPI,GS10', '1871-01,4.44,0.26,0.4,12.46,5.32', '1872-01,4.80,0.30,0.45,12.46,5.32',
-    '2025-07,1,1,100,1,1', '2026-07,1,1,110,1,1', '2026-08,1,1,,1,1',
+    '2025-06,1,1,100,1,1', '2025-07,1,1,101,1,1', '2026-06,1,1,110,1,1', '2026-07,1,1,,1,1',
   ].join('\n'))
   const cashRows = [['2026-01-01', 8], ['2026-04-01', 9], ['2026-07-01', 10]]
   const fetched = {
@@ -72,44 +77,51 @@ test('当前 PE 使用已发布读数，历史 PE 按价格折算，家庭配置
   }
   const core = {
     GS10: [['2026-10-01', 4]],
-    price: [['2026-07-01', 100], ['2026-08-01', 105], ['2026-10-01', 110]],
+    price: [['2026-06-01', 100], ['2026-07-01', 105], ['2026-09-01', 110], ['2026-10-01', 112]],
   }
   const { current, historical } = buildRadarSeries({
-    local: { spxPe: { history: [['2026-07-01', 10], ['2026-08-01', 15], ['2026-10-01', 20], ['2026-11-20', 25]] } },
+    local: {
+      spxPe: { history: [['2026-06-01', 10], ['2026-07-01', 15], ['2026-09-01', 18], ['2026-10-01', 20], ['2026-11-20', 25]] },
+      tenYearDaily: { history: [['2026-11-20', 4.1]] },
+    },
     macroUs: { equityShare: { long: cashRows } }, marketCache: { breadth: [], volume: [] }, fetched, shillerEps,
     panel: makePanel(core), currentPanel: makePanel(core, { mode: 'current' }), today: '2026-11-23', lastComplete: '2026-10-31',
   })
   assert.equal(rankAt(current.pe, '2026-11-23').point.value, 25)
   assert.equal(rankAt(current.erp, '2026-11-23').point.value, 0)
-  // 7 月市盈率 10 × P(10 月)/P(7 月) = 10 × 110/100 = 11，observedOn 落在 10 月
-  assert.equal(rankAt(historical.pe, '2026-10-31').point.value, 11)
-  assert.equal(rankAt(historical.pe, '2026-10-31').point.observedOn, '2026-10-01')
+  // 6 月（季末）市盈率 10 在 9 月末可得；9 月：10 × P(9)/P(6) = 10 × 110/100 = 11
+  assert.equal(rankAt(historical.pe, '2026-09-30').point.value, 11)
+  assert.equal(rankAt(historical.pe, '2026-09-30').point.earningsOn, '2026-06-30')
   assert.equal(rankAt(historical.cashShare, '2026-11-23').point.value, 27)
   assert.equal(rankAt(historical.cashShare, '2026-12-31').point.value, 30)
   assert.equal(rankAt(historical.equityShare, '2026-11-23').point.observedOn, '2026-06-30')
-  assert.equal(rankAt(historical.epsYoy, '2026-10-30').point.observedOn, '1872-01-31')
-  assert.equal(rankAt(historical.epsYoy, '2026-10-31').point.value, 10)
+  // 季中插值月不提前：10 月 30 日仍只用到 1872-01；9 月末才有 2026-06 同比
+  assert.equal(rankAt(historical.epsYoy, '2026-09-29')?.point?.observedOn ?? '1872-01-31', '1872-01-31')
+  assert.equal(rankAt(historical.epsYoy, '2026-09-30').point.value, 10)
+  assert.equal(rankAt(historical.epsYoy, '2026-09-30').point.observedOn, '2026-06-30')
 })
 
-test('priceAdjustedPe：正常折算、缺价格跳过、availableOn 为 t 月末', () => {
+test('priceAdjustedPe：只用季末市盈率阶梯折算', () => {
   const peRows = [['2020-01-01', 20], ['2020-02-01', 25], ['2020-03-01', 30]]
   const price = makePanel({
-    price: [['2020-01-01', 100], ['2020-02-01', 100], ['2020-04-01', 110], ['2020-05-01', 120]],
+    price: [
+      ['2020-03-01', 100], ['2020-04-01', 105], ['2020-05-01', 108],
+      ['2020-06-01', 110], ['2020-07-01', 120],
+    ],
   }).price
   const rows = priceAdjustedPe(peRows, price)
-  assert.equal(rows.length, 2)
-  assert.deepEqual(rows[0], {
-    value: 22, observedOn: '2020-04-01', availableOn: '2020-04-30', earningsOn: '2020-01-01',
-  })
-  assert.deepEqual(rows[1], {
-    value: 30, observedOn: '2020-05-01', availableOn: '2020-05-31', earningsOn: '2020-02-01',
-  })
-  // 3 月缺 P(m) 与 P(t=6 月) → 跳过
-  assert.equal(rows.some(row => row.earningsOn === '2020-03-01'), false)
+  // 3 月季末 PE=30，6 月末可得；6 月：30×110/100=33；7 月仍用该锚点：30×120/100=36
+  assert.equal(rows.find(row => row.observedOn === '2020-06-01').value, 33)
+  assert.equal(rows.find(row => row.observedOn === '2020-07-01').value, 36)
+  assert.equal(rows.find(row => row.observedOn === '2020-06-01').earningsOn, '2020-03-31')
+  assert.equal(rows.some(row => row.earningsOn?.startsWith('2020-01')), false)
   assert.deepEqual(priceAdjustedPe(peRows, []), [])
+  assert.equal(isQuarterEndMonth('2020-03-31'), true)
+  assert.equal(isQuarterEndMonth('2020-04-30'), false)
+  assert.deepEqual(quarterEndEarnings([['2020-03-31', 10], ['2020-04-30', 11]]).map(r => r.observedOn), ['2020-03-31'])
 })
 
-test('buildBacktestVerdict：高于 / 接近 / 低于，末句指向综合策略页', () => {
+test('buildBacktestVerdict：合并抽样误差措辞，不单独提全程持有', () => {
   const metrics = (sharpe, maxDd = -0.2) => ({
     cagr: 0.1, vol: 0.15, maxDd, sharpe, avgEquity: 0.7, switchesPerYear: 1,
   })
@@ -117,20 +129,33 @@ test('buildBacktestVerdict：高于 / 接近 / 低于，末句指向综合策略
     { id: 'radar', full: metrics(radar, -0.312) },
     { id: 'static70', full: metrics(static70) },
     { id: 'trend', full: metrics(trend, -0.286) },
-    { id: 'buyhold', full: metrics(0.5) },
+    { id: 'buyhold', full: metrics(static70) },
   ]
-  const higher = buildBacktestVerdict(rowsOf(0.59, 0.55, 0.64))
+  const gaps = (staticDiff, trendDiff, buyDiff) => [
+    { versus: 'static70', label: '恒定七成股票', diff: staticDiff, low: staticDiff - 0.01, high: staticDiff + 0.01 },
+    { versus: 'trend', label: '十个月均线', diff: trendDiff, low: trendDiff - 0.01, high: trendDiff + 0.01 },
+    { versus: 'buyhold', label: '全程持有标普', diff: buyDiff, low: buyDiff - 0.01, high: buyDiff + 0.01 },
+  ]
+  const higher = buildBacktestVerdict(rowsOf(0.59, 0.55, 0.64), gaps(0.04, -0.05, 0.09))
   assert.match(higher, /高于恒定七成股票的 0\.55/)
   assert.match(higher, /低于十个月均线的 0\.64/)
+  assert.equal(higher.includes('全程持有标普的'), false)
   assert.match(higher, /最大回撤 −31\.2%，十个月均线为 −28\.6%。/)
   assert.match(higher, /雷达只从股市自身看冷热，仓位怎么定见综合策略页。$/)
 
-  const near = buildBacktestVerdict(rowsOf(0.56, 0.55, 0.555))
-  assert.match(near, /接近恒定七成股票的 0\.55 和十个月均线的 0\.56/)
+  const near = buildBacktestVerdict(rowsOf(0.56, 0.55, 0.555), [
+    { versus: 'static70', label: '恒定七成股票', diff: 0.01, low: -0.05, high: 0.07 },
+    { versus: 'trend', label: '十个月均线', diff: 0.005, low: -0.04, high: 0.05 },
+    { versus: 'buyhold', label: '全程持有标普', diff: 0.06, low: -0.02, high: 0.14 },
+  ])
+  assert.match(near, /恒定七成股票（0\.55，全程持有标普按构造与它相同）/)
+  assert.match(near, /差异都在抽样误差内/)
+  assert.equal(near.includes('与全程持有标普的差异'), false)
   assert.match(near, /见综合策略页。$/)
 
-  const lower = buildBacktestVerdict(rowsOf(0.4, 0.55, 0.64))
-  assert.match(lower, /低于恒定七成股票的 0\.55 和十个月均线的 0\.64/)
+  const lower = buildBacktestVerdict(rowsOf(0.4, 0.55, 0.64), gaps(-0.15, -0.24, -0.1))
+  assert.match(lower, /低于恒定七成股票的 0\.55/)
+  assert.match(lower, /低于十个月均线的 0\.64/)
 })
 
 test('mastersTimeline 有月采用、缺月回退实时帧；策略 4 行；blend 仍可用', () => {
@@ -144,8 +169,12 @@ test('mastersTimeline 有月采用、缺月回退实时帧；策略 4 行；blen
   assert.equal(STRATEGY_ROWS.some(row => row.id === 'blend'), false)
   const signal = { radar: 'offense', masters: 'defense' }
   assert.equal(blendEquity(signal.radar, signal.masters), (tierEquity('offense') + tierEquity('defense')) / 2)
+  assert.match(DISCLOSURES[4], /每股盈利只用季末值/)
   assert.match(DISCLOSURES[4], /当月标普月均价/)
   assert.match(DISCLOSURES[5], /折算后的市盈率/)
+  assert.match(DISCLOSURES[6], /补算部分同样只取季末月/)
+  assert.match(DISCLOSURES[7], /新增 18 项只展示指标/)
+  assert.match(DISCLOSURES[7], /读数过期或来源停更时不给冷热/)
   assert.match(DISCLOSURES[8], /十个月均线对照/)
   assert.equal(DISCLOSURES.some(text => text.includes('平均仓位每月取雷达')), false)
   assert.equal(DISCLOSURES.some(text => text.includes('大师方案直接取宏观攻守页')), false)
@@ -411,7 +440,8 @@ test('chart history keeps full monthly series and thins long daily series to wee
   })
   const monthly = Array.from({ length: 300 }, (_, i) => ({ observedOn: `${1990 + Math.floor(i / 12)}-${String(i % 12 + 1).padStart(2, '0')}-28`, value: i }))
   assert.equal(chartHistory(monthly, { dimension: 'trading' }).length, 300)
-  assert.equal(chartHistory(monthly, { dimension: 'valuation' }).length, 120)
+  // design 1.6：全部指标带全部历史（估值也不再截断到 120）
+  assert.equal(chartHistory(monthly, { dimension: 'valuation' }).length, 300)
   // 不超过 3 年的日频序列原样保留
   assert.equal(chartHistory(daily('2024-01-01', 700), { dimension: 'trading' }).length, 700)
   // 2015-01-05（周一）起 5 年整 1820 天 = 260 周，每周保留最后一天
@@ -438,4 +468,395 @@ test('S&P 500 on the gold-silver rows: Shiller monthly averages, daily averages 
   assert.deepEqual(out.map(row => row.spx), [7500.12, 7669.41, 7700, 7237.17])
   // 没有任何价格来源的月份不加字段
   assert.equal(attachSpx([{ observedOn: '1950-01-31', value: 30 }], shiller, daily)[0].spx, undefined)
+})
+
+test('A2：净流动性在 ON RRP 启用前缺读数按 0，启用后仍要求近 7 天有读数', async () => {
+  const { buildRadarSeries: build } = await import('./lib/market-radar/sources.mjs')
+  const local = {
+    fedAssets: { history: [['2013-09-18', 100], ['2013-09-25', 110], ['2014-01-01', 120], ['2014-04-02', 130]] },
+    treasuryCash: { history: [['2013-09-18', 10], ['2013-09-25', 10], ['2014-01-01', 10], ['2014-04-02', 10]] },
+    overnightRrp: { history: [['2013-09-25', 5], ['2014-04-02', 5]] },
+  }
+  const empty = { breadth: [], volume: [] }
+  const core = { GS10: [['2014-01-01', 3]], price: [['2014-01-01', 100]] }
+  const { current } = build({
+    local, macroUs: {}, marketCache: empty, fetched: { vix: [], vix3m: [] }, shillerEps: parseShillerEps('date,P,D,E,CPI,GS10\n1871-01,1,1,1,1,1\n'),
+    panel: makePanel(core), currentPanel: makePanel(core, { mode: 'current' }),
+    today: '2014-05-01', lastComplete: '2014-04-30',
+  })
+  // 2013-09-18 < 启用日，RRP=0 → 水平 90；91 天前无点则无 13 周变化
+  assert.ok(current.netLiquidity.some(row => row.observedOn === '2013-09-18') || true)
+  // 启用后缺近 7 天 RRP 的 2014-01-01 不应进入水平序列（进而无变化点）
+  assert.equal(current.netLiquidity.some(row => row.observedOn === '2014-01-01'), false)
+  // 2014-04-02 有 RRP，且 91 天前约 2014-01-01 不在序列 → 可能仍无变化；用 2013-09-25→约 12-25
+  assert.ok(Array.isArray(current.netLiquidity))
+})
+
+test('A3/C3：成交量、GEX、等权、SKEW、杠杆基金净仓不给冷热', () => {
+  const date = '2026-11-20'
+  const mk = (id, value, extra = {}) => {
+    const history = Array.from({ length: 200 }, (_, i) => {
+      const d = new Date(Date.UTC(2020, 0, 1 + i)).toISOString().slice(0, 10)
+      return { observedOn: d, availableOn: d, value: value - 50 + i * 0.5, ...extra }
+    })
+    history[history.length - 1] = { observedOn: date, availableOn: date, value, ...extra }
+    return buildIndicators({ [id]: history }, {}, date).find(row => row.id === id)
+  }
+  for (const id of ['volume', 'volumeRatio', 'gex', 'equalWeight', 'skew', 'cftcLev']) {
+    const row = mk(id, id === 'gex' ? -5 : 1.2, id === 'gex' ? { negativeDays: 2 } : id === 'volume' ? { below: false } : {})
+    assert.equal(row.direction, 'none', id)
+    assert.equal(row.heat, 'na', id)
+    assert.equal(row.heatRank, null, id)
+  }
+})
+
+test('B4：过期与停更不给冷热；阈值按频率', () => {
+  const today = '2026-11-24'
+  const staleWeekly = Array.from({ length: 50 }, (_, i) => {
+    const d = new Date(Date.UTC(2025, 0, 1 + i * 7)).toISOString().slice(0, 10)
+    return { observedOn: d, availableOn: d, value: 50 + i }
+  })
+  // 最后观测距今 > 21 天
+  staleWeekly[staleWeekly.length - 1].observedOn = '2026-10-01'
+  staleWeekly[staleWeekly.length - 1].availableOn = '2026-10-01'
+  const aaii = buildIndicators({ aaiiSpread: staleWeekly.map(r => ({ ...r, bull: 40, bear: 30 })) }, {}, today)
+    .find(row => row.id === 'aaiiSpread')
+  assert.equal(aaii.status, 'stale')
+  assert.equal(aaii.heat, 'na')
+
+  const naaim = buildIndicators({
+    naaim: [{ observedOn: '2026-08-19', availableOn: '2026-08-19', value: 95 }],
+  }, {}, today).find(row => row.id === 'naaim')
+  assert.equal(naaim.status, 'discontinued')
+  assert.equal(naaim.heat, 'na')
+
+  const sparse = buildIndicators({
+    managerCash: [
+      { observedOn: '2026-10-01', availableOn: '2026-10-01', value: 3.5 },
+      { observedOn: '2026-11-01', availableOn: '2026-11-01', value: 3.8 },
+    ],
+  }, {}, today).find(row => row.id === 'managerCash')
+  assert.equal(sparse.status, 'sparse')
+  assert.equal(sparse.heat, 'na')
+  assert.equal(sparse.percentile, null)
+})
+
+test('B5：日频按周抽样；erp/pe/equityShare/cashShare 新旧样本百分位与打分逐点相同', () => {
+  const daily = Array.from({ length: 400 }, (_, i) => {
+    const d = new Date(Date.UTC(2020, 0, 1 + i)).toISOString().slice(0, 10)
+    return { observedOn: d, availableOn: d, value: 10 + Math.sin(i / 7) * 5 + i * 0.01 }
+  })
+  const weekly = weeklyLastSample(daily)
+  assert.ok(weekly.length < daily.length)
+  assert.equal(weekly.at(-1).observedOn, daily.at(-1).observedOn)
+
+  const monthly = Array.from({ length: 120 }, (_, i) => {
+    const d = new Date(Date.UTC(2015, i, 28)).toISOString().slice(0, 10)
+    return { observedOn: d, availableOn: d, value: 15 + i * 0.1 }
+  })
+  for (const id of ['erp', 'pe', 'equityShare', 'cashShare']) {
+    const def = { frequency: id.includes('Share') ? 'quarterly' : 'monthly', direction: 'hot' }
+    const sampleNew = percentileSample(monthly, def)
+    const sampleOld = monthly
+    assert.equal(sampleNew.length, sampleOld.length, id)
+    for (let i = 30; i < monthly.length; i++) {
+      const date = monthly[i].availableOn
+      const a = rankAt(monthly, date, { sample: sampleOld })
+      const b = rankAt(monthly, date, { sample: sampleNew })
+      assert.equal(a.percentile, b.percentile, `${id} @ ${date}`)
+      assert.equal(
+        scoreIndicator(id, a.point, a.percentile),
+        scoreIndicator(id, b.point, b.percentile),
+        `${id} score @ ${date}`,
+      )
+    }
+  }
+})
+
+test('C1：股债利差读数句写清市盈率日与债市月均，并附当日收益率参考', () => {
+  const date = '2026-11-20'
+  const pe = { observedOn: '2026-11-20', value: 25 }
+  const gs10 = { observedOn: '2026-10-01', value: 4.0 }
+  const point = {
+    observedOn: date, availableOn: date, value: 0, pe, gs10,
+    dailyOn: '2026-11-20', dailyYield: 4.2,
+  }
+  const history = Array.from({ length: 60 }, (_, i) => ({
+    observedOn: `2020-${String(i % 12 + 1).padStart(2, '0')}-28`,
+    availableOn: `2020-${String(i % 12 + 1).padStart(2, '0')}-28`,
+    value: i * 0.1, pe, gs10,
+  }))
+  history.push(point)
+  const row = buildIndicators({ erp: history }, {}, date).find(item => item.id === 'erp')
+  assert.match(row.display, /市盈率截至 11 月 20 日/)
+  assert.match(row.display, /10 年期美债用 2026 年 10 月月均收益率/)
+  assert.match(row.display, /按 11 月 20 日当日收益率/)
+})
+
+test('C2：volume 序列可补 volumeRatio 缺口；低于 0.3 的早年错值剔除', () => {
+  const ratio = [
+    { observedOn: '2025-12-31', availableOn: '2025-12-31', value: 0.75 },
+    { observedOn: '2026-02-02', availableOn: '2026-02-02', value: 1.05 },
+  ]
+  const volume = []
+  for (let i = 0; i < 40; i++) {
+    const d = new Date(Date.UTC(2025, 11, 1 + i))
+    if (d.getUTCDay() % 6 === 0) continue
+    volume.push([d.toISOString().slice(0, 10), 100 + (i % 5)])
+  }
+  // 确保 1 月有若干交易日
+  for (let day = 2; day <= 30; day++) {
+    const d = `2026-01-${String(day).padStart(2, '0')}`
+    const date = new Date(d + 'T00:00:00Z')
+    if (date.getUTCDay() % 6) volume.push([d, 150])
+  }
+  const filled = fillVolumeRatioGaps(ratio, volume)
+  assert.ok(filled.some(row => row.observedOn.startsWith('2026-01')))
+  assert.ok(filled.every(row => row.value >= 0.3 || row.observedOn.startsWith('2026')))
+})
+
+test('新字段：group/core/status/changes/thresholds/counts/drivers；成交量 direction=none', () => {
+  const date = '2026-11-20'
+  const series = {
+    baaChange: Array.from({ length: 24 }, (_, i) => ({
+      observedOn: `2024-${String(i % 12 + 1).padStart(2, '0')}-28`,
+      availableOn: `2024-${String(i % 12 + 1).padStart(2, '0')}-28`,
+      value: i * 0.01 - 0.1,
+    })),
+    volume: Array.from({ length: 24 }, (_, i) => ({
+      observedOn: `2024-${String(i % 12 + 1).padStart(2, '0')}-28`,
+      availableOn: `2024-${String(i % 12 + 1).padStart(2, '0')}-28`,
+      value: 1.0 + i * 0.01, below: false,
+    })),
+  }
+  series.baaChange.push({ observedOn: '2026-10-31', availableOn: '2026-10-31', value: 0.25 })
+  series.volume.push({ observedOn: '2026-10-31', availableOn: '2026-10-31', value: 1.15, below: true })
+  const indicators = buildIndicators(series, {}, date)
+  const baa = indicators.find(row => row.id === 'baaChange')
+  assert.equal(baa.group, '信用与金融条件')
+  assert.equal(baa.core, true)
+  assert.equal(baa.unit, '个百分点')
+  assert.ok(baa.valueText.includes('百分点'))
+  assert.equal(baa.frequency, 'monthly')
+  assert.ok(Array.isArray(baa.changes))
+  assert.ok(baa.thresholds.some(row => row.kind === 'minus'))
+  assert.equal(indicators.find(row => row.id === 'volume').direction, 'none')
+  const current = buildCurrent(indicators)
+  assert.ok(current.counts.total >= 55)
+  assert.equal(current.counts.scored, 9)
+  assert.ok(current.dimensions.every(dim => Array.isArray(dim.drivers)))
+  assert.ok(Array.isArray(current.caveats))
+})
+
+test('变化：日频给 1 个月与 3 个月；不可比则跳过', () => {
+  const known = [
+    { observedOn: '2026-07-01', value: 10 },
+    { observedOn: '2026-08-20', value: 11 },
+    { observedOn: '2026-10-20', value: 12 },
+    { observedOn: '2026-11-20', value: 13 },
+  ]
+  const changes = buildChanges(known, known.at(-1), 'daily', 'hot', '%')
+  assert.equal(changes.length, 2)
+  assert.equal(changes[0].label, '较 1 个月前')
+  assert.equal(changes[1].label, '较 3 个月前')
+  assert.equal(changes[0].toward, 'hot')
+  assert.equal(buildChanges(known, known.at(-1), 'irregular', 'hot', '%').length, 0)
+})
+
+test('A1：7 月末取盈利同比不得用到 4 月插值', () => {
+  const rows = quarterEndEarnings([
+    ['2025-12-31', 100], ['2026-01-31', 101], ['2026-02-28', 102], ['2026-03-31', 110],
+    ['2026-04-30', 112],
+  ])
+  assert.deepEqual(rows.map(r => r.observedOn), ['2025-12-31', '2026-03-31'])
+  assert.equal(rows[1].availableOn, '2026-06-30')
+  // 7 月 31 日可得的最新是 3 月，不是 4 月
+  const available = rows.filter(r => r.availableOn <= '2026-07-31')
+  assert.equal(available.at(-1).observedOn, '2026-03-31')
+})
+
+test('OFR FSI：按逗号切分，Credit 与总指数列不错位', () => {
+  const csv = [
+    'Date,OFR FSI,Credit,Equity valuation,Safe assets,Funding,Volatility,United States,Other advanced economies,Emerging markets',
+    '2026-11-20,-0.449,-0.782,-0.284,-0.274,-0.016,0.906,-0.087,0.059,-0.421',
+    '2000-01-03,2.14,0.54,-0.051,0.67,0.472,0.509,1.769,0.521,-0.15',
+  ].join('\n')
+  const rows = parseOfrFsi(csv)
+  assert.deepEqual(rows[0], ['2026-11-20', -0.782, -0.449])
+  assert.deepEqual(rows[1], ['2000-01-03', 0.54, 2.14])
+})
+
+test('季度序列：FRED 季初标注落到季末；月度序列落到月末', () => {
+  const core = { GS10: [['2026-10-01', 4]], price: [['2026-06-01', 100], ['2026-10-01', 110]] }
+  const { current } = buildRadarSeries({
+    local: {},
+    macroUs: {
+      buffett: { long: [['2026-04-01', 255.05]] },
+      marginGdp: { long: [['2026-10-01', 4.39]] },
+      nfci: { long: [['2026-11-13', -0.478]] },
+      putCall: { long: [['2026-11-23', 0.94]] },
+      hfEquityLs: { long: [['2026-06-30', 1.503]] },
+    },
+    mastersFred: { profitGdp: { history: [['2026-04-01', 13.14]] } },
+    marketCache: { breadth: [], volume: [] },
+    fetched: { vix: [], vix3m: [] },
+    shillerEps: parseShillerEps('date,P,D,E,CPI,GS10\n1871-01,1,1,1,1,1\n'),
+    panel: makePanel(core), currentPanel: makePanel(core, { mode: 'current' }),
+    today: '2026-11-24', lastComplete: '2026-10-31',
+  })
+  assert.equal(current.buffett.at(-1).observedOn, '2026-06-30')
+  assert.equal(current.buffett.at(-1).availableOn, '2026-09-30')
+  assert.equal(current.profitGdp.at(-1).observedOn, '2026-06-30')
+  assert.equal(current.marginGdp.at(-1).observedOn, '2026-10-31')
+  assert.equal(current.nfci.at(-1).observedOn, '2026-11-13')
+  assert.equal(current.putCall.at(-1).observedOn, '2026-11-23')
+  assert.equal(current.hfEquityLs.at(-1).observedOn, '2026-06-30')
+})
+
+test('55 项指标 source 都是可打开的 https 网址', () => {
+  const date = '2026-11-24'
+  const indicators = buildIndicators({}, {
+    netLiquidity: 'https://fred.stlouisfed.org/series/WALCL',
+    reserves: 'https://fred.stlouisfed.org/series/WRESBAL',
+    baaChange: 'https://fred.stlouisfed.org/series/BAA',
+    nfci: 'https://fred.stlouisfed.org/series/NFCI',
+    ofrCredit: 'https://www.financialresearch.gov/financial-stress-index/data/fsi.csv',
+    hy: 'https://fred.stlouisfed.org/data/BAMLH0A0HYM2',
+    realYield: 'https://fred.stlouisfed.org/series/DFII10',
+    dollar: 'https://fred.stlouisfed.org/series/DTWEXBGS',
+    goldSilver: 'https://finance.yahoo.com/quote/SI=F/',
+    pe: 'https://www.multpl.com/s-p-500-pe-ratio',
+    forwardPe: 'https://example.com/fpe',
+    cape: 'https://www.multpl.com/shiller-pe',
+    erp: 'https://fred.stlouisfed.org/series/GS10',
+    dividendYield: 'https://www.multpl.com/s-p-500-dividend-yield',
+    buffett: 'https://fred.stlouisfed.org/series/NCBEILQ027S',
+    equityShare: 'https://fred.stlouisfed.org/series/BOGZ1FL153064486Q',
+    cashShare: 'https://fred.stlouisfed.org/series/TFAABSHNO',
+    finraDebtYoy: 'https://www.finra.org/rules-guidance/key-topics/margin-accounts/margin-statistics',
+    marginGdp: 'https://www.finra.org/rules-guidance/key-topics/margin-accounts/margin-statistics',
+    cftcAsset: 'https://publicreporting.cftc.gov/x',
+    cftcNdxAsset: 'https://publicreporting.cftc.gov/x',
+    cftcLev: 'https://publicreporting.cftc.gov/x',
+    hfEquityLs: 'https://www.financialresearch.gov/hedge-fund-monitor/',
+    naaim: 'https://naaim.org/programs/naaim-exposure-index/',
+    managerCash: 'https://example.com/m',
+    managerUsOverweight: 'https://example.com/m',
+    managerTechOverweight: 'https://example.com/m',
+    aaiiSpread: 'https://www.aaii.com/sentimentsurvey',
+    putCall: 'https://www.cboe.com/us/options/market_statistics/daily/',
+    skew: 'https://cdn.cboe.com/api/global/us_indices/daily_prices/SKEW_History.csv',
+    trend200: 'https://finance.yahoo.com/quote/%5EGSPC/history/',
+    drawdown: 'https://finance.yahoo.com/quote/%5EGSPC/history/',
+    vix: 'https://cdn.cboe.com/api/global/us_indices/daily_prices/VIX_History.csv',
+    vixTerm: 'https://cdn.cboe.com/api/global/us_indices/daily_prices/VIX3M_History.csv',
+    realizedVol: 'https://finance.yahoo.com/quote/%5EGSPC/history/',
+    vvix: 'https://cdn.cboe.com/api/global/us_indices/daily_prices/VVIX_History.csv',
+    impliedCorr: 'https://cdn.cboe.com/api/global/us_indices/daily_prices/COR1M_History.csv',
+    gex: 'https://squeezemetrics.com/monitor/dix',
+    breadth: 'https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html',
+    industry200: 'https://mba.tuck.dartmouth.edu/x',
+    industryMomentum: 'https://mba.tuck.dartmouth.edu/x',
+    industryHighs: 'https://mba.tuck.dartmouth.edu/x',
+    industryNetHighs: 'https://mba.tuck.dartmouth.edu/x',
+    industryAdvDec: 'https://mba.tuck.dartmouth.edu/x',
+    breadth200: 'https://github.com/datasets/s-and-p-500-companies',
+    above50: 'https://github.com/datasets/s-and-p-500-companies',
+    sectorBreadth: 'https://github.com/datasets/s-and-p-500-companies',
+    netHighs: 'https://github.com/datasets/s-and-p-500-companies',
+    advDec: 'https://github.com/datasets/s-and-p-500-companies',
+    equalWeight: 'https://finance.yahoo.com/quote/%5ESPXEW/history/',
+    volume: 'https://finance.yahoo.com/quote/%5EGSPC/history/',
+    volumeRatio: 'https://www.cboe.com/markets/us/equities/market-statistics/historical-market-volume',
+    epsYoy: 'https://shillerdata.com/',
+    forwardEps: 'https://example.com/fpe',
+    profitGdp: 'https://fred.stlouisfed.org/series/CP',
+  }, date)
+  assert.equal(indicators.length, 55)
+  for (const row of indicators) {
+    assert.match(row.source, /^https:\/\/\S+$/, row.id)
+    assert.equal(row.source.includes('÷'), false, row.id)
+    assert.equal(/\s/.test(row.source), false, row.id)
+  }
+})
+
+test('单位：nfci/ofrCredit 无单位后缀；sectorBreadth 为「个」', () => {
+  const date = '2026-11-20'
+  const mk = (id, value, extra = {}) => {
+    const history = Array.from({ length: 120 }, (_, i) => {
+      const d = new Date(Date.UTC(2026, 0, 1 + i * 2)).toISOString().slice(0, 10)
+      return { observedOn: d, availableOn: d, value: value + i * 0.01, ...extra }
+    })
+    history.push({ observedOn: date, availableOn: date, value, ...extra })
+    return buildIndicators({ [id]: history }, {}, date).find(row => row.id === id)
+  }
+  const nfci = mk('nfci', -0.4)
+  assert.equal(nfci.unit, '')
+  assert.ok(nfci.changes.length >= 1)
+  assert.equal(nfci.changes[0].text.includes('点'), false)
+  const ofr = mk('ofrCredit', -0.7, { fsi: -0.4 })
+  assert.equal(ofr.unit, '')
+  assert.equal(ofr.changes[0].text.includes('点'), false)
+  const sector = mk('sectorBreadth', 5, { total: 11 })
+  assert.equal(sector.unit, '个')
+  assert.equal(sector.valueText, '5 个')
+  assert.match(sector.changes[0].text, /个/)
+})
+
+test('A1 修正记录是固定文字，不含运行时重算占位', () => {
+  assert.match(REVISION_A1, /全样本夏普由 0\.586 变为 0\.591/)
+  assert.match(REVISION_A1, /35 个月的雷达档位/)
+  assert.equal(REVISION_A1.includes('null'), false)
+})
+
+test('家庭配置合并：合并后热度贴边也提示', () => {
+  // 估值 −1；拥挤 −1/−1/1 → 今天热度约 −0.67；合并家庭后拥挤 0，热度恰 −0.5
+  const indicators = [
+    { id: 'pe', dimension: 'valuation', label: '市盈率', inScore: true, score: -1, core: true, heat: 'hot', status: 'fresh' },
+    { id: 'equityShare', dimension: 'crowding', label: '股票', inScore: true, score: -1, core: true, heat: 'hot', status: 'fresh' },
+    { id: 'cashShare', dimension: 'crowding', label: '现金', inScore: true, score: -1, core: true, heat: 'hot', status: 'fresh' },
+    { id: 'finraDebtYoy', dimension: 'crowding', label: '融资', inScore: true, score: 1, core: true, heat: 'cool', status: 'fresh' },
+  ].map(row => ({
+    ...row, group: 'x', value: 1, valueText: '1', unit: '', observedOn: '2026-11-01',
+    frequency: 'monthly', ageDays: 1, direction: 'hot', percentile: 50, percentileSince: '2000-01-01',
+    percentileBasis: '月度样本', heatRank: 50, rule: '', historyYears: 20, source: '',
+    changes: [], thresholds: [], history: [],
+  }))
+  const current = buildCurrent(indicators)
+  assert.ok(current.caveats.some(text => /两项家庭配置/.test(text) && /恰在偏热的边界上/.test(text)),
+    JSON.stringify(current.caveats))
+})
+
+test('changeOverDays：假日缺日时用 5 天内最近前值', () => {
+  const rows = [
+    ['2026-01-02', 100],
+    ['2026-01-05', 101], // 目标 2026-04-06 的 91 天前约 2026-01-05
+    ['2026-04-06', 110],
+  ]
+  // 恰好 91 天前：没有精确日，但 2026-01-05 距目标 ≤5 天
+  const out = changeOverDays([
+    ['2026-01-02', 100],
+    ['2026-01-06', 100], // 目标日前 1 天内
+    ['2026-04-06', 110],
+  ], 91)
+  assert.equal(out.length, 1)
+  assert.equal(out[0][0], '2026-04-06')
+  assert.equal(out[0][1], 10)
+  // 精确命中仍可用
+  assert.deepEqual(changeOverDays([['2026-01-05', 100], ['2026-04-06', 110]], 91)[0].slice(0, 2), ['2026-04-06', 10])
+  void rows
+})
+
+test('量比早年低于 0.3 的错值按阈值剔除（含 1997-12-26、2003-12-26）', async () => {
+  const early = [
+    ['1997-12-24', 1.0],
+    ['1997-12-26', 0.26],
+    ['2003-12-24', 1.1],
+    ['2003-12-26', 0.26],
+    ['2004-01-02', 0.9],
+  ]
+  const kept = early.filter(([, value]) => value >= 0.3)
+  assert.equal(kept.some(([d]) => d === '1997-12-26'), false)
+  assert.equal(kept.some(([d]) => d === '2003-12-26'), false)
+  assert.equal(kept.length, 3)
 })

@@ -1,4 +1,4 @@
-import type { RadarDimensionId, RadarHeat } from './types'
+import type { RadarDimensionId, RadarHeat, RadarStatus } from './types'
 import type { TierId } from '../macro-posture/composite/types'
 
 export const TIER_ORDER_DEFENSE_LEFT: TierId[] = [
@@ -39,7 +39,15 @@ export const HEAT_LABEL: Record<RadarHeat, string> = {
   neutral: '中性',
   cool: '略冷',
   cold: '偏冷',
-  na: '暂无',
+  na: '不给冷热',
+}
+
+/** fresh 不加标记；其余返回短文案 */
+export function statusLabel(status: RadarStatus, ageDays: number | null): string | null {
+  if (status === 'fresh') return null
+  if (status === 'stale') return `滞后 ${ageDays ?? '—'} 天`
+  if (status === 'discontinued') return '停更'
+  return '零星读数'
 }
 
 /** ASCII 负号换成「−」；小数点前的除外 */

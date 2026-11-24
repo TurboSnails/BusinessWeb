@@ -10,15 +10,33 @@ export type RadarState =
 const BASE = (import.meta as { env?: Record<string, string | undefined> }).env?.BASE_URL ?? '/'
 export const RADAR_URL = `${BASE.endsWith('/') ? BASE : `${BASE}/`}data/market-radar.json`
 const TIMEOUT_MS = 15_000
+export const STALE_DATA_MESSAGE = '数据版本过旧，请稍后刷新'
 
 function isRadar(body: unknown): body is RadarFile {
   if (!body || typeof body !== 'object') return false
   const file = body as Partial<RadarFile>
-  return typeof file.ruleVersion === 'string'
-    && typeof file.generatedAt === 'string'
-    && Boolean(file.current && typeof file.current === 'object')
-    && Array.isArray(file.indicators)
-    && Boolean(file.backtest && typeof file.backtest === 'object')
+  if (typeof file.ruleVersion !== 'string' || typeof file.generatedAt !== 'string') return false
+  if (!file.current || typeof file.current !== 'object') return false
+  if (!Array.isArray(file.indicators) || !file.backtest || typeof file.backtest !== 'object') return false
+
+  const counts = (file.current as RadarFile['current']).counts
+  if (!counts || typeof counts !== 'object') return false
+  if (typeof counts.total !== 'number' || typeof counts.scored !== 'number' || typeof counts.core !== 'number') {
+    return false
+  }
+  if (!counts.heat || typeof counts.heat !== 'object' || !counts.status || typeof counts.status !== 'object') {
+    return false
+  }
+
+  const backtest = file.backtest as RadarFile['backtest']
+  if (!Array.isArray(backtest.curves)) return false
+
+  const sample = file.indicators[0] as Partial<RadarFile['indicators'][number]> | undefined
+  if (sample) {
+    if (typeof sample.valueText !== 'string' || typeof sample.status !== 'string') return false
+  }
+
+  return true
 }
 
 export async function loadRadar(fetcher: typeof fetch = fetch): Promise<RadarFile> {
@@ -28,7 +46,7 @@ export async function loadRadar(fetcher: typeof fetch = fetch): Promise<RadarFil
     const response = await fetcher(RADAR_URL, { cache: 'no-cache', signal: controller.signal })
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
     const body: unknown = await response.json()
-    if (!isRadar(body)) throw new Error('数据结构异常')
+    if (!isRadar(body)) throw new Error(STALE_DATA_MESSAGE)
     return body
   } finally {
     clearTimeout(timer)

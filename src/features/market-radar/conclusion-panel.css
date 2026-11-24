@@ -15,10 +15,38 @@
   color: var(--text-secondary);
 }
 
+.mr-conclusion__freshness,
+.mr-conclusion__generated {
+  margin: 10px 0 0;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.mr-conclusion__caveats {
+  margin: 10px 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
 .mr-conclusion__tier-note {
-  margin: 16px 0 8px;
+  margin: 0 0 8px;
   font-size: 0.84rem;
   color: var(--text-secondary);
+}
+
+.mr-conclusion__tier-block {
+  margin: 0;
+  padding: 4px 16px 14px;
+}
+
+.mr-conclusion__tier-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  align-items: baseline;
 }
 
 /* 页面样式里 .mr-conclusion__tier 是大字，这里提高优先级把它降为次要信息 */
@@ -26,4 +54,31 @@
   margin: 10px 0 2px;
   font-size: 1rem;
   font-weight: 600;
+}
+
+.mr-conclusion__last-month {
+  margin: 8px 0 0;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.mr-conclusion__score-trend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-top: 8px;
+}
+.mr-conclusion__score-trend-label {
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+}
+.mr-conclusion__score-spark {
+  width: 120px;
+  height: 28px;
+}
+.mr-conclusion__score-spark-line {
+  fill: none;
+  stroke: var(--text-primary);
+  stroke-width: 1.5;
 }

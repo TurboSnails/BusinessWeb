@@ -14,19 +14,26 @@
 
 | 指标 | 来源 | 口径 | 历史起点 | 更新方式 |
 |---|---|---|---|---|
-| 美元净流动性 13 周变化 | FRED [WALCL](https://fred.stlouisfed.org/series/WALCL) − [WTREGEN](https://fred.stlouisfed.org/series/WTREGEN) − [RRPONTSYD](https://fred.stlouisfed.org/series/RRPONTSYD) | 联储总资产扣除 TGA 和隔夜逆回购，13 周变化 | 2003-06（WALCL 2002-12 才开始，**物理上限**） | 自动：`market-cycle.yml` → `us-market-data.mjs` |
+| 美元净流动性 13 周变化 | FRED [WALCL](https://fred.stlouisfed.org/series/WALCL) − [WTREGEN](https://fred.stlouisfed.org/series/WTREGEN) − [RRPONTSYD](https://fred.stlouisfed.org/series/RRPONTSYD) | 联储总资产扣除 TGA 和隔夜逆回购，13 周变化；**2013-09-23 隔夜逆回购工具启用前缺读数按 0 计**，历史真实回到 2003 年 | 2003-06（WALCL 2002-12 才开始，**物理上限**） | 自动：`market-cycle.yml` → `us-market-data.mjs` |
+| 银行准备金 13 周变化 | 站内 `us-market-data.json` → `bankReserves`（FRED WRESBAL） | 13 周涨跌幅 % | 约 2010 起 | 自动：`us-market-data.mjs` |
+| 金融条件指数（NFCI） | 站内 `macro-us.json` → `series.nfci` | 芝加哥联储 NFCI；0 为 1971 年以来平均 | 1971-01 | 自动：宏观更新 |
+| 金融压力指数·信用分项（OFR） | **新接** [OFR fsi.csv](https://www.financialresearch.gov/financial-stress-index/data/fsi.csv) 的 Credit 列；读数句附 OFR FSI 总指数 | 正值代表压力高于平均 | 2000-01 | 自动（缓存 `ofr-fsi.json`） |
 | 高收益债利差 | FRED [BAMLH0A0HYM2](https://fred.stlouisfed.org/series/BAMLH0A0HYM2) | ICE BofA 美国高收益债 OAS，日频 | 2023-11-24（FRED 受 ICE 授权限制只给近 3 年，站内逐日累积） | 自动：`us-market-data.mjs` |
 | 企业债利差半年变化 | FRED [BAA](https://fred.stlouisfed.org/series/BAA)、[AAA](https://fred.stlouisfed.org/series/AAA) | Baa − Aaa 的 6 个月变化 | 1919 | 自动：`macro-snapshot.yml` → `market-radar.mjs` |
+| 10 年期实际利率 | **新接** FRED [DFII10](https://fred.stlouisfed.org/series/DFII10) | TIPS 10 年实际收益率 % | 2003-01 | 自动（缓存 `DFII10.json`）；FRED 请求不加浏览器 UA |
+| 美元指数 13 周变化 | **新接** FRED [DTWEXBGS](https://fred.stlouisfed.org/series/DTWEXBGS) | 贸易加权美元指数 13 周涨跌幅 %；读数句附指数水平 | 2006-01 | 自动（缓存 `DTWEXBGS.json`） |
 | 金银比 | 1960-01 至 2000-08：[世界银行 Pink Sheet 月表](https://www.worldbank.org/en/research/commodity-markets)（CC BY 4.0）金、银月均价；之后：Yahoo [GC=F](https://finance.yahoo.com/quote/GC=F/)、[SI=F](https://finance.yahoo.com/quote/SI=F/) 日线 | 金 ÷ 银；历史按月（Yahoo 段取完整月份的月均金 ÷ 月均银），最新读数为最近交易日并附 20 个交易日变化。Yahoo 为连续合约收盘，不是官方结算价；世界银行银价只有一位小数。事后新增，只展示 | 1960-01（月度） | 自动（日线缓存 `gold.json`、`silver.json`）；1960–2000 段见下文回补 |
 
 ### 估值
 
 | 指标 | 来源 | 口径 | 历史起点 | 更新方式 |
 |---|---|---|---|---|
-| 股债利差 | [Multpl 市盈率](https://www.multpl.com/s-p-500-pe-ratio) + FRED [GS10](https://fred.stlouisfed.org/series/GS10) | 过去 12 个月盈利收益率 − 10 年期美债月均收益率 | 1953 | 自动 |
-| 过去 12 个月市盈率 | [Multpl](https://www.multpl.com/s-p-500-pe-ratio) | 标普 500 TTM P/E | 1900 | 自动 |
+| 股债利差 | [Multpl 市盈率](https://www.multpl.com/s-p-500-pe-ratio) + FRED [GS10](https://fred.stlouisfed.org/series/GS10)；当日参考用 `tenYearDaily` | 过去 12 个月盈利收益率 − 10 年期美债月均收益率；读数句写清两个日期并附当日收益率参考 | 1953 | 自动 |
+| 过去 12 个月市盈率 | [Multpl](https://www.multpl.com/s-p-500-pe-ratio) | 标普 500 TTM P/E；回测用季末阶梯折算 | 1900 | 自动 |
 | 周期调整市盈率 | [Multpl Shiller PE](https://www.multpl.com/shiller-pe) | CAPE | 1900 | 自动 |
 | 前瞻市盈率 | [FactSet Earnings Insight](https://advantage.factset.com/hubfs/Website/Resources%20Section/Research%20Desk/Earnings%20Insight/EarningsInsight_112026.pdf)（文件名 `EarningsInsight_MMDDYY.pdf`，每周五发布） | 原文 “The forward 12-month P/E ratio for the S&P 500 is X” | 2016-12（早年按月末取一期） | **手动**：每周把新一期写进 `spxFactSetFpe`；早年历史见下文回补 |
+| 标普 500 股息率 | 站内 `us-market-data.json` → `spxDividendYield` | % | 月度 + 最新 | 自动 |
+| 巴菲特指标 | 站内 `macro-us.json` → `series.buffett.long` | 非金融企业股票市值 ÷ GDP；观测日季末、可得日季末后第 3 个月末 | 1947 | 自动 |
 
 ### 仓位与拥挤度
 
@@ -40,11 +47,21 @@
 | AAII 散户多空差（美银调查的平替） | [AAII 情绪调查](https://www.aaii.com/sentimentsurvey)；全历史 [sentiment.xls](https://www.aaii.com/files/surveys/sentiment.xls) | 看多 − 看空，按调查截止日（周三） | 1987-07 | 自动抓最新一周；早年历史见下文回补 |
 | CFTC 资管机构标普期货净多（NAAIM 的平替） | CFTC 交易者持仓报告 TFF：[API](https://publicreporting.cftc.gov/resource/gpe5-46if.json)（合约代码 `13874+`） | 资管机构净多 ÷ 未平仓合约 | 2010-06 | 自动 |
 | CFTC 资管机构纳指期货净多（科技股超配的自动口径） | 同上 TFF（合约代码 `20974+`），站内序列 `cftcNdxAsset` | 资管机构净多 ÷ 未平仓合约 | 2010-06 | 自动 |
+| CFTC 杠杆基金标普期货净仓 | 站内 `cftcSpxLev` | 杠杆基金净仓 ÷ 未平仓合约 % | 2010-06 | 自动 |
+| 对冲基金股票多空比 | 站内 `macro-us.json` → `series.hfEquityLs`（OFR Form PF） | 比值 | 2013-03 | 自动 |
+| 融资余额 ÷ GDP | 站内 `macro-us.json` → `series.marginGdp` | % | 1997-01 | 自动 |
+| Put/Call 成交量比 | 站内 `macro-us.json` → `series.putCall` | Cboe 全产品比值 | 2006-11 | 自动 |
+| Cboe SKEW | 站内 `us-market-data.json` → `skew` | 点 | 日频 | 自动 |
 
 ### 交易结构
 
 | 指标 | 来源 | 口径 | 历史起点 | 更新方式 |
 |---|---|---|---|---|
+| 标普相对 200 日均线 | 站内 `macro-posture-daily.json` → `rows` | 收盘 ÷ 200 日均线 − 1，% | 1973 | 自动 |
+| 标普距 52 周最高收盘 | 同上 | 收盘 ÷ 252 日最高 − 1，% | 1973 | 自动 |
+| VIX 水平 | 站内 `us-market-data.json` → `vixDaily` | 点 | 日频 | 自动 |
+| 标普 20 日已实现波动率 | `macro-posture-daily.json` | 20 日对数收益标准差 × √252，% | 1973 | 自动 |
+| VVIX | **新接** Cboe [VVIX_History.csv](https://cdn.cboe.com/api/global/us_indices/daily_prices/VVIX_History.csv) | VIX 的波动率，点 | 2006 | 自动（缓存 `VVIX.json`） |
 | 行业宽度 | [Ken French 49 行业月表](https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/49_Industry_Portfolios_CSV.zip) | 站上 10 个月均线的行业占比 | 1927 | 自动（缓存 `data-raw/macro-posture-market/industry-breadth.json`） |
 | 量价（3 月 / 12 月均量） | [Yahoo ^GSPC](https://query1.finance.yahoo.com/v8/finance/chart/%5EGSPC) | 月均成交量与 10 个月均线 | 1950 | 自动 |
 | VIX 期限结构 | Cboe [VIX](https://cdn.cboe.com/api/global/us_indices/daily_prices/VIX_History.csv)、[VIX3M](https://cdn.cboe.com/api/global/us_indices/daily_prices/VIX3M_History.csv)；2009-09 以前用 FRED [VXVCLS](https://fred.stlouisfed.org/series/VXVCLS)（同一指数） | VIX ÷ VIX3M | 2007-12 | 自动（缓存在本目录） |
@@ -58,8 +75,18 @@
 
 | 指标 | 来源 | 口径 | 历史起点 | 更新方式 |
 |---|---|---|---|---|
-| 过去 12 个月每股盈利同比 | [Shiller 数据](https://shillerdata.com/)（`data-raw/sp500-backtest/shiller.csv`）；超出快照的月份用 [Multpl 盈利](https://www.multpl.com/s-p-500-earnings/table/by-month) × FRED [CPIAUCNS](https://fred.stlouisfed.org/series/CPIAUCNS) 补算 | 名义 EPS 同比 | 1872 | 自动（Shiller 快照需定期更新） |
+| 过去 12 个月每股盈利同比 | [Shiller 数据](https://shillerdata.com/)（`data-raw/sp500-backtest/shiller.csv`）；超出快照的月份用 [Multpl 盈利](https://www.multpl.com/s-p-500-earnings/table/by-month) × FRED [CPIAUCNS](https://fred.stlouisfed.org/series/CPIAUCNS) 补算 | 名义 EPS 同比；**只保留季末月**，季末后第 3 个月末可得 | 1872 | 自动（Shiller 快照需定期更新） |
 | 前瞻每股盈利修正 | 标普收盘（`data-raw/macro-posture-daily/spx-daily.json`）÷ FactSet 前瞻市盈率 | 隐含前瞻 EPS 较约 3 个月前的变化；FactSet 引用发布日前一交易日收盘 | 2017-04 | 跟着前瞻市盈率走，前瞻市盈率手动更新后自动算出 |
+| 企业利润 ÷ GDP | 站内 `macro-masters-fred.json` → `series.profitGdp` | %；可得日按季末后第 3 个月末 | 季频 | 自动 |
+
+### 新增缓存文件（2026-11-24）
+
+| 文件 | 内容 |
+|---|---|
+| `ofr-fsi.json` | OFR 金融压力指数（Date, Credit, OFR FSI） |
+| `DFII10.json` | FRED 10 年期实际利率 |
+| `DTWEXBGS.json` | FRED 贸易加权美元指数 |
+| `VVIX.json` | Cboe VVIX 日历史 |
 
 ## 二、一次性回补
 
@@ -97,7 +124,7 @@ node scripts/market-radar.mjs                                 # 重新生成雷�
 | 指标 | 原因 |
 |---|---|
 | 高收益债利差更早的历史 | 1996 年起的全历史只在 FRED 2023 年限流前的备份里；FRED 页面写明数据版权归 ICE、未经许可禁止转载，而本仓库公开，**决定不导入**（2026-11-24）。站内继续逐日累积 |
-| 美元净流动性更早的历史 | WALCL 2002-12 才开始发布，ON RRP 2013 年才推出 |
+| 美元净流动性更早的历史 | WALCL 2002-12 才开始发布；ON RRP 常设工具 2013-09-23 启用，此前缺读数已按 0 计，无法再往前 |
 | 成分股 200 日线比例、新高新低、涨跌比长历史 | TradingView（S5TH）、Barchart（$S5TH）、StockCharts（$SPXA200R）都没有免费数据接口，抓取违反服务条款；自建需要按日的历史成分名单 |
 | 美银调查完整历史 | 只在 Bloomberg、Refinitiv 等终端提供 |
 | NAAIM 2026-08-19 之后的读数 | 需要订阅 |

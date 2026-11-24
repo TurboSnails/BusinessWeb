@@ -2,31 +2,50 @@ import React, { useEffect, useState } from 'react'
 
 export const RADAR_NAV = [
   { id: 'mr-conclusion', label: '结论' },
+  { id: 'mr-overview', label: '总览' },
   { id: 'mr-indicators', label: '指标' },
   { id: 'mr-backtest', label: '回测' },
 ] as const
+
+/**
+ * 以吸顶导航下沿为基准：哪个区块顶边最后越过这条线，就高亮哪个。
+ */
+export function activeSectionFromTops(
+  sectionTops: number[],
+  ids: readonly string[],
+  navBottom: number,
+): string {
+  if (!ids.length) return ''
+  let active = ids[0]
+  for (let i = 0; i < sectionTops.length; i++) {
+    if (sectionTops[i] <= navBottom + 1) active = ids[i]
+  }
+  return active
+}
 
 export default function AnchorNav(): JSX.Element {
   const [active, setActive] = useState<string>(RADAR_NAV[0].id)
 
   useEffect(() => {
-    if (typeof IntersectionObserver === 'undefined') return undefined
-    const sections = RADAR_NAV
-      .map(({ id }) => document.getElementById(id))
-      .filter((el): el is HTMLElement => Boolean(el))
-    if (!sections.length) return undefined
+    const ids = RADAR_NAV.map(item => item.id)
 
-    const observer = new IntersectionObserver(
-      entries => {
-        const visible = entries
-          .filter(e => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)
-        if (visible[0]?.target?.id) setActive(visible[0].target.id)
-      },
-      { rootMargin: '-110px 0px -55% 0px', threshold: [0, 0.15, 0.4, 0.7] },
-    )
-    for (const section of sections) observer.observe(section)
-    return () => observer.disconnect()
+    const sync = (): void => {
+      const nav = document.querySelector<HTMLElement>('.mr-toc')
+      const navBottom = nav ? nav.getBoundingClientRect().bottom : 0
+      const tops = ids.map(id => {
+        const el = document.getElementById(id)
+        return el ? el.getBoundingClientRect().top : Number.POSITIVE_INFINITY
+      })
+      setActive(activeSectionFromTops(tops, ids, navBottom))
+    }
+
+    sync()
+    window.addEventListener('scroll', sync, { passive: true })
+    window.addEventListener('resize', sync)
+    return () => {
+      window.removeEventListener('scroll', sync)
+      window.removeEventListener('resize', sync)
+    }
   }, [])
 
   return (

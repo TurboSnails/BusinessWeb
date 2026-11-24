@@ -14,9 +14,12 @@ const CBOE = 'https://cdn.cboe.com/api/global/us_indices/daily_prices/'
 const EPS = 'https://www.multpl.com/s-p-500-earnings/table/by-month'
 const YAHOO_CHART = 'https://query1.finance.yahoo.com/v8/finance/chart/'
 export const SQUEEZE_DIX = 'https://squeezemetrics.com/monitor/static/DIX.csv'
+export const OFR_FSI = 'https://www.financialresearch.gov/financial-stress-index/data/fsi.csv'
 export const FRENCH_INDUSTRIES_DAILY = 'https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/49_Industry_Portfolios_daily_CSV.zip'
 export const FRENCH_INDUSTRIES = 'https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/49_Industry_Portfolios_CSV.zip'
 export const CASH_SERIES = ['CDCABSHNO', 'TSDABSHNO', 'MMFSABSHNO', 'TFAABSHNO']
+/** 隔夜逆回购常设工具启用日：此前缺读数按 0 计。 */
+export const ON_RRP_START = '2013-09-23'
 
 function normalize(rows = [], through) {
   return [...new Map(rows.filter(([d, v]) => /^\d{4}-\d{2}-\d{2}$/.test(d) &&
@@ -82,6 +85,7 @@ export async function refreshRadarSources({ cache, fetcher, today, localVix, shi
     .catch(error => { warn(`industry-daily-breadth 暂缺：${error.message}`); return [] })
   // 2010 年 8 月以前的 20 日量比来自 Yahoo ^GSPC 日成交量，一次性回补（scripts/spx-volume-ratio-history.mjs）。
   sources.volumeRatioEarly = readJson(join(cache, 'spx-volume-ratio-early.json'), [])
+    .filter(([, value]) => value >= 0.3)
   const realEps = await refresh('eps', EPS, html => parseMultplMonthly(html, monthEnd(today, -1)))
   if (realEps.at(-1)[0] > shillerEps.at(-1)[0]) {
     const cpiId = 'CPIAUCNS'
@@ -89,12 +93,43 @@ export async function refreshRadarSources({ cache, fetcher, today, localVix, shi
       .map(([d, value]) => [month(d), value]))
     // Multpl reports EPS in constant dollars. Multiplying by the matching CPI
     // gives a level proportional to nominal EPS, which cancels in the YoY ratio.
-    const nominal = marketSeries(realEps.flatMap(([d, value]) =>
-      cpi.has(month(d)) ? [[d, value * cpi.get(month(d))]] : []), 3)
+    // A1：补算部分同样只取季末月。
+    const nominal = quarterEndEarnings(realEps.flatMap(([d, value]) =>
+      cpi.has(month(d)) ? [[d, value * cpi.get(month(d))]] : []))
     sources.supplementalEpsYoy = changeByMonth(nominal, 12, true)
       .filter(point => point.observedOn > shillerEps.at(-1)[0])
   }
+  // 新接来源：失败且无缓存时 warn 并返回空，不拖累整体。
+  sources.ofrFsi = await refreshOfrFsi({ cache, fetcher, today, warn })
+  sources.realYield = await refresh('DFII10', FRED_CSV + 'DFII10', csv => parseFred(csv, 'DFII10'))
+    .catch(error => { warn(`DFII10 暂缺：${error.message}`); return [] })
+  sources.dollar = await refresh('DTWEXBGS', FRED_CSV + 'DTWEXBGS', csv => parseFred(csv, 'DTWEXBGS'))
+    .catch(error => { warn(`DTWEXBGS 暂缺：${error.message}`); return [] })
+  sources.vvix = await cboe('VVIX').catch(error => { warn(`VVIX 暂缺：${error.message}`); return [] })
   return sources
+}
+
+/** OFR FSI 保留 Credit 与总指数两列，不能走只留二元组的 normalize。 */
+async function refreshOfrFsi({ cache, fetcher, today, warn }) {
+  const path = join(cache, 'ofr-fsi.json')
+  const previous = readJson(path, [])
+  try {
+    const response = await fetcher(OFR_FSI, { signal: AbortSignal.timeout(20_000) })
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    const fresh = parseOfrFsi(await response.text()).filter(([d]) => d <= today)
+    if (!fresh.length || (previous.length && (fresh[0][0] > previous[0][0] || fresh.at(-1)[0] < previous.at(-1)[0]))) {
+      throw new Error('来源历史覆盖不足')
+    }
+    writeJsonIfChanged(path, fresh)
+    return fresh
+  } catch (error) {
+    if (!previous.length) {
+      warn(`ofr-fsi 暂缺：${error.message}`)
+      return []
+    }
+    warn(`ofr-fsi 沿用至 ${previous.at(-1)[0]} 的缓存：${error.message}`)
+    return previous.filter(([d]) => d <= today)
+  }
 }
 
 /**
@@ -383,8 +418,15 @@ function netLiquidity(rows) {
   const tga = new Map(rows('treasuryCash'))
   const rrp = rows('overnightRrp')
   const levels = rows('fedAssets').flatMap(([d, value]) => {
-    const overnight = near(rrp, d)
-    return overnight && tga.has(d) ? [[d, value - tga.get(d) - overnight[1]]] : []
+    if (!tga.has(d)) return []
+    // A2：2013-09-23 前隔夜逆回购缺读数按 0；之后仍要求 7 天内有读数。
+    let overnight = 0
+    if (d >= ON_RRP_START) {
+      const point = near(rrp, d)
+      if (!point) return []
+      overnight = point[1]
+    }
+    return [[d, value - tga.get(d) - overnight]]
   })
   const byDate = new Map(levels)
   return levels.flatMap(([d, value]) => {
@@ -426,26 +468,58 @@ function completeMonthly(rows, lastComplete) {
   return [...new Map(completed.map(row => [month(row[0]), row])).values()]
 }
 
+/** 是否季末月（3 / 6 / 9 / 12）。 */
+export function isQuarterEndMonth(date) {
+  return [3, 6, 9, 12].includes(Number(month(date).slice(5)))
+}
+
 /**
- * 按当时可得盈利折算市盈率：观测月 m 的市盈率 v 在 t = m+3 才可得，
- * 用当月月均价 P(t) 与盈利月月均价 P(m) 折算为 value = v × P(t) ÷ P(m)。
- * 缺任一月价格则跳过（不插值）。
+ * A1：只保留季末月盈利，按「季末后第 3 个月末可得」形成阶梯序列。
+ * 输入 [[日期, 值]] 或已有 {observedOn,value}；输出带 availableOn 的点列。
+ */
+export function quarterEndEarnings(rows = [], lagMonths = 3) {
+  return rows.flatMap(row => {
+    const observedOn = Array.isArray(row) ? (row[0].length === 7 ? monthEnd(row[0]) : monthEnd(row[0])) : row.observedOn
+    const value = Array.isArray(row) ? row[1] : row.value
+    if (!isQuarterEndMonth(observedOn) || !Number.isFinite(value)) return []
+    const end = monthEnd(observedOn)
+    return [{ observedOn: end, value, availableOn: monthEnd(end, lagMonths) }]
+  }).sort((a, b) => a.observedOn.localeCompare(b.observedOn))
+}
+
+/**
+ * A1：用最近一个已可得季末市盈率 × 当月月均价 ÷ 该季末月月均价。
+ * 只取季末月的市盈率作盈利锚点；对每个有价格的月份输出一行。
  */
 export function priceAdjustedPe(peRows = [], priceSeries = []) {
-  const priceByMonth = new Map(priceSeries.filter(point => point?.value > 0).map(point => [month(point.observedOn), point.value]))
-  return peRows.flatMap(([observedOn, value]) => {
-    if (!(value > 0)) return []
-    const t = month(monthEnd(observedOn, 3))
-    const earningsPrice = priceByMonth.get(month(observedOn))
-    const price = priceByMonth.get(t)
-    if (!earningsPrice || !price) return []
+  const priceByMonth = new Map(priceSeries.filter(point => point?.value > 0)
+    .map(point => [month(point.observedOn), { value: point.value, observedOn: point.observedOn }]))
+  const quarters = peRows.flatMap(row => {
+    const observedOn = Array.isArray(row) ? row[0] : row.observedOn
+    const value = Array.isArray(row) ? row[1] : row.value
+    if (!(value > 0) || !isQuarterEndMonth(observedOn)) return []
+    const end = monthEnd(observedOn)
     return [{
-      value: clean(value * price / earningsPrice),
-      observedOn: `${t}-01`,
-      availableOn: monthEnd(`${t}-01`),
-      earningsOn: observedOn,
+      earningsOn: end,
+      value,
+      availableOn: monthEnd(end, 3),
+      earningsPrice: priceByMonth.get(month(end))?.value,
     }]
-  }).sort((a, b) => a.observedOn.localeCompare(b.observedOn))
+  }).filter(row => row.earningsPrice > 0)
+    .sort((a, b) => a.availableOn.localeCompare(b.availableOn))
+  const months = [...priceByMonth.keys()].sort()
+  return months.flatMap(key => {
+    const asOf = monthEnd(key + '-01')
+    const anchor = quarters.findLast(row => row.availableOn <= asOf)
+    const price = priceByMonth.get(key)
+    if (!anchor || !price) return []
+    return [{
+      value: clean(anchor.value * price.value / anchor.earningsPrice),
+      observedOn: `${key}-01`,
+      availableOn: asOf,
+      earningsOn: anchor.earningsOn,
+    }]
+  })
 }
 
 function marketReadings(data, panel, lastComplete) {
@@ -492,6 +566,108 @@ export function forwardEpsChange(fpeRows, closes) {
       .sort((a, b) => Math.abs(ageDays(a[0], target)) - Math.abs(ageDays(b[0], target)))[0]
     return prior ? [{ observedOn: d, availableOn: d, value: clean((value / prior[1] - 1) * 100), priorOn: prior[0] }] : []
   })
+}
+
+/** OFR FSI CSV → [日期, Credit, OFR FSI 总指数]。该文件无引号单元格，按逗号直接切分。 */
+export function parseOfrFsi(csv) {
+  const lines = csv.trim().split(/\r?\n/)
+  const header = lines[0].split(',').map(cell => cell.trim())
+  const dateIdx = header.findIndex(cell => /^date$/i.test(cell) || /^observation_date$/i.test(cell))
+  const creditIdx = header.findIndex(cell => /^credit$/i.test(cell))
+  const fsiIdx = header.findIndex(cell => /^ofr\s*fsi$/i.test(cell) || /^fsi$/i.test(cell))
+  if (dateIdx < 0 || creditIdx < 0) throw new Error('OFR FSI 表头缺少 Date / Credit')
+  return lines.slice(1).flatMap(line => {
+    const cells = line.split(',')
+    const d = cells[dateIdx]?.trim().slice(0, 10)
+    const credit = Number(cells[creditIdx])
+    const fsi = fsiIdx >= 0 ? Number(cells[fsiIdx]) : NaN
+    return /^\d{4}-\d{2}-\d{2}$/.test(d) && Number.isFinite(credit)
+      ? [[d, credit, Number.isFinite(fsi) ? fsi : null]] : []
+  })
+}
+
+/**
+ * 约 N 天涨跌幅 %；前值取不晚于目标日、且距目标日不超过 5 天的最近读数。
+ * 返回 [日期, 涨跌幅%, 当前水平]。
+ */
+export function changeOverDays(rows = [], days = 91, slack = 5) {
+  const sorted = [...rows].filter(([, value]) => value > 0).sort(([a], [b]) => a.localeCompare(b))
+  return sorted.flatMap(([d, value], index) => {
+    const target = addDays(d, -days)
+    let prior = null
+    for (let i = index - 1; i >= 0; i--) {
+      const [day, level] = sorted[i]
+      if (day > target) continue
+      if (ageDays(target, day) > slack) break
+      prior = level
+      break
+    }
+    return prior > 0 ? [[d, clean((value / prior - 1) * 100), value]] : []
+  })
+}
+
+/** 标普相对 200 日均线（%）、距 52 周高点回撤（%）、20 日已实现波动率（%）。 */
+export function spxTrendVol(dailyRows = []) {
+  const closes = dailyRows.filter(([, close]) => close > 0).map(([d, close]) => [d, close])
+  const trend200 = []
+  const drawdown = []
+  const realizedVol = []
+  const window = []
+  for (let i = 0; i < closes.length; i++) {
+    const [d, close] = closes[i]
+    window.push(close)
+    if (window.length > 252) window.shift()
+    if (i >= 199) {
+      const ma = closes.slice(i - 199, i + 1).reduce((sum, [, v]) => sum + v, 0) / 200
+      trend200.push({ observedOn: d, availableOn: d, value: clean((close / ma - 1) * 100) })
+    }
+    if (window.length === 252) {
+      const peak = Math.max(...window)
+      drawdown.push({ observedOn: d, availableOn: d, value: clean((close / peak - 1) * 100) })
+    }
+    if (i >= 20) {
+      const returns = []
+      for (let j = i - 19; j <= i; j++) {
+        const prev = closes[j - 1][1]
+        const cur = closes[j][1]
+        if (prev > 0 && cur > 0) returns.push(Math.log(cur / prev))
+      }
+      if (returns.length === 20) {
+        const mean = returns.reduce((sum, v) => sum + v, 0) / 20
+        const variance = returns.reduce((sum, v) => sum + (v - mean) ** 2, 0) / 20
+        realizedVol.push({
+          observedOn: d, availableOn: d,
+          value: clean(Math.sqrt(variance) * Math.sqrt(252) * 100),
+        })
+      }
+    }
+  }
+  return { trend200, drawdown, realizedVol }
+}
+
+/**
+ * C2：用 volume 序列补算 volumeRatio 缺口（如 2026-01）。
+ * volume 单位为亿股；半日市不计入；孤立错值规则同 volumeRatioFromDaily。
+ */
+export function fillVolumeRatioGaps(ratioRows = [], volumeRows = []) {
+  const existing = new Map(ratioRows.map(row => [row.observedOn ?? row[0], row]))
+  const daily = volumeRows
+    .map(row => Array.isArray(row) ? row : [row.observedOn, row.value])
+    .filter(([d, volume]) => volume > 0 && !likelyShortSession(d))
+  const full = daily.filter(([, volume], index) => {
+    const around = [...daily.slice(Math.max(0, index - 2), index), ...daily.slice(index + 1, index + 3)]
+      .map(([, v]) => v).sort((a, b) => a - b)
+    if (around.length < 4) return true
+    const median = (around[1] + around[2]) / 2
+    return volume / median <= 4 && volume / median >= 0.3
+  })
+  const filled = full.flatMap(([d, volume], index) => {
+    if (existing.has(d) || index < 20) return []
+    const average = full.slice(index - 20, index).reduce((sum, [, v]) => sum + v, 0) / 20
+    const value = Math.round(volume / average * 100) / 100
+    return [{ observedOn: d, availableOn: d, value }]
+  })
+  return [...ratioRows, ...filled].sort((a, b) => a.observedOn.localeCompare(b.observedOn))
 }
 
 /** SqueezeMetrics DIX.csv（date,price,dix,gex）→ [日期, GEX 亿美元]。 */
@@ -594,7 +770,14 @@ export function aaiiSpread(bull, bear) {
   }] : [])
 }
 
-export function buildRadarSeries({ local, macroUs, breadth, universes = {}, indexes = {}, marketCache, fetched, shillerEps, shillerPrice = [], panel, currentPanel, today, lastComplete, spxDaily = [] }) {
+function macroLong(entry, today) {
+  return normalize(entry?.long ?? entry?.history ?? [], today)
+}
+
+export function buildRadarSeries({
+  local, macroUs, breadth, universes = {}, indexes = {}, marketCache, fetched, shillerEps,
+  shillerPrice = [], panel, currentPanel, today, lastComplete, spxDaily = [], mastersFred = {},
+}) {
   const rows = id => publishedRows(local[id], today)
   const simple = id => marketSeries(rows(id), 0, true)
   const pe = rows('spxPe').filter(([d, value]) => d >= '1900-01' && value > 0)
@@ -609,7 +792,7 @@ export function buildRadarSeries({ local, macroUs, breadth, universes = {}, inde
     finraDebtYoy: marketSeries(rows('finraDebtYoy'), 1),
     breadth: marketSeries(industries, 2),
     epsYoy: [
-      ...changeByMonth(marketSeries(shillerEps, 3), 12, true),
+      ...changeByMonth(quarterEndEarnings(shillerEps), 12, true),
       ...(fetched.supplementalEpsYoy ?? []),
     ],
   }
@@ -620,6 +803,14 @@ export function buildRadarSeries({ local, macroUs, breadth, universes = {}, inde
     marketSeries(pe.slice(-1), 0, true)[0], today)
   const currentCape = includeLatest(historical.cape, marketSeries(cape.slice(-1), 0, true)[0], today)
   const currentErp = readMarket({ pe: currentPe }, currentPanel, today).erp
+  const tenYearDaily = rows('tenYearDaily')
+  if (currentErp && tenYearDaily.length) {
+    const daily = tenYearDaily.findLast(([d]) => d <= today)
+    if (daily) {
+      currentErp.dailyOn = daily[0]
+      currentErp.dailyYield = daily[1]
+    }
+  }
   const hy = rows('hyDaily')
   const vix = new Map(fetched.vix)
   const vixTerm = fetched.vix3m.flatMap(([d, vix3m]) => vix.has(d) ? [{
@@ -628,6 +819,22 @@ export function buildRadarSeries({ local, macroUs, breadth, universes = {}, inde
   const breadth200 = normalize([
     ...(breadth?.backfill ?? []), ...(breadth?.history ?? []), [breadth?.date, breadth?.above200],
   ], today)
+  const spxSeries = spxTrendVol(spxDaily.filter(([d]) => d <= today))
+  const ofrCredit = (fetched.ofrFsi ?? []).map(([d, credit, fsi]) => ({
+    observedOn: d, availableOn: d, value: credit, fsi,
+  }))
+  const dollarRows = changeOverDays(normalize(fetched.dollar, today), 91).map(([d, value, level]) => ({
+    observedOn: d, availableOn: d, value, level,
+  }))
+  const reservesRows = changeOverDays(rows('bankReserves'), 91).map(([d, value]) => ({
+    observedOn: d, availableOn: d, value,
+  }))
+  const volumeRatio = (() => {
+    const recent = simple('volumeRatio')
+    const start = recent[0]?.observedOn ?? '9999'
+    const early = marketSeries((fetched.volumeRatioEarly ?? []).filter(([d]) => d < start), 0, true)
+    return fillVolumeRatioGaps([...early, ...recent], rows('volume'))
+  })()
   const current = {
     ...historical,
     netLiquidity: marketSeries(netLiquidity(rows), 0, true),
@@ -648,6 +855,7 @@ export function buildRadarSeries({ local, macroUs, breadth, universes = {}, inde
     aaiiSpread: aaiiSpread(rows('retailBull'), rows('retailBear')),
     cftcAsset: simple('cftcSpxAsset'),
     cftcNdxAsset: simple('cftcNdxAsset'),
+    cftcLev: simple('cftcSpxLev'),
     breadth: marketSeries(industries, 0, true),
     vixTerm,
     goldSilver: attachSpx(goldSilverRatio(normalize(fetched.gold, today), normalize(fetched.silver, today), fetched.goldSilverEarly, today),
@@ -655,11 +863,7 @@ export function buildRadarSeries({ local, macroUs, breadth, universes = {}, inde
     impliedCorr: impliedCorrelation(fetched.COR1M, fetched.COR3M),
     gex: gammaExposure(normalize(fetched.gex, today)),
     breadth200: marketSeries(breadth200, 0, true),
-    volumeRatio: (() => {
-      const recent = simple('volumeRatio')
-      const start = recent[0]?.observedOn ?? '9999'
-      return [...marketSeries((fetched.volumeRatioEarly ?? []).filter(([d]) => d < start), 0, true), ...recent]
-    })(),
+    volumeRatio,
     industry200: marketSeries((fetched.industryDaily ?? []).flatMap(([d, value]) => value == null ? [] : [[d, value]]), 0, true),
     industryNetHighs: marketSeries((fetched.industryDaily ?? []).flatMap(([d, , value]) => value == null ? [] : [[d, value]]), 0, true),
     industryAdvDec: marketSeries((fetched.industryDaily ?? []).flatMap(([d, , , value]) => value == null ? [] : [[d, value]]), 0, true),
@@ -671,6 +875,31 @@ export function buildRadarSeries({ local, macroUs, breadth, universes = {}, inde
     above50: marketSeries(normalize([[breadth?.date, breadth?.above50]], today), 0, true),
     equalWeight: equalWeightSpread(indexes.rsp?.monthly, indexes.spx?.monthly).filter(row => row.observedOn <= today),
     forwardEps: forwardEpsChange(rows('spxFactSetFpe'), spxDaily.filter(([d]) => d <= today)),
+    // 18 项新增（只展示）
+    nfci: marketSeries(macroLong(macroUs.nfci, today), 0, true),
+    ofrCredit,
+    realYield: marketSeries(normalize(fetched.realYield, today), 0, true),
+    dollar: dollarRows,
+    reserves: reservesRows,
+    // FRED 季频以季初月标注 → quarterly() 落到季末，可得日为季末后第 3 个月末
+    buffett: quarterly(macroLong(macroUs.buffett, today)),
+    dividendYield: simple('spxDividendYield'),
+    putCall: marketSeries(macroLong(macroUs.putCall, today), 0, true),
+    skew: simple('skew'),
+    hfEquityLs: marketSeries(macroLong(macroUs.hfEquityLs, today), 0, true),
+    // 月度序列观测日落到当月月末
+    marginGdp: marketSeries(macroLong(macroUs.marginGdp, today).map(([d, value]) => [monthEnd(d), value]), 0, true),
+    vix: marketSeries(rows('vixDaily'), 0, true),
+    trend200: spxSeries.trend200,
+    drawdown: spxSeries.drawdown,
+    realizedVol: spxSeries.realizedVol,
+    vvix: marketSeries(normalize(fetched.vvix, today), 0, true),
+    profitGdp: quarterly(normalize(mastersFred.profitGdp?.history, today)),
+  }
+  // 当前 erp 读数也带上 pe/gs10（includeLatest 可能丢掉嵌套字段时从 currentErp 补）
+  if (current.erp.at(-1) && currentErp) {
+    const last = current.erp.at(-1)
+    if (!last.pe) Object.assign(last, { pe: currentErp.pe, gs10: currentErp.gs10, dailyOn: currentErp.dailyOn, dailyYield: currentErp.dailyYield })
   }
   const sources = Object.fromEntries(Object.entries(local).map(([id, entry]) => [id, entry.source]))
   Object.assign(sources, {
@@ -680,13 +909,28 @@ export function buildRadarSeries({ local, macroUs, breadth, universes = {}, inde
     equityShare: FRED_SERIES + macroUs.equityShare?.fred, cashShare: FRED_SERIES + CASH_SERIES[3],
     breadth: 'https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html',
     volume: 'https://finance.yahoo.com/quote/%5EGSPC/history/',
-    aaiiSpread: sources.retailBull, cftcAsset: sources.cftcSpxAsset,
+    aaiiSpread: sources.retailBull, cftcAsset: sources.cftcSpxAsset, cftcLev: sources.cftcSpxLev,
     industryMomentum: FRENCH_INDUSTRIES, industryHighs: FRENCH_INDUSTRIES,
     industry200: FRENCH_INDUSTRIES_DAILY, industryNetHighs: FRENCH_INDUSTRIES_DAILY, industryAdvDec: FRENCH_INDUSTRIES_DAILY,
     sectorBreadth: breadth?.source, netHighs: breadth?.source, advDec: breadth?.source, above50: breadth?.source,
     equalWeight: 'https://finance.yahoo.com/quote/%5ESPXEW/history/',
     vixTerm: CBOE + 'VIX3M_History.csv', impliedCorr: CBOE + 'COR1M_History.csv', gex: 'https://squeezemetrics.com/monitor/dix', breadth200: breadth?.source,
     epsYoy: 'https://shillerdata.com/', forwardEps: sources.spxForwardEpsChange,
+    nfci: FRED_SERIES + 'NFCI', ofrCredit: OFR_FSI, realYield: FRED_SERIES + 'DFII10',
+    dollar: FRED_SERIES + 'DTWEXBGS', reserves: sources.bankReserves,
+    buffett: FRED_SERIES + 'NCBEILQ027S',
+    dividendYield: sources.spxDividendYield,
+    putCall: 'https://www.cboe.com/us/options/market_statistics/daily/',
+    skew: sources.skew,
+    hfEquityLs: 'https://www.financialresearch.gov/hedge-fund-monitor/',
+    marginGdp: 'https://www.finra.org/rules-guidance/key-topics/margin-accounts/margin-statistics',
+    // macro-posture-daily 标普收盘：站内 Yahoo 优先、FRED 补充
+    vix: sources.vixDaily,
+    trend200: 'https://finance.yahoo.com/quote/%5EGSPC/history/',
+    drawdown: 'https://finance.yahoo.com/quote/%5EGSPC/history/',
+    realizedVol: 'https://finance.yahoo.com/quote/%5EGSPC/history/',
+    vvix: CBOE + 'VVIX_History.csv',
+    profitGdp: FRED_SERIES + 'CP',
   })
   return { current, historical, sources }
 }
