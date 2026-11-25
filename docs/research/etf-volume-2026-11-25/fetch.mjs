@@ -7,6 +7,9 @@ import { fileURLToPath } from 'node:url'
 
 const TARGETS = ['H00300', 'H00905', 'H00852', 'H00016', 'H00922', 'H00986', 'H00987', 'H00988', 'H00989', 'H00990', 'H00991', 'H00992', 'H00993', 'H00994', 'H00995']
 const sleep = ms => new Promise(r => setTimeout(r, ms))
+// 中证接口有频率限制：请求间隔 PACE_MS（默认 8 秒），被拦时按 60 秒递增退避
+const PACE = Number(process.env.PACE_MS || 8000)
+const HEADERS = { 'User-Agent': 'Mozilla/5.0', Referer: 'https://www.csindex.com.cn/' }
 // 逐个指数缓存，被限流时可重跑续取（缓存目录可用 CACHE_DIR 指定）
 const CACHE = process.env.CACHE_DIR || `${process.env.HOME}/.businessweb-etf-oos/volume`
 mkdirSync(CACHE, { recursive: true })
@@ -24,14 +27,14 @@ async function csindex(code) {
     const url = `https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=${code}&startDate=${y}0101&endDate=${y + 3}1231`
     for (let attempt = 0; attempt < 6; attempt++) {
       try {
-        const j = await (await fetch(url, { signal: AbortSignal.timeout(30000) })).json()
+        const j = await (await fetch(url, { signal: AbortSignal.timeout(30000), headers: HEADERS })).json()
         for (const r of j.data || []) {
           if (r.close > 0) rows.set(r.tradeDate, [`${r.tradeDate.slice(0, 4)}-${r.tradeDate.slice(4, 6)}-${r.tradeDate.slice(6)}`, r.close, r.tradingValue ?? null, r.indexNameCn])
         }
         break
-      } catch (e) { if (attempt === 5) throw new Error(`${code} ${y}: ${e.message}`); await sleep(20000 * (attempt + 1)) }
+      } catch (e) { if (attempt === 5) throw new Error(`${code} ${y}: ${e.message}`); await sleep(60000 * (attempt + 1)) }
     }
-    await sleep(3000)
+    await sleep(PACE)
   }
   const arr = [...rows.values()].sort((a, b) => a[0].localeCompare(b[0]))
   return { name: arr.at(-1)?.[3] ?? code, rows: arr.map(([d, c, v]) => [d, c, v]) }
