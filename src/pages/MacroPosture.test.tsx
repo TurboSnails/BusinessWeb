@@ -436,6 +436,9 @@ describe('MacroPosture 综合指标视图', () => {
     expect(live.textContent).toContain('样本外记录')
     expect(live.textContent).toContain('待实现')
     expect(live.textContent).toContain('+1.2%')
+    expect(live.textContent).toContain('正式定档（2026-11-02 冻结，综合分 +0.31）')
+    expect(live.textContent).toContain('月中预估')
+    expect(live.textContent).toContain('之后档位和判定依据不再改动')
   })
 
   it('live.rows 为空时仍渲染前推小节', () => {

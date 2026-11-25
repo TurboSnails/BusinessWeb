@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import { TableWrap } from '../../../components/ui'
 import { formatNum1, formatNum2, formatPct1, formatSharePct, singleSpreadLabel, TIER_ORDER_DEFENSE_LEFT } from './labels'
 import TimelineChart from './TimelineChart'
-import type { Backtest, CompositeFile, TierId, Variant } from './types'
+import type { Backtest, CompositeFile, LiveRow, TierId, Variant } from './types'
 
 const TIER_LABEL: Record<TierId, string> = {
   offense: '进攻',
@@ -38,6 +38,12 @@ function defenseNote(tiers: Backtest['tiers']): string | null {
 function formatReturnCell(value: number | null | undefined): string {
   if (value == null || !Number.isFinite(value)) return '待实现'
   return formatPct1(value, { signed: true })
+}
+
+function liveStatus(row: LiveRow): string {
+  if (row.status !== 'official') return '月中预估'
+  const score = row.score == null ? '' : `，综合分 ${row.score >= 0 ? '+' : ''}${row.score.toFixed(2)}`
+  return `正式定档（${row.recordedAt ?? '—'} 冻结${score}）`
 }
 
 export default function BacktestPanel({ data }: { data: CompositeFile }): JSX.Element {
@@ -218,6 +224,7 @@ export default function BacktestPanel({ data }: { data: CompositeFile }): JSX.El
           <h3>前推记录（规则冻结于 2026-11-23）</h3>
           <p className="mp-section-lead">
             这部分是真正的样本外记录，会逐月累积。规则自 {live.since} 起按 {live.ruleVersion} 冻结。
+            当月一行是月中预估，随数据更新；月份结束后，次月第一次完整运行时按月末正式定档冻结，之后档位和判定依据不再改动，只补上之后实现的回报。
           </p>
           <TableWrap label="前推记录">
             <table className="mp-table">
@@ -225,6 +232,7 @@ export default function BacktestPanel({ data }: { data: CompositeFile }): JSX.El
                 <tr>
                   <th scope="col">月份</th>
                   <th scope="col">档位</th>
+                  <th scope="col">状态</th>
                   <th scope="col">仓位</th>
                   <th scope="col">之后标普回报</th>
                   <th scope="col">之后组合回报</th>
@@ -233,13 +241,14 @@ export default function BacktestPanel({ data }: { data: CompositeFile }): JSX.El
               <tbody>
                 {(live.rows ?? []).length === 0 ? (
                   <tr>
-                    <td colSpan={5}>尚无前推行，待次月起累积。</td>
+                    <td colSpan={6}>尚无前推行，待次月起累积。</td>
                   </tr>
                 ) : (
                   live.rows.map(row => (
                     <tr key={row.d}>
                       <th scope="row">{row.d}</th>
                       <td>{row.final ? (tierDefs.get(row.final)?.label ?? TIER_LABEL[row.final]) : '—'}</td>
+                      <td>{liveStatus(row)}</td>
                       <td>{formatSharePct(row.equityShare) ?? '—'}</td>
                       <td>{formatReturnCell(row.spxReturn)}</td>
                       <td>{formatReturnCell(row.portfolioReturn)}</td>

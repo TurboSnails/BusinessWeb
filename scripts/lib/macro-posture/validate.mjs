@@ -31,6 +31,18 @@ const score = oneOf(-2, -1, 0, 1)
 const ratio = n => number(n) && n >= 0 && n <= 1
 const nullableNumber = nullable(number)
 const texts = list(nonempty)
+
+const liveReturns = { spxReturn: nullableNumber, portfolioReturn: nullableNumber }
+const estimateLiveRow = shape({
+  d: isoMonth, final: nullable(tier), equityShare: nullable(ratio), status: oneOf('estimate'), ...liveReturns,
+})
+// 月末正式定档冻结行：档位、仓位与判定依据写入后不再改动（见 scripts/check-live-ledger.mjs）。
+const officialLiveRow = shape({
+  d: isoMonth, final: tier, equityShare: ratio, status: oneOf('official'), recordedAt: isoDate, ruleVersion: nonempty,
+  regime: nullable(tier), score: nullableNumber,
+  pillars: (value, path) => check(shape(Object.fromEntries(PILLARS.map(p => [p.id, nullableNumber]))), value, path),
+  breakers: texts, driver: oneOf('insufficient', 'repair', 'tactical', 'breaker', 'macro'), ...liveReturns,
+})
 const threshold = shape({ threshold: number, score, text: nonempty })
 const move = shape({ tier, scoreGap: n => number(n) && n >= 0, text: nonempty })
 
@@ -105,7 +117,7 @@ const backtest = shape({
   }),
   live: shape({
     since: oneOf(LIVE_SINCE), ruleVersion: oneOf(LIVE_RULE_VERSION),
-    rows: list(shape({ d: isoMonth, final: nullable(tier), equityShare: nullable(ratio), spxReturn: nullableNumber, portfolioReturn: nullableNumber })),
+    rows: list((row, path) => check(row?.status === 'official' ? officialLiveRow : estimateLiveRow, row, path)),
   }),
   timeline: list(shape({ d: isoMonth, regime: nullable(tier), final: nullable(tier), spx: n => n > 0 && number(n), rec: oneOf(0, 1) })),
 })

@@ -34,6 +34,9 @@ jobs:
           node scripts/macro-posture-research.mjs || echo "::warning::Macro posture candidates refresh failed"
           node scripts/macro-posture-market.mjs || echo "::warning::Macro posture market refresh failed"
           node scripts/market-radar.mjs || echo "::warning::Market radar refresh failed"
+      # 前推记录只能追加：已冻结的月末正式定档被改写时任务失败，不提交
+      - name: Check live ledger is append-only
+        run: node scripts/check-live-ledger.mjs
       - name: Commit if changed
         id: commit
         shell: bash

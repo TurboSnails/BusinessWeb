@@ -120,11 +120,45 @@ export function transactionCosts(full, cagr) {
   }
 }
 
-export function updateLive(previousRows, today, final, returns) {
-  const signals = new Map(previousRows.map(row => [row.d, row]))
+const round3 = value => Number.isFinite(value) ? Math.round(value * 1000) / 1000 : null
+
+/** 定档时的判定依据，冻结进前推记录。 */
+export function auditOf(result) {
+  return {
+    score: round3(result.regime.score),
+    pillars: Object.fromEntries(Object.entries(result.pillars).map(([id, value]) => [id, round3(value)])),
+    breakers: result.breakers.filter(row => row.active).map(row => row.id),
+    driver: result.driver,
+  }
+}
+
+/** 月末正式定档行：一经写入不再改动档位与依据，只回填之后实现的收益。 */
+export function officialLiveRow(official, recordedAt) {
+  return {
+    d: month(official.d), final: official.final, equityShare: equity(official.final), status: 'official',
+    recordedAt, ruleVersion: LIVE_RULE_VERSION, regime: official.regime, ...official.audit,
+    spxReturn: null, portfolioReturn: null,
+  }
+}
+
+/**
+ * 前推记录。
+ * - 当月行（status: estimate）是月中预估，每次运行覆盖；
+ * - 上一个完整月份在次月第一次完整运行时按月末正式定档冻结（status: official），之后档位与依据永不改写；
+ * - official 传入的是月度回测最后一行（实时数据口径），数据不完整时调用方传 undefined，留待下次运行再冻结。
+ */
+export function updateLive(previousRows, today, final, returns, official) {
+  const signals = new Map(previousRows.map(row => [row.d, { ...row, status: row.status ?? 'estimate' }]))
+  const liveStart = LIVE_SINCE.slice(0, 7)
+  if (official?.d && official.final) {
+    const d = month(official.d)
+    if (d >= liveStart && signals.get(d)?.status !== 'official') signals.set(d, officialLiveRow(official, today))
+  }
   if (today >= LIVE_SINCE) {
     const d = month(today)
-    signals.set(d, { d, final: final.tier, equityShare: final.equityShare, spxReturn: null, portfolioReturn: null })
+    if (signals.get(d)?.status !== 'official') {
+      signals.set(d, { d, final: final.tier, equityShare: final.equityShare, status: 'estimate', spxReturn: null, portfolioReturn: null })
+    }
   }
   const rows = [...signals.values()].sort((a, b) => a.d.localeCompare(b.d)).map(row => {
     const realized = returns.get(keyAfter(row.d, EXECUTION_LAG))
@@ -323,7 +357,7 @@ function buildStrategies(panel, asOf, previousRecessionMarks, vintages) {
         v21Regime: v21.regime.tier, v21Final: v21.final.tier, revised: revisedResult.final.tier,
         noNfci: evaluateWithoutNfci(realtimeFrame).final.tier, rec: recession,
         below: realtimeFrame.tactical.below, scores: result.scores, pillars: result.pillars,
-        components: realtimeFrame.components,
+        components: realtimeFrame.components, audit: auditOf(result),
       }
     } else {
       const v21 = evaluateV21(revisedFrame)
@@ -331,7 +365,7 @@ function buildStrategies(panel, asOf, previousRecessionMarks, vintages) {
         d, regime: revisedResult.regime.tier, final: revisedResult.final.tier, spx: revisedFrame.tactical.price,
         v21Regime: v21.regime.tier, v21Final: v21.final.tier, rec: recession,
         below: revisedFrame.tactical.below, scores: revisedResult.scores, pillars: revisedResult.pillars,
-        components: revisedFrame.components,
+        components: revisedFrame.components, audit: auditOf(revisedResult),
       }
     }
     rows.push(row)

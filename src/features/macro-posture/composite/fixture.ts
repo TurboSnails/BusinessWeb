@@ -216,8 +216,8 @@ function backtest(): Backtest {
       since: '2026-11-23',
       ruleVersion: 'v2.1',
       rows: [
-        { d: '2026-11', final: 'lean-offense', equityShare: 0.85, spxReturn: null, portfolioReturn: null },
-        { d: '2026-10', final: 'lean-offense', equityShare: 0.85, spxReturn: 0.012, portfolioReturn: 0.01 },
+        { d: '2026-10', final: 'lean-offense', equityShare: 0.85, status: 'official', recordedAt: '2026-11-02', ruleVersion: 'v2.1', regime: 'lean-offense', score: 0.31, pillars: { growth: 0.2, credit: 0.33, liquidity: 0.25, inflation: 1 }, breakers: [], driver: 'macro', spxReturn: 0.012, portfolioReturn: 0.01 },
+        { d: '2026-11', final: 'lean-offense', equityShare: 0.85, status: 'estimate', spxReturn: null, portfolioReturn: null },
       ],
     },
     timeline: [

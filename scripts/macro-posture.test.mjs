@@ -462,7 +462,7 @@ test('live retains frozen signals, replaces the current month, and backfills onl
   const first = updateLive([], '2026-11-23', { tier: 'offense', equityShare: 1 }, new Map())
   assert.deepEqual(first, {
     since: '2026-11-23', ruleVersion: 'v2.2',
-    rows: [{ d: '2026-11', final: 'offense', equityShare: 1, spxReturn: null, portfolioReturn: null }],
+    rows: [{ d: '2026-11', final: 'offense', equityShare: 1, status: 'estimate', spxReturn: null, portfolioReturn: null }],
   })
   const latest = updateLive(first.rows, '2026-11-27', { tier: 'defense', equityShare: 0.3 }, new Map())
   assert.equal(latest.rows.length, 1)
@@ -482,6 +482,44 @@ test('live retains frozen signals, replaces the current month, and backfills onl
   assert.equal(updated.rows[0].equityShare, 0.3)
   assert.equal(updated.rows[1].spxReturn, null)
   assert.deepEqual(updated.rows.map(row => row.d), ['2026-11', '2027-01', '2027-02'])
+})
+
+const officialNov = {
+  d: '2026-11-30', regime: 'lean-offense', final: 'neutral',
+  audit: { score: 0.21, pillars: { growth: 0.2, credit: 0.33, liquidity: 0, inflation: 1 }, breakers: [], driver: 'tactical' },
+}
+
+test('live freezes the month-end official tier once and never rewrites it', () => {
+  const estimate = updateLive([], '2026-11-27', { tier: 'lean-offense', equityShare: 0.85 }, new Map())
+  // 12 月第一次完整运行：11 月按正式定档冻结（月中预估是偏进攻，正式是中性），12 月新增预估行。
+  const december = updateLive(estimate.rows, '2026-12-01', { tier: 'offense', equityShare: 1 }, new Map(), officialNov)
+  assert.deepEqual(december.rows[0], {
+    d: '2026-11', final: 'neutral', equityShare: 0.7, status: 'official', recordedAt: '2026-12-01', ruleVersion: 'v2.2',
+    regime: 'lean-offense', score: 0.21, pillars: { growth: 0.2, credit: 0.33, liquidity: 0, inflation: 1 },
+    breakers: [], driver: 'tactical', spxReturn: null, portfolioReturn: null,
+  })
+  assert.deepEqual(december.rows[1], { d: '2026-12', final: 'offense', equityShare: 1, status: 'estimate', spxReturn: null, portfolioReturn: null })
+  // 之后重算出不同的正式档位（如数据修订），冻结行不变；只回填实现的收益。
+  const revised = { ...officialNov, final: 'defense', audit: { ...officialNov.audit, score: -1 } }
+  const returns = new Map([['2027-01', { spx: 0.02, cash: 0.003 }]])
+  const february = updateLive(december.rows, '2027-02-03', { tier: 'offense', equityShare: 1 }, returns, revised)
+  assert.equal(february.rows[0].final, 'neutral')
+  assert.equal(february.rows[0].score, 0.21)
+  assert.equal(february.rows[0].recordedAt, '2026-12-01')
+  assert.equal(february.rows[0].spxReturn, 0.02)
+  near(february.rows[0].portfolioReturn, 0.02 * 0.7 + 0.003 * 0.3)
+})
+
+test('live skips freezing when official inputs are incomplete or precede the live start', () => {
+  const rows = updateLive([], '2026-11-27', { tier: 'lean-offense', equityShare: 0.85 }, new Map()).rows
+  const pending = updateLive(rows, '2026-12-01', { tier: 'offense', equityShare: 1 }, new Map(), undefined)
+  assert.equal(pending.rows[0].status, 'estimate')
+  const early = updateLive([], '2026-11-24', { tier: 'offense', equityShare: 1 }, new Map(), { ...officialNov, d: '2026-10-31' })
+  assert.deepEqual(early.rows.map(row => row.d), ['2026-11'])
+  // 旧文件里没有 status 的行按预估读入。
+  const legacy = updateLive([{ d: '2026-11', final: 'offense', equityShare: 1, spxReturn: null, portfolioReturn: null }],
+    '2026-12-01', { tier: 'offense', equityShare: 1 }, new Map(), officialNov)
+  assert.equal(legacy.rows[0].status, 'official')
 })
 
 test('t+2 aligns signal with the correct returns and crediting cash', () => {
@@ -879,18 +917,30 @@ test('refresh uses published observations now and preserves historical and live 
     ])
     assert.deepEqual(live.rows, [{
       d: '2026-11', final: november.current.final.tier, equityShare: november.current.final.equityShare,
-      spxReturn: null, portfolioReturn: null,
+      status: 'estimate', spxReturn: null, portfolioReturn: null,
     }])
     assert.notEqual(live.rows[0].final, 'offense')
     const february = await refresh({ directory, now: new Date('2027-02-01T12:00:00Z'), fetcher })
     const disk = JSON.parse(await readFile(output, 'utf8'))
     assert.deepEqual(disk.backtest.live, february.backtest.live)
-    const [settled, februaryRow] = disk.backtest.live.rows
+    const [settled, january, februaryRow] = disk.backtest.live.rows
+    assert.equal(settled.status, 'estimate')
     assert.equal(settled.final, november.current.final.tier)
     assert.equal(settled.equityShare, november.current.final.equityShare)
     near(settled.spxReturn, 100 / 1200)
     near(settled.portfolioReturn, 100 / 1200 * settled.equityShare + 2 / 1200 * (1 - settled.equityShare))
+    // 2 月第一次运行：上一个完整月份（1 月）按月末正式定档冻结，与月度回测最后一行一致。
+    const lastSignal = disk.backtest.timeline.at(-1)
+    assert.equal(lastSignal.d, '2027-01')
+    assert.equal(january.d, '2027-01')
+    assert.equal(january.status, 'official')
+    assert.equal(january.final, lastSignal.final)
+    assert.equal(january.regime, lastSignal.regime)
+    assert.equal(january.recordedAt, '2027-02-01')
+    assert.ok(january.score === null || Number.isFinite(january.score))
+    assert.deepEqual(Object.keys(january.pillars).sort(), ['credit', 'growth', 'inflation', 'liquidity'])
     assert.equal(februaryRow.d, '2027-02')
+    assert.equal(februaryRow.status, 'estimate')
     assert.equal(februaryRow.spxReturn, null)
     assert.ok(Math.abs(disk.current.pillars.reduce((sum, p) => sum + (p.contribution ?? 0), 0) - disk.current.regime.score) < 1e-9)
   } finally {

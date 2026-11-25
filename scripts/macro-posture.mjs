@@ -217,6 +217,10 @@ export async function refreshMacroPostureWithStats({
   const incompleteLine = vintages ? incompleteVintagesDisclosure(incomplete) : null
   if (incompleteLine) backtest.disclosures.push(incompleteLine)
   for (const [id, name] of Object.entries(OPTIONAL_FRED)) if (!raw[id].length) failedSources.push(name)
+  // 月末正式定档只在实时版本与宏观序列都完整时冻结进前推记录；否则留到下次运行。
+  const tierInputsComplete = vintages && !incomplete.length &&
+    !failedSources.includes(VINTAGE_SOURCE) && !failedSources.includes(OPTIONAL_FRED.SP500)
+  const freezable = tierInputsComplete ? historical.at(-1) : undefined
   const asOf = [...FRED_IDS.filter(id => id !== 'USREC'), 'price']
     .map(id => valueAt(currentPanel[id], today)?.availableOn)
     .concat(outer.map(item => item.observedOn)).filter(Boolean).sort().at(-1) ?? today
@@ -224,7 +228,7 @@ export async function refreshMacroPostureWithStats({
   const current = buildCurrent(asOf, currentFrame, historical, outer)
   const file = {
     ruleVersion: RULE_VERSION, generatedAt, tiers: TIER_DEFS,
-    current, outer, backtest: { ...backtest, live: updateLive(previous?.live?.rows ?? [], today, current.final, returns) }, failedSources,
+    current, outer, backtest: { ...backtest, live: updateLive(previous?.live?.rows ?? [], today, current.final, returns, freezable) }, failedSources,
   }
   validateComposite(file)
   const body = json(file)

@@ -170,10 +170,31 @@ export type Backtest = {
   singles: { componentId: string; label: string; negMonths: number; spread12: number | null; negHit12: number | null }[]
   /** 交易成本敏感度（完整模型）：单边成本 × 每月仓位变化 */
   costs: { turnoverPerYear: number; rows: { cost: number; cagr: number; drag: number }[] }
-  /** 规则冻结后的前推记录：每次刷新若进入新月份就追加一行，之后补上实现收益 */
-  live: { since: string; ruleVersion: string; rows: { d: string; final: TierId | null; equityShare: number | null; spxReturn: number | null; portfolioReturn: number | null }[] }
+  /**
+   * 规则冻结后的前推记录。当月行是月中预估（status: estimate），每次刷新覆盖；
+   * 上一个完整月份在次月第一次完整运行时按月末正式定档冻结（status: official），之后档位与依据不再改动，只补上实现收益。
+   */
+  live: { since: string; ruleVersion: string; rows: LiveRow[] }
   /** 每月一行：d=YYYY-MM，regime/final 档位，spx=月均价，rec=NBER 衰退 */
   timeline: { d: string; regime: TierId | null; final: TierId | null; spx: number; rec: 0 | 1 }[]
+}
+
+export type LiveRow = {
+  d: string
+  final: TierId | null
+  equityShare: number | null
+  /** 旧数据可能没有该字段，按预估处理 */
+  status?: 'estimate' | 'official'
+  /** 以下仅正式定档行有：冻结日期、规则版本与判定依据 */
+  recordedAt?: string
+  ruleVersion?: string
+  regime?: TierId | null
+  score?: number | null
+  pillars?: Record<string, number | null>
+  breakers?: string[]
+  driver?: string
+  spxReturn: number | null
+  portfolioReturn: number | null
 }
 
 export type CompositeFile = {
