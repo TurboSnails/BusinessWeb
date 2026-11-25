@@ -1,7 +1,7 @@
 import type { StrategySpec } from '../types'
 
 /**
- * 综合策略说明书 v1.0.5：补充月末收盘价口径的预注册检验（docs/research/month-end-close-2026-11-25/），
+ * 综合策略说明书 v1.0.5（已归档）：补充月末收盘价口径的预注册检验（docs/research/month-end-close-2026-11-25/），
  * 前推记录改为按月末正式定档冻结；仓位规则不变。
  * 规则出处：scripts/lib/macro-posture/model.mjs（v2.2）、scripts/lib/market-radar/indicators.mjs（radar-v1）、
  * scripts/lib/combined-strategy/（fusion-v1）。数字取自 2026-10 月底的数据文件。
@@ -9,7 +9,7 @@ import type { StrategySpec } from '../types'
 export const SPEC_V1_0_5: StrategySpec = {
   version: '1.0.5',
   date: '2026-11-25',
-  status: 'current',
+  status: 'archived',
   title: '综合策略说明书',
   summary: '美股仓位只按宏观攻守的五档定；市场雷达的冷热只决定这个阶段具体怎么做，不改变仓位。',
   components: [
