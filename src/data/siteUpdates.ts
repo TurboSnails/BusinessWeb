@@ -10,6 +10,13 @@ export interface SiteUpdate {
 // 使用中文描述结果和使用方式，不从 Git 提交、构建或日常数据刷新自动生成。
 export const SITE_UPDATES: readonly SiteUpdate[] = [
   {
+    id: 'strategy-lab-daily-execution',
+    date: '2026-11-25',
+    title: '「研究中」新增：宏观攻守能不能按日执行',
+    description: '事先写好方案再回测：生产代码本来就每天算一次档位（只用当天已能看到的数据），这次检验直接按日度档位调仓是否比按月好。三种写法（每天调、连续 5 天确认再调、降档按日升档按月）都没通过：按日执行能把最深的按日回撤从约 −33% 降到约 −26%，但主要靠 2020 年一次；每年调仓从约 4 次增加到 5–7 次，扣成本后夏普略低，1973–1999 年三种写法都更差。宏观仓位维持按月，月中的日度档位继续作为预告。',
+    href: '/invest/strategy-lab',
+  },
+  {
     id: 'strategy-lab-late-cycle',
     date: '2026-11-25',
     title: '新页签「研究中」：牛市后段到回调，策略到底有没有用',

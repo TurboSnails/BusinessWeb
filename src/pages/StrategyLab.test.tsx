@@ -3,6 +3,7 @@ import { render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import data from '../features/strategy-lab/data/late-cycle.json'
+import daily from '../features/strategy-lab/data/daily-execution.json'
 import { pct } from '../features/strategy-lab/LateCycleStudy'
 import StrategyLab, { STRATEGY_LAB_LEAD } from './StrategyLab'
 
@@ -43,6 +44,16 @@ describe('研究中页签', () => {
       expect(table.textContent).toContain(data.verdictB[id])
     }
     expect(table.textContent).toContain(pct(data.strategies.base.full.dailyMaxDd))
+  })
+
+  it('按日执行研究：研究列表、三个写法的预注册结论', () => {
+    renderPage()
+    const index = screen.getByRole('navigation', { name: '研究列表' })
+    expect(within(index).getAllByRole('link').map(a => a.getAttribute('href'))).toEqual(['#lab-daily-execution', '#lab-late-cycle'])
+    expect(screen.getByTestId('lab-daily-answer').textContent).toContain(daily.answer)
+    const table = screen.getByTestId('lab-daily-table')
+    for (const id of ['D1', 'D2', 'D3'] as const) expect(table.textContent).toContain(daily.verdict[id])
+    expect(within(table).getAllByRole('row')).toHaveLength(5)
   })
 
   it('百分比用「−」号', () => {

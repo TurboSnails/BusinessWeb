@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { Page } from '../components/ui'
+import DailyExecutionStudy from '../features/strategy-lab/DailyExecutionStudy'
 import LateCycleStudy from '../features/strategy-lab/LateCycleStudy'
 import TrioNav from '../features/combined-strategy/TrioNav'
 import '../styles/combined-strategy.css'
@@ -19,6 +20,13 @@ export default function StrategyLab(): JSX.Element {
         <TrioNav />
       </header>
       <div className="ss-body">
+        <nav className="lab-index" aria-label="研究列表">
+          <ol>
+            <li><a href="#lab-daily-execution">宏观攻守能不能按日执行</a><span>不通过，维持按月</span></li>
+            <li><a href="#lab-late-cycle">牛市后段到回调：策略做了什么，月中加刹车有没有用</a><span>只对宏观先转差的下跌有用；刹车不通过</span></li>
+          </ol>
+        </nav>
+        <DailyExecutionStudy />
         <LateCycleStudy />
       </div>
       <footer className="cs-footer" role="note">

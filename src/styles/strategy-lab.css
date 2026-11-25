@@ -18,3 +18,9 @@
 }
 
 .lab-study .cs-table th[scope='row'] { min-width: 9rem; }
+
+.lab-index { margin: 0 0 24px; }
+.lab-index ol { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
+.lab-index a { color: var(--text-primary); }
+.lab-index span { display: block; font-size: 0.82rem; color: var(--text-secondary); }
+.lab-study + .lab-study { margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border-subtle, #e5e5e0); }
