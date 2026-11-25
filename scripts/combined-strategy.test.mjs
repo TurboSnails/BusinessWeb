@@ -379,6 +379,10 @@ test('rationale 四条：道理原文 + 证据数字；fwd12≤0 去掉「仍涨
   assert.match(rationale[2].evidence, /57% 的时候为负/)
   assert.match(rationale[2].evidence, /2000 年以后 17 个月，平均 −10\.2%/)
   assert.match(rationale[3].evidence, /平均每年换档 3\.9 次/)
+  assert.match(rationale[3].evidence, /每天按档位调仓/)
+  assert.match(rationale[3].evidence, /扣成本后夏普 0\.586 → 0\.571/)
+  assert.match(rationale[3].evidence, /只来自 2020 年一次/)
+  assert.match(RATIONALE_THEORY[3].theory, /按日执行/)
 
   // fwd12 ≤ 0：去掉「仍涨」
   const negMatrix = matrix.map(c => (

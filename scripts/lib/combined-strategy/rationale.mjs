@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { formatReading } from '../macro-posture/format.mjs'
 import { findMatrixCell } from './matrix.mjs'
 
@@ -21,7 +22,7 @@ export const RATIONALE_THEORY = [
   },
   {
     title: '按月操作，不追日线',
-    theory: '规则是按月末定档、隔一个月生效检验出来的，月中的波动不在检验范围内。',
+    theory: '规则按月末定档、隔一个月生效。按日执行和「月中跌了就减仓」都专门检验过：急跌里能少亏几个点，但反弹里又少赚回去，扣成本后都不比按月好，所以月中只看、不动。',
   },
 ]
 
@@ -65,18 +66,31 @@ function evidence3({ matrix }) {
   return `${text}。`
 }
 
-function evidence4({ macroFull }) {
-  const s = Number(macroFull.switchesPerYear).toFixed(1)
-  return `回测里信号在月末生成、隔一个月才生效；平均每年换档 ${s} 次。`
+/** 按日执行检验（docs/research/daily-execution-2026-11-25，预注册）的结果；读不到时只给月度换档次数。 */
+export function loadDailyStudy(path = new URL('../../../docs/research/daily-execution-2026-11-25/results.json', import.meta.url)) {
+  try {
+    const r = JSON.parse(readFileSync(path, 'utf8'))
+    return { monthly: r.full.M, daily: r.full.D1 }
+  } catch {
+    return null
+  }
 }
 
-export function buildRationale({ matrix, fusion, buyholdFull }) {
+function evidence4({ macroFull, dailyStudy }) {
+  const s = Number(macroFull.switchesPerYear).toFixed(1)
+  const base = `回测里信号在月末生成、隔一个月才生效；平均每年换档 ${s} 次。`
+  if (!dailyStudy) return base
+  const { monthly: m, daily: d } = dailyStudy
+  return `${base}改成每天按档位调仓（2026-11-25 预注册检验）：每年调仓 ${m.tradesPerYear.toFixed(1)} → ${d.tradesPerYear.toFixed(1)} 次，扣成本后夏普 ${sharpeText(m.sharpeNet)} → ${sharpeText(d.sharpeNet)}；按日最大回撤 ${pct0(m.dailyMaxDd)} → ${pct0(d.dailyMaxDd)} 的改善只来自 2020 年一次，2020 年以外反而略深。月中按跌幅或跌破均线减仓的 4 种写法同样没通过。`
+}
+
+export function buildRationale({ matrix, fusion, buyholdFull, dailyStudy = loadDailyStudy() }) {
   const macroFull = fusion.rows.find(row => row.id === 'macro').full
   const evidences = [
     evidence1({ macroFull, buyholdFull }),
     evidence2({ matrix, fusion }),
     evidence3({ matrix }),
-    evidence4({ macroFull }),
+    evidence4({ macroFull, dailyStudy }),
   ]
   return RATIONALE_THEORY.map((row, i) => ({
     title: row.title,
