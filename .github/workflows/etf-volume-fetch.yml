@@ -1,0 +1,33 @@
+name: ETF volume research (fetch inputs)
+
+# 取 docs/research/etf-volume-2026-11-25 的输入数据（中证全收益指数含成交额）。本机常被中证接口限流，故在 Actions 上取，
+# 结果作为 artifact 上传，由人工核对后再提交到仓库。手动触发；本文件或 fetch.mjs 改动推送时自动跑一次。
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/etf-volume-fetch.yml'
+      - 'docs/research/etf-volume-2026-11-25/fetch.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Fetch CSIndex data with turnover
+        env:
+          CACHE_DIR: ${{ runner.temp }}/volume-cache
+        run: node docs/research/etf-volume-2026-11-25/fetch.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: etf-volume-inputs
+          path: docs/research/etf-volume-2026-11-25/inputs.json
+          retention-days: 7
