@@ -1,5 +1,6 @@
 import React from 'react'
 import { TableWrap } from '../../components/ui'
+import { BarLegend, CompareTable, FilterChips, LossBars, RatioBar, type BarSeries, type CompareCol, type CompareRow } from './LabTable'
 import { HEAT_LABEL, TIER_LABEL } from '../combined-strategy/labels'
 import data from './data/late-cycle.json'
 
@@ -30,26 +31,42 @@ const tierLabel = (id: string | null): string => (id ? TIER_LABEL[id as keyof ty
 const heatLabel = (id: string | null): string => (id ? HEAT_LABEL[id as keyof typeof HEAT_LABEL] ?? id : '—')
 const stats = (id: StratId) => data.strategies[id]
 
+type EventFilter = 'all' | 'rec' | 'non' | 'late'
+type LcEvent = (typeof data.events)[number]
+
+const isLate = (e: LcEvent): boolean => e.heatAtPeak === 'hot' && (e.tierAtPeak === 'offense' || e.tierAtPeak === 'lean-offense')
+const FILTERS: { key: EventFilter; label: string; test: (e: LcEvent) => boolean }[] = [
+  { key: 'all', label: '全部', test: () => true },
+  { key: 'rec', label: '伴随衰退', test: e => e.recession },
+  { key: 'non', label: '不伴随衰退', test: e => !e.recession },
+  { key: 'late', label: '扩张后段（偏热且进攻侧）', test: isLate },
+]
+const LOSS_SERIES: BarSeries[] = [
+  { key: 'spx', label: '标普', tone: 'ref' },
+  { key: 'base', label: '本策略', tone: 'main' },
+  { key: 'static70', label: '恒定七成', tone: 'alt' },
+]
+
 function GroupTable(): JSX.Element {
   return (
-    <TableWrap label="按类型汇总的下跌与反弹参与度">
-      <table className="cs-table" data-testid="lab-groups">
+    <TableWrap label="按类型汇总的下跌与反弹参与度" className="lab-wrap">
+      <table className="cs-table lab-table" data-testid="lab-groups">
         <thead>
           <tr>
-            <th scope="col">回调类型</th>
+            <th scope="col" className="lab-sticky">回调类型</th>
             <th scope="col" className="num">次数</th>
-            <th scope="col" className="num">下跌参与度</th>
-            <th scope="col" className="num">反弹参与度</th>
+            <th scope="col">下跌参与度<span className="lab-th-sub">越短越抗跌 · 虚线为恒定七成 0.7</span></th>
+            <th scope="col">反弹参与度<span className="lab-th-sub">越长反弹拿得越多</span></th>
             <th scope="col" className="num">低点前降过仓</th>
           </tr>
         </thead>
         <tbody>
           {data.groups.map(g => (
-            <tr key={g.label} className={g.label.includes('扩张后段') ? 'is-highlight' : undefined}>
-              <th scope="row">{g.label}</th>
+            <tr key={g.label} className={g.label.includes('扩张后段') ? 'is-base' : undefined}>
+              <th scope="row" className="lab-sticky">{g.label}</th>
               <td className="num">{g.n}</td>
-              <td className="num">{num(g.downMedian)}</td>
-              <td className="num">{num(g.upMedian)}</td>
+              <td><RatioBar value={g.downMedian} /></td>
+              <td><RatioBar value={g.upMedian} /></td>
               <td className="num">{g.cutBeforeTrough} / {g.n}</td>
             </tr>
           ))}
@@ -60,84 +77,92 @@ function GroupTable(): JSX.Element {
 }
 
 function EventTable(): JSX.Element {
+  const [filter, setFilter] = React.useState<EventFilter>('all')
+  const test = FILTERS.find(f => f.key === filter)!.test
+  const rows = data.events.filter(test)
+  const scale = Math.max(...data.events.flatMap(e => [Math.abs(e.spxLoss), Math.abs(e.loss.base), Math.abs(e.loss.static70)]))
   return (
-    <TableWrap label="1973 年以来每次 10% 以上的回调">
-      <table className="cs-table" data-testid="lab-events">
-        <thead>
-          <tr>
-            <th scope="col">高点 → 低点</th>
-            <th scope="col" className="num">跌幅</th>
-            <th scope="col">衰退</th>
-            <th scope="col">高点前月末</th>
-            <th scope="col" className="num">仓位（高点 → 低点）</th>
-            <th scope="col" className="num">首次降仓</th>
-            <th scope="col" className="num">下跌：标普 / 本策略 / 恒定七成</th>
-            <th scope="col" className="num">反弹：标普 / 本策略</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.events.map(e => (
-            <tr key={e.peak}>
-              <th scope="row">{e.peak} → {e.trough}</th>
-              <td className="num">{pct(e.depth)}</td>
-              <td>{e.recession ? '是' : '否'}</td>
-              <td>{tierLabel(e.tierAtPeak)} · {heatLabel(e.heatAtPeak)}</td>
-              <td className="num">{pct(e.weightAtPeak, 0)} → {pct(e.weightAtTrough, 0)}</td>
-              <td className="num">{e.firstCutDays == null ? '低点前未降' : `第 ${e.firstCutDays} 个交易日`}</td>
-              <td className="num">{pct(e.spxLoss)} / {pct(e.loss.base)} / {pct(e.loss.static70)}</td>
-              <td className="num">{pct(e.spxGain)} / {pct(e.gain.base)}{e.recoveredInWindow ? '' : '（未收复）'}</td>
+    <>
+      <div className="lab-toolbar">
+        <FilterChips
+          label="按回调类型筛选"
+          options={FILTERS.map(f => ({ key: f.key, label: f.label, count: data.events.filter(f.test).length }))}
+          value={filter}
+          onChange={setFilter}
+        />
+        <BarLegend series={LOSS_SERIES} note="条越长跌得越多" />
+      </div>
+      <TableWrap label="1973 年以来每次 10% 以上的回调" className="lab-wrap">
+        <table className="cs-table lab-table lab-events" data-testid="lab-events">
+          <thead>
+            <tr>
+              <th scope="col" className="lab-sticky">回调</th>
+              <th scope="col">下跌（高点 → 低点）</th>
+              <th scope="col" className="num">下跌参与度<span className="lab-th-sub">本策略 ÷ 标普</span></th>
+              <th scope="col" className="num">反弹（低点 → 收复）</th>
+              <th scope="col">高点前月末</th>
+              <th scope="col">仓位</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </TableWrap>
+          </thead>
+          <tbody>
+            {rows.map(e => {
+              const ratio = e.spxLoss ? e.loss.base / e.spxLoss : null
+              return (
+                <tr key={e.peak}>
+                  <th scope="row" className="lab-sticky">
+                    <span className="lab-name lab-dates" title={`${e.peak} → ${e.trough}`}><span>{e.peak} →</span><span>{e.trough}</span></span>
+                    <span className="lab-rule">从前高跌 {pct(e.depth)} · {e.peakToTroughDays} 个交易日</span>
+                  </th>
+                  <td>
+                    <LossBars
+                      series={LOSS_SERIES}
+                      values={{ spx: e.spxLoss, base: e.loss.base, static70: e.loss.static70 }}
+                      scale={scale}
+                      caption={`${e.peak} 下跌对比`}
+                    />
+                  </td>
+                  <td className="num"><span className="lab-val">{num(ratio)}</span></td>
+                  <td className="num">
+                    <span className="lab-pair"><span>标普</span>{pct(e.spxGain, 1, true)}</span>
+                    <span className="lab-pair"><span>本策略</span>{pct(e.gain.base, 1, true)}</span>
+                    {e.recoveredInWindow ? null : <span className="lab-rule">（未收复）</span>}
+                  </td>
+                  <td>
+                    <span className="lab-nowrap">{tierLabel(e.tierAtPeak)} · {heatLabel(e.heatAtPeak)}</span>
+                    <span className="lab-tags">
+                      {e.recession ? <span className="lab-tag lab-tag--rec">衰退</span> : null}
+                      {isLate(e) ? <span className="lab-tag lab-tag--late">扩张后段</span> : null}
+                    </span>
+                  </td>
+                  <td>
+                    <span className="lab-nowrap lab-val">{pct(e.weightAtPeak, 0)} → {pct(e.weightAtTrough, 0)}</span>
+                    <span className="lab-rule">{e.firstCutDays == null ? '低点前未降仓' : `第 ${e.firstCutDays} 个交易日首次降仓`}</span>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </TableWrap>
+    </>
   )
 }
 
 function CandidateTable(): JSX.Element {
-  const base = stats('base')
-  return (
-    <TableWrap label="四个月中刹车候选与基线">
-      <table className="cs-table" data-testid="lab-candidates">
-        <thead>
-          <tr>
-            <th scope="col">写法</th>
-            <th scope="col" className="num">训练期夏普<br />1973–1999</th>
-            <th scope="col" className="num">验证期夏普<br />2000–2026</th>
-            <th scope="col" className="num">全样本夏普<br />（扣 0.1% 成本）</th>
-            <th scope="col" className="num">按日最大回撤</th>
-            <th scope="col" className="num">年换手</th>
-            <th scope="col">结论</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr className="is-highlight">
-            <th scope="row">v2.2 基线（不加刹车）</th>
-            <td className="num">{num(base.train.sharpe, 3)}</td>
-            <td className="num">{num(base.valid.sharpe, 3)}</td>
-            <td className="num">{num(base.full.sharpe, 3)}（{num(base.full.sharpeNet, 3)}）</td>
-            <td className="num">{pct(base.full.dailyMaxDd)}</td>
-            <td className="num">{pct(base.full.turnoverPerYear, 0)}</td>
-            <td>—</td>
-          </tr>
-          {CANDIDATES.map(c => {
-            const s = stats(c.id)
-            return (
-              <tr key={c.id}>
-                <th scope="row">{c.id} {c.name}<span className="lab-rule">{c.rule}</span></th>
-                <td className="num">{num(s.train.sharpe, 3)}</td>
-                <td className="num">{num(s.valid.sharpe, 3)}</td>
-                <td className="num">{num(s.full.sharpe, 3)}（{num(s.full.sharpeNet, 3)}）</td>
-                <td className="num">{pct(s.full.dailyMaxDd)}</td>
-                <td className="num">{pct(s.full.turnoverPerYear, 0)}</td>
-                <td>{data.verdictB[c.id]}</td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
-    </TableWrap>
-  )
+  type S = (typeof data.strategies)['base']
+  const rows: CompareRow<S>[] = [
+    { id: 'base', name: 'v2.2 基线', rule: '不加刹车', stats: stats('base') },
+    ...CANDIDATES.map(c => ({ id: c.id, name: `${c.id} ${c.name}`, rule: c.rule, stats: stats(c.id), verdict: data.verdictB[c.id] })),
+  ]
+  const cols: CompareCol<S>[] = [
+    { key: 'train', head: '训练期夏普', sub: '1973–1999', get: s => s.train.sharpe, fmt: v => num(v, 3), threshold: 0.02 },
+    { key: 'valid', head: '验证期夏普', sub: '2000–2026', get: s => s.valid.sharpe, fmt: v => num(v, 3), better: 'higher' },
+    { key: 'full', head: '全样本夏普', get: s => s.full.sharpe, fmt: v => num(v, 3), better: 'higher' },
+    { key: 'net', head: '扣 0.1% 成本', sub: '全样本夏普', get: s => s.full.sharpeNet, fmt: v => num(v, 3), better: 'higher' },
+    { key: 'dd', head: '按日最大回撤', get: s => s.full.dailyMaxDd, fmt: v => pct(v), better: 'higher', unit: 'pp' },
+    { key: 'turn', head: '年换手', get: s => s.full.turnoverPerYear, fmt: v => pct(v, 0), better: 'lower', unit: 'pp' },
+  ]
+  return <CompareTable label="四个月中刹车候选与基线" testId="lab-candidates" baseId="base" rows={rows} cols={cols} />
 }
 
 export default function LateCycleStudy(): JSX.Element {

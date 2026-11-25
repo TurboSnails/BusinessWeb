@@ -2,6 +2,7 @@ import React from 'react'
 import { TableWrap } from '../../components/ui'
 import data from './data/vol-target.json'
 import { pct } from './LateCycleStudy'
+import { BarLegend, CompareTable, LossBars, type BarSeries, type CompareCol, type CompareRow } from './LabTable'
 
 type Id = 'base' | 'VT1' | 'VT2' | 'VT3'
 const ROWS: { id: Id; name: string; rule: string }[] = [
@@ -17,75 +18,65 @@ function num(value: number | null | undefined, digits = 3): string {
   return value < 0 ? `−${Math.abs(value).toFixed(digits)}` : value.toFixed(digits)
 }
 
+type S = (typeof data.strategies)['base']
+const VT_SERIES: BarSeries[] = [
+  { key: 'spx', label: '标普', tone: 'ref' },
+  { key: 'base', label: '现行', tone: 'main' },
+  { key: 'baseScaled', label: '同等仓位', tone: 'main-soft' },
+  { key: 'VT3', label: 'VT3', tone: 'alt' },
+]
+
 function ResultTable(): JSX.Element {
-  return (
-    <TableWrap label="波动率目标三个写法与基线对比">
-      <table className="cs-table" data-testid="lab-vt-table">
-        <thead>
-          <tr>
-            <th scope="col">写法</th>
-            <th scope="col" className="num">训练期夏普<br />1973–1999</th>
-            <th scope="col" className="num">验证期夏普<br />2000–2026</th>
-            <th scope="col" className="num">全样本夏普</th>
-            <th scope="col" className="num">年化</th>
-            <th scope="col" className="num">按日最大回撤</th>
-            <th scope="col" className="num">平均仓位</th>
-            <th scope="col" className="num">年换手</th>
-            <th scope="col">结论</th>
-          </tr>
-        </thead>
-        <tbody>
-          {ROWS.map(row => {
-            const s = data.strategies[row.id]
-            return (
-              <tr key={row.id} className={row.id === 'base' ? 'is-highlight' : undefined}>
-                <th scope="row">{row.name}<span className="lab-rule">{row.rule}</span></th>
-                <td className="num">{num(s.train.sharpeNet)}</td>
-                <td className="num">{num(s.valid.sharpeNet)}</td>
-                <td className="num">{num(s.full.sharpeNet)}</td>
-                <td className="num">{pct(s.full.cagr)}</td>
-                <td className="num">{pct(s.full.dailyMaxDd)}</td>
-                <td className="num">{pct(s.full.avgEquity, 0)}</td>
-                <td className="num">{pct(s.full.turnoverPerYear, 0)}</td>
-                <td>{row.id === 'base' ? '—' : data.verdict[row.id]}</td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
-    </TableWrap>
-  )
+  const rows: CompareRow<S>[] = ROWS.map(r => ({ id: r.id, name: r.name, rule: r.rule, stats: data.strategies[r.id], verdict: r.id === 'base' ? undefined : data.verdict[r.id] }))
+  const cols: CompareCol<S>[] = [
+    { key: 'train', head: '训练期夏普', sub: '1973–1999 · 扣成本', get: s => s.train.sharpeNet, fmt: v => num(v), threshold: 0.02 },
+    { key: 'valid', head: '验证期夏普', sub: '2000–2026 · 扣成本', get: s => s.valid.sharpeNet, fmt: v => num(v), better: 'higher' },
+    { key: 'full', head: '全样本夏普', sub: '扣成本', get: s => s.full.sharpeNet, fmt: v => num(v), better: 'higher' },
+    { key: 'cagr', head: '年化', get: s => s.full.cagr, fmt: v => pct(v), better: 'higher', unit: 'pp' },
+    { key: 'dd', head: '按日最大回撤', get: s => s.full.dailyMaxDd, fmt: v => pct(v), better: 'higher', unit: 'pp' },
+    { key: 'avg', head: '平均仓位', get: s => s.full.avgEquity, fmt: v => pct(v, 0), unit: 'pp' },
+    { key: 'turn', head: '年换手', get: s => s.full.turnoverPerYear, fmt: v => pct(v, 0), better: 'lower', unit: 'pp' },
+  ]
+  return <CompareTable label="波动率目标三个写法与基线对比" testId="lab-vt-table" baseId="base" rows={rows} cols={cols} />
 }
 
 function EventTable(): JSX.Element {
   const rows = data.events.filter(e => EVENT_PEAKS.includes(e.peak))
+  const scale = Math.max(...rows.flatMap(e => [e.spxLoss, e.loss.base, e.loss.baseScaled, e.loss.VT3].map(Math.abs)))
   return (
-    <TableWrap label="高位回落时的下跌与反弹">
-      <table className="cs-table" data-testid="lab-vt-events">
-        <thead>
-          <tr>
-            <th scope="col">回调（高点 → 低点）</th>
-            <th scope="col" className="num">标普</th>
-            <th scope="col" className="num">现行</th>
-            <th scope="col" className="num">现行缩到同等仓位</th>
-            <th scope="col" className="num">VT3</th>
-            <th scope="col" className="num">反弹：现行 / VT3</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map(e => (
-            <tr key={e.peak}>
-              <th scope="row">{e.peak} → {e.trough}</th>
-              <td className="num">{pct(e.spxLoss)}</td>
-              <td className="num">{pct(e.loss.base)}</td>
-              <td className="num">{pct(e.loss.baseScaled)}</td>
-              <td className="num">{pct(e.loss.VT3)}</td>
-              <td className="num">{pct(e.gain.base)} / {pct(e.gain.VT3)}</td>
+    <>
+      <BarLegend series={VT_SERIES} note="同等仓位 = 现行规则按比例缩到和 VT3 一样的平均仓位；条越长跌得越多" />
+      <TableWrap label="高位回落时的下跌与反弹" className="lab-wrap">
+        <table className="cs-table lab-table lab-events" data-testid="lab-vt-events">
+          <thead>
+            <tr>
+              <th scope="col" className="lab-sticky">回调（高点 → 低点）</th>
+              <th scope="col">下跌</th>
+              <th scope="col" className="num">反弹（低点 → 收复）</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </TableWrap>
+          </thead>
+          <tbody>
+            {rows.map(e => (
+              <tr key={e.peak}>
+                <th scope="row" className="lab-sticky"><span className="lab-name lab-dates" title={`${e.peak} → ${e.trough}`}><span>{e.peak} →</span><span>{e.trough}</span></span></th>
+                <td>
+                  <LossBars
+                    series={VT_SERIES}
+                    values={{ spx: e.spxLoss, base: e.loss.base, baseScaled: e.loss.baseScaled, VT3: e.loss.VT3 }}
+                    scale={scale}
+                    caption={`${e.peak} 下跌对比`}
+                  />
+                </td>
+                <td className="num">
+                  <span className="lab-pair"><span>现行</span>{pct(e.gain.base, 1, true)}</span>
+                  <span className="lab-pair"><span>VT3</span>{pct(e.gain.VT3, 1, true)}</span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </TableWrap>
+    </>
   )
 }
 

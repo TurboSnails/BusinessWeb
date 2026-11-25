@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import data from '../features/strategy-lab/data/late-cycle.json'
@@ -40,7 +40,7 @@ describe('研究中页签', () => {
     const events = screen.getByTestId('lab-events')
     expect(within(events).getAllByRole('row')).toHaveLength(data.events.length + 1)
     const e2020 = data.events.find(e => e.peak === '2020-02-19')!
-    expect(within(events).getByText(`${e2020.peak} → ${e2020.trough}`)).toBeTruthy()
+    expect(within(events).getByTitle(`${e2020.peak} → ${e2020.trough}`)).toBeTruthy()
     expect(screen.getByTestId('lab-groups').textContent).toContain('偏热且进攻侧（扩张后段）')
     expect(screen.getByTestId('lab-verdict-a').textContent).toContain(data.verdictA)
   })
@@ -49,8 +49,9 @@ describe('研究中页签', () => {
     renderPage()
     const table = screen.getByTestId('lab-candidates')
     for (const id of ['K1', 'K2', 'K3', 'K4'] as const) {
-      expect(table.textContent).toContain(data.verdictB[id])
+      expect(within(table).getByTitle(data.verdictB[id]).textContent).toBe('不通过')
     }
+    expect(within(table).getAllByText(/未达 \+0\.02/)).toHaveLength(4)
     expect(table.textContent).toContain(pct(data.strategies.base.full.dailyMaxDd))
   })
 
@@ -60,7 +61,7 @@ describe('研究中页签', () => {
     expect(within(index).getAllByRole('link').map(a => a.getAttribute('href'))).toEqual(['#lab-v01', '#lab-multi-asset', '#lab-vol-confirm', '#lab-etf-volume', '#lab-vol-target', '#lab-daily-execution', '#lab-late-cycle'])
     expect(screen.getByTestId('lab-daily-answer').textContent).toContain(daily.answer)
     const table = screen.getByTestId('lab-daily-table')
-    for (const id of ['D1', 'D2', 'D3'] as const) expect(table.textContent).toContain(daily.verdict[id])
+    for (const id of ['D1', 'D2', 'D3'] as const) expect(within(table).getByTitle(daily.verdict[id]).textContent).toBe('不通过')
     expect(within(table).getAllByRole('row')).toHaveLength(5)
   })
 
@@ -76,7 +77,7 @@ describe('研究中页签', () => {
   it('波动率目标：三个写法的结论、同等仓位对照与当前读数', () => {
     renderPage()
     const table = screen.getByTestId('lab-vt-table')
-    for (const id of ['VT1', 'VT2', 'VT3'] as const) expect(table.textContent).toContain(vt.verdict[id])
+    for (const id of ['VT1', 'VT2', 'VT3'] as const) expect(within(table).getByTitle(vt.verdict[id]).textContent).toBe('不通过')
     expect(within(screen.getByTestId('lab-vt-events')).getAllByRole('row')).toHaveLength(9)
     expect(screen.getByTestId('lab-vt-now').textContent).toContain(vt.sigmaNow.k.toFixed(2))
   })
@@ -101,6 +102,19 @@ describe('研究中页签', () => {
     expect(within(screen.getByTestId('lab-multi-checks')).getAllByRole('row')).toHaveLength(6)
     expect(multi.verdict.passed).toEqual([])
     expect(screen.getByTestId('lab-multi-answer').textContent).toContain('美股上限 80%')
+  })
+
+  it('回调事件表可按类型筛选，扩张后段只剩对应几次', () => {
+    renderPage()
+    const events = screen.getByTestId('lab-events')
+    const group = screen.getByRole('group', { name: '按回调类型筛选' })
+    const late = data.groups.find(g => g.label.includes('扩张后段'))!
+    fireEvent.click(within(group).getByRole('button', { name: /扩张后段/ }))
+    expect(within(group).getByRole('button', { name: /扩张后段/ }).getAttribute('aria-pressed')).toBe('true')
+    expect(within(events).getAllByRole('row')).toHaveLength(late.n + 1)
+    const rec = data.groups.find(g => g.label === '伴随衰退')!
+    fireEvent.click(within(group).getByRole('button', { name: /^伴随衰退/ }))
+    expect(within(events).getAllByRole('row')).toHaveLength(rec.n + 1)
   })
 
   it('百分比用「−」号', () => {

@@ -1,7 +1,7 @@
 import React from 'react'
-import { TableWrap } from '../../components/ui'
 import data from './data/daily-execution.json'
 import { pct } from './LateCycleStudy'
+import { CompareTable, type CompareCol, type CompareRow } from './LabTable'
 
 type Id = 'M' | 'D1' | 'D2' | 'D3'
 const ROWS: { id: Id; name: string; rule: string }[] = [
@@ -17,41 +17,17 @@ function num(value: number | null | undefined, digits = 3): string {
 }
 
 function ResultTable(): JSX.Element {
-  return (
-    <TableWrap label="按日执行三个写法与按月对比">
-      <table className="cs-table" data-testid="lab-daily-table">
-        <thead>
-          <tr>
-            <th scope="col">写法</th>
-            <th scope="col" className="num">训练期夏普<br />1973–1999</th>
-            <th scope="col" className="num">验证期夏普<br />2000–2026</th>
-            <th scope="col" className="num">全样本夏普</th>
-            <th scope="col" className="num">年化</th>
-            <th scope="col" className="num">按日最大回撤</th>
-            <th scope="col" className="num">每年调仓</th>
-            <th scope="col">结论</th>
-          </tr>
-        </thead>
-        <tbody>
-          {ROWS.map(row => {
-            const s = data.strategies[row.id]
-            return (
-              <tr key={row.id} className={row.id === 'M' ? 'is-highlight' : undefined}>
-                <th scope="row">{row.name}<span className="lab-rule">{row.rule}</span></th>
-                <td className="num">{num(s.train.sharpeNet)}</td>
-                <td className="num">{num(s.valid.sharpeNet)}</td>
-                <td className="num">{num(s.full.sharpeNet)}</td>
-                <td className="num">{pct(s.full.cagr)}</td>
-                <td className="num">{pct(s.full.dailyMaxDd)}</td>
-                <td className="num">{s.full.tradesPerYear.toFixed(1)} 次</td>
-                <td>{row.id === 'M' ? '—' : data.verdict[row.id]}</td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
-    </TableWrap>
-  )
+  type S = (typeof data.strategies)['M']
+  const rows: CompareRow<S>[] = ROWS.map(r => ({ id: r.id, name: r.name, rule: r.rule, stats: data.strategies[r.id], verdict: r.id === 'M' ? undefined : data.verdict[r.id] }))
+  const cols: CompareCol<S>[] = [
+    { key: 'train', head: '训练期夏普', sub: '1973–1999 · 扣成本', get: s => s.train.sharpeNet, fmt: v => num(v), threshold: 0.02 },
+    { key: 'valid', head: '验证期夏普', sub: '2000–2026 · 扣成本', get: s => s.valid.sharpeNet, fmt: v => num(v), better: 'higher' },
+    { key: 'full', head: '全样本夏普', sub: '扣成本', get: s => s.full.sharpeNet, fmt: v => num(v), better: 'higher' },
+    { key: 'cagr', head: '年化', get: s => s.full.cagr, fmt: v => pct(v), better: 'higher', unit: 'pp' },
+    { key: 'dd', head: '按日最大回撤', get: s => s.full.dailyMaxDd, fmt: v => pct(v), better: 'higher', unit: 'pp' },
+    { key: 'trades', head: '每年调仓', get: s => s.full.tradesPerYear, fmt: v => (v == null ? '—' : `${v.toFixed(1)} 次`) },
+  ]
+  return <CompareTable label="按日执行三个写法与按月对比" testId="lab-daily-table" baseId="M" rows={rows} cols={cols} />
 }
 
 export default function DailyExecutionStudy(): JSX.Element {
