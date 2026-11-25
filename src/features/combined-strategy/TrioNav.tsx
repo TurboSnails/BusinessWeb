@@ -6,13 +6,14 @@ const LINKS = [
   { path: '/invest/strategy', role: '结论', name: '综合策略' },
   { path: '/invest/macro-posture', role: '宏观依据', name: '宏观攻守' },
   { path: '/invest/market-radar', role: '股市依据', name: '市场雷达' },
+  { path: '/invest/strategy-lab', role: '待验证', name: '研究中' },
 ] as const
 
 function isCurrent(pathname: string, path: string): boolean {
   return pathname === path || pathname.startsWith(`${path}/`)
 }
 
-/** 综合策略 / 宏观攻守 / 市场雷达 三页互链；当前页 aria-current + 选中态 */
+/** 综合策略 / 宏观攻守 / 市场雷达三页 + 研究中页签互链；当前页 aria-current + 选中态 */
 export default function TrioNav(): JSX.Element {
   const { pathname } = useLocation()
 

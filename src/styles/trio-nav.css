@@ -44,11 +44,11 @@
   border-bottom-color: var(--text-primary);
 }
 
-/* 窄屏：三等分，角色在上、页名在下，不换行不留孤立分隔符 */
+/* 窄屏：四等分，角色在上、页名在下，不换行不留孤立分隔符 */
 @media (max-width: 480px) {
   .trio-nav__list {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 0 8px;
   }
 

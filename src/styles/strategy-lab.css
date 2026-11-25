@@ -1,0 +1,20 @@
+/* 研究中页签 · lab-*；版式复用 ss-* 与 .cs-table */
+.lab-status {
+  margin: 0 0 4px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.lab-study h2 { margin-top: 0; }
+
+.lab-answer { margin-top: 12px; }
+
+.lab-rule {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.lab-study .cs-table th[scope='row'] { min-width: 9rem; }
